@@ -467,7 +467,7 @@ function readonlyMessage(binding: Binding, info: TrackedInfo) {
   }
 }
 
-/** 读取一项 props 解构：键名、本地变量名、默认值，以及是否 _bindable */
+/** 读取一项 props 解构：键名（驼峰）、本地变量名、默认值，以及是否 _bindable */
 function readPropPattern(property: NodePath) {
   if (!property.isObjectProperty() || property.node.computed) {
     throw fail(property, 'props 解构不支持计算属性名');
@@ -496,7 +496,9 @@ function readPropPattern(property: NodePath) {
   if (!value.isIdentifier()) {
     throw fail(value, 'props 不支持嵌套解构：先解构出整个值，再在函数体里读取它的属性');
   }
-  return { key, local: value.node.name, fallback, isBindable };
+  // Vue 把声明的 prop 名与传入的属性名都转成驼峰：'aria-label' 要按 ariaLabel 读取
+  const camelKey = key.replace(/-(\w)/g, (_, c: string) => c.toUpperCase());
+  return { key: camelKey, local: value.node.name, fallback, isBindable };
 }
 
 /**

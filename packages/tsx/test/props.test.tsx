@@ -109,6 +109,34 @@ describe('rest 与组件信息', () => {
     );
   });
 
+  it('带连字符的 prop 名按驼峰读取，双向绑定照常写回', async () => {
+    const Labeled = _component(
+      ({
+        'aria-label': label = '',
+        'model-value': text = _bindable(''),
+      }: {
+        'aria-label'?: string;
+        'model-value'?: string;
+      }) =>
+        () => (
+          <button type="button" onClick={() => (text = `${text}!`)}>
+            {label}/{text}
+          </button>
+        ),
+    );
+    const text = ref('a');
+    const el = mount(() => <Labeled aria-label="名字" v-model:model-value={text.value} />);
+    expect(el.textContent).toBe('名字/a');
+    el.querySelector('button')!.click();
+    await nextTick();
+    expect(text.value).toBe('a!');
+    expect((Labeled as unknown as { props: string[] }).props).toEqual([
+      'ariaLabel',
+      'modelValue',
+      'onUpdate:modelValue',
+    ]);
+  });
+
   it('组件名取自变量名，props 声明自动生成', () => {
     const component = Badge as unknown as { name: string; props: string[] };
     expect(component.name).toBe('Badge');
