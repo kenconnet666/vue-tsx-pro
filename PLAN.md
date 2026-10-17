@@ -65,6 +65,20 @@ VitePress 1.6.4 稳定版内置 Vite 5，与我们的 Vite 8 不匹配；2.0 alp
 
 ---
 
+### 2.7 组件库依赖：算法与数据用成熟库，组件自己写
+
+| 用途     | 选择                            | 说明                                                                                     |
+| -------- | ------------------------------- | ---------------------------------------------------------------------------------------- |
+| 浮层定位 | `@floating-ui/dom`              | 只算位置；弹层本身优先用原生 Popover API / `<dialog>`                                    |
+| 图标     | `@lucide/icons`                 | 只有图标数据，`import { Check } from '@lucide/icons'` 按名导入可 tree-shake；自己写 Icon |
+| 日期     | `@internationalized/date`       | 日历运算、时区、地区周起始日、非公历；Temporal 在 Safari 稳定版尚不可用                  |
+| 精确数字 | `decimal.js`                    | 数字输入、金额等十进制运算                                                               |
+| 焦点     | `tabbable`                      | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                         |
+| 校验     | `@standard-schema/spec`（接口） | 表单只依赖 Standard Schema 接口，使用方可选 zod、valibot 等；文档与测试用 zod            |
+| 虚拟滚动 | 自己实现                        | 参考 `@tanstack/virtual-core` 等成熟实现的算法（测量、预渲染区、动态高度）               |
+
+不使用无样式组件库（Reka UI、Ark UI、zag.js 等）：它们本身就是组件逻辑。依赖写在 `@vue-tsx-pro/ui` 的 `dependencies`，构建时全部外置，由使用方安装；`packages/ui/test/dependencies.test.ts` 在本工具链下逐一验证。
+
 ## 3. 仓库结构
 
 ```
@@ -172,22 +186,24 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 
 以下版本均为 2026-10-17 从 npm 读取，标 ✓ 的已在仓库中实际使用。
 
-| 用途        | 选择                                                       | 版本              |
-| ----------- | ---------------------------------------------------------- | ----------------- |
-| 运行时      | Node 24 LTS                                                | 24.18.0 ✓         |
-| 包管理      | pnpm                                                       | 12.14.0 ✓         |
-| 语言        | TypeScript                                                 | 6.0.3 ✓           |
-| 框架        | Vue                                                        | 3.5.44 ✓          |
-| JSX 编译    | @vitejs/plugin-vue-jsx（带入 @vue/babel-plugin-jsx 2.0.1） | 5.1.6 ✓           |
-| 符文编译    | Babel                                                      | 7.29.7 ✓          |
-| 样式        | StyleX + @stylexjs/unplugin                                | 0.19.1 ✓          |
-| 构建        | Vite                                                       | 8.3.4 ✓           |
-| 测试        | Vitest（含浏览器模式）                                     | 5.0.5 ✓           |
-| E2E         | Playwright                                                 | 1.64.1            |
-| 文档        | VitePress                                                  | 2.0.0-alpha.20 ✓  |
-| 库打包      | tsdown                                                     | 0.23.1 ✓          |
-| 发布        | changesets                                                 | 3.0.3             |
-| lint / 格式 | oxlint / prettier                                          | 1.88.0 / 3.9.10 ✓ |
+| 用途        | 选择                                                       | 版本                      |
+| ----------- | ---------------------------------------------------------- | ------------------------- |
+| 运行时      | Node 24 LTS                                                | 24.18.0 ✓                 |
+| 包管理      | pnpm                                                       | 12.14.0 ✓                 |
+| 语言        | TypeScript                                                 | 6.0.3 ✓                   |
+| 框架        | Vue                                                        | 3.5.44 ✓                  |
+| JSX 编译    | @vitejs/plugin-vue-jsx（带入 @vue/babel-plugin-jsx 2.0.1） | 5.1.6 ✓                   |
+| 符文编译    | Babel                                                      | 7.29.7 ✓                  |
+| 样式        | StyleX + @stylexjs/unplugin                                | 0.19.1 ✓                  |
+| 构建        | Vite                                                       | 8.3.4 ✓                   |
+| 测试        | Vitest（含浏览器模式）                                     | 5.0.5 ✓                   |
+| E2E         | Playwright                                                 | 1.64.1                    |
+| 文档        | VitePress                                                  | 2.0.0-alpha.20 ✓          |
+| 库打包      | tsdown                                                     | 0.23.1 ✓                  |
+| 组件库工具  | @floating-ui/dom / @lucide/icons / @internationalized/date | 1.8.0 / 1.59.0 / 3.12.4 ✓ |
+| 组件库工具  | decimal.js / tabbable / @standard-schema/spec              | 10.6.0 / 6.5.0 / 1.1.0 ✓  |
+| 发布        | changesets                                                 | 3.0.3                     |
+| lint / 格式 | oxlint / prettier                                          | 1.88.0 / 3.9.10 ✓         |
 
 ---
 
@@ -227,3 +243,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **宿主示例**：`apps/host-demo` 是普通 Vue 3.5 项目（SFC 首页 + vue-router + pinia），TSX 页面作为路由组件挂载；集成测试纳入 `pnpm test`，构建纳入 CI。
 
 **语义补齐**：children 支持带参数的渲染函数子节点并可原样转交，组件函数体里直接读取 children 编译报错；props 解构支持带连字符的键名（按驼峰读取）；`_derived` 支持响应式解构（每个变量各自一个 computed）。
+
+**M1 收尾**：双向绑定改为与 `_bindable` 成对的 `_bind`（属性名就是 prop，TypeScript 原生支持补全、跳转、重命名），Vue 指令编译报错并给出 TSX 写法；`_bindable` 受控语义（父级同时传值与更新回调时以父级为准）；Vue 内置组件子节点与原生事件 `currentTarget` 的类型；组件函数体里直接读取 prop/符文的快照警告；`export default` 组件名；`createContext`；组件库依赖安装与外置配置。

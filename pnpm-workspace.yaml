@@ -14,6 +14,13 @@ catalog:
   '@vitejs/plugin-vue': 6.0.10
   vue-router: 5.4.0
   pinia: 4.1.0
+  # 组件库工具：算法与数据，组件本身自己写
+  '@floating-ui/dom': 1.8.0
+  '@lucide/icons': 1.59.0
+  '@internationalized/date': 3.12.4
+  '@standard-schema/spec': 1.1.0
+  decimal.js: 10.6.0
+  tabbable: 6.5.0
   # 样式
   '@stylexjs/stylex': 0.19.1
   '@stylexjs/unplugin': 0.19.1
@@ -33,3 +40,6 @@ catalog:
   oxlint-tsgolint: 7.0.2004
   prettier: 3.9.10
   '@prettier/plugin-oxc': 0.2.3
+
+minimumReleaseAgeExclude:
+  - '@lucide/icons@1.59.0'
