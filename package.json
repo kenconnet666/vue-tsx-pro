@@ -16,6 +16,7 @@
     "build:host": "pnpm build:tsx && pnpm --filter @vue-tsx-pro/host-demo build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm build:tsx && vitest run",
+    "test:browser": "pnpm build:tsx && pnpm --filter @vue-tsx-pro/host-demo test:browser",
     "lint": "oxlint . --deny-warnings",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

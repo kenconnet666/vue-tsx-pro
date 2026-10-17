@@ -36,5 +36,7 @@ jobs:
       - run: pnpm css-docs:check
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium
+      - run: pnpm test:browser
       - run: pnpm build:docs
       - run: pnpm build:host
