@@ -1,0 +1,25 @@
+{
+  "name": "vue-tsx-pro-probe",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.14.0",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p .",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.7",
+    "@babel/types": "7.29.8",
+    "@stylexjs/stylex": "0.19.1",
+    "@stylexjs/unplugin": "0.19.1",
+    "@types/babel__core": "7.20.5",
+    "@types/babel__traverse": "7.28.0",
+    "happy-dom": "21.0.3",
+    "typescript": "6.0.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.5",
+    "vue": "3.6.0-rc.12",
+    "vue-jsx": "3.3.0-rc.3"
+  }
+}

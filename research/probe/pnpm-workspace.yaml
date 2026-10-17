@@ -1,0 +1,5 @@
+patchedDependencies:
+  '@vue-jsx/macros@3.3.0-rc.3': patches/@vue-jsx__macros@3.3.0-rc.3.patch
+peerDependencyRules:
+  allowedVersions:
+    vue: 3.6.0-rc.12
