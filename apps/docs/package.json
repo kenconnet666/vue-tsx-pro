@@ -1,0 +1,23 @@
+{
+  "name": "@vue-tsx-pro/docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@stylexjs/stylex": "catalog:",
+    "@vue-tsx-pro/tsx": "workspace:^",
+    "@vue-tsx-pro/ui": "workspace:^",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitepress": "catalog:"
+  }
+}

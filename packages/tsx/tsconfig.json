@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // 本包不能按包名引用自己，符文类型通过 include 的 types/ 目录生效
+    "types": ["node"]
+  },
+  "include": ["src", "types", "test", "*.config.ts"]
+}

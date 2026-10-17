@@ -1,0 +1,6 @@
+{
+  // 根目录只检查仓库级配置文件；各包有自己的 tsconfig
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "types": ["node"] },
+  "include": ["vitest.config.ts"]
+}

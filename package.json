@@ -1,0 +1,36 @@
+{
+  "name": "vue-tsx-pro-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=24.11 <25",
+    "pnpm": "12.14.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter \"./packages/**\" build",
+    "build:tsx": "pnpm --filter @vue-tsx-pro/tsx build",
+    "dev:docs": "pnpm build:tsx && pnpm --filter @vue-tsx-pro/docs dev",
+    "build:docs": "pnpm build && pnpm --filter @vue-tsx-pro/docs build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm build:tsx && vitest run",
+    "lint": "oxlint . --deny-warnings",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lsp:setup": "node scripts/language-services/setup.mjs",
+    "lsp:verify": "node scripts/language-services/verify.mjs"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:",
+    "@prettier/plugin-oxc": "catalog:",
+    "@types/node": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "prettier": "catalog:",
+    "smol-toml": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "zod": "catalog:"
+  }
+}

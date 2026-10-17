@@ -1,0 +1,45 @@
+packages:
+  - packages/*
+  - apps/*
+
+# 共享依赖的精确版本；各包用 "catalog:" 引用，升级只改这里
+catalog:
+  # 框架与编译
+  vue: 3.6.0-rc.12
+  vue-jsx: 3.3.0-rc.3
+  '@babel/core': 7.29.7
+  '@babel/types': 7.29.8
+  '@types/babel__core': 7.20.5
+  '@types/babel__traverse': 7.28.0
+  # 样式
+  '@stylexjs/stylex': 0.19.1
+  '@stylexjs/unplugin': 0.19.1
+  # 构建与测试
+  vite: 8.3.4
+  vitest: 5.0.5
+  happy-dom: 21.0.3
+  tsdown: 0.23.1
+  vitepress: 2.0.0-alpha.20
+  # 语言与工具
+  '@modelcontextprotocol/sdk': 1.32.1
+  zod: 4.6.7
+  smol-toml: 1.9.1
+  typescript: 6.0.3
+  '@types/node': 24.19.2
+  oxlint: 1.88.0
+  oxlint-tsgolint: 7.0.2004
+  prettier: 3.9.10
+  '@prettier/plugin-oxc': 0.2.3
+
+# 全仓只保留一份 Vue：VitePress 依赖 ^3.5，不统一会额外装一份 3.5.x
+overrides:
+  vue: 3.6.0-rc.12
+
+# vue-jsx 宏丢弃 ref(false) 这类函数调用默认值；上游修复后删除
+patchedDependencies:
+  '@vue-jsx/macros@3.3.0-rc.3': patches/@vue-jsx__macros@3.3.0-rc.3.patch
+
+# Vue 3.6 仍是 RC，semver 范围默认不匹配预发布版
+peerDependencyRules:
+  allowedVersions:
+    vue: 3.6.0-rc.12

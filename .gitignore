@@ -1,2 +1,20 @@
-/.idea/
+*.log
+node_modules
+**/dist/
+*.tsbuildinfo
+coverage/
+test-results/
+playwright-report/
+apps/docs/.vitepress/cache/
+apps/docs/.vitepress/dist/
+.idea
 vue-tsx-pro.iml
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# 本机生成的语言服务配置（pnpm lsp:setup）
+.codex/config.toml
+.mcp.json
+.claude/settings.local.json

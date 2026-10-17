@@ -1,0 +1,9 @@
+# 由 pnpm lsp:setup 生成本机的 .codex/config.toml（__NODE__、__ROOT__ 会替换为绝对路径）
+# BEGIN VUE TSX PRO LANGUAGE SERVICES
+[mcp_servers.vue_tsx_pro_lsp]
+command = __NODE__
+args = ["scripts/language-services/server.mjs", "."]
+cwd = __ROOT__
+startup_timeout_sec = 30
+tool_timeout_sec = 90
+# END VUE TSX PRO LANGUAGE SERVICES

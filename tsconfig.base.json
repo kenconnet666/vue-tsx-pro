@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    // 仓库内开发直接解析各包源码，不必先构建；发布包不受影响
+    "customConditions": ["@vue-tsx-pro/source"],
+    "jsx": "preserve",
+    "jsxImportSource": "@vue-tsx-pro/tsx",
+    "types": ["@vue-tsx-pro/tsx/runes"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  }
+}

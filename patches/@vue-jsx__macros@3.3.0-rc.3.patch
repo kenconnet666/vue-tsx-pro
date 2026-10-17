@@ -1,0 +1,12 @@
+diff --git a/dist/core-aGhdCREk.js b/dist/core-aGhdCREk.js
+index 2395e8c..1764c11 100644
+--- a/dist/core-aGhdCREk.js
++++ b/dist/core-aGhdCREk.js
+@@ -730,6 +730,7 @@ function getTypeAndValue(s, node) {
+ 				value = s.slice(node.start, node.end);
+ 			}
+ 		} else if (node.type === "NullLiteral") value = "null";
++		else value = `() => (${s.slice(node.start, node.end)})`;
+ 	}
+ 	return {
+ 		value,

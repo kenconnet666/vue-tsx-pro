@@ -1,0 +1,74 @@
+{
+  "name": "@vue-tsx-pro/tsx",
+  "version": "0.0.0",
+  "description": "更自然的 Vue TSX：组件边界、符文编译与 Vite 预设",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./vite": {
+      "@vue-tsx-pro/source": "./src/vite/index.ts",
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
+    },
+    "./compiler": {
+      "@vue-tsx-pro/source": "./src/compiler/index.ts",
+      "types": "./dist/compiler.d.ts",
+      "default": "./dist/compiler.js"
+    },
+    "./jsx-runtime": {
+      "types": "./types/jsx-runtime.d.ts",
+      "default": "./jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./types/jsx-runtime.d.ts",
+      "default": "./jsx-runtime.js"
+    },
+    "./runes": {
+      "types": "./types/runes.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "types",
+    "jsx-runtime.js"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@babel/core": "catalog:",
+    "@babel/types": "catalog:",
+    "@stylexjs/unplugin": "catalog:",
+    "vue-jsx": "catalog:"
+  },
+  "peerDependencies": {
+    "@stylexjs/stylex": "^0.19.1",
+    "vite": "^8.0.0",
+    "vue": "^3.6.0-rc.10"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@stylexjs/stylex": "catalog:",
+    "@types/babel__core": "catalog:",
+    "@types/babel__traverse": "catalog:",
+    "happy-dom": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
+  }
+}
