@@ -24,6 +24,32 @@ describe('符文', () => {
     expect(log).toEqual(['count=0', 'mounted', 'count=2']);
   });
 
+  it('_derived 解构：每个变量各自是派生值，支持嵌套、默认值与 ...rest', async () => {
+    let renders = 0;
+    const Profile = _component(() => {
+      let user = _state({ name: 'Ada', tags: ['math'], age: 36 });
+      const {
+        name,
+        tags: [first = '-'],
+        ...rest
+      } = _derived(user);
+      return () => {
+        renders++;
+        return (
+          <button type="button" onClick={() => (user = { name: 'Grace', tags: [], age: 45 })}>
+            {name}/{first}/{rest.age}
+          </button>
+        );
+      };
+    });
+    const el = mount(Profile);
+    expect(el.textContent).toBe('Ada/math/36');
+    el.querySelector('button')!.click();
+    await nextTick();
+    expect(el.textContent).toBe('Grace/-/45');
+    expect(renders).toBe(2);
+  });
+
   it('_bindable + v-model:checked 双向同步，子组件写入后同步读到新值', async () => {
     const on = ref(false);
     const seen: boolean[] = [];

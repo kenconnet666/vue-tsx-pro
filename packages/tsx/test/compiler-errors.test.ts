@@ -6,12 +6,17 @@ const cases: [string, string, RegExp][] = [
   ['export { x }', 'let x = _state(0); export { x }', /不能导出响应式变量 x/],
   ['写入 _derived', 'let a = _state(1); const d = _derived(a * 2); d = 3', /只读/],
   [
+    '写入解构出的 _derived',
+    'let p = _state({ x: 1 }); const { x } = _derived(p); x = 2',
+    /x 来自 _derived，是只读的/,
+  ],
+  [
     '写入普通 prop',
     '_component(({ disabled = false }) => { let n = _state(0); disabled = true; return () => n })',
     /prop disabled 是只读的/,
   ],
   ['const 原始值状态', 'const x = _state(0)', /const 声明的 _state 只能是对象或数组字面量/],
-  ['解构声明', 'let { a } = _state({ a: 1 })', /不能解构声明/],
+  ['_state 解构声明', 'let { a } = _state({ a: 1 })', /不能解构声明/],
   ['符文当作值传递', 'const make = _state', /只能按约定的位置直接调用/],
   ['_ref 参数不是响应式变量', 'const r = _ref(1)', /_ref\(x\) 的参数必须是/],
   ['var 声明', 'var x = _state(0)', /let 或 const/],

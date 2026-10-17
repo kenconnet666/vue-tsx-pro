@@ -166,8 +166,12 @@ class RunesContext {
       case '_derived.by': {
         if (kind !== 'const') throw fail(path, `${rune} 是只读的，请用 const 声明`);
         if (!arg) throw fail(path, `${rune} 需要一个参数`);
-        this.requireIdentifier(declarator, rune);
         const getter = rune === '_derived' ? t.arrowFunctionExpression([], arg) : arg;
+        if (t.isObjectPattern(id) || t.isArrayPattern(id)) {
+          this.declareDestructuredDerived(declarator, id, getter, rune);
+          return;
+        }
+        this.requireIdentifier(declarator, rune);
         path.replaceWith(this.vue('computed', [getter]));
         this.pending.set(declarator.node, { writable: false, source: rune });
         return;
@@ -263,6 +267,43 @@ class RunesContext {
     }
 
     addComponentOptions(setup.parentPath as NodePath<t.CallExpression>, names);
+  }
+
+  /**
+   * 解构派生（同 Svelte 5）：每个变量各自是一个派生值。
+   *
+   *   const { name, tags: [first] } = _derived(user)
+   *   ↓
+   *   const _derivedSource = computed(() => user)
+   *   const name = computed(() => { const { name, tags: [first] } = _derivedSource.value; return name })
+   *   const first = computed(() => { const { name, tags: [first] } = _derivedSource.value; return first })
+   *
+   * 每个变量都按原样重新解构一次，默认值、嵌套与 ...rest 因此与普通解构完全一致。
+   */
+  private declareDestructuredDerived(
+    declarator: NodePath<t.VariableDeclarator>,
+    pattern: t.ObjectPattern | t.ArrayPattern,
+    getter: t.Expression,
+    rune: Rune,
+  ) {
+    const source = declarator.scope.generateUidIdentifier('derivedSource');
+    const sourceValue = () => t.memberExpression(t.identifier(source.name), t.identifier('value'));
+    const declarators = [t.variableDeclarator(source, this.vue('computed', [getter]))];
+    for (const name of Object.keys(t.getBindingIdentifiers(pattern))) {
+      const pick = t.arrowFunctionExpression(
+        [],
+        t.blockStatement([
+          t.variableDeclaration('const', [
+            t.variableDeclarator(t.cloneNode(pattern), sourceValue()),
+          ]),
+          t.returnStatement(t.identifier(name)),
+        ]),
+      );
+      const derived = t.variableDeclarator(t.identifier(name), this.vue('computed', [pick]));
+      this.pending.set(derived, { writable: false, source: rune });
+      declarators.push(derived);
+    }
+    declarator.replaceWithMultiple(declarators);
   }
 
   private requireIdentifier(declarator: NodePath<t.VariableDeclarator>, rune: Rune) {

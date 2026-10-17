@@ -38,6 +38,7 @@
 | `const obj = $state({ … })` / `$state([…])`                     | `reactive(…)`                                            | **不改写**，就是 reactive 对象，可导出、可跨函数传 |
 | `const d = $derived(expr)`                                      | `computed(() => expr)`                                   | 只读                                               |
 | `const d = $derived.by(() => { … })`                            | `computed(fn)`                                           | 只读                                               |
+| `const { a, b: [c] } = $derived(obj)`                           | 每个变量各自一个 `computed`                              | 只读；嵌套、默认值、`...rest` 与普通解构一致       |
 | 组件参数 `{ checked = $bindable(false) }`                       | 本包的 `bindable(__props, 'checked', () => false, emit)` | 读写，走 v-model 协议                              |
 | `let t = $from(someRef)` / `const { x, y } = $from(useMouse())` | 直接持有这些 Ref                                         | 读写（`const` 时只读）                             |
 | `$ref(x)`                                                       | `x` 背后的 Ref                                           | 交给需要 Ref 的 Vue API                            |
