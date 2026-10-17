@@ -14,7 +14,11 @@ export default defineConfig({
   plugins: [workspaceSource(), ...vueTsxPro({ stylex: false })],
   build: {
     lib: { entry: 'src/index.ts', formats: ['es'], fileName: 'index' },
-    rollupOptions: { external: isExternal },
+    rollupOptions: {
+      external: isExternal,
+      // 保留源码的文件结构：StyleX 要求 defineVars 留在 *.stylex.js 文件里，使用方编译时才认得
+      output: { preserveModules: true, preserveModulesRoot: 'src', entryFileNames: '[name].js' },
+    },
     minify: false,
     sourcemap: true,
   },
