@@ -91,8 +91,10 @@ export const Button = _component(
     }
 
     return () => {
+      // 使用方的点击回调先于组件执行，不可用时要先拿掉，否则禁用的链接仍会触发它
+      const user = inactive ? { ...rest, onClick: undefined } : rest;
       const props = elementProps(
-        mergeProps({ sx: [styles.base, styles[variant], size && styles[size]] }, rest, {
+        mergeProps({ sx: [styles.base, styles[variant], size && styles[size]] }, user, {
           sx: inactive && styles.disabled,
           'aria-busy': loading || undefined,
           ...(href

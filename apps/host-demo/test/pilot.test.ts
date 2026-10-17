@@ -1,8 +1,9 @@
 // 试点组件在宿主里的行为（布局、焦点、原生 popover 需要真实浏览器，见 COMPONENTS.md §7 结论）
 import { afterEach, expect, it } from 'vitest';
-import { nextTick, type App } from 'vue';
+import { createApp, h, nextTick, type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
 import { createHostApp } from '../src/app';
+import { Button } from '../src/pilot/Button';
 
 let mounted: App | undefined;
 afterEach(() => mounted?.unmount());
@@ -68,4 +69,16 @@ it('Popover：触发器带上关联属性', async () => {
     'false',
     'auto',
   ]);
+});
+
+it('Button：禁用的链接不触发使用方的点击回调', () => {
+  let clicks = 0;
+  const el = document.createElement('div');
+  const host = createApp({
+    render: () => h(Button, { href: '/x', disabled: true, onClick: () => clicks++ }, () => 'x'),
+  });
+  host.mount(el);
+  el.querySelector('a')!.click();
+  expect([clicks, el.querySelector('a')!.hasAttribute('href')]).toEqual([0, false]);
+  host.unmount();
 });

@@ -119,3 +119,19 @@ describe('useFormat', () => {
     expect(english.textContent).toBe('1,234.5|$0.30|October 18, 2026');
   });
 });
+
+describe('useLang', () => {
+  it('展开与 Object.keys 拿到当前语言的完整字段', () => {
+    let keys: string[] = [];
+    const Spread = _component(() => {
+      const lang = useLang();
+      return () => {
+        keys = Object.keys({ ...lang });
+        return <i>{lang.confirm}</i>;
+      };
+    });
+    mount(() => <Spread />);
+    expect(keys).toContain('confirm');
+    expect(keys).toContain('paginationTotal');
+  });
+});

@@ -27,7 +27,14 @@ export function useConfig(): UiConfig {
  */
 export function useLang(): Lang {
   const config = useConfig();
+  // 所有读取都转发到当前语言，展开与 Object.keys 也能拿到完整字段
   return new Proxy({} as Lang, {
-    get: (_, key) => config.lang[key as keyof Lang],
+    get: (_, key) => Reflect.get(config.lang, key),
+    has: (_, key) => Reflect.has(config.lang, key),
+    ownKeys: () => Reflect.ownKeys(config.lang),
+    getOwnPropertyDescriptor: (_, key) => {
+      const descriptor = Reflect.getOwnPropertyDescriptor(config.lang, key);
+      return descriptor && { ...descriptor, configurable: true };
+    },
   });
 }
