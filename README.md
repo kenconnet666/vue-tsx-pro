@@ -80,6 +80,7 @@ pnpm lsp:verify   # 按生成的配置真实启动并逐项检查
 
 ## 文档
 
-- `RESEARCH.md`：组件写法、StyleX、遇到的上游问题
-- `RUNES.md`：符文编译到 Vue Ref 的设计与证据
-- `PLAN.md`：工程规划与里程碑
+- [RESEARCH.md](RESEARCH.md)：组件写法、StyleX、遇到的上游问题
+- [RUNES.md](RUNES.md)：符文编译到 Vue Ref 的设计与证据
+- [PLAN.md](PLAN.md)：工程规划与里程碑
+- [COMPONENTS.md](COMPONENTS.md)：组件库规范（API 约定、部件透传、尺寸、Provider 的主题与地区配置）与实施范围

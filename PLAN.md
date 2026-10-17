@@ -2,6 +2,7 @@
 
 日期：2026-10-17（Asia/Singapore）
 依据：`RESEARCH.md`（组件写法、StyleX）、`RUNES.md`（符文编译）、原型 `research/probe`（35 项测试，已清理，见提交 `7ad76fb`）以及补充验证（§8）。
+组件库规范：[COMPONENTS.md](COMPONENTS.md)（API 约定、部件透传、尺寸、Provider、实施范围）。
 
 ---
 
@@ -126,7 +127,7 @@ vue-tsx-pro/
 - 符文：`_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_bind`（含 trim/number/lazy 修饰符）、`_from`、`_ref`，`_` 前缀保留给它们。
 - 组件：PascalCase 文件名，一个组件一个目录，测试就近放。
 
-**组件写法**（详见 `RESEARCH.md`、`RUNES.md`）
+**组件写法**（详见 `RESEARCH.md`、`RUNES.md`；组件库的 API 约定见 [COMPONENTS.md](COMPONENTS.md)）
 
 - 参数解构写 props；`_bindable(默认值)` 表示可双向绑定，父级写 `属性={_bind(x)}`；函数体执行一次，`return () => JSX` 是渲染。
 - 不用 Vue 指令：`v-model` → `_bind`，`v-show` → 原生 `hidden` 或条件渲染，`v-html` → `innerHTML`；编译器对 `v-*` 报错并给出替代写法。
@@ -168,15 +169,15 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 
 每个阶段都以"可验证的退出条件"结束，不以完成多少文件为准。
 
-| 阶段            | 内容                                                                                                                 | 退出条件                                                               |
-| --------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| **M0 骨架**     | workspace、catalog、tsconfig、lint/format、CI                                                                        | CI 上安装、lint、类型检查全部通过（已完成）                            |
-| **M1 tsx 包**   | 符文与 props 编译；Vue 3.5 + 官方 JSX 插件底座；宿主示例；children 渲染函数、带连字符的 prop 名、`_derived` 解构     | 测试全部通过；宿主示例中页面能用路由、store、inject                    |
-| **M2 UI 基础**  | tokens 与主题切换；Button、Switch、TextField、Checkbox；浏览器模式交互测试；基础可访问性                             | 4 个组件在真实浏览器中通过键盘、焦点、输入法测试；主题可在局部嵌套切换 |
-| **M3 文档站**   | 写法指南；组件页（演示 + 源码展示）；部署；E2E 冒烟                                                                  | 文档站构建并部署；E2E 覆盖每个组件页                                   |
-| **M4 复杂组件** | 泛型 Select（验证 `renderItem` 的泛型推导）、列表（`For`）、Dialog（父级控制器对象替代 expose）                      | Select 泛型推导在纯 `tsc` 下成立                                       |
-| **M5 发布准备** | `tests/consumer`；确定 UI 包 StyleX 发布形态；放宽 Vite peer 范围（宿主示例验证 Vite 5～7 后）；changesets；发 `0.x` | 独立应用只用 npm 产物即可构建运行，样式与覆盖正确                      |
-| **之后**        | Babel 8 升级（等官方 JSX 插件与 StyleX）；`sx` 语法糖；setup 顶层读取符文的快照警告；评估 TS 7                       | 按需                                                                   |
+| 阶段            | 内容                                                                                                                                               | 退出条件                                                                                                         |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **M0 骨架**     | workspace、catalog、tsconfig、lint/format、CI                                                                                                      | CI 上安装、lint、类型检查全部通过（已完成）                                                                      |
+| **M1 tsx 包**   | 符文与 props 编译；Vue 3.5 + 官方 JSX 插件底座；宿主示例；children 渲染函数、带连字符的 prop 名、`_derived` 解构                                   | 测试全部通过；宿主示例中页面能用路由、store、inject                                                              |
+| **M2 UI 基础**  | 组件库基础设施：tokens 与主题、Provider / createUi、地区与文案、mergeProps 与部件类型；宿主示例里的试点组件；浏览器测试链路（见 COMPONENTS.md §7） | 主题与地区可应用级配置、局部嵌套覆盖并响应式切换；试点组件在真实浏览器中通过键盘、焦点、输入法测试；产出试点结论 |
+| **M3 文档站**   | 写法指南；组件页（演示 + 源码展示）；部署；E2E 冒烟                                                                                                | 文档站构建并部署；E2E 覆盖每个组件页                                                                             |
+| **M4 复杂组件** | 泛型 Select（验证 `renderItem` 的泛型推导）、列表（`For`）、Dialog（父级控制器对象替代 expose）                                                    | Select 泛型推导在纯 `tsc` 下成立                                                                                 |
+| **M5 发布准备** | `tests/consumer`；确定 UI 包 StyleX 发布形态；放宽 Vite peer 范围（宿主示例验证 Vite 5～7 后）；changesets；发 `0.x`                               | 独立应用只用 npm 产物即可构建运行，样式与覆盖正确                                                                |
+| **之后**        | Babel 8 升级（等官方 JSX 插件与 StyleX）；`sx` 语法糖；setup 顶层读取符文的快照警告；评估 TS 7                                                     | 按需                                                                                                             |
 
 关于 TS 7：npm 上 7.0.2 是 Go 重写的稳定版，用它检查本仓库没有报错，但它移除了旧的 JS API（`createLanguageService` 等），而 `scripts/language-services` 依赖这套 API。升级需要重写该脚本，因此先用 TS 6。
 
@@ -245,3 +246,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **语义补齐**：children 支持带参数的渲染函数子节点并可原样转交，组件函数体里直接读取 children 编译报错；props 解构支持带连字符的键名（按驼峰读取）；`_derived` 支持响应式解构（每个变量各自一个 computed）。
 
 **M1 收尾**：双向绑定改为与 `_bindable` 成对的 `_bind`（属性名就是 prop，TypeScript 原生支持补全、跳转、重命名），Vue 指令编译报错并给出 TSX 写法；`_bindable` 受控语义（父级同时传值与更新回调时以父级为准）；Vue 内置组件子节点与原生事件 `currentTarget` 的类型；组件函数体里直接读取 prop/符文的快照警告；`export default` 组件名；`createContext`；组件库依赖安装与外置配置。
+
+**组件库规范**：[COMPONENTS.md](COMPONENTS.md) 定稿——部件用 `propsXxx` 透传（`...rest` 落到主元素，部件的属性落在各自的 `propsXxx` 上）、合并规则、字号 + em 的尺寸方案、Provider（`theme` 与地区/时间/多语言合一的 `locale` 对象，支持应用级 `createUi` 与局部嵌套）。正式组件暂不纳入规划，先在宿主示例里写试点组件扫清障碍。
