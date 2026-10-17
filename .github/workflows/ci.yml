@@ -14,7 +14,12 @@ permissions:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    # 本地开发在 Windows 上，路径与虚拟模块问题只会在那里暴露
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
 
@@ -30,5 +35,4 @@ jobs:
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm build
       - run: pnpm build:docs

@@ -7,6 +7,8 @@
 
 > **原型已清理（2026-10-17）**：文中引用的 `research/probe` 已从仓库删除，完整代码保留在提交 `7ad76fb` 中（例如 `git show 7ad76fb:research/probe/src/component.ts`）；已经迁入正式包的部分见 `packages/tsx`。
 
+> **底座更新（2026-10-17）**：vue-jsx 已移除，改为 Vue 3.5.44 + 官方 `@vitejs/plugin-vue-jsx`（原因：vue-jsx 3.3 RC 要求 Vue 3.6 RC，且其虚拟模块在 Windows 上让 Vitest 崩溃）；定位收窄为"在已有 Vue 3.5 项目中用 TSX 写独立页面"。本文中关于 vue-jsx 工具链与宏的内容是当时的研究记录，现行方案见 [PLAN.md](PLAN.md)。
+
 > **更新（2026-10-17）**：组件边界改为 `_component`，并且不再借用 vue-jsx 的 `defineComponent` 宏。props 的响应式解构与默认值改由我们的编译器按 Svelte 5 的方式处理（详见 `RUNES.md` §2.3）：默认值可以是任意表达式、按实例惰性求值、可以引用前面的 prop。下文与宏、补丁、Ref prop 默认值相关的内容是当时的记录。
 
 ---

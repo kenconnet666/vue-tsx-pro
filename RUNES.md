@@ -4,8 +4,10 @@
 
 > **命名决定（2026-10-17）**：符文改用下划线前缀——`_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_from`、`_ref`。本文为了和 Svelte 对照，正文仍写 `$xxx`，含义一一对应；`research/probe` 已改名并通过全部测试。工程规划见 [PLAN.md](PLAN.md)。
 
-前置：`RESEARCH.md`（只做 VDOM、只写 TSX、vue-jsx + `_component()` + StyleX）。
+前置：`RESEARCH.md`（只做 VDOM、只写 TSX、`_component()` + StyleX）。
 证据：`research/probe` 中的编译原型与 35 项测试（含此前的 13 项）。
+
+> **底座更新（2026-10-17）**：Vue 改为 3.5.44，JSX 交给官方 `@vitejs/plugin-vue-jsx`（vue-jsx 已移除）；定位收窄为"在已有 Vue 3.5 项目中用 TSX 写独立页面"，不再与 SFC 模板互相使用组件。下文已按此更新，涉及 vue-jsx 的研究过程保留在提交历史中。
 
 > **原型已清理（2026-10-17）**：文中引用的 `research/probe` 已从仓库删除，完整代码保留在提交 `7ad76fb` 中（例如 `git show 7ad76fb:research/probe/src/component.ts`）；已经迁入正式包的部分见 `packages/tsx`。
 
@@ -13,7 +15,7 @@
 
 ## 1. 结论
 
-**可行，而且能做得很小。** 原型只有一个约 400 行（含注释）的 Babel 前置转换、一份 36 行的类型声明和一层 19 行的 JSX 类型。生成的代码就是手写 Vue 会写的代码，之后照常交给 vue-jsx。
+**可行，而且能做得很小。** 原型只有一个约 400 行（含注释）的 Babel 前置转换、一份 36 行的类型声明和一层 19 行的 JSX 类型。生成的代码就是手写 Vue 会写的代码，之后照常交给官方 JSX 插件。
 
 核心思路只有一句：
 
@@ -22,7 +24,7 @@
 由此得到三条设计原则：
 
 1. **Vue 能做的不另造。** 副作用用 `watch` / `watchEffect`，生命周期、`provide` / `inject` 原样使用，双向绑定直接用 Vue 的 `v-model` 协议。新增的符文只覆盖 Vue 做不到的那一件事：去掉 `.value`。
-2. **互通靠 Vue 协议，不靠适配层。** 组件之间走 `v-model:xxx` ↔ `defineModel`，所以和任何第三方 Vue 组件库、SFC 使用方双向互通；函数之间走 Ref 或 getter，Vue 生态（VueUse 等）本来就同时接受两者。
+2. **互通靠 Vue 协议，不靠适配层。** 组件之间走 Vue 标准的 `v-model:xxx` 协议；与宿主共享状态走 Ref 或 getter，Vue 生态（pinia、VueUse 等）本来就同时接受两者。
 3. **会悄悄丢响应性的写法一律编译期报错。** 不靠文档提醒。
 
 ---
@@ -39,7 +41,7 @@
 | 组件参数 `{ checked = $bindable(false) }`                       | 本包的 `bindable(__props, 'checked', () => false, emit)` | 读写，走 v-model 协议                              |
 | `let t = $from(someRef)` / `const { x, y } = $from(useMouse())` | 直接持有这些 Ref                                         | 读写（`const` 时只读）                             |
 | `$ref(x)`                                                       | `x` 背后的 Ref                                           | 交给需要 Ref 的 Vue API                            |
-| `v-model:checked={on}` / `<input v-model={name} />`             | **不是新语法**，Vue / vue-jsx 原有指令                   | `on` 只是被当作普通引用改写成 `on.value`           |
+| `v-model:checked={on}` / `<input v-model={name} />`             | **不是新语法**，Vue JSX 原有指令                         | `on` 只是被当作普通引用改写成 `on.value`           |
 
 **没有** `$effect`、`$props`、`bind:`：
 
@@ -120,16 +122,13 @@ watch(() => on, (value) => …)
 // 对方只收可写 Ref 时用 $ref
 const increment = useIncrement($ref(count))
 
-// 第三方组件、SFC 组件：标准 v-model
-<ElInput v-model={name} />
-<NSwitch v-model:value={on} />
+// 接入 pinia：storeToRefs 返回的就是一组 Ref
+const { user } = _from(storeToRefs(useUserStore()))
 ```
-
-反方向同样成立：用 `$bindable` 写的组件，SFC 使用方写 `<Switch v-model:checked="on" />`，或 `h(Switch, { checked, 'onUpdate:checked': … })`，都能双向同步（已测）。
 
 ### 2.3 组件 props：Svelte 式响应式解构
 
-`_component` 的参数解构就是 Svelte 5 的 `let { … } = $props()`：解构出的变量保持响应式，默认值写在解构里。这部分由我们的编译器完成，**不使用 vue-jsx 的宏，也不需要 `defineComponent`**。
+`_component` 的参数解构就是 Svelte 5 的 `let { … } = $props()`：解构出的变量保持响应式，默认值写在解构里。这部分由我们的编译器完成，**不需要 `defineComponent`**。
 
 ```tsx
 export const Badge = _component(({ size = 'md', icon = pick(size), index = -1, checked = _bindable(false), ...rest }: Props) => {
@@ -157,7 +156,7 @@ export const Badge = _component((__props, __ctx) => {
 - **组件名**取自变量名（DevTools 与警告信息里可见）。
 - **类型**：组件的类型就是“接收 props 的函数”，JSX 直接按参数类型检查；子节点按 `children` prop 检查；泛型组件的类型参数也能推导。
 
-对照：vue-jsx 的宏与 Vue 3.5 SFC 的 props 解构都把默认值放进静态的 props 选项，函数调用会被丢弃（vue-jsx）或无法引用其他 prop（Vue SFC 编译成模块级工厂函数）。
+对照：Vue 3.5 SFC 的 props 解构把默认值放进静态的 props 选项（编译成模块级工厂函数），无法引用其他 prop。
 
 ---
 
@@ -187,8 +186,7 @@ Svelte 5 接受了同样的代价，并给出了同样的边界规则：传原�
 | `$bindable` + 父级 `v-model:checked`：双向同步；子组件写入后同步读到新值                                                                          | 通过 |
 | `$bindable` 不绑定：作为本地状态，各实例独立                                                                                                      | 通过 |
 | `$bindable` 单向传值：子组件可本地切换，父级一变以父级为准（同 Svelte 未绑定的 `$bindable`）                                                      | 通过 |
-| SFC / `h()` 写法（`checked` + `onUpdate:checked`）使用 `$bindable` 组件                                                                           | 通过 |
-| 原生 `<input v-model={name}>` 与第三方 Options API 组件 `v-model={name}` 双向互通                                                                 | 通过 |
+| 原生 `<input v-model={name}>` 双向绑定                                                                                                            | 通过 |
 | `const` 对象状态 = reactive：`v-model_number={settings.fontSize}` 对象路径 + 修饰符                                                               | 通过 |
 | `$from` 接入组合式函数的 Ref（单个、解构）；写回                                                                                                  | 通过 |
 | getter 交给 `MaybeRefOrGetter`；`$ref(x)` 交给只收 Ref 的函数并写回同一个 Ref                                                                     | 通过 |
@@ -224,7 +222,7 @@ input.tsx: d 来自 $derived，是只读的
 ### 4.3 类型（`types-probe/runes.tsx`、`types-probe/vmodel.tsx`）
 
 - 符文在类型层面就是普通值：`let on = $state(false)` 的类型是 `boolean`，悬停、补全、重构都按普通变量工作。
-- **发现：TS 对带连字符的 JSX 属性名（`v-model:*`、`data-*`）不做多余属性检查**，所以 vue-jsx 默认下 `v-model:checked={'x'}` 不会报错。补法是在 vue-jsx 的 JSX 类型上加一层（`types/vue-tsx-pro/jsx-runtime`，19 行）：为每个 prop `K` 生成同类型的 `v-model:K`，并排除 `key`/`ref`/`class` 等保留属性。之后 `<Switch v-model:checked={label} />`（`label: string`）正确报错。
+- **发现：TS 对带连字符的 JSX 属性名（`v-model:*`、`data-*`）不做多余属性检查**，所以默认情况下 `v-model:checked={'x'}` 不会报错。补法是在 Vue 的 JSX 类型上加一层（`types/jsx-runtime.d.ts`）：为每个 prop `K` 生成同类型的 `v-model:K`，并排除 `key`/`ref`/`class` 等保留属性。之后 `<Switch v-model:checked={label} />`（`label: string`）正确报错。
 - 纯 `tsc` 即可，不需要 Volar 插件。
 
 ---
@@ -250,20 +248,20 @@ input.tsx: d 来自 $derived，是只读的
    - 编辑器语义高亮（需要语言服务插件，成本较高）。
      建议先不加命名约定，写几个真实组件再看是否需要。
 2. **setup 顶层读取是快照。** `const initial = count` 只取当前值，这符合 JS 直觉，但 Svelte 会对此给出警告（`state_referenced_locally`）。可以在编译器里加同类警告。
-3. **两次解析。** 原型用 Babel 做前置转换，之后 vue-jsx（Oxc）再解析一次。正式版可改用 Oxc 的解析和作用域分析，或直接作为 vue-jsx 宏的一部分，消除二次解析。原型阶段未测性能。
-4. ~~依赖 vue-jsx 的 `defineModel` 宏~~（已改为本包自己的 `bindable`，同样写入后可同步读到新值）。当时：`$bindable` 同步读新值依赖 vue-jsx 自带的 `useModel`（它修正了 Vue 原生 `useModel` 写入后不能同步读取的问题）。
-5. **`$state` 在 render 函数里声明** 会每次渲染新建 Ref。原型没有拦截，正式版应报错。
+3. **两次解析。** 符文编译与官方 JSX 插件各自用 Babel 解析一次。只编译用到我们写法的文件，代价可以接受；如有需要，可以把符文编译作为 `babelPlugins` 交给官方插件，合并成一次。
+4. **`$bindable` 写入后同步读到新值**：由本包的 `bindable` 保证（Vue 原生 `useModel` 写入后不能同步读取，见参考链接）。
+5. **`$state` 在 render 函数里声明** 会每次渲染新建 Ref。已改为编译期报错。
 6. **类字段、`$state` 在类中** 未支持。可后续按需讨论，Svelte 5 支持 `$state` 类字段。
-7. **未验证**：真实浏览器输入法、SSR、HMR、WebStorm 中的实际体验、source map 精度。
+7. **HMR**：已验证组件热替换、页面不刷新；组件局部状态会重置（官方插件对组件调用 `reload`）。
+8. **未验证**：真实浏览器输入法、WebStorm 中的实际体验、source map 精度。SSR 不在范围内。
 
 ---
 
 ## 7. 下一步建议
 
 1. 先用这套写法把 Input、Switch、泛型 Select 三个原型写完，体会"看不出追踪点"在真实组件里是否构成问题，再决定是否加 `$` 前缀约定。
-2. 补两条编译检查：render 函数内声明符文报错；setup 顶层读取符文变量给出快照警告。
-3. 决定实现底座：继续 Babel（简单、作用域分析成熟），或迁到 Oxc / 并入 vue-jsx 宏（快、单次解析）。建议原型期保持 Babel。
-4. 类型层（`v-model:K`）可以独立向 vue-jsx 提 PR，惠及不用符文的用户。
+2. 补一条编译检查：setup 顶层读取符文变量给出快照警告（render 函数内声明符文已报错）。
+3. 实现底座保持 Babel 7，与官方 JSX 插件、StyleX 一致；三者都支持 Babel 8 后一起升级。
 
 ---
 
@@ -274,5 +272,4 @@ input.tsx: d 来自 $derived，是只读的
 - `unplugin-reactive-vue`（`$` 前缀标识响应式变量的思路） — https://www.npmjs.com/package/unplugin-reactive-vue
 - Svelte 5 `$state`（跨函数、跨模块传递规则） — https://svelte.dev/docs/svelte/$state
 - Svelte 5 `$bindable` — https://svelte.dev/docs/svelte/$bindable
-- vue-jsx 宏（`defineModel`、组件参数解构） — https://vuejsx.dev/features/macros
 - Vue `useModel` 写入后同步读取问题 — https://github.com/vuejs/core/issues/11080

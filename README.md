@@ -1,6 +1,24 @@
 # vue-tsx-pro
 
-更自然的 Vue TSX 写法：props 驱动的组件、下划线符文（`_state`、`_derived`、`_bindable`……）、StyleX 样式。只做虚拟 DOM，不使用 SFC 模板。
+更自然的 Vue TSX 写法：props 驱动的组件、下划线符文（`_state`、`_derived`、`_bindable`……）、StyleX 样式。
+
+定位：在**已有的 Vue 3.5 项目**里用这套写法构建独立页面，配合本仓库的组件库。与宿主共享同一份 Vue、响应式状态（pinia、组合式函数）与 `provide` / `inject`；只写 TSX，不兼容 SFC 模板。
+
+## 在已有 Vue 项目中使用
+
+要求 Vue 3.5+、Vite 8。
+
+```ts
+// vite.config.ts：宿主原有的 @vitejs/plugin-vue 保留，再加上预设
+import vue from '@vitejs/plugin-vue';
+import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
+
+export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
+```
+
+预设依次执行：符文编译（本包）→ StyleX → 官方 `@vitejs/plugin-vue-jsx`（JSX、去类型、热更新）。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx`。
+
+TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
 
 ## 结构
 
@@ -49,7 +67,6 @@ pnpm lsp:verify   # 按生成的配置真实启动并逐项检查
 ## 配置要点
 
 - **版本**：共享依赖的精确版本集中在 `pnpm-workspace.yaml` 的 `catalog`，各包写 `"catalog:"`。升级只改这一处。
-- **单一 Vue**：`overrides` 把 Vue 统一为 3.6 RC；不加的话 VitePress 会额外装一份 3.5.x。
 - **源码条件**：各包 `exports` 带有 `@vue-tsx-pro/source` 条件。仓库内的 TypeScript（`customConditions`）和 Vite（`workspaceSource()`）据此直接读取源码，不必先构建；发布包的使用方不受影响。
 - **Vite 配置文件**从构建产物加载 `@vue-tsx-pro/tsx/vite`，所以首次 `test` 或 `dev:docs` 之前要先 `pnpm build:tsx`（这两个脚本已自动执行）。
 - **符文类型**：配置 `jsxImportSource: "@vue-tsx-pro/tsx"` 后即可直接使用 `_state` 等；只有 `.ts` 文件的包再在 `types` 里加 `"@vue-tsx-pro/tsx/runes"`。
