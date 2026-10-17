@@ -22,12 +22,7 @@
       "default": "./dist/compiler.js"
     },
     "./jsx-runtime": {
-      "types": "./types/jsx-runtime.d.ts",
-      "default": "./jsx-runtime.js"
-    },
-    "./jsx-dev-runtime": {
-      "types": "./types/jsx-runtime.d.ts",
-      "default": "./jsx-runtime.js"
+      "types": "./types/jsx-runtime.d.ts"
     },
     "./runes": {
       "types": "./types/runes.d.ts"
@@ -36,8 +31,7 @@
   },
   "files": [
     "dist",
-    "types",
-    "jsx-runtime.js"
+    "types"
   ],
   "scripts": {
     "build": "tsdown",
@@ -46,7 +40,6 @@
   },
   "dependencies": {
     "@babel/core": "catalog:",
-    "@babel/types": "catalog:",
     "@stylexjs/unplugin": "catalog:",
     "vue-jsx": "catalog:"
   },

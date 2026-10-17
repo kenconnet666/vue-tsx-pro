@@ -4,13 +4,11 @@
 
 ## 结构
 
-| 路径           | 包                          | 说明                                                 |
-| -------------- | --------------------------- | ---------------------------------------------------- |
-| `packages/tsx` | `@vue-tsx-pro/tsx`          | `component()`、符文编译器、Vite 预设、JSX 与符文类型 |
-| `packages/ui`  | `@vue-tsx-pro/ui`           | 组件库（StyleX）                                     |
-| `apps/docs`    | `@vue-tsx-pro/docs`（私有） | 文档站（VitePress 2）                                |
-| `patches/`     |                             | 上游补丁，上游修复后删除                             |
-| `research/`    |                             | 研究原型与证据，不属于工作区                         |
+| 路径           | 包                          | 说明                                                  |
+| -------------- | --------------------------- | ----------------------------------------------------- |
+| `packages/tsx` | `@vue-tsx-pro/tsx`          | `_component()`、符文编译器、Vite 预设、JSX 与符文类型 |
+| `packages/ui`  | `@vue-tsx-pro/ui`           | 组件库（StyleX）                                      |
+| `apps/docs`    | `@vue-tsx-pro/docs`（私有） | 文档站（VitePress 2）                                 |
 
 依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`。
 

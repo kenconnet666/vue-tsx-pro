@@ -11,7 +11,9 @@ import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node
 import { pathToFileURL } from 'node:url';
 
 const SUPPORTED_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts']);
-const RUNE_PATTERN = /\b_(state|derived|bindable|from|ref)\b/;
+// 与编译器的判断一致：用到符文，或定义了组件（参数默认值、prop 写入检查）
+const NEEDS_COMPILE =
+  /\b_(?:state|derived|bindable|from|ref)\b|\b(?:_component|defineComponent)\s*\(/;
 const COMPILER_ENTRY = 'packages/tsx/src/compiler/index.ts';
 
 /** TypeScript 内部统一使用正斜杠；不区分大小写的系统再统一小写，便于比较 */
@@ -205,10 +207,10 @@ export class TsxWorkspace {
     };
   }
 
-  /** 用真实的符文编译器编译一遍；它在第一处误用时报错并给出位置 */
+  /** 用真实的符文编译器编译一遍；它在第一处误用（或语法错误）时报错并给出位置 */
   async #runesDiagnostics(file) {
     const text = readFileSync(file, 'utf8');
-    if (!RUNE_PATTERN.test(text)) return [];
+    if (!NEEDS_COMPILE.test(text)) return [];
     this.#compileRunes ??= (
       await import(pathToFileURL(join(this.root, COMPILER_ENTRY)).href)
     ).compileRunes;
@@ -220,18 +222,13 @@ export class TsxWorkspace {
       const message = String(error.message)
         .split('\n')[0]
         .replace(/^.*?:\s/, '');
-      const loc = error.loc;
       return [
         {
           source: 'runes',
           code: 'RUNES',
           severity: 'error',
           message,
-          // Babel 的行从 1 开始、列从 0 开始
-          range: loc && {
-            start: { line: loc.start.line, column: loc.start.column + 1 },
-            end: { line: loc.end.line, column: loc.end.column + 1 },
-          },
+          range: babelRange(error.loc),
         },
       ];
     }
@@ -317,6 +314,18 @@ export class TsxWorkspace {
       }),
     };
   }
+}
+
+/**
+ * Babel 错误位置有两种形状：符文编译器抛出的 { start, end }，解析器语法错误的 { line, column }。
+ * Babel 的行从 1 开始、列从 0 开始，这里统一成 1 起始。
+ */
+function babelRange(loc) {
+  if (!loc) return undefined;
+  const toPoint = (point) => ({ line: point.line, column: point.column + 1 });
+  if (loc.start) return { start: toPoint(loc.start), end: toPoint(loc.end ?? loc.start) };
+  if (typeof loc.line === 'number') return { start: toPoint(loc), end: toPoint(loc) };
+  return undefined;
 }
 
 function severityName(category) {

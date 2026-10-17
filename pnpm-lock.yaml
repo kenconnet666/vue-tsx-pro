@@ -167,9 +167,6 @@ catalogs:
     '@babel/core':
       specifier: 7.29.7
       version: 7.29.7
-    '@babel/types':
-      specifier: 7.29.8
-      version: 7.29.8
     '@modelcontextprotocol/sdk':
       specifier: 1.32.1
       version: 1.32.1
@@ -230,9 +227,6 @@ catalogs:
 
 overrides:
   vue: 3.6.0-rc.12
-
-patchedDependencies:
-  '@vue-jsx/macros@3.3.0-rc.3': 2bbe7c66df4d5bf093e0dc25e6596fb08b97b3d4aaf556b39f75dd812c194b61
 
 importers:
 
@@ -299,9 +293,6 @@ importers:
       '@babel/core':
         specifier: 'catalog:'
         version: 7.29.7
-      '@babel/types':
-        specifier: 'catalog:'
-        version: 7.29.8
       '@stylexjs/unplugin':
         specifier: 'catalog:'
         version: 0.19.1(unplugin@2.3.11)
@@ -3020,7 +3011,7 @@ snapshots:
       '@vue-jsx/compiler-win32-ia32-msvc': 3.3.0-rc.3
       '@vue-jsx/compiler-win32-x64-msvc': 3.3.0-rc.3
 
-  '@vue-jsx/macros@3.3.0-rc.3(patch_hash=2bbe7c66df4d5bf093e0dc25e6596fb08b97b3d4aaf556b39f75dd812c194b61)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.6.0-rc.12(typescript@6.0.3))':
+  '@vue-jsx/macros@3.3.0-rc.3(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.6.0-rc.12(typescript@6.0.3))':
     dependencies:
       hash-sum: 2.0.0
       magic-string: 0.30.21
@@ -4153,7 +4144,7 @@ snapshots:
   vue-jsx@3.3.0-rc.3(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.6.0-rc.12(typescript@6.0.3)):
     dependencies:
       '@vue-jsx/compiler': 3.3.0-rc.3
-      '@vue-jsx/macros': 3.3.0-rc.3(patch_hash=2bbe7c66df4d5bf093e0dc25e6596fb08b97b3d4aaf556b39f75dd812c194b61)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.6.0-rc.12(typescript@6.0.3))
+      '@vue-jsx/macros': 3.3.0-rc.3(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.6.0-rc.12(typescript@6.0.3))
       '@vue-jsx/runtime': 3.3.0-rc.3(vue@3.6.0-rc.12(typescript@6.0.3))
       unplugin: 3.4.0(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))
       vue: 3.6.0-rc.12(typescript@6.0.3)

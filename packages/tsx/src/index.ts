@@ -1,1 +1,1 @@
-export { component } from './runtime/component';
+export { _component } from './runtime/component';

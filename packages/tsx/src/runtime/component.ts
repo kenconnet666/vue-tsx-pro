@@ -1,5 +1,5 @@
 /**
- * component()：本研究推荐的唯一组件边界。
+ * _component()：本研究推荐的唯一组件边界。
  *
  * 它只是 vue-jsx 的 defineComponent 外面薄薄一层，只多做一件事：
  * 把 Vue 的默认插槽映射成 props.children，让作者完全用 props 思考。
@@ -9,7 +9,7 @@
  */
 import { defineComponent } from 'vue-jsx';
 
-export const component: typeof defineComponent = ((setup: any, options?: any) =>
+export const _component: typeof defineComponent = ((setup: any, options?: any) =>
   defineComponent(
     ((props: any, ctx: any) => {
       // 只拦截 children 这一个键，其余读取原样交给 Vue 的 props 代理（保持依赖收集）

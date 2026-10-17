@@ -7,7 +7,6 @@
 // 顺带加载符文的全局类型：只要配置了 jsxImportSource，就能直接使用 _state 等
 import type {} from './runes';
 import type { JSX as VueJsx } from 'vue-jsx';
-export { Fragment, jsx, jsxDEV, jsxs } from 'vue-jsx/jsx-runtime';
 
 /** Vue 保留的 VNode 属性不参与 v-model */
 type Reserved = 'key' | 'ref' | 'ref_for' | 'ref_key' | 'class' | 'style' | `onVnode${string}`;

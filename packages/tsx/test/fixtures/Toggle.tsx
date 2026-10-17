@@ -1,8 +1,7 @@
-import { ref, type Ref } from 'vue'
-import * as stylex from '@stylexjs/stylex'
-import type { StyleXStyles } from '@stylexjs/stylex'
-import type { NodeChild } from 'vue-jsx'
-import { component } from '../../src'
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
+import type { NodeChild } from 'vue-jsx';
+import { _component } from '../../src';
 
 const styles = stylex.create({
   base: {
@@ -27,30 +26,28 @@ const styles = stylex.create({
     color: 'white',
     backgroundColor: 'navy',
   },
-})
+});
 
 interface ToggleProps {
-  /** 共享可写状态：直接传父级的 Ref，组件内直接改 .value */
-  checked?: Ref<boolean>
+  /** 双向绑定：父级写 v-model:checked，不绑定时作为组件本地状态 */
+  checked?: boolean;
   /** 单向配置：普通值即可，父级传 busy.value 也保持响应 */
-  disabled?: boolean
+  disabled?: boolean;
   /** 通知：普通函数 prop，取代 emit */
-  onChange?: (checked: boolean) => void
+  onChange?: (checked: boolean) => void;
   /** 外部样式覆盖，取代 class 透传 */
-  sx?: StyleXStyles
+  sx?: StyleXStyles;
   /** 内容：默认插槽映射而来 */
-  children?: NodeChild
+  children?: NodeChild;
 }
 
-export const Toggle = component(
-  ({ checked = ref(false), disabled = false, onChange, sx, children }: ToggleProps) => {
-    // ↑ 解构默认值 ref(false)：未传入时每个实例拥有自己的 Ref（需宏补丁，见 README）
-
+export const Toggle = _component(
+  ({ checked = _bindable(false), disabled = false, onChange, sx, children }: ToggleProps) => {
     // 这里的代码只在创建时执行一次
     function toggle() {
-      if (disabled) return
-      checked.value = !checked.value
-      onChange?.(checked.value)
+      if (disabled) return;
+      checked = !checked;
+      onChange?.(checked);
     }
 
     // 返回的函数是 render，每次依赖变化都会重新执行
@@ -58,12 +55,12 @@ export const Toggle = component(
       <button
         type="button"
         disabled={disabled}
-        aria-pressed={checked.value}
-        {...stylex.attrs(styles.base, checked.value && styles.on, sx)}
+        aria-pressed={checked}
+        {...stylex.attrs(styles.base, checked && styles.on, sx)}
         onClick={toggle}
       >
         {children}
       </button>
-    )
+    );
   },
-)
+);

@@ -88,10 +88,10 @@ try {
 
   const definition = await call('definitions', {
     filePath: SWITCH,
-    ...locate(SWITCH, 'import { component }', 9),
+    ...locate(SWITCH, 'import { _component }', 9),
   });
   const target = definition.items[0]?.filePath ?? '';
-  check('跳转定义：component 指向源码', target.endsWith('src/runtime/component.ts'), target);
+  check('跳转定义：_component 指向源码', target.endsWith('src/runtime/component.ts'), target);
 
   const references = await call('references', {
     filePath: SWITCH,
@@ -114,8 +114,8 @@ try {
   writeFileSync(
     resolve(root, TEMP),
     [
-      "import { component } from '../../src';",
-      'export const Bad = component(({ disabled = false }: { disabled?: boolean }) => {',
+      "import { _component } from '../../src';",
+      'export const Bad = _component(({ disabled = false }: { disabled?: boolean }) => {',
       '  let count = _state(0);',
       '  disabled = true;',
       '  return () => <i>{count}</i>;',
@@ -141,6 +141,17 @@ try {
       rune
         ? `第 ${rune.range?.start.line} 行：${rune.message}`
         : JSON.stringify(misuse.diagnostics),
+    );
+
+    // 编辑过程中的语法错误：两边都应作为诊断返回，而不是让请求失败
+    writeFileSync(resolve(root, TEMP), 'export {};\nlet count = _state(\n');
+    const broken = await call('diagnostics', { filePath: TEMP });
+    const syntax = broken.diagnostics.find((item) => item.source === 'runes');
+    check(
+      '诊断：语法错误不中断请求',
+      broken.diagnostics.some((item) => item.source === 'typescript') &&
+        syntax?.range?.start.line > 0,
+      syntax ? `第 ${syntax.range.start.line} 行：${syntax.message}` : JSON.stringify(broken),
     );
   } finally {
     rmSync(resolve(root, TEMP), { force: true });

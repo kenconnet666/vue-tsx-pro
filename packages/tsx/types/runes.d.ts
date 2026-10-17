@@ -3,7 +3,11 @@
  */
 import type { Ref } from 'vue';
 
-type UnwrapRefs<T> = { [K in keyof T]: T[K] extends Ref<infer V> ? V : T[K] };
+/**
+ * _from 解构时只接受 Ref 属性：编译后每个解构出的变量都按 .value 读写，
+ * 函数等非 Ref 属性会变成 never，提示从原对象单独解构，例如 const { reset } = useX()
+ */
+type UnwrapRefs<T> = { [K in keyof T]: T[K] extends Ref<infer V> ? V : never };
 
 declare global {
   /** 可重新赋值的状态 → ref；const + 对象/数组字面量 → reactive */

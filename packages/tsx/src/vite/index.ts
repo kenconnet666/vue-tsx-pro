@@ -8,7 +8,7 @@
 import type { Plugin } from 'vite';
 import stylex from '@stylexjs/unplugin';
 import vueJsx from 'vue-jsx/vite';
-import { compileRunes } from '../compiler';
+import { compileRunes } from '../compiler/index';
 
 type StylexOptions = NonNullable<Parameters<typeof stylex.vite>[0]>;
 
@@ -20,13 +20,13 @@ export interface VueTsxProOptions {
   stylex?: StylexOptions | false;
 }
 
-/** 宏的组件边界：defineComponent 与我们的 component() */
-const COMPONENT_ALIASES = ['defineComponent', 'component'];
+/** 宏的组件边界：defineComponent 与我们的 _component() */
+const COMPONENT_ALIASES = ['defineComponent', '_component'];
 
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   const plugins: Plugin[] = [runes()];
   if (options.stylex !== false) {
-    plugins.push(...toArray(stylex.vite(options.stylex)));
+    plugins.push(...toArray(stylex.vite(options.stylex)).map(skipDevServerWithoutHttp));
   }
   plugins.push(...toArray(vueJsx({ macros: { defineComponent: { alias: COMPONENT_ALIASES } } })));
   return plugins;
@@ -35,6 +35,23 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
 /** unplugin 生成的 Vite 插件可能是单个插件，也可能是数组 */
 function toArray(plugin: unknown): Plugin[] {
   return (Array.isArray(plugin) ? plugin : [plugin]) as Plugin[];
+}
+
+/**
+ * 绕过 @stylexjs/unplugin 0.19.1 的问题：它在 configureServer 里启动 150ms 轮询，
+ * 只在 httpServer 关闭时清理。Vitest 等中间件模式没有 httpServer，定时器永不清理，
+ * 进程退出要多等 10 秒。这种模式也用不到它的开发服务器功能（CSS 端点、热更新推送），直接跳过。
+ */
+function skipDevServerWithoutHttp(plugin: Plugin): Plugin {
+  const original = plugin.configureServer;
+  if (typeof original !== 'function') return plugin;
+  return {
+    ...plugin,
+    configureServer(server) {
+      if (!server.httpServer) return;
+      return original.call(this, server);
+    },
+  };
 }
 
 /** 只处理符文的插件，单独导出以便自定义组合 */

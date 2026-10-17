@@ -8,7 +8,6 @@ catalog:
   vue: 3.6.0-rc.12
   vue-jsx: 3.3.0-rc.3
   '@babel/core': 7.29.7
-  '@babel/types': 7.29.8
   '@types/babel__core': 7.20.5
   '@types/babel__traverse': 7.28.0
   # 样式
@@ -34,12 +33,3 @@ catalog:
 # 全仓只保留一份 Vue：VitePress 依赖 ^3.5，不统一会额外装一份 3.5.x
 overrides:
   vue: 3.6.0-rc.12
-
-# vue-jsx 宏丢弃 ref(false) 这类函数调用默认值；上游修复后删除
-patchedDependencies:
-  '@vue-jsx/macros@3.3.0-rc.3': patches/@vue-jsx__macros@3.3.0-rc.3.patch
-
-# Vue 3.6 仍是 RC，semver 范围默认不匹配预发布版
-peerDependencyRules:
-  allowedVersions:
-    vue: 3.6.0-rc.12

@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import { component } from '@vue-tsx-pro/tsx';
+import { _component } from '@vue-tsx-pro/tsx';
 
 const styles = stylex.create({
   box: {
@@ -14,7 +14,7 @@ const styles = stylex.create({
 });
 
 /** 冒烟演示：符文 + StyleX + 组件边界在文档站中可用 */
-export const Hello = component(() => {
+export const Hello = _component(() => {
   let count = _state(0);
   const label = _derived(count === 0 ? '还没点过' : `点了 ${count} 次`);
 

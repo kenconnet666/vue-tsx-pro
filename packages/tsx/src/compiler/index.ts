@@ -14,10 +14,14 @@ import { transformAsync, types as t, type NodePath, type PluginObj } from '@babe
 import type { Binding } from '@babel/traverse';
 
 /** 组件边界：第一个参数是 setup 函数的调用 */
-const COMPONENT_CALLEES = new Set(['component', 'defineComponent']);
+const COMPONENT_CALLEES = new Set(['_component', 'defineComponent']);
 
 /** 所有符文的全局名；只有未被本地变量遮蔽时才当作符文 */
 const RUNE_GLOBALS = new Set(['_state', '_derived', '_bindable', '_from', '_ref']);
+
+/** 用到符文，或定义了组件（需要检查参数默认值与 prop 写入）的文件才需要编译 */
+const NEEDS_COMPILE =
+  /\b_(?:state|derived|bindable|from|ref)\b|\b(?:_component|defineComponent)\s*\(/;
 
 type Rune = '_state' | '_state.raw' | '_derived' | '_derived.by' | '_bindable' | '_from' | '_ref';
 
@@ -32,7 +36,7 @@ interface TrackedInfo {
 type VueHelper = 'ref' | 'shallowRef' | 'reactive' | 'computed';
 
 export async function compileRunes(code: string, filename = 'input.tsx') {
-  if (!/\b_(state|derived|bindable|from|ref)\b/.test(code)) return null;
+  if (!NEEDS_COMPILE.test(code)) return null;
   const result = await transformAsync(code, {
     filename,
     babelrc: false,
@@ -80,6 +84,9 @@ class RunesContext {
 
   collectDeclarations() {
     this.program.traverse({
+      Function: (path) => {
+        if (isComponentSetup(path)) checkPropDefaults(path);
+      },
       CallExpression: (path) => {
         const rune = runeOf(path);
         switch (rune) {
@@ -108,6 +115,12 @@ class RunesContext {
     }
     const kind = (declarator.parent as t.VariableDeclaration).kind;
     if (kind === 'var') throw fail(declarator, '响应式变量请用 let 或 const 声明');
+    if (isInsideRender(path)) {
+      throw fail(
+        path,
+        `${rune} 写在渲染函数里，每次重新渲染都会重新创建；请移到组件函数体中 return 之前`,
+      );
+    }
     if (path.node.arguments.length > 1) throw fail(path, `${rune}() 只接受一个参数`);
 
     const id = declarator.node.id;
@@ -354,6 +367,70 @@ function fail(path: NodePath, message: string): RunesError {
   if (loc) error.loc = { start: { ...loc.start }, end: { ...loc.end } };
   return error;
 }
+
+/**
+ * 是否位于组件的渲染函数（setup 返回的函数）之内，包括其中嵌套的回调。
+ * 渲染函数每次更新都会重新执行，在里面创建的状态会被重置。
+ */
+function isInsideRender(path: NodePath): boolean {
+  for (let fn = path.getFunctionParent(); fn; fn = fn.parentPath?.getFunctionParent() ?? null) {
+    const parent = fn.parentPath;
+    // _component(() => { ...; return () => <div /> })
+    if (parent?.isReturnStatement()) {
+      const owner = parent.getFunctionParent();
+      if (owner && isComponentSetup(owner)) return true;
+    }
+    // _component(() => () => <div />)
+    if (
+      parent?.isArrowFunctionExpression() &&
+      parent.node.body === fn.node &&
+      isComponentSetup(parent)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * vue-jsx 的宏只认识以下几类参数默认值，其余（函数调用、负数、模板字符串、成员访问……）会被静默丢弃。
+ * 这里提前报错，避免 prop 在不传时变成 undefined。
+ */
+function checkPropDefaults(setup: NodePath<t.Function>) {
+  const pattern = setup.get('params')[0];
+  if (!pattern?.isObjectPattern()) return;
+  for (const property of pattern.get('properties')) {
+    if (!property.isObjectProperty()) continue;
+    const value = property.get('value');
+    if (!value.isAssignmentPattern()) continue;
+    const fallback = value.get('right');
+    if (fallback.isCallExpression() && runeOf(fallback) === '_bindable') continue;
+
+    let node: t.Node = fallback.node;
+    while (t.isTSNonNullExpression(node) || t.isTSAsExpression(node)) node = node.expression;
+    if (SUPPORTED_DEFAULTS.has(node.type)) continue;
+
+    const name = t.isIdentifier(value.node.left) ? value.node.left.name : 'prop';
+    throw fail(
+      fallback,
+      `${name} 的默认值会被 vue-jsx 丢弃：只支持字面量、对象、数组、函数和变量名。` +
+        `常量请提到模块顶层再引用（例如 const DEFAULT_${name.toUpperCase()} = ...）；` +
+        `需要双向绑定的状态请用 _bindable(...)`,
+    );
+  }
+}
+
+const SUPPORTED_DEFAULTS = new Set([
+  'StringLiteral',
+  'NumericLiteral',
+  'BooleanLiteral',
+  'NullLiteral',
+  'ObjectExpression',
+  'ArrayExpression',
+  'ArrowFunctionExpression',
+  'FunctionExpression',
+  'Identifier',
+]);
 
 /** 判断调用是否为某个符文（且没有被同名本地变量遮蔽） */
 function runeOf(path: NodePath<t.CallExpression>): Rune | null {

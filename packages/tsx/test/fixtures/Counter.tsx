@@ -1,9 +1,9 @@
 import { watchEffect, onMounted } from 'vue';
-import { component } from '../../src';
+import { _component } from '../../src';
 
 export const log: string[] = [];
 
-export const Counter = component(({ step = 1 }: { step?: number }) => {
+export const Counter = _component(({ step = 1 }: { step?: number }) => {
   let count = _state(0);
   const double = _derived(count * 2);
   const parity = _derived.by(() => {

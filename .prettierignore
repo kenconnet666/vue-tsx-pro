@@ -7,6 +7,5 @@ apps/docs/.vitepress/cache/
 .idea/
 pnpm-lock.yaml
 patches/
-research/
 .mcp.json
 .claude/

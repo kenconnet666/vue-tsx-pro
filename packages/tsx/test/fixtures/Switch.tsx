@@ -1,5 +1,5 @@
 import type { NodeChild } from 'vue-jsx';
-import { component } from '../../src';
+import { _component } from '../../src';
 
 interface SwitchProps {
   checked?: boolean;
@@ -8,7 +8,7 @@ interface SwitchProps {
   children?: NodeChild;
 }
 
-export const Switch = component(
+export const Switch = _component(
   ({ checked = _bindable(false), disabled = false, onChange, children }: SwitchProps) => {
     // 写起来就是普通变量；编译后是 defineModel 返回的 Ref
     function toggle() {

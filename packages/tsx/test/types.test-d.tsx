@@ -20,3 +20,10 @@ label = 1;
 
 // @ts-expect-error disabled 是 boolean
 export const wrongProp = <Switch disabled={'yes'} />;
+
+// _from 解构只接受 Ref 属性；函数等非 Ref 属性变成 never，需要从原对象单独解构
+declare function useCounter(): { count: import('vue').Ref<number>; increment: () => void };
+const { count, increment } = _from(useCounter());
+export const doubled: number = count * 2;
+// @ts-expect-error increment 不是 Ref，应从 useCounter() 单独解构
+increment();

@@ -11,14 +11,12 @@
     "types": ["@vue-tsx-pro/tsx/runes"],
 
     "strict": true,
-    "noUncheckedIndexedAccess": false,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
 
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
-    "resolveJsonModule": true,
     "skipLibCheck": true,
     "noEmit": true
   }
