@@ -16,3 +16,6 @@ export { Provider, type ProviderProps, type ThemeInput } from './config/Provider
 export { createUi, type UiOptions } from './config/createUi';
 export { useConfig, useLang, type UiConfig } from './config/context';
 export { useFormat } from './config/format';
+
+// 部件 props
+export { elementProps, mergeProps, type PartProps } from './utils/props';
