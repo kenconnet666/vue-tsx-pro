@@ -1,20 +1,24 @@
 /**
  * runes 编译器：让本地响应式变量像普通变量一样读写，语义全部交给 Vue。
  *
- * 只做四件事：
- *   1. 把符文声明换成 Vue API：_state → ref / reactive，_derived → computed，
- *      _bindable → vue-jsx 的 defineModel，_from → 直接持有外部 Ref
- *   2. 把这些变量的读写改写成 .value
- *   3. _ref(x) 取回背后的 Ref，交给需要 Ref 的 Vue API
- *   4. 对会悄悄失去响应性的写法直接报错
+ * 只做五件事：
+ *   1. 把符文声明换成 Vue API：_state → ref / reactive，_derived → computed，_from → 直接持有外部 Ref
+ *   2. 把 _component 的参数解构换成实例内的 prop 访问器（参考 Svelte 5 的 $.prop），
+ *      并生成 Vue 需要的 props 声明；_bindable 走标准 v-model 协议
+ *   3. 把这些变量的读写改写成 .value
+ *   4. _ref(x) 取回背后的 Ref，交给需要 Ref 的 Vue API
+ *   5. 对会悄悄失去响应性的写法直接报错
  *
- * 生成的代码就是手写 Vue 会写的代码，之后照常交给 vue-jsx 编译。
+ * 生成的代码就是手写 Vue 会写的代码，之后交给 vue-jsx 编译 JSX（不使用 vue-jsx 的宏）。
  */
 import { transformAsync, types as t, type NodePath, type PluginObj } from '@babel/core';
 import type { Binding } from '@babel/traverse';
 
 /** 组件边界：第一个参数是 setup 函数的调用 */
 const COMPONENT_CALLEES = new Set(['_component', 'defineComponent']);
+
+/** 编译产物里 prop / bindable 等运行时函数的来源 */
+const RUNTIME_MODULE = '@vue-tsx-pro/tsx';
 
 /** 所有符文的全局名；只有未被本地变量遮蔽时才当作符文 */
 const RUNE_GLOBALS = new Set(['_state', '_derived', '_bindable', '_from', '_ref']);
@@ -28,12 +32,14 @@ type Rune = '_state' | '_state.raw' | '_derived' | '_derived.by' | '_bindable' |
 /** 一个需要改写为 .value 的绑定 */
 interface TrackedInfo {
   writable: boolean;
-  /** 报错时告诉作者它来自哪个符文 */
-  rune: Rune;
+  /** 报错时告诉作者它来自哪里：某个符文，或组件 prop */
+  source: Rune | 'prop';
 }
 
-/** Vue 运行时函数，按需导入 */
-type VueHelper = 'ref' | 'shallowRef' | 'reactive' | 'computed';
+/** 按需导入的运行时函数：Vue 的响应式 API 与本包的 prop 访问器 */
+type Helper =
+  | { module: 'vue'; name: 'ref' | 'shallowRef' | 'reactive' | 'computed' }
+  | { module: typeof RUNTIME_MODULE; name: 'prop' | 'bindable' };
 
 export async function compileRunes(code: string, filename = 'input.tsx') {
   if (!NEEDS_COMPILE.test(code)) return null;
@@ -70,9 +76,8 @@ class RunesContext {
   /** 第 1 步记录下的声明节点，第 2 步再换成作用域里的 Binding */
   private pending = new Map<t.VariableDeclarator, TrackedInfo>();
   private tracked = new Map<Binding, TrackedInfo>();
-  /** 组件参数解构出的普通 prop：只读 */
-  private props = new Set<Binding>();
-  private helpers = new Map<VueHelper, t.Identifier>();
+  /** 已导入的运行时函数：`模块:名称` → 本地别名 */
+  private helpers = new Map<string, { helper: Helper; local: t.Identifier }>();
 
   private program: NodePath<t.Program>;
 
@@ -85,7 +90,7 @@ class RunesContext {
   collectDeclarations() {
     this.program.traverse({
       Function: (path) => {
-        if (isComponentSetup(path)) checkPropDefaults(path);
+        if (isPropsComponent(path)) this.declareProps(path);
       },
       CallExpression: (path) => {
         const rune = runeOf(path);
@@ -94,8 +99,10 @@ class RunesContext {
           case '_ref': // _ref(x) 在第 3 步随引用一起处理
             return;
           case '_bindable':
-            this.declareBindable(path);
-            return;
+            throw fail(
+              path,
+              '_bindable() 只能写在 _component 参数解构的默认值位置，例如 ({ checked = _bindable(false) })',
+            );
           default:
             this.declareState(path, rune);
             return;
@@ -133,7 +140,7 @@ class RunesContext {
         // 因此可以直接导出、传进任意函数而不丢响应性
         if (kind === 'const') {
           if (t.isObjectExpression(arg) || t.isArrayExpression(arg)) {
-            path.replaceWith(this.call('reactive', [arg]));
+            path.replaceWith(this.vue('reactive', [arg]));
             return;
           }
           throw fail(
@@ -142,15 +149,15 @@ class RunesContext {
           );
         }
         this.requireIdentifier(declarator, rune);
-        path.replaceWith(this.call('ref', [initial]));
-        this.pending.set(declarator.node, { writable: true, rune });
+        path.replaceWith(this.vue('ref', [initial]));
+        this.pending.set(declarator.node, { writable: true, source: rune });
         return;
       }
       case '_state.raw': {
         if (kind !== 'let') throw fail(path, '_state.raw 只能用 let 声明（它只能整体替换）');
         this.requireIdentifier(declarator, rune);
-        path.replaceWith(this.call('shallowRef', [initial]));
-        this.pending.set(declarator.node, { writable: true, rune });
+        path.replaceWith(this.vue('shallowRef', [initial]));
+        this.pending.set(declarator.node, { writable: true, source: rune });
         return;
       }
       case '_derived':
@@ -159,8 +166,8 @@ class RunesContext {
         if (!arg) throw fail(path, `${rune} 需要一个参数`);
         this.requireIdentifier(declarator, rune);
         const getter = rune === '_derived' ? t.arrowFunctionExpression([], arg) : arg;
-        path.replaceWith(this.call('computed', [getter]));
-        this.pending.set(declarator.node, { writable: false, rune });
+        path.replaceWith(this.vue('computed', [getter]));
+        this.pending.set(declarator.node, { writable: false, source: rune });
         return;
       }
       case '_from': {
@@ -171,58 +178,88 @@ class RunesContext {
           throw fail(path, '_from 的结果请赋给一个变量或对象解构');
         }
         path.replaceWith(arg);
-        this.pending.set(declarator.node, { writable: kind === 'let', rune });
+        this.pending.set(declarator.node, { writable: kind === 'let', source: rune });
         return;
       }
     }
   }
 
   /**
-   * 组件参数里的 { checked = _bindable(false) }：
-   * 从参数解构中移除，换成函数体开头的 const checked = defineModel('checked', { default: false })。
-   * defineModel 由 vue-jsx 宏处理，走的是 Vue 标准的 v-model 协议（checked + onUpdate:checked）。
+   * _component 的参数解构 → 实例内的 prop 访问器（参考 Svelte 5 的 $.prop）：
+   *
+   *   _component(({ size = 'md', icon = pick(size), checked = _bindable(false), ...rest }) => …)
+   *   ↓
+   *   _component((__props, __ctx) => {
+   *     const size = prop(__props, 'size', () => 'md')
+   *     const icon = prop(__props, 'icon', () => pick(size.value))
+   *     const checked = bindable(__props, 'checked', () => false, __ctx.emit)
+   *     const rest = __ctx.attrs
+   *     …
+   *   }, { name: 'Toggle', props: ['size', 'icon', 'checked', 'onUpdate:checked'] })
+   *
+   * 默认值在实例内惰性求值：可以是任意表达式，也可以引用前面的 prop。
+   * 解构出的变量和符文一样登记为响应式绑定，读写在第 3 步统一改成 .value。
    */
-  private declareBindable(path: NodePath<t.CallExpression>) {
-    const misplaced = () =>
-      fail(
-        path,
-        '_bindable() 只能写在组件参数解构的默认值位置，例如 ({ checked = _bindable(false) })',
-      );
+  private declareProps(setup: NodePath<t.Function>) {
+    const params = setup.get('params');
+    const pattern = params[0];
+    const names: string[] = [];
 
-    const assign = path.parentPath;
-    if (!assign.isAssignmentPattern() || assign.node.right !== path.node) throw misplaced();
-    const property = assign.parentPath;
-    if (
-      !property.isObjectProperty() ||
-      property.node.computed ||
-      !t.isIdentifier(property.node.key)
-    )
-      throw misplaced();
-    const pattern = property.parentPath;
-    const setup = pattern.parentPath;
-    if (
-      !pattern?.isObjectPattern() ||
-      !setup?.isFunction() ||
-      setup.node.params[0] !== pattern.node
-    )
-      throw misplaced();
-    if (!isComponentSetup(setup)) throw misplaced();
-    if (!t.isIdentifier(assign.node.left)) throw misplaced();
+    if (pattern) {
+      if (params.length > 1) throw fail(params[1]!, '组件只接收一个参数：props 解构');
+      if (!pattern.isObjectPattern()) {
+        throw fail(
+          pattern,
+          '请解构 props，例如 _component(({ size = "md", ...rest }) => …)；解构出的变量会保持响应式',
+        );
+      }
 
-    const key = property.node.key.name;
-    const local = assign.node.left.name;
-    const fallback = path.node.arguments[0] as t.Expression | undefined;
-    const options = fallback
-      ? [t.objectExpression([t.objectProperty(t.identifier('default'), fallback)])]
-      : [];
+      const propsId = setup.scope.generateUidIdentifier('props');
+      const ctxId = setup.scope.generateUidIdentifier('ctx');
+      const declarations: t.Statement[] = [];
 
-    const declarator = t.variableDeclarator(
-      t.identifier(local),
-      t.callExpression(t.identifier('defineModel'), [t.stringLiteral(key), ...options]),
-    );
-    property.remove();
-    prependToBody(setup, t.variableDeclaration('const', [declarator]));
-    this.pending.set(declarator, { writable: true, rune: '_bindable' });
+      for (const property of pattern.get('properties')) {
+        // ...rest：没有声明为 prop 的属性都在 attrs 里
+        if (property.isRestElement()) {
+          const local = property.node.argument;
+          if (!t.isIdentifier(local)) throw fail(property, '...rest 需要是一个变量名');
+          declarations.push(
+            t.variableDeclaration('const', [
+              t.variableDeclarator(local, t.memberExpression(ctxId, t.identifier('attrs'))),
+            ]),
+          );
+          continue;
+        }
+
+        const { key, local, fallback, isBindable } = readPropPattern(property);
+        // children 来自默认插槽（见 runtime/component.ts），不是真正的 Vue prop
+        if (key !== 'children') names.push(key);
+        if (isBindable) names.push(`onUpdate:${key}`);
+
+        const thunk = fallback && t.arrowFunctionExpression([], fallback);
+        const init = isBindable
+          ? this.runtime('bindable', [
+              propsId,
+              t.stringLiteral(key),
+              thunk ?? t.identifier('undefined'),
+              t.memberExpression(ctxId, t.identifier('emit')),
+            ])
+          : this.runtime('prop', [propsId, t.stringLiteral(key), ...(thunk ? [thunk] : [])]);
+        const declarator = t.variableDeclarator(t.identifier(local), init);
+        this.pending.set(declarator, {
+          writable: isBindable,
+          source: isBindable ? '_bindable' : 'prop',
+        });
+        declarations.push(t.variableDeclaration('const', [declarator]));
+      }
+
+      // 参数换成 (__props: 原类型, __ctx)，声明按书写顺序放到函数体开头
+      propsId.typeAnnotation = pattern.node.typeAnnotation;
+      setup.node.params = [propsId, ctxId];
+      prependToBody(setup, declarations);
+    }
+
+    addComponentOptions(setup.parentPath as NodePath<t.CallExpression>, names);
   }
 
   private requireIdentifier(declarator: NodePath<t.VariableDeclarator>, rune: Rune) {
@@ -240,15 +277,6 @@ class RunesContext {
         if (!info) return;
         for (const name of Object.keys(path.getBindingIdentifiers())) {
           this.tracked.set(path.scope.getBinding(name)!, info);
-        }
-      },
-      Function: (path) => {
-        if (!isComponentSetup(path)) return;
-        const first = path.get('params')[0];
-        if (!first) return;
-        for (const name of Object.keys(first.getBindingIdentifiers())) {
-          const binding = path.scope.getBinding(name);
-          if (binding?.kind === 'param') this.props.add(binding);
         }
       },
       ExportNamedDeclaration: (path) => {
@@ -272,25 +300,12 @@ class RunesContext {
     for (const [binding, info] of this.tracked) {
       // 先处理写入，再处理读取；同一个标识符只改写一次
       for (const violation of binding.constantViolations) {
-        if (!info.writable) {
-          throw fail(violation, `${binding.identifier.name} 来自 ${info.rune}，是只读的`);
-        }
+        if (!info.writable) throw fail(violation, readonlyMessage(binding, info));
         for (const target of writeTargets(violation, binding)) replaceWithValue(target);
       }
       for (const reference of binding.referencePaths) {
         if (!isAttached(reference) || isInTypePosition(reference)) continue;
         this.rewriteRead(reference, binding);
-      }
-    }
-
-    // 普通 prop 是只读的：写入时提示改用 _bindable
-    for (const binding of this.props) {
-      const violation = binding.constantViolations[0];
-      if (violation) {
-        throw fail(
-          violation,
-          `prop ${binding.identifier.name} 是只读的；需要在组件内修改并同步给父级，请写成 ${binding.identifier.name} = _bindable(默认值)`,
-        );
       }
     }
   }
@@ -336,21 +351,46 @@ class RunesContext {
 
   // ───────────────────────── 导入 ─────────────────────────
 
-  private call(helper: VueHelper, args: t.Expression[]) {
-    let id = this.helpers.get(helper);
-    if (!id) {
-      id = this.program.scope.generateUidIdentifier(`vue_${helper}`);
-      this.helpers.set(helper, id);
+  private vue(name: Extract<Helper, { module: 'vue' }>['name'], args: t.Expression[]) {
+    return this.helper({ module: 'vue', name }, args);
+  }
+
+  private runtime(
+    name: Extract<Helper, { module: typeof RUNTIME_MODULE }>['name'],
+    args: t.Expression[],
+  ) {
+    return this.helper({ module: RUNTIME_MODULE, name }, args);
+  }
+
+  private helper(helper: Helper, args: t.Expression[]) {
+    const id = `${helper.module}:${helper.name}`;
+    let entry = this.helpers.get(id);
+    if (!entry) {
+      // 生成不冲突的本地名，例如 _vue_ref、_vtp_prop
+      const prefix = helper.module === 'vue' ? 'vue' : 'vtp';
+      entry = {
+        helper,
+        local: this.program.scope.generateUidIdentifier(`${prefix}_${helper.name}`),
+      };
+      this.helpers.set(id, entry);
     }
-    return t.callExpression(t.identifier(id.name), args);
+    return t.callExpression(t.identifier(entry.local.name), args);
   }
 
   insertImports() {
-    if (!this.helpers.size) return;
-    const specifiers = [...this.helpers].map(([name, local]) =>
-      t.importSpecifier(t.identifier(local.name), t.identifier(name)),
-    );
-    this.program.unshiftContainer('body', t.importDeclaration(specifiers, t.stringLiteral('vue')));
+    // 按模块分组，每个模块一条 import
+    const byModule = new Map<string, t.ImportSpecifier[]>();
+    for (const { helper, local } of this.helpers.values()) {
+      const specifiers = byModule.get(helper.module) ?? [];
+      specifiers.push(t.importSpecifier(t.identifier(local.name), t.identifier(helper.name)));
+      byModule.set(helper.module, specifiers);
+    }
+    for (const [module, specifiers] of byModule) {
+      this.program.unshiftContainer(
+        'body',
+        t.importDeclaration(specifiers, t.stringLiteral(module)),
+      );
+    }
   }
 }
 
@@ -392,45 +432,85 @@ function isInsideRender(path: NodePath): boolean {
   return false;
 }
 
-/**
- * vue-jsx 的宏只认识以下几类参数默认值，其余（函数调用、负数、模板字符串、成员访问……）会被静默丢弃。
- * 这里提前报错，避免 prop 在不传时变成 undefined。
- */
-function checkPropDefaults(setup: NodePath<t.Function>) {
-  const pattern = setup.get('params')[0];
-  if (!pattern?.isObjectPattern()) return;
-  for (const property of pattern.get('properties')) {
-    if (!property.isObjectProperty()) continue;
-    const value = property.get('value');
-    if (!value.isAssignmentPattern()) continue;
-    const fallback = value.get('right');
-    if (fallback.isCallExpression() && runeOf(fallback) === '_bindable') continue;
-
-    let node: t.Node = fallback.node;
-    while (t.isTSNonNullExpression(node) || t.isTSAsExpression(node)) node = node.expression;
-    if (SUPPORTED_DEFAULTS.has(node.type)) continue;
-
-    const name = t.isIdentifier(value.node.left) ? value.node.left.name : 'prop';
-    throw fail(
-      fallback,
-      `${name} 的默认值会被 vue-jsx 丢弃：只支持字面量、对象、数组、函数和变量名。` +
-        `常量请提到模块顶层再引用（例如 const DEFAULT_${name.toUpperCase()} = ...）；` +
-        `需要双向绑定的状态请用 _bindable(...)`,
-    );
+/** 只读绑定被写入时的提示：prop 建议改用 _bindable，符文直接说明来源 */
+function readonlyMessage(binding: Binding, info: TrackedInfo) {
+  const name = binding.identifier.name;
+  switch (info.source) {
+    case 'prop':
+      return `prop ${name} 是只读的；需要在组件内修改并同步给父级，请写成 ${name} = _bindable(默认值)`;
+    default:
+      return `${name} 来自 ${info.source}，是只读的`;
   }
 }
 
-const SUPPORTED_DEFAULTS = new Set([
-  'StringLiteral',
-  'NumericLiteral',
-  'BooleanLiteral',
-  'NullLiteral',
-  'ObjectExpression',
-  'ArrayExpression',
-  'ArrowFunctionExpression',
-  'FunctionExpression',
-  'Identifier',
-]);
+/** 读取一项 props 解构：键名、本地变量名、默认值，以及是否 _bindable */
+function readPropPattern(property: NodePath) {
+  if (!property.isObjectProperty() || property.node.computed) {
+    throw fail(property, 'props 解构不支持计算属性名');
+  }
+  const keyNode = property.node.key;
+  const key = t.isIdentifier(keyNode)
+    ? keyNode.name
+    : t.isStringLiteral(keyNode)
+      ? keyNode.value
+      : null;
+  if (key === null) throw fail(property, 'props 的键名需要是标识符或字符串');
+
+  let value = property.get('value') as NodePath;
+  let fallback: t.Expression | undefined;
+  let isBindable = false;
+  if (value.isAssignmentPattern()) {
+    const right = value.get('right');
+    if (right.isCallExpression() && runeOf(right) === '_bindable') {
+      isBindable = true;
+      fallback = right.node.arguments[0] as t.Expression | undefined;
+    } else {
+      fallback = right.node;
+    }
+    value = value.get('left');
+  }
+  if (!value.isIdentifier()) {
+    throw fail(value, 'props 不支持嵌套解构：先解构出整个值，再在函数体里读取它的属性');
+  }
+  return { key, local: value.node.name, fallback, isBindable };
+}
+
+/**
+ * 给 _component 补上第二个参数：组件名（取自 const X = _component(...)）与 props 声明。
+ * 作者已经写了选项对象时，只补充其中缺少的项。
+ */
+function addComponentOptions(call: NodePath<t.CallExpression>, names: string[]) {
+  const generated: t.ObjectProperty[] = [];
+  const declarator = call.parentPath;
+  if (declarator?.isVariableDeclarator() && t.isIdentifier(declarator.node.id)) {
+    generated.push(
+      t.objectProperty(t.identifier('name'), t.stringLiteral(declarator.node.id.name)),
+    );
+  }
+  if (names.length) {
+    generated.push(
+      t.objectProperty(
+        t.identifier('props'),
+        t.arrayExpression(names.map((n) => t.stringLiteral(n))),
+      ),
+    );
+  }
+  if (!generated.length) return;
+
+  const existing = call.node.arguments[1];
+  if (!existing) {
+    call.node.arguments.push(t.objectExpression(generated));
+  } else if (t.isObjectExpression(existing)) {
+    const has = (name: string) =>
+      existing.properties.some((p) => t.isObjectProperty(p) && t.isIdentifier(p.key, { name }));
+    existing.properties.unshift(...generated.filter((p) => !has((p.key as t.Identifier).name)));
+  } else {
+    call.node.arguments[1] = t.objectExpression([
+      ...generated,
+      t.spreadElement(existing as t.Expression),
+    ]);
+  }
+}
 
 /** 判断调用是否为某个符文（且没有被同名本地变量遮蔽） */
 function runeOf(path: NodePath<t.CallExpression>): Rune | null {
@@ -470,13 +550,26 @@ function isComponentSetup(path: NodePath<t.Function>) {
   );
 }
 
+/** 由我们编译 props 的组件：_component(setup)。Vue 自己的 defineComponent 保持原样 */
+function isPropsComponent(path: NodePath<t.Function>) {
+  const call = path.parentPath;
+  return (
+    !!call?.isCallExpression() &&
+    call.node.arguments[0] === path.node &&
+    t.isIdentifier(call.node.callee, { name: '_component' })
+  );
+}
+
 /** 箭头函数简写体先补成块，再在开头插入声明 */
-function prependToBody(fn: NodePath<t.Function>, statement: t.Statement) {
+function prependToBody(fn: NodePath<t.Function>, statements: t.Statement[]) {
+  if (!statements.length) return;
   const body = fn.get('body');
   if (body.isBlockStatement()) {
-    body.unshiftContainer('body', statement);
+    body.unshiftContainer('body', statements);
   } else {
-    body.replaceWith(t.blockStatement([statement, t.returnStatement(body.node as t.Expression)]));
+    body.replaceWith(
+      t.blockStatement([...statements, t.returnStatement(body.node as t.Expression)]),
+    );
   }
 }
 

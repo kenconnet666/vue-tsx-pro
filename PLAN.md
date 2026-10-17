@@ -7,15 +7,15 @@
 
 ## 1. 已定的决定
 
-| 项           | 决定                                                                                |
-| ------------ | ----------------------------------------------------------------------------------- |
-| 渲染         | 只做 Vue 虚拟 DOM；只写 TSX，不兼容 SFC 模板                                        |
-| 编译底座     | vue-jsx（Oxc 编译器 + 宏），作者层用 `_component()`                                 |
-| 响应式写法   | 下划线符文：`_state`、`_derived`、`_bindable`、`_from`、`_ref`，编译为 Vue 原生 API |
-| 组件双向绑定 | `_bindable` + Vue 标准 `v-model:xxx` 协议                                           |
-| CSS          | StyleX，外部覆盖统一走 `sx` prop                                                    |
-| 包管理       | pnpm workspace（monorepo）                                                          |
-| 包名         | `@vue-tsx-pro/*`；编译相关合成一个 `@vue-tsx-pro/tsx` 包                            |
+| 项           | 决定                                                                                   |
+| ------------ | -------------------------------------------------------------------------------------- |
+| 渲染         | 只做 Vue 虚拟 DOM；只写 TSX，不兼容 SFC 模板                                           |
+| 编译底座     | vue-jsx（Oxc 编译器，只编译 JSX），组件边界 `_component()` 的 props 由我们的编译器处理 |
+| 响应式写法   | 下划线符文：`_state`、`_derived`、`_bindable`、`_from`、`_ref`，编译为 Vue 原生 API    |
+| 组件双向绑定 | `_bindable` + Vue 标准 `v-model:xxx` 协议                                              |
+| CSS          | StyleX，外部覆盖统一走 `sx` prop                                                       |
+| 包管理       | pnpm workspace（monorepo）                                                             |
+| 包名         | `@vue-tsx-pro/*`；编译相关合成一个 `@vue-tsx-pro/tsx` 包                               |
 
 ---
 
@@ -259,3 +259,5 @@ CI 顺序：安装 → lint → 类型检查 → 单元/运行时 → 构建各�
 - 组件边界改名为 `_component`，与符文同用下划线前缀；编译器只把 `_component` / `defineComponent` 识别为组件。
 - 修复：语言服务遇到语法错误时请求失败；`_from` 解构出函数时运行时报错（类型改为 `never` 提示单独解构）；渲染函数里声明符文会每次重建（改为编译期报错）；StyleX 0.19.1 开发插件的定时器让每次测试退出多等 10 秒（预设内绕过，测试从约 12 秒降到约 2 秒）。
 - 删除：`research/`、宏补丁 `patches/`（改为编译期报错不支持的参数默认值）、`peerDependencyRules`（实测无告警）、未使用的 `@babel/types`、运行时 `jsx-runtime.js` 与 `jsx-dev-runtime` 导出、tsconfig 中与默认值相同的选项。
+
+**props 改为 Svelte 式响应式解构（2026-10-17）**：`_component` 不再借用 vue-jsx 的 `defineComponent` 宏。参数解构由我们的编译器换成实例内的 prop 访问器（参考 Svelte 5 的 `$.prop`），默认值可为任意表达式、按实例惰性求值、可引用前面的 prop 并随之更新；`_bindable` 改用本包的 `bindable`（v-model 协议）；props 声明与组件名自动生成；JSX 子节点按 `children` prop 检查。vue-jsx 只负责编译 JSX，宏全部关闭，因此此前的“不支持的默认值”编译报错与宏补丁问题不再存在。

@@ -29,22 +29,22 @@
 
 ## 2. API 全貌
 
-| 写法                                                            | 编译成                                                  | 读写                                               |
-| --------------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
-| `let x = $state(v)`                                             | `ref(v)`                                                | `x` ↔ `x.value`                                    |
-| `let x = $state.raw(v)`                                         | `shallowRef(v)`                                         | 只整体替换                                         |
-| `const obj = $state({ … })` / `$state([…])`                     | `reactive(…)`                                           | **不改写**，就是 reactive 对象，可导出、可跨函数传 |
-| `const d = $derived(expr)`                                      | `computed(() => expr)`                                  | 只读                                               |
-| `const d = $derived.by(() => { … })`                            | `computed(fn)`                                          | 只读                                               |
-| 组件参数 `{ checked = $bindable(false) }`                       | vue-jsx 的 `defineModel('checked', { default: false })` | 读写，走 v-model 协议                              |
-| `let t = $from(someRef)` / `const { x, y } = $from(useMouse())` | 直接持有这些 Ref                                        | 读写（`const` 时只读）                             |
-| `$ref(x)`                                                       | `x` 背后的 Ref                                          | 交给需要 Ref 的 Vue API                            |
-| `v-model:checked={on}` / `<input v-model={name} />`             | **不是新语法**，Vue / vue-jsx 原有指令                  | `on` 只是被当作普通引用改写成 `on.value`           |
+| 写法                                                            | 编译成                                                   | 读写                                               |
+| --------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------- |
+| `let x = $state(v)`                                             | `ref(v)`                                                 | `x` ↔ `x.value`                                    |
+| `let x = $state.raw(v)`                                         | `shallowRef(v)`                                          | 只整体替换                                         |
+| `const obj = $state({ … })` / `$state([…])`                     | `reactive(…)`                                            | **不改写**，就是 reactive 对象，可导出、可跨函数传 |
+| `const d = $derived(expr)`                                      | `computed(() => expr)`                                   | 只读                                               |
+| `const d = $derived.by(() => { … })`                            | `computed(fn)`                                           | 只读                                               |
+| 组件参数 `{ checked = $bindable(false) }`                       | 本包的 `bindable(__props, 'checked', () => false, emit)` | 读写，走 v-model 协议                              |
+| `let t = $from(someRef)` / `const { x, y } = $from(useMouse())` | 直接持有这些 Ref                                         | 读写（`const` 时只读）                             |
+| `$ref(x)`                                                       | `x` 背后的 Ref                                           | 交给需要 Ref 的 Vue API                            |
+| `v-model:checked={on}` / `<input v-model={name} />`             | **不是新语法**，Vue / vue-jsx 原有指令                   | `on` 只是被当作普通引用改写成 `on.value`           |
 
 **没有** `$effect`、`$props`、`bind:`：
 
 - `$effect` → 直接写 `watchEffect(() => …)`。闭包里读到的已经是 `x.value`，Vue 自然收集依赖。需要 Svelte `$effect` 的 DOM 后时机就加 `{ flush: 'post' }`。
-- `$props` → 组件参数解构本来就有（vue-jsx 宏），类型也更直接。
+- `$props` → `_component` 的参数解构就是 `$props()`，见 §2.3。
 - `bind:` → Vue 的 `v-model:xxx` 已经是同一个概念。复用它，作者不用学第二套名字，也保证和 Vue 生态是同一个协议。
 
 ### 2.1 写出来的样子
@@ -88,7 +88,7 @@ export const Page = _component(() => {
 
 ```ts
 const Switch = _component(({ disabled = false, onChange, children }) => {
-  const checked = defineModel('checked', { default: false })
+  const checked = bindable(__props, 'checked', () => false, __ctx.emit)
   function toggle() {
     if (disabled) return
     checked.value = !checked.value
@@ -126,6 +126,38 @@ const increment = useIncrement($ref(count))
 ```
 
 反方向同样成立：用 `$bindable` 写的组件，SFC 使用方写 `<Switch v-model:checked="on" />`，或 `h(Switch, { checked, 'onUpdate:checked': … })`，都能双向同步（已测）。
+
+### 2.3 组件 props：Svelte 式响应式解构
+
+`_component` 的参数解构就是 Svelte 5 的 `let { … } = $props()`：解构出的变量保持响应式，默认值写在解构里。这部分由我们的编译器完成，**不使用 vue-jsx 的宏，也不需要 `defineComponent`**。
+
+```tsx
+export const Badge = _component(({ size = 'md', icon = pick(size), index = -1, checked = _bindable(false), ...rest }: Props) => {
+  …
+})
+```
+
+编译后（Vue 组件本来就是普通对象）：
+
+```ts
+export const Badge = _component((__props, __ctx) => {
+  const size = prop(__props, 'size', () => 'md')
+  const icon = prop(__props, 'icon', () => pick(size.value))
+  const index = prop(__props, 'index', () => -1)
+  const checked = bindable(__props, 'checked', () => false, __ctx.emit)
+  const rest = __ctx.attrs
+  …
+}, { name: 'Badge', props: ['size', 'icon', 'index', 'checked', 'onUpdate:checked'] })
+```
+
+- **任意默认值**：函数调用、负数、模板字符串都可以；默认值在实例内惰性求值，`[]`、`makeList()` 每个实例各自一份，同一实例只求值一次。
+- **默认值可以引用前面的 prop**，并且随它更新（`icon = pick(size)` 在 `size` 变化时重新计算）。这一点比 Svelte 更进一步：Svelte 的默认值只算一次。
+- **读写**：解构出的 prop 和符文一样改写为 `.value`；普通 prop 只读，写入在编译期报错并提示改用 `_bindable`。
+- **props 声明**自动生成；`...rest` 就是未声明为 prop 的属性（`__ctx.attrs`），不含 prop 本身与 `onUpdate:xxx`。
+- **组件名**取自变量名（DevTools 与警告信息里可见）。
+- **类型**：组件的类型就是“接收 props 的函数”，JSX 直接按参数类型检查；子节点按 `children` prop 检查；泛型组件的类型参数也能推导。
+
+对照：vue-jsx 的宏与 Vue 3.5 SFC 的 props 解构都把默认值放进静态的 props 选项，函数调用会被丢弃（vue-jsx）或无法引用其他 prop（Vue SFC 编译成模块级工厂函数）。
 
 ---
 
@@ -219,7 +251,7 @@ input.tsx: d 来自 $derived，是只读的
      建议先不加命名约定，写几个真实组件再看是否需要。
 2. **setup 顶层读取是快照。** `const initial = count` 只取当前值，这符合 JS 直觉，但 Svelte 会对此给出警告（`state_referenced_locally`）。可以在编译器里加同类警告。
 3. **两次解析。** 原型用 Babel 做前置转换，之后 vue-jsx（Oxc）再解析一次。正式版可改用 Oxc 的解析和作用域分析，或直接作为 vue-jsx 宏的一部分，消除二次解析。原型阶段未测性能。
-4. **依赖 vue-jsx 的 `defineModel` 宏**。`$bindable` 同步读新值依赖 vue-jsx 自带的 `useModel`（它修正了 Vue 原生 `useModel` 写入后不能同步读取的问题）。
+4. ~~依赖 vue-jsx 的 `defineModel` 宏~~（已改为本包自己的 `bindable`，同样写入后可同步读到新值）。当时：`$bindable` 同步读新值依赖 vue-jsx 自带的 `useModel`（它修正了 Vue 原生 `useModel` 写入后不能同步读取的问题）。
 5. **`$state` 在 render 函数里声明** 会每次渲染新建 Ref。原型没有拦截，正式版应报错。
 6. **类字段、`$state` 在类中** 未支持。可后续按需讨论，Svelte 5 支持 `$state` 类字段。
 7. **未验证**：真实浏览器输入法、SSR、HMR、WebStorm 中的实际体验、source map 精度。

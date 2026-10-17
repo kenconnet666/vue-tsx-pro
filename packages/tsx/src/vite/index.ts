@@ -1,9 +1,9 @@
 /**
  * Vite 预设：按固定顺序组合三个插件，使用方只写一行 vueTsxPro()。
  *
- *   1. 符文：_state / _derived / _bindable … → Vue API，读写 → .value
+ *   1. 符文与 props：_state / _derived / _component 参数解构 … → Vue API，读写 → .value
  *   2. StyleX：stylex.create → 原子类与 CSS
- *   3. vue-jsx：参数解构、defineModel 等宏，再编译 JSX
+ *   3. vue-jsx：只编译 JSX（不启用它的宏，props 由第 1 步处理）
  */
 import type { Plugin } from 'vite';
 import stylex from '@stylexjs/unplugin';
@@ -20,16 +20,31 @@ export interface VueTsxProOptions {
   stylex?: StylexOptions | false;
 }
 
-/** 宏的组件边界：defineComponent 与我们的 _component() */
-const COMPONENT_ALIASES = ['defineComponent', '_component'];
+/** 热更新要识别的组件定义函数：Vue 的 defineComponent 与我们的 _component */
+const COMPONENT_FUNCTIONS = ['defineComponent', '_component'];
 
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   const plugins: Plugin[] = [runes()];
   if (options.stylex !== false) {
     plugins.push(...toArray(stylex.vite(options.stylex)).map(skipDevServerWithoutHttp));
   }
-  plugins.push(...toArray(vueJsx({ macros: { defineComponent: { alias: COMPONENT_ALIASES } } })));
+  plugins.push(...vueJsxForComponents());
   return plugins;
+}
+
+/**
+ * vue-jsx 只在开发服务器里生成热更新代码；但显式传入 hmr 选项会覆盖这个判断，
+ * 让生产构建也带上热更新代码。所以先保留选项对象，等知道是开发还是构建时再补上 hmr。
+ */
+function vueJsxForComponents(): Plugin[] {
+  const options: Parameters<typeof vueJsx>[0] = {};
+  const setHmr: Plugin = {
+    name: 'vue-tsx-pro:jsx-hmr',
+    configResolved(config) {
+      if (config.command === 'serve') options.hmr = { defineComponentName: COMPONENT_FUNCTIONS };
+    },
+  };
+  return [setHmr, ...toArray(vueJsx(options))];
 }
 
 /** unplugin 生成的 Vite 插件可能是单个插件，也可能是数组 */

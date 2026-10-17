@@ -1,29 +1,55 @@
 /**
- * _component()：本研究推荐的唯一组件边界。
+ * _component()：唯一的组件边界。
  *
- * 它只是 vue-jsx 的 defineComponent 外面薄薄一层，只多做一件事：
- * 把 Vue 的默认插槽映射成 props.children，让作者完全用 props 思考。
+ * 一切基于 props：作者只写参数解构与默认值，编译器（compiler/index.ts）把它们换成
+ * prop 访问器，并补上组件名与 props 声明作为第二个参数。运行时这里只做两件事：
  *
- * 编译期能力（参数解构保持响应式、默认值、...rest → attrs）来自 vue-jsx 宏，
- * 需要在 vite.config.ts 里把 'component' 注册为 defineComponent 宏的别名。
+ *   1. 返回一个普通的 Vue 组件对象（Vue 组件本来就是对象，不需要 defineComponent）
+ *   2. 把默认插槽映射成 props.children，内容也是 prop
  */
-import { defineComponent } from 'vue-jsx';
+import type { Component, SetupContext } from 'vue';
+import type { JSX, NodeChild } from 'vue-jsx';
 
-export const _component: typeof defineComponent = ((setup: any, options?: any) =>
-  defineComponent(
-    ((props: any, ctx: any) => {
-      // 只拦截 children 这一个键，其余读取原样交给 Vue 的 props 代理（保持依赖收集）
-      const view = new Proxy(props, {
-        get(target, key, receiver) {
-          if (key === 'children' && target.children === undefined) {
-            // 每次读取时才执行插槽：读取发生在子组件 render 内，
-            // 因此内容是惰性的，依赖也归属子组件，父级不必整体重渲染
-            return ctx.slots.default?.();
-          }
-          return Reflect.get(target, key, receiver);
-        },
-      });
-      return setup(view, ctx);
-    }) as any,
-    options,
-  )) as any;
+/** setup 返回渲染函数；setup 本身只执行一次 */
+type Render = () => NodeChild;
+
+export interface ComponentOptions {
+  /** 组件名，DevTools 与警告信息里显示；编译器从 const X = _component(...) 自动补上 */
+  name?: string;
+  /** Vue 的 props 声明（名字列表）；编译器从参数解构自动生成 */
+  props?: string[];
+}
+
+/**
+ * 类型上把组件描述为“接收 props 的函数”：JSX 直接按参数类型检查属性，
+ * 泛型组件 _component(<T,>(props: { items: T[] }) => …) 的类型参数也能保留下来。
+ */
+export function _component<P extends object = {}>(
+  setup: (props: P) => Render,
+  options?: ComponentOptions,
+): (props: P) => JSX.Element;
+
+export function _component(
+  setup: (props: object, ctx: SetupContext) => Render,
+  options: ComponentOptions = {},
+): Component {
+  return {
+    // 未声明为 prop 的属性不自动落到根元素，由作者用 ...rest 决定放在哪里
+    inheritAttrs: false,
+    ...options,
+    setup: (props, ctx) => setup(withChildren(props, ctx), ctx),
+  };
+}
+
+/** 只拦截 children：读取时才执行默认插槽，其余属性原样交给 Vue 的 props（保持依赖收集） */
+function withChildren(props: object, ctx: SetupContext): object {
+  return new Proxy(props, {
+    get(target, key, receiver) {
+      if (key === 'children') {
+        // 读取发生在子组件的渲染函数里，因此内容是惰性的，依赖也归属子组件
+        return ctx.slots.default?.() ?? ctx.attrs.children;
+      }
+      return Reflect.get(target, key, receiver);
+    },
+  });
+}

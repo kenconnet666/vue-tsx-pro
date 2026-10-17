@@ -27,3 +27,16 @@ const { count, increment } = _from(useCounter());
 export const doubled: number = count * 2;
 // @ts-expect-error increment 不是 Ref，应从 useCounter() 单独解构
 increment();
+
+// 泛型组件：类型参数从属性推导，并传到回调参数
+import type { NodeChild } from 'vue-jsx';
+import { _component } from '../src';
+const List = _component(
+  <T,>({ items, renderItem }: { items: T[]; renderItem: (item: T) => NodeChild }) =>
+    () => <ul>{items.map(renderItem)}</ul>,
+);
+export const typedList = (
+  <List items={[{ id: 1 }]} renderItem={(item) => <li>{item.id.toFixed()}</li>} />
+);
+// @ts-expect-error item 被推导为 { id: number }，没有 name
+export const wrongField = <List items={[{ id: 1 }]} renderItem={(item) => <li>{item.name}</li>} />;

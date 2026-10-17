@@ -18,7 +18,7 @@ const cases: [string, string, RegExp][] = [
   [
     '组件外使用 _bindable',
     'function f({ a = _bindable(1) }) {}',
-    /只能写在组件参数解构的默认值位置/,
+    /只能写在 _component 参数解构的默认值位置/,
   ],
   ['不存在的成员', 'let x = _state.deep(0)', /不支持 _state.deep/],
   [
@@ -31,21 +31,8 @@ const cases: [string, string, RegExp][] = [
     '_component(() => () => [1].map(() => { const d = _derived(1); return d }))',
     /写在渲染函数里/,
   ],
-  [
-    'vue-jsx 会丢弃的默认值：负数',
-    '_component(({ index = -1 }) => () => index)',
-    /index 的默认值会被 vue-jsx 丢弃/,
-  ],
-  [
-    'vue-jsx 会丢弃的默认值：函数调用',
-    '_component(({ items = makeItems() }) => () => items)',
-    /默认值会被 vue-jsx 丢弃/,
-  ],
-  [
-    'vue-jsx 会丢弃的默认值：模板字符串',
-    '_component(({ label = `x` }) => () => label)',
-    /默认值会被 vue-jsx 丢弃/,
-  ],
+  ['props 参数不解构', '_component((props: { a?: number }) => () => props.a)', /请解构 props/],
+  ['props 嵌套解构', '_component(({ user: { name } }: any) => () => name)', /props 不支持嵌套解构/],
 ];
 
 describe('误用在编译期报错', () => {
@@ -55,16 +42,17 @@ describe('误用在编译期报错', () => {
     });
   }
 
-  it('vue-jsx 支持的默认值照常通过', async () => {
+  it('props 默认值可以是任意表达式，并在实例内按书写顺序求值', async () => {
     const code = [
-      'const DEFAULT_INDEX = -1;',
-      '_component(({ a = 1, b = "x", c = true, d = null, e = {}, f = [], g = () => 1,',
-      '  h = DEFAULT_INDEX, i = undefined as string | undefined, j = 0!, k = _bindable(false) }: any) => {',
-      '  let n = _state(0);',
-      '  return () => [a, b, c, d, e, f, g, h, i, j, k, n];',
-      '});',
+      "_component(({ size = 'md', icon = pick(size), index = -1, label = `#${index}`, items = [] }: any) =>",
+      '  () => [size, icon, index, label, items])',
     ].join('\n');
-    await expect(compileRunes(code)).resolves.toBeTruthy();
+    const out = (await compileRunes(code))!.code;
+    // 默认值变成惰性函数，引用的前一个 prop 已改写为 .value
+    expect(out).toContain('_vtp_prop(_props, "icon", () => pick(size.value))');
+    expect(out).toContain('_vtp_prop(_props, "index", () => -1)');
+    // 自动补上组件的 props 声明
+    expect(out).toMatch(/props: \["size", "icon", "index", "label", "items"\]/);
   });
 
   it('setup 函数体与 setup 内的普通回调可以声明符文', async () => {
