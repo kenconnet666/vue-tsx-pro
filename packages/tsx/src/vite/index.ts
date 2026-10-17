@@ -14,6 +14,9 @@ import { compileRunes } from '../compiler/index';
 
 type StylexOptions = NonNullable<Parameters<typeof stylex.vite>[0]>;
 
+/** 本包的 StyleX 入口：运行时同 @stylexjs/stylex，类型带中文注释（见 src/stylex） */
+const STYLEX_ENTRY = '@vue-tsx-pro/tsx/stylex';
+
 export interface VueTsxProOptions {
   /**
    * StyleX 插件选项；传 false 时不编译 StyleX。
@@ -25,7 +28,13 @@ export interface VueTsxProOptions {
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   const plugins: Plugin[] = [runes()];
   if (options.stylex !== false) {
-    plugins.push(...toArray(stylex.vite(options.stylex)).map(skipDevServerWithoutHttp));
+    // 让编译器同时识别带中文注释的入口 @vue-tsx-pro/tsx/stylex
+    const importSources = [
+      ...(options.stylex?.importSources ?? ['@stylexjs/stylex']),
+      STYLEX_ENTRY,
+    ];
+    const stylexPlugins = toArray(stylex.vite({ ...options.stylex, importSources }));
+    plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp));
   }
   // _component 与 defineComponent 一样参与热更新与 tree-shaking 标注
   plugins.push(vueJsx({ defineComponentName: ['defineComponent', '_component'] }));

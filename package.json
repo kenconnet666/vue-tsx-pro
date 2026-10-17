@@ -19,6 +19,8 @@
     "lint": "oxlint . --deny-warnings",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "css-docs": "node scripts/css-docs/generate.mjs",
+    "css-docs:check": "node scripts/css-docs/generate.mjs --check",
     "lsp:setup": "node scripts/language-services/setup.mjs",
     "lsp:verify": "node scripts/language-services/verify.mjs"
   },
@@ -26,12 +28,14 @@
     "@modelcontextprotocol/sdk": "catalog:",
     "@prettier/plugin-oxc": "catalog:",
     "@types/node": "catalog:",
+    "mdn-data": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "prettier": "catalog:",
     "smol-toml": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
+    "web-features": "catalog:",
     "zod": "catalog:"
   }
 }

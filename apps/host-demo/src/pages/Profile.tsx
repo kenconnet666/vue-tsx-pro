@@ -1,4 +1,4 @@
-import * as stylex from '@stylexjs/stylex';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { storeToRefs } from 'pinia';
 import { inject } from 'vue';
 import { useRoute } from 'vue-router';

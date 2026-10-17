@@ -212,6 +212,9 @@ catalogs:
     happy-dom:
       specifier: 21.0.3
       version: 21.0.3
+    mdn-data:
+      specifier: 2.37.2
+      version: 2.37.2
     oxlint:
       specifier: 1.88.0
       version: 1.88.0
@@ -251,6 +254,9 @@ catalogs:
     vue-router:
       specifier: 5.4.0
       version: 5.4.0
+    web-features:
+      specifier: 3.43.0
+      version: 3.43.0
     zod:
       specifier: 4.6.7
       version: 4.6.7
@@ -268,6 +274,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
+      mdn-data:
+        specifier: 'catalog:'
+        version: 2.37.2
       oxlint:
         specifier: 'catalog:'
         version: 1.88.0(oxlint-tsgolint@7.0.2004)
@@ -286,6 +295,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 5.0.5(@types/node@24.19.2)(happy-dom@21.0.3)(vite@8.3.4(@types/node@24.19.2))
+      web-features:
+        specifier: 'catalog:'
+        version: 3.43.0
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -1874,6 +1886,9 @@ packages:
   mdast-util-to-hast@13.2.1:
     resolution: {integrity: sha512-cctsq2wp5vTsLIcaymblUriiTcZd0CwWtCbLvrOzYCDZoWyMNV8sZ7krj09FSnsiJi3WVsHLM4k6Dq/yaPyCXA==}
 
+  mdn-data@2.37.2:
+    resolution: {integrity: sha512-rz9YOBGItdSbe7HcSArUbhiAv4SB/4DKRYg96CSFS2CcIYMbUvBtZlzA1NCbk2AdgbmYwMqwNblLpR441lLeiQ==}
+
   media-typer@1.1.1:
     resolution: {integrity: sha512-yz3xRaG20c6/BOzvYoDaGtPmGscs7YivItZEEqe6GbwNfHuxu9YNmvnEkMzKldAGY4/80pRcQRZSEnhquk9XuQ==}
     engines: {node: '>= 0.8'}
@@ -2469,6 +2484,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  web-features@3.43.0:
+    resolution: {integrity: sha512-nxisNw9bZc+q186ptMsJ/qRBuXH78h918eS6/CeKeGH28kK/1Qfyu/ETG2cSgYTPqvbGFQ9s/8n3XBdpBYv3DA==}
 
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
@@ -3834,6 +3852,8 @@ snapshots:
       unist-util-visit: 5.1.0
       vfile: 6.0.3
 
+  mdn-data@2.37.2: {}
+
   media-typer@1.1.1: {}
 
   merge-descriptors@2.0.0: {}
@@ -4440,6 +4460,8 @@ snapshots:
       '@vue/shared': 3.5.44
     optionalDependencies:
       typescript: 6.0.3
+
+  web-features@3.43.0: {}
 
   webpack-virtual-modules@0.6.2: {}
 

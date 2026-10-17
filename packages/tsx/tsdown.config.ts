@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     vite: 'src/vite/index.ts',
+    stylex: 'src/stylex/index.ts',
     compiler: 'src/compiler/index.ts',
   },
   format: 'esm',

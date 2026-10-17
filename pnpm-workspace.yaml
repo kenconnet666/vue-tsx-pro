@@ -32,6 +32,9 @@ catalog:
   vitepress: 2.0.0-alpha.20
   # 语言与工具
   '@modelcontextprotocol/sdk': 1.32.1
+  # CSS 注释数据（scripts/css-docs）：事实字段来源
+  mdn-data: 2.37.2
+  web-features: 3.43.0
   zod: 4.6.7
   smol-toml: 1.9.1
   typescript: 6.0.3

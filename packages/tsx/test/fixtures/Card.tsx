@@ -1,4 +1,4 @@
-import * as stylex from '@stylexjs/stylex';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { _component } from '../../src';
 

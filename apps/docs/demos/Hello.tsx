@@ -1,4 +1,4 @@
-import * as stylex from '@stylexjs/stylex';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { _component } from '@vue-tsx-pro/tsx';
 
 const styles = stylex.create({
