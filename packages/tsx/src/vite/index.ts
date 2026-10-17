@@ -62,7 +62,10 @@ export function runes(): Plugin {
     async transform(code, id) {
       const file = id.split('?')[0]!;
       if (!/\.[cm]?[jt]sx?$/.test(file) || file.includes('/node_modules/')) return;
-      return compileRunes(code, file);
+      const result = await compileRunes(code, file);
+      if (!result) return;
+      for (const warning of result.warnings) this.warn(warning.frame);
+      return { code: result.code, map: result.map };
     },
   };
 }

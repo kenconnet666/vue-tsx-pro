@@ -55,13 +55,13 @@ pnpm format         # prettier
 
 项目级 MCP 服务器 `vue_tsx_pro_lsp` 把 TSX 语言服务提供给 Codex 与 Claude Code。它直接使用仓库固定的 TypeScript，结果与 `pnpm typecheck` 一致；诊断还会附带符文编译器的误用报错。只处理 `.ts`/`.tsx`，不涉及 Vue SFC。
 
-| 工具          | 作用                                               |
-| ------------- | -------------------------------------------------- |
-| `diagnostics` | 单个文件的类型错误 + 符文误用（`source: "runes"`） |
-| `hover`       | 位置处的类型与文档                                 |
-| `definitions` | 跳转定义                                           |
-| `references`  | 查找引用                                           |
-| `completions` | 补全，可按前缀过滤                                 |
+| 工具          | 作用                                                     |
+| ------------- | -------------------------------------------------------- |
+| `diagnostics` | 单个文件的类型错误 + 符文误用与警告（`source: "runes"`） |
+| `hover`       | 位置处的类型与文档                                       |
+| `definitions` | 跳转定义                                                 |
+| `references`  | 查找引用                                                 |
+| `completions` | 补全，可按前缀过滤                                       |
 
 ```bash
 pnpm lsp:setup    # 生成本机配置：.codex/config.toml、.mcp.json、.claude/settings.local.json

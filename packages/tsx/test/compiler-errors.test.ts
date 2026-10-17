@@ -150,3 +150,39 @@ describe('按文件类型解析', () => {
     ).resolves.toBeNull();
   });
 });
+
+describe('编译警告', () => {
+  it('组件函数体里直接读取 prop 或符文：只拿到当前值，给出警告', async () => {
+    const code = [
+      '_component(({ size = 1 }: { size?: number }) => {',
+      '  let count = _state(0);',
+      '  const first = size + count;',
+      '  return () => first;',
+      '})',
+    ].join('\n');
+    const { warnings } = (await compileRunes(code))!;
+    expect(warnings.map((w) => w.message.split(' ')[0])).toEqual(['size', 'count']);
+    expect(warnings[0]!.loc!.start.line).toBe(3);
+  });
+
+  it('渲染函数、回调、_derived 与 _ref 里读取不警告', async () => {
+    const code = [
+      '_component(({ size = 1 }: { size?: number }) => {',
+      '  let count = _state(0);',
+      '  const doubled = _derived(count * size);',
+      '  const log = () => console.log(size);',
+      '  watch(_ref(count), log);',
+      '  return () => [size, doubled];',
+      '})',
+    ].join('\n');
+    expect((await compileRunes(code))!.warnings).toEqual([]);
+  });
+});
+
+describe('组件名', () => {
+  it('export default 取文件名；index 文件取目录名', async () => {
+    const code = 'export default _component(() => () => null)';
+    expect((await compileRunes(code, 'src/Badge.tsx'))!.code).toContain('name: "Badge"');
+    expect((await compileRunes(code, 'src/Select/index.tsx'))!.code).toContain('name: "Select"');
+  });
+});

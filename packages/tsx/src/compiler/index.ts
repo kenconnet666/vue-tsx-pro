@@ -68,15 +68,17 @@ export async function compileRunes(code: string, filename = 'input.tsx') {
     generatorOpts: { retainLines: false },
     plugins: [runesBabelPlugin],
   });
-  return result && { code: result.code ?? '', map: result.map };
+  if (!result) return null;
+  const warnings = (result.metadata as { runesWarnings?: RunesWarning[] }).runesWarnings ?? [];
+  return { code: result.code ?? '', map: result.map, warnings };
 }
 
 export function runesBabelPlugin(): PluginObj {
   return {
     name: 'vue-tsx-pro-runes',
     visitor: {
-      Program(program) {
-        const ctx = new RunesContext(program);
+      Program(program, state) {
+        const ctx = new RunesContext(program, state.filename);
         ctx.collectDeclarations(); // 第 1 步：符文 → Vue API
         program.scope.crawl(); //     第 2 步：改写后重建作用域
         ctx.resolveBindings();
@@ -84,6 +86,7 @@ export function runesBabelPlugin(): PluginObj {
         ctx.rewriteBinds(); //        属性={_bind(x)} → v-model
         ctx.reportMisuse(); //        第 4 步：残留的符文都是误用
         ctx.insertImports();
+        (state.file.metadata as { runesWarnings?: RunesWarning[] }).runesWarnings = ctx.warnings;
       },
     },
   };
@@ -96,10 +99,15 @@ class RunesContext {
   /** 已导入的运行时函数：`模块:名称` → 本地别名 */
   private helpers = new Map<string, { helper: Helper; local: t.Identifier }>();
 
-  private program: NodePath<t.Program>;
+  /** 不影响正确性、但多半不是作者本意的写法 */
+  readonly warnings: RunesWarning[] = [];
 
-  constructor(program: NodePath<t.Program>) {
+  private program: NodePath<t.Program>;
+  private filename: string | undefined;
+
+  constructor(program: NodePath<t.Program>, filename: string | undefined) {
     this.program = program;
+    this.filename = filename;
   }
 
   // ───────────────────────── 第 1 步：符文声明 ─────────────────────────
@@ -283,7 +291,7 @@ class RunesContext {
       prependToBody(setup, declarations);
     }
 
-    addComponentOptions(setup.parentPath as NodePath<t.CallExpression>, names);
+    addComponentOptions(setup.parentPath as NodePath<t.CallExpression>, names, this.filename);
   }
 
   /**
@@ -394,6 +402,15 @@ class RunesContext {
     }
     if (parent.isExportSpecifier()) {
       throw fail(reference, `不能导出响应式变量 ${binding.identifier.name}`);
+    }
+    const owner = reference.getFunctionParent();
+    if (owner && isComponentSetup(owner)) {
+      this.warnings.push(
+        warning(
+          reference,
+          `${binding.identifier.name} 在组件函数体里直接读取，只拿到当前值、之后不会更新；需要跟随变化请放进渲染函数、回调或 _derived`,
+        ),
+      );
     }
     // <List>{children}</List>：JSX 编译器只对标识符子节点判断"是不是插槽函数"，
     // 改写成 x.value 会被当成普通内容；换成调用 unref(x) 才能把渲染函数原样转交
@@ -528,6 +545,18 @@ export interface RunesError extends Error {
   loc?: { start: { line: number; column: number }; end: { line: number; column: number } };
 }
 
+/** 编译警告：说明、位置，以及带代码帧的完整文本（给 Vite 输出） */
+export interface RunesWarning {
+  message: string;
+  loc?: RunesError['loc'];
+  frame: string;
+}
+
+function warning(path: NodePath, message: string): RunesWarning {
+  const { loc } = fail(path, message);
+  return { message, loc, frame: path.buildCodeFrameError(message).message };
+}
+
 function fail(path: NodePath, message: string): RunesError {
   const error: RunesError = path.buildCodeFrameError(message);
   const loc = path.node.loc;
@@ -616,14 +645,20 @@ function readPropPattern(property: NodePath) {
  * 给 _component 补上第二个参数：组件名（取自 const X = _component(...)）与 props 声明。
  * 作者已经写了选项对象时，只补充其中缺少的项。
  */
-function addComponentOptions(call: NodePath<t.CallExpression>, names: string[]) {
+function addComponentOptions(
+  call: NodePath<t.CallExpression>,
+  names: string[],
+  filename: string | undefined,
+) {
   const generated: t.ObjectProperty[] = [];
   const declarator = call.parentPath;
-  if (declarator?.isVariableDeclarator() && t.isIdentifier(declarator.node.id)) {
-    generated.push(
-      t.objectProperty(t.identifier('name'), t.stringLiteral(declarator.node.id.name)),
-    );
-  }
+  const name =
+    declarator?.isVariableDeclarator() && t.isIdentifier(declarator.node.id)
+      ? declarator.node.id.name
+      : declarator?.isExportDefaultDeclaration() && filename
+        ? nameFromFile(filename)
+        : undefined;
+  if (name) generated.push(t.objectProperty(t.identifier('name'), t.stringLiteral(name)));
   if (names.length) {
     generated.push(
       t.objectProperty(
@@ -647,6 +682,14 @@ function addComponentOptions(call: NodePath<t.CallExpression>, names: string[]) 
       t.spreadElement(existing as t.Expression),
     ]);
   }
+}
+
+/** export default _component(...) 取文件名作组件名；index.tsx 取所在目录名 */
+function nameFromFile(filename: string) {
+  const parts = filename.split(/[\\/]/);
+  const base = parts.at(-1)!.replace(/\.[^.]+$/, '');
+  const name = base === 'index' ? parts.at(-2) : base;
+  return name && /^[A-Za-z]/.test(name) ? name : undefined;
 }
 
 /** 判断调用是否为某个符文（且没有被同名本地变量遮蔽） */

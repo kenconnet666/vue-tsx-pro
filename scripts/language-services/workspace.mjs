@@ -3,7 +3,7 @@
  *
  * 直接使用仓库固定的 TypeScript LanguageService，按文件所在的 tsconfig.json 建立项目，
  * 因此结果与 `pnpm typecheck` 一致（同版本、同 customConditions、同 jsxImportSource）。
- * 诊断额外附带符文编译器的误用报错。只处理 .ts / .tsx / .mts / .cts，不涉及 Vue SFC。
+ * 诊断额外附带符文编译器的误用报错与警告。只处理 .ts / .tsx / .mts / .cts，不涉及 Vue SFC。
  */
 import ts from 'typescript';
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
@@ -11,9 +11,6 @@ import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node
 import { pathToFileURL } from 'node:url';
 
 const SUPPORTED_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts']);
-// 与编译器的判断一致：用到符文，或定义了组件（参数默认值、prop 写入检查）
-const NEEDS_COMPILE =
-  /\b_(?:state|derived|bindable|from|ref)\b|\b(?:_component|defineComponent)\s*\(/;
 const COMPILER_ENTRY = 'packages/tsx/src/compiler/index.ts';
 
 /** TypeScript 内部统一使用正斜杠；不区分大小写的系统再统一小写，便于比较 */
@@ -207,16 +204,23 @@ export class TsxWorkspace {
     };
   }
 
-  /** 用真实的符文编译器编译一遍；它在第一处误用（或语法错误）时报错并给出位置 */
+  /**
+   * 用真实的符文编译器编译一遍：误用在第一处报错（或语法错误），快照读取等给出警告。
+   * 不需要编译的文件（没有符文与 _component）编译器直接返回 null。
+   */
   async #runesDiagnostics(file) {
-    const text = readFileSync(file, 'utf8');
-    if (!NEEDS_COMPILE.test(text)) return [];
     this.#compileRunes ??= (
       await import(pathToFileURL(join(this.root, COMPILER_ENTRY)).href)
     ).compileRunes;
     try {
-      await this.#compileRunes(text, file);
-      return [];
+      const result = await this.#compileRunes(readFileSync(file, 'utf8'), file);
+      return (result?.warnings ?? []).map((warning) => ({
+        source: 'runes',
+        code: 'RUNES',
+        severity: 'warning',
+        message: warning.message,
+        range: babelRange(warning.loc),
+      }));
     } catch (error) {
       // 消息形如 "<文件>: <说明>\n<代码帧>"，只保留说明
       const message = String(error.message)
