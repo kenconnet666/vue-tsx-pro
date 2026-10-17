@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client"]
+  },
+  // .vue 由宿主自己的工具链（vue-tsc）检查，这里只检查 TS / TSX
+  "include": ["src", "test", "*.config.ts"]
+}

@@ -1,0 +1,9 @@
+/* 宿主的全局样式；构建时 StyleX 的 CSS 会追加到这个文件里 */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+nav {
+  padding: 12px 16px;
+}

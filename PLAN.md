@@ -98,7 +98,7 @@ vue-tsx-pro/
 └─ .github/workflows/ci.yml   Ubuntu + Windows
 ```
 
-依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → ui + tsx`，`tests/* → 构建产物`。`tsx` 不依赖 `ui`。
+依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → tsx`（组件库有组件后再加 `ui`），`tests/* → 构建产物`。`tsx` 不依赖 `ui`。
 
 注意：pnpm 12 已不再读取 `package.json` 里的 `pnpm` 字段，工作区设置必须写在 `pnpm-workspace.yaml`。
 
@@ -192,15 +192,17 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 
 ## 8. 补充验证
 
-| 验证                                            | 结果                                                                                                                |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 符文改为 `_` 前缀                               | 原型 35 项通过；生成别名改为 `_vue_ref` 等，无冲突                                                                  |
-| pnpm 12 设置位置                                | `package.json` 的 `pnpm` 字段被忽略，需移到 `pnpm-workspace.yaml`                                                   |
-| VitePress 1.6.4                                 | 内置 Vite ^5，与 Vite 8 不匹配                                                                                      |
-| `@vue/babel-plugin-jsx` 在 Vue 3.5 下的编译结果 | `v-model:checked` → `checked` + `onUpdate:checked`；`<X disabled />` → `disabled: true`；函数子节点原样作为默认插槽 |
-| vue-jsx 3.3 RC（已移除）                        | 运行时要求 Vue ^3.6 RC；虚拟模块 `/vue-jsx/vdom` 在 Windows 上让 Vitest 崩溃                                        |
-| 换底座：Vue 3.5.44 + 官方 JSX 插件              | Windows 本地与 CI 测试全部通过；全仓只有一份 Vue，不需要 overrides；VitePress 2 静态构建成功                        |
-| 文档站热更新                                    | 改 `_component` 组件后页面不刷新、组件被热替换；组件局部状态重置（官方插件对组件调用 `reload`，会重跑 setup）       |
+| 验证                                                   | 结果                                                                                                                                       |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 符文改为 `_` 前缀                                      | 原型 35 项通过；生成别名改为 `_vue_ref` 等，无冲突                                                                                         |
+| pnpm 12 设置位置                                       | `package.json` 的 `pnpm` 字段被忽略，需移到 `pnpm-workspace.yaml`                                                                          |
+| VitePress 1.6.4                                        | 内置 Vite ^5，与 Vite 8 不匹配                                                                                                             |
+| `@vue/babel-plugin-jsx` 在 Vue 3.5 下的编译结果        | `v-model:checked` → `checked` + `onUpdate:checked`；`<X disabled />` → `disabled: true`；函数子节点原样作为默认插槽                        |
+| vue-jsx 3.3 RC（已移除）                               | 运行时要求 Vue ^3.6 RC；虚拟模块 `/vue-jsx/vdom` 在 Windows 上让 Vitest 崩溃                                                               |
+| 换底座：Vue 3.5.44 + 官方 JSX 插件                     | Windows 本地与 CI 测试全部通过；全仓只有一份 Vue，不需要 overrides；VitePress 2 静态构建成功                                               |
+| 文档站热更新                                           | 改 `_component` 组件后页面不刷新、组件被热替换；组件局部状态重置（官方插件对组件调用 `reload`，会重跑 setup）                              |
+| 宿主示例（plugin-vue + vue-router + pinia + TSX 页面） | 测试与真实 Chromium 中：路由参数、`_from(storeToRefs(...))` 双向写入、宿主 `provide`、StyleX 样式都正常；SFC 页面读到 TSX 页面写入的 store |
+| 宿主构建产物中的 StyleX CSS                            | 追加到宿主已有的 CSS 文件；宿主没有任何 CSS 文件时只生成未被引用的 `stylex.css`（已写入 README）                                           |
 
 ---
 
@@ -220,3 +222,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **props 改为 Svelte 式响应式解构**：参数解构由我们的编译器换成实例内的 prop 访问器（参考 Svelte 5 的 `$.prop`），默认值可为任意表达式、按实例惰性求值、可引用前面的 prop 并随之更新；`_bindable` 使用本包的 `bindable`（v-model 协议）；props 声明与组件名自动生成；JSX 子节点按 `children` prop 检查。
 
 **换底座**：Vue 3.6 RC + vue-jsx 3.3 RC 改为 Vue 3.5.44 + 官方 `@vitejs/plugin-vue-jsx`；JSX 类型改为基于 `vue/jsx-runtime`；`.ts` 文件不再开启 JSX 语法；删除面向模板写法的互通用例。
+
+**宿主示例**：`apps/host-demo` 是普通 Vue 3.5 项目（SFC 首页 + vue-router + pinia），TSX 页面作为路由组件挂载；集成测试纳入 `pnpm test`，构建纳入 CI。

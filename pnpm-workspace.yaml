@@ -10,6 +10,10 @@ catalog:
   '@babel/core': 7.29.7
   '@types/babel__core': 7.20.5
   '@types/babel__traverse': 7.28.0
+  # 宿主示例（apps/host-demo）：普通 Vue 项目常用的三件套
+  '@vitejs/plugin-vue': 6.0.10
+  vue-router: 5.4.0
+  pinia: 4.1.0
   # 样式
   '@stylexjs/stylex': 0.19.1
   '@stylexjs/unplugin': 0.19.1

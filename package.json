@@ -13,6 +13,7 @@
     "build:tsx": "pnpm --filter @vue-tsx-pro/tsx build",
     "dev:docs": "pnpm build:tsx && pnpm --filter @vue-tsx-pro/docs dev",
     "build:docs": "pnpm build && pnpm --filter @vue-tsx-pro/docs build",
+    "build:host": "pnpm build:tsx && pnpm --filter @vue-tsx-pro/host-demo build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm build:tsx && vitest run",
     "lint": "oxlint . --deny-warnings",

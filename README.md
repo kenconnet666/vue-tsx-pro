@@ -20,15 +20,20 @@ export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
 
 TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
 
+构建时 StyleX 的 CSS 会追加到宿主产物里的 CSS 文件（宿主一般都有全局样式）；如果宿主一个 CSS 文件都没有，StyleX 会另写一个 `stylex.css` 但不会自动引用。
+
+完整示例见 `apps/host-demo`：SFC 首页 + vue-router + pinia，加一个 TSX 页面读取路由参数、写入 store、inject 宿主提供的值。
+
 ## 结构
 
-| 路径           | 包                          | 说明                                                                          |
-| -------------- | --------------------------- | ----------------------------------------------------------------------------- |
-| `packages/tsx` | `@vue-tsx-pro/tsx`          | `_component()`（Svelte 式 props 解构）、符文编译器、Vite 预设、JSX 与符文类型 |
-| `packages/ui`  | `@vue-tsx-pro/ui`           | 组件库（StyleX）                                                              |
-| `apps/docs`    | `@vue-tsx-pro/docs`（私有） | 文档站（VitePress 2）                                                         |
+| 路径             | 包                               | 说明                                                                          |
+| ---------------- | -------------------------------- | ----------------------------------------------------------------------------- |
+| `packages/tsx`   | `@vue-tsx-pro/tsx`               | `_component()`（Svelte 式 props 解构）、符文编译器、Vite 预设、JSX 与符文类型 |
+| `packages/ui`    | `@vue-tsx-pro/ui`                | 组件库（StyleX）                                                              |
+| `apps/docs`      | `@vue-tsx-pro/docs`（私有）      | 文档站（VitePress 2）                                                         |
+| `apps/host-demo` | `@vue-tsx-pro/host-demo`（私有） | 宿主示例：普通 Vue 3.5 项目里的 TSX 页面                                      |
 
-依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`。
+依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → tsx`。
 
 ## 命令
 
@@ -41,6 +46,7 @@ pnpm typecheck      # 各包类型检查
 pnpm test           # 先构建 tsx，再运行各包测试
 pnpm dev:docs       # 启动文档站
 pnpm build:docs     # 构建文档站静态页面
+pnpm build:host     # 构建宿主示例
 pnpm lint           # oxlint（含类型感知规则）
 pnpm format         # prettier
 ```

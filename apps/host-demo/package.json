@@ -1,0 +1,26 @@
+{
+  "name": "@vue-tsx-pro/host-demo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "宿主示例：普通 Vue 3.5 项目（SFC + vue-router + pinia）里的一个 TSX 页面",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@stylexjs/stylex": "catalog:",
+    "@vue-tsx-pro/tsx": "workspace:^",
+    "pinia": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
