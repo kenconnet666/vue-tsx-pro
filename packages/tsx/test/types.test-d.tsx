@@ -6,14 +6,14 @@ let label = _state('x');
 const size = _derived(label.length);
 
 export const ok = (
-  <Switch v-model:checked={on} disabled={size > 3}>
+  <Switch checked={_bind(on)} disabled={size > 3}>
     {label}
   </Switch>
 );
 on = true;
 
-// @ts-expect-error v-model:checked 需要 boolean
-export const wrongModel = <Switch v-model:checked={label} />;
+// @ts-expect-error _bind 的值按 prop 类型检查：checked 需要 boolean
+export const wrongModel = <Switch checked={_bind(label)} />;
 
 // @ts-expect-error label 是 string
 label = 1;

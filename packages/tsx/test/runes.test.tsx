@@ -50,12 +50,12 @@ describe('符文', () => {
     expect(renders).toBe(2);
   });
 
-  it('_bindable + v-model:checked 双向同步，子组件写入后同步读到新值', async () => {
+  it('_bindable + _bind 双向同步，子组件写入后同步读到新值', async () => {
     const on = ref(false);
     const seen: boolean[] = [];
     const el = mount(
       _component(() => () => (
-        <Switch v-model:checked={on.value} onChange={(value) => seen.push(value)}>
+        <Switch checked={_bind(on.value)} onChange={(value) => seen.push(value)}>
           x
         </Switch>
       )),

@@ -19,6 +19,16 @@ import {
 /** setup 返回渲染函数；setup 本身只执行一次 */
 type Render = () => VNodeChild;
 
+/**
+ * 组件在类型上是“接收 props 的函数”，返回值带 '~tsx' 标记：JSX 类型（types/jsx-runtime.d.ts）
+ * 据此把它和 Vue 的其他函数式组件区分开，只有它的子节点按 children prop 检查。
+ * 标记放在返回值上而不是函数上，泛型组件的类型参数推导才不受影响。
+ */
+export interface TsxNode extends VNode {
+  readonly '~tsx': true;
+}
+export type TsxComponent<P> = (props: P) => TsxNode;
+
 export interface ComponentOptions {
   /** 组件名，DevTools 与警告信息里显示；编译器从 const X = _component(...) 自动补上 */
   name?: string;
@@ -33,7 +43,7 @@ export interface ComponentOptions {
 export function _component<P extends object = {}>(
   setup: (props: P) => Render,
   options?: ComponentOptions,
-): (props: P) => VNode;
+): TsxComponent<P>;
 
 export function _component(
   setup: (props: object, ctx: SetupContext) => Render,

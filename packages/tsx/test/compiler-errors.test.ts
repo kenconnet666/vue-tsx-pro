@@ -43,6 +43,38 @@ const cases: [string, string, RegExp][] = [
     '_component(({ children }: any) => { const content = children; return () => content })',
     /children 是父级传入的内容/,
   ],
+  [
+    '_bind 只读的 _derived',
+    'let a = _state(1); const d = _derived(a); <X v={_bind(d)} />',
+    /d 来自 _derived，是只读的，不能用 _bind/,
+  ],
+  [
+    '_bind 普通 prop',
+    '_component(({ v = 1 }: any) => () => <X v={_bind(v)} />)',
+    /prop v 是只读的/,
+  ],
+  ['_bind 非响应式变量', 'let n = 1; <X v={_bind(n)} />', /_bind 的参数必须是/],
+  ['_bind 不在 JSX 属性里', 'let n = _state(1); const r = _bind(n)', /只能写在 JSX 属性的值里/],
+  [
+    '_bind 原生元素绑定其他属性',
+    'let n = _state(""); <input title={_bind(n)} />',
+    /只能绑定 value 或 checked/,
+  ],
+  [
+    '_bind 修饰符用在组件上',
+    'let n = _state(""); <X v={_bind.trim(n)} />',
+    /修饰符只用于原生输入元素/,
+  ],
+  [
+    '_bind 未知修饰符',
+    'let n = _state(""); <input value={_bind.upper(n)} />',
+    /不支持 _bind.upper/,
+  ],
+  ['v-model 指令', 'let n = _state(""); <input v-model={n} />', /属性=\{_bind\(x\)\}/],
+  ['v-model:prop 指令', 'let n = _state(false); <X v-model:checked={n} />', /属性=\{_bind\(x\)\}/],
+  ['v-show 指令', 'let n = _state(true); <i v-show={n} />', /hidden=\{!visible\}/],
+  ['v-slots 指令', 'let n = _state(1); <X v-slots={{}} />', /没有插槽/],
+  ['自定义指令', 'let n = _state(1); <i v-focus={n} />', /不支持 Vue 指令 v-focus/],
 ];
 
 describe('误用在编译期报错', () => {
@@ -81,6 +113,21 @@ describe('误用在编译期报错', () => {
     const out = (await compileRunes(code))!.code;
     expect(out).toContain('children.value != null');
     expect(out).toContain('<Box>{_vue_unref(children)}</Box>');
+  });
+
+  it('_bind 编译为 v-model：组件带参数名，原生元素带修饰符', async () => {
+    const code = [
+      'let on = _state(false); let name = _state(""); const form = _state({ age: 1 });',
+      '<>',
+      '  <Switch checked={_bind(on)} />',
+      '  <input value={_bind.lazy.trim(name)} />',
+      '  <input type="number" value={_bind.number(form.age)} />',
+      '</>',
+    ].join('\n');
+    const out = (await compileRunes(code))!.code;
+    expect(out).toContain('<Switch v-model:checked={on.value} />');
+    expect(out).toContain('<input v-model_lazy_trim={name.value} />');
+    expect(out).toContain('<input type="number" v-model_number={form.age} />');
   });
 
   it('被本地变量遮蔽的同名函数不当作符文', async () => {

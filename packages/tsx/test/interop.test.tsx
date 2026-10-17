@@ -24,14 +24,14 @@ function type(input: Element, value: string) {
 }
 
 describe('与 Vue 生态互通', () => {
-  it('原生 v-model、reactive 对象路径', async () => {
+  it('原生输入 _bind、reactive 对象路径', async () => {
     const el = mount(Page);
     type($(el, '.native'), 'bb');
     await nextTick();
     expect($(el, '.name').textContent).toBe('bb');
     type($(el, '.font'), '20');
     await nextTick();
-    expect(settings.fontSize).toBe(20); // v-model_number 修饰符也照常工作
+    expect(settings.fontSize).toBe(20); // _bind.number 修饰符也照常工作
   });
 
   it('_from 接入组合式函数的 Ref；getter 与 _ref 交给 Vue API', async () => {

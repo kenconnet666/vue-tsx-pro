@@ -6,8 +6,8 @@
  *   2. 把 _component 的参数解构换成实例内的 prop 访问器（参考 Svelte 5 的 $.prop），
  *      并生成 Vue 需要的 props 声明；_bindable 走标准 v-model 协议
  *   3. 把这些变量的读写改写成 .value
- *   4. _ref(x) 取回背后的 Ref，交给需要 Ref 的 Vue API
- *   5. 对会悄悄失去响应性的写法直接报错
+ *   4. _ref(x) 取回背后的 Ref；属性={_bind(x)} 换成 Vue 的 v-model（与 _bindable 成对）
+ *   5. 对会悄悄失去响应性的写法、以及 TSX 里有更自然写法的 Vue 指令直接报错
  *
  * 生成的代码就是手写 Vue 会写的代码，之后交给官方 @vitejs/plugin-vue-jsx 编译 JSX。
  */
@@ -21,12 +21,26 @@ const COMPONENT_CALLEES = new Set(['_component', 'defineComponent']);
 const RUNTIME_MODULE = '@vue-tsx-pro/tsx';
 
 /** 所有符文的全局名；只有未被本地变量遮蔽时才当作符文 */
-const RUNE_GLOBALS = new Set(['_state', '_derived', '_bindable', '_from', '_ref']);
+const RUNE_GLOBALS = new Set(['_state', '_derived', '_bindable', '_bind', '_from', '_ref']);
+
+/** _bind 的修饰符，与 Vue v-model 的修饰符一致，只用于原生输入元素 */
+const BIND_MODIFIERS = new Set(['trim', 'number', 'lazy']);
+
+/** Vue 指令在 TSX 里都有更自然的写法：编译期报错并给出替代写法 */
+const DIRECTIVE_HINTS: Record<string, string> = {
+  model:
+    '双向绑定请写成 属性={_bind(x)}，例如 <Switch checked={_bind(on)} />、<input value={_bind.trim(name)} />',
+  show: '显示与隐藏请用原生属性 hidden={!visible}，或条件渲染 {visible && <X />}',
+  slots: '没有插槽：内容写成子节点（children），具名内容作为 JSX prop 传入',
+  html: '请改用 innerHTML={html}',
+  text: '请直接把文本写成子节点 {text}',
+};
 
 /** 用到符文，或定义了 _component（需要编译 props 解构）的文件才需要编译；宿主项目的其他文件原样放过 */
-const NEEDS_COMPILE = /\b_(?:state|derived|bindable|from|ref)\b|\b_component\s*\(/;
+const NEEDS_COMPILE = /\b_(?:state|derived|bindable|bind|from|ref)\b|\b_component\s*\(/;
 
-type Rune = '_state' | '_state.raw' | '_derived' | '_derived.by' | '_bindable' | '_from' | '_ref';
+type Rune =
+  '_state' | '_state.raw' | '_derived' | '_derived.by' | '_bindable' | '_bind' | '_from' | '_ref';
 
 /** 一个需要改写为 .value 的绑定 */
 interface TrackedInfo {
@@ -67,6 +81,7 @@ export function runesBabelPlugin(): PluginObj {
         program.scope.crawl(); //     第 2 步：改写后重建作用域
         ctx.resolveBindings();
         ctx.rewriteAccesses(); //     第 3 步：读写 → .value
+        ctx.rewriteBinds(); //        属性={_bind(x)} → v-model
         ctx.reportMisuse(); //        第 4 步：残留的符文都是误用
         ctx.insertImports();
       },
@@ -94,11 +109,13 @@ class RunesContext {
       Function: (path) => {
         if (isPropsComponent(path)) this.declareProps(path);
       },
+      JSXAttribute: (path) => rejectDirective(path),
       CallExpression: (path) => {
         const rune = runeOf(path);
         switch (rune) {
           case null:
-          case '_ref': // _ref(x) 在第 3 步随引用一起处理
+          case '_ref': // _ref(x) 与 _bind(x) 在第 3 步随引用一起处理
+          case '_bind':
             return;
           case '_bindable':
             throw fail(
@@ -116,7 +133,7 @@ class RunesContext {
   /** let x = _state(0) 之类：把调用换成 Vue API，并记下声明 */
   private declareState(
     path: NodePath<t.CallExpression>,
-    rune: Exclude<Rune, '_bindable' | '_ref'>,
+    rune: Exclude<Rune, '_bindable' | '_bind' | '_ref'>,
   ) {
     const declarator = path.parentPath;
     if (!declarator.isVariableDeclarator() || declarator.node.init !== path.node) {
@@ -366,6 +383,9 @@ class RunesContext {
       parent.replaceWith(t.identifier(binding.identifier.name));
       return;
     }
+    if (parent.isCallExpression() && runeOf(parent) === '_bind' && !info.writable) {
+      throw fail(reference, `${readonlyMessage(binding, info)}，不能用 _bind 双向绑定`);
+    }
     if (info.childrenOf && reference.getFunctionParent()?.node === info.childrenOf) {
       throw fail(
         reference,
@@ -384,6 +404,52 @@ class RunesContext {
     replaceWithValue(reference);
   }
 
+  /**
+   * 属性={_bind(x)} → Vue 的 v-model（此时 x 已改写为 x.value）：
+   *   <Switch checked={_bind(on)} />      → <Switch v-model:checked={on.value} />
+   *   <input value={_bind.trim(name)} />  → <input v-model_trim={name.value} />
+   * 属性名就是 prop 本身，补全、跳转、重命名都由 TypeScript 原生支持。
+   */
+  rewriteBinds() {
+    this.program.traverse({
+      CallExpression: (path) => {
+        if (runeOf(path) !== '_bind') return;
+        const container = path.parentPath;
+        const attribute = container.parentPath;
+        if (
+          !container.isJSXExpressionContainer() ||
+          !attribute?.isJSXAttribute() ||
+          !t.isJSXIdentifier(attribute.node.name)
+        ) {
+          throw fail(path, '_bind(x) 只能写在 JSX 属性的值里，例如 <Switch checked={_bind(on)} />');
+        }
+        const [target, ...extra] = path.node.arguments;
+        if (!t.isMemberExpression(target) || extra.length) {
+          throw fail(
+            path,
+            '_bind 的参数必须是 let 声明的响应式变量（_state / _bindable / _from）或对象属性，例如 _bind(form.name)',
+          );
+        }
+        const prop = attribute.node.name.name;
+        const modifiers = memberChain(path.node.callee)!.slice(1);
+        const tag = (attribute.parent as t.JSXOpeningElement).name;
+        if (t.isJSXIdentifier(tag) && /^[a-z]/.test(tag.name)) {
+          if (prop !== 'value' && prop !== 'checked') {
+            throw fail(attribute, `原生元素只能绑定 value 或 checked，不能绑定 ${prop}`);
+          }
+          attribute.node.name = t.jsxIdentifier(['v-model', ...modifiers].join('_'));
+        } else {
+          if (modifiers.length) throw fail(path, '_bind 的修饰符只用于原生输入元素');
+          attribute.node.name = t.jsxNamespacedName(
+            t.jsxIdentifier('v-model'),
+            t.jsxIdentifier(prop),
+          );
+        }
+        path.replaceWith(target);
+      },
+    });
+  }
+
   // ───────────────────────── 第 4 步：误用检查 ─────────────────────────
 
   reportMisuse() {
@@ -397,6 +463,11 @@ class RunesContext {
             throw fail(
               path,
               '_ref(x) 的参数必须是 _state / _derived / _bindable / _from 声明的变量',
+            );
+          case '_bind':
+            throw fail(
+              path,
+              '_bind 只能在 JSX 属性的值里直接调用，例如 <Switch checked={_bind(on)} />',
             );
           default:
             throw fail(path, `${name} 只能按约定的位置直接调用，不能当作普通值使用`);
@@ -580,30 +651,41 @@ function addComponentOptions(call: NodePath<t.CallExpression>, names: string[]) 
 
 /** 判断调用是否为某个符文（且没有被同名本地变量遮蔽） */
 function runeOf(path: NodePath<t.CallExpression>): Rune | null {
-  const callee = path.node.callee;
-  if (t.isIdentifier(callee)) {
-    return RUNE_GLOBALS.has(callee.name) && !path.scope.hasBinding(callee.name)
-      ? (callee.name as Rune)
-      : null;
+  const chain = memberChain(path.node.callee);
+  if (!chain) return null;
+  const [owner, ...members] = chain as [string, ...string[]];
+  if (!RUNE_GLOBALS.has(owner) || path.scope.hasBinding(owner)) return null;
+  if (!members.length) return owner as Rune;
+  if (owner === '_bind') {
+    const unknown = members.find((member) => !BIND_MODIFIERS.has(member));
+    if (unknown) throw fail(path, `不支持 _bind.${unknown}，可用的修饰符只有 trim、number、lazy`);
+    return '_bind';
   }
-  if (
-    t.isMemberExpression(callee) &&
-    !callee.computed &&
-    t.isIdentifier(callee.object) &&
-    t.isIdentifier(callee.property)
-  ) {
-    const owner = callee.object.name;
-    if (!RUNE_GLOBALS.has(owner) || path.scope.hasBinding(owner)) return null;
-    const name = `${owner}.${callee.property.name}`;
-    switch (name) {
-      case '_state.raw':
-      case '_derived.by':
-        return name;
-      default:
-        throw fail(path, `不支持 ${name}，可用的只有 _state.raw 和 _derived.by`);
-    }
+  const name = `${owner}.${members.join('.')}`;
+  if (name === '_state.raw' || name === '_derived.by') return name;
+  throw fail(path, `不支持 ${name}，可用的只有 _state.raw、_derived.by 与 _bind 的修饰符`);
+}
+
+/** a.b.c → ['a', 'b', 'c']；不是纯标识符链时返回 null */
+function memberChain(node: t.Node): string[] | null {
+  if (t.isIdentifier(node)) return [node.name];
+  if (t.isMemberExpression(node) && !node.computed && t.isIdentifier(node.property)) {
+    const chain = memberChain(node.object);
+    return chain && [...chain, node.property.name];
   }
   return null;
+}
+
+/** v-model / v-show 等 Vue 指令：给出 TSX 里的替代写法 */
+function rejectDirective(attribute: NodePath<t.JSXAttribute>) {
+  const { name } = attribute.node;
+  const full = t.isJSXNamespacedName(name) ? `${name.namespace.name}:${name.name.name}` : name.name;
+  if (!full.startsWith('v-')) return;
+  const directive = full.slice(2).split(/[:_]/)[0]!;
+  throw fail(
+    attribute,
+    DIRECTIVE_HINTS[directive] ?? `不支持 Vue 指令 ${full}：请改用 ref 回调或组合式函数`,
+  );
 }
 
 function isComponentSetup(path: NodePath<t.Function>) {

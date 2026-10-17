@@ -24,14 +24,14 @@ export const Page = _component(() => {
 
   return () => (
     <div>
-      <Switch v-model:checked={on}>开关</Switch>
+      <Switch checked={_bind(on)}>开关</Switch>
       <p class="on">{String(on)}</p>
       <p class="last">{String(lastOn)}</p>
 
-      <input class="native" v-model={name} />
+      <input class="native" value={_bind(name)} />
       <p class="name">{name}</p>
 
-      <input class="font" type="number" v-model_number={settings.fontSize} />
+      <input class="font" type="number" value={_bind.number(settings.fontSize)} />
       <p class="size">{settings.fontSize}</p>
 
       <p class="theme">{theme}</p>

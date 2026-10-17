@@ -22,7 +22,7 @@ function mount(render: () => VNodeChild) {
 
 const pressed = (btn: Element) => btn.getAttribute('aria-pressed');
 
-describe('双向绑定（_bindable + v-model）', () => {
+describe('双向绑定（_bindable + _bind）', () => {
   it('不绑定 checked 时，每个实例拥有独立的本地状态', async () => {
     const el = mount(() => (
       <>
@@ -41,7 +41,7 @@ describe('双向绑定（_bindable + v-model）', () => {
     const on = ref(false);
     const el = mount(() => (
       <>
-        <Toggle v-model:checked={on.value}>x</Toggle>
+        <Toggle checked={_bind(on.value)}>x</Toggle>
         <p>{String(on.value)}</p>
       </>
     ));
@@ -119,11 +119,11 @@ describe('children 渲染函数', () => {
 });
 
 describe('原生输入', () => {
-  it('组件内原生 v-model 经 v-model:value 写回父级；未声明属性经 ...rest 透传', async () => {
+  it('组件内原生输入经 _bind 写回父级；未声明属性经 ...rest 透传', async () => {
     const name = ref('a');
     const el = mount(() => (
       <>
-        <TextField v-model:value={name.value} aria-label="名字" />
+        <TextField value={_bind(name.value)} aria-label="名字" />
         <p>{name.value}</p>
       </>
     ));

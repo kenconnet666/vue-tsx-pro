@@ -7,6 +7,8 @@
 前置：`RESEARCH.md`（只做 VDOM、只写 TSX、`_component()` + StyleX）。
 证据：`research/probe` 中的编译原型与 35 项测试（含此前的 13 项）。
 
+> **双向绑定改为 `_bind`（2026-10-18）**：`v-model:checked` 这类带冒号的 JSX 属性名，TypeScript 不支持跳转、冒号后不补全、重命名也不会更新（已实测）。改为与 `_bindable` 成对的 `属性={_bind(x)}`，属性名就是 prop 本身；编译器把它换成 v-model，运行时协议不变。`v-model`、`v-show` 等 Vue 指令改为编译期报错并提示 TSX 写法。下文已按此更新。
+
 > **底座更新（2026-10-17）**：Vue 改为 3.5.44，JSX 交给官方 `@vitejs/plugin-vue-jsx`（vue-jsx 已移除）；定位收窄为"在已有 Vue 3.5 项目中用 TSX 写独立页面"，不再与 SFC 模板互相使用组件。下文已按此更新，涉及 vue-jsx 的研究过程保留在提交历史中。
 
 > **原型已清理（2026-10-17）**：文中引用的 `research/probe` 已从仓库删除，完整代码保留在提交 `7ad76fb` 中（例如 `git show 7ad76fb:research/probe/src/component.ts`）；已经迁入正式包的部分见 `packages/tsx`。
@@ -23,32 +25,32 @@
 
 由此得到三条设计原则：
 
-1. **Vue 能做的不另造。** 副作用用 `watch` / `watchEffect`，生命周期、`provide` / `inject` 原样使用，双向绑定直接用 Vue 的 `v-model` 协议。新增的符文只覆盖 Vue 做不到的那一件事：去掉 `.value`。
-2. **互通靠 Vue 协议，不靠适配层。** 组件之间走 Vue 标准的 `v-model:xxx` 协议；与宿主共享状态走 Ref 或 getter，Vue 生态（pinia、VueUse 等）本来就同时接受两者。
+1. **Vue 能做的不另造。** 副作用用 `watch` / `watchEffect`，生命周期、`provide` / `inject` 原样使用，双向绑定在运行时直接用 Vue 的 `v-model` 协议。新增的符文只覆盖 Vue 做不到的事：去掉 `.value`，以及让双向绑定写成 TypeScript 能完整理解的普通属性。
+2. **互通靠 Vue 协议，不靠适配层。** 组件之间走 Vue 标准的 v-model 协议（写法是 `_bind`）；与宿主共享状态走 Ref 或 getter，Vue 生态（pinia、VueUse 等）本来就同时接受两者。
 3. **会悄悄丢响应性的写法一律编译期报错。** 不靠文档提醒。
 
 ---
 
 ## 2. API 全貌
 
-| 写法                                                            | 编译成                                                   | 读写                                               |
-| --------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------- |
-| `let x = $state(v)`                                             | `ref(v)`                                                 | `x` ↔ `x.value`                                    |
-| `let x = $state.raw(v)`                                         | `shallowRef(v)`                                          | 只整体替换                                         |
-| `const obj = $state({ … })` / `$state([…])`                     | `reactive(…)`                                            | **不改写**，就是 reactive 对象，可导出、可跨函数传 |
-| `const d = $derived(expr)`                                      | `computed(() => expr)`                                   | 只读                                               |
-| `const d = $derived.by(() => { … })`                            | `computed(fn)`                                           | 只读                                               |
-| `const { a, b: [c] } = $derived(obj)`                           | 每个变量各自一个 `computed`                              | 只读；嵌套、默认值、`...rest` 与普通解构一致       |
-| 组件参数 `{ checked = $bindable(false) }`                       | 本包的 `bindable(__props, 'checked', () => false, emit)` | 读写，走 v-model 协议                              |
-| `let t = $from(someRef)` / `const { x, y } = $from(useMouse())` | 直接持有这些 Ref                                         | 读写（`const` 时只读）                             |
-| `$ref(x)`                                                       | `x` 背后的 Ref                                           | 交给需要 Ref 的 Vue API                            |
-| `v-model:checked={on}` / `<input v-model={name} />`             | **不是新语法**，Vue JSX 原有指令                         | `on` 只是被当作普通引用改写成 `on.value`           |
+| 写法                                                                    | 编译成                                                     | 读写                                                            |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
+| `let x = $state(v)`                                                     | `ref(v)`                                                   | `x` ↔ `x.value`                                                 |
+| `let x = $state.raw(v)`                                                 | `shallowRef(v)`                                            | 只整体替换                                                      |
+| `const obj = $state({ … })` / `$state([…])`                             | `reactive(…)`                                              | **不改写**，就是 reactive 对象，可导出、可跨函数传              |
+| `const d = $derived(expr)`                                              | `computed(() => expr)`                                     | 只读                                                            |
+| `const d = $derived.by(() => { … })`                                    | `computed(fn)`                                             | 只读                                                            |
+| `const { a, b: [c] } = $derived(obj)`                                   | 每个变量各自一个 `computed`                                | 只读；嵌套、默认值、`...rest` 与普通解构一致                    |
+| 组件参数 `{ checked = $bindable(false) }`                               | 本包的 `bindable(__props, 'checked', () => false, emit)`   | 读写，走 v-model 协议                                           |
+| `let t = $from(someRef)` / `const { x, y } = $from(useMouse())`         | 直接持有这些 Ref                                           | 读写（`const` 时只读）                                          |
+| `$ref(x)`                                                               | `x` 背后的 Ref                                             | 交给需要 Ref 的 Vue API                                         |
+| `<Switch checked={_bind(on)} />` / `<input value={_bind.trim(name)} />` | `v-model:checked={on.value}` / `v-model_trim={name.value}` | 与 `$bindable` 成对；修饰符 trim/number/lazy 只用于原生输入元素 |
 
 **没有** `$effect`、`$props`、`bind:`：
 
 - `$effect` → 直接写 `watchEffect(() => …)`。闭包里读到的已经是 `x.value`，Vue 自然收集依赖。需要 Svelte `$effect` 的 DOM 后时机就加 `{ flush: 'post' }`。
 - `$props` → `_component` 的参数解构就是 `$props()`，见 §2.3。
-- `bind:` → Vue 的 `v-model:xxx` 已经是同一个概念。复用它，作者不用学第二套名字，也保证和 Vue 生态是同一个协议。
+- `bind:` → 写成 `属性={_bind(x)}`：和 Svelte 的 `bind:` 是同一个概念，但属性名就是 prop 本身，补全、跳转、重命名、类型检查都由 TypeScript 原生支持；编译后就是 Vue 的 v-model。
 
 ### 2.1 写出来的样子
 
@@ -79,8 +81,8 @@ export const Page = _component(() => {
 
   return () => (
     <>
-      <Switch v-model:checked={on}>通知</Switch>
-      <input v-model={name} />
+      <Switch checked={_bind(on)}>通知</Switch>
+      <input value={_bind(name)} />
       <p>{greeting}</p>
     </>
   );
@@ -185,11 +187,11 @@ Svelte 5 接受了同样的代价，并给出了同样的边界规则：传原�
 | 场景                                                                                                                                              | 结果 |
 | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
 | `$state` / `$derived` / `$derived.by` 渲染与更新；`watchEffect`、`onMounted` 直接用 Vue                                                           | 通过 |
-| `$bindable` + 父级 `v-model:checked`：双向同步；子组件写入后同步读到新值                                                                          | 通过 |
+| `$bindable` + 父级 `checked={_bind(on)}`：双向同步；子组件写入后同步读到新值                                                                      | 通过 |
 | `$bindable` 不绑定：作为本地状态，各实例独立                                                                                                      | 通过 |
 | `$bindable` 单向传值：子组件可本地切换，父级一变以父级为准（同 Svelte 未绑定的 `$bindable`）                                                      | 通过 |
-| 原生 `<input v-model={name}>` 双向绑定                                                                                                            | 通过 |
-| `const` 对象状态 = reactive：`v-model_number={settings.fontSize}` 对象路径 + 修饰符                                                               | 通过 |
+| 原生 `<input value={_bind(name)}>` 双向绑定                                                                                                       | 通过 |
+| `const` 对象状态 = reactive：`value={_bind.number(settings.fontSize)}` 对象路径 + 修饰符                                                          | 通过 |
 | `$from` 接入组合式函数的 Ref（单个、解构）；写回                                                                                                  | 通过 |
 | getter 交给 `MaybeRefOrGetter`；`$ref(x)` 交给只收 Ref 的函数并写回同一个 Ref                                                                     | 通过 |
 | `watch(() => x, …)` 观察响应式变量                                                                                                                | 通过 |
@@ -224,7 +226,7 @@ input.tsx: d 来自 $derived，是只读的
 ### 4.3 类型（`types-probe/runes.tsx`、`types-probe/vmodel.tsx`）
 
 - 符文在类型层面就是普通值：`let on = $state(false)` 的类型是 `boolean`，悬停、补全、重构都按普通变量工作。
-- **发现：TS 对带连字符的 JSX 属性名（`v-model:*`、`data-*`）不做多余属性检查**，所以默认情况下 `v-model:checked={'x'}` 不会报错。补法是在 Vue 的 JSX 类型上加一层（`types/jsx-runtime.d.ts`）：为每个 prop `K` 生成同类型的 `v-model:K`，并排除 `key`/`ref`/`class` 等保留属性。之后 `<Switch v-model:checked={label} />`（`label: string`）正确报错。
+- **发现：TS 对带冒号的 JSX 属性名（`v-model:checked`）只做类型检查，不支持跳转、冒号后不补全、重命名也不更新；对带连字符的属性名（`data-*`、`v-*`）不做多余属性检查。** 因此双向绑定改为 `checked={_bind(on)}`：`_bind<T>(x: T): T` 的类型就是值本身，按 prop 的类型检查，属性名就是 prop。
 - 纯 `tsc` 即可，不需要 Volar 插件。
 
 ---
@@ -233,13 +235,13 @@ input.tsx: d 来自 $derived，是只读的
 
 上一轮的约定是：共享可写状态以 `Ref<T>` prop 传入，子组件直接改 `.value`。引入符文后建议：
 
-| 场景                                          | 推荐                                                                                  |
-| --------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 组件之间的双向状态                            | `$bindable` + `v-model:xxx`（Vue 标准协议，生态双向互通；不绑定时自动退化为本地状态） |
-| 传给组合式函数、工具函数                      | getter 优先；需要可写 Ref 时 `$ref(x)`                                                |
-| 少数需要把同一个 Ref 深层共享给很多组件的场景 | 仍可用 `Ref<T>` prop + `$ref(x)`，或 `provide` / `inject`                             |
+| 场景                                          | 推荐                                                                              |
+| --------------------------------------------- | --------------------------------------------------------------------------------- |
+| 组件之间的双向状态                            | `$bindable` + `_bind`（编译为 Vue 标准 v-model 协议；不绑定时自动退化为本地状态） |
+| 传给组合式函数、工具函数                      | getter 优先；需要可写 Ref 时 `$ref(x)`                                            |
+| 少数需要把同一个 Ref 深层共享给很多组件的场景 | 仍可用 `Ref<T>` prop + `$ref(x)`，或 `provide` / `inject`                         |
 
-"直接传 Ref"仍然成立，只是不再是组件间的默认做法：v-model 协议在互通性上明显更好，而写法同样简洁（`v-model:checked={on}`），子组件内部同样直接写 `checked = !checked`。
+"直接传 Ref"仍然成立，只是不再是组件间的默认做法：v-model 协议在互通性上明显更好，而写法同样简洁（`checked={_bind(on)}`），子组件内部同样直接写 `checked = !checked`。
 
 ---
 

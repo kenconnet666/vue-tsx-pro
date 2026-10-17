@@ -16,7 +16,7 @@
 | 文件范围     | 不按目录隔离：只有用到符文或 `_component` 的文件被我们改写，宿主其他代码原样交给后续插件                      |
 | 响应式写法   | 下划线符文：`_state`、`_derived`、`_bindable`、`_from`、`_ref`，编译为 Vue 原生 API                           |
 | 组件         | 只有 props：参数解构即 props（Svelte 式响应式解构）；内容用 `children`；通知用 `onXxx`；不用 slot/emit/expose |
-| 组件双向绑定 | `_bindable` + Vue 标准 `v-model:xxx` 协议（我们组件之间使用）                                                 |
+| 组件双向绑定 | 子组件 `_bindable`，父组件 `属性={_bind(x)}`；编译为 Vue 标准 v-model 协议                                    |
 | CSS          | StyleX，外部覆盖统一走 `sx` prop；自家语法糖在我们的编译器里改写成 StyleX 标准调用，不 fork StyleX            |
 | 包管理       | pnpm workspace（monorepo）                                                                                    |
 | 包名         | `@vue-tsx-pro/*`；编译相关合成一个 `@vue-tsx-pro/tsx` 包                                                      |
@@ -35,7 +35,7 @@ compiler、Vite 插件、runtime、类型总是一起升级、一起使用，拆
 @vue-tsx-pro/tsx              _component()、prop 访问器
 @vue-tsx-pro/tsx/vite         Vite 预设（符文 → StyleX → 官方 JSX 插件，一行配置）
 @vue-tsx-pro/tsx/compiler     符文编译器纯函数（给测试、其他打包器用）
-@vue-tsx-pro/tsx/jsx-runtime  jsxImportSource 类型入口（基于 vue/jsx-runtime，含 children 与 v-model:K）
+@vue-tsx-pro/tsx/jsx-runtime  jsxImportSource 类型入口（基于 vue/jsx-runtime：children、事件 currentTarget）
 ```
 
 ### 2.2 测试跟着包走
@@ -109,12 +109,13 @@ vue-tsx-pro/
 **命名**
 
 - 包：`@vue-tsx-pro/*`（正式使用前先注册 npm 组织占位）。
-- 符文：只有 `_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_from`、`_ref` 七个写法，`_` 前缀保留给它们。
+- 符文：`_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_bind`（含 trim/number/lazy 修饰符）、`_from`、`_ref`，`_` 前缀保留给它们。
 - 组件：PascalCase 文件名，一个组件一个目录，测试就近放。
 
 **组件写法**（详见 `RESEARCH.md`、`RUNES.md`）
 
-- 参数解构写 props；`_bindable(默认值)` 表示双向；函数体执行一次，`return () => JSX` 是渲染。
+- 参数解构写 props；`_bindable(默认值)` 表示可双向绑定，父级写 `属性={_bind(x)}`；函数体执行一次，`return () => JSX` 是渲染。
+- 不用 Vue 指令：`v-model` → `_bind`，`v-show` → 原生 `hidden` 或条件渲染，`v-html` → `innerHTML`；编译器对 `v-*` 报错并给出替代写法。
 - 通知用 `onXxx` 函数 prop；内容用 `children`；具名内容用 JSX prop；不用 emit / slot / expose。
 - 副作用、生命周期、provide/inject 直接用 Vue。
 - 跨函数传值优先 getter，要可写 Ref 时用 `_ref(x)`；接入外部 Ref 用 `_from`。

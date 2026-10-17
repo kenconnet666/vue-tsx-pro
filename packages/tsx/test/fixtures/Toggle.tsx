@@ -29,7 +29,7 @@ const styles = stylex.create({
 });
 
 interface ToggleProps {
-  /** 双向绑定：父级写 v-model:checked，不绑定时作为组件本地状态 */
+  /** 双向绑定：父级写 checked={_bind(x)}，不绑定时作为组件本地状态 */
   checked?: boolean;
   /** 单向配置：普通值即可，父级传 busy.value 也保持响应 */
   disabled?: boolean;

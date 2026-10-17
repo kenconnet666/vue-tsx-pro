@@ -23,7 +23,7 @@ export const Profile = _component(() => {
   return () => (
     <section class="profile" {...stylex.attrs(styles.page, theme === 'dark' && styles.dark)}>
       <h1>用户 {userId}</h1>
-      <NameField v-model:value={name} />
+      <NameField value={_bind(name)} />
       <p class="greeting">你好，{name}</p>
       <button type="button" class="reset" onClick={() => (name = 'Ada')}>
         重置
