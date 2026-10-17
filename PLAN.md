@@ -224,3 +224,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **换底座**：Vue 3.6 RC + vue-jsx 3.3 RC 改为 Vue 3.5.44 + 官方 `@vitejs/plugin-vue-jsx`；JSX 类型改为基于 `vue/jsx-runtime`；`.ts` 文件不再开启 JSX 语法；删除面向模板写法的互通用例。
 
 **宿主示例**：`apps/host-demo` 是普通 Vue 3.5 项目（SFC 首页 + vue-router + pinia），TSX 页面作为路由组件挂载；集成测试纳入 `pnpm test`，构建纳入 CI。
+
+**语义补齐**：children 支持带参数的渲染函数子节点并可原样转交，组件函数体里直接读取 children 编译报错；props 解构支持带连字符的键名（按驼峰读取）；`_derived` 支持响应式解构（每个变量各自一个 computed）。

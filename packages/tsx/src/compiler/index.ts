@@ -357,13 +357,6 @@ class RunesContext {
   private rewriteRead(reference: NodePath, binding: Binding, info: TrackedInfo) {
     const parent = reference.parentPath!;
 
-    if (info.childrenOf && reference.getFunctionParent()?.node === info.childrenOf) {
-      throw fail(
-        reference,
-        `${binding.identifier.name} 是父级传入的内容，读取时才生成；请在渲染函数或回调里读取，不要直接写在组件函数体中`,
-      );
-    }
-
     // _ref(x)：取回背后的 Ref 本身
     if (
       parent.isCallExpression() &&
@@ -372,6 +365,12 @@ class RunesContext {
     ) {
       parent.replaceWith(t.identifier(binding.identifier.name));
       return;
+    }
+    if (info.childrenOf && reference.getFunctionParent()?.node === info.childrenOf) {
+      throw fail(
+        reference,
+        `${binding.identifier.name} 是父级传入的内容，读取时才生成；请在渲染函数或回调里读取，不要直接写在组件函数体中`,
+      );
     }
     if (parent.isExportSpecifier()) {
       throw fail(reference, `不能导出响应式变量 ${binding.identifier.name}`);
