@@ -87,16 +87,16 @@
 
 ---
 
-## 6. Provider：主题与地区配置
+## 6. Provider：主题与语言配置
 
 ### 6.1 两种用法
 
 ```tsx
 // 宿主入口（普通 TS）：应用级配置，所有 TSX 页面共享，不用逐页包裹
-app.use(createUi({ theme: lightTheme, locale: zhCN }));
+app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 // TSX 页面或局部：覆盖上层配置，可以嵌套
-<Provider theme={darkTheme} locale={{ timeZone: 'America/New_York' }}>
+<Provider theme={darkTheme} lang={{ timeZone: 'America/New_York' }}>
   <Report />
 </Provider>;
 ```
@@ -124,13 +124,20 @@ app.use(createUi({ theme: lightTheme, locale: zhCN }));
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
 - 色板基础：候选 Radix Colors 的 12 阶色阶（明暗两套、对比度有设计保证），写入 tokens 时转成静态值。
 
-### 6.3 地区 `locale`：地区、时间、多语言放在一个对象里
+### 6.3 语言 `lang`：地区、时间、文案平铺在一个对象里
 
 ```ts
-interface Locale {
-  /** BCP 47 语言标签，决定 Intl 格式化规则与默认文案，如 'zh-CN' */
+const lang = useLang();
+lang.timeZone; //            'Asia/Shanghai'
+lang.confirm; //             '确定'
+lang.paginationTotal(42); // '共 42 条'
+```
+
+```ts
+interface Lang {
+  // 地区与格式：固定的少数几个字段
+  /** BCP 47 语言标签，决定 Intl 格式化规则，如 'zh-CN' */
   code: string;
-  /** 文字方向 */
   direction: 'ltr' | 'rtl';
   /** 时区，如 'Asia/Shanghai'；不写时取浏览器时区 */
   timeZone?: string;
@@ -142,23 +149,26 @@ interface Locale {
   hourCycle?: 'h12' | 'h23';
   /** 金额组件的默认币种，如 'CNY' */
   currency?: string;
-  /** 组件文案，按组件分组；需要插值的文案写成函数，类型安全，不需要解析模板语法 */
-  messages: Messages;
-}
 
-// 文案示例
-const messages = {
-  common: { confirm: '确定', cancel: '取消', clear: '清空', loading: '加载中' },
-  select: { empty: '没有选项', placeholder: '请选择' },
-  pagination: { total: (n: number) => `共 ${n} 条` },
-  form: { required: (label: string) => `请填写${label}` },
-};
+  // 文案：平铺，没有 messages 对象
+  /** 确认按钮，默认“确定” */
+  confirm: string;
+  cancel: string;
+  clear: string;
+  loading: string;
+  /** 下拉框没有选项时的提示，默认“没有选项” */
+  selectEmpty: string;
+  selectPlaceholder: string;
+  paginationTotal: (total: number) => string;
+  formRequired: (label: string) => string;
+}
 ```
 
-- 预设：`zhCN`、`enUS` 等，每种语言一个单独入口（`@vue-tsx-pro/ui/locale/zh-CN`），按需引入。
-- 局部修改：`defineLocale(zhCN, { messages: { select: { empty: '暂无数据' } } })` 深度合并，不用手写多层展开。
-- 组件里通过 `useLocale()` 读取；格式化统一用 `useFormat()`：数字与金额（`Intl.NumberFormat`，精确运算用 decimal.js）、日期时间（`@internationalized/date` 的 `DateFormatter`，自动带上时区与日历），格式化器按地区缓存。
-- 一周第一天、小时制等地区惯例由 `@internationalized/date` 提供，不依赖各浏览器对 `Intl.Locale` 新接口的支持程度。
+- **命名**：通用文案不加前缀（`confirm`、`cancel`）；组件文案用组件名作前缀（`selectEmpty`、`datePickerToday`），键入 `lang.select` 即可筛出；同一接口内重名由 TypeScript 直接报错。需要插值的文案写成函数。
+- **注释**：每个键都写 JSDoc（用途 + 中文默认值）；`lang.xxx` 是属性访问，悬停能正常显示。
+- **合并**：扁平结构只需浅合并：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })`；嵌套的 Provider 同样按字段浅合并。
+- **预设**：`zhCN`、`enUS` 各自单独入口（`@vue-tsx-pro/ui/lang/zh-CN`），按需引入。
+- **格式化**：`useFormat()` 从当前 `lang` 派生：数字与金额（`Intl.NumberFormat`，精确运算用 decimal.js）、日期时间（`@internationalized/date` 的 `DateFormatter`，带上时区与日历），格式化器按语言缓存。一周第一天、小时制等地区惯例由 `@internationalized/date` 提供。
 
 ### 6.4 Provider 的其他配置
 
@@ -172,19 +182,18 @@ const messages = {
 
 ## 7. 实施范围与顺序
 
-**本轮只做组件库的基础设施**；正式组件暂不纳入规划。为了提前扫清障碍，在宿主示例 `apps/host-demo` 里写几个**试点组件**：它们按本规范写，但只是页面内的组件，不进 `@vue-tsx-pro/ui`，也不承诺 API；发现的问题回到规范或基础设施里解决。
+**本轮只做组件库的基础设施**；正式组件暂不纳入规划。为了提前扫清障碍，在宿主示例 `apps/host-demo` 里写几个**试点组件**：按本规范写，但只是页面内的组件，不进 `@vue-tsx-pro/ui`，也不承诺 API；发现的问题回到规范或基础设施里解决。
 
-| 阶段 | 位置             | 内容                                                                                 | 要扫清的障碍                                                 |
-| ---- | ---------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| 1    | `packages/ui`    | tokens、`lightTheme` / `darkTheme`、`defineTheme`                                    | StyleX 运行时主题变量能否赋动态值（§6.2 待验证）             |
-| 2    | `packages/ui`    | `Provider`、`createUi`、`zhCN` / `enUS`、`defineLocale`、`useLocale` / `useFormat`   | 嵌套合并、响应式切换、应用级与局部配置并存                   |
-| 3    | `packages/ui`    | `mergeProps`、部件 props 类型                                                        | 事件先后与 `preventDefault`、类型上去掉受管属性              |
-| 4    | `apps/host-demo` | 试点 Icon、Button                                                                    | em 尺寸、部件透传、`href` 渲染为链接、`class` 后门           |
-| 5    | `apps/host-demo` | 试点 TextField                                                                       | 主元素透传、输入法、部件 props 的类型提示                    |
-| 6    | `apps/host-demo` | 试点 Popover                                                                         | 原生 popover + floating-ui、弹层栈、焦点恢复、与宿主弹层共存 |
-| 7    | 仓库             | Vitest 浏览器模式 + Playwright + axe-core；宿主示例接入 `createUi` 与局部 `Provider` | 浏览器测试链路在 Windows 与 CI 上可用                        |
+| 阶段 | 位置             | 内容                                                                                   | 要扫清的障碍                                                                        |
+| ---- | ---------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 1    | `packages/tsx`   | StyleX 类型入口 `@vue-tsx-pro/tsx/stylex` 与注释数据（§9）                             | `importSources` 能否识别新入口；注释覆盖层与原版类型一致                            |
+| 2    | `packages/ui`    | tokens（带注释）、`lightTheme` / `darkTheme`、`defineTheme`                            | StyleX 运行时能否给主题变量赋动态值（§6.2 待验证）                                  |
+| 3    | `packages/ui`    | `Provider`、`createUi`、`Lang`、`zhCN` / `enUS`、`defineLang`、`useLang` / `useFormat` | 嵌套合并、响应式切换、应用级与局部配置并存                                          |
+| 4    | `packages/ui`    | `mergeProps`、部件 props 类型                                                          | 事件先后与 `preventDefault`、类型上去掉受管属性                                     |
+| 5    | `apps/host-demo` | 试点 Icon、Button、TextField、Popover                                                  | em 尺寸、部件透传、主元素透传、输入法、原生 popover + floating-ui、弹层栈与焦点恢复 |
+| 6    | 仓库             | Vitest 浏览器模式 + Playwright + axe-core；宿主示例接入 `createUi` 与局部 `Provider`   | 浏览器测试链路在 Windows 与 CI 上可用                                               |
 
-试点结束时产出一份结论：规范要改的地方、基础设施缺的能力、正式组件的完成标准（§8）是否可行。
+试点结束时把结论写回本文：规范要改的地方、基础设施缺的能力、正式组件的完成标准（§8）是否可行。
 
 ## 8. 正式组件的完成标准（供之后使用）
 
@@ -194,3 +203,34 @@ const messages = {
 4. 类型测试：部件 props、`_bind` 的类型约束。
 5. 文档页：演示、部件列表、props 表（从 TS 类型生成）、键盘映射。
 6. 在宿主示例里能用；明暗主题、两种语言下截图核对。
+
+## 9. StyleX 的类型提示与注释
+
+### 9.1 原因（实测）
+
+StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；更关键的是 `stylex.create` 的参数整体是泛型。TypeScript 悬停时显示“实例化后的上下文类型”里的属性，参数整体泛型时就是字面量本身，所以写好的属性看不到注释，跳转也落到没有注释的声明。只要属性值所在的位置不参与泛型推导，悬停、补全、跳转就都显示注释——这是 TypeScript 的标准行为，**不自研 TS 插件**。
+
+### 9.2 方案：fork 类型声明，运行时不动
+
+- 新入口 `@vue-tsx-pro/tsx/stylex`：运行时原样 `export * from '@stylexjs/stylex'`；类型上 fork StyleX 的公开声明，只改写 `create`（含动态样式函数）：**样式组名保留泛型推导，组内属性值的上下文类型固定为生成的 `DocumentedStyles`**。
+- `DocumentedStyles` 由脚本生成：属性集合读自 StyleX 的 `StyleXCSSTypes.d.ts`；每个属性的值类型用索引访问**直接引用 StyleX 自己的类型**，语义不变；每个属性带中文 JSDoc；伪元素嵌套递归引用 `DocumentedStyles`。
+- StyleX API（`create`、`props`、`attrs`、`defineVars`、`createTheme`、`firstThatWorks`、`keyframes` 等）在 fork 的声明上写中文 JSDoc。
+- 预设给 StyleX 编译器配置 `importSources`，识别新入口。写样式统一从这个入口导入。
+- **代价**：不再精确推导每个样式组用了哪些属性，`StyleXStyles<{ color?: … }>` 这类受限类型无法校验；本库的 `sx` 本来不加限制，确需受限类型时用原版 `create`。
+- **一致性测试**：同一组“应通过 / 应报错”的写法，分别用新入口与原版做类型检查，结果必须一致（受限类型一项除外）；StyleX 升级时先跑这组测试。
+- 属性值关键字（`center`、`stretch`）不能单独悬停（字面量联合成员不能带注释），说明写进属性注释正文的“常用值”。
+
+### 9.3 注释数据：理清来源，修订完善
+
+| 内容                                                 | 来源                                                            | 说明                                                        |
+| ---------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------- |
+| 覆盖哪些属性、值类型                                 | StyleX 类型声明（MIT）                                          | 决定注释范围                                                |
+| 语法、初始值、是否继承、动画类型、适用元素、MDN 链接 | `mdn-data`（CC0）                                               | 一手数据，脚本填充，不手写                                  |
+| 浏览器支持（Baseline 等级与年份）                    | `web-features`（许可待核实）                                    | 新增                                                        |
+| 中文说明、常用值、适用场景                           | 以 zerodep-js 的 `css-author-docs.json` 为起点修订（自有，MIT） | 用自己的话写，不复制 MDN 正文（CC-BY-SA），只用 `@see` 链接 |
+
+- 修订与完善：事实字段改由脚本从数据包填充；新增 Baseline；新增 StyleX 专属说明（数字值是否自动加 px、简写规则、物理方向属性提示改用逻辑属性）；逐条复核中文说明，常用属性补“常用值”和“适用场景”。
+- 校验：StyleX 的每个属性都必须有中文说明；事实字段必须能在数据包中查到；升级数据包或 StyleX 时列出新增、删除、变化的属性。
+- 生成格式：说明 → 常用值 → StyleX 注意事项 → 初始值 / 继承 / Baseline → `@see` MDN。
+- 数据以本仓库 `scripts/css-docs/` 为唯一来源，以后需要时再抽成与 zerodep-js 共用的数据包。
+- 主题 tokens 用 `defineVars` 定义时每个变量写 JSDoc（用途 + 明暗取值），属性访问悬停即可看到。
