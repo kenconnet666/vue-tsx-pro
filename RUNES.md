@@ -154,6 +154,7 @@ export const Badge = _component((__props, __ctx) => {
 - **读写**：解构出的 prop 和符文一样改写为 `.value`；普通 prop 只读，写入在编译期报错并提示改用 `_bindable`。
 - **props 声明**自动生成；`...rest` 就是未声明为 prop 的属性（`__ctx.attrs`），不含 prop 本身与 `onUpdate:xxx`。
 - **组件名**取自变量名（DevTools 与警告信息里可见）。
+- **children**：JSX 子节点就是 `children` prop。普通内容在读取时才生成（惰性，依赖归属子组件），所以只能在渲染函数或回调里读取，直接写在组件函数体里会编译报错。**带参数的函数子节点是渲染函数**（`<List items={…}>{(item) => …}</List>`），原样交给组件调用，也能经中间组件 `<List>{children}</List>` 原样转交；无参函数等同于惰性内容，不需要单独写。
 - **类型**：组件的类型就是“接收 props 的函数”，JSX 直接按参数类型检查；子节点按 `children` prop 检查；泛型组件的类型参数也能推导。
 
 对照：Vue 3.5 SFC 的 props 解构把默认值放进静态的 props 选项（编译成模块级工厂函数），无法引用其他 prop。

@@ -33,11 +33,13 @@ interface TrackedInfo {
   writable: boolean;
   /** 报错时告诉作者它来自哪里：某个符文，或组件 prop */
   source: Rune | 'prop';
+  /** children 的所属组件：读取会执行插槽，不能直接写在 setup 函数体里 */
+  childrenOf?: t.Function;
 }
 
 /** 按需导入的运行时函数：Vue 的响应式 API 与本包的 prop 访问器 */
 type Helper =
-  | { module: 'vue'; name: 'ref' | 'shallowRef' | 'reactive' | 'computed' }
+  | { module: 'vue'; name: 'ref' | 'shallowRef' | 'reactive' | 'computed' | 'unref' }
   | { module: typeof RUNTIME_MODULE; name: 'prop' | 'bindable' };
 
 export async function compileRunes(code: string, filename = 'input.tsx') {
@@ -249,6 +251,7 @@ class RunesContext {
         this.pending.set(declarator, {
           writable: isBindable,
           source: isBindable ? '_bindable' : 'prop',
+          childrenOf: key === 'children' ? setup.node : undefined,
         });
         declarations.push(t.variableDeclaration('const', [declarator]));
       }
@@ -305,13 +308,20 @@ class RunesContext {
       }
       for (const reference of binding.referencePaths) {
         if (!isAttached(reference) || isInTypePosition(reference)) continue;
-        this.rewriteRead(reference, binding);
+        this.rewriteRead(reference, binding, info);
       }
     }
   }
 
-  private rewriteRead(reference: NodePath, binding: Binding) {
+  private rewriteRead(reference: NodePath, binding: Binding, info: TrackedInfo) {
     const parent = reference.parentPath!;
+
+    if (info.childrenOf && reference.getFunctionParent()?.node === info.childrenOf) {
+      throw fail(
+        reference,
+        `${binding.identifier.name} 是父级传入的内容，读取时才生成；请在渲染函数或回调里读取，不要直接写在组件函数体中`,
+      );
+    }
 
     // _ref(x)：取回背后的 Ref 本身
     if (
@@ -324,6 +334,12 @@ class RunesContext {
     }
     if (parent.isExportSpecifier()) {
       throw fail(reference, `不能导出响应式变量 ${binding.identifier.name}`);
+    }
+    // <List>{children}</List>：JSX 编译器只对标识符子节点判断"是不是插槽函数"，
+    // 改写成 x.value 会被当成普通内容；换成调用 unref(x) 才能把渲染函数原样转交
+    if (isComponentChild(parent)) {
+      reference.replaceWith(this.vue('unref', [t.identifier(binding.identifier.name)]));
+      return;
     }
     replaceWithValue(reference);
   }
@@ -430,6 +446,14 @@ function isInsideRender(path: NodePath): boolean {
     }
   }
   return false;
+}
+
+/** 是否是组件元素（大写开头或 a.B 形式的标签）的直接子节点表达式 */
+function isComponentChild(container: NodePath) {
+  const element = container.parentPath;
+  if (!container.isJSXExpressionContainer() || !element?.isJSXElement()) return false;
+  const name = element.node.openingElement.name;
+  return t.isJSXMemberExpression(name) || (t.isJSXIdentifier(name) && /^[A-Z]/.test(name.name));
 }
 
 /** 只读绑定被写入时的提示：prop 建议改用 _bindable，符文直接说明来源 */

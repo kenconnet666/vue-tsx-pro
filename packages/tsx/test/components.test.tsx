@@ -4,6 +4,7 @@ import * as stylex from '@stylexjs/stylex';
 import { _component } from '../src';
 import { Toggle } from './fixtures/Toggle';
 import { Card, cardSetupCount } from './fixtures/Card';
+import { ForwardList, List } from './fixtures/List';
 import { TextField } from './fixtures/TextField';
 
 /** 把一个 render 函数挂载到新容器上 */
@@ -90,6 +91,30 @@ describe('children 与具名内容', () => {
     n.value = 2;
     await nextTick();
     expect(el.querySelector('h2')!.innerHTML).toBe('<b>2</b>');
+  });
+});
+
+describe('children 渲染函数', () => {
+  it('带参数的函数子节点原样交给组件调用，随数据更新', async () => {
+    const items = ref(['a', 'b']);
+    const el = mount(() => (
+      <List items={items.value}>
+        {(item, index) => (
+          <b>
+            {index}:{item}
+          </b>
+        )}
+      </List>
+    ));
+    expect(el.innerHTML).toBe('<ul><li><b>0:a</b></li><li><b>1:b</b></li></ul>');
+    items.value = ['c'];
+    await nextTick();
+    expect(el.innerHTML).toBe('<ul><li><b>0:c</b></li></ul>');
+  });
+
+  it('渲染函数可以经过中间组件原样转交', () => {
+    const el = mount(() => <ForwardList items={[1, 2]}>{(n) => <i>{n * 10}</i>}</ForwardList>);
+    expect(el.innerHTML).toBe('<ul><li><i>10</i></li><li><i>20</i></li></ul>');
   });
 });
 

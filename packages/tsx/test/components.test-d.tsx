@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { _component } from '../src';
 import { Toggle } from './fixtures/Toggle';
 import { Card } from './fixtures/Card';
+import { List } from './fixtures/List';
 
 const on = ref(false);
 
@@ -28,3 +29,8 @@ export const plainModel = <Plain v-model:checked={on.value} />;
 // @ts-expect-error v-model:checked 保持 prop 的 boolean 类型
 export const invalidPlainModel = <Plain v-model:checked={'x'} />;
 export const nativeModel = <input v-model={on.value} />;
+
+// children 渲染函数：参数类型从 items 推导
+export const validRender = <List items={[{ id: 1 }]}>{(item) => <i>{item.id.toFixed()}</i>}</List>;
+// @ts-expect-error item 被推导为 { id: number }，没有 name
+export const invalidRender = <List items={[{ id: 1 }]}>{(item) => <i>{item.name}</i>}</List>;

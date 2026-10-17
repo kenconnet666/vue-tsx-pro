@@ -33,6 +33,11 @@ const cases: [string, string, RegExp][] = [
   ],
   ['props 参数不解构', '_component((props: { a?: number }) => () => props.a)', /请解构 props/],
   ['props 嵌套解构', '_component(({ user: { name } }: any) => () => name)', /props 不支持嵌套解构/],
+  [
+    '组件函数体里直接读取 children',
+    '_component(({ children }: any) => { const content = children; return () => content })',
+    /children 是父级传入的内容/,
+  ],
 ];
 
 describe('误用在编译期报错', () => {
@@ -59,6 +64,18 @@ describe('误用在编译期报错', () => {
     const code =
       '_component(() => { let n = _state(0); const inc = () => { const d = _derived(n + 1); return d }; return () => [n, inc] })';
     await expect(compileRunes(code)).resolves.toBeTruthy();
+  });
+
+  it('children 可以在回调里读取；作为组件子节点时改写为 unref 以便原样转交', async () => {
+    const code = [
+      '_component(({ children }: any) => {',
+      '  const has = () => children != null;',
+      '  return () => <Box>{children}</Box>;',
+      '})',
+    ].join('\n');
+    const out = (await compileRunes(code))!.code;
+    expect(out).toContain('children.value != null');
+    expect(out).toContain('<Box>{_vue_unref(children)}</Box>');
   });
 
   it('被本地变量遮蔽的同名函数不当作符文', async () => {

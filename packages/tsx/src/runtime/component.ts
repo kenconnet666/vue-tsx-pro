@@ -7,7 +7,14 @@
  *   1. 返回一个普通的 Vue 组件对象（Vue 组件本来就是对象，不需要 defineComponent）
  *   2. 把默认插槽映射成 props.children，内容也是 prop
  */
-import type { Component, SetupContext, VNode, VNodeChild } from 'vue';
+import {
+  getCurrentInstance,
+  type Component,
+  type ComponentInternalInstance,
+  type SetupContext,
+  type VNode,
+  type VNodeChild,
+} from 'vue';
 
 /** setup 返回渲染函数；setup 本身只执行一次 */
 type Render = () => VNodeChild;
@@ -36,19 +43,28 @@ export function _component(
     // 未声明为 prop 的属性不自动落到根元素，由作者用 ...rest 决定放在哪里
     inheritAttrs: false,
     ...options,
-    setup: (props, ctx) => setup(withChildren(props, ctx), ctx),
+    setup: (props, ctx) => setup(withChildren(props, ctx, getCurrentInstance()!), ctx),
   };
 }
 
-/** 只拦截 children：读取时才执行默认插槽，其余属性原样交给 Vue 的 props（保持依赖收集） */
-function withChildren(props: object, ctx: SetupContext): object {
+/** 只拦截 children，其余属性原样交给 Vue 的 props（保持依赖收集） */
+function withChildren(props: object, ctx: SetupContext, instance: ComponentInternalInstance) {
   return new Proxy(props, {
     get(target, key, receiver) {
-      if (key === 'children') {
-        // 读取发生在子组件的渲染函数里，因此内容是惰性的，依赖也归属子组件
-        return ctx.slots.default?.() ?? ctx.attrs.children;
-      }
-      return Reflect.get(target, key, receiver);
+      return key === 'children' ? readChildren(ctx, instance) : Reflect.get(target, key, receiver);
     },
   });
+}
+
+/**
+ * JSX 子节点被编译成默认插槽，这里还原成 children prop：
+ *   - 带参数的函数子节点（<List>{(item) => …}</List>）是渲染函数，原样交给组件按需调用
+ *   - 其余内容在读取时才执行插槽：读取发生在子组件的渲染函数里，内容是惰性的，依赖也归属子组件
+ *
+ * Vue 会把插槽统一包一层 (...args) => …，参数个数只能从 vnode 上的原始插槽判断。
+ */
+function readChildren(ctx: SetupContext, instance: ComponentInternalInstance) {
+  const raw = (instance.vnode.children as Record<string, unknown> | null)?.default;
+  if (typeof raw === 'function' && raw.length > 0) return raw;
+  return ctx.slots.default?.() ?? ctx.attrs.children;
 }
