@@ -66,3 +66,18 @@ describe('误用在编译期报错', () => {
     expect(out!.code).not.toContain('.value');
   });
 });
+
+describe('按文件类型解析', () => {
+  it('.ts 不开 JSX：类型断言与泛型箭头函数照常解析', async () => {
+    const code = 'let n = _state(0); const a = <number>(n as unknown); const id = <T>(x: T) => x;';
+    const out = (await compileRunes(code, 'store.ts'))!.code;
+    expect(out).toContain('<number> n.value as unknown');
+    expect(out).toContain('<T,>(x: T) => x');
+  });
+
+  it('没有符文与 _component 的文件原样放过', async () => {
+    await expect(
+      compileRunes('export const C = defineComponent(() => () => null)'),
+    ).resolves.toBeNull();
+  });
+});

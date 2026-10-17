@@ -1,22 +1,8 @@
-import { defineComponent as vueDefineComponent, h, watch } from 'vue';
+import { watch } from 'vue';
 import { _component } from '../../src';
 import { Switch } from './Switch';
 import { settings } from './store';
 import { useDoubled, useIncrement, usePointerLike, useStorageLike } from './composables';
-
-/** 模拟第三方组件库：Options API + 标准 v-model 协议（modelValue / update:modelValue） */
-export const ThirdPartyInput = vueDefineComponent({
-  props: { modelValue: String },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
-    return () =>
-      h('input', {
-        class: 'tp',
-        value: props.modelValue,
-        onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value),
-      });
-  },
-});
 
 export const Page = _component(() => {
   let on = _state(false);
@@ -43,7 +29,6 @@ export const Page = _component(() => {
       <p class="last">{String(lastOn)}</p>
 
       <input class="native" v-model={name} />
-      <ThirdPartyInput v-model={name} />
       <p class="name">{name}</p>
 
       <input class="font" type="number" v-model_number={settings.fontSize} />

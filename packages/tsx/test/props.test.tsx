@@ -1,14 +1,13 @@
 // _component 的 props：响应式解构、任意默认值、rest 与组件信息
 import { afterEach, describe, it, expect } from 'vitest';
-import { createApp, nextTick, ref, watch } from 'vue';
-import type { NodeChild } from 'vue-jsx';
+import { createApp, nextTick, ref, watch, type VNodeChild } from 'vue';
 import { _component } from '../src';
 
 const apps: ReturnType<typeof createApp>[] = [];
 afterEach(() => {
   while (apps.length) apps.pop()!.unmount();
 });
-function mount(render: () => NodeChild) {
+function mount(render: () => VNodeChild) {
   const el = document.createElement('div');
   const app = createApp(_component(() => render));
   apps.push(app);

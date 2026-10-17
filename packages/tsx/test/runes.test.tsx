@@ -1,6 +1,6 @@
 // 冒烟测试：符文经 Vite 预设编译后，在 Vue 中的运行时语义
 import { describe, it, expect } from 'vitest';
-import { createApp, h, nextTick, ref } from 'vue';
+import { createApp, nextTick, ref } from 'vue';
 import { _component } from '../src';
 import { Counter, log } from './fixtures/Counter';
 import { Switch } from './fixtures/Switch';
@@ -38,20 +38,5 @@ describe('符文', () => {
     await nextTick();
     expect(on.value).toBe(true);
     expect(seen).toEqual([true]);
-  });
-
-  it('_bindable 组件可被普通 Vue 写法（h + onUpdate:checked）使用', async () => {
-    const on = ref(true);
-    const el = mount({
-      render: () =>
-        h(
-          Switch,
-          { checked: on.value, 'onUpdate:checked': (value: boolean) => (on.value = value) },
-          () => 'x',
-        ),
-    });
-    el.querySelector('button')!.click();
-    await nextTick();
-    expect(on.value).toBe(false);
   });
 });

@@ -29,10 +29,10 @@ export const doubled: number = count * 2;
 increment();
 
 // 泛型组件：类型参数从属性推导，并传到回调参数
-import type { NodeChild } from 'vue-jsx';
+import type { VNodeChild } from 'vue';
 import { _component } from '../src';
 const List = _component(
-  <T,>({ items, renderItem }: { items: T[]; renderItem: (item: T) => NodeChild }) =>
+  <T,>({ items, renderItem }: { items: T[]; renderItem: (item: T) => VNodeChild }) =>
     () => <ul>{items.map(renderItem)}</ul>,
 );
 export const typedList = (

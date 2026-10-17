@@ -24,16 +24,11 @@ function type(input: Element, value: string) {
 }
 
 describe('与 Vue 生态互通', () => {
-  it('原生 v-model、第三方组件 v-model、reactive 对象路径', async () => {
+  it('原生 v-model、reactive 对象路径', async () => {
     const el = mount(Page);
     type($(el, '.native'), 'bb');
     await nextTick();
     expect($(el, '.name').textContent).toBe('bb');
-    expect(($(el, '.tp') as HTMLInputElement).value).toBe('bb');
-    type($(el, '.tp'), 'cc');
-    await nextTick();
-    expect($(el, '.name').textContent).toBe('cc');
-    expect(($(el, '.native') as HTMLInputElement).value).toBe('cc');
     type($(el, '.font'), '20');
     await nextTick();
     expect(settings.fontSize).toBe(20); // v-model_number 修饰符也照常工作

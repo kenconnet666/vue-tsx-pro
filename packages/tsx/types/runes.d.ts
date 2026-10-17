@@ -26,7 +26,7 @@ declare global {
     function by<T>(fn: () => T): T;
   }
 
-  /** 组件参数默认值：双向绑定的 prop → defineModel（标准 v-model 协议） */
+  /** 组件参数默认值：双向绑定的 prop，走标准 v-model 协议（父级 v-model:key ⇔ key + onUpdate:key） */
   function _bindable<T>(fallback?: T): T;
 
   /** 持有外部 Ref（如组合式函数的返回值），之后像普通变量一样读写 */

@@ -1,11 +1,11 @@
-import type { NodeChild } from 'vue-jsx';
+import type { VNodeChild } from 'vue';
 import { _component } from '../../src';
 
 interface SwitchProps {
   checked?: boolean;
   disabled?: boolean;
   onChange?: (checked: boolean) => void;
-  children?: NodeChild;
+  children?: VNodeChild;
 }
 
 export const Switch = _component(

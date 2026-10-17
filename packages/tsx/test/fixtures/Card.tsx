@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
-import type { NodeChild } from 'vue-jsx';
+import type { VNodeChild } from 'vue';
 import { _component } from '../../src';
 
 const styles = stylex.create({
@@ -23,8 +23,8 @@ interface CardProps {
   title?: string;
   width?: number;
   /** 具名内容直接作为 JSX prop 传入，取代具名插槽 */
-  header?: NodeChild;
-  children?: NodeChild;
+  header?: VNodeChild;
+  children?: VNodeChild;
 }
 
 export const Card = _component(({ title = '', width, header, children }: CardProps) => {

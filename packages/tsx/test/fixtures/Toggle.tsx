@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import type { NodeChild } from 'vue-jsx';
+import type { VNodeChild } from 'vue';
 import { _component } from '../../src';
 
 const styles = stylex.create({
@@ -38,7 +38,7 @@ interface ToggleProps {
   /** 外部样式覆盖，取代 class 透传 */
   sx?: StyleXStyles;
   /** 内容：默认插槽映射而来 */
-  children?: NodeChild;
+  children?: VNodeChild;
 }
 
 export const Toggle = _component(

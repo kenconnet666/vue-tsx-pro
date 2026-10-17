@@ -7,11 +7,10 @@
  *   1. 返回一个普通的 Vue 组件对象（Vue 组件本来就是对象，不需要 defineComponent）
  *   2. 把默认插槽映射成 props.children，内容也是 prop
  */
-import type { Component, SetupContext } from 'vue';
-import type { JSX, NodeChild } from 'vue-jsx';
+import type { Component, SetupContext, VNode, VNodeChild } from 'vue';
 
 /** setup 返回渲染函数；setup 本身只执行一次 */
-type Render = () => NodeChild;
+type Render = () => VNodeChild;
 
 export interface ComponentOptions {
   /** 组件名，DevTools 与警告信息里显示；编译器从 const X = _component(...) 自动补上 */
@@ -27,7 +26,7 @@ export interface ComponentOptions {
 export function _component<P extends object = {}>(
   setup: (props: P) => Render,
   options?: ComponentOptions,
-): (props: P) => JSX.Element;
+): (props: P) => VNode;
 
 export function _component(
   setup: (props: object, ctx: SetupContext) => Render,

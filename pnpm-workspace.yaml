@@ -5,8 +5,8 @@ packages:
 # 共享依赖的精确版本；各包用 "catalog:" 引用，升级只改这里
 catalog:
   # 框架与编译
-  vue: 3.6.0-rc.12
-  vue-jsx: 3.3.0-rc.3
+  vue: 3.5.44
+  '@vitejs/plugin-vue-jsx': 5.1.6
   '@babel/core': 7.29.7
   '@types/babel__core': 7.20.5
   '@types/babel__traverse': 7.28.0
@@ -29,7 +29,3 @@ catalog:
   oxlint-tsgolint: 7.0.2004
   prettier: 3.9.10
   '@prettier/plugin-oxc': 0.2.3
-
-# 全仓只保留一份 Vue：VitePress 依赖 ^3.5，不统一会额外装一份 3.5.x
-overrides:
-  vue: 3.6.0-rc.12

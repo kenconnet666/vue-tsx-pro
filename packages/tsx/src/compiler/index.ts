@@ -9,7 +9,7 @@
  *   4. _ref(x) 取回背后的 Ref，交给需要 Ref 的 Vue API
  *   5. 对会悄悄失去响应性的写法直接报错
  *
- * 生成的代码就是手写 Vue 会写的代码，之后交给 vue-jsx 编译 JSX（不使用 vue-jsx 的宏）。
+ * 生成的代码就是手写 Vue 会写的代码，之后交给官方 @vitejs/plugin-vue-jsx 编译 JSX。
  */
 import { transformAsync, types as t, type NodePath, type PluginObj } from '@babel/core';
 import type { Binding } from '@babel/traverse';
@@ -23,9 +23,8 @@ const RUNTIME_MODULE = '@vue-tsx-pro/tsx';
 /** 所有符文的全局名；只有未被本地变量遮蔽时才当作符文 */
 const RUNE_GLOBALS = new Set(['_state', '_derived', '_bindable', '_from', '_ref']);
 
-/** 用到符文，或定义了组件（需要检查参数默认值与 prop 写入）的文件才需要编译 */
-const NEEDS_COMPILE =
-  /\b_(?:state|derived|bindable|from|ref)\b|\b(?:_component|defineComponent)\s*\(/;
+/** 用到符文，或定义了 _component（需要编译 props 解构）的文件才需要编译；宿主项目的其他文件原样放过 */
+const NEEDS_COMPILE = /\b_(?:state|derived|bindable|from|ref)\b|\b_component\s*\(/;
 
 type Rune = '_state' | '_state.raw' | '_derived' | '_derived.by' | '_bindable' | '_from' | '_ref';
 
@@ -48,7 +47,8 @@ export async function compileRunes(code: string, filename = 'input.tsx') {
     babelrc: false,
     configFile: false,
     sourceMaps: true,
-    parserOpts: { plugins: ['jsx', 'typescript'] },
+    // .ts 不能开 JSX：否则 <T>value 这类类型断言、<T>(x) => x 泛型箭头函数会被当作 JSX 解析
+    parserOpts: { plugins: /\.[cm]?ts$/.test(filename) ? ['typescript'] : ['jsx', 'typescript'] },
     generatorOpts: { retainLines: false },
     plugins: [runesBabelPlugin],
   });
