@@ -1,7 +1,6 @@
 // 组件按 src/components/<Name>/<Name>.tsx 组织，在这里统一导出
 
-// 主题与语言
-export { colors, fonts, motion, shadows, sizes } from './theme/tokens.stylex';
+// 主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export {
   darkTheme,
   defineTheme,

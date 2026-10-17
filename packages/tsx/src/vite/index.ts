@@ -11,6 +11,7 @@ import type { Plugin } from 'vite';
 import stylex from '@stylexjs/unplugin';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { compileRunes } from '../compiler/index';
+import { stylexModuleResolution } from './stylex-resolution';
 
 type StylexOptions = NonNullable<Parameters<typeof stylex.vite>[0]>;
 
@@ -33,7 +34,14 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
       ...(options.stylex?.importSources ?? ['@stylexjs/stylex']),
       STYLEX_ENTRY,
     ];
-    const stylexPlugins = toArray(stylex.vite({ ...options.stylex, importSources }));
+    const stylexPlugins = toArray(
+      stylex.vite({
+        // 源码与产物编译出相同的变量名（见 stylex-resolution.ts）
+        unstable_moduleResolution: stylexModuleResolution(),
+        ...options.stylex,
+        importSources,
+      }),
+    );
     plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp));
   }
   // _component 与 defineComponent 一样参与热更新与 tree-shaking 标注

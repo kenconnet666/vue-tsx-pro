@@ -5,7 +5,6 @@ import Decimal from 'decimal.js';
 import { createApp, nextTick, ref, type App, type VNodeChild } from 'vue';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
-  colors,
   createUi,
   darkTheme,
   defineTheme,
@@ -15,6 +14,7 @@ import {
   useFormat,
   useLang,
 } from '../src';
+import { colors } from '../src/theme/tokens.stylex';
 
 const apps: App[] = [];
 afterEach(() => {

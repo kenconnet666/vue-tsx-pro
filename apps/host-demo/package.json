@@ -10,9 +10,13 @@
     "typecheck": "tsc -p ."
   },
   "dependencies": {
+    "@floating-ui/dom": "catalog:",
+    "@lucide/icons": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
+    "@vue-tsx-pro/ui": "workspace:^",
     "pinia": "catalog:",
+    "tabbable": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
