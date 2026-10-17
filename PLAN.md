@@ -248,3 +248,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **M1 收尾**：双向绑定改为与 `_bindable` 成对的 `_bind`（属性名就是 prop，TypeScript 原生支持补全、跳转、重命名），Vue 指令编译报错并给出 TSX 写法；`_bindable` 受控语义（父级同时传值与更新回调时以父级为准）；Vue 内置组件子节点与原生事件 `currentTarget` 的类型；组件函数体里直接读取 prop/符文的快照警告；`export default` 组件名；`createContext`；组件库依赖安装与外置配置。
 
 **组件库规范**：[COMPONENTS.md](COMPONENTS.md) 定稿——部件用 `propsXxx` 透传（`...rest` 落到主元素，部件的属性落在各自的 `propsXxx` 上）、合并规则、字号 + em 的尺寸方案、Provider（`theme` 与地区/时间/多语言合一的 `locale` 对象，支持应用级 `createUi` 与局部嵌套）。正式组件暂不纳入规划，先在宿主示例里写试点组件扫清障碍。
+
+**组件库基础设施与试点（2026-10-18）**：StyleX 类型入口 `@vue-tsx-pro/tsx/stylex`（属性中文注释，数据来源见 `scripts/css-docs/NOTICE.md`）；`packages/ui` 的 tokens、明暗主题、`Provider` / `createUi`、平铺的 `Lang`、`useFormat`、`mergeProps` 与部件类型；宿主示例里的试点组件与真实浏览器测试（Vitest 浏览器模式 + Playwright + axe-core，已进 CI）。试点暴露的问题与结论见 [COMPONENTS.md](COMPONENTS.md) §7。

@@ -167,7 +167,7 @@ interface Lang {
 - **命名**：通用文案不加前缀（`confirm`、`cancel`）；组件文案用组件名作前缀（`selectEmpty`、`datePickerToday`），键入 `lang.select` 即可筛出；同一接口内重名由 TypeScript 直接报错。需要插值的文案写成函数。
 - **注释**：每个键都写 JSDoc（用途 + 中文默认值）；`lang.xxx` 是属性访问，悬停能正常显示。
 - **合并**：扁平结构只需浅合并：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })`；嵌套的 Provider 同样按字段浅合并。
-- **预设**：`zhCN`、`enUS` 各自单独入口（`@vue-tsx-pro/ui/lang/zh-CN`），按需引入。
+- **预设**：`zhCN`、`enUS` 从主入口导出；包是纯 ESM 且 `sideEffects: false`，没用到的语言会被摇树去掉，不再单独开入口。
 - **格式化**：`useFormat()` 从当前 `lang` 派生：数字与金额（`Intl.NumberFormat`，精确运算用 decimal.js）、日期时间（`@internationalized/date` 的 `DateFormatter`，带上时区与日历），格式化器按语言缓存。一周第一天、小时制等地区惯例由 `@internationalized/date` 提供。
 
 ### 6.4 Provider 的其他配置
@@ -193,7 +193,44 @@ interface Lang {
 | 5    | `apps/host-demo` | 试点 Icon、Button、TextField、Popover                                                  | em 尺寸、部件透传、主元素透传、输入法、原生 popover + floating-ui、弹层栈与焦点恢复 |
 | 6    | 仓库             | Vitest 浏览器模式 + Playwright + axe-core；宿主示例接入 `createUi` 与局部 `Provider`   | 浏览器测试链路在 Windows 与 CI 上可用                                               |
 
-试点结束时把结论写回本文：规范要改的地方、基础设施缺的能力、正式组件的完成标准（§8）是否可行。
+### 7.1 实施结果（2026-10-18）
+
+阶段 1～6 已完成：StyleX 类型入口与注释数据、tokens 与明暗主题、Provider / createUi / Lang / useFormat、mergeProps 与部件类型、宿主示例里的试点组件（Icon、Button、TextField、Popover，`apps/host-demo/src/pilot`）、Vitest 浏览器模式 + Playwright + axe-core。
+
+### 7.2 试点结论
+
+**已验证可行**（真实 Chromium 中有自动化测试）：
+
+- em 尺寸：根元素定字号、内部全用 em，`size` 档位与继承上下文字号都等比缩放，图标 `1em` 跟随。
+- 部件透传：`propsIcon`、`propsRoot`、`propsClear` 落到对应部件；`...rest` 落到主元素（TextField 的 input）。
+- 受控 `_bind` 与 `_bindable`；Provider 嵌套合并与页面内切换主题、语言；`createUi` 应用级配置。
+- 弹层：原生 `popover="auto"` 自带 Esc 与点击外部关闭（把结果写回 `open` 即可），floating-ui 只负责定位；打开时用 tabbable 把焦点移入，关闭后焦点回到触发器。
+- 中文输入法：`_bind` 编译为 v-model，组合输入期间不写回、结束才写回。
+- axe-core 对试点页面没有违规。
+
+**试点暴露、已在基础设施里解决的问题**：
+
+1. **StyleX 只认以 `.stylex` 结尾的导入路径**：主入口再导出的 tokens 不能用在 `stylex.create` 里。tokens 改为从 `@vue-tsx-pro/ui/tokens.stylex` 导入，主入口不再导出。
+2. **StyleX 的变量名与“从源码还是产物编译”有关**：它按“包名:文件路径”算哈希，仓库内编译源码、解析导入却找到 dist，颜色全部失效。预设改用 custom 模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
+3. **组件库构建会把 `*.stylex.ts` 打包进 index.js**，使用方编译时 StyleX 不再认得：构建改为保留源码文件结构（`preserveModules`）。
+4. **禁用状态与“使用方事件先执行”冲突**：禁用的链接按钮（没有原生 disabled）仍会触发使用方回调。规则补充：组件不可用时先拿掉使用方的交互回调。
+5. `useLang()` 的转发对象展开为空：补齐 Proxy 的 `ownKeys` 等陷阱。
+
+**规范要补充的地方**：
+
+- **主元素的属性类型**：组件 props 接口要 `extends PartProps<'主元素', 受管属性>`，`...rest` 才有补全与类型检查。
+- **触发器与 ref**：把 `ref` 交给组件时拿到的是组件实例，需要取 `$el`。弹层类组件的触发器统一用渲染函数 `trigger={(props) => <Button {...props} />}`，由组件把实例解析成元素（Popover 里的 `toElement`）；正式组件库应把它做成公共工具。
+- **Provider 不画背景**：它不产生盒子，主题区域需要自己用 `colors.background` 铺底色。
+- **动态标签**：标签名来自数据（如图标的 path、circle）时类型上只是 `string`，TSX 没有属性类型，用 Vue 的 `h()` 渲染。
+- **动态样式单独写一个 create**：含动态样式函数的 create 走第二个类型签名，组内属性没有中文悬停提示。
+
+**基础设施还缺的**：
+
+- 公共的 `toElement`（实例 → 元素）、弹层栈（嵌套弹层与模态的 Esc 顺序、滚动锁定、`inert`）、焦点陷阱（模态对话框）。
+- 发布产物验证（`tests/consumer`）：用 `pnpm pack` 的产物在独立应用里编译 StyleX，确认 dist 下的 `*.stylex.js` 与规范化哈希在使用方也成立。
+- 浏览器测试目前只有 Chromium；Firefox、WebKit 可在需要时加入 `instances`。
+
+**完成标准（§8）是否可行**：可行。运行时测试、浏览器测试（键盘、焦点、输入法、axe）、类型测试都已有可复用的写法；文档页的 props 表生成尚未实现。
 
 ## 8. 正式组件的完成标准（供之后使用）
 

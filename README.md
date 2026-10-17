@@ -20,6 +20,19 @@ export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
 
 TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
 
+```ts
+// 宿主入口：应用级的主题与语言（可传 ref 在运行时切换）；页面内还可以用 <Provider> 局部覆盖
+import { createUi, darkTheme } from '@vue-tsx-pro/ui';
+app.use(createUi({ theme: darkTheme, lang: { timeZone: 'Asia/Shanghai' } }));
+```
+
+写样式从 `@vue-tsx-pro/tsx/stylex` 导入（运行时同 `@stylexjs/stylex`，属性悬停、补全、跳转都有中文说明），主题变量从 `@vue-tsx-pro/ui/tokens.stylex` 导入（StyleX 只认以 `.stylex` 结尾的导入路径）：
+
+```ts
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { colors, sizes } from '@vue-tsx-pro/ui/tokens.stylex';
+```
+
 构建时 StyleX 的 CSS 会追加到宿主产物里的 CSS 文件（宿主一般都有全局样式）；如果宿主一个 CSS 文件都没有，StyleX 会另写一个 `stylex.css` 但不会自动引用。
 
 完整示例见 `apps/host-demo`：SFC 首页 + vue-router + pinia，加一个 TSX 页面读取路由参数、写入 store、inject 宿主提供的值。
@@ -47,6 +60,8 @@ pnpm test           # 先构建 tsx，再运行各包测试
 pnpm dev:docs       # 启动文档站
 pnpm build:docs     # 构建文档站静态页面
 pnpm build:host     # 构建宿主示例
+pnpm test:browser   # 真实浏览器测试（首次先运行 pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium）
+pnpm css-docs       # 重新生成 StyleX 属性的中文注释（数据见 scripts/css-docs）
 pnpm lint           # oxlint（含类型感知规则）
 pnpm format         # prettier
 ```
