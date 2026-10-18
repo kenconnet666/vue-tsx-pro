@@ -4,10 +4,14 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Collapsible,
+  Container,
   darkTheme,
+  Flex,
+  Grid,
   Icon,
   lightTheme,
   Provider,
+  Separator,
   themeTransition,
   VisuallyHidden,
 } from '@vue-tsx-pro/ui';
@@ -35,6 +39,8 @@ const styles = stylex.create({
     color: '_text',
   },
   paragraph: { margin: 0, paddingBlock: '_sm' },
+  card: { padding: '_md', borderRadius: '_md', backgroundColor: '_fill', color: '_text' },
+  outlined: { borderWidth: '_xs', borderStyle: 'dashed', borderColor: '_border' },
   track: {
     // 小球的宽度加上移动的距离
     width: 'calc(_control + 120px)',
@@ -101,6 +107,31 @@ export const Base = _component(() => {
               <VisuallyHidden>设置</VisuallyHidden>
             </button>
           </div>
+        </Section>
+
+        <Section title="布局 Flex · Grid · Container · Separator">
+          <Flex class="flex-demo" gap="sm" align="center" wrap>
+            <span {...stylex.attrs(styles.card)}>一</span>
+            <span {...stylex.attrs(styles.card)}>二</span>
+            <Separator class="separator-demo" orientation="vertical" decorative={false} />
+            <span {...stylex.attrs(styles.card)}>三</span>
+          </Flex>
+          <Grid class="grid-demo" minItemWidth="10em" gap="md">
+            {['甲', '乙', '丙', '丁', '戊', '己'].map((name) => (
+              <div key={name} {...stylex.attrs(styles.card)}>
+                {name}
+              </div>
+            ))}
+          </Grid>
+          <Separator />
+          <Container
+            class="container-demo"
+            size="xs"
+            padding="md"
+            {...stylex.attrs(styles.outlined)}
+          >
+            <p {...stylex.attrs(styles.paragraph)}>最大宽度 30rem，水平居中</p>
+          </Container>
         </Section>
 
         <Section title="折叠 Collapsible">

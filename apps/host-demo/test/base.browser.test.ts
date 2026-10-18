@@ -116,3 +116,41 @@ describe('折叠：Collapsible 与 Collapse', () => {
     await expect.poll(() => $('.details-trigger').getAttribute('aria-expanded')).toBe('true');
   });
 });
+
+describe('布局：Flex、Grid、Container、Separator', () => {
+  const px = (value: string) => Number.parseFloat(value);
+  const columnCount = (grid: HTMLElement) =>
+    getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+
+  it('Flex：gap 档位取主题间距（em，随字号缩放），竖向分隔线随行高拉伸', () => {
+    const flex = $('.flex-demo');
+    const fontSize = px(getComputedStyle(flex).fontSize);
+    expect(px(getComputedStyle(flex).columnGap)).toBeCloseTo(fontSize * 0.5);
+    const separator = $('.separator-demo');
+    expect(separator.getBoundingClientRect().width).toBeCloseTo(1);
+    expect(separator.getBoundingClientRect().height).toBeGreaterThan(fontSize);
+    expect(separator.getAttribute('aria-orientation')).toBe('vertical');
+  });
+
+  it('Grid：minItemWidth 按容器宽度自动决定列数，比最小宽度还窄时单列且不溢出', () => {
+    const grid = $('.grid-demo');
+    // 10em 的格子、0.75em 的间距：30em 宽放 2 列，50em 宽放 4 列
+    grid.style.width = '30em';
+    expect(columnCount(grid)).toBe(2);
+    grid.style.width = '50em';
+    expect(columnCount(grid)).toBe(4);
+    grid.style.width = '5em';
+    expect(columnCount(grid)).toBe(1);
+    const item = grid.firstElementChild!.getBoundingClientRect();
+    expect(item.width).toBeLessThanOrEqual(grid.getBoundingClientRect().width + 0.5);
+  });
+
+  it('Container：最大宽度取主题 sizes（rem，跟随浏览器字号），左右内边距取 space', () => {
+    const container = $('.container-demo');
+    const style = getComputedStyle(container);
+    expect(px(style.maxWidth)).toBeCloseTo(
+      30 * px(getComputedStyle(document.documentElement).fontSize),
+    );
+    expect(px(style.paddingLeft)).toBeCloseTo(px(style.fontSize) * 0.75);
+  });
+});

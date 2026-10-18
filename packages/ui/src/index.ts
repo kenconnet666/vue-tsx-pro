@@ -4,6 +4,12 @@
 export { Icon, type IconData, type IconProps } from './base/Icon/Icon';
 export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden/VisuallyHidden';
 
+// 布局
+export { Flex, type FlexProps, type LayoutTag } from './layout/Flex/Flex';
+export { Grid, type GridProps } from './layout/Grid/Grid';
+export { Container, type ContainerProps } from './layout/Container/Container';
+export { Separator, type SeparatorProps } from './layout/Separator/Separator';
+
 // 展示
 export { Collapse, type CollapseProps } from './display/Collapse/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible/Collapsible';
@@ -36,7 +42,7 @@ export {
   type PartProps,
   type TriggerProps,
 } from './utils/props';
-export type { Size, Space } from './utils/styles';
+export { columnGapStyles, gapStyles, rowGapStyles, type Size, type Space } from './utils/styles';
 export {
   dismissOnBackdrop,
   focusFirst,
