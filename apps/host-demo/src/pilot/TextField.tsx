@@ -97,16 +97,16 @@ export const TextField = _component(
     return () => (
       <div
         {...elementProps(
-          mergeProps({ sx: styles.root }, propsRoot, {
+          mergeProps<'div'>({ sx: styles.root }, propsRoot, {
             sx: [invalid && styles.invalid, disabled && styles.disabled],
           }),
         )}
       >
-        {icon && <Icon icon={icon} {...mergeProps({ sx: styles.icon }, propsIcon)} />}
+        {icon && <Icon icon={icon} {...mergeProps<IconProps>({ sx: styles.icon }, propsIcon)} />}
         {/* _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回 */}
         <input
           {...elementProps(
-            mergeProps({ sx: styles.input }, rest, {
+            mergeProps<'input'>({ sx: styles.input }, rest, {
               ref: _toRef(input),
               disabled,
               'aria-invalid': invalid || undefined,
@@ -117,7 +117,7 @@ export const TextField = _component(
         {clearable && value && !disabled && (
           <button
             {...elementProps(
-              mergeProps({ sx: styles.clear, 'aria-label': lang.clear }, propsClear, {
+              mergeProps<'button'>({ sx: styles.clear, 'aria-label': lang.clear }, propsClear, {
                 type: 'button',
                 onClick: clear,
               }),

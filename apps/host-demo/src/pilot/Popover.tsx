@@ -125,7 +125,7 @@ export const Popover = _component(
         })}
         <div
           {...elementProps(
-            mergeProps({ sx: styles.panel, 'aria-labelledby': triggerId }, rest, {
+            mergeProps<'div'>({ sx: styles.panel, 'aria-labelledby': triggerId }, rest, {
               ref: _toRef(panel),
               id,
               popover: 'auto',

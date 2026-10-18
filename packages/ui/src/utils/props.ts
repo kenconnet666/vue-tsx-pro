@@ -27,9 +27,23 @@ type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => unknown;
 type RefSetter = ((element: unknown) => void) | Ref<unknown>;
 
-/** 合并部件的三层属性：组件默认、使用方传入、组件受管，规则见文件开头 */
-export function mergeProps(defaults: Props, user: Props = {}, managed: Props = {}): Props {
-  const layers = [defaults, user, managed];
+/** 一层属性：Target 是标签名（'svg'）时为该元素的属性加 sx，是 props 类型（IconProps）时就是它 */
+type PropsLayer<Target> = Partial<
+  Target extends keyof JSX.IntrinsicElements ? PartProps<Target> : Target
+>;
+
+/**
+ * 合并部件的三层属性：组件默认、使用方传入、组件受管，规则见文件开头。
+ * 用类型参数写明属性落到哪里，三层的对象字面量才有补全、悬停说明与类型检查：
+ *   mergeProps<'svg'>(默认, rest, 受管)、mergeProps<IconProps>({ sx: … }, propsIcon)
+ */
+export function mergeProps<Target = Props>(
+  defaults: PropsLayer<Target>,
+  user: PropsLayer<Target> = {},
+  managed: PropsLayer<Target> = {},
+): PropsLayer<Target> {
+  const layers = [defaults, user, managed] as Props[];
+  const [defaultLayer, userLayer, managedLayer] = layers as [Props, Props, Props];
   const merged: Props = { ...defaults, ...user, ...managed };
 
   for (const key of ['sx', 'class', 'style']) {
@@ -44,22 +58,23 @@ export function mergeProps(defaults: Props, user: Props = {}, managed: Props = {
 
   for (const key of new Set(layers.flatMap(Object.keys))) {
     if (!/^on[A-Z]/.test(key)) continue;
-    const handler = mergeHandlers(user[key] as Handler | undefined, [defaults[key], managed[key]]);
+    const internal = [defaultLayer[key], managedLayer[key]];
+    const handler = mergeHandlers(userLayer[key] as Handler | undefined, internal);
     if (handler) merged[key] = handler;
   }
-  return merged;
+  return merged as PropsLayer<Target>;
 }
 
 /** 原生元素部件：把 sx 换成 StyleX 生成的 class 与 style，再与已有的 class、style 合并 */
-export function elementProps(props: Props): Props {
-  const { sx, ...rest } = props;
-  if (sx == null) return rest;
+export function elementProps<P extends object>(props: P): Omit<P, 'sx'> {
+  const { sx, ...rest } = props as P & Props;
+  if (sx == null) return rest as Omit<P, 'sx'>;
   const compiled = stylex.attrs(sx as StyleXStyles);
   return {
     ...rest,
     class: present([rest.class, compiled.class]),
     style: present([compiled.style, rest.style]),
-  };
+  } as Omit<P, 'sx'>;
 }
 
 /**

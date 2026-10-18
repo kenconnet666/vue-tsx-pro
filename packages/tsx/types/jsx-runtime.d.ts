@@ -64,3 +64,17 @@ export declare namespace JSX {
       : // 其他 Vue 组件：内容走默认插槽
         P & { children?: unknown };
 }
+
+// Vue 3.5 的 HTML 属性类型还没有原生 Popover API 的属性，这里补上（只是类型，运行时原样交给浏览器）
+declare module 'vue' {
+  interface HTMLAttributes {
+    /** 原生弹层：auto 自带 Esc 与点击外部关闭，manual 只由代码开关，hint 不关闭其他 auto 弹层 */
+    popover?: 'auto' | 'manual' | 'hint' | '' | undefined;
+  }
+  interface ButtonHTMLAttributes {
+    /** 点击时开关的弹层元素 id */
+    popovertarget?: string | undefined;
+    /** 点击时对弹层做什么，默认 toggle */
+    popovertargetaction?: 'toggle' | 'show' | 'hide' | undefined;
+  }
+}

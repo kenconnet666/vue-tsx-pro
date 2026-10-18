@@ -64,7 +64,7 @@ export const Icon = _component(
       return (
         <svg
           {...elementProps(
-            mergeProps(
+            mergeProps<'svg'>(
               {
                 sx: [
                   styles.icon,
