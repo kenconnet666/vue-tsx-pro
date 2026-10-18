@@ -86,8 +86,13 @@
 - 每个组件按 WAI-ARIA Authoring Practices 的对应模式实现：角色、状态属性、键盘操作，文档里列出键盘映射。
 - 关联 id 用 Vue 3.5 的 `useId()` 生成；使用方传了 `id` 时以使用方为准。
 - 中文输入法：输入类组件在 `compositionstart`/`compositionend` 之间不触发校验、搜索与格式化。
-- 弹层类组件的触发器用渲染函数 `trigger={(props) => <Button {...props} />}`；`ref` 落在组件上拿到的是实例，由组件解析成根元素（`$el`）。
-- 弹层优先用原生 Popover API 与 `<dialog>`（处在浏览器最顶层、Esc、焦点恢复），floating-ui 只负责定位。另有一个弹层栈：Esc 只关最上层；点击外部关闭能识别嵌套弹层；打开模态时锁定滚动、其余内容设 `inert`。
+- 弹层类组件的触发器用渲染函数 `trigger={(props) => <Button {...props} />}`；`ref` 落在组件上拿到的是实例，用 `toElement` 解析成根元素。
+- 弹层用原生 `popover`（非模态）与 `<dialog>.showModal()`（模态），floating-ui 只负责定位。顶层渲染、Esc、点击外部、嵌套弹层的关闭顺序、模态时背景 `inert` 都交给浏览器；这些依赖写成了三大浏览器上的回归测试（`apps/host-demo/test/native-overlay.browser.test.ts`），所以**不另建 JS 弹层栈**。
+- 浏览器不做或做得不一致的，由 `utils/overlay` 补上，弹层组件都要用：
+  - `focusOrigin()` 在打开前记下焦点来源，关闭后 `returnFocus(弹层, 来源)` 把焦点还回去（WebKit 关闭原生弹层后会把焦点留在弹层里；Safari 点击按钮不聚焦它，`focusOrigin` 会取最近按下的元素）；
+  - 打开时 `focusFirst(弹层)`；模态里 `trapFocus(弹层)` 做焦点循环（原生不循环）；
+  - 模态打开时 `lockScroll()`，可叠加，最后一个解锁时恢复，并补上滚动条宽度避免页面跳动。
+- 弹层要用点击等用户操作打开：没有用户操作就打开的弹层会被浏览器并成一组，一次 Esc 全部关闭。
 
 ---
 
@@ -195,9 +200,9 @@ interface Lang {
 
 ## 7. 现状、依赖与待办
 
-**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、Provider / createUi、语言与 useFormat、mergeProps 与部件类型。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）；正式组件：Icon。
 
-**试点组件**（`apps/host-demo/src/pilot`：Icon、Button、TextField、Popover）按本规范写，但不进组件库、不承诺 API。真实 Chromium 中已验证：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、中文输入法、axe 无违规。
+**试点组件**（`apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）按本规范写，但不进组件库、不承诺 API。在 Chromium、Firefox、WebKit 中已验证：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
 **StyleX 相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
 
@@ -221,8 +226,8 @@ interface Lang {
 
 **待办**：
 
-- 公共的 `toElement`（组件实例 → 根元素）、弹层栈（嵌套弹层与模态的 Esc 顺序、滚动锁定、`inert`）、模态焦点陷阱。
-- 文档页的 props 表生成；浏览器测试按需加入 Firefox、WebKit。
+- Button 的点击波纹反馈（写正式 Button 时做，尊重“减少动态效果”）。
+- 文档页的 props 表生成。
 
 ## 8. 正式组件的完成标准（供之后使用）
 

@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium
+      - run: pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium firefox webkit
       - run: pnpm test:browser
 
   build:

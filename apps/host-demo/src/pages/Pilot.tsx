@@ -4,6 +4,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { darkTheme, enUS, lightTheme, Provider, useLang, zhCN } from '@vue-tsx-pro/ui';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 import { Button } from '../pilot/Button';
+import { Dialog } from '../pilot/Dialog';
 import { Popover } from '../pilot/Popover';
 import { TextField } from '../pilot/TextField';
 
@@ -40,6 +41,9 @@ export const Pilot = _component(() => {
   let english = _state(false);
   let keyword = _state('');
   let menuOpen = _state(false);
+  let dialogOpen = _state(false);
+  let nestedOpen = _state(false);
+  let name = _state('');
 
   return () => (
     <Provider theme={dark ? darkTheme : lightTheme} lang={english ? enUS : zhCN}>
@@ -96,6 +100,49 @@ export const Pilot = _component(() => {
           >
             <MenuContent onClose={() => (menuOpen = false)} />
           </Popover>
+
+          <Button class="dialog-trigger" onClick={() => (dialogOpen = true)}>
+            打开对话框
+          </Button>
+          <Dialog
+            open={_bind(dialogOpen)}
+            title="编辑资料"
+            class="pilot-dialog"
+            footer={
+              <>
+                <Button
+                  variant="outline"
+                  class="dialog-cancel"
+                  onClick={() => (dialogOpen = false)}
+                >
+                  取消
+                </Button>
+                <Button class="dialog-ok" onClick={() => (dialogOpen = false)}>
+                  确定
+                </Button>
+              </>
+            }
+          >
+            <div {...stylex.attrs(styles.row)}>
+              <TextField
+                value={_bind(name)}
+                aria-label="名字"
+                propsRoot={{ class: 'dialog-field' }}
+              />
+              <Popover
+                open={_bind(nestedOpen)}
+                trigger={(props) => (
+                  <Button {...props} variant="outline" class="nested-trigger">
+                    选项
+                  </Button>
+                )}
+              >
+                <Button variant="ghost" class="nested-item">
+                  对话框里的弹层
+                </Button>
+              </Popover>
+            </div>
+          </Dialog>
         </div>
       </main>
     </Provider>

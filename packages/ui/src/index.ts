@@ -20,5 +20,13 @@ export { zhCN } from './config/lang/zh-CN';
 export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
 
-// 部件 props
+// 部件 props 与弹层工具
 export { elementProps, mergeProps, type PartProps } from './utils/props';
+export {
+  focusFirst,
+  focusOrigin,
+  lockScroll,
+  returnFocus,
+  toElement,
+  trapFocus,
+} from './utils/overlay';

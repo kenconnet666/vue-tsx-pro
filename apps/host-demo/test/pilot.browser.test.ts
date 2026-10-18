@@ -114,3 +114,62 @@ it('无障碍：弹出层打开时 axe-core 也没有违规', async () => {
   const result = await axe.run(document.body);
   expect(result.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
 });
+
+it('Dialog：打开时焦点进入并锁定页面滚动，焦点在两端循环', async () => {
+  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  await userEvent.click($('.dialog-trigger'));
+  await expect.poll(() => dialog.open).toBe(true);
+  expect(dialog.contains(document.activeElement)).toBe(true);
+  expect(document.documentElement.style.overflow).toBe('hidden');
+
+  const input = $('.dialog-field input');
+  const ok = $('.dialog-ok');
+  ok.focus();
+  await userEvent.keyboard('{Tab}');
+  expect(document.activeElement).toBe(input);
+  await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+  expect(document.activeElement).toBe(ok);
+});
+
+it('Dialog：里面的弹层先关，再按 Esc 关对话框；关闭后写回、恢复滚动、焦点回到触发器', async () => {
+  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  const trigger = $('.dialog-trigger');
+  await userEvent.click(trigger);
+  await expect.poll(() => dialog.open).toBe(true);
+
+  const nested = $('.nested-trigger');
+  const panel = document.getElementById(nested.getAttribute('aria-controls')!)!;
+  await userEvent.click(nested);
+  await expect.poll(() => panel.matches(':popover-open')).toBe(true);
+
+  await userEvent.keyboard('{Escape}');
+  await expect.poll(() => panel.matches(':popover-open')).toBe(false);
+  expect(dialog.open).toBe(true);
+
+  await userEvent.keyboard('{Escape}');
+  await expect.poll(() => dialog.open).toBe(false);
+  expect(document.documentElement.style.overflow).toBe('');
+  expect(document.activeElement).toBe(trigger);
+  // 写回了父级状态：再次点击能重新打开
+  await userEvent.click(trigger);
+  await expect.poll(() => dialog.open).toBe(true);
+});
+
+it('Dialog：点击遮罩关闭，点击内容不关闭', async () => {
+  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  await userEvent.click($('.dialog-trigger'));
+  await expect.poll(() => dialog.open).toBe(true);
+  await userEvent.click(dialog.querySelector('h2')!);
+  expect(dialog.open).toBe(true);
+  // 遮罩不是 DOM 元素，Playwright 的可点击检查会命中 <html> 而判定被遮挡，所以跳过检查
+  await userEvent.click(dialog, { position: { x: 10, y: -10 }, force: true });
+  await expect.poll(() => dialog.open).toBe(false);
+});
+
+it('无障碍：对话框打开时 axe-core 也没有违规', async () => {
+  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  await userEvent.click($('.dialog-trigger'));
+  await expect.poll(() => dialog.open).toBe(true);
+  const { violations } = await axe.run(root);
+  expect(violations.map((violation) => violation.id)).toEqual([]);
+});

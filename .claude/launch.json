@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "host-demo",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@vue-tsx-pro/host-demo", "dev", "--port", "5173", "--strictPort"],
+      "port": 5173
+    }
+  ]
+}
