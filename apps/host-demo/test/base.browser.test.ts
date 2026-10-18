@@ -154,3 +154,29 @@ describe('布局：Flex、Grid、Container、Separator', () => {
     expect(px(style.paddingLeft)).toBeCloseTo(px(style.fontSize) * 0.75);
   });
 });
+
+describe('文本：Heading、Text、Link', () => {
+  const px = (value: string) => Number.parseFloat(value);
+
+  it('Heading 按级别取默认字号（h1 为 xxxl 30px），并去掉浏览器默认外边距', () => {
+    const heading = $('.heading-demo');
+    expect(heading.tagName).toBe('H1');
+    expect(px(getComputedStyle(heading).fontSize)).toBe(30);
+    expect(px(getComputedStyle(heading).marginTop)).toBe(0);
+  });
+
+  it('Text 的 lineClamp 把高度限制在给定行数之内', () => {
+    const text = $('.clamp-demo');
+    const lineHeight = px(getComputedStyle(text).lineHeight);
+    expect(text.getBoundingClientRect().height).toBeLessThanOrEqual(lineHeight * 2 + 1);
+    expect(text.scrollHeight).toBeGreaterThan(text.clientHeight);
+  });
+
+  it('外部链接在新窗口打开，读屏提示视觉上不占位', () => {
+    const link = $<HTMLAnchorElement>('.external-demo');
+    expect(link.target).toBe('_blank');
+    expect(link.rel).toBe('noopener noreferrer');
+    const hint = [...link.querySelectorAll('span')].at(-1)!;
+    expect(hint.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+  });
+});

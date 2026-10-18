@@ -13,6 +13,7 @@ export const enUS: Lang = {
   clear: 'Clear',
   loading: 'Loading',
 
+  linkNewWindow: ' (opens in a new window)',
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
   paginationTotal: (total) => `${total} items`,

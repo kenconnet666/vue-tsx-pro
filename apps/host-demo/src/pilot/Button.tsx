@@ -3,6 +3,8 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   elementProps,
+  focusRingStyles,
+  fontSizeStyles,
   Icon,
   mergeProps,
   type IconData,
@@ -48,10 +50,6 @@ const styles = stylex.create({
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color, color',
     transitionDuration: '_sm',
-    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
-    outlineWidth: '_sm',
-    outlineColor: '_focusRing',
-    outlineOffset: '_sm',
   },
   solid: {
     color: '_accentContrast',
@@ -67,11 +65,6 @@ const styles = stylex.create({
     backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
   },
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },
-  xs: { fontSize: '_xs' },
-  sm: { fontSize: '_sm' },
-  md: { fontSize: '_md' },
-  lg: { fontSize: '_lg' },
-  xl: { fontSize: '_xl' },
 });
 
 export const Button = _component(
@@ -99,7 +92,12 @@ export const Button = _component(
       const props = elementProps(
         mergeProps<'button' | 'a'>(
           {
-            sx: [styles.base, styles[variant], size && styles[size]],
+            sx: [
+              styles.base,
+              focusRingStyles.visible,
+              styles[variant],
+              size && fontSizeStyles[size],
+            ],
             type: href ? undefined : 'button',
           },
           user,

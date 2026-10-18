@@ -45,6 +45,16 @@ export const columnGapStyles: Table<Space> = stylex.create({
   xl: { columnGap: '_xl' },
 });
 
+/** 键盘聚焦时的焦点环（:focus-visible）：Link、Button 等可交互元素共用，外观一致 */
+export const focusRingStyles: Table<'visible'> = stylex.create({
+  visible: {
+    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    outlineOffset: '_sm',
+  },
+});
+
 /**
  * 列表元素（ul、ol）当布局容器时去掉默认的圆点与缩进。
  * Safari 去掉圆点后会把它当成普通容器，读屏不再报“列表”，所以组件同时补上 role="list"（见 listRole）

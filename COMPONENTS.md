@@ -153,7 +153,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
-- 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。唯一偏离：焦点环用 9 级而不是 Radix 建议的 7–8 级，因为亮色下后者对比度不到 3:1。
+- 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。唯一偏离：焦点环用 9 级而不是 Radix 建议的 7–8 级，因为亮色下后者对比度不到 3:1。
 
 ### 6.3 语言 `lang`：地区、时间、文案平铺在一个对象里
 
@@ -213,6 +213,8 @@ interface Lang {
 
 ## 7. 现状、依赖与待办
 
+**目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`（base、layout、display…），共用工具在 `utils/`，配置在 `config/`；测试集中在各目录下的 `.test/`（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
+
 **已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）；正式组件：Icon。
 
 **试点组件**（`apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）按本规范写，但不进组件库、不承诺 API。在 Chromium、Firefox、WebKit 中已验证：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
@@ -224,12 +226,12 @@ interface Lang {
 - 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
 - `stylex.create` / `createTheme` 的结果必须赋给变量；只用一次的常量会被打包工具内联，使用方编译 dist 时报错，所以这类常量要么被多处使用，要么 `export`（`dark.ts` 就是这样）。`pnpm test:consumer` 会发现这类问题。
 
-**依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
+**依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/src/utils/.test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
 | 用途     | 选择                                | 说明                                                                                                    |
 | -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                       |
-| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon`）                                              |
+| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                          |
 | 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                    |
 | 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                          |
 | 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                        |

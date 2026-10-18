@@ -3,5 +3,6 @@
   "compilerOptions": {
     "types": ["node", "@vue-tsx-pro/tsx/runes"]
   },
-  "include": ["src", "test", "*.config.ts"]
+  // 以点开头的目录（各分类的 .test）不会被 src 匹配，要单独列出
+  "include": ["src", "src/**/.test/**/*", "*.config.ts"]
 }

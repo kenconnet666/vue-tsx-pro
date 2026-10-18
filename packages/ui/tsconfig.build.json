@@ -10,5 +10,6 @@
     "types": ["@vue-tsx-pro/tsx/runes"]
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts"]
+  // 测试集中在各分类的 .test 目录
+  "exclude": ["src/**/.test"]
 }

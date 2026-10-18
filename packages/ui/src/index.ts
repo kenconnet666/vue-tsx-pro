@@ -1,18 +1,23 @@
-// 组件按 src/<分类>/<Name>/<Name>.tsx 组织，在这里统一导出
+// 组件平铺在 src/<分类>/<Name>.tsx，测试在同级的 .test 目录；在这里统一导出
 
 // 基础
-export { Icon, type IconData, type IconProps } from './base/Icon/Icon';
-export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden/VisuallyHidden';
+export { Icon, type IconData, type IconProps } from './base/Icon';
+export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden';
+export { Text, type TextProps } from './base/Text';
+export { Heading, type HeadingProps } from './base/Heading';
+export { Link, type LinkProps } from './base/Link';
+export { Code, type CodeProps } from './base/Code';
+export { Kbd, type KbdProps } from './base/Kbd';
 
 // 布局
-export { Flex, type FlexProps, type LayoutTag } from './layout/Flex/Flex';
-export { Grid, type GridProps } from './layout/Grid/Grid';
-export { Container, type ContainerProps } from './layout/Container/Container';
-export { Separator, type SeparatorProps } from './layout/Separator/Separator';
+export { Flex, type FlexProps, type LayoutTag } from './layout/Flex';
+export { Grid, type GridProps } from './layout/Grid';
+export { Container, type ContainerProps } from './layout/Container';
+export { Separator, type SeparatorProps } from './layout/Separator';
 
 // 展示
-export { Collapse, type CollapseProps } from './display/Collapse/Collapse';
-export { Collapsible, type CollapsibleProps } from './display/Collapsible/Collapsible';
+export { Collapse, type CollapseProps } from './display/Collapse';
+export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';
@@ -42,7 +47,26 @@ export {
   type PartProps,
   type TriggerProps,
 } from './utils/props';
-export { columnGapStyles, gapStyles, rowGapStyles, type Size, type Space } from './utils/styles';
+export {
+  columnGapStyles,
+  focusRingStyles,
+  gapStyles,
+  rowGapStyles,
+  type Size,
+  type Space,
+} from './utils/styles';
+export {
+  fontSizeStyles,
+  fontWeightStyles,
+  lineClampStyles,
+  textAlignStyles,
+  textStyles,
+  textWrapStyles,
+  toneStyles,
+  type FontSize,
+  type FontWeight,
+  type Tone,
+} from './utils/typography';
 export {
   dismissOnBackdrop,
   focusFirst,

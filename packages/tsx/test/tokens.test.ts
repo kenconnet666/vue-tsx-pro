@@ -123,10 +123,10 @@ describe('Vite 插件', () => {
 
   it('组件库自己的源码用相对路径导入，token 名从源码读取', async () => {
     const code = await transform(
-      ui('src/base/X/X.tsx'),
+      ui('src/base/X.tsx'),
       `stylex.create({ a: { fontSize: '_xxxl', color: '_inverseText' } });`,
     );
-    expect(code).toContain('from "../../config/theme/tokens.stylex"');
+    expect(code).toContain('from "../config/theme/tokens.stylex"');
     expect(code).toContain('_fontSizes.xxxl');
   });
 

@@ -13,6 +13,7 @@ export const zhCN: Lang = {
   clear: '清空',
   loading: '加载中',
 
+  linkNewWindow: '（在新窗口打开）',
   selectEmpty: '没有选项',
   selectPlaceholder: '请选择',
   paginationTotal: (total) => `共 ${total} 条`,

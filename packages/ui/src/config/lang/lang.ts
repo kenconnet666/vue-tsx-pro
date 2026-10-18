@@ -38,6 +38,8 @@ export interface Lang {
 
   // ───────── 组件文案 ─────────
 
+  /** 外链（target=_blank）给读屏的提示，默认“（在新窗口打开）” */
+  readonly linkNewWindow: string;
   /** 下拉框没有选项时的提示，默认“没有选项” */
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */

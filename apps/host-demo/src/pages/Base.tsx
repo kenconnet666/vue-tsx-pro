@@ -3,15 +3,20 @@ import { ArrowRight, Settings, Star } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  Code,
   Collapsible,
   Container,
   darkTheme,
   Flex,
   Grid,
+  Heading,
   Icon,
+  Kbd,
   lightTheme,
+  Link,
   Provider,
   Separator,
+  Text,
   themeTransition,
   VisuallyHidden,
 } from '@vue-tsx-pro/ui';
@@ -29,7 +34,6 @@ const styles = stylex.create({
     backgroundColor: '_background',
   },
   section: { display: 'grid', gap: '_md' },
-  title: { margin: 0, fontSize: '_lg' },
   row: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_md' },
   iconButton: {
     display: 'inline-flex',
@@ -39,6 +43,7 @@ const styles = stylex.create({
     color: '_text',
   },
   paragraph: { margin: 0, paddingBlock: '_sm' },
+  narrow: { maxWidth: '20em' },
   card: { padding: '_md', borderRadius: '_md', backgroundColor: '_fill', color: '_text' },
   outlined: { borderWidth: '_xs', borderStyle: 'dashed', borderColor: '_border' },
   track: {
@@ -60,7 +65,9 @@ const Section = _component(
   ({ title, children }: { title: string; children?: VNodeChild }) =>
     () => (
       <section {...stylex.attrs(styles.section)}>
-        <h2 {...stylex.attrs(styles.title)}>{title}</h2>
+        <Heading level={2} size="lg">
+          {title}
+        </Heading>
         {children}
       </section>
     ),
@@ -107,6 +114,34 @@ export const Base = _component(() => {
               <VisuallyHidden>设置</VisuallyHidden>
             </button>
           </div>
+        </Section>
+
+        <Section title="文本 Heading · Text · Link · Code · Kbd">
+          <Heading level={1} class="heading-demo">
+            一级标题
+          </Heading>
+          <Heading level={3}>三级标题</Heading>
+          <Text as="p" tone="muted" size="sm">
+            次要说明文字
+          </Text>
+          <Flex gap="sm" wrap>
+            {(['accent', 'danger', 'success', 'warning', 'info'] as const).map((tone) => (
+              <Text key={tone} tone={tone} weight="medium">
+                {tone}
+              </Text>
+            ))}
+          </Flex>
+          <Text as="p" class="clamp-demo" lineClamp={2} {...stylex.attrs(styles.narrow)}>
+            多行截断：这是一段比较长的说明文字，超过两行之后会被截断并在末尾显示省略号，完整内容不会撑开布局。
+            这一句话会被隐藏起来，用来确认截断确实生效。
+          </Text>
+          <Text as="p">
+            阅读 <Link href="#">使用说明</Link>，或查看{' '}
+            <Link href="https://example.com" external class="external-demo">
+              外部文档
+            </Link>
+            ；运行 <Code>pnpm install</Code>，按 <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd> 搜索。
+          </Text>
         </Section>
 
         <Section title="布局 Flex · Grid · Container · Separator">
