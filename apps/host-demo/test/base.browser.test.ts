@@ -122,7 +122,8 @@ describe('折叠：Collapsible 与 Collapse', () => {
     trigger.click();
     await nextFrame();
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
-    expect(content().getAnimations().length).toBeGreaterThan(0);
+    // WebKit 不一定在下一帧就建好过渡（Chromium 在 getAnimations 时会强制计算样式），轮询等它出现
+    await expect.poll(() => content().getAnimations().length).toBeGreaterThan(0);
     await afterTransitions(content());
     expect(height()).toBeGreaterThan(0);
     expect(content().hasAttribute('hidden') || content().hasAttribute('inert')).toBe(false);
