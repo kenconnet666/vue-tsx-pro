@@ -211,6 +211,14 @@ async function generate() {
       `token 对照表里有 StyleX 不认识的属性（token-map.ts）：\n${unknown.join('\n')}`,
     );
 
+  // 每组的接口要从入口按名导出，ui 的 declare module 才能合并进来（漏了就没有补全，类型检查也发现不了）
+  const entry = readFileSync(join(root, 'packages/tsx/src/stylex/index.ts'), 'utf8');
+  const unexported = [...new Set(TOKEN_GROUP_OF.values())]
+    .map(tokenInterfaceName)
+    .filter((name) => !new RegExp(`\\b${name}\\b`).test(entry));
+  if (unexported.length)
+    throw new Error(`packages/tsx/src/stylex/index.ts 没有导出：${unexported.join('、')}`);
+
   const context = { numberRules: readNumberRules(), baseline: readBaseline() };
   const keywordGroups = readKeywordGroups(properties);
   const valueType = ({ key }) => {

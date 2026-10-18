@@ -1,5 +1,5 @@
 /**
- * StyleX 入口：运行时与 @stylexjs/stylex 完全相同，只是类型带中文注释。
+ * StyleX 入口：运行时与 @stylexjs/stylex 相同（只修正了 attrs，见下），类型带中文注释。
  *
  *   import * as stylex from '@vue-tsx-pro/tsx/stylex';
  *
@@ -9,11 +9,13 @@
  * Vite 预设已让 StyleX 编译器识别这个入口。
  */
 import type * as stylex from '@stylexjs/stylex';
+import { props as stylexProps } from '@stylexjs/stylex';
 import type { CSSProperties, InlineStyles, MapNamespaces } from '@stylexjs/stylex';
 import type { DocumentedStyles } from './styles';
 
 export * from '@stylexjs/stylex';
 export type {
+  BorderWidthsTokens,
   ColorsTokens,
   DocumentedStyles,
   DurationsTokens,
@@ -21,10 +23,14 @@ export type {
   FontSizesTokens,
   FontsTokens,
   FontWeightsTokens,
+  LetterSpacingsTokens,
   LineHeightsTokens,
+  OpacitiesTokens,
   RadiiTokens,
   ShadowsTokens,
+  SizesTokens,
   SpaceTokens,
+  StrokeWidthsTokens,
 } from './styles';
 export type { StyleValue } from './value';
 
@@ -81,7 +87,26 @@ export declare const create: Create;
  * 假值（false、null、undefined）会被忽略，便于按条件组合。Vue 的 JSX 用它：
  * `<div {...stylex.attrs(styles.base, active && styles.active, sx)} />`
  */
-export declare const attrs: typeof stylex.attrs;
+export const attrs: typeof stylex.attrs = (...styles) => {
+  // 自己实现而不直接用 StyleX 的 attrs：0.19.1 把行内样式的属性名一律转成连字符，自定义属性也不例外，
+  // 动态样式的变量（--x-gridTemplateColumns）就和类名里引用的对不上了。这里只转普通属性
+  const {
+    className,
+    style,
+    'data-style-src': source,
+  } = stylexProps(...styles) as ReturnType<typeof stylex.props> & { 'data-style-src'?: string };
+  const result: { class?: string; style?: string; 'data-style-src'?: string } = {};
+  if (className != null) result.class = className;
+  if (style != null) {
+    result.style = Object.entries(style)
+      .map(([key, value]) => `${key.startsWith('--') ? key : toKebabCase(key)}:${String(value)}`)
+      .join(';');
+  }
+  if (source != null) result['data-style-src'] = source;
+  return result;
+};
+
+const toKebabCase = (name: string) => name.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
 
 /** 与 attrs 相同，但返回 React 风格的 `{ className, style }`；Vue 里请用 attrs。 */
 export declare const props: typeof stylex.props;
