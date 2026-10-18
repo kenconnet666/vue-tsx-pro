@@ -12,6 +12,7 @@ export const enUS: Lang = {
   close: 'Close',
   clear: 'Clear',
   loading: 'Loading',
+  remove: 'Remove',
 
   linkNewWindow: ' (opens in a new window)',
   selectEmpty: 'No options',

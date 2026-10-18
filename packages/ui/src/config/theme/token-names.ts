@@ -130,7 +130,8 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _accentBorder: unknown;
     /**
-     * 危险实色：危险按钮。red 9：两套主题都是 `#e5484d`
+     * 危险实色：危险按钮的底色，上面放 dangerContrast（白色）文字，要满足 4.5:1。
+     * red 9 配白字只有 3.91:1，所以亮色用 red 11 `#ce2c31`（5.21:1），暗色用 red 8 `#b54548`（5.37:1）
      *
      * `colors.danger`
      */
@@ -172,7 +173,8 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _dangerBorder: unknown;
     /**
-     * 成功文字与图标。green 11：亮色 `#218358`，暗色 `#3dd68c`
+     * 成功文字与图标。亮色 green 12 `#193b2d`，暗色 green 11 `#3dd68c`。
+     * 亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5
      *
      * `colors.successText`
      */
@@ -209,7 +211,8 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _warningBorder: unknown;
     /**
-     * 信息文字与图标。blue 11：亮色 `#0d74ce`，暗色 `#70b8ff`
+     * 信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。
+     * 亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1
      *
      * `colors.infoText`
      */

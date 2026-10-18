@@ -14,6 +14,9 @@ export { Button, type ButtonProps } from './base/Button';
 export { LinkButton, type LinkButtonProps } from './base/LinkButton';
 export { IconButton, type IconButtonProps } from './base/IconButton';
 export { ClearButton, CloseButton, type PresetIconButtonProps } from './base/CloseButton';
+export { Badge, type BadgeProps } from './base/Badge';
+export { Tag, type TagProps } from './base/Tag';
+export type { BadgeOptions, BadgeRadii } from './base/badge-styles';
 export type {
   ButtonContentOptions,
   ButtonOptions,
@@ -60,6 +63,23 @@ export {
 // 展示
 export { Collapse, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
+export { Progress, type ProgressProps, type ProgressTones } from './display/Progress';
+export { Skeleton, type SkeletonProps } from './display/Skeleton';
+export {
+  Alert,
+  type AlertLives,
+  type AlertOptions,
+  type AlertProps,
+  type AlertVariants,
+} from './display/Alert';
+export { Card, type CardOptions, type CardProps, type CardVariants } from './display/Card';
+export {
+  Avatar,
+  initials,
+  type AvatarOptions,
+  type AvatarProps,
+  type AvatarRadii,
+} from './display/Avatar';
 export {
   VirtualList,
   type VirtualListHandle,
@@ -150,6 +170,13 @@ export {
 } from './utils/overlay';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
 export { startMove, type MoveOptions, type MovePoint } from './utils/move';
+export {
+  statusToneSx,
+  type StatusTone,
+  type StatusTones,
+  type StatusVariant,
+  type StatusVariants,
+} from './utils/tone-styles';
 export { rippleHostStyles, startRipple, useRipple } from './utils/ripple';
 export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/link';
 export {

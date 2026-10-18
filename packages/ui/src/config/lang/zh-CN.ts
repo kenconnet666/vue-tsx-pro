@@ -12,6 +12,7 @@ export const zhCN: Lang = {
   close: '关闭',
   clear: '清空',
   loading: '加载中',
+  remove: '移除',
 
   linkNewWindow: '（在新窗口打开）',
   selectEmpty: '没有选项',

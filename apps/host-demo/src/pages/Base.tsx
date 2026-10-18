@@ -4,6 +4,10 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Button,
+  Alert,
+  Avatar,
+  Badge,
+  Card,
   Code,
   CodeBlock,
   Collapsible,
@@ -23,6 +27,9 @@ import {
   Link,
   LinkButton,
   Paragraph,
+  Progress,
+  Skeleton,
+  Tag,
   Provider,
   ScrollArea,
   Separator,
@@ -153,6 +160,9 @@ export const Base = _component(() => {
   let listHandle: VirtualListHandle | undefined;
   let volume = _state(40);
   let saving = _state(false);
+  let cities = _state(['上海', '北京', '深圳']);
+  let loadingProfile = _state(true);
+  let showAlert = _state(true);
 
   function save() {
     saving = true;
@@ -249,6 +259,86 @@ export const Base = _component(() => {
             <IconButton icon={Plus} aria-label="添加" variant="solid" radius="full" />
             <CloseButton />
             <ClearButton size="sm" />
+          </Flex>
+        </Section>
+
+        <Section title="标记与提示 Badge · Tag · Alert">
+          {(['solid', 'soft', 'surface', 'outline'] as const).map((variant) => (
+            <Flex key={variant} gap="sm" wrap align="center" class={`badge-row-${variant}`}>
+              {(['neutral', 'accent', 'info', 'success', 'warning', 'danger'] as const).map(
+                (tone) => (
+                  <Badge key={tone} variant={variant} tone={tone}>
+                    {tone}
+                  </Badge>
+                ),
+              )}
+            </Flex>
+          ))}
+          <Flex gap="sm" wrap align="center" class="tag-demo">
+            {cities.map((city) => (
+              <Tag
+                key={city}
+                variant="surface"
+                onRemove={() => (cities = cities.filter((c) => c !== city))}
+              >
+                {city}
+              </Tag>
+            ))}
+          </Flex>
+          {showAlert && (
+            <Alert
+              class="alert-demo"
+              tone="warning"
+              title="即将过期"
+              onClose={() => (showAlert = false)}
+            >
+              你的订阅将在 3 天后到期，到期后无法使用高级功能。
+            </Alert>
+          )}
+          <Alert tone="success" variant="surface" title="已保存" />
+          <Alert
+            tone="danger"
+            variant="outline"
+            action={
+              <Button size="sm" variant="soft" tone="danger">
+                重试
+              </Button>
+            }
+          >
+            网络连接失败
+          </Alert>
+        </Section>
+
+        <Section title="进度与占位 Progress · Skeleton">
+          <Progress class="progress-demo" value={volume} aria-label="演示进度" />
+          <Progress tone="success" value={100} aria-label="已完成" />
+          <Progress class="progress-indeterminate" aria-label="正在加载" />
+          <Card
+            class="card-demo"
+            header={
+              <Flex gap="md" align="center">
+                <Skeleton loading={loadingProfile}>
+                  <Avatar name="Ada Lovelace" size="lg" />
+                </Skeleton>
+                <Skeleton loading={loadingProfile}>
+                  <Text weight="semibold">Ada Lovelace</Text>
+                </Skeleton>
+              </Flex>
+            }
+            footer={
+              <Button variant="soft" onClick={() => (loadingProfile = !loadingProfile)}>
+                {loadingProfile ? '加载完成' : '重新加载'}
+              </Button>
+            }
+          >
+            <Skeleton loading={loadingProfile}>
+              <Paragraph>第一位程序员，为分析机写出了第一个算法。</Paragraph>
+            </Skeleton>
+          </Card>
+          <Flex gap="sm" align="center">
+            <Avatar name="张三" />
+            <Avatar name="Grace Hopper" radius="md" />
+            <Avatar />
           </Flex>
         </Section>
 

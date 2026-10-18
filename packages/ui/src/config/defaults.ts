@@ -8,12 +8,24 @@
  * 只收外观类的选项（样式、尺寸、色调）；行为类的（disabled、loading）每处单独决定。
  */
 import { useConfig } from './context';
+import type { BadgeOptions } from '../base/badge-styles';
+import type { AlertOptions } from '../display/Alert';
+import type { AvatarOptions } from '../display/Avatar';
+import type { CardOptions } from '../display/Card';
 import type { ButtonOptions } from '../base/button-styles';
 
 /** 可以配置默认值的组件与选项；新组件有外观档位时在这里登记 */
 export interface ComponentDefaults {
   /** Button、LinkButton、IconButton 共用 */
   Button?: Partial<Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>>;
+  /** Badge、Tag 共用 */
+  Badge?: BadgeOptions;
+  /** Alert */
+  Alert?: AlertOptions;
+  /** Card */
+  Card?: CardOptions;
+  /** Avatar */
+  Avatar?: AvatarOptions;
 }
 
 /** 合并两层默认值：按组件逐个合并，内层写了的选项覆盖外层 */

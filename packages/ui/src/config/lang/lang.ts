@@ -52,6 +52,8 @@ export interface Lang {
   readonly clear: string;
   /** 加载中提示，默认“加载中” */
   readonly loading: string;
+  /** 移除（标签、已选项）的按钮名称，默认“移除” */
+  readonly remove: string;
 
   // ───────── 组件文案 ─────────
 

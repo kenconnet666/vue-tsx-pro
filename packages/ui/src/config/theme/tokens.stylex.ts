@@ -95,8 +95,11 @@ export const colors = stylex.defineVars({
 
   // ───────── 提示色：只用于提示条、徽标、图标，不做按钮 ─────────
 
-  /** 成功文字与图标。green 11：亮色 `#218358`，暗色 `#3dd68c` */
-  successText: '#218358',
+  /**
+   * 成功文字与图标。亮色 green 12 `#193b2d`，暗色 green 11 `#3dd68c`。
+   * 亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5
+   */
+  successText: '#193b2d',
   /** 成功浅底。green 3：亮色 `#e6f6eb`，暗色 `#132d21` */
   successSoft: '#e6f6eb',
   /** 成功边框。green 7：亮色 `#8eceaa`，暗色 `#28684a` */
@@ -110,8 +113,11 @@ export const colors = stylex.defineVars({
   warningSoft: '#fff7c2',
   /** 警告边框。amber 7：亮色 `#e9c162`，暗色 `#714f19` */
   warningBorder: '#e9c162',
-  /** 信息文字与图标。blue 11：亮色 `#0d74ce`，暗色 `#70b8ff` */
-  infoText: '#0d74ce',
+  /**
+   * 信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。
+   * 亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1
+   */
+  infoText: '#113264',
   /** 信息浅底。blue 3：亮色 `#e6f4fe`，暗色 `#0d2847` */
   infoSoft: '#e6f4fe',
   /** 信息边框。blue 7：亮色 `#8ec8f6`，暗色 `#205d9e` */
