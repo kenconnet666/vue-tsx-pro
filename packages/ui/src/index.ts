@@ -87,6 +87,24 @@ export {
   type VirtualListScrolls,
 } from './display/VirtualList';
 
+// 导航
+export { Toolbar, type ToolbarOrientations, type ToolbarProps } from './navigation/Toolbar';
+export {
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+  type TabListProps,
+  type TabPanelProps,
+  type TabProps,
+  type TabsActivations,
+  type TabsOptions,
+  type TabsOrientations,
+  type TabsProps,
+  type TabsVariants,
+} from './navigation/Tabs';
+export { Steps, type StepItem, type StepsOrientations, type StepsProps } from './navigation/Steps';
+
 // 表单
 export { Slider, type SliderOrientations, type SliderProps } from './form/Slider';
 export {
@@ -170,6 +188,12 @@ export {
 } from './utils/overlay';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
 export { startMove, type MoveOptions, type MovePoint } from './utils/move';
+export {
+  rovingFocus,
+  type RovingFocusOptions,
+  type RovingOrientations,
+} from './utils/roving-focus';
+export { plainText } from './utils/text';
 export {
   statusToneSx,
   type StatusTone,

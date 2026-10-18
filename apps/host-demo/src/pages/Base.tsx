@@ -1,5 +1,17 @@
 // 基础组件演示（文档站暂缓，先在这里按分类演示）：每加一批组件就加一节
-import { ArrowRight, Download, Plus, Settings, Star, Trash2 } from '@lucide/icons';
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  ArrowRight,
+  Bold,
+  Download,
+  Italic,
+  Plus,
+  Settings,
+  Star,
+  Trash2,
+} from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
@@ -29,6 +41,11 @@ import {
   Paragraph,
   Progress,
   Skeleton,
+  Steps,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
   Tag,
   Provider,
   ScrollArea,
@@ -39,6 +56,7 @@ import {
   Small,
   Strong,
   Text,
+  Toolbar,
   themeTransition,
   VirtualList,
   VisuallyHidden,
@@ -163,6 +181,8 @@ export const Base = _component(() => {
   let cities = _state(['上海', '北京', '深圳']);
   let loadingProfile = _state(true);
   let showAlert = _state(true);
+  let orderTab = _state('all');
+  let step = _state(1);
 
   function save() {
     saving = true;
@@ -259,6 +279,60 @@ export const Base = _component(() => {
             <IconButton icon={Plus} aria-label="添加" variant="solid" radius="full" />
             <CloseButton />
             <ClearButton size="sm" />
+          </Flex>
+        </Section>
+
+        <Section title="导航 Tabs · Toolbar · Steps">
+          <Tabs class="tabs-demo" value={_bind(orderTab)}>
+            <TabList aria-label="订单状态">
+              <Tab value="all">全部</Tab>
+              <Tab value="paid">已付款</Tab>
+              <Tab value="refund" disabled>
+                退款中
+              </Tab>
+              <Tab value="done">已完成</Tab>
+            </TabList>
+            <TabPanel value="all">全部订单的列表</TabPanel>
+            <TabPanel value="paid">已付款的订单</TabPanel>
+            <TabPanel value="refund">退款中的订单</TabPanel>
+            <TabPanel value="done">已完成的订单</TabPanel>
+          </Tabs>
+          <Tabs variant="soft" activation="manual" class="tabs-soft-demo">
+            <TabList aria-label="时间范围">
+              <Tab value="day">日</Tab>
+              <Tab value="week">周</Tab>
+              <Tab value="month">月</Tab>
+            </TabList>
+            <TabPanel value="day">今天的数据</TabPanel>
+            <TabPanel value="week">本周的数据</TabPanel>
+            <TabPanel value="month">本月的数据</TabPanel>
+          </Tabs>
+          <Toolbar aria-label="文字格式" class="toolbar-demo">
+            <IconButton icon={Bold} aria-label="加粗" />
+            <IconButton icon={Italic} aria-label="斜体" />
+            <IconButton icon={AlignLeft} aria-label="左对齐" />
+            <IconButton icon={AlignCenter} aria-label="居中" />
+            <IconButton icon={AlignRight} aria-label="右对齐" />
+          </Toolbar>
+          <Steps
+            class="steps-demo"
+            aria-label="下单步骤"
+            current={step}
+            onStepChange={(index) => (step = index)}
+            items={[
+              { title: '填写信息', description: '收货地址与联系方式' },
+              { title: '确认订单', description: '核对商品与金额' },
+              { title: '支付' },
+              { title: '完成' },
+            ]}
+          />
+          <Flex gap="sm">
+            <Button variant="soft" tone="neutral" disabled={step === 0} onClick={() => step--}>
+              上一步
+            </Button>
+            <Button class="steps-next" disabled={step === 3} onClick={() => step++}>
+              下一步
+            </Button>
           </Flex>
         </Section>
 
