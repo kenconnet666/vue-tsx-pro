@@ -196,7 +196,9 @@ export const Slider = _component(
 
     return () => {
       const vertical = orientation === 'vertical';
-      const percent = `${max > min ? ((value - min) / (max - min)) * 100 : 0}%`;
+      // 父级传入超出范围的值时按范围内显示（不改父级的值），滑块不会跑出轨道
+      const shown = Math.min(max, Math.max(min, value));
+      const percent = `${max > min ? ((shown - min) / (max - min)) * 100 : 0}%`;
       return (
         <div
           {...elementProps(
@@ -257,8 +259,8 @@ export const Slider = _component(
                   tabindex: disabled ? undefined : 0,
                   'aria-valuemin': min,
                   'aria-valuemax': max,
-                  'aria-valuenow': value,
-                  'aria-valuetext': valueText?.(value),
+                  'aria-valuenow': shown,
+                  'aria-valuetext': valueText?.(shown),
                   'aria-orientation': orientation,
                   'aria-disabled': disabled || undefined,
                   onKeydown,

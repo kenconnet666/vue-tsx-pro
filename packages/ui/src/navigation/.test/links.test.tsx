@@ -123,3 +123,10 @@ describe('NavList', () => {
     );
   });
 });
+
+describe('边界情况', () => {
+  it('Pagination：父级的 page 超出总页数（筛选后变少）时按最后一页显示', () => {
+    const root = mount(() => <Pagination page={9} total={30} pageSize={10} />);
+    expect(root.querySelector('[aria-current="page"]')!.textContent).toBe('3');
+  });
+});

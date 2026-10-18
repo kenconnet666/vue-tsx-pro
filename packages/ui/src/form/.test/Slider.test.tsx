@@ -91,3 +91,10 @@ describe('Slider 的部件属性', () => {
     expect(root.querySelector('.track > .range')).not.toBeNull();
   });
 });
+
+describe('Slider 的边界情况', () => {
+  it('父级传入超出范围的值时按范围内显示，滑块不跑出轨道', () => {
+    const root = mount(() => <Slider value={150} aria-label="x" />);
+    expect(thumbOf(root).getAttribute('aria-valuenow')).toBe('100');
+  });
+});

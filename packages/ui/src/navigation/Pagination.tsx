@@ -92,6 +92,8 @@ export const Pagination = _component(
   }: PaginationProps) => {
     const lang = useLang();
     const count = _derived(Math.max(1, pageCount ?? Math.ceil((total ?? 0) / pageSize)));
+    // 显示用的当前页：总数变少（筛选后）时父级的 page 可能超出范围，夹回去，不显示不存在的页
+    const current = _derived(Math.min(count, Math.max(1, page)));
 
     function go(target: number) {
       page = Math.min(count, Math.max(1, target));
@@ -99,18 +101,18 @@ export const Pagination = _component(
 
     /** 一个页码：当前页是实底，其余是 ghost；有 href 时是链接 */
     function pageButton(target: number) {
-      const current = target === page;
+      const isCurrent = target === current;
       const own = typeof propsPage === 'function' ? propsPage(target) : propsPage;
       const shared = mergeProps<ButtonProps & LinkButtonProps>(
         {
           sx: [styles.page, styles.tabular],
           size,
-          variant: current ? 'soft' : 'ghost',
-          tone: current ? 'accent' : 'neutral',
+          variant: isCurrent ? 'soft' : 'ghost',
+          tone: isCurrent ? 'accent' : 'neutral',
           'aria-label': lang.pageLabel(target),
         },
         own,
-        { 'aria-current': current ? 'page' : undefined },
+        { 'aria-current': isCurrent ? 'page' : undefined },
       );
       return href ? (
         <LinkButton
@@ -136,7 +138,7 @@ export const Pagination = _component(
 
     /** 上一页、下一页：到头时不可用 */
     function stepButton(direction: -1 | 1) {
-      const target = page + direction;
+      const target = current + direction;
       const disabled = target < 1 || target > count;
       return (
         <IconButton
@@ -164,23 +166,25 @@ export const Pagination = _component(
       >
         <ul {...elementProps(mergeProps<'ul'>({ sx: [listStyles.reset, styles.list] }, propsList))}>
           <li {...elementProps(mergeProps<'li'>({}, propsItem))}>{stepButton(-1)}</li>
-          {paginationItems({ page, pageCount: count, siblings, boundaries }).map((item) => (
-            <li key={item} {...elementProps(mergeProps<'li'>({}, propsItem))}>
-              {typeof item === 'number' ? (
-                pageButton(item)
-              ) : (
-                <span
-                  {...elementProps(
-                    mergeProps<'span'>({ sx: styles.ellipsis }, propsEllipsis, {
-                      'aria-hidden': true,
-                    }),
-                  )}
-                >
-                  <Icon icon={Ellipsis} />
-                </span>
-              )}
-            </li>
-          ))}
+          {paginationItems({ page: current, pageCount: count, siblings, boundaries }).map(
+            (item) => (
+              <li key={item} {...elementProps(mergeProps<'li'>({}, propsItem))}>
+                {typeof item === 'number' ? (
+                  pageButton(item)
+                ) : (
+                  <span
+                    {...elementProps(
+                      mergeProps<'span'>({ sx: styles.ellipsis }, propsEllipsis, {
+                        'aria-hidden': true,
+                      }),
+                    )}
+                  >
+                    <Icon icon={Ellipsis} />
+                  </span>
+                )}
+              </li>
+            ),
+          )}
           <li {...elementProps(mergeProps<'li'>({}, propsItem))}>{stepButton(1)}</li>
         </ul>
         {showTotal && total != null && (
