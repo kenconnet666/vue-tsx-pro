@@ -144,6 +144,72 @@ describe('代码块：CodeBlock + Shiki', () => {
   });
 });
 
+describe('虚拟列表：VirtualList', () => {
+  const list = () => $('.virtual-demo');
+  const rendered = () => [...list().querySelectorAll<HTMLElement>('[role="listitem"]')];
+  const posinset = (element: Element) => Number(element.getAttribute('aria-posinset'));
+  /** 渲染出来的项依次相接：测量后的位置没有重叠或空隙 */
+  const contiguous = () =>
+    rendered().every((item, index, items) => {
+      const next = items[index + 1];
+      return (
+        !next ||
+        Math.abs(next.getBoundingClientRect().top - item.getBoundingClientRect().bottom) < 1
+      );
+    });
+
+  it('一万行只渲染可见的几十行；总高度撑开滚动区域，读屏知道总数', async () => {
+    await nextFrame();
+    expect(rendered().length).toBeGreaterThan(5);
+    expect(rendered().length).toBeLessThan(40);
+    expect(list().scrollHeight).toBeGreaterThan(10000 * 20);
+    expect(rendered()[0]!.getAttribute('aria-setsize')).toBe('10000');
+  });
+
+  it('行高不固定：渲染后测量，两行文字的行更高，各行首尾相接', async () => {
+    await nextFrame();
+    const [short, , , tall] = rendered();
+    expect(tall!.getBoundingClientRect().height).toBeGreaterThan(
+      short!.getBoundingClientRect().height * 1.5,
+    );
+    await expect.poll(contiguous).toBe(true);
+  });
+
+  it('滚动后渲染那一段，滚动位置之后的项接着出现', async () => {
+    list().scrollTop = 30000;
+    await expect.poll(() => posinset(rendered()[0]!)).toBeGreaterThan(500);
+    const listTop = list().getBoundingClientRect().top;
+    // 视口顶部附近一定有渲染出来的项
+    expect(
+      rendered().some((item) => {
+        const { top, bottom } = item.getBoundingClientRect();
+        return top <= listTop + 1 && bottom > listTop;
+      }),
+    ).toBe(true);
+  });
+
+  it('scrollToIndex：第 5001 行对齐到视口顶部（动态行高下重新对准）', async () => {
+    $('.scroll-to-row').click();
+    await expect
+      .poll(() => {
+        const target = rendered().find((item) => posinset(item) === 5001);
+        return (
+          target &&
+          Math.abs(
+            Math.round(target.getBoundingClientRect().top - list().getBoundingClientRect().top),
+          )
+        );
+      })
+      .toBeLessThanOrEqual(1); // 列表边框 1px
+    expect(contiguous()).toBe(true);
+  });
+
+  it('容器可以用键盘聚焦并滚动', async () => {
+    list().focus();
+    expect(document.activeElement).toBe(list());
+  });
+});
+
 describe('布局：Flex、Grid、Container、Separator', () => {
   const px = (value: string) => Number.parseFloat(value);
   const columnCount = (grid: HTMLElement) =>

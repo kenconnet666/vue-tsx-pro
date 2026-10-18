@@ -42,6 +42,12 @@ export { Separator, type SeparatorProps } from './layout/Separator';
 // 展示
 export { Collapse, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
+export {
+  VirtualList,
+  type VirtualListHandle,
+  type VirtualListProps,
+  type VirtualListScrolls,
+} from './display/VirtualList';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';
@@ -63,7 +69,7 @@ export { zhCN } from './config/lang/zh-CN';
 export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
 
-// 部件 props、弹层与动画工具
+// 部件 props、弹层、动画与虚拟滚动工具
 export { elementProps, mergeProps, type PartProps, type TriggerProps } from './utils/props';
 export {
   columnGapStyles,
@@ -108,3 +114,15 @@ export {
 } from './utils/overlay';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
 export { afterTransitions, transitions } from './utils/transitions';
+export {
+  computeMeasurements,
+  defaultRangeExtractor,
+  findVisibleRange,
+  Virtualizer,
+  type ExtractorRange,
+  type ScrollAligns,
+  type VirtualItem,
+  type VirtualizerOptions,
+  type VirtualScrollOptions,
+  type VisibleRange,
+} from './utils/virtualizer';

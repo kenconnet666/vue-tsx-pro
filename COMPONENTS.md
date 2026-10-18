@@ -357,6 +357,27 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - **与原计划的出入**：带组名的写法不进补全。原计划让不进表的组（当时的 controls）的带组名写法出现在所有属性的补全里，实际 `position`、`display` 的补全里也会出现 `_controls.height`，噪音太大。
 - **顺手修复**：`KeywordValue` 里的 `string & {}` 在泛型实例化时被 TypeScript 6 化简成 `string`，取值含任意字符串的属性在 tsserver（VS Code）里一直没有关键字补全；改用具名别名 `OpenString`。
 
+### 10.7 虚拟滚动（为表格准备）
+
+参考 `@tanstack/virtual-core` 的算法自己实现（§7 依赖表），分两层：
+
+- **核心 `utils/virtualizer.ts`**：不依赖 Vue 的 `Virtualizer` 类，表格、树、下拉列表以后都建在它上面。
+  - 位置表：每项的 `start / size / end`，大小先用 `estimateSize(index)` 估计，渲染后用 ResizeObserver 测量真实大小（border-box），按 key 缓存，数据重排后测量结果仍然对得上。
+  - 可见范围：二分查找第一个 `end > 滚动位置` 的项，向后找到填满视口为止，再前后各加 `overscan` 项。`rangeExtractor` 可以改写最终渲染哪些项，吸顶行、固定行从这里接入（同 TanStack）。
+  - 滚动容器：元素或 window；列表不在滚动内容的开头时用 `scrollMargin`（函数，每次滚动时读取，列表上方的内容变高也不会错位）。横向与纵向两种方向。
+  - 测量到可视区上方的项变大或变小时同步调整滚动位置，可见内容不跳；容器与列表关掉浏览器自己的 `overflow-anchor`，避免重复调整。
+  - `scrollToIndex(index, { align: start | center | end | auto })`、`scrollToOffset`：动态大小下滚过去后周围的项才被测量，位置会变，下一帧重新对准直到稳定（`smooth` 时不重试）。
+  - 只在渲染范围或总大小变化时通知（`onChange`），滚动本身不触发重新渲染。
+- **组件 `display/VirtualList`**：
+  - `items` + 渲染函数子节点 `{(item, index) => …}`，`itemKey`、`estimateSize`（数字或函数）、`overscan`、`horizontal`。
+  - `scroll="container"`（默认，组件自己是滚动容器，高度由使用方给）或 `"window"`（随页面滚动）。
+  - 无障碍：列表 `role="list"`，每项 `role="listitem"` 带 `aria-setsize` / `aria-posinset`（读屏知道总数与位置）；容器模式下可聚焦（键盘滚动，方向键、Page Up/Down、Home/End 都是浏览器原生行为）。
+  - `empty`：没有数据时显示的内容。
+  - `handle`：拿到 `scrollToIndex`、`scrollToOffset`；`onRangeChange`：可见范围变化时报告，接近末尾时加载更多。
+  - Vue 接入：虚拟化实例是普通变量，渲染所需的“渲染项 + 总大小”放在 `_state.raw`（滚动本身不触发渲染）；选项同步与挂载用 Vue 的 `watch` 而不是 `_effect`：它们会调用使用方的 `estimateSize`、`onRangeChange`，其中读到的响应式变量不该变成依赖。
+- **暂不做**：从右到左排版下的横向滚动（`scrollLeft` 为负）、网格（两个方向同时虚拟化，表格需要时在核心上加）、`gap` 与内边距选项（项自己的内边距即可；容器的内边距已由 `scrollMargin` 自动算进去）。
+- **已完成**：核心与组件、单元测试（`utils/.test/virtualizer.test.ts`、`display/.test/VirtualList.test.tsx`）、`/base` 演示（一万行、行高不固定、跳到第 5001 行）与浏览器测试。
+
 ### 10.6 顺序
 
 基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本，每步单独提交。折叠与过渡、布局、文本三个阶段暂停，先讨论现有基础设施的不完善之处。正式组件按 §8 验收，文档页暂用演示页代替。

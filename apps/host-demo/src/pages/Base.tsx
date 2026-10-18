@@ -24,7 +24,9 @@ import {
   Strong,
   Text,
   themeTransition,
+  VirtualList,
   VisuallyHidden,
+  type VirtualListHandle,
 } from '@vue-tsx-pro/ui';
 import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
@@ -34,6 +36,15 @@ const sampleCode = `export const Counter = _component(() => {
   let count = _state(0); // 像普通变量一样读写
   return () => <button onClick={() => count++}>{count}</button>;
 });`;
+
+/** 虚拟列表的演示数据：一万行，每七行有一行是两行文字（行高不固定） */
+const rows = Array.from({ length: 10000 }, (_, index) => ({
+  id: index,
+  text:
+    index % 7 === 3
+      ? `第 ${index + 1} 行：这一行的说明比较长，会换成两行显示，用来演示行高不固定时的自动测量`
+      : `第 ${index + 1} 行`,
+}));
 
 const styles = stylex.create({
   page: {
@@ -56,6 +67,15 @@ const styles = stylex.create({
   paragraph: { margin: 0, paddingBlock: '_sm' },
   narrow: { maxWidth: '20em' },
   card: { padding: '_md', borderRadius: '_md', backgroundColor: '_fill', color: '_text' },
+  virtualList: {
+    height: '16em',
+    maxWidth: '24em',
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_border',
+    borderRadius: '_md',
+  },
+  virtualRow: { paddingBlock: '_xs', paddingInline: '_md' },
   outlined: { borderWidth: '_xs', borderStyle: 'dashed', borderColor: '_border' },
   track: {
     // 小球的宽度加上移动的距离
@@ -87,6 +107,7 @@ export const Base = _component(() => {
   let dark = _state(false);
   let ball = _state.raw<HTMLElement | null>(null);
   let moved = false;
+  let listHandle: VirtualListHandle | undefined;
 
   // JS 动画：Anime.js 的 animate 加上主题的弹簧时长；减少动态效果时立即到位
   function move() {
@@ -183,6 +204,29 @@ export const Base = _component(() => {
           >
             <p {...stylex.attrs(styles.paragraph)}>最大宽度 30rem，水平居中</p>
           </Container>
+        </Section>
+
+        <Section title="虚拟列表 VirtualList">
+          <Flex gap="sm">
+            <Button
+              variant="outline"
+              class="scroll-to-row"
+              onClick={() => listHandle?.scrollToIndex(5000, { align: 'start' })}
+            >
+              跳到第 5001 行
+            </Button>
+          </Flex>
+          <VirtualList
+            class="virtual-demo"
+            items={rows}
+            itemKey={(row) => row.id}
+            estimateSize={30}
+            aria-label="一万行演示数据"
+            handle={(handle) => (listHandle = handle)}
+            sx={styles.virtualList}
+          >
+            {(row) => <div {...stylex.attrs(styles.virtualRow)}>{row.text}</div>}
+          </VirtualList>
         </Section>
 
         <Section title="折叠 Collapsible">
