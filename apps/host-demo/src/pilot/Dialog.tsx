@@ -10,15 +10,6 @@ import {
   trapFocus,
   type PartProps,
 } from '@vue-tsx-pro/ui';
-import {
-  colors,
-  controls,
-  fontSizes,
-  fontWeights,
-  radii,
-  shadows,
-  space,
-} from '@vue-tsx-pro/ui/tokens.stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 
 /** 未声明的属性落到 dialog 上；原生的 title 属性（悬停提示）让给标题 */
@@ -37,19 +28,19 @@ export interface DialogProps extends PartProps<'dialog', 'open' | 'aria-labelled
 const styles = stylex.create({
   dialog: {
     width: 'min(32em, calc(100vw - 2em))',
-    padding: space.xl,
-    borderWidth: controls.borderWidth,
+    padding: '_xl',
+    borderWidth: '_controls.borderWidth',
     borderStyle: 'solid',
-    borderColor: colors.border,
-    borderRadius: radii.xl,
-    backgroundColor: colors.surfaceRaised,
-    color: colors.text,
-    boxShadow: shadows.xl,
-    '::backdrop': { backgroundColor: colors.overlay },
+    borderColor: '_border',
+    borderRadius: '_xl',
+    backgroundColor: '_surfaceRaised',
+    color: '_text',
+    boxShadow: '_xl',
+    '::backdrop': { backgroundColor: '_overlay' },
   },
-  title: { margin: 0, fontSize: fontSizes.lg, fontWeight: fontWeights.semibold },
-  body: { marginBlock: space.lg },
-  footer: { display: 'flex', justifyContent: 'flex-end', gap: space.sm },
+  title: { margin: 0, fontSize: '_lg', fontWeight: '_semibold' },
+  body: { marginBlock: '_lg' },
+  footer: { display: 'flex', justifyContent: 'flex-end', gap: '_sm' },
 });
 
 export const Dialog = _component(

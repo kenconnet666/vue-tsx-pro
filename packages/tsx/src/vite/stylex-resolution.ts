@@ -36,7 +36,7 @@ function filePathResolver(importPath: string, sourceFilePath: string): string | 
   }
 }
 
-function resolveFromExports(importPath: string, sourceFilePath: string): string | undefined {
+export function resolveFromExports(importPath: string, sourceFilePath: string): string | undefined {
   const segments = importPath.split('/');
   const name = importPath.startsWith('@') ? segments.slice(0, 2).join('/') : segments[0]!;
   const subpath = `.${importPath.slice(name.length)}`;
@@ -57,16 +57,20 @@ interface Manifest {
 }
 
 function getCanonicalFilePath(filePath: string): string {
+  const directory = packageRoot(filePath);
+  if (!directory) return filePath.replaceAll('\\', '/');
+  const { name } = JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8')) as Manifest;
+  const path = relative(directory, filePath)
+    .replaceAll('\\', '/')
+    .replace(/^(src|dist)\//, '')
+    .replace(/\.(ts|tsx|js|mjs)$/, '');
+  return `${name ?? directory}:${path}`;
+}
+
+/** 文件所在包的根目录（最近的 package.json 所在目录） */
+export function packageRoot(filePath: string): string | undefined {
   for (let directory = dirname(filePath); ; directory = dirname(directory)) {
-    const manifest = join(directory, 'package.json');
-    if (existsSync(manifest)) {
-      const { name } = JSON.parse(readFileSync(manifest, 'utf8')) as Manifest;
-      const path = relative(directory, filePath)
-        .replaceAll('\\', '/')
-        .replace(/^(src|dist)\//, '')
-        .replace(/\.(ts|tsx|js|mjs)$/, '');
-      return `${name ?? directory}:${path}`;
-    }
-    if (dirname(directory) === directory) return filePath.replaceAll('\\', '/');
+    if (existsSync(join(directory, 'package.json'))) return directory;
+    if (dirname(directory) === directory) return undefined;
   }
 }

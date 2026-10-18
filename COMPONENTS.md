@@ -76,6 +76,12 @@
 
 - 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
+- tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
+  - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
+  - 带组名 `height: '_controls.height'`：表外属性或跨组取值，任何属性都能用，但没有补全；
+  - 条件值、回退数组、伪元素、动态样式里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
+  - 一个值里拼多个 token 或做计算时（`` `max(${controls.height}, ${controls.minTarget})` ``）仍 import 变量写模板字符串；
+  - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
 - 含动态样式函数的 `stylex.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
@@ -133,7 +139,8 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 | `easings`     | `standard`、`enter`、`exit`                                                                                                                                                                              |
 | `controls`    | 单行控件高度、最小可点击尺寸、边框宽度、焦点环宽度与间隔、不可用的不透明度、图标线宽                                                                                                                     |
 
-- 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；用法是 `组.档位`，如 `space.md`、`radii.full`。
+- 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），拼接计算时 import 后写 `space.md`。
+- 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
 - 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染。不设断点：StyleX 的媒体查询不能引用变量，组件优先用容器查询。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）。
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
@@ -200,7 +207,7 @@ interface Lang {
 
 ## 7. 现状、依赖与待办
 
-**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）；正式组件：Icon。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）；正式组件：Icon。
 
 **试点组件**（`apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）按本规范写，但不进组件库、不承诺 API。在 Chromium、Firefox、WebKit 中已验证：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
@@ -319,39 +326,16 @@ Flex / Grid 的 `as` 可选 `div`、`section`、`article`、`ul`、`ol`、`li`�
 - 用 Shiki 的 CSS 变量主题，颜色映射到我们的 tokens：切换明暗主题不需要重新高亮。
 - 高亮是异步的：先显示纯文本，结果到了再替换，布局不跳动。
 
-### 10.5 主题变量的字符串写法（待做，排在第 4 阶段之前）
+### 10.5 主题变量的字符串写法（已完成）
 
-目标：`stylex.create` 里不再 import tokens，直接写 `fontSize: '_xs'`，并且有按属性限定的补全、悬停说明、类型检查。`_` 前缀用来和 CSS 关键字区分（`fontWeight: 'bold'`、`lineHeight: 'normal'` 本身就是合法的 CSS 值）。
+规则见 §4。实现：
 
-写法：
-
-- `'_xs'`：短写，属性在对照表里时按表找 token 组，如 `fontSize: '_xs'` 就是 `fontSizes.xs`
-- `'_space.md'`：带组名，任何属性都能用（表外属性、跨组取值），如 `width: '_controls.height'`
-- 条件值、回退数组里同样可用：`{ default: '_sm', ':hover': '_md' }`
-- 不支持：一个值里混多个 token（`padding: '_sm _md'`，改写单项属性）、负值、算式（仍 import 后用模板字符串）
-
-对照表（属性 → token 组），覆盖全部 token 组：
-
-| token 组                    | 属性                                                                                                                                  |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `space`                     | `gap`、`rowGap`、`columnGap`、`padding*`、`margin*`、`inset*`、`top` / `right` / `bottom` / `left`、`scrollMargin*`、`scrollPadding*` |
-| `colors`                    | `color`、`backgroundColor`、`border*Color`、`outlineColor`、`fill`、`stroke`、`caretColor`、`accentColor`、`textDecorationColor` 等   |
-| `fonts`                     | `fontFamily`                                                                                                                          |
-| `fontSizes` / `fontWeights` | `fontSize` / `fontWeight`                                                                                                             |
-| `lineHeights`               | `lineHeight`                                                                                                                          |
-| `radii`                     | `borderRadius`、各角的 `border*Radius`                                                                                                |
-| `shadows`                   | `boxShadow`                                                                                                                           |
-| `durations`                 | `transitionDuration`、`transitionDelay`、`animationDuration`、`animationDelay`                                                        |
-| `easings`                   | `transitionTimingFunction`、`animationTimingFunction`                                                                                 |
-| `controls`                  | 单位不统一，不进表，用带组名的写法                                                                                                    |
-
-实现：
-
-- **类型**：`@vue-tsx-pro/tsx/stylex` 留一个可扩展的空接口，ui 用 `declare module` 填入各组 token（含每个 token 的说明与取值，悬停显示如“12px · fontSizes.xs”，机制同 `KeywordValue`）；`scripts/css-docs` 生成 `DocumentedStyles` 时按对照表给属性加上短写的取值类型，所有属性都接受带组名的写法。现在 `fontSize: space.md` 也能通过类型检查，改用字符串后按组限定。
-- **编译**：Vite 插件在 StyleX 之前加一步 Babel 转换，只处理 `stylex.create` 的参数：把字符串换成 token 变量的成员访问并补上 import；token 不存在时报编译错误（带位置，同符文报错）。token 模块的导入路径是插件选项，ui 提供默认值，使用方应用也能用这种写法。
-- **ui 自己的构建也要转换**：ui 打包时 `stylex: false`，`stylex.create` 原样留给使用方编译，所以转换不能跟着 StyleX 一起关掉，否则产物里会留下 `'_xs'`。产物里改写成从 `@vue-tsx-pro/ui/tokens.stylex` 导入，用 `tests/consumer` 验证。
-- **迁移与规范**：仓库里现有的 token 用法（Icon、VisuallyHidden、试点组件、演示页等）全部改成字符串写法；对照表里的属性一律用短写；§4、§6.2 写明规则。
+- **对照表**：`packages/tsx/src/stylex/token-map.ts`，属性 → token 组，覆盖 controls 以外的全部组（controls 单位不统一，不进表）。
+- **类型**：`scripts/css-docs` 生成 `DocumentedStyles` 时给表里的属性加上 `keyof FontSizesTokens` 这类取值，每组一个接口；ui 的 `token-names.ts` 由同一脚本根据 tokens 生成，用 `declare module` 填入 token 名与注释。每组单独一个接口，而不是 `keyof 总接口[组名]`：后者在 WebStorm 里会把各组同名的 `_xs` 都列为跳转目标。
+- **编译**：`compiler/tokens.ts`（Babel），由 Vite 预设的 `vue-tsx-pro:tokens` 插件在 StyleX 之前运行；token 名从 token 模块的源码（或产物）读出，用来报错。与 `stylex` 选项无关，组件库构建也改写：同包的文件用相对路径导入，其他包用选项里的包名（默认 `@vue-tsx-pro/ui/tokens.stylex`）。
+- **与原计划的出入**：带组名的写法不进补全。原计划让 controls 的带组名写法出现在所有属性的补全里，实际 `position`、`display` 的补全里也会出现 `_controls.height`，噪音太大。
+- **顺手修复**：`KeywordValue` 里的 `string & {}` 在泛型实例化时被 TypeScript 6 化简成 `string`，取值含任意字符串的属性在 tsserver（VS Code）里一直没有关键字补全；改用具名别名 `OpenString`。
 
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本，每步单独提交。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本，每步单独提交。折叠与过渡、布局、文本三个阶段暂停，先讨论现有基础设施的不完善之处。正式组件按 §8 验收，文档页暂用演示页代替。

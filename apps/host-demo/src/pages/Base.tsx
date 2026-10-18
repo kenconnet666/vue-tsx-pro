@@ -3,7 +3,6 @@ import { ArrowRight, Settings, Star } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { darkTheme, Icon, lightTheme, Provider, VisuallyHidden } from '@vue-tsx-pro/ui';
-import { colors, fontSizes, space } from '@vue-tsx-pro/ui/tokens.stylex';
 import type { VNodeChild } from 'vue';
 import { Button } from '../pilot/Button';
 
@@ -11,20 +10,20 @@ const styles = stylex.create({
   page: {
     display: 'grid',
     alignContent: 'start',
-    gap: space.xl,
-    padding: space.xl,
+    gap: '_xl',
+    padding: '_xl',
     minHeight: '100vh',
-    backgroundColor: colors.background,
+    backgroundColor: '_background',
   },
-  section: { display: 'grid', gap: space.md },
-  title: { margin: 0, fontSize: fontSizes.lg },
-  row: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: space.md },
+  section: { display: 'grid', gap: '_md' },
+  title: { margin: 0, fontSize: '_lg' },
+  row: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_md' },
   iconButton: {
     display: 'inline-flex',
-    padding: space.sm,
+    padding: '_sm',
     borderWidth: 0,
-    backgroundColor: colors.fill,
-    color: colors.text,
+    backgroundColor: '_fill',
+    color: '_text',
   },
 });
 

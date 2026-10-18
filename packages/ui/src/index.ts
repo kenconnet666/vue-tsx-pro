@@ -16,6 +16,8 @@ export {
 } from './config/theme/theme';
 export { lightTheme } from './config/theme/light';
 export { darkTheme } from './config/theme/dark';
+// 主题 tokens 字符串写法的类型（declare module），让产物的类型声明也带上它
+import './config/theme/token-names';
 export { defineLang, type Lang } from './config/lang/lang';
 export { zhCN } from './config/lang/zh-CN';
 export { enUS } from './config/lang/en-US';

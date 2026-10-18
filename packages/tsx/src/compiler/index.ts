@@ -11,13 +11,17 @@
  *
  * 生成的代码就是手写 Vue 会写的代码，之后交给官方 @vitejs/plugin-vue-jsx 编译 JSX。
  *
+ * 主题 tokens 的字符串写法（stylex.create 里的 '_xs'）是另一个独立的转换，见 tokens.ts。
+ *
  * 目录内的相对导入带 .ts 扩展名：语言服务（scripts/language-services）与 Vitest 配置在 Node 里直接加载这些源码。
  */
 import { transformAsync, type PluginObj } from '@babel/core';
+import { parserPlugins } from './ast.ts';
 import type { RunesWarning } from './errors.ts';
 import { RunesTransform } from './transform.ts';
 
 export type { RunesError, RunesWarning } from './errors.ts';
+export { compileTokens, type TokenModule, type TokenModuleLoader } from './tokens.ts';
 
 /** 用到符文，或定义了 _component（需要编译 props 解构）的文件才需要编译；宿主项目的其他文件原样放过 */
 const NEEDS_COMPILE = /\b_(?:state|derived|bindable|bind|effect|fromRef|toRef)\b|\b_component\s*\(/;
@@ -29,8 +33,7 @@ export async function compileRunes(code: string, filename = 'input.tsx') {
     babelrc: false,
     configFile: false,
     sourceMaps: true,
-    // .ts 不能开 JSX：否则 <T>value 这类类型断言、<T>(x) => x 泛型箭头函数会被当作 JSX 解析
-    parserOpts: { plugins: /\.[cm]?ts$/.test(filename) ? ['typescript'] : ['jsx', 'typescript'] },
+    parserOpts: { plugins: parserPlugins(filename) },
     plugins: [runesBabelPlugin],
   });
   if (!result) return null;

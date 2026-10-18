@@ -1,4 +1,6 @@
 // 由 scripts/css-docs/generate.mjs 生成，请勿手改；数据来源见 scripts/css-docs/NOTICE.md。
+// 主题库填入 token 接口之前，`keyof FontSizesTokens` 这类短写是 never
+// oxlint-disable no-redundant-type-constituents
 import type { CSSProperties } from '@stylexjs/stylex';
 import type { KeywordValue, StyleValue } from './value';
 
@@ -43,7 +45,9 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/-webkit-text-fill-color
    */
-  WebkitTextFillColor?: StyleValue<CSSProperties['WebkitTextFillColor']>;
+  WebkitTextFillColor?: StyleValue<
+    KeywordValue<ColorsTokens, CSSProperties['WebkitTextFillColor']>
+  >;
   /**
    * 无前缀的文字填充颜色，浏览器尚未支持；请使用 WebkitTextFillColor。（text-fill-color）
    */
@@ -61,7 +65,9 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/-webkit-text-stroke-color
    */
-  WebkitTextStrokeColor?: StyleValue<CSSProperties['WebkitTextStrokeColor']>;
+  WebkitTextStrokeColor?: StyleValue<
+    KeywordValue<ColorsTokens, CSSProperties['WebkitTextStrokeColor']>
+  >;
   /**
    * 带 WebKit 前缀的背景裁剪区域（-webkit-background-clip）；取值 text 时背景只画在文字里，用于渐变文字。
    */
@@ -83,7 +89,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；继承；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/accent-color
    */
-  accentColor?: StyleValue<CSSProperties['accentColor']>;
+  accentColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['accentColor']>>;
   /**
    * 设置盒子的首选宽高比，参与自动尺寸计算。（aspect-ratio）
    *
@@ -243,7 +249,7 @@ export interface DocumentedStyles {
    * 初始值 `0s`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/animation-delay
    */
-  animationDelay?: StyleValue<CSSProperties['animationDelay']>;
+  animationDelay?: StyleValue<KeywordValue<DurationsTokens, CSSProperties['animationDelay']>>;
   /**
    * 设置动画按正向、反向或交替方向播放。（animation-direction）
    *
@@ -257,7 +263,7 @@ export interface DocumentedStyles {
    * 初始值 `0s`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/animation-duration
    */
-  animationDuration?: StyleValue<CSSProperties['animationDuration']>;
+  animationDuration?: StyleValue<KeywordValue<DurationsTokens, CSSProperties['animationDuration']>>;
   /**
    * 设置动画在有效播放区间之外是否应用关键帧样式。（animation-fill-mode）
    *
@@ -304,7 +310,9 @@ export interface DocumentedStyles {
    * 初始值 `ease`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/animation-timing-function
    */
-  animationTimingFunction?: StyleValue<CSSProperties['animationTimingFunction']>;
+  animationTimingFunction?: StyleValue<
+    KeywordValue<EasingsTokens, CSSProperties['animationTimingFunction']>
+  >;
   /**
    * 选择驱动动画的时间线，例如文档时间或滚动进度。（animation-timeline）
    *
@@ -397,7 +405,7 @@ export interface DocumentedStyles {
    * 初始值 `transparent`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/background-color
    */
-  backgroundColor?: StyleValue<CSSProperties['backgroundColor']>;
+  backgroundColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['backgroundColor']>>;
   /**
    * 设置一个或多个背景图像或渐变图层。（background-image）
    *
@@ -508,7 +516,7 @@ export interface DocumentedStyles {
    * 简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-block-color
    */
-  borderBlockColor?: StyleValue<CSSProperties['borderBlockColor']>;
+  borderBlockColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['borderBlockColor']>>;
   /**
    * 设置逻辑块轴两侧的边框线型。（border-block-style）
    *
@@ -536,7 +544,9 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-block-end-color
    */
-  borderBlockEndColor?: StyleValue<CSSProperties['borderBlockEndColor']>;
+  borderBlockEndColor?: StyleValue<
+    KeywordValue<ColorsTokens, CSSProperties['borderBlockEndColor']>
+  >;
   /**
    * 设置逻辑块轴结束侧的边框线型。（border-block-end-style）
    *
@@ -564,7 +574,9 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-block-start-color
    */
-  borderBlockStartColor?: StyleValue<CSSProperties['borderBlockStartColor']>;
+  borderBlockStartColor?: StyleValue<
+    KeywordValue<ColorsTokens, CSSProperties['borderBlockStartColor']>
+  >;
   /**
    * 设置逻辑块轴起始侧的边框线型。（border-block-start-style）
    *
@@ -592,7 +604,7 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-bottom-color
    */
-  borderBottomColor?: StyleValue<CSSProperties['borderBottomColor']>;
+  borderBottomColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['borderBottomColor']>>;
   /**
    * 设置下边框线型。（border-bottom-style）
    *
@@ -620,7 +632,7 @@ export interface DocumentedStyles {
    * 简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-color
    */
-  borderColor?: StyleValue<CSSProperties['borderColor']>;
+  borderColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['borderColor']>>;
   /**
    * 设置用作边框的图像及其切片、宽度、外扩和重复方式。（border-image）
    *
@@ -676,7 +688,7 @@ export interface DocumentedStyles {
    * 简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-inline-color
    */
-  borderInlineColor?: StyleValue<CSSProperties['borderInlineColor']>;
+  borderInlineColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['borderInlineColor']>>;
   /**
    * 设置逻辑行内轴两侧边框线型。（border-inline-style）
    *
@@ -704,7 +716,9 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-inline-end-color
    */
-  borderInlineEndColor?: StyleValue<CSSProperties['borderInlineEndColor']>;
+  borderInlineEndColor?: StyleValue<
+    KeywordValue<ColorsTokens, CSSProperties['borderInlineEndColor']>
+  >;
   /**
    * 设置逻辑行内轴结束侧边框线型。（border-inline-end-style）
    *
@@ -732,7 +746,9 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-inline-start-color
    */
-  borderInlineStartColor?: StyleValue<CSSProperties['borderInlineStartColor']>;
+  borderInlineStartColor?: StyleValue<
+    KeywordValue<ColorsTokens, CSSProperties['borderInlineStartColor']>
+  >;
   /**
    * 设置逻辑行内轴起始侧边框线型。（border-inline-start-style）
    *
@@ -760,7 +776,7 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-left-color
    */
-  borderLeftColor?: StyleValue<CSSProperties['borderLeftColor']>;
+  borderLeftColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['borderLeftColor']>>;
   /**
    * 设置左边框线型。（border-left-style）
    *
@@ -788,7 +804,7 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-right-color
    */
-  borderRightColor?: StyleValue<CSSProperties['borderRightColor']>;
+  borderRightColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['borderRightColor']>>;
   /**
    * 设置右边框线型。（border-right-style）
    *
@@ -835,7 +851,7 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-top-color
    */
-  borderTopColor?: StyleValue<CSSProperties['borderTopColor']>;
+  borderTopColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['borderTopColor']>>;
   /**
    * 设置四个角的圆角半径；斜杠语法可分别指定水平和垂直半径。（border-radius）
    *
@@ -846,63 +862,75 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-radius
    */
-  borderRadius?: StyleValue<CSSProperties['borderRadius']>;
+  borderRadius?: StyleValue<KeywordValue<RadiiTokens, CSSProperties['borderRadius']>>;
   /**
    * 设置逻辑块轴结束侧与行内轴起始侧相交角的圆角。（border-end-start-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-end-start-radius
    */
-  borderEndStartRadius?: StyleValue<CSSProperties['borderEndStartRadius']>;
+  borderEndStartRadius?: StyleValue<
+    KeywordValue<RadiiTokens, CSSProperties['borderEndStartRadius']>
+  >;
   /**
    * 设置逻辑块轴起始侧与行内轴起始侧相交角的圆角。（border-start-start-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-start-start-radius
    */
-  borderStartStartRadius?: StyleValue<CSSProperties['borderStartStartRadius']>;
+  borderStartStartRadius?: StyleValue<
+    KeywordValue<RadiiTokens, CSSProperties['borderStartStartRadius']>
+  >;
   /**
    * 设置逻辑块轴起始侧与行内轴结束侧相交角的圆角。（border-start-end-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-start-end-radius
    */
-  borderStartEndRadius?: StyleValue<CSSProperties['borderStartEndRadius']>;
+  borderStartEndRadius?: StyleValue<
+    KeywordValue<RadiiTokens, CSSProperties['borderStartEndRadius']>
+  >;
   /**
    * 设置逻辑块轴结束侧与行内轴结束侧相交角的圆角。（border-end-end-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-end-end-radius
    */
-  borderEndEndRadius?: StyleValue<CSSProperties['borderEndEndRadius']>;
+  borderEndEndRadius?: StyleValue<KeywordValue<RadiiTokens, CSSProperties['borderEndEndRadius']>>;
   /**
    * 设置左上角边框的圆角半径。（border-top-left-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-top-left-radius
    */
-  borderTopLeftRadius?: StyleValue<CSSProperties['borderTopLeftRadius']>;
+  borderTopLeftRadius?: StyleValue<KeywordValue<RadiiTokens, CSSProperties['borderTopLeftRadius']>>;
   /**
    * 设置右上角边框的圆角半径。（border-top-right-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-top-right-radius
    */
-  borderTopRightRadius?: StyleValue<CSSProperties['borderTopRightRadius']>;
+  borderTopRightRadius?: StyleValue<
+    KeywordValue<RadiiTokens, CSSProperties['borderTopRightRadius']>
+  >;
   /**
    * 设置左下角边框的圆角半径。（border-bottom-left-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-bottom-left-radius
    */
-  borderBottomLeftRadius?: StyleValue<CSSProperties['borderBottomLeftRadius']>;
+  borderBottomLeftRadius?: StyleValue<
+    KeywordValue<RadiiTokens, CSSProperties['borderBottomLeftRadius']>
+  >;
   /**
    * 设置右下角边框的圆角半径。（border-bottom-right-radius）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-bottom-right-radius
    */
-  borderBottomRightRadius?: StyleValue<CSSProperties['borderBottomRightRadius']>;
+  borderBottomRightRadius?: StyleValue<
+    KeywordValue<RadiiTokens, CSSProperties['borderBottomRightRadius']>
+  >;
   /**
    * 设置四个角的形状，如 round、squircle、bevel、notch（corner-shape），与 borderRadius 配合；浏览器支持仍有限。
    *
@@ -993,7 +1021,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/bottom
    */
-  bottom?: StyleValue<CSSProperties['bottom']>;
+  bottom?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['bottom']>>;
   /**
    * 旧版弹性盒（display: -webkit-box）中子元素在交叉轴上的对齐（box-align），已废弃，请用 alignItems。
    *
@@ -1060,7 +1088,7 @@ export interface DocumentedStyles {
    * 初始值 `none`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/box-shadow
    */
-  boxShadow?: StyleValue<CSSProperties['boxShadow']>;
+  boxShadow?: StyleValue<KeywordValue<ShadowsTokens, CSSProperties['boxShadow']>>;
   /**
    * 决定 width、height 等尺寸是否包含内边距和边框。（box-sizing）
    *
@@ -1118,7 +1146,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/caret-color
    */
-  caretColor?: StyleValue<CSSProperties['caretColor']>;
+  caretColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['caretColor']>>;
   /**
    * 设置文本插入光标的形状。（caret-shape）
    *
@@ -1161,7 +1189,7 @@ export interface DocumentedStyles {
    * 初始值 `canvastext`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/color
    */
-  color?: StyleValue<CSSProperties['color']>;
+  color?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['color']>>;
   /**
    * 声明元素支持的配色方案，影响原生控件、滚动条等浏览器绘制内容。（color-scheme）
    *
@@ -1219,7 +1247,7 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/column-rule-color
    */
-  columnRuleColor?: StyleValue<CSSProperties['columnRuleColor']>;
+  columnRuleColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['columnRuleColor']>>;
   /**
    * 设置多栏分隔线的线型。（column-rule-style）
    *
@@ -1247,7 +1275,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `normal`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/column-gap
    */
-  columnGap?: StyleValue<CSSProperties['columnGap']>;
+  columnGap?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['columnGap']>>;
   /**
    * 设置多栏布局中的元素是否跨越所有栏。（column-span）
    *
@@ -1473,7 +1501,7 @@ export interface DocumentedStyles {
    * 初始值 `black`；继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/fill
    */
-  fill?: StyleValue<CSSProperties['fill']>;
+  fill?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['fill']>>;
   /**
    * 设置 SVG 填充的不透明度，不影响描边。（fill-opacity）
    *
@@ -1607,7 +1635,7 @@ export interface DocumentedStyles {
    * 初始值 `dependsOnUserAgent`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/font-family
    */
-  fontFamily?: StyleValue<CSSProperties['fontFamily']>;
+  fontFamily?: StyleValue<KeywordValue<FontsTokens, CSSProperties['fontFamily']>>;
   /**
    * 通过 OpenType 特性标签控制字体的底层排版功能。（font-feature-settings）
    *
@@ -1639,7 +1667,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/font-size
    */
-  fontSize?: StyleValue<CSSProperties['fontSize']>;
+  fontSize?: StyleValue<KeywordValue<FontSizesTokens, CSSProperties['fontSize']>>;
   /**
    * 按字体特征尺寸调整字号，减少字体回退造成的视觉变化。（font-size-adjust）
    *
@@ -1761,7 +1789,9 @@ export interface DocumentedStyles {
    * 数字值不加单位；初始值 `normal`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/font-weight
    */
-  fontWeight?: StyleValue<KeywordValue<FontWeightKeywords, CSSProperties['fontWeight']>>;
+  fontWeight?: StyleValue<
+    KeywordValue<FontWeightKeywords, CSSProperties['fontWeight']> | keyof FontWeightsTokens
+  >;
   /**
    * 控制支持光学尺寸轴的字体是否按字号优化字形。（font-optical-sizing）
    *
@@ -1793,7 +1823,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2020 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/gap
    */
-  gap?: StyleValue<CSSProperties['gap']>;
+  gap?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['gap']>>;
   /**
    * SVG 横排文字中字形的旋转角度（glyph-orientation-horizontal），已废弃。
    *
@@ -2070,49 +2100,49 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inset
    */
-  inset?: StyleValue<CSSProperties['inset']>;
+  inset?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['inset']>>;
   /**
    * 设置定位元素沿逻辑块轴的起始和结束偏移。（inset-block）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inset-block
    */
-  insetBlock?: StyleValue<CSSProperties['insetBlock']>;
+  insetBlock?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['insetBlock']>>;
   /**
    * 设置定位元素在逻辑块轴结束侧的偏移。（inset-block-end）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inset-block-end
    */
-  insetBlockEnd?: StyleValue<CSSProperties['insetBlockEnd']>;
+  insetBlockEnd?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['insetBlockEnd']>>;
   /**
    * 设置定位元素在逻辑块轴起始侧的偏移。（inset-block-start）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inset-block-start
    */
-  insetBlockStart?: StyleValue<CSSProperties['insetBlockStart']>;
+  insetBlockStart?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['insetBlockStart']>>;
   /**
    * 设置定位元素沿逻辑行内轴的起始和结束偏移。（inset-inline）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inset-inline
    */
-  insetInline?: StyleValue<CSSProperties['insetInline']>;
+  insetInline?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['insetInline']>>;
   /**
    * 设置定位元素在逻辑行内轴结束侧的偏移。（inset-inline-end）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inset-inline-end
    */
-  insetInlineEnd?: StyleValue<CSSProperties['insetInlineEnd']>;
+  insetInlineEnd?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['insetInlineEnd']>>;
   /**
    * 设置定位元素在逻辑行内轴起始侧的偏移。（inset-inline-start）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inset-inline-start
    */
-  insetInlineStart?: StyleValue<CSSProperties['insetInlineStart']>;
+  insetInlineStart?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['insetInlineStart']>>;
   /**
    * 控制元素是否建立独立的层叠上下文，隔离混合效果。（isolation）
    *
@@ -2138,7 +2168,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/left
    */
-  left?: StyleValue<CSSProperties['left']>;
+  left?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['left']>>;
   /**
    * 设置字符之间额外增加或减少的间距。（letter-spacing）
    *
@@ -2166,7 +2196,9 @@ export interface DocumentedStyles {
    * 数字值不加单位；初始值 `normal`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/line-height
    */
-  lineHeight?: StyleValue<KeywordValue<LineHeightKeywords, CSSProperties['lineHeight']>>;
+  lineHeight?: StyleValue<
+    KeywordValue<LineHeightKeywords, CSSProperties['lineHeight']> | keyof LineHeightsTokens
+  >;
   /**
    * 设置行盒高度向上取整使用的步长。（line-height-step）
    *
@@ -2215,7 +2247,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin
    */
-  margin?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['margin']>>;
+  margin?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['margin']> | keyof SpaceTokens>;
   /**
    * 设置逻辑块轴起始侧和结束侧的外边距。（margin-block）
    *
@@ -2225,7 +2257,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-block
    */
-  marginBlock?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBlock']>>;
+  marginBlock?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginBlock']> | keyof SpaceTokens
+  >;
   /**
    * 设置逻辑块轴结束侧的外边距。（margin-block-end）
    *
@@ -2235,7 +2269,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-block-end
    */
-  marginBlockEnd?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBlockEnd']>>;
+  marginBlockEnd?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginBlockEnd']> | keyof SpaceTokens
+  >;
   /**
    * 设置逻辑块轴起始侧的外边距。（margin-block-start）
    *
@@ -2245,7 +2281,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-block-start
    */
-  marginBlockStart?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBlockStart']>>;
+  marginBlockStart?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginBlockStart']> | keyof SpaceTokens
+  >;
   /**
    * 设置下外边距。（margin-bottom）
    *
@@ -2255,7 +2293,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-bottom
    */
-  marginBottom?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBottom']>>;
+  marginBottom?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginBottom']> | keyof SpaceTokens
+  >;
   /**
    * 设置逻辑行内轴起始侧和结束侧的外边距。（margin-inline）
    *
@@ -2265,7 +2305,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-inline
    */
-  marginInline?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginInline']>>;
+  marginInline?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginInline']> | keyof SpaceTokens
+  >;
   /**
    * 设置逻辑行内轴结束侧的外边距。（margin-inline-end）
    *
@@ -2275,7 +2317,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-inline-end
    */
-  marginInlineEnd?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginInlineEnd']>>;
+  marginInlineEnd?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginInlineEnd']> | keyof SpaceTokens
+  >;
   /**
    * 设置逻辑行内轴起始侧的外边距。（margin-inline-start）
    *
@@ -2285,7 +2329,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-inline-start
    */
-  marginInlineStart?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginInlineStart']>>;
+  marginInlineStart?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginInlineStart']> | keyof SpaceTokens
+  >;
   /**
    * 设置左外边距。（margin-left）
    *
@@ -2295,7 +2341,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-left
    */
-  marginLeft?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginLeft']>>;
+  marginLeft?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginLeft']> | keyof SpaceTokens
+  >;
   /**
    * 设置右外边距。（margin-right）
    *
@@ -2305,7 +2353,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-right
    */
-  marginRight?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginRight']>>;
+  marginRight?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginRight']> | keyof SpaceTokens
+  >;
   /**
    * 设置上外边距。（margin-top）
    *
@@ -2315,7 +2365,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-top
    */
-  marginTop?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginTop']>>;
+  marginTop?: StyleValue<
+    KeywordValue<MarginKeywords, CSSProperties['marginTop']> | keyof SpaceTokens
+  >;
   /**
    * 控制容器边缘处子元素外边距的裁减。（margin-trim）
    *
@@ -2694,7 +2746,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/outline-color
    */
-  outlineColor?: StyleValue<CSSProperties['outlineColor']>;
+  outlineColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['outlineColor']>>;
   /**
    * 设置轮廓线与边框边缘之间的距离。（outline-offset）
    *
@@ -2894,77 +2946,77 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding
    */
-  padding?: StyleValue<CSSProperties['padding']>;
+  padding?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['padding']>>;
   /**
    * 设置逻辑块轴起始侧和结束侧的内边距。（padding-block）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-block
    */
-  paddingBlock?: StyleValue<CSSProperties['paddingBlock']>;
+  paddingBlock?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingBlock']>>;
   /**
    * 设置逻辑块轴结束侧的内边距。（padding-block-end）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-block-end
    */
-  paddingBlockEnd?: StyleValue<CSSProperties['paddingBlockEnd']>;
+  paddingBlockEnd?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingBlockEnd']>>;
   /**
    * 设置逻辑块轴起始侧的内边距。（padding-block-start）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-block-start
    */
-  paddingBlockStart?: StyleValue<CSSProperties['paddingBlockStart']>;
+  paddingBlockStart?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingBlockStart']>>;
   /**
    * 设置逻辑行内轴起始侧和结束侧的内边距。（padding-inline）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-inline
    */
-  paddingInline?: StyleValue<CSSProperties['paddingInline']>;
+  paddingInline?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingInline']>>;
   /**
    * 设置逻辑行内轴结束侧的内边距。（padding-inline-end）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-inline-end
    */
-  paddingInlineEnd?: StyleValue<CSSProperties['paddingInlineEnd']>;
+  paddingInlineEnd?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingInlineEnd']>>;
   /**
    * 设置逻辑行内轴起始侧的内边距。（padding-inline-start）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-inline-start
    */
-  paddingInlineStart?: StyleValue<CSSProperties['paddingInlineStart']>;
+  paddingInlineStart?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingInlineStart']>>;
   /**
    * 设置下内边距。（padding-bottom）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-bottom
    */
-  paddingBottom?: StyleValue<CSSProperties['paddingBottom']>;
+  paddingBottom?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingBottom']>>;
   /**
    * 设置左内边距。（padding-left）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-left
    */
-  paddingLeft?: StyleValue<CSSProperties['paddingLeft']>;
+  paddingLeft?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingLeft']>>;
   /**
    * 设置右内边距。（padding-right）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-right
    */
-  paddingRight?: StyleValue<CSSProperties['paddingRight']>;
+  paddingRight?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingRight']>>;
   /**
    * 设置上内边距。（padding-top）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/padding-top
    */
-  paddingTop?: StyleValue<CSSProperties['paddingTop']>;
+  paddingTop?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['paddingTop']>>;
   /**
    * 选择分页媒体中使用的命名页面类型。（page）
    *
@@ -3142,14 +3194,14 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/right
    */
-  right?: StyleValue<CSSProperties['right']>;
+  right?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['right']>>;
   /**
    * 设置布局中相邻行之间的间距。（row-gap）
    *
    * 数字值自动加 `px`；初始值 `normal`；不继承；Baseline：2020 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/row-gap
    */
-  rowGap?: StyleValue<CSSProperties['rowGap']>;
+  rowGap?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['rowGap']>>;
   /**
    * 设置注音文字与基底文字之间剩余空间的分配方式。（ruby-align）
    *
@@ -3208,154 +3260,170 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin
    */
-  scrollMargin?: StyleValue<CSSProperties['scrollMargin']>;
+  scrollMargin?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollMargin']>>;
   /**
    * 设置滚动目标区域上侧的外扩距离。（scroll-margin-top）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-top
    */
-  scrollMarginTop?: StyleValue<CSSProperties['scrollMarginTop']>;
+  scrollMarginTop?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollMarginTop']>>;
   /**
    * 设置滚动目标区域右侧的外扩距离。（scroll-margin-right）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-right
    */
-  scrollMarginRight?: StyleValue<CSSProperties['scrollMarginRight']>;
+  scrollMarginRight?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollMarginRight']>>;
   /**
    * 设置滚动目标区域下侧的外扩距离。（scroll-margin-bottom）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-bottom
    */
-  scrollMarginBottom?: StyleValue<CSSProperties['scrollMarginBottom']>;
+  scrollMarginBottom?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollMarginBottom']>>;
   /**
    * 设置滚动目标区域左侧的外扩距离。（scroll-margin-left）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-left
    */
-  scrollMarginLeft?: StyleValue<CSSProperties['scrollMarginLeft']>;
+  scrollMarginLeft?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollMarginLeft']>>;
   /**
    * 设置滚动目标区域在逻辑块轴两侧的外扩距离。（scroll-margin-block）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-block
    */
-  scrollMarginBlock?: StyleValue<CSSProperties['scrollMarginBlock']>;
+  scrollMarginBlock?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollMarginBlock']>>;
   /**
    * 设置滚动目标区域在逻辑块轴结束侧的外扩距离。（scroll-margin-block-end）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-block-end
    */
-  scrollMarginBlockEnd?: StyleValue<CSSProperties['scrollMarginBlockEnd']>;
+  scrollMarginBlockEnd?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollMarginBlockEnd']>
+  >;
   /**
    * 设置滚动目标区域在逻辑块轴起始侧的外扩距离。（scroll-margin-block-start）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-block-start
    */
-  scrollMarginBlockStart?: StyleValue<CSSProperties['scrollMarginBlockStart']>;
+  scrollMarginBlockStart?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollMarginBlockStart']>
+  >;
   /**
    * 设置滚动目标区域在逻辑行内轴两侧的外扩距离。（scroll-margin-inline）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-inline
    */
-  scrollMarginInline?: StyleValue<CSSProperties['scrollMarginInline']>;
+  scrollMarginInline?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollMarginInline']>>;
   /**
    * 设置滚动目标区域在逻辑行内轴结束侧的外扩距离。（scroll-margin-inline-end）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-inline-end
    */
-  scrollMarginInlineEnd?: StyleValue<CSSProperties['scrollMarginInlineEnd']>;
+  scrollMarginInlineEnd?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollMarginInlineEnd']>
+  >;
   /**
    * 设置滚动目标区域在逻辑行内轴起始侧的外扩距离。（scroll-margin-inline-start）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-margin-inline-start
    */
-  scrollMarginInlineStart?: StyleValue<CSSProperties['scrollMarginInlineStart']>;
+  scrollMarginInlineStart?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollMarginInlineStart']>
+  >;
   /**
    * 设置滚动容器最佳可视区域的四边内缩距离。（scroll-padding）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding
    */
-  scrollPadding?: StyleValue<CSSProperties['scrollPadding']>;
+  scrollPadding?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollPadding']>>;
   /**
    * 设置滚动容器最佳可视区域上侧的内缩距离。（scroll-padding-top）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-top
    */
-  scrollPaddingTop?: StyleValue<CSSProperties['scrollPaddingTop']>;
+  scrollPaddingTop?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollPaddingTop']>>;
   /**
    * 设置滚动容器最佳可视区域右侧的内缩距离。（scroll-padding-right）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-right
    */
-  scrollPaddingRight?: StyleValue<CSSProperties['scrollPaddingRight']>;
+  scrollPaddingRight?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollPaddingRight']>>;
   /**
    * 设置滚动容器最佳可视区域下侧的内缩距离。（scroll-padding-bottom）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-bottom
    */
-  scrollPaddingBottom?: StyleValue<CSSProperties['scrollPaddingBottom']>;
+  scrollPaddingBottom?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollPaddingBottom']>>;
   /**
    * 设置滚动容器最佳可视区域左侧的内缩距离。（scroll-padding-left）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-left
    */
-  scrollPaddingLeft?: StyleValue<CSSProperties['scrollPaddingLeft']>;
+  scrollPaddingLeft?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollPaddingLeft']>>;
   /**
    * 设置滚动容器最佳可视区域在逻辑块轴两侧的内缩距离。（scroll-padding-block）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-block
    */
-  scrollPaddingBlock?: StyleValue<CSSProperties['scrollPaddingBlock']>;
+  scrollPaddingBlock?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollPaddingBlock']>>;
   /**
    * 设置滚动容器最佳可视区域在逻辑块轴结束侧的内缩距离。（scroll-padding-block-end）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-block-end
    */
-  scrollPaddingBlockEnd?: StyleValue<CSSProperties['scrollPaddingBlockEnd']>;
+  scrollPaddingBlockEnd?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollPaddingBlockEnd']>
+  >;
   /**
    * 设置滚动容器最佳可视区域在逻辑块轴起始侧的内缩距离。（scroll-padding-block-start）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-block-start
    */
-  scrollPaddingBlockStart?: StyleValue<CSSProperties['scrollPaddingBlockStart']>;
+  scrollPaddingBlockStart?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollPaddingBlockStart']>
+  >;
   /**
    * 设置滚动容器最佳可视区域在逻辑行内轴两侧的内缩距离。（scroll-padding-inline）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-inline
    */
-  scrollPaddingInline?: StyleValue<CSSProperties['scrollPaddingInline']>;
+  scrollPaddingInline?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['scrollPaddingInline']>>;
   /**
    * 设置滚动容器最佳可视区域在逻辑行内轴结束侧的内缩距离。（scroll-padding-inline-end）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-inline-end
    */
-  scrollPaddingInlineEnd?: StyleValue<CSSProperties['scrollPaddingInlineEnd']>;
+  scrollPaddingInlineEnd?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollPaddingInlineEnd']>
+  >;
   /**
    * 设置滚动容器最佳可视区域在逻辑行内轴起始侧的内缩距离。（scroll-padding-inline-start）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/scroll-padding-inline-start
    */
-  scrollPaddingInlineStart?: StyleValue<CSSProperties['scrollPaddingInlineStart']>;
+  scrollPaddingInlineStart?: StyleValue<
+    KeywordValue<SpaceTokens, CSSProperties['scrollPaddingInlineStart']>
+  >;
   /**
    * 设置元素作为滚动吸附目标时在块轴和行内轴上的对齐位置。（scroll-snap-align）
    *
@@ -3477,7 +3545,7 @@ export interface DocumentedStyles {
    * 简写属性，初始值见各分项；继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/stroke
    */
-  stroke?: StyleValue<CSSProperties['stroke']>;
+  stroke?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['stroke']>>;
   /**
    * 设置 SVG 描边虚线中线段与空隙的长度序列。（stroke-dasharray）
    *
@@ -3597,7 +3665,9 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/text-decoration-color
    */
-  textDecorationColor?: StyleValue<CSSProperties['textDecorationColor']>;
+  textDecorationColor?: StyleValue<
+    KeywordValue<ColorsTokens, CSSProperties['textDecorationColor']>
+  >;
   /**
    * 设置下划线、上划线或删除线等装饰线位置。（text-decoration-line）
    *
@@ -3646,7 +3716,7 @@ export interface DocumentedStyles {
    * 初始值 `currentcolor`；继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/text-emphasis-color
    */
-  textEmphasisColor?: StyleValue<CSSProperties['textEmphasisColor']>;
+  textEmphasisColor?: StyleValue<KeywordValue<ColorsTokens, CSSProperties['textEmphasisColor']>>;
   /**
    * 设置文字着重号位于文字的哪一侧。（text-emphasis-position）
    *
@@ -3766,7 +3836,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/top
    */
-  top?: StyleValue<CSSProperties['top']>;
+  top?: StyleValue<KeywordValue<SpaceTokens, CSSProperties['top']>>;
   /**
    * 声明浏览器可以处理的触摸平移与缩放手势。（touch-action）
    *
@@ -3854,14 +3924,16 @@ export interface DocumentedStyles {
    * 初始值 `0s`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/transition-delay
    */
-  transitionDelay?: StyleValue<CSSProperties['transitionDelay']>;
+  transitionDelay?: StyleValue<KeywordValue<DurationsTokens, CSSProperties['transitionDelay']>>;
   /**
    * 设置过渡从开始到完成的时长。（transition-duration）
    *
    * 初始值 `0s`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/transition-duration
    */
-  transitionDuration?: StyleValue<CSSProperties['transitionDuration']>;
+  transitionDuration?: StyleValue<
+    KeywordValue<DurationsTokens, CSSProperties['transitionDuration']>
+  >;
   /**
    * 指定发生变化时需要过渡的 CSS 属性。（transition-property）
    *
@@ -3875,7 +3947,9 @@ export interface DocumentedStyles {
    * 初始值 `ease`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/transition-timing-function
    */
-  transitionTimingFunction?: StyleValue<CSSProperties['transitionTimingFunction']>;
+  transitionTimingFunction?: StyleValue<
+    KeywordValue<EasingsTokens, CSSProperties['transitionTimingFunction']>
+  >;
   /**
    * 设置元素如何参与 Unicode 双向文本算法，通常与 direction 配合。（unicode-bidi）
    *
@@ -4221,6 +4295,18 @@ export interface DocumentedStyles {
    */
   '::-moz-range-progress'?: DocumentedStyles;
 }
+
+// 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，由主题库用 declare module 填入以 `_` 开头的 token 名
+export interface SpaceTokens {}
+export interface ColorsTokens {}
+export interface FontsTokens {}
+export interface FontSizesTokens {}
+export interface FontWeightsTokens {}
+export interface LineHeightsTokens {}
+export interface RadiiTokens {}
+export interface ShadowsTokens {}
+export interface DurationsTokens {}
+export interface EasingsTokens {}
 
 // 各属性的关键字说明：键上的注释在悬停取值时显示
 interface JustifyContentKeywords {

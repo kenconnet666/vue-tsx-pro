@@ -13,7 +13,19 @@ import type { CSSProperties, InlineStyles, MapNamespaces } from '@stylexjs/style
 import type { DocumentedStyles } from './styles';
 
 export * from '@stylexjs/stylex';
-export type { DocumentedStyles } from './styles';
+export type {
+  ColorsTokens,
+  DocumentedStyles,
+  DurationsTokens,
+  EasingsTokens,
+  FontSizesTokens,
+  FontsTokens,
+  FontWeightsTokens,
+  LineHeightsTokens,
+  RadiiTokens,
+  ShadowsTokens,
+  SpaceTokens,
+} from './styles';
 export type { StyleValue } from './value';
 
 /** 动态样式：参数在运行时决定，编译为 CSS 变量与行内 style */

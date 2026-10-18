@@ -2,7 +2,6 @@ import { Plus, Search, Settings, User } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { darkTheme, enUS, lightTheme, Provider, useLang, zhCN } from '@vue-tsx-pro/ui';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 import { Button } from '../pilot/Button';
 import { Dialog } from '../pilot/Dialog';
 import { Popover } from '../pilot/Popover';
@@ -16,7 +15,7 @@ const styles = stylex.create({
     gap: '1.25em',
     padding: '1.5em',
     minHeight: '100vh',
-    backgroundColor: colors.background,
+    backgroundColor: '_background',
   },
   row: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75em' },
   large: { fontSize: 24 },

@@ -10,7 +10,6 @@ import type { LucideIconData } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { h, type VNode } from 'vue';
-import { controls, fontSizes } from '../../config/theme/tokens.stylex';
 import { elementProps, mergeProps, type PartProps } from '../../utils/props';
 import type { Size } from '../../utils/styles';
 
@@ -48,14 +47,14 @@ const styles = stylex.create({
     // 与文字基线对齐
     verticalAlign: '-0.125em',
     // 写成 CSS 而不是 stroke-width 属性：主题能统一调整，子元素照常继承
-    strokeWidth: controls.iconStrokeWidth,
+    strokeWidth: '_controls.iconStrokeWidth',
   },
   flip: { transform: { default: null, ':dir(rtl)': 'scaleX(-1)' } },
-  xs: { fontSize: fontSizes.xs },
-  sm: { fontSize: fontSizes.sm },
-  md: { fontSize: fontSizes.md },
-  lg: { fontSize: fontSizes.lg },
-  xl: { fontSize: fontSizes.xl },
+  xs: { fontSize: '_xs' },
+  sm: { fontSize: '_sm' },
+  md: { fontSize: '_md' },
+  lg: { fontSize: '_lg' },
+  xl: { fontSize: '_xl' },
 });
 
 export const Icon = _component(

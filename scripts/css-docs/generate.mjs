@@ -7,17 +7,22 @@
  *   - 初始值、是否继承、标准状态、MDN 链接：mdn-data
  *   - 浏览器支持（Baseline）：web-features
  *   - 数字值的单位规则：StyleX 编译器源码
+ *   - 主题 tokens 的短写：packages/tsx/src/stylex/token-map.ts 的对照表
+ *
+ * 同时生成 ui 的主题 tokens 字符串写法的类型（见 tokens.mjs）。
  *
  * 用法：node scripts/css-docs/generate.mjs [--check]
  *   --check 只比较不写入，生成结果与仓库里的文件不一致时以非零退出（CI 用）
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import prettier from 'prettier';
 import ts from 'typescript';
 import { features } from 'web-features';
+import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
+import { generateTokenNames, tokenInterfaceName, tokenNamesOutput } from './tokens.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'packages/tsx/src/stylex/styles.ts');
@@ -199,12 +204,23 @@ async function generate() {
       `以下 StyleX 属性缺少中文说明（scripts/css-docs/docs.json）：\n${missing.join('\n')}`,
     );
 
+  const known = new Set(properties.map(({ key }) => key));
+  const unknown = [...TOKEN_GROUP_OF.keys()].filter((key) => !known.has(key));
+  if (unknown.length)
+    throw new Error(
+      `token 对照表里有 StyleX 不认识的属性（token-map.ts）：\n${unknown.join('\n')}`,
+    );
+
   const context = { numberRules: readNumberRules(), baseline: readBaseline() };
   const keywordGroups = readKeywordGroups(properties);
   const valueType = ({ key }) => {
     const value = `CSSProperties['${key}']`;
     const group = docs.keywordAliases[key] ?? key;
-    return keywordGroups.has(group) ? `KeywordValue<${keywordsName(group)}, ${value}>` : value;
+    const tokens = TOKEN_GROUP_OF.get(key) && tokenInterfaceName(TOKEN_GROUP_OF.get(key));
+    if (!keywordGroups.has(group)) return tokens ? `KeywordValue<${tokens}, ${value}>` : value;
+    const keywords = `KeywordValue<${keywordsName(group)}, ${value}>`;
+    // KeywordValue 已把 string 改写成 string & {}，再并上 token 名不会被吸收
+    return tokens ? `${keywords} | keyof ${tokens}` : keywords;
   };
   const members = [
     ...properties.map((property) => [
@@ -229,6 +245,8 @@ async function generate() {
 
   const code = [
     '// 由 scripts/css-docs/generate.mjs 生成，请勿手改；数据来源见 scripts/css-docs/NOTICE.md。',
+    '// 主题库填入 token 接口之前，`keyof FontSizesTokens` 这类短写是 never',
+    '// oxlint-disable no-redundant-type-constituents',
     "import type { CSSProperties } from '@stylexjs/stylex';",
     "import type { KeywordValue, StyleValue } from './value';",
     '',
@@ -237,20 +255,32 @@ async function generate() {
     ...members.flat(),
     '}',
     '',
+    "// 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，由主题库用 declare module 填入以 `_` 开头的 token 名",
+    ...[...new Set(TOKEN_GROUP_OF.values())].map(
+      (group) => `export interface ${tokenInterfaceName(group)} {}`,
+    ),
+    '',
     '// 各属性的关键字说明：键上的注释在悬停取值时显示',
     ...keywordInterfaces,
   ].join('\n');
-  const config = await prettier.resolveConfig(output);
-  return prettier.format(code, { ...config, filepath: output });
+  return format(code, output);
 }
 
-const code = await generate();
-if (process.argv.includes('--check')) {
-  const current = readFileSync(output, 'utf8');
-  if (current !== code) {
-    console.error('packages/tsx/src/stylex/styles.ts 与数据不一致，请运行 pnpm css-docs');
-    process.exit(1);
+async function format(code, file) {
+  const config = await prettier.resolveConfig(file);
+  return prettier.format(code, { ...config, filepath: file });
+}
+
+const tokenNames = tokenNamesOutput(root);
+const outputs = [
+  [output, await generate()],
+  [tokenNames, await format(generateTokenNames(root), tokenNames)],
+];
+const check = process.argv.includes('--check');
+for (const [file, code] of outputs) {
+  if (!check) writeFileSync(file, code);
+  else if (!existsSync(file) || readFileSync(file, 'utf8') !== code) {
+    console.error(`${relative(root, file)} 与数据不一致，请运行 pnpm css-docs`);
+    process.exitCode = 1;
   }
-} else {
-  writeFileSync(output, code);
 }

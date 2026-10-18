@@ -10,7 +10,6 @@ import {
   toElement,
   type PartProps,
 } from '@vue-tsx-pro/ui';
-import { colors, controls, radii, shadows, space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 
 /** 交给触发器的属性：展开到任意可聚焦元素上 */
@@ -39,14 +38,14 @@ const styles = stylex.create({
     position: 'fixed',
     inset: 'auto',
     margin: 0,
-    padding: space.md,
-    borderWidth: controls.borderWidth,
+    padding: '_md',
+    borderWidth: '_controls.borderWidth',
     borderStyle: 'solid',
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surfaceRaised,
-    color: colors.text,
-    boxShadow: shadows.lg,
+    borderColor: '_border',
+    borderRadius: '_lg',
+    backgroundColor: '_surfaceRaised',
+    color: '_text',
+    boxShadow: '_lg',
   },
 });
 

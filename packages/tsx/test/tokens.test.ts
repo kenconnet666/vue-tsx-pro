@@ -1,0 +1,119 @@
+// 主题 tokens 的字符串写法：'_xs'、'_controls.height' → token 变量与 import
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { compileTokens, type TokenModule } from '../src/compiler/index';
+import { themeTokens } from '../src/vite/tokens';
+
+const module: TokenModule = {
+  importPath: './tokens.stylex',
+  groups: new Map([
+    ['fontSizes', new Set(['xs', 'md'])],
+    ['space', new Set(['sm', 'md'])],
+    ['colors', new Set(['text', 'accent'])],
+    ['controls', new Set(['height'])],
+  ]),
+};
+
+const header = "import * as stylex from '@vue-tsx-pro/tsx/stylex';\n";
+const compile = async (body: string, load: () => TokenModule | null = () => module) =>
+  (await compileTokens(header + body, 'a.tsx', load))?.code;
+
+describe('改写', () => {
+  it('短写按对照表找组，带组名的任何属性都能用；同组只导入一次', async () => {
+    const code = await compile(
+      `const s = stylex.create({ a: { fontSize: '_xs', padding: '_md', margin: '_sm', height: '_controls.height', width: '_space.md' } });`,
+    );
+    expect(code).toContain(
+      'import { fontSizes as _fontSizes, space as _space, controls as _controls } from "./tokens.stylex";',
+    );
+    expect(code).toContain('fontSize: _fontSizes.xs');
+    expect(code).toContain('padding: _space.md');
+    expect(code).toContain('margin: _space.sm');
+    expect(code).toContain('height: _controls.height');
+    expect(code).toContain('width: _space.md');
+  });
+
+  it('条件值、回退数组、伪元素、动态样式与 keyframes 里同样改写', async () => {
+    const code = await compile(`
+      const s = stylex.create({
+        a: { color: { default: '_text', ':hover': { default: '_accent', '@media (x)': '_text' } } },
+        b: { '::before': { color: '_accent' }, fontSize: ['_md', '_xs'] },
+        c: (big: boolean) => ({ fontSize: big ? '_md' : '_xs' }),
+      });
+      const k = stylex.keyframes({ from: { color: '_text' } });
+    `);
+    expect(code).not.toMatch(/'_\w/);
+    expect(code).toContain("':hover': {\n");
+  });
+
+  it('具名导入的 create 也认；其他字符串、其他函数不动', async () => {
+    const code = (await compileTokens(
+      "import { create } from '@stylexjs/stylex';\nconst s = create({ a: { fontSize: '_xs' } }); const x = { fontSize: '_xs' }; f('_xs');",
+      'a.ts',
+      () => module,
+    ))!.code;
+    expect(code).toContain('fontSize: _fontSizes.xs');
+    expect(code).toContain("const x = {\n  fontSize: '_xs'");
+    expect(code).toContain("f('_xs')");
+  });
+
+  it('没有 token 写法时不改写，也不去找 token 模块', async () => {
+    const load = () => {
+      throw new Error('不该加载');
+    };
+    expect(
+      await compile(`const s = stylex.create({ a: { fontSize: 12 } });`, load),
+    ).toBeUndefined();
+    expect(await compileTokens("const s = { a: '_xs' };", 'a.ts', load)).toBeNull();
+  });
+});
+
+describe('报错', () => {
+  const cases: [string, string, RegExp][] = [
+    ['表外属性用短写', `{ width: '_md' }`, /width 不在 token 对照表里.*'_space\.md'/],
+    ['短写的 token 不存在', `{ fontSize: '_xxl' }`, /fontSizes 里没有 xxl（可用：'_xs'、'_md'）/],
+    ['带组名的 token 不存在', `{ height: '_controls.width' }`, /'_controls\.height'/],
+    ['组不存在', `{ height: '_sizes.md' }`, /没有名为 sizes 的 token 组/],
+    ['格式不对', `{ fontSize: '_x-s' }`, /不是主题 token 的写法/],
+  ];
+  it.each(cases)('%s', async (_, styles, message) => {
+    await expect(compile(`stylex.create({ a: ${styles} });`)).rejects.toThrow(message);
+  });
+
+  it('找不到 token 模块', async () => {
+    await expect(compile(`stylex.create({ a: { fontSize: '_xs' } });`, () => null)).rejects.toThrow(
+      /找不到主题 tokens 模块/,
+    );
+  });
+});
+
+describe('Vite 插件', () => {
+  const ui = (path: string) => join(import.meta.dirname, '../../ui', path);
+  const transform = async (file: string, code: string) => {
+    const plugin = themeTokens('@vue-tsx-pro/ui/tokens.stylex');
+    const context = { addWatchFile() {} };
+    const hook = plugin.transform as (
+      this: unknown,
+      code: string,
+      id: string,
+    ) => Promise<{ code: string } | null>;
+    return (await hook.call(context, header + code, file))?.code;
+  };
+
+  it('组件库自己的源码用相对路径导入，token 名从源码读取', async () => {
+    const code = await transform(
+      ui('src/base/X/X.tsx'),
+      `stylex.create({ a: { fontSize: '_xxxl', color: '_inverseText' } });`,
+    );
+    expect(code).toContain('from "../../config/theme/tokens.stylex"');
+    expect(code).toContain('_fontSizes.xxxl');
+  });
+
+  it('其他包按包名导入', async () => {
+    const code = await transform(
+      join(import.meta.dirname, '../../../apps/host-demo/src/X.tsx'),
+      `stylex.create({ a: { fontSize: '_md' } });`,
+    );
+    expect(code).toContain('from "@vue-tsx-pro/ui/tokens.stylex"');
+  });
+});

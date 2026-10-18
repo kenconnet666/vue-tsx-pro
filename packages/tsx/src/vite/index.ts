@@ -1,17 +1,19 @@
 /**
- * Vite 预设：按固定顺序组合三个插件，使用方只写一行 vueTsxPro()。
+ * Vite 预设：按固定顺序组合四个插件，使用方只写一行 vueTsxPro()。
  *
  *   1. 符文与 props（本包）：_state / _derived / _component 参数解构 … → Vue API，读写 → .value
- *   2. StyleX：stylex.create → 原子类与 CSS
- *   3. @vitejs/plugin-vue-jsx（官方）：去掉 TS 类型、JSX → VNode、热更新
+ *   2. 主题 tokens 的字符串写法（本包）：stylex.create 里的 '_xs' → token 变量（tokens.ts）
+ *   3. StyleX：stylex.create → 原子类与 CSS
+ *   4. @vitejs/plugin-vue-jsx（官方）：去掉 TS 类型、JSX → VNode、热更新
  *
- * 只有用到符文或 _component 的文件会被第 1 步改写，宿主项目里的其他代码原样交给后续插件。
+ * 第 1、2 步只改写用到符文、token 写法的文件，宿主项目里的其他代码原样交给后续插件。
  */
 import type { Plugin } from 'vite';
 import stylex from '@stylexjs/unplugin';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { compileRunes } from '../compiler/index.ts';
 import { stylexModuleResolution } from './stylex-resolution.ts';
+import { themeTokens } from './tokens.ts';
 
 type StylexOptions = NonNullable<Parameters<typeof stylex.vite>[0]>;
 
@@ -24,10 +26,18 @@ export interface VueTsxProOptions {
    * 组件库构建应传 false：保留 stylex.create，由使用方应用统一编译。
    */
   stylex?: StylexOptions | false;
+  /**
+   * 主题 tokens 模块：`fontSize: '_xs'` 这类写法从这里取 token 变量。
+   * 包名或相对项目根目录的路径，默认 '@vue-tsx-pro/ui/tokens.stylex'；传 false 关闭这种写法。
+   * 与 stylex 选项无关：组件库构建不编译 StyleX，token 写法照样要改写。
+   */
+  tokens?: string | false;
 }
 
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   const plugins: Plugin[] = [runes()];
+  const tokens = options.tokens ?? '@vue-tsx-pro/ui/tokens.stylex';
+  if (tokens !== false) plugins.push(themeTokens(tokens));
   if (options.stylex !== false) {
     // 让编译器同时识别带中文注释的入口 @vue-tsx-pro/tsx/stylex
     const importSources = [

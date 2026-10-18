@@ -3,10 +3,9 @@ import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { darkTheme, Icon, Provider } from '@vue-tsx-pro/ui';
-import { colors, space } from '@vue-tsx-pro/ui/tokens.stylex';
 
 const styles = stylex.create({
-  button: { padding: space.md, backgroundColor: colors.accent, color: colors.accentContrast },
+  button: { padding: '_md', backgroundColor: '_accent', color: '_accentContrast' },
 });
 
 export const App = _component(() => {

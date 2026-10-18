@@ -3,6 +3,11 @@ import { types as t, type NodePath } from '@babel/core';
 import type { Binding } from '@babel/traverse';
 import { fail } from './errors.ts';
 
+/** Babel 解析插件：.ts 不能开 JSX，否则 <T>value 类型断言、<T>(x) => x 泛型箭头函数会被当作 JSX 解析 */
+export function parserPlugins(filename: string): ('jsx' | 'typescript')[] {
+  return /\.[cm]?ts$/.test(filename) ? ['typescript'] : ['jsx', 'typescript'];
+}
+
 /** 组件边界：第一个参数是 setup 函数的调用 */
 const COMPONENT_CALLEES = new Set(['_component', 'defineComponent']);
 
