@@ -90,7 +90,12 @@ describe('改写', () => {
 
 describe('报错', () => {
   const cases: [string, string, RegExp][] = [
-    ['表外属性用短写', `{ zIndex: '_md' }`, /zIndex 不在 token 对照表里.*'_space\.md'/],
+    [
+      '表外属性用短写：列出有这个 token 的组',
+      `{ zIndex: '_md' }`,
+      /zIndex 不在 token 对照表里.*'_fontSizes\.md' 或 '_space\.md'/,
+    ],
+    ['表外属性用短写：哪组都没有时给出格式', `{ zIndex: '_nope' }`, /'_组名\.nope'/],
     ['短写的 token 不存在', `{ fontSize: '_xxl' }`, /fontSizes 里没有 xxl（可用：'_xs'、'_md'）/],
     ['带组名的 token 不存在', `{ width: '_sizes.width' }`, /'_sizes\.control'/],
     ['组不存在', `{ height: '_blurs.md' }`, /没有名为 blurs 的 token 组/],

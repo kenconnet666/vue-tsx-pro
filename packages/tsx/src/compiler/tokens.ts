@@ -204,10 +204,12 @@ class TokenRewriter {
     ];
     const group = explicitGroup ?? TOKEN_GROUP_OF.get(property);
     if (!group) {
-      throw fail(
-        path,
-        `${property} 不在 token 对照表里，没有短写；请写带组名的 '_组名.${name}'，如 '_space.${name}'`,
-      );
+      // 列出真正有这个 token 的组，直接给出能用的写法
+      const owners = [...this.tokenModule(path).groups]
+        .filter(([, names]) => names.has(name))
+        .map(([owner]) => `'_${owner}.${name}'`);
+      const suggestion = owners.length ? owners.join(' 或 ') : `'_组名.${name}'`;
+      throw fail(path, `${property} 不在 token 对照表里，没有短写；请写带组名的 ${suggestion}`);
     }
     const module = this.tokenModule(path);
     const tokens = module.groups.get(group);
