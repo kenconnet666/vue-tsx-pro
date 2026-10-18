@@ -267,7 +267,6 @@ interface Lang {
 **待办**：
 
 - 文档页的 props 表生成。
-- CodeBlock 的复制按钮：等 Button 进组件库后加（文案进语言包，“已复制”用 aria-live 播报）。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
 - 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
 
@@ -455,7 +454,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - Breadcrumbs：nav > ol，链接用 Link（经路由适配），当前页 `aria-current="page"`，分隔符可换，`maxItems` 折叠中间部分、点开显示完整路径。
   - Pagination：页码序列用 `paginationItems`，按钮用 Button / IconButton，`href` 时渲染为链接；文案进语言包（分页、上一页、下一页、第 n 页）。页码之间用 Tab 而不是漫游焦点：分页没有 ARIA 复合角色，键盘用户也习惯逐个 Tab。
   - NavList / NavItem / NavGroup：当前页按路由适配的 `isActive`（或 `active`），含当前页的分组自动展开；分组用 Collapsible。
-- **迁移**：Link 的站内链接改经路由适配跳转。
+- **迁移到新基础设施**：Link 的站内链接改经路由适配跳转；CodeBlock 加复制按钮（IconButton，Lucide 的 Copy / Check，“已复制”经 aria-live 播报，外层改为包着 pre 与按钮的 div，`...rest` 仍落到 pre，外层用 `propsRoot`）；Collapse 输出 `data-state`（open / closed），Slider 输出 `data-orientation`。
 - **取舍**：原计划的“选择模型”工具暂不做：Tabs 只需要一个可双向绑定的值，等 Select、Menu 需要多选时再加（只有一个使用者的抽象不加）。
 
 ### 10.6 顺序

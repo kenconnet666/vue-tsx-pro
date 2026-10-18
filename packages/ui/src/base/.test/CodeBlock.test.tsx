@@ -68,6 +68,19 @@ describe('CodeBlock', () => {
     expect(pre(root).textContent).toBe('new');
   });
 
+  it('复制按钮：写入剪贴板，图标变成对勾并播报“已复制”；copyable={false} 时没有', async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    const root = mount(() => <CodeBlock code="pnpm install" />);
+    const button = root.querySelector('button')!;
+    expect(button.getAttribute('aria-label')).toBe('复制');
+    button.click();
+    await settle();
+    expect(writeText).toHaveBeenCalledWith('pnpm install');
+    expect(root.querySelector('[aria-live]')!.textContent).toBe('已复制');
+    expect(mount(() => <CodeBlock code="x" copyable={false} />).querySelector('button')).toBeNull();
+  });
+
   it('高亮失败时保留纯文本并报错', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
     const root = mount(() => (

@@ -75,6 +75,7 @@ export const Collapse = _component(
             onBeforematch: () => (open = true),
           }),
         )}
+        data-state={open ? 'open' : 'closed'}
       >
         <div {...elementProps(mergeProps<'div'>({ sx: styles.content }, propsContent))}>
           {(!lazy || open || opened) && children}

@@ -6,10 +6,15 @@
  *
  * 高亮是异步的：先显示纯文本，结果到了再替换；等宽字体下两者排版相同，布局不跳动。
  * 横向可滚动的代码块要能用键盘滚动，所以 pre 可聚焦（tabindex=0，带焦点环）。
+ * 右上角有复制按钮（IconButton，图标来自 Lucide），复制成功后图标变成对勾并经 aria-live 播报“已复制”。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useConfig } from '../config/context';
+import { Check, Copy } from '@lucide/icons';
+import { onBeforeUnmount } from 'vue';
+import { useConfig, useLang } from '../config/context';
+import { IconButton, type IconButtonProps } from './IconButton';
+import { VisuallyHidden } from './VisuallyHidden';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 
@@ -21,11 +26,22 @@ export interface CodeBlockProps extends PartProps<'pre'> {
   lang?: string;
   /** 长行自动换行，而不是横向滚动 */
   wrap?: boolean;
+  /** 显示复制按钮，默认 true */
+  copyable?: boolean;
   /** 内层 code 元素的部件属性 */
   propsCode?: PartProps<'code'>;
+  /** 外层（包着 pre 与复制按钮的 div）的部件属性 */
+  propsRoot?: PartProps<'div'>;
+  /** 复制按钮的部件属性 */
+  propsCopy?: Partial<IconButtonProps>;
 }
 
 const styles = stylex.create({
+  // minWidth: 0：放在 grid / flex 里时外层不被最长的一行代码撑宽（滚动的是里面的 pre）
+  wrapper: { position: 'relative', minWidth: 0 },
+  // 给复制按钮留出位置，第一行的末尾不被盖住
+  withCopy: { paddingInlineEnd: 'calc(_space.md + max(_sizes.control, _sizes.minTarget))' },
+  copy: { position: 'absolute', top: '_space.xs', insetInlineEnd: '_space.xs' },
   root: {
     boxSizing: 'border-box',
     margin: 0,
@@ -52,8 +68,35 @@ const styles = stylex.create({
 
 /** 代码块（pre > code）：有高亮器与语言时异步高亮，其余时候显示纯文本 */
 export const CodeBlock = _component(
-  ({ code, lang, wrap = false, propsCode, ...rest }: CodeBlockProps) => {
+  ({
+    code,
+    lang,
+    wrap = false,
+    copyable = true,
+    propsCode,
+    propsRoot,
+    propsCopy,
+    ...rest
+  }: CodeBlockProps) => {
     const config = useConfig();
+    const text = useLang();
+    // 刚复制过：按钮显示对勾，两秒后复原
+    let copied = _state(false);
+    let resetTimer: ReturnType<typeof setTimeout> | undefined;
+    onBeforeUnmount(() => clearTimeout(resetTimer));
+
+    async function copy() {
+      try {
+        await navigator.clipboard.writeText(code);
+      } catch (error) {
+        // 不安全的上下文（http）或用户拒绝了剪贴板权限
+        console.error('CodeBlock 复制失败', error);
+        return;
+      }
+      copied = true;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => (copied = false), 2000);
+    }
     // 当前代码的高亮结果；代码或语言变了先清空，回到纯文本
     let html = _state.raw<string | null>(null);
 
@@ -74,20 +117,43 @@ export const CodeBlock = _component(
     return () => {
       const codeProps = elementProps(mergeProps<'code'>({ sx: styles.code }, propsCode));
       return (
-        <pre
-          {...elementProps(
-            mergeProps<'pre'>({ sx: [styles.root, focusRingStyles.visible], tabindex: 0 }, rest, {
-              sx: wrap && styles.wrap,
-            }),
+        <div {...elementProps(mergeProps<'div'>({ sx: styles.wrapper }, propsRoot))}>
+          <pre
+            {...elementProps(
+              mergeProps<'pre'>(
+                {
+                  sx: [styles.root, focusRingStyles.visible, copyable && styles.withCopy],
+                  tabindex: 0,
+                },
+                rest,
+                { sx: wrap && styles.wrap },
+              ),
+            )}
+            data-lang={lang}
+          >
+            {html == null ? (
+              <code {...codeProps}>{code}</code>
+            ) : (
+              <code {...codeProps} innerHTML={html} />
+            )}
+          </pre>
+          {copyable && (
+            <>
+              <IconButton
+                {...(mergeProps<IconButtonProps>(
+                  { sx: styles.copy, size: 'sm', variant: 'ghost', tone: 'neutral' },
+                  propsCopy,
+                  {
+                    icon: copied ? Check : Copy,
+                    'aria-label': text.copy,
+                    onClick: () => void copy(),
+                  },
+                ) as IconButtonProps)}
+              />
+              <VisuallyHidden aria-live="polite">{copied ? text.copied : ''}</VisuallyHidden>
+            </>
           )}
-          data-lang={lang}
-        >
-          {html == null ? (
-            <code {...codeProps}>{code}</code>
-          ) : (
-            <code {...codeProps} innerHTML={html} />
-          )}
-        </pre>
+        </div>
       );
     };
   },

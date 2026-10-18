@@ -54,6 +54,10 @@ export interface Lang {
   readonly loading: string;
   /** 移除（标签、已选项）的按钮名称，默认“移除” */
   readonly remove: string;
+  /** 复制按钮的名称，默认“复制” */
+  readonly copy: string;
+  /** 复制成功后读屏播报的提示，默认“已复制” */
+  readonly copied: string;
 
   // ───────── 组件文案 ─────────
 

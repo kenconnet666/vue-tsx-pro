@@ -43,6 +43,13 @@ const violations = async () =>
       `${violation.id}: ${violation.nodes.map((node) => `${node.target.join(' ')} ${node.any[0]?.message ?? ''}`).join(', ')}`,
   );
 
+it('窄屏（测试视口约 414px）下页面没有横向溢出', async () => {
+  // 溢出的元素在视口外，axe 取不到它们的背景色，会按白色算：亮色主题里刚好蒙对，暗色才暴露
+  await nextFrame();
+  const main = root.querySelector('main')!;
+  expect(main.scrollWidth).toBeLessThanOrEqual(main.clientWidth);
+});
+
 it('无障碍：演示页 axe-core 没有违规（亮色与暗色）', async () => {
   expect(await violations()).toEqual([]);
   $('.toggle-theme').click();

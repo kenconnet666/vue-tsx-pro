@@ -13,6 +13,8 @@ export const zhCN: Lang = {
   clear: '清空',
   loading: '加载中',
   remove: '移除',
+  copy: '复制',
+  copied: '已复制',
 
   linkNewWindow: '（在新窗口打开）',
   selectEmpty: '没有选项',

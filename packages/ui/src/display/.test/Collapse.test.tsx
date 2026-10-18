@@ -14,6 +14,7 @@ describe('Collapse', () => {
     const root = mount(() => <Collapse open={_bind(open)}>内容</Collapse>).firstElementChild!;
     await nextTick();
     expect(isHidden(root)).toBe(true);
+    expect(root.getAttribute('data-state')).toBe('closed');
     expect(root.textContent).toBe('内容');
 
     open = true;

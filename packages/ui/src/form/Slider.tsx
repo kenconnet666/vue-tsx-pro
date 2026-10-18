@@ -213,6 +213,7 @@ export const Slider = _component(
             ),
           )}
           data-disabled={disabled || undefined}
+          data-orientation={orientation}
         >
           <div
             {...elementProps(

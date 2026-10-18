@@ -13,6 +13,8 @@ export const enUS: Lang = {
   clear: 'Clear',
   loading: 'Loading',
   remove: 'Remove',
+  copy: 'Copy',
+  copied: 'Copied',
 
   linkNewWindow: ' (opens in a new window)',
   selectEmpty: 'No options',
