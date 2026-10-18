@@ -4,6 +4,7 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory, type RouterHistory } from 'vue-router';
 import App from './App.vue';
 import Home from './pages/Home.vue';
+import { Base } from './pages/Base';
 import { Pilot } from './pages/Pilot';
 import { Profile } from './pages/Profile';
 import { siteNameKey } from './site';
@@ -18,6 +19,8 @@ export function createHostApp(history: RouterHistory = createWebHistory()) {
       { path: '/profile/:id', component: Profile },
       // 组件库试点（扫清障碍用，不是正式组件）
       { path: '/pilot', component: Pilot },
+      // 组件库的基础组件演示（文档站暂缓）
+      { path: '/base', component: Base },
     ],
   });
   const app = createApp(App)

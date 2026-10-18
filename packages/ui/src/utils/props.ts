@@ -23,13 +23,27 @@ export type PartProps<
   Managed extends string = never,
 > = Omit<JSX.IntrinsicElements[Tag], Managed | 'children'> & { sx?: StyleXStyles };
 
+/**
+ * 可以换标签的组件（布局、文本）：as 只能在 Tags 里选，属性类型取这些标签共有的部分。
+ * 形如 `interface FlexProps extends AsProps<'div' | 'section' | 'ul'> { … }`。
+ * 渲染用 `h(as, props, [children])`：标签不确定时 JSX 会把几种元素的事件类型交叉检查而报错，
+ * 属性类型已经由 AsProps 检查过了。
+ */
+export type AsProps<
+  Tags extends keyof JSX.IntrinsicElements,
+  Managed extends string = never,
+> = PartProps<Tags, Managed> & { as?: Tags };
+
 type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => unknown;
 type RefSetter = ((element: unknown) => void) | Ref<unknown>;
 
-/** 一层属性：Target 是标签名（'svg'）时为该元素的属性加 sx，是 props 类型（IconProps）时就是它 */
+/**
+ * 一层属性：Target 是标签名（'svg'）时为该元素的属性加 sx，是 props 类型（IconProps）时就是它。
+ * 标签名的联合（'span' | 'div'，配合 AsProps）取这些标签共有的属性，所以这里不按联合分配
+ */
 type PropsLayer<Target> = Partial<
-  Target extends keyof JSX.IntrinsicElements ? PartProps<Target> : Target
+  [Target] extends [keyof JSX.IntrinsicElements] ? PartProps<Target> : Target
 >;
 
 /**

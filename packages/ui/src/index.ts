@@ -2,6 +2,7 @@
 
 // 基础
 export { Icon, type IconData, type IconProps } from './base/Icon/Icon';
+export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden/VisuallyHidden';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';
@@ -21,7 +22,8 @@ export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
 
 // 部件 props 与弹层工具
-export { elementProps, mergeProps, type PartProps } from './utils/props';
+export { elementProps, mergeProps, type AsProps, type PartProps } from './utils/props';
+export type { Size, Space } from './utils/styles';
 export {
   focusFirst,
   focusOrigin,

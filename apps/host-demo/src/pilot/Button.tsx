@@ -57,10 +57,7 @@ const styles = stylex.create({
     textDecoration: 'none',
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color, color',
-    transitionDuration: {
-      default: durations.sm,
-      '@media (prefers-reduced-motion: reduce)': durations.none,
-    },
+    transitionDuration: durations.sm,
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
     outlineWidth: controls.focusRingWidth,
     outlineColor: colors.focusRing,

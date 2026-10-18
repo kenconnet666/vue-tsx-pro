@@ -231,20 +231,23 @@ export const shadows = stylex.defineVars({
   xl: '0 12px 60px rgba(0, 0, 0, 0.15), 0 16px 64px #00005506, 0 16px 36px -20px #00062e32',
 });
 
-/** 动效时长（参考 Material 3）；用户开启“减少动态效果”时用 none */
+/** 用户开启“减少动态效果”时，所有时长都变成 0：组件直接用这些 token，不必各自写媒体查询 */
+const reduce = '@media (prefers-reduced-motion: reduce)';
+
+/** 动效时长（参考 Material 3）；开启“减少动态效果”时自动为 0 */
 export const durations = stylex.defineVars({
   /** `0ms` */
   none: '0ms',
   /** `75ms`：按下反馈 */
-  xs: '75ms',
+  xs: { default: '75ms', [reduce]: '0ms' },
   /** `120ms`：悬停的颜色变化 */
-  sm: '120ms',
+  sm: { default: '120ms', [reduce]: '0ms' },
   /** `200ms`：展开、淡入、浮层出现 */
-  md: '200ms',
+  md: { default: '200ms', [reduce]: '0ms' },
   /** `300ms`：对话框、抽屉 */
-  lg: '300ms',
+  lg: { default: '300ms', [reduce]: '0ms' },
   /** `500ms`：大面积的页面切换 */
-  xl: '500ms',
+  xl: { default: '500ms', [reduce]: '0ms' },
 });
 
 /** 缓动曲线（参考 Material 3） */
