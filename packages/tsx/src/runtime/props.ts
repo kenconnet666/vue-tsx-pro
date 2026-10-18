@@ -29,6 +29,20 @@ export function prop<T>(props: Props, key: string, fallback?: () => T): Ref<T> {
 }
 
 /**
+ * 解构出的 children：每次读取都重新执行插槽，不缓存（普通 prop 用 computed 缓存）。
+ * 父级重新渲染时传来新的插槽，里面可能只有父级渲染时算好的值、没有响应式读取：
+ * 缓存不会失效，子组件就一直显示旧内容。子组件因父级更新而重新渲染时读到的总是新插槽。
+ */
+export function childrenProp<T>(props: Props, fallback?: () => T): Ref<T> {
+  // 插槽里的响应式读取在执行时照常被追踪；这里不缓存，也就不需要自己的 track / trigger
+  return customRef(() => ({
+    get: () => (props.children ?? fallback?.()) as T,
+    // children 只读（编译器拒绝写入），这里不会被调用
+    set: () => {},
+  }));
+}
+
+/**
  * 双向 prop，走标准 v-model 协议（父级 属性={_bind(x)} 编译为 key + onUpdate:key）。
  * 与 Vue 的 useModel 一样，父级同时传了值和 onUpdate:key 才算受控：
  *

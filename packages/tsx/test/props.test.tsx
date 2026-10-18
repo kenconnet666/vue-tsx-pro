@@ -128,6 +128,24 @@ describe('rest 与组件信息', () => {
     expect(p.dataset.tone).toBe('muted');
   });
 
+  it('解构出的 children 不缓存：父级传入渲染时算好的值（插槽里没有响应式读取）也会更新', async () => {
+    const Label = _component(({ children }: { children?: VNodeChild }) => () => <b>{children}</b>);
+    const Parent = _component(({ status }: { status: string }) => {
+      const text = _derived(`状态：${status}`);
+      return () => (
+        <p>
+          <Label>{text}</Label>
+          <i>{status}</i>
+        </p>
+      );
+    });
+    const status = ref('idle');
+    const el = mount(() => <Parent status={status.value} />);
+    status.value = 'busy';
+    await nextTick();
+    expect(el.querySelector('b')!.textContent).toBe('状态：busy');
+  });
+
   it('没有内容时 ...rest 里没有 children 这个键', () => {
     const Probe = _component(({ ...rest }: { children?: VNodeChild }) => () => (
       <i>{'children' in rest ? 'has' : 'none'}</i>

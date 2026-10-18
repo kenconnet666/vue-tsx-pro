@@ -6,7 +6,14 @@ const RUNTIME_MODULE = '@vue-tsx-pro/tsx';
 
 type VueHelper = 'ref' | 'shallowRef' | 'reactive' | 'computed' | 'unref';
 type RuntimeHelper =
-  'prop' | 'bindable' | 'restProps' | 'overridable' | 'snapshot' | 'effect' | 'effectRoot';
+  | 'prop'
+  | 'childrenProp'
+  | 'bindable'
+  | 'restProps'
+  | 'overridable'
+  | 'snapshot'
+  | 'effect'
+  | 'effectRoot';
 
 /** 编译时用到的 Vue 与本包运行时函数：按需生成带前缀的本地名，最后统一插入 import */
 export class RuntimeImports {

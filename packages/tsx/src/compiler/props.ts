@@ -62,22 +62,25 @@ export function declareProps(setup: NodePath<t.Function>, context: PropsContext)
       if (isBindable) names.push(`onUpdate:${key}`);
 
       const thunk = fallback && t.arrowFunctionExpression([], fallback);
-      const init = isBindable
-        ? context.imports.runtime('bindable', [
-            propsId,
-            t.stringLiteral(key),
-            thunk ?? t.identifier('undefined'),
-            t.memberExpression(ctxId, t.identifier('emit')),
-          ])
-        : context.imports.runtime('prop', [
-            propsId,
-            t.stringLiteral(key),
-            ...(thunk ? [thunk] : []),
-          ]);
+      const init =
+        key === 'children' && !isBindable
+          ? context.imports.runtime('childrenProp', [propsId, ...(thunk ? [thunk] : [])])
+          : isBindable
+            ? context.imports.runtime('bindable', [
+                propsId,
+                t.stringLiteral(key),
+                thunk ?? t.identifier('undefined'),
+                t.memberExpression(ctxId, t.identifier('emit')),
+              ])
+            : context.imports.runtime('prop', [
+                propsId,
+                t.stringLiteral(key),
+                ...(thunk ? [thunk] : []),
+              ]);
       const declarator = t.variableDeclarator(t.identifier(local), init);
       context.track(declarator, {
-        // 普通 prop 也可以写：只改组件本地，父级传入新值时以父级为准（同 Svelte）
-        writable: true,
+        // 普通 prop 也可以写：只改组件本地，父级传入新值时以父级为准（同 Svelte）；children 是父级的内容，只读
+        writable: key !== 'children',
         source: isBindable ? '_bindable' : 'prop',
         childrenOf: key === 'children' ? setup.node : undefined,
       });
