@@ -85,6 +85,7 @@
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
+- 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js，时长与缓动用 `themeTransition(元素, { duration, ease, bounce })` 取主题 tokens：主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
 - 含动态样式函数的 `stylex.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
 - 标签名来自数据时（如图标的 path、circle）TSX 没有属性类型，用 Vue 的 `h()` 渲染。
 
@@ -223,18 +224,22 @@ interface Lang {
 - 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
 - `stylex.create` / `createTheme` 的结果必须赋给变量；只用一次的常量会被打包工具内联，使用方编译 dist 时报错，所以这类常量要么被多处使用，要么 `export`（`dark.ts` 就是这样）。`pnpm test:consumer` 会发现这类问题。
 
-**依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖，其余是普通依赖。
+**依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖，用到的组件放在子路径，主入口不导入；其余是普通依赖。
 
-| 用途     | 选择                                | 说明                                                       |
-| -------- | ----------------------------------- | ---------------------------------------------------------- |
-| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`          |
-| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon`） |
-| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                       |
-| 精确数字 | `decimal.js`                        | 数字输入、金额                                             |
-| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`           |
-| 校验     | `@standard-schema/spec`（接口）     | 表单只依赖接口，使用方可选 zod、valibot 等                 |
-| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                     |
-| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                       |
+| 用途     | 选择                                | 说明                                                                         |
+| -------- | ----------------------------------- | ---------------------------------------------------------------------------- |
+| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                            |
+| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon`）                   |
+| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                         |
+| 精确数字 | `decimal.js`                        | 数字输入、金额                                                               |
+| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                             |
+| 校验     | `@standard-schema/spec`（接口）     | 表单只依赖接口，使用方可选 zod、valibot 等                                   |
+| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/animation` |
+| 图表     | `echarts`（可选 peer）              | 以后的图表组件用，使用方按需安装                                             |
+| 3D       | `three`（可选 peer）                | 以后的 3D 展示组件用，使用方按需安装                                         |
+| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                       |
+| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                         |
+| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）   |
 
 **待办**：
 
@@ -287,14 +292,15 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 
 ### 10.1 基础设施
 
-| 项           | 位置                            | 内容                                                                                                                                                                                |
-| ------------ | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 档位类型     | `utils/styles.ts`               | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                |
-| 共享样式表   | `utils/styles.ts`               | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                     |
-| 减少动态效果 | `config/theme/tokens.stylex.ts` | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                           |
-| 受限的 `as`  | `utils/props.ts`                | `AsProps<'div' \| 'section' \| …, 受管属性>`：只能在一组语义相近的标签里选，透传属性取这组标签的共同部分                                                                            |
-| 过渡预设     | `utils/motion.ts`               | `fade`、`scale`、`slide` 等 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`afterTransition(元素, 回调)` 等过渡结束（时长为 0 时立即回调） |
-| 演示页       | `apps/host-demo` 的 `/base`     | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                     |
+| 项           | 位置                                | 内容                                                                                                                                                                                |
+| ------------ | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 档位类型     | `utils/styles.ts`                   | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                |
+| 共享样式表   | `utils/styles.ts`                   | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                     |
+| 减少动态效果 | `config/theme/tokens.stylex.ts`     | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                           |
+| 受限的 `as`  | `utils/props.ts`                    | `AsProps<'div' \| 'section' \| …, 受管属性>`：只能在一组语义相近的标签里选，透传属性取这组标签的共同部分                                                                            |
+| 过渡预设     | `utils/transitions.ts`（第 4 阶段） | `fade`、`scale`、`slide` 等 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`afterTransition(元素, 回调)` 等过渡结束（时长为 0 时立即回调） |
+| JS 动画      | `utils/animation.ts`（已完成）      | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                         |
+| 演示页       | `apps/host-demo` 的 `/base`         | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                     |
 
 ### 10.2 组件
 

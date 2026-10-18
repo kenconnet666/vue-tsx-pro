@@ -10,6 +10,7 @@ export { createUi, type UiOptions } from './config/createUi';
 export { useConfig, useLang, type UiConfig } from './config/context';
 export {
   defineTheme,
+  readToken,
   type Theme,
   type ThemeInput,
   type ThemeOverrides,
@@ -23,7 +24,7 @@ export { zhCN } from './config/lang/zh-CN';
 export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
 
-// 部件 props 与弹层工具
+// 部件 props、弹层与动画工具
 export { elementProps, mergeProps, type AsProps, type PartProps } from './utils/props';
 export type { Size, Space } from './utils/styles';
 export {
@@ -34,3 +35,4 @@ export {
   toElement,
   trapFocus,
 } from './utils/overlay';
+export { themeTransition, type ThemeTransitionOptions } from './utils/animation';

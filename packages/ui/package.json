@@ -31,13 +31,24 @@
     "@internationalized/date": "catalog:",
     "@standard-schema/spec": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
+    "animejs": "catalog:",
     "decimal.js": "catalog:",
     "tabbable": "catalog:"
   },
   "peerDependencies": {
     "@lucide/icons": "^1.59.0",
     "@stylexjs/stylex": "^0.19.1",
+    "echarts": "^6.0.0",
+    "three": ">=0.170.0",
     "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "echarts": {
+      "optional": true
+    },
+    "three": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@lucide/icons": "catalog:",

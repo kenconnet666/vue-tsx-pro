@@ -3,7 +3,7 @@
  * defineTheme 的局部修改在运行时写成 CSS 变量，作用在 Provider 的容器上。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { Theme as CompiledTheme } from '@vue-tsx-pro/tsx/stylex';
+import type { Theme as CompiledTheme, StyleXVar } from '@vue-tsx-pro/tsx/stylex';
 import {
   borderWidths,
   colors,
@@ -104,6 +104,21 @@ export function themeVariables(theme: Theme): Record<string, string> {
     }
   }
   return variables;
+}
+
+/**
+ * token 在元素上的当前取值，含主题覆盖与媒体查询：`readToken(el, colors.accent)` → `'#3e63dd'`。
+ * 给拿不到 CSS 变量的地方用：JS 动画的时长（utils/motion）、canvas 图表与 3D 场景的颜色。
+ */
+export function readToken(element: Element, token: StyleXVar<string>): string {
+  const value = getComputedStyle(element)
+    .getPropertyValue(variableName(String(token)))
+    .trim();
+  if (!value)
+    throw new Error(
+      `读不到主题 token ${String(token)}：元素要已挂载，且在 Provider 或页面的主题范围内`,
+    );
+  return value;
 }
 
 /** 编译后的 token 在运行时是 `var(--x1abc)`，取出变量名 `--x1abc` 才能在行内覆盖 */

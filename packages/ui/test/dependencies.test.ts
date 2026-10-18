@@ -5,6 +5,7 @@ import { parseDate } from '@internationalized/date';
 import { Check } from '@lucide/icons';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import Decimal from 'decimal.js';
+import { animate, createDraggable, createLayout } from 'animejs';
 import { tabbable } from 'tabbable';
 import { z } from 'zod';
 
@@ -28,6 +29,14 @@ it('tabbable：找出可聚焦元素', () => {
 
 it('@floating-ui/dom：可以导入定位函数', () => {
   expect(computePosition).toBeTypeOf('function');
+});
+
+it('animejs：动画 JS 对象的数值（canvas、3D 场景用）；拖拽与布局动画可以导入', async () => {
+  expect(createDraggable).toBeTypeOf('function');
+  expect(createLayout).toBeTypeOf('function');
+  const target = { x: 0 };
+  await animate(target, { x: 100, duration: 50 });
+  expect(target.x).toBe(100);
 });
 
 it('zod 实现 Standard Schema，表单只依赖接口', async () => {

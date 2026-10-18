@@ -19,6 +19,7 @@ export default defineConfig({
       '@lucide/icons',
       '@stylexjs/stylex',
       'tabbable',
+      'animejs',
     ],
   },
   test: {

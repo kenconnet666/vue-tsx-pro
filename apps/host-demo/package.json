@@ -16,6 +16,7 @@
     "@stylexjs/stylex": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
     "@vue-tsx-pro/ui": "workspace:^",
+    "animejs": "catalog:",
     "pinia": "catalog:",
     "tabbable": "catalog:",
     "vue": "catalog:",

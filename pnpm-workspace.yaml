@@ -21,6 +21,8 @@ catalog:
   '@standard-schema/spec': 1.1.0
   decimal.js: 10.6.0
   tabbable: 6.5.0
+  # 动画引擎（MIT）：animate、timeline、spring、stagger、拖拽、布局动画、滚动观察
+  animejs: 4.5.0
   # 样式
   '@stylexjs/stylex': 0.19.1
   '@stylexjs/unplugin': 0.19.1

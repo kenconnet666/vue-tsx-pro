@@ -2,7 +2,15 @@
 import { ArrowRight, Settings, Star } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { darkTheme, Icon, lightTheme, Provider, VisuallyHidden } from '@vue-tsx-pro/ui';
+import {
+  darkTheme,
+  Icon,
+  lightTheme,
+  Provider,
+  themeTransition,
+  VisuallyHidden,
+} from '@vue-tsx-pro/ui';
+import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
 import { Button } from '../pilot/Button';
 
@@ -25,6 +33,19 @@ const styles = stylex.create({
     backgroundColor: '_fill',
     color: '_text',
   },
+  track: {
+    // 小球的宽度加上移动的距离
+    width: 'calc(_control + 120px)',
+    padding: '_xs',
+    borderRadius: '_full',
+    backgroundColor: '_fill',
+  },
+  ball: {
+    width: '_control',
+    height: '_control',
+    borderRadius: '_full',
+    backgroundColor: '_accent',
+  },
 });
 
 const Section = _component(
@@ -39,6 +60,17 @@ const Section = _component(
 
 export const Base = _component(() => {
   let dark = _state(false);
+  let ball = _state.raw<HTMLElement | null>(null);
+  let moved = false;
+
+  // JS 动画：Anime.js 的 animate 加上主题的弹簧时长；减少动态效果时立即到位
+  function move() {
+    moved = !moved;
+    animate(ball!, {
+      x: moved ? 120 : 0,
+      ...themeTransition(ball!, { duration: 'lg', bounce: 0.3 }),
+    });
+  }
 
   return () => (
     <Provider theme={dark ? darkTheme : lightTheme}>
@@ -66,6 +98,17 @@ export const Base = _component(() => {
               <Icon icon={Settings} />
               <VisuallyHidden>设置</VisuallyHidden>
             </button>
+          </div>
+        </Section>
+
+        <Section title="动效 Anime.js">
+          <div {...stylex.attrs(styles.row)}>
+            <Button variant="outline" class="move-ball" onClick={move}>
+              移动
+            </Button>
+            <div {...stylex.attrs(styles.track)}>
+              <div class="ball" ref={_toRef(ball)} {...stylex.attrs(styles.ball)} />
+            </div>
           </div>
         </Section>
       </main>
