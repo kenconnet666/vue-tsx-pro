@@ -50,16 +50,16 @@ scripts/
 
 ## 4. 测试分层
 
-| 层       | 测什么                                                     | 工具                           | 位置                |
-| -------- | ---------------------------------------------------------- | ------------------------------ | ------------------- |
-| 编译     | 符文输入 → 输出；误用写法给出带位置的中文报错              | Vitest                         | `packages/tsx/test` |
-| 运行时   | 符文、props、`_bindable`、`_effect`、children、与 Vue 互通 | Vitest + happy-dom             | `packages/*/test`   |
-| 类型     | 正确写法通过；错误写法用 `@ts-expect-error` 标注           | `tsc`                          | `*.test-d.ts(x)`    |
-| 宿主集成 | 普通 Vue 3.5 项目里挂载 TSX 页面：路由、store、inject      | Vitest + happy-dom             | `apps/host-demo`    |
-| 组件交互 | 焦点、键盘、输入法、真实布局、axe 无障碍检查               | Vitest 浏览器模式 + Playwright | `apps/host-demo`    |
-| 发布产物 | `pnpm pack` 的包在独立应用里能构建运行，StyleX 由应用编译  | 待建                           | `tests/consumer`    |
+| 层       | 测什么                                                                                            | 工具                           | 位置                |
+| -------- | ------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------- |
+| 编译     | 符文输入 → 输出；误用写法给出带位置的中文报错                                                     | Vitest                         | `packages/tsx/test` |
+| 运行时   | 符文、props、`_bindable`、`_effect`、children、与 Vue 互通                                        | Vitest + happy-dom             | `packages/*/test`   |
+| 类型     | 正确写法通过；错误写法用 `@ts-expect-error` 标注                                                  | `tsc`                          | `*.test-d.ts(x)`    |
+| 宿主集成 | 普通 Vue 3.5 项目里挂载 TSX 页面：路由、store、inject                                             | Vitest + happy-dom             | `apps/host-demo`    |
+| 组件交互 | 焦点、键盘、输入法、真实布局、axe 无障碍检查                                                      | Vitest 浏览器模式 + Playwright | `apps/host-demo`    |
+| 发布产物 | `pnpm pack` 的包在仓库之外的独立应用里安装、类型检查、构建，并在浏览器里运行（StyleX 由应用编译） | `pnpm test:consumer`           | `tests/consumer`    |
 
-**本地只跑和改动相关的检查**（对应包的类型检查与测试文件，动到浏览器行为才跑浏览器测试），**全量交给 CI**。CI 是四个并行任务：静态检查（lint、格式、注释数据、类型检查，只在 Ubuntu）、单元测试、浏览器测试、文档站与宿主构建（后三个在 Ubuntu 与 Windows 上各跑一份）。
+**本地只跑和改动相关的检查**（对应包的类型检查与测试文件，动到浏览器行为才跑浏览器测试），**全量交给 CI**。CI 是五个并行任务：静态检查（lint、格式、注释数据、类型检查，只在 Ubuntu）、单元测试、浏览器测试、文档站与宿主构建、发布产物验证（后四个在 Ubuntu 与 Windows 上各跑一份）。
 
 ## 5. 里程碑
 
@@ -70,7 +70,7 @@ scripts/
 | **M2 UI 基础**  | tokens 与明暗主题、Provider / createUi、语言与格式化、mergeProps、试点组件、浏览器测试链路 | 完成   |
 | **M3 文档站**   | 写法指南、组件页（演示 + props 表）、部署、E2E 冒烟                                        | 未开始 |
 | **M4 正式组件** | 按 COMPONENTS.md 实现；泛型 Select、Dialog（控制器对象）验证类型与交互                     | 未开始 |
-| **M5 发布准备** | `tests/consumer`、放宽 Vite peer 范围、changesets、发 `0.x`                                | 未开始 |
+| **M5 发布准备** | 放宽 Vite peer 范围、changesets、发 `0.x`（发布产物验证已提前完成）                        | 未开始 |
 
 ## 6. 技术约束与退路
 

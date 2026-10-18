@@ -17,6 +17,7 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm build:tsx && vitest run",
     "test:browser": "pnpm build:tsx && pnpm --filter @vue-tsx-pro/host-demo test:browser",
+    "test:consumer": "node tests/consumer/run.mjs",
     "lint": "oxlint . --deny-warnings",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

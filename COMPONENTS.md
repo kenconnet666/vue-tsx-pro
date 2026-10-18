@@ -204,6 +204,7 @@ interface Lang {
 - StyleX 只认以 `.stylex` 结尾的导入路径，所以 tokens 从 `@vue-tsx-pro/ui/tokens.stylex` 导入，主入口不导出。
 - 变量名按“包名:文件路径”算哈希；预设用自定义模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
 - 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
+- `stylex.create` / `createTheme` 的结果必须赋给变量；只用一次的常量会被打包工具内联，使用方编译 dist 时报错，所以这类常量要么被多处使用，要么 `export`（`dark.ts` 就是这样）。`pnpm test:consumer` 会发现这类问题。
 
 **依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖，其余是普通依赖。
 
@@ -221,7 +222,6 @@ interface Lang {
 **待办**：
 
 - 公共的 `toElement`（组件实例 → 根元素）、弹层栈（嵌套弹层与模态的 Esc 顺序、滚动锁定、`inert`）、模态焦点陷阱。
-- 发布产物验证 `tests/consumer`：确认 dist 下的 `*.stylex.js` 与规范化哈希在使用方也成立。
 - 文档页的 props 表生成；浏览器测试按需加入 Firefox、WebKit。
 
 ## 8. 正式组件的完成标准（供之后使用）

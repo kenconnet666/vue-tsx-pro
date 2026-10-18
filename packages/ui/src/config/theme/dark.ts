@@ -2,8 +2,11 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { Theme } from './theme';
 import { colors, shadows } from './tokens.stylex';
 
+// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联进对象字面量
+// （只用一次的常量会被打包工具内联，使用方编译 dist 时 StyleX 就会报错）
+
 // Radix Colors 的暗色色阶，各 token 对应的级别见 tokens.stylex.ts
-const darkColors = stylex.createTheme(colors, {
+export const darkColors = stylex.createTheme(colors, {
   background: '#111113',
   surface: '#18191b',
   surfaceMuted: '#18191b',
@@ -48,7 +51,7 @@ const darkColors = stylex.createTheme(colors, {
 });
 
 // Radix Themes 的暗色阴影：深色背景上阴影要更重才看得出层次
-const darkShadows = stylex.createTheme(shadows, {
+export const darkShadows = stylex.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 rgba(0, 0, 0, 0.4), 0 2px 1px -1px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
   sm: '0 2px 3px -2px rgba(0, 0, 0, 0.15), 0 3px 8px -2px rgba(0, 0, 0, 0.4), 0 4px 12px -4px rgba(0, 0, 0, 0.5)',
