@@ -104,6 +104,16 @@ export {
   type TabsVariants,
 } from './navigation/Tabs';
 export { Steps, type StepItem, type StepsOrientations, type StepsProps } from './navigation/Steps';
+export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from './navigation/Breadcrumbs';
+export { Pagination, type PaginationProps } from './navigation/Pagination';
+export {
+  NavGroup,
+  NavItem,
+  NavList,
+  type NavGroupProps,
+  type NavItemProps,
+  type NavListProps,
+} from './navigation/NavList';
 
 // 表单
 export { Slider, type SliderOrientations, type SliderProps } from './form/Slider';

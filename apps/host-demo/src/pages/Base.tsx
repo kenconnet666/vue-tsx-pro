@@ -6,6 +6,10 @@ import {
   ArrowRight,
   Bold,
   Download,
+  House,
+  LayoutGrid,
+  FlaskConical,
+  UserRound,
   Italic,
   Plus,
   Settings,
@@ -20,6 +24,7 @@ import {
   Avatar,
   Badge,
   Card,
+  Breadcrumbs,
   Code,
   CodeBlock,
   Collapsible,
@@ -41,6 +46,10 @@ import {
   Paragraph,
   Progress,
   Skeleton,
+  NavGroup,
+  NavItem,
+  NavList,
+  Pagination,
   Steps,
   Tab,
   TabList,
@@ -183,6 +192,7 @@ export const Base = _component(() => {
   let showAlert = _state(true);
   let orderTab = _state('all');
   let step = _state(1);
+  let page = _state(3);
 
   function save() {
     saving = true;
@@ -307,6 +317,38 @@ export const Base = _component(() => {
             <TabPanel value="week">本周的数据</TabPanel>
             <TabPanel value="month">本月的数据</TabPanel>
           </Tabs>
+          <Breadcrumbs
+            class="breadcrumbs-demo"
+            maxItems={3}
+            items={[
+              { label: '首页', href: '/', icon: House },
+              { label: '组件', href: '/base' },
+              { label: '导航', href: '/base#nav' },
+              { label: '面包屑' },
+            ]}
+          />
+          <Pagination
+            class="pagination-demo"
+            page={_bind(page)}
+            total={320}
+            pageSize={20}
+            showTotal
+          />
+          <NavList aria-label="演示站点" class="navlist-demo" sx={styles.narrow}>
+            <NavItem href="/" icon={House}>
+              首页
+            </NavItem>
+            <NavItem href="/base" icon={LayoutGrid}>
+              基础组件
+            </NavItem>
+            <NavItem href="/pilot" icon={FlaskConical}>
+              试点
+            </NavItem>
+            <NavGroup label="个人主页" icon={UserRound}>
+              <NavItem href="/profile/1">用户 1</NavItem>
+              <NavItem href="/profile/42">用户 42</NavItem>
+            </NavGroup>
+          </NavList>
           <Toolbar aria-label="文字格式" class="toolbar-demo">
             <IconButton icon={Bold} aria-label="加粗" />
             <IconButton icon={Italic} aria-label="斜体" />

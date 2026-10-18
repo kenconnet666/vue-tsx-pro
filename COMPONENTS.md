@@ -329,26 +329,29 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 
 ### 10.2 组件
 
-| 分类       | 组件             | 要点                                                                                                                                                                                                                                              |
-| ---------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `base/`    | `VisuallyHidden` | 只给读屏器看的文字                                                                                                                                                                                                                                |
-| `base/`    | `Text`           | `size`、`weight`、`tone`（`muted`、`accent`、`danger`、`success`、`warning`、`info`）、`align`、`truncate`、`lineClamp`、`wrap`；Text（span）、Paragraph（p，去外边距、pretty 换行）、Strong（semibold）、Em、Small（xs）；label 留给表单的 Label |
-| `base/`    | `H1`–`H6`        | 级别决定标签与默认字号，`size` 可单独改；紧凑行高、`text-wrap: balance`                                                                                                                                                                           |
-| `base/`    | `Link`           | `tone`、`underline`；`external` 自动加 `rel` 与读屏提示（语言文案）                                                                                                                                                                               |
-| `base/`    | `Code`、`Kbd`    | 行内代码、按键                                                                                                                                                                                                                                    |
-| `base/`    | `CodeBlock`      | `code`、`lang`、`wrap`、`propsCode`；高亮器经配置注入，可选，见 10.4                                                                                                                                                                              |
-| `base/`    | `Spinner`        | 加载指示，见 10.9                                                                                                                                                                                                                                 |
-| `base/`    | `Button` 家族    | Button、LinkButton、IconButton、CloseButton、ClearButton，见 10.9                                                                                                                                                                                 |
-| `layout/`  | `Flex`           | `direction`、`align`、`justify`、`wrap`、`gap`、`inline`；只做这一个，不拆 Stack / Group                                                                                                                                                          |
-| `layout/`  | `Grid`           | `columns`（1–12）、`minItemWidth`（`auto-fill` 自动换列）、`gap` / `rowGap` / `columnGap`、`align`、`justify`、`flow`                                                                                                                             |
-| `layout/`  | `Container`      | `size`（`xs`–`xl`，取 `sizes` 的容器宽度）、`padding`；居中、限制最大宽度                                                                                                                                                                         |
-| `layout/`  | `Separator`      | `orientation`；有语义时 `role="separator"`，装饰性时对读屏隐藏                                                                                                                                                                                    |
-| `display/` | `Collapse`       | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器用 `inert`；`lazy` 第一次展开才渲染内容（同 Ark UI 的 lazyMount）  |
-| `display/` | `Collapsible`    | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`，`disabled` 时带 `disabled`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                                                     |
-| `layout/`  | `ScrollArea`     | 浮层滚动条，见 10.8                                                                                                                                                                                                                               |
-| `form/`    | `Slider`         | 滑块，见 10.8                                                                                                                                                                                                                                     |
-| `form/`    | `SlideVerify`    | 拖动验证（滑块 / 拼图验证码），见 10.8                                                                                                                                                                                                            |
-| `display/` | `VirtualList`    | 虚拟列表，见 10.7；以后的表格、长下拉列表建在 `Virtualizer` 上                                                                                                                                                                                    |
+| 分类          | 组件                                                               | 要点                                                                                                                                                                                                                                              |
+| ------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base/`       | `VisuallyHidden`                                                   | 只给读屏器看的文字                                                                                                                                                                                                                                |
+| `base/`       | `Text`                                                             | `size`、`weight`、`tone`（`muted`、`accent`、`danger`、`success`、`warning`、`info`）、`align`、`truncate`、`lineClamp`、`wrap`；Text（span）、Paragraph（p，去外边距、pretty 换行）、Strong（semibold）、Em、Small（xs）；label 留给表单的 Label |
+| `base/`       | `H1`–`H6`                                                          | 级别决定标签与默认字号，`size` 可单独改；紧凑行高、`text-wrap: balance`                                                                                                                                                                           |
+| `base/`       | `Link`                                                             | `tone`、`underline`；`external` 自动加 `rel` 与读屏提示（语言文案）                                                                                                                                                                               |
+| `base/`       | `Code`、`Kbd`                                                      | 行内代码、按键                                                                                                                                                                                                                                    |
+| `base/`       | `CodeBlock`                                                        | `code`、`lang`、`wrap`、`propsCode`；高亮器经配置注入，可选，见 10.4                                                                                                                                                                              |
+| `base/`       | `Spinner`                                                          | 加载指示，见 10.9                                                                                                                                                                                                                                 |
+| `base/`       | `Button` 家族                                                      | Button、LinkButton、IconButton、CloseButton、ClearButton，见 10.9                                                                                                                                                                                 |
+| `layout/`     | `Flex`                                                             | `direction`、`align`、`justify`、`wrap`、`gap`、`inline`；只做这一个，不拆 Stack / Group                                                                                                                                                          |
+| `layout/`     | `Grid`                                                             | `columns`（1–12）、`minItemWidth`（`auto-fill` 自动换列）、`gap` / `rowGap` / `columnGap`、`align`、`justify`、`flow`                                                                                                                             |
+| `layout/`     | `Container`                                                        | `size`（`xs`–`xl`，取 `sizes` 的容器宽度）、`padding`；居中、限制最大宽度                                                                                                                                                                         |
+| `layout/`     | `Separator`                                                        | `orientation`；有语义时 `role="separator"`，装饰性时对读屏隐藏                                                                                                                                                                                    |
+| `display/`    | `Collapse`                                                         | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器用 `inert`；`lazy` 第一次展开才渲染内容（同 Ark UI 的 lazyMount）  |
+| `display/`    | `Collapsible`                                                      | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`，`disabled` 时带 `disabled`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                                                     |
+| `layout/`     | `ScrollArea`                                                       | 浮层滚动条，见 10.8                                                                                                                                                                                                                               |
+| `form/`       | `Slider`                                                           | 滑块，见 10.8                                                                                                                                                                                                                                     |
+| `form/`       | `SlideVerify`                                                      | 拖动验证（滑块 / 拼图验证码），见 10.8                                                                                                                                                                                                            |
+| `base/`       | `Badge`、`Tag`                                                     | 见 10.10                                                                                                                                                                                                                                          |
+| `display/`    | `Progress`、`Skeleton`、`Alert`、`Card`、`Avatar`                  | 见 10.10                                                                                                                                                                                                                                          |
+| `navigation/` | `Toolbar`、`Tabs`、`Steps`、`Breadcrumbs`、`Pagination`、`NavList` | 见 10.10                                                                                                                                                                                                                                          |
+| `display/`    | `VirtualList`                                                      | 虚拟列表，见 10.7；以后的表格、长下拉列表建在 `Virtualizer` 上                                                                                                                                                                                    |
 
 FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工厂可用的标签（`LayoutTag`）：`div`、`section`、`article`、`ul`、`ol`、`li`、`nav`、`header`、`footer`、`main`、`aside`、`form`，ol 同样按列表处理。VisuallyHidden 只渲染 span，Collapse 只渲染 div（要分区语义时在外面包 section）。
 
@@ -434,6 +437,27 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - **主题修正**：`danger` 实色配白字原来只有 3.91:1，改为亮色 red 11、暗色 red 8。
 - **已有组件的部件属性补齐**：Spinner、Link（`propsIcon`），ScrollArea（`propsContent`、`propsScrollbar`、`propsThumb`），Slider（`propsTrack`、`propsRange`），SlideVerify（`propsFill`、`propsHint`、`propsHandle`、`propsIcon`），VirtualList（`propsList`、`propsItem`）。试点 Button 删除，演示改用正式的 Button / LinkButton；试点 TextField 的清除按钮改用 ClearButton。
 
+### 10.10 标记、反馈与导航（已完成）
+
+- **状态色调** `utils/tone-styles.ts`：solid / soft / surface / outline × neutral / accent / info / success / warning / danger，Badge、Tag、Alert 共用。实底用该色调的文字色作底、页面背景色作字（success、warning、info 没有专门的实底色），两套主题都满足 4.5:1。
+- **base/**：Badge（只展示）、Tag（外观同 Badge，可带移除按钮，名称是“移除 + 标签文字”，取文字用 `utils/text.ts` 的 `plainText`）。
+- **display/**：
+  - Progress：有值时完成比例，没值时不确定进度（循环动画不随 durations 变为 0，减少动态效果时变慢）；`valueText`；`data-state` 为 indeterminate / loading / complete。
+  - Skeleton：包着内容时与内容一样大（内容 `visibility: hidden`、整块 `inert` 与 `aria-hidden`），加载完布局不跳；闪烁在减少动态效果时关闭。
+  - Alert：图标按色调自动选（Lucide），`live` 为 off / polite（status）/ assertive（alert），`action`、`onClose`。
+  - Card：页头、正文、页脚，`variant` surface / outline / elevated / ghost，`padding`。
+  - Avatar：图片加载完才显示，失败或没有图片时显示首字母（中文取最后一个字）或人像图标；有 `name` 时 `role="img"`，没有时是装饰性的。
+- **漫游焦点** `utils/roving-focus.ts`：一组只有一个 Tab 进入点，方向键 / Home / End，循环、横竖、从右到左；跳过不可用、隐藏、inert 的项；直接管理各项的 tabindex（组件不再写），选中项或 DOM 变化时自动重算。
+- **navigation/**：
+  - Toolbar：`role="toolbar"`，用漫游焦点，输入框不参与方向键移动。
+  - Tabs / TabList / Tab / TabPanel：复合组件，状态经 createContext 共享；`activation` automatic / manual、横竖、`variant` line / soft、`lazy`、波纹；面板本身可聚焦。
+  - Steps：按 `items` 渲染（步骤是展示数据，用不着复合写法），`aria-current="step"`，已完成显示对勾、出错显示警示图标，`onStepChange` 可点回已完成的步骤。
+  - Breadcrumbs：nav > ol，链接用 Link（经路由适配），当前页 `aria-current="page"`，分隔符可换，`maxItems` 折叠中间部分、点开显示完整路径。
+  - Pagination：页码序列用 `paginationItems`，按钮用 Button / IconButton，`href` 时渲染为链接；文案进语言包（分页、上一页、下一页、第 n 页）。页码之间用 Tab 而不是漫游焦点：分页没有 ARIA 复合角色，键盘用户也习惯逐个 Tab。
+  - NavList / NavItem / NavGroup：当前页按路由适配的 `isActive`（或 `active`），含当前页的分组自动展开；分组用 Collapsible。
+- **迁移**：Link 的站内链接改经路由适配跳转。
+- **取舍**：原计划的“选择模型”工具暂不做：Tabs 只需要一个可双向绑定的值，等 Select、Menu 需要多选时再加（只有一个使用者的抽象不加）。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）。下一步：Progress、Skeleton、Badge、Tag、Alert、Card、Avatar；漫游焦点、选择模型与 Toolbar、Tabs、Steps；Breadcrumbs、Pagination、NavList。再下一批：浮层工具，以及 Popover、Tooltip、Dialog 转正和 Menu。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。下一批：浮层工具，以及 Popover、Tooltip、Dialog 转正和 Menu（Menu 用漫游焦点，Breadcrumbs 的折叠到时可改为菜单）。正式组件按 §8 验收，文档页暂用演示页代替。

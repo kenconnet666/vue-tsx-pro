@@ -65,6 +65,18 @@ export interface Lang {
   readonly selectPlaceholder: string;
   /** 分页的总条数，默认“共 n 条” */
   readonly paginationTotal: (total: number) => string;
+  /** 分页导航的无障碍名称，默认“分页” */
+  readonly pagination: string;
+  /** 上一页按钮的名称，默认“上一页” */
+  readonly previousPage: string;
+  /** 下一页按钮的名称，默认“下一页” */
+  readonly nextPage: string;
+  /** 页码按钮的名称，默认“第 n 页” */
+  readonly pageLabel: (page: number) => string;
+  /** 面包屑导航的无障碍名称，默认“面包屑” */
+  readonly breadcrumbs: string;
+  /** 面包屑折叠后展开完整路径的按钮名称，默认“显示完整路径” */
+  readonly breadcrumbsExpand: string;
   /** 表单必填校验的提示，默认“请填写{label}” */
   readonly formRequired: (label: string) => string;
   /** 拖动验证的提示，同时是滑块的无障碍名称，默认“拖动滑块完成验证” */

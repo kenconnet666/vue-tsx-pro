@@ -83,3 +83,40 @@ describe('Steps', () => {
     expect(current()).toContain('填写信息');
   });
 });
+
+describe('Breadcrumbs · Pagination · NavList', () => {
+  it('面包屑折叠后点开显示完整路径，当前页仍是最后一项', async () => {
+    const crumbs = $('.breadcrumbs-demo');
+    expect(crumbs.textContent).not.toContain('组件');
+    crumbs.querySelector('button')!.click();
+    await nextTick();
+    expect(crumbs.textContent).toContain('组件');
+    expect(crumbs.querySelector('[aria-current="page"]')!.textContent).toBe('面包屑');
+  });
+
+  it('分页：下一页、点页码，当前页跟着变', async () => {
+    const current = () => $('.pagination-demo [aria-current="page"]').textContent;
+    expect(current()).toBe('3');
+    all('.pagination-demo button')
+      .find((b) => b.getAttribute('aria-label') === '下一页')!
+      .click();
+    await nextTick();
+    expect(current()).toBe('4');
+    all('.pagination-demo button')
+      .find((b) => b.textContent === '16')!
+      .click();
+    await nextTick();
+    expect(current()).toBe('16');
+  });
+
+  it('侧边导航：路由适配判断当前页（/base），分组点开后显示子项', async () => {
+    const nav = $('.navlist-demo');
+    expect(nav.querySelector('[aria-current="page"]')!.textContent).toBe('基础组件');
+    const trigger = nav.querySelector<HTMLButtonElement>('button[aria-expanded]')!;
+    trigger.click();
+    await nextTick();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    const child = nav.querySelector<HTMLAnchorElement>('a[href="/profile/42"]')!;
+    await expect.poll(() => child.getBoundingClientRect().height).toBeGreaterThan(0);
+  });
+});

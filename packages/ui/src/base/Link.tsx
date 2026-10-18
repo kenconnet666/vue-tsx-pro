@@ -4,13 +4,14 @@
  *   <Link href="/orders">查看订单</Link>
  *   <Link href="https://example.com" external>帮助文档</Link>   新窗口打开，带图标与读屏提示
  *
- * 按钮样式的链接用 LinkButton（以后实现），不是 Link。
+ * 按钮样式的链接用 LinkButton。站内链接经 createUi 的 router 不刷新页面地跳转（utils/link.ts）。
  */
 import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
+import { useRouterLink } from '../utils/link';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 import { toneStyles, type Tone } from '../utils/typography';
@@ -64,17 +65,26 @@ export const Link = _component(
     underline = 'always',
     external = false,
     propsIcon,
+    onClick,
     children,
     ...rest
   }: LinkProps) => {
     const lang = useLang();
+    const router = useRouterLink();
+    // 使用方的 onClick 先执行，可以 preventDefault 拦下路由跳转
+    const click = (event: MouseEvent) => {
+      (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
+      router.onClick(event);
+    };
     return () => (
       <a
         {...elementProps(
           mergeProps<'a'>(
             { sx: [styles.root, focusRingStyles.visible, toneStyles[tone], styles[underline]] },
             rest,
-            external ? { href, target: '_blank', rel: 'noopener noreferrer' } : { href },
+            external
+              ? { href, target: '_blank', rel: 'noopener noreferrer', onClick: click }
+              : { href, onClick: click },
           ),
         )}
       >
