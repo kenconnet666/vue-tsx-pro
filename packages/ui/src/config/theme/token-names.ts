@@ -190,7 +190,8 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _successBorder: unknown;
     /**
-     * 警告文字与图标。amber 11：亮色 `#ab6400`，暗色 `#ffca16`
+     * 警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。
+     * 亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5
      *
      * `colors.warningText`
      */

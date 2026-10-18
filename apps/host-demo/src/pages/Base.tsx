@@ -9,7 +9,9 @@ import {
   darkTheme,
   Flex,
   Grid,
-  Heading,
+  H2,
+  H3,
+  H4,
   Icon,
   Kbd,
   lightTheme,
@@ -65,9 +67,7 @@ const Section = _component(
   ({ title, children }: { title: string; children?: VNodeChild }) =>
     () => (
       <section {...stylex.attrs(styles.section)}>
-        <Heading level={2} size="lg">
-          {title}
-        </Heading>
+        <H2 size="lg">{title}</H2>
         {children}
       </section>
     ),
@@ -116,11 +116,9 @@ export const Base = _component(() => {
           </div>
         </Section>
 
-        <Section title="文本 Heading · Text · Link · Code · Kbd">
-          <Heading level={1} class="heading-demo">
-            一级标题
-          </Heading>
-          <Heading level={3}>三级标题</Heading>
+        <Section title="文本 H1–H6 · Text · Link · Code · Kbd">
+          <H3 class="heading-demo">三级标题</H3>
+          <H4>四级标题</H4>
           <Text as="p" tone="muted" size="sm">
             次要说明文字
           </Text>

@@ -1,22 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
-import { Heading } from '../Heading';
+import { H1, H2, H3, H4, H5, H6 } from '../Heading';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
 
-describe('Heading', () => {
-  it('level 决定标签，默认 h2', () => {
-    expect(render(() => <Heading>a</Heading>).tagName).toBe('H2');
-    expect(render(() => <Heading level={4}>a</Heading>).tagName).toBe('H4');
+describe('H1–H6', () => {
+  it('每个组件渲染对应的标签，属性落到元素上', () => {
+    const tags = [H1, H2, H3, H4, H5, H6].map((Heading) =>
+      render(() => <Heading data-x="1">a</Heading>),
+    );
+    expect(tags.map((el) => el.tagName)).toEqual(['H1', 'H2', 'H3', 'H4', 'H5', 'H6']);
+    expect(tags[0]!.dataset.x).toBe('1');
   });
 
-  it('size 可以单独改：同一级别、不同字号得到不同的样式', () => {
-    const byLevel = render(() => <Heading level={1}>a</Heading>).getAttribute('class');
-    const resized = render(() => (
-      <Heading level={1} size="lg">
-        a
-      </Heading>
-    )).getAttribute('class');
-    expect(resized).not.toBe(byLevel);
+  it('默认字号随级别不同；size 可以单独改', () => {
+    const h1 = render(() => <H1>a</H1>).getAttribute('class');
+    expect(render(() => <H2>a</H2>).getAttribute('class')).not.toBe(h1);
+    expect(render(() => <H1 size="xxl">a</H1>).getAttribute('class')).toBe(
+      render(() => <H2>a</H2>).getAttribute('class'),
+    );
   });
 });

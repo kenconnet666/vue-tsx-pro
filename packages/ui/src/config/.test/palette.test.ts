@@ -35,7 +35,7 @@ const steps: Record<string, [string, string]> = {
   successText: ['green11', 'greenDark11'],
   successSoft: ['green3', 'greenDark3'],
   successBorder: ['green7', 'greenDark7'],
-  warningText: ['amber11', 'amberDark11'],
+  warningText: ['amber12', 'amberDark11'],
   warningSoft: ['amber3', 'amberDark3'],
   warningBorder: ['amber7', 'amberDark7'],
   infoText: ['blue11', 'blueDark11'],

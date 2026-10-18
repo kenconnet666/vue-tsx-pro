@@ -4,7 +4,7 @@
 export { Icon, type IconData, type IconProps } from './base/Icon';
 export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden';
 export { Text, type TextProps } from './base/Text';
-export { Heading, type HeadingProps } from './base/Heading';
+export { H1, H2, H3, H4, H5, H6, type HeadingProps } from './base/Heading';
 export { Link, type LinkProps } from './base/Link';
 export { Code, type CodeProps } from './base/Code';
 export { Kbd, type KbdProps } from './base/Kbd';

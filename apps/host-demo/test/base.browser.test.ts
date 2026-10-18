@@ -36,13 +36,20 @@ it('VisuallyHidden：视觉上不占位，读屏名称仍然在', () => {
   expect(button.textContent?.trim()).toBe('设置');
 });
 
+/** 违规的规则与出问题的元素，失败时能直接看出是哪里 */
+const violations = async () =>
+  (await axe.run(root)).violations.map(
+    (violation) =>
+      `${violation.id}: ${violation.nodes.map((node) => `${node.target.join(' ')} ${node.any[0]?.message ?? ''}`).join(', ')}`,
+  );
+
 it('无障碍：演示页 axe-core 没有违规（亮色与暗色）', async () => {
-  expect((await axe.run(root)).violations.map((violation) => violation.id)).toEqual([]);
+  expect(await violations()).toEqual([]);
   $('.toggle-theme').click();
   // 主题切换时颜色有过渡，等过渡结束再检查对比度
   await new Promise((resolve) => requestAnimationFrame(resolve));
   await Promise.all(document.getAnimations().map((animation) => animation.finished));
-  expect((await axe.run(root)).violations.map((violation) => violation.id)).toEqual([]);
+  expect(await violations()).toEqual([]);
 });
 
 describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
@@ -155,13 +162,13 @@ describe('布局：Flex、Grid、Container、Separator', () => {
   });
 });
 
-describe('文本：Heading、Text、Link', () => {
+describe('文本：H1–H6、Text、Link', () => {
   const px = (value: string) => Number.parseFloat(value);
 
-  it('Heading 按级别取默认字号（h1 为 xxxl 30px），并去掉浏览器默认外边距', () => {
+  it('标题按级别取默认字号（H3 为 xl 18px），并去掉浏览器默认外边距', () => {
     const heading = $('.heading-demo');
-    expect(heading.tagName).toBe('H1');
-    expect(px(getComputedStyle(heading).fontSize)).toBe(30);
+    expect(heading.tagName).toBe('H3');
+    expect(px(getComputedStyle(heading).fontSize)).toBe(18);
     expect(px(getComputedStyle(heading).marginTop)).toBe(0);
   });
 

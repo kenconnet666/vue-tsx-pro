@@ -98,8 +98,11 @@ export const colors = stylex.defineVars({
   successSoft: '#e6f6eb',
   /** 成功边框。green 7：亮色 `#8eceaa`，暗色 `#28684a` */
   successBorder: '#8eceaa',
-  /** 警告文字与图标。amber 11：亮色 `#ab6400`，暗色 `#ffca16` */
-  warningText: '#ab6400',
+  /**
+   * 警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。
+   * 亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5
+   */
+  warningText: '#4f3422',
   /** 警告浅底。amber 3：亮色 `#fff7c2`，暗色 `#302008` */
   warningSoft: '#fff7c2',
   /** 警告边框。amber 7：亮色 `#e9c162`，暗色 `#714f19` */
