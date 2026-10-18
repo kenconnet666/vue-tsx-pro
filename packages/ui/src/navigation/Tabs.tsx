@@ -292,65 +292,60 @@ const tabStyles = stylex.create({
 });
 
 /** 标签（role="tab" 的 button） */
-export const Tab = _component(
-  ({ value, disabled = false, onClick, onFocus, children, ...rest }: TabProps) => {
-    const tabs = TabsContext.inject();
-    onBeforeUnmount(tabs.register(_untrack(value)));
-    const onRipple = useRipple(() => tabs.ripple);
+export const Tab = _component(({ value, disabled = false, children, ...rest }: TabProps) => {
+  const tabs = TabsContext.inject();
+  onBeforeUnmount(tabs.register(_untrack(value)));
+  const onRipple = useRipple(() => tabs.ripple);
 
-    return () => {
-      const selected = tabs.value === value;
-      const vertical = tabs.orientation === 'vertical';
-      return (
-        <button
-          {...elementProps(
-            mergeProps<'button'>(
-              {
-                sx: [
-                  tabStyles.root,
-                  focusRingStyles.visible,
-                  rippleHostStyles.host,
-                  tabStyles.hover,
-                  tabs.variant === 'line'
-                    ? [
-                        tabStyles.line,
-                        vertical && tabStyles.lineVertical,
-                        selected && tabStyles.lineActive,
-                      ]
-                    : [tabStyles.soft, selected && tabStyles.softActive],
-                  disabled && tabStyles.disabled,
-                ],
-                type: 'button',
+  return () => {
+    const selected = tabs.value === value;
+    const vertical = tabs.orientation === 'vertical';
+    return (
+      <button
+        {...elementProps(
+          mergeProps<'button'>(
+            {
+              sx: [
+                tabStyles.root,
+                focusRingStyles.visible,
+                rippleHostStyles.host,
+                tabStyles.hover,
+                tabs.variant === 'line'
+                  ? [
+                      tabStyles.line,
+                      vertical && tabStyles.lineVertical,
+                      selected && tabStyles.lineActive,
+                    ]
+                  : [tabStyles.soft, selected && tabStyles.softActive],
+                disabled && tabStyles.disabled,
+              ],
+              type: 'button',
+            },
+            rest,
+            {
+              role: 'tab',
+              id: tabs.id('tab', value),
+              'aria-selected': selected,
+              'aria-controls': tabs.id('panel', value),
+              disabled,
+              // 使用方的 onClick / onFocus 先执行（mergeProps 的规则），onClick 里 preventDefault 可以拦下切换
+              onClick: () => tabs.select(value),
+              onFocus: () => {
+                if (tabs.activation === 'automatic') tabs.select(value);
               },
-              rest,
-              {
-                role: 'tab',
-                id: tabs.id('tab', value),
-                'aria-selected': selected,
-                'aria-controls': tabs.id('panel', value),
-                disabled,
-                onClick: (event: MouseEvent) => {
-                  (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
-                  if (!event.defaultPrevented) tabs.select(value);
-                },
-                onFocus: (event: FocusEvent) => {
-                  (onFocus as ((event: FocusEvent) => void) | undefined)?.(event);
-                  if (tabs.activation === 'automatic') tabs.select(value);
-                },
-                onPointerdown: onRipple,
-                onKeydown: onRipple,
-              },
-            ),
-          )}
-          data-state={selected ? 'active' : 'inactive'}
-          data-disabled={disabled || undefined}
-        >
-          {children}
-        </button>
-      );
-    };
-  },
-);
+              onPointerdown: onRipple,
+              onKeydown: onRipple,
+            },
+          ),
+        )}
+        data-state={selected ? 'active' : 'inactive'}
+        data-disabled={disabled || undefined}
+      >
+        {children}
+      </button>
+    );
+  };
+});
 
 // ─────────────── TabPanel ───────────────
 

@@ -75,6 +75,22 @@ describe('Tabs', () => {
     expect(manual.value()).toBeUndefined();
   });
 
+  it('使用方的 onClick 先执行，preventDefault 可以拦下切换', async () => {
+    let value = _state('a');
+    const root = mount(() => (
+      <Tabs value={_bind(value)}>
+        <TabList aria-label="x">
+          <Tab value="a">A</Tab>
+          <Tab value="b" onClick={(event) => event.preventDefault()}>
+            B
+          </Tab>
+        </TabList>
+      </Tabs>
+    ));
+    root.querySelectorAll('button')[1]!.click();
+    expect(value).toBe('a');
+  });
+
   it('lazy：面板第一次显示时才渲染内容，之后保留', async () => {
     const { tabs, panels } = renderTabs({ lazy: true });
     await nextTick();

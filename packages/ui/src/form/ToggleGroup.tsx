@@ -178,7 +178,6 @@ export const ToggleItem = _component(
     radius,
     propsIcon,
     propsContent,
-    onClick,
     children,
     ...rest
   }: ToggleItemProps) => {
@@ -213,10 +212,8 @@ export const ToggleItem = _component(
                 type: 'button',
                 'aria-pressed': pressed,
                 disabled: off,
-                onClick: (event: MouseEvent) => {
-                  (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
-                  if (!event.defaultPrevented) group.toggle(value);
-                },
+                // 使用方的 onClick 先执行，preventDefault 可以拦下切换（mergeProps 的规则）
+                onClick: () => group.toggle(value),
                 onPointerdown: onRipple,
                 onKeydown: onRipple,
               },

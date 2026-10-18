@@ -65,17 +65,11 @@ export const Link = _component(
     underline = 'always',
     external = false,
     propsIcon,
-    onClick,
     children,
     ...rest
   }: LinkProps) => {
     const lang = useLang();
     const router = useRouterLink();
-    // 使用方的 onClick 先执行，可以 preventDefault 拦下路由跳转
-    const click = (event: MouseEvent) => {
-      (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
-      router.onClick(event);
-    };
     return () => (
       <a
         {...elementProps(
@@ -83,8 +77,9 @@ export const Link = _component(
             { sx: [styles.root, focusRingStyles.visible, toneStyles[tone], styles[underline]] },
             rest,
             external
-              ? { href, target: '_blank', rel: 'noopener noreferrer', onClick: click }
-              : { href, onClick: click },
+              ? { href, target: '_blank', rel: 'noopener noreferrer' }
+              : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
+                { href, onClick: router.onClick },
           ),
         )}
       >

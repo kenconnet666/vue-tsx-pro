@@ -131,7 +131,6 @@ export const NavItem = _component(
     propsItem,
     propsIcon,
     propsLabel,
-    onClick,
     children,
     ...rest
   }: NavItemProps) => {
@@ -170,10 +169,8 @@ export const NavItem = _component(
                 href: disabled ? undefined : href,
                 'aria-current': current ? 'page' : undefined,
                 'aria-disabled': disabled || undefined,
-                onClick: (event: MouseEvent) => {
-                  (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
-                  router.onClick(event);
-                },
+                // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转
+                onClick: router.onClick,
                 onPointerdown: onRipple,
                 onKeydown: onRipple,
               },
