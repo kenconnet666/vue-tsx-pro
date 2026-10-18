@@ -34,6 +34,8 @@ export interface TriggerProps {
   'aria-expanded': boolean;
   /** 被控制的内容区的 id */
   'aria-controls': string;
+  /** 不可用：组件设了 disabled 时为 true，展开到按钮上就是原生的 disabled */
+  disabled?: boolean;
 }
 
 type Props = Record<string, unknown>;

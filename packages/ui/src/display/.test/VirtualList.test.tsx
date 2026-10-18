@@ -84,11 +84,16 @@ describe('VirtualList', () => {
 
   it('handle 拿到滚动方法；onRangeChange 报告可见范围', async () => {
     let handle: VirtualListHandle | undefined;
+    // 挂载之后才交出：回调里立即滚动也能生效
+    let mountedWhenReceived = false;
     const ranges: number[] = [];
     mount(() => (
       <VirtualList
         items={rows}
-        handle={(received) => (handle = received)}
+        handle={(received) => {
+          handle = received;
+          mountedWhenReceived = document.querySelector('[role="list"]') != null;
+        }}
         onRangeChange={(range) => ranges.push(range.endIndex)}
       >
         {(row) => row.label}
@@ -96,6 +101,7 @@ describe('VirtualList', () => {
     ));
     await nextTick();
     expect(handle?.scrollToIndex).toBeTypeOf('function');
+    expect(mountedWhenReceived).toBe(true);
     expect(ranges.at(-1)).toBe(4);
   });
 });

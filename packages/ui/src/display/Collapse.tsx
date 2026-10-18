@@ -21,6 +21,11 @@ export interface CollapseProps extends PartProps<'div', 'hidden' | 'inert'> {
   children?: VNodeChild;
   /** 内容层：外层负责高度过渡，内容层裁掉溢出 */
   propsContent?: PartProps<'div'>;
+  /**
+   * 第一次展开时才渲染内容，之后收起也保留（内容很重、多数人不会展开时用）。
+   * 代价：还没展开过的内容页内搜索找不到
+   */
+  lazy?: boolean;
 }
 
 const supportsUntilFound =
@@ -39,14 +44,17 @@ const styles = stylex.create({
 
 /** 展开收起的内容区（div），带高度过渡；收起后可被页内搜索找到并自动展开 */
 export const Collapse = _component(
-  ({ open = _bindable(false), children, propsContent, ...rest }: CollapseProps) => {
+  ({ open = _bindable(false), children, propsContent, lazy = false, ...rest }: CollapseProps) => {
     let root = _state.raw<HTMLElement | null>(null);
     // 完全收起（过渡已结束）：这时才隐藏内容，收起的过程中内容仍要可见
     let collapsed = _state(!open);
+    // 展开过：lazy 时从这以后一直渲染内容
+    let opened = _state(false);
 
     _effect(() => {
       if (open) {
         collapsed = false;
+        opened = true;
         return;
       }
       let cancelled = false;
@@ -69,7 +77,7 @@ export const Collapse = _component(
         )}
       >
         <div {...elementProps(mergeProps<'div'>({ sx: styles.content }, propsContent))}>
-          {children}
+          {(!lazy || open || opened) && children}
         </div>
       </div>
     );

@@ -151,23 +151,21 @@ export const VirtualList = _component(
       () => [items, itemKey, estimateSize, overscan, horizontal, scroll],
       () => virtualizer.setOptions(options()),
     );
-    // root 就绪后开始监听滚动与大小；滚动方式变了重新挂载
+    const api: VirtualListHandle = {
+      scrollToIndex: (index, scrollOptions) => virtualizer.scrollToIndex(index, scrollOptions),
+      scrollToOffset: (offset, scrollOptions) => virtualizer.scrollToOffset(offset, scrollOptions),
+    };
+    // root 就绪后开始监听滚动与大小；滚动方式变了重新挂载。
+    // 挂载之后才交出 handle：使用方在回调里立即滚动（恢复上次的位置）也能生效。
+    // handle 不放进监听源：父级写的箭头函数每次渲染都是新的，不该因此重新挂载
     watch(
       () => [root, scroll],
       (_, __, onCleanup) => {
-        if (root) onCleanup(virtualizer.mount());
+        if (!root) return;
+        onCleanup(virtualizer.mount());
+        handle?.(api);
       },
       { immediate: true, flush: 'post' },
-    );
-    watch(
-      () => handle,
-      (receive) =>
-        receive?.({
-          scrollToIndex: (index, scrollOptions) => virtualizer.scrollToIndex(index, scrollOptions),
-          scrollToOffset: (offset, scrollOptions) =>
-            virtualizer.scrollToOffset(offset, scrollOptions),
-        }),
-      { immediate: true },
     );
 
     return () => {

@@ -40,4 +40,20 @@ describe('Collapse', () => {
     expect(root.getAttribute('data-x')).toBe('1');
     expect(root.firstElementChild!.classList.contains('inner')).toBe(true);
   });
+
+  it('lazy：第一次展开时才渲染内容，之后收起也保留', async () => {
+    let open = _state(false);
+    const root = mount(() => (
+      <Collapse open={_bind(open)} lazy>
+        内容
+      </Collapse>
+    )).firstElementChild!;
+    expect(root.textContent).toBe('');
+    open = true;
+    await nextTick();
+    expect(root.textContent).toBe('内容');
+    open = false;
+    await nextTick();
+    expect(root.textContent).toBe('内容');
+  });
 });

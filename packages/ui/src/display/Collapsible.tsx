@@ -15,20 +15,25 @@ import { Collapse, type CollapseProps } from './Collapse';
 export interface CollapsibleProps extends CollapseProps {
   /** 触发器：`(props) => <Button {...props}>更多</Button>`，props 带 aria-expanded 与 aria-controls */
   trigger: (props: TriggerProps) => VNodeChild;
+  /** 不可用：触发器带上 disabled，点击不切换（open 仍可由父级控制） */
+  disabled?: boolean;
 }
 
 /** 触发器 + 展开收起的内容区（Disclosure 模式），触发器自动带上 aria-expanded 与 aria-controls */
 export const Collapsible = _component(
-  ({ open = _bindable(false), trigger, id, ...rest }: CollapsibleProps) => {
+  ({ open = _bindable(false), trigger, disabled = false, id, ...rest }: CollapsibleProps) => {
     const generatedId = useId();
     const contentId = _derived(id ?? generatedId);
 
     return () => (
       <>
         {trigger({
-          onClick: () => (open = !open),
+          onClick: () => {
+            if (!disabled) open = !open;
+          },
           'aria-expanded': open,
           'aria-controls': contentId,
+          disabled: disabled || undefined,
         })}
         <Collapse {...rest} id={contentId} open={_bind(open)} />
       </>

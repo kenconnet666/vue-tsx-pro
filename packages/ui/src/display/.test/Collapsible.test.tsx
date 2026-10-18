@@ -41,4 +41,18 @@ describe('Collapsible', () => {
     await nextTick();
     expect(button.getAttribute('aria-expanded')).toBe('true');
   });
+
+  it('disabled：触发器带上 disabled，点击不切换', async () => {
+    let open = _state(false);
+    const host = mount(() => (
+      <Collapsible open={_bind(open)} disabled trigger={(props) => <span {...props}>更多</span>}>
+        内容
+      </Collapsible>
+    ));
+    const trigger = host.querySelector('span')!;
+    expect(trigger.hasAttribute('disabled')).toBe(true);
+    trigger.click();
+    await nextTick();
+    expect(open).toBe(false);
+  });
 });
