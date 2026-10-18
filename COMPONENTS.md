@@ -237,6 +237,9 @@ interface Lang {
 
 **StyleX 相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
 
+- StyleX 插件用 lightningcss 输出 CSS，默认按旧浏览器把 `:dir(rtl)` 降级成 `:lang(ar, he, …)`，镜像就只认 `lang` 属性；预设关掉了这项降级（`Features.DirSelector`），`dir="rtl"` 才生效。有方向的图标用 Icon 的 `flipInRtl`。
+- StyleX 里长属性总是优先于简写：`borderColor` 盖不过别处的 `borderBottomColor`，要覆盖就写同一个长属性。
+
 - StyleX 只认以 `.stylex` 结尾的导入路径，所以 tokens 从 `@vue-tsx-pro/ui/tokens.stylex` 导入，主入口不导出。
 - 变量名按“包名:文件路径”算哈希；预设用自定义模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
 - 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。

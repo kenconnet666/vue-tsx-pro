@@ -32,6 +32,8 @@ catalog:
   # 样式
   '@stylexjs/stylex': 0.19.1
   '@stylexjs/unplugin': 0.19.1
+  # StyleX 插件输出 CSS 时用的处理器；预设要关掉它对 :dir() 的降级（见 tsx/src/vite/index.ts）
+  lightningcss: 1.33.0
   # 色板（只用于校验 tokens 取值）
   '@radix-ui/colors': 3.0.0
   # 构建与测试

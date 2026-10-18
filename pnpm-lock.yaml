@@ -233,6 +233,9 @@ catalogs:
     happy-dom:
       specifier: 21.0.3
       version: 21.0.3
+    lightningcss:
+      specifier: 1.33.0
+      version: 1.33.0
     mdn-data:
       specifier: 2.37.2
       version: 2.37.2
@@ -429,6 +432,9 @@ importers:
       '@vitejs/plugin-vue-jsx':
         specifier: 'catalog:'
         version: 5.1.6(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3))
+      lightningcss:
+        specifier: 'catalog:'
+        version: 1.33.0
     devDependencies:
       '@stylexjs/stylex':
         specifier: 'catalog:'

@@ -11,6 +11,7 @@
 import type { Plugin } from 'vite';
 import stylex from '@stylexjs/unplugin';
 import vueJsx from '@vitejs/plugin-vue-jsx';
+import { Features } from 'lightningcss';
 import { compileRunes } from '../compiler/index.ts';
 import { compilerCacheKey } from './cache-key.ts';
 import { stylexModuleResolution } from './stylex-resolution.ts';
@@ -55,6 +56,13 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
         unstable_moduleResolution: stylexModuleResolution(),
         ...options.stylex,
         importSources,
+        // 不把 :dir(rtl) 降级成 :lang(ar, he, …)：降级后镜像只认 lang 属性，dir="rtl" 而 lang 不是
+        // 右到左语言时（或没写 lang）图标不翻转。:dir() 在 Chrome 120、Firefox 49、Safari 16.4 起都支持，
+        // 组件库本来就要求 2024 年后的浏览器（Popover API、@starting-style）
+        lightningcssOptions: {
+          ...options.stylex?.lightningcssOptions,
+          exclude: (options.stylex?.lightningcssOptions?.exclude ?? 0) | Features.DirSelector,
+        },
       }),
     );
     plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp));

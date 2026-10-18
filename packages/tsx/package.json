@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@babel/core": "catalog:",
+    "lightningcss": "catalog:",
     "@stylexjs/unplugin": "catalog:",
     "@vitejs/plugin-vue-jsx": "catalog:"
   },
