@@ -50,7 +50,7 @@ import { colors, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
 
 ## 命令
 
-需要 Node 24（见 `.node-version`）与 pnpm 12。
+需要 Node 24（见 `.node-version`）与 pnpm 12。日常开发只跑和改动相关的检查，全量检查由 CI 并行完成（见 PLAN.md §4）。
 
 ```bash
 pnpm install

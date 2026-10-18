@@ -12,9 +12,20 @@ concurrency:
 permissions:
   contents: read
 
+# 四个任务并行。静态检查与系统无关，只在 Ubuntu 上跑；
+# 测试与构建在 Windows 上也跑：本地开发在 Windows，路径与虚拟模块问题只会在那里暴露
 jobs:
-  ci:
-    # 本地开发在 Windows 上，路径与虚拟模块问题只会在那里暴露
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm css-docs:check
+      - run: pnpm typecheck
+
+  test:
     strategy:
       fail-fast: false
       matrix:
@@ -22,21 +33,29 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm css-docs:check
-      - run: pnpm typecheck
+      - uses: ./.github/actions/setup
       - run: pnpm test
+
+  browser:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
       - run: pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium
       - run: pnpm test:browser
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
       - run: pnpm build:docs
       - run: pnpm build:host
