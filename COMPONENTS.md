@@ -251,6 +251,9 @@ interface Lang {
 
 - Button 与 LinkButton：两个组件，共用一份样式表（外观、尺寸、焦点环）与波纹反馈；Button 管 `disabled`、`loading`、`type`，LinkButton 管 `href`、`target`、外链的 `rel`（不可用时去掉 href 并加 `aria-disabled`）。波纹尊重“减少动态效果”。试点 Button 的 `href` 用法到时一并替换。
 - 文档页的 props 表生成。
+- CodeBlock 的复制按钮：等 Button 进组件库后加（文案进语言包，“已复制”用 aria-live 播报）。
+- 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
+- 编译器对“有意只取初始值”的读取（如 Collapse 的 `_state(!open)`）也会警告，以后考虑给出不警告的写法。
 - 拖动工具（第一个需要拖动的组件出现时写，大概率是 Slider，放在 `utils/`）：参考 React Aria 的 `useMove`。要处理好区分点击与拖动（阈值、拖动后吞掉 click）、`setPointerCapture` 与 `pointercancel`、`touch-action`、拖动时禁止选中文字、从右到左排版；组件另外提供键盘替代（WCAG 2.5.7）。双指缩放、旋转等图片预览组件出现时再写。不用手势库：成熟组件库（Radix、React Aria、Ark UI）也都直接基于 Pointer Events，手势库省下的只是位移与速度的计算。
 
 ## 8. 正式组件的完成标准（供之后使用）
@@ -381,4 +384,4 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本，每步单独提交。折叠与过渡、布局、文本三个阶段暂停，先讨论现有基础设施的不完善之处。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7），均已完成，每步单独提交。下一步：Button / LinkButton，然后是表单类组件。正式组件按 §8 验收，文档页暂用演示页代替。
