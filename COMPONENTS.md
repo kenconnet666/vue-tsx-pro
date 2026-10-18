@@ -272,6 +272,9 @@ interface Lang {
 - 文档页的 props 表生成。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
 - 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
+- 下一批：浮层工具（从试点 Popover 抽出 floating-ui 定位、方向翻转、缩放原点），Popover、Tooltip、Dialog 转正，Menu（菜单按钮模式，用漫游焦点与 `toggleSelection` 的复选组）；Breadcrumbs 的折叠到时可改为菜单。
+- Select、Combobox 等表单控件：选择模型已就绪（`utils/selection.ts`），等浮层工具完成后做。
+- 验证覆盖：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
 
 ## 8. 正式组件的完成标准（供之后使用）
 
