@@ -8,6 +8,7 @@ type VueHelper = 'ref' | 'shallowRef' | 'reactive' | 'computed' | 'unref';
 type RuntimeHelper =
   'prop' | 'bindable' | 'restProps' | 'overridable' | 'snapshot' | 'effect' | 'effectRoot';
 
+/** 编译时用到的 Vue 与本包运行时函数：按需生成带前缀的本地名，最后统一插入 import */
 export class RuntimeImports {
   /** `模块:名称` → 导入项 */
   private entries = new Map<string, { module: string; name: string; local: t.Identifier }>();
@@ -28,6 +29,7 @@ export class RuntimeImports {
     return this.call(RUNTIME_MODULE, name, args);
   }
 
+  /** 把用到的导入按模块插到文件开头；所有改写完成后调用一次 */
   insert() {
     const byModule = new Map<string, t.ImportSpecifier[]>();
     for (const { module, name, local } of this.entries.values()) {

@@ -19,6 +19,7 @@ import { RuntimeImports } from './imports.ts';
 import { declareProps } from './props.ts';
 import { RUNE_GLOBALS, runeOf, type Rune, type TrackedInfo } from './runes.ts';
 
+/** 一个文件的符文改写：五个步骤见 run()，由 runesBabelPlugin 对每个文件新建一个 */
 export class RunesTransform {
   /** 不影响正确性、但多半不是作者本意的写法 */
   readonly warnings: RunesWarning[] = [];
@@ -36,6 +37,7 @@ export class RunesTransform {
     this.imports = new RuntimeImports(program);
   }
 
+  /** 按顺序执行全部步骤，结果直接改在 Babel 的 AST 上 */
   run() {
     this.declareRunes(); //       1. 符文与 props 解构 → Vue API
     this.program.scope.crawl(); //   改写后重建作用域

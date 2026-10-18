@@ -18,7 +18,7 @@
 | 多态         | 不做 `as`：一个元素一个组件，不靠 prop 切换标签。Button（`<button>`）与 LinkButton（`<a>`）、H1–H6、Text / Paragraph / Strong / Em / Small 各是一个组件，用同一个工厂或共用样式表复用（默认值可以各不相同），每个组件只接受自己元素的属性。布局容器内置 div 与 ul 两种（Flex / FlexList、Grid / GridList、Container），其他语义标签用导出的工厂生成：`const Toolbar = createFlex('nav', 'Toolbar')` |
 | 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                                                                                              |
 | 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                                                                                                                                                                                                                                                           |
-| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/styles`（SizeScale、SpaceScale）与 `utils/typography`（TextSizes、Tones 等）                                                                                                                          |
+| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/styles`（SizeScale、SpaceScale）与 `utils/typography`（TextSizes、Tones 等）。导出的组件、函数、类型本身也写 JSDoc（文件开头的说明不会挂到导出上）；`pnpm docs:check`（CI 的静态检查）逐个检查        |
 
 ## 2. 部件与透传
 
@@ -216,7 +216,7 @@ interface Lang {
 
 **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`（base、layout、display…），共用工具在 `utils/`，配置在 `config/`；测试集中在各目录下的 `.test/`（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
-**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）；正式组件：Icon。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）、过渡与 JS 动画（`utils/transitions`、`utils/animation`）、虚拟滚动核心（`utils/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
 **试点组件**（`apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）按本规范写，但不进组件库、不承诺 API。在 Chromium、Firefox、WebKit 中已验证：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 

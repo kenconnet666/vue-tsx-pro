@@ -70,17 +70,23 @@ export type IntrinsicProps<Tag extends VueTag> = WithCurrentTarget<
 > & { children?: VNodeChild };
 
 export declare namespace JSX {
+  /** JSX 表达式的结果：同 Vue 的 VNode */
   interface Element extends VueJSX.Element {}
+  /** 可以当标签用的类组件，同 Vue */
   interface ElementClass extends VueJSX.ElementClass {}
+  /** 类组件的属性从哪里取，同 Vue */
   interface ElementAttributesProperty extends VueJSX.ElementAttributesProperty {}
   /** 子节点对应的 prop 名 */
   interface ElementChildrenAttribute {
     children: {};
   }
+  /** 原生元素的属性：Vue 的定义加上 children 与精确的事件 currentTarget（见 IntrinsicProps） */
   type IntrinsicElements = {
     [Tag in keyof VueJSX.IntrinsicElements]: IntrinsicProps<Tag>;
   };
+  /** 所有元素与组件都接受的属性（key、ref 等），同 Vue */
   interface IntrinsicAttributes extends VueJSX.IntrinsicAttributes {}
+  /** 组件的属性类型：_component 按参数检查，其他 Vue 组件另外接受插槽内容 */
   type LibraryManagedAttributes<C, P> = C extends string
     ? P
     : IsTsxComponent<C> extends true
