@@ -5,6 +5,22 @@ import { plugins } from './vite.config';
 
 export default defineConfig({
   plugins,
+  // 测试用到的依赖一开始就预构建：否则 Vite 跑到一半发现新依赖会重新预构建并刷新页面，
+  // 三个浏览器并行时正在初始化的测试页会卡住（CI 冷启动时出现过）
+  optimizeDeps: {
+    include: [
+      'vue',
+      'vue-router',
+      'pinia',
+      'axe-core',
+      '@floating-ui/dom',
+      // ui 包的依赖，宿主示例自己没装，按“包 > 依赖”的写法解析
+      '@vue-tsx-pro/ui > @internationalized/date',
+      '@lucide/icons',
+      '@stylexjs/stylex',
+      'tabbable',
+    ],
+  },
   test: {
     name: 'host-demo-browser',
     include: ['test/**/*.browser.test.ts'],
