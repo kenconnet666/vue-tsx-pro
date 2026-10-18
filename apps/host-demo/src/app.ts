@@ -6,7 +6,7 @@ import App from './App.vue';
 import Home from './pages/Home.vue';
 import { Pilot } from './pages/Pilot';
 import { Profile } from './pages/Profile';
-import { themeKey } from './theme';
+import { siteNameKey } from './site';
 
 /** 宿主应用的组装；测试传入内存路由历史 */
 export function createHostApp(history: RouterHistory = createWebHistory()) {
@@ -25,6 +25,6 @@ export function createHostApp(history: RouterHistory = createWebHistory()) {
     .use(router)
     // 应用级配置：所有 TSX 页面共享语言；页面内还可以用 <Provider> 局部覆盖
     .use(createUi())
-    .provide(themeKey, 'dark');
+    .provide(siteNameKey, 'Host Demo');
   return { app, router };
 }

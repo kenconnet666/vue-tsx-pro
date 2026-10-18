@@ -1,7 +1,7 @@
 /**
  * _component()：唯一的组件边界。
  *
- * 一切基于 props：作者只写参数解构与默认值，编译器（compiler/index.ts）把它们换成
+ * 一切基于 props：作者只写参数解构与默认值，编译器（compiler/props.ts）把它们换成
  * prop 访问器，并补上组件名与 props 声明作为第二个参数。运行时这里只做两件事：
  *
  *   1. 返回一个普通的 Vue 组件对象（Vue 组件本来就是对象，不需要 defineComponent）

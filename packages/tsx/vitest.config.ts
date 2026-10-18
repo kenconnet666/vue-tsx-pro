@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
-import { vueTsxPro } from './src/vite/index';
+import { vueTsxPro } from './src/vite/index.ts';
 
 const source = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 

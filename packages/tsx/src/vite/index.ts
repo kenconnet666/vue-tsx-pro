@@ -10,8 +10,8 @@
 import type { Plugin } from 'vite';
 import stylex from '@stylexjs/unplugin';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import { compileRunes } from '../compiler/index';
-import { stylexModuleResolution } from './stylex-resolution';
+import { compileRunes } from '../compiler/index.ts';
+import { stylexModuleResolution } from './stylex-resolution.ts';
 
 type StylexOptions = NonNullable<Parameters<typeof stylex.vite>[0]>;
 
@@ -49,28 +49,6 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   return plugins;
 }
 
-/** unplugin 生成的 Vite 插件可能是单个插件，也可能是数组 */
-function toArray(plugin: unknown): Plugin[] {
-  return (Array.isArray(plugin) ? plugin : [plugin]) as Plugin[];
-}
-
-/**
- * 绕过 @stylexjs/unplugin 0.19.1 的问题：它在 configureServer 里启动 150ms 轮询，
- * 只在 httpServer 关闭时清理。Vitest 等中间件模式没有 httpServer，定时器永不清理，
- * 进程退出要多等 10 秒。这种模式也用不到它的开发服务器功能（CSS 端点、热更新推送），直接跳过。
- */
-function skipDevServerWithoutHttp(plugin: Plugin): Plugin {
-  const original = plugin.configureServer;
-  if (typeof original !== 'function') return plugin;
-  return {
-    ...plugin,
-    configureServer(server) {
-      if (!server.httpServer) return;
-      return original.call(this, server);
-    },
-  };
-}
-
 /** 只处理符文的插件，单独导出以便自定义组合 */
 export function runes(): Plugin {
   return {
@@ -100,6 +78,30 @@ export function workspaceSource(): Plugin {
         resolve: { conditions: [condition, 'module', 'browser', 'development|production'] },
         ssr: { resolve: { conditions: [condition, 'module', 'node', 'development|production'] } },
       };
+    },
+  };
+}
+
+// ───────── 内部实现 ─────────
+
+/** unplugin 生成的 Vite 插件可能是单个插件，也可能是数组 */
+function toArray(plugin: unknown): Plugin[] {
+  return (Array.isArray(plugin) ? plugin : [plugin]) as Plugin[];
+}
+
+/**
+ * 绕过 @stylexjs/unplugin 0.19.1 的问题：它在 configureServer 里启动 150ms 轮询，
+ * 只在 httpServer 关闭时清理。Vitest 等中间件模式没有 httpServer，定时器永不清理，
+ * 进程退出要多等 10 秒。这种模式也用不到它的开发服务器功能（CSS 端点、热更新推送），直接跳过。
+ */
+function skipDevServerWithoutHttp(plugin: Plugin): Plugin {
+  const original = plugin.configureServer;
+  if (typeof original !== 'function') return plugin;
+  return {
+    ...plugin,
+    configureServer(server) {
+      if (!server.httpServer) return;
+      return original.call(this, server);
     },
   };
 }

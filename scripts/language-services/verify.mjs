@@ -73,7 +73,7 @@ try {
     names.join(', '),
   );
 
-  const clean = await call('diagnostics', { filePath: 'packages/tsx/test/types.test-d.tsx' });
+  const clean = await call('diagnostics', { filePath: 'packages/tsx/test/runes.test-d.tsx' });
   check(
     '诊断：类型测试文件无错误',
     clean.errors === 0,

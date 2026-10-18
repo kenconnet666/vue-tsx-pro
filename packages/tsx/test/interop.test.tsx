@@ -1,6 +1,6 @@
 // 符文与 Vue 生态的互通，以及各种读写形态
 import { afterEach, describe, it, expect } from 'vitest';
-import { createApp, nextTick } from 'vue';
+import { createApp, nextTick, reactive, ref, shallowReactive, shallowRef } from 'vue';
 import { _component } from '../src';
 import { Page } from './fixtures/Interop';
 import { getToken, setToken, settings } from './fixtures/store';
@@ -75,5 +75,25 @@ describe('读写形态', () => {
     expect(r.typed).toBe(2);
     const el = mount(_component(() => r.render));
     expect(el.innerHTML).toBe('<b>bar</b>');
+  });
+});
+
+// 持有 Ref 时的 Vue 原生行为：不是 bug，但 _from 等设计依赖这些约定
+describe('Vue 持有 Ref 的原生行为', () => {
+  it('ref() / shallowRef() 传入 Ref 时原样返回同一个 Ref', () => {
+    const a = ref(false);
+    expect(ref(a)).toBe(a);
+    expect(shallowRef(a)).toBe(a);
+  });
+
+  it('reactive 对象里的 Ref 会被自动解包，读出来已不是 Ref', () => {
+    const state = reactive({ on: ref(false) });
+    expect(typeof state.on).toBe('boolean');
+  });
+
+  it('普通对象与 shallowReactive 容器保持 Ref 身份', () => {
+    const on = ref(false);
+    expect({ on }.on).toBe(on);
+    expect(shallowReactive({ on }).on).toBe(on);
   });
 });
