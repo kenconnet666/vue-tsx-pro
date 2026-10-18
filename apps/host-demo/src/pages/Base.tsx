@@ -8,7 +8,7 @@ import {
   Container,
   darkTheme,
   Flex,
-  Grid,
+  GridList,
   H2,
   H3,
   H4,
@@ -16,8 +16,11 @@ import {
   Kbd,
   lightTheme,
   Link,
+  Paragraph,
   Provider,
   Separator,
+  Small,
+  Strong,
   Text,
   themeTransition,
   VisuallyHidden,
@@ -116,12 +119,12 @@ export const Base = _component(() => {
           </div>
         </Section>
 
-        <Section title="文本 H1–H6 · Text · Link · Code · Kbd">
+        <Section title="文本 H1–H6 · Text · Paragraph · Strong · Small · Link · Code · Kbd">
           <H3 class="heading-demo">三级标题</H3>
           <H4>四级标题</H4>
-          <Text as="p" tone="muted" size="sm">
+          <Paragraph tone="muted" size="sm">
             次要说明文字
-          </Text>
+          </Paragraph>
           <Flex gap="sm" wrap>
             {(['accent', 'danger', 'success', 'warning', 'info'] as const).map((tone) => (
               <Text key={tone} tone={tone} weight="medium">
@@ -129,33 +132,36 @@ export const Base = _component(() => {
               </Text>
             ))}
           </Flex>
-          <Text as="p" class="clamp-demo" lineClamp={2} {...stylex.attrs(styles.narrow)}>
+          <Paragraph class="clamp-demo" lineClamp={2} {...stylex.attrs(styles.narrow)}>
             多行截断：这是一段比较长的说明文字，超过两行之后会被截断并在末尾显示省略号，完整内容不会撑开布局。
             这一句话会被隐藏起来，用来确认截断确实生效。
-          </Text>
-          <Text as="p">
-            阅读 <Link href="#">使用说明</Link>，或查看{' '}
+          </Paragraph>
+          <Paragraph>
+            <Strong>提示：</Strong>阅读 <Link href="#">使用说明</Link>，或查看{' '}
             <Link href="https://example.com" external class="external-demo">
               外部文档
             </Link>
             ；运行 <Code>pnpm install</Code>，按 <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd> 搜索。
-          </Text>
+          </Paragraph>
+          <Small class="small-demo" tone="muted">
+            © 2026 vue-tsx-pro
+          </Small>
         </Section>
 
-        <Section title="布局 Flex · Grid · Container · Separator">
+        <Section title="布局 Flex · GridList · Container · Separator">
           <Flex class="flex-demo" gap="sm" align="center" wrap>
             <span {...stylex.attrs(styles.card)}>一</span>
             <span {...stylex.attrs(styles.card)}>二</span>
             <Separator class="separator-demo" orientation="vertical" decorative={false} />
             <span {...stylex.attrs(styles.card)}>三</span>
           </Flex>
-          <Grid class="grid-demo" minItemWidth="10em" gap="md">
+          <GridList class="grid-demo" minItemWidth="10em" gap="md">
             {['甲', '乙', '丙', '丁', '戊', '己'].map((name) => (
-              <div key={name} {...stylex.attrs(styles.card)}>
+              <li key={name} {...stylex.attrs(styles.card)}>
                 {name}
-              </div>
+              </li>
             ))}
-          </Grid>
+          </GridList>
           <Separator />
           <Container
             class="container-demo"

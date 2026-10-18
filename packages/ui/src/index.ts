@@ -3,16 +3,39 @@
 // 基础
 export { Icon, type IconData, type IconProps } from './base/Icon';
 export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden';
-export { Text, type TextProps } from './base/Text';
+export { Em, Paragraph, Small, Strong, Text, type TextProps } from './base/Text';
 export { H1, H2, H3, H4, H5, H6, type HeadingProps } from './base/Heading';
 export { Link, type LinkProps } from './base/Link';
 export { Code, type CodeProps } from './base/Code';
 export { Kbd, type KbdProps } from './base/Kbd';
 
 // 布局
-export { Flex, type FlexProps, type LayoutTag } from './layout/Flex';
-export { Grid, type GridProps } from './layout/Grid';
-export { Container, type ContainerProps } from './layout/Container';
+export {
+  createFlex,
+  Flex,
+  FlexList,
+  type FlexAligns,
+  type FlexDirections,
+  type FlexJustifies,
+  type FlexOptions,
+  type FlexProps,
+} from './layout/Flex';
+export {
+  createGrid,
+  Grid,
+  GridList,
+  type GridAligns,
+  type GridFlows,
+  type GridOptions,
+  type GridProps,
+} from './layout/Grid';
+export {
+  Container,
+  createContainer,
+  type ContainerOptions,
+  type ContainerProps,
+  type ContainerSizes,
+} from './layout/Container';
 export { Separator, type SeparatorProps } from './layout/Separator';
 
 // 展示
@@ -40,18 +63,13 @@ export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
 
 // 部件 props、弹层与动画工具
-export {
-  elementProps,
-  mergeProps,
-  type AsProps,
-  type PartProps,
-  type TriggerProps,
-} from './utils/props';
+export { elementProps, mergeProps, type PartProps, type TriggerProps } from './utils/props';
 export {
   columnGapStyles,
   focusRingStyles,
   gapStyles,
   rowGapStyles,
+  type LayoutTag,
   type Size,
   type SizeScale,
   type Space,

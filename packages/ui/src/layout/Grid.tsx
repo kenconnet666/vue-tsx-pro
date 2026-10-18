@@ -5,20 +5,21 @@
  *   <Grid minItemWidth="14em" gap="md">…</Grid>         按宽度自动换列：容器多宽就放几列，不需要断点
  *
  * 响应式不引入断点：minItemWidth 覆盖最常见的自动换列，其余用 sx 加容器查询。
+ * 一个元素一个组件（COMPONENTS.md §1）：Grid 是 div，GridList 是 ul；其他语义容器用 createGrid 生成。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type AsProps } from '../utils/props';
+import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import {
   columnGapStyles,
   gapStyles,
   listRole,
   listStyles,
   rowGapStyles,
+  type LayoutTag,
   type Space,
 } from '../utils/styles';
-import type { LayoutTag } from './Flex';
 
 /** 单元格内容在格子里的对齐（align-items 为块方向、justify-items 为行内方向） */
 export interface GridAligns {
@@ -44,7 +45,8 @@ export interface GridFlows {
   'column dense': unknown;
 }
 
-export interface GridProps extends AsProps<LayoutTag> {
+/** grid 布局的选项，Grid、GridList 与 createGrid 生成的组件共用 */
+export interface GridOptions {
   /** 列数（等宽列）；与 minItemWidth 同时给时以 minItemWidth 为准 */
   columns?: number;
   /** 每项的最小宽度（CSS 长度，如 '14em'）：按容器宽度自动决定列数（auto-fill），窄于它时单列 */
@@ -98,41 +100,59 @@ const flowStyles = stylex.create({
   'column dense': { gridAutoFlow: 'column dense' },
 });
 
-export const Grid = _component(
-  ({
-    as = 'div',
-    columns,
-    minItemWidth,
-    gap,
-    rowGap,
-    columnGap,
-    align,
-    justify,
-    flow,
-    children,
-    ...rest
-  }: GridProps) =>
-    () => {
-      const Tag = as;
-      const template =
-        minItemWidth != null
-          ? dynamicStyles.minItemWidth(minItemWidth)
-          : columns != null && dynamicStyles.columns(columns);
-      const sx = [
-        styles.root,
-        template,
-        gap && gapStyles[gap],
-        rowGap && rowGapStyles[rowGap],
-        columnGap && columnGapStyles[columnGap],
-        align && alignStyles[align],
-        justify && justifyStyles[justify],
-        flow && flowStyles[flow],
-        listRole(as) && listStyles.reset,
-      ];
-      return (
-        <Tag {...elementProps(mergeProps<LayoutTag>({ sx, role: listRole(as) }, rest))}>
-          {children}
-        </Tag>
-      );
-    },
-);
+/** 未声明的属性落到元素上：Grid 为 div，GridList 为 ul，createGrid 生成的为给定的标签 */
+export type GridProps<Tag extends LayoutTag = 'div'> = PartProps<Tag> & GridOptions;
+
+/**
+ * 生成渲染为指定语义标签的 grid 布局组件；列表标签（ul、ol）自动去掉圆点并补上 role="list"。
+ * name 是 DevTools 与警告信息里显示的组件名。
+ */
+export function createGrid<Tag extends LayoutTag>(
+  tag: Tag,
+  name: string,
+): TsxComponent<GridProps<Tag>> {
+  // 实现按布局标签共有的属性写，对外每个组件只接受自己元素的属性
+  return _component(
+    ({
+      columns,
+      minItemWidth,
+      gap,
+      rowGap,
+      columnGap,
+      align,
+      justify,
+      flow,
+      children,
+      ...rest
+    }: GridProps<LayoutTag>) =>
+      () => {
+        const Tag = tag as LayoutTag;
+        const template =
+          minItemWidth != null
+            ? dynamicStyles.minItemWidth(minItemWidth)
+            : columns != null && dynamicStyles.columns(columns);
+        const sx = [
+          styles.root,
+          template,
+          gap && gapStyles[gap],
+          rowGap && rowGapStyles[rowGap],
+          columnGap && columnGapStyles[columnGap],
+          align && alignStyles[align],
+          justify && justifyStyles[justify],
+          flow && flowStyles[flow],
+          listRole(tag) && listStyles.reset,
+        ];
+        return (
+          <Tag {...elementProps(mergeProps<LayoutTag>({ sx, role: listRole(tag) }, rest))}>
+            {children}
+          </Tag>
+        );
+      },
+    { name },
+  ) as unknown as TsxComponent<GridProps<Tag>>;
+}
+
+/** grid 布局（div） */
+export const Grid = createGrid('div', 'Grid');
+/** grid 布局的列表（ul）：卡片列表等，去掉圆点与缩进，保留列表语义；子元素用 li */
+export const GridList = createGrid('ul', 'GridList');

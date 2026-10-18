@@ -11,13 +11,11 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type AsProps, type PartProps } from '../utils/props';
+import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { afterTransitions } from '../utils/transitions';
 
-type Tags = 'div' | 'section';
-
-/** 未声明的属性落到外层元素上 */
-export interface CollapseProps extends AsProps<Tags, 'hidden' | 'inert'> {
+/** 未声明的属性落到外层的 div 上；要分区语义时在外面包 section */
+export interface CollapseProps extends PartProps<'div', 'hidden' | 'inert'> {
   /** 是否展开：父级写 open={_bind(x)}；页内搜索命中收起的内容时自动展开并写回 */
   open?: boolean;
   children?: VNodeChild;
@@ -40,7 +38,7 @@ const styles = stylex.create({
 });
 
 export const Collapse = _component(
-  ({ as = 'div', open = _bindable(false), children, propsContent, ...rest }: CollapseProps) => {
+  ({ open = _bindable(false), children, propsContent, ...rest }: CollapseProps) => {
     let root = _state.raw<HTMLElement | null>(null);
     // 完全收起（过渡已结束）：这时才隐藏内容，收起的过程中内容仍要可见
     let collapsed = _state(!open);
@@ -57,25 +55,22 @@ export const Collapse = _component(
       return () => (cancelled = true);
     });
 
-    return () => {
-      const Tag = as;
-      return (
-        <Tag
-          {...elementProps(
-            mergeProps<Tags>({ sx: styles.root }, rest, {
-              sx: open && styles.open,
-              ref: _toRef(root),
-              hidden: collapsed && supportsUntilFound ? 'until-found' : undefined,
-              inert: collapsed && !supportsUntilFound ? true : undefined,
-              onBeforematch: () => (open = true),
-            }),
-          )}
-        >
-          <div {...elementProps(mergeProps<'div'>({ sx: styles.content }, propsContent))}>
-            {children}
-          </div>
-        </Tag>
-      );
-    };
+    return () => (
+      <div
+        {...elementProps(
+          mergeProps<'div'>({ sx: styles.root }, rest, {
+            sx: open && styles.open,
+            ref: _toRef(root),
+            hidden: collapsed && supportsUntilFound ? 'until-found' : undefined,
+            inert: collapsed && !supportsUntilFound ? true : undefined,
+            onBeforematch: () => (open = true),
+          }),
+        )}
+      >
+        <div {...elementProps(mergeProps<'div'>({ sx: styles.content }, propsContent))}>
+          {children}
+        </div>
+      </div>
+    );
   },
 );

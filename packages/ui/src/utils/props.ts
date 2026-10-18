@@ -24,17 +24,6 @@ export type PartProps<
 > = Omit<IntrinsicProps<Tag>, Managed | 'children'> & { sx?: StyleXStyles };
 
 /**
- * 可以换标签的组件（布局、文本）：as 只能在 Tags 里选，属性类型取这些标签共有的部分。
- * 形如 `interface FlexProps extends AsProps<'div' | 'section' | 'ul'> { … }`。
- * 渲染时把 as 赋给大写开头的变量当标签：`const Tag = as; return <Tag {...props}>{children}</Tag>`。
- * 事件参数的 currentTarget 是这几种元素的联合（见 tsx 的 IntrinsicProps），所以属性能直接展开到 Tag 上。
- */
-export type AsProps<
-  Tags extends keyof JSX.IntrinsicElements,
-  Managed extends string = never,
-> = PartProps<Tags, Managed> & { as?: Tags };
-
-/**
  * 展开收起类组件（Collapsible、Popover、以后的菜单）交给触发器的属性：展开到任意可聚焦元素上，
  * 形如 `trigger={(props) => <Button {...props}>更多</Button>}`。弹层另外加上 id、ref、aria-haspopup。
  */
@@ -51,7 +40,7 @@ type RefSetter = ((element: unknown) => void) | Ref<unknown>;
 
 /**
  * 一层属性：Target 是标签名（'svg'）时为该元素的属性加 sx，是 props 类型（IconProps）时就是它。
- * 标签名的联合（'span' | 'div'，配合 AsProps）取这些标签共有的属性，所以这里不按联合分配
+ * 标签名的联合（'h1' | 'h2'，一个工厂生成的几个组件共用实现时）取这些标签共有的属性，所以这里不按联合分配
  */
 type PropsLayer<Target> = Partial<
   [Target] extends [keyof JSX.IntrinsicElements] ? PartProps<Target> : Target

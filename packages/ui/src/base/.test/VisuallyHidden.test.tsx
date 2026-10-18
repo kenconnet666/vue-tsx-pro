@@ -13,12 +13,4 @@ describe('VisuallyHidden', () => {
     expect(el.dataset.x).toBe('1');
     expect(el.getAttribute('class')).toBeTruthy();
   });
-
-  it('as 可以换成 div', () => {
-    expect(render(() => <VisuallyHidden as="div">x</VisuallyHidden>).tagName).toBe('DIV');
-  });
 });
-
-// 类型：as 只能在给定的标签里选
-// @ts-expect-error button 不在 VisuallyHidden 允许的标签里
-export const wrongTag = () => <VisuallyHidden as="button">x</VisuallyHidden>;

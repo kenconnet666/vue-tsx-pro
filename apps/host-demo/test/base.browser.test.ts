@@ -139,8 +139,12 @@ describe('布局：Flex、Grid、Container、Separator', () => {
     expect(separator.getAttribute('aria-orientation')).toBe('vertical');
   });
 
-  it('Grid：minItemWidth 按容器宽度自动决定列数，比最小宽度还窄时单列且不溢出', () => {
+  it('GridList：minItemWidth 按容器宽度自动决定列数，比最小宽度还窄时单列且不溢出', () => {
     const grid = $('.grid-demo');
+    // 列表去掉了圆点与缩进
+    expect(grid.tagName).toBe('UL');
+    expect(getComputedStyle(grid).paddingInlineStart).toBe('0px');
+    expect(getComputedStyle(grid.firstElementChild!).listStyleType).toBe('none');
     // 10em 的格子、0.75em 的间距：30em 宽放 2 列，50em 宽放 4 列
     grid.style.width = '30em';
     expect(columnCount(grid)).toBe(2);
@@ -177,6 +181,13 @@ describe('文本：H1–H6、Text、Link', () => {
     const lineHeight = px(getComputedStyle(text).lineHeight);
     expect(text.getBoundingClientRect().height).toBeLessThanOrEqual(lineHeight * 2 + 1);
     expect(text.scrollHeight).toBeGreaterThan(text.clientHeight);
+  });
+
+  it('Paragraph 去掉浏览器默认外边距；Small 默认字号 xs（12px）', () => {
+    expect(px(getComputedStyle($('.clamp-demo')).marginBlockStart)).toBe(0);
+    const small = $('.small-demo');
+    expect(small.tagName).toBe('SMALL');
+    expect(px(getComputedStyle(small).fontSize)).toBe(12);
   });
 
   it('外部链接在新窗口打开，读屏提示视觉上不占位', () => {

@@ -30,13 +30,13 @@ describe('Collapse', () => {
     expect(isHidden(root)).toBe(false);
   });
 
-  it('as 可以换成 section，属性落到外层，propsContent 落到内容层', () => {
+  it('属性落到外层，propsContent 落到内容层', () => {
     const root = mount(() => (
-      <Collapse as="section" open data-x="1" propsContent={{ class: 'inner' }}>
+      <Collapse open data-x="1" propsContent={{ class: 'inner' }}>
         内容
       </Collapse>
     )).firstElementChild!;
-    expect(root.tagName).toBe('SECTION');
+    expect(root.tagName).toBe('DIV');
     expect(root.getAttribute('data-x')).toBe('1');
     expect(root.firstElementChild!.classList.contains('inner')).toBe(true);
   });

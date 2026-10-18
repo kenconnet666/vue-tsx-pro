@@ -98,5 +98,20 @@ export const listStyles: Table<'reset'> = stylex.create({
   reset: { margin: 0, paddingInlineStart: 0, listStyleType: 'none' },
 });
 
+/** 布局组件的工厂（createFlex、createGrid、createContainer）可用的语义容器标签 */
+export type LayoutTag =
+  | 'div'
+  | 'section'
+  | 'article'
+  | 'ul'
+  | 'ol'
+  | 'li'
+  | 'nav'
+  | 'header'
+  | 'footer'
+  | 'main'
+  | 'aside'
+  | 'form';
+
 /** 列表标签需要的 role（见 listStyles），其他标签不加 */
 export const listRole = (tag: string) => (tag === 'ul' || tag === 'ol' ? 'list' : undefined);

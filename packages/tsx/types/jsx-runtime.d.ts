@@ -60,7 +60,7 @@ type SharedAttributes<Tag extends VueTag> = {
 };
 
 /**
- * 原生元素的属性。Tag 可以是几个标签的联合（可换标签的组件，见 ui 的 AsProps）：
+ * 原生元素的属性。Tag 可以是几个标签的联合（一个工厂生成几个元素的组件、共用实现时，如 ui 的 H1–H6）：
  * 属性取这些标签共有的部分、取值是每个标签都接受的值，事件参数的 currentTarget 是这几种元素的联合，
  * 所以属性能直接展开到 `<Tag {...props} />` 上（Tag 是同一组标签之一）。
  */

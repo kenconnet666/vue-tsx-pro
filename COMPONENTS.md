@@ -8,17 +8,17 @@
 
 ## 1. 组件 API 约定
 
-| 项           | 约定                                                                                                                                                                                                                                                                                                                        |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`                                                                                                                                                                                                      |
-| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                                                                                                                                                                               |
-| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                                                                                                                                                                                  |
-| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7）                                                                                                                                                       |
-| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                                                                                                                                                                                   |
-| 多态         | 不做任意标签的 `as`；布局、文本类组件提供受限的 `as`（只能在语义相近的几种标签里选，见 §10.1）；语义不同的元素分成不同组件，不靠 prop 切换标签：Button（`<button>`）与 LinkButton（`<a>`）、H1–H6 各是一个组件，用同一个工厂或共用样式表复用（默认值可以各不相同）。Text 与布局组件的受限 `as` 是否也拆，待定（见 §7 待办） |
-| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                      |
-| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                                                                                                                                                                                   |
-| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/styles`（SizeScale、SpaceScale）与 `utils/typography`（TextSizes、Tones 等）                                                  |
+| 项           | 约定                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`                                                                                                                                                                                                                                                                              |
+| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                                                                                                                                                                                                                                                       |
+| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                                                                                                                                                                                                                                                          |
+| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7）                                                                                                                                                                                                                               |
+| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                                                                                                                                                                                                                                                           |
+| 多态         | 不做 `as`：一个元素一个组件，不靠 prop 切换标签。Button（`<button>`）与 LinkButton（`<a>`）、H1–H6、Text / Paragraph / Strong / Em / Small 各是一个组件，用同一个工厂或共用样式表复用（默认值可以各不相同），每个组件只接受自己元素的属性。布局容器内置 div 与 ul 两种（Flex / FlexList、Grid / GridList、Container），其他语义标签用导出的工厂生成：`const Toolbar = createFlex('nav', 'Toolbar')` |
+| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                                                                                              |
+| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                                                                                                                                                                                                                                                           |
+| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/styles`（SizeScale、SpaceScale）与 `utils/typography`（TextSizes、Tones 等）                                                                                                                          |
 
 ## 2. 部件与透传
 
@@ -248,8 +248,6 @@ interface Lang {
 
 **待办**：
 
-- 待用户决定：Text（span/p/label…）与 Flex/Grid/Container（div/section/ul…）的受限 `as` 是否也按“一个元素一个组件”拆开。倾向：Text 拆成 Text（span）与 Paragraph（p），label 留给表单的 Label；布局容器的标签只是语义外壳、样式完全相同，保留 `as`。
-
 - Button 与 LinkButton：两个组件，共用一份样式表（外观、尺寸、焦点环）与波纹反馈；Button 管 `disabled`、`loading`、`type`，LinkButton 管 `href`、`target`、外链的 `rel`（不可用时去掉 href 并加 `aria-disabled`）。波纹尊重“减少动态效果”。试点 Button 的 `href` 用法到时一并替换。
 - 文档页的 props 表生成。
 - 拖动工具（第一个需要拖动的组件出现时写，大概率是 Slider，放在 `utils/`）：参考 React Aria 的 `useMove`。要处理好区分点击与拖动（阈值、拖动后吞掉 click）、`setPointerCapture` 与 `pointercancel`、`touch-action`、拖动时禁止选中文字、从右到左排版；组件另外提供键盘替代（WCAG 2.5.7）。双指缩放、旋转等图片预览组件出现时再写。不用手势库：成熟组件库（Radix、React Aria、Ark UI）也都直接基于 Pointer Events，手势库省下的只是位移与速度的计算。
@@ -300,34 +298,34 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 
 ### 10.1 基础设施
 
-| 项           | 位置                                | 内容                                                                                                                                                                                |
-| ------------ | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 档位类型     | `utils/styles.ts`                   | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                |
-| 共享样式表   | `utils/styles.ts`                   | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                     |
-| 减少动态效果 | `config/theme/tokens.stylex.ts`     | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                           |
-| 受限的 `as`  | `utils/props.ts`                    | `AsProps<'div' \| 'section' \| …, 受管属性>`：只能在一组语义相近的标签里选，透传属性取这组标签的共同部分                                                                            |
-| 过渡预设     | `utils/transitions.ts`（第 4 阶段） | `fade`、`scale`、`slide` 等 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`afterTransition(元素, 回调)` 等过渡结束（时长为 0 时立即回调） |
-| JS 动画      | `utils/animation.ts`（已完成）      | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                         |
-| 演示页       | `apps/host-demo` 的 `/base`         | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                     |
+| 项           | 位置                                | 内容                                                                                                                                                                                    |
+| ------------ | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 档位类型     | `utils/styles.ts`                   | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                    |
+| 共享样式表   | `utils/styles.ts`                   | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                         |
+| 减少动态效果 | `config/theme/tokens.stylex.ts`     | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                               |
+| 一元素一组件 | `base/Text.tsx`、`layout/*`         | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag` |
+| 过渡预设     | `utils/transitions.ts`（第 4 阶段） | `fade`、`scale`、`slide` 等 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`afterTransition(元素, 回调)` 等过渡结束（时长为 0 时立即回调）     |
+| JS 动画      | `utils/animation.ts`（已完成）      | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                             |
+| 演示页       | `apps/host-demo` 的 `/base`         | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                         |
 
 ### 10.2 组件
 
-| 分类       | 组件             | 要点                                                                                                                                                                                         |
-| ---------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `base/`    | `VisuallyHidden` | 只给读屏器看的文字                                                                                                                                                                           |
-| `base/`    | `Text`           | `size`、`weight`、`tone`（`muted`、`accent`、`danger`、`success`、`warning`、`info`）、`align`、`truncate`、`lineClamp`、`wrap`；`as` 可选 `span`、`p`、`div`、`label`、`strong`、`em`       |
-| `base/`    | `Heading`        | `level`（1–6）决定标签与默认字号，`size` 可单独改；紧凑行高、`text-wrap: balance`                                                                                                            |
-| `base/`    | `Link`           | `tone`、`underline`；`external` 自动加 `rel` 与读屏提示（语言文案）                                                                                                                          |
-| `base/`    | `Code`、`Kbd`    | 行内代码、按键                                                                                                                                                                               |
-| `base/`    | `CodeBlock`      | 代码块；高亮器可选，见 10.4                                                                                                                                                                  |
-| `layout/`  | `Flex`           | `direction`、`align`、`justify`、`wrap`、`gap`、`inline`；只做这一个，不拆 Stack / Group                                                                                                     |
-| `layout/`  | `Grid`           | `columns`（1–12）、`minItemWidth`（`auto-fill` 自动换列）、`gap` / `rowGap` / `columnGap`、`align`、`justify`、`flow`                                                                        |
-| `layout/`  | `Container`      | `size`（`xs`–`xl`，取 `sizes` 的容器宽度）、`padding`；居中、限制最大宽度                                                                                                                    |
-| `layout/`  | `Separator`      | `orientation`；有语义时 `role="separator"`，装饰性时对读屏隐藏                                                                                                                               |
-| `display/` | `Collapse`       | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器等同 `hidden` |
-| `display/` | `Collapsible`    | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                            |
+| 分类       | 组件             | 要点                                                                                                                                                                                                                                              |
+| ---------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base/`    | `VisuallyHidden` | 只给读屏器看的文字                                                                                                                                                                                                                                |
+| `base/`    | `Text`           | `size`、`weight`、`tone`（`muted`、`accent`、`danger`、`success`、`warning`、`info`）、`align`、`truncate`、`lineClamp`、`wrap`；Text（span）、Paragraph（p，去外边距、pretty 换行）、Strong（semibold）、Em、Small（xs）；label 留给表单的 Label |
+| `base/`    | `H1`–`H6`        | 级别决定标签与默认字号，`size` 可单独改；紧凑行高、`text-wrap: balance`                                                                                                                                                                           |
+| `base/`    | `Link`           | `tone`、`underline`；`external` 自动加 `rel` 与读屏提示（语言文案）                                                                                                                                                                               |
+| `base/`    | `Code`、`Kbd`    | 行内代码、按键                                                                                                                                                                                                                                    |
+| `base/`    | `CodeBlock`      | 代码块；高亮器可选，见 10.4                                                                                                                                                                                                                       |
+| `layout/`  | `Flex`           | `direction`、`align`、`justify`、`wrap`、`gap`、`inline`；只做这一个，不拆 Stack / Group                                                                                                                                                          |
+| `layout/`  | `Grid`           | `columns`（1–12）、`minItemWidth`（`auto-fill` 自动换列）、`gap` / `rowGap` / `columnGap`、`align`、`justify`、`flow`                                                                                                                             |
+| `layout/`  | `Container`      | `size`（`xs`–`xl`，取 `sizes` 的容器宽度）、`padding`；居中、限制最大宽度                                                                                                                                                                         |
+| `layout/`  | `Separator`      | `orientation`；有语义时 `role="separator"`，装饰性时对读屏隐藏                                                                                                                                                                                    |
+| `display/` | `Collapse`       | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器等同 `hidden`                                                      |
+| `display/` | `Collapsible`    | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                                                                                 |
 
-Flex / Grid 的 `as` 可选 `div`、`section`、`article`、`ul`、`ol`、`li`、`nav`、`header`、`footer`、`main`、`aside`、`form`。
+FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工厂可用的标签（`LayoutTag`）：`div`、`section`、`article`、`ul`、`ol`、`li`、`nav`、`header`、`footer`、`main`、`aside`、`form`，ol 同样按列表处理。VisuallyHidden 只渲染 span，Collapse 只渲染 div（要分区语义时在外面包 section）。
 
 不做：`Box`（就是 `div` + `sx`）、`AspectRatio`（`sx` 里写 `aspectRatio`）、`Spacer`。响应式这批不做：`Grid` 的 `minItemWidth` 已覆盖最常见的自动换列，其余用 `sx` 加容器查询；以后需要时用容器查询实现，不引入断点。
 

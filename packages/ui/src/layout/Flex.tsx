@@ -1,29 +1,16 @@
 /**
- * 一维布局（flex）。只做这一个，不拆 Stack / Group：竖排写 direction="column"。
+ * 一维布局（flex）。不拆 Stack / Group：竖排写 direction="column"。
+ * 一个元素一个组件（COMPONENTS.md §1）：Flex 是 div，FlexList 是 ul；
+ * 其他语义容器用 createFlex 生成，如 `const Toolbar = createFlex('nav', 'Toolbar')`。
  *
  *   <Flex gap="sm" align="center">…</Flex>
- *   <Flex as="ul" direction="column" gap="xs">…</Flex>   列表：自动去掉圆点并保留列表语义
+ *   <FlexList direction="column" gap="xs">…</FlexList>   列表：去掉圆点并保留列表语义
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type AsProps } from '../utils/props';
-import { gapStyles, listRole, listStyles, type Space } from '../utils/styles';
-
-/** 可换的标签：语义相近的容器（COMPONENTS.md §10.2） */
-export type LayoutTag =
-  | 'div'
-  | 'section'
-  | 'article'
-  | 'ul'
-  | 'ol'
-  | 'li'
-  | 'nav'
-  | 'header'
-  | 'footer'
-  | 'main'
-  | 'aside'
-  | 'form';
+import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { gapStyles, listRole, listStyles, type LayoutTag, type Space } from '../utils/styles';
 
 /** 主轴方向（flex-direction） */
 export interface FlexDirections {
@@ -67,7 +54,8 @@ export interface FlexJustifies {
   evenly: unknown;
 }
 
-export interface FlexProps extends AsProps<LayoutTag> {
+/** flex 布局的选项，Flex、FlexList 与 createFlex 生成的组件共用 */
+export interface FlexOptions {
   /** 主轴方向，默认 row */
   direction?: keyof FlexDirections;
   /** 交叉轴对齐（align-items），默认 stretch */
@@ -111,33 +99,51 @@ const justifyStyles = stylex.create({
   evenly: { justifyContent: 'space-evenly' },
 });
 
-export const Flex = _component(
-  ({
-    as = 'div',
-    direction = 'row',
-    align,
-    justify,
-    wrap = false,
-    gap,
-    inline = false,
-    children,
-    ...rest
-  }: FlexProps) =>
-    () => {
-      const Tag = as;
-      const sx = [
-        inline ? styles.inline : styles.root,
-        styles[direction],
-        wrap && (wrap === 'reverse' ? styles.wrapReverse : styles.wrap),
-        align && alignStyles[align],
-        justify && justifyStyles[justify],
-        gap && gapStyles[gap],
-        listRole(as) && listStyles.reset,
-      ];
-      return (
-        <Tag {...elementProps(mergeProps<LayoutTag>({ sx, role: listRole(as) }, rest))}>
-          {children}
-        </Tag>
-      );
-    },
-);
+/** 未声明的属性落到元素上：Flex 为 div，FlexList 为 ul，createFlex 生成的为给定的标签 */
+export type FlexProps<Tag extends LayoutTag = 'div'> = PartProps<Tag> & FlexOptions;
+
+/**
+ * 生成渲染为指定语义标签的 flex 布局组件；列表标签（ul、ol）自动去掉圆点并补上 role="list"。
+ * name 是 DevTools 与警告信息里显示的组件名。
+ */
+export function createFlex<Tag extends LayoutTag>(
+  tag: Tag,
+  name: string,
+): TsxComponent<FlexProps<Tag>> {
+  // 实现按布局标签共有的属性写，对外每个组件只接受自己元素的属性
+  return _component(
+    ({
+      direction = 'row',
+      align,
+      justify,
+      wrap = false,
+      gap,
+      inline = false,
+      children,
+      ...rest
+    }: FlexProps<LayoutTag>) =>
+      () => {
+        const Tag = tag as LayoutTag;
+        const sx = [
+          inline ? styles.inline : styles.root,
+          styles[direction],
+          wrap && (wrap === 'reverse' ? styles.wrapReverse : styles.wrap),
+          align && alignStyles[align],
+          justify && justifyStyles[justify],
+          gap && gapStyles[gap],
+          listRole(tag) && listStyles.reset,
+        ];
+        return (
+          <Tag {...elementProps(mergeProps<LayoutTag>({ sx, role: listRole(tag) }, rest))}>
+            {children}
+          </Tag>
+        );
+      },
+    { name },
+  ) as unknown as TsxComponent<FlexProps<Tag>>;
+}
+
+/** flex 布局（div） */
+export const Flex = createFlex('div', 'Flex');
+/** flex 布局的列表（ul）：去掉圆点与缩进，保留列表语义；子元素用 li */
+export const FlexList = createFlex('ul', 'FlexList');

@@ -1,13 +1,16 @@
 // 实际排版（间距、换行、对齐）见 apps/host-demo/test/base.browser.test.ts
 import { describe, expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
-import { Flex } from '../Flex';
+import { createFlex, Flex, FlexList } from '../Flex';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
 const classes = (el: Element) => el.getAttribute('class')!.split(' ').length;
 
+const Toolbar = createFlex('nav', 'Toolbar');
+const Steps = createFlex('ol', 'Steps');
+
 describe('Flex', () => {
-  it('默认 div，未声明的属性落到元素上；各项 prop 各自追加样式', () => {
+  it('div，未声明的属性落到元素上；各项 prop 各自追加样式', () => {
     const plain = render(() => <Flex data-x="1">a</Flex>);
     expect(plain.tagName).toBe('DIV');
     expect(plain.dataset.x).toBe('1');
@@ -19,18 +22,28 @@ describe('Flex', () => {
     expect(classes(full)).toBeGreaterThan(classes(plain) + 3);
   });
 
-  it('列表标签去掉圆点并补上 role="list"（Safari 去掉圆点后会丢列表语义）', () => {
+  it('FlexList 是 ul：去掉圆点并补上 role="list"（Safari 去掉圆点后会丢列表语义）', () => {
     const list = render(() => (
-      <Flex as="ul">
+      <FlexList>
         <li>a</li>
-      </Flex>
+      </FlexList>
     ));
     expect(list.tagName).toBe('UL');
     expect(list.getAttribute('role')).toBe('list');
-    expect(render(() => <Flex as="nav">a</Flex>).hasAttribute('role')).toBe(false);
+    expect(classes(list)).toBeGreaterThan(classes(render(() => <Flex>a</Flex>)));
+  });
+
+  it('createFlex 生成其他语义标签的组件；ol 同样按列表处理', () => {
+    const nav = render(() => <Toolbar aria-label="工具栏">a</Toolbar>);
+    expect(nav.tagName).toBe('NAV');
+    expect(nav.hasAttribute('role')).toBe(false);
+    expect(render(() => <Steps>a</Steps>).getAttribute('role')).toBe('list');
   });
 });
 
-// 类型：as 只能在布局标签里选
-// @ts-expect-error button 不在可选标签里
-export const wrongTag = () => <Flex as="button">x</Flex>;
+// 类型：工厂只接受布局标签，生成的组件只接受自己元素的属性
+// @ts-expect-error button 不是布局标签
+export const wrongTag = () => createFlex('button', 'X');
+// @ts-expect-error reversed 是 ol 的属性，ul 没有
+export const wrongAttribute = () => <FlexList reversed>x</FlexList>;
+export const ownAttribute = () => <Steps reversed>x</Steps>;

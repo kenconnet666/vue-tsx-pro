@@ -1,4 +1,4 @@
-// 类型：几个标签共用的部件属性（AsProps、PartProps 的标签联合）能直接展开到变量标签上
+// 类型：几个标签共用的部件属性（PartProps 的标签联合，工厂生成的组件共用实现时）能直接展开到变量标签上
 import type { PartProps } from '../props';
 
 type LinkOrButton = PartProps<'a' | 'button'>;
