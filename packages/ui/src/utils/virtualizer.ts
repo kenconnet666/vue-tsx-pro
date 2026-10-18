@@ -180,8 +180,13 @@ export class Virtualizer {
       viewportObserver.observe(element);
     }
     if (typeof ResizeObserver !== 'undefined') {
+      // 测量结果下一帧再用：在回调里同步改布局（重排位置、调整滚动），浏览器会报
+      // “ResizeObserver loop completed with undelivered notifications”。第一次测量在 measureElement 里已经同步做过
       this.itemObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) this.resizeItem(entry.target, this.borderBoxSize(entry));
+        const sizes = entries.map((entry) => [entry.target, this.borderBoxSize(entry)] as const);
+        requestAnimationFrame(() => {
+          for (const [target, size] of sizes) this.resizeItem(target, size);
+        });
       });
     }
     this.readViewport();
