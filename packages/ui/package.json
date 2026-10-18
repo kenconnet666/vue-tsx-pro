@@ -40,6 +40,7 @@
     "vue": "^3.5.0"
   },
   "devDependencies": {
+    "@radix-ui/colors": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "happy-dom": "catalog:",
     "typescript": "catalog:",

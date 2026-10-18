@@ -11,3 +11,11 @@ export type StyleValue<V> =
   | V
   | ReadonlyArray<V>
   | Readonly<{ default: StyleValue<V>; [condition: Condition]: StyleValue<V> }>;
+
+/**
+ * 带说明的关键字取值，接受的值与 StyleX 的取值类型 V 完全相同。
+ * K 的每个键是一个关键字，键上的注释在悬停取值时显示（WebStorm 把字符串字面量解析到 keyof 的键上）。
+ * V 含 string 时改写成 `string & {}`，否则关键字会被 string 吸收，失去补全与说明。
+ */
+export type KeywordValue<K, V> =
+  keyof K | (string extends V ? Exclude<V, string> | (string & {}) : Exclude<V, keyof K>);

@@ -42,10 +42,14 @@ function readStylexTypes() {
       .statements.find((node) => ts.isTypeAliasDeclaration(node) && node.name.text === name);
 
   const cssType = checker.getTypeAtLocation(findAlias('StyleXCSSTypes.d.ts', 'CSSProperties').name);
-  const properties = checker.getPropertiesOfType(cssType).map((symbol) => ({
-    key: symbol.name,
-    acceptsNumber: acceptsNumber(checker.getTypeOfSymbol(symbol)),
-  }));
+  const properties = checker.getPropertiesOfType(cssType).map((symbol) => {
+    const type = checker.getTypeOfSymbol(symbol);
+    return {
+      key: symbol.name,
+      acceptsNumber: acceptsNumber(type),
+      accepts: (keyword) => checker.isTypeAssignableTo(checker.getStringLiteralType(keyword), type),
+    };
+  });
 
   // CSSPropertiesWithExtras = Partial<Readonly<CSSProperties & { '::before': CSSProperties; … }>>
   const pseudoElements = [];
@@ -159,6 +163,31 @@ function propertyDoc({ key, acceptsNumber }, context) {
   return lines;
 }
 
+/** display → DisplayKeywords */
+const keywordsName = (group) => `${group[0].toUpperCase()}${group.slice(1)}Keywords`;
+
+/**
+ * 关键字分组 → 取值说明里出现的关键字。一组可能被多个属性共用（keywordAliases），
+ * 每个关键字必须被共用它的所有属性接受，否则带说明的取值类型会比 StyleX 的宽。
+ */
+function readKeywordGroups(properties) {
+  const groups = new Map();
+  const rejected = [];
+  for (const property of properties) {
+    const group = docs.keywordAliases[property.key] ?? property.key;
+    const keywords = Object.keys(docs.keywords[group] ?? {});
+    for (const keyword of keywords) {
+      if (!property.accepts(keyword)) rejected.push(`${property.key}: ${keyword}`);
+    }
+    if (keywords.length) groups.set(group, keywords);
+  }
+  if (rejected.length)
+    throw new Error(
+      `以下关键字 StyleX 的类型不接受（scripts/css-docs/docs.json）：\n${rejected.join('\n')}`,
+    );
+  return groups;
+}
+
 async function generate() {
   const { properties, pseudoElements } = readStylexTypes();
   const missing = [
@@ -171,10 +200,16 @@ async function generate() {
     );
 
   const context = { numberRules: readNumberRules(), baseline: readBaseline() };
+  const keywordGroups = readKeywordGroups(properties);
+  const valueType = ({ key }) => {
+    const value = `CSSProperties['${key}']`;
+    const group = docs.keywordAliases[key] ?? key;
+    return keywordGroups.has(group) ? `KeywordValue<${keywordsName(group)}, ${value}>` : value;
+  };
   const members = [
     ...properties.map((property) => [
       jsdoc(propertyDoc(property, context)),
-      `${property.key}?: StyleValue<CSSProperties['${property.key}']>;`,
+      `${property.key}?: StyleValue<${valueType(property)}>;`,
     ]),
     ...pseudoElements.map((key) => [
       jsdoc([`伪元素 \`${key}\`：${docs.pseudoElements[key]}`]),
@@ -182,16 +217,28 @@ async function generate() {
     ]),
   ];
 
+  const keywordInterfaces = [...keywordGroups].flatMap(([group, keywords]) => [
+    `interface ${keywordsName(group)} {`,
+    ...keywords.flatMap((keyword) => [
+      jsdoc([`\`${keyword}\`：${docs.keywords[group][keyword]}`]),
+      `'${keyword}': unknown;`,
+    ]),
+    '}',
+    '',
+  ]);
+
   const code = [
     '// 由 scripts/css-docs/generate.mjs 生成，请勿手改；数据来源见 scripts/css-docs/NOTICE.md。',
     "import type { CSSProperties } from '@stylexjs/stylex';",
-    "import type { StyleValue } from './value';",
+    "import type { KeywordValue, StyleValue } from './value';",
     '',
     '/** StyleX 样式对象：每个属性带中文说明，值类型直接引用 StyleX 自己的定义 */',
     'export interface DocumentedStyles {',
     ...members.flat(),
     '}',
     '',
+    '// 各属性的关键字说明：键上的注释在悬停取值时显示',
+    ...keywordInterfaces,
   ].join('\n');
   const config = await prettier.resolveConfig(output);
   return prettier.format(code, { ...config, filepath: output });

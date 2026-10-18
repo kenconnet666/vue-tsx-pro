@@ -122,7 +122,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
-- 色板基础：候选 Radix Colors 的 12 阶色阶（明暗两套、对比度有设计保证），写入 tokens 时转成静态值。
+- 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。唯一偏离：焦点环用 9 级而不是 Radix 建议的 7–8 级，因为亮色下后者对比度不到 3:1。
 
 ### 6.3 语言 `lang`：地区、时间、文案平铺在一个对象里
 
@@ -258,12 +258,12 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 ### 9.2 方案：fork 类型声明，运行时不动
 
 - 新入口 `@vue-tsx-pro/tsx/stylex`：运行时原样 `export * from '@stylexjs/stylex'`；类型上 fork StyleX 的公开声明，只改写 `create`（含动态样式函数）：**样式组名保留泛型推导，组内属性值的上下文类型固定为生成的 `DocumentedStyles`**。
-- `DocumentedStyles` 由脚本生成：属性集合读自 StyleX 的 `StyleXCSSTypes.d.ts`；每个属性的值类型用索引访问**直接引用 StyleX 自己的类型**，语义不变；每个属性带中文 JSDoc；伪元素嵌套递归引用 `DocumentedStyles`。
+- `DocumentedStyles` 由脚本生成：属性集合读自 StyleX 的 `StyleXCSSTypes.d.ts`；每个属性的值类型用索引访问**直接引用 StyleX 自己的类型**，语义不变（`stylex.test-d.ts` 逐个属性校验与原版互相可赋值）；每个属性带中文 JSDoc；伪元素嵌套递归引用 `DocumentedStyles`。
 - StyleX API（`create`、`props`、`attrs`、`defineVars`、`createTheme`、`firstThatWorks`、`keyframes` 等）在 fork 的声明上写中文 JSDoc。
 - 预设给 StyleX 编译器配置 `importSources`，识别新入口。写样式统一从这个入口导入。
 - **代价**：不再精确推导每个样式组用了哪些属性，`StyleXStyles<{ color?: … }>` 这类受限类型无法校验；本库的 `sx` 本来不加限制，确需受限类型时用原版 `create`。
 - **一致性测试**：同一组“应通过 / 应报错”的写法，分别用新入口与原版做类型检查，结果必须一致（受限类型一项除外）；StyleX 升级时先跑这组测试。
-- 属性值关键字（`center`、`stretch`）不能单独悬停（字面量联合成员不能带注释），说明写进属性注释正文的“常用值”。
+- 属性值关键字：字面量联合成员上的注释不会显示，但 WebStorm 会把字符串字面量解析到 `keyof` 接口的键上。所以有关键字说明的属性，值类型写成 `KeywordValue<DisplayKeywords, CSSProperties['display']>`：`DisplayKeywords` 每个键带注释，整体接受的值与 StyleX 相同（含 `string` 时改写为 `string & {}`，避免关键字被吸收）。WebStorm 悬停 `'inline-flex'` 显示该值的说明；TypeScript 官方语言服务（VS Code）对字符串字面量不提供悬停，只能看属性注释正文里的“常用值”。生成器会校验每个关键字都被 StyleX 的类型接受，不接受的从数据里删掉，以免提示一个写了会报错的值。
 
 ### 9.3 注释数据：理清来源，修订完善
 

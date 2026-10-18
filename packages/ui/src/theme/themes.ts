@@ -25,23 +25,24 @@ export interface Theme {
   readonly overrides: ThemeOverrides;
 }
 
+// Radix Colors 的暗色色阶，各 token 对应的级别见 tokens.stylex.ts
 const darkColors = stylex.createTheme(colors, {
   background: '#111113',
-  surface: '#18181b',
-  surfaceRaised: '#222226',
-  surfaceHover: '#27272b',
-  text: '#ececef',
-  textMuted: '#a0a0ab',
-  border: '#3a3a40',
-  borderStrong: '#55555d',
-  accent: '#5b7ff0',
-  accentHover: '#7593f3',
+  surface: '#18191b',
+  surfaceRaised: '#212225',
+  surfaceHover: '#272a2d',
+  text: '#edeef0',
+  textMuted: '#b0b4ba',
+  border: '#43484e',
+  borderStrong: '#5a6169',
+  accent: '#3e63dd',
+  accentHover: '#5472e4',
   accentText: '#ffffff',
-  danger: '#f0605d',
+  danger: '#ff9592',
   success: '#3dd68c',
-  warning: '#ffb224',
-  focusRing: '#7593f3',
-  overlay: 'rgb(0 0 0 / 0.6)',
+  warning: '#ffca16',
+  focusRing: '#3e63dd',
+  overlay: 'rgba(0, 0, 0, 0.6)',
 });
 
 /** 亮色主题：即 tokens 的默认值 */

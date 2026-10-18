@@ -24,6 +24,8 @@ catalog:
   # 样式
   '@stylexjs/stylex': 0.19.1
   '@stylexjs/unplugin': 0.19.1
+  # 色板（只用于校验 tokens 取值）
+  '@radix-ui/colors': 3.0.0
   # 构建与测试
   vite: 8.3.4
   vitest: 5.0.5

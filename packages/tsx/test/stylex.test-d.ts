@@ -32,6 +32,18 @@ export const [sized, inline] = dynamic.size(10);
 // @ts-expect-error 参数类型是 number
 dynamic.size('10');
 
+// 每个属性接受的值与原版一个不多、一个不少（带说明的关键字取值只换了写法）
+type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+type Drift = {
+  [P in keyof original.CSSProperties]-?: Same<
+    stylex.DocumentedStyles[P],
+    stylex.StyleValue<original.CSSProperties[P]> | undefined
+  > extends true
+    ? never
+    : P;
+}[keyof original.CSSProperties];
+export const noDrift: [Drift] extends [never] ? true : Drift = true;
+
 // 原版接受、这里报错的写法
 // @ts-expect-error 拼错的属性名
 stylex.create({ bad: { paddin: 8 } });

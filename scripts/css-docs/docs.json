@@ -766,7 +766,7 @@
     },
     "whiteSpace": {
       "remarks": "同时影响空白折叠和软换行。它不负责给溢出内容添加省略号。",
-      "commonValues": ["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"],
+      "commonValues": ["normal", "nowrap", "pre", "pre-wrap", "pre-line"],
       "usage": "单行标签、保留换行的用户文本和代码片段。"
     },
     "width": {
@@ -934,8 +934,7 @@
       "hidden": "裁剪溢出且不显示滚动条，但仍是可通过脚本等方式滚动的滚动容器。可能成为 sticky 后代的滚动参照，不能把它仅理解成视觉裁剪。clip 不建立滚动容器；hidden 仍可通过脚本或焦点移动滚动。",
       "clip": "在裁剪边界截断内容，不建立滚动容器，也不支持程序化滚动。两轴设置会影响计算结果；与另一轴 auto/scroll 等组合时，要检查最终溢出行为。与 hidden 不同，不支持程序化滚动，也不单独建立块格式化上下文。",
       "auto": "按溢出情况提供滚动机制；滚动条外观和是否占空间由环境决定。scroll 通常始终预留或显示滚动机制；auto 根据溢出情况显示滚动条，外观由平台决定。",
-      "scroll": "建立滚动容器，通常即使未溢出也显示滚动条；具体外观由平台决定。",
-      "overlay": "历史兼容值，现代实现通常将其作为 auto 的别名；不保证滚动条覆盖在内容上。"
+      "scroll": "建立滚动容器，通常即使未溢出也显示滚动条；具体外观由平台决定。"
     },
     "overflowWrap": {
       "anywhere": "必要时允许在长文本任意位置断行，这些机会参与 min-content 尺寸计算。break-word 的额外断点不按 anywhere 的方式参与最小内容宽度计算；word-break:break-all 更积极地拆分普通单词。",
@@ -1002,8 +1001,7 @@
       "nowrap": "折叠空白并禁止软换行；不会自行生成省略号。pre 也不进行普通软换行，但会保留连续空白。",
       "pre": "保留空白和源换行，不进行普通软换行。",
       "pre-wrap": "保留空白和源换行，同时允许软换行。pre 不进行普通软换行；pre-line 会折叠连续空格。",
-      "pre-line": "折叠空格等空白但保留源换行，同时允许软换行。",
-      "break-spaces": "保留空白并允许在保留的空格后换行；行末空格占据空间。"
+      "pre-line": "折叠空格等空白但保留源换行，同时允许软换行。"
     },
     "width": {
       "auto": "让布局算法决定尺寸，不保证等于父元素尺寸。",
@@ -1038,8 +1036,7 @@
     "overscrollBehaviorBlock": "overscrollBehavior",
     "overscrollBehaviorInline": "overscrollBehavior",
     "overscrollBehaviorX": "overscrollBehavior",
-    "overscrollBehaviorY": "overscrollBehavior",
-    "wordWrap": "overflowWrap"
+    "overscrollBehaviorY": "overscrollBehavior"
   },
   "pseudoElements": {
     "::after": "在元素内容之后插入的生成内容，需要设置 content 才会显示。",

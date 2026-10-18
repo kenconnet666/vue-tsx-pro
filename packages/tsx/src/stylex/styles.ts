@@ -1,6 +1,6 @@
 // 由 scripts/css-docs/generate.mjs 生成，请勿手改；数据来源见 scripts/css-docs/NOTICE.md。
 import type { CSSProperties } from '@stylexjs/stylex';
-import type { StyleValue } from './value';
+import type { KeywordValue, StyleValue } from './value';
 
 /** StyleX 样式对象：每个属性带中文说明，值类型直接引用 StyleX 自己的定义 */
 export interface DocumentedStyles {
@@ -123,7 +123,9 @@ export interface DocumentedStyles {
    * 初始值 `normal`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/justify-content
    */
-  justifyContent?: StyleValue<CSSProperties['justifyContent']>;
+  justifyContent?: StyleValue<
+    KeywordValue<JustifyContentKeywords, CSSProperties['justifyContent']>
+  >;
   /**
    * 同时设置 align-items 与 justify-items。（place-items）
    *
@@ -155,7 +157,7 @@ export interface DocumentedStyles {
    * 初始值 `normal`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/align-items
    */
-  alignItems?: StyleValue<CSSProperties['alignItems']>;
+  alignItems?: StyleValue<KeywordValue<AlignItemsKeywords, CSSProperties['alignItems']>>;
   /**
    * 设置容器内项目在行内轴上的默认对齐方式；不控制 Flex 项目的主轴对齐。（justify-items）
    *
@@ -176,7 +178,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/align-self
    */
-  alignSelf?: StyleValue<CSSProperties['alignSelf']>;
+  alignSelf?: StyleValue<KeywordValue<AlignSelfKeywords, CSSProperties['alignSelf']>>;
   /**
    * 单独设置项目在其布局区域内的行内轴对齐方式。（justify-self）
    *
@@ -187,7 +189,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：2020 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/justify-self
    */
-  justifySelf?: StyleValue<CSSProperties['justifySelf']>;
+  justifySelf?: StyleValue<KeywordValue<JustifySelfKeywords, CSSProperties['justifySelf']>>;
   /**
    * 选择行内或 SVG 文本参与对齐时使用的基线。（alignment-baseline）
    *
@@ -272,7 +274,9 @@ export interface DocumentedStyles {
    * 初始值 `none`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/animation-fill-mode
    */
-  animationFillMode?: StyleValue<CSSProperties['animationFillMode']>;
+  animationFillMode?: StyleValue<
+    KeywordValue<AnimationFillModeKeywords, CSSProperties['animationFillMode']>
+  >;
   /**
    * 设置动画循环次数，或无限循环。（animation-iteration-count）
    *
@@ -384,7 +388,9 @@ export interface DocumentedStyles {
    * 初始值 `border-box`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/background-clip
    */
-  backgroundClip?: StyleValue<CSSProperties['backgroundClip']>;
+  backgroundClip?: StyleValue<
+    KeywordValue<BackgroundClipKeywords, CSSProperties['backgroundClip']>
+  >;
   /**
    * 设置元素背景颜色，位于背景图像下方。（background-color）
    *
@@ -401,7 +407,9 @@ export interface DocumentedStyles {
    * 初始值 `none`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/background-image
    */
-  backgroundImage?: StyleValue<CSSProperties['backgroundImage']>;
+  backgroundImage?: StyleValue<
+    KeywordValue<BackgroundImageKeywords, CSSProperties['backgroundImage']>
+  >;
   /**
    * 设置背景图像定位所依据的盒子区域。（background-origin）
    *
@@ -452,7 +460,7 @@ export interface DocumentedStyles {
    * 初始值 `auto auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/background-size
    */
-  backgroundSize?: StyleValue<CSSProperties['backgroundSize']>;
+  backgroundSize?: StyleValue<KeywordValue<MaskSizeKeywords, CSSProperties['backgroundSize']>>;
   /**
    * 使 SVG 文本基线相对于其基准位置偏移。（baseline-shift）
    *
@@ -479,7 +487,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/block-size
    */
-  blockSize?: StyleValue<CSSProperties['blockSize']>;
+  blockSize?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['blockSize']>>;
   /**
    * 同时设置四边边框的宽度、线型和颜色。（border）
    *
@@ -813,7 +821,7 @@ export interface DocumentedStyles {
    * 简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-style
    */
-  borderStyle?: StyleValue<CSSProperties['borderStyle']>;
+  borderStyle?: StyleValue<KeywordValue<BorderStyleKeywords, CSSProperties['borderStyle']>>;
   /**
    * 设置上边框的宽度、线型和颜色。（border-top）
    *
@@ -1065,7 +1073,7 @@ export interface DocumentedStyles {
    * 初始值 `content-box`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/box-sizing
    */
-  boxSizing?: StyleValue<CSSProperties['boxSizing']>;
+  boxSizing?: StyleValue<KeywordValue<BoxSizingKeywords, CSSProperties['boxSizing']>>;
   /**
    * 旧版弹性盒中是否隐藏元素（box-suppress），草案属性，浏览器不支持。
    */
@@ -1264,7 +1272,7 @@ export interface DocumentedStyles {
    * 初始值 `none`；不继承；Baseline：2024 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/contain
    */
-  contain?: StyleValue<CSSProperties['contain']>;
+  contain?: StyleValue<KeywordValue<ContainKeywords, CSSProperties['contain']>>;
   /**
    * 集中设置尺寸隔离时使用的替代内部宽高。（contain-intrinsic-size）
    *
@@ -1329,7 +1337,7 @@ export interface DocumentedStyles {
    * 初始值 `normal`；不继承；Baseline：2025 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/container-type
    */
-  containerType?: StyleValue<CSSProperties['containerType']>;
+  containerType?: StyleValue<KeywordValue<ContainerTypeKeywords, CSSProperties['containerType']>>;
   /**
    * 控制是否渲染元素内容，并允许浏览器跳过暂时不可见的子树。（content-visibility）
    *
@@ -1345,7 +1353,9 @@ export interface DocumentedStyles {
    * 初始值 `visible`；不继承；Baseline：2024 年起新近可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/content-visibility
    */
-  contentVisibility?: StyleValue<CSSProperties['contentVisibility']>;
+  contentVisibility?: StyleValue<
+    KeywordValue<ContentVisibilityKeywords, CSSProperties['contentVisibility']>
+  >;
   /**
    * 设置生成内容、替换内容或伪元素的内容。（content）
    *
@@ -1424,7 +1434,7 @@ export interface DocumentedStyles {
    * 初始值 `inline`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/display
    */
-  display?: StyleValue<CSSProperties['display']>;
+  display?: StyleValue<KeywordValue<DisplayKeywords, CSSProperties['display']>>;
   /**
    * 单独设置 display 的内部布局方式（display-inside），早期草案，浏览器不支持；请用 display 的双值写法。
    */
@@ -1481,7 +1491,7 @@ export interface DocumentedStyles {
    * 初始值 `nonzero`；继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/fill-rule
    */
-  fillRule?: StyleValue<CSSProperties['fillRule']>;
+  fillRule?: StyleValue<KeywordValue<FillRuleKeywords, CSSProperties['fillRule']>>;
   /**
    * 对元素的最终图像应用模糊、亮度等滤镜。（filter）
    *
@@ -1503,7 +1513,7 @@ export interface DocumentedStyles {
    * 数字值不加单位；简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/flex
    */
-  flex?: StyleValue<CSSProperties['flex']>;
+  flex?: StyleValue<KeywordValue<FlexKeywords, CSSProperties['flex']>>;
   /**
    * 设置弹性项目分配剩余空间之前的主轴基础尺寸。（flex-basis）
    *
@@ -1518,7 +1528,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/flex-basis
    */
-  flexBasis?: StyleValue<CSSProperties['flexBasis']>;
+  flexBasis?: StyleValue<KeywordValue<FlexBasisKeywords, CSSProperties['flexBasis']>>;
   /**
    * 设置弹性容器的主轴方向及项目排列方向。（flex-direction）
    *
@@ -1533,7 +1543,7 @@ export interface DocumentedStyles {
    * 初始值 `row`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/flex-direction
    */
-  flexDirection?: StyleValue<CSSProperties['flexDirection']>;
+  flexDirection?: StyleValue<KeywordValue<FlexDirectionKeywords, CSSProperties['flexDirection']>>;
   /**
    * 同时设置弹性布局的主轴方向和换行方式。（flex-flow）
    *
@@ -1576,7 +1586,7 @@ export interface DocumentedStyles {
    * 初始值 `nowrap`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/flex-wrap
    */
-  flexWrap?: StyleValue<CSSProperties['flexWrap']>;
+  flexWrap?: StyleValue<KeywordValue<FlexWrapKeywords, CSSProperties['flexWrap']>>;
   /**
    * 将元素浮动到指定侧，使相邻行内内容围绕它排列。（float）
    *
@@ -1751,7 +1761,7 @@ export interface DocumentedStyles {
    * 数字值不加单位；初始值 `normal`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/font-weight
    */
-  fontWeight?: StyleValue<CSSProperties['fontWeight']>;
+  fontWeight?: StyleValue<KeywordValue<FontWeightKeywords, CSSProperties['fontWeight']>>;
   /**
    * 控制支持光学尺寸轴的字体是否按字号优化字形。（font-optical-sizing）
    *
@@ -1832,7 +1842,7 @@ export interface DocumentedStyles {
    * 初始值 `row`；不继承；Baseline：2020 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/grid-auto-flow
    */
-  gridAutoFlow?: StyleValue<CSSProperties['gridAutoFlow']>;
+  gridAutoFlow?: StyleValue<KeywordValue<GridAutoFlowKeywords, CSSProperties['gridAutoFlow']>>;
   /**
    * 设置隐式生成的网格行尺寸。（grid-auto-rows）
    *
@@ -1983,7 +1993,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/height
    */
-  height?: StyleValue<CSSProperties['height']>;
+  height?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['height']>>;
   /**
    * 设置图像是否按元数据等信息调整方向。（image-orientation）
    *
@@ -2040,7 +2050,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inline-size
    */
-  inlineSize?: StyleValue<CSSProperties['inlineSize']>;
+  inlineSize?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['inlineSize']>>;
   /**
    * 控制动画是否允许在数值尺寸与内部尺寸关键字之间插值。（interpolate-size）
    *
@@ -2051,7 +2061,9 @@ export interface DocumentedStyles {
    * 初始值 `numeric-only`；继承；实验性；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/interpolate-size
    */
-  interpolateSize?: StyleValue<CSSProperties['interpolateSize']>;
+  interpolateSize?: StyleValue<
+    KeywordValue<InterpolateSizeKeywords, CSSProperties['interpolateSize']>
+  >;
   /**
    * 同时设置定位元素的上、右、下、左偏移。（inset）
    *
@@ -2113,7 +2125,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/isolation
    */
-  isolation?: StyleValue<CSSProperties['isolation']>;
+  isolation?: StyleValue<KeywordValue<IsolationKeywords, CSSProperties['isolation']>>;
   /**
    * SVG 文字的字距调整（kerning），已废弃，请用 fontKerning 或 letterSpacing。
    *
@@ -2154,7 +2166,7 @@ export interface DocumentedStyles {
    * 数字值不加单位；初始值 `normal`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/line-height
    */
-  lineHeight?: StyleValue<CSSProperties['lineHeight']>;
+  lineHeight?: StyleValue<KeywordValue<LineHeightKeywords, CSSProperties['lineHeight']>>;
   /**
    * 设置行盒高度向上取整使用的步长。（line-height-step）
    *
@@ -2203,7 +2215,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin
    */
-  margin?: StyleValue<CSSProperties['margin']>;
+  margin?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['margin']>>;
   /**
    * 设置逻辑块轴起始侧和结束侧的外边距。（margin-block）
    *
@@ -2213,7 +2225,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-block
    */
-  marginBlock?: StyleValue<CSSProperties['marginBlock']>;
+  marginBlock?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBlock']>>;
   /**
    * 设置逻辑块轴结束侧的外边距。（margin-block-end）
    *
@@ -2223,7 +2235,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-block-end
    */
-  marginBlockEnd?: StyleValue<CSSProperties['marginBlockEnd']>;
+  marginBlockEnd?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBlockEnd']>>;
   /**
    * 设置逻辑块轴起始侧的外边距。（margin-block-start）
    *
@@ -2233,7 +2245,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-block-start
    */
-  marginBlockStart?: StyleValue<CSSProperties['marginBlockStart']>;
+  marginBlockStart?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBlockStart']>>;
   /**
    * 设置下外边距。（margin-bottom）
    *
@@ -2243,7 +2255,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-bottom
    */
-  marginBottom?: StyleValue<CSSProperties['marginBottom']>;
+  marginBottom?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginBottom']>>;
   /**
    * 设置逻辑行内轴起始侧和结束侧的外边距。（margin-inline）
    *
@@ -2253,7 +2265,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-inline
    */
-  marginInline?: StyleValue<CSSProperties['marginInline']>;
+  marginInline?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginInline']>>;
   /**
    * 设置逻辑行内轴结束侧的外边距。（margin-inline-end）
    *
@@ -2263,7 +2275,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-inline-end
    */
-  marginInlineEnd?: StyleValue<CSSProperties['marginInlineEnd']>;
+  marginInlineEnd?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginInlineEnd']>>;
   /**
    * 设置逻辑行内轴起始侧的外边距。（margin-inline-start）
    *
@@ -2273,7 +2285,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-inline-start
    */
-  marginInlineStart?: StyleValue<CSSProperties['marginInlineStart']>;
+  marginInlineStart?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginInlineStart']>>;
   /**
    * 设置左外边距。（margin-left）
    *
@@ -2283,7 +2295,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-left
    */
-  marginLeft?: StyleValue<CSSProperties['marginLeft']>;
+  marginLeft?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginLeft']>>;
   /**
    * 设置右外边距。（margin-right）
    *
@@ -2293,7 +2305,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-right
    */
-  marginRight?: StyleValue<CSSProperties['marginRight']>;
+  marginRight?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginRight']>>;
   /**
    * 设置上外边距。（margin-top）
    *
@@ -2303,7 +2315,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-top
    */
-  marginTop?: StyleValue<CSSProperties['marginTop']>;
+  marginTop?: StyleValue<KeywordValue<MarginKeywords, CSSProperties['marginTop']>>;
   /**
    * 控制容器边缘处子元素外边距的裁减。（margin-trim）
    *
@@ -2412,7 +2424,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：2026 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/mask-size
    */
-  maskSize?: StyleValue<CSSProperties['maskSize']>;
+  maskSize?: StyleValue<KeywordValue<MaskSizeKeywords, CSSProperties['maskSize']>>;
   /**
    * 设置 SVG mask 元素使用亮度还是 alpha 作为遮罩。（mask-type）
    *
@@ -2535,7 +2547,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/min-width
    */
-  minWidth?: StyleValue<CSSProperties['minWidth']>;
+  minWidth?: StyleValue<KeywordValue<MinWidthKeywords, CSSProperties['minWidth']>>;
   /**
    * 设置元素整体与其背后内容的颜色混合方式。（mix-blend-mode）
    *
@@ -2588,7 +2600,7 @@ export interface DocumentedStyles {
    * 初始值 `fill`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/object-fit
    */
-  objectFit?: StyleValue<CSSProperties['objectFit']>;
+  objectFit?: StyleValue<KeywordValue<ObjectFitKeywords, CSSProperties['objectFit']>>;
   /**
    * 设置替换元素内容在内容盒内的对齐位置。（object-position）
    *
@@ -2721,7 +2733,7 @@ export interface DocumentedStyles {
    * 初始值 `visible`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overflow
    */
-  overflow?: StyleValue<CSSProperties['overflow']>;
+  overflow?: StyleValue<KeywordValue<OverflowKeywords, CSSProperties['overflow']>>;
   /**
    * 设置逻辑块轴上的溢出行为。（overflow-block）
    *
@@ -2731,12 +2743,11 @@ export interface DocumentedStyles {
    * - `clip`：在裁剪边界截断内容，不建立滚动容器，也不支持程序化滚动。两轴设置会影响计算结果；与另一轴 auto/scroll 等组合时，要检查最终溢出行为。与 hidden 不同，不支持程序化滚动，也不单独建立块格式化上下文。
    * - `auto`：按溢出情况提供滚动机制；滚动条外观和是否占空间由环境决定。scroll 通常始终预留或显示滚动机制；auto 根据溢出情况显示滚动条，外观由平台决定。
    * - `scroll`：建立滚动容器，通常即使未溢出也显示滚动条；具体外观由平台决定。
-   * - `overlay`：历史兼容值，现代实现通常将其作为 auto 的别名；不保证滚动条覆盖在内容上。
    *
    * 初始值 `auto`；不继承；Baseline：2025 年起新近可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overflow-block
    */
-  overflowBlock?: StyleValue<CSSProperties['overflowBlock']>;
+  overflowBlock?: StyleValue<KeywordValue<OverflowKeywords, CSSProperties['overflowBlock']>>;
   /**
    * 非标准键，不对应 CSS 属性；请用 overflowX 或 overflowBlock。（overflow-block-x）
    */
@@ -2756,7 +2767,7 @@ export interface DocumentedStyles {
    * 初始值 `visible`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overflow-x
    */
-  overflowX?: StyleValue<CSSProperties['overflowX']>;
+  overflowX?: StyleValue<KeywordValue<OverflowKeywords, CSSProperties['overflowX']>>;
   /**
    * 设置垂直方向的溢出行为。（overflow-y）
    *
@@ -2772,7 +2783,7 @@ export interface DocumentedStyles {
    * 初始值 `visible`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overflow-y
    */
-  overflowY?: StyleValue<CSSProperties['overflowY']>;
+  overflowY?: StyleValue<KeywordValue<OverflowKeywords, CSSProperties['overflowY']>>;
   /**
    * 控制元素是否参与滚动锚定，以减少内容变化造成的视口跳动。（overflow-anchor）
    *
@@ -2800,7 +2811,7 @@ export interface DocumentedStyles {
    * 初始值 `normal`；继承；Baseline：2021 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overflow-wrap
    */
-  overflowWrap?: StyleValue<CSSProperties['overflowWrap']>;
+  overflowWrap?: StyleValue<KeywordValue<OverflowWrapKeywords, CSSProperties['overflowWrap']>>;
   /**
    * 控制滚动到边界后的滚动链和越界反馈行为。（overscroll-behavior）
    *
@@ -2814,7 +2825,9 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overscroll-behavior
    */
-  overscrollBehavior?: StyleValue<CSSProperties['overscrollBehavior']>;
+  overscrollBehavior?: StyleValue<
+    KeywordValue<OverscrollBehaviorKeywords, CSSProperties['overscrollBehavior']>
+  >;
   /**
    * 控制逻辑块轴上到达滚动边界后的行为。（overscroll-behavior-block）
    *
@@ -2826,7 +2839,9 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overscroll-behavior-block
    */
-  overscrollBehaviorBlock?: StyleValue<CSSProperties['overscrollBehaviorBlock']>;
+  overscrollBehaviorBlock?: StyleValue<
+    KeywordValue<OverscrollBehaviorKeywords, CSSProperties['overscrollBehaviorBlock']>
+  >;
   /**
    * 控制垂直方向到达滚动边界后的行为。（overscroll-behavior-y）
    *
@@ -2838,7 +2853,9 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overscroll-behavior-y
    */
-  overscrollBehaviorY?: StyleValue<CSSProperties['overscrollBehaviorY']>;
+  overscrollBehaviorY?: StyleValue<
+    KeywordValue<OverscrollBehaviorKeywords, CSSProperties['overscrollBehaviorY']>
+  >;
   /**
    * 控制逻辑行内轴上到达滚动边界后的行为。（overscroll-behavior-inline）
    *
@@ -2850,7 +2867,9 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overscroll-behavior-inline
    */
-  overscrollBehaviorInline?: StyleValue<CSSProperties['overscrollBehaviorInline']>;
+  overscrollBehaviorInline?: StyleValue<
+    KeywordValue<OverscrollBehaviorKeywords, CSSProperties['overscrollBehaviorInline']>
+  >;
   /**
    * 控制水平方向到达滚动边界后的行为。（overscroll-behavior-x）
    *
@@ -2862,7 +2881,9 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overscroll-behavior-x
    */
-  overscrollBehaviorX?: StyleValue<CSSProperties['overscrollBehaviorX']>;
+  overscrollBehaviorX?: StyleValue<
+    KeywordValue<OverscrollBehaviorKeywords, CSSProperties['overscrollBehaviorX']>
+  >;
   /**
    * 设置内容与边框之间的四边内边距，不接受负值。（padding）
    *
@@ -3025,7 +3046,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/pointer-events
    */
-  pointerEvents?: StyleValue<CSSProperties['pointerEvents']>;
+  pointerEvents?: StyleValue<KeywordValue<PointerEventsKeywords, CSSProperties['pointerEvents']>>;
   /**
    * 设置元素的定位方式，并决定偏移属性如何参与布局。（position）
    *
@@ -3043,7 +3064,7 @@ export interface DocumentedStyles {
    * 初始值 `static`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/position
    */
-  position?: StyleValue<CSSProperties['position']>;
+  position?: StyleValue<KeywordValue<PositionKeywords, CSSProperties['position']>>;
   /**
    * 选择绝对定位元素使用的默认锚点。（position-anchor）
    *
@@ -3482,7 +3503,7 @@ export interface DocumentedStyles {
    * 初始值 `butt`；继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/stroke-linecap
    */
-  strokeLinecap?: StyleValue<CSSProperties['strokeLinecap']>;
+  strokeLinecap?: StyleValue<KeywordValue<StrokeLinecapKeywords, CSSProperties['strokeLinecap']>>;
   /**
    * 设置 SVG 路径转角处描边的连接形状。（stroke-linejoin）
    *
@@ -3541,7 +3562,7 @@ export interface DocumentedStyles {
    * 初始值 `startOrNamelessValueIfLTRRightIfRTL`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/text-align
    */
-  textAlign?: StyleValue<CSSProperties['textAlign']>;
+  textAlign?: StyleValue<KeywordValue<TextAlignKeywords, CSSProperties['textAlign']>>;
   /**
    * 设置段落最后一行或强制换行前一行的对齐方式。（text-align-last）
    *
@@ -3675,7 +3696,7 @@ export interface DocumentedStyles {
    * 初始值 `clip`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/text-overflow
    */
-  textOverflow?: StyleValue<CSSProperties['textOverflow']>;
+  textOverflow?: StyleValue<KeywordValue<TextOverflowKeywords, CSSProperties['textOverflow']>>;
   /**
    * 向渲染器提供文本速度、可读性或几何精度的偏好。（text-rendering）
    *
@@ -3731,7 +3752,7 @@ export interface DocumentedStyles {
    * 初始值 `wrap`；继承；Baseline：2026 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/text-wrap
    */
-  textWrap?: StyleValue<CSSProperties['textWrap']>;
+  textWrap?: StyleValue<KeywordValue<TextWrapKeywords, CSSProperties['textWrap']>>;
   /**
    * 扩大命名动画时间线的可引用作用域。（timeline-scope）
    *
@@ -3762,7 +3783,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/touch-action
    */
-  touchAction?: StyleValue<CSSProperties['touchAction']>;
+  touchAction?: StyleValue<KeywordValue<TouchActionKeywords, CSSProperties['touchAction']>>;
   /**
    * 按顺序组合平移、旋转、缩放等二维或三维变换。（transform）
    *
@@ -3880,7 +3901,7 @@ export interface DocumentedStyles {
    * 初始值 `auto`；不继承；Baseline：尚未在所有主流浏览器可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/user-select
    */
-  userSelect?: StyleValue<CSSProperties['userSelect']>;
+  userSelect?: StyleValue<KeywordValue<UserSelectKeywords, CSSProperties['userSelect']>>;
   /**
    * 设置行内级盒子或表格单元格的垂直对齐，不用于普通块盒居中。（vertical-align）
    *
@@ -3936,7 +3957,7 @@ export interface DocumentedStyles {
    * 初始值 `visible`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/visibility
    */
-  visibility?: StyleValue<CSSProperties['visibility']>;
+  visibility?: StyleValue<KeywordValue<VisibilityKeywords, CSSProperties['visibility']>>;
   /**
    * 语音合成的左右声道平衡（voice-balance），属于 CSS Speech 模块，浏览器基本不支持。
    *
@@ -3986,14 +4007,13 @@ export interface DocumentedStyles {
    * - `pre`：保留空白和源换行，不进行普通软换行。
    * - `pre-wrap`：保留空白和源换行，同时允许软换行。pre 不进行普通软换行；pre-line 会折叠连续空格。
    * - `pre-line`：折叠空格等空白但保留源换行，同时允许软换行。
-   * - `break-spaces`：保留空白并允许在保留的空格后换行；行末空格占据空间。
    *
    * 适用场景：单行标签、保留换行的用户文本和代码片段。
    *
    * 初始值 `normal`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/white-space
    */
-  whiteSpace?: StyleValue<CSSProperties['whiteSpace']>;
+  whiteSpace?: StyleValue<KeywordValue<WhiteSpaceKeywords, CSSProperties['whiteSpace']>>;
   /**
    * 设置分页或分栏断点后需保留的最少行数。（widows）
    *
@@ -4017,7 +4037,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/width
    */
-  width?: StyleValue<CSSProperties['width']>;
+  width?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['width']>>;
   /**
    * 提前告知浏览器可能发生变化的属性，便于准备优化资源。（will-change）
    *
@@ -4040,7 +4060,7 @@ export interface DocumentedStyles {
    * 初始值 `normal`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/word-break
    */
-  wordBreak?: StyleValue<CSSProperties['wordBreak']>;
+  wordBreak?: StyleValue<KeywordValue<WordBreakKeywords, CSSProperties['wordBreak']>>;
   /**
    * 设置单词或词间分隔符的额外间距。（word-spacing）
    *
@@ -4050,11 +4070,6 @@ export interface DocumentedStyles {
   wordSpacing?: StyleValue<CSSProperties['wordSpacing']>;
   /**
    * 设置长文本的额外换行行为；是 overflow-wrap 的兼容名称。（word-wrap）
-   *
-   * 常用值：
-   * - `anywhere`：必要时允许在长文本任意位置断行，这些机会参与 min-content 尺寸计算。break-word 的额外断点不按 anywhere 的方式参与最小内容宽度计算；word-break:break-all 更积极地拆分普通单词。
-   * - `break-word`：必要时允许长文本断行，但新增断点不按 anywhere 的方式参与 min-content 计算。
-   * - `normal`：只使用正常换行机会，不为长单词额外断行。
    *
    * 初始值 `normal`；继承。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overflow-wrap
@@ -4205,4 +4220,703 @@ export interface DocumentedStyles {
    * 伪元素 `::-moz-range-progress`：type="range" 滑块轨道中已滑过的部分（Firefox），非标准。
    */
   '::-moz-range-progress'?: DocumentedStyles;
+}
+
+// 各属性的关键字说明：键上的注释在悬停取值时显示
+interface JustifyContentKeywords {
+  /**
+   * `center`：将整体内容放在主轴或行内轴的中间，不改变项目内部文字对齐。
+   */
+  center: unknown;
+  /**
+   * `space-between`：首尾项目贴两端，剩余空间等分到相邻项目之间。只有一个项目时靠起始侧，不会自动居中。space-evenly 在两端也保留等量空间；space-around 的边缘空间只有项目之间的一半。
+   */
+  'space-between': unknown;
+  /**
+   * `space-around`：每个项目两侧分配相等空间，容器边缘的空间是相邻项目间的一半。
+   */
+  'space-around': unknown;
+  /**
+   * `space-evenly`：容器两端和相邻项目之间分配相等空间。
+   */
+  'space-evenly': unknown;
+  /**
+   * `flex-start`：Flex 内容靠主轴起点排列；起点受 flex-direction 影响。
+   */
+  'flex-start': unknown;
+  /**
+   * `flex-end`：Flex 内容靠主轴终点排列。
+   */
+  'flex-end': unknown;
+  /**
+   * `stretch`：在支持的布局中拉伸自动尺寸的内容；Flex 主轴增长通常由 flex-grow 控制。
+   */
+  stretch: unknown;
+}
+
+interface AlignItemsKeywords {
+  /**
+   * `center`：将各项目在交叉轴或块轴的对齐区域中居中。justify-content 控制 Flex 主轴上的内容分布；align-items 控制交叉轴。
+   */
+  center: unknown;
+  /**
+   * `stretch`：在自动尺寸及最小/最大约束允许时拉伸项目，不强制覆盖显式尺寸。项目在对齐轴有显式尺寸或受最小/最大尺寸约束时，不一定填满可用区域。center 保持项目尺寸并居中；stretch 尝试扩大自动尺寸。
+   */
+  stretch: unknown;
+  /**
+   * `baseline`：按项目的对齐基线对齐，不等同于底边对齐。
+   */
+  baseline: unknown;
+  /**
+   * `normal`：由布局模式决定行为，许多场景类似 stretch，但存在内部尺寸等例外。
+   */
+  normal: unknown;
+  /**
+   * `start`：按对齐轴的逻辑起始侧对齐。
+   */
+  start: unknown;
+  /**
+   * `end`：按对齐轴的逻辑结束侧对齐。
+   */
+  end: unknown;
+  /**
+   * `flex-start`：在 Flex 中按交叉轴起始侧对齐；交叉轴方向受换行方式影响。
+   */
+  'flex-start': unknown;
+  /**
+   * `flex-end`：在 Flex 中按交叉轴结束侧对齐。
+   */
+  'flex-end': unknown;
+}
+
+interface AlignSelfKeywords {
+  /**
+   * `auto`：使用父容器的 align-items 对齐方式。
+   */
+  auto: unknown;
+  /**
+   * `stretch`：在自动尺寸和最小/最大约束允许时拉伸当前项目。
+   */
+  stretch: unknown;
+  /**
+   * `baseline`：让当前项目参与基线对齐，不等同于底边对齐。
+   */
+  baseline: unknown;
+}
+
+interface JustifySelfKeywords {
+  /**
+   * `auto`：采用父容器 justify-items 等上下文决定的对齐方式；不用于 Flex 项目的主轴分配。
+   */
+  auto: unknown;
+  /**
+   * `stretch`：在自动尺寸和最小/最大约束允许时沿行内轴拉伸。
+   */
+  stretch: unknown;
+}
+
+interface AnimationFillModeKeywords {
+  /**
+   * `none`：动画有效区间之外不应用动画关键帧值。
+   */
+  none: unknown;
+  /**
+   * `forwards`：播放结束后保留最后生效关键帧的效果；最后帧取决于方向和循环次数。
+   */
+  forwards: unknown;
+  /**
+   * `backwards`：延迟阶段应用最先生效关键帧的效果，具体帧取决于播放方向。
+   */
+  backwards: unknown;
+  /**
+   * `both`：同时应用 backwards 和 forwards 的区间外效果。
+   */
+  both: unknown;
+}
+
+interface BackgroundClipKeywords {
+  /**
+   * `text`：把背景裁剪到文字字形；显示背景文字效果通常还需要透明的文字颜色。
+   */
+  text: unknown;
+}
+
+interface BackgroundImageKeywords {
+  /**
+   * `none`：不绘制这一层背景图像；背景颜色仍然可以显示。
+   */
+  none: unknown;
+}
+
+interface MaskSizeKeywords {
+  /**
+   * `auto`：依据图像内部尺寸、比例及另一维的设置确定尺寸。
+   */
+  auto: unknown;
+  /**
+   * `contain`：保持图像比例并使整张图像容纳于定位区域，可能留下空白。
+   */
+  contain: unknown;
+  /**
+   * `cover`：保持图像比例并覆盖整个定位区域，超出部分可能被裁剪。
+   */
+  cover: unknown;
+}
+
+interface WidthKeywords {
+  /**
+   * `auto`：让布局算法决定尺寸，不保证等于父元素尺寸。
+   */
+  auto: unknown;
+  /**
+   * `min-content`：采用内容的最小内部尺寸，文字会考虑可用的软换行机会。
+   */
+  'min-content': unknown;
+  /**
+   * `max-content`：采用内容的最大内部尺寸，通常不进行软换行。
+   */
+  'max-content': unknown;
+  /**
+   * `fit-content`：在最小和最大内部尺寸之间按可用空间夹取尺寸。
+   */
+  'fit-content': unknown;
+}
+
+interface BorderStyleKeywords {
+  /**
+   * `none`：不绘制边框，并使对应边框计算宽度为零。
+   */
+  none: unknown;
+  /**
+   * `hidden`：通常与 none 类似；在表格边框合并冲突中优先隐藏边框。
+   */
+  hidden: unknown;
+  /**
+   * `solid`：绘制连续实线边框。
+   */
+  solid: unknown;
+}
+
+interface BoxSizingKeywords {
+  /**
+   * `content-box`：指定尺寸仅计算内容盒，内边距和边框额外增加外部尺寸。
+   */
+  'content-box': unknown;
+  /**
+   * `border-box`：指定尺寸包含内容、内边距和边框，但不包含外边距。仍不包含 margin；最小/最大尺寸和布局约束仍参与计算。content-box 在声明宽高之外再加内边距和边框。
+   */
+  'border-box': unknown;
+}
+
+interface ContainKeywords {
+  /**
+   * `strict`：组合 size、layout、style 和 paint 隔离；尺寸隔离可能影响自动尺寸。
+   */
+  strict: unknown;
+  /**
+   * `content`：组合 layout、style 和 paint 隔离，不包含 size 隔离。
+   */
+  content: unknown;
+  /**
+   * `size`：计算盒子尺寸时不依赖后代内容，通常需要显式或替代内部尺寸。
+   */
+  size: unknown;
+  /**
+   * `paint`：将后代绘制限制在隔离边界内。
+   */
+  paint: unknown;
+  /**
+   * `style`：隔离计数器等特定样式副作用，不会阻止普通 CSS 继承或选择器匹配。
+   */
+  style: unknown;
+}
+
+interface ContainerTypeKeywords {
+  /**
+   * `inline-size`：建立行内轴尺寸查询容器，不同时隔离块轴尺寸。
+   */
+  'inline-size': unknown;
+  /**
+   * `size`：建立两个轴的尺寸查询容器，内容不再直接决定其隔离尺寸。
+   */
+  size: unknown;
+  /**
+   * `normal`：不建立尺寸查询容器；仍可用于支持的样式查询。
+   */
+  normal: unknown;
+}
+
+interface ContentVisibilityKeywords {
+  /**
+   * `auto`：允许浏览器跳过与用户暂不相关的内容渲染，仍需维护布局和可访问性语义。
+   */
+  auto: unknown;
+  /**
+   * `hidden`：跳过内容渲染，行为不同于只隐藏绘制的 visibility:hidden。
+   */
+  hidden: unknown;
+  /**
+   * `visible`：正常渲染内容，不由此属性跳过子树。
+   */
+  visible: unknown;
+}
+
+interface DisplayKeywords {
+  /**
+   * `block`：生成块级盒子，内部默认采用普通流布局。
+   */
+  block: unknown;
+  /**
+   * `inline`：生成行内盒子，参与行内排版；普通非替换行内盒子的宽高不按块盒规则应用。
+   */
+  inline: unknown;
+  /**
+   * `inline-block`：外部参与行内排版，内部建立独立格式化上下文，可设置宽高。相邻行内级盒子之间的文本空白仍可能形成间距，vertical-align 会影响它在行内的位置。与 inline 相比可设置宽高，内部建立独立格式化上下文；与 inline-flex 相比，内部使用普通流而非 Flex。
+   */
+  'inline-block': unknown;
+  /**
+   * `flex`：生成块级弹性容器，直接子元素参与 Flex 布局。默认主轴为 row，默认不换行；主轴方向还受书写方向影响。inline-flex 使用相同的内部布局，但容器对外按行内级盒子排列。
+   */
+  flex: unknown;
+  /**
+   * `inline-flex`：创建行内级的 Flex 容器。子项换行由 flex-wrap 控制。当容器自身是 Flex/Grid 项目时，其外部排版还受父布局控制。与 flex 的区别是容器自身的外部排版方式，内部弹性布局机制相同；inline-flex 对应双关键字写法 inline flex。
+   */
+  'inline-flex': unknown;
+  /**
+   * `grid`：生成块级网格容器，直接子元素参与 Grid 布局。Flex 更侧重单个主轴；Grid 可以同时控制行和列。inline-grid 则改变容器对外的显示类型。
+   */
+  grid: unknown;
+  /**
+   * `inline-grid`：生成行内级网格容器，内部仍使用 Grid 布局。与 grid 的内部网格布局相同，但容器在普通流中按行内级盒子排列。
+   */
+  'inline-grid': unknown;
+  /**
+   * `flow-root`：建立独立块格式化上下文，可包住内部浮动并隔离部分外边距折叠。与普通 block 相比，显式建立独立块格式化上下文；无需借助 overflow:hidden，也不会因此裁剪溢出。
+   */
+  'flow-root': unknown;
+  /**
+   * `contents`：通常不生成元素自身的主盒子，让子盒子参与外层布局；背景、边框等失去承载盒，应核对可访问性行为。替换元素等存在特殊规则；应检查语义和可访问性，不要把它当作无条件删除包装盒的替代。
+   */
+  contents: unknown;
+  /**
+   * `none`：不生成元素及其后代的布局盒子，通常也从可访问性树中移除。不能靠它保留可聚焦交互；重新显示时需按组件需求管理焦点。visibility:hidden 通常保留布局空间；opacity:0 只改变透明度，通常仍能交互。
+   */
+  none: unknown;
+  /**
+   * `list-item`：生成带列表标记的主盒子，标记由 list-style 等属性控制。
+   */
+  'list-item': unknown;
+}
+
+interface FillRuleKeywords {
+  /**
+   * `evenodd`：按射线穿过路径次数的奇偶性判断内部，适合交叠或有孔路径。
+   */
+  evenodd: unknown;
+  /**
+   * `nonzero`：按有方向的绕数判断路径内部，子路径方向会影响结果。
+   */
+  nonzero: unknown;
+}
+
+interface FlexKeywords {
+  /**
+   * `auto`：等价于 1 1 auto：可增长、可收缩，基础尺寸由主尺寸属性或内容决定。最终比例还受最小/最大尺寸约束，不保证所有项目等宽。1 1 0% 以零百分比为基础分配，auto 的基础尺寸通常受内容或主尺寸属性影响。
+   */
+  auto: unknown;
+  /**
+   * `none`：等价于 0 0 auto：不增长也不收缩，保留自动基础尺寸。auto 会增长和收缩；none 两者都不参与。
+   */
+  none: unknown;
+}
+
+interface FlexBasisKeywords {
+  /**
+   * `auto`：先参考主轴对应的 width 或 height；该值也为 auto 时由内容决定。
+   */
+  auto: unknown;
+  /**
+   * `content`：按内容确定基础尺寸，而不直接使用 width 或 height 作为基础尺寸。
+   */
+  content: unknown;
+}
+
+interface FlexDirectionKeywords {
+  /**
+   * `row`：主轴沿行内方向排列；不一定是从左到右，取决于书写方向。
+   */
+  row: unknown;
+  /**
+   * `row-reverse`：反转行内方向的视觉排列，不改变 DOM 顺序。
+   */
+  'row-reverse': unknown;
+  /**
+   * `column`：主轴沿块方向排列；水平书写时通常从上到下。
+   */
+  column: unknown;
+  /**
+   * `column-reverse`：反转块方向的视觉排列，不改变 DOM 顺序。
+   */
+  'column-reverse': unknown;
+}
+
+interface FlexWrapKeywords {
+  /**
+   * `nowrap`：保持单行；项目仍可能收缩或溢出。
+   */
+  nowrap: unknown;
+  /**
+   * `wrap`：空间不足时形成多行，沿交叉轴正常方向排列。换行不会自动均分每行项目宽度，尺寸仍由各项目的 flex 配置决定。nowrap 保持单行；wrap-reverse 反转交叉轴上各行的排列方向。
+   */
+  wrap: unknown;
+  /**
+   * `wrap-reverse`：允许换行并反转交叉轴上各行的排列方向。
+   */
+  'wrap-reverse': unknown;
+}
+
+interface FontWeightKeywords {
+  /**
+   * `normal`：正常字重，等价于数值 400。
+   */
+  normal: unknown;
+  /**
+   * `bold`：粗体字重，等价于数值 700。
+   */
+  bold: unknown;
+  /**
+   * `bolder`：相对于继承字重选择更粗的字重，不是简单加一个固定数值。
+   */
+  bolder: unknown;
+  /**
+   * `lighter`：相对于继承字重选择更细的字重，不是简单减一个固定数值。
+   */
+  lighter: unknown;
+}
+
+interface GridAutoFlowKeywords {
+  /**
+   * `row`：优先沿行放置项目，必要时创建新的隐式行。
+   */
+  row: unknown;
+  /**
+   * `column`：优先沿列放置项目，必要时创建新的隐式列。
+   */
+  column: unknown;
+  /**
+   * `dense`：尝试回填前面留下的空洞，可能让视觉顺序与 DOM 顺序不同。
+   */
+  dense: unknown;
+}
+
+interface InterpolateSizeKeywords {
+  /**
+   * `allow-keywords`：允许受支持的内部尺寸关键字与长度/百分比之间插值，不保证两个关键字之间可以插值。
+   */
+  'allow-keywords': unknown;
+  /**
+   * `numeric-only`：保持仅数值尺寸之间的插值行为。
+   */
+  'numeric-only': unknown;
+}
+
+interface IsolationKeywords {
+  /**
+   * `isolate`：建立独立层叠上下文，使混合效果在该分组内处理。
+   */
+  isolate: unknown;
+  /**
+   * `auto`：由其他属性是否需要层叠上下文决定，不强制隔离。
+   */
+  auto: unknown;
+}
+
+interface LineHeightKeywords {
+  /**
+   * `normal`：由浏览器和字体度量确定行高，没有固定的跨字体倍数。
+   */
+  normal: unknown;
+}
+
+interface MarginKeywords {
+  /**
+   * `auto`：由布局模式分配自动外边距；在 Flex/Grid 中可吸收剩余空间，不保证所有方向都自动居中。
+   */
+  auto: unknown;
+}
+
+interface MinWidthKeywords {
+  /**
+   * `auto`：自动最小尺寸由布局模式决定；Flex/Grid 项目可能受内容最小宽度限制。
+   */
+  auto: unknown;
+}
+
+interface ObjectFitKeywords {
+  /**
+   * `fill`：把内容拉伸到内容盒，可能改变原有宽高比。
+   */
+  fill: unknown;
+  /**
+   * `contain`：保留宽高比并完整放入内容盒，可能留下空白。cover 优先填满盒子并可能裁剪；contain 优先保留完整内容。
+   */
+  contain: unknown;
+  /**
+   * `cover`：保留宽高比并填满内容盒，可能裁掉部分图像。裁剪位置由 object-position 控制，盒子尺寸仍需另外设置。contain 保证完整图像可见但可能留白；fill 可能改变图像比例。
+   */
+  cover: unknown;
+  /**
+   * `none`：不按内容盒缩放替换内容。
+   */
+  none: unknown;
+  /**
+   * `scale-down`：在 none 和 contain 中选择得到较小内容尺寸的方案。
+   */
+  'scale-down': unknown;
+}
+
+interface OverflowKeywords {
+  /**
+   * `visible`：允许内容绘制到盒子外；与另一轴的设置组合时计算值可能变化。
+   */
+  visible: unknown;
+  /**
+   * `hidden`：裁剪溢出且不显示滚动条，但仍是可通过脚本等方式滚动的滚动容器。可能成为 sticky 后代的滚动参照，不能把它仅理解成视觉裁剪。clip 不建立滚动容器；hidden 仍可通过脚本或焦点移动滚动。
+   */
+  hidden: unknown;
+  /**
+   * `clip`：在裁剪边界截断内容，不建立滚动容器，也不支持程序化滚动。两轴设置会影响计算结果；与另一轴 auto/scroll 等组合时，要检查最终溢出行为。与 hidden 不同，不支持程序化滚动，也不单独建立块格式化上下文。
+   */
+  clip: unknown;
+  /**
+   * `auto`：按溢出情况提供滚动机制；滚动条外观和是否占空间由环境决定。scroll 通常始终预留或显示滚动机制；auto 根据溢出情况显示滚动条，外观由平台决定。
+   */
+  auto: unknown;
+  /**
+   * `scroll`：建立滚动容器，通常即使未溢出也显示滚动条；具体外观由平台决定。
+   */
+  scroll: unknown;
+}
+
+interface OverflowWrapKeywords {
+  /**
+   * `anywhere`：必要时允许在长文本任意位置断行，这些机会参与 min-content 尺寸计算。break-word 的额外断点不按 anywhere 的方式参与最小内容宽度计算；word-break:break-all 更积极地拆分普通单词。
+   */
+  anywhere: unknown;
+  /**
+   * `break-word`：必要时允许长文本断行，但新增断点不按 anywhere 的方式参与 min-content 计算。
+   */
+  'break-word': unknown;
+  /**
+   * `normal`：只使用正常换行机会，不为长单词额外断行。
+   */
+  normal: unknown;
+}
+
+interface OverscrollBehaviorKeywords {
+  /**
+   * `auto`：采用默认滚动链和边界反馈。
+   */
+  auto: unknown;
+  /**
+   * `contain`：阻止滚动链传播到祖先，同时可保留当前容器的边界反馈。
+   */
+  contain: unknown;
+  /**
+   * `none`：阻止滚动链，并抑制当前容器的默认越界反馈。
+   */
+  none: unknown;
+}
+
+interface PointerEventsKeywords {
+  /**
+   * `none`：元素本身不成为指针命中目标；不等于禁用，仍可能通过 Tab 获焦，后代也可恢复命中。后代可以恢复命中；来自后代的事件仍可能经过祖先监听器。
+   */
+  none: unknown;
+  /**
+   * `auto`：采用当前元素类型的默认命中规则。
+   */
+  auto: unknown;
+}
+
+interface PositionKeywords {
+  /**
+   * `static`：参与普通文档流，top/right/bottom/left 等定位偏移不生效。
+   */
+  static: unknown;
+  /**
+   * `relative`：保留普通流中的原位置，再按偏移移动绘制位置；不会为偏移后的区域重新排版。absolute 会脱离普通流；relative 仍保留原占位。
+   */
+  relative: unknown;
+  /**
+   * `absolute`：脱离普通文档流，按包含块定位；包含块通常由定位祖先或 transform 等属性建立。通常在预期的容器上设置 position:relative；元素不为自己保留普通流占位。
+   */
+  absolute: unknown;
+  /**
+   * `fixed`：脱离普通流，通常相对视口固定；某些祖先属性会建立不同的包含块。祖先的 transform 等属性可能改变固定定位的包含块；z-index 仍受层叠上下文约束。absolute 通常跟随其包含块滚动；fixed 在以视口为包含块时保持视口位置。
+   */
+  fixed: unknown;
+  /**
+   * `sticky`：保留流内位置，在滚动范围内按 inset 约束吸附。对应轴至少一个 inset 须非 auto，并受滚动祖先和包含块限制。对应轴至少一个 inset 必须非 auto；祖先 overflow 可能改变滚动参照。与 fixed 不同，它保留流内占位，并受自身所在包含块的范围约束。
+   */
+  sticky: unknown;
+}
+
+interface StrokeLinecapKeywords {
+  /**
+   * `butt`：在端点处平直截断描边，不向外延伸。
+   */
+  butt: unknown;
+  /**
+   * `round`：使用半圆端帽，向端点外延伸半个描边宽度。
+   */
+  round: unknown;
+  /**
+   * `square`：使用方形端帽，向端点外延伸半个描边宽度。
+   */
+  square: unknown;
+}
+
+interface TextAlignKeywords {
+  /**
+   * `start`：按当前书写方向的行内起始侧对齐。
+   */
+  start: unknown;
+  /**
+   * `end`：按当前书写方向的行内结束侧对齐。
+   */
+  end: unknown;
+  /**
+   * `center`：将行内内容在行盒中居中，不会让块盒自身居中。
+   */
+  center: unknown;
+  /**
+   * `justify`：调整行内间距使文字两端对齐；最后一行通常由 text-align-last 控制。
+   */
+  justify: unknown;
+}
+
+interface TextOverflowKeywords {
+  /**
+   * `ellipsis`：用省略号提示被裁剪的行内溢出；还需要限制尺寸并配置溢出规则。不会自动限制宽度、禁用换行或实现多行省略。Flex/Grid 子项还可能需要 min-width:0。
+   */
+  ellipsis: unknown;
+  /**
+   * `clip`：直接裁剪溢出文本，不添加省略标记。
+   */
+  clip: unknown;
+}
+
+interface TextWrapKeywords {
+  /**
+   * `wrap`：允许软换行。
+   */
+  wrap: unknown;
+  /**
+   * `nowrap`：禁止软换行，但不取消显式强制换行。
+   */
+  nowrap: unknown;
+  /**
+   * `balance`：尝试让各行长度更均衡，常用于标题；可处理行数由浏览器决定。
+   */
+  balance: unknown;
+  /**
+   * `pretty`：使用偏向排版质量的换行策略，例如减少末行孤立短词。
+   */
+  pretty: unknown;
+  /**
+   * `stable`：编辑时尽量不改变较早行的换行位置。
+   */
+  stable: unknown;
+}
+
+interface TouchActionKeywords {
+  /**
+   * `none`：禁用浏览器在该区域处理的平移和缩放手势，可能影响用户缩放可访问性。
+   */
+  none: unknown;
+  /**
+   * `manipulation`：允许平移和连续缩放，通常禁用双击缩放等额外手势。
+   */
+  manipulation: unknown;
+  /**
+   * `pan-x`：允许浏览器处理水平单指平移。
+   */
+  'pan-x': unknown;
+  /**
+   * `pan-y`：允许浏览器处理垂直单指平移。
+   */
+  'pan-y': unknown;
+}
+
+interface UserSelectKeywords {
+  /**
+   * `none`：阻止常规文本选取，不是内容保护或访问控制。
+   */
+  none: unknown;
+  /**
+   * `text`：允许文本选取。
+   */
+  text: unknown;
+  /**
+   * `all`：将元素内容作为整体选取单元。
+   */
+  all: unknown;
+  /**
+   * `auto`：由父级与元素上下文决定使用的选取行为。
+   */
+  auto: unknown;
+}
+
+interface VisibilityKeywords {
+  /**
+   * `visible`：正常显示元素。
+   */
+  visible: unknown;
+  /**
+   * `hidden`：隐藏绘制但通常保留布局空间；后代可显式恢复 visible。display:none 不保留布局盒；opacity:0 不会以相同方式移除交互和可访问性。
+   */
+  hidden: unknown;
+  /**
+   * `collapse`：对表格行列等特定布局有折叠语义，其他场景通常类似 hidden；应核对具体布局行为。
+   */
+  collapse: unknown;
+}
+
+interface WhiteSpaceKeywords {
+  /**
+   * `normal`：折叠连续空白和源换行，允许软换行。
+   */
+  normal: unknown;
+  /**
+   * `nowrap`：折叠空白并禁止软换行；不会自行生成省略号。pre 也不进行普通软换行，但会保留连续空白。
+   */
+  nowrap: unknown;
+  /**
+   * `pre`：保留空白和源换行，不进行普通软换行。
+   */
+  pre: unknown;
+  /**
+   * `pre-wrap`：保留空白和源换行，同时允许软换行。pre 不进行普通软换行；pre-line 会折叠连续空格。
+   */
+  'pre-wrap': unknown;
+  /**
+   * `pre-line`：折叠空格等空白但保留源换行，同时允许软换行。
+   */
+  'pre-line': unknown;
+}
+
+interface WordBreakKeywords {
+  /**
+   * `break-all`：允许在更多字符间断行以防溢出，可能拆开普通单词。
+   */
+  'break-all': unknown;
+  /**
+   * `keep-all`：限制中日韩文字内部断行，其他文字仍按正常规则处理。
+   */
+  'keep-all': unknown;
+  /**
+   * `normal`：按语言的默认断行规则处理。
+   */
+  normal: unknown;
 }

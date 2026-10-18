@@ -4,40 +4,43 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 
-/** 颜色 */
+/** 颜色：取自 Radix Colors（slate 中性色、indigo 品牌色），每级的用途遵循 Radix 的 12 级约定 */
 export const colors = stylex.defineVars({
-  /** 页面背景。亮色 `#ffffff`，暗色 `#111113` */
-  background: '#ffffff',
-  /** 卡片、输入框等表面。亮色 `#ffffff`，暗色 `#18181b` */
-  surface: '#ffffff',
-  /** 浮层（弹出框、菜单）表面。亮色 `#ffffff`，暗色 `#222226` */
-  surfaceRaised: '#ffffff',
-  /** 悬停、选中等轻微强调的背景。亮色 `#f2f2f5`，暗色 `#27272b` */
-  surfaceHover: '#f2f2f5',
-  /** 主要文字。亮色 `#1b1b1f`，暗色 `#ececef` */
-  text: '#1b1b1f',
-  /** 次要文字、说明、占位符。亮色 `#62626b`，暗色 `#a0a0ab` */
-  textMuted: '#62626b',
-  /** 普通边框。亮色 `#d9d9e0`，暗色 `#3a3a40` */
-  border: '#d9d9e0',
-  /** 强调边框（悬停、聚焦前）。亮色 `#b9b9c3`，暗色 `#55555d` */
-  borderStrong: '#b9b9c3',
-  /** 品牌色：主按钮、选中态。亮色 `#3e63dd`，暗色 `#5b7ff0` */
+  /** 页面背景。slate 1：亮色 `#fcfcfd`，暗色 `#111113` */
+  background: '#fcfcfd',
+  /** 卡片、输入框等表面。亮色 slate 1 `#fcfcfd`，暗色 slate 2 `#18191b` */
+  surface: '#fcfcfd',
+  /** 浮层（弹出框、菜单）表面。亮色 slate 1 `#fcfcfd`（靠阴影区分），暗色 slate 3 `#212225` */
+  surfaceRaised: '#fcfcfd',
+  /** 悬停、选中等轻微强调的背景。slate 4：亮色 `#e8e8ec`，暗色 `#272a2d` */
+  surfaceHover: '#e8e8ec',
+  /** 主要文字。slate 12：亮色 `#1c2024`，暗色 `#edeef0` */
+  text: '#1c2024',
+  /** 次要文字、说明、占位符。slate 11：亮色 `#60646c`，暗色 `#b0b4ba` */
+  textMuted: '#60646c',
+  /** 普通边框：输入框、卡片、浮层。slate 7：亮色 `#cdced6`，暗色 `#43484e` */
+  border: '#cdced6',
+  /** 强调边框（悬停）。slate 8：亮色 `#b9bbc6`，暗色 `#5a6169` */
+  borderStrong: '#b9bbc6',
+  /** 品牌色：主按钮、选中态。indigo 9：两套主题都是 `#3e63dd` */
   accent: '#3e63dd',
-  /** 品牌色悬停。亮色 `#3557c8`，暗色 `#7593f3` */
-  accentHover: '#3557c8',
-  /** 品牌色背景上的文字。两套主题都是 `#ffffff` */
+  /** 品牌色悬停。indigo 10：亮色 `#3358d4`，暗色 `#5472e4` */
+  accentHover: '#3358d4',
+  /** 品牌色背景上的文字。Radix 规定 indigo 9 上用白字：`#ffffff` */
   accentText: '#ffffff',
-  /** 危险、错误。亮色 `#d93036`，暗色 `#f0605d` */
-  danger: '#d93036',
-  /** 成功。亮色 `#218358`，暗色 `#3dd68c` */
+  /** 危险、错误的文字与图标。red 11：亮色 `#ce2c31`，暗色 `#ff9592` */
+  danger: '#ce2c31',
+  /** 成功的文字与图标。green 11：亮色 `#218358`，暗色 `#3dd68c` */
   success: '#218358',
-  /** 警告。亮色 `#ad5700`，暗色 `#ffb224` */
-  warning: '#ad5700',
-  /** 焦点环（:focus-visible）。亮色 `#3e63dd`，暗色 `#7593f3` */
+  /** 警告的文字与图标。amber 11：亮色 `#ab6400`，暗色 `#ffca16` */
+  warning: '#ab6400',
+  /**
+   * 焦点环（:focus-visible）。indigo 9：两套主题都是 `#3e63dd`。
+   * Radix 建议 7–8 级，但亮色下对比度不到 3:1（WCAG 2.2 焦点外观要求），所以用 9 级
+   */
   focusRing: '#3e63dd',
-  /** 模态遮罩。亮色 `rgb(0 0 0 / 0.4)`，暗色 `rgb(0 0 0 / 0.6)` */
-  overlay: 'rgb(0 0 0 / 0.4)',
+  /** 模态遮罩。亮色 blackA 6 `rgba(0, 0, 0, 0.4)`，暗色 blackA 8 `rgba(0, 0, 0, 0.6)` */
+  overlay: 'rgba(0, 0, 0, 0.4)',
 });
 
 /** 字号与形状：尺寸都用 em，随组件根元素的字号等比缩放 */

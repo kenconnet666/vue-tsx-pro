@@ -47,11 +47,11 @@ it('em 尺寸：档位改变字号，内部尺寸同比缩放；继承上下文�
 });
 
 it('主题：token 变量生效，页面内切换暗色', async () => {
+  // 主按钮 indigo 9 两套主题相同；输入框表面亮色 slate 1、暗色 slate 2
   expect(style(button('默认')).backgroundColor).toBe('rgb(62, 99, 221)');
+  expect(style($('.search-field')).backgroundColor).toBe('rgb(252, 252, 253)');
   $('.toggle-theme').click();
-  // 按钮背景色有过渡动画，等它结束
-  await expect.poll(() => style(button('默认')).backgroundColor).toBe('rgb(91, 127, 240)');
-  expect(style($('.search-field')).backgroundColor).toBe('rgb(24, 24, 27)');
+  await expect.poll(() => style($('.search-field')).backgroundColor).toBe('rgb(24, 25, 27)');
 });
 
 it('Popover：打开时焦点进入，Esc 关闭并写回、焦点回到触发器；点击外部关闭', async () => {

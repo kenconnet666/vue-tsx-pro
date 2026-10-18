@@ -252,3 +252,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **组件库基础设施与试点（2026-10-18）**：StyleX 类型入口 `@vue-tsx-pro/tsx/stylex`（属性中文注释，数据来源见 `scripts/css-docs/NOTICE.md`）；`packages/ui` 的 tokens、明暗主题、`Provider` / `createUi`、平铺的 `Lang`、`useFormat`、`mergeProps` 与部件类型；宿主示例里的试点组件与真实浏览器测试（Vitest 浏览器模式 + Playwright + axe-core，已进 CI）。试点暴露的问题与结论见 [COMPONENTS.md](COMPONENTS.md) §7。
 
 **第二轮审查（2026-10-18）**：修复弹出层打开时缺少无障碍名称、定位前闪烁与焦点时机、`class` 对象/数组合并、按钮 `type` 不可覆盖、注释数据中的残留写法；浏览器测试补充打开状态的 axe 检查与再次点击触发器关闭。详见 [COMPONENTS.md](COMPONENTS.md) §7.2。
+
+**色板与取值注释（2026-10-18）**：颜色 token 改用 Radix Colors 并由测试对照色板校验；StyleX 属性值关键字带说明（`KeywordValue`），WebStorm 悬停取值即可看到，接受的值与原版逐属性校验一致。详见 [COMPONENTS.md](COMPONENTS.md) §6.2、§9。
