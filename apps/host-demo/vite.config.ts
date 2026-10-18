@@ -11,6 +11,6 @@ export default defineConfig({
     name: 'host-demo',
     environment: 'happy-dom',
     // 真实浏览器里的测试见 vitest.browser.config.ts
-    exclude: [...configDefaults.exclude, '**/*.browser.test.ts'],
+    exclude: [...configDefaults.exclude, '**/*.browser.test.{ts,tsx}'],
   },
 });
