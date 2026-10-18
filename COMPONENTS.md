@@ -74,7 +74,7 @@
 ## 4. 样式
 
 - 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。
-- 颜色、圆角、字体、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
+- 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
 
@@ -107,17 +107,20 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 ### 6.2 主题 `theme`
 
-主题是一组设计 tokens：
+主题是一组设计 tokens，定义在 `packages/ui/src/config/theme/tokens.stylex.ts`，使用方从 `@vue-tsx-pro/ui/tokens.stylex` 导入。分组参考 Radix Themes（取值）、Ant Design（语义分层）、Material 3（动效）取舍：
 
-| 分组 | 内容                                                                         |
-| ---- | ---------------------------------------------------------------------------- |
-| 颜色 | 中性色与品牌色色阶、语义色（成功、警告、危险、信息）、文字、边框、背景、遮罩 |
-| 字号 | 基准字号，以及 `sm` / `md` / `lg` 档位与部件字号比例                         |
-| 形状 | 圆角档位（em）                                                               |
-| 字体 | 字体族、字重                                                                 |
-| 阴影 | 浮层阴影档位                                                                 |
-| 动效 | 时长、缓动曲线                                                               |
+| 分组       | 内容                                                                                                                                                                         |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `colors`   | 背景与表面、中性填充（常态/悬停/按下）、文字四级、边框三级、品牌色与危险色（实色/悬停/实色上的文字/文字/浅底/浅底悬停/边框）、成功/警告/信息（文字/浅底/边框）、焦点环、遮罩 |
+| `fonts`    | 字体族、基准字号与 `sm` / `md` / `lg` 档位、标题字号、行高、字重                                                                                                             |
+| `space`    | 间距 `xxs`～`xxl`（em）                                                                                                                                                      |
+| `radii`    | 圆角 `sm` / `md` / `lg` / `xl`（em）与 `full`；整体改直角或更圆时覆盖这一组                                                                                                  |
+| `controls` | 单行控件高度、最小可点击尺寸、边框宽度、焦点环宽度与间隔、不可用的不透明度                                                                                                   |
+| `shadows`  | 卡片、浮层、对话框（取自 Radix Themes，暗色主题另有一套）                                                                                                                    |
+| `motion`   | 时长快/常规/慢，标准/进入/退出缓动                                                                                                                                           |
 
+- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染。不设断点：StyleX 的媒体查询不能引用变量，组件优先用容器查询。
+- 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）。
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。

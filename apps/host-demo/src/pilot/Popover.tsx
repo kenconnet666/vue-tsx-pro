@@ -3,7 +3,7 @@ import { autoUpdate, computePosition, flip, offset, shift, type Placement } from
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '@vue-tsx-pro/ui';
-import { colors, shadows, sizes } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors, controls, radii, shadows, space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { tabbable } from 'tabbable';
 import { nextTick, onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 
@@ -33,11 +33,11 @@ const styles = stylex.create({
     position: 'fixed',
     inset: 'auto',
     margin: 0,
-    padding: '0.75em',
-    borderWidth: 1,
+    padding: space.sm,
+    borderWidth: controls.borderWidth,
     borderStyle: 'solid',
     borderColor: colors.border,
-    borderRadius: sizes.radiusLg,
+    borderRadius: radii.lg,
     backgroundColor: colors.surfaceRaised,
     color: colors.text,
     boxShadow: shadows.popover,

@@ -254,3 +254,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **第二轮审查（2026-10-18）**：修复弹出层打开时缺少无障碍名称、定位前闪烁与焦点时机、`class` 对象/数组合并、按钮 `type` 不可覆盖、注释数据中的残留写法；浏览器测试补充打开状态的 axe 检查与再次点击触发器关闭。详见 [COMPONENTS.md](COMPONENTS.md) §7.2。
 
 **色板与取值注释（2026-10-18）**：颜色 token 改用 Radix Colors 并由测试对照色板校验；StyleX 属性值关键字带说明（`KeywordValue`），WebStorm 悬停取值即可看到，接受的值与原版逐属性校验一致。详见 [COMPONENTS.md](COMPONENTS.md) §6.2、§9。
+
+**目录整理与 tokens 补全（2026-10-18）**：`packages/ui/src/config` 下分 `theme/`（tokens、亮色默认/暗色主题）与 `lang/`（简体中文默认、英语、格式化）；tokens 补全为颜色、字体、间距、圆角、控件、阴影、动效七组，暗色主题同时覆盖颜色与阴影。详见 [COMPONENTS.md](COMPONENTS.md) §6.2。

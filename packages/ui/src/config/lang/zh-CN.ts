@@ -1,4 +1,4 @@
-import type { Lang } from './types';
+import type { Lang } from './lang';
 
 /** 简体中文 */
 export const zhCN: Lang = {

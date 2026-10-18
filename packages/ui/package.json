@@ -12,9 +12,9 @@
       "default": "./dist/index.js"
     },
     "./tokens.stylex": {
-      "@vue-tsx-pro/source": "./src/theme/tokens.stylex.ts",
-      "types": "./dist/theme/tokens.stylex.d.ts",
-      "default": "./dist/theme/tokens.stylex.js"
+      "@vue-tsx-pro/source": "./src/config/theme/tokens.stylex.ts",
+      "types": "./dist/config/theme/tokens.stylex.d.ts",
+      "default": "./dist/config/theme/tokens.stylex.js"
     },
     "./package.json": "./package.json"
   },

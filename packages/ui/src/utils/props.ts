@@ -27,38 +27,25 @@ type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => unknown;
 type RefSetter = ((element: unknown) => void) | Ref<unknown>;
 
-const isHandler = (key: string) => /^on[A-Z]/.test(key);
-
+/** 合并部件的三层属性：组件默认、使用方传入、组件受管，规则见文件开头 */
 export function mergeProps(defaults: Props, user: Props = {}, managed: Props = {}): Props {
-  const merged: Props = { ...defaults, ...user, ...managed };
   const layers = [defaults, user, managed];
+  const merged: Props = { ...defaults, ...user, ...managed };
 
-  const sx = layers.map((layer) => layer.sx).filter((value) => value != null);
-  if (sx.length) merged.sx = sx;
-  const classes = layers.map((layer) => layer.class).filter((value) => value != null);
-  if (classes.length) merged.class = classes;
-  const styles = layers.map((layer) => layer.style).filter((value) => value != null);
-  if (styles.length) merged.style = styles;
+  for (const key of ['sx', 'class', 'style']) {
+    const values = present(layers.map((layer) => layer[key]));
+    if (values.length) merged[key] = values;
+  }
 
-  const refs = layers
-    .map((layer) => layer.ref as RefSetter | undefined)
-    .filter((ref) => ref != null);
-  if (refs.length > 1)
+  const refs = present(layers.map((layer) => layer.ref as RefSetter | undefined));
+  if (refs.length > 1) {
     merged.ref = (element: unknown) => refs.forEach((ref) => setRef(ref, element));
+  }
 
   for (const key of new Set(layers.flatMap(Object.keys))) {
-    if (!isHandler(key)) continue;
-    const userHandler = user[key] as Handler | undefined;
-    const internal = [defaults[key], managed[key]].filter(
-      (handler) => handler != null,
-    ) as Handler[];
-    if (internal.length + (userHandler ? 1 : 0) < 2) continue;
-    merged[key] = (...args: unknown[]) => {
-      userHandler?.(...args);
-      const event = args[0];
-      if (event instanceof Event && event.defaultPrevented) return;
-      internal.forEach((handler) => handler(...args));
-    };
+    if (!/^on[A-Z]/.test(key)) continue;
+    const handler = mergeHandlers(user[key] as Handler | undefined, [defaults[key], managed[key]]);
+    if (handler) merged[key] = handler;
   }
   return merged;
 }
@@ -70,8 +57,23 @@ export function elementProps(props: Props): Props {
   const compiled = stylex.attrs(sx as StyleXStyles);
   return {
     ...rest,
-    class: [rest.class, compiled.class].filter((value) => value != null),
-    style: [compiled.style, rest.style].filter((value) => value != null),
+    class: present([rest.class, compiled.class]),
+    style: present([compiled.style, rest.style]),
+  };
+}
+
+/**
+ * 使用方的回调先执行，它调用了 event.preventDefault() 就跳过组件自己的回调。
+ * 只有一方提供回调时返回 undefined，保留展开合并的结果即可。
+ */
+function mergeHandlers(user: Handler | undefined, internal: unknown[]): Handler | undefined {
+  const own = present(internal) as Handler[];
+  if (own.length + (user ? 1 : 0) < 2) return undefined;
+  return (...args) => {
+    user?.(...args);
+    const event = args[0];
+    if (event instanceof Event && event.defaultPrevented) return;
+    own.forEach((handler) => handler(...args));
   };
 }
 
@@ -79,3 +81,6 @@ function setRef(ref: RefSetter, element: unknown) {
   if (typeof ref === 'function') ref(element);
   else ref.value = element;
 }
+
+const present = <T>(values: readonly (T | null | undefined)[]) =>
+  values.filter((value): value is T => value != null);

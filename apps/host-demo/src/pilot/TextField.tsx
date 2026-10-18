@@ -4,7 +4,7 @@ import { X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, useLang, type PartProps } from '@vue-tsx-pro/ui';
-import { colors, sizes } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors, controls, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { Icon, type IconProps } from './Icon';
 
 /** 未声明的属性落到 input（主元素）上；外层容器用 propsRoot */
@@ -27,41 +27,42 @@ const styles = stylex.create({
   root: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '0.5em',
-    minHeight: 'max(2.25em, 24px)',
-    paddingInline: '0.75em',
-    borderWidth: 1,
+    gap: space.xs,
+    minHeight: `max(${controls.height}, ${controls.minTarget})`,
+    paddingInline: space.sm,
+    borderWidth: controls.borderWidth,
     borderStyle: 'solid',
     borderColor: { default: colors.border, ':hover': colors.borderStrong },
-    borderRadius: sizes.radiusMd,
+    borderRadius: radii.md,
     backgroundColor: colors.surface,
     color: colors.text,
     outlineStyle: { default: 'none', ':focus-within': 'solid' },
-    outlineWidth: 2,
+    outlineWidth: controls.focusRingWidth,
     outlineColor: colors.focusRing,
-    outlineOffset: -1,
+    // 压住边框
+    outlineOffset: `calc(-1 * ${controls.borderWidth})`,
   },
   invalid: { borderColor: colors.danger, outlineColor: colors.danger },
-  disabled: { opacity: 0.5 },
+  disabled: { opacity: controls.disabledOpacity },
   icon: { color: colors.textMuted },
   input: {
     flexGrow: 1,
     minWidth: 0,
-    paddingBlock: '0.4em',
+    paddingBlock: space.xxs,
     borderWidth: 0,
     outlineStyle: 'none',
     backgroundColor: 'transparent',
     color: 'inherit',
     fontFamily: 'inherit',
     fontSize: 'inherit',
-    '::placeholder': { color: colors.textMuted },
+    '::placeholder': { color: colors.textPlaceholder },
   },
   clear: {
     display: 'inline-flex',
     padding: '0.15em',
     borderWidth: 0,
-    borderRadius: sizes.radiusSm,
-    backgroundColor: { default: 'transparent', ':hover': colors.surfaceHover },
+    borderRadius: radii.sm,
+    backgroundColor: { default: 'transparent', ':hover': colors.fillHover },
     color: colors.textMuted,
     cursor: 'pointer',
   },

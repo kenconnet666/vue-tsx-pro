@@ -1,4 +1,4 @@
-import type { Lang } from './types';
+import type { Lang } from './lang';
 
 /** English (United States) */
 export const enUS: Lang = {

@@ -3,7 +3,7 @@ import type { LucideIconData } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '@vue-tsx-pro/ui';
-import { colors, fonts, motion, sizes } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors, controls, fonts, motion, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from './Icon';
 
@@ -28,18 +28,18 @@ const styles = stylex.create({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '0.5em',
-    minHeight: 'max(2.25em, 24px)',
-    paddingBlock: '0.4em',
-    paddingInline: '1em',
-    borderWidth: 1,
+    gap: space.xs,
+    minHeight: `max(${controls.height}, ${controls.minTarget})`,
+    paddingBlock: space.xxs,
+    paddingInline: space.md,
+    borderWidth: controls.borderWidth,
     borderStyle: 'solid',
     borderColor: 'transparent',
-    borderRadius: sizes.radiusMd,
+    borderRadius: radii.md,
     fontFamily: 'inherit',
     fontSize: 'inherit',
     fontWeight: fonts.weightStrong,
-    lineHeight: 1.2,
+    lineHeight: fonts.lineHeightTight,
     textDecoration: 'none',
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color, color',
@@ -48,27 +48,27 @@ const styles = stylex.create({
       '@media (prefers-reduced-motion: reduce)': '0s',
     },
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
-    outlineWidth: 2,
+    outlineWidth: controls.focusRingWidth,
     outlineColor: colors.focusRing,
-    outlineOffset: 2,
+    outlineOffset: controls.focusRingOffset,
   },
   solid: {
-    color: colors.accentText,
+    color: colors.accentContrast,
     backgroundColor: { default: colors.accent, ':hover': colors.accentHover },
   },
   outline: {
     color: colors.text,
-    backgroundColor: { default: 'transparent', ':hover': colors.surfaceHover },
+    backgroundColor: { default: 'transparent', ':hover': colors.fillHover },
     borderColor: colors.border,
   },
   ghost: {
     color: colors.text,
-    backgroundColor: { default: 'transparent', ':hover': colors.surfaceHover },
+    backgroundColor: { default: 'transparent', ':hover': colors.fillHover },
   },
-  disabled: { opacity: 0.5, cursor: 'not-allowed' },
-  sm: { fontSize: sizes.fontSizeSm },
-  md: { fontSize: sizes.fontSizeMd },
-  lg: { fontSize: sizes.fontSizeLg },
+  disabled: { opacity: controls.disabledOpacity, cursor: 'not-allowed' },
+  sm: { fontSize: fonts.sizeSm },
+  md: { fontSize: fonts.sizeMd },
+  lg: { fontSize: fonts.sizeLg },
 });
 
 export const Button = _component(

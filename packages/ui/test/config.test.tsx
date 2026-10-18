@@ -14,7 +14,7 @@ import {
   useFormat,
   useLang,
 } from '../src';
-import { colors } from '../src/theme/tokens.stylex';
+import { colors } from '../src/config/theme/tokens.stylex';
 
 const apps: App[] = [];
 afterEach(() => {
@@ -139,10 +139,10 @@ describe('useLang', () => {
 describe('defineTheme', () => {
   it('按分组合并：未提到的 token 沿用基础主题', () => {
     const base = defineTheme(lightTheme, { colors: { accent: '#111111', danger: '#222222' } });
-    const next = defineTheme(base, { colors: { accent: '#333333' }, sizes: { fontSize: '16px' } });
+    const next = defineTheme(base, { colors: { accent: '#333333' }, fonts: { size: '16px' } });
     expect(next.overrides).toEqual({
       colors: { accent: '#333333', danger: '#222222' },
-      sizes: { fontSize: '16px' },
+      fonts: { size: '16px' },
     });
     expect(base.overrides.colors?.accent).toBe('#111111');
   });

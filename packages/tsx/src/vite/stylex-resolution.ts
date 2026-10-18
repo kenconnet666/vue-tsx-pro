@@ -2,7 +2,7 @@
  * StyleX 的模块解析（unstable_moduleResolution: custom）。
  *
  * StyleX 按“包名:文件路径”给 defineVars 的变量算哈希，引用方按导入路径解析到文件再算同样的哈希。
- * 仓库内 Vite 编译的是源码（src/theme/x.stylex.ts），使用方编译的是产物（dist/theme/x.stylex.js），
+ * 仓库内 Vite 编译的是源码（src/config/theme/x.stylex.ts），使用方编译的是产物（dist/config/theme/x.stylex.js），
  * 而 StyleX 解析包导入时按 exports 找到的是 dist —— 两边算出的变量名就对不上。
  * 这里把 src 与 dist 下的同一个模块规范成同一个名字（去掉 src/ 或 dist/ 前缀与扩展名），
  * 变量名就与从源码还是产物编译无关。

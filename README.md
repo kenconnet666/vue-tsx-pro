@@ -30,7 +30,7 @@ app.use(createUi({ theme: darkTheme, lang: { timeZone: 'Asia/Shanghai' } }));
 
 ```ts
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { colors, sizes } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
 ```
 
 构建时 StyleX 的 CSS 会追加到宿主产物里的 CSS 文件（宿主一般都有全局样式）；如果宿主一个 CSS 文件都没有，StyleX 会另写一个 `stylex.css` 但不会自动引用。

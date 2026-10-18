@@ -4,12 +4,15 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { Theme as CompiledTheme } from '@vue-tsx-pro/tsx/stylex';
-import { colors, fonts, motion, shadows, sizes } from './tokens.stylex';
+import { colors, controls, fonts, motion, radii, shadows, space } from './tokens.stylex';
 
-const groups = { colors, sizes, fonts, shadows, motion };
+const groups = { colors, fonts, space, radii, controls, shadows, motion };
 type Groups = typeof groups;
 
-/** 按分组覆盖部分 token：`{ colors: { accent: '#e5484d' }, sizes: { fontSize: '16px' } }` */
+/** 某一组 tokens 的编译期主题（createTheme 的结果） */
+export type GroupTheme = { [Group in keyof Groups]: CompiledTheme<Groups[Group]> }[keyof Groups];
+
+/** 按分组覆盖部分 token：`{ colors: { accent: '#e5484d' }, fonts: { size: '16px' } }` */
 export type ThemeOverrides = {
   [Group in keyof Groups]?: { [Token in keyof Groups[Group]['__tokens']]?: string };
 };
@@ -19,47 +22,18 @@ export interface Theme {
   readonly name: string;
   /** 浏览器配色方案，影响原生表单控件与滚动条 */
   readonly colorScheme: 'light' | 'dark';
-  /** 编译期生成的主题样式（createTheme 的结果）；亮色主题即默认值，为 null */
-  readonly styles: CompiledTheme<typeof colors> | null;
+  /** 编译期生成的主题样式，每组一个（createTheme 的结果）；亮色主题即默认值，为空 */
+  readonly styles: readonly GroupTheme[];
   /** 运行时覆盖的取值 */
   readonly overrides: ThemeOverrides;
 }
 
-// Radix Colors 的暗色色阶，各 token 对应的级别见 tokens.stylex.ts
-const darkColors = stylex.createTheme(colors, {
-  background: '#111113',
-  surface: '#18191b',
-  surfaceRaised: '#212225',
-  surfaceHover: '#272a2d',
-  text: '#edeef0',
-  textMuted: '#b0b4ba',
-  border: '#43484e',
-  borderStrong: '#5a6169',
-  accent: '#3e63dd',
-  accentHover: '#5472e4',
-  accentText: '#ffffff',
-  danger: '#ff9592',
-  success: '#3dd68c',
-  warning: '#ffca16',
-  focusRing: '#3e63dd',
-  overlay: 'rgba(0, 0, 0, 0.6)',
-});
+/** 一个主题，或明暗两套主题（跟随系统 prefers-color-scheme 切换） */
+export type ThemeInput = Theme | { readonly light: Theme; readonly dark: Theme };
 
-/** 亮色主题：即 tokens 的默认值 */
-export const lightTheme: Theme = {
-  name: 'light',
-  colorScheme: 'light',
-  styles: null,
-  overrides: {},
-};
-
-/** 暗色主题 */
-export const darkTheme: Theme = {
-  name: 'dark',
-  colorScheme: 'dark',
-  styles: darkColors,
-  overrides: {},
-};
+export function resolveTheme(input: ThemeInput, prefersDark: boolean): Theme {
+  return 'light' in input ? (prefersDark ? input.dark : input.light) : input;
+}
 
 /**
  * 基于已有主题局部修改：`defineTheme(lightTheme, { colors: { accent: '#e5484d' } })`。
@@ -80,7 +54,7 @@ export function defineTheme(
 
 /** 主题落到容器元素上的属性：编译期主题的 class、运行时覆盖的 CSS 变量与配色方案 */
 export function themeAttrs(theme: Theme) {
-  const compiled = stylex.attrs(theme.styles);
+  const compiled = stylex.attrs(...theme.styles);
   return {
     class: compiled.class,
     style: [compiled.style, themeVariables(theme)],

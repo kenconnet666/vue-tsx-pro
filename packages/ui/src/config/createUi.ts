@@ -11,14 +11,13 @@ import {
   type Plugin,
 } from 'vue';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { defineLang, type Lang } from '../lang/types';
-import { zhCN } from '../lang/zh-CN';
-import { lightTheme, themeVariables, type Theme } from '../theme/themes';
-import { ConfigContext } from './context';
-import { resolveTheme, type ThemeInput } from './Provider';
-import { usePrefersDark } from './prefers-dark';
+import { ConfigContext, defaultConfig } from './context';
+import { defineLang, type Lang } from './lang/lang';
+import { usePrefersDark } from './theme/prefers-dark';
+import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
 
 export interface UiOptions {
+  /** 主题；不写时用亮色主题，也不改动页面根元素 */
   theme?: MaybeRefOrGetter<ThemeInput>;
   /** 只写要改的字段，其余用简体中文的默认值 */
   lang?: MaybeRefOrGetter<Partial<Lang>>;
@@ -32,9 +31,9 @@ export function createUi(options: UiOptions = {}): Plugin {
       scope.run(() => {
         const prefersDark = usePrefersDark();
         const theme = computed(() =>
-          resolveTheme(toValue(options.theme) ?? lightTheme, prefersDark.value),
+          resolveTheme(toValue(options.theme) ?? defaultConfig.theme, prefersDark.value),
         );
-        const lang = computed(() => defineLang(zhCN, toValue(options.lang) ?? {}));
+        const lang = computed(() => defineLang(defaultConfig.lang, toValue(options.lang) ?? {}));
         app.provide(ConfigContext.key, {
           get theme() {
             return theme.value;
@@ -54,7 +53,11 @@ export function createUi(options: UiOptions = {}): Plugin {
 
 /** 把主题的 class、CSS 变量与 data-theme 写到元素上，返回撤销函数 */
 function applyTheme(element: HTMLElement, theme: Theme) {
-  const classes = stylex.attrs(theme.styles).class?.split(' ').filter(Boolean) ?? [];
+  const classes =
+    stylex
+      .attrs(...theme.styles)
+      .class?.split(' ')
+      .filter(Boolean) ?? [];
   const variables = themeVariables(theme);
   element.classList.add(...classes);
   for (const [name, value] of Object.entries(variables)) element.style.setProperty(name, value);

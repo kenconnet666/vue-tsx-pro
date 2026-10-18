@@ -3,9 +3,10 @@
  * 都没有时使用默认值（亮色主题 + 简体中文），组件单独使用也能工作。
  */
 import { createContext } from '@vue-tsx-pro/tsx';
-import { zhCN } from '../lang/zh-CN';
-import type { Lang } from '../lang/types';
-import { lightTheme, type Theme } from '../theme/themes';
+import type { Lang } from './lang/lang';
+import { zhCN } from './lang/zh-CN';
+import { lightTheme } from './theme/light';
+import type { Theme } from './theme/theme';
 
 /** 提供方用 getter 暴露当前值，读取方在渲染或 computed 里读取即可跟随变化 */
 export interface UiConfig {
@@ -15,10 +16,11 @@ export interface UiConfig {
 
 export const ConfigContext = createContext<UiConfig>('Provider');
 
-const defaults: UiConfig = { theme: lightTheme, lang: zhCN };
+/** 默认配置：亮色主题 + 简体中文 */
+export const defaultConfig: UiConfig = { theme: lightTheme, lang: zhCN };
 
 export function useConfig(): UiConfig {
-  return ConfigContext.inject(defaults);
+  return ConfigContext.inject(defaultConfig);
 }
 
 /**
