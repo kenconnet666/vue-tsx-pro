@@ -49,11 +49,19 @@ export type ThemeOverrides = {
   [Group in keyof Groups]?: { [Token in keyof Groups[Group]['__tokens']]?: string };
 };
 
+/** 浏览器配色方案（color-scheme） */
+export interface ColorSchemes {
+  /** 亮色：原生表单控件、滚动条用亮色样式 */
+  light: unknown;
+  /** 暗色：原生表单控件、滚动条用暗色样式 */
+  dark: unknown;
+}
+
 export interface Theme {
   /** 主题名，写在容器的 data-theme 上，便于调试与宿主 CSS 定位 */
   readonly name: string;
   /** 浏览器配色方案，影响原生表单控件与滚动条 */
-  readonly colorScheme: 'light' | 'dark';
+  readonly colorScheme: keyof ColorSchemes;
   /** 编译期生成的主题样式，每组一个（createTheme 的结果）；亮色主题即默认值，为空 */
   readonly styles: readonly GroupTheme[];
   /** 运行时覆盖的取值 */

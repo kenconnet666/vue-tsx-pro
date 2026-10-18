@@ -53,7 +53,9 @@ export {
   gapStyles,
   rowGapStyles,
   type Size,
+  type SizeScale,
   type Space,
+  type SpaceScale,
 } from './utils/styles';
 export {
   fontSizeStyles,
@@ -64,6 +66,15 @@ export {
   textWrapStyles,
   toneStyles,
   type FontSize,
+  type FontSizes,
+  type FontWeights,
+  type TextAlign,
+  type TextAligns,
+  type TextSize,
+  type TextSizes,
+  type TextWrap,
+  type TextWraps,
+  type Tones,
   type FontWeight,
   type Tone,
 } from './utils/typography';

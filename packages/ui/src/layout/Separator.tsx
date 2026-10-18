@@ -12,9 +12,17 @@ import { elementProps, mergeProps, type PartProps } from '../utils/props';
 /** 角色与朝向由组件管理 */
 type Managed = 'role' | 'aria-orientation' | 'aria-hidden';
 
+/** 分隔线方向 */
+export interface SeparatorOrientations {
+  /** 横线：上下两部分之间，占满容器宽度（默认） */
+  horizontal: unknown;
+  /** 竖线：左右两部分之间，在 flex 容器里随行高拉伸 */
+  vertical: unknown;
+}
+
 export interface SeparatorProps extends PartProps<'div', Managed> {
   /** 方向，默认 horizontal */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: keyof SeparatorOrientations;
   /** 是否只是视觉装饰，默认 true：对读屏隐藏 */
   decorative?: boolean;
 }

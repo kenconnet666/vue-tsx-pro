@@ -10,14 +10,25 @@ import {
   type IconData,
   type IconProps,
   type PartProps,
+  type TextSize,
 } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 
+/** 按钮样式 */
+export interface ButtonVariants {
+  /** 品牌色实底：一组操作里的主要操作，每组最多一个 */
+  solid: unknown;
+  /** 描边：次要操作 */
+  outline: unknown;
+  /** 无底无边，悬停时才有底色：工具栏、行内操作 */
+  ghost: unknown;
+}
+
 /** 未声明的属性落到按钮元素上，传了 href 时落到链接上：属性取两者共有的部分，事件的 currentTarget 是两者之一 */
 export interface ButtonProps extends PartProps<'button' | 'a', 'disabled'> {
-  variant?: 'solid' | 'outline' | 'ghost';
-  /** 不写时继承上下文字号 */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  variant?: keyof ButtonVariants;
+  /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
+  size?: TextSize;
   disabled?: boolean;
   /** 加载中：不可点击，并告知读屏 */
   loading?: boolean;

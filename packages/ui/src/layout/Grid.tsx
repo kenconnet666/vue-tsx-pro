@@ -20,6 +20,30 @@ import {
 } from '../utils/styles';
 import type { LayoutTag } from './Flex';
 
+/** 单元格内容在格子里的对齐（align-items 为块方向、justify-items 为行内方向） */
+export interface GridAligns {
+  /** 贴着格子的起始边 */
+  start: unknown;
+  /** 居中 */
+  center: unknown;
+  /** 贴着格子的结束边 */
+  end: unknown;
+  /** 拉伸填满格子（默认） */
+  stretch: unknown;
+}
+
+/** 自动排布方向（grid-auto-flow） */
+export interface GridFlows {
+  /** 逐行填充（默认） */
+  row: unknown;
+  /** 逐列填充 */
+  column: unknown;
+  /** 逐行填充，并回填前面留下的空位（顺序可能变化） */
+  'row dense': unknown;
+  /** 逐列填充，并回填空位 */
+  'column dense': unknown;
+}
+
 export interface GridProps extends AsProps<LayoutTag> {
   /** 列数（等宽列）；与 minItemWidth 同时给时以 minItemWidth 为准 */
   columns?: number;
@@ -32,11 +56,11 @@ export interface GridProps extends AsProps<LayoutTag> {
   /** 列间距，覆盖 gap */
   columnGap?: Space;
   /** 单元格在块方向的对齐（align-items），默认 stretch */
-  align?: 'start' | 'center' | 'end' | 'stretch';
+  align?: keyof GridAligns;
   /** 单元格在行内方向的对齐（justify-items），默认 stretch */
-  justify?: 'start' | 'center' | 'end' | 'stretch';
+  justify?: keyof GridAligns;
   /** 自动排布方向（grid-auto-flow），dense 回填空位 */
-  flow?: 'row' | 'column' | 'row dense' | 'column dense';
+  flow?: keyof GridFlows;
   children?: VNodeChild;
 }
 

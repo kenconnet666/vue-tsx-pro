@@ -25,13 +25,55 @@ export type LayoutTag =
   | 'aside'
   | 'form';
 
+/** 主轴方向（flex-direction） */
+export interface FlexDirections {
+  /** 横排：子元素从起始边排到结束边 */
+  row: unknown;
+  /** 竖排：子元素从上到下 */
+  column: unknown;
+  /** 横排，顺序反过来 */
+  'row-reverse': unknown;
+  /** 竖排，顺序反过来 */
+  'column-reverse': unknown;
+}
+
+/** 交叉轴对齐（align-items）：横排时是竖直方向，竖排时是水平方向 */
+export interface FlexAligns {
+  /** 贴着交叉轴的起点（横排时顶部对齐） */
+  start: unknown;
+  /** 居中 */
+  center: unknown;
+  /** 贴着交叉轴的终点（横排时底部对齐） */
+  end: unknown;
+  /** 拉伸填满交叉轴（默认） */
+  stretch: unknown;
+  /** 按文字基线对齐：字号不同的文字、图标与文字混排 */
+  baseline: unknown;
+}
+
+/** 主轴分布（justify-content） */
+export interface FlexJustifies {
+  /** 靠主轴起点（默认） */
+  start: unknown;
+  /** 居中 */
+  center: unknown;
+  /** 靠主轴终点 */
+  end: unknown;
+  /** 两端对齐，中间等距：首尾贴边 */
+  between: unknown;
+  /** 每项两侧留白相等：首尾留白是中间的一半 */
+  around: unknown;
+  /** 所有空隙相等，包括首尾 */
+  evenly: unknown;
+}
+
 export interface FlexProps extends AsProps<LayoutTag> {
   /** 主轴方向，默认 row */
-  direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+  direction?: keyof FlexDirections;
   /** 交叉轴对齐（align-items），默认 stretch */
-  align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+  align?: keyof FlexAligns;
   /** 主轴分布（justify-content），默认 start */
-  justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
+  justify?: keyof FlexJustifies;
   /** 换行；'reverse' 为反向换行 */
   wrap?: boolean | 'reverse';
   /** 间距档位，对应主题的 space */

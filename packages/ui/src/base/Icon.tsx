@@ -11,8 +11,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { h, type VNode } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { Size } from '../utils/styles';
-import { fontSizeStyles } from '../utils/typography';
+import { fontSizeStyles, type TextSize } from '../utils/typography';
 
 /** 图标数据：Lucide 的标准格式 */
 export type IconData = LucideIconData;
@@ -33,7 +32,7 @@ export interface IconProps extends PartProps<'svg', Managed> {
   /** 图标数据：`import { Search } from '@lucide/icons'` */
   icon: IconData;
   /** 不写时为 1em，跟随所在文字；档位对应主题字号，数字为像素 */
-  size?: Size | number;
+  size?: TextSize | number;
   /** 线宽（24 格画布上的单位），默认取主题的 strokeWidths.md */
   strokeWidth?: number;
   /** 从右到左排版时水平翻转：箭头、chevron 这类有方向的图标 */

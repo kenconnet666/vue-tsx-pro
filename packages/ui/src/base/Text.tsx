@@ -7,7 +7,6 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type AsProps } from '../utils/props';
-import type { Size } from '../utils/styles';
 import {
   fontSizeStyles,
   fontWeightStyles,
@@ -17,6 +16,9 @@ import {
   textWrapStyles,
   toneStyles,
   type FontWeight,
+  type TextAlign,
+  type TextSize,
+  type TextWrap,
   type Tone,
 } from '../utils/typography';
 
@@ -24,17 +26,17 @@ type Tags = 'span' | 'p' | 'div' | 'label' | 'strong' | 'em' | 'small';
 
 export interface TextProps extends AsProps<Tags> {
   /** 字号档位，对应主题的 fontSizes；不写时继承 */
-  size?: Size;
+  size?: TextSize;
   weight?: FontWeight;
   /** 色调：muted 次要说明，其余为品牌色与提示色的文字色；不写时继承 */
   tone?: Tone;
-  align?: 'start' | 'center' | 'end';
+  align?: TextAlign;
   /** 单行省略（在块级元素或 flex 子项上生效） */
   truncate?: boolean;
   /** 最多显示几行，超出省略 */
   lineClamp?: number;
   /** 换行方式：pretty 避免最后一行只剩一个字 */
-  wrap?: 'wrap' | 'nowrap' | 'balance' | 'pretty';
+  wrap?: TextWrap;
   children?: VNodeChild;
 }
 

@@ -17,13 +17,23 @@ import { toneStyles, type Tone } from '../utils/typography';
 import { Icon } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
 
+/** 链接的下划线 */
+export interface LinkUnderlines {
+  /** 一直显示：正文里的链接，不能只靠颜色区分（WCAG 1.4.1） */
+  always: unknown;
+  /** 悬停时才显示：列表、卡片里一眼能看出是链接的地方 */
+  hover: unknown;
+  /** 不显示：导航菜单等上下文已表明是链接的地方 */
+  none: unknown;
+}
+
 /** 未声明的属性落到 <a> 上 */
 export interface LinkProps extends PartProps<'a', 'href'> {
   href: string;
   /** 色调，默认 accent（品牌色文字） */
   tone?: Tone;
-  /** 下划线：always（默认）、hover 时才显示、none（只用于导航等上下文已表明是链接的地方） */
-  underline?: 'always' | 'hover' | 'none';
+  /** 下划线，默认 always */
+  underline?: keyof LinkUnderlines;
   /** 外部链接：新窗口打开，加 rel="noopener noreferrer"、外链图标与读屏提示 */
   external?: boolean;
   children?: VNodeChild;

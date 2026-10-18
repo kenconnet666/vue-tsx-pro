@@ -17,10 +17,27 @@ import {
   toneStyles,
   type FontSize,
   type FontWeight,
+  type TextAlign,
   type Tone,
 } from '../utils/typography';
 
-type Level = 1 | 2 | 3 | 4 | 5 | 6;
+/** 标题级别：决定 h1–h6 标签（文档结构）与默认字号；级别要连续，不要为了字号跳级（字号用 size 改） */
+export interface HeadingLevels {
+  /** h1：页面主标题，每页一个；默认 xxxl（30px） */
+  1: unknown;
+  /** h2：页面里的一级分区；默认 xxl（24px） */
+  2: unknown;
+  /** h3：分区里的小节；默认 xl（18px） */
+  3: unknown;
+  /** h4：默认 lg（16px） */
+  4: unknown;
+  /** h5：默认 md（14px） */
+  5: unknown;
+  /** h6：默认 md（14px） */
+  6: unknown;
+}
+
+type Level = keyof HeadingLevels;
 type Tag = `h${Level}`;
 
 export interface HeadingProps extends PartProps<Tag> {
@@ -31,7 +48,7 @@ export interface HeadingProps extends PartProps<Tag> {
   /** 默认 semibold */
   weight?: FontWeight;
   tone?: Tone;
-  align?: 'start' | 'center' | 'end';
+  align?: TextAlign;
   /** 单行省略 */
   truncate?: boolean;
   children?: VNodeChild;

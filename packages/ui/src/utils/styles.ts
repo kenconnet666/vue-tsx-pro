@@ -6,11 +6,46 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 
+/*
+ * 取值类型的写法（COMPONENTS.md §1）：写成带注释接口的 keyof，接口的每个键带注释，
+ * 补全列表与悬停取值时能看到每个取值的效果（WebStorm 把字符串字面量解析到 keyof 的键上）。
+ */
+
+/** 五档尺寸的含义；具体对应什么由用到它的 prop 决定（字号见 TextSizes，间距见 SpaceScale） */
+export interface SizeScale {
+  /** 最小档 */
+  xs: unknown;
+  /** 小 */
+  sm: unknown;
+  /** 中：基准档 */
+  md: unknown;
+  /** 大 */
+  lg: unknown;
+  /** 最大档 */
+  xl: unknown;
+}
+
 /** 五档：字号、间距、圆角、阴影等都按它分档 */
-export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type Size = keyof SizeScale;
+
+/** 间距档位，对应主题的 space（em，随字号缩放），括号里是默认主题的值 */
+export interface SpaceScale {
+  /** 无间距（0） */
+  none: unknown;
+  /** 0.25em：图标与文字之间、紧凑的元素之间 */
+  xs: unknown;
+  /** 0.5em：控件内部、相关的元素之间 */
+  sm: unknown;
+  /** 0.75em：一组内容的元素之间 */
+  md: unknown;
+  /** 1em：表单项之间、段落之间 */
+  lg: unknown;
+  /** 1.5em：区块之间、卡片与对话框的内边距 */
+  xl: unknown;
+}
 
 /** 间距档位：五档之外可以是 none */
-export type Space = 'none' | Size;
+export type Space = keyof SpaceScale;
 
 // 导出的样式表写明类型：靠推导时，类型声明里会引用 StyleX 内部无法命名的类型
 type Table<Key extends string> = Readonly<Record<Key, StyleXStyles>>;

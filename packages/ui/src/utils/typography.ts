@@ -4,18 +4,97 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import type { Size } from './styles';
-
 // 导出的样式表写明类型：靠推导时，类型声明里会引用 StyleX 内部无法命名的类型
 type Table<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
 
-/** 字号档位：xs–xl 是界面文字（也是组件 size 档位），xxl、xxxl 用于标题 */
-export type FontSize = Size | 'xxl' | 'xxxl';
+// 取值类型写成带注释接口的 keyof：补全与悬停能看到每个取值的效果（见 styles.ts）
 
-export type FontWeight = 'light' | 'normal' | 'medium' | 'semibold' | 'bold';
+/** 界面文字的字号档位，对应主题的 fontSizes；组件的 size 档位也用它，括号里是默认主题的值 */
+export interface TextSizes {
+  /** 12px：辅助说明、标签 */
+  xs: unknown;
+  /** 13px：紧凑控件 */
+  sm: unknown;
+  /** 14px：正文与默认控件 */
+  md: unknown;
+  /** 16px：宽松控件、小标题 */
+  lg: unknown;
+  /** 18px：强调文字、卡片标题 */
+  xl: unknown;
+}
 
-/** 文字色调：muted 次要说明，其余为品牌色与提示色的文字色 */
-export type Tone = 'default' | 'muted' | 'accent' | 'danger' | 'success' | 'warning' | 'info';
+/** 字号档位：界面文字的五档，加上标题用的两档 */
+export interface FontSizes extends TextSizes {
+  /** 24px：页面标题 */
+  xxl: unknown;
+  /** 30px：大标题 */
+  xxxl: unknown;
+}
+
+export type TextSize = keyof TextSizes;
+export type FontSize = keyof FontSizes;
+
+/** 字重，对应主题的 fontWeights */
+export interface FontWeights {
+  /** 300：细 */
+  light: unknown;
+  /** 400：正文 */
+  normal: unknown;
+  /** 500：标签、表头 */
+  medium: unknown;
+  /** 600：按钮、标题 */
+  semibold: unknown;
+  /** 700：粗 */
+  bold: unknown;
+}
+
+export type FontWeight = keyof FontWeights;
+
+/** 文字色调，对应主题的文字颜色 */
+export interface Tones {
+  /** 主要文字色 */
+  default: unknown;
+  /** 次要文字色：说明、辅助信息 */
+  muted: unknown;
+  /** 品牌色文字：链接、强调 */
+  accent: unknown;
+  /** 危险：错误提示、破坏性操作的说明 */
+  danger: unknown;
+  /** 成功 */
+  success: unknown;
+  /** 警告 */
+  warning: unknown;
+  /** 信息 */
+  info: unknown;
+}
+
+export type Tone = keyof Tones;
+
+/** 文字的水平对齐（text-align），按书写方向 */
+export interface TextAligns {
+  /** 对齐起始边：从左到右排版时靠左 */
+  start: unknown;
+  /** 居中 */
+  center: unknown;
+  /** 对齐结束边：从左到右排版时靠右 */
+  end: unknown;
+}
+
+export type TextAlign = keyof TextAligns;
+
+/** 换行方式（text-wrap） */
+export interface TextWraps {
+  /** 正常换行 */
+  wrap: unknown;
+  /** 不换行，超出容器时溢出（配合 truncate 省略） */
+  nowrap: unknown;
+  /** 各行长度尽量均衡：标题、短文本 */
+  balance: unknown;
+  /** 避免最后一行只剩一个字：段落 */
+  pretty: unknown;
+}
+
+export type TextWrap = keyof TextWraps;
 
 export const fontSizeStyles: Table<FontSize> = stylex.create({
   xs: { fontSize: '_xs' },
@@ -45,13 +124,13 @@ export const toneStyles: Table<Tone> = stylex.create({
   info: { color: '_infoText' },
 });
 
-export const textAlignStyles: Table<'start' | 'center' | 'end'> = stylex.create({
+export const textAlignStyles: Table<TextAlign> = stylex.create({
   start: { textAlign: 'start' },
   center: { textAlign: 'center' },
   end: { textAlign: 'end' },
 });
 
-export const textWrapStyles: Table<'wrap' | 'nowrap' | 'balance' | 'pretty'> = stylex.create({
+export const textWrapStyles: Table<TextWrap> = stylex.create({
   wrap: { textWrap: 'wrap' },
   nowrap: { textWrap: 'nowrap' },
   // 标题：各行长度尽量均衡
