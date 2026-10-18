@@ -9,7 +9,7 @@ import {
   type IconProps,
   type PartProps,
 } from '@vue-tsx-pro/ui';
-import { controls } from '@vue-tsx-pro/ui/tokens.stylex';
+import { sizes } from '@vue-tsx-pro/ui/tokens.stylex';
 import type { VNodeChild } from 'vue';
 
 /** 未声明的属性落到按钮（或链接）元素上 */
@@ -34,10 +34,10 @@ const styles = stylex.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '_sm',
-    minHeight: `max(${controls.height}, ${controls.minTarget})`,
+    minHeight: `max(${sizes.control}, ${sizes.minTarget})`,
     paddingBlock: '_xs',
     paddingInline: '_lg',
-    borderWidth: '_controls.borderWidth',
+    borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: 'transparent',
     borderRadius: '_md',
@@ -50,9 +50,9 @@ const styles = stylex.create({
     transitionProperty: 'background-color, border-color, color',
     transitionDuration: '_sm',
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
-    outlineWidth: '_controls.focusRingWidth',
+    outlineWidth: '_sm',
     outlineColor: '_focusRing',
-    outlineOffset: '_controls.focusRingOffset',
+    outlineOffset: '_sm',
   },
   solid: {
     color: '_accentContrast',
@@ -67,7 +67,7 @@ const styles = stylex.create({
     color: '_text',
     backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
   },
-  disabled: { opacity: '_controls.disabledOpacity', cursor: 'not-allowed' },
+  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
   xs: { fontSize: '_xs' },
   sm: { fontSize: '_sm' },
   md: { fontSize: '_md' },

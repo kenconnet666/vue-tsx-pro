@@ -495,7 +495,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/block-size
    */
-  blockSize?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['blockSize']>>;
+  blockSize?: StyleValue<
+    KeywordValue<WidthKeywords, CSSProperties['blockSize']> | keyof SizesTokens
+  >;
   /**
    * 同时设置四边边框的宽度、线型和颜色。（border）
    *
@@ -530,7 +532,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-block-width
    */
-  borderBlockWidth?: StyleValue<CSSProperties['borderBlockWidth']>;
+  borderBlockWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderBlockWidth']>
+  >;
   /**
    * 设置逻辑块轴结束侧边框的宽度、线型和颜色。（border-block-end）
    *
@@ -560,7 +564,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-block-end-width
    */
-  borderBlockEndWidth?: StyleValue<CSSProperties['borderBlockEndWidth']>;
+  borderBlockEndWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderBlockEndWidth']>
+  >;
   /**
    * 设置逻辑块轴起始侧边框的宽度、线型和颜色。（border-block-start）
    *
@@ -590,7 +596,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-block-start-width
    */
-  borderBlockStartWidth?: StyleValue<CSSProperties['borderBlockStartWidth']>;
+  borderBlockStartWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderBlockStartWidth']>
+  >;
   /**
    * 设置下边框的宽度、线型和颜色。（border-bottom）
    *
@@ -618,7 +626,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-bottom-width
    */
-  borderBottomWidth?: StyleValue<CSSProperties['borderBottomWidth']>;
+  borderBottomWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderBottomWidth']>
+  >;
   /**
    * 设置表格相邻单元格边框合并还是分离。（border-collapse）
    *
@@ -702,7 +712,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-inline-width
    */
-  borderInlineWidth?: StyleValue<CSSProperties['borderInlineWidth']>;
+  borderInlineWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderInlineWidth']>
+  >;
   /**
    * 设置逻辑行内轴结束侧边框的宽度、线型和颜色。（border-inline-end）
    *
@@ -732,7 +744,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-inline-end-width
    */
-  borderInlineEndWidth?: StyleValue<CSSProperties['borderInlineEndWidth']>;
+  borderInlineEndWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderInlineEndWidth']>
+  >;
   /**
    * 设置逻辑行内轴起始侧边框的宽度、线型和颜色。（border-inline-start）
    *
@@ -762,7 +776,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-inline-start-width
    */
-  borderInlineStartWidth?: StyleValue<CSSProperties['borderInlineStartWidth']>;
+  borderInlineStartWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderInlineStartWidth']>
+  >;
   /**
    * 设置左边框的宽度、线型和颜色。（border-left）
    *
@@ -790,7 +806,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-left-width
    */
-  borderLeftWidth?: StyleValue<CSSProperties['borderLeftWidth']>;
+  borderLeftWidth?: StyleValue<KeywordValue<BorderWidthsTokens, CSSProperties['borderLeftWidth']>>;
   /**
    * 设置右边框的宽度、线型和颜色。（border-right）
    *
@@ -818,7 +834,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-right-width
    */
-  borderRightWidth?: StyleValue<CSSProperties['borderRightWidth']>;
+  borderRightWidth?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['borderRightWidth']>
+  >;
   /**
    * 设置分离边框模型下表格单元格之间的水平和垂直间距。（border-spacing）
    *
@@ -1007,14 +1025,14 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-top-width
    */
-  borderTopWidth?: StyleValue<CSSProperties['borderTopWidth']>;
+  borderTopWidth?: StyleValue<KeywordValue<BorderWidthsTokens, CSSProperties['borderTopWidth']>>;
   /**
    * 设置四边边框宽度；可见边框通常还需要非 none 的线型。（border-width）
    *
    * 数字值自动加 `px`；简写属性，初始值见各分项；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/border-width
    */
-  borderWidth?: StyleValue<CSSProperties['borderWidth']>;
+  borderWidth?: StyleValue<KeywordValue<BorderWidthsTokens, CSSProperties['borderWidth']>>;
   /**
    * 设置定位元素相对于其定位参照的下侧偏移。（bottom）
    *
@@ -1261,7 +1279,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/column-rule-width
    */
-  columnRuleWidth?: StyleValue<CSSProperties['columnRuleWidth']>;
+  columnRuleWidth?: StyleValue<KeywordValue<BorderWidthsTokens, CSSProperties['columnRuleWidth']>>;
   /**
    * 设置多栏内容顺序填充还是尽量均衡栏高。（column-fill）
    *
@@ -1556,7 +1574,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/flex-basis
    */
-  flexBasis?: StyleValue<KeywordValue<FlexBasisKeywords, CSSProperties['flexBasis']>>;
+  flexBasis?: StyleValue<
+    KeywordValue<FlexBasisKeywords, CSSProperties['flexBasis']> | keyof SizesTokens
+  >;
   /**
    * 设置弹性容器的主轴方向及项目排列方向。（flex-direction）
    *
@@ -2023,7 +2043,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/height
    */
-  height?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['height']>>;
+  height?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['height']> | keyof SizesTokens>;
   /**
    * 设置图像是否按元数据等信息调整方向。（image-orientation）
    *
@@ -2080,7 +2100,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/inline-size
    */
-  inlineSize?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['inlineSize']>>;
+  inlineSize?: StyleValue<
+    KeywordValue<WidthKeywords, CSSProperties['inlineSize']> | keyof SizesTokens
+  >;
   /**
    * 控制动画是否允许在数值尺寸与内部尺寸关键字之间插值。（interpolate-size）
    *
@@ -2175,7 +2197,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `normal`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/letter-spacing
    */
-  letterSpacing?: StyleValue<CSSProperties['letterSpacing']>;
+  letterSpacing?: StyleValue<KeywordValue<LetterSpacingsTokens, CSSProperties['letterSpacing']>>;
   /**
    * 设置东亚文字标点等字符的换行严格程度。（line-break）
    *
@@ -2539,21 +2561,21 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `none`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/max-block-size
    */
-  maxBlockSize?: StyleValue<CSSProperties['maxBlockSize']>;
+  maxBlockSize?: StyleValue<KeywordValue<SizesTokens, CSSProperties['maxBlockSize']>>;
   /**
    * 限制元素的最大物理高度。（max-height）
    *
    * 数字值自动加 `px`；初始值 `none`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/max-height
    */
-  maxHeight?: StyleValue<CSSProperties['maxHeight']>;
+  maxHeight?: StyleValue<KeywordValue<SizesTokens, CSSProperties['maxHeight']>>;
   /**
    * 限制元素逻辑行内轴的最大尺寸。（max-inline-size）
    *
    * 数字值自动加 `px`；初始值 `none`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/max-inline-size
    */
-  maxInlineSize?: StyleValue<CSSProperties['maxInlineSize']>;
+  maxInlineSize?: StyleValue<KeywordValue<SizesTokens, CSSProperties['maxInlineSize']>>;
   /**
    * 限制元素的最大物理宽度。（max-width）
    *
@@ -2564,28 +2586,28 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `none`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/max-width
    */
-  maxWidth?: StyleValue<CSSProperties['maxWidth']>;
+  maxWidth?: StyleValue<KeywordValue<SizesTokens, CSSProperties['maxWidth']>>;
   /**
    * 设置元素逻辑块轴的最小尺寸。（min-block-size）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/min-block-size
    */
-  minBlockSize?: StyleValue<CSSProperties['minBlockSize']>;
+  minBlockSize?: StyleValue<KeywordValue<SizesTokens, CSSProperties['minBlockSize']>>;
   /**
    * 设置元素的最小物理高度。（min-height）
    *
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/min-height
    */
-  minHeight?: StyleValue<CSSProperties['minHeight']>;
+  minHeight?: StyleValue<KeywordValue<SizesTokens, CSSProperties['minHeight']>>;
   /**
    * 设置元素逻辑行内轴的最小尺寸。（min-inline-size）
    *
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2022 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/min-inline-size
    */
-  minInlineSize?: StyleValue<CSSProperties['minInlineSize']>;
+  minInlineSize?: StyleValue<KeywordValue<SizesTokens, CSSProperties['minInlineSize']>>;
   /**
    * 设置元素的最小物理宽度。（min-width）
    *
@@ -2599,7 +2621,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/min-width
    */
-  minWidth?: StyleValue<KeywordValue<MinWidthKeywords, CSSProperties['minWidth']>>;
+  minWidth?: StyleValue<
+    KeywordValue<MinWidthKeywords, CSSProperties['minWidth']> | keyof SizesTokens
+  >;
   /**
    * 设置元素整体与其背后内容的颜色混合方式。（mix-blend-mode）
    *
@@ -2712,7 +2736,7 @@ export interface DocumentedStyles {
    * 数字值不加单位；初始值 `1`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/opacity
    */
-  opacity?: StyleValue<CSSProperties['opacity']>;
+  opacity?: StyleValue<KeywordValue<OpacitiesTokens, CSSProperties['opacity']>>;
   /**
    * 设置 Flex 或 Grid 项目的视觉排列顺序，不改变 DOM 顺序。（order）
    *
@@ -2753,7 +2777,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `0`；不继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/outline-offset
    */
-  outlineOffset?: StyleValue<CSSProperties['outlineOffset']>;
+  outlineOffset?: StyleValue<KeywordValue<BorderWidthsTokens, CSSProperties['outlineOffset']>>;
   /**
    * 设置轮廓线线型。（outline-style）
    *
@@ -2767,7 +2791,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `medium`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/outline-width
    */
-  outlineWidth?: StyleValue<CSSProperties['outlineWidth']>;
+  outlineWidth?: StyleValue<KeywordValue<BorderWidthsTokens, CSSProperties['outlineWidth']>>;
   /**
    * 设置内容超出盒子时的裁剪和滚动行为。（overflow）
    *
@@ -3599,7 +3623,7 @@ export interface DocumentedStyles {
    * 数字值不加单位；初始值 `1px`；继承；Baseline：2019 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/stroke-width
    */
-  strokeWidth?: StyleValue<CSSProperties['strokeWidth']>;
+  strokeWidth?: StyleValue<KeywordValue<StrokeWidthsTokens, CSSProperties['strokeWidth']>>;
   /**
    * 设置保留制表符时每个制表位的宽度。（tab-size）
    *
@@ -3702,7 +3726,9 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2023 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/text-decoration-thickness
    */
-  textDecorationThickness?: StyleValue<CSSProperties['textDecorationThickness']>;
+  textDecorationThickness?: StyleValue<
+    KeywordValue<BorderWidthsTokens, CSSProperties['textDecorationThickness']>
+  >;
   /**
    * 同时设置文字着重号的样式和颜色。（text-emphasis）
    *
@@ -4111,7 +4137,7 @@ export interface DocumentedStyles {
    * 数字值自动加 `px`；初始值 `auto`；不继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/width
    */
-  width?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['width']>>;
+  width?: StyleValue<KeywordValue<WidthKeywords, CSSProperties['width']> | keyof SizesTokens>;
   /**
    * 提前告知浏览器可能发生变化的属性，便于准备优化资源。（will-change）
    *
@@ -4303,6 +4329,11 @@ export interface FontsTokens {}
 export interface FontSizesTokens {}
 export interface FontWeightsTokens {}
 export interface LineHeightsTokens {}
+export interface LetterSpacingsTokens {}
+export interface SizesTokens {}
+export interface BorderWidthsTokens {}
+export interface OpacitiesTokens {}
+export interface StrokeWidthsTokens {}
 export interface RadiiTokens {}
 export interface ShadowsTokens {}
 export interface DurationsTokens {}

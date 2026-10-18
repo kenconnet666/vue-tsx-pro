@@ -78,9 +78,9 @@
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
-  - 带组名 `height: '_controls.height'`：表外属性或跨组取值，任何属性都能用，但没有补全；
+  - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用，但没有补全；
   - 条件值、回退数组、伪元素、动态样式里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
-  - 一个值里拼多个 token 或做计算时（`` `max(${controls.height}, ${controls.minTarget})` ``）仍 import 变量写模板字符串；
+  - 一个值里拼多个 token 或做计算时（`` `max(${sizes.control}, ${sizes.minTarget})` ``）仍 import 变量写模板字符串；
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
@@ -125,19 +125,23 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 主题是一组设计 tokens，定义在 `packages/ui/src/config/theme/tokens.stylex.ts`，使用方从 `@vue-tsx-pro/ui/tokens.stylex` 导入。分组参考 Radix Themes（取值）、Ant Design（语义分层）、Material 3（动效）取舍：
 
-| 组            | 档位                                                                                                                                                                                                     |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `colors`      | 语义命名，不分档：背景与表面、中性填充（常态/悬停/按下）、文字四级、边框三级、品牌色与危险色（实色/悬停/实色上的文字/文字/浅底/浅底悬停/边框）、成功/警告/信息（文字/浅底/边框）、反色表面、焦点环、遮罩 |
-| `fonts`       | `sans`、`mono`                                                                                                                                                                                           |
-| `fontSizes`   | `xs`–`xl`（12/13/14/16/18px，界面文字与组件 size 档位）、`xxl`、`xxxl`（标题）                                                                                                                           |
-| `fontWeights` | `light`、`normal`、`medium`、`semibold`、`bold`                                                                                                                                                          |
-| `lineHeights` | `none`、`tight`、`snug`、`normal`、`relaxed`（不带单位）                                                                                                                                                 |
-| `space`       | `none`、`xs`–`xl`（0.25/0.5/0.75/1/1.5em）                                                                                                                                                               |
-| `radii`       | `none`、`xs`–`xl`（em）、`full`；整体改直角或更圆时覆盖这一组                                                                                                                                            |
-| `shadows`     | `none`、`xs`–`xl`（Radix Themes 第 2–6 级，暗色主题另有一套）                                                                                                                                            |
-| `durations`   | `none`、`xs`–`xl`（75/120/200/300/500ms）                                                                                                                                                                |
-| `easings`     | `standard`、`enter`、`exit`                                                                                                                                                                              |
-| `controls`    | 单行控件高度、最小可点击尺寸、边框宽度、焦点环宽度与间隔、不可用的不透明度、图标线宽                                                                                                                     |
+| 组               | 档位                                                                                                                                                                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `colors`         | 语义命名，不分档：背景与表面、中性填充（常态/悬停/按下）、文字四级、边框三级、品牌色与危险色（实色/悬停/实色上的文字/文字/浅底/浅底悬停/边框）、成功/警告/信息（文字/浅底/边框）、反色表面、焦点环、遮罩 |
+| `fonts`          | `sans`、`mono`                                                                                                                                                                                           |
+| `fontSizes`      | `xs`–`xl`（12/13/14/16/18px，界面文字与组件 size 档位）、`xxl`、`xxxl`（标题）                                                                                                                           |
+| `fontWeights`    | `light`、`normal`、`medium`、`semibold`、`bold`                                                                                                                                                          |
+| `lineHeights`    | `none`、`tight`、`snug`、`normal`、`relaxed`（不带单位）                                                                                                                                                 |
+| `letterSpacings` | `tighter`、`tight`、`normal`、`wide`、`wider`（em）                                                                                                                                                      |
+| `space`          | `none`、`xs`–`xl`（0.25/0.5/0.75/1/1.5em）                                                                                                                                                               |
+| `sizes`          | `control`（单行控件高度，em）、`minTarget`（最小可点击尺寸 24px）、`xs`–`xl`（容器宽度 30/40/48/64/80rem）、`full`                                                                                       |
+| `radii`          | `none`、`xs`–`xl`（em）、`full`；整体改直角或更圆时覆盖这一组                                                                                                                                            |
+| `borderWidths`   | `none`、`xs`–`xl`（1/2/3/4/6px）：边框、分隔线、焦点环宽度与间隔                                                                                                                                         |
+| `shadows`        | `none`、`xs`–`xl`（Radix Themes 第 2–6 级，暗色主题另有一套）                                                                                                                                            |
+| `opacities`      | `disabled`                                                                                                                                                                                               |
+| `strokeWidths`   | `xs`–`xl`（1/1.5/2/2.5/3，图标线宽，Icon 默认 `md`）                                                                                                                                                     |
+| `durations`      | `none`、`xs`–`xl`（75/120/200/300/500ms）                                                                                                                                                                |
+| `easings`        | `standard`、`enter`、`exit`                                                                                                                                                                              |
 
 - 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），拼接计算时 import 后写 `space.md`。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
@@ -303,7 +307,7 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 | `base/`    | `CodeBlock`      | 代码块；高亮器可选，见 10.4                                                                                                                                                                  |
 | `layout/`  | `Flex`           | `direction`、`align`、`justify`、`wrap`、`gap`、`inline`；只做这一个，不拆 Stack / Group                                                                                                     |
 | `layout/`  | `Grid`           | `columns`（1–12）、`minItemWidth`（`auto-fill` 自动换列）、`gap` / `rowGap` / `columnGap`、`align`、`justify`、`flow`                                                                        |
-| `layout/`  | `Container`      | `size`（`xs`–`xl`，新增容器宽度 token）、`padding`；居中、限制最大宽度                                                                                                                       |
+| `layout/`  | `Container`      | `size`（`xs`–`xl`，取 `sizes` 的容器宽度）、`padding`；居中、限制最大宽度                                                                                                                    |
 | `layout/`  | `Separator`      | `orientation`；有语义时 `role="separator"`，装饰性时对读屏隐藏                                                                                                                               |
 | `display/` | `Collapse`       | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器等同 `hidden` |
 | `display/` | `Collapsible`    | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                            |
@@ -330,10 +334,10 @@ Flex / Grid 的 `as` 可选 `div`、`section`、`article`、`ul`、`ol`、`li`�
 
 规则见 §4。实现：
 
-- **对照表**：`packages/tsx/src/stylex/token-map.ts`，属性 → token 组，覆盖 controls 以外的全部组（controls 单位不统一，不进表）。
+- **对照表**：`packages/tsx/src/stylex/token-map.ts`，属性 → token 组，覆盖全部 token 组。原来的 `controls` 单位与用途不统一，已拆进 `sizes`、`borderWidths`、`opacities`、`strokeWidths`。
 - **类型**：`scripts/css-docs` 生成 `DocumentedStyles` 时给表里的属性加上 `keyof FontSizesTokens` 这类取值，每组一个接口；ui 的 `token-names.ts` 由同一脚本根据 tokens 生成，用 `declare module` 填入 token 名与注释。每组单独一个接口，而不是 `keyof 总接口[组名]`：后者在 WebStorm 里会把各组同名的 `_xs` 都列为跳转目标。
 - **编译**：`compiler/tokens.ts`（Babel），由 Vite 预设的 `vue-tsx-pro:tokens` 插件在 StyleX 之前运行；token 名从 token 模块的源码（或产物）读出，用来报错。与 `stylex` 选项无关，组件库构建也改写：同包的文件用相对路径导入，其他包用选项里的包名（默认 `@vue-tsx-pro/ui/tokens.stylex`）。
-- **与原计划的出入**：带组名的写法不进补全。原计划让 controls 的带组名写法出现在所有属性的补全里，实际 `position`、`display` 的补全里也会出现 `_controls.height`，噪音太大。
+- **与原计划的出入**：带组名的写法不进补全。原计划让不进表的组（当时的 controls）的带组名写法出现在所有属性的补全里，实际 `position`、`display` 的补全里也会出现 `_controls.height`，噪音太大。
 - **顺手修复**：`KeywordValue` 里的 `string & {}` 在泛型实例化时被 TypeScript 6 化简成 `string`，取值含任意字符串的属性在 tsserver（VS Code）里一直没有关键字补全；改用具名别名 `OpenString`。
 
 ### 10.6 顺序

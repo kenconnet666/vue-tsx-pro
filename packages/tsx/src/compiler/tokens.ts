@@ -1,7 +1,7 @@
 /**
  * 主题 tokens 的字符串写法（COMPONENTS.md §4）：stylex.create / stylex.keyframes 里的
  *   fontSize: '_xs'          短写，按对照表（stylex/token-map.ts）找组 → fontSizes.xs
- *   height: '_controls.height'  带组名，任何属性都能用 → controls.height
+ *   width: '_space.md'      带组名，任何属性都能用（跨组取值）→ space.md
  * 改写成 token 变量并补上 import。在 StyleX 编译之前运行，StyleX 看到的就是手写 import 的变量；
  * 组件库构建不编译 StyleX，也要做这一步，产物里才不会留下字符串。
  */

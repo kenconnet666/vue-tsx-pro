@@ -33,7 +33,7 @@ export interface IconProps extends PartProps<'svg', Managed> {
   icon: IconData;
   /** 不写时为 1em，跟随所在文字；档位对应主题字号，数字为像素 */
   size?: Size | number;
-  /** 线宽（24 格画布上的单位），默认取主题的 controls.iconStrokeWidth */
+  /** 线宽（24 格画布上的单位），默认取主题的 strokeWidths.md */
   strokeWidth?: number;
   /** 从右到左排版时水平翻转：箭头、chevron 这类有方向的图标 */
   flipInRtl?: boolean;
@@ -47,7 +47,7 @@ const styles = stylex.create({
     // 与文字基线对齐
     verticalAlign: '-0.125em',
     // 写成 CSS 而不是 stroke-width 属性：主题能统一调整，子元素照常继承
-    strokeWidth: '_controls.iconStrokeWidth',
+    strokeWidth: '_md',
   },
   flip: { transform: { default: null, ':dir(rtl)': 'scaleX(-1)' } },
   xs: { fontSize: '_xs' },

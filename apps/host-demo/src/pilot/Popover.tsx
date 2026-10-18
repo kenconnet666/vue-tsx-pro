@@ -39,7 +39,7 @@ const styles = stylex.create({
     inset: 'auto',
     margin: 0,
     padding: '_md',
-    borderWidth: '_controls.borderWidth',
+    borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: '_border',
     borderRadius: '_lg',

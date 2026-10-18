@@ -11,7 +11,7 @@ import {
   type IconProps,
   type PartProps,
 } from '@vue-tsx-pro/ui';
-import { controls } from '@vue-tsx-pro/ui/tokens.stylex';
+import { borderWidths, sizes } from '@vue-tsx-pro/ui/tokens.stylex';
 
 /** 未声明的属性落到 input（主元素）上；外层容器用 propsRoot */
 export interface TextFieldProps extends PartProps<'input', 'value' | 'disabled' | 'aria-invalid'> {
@@ -34,22 +34,22 @@ const styles = stylex.create({
     display: 'inline-flex',
     alignItems: 'center',
     gap: '_sm',
-    minHeight: `max(${controls.height}, ${controls.minTarget})`,
+    minHeight: `max(${sizes.control}, ${sizes.minTarget})`,
     paddingInline: '_md',
-    borderWidth: '_controls.borderWidth',
+    borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: { default: '_border', ':hover': '_borderStrong' },
     borderRadius: '_md',
     backgroundColor: '_surface',
     color: '_text',
     outlineStyle: { default: 'none', ':focus-within': 'solid' },
-    outlineWidth: '_controls.focusRingWidth',
+    outlineWidth: '_sm',
     outlineColor: '_focusRing',
     // 压住边框
-    outlineOffset: `calc(-1 * ${controls.borderWidth})`,
+    outlineOffset: `calc(-1 * ${borderWidths.xs})`,
   },
   invalid: { borderColor: '_danger', outlineColor: '_danger' },
-  disabled: { opacity: '_controls.disabledOpacity' },
+  disabled: { opacity: '_disabled' },
   icon: { color: '_textMuted' },
   input: {
     flexGrow: 1,

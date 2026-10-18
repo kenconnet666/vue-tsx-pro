@@ -5,17 +5,21 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { Theme as CompiledTheme } from '@vue-tsx-pro/tsx/stylex';
 import {
+  borderWidths,
   colors,
-  controls,
   durations,
   easings,
   fonts,
   fontSizes,
   fontWeights,
+  letterSpacings,
   lineHeights,
+  opacities,
   radii,
   shadows,
+  sizes,
   space,
+  strokeWidths,
 } from './tokens.stylex';
 
 const groups = {
@@ -24,12 +28,16 @@ const groups = {
   fontSizes,
   fontWeights,
   lineHeights,
+  letterSpacings,
   space,
+  sizes,
   radii,
+  borderWidths,
   shadows,
+  opacities,
+  strokeWidths,
   durations,
   easings,
-  controls,
 };
 type Groups = typeof groups;
 

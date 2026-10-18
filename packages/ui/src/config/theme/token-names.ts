@@ -377,6 +377,39 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _relaxed: unknown;
   }
+  /** 字间距（em，随字号缩放）：中文正文保持 normal，大字号标题可以略收紧 */
+  interface LetterSpacingsTokens {
+    /**
+     * `-0.02em`：大标题
+     *
+     * `letterSpacings.tighter`
+     */
+    _tighter: unknown;
+    /**
+     * `-0.01em`：小标题
+     *
+     * `letterSpacings.tight`
+     */
+    _tight: unknown;
+    /**
+     * `0`：正文
+     *
+     * `letterSpacings.normal`
+     */
+    _normal: unknown;
+    /**
+     * `0.02em`：小字号的标签
+     *
+     * `letterSpacings.wide`
+     */
+    _wide: unknown;
+    /**
+     * `0.05em`：全大写的英文标签
+     *
+     * `letterSpacings.wider`
+     */
+    _wider: unknown;
+  }
   /** 间距：em，随组件字号缩放；页面级布局间距由宿主决定 */
   interface SpaceTokens {
     /**
@@ -415,6 +448,60 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      * `space.xl`
      */
     _xl: unknown;
+  }
+  /**
+   * 尺寸：宽、高、最小最大尺寸。控件规格用 em 随字号缩放；
+   * 容器宽度（Container 与页面内容的最大宽度）是页面级的，用 rem，跟随浏览器的字号设置
+   */
+  interface SizesTokens {
+    /**
+     * `2.25em`：单行控件（按钮、输入框、下拉框）的高度
+     *
+     * `sizes.control`
+     */
+    _control: unknown;
+    /**
+     * `24px`：可点击区域的最小尺寸（WCAG 2.2 目标尺寸 24×24），与 control 取较大值
+     *
+     * `sizes.minTarget`
+     */
+    _minTarget: unknown;
+    /**
+     * `30rem`（480px）：窄内容，如登录表单
+     *
+     * `sizes.xs`
+     */
+    _xs: unknown;
+    /**
+     * `40rem`（640px）：表单页、设置页
+     *
+     * `sizes.sm`
+     */
+    _sm: unknown;
+    /**
+     * `48rem`（768px）：文章、详情页
+     *
+     * `sizes.md`
+     */
+    _md: unknown;
+    /**
+     * `64rem`（1024px）：常规页面
+     *
+     * `sizes.lg`
+     */
+    _lg: unknown;
+    /**
+     * `80rem`（1280px）：宽表格、仪表盘
+     *
+     * `sizes.xl`
+     */
+    _xl: unknown;
+    /**
+     * `100%`：占满容器
+     *
+     * `sizes.full`
+     */
+    _full: unknown;
   }
   /** 圆角：em，随组件字号缩放；整体改成直角或更圆时覆盖这一组 */
   interface RadiiTokens {
@@ -460,6 +547,45 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      * `radii.full`
      */
     _full: unknown;
+  }
+  /** 边框与描边宽度（px，不随字号缩放）：边框、分隔线、焦点环的宽度与间隔 */
+  interface BorderWidthsTokens {
+    /**
+     * `0`
+     *
+     * `borderWidths.none`
+     */
+    _none: unknown;
+    /**
+     * `1px`：边框、分隔线
+     *
+     * `borderWidths.xs`
+     */
+    _xs: unknown;
+    /**
+     * `2px`：焦点环宽度与间隔、选中态的强调边框
+     *
+     * `borderWidths.sm`
+     */
+    _sm: unknown;
+    /**
+     * `3px`：提示条侧边的色条
+     *
+     * `borderWidths.md`
+     */
+    _md: unknown;
+    /**
+     * `4px`
+     *
+     * `borderWidths.lg`
+     */
+    _lg: unknown;
+    /**
+     * `6px`
+     *
+     * `borderWidths.xl`
+     */
+    _xl: unknown;
   }
   /** 阴影：取自 Radix Themes 的第 2–6 级，去掉了模拟边框的 1px 描边（组件自己画边框）；暗色主题另有一套 */
   interface ShadowsTokens {
@@ -559,6 +685,48 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      * `easings.exit`
      */
     _exit: unknown;
+  }
+  /** 不透明度 */
+  interface OpacitiesTokens {
+    /**
+     * `0.5`：不可用的元素
+     *
+     * `opacities.disabled`
+     */
+    _disabled: unknown;
+  }
+  /** SVG 线宽（图标 24 格画布上的单位，不带单位）；Icon 默认 md，strokeWidth 可以逐个覆盖 */
+  interface StrokeWidthsTokens {
+    /**
+     * `1`：细线图标
+     *
+     * `strokeWidths.xs`
+     */
+    _xs: unknown;
+    /**
+     * `1.5`
+     *
+     * `strokeWidths.sm`
+     */
+    _sm: unknown;
+    /**
+     * `2`：Lucide 的默认线宽
+     *
+     * `strokeWidths.md`
+     */
+    _md: unknown;
+    /**
+     * `2.5`
+     *
+     * `strokeWidths.lg`
+     */
+    _lg: unknown;
+    /**
+     * `3`：粗线图标
+     *
+     * `strokeWidths.xl`
+     */
+    _xl: unknown;
   }
 }
 

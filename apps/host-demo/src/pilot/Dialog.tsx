@@ -29,7 +29,7 @@ const styles = stylex.create({
   dialog: {
     width: 'min(32em, calc(100vw - 2em))',
     padding: '_xl',
-    borderWidth: '_controls.borderWidth',
+    borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: '_border',
     borderRadius: '_xl',

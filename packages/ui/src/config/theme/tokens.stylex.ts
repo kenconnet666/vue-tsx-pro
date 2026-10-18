@@ -5,9 +5,11 @@
  * 取舍参考：
  *   - 颜色与阴影取自 Radix Colors / Radix Themes，按 Radix 12 级的用途约定映射成语义 token
  *     （1–2 背景，3–5 交互填充，6–8 边框，9–10 实色，11–12 文字）
- *   - 尺寸、间距、圆角用 em，随组件字号等比缩放（字号即尺寸档位，见 COMPONENTS.md §3）
+ *   - 尺寸、间距、圆角用 em，随组件字号等比缩放（字号即尺寸档位，见 COMPONENTS.md §3）；
+ *     边框宽度用 px，容器宽度用 rem
+ *   - 分组参考 Stitches / Chakra / Panda 的 token 分类，组名即 stylex.create 里短写的对照组（token-map.ts）
  *   - 动效时长与缓动参考 Material 3
- *   - 分档：一般 xs–xl 五档，需要时加 none（去掉）与 full（全圆）；颜色按语义命名，不分档
+ *   - 分档：一般 xs–xl 五档，需要时加 none（去掉）与 full（全圆）；颜色、行高、字间距、不透明度按语义命名
  *   - 不设 z-index：弹出层、对话框用原生 popover / dialog，渲染在顶层（top layer），不参与层叠顺序
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -181,6 +183,20 @@ export const lineHeights = stylex.defineVars({
   relaxed: '1.75',
 });
 
+/** 字间距（em，随字号缩放）：中文正文保持 normal，大字号标题可以略收紧 */
+export const letterSpacings = stylex.defineVars({
+  /** `-0.02em`：大标题 */
+  tighter: '-0.02em',
+  /** `-0.01em`：小标题 */
+  tight: '-0.01em',
+  /** `0`：正文 */
+  normal: '0',
+  /** `0.02em`：小字号的标签 */
+  wide: '0.02em',
+  /** `0.05em`：全大写的英文标签 */
+  wider: '0.05em',
+});
+
 /** 间距：em，随组件字号缩放；页面级布局间距由宿主决定 */
 export const space = stylex.defineVars({
   /** `0` */
@@ -195,6 +211,29 @@ export const space = stylex.defineVars({
   lg: '1em',
   /** `1.5em`：卡片、对话框内边距 */
   xl: '1.5em',
+});
+
+/**
+ * 尺寸：宽、高、最小最大尺寸。控件规格用 em 随字号缩放；
+ * 容器宽度（Container 与页面内容的最大宽度）是页面级的，用 rem，跟随浏览器的字号设置
+ */
+export const sizes = stylex.defineVars({
+  /** `2.25em`：单行控件（按钮、输入框、下拉框）的高度 */
+  control: '2.25em',
+  /** `24px`：可点击区域的最小尺寸（WCAG 2.2 目标尺寸 24×24），与 control 取较大值 */
+  minTarget: '24px',
+  /** `30rem`（480px）：窄内容，如登录表单 */
+  xs: '30rem',
+  /** `40rem`（640px）：表单页、设置页 */
+  sm: '40rem',
+  /** `48rem`（768px）：文章、详情页 */
+  md: '48rem',
+  /** `64rem`（1024px）：常规页面 */
+  lg: '64rem',
+  /** `80rem`（1280px）：宽表格、仪表盘 */
+  xl: '80rem',
+  /** `100%`：占满容器 */
+  full: '100%',
 });
 
 /** 圆角：em，随组件字号缩放；整体改成直角或更圆时覆盖这一组 */
@@ -213,6 +252,22 @@ export const radii = stylex.defineVars({
   xl: '1em',
   /** 全圆：胶囊按钮、头像、开关 */
   full: '9999px',
+});
+
+/** 边框与描边宽度（px，不随字号缩放）：边框、分隔线、焦点环的宽度与间隔 */
+export const borderWidths = stylex.defineVars({
+  /** `0` */
+  none: '0',
+  /** `1px`：边框、分隔线 */
+  xs: '1px',
+  /** `2px`：焦点环宽度与间隔、选中态的强调边框 */
+  sm: '2px',
+  /** `3px`：提示条侧边的色条 */
+  md: '3px',
+  /** `4px` */
+  lg: '4px',
+  /** `6px` */
+  xl: '6px',
 });
 
 /** 阴影：取自 Radix Themes 的第 2–6 级，去掉了模拟边框的 1px 描边（组件自己画边框）；暗色主题另有一套 */
@@ -260,20 +315,22 @@ export const easings = stylex.defineVars({
   exit: 'cubic-bezier(0.3, 0, 0.8, 0.15)',
 });
 
-/** 交互控件的通用规格 */
-export const controls = stylex.defineVars({
-  /** 单行控件（按钮、输入框、下拉框）的高度 */
-  height: '2.25em',
-  /** 可点击区域的最小尺寸（WCAG 2.2 目标尺寸 24×24），与 height 取较大值 */
-  minTarget: '24px',
-  /** 边框宽度 */
-  borderWidth: '1px',
-  /** 焦点环宽度 */
-  focusRingWidth: '2px',
-  /** 焦点环与元素的间隔；输入框等有边框的控件用负值让焦点环压住边框 */
-  focusRingOffset: '2px',
-  /** 不可用元素的不透明度 */
-  disabledOpacity: '0.5',
-  /** 图标线宽（24 格画布上的单位）；Icon 的 strokeWidth 可以逐个覆盖 */
-  iconStrokeWidth: '2',
+/** 不透明度 */
+export const opacities = stylex.defineVars({
+  /** `0.5`：不可用的元素 */
+  disabled: '0.5',
+});
+
+/** SVG 线宽（图标 24 格画布上的单位，不带单位）；Icon 默认 md，strokeWidth 可以逐个覆盖 */
+export const strokeWidths = stylex.defineVars({
+  /** `1`：细线图标 */
+  xs: '1',
+  /** `1.5` */
+  sm: '1.5',
+  /** `2`：Lucide 的默认线宽 */
+  md: '2',
+  /** `2.5` */
+  lg: '2.5',
+  /** `3`：粗线图标 */
+  xl: '3',
 });

@@ -1,4 +1,4 @@
-// 主题 tokens 的字符串写法：'_xs'、'_controls.height' → token 变量与 import
+// 主题 tokens 的字符串写法：'_xs'、'_space.md' → token 变量与 import
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { compileTokens, type TokenModule } from '../src/compiler/index';
@@ -10,7 +10,7 @@ const module: TokenModule = {
     ['fontSizes', new Set(['xs', 'md'])],
     ['space', new Set(['sm', 'md'])],
     ['colors', new Set(['text', 'accent'])],
-    ['controls', new Set(['height'])],
+    ['sizes', new Set(['control'])],
   ]),
 };
 
@@ -21,15 +21,15 @@ const compile = async (body: string, load: () => TokenModule | null = () => modu
 describe('改写', () => {
   it('短写按对照表找组，带组名的任何属性都能用；同组只导入一次', async () => {
     const code = await compile(
-      `const s = stylex.create({ a: { fontSize: '_xs', padding: '_md', margin: '_sm', height: '_controls.height', width: '_space.md' } });`,
+      `const s = stylex.create({ a: { fontSize: '_xs', padding: '_md', margin: '_sm', height: '_control', width: '_space.md' } });`,
     );
     expect(code).toContain(
-      'import { fontSizes as _fontSizes, space as _space, controls as _controls } from "./tokens.stylex";',
+      'import { fontSizes as _fontSizes, space as _space, sizes as _sizes } from "./tokens.stylex";',
     );
     expect(code).toContain('fontSize: _fontSizes.xs');
     expect(code).toContain('padding: _space.md');
     expect(code).toContain('margin: _space.sm');
-    expect(code).toContain('height: _controls.height');
+    expect(code).toContain('height: _sizes.control');
     expect(code).toContain('width: _space.md');
   });
 
@@ -70,10 +70,10 @@ describe('改写', () => {
 
 describe('报错', () => {
   const cases: [string, string, RegExp][] = [
-    ['表外属性用短写', `{ width: '_md' }`, /width 不在 token 对照表里.*'_space\.md'/],
+    ['表外属性用短写', `{ zIndex: '_md' }`, /zIndex 不在 token 对照表里.*'_space\.md'/],
     ['短写的 token 不存在', `{ fontSize: '_xxl' }`, /fontSizes 里没有 xxl（可用：'_xs'、'_md'）/],
-    ['带组名的 token 不存在', `{ height: '_controls.width' }`, /'_controls\.height'/],
-    ['组不存在', `{ height: '_sizes.md' }`, /没有名为 sizes 的 token 组/],
+    ['带组名的 token 不存在', `{ width: '_sizes.width' }`, /'_sizes\.control'/],
+    ['组不存在', `{ height: '_blurs.md' }`, /没有名为 blurs 的 token 组/],
     ['格式不对', `{ fontSize: '_x-s' }`, /不是主题 token 的写法/],
   ];
   it.each(cases)('%s', async (_, styles, message) => {
