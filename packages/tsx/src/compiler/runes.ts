@@ -5,6 +5,7 @@ import { fail } from './errors.ts';
 export type Rune =
   | '_state'
   | '_state.raw'
+  | '_state.snapshot'
   | '_derived'
   | '_derived.by'
   | '_bindable'
@@ -38,8 +39,11 @@ export function runeOf(path: NodePath<t.CallExpression>): Rune | null {
     return '_bind';
   }
   const name = `${owner}.${members.join('.')}`;
-  if (name === '_state.raw' || name === '_derived.by') return name;
-  throw fail(path, `不支持 ${name}，可用的只有 _state.raw、_derived.by 与 _bind 的修饰符`);
+  if (name === '_state.raw' || name === '_state.snapshot' || name === '_derived.by') return name;
+  throw fail(
+    path,
+    `不支持 ${name}，可用的只有 _state.raw、_state.snapshot、_derived.by 与 _bind 的修饰符`,
+  );
 }
 
 /** a.b.c → ['a', 'b', 'c']；不是纯标识符链时返回 null */

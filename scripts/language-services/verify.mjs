@@ -110,15 +110,16 @@ try {
     completions.items.map((item) => item.name).join(', '),
   );
 
-  // 一个文件里放两类错误：类型错误由 TypeScript 报告；符文误用 TypeScript 不报错（参数可以赋值），由符文编译器报告
+  // 一个文件里放两类错误：类型错误由 TypeScript 报告；符文误用 TypeScript 不报错（对象可以作为监听源），由符文编译器报告
   writeFileSync(
     resolve(root, TEMP),
     [
+      "import { watch } from 'vue';",
       "import { _component } from '../../src';",
-      'export const Bad = _component(({ disabled = false }: { disabled?: boolean }) => {',
-      '  let count = _state(0);',
-      '  disabled = true;',
-      '  return () => <i>{count}</i>;',
+      'export const Bad = _component(() => {',
+      "  let form = _state({ name: '' });",
+      '  watch(form, () => {});',
+      '  return () => <i>{form.name}</i>;',
       '});',
       "export const wrong: number = 'x';",
       '',
@@ -129,7 +130,7 @@ try {
     const typeError = misuse.diagnostics.find((item) => item.code === 'TS2322');
     check(
       '诊断：发现真实类型错误',
-      typeError && typeError.range?.start.line === 7,
+      typeError && typeError.range?.start.line === 8,
       typeError
         ? `第 ${typeError.range?.start.line} 行：${typeError.message}`
         : JSON.stringify(misuse.diagnostics),
@@ -137,7 +138,7 @@ try {
     const rune = misuse.diagnostics.find((item) => item.source === 'runes');
     check(
       '诊断：符文误用带位置',
-      rune && rune.range?.start.line === 4,
+      rune && rune.range?.start.line === 5,
       rune
         ? `第 ${rune.range?.start.line} 行：${rune.message}`
         : JSON.stringify(misuse.diagnostics),

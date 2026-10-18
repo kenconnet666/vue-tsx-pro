@@ -9,6 +9,7 @@ import {
   isInsideRender,
   isInTypePosition,
   isPropsComponent,
+  isVueWatchSource,
   replaceWithValue,
   writeTargets,
 } from './ast.ts';
@@ -40,7 +41,7 @@ export class RunesTransform {
     this.program.scope.crawl(); //   改写后重建作用域
     this.resolveBindings(); //    2. 声明节点 → 作用域里的绑定
     this.rewriteAccesses(); //    3. 读写 → .value
-    this.rewriteBinds(); //       4. 属性={_bind(x)} → v-model
+    this.rewriteCalls(); //       4. _bind(x) → v-model，_state.snapshot(x) → snapshot()
     this.reportMisuse(); //       5. 残留的符文都是误用
     this.imports.insert();
   }
@@ -62,8 +63,9 @@ export class RunesTransform {
         const rune = runeOf(path);
         switch (rune) {
           case null:
-          case '_toRef': // _toRef(x) 与 _bind(x) 在第 3、4 步随引用一起处理
+          case '_toRef': // 这三个不是声明，在第 3、4 步随引用一起处理
           case '_bind':
+          case '_state.snapshot':
             return;
           case '_bindable':
             throw fail(
@@ -80,7 +82,7 @@ export class RunesTransform {
   /** let x = _state(0) 之类：把调用换成 Vue API，并记下声明 */
   private declareState(
     path: NodePath<t.CallExpression>,
-    rune: Exclude<Rune, '_bindable' | '_bind' | '_toRef'>,
+    rune: Exclude<Rune, '_bindable' | '_bind' | '_toRef' | '_state.snapshot'>,
   ) {
     const declarator = path.parentPath;
     if (!declarator.isVariableDeclarator() || declarator.node.init !== path.node) {
@@ -107,6 +109,12 @@ export class RunesTransform {
           throw fail(path, 'const 声明的原始值无法修改，响应式状态请用 let');
         }
         requireIdentifier(declarator, rune);
+        // export const settings = _state({...})（同 Svelte）：不会被整体替换，导出 ref 里的对象本身，
+        // 即 reactive(...)；导入方读写它的属性都是响应式的
+        if (kind === 'const' && declarator.parentPath.parentPath?.isExportNamedDeclaration()) {
+          path.replaceWith(this.imports.vue('reactive', [initial]));
+          return;
+        }
         path.replaceWith(this.imports.vue('ref', [initial]));
         this.pending.set(declarator.node, { writable: kind === 'let', source: rune });
         return;
@@ -120,16 +128,17 @@ export class RunesTransform {
       }
       case '_derived':
       case '_derived.by': {
-        if (kind !== 'const') throw fail(path, `${rune} 是只读的，请用 const 声明`);
+        // const：只读的 computed；let：可以临时覆盖，依赖变化后重新跟随（同 Svelte 5.25）
         if (!arg) throw fail(path, `${rune} 需要一个参数`);
         const getter = rune === '_derived' ? t.arrowFunctionExpression([], arg) : arg;
+        const writable = kind === 'let';
         if (t.isObjectPattern(id) || t.isArrayPattern(id)) {
-          this.declareDestructuredDerived(declarator, id, getter, rune);
+          this.declareDestructuredDerived(declarator, id, getter, rune, writable);
           return;
         }
         requireIdentifier(declarator, rune);
-        path.replaceWith(this.imports.vue('computed', [getter]));
-        this.pending.set(declarator.node, { writable: false, source: rune });
+        path.replaceWith(this.derived(getter, writable));
+        this.pending.set(declarator.node, { writable, source: rune });
         return;
       }
       case '_fromRef': {
@@ -156,12 +165,14 @@ export class RunesTransform {
    *   const first = computed(() => { const { name, tags: [first] } = _derivedSource.value; return first })
    *
    * 每个变量都按原样重新解构一次，默认值、嵌套与 ...rest 因此与普通解构完全一致。
+   * let 声明时每个变量都可以临时覆盖。
    */
   private declareDestructuredDerived(
     declarator: NodePath<t.VariableDeclarator>,
     pattern: t.ObjectPattern | t.ArrayPattern,
     getter: t.Expression,
     rune: Rune,
+    writable: boolean,
   ) {
     const source = declarator.scope.generateUidIdentifier('derivedSource');
     const sourceValue = () => t.memberExpression(t.identifier(source.name), t.identifier('value'));
@@ -176,14 +187,18 @@ export class RunesTransform {
           t.returnStatement(t.identifier(name)),
         ]),
       );
-      const derived = t.variableDeclarator(
-        t.identifier(name),
-        this.imports.vue('computed', [pick]),
-      );
-      this.pending.set(derived, { writable: false, source: rune });
+      const derived = t.variableDeclarator(t.identifier(name), this.derived(pick, writable));
+      this.pending.set(derived, { writable, source: rune });
       declarators.push(derived);
     }
     declarator.replaceWithMultiple(declarators);
+  }
+
+  /** 只读派生 → computed；可覆盖的派生 → overridable */
+  private derived(getter: t.Expression, writable: boolean) {
+    return writable
+      ? this.imports.runtime('overridable', [getter])
+      : this.imports.vue('computed', [getter]);
   }
 
   // ───────────────────────── 2. 绑定 ─────────────────────────
@@ -204,7 +219,7 @@ export class RunesTransform {
           if (this.pending.has(findDeclarator(declaration, name)!)) {
             throw fail(
               path,
-              `不能直接导出响应式变量 ${name}：导入方只会拿到一个值。跨文件共享状态请用 pinia 或组合式函数，或导出读写函数`,
+              `不能导出会被整体替换的响应式变量 ${name}：导入方只会拿到一个值。共享对象请写 export const ${name} = _state({...})，或导出读写函数`,
             );
           }
         }
@@ -251,6 +266,13 @@ export class RunesTransform {
       );
     }
     if (parent.isExportSpecifier()) throw fail(reference, `不能导出响应式变量 ${name}`);
+    // watch(form, cb) 传进去的是当前值：原始值 TypeScript 会报错，对象则悄悄监听旧对象，整体替换后失效
+    if (isVueWatchSource(reference)) {
+      throw fail(
+        reference,
+        `watch 的监听源请写成 getter：watch(() => ${name}, …)；需要 Ref 时写 watch(_toRef(${name}), …)`,
+      );
+    }
 
     const owner = reference.getFunctionParent();
     if (owner && isComponentSetup(owner)) {
@@ -270,12 +292,18 @@ export class RunesTransform {
     replaceWithValue(reference);
   }
 
-  // ───────────────────────── 4. 双向绑定 ─────────────────────────
+  // ───────────────────────── 4. 双向绑定与快照 ─────────────────────────
 
-  private rewriteBinds() {
+  private rewriteCalls() {
     this.program.traverse({
       CallExpression: (path) => {
-        if (runeOf(path) === '_bind') rewriteBind(path);
+        const rune = runeOf(path);
+        if (rune === '_bind') rewriteBind(path);
+        if (rune === '_state.snapshot') {
+          if (path.node.arguments.length !== 1)
+            throw fail(path, '_state.snapshot() 只接受一个参数');
+          path.replaceWith(this.imports.runtime('snapshot', path.node.arguments as t.Expression[]));
+        }
       },
     });
   }
@@ -316,9 +344,6 @@ function requireIdentifier(declarator: NodePath<t.VariableDeclarator>, rune: Run
 /** 只读绑定被写入时的提示：prop 建议改用 _bindable，符文直接说明来源 */
 function readonlyMessage(binding: Binding, info: TrackedInfo) {
   const name = binding.identifier.name;
-  if (info.source === 'prop') {
-    return `prop ${name} 是只读的；需要在组件内修改并同步给父级，请写成 ${name} = _bindable(默认值)`;
-  }
   if (info.source === '_state' || info.source === '_fromRef') {
     return `${name} 用 const 声明，不能整体替换（属性照常可改）；需要替换请用 let`;
   }

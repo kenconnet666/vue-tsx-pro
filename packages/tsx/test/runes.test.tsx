@@ -65,4 +65,42 @@ describe('符文', () => {
     expect(on.value).toBe(true);
     expect(seen).toEqual([true]);
   });
+
+  it('let 声明的 _derived 可以临时覆盖（乐观更新），依赖变化后重新跟随', async () => {
+    const likes = ref(1);
+    const Likes = _component(({ count = 0 }: { count?: number }) => {
+      let shown = _derived(count);
+      return () => (
+        <button type="button" onClick={() => (shown += 1)}>
+          {shown}
+        </button>
+      );
+    });
+    const el = mount(_component(() => () => <Likes count={likes.value} />));
+    const button = el.querySelector('button')!;
+    button.click();
+    await nextTick();
+    expect(button.textContent).toBe('2');
+
+    likes.value = 5;
+    await nextTick();
+    expect(button.textContent).toBe('5');
+  });
+
+  it('_state.snapshot：去掉代理的深拷贝，之后互不影响', () => {
+    let copy: { tags: string[]; at: Date } | undefined;
+    let form: { tags: string[]; at: Date } | undefined;
+    mount(
+      _component(() => {
+        let state = _state({ tags: ['a'], at: new Date(0) });
+        copy = _state.snapshot(state);
+        state.tags.push('b');
+        form = state;
+        return () => null;
+      }),
+    );
+    expect(copy).toEqual({ tags: ['a'], at: new Date(0) });
+    expect(form!.tags).toEqual(['a', 'b']);
+    expect(structuredClone(copy)).toEqual(copy); // 不是代理，可以交给 structuredClone
+  });
 });

@@ -156,3 +156,33 @@ describe('rest 与组件信息', () => {
     expect(seen).toEqual(['lg']);
   });
 });
+
+describe('临时覆盖（同 Svelte）', () => {
+  const Editable = _component(({ label = '默认' }: { label?: string }) => () => (
+    <button type="button" onClick={() => (label = '本地')}>
+      {label}
+    </button>
+  ));
+
+  it('普通 prop 可以在组件内覆盖，父级传入新值时以父级为准', async () => {
+    const label = ref('甲');
+    const el = mount(() => <Editable label={label.value} />);
+    const button = el.querySelector('button')!;
+    button.click();
+    await nextTick();
+    expect(button.textContent).toBe('本地');
+
+    label.value = '乙';
+    await nextTick();
+    expect(button.textContent).toBe('乙');
+  });
+
+  it('父级没传时覆盖的是默认值', async () => {
+    const el = mount(() => <Editable />);
+    const button = el.querySelector('button')!;
+    expect(button.textContent).toBe('默认');
+    button.click();
+    await nextTick();
+    expect(button.textContent).toBe('本地');
+  });
+});

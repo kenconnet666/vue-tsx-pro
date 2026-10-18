@@ -78,7 +78,8 @@ export function declareProps(setup: NodePath<t.Function>, context: PropsContext)
           ]);
       const declarator = t.variableDeclarator(t.identifier(local), init);
       context.track(declarator, {
-        writable: isBindable,
+        // 普通 prop 也可以写：只改组件本地，父级传入新值时以父级为准（同 Svelte）
+        writable: true,
         source: isBindable ? '_bindable' : 'prop',
         childrenOf: key === 'children' ? setup.node : undefined,
       });

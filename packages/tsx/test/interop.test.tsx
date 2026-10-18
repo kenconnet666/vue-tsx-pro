@@ -3,7 +3,7 @@ import { afterEach, describe, it, expect } from 'vitest';
 import { createApp, nextTick, reactive, ref, shallowReactive, shallowRef } from 'vue';
 import { _component } from '../src';
 import { Page } from './fixtures/Interop';
-import { getSettings, getToken, setToken } from './fixtures/store';
+import { getToken, setToken, settings } from './fixtures/store';
 import { edgeCases } from './fixtures/edge';
 
 const apps: ReturnType<typeof createApp>[] = [];
@@ -31,7 +31,7 @@ describe('与 Vue 生态互通', () => {
     expect($(el, '.name').textContent).toBe('bb');
     type($(el, '.font'), '20');
     await nextTick();
-    expect(getSettings().fontSize).toBe(20); // _bind.number 修饰符也照常工作
+    expect(settings.fontSize).toBe(20); // _bind.number 修饰符也照常工作
   });
 
   it('_fromRef 接入组合式函数的 Ref；getter 与 _toRef 交给 Vue API', async () => {
@@ -55,9 +55,9 @@ describe('与 Vue 生态互通', () => {
     expect($(el, '.last').textContent).toBe('true');
   });
 
-  it('跨文件：导出读写函数；对象状态取回后改属性', () => {
-    getSettings().theme = 'dark';
-    expect(getSettings().theme).toBe('dark');
+  it('跨文件：导出对象状态直接改属性；会被整体替换的状态导出读写函数', () => {
+    settings.theme = 'dark';
+    expect(settings.theme).toBe('dark');
     setToken('t1');
     expect(getToken()).toBe('t1');
   });

@@ -4,21 +4,23 @@
  *
  * 两者返回的都是真正的 Vue Ref（读写改写为 .value），因此 _toRef(size) 可以交给 watch 等 Vue API。
  */
-import { computed, customRef, getCurrentInstance, nextTick, toRef, watch, type Ref } from 'vue';
+import { computed, customRef, getCurrentInstance, nextTick, watch, type Ref } from 'vue';
+import { overridable } from './state';
 
 type Props = Record<string, unknown>;
 type Emit = (event: string, ...args: unknown[]) => void;
 
 /**
- * 只读 prop：父级传了值就用父级的，否则用默认值。
+ * 普通 prop：父级传了值就用父级的，否则用默认值；组件内可以临时覆盖（见 overridable），
+ * 父级传入新值时以父级为准。
  *
  * 默认值第一次用到时才求值，并用 computed 缓存：
  *   - [] / {} / 函数调用每个实例各自一份，读多少次都是同一个值
  *   - 引用了其他 prop 的默认值（icon = pick(size)）会随那个 prop 更新
  */
-export function prop<T>(props: Props, key: string, fallback?: () => T): Readonly<Ref<T>> {
+export function prop<T>(props: Props, key: string, fallback?: () => T): Ref<T> {
   let fallbackValue: Readonly<Ref<T>> | undefined;
-  return toRef(() => {
+  return overridable(() => {
     const value = props[key];
     if (value !== undefined || !fallback) return value as T;
     fallbackValue ??= computed(fallback);

@@ -59,6 +59,24 @@ export function isComponentChild(container: NodePath) {
   return t.isJSXMemberExpression(name) || (t.isJSXIdentifier(name) && /^[A-Z]/.test(name.name));
 }
 
+/** 是否是从 vue 导入的 watch 的监听源：watch(x, …) 或 watch([x, y], …) */
+export function isVueWatchSource(path: NodePath) {
+  const parent = path.parentPath;
+  const call = parent?.isArrayExpression() ? parent.parentPath : parent;
+  if (!call?.isCallExpression()) return false;
+  const source = call.node.arguments[0];
+  if (source !== path.node && source !== parent?.node) return false;
+  const callee = call.node.callee;
+  if (!t.isIdentifier(callee)) return false;
+  const binding = call.scope.getBinding(callee.name);
+  const specifier = binding?.path;
+  return (
+    !!specifier?.isImportSpecifier() &&
+    t.isIdentifier(specifier.node.imported, { name: 'watch' }) &&
+    (specifier.parent as t.ImportDeclaration).source.value === 'vue'
+  );
+}
+
 export function isInTypePosition(path: NodePath) {
   return !!path.findParent(
     (p) => p.isTSType() || p.isTSTypeQuery() || p.isTSInterfaceDeclaration(),

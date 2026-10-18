@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { compileRunes } from '../src/compiler/index';
 
 const cases: [string, string, RegExp][] = [
-  ['导出会重新赋值的状态', 'export let x = _state(0)', /不能直接导出响应式变量 x/],
+  ['导出会被整体替换的状态', 'export let x = _state(0)', /不能导出会被整体替换的响应式变量 x/],
   ['export { x }', 'let x = _state(0); export { x }', /不能导出响应式变量 x/],
   ['写入 _derived', 'let a = _state(1); const d = _derived(a * 2); d = 3', /只读/],
   [
@@ -10,18 +10,23 @@ const cases: [string, string, RegExp][] = [
     'let p = _state({ x: 1 }); const { x } = _derived(p); x = 2',
     /x 来自 _derived，是只读的/,
   ],
-  [
-    '写入普通 prop',
-    '_component(({ disabled = false }) => { let n = _state(0); disabled = true; return () => n })',
-    /prop disabled 是只读的/,
-  ],
   ['const 原始值状态', 'const x = _state(0)', /const 声明的原始值无法修改/],
   [
     'const 对象状态整体替换',
     'const form = _state({ a: 1 }); form = { a: 2 }',
     /用 const 声明，不能整体替换/,
   ],
-  ['导出响应式变量', 'export const form = _state({ a: 1 })', /跨文件共享状态请用 pinia/],
+  [
+    'watch 直接传响应式变量',
+    "import { watch } from 'vue'; let form = _state({ a: 1 }); watch(form, () => {})",
+    /watch\(\(\) => form, …\)/,
+  ],
+  [
+    'watch 数组源里直接传响应式变量',
+    "import { watch } from 'vue'; let a = _state(0); watch([a], () => {})",
+    /监听源请写成 getter/,
+  ],
+  ['_state.snapshot 多个参数', 'let a = _state({}); _state.snapshot(a, a)', /只接受一个参数/],
   ['_state 解构声明', 'let { a } = _state({ a: 1 })', /不能解构声明/],
   ['符文当作值传递', 'const make = _state', /只能按约定的位置直接调用/],
   ['_toRef 参数不是响应式变量', 'const r = _toRef(1)', /_toRef\(x\) 的参数必须是/],
@@ -53,11 +58,6 @@ const cases: [string, string, RegExp][] = [
     '_bind 只读的 _derived',
     'let a = _state(1); const d = _derived(a); <X v={_bind(d)} />',
     /d 来自 _derived，是只读的，不能用 _bind/,
-  ],
-  [
-    '_bind 普通 prop',
-    '_component(({ v = 1 }: any) => () => <X v={_bind(v)} />)',
-    /prop v 是只读的/,
   ],
   ['_bind 非响应式变量', 'let n = 1; <X v={_bind(n)} />', /_bind 的参数必须是/],
   ['_bind 不在 JSX 属性里', 'let n = _state(1); const r = _bind(n)', /只能写在 JSX 属性的值里/],
@@ -134,6 +134,47 @@ describe('误用在编译期报错', () => {
     expect(out).toContain('<Switch v-model:checked={on.value} />');
     expect(out).toContain('<input v-model_lazy_trim={name.value} />');
     expect(out).toContain('<input type="number" v-model_number={form.value.age} />');
+  });
+
+  it('export const 对象状态导出 ref 里的对象本身（reactive），文件内其他状态仍是 ref', async () => {
+    const out = (await compileRunes('export const settings = _state({ a: 1 }); let n = _state(0)'))!
+      .code;
+    expect(out).toContain('export const settings = _vue_reactive({');
+    expect(out).toContain('let n = _vue_ref(0)');
+  });
+
+  it('let 声明的 _derived 可以临时覆盖；const 仍是 computed', async () => {
+    const code = 'let a = _state(1); let d = _derived(a * 2); const e = _derived(a); d = 5';
+    const out = (await compileRunes(code))!.code;
+    expect(out).toContain('let d = _vtp_overridable(() => a.value * 2)');
+    expect(out).toContain('const e = _vue_computed(() => a.value)');
+    expect(out).toContain('d.value = 5');
+  });
+
+  it('普通 prop 可以写入（组件本地覆盖），_bind 也可以绑定它', async () => {
+    const code =
+      '_component(({ v = 1 }: any) => { const reset = () => (v = 1); return () => <X v={_bind(v)} onReset={reset} /> })';
+    const out = (await compileRunes(code))!.code;
+    expect(out).toContain('v.value = 1');
+    expect(out).toContain('v-model:v={v.value}');
+  });
+
+  it('watch 的监听源写成 getter 或 _toRef(x)', async () => {
+    const code = [
+      "import { watch } from 'vue';",
+      'let n = _state(0);',
+      'watch(() => n, () => {}); watch(_toRef(n), () => {});',
+    ].join('\n');
+    const out = (await compileRunes(code))!.code;
+    expect(out).toContain('watch(() => n.value, () => {})');
+    expect(out).toContain('watch(n, () => {})');
+  });
+
+  it('_state.snapshot(x) 编译为运行时的 snapshot(x.value)', async () => {
+    const out = (await compileRunes(
+      'let form = _state({ a: 1 }); const copy = _state.snapshot(form)',
+    ))!.code;
+    expect(out).toContain('const copy = _vtp_snapshot(form.value)');
   });
 
   it('被本地变量遮蔽的同名函数不当作符文', async () => {

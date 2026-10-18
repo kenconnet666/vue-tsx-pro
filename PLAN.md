@@ -260,3 +260,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **整仓整理（2026-10-18）**：符文编译器按职责拆成 `packages/tsx/src/compiler/` 下的 index（入口）、transform（主流程）、runes、props、bind、imports、ast、errors；Node 直接加载的 compiler/ 与 vite/ 相对导入带 `.ts`；宿主示例的 inject 演示改为中性的站点名，去掉与主题系统混淆的写死深色；RUNES.md 统一为 `_` 前缀符文名；合并重复的测试文件。
 
 **符文调整（2026-10-18）**：`_state` 一律编译为 `ref`（`const` 只表示不能整体替换），去掉“const 对象 → reactive、可直接导出”的特例；`_ref` → `_toRef`、`_from` → `_fromRef`。详见 [RUNES.md](RUNES.md)。
+
+**对齐 Svelte 5（2026-10-18）**：`export const x = _state({...})` 可直接导出；`let` 声明的 `_derived` 与普通 prop 可以临时覆盖（来源变化后重新跟随）；新增 `_state.snapshot`；`watch` 直接传响应式变量编译报错。逐条对照见 [RUNES.md](RUNES.md) §2.4。

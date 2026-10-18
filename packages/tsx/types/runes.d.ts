@@ -24,6 +24,7 @@ declare global {
   /**
    * 响应式状态 → ref，之后像普通变量一样读写。
    * let 可以整体替换；const 不能整体替换，对象的属性照常可改。
+   * 跨文件共享：`export const settings = _state({...})` 可以直接导出（导出的是 ref 里的对象本身）。
    */
   function _state<T>(initial: T): T;
   function _state<T>(): T | undefined;
@@ -31,12 +32,16 @@ declare global {
     /** 只能整体替换的状态 → shallowRef */
     function raw<T>(initial: T): T;
     function raw<T>(): T | undefined;
+    /** 去掉响应式代理的静态深拷贝，交给 structuredClone、第三方库或日志 */
+    function snapshot<T>(value: T): T;
   }
 
-  /** 只读派生 → computed(() => expression) */
+  /**
+   * 派生值。const → computed，只读；let → 可以临时覆盖（乐观更新），依赖变化后重新跟随。
+   */
   function _derived<T>(expression: T): T;
   namespace _derived {
-    /** 复杂派生 → computed(fn) */
+    /** 复杂派生：派生逻辑写成函数，其余同 _derived */
     function by<T>(fn: () => T): T;
   }
 

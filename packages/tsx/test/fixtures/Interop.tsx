@@ -2,9 +2,7 @@ import { watch } from 'vue';
 import { _component } from '../../src';
 import { Switch } from './Switch';
 import { useDoubled, useIncrement, usePointerLike, useStorageLike } from './composables';
-import { getSettings } from './store';
-
-const settings = getSettings();
+import { settings } from './store';
 
 export const Page = _component(() => {
   let on = _state(false);
