@@ -526,31 +526,16 @@
   "details": {
     "alignItems": {
       "remarks": "Flex 中沿交叉轴对齐；Grid 中通常沿块轴对齐。单个项目可以用 align-self 覆盖。",
-      "commonValues": [
-        "stretch",
-        "center",
-        "baseline",
-        "start",
-        "end"
-      ],
+      "commonValues": ["stretch", "center", "baseline", "start", "end"],
       "usage": "图标与文字居中、表单控件基线对齐或项目拉伸。"
     },
     "alignSelf": {
-      "commonValues": [
-        "auto",
-        "stretch",
-        "baseline"
-      ],
+      "commonValues": ["auto", "stretch", "baseline"],
       "usage": "只改变某一个项目的交叉轴或块轴对齐，不改变同组其他项目。"
     },
     "animationFillMode": {
       "remarks": "控制动画有效播放区间之外的样式，不会把最终值写回普通 CSS 声明。",
-      "commonValues": [
-        "none",
-        "forwards",
-        "backwards",
-        "both"
-      ],
+      "commonValues": ["none", "forwards", "backwards", "both"],
       "usage": "控制延迟阶段和播放结束后的动画呈现。"
     },
     "aspectRatio": {
@@ -559,11 +544,7 @@
     },
     "backgroundSize": {
       "remarks": "改变背景图像的尺寸，不改变元素尺寸；位置由 background-position 决定。",
-      "commonValues": [
-        "auto",
-        "contain",
-        "cover"
-      ],
+      "commonValues": ["auto", "contain", "cover"],
       "usage": "背景封面或需要完整显示的背景装饰。"
     },
     "blockSize": {
@@ -579,10 +560,7 @@
       "usage": "浮层层次、卡片边缘或内凹效果。"
     },
     "boxSizing": {
-      "commonValues": [
-        "content-box",
-        "border-box"
-      ],
+      "commonValues": ["content-box", "border-box"],
       "usage": "确定组件声明宽高时是否把 padding 和 border 算在尺寸内。"
     },
     "color": {
@@ -593,69 +571,37 @@
     },
     "contain": {
       "remarks": "不同隔离类型会改变布局和绘制语义，不能仅当作无副作用的性能开关。",
-      "commonValues": [
-        "content",
-        "strict",
-        "size",
-        "paint",
-        "style"
-      ],
+      "commonValues": ["content", "strict", "size", "paint", "style"],
       "usage": "边界明确且尺寸、溢出行为经过验证的独立区域。"
     },
     "containerType": {
       "remarks": "建立尺寸查询容器会同时引入必要的隔离语义；容器本身的样式通常由祖先查询容器决定。",
-      "commonValues": [
-        "normal",
-        "inline-size",
-        "size"
-      ],
+      "commonValues": ["normal", "inline-size", "size"],
       "usage": "让组件按所在容器尺寸响应，而不是只按视口响应。"
     },
     "contentVisibility": {
       "remarks": "允许跳过子树渲染；跳过时的占位尺寸可由 contain-intrinsic-size 提供。",
-      "commonValues": [
-        "visible",
-        "auto",
-        "hidden"
-      ],
+      "commonValues": ["visible", "auto", "hidden"],
       "usage": "页面中较长、暂时位于视口外的独立内容区域。"
     },
     "display": {
       "remarks": "外部显示类型决定元素自身以块级还是行内级方式参与周围布局；内部布局方式决定内容使用普通流、Flex 或 Grid 等布局。此属性不继承；例如 div 通常由浏览器默认样式设置为 block。",
-      "commonValues": [
-        "block",
-        "inline",
-        "flex",
-        "inline-flex",
-        "grid",
-        "none"
-      ],
+      "commonValues": ["block", "inline", "flex", "inline-flex", "grid", "none"],
       "usage": "选择容器的布局方式；具体对齐、间距和换行由对应布局属性控制。"
     },
     "flex": {
       "remarks": "依次对应 flex-grow、flex-shrink、flex-basis。作用于弹性项目，应先由父容器建立 Flex 布局。",
-      "commonValues": [
-        "auto",
-        "none"
-      ],
+      "commonValues": ["auto", "none"],
       "usage": "分配弹性布局中的剩余空间，或让项目保持自身尺寸。"
     },
     "flexBasis": {
       "remarks": "在剩余空间分配前确定项目的主轴基础尺寸；设置为 auto 时先参考对应的 width/height。",
-      "commonValues": [
-        "auto",
-        "content"
-      ],
+      "commonValues": ["auto", "content"],
       "usage": "为侧栏、内容区或重复项目指定弹性分配的起始尺寸。"
     },
     "flexDirection": {
       "remarks": "row 沿行内轴，column 沿块轴；不能始终按“水平/垂直”理解。反转只改变视觉排列，不改变 DOM 顺序。",
-      "commonValues": [
-        "row",
-        "column",
-        "row-reverse",
-        "column-reverse"
-      ]
+      "commonValues": ["row", "column", "row-reverse", "column-reverse"]
     },
     "flexGrow": {
       "remarks": "数值是分配正剩余空间的相对权重，不是最终宽度百分比。只有容器存在剩余空间时才发挥作用。",
@@ -666,11 +612,7 @@
       "usage": "控制空间不足时是否允许缩小；设置为 0 可避免图标或固定控件收缩。"
     },
     "flexWrap": {
-      "commonValues": [
-        "nowrap",
-        "wrap",
-        "wrap-reverse"
-      ],
+      "commonValues": ["nowrap", "wrap", "wrap-reverse"],
       "usage": "标签、按钮等项目不足一行时允许分行。"
     },
     "fontSize": {
@@ -679,12 +621,7 @@
     },
     "fontWeight": {
       "remarks": "最终字形取决于已加载字体和可用字重；变量字体可支持连续的字重范围。",
-      "commonValues": [
-        "normal",
-        "bold",
-        "bolder",
-        "lighter"
-      ],
+      "commonValues": ["normal", "bold", "bolder", "lighter"],
       "usage": "正文、强调文字和标题的视觉层级。"
     },
     "gap": {
@@ -693,11 +630,7 @@
     },
     "gridAutoFlow": {
       "remarks": "dense 可能改变视觉顺序，但不改变 DOM 和键盘导航顺序。",
-      "commonValues": [
-        "row",
-        "column",
-        "dense"
-      ],
+      "commonValues": ["row", "column", "dense"],
       "usage": "控制未明确指定位置的网格项目如何自动填入轨道。"
     },
     "gridTemplateColumns": {
@@ -717,20 +650,12 @@
       "usage": "希望布局尺寸跟随书写模式变化的组件。"
     },
     "isolation": {
-      "commonValues": [
-        "auto",
-        "isolate"
-      ],
+      "commonValues": ["auto", "isolate"],
       "usage": "建立局部层叠边界，或限制混合模式影响范围。"
     },
     "justifyContent": {
       "remarks": "Flex 中沿主轴分配空间，Grid 中沿行内轴对齐网格整体。没有剩余空间时，空间分配效果可能不明显。",
-      "commonValues": [
-        "center",
-        "space-between",
-        "space-around",
-        "space-evenly"
-      ]
+      "commonValues": ["center", "space-between", "space-around", "space-evenly"]
     },
     "lineHeight": {
       "remarks": "无单位数字作为倍数继承；长度值按长度继承。单独设置行高不会自动实现多行文本垂直居中。",
@@ -750,13 +675,7 @@
     },
     "objectFit": {
       "remarks": "控制 img、video 等替换内容在盒子内部的缩放与裁剪；不改变盒子本身的 width/height。",
-      "commonValues": [
-        "fill",
-        "contain",
-        "cover",
-        "none",
-        "scale-down"
-      ],
+      "commonValues": ["fill", "contain", "cover", "none", "scale-down"],
       "usage": "封面裁剪、头像和完整图像预览。"
     },
     "opacity": {
@@ -772,47 +691,25 @@
     },
     "overflow": {
       "remarks": "一个值同时设置两轴；两个值依次设置 overflow-x、overflow-y。通常需要尺寸约束才会出现可滚动的溢出。",
-      "commonValues": [
-        "visible",
-        "hidden",
-        "clip",
-        "auto",
-        "scroll"
-      ],
+      "commonValues": ["visible", "hidden", "clip", "auto", "scroll"],
       "usage": "滚动面板、内容裁剪和受限尺寸区域。"
     },
     "overflowWrap": {
-      "commonValues": [
-        "normal",
-        "anywhere",
-        "break-word"
-      ],
+      "commonValues": ["normal", "anywhere", "break-word"],
       "usage": "防止 URL、标识符等长文本撑破容器。"
     },
     "overflowX": {
       "remarks": "和 overflow-y 的组合可能改变计算值；例如另一轴是 auto 时，visible 可能按 auto 计算。",
-      "commonValues": [
-        "auto",
-        "hidden",
-        "clip"
-      ],
+      "commonValues": ["auto", "hidden", "clip"],
       "usage": "横向滚动标签、宽表格或水平内容裁剪。"
     },
     "overflowY": {
       "remarks": "通常配合 height/max-height 或可收缩的布局区域使用。",
-      "commonValues": [
-        "auto",
-        "hidden",
-        "clip"
-      ],
+      "commonValues": ["auto", "hidden", "clip"],
       "usage": "纵向列表和弹窗内容区。"
     },
     "overscrollBehavior": {
-      "commonValues": [
-        "auto",
-        "contain",
-        "none"
-      ],
+      "commonValues": ["auto", "contain", "none"],
       "usage": "阻止弹窗或内部滚动面板到达边界后继续滚动外层页面。"
     },
     "padding": {
@@ -821,21 +718,12 @@
     },
     "pointerEvents": {
       "remarks": "控制指针命中，不等同于原生 disabled，也不会单独阻止键盘交互。",
-      "commonValues": [
-        "auto",
-        "none"
-      ],
+      "commonValues": ["auto", "none"],
       "usage": "允许指针穿过装饰层；可交互控件的禁用应同时处理行为和语义。"
     },
     "position": {
       "remarks": "偏移通常通过 top/right/bottom/left 或逻辑 inset 属性设置。fixed 和 absolute 的包含块也可能由 transform 等属性建立。",
-      "commonValues": [
-        "static",
-        "relative",
-        "absolute",
-        "fixed",
-        "sticky"
-      ],
+      "commonValues": ["static", "relative", "absolute", "fixed", "sticky"],
       "usage": "建立定位参照、覆盖层、固定区域或滚动吸附内容。"
     },
     "scrollBehavior": {
@@ -847,30 +735,17 @@
     },
     "textAlign": {
       "remarks": "控制块容器中的行内内容，不是块盒自身的位置，也不是 Flex/Grid 项目的对齐。",
-      "commonValues": [
-        "start",
-        "end",
-        "center",
-        "justify"
-      ],
+      "commonValues": ["start", "end", "center", "justify"],
       "usage": "正文、标题和表格单元格中的文本对齐。"
     },
     "textOverflow": {
       "remarks": "本属性不自行制造溢出。单行省略通常还需要受限宽度、overflow:hidden 和 white-space:nowrap。",
-      "commonValues": [
-        "ellipsis",
-        "clip"
-      ],
+      "commonValues": ["ellipsis", "clip"],
       "usage": "受限宽度中的单行标题或标签。多行截断需要单独的布局和截行方案。"
     },
     "touchAction": {
       "remarks": "描述浏览器可接管的触摸手势，手势开始后再修改通常不会改变当前手势的处理。",
-      "commonValues": [
-        "manipulation",
-        "pan-x",
-        "pan-y",
-        "none"
-      ],
+      "commonValues": ["manipulation", "pan-x", "pan-y", "none"],
       "usage": "拖拽控件与页面滚动之间分配触摸方向；保留用户所需的缩放能力。"
     },
     "transform": {
@@ -882,42 +757,21 @@
       "usage": "悬停、选中和展开状态之间的平滑变化。"
     },
     "userSelect": {
-      "commonValues": [
-        "auto",
-        "text",
-        "none",
-        "all"
-      ],
+      "commonValues": ["auto", "text", "none", "all"],
       "usage": "调整拖拽控件中的文本选取，或让代码片段整段选中。"
     },
     "visibility": {
-      "commonValues": [
-        "visible",
-        "hidden",
-        "collapse"
-      ],
+      "commonValues": ["visible", "hidden", "collapse"],
       "usage": "需要隐藏内容但通常保留其布局占位的场景。"
     },
     "whiteSpace": {
       "remarks": "同时影响空白折叠和软换行。它不负责给溢出内容添加省略号。",
-      "commonValues": [
-        "normal",
-        "nowrap",
-        "pre",
-        "pre-wrap",
-        "pre-line",
-        "break-spaces"
-      ],
+      "commonValues": ["normal", "nowrap", "pre", "pre-wrap", "pre-line", "break-spaces"],
       "usage": "单行标签、保留换行的用户文本和代码片段。"
     },
     "width": {
       "remarks": "百分比依据包含块解析；auto、内部尺寸和最小/最大约束共同决定最终使用尺寸。",
-      "commonValues": [
-        "auto",
-        "min-content",
-        "max-content",
-        "fit-content"
-      ],
+      "commonValues": ["auto", "min-content", "max-content", "fit-content"],
       "usage": "控制物理宽度；支持书写模式的布局可优先考虑 inline-size。"
     },
     "willChange": {
@@ -925,11 +779,7 @@
     },
     "wordBreak": {
       "remarks": "按字符和语言控制断行。仅需避免超长单词溢出时，通常先考虑 overflow-wrap。",
-      "commonValues": [
-        "normal",
-        "break-all",
-        "keep-all"
-      ]
+      "commonValues": ["normal", "break-all", "keep-all"]
     },
     "zIndex": {
       "remarks": "数值只在所属层叠上下文内比较；更大的数值不保证盖过其他层叠上下文。Flex/Grid 项目也可以使用 z-index。",
