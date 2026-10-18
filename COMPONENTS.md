@@ -80,7 +80,8 @@
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
   - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用，但没有补全；
   - 条件值、回退数组、伪元素、动态样式里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
-  - 一个值里拼多个 token 或做计算时（`` `max(${sizes.control}, ${sizes.minTarget})` ``）仍 import 变量写模板字符串；
+  - 值里也能夹 token，用于计算、多值、简写：`minHeight: 'max(_control, _minTarget)'`、`outlineOffset: 'calc(-1 * _xs)'`、`padding: '_sm _md'`，编译成模板字符串；短写同样按属性找组，表外属性（如 `transition`）写带组名的 `'opacity _durations.md _easings.standard'`。token 前后不能紧挨字母、数字、`-`、`.`，引号里的文字与 `url()` 不处理。值中间的 token 没有补全；
+  - 只有动态样式的参数、运行时算出的值才需要 import token 变量；
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
@@ -143,7 +144,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 | `durations`      | `none`、`xs`–`xl`（75/120/200/300/500ms）                                                                                                                                                                |
 | `easings`        | `standard`、`enter`、`exit`                                                                                                                                                                              |
 
-- 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），拼接计算时 import 后写 `space.md`。
+- 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `'calc(_md * 2)'`；只有运行时的值才 import 后写 `space.md`。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
 - 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染。不设断点：StyleX 的媒体查询不能引用变量，组件优先用容器查询。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）。

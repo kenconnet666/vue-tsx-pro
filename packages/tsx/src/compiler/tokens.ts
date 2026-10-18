@@ -2,6 +2,7 @@
  * 主题 tokens 的字符串写法（COMPONENTS.md §4）：stylex.create / stylex.keyframes 里的
  *   fontSize: '_xs'          短写，按对照表（stylex/token-map.ts）找组 → fontSizes.xs
  *   width: '_space.md'      带组名，任何属性都能用（跨组取值）→ space.md
+ *   minHeight: 'max(_control, _minTarget)'  值里夹着 token → 模板字符串（拼接、计算、多值）
  * 改写成 token 变量并补上 import。在 StyleX 编译之前运行，StyleX 看到的就是手写 import 的变量；
  * 组件库构建不编译 StyleX，也要做这一步，产物里才不会留下字符串。
  */
@@ -24,7 +25,10 @@ const STYLE_FUNCTIONS = new Set(['create', 'keyframes']);
 const TOKEN = /^_(?:(\w+)\.)?(\w+)$/;
 
 export async function compileTokens(code: string, filename: string, load: TokenModuleLoader) {
-  if (!/['"`]_\w/.test(code) || !/@stylexjs\/stylex|@vue-tsx-pro\/tsx\/stylex/.test(code)) {
+  if (
+    !/(?<![\w$.-])_[A-Za-z]/.test(code) ||
+    !/@stylexjs\/stylex|@vue-tsx-pro\/tsx\/stylex/.test(code)
+  ) {
     return null;
   }
   const state = { changed: false };
@@ -147,9 +151,8 @@ class TokenRewriter {
   /** 属性值：字符串、回退数组、按条件取值的对象（条件可嵌套）、动态样式里的三元表达式 */
   private rewriteValue(property: string, value: NodePath<t.Node | null | undefined>) {
     if (value.isStringLiteral()) {
-      if (value.node.value.startsWith('_')) {
-        value.replaceWith(this.resolve(property, value.node.value, value));
-      }
+      const replacement = this.rewriteString(property, value.node.value, value);
+      if (replacement) value.replaceWith(replacement);
     } else if (value.isArrayExpression()) {
       for (const element of value.get('elements')) this.rewriteValue(property, element);
     } else if (value.isObjectExpression()) {
@@ -162,12 +165,37 @@ class TokenRewriter {
     }
   }
 
-  private resolve(property: string, text: string, path: NodePath) {
-    const match = TOKEN.exec(text);
-    if (!match) {
+  /**
+   * 整个值是一个 token → 成员访问；值里夹着 token（`max(_control, _minTarget)`、`'_sm _md'`）
+   * → 模板字符串，与手写 `` `max(${sizes.control}, …)` `` 相同。没有 token 时返回 null，原样保留
+   */
+  private rewriteString(property: string, text: string, path: NodePath) {
+    if (TOKEN.test(text)) return this.resolve(property, text, path);
+    const references = embeddedTokens(text);
+    if (!references.length) {
+      if (!text.startsWith('_')) return null;
       throw fail(path, `'${text}' 不是主题 token 的写法：短写 '_xs'，或带组名 '_space.md'`);
     }
-    const [, explicitGroup, name] = match as unknown as [string, string | undefined, string];
+    const parts: string[] = [];
+    let last = 0;
+    for (const { start, end } of references) {
+      parts.push(text.slice(last, start));
+      last = end;
+    }
+    parts.push(text.slice(last));
+    const quasis = parts.map((cooked, index) =>
+      t.templateElement({ raw: escapeTemplate(cooked), cooked }, index === parts.length - 1),
+    );
+    const expressions = references.map(({ token }) => this.resolve(property, token, path));
+    return t.templateLiteral(quasis, expressions);
+  }
+
+  private resolve(property: string, text: string, path: NodePath) {
+    const [, explicitGroup, name] = TOKEN.exec(text) as unknown as [
+      string,
+      string | undefined,
+      string,
+    ];
     const group = explicitGroup ?? TOKEN_GROUP_OF.get(property);
     if (!group) {
       throw fail(
@@ -225,4 +253,26 @@ function returnedObjects(fn: NodePath<t.ArrowFunctionExpression | t.FunctionExpr
     },
   });
   return objects;
+}
+
+/**
+ * 值里夹着的 token：前后不能紧挨字母、数字、`-`、`.`（`foo_bar`、`--_x` 不算），
+ * 引号里的文字（content 属性）与 url(…) 里的路径不处理
+ */
+const EMBEDDED_TOKEN = /(?<![\w$.-])_[A-Za-z]\w*(?:\.[A-Za-z]\w*)?(?![\w-])/g;
+const LITERAL_REGION = /(["'])(?:\\.|(?!\1).)*\1|url\([^)]*\)/g;
+
+function embeddedTokens(text: string) {
+  const skipped = [...text.matchAll(LITERAL_REGION)].map((match) => [
+    match.index,
+    match.index + match[0].length,
+  ]);
+  return [...text.matchAll(EMBEDDED_TOKEN)]
+    .filter((match) => !skipped.some(([from, to]) => match.index >= from! && match.index < to!))
+    .map((match) => ({ token: match[0], start: match.index, end: match.index + match[0].length }));
+}
+
+/** 模板字符串的原文：反斜杠、反引号与 ${ 要转义 */
+function escapeTemplate(text: string) {
+  return text.replace(/\\|`|\$\{/g, (char) => `\\${char}`);
 }

@@ -46,6 +46,26 @@ describe('改写', () => {
     expect(code).toContain("':hover': {\n");
   });
 
+  it('值里夹着的 token 改写成模板字符串：计算、多值、跨组；引号与 url() 里的不动', async () => {
+    const code = await compile(`
+      const s = stylex.create({
+        a: {
+          minHeight: 'max(_control, 24px)',
+          padding: '_sm _md',
+          outlineOffset: 'calc(-1 * _space.sm)',
+          content: '"_text"',
+          backgroundImage: 'url(_a.png)',
+          transition: 'opacity 1s, color 1s',
+        },
+      });
+    `);
+    expect(code).toContain('minHeight: `max(${_sizes.control}, 24px)`');
+    expect(code).toContain('padding: `${_space.sm} ${_space.md}`');
+    expect(code).toContain('outlineOffset: `calc(-1 * ${_space.sm})`');
+    expect(code).toContain(`content: '"_text"'`);
+    expect(code).toContain("backgroundImage: 'url(_a.png)'");
+  });
+
   it('具名导入的 create 也认；其他字符串、其他函数不动', async () => {
     const code = (await compileTokens(
       "import { create } from '@stylexjs/stylex';\nconst s = create({ a: { fontSize: '_xs' } }); const x = { fontSize: '_xs' }; f('_xs');",
@@ -75,6 +95,7 @@ describe('报错', () => {
     ['带组名的 token 不存在', `{ width: '_sizes.width' }`, /'_sizes\.control'/],
     ['组不存在', `{ height: '_blurs.md' }`, /没有名为 blurs 的 token 组/],
     ['格式不对', `{ fontSize: '_x-s' }`, /不是主题 token 的写法/],
+    ['值里夹着的 token 不存在', `{ padding: '_sm _huge' }`, /space 里没有 huge/],
   ];
   it.each(cases)('%s', async (_, styles, message) => {
     await expect(compile(`stylex.create({ a: ${styles} });`)).rejects.toThrow(message);

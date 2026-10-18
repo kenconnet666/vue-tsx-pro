@@ -9,7 +9,6 @@ import {
   type IconProps,
   type PartProps,
 } from '@vue-tsx-pro/ui';
-import { sizes } from '@vue-tsx-pro/ui/tokens.stylex';
 import type { VNodeChild } from 'vue';
 
 /** 未声明的属性落到按钮（或链接）元素上 */
@@ -34,7 +33,7 @@ const styles = stylex.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '_sm',
-    minHeight: `max(${sizes.control}, ${sizes.minTarget})`,
+    minHeight: 'max(_control, _minTarget)',
     paddingBlock: '_xs',
     paddingInline: '_lg',
     borderWidth: '_xs',
