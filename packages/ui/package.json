@@ -38,11 +38,15 @@
   "peerDependencies": {
     "@lucide/icons": "^1.59.0",
     "@stylexjs/stylex": "^0.19.1",
+    "@unovis/ts": "^1.7.0",
     "echarts": "^6.0.0",
     "three": ">=0.170.0",
     "vue": "^3.5.0"
   },
   "peerDependenciesMeta": {
+    "@unovis/ts": {
+      "optional": true
+    },
     "echarts": {
       "optional": true
     },
@@ -54,7 +58,11 @@
     "@lucide/icons": "catalog:",
     "@radix-ui/colors": "catalog:",
     "@stylexjs/stylex": "catalog:",
+    "@types/three": "catalog:",
+    "@unovis/ts": "catalog:",
+    "echarts": "catalog:",
     "happy-dom": "catalog:",
+    "three": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",

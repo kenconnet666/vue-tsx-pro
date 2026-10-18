@@ -224,27 +224,30 @@ interface Lang {
 - 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
 - `stylex.create` / `createTheme` 的结果必须赋给变量；只用一次的常量会被打包工具内联，使用方编译 dist 时报错，所以这类常量要么被多处使用，要么 `export`（`dark.ts` 就是这样）。`pnpm test:consumer` 会发现这类问题。
 
-**依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖，用到的组件放在子路径，主入口不导入；其余是普通依赖。
+**依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
-| 用途     | 选择                                | 说明                                                                         |
-| -------- | ----------------------------------- | ---------------------------------------------------------------------------- |
-| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                            |
-| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon`）                   |
-| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                         |
-| 精确数字 | `decimal.js`                        | 数字输入、金额                                                               |
-| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                             |
-| 校验     | `@standard-schema/spec`（接口）     | 表单只依赖接口，使用方可选 zod、valibot 等                                   |
-| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/animation` |
-| 图表     | `echarts`（可选 peer）              | 以后的图表组件用，使用方按需安装                                             |
-| 3D       | `three`（可选 peer）                | 以后的 3D 展示组件用，使用方按需安装                                         |
-| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                       |
-| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                         |
-| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）   |
+| 用途     | 选择                                | 说明                                                                                                    |
+| -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                       |
+| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon`）                                              |
+| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                    |
+| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                          |
+| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                        |
+| 校验     | `@standard-schema/spec`（接口）     | 表单只依赖接口，使用方可选 zod、valibot 等                                                              |
+| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/animation`                            |
+| 常规图表 | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置 |
+| 特殊图表 | `echarts`（可选 peer）              | Unovis 没有的：仪表盘、雷达、K 线、日历热力图、超大数据量、3D 图表                                      |
+| 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                  |
+| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                                                  |
+| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                    |
+| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                              |
+| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                               |
 
 **待办**：
 
 - Button 的点击波纹反馈（写正式 Button 时做，尊重“减少动态效果”）。
 - 文档页的 props 表生成。
+- 拖动工具（第一个需要拖动的组件出现时写，大概率是 Slider，放在 `utils/`）：参考 React Aria 的 `useMove`。要处理好区分点击与拖动（阈值、拖动后吞掉 click）、`setPointerCapture` 与 `pointercancel`、`touch-action`、拖动时禁止选中文字、从右到左排版；组件另外提供键盘替代（WCAG 2.5.7）。双指缩放、旋转等图片预览组件出现时再写。不用手势库：成熟组件库（Radix、React Aria、Ark UI）也都直接基于 Pointer Events，手势库省下的只是位移与速度的计算。
 
 ## 8. 正式组件的完成标准（供之后使用）
 
