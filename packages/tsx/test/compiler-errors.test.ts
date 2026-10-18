@@ -244,6 +244,18 @@ describe('编译警告', () => {
     ].join('\n');
     expect((await compileRunes(code))!.warnings).toEqual([]);
   });
+
+  it('_untrack(x)：有意只取当前值，不警告；编译成 untrack(() => …)', async () => {
+    const code = [
+      '_component(({ open = false }: { open?: boolean }) => {',
+      '  let collapsed = _state(_untrack(!open));',
+      '  return () => collapsed;',
+      '})',
+    ].join('\n');
+    const result = (await compileRunes(code))!;
+    expect(result.warnings).toEqual([]);
+    expect(result.code).toContain('_vtp_untrack(() => !open.value)');
+  });
 });
 
 describe('组件名', () => {

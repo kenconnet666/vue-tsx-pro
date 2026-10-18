@@ -68,6 +68,7 @@ export class RunesTransform {
           case '_toRef': // 这些不是声明，在第 3、4 步随引用一起处理
           case '_bind':
           case '_state.snapshot':
+          case '_untrack':
           case '_effect':
           case '_effect.pre':
           case '_effect.root':
@@ -280,7 +281,8 @@ export class RunesTransform {
     }
 
     const owner = reference.getFunctionParent();
-    if (owner && isComponentSetup(owner)) {
+    // _untrack(x) 明确表示只要当前值，不警告
+    if (owner && isComponentSetup(owner) && !isInsideUntrack(reference)) {
       this.warnings.push(
         warning(
           reference,
@@ -306,6 +308,10 @@ export class RunesTransform {
         if (rune === '_bind') rewriteBind(path);
         if (rune === '_state.snapshot') {
           path.replaceWith(this.imports.runtime('snapshot', [singleArgument(path, rune)]));
+        }
+        if (rune === '_untrack') {
+          const read = t.arrowFunctionExpression([], singleArgument(path, rune));
+          path.replaceWith(this.imports.runtime('untrack', [read]));
         }
         if (rune === '_effect' || rune === '_effect.pre' || rune === '_effect.root') {
           this.rewriteEffect(path, rune);
@@ -365,6 +371,11 @@ export class RunesTransform {
       },
     });
   }
+}
+
+/** 引用位于 _untrack(…) 的参数里（第 3 步时调用还没改写） */
+function isInsideUntrack(path: NodePath) {
+  return !!path.findParent((parent) => parent.isCallExpression() && runeOf(parent) === '_untrack');
 }
 
 /** _state.snapshot(x)、_effect(fn) 这类只接受一个参数的符文 */

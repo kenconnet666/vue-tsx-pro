@@ -12,6 +12,7 @@ type RuntimeHelper =
   | 'restProps'
   | 'overridable'
   | 'snapshot'
+  | 'untrack'
   | 'effect'
   | 'effectRoot';
 

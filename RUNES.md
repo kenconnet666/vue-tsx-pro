@@ -29,6 +29,7 @@
 | `<Switch checked={_bind(on)} />`                        | `v-model:checked={on.value}`               | 父级声明双向绑定；原生元素支持 `_bind.trim/.number/.lazy`      |
 | `let theme = _fromRef(useStorage(…))`                   | 直接持有这个 Ref                           | Ref → 变量；也支持解构 `const { x, y } = _fromRef(useMouse())` |
 | `_toRef(count)`                                         | `count`（背后的 Ref）                      | 变量 → Ref，交给需要可写 Ref 的 API                            |
+| `_untrack(x)`                                           | `untrack(() => x.value)`                   | 只取当前值、不追踪；组件函数体里写表示有意只要初始值，不警告   |
 
 ## 2. 状态 `_state`
 
@@ -147,24 +148,24 @@ const form = useForm({ name: '' });
 - 组件函数体里直接读 `children`
 - Vue 指令 `v-model`、`v-show`、`v-html` 等，给出 TSX 写法
 
-**警告**：组件函数体里直接读 prop 或状态，只拿到当前值、之后不会更新。
+**警告**：组件函数体里直接读 prop 或状态，只拿到当前值、之后不会更新。有意只要初始值时写 `_untrack(x)`。
 
 被同名本地变量遮蔽的 `_state` 等不当作符文。
 
 ## 9. 与 Svelte 5 对照
 
-| Svelte 5                                       | 本方案                                      | 说明                                              |
-| ---------------------------------------------- | ------------------------------------------- | ------------------------------------------------- |
-| `$state` / `$state.raw` / `$state.snapshot`    | `_state` / `_state.raw` / `_state.snapshot` | 一致                                              |
-| 不能导出会被重新赋值的状态，可以导出对象       | 同                                          |                                                   |
-| `$derived` / `$derived.by`、解构、`let` 可覆盖 | `_derived` / `_derived.by`                  | 一致                                              |
-| `$effect` / `$effect.pre` / `$effect.root`     | `_effect` / `_effect.pre` / `_effect.root`  | 一致；底层是 watchEffect 与 effectScope           |
-| `untrack`                                      | 不提供                                      | Vue 不公开；只监听指定的值用 `watch(() => x, cb)` |
-| `$props()` 解构、普通 prop 可覆盖              | `_component` 参数解构                       | 我们的默认值可以引用前面的 prop                   |
-| `$bindable` + `bind:x`                         | `_bindable` + `_bind(x)`                    | 编译为 v-model                                    |
-| `$props.id()` / `$inspect`                     | Vue 的 `useId()` / Devtools                 | 不另造                                            |
-| 类字段 `done = $state(false)`                  | 暂不支持                                    | 写正式组件用到时再加                              |
-| `bind:value={get, set}`                        | 暂不支持                                    | 用到时再加 `_bind(get, set)`                      |
+| Svelte 5                                       | 本方案                                      | 说明                                          |
+| ---------------------------------------------- | ------------------------------------------- | --------------------------------------------- |
+| `$state` / `$state.raw` / `$state.snapshot`    | `_state` / `_state.raw` / `_state.snapshot` | 一致                                          |
+| 不能导出会被重新赋值的状态，可以导出对象       | 同                                          |                                               |
+| `$derived` / `$derived.by`、解构、`let` 可覆盖 | `_derived` / `_derived.by`                  | 一致                                          |
+| `$effect` / `$effect.pre` / `$effect.root`     | `_effect` / `_effect.pre` / `_effect.root`  | 一致；底层是 watchEffect 与 effectScope       |
+| `untrack(fn)`                                  | `_untrack(x)`                               | 写成表达式；用 Vue 公开的 ReactiveEffect 实现 |
+| `$props()` 解构、普通 prop 可覆盖              | `_component` 参数解构                       | 我们的默认值可以引用前面的 prop               |
+| `$bindable` + `bind:x`                         | `_bindable` + `_bind(x)`                    | 编译为 v-model                                |
+| `$props.id()` / `$inspect`                     | Vue 的 `useId()` / Devtools                 | 不另造                                        |
+| 类字段 `done = $state(false)`                  | 暂不支持                                    | 写正式组件用到时再加                          |
+| `bind:value={get, set}`                        | 暂不支持                                    | 用到时再加 `_bind(get, set)`                  |
 
 ## 10. 代价与限制
 

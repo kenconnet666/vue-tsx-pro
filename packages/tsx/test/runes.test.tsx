@@ -139,6 +139,31 @@ describe('_effect（同 Svelte 的 $effect）', () => {
     expect(log.at(-1)).toBe('cleanup 1');
   });
 
+  it('_untrack 里读到的变量不成为依赖', async () => {
+    const runs: string[] = [];
+    let setA: (value: number) => void = () => {};
+    let setB: (value: number) => void = () => {};
+    mountApp(
+      _component(() => {
+        let a = _state(0);
+        let b = _state(0);
+        setA = (value) => (a = value);
+        setB = (value) => (b = value);
+        _effect(() => {
+          runs.push(`${a}-${_untrack(b)}`);
+        });
+        return () => null;
+      }),
+    );
+    await nextTick();
+    setB(5);
+    await nextTick();
+    expect(runs).toEqual(['0-0']);
+    setA(1);
+    await nextTick();
+    expect(runs).toEqual(['0-0', '1-5']);
+  });
+
   it('_effect.pre 在 DOM 更新前执行', async () => {
     const seen: string[] = [];
     let bump = () => {};

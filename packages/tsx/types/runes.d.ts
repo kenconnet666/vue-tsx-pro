@@ -82,6 +82,12 @@ declare global {
    * 只读的场合传 getter 就够了：`watch(() => count, …)`
    */
   function _toRef<T>(value: T): Ref<T>;
+
+  /**
+   * 只取当前值、不追踪（同 Svelte 的 untrack）：写在 _effect、_derived 里时不会因为它重新执行；
+   * 写在组件函数体里表示有意只要初始值，例如 `let collapsed = _state(_untrack(!open))`，编译器不再警告
+   */
+  function _untrack<T>(value: T): T;
 }
 
 export {};

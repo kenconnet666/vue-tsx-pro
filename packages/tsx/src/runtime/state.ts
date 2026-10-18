@@ -2,8 +2,9 @@
  * 编译产物使用的状态工具（作者不直接调用）：
  *   - overridable：let 声明的 _derived、组件的普通 prop
  *   - snapshot：_state.snapshot(x)
+ *   - untrack：_untrack(x)
  */
-import { computed, customRef, isRef, toRaw, watch, type Ref } from 'vue';
+import { computed, customRef, isRef, ReactiveEffect, toRaw, watch, type Ref } from 'vue';
 
 /**
  * 跟随来源、可以临时覆盖的值（同 Svelte 5.25 的可覆盖派生）：
@@ -36,6 +37,19 @@ export function overridable<T>(getter: () => T): Ref<T> {
       },
     };
   });
+}
+
+/**
+ * 读取但不追踪（同 Svelte 的 untrack）：在一个临时的 effect 里执行，读到的响应式值记在它身上，
+ * 外层的 _effect、_derived、渲染函数不会因此依赖它们。用 Vue 公开的 ReactiveEffect，不碰内部 API。
+ */
+export function untrack<T>(read: () => T): T {
+  const runner = new ReactiveEffect(read);
+  try {
+    return runner.run();
+  } finally {
+    runner.stop();
+  }
 }
 
 /**

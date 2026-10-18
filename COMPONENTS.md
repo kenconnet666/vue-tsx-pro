@@ -254,7 +254,6 @@ interface Lang {
 - 文档页的 props 表生成。
 - CodeBlock 的复制按钮：等 Button 进组件库后加（文案进语言包，“已复制”用 aria-live 播报）。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
-- 编译器对“有意只取初始值”的读取（如 Collapse 的 `_state(!open)`）也会警告，以后考虑给出不警告的写法。
 - 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
 
 ## 8. 正式组件的完成标准（供之后使用）

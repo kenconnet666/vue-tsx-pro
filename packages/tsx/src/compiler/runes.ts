@@ -15,7 +15,8 @@ export type Rune =
   | '_bindable'
   | '_bind'
   | '_fromRef'
-  | '_toRef';
+  | '_toRef'
+  | '_untrack';
 
 /** 所有符文的全局名；只有未被本地变量遮蔽时才当作符文 */
 export const RUNE_GLOBALS = new Set([
@@ -26,6 +27,7 @@ export const RUNE_GLOBALS = new Set([
   '_bind',
   '_fromRef',
   '_toRef',
+  '_untrack',
 ]);
 
 /** 带成员的符文 */
