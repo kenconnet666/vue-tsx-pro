@@ -28,6 +28,7 @@ export { useFormat } from './config/lang/format';
 export { elementProps, mergeProps, type AsProps, type PartProps } from './utils/props';
 export type { Size, Space } from './utils/styles';
 export {
+  dismissOnBackdrop,
   focusFirst,
   focusOrigin,
   lockScroll,

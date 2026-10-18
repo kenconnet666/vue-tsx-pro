@@ -155,11 +155,21 @@ it('Dialog：里面的弹层先关，再按 Esc 关对话框；关闭后写回�
   await expect.poll(() => dialog.open).toBe(true);
 });
 
-it('Dialog：点击遮罩关闭，点击内容不关闭', async () => {
+it('Dialog：点击遮罩关闭；点击内容、内边距，或从内容拖到遮罩上松开都不关闭', async () => {
   const dialog = $<HTMLDialogElement>('.pilot-dialog');
   await userEvent.click($('.dialog-trigger'));
   await expect.poll(() => dialog.open).toBe(true);
   await userEvent.click(dialog.querySelector('h2')!);
+  expect(dialog.open).toBe(true);
+  // dialog 自己的内边距：click 的目标也是 dialog
+  await userEvent.click(dialog, { position: { x: 4, y: 4 } });
+  expect(dialog.open).toBe(true);
+  // 在内容里按下、拖到遮罩上松开（选中文字）：click 落在共同祖先 dialog 上
+  const rect = dialog.getBoundingClientRect();
+  const inside = { bubbles: true, clientX: rect.left + 20, clientY: rect.top + 20 };
+  dialog.querySelector('h2')!.dispatchEvent(new PointerEvent('pointerdown', inside));
+  const outside = { bubbles: true, clientX: rect.left + 10, clientY: rect.top - 10 };
+  dialog.dispatchEvent(new MouseEvent('click', outside));
   expect(dialog.open).toBe(true);
   // 遮罩不是 DOM 元素，Playwright 的可点击检查会命中 <html> 而判定被遮挡，所以跳过检查
   await userEvent.click(dialog, { position: { x: 10, y: -10 }, force: true });

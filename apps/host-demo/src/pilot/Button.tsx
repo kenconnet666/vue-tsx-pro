@@ -11,8 +11,8 @@ import {
 } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 
-/** 未声明的属性落到按钮（或链接）元素上 */
-export interface ButtonProps extends PartProps<'button', 'disabled'> {
+/** 未声明的属性落到按钮元素上，传了 href 时落到链接上：属性取两者共有的部分，事件的 currentTarget 是两者之一 */
+export interface ButtonProps extends PartProps<'button' | 'a', 'disabled'> {
   variant?: 'solid' | 'outline' | 'ghost';
   /** 不写时继承上下文字号 */
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -97,7 +97,7 @@ export const Button = _component(
       // 使用方的点击回调先于组件执行，不可用时要先拿掉，否则禁用的链接仍会触发它
       const user = inactive ? { ...rest, onClick: undefined } : rest;
       const props = elementProps(
-        mergeProps(
+        mergeProps<'button' | 'a'>(
           {
             sx: [styles.base, styles[variant], size && styles[size]],
             type: href ? undefined : 'button',
@@ -116,13 +116,13 @@ export const Button = _component(
           },
         ),
       );
-      const content = (
-        <>
+      const Tag = href ? 'a' : 'button';
+      return (
+        <Tag {...props}>
           {icon && <Icon icon={icon} {...propsIcon} />}
           {children}
-        </>
+        </Tag>
       );
-      return href ? <a {...props}>{content}</a> : <button {...props}>{content}</button>;
     };
   },
 );

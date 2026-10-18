@@ -2,6 +2,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  dismissOnBackdrop,
   elementProps,
   focusOrigin,
   lockScroll,
@@ -63,9 +64,13 @@ export const Dialog = _component(
       dialog.showModal();
       const releaseScroll = lockScroll();
       const releaseFocus = trapFocus(dialog);
+      const releaseBackdrop = dismissible
+        ? dismissOnBackdrop(dialog, () => dialog?.close())
+        : undefined;
       cleanup = () => {
         releaseScroll();
         releaseFocus();
+        releaseBackdrop?.();
         if (dialog) returnFocus(dialog, opener);
       };
     }
@@ -75,11 +80,6 @@ export const Dialog = _component(
       cleanup?.();
       cleanup = undefined;
       open = false;
-    }
-
-    // 点击遮罩时事件目标是 dialog 自身（内容区的点击目标是里面的元素）
-    function onClick(event: MouseEvent) {
-      if (dismissible && event.target === dialog) dialog?.close();
     }
 
     _effect(() => {
@@ -95,7 +95,6 @@ export const Dialog = _component(
             ref: _toRef(dialog),
             'aria-labelledby': titleId,
             onClose,
-            onClick,
           }),
         )}
       >

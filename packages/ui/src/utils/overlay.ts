@@ -1,7 +1,7 @@
 /**
  * 弹层的基础工具。弹层本身用原生 popover / dialog（顶层渲染、Esc、点击外部、嵌套顺序、
  * 背景 inert 都由浏览器负责，见 apps/host-demo/test/native-overlay.browser.test.ts），
- * 这里只补浏览器不做或做得不一致的：组件实例 → 元素、关闭后归还焦点、模态里的焦点循环、锁定页面滚动。
+ * 这里只补浏览器不做或做得不一致的：组件实例 → 元素、关闭后归还焦点、模态里的焦点循环、点击遮罩关闭、锁定页面滚动。
  */
 import { tabbable } from 'tabbable';
 
@@ -73,6 +73,32 @@ export function trapFocus(container: HTMLElement): () => void {
   };
   container.addEventListener('keydown', onKeydown);
   return () => container.removeEventListener('keydown', onKeydown);
+}
+
+/**
+ * 点击模态 dialog 的遮罩时调用 onDismiss。不能只看 event.target === dialog：
+ * dialog 自己的内边距、以及在内容里按下再拖到遮罩上松开（选中文字）时，click 的目标也是 dialog。
+ * 所以按坐标判断，而且按下与松开都要在 dialog 的边框之外。返回撤销函数。
+ */
+export function dismissOnBackdrop(dialog: HTMLDialogElement, onDismiss: () => void): () => void {
+  const outside = (event: MouseEvent) => {
+    if (event.target !== dialog) return false;
+    const rect = dialog.getBoundingClientRect();
+    const { clientX: x, clientY: y } = event;
+    return x < rect.left || x > rect.right || y < rect.top || y > rect.bottom;
+  };
+  let pressedOutside = false;
+  const onPointerDown = (event: PointerEvent) => (pressedOutside = outside(event));
+  const onClick = (event: MouseEvent) => {
+    if (pressedOutside && outside(event)) onDismiss();
+    pressedOutside = false;
+  };
+  dialog.addEventListener('pointerdown', onPointerDown);
+  dialog.addEventListener('click', onClick);
+  return () => {
+    dialog.removeEventListener('pointerdown', onPointerDown);
+    dialog.removeEventListener('click', onClick);
+  };
 }
 
 let locks = 0;

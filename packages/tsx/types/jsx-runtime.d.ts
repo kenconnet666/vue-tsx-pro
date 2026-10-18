@@ -41,13 +41,31 @@ type WithCurrentTarget<Attributes, El> = {
     : Attributes[Name];
 };
 
+type VueTag = keyof VueJSX.IntrinsicElements;
+type UnionToIntersection<U> = (U extends unknown ? (value: U) => void : never) extends (
+  value: infer I,
+) => void
+  ? I
+  : never;
+type IsUnion<T> = [T] extends [UnionToIntersection<T>] ? false : true;
+
+/** 某个属性在每个标签上的取值类型，各包一层元组，交叉时才不会把各标签的 undefined 等混在一起 */
+type ValuePerTag<Tag, Name> = Tag extends VueTag
+  ? [VueJSX.IntrinsicElements[Tag][Name & keyof VueJSX.IntrinsicElements[Tag]]]
+  : never;
+
+/** 几个标签共有的属性，每个属性取所有标签都接受的值：<a> 与 <button> 的 type 取 'button' | 'submit' | 'reset' */
+type SharedAttributes<Tag extends VueTag> = {
+  [Name in keyof VueJSX.IntrinsicElements[Tag]]: UnionToIntersection<ValuePerTag<Tag, Name>>[0];
+};
+
 /**
  * 原生元素的属性。Tag 可以是几个标签的联合（可换标签的组件，见 ui 的 AsProps）：
- * 事件参数的 currentTarget 是这几种元素的联合，这样的处理函数每个标签都接受，
- * 属性就能直接展开到 `<Tag {...props} />` 上（Tag 是同一组标签之一）。
+ * 属性取这些标签共有的部分、取值是每个标签都接受的值，事件参数的 currentTarget 是这几种元素的联合，
+ * 所以属性能直接展开到 `<Tag {...props} />` 上（Tag 是同一组标签之一）。
  */
-export type IntrinsicProps<Tag extends keyof VueJSX.IntrinsicElements> = WithCurrentTarget<
-  VueJSX.IntrinsicElements[Tag],
+export type IntrinsicProps<Tag extends VueTag> = WithCurrentTarget<
+  IsUnion<Tag> extends true ? SharedAttributes<Tag> : VueJSX.IntrinsicElements[Tag],
   ElementOf<Tag>
 > & { children?: VNodeChild };
 

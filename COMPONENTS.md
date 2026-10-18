@@ -8,16 +8,16 @@
 
 ## 1. 组件 API 约定
 
-| 项           | 约定                                                                                                                                                                  |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`                                                |
-| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                         |
-| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                            |
-| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7） |
-| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                             |
-| 多态         | 不做任意标签的 `as`；布局、文本类组件提供受限的 `as`（只能在语义相近的几种标签里选，见 §10.1）；个别组件按需处理（如 Button 传 `href` 时渲染为 `<a>`）                |
-| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                |
-| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                             |
+| 项           | 约定                                                                                                                                                                                                             |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`                                                                                           |
+| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                                                                    |
+| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                                                                       |
+| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7）                                            |
+| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                                                                        |
+| 多态         | 不做任意标签的 `as`；布局、文本类组件提供受限的 `as`（只能在语义相近的几种标签里选，见 §10.1）；语义不同的元素分成不同组件，不靠 prop 切换标签：Button（`<button>`）与 LinkButton（`<a>`）是两个组件，共用样式表 |
+| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                           |
+| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                                                                        |
 
 ## 2. 部件与透传
 
@@ -245,7 +245,7 @@ interface Lang {
 
 **待办**：
 
-- Button 的点击波纹反馈（写正式 Button 时做，尊重“减少动态效果”）。
+- Button 与 LinkButton：两个组件，共用一份样式表（外观、尺寸、焦点环）与波纹反馈；Button 管 `disabled`、`loading`、`type`，LinkButton 管 `href`、`target`、外链的 `rel`（不可用时去掉 href 并加 `aria-disabled`）。波纹尊重“减少动态效果”。试点 Button 的 `href` 用法到时一并替换。
 - 文档页的 props 表生成。
 - 拖动工具（第一个需要拖动的组件出现时写，大概率是 Slider，放在 `utils/`）：参考 React Aria 的 `useMove`。要处理好区分点击与拖动（阈值、拖动后吞掉 click）、`setPointerCapture` 与 `pointercancel`、`touch-action`、拖动时禁止选中文字、从右到左排版；组件另外提供键盘替代（WCAG 2.5.7）。双指缩放、旋转等图片预览组件出现时再写。不用手势库：成熟组件库（Radix、React Aria、Ark UI）也都直接基于 Pointer Events，手势库省下的只是位移与速度的计算。
 
