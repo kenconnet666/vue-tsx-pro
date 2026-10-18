@@ -1,4 +1,5 @@
 import { createUi } from '@vue-tsx-pro/ui';
+import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import { createRouter, createWebHistory, type RouterHistory } from 'vue-router';
@@ -26,8 +27,8 @@ export function createHostApp(history: RouterHistory = createWebHistory()) {
   const app = createApp(App)
     .use(createPinia())
     .use(router)
-    // 应用级配置：所有 TSX 页面共享语言；页面内还可以用 <Provider> 局部覆盖
-    .use(createUi())
+    // 应用级配置：所有 TSX 页面共享语言与代码高亮；页面内还可以用 <Provider> 局部覆盖
+    .use(createUi({ highlighter: createShikiHighlighter() }))
     .provide(siteNameKey, 'Host Demo');
   return { app, router };
 }

@@ -1,7 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { ConfigContext, useConfig } from './context';
+import { ConfigContext, useConfig, type Highlighter } from './context';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from './theme/prefers-dark';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
@@ -12,6 +12,8 @@ export interface ProviderProps {
   theme?: ThemeInput;
   /** 语言；只写要改的字段，其余沿用上层配置 */
   lang?: Partial<Lang>;
+  /** 代码高亮器（CodeBlock 用）；不写时沿用上层配置 */
+  highlighter?: Highlighter;
   children?: VNodeChild;
 }
 
@@ -30,7 +32,7 @@ const styles = stylex.create({
  * 局部配置主题与语言，可以嵌套：内层只写要改的部分，其余继承外层。
  * 应用级配置见 createUi。
  */
-export const Provider = _component(({ theme, lang, children }: ProviderProps) => {
+export const Provider = _component(({ theme, lang, highlighter, children }: ProviderProps) => {
   const parent = useConfig();
   const prefersDark = usePrefersDark();
   const currentTheme = _derived(theme ? resolveTheme(theme, prefersDark.value) : parent.theme);
@@ -41,6 +43,9 @@ export const Provider = _component(({ theme, lang, children }: ProviderProps) =>
     },
     get lang() {
       return currentLang;
+    },
+    get highlighter() {
+      return highlighter ?? parent.highlighter;
     },
   });
 

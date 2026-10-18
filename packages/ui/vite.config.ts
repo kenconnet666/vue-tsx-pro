@@ -13,7 +13,8 @@ const isExternal = (id: string) => externals.some((dep) => id === dep || id.star
 export default defineConfig({
   plugins: [workspaceSource(), ...vueTsxPro({ stylex: false })],
   build: {
-    lib: { entry: 'src/index.ts', formats: ['es'], fileName: 'index' },
+    // 子路径各是一个入口；可选依赖（shiki）只在它的子路径里导入
+    lib: { entry: ['src/index.ts', 'src/integrations/shiki.ts'], formats: ['es'] },
     rollupOptions: {
       external: isExternal,
       // 保留源码的文件结构：StyleX 要求 defineVars 留在 *.stylex.js 文件里，使用方编译时才认得

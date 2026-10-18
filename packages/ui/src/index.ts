@@ -7,6 +7,7 @@ export { Em, Paragraph, Small, Strong, Text, type TextProps } from './base/Text'
 export { H1, H2, H3, H4, H5, H6, type HeadingProps } from './base/Heading';
 export { Link, type LinkProps } from './base/Link';
 export { Code, type CodeProps } from './base/Code';
+export { CodeBlock, type CodeBlockProps } from './base/CodeBlock';
 export { Kbd, type KbdProps } from './base/Kbd';
 
 // 布局
@@ -45,7 +46,7 @@ export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';
 export { createUi, type UiOptions } from './config/createUi';
-export { useConfig, useLang, type UiConfig } from './config/context';
+export { useConfig, useLang, type Highlighter, type UiConfig } from './config/context';
 export {
   defineTheme,
   readToken,

@@ -11,6 +11,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./shiki": {
+      "@vue-tsx-pro/source": "./src/integrations/shiki.ts",
+      "types": "./dist/integrations/shiki.d.ts",
+      "default": "./dist/integrations/shiki.js"
+    },
     "./tokens.stylex": {
       "@vue-tsx-pro/source": "./src/config/theme/tokens.stylex.ts",
       "types": "./dist/config/theme/tokens.stylex.d.ts",
@@ -36,11 +41,12 @@
     "tabbable": "catalog:"
   },
   "peerDependencies": {
-    "@lucide/icons": "^1.59.0",
-    "@stylexjs/stylex": "^0.19.1",
-    "@unovis/ts": "^1.7.0",
     "echarts": "^6.0.0",
+    "@lucide/icons": "^1.59.0",
+    "shiki": "^4.0.0",
+    "@stylexjs/stylex": "^0.19.1",
     "three": ">=0.170.0",
+    "@unovis/ts": "^1.7.0",
     "vue": "^3.5.0"
   },
   "peerDependenciesMeta": {
@@ -52,18 +58,22 @@
     },
     "three": {
       "optional": true
+    },
+    "shiki": {
+      "optional": true
     }
   },
   "devDependencies": {
-    "@lucide/icons": "catalog:",
-    "@radix-ui/colors": "catalog:",
-    "@stylexjs/stylex": "catalog:",
-    "@types/three": "catalog:",
-    "@unovis/ts": "catalog:",
     "echarts": "catalog:",
     "happy-dom": "catalog:",
+    "@lucide/icons": "catalog:",
+    "@radix-ui/colors": "catalog:",
+    "shiki": "catalog:",
+    "@stylexjs/stylex": "catalog:",
     "three": "catalog:",
+    "@types/three": "catalog:",
     "typescript": "catalog:",
+    "@unovis/ts": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "vue": "catalog:",

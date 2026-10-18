@@ -97,6 +97,12 @@ async function checkInBrowser() {
         'img',
       ],
     };
+    // 语言按需加载，高亮结果异步到达
+    await page.waitForSelector('.code code span');
+    checks['Shiki 高亮的关键字取主题颜色（accentText = indigo 11）'] = [
+      await page.$eval('.code code span', (span) => getComputedStyle(span).color),
+      'rgb(58, 91, 199)',
+    ];
     await page.click('.count');
     checks['符文状态可交互'] = [(await page.textContent('.count')).trim(), '1'];
     checks['控制台没有错误'] = [errors.join('\n'), ''];
@@ -126,7 +132,7 @@ writeFileSync(
       dependencies: {
         '@vue-tsx-pro/tsx': pack('tsx'),
         '@vue-tsx-pro/ui': pack('ui'),
-        ...catalogVersions(['vue', '@stylexjs/stylex', '@lucide/icons']),
+        ...catalogVersions(['vue', '@stylexjs/stylex', '@lucide/icons', 'shiki']),
       },
       devDependencies: catalogVersions(['vite', 'typescript']),
     },

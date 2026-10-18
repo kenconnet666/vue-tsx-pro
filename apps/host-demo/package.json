@@ -11,16 +11,17 @@
     "test:browser": "vitest run --config vitest.browser.config.ts"
   },
   "dependencies": {
+    "animejs": "catalog:",
     "@floating-ui/dom": "catalog:",
     "@lucide/icons": "catalog:",
-    "@stylexjs/stylex": "catalog:",
-    "@vue-tsx-pro/tsx": "workspace:^",
-    "@vue-tsx-pro/ui": "workspace:^",
-    "animejs": "catalog:",
     "pinia": "catalog:",
+    "shiki": "catalog:",
+    "@stylexjs/stylex": "catalog:",
     "tabbable": "catalog:",
     "vue": "catalog:",
-    "vue-router": "catalog:"
+    "vue-router": "catalog:",
+    "@vue-tsx-pro/tsx": "workspace:^",
+    "@vue-tsx-pro/ui": "workspace:^"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:",

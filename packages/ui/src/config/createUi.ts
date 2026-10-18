@@ -11,7 +11,7 @@ import {
   type Plugin,
 } from 'vue';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { ConfigContext, defaultConfig } from './context';
+import { ConfigContext, defaultConfig, type Highlighter } from './context';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from './theme/prefers-dark';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
@@ -22,6 +22,8 @@ export interface UiOptions {
   theme?: MaybeRefOrGetter<ThemeInput>;
   /** 只写要改的字段，其余用简体中文的默认值 */
   lang?: MaybeRefOrGetter<Partial<Lang>>;
+  /** 代码高亮器（CodeBlock 用），如 `@vue-tsx-pro/ui/shiki` 的 createShikiHighlighter()；不写时显示纯文本 */
+  highlighter?: Highlighter;
 }
 
 /**
@@ -46,6 +48,7 @@ export function createUi(options: UiOptions = {}): Plugin {
           get lang() {
             return lang.value;
           },
+          highlighter: options.highlighter,
         });
         // 应用级没有容器元素，主题变量挂在页面根元素上；变量名经过 StyleX 哈希，不会与宿主冲突
         if (options.theme && typeof document !== 'undefined') {

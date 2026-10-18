@@ -4,6 +4,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Code,
+  CodeBlock,
   Collapsible,
   Container,
   darkTheme,
@@ -28,6 +29,11 @@ import {
 import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
 import { Button } from '../pilot/Button';
+
+const sampleCode = `export const Counter = _component(() => {
+  let count = _state(0); // 像普通变量一样读写
+  return () => <button onClick={() => count++}>{count}</button>;
+});`;
 
 const styles = stylex.create({
   page: {
@@ -147,6 +153,11 @@ export const Base = _component(() => {
           <Small class="small-demo" tone="muted">
             © 2026 vue-tsx-pro
           </Small>
+        </Section>
+
+        <Section title="代码块 CodeBlock（Shiki 高亮）">
+          <CodeBlock class="codeblock-demo" lang="tsx" code={sampleCode} />
+          <CodeBlock class="codeblock-plain" code="pnpm add @vue-tsx-pro/ui shiki" />
         </Section>
 
         <Section title="布局 Flex · GridList · Container · Separator">

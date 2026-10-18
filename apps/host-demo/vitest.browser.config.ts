@@ -20,6 +20,9 @@ export default defineConfig({
       '@stylexjs/stylex',
       'tabbable',
       'animejs',
+      'shiki/core',
+      'shiki/engine/javascript',
+      'shiki/langs',
     ],
   },
   test: {

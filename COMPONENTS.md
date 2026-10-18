@@ -241,6 +241,7 @@ interface Lang {
 | 常规图表 | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置 |
 | 特殊图表 | `echarts`（可选 peer）              | Unovis 没有的：仪表盘、雷达、K 线、日历热力图、超大数据量、3D 图表                                      |
 | 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                  |
+| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                            |
 | 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                                                  |
 | 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                    |
 | 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                              |
@@ -335,13 +336,16 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - 进场、离场动画用 CSS（`@starting-style`、`allow-discrete`，2024 年起三大浏览器都支持），不依赖 Vue 的 `<Transition>`；列表增删这类需要 JS 协调的动画以后再加。
 - 不用 `text-box` 裁掉文字的上下行距（Firefox 不支持）；多行截断用带 `-webkit-` 前缀的 `line-clamp`（标准写法尚无浏览器支持）。
 
-### 10.4 代码高亮：Shiki 作为可选依赖
+### 10.4 代码高亮：Shiki 作为可选依赖（已完成）
 
-- `CodeBlock` 本身不依赖 Shiki：没有高亮器时渲染普通的 `<pre><code>`。
-- 高亮器通过配置注入：`createUi({ highlighter })` 或 `<Provider highlighter={…}>`，接口是“代码 + 语言 → HTML”的异步函数。
-- 子路径 `@vue-tsx-pro/ui/shiki` 提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
-- 用 Shiki 的 CSS 变量主题，颜色映射到我们的 tokens：切换明暗主题不需要重新高亮。
-- 高亮是异步的：先显示纯文本，结果到了再替换，布局不跳动。
+- `CodeBlock` 本身不依赖 Shiki：没有高亮器、或没给 `lang` 时渲染普通的 `<pre><code>`。
+- 高亮器通过配置注入：`createUi({ highlighter })` 或 `<Provider highlighter={…}>`，接口 `Highlighter` 是“代码 + 语言 → 行内 HTML”的异步函数（只含 span 与 br，外层的 pre、code 由 CodeBlock 渲染）。
+- 子路径 `@vue-tsx-pro/ui/shiki`（`src/integrations/shiki.ts`，构建时是单独的入口）提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
+- JavaScript 正则引擎（`forgiving`，不加载 wasm）；语言按需 `loadLanguage`，同一种语言只加载一次，下载失败不缓存；不认识的语言按 `text` 输出；`codeToHtml` 用 `structure: 'inline'`。
+- 颜色：Shiki 的 CSS 变量主题，`variableDefaults` 直接指向颜色 tokens（`var(--shiki-token-keyword, var(--accentText 的变量))`），切换明暗主题不需要重新高亮，使用方仍可用 `--shiki-*` 单独调整。没有在 CodeBlock 根元素上写 `--shiki-*`：StyleX 的类型不收自定义属性，默认值的写法也让高亮器脱离 CodeBlock 单独使用时颜色正确。
+- 高亮是异步的：先显示纯文本，结果到了再替换（等宽字体下排版相同）；代码或语言变了先回到纯文本，晚到的旧结果丢弃；高亮失败保留纯文本并 `console.error`。
+- 背景用 `surface` 加 `borderMuted` 边框而不是 `fill`：亮色主题的 `successText`、`infoText` 在 `fill` 上对比度不到 4.5:1。
+- 横向可滚动，`pre` 加 `tabindex=0` 与焦点环（键盘可滚动，axe 的 scrollable-region-focusable）；`wrap` 时长行自动换行。
 
 ### 10.5 主题变量的字符串写法（已完成）
 

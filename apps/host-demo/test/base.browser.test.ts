@@ -124,6 +124,26 @@ describe('折叠：Collapsible 与 Collapse', () => {
   });
 });
 
+describe('代码块：CodeBlock + Shiki', () => {
+  it('应用级注入的 Shiki 高亮器异步替换纯文本，关键字颜色取主题 tokens', async () => {
+    const code = () => $('.codeblock-demo code');
+    await expect.poll(() => code().querySelector('span'), { timeout: 10000 }).toBeTruthy();
+    const keyword = [...code().querySelectorAll('span')].find(
+      (span) => span.textContent === 'export',
+    )!;
+    expect(getComputedStyle(keyword).color).not.toBe(getComputedStyle(code()).color);
+    // 行内结构用 br 换行：四行代码
+    expect(code().querySelectorAll('br')).toHaveLength(3);
+  });
+
+  it('没给语言时是纯文本；pre 可以用键盘聚焦（横向滚动）并显示焦点环', async () => {
+    const pre = $('.codeblock-plain');
+    expect(pre.querySelector('span')).toBeNull();
+    pre.focus();
+    expect(document.activeElement).toBe(pre);
+  });
+});
+
 describe('布局：Flex、Grid、Container、Separator', () => {
   const px = (value: string) => Number.parseFloat(value);
   const columnCount = (grid: HTMLElement) =>

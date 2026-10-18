@@ -8,12 +8,21 @@ import { zhCN } from './lang/zh-CN';
 import { lightTheme } from './theme/light';
 import type { Theme } from './theme/theme';
 
+/**
+ * 代码高亮器：代码 + 语言 → 高亮后的行内 HTML（只含 span 与换行的 br，不含 pre、code），交给 CodeBlock。
+ * 组件库不依赖具体实现；Shiki 的实现见子路径 `@vue-tsx-pro/ui/shiki` 的 createShikiHighlighter。
+ * 返回的 HTML 直接写进页面，实现方负责转义代码里的文字。
+ */
+export type Highlighter = (code: string, lang: string) => Promise<string>;
+
 /** 提供方用 getter 暴露当前值，读取方在渲染或 computed 里读取即可跟随变化 */
 export interface UiConfig {
   /** 当前主题（明暗已按系统设置选定） */
   readonly theme: Theme;
   /** 当前语言：地区格式与界面文案 */
   readonly lang: Lang;
+  /** 代码高亮器；没有时 CodeBlock 显示纯文本 */
+  readonly highlighter?: Highlighter;
 }
 
 /** 配置的注入键：createUi 在应用级提供，Provider 在局部覆盖 */
