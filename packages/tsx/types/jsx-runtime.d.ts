@@ -41,6 +41,16 @@ type WithCurrentTarget<Attributes, El> = {
     : Attributes[Name];
 };
 
+/**
+ * 原生元素的属性。Tag 可以是几个标签的联合（可换标签的组件，见 ui 的 AsProps）：
+ * 事件参数的 currentTarget 是这几种元素的联合，这样的处理函数每个标签都接受，
+ * 属性就能直接展开到 `<Tag {...props} />` 上（Tag 是同一组标签之一）。
+ */
+export type IntrinsicProps<Tag extends keyof VueJSX.IntrinsicElements> = WithCurrentTarget<
+  VueJSX.IntrinsicElements[Tag],
+  ElementOf<Tag>
+> & { children?: VNodeChild };
+
 export declare namespace JSX {
   interface Element extends VueJSX.Element {}
   interface ElementClass extends VueJSX.ElementClass {}
@@ -50,10 +60,7 @@ export declare namespace JSX {
     children: {};
   }
   type IntrinsicElements = {
-    [Tag in keyof VueJSX.IntrinsicElements]: WithCurrentTarget<
-      VueJSX.IntrinsicElements[Tag],
-      ElementOf<Tag>
-    > & { children?: VNodeChild };
+    [Tag in keyof VueJSX.IntrinsicElements]: IntrinsicProps<Tag>;
   };
   interface IntrinsicAttributes extends VueJSX.IntrinsicAttributes {}
   type LibraryManagedAttributes<C, P> = C extends string

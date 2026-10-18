@@ -10,7 +10,7 @@
  *   - 其他属性：受管 > 使用方 > 默认
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { JSX } from '@vue-tsx-pro/tsx/jsx-runtime';
+import type { IntrinsicProps, JSX } from '@vue-tsx-pro/tsx/jsx-runtime';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { Ref } from 'vue';
 
@@ -21,13 +21,13 @@ import type { Ref } from 'vue';
 export type PartProps<
   Tag extends keyof JSX.IntrinsicElements,
   Managed extends string = never,
-> = Omit<JSX.IntrinsicElements[Tag], Managed | 'children'> & { sx?: StyleXStyles };
+> = Omit<IntrinsicProps<Tag>, Managed | 'children'> & { sx?: StyleXStyles };
 
 /**
  * 可以换标签的组件（布局、文本）：as 只能在 Tags 里选，属性类型取这些标签共有的部分。
  * 形如 `interface FlexProps extends AsProps<'div' | 'section' | 'ul'> { … }`。
- * 渲染用 `h(as, props, [children])`：标签不确定时 JSX 会把几种元素的事件类型交叉检查而报错，
- * 属性类型已经由 AsProps 检查过了。
+ * 渲染时把 as 赋给大写开头的变量当标签：`const Tag = as; return <Tag {...props}>{children}</Tag>`。
+ * 事件参数的 currentTarget 是这几种元素的联合（见 tsx 的 IntrinsicProps），所以属性能直接展开到 Tag 上。
  */
 export type AsProps<
   Tags extends keyof JSX.IntrinsicElements,
