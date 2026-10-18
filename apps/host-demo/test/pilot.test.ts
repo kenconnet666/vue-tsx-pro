@@ -26,7 +26,7 @@ it('Button：href 渲染为链接，部件 props 落到图标上，禁用与加�
   const el = await openPilot();
   const link = $(el, '.link-button');
   expect([link.tagName, link.getAttribute('href')]).toEqual(['A', '/profile/42']);
-  expect(link.querySelector('svg')!.getAttribute('stroke-width')).toBe('3');
+  expect(link.querySelector('svg')!.style.strokeWidth).toBe('3');
   const buttons = [...el.querySelectorAll('button')];
   expect(buttons.find((b) => b.textContent === '禁用')!.disabled).toBe(true);
   const loading = buttons.find((b) => b.textContent === '加载中')!;

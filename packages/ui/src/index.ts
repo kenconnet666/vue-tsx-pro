@@ -1,4 +1,7 @@
-// 组件按 src/components/<Name>/<Name>.tsx 组织，在这里统一导出
+// 组件按 src/<分类>/<Name>/<Name>.tsx 组织，在这里统一导出
+
+// 基础
+export { Icon, type IconData, type IconProps } from './base/Icon/Icon';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';

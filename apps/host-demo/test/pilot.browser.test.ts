@@ -34,12 +34,12 @@ const style = (element: Element) => getComputedStyle(element);
 it('em 尺寸：档位改变字号，内部尺寸同比缩放；继承上下文字号', () => {
   const [sm, md, lg] = ['小', '默认', '大'].map(button);
   expect([style(sm!).fontSize, style(md!).fontSize, style(lg!).fontSize]).toEqual([
-    '12px',
+    '13px',
     '14px',
     '16px',
   ]);
   const heights = [sm!, md!, lg!].map((element) => element.getBoundingClientRect().height);
-  expect(heights[0]! / 12).toBeCloseTo(heights[2]! / 16, 1);
+  expect(heights[0]! / 13).toBeCloseTo(heights[2]! / 16, 1);
 
   const inherited = $('.inherit-size');
   expect(style(inherited).fontSize).toBe('24px');

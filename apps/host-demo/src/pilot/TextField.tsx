@@ -1,11 +1,17 @@
 // 试点组件：验证主元素透传（...rest → input）、部件 props、输入法、清除按钮，不进组件库
-import type { LucideIconData } from '@lucide/icons';
 import { X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { elementProps, mergeProps, useLang, type PartProps } from '@vue-tsx-pro/ui';
+import {
+  elementProps,
+  Icon,
+  mergeProps,
+  useLang,
+  type IconData,
+  type IconProps,
+  type PartProps,
+} from '@vue-tsx-pro/ui';
 import { colors, controls, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
-import { Icon, type IconProps } from './Icon';
 
 /** 未声明的属性落到 input（主元素）上；外层容器用 propsRoot */
 export interface TextFieldProps extends PartProps<'input', 'value' | 'disabled' | 'aria-invalid'> {
@@ -17,7 +23,7 @@ export interface TextFieldProps extends PartProps<'input', 'value' | 'disabled' 
   /** 有内容时显示清除按钮 */
   clearable?: boolean;
   /** 前置图标 */
-  icon?: LucideIconData;
+  icon?: IconData;
   propsRoot?: PartProps<'div'>;
   propsIcon?: Partial<IconProps>;
   propsClear?: PartProps<'button', 'type' | 'disabled'>;

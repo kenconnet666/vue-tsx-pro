@@ -1,8 +1,14 @@
 // 试点组件：验证 em 尺寸、部件透传（propsIcon）、href 渲染为链接，不进组件库
-import type { LucideIconData } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { elementProps, mergeProps, type PartProps } from '@vue-tsx-pro/ui';
+import {
+  elementProps,
+  Icon,
+  mergeProps,
+  type IconData,
+  type IconProps,
+  type PartProps,
+} from '@vue-tsx-pro/ui';
 import {
   colors,
   controls,
@@ -14,20 +20,19 @@ import {
   space,
 } from '@vue-tsx-pro/ui/tokens.stylex';
 import type { VNodeChild } from 'vue';
-import { Icon, type IconProps } from './Icon';
 
 /** 未声明的属性落到按钮（或链接）元素上 */
 export interface ButtonProps extends PartProps<'button', 'disabled'> {
   variant?: 'solid' | 'outline' | 'ghost';
   /** 不写时继承上下文字号 */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   disabled?: boolean;
   /** 加载中：不可点击，并告知读屏 */
   loading?: boolean;
   /** 传了就渲染为链接 */
   href?: string;
   /** 前置图标 */
-  icon?: LucideIconData;
+  icon?: IconData;
   propsIcon?: Partial<IconProps>;
   children?: VNodeChild;
 }
@@ -75,9 +80,11 @@ const styles = stylex.create({
     backgroundColor: { default: 'transparent', ':hover': colors.fillHover },
   },
   disabled: { opacity: controls.disabledOpacity, cursor: 'not-allowed' },
+  xs: { fontSize: fontSizes.xs },
   sm: { fontSize: fontSizes.sm },
   md: { fontSize: fontSizes.md },
   lg: { fontSize: fontSizes.lg },
+  xl: { fontSize: fontSizes.xl },
 });
 
 export const Button = _component(
