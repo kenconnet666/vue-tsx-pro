@@ -1,5 +1,5 @@
 /**
- * 端到端验证 vue_tsx_pro_lsp：按生成的配置真实启动服务器，逐个调用工具并检查结果。
+ * 端到端验证 vue_tsx_pro_lsp：按项目的 .mcp.json（或 --codex 时按 Codex 配置）真实启动服务器，逐个调用工具并检查结果。
  * 重启 Codex / Claude Code 之前先跑一遍：pnpm lsp:verify
  */
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
@@ -14,21 +14,16 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const SWITCH = 'packages/tsx/test/fixtures/Switch.tsx';
 const TEMP = 'packages/tsx/test/fixtures/__lsp_verify__.tsx';
 
-/** 优先使用 lsp:setup 生成的 Codex 配置，确保验证的就是客户端将要启动的命令 */
+/** 按项目级 .mcp.json 启动（Claude Code 用的就是它）；传 --codex 时改用 lsp:setup 生成的 Codex 配置 */
 function launchConfig() {
-  try {
+  if (process.argv.includes('--codex')) {
     const config = parse(readFileSync(resolve(root, '.codex/config.toml'), 'utf8'));
-    const server = config.mcp_servers?.[SERVER_NAME];
-    if (server) return { ...server, from: '.codex/config.toml' };
-  } catch {
-    // 尚未运行 lsp:setup
+    return { ...config.mcp_servers[SERVER_NAME], from: '.codex/config.toml' };
   }
-  return {
-    command: process.execPath,
-    args: ['scripts/language-services/server.mjs', '.'],
-    cwd: root,
-    from: '默认命令（尚未运行 pnpm lsp:setup）',
-  };
+  const server = JSON.parse(readFileSync(resolve(root, '.mcp.json'), 'utf8')).mcpServers[
+    SERVER_NAME
+  ];
+  return { command: server.command, args: server.args, cwd: root, from: '.mcp.json' };
 }
 
 /** 找到某段文字在文件中的 1 起始位置；offset 用于定位到文字内部 */

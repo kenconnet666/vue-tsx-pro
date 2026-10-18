@@ -15,7 +15,6 @@ vue-tsx-pro.iml
 .env.*
 !.env.example
 
-# 本机生成的语言服务配置（pnpm lsp:setup）
+# 本机配置：Codex 由 pnpm lsp:setup 生成；Claude Code 的本机设置
 .codex/config.toml
-.mcp.json
 .claude/settings.local.json

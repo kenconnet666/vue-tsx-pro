@@ -68,7 +68,7 @@ pnpm format         # prettier
 
 ## 语言服务（MCP）
 
-项目级 MCP 服务器 `vue_tsx_pro_lsp` 把 TSX 语言服务提供给 Codex 与 Claude Code。它直接使用仓库固定的 TypeScript，结果与 `pnpm typecheck` 一致；诊断还会附带符文编译器的误用报错。只处理 `.ts`/`.tsx`，不涉及 Vue SFC。
+项目级 MCP 服务器 `vue_tsx_pro_lsp` 把 TSX 语言服务提供给 Claude Code 与 Codex。它直接使用仓库固定的 TypeScript，结果与 `pnpm typecheck` 一致；诊断还会附带符文编译器的误用报错。只处理 `.ts`/`.tsx`，不涉及 Vue SFC。
 
 | 工具          | 作用                                                     |
 | ------------- | -------------------------------------------------------- |
@@ -78,12 +78,13 @@ pnpm format         # prettier
 | `references`  | 查找引用                                                 |
 | `completions` | 补全，可按前缀过滤                                       |
 
-```bash
-pnpm lsp:setup    # 生成本机配置：.codex/config.toml、.mcp.json、.claude/settings.local.json
-pnpm lsp:verify   # 按生成的配置真实启动并逐项检查
-```
+- **Claude Code**：项目级配置 `.mcp.json` 与 `.claude/settings.json` 已提交，用相对路径启动、默认启用。克隆后在仓库根目录打开即可使用（需要 Node 24）。
+- **Codex**：运行 `pnpm lsp:setup` 生成本机的 `.codex/config.toml`（含绝对路径，已被 git 忽略；模板是 `.codex/config.example.toml`），换机或移动目录后重新运行。
 
-验证通过后重启 Codex / Claude Code 即可使用。生成的三个文件含本机绝对路径，已被 git 忽略；模板是 `.codex/config.example.toml`。换机或移动目录后重新运行 `pnpm lsp:setup`。
+```bash
+pnpm lsp:verify            # 按 .mcp.json 真实启动并逐项检查
+pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
+```
 
 ## 配置要点
 
@@ -95,7 +96,6 @@ pnpm lsp:verify   # 按生成的配置真实启动并逐项检查
 
 ## 文档
 
-- [RESEARCH.md](RESEARCH.md)：组件写法、StyleX、遇到的上游问题
-- [RUNES.md](RUNES.md)：符文编译到 Vue Ref 的设计与证据
-- [PLAN.md](PLAN.md)：工程规划与里程碑
-- [COMPONENTS.md](COMPONENTS.md)：组件库规范（API 约定、部件透传、尺寸、Provider 的主题与地区配置）与实施范围
+- [RUNES.md](RUNES.md)：符文规范（状态、派生、副作用、props、双向绑定、共享状态，与 Svelte 5 对照）
+- [COMPONENTS.md](COMPONENTS.md)：组件库规范（API 约定、部件透传、尺寸、主题与语言、现状与待办）
+- [PLAN.md](PLAN.md)：定位、结构、测试分层、里程碑与技术约束

@@ -49,8 +49,8 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   return plugins;
 }
 
-/** 只处理符文的插件，单独导出以便自定义组合 */
-export function runes(): Plugin {
+/** 符文与 props 编译 */
+function runes(): Plugin {
   return {
     name: 'vue-tsx-pro:runes',
     enforce: 'pre',

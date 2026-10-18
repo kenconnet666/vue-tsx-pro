@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "vue_tsx_pro_lsp": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["scripts/language-services/server.mjs", "."]
+    }
+  }
+}

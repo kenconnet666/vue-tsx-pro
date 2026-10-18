@@ -5,7 +5,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '@vue-tsx-pro/ui';
 import { colors, controls, radii, shadows, space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { tabbable } from 'tabbable';
-import { nextTick, onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
+import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 
 /** 交给触发器的属性：展开到任意可聚焦元素上 */
 export interface TriggerProps {
@@ -106,8 +106,10 @@ export const Popover = _component(
       if (!opened) hide();
     }
 
-    watch(_toRef(open), (value) => void nextTick(() => (value ? show() : hide())), {
-      immediate: true,
+    // DOM 更新后执行（首次在挂载后，anchor 与 panel 已就位）：open 变化时显示或隐藏
+    _effect(() => {
+      if (open) show();
+      else hide();
     });
     onBeforeUnmount(hide);
 

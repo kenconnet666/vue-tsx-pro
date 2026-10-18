@@ -1,11 +1,8 @@
 /**
- * 生成本机的项目级 MCP 配置，启用 vue_tsx_pro_lsp：
+ * 生成本机的 Codex 配置 .codex/config.toml，启用 vue_tsx_pro_lsp（由 .codex/config.example.toml 生成，只替换受管理的块）。
+ * 文件包含本机绝对路径，已被 .gitignore 忽略；文件里其他内容原样保留。
  *
- *   .codex/config.toml           Codex（由 .codex/config.example.toml 生成，只替换受管理的块）
- *   .mcp.json                    Claude Code 项目级 MCP 服务器
- *   .claude/settings.local.json  Claude Code 本机设置：免确认启用上面的服务器
- *
- * 三个文件都包含本机绝对路径，已被 .gitignore 忽略；文件里其他内容原样保留。
+ * Claude Code 不需要这一步：项目级配置 .mcp.json 与 .claude/settings.json 已提交，用相对路径启动。
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -59,31 +56,5 @@ async function setupCodex() {
   await writeText(path, next);
 }
 
-// ───────────────────────── Claude Code ─────────────────────────
-
-async function setupClaudeCode() {
-  const mcpPath = resolve(root, '.mcp.json');
-  const mcp = JSON.parse(await readText(mcpPath, '{}'));
-  mcp.mcpServers = {
-    ...mcp.mcpServers,
-    [SERVER_NAME]: {
-      type: 'stdio',
-      command: node,
-      args: [`${rootPath}/scripts/language-services/server.mjs`, rootPath],
-    },
-  };
-  await writeText(mcpPath, JSON.stringify(mcp, null, 2) + '\n');
-
-  const settingsPath = resolve(root, '.claude/settings.local.json');
-  const settings = JSON.parse(await readText(settingsPath, '{}'));
-  const enabled = new Set(settings.enabledMcpjsonServers ?? []);
-  enabled.add(SERVER_NAME);
-  settings.enabledMcpjsonServers = [...enabled];
-  await writeText(settingsPath, JSON.stringify(settings, null, 2) + '\n');
-}
-
 await setupCodex();
-await setupClaudeCode();
-console.log(
-  `\n${SERVER_NAME} 已配置。先运行 pnpm lsp:verify 确认可用，再重启 Codex / Claude Code。`,
-);
+console.log(`\n${SERVER_NAME} 已配置。先运行 pnpm lsp:verify 确认可用，再重启 Codex。`);

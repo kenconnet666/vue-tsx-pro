@@ -1,23 +1,23 @@
-# 组件库规范（草案）
+# 组件库规范
 
-日期：2026-10-18。适用于 `@vue-tsx-pro/ui`。写法基础见 `RUNES.md`，工程规划见 `PLAN.md`。
+适用于 `@vue-tsx-pro/ui`。写法基础见 [RUNES.md](RUNES.md)，工程规划见 [PLAN.md](PLAN.md)。
 
-> 状态：基础设施已实现（§7）；正式组件尚未开始。§7.2 是试点的结论。
+> 状态：基础设施与试点已完成，正式组件尚未开始（§7）。
 
 ---
 
 ## 1. 组件 API 约定
 
-| 项           | 约定                                                                                                                          |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`        |
-| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供 |
-| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）    |
-| 命令式能力   | 不用 expose；需要时由父级创建控制器对象传入（如 Dialog 的 `controller`）                                                      |
-| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们     |
-| 多态         | 不做通用的 `as`；个别组件按需处理（如 Button 传 `href` 时渲染为 `<a>`）                                                       |
-| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                        |
-| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                     |
+| 项           | 约定                                                                                                                                                                  |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`                                                |
+| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                         |
+| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                            |
+| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7） |
+| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                             |
+| 多态         | 不做通用的 `as`；个别组件按需处理（如 Button 传 `href` 时渲染为 `<a>`）                                                                                               |
+| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                |
+| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                             |
 
 ## 2. 部件与透传
 
@@ -48,6 +48,7 @@
 - 原生元素部件：该元素的属性类型 + `sx`，去掉组件内部管理的属性（见 §2.3），形如 `PartProps<'input', 'value' | 'aria-invalid'>`。
 - 本库组件部件：该组件的 props（全部可选），形如 `Partial<IconProps>`。
 - 部件 props 不能改内容：`children` 不在部件 props 里，内容走组件自己的 prop。
+- 组件 props 接口 `extends PartProps<'主元素', 受管属性>`，`...rest` 才有补全与类型检查。
 
 ### 2.3 合并规则
 
@@ -77,12 +78,15 @@
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
+- 含动态样式函数的 `stylex.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
+- 标签名来自数据时（如图标的 path、circle）TSX 没有属性类型，用 Vue 的 `h()` 渲染。
 
 ## 5. 无障碍与交互
 
 - 每个组件按 WAI-ARIA Authoring Practices 的对应模式实现：角色、状态属性、键盘操作，文档里列出键盘映射。
 - 关联 id 用 Vue 3.5 的 `useId()` 生成；使用方传了 `id` 时以使用方为准。
 - 中文输入法：输入类组件在 `compositionstart`/`compositionend` 之间不触发校验、搜索与格式化。
+- 弹层类组件的触发器用渲染函数 `trigger={(props) => <Button {...props} />}`；`ref` 落在组件上拿到的是实例，由组件解析成根元素（`$el`）。
 - 弹层优先用原生 Popover API 与 `<dialog>`（处在浏览器最顶层、Esc、焦点恢复），floating-ui 只负责定位。另有一个弹层栈：Esc 只关最上层；点击外部关闭能识别嵌套弹层；打开模态时锁定滚动、其余内容设 `inert`。
 
 ---
@@ -104,6 +108,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 嵌套时**按字段合并**：内层只写要改的部分，其余继承外层。
 - 没有任何配置时，组件使用内置默认值（`zhCN` + `lightTheme`），单独使用也能工作。
 - 配置是响应式的：切换主题、语言、时区，已渲染的组件立即更新。
+- Provider 不产生盒子、不画背景：主题区域需要自己用 `colors.background` 铺底色。
 
 ### 6.2 主题 `theme`
 
@@ -183,65 +188,36 @@ interface Lang {
 
 ---
 
-## 7. 实施范围与顺序
+## 7. 现状、依赖与待办
 
-**本轮只做组件库的基础设施**；正式组件暂不纳入规划。为了提前扫清障碍，在宿主示例 `apps/host-demo` 里写几个**试点组件**：按本规范写，但只是页面内的组件，不进 `@vue-tsx-pro/ui`，也不承诺 API；发现的问题回到规范或基础设施里解决。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、Provider / createUi、语言与 useFormat、mergeProps 与部件类型。
 
-| 阶段 | 位置             | 内容                                                                                   | 要扫清的障碍                                                                        |
-| ---- | ---------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 1    | `packages/tsx`   | StyleX 类型入口 `@vue-tsx-pro/tsx/stylex` 与注释数据（§9）                             | `importSources` 能否识别新入口；注释覆盖层与原版类型一致                            |
-| 2    | `packages/ui`    | tokens（带注释）、`lightTheme` / `darkTheme`、`defineTheme`                            | 运行时覆盖主题变量（已解决：容器上的行内 CSS 变量）                                 |
-| 3    | `packages/ui`    | `Provider`、`createUi`、`Lang`、`zhCN` / `enUS`、`defineLang`、`useLang` / `useFormat` | 嵌套合并、响应式切换、应用级与局部配置并存                                          |
-| 4    | `packages/ui`    | `mergeProps`、部件 props 类型                                                          | 事件先后与 `preventDefault`、类型上去掉受管属性                                     |
-| 5    | `apps/host-demo` | 试点 Icon、Button、TextField、Popover                                                  | em 尺寸、部件透传、主元素透传、输入法、原生 popover + floating-ui、弹层栈与焦点恢复 |
-| 6    | 仓库             | Vitest 浏览器模式 + Playwright + axe-core；宿主示例接入 `createUi` 与局部 `Provider`   | 浏览器测试链路在 Windows 与 CI 上可用                                               |
+**试点组件**（`apps/host-demo/src/pilot`：Icon、Button、TextField、Popover）按本规范写，但不进组件库、不承诺 API。真实 Chromium 中已验证：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、中文输入法、axe 无违规。
 
-### 7.1 实施结果（2026-10-18）
+**StyleX 相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
 
-阶段 1～6 已完成：StyleX 类型入口与注释数据、tokens 与明暗主题、Provider / createUi / Lang / useFormat、mergeProps 与部件类型、宿主示例里的试点组件（Icon、Button、TextField、Popover，`apps/host-demo/src/pilot`）、Vitest 浏览器模式 + Playwright + axe-core。
+- StyleX 只认以 `.stylex` 结尾的导入路径，所以 tokens 从 `@vue-tsx-pro/ui/tokens.stylex` 导入，主入口不导出。
+- 变量名按“包名:文件路径”算哈希；预设用自定义模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
+- 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
 
-### 7.2 试点结论
+**依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/test/dependencies.test.ts` 逐一验证。
 
-**已验证可行**（真实 Chromium 中有自动化测试）：
+| 用途     | 选择                            | 说明                                              |
+| -------- | ------------------------------- | ------------------------------------------------- |
+| 浮层定位 | `@floating-ui/dom`              | 只算位置；弹层本身用原生 Popover API / `<dialog>` |
+| 图标     | `@lucide/icons`                 | 只有图标数据，按名导入可摇树；Icon 组件自己写     |
+| 日期     | `@internationalized/date`       | 日历运算、时区、地区周起始日、非公历              |
+| 精确数字 | `decimal.js`                    | 数字输入、金额                                    |
+| 焦点     | `tabbable`                      | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`  |
+| 校验     | `@standard-schema/spec`（接口） | 表单只依赖接口，使用方可选 zod、valibot 等        |
+| 色板     | `@radix-ui/colors`（开发依赖）  | 只用于校验 tokens 取值                            |
+| 虚拟滚动 | 自己实现                        | 参考 `@tanstack/virtual-core` 的算法              |
 
-- em 尺寸：根元素定字号、内部全用 em，`size` 档位与继承上下文字号都等比缩放，图标 `1em` 跟随。
-- 部件透传：`propsIcon`、`propsRoot`、`propsClear` 落到对应部件；`...rest` 落到主元素（TextField 的 input）。
-- 受控 `_bind` 与 `_bindable`；Provider 嵌套合并与页面内切换主题、语言；`createUi` 应用级配置。
-- 弹层：原生 `popover="auto"` 自带 Esc 与点击外部关闭（把结果写回 `open` 即可），floating-ui 只负责定位；打开时用 tabbable 把焦点移入，关闭后焦点回到触发器。
-- 中文输入法：`_bind` 编译为 v-model，组合输入期间不写回、结束才写回。
-- axe-core 对试点页面没有违规。
+**待办**：
 
-**试点暴露、已在基础设施里解决的问题**：
-
-1. **StyleX 只认以 `.stylex` 结尾的导入路径**：主入口再导出的 tokens 不能用在 `stylex.create` 里。tokens 改为从 `@vue-tsx-pro/ui/tokens.stylex` 导入，主入口不再导出。
-2. **StyleX 的变量名与“从源码还是产物编译”有关**：它按“包名:文件路径”算哈希，仓库内编译源码、解析导入却找到 dist，颜色全部失效。预设改用 custom 模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
-3. **组件库构建会把 `*.stylex.ts` 打包进 index.js**，使用方编译时 StyleX 不再认得：构建改为保留源码文件结构（`preserveModules`）。
-4. **禁用状态与“使用方事件先执行”冲突**：禁用的链接按钮（没有原生 disabled）仍会触发使用方回调。规则补充：组件不可用时先拿掉使用方的交互回调。
-5. `useLang()` 的转发对象展开为空：补齐 Proxy 的 `ownKeys` 等陷阱。
-
-**第二轮审查发现并修复的问题**：
-
-6. 弹出层打开时 `role="dialog"` 没有无障碍名称（axe 报 aria-dialog-name）：默认以触发器为名称（`aria-labelledby`），使用方可以用 `aria-label` 覆盖。浏览器测试补上打开状态下的 axe 检查。
-7. 弹出层先在默认位置闪一下：位置异步算好之前先隐藏；不可见的元素不能获得焦点，所以焦点在第一次定位之后才移入。
-8. `class` 合并原先拼接字符串，遇到对象或数组形式会得到 `[object Object]`：改为数组交给 Vue 处理。
-9. Button 把 `type` 当作受管属性，写不了 `type="submit"`：改为可覆盖的默认值。
-10. 注释数据里残留两处 zerodep-js 自身 API 的写法：改为 StyleX 写法。
-
-**规范要补充的地方**：
-
-- **主元素的属性类型**：组件 props 接口要 `extends PartProps<'主元素', 受管属性>`，`...rest` 才有补全与类型检查。
-- **触发器与 ref**：把 `ref` 交给组件时拿到的是组件实例，需要取 `$el`。弹层类组件的触发器统一用渲染函数 `trigger={(props) => <Button {...props} />}`，由组件把实例解析成元素（Popover 里的 `toElement`）；正式组件库应把它做成公共工具。
-- **Provider 不画背景**：它不产生盒子，主题区域需要自己用 `colors.background` 铺底色。
-- **动态标签**：标签名来自数据（如图标的 path、circle）时类型上只是 `string`，TSX 没有属性类型，用 Vue 的 `h()` 渲染。
-- **动态样式单独写一个 create**：含动态样式函数的 create 走第二个类型签名，组内属性没有中文悬停提示。
-
-**基础设施还缺的**：
-
-- 公共的 `toElement`（实例 → 元素）、弹层栈（嵌套弹层与模态的 Esc 顺序、滚动锁定、`inert`）、焦点陷阱（模态对话框）。
-- 发布产物验证（`tests/consumer`）：用 `pnpm pack` 的产物在独立应用里编译 StyleX，确认 dist 下的 `*.stylex.js` 与规范化哈希在使用方也成立。
-- 浏览器测试目前只有 Chromium；Firefox、WebKit 可在需要时加入 `instances`。
-
-**完成标准（§8）是否可行**：可行。运行时测试、浏览器测试（键盘、焦点、输入法、axe）、类型测试都已有可复用的写法；文档页的 props 表生成尚未实现。
+- 公共的 `toElement`（组件实例 → 根元素）、弹层栈（嵌套弹层与模态的 Esc 顺序、滚动锁定、`inert`）、模态焦点陷阱。
+- 发布产物验证 `tests/consumer`：确认 dist 下的 `*.stylex.js` 与规范化哈希在使用方也成立。
+- 文档页的 props 表生成；浏览器测试按需加入 Firefox、WebKit。
 
 ## 8. 正式组件的完成标准（供之后使用）
 
@@ -274,7 +250,7 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 | ---------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------- |
 | 覆盖哪些属性、值类型                                 | StyleX 类型声明（MIT）                                          | 决定注释范围                                                |
 | 语法、初始值、是否继承、动画类型、适用元素、MDN 链接 | `mdn-data`（CC0）                                               | 一手数据，脚本填充，不手写                                  |
-| 浏览器支持（Baseline 等级与年份）                    | `web-features`（许可待核实）                                    | 新增                                                        |
+| 浏览器支持（Baseline 等级与年份）                    | `web-features`（Apache-2.0）                                    | 新增                                                        |
 | 中文说明、常用值、适用场景                           | 以 zerodep-js 的 `css-author-docs.json` 为起点修订（自有，MIT） | 用自己的话写，不复制 MDN 正文（CC-BY-SA），只用 `@see` 链接 |
 
 - 修订与完善：事实字段改由脚本从数据包填充；新增 Baseline；新增 StyleX 专属说明（数字值是否自动加 px、简写规则、物理方向属性提示改用逻辑属性）；逐条复核中文说明，常用属性补“常用值”和“适用场景”。
