@@ -62,7 +62,7 @@ export class RunesTransform {
         const rune = runeOf(path);
         switch (rune) {
           case null:
-          case '_ref': // _ref(x) 与 _bind(x) 在第 3、4 步随引用一起处理
+          case '_toRef': // _toRef(x) 与 _bind(x) 在第 3、4 步随引用一起处理
           case '_bind':
             return;
           case '_bindable':
@@ -80,7 +80,7 @@ export class RunesTransform {
   /** let x = _state(0) 之类：把调用换成 Vue API，并记下声明 */
   private declareState(
     path: NodePath<t.CallExpression>,
-    rune: Exclude<Rune, '_bindable' | '_bind' | '_ref'>,
+    rune: Exclude<Rune, '_bindable' | '_bind' | '_toRef'>,
   ) {
     const declarator = path.parentPath;
     if (!declarator.isVariableDeclarator() || declarator.node.init !== path.node) {
@@ -102,21 +102,13 @@ export class RunesTransform {
 
     switch (rune) {
       case '_state': {
-        // const + 对象/数组字面量：就是 Vue 的 reactive 对象，变量本身不需要改写，
-        // 因此可以直接导出、传进任意函数而不丢响应性
-        if (kind === 'const') {
-          if (t.isObjectExpression(arg) || t.isArrayExpression(arg)) {
-            path.replaceWith(this.imports.vue('reactive', [arg]));
-            return;
-          }
-          throw fail(
-            path,
-            'const 声明的 _state 只能是对象或数组字面量；需要重新赋值的状态请用 let',
-          );
+        // 一律是 ref。const 只表示不能整体替换，对象的属性照常可改（ref 内的对象是深层响应式的）
+        if (kind === 'const' && isPrimitiveLiteral(arg)) {
+          throw fail(path, 'const 声明的原始值无法修改，响应式状态请用 let');
         }
         requireIdentifier(declarator, rune);
         path.replaceWith(this.imports.vue('ref', [initial]));
-        this.pending.set(declarator.node, { writable: true, source: rune });
+        this.pending.set(declarator.node, { writable: kind === 'let', source: rune });
         return;
       }
       case '_state.raw': {
@@ -140,12 +132,12 @@ export class RunesTransform {
         this.pending.set(declarator.node, { writable: false, source: rune });
         return;
       }
-      case '_from': {
-        // 直接持有外部 Ref：let theme = _from(useStorage(...))
-        // 也支持解构一组 Ref：const { x, y } = _from(useMouse())
-        if (!arg) throw fail(path, '_from 需要一个 Ref 或由 Ref 组成的对象');
+      case '_fromRef': {
+        // 直接持有外部 Ref：let theme = _fromRef(useStorage(...))
+        // 也支持解构一组 Ref：const { x, y } = _fromRef(useMouse())
+        if (!arg) throw fail(path, '_fromRef 需要一个 Ref 或由 Ref 组成的对象');
         if (!t.isIdentifier(id) && !t.isObjectPattern(id)) {
-          throw fail(path, '_from 的结果请赋给一个变量或对象解构');
+          throw fail(path, '_fromRef 的结果请赋给一个变量或对象解构');
         }
         path.replaceWith(arg);
         this.pending.set(declarator.node, { writable: kind === 'let', source: rune });
@@ -212,7 +204,7 @@ export class RunesTransform {
           if (this.pending.has(findDeclarator(declaration, name)!)) {
             throw fail(
               path,
-              `不能直接导出响应式变量 ${name}：导入方只会拿到一个值。请导出 const 对象 _state({...})，或导出读写函数`,
+              `不能直接导出响应式变量 ${name}：导入方只会拿到一个值。跨文件共享状态请用 pinia 或组合式函数，或导出读写函数`,
             );
           }
         }
@@ -240,10 +232,10 @@ export class RunesTransform {
     const parent = reference.parentPath!;
     const name = binding.identifier.name;
 
-    // _ref(x)：取回背后的 Ref 本身
+    // _toRef(x)：取回背后的 Ref 本身
     if (
       parent.isCallExpression() &&
-      runeOf(parent) === '_ref' &&
+      runeOf(parent) === '_toRef' &&
       parent.node.arguments[0] === reference.node
     ) {
       parent.replaceWith(t.identifier(name));
@@ -297,10 +289,10 @@ export class RunesTransform {
         if (!RUNE_GLOBALS.has(name) || path.scope.hasBinding(name)) return;
         if (!path.isReferencedIdentifier() || isInTypePosition(path)) return;
         switch (name) {
-          case '_ref':
+          case '_toRef':
             throw fail(
               path,
-              '_ref(x) 的参数必须是 _state / _derived / _bindable / _from 声明的变量',
+              '_toRef(x) 的参数必须是 _state / _derived / _bindable / _fromRef 声明的变量',
             );
           case '_bind':
             throw fail(
@@ -327,5 +319,21 @@ function readonlyMessage(binding: Binding, info: TrackedInfo) {
   if (info.source === 'prop') {
     return `prop ${name} 是只读的；需要在组件内修改并同步给父级，请写成 ${name} = _bindable(默认值)`;
   }
+  if (info.source === '_state' || info.source === '_fromRef') {
+    return `${name} 用 const 声明，不能整体替换（属性照常可改）；需要替换请用 let`;
+  }
   return `${name} 来自 ${info.source}，是只读的`;
+}
+
+/** 0、'x'、true、null、模板字符串、undefined 或不传参数：const 声明这类初始值就永远改不了 */
+function isPrimitiveLiteral(node: t.Expression | undefined) {
+  if (!node || t.isIdentifier(node, { name: 'undefined' })) return true;
+  return (
+    t.isNumericLiteral(node) ||
+    t.isStringLiteral(node) ||
+    t.isBooleanLiteral(node) ||
+    t.isNullLiteral(node) ||
+    t.isBigIntLiteral(node) ||
+    t.isTemplateLiteral(node)
+  );
 }

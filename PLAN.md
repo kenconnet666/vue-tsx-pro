@@ -15,7 +15,7 @@
 | 渲染         | 只做 Vue 3.5 虚拟 DOM；只写 TSX                                                                               |
 | 编译         | 我们的符文编译器（Babel 7）先执行，再交给官方插件：StyleX → `@vitejs/plugin-vue-jsx`（JSX、去类型、热更新）   |
 | 文件范围     | 不按目录隔离：只有用到符文或 `_component` 的文件被我们改写，宿主其他代码原样交给后续插件                      |
-| 响应式写法   | 下划线符文：`_state`、`_derived`、`_bindable`、`_from`、`_ref`，编译为 Vue 原生 API                           |
+| 响应式写法   | 下划线符文：`_state`、`_derived`、`_bindable`、`_fromRef`、`_toRef`，编译为 Vue 原生 API                      |
 | 组件         | 只有 props：参数解构即 props（Svelte 式响应式解构）；内容用 `children`；通知用 `onXxx`；不用 slot/emit/expose |
 | 组件双向绑定 | 子组件 `_bindable`，父组件 `属性={_bind(x)}`；编译为 Vue 标准 v-model 协议                                    |
 | CSS          | StyleX，外部覆盖统一走 `sx` prop；自家语法糖在我们的编译器里改写成 StyleX 标准调用，不 fork StyleX            |
@@ -45,7 +45,7 @@ compiler、Vite 插件、runtime、类型总是一起升级、一起使用，拆
 
 ### 2.3 下划线前缀的代价
 
-- **技术上没有冲突**：编译器生成的 Vue 导入别名是 `_vue_ref` 这类名字，不会和 `_ref` 符文或 JSX 编译器生成的 `_createVNode` 等撞名。
+- **技术上没有冲突**：编译器生成的 Vue 导入别名是 `_vue_ref` 这类名字，不会和 `_toRef` 符文或 JSX 编译器生成的 `_createVNode` 等撞名。
 - **可读性代价**：`_` 在 JS 社区普遍表示"私有/未使用"；编译产物里 JSX 编译器生成的辅助函数也是 `_` 开头。
 
 缓解：`_` 前缀**保留给符文**，项目代码里普通函数和变量不用 `_` 开头。
@@ -124,7 +124,7 @@ vue-tsx-pro/
 **命名**
 
 - 包：`@vue-tsx-pro/*`（正式使用前先注册 npm 组织占位）。
-- 符文：`_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_bind`（含 trim/number/lazy 修饰符）、`_from`、`_ref`，`_` 前缀保留给它们。
+- 符文：`_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_bind`（含 trim/number/lazy 修饰符）、`_fromRef`、`_toRef`，`_` 前缀保留给它们。
 - 组件：PascalCase 文件名，一个组件一个目录，测试就近放。
 
 **组件写法**（详见 `RESEARCH.md`、`RUNES.md`；组件库的 API 约定见 [COMPONENTS.md](COMPONENTS.md)）
@@ -133,7 +133,7 @@ vue-tsx-pro/
 - 不用 Vue 指令：`v-model` → `_bind`，`v-show` → 原生 `hidden` 或条件渲染，`v-html` → `innerHTML`；编译器对 `v-*` 报错并给出替代写法。
 - 通知用 `onXxx` 函数 prop；内容用 `children`；具名内容用 JSX prop；不用 emit / slot / expose。
 - 副作用、生命周期、provide/inject 直接用 Vue。
-- 跨函数传值优先 getter，要可写 Ref 时用 `_ref(x)`；接入外部 Ref 用 `_from`。
+- 跨函数传值优先 getter，要可写 Ref 时用 `_toRef(x)`；接入外部 Ref 用 `_fromRef`。
 
 **样式**
 
@@ -210,17 +210,17 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 
 ## 8. 补充验证
 
-| 验证                                                   | 结果                                                                                                                                       |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| 符文改为 `_` 前缀                                      | 原型 35 项通过；生成别名改为 `_vue_ref` 等，无冲突                                                                                         |
-| pnpm 12 设置位置                                       | `package.json` 的 `pnpm` 字段被忽略，需移到 `pnpm-workspace.yaml`                                                                          |
-| VitePress 1.6.4                                        | 内置 Vite ^5，与 Vite 8 不匹配                                                                                                             |
-| `@vue/babel-plugin-jsx` 在 Vue 3.5 下的编译结果        | `v-model:checked` → `checked` + `onUpdate:checked`；`<X disabled />` → `disabled: true`；函数子节点原样作为默认插槽                        |
-| vue-jsx 3.3 RC（已移除）                               | 运行时要求 Vue ^3.6 RC；虚拟模块 `/vue-jsx/vdom` 在 Windows 上让 Vitest 崩溃                                                               |
-| 换底座：Vue 3.5.44 + 官方 JSX 插件                     | Windows 本地与 CI 测试全部通过；全仓只有一份 Vue，不需要 overrides；VitePress 2 静态构建成功                                               |
-| 文档站热更新                                           | 改 `_component` 组件后页面不刷新、组件被热替换；组件局部状态重置（官方插件对组件调用 `reload`，会重跑 setup）                              |
-| 宿主示例（plugin-vue + vue-router + pinia + TSX 页面） | 测试与真实 Chromium 中：路由参数、`_from(storeToRefs(...))` 双向写入、宿主 `provide`、StyleX 样式都正常；SFC 页面读到 TSX 页面写入的 store |
-| 宿主构建产物中的 StyleX CSS                            | 追加到宿主已有的 CSS 文件；宿主没有任何 CSS 文件时只生成未被引用的 `stylex.css`（已写入 README）                                           |
+| 验证                                                   | 结果                                                                                                                                          |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 符文改为 `_` 前缀                                      | 原型 35 项通过；生成别名改为 `_vue_ref` 等，无冲突                                                                                            |
+| pnpm 12 设置位置                                       | `package.json` 的 `pnpm` 字段被忽略，需移到 `pnpm-workspace.yaml`                                                                             |
+| VitePress 1.6.4                                        | 内置 Vite ^5，与 Vite 8 不匹配                                                                                                                |
+| `@vue/babel-plugin-jsx` 在 Vue 3.5 下的编译结果        | `v-model:checked` → `checked` + `onUpdate:checked`；`<X disabled />` → `disabled: true`；函数子节点原样作为默认插槽                           |
+| vue-jsx 3.3 RC（已移除）                               | 运行时要求 Vue ^3.6 RC；虚拟模块 `/vue-jsx/vdom` 在 Windows 上让 Vitest 崩溃                                                                  |
+| 换底座：Vue 3.5.44 + 官方 JSX 插件                     | Windows 本地与 CI 测试全部通过；全仓只有一份 Vue，不需要 overrides；VitePress 2 静态构建成功                                                  |
+| 文档站热更新                                           | 改 `_component` 组件后页面不刷新、组件被热替换；组件局部状态重置（官方插件对组件调用 `reload`，会重跑 setup）                                 |
+| 宿主示例（plugin-vue + vue-router + pinia + TSX 页面） | 测试与真实 Chromium 中：路由参数、`_fromRef(storeToRefs(...))` 双向写入、宿主 `provide`、StyleX 样式都正常；SFC 页面读到 TSX 页面写入的 store |
+| 宿主构建产物中的 StyleX CSS                            | 追加到宿主已有的 CSS 文件；宿主没有任何 CSS 文件时只生成未被引用的 `stylex.css`（已写入 README）                                              |
 
 ---
 
@@ -230,7 +230,7 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 
 1. npm 包名使用 `@vue-tsx-pro/*`。
 2. 编译相关合成一个包 `@vue-tsx-pro/tsx`，按子路径导出（§2.1）。
-3. 符文名保持 `_ref`、`_derived` 等，不再改名（§2.3 的可读性代价接受）。
+3. 符文保持 `_` 前缀（§2.3 的可读性代价接受）；2026-10-18 起 `_ref`、`_from` 改名为互逆的 `_toRef`、`_fromRef`。
 4. 定位与底座：已有 Vue 3.5 项目中的独立 TSX 页面；Vue 3.5 + Babel 7 + 官方 JSX 插件（§1、§2.4）。
 
 待定：文档站部署位置；`tests/e2e`、`tests/consumer` 在后续里程碑建立。
@@ -258,3 +258,5 @@ CI 顺序：安装 → lint → 格式 → 类型检查 → 单元/运行时 →
 **目录整理与 tokens 补全（2026-10-18）**：`packages/ui/src/config` 下分 `theme/`（tokens、亮色默认/暗色主题）与 `lang/`（简体中文默认、英语、格式化）；tokens 补全为颜色、字体、间距、圆角、控件、阴影、动效七组，暗色主题同时覆盖颜色与阴影。详见 [COMPONENTS.md](COMPONENTS.md) §6.2。
 
 **整仓整理（2026-10-18）**：符文编译器按职责拆成 `packages/tsx/src/compiler/` 下的 index（入口）、transform（主流程）、runes、props、bind、imports、ast、errors；Node 直接加载的 compiler/ 与 vite/ 相对导入带 `.ts`；宿主示例的 inject 演示改为中性的站点名，去掉与主题系统混淆的写死深色；RUNES.md 统一为 `_` 前缀符文名；合并重复的测试文件。
+
+**符文调整（2026-10-18）**：`_state` 一律编译为 `ref`（`const` 只表示不能整体替换），去掉“const 对象 → reactive、可直接导出”的特例；`_ref` → `_toRef`、`_from` → `_fromRef`。详见 [RUNES.md](RUNES.md)。

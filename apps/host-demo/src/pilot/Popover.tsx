@@ -106,7 +106,7 @@ export const Popover = _component(
       if (!opened) hide();
     }
 
-    watch(_ref(open), (value) => void nextTick(() => (value ? show() : hide())), {
+    watch(_toRef(open), (value) => void nextTick(() => (value ? show() : hide())), {
       immediate: true,
     });
     onBeforeUnmount(hide);
@@ -124,7 +124,7 @@ export const Popover = _component(
         <div
           {...elementProps(
             mergeProps({ sx: styles.panel, 'aria-labelledby': triggerId }, rest, {
-              ref: _ref(panel),
+              ref: _toRef(panel),
               id,
               popover: 'auto',
               role: 'dialog',

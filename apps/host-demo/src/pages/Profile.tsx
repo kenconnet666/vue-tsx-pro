@@ -16,8 +16,8 @@ const styles = stylex.create({
 export const Profile = _component(() => {
   const route = useRoute();
   const siteName = inject(siteNameKey, '');
-  // storeToRefs 返回一组 Ref，_from 之后像普通变量一样读写，写入直接落到 store
-  let { name } = _from(storeToRefs(useUserStore()));
+  // storeToRefs 返回一组 Ref，_fromRef 之后像普通变量一样读写，写入直接落到 store
+  let { name } = _fromRef(storeToRefs(useUserStore()));
   const userId = _derived(String(route.params.id));
 
   return () => (

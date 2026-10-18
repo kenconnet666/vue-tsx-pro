@@ -101,7 +101,7 @@ export const TextField = _component(
         <input
           {...elementProps(
             mergeProps({ sx: styles.input }, rest, {
-              ref: _ref(input),
+              ref: _toRef(input),
               disabled,
               'aria-invalid': invalid || undefined,
             }),

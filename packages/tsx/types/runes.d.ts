@@ -4,7 +4,7 @@
 import type { Ref } from 'vue';
 
 /**
- * _from 解构时只接受 Ref 属性：编译后每个解构出的变量都按 .value 读写，
+ * _fromRef 解构时只接受 Ref 属性：编译后每个解构出的变量都按 .value 读写，
  * 函数等非 Ref 属性会变成 never，提示从原对象单独解构，例如 const { reset } = useX()
  */
 type UnwrapRefs<T> = { [K in keyof T]: T[K] extends Ref<infer V> ? V : never };
@@ -21,7 +21,10 @@ interface Bind {
 }
 
 declare global {
-  /** 可重新赋值的状态 → ref；const + 对象/数组字面量 → reactive */
+  /**
+   * 响应式状态 → ref，之后像普通变量一样读写。
+   * let 可以整体替换；const 不能整体替换，对象的属性照常可改。
+   */
   function _state<T>(initial: T): T;
   function _state<T>(): T | undefined;
   namespace _state {
@@ -46,12 +49,18 @@ declare global {
    */
   const _bind: Bind;
 
-  /** 持有外部 Ref（如组合式函数的返回值），之后像普通变量一样读写 */
-  function _from<T>(source: Ref<T>): T;
-  function _from<T extends object>(source: T): UnwrapRefs<T>;
+  /**
+   * Ref → 变量：持有外部 Ref（组合式函数、storeToRefs 的返回值），之后像普通变量一样读写，写入直接落到原 Ref。
+   * 与 _toRef 互逆：`let theme = _fromRef(useStorage('theme', 'dark'))`、`const { x, y } = _fromRef(useMouse())`
+   */
+  function _fromRef<T>(source: Ref<T>): T;
+  function _fromRef<T extends object>(source: T): UnwrapRefs<T>;
 
-  /** 取回响应式变量背后的 Ref，交给需要 Ref 的 Vue API */
-  function _ref<T>(value: T): Ref<T>;
+  /**
+   * 变量 → Ref：取回响应式变量背后的 Ref，交给需要可写 Ref 的 API。与 _fromRef 互逆：`useIncrement(_toRef(count))`。
+   * 只读的场合传 getter 就够了：`watch(() => count, …)`
+   */
+  function _toRef<T>(value: T): Ref<T>;
 }
 
 export {};

@@ -11,7 +11,7 @@ export function usePointerLike() {
 export function useDoubled(source: MaybeRefOrGetter<number>) {
   return computed(() => toValue(source) * 2);
 }
-// 只接受可写 Ref：用 _ref(x) 交出去
+// 只接受可写 Ref：用 _toRef(x) 交出去
 export function useIncrement(target: Ref<number>) {
   return () => target.value++;
 }

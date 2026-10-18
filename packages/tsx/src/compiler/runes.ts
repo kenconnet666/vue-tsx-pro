@@ -3,10 +3,24 @@ import { types as t, type NodePath } from '@babel/core';
 import { fail } from './errors.ts';
 
 export type Rune =
-  '_state' | '_state.raw' | '_derived' | '_derived.by' | '_bindable' | '_bind' | '_from' | '_ref';
+  | '_state'
+  | '_state.raw'
+  | '_derived'
+  | '_derived.by'
+  | '_bindable'
+  | '_bind'
+  | '_fromRef'
+  | '_toRef';
 
 /** 所有符文的全局名；只有未被本地变量遮蔽时才当作符文 */
-export const RUNE_GLOBALS = new Set(['_state', '_derived', '_bindable', '_bind', '_from', '_ref']);
+export const RUNE_GLOBALS = new Set([
+  '_state',
+  '_derived',
+  '_bindable',
+  '_bind',
+  '_fromRef',
+  '_toRef',
+]);
 
 /** _bind 的修饰符，与 Vue v-model 的修饰符一致，只用于原生输入元素 */
 const BIND_MODIFIERS = new Set(['trim', 'number', 'lazy']);

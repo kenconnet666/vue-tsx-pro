@@ -2,7 +2,7 @@
  * prop 访问器：编译器把 _component 的参数解构换成对这两个函数的调用。
  * 作者不直接使用它们；思路来自 Svelte 5 的 $.prop。
  *
- * 两者返回的都是真正的 Vue Ref（读写改写为 .value），因此 _ref(size) 可以交给 watch 等 Vue API。
+ * 两者返回的都是真正的 Vue Ref（读写改写为 .value），因此 _toRef(size) 可以交给 watch 等 Vue API。
  */
 import { computed, customRef, getCurrentInstance, nextTick, toRef, watch, type Ref } from 'vue';
 

@@ -44,7 +44,7 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
   if (!t.isMemberExpression(target) || extra.length) {
     throw fail(
       call,
-      '_bind 的参数必须是 let 声明的响应式变量（_state / _bindable / _from）或对象属性，例如 _bind(form.name)',
+      '_bind 的参数必须是 let 声明的响应式变量（_state / _bindable / _fromRef）或对象属性，例如 _bind(form.name)',
     );
   }
 

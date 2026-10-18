@@ -143,10 +143,10 @@ describe('rest 与组件信息', () => {
     expect(component.props).toEqual(['size', 'icon', 'index', 'label', 'list']);
   });
 
-  it('_ref(prop) 是真正的 Ref，可以交给 watch', async () => {
+  it('_toRef(prop) 是真正的 Ref，可以交给 watch', async () => {
     const seen: string[] = [];
     const Watcher = _component(({ size = 'md' }: { size?: string }) => {
-      watch(_ref(size), (value) => seen.push(value));
+      watch(_toRef(size), (value) => seen.push(value));
       return () => <i>{size}</i>;
     });
     const size = ref('md');

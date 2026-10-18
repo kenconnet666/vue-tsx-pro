@@ -2,7 +2,9 @@
 
 研究日期：2026-10-17（Asia/Singapore）
 
-> **命名（2026-10-17）**：符文用下划线前缀——`_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_bind`、`_from`、`_ref`。提到 Svelte 自身的 API 时仍写 `$state` 等原名。工程规划见 [PLAN.md](PLAN.md)。
+> **统一为 ref（2026-10-18）**：`_state` 一律编译为 `ref`；`const` 只表示不能整体替换，对象属性照常可改。不再有“const 对象 → reactive、可直接导出”的特例，跨文件共享状态用 pinia、组合式函数或导出读写函数。`_ref` 改名 `_toRef`、`_from` 改名 `_fromRef`，两者互逆。
+
+> **命名（2026-10-17）**：符文用下划线前缀——`_state`、`_state.raw`、`_derived`、`_derived.by`、`_bindable`、`_bind`、`_fromRef`、`_toRef`。提到 Svelte 自身的 API 时仍写 `$state` 等原名。工程规划见 [PLAN.md](PLAN.md)。
 
 前置：`RESEARCH.md`（只做 VDOM、只写 TSX、`_component()` + StyleX）。
 证据：`research/probe` 中的编译原型与 35 项测试（含此前的 13 项）。
@@ -37,13 +39,13 @@
 | ----------------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
 | `let x = _state(v)`                                                     | `ref(v)`                                                   | `x` ↔ `x.value`                                                 |
 | `let x = _state.raw(v)`                                                 | `shallowRef(v)`                                            | 只整体替换                                                      |
-| `const obj = _state({ … })` / `_state([…])`                             | `reactive(…)`                                              | **不改写**，就是 reactive 对象，可导出、可跨函数传              |
+| `const obj = _state({ … })` / `_state([…])`                             | `ref(…)`                                                   | 不能整体替换，属性照常可改（ref 内的对象是深层响应式的）        |
 | `const d = _derived(expr)`                                              | `computed(() => expr)`                                     | 只读                                                            |
 | `const d = _derived.by(() => { … })`                                    | `computed(fn)`                                             | 只读                                                            |
 | `const { a, b: [c] } = _derived(obj)`                                   | 每个变量各自一个 `computed`                                | 只读；嵌套、默认值、`...rest` 与普通解构一致                    |
 | 组件参数 `{ checked = _bindable(false) }`                               | 本包的 `bindable(__props, 'checked', () => false, emit)`   | 读写，走 v-model 协议                                           |
-| `let t = _from(someRef)` / `const { x, y } = _from(useMouse())`         | 直接持有这些 Ref                                           | 读写（`const` 时只读）                                          |
-| `_ref(x)`                                                               | `x` 背后的 Ref                                             | 交给需要 Ref 的 Vue API                                         |
+| `let t = _fromRef(someRef)` / `const { x, y } = _fromRef(useMouse())`   | 直接持有这些 Ref                                           | Ref → 变量，读写（`const` 时不能整体替换）                      |
+| `_toRef(x)`                                                             | `x` 背后的 Ref                                             | 变量 → Ref，交给需要可写 Ref 的 API；与 `_fromRef` 互逆         |
 | `<Switch checked={_bind(on)} />` / `<input value={_bind.trim(name)} />` | `v-model:checked={on.value}` / `v-model_trim={name.value}` | 与 `_bindable` 成对；修饰符 trim/number/lazy 只用于原生输入元素 |
 
 **没有** `$effect`、`$props`、`bind:`：
@@ -103,9 +105,9 @@ const Switch = _component(({ disabled = false, onChange, children }) => {
 })
 
 const Page = _component(() => {
-  let on = _ref(false)
-  let name = _ref('')
-  const greeting = _computed(() => `你好，${name.value || '匿名'}`)
+  let on = _vue_ref(false)
+  let name = _vue_ref('')
+  const greeting = _vue_computed(() => `你好，${name.value || '匿名'}`)
   watchEffect(() => console.log(on.value))
   return () => <><Switch v-model:checked={on.value}>…</Switch><input v-model={name.value} />…</>
 })
@@ -115,18 +117,18 @@ const Page = _component(() => {
 
 ```tsx
 // 接入组合式函数返回的 Ref
-let theme = _from(useStorage('theme', 'dark'))   // 之后 theme = 'light' 直接写回存储
-const { x, y } = _from(useMouse())
+let theme = _fromRef(useStorage('theme', 'dark'))   // 之后 theme = 'light' 直接写回存储
+const { x, y } = _fromRef(useMouse())
 
 // 交出去：优先 getter（Vue 与 VueUse 普遍接受 MaybeRefOrGetter）
-const doubled = _from(useDoubled(() => count))
+const doubled = _fromRef(useDoubled(() => count))
 watch(() => on, (value) => …)
 
-// 对方只收可写 Ref 时用 _ref
-const increment = useIncrement(_ref(count))
+// 对方只收可写 Ref 时用 _toRef
+const increment = useIncrement(_toRef(count))
 
 // 接入 pinia：storeToRefs 返回的就是一组 Ref
-const { user } = _from(storeToRefs(useUserStore()))
+const { user } = _fromRef(storeToRefs(useUserStore()))
 ```
 
 ### 2.3 组件 props：Svelte 式响应式解构
@@ -168,15 +170,15 @@ export const Badge = _component((__props, __ctx) => {
 
 Vue 官方在 2023 年放弃了 Reactivity Transform（`$ref` / `$computed` / `$$`）。尤雨溪给出的理由，以及本方案的回应：
 
-| Vue 的顾虑                                           | 本方案                                                                                                                                  |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| 去掉 `.value` 后，看不出哪里被追踪、哪一行触发副作用 | **仍然存在，这是主要代价。** 缓解：声明处必须显式写符文；`const` 对象状态不改写、语义与 reactive 完全一致；可选的 `$` 前缀命名约定见 §6 |
-| 有的文件用、有的不用，两套心智模型来回切换           | 生成代码就是 Vue 代码，没有第二套运行时；跨边界只有两种形态（Ref、getter），且都是 Vue 原生的                                           |
-| 响应式变量与 Ref 互转是额外负担                      | 只有 `_from` 和 `_ref` 两个转换；而 Vue 生态普遍接受 getter，所以大多数情况连 `_ref` 都不需要                                           |
-| 扭曲 JS 语义                                         | 范围只限于符文声明的局部变量。传进函数是传值（与 Svelte 5 一致），对象状态用 reactive 保持引用语义                                      |
-| 跨文件、跨函数悄悄丢响应性                           | 导出会重新赋值的状态、解构符文结果、把符文当值传递、写只读派生或普通 prop，**全部编译期报错**                                           |
+| Vue 的顾虑                                           | 本方案                                                                                                                |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 去掉 `.value` 后，看不出哪里被追踪、哪一行触发副作用 | **仍然存在，这是主要代价。** 缓解：声明处必须显式写符文；可选的 `$` 前缀命名约定见 §6                                 |
+| 有的文件用、有的不用，两套心智模型来回切换           | 生成代码就是 Vue 代码，没有第二套运行时；跨边界只有两种形态（Ref、getter），且都是 Vue 原生的                         |
+| 响应式变量与 Ref 互转是额外负担                      | 只有 `_fromRef` 和 `_toRef` 两个转换；而 Vue 生态普遍接受 getter，所以大多数情况连 `_toRef` 都不需要                  |
+| 扭曲 JS 语义                                         | 范围只限于符文声明的局部变量。传进函数是传值（与 Svelte 5 一致），对象状态传的是 ref 内同一个响应式对象，保持引用语义 |
+| 跨文件、跨函数悄悄丢响应性                           | 导出会重新赋值的状态、解构符文结果、把符文当值传递、写只读派生或普通 prop，**全部编译期报错**                         |
 
-Svelte 5 接受了同样的代价，并给出了同样的边界规则：传原始值是传快照，跨边界传 getter 或对象，不能导出会被重新赋值的状态。本方案在这几点上与 Svelte 一致，区别是落地到 Vue 现成的 Ref / reactive / computed / v-model 上，而不是自带运行时。
+Svelte 5 接受了同样的代价，并给出了同样的边界规则：传原始值是传快照，跨边界传 getter 或对象，不能导出会被重新赋值的状态（本方案更严格：响应式变量一律不能直接导出）。本方案在这几点上与 Svelte 一致，区别是落地到 Vue 现成的 Ref / reactive / computed / v-model 上，而不是自带运行时。
 
 ---
 
@@ -191,28 +193,28 @@ Svelte 5 接受了同样的代价，并给出了同样的边界规则：传原�
 | `_bindable` 不绑定：作为本地状态，各实例独立                                                                                                      | 通过 |
 | `_bindable` 单向传值：子组件可本地切换，父级一变以父级为准（同 Svelte 未绑定的 `$bindable`）                                                      | 通过 |
 | 原生 `<input value={_bind(name)}>` 双向绑定                                                                                                       | 通过 |
-| `const` 对象状态 = reactive：`value={_bind.number(settings.fontSize)}` 对象路径 + 修饰符                                                          | 通过 |
-| `_from` 接入组合式函数的 Ref（单个、解构）；写回                                                                                                  | 通过 |
-| getter 交给 `MaybeRefOrGetter`；`_ref(x)` 交给只收 Ref 的函数并写回同一个 Ref                                                                     | 通过 |
+| `const` 对象状态：`value={_bind.number(settings.fontSize)}` 对象路径 + 修饰符                                                                     | 通过 |
+| `_fromRef` 接入组合式函数的 Ref（单个、解构）；写回                                                                                               | 通过 |
+| getter 交给 `MaybeRefOrGetter`；`_toRef(x)` 交给只收 Ref 的函数并写回同一个 Ref                                                                   | 通过 |
 | `watch(() => x, …)` 观察响应式变量                                                                                                                | 通过 |
-| 跨模块：导出 reactive 对象；导出读写函数                                                                                                          | 通过 |
+| 跨文件：导出读写函数；对象状态取回后改属性                                                                                                        | 通过 |
 | 读写形态：解构交换 `[a, b] = [b, a]`、对象简写、`for (x of …)`、`??=` `&&=` `**=`、前后自增、同名参数遮蔽、`typeof x` 类型位置、`<View />` 标签名 | 通过 |
 
 ### 4.2 编译期报错（`test/runes-errors.test.ts`，12 项全过）
 
-| 写法                                        | 报错                                                           |
-| ------------------------------------------- | -------------------------------------------------------------- |
-| `export let x = _state(0)` / `export { x }` | 不能直接导出响应式变量；导出 const 对象或读写函数              |
-| `d = 3`（`d` 来自 `_derived`）              | `d 来自 _derived，是只读的`                                    |
-| 写入普通 prop                               | `prop disabled 是只读的；…请写成 disabled = _bindable(默认值)` |
-| `const x = _state(0)`                       | const 只能是对象/数组字面量；要重新赋值请用 let                |
-| `let { a } = _state({ … })`                 | 不能解构声明：解构得到的是快照                                 |
-| `const make = _state`                       | 符文只能按约定位置直接调用                                     |
-| `_ref(1)`                                   | `_ref(x)` 的参数必须是响应式变量                               |
-| `var x = _state(0)`                         | 请用 let 或 const                                              |
-| 组件外 `_bindable`                          | 只能写在组件参数解构的默认值位置                               |
-| `_state.deep(0)`                            | 只支持 `_state.raw`、`_derived.by`                             |
-| 本地定义了同名 `_state` 函数                | 不当作符文，不改写                                             |
+| 写法                                              | 报错                                                           |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| `export const x = _state({ … })` / `export { x }` | 不能直接导出响应式变量；用 pinia、组合式函数或读写函数         |
+| `d = 3`（`d` 来自 `_derived`）                    | `d 来自 _derived，是只读的`                                    |
+| 写入普通 prop                                     | `prop disabled 是只读的；…请写成 disabled = _bindable(默认值)` |
+| `const x = _state(0)`                             | const 声明的原始值无法修改，请用 let                           |
+| `let { a } = _state({ … })`                       | 不能解构声明：解构得到的是快照                                 |
+| `const make = _state`                             | 符文只能按约定位置直接调用                                     |
+| `_toRef(1)`                                       | `_toRef(x)` 的参数必须是响应式变量                             |
+| `var x = _state(0)`                               | 请用 let 或 const                                              |
+| 组件外 `_bindable`                                | 只能写在组件参数解构的默认值位置                               |
+| `_state.deep(0)`                                  | 只支持 `_state.raw`、`_derived.by`                             |
+| 本地定义了同名 `_state` 函数                      | 不当作符文，不改写                                             |
 
 报错带源码位置，例如：
 
@@ -238,8 +240,8 @@ input.tsx: d 来自 _derived，是只读的
 | 场景                                          | 推荐                                                                              |
 | --------------------------------------------- | --------------------------------------------------------------------------------- |
 | 组件之间的双向状态                            | `_bindable` + `_bind`（编译为 Vue 标准 v-model 协议；不绑定时自动退化为本地状态） |
-| 传给组合式函数、工具函数                      | getter 优先；需要可写 Ref 时 `_ref(x)`                                            |
-| 少数需要把同一个 Ref 深层共享给很多组件的场景 | 仍可用 `Ref<T>` prop + `_ref(x)`，或 `provide` / `inject`                         |
+| 传给组合式函数、工具函数                      | getter 优先；需要可写 Ref 时 `_toRef(x)`                                          |
+| 少数需要把同一个 Ref 深层共享给很多组件的场景 | 仍可用 `Ref<T>` prop + `_toRef(x)`，或 `provide` / `inject`                       |
 
 "直接传 Ref"仍然成立，只是不再是组件间的默认做法：v-model 协议在互通性上明显更好，而写法同样简洁（`checked={_bind(on)}`），子组件内部同样直接写 `checked = !checked`。
 

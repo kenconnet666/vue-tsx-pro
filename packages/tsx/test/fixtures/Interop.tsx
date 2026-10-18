@@ -1,8 +1,10 @@
 import { watch } from 'vue';
 import { _component } from '../../src';
 import { Switch } from './Switch';
-import { settings } from './store';
 import { useDoubled, useIncrement, usePointerLike, useStorageLike } from './composables';
+import { getSettings } from './store';
+
+const settings = getSettings();
 
 export const Page = _component(() => {
   let on = _state(false);
@@ -10,12 +12,12 @@ export const Page = _component(() => {
   let count = _state(1);
 
   // 接入组合式函数返回的 Ref
-  let theme = _from(useStorageLike('theme', 'dark'));
-  const { x, y } = _from(usePointerLike());
+  let theme = _fromRef(useStorageLike('theme', 'dark'));
+  const { x, y } = _fromRef(usePointerLike());
 
-  // 交给 Vue API：getter 或 _ref
-  const doubled = _from(useDoubled(() => count));
-  const increment = useIncrement(_ref(count));
+  // 交给 Vue API：getter 或 _toRef
+  const doubled = _fromRef(useDoubled(() => count));
+  const increment = useIncrement(_toRef(count));
   watch(
     () => on,
     (value) => (lastOn = value),

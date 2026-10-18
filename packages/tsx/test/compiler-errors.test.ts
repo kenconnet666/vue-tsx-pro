@@ -15,10 +15,16 @@ const cases: [string, string, RegExp][] = [
     '_component(({ disabled = false }) => { let n = _state(0); disabled = true; return () => n })',
     /prop disabled 是只读的/,
   ],
-  ['const 原始值状态', 'const x = _state(0)', /const 声明的 _state 只能是对象或数组字面量/],
+  ['const 原始值状态', 'const x = _state(0)', /const 声明的原始值无法修改/],
+  [
+    'const 对象状态整体替换',
+    'const form = _state({ a: 1 }); form = { a: 2 }',
+    /用 const 声明，不能整体替换/,
+  ],
+  ['导出响应式变量', 'export const form = _state({ a: 1 })', /跨文件共享状态请用 pinia/],
   ['_state 解构声明', 'let { a } = _state({ a: 1 })', /不能解构声明/],
   ['符文当作值传递', 'const make = _state', /只能按约定的位置直接调用/],
-  ['_ref 参数不是响应式变量', 'const r = _ref(1)', /_ref\(x\) 的参数必须是/],
+  ['_toRef 参数不是响应式变量', 'const r = _toRef(1)', /_toRef\(x\) 的参数必须是/],
   ['var 声明', 'var x = _state(0)', /let 或 const/],
   [
     '组件外使用 _bindable',
@@ -127,7 +133,7 @@ describe('误用在编译期报错', () => {
     const out = (await compileRunes(code))!.code;
     expect(out).toContain('<Switch v-model:checked={on.value} />');
     expect(out).toContain('<input v-model_lazy_trim={name.value} />');
-    expect(out).toContain('<input type="number" v-model_number={form.age} />');
+    expect(out).toContain('<input type="number" v-model_number={form.value.age} />');
   });
 
   it('被本地变量遮蔽的同名函数不当作符文', async () => {
@@ -165,13 +171,13 @@ describe('编译警告', () => {
     expect(warnings[0]!.loc!.start.line).toBe(3);
   });
 
-  it('渲染函数、回调、_derived 与 _ref 里读取不警告', async () => {
+  it('渲染函数、回调、_derived 与 _toRef 里读取不警告', async () => {
     const code = [
       '_component(({ size = 1 }: { size?: number }) => {',
       '  let count = _state(0);',
       '  const doubled = _derived(count * size);',
       '  const log = () => console.log(size);',
-      '  watch(_ref(count), log);',
+      '  watch(_toRef(count), log);',
       '  return () => [size, doubled];',
       '})',
     ].join('\n');
