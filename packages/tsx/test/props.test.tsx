@@ -109,6 +109,33 @@ describe('rest 与组件信息', () => {
     );
   });
 
+  it('...rest 带着 children（与 TS 推出的类型一致），转交给子组件时内容也跟着走', () => {
+    const Inner = _component(
+      ({ children, ...rest }: { children?: VNodeChild; tone?: string }) =>
+        () => (
+          <p data-keys={Object.keys(rest).join(',')} data-tone={rest.tone}>
+            {children}
+          </p>
+        ),
+    );
+    const Outer = _component(({ ...rest }: { children?: VNodeChild; tone?: string }) => () => (
+      <Inner {...rest} />
+    ));
+    const p = mount(() => <Outer tone="muted">内容</Outer>).querySelector('p')!;
+    expect(p.textContent).toBe('内容');
+    // Inner 单独解构了 children：它的 rest 里没有上层转交下来的 children
+    expect(p.dataset.keys).toBe('tone');
+    expect(p.dataset.tone).toBe('muted');
+  });
+
+  it('没有内容时 ...rest 里没有 children 这个键', () => {
+    const Probe = _component(({ ...rest }: { children?: VNodeChild }) => () => (
+      <i>{'children' in rest ? 'has' : 'none'}</i>
+    ));
+    expect(mount(() => <Probe />).textContent).toBe('none');
+    expect(mount(() => <Probe>x</Probe>).textContent).toBe('has');
+  });
+
   it('带连字符的 prop 名按驼峰读取，双向绑定照常写回', async () => {
     const Labeled = _component(
       ({

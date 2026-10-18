@@ -21,7 +21,7 @@ interface PropsContext {
  *     const size = prop(__props, 'size', () => 'md')
  *     const icon = prop(__props, 'icon', () => pick(size.value))
  *     const checked = bindable(__props, 'checked', () => false, __ctx.emit)
- *     const rest = __ctx.attrs
+ *     const rest = restProps(__props, __ctx, true)   // attrs 加上 children；已单独解构 children 时为 false
  *     …
  *   }, { name: 'Toggle', props: ['size', 'icon', 'checked', 'onUpdate:checked'] })
  *
@@ -46,15 +46,13 @@ export function declareProps(setup: NodePath<t.Function>, context: PropsContext)
     const declarations: t.Statement[] = [];
 
     for (const property of pattern.get('properties')) {
-      // ...rest：没有声明为 prop 的属性都在 attrs 里
+      // ...rest：没有声明为 prop 的属性（attrs），没有单独解构 children 时再加上 children，与 TS 推出的类型一致
       if (property.isRestElement()) {
         const local = property.node.argument;
         if (!t.isIdentifier(local)) throw fail(property, '...rest 需要是一个变量名');
-        declarations.push(
-          t.variableDeclaration('const', [
-            t.variableDeclarator(local, t.memberExpression(ctxId, t.identifier('attrs'))),
-          ]),
-        );
+        const withChildren = t.booleanLiteral(!destructuresChildren(pattern.node));
+        const init = context.imports.runtime('restProps', [propsId, ctxId, withChildren]);
+        declarations.push(t.variableDeclaration('const', [t.variableDeclarator(local, init)]));
         continue;
       }
 
@@ -93,6 +91,16 @@ export function declareProps(setup: NodePath<t.Function>, context: PropsContext)
   }
 
   addComponentOptions(setup.parentPath as NodePath<t.CallExpression>, names, context.filename);
+}
+
+function destructuresChildren(pattern: t.ObjectPattern) {
+  return pattern.properties.some(
+    (property) =>
+      t.isObjectProperty(property) &&
+      !property.computed &&
+      (t.isIdentifier(property.key, { name: 'children' }) ||
+        t.isStringLiteral(property.key, { value: 'children' })),
+  );
 }
 
 /** 读取一项 props 解构：键名（驼峰）、本地变量名、默认值，以及是否 _bindable */

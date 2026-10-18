@@ -5,7 +5,8 @@ import { types as t, type NodePath } from '@babel/core';
 const RUNTIME_MODULE = '@vue-tsx-pro/tsx';
 
 type VueHelper = 'ref' | 'shallowRef' | 'reactive' | 'computed' | 'unref';
-type RuntimeHelper = 'prop' | 'bindable' | 'overridable' | 'snapshot' | 'effect' | 'effectRoot';
+type RuntimeHelper =
+  'prop' | 'bindable' | 'restProps' | 'overridable' | 'snapshot' | 'effect' | 'effectRoot';
 
 export class RuntimeImports {
   /** `模块:名称` → 导入项 */

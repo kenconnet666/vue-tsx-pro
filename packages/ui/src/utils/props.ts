@@ -34,6 +34,17 @@ export type AsProps<
   Managed extends string = never,
 > = PartProps<Tags, Managed> & { as?: Tags };
 
+/**
+ * 展开收起类组件（Collapsible、Popover、以后的菜单）交给触发器的属性：展开到任意可聚焦元素上，
+ * 形如 `trigger={(props) => <Button {...props}>更多</Button>}`。弹层另外加上 id、ref、aria-haspopup。
+ */
+export interface TriggerProps {
+  onClick: () => void;
+  'aria-expanded': boolean;
+  /** 被控制的内容区的 id */
+  'aria-controls': string;
+}
+
 type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => unknown;
 type RefSetter = ((element: unknown) => void) | Ref<unknown>;
@@ -79,16 +90,19 @@ export function mergeProps<Target = Props>(
   return merged as PropsLayer<Target>;
 }
 
-/** 原生元素部件：把 sx 换成 StyleX 生成的 class 与 style，再与已有的 class、style 合并 */
-export function elementProps<P extends object>(props: P): Omit<P, 'sx'> {
-  const { sx, ...rest } = props as P & Props;
-  if (sx == null) return rest as Omit<P, 'sx'>;
+/**
+ * 原生元素部件：把 sx 换成 StyleX 生成的 class 与 style，再与已有的 class、style 合并。
+ * 去掉 children：它是内容不是元素属性（组件的 ...rest 里带着它，转交给子组件时要用）。
+ */
+export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'children'> {
+  const { sx, children: _children, ...rest } = props as P & Props;
+  if (sx == null) return rest as Omit<P, 'sx' | 'children'>;
   const compiled = stylex.attrs(sx as StyleXStyles);
   return {
     ...rest,
     class: present([rest.class, compiled.class]),
     style: present([compiled.style, rest.style]),
-  } as Omit<P, 'sx'>;
+  } as Omit<P, 'sx' | 'children'>;
 }
 
 /**

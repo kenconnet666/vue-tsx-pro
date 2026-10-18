@@ -67,6 +67,37 @@ function withChildren(props: object, ctx: SetupContext, instance: ComponentInter
 }
 
 /**
+ * 参数解构里的 ...rest（编译器生成）：没有声明为 prop 的属性（Vue 的 attrs），再加上 children。
+ * TypeScript 推出的 rest 类型含 children，运行时也要有：`<Collapse {...rest} />` 才能把内容转交下去。
+ * children 读取时才执行插槽；没有内容时不出现在键里。展开到原生元素前由 ui 的 elementProps 去掉。
+ * 已经单独解构出 children 时（withChildren = false）rest 里没有它，上层转交下来的 children 属性也去掉。
+ */
+export function restProps(
+  props: { children?: unknown },
+  ctx: SetupContext,
+  withChildren = true,
+): object {
+  const hasChildren = () => withChildren && (ctx.slots.default != null || 'children' in ctx.attrs);
+  return new Proxy(ctx.attrs, {
+    get: (target, key, receiver) => {
+      if (key !== 'children') return Reflect.get(target, key, receiver);
+      return withChildren ? props.children : undefined;
+    },
+    has: (target, key) => (key === 'children' ? hasChildren() : Reflect.has(target, key)),
+    ownKeys: (target) => {
+      const keys = Reflect.ownKeys(target).filter((key) => key !== 'children');
+      return hasChildren() ? [...keys, 'children'] : keys;
+    },
+    getOwnPropertyDescriptor: (target, key) => {
+      if (key !== 'children') return Reflect.getOwnPropertyDescriptor(target, key);
+      return hasChildren()
+        ? { value: props.children, enumerable: true, configurable: true, writable: false }
+        : undefined;
+    },
+  });
+}
+
+/**
  * JSX 子节点被编译成默认插槽，这里还原成 children prop：
  *   - 带参数的函数子节点（<List>{(item) => …}</List>）是渲染函数，原样交给组件按需调用
  *   - 其余内容在读取时才执行插槽：读取发生在子组件的渲染函数里，内容是惰性的，依赖也归属子组件

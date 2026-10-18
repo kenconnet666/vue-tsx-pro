@@ -12,6 +12,7 @@ import type { Plugin } from 'vite';
 import stylex from '@stylexjs/unplugin';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import { compileRunes } from '../compiler/index.ts';
+import { compilerCacheKey } from './cache-key.ts';
 import { stylexModuleResolution } from './stylex-resolution.ts';
 import { themeTokens } from './tokens.ts';
 
@@ -59,11 +60,22 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   return plugins;
 }
 
+/** Vitest 的插件钩子：只用到其中注册缓存键的部分，不依赖 vitest 的类型 */
+interface VitestHooks {
+  configureVitest?: (context: {
+    defineCacheKeyGenerator?: (generator: () => string) => void;
+  }) => void;
+}
+
 /** 符文与 props 编译 */
-function runes(): Plugin {
+function runes(): Plugin & VitestHooks {
   return {
     name: 'vue-tsx-pro:runes',
     enforce: 'pre',
+    // 编译器变了，Vitest 缓存的旧编译结果要作废（见 cache-key.ts）
+    configureVitest({ defineCacheKeyGenerator }) {
+      defineCacheKeyGenerator?.(compilerCacheKey);
+    },
     async transform(code, id) {
       const file = id.split('?')[0]!;
       if (!/\.[cm]?[jt]sx?$/.test(file) || file.includes('/node_modules/')) return;
