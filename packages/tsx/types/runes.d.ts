@@ -45,6 +45,19 @@ declare global {
     function by<T>(fn: () => T): T;
   }
 
+  /**
+   * 副作用（同 Svelte 的 $effect）：挂载后、每次 DOM 更新后执行，读到的响应式变量自动成为依赖。
+   * 返回的函数在下次执行前、销毁时调用。只用于副作用（DOM、订阅、日志）；派生值请用 _derived。
+   * 只想监听指定的值时用 Vue 的 watch(() => x, cb)。
+   */
+  function _effect(fn: () => void | (() => void)): void;
+  namespace _effect {
+    /** DOM 更新前执行，例如自动滚动前先测量 */
+    function pre(fn: () => void | (() => void)): void;
+    /** 不随组件销毁的副作用作用域，返回清理函数；里面可以创建 _effect */
+    function root(fn: () => void | (() => void)): () => void;
+  }
+
   /** 组件参数默认值：可双向绑定的 prop，父级写 属性={_bind(x)}；不绑定时就是组件自己的状态 */
   function _bindable<T>(fallback?: T): T;
 

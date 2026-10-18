@@ -27,6 +27,13 @@ const cases: [string, string, RegExp][] = [
     /监听源请写成 getter/,
   ],
   ['_state.snapshot 多个参数', 'let a = _state({}); _state.snapshot(a, a)', /只接受一个参数/],
+  ['_effect 当作值使用', 'const stop = _effect(() => {})', /没有返回值，请单独写成一条语句/],
+  [
+    '渲染函数里写 _effect',
+    '_component(() => () => { _effect(() => {}); return null })',
+    /_effect 写在渲染函数里/,
+  ],
+  ['_effect 多个参数', '_effect(() => {}, 1)', /只接受一个参数/],
   ['_state 解构声明', 'let { a } = _state({ a: 1 })', /不能解构声明/],
   ['符文当作值传递', 'const make = _state', /只能按约定的位置直接调用/],
   ['_toRef 参数不是响应式变量', 'const r = _toRef(1)', /_toRef\(x\) 的参数必须是/],
@@ -175,6 +182,19 @@ describe('误用在编译期报错', () => {
       'let form = _state({ a: 1 }); const copy = _state.snapshot(form)',
     ))!.code;
     expect(out).toContain('const copy = _vtp_snapshot(form.value)');
+  });
+
+  it('_effect / _effect.pre / _effect.root 编译为运行时函数，里面的读取改写为 .value', async () => {
+    const code = [
+      'let n = _state(0);',
+      '_effect(() => console.log(n));',
+      '_effect.pre(() => console.log(n));',
+      'const stop = _effect.root(() => {});',
+    ].join('\n');
+    const out = (await compileRunes(code))!.code;
+    expect(out).toContain('_vtp_effect(() => console.log(n.value));');
+    expect(out).toContain('_vtp_effect(() => console.log(n.value), "pre");');
+    expect(out).toContain('const stop = _vtp_effectRoot(() => {});');
   });
 
   it('被本地变量遮蔽的同名函数不当作符文', async () => {

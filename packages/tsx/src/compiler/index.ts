@@ -20,7 +20,7 @@ import { RunesTransform } from './transform.ts';
 export type { RunesError, RunesWarning } from './errors.ts';
 
 /** 用到符文，或定义了 _component（需要编译 props 解构）的文件才需要编译；宿主项目的其他文件原样放过 */
-const NEEDS_COMPILE = /\b_(?:state|derived|bindable|bind|fromRef|toRef)\b|\b_component\s*\(/;
+const NEEDS_COMPILE = /\b_(?:state|derived|bindable|bind|effect|fromRef|toRef)\b|\b_component\s*\(/;
 
 export async function compileRunes(code: string, filename = 'input.tsx') {
   if (!NEEDS_COMPILE.test(code)) return null;

@@ -1,7 +1,7 @@
 // 冒烟测试：符文经 Vite 预设编译后，在 Vue 中的运行时语义
 import { describe, it, expect } from 'vitest';
 import { createApp, nextTick, ref } from 'vue';
-import { _component } from '../src';
+import { _component, effect } from '../src';
 import { Counter, log } from './fixtures/Counter';
 import { Switch } from './fixtures/Switch';
 
@@ -102,5 +102,101 @@ describe('符文', () => {
     expect(copy).toEqual({ tags: ['a'], at: new Date(0) });
     expect(form!.tags).toEqual(['a', 'b']);
     expect(structuredClone(copy)).toEqual(copy); // 不是代理，可以交给 structuredClone
+  });
+});
+
+describe('_effect（同 Svelte 的 $effect）', () => {
+  function mountApp(root: Parameters<typeof createApp>[0]) {
+    const el = document.createElement('div');
+    const app = createApp(root);
+    app.mount(el);
+    return { el, app };
+  }
+
+  it('挂载后执行，读到的变量变化时重跑；清理函数在重跑前与卸载时调用', async () => {
+    const log: string[] = [];
+    let bump = () => {};
+    const { app } = mountApp(
+      _component(() => {
+        let count = _state(0);
+        let box = _state.raw<HTMLElement | null>(null);
+        bump = () => count++;
+        _effect(() => {
+          log.push(`run ${count} ${box?.textContent}`);
+          return () => log.push(`cleanup ${count}`);
+        });
+        return () => <b ref={_toRef(box)}>{count}</b>;
+      }),
+    );
+    await nextTick();
+    expect(log).toEqual(['run 0 0']); // 挂载后执行：元素已经在 DOM 里
+
+    bump();
+    await nextTick();
+    expect(log).toEqual(['run 0 0', 'cleanup 1', 'run 1 1']); // DOM 更新后执行
+
+    app.unmount();
+    expect(log.at(-1)).toBe('cleanup 1');
+  });
+
+  it('_effect.pre 在 DOM 更新前执行', async () => {
+    const seen: string[] = [];
+    let bump = () => {};
+    mountApp(
+      _component(() => {
+        let count = _state(0);
+        let box = _state.raw<HTMLElement | null>(null);
+        bump = () => count++;
+        _effect.pre(() => {
+          seen.push(`${count}/${box?.textContent ?? '-'}`);
+        });
+        return () => <b ref={_toRef(box)}>{count}</b>;
+      }),
+    );
+    bump();
+    await nextTick();
+    expect(seen).toEqual(['0/-', '1/0']); // 新值已经可读，DOM 还是旧的
+  });
+
+  it('嵌套的 _effect 随外层重跑一起销毁', async () => {
+    const log: string[] = [];
+    let bump = () => {};
+    mountApp(
+      _component(() => {
+        let outer = _state(0);
+        bump = () => outer++;
+        _effect(() => {
+          const round = outer;
+          _effect(() => () => log.push(`inner ${round} destroyed`));
+        });
+        return () => null;
+      }),
+    );
+    await nextTick();
+    bump();
+    await nextTick();
+    expect(log).toEqual(['inner 0 destroyed']);
+  });
+
+  it('_effect.root 不随组件销毁，返回的函数手动清理', async () => {
+    const log: string[] = [];
+    let count = _state(0);
+    const stop = _effect.root(() => {
+      _effect(() => {
+        log.push(`run ${count}`);
+      });
+      return () => log.push('root cleanup');
+    });
+    await nextTick();
+    count++;
+    await nextTick();
+    stop();
+    count++;
+    await nextTick();
+    expect(log).toEqual(['run 0', 'run 1', 'root cleanup']);
+  });
+
+  it('不在任何作用域里创建时报错，提示改用 _effect.root', () => {
+    expect(() => effect(() => {})).toThrow(/_effect\.root/);
   });
 });

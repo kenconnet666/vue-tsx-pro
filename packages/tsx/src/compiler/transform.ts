@@ -41,7 +41,7 @@ export class RunesTransform {
     this.program.scope.crawl(); //   改写后重建作用域
     this.resolveBindings(); //    2. 声明节点 → 作用域里的绑定
     this.rewriteAccesses(); //    3. 读写 → .value
-    this.rewriteCalls(); //       4. _bind(x) → v-model，_state.snapshot(x) → snapshot()
+    this.rewriteCalls(); //       4. _bind → v-model，_state.snapshot / _effect → 运行时函数
     this.reportMisuse(); //       5. 残留的符文都是误用
     this.imports.insert();
   }
@@ -63,9 +63,12 @@ export class RunesTransform {
         const rune = runeOf(path);
         switch (rune) {
           case null:
-          case '_toRef': // 这三个不是声明，在第 3、4 步随引用一起处理
+          case '_toRef': // 这些不是声明，在第 3、4 步随引用一起处理
           case '_bind':
           case '_state.snapshot':
+          case '_effect':
+          case '_effect.pre':
+          case '_effect.root':
             return;
           case '_bindable':
             throw fail(
@@ -82,7 +85,7 @@ export class RunesTransform {
   /** let x = _state(0) 之类：把调用换成 Vue API，并记下声明 */
   private declareState(
     path: NodePath<t.CallExpression>,
-    rune: Exclude<Rune, '_bindable' | '_bind' | '_toRef' | '_state.snapshot'>,
+    rune: '_state' | '_state.raw' | '_derived' | '_derived.by' | '_fromRef',
   ) {
     const declarator = path.parentPath;
     if (!declarator.isVariableDeclarator() || declarator.node.init !== path.node) {
@@ -292,7 +295,7 @@ export class RunesTransform {
     replaceWithValue(reference);
   }
 
-  // ───────────────────────── 4. 双向绑定与快照 ─────────────────────────
+  // ───────────────────────── 4. 其余符文调用 ─────────────────────────
 
   private rewriteCalls() {
     this.program.traverse({
@@ -300,12 +303,39 @@ export class RunesTransform {
         const rune = runeOf(path);
         if (rune === '_bind') rewriteBind(path);
         if (rune === '_state.snapshot') {
-          if (path.node.arguments.length !== 1)
-            throw fail(path, '_state.snapshot() 只接受一个参数');
-          path.replaceWith(this.imports.runtime('snapshot', path.node.arguments as t.Expression[]));
+          path.replaceWith(this.imports.runtime('snapshot', [singleArgument(path, rune)]));
+        }
+        if (rune === '_effect' || rune === '_effect.pre' || rune === '_effect.root') {
+          this.rewriteEffect(path, rune);
         }
       },
     });
+  }
+
+  /**
+   * _effect(fn) → effect(fn)，_effect.pre(fn) → effect(fn, 'pre')，_effect.root(fn) → effectRoot(fn)。
+   * 读写已在第 3 步改成 .value，effect 里读到的响应式变量自然成为依赖。
+   */
+  private rewriteEffect(
+    path: NodePath<t.CallExpression>,
+    rune: '_effect' | '_effect.pre' | '_effect.root',
+  ) {
+    const fn = singleArgument(path, rune);
+    if (isInsideRender(path)) {
+      throw fail(
+        path,
+        `${rune} 写在渲染函数里，每次重新渲染都会重新创建；请移到组件函数体中 return 之前`,
+      );
+    }
+    if (rune === '_effect.root') {
+      path.replaceWith(this.imports.runtime('effectRoot', [fn]));
+      return;
+    }
+    if (!path.parentPath.isExpressionStatement()) {
+      throw fail(path, `${rune}() 没有返回值，请单独写成一条语句`);
+    }
+    const args = rune === '_effect.pre' ? [fn, t.stringLiteral('pre')] : [fn];
+    path.replaceWith(this.imports.runtime('effect', args));
   }
 
   // ───────────────────────── 5. 误用检查 ─────────────────────────
@@ -333,6 +363,13 @@ export class RunesTransform {
       },
     });
   }
+}
+
+/** _state.snapshot(x)、_effect(fn) 这类只接受一个参数的符文 */
+function singleArgument(path: NodePath<t.CallExpression>, rune: Rune) {
+  const args = path.node.arguments;
+  if (args.length !== 1 || !t.isExpression(args[0])) throw fail(path, rune + '() 只接受一个参数');
+  return args[0];
 }
 
 function requireIdentifier(declarator: NodePath<t.VariableDeclarator>, rune: Rune) {

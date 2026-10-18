@@ -8,6 +8,9 @@ export type Rune =
   | '_state.snapshot'
   | '_derived'
   | '_derived.by'
+  | '_effect'
+  | '_effect.pre'
+  | '_effect.root'
   | '_bindable'
   | '_bind'
   | '_fromRef'
@@ -17,10 +20,20 @@ export type Rune =
 export const RUNE_GLOBALS = new Set([
   '_state',
   '_derived',
+  '_effect',
   '_bindable',
   '_bind',
   '_fromRef',
   '_toRef',
+]);
+
+/** 带成员的符文 */
+const MEMBER_RUNES = new Set<Rune>([
+  '_state.raw',
+  '_state.snapshot',
+  '_derived.by',
+  '_effect.pre',
+  '_effect.root',
 ]);
 
 /** _bind 的修饰符，与 Vue v-model 的修饰符一致，只用于原生输入元素 */
@@ -38,12 +51,9 @@ export function runeOf(path: NodePath<t.CallExpression>): Rune | null {
     if (unknown) throw fail(path, `不支持 _bind.${unknown}，可用的修饰符只有 trim、number、lazy`);
     return '_bind';
   }
-  const name = `${owner}.${members.join('.')}`;
-  if (name === '_state.raw' || name === '_state.snapshot' || name === '_derived.by') return name;
-  throw fail(
-    path,
-    `不支持 ${name}，可用的只有 _state.raw、_state.snapshot、_derived.by 与 _bind 的修饰符`,
-  );
+  const name = `${owner}.${members.join('.')}` as Rune;
+  if (MEMBER_RUNES.has(name)) return name;
+  throw fail(path, `不支持 ${name}，可用的只有 ${[...MEMBER_RUNES].join('、')} 与 _bind 的修饰符`);
 }
 
 /** a.b.c → ['a', 'b', 'c']；不是纯标识符链时返回 null */
