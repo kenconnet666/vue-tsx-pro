@@ -67,7 +67,8 @@ it('vue-router、pinia：按需导入可以解析', async () => {
     import('vue-router'),
     import('pinia'),
   ]);
-  expect(createRouter({ history: createMemoryHistory(), routes: [] }).push).toBeTypeOf('function');
+  const router = createRouter({ history: createMemoryHistory(), routes: [] });
+  expect(typeof router.push).toBe('function');
   expect(typeof createPinia().install).toBe('function');
   expect(defineStore).toBeTypeOf('function');
 });
