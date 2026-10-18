@@ -80,7 +80,7 @@ export const Icon = _component(
                   strokeWidth,
                 },
                 viewBox: viewBox(icon),
-                fill: 'n',
+                fill: 'none',
                 stroke: 'currentColor',
                 'stroke-linecap': 'round',
                 'stroke-linejoin': 'round',

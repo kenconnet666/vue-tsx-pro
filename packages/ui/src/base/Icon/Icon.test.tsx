@@ -52,6 +52,12 @@ describe('Icon', () => {
     expect(svg.style.strokeWidth).toBe('1.5');
   });
 
+  it('Lucide 图标是线框：不填充，描边跟随文字颜色', () => {
+    const svg = render(() => <Icon icon={Check} />);
+    expect(svg.getAttribute('fill')).toBe('none');
+    expect(svg.getAttribute('stroke')).toBe('currentColor');
+  });
+
   it('尺寸档位与 flipInRtl 各自追加样式', () => {
     const classes = (svg: SVGElement) => svg.getAttribute('class')!.split(' ').length;
     const plain = classes(render(() => <Icon icon={Check} />));
