@@ -2,7 +2,7 @@
 
 日期：2026-10-18。适用于 `@vue-tsx-pro/ui`。写法基础见 `RUNES.md`，工程规划见 `PLAN.md`。
 
-> 状态：规划稿，尚未实现。标“待验证”的条目要在试点组件中实测后再定。
+> 状态：基础设施已实现（§7）；正式组件尚未开始。§7.2 是试点的结论。
 
 ---
 
@@ -53,14 +53,14 @@
 
 组件内部给部件的属性与使用方传入的属性用同一个 `mergeProps(内部, 使用方)` 合并：
 
-| 属性                                                                                  | 规则                                                                                     |
-| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `sx`                                                                                  | 内部在前、使用方在后；StyleX 后者覆盖前者，按 CSS 属性逐个生效                           |
-| `class`                                                                               | 拼接。只给宿主留后门（例如宿主用 Tailwind）；组件内部只用 `sx`                           |
-| 事件 `onXxx`                                                                          | **使用方先执行**；使用方调用了 `event.preventDefault()` 就跳过内部处理，可以完全接管交互 |
-| `ref`                                                                                 | 内部与使用方都拿到元素                                                                   |
-| 状态类属性（`role`、`aria-expanded`、`aria-checked`、`aria-selected`、`tabindex` 等） | 以内部为准，并在类型上去掉，避免意外破坏无障碍语义                                       |
-| 静态属性（`id`、`aria-label`、`title`、`data-*` 等）                                  | 以使用方为准                                                                             |
+| 属性                                                                                  | 规则                                                                                                                         |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `sx`                                                                                  | 内部在前、使用方在后；StyleX 后者覆盖前者，按 CSS 属性逐个生效                                                               |
+| `class`                                                                               | 依次排列成数组交给 Vue 处理（可能是字符串、数组或对象）。只给宿主留后门（例如宿主用 Tailwind）；组件内部只用 `sx`            |
+| 事件 `onXxx`                                                                          | **使用方先执行**；使用方调用了 `event.preventDefault()` 就跳过内部处理，可以完全接管交互。组件不可用时先拿掉使用方的交互回调 |
+| `ref`                                                                                 | 内部与使用方都拿到元素                                                                                                       |
+| 状态类属性（`role`、`aria-expanded`、`aria-checked`、`aria-selected`、`tabindex` 等） | 以内部为准，并在类型上去掉，避免意外破坏无障碍语义                                                                           |
+| 静态属性（`id`、`aria-label`、`title`、`data-*` 等）                                  | 以使用方为准                                                                                                                 |
 
 ## 3. 尺寸：字号 + em
 
@@ -119,7 +119,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 | 动效 | 时长、缓动曲线                                                               |
 
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
-- 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量。**待验证**：StyleX 能否在运行时给 `defineVars` 的变量赋动态值，不能的话改为在 Provider 的容器元素上直接设置变量。
+- 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
 - 色板基础：候选 Radix Colors 的 12 阶色阶（明暗两套、对比度有设计保证），写入 tokens 时转成静态值。
@@ -187,7 +187,7 @@ interface Lang {
 | 阶段 | 位置             | 内容                                                                                   | 要扫清的障碍                                                                        |
 | ---- | ---------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | 1    | `packages/tsx`   | StyleX 类型入口 `@vue-tsx-pro/tsx/stylex` 与注释数据（§9）                             | `importSources` 能否识别新入口；注释覆盖层与原版类型一致                            |
-| 2    | `packages/ui`    | tokens（带注释）、`lightTheme` / `darkTheme`、`defineTheme`                            | StyleX 运行时能否给主题变量赋动态值（§6.2 待验证）                                  |
+| 2    | `packages/ui`    | tokens（带注释）、`lightTheme` / `darkTheme`、`defineTheme`                            | 运行时覆盖主题变量（已解决：容器上的行内 CSS 变量）                                 |
 | 3    | `packages/ui`    | `Provider`、`createUi`、`Lang`、`zhCN` / `enUS`、`defineLang`、`useLang` / `useFormat` | 嵌套合并、响应式切换、应用级与局部配置并存                                          |
 | 4    | `packages/ui`    | `mergeProps`、部件 props 类型                                                          | 事件先后与 `preventDefault`、类型上去掉受管属性                                     |
 | 5    | `apps/host-demo` | 试点 Icon、Button、TextField、Popover                                                  | em 尺寸、部件透传、主元素透传、输入法、原生 popover + floating-ui、弹层栈与焦点恢复 |
@@ -215,6 +215,14 @@ interface Lang {
 3. **组件库构建会把 `*.stylex.ts` 打包进 index.js**，使用方编译时 StyleX 不再认得：构建改为保留源码文件结构（`preserveModules`）。
 4. **禁用状态与“使用方事件先执行”冲突**：禁用的链接按钮（没有原生 disabled）仍会触发使用方回调。规则补充：组件不可用时先拿掉使用方的交互回调。
 5. `useLang()` 的转发对象展开为空：补齐 Proxy 的 `ownKeys` 等陷阱。
+
+**第二轮审查发现并修复的问题**：
+
+6. 弹出层打开时 `role="dialog"` 没有无障碍名称（axe 报 aria-dialog-name）：默认以触发器为名称（`aria-labelledby`），使用方可以用 `aria-label` 覆盖。浏览器测试补上打开状态下的 axe 检查。
+7. 弹出层先在默认位置闪一下：位置异步算好之前先隐藏；不可见的元素不能获得焦点，所以焦点在第一次定位之后才移入。
+8. `class` 合并原先拼接字符串，遇到对象或数组形式会得到 `[object Object]`：改为数组交给 Vue 处理。
+9. Button 把 `type` 当作受管属性，写不了 `type="submit"`：改为可覆盖的默认值。
+10. 注释数据里残留两处 zerodep-js 自身 API 的写法：改为 StyleX 写法。
 
 **规范要补充的地方**：
 

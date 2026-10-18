@@ -64,6 +64,7 @@ export const Popover = _component(
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
     let stopPositioning: (() => void) | undefined;
+    let focusAfterPositioning = false;
 
     function position() {
       if (!anchor || !panel) return;
@@ -71,14 +72,22 @@ export const Popover = _component(
         placement,
         strategy: 'fixed',
         middleware: [offset(6), flip(), shift({ padding: 8 })],
-      }).then(({ x, y }) => panel && Object.assign(panel.style, { left: `${x}px`, top: `${y}px` }));
+      }).then(({ x, y }) => {
+        if (!panel) return;
+        Object.assign(panel.style, { left: `${x}px`, top: `${y}px`, visibility: '' });
+        // 不可见的元素不能获得焦点，所以等第一次定位、显示出来之后再把焦点移进去
+        if (focusAfterPositioning) tabbable(panel)[0]?.focus();
+        focusAfterPositioning = false;
+      });
     }
 
     function show() {
       if (!anchor || !panel || panel.matches(':popover-open')) return;
+      // 位置是异步算出的，算好之前先不显示，避免在默认位置闪一下
+      panel.style.visibility = 'hidden';
+      focusAfterPositioning = true;
       panel.showPopover();
       stopPositioning = autoUpdate(anchor, panel, position);
-      tabbable(panel)[0]?.focus();
     }
 
     function hide() {
