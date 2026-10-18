@@ -20,7 +20,7 @@ import { onBeforeUnmount, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
 import { useRouterLink } from '../utils/link';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/ripple';
 import { focusRingStyles, listStyles } from '../utils/styles';
 
@@ -181,7 +181,7 @@ export const NavItem = _component(
           )}
           data-state={current ? 'active' : 'inactive'}
         >
-          {icon && <Icon {...(mergeProps<IconProps>({ icon }, propsIcon) as IconProps)} />}
+          {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
           <span {...elementProps(mergeProps<'span'>({ sx: styles.label }, propsLabel))}>
             {children}
           </span>
@@ -242,7 +242,7 @@ export const NavGroup = _component(
     return () => (
       <li {...elementProps(mergeProps<'li'>({}, rest))}>
         <Collapsible
-          {...(mergeProps<CollapsibleProps>(
+          {...mergePartProps<CollapsibleProps>(
             {
               trigger: (props) => (
                 <button
@@ -254,7 +254,7 @@ export const NavGroup = _component(
                     ),
                   )}
                 >
-                  {icon && <Icon {...(mergeProps<IconProps>({ icon }, propsIcon) as IconProps)} />}
+                  {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
                   <span {...elementProps(mergeProps<'span'>({ sx: styles.label }, propsLabel))}>
                     {label}
                   </span>
@@ -267,7 +267,7 @@ export const NavGroup = _component(
               ),
             },
             propsContent,
-          ) as CollapsibleProps)}
+          )}
           open={_bind(open)}
         >
           <ul

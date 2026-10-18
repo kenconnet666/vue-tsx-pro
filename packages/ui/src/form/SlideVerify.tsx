@@ -19,7 +19,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { startMove } from '../utils/move';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 
 /** 验证状态，由应用控制 */
@@ -328,10 +328,7 @@ export const SlideVerify = _component(
             )}
           >
             <Icon
-              {...(mergeProps<IconProps>(
-                { icon, flipInRtl: icon === ChevronsRight },
-                propsIcon,
-              ) as IconProps)}
+              {...mergePartProps<IconProps>({ icon, flipInRtl: icon === ChevronsRight }, propsIcon)}
             />
           </div>
           <VisuallyHidden aria-live="polite">{status === 'idle' ? '' : text}</VisuallyHidden>

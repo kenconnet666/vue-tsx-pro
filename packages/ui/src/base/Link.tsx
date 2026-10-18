@@ -12,7 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/link';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 import { toneStyles, type Tone } from '../utils/typography';
 import { Icon, type IconProps } from './Icon';
@@ -92,10 +92,7 @@ export const Link = _component(
         {external && (
           <>
             <Icon
-              {...(mergeProps<IconProps>(
-                { icon: ArrowUpRight, sx: styles.icon },
-                propsIcon,
-              ) as IconProps)}
+              {...mergePartProps<IconProps>({ icon: ArrowUpRight, sx: styles.icon }, propsIcon)}
             />
             <VisuallyHidden>{lang.linkNewWindow}</VisuallyHidden>
           </>

@@ -26,7 +26,7 @@ export interface RovingFocusOptions {
   orientation?: keyof RovingOrientations;
   /** 到两端后是否从另一端继续，默认 true */
   loop?: boolean;
-  /** Tab 进入时落在哪一项：默认是上次聚焦的项，其次是带 aria-selected / aria-current 的项，再其次是第一项 */
+  /** Tab 进入时落在哪一项：默认是上次聚焦的项，其次是选中或当前的项（aria-selected / pressed / checked / current），再其次是第一项 */
   initial?: (items: HTMLElement[]) => HTMLElement | undefined;
 }
 
@@ -34,8 +34,11 @@ export interface RovingFocusOptions {
 const isEnabled = (element: HTMLElement) =>
   !element.matches(':disabled, [aria-disabled="true"]') && !element.closest('[hidden], [inert]');
 
+/** 选中或当前的项：Tab 进入时优先落在它上面 */
 const isMarked = (element: HTMLElement) =>
   element.getAttribute('aria-selected') === 'true' ||
+  element.getAttribute('aria-pressed') === 'true' ||
+  element.getAttribute('aria-checked') === 'true' ||
   (element.hasAttribute('aria-current') && element.getAttribute('aria-current') !== 'false');
 
 /** 开始管理容器里各项的焦点，返回清理函数 */
@@ -102,7 +105,15 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ['disabled', 'aria-disabled', 'aria-selected', 'aria-current', 'hidden'],
+    attributeFilter: [
+      'disabled',
+      'aria-disabled',
+      'aria-selected',
+      'aria-pressed',
+      'aria-checked',
+      'aria-current',
+      'hidden',
+    ],
   });
   sync();
 

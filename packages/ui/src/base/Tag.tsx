@@ -8,7 +8,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
@@ -79,7 +79,7 @@ export const Tag = _component(
             ),
           )}
         >
-          {icon && <Icon {...(mergeProps<IconProps>({ icon }, propsIcon) as IconProps)} />}
+          {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
           {children}
           {onRemove && (
             <CloseButton

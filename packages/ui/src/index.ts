@@ -118,6 +118,13 @@ export {
 // 表单
 export { Slider, type SliderOrientations, type SliderProps } from './form/Slider';
 export {
+  ToggleGroup,
+  ToggleItem,
+  type ToggleGroupOrientations,
+  type ToggleGroupProps,
+  type ToggleItemProps,
+} from './form/ToggleGroup';
+export {
   SlideVerify,
   type SlideVerifyPoint,
   type SlideVerifyProps,
@@ -154,7 +161,13 @@ export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
 
 // 部件 props、弹层、动画与虚拟滚动工具
-export { elementProps, mergeProps, type PartProps, type TriggerProps } from './utils/props';
+export {
+  elementProps,
+  mergePartProps,
+  mergeProps,
+  type PartProps,
+  type TriggerProps,
+} from './utils/props';
 export {
   columnGapStyles,
   focusRingStyles,
@@ -204,6 +217,7 @@ export {
   type RovingOrientations,
 } from './utils/roving-focus';
 export { plainText } from './utils/text';
+export { toggleSelection, type SelectionModes, type SelectionOptions } from './utils/selection';
 export {
   statusToneSx,
   type StatusTone,

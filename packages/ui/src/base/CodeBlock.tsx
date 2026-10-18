@@ -15,7 +15,7 @@ import { onBeforeUnmount } from 'vue';
 import { useConfig, useLang } from '../config/context';
 import { IconButton, type IconButtonProps } from './IconButton';
 import { VisuallyHidden } from './VisuallyHidden';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 
 /** 未声明的属性落到 pre 上 */
@@ -140,15 +140,18 @@ export const CodeBlock = _component(
           {copyable && (
             <>
               <IconButton
-                {...(mergeProps<IconButtonProps>(
-                  { sx: styles.copy, size: 'sm', variant: 'ghost', tone: 'neutral' },
-                  propsCopy,
+                {...mergePartProps<IconButtonProps>(
                   {
-                    icon: copied ? Check : Copy,
+                    sx: styles.copy,
+                    size: 'sm',
+                    variant: 'ghost',
+                    tone: 'neutral',
                     'aria-label': text.copy,
-                    onClick: () => void copy(),
+                    icon: copied ? Check : Copy,
                   },
-                ) as IconButtonProps)}
+                  propsCopy,
+                  { onClick: () => void copy() },
+                )}
               />
               <VisuallyHidden aria-live="polite">{copied ? text.copied : ''}</VisuallyHidden>
             </>

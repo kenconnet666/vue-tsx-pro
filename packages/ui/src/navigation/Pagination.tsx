@@ -14,7 +14,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';
 import { paginationItems } from '../utils/pagination';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { listStyles } from '../utils/styles';
 import type { TextSize } from '../utils/typography';
 
@@ -114,24 +114,20 @@ export const Pagination = _component(
       );
       return href ? (
         <LinkButton
-          {...(mergeProps<LinkButtonProps>(
+          {...mergePartProps<LinkButtonProps>(
             shared as LinkButtonProps,
             {},
             {
               href: href(target),
               onClick: () => go(target),
             },
-          ) as LinkButtonProps)}
+          )}
         >
           {target}
         </LinkButton>
       ) : (
         <Button
-          {...(mergeProps<ButtonProps>(
-            shared as ButtonProps,
-            {},
-            { onClick: () => go(target) },
-          ) as ButtonProps)}
+          {...mergePartProps<ButtonProps>(shared as ButtonProps, {}, { onClick: () => go(target) })}
         >
           {target}
         </Button>
@@ -144,7 +140,7 @@ export const Pagination = _component(
       const disabled = target < 1 || target > count;
       return (
         <IconButton
-          {...(mergeProps<IconButtonProps>(
+          {...mergePartProps<IconButtonProps>(
             {
               size,
               variant: 'ghost',
@@ -155,7 +151,7 @@ export const Pagination = _component(
             },
             propsStep,
             { disabled, onClick: () => go(target) },
-          ) as IconButtonProps)}
+          )}
         />
       );
     }

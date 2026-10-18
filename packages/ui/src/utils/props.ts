@@ -84,6 +84,24 @@ export function mergeProps<Target = Props>(
 }
 
 /**
+ * 子组件部件的合并：mergeProps 的规则，但默认层要写齐子组件的必填 props（如 Icon 的 icon），
+ * 返回完整的 props 类型，展开到子组件上不必再断言：
+ *   <Icon {...mergePartProps<IconProps>({ icon: X, sx: styles.icon }, propsIcon)} />
+ */
+export function mergePartProps<P extends object>(
+  defaults: P,
+  user?: Partial<P>,
+  managed?: Partial<P>,
+): P {
+  // P 是组件 props 类型，不是标签名：按对象合并，结果的类型就是 P
+  return mergeProps(
+    defaults as Props,
+    user as Props | undefined,
+    managed as Props | undefined,
+  ) as P;
+}
+
+/**
  * 原生元素部件：把 sx 换成 StyleX 生成的 class 与 style，再与已有的 class、style 合并。
  * 去掉 children：它是内容不是元素属性（组件的 ...rest 里带着它，转交给子组件时要用）。
  */

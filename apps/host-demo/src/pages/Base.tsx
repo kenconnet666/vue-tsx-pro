@@ -8,6 +8,8 @@ import {
   Download,
   House,
   LayoutGrid,
+  List,
+  Underline,
   FlaskConical,
   UserRound,
   Italic,
@@ -65,6 +67,8 @@ import {
   Small,
   Strong,
   Text,
+  ToggleGroup,
+  ToggleItem,
   Toolbar,
   themeTransition,
   VirtualList,
@@ -193,6 +197,8 @@ export const Base = _component(() => {
   let orderTab = _state('all');
   let step = _state(1);
   let page = _state(3);
+  let view = _state<string | undefined>('list');
+  let marks = _state<string[]>(['bold']);
 
   function save() {
     saving = true;
@@ -574,6 +580,29 @@ export const Base = _component(() => {
               propsRoot={{ class: 'slider-root', sx: styles.slider }}
             />
             <Text class="slider-value">{volume}%</Text>
+          </Flex>
+        </Section>
+
+        <Section title="切换按钮组 ToggleGroup">
+          <Flex gap="md" align="center" wrap>
+            <ToggleGroup class="toggle-single" value={_bind(view)} required aria-label="视图">
+              <ToggleItem value="list" icon={List}>
+                列表
+              </ToggleItem>
+              <ToggleItem value="grid" icon={LayoutGrid}>
+                网格
+              </ToggleItem>
+            </ToggleGroup>
+            <ToggleGroup
+              class="toggle-multiple"
+              type="multiple"
+              value={_bind(marks)}
+              aria-label="格式"
+            >
+              <ToggleItem value="bold" icon={Bold} aria-label="加粗" />
+              <ToggleItem value="italic" icon={Italic} aria-label="斜体" />
+              <ToggleItem value="underline" icon={Underline} aria-label="下划线" />
+            </ToggleGroup>
           </Flex>
         </Section>
 

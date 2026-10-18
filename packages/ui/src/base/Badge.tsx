@@ -7,7 +7,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { badgeSx, type BadgeOptions } from './badge-styles';
 import { Icon, type IconData, type IconProps } from './Icon';
 
@@ -40,7 +40,7 @@ export const Badge = _component(
           ),
         )}
       >
-        {icon && <Icon {...(mergeProps<IconProps>({ icon }, propsIcon) as IconProps)} />}
+        {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
         {children}
       </span>
     );

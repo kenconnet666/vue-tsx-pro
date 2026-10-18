@@ -14,7 +14,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Icon, type IconData } from '../base/Icon';
 import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { listStyles } from '../utils/styles';
 
 /** 一级路径 */
@@ -106,7 +106,7 @@ export const Breadcrumbs = _component(
                 return (
                   <li key="collapsed" {...stylex.attrs(styles.item)}>
                     <IconButton
-                      {...(mergeProps<IconButtonProps>(
+                      {...mergePartProps<IconButtonProps>(
                         {
                           sx: styles.expand,
                           size: 'sm',
@@ -115,7 +115,7 @@ export const Breadcrumbs = _component(
                         },
                         propsExpand,
                         { onClick: () => (expanded = true) },
-                      ) as IconButtonProps)}
+                      )}
                     />
                     {sep()}
                   </li>
@@ -143,10 +143,10 @@ export const Breadcrumbs = _component(
                     </span>
                   ) : entry.href != null ? (
                     <Link
-                      {...(mergeProps<LinkProps>(
+                      {...mergePartProps<LinkProps>(
                         { tone: 'muted', underline: 'hover', href: entry.href },
                         propsLink,
-                      ) as LinkProps)}
+                      )}
                     >
                       {label}
                     </Link>

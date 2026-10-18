@@ -7,7 +7,7 @@
 import { LoaderCircle } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/typography';
 import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -43,10 +43,7 @@ export const Spinner = _component(({ label, size, propsIcon, ...rest }: SpinnerP
     )}
   >
     <Icon
-      {...(mergeProps<IconProps>(
-        { icon: LoaderCircle, size, sx: styles.icon },
-        propsIcon,
-      ) as IconProps)}
+      {...mergePartProps<IconProps>({ icon: LoaderCircle, size, sx: styles.icon }, propsIcon)}
     />
     {label && <VisuallyHidden>{label}</VisuallyHidden>}
   </span>

@@ -13,7 +13,7 @@ import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusToneSx, type StatusTone } from '../utils/tone-styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
@@ -139,12 +139,7 @@ export const Alert = _component(
           data-tone={tone}
         >
           {shownIcon && (
-            <Icon
-              {...(mergeProps<IconProps>(
-                { icon: shownIcon, sx: styles.icon },
-                propsIcon,
-              ) as IconProps)}
-            />
+            <Icon {...mergePartProps<IconProps>({ icon: shownIcon, sx: styles.icon }, propsIcon)} />
           )}
           <div {...elementProps(mergeProps<'div'>({ sx: styles.body }, propsBody))}>
             {title != null && (
