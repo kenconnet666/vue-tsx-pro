@@ -1,6 +1,6 @@
 // 基础组件演示页在真实浏览器里的行为与无障碍检查；每加一批组件就在这里补对应的检查
 import axe from 'axe-core';
-import { themeTransition } from '@vue-tsx-pro/ui';
+import { afterTransitions, themeTransition } from '@vue-tsx-pro/ui';
 import { durations } from '@vue-tsx-pro/ui/tokens.stylex';
 import { animate, cubicBezier } from 'animejs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -27,6 +27,7 @@ afterEach(() => {
 
 const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
   root.querySelector<T>(selector)!;
+const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
 
 it('VisuallyHidden：视觉上不占位，读屏名称仍然在', () => {
   const button = $('.icon-only');
@@ -75,5 +76,43 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     const target = { x: 0 };
     await animate(target, { x: 100, ...options });
     expect(target.x).toBe(100);
+  });
+});
+
+describe('折叠：Collapsible 与 Collapse', () => {
+  const content = () => $('.details');
+  const height = () => content().getBoundingClientRect().height;
+  /** 收起后的隐藏方式：支持 until-found 的浏览器用它（可被页内搜索找到），否则用 inert */
+  const hiddenWay = () =>
+    'onbeforematch' in HTMLElement.prototype
+      ? content().getAttribute('hidden')
+      : content().hasAttribute('inert') && 'inert';
+
+  it('点击触发器展开，高度有过渡；再点收起，过渡结束后才隐藏内容', async () => {
+    const trigger = $('.details-trigger');
+    expect(trigger.getAttribute('aria-controls')).toBe(content().id);
+    expect(height()).toBe(0);
+    expect(hiddenWay()).toBe('onbeforematch' in HTMLElement.prototype ? 'until-found' : 'inert');
+
+    trigger.click();
+    await nextFrame();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(content().getAnimations().length).toBeGreaterThan(0);
+    await afterTransitions(content());
+    expect(height()).toBeGreaterThan(0);
+    expect(content().hasAttribute('hidden') || content().hasAttribute('inert')).toBe(false);
+
+    trigger.click();
+    await nextFrame();
+    // 收起的过程中内容仍然可见，过渡结束后才隐藏
+    expect(content().hasAttribute('hidden') || content().hasAttribute('inert')).toBe(false);
+    await afterTransitions(content());
+    await expect.poll(() => height()).toBe(0);
+    await expect.poll(hiddenWay).toBeTruthy();
+  });
+
+  it('页内搜索命中收起的内容（beforematch）时展开并写回', async () => {
+    content().dispatchEvent(new Event('beforematch'));
+    await expect.poll(() => $('.details-trigger').getAttribute('aria-expanded')).toBe('true');
   });
 });

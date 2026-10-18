@@ -3,6 +3,7 @@ import { ArrowRight, Settings, Star } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  Collapsible,
   darkTheme,
   Icon,
   lightTheme,
@@ -33,6 +34,7 @@ const styles = stylex.create({
     backgroundColor: '_fill',
     color: '_text',
   },
+  paragraph: { margin: 0, paddingBlock: '_sm' },
   track: {
     // 小球的宽度加上移动的距离
     width: 'calc(_control + 120px)',
@@ -99,6 +101,22 @@ export const Base = _component(() => {
               <VisuallyHidden>设置</VisuallyHidden>
             </button>
           </div>
+        </Section>
+
+        <Section title="折叠 Collapsible">
+          <Collapsible
+            class="details"
+            trigger={(props) => (
+              <Button variant="outline" class="details-trigger" {...props}>
+                高级选项
+              </Button>
+            )}
+          >
+            <p {...stylex.attrs(styles.paragraph)}>
+              收起时内容带
+              hidden=&quot;until-found&quot;：用浏览器的页内搜索找“隐藏的关键词”会自动展开。
+            </p>
+          </Collapsible>
         </Section>
 
         <Section title="动效 Anime.js">

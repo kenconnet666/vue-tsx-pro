@@ -1,21 +1,10 @@
 import { Check } from '@lucide/icons';
-import { afterEach, describe, expect, it } from 'vitest';
-import { createApp, type App, type VNodeChild } from 'vue';
-import { _component } from '@vue-tsx-pro/tsx';
+import { describe, expect, it } from 'vitest';
+import type { VNodeChild } from 'vue';
+import { mount } from '../../../test/mount';
 import { Icon, type IconData } from './Icon';
 
-const apps: App[] = [];
-afterEach(() => {
-  while (apps.length) apps.pop()!.unmount();
-});
-
-function render(node: () => VNodeChild) {
-  const el = document.createElement('div');
-  const app = createApp(_component(() => node));
-  apps.push(app);
-  app.mount(el);
-  return el.querySelector('svg')!;
-}
+const render = (node: () => VNodeChild) => mount(node).querySelector('svg')!;
 
 const dot: IconData = { size: 16, node: [['circle', { cx: 8, cy: 8, r: 4, key: 'dot' }]] };
 

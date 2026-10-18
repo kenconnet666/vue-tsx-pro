@@ -8,18 +8,17 @@ import {
   mergeProps,
   returnFocus,
   toElement,
+  transitions,
   type PartProps,
+  type TriggerProps,
 } from '@vue-tsx-pro/ui';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 
-/** 交给触发器的属性：展开到任意可聚焦元素上 */
-export interface TriggerProps {
+/** 交给触发器的属性：在展开收起的通用属性上，加上弹层需要的 id、ref 与 aria-haspopup */
+export interface PopoverTriggerProps extends TriggerProps {
   /** 弹出层默认以触发器的文字作为无障碍名称（aria-labelledby） */
   id: string;
   ref: (element: unknown) => void;
-  onClick: () => void;
-  'aria-expanded': boolean;
-  'aria-controls': string;
   'aria-haspopup': 'dialog';
 }
 
@@ -28,9 +27,19 @@ export interface PopoverProps extends PartProps<'div', 'id' | 'popover' | 'role'
   open?: boolean;
   placement?: Placement;
   /** 触发器：`(props) => <Button {...props}>更多</Button>` */
-  trigger: (props: TriggerProps) => VNodeChild;
+  trigger: (props: PopoverTriggerProps) => VNodeChild;
   children?: VNodeChild;
 }
+
+type Side = 'top' | 'right' | 'bottom' | 'left';
+
+/** 进出场缩放的原点：朝触发器那一侧（弹出在下方时从上边缘展开） */
+const TRANSFORM_ORIGIN: Record<Side, string> = {
+  top: 'bottom',
+  right: 'left',
+  bottom: 'top',
+  left: 'right',
+};
 
 const styles = stylex.create({
   panel: {
@@ -71,9 +80,14 @@ export const Popover = _component(
         placement,
         strategy: 'fixed',
         middleware: [offset(6), flip(), shift({ padding: 8 })],
-      }).then(({ x, y }) => {
+      }).then(({ x, y, placement: final }) => {
         if (!panel) return;
-        Object.assign(panel.style, { left: `${x}px`, top: `${y}px`, visibility: '' });
+        Object.assign(panel.style, {
+          left: `${x}px`,
+          top: `${y}px`,
+          visibility: '',
+          transformOrigin: TRANSFORM_ORIGIN[final.split('-')[0] as Side],
+        });
         // 不可见的元素不能获得焦点，所以等第一次定位、显示出来之后再把焦点移进去
         if (focusAfterPositioning) focusFirst(panel);
         focusAfterPositioning = false;
@@ -126,13 +140,17 @@ export const Popover = _component(
         })}
         <div
           {...elementProps(
-            mergeProps<'div'>({ sx: styles.panel, 'aria-labelledby': triggerId }, rest, {
-              ref: _toRef(panel),
-              id,
-              popover: 'auto',
-              role: 'dialog',
-              onToggle,
-            }),
+            mergeProps<'div'>(
+              { sx: [styles.panel, transitions.scale], 'aria-labelledby': triggerId },
+              rest,
+              {
+                ref: _toRef(panel),
+                id,
+                popover: 'auto',
+                role: 'dialog',
+                onToggle,
+              },
+            ),
           )}
         >
           {children}

@@ -30,6 +30,11 @@ const button = (text: string) =>
 const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
   root.querySelector<T>(selector)!;
 const style = (element: Element) => getComputedStyle(element);
+/** 等进出场过渡播完：过渡途中透明度不足，axe 会误报对比度 */
+const settle = async () => {
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+};
 
 it('em 尺寸：档位改变字号，内部尺寸同比缩放；继承上下文字号', () => {
   const [sm, md, lg] = ['小', '默认', '大'].map(button);
@@ -111,6 +116,7 @@ it('无障碍：弹出层打开时 axe-core 也没有违规', async () => {
   const trigger = $('.menu-trigger');
   await userEvent.click(trigger);
   await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('true');
+  await settle();
   const result = await axe.run(document.body);
   expect(result.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
 });
@@ -180,6 +186,37 @@ it('无障碍：对话框打开时 axe-core 也没有违规', async () => {
   const dialog = $<HTMLDialogElement>('.pilot-dialog');
   await userEvent.click($('.dialog-trigger'));
   await expect.poll(() => dialog.open).toBe(true);
+  await settle();
   const { violations } = await axe.run(root);
   expect(violations.map((violation) => violation.id)).toEqual([]);
+});
+
+it('进出场过渡：打开时淡入放大；关闭时支持 overlay 过渡的浏览器先播完离场过渡再隐藏', async () => {
+  const fading = (element: Element) =>
+    element
+      .getAnimations()
+      .some((animation) => (animation as CSSTransition).transitionProperty === 'opacity');
+
+  const trigger = $('.menu-trigger');
+  const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!;
+  await userEvent.click(trigger);
+  await expect.poll(() => fading(panel)).toBe(true);
+  await settle();
+  expect(style(panel).opacity).toBe('1');
+
+  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  await userEvent.click($('.dialog-trigger'));
+  await expect.poll(() => fading(dialog)).toBe(true);
+  await settle();
+  expect(style(dialog).opacity).toBe('1');
+
+  dialog.close();
+  if (CSS.supports('overlay', 'auto')) {
+    // 离场过渡期间仍在顶层显示（overlay 与 display 的 allow-discrete），播完才隐藏
+    expect(fading(dialog)).toBe(true);
+    expect(style(dialog).display).not.toBe('none');
+    await settle();
+  }
+  // 不支持 overlay 过渡的浏览器（Firefox、Safari）关闭后立即隐藏
+  expect(style(dialog).display).toBe('none');
 });

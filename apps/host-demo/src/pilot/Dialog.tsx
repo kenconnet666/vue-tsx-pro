@@ -8,6 +8,7 @@ import {
   lockScroll,
   mergeProps,
   returnFocus,
+  transitions,
   trapFocus,
   type PartProps,
 } from '@vue-tsx-pro/ui';
@@ -37,7 +38,6 @@ const styles = stylex.create({
     backgroundColor: '_surfaceRaised',
     color: '_text',
     boxShadow: '_xl',
-    '::backdrop': { backgroundColor: '_overlay' },
   },
   title: { margin: 0, fontSize: '_lg', fontWeight: '_semibold' },
   body: { marginBlock: '_lg' },
@@ -91,11 +91,15 @@ export const Dialog = _component(
     return () => (
       <dialog
         {...elementProps(
-          mergeProps<'dialog'>({ sx: styles.dialog }, rest, {
-            ref: _toRef(dialog),
-            'aria-labelledby': titleId,
-            onClose,
-          }),
+          mergeProps<'dialog'>(
+            { sx: [styles.dialog, transitions.scale, transitions.backdrop] },
+            rest,
+            {
+              ref: _toRef(dialog),
+              'aria-labelledby': titleId,
+              onClose,
+            },
+          ),
         )}
       >
         <h2 id={titleId} {...stylex.attrs(styles.title)}>

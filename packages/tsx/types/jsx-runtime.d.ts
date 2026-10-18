@@ -95,6 +95,8 @@ declare module 'vue' {
   interface HTMLAttributes {
     /** 原生弹层：auto 自带 Esc 与点击外部关闭，manual 只由代码开关，hint 不关闭其他 auto 弹层 */
     popover?: 'auto' | 'manual' | 'hint' | '' | undefined;
+    /** hidden="until-found" 的元素被页内搜索、锚点命中时触发，随后浏览器去掉 hidden */
+    onBeforematch?: (event: Event) => void;
   }
   interface ButtonHTMLAttributes {
     /** 点击时开关的弹层元素 id */

@@ -4,6 +4,10 @@
 export { Icon, type IconData, type IconProps } from './base/Icon/Icon';
 export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden/VisuallyHidden';
 
+// 展示
+export { Collapse, type CollapseProps } from './display/Collapse/Collapse';
+export { Collapsible, type CollapsibleProps } from './display/Collapsible/Collapsible';
+
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';
 export { createUi, type UiOptions } from './config/createUi';
@@ -25,7 +29,13 @@ export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
 
 // 部件 props、弹层与动画工具
-export { elementProps, mergeProps, type AsProps, type PartProps } from './utils/props';
+export {
+  elementProps,
+  mergeProps,
+  type AsProps,
+  type PartProps,
+  type TriggerProps,
+} from './utils/props';
 export type { Size, Space } from './utils/styles';
 export {
   dismissOnBackdrop,
@@ -37,3 +47,4 @@ export {
   trapFocus,
 } from './utils/overlay';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
+export { afterTransitions, transitions } from './utils/transitions';
