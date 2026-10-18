@@ -70,3 +70,20 @@ describe('SlideVerify', () => {
     expect(position).toBe(0);
   });
 });
+
+describe('SlideVerify 的部件属性', () => {
+  it('滑块的名称可以用 propsHandle 改；角色与取值仍由组件管理', () => {
+    const root = mount(() => (
+      <SlideVerify
+        propsHandle={{ 'aria-label': '拖到最右边登录', class: 'handle' }}
+        propsFill={{ class: 'fill' }}
+      />
+    ));
+    const handle = root.querySelector('.handle')!;
+    expect([handle.getAttribute('aria-label'), handle.getAttribute('role')]).toEqual([
+      '拖到最右边登录',
+      'slider',
+    ]);
+    expect(root.querySelector('.fill')).not.toBeNull();
+  });
+});

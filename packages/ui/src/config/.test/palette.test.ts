@@ -26,7 +26,8 @@ const steps: Record<string, [string, string]> = {
   accentSoft: ['indigo3', 'indigoDark3'],
   accentSoftHover: ['indigo4', 'indigoDark4'],
   accentBorder: ['indigo7', 'indigoDark7'],
-  danger: ['red9', 'redDark9'],
+  // red 9 配白字不到 4.5:1，见 tokens.stylex.ts
+  danger: ['red11', 'redDark8'],
   dangerHover: ['red10', 'redDark10'],
   dangerText: ['red11', 'redDark11'],
   dangerSoft: ['red3', 'redDark3'],

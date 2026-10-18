@@ -60,3 +60,14 @@ it('zod 实现 Standard Schema，表单只依赖接口', async () => {
   const result = await schema['~standard'].validate('x');
   expect(result.issues?.length).toBe(1);
 });
+
+// 可选 peer 依赖：路由适配（子路径 @vue-tsx-pro/ui/vue-router）与以后需要共享状态的组件
+it('vue-router、pinia：按需导入可以解析', async () => {
+  const [{ createRouter, createMemoryHistory }, { createPinia, defineStore }] = await Promise.all([
+    import('vue-router'),
+    import('pinia'),
+  ]);
+  expect(createRouter({ history: createMemoryHistory(), routes: [] }).push).toBeTypeOf('function');
+  expect(typeof createPinia().install).toBe('function');
+  expect(defineStore).toBeTypeOf('function');
+});

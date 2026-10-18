@@ -77,3 +77,17 @@ describe('Slider', () => {
     expect(root.querySelector<HTMLInputElement>('input[name="volume"]')!.value).toBe('20');
   });
 });
+
+describe('Slider 的部件属性', () => {
+  it('轨道与已选范围都能加属性', () => {
+    const root = mount(() => (
+      <Slider
+        value={30}
+        aria-label="x"
+        propsTrack={{ class: 'track' }}
+        propsRange={{ class: 'range' }}
+      />
+    ));
+    expect(root.querySelector('.track > .range')).not.toBeNull();
+  });
+});

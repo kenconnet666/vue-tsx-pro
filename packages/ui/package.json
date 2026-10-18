@@ -16,6 +16,11 @@
       "types": "./dist/integrations/shiki.d.ts",
       "default": "./dist/integrations/shiki.js"
     },
+    "./vue-router": {
+      "@vue-tsx-pro/source": "./src/integrations/vue-router.ts",
+      "types": "./dist/integrations/vue-router.d.ts",
+      "default": "./dist/integrations/vue-router.js"
+    },
     "./tokens.stylex": {
       "@vue-tsx-pro/source": "./src/config/theme/tokens.stylex.ts",
       "types": "./dist/config/theme/tokens.stylex.d.ts",
@@ -43,23 +48,31 @@
   "peerDependencies": {
     "echarts": "^6.0.0",
     "@lucide/icons": "^1.59.0",
+    "pinia": "^4.0.0",
     "shiki": "^4.0.0",
     "@stylexjs/stylex": "^0.19.1",
     "three": ">=0.170.0",
     "@unovis/ts": "^1.7.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "vue-router": "^5.0.0"
   },
   "peerDependenciesMeta": {
-    "@unovis/ts": {
+    "echarts": {
       "optional": true
     },
-    "echarts": {
+    "pinia": {
+      "optional": true
+    },
+    "shiki": {
       "optional": true
     },
     "three": {
       "optional": true
     },
-    "shiki": {
+    "@unovis/ts": {
+      "optional": true
+    },
+    "vue-router": {
       "optional": true
     }
   },
@@ -67,6 +80,7 @@
     "echarts": "catalog:",
     "happy-dom": "catalog:",
     "@lucide/icons": "catalog:",
+    "pinia": "catalog:",
     "@radix-ui/colors": "catalog:",
     "shiki": "catalog:",
     "@stylexjs/stylex": "catalog:",
@@ -77,6 +91,7 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "vue": "catalog:",
+    "vue-router": "catalog:",
     "zod": "catalog:"
   }
 }

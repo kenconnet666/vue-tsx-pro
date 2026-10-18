@@ -3,7 +3,7 @@ import { afterEach, expect, it } from 'vitest';
 import { createApp, h, nextTick, type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
 import { createHostApp } from '../src/app';
-import { Button } from '../src/pilot/Button';
+import { Button, LinkButton } from '@vue-tsx-pro/ui';
 
 let mounted: App | undefined;
 afterEach(() => mounted?.unmount());
@@ -22,7 +22,7 @@ async function openPilot() {
 const $ = <T extends Element = HTMLElement>(el: Element, selector: string) =>
   el.querySelector<T>(selector)!;
 
-it('Button：href 渲染为链接，部件 props 落到图标上，禁用与加载状态', async () => {
+it('LinkButton 渲染为链接，部件 props 落到图标上；Button 的禁用与加载状态', async () => {
   const el = await openPilot();
   const link = $(el, '.link-button');
   expect([link.tagName, link.getAttribute('href')]).toEqual(['A', '/profile/42']);
@@ -30,7 +30,8 @@ it('Button：href 渲染为链接，部件 props 落到图标上，禁用与加�
   const buttons = [...el.querySelectorAll('button')];
   expect(buttons.find((b) => b.textContent === '禁用')!.disabled).toBe(true);
   const loading = buttons.find((b) => b.textContent === '加载中')!;
-  expect([loading.disabled, loading.getAttribute('aria-busy')]).toEqual([true, 'true']);
+  // 加载中不用 disabled：焦点保留，点击由组件拦下
+  expect([loading.disabled, loading.getAttribute('aria-busy')]).toEqual([false, 'true']);
 });
 
 it('TextField：输入写回父级，清除按钮按当前语言提供无障碍名称', async () => {
@@ -71,11 +72,11 @@ it('Popover：触发器带上关联属性', async () => {
   ]);
 });
 
-it('Button：禁用的链接不触发使用方的点击回调', () => {
+it('LinkButton：禁用时去掉 href，不触发使用方的点击回调', () => {
   let clicks = 0;
   const el = document.createElement('div');
   const host = createApp({
-    render: () => h(Button, { href: '/x', disabled: true, onClick: () => clicks++ }, () => 'x'),
+    render: () => h(LinkButton, { href: '/x', disabled: true, onClick: () => clicks++ }, () => 'x'),
   });
   host.mount(el);
   el.querySelector('a')!.click();

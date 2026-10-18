@@ -45,6 +45,12 @@ export interface ScrollAreaProps extends PartProps<'div'> {
   hideDelay?: number;
   /** 视口（真正滚动的元素）的部件属性；ref 拿到它可以自己控制滚动 */
   propsViewport?: PartProps<'div', 'tabindex'>;
+  /** 内容层（视口里包着 children 的 div）的部件属性 */
+  propsContent?: PartProps<'div'>;
+  /** 滚动条轨道的部件属性，两个方向都用它（data-axis 区分 x、y） */
+  propsScrollbar?: PartProps<'div', 'aria-hidden'>;
+  /** 滑块的部件属性；大小与位置由组件写在行内样式上 */
+  propsThumb?: PartProps<'div'>;
   children?: VNodeChild;
 }
 
@@ -118,6 +124,8 @@ const Scrollbar = _component(
     type,
     hideDelay,
     corner,
+    propsScrollbar,
+    propsThumb,
   }: {
     axis: 'x' | 'y';
     root: HTMLElement | null;
@@ -126,6 +134,8 @@ const Scrollbar = _component(
     type: keyof ScrollbarTypes;
     hideDelay: number;
     corner: boolean;
+    propsScrollbar?: PartProps<'div', 'aria-hidden'>;
+    propsThumb?: PartProps<'div'>;
   }) => {
     let track = _state.raw<HTMLElement | null>(null);
     let thumb = _state.raw<HTMLElement | null>(null);
@@ -260,23 +270,36 @@ const Scrollbar = _component(
       const visible = overflowing && (type === 'always' || active);
       return (
         <div
-          ref={_toRef(track)}
-          aria-hidden="true"
+          {...elementProps(
+            mergeProps<'div'>(
+              {
+                sx: [
+                  barStyles.track,
+                  barStyles[axis],
+                  corner && (axis === 'y' ? barStyles.yCorner : barStyles.xCorner),
+                ],
+              },
+              propsScrollbar,
+              {
+                sx: !visible && barStyles.hidden,
+                ref: _toRef(track),
+                'aria-hidden': true,
+                onPointerdown: pageTo,
+                onWheel: forwardWheel,
+              },
+            ),
+          )}
           data-axis={axis}
           data-state={visible ? 'visible' : 'hidden'}
-          onPointerdown={pageTo}
-          onWheel={forwardWheel}
-          {...stylex.attrs(
-            barStyles.track,
-            barStyles[axis],
-            corner && (axis === 'y' ? barStyles.yCorner : barStyles.xCorner),
-            !visible && barStyles.hidden,
-          )}
         >
           <div
-            ref={_toRef(thumb)}
-            onPointerdown={dragThumb}
-            {...stylex.attrs(barStyles.thumb, axis === 'y' ? barStyles.thumbY : barStyles.thumbX)}
+            {...elementProps(
+              mergeProps<'div'>(
+                { sx: [barStyles.thumb, axis === 'y' ? barStyles.thumbY : barStyles.thumbX] },
+                propsThumb,
+                { ref: _toRef(thumb), onPointerdown: dragThumb },
+              ),
+            )}
           />
         </div>
       );
@@ -292,6 +315,9 @@ export const ScrollArea = _component(
     type = 'hover',
     hideDelay = 600,
     propsViewport,
+    propsContent,
+    propsScrollbar,
+    propsThumb,
     children,
     ...rest
   }: ScrollAreaProps) => {
@@ -310,6 +336,8 @@ export const ScrollArea = _component(
           type={type}
           hideDelay={hideDelay}
           corner={both}
+          propsScrollbar={propsScrollbar}
+          propsThumb={propsThumb}
         />
       );
       return (
@@ -325,7 +353,13 @@ export const ScrollArea = _component(
               ),
             )}
           >
-            <div ref={_toRef(content)} {...stylex.attrs(axis !== 'y' && styles.wideContent)}>
+            <div
+              {...elementProps(
+                mergeProps<'div'>({ sx: axis !== 'y' && styles.wideContent }, propsContent, {
+                  ref: _toRef(content),
+                }),
+              )}
+            >
               {children}
             </div>
           </div>

@@ -105,3 +105,20 @@ describe('VirtualList', () => {
     expect(ranges.at(-1)).toBe(4);
   });
 });
+
+describe('VirtualList 的部件属性', () => {
+  it('propsItem 可以按项计算；列表层能加属性；序号仍由组件管理', async () => {
+    const root = mount(() => (
+      <VirtualList
+        items={rows.slice(0, 3)}
+        propsList={{ class: 'list' }}
+        propsItem={(row, index) => ({ class: `row-${index}`, 'data-id': row.id })}
+      >
+        {(row) => row.label}
+      </VirtualList>
+    ));
+    await nextTick();
+    const item = root.querySelector<HTMLElement>('.list > .row-1')!;
+    expect([item.dataset.id, item.getAttribute('aria-posinset')]).toEqual(['row-1', '2']);
+  });
+});

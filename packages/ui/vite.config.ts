@@ -14,7 +14,10 @@ export default defineConfig({
   plugins: [workspaceSource(), ...vueTsxPro({ stylex: false })],
   build: {
     // 子路径各是一个入口；可选依赖（shiki）只在它的子路径里导入
-    lib: { entry: ['src/index.ts', 'src/integrations/shiki.ts'], formats: ['es'] },
+    lib: {
+      entry: ['src/index.ts', 'src/integrations/shiki.ts', 'src/integrations/vue-router.ts'],
+      formats: ['es'],
+    },
     rollupOptions: {
       external: isExternal,
       // 保留源码的文件结构：StyleX 要求 defineVars 留在 *.stylex.js 文件里，使用方编译时才认得

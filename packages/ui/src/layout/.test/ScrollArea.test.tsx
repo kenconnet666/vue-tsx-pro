@@ -29,3 +29,20 @@ describe('ScrollArea', () => {
     expect(axes).toEqual(['y', 'x']);
   });
 });
+
+describe('ScrollArea 的部件属性', () => {
+  it('内容层、滚动条、滑块都能加属性；受管的 aria-hidden 不被覆盖', () => {
+    const root = mount(() => (
+      <ScrollArea
+        propsContent={{ class: 'content' }}
+        propsScrollbar={{ class: 'bar' }}
+        propsThumb={{ class: 'thumb' }}
+      >
+        内容
+      </ScrollArea>
+    ));
+    expect(root.querySelector('.content')!.textContent).toBe('内容');
+    expect(root.querySelector('.bar')!.getAttribute('aria-hidden')).toBe('true');
+    expect(root.querySelector('.bar > .thumb')).not.toBeNull();
+  });
+});

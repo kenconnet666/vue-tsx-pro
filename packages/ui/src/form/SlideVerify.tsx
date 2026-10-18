@@ -15,7 +15,7 @@ import { Check, ChevronsRight, X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
-import { Icon } from '../base/Icon';
+import { Icon, type IconProps } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { startMove } from '../utils/move';
@@ -74,6 +74,23 @@ export interface SlideVerifyProps extends PartProps<'div'> {
   disabled?: boolean;
   /** 轨道上的提示文字，默认取语言包的 slideVerifyHint */
   hint?: VNodeChild;
+  /** 已拖过部分（着色的那一段）的部件属性 */
+  propsFill?: PartProps<'div'>;
+  /** 提示文字的部件属性 */
+  propsHint?: PartProps<'span'>;
+  /** 滑块（role="slider"）的部件属性；aria-label 默认取语言包，可以在这里改 */
+  propsHandle?: PartProps<
+    'div',
+    | 'role'
+    | 'tabindex'
+    | 'aria-valuemin'
+    | 'aria-valuemax'
+    | 'aria-valuenow'
+    | 'aria-valuetext'
+    | 'aria-disabled'
+  >;
+  /** 滑块上图标的部件属性 */
+  propsIcon?: Partial<IconProps>;
 }
 
 /** target="end" 时拖到多远算到头（留一点余量，不必像素级对齐） */
@@ -152,6 +169,10 @@ export const SlideVerify = _component(
     onRelease,
     disabled = false,
     hint,
+    propsFill,
+    propsHint,
+    propsHandle,
+    propsIcon,
     ...rest
   }: SlideVerifyProps) => {
     const lang = useLang();
@@ -259,41 +280,59 @@ export const SlideVerify = _component(
           data-status={status}
         >
           <div
-            {...stylex.attrs(
-              styles.fill,
-              !dragging && styles.settle,
-              status === 'success' && styles.success,
-              status === 'error' && styles.error,
+            {...elementProps(
+              mergeProps<'div'>({ sx: styles.fill }, propsFill, {
+                sx: [
+                  !dragging && styles.settle,
+                  status === 'success' && styles.success,
+                  status === 'error' && styles.error,
+                ],
+              }),
             )}
           />
-          <span aria-hidden="true" {...stylex.attrs(styles.hint)}>
+          <span
+            {...elementProps(
+              mergeProps<'span'>({ sx: styles.hint }, propsHint, { 'aria-hidden': true }),
+            )}
+          >
             {position === 0 || status !== 'idle' ? text : null}
           </span>
           <div
-            ref={_toRef(handle)}
-            role="slider"
-            tabindex={disabled ? undefined : 0}
-            aria-label={lang.slideVerifyHint}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(position * 100)}
-            aria-valuetext={`${Math.round(position * 100)}%`}
-            aria-disabled={locked || undefined}
-            onPointerdown={grab}
-            onKeydown={onKeydown}
-            {...elementProps({
-              sx: [
-                // 焦点环在前：滑块自己的 outlineOffset（画在里面，外层会裁掉外面）覆盖它
-                focusRingStyles.visible,
-                styles.handle,
-                !dragging && styles.settle,
-                locked && styles.locked,
-                status === 'success' && styles.success,
-                status === 'error' && styles.error,
-              ],
-            })}
+            {...elementProps(
+              mergeProps<'div'>(
+                {
+                  // 焦点环在前：滑块自己的 outlineOffset（画在里面，外层会裁掉外面）覆盖它
+                  sx: [focusRingStyles.visible, styles.handle],
+                  'aria-label': lang.slideVerifyHint,
+                },
+                propsHandle,
+                {
+                  sx: [
+                    !dragging && styles.settle,
+                    locked && styles.locked,
+                    status === 'success' && styles.success,
+                    status === 'error' && styles.error,
+                  ],
+                  ref: _toRef(handle),
+                  role: 'slider',
+                  tabindex: disabled ? undefined : 0,
+                  'aria-valuemin': 0,
+                  'aria-valuemax': 100,
+                  'aria-valuenow': Math.round(position * 100),
+                  'aria-valuetext': `${Math.round(position * 100)}%`,
+                  'aria-disabled': locked || undefined,
+                  onPointerdown: grab,
+                  onKeydown,
+                },
+              ),
+            )}
           >
-            <Icon icon={icon} flipInRtl={icon === ChevronsRight} />
+            <Icon
+              {...(mergeProps<IconProps>(
+                { icon, flipInRtl: icon === ChevronsRight },
+                propsIcon,
+              ) as IconProps)}
+            />
           </div>
           <VisuallyHidden aria-live="polite">{status === 'idle' ? '' : text}</VisuallyHidden>
         </div>

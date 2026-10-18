@@ -1,12 +1,12 @@
-// 试点组件：验证主元素透传（...rest → input）、部件 props、输入法、清除按钮，不进组件库
-import { X } from '@lucide/icons';
+// 试点组件：验证主元素透传（...rest → input）、部件 props、输入法、清除按钮（ClearButton），不进组件库
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  ClearButton,
   elementProps,
   Icon,
   mergeProps,
-  useLang,
+  type PresetIconButtonProps,
   type IconData,
   type IconProps,
   type PartProps,
@@ -29,7 +29,7 @@ export interface TextFieldProps extends PartProps<'input', 'value' | 'disabled' 
   /** 前置图标的部件属性 */
   propsIcon?: Partial<IconProps>;
   /** 清除按钮的部件属性 */
-  propsClear?: PartProps<'button', 'type' | 'disabled'>;
+  propsClear?: Partial<PresetIconButtonProps>;
 }
 
 const styles = stylex.create({
@@ -66,14 +66,11 @@ const styles = stylex.create({
     fontSize: 'inherit',
     '::placeholder': { color: '_textPlaceholder' },
   },
+  // 比默认的图标按钮紧凑，放进输入框里；仍不小于 24px 的点击区域
   clear: {
-    display: 'inline-flex',
-    padding: '0.15em',
-    borderWidth: 0,
-    borderRadius: '_sm',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    width: 'max(1.5em, _sizes.minTarget)',
+    minHeight: 'max(1.5em, _sizes.minTarget)',
     color: '_textMuted',
-    cursor: 'pointer',
   },
 });
 
@@ -90,7 +87,6 @@ export const TextField = _component(
     propsClear,
     ...rest
   }: TextFieldProps) => {
-    const lang = useLang();
     let input = _state.raw<HTMLInputElement | null>(null);
 
     function clear() {
@@ -119,16 +115,13 @@ export const TextField = _component(
           value={_bind(value)}
         />
         {clearable && value && !disabled && (
-          <button
-            {...elementProps(
-              mergeProps<'button'>({ sx: styles.clear, 'aria-label': lang.clear }, propsClear, {
-                type: 'button',
-                onClick: clear,
-              }),
+          <ClearButton
+            {...mergeProps<PresetIconButtonProps>(
+              { sx: styles.clear, radius: 'full' },
+              propsClear,
+              { onClick: clear },
             )}
-          >
-            <Icon icon={X} />
-          </button>
+          />
         )}
       </div>
     );

@@ -58,6 +58,10 @@ export interface SliderProps extends PartProps<'div', Managed> {
   onValueCommit?: (value: number) => void;
   /** 外层（轨道与滑块的容器）的部件属性 */
   propsRoot?: PartProps<'div'>;
+  /** 轨道的部件属性 */
+  propsTrack?: PartProps<'div'>;
+  /** 已选范围（轨道上着色的部分）的部件属性；长度由组件写在行内样式上 */
+  propsRange?: PartProps<'div'>;
 }
 
 const styles = stylex.create({
@@ -130,6 +134,8 @@ export const Slider = _component(
     name,
     onValueCommit,
     propsRoot,
+    propsTrack,
+    propsRange,
     ...rest
   }: SliderProps) => {
     let track = _state.raw<HTMLElement | null>(null);
@@ -209,18 +215,25 @@ export const Slider = _component(
           data-disabled={disabled || undefined}
         >
           <div
-            ref={_toRef(track)}
-            {...stylex.attrs(
-              styles.track,
-              vertical ? styles.trackVertical : styles.trackHorizontal,
+            {...elementProps(
+              mergeProps<'div'>(
+                { sx: [styles.track, vertical ? styles.trackVertical : styles.trackHorizontal] },
+                propsTrack,
+                { ref: _toRef(track) },
+              ),
             )}
           >
             <div
-              {...stylex.attrs(
-                styles.range,
-                vertical
-                  ? [styles.rangeVertical, positionStyles.rangeHeight(percent)]
-                  : [styles.rangeHorizontal, positionStyles.rangeWidth(percent)],
+              {...elementProps(
+                mergeProps<'div'>(
+                  { sx: [styles.range, vertical ? styles.rangeVertical : styles.rangeHorizontal] },
+                  propsRange,
+                  {
+                    sx: vertical
+                      ? positionStyles.rangeHeight(percent)
+                      : positionStyles.rangeWidth(percent),
+                  },
+                ),
               )}
             />
           </div>

@@ -1,8 +1,9 @@
 // 基础组件演示（文档站暂缓，先在这里按分类演示）：每加一批组件就加一节
-import { ArrowRight, Settings, Star } from '@lucide/icons';
+import { ArrowRight, Download, Plus, Settings, Star, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  Button,
   Code,
   CodeBlock,
   Collapsible,
@@ -13,10 +14,14 @@ import {
   H2,
   H3,
   H4,
+  ClearButton,
+  CloseButton,
   Icon,
+  IconButton,
   Kbd,
   lightTheme,
   Link,
+  LinkButton,
   Paragraph,
   Provider,
   ScrollArea,
@@ -34,7 +39,6 @@ import {
 } from '@vue-tsx-pro/ui';
 import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
-import { Button } from '../pilot/Button';
 
 const sampleCode = `export const Counter = _component(() => {
   let count = _state(0); // 像普通变量一样读写
@@ -148,6 +152,12 @@ export const Base = _component(() => {
   let moved = false;
   let listHandle: VirtualListHandle | undefined;
   let volume = _state(40);
+  let saving = _state(false);
+
+  function save() {
+    saving = true;
+    setTimeout(() => (saving = false), 1500);
+  }
   let verifyStatus = _state<'idle' | 'verifying' | 'success' | 'error'>('idle');
   let puzzleStatus = _state<'idle' | 'verifying' | 'success' | 'error'>('idle');
   let puzzlePosition = _state(0);
@@ -187,6 +197,60 @@ export const Base = _component(() => {
             {dark ? '亮色' : '暗色'}
           </Button>
         </div>
+
+        <Section title="按钮 Button · LinkButton · IconButton">
+          {(['accent', 'neutral', 'danger'] as const).map((tone) => (
+            <Flex key={tone} gap="sm" wrap align="center" class={`button-row-${tone}`}>
+              {(['solid', 'soft', 'surface', 'outline', 'ghost', 'link'] as const).map(
+                (variant) => (
+                  <Button key={variant} variant={variant} tone={tone}>
+                    {variant}
+                  </Button>
+                ),
+              )}
+            </Flex>
+          ))}
+          <Flex gap="sm" wrap align="center">
+            <Button size="xs" icon={Plus}>
+              xs
+            </Button>
+            <Button size="sm" icon={Plus}>
+              sm
+            </Button>
+            <Button icon={Plus}>继承</Button>
+            <Button size="lg" icon={Plus}>
+              lg
+            </Button>
+            <Button radius="full" variant="soft">
+              胶囊
+            </Button>
+            <Button radius="none" variant="outline">
+              直角
+            </Button>
+          </Flex>
+          <Flex gap="sm" wrap align="center">
+            <Button class="save-button" loading={saving} onClick={save} icon={Download}>
+              保存
+            </Button>
+            <Button disabled>不可用</Button>
+            <Button disabled focusableWhenDisabled tone="neutral" variant="outline">
+              可聚焦的不可用
+            </Button>
+            <LinkButton href="#buttons" variant="soft" iconEnd={ArrowRight}>
+              链接按钮
+            </LinkButton>
+            <LinkButton href="https://example.com" external variant="ghost">
+              外部文档
+            </LinkButton>
+          </Flex>
+          <Flex gap="xs" align="center">
+            <IconButton icon={Settings} aria-label="设置" class="icon-button-demo" />
+            <IconButton icon={Trash2} aria-label="删除" tone="danger" variant="soft" />
+            <IconButton icon={Plus} aria-label="添加" variant="solid" radius="full" />
+            <CloseButton />
+            <ClearButton size="sm" />
+          </Flex>
+        </Section>
 
         <Section title="图标 Icon">
           <div {...stylex.attrs(styles.row)}>

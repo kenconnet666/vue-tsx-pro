@@ -42,16 +42,30 @@
 />
 ```
 
+**每个内部节点都是部件**：包装层、装饰层、轨道、滑块、图标、加载指示都有自己的 `propsXxx`，使用方能加 class、`sx`、aria、事件覆盖定制；只有组件管理的状态属性不能改（§2.4）。组件自己的样式放在 `mergeProps` 的第一层，使用方的 `sx` 才能覆盖。按项渲染的部件可以接受函数：VirtualList 的 `propsItem={(item, index) => ({ … })}`。
+
 输入 `props` 时，所有部件的配置在补全列表里排在一起；也不会和内容类 prop 撞名（`icon` 是图标内容，`propsIcon` 是图标节点的属性）。
 
-### 2.2 部件 props 的类型
+### 2.2 状态用 data 属性表达
 
-- 原生元素部件：该元素的属性类型 + `sx`，去掉组件内部管理的属性（见 §2.3），形如 `PartProps<'input', 'value' | 'aria-invalid'>`。
+组件把状态写成主元素上的 data 属性，使用方用 `sx` 里的条件或宿主 CSS 选择器就能定制状态样式，不必等组件开新的 prop：
+
+| 属性                            | 取值                                                            | 例                                            |
+| ------------------------------- | --------------------------------------------------------------- | --------------------------------------------- |
+| `data-state`                    | `open` / `closed`、`visible` / `hidden`、`checked`、`active` 等 | ScrollArea 的滚动条、以后的 Tabs、Collapsible |
+| `data-disabled`                 | 有 / 无                                                         | Button、Slider                                |
+| `data-loading`                  | 有 / 无                                                         | Button 家族                                   |
+| `data-status`                   | 组件自己的状态枚举                                              | SlideVerify                                   |
+| `data-axis`、`data-orientation` | `x` / `y`、`horizontal` / `vertical`                            | ScrollArea、以后的 Tabs                       |
+
+### 2.3 部件 props 的类型
+
+- 原生元素部件：该元素的属性类型 + `sx`，去掉组件内部管理的属性（见 §2.4），形如 `PartProps<'input', 'value' | 'aria-invalid'>`。
 - 本库组件部件：该组件的 props（全部可选），形如 `Partial<IconProps>`。
 - 部件 props 不能改内容：`children` 不在部件 props 里，内容走组件自己的 prop。
 - 组件 props 接口 `extends PartProps<'主元素', 受管属性>`，`...rest` 才有补全与类型检查。
 
-### 2.3 合并规则
+### 2.4 合并规则
 
 组件内部给部件的属性与使用方传入的属性用同一个 `mergeProps(内部, 使用方)` 合并：
 
@@ -243,6 +257,8 @@ interface Lang {
 | 特殊图表 | `echarts`（可选 peer）              | Unovis 没有的：仪表盘、雷达、K 线、日历热力图、超大数据量、3D 图表                                      |
 | 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                  |
 | 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                            |
+| 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）  |
+| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                        |
 | 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                                                  |
 | 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                    |
 | 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                              |
@@ -250,7 +266,6 @@ interface Lang {
 
 **待办**：
 
-- Button 与 LinkButton：两个组件，共用一份样式表（外观、尺寸、焦点环）与波纹反馈；Button 管 `disabled`、`loading`、`type`，LinkButton 管 `href`、`target`、外链的 `rel`（不可用时去掉 href 并加 `aria-disabled`）。波纹尊重“减少动态效果”。试点 Button 的 `href` 用法到时一并替换。
 - 文档页的 props 表生成。
 - CodeBlock 的复制按钮：等 Button 进组件库后加（文案进语言包，“已复制”用 aria-live 播报）。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
@@ -322,6 +337,8 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 | `base/`    | `Link`           | `tone`、`underline`；`external` 自动加 `rel` 与读屏提示（语言文案）                                                                                                                                                                               |
 | `base/`    | `Code`、`Kbd`    | 行内代码、按键                                                                                                                                                                                                                                    |
 | `base/`    | `CodeBlock`      | `code`、`lang`、`wrap`、`propsCode`；高亮器经配置注入，可选，见 10.4                                                                                                                                                                              |
+| `base/`    | `Spinner`        | 加载指示，见 10.9                                                                                                                                                                                                                                 |
+| `base/`    | `Button` 家族    | Button、LinkButton、IconButton、CloseButton、ClearButton，见 10.9                                                                                                                                                                                 |
 | `layout/`  | `Flex`           | `direction`、`align`、`justify`、`wrap`、`gap`、`inline`；只做这一个，不拆 Stack / Group                                                                                                                                                          |
 | `layout/`  | `Grid`           | `columns`（1–12）、`minItemWidth`（`auto-fill` 自动换列）、`gap` / `rowGap` / `columnGap`、`align`、`justify`、`flow`                                                                                                                             |
 | `layout/`  | `Container`      | `size`（`xs`–`xl`，取 `sizes` 的容器宽度）、`padding`；居中、限制最大宽度                                                                                                                                                                         |
@@ -399,6 +416,24 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - 无障碍：滑块是 role="slider"，←/→、Home/End 移动，Enter 或空格松手；状态经 aria-live 播报。这类验证对读屏与运动障碍用户仍不友好，应用应另外提供其他验证方式。
 - **顺手修复**：组件单独解构的 `children` 原来经 computed 缓存，父级传入渲染时算好的值（插槽里没有响应式读取）时子组件停在旧内容（如 `<VisuallyHidden>{text}</VisuallyHidden>`），改为不缓存的只读访问器 `childrenProp`；表外属性用了短写时，报错信息改为列出真正有这个 token 的组（原来固定举例 `_space.x`，会误导）。
 
+### 10.9 按钮家族与交互基础设施（已完成）
+
+- **按钮家族**（一个元素一个组件，共用 `base/button-styles.ts` 的样式表、选项类型与内容排布）：
+  - **Button**（button）：`variant` solid / soft / surface / outline / ghost / link × `tone` accent / neutral / danger × `size`（字号档位，em 缩放）× `radius` none / sm / md / full；`icon` / `iconEnd`、`fullWidth`；`loading`（Spinner 盖在内容上，内容透明但保留宽度与读屏名称，`aria-busy`，焦点保留，点击与表单提交被拦下）；`disabled` 用原生属性，`focusableWhenDisabled` 改用 `aria-disabled`；`type` 默认 button。
+  - **LinkButton**（a）：外观同 Button，站内链接经路由适配跳转；`external`；不可用时去掉 href，保留 `role="link"` 与 `aria-disabled`。
+  - **IconButton**：方形，类型上必须有 `aria-label`，默认 ghost。
+  - **CloseButton / ClearButton**：同一个工厂生成的预设，图标来自 Lucide（X、CircleX），名称取语言包。
+  - 部件：`propsContent`、`propsIcon`、`propsIconEnd`、`propsSpinner`。
+  - 实底按钮悬停时混入黑色加深（不用 accentHover / dangerHover），白字对比度只升不降。
+- **组件默认值** `config/defaults.ts`：`createUi({ defaults })` / `<Provider defaults>`，优先级：显式 prop > 最近的 Provider > createUi > 组件自己的默认；只收外观类选项。按钮家族经 `useButtonAppearance` 统一合并。
+- **路由适配** `UiRouter`（参考 React Aria 的 RouterProvider）：`navigate(href)`、`isActive(href)`；组件渲染真正的 `<a href>`，只拦普通左键点击的同源链接（`utils/link.ts` 的 `useRouterLink`）。vue-router 用子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router, { match })`。
+- **波纹** `utils/ripple.ts`：按下处扩散、松开淡出，键盘 Enter / 空格从中心扩散，纯 CSS 动画，时长取 durations（减少动态效果时没有扩散过程）。默认开启，`createUi({ ripple })` / `<Provider ripple>` 全局开关，组件的 `ripple` prop 单独覆盖（`useRipple`）。
+- **Spinner**：Lucide 的 LoaderCircle 加旋转；有 `label` 时 `role="status"`。旋转不随 durations 变为 0（它本身就是信息），减少动态效果时转慢。
+- **分页计算** `utils/pagination.ts`：`paginationItems`（算法同 MUI），页数够多时项数固定。
+- **编译器** `_untrack(x)`：只取当前值不追踪；组件函数体里写表示有意只要初始值，不警告（Collapse 已改用）。
+- **主题修正**：`danger` 实色配白字原来只有 3.91:1，改为亮色 red 11、暗色 red 8。
+- **已有组件的部件属性补齐**：Spinner、Link（`propsIcon`），ScrollArea（`propsContent`、`propsScrollbar`、`propsThumb`），Slider（`propsTrack`、`propsRange`），SlideVerify（`propsFill`、`propsHint`、`propsHandle`、`propsIcon`），VirtualList（`propsList`、`propsItem`）。试点 Button 删除，演示改用正式的 Button / LinkButton；试点 TextField 的清除按钮改用 ClearButton。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。下一步：Button / LinkButton，然后是表单类组件。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）。下一步：Progress、Skeleton、Badge、Tag、Alert、Card、Avatar；漫游焦点、选择模型与 Toolbar、Tabs、Steps；Breadcrumbs、Pagination、NavList。再下一批：浮层工具，以及 Popover、Tooltip、Dialog 转正和 Menu。正式组件按 §8 验收，文档页暂用演示页代替。

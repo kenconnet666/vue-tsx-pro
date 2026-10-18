@@ -31,9 +31,15 @@ const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
   root.querySelector<T>(selector)!;
 const style = (element: Element) => getComputedStyle(element);
 /** 等进出场过渡播完：过渡途中透明度不足，axe 会误报对比度 */
+/** 会结束的动画：加载指示这类无限循环的动画永远不会 finished，等它会卡住 */
+const finiteAnimations = () =>
+  document
+    .getAnimations()
+    .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity);
+
 const settle = async () => {
   await new Promise((resolve) => requestAnimationFrame(resolve));
-  await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
+  await Promise.allSettled(finiteAnimations().map((animation) => animation.finished));
 };
 
 it('em 尺寸：档位改变字号，内部尺寸同比缩放；继承上下文字号', () => {

@@ -1,8 +1,16 @@
 import { Plus, Search, Settings, User } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { darkTheme, enUS, lightTheme, Provider, useLang, zhCN } from '@vue-tsx-pro/ui';
-import { Button } from '../pilot/Button';
+import {
+  Button,
+  darkTheme,
+  enUS,
+  lightTheme,
+  LinkButton,
+  Provider,
+  useLang,
+  zhCN,
+} from '@vue-tsx-pro/ui';
 import { Dialog } from '../pilot/Dialog';
 import { Popover } from '../pilot/Popover';
 import { TextField } from '../pilot/TextField';
@@ -69,9 +77,14 @@ export const Pilot = _component(() => {
               继承 24px
             </Button>
           </span>
-          <Button href="/profile/42" icon={User} propsIcon={{ strokeWidth: 3 }} class="link-button">
+          <LinkButton
+            href="/profile/42"
+            icon={User}
+            propsIcon={{ strokeWidth: 3 }}
+            class="link-button"
+          >
             链接按钮
-          </Button>
+          </LinkButton>
           <Button disabled>禁用</Button>
           <Button loading>加载中</Button>
         </div>

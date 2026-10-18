@@ -14,7 +14,7 @@ import { useLang } from '../config/context';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 import { toneStyles, type Tone } from '../utils/typography';
-import { Icon } from './Icon';
+import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
 
 /** 链接的下划线 */
@@ -37,6 +37,8 @@ export interface LinkProps extends PartProps<'a', 'href'> {
   underline?: keyof LinkUnderlines;
   /** 外部链接：新窗口打开，加 rel="noopener noreferrer"、外链图标与读屏提示 */
   external?: boolean;
+  /** 外链图标的部件属性 */
+  propsIcon?: Partial<IconProps>;
   children?: VNodeChild;
 }
 
@@ -61,6 +63,7 @@ export const Link = _component(
     tone = 'accent',
     underline = 'always',
     external = false,
+    propsIcon,
     children,
     ...rest
   }: LinkProps) => {
@@ -78,7 +81,12 @@ export const Link = _component(
         {children}
         {external && (
           <>
-            <Icon icon={ArrowUpRight} sx={styles.icon} />
+            <Icon
+              {...(mergeProps<IconProps>(
+                { icon: ArrowUpRight, sx: styles.icon },
+                propsIcon,
+              ) as IconProps)}
+            />
             <VisuallyHidden>{lang.linkNewWindow}</VisuallyHidden>
           </>
         )}

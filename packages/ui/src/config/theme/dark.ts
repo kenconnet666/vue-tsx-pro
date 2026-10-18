@@ -29,7 +29,7 @@ export const darkColors = stylex.createTheme(colors, {
   accentSoft: '#182449',
   accentSoftHover: '#1d2e62',
   accentBorder: '#3a4f97',
-  danger: '#e5484d',
+  danger: '#b54548',
   dangerHover: '#ec5d5e',
   dangerContrast: '#ffffff',
   dangerText: '#ff9592',

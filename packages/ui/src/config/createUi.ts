@@ -11,7 +11,8 @@ import {
   type Plugin,
 } from 'vue';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { ConfigContext, defaultConfig, type Highlighter } from './context';
+import { ConfigContext, defaultConfig, type Highlighter, type UiRouter } from './context';
+import type { ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from './theme/prefers-dark';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
@@ -24,6 +25,12 @@ export interface UiOptions {
   lang?: MaybeRefOrGetter<Partial<Lang>>;
   /** 代码高亮器（CodeBlock 用），如 `@vue-tsx-pro/ui/shiki` 的 createShikiHighlighter()；不写时显示纯文本 */
   highlighter?: Highlighter;
+  /** 组件默认值，如 `{ Button: { variant: 'outline' } }`（见 defaults.ts） */
+  defaults?: ComponentDefaults;
+  /** 路由适配：站内链接不刷新页面地跳转、导航组件判断当前页（见 UiRouter） */
+  router?: UiRouter;
+  /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
+  ripple?: boolean;
 }
 
 /**
@@ -49,6 +56,9 @@ export function createUi(options: UiOptions = {}): Plugin {
             return lang.value;
           },
           highlighter: options.highlighter,
+          defaults: options.defaults ?? {},
+          router: options.router,
+          ripple: options.ripple ?? true,
         });
         // 应用级没有容器元素，主题变量挂在页面根元素上；变量名经过 StyleX 哈希，不会与宿主冲突
         if (options.theme && typeof document !== 'undefined') {

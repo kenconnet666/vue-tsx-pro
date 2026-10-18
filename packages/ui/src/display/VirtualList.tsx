@@ -61,7 +61,17 @@ export interface VirtualListProps<T> extends PartProps<'div', Managed> {
   handle?: (handle: VirtualListHandle) => void;
   /** 可见范围变化（不含 overscan）：接近末尾时加载更多 */
   onRangeChange?: (range: VisibleRange) => void;
+  /** 列表层（撑开总高度、role="list" 的项都在它里面）的部件属性 */
+  propsList?: PartProps<'div', 'role'>;
+  /**
+   * 每一项外层（role="listitem"）的部件属性；可以按项计算：`(item, index) => ({ class: … })`。
+   * 位置、序号与无障碍属性由组件管理
+   */
+  propsItem?: ItemProps | ((item: T, index: number) => ItemProps);
 }
+
+/** 项外层可以定制的属性 */
+type ItemProps = PartProps<'div', 'role' | 'aria-setsize' | 'aria-posinset'>;
 
 const styles = stylex.create({
   // 自己调整滚动位置（见 virtualizer.ts），不要浏览器再按锚点调整一次
@@ -94,6 +104,8 @@ export const VirtualList = _component(
     empty,
     handle,
     onRangeChange,
+    propsList,
+    propsItem,
     ...rest
   }: VirtualListProps<T>) => {
     let root = _state.raw<HTMLElement | null>(null);
@@ -190,31 +202,45 @@ export const VirtualList = _component(
         >
           {hasItems ? (
             <div
-              ref={_toRef(list)}
-              role="presentation"
-              {...stylex.attrs(
-                styles.list,
-                horizontal ? sizeStyles.width(view.total) : sizeStyles.height(view.total),
+              {...elementProps(
+                mergeProps<'div'>({ sx: styles.list }, propsList, {
+                  sx: horizontal ? sizeStyles.width(view.total) : sizeStyles.height(view.total),
+                  ref: _toRef(list),
+                  role: 'presentation',
+                }),
               )}
             >
-              {view.items.map((item) => (
-                <div
-                  key={item.key}
-                  ref={virtualizer.measureElement as (element: unknown) => void}
-                  role="listitem"
-                  data-index={item.index}
-                  aria-setsize={items.length}
-                  aria-posinset={item.index + 1}
-                  {...stylex.attrs(
-                    styles.item,
-                    horizontal
-                      ? [styles.itemHorizontal, sizeStyles.x(item.start)]
-                      : [styles.itemVertical, sizeStyles.y(item.start)],
-                  )}
-                >
-                  {children(items[item.index]!, item.index)}
-                </div>
-              ))}
+              {view.items.map((item) => {
+                const data = items[item.index]!;
+                const own =
+                  typeof propsItem === 'function' ? propsItem(data, item.index) : propsItem;
+                return (
+                  <div
+                    key={item.key}
+                    {...elementProps(
+                      mergeProps<'div'>(
+                        {
+                          sx: [
+                            styles.item,
+                            horizontal ? styles.itemHorizontal : styles.itemVertical,
+                          ],
+                        },
+                        own,
+                        {
+                          sx: horizontal ? sizeStyles.x(item.start) : sizeStyles.y(item.start),
+                          ref: virtualizer.measureElement as (element: unknown) => void,
+                          role: 'listitem',
+                          'aria-setsize': items.length,
+                          'aria-posinset': item.index + 1,
+                        },
+                      ),
+                    )}
+                    data-index={item.index}
+                  >
+                    {children(data, item.index)}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             empty

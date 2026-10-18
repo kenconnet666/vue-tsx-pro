@@ -48,7 +48,13 @@ it('无障碍：演示页 axe-core 没有违规（亮色与暗色）', async () 
   $('.toggle-theme').click();
   // 主题切换时颜色有过渡，等过渡结束再检查对比度
   await new Promise((resolve) => requestAnimationFrame(resolve));
-  await Promise.all(document.getAnimations().map((animation) => animation.finished));
+  // 无限循环的动画（加载指示）永远不会结束，不等它
+  await Promise.all(
+    document
+      .getAnimations()
+      .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+      .map((animation) => animation.finished),
+  );
   expect(await violations()).toEqual([]);
 });
 

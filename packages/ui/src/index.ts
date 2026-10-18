@@ -9,6 +9,18 @@ export { Link, type LinkProps } from './base/Link';
 export { Code, type CodeProps } from './base/Code';
 export { CodeBlock, type CodeBlockProps } from './base/CodeBlock';
 export { Kbd, type KbdProps } from './base/Kbd';
+export { Spinner, type SpinnerProps } from './base/Spinner';
+export { Button, type ButtonProps } from './base/Button';
+export { LinkButton, type LinkButtonProps } from './base/LinkButton';
+export { IconButton, type IconButtonProps } from './base/IconButton';
+export { ClearButton, CloseButton, type PresetIconButtonProps } from './base/CloseButton';
+export type {
+  ButtonContentOptions,
+  ButtonOptions,
+  ButtonRadii,
+  ButtonTones,
+  ButtonVariants,
+} from './base/button-styles';
 
 // 布局
 export {
@@ -69,7 +81,14 @@ export {
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';
 export { createUi, type UiOptions } from './config/createUi';
-export { useConfig, useLang, type Highlighter, type UiConfig } from './config/context';
+export {
+  useConfig,
+  useLang,
+  type Highlighter,
+  type UiConfig,
+  type UiRouter,
+} from './config/context';
+export { useDefaults, type ComponentDefaults } from './config/defaults';
 export {
   defineTheme,
   readToken,
@@ -131,6 +150,13 @@ export {
 } from './utils/overlay';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
 export { startMove, type MoveOptions, type MovePoint } from './utils/move';
+export { rippleHostStyles, startRipple, useRipple } from './utils/ripple';
+export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/link';
+export {
+  paginationItems,
+  type PaginationEllipsis,
+  type PaginationOptions,
+} from './utils/pagination';
 export { afterTransitions, transitions } from './utils/transitions';
 export {
   computeMeasurements,

@@ -3,6 +3,7 @@
  * 都没有时使用默认值（亮色主题 + 简体中文），组件单独使用也能工作。
  */
 import { createContext } from '@vue-tsx-pro/tsx';
+import type { ComponentDefaults } from './defaults';
 import type { Lang } from './lang/lang';
 import { zhCN } from './lang/zh-CN';
 import { lightTheme } from './theme/light';
@@ -15,6 +16,20 @@ import type { Theme } from './theme/theme';
  */
 export type Highlighter = (code: string, lang: string) => Promise<string>;
 
+/**
+ * 路由适配（参考 React Aria 的 RouterProvider）：组件库不依赖具体的路由库。
+ * Link、LinkButton、导航组件渲染的仍是 <a href>；普通左键点击站内链接时改由 navigate 跳转（不刷新页面），
+ * 新窗口打开、按着修饰键、外部链接、下载照常交给浏览器。
+ *
+ *   createUi({ router: { navigate: (href) => router.push(href), isActive: (href) => route.path === href } })
+ */
+export interface UiRouter {
+  /** 站内跳转 */
+  navigate: (href: string) => void;
+  /** href 是不是当前页：导航组件据此加 aria-current="page"。在渲染时调用，读路由的响应式状态就能跟随变化 */
+  isActive?: (href: string) => boolean;
+}
+
 /** 提供方用 getter 暴露当前值，读取方在渲染或 computed 里读取即可跟随变化 */
 export interface UiConfig {
   /** 当前主题（明暗已按系统设置选定） */
@@ -23,13 +38,24 @@ export interface UiConfig {
   readonly lang: Lang;
   /** 代码高亮器；没有时 CodeBlock 显示纯文本 */
   readonly highlighter?: Highlighter;
+  /** 组件默认值（见 defaults.ts） */
+  readonly defaults: ComponentDefaults;
+  /** 路由适配；没有时链接就是普通的页面跳转 */
+  readonly router?: UiRouter;
+  /** 可点击组件按下时的波纹效果，默认开启；组件的 ripple prop 可以单独覆盖 */
+  readonly ripple: boolean;
 }
 
 /** 配置的注入键：createUi 在应用级提供，Provider 在局部覆盖 */
 export const ConfigContext = createContext<UiConfig>('Provider');
 
 /** 默认配置：亮色主题 + 简体中文 */
-export const defaultConfig: UiConfig = { theme: lightTheme, lang: zhCN };
+export const defaultConfig: UiConfig = {
+  theme: lightTheme,
+  lang: zhCN,
+  defaults: {},
+  ripple: true,
+};
 
 /** 当前的主题与语言配置；没有 createUi 与 Provider 时为默认配置 */
 export function useConfig(): UiConfig {
