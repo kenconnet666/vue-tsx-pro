@@ -319,6 +319,39 @@ Flex / Grid 的 `as` 可选 `div`、`section`、`article`、`ul`、`ol`、`li`�
 - 用 Shiki 的 CSS 变量主题，颜色映射到我们的 tokens：切换明暗主题不需要重新高亮。
 - 高亮是异步的：先显示纯文本，结果到了再替换，布局不跳动。
 
-### 10.5 顺序
+### 10.5 主题变量的字符串写法（待做，排在第 4 阶段之前）
 
-基础设施 → 折叠与过渡 → 布局 → 文本，每步单独提交。正式组件按 §8 验收，文档页暂用演示页代替。
+目标：`stylex.create` 里不再 import tokens，直接写 `fontSize: '_xs'`，并且有按属性限定的补全、悬停说明、类型检查。`_` 前缀用来和 CSS 关键字区分（`fontWeight: 'bold'`、`lineHeight: 'normal'` 本身就是合法的 CSS 值）。
+
+写法：
+
+- `'_xs'`：短写，属性在对照表里时按表找 token 组，如 `fontSize: '_xs'` 就是 `fontSizes.xs`
+- `'_space.md'`：带组名，任何属性都能用（表外属性、跨组取值），如 `width: '_controls.height'`
+- 条件值、回退数组里同样可用：`{ default: '_sm', ':hover': '_md' }`
+- 不支持：一个值里混多个 token（`padding: '_sm _md'`，改写单项属性）、负值、算式（仍 import 后用模板字符串）
+
+对照表（属性 → token 组），覆盖全部 token 组：
+
+| token 组                    | 属性                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `space`                     | `gap`、`rowGap`、`columnGap`、`padding*`、`margin*`、`inset*`、`top` / `right` / `bottom` / `left`、`scrollMargin*`、`scrollPadding*` |
+| `colors`                    | `color`、`backgroundColor`、`border*Color`、`outlineColor`、`fill`、`stroke`、`caretColor`、`accentColor`、`textDecorationColor` 等   |
+| `fonts`                     | `fontFamily`                                                                                                                          |
+| `fontSizes` / `fontWeights` | `fontSize` / `fontWeight`                                                                                                             |
+| `lineHeights`               | `lineHeight`                                                                                                                          |
+| `radii`                     | `borderRadius`、各角的 `border*Radius`                                                                                                |
+| `shadows`                   | `boxShadow`                                                                                                                           |
+| `durations`                 | `transitionDuration`、`transitionDelay`、`animationDuration`、`animationDelay`                                                        |
+| `easings`                   | `transitionTimingFunction`、`animationTimingFunction`                                                                                 |
+| `controls`                  | 单位不统一，不进表，用带组名的写法                                                                                                    |
+
+实现：
+
+- **类型**：`@vue-tsx-pro/tsx/stylex` 留一个可扩展的空接口，ui 用 `declare module` 填入各组 token（含每个 token 的说明与取值，悬停显示如“12px · fontSizes.xs”，机制同 `KeywordValue`）；`scripts/css-docs` 生成 `DocumentedStyles` 时按对照表给属性加上短写的取值类型，所有属性都接受带组名的写法。现在 `fontSize: space.md` 也能通过类型检查，改用字符串后按组限定。
+- **编译**：Vite 插件在 StyleX 之前加一步 Babel 转换，只处理 `stylex.create` 的参数：把字符串换成 token 变量的成员访问并补上 import；token 不存在时报编译错误（带位置，同符文报错）。token 模块的导入路径是插件选项，ui 提供默认值，使用方应用也能用这种写法。
+- **ui 自己的构建也要转换**：ui 打包时 `stylex: false`，`stylex.create` 原样留给使用方编译，所以转换不能跟着 StyleX 一起关掉，否则产物里会留下 `'_xs'`。产物里改写成从 `@vue-tsx-pro/ui/tokens.stylex` 导入，用 `tests/consumer` 验证。
+- **迁移与规范**：仓库里现有的 token 用法（Icon、VisuallyHidden、试点组件、演示页等）全部改成字符串写法；对照表里的属性一律用短写；§4、§6.2 写明规则。
+
+### 10.6 顺序
+
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本，每步单独提交。正式组件按 §8 验收，文档页暂用演示页代替。
