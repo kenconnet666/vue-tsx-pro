@@ -15,6 +15,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 const SOURCE_CONDITION = '@vue-tsx-pro/source';
 const EXTENSIONS = ['', '.ts', '.tsx', '.js', '.mjs'];
 
+/** StyleX 插件的 unstable_moduleResolution 选项：src 与 dist 下的同一模块规范成同一个名字 */
 export function stylexModuleResolution() {
   return {
     type: 'custom' as const,
@@ -36,6 +37,7 @@ function filePathResolver(importPath: string, sourceFilePath: string): string | 
   }
 }
 
+/** 按包的 exports 里的源码条件（@vue-tsx-pro/source）解析导入路径；找不到时返回 undefined */
 export function resolveFromExports(importPath: string, sourceFilePath: string): string | undefined {
   const segments = importPath.split('/');
   const name = importPath.startsWith('@') ? segments.slice(0, 2).join('/') : segments[0]!;

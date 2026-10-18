@@ -18,14 +18,46 @@ import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 export interface PopoverTriggerProps extends TriggerProps {
   /** 弹出层默认以触发器的文字作为无障碍名称（aria-labelledby） */
   id: string;
+  /** 取得触发器元素：定位的参照、关闭后焦点回到这里 */
   ref: (element: unknown) => void;
+  /** 告诉读屏这个按钮会打开对话框类的弹层 */
   'aria-haspopup': 'dialog';
 }
 
+/** 弹出位置：主方向 + 对齐方式（start 对齐触发器的起始边，end 对齐结束边）；空间不够时自动翻转 */
+export interface PopoverPlacements {
+  /** 上方居中 */
+  top: unknown;
+  /** 上方，与触发器起始边对齐 */
+  'top-start': unknown;
+  /** 上方，与触发器结束边对齐 */
+  'top-end': unknown;
+  /** 下方居中 */
+  bottom: unknown;
+  /** 下方，与触发器起始边对齐（默认） */
+  'bottom-start': unknown;
+  /** 下方，与触发器结束边对齐 */
+  'bottom-end': unknown;
+  /** 左侧居中 */
+  left: unknown;
+  /** 左侧，与触发器顶边对齐 */
+  'left-start': unknown;
+  /** 左侧，与触发器底边对齐 */
+  'left-end': unknown;
+  /** 右侧居中 */
+  right: unknown;
+  /** 右侧，与触发器顶边对齐 */
+  'right-start': unknown;
+  /** 右侧，与触发器底边对齐 */
+  'right-end': unknown;
+}
+
+/** 未声明的属性落到弹出层的 div 上 */
 export interface PopoverProps extends PartProps<'div', 'id' | 'popover' | 'role'> {
   /** 是否打开：父级写 open={_bind(x)}；Esc 与点击外部会关闭并写回 */
   open?: boolean;
-  placement?: Placement;
+  /** 弹出位置，默认 bottom-start */
+  placement?: keyof PopoverPlacements & Placement;
   /** 触发器：`(props) => <Button {...props}>更多</Button>` */
   trigger: (props: PopoverTriggerProps) => VNodeChild;
   children?: VNodeChild;
@@ -58,6 +90,7 @@ const styles = stylex.create({
   },
 });
 
+/** 试点弹出层：原生 popover + floating-ui 定位，打开时焦点进入、关闭后回到触发器 */
 export const Popover = _component(
   ({
     open = _bindable(false),

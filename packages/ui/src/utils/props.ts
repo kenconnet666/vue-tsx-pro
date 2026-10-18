@@ -28,7 +28,9 @@ export type PartProps<
  * 形如 `trigger={(props) => <Button {...props}>更多</Button>}`。弹层另外加上 id、ref、aria-haspopup。
  */
 export interface TriggerProps {
+  /** 切换展开与收起 */
   onClick: () => void;
+  /** 当前是否展开，读屏据此播报“已展开 / 已折叠” */
   'aria-expanded': boolean;
   /** 被控制的内容区的 id */
   'aria-controls': string;

@@ -76,6 +76,7 @@ const Section = _component(
     ),
 );
 
+/** /base 演示页：按分类演示组件库的基础组件，浏览器测试与 axe 检查也跑在这一页上 */
 export const Base = _component(() => {
   let dark = _state(false);
   let ball = _state.raw<HTMLElement | null>(null);

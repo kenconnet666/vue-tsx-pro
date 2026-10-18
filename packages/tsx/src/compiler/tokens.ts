@@ -13,7 +13,9 @@ import { fail } from './errors.ts';
 
 /** token 模块：生成的 import 写哪个路径，以及各组有哪些 token */
 export interface TokenModule {
+  /** 生成的 import 语句里写的路径：同包为相对路径，其他包为包名 */
   importPath: string;
+  /** 组名 → 该组的 token 名，用来报错与列出可用的 token */
   groups: ReadonlyMap<string, ReadonlySet<string>>;
 }
 
@@ -24,6 +26,10 @@ const STYLEX_SOURCES = new Set(['@stylexjs/stylex', '@vue-tsx-pro/tsx/stylex']);
 const STYLE_FUNCTIONS = new Set(['create', 'keyframes']);
 const TOKEN = /^_(?:(\w+)\.)?(\w+)$/;
 
+/**
+ * 把 stylex.create / keyframes 里的 token 字符串（'_xs'、'_space.md'、'calc(-1 * _sm)'）改写成 token 变量，
+ * 并补上 import；没有这种写法时返回 null，写错时抛出带代码帧的错误。
+ */
 export async function compileTokens(code: string, filename: string, load: TokenModuleLoader) {
   if (
     !/(?<![\w$.-])_[A-Za-z]/.test(code) ||

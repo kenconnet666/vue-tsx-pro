@@ -16,6 +16,7 @@ import {
 export interface TextFieldProps extends PartProps<'input', 'value' | 'disabled' | 'aria-invalid'> {
   /** 输入值：父级写 value={_bind(x)} 双向绑定 */
   value?: string;
+  /** 不可用 */
   disabled?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
@@ -23,8 +24,11 @@ export interface TextFieldProps extends PartProps<'input', 'value' | 'disabled' 
   clearable?: boolean;
   /** 前置图标 */
   icon?: IconData;
+  /** 外层容器（边框、焦点环）的部件属性 */
   propsRoot?: PartProps<'div'>;
+  /** 前置图标的部件属性 */
   propsIcon?: Partial<IconProps>;
+  /** 清除按钮的部件属性 */
   propsClear?: PartProps<'button', 'type' | 'disabled'>;
 }
 
@@ -73,6 +77,7 @@ const styles = stylex.create({
   },
 });
 
+/** 试点文本框：未声明的属性落到 input 上 */
 export const TextField = _component(
   ({
     value = _bindable(''),

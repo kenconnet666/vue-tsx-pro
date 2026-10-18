@@ -11,13 +11,19 @@ import { inject, provide, type InjectionKey } from 'vue';
 
 const MISSING = Symbol('missing');
 
+/** createContext 的结果：同一个键的提供与读取 */
 export interface Context<T> {
+  /** Vue 的注入键：应用级提供时 `app.provide(Context.key, value)` */
   readonly key: InjectionKey<T>;
+  /** 在组件 setup 里向子树提供值 */
   provide(value: T): void;
+  /** 读取最近的祖先提供的值；没有时报错，说明要放在哪个组件之内 */
   inject(): T;
+  /** 读取最近的祖先提供的值；没有时返回 fallback */
   inject<F>(fallback: F): T | F;
 }
 
+/** 声明一个带类型的上下文；name 用于报错信息（“需要放在 <name> 之内”）与调试 */
 export function createContext<T>(name: string): Context<T> {
   const key: InjectionKey<T> = Symbol(name);
   return {

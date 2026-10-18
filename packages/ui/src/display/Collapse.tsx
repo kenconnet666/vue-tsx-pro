@@ -37,6 +37,7 @@ const styles = stylex.create({
   content: { minHeight: 0, overflow: 'hidden' },
 });
 
+/** 展开收起的内容区（div），带高度过渡；收起后可被页内搜索找到并自动展开 */
 export const Collapse = _component(
   ({ open = _bindable(false), children, propsContent, ...rest }: CollapseProps) => {
     let root = _state.raw<HTMLElement | null>(null);

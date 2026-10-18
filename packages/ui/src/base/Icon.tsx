@@ -52,6 +52,7 @@ const styles = stylex.create({
   flip: { transform: { default: null, ':dir(rtl)': 'scaleX(-1)' } },
 });
 
+/** 图标（svg）：渲染 Lucide 格式的图标数据；不传 aria-label 时是装饰性的，对读屏隐藏 */
 export const Icon = _component(
   ({ icon, size, strokeWidth, flipInRtl = false, ...rest }: IconProps) =>
     () => {

@@ -56,6 +56,7 @@ type MapStyles<S> = Readonly<{
     : CompiledGroup;
 }>;
 
+/** stylex.create 的类型：样式组名保留推导，组内属性值的上下文类型固定为带注释的 DocumentedStyles（COMPONENTS.md §9.2） */
 export interface Create {
   /**
    * 定义一组静态样式，编译期生成原子类；属性悬停可看到中文说明。

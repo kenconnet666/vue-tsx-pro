@@ -27,10 +27,12 @@ declare global {
    * 跨文件共享：`export const settings = _state({...})` 可以直接导出（导出的是 ref 里的对象本身）。
    */
   function _state<T>(initial: T): T;
+  /** 没有初始值的响应式状态 → ref()，初始为 undefined */
   function _state<T>(): T | undefined;
   namespace _state {
     /** 只能整体替换的状态 → shallowRef */
     function raw<T>(initial: T): T;
+    /** 没有初始值、只能整体替换的状态 → shallowRef()：DOM 元素、第三方实例 */
     function raw<T>(): T | undefined;
     /** 去掉响应式代理的静态深拷贝，交给 structuredClone、第三方库或日志 */
     function snapshot<T>(value: T): T;
@@ -72,6 +74,7 @@ declare global {
    * 与 _toRef 互逆：`let theme = _fromRef(useStorage('theme', 'dark'))`、`const { x, y } = _fromRef(useMouse())`
    */
   function _fromRef<T>(source: Ref<T>): T;
+  /** 解构持有对象里的多个 Ref：`const { x, y } = _fromRef(useMouse())`，每个变量读写对应的 Ref */
   function _fromRef<T extends object>(source: T): UnwrapRefs<T>;
 
   /**

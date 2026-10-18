@@ -26,9 +26,11 @@ export interface ButtonVariants {
 
 /** 未声明的属性落到按钮元素上，传了 href 时落到链接上：属性取两者共有的部分，事件的 currentTarget 是两者之一 */
 export interface ButtonProps extends PartProps<'button' | 'a', 'disabled'> {
+  /** 按钮样式，默认 solid */
   variant?: keyof ButtonVariants;
   /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
   size?: TextSize;
+  /** 不可用：按钮用原生 disabled；链接去掉 href 并加 aria-disabled */
   disabled?: boolean;
   /** 加载中：不可点击，并告知读屏 */
   loading?: boolean;
@@ -36,6 +38,7 @@ export interface ButtonProps extends PartProps<'button' | 'a', 'disabled'> {
   href?: string;
   /** 前置图标 */
   icon?: IconData;
+  /** 前置图标的部件属性 */
   propsIcon?: Partial<IconProps>;
   children?: VNodeChild;
 }
@@ -78,6 +81,7 @@ const styles = stylex.create({
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },
 });
 
+/** 试点按钮（button；传了 href 时为 a） */
 export const Button = _component(
   ({
     variant = 'solid',

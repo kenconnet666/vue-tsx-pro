@@ -10,6 +10,7 @@ import type { Lang } from './lang';
 /** 字符串与 Decimal 按十进制原样格式化，不经过浮点数，金额不丢精度 */
 type NumberInput = number | bigint | string | Decimal;
 
+/** 按当前语言格式化数字、金额、百分比与日期；在渲染函数里调用方法即可随语言切换 */
 export function useFormat() {
   const lang = useLang();
   return {

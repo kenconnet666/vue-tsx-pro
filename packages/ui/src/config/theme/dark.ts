@@ -6,6 +6,7 @@ import { colors, shadows } from './tokens.stylex';
 // （只用一次的常量会被打包工具内联，使用方编译 dist 时 StyleX 就会报错）
 
 // Radix Colors 的暗色色阶，各 token 对应的级别见 tokens.stylex.ts
+/** 暗色主题的颜色（Radix Colors 暗色色阶） */
 export const darkColors = stylex.createTheme(colors, {
   background: '#111113',
   surface: '#18191b',
@@ -51,6 +52,7 @@ export const darkColors = stylex.createTheme(colors, {
 });
 
 // Radix Themes 的暗色阴影：深色背景上阴影要更重才看得出层次
+/** 暗色主题的阴影 */
 export const darkShadows = stylex.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 rgba(0, 0, 0, 0.4), 0 2px 1px -1px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',

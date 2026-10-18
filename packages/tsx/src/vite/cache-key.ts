@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 let cached: string | undefined;
 
+/** 编译器代码的哈希（进程内只算一次） */
 export function compilerCacheKey(): string {
   return (cached ??= hashFiles(compilerFiles()));
 }

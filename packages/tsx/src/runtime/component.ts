@@ -25,10 +25,13 @@ type Render = () => VNodeChild;
  * 标记放在返回值上而不是函数上，泛型组件的类型参数推导才不受影响。
  */
 export interface TsxNode extends VNode {
+  /** 只存在于类型上的标记，运行时没有这个属性 */
   readonly '~tsx': true;
 }
+/** _component 的结果在类型上的样子：JSX 按参数 P 检查属性与 children */
 export type TsxComponent<P> = (props: P) => TsxNode;
 
+/** _component 的第二个参数；一般不用写，编译器会补上 */
 export interface ComponentOptions {
   /** 组件名，DevTools 与警告信息里显示；编译器从 const X = _component(...) 自动补上 */
   name?: string;

@@ -44,6 +44,7 @@ const styles = stylex.create({
   footer: { display: 'flex', justifyContent: 'flex-end', gap: '_sm' },
 });
 
+/** 试点模态对话框：原生 dialog，焦点循环、锁定滚动、点击遮罩关闭 */
 export const Dialog = _component(
   ({
     open = _bindable(false),

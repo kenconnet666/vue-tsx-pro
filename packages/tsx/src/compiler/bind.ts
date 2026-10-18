@@ -13,6 +13,7 @@ const DIRECTIVE_HINTS: Record<string, string> = {
   text: '请直接把文本写成子节点 {text}',
 };
 
+/** TSX 里有更自然写法的 Vue 指令属性（v-html、v-text…）直接报错，并给出替代写法 */
 export function rejectDirective(attribute: NodePath<t.JSXAttribute>) {
   const { name } = attribute.node;
   const full = t.isJSXNamespacedName(name) ? `${name.namespace.name}:${name.name.name}` : name.name;

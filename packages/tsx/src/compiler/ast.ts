@@ -82,6 +82,7 @@ export function isVueWatchSource(path: NodePath) {
   );
 }
 
+/** 引用出现在类型里（typeof x、类型注解）：不是运行时读取，不改写 */
 export function isInTypePosition(path: NodePath) {
   return !!path.findParent(
     (p) => p.isTSType() || p.isTSTypeQuery() || p.isTSInterfaceDeclaration(),
@@ -159,6 +160,7 @@ export function writeTargets(violation: NodePath, binding: Binding): NodePath[] 
   return found;
 }
 
+/** 在一条变量声明里找到声明 name 的那一项 */
 export function findDeclarator(declaration: NodePath<t.VariableDeclaration>, name: string) {
   return declaration.node.declarations.find((d) =>
     Object.keys(t.getBindingIdentifiers(d.id)).includes(name),

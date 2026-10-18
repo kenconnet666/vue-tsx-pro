@@ -21,6 +21,7 @@ type StylexOptions = NonNullable<Parameters<typeof stylex.vite>[0]>;
 /** 本包的 StyleX 入口：运行时同 @stylexjs/stylex，类型带中文注释（见 src/stylex） */
 const STYLEX_ENTRY = '@vue-tsx-pro/tsx/stylex';
 
+/** vueTsxPro() 的选项；都不写就是应用的默认配置 */
 export interface VueTsxProOptions {
   /**
    * StyleX 插件选项；传 false 时不编译 StyleX。
@@ -35,6 +36,9 @@ export interface VueTsxProOptions {
   tokens?: string | false;
 }
 
+/**
+ * Vite 预设：`plugins: [vueTsxPro()]`。组件库构建写 `vueTsxPro({ stylex: false })`，由使用方统一编译 StyleX。
+ */
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   const plugins: Plugin[] = [runes()];
   const tokens = options.tokens ?? '@vue-tsx-pro/ui/tokens.stylex';

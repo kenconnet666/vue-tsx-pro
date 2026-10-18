@@ -6,6 +6,7 @@ import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from './theme/prefers-dark';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
 
+/** 局部配置；都不写时只是透明的容器，沿用上层配置 */
 export interface ProviderProps {
   /** 主题；不写时沿用上层配置 */
   theme?: ThemeInput;

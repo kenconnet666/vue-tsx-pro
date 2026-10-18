@@ -27,6 +27,7 @@ const styles = stylex.create({
   },
 });
 
+/** 只给读屏器看的文字（span）：视觉上不占位 */
 export const VisuallyHidden = _component(({ children, ...rest }: VisuallyHiddenProps) => () => (
   <span {...elementProps(mergeProps<'span'>({ sx: styles.hidden }, rest))}>{children}</span>
 ));

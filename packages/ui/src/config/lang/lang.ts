@@ -21,6 +21,7 @@ export interface HourCycles {
   h23: unknown;
 }
 
+/** 一种语言的全部配置：地区格式与界面文案平铺在一个对象里（COMPONENTS.md §6.3） */
 export interface Lang {
   // ───────── 地区与格式 ─────────
 

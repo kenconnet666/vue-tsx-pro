@@ -14,6 +14,7 @@ import type { Plugin } from 'vite';
 import { compileTokens, type TokenModule } from '../compiler/index.ts';
 import { packageRoot, resolveFromExports } from './stylex-resolution.ts';
 
+/** token 字符串写法的 Vite 插件；specifier 是 token 模块的包名或相对项目根目录的路径 */
 export function themeTokens(specifier: string): Plugin {
   let root = process.cwd();
   return {

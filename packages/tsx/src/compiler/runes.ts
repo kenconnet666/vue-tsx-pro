@@ -2,6 +2,7 @@
 import { types as t, type NodePath } from '@babel/core';
 import { fail } from './errors.ts';
 
+/** 全部符文的名字（含 _state.raw 这类成员形式） */
 export type Rune =
   | '_state'
   | '_state.raw'
@@ -68,6 +69,7 @@ export function memberChain(node: t.Node): string[] | null {
 
 /** 一个需要把读写改写为 .value 的变量：符文声明的变量，或组件 props 解构出的变量 */
 export interface TrackedInfo {
+  /** 能否赋值：const 声明的、只读的 prop 不能 */
   writable: boolean;
   /** 报错时告诉作者它来自哪里：某个符文，或组件 prop */
   source: Rune | 'prop';

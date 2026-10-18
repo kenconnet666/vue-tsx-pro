@@ -20,6 +20,7 @@ export interface SeparatorOrientations {
   vertical: unknown;
 }
 
+/** 未声明的属性落到 div 上 */
 export interface SeparatorProps extends PartProps<'div', Managed> {
   /** 方向，默认 horizontal */
   orientation?: keyof SeparatorOrientations;
@@ -34,6 +35,7 @@ const styles = stylex.create({
   vertical: { width: '_borderWidths.xs', alignSelf: 'stretch' },
 });
 
+/** 分隔线（div）：默认装饰性、对读屏隐藏；decorative={false} 时为 role="separator" */
 export const Separator = _component(
   ({ orientation = 'horizontal', decorative = true, ...rest }: SeparatorProps) =>
     () => (

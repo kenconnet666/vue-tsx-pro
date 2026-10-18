@@ -31,7 +31,9 @@ export interface FontSizes extends TextSizes {
   xxxl: unknown;
 }
 
+/** 界面文字的字号档位：xs–xl */
 export type TextSize = keyof TextSizes;
+/** 字号档位：xs–xl，加上标题用的 xxl、xxxl */
 export type FontSize = keyof FontSizes;
 
 /** 字重，对应主题的 fontWeights */
@@ -48,6 +50,7 @@ export interface FontWeights {
   bold: unknown;
 }
 
+/** 字重档位 */
 export type FontWeight = keyof FontWeights;
 
 /** 文字色调，对应主题的文字颜色 */
@@ -68,6 +71,7 @@ export interface Tones {
   info: unknown;
 }
 
+/** 文字色调 */
 export type Tone = keyof Tones;
 
 /** 文字的水平对齐（text-align），按书写方向 */
@@ -80,6 +84,7 @@ export interface TextAligns {
   end: unknown;
 }
 
+/** 水平对齐 */
 export type TextAlign = keyof TextAligns;
 
 /** 换行方式（text-wrap） */
@@ -94,8 +99,10 @@ export interface TextWraps {
   pretty: unknown;
 }
 
+/** 换行方式 */
 export type TextWrap = keyof TextWraps;
 
+/** 字号档位 → fontSizes token */
 export const fontSizeStyles: Table<FontSize> = stylex.create({
   xs: { fontSize: '_xs' },
   sm: { fontSize: '_sm' },
@@ -106,6 +113,7 @@ export const fontSizeStyles: Table<FontSize> = stylex.create({
   xxxl: { fontSize: '_xxxl' },
 });
 
+/** 字重档位 → fontWeights token */
 export const fontWeightStyles: Table<FontWeight> = stylex.create({
   light: { fontWeight: '_light' },
   normal: { fontWeight: '_normal' },
@@ -114,6 +122,7 @@ export const fontWeightStyles: Table<FontWeight> = stylex.create({
   bold: { fontWeight: '_bold' },
 });
 
+/** 色调 → 文字颜色 token */
 export const toneStyles: Table<Tone> = stylex.create({
   default: { color: '_text' },
   muted: { color: '_textMuted' },
@@ -124,12 +133,14 @@ export const toneStyles: Table<Tone> = stylex.create({
   info: { color: '_infoText' },
 });
 
+/** 水平对齐（按书写方向） */
 export const textAlignStyles: Table<TextAlign> = stylex.create({
   start: { textAlign: 'start' },
   center: { textAlign: 'center' },
   end: { textAlign: 'end' },
 });
 
+/** 换行方式（text-wrap） */
 export const textWrapStyles: Table<TextWrap> = stylex.create({
   wrap: { textWrap: 'wrap' },
   nowrap: { textWrap: 'nowrap' },
@@ -139,6 +150,7 @@ export const textWrapStyles: Table<TextWrap> = stylex.create({
   pretty: { textWrap: 'pretty' },
 });
 
+/** 截断：truncate 单行省略，clamp 多行截断（行数见 lineClampStyles） */
 export const textStyles: Table<'truncate' | 'clamp'> = stylex.create({
   // 单行省略：在块级元素或 flex 子项上生效
   truncate: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 },

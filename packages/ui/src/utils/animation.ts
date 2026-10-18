@@ -13,6 +13,7 @@ import { cubicBezier, spring, type AnimationParams } from 'animejs';
 import { readToken } from '../config/theme/theme';
 import { durations, easings } from '../config/theme/tokens.stylex';
 
+/** themeTransition 的选项：取哪一档时长与缓动，或用弹簧 */
 export interface ThemeTransitionOptions {
   /** 时长档位，默认 md */
   duration?: keyof (typeof durations)['__tokens'];

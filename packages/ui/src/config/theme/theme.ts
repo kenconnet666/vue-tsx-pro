@@ -57,6 +57,7 @@ export interface ColorSchemes {
   dark: unknown;
 }
 
+/** 一套主题：defineTheme 的结果，交给 createUi 或 Provider */
 export interface Theme {
   /** 主题名，写在容器的 data-theme 上，便于调试与宿主 CSS 定位 */
   readonly name: string;
@@ -71,6 +72,7 @@ export interface Theme {
 /** 一个主题，或明暗两套主题（跟随系统 prefers-color-scheme 切换） */
 export type ThemeInput = Theme | { readonly light: Theme; readonly dark: Theme };
 
+/** 明暗两套主题时按系统设置选一套，单个主题原样返回 */
 export function resolveTheme(input: ThemeInput, prefersDark: boolean): Theme {
   return 'light' in input ? (prefersDark ? input.dark : input.light) : input;
 }

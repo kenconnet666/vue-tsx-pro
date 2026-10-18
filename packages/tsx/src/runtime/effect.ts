@@ -10,6 +10,7 @@ import { effectScope, getCurrentScope, watchEffect } from 'vue';
 /** 副作用函数可以返回清理函数：下次执行前、以及销毁时调用 */
 type EffectFn = () => void | (() => void);
 
+/** _effect / _effect.pre 编译后的调用：在当前作用域里创建，随组件销毁 */
 export function effect(fn: EffectFn, flush: 'pre' | 'post' = 'post'): void {
   if (!getCurrentScope()) {
     throw new Error(
@@ -30,6 +31,7 @@ export function effect(fn: EffectFn, flush: 'pre' | 'post' = 'post'): void {
   );
 }
 
+/** _effect.root 编译后的调用：独立的作用域，返回手动清理函数 */
 export function effectRoot(fn: EffectFn): () => void {
   const scope = effectScope(true);
   const cleanup = scope.run(fn);

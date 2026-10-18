@@ -17,6 +17,7 @@ export interface CollapsibleProps extends CollapseProps {
   trigger: (props: TriggerProps) => VNodeChild;
 }
 
+/** 触发器 + 展开收起的内容区（Disclosure 模式），触发器自动带上 aria-expanded 与 aria-controls */
 export const Collapsible = _component(
   ({ open = _bindable(false), trigger, id, ...rest }: CollapsibleProps) => {
     const generatedId = useId();

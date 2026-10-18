@@ -16,6 +16,7 @@ import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from './theme/prefers-dark';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
 
+/** 应用级配置；都可以传 ref 或 getter，运行时切换 */
 export interface UiOptions {
   /** 主题；不写时用亮色主题，也不改动页面根元素 */
   theme?: MaybeRefOrGetter<ThemeInput>;
@@ -23,6 +24,10 @@ export interface UiOptions {
   lang?: MaybeRefOrGetter<Partial<Lang>>;
 }
 
+/**
+ * 应用级配置的 Vue 插件：`app.use(createUi({ theme: { light: lightTheme, dark: darkTheme } }))`。
+ * 主题的 CSS 变量写在页面根元素上，所有 TSX 页面共享；应用卸载时撤销。
+ */
 export function createUi(options: UiOptions = {}): Plugin {
   return {
     install(app) {

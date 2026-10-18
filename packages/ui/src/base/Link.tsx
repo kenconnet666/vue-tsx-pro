@@ -29,6 +29,7 @@ export interface LinkUnderlines {
 
 /** 未声明的属性落到 <a> 上 */
 export interface LinkProps extends PartProps<'a', 'href'> {
+  /** 链接地址；必填：没有地址的“链接”应该用按钮 */
   href: string;
   /** 色调，默认 accent（品牌色文字） */
   tone?: Tone;
@@ -53,6 +54,7 @@ const styles = stylex.create({
   icon: { marginInlineStart: '0.1em', verticalAlign: '-0.1em' },
 });
 
+/** 文字链接（a）：品牌色、下划线与焦点环；external 时新窗口打开并带读屏提示 */
 export const Link = _component(
   ({
     href,

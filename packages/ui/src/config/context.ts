@@ -10,15 +10,19 @@ import type { Theme } from './theme/theme';
 
 /** 提供方用 getter 暴露当前值，读取方在渲染或 computed 里读取即可跟随变化 */
 export interface UiConfig {
+  /** 当前主题（明暗已按系统设置选定） */
   readonly theme: Theme;
+  /** 当前语言：地区格式与界面文案 */
   readonly lang: Lang;
 }
 
+/** 配置的注入键：createUi 在应用级提供，Provider 在局部覆盖 */
 export const ConfigContext = createContext<UiConfig>('Provider');
 
 /** 默认配置：亮色主题 + 简体中文 */
 export const defaultConfig: UiConfig = { theme: lightTheme, lang: zhCN };
 
+/** 当前的主题与语言配置；没有 createUi 与 Provider 时为默认配置 */
 export function useConfig(): UiConfig {
   return ConfigContext.inject(defaultConfig);
 }
