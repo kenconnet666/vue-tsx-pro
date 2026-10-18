@@ -9,7 +9,7 @@ import { siteNameKey } from '../site';
 import { useUserStore } from '../stores/user';
 
 const styles = stylex.create({
-  page: { display: 'grid', gap: space.xs, padding: space.md },
+  page: { display: 'grid', gap: space.sm, padding: space.lg },
 });
 
 /** 用我们的写法写的页面：路由、store、inject 都来自宿主 */

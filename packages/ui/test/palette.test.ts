@@ -41,6 +41,8 @@ const steps: Record<string, [string, string]> = {
   infoText: ['blue11', 'blueDark11'],
   infoSoft: ['blue3', 'blueDark3'],
   infoBorder: ['blue7', 'blueDark7'],
+  inverseSurface: ['slate12', 'slateDark12'],
+  inverseText: ['slate1', 'slateDark1'],
   focusRing: ['indigo9', 'indigoDark9'],
   overlay: ['blackA6', 'blackA8'],
 };

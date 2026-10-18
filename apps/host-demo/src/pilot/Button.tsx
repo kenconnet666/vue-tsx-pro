@@ -3,7 +3,16 @@ import type { LucideIconData } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '@vue-tsx-pro/ui';
-import { colors, controls, fonts, motion, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
+import {
+  colors,
+  controls,
+  durations,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  radii,
+  space,
+} from '@vue-tsx-pro/ui/tokens.stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from './Icon';
 
@@ -28,24 +37,24 @@ const styles = stylex.create({
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: space.xs,
+    gap: space.sm,
     minHeight: `max(${controls.height}, ${controls.minTarget})`,
-    paddingBlock: space.xxs,
-    paddingInline: space.md,
+    paddingBlock: space.xs,
+    paddingInline: space.lg,
     borderWidth: controls.borderWidth,
     borderStyle: 'solid',
     borderColor: 'transparent',
     borderRadius: radii.md,
     fontFamily: 'inherit',
     fontSize: 'inherit',
-    fontWeight: fonts.weightStrong,
-    lineHeight: fonts.lineHeightTight,
+    fontWeight: fontWeights.semibold,
+    lineHeight: lineHeights.tight,
     textDecoration: 'none',
     cursor: 'pointer',
     transitionProperty: 'background-color, border-color, color',
     transitionDuration: {
-      default: motion.durationFast,
-      '@media (prefers-reduced-motion: reduce)': '0s',
+      default: durations.sm,
+      '@media (prefers-reduced-motion: reduce)': durations.none,
     },
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
     outlineWidth: controls.focusRingWidth,
@@ -66,9 +75,9 @@ const styles = stylex.create({
     backgroundColor: { default: 'transparent', ':hover': colors.fillHover },
   },
   disabled: { opacity: controls.disabledOpacity, cursor: 'not-allowed' },
-  sm: { fontSize: fonts.sizeSm },
-  md: { fontSize: fonts.sizeMd },
-  lg: { fontSize: fonts.sizeLg },
+  sm: { fontSize: fontSizes.sm },
+  md: { fontSize: fontSizes.md },
+  lg: { fontSize: fontSizes.lg },
 });
 
 export const Button = _component(

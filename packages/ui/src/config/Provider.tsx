@@ -5,7 +5,7 @@ import { ConfigContext, useConfig } from './context';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from './theme/prefers-dark';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
-import { colors, fonts } from './theme/tokens.stylex';
+import { colors, fonts, fontSizes, lineHeights } from './theme/tokens.stylex';
 
 export interface ProviderProps {
   /** 主题；不写时沿用上层配置 */
@@ -20,9 +20,9 @@ const styles = stylex.create({
   root: { display: 'contents' },
   themed: {
     color: colors.text,
-    fontFamily: fonts.family,
-    fontSize: fonts.size,
-    lineHeight: fonts.lineHeight,
+    fontFamily: fonts.sans,
+    fontSize: fontSizes.md,
+    lineHeight: lineHeights.normal,
   },
 });
 

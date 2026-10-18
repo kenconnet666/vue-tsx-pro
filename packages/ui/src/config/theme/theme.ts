@@ -4,15 +4,39 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { Theme as CompiledTheme } from '@vue-tsx-pro/tsx/stylex';
-import { colors, controls, fonts, motion, radii, shadows, space } from './tokens.stylex';
+import {
+  colors,
+  controls,
+  durations,
+  easings,
+  fonts,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  radii,
+  shadows,
+  space,
+} from './tokens.stylex';
 
-const groups = { colors, fonts, space, radii, controls, shadows, motion };
+const groups = {
+  colors,
+  fonts,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  space,
+  radii,
+  shadows,
+  durations,
+  easings,
+  controls,
+};
 type Groups = typeof groups;
 
 /** 某一组 tokens 的编译期主题（createTheme 的结果） */
 export type GroupTheme = { [Group in keyof Groups]: CompiledTheme<Groups[Group]> }[keyof Groups];
 
-/** 按分组覆盖部分 token：`{ colors: { accent: '#e5484d' }, fonts: { size: '16px' } }` */
+/** 按分组覆盖部分 token：`{ colors: { accent: '#e5484d' }, fontSizes: { md: '16px' } }` */
 export type ThemeOverrides = {
   [Group in keyof Groups]?: { [Token in keyof Groups[Group]['__tokens']]?: string };
 };

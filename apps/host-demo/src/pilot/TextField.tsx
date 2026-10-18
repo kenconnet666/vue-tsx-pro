@@ -27,9 +27,9 @@ const styles = stylex.create({
   root: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: space.xs,
+    gap: space.sm,
     minHeight: `max(${controls.height}, ${controls.minTarget})`,
-    paddingInline: space.sm,
+    paddingInline: space.md,
     borderWidth: controls.borderWidth,
     borderStyle: 'solid',
     borderColor: { default: colors.border, ':hover': colors.borderStrong },
@@ -48,7 +48,7 @@ const styles = stylex.create({
   input: {
     flexGrow: 1,
     minWidth: 0,
-    paddingBlock: space.xxs,
+    paddingBlock: space.xs,
     borderWidth: 0,
     outlineStyle: 'none',
     backgroundColor: 'transparent',

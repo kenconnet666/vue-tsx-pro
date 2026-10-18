@@ -33,14 +33,14 @@ const styles = stylex.create({
     position: 'fixed',
     inset: 'auto',
     margin: 0,
-    padding: space.sm,
+    padding: space.md,
     borderWidth: controls.borderWidth,
     borderStyle: 'solid',
     borderColor: colors.border,
     borderRadius: radii.lg,
     backgroundColor: colors.surfaceRaised,
     color: colors.text,
-    boxShadow: shadows.popover,
+    boxShadow: shadows.lg,
   },
 });
 

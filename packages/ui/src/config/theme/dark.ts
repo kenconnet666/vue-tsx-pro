@@ -41,16 +41,20 @@ const darkColors = stylex.createTheme(colors, {
   infoText: '#70b8ff',
   infoSoft: '#0d2847',
   infoBorder: '#205d9e',
+  inverseSurface: '#edeef0',
+  inverseText: '#111113',
   focusRing: '#3e63dd',
   overlay: 'rgba(0, 0, 0, 0.6)',
 });
 
 // Radix Themes 的暗色阴影：深色背景上阴影要更重才看得出层次
 const darkShadows = stylex.createTheme(shadows, {
-  card: '0 1px 1px 0 rgba(0, 0, 0, 0.4), 0 2px 1px -1px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
-  popover: '0 12px 60px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5)',
-  dialog:
-    '0 12px 60px rgba(0, 0, 0, 0.2), 0 16px 64px rgba(0, 0, 0, 0.4), 0 16px 36px -20px rgba(0, 0, 0, 0.9)',
+  none: 'none',
+  xs: '0 1px 1px 0 rgba(0, 0, 0, 0.4), 0 2px 1px -1px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
+  sm: '0 2px 3px -2px rgba(0, 0, 0, 0.15), 0 3px 8px -2px rgba(0, 0, 0, 0.4), 0 4px 12px -4px rgba(0, 0, 0, 0.5)',
+  md: '0 8px 40px rgba(0, 0, 0, 0.15), 0 12px 32px -16px rgba(0, 0, 0, 0.3)',
+  lg: '0 12px 60px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5)',
+  xl: '0 12px 60px rgba(0, 0, 0, 0.2), 0 16px 64px rgba(0, 0, 0, 0.4), 0 16px 36px -20px rgba(0, 0, 0, 0.9)',
 });
 
 /** 暗色主题 */
