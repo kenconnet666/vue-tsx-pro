@@ -1,7 +1,7 @@
 // 真实浏览器（Playwright 的 Chromium、Firefox、WebKit）里的测试：布局、焦点、原生弹层、输入法、无障碍检查
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
-import { plugins } from './vite.config';
+import { plugins } from './vite.config.ts';
 
 export default defineConfig({
   plugins,
