@@ -197,16 +197,28 @@ it('进出场过渡：打开时淡入放大；关闭时支持 overlay 过渡的�
       .getAnimations()
       .some((animation) => (animation as CSSTransition).transitionProperty === 'opacity');
 
+  // 进场过渡只有 200ms：先挂好 transitionrun 再点击，不和点击的往返耗时赛跑（慢的 CI 上过渡可能早已播完）
+  const opacityTransition = (element: Element) =>
+    new Promise<void>((resolve) =>
+      element.addEventListener('transitionrun', function onRun(event) {
+        if ((event as TransitionEvent).propertyName !== 'opacity') return;
+        element.removeEventListener('transitionrun', onRun);
+        resolve();
+      }),
+    );
+
   const trigger = $('.menu-trigger');
   const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!;
+  const panelEntered = opacityTransition(panel);
   await userEvent.click(trigger);
-  await expect.poll(() => fading(panel)).toBe(true);
+  await panelEntered;
   await settle();
   expect(style(panel).opacity).toBe('1');
 
   const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  const dialogEntered = opacityTransition(dialog);
   await userEvent.click($('.dialog-trigger'));
-  await expect.poll(() => fading(dialog)).toBe(true);
+  await dialogEntered;
   await settle();
   expect(style(dialog).opacity).toBe('1');
 
