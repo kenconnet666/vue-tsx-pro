@@ -18,4 +18,8 @@ export const enUS: Lang = {
   selectPlaceholder: 'Select…',
   paginationTotal: (total) => `${total} items`,
   formRequired: (label) => `${label} is required`,
+  slideVerifyHint: 'Slide to verify',
+  slideVerifyChecking: 'Verifying…',
+  slideVerifySuccess: 'Verified',
+  slideVerifyError: 'Verification failed, try again',
 };

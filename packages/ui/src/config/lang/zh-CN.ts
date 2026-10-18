@@ -18,4 +18,8 @@ export const zhCN: Lang = {
   selectPlaceholder: '请选择',
   paginationTotal: (total) => `共 ${total} 条`,
   formRequired: (label) => `请填写${label}`,
+  slideVerifyHint: '拖动滑块完成验证',
+  slideVerifyChecking: '验证中…',
+  slideVerifySuccess: '验证通过',
+  slideVerifyError: '验证失败，请重试',
 };

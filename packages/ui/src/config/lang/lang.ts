@@ -65,6 +65,14 @@ export interface Lang {
   readonly paginationTotal: (total: number) => string;
   /** 表单必填校验的提示，默认“请填写{label}” */
   readonly formRequired: (label: string) => string;
+  /** 拖动验证的提示，同时是滑块的无障碍名称，默认“拖动滑块完成验证” */
+  readonly slideVerifyHint: string;
+  /** 拖动验证：等待服务端判定，默认“验证中…” */
+  readonly slideVerifyChecking: string;
+  /** 拖动验证：通过，默认“验证通过” */
+  readonly slideVerifySuccess: string;
+  /** 拖动验证：没通过，默认“验证失败，请重试” */
+  readonly slideVerifyError: string;
 }
 
 /** 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })` */

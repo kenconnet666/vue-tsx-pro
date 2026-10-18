@@ -82,6 +82,7 @@
   - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用，但没有补全；
   - 条件值、回退数组、伪元素、动态样式里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
   - 值里也能夹 token，用于计算、多值、简写：`minHeight: 'max(_control, _minTarget)'`、`outlineOffset: 'calc(-1 * _xs)'`、`padding: '_sm _md'`，编译成模板字符串；短写同样按属性找组，表外属性（如 `transition`）写带组名的 `'opacity _durations.md _easings.standard'`。token 前后不能紧挨字母、数字、`-`、`.`，引号里的文字与 `url()` 不处理。值中间的 token 没有补全；
+  - 注意短写按**属性**找组：`width`、`height` 属于 `sizes`，`'calc(_lg + _xs)'` 写在 `width` 里取的是 `sizes.lg`（64rem）而不是间距；尺寸里要用间距档位时写带组名的 `'calc(_space.lg + _space.xs)'`；
   - 只有动态样式的参数、运行时算出的值才需要 import token 变量；
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
@@ -254,7 +255,7 @@ interface Lang {
 - CodeBlock 的复制按钮：等 Button 进组件库后加（文案进语言包，“已复制”用 aria-live 播报）。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
 - 编译器对“有意只取初始值”的读取（如 Collapse 的 `_state(!open)`）也会警告，以后考虑给出不警告的写法。
-- 拖动工具（第一个需要拖动的组件出现时写，大概率是 Slider，放在 `utils/`）：参考 React Aria 的 `useMove`。要处理好区分点击与拖动（阈值、拖动后吞掉 click）、`setPointerCapture` 与 `pointercancel`、`touch-action`、拖动时禁止选中文字、从右到左排版；组件另外提供键盘替代（WCAG 2.5.7）。双指缩放、旋转等图片预览组件出现时再写。不用手势库：成熟组件库（Radix、React Aria、Ark UI）也都直接基于 Pointer Events，手势库省下的只是位移与速度的计算。
+- 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
 
 ## 8. 正式组件的完成标准（供之后使用）
 
@@ -328,6 +329,9 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 | `layout/`  | `Separator`      | `orientation`；有语义时 `role="separator"`，装饰性时对读屏隐藏                                                                                                                                                                                    |
 | `display/` | `Collapse`       | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器用 `inert`；`lazy` 第一次展开才渲染内容（同 Ark UI 的 lazyMount）  |
 | `display/` | `Collapsible`    | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`，`disabled` 时带 `disabled`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                                                     |
+| `layout/`  | `ScrollArea`     | 浮层滚动条，见 10.8                                                                                                                                                                                                                               |
+| `form/`    | `Slider`         | 滑块，见 10.8                                                                                                                                                                                                                                     |
+| `form/`    | `SlideVerify`    | 拖动验证（滑块 / 拼图验证码），见 10.8                                                                                                                                                                                                            |
 | `display/` | `VirtualList`    | 虚拟列表，见 10.7；以后的表格、长下拉列表建在 `Virtualizer` 上                                                                                                                                                                                    |
 
 FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工厂可用的标签（`LayoutTag`）：`div`、`section`、`article`、`ul`、`ol`、`li`、`nav`、`header`、`footer`、`main`、`aside`、`form`，ol 同样按列表处理。VisuallyHidden 只渲染 span，Collapse 只渲染 div（要分区语义时在外面包 section）。
@@ -382,6 +386,20 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - **暂不做**：从右到左排版下的横向滚动（`scrollLeft` 为负）、网格（两个方向同时虚拟化，表格需要时在核心上加）、`gap` 与内边距选项（项自己的内边距即可；容器的内边距已由 `scrollMargin` 自动算进去）。
 - **已完成**：核心与组件、单元测试（`utils/.test/virtualizer.test.ts`、`display/.test/VirtualList.test.tsx`）、`/base` 演示（一万行、行高不固定、跳到第 5001 行）与浏览器测试。
 
+### 10.8 拖动：工具、浮层滚动条、滑块、拖动验证（已完成）
+
+- **拖动工具 `utils/move.ts`**：`startMove(pointerdown 事件, { onMove, onEnd, threshold })`，参考 React Aria 的 useMove，基于 Pointer Events：指针捕获（移出元素、窗口也能继续）、`pointercancel` 与失去捕获按取消处理、拖动期间禁止选中文字、超过阈值后吞掉随后的 click、只响应主按钮。元素自己设 `touch-action`，组件自己提供键盘替代。三个组件都用它。
+- **`layout/ScrollArea`**（参考 Radix ScrollArea）：滚动仍是原生的，原生滚动条用 `scrollbar-width: none` 与 `::-webkit-scrollbar` 隐藏；自绘的滚动条绝对定位、半透明（`color-mix` 的 textMuted），浮在内容上方，出现与消失只改透明度，不改变布局尺寸。
+  - `axis`：y（默认）/ x / both；`type`：hover（默认，指针在上方或滚动时显示）/ scroll / always；`hideDelay`。
+  - 滑块长度按可见比例（至少 20px），拖动滑块按比例滚动，点击轨道翻一页，滚轮落在滚动条上转交给视口；从右到左排版下横向方向反过来。
+  - 滚动条是单独的内部组件，滑块位置随滚动直接写到元素上：滚动、悬停不会让内容重新渲染。
+  - 视口可聚焦（键盘滚动），滚动条对读屏隐藏；外层是纵向 flex，使用方只给 `max-height` 也能限制住视口。
+- **`form/Slider`**（WAI-ARIA Slider，参考 Radix / React Aria）：`value`（可双向绑定）、`min`、`max`、`step`、`bigStep`、`orientation`、`disabled`、`size`、`valueText`（aria-valuetext）、`name`（隐藏 input 随表单提交）、`onValueCommit`（松手或按键后一次）。点击轨道跳过去并接着拖；方向键、Page 键、Home/End；从右到左排版下横向方向键反过来；小数步长没有浮点误差。未声明的属性落到滑块（主元素）上，外层用 `propsRoot`。
+- **`form/SlideVerify`**（滑块验证码）：只负责交互，判定交给服务端。`target="end"` 拖到头才算（没到头弹回），`"free"` 任意位置松手（拼图：服务端生成图片与缺口，应用按 `position` 画拼图块）。`onRelease` 交出位置、拖动轨迹（时间 + 位置序列）与用时，发给服务端校验；`status`（idle / verifying / success / error）由应用控制，设回 idle 时回到起点。
+  - 前端的滑块本身挡不住脚本，必须服务端校验；
+  - 无障碍：滑块是 role="slider"，←/→、Home/End 移动，Enter 或空格松手；状态经 aria-live 播报。这类验证对读屏与运动障碍用户仍不友好，应用应另外提供其他验证方式。
+- **顺手修复**：组件单独解构的 `children` 原来经 computed 缓存，父级传入渲染时算好的值（插槽里没有响应式读取）时子组件停在旧内容（如 `<VisuallyHidden>{text}</VisuallyHidden>`），改为不缓存的只读访问器 `childrenProp`；表外属性用了短写时，报错信息改为列出真正有这个 token 的组（原来固定举例 `_space.x`，会误导）。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7），均已完成，每步单独提交。下一步：Button / LinkButton，然后是表单类组件。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。下一步：Button / LinkButton，然后是表单类组件。正式组件按 §8 验收，文档页暂用演示页代替。

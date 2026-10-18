@@ -38,6 +38,12 @@ export {
   type ContainerSizes,
 } from './layout/Container';
 export { Separator, type SeparatorProps } from './layout/Separator';
+export {
+  ScrollArea,
+  type ScrollAreaAxes,
+  type ScrollAreaProps,
+  type ScrollbarTypes,
+} from './layout/ScrollArea';
 
 // 展示
 export { Collapse, type CollapseProps } from './display/Collapse';
@@ -48,6 +54,17 @@ export {
   type VirtualListProps,
   type VirtualListScrolls,
 } from './display/VirtualList';
+
+// 表单
+export { Slider, type SliderOrientations, type SliderProps } from './form/Slider';
+export {
+  SlideVerify,
+  type SlideVerifyPoint,
+  type SlideVerifyProps,
+  type SlideVerifyResult,
+  type SlideVerifyStatuses,
+  type SlideVerifyTargets,
+} from './form/SlideVerify';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';
@@ -113,6 +130,7 @@ export {
   trapFocus,
 } from './utils/overlay';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
+export { startMove, type MoveOptions, type MovePoint } from './utils/move';
 export { afterTransitions, transitions } from './utils/transitions';
 export {
   computeMeasurements,

@@ -19,7 +19,11 @@ import {
   Link,
   Paragraph,
   Provider,
+  ScrollArea,
   Separator,
+  Slider,
+  SlideVerify,
+  type SlideVerifyResult,
   Small,
   Strong,
   Text,
@@ -76,6 +80,36 @@ const styles = stylex.create({
     borderRadius: '_md',
   },
   virtualRow: { paddingBlock: '_xs', paddingInline: '_md' },
+  scrollBox: {
+    height: '10em',
+    maxWidth: '24em',
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_border',
+    borderRadius: '_md',
+  },
+  scrollLine: { margin: 0, paddingBlock: '_xs', paddingInline: '_md' },
+  wide: { width: '40em', margin: 0, padding: '_md' },
+  verify: { maxWidth: '20em' },
+  puzzle: {
+    position: 'relative',
+    height: '6em',
+    maxWidth: '20em',
+    borderRadius: '_md',
+    backgroundImage: 'linear-gradient(135deg, _colors.accentSoft, _colors.infoSoft)',
+    overflow: 'hidden',
+  },
+  // 拼图块与缺口都是 3em 见方；left 由位置（0–1）乘以可移动距离算出
+  piece: {
+    position: 'absolute',
+    top: '1.5em',
+    width: '3em',
+    height: '3em',
+    borderRadius: '_sm',
+  },
+  gap: { backgroundColor: 'color-mix(in srgb, _text 25%, transparent)' },
+  block: { backgroundColor: '_accent', boxShadow: '_md' },
+  slider: { maxWidth: '16em' },
   outlined: { borderWidth: '_xs', borderStyle: 'dashed', borderColor: '_border' },
   track: {
     // 小球的宽度加上移动的距离
@@ -90,6 +124,11 @@ const styles = stylex.create({
     borderRadius: '_full',
     backgroundColor: '_accent',
   },
+});
+
+// 拼图块的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
+const pieceStyles = stylex.create({
+  left: (position: number) => ({ left: `calc(${position} * (100% - 3em))` }),
 });
 
 const Section = _component(
@@ -108,6 +147,28 @@ export const Base = _component(() => {
   let ball = _state.raw<HTMLElement | null>(null);
   let moved = false;
   let listHandle: VirtualListHandle | undefined;
+  let volume = _state(40);
+  let verifyStatus = _state<'idle' | 'verifying' | 'success' | 'error'>('idle');
+  let puzzleStatus = _state<'idle' | 'verifying' | 'success' | 'error'>('idle');
+  let puzzlePosition = _state(0);
+  // 演示用：缺口位置与判定本应由服务端生成和完成，这里在前端模拟
+  let puzzleTarget = _state(0.6);
+
+  /** 模拟服务端校验：真实场景把 result（位置与轨迹）发给服务端 */
+  function verifySlide(result: SlideVerifyResult) {
+    verifyStatus = 'verifying';
+    setTimeout(() => (verifyStatus = result.position >= 0.98 ? 'success' : 'error'), 400);
+  }
+  function verifyPuzzle(result: SlideVerifyResult) {
+    puzzleStatus = 'verifying';
+    setTimeout(() => {
+      puzzleStatus = Math.abs(result.position - puzzleTarget) < 0.04 ? 'success' : 'error';
+    }, 400);
+  }
+  function resetPuzzle() {
+    puzzleTarget = 0.3 + Math.random() * 0.6;
+    puzzleStatus = 'idle';
+  }
 
   // JS 动画：Anime.js 的 animate 加上主题的弹簧时长；减少动态效果时立即到位
   function move() {
@@ -204,6 +265,72 @@ export const Base = _component(() => {
           >
             <p {...stylex.attrs(styles.paragraph)}>最大宽度 30rem，水平居中</p>
           </Container>
+        </Section>
+
+        <Section title="滚动区域 ScrollArea">
+          <ScrollArea
+            class="scroll-demo"
+            sx={styles.scrollBox}
+            propsViewport={{ 'aria-label': '滚动区域演示' }}
+          >
+            {Array.from({ length: 30 }, (_, index) => (
+              <p key={index} {...stylex.attrs(styles.scrollLine)}>
+                第 {index + 1} 行：滚动条浮在内容上方，出现和消失都不改变布局
+              </p>
+            ))}
+          </ScrollArea>
+          <ScrollArea
+            class="scroll-both-demo"
+            axis="both"
+            type="always"
+            sx={styles.scrollBox}
+            propsViewport={{ 'aria-label': '两个方向都能滚动的演示' }}
+          >
+            {Array.from({ length: 12 }, (_, index) => (
+              <p key={index} {...stylex.attrs(styles.wide)}>
+                横向也能滚动：这一行比容器宽，第 {index + 1} 行
+              </p>
+            ))}
+          </ScrollArea>
+        </Section>
+
+        <Section title="滑块 Slider">
+          <Flex gap="md" align="center">
+            <Slider
+              class="slider-demo"
+              value={_bind(volume)}
+              aria-label="音量"
+              valueText={(value) => `${value}%`}
+              propsRoot={{ class: 'slider-root', sx: styles.slider }}
+            />
+            <Text class="slider-value">{volume}%</Text>
+          </Flex>
+        </Section>
+
+        <Section title="拖动验证 SlideVerify">
+          <div {...stylex.attrs(styles.verify)}>
+            <SlideVerify class="verify-demo" status={verifyStatus} onRelease={verifySlide} />
+          </div>
+          <Button variant="outline" class="verify-reset" onClick={() => (verifyStatus = 'idle')}>
+            重置
+          </Button>
+          <div class="puzzle-demo" {...stylex.attrs(styles.puzzle)}>
+            <div {...stylex.attrs(styles.piece, styles.gap, pieceStyles.left(puzzleTarget))} />
+            <div {...stylex.attrs(styles.piece, styles.block, pieceStyles.left(puzzlePosition))} />
+          </div>
+          <div {...stylex.attrs(styles.verify)}>
+            <SlideVerify
+              class="puzzle-verify"
+              target="free"
+              position={_bind(puzzlePosition)}
+              status={puzzleStatus}
+              hint="拖动滑块，把方块放进缺口"
+              onRelease={verifyPuzzle}
+            />
+          </div>
+          <Button variant="outline" onClick={resetPuzzle}>
+            换一张
+          </Button>
         </Section>
 
         <Section title="虚拟列表 VirtualList">
