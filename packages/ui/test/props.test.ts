@@ -13,12 +13,16 @@ describe('mergeProps', () => {
     expect(merged).toMatchObject({ id: 'mine', title: 'a', role: 'switch' });
   });
 
-  it('sx 依次排列，class 拼接，style 叠加', () => {
+  it('sx、class、style 依次排列成数组', () => {
     const merged = mergeProps(
       { sx: 'a', class: 'x', style: 'color: red' },
-      { sx: 'b', class: 'y' },
+      { sx: 'b', class: { active: true } },
     );
-    expect(merged).toMatchObject({ sx: ['a', 'b'], class: 'x y', style: ['color: red'] });
+    expect(merged).toMatchObject({
+      sx: ['a', 'b'],
+      class: ['x', { active: true }],
+      style: ['color: red'],
+    });
   });
 
   it('事件：使用方先执行；preventDefault 后跳过组件自己的处理', () => {
@@ -53,7 +57,7 @@ describe('elementProps', () => {
   it('没有 sx 时原样返回，有 sx 时合并 class 与 style', () => {
     expect(elementProps({ id: 'a' })).toEqual({ id: 'a' });
     const props = elementProps({ sx: [null, false], class: 'host' });
-    expect(props.class).toBe('host');
+    expect(props.class).toEqual(['host']);
     expect('sx' in props).toBe(false);
   });
 });

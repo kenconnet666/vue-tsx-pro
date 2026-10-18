@@ -82,3 +82,16 @@ it('Button：禁用的链接不触发使用方的点击回调', () => {
   expect([clicks, el.querySelector('a')!.hasAttribute('href')]).toEqual([0, false]);
   host.unmount();
 });
+
+it('Button：type 默认为 button，可以改成 submit', () => {
+  const el = document.createElement('div');
+  const host = createApp({
+    render: () => [h(Button, null, () => 'a'), h(Button, { type: 'submit' }, () => 'b')],
+  });
+  host.mount(el);
+  expect([...el.querySelectorAll('button')].map((button) => button.type)).toEqual([
+    'button',
+    'submit',
+  ]);
+  host.unmount();
+});

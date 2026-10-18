@@ -4,6 +4,7 @@ node_modules
 *.tsbuildinfo
 coverage/
 test-results/
+**/.vitest/
 playwright-report/
 apps/docs/.vitepress/cache/
 apps/docs/.vitepress/dist/

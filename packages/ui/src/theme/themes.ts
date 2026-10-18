@@ -69,11 +69,12 @@ export function defineTheme(
   overrides: ThemeOverrides,
   meta: Partial<Pick<Theme, 'name' | 'colorScheme'>> = {},
 ): Theme {
-  const merged: ThemeOverrides = { ...base.overrides };
-  for (const group of Object.keys(overrides) as (keyof Groups)[]) {
-    merged[group] = { ...base.overrides[group], ...overrides[group] } as never;
+  // 分组的键各不相同，按普通对象逐组合并
+  const merged: Record<string, Record<string, string | undefined>> = { ...base.overrides };
+  for (const [group, values] of Object.entries(overrides)) {
+    merged[group] = { ...merged[group], ...values };
   }
-  return { ...base, ...meta, overrides: merged };
+  return { ...base, ...meta, overrides: merged as ThemeOverrides };
 }
 
 /** 主题落到容器元素上的属性：编译期主题的 class、运行时覆盖的 CSS 变量与配色方案 */

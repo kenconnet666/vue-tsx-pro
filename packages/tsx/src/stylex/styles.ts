@@ -71,7 +71,7 @@ export interface DocumentedStyles {
    */
   WebkitBoxOrient?: StyleValue<CSSProperties['WebkitBoxOrient']>;
   /**
-   * 限制多行文本显示的行数；与 display: -webkit-box、WebkitBoxOrient('vertical') 和 overflow: hidden 配合，不删除文本内容。（-webkit-line-clamp）
+   * 限制多行文本显示的行数；需要同时写 display: '-webkit-box'、WebkitBoxOrient: 'vertical' 和 overflow: 'hidden'，不删除文本内容。（-webkit-line-clamp）
    *
    * 数字值不加单位；初始值 `none`；不继承。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/-webkit-line-clamp
@@ -1148,7 +1148,7 @@ export interface DocumentedStyles {
   /**
    * 设置文字前景色，同时作为 currentColor 的来源。（color）
    *
-   * 改变文字和 currentColor 的来源，不会自动改变背景。颜色函数方法返回完整 color 声明。
+   * 改变文字和 currentColor 的来源，不会自动改变背景。
    *
    * 初始值 `canvastext`；继承；Baseline：2018 年起广泛可用。
    * @see https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/color

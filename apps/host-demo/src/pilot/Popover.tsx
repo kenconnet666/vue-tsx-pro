@@ -9,6 +9,8 @@ import { nextTick, onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 
 /** 交给触发器的属性：展开到任意可聚焦元素上 */
 export interface TriggerProps {
+  /** 弹出层默认以触发器的文字作为无障碍名称（aria-labelledby） */
+  id: string;
   ref: (element: unknown) => void;
   onClick: () => void;
   'aria-expanded': boolean;
@@ -58,6 +60,7 @@ export const Popover = _component(
     ...rest
   }: PopoverProps) => {
     const id = useId();
+    const triggerId = `${id}-trigger`;
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
     let stopPositioning: (() => void) | undefined;
@@ -105,12 +108,13 @@ export const Popover = _component(
           ref: (value) => (anchor = toElement(value)),
           onClick: () => (open = !open),
           'aria-expanded': open,
+          id: triggerId,
           'aria-controls': id,
           'aria-haspopup': 'dialog',
         })}
         <div
           {...elementProps(
-            mergeProps({ sx: styles.panel }, rest, {
+            mergeProps({ sx: styles.panel, 'aria-labelledby': triggerId }, rest, {
               ref: _ref(panel),
               id,
               popover: 'auto',

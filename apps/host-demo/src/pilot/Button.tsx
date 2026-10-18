@@ -8,7 +8,7 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from './Icon';
 
 /** 未声明的属性落到按钮（或链接）元素上 */
-export interface ButtonProps extends PartProps<'button', 'type' | 'disabled'> {
+export interface ButtonProps extends PartProps<'button', 'disabled'> {
   variant?: 'solid' | 'outline' | 'ghost';
   /** 不写时继承上下文字号 */
   size?: 'sm' | 'md' | 'lg';
@@ -94,17 +94,24 @@ export const Button = _component(
       // 使用方的点击回调先于组件执行，不可用时要先拿掉，否则禁用的链接仍会触发它
       const user = inactive ? { ...rest, onClick: undefined } : rest;
       const props = elementProps(
-        mergeProps({ sx: [styles.base, styles[variant], size && styles[size]] }, user, {
-          sx: inactive && styles.disabled,
-          'aria-busy': loading || undefined,
-          ...(href
-            ? {
-                href: inactive ? undefined : href,
-                'aria-disabled': inactive || undefined,
-                onClick: blockInactive,
-              }
-            : { type: 'button', disabled: inactive }),
-        }),
+        mergeProps(
+          {
+            sx: [styles.base, styles[variant], size && styles[size]],
+            type: href ? undefined : 'button',
+          },
+          user,
+          {
+            sx: inactive && styles.disabled,
+            'aria-busy': loading || undefined,
+            ...(href
+              ? {
+                  href: inactive ? undefined : href,
+                  'aria-disabled': inactive || undefined,
+                  onClick: blockInactive,
+                }
+              : { disabled: inactive }),
+          },
+        ),
       );
       const content = (
         <>

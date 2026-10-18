@@ -93,3 +93,24 @@ it('无障碍：axe-core 没有违规', async () => {
   const result = await axe.run($('main'));
   expect(result.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
 });
+
+it('Popover：打开时再次点击触发器会关闭（不被点击外部关闭后又重新打开）', async () => {
+  const trigger = $('.menu-trigger');
+  const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!;
+  await userEvent.click(trigger);
+  await expect.poll(() => panel.matches(':popover-open')).toBe(true);
+  await userEvent.click(trigger);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  expect([panel.matches(':popover-open'), trigger.getAttribute('aria-expanded')]).toEqual([
+    false,
+    'false',
+  ]);
+});
+
+it('无障碍：弹出层打开时 axe-core 也没有违规', async () => {
+  const trigger = $('.menu-trigger');
+  await userEvent.click(trigger);
+  await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('true');
+  const result = await axe.run(document.body);
+  expect(result.violations.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+});

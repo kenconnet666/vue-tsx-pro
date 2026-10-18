@@ -4,7 +4,7 @@
  * 组件给部件的属性分两层：可被使用方覆盖的默认属性（defaults），以及组件状态决定、
  * 不允许覆盖的受管属性（managed，如 role、aria-expanded）。合并规则：
  *   - sx：默认在前、使用方其次、受管最后，StyleX 后者覆盖前者
- *   - class：拼接；style：依次叠加
+ *   - class、style：依次排列成数组，交给 Vue 统一处理（它们也可能是数组或对象）
  *   - 事件 onXxx：使用方先执行，调用了 event.preventDefault() 就跳过组件自己的处理
  *   - ref：各方都拿到元素
  *   - 其他属性：受管 > 使用方 > 默认
@@ -35,8 +35,8 @@ export function mergeProps(defaults: Props, user: Props = {}, managed: Props = {
 
   const sx = layers.map((layer) => layer.sx).filter((value) => value != null);
   if (sx.length) merged.sx = sx;
-  const classes = layers.map((layer) => layer.class).filter(Boolean);
-  if (classes.length) merged.class = classes.join(' ');
+  const classes = layers.map((layer) => layer.class).filter((value) => value != null);
+  if (classes.length) merged.class = classes;
   const styles = layers.map((layer) => layer.style).filter((value) => value != null);
   if (styles.length) merged.style = styles;
 
@@ -70,7 +70,7 @@ export function elementProps(props: Props): Props {
   const compiled = stylex.attrs(sx as StyleXStyles);
   return {
     ...rest,
-    class: [rest.class, compiled.class].filter(Boolean).join(' ') || undefined,
+    class: [rest.class, compiled.class].filter((value) => value != null),
     style: [compiled.style, rest.style].filter((value) => value != null),
   };
 }
