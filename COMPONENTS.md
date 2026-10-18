@@ -15,7 +15,7 @@
 | 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                            |
 | 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7） |
 | 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                             |
-| 多态         | 不做通用的 `as`；个别组件按需处理（如 Button 传 `href` 时渲染为 `<a>`）                                                                                               |
+| 多态         | 不做任意标签的 `as`；布局、文本类组件提供受限的 `as`（只能在语义相近的几种标签里选，见 §10.1）；个别组件按需处理（如 Button 传 `href` 时渲染为 `<a>`）                |
 | 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                |
 | 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                             |
 
@@ -268,3 +268,57 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 - 生成格式：说明 → 常用值 → StyleX 注意事项 → 初始值 / 继承 / Baseline → `@see` MDN。
 - 数据以本仓库 `scripts/css-docs/` 为唯一来源，以后需要时再抽成与 zerodep-js 共用的数据包。
 - 主题 tokens 用 `defineVars` 定义时每个变量写 JSDoc（用途 + 明暗取值），属性访问悬停即可看到。
+
+## 10. 第一批基础组件
+
+上层组件（表单、弹层、数据展示）都建在这一层上，所以先把基础设施与基础组件做扎实：上层组件只组合它们，不再各写一遍布局、文字、动效。
+
+### 10.1 基础设施
+
+| 项           | 位置                            | 内容                                                                                                                                                                                |
+| ------------ | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 档位类型     | `utils/styles.ts`               | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                |
+| 共享样式表   | `utils/styles.ts`               | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                     |
+| 减少动态效果 | `config/theme/tokens.stylex.ts` | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                           |
+| 受限的 `as`  | `utils/props.ts`                | `AsProps<'div' \| 'section' \| …, 受管属性>`：只能在一组语义相近的标签里选，透传属性取这组标签的共同部分                                                                            |
+| 过渡预设     | `utils/motion.ts`               | `fade`、`scale`、`slide` 等 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`afterTransition(元素, 回调)` 等过渡结束（时长为 0 时立即回调） |
+| 演示页       | `apps/host-demo` 的 `/base`     | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                     |
+
+### 10.2 组件
+
+| 分类       | 组件             | 要点                                                                                                                                                                                         |
+| ---------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base/`    | `VisuallyHidden` | 只给读屏器看的文字                                                                                                                                                                           |
+| `base/`    | `Text`           | `size`、`weight`、`tone`（`muted`、`accent`、`danger`、`success`、`warning`、`info`）、`align`、`truncate`、`lineClamp`、`wrap`；`as` 可选 `span`、`p`、`div`、`label`、`strong`、`em`       |
+| `base/`    | `Heading`        | `level`（1–6）决定标签与默认字号，`size` 可单独改；紧凑行高、`text-wrap: balance`                                                                                                            |
+| `base/`    | `Link`           | `tone`、`underline`；`external` 自动加 `rel` 与读屏提示（语言文案）                                                                                                                          |
+| `base/`    | `Code`、`Kbd`    | 行内代码、按键                                                                                                                                                                               |
+| `base/`    | `CodeBlock`      | 代码块；高亮器可选，见 10.4                                                                                                                                                                  |
+| `layout/`  | `Flex`           | `direction`、`align`、`justify`、`wrap`、`gap`、`inline`；只做这一个，不拆 Stack / Group                                                                                                     |
+| `layout/`  | `Grid`           | `columns`（1–12）、`minItemWidth`（`auto-fill` 自动换列）、`gap` / `rowGap` / `columnGap`、`align`、`justify`、`flow`                                                                        |
+| `layout/`  | `Container`      | `size`（`xs`–`xl`，新增容器宽度 token）、`padding`；居中、限制最大宽度                                                                                                                       |
+| `layout/`  | `Separator`      | `orientation`；有语义时 `role="separator"`，装饰性时对读屏隐藏                                                                                                                               |
+| `display/` | `Collapse`       | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器等同 `hidden` |
+| `display/` | `Collapsible`    | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                            |
+
+Flex / Grid 的 `as` 可选 `div`、`section`、`article`、`ul`、`ol`、`li`、`nav`、`header`、`footer`、`main`、`aside`、`form`。
+
+不做：`Box`（就是 `div` + `sx`）、`AspectRatio`（`sx` 里写 `aspectRatio`）、`Spacer`。响应式这批不做：`Grid` 的 `minItemWidth` 已覆盖最常见的自动换列，其余用 `sx` 加容器查询；以后需要时用容器查询实现，不引入断点。
+
+### 10.3 取舍依据
+
+- `Collapsible` 不用原生 `<details>`：`<summary>` 必须是第一个子元素，触发器不能放在别处；动画要 `::details-content`（2025 年起才各浏览器可用）。
+- 进场、离场动画用 CSS（`@starting-style`、`allow-discrete`，2024 年起三大浏览器都支持），不依赖 Vue 的 `<Transition>`；列表增删这类需要 JS 协调的动画以后再加。
+- 不用 `text-box` 裁掉文字的上下行距（Firefox 不支持）；多行截断用带 `-webkit-` 前缀的 `line-clamp`（标准写法尚无浏览器支持）。
+
+### 10.4 代码高亮：Shiki 作为可选依赖
+
+- `CodeBlock` 本身不依赖 Shiki：没有高亮器时渲染普通的 `<pre><code>`。
+- 高亮器通过配置注入：`createUi({ highlighter })` 或 `<Provider highlighter={…}>`，接口是“代码 + 语言 → HTML”的异步函数。
+- 子路径 `@vue-tsx-pro/ui/shiki` 提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
+- 用 Shiki 的 CSS 变量主题，颜色映射到我们的 tokens：切换明暗主题不需要重新高亮。
+- 高亮是异步的：先显示纯文本，结果到了再替换，布局不跳动。
+
+### 10.5 顺序
+
+基础设施 → 折叠与过渡 → 布局 → 文本，每步单独提交。正式组件按 §8 验收，文档页暂用演示页代替。
