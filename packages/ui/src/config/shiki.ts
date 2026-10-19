@@ -12,8 +12,8 @@ import { createCssVariablesTheme, createHighlighterCore, type HighlighterCore } 
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 import { bundledLanguages } from 'shiki/langs';
 import type { LanguageInput } from 'shiki/types';
-import type { Highlighter } from '../config/context';
-import { colors } from '../config/theme/tokens.stylex';
+import type { Highlighter } from './context';
+import { colors } from './theme/tokens.stylex';
 
 /** createShikiHighlighter 的选项 */
 export interface ShikiHighlighterOptions {

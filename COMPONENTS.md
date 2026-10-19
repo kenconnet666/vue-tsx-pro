@@ -372,7 +372,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 - `CodeBlock` 本身不依赖 Shiki：没有高亮器、或没给 `lang` 时渲染普通的 `<pre><code>`。
 - 高亮器通过配置注入：`createUi({ highlighter })` 或 `<Provider highlighter={…}>`，接口 `Highlighter` 是“代码 + 语言 → 行内 HTML”的异步函数（只含 span 与 br，外层的 pre、code 由 CodeBlock 渲染）。
-- 子路径 `@vue-tsx-pro/ui/shiki`（`src/integrations/shiki.ts`，构建时是单独的入口）提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
+- 子路径 `@vue-tsx-pro/ui/shiki`（`src/config/shiki.ts`，构建时是单独的入口）提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
 - JavaScript 正则引擎（`forgiving`，不加载 wasm）；语言按需 `loadLanguage`，同一种语言只加载一次，下载失败不缓存；不认识的语言按 `text` 输出；`codeToHtml` 用 `structure: 'inline'`。
 - 颜色：Shiki 的 CSS 变量主题，`variableDefaults` 直接指向颜色 tokens（`var(--shiki-token-keyword, var(--accentText 的变量))`），切换明暗主题不需要重新高亮，使用方仍可用 `--shiki-*` 单独调整。没有在 CodeBlock 根元素上写 `--shiki-*`：StyleX 的类型不收自定义属性，默认值的写法也让高亮器脱离 CodeBlock 单独使用时颜色正确。
 - 高亮是异步的：先显示纯文本，结果到了再替换（等宽字体下排版相同）；代码或语言变了先回到纯文本，晚到的旧结果丢弃；高亮失败保留纯文本并 `console.error`。

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { LinkButton } from '../../base/LinkButton';
-import { Provider } from '../../config/Provider';
+import { Provider } from '../Provider';
 import { mount } from '../../utils/.test/mount';
 import { vueRouterAdapter } from '../vue-router';
 

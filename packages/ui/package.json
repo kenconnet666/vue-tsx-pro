@@ -12,14 +12,14 @@
       "default": "./dist/index.js"
     },
     "./shiki": {
-      "@vue-tsx-pro/source": "./src/integrations/shiki.ts",
-      "types": "./dist/integrations/shiki.d.ts",
-      "default": "./dist/integrations/shiki.js"
+      "@vue-tsx-pro/source": "./src/config/shiki.ts",
+      "types": "./dist/config/shiki.d.ts",
+      "default": "./dist/config/shiki.js"
     },
     "./vue-router": {
-      "@vue-tsx-pro/source": "./src/integrations/vue-router.ts",
-      "types": "./dist/integrations/vue-router.d.ts",
-      "default": "./dist/integrations/vue-router.js"
+      "@vue-tsx-pro/source": "./src/config/vue-router.ts",
+      "types": "./dist/config/vue-router.d.ts",
+      "default": "./dist/config/vue-router.js"
     },
     "./tokens.stylex": {
       "@vue-tsx-pro/source": "./src/config/theme/tokens.stylex.ts",

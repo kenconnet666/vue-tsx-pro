@@ -34,9 +34,9 @@ packages/
     src/display/      展示：折叠、虚拟列表、进度、骨架屏、提示条、卡片、头像
     src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList
     src/form/         表单：Slider、SlideVerify、ToggleGroup
-    src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）
+    src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）、
+                      可选依赖的适配（子路径 shiki、vue-router）
     src/utils/        部件 props 合并、样式档位、波纹、拖动、漫游焦点、虚拟滚动、路由适配等
-    src/integrations/ 可选依赖的子路径：shiki、vue-router
     （每个目录下的 .test/ 放测试）
 apps/
   docs/        文档站（VitePress 2）

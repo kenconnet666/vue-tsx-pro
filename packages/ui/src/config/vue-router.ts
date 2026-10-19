@@ -7,7 +7,7 @@
  * 组件本身只依赖 config 里的 UiRouter 接口，换别的路由库时自己实现这两个函数即可。
  */
 import type { Router } from 'vue-router';
-import type { UiRouter } from '../config/context';
+import type { UiRouter } from './context';
 
 /** 怎样算“当前页” */
 export interface RouteMatches {
