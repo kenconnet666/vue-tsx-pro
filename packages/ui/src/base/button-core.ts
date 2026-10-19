@@ -10,7 +10,7 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
-import { rippleHostStyles } from '../utils/dom/ripple';
+import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -336,16 +336,65 @@ export function buttonContent(
   ];
 }
 
-/** 加载中或“可聚焦的不可用”时拦下点击：不触发使用方的 onClick，也不提交表单 */
-export function guardClick<E extends MouseEvent>(
-  blocked: () => boolean,
+/** useButtonBehavior 每次渲染读取的状态 */
+export interface ButtonBehaviorState {
+  /** 不可用 */
+  disabled: boolean;
+  /** 加载中：点击无效，焦点保留 */
+  loading: boolean;
+  /** 不可用时仍可聚焦：用 aria-disabled 代替原生 disabled。链接没有原生 disabled，总是写 true */
+  focusableWhenDisabled?: boolean;
+  /** 波纹；不写时沿用配置 */
+  ripple?: boolean;
+}
+
+/** useButtonBehavior 给出的受管属性：展开到 mergeProps 的受管层 */
+export interface ButtonBehaviorProps<E extends MouseEvent = MouseEvent> extends RippleHandlers {
+  /** 原生 disabled（不可聚焦的不可用） */
+  disabled?: boolean;
+  /** 可聚焦的不可用 */
+  'aria-disabled'?: true;
+  /** 加载中 */
+  'aria-busy'?: true;
+  /** 加载中、可聚焦的不可用时拦下点击，否则交给使用方的 onClick */
+  onClick: (event: E) => void;
+  /** 状态写成 data 属性，样式与测试据此选择 */
+  'data-loading'?: true;
+  /** 不可用（两种方式都有） */
+  'data-disabled'?: true;
+}
+
+/**
+ * 按钮家族的行为：不可用（原生 disabled 或可聚焦的 aria-disabled）、加载中、拦截点击、波纹、状态 data 属性。
+ * 被拦下的点击会 preventDefault：不触发使用方的 onClick，也不提交表单、不跟随链接。
+ *
+ *   const behavior = useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick);
+ *   mergeProps<'button'>(默认, rest, behavior())
+ */
+export function useButtonBehavior<E extends MouseEvent>(
+  read: () => ButtonBehaviorState,
   onClick: () => ((event: E) => void) | undefined,
-): (event: E) => void {
-  return (event) => {
-    if (blocked()) {
+): () => ButtonBehaviorProps<E> {
+  const ripple = useRipple(() => read().ripple);
+  function click(event: E) {
+    const { disabled, loading, focusableWhenDisabled = false } = read();
+    if (loading || (disabled && focusableWhenDisabled)) {
       event.preventDefault();
       return;
     }
     onClick()?.(event);
+  }
+  return () => {
+    const { disabled, loading, focusableWhenDisabled = false } = read();
+    const soft = disabled && focusableWhenDisabled;
+    return {
+      disabled: (disabled && !focusableWhenDisabled) || undefined,
+      'aria-disabled': soft || undefined,
+      'aria-busy': loading || undefined,
+      onClick: click,
+      ...ripple,
+      'data-loading': loading || undefined,
+      'data-disabled': disabled || undefined,
+    };
   };
 }

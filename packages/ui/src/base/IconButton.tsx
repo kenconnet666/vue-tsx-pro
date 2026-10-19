@@ -6,12 +6,11 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/dom/ripple';
 import {
   buttonContent,
   buttonSx,
-  guardClick,
   useButtonAppearance,
+  useButtonBehavior,
   type ButtonOptions,
 } from './button-core';
 import type { IconData, IconProps } from './Icon';
@@ -55,9 +54,8 @@ export const IconButton = _component(
     ...rest
   }: IconButtonProps) => {
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'ghost');
-    const rippleHandlers = useRipple(() => ripple);
-    const click = guardClick(
-      () => loading || (disabled && focusableWhenDisabled),
+    const behavior = useButtonBehavior(
+      () => ({ disabled, loading, focusableWhenDisabled, ripple }),
       () => onClick,
     );
 
@@ -67,18 +65,9 @@ export const IconButton = _component(
           mergeProps<'button'>(
             { sx: buttonSx(appearance(), { disabled, square: true }), type },
             rest,
-            {
-              'aria-label': label,
-              disabled: disabled && !focusableWhenDisabled,
-              'aria-disabled': (disabled && focusableWhenDisabled) || undefined,
-              'aria-busy': loading || undefined,
-              onClick: click,
-              ...rippleHandlers,
-            },
+            { ...behavior(), 'aria-label': label },
           ),
         )}
-        data-loading={loading || undefined}
-        data-disabled={disabled || undefined}
       >
         {buttonContent({ icon, propsIcon }, { loading, propsSpinner })}
       </button>

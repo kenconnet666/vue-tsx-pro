@@ -8,12 +8,11 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/dom/ripple';
 import {
   buttonContent,
   buttonSx,
-  guardClick,
   useButtonAppearance,
+  useButtonBehavior,
   type ButtonContentOptions,
   type ButtonOptions,
 } from './button-core';
@@ -59,40 +58,26 @@ export const Button = _component(
     ...rest
   }: ButtonProps) => {
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'solid');
-    const rippleHandlers = useRipple(() => ripple);
-    // 加载中、可聚焦的不可用：元素仍可聚焦，只是点击无效
-    const blocked = () => loading || (disabled && focusableWhenDisabled);
-    const click = guardClick(blocked, () => onClick);
+    const behavior = useButtonBehavior(
+      () => ({ disabled, loading, focusableWhenDisabled, ripple }),
+      () => onClick,
+    );
 
-    return () => {
-      const softDisabled = disabled && focusableWhenDisabled;
-      return (
-        <button
-          {...elementProps(
-            mergeProps<'button'>(
-              {
-                sx: buttonSx(appearance(), { disabled, fullWidth }),
-                type,
-              },
-              rest,
-              {
-                disabled: disabled && !focusableWhenDisabled,
-                'aria-disabled': softDisabled || undefined,
-                'aria-busy': loading || undefined,
-                onClick: click,
-                ...rippleHandlers,
-              },
-            ),
-          )}
-          data-loading={loading || undefined}
-          data-disabled={disabled || undefined}
-        >
-          {buttonContent(
-            { icon, iconEnd, children, propsContent, propsIcon, propsIconEnd },
-            { loading, propsSpinner },
-          )}
-        </button>
-      );
-    };
+    return () => (
+      <button
+        {...elementProps(
+          mergeProps<'button'>(
+            { sx: buttonSx(appearance(), { disabled, fullWidth }), type },
+            rest,
+            behavior(),
+          ),
+        )}
+      >
+        {buttonContent(
+          { icon, iconEnd, children, propsContent, propsIcon, propsIconEnd },
+          { loading, propsSpinner },
+        )}
+      </button>
+    );
   },
 );

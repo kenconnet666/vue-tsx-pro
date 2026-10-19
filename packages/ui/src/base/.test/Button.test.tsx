@@ -133,6 +133,39 @@ describe('IconButton 与预设', () => {
     expect(button.querySelector('svg.gear')).not.toBeNull();
   });
 
+  it('三种按钮共用一套行为：加载中、可聚焦的不可用都拦下点击，状态写成 data 属性', () => {
+    const onClick = vi.fn();
+    const root = mount(() => (
+      <>
+        <IconButton icon={Settings} aria-label="加载" loading onClick={onClick} />
+        <IconButton
+          icon={Settings}
+          aria-label="不可用"
+          disabled
+          focusableWhenDisabled
+          onClick={onClick}
+        />
+        <LinkButton href="/x" loading onClick={onClick}>
+          链接
+        </LinkButton>
+      </>
+    ));
+    const [loading, soft] = root.querySelectorAll('button');
+    const link = first<HTMLAnchorElement>(root, 'a');
+    for (const element of [loading!, soft!, link]) element.click();
+    expect(onClick).not.toHaveBeenCalled();
+    expect([loading!.dataset.loading, loading!.getAttribute('aria-busy')]).toEqual([
+      'true',
+      'true',
+    ]);
+    expect([soft!.disabled, soft!.getAttribute('aria-disabled'), soft!.dataset.disabled]).toEqual([
+      false,
+      'true',
+      'true',
+    ]);
+    expect(link.dataset.loading).toBe('true');
+  });
+
   it('CloseButton、ClearButton：名称取语言包，可以用 aria-label 改', () => {
     const root = mount(() => (
       <>

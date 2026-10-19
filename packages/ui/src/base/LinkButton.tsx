@@ -10,12 +10,11 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/dom/ripple';
 import {
   buttonContent,
   buttonSx,
-  guardClick,
   useButtonAppearance,
+  useButtonBehavior,
   type ButtonContentOptions,
   type ButtonOptions,
 } from './button-core';
@@ -64,10 +63,9 @@ export const LinkButton = _component(
     const lang = useLang();
     const router = useRouterLink();
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'solid');
-    const rippleHandlers = useRipple(() => ripple);
-    // 加载中、不可用时点击无效；使用方的 onClick 先于路由跳转执行，可以 preventDefault 拦下
-    const click = guardClick<MouseEvent>(
-      () => loading || disabled,
+    // 链接没有原生 disabled：不可用时去掉 href、用 aria-disabled。使用方的 onClick 先于路由跳转执行，可以 preventDefault 拦下
+    const behavior = useButtonBehavior(
+      () => ({ disabled, loading, focusableWhenDisabled: true, ripple }),
       () => (event) => {
         // 使用方的 onClick 按元素类型声明，这里的事件就是它
         (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
@@ -85,17 +83,12 @@ export const LinkButton = _component(
             },
             rest,
             {
+              ...behavior(),
               href: disabled ? undefined : href,
               role: disabled ? 'link' : undefined,
-              'aria-disabled': disabled || undefined,
-              'aria-busy': loading || undefined,
-              onClick: click,
-              ...rippleHandlers,
             },
           ),
         )}
-        data-loading={loading || undefined}
-        data-disabled={disabled || undefined}
       >
         {buttonContent(
           {
