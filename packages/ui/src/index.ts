@@ -469,6 +469,13 @@ export {
   type SliderValue,
 } from './input/Slider';
 export { Switch, switchStyles, type SwitchManaged, type SwitchProps } from './input/Switch';
+export {
+  TagsInput,
+  tagsInputStyles,
+  type TagsInputBaseProps,
+  type TagsInputManaged,
+  type TagsInputProps,
+} from './input/TagsInput';
 export { TextField, type TextFieldManaged, type TextFieldProps } from './input/TextField';
 export {
   Textarea,

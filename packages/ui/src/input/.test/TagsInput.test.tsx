@@ -1,0 +1,51 @@
+// TagsInput：回车、分隔符、粘贴加入；重复与上限；退格删最后一个（建议列表用原生 popover，见浏览器测试）
+import { describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
+import { mount } from '../../utils/.test/mount';
+import { TagsInput } from '../TagsInput';
+
+async function type(input: HTMLInputElement, text: string) {
+  input.value = text;
+  input.dispatchEvent(new Event('input'));
+  await nextTick();
+}
+const press = (input: HTMLInputElement, key: string) =>
+  input.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+const tags = (root: Element) =>
+  [...root.querySelectorAll('[data-tag]')].map((tag) => tag.textContent);
+
+describe('TagsInput', () => {
+  it('回车加入并清空输入；重复的不加；输入框为空时退格删掉最后一个', async () => {
+    let value = _state<string[]>([]);
+    const root = mount(() => <TagsInput value={_bind(value)} aria-label="关键词" />);
+    const input = root.querySelector('input')!;
+    await type(input, ' vue ');
+    press(input, 'Enter');
+    await nextTick();
+    expect(value).toEqual(['vue']);
+    expect(input.value).toBe('');
+    await type(input, 'vue');
+    press(input, 'Enter');
+    expect(value).toEqual(['vue']);
+    await type(input, '');
+    press(input, 'Backspace');
+    await nextTick();
+    expect(value).toEqual([]);
+  });
+
+  it('输入分隔符时加入前面的部分；粘贴按分隔符与换行拆开；max 之外不加', async () => {
+    let value = _state<string[]>([]);
+    const root = mount(() => <TagsInput value={_bind(value)} max={3} aria-label="x" />);
+    const input = root.querySelector('input')!;
+    await type(input, 'a，b');
+    expect(value).toEqual(['a']);
+    expect(input.value).toBe('b');
+    const paste = new Event('paste', { cancelable: true }) as ClipboardEvent;
+    Object.defineProperty(paste, 'clipboardData', { value: { getData: () => 'c\nd;e' } });
+    input.dispatchEvent(paste);
+    expect(paste.defaultPrevented).toBe(true);
+    expect(value).toEqual(['a', 'c', 'd']);
+    await nextTick();
+    expect(tags(root)).toEqual(['a', 'c', 'd']);
+  });
+});

@@ -101,6 +101,7 @@ import {
   TabPanel,
   Tabs,
   Tag,
+  TagsInput,
   Provider,
   ScrollArea,
   Separator,
@@ -332,6 +333,7 @@ export const Base = _component(() => {
   let step = _state(1);
   let page = _state(3);
   let pageSize = _state(20);
+  let skills = _state<string[]>(['typescript']);
   let faq = _state<string | undefined>('ship');
   let view = _state<string | undefined>('list');
   let marks = _state<string[]>(['bold']);
@@ -734,6 +736,16 @@ export const Base = _component(() => {
                   items={manyOptions}
                   value={_bind(serial)}
                   propsRoot={{ class: 'select-many-demo' }}
+                />
+              </Field>
+            </li>
+            <li>
+              <Field label="技能" description="回车或逗号加入，退格删除，可以从建议里选">
+                <TagsInput
+                  items={languageOptions}
+                  value={_bind(skills)}
+                  clearable
+                  propsRoot={{ class: 'tags-input-demo' }}
                 />
               </Field>
             </li>

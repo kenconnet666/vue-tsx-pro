@@ -1,0 +1,398 @@
+/**
+ * 标签输入（多选的组合框）：输入框里排着已选的 Tag，输入文字后回车（或输入逗号）加一个，可以从建议列表里选。
+ * 关键词、收件人、标签、多个城市。参考 Mantine TagsInput、React Aria TagGroup + ComboBox。
+ *
+ *   <TagsInput value={_bind(keywords)} aria-label="关键词" />                          自由输入
+ *   <TagsInput value={_bind(cities)} items={cityOptions} allowCustomValue={false} />   只能从建议里选
+ *
+ * - 回车、输入分隔符（默认 , ， ; ；）把文字加成标签；粘贴时按分隔符与换行拆成多个；重复的不加；
+ * - 输入框为空时按退格删掉最后一个标签；每个标签有移除按钮（离场后其余的平移补位）；
+ * - 有 items 时边输入边过滤建议（同 Combobox），↑↓ 移动、回车加入或移除高亮项（已选的打勾）；
+ * - 写了 name 时每个值一个隐藏的 input 随表单提交。
+ *
+ * 未声明的属性落到 input（主元素）上。部件：Root（外壳）、Tag、Input、Clear、Popover、Listbox。
+ */
+import { _component } from '@vue-tsx-pro/tsx';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { useId, watch, type VNodeChild } from 'vue';
+import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import { Tag, type TagProps } from '../base/Tag';
+import { useLang } from '../config/context';
+import { createMatcher } from '../utils/data/collation';
+import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { useLayoutAnimation } from '../utils/motion/layout';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { transitions } from '../utils/style/transitions';
+import { fontSizeStyles } from '../utils/style/typography';
+import type { StyleTable } from '../utils/style/styles';
+import {
+  controlStyles,
+  controlSx,
+  focusOnShell,
+  useControlAppearance,
+  type ControlOptions,
+} from './control';
+import { useFieldControl } from './Field';
+import { FormValue } from './FormValue';
+import {
+  activeOptionId,
+  ListboxView,
+  type ListboxViewProps,
+  type OptionRenderState,
+} from './Listbox';
+import {
+  handleListKeydown,
+  useListState,
+  type ListboxOption,
+  type OptionMapping,
+} from './list-state';
+
+/** 角色、展开状态与可用性由组件管理 */
+export type TagsInputManaged =
+  | 'value'
+  | 'role'
+  | 'size'
+  | 'disabled'
+  | 'readonly'
+  | 'autocomplete'
+  | 'aria-autocomplete'
+  | 'aria-expanded'
+  | 'aria-controls'
+  | 'aria-activedescendant'
+  | 'aria-invalid'
+  | 'aria-describedby';
+
+/** TagsInput 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
+export interface TagsInputBaseProps<T>
+  extends PartProps<'input', TagsInputManaged>, ControlOptions {
+  /** 已选的值：父级写 value={_bind(list)} */
+  value?: string[];
+  /** 建议：ListboxOption，或任意数据加 toOption；不给时是纯自由输入 */
+  items?: readonly T[];
+  /** 允许加入不在建议里的文字，默认 true */
+  allowCustomValue?: boolean;
+  /** 把输入拆成标签的分隔符，默认 [',', '，', ';', '；']；回车与粘贴里的换行总是分隔 */
+  delimiters?: readonly string[];
+  /** 最多几个标签；到了上限不再加入 */
+  max?: number;
+  /** 输入框里的文字：父级可以写 inputValue={_bind(x)}（异步取建议时据此搜索） */
+  inputValue?: string;
+  /** 建议列表是否打开 */
+  open?: boolean;
+  /** 过滤建议：默认按显示文字包含输入；false 不过滤（异步搜索） */
+  filter?: false | ((item: T, query: string) => boolean);
+  /** 正在取建议 */
+  loading?: boolean;
+  /** 弹出位置，默认 bottom-start */
+  placement?: FloatingPlacement;
+  /** 有标签时显示清空按钮 */
+  clearable?: boolean;
+  /** 表单提交时的 name（每个值一个隐藏的 input） */
+  name?: string;
+  /** 不可用 */
+  disabled?: boolean;
+  /** 只读：标签不能移除，不能输入 */
+  readonly?: boolean;
+  /** 校验未通过 */
+  invalid?: boolean;
+  /** 自定义建议的内容 */
+  children?: (item: T, state: OptionRenderState) => VNodeChild;
+  /** 外壳的部件属性 */
+  propsRoot?: PartProps<'div'>;
+  /** 每个标签的部件属性，可以按值计算 */
+  propsTag?: Partial<TagProps> | ((value: string) => Partial<TagProps>);
+  /** 清空按钮的部件属性 */
+  propsClear?: Partial<PresetIconButtonProps>;
+  /** 弹出层的部件属性 */
+  propsPopover?: PartProps<'div', 'id' | 'popover'>;
+  /** 建议列表的部件属性 */
+  propsListbox?: Partial<ListboxViewProps<T>>;
+}
+
+/** 标签输入的属性；items 不是 ListboxOption 时要给 toOption */
+export type TagsInputProps<T = ListboxOption> = TagsInputBaseProps<T> & OptionMapping<T>;
+
+/** TagsInput 的样式：root、input、popover */
+export const tagsInputStyles: StyleTable<'root' | 'input' | 'popover'> = stylex.create({
+  // 标签多了换行；行与行之间留出间距
+  root: { flexWrap: 'wrap', rowGap: '_xs', paddingBlock: '_xs' },
+  // 输入框至少留出几个字的位置，放不下时换到下一行
+  input: { flexBasis: '6em' },
+  popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
+});
+
+/** 默认的分隔符：英文、中文的逗号与分号 */
+const DELIMITERS = [',', '，', ';', '；'];
+
+/** 标签输入：输入框里排着 Tag，回车或分隔符加入，退格删最后一个 */
+export const TagsInput = _component(
+  <T,>({
+    value = _bindable<string[]>([]),
+    items = [],
+    toOption,
+    allowCustomValue = true,
+    delimiters = DELIMITERS,
+    max,
+    inputValue = _bindable(''),
+    open = _bindable(false),
+    filter,
+    loading = false,
+    placement = 'bottom-start',
+    clearable = false,
+    name,
+    variant,
+    size,
+    radius,
+    disabled,
+    readonly,
+    invalid,
+    id,
+    children,
+    propsRoot,
+    propsTag,
+    propsClear,
+    propsPopover,
+    propsListbox,
+    ...rest
+  }: TagsInputProps<T>) => {
+    const lang = useLang();
+    const listId = useId();
+    const appearance = useControlAppearance(() => ({ variant, size, radius }));
+    const control = useFieldControl(() => ({ id, invalid, disabled, readonly }));
+    let shell = _state.raw<HTMLElement | null>(null);
+    let input = _state.raw<HTMLInputElement | null>(null);
+    let panel = _state.raw<HTMLElement | null>(null);
+    // 标签增删时其余的平移补位
+    const layout = useLayoutAnimation(() => shell, { children: '[data-tag]' });
+
+    const optionOf = (item: T) => (toOption ? toOption(item) : (item as ListboxOption));
+    const suggestions = () => items.length > 0;
+    const labelOf = (tag: string) => {
+      const item = items.find((candidate) => optionOf(candidate).value === tag);
+      return item === undefined ? tag : optionOf(item).label;
+    };
+
+    const list = useListState({
+      items: () => {
+        const query = inputValue.trim();
+        if (filter === false || !query) return items;
+        const matcher = createMatcher(lang.code);
+        return items.filter((item) =>
+          filter ? filter(item, query) : matcher(optionOf(item).label, query),
+        );
+      },
+      toOption: optionOf,
+      selected: () => value,
+      mode: () => 'multiple',
+      onChange: (next) => void layout.change(() => (value = [...next])),
+    });
+
+    /** 把一段文字变成值：是建议的文字或值时取建议的值，否则（允许时）原样 */
+    function resolve(text: string): string | undefined {
+      const trimmed = text.trim();
+      if (!trimmed) return undefined;
+      const item = items.find((candidate) => {
+        const option = optionOf(candidate);
+        return option.value === trimmed || option.label === trimmed;
+      });
+      if (item !== undefined) return optionOf(item).value;
+      return allowCustomValue ? trimmed : undefined;
+    }
+
+    /** 加入几段文字；重复的、超出上限的不加；返回是否加入了 */
+    function add(texts: readonly string[]) {
+      const next = [...value];
+      for (const text of texts) {
+        const tag = resolve(text);
+        if (tag === undefined || next.includes(tag) || (max != null && next.length >= max))
+          continue;
+        next.push(tag);
+      }
+      if (next.length === value.length) return false;
+      void layout.change(() => (value = next));
+      return true;
+    }
+
+    const remove = (tag: string) =>
+      void layout.change(() => (value = value.filter((item) => item !== tag)));
+
+    const splitter = () =>
+      new RegExp(
+        `[${[...delimiters, '\n', '\r', '\t'].map((d) => d.replace(/[\\\]^-]/g, '\\$&')).join('')}]`,
+      );
+
+    // 输入了分隔符：分隔符前的部分加成标签，剩下的留在输入框里
+    watch(
+      () => inputValue,
+      (text) => {
+        const parts = text.split(splitter());
+        if (parts.length > 1) {
+          add(parts.slice(0, -1));
+          inputValue = parts.at(-1)!;
+          return;
+        }
+        if (suggestions() && text && !control().readonly) {
+          open = true;
+          list.move('first');
+        }
+      },
+    );
+
+    function onKeydown(event: KeyboardEvent) {
+      const state = control();
+      if (state.disabled || state.readonly || event.isComposing) return;
+      if (event.key === 'Backspace' && !inputValue && value.length) {
+        event.preventDefault();
+        remove(value.at(-1)!);
+        return;
+      }
+      if (open && suggestions()) {
+        if (handleListKeydown(list, event, { homeEnd: false })) {
+          event.preventDefault();
+          if (event.key === 'Enter') inputValue = '';
+          return;
+        }
+      } else if (event.key === 'ArrowDown' && suggestions()) {
+        event.preventDefault();
+        list.activateDefault();
+        open = true;
+        return;
+      }
+      if (event.key === 'Enter' && inputValue.trim()) {
+        event.preventDefault();
+        if (add([inputValue])) inputValue = '';
+      }
+    }
+
+    // 粘贴多段（有分隔符、换行）时拆开加入；只有一段时照常粘贴
+    function onPaste(event: ClipboardEvent) {
+      const text = event.clipboardData?.getData('text') ?? '';
+      const parts = text.split(splitter());
+      if (parts.length < 2) return;
+      event.preventDefault();
+      add(parts);
+    }
+
+    const { onToggle } = useAnchoredPopover(
+      () => ({
+        open: open && suggestions(),
+        anchor: shell,
+        panel,
+        floating: { placement, matchWidth: true, fitHeight: true },
+        restoreFocus: false,
+      }),
+      { close: () => (open = false) },
+    );
+
+    return () => {
+      const state = control();
+      const editable = !state.disabled && !state.readonly;
+      return (
+        <>
+          <div
+            {...elementProps(
+              mergeProps<'div'>(
+                { sx: [controlSx(appearance(), state), tagsInputStyles.root] },
+                propsRoot,
+                { ref: _toRef(shell), onPointerdown: focusOnShell(() => input) },
+              ),
+            )}
+            data-state={open ? 'open' : 'closed'}
+            data-invalid={state.invalid || undefined}
+            data-disabled={state.disabled || undefined}
+          >
+            {value.map((tag) => {
+              const own = typeof propsTag === 'function' ? propsTag(tag) : propsTag;
+              return (
+                <Tag
+                  key={tag}
+                  {...mergePartProps<TagProps>({ variant: 'surface' }, own, {
+                    onRemove: editable ? () => remove(tag) : undefined,
+                  })}
+                  data-tag=""
+                >
+                  {labelOf(tag)}
+                </Tag>
+              );
+            })}
+            <input
+              {...elementProps(
+                mergeProps<'input'>({ sx: [controlStyles.input, tagsInputStyles.input] }, rest, {
+                  ref: _toRef(input),
+                  id: state.id,
+                  role: suggestions() ? 'combobox' : undefined,
+                  autocomplete: 'off',
+                  disabled: state.disabled,
+                  readonly: state.readonly,
+                  'aria-autocomplete': suggestions() ? 'list' : undefined,
+                  'aria-expanded': suggestions() ? open : undefined,
+                  'aria-controls': suggestions() ? listId : undefined,
+                  'aria-activedescendant':
+                    open && suggestions() ? activeOptionId(list, listId) : undefined,
+                  'aria-invalid': state.invalid || undefined,
+                  'aria-describedby': state.describedBy,
+                  onKeydown,
+                  onPaste,
+                  onBlur: () => (open = false),
+                }),
+              )}
+              value={_bind(inputValue)}
+            />
+            {clearable && value.length > 0 && editable && (
+              <ClearButton
+                {...mergePartProps<PresetIconButtonProps>(
+                  { sx: controlStyles.button, radius: 'full' },
+                  propsClear,
+                  {
+                    onClick: () => {
+                      void layout.change(() => (value = []));
+                      input?.focus();
+                    },
+                  },
+                )}
+              />
+            )}
+            <FormValue name={name} value={value} />
+          </div>
+          {suggestions() && (
+            <div
+              {...elementProps(
+                mergeProps<'div'>(
+                  {
+                    sx: [
+                      floatingStyles.anchored,
+                      floatingStyles.surface,
+                      tagsInputStyles.popover,
+                      appearance().size && fontSizeStyles[appearance().size!],
+                      transitions.scale,
+                    ],
+                  },
+                  propsPopover,
+                  { ref: _toRef(panel), popover: 'auto', onToggle },
+                ),
+              )}
+            >
+              <ListboxView
+                {...mergePartProps<ListboxViewProps<T>>(
+                  { list, id: listId, multiple: true, renderOption: children },
+                  propsListbox,
+                  {
+                    id: listId,
+                    scroller: panel,
+                    loading,
+                    'aria-labelledby': state.labelledBy,
+                    'aria-label': state.labelledBy ? undefined : rest['aria-label'],
+                    onPick: () => {
+                      inputValue = '';
+                      input?.focus();
+                    },
+                  },
+                )}
+              />
+            </div>
+          )}
+        </>
+      );
+    };
+  },
+);
