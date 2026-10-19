@@ -12,7 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { choiceStyles, useChoiceSize } from './choice-styles';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */

@@ -22,7 +22,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { IconButton } from '../base/IconButton';
 import { useLang } from '../config/context';
-import { toggleSelection } from '../utils/selection';
+import { toggleSelection } from '../utils/data/selection';
 import { columnValue, sortRows, type SortState } from './columns';
 import { Table, type TableProps } from './Table';
 import type { TableRowModel } from './TableView';

@@ -13,8 +13,8 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { rovingFocus } from '../utils/roving-focus';
-import { gapStyles, type Space } from '../utils/styles';
+import { rovingFocus } from '../utils/dom/roving-focus';
+import { gapStyles, type Space } from '../utils/style/styles';
 
 /** 工具栏方向 */
 export interface ToolbarOrientations {

@@ -8,17 +8,17 @@
 
 ## 1. 组件 API 约定
 
-| 项           | 约定                                                                                                                                                                                                                                                                                                                                                                                                |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`                                                                                                                                                                                                                                                                              |
-| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                                                                                                                                                                                                                                                       |
-| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                                                                                                                                                                                                                                                          |
-| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7）                                                                                                                                                                                                                               |
-| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                                                                                                                                                                                                                                                           |
-| 多态         | 不做 `as`：一个元素一个组件，不靠 prop 切换标签。Button（`<button>`）与 LinkButton（`<a>`）、H1–H6、Text / Paragraph / Strong / Em / Small 各是一个组件，用同一个工厂或共用样式表复用（默认值可以各不相同），每个组件只接受自己元素的属性。布局容器内置 div 与 ul 两种（Flex / FlexList、Grid / GridList、Container），其他语义标签用导出的工厂生成：`const Toolbar = createFlex('nav', 'Toolbar')` |
-| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                                                                                              |
-| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                                                                                                                                                                                                                                                           |
-| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/styles`（SizeScale、SpaceScale）与 `utils/typography`（TextSizes、Tones 等）。导出的组件、函数、类型本身也写 JSDoc（文件开头的说明不会挂到导出上）；`pnpm docs:check`（CI 的静态检查）逐个检查        |
+| 项           | 约定                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 可绑定的状态 | 统一用 `value`（输入类）、`checked`（开关类）、`open`（弹层类），子组件用 `_bindable` 声明，父组件写 `属性={_bind(x)}`                                                                                                                                                                                                                                                                                   |
+| 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                                                                                                                                                                                                                                                            |
+| 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                                                                                                                                                                                                                                                               |
+| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7）                                                                                                                                                                                                                                    |
+| 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                                                                                                                                                                                                                                                                |
+| 多态         | 不做 `as`：一个元素一个组件，不靠 prop 切换标签。Button（`<button>`）与 LinkButton（`<a>`）、H1–H6、Text / Paragraph / Strong / Em / Small 各是一个组件，用同一个工厂或共用样式表复用（默认值可以各不相同），每个组件只接受自己元素的属性。布局容器内置 div 与 ul 两种（Flex / FlexList、Grid / GridList、Container），其他语义标签用导出的工厂生成：`const Toolbar = createFlex('nav', 'Toolbar')`      |
+| 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                                                                                                   |
+| 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                                                                                                                                                                                                                                                                |
+| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/style/styles`（SizeScale、SpaceScale）与 `utils/style/typography`（TextSizes、Tones 等）。导出的组件、函数、类型本身也写 JSDoc（文件开头的说明不会挂到导出上）；`pnpm docs:check`（CI 的静态检查）逐个检查 |
 
 ## 2. 部件与透传
 
@@ -112,12 +112,12 @@
 - 中文输入法：输入类组件在 `compositionstart`/`compositionend` 之间不触发校验、搜索与格式化。
 - 弹层类组件的触发器用渲染函数 `trigger={(props) => <Button {...props} />}`；`ref` 落在组件上拿到的是实例，用 `toElement` 解析成根元素。
 - 弹层用原生 `popover`（非模态）与 `<dialog>.showModal()`（模态），floating-ui 只负责定位。顶层渲染、Esc、点击外部、嵌套弹层的关闭顺序、模态时背景 `inert` 都交给浏览器；这些依赖写成了三大浏览器上的回归测试（`apps/host-demo/test/native-overlay.browser.test.ts`），所以**不另建 JS 弹层栈**。
-- 浏览器不做或做得不一致的，由 `utils/overlay` 补上，弹层组件都要用：
+- 浏览器不做或做得不一致的，由 `utils/dom/overlay` 补上，弹层组件都要用：
   - `focusOrigin()` 在打开前记下焦点来源，关闭后 `returnFocus(弹层, 来源)` 把焦点还回去（WebKit 关闭原生弹层后会把焦点留在弹层里；Safari 点击按钮不聚焦它，`focusOrigin` 会取最近按下的元素）；
   - 打开时 `focusFirst(弹层)`；模态里 `trapFocus(弹层)` 做焦点循环（原生不循环）；
   - 模态打开时 `lockScroll()`，可叠加，最后一个解锁时恢复，并补上滚动条宽度避免页面跳动；
   - 带关闭、移除按钮的组件（Tag、Alert、Toast）在调用回调前 `focusAfterRemoval(元素)`：元素真被移除、焦点掉到 body 上时，交给同组的下一个（没有就上一个）可聚焦元素（同 React Aria TagGroup）。
-- 锚定在触发器上的浮层（Popover、Tooltip、Menu、Select）用 `utils/floating` 的 `anchorFloating(锚点, 浮层, { placement, matchWidth, fitHeight })` 定位，浮层样式加 `floatingStyles.anchored`：第一次定位前隐藏、翻转与贴边、持续跟随，最终方向写到 `data-side` / `data-align`，缩放原点朝向锚点；`ready` 完成后浮层可见，才能移入焦点。
+- 锚定在触发器上的浮层（Popover、Tooltip、Menu、Select）用 `utils/dom/floating` 的 `anchorFloating(锚点, 浮层, { placement, matchWidth, fitHeight })` 定位，浮层样式加 `floatingStyles.anchored`：第一次定位前隐藏、翻转与贴边、持续跟随，最终方向写到 `data-side` / `data-align`，缩放原点朝向锚点；`ready` 完成后浮层可见，才能移入焦点。
 - 弹层要用点击等用户操作打开：没有用户操作就打开的弹层会被浏览器并成一组，一次 Esc 全部关闭。
 
 ---
@@ -233,7 +233,7 @@ interface Lang {
 
 **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`（base、layout、display…），共用工具在 `utils/`，配置在 `config/`；测试集中在各目录下的 `.test/`（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
-**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）、过渡与 JS 动画（`utils/transitions`、`utils/animation`）、虚拟滚动核心（`utils/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
 **试点组件**（原 `apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）已全部转正并删除，`/pilot` 页面改用正式组件。试点阶段在 Chromium、Firefox、WebKit 中验证过：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
@@ -271,7 +271,7 @@ interface Lang {
 **待办**：
 
 - 文档页的 props 表生成。
-- 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
+- 双指缩放、旋转等手势：图片预览组件出现时在 `utils/dom/move.ts` 旁边加。拖动工具已完成（§10.8）。
 - 下一批：日期选择（Calendar、DateField、DatePicker，`@internationalized/date`）；表格的单元格编辑、多级表头、横向虚拟化按需再加。
 - 验证覆盖：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
 
@@ -323,11 +323,11 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 
 | 项           | 位置                            | 内容                                                                                                                                                                                                                 |
 | ------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 档位类型     | `utils/styles.ts`               | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                                                 |
-| 共享样式表   | `utils/styles.ts`               | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                                                      |
+| 档位类型     | `utils/style/styles.ts`         | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                                                 |
+| 共享样式表   | `utils/style/styles.ts`         | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                                                      |
 | 减少动态效果 | `config/theme/tokens.stylex.ts` | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                                                            |
 | 一元素一组件 | `base/Text.tsx`、`layout/*`     | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag`                              |
-| 过渡预设     | `utils/transitions.ts`          | `fade`、`scale`、`backdrop` 三套 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`await afterTransitions(元素)` 等元素与子元素的过渡结束（没有过渡、减少动态效果时立即完成） |
+| 过渡预设     | `utils/style/transitions.ts`    | `fade`、`scale`、`backdrop` 三套 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`await afterTransitions(元素)` 等元素与子元素的过渡结束（没有过渡、减少动态效果时立即完成） |
 | JS 动画      | `utils/animation.ts`            | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                          |
 | 演示页       | `apps/host-demo` 的 `/base`     | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                                                      |
 
@@ -393,7 +393,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 参考 `@tanstack/virtual-core` 的算法自己实现（§7 依赖表），分两层：
 
-- **核心 `utils/virtualizer.ts`**：不依赖 Vue 的 `Virtualizer` 类，表格、树、下拉列表以后都建在它上面。
+- **核心 `utils/virtual/virtualizer.ts`**：不依赖 Vue 的 `Virtualizer` 类，表格、树、下拉列表以后都建在它上面。
   - 位置表：每项的 `start / size / end`，大小先用 `estimateSize(index)` 估计，渲染后用 ResizeObserver 测量真实大小（border-box），按 key 缓存，数据重排后测量结果仍然对得上。
   - 可见范围：二分查找第一个 `end > 滚动位置` 的项，向后找到填满视口为止，再前后各加 `overscan` 项。`rangeExtractor` 可以改写最终渲染哪些项，吸顶行、固定行从这里接入（同 TanStack）。
   - 滚动容器：元素或 window；列表不在滚动内容的开头时用 `scrollMargin`（函数，每次滚动时读取，列表上方的内容变高也不会错位）。横向与纵向两种方向。
@@ -412,7 +412,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 ### 10.8 拖动：工具、浮层滚动条、滑块、拖动验证（已完成）
 
-- **拖动工具 `utils/move.ts`**：`startMove(pointerdown 事件, { onMove, onEnd, threshold })`，参考 React Aria 的 useMove，基于 Pointer Events：指针捕获（移出元素、窗口也能继续）、`pointercancel` 与失去捕获按取消处理、拖动期间禁止选中文字、超过阈值后吞掉随后的 click、只响应主按钮。元素自己设 `touch-action`，组件自己提供键盘替代。三个组件都用它。
+- **拖动工具 `utils/dom/move.ts`**：`startMove(pointerdown 事件, { onMove, onEnd, threshold })`，参考 React Aria 的 useMove，基于 Pointer Events：指针捕获（移出元素、窗口也能继续）、`pointercancel` 与失去捕获按取消处理、拖动期间禁止选中文字、超过阈值后吞掉随后的 click、只响应主按钮。元素自己设 `touch-action`，组件自己提供键盘替代。三个组件都用它。
 - **`layout/ScrollArea`**（参考 Radix ScrollArea）：滚动仍是原生的，原生滚动条用 `scrollbar-width: none` 与 `::-webkit-scrollbar` 隐藏；自绘的滚动条绝对定位、半透明（`color-mix` 的 textMuted），浮在内容上方，出现与消失只改透明度，不改变布局尺寸。
   - `axis`：y（默认）/ x / both；`type`：hover（默认，指针在上方或滚动时显示）/ scroll / always；`hideDelay`。
   - 滑块长度按可见比例（至少 20px），拖动滑块按比例滚动，点击轨道翻一页，滚轮落在滚动条上转交给视口；从右到左排版下横向方向反过来。
@@ -434,25 +434,25 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - 部件：`propsContent`、`propsIcon`、`propsIconEnd`、`propsSpinner`。
   - 实底按钮悬停时混入黑色加深（不用 accentHover / dangerHover），白字对比度只升不降。
 - **组件默认值** `config/defaults.ts`：`createUi({ defaults })` / `<Provider defaults>`，优先级：显式 prop > 最近的 Provider > createUi > 组件自己的默认；只收外观类选项。按钮家族经 `useButtonAppearance` 统一合并。
-- **路由适配** `UiRouter`（参考 React Aria 的 RouterProvider）：`navigate(href)`、`isActive(href)`；组件渲染真正的 `<a href>`，只拦普通左键点击的同源链接（`utils/link.ts` 的 `useRouterLink`）。vue-router 用子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router, { match })`。
-- **波纹** `utils/ripple.ts`：按下处扩散、松开淡出，键盘 Enter / 空格从中心扩散，纯 CSS 动画，时长取 durations（减少动态效果时没有扩散过程）。默认开启，`createUi({ ripple })` / `<Provider ripple>` 全局开关，组件的 `ripple` prop 单独覆盖（`useRipple`）。
+- **路由适配** `UiRouter`（参考 React Aria 的 RouterProvider）：`navigate(href)`、`isActive(href)`；组件渲染真正的 `<a href>`，只拦普通左键点击的同源链接（`utils/dom/link.ts` 的 `useRouterLink`）。vue-router 用子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router, { match })`。
+- **波纹** `utils/dom/ripple.ts`：按下处扩散、松开淡出，键盘 Enter / 空格从中心扩散，纯 CSS 动画，时长取 durations（减少动态效果时没有扩散过程）。默认开启，`createUi({ ripple })` / `<Provider ripple>` 全局开关，组件的 `ripple` prop 单独覆盖（`useRipple`）。
 - **Spinner**：Lucide 的 LoaderCircle 加旋转；有 `label` 时 `role="status"`。旋转不随 durations 变为 0（它本身就是信息），减少动态效果时转慢。
-- **分页计算** `utils/pagination.ts`：`paginationItems`（算法同 MUI），页数够多时项数固定。
+- **分页计算** `utils/data/pagination.ts`：`paginationItems`（算法同 MUI），页数够多时项数固定。
 - **编译器** `_untrack(x)`：只取当前值不追踪；组件函数体里写表示有意只要初始值，不警告（Collapse 已改用）。
 - **主题修正**：`danger` 实色配白字原来只有 3.91:1，改为亮色 red 11、暗色 red 8。
 - **已有组件的部件属性补齐**：Spinner、Link（`propsIcon`），ScrollArea（`propsContent`、`propsScrollbar`、`propsThumb`），Slider（`propsTrack`、`propsRange`），SlideVerify（`propsFill`、`propsHint`、`propsHandle`、`propsIcon`），VirtualList（`propsList`、`propsItem`）。试点 Button 删除，演示改用正式的 Button / LinkButton；试点 TextField 的清除按钮改用 ClearButton。
 
 ### 10.10 标记、反馈与导航（已完成）
 
-- **状态色调** `utils/tone-styles.ts`：solid / soft / surface / outline × neutral / accent / info / success / warning / danger，Badge、Tag、Alert 共用。实底用该色调的文字色作底、页面背景色作字（success、warning、info 没有专门的实底色），两套主题都满足 4.5:1。
-- **base/**：Badge（只展示）、Tag（外观同 Badge，可带移除按钮，名称是“移除 + 标签文字”，取文字用 `utils/text.ts` 的 `plainText`）。
+- **状态色调** `utils/style/tone-styles.ts`：solid / soft / surface / outline × neutral / accent / info / success / warning / danger，Badge、Tag、Alert 共用。实底用该色调的文字色作底、页面背景色作字（success、warning、info 没有专门的实底色），两套主题都满足 4.5:1。
+- **base/**：Badge（只展示）、Tag（外观同 Badge，可带移除按钮，名称是“移除 + 标签文字”，取文字用 `utils/data/text.ts` 的 `plainText`）。
 - **feedback/**（Progress、Skeleton、Alert）与 **display/**（Card、Avatar）：
   - Progress：有值时完成比例，没值时不确定进度（循环动画不随 durations 变为 0，减少动态效果时变慢）；`valueText`；`data-state` 为 indeterminate / loading / complete。
   - Skeleton：包着内容时与内容一样大（内容 `visibility: hidden`、整块 `inert` 与 `aria-hidden`），加载完布局不跳；闪烁在减少动态效果时关闭。
   - Alert：图标按色调自动选（Lucide），`live` 为 off / polite（status）/ assertive（alert），`action`、`onClose`。
   - Card：页头、正文、页脚，`variant` surface / outline / elevated / ghost，`padding`。
   - Avatar：图片加载完才显示，失败或没有图片时显示首字母（中文取最后一个字）或人像图标；有 `name` 时 `role="img"`，没有时是装饰性的。
-- **漫游焦点** `utils/roving-focus.ts`：一组只有一个 Tab 进入点，方向键 / Home / End，循环、横竖、从右到左；跳过不可用、隐藏、inert 的项；直接管理各项的 tabindex（组件不再写），选中项或 DOM 变化时自动重算。
+- **漫游焦点** `utils/dom/roving-focus.ts`：一组只有一个 Tab 进入点，方向键 / Home / End，循环、横竖、从右到左；跳过不可用、隐藏、inert 的项；直接管理各项的 tabindex（组件不再写），选中项或 DOM 变化时自动重算。
 - **navigation/**：
   - Toolbar：`role="toolbar"`，用漫游焦点，输入框不参与方向键移动。
   - Tabs / TabList / Tab / TabPanel：复合组件，状态经 createContext 共享；`activation` automatic / manual、横竖、`variant` line / soft、`lazy`、波纹；面板本身可聚焦。
@@ -461,7 +461,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - Pagination：页码序列用 `paginationItems`，按钮用 Button / IconButton，`href` 时渲染为链接；文案进语言包（分页、上一页、下一页、第 n 页）。页码之间用 Tab 而不是漫游焦点：分页没有 ARIA 复合角色，键盘用户也习惯逐个 Tab。
   - NavList / NavItem / NavGroup：当前页按路由适配的 `isActive`（或 `active`），含当前页的分组自动展开；分组用 Collapsible。
 - **迁移到新基础设施**：Link 的站内链接改经路由适配跳转；CodeBlock 加复制按钮（IconButton，Lucide 的 Copy / Check，“已复制”经 aria-live 播报，外层改为包着 pre 与按钮的 div，`...rest` 仍落到 pre，外层用 `propsRoot`）；Collapse 输出 `data-state`（open / closed），Slider 输出 `data-orientation`。
-- **选择模型** `utils/selection.ts`：`toggleSelection(selected, key, { mode, required })`，单选 / 多选；第一个使用者是 ToggleGroup。
+- **选择模型** `utils/data/selection.ts`：`toggleSelection(selected, key, { mode, required })`，单选 / 多选；第一个使用者是 ToggleGroup。
 - **input/ToggleGroup / ToggleItem**：复合组件，`type` single / multiple，`required`，整组 `disabled`，横竖，`aria-pressed` 表示选中，漫游焦点的进入点落在选中项上（漫游焦点改为也认 `aria-pressed` / `aria-checked`）；外观复用按钮家族的样式表（选中 surface accent，其余 ghost neutral）。
 
 ### 10.11 浮层、反馈、输入与表单（已完成）
@@ -470,23 +470,23 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **基础设施**（上层组件只组合它们）：
 
-| 项             | 位置                     | 内容                                                                                                                                                                                                                                                   |
-| -------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 锚定浮层       | `utils/floating.ts`      | `anchorFloating`（第一次定位前隐藏、flip / shift、autoUpdate、`matchWidth` / `fitHeight`、`data-side`、缩放原点）；`createAnchoredPopover`（显示 → 定位 → 关闭时停止、归还焦点，Popover / Menu / Tooltip 共用）；`floatingStyles.anchored` / `surface` |
-| 模态登记       | `utils/overlay.ts`       | `trackModal` / `topModal`：模态打开时外面连顶层的 manual popover 也是 inert（三大浏览器实测，写进 native-overlay 的回归测试），Toaster 据此移进最上层的模态                                                                                            |
-| 移除后的焦点   | `utils/overlay.ts`       | `focusAfterRemoval`：关闭、移除按钮所在的元素真被移除时，焦点交给同组的下一个 / 上一个（同 React Aria TagGroup）；Tag、Alert、Toast 用                                                                                                                 |
-| 状态图标       | `utils/tone-styles.ts`   | `statusIcons`：Alert、Toast、Steps、Field 的错误信息共用                                                                                                                                                                                               |
-| 类型搜索       | `utils/typeahead.ts`     | `createTypeahead`：连续输入拼词、同一字母轮换；`rovingFocus` 的 `typeahead` 选项用它，以后的 Listbox 也用                                                                                                                                              |
-| 步长对齐       | `utils/layout.ts`        | `snapToStep`：Slider、NumberField 共用，按 step 与 min 的小数位取整                                                                                                                                                                                    |
-| 传送内容的配置 | `config/Provider.tsx`    | `ConfigScope`：Teleport 出去的内容重新带上主题、lang、dir                                                                                                                                                                                              |
-| 输入框外壳     | `input/control.ts`       | `controlSx` / `controlStyles` / `useControlAppearance`：outline / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                                                                                        |
-| 勾选类控件     | `input/choice-styles.ts` | label > 叠放层（原生 input 画成方框 / 圆 / 轨道 + 不接收指针的标记）> 文字；复选组、单选组的排列                                                                                                                                                       |
-| 字段           | `input/Field.tsx`        | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                     |
+| 项             | 位置                         | 内容                                                                                                                                                                                                                                                   |
+| -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 锚定浮层       | `utils/dom/floating.ts`      | `anchorFloating`（第一次定位前隐藏、flip / shift、autoUpdate、`matchWidth` / `fitHeight`、`data-side`、缩放原点）；`createAnchoredPopover`（显示 → 定位 → 关闭时停止、归还焦点，Popover / Menu / Tooltip 共用）；`floatingStyles.anchored` / `surface` |
+| 模态登记       | `utils/dom/overlay.ts`       | `trackModal` / `topModal`：模态打开时外面连顶层的 manual popover 也是 inert（三大浏览器实测，写进 native-overlay 的回归测试），Toaster 据此移进最上层的模态                                                                                            |
+| 移除后的焦点   | `utils/dom/overlay.ts`       | `focusAfterRemoval`：关闭、移除按钮所在的元素真被移除时，焦点交给同组的下一个 / 上一个（同 React Aria TagGroup）；Tag、Alert、Toast 用                                                                                                                 |
+| 状态图标       | `utils/style/tone-styles.ts` | `statusIcons`：Alert、Toast、Steps、Field 的错误信息共用                                                                                                                                                                                               |
+| 类型搜索       | `utils/dom/typeahead.ts`     | `createTypeahead`：连续输入拼词、同一字母轮换；`rovingFocus` 的 `typeahead` 选项用它，以后的 Listbox 也用                                                                                                                                              |
+| 步长对齐       | `utils/data/layout.ts`       | `snapToStep`：Slider、NumberField 共用，按 step 与 min 的小数位取整                                                                                                                                                                                    |
+| 传送内容的配置 | `config/Provider.tsx`        | `ConfigScope`：Teleport 出去的内容重新带上主题、lang、dir                                                                                                                                                                                              |
+| 输入框外壳     | `input/control.ts`           | `controlSx` / `controlStyles` / `useControlAppearance`：outline / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                                                                                        |
+| 勾选类控件     | `input/choice-styles.ts`     | label > 叠放层（原生 input 画成方框 / 圆 / 轨道 + 不接收指针的标记）> 文字；复选组、单选组的排列                                                                                                                                                       |
+| 字段           | `input/Field.tsx`            | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                     |
 
 **组件**：
 
 - **feedback/**：
-  - Dialog / Drawer / AlertDialog 共用一个模态内核（原生 `showModal` + utils/overlay），部件复用 H2、CloseButton、Paragraph、ScrollArea（只滚正文）、Flex；Dialog 宽度档位同 Container；Drawer 四个方向（逻辑方向，进场滑入、离场淡出）；AlertDialog 不能点遮罩关闭，焦点先落在取消上，`onConfirm` 返回 Promise 时确认按钮加载中、Esc 暂不可用。
+  - Dialog / Drawer / AlertDialog 共用一个模态内核（原生 `showModal` + utils/dom/overlay），部件复用 H2、CloseButton、Paragraph、ScrollArea（只滚正文）、Flex；Dialog 宽度档位同 Container；Drawer 四个方向（逻辑方向，进场滑入、离场淡出）；AlertDialog 不能点遮罩关闭，焦点先落在取消上，`onConfirm` 返回 Promise 时确认按钮加载中、Esc 暂不可用。
   - Toast：`createToaster()` 控制器（组件外也能用）+ `<Toaster>` 区域；每条就是 Alert（Alert 新增 `loading`）；悬停、聚焦、页面隐藏时暂停计时；`promise()`；区域是带名称的 landmark，F8 跳到它，列表 `aria-live="polite"`；顶层 manual popover，模态打开时移进模态；离场用 Collapse 收起高度。
 - **overlay/**：Popover（试点转正）；Tooltip（悬停延迟、在一排触发器间移动不再等待、键盘聚焦立即显示、Esc 只关提示、可移到提示上、触屏不显示，manual popover 不会关掉打开着的菜单）；Menu（菜单按钮模式：MenuItem、MenuLinkItem、MenuCheckboxItem、MenuRadioGroup / MenuRadioItem、MenuGroup，漫游焦点 + 类型搜索，↑ 打开时落在最后一项，Tab 关闭且焦点继续往后）。Breadcrumbs 的折叠改为菜单。
 - **input/**：TextField（试点转正：图标、清空、显示密码的切换按钮名称不变而用 `aria-pressed`）、Textarea（随内容增高，`rows`–`maxRows`）、NumberField（`role="spinbutton"`，按语言解析、认全角数字，提交时夹到范围并对齐步长，步进按钮不进 Tab 顺序）、Checkbox / CheckboxGroup、RadioGroup / Radio（同名原生 radio，方向键是浏览器的）、Switch（`role="switch"`）。
@@ -533,15 +533,15 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **审核后的整理**（行为不变，各自单独提交）：
 
-| 项         | 改动                                                                                                                                                                       |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 焦点工具   | `utils/overlay.ts` 里的焦点函数拆到 `utils/focus.ts`（focusFirst、focusOrigin、returnFocus、trapFocus、focusAfterRemoval）；overlay 只留 toElement、遮罩、模态登记、锁滚动 |
-| 浮层同步   | `useAnchoredPopover(read, { close, shown })`：open ↔ 显示 / 隐藏、浏览器 light dismiss 写回、卸载时收起。Popover、Menu、Select、Combobox 原来各写一份                      |
-| 输入框外壳 | `input/control-styles.ts` 改名为 `input/control.ts`，加 `focusOnShell()`（点外壳空白处聚焦主元素）                                                                         |
-| 表单值     | `FormValue`：Slider、Select、Combobox 的隐藏 input                                                                                                                         |
-| 列表行     | `utils/item-styles.ts` 的 `itemStyles`：Menu、ListboxView、NavList 的行外观与状态色只在这里定义，表格行用同一套状态                                                        |
-| 文字比较   | `utils/collation.ts`：`createMatcher`（忽略大小写与重音的包含，Combobox 用）、`createComparer`（数字、日期、按语言的文字，空值在后，表格排序用）                           |
-| 虚拟化接线 | `utils/use-virtualizer.ts` 的 `useVirtualizer(read)`：Virtualizer 的选项同步、挂载、渲染状态；VirtualList、ListboxView、TableView 共用                                     |
+| 项         | 改动                                                                                                                                                                               |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 焦点工具   | `utils/dom/overlay.ts` 里的焦点函数拆到 `utils/dom/focus.ts`（focusFirst、focusOrigin、returnFocus、trapFocus、focusAfterRemoval）；overlay 只留 toElement、遮罩、模态登记、锁滚动 |
+| 浮层同步   | `useAnchoredPopover(read, { close, shown })`：open ↔ 显示 / 隐藏、浏览器 light dismiss 写回、卸载时收起。Popover、Menu、Select、Combobox 原来各写一份                              |
+| 输入框外壳 | `input/control-styles.ts` 改名为 `input/control.ts`，加 `focusOnShell()`（点外壳空白处聚焦主元素）                                                                                 |
+| 表单值     | `FormValue`：Slider、Select、Combobox 的隐藏 input                                                                                                                                 |
+| 列表行     | `utils/style/item-styles.ts` 的 `itemStyles`：Menu、ListboxView、NavList 的行外观与状态色只在这里定义，表格行用同一套状态                                                          |
+| 文字比较   | `utils/data/collation.ts`：`createMatcher`（忽略大小写与重音的包含，Combobox 用）、`createComparer`（数字、日期、按语言的文字，空值在后，表格排序用）                              |
+| 虚拟化接线 | `utils/virtual/use-virtualizer.ts` 的 `useVirtualizer(read)`：Virtualizer 的选项同步、挂载、渲染状态；VirtualList、ListboxView、TableView 共用                                     |
 
 **样式补齐**：输入框外壳加 `radius`（none / sm / md / full，同按钮，经 defaults.Input）；Select / Combobox 的弹层按同一个 `size` 设字号（弹层不是外壳的后代，原来不继承）；Checkbox、RadioGroup、Switch 读 `defaults.Choice.size`。
 

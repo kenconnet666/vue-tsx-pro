@@ -1,6 +1,6 @@
 /**
  * 锚定浮层：Popover、Tooltip、Menu、Select 的弹出层贴着触发器显示。位置由 floating-ui 计算，
- * 显示、隐藏、Esc、点击外部仍交给原生 popover（见 utils/overlay）；createAnchoredPopover 把两者串成打开、关闭的流程。
+ * 显示、隐藏、Esc、点击外部仍交给原生 popover（见 utils/dom/overlay）；createAnchoredPopover 把两者串成打开、关闭的流程。
  *
  *   const anchored = anchorFloating(trigger, panel, { placement: 'bottom-start' });
  *   await anchored.ready;   // 第一次定位完成、已经可见：这时才能把焦点移进去

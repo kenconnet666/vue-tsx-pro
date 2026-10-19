@@ -18,7 +18,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import {
   choiceGroupStyles,
   choiceStyles,

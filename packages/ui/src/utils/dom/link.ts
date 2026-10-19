@@ -3,7 +3,7 @@
  * 组件渲染真正的 <a href>（右键菜单、新标签页打开、读屏都正常），普通左键点击站内链接时交给路由跳转。
  * Link、LinkButton、导航组件共用。
  */
-import { useConfig } from '../config/context';
+import { useConfig } from '../../config/context';
 
 /** 这次点击该不该交给路由：只拦普通左键点击同源、在当前窗口打开、不是下载的链接 */
 export function shouldRouteClick(event: MouseEvent, anchor: HTMLAnchorElement): boolean {

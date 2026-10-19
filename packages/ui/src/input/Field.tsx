@@ -19,7 +19,7 @@ import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { statusIcons } from '../utils/tone-styles';
+import { statusIcons } from '../utils/style/tone-styles';
 import { FormContext } from './Form';
 
 /** Field 交给控件的信息 */

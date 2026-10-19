@@ -16,7 +16,7 @@ import { useConfig, useLang } from '../config/context';
 import { IconButton, type IconButtonProps } from './IconButton';
 import { VisuallyHidden } from './VisuallyHidden';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/styles';
+import { focusRingStyles } from '../utils/style/styles';
 
 /** 未声明的属性落到 pre 上 */
 export interface CodeBlockProps extends PartProps<'pre'> {

@@ -25,7 +25,7 @@ import { Button, type ButtonProps } from '../base/Button';
 import type { ButtonTones } from '../base/button-styles';
 import { ConfigContext, useConfig, useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
-import { afterTransitions } from '../utils/transitions';
+import { afterTransitions } from '../utils/style/transitions';
 import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
 import { dialogPanelSx, ModalCore, type DialogProps, type ModalCoreProps } from './Dialog';

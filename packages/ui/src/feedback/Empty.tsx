@@ -14,7 +14,7 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
 export interface EmptyProps extends PartProps<'div', 'title'> {

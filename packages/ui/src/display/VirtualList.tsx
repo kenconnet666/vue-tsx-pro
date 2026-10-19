@@ -16,9 +16,9 @@ import { useLang } from '../config/context';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/styles';
-import { useVirtualizer } from '../utils/use-virtualizer';
-import type { VirtualScrollOptions, VisibleRange } from '../utils/virtualizer';
+import { focusRingStyles } from '../utils/style/styles';
+import { useVirtualizer } from '../utils/virtual/use-virtualizer';
+import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
 
 /** 跟着谁滚动 */
 export interface VirtualListScrolls {

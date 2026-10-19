@@ -19,7 +19,7 @@ import {
   rowGapStyles,
   type LayoutTag,
   type Space,
-} from '../utils/styles';
+} from '../utils/style/styles';
 
 /** 单元格内容在格子里的对齐（align-items 为块方向、justify-items 为行内方向） */
 export interface GridAligns {

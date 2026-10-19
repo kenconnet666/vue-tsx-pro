@@ -11,10 +11,10 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { startMove } from '../utils/move';
+import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/styles';
-import { isRtl } from '../utils/layout';
+import { focusRingStyles } from '../utils/style/styles';
+import { isRtl } from '../utils/data/layout';
 
 /** 哪个方向可以滚动 */
 export interface ScrollAreaAxes {

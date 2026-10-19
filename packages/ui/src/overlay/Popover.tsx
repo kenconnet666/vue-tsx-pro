@@ -1,6 +1,6 @@
 /**
  * 弹出框（非模态）：点击触发器在旁边弹出一块内容（筛选条件、简短表单、详情），点击外部或 Esc 关闭。
- * 原生 popover="auto" 负责顶层渲染、Esc、点击外部与嵌套顺序，floating-ui 负责定位（utils/floating）。
+ * 原生 popover="auto" 负责顶层渲染、Esc、点击外部与嵌套顺序，floating-ui 负责定位（utils/dom/floating）。
  * 打开时焦点移到第一个可聚焦元素（有 autofocus 的优先），关闭后回到触发器。参考 Radix Popover。
  *
  *   <Popover open={_bind(open)} trigger={(props) => <Button {...props}>筛选</Button>}>…</Popover>
@@ -15,11 +15,11 @@ import {
   useAnchoredPopover,
   type FloatingOptions,
   type FloatingPlacement,
-} from '../utils/floating';
-import { toElement } from '../utils/overlay';
-import { focusFirst } from '../utils/focus';
+} from '../utils/dom/floating';
+import { toElement } from '../utils/dom/overlay';
+import { focusFirst } from '../utils/dom/focus';
 import { elementProps, mergeProps, type PartProps, type TriggerProps } from '../utils/props';
-import { transitions } from '../utils/transitions';
+import { transitions } from '../utils/style/transitions';
 
 /** 交给触发器的属性：展开收起的通用属性，加上弹层需要的 id、ref 与 aria-haspopup */
 export interface PopoverTriggerProps extends TriggerProps {

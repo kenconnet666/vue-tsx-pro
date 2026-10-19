@@ -22,7 +22,7 @@ import {
   type FontWeight,
   type TextAlign,
   type Tone,
-} from '../utils/typography';
+} from '../utils/style/typography';
 
 type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 

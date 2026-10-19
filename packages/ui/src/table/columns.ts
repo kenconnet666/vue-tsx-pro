@@ -8,7 +8,7 @@
  *   ];
  */
 import type { VNodeChild } from 'vue';
-import { createComparer, type SortValue } from '../utils/collation';
+import { createComparer, type SortValue } from '../utils/data/collation';
 
 /** 单元格内容的对齐 */
 export interface ColumnAligns {

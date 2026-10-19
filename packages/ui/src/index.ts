@@ -320,7 +320,7 @@ export {
   type SizeScale,
   type Space,
   type SpaceScale,
-} from './utils/styles';
+} from './utils/style/styles';
 export {
   fontSizeStyles,
   fontWeightStyles,
@@ -341,9 +341,21 @@ export {
   type Tones,
   type FontWeight,
   type Tone,
-} from './utils/typography';
-export { dismissOnBackdrop, lockScroll, toElement, topModal, trackModal } from './utils/overlay';
-export { focusAfterRemoval, focusFirst, focusOrigin, returnFocus, trapFocus } from './utils/focus';
+} from './utils/style/typography';
+export {
+  dismissOnBackdrop,
+  lockScroll,
+  toElement,
+  topModal,
+  trackModal,
+} from './utils/dom/overlay';
+export {
+  focusAfterRemoval,
+  focusFirst,
+  focusOrigin,
+  returnFocus,
+  trapFocus,
+} from './utils/dom/focus';
 export {
   anchorFloating,
   createAnchoredPopover,
@@ -356,19 +368,23 @@ export {
   type FloatingOptions,
   type FloatingPlacement,
   type FloatingPlacements,
-} from './utils/floating';
+} from './utils/dom/floating';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
-export { startMove, type MoveOptions, type MovePoint } from './utils/move';
+export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
   rovingFocus,
   type RovingFocusOptions,
   type RovingOrientations,
-} from './utils/roving-focus';
-export { plainText } from './utils/text';
-export { itemStyles } from './utils/item-styles';
-export { createComparer, createMatcher, type SortValue } from './utils/collation';
-export { createTypeahead, type Typeahead } from './utils/typeahead';
-export { toggleSelection, type SelectionModes, type SelectionOptions } from './utils/selection';
+} from './utils/dom/roving-focus';
+export { plainText } from './utils/data/text';
+export { itemStyles } from './utils/style/item-styles';
+export { createComparer, createMatcher, type SortValue } from './utils/data/collation';
+export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
+export {
+  toggleSelection,
+  type SelectionModes,
+  type SelectionOptions,
+} from './utils/data/selection';
 export {
   statusIcons,
   statusToneSx,
@@ -376,15 +392,15 @@ export {
   type StatusTones,
   type StatusVariant,
   type StatusVariants,
-} from './utils/tone-styles';
-export { rippleHostStyles, startRipple, useRipple, type RippleHandlers } from './utils/ripple';
-export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/link';
+} from './utils/style/tone-styles';
+export { rippleHostStyles, startRipple, useRipple, type RippleHandlers } from './utils/dom/ripple';
+export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
 export {
   paginationItems,
   type PaginationEllipsis,
   type PaginationOptions,
-} from './utils/pagination';
-export { afterTransitions, transitions } from './utils/transitions';
+} from './utils/data/pagination';
+export { afterTransitions, transitions } from './utils/style/transitions';
 export {
   computeMeasurements,
   defaultRangeExtractor,
@@ -396,9 +412,9 @@ export {
   type VirtualizerOptions,
   type VirtualScrollOptions,
   type VisibleRange,
-} from './utils/virtualizer';
+} from './utils/virtual/virtualizer';
 export {
   useVirtualizer,
   type UseVirtualizerOptions,
   type VirtualView,
-} from './utils/use-virtualizer';
+} from './utils/virtual/use-virtualizer';

@@ -7,7 +7,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { ButtonRadii } from '../base/button-styles';
 import { useDefaults } from '../config/defaults';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 输入框的样式 */
 export interface ControlVariants {

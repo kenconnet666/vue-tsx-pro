@@ -22,13 +22,13 @@ import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
-import { isRtl } from '../utils/layout';
-import { startMove } from '../utils/move';
+import { isRtl } from '../utils/data/layout';
+import { startMove } from '../utils/dom/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/styles';
-import { plainText } from '../utils/text';
-import { useVirtualizer } from '../utils/use-virtualizer';
-import type { VisibleRange } from '../utils/virtualizer';
+import { focusRingStyles } from '../utils/style/styles';
+import { plainText } from '../utils/data/text';
+import { useVirtualizer } from '../utils/virtual/use-virtualizer';
+import type { VisibleRange } from '../utils/virtual/virtualizer';
 import { columnValue, type SortState, type TableColumn } from './columns';
 
 /** 表格的密度 */

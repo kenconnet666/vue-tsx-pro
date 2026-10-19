@@ -19,11 +19,11 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
-import { useRouterLink } from '../utils/link';
+import { useRouterLink } from '../utils/dom/link';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { rippleHostStyles, useRipple } from '../utils/ripple';
-import { itemStyles } from '../utils/item-styles';
-import { focusRingStyles, listStyles } from '../utils/styles';
+import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
+import { itemStyles } from '../utils/style/item-styles';
+import { focusRingStyles, listStyles } from '../utils/style/styles';
 
 /** 分组向里面的项要的信息：哪些项是当前页（有当前页时自动展开） */
 interface NavGroupState {

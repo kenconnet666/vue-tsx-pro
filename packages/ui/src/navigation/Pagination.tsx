@@ -1,6 +1,6 @@
 /**
  * 分页（nav > ul）：上一页、页码、省略号、下一页，当前页带 aria-current="page"。
- * 页码序列用 utils/pagination.ts（项数固定，翻页时按钮不跳动）；按钮用 Button / IconButton，文案取语言包。
+ * 页码序列用 utils/data/pagination.ts（项数固定，翻页时按钮不跳动）；按钮用 Button / IconButton，文案取语言包。
  *
  *   <Pagination page={_bind(page)} total={320} pageSize={20} />
  *   <Pagination page={page} pageCount={12} href={(n) => `/articles?page=${n}`} />   渲染为链接（可分享、可被收录）
@@ -13,11 +13,11 @@ import { Icon } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';
-import { paginationItems } from '../utils/pagination';
+import { paginationItems } from '../utils/data/pagination';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { listStyles } from '../utils/styles';
-import type { TextSize } from '../utils/typography';
-import { clamp } from '../utils/layout';
+import { listStyles } from '../utils/style/styles';
+import type { TextSize } from '../utils/style/typography';
+import { clamp } from '../utils/data/layout';
 
 /** 未声明的属性落到 nav 上；aria-label 默认取语言包（分页） */
 export interface PaginationProps extends PartProps<'nav'> {

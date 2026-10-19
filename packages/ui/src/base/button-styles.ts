@@ -10,10 +10,10 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
-import { rippleHostStyles } from '../utils/ripple';
+import { rippleHostStyles } from '../utils/dom/ripple';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/styles';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { focusRingStyles } from '../utils/style/styles';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 按钮样式 */
 export interface ButtonVariants {

@@ -40,7 +40,9 @@ packages/
                       以及表单结构与校验：Field、Label、Form、useForm
     src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）、
                       可选依赖的适配（子路径 shiki、vue-router）
-    src/utils/        部件 props 合并、样式档位、波纹、拖动、漫游焦点、虚拟滚动、路由适配等
+    src/utils/        部件 props 合并（props.ts）、JS 动画（animation.ts），以及按职责分的子目录：
+                      style/（档位、字号、色调、过渡样式）、dom/（焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接）、
+                      data/（比较与匹配、选择、分页、数值）、virtual/（虚拟滚动）
     （每个目录下的 .test/ 放测试）
 apps/
   docs/        文档站（VitePress 2）

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { toggleSelection } from '../../utils/selection';
+import { toggleSelection } from '../../utils/data/selection';
 import { ToggleGroup, ToggleItem } from '../ToggleGroup';
 
 describe('toggleSelection', () => {

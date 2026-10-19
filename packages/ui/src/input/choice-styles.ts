@@ -11,7 +11,7 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useDefaults } from '../config/defaults';
-import type { TextSize } from '../utils/typography';
+import type { TextSize } from '../utils/style/typography';
 
 /** 勾选类控件的外观选项；可以用 createUi / Provider 的 defaults.Choice 统一改默认值 */
 export interface ChoiceOptions {

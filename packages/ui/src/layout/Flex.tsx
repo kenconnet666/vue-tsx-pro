@@ -10,7 +10,7 @@ import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { gapStyles, listRole, listStyles, type LayoutTag, type Space } from '../utils/styles';
+import { gapStyles, listRole, listStyles, type LayoutTag, type Space } from '../utils/style/styles';
 
 /** 主轴方向（flex-direction） */
 export interface FlexDirections {

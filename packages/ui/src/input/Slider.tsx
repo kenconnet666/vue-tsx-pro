@@ -8,11 +8,11 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { startMove } from '../utils/move';
+import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/styles';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
-import { clamp, isRtl, snapToStep } from '../utils/layout';
+import { focusRingStyles } from '../utils/style/styles';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { clamp, isRtl, snapToStep } from '../utils/data/layout';
 import { useFieldControl } from './Field';
 import { FormValue } from './FormValue';
 

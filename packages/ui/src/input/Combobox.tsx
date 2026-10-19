@@ -22,11 +22,11 @@ import { useId, watch, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/floating';
-import { createMatcher } from '../utils/collation';
+import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { createMatcher } from '../utils/data/collation';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/transitions';
-import { fontSizeStyles } from '../utils/typography';
+import { transitions } from '../utils/style/transitions';
+import { fontSizeStyles } from '../utils/style/typography';
 import {
   controlStyles,
   controlSx,

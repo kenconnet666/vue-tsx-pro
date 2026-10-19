@@ -4,7 +4,7 @@
  *   <Dialog open={_bind(editing)} title="编辑资料" footer={<Button onClick={save}>保存</Button>}>…</Dialog>
  *   <Drawer open={_bind(filtering)} side="end" title="筛选">…</Drawer>
  *
- * 顶层渲染、背景 inert、Esc 关闭由浏览器负责；组件补上浏览器不做或不一致的（utils/overlay）：
+ * 顶层渲染、背景 inert、Esc 关闭由浏览器负责；组件补上浏览器不做或不一致的（utils/dom/overlay）：
  * 打开前记下焦点来源、关闭后还回去，焦点循环，锁定页面滚动，点击遮罩关闭
  * （原生的 closedby="any" 到 2026 年 Safari 仍不支持，所以仍用 dismissOnBackdrop）。
  * 初始焦点：浏览器聚焦第一个可聚焦元素，有 autofocus 的优先（参考 Radix Dialog、React Aria Modal）。
@@ -23,10 +23,10 @@ import { Flex, type FlexProps } from '../layout/Flex';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import type { ContainerSizes } from '../layout/Container';
 import { useDefaults } from '../config/defaults';
-import { dismissOnBackdrop, lockScroll, trackModal } from '../utils/overlay';
-import { focusOrigin, returnFocus, trapFocus } from '../utils/focus';
+import { dismissOnBackdrop, lockScroll, trackModal } from '../utils/dom/overlay';
+import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/transitions';
+import { transitions } from '../utils/style/transitions';
 
 /** 打开、关闭与无障碍关联由组件管理；原生的 title 属性（悬停提示）让给标题 */
 type Managed = 'open' | 'role' | 'title' | 'aria-labelledby' | 'aria-describedby' | 'aria-modal';

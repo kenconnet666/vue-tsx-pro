@@ -17,7 +17,7 @@ import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
 import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { listStyles } from '../utils/styles';
+import { listStyles } from '../utils/style/styles';
 
 /** 一级路径 */
 export interface BreadcrumbItem {

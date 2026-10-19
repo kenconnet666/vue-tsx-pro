@@ -12,7 +12,7 @@ import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 头像的圆角 */
 export interface AvatarRadii {

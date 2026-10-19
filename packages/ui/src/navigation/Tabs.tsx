@@ -19,10 +19,10 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { rippleHostStyles, useRipple } from '../utils/ripple';
-import { rovingFocus } from '../utils/roving-focus';
-import { focusRingStyles } from '../utils/styles';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
+import { rovingFocus } from '../utils/dom/roving-focus';
+import { focusRingStyles } from '../utils/style/styles';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 标签的排列方向 */
 export interface TabsOrientations {

@@ -37,12 +37,12 @@ import type { IconData } from '../base/Icon';
 import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse } from '../display/Collapse';
-import { startMove } from '../utils/move';
-import { topModal } from '../utils/overlay';
-import { focusAfterRemoval } from '../utils/focus';
+import { startMove } from '../utils/dom/move';
+import { topModal } from '../utils/dom/overlay';
+import { focusAfterRemoval } from '../utils/dom/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { StatusTone } from '../utils/tone-styles';
-import { afterTransitions } from '../utils/transitions';
+import type { StatusTone } from '../utils/style/tone-styles';
+import { afterTransitions } from '../utils/style/transitions';
 import { Alert, type AlertProps } from './Alert';
 
 /** 一条通知的内容与行为 */

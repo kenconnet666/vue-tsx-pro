@@ -9,8 +9,8 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import { useConfig } from '../config/context';
-import { afterTransitions } from './transitions';
+import { useConfig } from '../../config/context';
+import { afterTransitions } from '../style/transitions';
 
 const expand = stylex.keyframes({
   from: { transform: 'scale(0)' },

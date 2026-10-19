@@ -19,7 +19,7 @@
  * 键盘：触发器上 Enter / 空格 / ↓ 打开并聚焦第一项，↑ 打开并聚焦最后一项；菜单里 ↑↓ 移动（循环）、Home / End、
  * 按字母跳到以它开头的项（rovingFocus 的 typeahead），Enter / 空格执行，Esc 关闭并回到触发器，Tab 关闭并继续往后。
  * 执行普通项后关闭菜单；复选项默认不关（常连续勾选几项），单选项默认关闭；都可以用 closeOnSelect 改。
- * 原生 popover="auto" 负责顶层、点击外部关闭与嵌套顺序，定位与焦点进出见 utils/floating。
+ * 原生 popover="auto" 负责顶层、点击外部关闭与嵌套顺序，定位与焦点进出见 utils/dom/floating。
  */
 import { Check, Dot } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
@@ -34,16 +34,16 @@ import {
   useAnchoredPopover,
   type FloatingOptions,
   type FloatingPlacement,
-} from '../utils/floating';
-import { useRouterLink } from '../utils/link';
-import { toElement } from '../utils/overlay';
+} from '../utils/dom/floating';
+import { useRouterLink } from '../utils/dom/link';
+import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { itemStyles } from '../utils/item-styles';
-import { focusRingStyles } from '../utils/styles';
-import { rippleHostStyles, useRipple } from '../utils/ripple';
-import { rovingFocus } from '../utils/roving-focus';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
-import { transitions } from '../utils/transitions';
+import { itemStyles } from '../utils/style/item-styles';
+import { focusRingStyles } from '../utils/style/styles';
+import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
+import { rovingFocus } from '../utils/dom/roving-focus';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { transitions } from '../utils/style/transitions';
 
 interface MenuState {
   readonly ripple: boolean | undefined;

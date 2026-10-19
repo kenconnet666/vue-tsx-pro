@@ -22,11 +22,11 @@ import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/floating';
+import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { SelectionModes } from '../utils/selection';
-import { transitions } from '../utils/transitions';
-import { fontSizeStyles } from '../utils/typography';
+import type { SelectionModes } from '../utils/data/selection';
+import { transitions } from '../utils/style/transitions';
+import { fontSizeStyles } from '../utils/style/typography';
 import {
   controlStyles,
   controlSx,

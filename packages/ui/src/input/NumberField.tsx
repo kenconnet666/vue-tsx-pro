@@ -19,7 +19,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { useFieldControl } from './Field';
-import { snapToStep } from '../utils/layout';
+import { snapToStep } from '../utils/data/layout';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 

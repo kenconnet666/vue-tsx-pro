@@ -18,10 +18,10 @@ import { watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { startMove } from '../utils/move';
+import { startMove } from '../utils/dom/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/styles';
-import { clamp, isRtl } from '../utils/layout';
+import { focusRingStyles } from '../utils/style/styles';
+import { clamp, isRtl } from '../utils/data/layout';
 
 /** 验证状态，由应用控制 */
 export interface SlideVerifyStatuses {

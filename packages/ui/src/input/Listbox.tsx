@@ -25,12 +25,12 @@ import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
-import { itemStyles } from '../utils/item-styles';
+import { itemStyles } from '../utils/style/item-styles';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { SelectionModes } from '../utils/selection';
-import { focusRingStyles } from '../utils/styles';
-import { useVirtualizer } from '../utils/use-virtualizer';
-import { defaultRangeExtractor } from '../utils/virtualizer';
+import type { SelectionModes } from '../utils/data/selection';
+import { focusRingStyles } from '../utils/style/styles';
+import { useVirtualizer } from '../utils/virtual/use-virtualizer';
+import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
 import { useFieldControl } from './Field';
 import {
   createListState,

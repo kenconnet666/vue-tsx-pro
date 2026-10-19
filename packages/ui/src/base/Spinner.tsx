@@ -8,7 +8,7 @@ import { LoaderCircle } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { TextSize } from '../utils/typography';
+import type { TextSize } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
 

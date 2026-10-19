@@ -19,10 +19,10 @@ import {
   floatingStyles,
   type FloatingOptions,
   type FloatingPlacement,
-} from '../utils/floating';
-import { toElement } from '../utils/overlay';
+} from '../utils/dom/floating';
+import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/transitions';
+import { transitions } from '../utils/style/transitions';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
 export interface TooltipTriggerProps {

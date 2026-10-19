@@ -8,7 +8,7 @@
  *   virtualizer.getVirtualItems()   // 要渲染的项：index、start（相对列表开头的偏移）、size
  *   <div data-index={item.index} ref={virtualizer.measureElement}>  // 测量真实大小
  */
-import { clamp } from './layout';
+import { clamp } from '../data/layout';
 
 /** 一个要渲染的项；位置都相对列表开头，单位 px */
 export interface VirtualItem {

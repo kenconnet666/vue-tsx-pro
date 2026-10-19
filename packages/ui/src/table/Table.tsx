@@ -25,7 +25,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
-import { toggleSelection } from '../utils/selection';
+import { toggleSelection } from '../utils/data/selection';
 import { nextSort, sortRows, type SortState } from './columns';
 import { TableView, type TableRowModel, type TableViewProps } from './TableView';
 

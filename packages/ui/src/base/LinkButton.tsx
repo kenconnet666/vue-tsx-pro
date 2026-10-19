@@ -8,9 +8,9 @@
 import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
-import { useRouterLink } from '../utils/link';
+import { useRouterLink } from '../utils/dom/link';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/ripple';
+import { useRipple } from '../utils/dom/ripple';
 import {
   buttonContent,
   buttonSx,

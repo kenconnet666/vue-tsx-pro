@@ -13,9 +13,9 @@ import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
-import { focusAfterRemoval } from '../utils/focus';
+import { focusAfterRemoval } from '../utils/dom/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { statusIcons, statusToneSx, type StatusTone } from '../utils/tone-styles';
+import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {

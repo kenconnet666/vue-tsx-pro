@@ -20,11 +20,11 @@ import {
 } from '../base/button-styles';
 import type { IconData, IconProps } from '../base/Icon';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/ripple';
-import { rovingFocus } from '../utils/roving-focus';
-import { toggleSelection, type SelectionModes } from '../utils/selection';
+import { useRipple } from '../utils/dom/ripple';
+import { rovingFocus } from '../utils/dom/roving-focus';
+import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import { useFieldControl } from './Field';
-import type { TextSize } from '../utils/typography';
+import type { TextSize } from '../utils/style/typography';
 
 interface ToggleGroupState {
   readonly selected: readonly string[];

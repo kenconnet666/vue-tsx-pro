@@ -8,8 +8,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { clamp } from '../utils/layout';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { clamp } from '../utils/data/layout';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 进度条的色调 */
 export interface ProgressTones {

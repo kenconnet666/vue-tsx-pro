@@ -6,7 +6,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/ripple';
+import { useRipple } from '../utils/dom/ripple';
 import {
   buttonContent,
   buttonSx,

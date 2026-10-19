@@ -8,8 +8,8 @@
  */
 import { computed, ref } from 'vue';
 import type { IconData } from '../base/Icon';
-import { toggleSelection, type SelectionModes } from '../utils/selection';
-import { createTypeahead } from '../utils/typeahead';
+import { toggleSelection, type SelectionModes } from '../utils/data/selection';
+import { createTypeahead } from '../utils/dom/typeahead';
 
 /** 一个选项 */
 export interface ListboxOption {

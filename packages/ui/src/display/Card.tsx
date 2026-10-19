@@ -10,7 +10,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { Space } from '../utils/styles';
+import type { Space } from '../utils/style/styles';
 
 /** 卡片样式 */
 export interface CardVariants {

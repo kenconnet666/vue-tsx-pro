@@ -12,7 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { afterTransitions } from '../utils/transitions';
+import { afterTransitions } from '../utils/style/transitions';
 
 /** 未声明的属性落到外层的 div 上；要分区语义时在外面包 section */
 export interface CollapseProps extends PartProps<'div', 'hidden' | 'inert'> {

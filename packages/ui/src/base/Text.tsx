@@ -23,7 +23,7 @@ import {
   type TextSize,
   type TextWrap,
   type Tone,
-} from '../utils/typography';
+} from '../utils/style/typography';
 
 type TextTag = 'span' | 'p' | 'strong' | 'em' | 'small';
 

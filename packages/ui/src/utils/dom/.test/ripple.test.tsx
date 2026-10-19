@@ -1,7 +1,7 @@
 // 波纹的开关与生命周期；扩散动画的样子见 apps/host-demo 的浏览器测试
 import { describe, expect, it } from 'vitest';
-import { Provider } from '../../config/Provider';
-import { mount } from './mount';
+import { Provider } from '../../../config/Provider';
+import { mount } from '../../.test/mount';
 import { startRipple, useRipple } from '../ripple';
 import { _component } from '@vue-tsx-pro/tsx';
 

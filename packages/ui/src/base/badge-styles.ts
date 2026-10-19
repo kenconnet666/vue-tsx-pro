@@ -1,11 +1,11 @@
 /**
  * Badge 与 Tag 共用的外观：行内的小标记，字号默认比周围小一档，内部尺寸按 em 缩放。
- * 颜色取 utils/tone-styles.ts 的状态色调。
+ * 颜色取 utils/style/tone-styles.ts 的状态色调。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import { statusToneSx, type StatusTone, type StatusVariant } from '../utils/tone-styles';
-import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { statusToneSx, type StatusTone, type StatusVariant } from '../utils/style/tone-styles';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 标记的圆角 */
 export interface BadgeRadii {

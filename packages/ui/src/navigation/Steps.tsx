@@ -11,8 +11,8 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, listStyles } from '../utils/styles';
-import { statusIcons } from '../utils/tone-styles';
+import { focusRingStyles, listStyles } from '../utils/style/styles';
+import { statusIcons } from '../utils/style/tone-styles';
 
 /** 步骤条方向 */
 export interface StepsOrientations {

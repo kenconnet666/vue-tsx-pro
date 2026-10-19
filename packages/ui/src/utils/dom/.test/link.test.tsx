@@ -1,9 +1,9 @@
 // 路由适配：只拦普通左键点击的站内链接
 import { _component } from '@vue-tsx-pro/tsx';
 import { describe, expect, it, vi } from 'vitest';
-import { Provider } from '../../config/Provider';
+import { Provider } from '../../../config/Provider';
 import { useRouterLink } from '../link';
-import { mount } from './mount';
+import { mount } from '../../.test/mount';
 
 const RouterAnchor = _component(({ href, target }: { href: string; target?: string }) => {
   const link = useRouterLink();
