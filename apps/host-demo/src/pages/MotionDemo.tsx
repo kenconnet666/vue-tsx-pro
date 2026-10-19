@@ -1,7 +1,14 @@
-// /base 页上的动效演示：Anime.js 取主题时长的弹簧、布局动画（useLayoutAnimation）
+// /base 页上的动效演示：Anime.js 取主题时长的弹簧、数字滚动（AnimatedNumber）、布局动画（useLayoutAnimation）
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Button, Flex, themeTransition, useLayoutAnimation } from '@vue-tsx-pro/ui';
+import {
+  AnimatedNumber,
+  Button,
+  Flex,
+  Text,
+  themeTransition,
+  useLayoutAnimation,
+} from '@vue-tsx-pro/ui';
 import { animate } from 'animejs';
 
 const styles = stylex.create({
@@ -38,6 +45,8 @@ export const MotionDemo = _component(() => {
   let chips = _state([1, 2, 3, 4, 5, 6]);
   let chipList = _state.raw<HTMLElement | null>(null);
   let nextChip = 7;
+  let revenue = _state(12800);
+  let change = _state(0.042);
   const layout = useLayoutAnimation(() => chipList, { children: '[data-chip]' });
 
   // JS 动画：Anime.js 的 animate 加上主题的弹簧时长；减少动态效果时立即到位
@@ -47,6 +56,11 @@ export const MotionDemo = _component(() => {
       x: moved ? 120 : 0,
       ...themeTransition(ball!, { duration: 'lg', bounce: 0.3 }),
     });
+  }
+
+  function updateStats() {
+    revenue = Math.round(revenue + (Math.random() - 0.3) * 5000);
+    change = Math.round((Math.random() - 0.5) * 200) / 1000;
   }
 
   const shuffle = () =>
@@ -63,6 +77,20 @@ export const MotionDemo = _component(() => {
         <div {...stylex.attrs(styles.track)}>
           <div class="ball" ref={_toRef(ball)} {...stylex.attrs(styles.ball)} />
         </div>
+      </Flex>
+      <Flex gap="md" align="center" wrap>
+        <Button variant="outline" class="stats-update" onClick={updateStats}>
+          更新数据
+        </Button>
+        <Text size="xl" weight="semibold">
+          <AnimatedNumber class="revenue-demo" value={revenue} format={{ style: 'currency' }} />
+        </Text>
+        <AnimatedNumber
+          value={change}
+          format={{ style: 'percent', maximumFractionDigits: 1, signDisplay: 'exceptZero' }}
+          trend
+          prefix="较上周 "
+        />
       </Flex>
       <Flex gap="sm" wrap>
         <Button variant="outline" class="layout-shuffle" onClick={shuffle}>

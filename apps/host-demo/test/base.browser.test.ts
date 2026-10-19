@@ -132,6 +132,18 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     expect(target.x).toBe(100);
   });
 
+  it('AnimatedNumber：数值变化时滚动，读屏文字直接是终值，滚完两者一致', async () => {
+    const number = $('.revenue-demo');
+    const shown = () => number.querySelector('[aria-hidden="true"]')!.textContent;
+    const label = () =>
+      number.querySelector('[aria-hidden="true"]')!.nextElementSibling!.textContent;
+    const before = label();
+    $('.stats-update').click();
+    await expect.poll(label).not.toBe(before);
+    expect(shown()).not.toBe(label());
+    await expect.poll(() => shown() === label(), { timeout: 3000 }).toBe(true);
+  });
+
   it('布局动画：加一项时原来的项从旧位置平移过去，结束后停在新位置', async () => {
     const list = $('.layout-demo');
     const chip = [...list.children].find((element) => element.textContent === '1') as HTMLElement;

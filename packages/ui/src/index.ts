@@ -137,6 +137,11 @@ export {
 
 // 展示
 export {
+  AnimatedNumber,
+  animatedNumberStyles,
+  type AnimatedNumberProps,
+} from './display/AnimatedNumber';
+export {
   Avatar,
   avatarStyles,
   initials,
