@@ -67,6 +67,8 @@ export interface Lang {
   readonly linkNewWindow: string;
   /** 密码框里“显示密码”切换按钮的名称（按下状态由 aria-pressed 表示），默认“显示密码” */
   readonly passwordShow: string;
+  /** 字数计数给读屏的说明：`(12, 100)` → “已输入 12 个字符，最多 100 个” */
+  readonly characterCount: (count: number, max?: number) => string;
   /** 数字输入框“减少”按钮的名称，默认“减少” */
   readonly numberDecrement: string;
   /** 数字输入框“增加”按钮的名称，默认“增加” */

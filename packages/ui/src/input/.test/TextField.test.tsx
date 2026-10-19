@@ -1,9 +1,10 @@
 // TextField 与 Field：值的双向绑定、清空、显示密码、Field 的关联与状态
 import { describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, shallowRef } from 'vue';
 import { Field } from '../Field';
 import { mount } from '../../utils/.test/mount';
 import { TextField } from '../TextField';
+import { Textarea } from '../Textarea';
 
 describe('TextField', () => {
   it('未声明的属性落到 input；外壳用 propsRoot；清空后写回并聚焦 input', async () => {
@@ -74,5 +75,48 @@ describe('Field', () => {
     expect(input.disabled).toBe(false);
     expect(input.hasAttribute('aria-invalid')).toBe(false);
     expect(root.textContent).not.toContain('必填');
+  });
+});
+
+describe('前后缀与字数计数', () => {
+  it('TextField：前后缀是部件，不算在值里', () => {
+    const root = mount(() => (
+      <TextField
+        value="example"
+        prefix="https://"
+        suffix=".com"
+        propsPrefix={{ class: 'pre' }}
+        aria-label="网址"
+      />
+    ));
+    expect(root.querySelector('.pre')!.textContent).toBe('https://');
+    expect(root.textContent).toBe('https://.com');
+    expect(root.querySelector('input')!.value).toBe('example');
+  });
+
+  it('showCount：上限取 maxlength，读屏经 aria-describedby 念出；超出时标记 data-over', async () => {
+    const value = shallowRef('你好');
+    const root = mount(() => (
+      <TextField value={value.value} showCount maxlength={3} aria-label="昵称" />
+    ));
+    const input = root.querySelector('input')!;
+    const count = document.getElementById(input.getAttribute('aria-describedby')!)!;
+    expect(count.querySelector('[aria-hidden]')!.textContent).toBe('2 / 3');
+    expect(count.textContent).toContain('已输入 2 个字符，最多 3 个');
+    value.value = '你好世界';
+    await nextTick();
+    expect(count.dataset.over).toBe('true');
+  });
+
+  it('Textarea：showCount 没有上限时只显示字数；在 Field 里与说明一起关联', () => {
+    const root = mount(() => (
+      <Field label="简介" description="写点什么">
+        <Textarea value="abc" showCount />
+      </Field>
+    ));
+    const textarea = root.querySelector('textarea')!;
+    const ids = textarea.getAttribute('aria-describedby')!.split(' ');
+    expect(ids).toHaveLength(2);
+    expect(document.getElementById(ids[1]!)!.querySelector('[aria-hidden]')!.textContent).toBe('3');
   });
 });

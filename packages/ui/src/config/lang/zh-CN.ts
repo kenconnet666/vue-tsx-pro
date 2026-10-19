@@ -19,6 +19,8 @@ export const zhCN: Lang = {
   toasterLabel: '通知',
   linkNewWindow: '（在新窗口打开）',
   passwordShow: '显示密码',
+  characterCount: (count, max) =>
+    max == null ? `已输入 ${count} 个字符` : `已输入 ${count} 个字符，最多 ${max} 个`,
   numberDecrement: '减少',
   numberIncrement: '增加',
   comboboxToggle: '显示选项',

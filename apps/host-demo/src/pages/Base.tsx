@@ -271,6 +271,7 @@ export const Base = _component(() => {
   let password = _state('');
   let quantity = _state<number | null>(1);
   let note = _state('');
+  let homepage = _state('my-site');
   let agreed = _state(false);
   let channels = _state<string[]>(['email']);
   let shipping = _state<string | undefined>('express');
@@ -631,13 +632,23 @@ export const Base = _component(() => {
               </Field>
             </li>
             <li>
+              <Field label="个人主页">
+                <TextField
+                  value={_bind(homepage)}
+                  prefix="https://"
+                  suffix=".dev"
+                  class="affix-demo"
+                />
+              </Field>
+            </li>
+            <li>
               <Field label="数量" description="1–99">
                 <NumberField value={_bind(quantity)} min={1} max={99} />
               </Field>
             </li>
             <li>
               <Field label="备注">
-                <Textarea value={_bind(note)} rows={2} maxRows={6} />
+                <Textarea value={_bind(note)} rows={2} maxRows={6} maxlength={200} showCount />
               </Field>
             </li>
             <li>

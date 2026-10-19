@@ -352,6 +352,11 @@ export {
 
 // 输入与表单
 export {
+  CharacterCount,
+  characterCountStyles,
+  type CharacterCountProps,
+} from './input/CharacterCount';
+export {
   Checkbox,
   CheckboxGroup,
   CheckboxGroupContext,

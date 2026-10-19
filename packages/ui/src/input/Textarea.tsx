@@ -11,9 +11,10 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import { nextTick } from 'vue';
+import { nextTick, useId } from 'vue';
+import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from './Field';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 import type { StyleTable } from '../utils/style/styles';
 
@@ -39,14 +40,20 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
   required?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
+  /** 显示字数计数（右下角）；上限取 maxlength（含 zod 推出的约束），超出时用危险色 */
+  showCount?: boolean;
   /** 外壳的部件属性 */
   propsRoot?: PartProps<'div'>;
+  /** 字数计数的部件属性 */
+  propsCount?: Partial<CharacterCountProps>;
 }
 
-/** Textarea 的样式：textarea、fixed */
-export const textareaStyles: StyleTable<'textarea' | 'fixed'> = stylex.create({
+/** Textarea 的样式：textarea、fixed、count */
+export const textareaStyles: StyleTable<'textarea' | 'fixed' | 'count'> = stylex.create({
   textarea: { resize: 'none', overflowY: 'auto' },
   fixed: { resize: 'vertical' },
+  // 计数贴在右下角
+  count: { alignSelf: 'flex-end', paddingBlockEnd: '_xs' },
 });
 
 // 行数是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -73,10 +80,13 @@ export const Textarea = _component(
     readonly,
     required,
     invalid,
+    showCount = false,
     id,
     propsRoot,
+    propsCount,
     ...rest
   }: TextareaProps) => {
+    const countId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let textarea = _state.raw<HTMLTextAreaElement | null>(null);
@@ -94,6 +104,8 @@ export const Textarea = _component(
 
     return () => {
       const state = control();
+      const limit = rest.maxlength ?? state.constraints.maxLength;
+      const describedBy = [state.describedBy, showCount && countId].filter(Boolean).join(' ');
       return (
         <div
           {...elementProps(
@@ -125,12 +137,25 @@ export const Textarea = _component(
                   readonly: state.readonly,
                   required: state.required,
                   'aria-invalid': state.invalid || undefined,
-                  'aria-describedby': state.describedBy,
+                  'aria-describedby': describedBy || undefined,
                 },
               ),
             )}
             value={_bind(value)}
           />
+          {showCount && (
+            <CharacterCount
+              {...mergePartProps<CharacterCountProps>(
+                {
+                  sx: textareaStyles.count,
+                  count: value.length,
+                  max: limit == null ? undefined : Number(limit),
+                },
+                propsCount,
+                { id: countId },
+              )}
+            />
+          )}
         </div>
       );
     };

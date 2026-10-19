@@ -20,6 +20,8 @@ export const enUS: Lang = {
 
   linkNewWindow: ' (opens in a new window)',
   passwordShow: 'Show password',
+  characterCount: (count, max) =>
+    max == null ? `${count} characters` : `${count} of ${max} characters`,
   numberDecrement: 'Decrease',
   numberIncrement: 'Increase',
   comboboxToggle: 'Show options',

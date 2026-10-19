@@ -90,8 +90,8 @@ export const controlRadiusStyles: StyleTable<keyof ButtonRadii> = stylex.create(
   full: { borderRadius: '_full' },
 });
 
-/** 外壳里的各部分：原生输入元素、前后图标、框里的小按钮（清除、显示密码、步进） */
-export const controlStyles: StyleTable<'input' | 'icon' | 'button'> = stylex.create({
+/** 外壳里的各部分：原生输入元素、前后图标、前后缀文字、框里的小按钮（清除、显示密码、步进） */
+export const controlStyles: StyleTable<'input' | 'icon' | 'affix' | 'button'> = stylex.create({
   /** 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳 */
   input: {
     flexGrow: 1,
@@ -109,6 +109,8 @@ export const controlStyles: StyleTable<'input' | 'icon' | 'button'> = stylex.cre
   },
   /** 前后的图标：次要颜色 */
   icon: { flexShrink: 0, color: '_textMuted' },
+  /** 前后缀文字（如 https://、元）：次要颜色，不换行 */
+  affix: { flexShrink: 0, color: '_textMuted', whiteSpace: 'nowrap' },
   /** 框里的小按钮：比独立的图标按钮紧凑，仍不小于 24px 的点击区域 */
   button: {
     flexShrink: 0,
