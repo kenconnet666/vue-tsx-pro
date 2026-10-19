@@ -1,6 +1,8 @@
 // 基础组件演示（文档站暂缓，先在这里按分类演示）：每加一批组件就加一节
 import {
   Bell,
+  Check,
+  X,
   AlignCenter,
   AlignLeft,
   AlignRight,
@@ -742,8 +744,8 @@ export const Base = _component(() => {
                   class="switch-loading-demo"
                   checked={autoSave}
                   loading={savingSwitch}
-                  checkedContent="开"
-                  uncheckedContent="关"
+                  checkedContent={<Icon icon={Check} />}
+                  uncheckedContent={<Icon icon={X} />}
                   onChange={toggleAutoSave}
                 >
                   自动保存（切换要等 1 秒）
