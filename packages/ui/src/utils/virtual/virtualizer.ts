@@ -144,6 +144,8 @@ export class Virtualizer {
   /** key → 测量到的大小 */
   private readonly sizes = new Map<PropertyKey, number>();
   private measurements: VirtualItem[] | null = null;
+  /** 每测到一次新的大小加一：scrollToIndex 据此判断位置是否已经稳定 */
+  private sizeVersion = 0;
   /** 滚动位置，相对列表开头 */
   private offset = 0;
   private viewport = 0;
@@ -265,13 +267,17 @@ export class Virtualizer {
     if (first == null) return;
     this.scrollToOffset(first, { behavior });
     if (behavior === 'smooth') return;
-    // 滚过去之后周围的项才被测量，位置可能变化：下一帧重新对准，直到稳定
+    // 滚过去之后周围的项才被测量，位置可能变化：下一帧重新对准；
+    // 对准了、而且这一帧没有新的测量才算稳定（WebKit 的测量可能晚一两帧才到，对准后又变）
     let attempts = 0;
+    let version = this.sizeVersion;
     const settle = () => {
+      if (++attempts > MAX_SCROLL_ATTEMPTS) return;
       const next = target();
-      if (next == null || Math.abs(next - this.offset) < 1 || ++attempts > MAX_SCROLL_ATTEMPTS)
-        return;
-      this.scrollToOffset(next);
+      const measured = version !== this.sizeVersion;
+      version = this.sizeVersion;
+      if (next != null && Math.abs(next - this.offset) >= 1) this.scrollToOffset(next);
+      else if (!measured) return;
       this.pendingScroll = requestAnimationFrame(settle);
     };
     this.pendingScroll = requestAnimationFrame(settle);
@@ -310,6 +316,7 @@ export class Virtualizer {
     // 可视区上方的项变大或变小：同步调整滚动位置，可见内容不跳
     if (item.start < this.offset) this.scrollBy(size - item.size);
     this.sizes.set(item.key, size);
+    this.sizeVersion++;
     this.measurements = null;
     this.update(true);
   }
