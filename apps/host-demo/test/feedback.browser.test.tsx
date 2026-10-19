@@ -86,6 +86,20 @@ describe('Progress · Skeleton', () => {
     await expect.poll(overlay, { timeout: 4000 }).toBeNull();
   });
 
+  it('Indicator 的角标中心在按钮的右上角；AvatarGroup 的头像叠放、大小一致', () => {
+    const indicator = $('.indicator-demo');
+    const button = indicator.querySelector('button')!.getBoundingClientRect();
+    const badge = indicator.querySelector('[data-placement]')!.getBoundingClientRect();
+    expect(Math.abs(badge.left + badge.width / 2 - button.right)).toBeLessThan(1);
+    expect(Math.abs(badge.top + badge.height / 2 - button.top)).toBeLessThan(1);
+
+    const [first, second, , more] = [...$('.avatar-group-demo').children].map((item) =>
+      item.getBoundingClientRect(),
+    );
+    expect(second!.left).toBeLessThan(first!.right);
+    expect(more!.width).toBeCloseTo(first!.width, 0);
+  });
+
   it('Skeleton 与内容一样大：加载完成前后卡片的尺寸不变', async () => {
     const card = $('.card-demo');
     const before = card.getBoundingClientRect();

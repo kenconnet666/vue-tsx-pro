@@ -39,6 +39,13 @@ export {
   type IconProps,
 } from './base/Icon';
 export { IconButton, type IconButtonManaged, type IconButtonProps } from './base/IconButton';
+export {
+  Indicator,
+  indicatorStyles,
+  type IndicatorOverlaps,
+  type IndicatorPlacements,
+  type IndicatorProps,
+} from './base/Indicator';
 export { Kbd, kbdStyles, type KbdProps } from './base/Kbd';
 export { Link, linkStyles, type LinkProps, type LinkUnderlines } from './base/Link';
 export { LinkButton, type LinkButtonManaged, type LinkButtonProps } from './base/LinkButton';
@@ -143,6 +150,7 @@ export {
 } from './display/AnimatedNumber';
 export {
   Avatar,
+  AvatarGroupContext,
   avatarStyles,
   initials,
   type AvatarManaged,
@@ -150,6 +158,12 @@ export {
   type AvatarProps,
   type AvatarRadii,
 } from './display/Avatar';
+export {
+  AvatarGroup,
+  avatarGroupStyles,
+  type AvatarGroupManaged,
+  type AvatarGroupProps,
+} from './display/AvatarGroup';
 export {
   Card,
   cardPaddingStyles,
@@ -714,7 +728,7 @@ export {
   type SelectionProps,
   type SingleSelectionProps,
 } from './utils/data/selection';
-export { plainText } from './utils/data/text';
+export { childNodes, plainText } from './utils/data/text';
 
 // 工具：虚拟滚动
 export {

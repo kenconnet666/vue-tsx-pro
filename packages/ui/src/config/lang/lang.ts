@@ -73,6 +73,12 @@ export interface Lang {
   readonly sliderMin: string;
   /** 范围滑块里较大一端的滑块名称，默认“最大值” */
   readonly sliderMax: string;
+  /** 角标计数给读屏的说明：`(5)` → “5 条新消息” */
+  readonly indicatorCount: (count: number) => string;
+  /** 角标小圆点给读屏的说明，默认“有新消息” */
+  readonly indicatorDot: string;
+  /** 头像组折叠的人数：`(3)` → “还有 3 人” */
+  readonly avatarMore: (count: number) => string;
   /** 数字输入框“减少”按钮的名称，默认“减少” */
   readonly numberDecrement: string;
   /** 数字输入框“增加”按钮的名称，默认“增加” */

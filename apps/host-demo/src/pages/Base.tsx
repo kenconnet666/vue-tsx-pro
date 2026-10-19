@@ -1,5 +1,6 @@
 // 基础组件演示（文档站暂缓，先在这里按分类演示）：每加一批组件就加一节
 import {
+  Bell,
   AlignCenter,
   AlignLeft,
   AlignRight,
@@ -44,6 +45,7 @@ import {
   Dialog,
   Drawer,
   Avatar,
+  AvatarGroup,
   Badge,
   Card,
   Breadcrumbs,
@@ -62,6 +64,7 @@ import {
   CopyButton,
   Icon,
   IconButton,
+  Indicator,
   Kbd,
   lightTheme,
   Menu,
@@ -845,7 +848,7 @@ export const Base = _component(() => {
           </Flex>
         </Section>
 
-        <Section title="进度与占位 Progress · Skeleton · LoadingOverlay">
+        <Section title="进度、占位与头像 Progress · Skeleton · LoadingOverlay · Avatar · Indicator">
           <Progress class="progress-demo" value={volume} aria-label="演示进度" />
           <Progress tone="success" value={100} aria-label="已完成" />
           <Progress class="progress-indeterminate" aria-label="正在加载" />
@@ -886,6 +889,22 @@ export const Base = _component(() => {
             <Avatar name="张三" />
             <Avatar name="Grace Hopper" radius="md" />
             <Avatar />
+          </Flex>
+          <Flex gap="lg" align="center">
+            <AvatarGroup max={3} aria-label="协作者" class="avatar-group-demo">
+              {['张三', '李四', 'Grace Hopper', 'Ada Lovelace', '王五'].map((name) => (
+                <Avatar key={name} name={name} />
+              ))}
+            </AvatarGroup>
+            <Indicator dot tone="success" placement="bottom-end" overlap="circular" label="在线">
+              <Avatar name="张三" />
+            </Indicator>
+            <Indicator count={120} class="indicator-demo">
+              <IconButton icon={Bell} aria-label="通知" variant="soft" />
+            </Indicator>
+            <Indicator count={3}>
+              <IconButton icon={Bell} aria-label="消息" variant="soft" />
+            </Indicator>
           </Flex>
         </Section>
 
