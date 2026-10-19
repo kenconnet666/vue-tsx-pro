@@ -1,4 +1,4 @@
-// 主题与语言：Provider 嵌套合并、响应式切换、应用级 createUi、格式化
+// 主题与语言：Provider 嵌套合并、响应式切换、应用级 createUi、组件默认值、格式化
 import { afterEach, describe, expect, it } from 'vitest';
 import { CalendarDate } from '@internationalized/date';
 import Decimal from 'decimal.js';
@@ -11,8 +11,10 @@ import {
   enUS,
   lightTheme,
   Provider,
+  useDefaults,
   useFormat,
   useLang,
+  type TableOptions,
 } from '../..';
 import { colors } from '../theme/tokens.stylex';
 
@@ -95,6 +97,36 @@ describe('createUi', () => {
     await nextTick();
     expect(document.documentElement.dataset.theme).toBe('light');
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('light');
+  });
+});
+
+describe('useDefaults', () => {
+  const Probe = _component(({ size, variant, striped }: TableOptions) => {
+    const resolved = useDefaults('Table', () => ({ size, variant, striped }), {
+      variant: 'surface',
+    });
+    return () => <i>{JSON.stringify(resolved())}</i>;
+  });
+
+  it('逐项合并：显式 prop > 最近的 Provider > createUi > fallback', () => {
+    const el = mount(
+      () => (
+        <>
+          <Provider defaults={{ Table: { size: 'lg' } }}>
+            <Probe variant="ghost" />
+          </Provider>
+          <Probe />
+        </>
+      ),
+      (app) => app.use(createUi({ defaults: { Table: { size: 'sm', striped: true } } })),
+    );
+    const [inner, outer] = [...el.querySelectorAll('i')].map((i) => JSON.parse(i.textContent!));
+    expect(inner).toEqual({ size: 'lg', variant: 'ghost', striped: true });
+    expect(outer).toEqual({ size: 'sm', variant: 'surface', striped: true });
+  });
+
+  it('没有 fallback、也没有配置的项是 undefined（如继承字号的 size）', () => {
+    expect(mount(() => <Probe />).textContent).toBe('{"variant":"surface"}');
   });
 });
 

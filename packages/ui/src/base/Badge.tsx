@@ -23,18 +23,13 @@ export interface BadgeProps extends PartProps<'span'>, BadgeOptions {
 /** 标记（span）：状态色调 × 样式，字号默认 xs */
 export const Badge = _component(
   ({ variant, tone, size, radius, icon, propsIcon, children, ...rest }: BadgeProps) => {
-    const defaults = useDefaults('Badge');
+    const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
     return () => (
       <span
         {...elementProps(
           mergeProps<'span'>(
             {
-              sx: badgeSx({
-                variant: variant ?? defaults.variant,
-                tone: tone ?? defaults.tone,
-                size: size ?? defaults.size,
-                radius: radius ?? defaults.radius,
-              }),
+              sx: badgeSx(appearance()),
             },
             rest,
           ),

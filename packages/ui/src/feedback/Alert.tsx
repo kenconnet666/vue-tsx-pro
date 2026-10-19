@@ -125,14 +125,14 @@ export const Alert = _component(
     children,
     ...rest
   }: AlertProps) => {
-    const defaults = useDefaults('Alert');
+    const appearance = useDefaults('Alert', () => ({ variant }), { variant: 'soft' });
     return () => {
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       return (
         <div
           {...elementProps(
             mergeProps<'div'>(
-              { sx: [alertStyles.root, statusToneSx(variant ?? defaults.variant ?? 'soft', tone)] },
+              { sx: [alertStyles.root, statusToneSx(appearance().variant, tone)] },
               rest,
               { role: ROLES[live], 'aria-busy': loading || undefined },
             ),

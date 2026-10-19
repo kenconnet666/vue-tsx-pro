@@ -107,7 +107,7 @@ export const drawerSizeStyles: StyleTable<keyof ContainerSizes> = stylex.create(
 /** 抽屉：贴着视口一侧滑入的模态面板 */
 export const Drawer = _component(
   ({ open = _bindable(false), side = 'end', size, ...rest }: DrawerProps) => {
-    const defaults = useDefaults('Drawer');
+    const appearance = useDefaults('Drawer', () => ({ size }), { size: 'xs' });
     return () => {
       const inline = side === 'start' || side === 'end';
       return (
@@ -118,7 +118,7 @@ export const Drawer = _component(
             drawerStyles.panel,
             inline ? drawerStyles.inline : drawerStyles.block,
             drawerStyles[side],
-            inline && drawerSizeStyles[size ?? defaults.size ?? 'xs'],
+            inline && drawerSizeStyles[appearance().size],
           ]}
           data-side={side}
         />

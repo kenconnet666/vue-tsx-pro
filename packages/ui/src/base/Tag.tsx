@@ -59,7 +59,7 @@ export const Tag = _component(
     ...rest
   }: TagProps) => {
     const lang = useLang();
-    const defaults = useDefaults('Badge');
+    const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
     return () => {
       const text = plainText(children);
       const label = removeLabel ?? (text ? `${lang.remove} ${text}` : lang.remove);
@@ -68,15 +68,7 @@ export const Tag = _component(
           {...elementProps(
             mergeProps<'span'>(
               {
-                sx: [
-                  badgeSx({
-                    variant: variant ?? defaults.variant,
-                    tone: tone ?? defaults.tone,
-                    size: size ?? defaults.size,
-                    radius: radius ?? defaults.radius,
-                  }),
-                  onRemove && tagStyles.removable,
-                ],
+                sx: [badgeSx(appearance()), onRemove && tagStyles.removable],
               },
               rest,
             ),

@@ -61,7 +61,7 @@ export const AlertDialog = _component(
     ...rest
   }: AlertDialogProps) => {
     const lang = useLang();
-    const defaults = useDefaults('Dialog');
+    const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
     let pending = _state(false);
 
     async function confirm() {
@@ -89,7 +89,7 @@ export const AlertDialog = _component(
     return () => (
       <ModalCore
         {...mergePartProps<ModalCoreProps>(
-          { title: rest.title, panelSx: dialogPanelSx(size ?? defaults.size ?? 'xs') },
+          { title: rest.title, panelSx: dialogPanelSx(appearance().size) },
           rest,
           {
             role: 'alertdialog',

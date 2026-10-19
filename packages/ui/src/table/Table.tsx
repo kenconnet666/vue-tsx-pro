@@ -72,7 +72,11 @@ export const Table = _component(
     ...rest
   }: TableProps<T>) => {
     const lang = useLang();
-    const defaults = useDefaults('Table');
+    const appearance = useDefaults('Table', () => ({ size, variant, striped }), {
+      size: 'md',
+      variant: 'surface',
+      striped: false,
+    });
 
     const models = _derived.by<TableRowModel<T>[]>(() => {
       const ordered = manualSort ? rows : sortRows(rows, columns, sort, lang.code);
@@ -103,9 +107,7 @@ export const Table = _component(
             rows: models,
             columns,
             widths: columnWidths,
-            size: size ?? defaults.size ?? 'md',
-            variant: variant ?? defaults.variant ?? 'surface',
-            striped: striped ?? defaults.striped ?? false,
+            ...appearance(),
           },
           rest as Partial<TableViewProps<T>>,
           {

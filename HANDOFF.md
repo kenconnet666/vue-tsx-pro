@@ -74,34 +74,34 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 **ui 包**（`packages/ui/src`）的基础设施都在 `utils/` 与 `config/`。写新组件前先看有没有现成的：
 
-| 需要                                     | 用                                                                                                                           |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 合并部件属性                             | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件）                                                        |
-| 档位样式（间距、字号、色调、焦点环…）    | `utils/style/styles.ts`、`utils/style/typography.ts`、`utils/style/tone-styles.ts`                                           |
-| 波纹                                     | `useRipple(() => ripple)`，返回值展开到受管层                                                                                |
-| 链接走路由、判断当前页                   | `useRouterLink()`                                                                                                            |
-| 组件默认值                               | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx')`                                                                    |
-| 方向键在一组项里移动                     | `rovingFocus(container, { items, orientation })`                                                                             |
-| 单选 / 多选                              | `toggleSelection`                                                                                                            |
-| 拖动                                     | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                             |
-| 进出场过渡、等过渡结束                   | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                            |
-| JS 动画取主题时长 / 缓动                 | `themeTransition(element, …)`（Anime.js）                                                                                    |
-| 弹层：焦点、遮罩、锁滚动、移除后的焦点   | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                             |
-| 浮层贴着触发器定位、打开与关闭           | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                              |
-| 模态打开期间还要可交互的浮层             | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                    |
-| 菜单、列表里按字母跳转                   | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                                                 |
-| 输入框外壳、勾选类控件                   | `input/control.ts`、`input/choice-styles.ts`                                                                                 |
-| 控件接入 Field（标签、说明、错误、状态） | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                                                     |
-| 表单值与校验                             | `useForm({ initial, schema, onSubmit })` + `<Form controller>`                                                               |
-| 选项列表（高亮、选择、键盘）             | `useListState` + `handleListKeydown` + `ListboxView`（`input/`）                                                             |
-| 命令式确认                               | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                                                  |
-| 状态色调的颜色与默认图标                 | `statusToneSx`、`statusIcons`（`utils/style/tone-styles.ts`）                                                                |
-| 虚拟滚动                                 | `useVirtualizer(read)`（`utils/virtual/use-virtualizer.ts`，Vue 接线）；核心 `Virtualizer`（`utils/virtual/virtualizer.ts`） |
-| 列表行的外观与状态色                     | `itemStyles`（`utils/style/item-styles.ts`）                                                                                 |
-| 按语言匹配、比较文字                     | `createMatcher`、`createComparer`（`utils/data/collation.ts`）                                                               |
-| 浮层的 open 同步                         | `useAnchoredPopover(read, { close, shown })`（`utils/dom/floating.ts`）                                                      |
-| 焦点进出、移除后的焦点                   | `utils/dom/focus.ts`                                                                                                         |
-| 夹取值、对齐步长、判断从右到左           | `clamp`、`snapToStep`、`isRtl`（`utils/data/layout.ts`）                                                                     |
+| 需要                                     | 用                                                                                                                                          |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 合并部件属性                             | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件）                                                                       |
+| 档位样式（间距、字号、色调、焦点环…）    | `utils/style/styles.ts`、`utils/style/typography.ts`、`utils/style/tone-styles.ts`                                                          |
+| 波纹                                     | `useRipple(() => ripple)`，返回值展开到受管层                                                                                               |
+| 链接走路由、判断当前页                   | `useRouterLink()`                                                                                                                           |
+| 组件默认值                               | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })`，渲染时读 `appearance().variant` |
+| 方向键在一组项里移动                     | `rovingFocus(container, { items, orientation })`                                                                                            |
+| 单选 / 多选                              | `toggleSelection`                                                                                                                           |
+| 拖动                                     | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                                            |
+| 进出场过渡、等过渡结束                   | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                                           |
+| JS 动画取主题时长 / 缓动                 | `themeTransition(element, …)`（Anime.js）                                                                                                   |
+| 弹层：焦点、遮罩、锁滚动、移除后的焦点   | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                                            |
+| 浮层贴着触发器定位、打开与关闭           | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                                             |
+| 模态打开期间还要可交互的浮层             | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                                   |
+| 菜单、列表里按字母跳转                   | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                                                                |
+| 输入框外壳、勾选类控件                   | `input/control.ts`、`input/choice-styles.ts`                                                                                                |
+| 控件接入 Field（标签、说明、错误、状态） | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                                                                    |
+| 表单值与校验                             | `useForm({ initial, schema, onSubmit })` + `<Form controller>`                                                                              |
+| 选项列表（高亮、选择、键盘）             | `useListState` + `handleListKeydown` + `ListboxView`（`input/`）                                                                            |
+| 命令式确认                               | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                                                                 |
+| 状态色调的颜色与默认图标                 | `statusToneSx`、`statusIcons`（`utils/style/tone-styles.ts`）                                                                               |
+| 虚拟滚动                                 | `useVirtualizer(read)`（`utils/virtual/use-virtualizer.ts`，Vue 接线）；核心 `Virtualizer`（`utils/virtual/virtualizer.ts`）                |
+| 列表行的外观与状态色                     | `itemStyles`（`utils/style/item-styles.ts`）                                                                                                |
+| 按语言匹配、比较文字                     | `createMatcher`、`createComparer`（`utils/data/collation.ts`）                                                                              |
+| 浮层的 open 同步                         | `useAnchoredPopover(read, { close, shown })`（`utils/dom/floating.ts`）                                                                     |
+| 焦点进出、移除后的焦点                   | `utils/dom/focus.ts`                                                                                                                        |
+| 夹取值、对齐步长、判断从右到左           | `clamp`、`snapToStep`、`isRtl`（`utils/data/layout.ts`）                                                                                    |
 
 ## 5. 硬性约定（用户的长期要求）
 

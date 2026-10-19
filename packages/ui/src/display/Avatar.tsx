@@ -85,7 +85,7 @@ export function initials(name: string): string {
 /** 头像：图片 + 后备内容（首字母或图标） */
 export const Avatar = _component(
   ({ src, name, fallback, size, radius, propsImage, propsFallback, ...rest }: AvatarProps) => {
-    const defaults = useDefaults('Avatar');
+    const appearance = useDefaults('Avatar', () => ({ size, radius }), { radius: 'full' });
     // 图片状态：loading 加载中、loaded 已显示、error 失败（显示后备内容）
     let status = _state<'loading' | 'loaded' | 'error'>('loading');
     watch(
@@ -95,16 +95,13 @@ export const Avatar = _component(
 
     return () => {
       const showFallback = !src || status !== 'loaded';
+      const { size: fontSize, radius: corner } = appearance();
       return (
         <span
           {...elementProps(
             mergeProps<'span'>(
               {
-                sx: [
-                  avatarStyles.root,
-                  avatarStyles[radius ?? defaults.radius ?? 'full'],
-                  (size ?? defaults.size) && fontSizeStyles[(size ?? defaults.size)!],
-                ],
+                sx: [avatarStyles.root, avatarStyles[corner], fontSize && fontSizeStyles[fontSize]],
               },
               rest,
               name ? { role: 'img', 'aria-label': name } : { 'aria-hidden': true },

@@ -59,15 +59,32 @@ export function mergeDefaults(
   return merged as ComponentDefaults;
 }
 
+/** useDefaults 合并后的选项：给了 fallback 的项一定有值，其余可能仍是 undefined（如不写时继承字号的 size） */
+export type ResolvedDefaults<Own, Fallback> = {
+  [K in keyof Own as K extends keyof Fallback ? K : never]-?: Exclude<Own[K], undefined>;
+} & {
+  [K in keyof Own as K extends keyof Fallback ? never : K]: Own[K];
+};
+
 /**
- * 某个组件当前的默认值：`const defaults = useDefaults('Button')`，渲染时 `variant ?? defaults.variant ?? 'solid'`。
- * 返回的对象总是读最新配置，Provider 切换后跟着变。
+ * 组件的外观选项逐项合并：显式写的 prop > 最近一层 Provider > createUi > fallback（组件自己的默认值）。
+ * 在 setup 里调用；返回的函数在渲染时调用，读到最新的 prop 与配置（Provider 切换后跟着变）。
+ *
+ *   const appearance = useDefaults('Card', () => ({ variant, padding }), { variant: 'surface', padding: 'lg' });
+ *   cardVariantStyles[appearance().variant]
  */
-export function useDefaults<Name extends keyof ComponentDefaults>(
-  name: Name,
-): NonNullable<ComponentDefaults[Name]> {
+export function useDefaults<
+  Name extends keyof ComponentDefaults,
+  Own extends NonNullable<ComponentDefaults[Name]>,
+  const Fallback extends { [K in keyof Own]?: Exclude<Own[K], undefined> } = {},
+>(name: Name, read: () => Own, fallback?: Fallback): () => ResolvedDefaults<Own, Fallback> {
   const config = useConfig();
-  return new Proxy({} as NonNullable<ComponentDefaults[Name]>, {
-    get: (_, key) => (config.defaults[name] as Record<PropertyKey, unknown> | undefined)?.[key],
-  });
+  return () => {
+    const own = read() as Record<string, unknown>;
+    const provided = (config.defaults[name] ?? {}) as Record<string, unknown>;
+    const defaults = (fallback ?? {}) as Record<string, unknown>;
+    const resolved: Record<string, unknown> = {};
+    for (const key of Object.keys(own)) resolved[key] = own[key] ?? provided[key] ?? defaults[key];
+    return resolved as ResolvedDefaults<Own, Fallback>;
+  };
 }

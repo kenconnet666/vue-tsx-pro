@@ -120,7 +120,7 @@ export const Tabs = _component(
     children,
     ...rest
   }: TabsProps) => {
-    const defaults = useDefaults('Tabs');
+    const appearance = useDefaults('Tabs', () => ({ variant, size }), { variant: 'line' });
     const baseId = useId();
     let registered = _state.raw<string[]>([]);
     const current = _derived(value ?? registered[0]);
@@ -136,7 +136,7 @@ export const Tabs = _component(
         return activation;
       },
       get variant() {
-        return variant ?? defaults.variant ?? 'line';
+        return appearance().variant;
       },
       get lazy() {
         return lazy;
@@ -160,7 +160,7 @@ export const Tabs = _component(
               sx: [
                 tabsStyles.root,
                 orientation === 'vertical' && tabsStyles.vertical,
-                (size ?? defaults.size) && fontSizeStyles[(size ?? defaults.size)!],
+                appearance().size && fontSizeStyles[appearance().size!],
               ],
             },
             rest,

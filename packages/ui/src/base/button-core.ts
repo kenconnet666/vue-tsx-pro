@@ -280,16 +280,7 @@ export function useButtonAppearance(
   read: () => Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>,
   fallbackVariant: keyof ButtonVariants,
 ): () => ButtonAppearance {
-  const defaults = useDefaults('Button');
-  return () => {
-    const own = read();
-    return {
-      variant: own.variant ?? defaults.variant ?? fallbackVariant,
-      tone: own.tone ?? defaults.tone ?? 'accent',
-      size: own.size ?? defaults.size,
-      radius: own.radius ?? defaults.radius ?? 'md',
-    };
-  };
+  return useDefaults('Button', read, { variant: fallbackVariant, tone: 'accent', radius: 'md' });
 }
 
 /** 外观（已合并默认值）与状态 → 按钮根元素的样式 */

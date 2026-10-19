@@ -109,15 +109,18 @@ export const Card = _component(
     children,
     ...rest
   }: CardProps) => {
-    const defaults = useDefaults('Card');
+    const appearance = useDefaults('Card', () => ({ variant, padding }), {
+      variant: 'surface',
+      padding: 'lg',
+    });
     return () => {
-      const space = cardPaddingStyles[padding ?? defaults.padding ?? 'lg'];
+      const space = cardPaddingStyles[appearance().padding];
       return (
         <div
           {...elementProps(
             mergeProps<'div'>(
               {
-                sx: [cardStyles.root, cardVariantStyles[variant ?? defaults.variant ?? 'surface']],
+                sx: [cardStyles.root, cardVariantStyles[appearance().variant]],
               },
               rest,
             ),

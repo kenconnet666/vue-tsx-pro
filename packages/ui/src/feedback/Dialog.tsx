@@ -58,12 +58,8 @@ export function dialogPanelSx(size: keyof DialogSizes): StyleXStyles {
 
 /** 模态对话框：居中显示，淡入放大 */
 export const Dialog = _component(({ open = _bindable(false), size, ...rest }: DialogProps) => {
-  const defaults = useDefaults('Dialog');
+  const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
   return () => (
-    <ModalCore
-      {...rest}
-      open={_bind(open)}
-      panelSx={dialogPanelSx(size ?? defaults.size ?? 'xs')}
-    />
+    <ModalCore {...rest} open={_bind(open)} panelSx={dialogPanelSx(appearance().size)} />
   );
 });

@@ -128,15 +128,7 @@ export type ControlAppearance = Required<Pick<ControlOptions, 'variant' | 'radiu
  * 在 setup 里调用，返回的函数在渲染时调用
  */
 export function useControlAppearance(read: () => ControlOptions): () => ControlAppearance {
-  const defaults = useDefaults('Input');
-  return () => {
-    const own = read();
-    return {
-      variant: own.variant ?? defaults.variant ?? 'outline',
-      size: own.size ?? defaults.size,
-      radius: own.radius ?? defaults.radius ?? 'md',
-    };
-  };
+  return useDefaults('Input', read, { variant: 'outline', radius: 'md' });
 }
 
 /** 外观与状态 → 外壳的样式；multiline 给 Textarea */

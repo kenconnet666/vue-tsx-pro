@@ -514,7 +514,12 @@ export {
   type UiRouter,
 } from './config/context';
 export { createUi, type UiOptions } from './config/createUi';
-export { mergeDefaults, useDefaults, type ComponentDefaults } from './config/defaults';
+export {
+  mergeDefaults,
+  useDefaults,
+  type ComponentDefaults,
+  type ResolvedDefaults,
+} from './config/defaults';
 
 // 主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { darkColors, darkShadows, darkTheme } from './config/theme/dark';

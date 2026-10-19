@@ -21,8 +21,8 @@ export interface ChoiceOptions {
 
 /** 勾选类控件的字号：显式写的 > defaults.Choice > 继承。在 setup 里调用，返回的函数在渲染时调用 */
 export function useChoiceSize(read: () => TextSize | undefined): () => TextSize | undefined {
-  const defaults = useDefaults('Choice');
-  return () => read() ?? defaults.size;
+  const options = useDefaults('Choice', () => ({ size: read() }));
+  return () => options().size;
 }
 
 /** 勾选类控件各部分的样式 */
