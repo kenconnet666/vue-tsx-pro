@@ -7,12 +7,14 @@
  * - 输入时是普通文本；失焦或回车时解析、夹到 min–max、对齐到 step 后写回（snapToStep，没有浮点误差），解析不了时恢复原值；
  *   清空后写回 null。没在编辑时按 format（Intl.NumberFormat 的选项）与当前语言显示，编辑时去掉千分位。
  * - 认当前语言的小数点与千分位，也认中文输入法打出的全角数字和全角句点。
- * - ↑ / ↓ 加减 step，Page Up / Page Down 加减 bigStep，Home / End 到 min / max；按钮不在 Tab 顺序里（键盘用方向键）。
+ * - ↑ / ↓ 加减 step，Page Up / Page Down 加减 bigStep，Home / End 到 min / max；按钮不在 Tab 顺序里（键盘用方向键），
+ *   按住按钮连续加减（先停 400ms，之后每 60ms 一步，同 React Aria）。
  *
  * 未声明的属性落到 input（主元素）上，外壳用 propsRoot。部件：Root、Input、Decrement、Increment（IconButton）。
  */
 import { Minus, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
+import { onBeforeUnmount } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
@@ -181,6 +183,32 @@ export const NumberField = _component(
       if (document.activeElement === input) event.preventDefault();
     };
 
+    // 按住步进按钮：先走一步，停一下后连续走；松开（在哪里松开都算）时停
+    let repeat: ReturnType<typeof setTimeout> | undefined;
+    // 指针按下已经走过一步，随后的 click 不再走（读屏、键盘触发的 click 照常走一步）
+    let stepped = false;
+    const stopRepeat = () => clearTimeout(repeat);
+    function hold(event: PointerEvent, delta: number) {
+      keepFocus(event);
+      if (event.button !== 0) return;
+      stepped = true;
+      stepBy(delta);
+      const tick = (wait: number) => {
+        repeat = setTimeout(() => {
+          stepBy(delta);
+          tick(60);
+        }, wait);
+      };
+      tick(400);
+      window.addEventListener('pointerup', stopRepeat, { once: true });
+      window.addEventListener('pointercancel', stopRepeat, { once: true });
+    }
+    function clickStep(delta: number) {
+      if (stepped) stepped = false;
+      else stepBy(delta);
+    }
+    onBeforeUnmount(stopRepeat);
+
     return () => {
       const state = control();
       const editable = !state.disabled && !state.readonly;
@@ -232,8 +260,8 @@ export const NumberField = _component(
                   {
                     tabindex: -1,
                     disabled: !editable || (value != null && value <= min),
-                    onPointerdown: keepFocus,
-                    onClick: () => stepBy(-step),
+                    onPointerdown: (event: PointerEvent) => hold(event, -step),
+                    onClick: () => clickStep(-step),
                   },
                 )}
               />
@@ -249,8 +277,8 @@ export const NumberField = _component(
                   {
                     tabindex: -1,
                     disabled: !editable || (value != null && value >= max),
-                    onPointerdown: keepFocus,
-                    onClick: () => stepBy(step),
+                    onPointerdown: (event: PointerEvent) => hold(event, step),
+                    onClick: () => clickStep(step),
                   },
                 )}
               />

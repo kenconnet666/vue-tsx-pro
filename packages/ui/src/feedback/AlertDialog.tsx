@@ -13,12 +13,19 @@
  *   />
  *
  * onConfirm 返回 Promise 时：确认按钮显示加载中、取消与 Esc 暂不可用，完成后关闭；失败时保持打开，由调用方提示错误。
+ *
+ * 只想在一个操作前问一句时，用命令式的 useConfirm，不必自己管 open：
+ *
+ *   const confirm = useConfirm();                  // setup 里
+ *   if (await confirm({ title: '删除这个项目？', tone: 'danger', confirmText: '删除' })) remove();
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import type { VNodeChild } from 'vue';
+import { getCurrentInstance, h, render, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import type { ButtonTones } from '../base/button-styles';
-import { useLang } from '../config/context';
+import { ConfigContext, useConfig, useLang } from '../config/context';
+import { ConfigScope } from '../config/Provider';
+import { afterTransitions } from '../utils/transitions';
 import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
 import { dialogPanelSx, ModalCore, type DialogProps, type ModalCoreProps } from './Dialog';
@@ -116,3 +123,62 @@ export const AlertDialog = _component(
     );
   },
 );
+
+/** confirm() 的选项：AlertDialog 的属性（open 由 confirm 管理） */
+export type ConfirmOptions = Omit<AlertDialogProps, 'open'>;
+
+/**
+ * 命令式确认：在组件 setup 里调用，返回 confirm(options)。对话框渲染到 body 末尾，
+ * 沿用调用处的主题、语言等配置（ConfigScope）；关闭后自动卸载。
+ * 确认（onConfirm 完成）时得到 true，取消、Esc 时得到 false；onConfirm 失败时对话框保持打开，可以再试或取消。
+ */
+export function useConfirm(): (options: ConfirmOptions) => Promise<boolean> {
+  // 在 setup 里记下配置与应用上下文：对话框挂在组件树之外，要靠它们拿到主题、语言、全局组件
+  const config = useConfig();
+  const appContext = getCurrentInstance()?.appContext ?? null;
+
+  return (options) =>
+    new Promise<boolean>((resolve) => {
+      const container = document.createElement('div');
+      document.body.append(container);
+      let confirmed = false;
+
+      function finish() {
+        resolve(confirmed);
+        // 等离场过渡播完再卸载
+        const dialog = container.querySelector('dialog');
+        void (dialog ? afterTransitions(dialog) : Promise.resolve()).then(() => {
+          render(null, container);
+          container.remove();
+        });
+      }
+
+      const Host = _component(
+        () => {
+          ConfigContext.provide(config);
+          let open = _state(true);
+          return () => (
+            <ConfigScope>
+              <AlertDialog
+                {...options}
+                open={_bind(open)}
+                onConfirm={async () => {
+                  await options.onConfirm?.();
+                  confirmed = true;
+                }}
+                onClose={(event: Event & { currentTarget: HTMLDialogElement }) => {
+                  options.onClose?.(event);
+                  finish();
+                }}
+              />
+            </ConfigScope>
+          );
+        },
+        { name: 'ConfirmHost' },
+      );
+
+      const vnode = h(Host);
+      vnode.appContext = appContext;
+      render(vnode, container);
+    });
+}

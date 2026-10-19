@@ -146,6 +146,28 @@ describe('Dialog · AlertDialog · Drawer', () => {
     await expect.poll(() => drawer.open).toBe(false);
   });
 
+  it('useConfirm：对话框挂在 body 末尾（组件树之外），确认得到 true，关闭后卸载；沿用页面的主题', async () => {
+    await userEvent.click($('.confirm-imperative'));
+    const dialog = await expect
+      .poll(() => document.body.querySelector<HTMLDialogElement>(':scope > div dialog[open]'))
+      .not.toBeNull()
+      .then(() => document.body.querySelector<HTMLDialogElement>(':scope > div dialog[open]')!);
+    expect(root.contains(dialog)).toBe(false);
+    expect(dialog.getAttribute('role')).toBe('alertdialog');
+    expect(dialog.closest('[data-theme]')).not.toBeNull();
+    const confirm = [...dialog.querySelectorAll('button')].find((b) => b.textContent === '清空')!;
+    await userEvent.click(confirm);
+    await expect.poll(() => $('.cart-result').textContent).toBe('已清空');
+    await expect.poll(() => dialog.isConnected).toBe(false);
+
+    await userEvent.click($('.confirm-imperative'));
+    await expect
+      .poll(() => document.querySelector('dialog[open][role="alertdialog"]'))
+      .not.toBeNull();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => $('.cart-result').textContent).toBe('已取消');
+  });
+
   it.each(['dialog', 'confirm', 'drawer'])('无障碍：%s 打开时 axe-core 没有违规', async (name) => {
     const dialog = $<HTMLDialogElement>(`.${name}-demo`);
     await userEvent.click($(`.${name}-open`));

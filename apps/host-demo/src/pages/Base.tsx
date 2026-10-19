@@ -100,6 +100,7 @@ import {
   Toolbar,
   themeTransition,
   Toaster,
+  useConfirm,
   VirtualList,
   VisuallyHidden,
   type VirtualListHandle,
@@ -252,6 +253,17 @@ export const Base = _component(() => {
   let drawerOpen = _state(false);
   let confirmOpen = _state(false);
   let deleted = _state(0);
+  let cartResult = _state('');
+  const confirm = useConfirm();
+  async function clearCart() {
+    const ok = await confirm({
+      title: '清空购物车？',
+      description: '购物车里的 3 件商品会被移除。',
+      tone: 'danger',
+      confirmText: '清空',
+    });
+    cartResult = ok ? '已清空' : '已取消';
+  }
   let email = _state('');
   let password = _state('');
   let quantity = _state<number | null>(1);
@@ -542,6 +554,12 @@ export const Base = _component(() => {
             <Button class="drawer-open" variant="outline" onClick={() => (drawerOpen = true)}>
               筛选
             </Button>
+            <Button class="confirm-imperative" variant="soft" onClick={() => void clearCart()}>
+              清空购物车（useConfirm）
+            </Button>
+            <Text tone="muted" class="cart-result">
+              {cartResult}
+            </Text>
             <Text tone="muted" class="deleted-count">
               已删除 {deleted} 个
             </Text>

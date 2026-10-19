@@ -23,6 +23,7 @@ import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { useRipple } from '../utils/ripple';
 import { rovingFocus } from '../utils/roving-focus';
 import { toggleSelection, type SelectionModes } from '../utils/selection';
+import { useFieldControl } from './Field';
 import type { TextSize } from '../utils/typography';
 
 interface ToggleGroupState {
@@ -97,13 +98,16 @@ export const ToggleGroup = _component(
     type = 'single',
     value = _bindable<string | string[] | undefined>(undefined),
     required = false,
-    disabled = false,
+    disabled,
     orientation = 'horizontal',
     size,
     ripple,
     children,
+    id,
     ...rest
   }: ToggleGroupProps) => {
+    // 在 Field 里时：标签作为组的名称、关联说明与错误、沿用不可用
+    const control = useFieldControl(() => ({ id, disabled }));
     let root = _state.raw<HTMLElement | null>(null);
     _effect(() =>
       root ? rovingFocus(root, { items: 'button', orientation, loop: true }) : undefined,
@@ -120,7 +124,7 @@ export const ToggleGroup = _component(
         return size;
       },
       get disabled() {
-        return disabled;
+        return control().disabled;
       },
       get ripple() {
         return ripple;
@@ -132,21 +136,32 @@ export const ToggleGroup = _component(
       },
     });
 
-    return () => (
-      <div
-        {...elementProps(
-          mergeProps<'div'>(
-            { sx: [styles.root, orientation === 'vertical' && styles.vertical] },
-            rest,
-            { ref: _toRef(root), role: 'group' },
-          ),
-        )}
-        data-orientation={orientation}
-        data-disabled={disabled || undefined}
-      >
-        {children}
-      </div>
-    );
+    return () => {
+      const field = control();
+      return (
+        <div
+          {...elementProps(
+            mergeProps<'div'>(
+              { sx: [styles.root, orientation === 'vertical' && styles.vertical] },
+              rest,
+              {
+                ref: _toRef(root),
+                id: field.id,
+                role: 'group',
+                'aria-labelledby':
+                  rest['aria-labelledby'] ??
+                  (rest['aria-label'] == null ? field.labelledBy : undefined),
+                'aria-describedby': field.describedBy,
+              },
+            ),
+          )}
+          data-orientation={orientation}
+          data-disabled={field.disabled || undefined}
+        >
+          {children}
+        </div>
+      );
+    };
   },
 );
 

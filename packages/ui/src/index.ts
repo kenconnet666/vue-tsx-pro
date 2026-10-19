@@ -99,7 +99,12 @@ export {
   type DrawerSides,
   type ModalProps,
 } from './feedback/Dialog';
-export { AlertDialog, type AlertDialogProps } from './feedback/AlertDialog';
+export {
+  AlertDialog,
+  useConfirm,
+  type AlertDialogProps,
+  type ConfirmOptions,
+} from './feedback/AlertDialog';
 export { Empty, type EmptyProps } from './feedback/Empty';
 export {
   createToaster,

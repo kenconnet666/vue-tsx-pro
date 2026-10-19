@@ -9,6 +9,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { clamp } from '../utils/layout';
+import { fontSizeStyles, type TextSize } from '../utils/typography';
 
 /** 进度条的色调 */
 export interface ProgressTones {
@@ -33,6 +34,8 @@ export interface ProgressProps extends PartProps<'div', Managed> {
   max?: number;
   /** 色调，默认 accent */
   tone?: keyof ProgressTones;
+  /** 字号档位：进度条的粗细随之缩放；不写时继承上下文字号 */
+  size?: TextSize;
   /** 读屏念的取值文字，如 `(value, max) => \`已上传 ${value} / ${max} 个文件\``；默认是百分比 */
   valueText?: (value: number, max: number) => string;
   /** 进度（着色部分）的部件属性 */
@@ -82,7 +85,15 @@ const widthStyles = stylex.create({
 
 /** 进度条：有 value 时为完成比例，没有时为不确定进度 */
 export const Progress = _component(
-  ({ value, max = 100, tone = 'accent', valueText, propsIndicator, ...rest }: ProgressProps) =>
+  ({
+    value,
+    max = 100,
+    tone = 'accent',
+    size,
+    valueText,
+    propsIndicator,
+    ...rest
+  }: ProgressProps) =>
     () => {
       const determinate = value != null;
       const clamped = determinate ? clamp(value, 0, max) : 0;
@@ -90,7 +101,7 @@ export const Progress = _component(
       return (
         <div
           {...elementProps(
-            mergeProps<'div'>({ sx: styles.root }, rest, {
+            mergeProps<'div'>({ sx: [styles.root, size && fontSizeStyles[size]] }, rest, {
               role: 'progressbar',
               'aria-valuemin': 0,
               'aria-valuemax': max,

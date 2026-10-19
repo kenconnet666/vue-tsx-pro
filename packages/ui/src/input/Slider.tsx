@@ -13,6 +13,7 @@ import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
 import { clamp, isRtl, snapToStep } from '../utils/layout';
+import { useFieldControl } from './Field';
 
 /** 滑块方向 */
 export interface SliderOrientations {
@@ -126,7 +127,7 @@ export const Slider = _component(
     step = 1,
     bigStep,
     orientation = 'horizontal',
-    disabled = false,
+    disabled,
     size,
     valueText,
     name,
@@ -134,8 +135,12 @@ export const Slider = _component(
     propsRoot,
     propsTrack,
     propsRange,
+    id,
     ...rest
   }: SliderProps) => {
+    // 在 Field 里时：标签作为名称、关联说明与错误、沿用不可用
+    const control = useFieldControl(() => ({ id, disabled }));
+    const off = () => control().disabled;
     let track = _state.raw<HTMLElement | null>(null);
     let thumb = _state.raw<HTMLElement | null>(null);
 
@@ -155,7 +160,7 @@ export const Slider = _component(
     }
 
     function grab(event: PointerEvent) {
-      if (disabled || event.button !== 0 || !track) return;
+      if (off() || event.button !== 0 || !track) return;
       // 不让浏览器把焦点放到别处、开始选中文字；焦点交给滑块，键盘接着可以微调
       event.preventDefault();
       thumb?.focus();
@@ -167,7 +172,7 @@ export const Slider = _component(
     }
 
     function onKeydown(event: KeyboardEvent) {
-      if (disabled) return;
+      if (off()) return;
       const big = bigStep ?? Math.max(step, (max - min) / 10);
       // 从右到左排版时，横向的左右键反过来（右边是起点）
       const forward = rtl() ? 'ArrowLeft' : 'ArrowRight';
@@ -191,6 +196,7 @@ export const Slider = _component(
     return () => {
       const vertical = orientation === 'vertical';
       // 父级传入超出范围的值时按范围内显示（不改父级的值），滑块不会跑出轨道
+      const field = control();
       const shown = clamp(value, min, max);
       const percent = `${max > min ? ((shown - min) / (max - min)) * 100 : 0}%`;
       return (
@@ -205,10 +211,10 @@ export const Slider = _component(
                 ],
               },
               propsRoot,
-              { sx: disabled && styles.disabled, onPointerdown: grab },
+              { sx: field.disabled && styles.disabled, onPointerdown: grab },
             ),
           )}
-          data-disabled={disabled || undefined}
+          data-disabled={field.disabled || undefined}
           data-orientation={orientation}
         >
           <div
@@ -250,13 +256,19 @@ export const Slider = _component(
                 {
                   ref: _toRef(thumb),
                   role: 'slider',
-                  tabindex: disabled ? undefined : 0,
+                  id: field.id,
+                  tabindex: field.disabled ? undefined : 0,
                   'aria-valuemin': min,
                   'aria-valuemax': max,
                   'aria-valuenow': shown,
                   'aria-valuetext': valueText?.(shown),
                   'aria-orientation': orientation,
-                  'aria-disabled': disabled || undefined,
+                  'aria-disabled': field.disabled || undefined,
+                  'aria-labelledby':
+                    rest['aria-labelledby'] ??
+                    (rest['aria-label'] == null ? field.labelledBy : undefined),
+                  'aria-describedby': field.describedBy,
+                  'aria-invalid': field.invalid || undefined,
                   onKeydown,
                 },
               ),

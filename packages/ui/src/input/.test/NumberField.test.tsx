@@ -1,5 +1,5 @@
 // NumberField：按语言解析、提交时夹到范围并对齐步长、方向键与按钮加减
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { NumberField, parseNumber } from '../NumberField';
@@ -70,5 +70,27 @@ describe('NumberField', () => {
     decrement!.click();
     await nextTick();
     expect(field.value()).toBe(0.9);
+  });
+
+  it('按住增加按钮：先走一步，400ms 后每 60ms 一步，松开就停', async () => {
+    vi.useFakeTimers();
+    try {
+      const field = setup({ max: 100 });
+      const increment = field.root.querySelectorAll('button')[1]!;
+      increment.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
+      expect(field.value()).toBe(6);
+      vi.advanceTimersByTime(399);
+      expect(field.value()).toBe(6);
+      vi.advanceTimersByTime(1 + 60 * 2);
+      expect(field.value()).toBe(9);
+      window.dispatchEvent(new PointerEvent('pointerup'));
+      vi.advanceTimersByTime(1000);
+      expect(field.value()).toBe(9);
+      // 随后的 click 不再多走一步
+      increment.click();
+      expect(field.value()).toBe(9);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
