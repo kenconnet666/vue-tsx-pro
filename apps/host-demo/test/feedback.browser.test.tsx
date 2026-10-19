@@ -137,7 +137,14 @@ describe('Dialog · AlertDialog · Drawer', () => {
     const drawer = $<HTMLDialogElement>('.drawer-demo');
     await userEvent.click($('.drawer-open'));
     await expect.poll(() => drawer.open).toBe(true);
-    await expect.poll(() => getComputedStyle(drawer).translate).toMatch(/^(none|0px)$/);
+    // 进场是滑入过渡；Linux 上的 WebKit 偶尔把过渡停在起点（同 Firefox 的 running 问题），
+    // 这里只验证最终布局：最多等 1 秒，然后让还没播完的过渡直接到终点
+    await Promise.race([
+      Promise.all(drawer.getAnimations().map((animation) => animation.finished)),
+      new Promise((resolve) => setTimeout(resolve, 1000)),
+    ]);
+    for (const animation of drawer.getAnimations()) animation.finish();
+    expect(getComputedStyle(drawer).translate).toMatch(/^(none|0px)$/);
     const rect = drawer.getBoundingClientRect();
     expect(Math.round(rect.right)).toBe(document.documentElement.clientWidth);
     expect(Math.round(rect.height)).toBe(window.innerHeight);
