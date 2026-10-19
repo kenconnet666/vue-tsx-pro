@@ -108,6 +108,7 @@ import {
 import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
 import { toaster } from '../toaster';
+import { TableDemo } from './TableDemo';
 
 const sampleCode = `export const Counter = _component(() => {
   let count = _state(0); // 像普通变量一样读写
@@ -726,6 +727,10 @@ export const Base = _component(() => {
               </Flex>
             </li>
           </GridList>
+        </Section>
+
+        <Section title="表格 Table · TreeTable">
+          <TableDemo />
         </Section>
 
         <Section title="浮层 Popover · Tooltip · Menu">

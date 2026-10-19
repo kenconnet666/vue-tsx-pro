@@ -247,6 +247,29 @@ export {
   type LabelProps,
 } from './input/Field';
 
+// 表格
+export {
+  columnValue,
+  nextSort,
+  sortRows,
+  type ColumnAligns,
+  type ColumnStickies,
+  type SortDirections,
+  type SortState,
+  type TableColumn,
+} from './table/columns';
+export {
+  TableView,
+  type TableOptions,
+  type TableRowModel,
+  type TableSelections,
+  type TableSizes,
+  type TableVariants,
+  type TableViewProps,
+} from './table/TableView';
+export { Table, type TableProps } from './table/Table';
+export { TreeTable, type TreeTableProps } from './table/TreeTable';
+
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export {
   ConfigScope,

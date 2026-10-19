@@ -1,0 +1,151 @@
+/**
+ * 树形表格：有层级的行（部门 → 小组 → 成员、文件夹 → 文件），第一列带缩进与展开按钮。
+ * 建在 Table 上：列定义、排序、勾选、列宽、虚拟滚动、加载与空状态、外观都和 Table 一样；
+ * 这里只做两件事：按展开状态把树展开成一列行（同级之间按 sort 排序），以及第一列前面的缩进与展开按钮。
+ *
+ *   <TreeTable
+ *     rows={departments}
+ *     columns={columns}
+ *     rowKey={(row) => row.id}
+ *     getChildren={(row) => row.children}
+ *     expanded={_bind(open)}
+ *     aria-label="组织架构"
+ *   />
+ *
+ * - 懒加载：hasChildren 说有子项、getChildren 还没有时，展开会调用 loadChildren（加载中按钮显示加载指示），
+ *   调用方把取到的子项放进数据里。
+ * - 展开按钮的名称是“行名 的子项”（第一列的文字），展开与否由 aria-expanded 表示。
+ *   表格仍是 table 语义（不是 treegrid：那要求逐个单元格的方向键导航），层级由缩进与按钮表达。
+ */
+import { ChevronRight } from '@lucide/icons';
+import { _component } from '@vue-tsx-pro/tsx';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { IconButton } from '../base/IconButton';
+import { useLang } from '../config/context';
+import { toggleSelection } from '../utils/selection';
+import { columnValue, sortRows, type SortState } from './columns';
+import { Table, type TableProps } from './Table';
+import type { TableRowModel } from './TableView';
+
+/** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
+export interface TreeTableProps<T> extends Omit<TableProps<T>, 'manualSort' | 'leading'> {
+  /** 第一层的行 */
+  rows: readonly T[];
+  /** 一行的子项；没有子项（叶子）或还没加载时返回 undefined / 空数组 */
+  getChildren: (row: T) => readonly T[] | undefined;
+  /** 这一行有没有子项（懒加载时子项还没取回来也要显示展开按钮）；不写时看 getChildren 是否非空 */
+  hasChildren?: (row: T) => boolean;
+  /** 展开一个还没有子项的行时调用：取回子项并放进数据里；返回 Promise 时按钮显示加载中 */
+  loadChildren?: (row: T) => Promise<unknown> | void;
+  /** 展开的行的 key：父级写 expanded={_bind(keys)} */
+  expanded?: string[];
+  /** 每一层缩进多少（em），默认 1.25 */
+  indent?: number;
+}
+
+const styles = stylex.create({
+  toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
+  chevron: { transition: 'rotate _durations.sm _easings.standard' },
+  chevronOpen: { rotate: '90deg' },
+  // 叶子没有按钮，用同样宽的占位让文字对齐
+  placeholder: { flexShrink: 0, width: '1.5em' },
+});
+
+// 缩进是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
+const indentStyles = stylex.create({
+  depth: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
+});
+
+/** 树形表格：按展开状态展开的层级行，复用 Table 的一切 */
+export const TreeTable = _component(
+  <T,>({
+    rows,
+    columns,
+    rowKey,
+    getChildren,
+    hasChildren,
+    loadChildren,
+    expanded = _bindable<string[]>([]),
+    indent = 1.25,
+    sort = _bindable<SortState | null>(null),
+    selected = _bindable<string[]>([]),
+    columnWidths = _bindable<Record<string, number>>({}),
+    ...rest
+  }: TreeTableProps<T>) => {
+    const lang = useLang();
+    // 正在加载子项的行
+    let loadingKeys = _state<string[]>([]);
+
+    const canExpand = (row: T) => hasChildren?.(row) ?? (getChildren(row)?.length ?? 0) > 0;
+
+    /** 按展开状态深度优先展开成一列；同级之间按当前排序 */
+    const flat = _derived.by(() => {
+      const result: { row: T; key: string; depth: number }[] = [];
+      const visit = (level: readonly T[], depth: number) => {
+        sortRows(level, columns, sort, lang.code).forEach((row, index) => {
+          const key = rowKey(row, index);
+          result.push({ row, key, depth });
+          if (expanded.includes(key)) visit(getChildren(row) ?? [], depth + 1);
+        });
+      };
+      visit(rows, 0);
+      return result;
+    });
+    const depthOf = _derived.by(() => new Map(flat.map((item) => [item.key, item.depth])));
+
+    async function toggle(row: T, key: string) {
+      const opening = !expanded.includes(key);
+      expanded = [...toggleSelection(expanded, key, { mode: 'multiple' })];
+      if (!opening || !loadChildren || (getChildren(row)?.length ?? 0) > 0) return;
+      const pending = loadChildren(row);
+      if (!(pending instanceof Promise)) return;
+      loadingKeys = [...loadingKeys, key];
+      try {
+        await pending;
+      } finally {
+        loadingKeys = loadingKeys.filter((item) => item !== key);
+      }
+    }
+
+    function leading(model: TableRowModel<T>) {
+      const depth = depthOf.get(model.key) ?? 0;
+      const first = columns[0] ? columnValue(columns[0], model.data) : undefined;
+      const label = first != null ? String(first) : model.key;
+      const open = expanded.includes(model.key);
+      return (
+        <>
+          {depth > 0 && <span {...stylex.attrs(indentStyles.depth(depth * indent))} />}
+          {canExpand(model.data) ? (
+            <IconButton
+              icon={ChevronRight}
+              size="sm"
+              radius="full"
+              loading={loadingKeys.includes(model.key)}
+              aria-label={lang.treeToggle(label)}
+              aria-expanded={open}
+              sx={styles.toggle}
+              propsIcon={{ flipInRtl: true, sx: [styles.chevron, open && styles.chevronOpen] }}
+              onClick={() => void toggle(model.data, model.key)}
+            />
+          ) : (
+            <span {...stylex.attrs(styles.placeholder)} />
+          )}
+        </>
+      );
+    }
+
+    return () => (
+      <Table
+        {...rest}
+        rows={flat.map((item) => item.row)}
+        rowKey={(_, index) => flat[index]!.key}
+        columns={columns}
+        manualSort
+        sort={_bind(sort)}
+        selected={_bind(selected)}
+        columnWidths={_bind(columnWidths)}
+        leading={leading}
+      />
+    );
+  },
+);

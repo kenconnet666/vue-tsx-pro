@@ -1,0 +1,179 @@
+// 列定义与排序、Table、TreeTable：虚拟滚动的行、排序、勾选、展开、加载与空状态（真实滚动与列宽拖动见浏览器测试）
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
+import { mount } from '../../utils/.test/mount';
+import { nextSort, sortRows, type SortState, type TableColumn } from '../columns';
+import { Table } from '../Table';
+import { TreeTable } from '../TreeTable';
+
+// happy-dom 不排版：给滚动容器一个 400px 的视口（行是虚拟滚动的）
+const clientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')!;
+beforeAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', { get: () => 400 });
+});
+afterAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeight);
+});
+
+interface Person {
+  id: string;
+  name: string;
+  age: number | null;
+  children?: Person[];
+}
+
+const people: Person[] = [
+  { id: 'a', name: '张三', age: 30 },
+  { id: 'b', name: '李四', age: null },
+  { id: 'c', name: 'Ada', age: 25 },
+];
+const columns: TableColumn<Person>[] = [
+  { key: 'name', header: '姓名', sortable: true },
+  { key: 'age', header: '年龄', align: 'end', sortable: true },
+];
+const flush = async () => {
+  for (let i = 0; i < 3; i++) await nextTick();
+};
+
+describe('sortRows / nextSort', () => {
+  it('升序、降序；空值总在最后；原数组不变', () => {
+    const ages = (sort: SortState) => sortRows(people, columns, sort, 'zh-CN').map((p) => p.age);
+    expect(ages({ key: 'age', direction: 'ascending' })).toEqual([25, 30, null]);
+    expect(ages({ key: 'age', direction: 'descending' })).toEqual([30, 25, null]);
+    expect(people.map((p) => p.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('点表头：不排 → 升序 → 降序 → 不排；换一列从升序开始', () => {
+    expect(nextSort(null, 'name')).toEqual({ key: 'name', direction: 'ascending' });
+    expect(nextSort({ key: 'name', direction: 'ascending' }, 'name')!.direction).toBe('descending');
+    expect(nextSort({ key: 'name', direction: 'descending' }, 'name')).toBeNull();
+    expect(nextSort({ key: 'name', direction: 'descending' }, 'age')!.key).toBe('age');
+  });
+});
+
+describe('Table', () => {
+  it('原生 table 语义：列标题 scope、aria-sort、aria-rowcount / aria-rowindex；点表头排序', async () => {
+    let sort = _state<SortState | null>(null);
+    const root = mount(() => (
+      <Table
+        rows={people}
+        columns={columns}
+        rowKey={(p) => p.id}
+        sort={_bind(sort)}
+        aria-label="人员"
+      />
+    ));
+    await flush();
+    const table = root.querySelector('table')!;
+    expect(table.getAttribute('aria-rowcount')).toBe('4');
+    const [name, age] = root.querySelectorAll('th');
+    expect([name!.getAttribute('scope'), name!.getAttribute('aria-sort')]).toEqual(['col', 'none']);
+    age!.querySelector('button')!.click();
+    await flush();
+    expect(sort).toEqual({ key: 'age', direction: 'ascending' });
+    expect(age!.getAttribute('aria-sort')).toBe('ascending');
+    const cells = [...root.querySelectorAll('tbody tr[aria-rowindex] td:first-child')].map(
+      (td) => td.textContent,
+    );
+    expect(cells).toEqual(['Ada', '张三', '李四']);
+    expect(root.querySelector('tbody tr[aria-rowindex]')!.getAttribute('aria-rowindex')).toBe('2');
+  });
+
+  it('多选：每行勾选框写回 selected，表头全选有部分选中状态', async () => {
+    let picked = _state<string[]>(['a']);
+    const root = mount(() => (
+      <Table
+        rows={people}
+        columns={columns}
+        rowKey={(p) => p.id}
+        selection="multiple"
+        selected={_bind(picked)}
+        aria-label="人员"
+      />
+    ));
+    await flush();
+    const all = root.querySelector<HTMLInputElement>('thead input[type=checkbox]')!;
+    expect([all.checked, all.indeterminate]).toEqual([false, true]);
+    all.click();
+    await flush();
+    expect(picked).toEqual(['a', 'b', 'c']);
+    const rowBoxes = root.querySelectorAll<HTMLInputElement>('tbody input[type=checkbox]');
+    rowBoxes[1]!.click();
+    await flush();
+    expect(picked).toEqual(['a', 'c']);
+    expect(root.querySelectorAll('tbody tr[aria-selected="true"]')).toHaveLength(2);
+  });
+
+  it('虚拟滚动：一万行只渲染一部分，上下有占位行；没有数据时加载显示骨架、否则显示空状态', async () => {
+    const many = Array.from({ length: 10_000 }, (_, index) => ({
+      id: String(index),
+      name: `第 ${index} 行`,
+      age: index,
+    }));
+    const root = mount(() => (
+      <>
+        <Table rows={many} columns={columns} rowKey={(p) => p.id} aria-label="很多" />
+        <Table rows={[]} columns={columns} rowKey={(p) => p.id} loading aria-label="加载中" />
+        <Table rows={[]} columns={columns} rowKey={(p) => p.id} aria-label="空" />
+      </>
+    ));
+    await flush();
+    const [long, pending, blank] = root.querySelectorAll('table');
+    const rendered = long!.querySelectorAll('tbody tr[aria-rowindex]').length;
+    expect(rendered).toBeGreaterThan(0);
+    expect(rendered).toBeLessThan(60);
+    expect(long!.getAttribute('aria-rowcount')).toBe('10001');
+    expect(pending!.getAttribute('aria-busy')).toBe('true');
+    expect(pending!.querySelectorAll('tbody tr[aria-hidden="true"]').length).toBeGreaterThan(0);
+    expect(blank!.textContent).toContain('暂无数据');
+  });
+});
+
+describe('TreeTable', () => {
+  const tree: Person[] = [
+    {
+      id: 'dept',
+      name: '研发部',
+      age: null,
+      children: [
+        { id: 'x', name: '小王', age: 28 },
+        { id: 'y', name: '小李', age: 24 },
+      ],
+    },
+    { id: 'lazy', name: '市场部', age: null },
+  ];
+
+  it('展开按钮带 aria-expanded，展开后显示子项（同级按排序）；懒加载时调用 loadChildren', async () => {
+    let open = _state<string[]>([]);
+    const loaded: string[] = [];
+    const root = mount(() => (
+      <TreeTable
+        rows={tree}
+        columns={columns}
+        rowKey={(p) => p.id}
+        getChildren={(p) => p.children}
+        hasChildren={(p) => p.id === 'dept' || p.id === 'lazy'}
+        loadChildren={(p) => void loaded.push(p.id)}
+        expanded={_bind(open)}
+        sort={{ key: 'age', direction: 'ascending' }}
+        aria-label="组织"
+      />
+    ));
+    await flush();
+    const names = () =>
+      [...root.querySelectorAll('tbody tr[aria-rowindex] td:first-child')].map(
+        (td) => td.textContent,
+      );
+    expect(names()).toEqual(['研发部', '市场部']);
+    const toggle = root.querySelector<HTMLButtonElement>('button[aria-expanded]')!;
+    expect(toggle.getAttribute('aria-label')).toBe('研发部 的子项');
+    toggle.click();
+    await flush();
+    expect(open).toEqual(['dept']);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(names()).toEqual(['研发部', '小李', '小王', '市场部']);
+    root.querySelectorAll<HTMLButtonElement>('button[aria-expanded]')[1]!.click();
+    await flush();
+    expect(loaded).toEqual(['lazy']);
+  });
+});

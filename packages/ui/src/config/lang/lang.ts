@@ -73,6 +73,16 @@ export interface Lang {
   readonly numberIncrement: string;
   /** 组合框下拉箭头（显示全部选项）的名称，默认“显示选项” */
   readonly comboboxToggle: string;
+  /** 表格表头“全选”勾选框的名称，默认“全选” */
+  readonly tableSelectAll: string;
+  /** 表格每行勾选框的名称，默认“选择第 n 行” */
+  readonly tableSelectRow: (row: number) => string;
+  /** 表格列宽调整手柄的名称，默认“调整“列名”的列宽” */
+  readonly tableResizeColumn: (column: string) => string;
+  /** 表格没有数据时的提示，默认“暂无数据” */
+  readonly tableEmpty: string;
+  /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
+  readonly treeToggle: (row: string) => string;
   /** 下拉框没有选项时的提示，默认“没有选项” */
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */
