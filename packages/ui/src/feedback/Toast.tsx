@@ -22,6 +22,7 @@
  * - 动画：进场淡入并从边缘移入（@starting-style），离场时高度收起（复用 Collapse）后从列表移除。
  * - 横向滑动（触摸、鼠标拖动）超过宽度的 35% 就关闭，否则弹回（startMove；同 Sonner、Radix Toast 的滑动关闭）。
  */
+import { utils } from 'animejs';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
@@ -37,6 +38,7 @@ import type { IconData } from '../base/Icon';
 import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse } from '../display/Collapse';
+import { useAnimate } from '../utils/animation';
 import { startMove } from '../utils/dom/move';
 import { topModal } from '../utils/dom/overlay';
 import { focusAfterRemoval } from '../utils/dom/focus';
@@ -339,6 +341,7 @@ const SWIPE_RATIO = 0.35;
 export const ToastItem = _component(
   ({ toast, controller, fromTop, fallbackFocus, propsItem, propsToast }: ToastItemProps) => {
     let item = _state.raw<HTMLElement | null>(null);
+    const animate = useAnimate();
 
     _effect(() => {
       if (!toast.closing || !item) return;
@@ -354,7 +357,8 @@ export const ToastItem = _component(
       controller.dismiss(toast.id);
     }
 
-    // 横向滑动关闭：拖动中直接写元素的样式（不触发渲染），松开时按距离决定关闭或弹回
+    // 横向滑动关闭：拖动中直接写元素的样式（不触发渲染）。松开时过了阈值就沿滑动方向滑出再关闭，
+    // 不够就用弹簧弹回（Anime.js，时长取主题；减少动态效果时立即到位）
     function onPointerdown(event: PointerEvent) {
       const element = item;
       if (!element || toast.closing) return;
@@ -363,18 +367,26 @@ export const ToastItem = _component(
       startMove(event, {
         threshold: 4,
         onMove: ({ deltaX }) => {
+          // 拖动中跟手：去掉进出场的 CSS 过渡，不然每一帧都在追赶
           element.style.transition = 'none';
-          element.style.translate = `${deltaX}px 0`;
-          element.style.opacity = String(Math.max(0, 1 - Math.abs(deltaX) / width));
+          utils.set(element, { x: deltaX, opacity: Math.max(0, 1 - Math.abs(deltaX) / width) });
         },
         onEnd: ({ deltaX, moved, cancelled }) => {
-          element.style.transition = '';
+          // 弹回后去掉内联样式：之后的离场淡出要靠 CSS 的 opacity
+          const settled = () => {
+            element.style.transition = '';
+            element.style.removeProperty('transform');
+            element.style.removeProperty('opacity');
+          };
           if (moved && !cancelled && Math.abs(deltaX) > width * SWIPE_RATIO) {
-            close();
+            const out = { x: Math.sign(deltaX) * width, opacity: 0 };
+            void animate(element, out, { duration: 'sm', ease: 'exit' }).then(() => {
+              close();
+              element.style.transition = '';
+            });
             return;
           }
-          element.style.translate = '';
-          element.style.opacity = '';
+          void animate(element, { x: 0, opacity: 1 }, { bounce: 0.35 }).then(settled);
         },
       });
     }

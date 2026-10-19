@@ -274,7 +274,8 @@ describe('Toast', () => {
     };
     await swipe(rect.width * 0.2);
     expect(item.dataset.state).toBe('open');
-    expect(item.style.translate).toBe('');
+    // 弹簧弹回后去掉内联的位移与透明度
+    await expect.poll(() => [item.style.transform, item.style.opacity]).toEqual(['', '']);
     await swipe(rect.width * 0.5);
     await expect.poll(() => region().querySelectorAll('li').length).toBe(0);
   });

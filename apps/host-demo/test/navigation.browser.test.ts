@@ -43,11 +43,18 @@ describe('Tabs', () => {
     expect(document.activeElement).toBe(visiblePanel());
   });
 
-  it('下划线样式：当前标签的下边框是品牌色', async () => {
+  it('下划线样式：指示条滑到当前标签下方，与它等宽', async () => {
+    const indicator = $('.tabs-demo [role="tablist"] > [aria-hidden="true"]');
+    const aligned = () => {
+      const bar = indicator.getBoundingClientRect();
+      const tab = tabs()[1]!.getBoundingClientRect();
+      return Math.abs(bar.left - tab.left) < 1 && Math.abs(bar.width - tab.width) < 1;
+    };
+    expect(aligned()).toBe(false);
     tabs()[1]!.click();
     await nextTick();
-    const active = getComputedStyle(tabs()[1]!).borderBottomColor;
-    expect(active).not.toBe(getComputedStyle(tabs()[0]!).borderBottomColor);
+    await expect.poll(aligned).toBe(true);
+    expect(getComputedStyle(indicator).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
   });
 
   it('manual：方向键只移动焦点，Enter 才切换', async () => {

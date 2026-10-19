@@ -7,9 +7,12 @@
  *   animate(panel, { x: 0, ...themeTransition(panel, { duration: 'lg', ease: 'enter' }) })
  *   animate(card, { scale: 1, ...themeTransition(card, { bounce: 0.3 }) })   // 弹簧
  *
+ * 组件里用 useAnimate：同样取主题，另外在组件卸载时取消还在跑的动画。
+ *
  * 进出场、展开收起能用 CSS 过渡的仍用 CSS：原生 popover / dialog 被 Esc、点击外部关闭时，JS 来不及介入。
  */
-import { cubicBezier, spring, type AnimationParams } from 'animejs';
+import { animate, cubicBezier, spring, type AnimationParams, type JSAnimation } from 'animejs';
+import { onBeforeUnmount } from 'vue';
 import { readToken } from '../config/theme/theme';
 import { durations, easings } from '../config/theme/tokens.stylex';
 
@@ -51,4 +54,46 @@ function parseEasing(value: string): [number, number, number, number] {
     throw new Error(`缓动 token 要写成 cubic-bezier(…)：${value}`);
   }
   return points as [number, number, number, number];
+}
+
+/** useAnimate 返回的函数：给元素（或任何 JS 对象）做一次取主题时长的动画，返回 Anime.js 的动画（可以 await） */
+export type ThemeAnimate = <Target extends object>(
+  target: Target,
+  params: AnimationParams,
+  transition?: ThemeTransitionOptions,
+) => JSAnimation;
+
+/**
+ * 组件里的 JS 动画（在 setup 里调用）：时长、缓动、弹簧取主题 tokens（themeTransition），组件卸载时取消还在跑的动画。
+ * 同一目标同一属性上的新动画会替换旧的（Anime.js 默认的 composition: 'replace'），快速连续触发不会互相打架；
+ * params 里写的 duration、ease 优先于主题。目标不是元素（JS 对象）时按根元素读主题。
+ *
+ *   const animate = useAnimate();
+ *   animate(item, { x: 0, opacity: 1 }, { bounce: 0.35 });                       // 弹回
+ *   await animate(item, { x: width, opacity: 0 }, { duration: 'sm', ease: 'exit' }); // 滑出后再移除
+ */
+export function useAnimate(): ThemeAnimate {
+  // 读不到主题 token（页面没加载组件库的样式，如单元测试）时直接到位，不让动画报错打断交互
+  const timing = (scope: Element, transition?: ThemeTransitionOptions) => {
+    try {
+      return themeTransition(scope, transition);
+    } catch {
+      return { duration: 0 };
+    }
+  };
+  const running = new Set<JSAnimation>();
+  onBeforeUnmount(() => {
+    for (const animation of running) animation.cancel();
+    running.clear();
+  });
+  return (target, params, transition) => {
+    const scope = target instanceof Element ? target : document.documentElement;
+    // 播完的、被新动画整个替换掉的不再需要取消
+    for (const animation of running) {
+      if (animation.completed || animation.cancelled) running.delete(animation);
+    }
+    const animation = animate(target, { ...timing(scope, transition), ...params });
+    running.add(animation);
+    return animation;
+  };
 }

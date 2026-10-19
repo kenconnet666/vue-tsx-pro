@@ -18,6 +18,8 @@ import { watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
+import type { JSAnimation } from 'animejs';
+import { useAnimate } from '../utils/animation';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
@@ -154,7 +156,7 @@ export const slideVerifyStyles: StyleTable<
     cursor: 'grab',
     outlineOffset: 'calc(-1 * _borderWidths.sm)',
   },
-  // 不在拖动时，位置变化（弹回、键盘移动）有过渡；拖动中跟手，不加过渡
+  // 键盘移动时位置变化有过渡；拖动中跟手、弹簧弹回时由 Anime.js 逐帧写位置，都不加过渡
   settle: {
     transition:
       'inset-inline-start _durations.md _easings.standard, width _durations.md _easings.standard',
@@ -183,6 +185,26 @@ export const SlideVerify = _component(
     let root = _state.raw<HTMLElement | null>(null);
     let handle = _state.raw<HTMLElement | null>(null);
     let dragging = _state(false);
+    // 松手没到位、取消、重试时用弹簧回到起点：Anime.js 逐帧写 position
+    let springing = _state(false);
+    let spring: JSAnimation | undefined;
+    const animate = useAnimate();
+
+    function returnHome() {
+      spring?.cancel();
+      if (position === 0) return;
+      const motion = { position };
+      springing = true;
+      spring = animate(
+        motion,
+        { position: 0, onUpdate: () => (position = motion.position) },
+        { bounce: 0.25 },
+      );
+      void spring.then(() => {
+        position = 0;
+        springing = false;
+      });
+    }
     let trail: SlideVerifyPoint[] = [];
     let startedAt = 0;
 
@@ -197,7 +219,7 @@ export const SlideVerify = _component(
 
     function release() {
       if (target === 'end' && position < END) {
-        position = 0;
+        returnHome();
         trail = [];
         return;
       }
@@ -213,6 +235,8 @@ export const SlideVerify = _component(
       handle.focus();
       const travel = root.clientWidth - handle.offsetWidth;
       const direction = rtl() ? -1 : 1;
+      spring?.cancel();
+      springing = false;
       const start = position;
       trail = [];
       record();
@@ -225,7 +249,7 @@ export const SlideVerify = _component(
         onEnd: ({ cancelled }) => {
           dragging = false;
           if (cancelled) {
-            position = 0;
+            returnHome();
             trail = [];
           } else release();
         },
@@ -254,11 +278,13 @@ export const SlideVerify = _component(
       record();
     }
 
-    // 应用把状态设回 idle（重试、换拼图）：滑块回到起点
+    // 应用把状态设回 idle（重试、换拼图）：滑块弹回起点；验证失败时滑块左右轻晃一下
     watch(
       () => status,
       (next) => {
-        if (next === 'idle') position = 0;
+        if (next === 'idle') returnHome();
+        if (next === 'error' && handle)
+          animate(handle, { x: [0, -6, 6, -4, 4, 0] }, { duration: 'lg' });
       },
     );
 
@@ -287,7 +313,7 @@ export const SlideVerify = _component(
             {...elementProps(
               mergeProps<'div'>({ sx: slideVerifyStyles.fill }, propsFill, {
                 sx: [
-                  !dragging && slideVerifyStyles.settle,
+                  !dragging && !springing && slideVerifyStyles.settle,
                   status === 'success' && slideVerifyStyles.success,
                   status === 'error' && slideVerifyStyles.error,
                 ],
@@ -314,7 +340,7 @@ export const SlideVerify = _component(
                 propsHandle,
                 {
                   sx: [
-                    !dragging && slideVerifyStyles.settle,
+                    !dragging && !springing && slideVerifyStyles.settle,
                     locked && slideVerifyStyles.locked,
                     status === 'success' && slideVerifyStyles.success,
                     status === 'error' && slideVerifyStyles.error,

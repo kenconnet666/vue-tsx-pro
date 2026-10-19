@@ -558,7 +558,12 @@ export { defineLang, type Directions, type HourCycles, type Lang } from './confi
 export { zhCN } from './config/lang/zh-CN';
 
 // 工具：部件属性的合并、JS 动画
-export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
+export {
+  themeTransition,
+  useAnimate,
+  type ThemeAnimate,
+  type ThemeTransitionOptions,
+} from './utils/animation';
 export {
   elementProps,
   mergePartProps,

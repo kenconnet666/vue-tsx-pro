@@ -19,6 +19,7 @@ export default defineConfig({
       '@lucide/icons',
       '@stylexjs/stylex',
       'tabbable',
+      'zod/v4/core',
       'animejs',
       'shiki/core',
       'shiki/engine/javascript',

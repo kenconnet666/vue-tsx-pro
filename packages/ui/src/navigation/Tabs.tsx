@@ -13,11 +13,16 @@
  *
  * 键盘：标签之间用方向键移动（漫游焦点，整组一个 Tab 位置），Home / End 到两端；
  * activation="automatic"（默认）时焦点移到哪个标签就切换到哪个，"manual" 时按 Enter / 空格才切换。
+ *
+ * line 样式的下划线是 TabList 里的一个指示条（Indicator）：量出当前标签的位置，切换时用 Anime.js 滑过去
+ * （时长取主题，减少动态效果时直接到位），尺寸变化时直接对齐。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import { utils, type AnimationParams } from 'animejs';
+import { onBeforeUnmount, onMounted, useId, watch, type VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
+import { useAnimate } from '../utils/animation';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
@@ -183,65 +188,148 @@ export type TabListManaged = 'role' | 'aria-orientation';
 export interface TabListProps extends PartProps<'div', TabListManaged> {
   /** 到两端后是否从另一端继续，默认 true */
   loop?: boolean;
+  /** line 样式的下划线指示条的部件属性 */
+  propsIndicator?: PartProps<'span'>;
   children?: VNodeChild;
 }
 
-/** Tabs 的样式：root、line、lineVertical、soft、softVertical */
-export const tabListStyles: StyleTable<'root' | 'line' | 'lineVertical' | 'soft' | 'softVertical'> =
-  stylex.create({
-    root: { display: 'flex', flexShrink: 0 },
-    line: {
-      gap: '_md',
-      borderBottomWidth: '_xs',
-      borderBottomStyle: 'solid',
-      borderBottomColor: '_borderMuted',
-    },
-    lineVertical: {
-      flexDirection: 'column',
-      gap: '_xs',
-      borderBottomWidth: 0,
-      borderInlineEndWidth: '_xs',
-      borderInlineEndStyle: 'solid',
-      borderInlineEndColor: '_borderMuted',
-    },
-    soft: { gap: '_xs', padding: '_xs', borderRadius: '_md', backgroundColor: '_fill' },
-    softVertical: { flexDirection: 'column' },
-  });
+/** Tabs 的样式：root、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
+export const tabListStyles: StyleTable<
+  'root' | 'line' | 'lineVertical' | 'soft' | 'softVertical' | 'indicator' | 'indicatorVertical'
+> = stylex.create({
+  root: { display: 'flex', flexShrink: 0 },
+  // 指示条按标签的 offsetLeft / offsetTop 定位，列表要是它的定位容器
+  line: {
+    position: 'relative',
+    gap: '_md',
+    borderBottomWidth: '_xs',
+    borderBottomStyle: 'solid',
+    borderBottomColor: '_borderMuted',
+  },
+  lineVertical: {
+    flexDirection: 'column',
+    gap: '_xs',
+    borderBottomWidth: 0,
+    borderInlineEndWidth: '_xs',
+    borderInlineEndStyle: 'solid',
+    borderInlineEndColor: '_borderMuted',
+  },
+  soft: { gap: '_xs', padding: '_xs', borderRadius: '_md', backgroundColor: '_fill' },
+  softVertical: { flexDirection: 'column' },
+  // 一条 2px 的品牌色线，压在列表的分隔线上；位置与长度由脚本写（transform 与 width/height）
+  indicator: {
+    position: 'absolute',
+    left: 0,
+    bottom: 'calc(-1 * _borderWidths.xs)',
+    width: 0,
+    height: '_borderWidths.sm',
+    borderRadius: '_sm',
+    backgroundColor: '_accent',
+    pointerEvents: 'none',
+  },
+  indicatorVertical: {
+    left: 'auto',
+    bottom: 'auto',
+    top: 0,
+    insetInlineEnd: 'calc(-1 * _borderWidths.xs)',
+    width: '_borderWidths.sm',
+    height: 0,
+  },
+});
 
 /** 标签列表（role="tablist"）：方向键在标签之间移动 */
-export const TabList = _component(({ loop = true, children, ...rest }: TabListProps) => {
-  const tabs = TabsContext.inject();
-  let list = _state.raw<HTMLElement | null>(null);
-  _effect(() =>
-    list
-      ? rovingFocus(list, { items: '[role="tab"]', orientation: tabs.orientation, loop })
-      : undefined,
-  );
-
-  return () => {
-    const vertical = tabs.orientation === 'vertical';
-    return (
-      <div
-        {...elementProps(
-          mergeProps<'div'>(
-            {
-              sx: [
-                tabListStyles.root,
-                tabs.variant === 'line'
-                  ? [tabListStyles.line, vertical && tabListStyles.lineVertical]
-                  : [tabListStyles.soft, vertical && tabListStyles.softVertical],
-              ],
-            },
-            rest,
-            { ref: _toRef(list), role: 'tablist', 'aria-orientation': tabs.orientation },
-          ),
-        )}
-      >
-        {children}
-      </div>
+export const TabList = _component(
+  ({ loop = true, propsIndicator, children, ...rest }: TabListProps) => {
+    const tabs = TabsContext.inject();
+    let list = _state.raw<HTMLElement | null>(null);
+    let indicator = _state.raw<HTMLElement | null>(null);
+    const animate = useAnimate();
+    _effect(() =>
+      list
+        ? rovingFocus(list, { items: '[role="tab"]', orientation: tabs.orientation, loop })
+        : undefined,
     );
-  };
-});
+
+    /** 指示条移到当前标签：切换时滑过去，初次与尺寸变化时直接对齐 */
+    function place(animated: boolean) {
+      const active = list?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+      if (!indicator || !active) return;
+      const vertical = tabs.orientation === 'vertical';
+      const target: AnimationParams = vertical
+        ? { x: 0, y: active.offsetTop, height: active.offsetHeight }
+        : { x: active.offsetLeft, y: 0, width: active.offsetWidth };
+      if (animated) animate(indicator, target);
+      else utils.set(indicator, target);
+    }
+
+    onMounted(() => place(false));
+    watch(
+      () => tabs.value,
+      () => place(true),
+      { flush: 'post' },
+    );
+    // 换了方向：横排时写的宽度、竖排时写的高度不再适用，清掉后重新对齐
+    watch(
+      () => [tabs.orientation, tabs.variant],
+      () => {
+        for (const property of ['width', 'height', 'transform']) {
+          indicator?.style.removeProperty(property);
+        }
+        place(false);
+      },
+      { flush: 'post' },
+    );
+    // 字体加载、容器变宽时标签的位置会变：下一帧直接对齐（不在 ResizeObserver 回调里同步改样式）
+    _effect(() => {
+      if (!list) return;
+      let frame = 0;
+      const observer = new ResizeObserver(() => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => place(false));
+      });
+      observer.observe(list);
+      return () => {
+        cancelAnimationFrame(frame);
+        observer.disconnect();
+      };
+    });
+
+    return () => {
+      const vertical = tabs.orientation === 'vertical';
+      return (
+        <div
+          {...elementProps(
+            mergeProps<'div'>(
+              {
+                sx: [
+                  tabListStyles.root,
+                  tabs.variant === 'line'
+                    ? [tabListStyles.line, vertical && tabListStyles.lineVertical]
+                    : [tabListStyles.soft, vertical && tabListStyles.softVertical],
+                ],
+              },
+              rest,
+              { ref: _toRef(list), role: 'tablist', 'aria-orientation': tabs.orientation },
+            ),
+          )}
+        >
+          {children}
+          {tabs.variant === 'line' && (
+            <span
+              {...elementProps(
+                mergeProps<'span'>(
+                  { sx: [tabListStyles.indicator, vertical && tabListStyles.indicatorVertical] },
+                  propsIndicator,
+                  { ref: _toRef(indicator), 'aria-hidden': true },
+                ),
+              )}
+            />
+          )}
+        </div>
+      );
+    };
+  },
+);
 
 // ─────────────── Tab ───────────────
 
@@ -300,8 +388,8 @@ export const tabStyles: StyleTable<
     borderInlineEndStyle: 'solid',
     borderInlineEndColor: 'transparent',
   },
-  // 写长属性：StyleX 里长属性总是优先于简写，borderColor 盖不过上面的 borderBottomColor
-  lineActive: { color: '_text', borderBottomColor: '_accent', borderInlineEndColor: '_accent' },
+  // 下划线由 TabList 的指示条画（切换时滑过去），标签自己只变文字颜色
+  lineActive: { color: '_text' },
   soft: { borderRadius: '_sm' },
   softActive: { color: '_text', backgroundColor: '_surface', boxShadow: '_xs' },
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },

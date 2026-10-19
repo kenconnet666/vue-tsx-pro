@@ -1,9 +1,11 @@
-// JS 动画参数取主题 tokens 的当前值（真实浏览器里的效果见 apps/host-demo/test/base.browser.test.ts）
-import { cubicBezier } from 'animejs';
+// JS 动画参数取主题 tokens 的当前值；useAnimate 取主题并在卸载时取消（真实浏览器里的效果见 apps/host-demo/test）
+import { cubicBezier, type JSAnimation } from 'animejs';
+import { createApp } from 'vue';
+import { _component } from '@vue-tsx-pro/tsx';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readToken } from '../../config/theme/theme';
 import { durations, easings } from '../../config/theme/tokens.stylex';
-import { themeTransition } from '../animation';
+import { themeTransition, useAnimate } from '../animation';
 
 const variable = (token: unknown) => /^var\((--[\w-]+)\)$/.exec(String(token))![1]!;
 
@@ -51,4 +53,41 @@ describe('themeTransition', () => {
 
 it('readToken 读不到时说明原因', () => {
   expect(() => readToken(document.createElement('div'), durations.md)).toThrow(/读不到主题 token/);
+});
+
+describe('useAnimate', () => {
+  it('取主题的时长；组件卸载时取消还在跑的动画', () => {
+    const el = element([
+      [durations.md, '5s'],
+      [easings.standard, 'cubic-bezier(0.2, 0, 0, 1)'],
+    ]);
+    let animation: JSAnimation | undefined;
+    const app = createApp(
+      _component(() => {
+        const animate = useAnimate();
+        animation = animate(el, { x: 100 });
+        return () => null;
+      }),
+    );
+    app.mount(document.createElement('div'));
+    expect(animation!.duration).toBe(5000);
+    expect(animation!.cancelled).toBe(false);
+    app.unmount();
+    expect(animation!.cancelled).toBe(true);
+  });
+
+  it('读不到主题 token（没有加载样式）时直接到位，不抛错', () => {
+    const target = { value: 0 };
+    let animation: JSAnimation | undefined;
+    const app = createApp(
+      _component(() => {
+        animation = useAnimate()(target, { value: 1 });
+        return () => null;
+      }),
+    );
+    app.mount(document.createElement('div'));
+    // Anime.js 把 0 当作一个极小的正数
+    expect(animation!.duration).toBeLessThan(1);
+    app.unmount();
+  });
 });

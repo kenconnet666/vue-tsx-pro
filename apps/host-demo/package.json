@@ -21,7 +21,8 @@
     "vue": "catalog:",
     "vue-router": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
-    "@vue-tsx-pro/ui": "workspace:^"
+    "@vue-tsx-pro/ui": "workspace:^",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:",
