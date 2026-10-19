@@ -1,5 +1,5 @@
 /**
- * 多行文本框：外壳与 TextField 相同（control-styles），高度随内容增长，在 rows 与 maxRows 之间。
+ * 多行文本框：外壳与 TextField 相同（control），高度随内容增长，在 rows 与 maxRows 之间。
  *
  *   <Field label="备注"><Textarea value={_bind(note)} rows={3} maxRows={8} /></Field>
  *
@@ -13,12 +13,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick } from 'vue';
 import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import {
-  controlStyles,
-  controlSx,
-  useControlAppearance,
-  type ControlOptions,
-} from './control-styles';
+import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 
 /** 值与状态由组件管理 */
 type Managed =
@@ -66,6 +61,7 @@ export const Textarea = _component(
     fixed = false,
     variant,
     size,
+    radius,
     disabled,
     readonly,
     required,
@@ -74,7 +70,7 @@ export const Textarea = _component(
     propsRoot,
     ...rest
   }: TextareaProps) => {
-    const appearance = useControlAppearance(() => ({ variant, size }));
+    const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let textarea = _state.raw<HTMLTextAreaElement | null>(null);
 

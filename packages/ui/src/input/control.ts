@@ -1,10 +1,11 @@
 /**
- * 输入框外壳的样式与选项：TextField、Textarea、NumberField，以后的 Select、Combobox、DatePicker 的触发框共用。
+ * 输入框外壳：样式、外观选项与交互小工具。TextField、Textarea、NumberField、Select、Combobox，以后的 DatePicker 共用。
  * 外壳是包着原生 input 的 div：边框、悬停、焦点环（:focus-within）、出错、不可用、只读都画在外壳上，
  * input 本身透明无边框，所以图标、清除按钮、步进按钮可以放进框里。尺寸用 em，随 size 缩放（COMPONENTS.md §3）。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import type { ButtonRadii } from '../base/button-styles';
 import { useDefaults } from '../config/defaults';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
 
@@ -22,6 +23,8 @@ export interface ControlOptions {
   variant?: keyof ControlVariants;
   /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
   size?: TextSize;
+  /** 圆角，与按钮相同的四档，默认 md；搜索框常用 full（胶囊形） */
+  radius?: keyof ButtonRadii;
 }
 
 /** 外壳的状态：出错、不可用、只读 */
@@ -78,6 +81,13 @@ const shell: Table<'root' | 'soft' | 'invalid' | 'disabled' | 'readonly' | 'mult
     multiline: { alignItems: 'stretch', paddingBlock: '_xs' },
   });
 
+const radii: Table<keyof ButtonRadii> = stylex.create({
+  none: { borderRadius: 0 },
+  sm: { borderRadius: '_sm' },
+  md: { borderRadius: '_md' },
+  full: { borderRadius: '_full' },
+});
+
 /** 外壳里的各部分：原生输入元素、前后图标、框里的小按钮（清除、显示密码、步进） */
 export const controlStyles: Table<'input' | 'icon' | 'button'> = stylex.create({
   /** 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳 */
@@ -108,7 +118,7 @@ export const controlStyles: Table<'input' | 'icon' | 'button'> = stylex.create({
 });
 
 /** 合并后的外观（默认值已填上） */
-export type ControlAppearance = Required<Pick<ControlOptions, 'variant'>> &
+export type ControlAppearance = Required<Pick<ControlOptions, 'variant' | 'radius'>> &
   Pick<ControlOptions, 'size'>;
 
 /**
@@ -122,23 +132,45 @@ export function useControlAppearance(read: () => ControlOptions): () => ControlA
     return {
       variant: own.variant ?? defaults.variant ?? 'outline',
       size: own.size ?? defaults.size,
+      radius: own.radius ?? defaults.radius ?? 'md',
     };
   };
 }
 
 /** 外观与状态 → 外壳的样式；multiline 给 Textarea */
 export function controlSx(
-  { variant, size }: ControlAppearance,
+  { variant, size, radius }: ControlAppearance,
   { invalid, disabled, readonly }: ControlState,
   multiline = false,
 ): StyleXStyles {
   return [
     shell.root,
     variant === 'soft' && shell.soft,
+    radii[radius],
     size && fontSizeStyles[size],
     readonly && shell.readonly,
     invalid && shell.invalid,
     disabled && shell.disabled,
     multiline && shell.multiline,
   ] as StyleXStyles;
+}
+
+/**
+ * 外壳的 onPointerdown：点在外壳的空白处（内边距、图标上）时把焦点交给主元素（input、触发按钮），
+ * 不让浏览器把焦点放到别处；点在主元素或框里的按钮上时照常。afterFocus 在聚焦后调用（Select 据此切换打开）。
+ */
+export function focusOnShell(
+  main: () => HTMLElement | null,
+  afterFocus?: () => void,
+): (event: PointerEvent) => void {
+  return (event) => {
+    const target = event.target as Element;
+    const element = main();
+    if (!element || target === element || element.contains(target) || target.closest('button')) {
+      return;
+    }
+    event.preventDefault();
+    element.focus();
+    afterFocus?.();
+  };
 }

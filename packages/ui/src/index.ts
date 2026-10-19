@@ -172,16 +172,24 @@ export {
 export {
   controlStyles,
   controlSx,
+  focusOnShell,
   useControlAppearance,
   type ControlAppearance,
   type ControlOptions,
   type ControlState,
   type ControlVariants,
-} from './input/control-styles';
+} from './input/control';
 export { TextField, type TextFieldProps } from './input/TextField';
+export { FormValue, type FormValueProps } from './input/FormValue';
 export { Textarea, type TextareaProps } from './input/Textarea';
 export { NumberField, parseNumber, type NumberFieldProps } from './input/NumberField';
-export { choiceGroupStyles, choiceStyles, type ChoiceOrientations } from './input/choice-styles';
+export {
+  choiceGroupStyles,
+  choiceStyles,
+  useChoiceSize,
+  type ChoiceOptions,
+  type ChoiceOrientations,
+} from './input/choice-styles';
 export {
   Checkbox,
   CheckboxGroup,

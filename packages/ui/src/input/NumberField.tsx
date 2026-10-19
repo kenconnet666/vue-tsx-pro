@@ -21,12 +21,7 @@ import { useFormat } from '../config/lang/format';
 import { useFieldControl } from './Field';
 import { snapToStep } from '../utils/layout';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import {
-  controlStyles,
-  controlSx,
-  useControlAppearance,
-  type ControlOptions,
-} from './control-styles';
+import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 
 /** 值、角色与状态由组件管理 */
 type Managed =
@@ -119,6 +114,7 @@ export const NumberField = _component(
     stepper = true,
     variant,
     size,
+    radius,
     disabled,
     readonly,
     required,
@@ -131,7 +127,7 @@ export const NumberField = _component(
   }: NumberFieldProps) => {
     const lang = useLang();
     const formatter = useFormat();
-    const appearance = useControlAppearance(() => ({ variant, size }));
+    const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let input = _state.raw<HTMLInputElement | null>(null);
     // 编辑中的文字；不在编辑时为 null，显示格式化后的值

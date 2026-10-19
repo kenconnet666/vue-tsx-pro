@@ -26,13 +26,16 @@ import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/floating';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/transitions';
+import { fontSizeStyles } from '../utils/typography';
 import {
   controlStyles,
   controlSx,
+  focusOnShell,
   useControlAppearance,
   type ControlOptions,
-} from './control-styles';
+} from './control';
 import { useFieldControl } from './Field';
+import { FormValue } from './FormValue';
 import {
   activeOptionId,
   ListboxView,
@@ -132,6 +135,7 @@ export const Combobox = _component(
     name,
     variant,
     size,
+    radius,
     disabled,
     readonly,
     required,
@@ -148,7 +152,7 @@ export const Combobox = _component(
   }: ComboboxProps<T>) => {
     const lang = useLang();
     const listId = useId();
-    const appearance = useControlAppearance(() => ({ variant, size }));
+    const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     // 用户输入的过滤词：选中、用箭头打开时清空（显示全部选项）
     let query = _state('');
@@ -279,11 +283,7 @@ export const Combobox = _component(
             {...elementProps(
               mergeProps<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
                 ref: _toRef(shell),
-                onPointerdown: (event: PointerEvent) => {
-                  if (event.target === input || (event.target as Element).closest('button')) return;
-                  event.preventDefault();
-                  input?.focus();
-                },
+                onPointerdown: focusOnShell(() => input),
               }),
             )}
             data-state={open ? 'open' : 'closed'}
@@ -352,7 +352,7 @@ export const Combobox = _component(
                 },
               )}
             />
-            {name != null && value != null && <input type="hidden" name={name} value={value} />}
+            <FormValue name={name} value={value} />
           </div>
           <div
             {...elementProps(
@@ -362,6 +362,8 @@ export const Combobox = _component(
                     floatingStyles.anchored,
                     floatingStyles.surface,
                     styles.popover,
+                    // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
+                    appearance().size && fontSizeStyles[appearance().size!],
                     transitions.scale,
                   ],
                 },

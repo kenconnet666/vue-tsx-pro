@@ -24,7 +24,12 @@ import { useFieldControl } from './Field';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { toggleSelection } from '../utils/selection';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
-import { choiceGroupStyles, choiceStyles, type ChoiceOrientations } from './choice-styles';
+import {
+  choiceGroupStyles,
+  choiceStyles,
+  useChoiceSize,
+  type ChoiceOrientations,
+} from './choice-styles';
 
 interface GroupState {
   readonly value: readonly string[];
@@ -93,6 +98,7 @@ export const Checkbox = _component(
     ...rest
   }: CheckboxProps) => {
     const group = GroupContext.inject(null);
+    const resolvedSize = useChoiceSize(() => size);
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
     let input = _state.raw<HTMLInputElement | null>(null);
 
@@ -119,7 +125,11 @@ export const Checkbox = _component(
           {...elementProps(
             mergeProps<'label'>(
               {
-                sx: [choiceStyles.root, size && fontSizeStyles[size], off && choiceStyles.disabled],
+                sx: [
+                  choiceStyles.root,
+                  resolvedSize() && fontSizeStyles[resolvedSize()!],
+                  off && choiceStyles.disabled,
+                ],
               },
               propsRoot,
             ),

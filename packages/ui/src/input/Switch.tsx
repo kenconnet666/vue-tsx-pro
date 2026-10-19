@@ -13,7 +13,7 @@ import type { VNodeChild } from 'vue';
 import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
-import { choiceStyles } from './choice-styles';
+import { choiceStyles, useChoiceSize } from './choice-styles';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
 type Managed =
@@ -84,6 +84,7 @@ export const Switch = _component(
     ...rest
   }: SwitchProps) => {
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
+    const resolvedSize = useChoiceSize(() => size);
     return () => {
       const state = control();
       return (
@@ -93,7 +94,7 @@ export const Switch = _component(
               {
                 sx: [
                   choiceStyles.root,
-                  size && fontSizeStyles[size],
+                  resolvedSize() && fontSizeStyles[resolvedSize()!],
                   state.disabled && choiceStyles.disabled,
                 ],
               },

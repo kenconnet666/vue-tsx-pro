@@ -13,7 +13,8 @@ import type { AlertOptions } from '../feedback/Alert';
 import type { DialogOptions, DrawerOptions } from '../feedback/Dialog';
 import type { AvatarOptions } from '../display/Avatar';
 import type { CardOptions } from '../display/Card';
-import type { ControlOptions } from '../input/control-styles';
+import type { ChoiceOptions } from '../input/choice-styles';
+import type { ControlOptions } from '../input/control';
 import type { TabsOptions } from '../navigation/Tabs';
 import type { ButtonOptions } from '../base/button-styles';
 
@@ -35,8 +36,10 @@ export interface ComponentDefaults {
   Avatar?: AvatarOptions;
   /** Tabs */
   Tabs?: TabsOptions;
-  /** 输入框：TextField、Textarea、NumberField 共用 */
+  /** 输入框：TextField、Textarea、NumberField、Select、Combobox 共用 */
   Input?: ControlOptions;
+  /** 勾选类控件：Checkbox、RadioGroup、Switch 共用 */
+  Choice?: ChoiceOptions;
 }
 
 /** 合并两层默认值：按组件逐个合并，内层写了的选项覆盖外层 */

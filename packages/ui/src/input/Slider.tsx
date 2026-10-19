@@ -14,6 +14,7 @@ import { focusRingStyles } from '../utils/styles';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
 import { clamp, isRtl, snapToStep } from '../utils/layout';
 import { useFieldControl } from './Field';
+import { FormValue } from './FormValue';
 
 /** 滑块方向 */
 export interface SliderOrientations {
@@ -274,7 +275,7 @@ export const Slider = _component(
               ),
             )}
           />
-          {name != null && <input type="hidden" name={name} value={value} />}
+          <FormValue name={name} value={value} />
         </div>
       );
     };

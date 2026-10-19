@@ -21,9 +21,10 @@ import { elementProps, mergePartProps, mergeProps, type PartProps } from '../uti
 import {
   controlStyles,
   controlSx,
+  focusOnShell,
   useControlAppearance,
   type ControlOptions,
-} from './control-styles';
+} from './control';
 
 /** 值与状态由组件管理；原生的 size 属性（字符宽度）让给字号档位 */
 type Managed =
@@ -66,6 +67,7 @@ export const TextField = _component(
     type = 'text',
     variant,
     size,
+    radius,
     disabled,
     readonly,
     required,
@@ -82,20 +84,13 @@ export const TextField = _component(
     ...rest
   }: TextFieldProps) => {
     const lang = useLang();
-    const appearance = useControlAppearance(() => ({ variant, size }));
+    const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let input = _state.raw<HTMLInputElement | null>(null);
     let revealed = _state(false);
 
     function clear() {
       value = '';
-      input?.focus();
-    }
-
-    // 点在外壳的空白处（内边距、图标上）也把焦点交给 input
-    function onRootPointerdown(event: PointerEvent) {
-      if (event.target === input || (event.target as Element).closest('button')) return;
-      event.preventDefault();
       input?.focus();
     }
 
@@ -107,7 +102,7 @@ export const TextField = _component(
         <div
           {...elementProps(
             mergeProps<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
-              onPointerdown: onRootPointerdown,
+              onPointerdown: focusOnShell(() => input),
             }),
           )}
           data-invalid={state.invalid || undefined}

@@ -19,7 +19,12 @@ import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
-import { choiceGroupStyles, choiceStyles, type ChoiceOrientations } from './choice-styles';
+import {
+  choiceGroupStyles,
+  choiceStyles,
+  useChoiceSize,
+  type ChoiceOrientations,
+} from './choice-styles';
 
 interface GroupState {
   readonly value: string | undefined;
@@ -69,6 +74,7 @@ export const RadioGroup = _component(
   }: RadioGroupProps) => {
     const generatedName = useId();
     const control = useFieldControl(() => ({ id, disabled, required, invalid }));
+    const resolvedSize = useChoiceSize(() => size);
     GroupContext.provide({
       get value() {
         return value;
@@ -86,7 +92,7 @@ export const RadioGroup = _component(
         return control().invalid;
       },
       get size() {
-        return size;
+        return resolvedSize();
       },
       select: (next) => (value = next),
     });

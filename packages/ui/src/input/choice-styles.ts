@@ -10,6 +10,20 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import { useDefaults } from '../config/defaults';
+import type { TextSize } from '../utils/typography';
+
+/** 勾选类控件的外观选项；可以用 createUi / Provider 的 defaults.Choice 统一改默认值 */
+export interface ChoiceOptions {
+  /** 字号档位（方框、圆、开关随之缩放）；不写时继承上下文字号 */
+  size?: TextSize;
+}
+
+/** 勾选类控件的字号：显式写的 > defaults.Choice > 继承。在 setup 里调用，返回的函数在渲染时调用 */
+export function useChoiceSize(read: () => TextSize | undefined): () => TextSize | undefined {
+  const defaults = useDefaults('Choice');
+  return () => read() ?? defaults.size;
+}
 
 type Table<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
 

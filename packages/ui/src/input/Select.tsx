@@ -26,13 +26,16 @@ import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../u
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import type { SelectionModes } from '../utils/selection';
 import { transitions } from '../utils/transitions';
+import { fontSizeStyles } from '../utils/typography';
 import {
   controlStyles,
   controlSx,
+  focusOnShell,
   useControlAppearance,
   type ControlOptions,
-} from './control-styles';
+} from './control';
 import { useFieldControl } from './Field';
+import { FormValue } from './FormValue';
 import {
   activeOptionId,
   ListboxView,
@@ -170,6 +173,7 @@ export const Select = _component(
     name,
     variant,
     size,
+    radius,
     disabled,
     required,
     invalid,
@@ -188,7 +192,7 @@ export const Select = _component(
   }: SelectProps<T>) => {
     const lang = useLang();
     const listId = useId();
-    const appearance = useControlAppearance(() => ({ variant, size }));
+    const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
     const multiple = () => type === 'multiple';
     const list = createListState({
@@ -282,17 +286,13 @@ export const Select = _component(
               mergeProps<'div'>({ sx: [controlSx(appearance(), state), styles.root] }, propsRoot, {
                 ref: _toRef(shell),
                 // 点在外壳的空白处也打开：焦点交给触发按钮
-                onPointerdown: (event: PointerEvent) => {
-                  if (
-                    off ||
-                    event.target === trigger ||
-                    (event.target as Element).closest('button')
-                  )
-                    return;
-                  event.preventDefault();
-                  trigger?.focus();
-                  open = !open;
-                },
+                // 点在外壳空白处：焦点交给触发按钮并切换打开
+                onPointerdown: off
+                  ? undefined
+                  : focusOnShell(
+                      () => trigger,
+                      () => (open = !open),
+                    ),
               }),
             )}
             data-state={open ? 'open' : 'closed'}
@@ -346,8 +346,7 @@ export const Select = _component(
                 propsChevron,
               )}
             />
-            {name != null &&
-              values.map((item) => <input key={item} type="hidden" name={name} value={item} />)}
+            <FormValue name={name} value={values} />
           </div>
           <div
             {...elementProps(
@@ -357,6 +356,8 @@ export const Select = _component(
                     floatingStyles.anchored,
                     floatingStyles.surface,
                     styles.popover,
+                    // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
+                    appearance().size && fontSizeStyles[appearance().size!],
                     transitions.scale,
                   ],
                 },
