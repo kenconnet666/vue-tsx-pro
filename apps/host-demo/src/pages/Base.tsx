@@ -232,6 +232,11 @@ const languageOptions: ListboxOption[] = [
   'Python',
   'Kotlin',
 ].map((label) => ({ value: label.toLowerCase(), label }));
+/** 一万个选项：下拉列表是虚拟滚动的 */
+const manyOptions: ListboxOption[] = Array.from({ length: 10_000 }, (_, index) => ({
+  value: String(index + 1),
+  label: `编号 ${index + 1}`,
+}));
 const fruitOptions: ListboxOption[] = [
   { value: 'apple', label: '苹果' },
   { value: 'banana', label: '香蕉' },
@@ -276,6 +281,7 @@ export const Base = _component(() => {
   let pickedCities = _state<string[]>(['sh']);
   let language = _state<string | undefined>(undefined);
   let fruit = _state<string | undefined>('banana');
+  let serial = _state<string | undefined>(undefined);
   let menuAction = _state('');
   let showGrid = _state(true);
   let sortBy = _state('name');
@@ -679,6 +685,15 @@ export const Base = _component(() => {
                   value={_bind(pickedCities)}
                   clearable
                   propsRoot={{ class: 'select-multiple-demo' }}
+                />
+              </Field>
+            </li>
+            <li>
+              <Field label="编号（一万个选项）">
+                <Select
+                  items={manyOptions}
+                  value={_bind(serial)}
+                  propsRoot={{ class: 'select-many-demo' }}
                 />
               </Field>
             </li>

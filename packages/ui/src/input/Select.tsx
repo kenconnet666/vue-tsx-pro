@@ -83,6 +83,8 @@ interface SelectBaseProps<T extends ListboxOption>
   children?: (option: T, state: OptionRenderState) => VNodeChild;
   /** 自定义触发框里显示的内容（已选的选项）；默认单选显示文字、多选显示标签 */
   renderValue?: (selected: readonly T[]) => VNodeChild;
+  /** 正在取选项（异步加载）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
+  loading?: boolean;
   /** 没有选项时列表里显示的内容 */
   empty?: VNodeChild;
   /** 外壳的部件属性 */
@@ -181,6 +183,7 @@ export const Select = _component(
     children,
     renderValue,
     empty,
+    loading = false,
     propsRoot,
     propsValue,
     propsTag,
@@ -372,6 +375,9 @@ export const Select = _component(
                 propsListbox,
                 {
                   id: listId,
+                  // 弹出层是滚动容器：选项虚拟滚动
+                  scroller: panel,
+                  loading,
                   multiple: multiple(),
                   'aria-labelledby': state.labelledBy,
                   'aria-label': state.labelledBy ? undefined : rest['aria-label'],

@@ -66,6 +66,21 @@ describe('Select', () => {
     await expect.poll(() => popover.matches(':popover-open')).toBe(false);
   });
 
+  it('一万个选项只渲染看得见的几十个；End 跳到最后一项并滚到它', async () => {
+    const trigger = $('.select-many-demo').querySelector('button')!;
+    await userEvent.click(trigger);
+    const popover = popoverOf(trigger);
+    await expect.poll(() => popover.querySelectorAll('[role="option"]').length).toBeGreaterThan(0);
+    expect(popover.querySelectorAll('[role="option"]').length).toBeLessThan(60);
+    await userEvent.keyboard('{End}');
+    await expect.poll(() => activeText(trigger)).toBe('编号 10000');
+    const last = document.getElementById(trigger.getAttribute('aria-activedescendant')!)!;
+    expect(last.getAttribute('aria-posinset')).toBe('10000');
+    await expect
+      .poll(() => last.getBoundingClientRect().bottom)
+      .toBeLessThanOrEqual(popover.getBoundingClientRect().bottom + 1);
+  });
+
   it('打开时 axe-core 没有违规', async () => {
     const trigger = $('.select-demo').querySelector('button')!;
     await userEvent.click(trigger);

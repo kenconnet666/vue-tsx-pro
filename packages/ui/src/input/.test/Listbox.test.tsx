@@ -1,9 +1,18 @@
 // 列表状态与 Listbox：分组排序、移动跳过不可用项、单选 / 多选、键盘与 aria-activedescendant
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Listbox } from '../Listbox';
 import { createListState, handleListKeydown, type ListboxOption } from '../list-state';
+
+// happy-dom 不排版：给滚动容器一个 300px 的视口（选项是虚拟滚动的）
+const clientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')!;
+beforeAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', { get: () => 300 });
+});
+afterAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeight);
+});
 
 const fruits: ListboxOption[] = [
   { value: 'apple', label: 'Apple', group: '常见' },
@@ -62,11 +71,19 @@ describe('createListState', () => {
 });
 
 describe('Listbox', () => {
-  it('role="listbox"，分组带标题；获得焦点后高亮已选项，方向键移动、Enter 选中', async () => {
+  it('role="listbox"，组名经 aria-describedby 交给组里的选项；获得焦点后高亮已选项，方向键移动、Enter 选中', async () => {
     let value = _state<string | undefined>('cherry');
     const root = mount(() => <Listbox items={fruits} value={_bind(value)} aria-label="水果" />);
+    await nextTick();
     const listbox = root.querySelector<HTMLElement>('[role="listbox"]')!;
-    expect(root.querySelectorAll('[role="group"]')).toHaveLength(2);
+    const apple = root.querySelector<HTMLElement>('[role="option"]')!;
+    expect(document.getElementById(apple.getAttribute('aria-describedby')!)!.textContent).toBe(
+      '常见',
+    );
+    expect([apple.getAttribute('aria-setsize'), apple.getAttribute('aria-posinset')]).toEqual([
+      '4',
+      '1',
+    ]);
     expect(listbox.tabIndex).toBe(0);
     listbox.dispatchEvent(new FocusEvent('focus'));
     await nextTick();
@@ -87,6 +104,7 @@ describe('Listbox', () => {
         <Listbox items={[]} aria-label="空" />
       </>
     ));
+    await nextTick();
     const [multi, blank] = root.querySelectorAll<HTMLElement>('[role="listbox"]');
     expect(multi!.getAttribute('aria-multiselectable')).toBe('true');
     const options = multi!.querySelectorAll<HTMLElement>('[role="option"]');
@@ -97,5 +115,25 @@ describe('Listbox', () => {
     options[1]!.click(); // 不可用
     expect(picked).toEqual(['apple', 'cherry']);
     expect(blank!.textContent).toContain('没有选项');
+  });
+
+  it('虚拟滚动：一千个选项只渲染看得见的一部分；loading 且没有选项时显示骨架行', async () => {
+    const many = Array.from({ length: 1000 }, (_, index) => ({
+      value: String(index),
+      label: `选项 ${index}`,
+    }));
+    const root = mount(() => (
+      <>
+        <Listbox items={many} aria-label="很多" />
+        <Listbox items={[]} loading aria-label="加载中" />
+      </>
+    ));
+    await nextTick();
+    const [long, pending] = root.querySelectorAll<HTMLElement>('[role="listbox"]');
+    const rendered = long!.querySelectorAll('[role="option"]').length;
+    expect(rendered).toBeGreaterThan(0);
+    expect(rendered).toBeLessThan(40);
+    expect(pending!.getAttribute('aria-busy')).toBe('true');
+    expect(pending!.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0);
   });
 });

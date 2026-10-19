@@ -21,7 +21,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { Spinner } from '../base/Spinner';
 import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/floating';
 import { createMatcher } from '../utils/collation';
@@ -76,7 +75,7 @@ export interface ComboboxProps<T extends ListboxOption = ListboxOption>
   filter?: false | ((option: T, query: string) => boolean);
   /** 允许输入不在选项里的文字：失焦时保留，value 为 undefined */
   allowCustomValue?: boolean;
-  /** 正在取选项（异步搜索）：列表里显示加载指示 */
+  /** 正在取选项（异步搜索）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
   loading?: boolean;
   /** 弹出位置，默认 bottom-start */
   placement?: FloatingPlacement;
@@ -367,26 +366,15 @@ export const Combobox = _component(
           >
             <ListboxView
               {...mergePartProps<ListboxViewProps<T>>(
-                {
-                  list,
-                  id: listId,
-                  renderOption: children,
-                  empty:
-                    loading && !list.options.length ? (
-                      <div {...stylex.attrs(styles.loading)}>
-                        <Spinner />
-                        {lang.loading}
-                      </div>
-                    ) : (
-                      empty
-                    ),
-                },
+                { list, id: listId, renderOption: children, empty },
                 propsListbox,
                 {
                   id: listId,
+                  // 弹出层是滚动容器：选项虚拟滚动
+                  scroller: panel,
+                  loading,
                   'aria-labelledby': state.labelledBy,
                   'aria-label': state.labelledBy ? undefined : rest['aria-label'],
-                  'aria-busy': loading || undefined,
                   onPick: pick,
                 },
               )}
