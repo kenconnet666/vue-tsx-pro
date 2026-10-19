@@ -47,6 +47,20 @@ describe('Popover', () => {
     const { violations } = await axe.run(panel);
     expect(violations.map((violation) => violation.id)).toEqual([]);
   });
+
+  it('打开时焦点移到第一个可聚焦元素；Esc 关闭，焦点回到触发器并写回 aria-expanded', async () => {
+    const trigger = $('.popover-open');
+    const panel = $('.popover-demo');
+    await userEvent.click(trigger);
+    await expect.poll(() => isOpen(panel)).toBe(true);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    await expect.poll(() => panel.contains(document.activeElement)).toBe(true);
+    expect(document.activeElement!.textContent).toBe('应用');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen(panel)).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
 });
 
 describe('Tooltip', () => {
