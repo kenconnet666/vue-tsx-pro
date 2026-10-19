@@ -295,6 +295,7 @@ export const TableView = _component(
     ...rest
   }: TableViewProps<T>) => {
     const lang = useLang();
+    const selectedSet = _derived.by(() => new Set(selectedKeys));
     let viewport = _state.raw<HTMLElement | null>(null);
     let body = _state.raw<HTMLElement | null>(null);
 
@@ -443,7 +444,7 @@ export const TableView = _component(
 
     function renderRow(row: TableRowModel<T>, index: number, measured: boolean) {
       const own = typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow;
-      const selected = selection != null && selectedKeys.includes(row.key);
+      const selected = selection != null && selectedSet.has(row.key);
       return (
         <tr
           key={row.key}
@@ -527,8 +528,8 @@ export const TableView = _component(
       const items = virtual.items;
       const top = items[0]?.start ?? 0;
       const bottom = items.length ? virtual.total - items.at(-1)!.end : 0;
-      const allSelected = rows.length > 0 && rows.every((row) => selectedKeys.includes(row.key));
-      const someSelected = !allSelected && rows.some((row) => selectedKeys.includes(row.key));
+      const allSelected = rows.length > 0 && rows.every((row) => selectedSet.has(row.key));
+      const someSelected = !allSelected && rows.some((row) => selectedSet.has(row.key));
       return (
         <ScrollArea
           {...mergePartProps<ScrollAreaProps>(

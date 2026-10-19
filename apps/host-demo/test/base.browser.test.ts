@@ -29,6 +29,21 @@ const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
   root.querySelector<T>(selector)!;
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
 
+it('性能：演示页（含一万行表格、一万个选项）挂载在 2 秒内', async () => {
+  // 曾经因为选项列表生成行时 O(n²) 而要 5–10 秒；正常时一两百毫秒，这里给慢的 CI 机器留足余量
+  const host = createHostApp(createMemoryHistory());
+  await host.router.push('/base');
+  await host.router.isReady();
+  const target = document.createElement('div');
+  document.body.append(target);
+  const start = performance.now();
+  host.app.mount(target);
+  const elapsed = performance.now() - start;
+  host.app.unmount();
+  target.remove();
+  expect(elapsed).toBeLessThan(2000);
+});
+
 it('VisuallyHidden：视觉上不占位，读屏名称仍然在', () => {
   const button = $('.icon-only');
   const hidden = button.querySelector('span')!;

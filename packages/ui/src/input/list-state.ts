@@ -6,7 +6,7 @@
  *   const list = createListState({ options: () => items, selected: () => [value], mode: () => 'single', onChange });
  *   if (handleListKeydown(list, event, { space: true, typeahead: true })) event.preventDefault();
  */
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { IconData } from '../base/Icon';
 import { toggleSelection, type SelectionModes } from '../utils/selection';
 import { createTypeahead } from '../utils/typeahead';
@@ -79,20 +79,24 @@ export function createListState<T extends ListboxOption>(
 ): ListState<T> {
   const active = ref<string | undefined>();
   const search = createTypeahead();
+  // 选项多（上万）时这些每次渲染要读很多遍：缓存起来，选项或选择变了才重算
+  const options = computed(() => grouped(config.options()));
+  const values = computed(() => new Set(options.value.map((option) => option.value)));
+  const selected = computed(() => new Set(config.selected()));
 
   const enabled = (options: readonly T[]) => options.filter((option) => !option.disabled);
 
   const state: ListState<T> = {
     get options() {
-      return grouped(config.options());
+      return options.value;
     },
     get active() {
       // 选项变了（过滤、异步加载）后高亮项可能已经不在了
-      return state.options.some((option) => option.value === active.value)
+      return active.value !== undefined && values.value.has(active.value)
         ? active.value
         : undefined;
     },
-    isSelected: (value) => config.selected().includes(value),
+    isSelected: (value) => selected.value.has(value),
     setActive(value) {
       active.value = value;
     },

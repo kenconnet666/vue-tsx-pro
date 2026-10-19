@@ -148,30 +148,38 @@ export const ListboxView = _component(
     const rows = _derived.by<Row<T>[]>(() => {
       const result: Row<T>[] = [];
       let group: string | undefined;
+      let headerId: string | undefined;
       list.options.forEach((option, index) => {
         if (option.group != null && option.group !== group) {
+          headerId = `${id}-group-${result.length}`;
           result.push({
             kind: 'group',
             key: `group:${option.group}`,
             label: option.group,
-            id: `${id}-group-${result.length}`,
+            id: headerId,
           });
         }
         group = option.group;
-        const header = result.findLast((row) => row.kind === 'group');
         result.push({
           kind: 'option',
           key: option.value,
           option,
           index,
-          groupId: option.group != null && header?.kind === 'group' ? header.id : undefined,
+          groupId: option.group != null ? headerId : undefined,
         });
       });
       return result;
     });
 
-    const activeRow = () =>
-      rows.findIndex((row) => row.kind === 'option' && row.option.value === list.active);
+    /** 值 → 行号：高亮项的行号一次查到，不在每次渲染时扫一遍 */
+    const rowOf = _derived.by(() => {
+      const map = new Map<string, number>();
+      rows.forEach((row, index) => {
+        if (row.kind === 'option') map.set(row.option.value, index);
+      });
+      return map;
+    });
+    const activeRow = () => (list.active === undefined ? -1 : (rowOf.get(list.active) ?? -1));
 
     const virtual = useVirtualizer(() => {
       const current = rows;
