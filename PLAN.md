@@ -29,8 +29,15 @@ packages/
     src/stylex/     StyleX 类型入口（属性中文注释，scripts/css-docs 生成）
     types/          符文全局类型、jsx-runtime 类型
   ui/    @vue-tsx-pro/ui
-    src/config/     Provider、createUi、theme/（tokens 与明暗主题）、lang/（语言与格式化）
-    src/utils/      mergeProps、部件 props 类型
+    src/base/         基础：文字、图标、链接、按钮家族、标记、代码块、加载
+    src/layout/       布局：Flex、Grid、Container、Separator、ScrollArea
+    src/display/      展示：折叠、虚拟列表、进度、骨架屏、提示条、卡片、头像
+    src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList
+    src/form/         表单：Slider、SlideVerify、ToggleGroup
+    src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）
+    src/utils/        部件 props 合并、样式档位、波纹、拖动、漫游焦点、虚拟滚动、路由适配等
+    src/integrations/ 可选依赖的子路径：shiki、vue-router
+    （每个目录下的 .test/ 放测试）
 apps/
   docs/        文档站（VitePress 2）
   host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面 + 试点组件（src/pilot）
@@ -43,8 +50,9 @@ scripts/
 
 ## 3. 约定
 
-- `_` 前缀保留给符文；组件 PascalCase，一个组件一个目录，测试就近放。
-- 每个组件文件顶部一个 `stylex.create`；颜色、尺寸等只来自主题 tokens。
+- `_` 前缀保留给符文；组件 PascalCase，平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`。
+- 一个元素一个组件；多节点组件的每个内部节点都有 `propsXxx`；状态写成 data 属性（COMPONENTS.md §1、§2）。
+- 颜色、尺寸等只来自主题 tokens（字符串写法）；导出的声明都写 JSDoc（`pnpm docs:check`）。
 - 只有 Node 直接加载的 `packages/tsx/src/compiler` 与 `src/vite` 在相对导入里写 `.ts` 扩展名。
 - 依赖升级单独提交，提交说明写清验证结果。
 
@@ -63,14 +71,14 @@ scripts/
 
 ## 5. 里程碑
 
-| 阶段            | 内容                                                                                              | 状态   |
-| --------------- | ------------------------------------------------------------------------------------------------- | ------ |
-| **M0 骨架**     | workspace、catalog、lint / format、CI                                                             | 完成   |
-| **M1 tsx 包**   | 符文与 props 编译、Vue 3.5 + 官方 JSX 插件底座、宿主示例、语言服务                                | 完成   |
-| **M2 UI 基础**  | tokens 与明暗主题、Provider / createUi、语言与格式化、mergeProps、试点组件、浏览器测试链路        | 完成   |
-| **M3 文档站**   | 写法指南、组件页（演示 + props 表）、部署、E2E 冒烟                                               | 未开始 |
-| **M4 正式组件** | 第一批基础组件（COMPONENTS.md §10：基础设施、折叠与过渡、布局、文本），之后是表单、弹层等上层组件 | 进行中 |
-| **M5 发布准备** | 放宽 Vite peer 范围、changesets、发 `0.x`（发布产物验证已提前完成）                               | 未开始 |
+| 阶段            | 内容                                                                                                                                          | 状态   |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| **M0 骨架**     | workspace、catalog、lint / format、CI                                                                                                         | 完成   |
+| **M1 tsx 包**   | 符文与 props 编译、Vue 3.5 + 官方 JSX 插件底座、宿主示例、语言服务                                                                            | 完成   |
+| **M2 UI 基础**  | tokens 与明暗主题、Provider / createUi、语言与格式化、mergeProps、试点组件、浏览器测试链路                                                    | 完成   |
+| **M3 文档站**   | 写法指南、组件页（演示 + props 表）、部署、E2E 冒烟                                                                                           | 未开始 |
+| **M4 正式组件** | 已完成：基础设施、文本、布局、折叠、代码块、虚拟滚动、拖动类、按钮家族、标记与反馈、导航（COMPONENTS.md §10）；下一批：浮层与菜单，之后是表单 | 进行中 |
+| **M5 发布准备** | 放宽 Vite peer 范围、changesets、发 `0.x`（发布产物验证已提前完成）                                                                           | 未开始 |
 
 ## 6. 技术约束与退路
 

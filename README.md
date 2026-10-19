@@ -21,17 +21,38 @@ export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
 TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
 
 ```ts
-// 宿主入口：应用级的主题与语言（可传 ref 在运行时切换）；页面内还可以用 <Provider> 局部覆盖
-import { createUi, darkTheme } from '@vue-tsx-pro/ui';
-app.use(createUi({ theme: darkTheme, lang: { timeZone: 'Asia/Shanghai' } }));
+// 宿主入口：应用级配置；页面内还可以用 <Provider> 局部覆盖
+import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
+import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki'; // 可选：代码高亮（需安装 shiki）
+import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router'; // 可选：站内链接走路由、导航判断当前页
+
+app.use(
+  createUi({
+    theme: { light: lightTheme, dark: darkTheme }, // 跟随系统明暗；可传 ref 在运行时切换
+    lang: { timeZone: 'Asia/Shanghai' },
+    router: vueRouterAdapter(router),
+    highlighter: createShikiHighlighter(),
+    defaults: { Button: { variant: 'outline' } }, // 组件默认外观
+  }),
+);
 ```
 
-写样式从 `@vue-tsx-pro/tsx/stylex` 导入（运行时同 `@stylexjs/stylex`，属性悬停、补全、跳转都有中文说明），主题变量从 `@vue-tsx-pro/ui/tokens.stylex` 导入（StyleX 只认以 `.stylex` 结尾的导入路径）：
+写样式从 `@vue-tsx-pro/tsx/stylex` 导入（运行时同 `@stylexjs/stylex`，属性悬停、补全、跳转都有中文说明）。主题 tokens 直接写成字符串，预设编译时换成 token 变量并补上导入：
 
 ```ts
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { colors, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
+
+const styles = stylex.create({
+  card: {
+    padding: '_md',
+    borderRadius: '_lg',
+    color: '_text',
+    minHeight: 'max(_control, _minTarget)',
+  },
+});
 ```
+
+短写按属性找 token 组（`padding` → space，`color` → colors），跨组写 `'_space.md'`；规则见 COMPONENTS.md §4。动态样式的参数等运行时才知道的值，从 `@vue-tsx-pro/ui/tokens.stylex` 导入 token 变量。
 
 构建时 StyleX 的 CSS 会追加到宿主产物里的 CSS 文件（宿主一般都有全局样式）；如果宿主一个 CSS 文件都没有，StyleX 会另写一个 `stylex.css` 但不会自动引用。
 
@@ -46,7 +67,9 @@ import { colors, radii, space } from '@vue-tsx-pro/ui/tokens.stylex';
 | `apps/docs`      | `@vue-tsx-pro/docs`（私有）      | 文档站（VitePress 2）                                                         |
 | `apps/host-demo` | `@vue-tsx-pro/host-demo`（私有） | 宿主示例：普通 Vue 3.5 项目里的 TSX 页面                                      |
 
-依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → tsx`。
+依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → ui + tsx`。
+
+组件库现有的组件（基础、布局、展示、导航、表单）与基础设施见 COMPONENTS.md §10，交接说明见 [HANDOFF.md](HANDOFF.md)。
 
 ## 命令
 
@@ -100,3 +123,4 @@ pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
 - [RUNES.md](RUNES.md)：符文规范（状态、派生、副作用、props、双向绑定、共享状态，与 Svelte 5 对照）
 - [COMPONENTS.md](COMPONENTS.md)：组件库规范（API 约定、部件透传、尺寸、主题与语言、现状与待办）
 - [PLAN.md](PLAN.md)：定位、结构、测试分层、里程碑与技术约束
+- [HANDOFF.md](HANDOFF.md)：交接文档（现状、怎么接着做、坑与约定）
