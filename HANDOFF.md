@@ -6,14 +6,14 @@
 
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。
-- **ui 包**：两批组件与基础设施已完成，见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.11：
+- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.12：
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton）、Badge、Tag
   - 布局：Flex / FlexList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）
   - 展示：Collapse、Collapsible、VirtualList、Card、Avatar
-  - 反馈：Progress、Skeleton、Alert、Dialog / Drawer / AlertDialog、Toast（createToaster + Toaster）
+  - 反馈：Progress、Skeleton、Alert、Empty、Dialog / Drawer / AlertDialog（含命令式的 useConfirm）、Toast（createToaster + Toaster，可滑动关闭）
   - 浮层：Popover、Tooltip、Menu（复合，含链接 / 复选 / 单选项）
   - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination、NavList（复合）
-  - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
+  - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
   - 表单（也在 input/）：Field、Label、Form、useForm（Standard Schema 校验）
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
@@ -91,6 +91,8 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 输入框外壳、勾选类控件                   | `input/control-styles.ts`、`input/choice-styles.ts`                                           |
 | 控件接入 Field（标签、说明、错误、状态） | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                      |
 | 表单值与校验                             | `useForm({ initial, schema, onSubmit })` + `<Form controller>`                                |
+| 选项列表（高亮、选择、键盘）             | `createListState` + `handleListKeydown` + `ListboxView`（`input/`）                           |
+| 命令式确认                               | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                   |
 | 状态色调的颜色与默认图标                 | `statusToneSx`、`statusIcons`（`utils/tone-styles.ts`）                                       |
 | 虚拟滚动                                 | `Virtualizer`（`utils/virtualizer.ts`）                                                       |
 | 夹取值、对齐步长、判断从右到左           | `clamp`、`snapToStep`、`isRtl`（`utils/layout.ts`）                                           |
@@ -138,9 +140,9 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 按优先级：
 
-1. **选择类控件**：Listbox（`aria-activedescendant` + `createTypeahead`，长列表用 `Virtualizer`）→ Select（`controlSx` 的触发框 + `createAnchoredPopover({ matchWidth, fitHeight })`）→ Combobox（TextField + Listbox）。
+1. **表格**：建在 `Virtualizer` 上，吸顶表头经 `rangeExtractor` 接入，空状态用 Empty，行选择用 `toggleSelection`。
 2. **日期**：Calendar、DateField、DatePicker（`@internationalized/date`）。
-3. **表格**：建在 `Virtualizer` 上，吸顶表头经 `rangeExtractor` 接入。
+3. **选项列表的虚拟化**：在 `Virtualizer` 的 `rangeExtractor` 上让高亮项始终渲染（`aria-activedescendant` 要指得到）。
 4. **M3 文档站**：组件页演示 + props 表（从 TS 类型生成）。
 5. **M5 发布准备**：changesets、发 0.x。
 
@@ -151,4 +153,4 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 - Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色），这是有意的取舍。
 - Toaster 只显示最新的 `max` 条，更早的照样计时，可能没露面就到时了。
 - Drawer 离场是淡出（不是滑回），见 §10.11 的取舍。
-- NumberField 的步进按钮不支持按住连续加减；Menu 没有子菜单。
+- Menu 没有子菜单；Combobox 只能单选（多选的 TagsInput 以后做）；选项列表还没有虚拟化。

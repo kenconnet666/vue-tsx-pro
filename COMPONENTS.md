@@ -274,7 +274,7 @@ interface Lang {
 - 文档页的 props 表生成。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
 - 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
-- 下一批：Listbox（`role="listbox"`，`aria-activedescendant`，类型搜索用 `createTypeahead`，长列表建在 `Virtualizer` 上，选择用 `toggleSelection`），Select（输入框外壳的触发框 + `createAnchoredPopover` 的 `matchWidth` / `fitHeight` + Listbox）、Combobox（TextField + Listbox，输入法组合期间不搜索）；日期选择（`@internationalized/date`）。
+- 下一批：表格（建在 `Virtualizer` 上，空状态用 Empty，行选择用 `toggleSelection`）；日期选择（`@internationalized/date`）；选项列表的虚拟化。
 - 验证覆盖：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
 
 ## 8. 正式组件的完成标准（供之后使用）
@@ -506,6 +506,31 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **暂不做**：Select / Combobox / Listbox、日期选择、子菜单、Toast 滑动关闭、环形进度、空状态、Popconfirm 与命令式的 `confirm()`。
 
+### 10.12 选择类控件与已有组件的完善（已完成）
+
+**选择类控件**分三层（参考 React Aria 的 useListState / useListBox / useSelect / useComboBox）：
+
+| 层   | 位置                                 | 内容                                                                                                                                                                                      |
+| ---- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 状态 | `input/list-state.ts`                | `createListState`：选项按分组排序、高亮项、已选项（`toggleSelection`）、跳过不可用项的移动、类型搜索（`createTypeahead`）；不碰 DOM。`handleListKeydown` 按宿主开关空格、字母、Home / End |
+| 渲染 | `input/Listbox.tsx` 的 `ListboxView` | 选项、分组（`role="group"` 加标题）、已选标记、空状态（Empty）；指针悬停高亮、点击选中，按下时不抢焦点；高亮项滚进可见范围                                                                |
+| 组件 | `Listbox`、`Select`、`Combobox`      | 各自决定焦点在哪：列表自己、触发按钮、输入框；高亮项都经 `aria-activedescendant` 告诉读屏                                                                                                 |
+
+- 选项是数据：`{ value, label, disabled?, description?, icon?, group? }`，需要自定义内容时传渲染函数。虚拟化与过滤都需要数据，所以不做 `<Option>` 子组件。
+- **Select**（select-only combobox）：外壳用 `controlSx`，主元素是 `button role="combobox"`；弹出层 `createAnchoredPopover({ matchWidth, fitHeight })`；关闭时按字母直接选中（同原生 select）；多选时触发框里是 Tag；`name` 用隐藏的 input 随表单提交。占位文字是真正的文字（不是原生 placeholder），用 textMuted 满足 4.5:1。
+- **Combobox**：输入框是 `role="combobox"`、`aria-autocomplete="list"`；本地过滤用 `Intl.Collator`（忽略大小写与重音），`filter={false}` 时由调用方按 `inputValue` 换数据（配合 `loading`）；过滤跟着 v-model 的值走，输入法组合期间不会拿拼音过滤；失焦时文字不是选项则恢复（`allowCustomValue` 除外）；Home / End 留给光标。
+- **Empty**（feedback/）：图标 + 标题 + 说明 + 操作；ListboxView 的空状态用它，表格、VirtualList 也可以用。
+
+**已有组件的完善**：
+
+- Slider、ToggleGroup 接入 Field（`useFieldControl`）：标签作为名称、关联说明与错误、沿用不可用。
+- NumberField：按住步进按钮连续加减（停 400ms 后每 60ms 一步，同 React Aria）。
+- Progress：`size` 档位。
+- `useConfirm()`：建在 AlertDialog 上的命令式确认。对话框挂在组件树之外，所以在 setup 里记下配置与应用上下文，再用 ConfigScope 带上主题；关闭后卸载。
+- Toast：横向滑动超过宽度的 35% 关闭，否则弹回（`startMove`）。
+
+**暂不做**：选项列表的虚拟化（要让 `aria-activedescendant` 指向的高亮项始终渲染，在 `Virtualizer` 的 `rangeExtractor` 上加）、Combobox 多选（TagsInput）、子菜单、环形进度。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。→ 浮层、反馈、输入与表单（10.11）。下一批：Listbox、Select、Combobox，之后是日期选择与表格。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）。下一批：表格，之后是日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
