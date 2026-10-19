@@ -47,7 +47,11 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
   const { orientation = 'horizontal', loop = true } = options;
   let current: HTMLElement | undefined;
 
-  const all = () => [...container.querySelectorAll<HTMLElement>(options.items)];
+  // 嵌套的组（工具栏里的切换按钮组）各管各的：只取最近的组是自己的项
+  const all = () =>
+    [...container.querySelectorAll<HTMLElement>(options.items)].filter(
+      (item) => item.parentElement?.closest('[data-roving-focus]') === container,
+    );
   const enabled = () => all().filter(isEnabled);
 
   /** 定下哪一项是 Tab 进入点，其余设为 -1 */
@@ -98,6 +102,7 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
     sync();
   }
 
+  container.setAttribute('data-roving-focus', '');
   container.addEventListener('keydown', onKeydown);
   container.addEventListener('focusin', onFocusin);
   // 项增删、选中或可用状态变化时重新定 Tab 进入点
@@ -114,11 +119,14 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
       'aria-checked',
       'aria-current',
       'hidden',
+      // 嵌套的组挂载时（子组件先于父组件）重新划分各组的项
+      'data-roving-focus',
     ],
   });
   sync();
 
   return () => {
+    container.removeAttribute('data-roving-focus');
     container.removeEventListener('keydown', onKeydown);
     container.removeEventListener('focusin', onFocusin);
     observer.disconnect();

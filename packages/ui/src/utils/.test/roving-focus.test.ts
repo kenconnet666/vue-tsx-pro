@@ -83,3 +83,28 @@ describe('rovingFocus', () => {
     expect(added.getAttribute('tabindex')).toBe('-1');
   });
 });
+
+describe('嵌套的组', () => {
+  it('外层组不管理内层组的项，各自有一个 Tab 进入点', async () => {
+    const outer = document.createElement('div');
+    outer.innerHTML =
+      '<button>a</button><div class="inner"><button>x</button><button>y</button></div><button>b</button>';
+    document.body.append(outer);
+    const inner = outer.querySelector<HTMLElement>('.inner')!;
+    // 子组件先挂载：内层先开始管理
+    cleanups.push(rovingFocus(inner, { items: 'button' }));
+    cleanups.push(rovingFocus(outer, { items: 'button' }));
+    await new Promise((resolve) => setTimeout(resolve));
+    const tabIndex = (text: string) =>
+      [...outer.querySelectorAll('button')]
+        .find((b) => b.textContent === text)!
+        .getAttribute('tabindex');
+    expect(['a', 'b', 'x', 'y'].map(tabIndex)).toEqual(['0', '-1', '0', '-1']);
+    const a = outer.querySelector('button')!;
+    a.focus();
+    a.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }),
+    );
+    expect(document.activeElement!.textContent).toBe('b');
+  });
+});

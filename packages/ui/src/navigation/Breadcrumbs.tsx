@@ -9,7 +9,7 @@
 import { ChevronRight, Ellipsis } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { VNodeChild } from 'vue';
+import { nextTick, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Icon, type IconData } from '../base/Icon';
 import { Link, type LinkProps } from '../base/Link';
@@ -77,6 +77,14 @@ export const Breadcrumbs = _component(
   }: BreadcrumbsProps) => {
     const lang = useLang();
     let expanded = _state(false);
+    let list = _state.raw<HTMLElement | null>(null);
+
+    // 展开后折叠按钮消失，焦点移到第一个原本被折叠的链接上，不掉回页面开头
+    async function expand() {
+      expanded = true;
+      await nextTick();
+      list?.querySelectorAll<HTMLElement>('li a')[1]?.focus();
+    }
 
     return () => {
       const collapse = !expanded && maxItems != null && items.length > maxItems;
@@ -99,7 +107,11 @@ export const Breadcrumbs = _component(
       return (
         <nav {...elementProps(mergeProps<'nav'>({ 'aria-label': lang.breadcrumbs }, rest))}>
           <ol
-            {...elementProps(mergeProps<'ol'>({ sx: [listStyles.reset, styles.list] }, propsList))}
+            {...elementProps(
+              mergeProps<'ol'>({ sx: [listStyles.reset, styles.list] }, propsList, {
+                ref: _toRef(list),
+              }),
+            )}
           >
             {shown.map((entry, position) => {
               if (entry === 'collapsed') {
@@ -114,7 +126,7 @@ export const Breadcrumbs = _component(
                           'aria-label': lang.breadcrumbsExpand,
                         },
                         propsExpand,
-                        { onClick: () => (expanded = true) },
+                        { onClick: () => void expand() },
                       )}
                     />
                     {sep()}

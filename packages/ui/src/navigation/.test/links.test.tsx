@@ -37,7 +37,10 @@ describe('Breadcrumbs', () => {
     expect(root.textContent).not.toContain('订单');
     expand.click();
     await nextTick();
+    await nextTick();
     expect(root.textContent).toContain('订单');
+    // 折叠按钮消失后焦点落在第一个原本被折叠的链接上
+    expect(document.activeElement!.textContent).toBe('订单');
   });
 });
 
