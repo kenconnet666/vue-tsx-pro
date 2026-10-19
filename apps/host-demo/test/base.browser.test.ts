@@ -167,8 +167,9 @@ describe('折叠：Collapsible 与 Collapse', () => {
     trigger.click();
     await nextFrame();
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
-    // WebKit 不一定在下一帧就建好过渡（Chromium 在 getAnimations 时会强制计算样式），轮询等它出现
-    await expect.poll(() => content().getAnimations().length).toBeGreaterThan(0);
+    // WebKit 不一定在下一帧就建好过渡（Chromium 在 getAnimations 时会强制计算样式），轮询等它出现；
+    // Linux 上的 WebKit 偶尔在轮询到之前就播完了，此时高度已经展开，同样算过（CI 上曾偶发失败）
+    await expect.poll(() => content().getAnimations().length > 0 || height() > 0).toBe(true);
     // Linux 上的 WebKit 偶尔把过渡停在起点（同 Drawer 的测试）：最多等 1 秒，然后让过渡直接到终点
     await Promise.race([
       afterTransitions(content()),
