@@ -7,11 +7,15 @@
  *
  * 默认组件自己是滚动容器，高度由使用方给（sx、class 或 style）；scroll="window" 时随页面滚动。
  * 读屏：role="list"，每项带 aria-setsize / aria-posinset，未渲染的项也算在总数里。
+ * loading：没有数据时显示骨架行（按 estimateSize 的高度），已有数据（刷新、加载更多）时顶部显示进度条；带 aria-busy。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { useLang } from '../config/context';
+import { Progress } from '../feedback/Progress';
+import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 import { useVirtualizer } from '../utils/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtualizer';
@@ -53,6 +57,10 @@ export interface VirtualListProps<T> extends PartProps<'div', Managed> {
   horizontal?: boolean;
   /** 没有数据时显示的内容 */
   empty?: VNodeChild;
+  /** 加载中：没有数据时显示骨架行，已有数据时顶部显示进度条 */
+  loading?: boolean;
+  /** 加载中占位行的部件属性 */
+  propsSkeleton?: Partial<SkeletonProps>;
   /** 拿到滚动方法：`handle={(list) => (listHandle = list)}` */
   handle?: (handle: VirtualListHandle) => void;
   /** 可见范围变化（不含 overscan）：接近末尾时加载更多 */
@@ -69,6 +77,9 @@ export interface VirtualListProps<T> extends PartProps<'div', Managed> {
 /** 项外层可以定制的属性 */
 type ItemProps = PartProps<'div', 'role' | 'aria-setsize' | 'aria-posinset'>;
 
+/** 加载中显示几行骨架 */
+const SKELETON_ROWS = 5;
+
 const styles = stylex.create({
   // 自己调整滚动位置（见 virtualizer.ts），不要浏览器再按锚点调整一次
   root: { overflowAnchor: 'none' },
@@ -77,6 +88,10 @@ const styles = stylex.create({
   item: { position: 'absolute', top: 0, left: 0, overflowAnchor: 'none' },
   itemVertical: { width: '_full' },
   itemHorizontal: { height: '_full' },
+  // 刷新中的进度条贴在可见区域顶部
+  progress: { position: 'sticky', top: 0, zIndex: 1, height: 0 },
+  skeletonRow: { paddingBlock: '_xs' },
+  skeleton: { display: 'block', width: '_full' },
 });
 
 // 总大小与位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
@@ -85,6 +100,8 @@ const sizeStyles = stylex.create({
   width: (px: number) => ({ width: px, height: '_full' }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   x: (px: number) => ({ transform: `translateX(${px}px)` }),
+  // 骨架行比一项略矮：上下留出间隔
+  skeleton: (px: number) => ({ height: Math.max(8, px - 8) }),
 });
 
 /** 虚拟列表：只渲染可见范围内的项，行高渲染后自动测量 */
@@ -98,12 +115,15 @@ export const VirtualList = _component(
     scroll = 'container',
     horizontal = false,
     empty,
+    loading = false,
+    propsSkeleton,
     handle,
     onRangeChange,
     propsList,
     propsItem,
     ...rest
   }: VirtualListProps<T>) => {
+    const lang = useLang();
     let root = _state.raw<HTMLElement | null>(null);
     let list = _state.raw<HTMLElement | null>(null);
     const virtual = useVirtualizer(() => {
@@ -151,12 +171,18 @@ export const VirtualList = _component(
               {
                 ref: _toRef(root),
                 role: hasItems ? 'list' : undefined,
+                'aria-busy': loading || undefined,
                 // 容器模式下可以用键盘滚动
                 tabindex: isContainer ? 0 : undefined,
               },
             ),
           )}
         >
+          {loading && hasItems && (
+            <div aria-hidden="true" {...stylex.attrs(styles.progress)}>
+              <Progress size="xs" aria-label={lang.loading} />
+            </div>
+          )}
           {hasItems ? (
             <div
               {...elementProps(
@@ -201,6 +227,22 @@ export const VirtualList = _component(
                 );
               })}
             </div>
+          ) : loading ? (
+            Array.from({ length: SKELETON_ROWS }, (_, index) => (
+              <div key={index} aria-hidden="true" {...stylex.attrs(styles.skeletonRow)}>
+                <Skeleton
+                  {...mergePartProps<SkeletonProps>(
+                    {
+                      sx: [
+                        styles.skeleton,
+                        sizeStyles.skeleton(typeof estimateSize === 'number' ? estimateSize : 40),
+                      ],
+                    },
+                    propsSkeleton,
+                  )}
+                />
+              </div>
+            ))
           ) : (
             empty
           )}

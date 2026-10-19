@@ -122,3 +122,24 @@ describe('VirtualList 的部件属性', () => {
     expect([item.dataset.id, item.getAttribute('aria-posinset')]).toEqual(['row-1', '2']);
   });
 });
+
+describe('VirtualList：加载中', () => {
+  it('没有数据时显示骨架行并 aria-busy；已有数据时顶部显示进度条', async () => {
+    const root = mount(() => (
+      <>
+        <VirtualList items={[]} loading aria-label="空">
+          {(row: { id: string }) => <span>{row.id}</span>}
+        </VirtualList>
+        <VirtualList items={rows} loading itemKey={(row) => row.id} aria-label="刷新中">
+          {(row) => <span>{row.label}</span>}
+        </VirtualList>
+      </>
+    ));
+    await nextTick();
+    const [blank, refreshing] = [...root.children] as HTMLElement[];
+    expect(blank!.getAttribute('aria-busy')).toBe('true');
+    expect(blank!.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0);
+    expect(refreshing!.querySelector('[role="progressbar"]')).not.toBeNull();
+    expect(refreshing!.querySelectorAll('[role="listitem"]').length).toBeGreaterThan(0);
+  });
+});
