@@ -217,6 +217,9 @@ describe('Toast', () => {
   const region = () => document.querySelector<HTMLElement>('.toaster-demo')!;
   const items = () => [...region().querySelectorAll<HTMLElement>('li[data-state="open"]')];
 
+  // 指针停在通知区上时计时暂停：先移到页面顶部（上一个测试的指针位置随演示页的排版而变）
+  beforeEach(() => userEvent.hover($('.toggle-theme')));
+
   it('区域是带名称的 landmark，显示在顶层；到时自动关闭并移除', async () => {
     expect(region().tagName).toBe('SECTION');
     expect(region().getAttribute('aria-label')).toBe('通知');
