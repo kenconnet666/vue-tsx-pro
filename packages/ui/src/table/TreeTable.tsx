@@ -23,7 +23,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { IconButton } from '../base/IconButton';
 import { useLang } from '../config/context';
-import { toggleSelection } from '../utils/data/selection';
+import { flattenTree, useTreeExpansion, type TreeAccessors } from '../utils/data/tree';
 import { columnValue, sortRows, type SortState } from './columns';
 import { Table, type TableProps } from './Table';
 import type { TableRowModel } from './TableView';
@@ -79,56 +79,37 @@ export const TreeTable = _component(
     ...rest
   }: TreeTableProps<T>) => {
     const lang = useLang();
-    // 正在加载子项的行
-    let loadingKeys = _state<string[]>([]);
-
-    const canExpand = (row: T) => hasChildren?.(row) ?? (getChildren(row)?.length ?? 0) > 0;
-
-    const expandedKeys = _derived.by(() => new Set(expanded));
+    const accessors = (): TreeAccessors<T> => ({ getKey: rowKey, getChildren, hasChildren });
+    const expansion = useTreeExpansion<T>({
+      expanded: () => expanded,
+      setExpanded: (keys) => (expanded = keys),
+      getChildren: (row) => getChildren(row),
+      loadChildren: (row) => loadChildren?.(row),
+    });
 
     /** 按展开状态深度优先展开成一列；同级之间按当前排序 */
-    const flat = _derived.by(() => {
-      const result: { row: T; key: string; depth: number }[] = [];
-      const visit = (level: readonly T[], depth: number) => {
-        sortRows(level, columns, sort, lang.code).forEach((row, index) => {
-          const key = rowKey(row, index);
-          result.push({ row, key, depth });
-          if (expandedKeys.has(key)) visit(getChildren(row) ?? [], depth + 1);
-        });
-      };
-      visit(rows, 0);
-      return result;
-    });
-    const depthOf = _derived.by(() => new Map(flat.map((item) => [item.key, item.depth])));
-
-    async function toggle(row: T, key: string) {
-      const opening = !expandedKeys.has(key);
-      expanded = [...toggleSelection(expanded, key, { mode: 'multiple' })];
-      if (!opening || !loadChildren || (getChildren(row)?.length ?? 0) > 0) return;
-      const pending = loadChildren(row);
-      if (!(pending instanceof Promise)) return;
-      loadingKeys = [...loadingKeys, key];
-      try {
-        await pending;
-      } finally {
-        loadingKeys = loadingKeys.filter((item) => item !== key);
-      }
-    }
+    const flat = _derived.by(() =>
+      flattenTree(rows, accessors(), new Set(expanded), (level) =>
+        sortRows(level, columns, sort, lang.code),
+      ),
+    );
+    const byKey = _derived.by(() => new Map(flat.map((item) => [item.key, item])));
 
     function leading(model: TableRowModel<T>) {
-      const depth = depthOf.get(model.key) ?? 0;
+      const item = byKey.get(model.key);
+      const depth = item?.depth ?? 0;
       const first = columns[0] ? columnValue(columns[0], model.data) : undefined;
       const label = first != null ? String(first) : model.key;
-      const open = expandedKeys.has(model.key);
+      const open = expansion.isExpanded(model.key);
       return (
         <>
           {depth > 0 && <span {...stylex.attrs(treeTableIndentStyles.depth(depth * indent))} />}
-          {canExpand(model.data) ? (
+          {item?.expandable ? (
             <IconButton
               icon={ChevronRight}
               size="sm"
               radius="full"
-              loading={loadingKeys.includes(model.key)}
+              loading={expansion.isLoading(model.key)}
               aria-label={lang.treeToggle(label)}
               aria-expanded={open}
               sx={treeTableStyles.toggle}
@@ -136,7 +117,7 @@ export const TreeTable = _component(
                 flipInRtl: true,
                 sx: [treeTableStyles.chevron, open && treeTableStyles.chevronOpen],
               }}
-              onClick={() => void toggle(model.data, model.key)}
+              onClick={() => void expansion.setOpen(model.data, model.key, !open)}
             />
           ) : (
             <span {...stylex.attrs(treeTableStyles.placeholder)} />
@@ -148,7 +129,7 @@ export const TreeTable = _component(
     return () => (
       <Table
         {...rest}
-        rows={flat.map((item) => item.row)}
+        rows={flat.map((item) => item.node)}
         rowKey={(_, index) => flat[index]!.key}
         columns={columns}
         manualSort

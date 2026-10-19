@@ -780,6 +780,20 @@ export {
   type SingleSelectionProps,
 } from './utils/data/selection';
 export { childNodes, plainText } from './utils/data/text';
+export {
+  checkStates,
+  flattenTree,
+  indexTree,
+  isExpandable,
+  toggleChecked,
+  useTreeExpansion,
+  type CheckState,
+  type FlatTreeNode,
+  type TreeAccessors,
+  type TreeExpansion,
+  type TreeExpansionOptions,
+  type TreeIndex,
+} from './utils/data/tree';
 
 // 工具：虚拟滚动
 export {
