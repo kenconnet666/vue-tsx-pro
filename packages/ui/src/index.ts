@@ -264,6 +264,12 @@ export {
 
 // 浮层
 export {
+  HoverCard,
+  hoverCardStyles,
+  type HoverCardProps,
+  type HoverCardTriggerProps,
+} from './overlay/HoverCard';
+export {
   Menu,
   MenuCheckboxItem,
   MenuContext,
@@ -687,6 +693,13 @@ export {
   type HotkeyMap,
   type HotkeyOptions,
 } from './utils/dom/hotkeys';
+export {
+  createHoverGroup,
+  useHoverIntent,
+  type HoverGroup,
+  type HoverIntent,
+  type HoverIntentOptions,
+} from './utils/dom/hover-intent';
 export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {

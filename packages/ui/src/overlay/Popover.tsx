@@ -39,8 +39,12 @@ export interface PopoverProps
   open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
   placement?: FloatingPlacement;
+  /** 显示指向触发器的箭头 */
+  arrow?: boolean;
   /** 触发器：`(props) => <Button {...props}>更多</Button>` */
   trigger: (props: PopoverTriggerProps) => VNodeChild;
+  /** 箭头的部件属性 */
+  propsArrow?: PartProps<'span'>;
   children?: VNodeChild;
 }
 
@@ -55,7 +59,9 @@ export const Popover = _component(
     open = _bindable(false),
     placement = 'bottom-start',
     offset,
+    arrow = false,
     trigger,
+    propsArrow,
     children,
     ...rest
   }: PopoverProps) => {
@@ -63,9 +69,10 @@ export const Popover = _component(
     const triggerId = `${id}-trigger`;
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    let arrowElement = _state.raw<HTMLElement | null>(null);
     // 打开时焦点移入（等第一次定位、可见之后），Esc 与点击外部关闭后写回 open、焦点回到触发器
     const { onToggle } = useAnchoredPopover(
-      () => ({ open, anchor, panel, floating: { placement, offset } }),
+      () => ({ open, anchor, panel, floating: { placement, offset, arrow: arrowElement } }),
       { close: () => (open = false), shown: focusFirst },
     );
 
@@ -88,6 +95,7 @@ export const Popover = _component(
                   floatingStyles.surface,
                   popoverStyles.panel,
                   transitions.scale,
+                  arrow && floatingStyles.withArrow,
                 ],
                 'aria-labelledby': triggerId,
               },
@@ -98,6 +106,16 @@ export const Popover = _component(
           data-state={open ? 'open' : 'closed'}
         >
           {children}
+          {arrow && (
+            <span
+              {...elementProps(
+                mergeProps<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
+                  ref: _toRef(arrowElement),
+                  'aria-hidden': true,
+                }),
+              )}
+            />
+          )}
         </div>
       </>
     );

@@ -77,6 +77,7 @@ import {
   MenuRadioItem,
   Popover,
   Tooltip,
+  HoverCard,
   Link,
   LinkButton,
   LoadingOverlay,
@@ -766,10 +767,11 @@ export const Base = _component(() => {
           <TableDemo />
         </Section>
 
-        <Section title="浮层 Popover · Tooltip · Menu">
+        <Section title="浮层 Popover · Tooltip · HoverCard · Menu">
           <Flex gap="sm" wrap align="center">
             <Popover
               class="popover-demo"
+              arrow
               trigger={(props) => (
                 <Button {...props} variant="outline" class="popover-open">
                   筛选条件
@@ -790,10 +792,41 @@ export const Base = _component(() => {
               复制链接（Ctrl+C）
             </Tooltip>
             <Tooltip
-              trigger={(props) => <IconButton {...props} icon={Settings} aria-label="设置" />}
+              arrow
+              class="tooltip-arrow-demo"
+              trigger={(props) => (
+                <IconButton
+                  {...props}
+                  icon={Settings}
+                  aria-label="设置"
+                  class="tooltip-arrow-trigger"
+                />
+              )}
             >
               设置
             </Tooltip>
+            <HoverCard
+              class="hovercard-demo"
+              arrow
+              trigger={(props) => (
+                <Link {...props} href="#ada" class="hovercard-trigger">
+                  @ada
+                </Link>
+              )}
+            >
+              <Flex gap="md" align="center">
+                <Avatar name="Ada Lovelace" size="lg" />
+                <Flex direction="column" gap="xs">
+                  <Text weight="semibold">Ada Lovelace</Text>
+                  <Text tone="muted" size="sm">
+                    第一位程序员
+                  </Text>
+                  <Link href="#ada-profile" class="hovercard-link">
+                    查看主页
+                  </Link>
+                </Flex>
+              </Flex>
+            </HoverCard>
             <Menu
               class="menu-demo"
               trigger={(props) => (

@@ -42,7 +42,15 @@ describe('Popover', () => {
     await expect.poll(() => panel.dataset.side).toBe('bottom');
     const gap = panel.getBoundingClientRect().top - trigger.getBoundingClientRect().bottom;
     expect(gap).toBeGreaterThan(0);
-    expect(gap).toBeLessThan(12);
+    // 有箭头：距离多出箭头伸出的那一段
+    expect(gap).toBeLessThan(18);
+    // 箭头在面板上沿、伸向触发器，水平方向落在触发器范围内
+    const arrow = panel.querySelector('span[aria-hidden="true"]')!.getBoundingClientRect();
+    const button = trigger.getBoundingClientRect();
+    expect(arrow.top).toBeLessThan(panel.getBoundingClientRect().top);
+    expect(arrow.top).toBeGreaterThan(button.bottom - 1);
+    expect(arrow.left + arrow.width / 2).toBeGreaterThan(button.left);
+    expect(arrow.left + arrow.width / 2).toBeLessThan(button.right);
     await settle(panel);
     const { violations } = await axe.run(panel);
     expect(violations.map((violation) => violation.id)).toEqual([]);
@@ -64,6 +72,19 @@ describe('Popover', () => {
 });
 
 describe('Tooltip', () => {
+  it('箭头随翻转换边：上方显示时箭头在提示下沿', async () => {
+    const trigger = $('.tooltip-arrow-trigger');
+    const tooltip = $('.tooltip-arrow-demo');
+    trigger.focus();
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}{Tab}');
+    await expect.poll(() => isOpen(tooltip)).toBe(true);
+    await expect.poll(() => tooltip.dataset.side).toBeTruthy();
+    const arrow = tooltip.querySelector('span[aria-hidden="true"]')!.getBoundingClientRect();
+    const box = tooltip.getBoundingClientRect();
+    if (tooltip.dataset.side === 'top') expect(arrow.bottom).toBeGreaterThan(box.bottom);
+    else expect(arrow.top).toBeLessThan(box.top);
+  });
+
   it('悬停一段时间后显示，是触发器的描述；移开后隐藏', async () => {
     const trigger = $('.tooltip-trigger');
     const tooltip = $('.tooltip-demo');
@@ -167,5 +188,31 @@ describe('Menu', () => {
     await userEvent.keyboard('{Tab}');
     await expect.poll(() => isOpen(menu)).toBe(false);
     expect(document.activeElement).not.toBe(trigger);
+  });
+});
+
+describe('HoverCard', () => {
+  it('悬停一段时间后打开，能移到卡片上；键盘聚焦打开后 Tab 进卡片不关，离开后关闭', async () => {
+    const trigger = $('.hovercard-trigger');
+    const card = $('.hovercard-demo');
+    await userEvent.hover(trigger);
+    expect(isOpen(card)).toBe(false);
+    await expect.poll(() => isOpen(card), { timeout: 3000 }).toBe(true);
+    await userEvent.hover(card);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(isOpen(card)).toBe(true);
+    // 移到页面别处（unhover 可能落在触发器上，那会立即重新打开）
+    await userEvent.hover($('.toggle-theme'));
+    await expect.poll(() => isOpen(card), { timeout: 3000 }).toBe(false);
+
+    // Safari 默认按 Tab 跳过链接：先有一次键盘操作，再用 focus()，:focus-visible 一样成立
+    await userEvent.keyboard('{Shift}');
+    trigger.focus();
+    await expect.poll(() => isOpen(card)).toBe(true);
+    // 焦点从触发器移进卡片（同 Tab 到卡片里的链接）
+    $('.hovercard-link').focus();
+    expect(isOpen(card)).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => isOpen(card)).toBe(false);
   });
 });

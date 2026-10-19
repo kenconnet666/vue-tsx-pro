@@ -20,6 +20,7 @@ import {
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/dom/floating';
+import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
 import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
@@ -54,20 +55,21 @@ export interface TooltipProps
   delay?: number;
   /** 不显示（触发器照常渲染） */
   disabled?: boolean;
+  /** 显示指向触发器的箭头 */
+  arrow?: boolean;
   /** 触发器：`(props) => <IconButton {...props} … />` */
   trigger: (props: TooltipTriggerProps) => VNodeChild;
+  /** 箭头的部件属性 */
+  propsArrow?: PartProps<'span'>;
   /** 提示文字 */
   children?: VNodeChild;
 }
 
 /** 指针离开后多久隐藏（毫秒）：留出移到提示上的时间 */
 const CLOSE_DELAY = 100;
-/** 一个提示关掉后多久之内，下一个提示不用等 delay（同 Radix 的 skipDelayDuration） */
-const SKIP_DELAY = 300;
 
-/** 所有提示共用：正在显示的那个（同一时间只显示一个）与上次关闭的时间 */
-let shown: { hide: () => void } | undefined;
-let lastHidden = 0;
+/** 所有提示一组：同一时间只显示一个，刚关掉一个时下一个不用等 delay */
+const tooltips = createHoverGroup();
 
 /** Tooltip 的样式：panel */
 export const tooltipStyles: StyleTable<'panel'> = stylex.create({
@@ -94,79 +96,63 @@ export const Tooltip = _component(
     offset,
     delay = 500,
     disabled = false,
+    arrow = false,
     trigger,
+    propsArrow,
     children,
     ...rest
   }: TooltipProps) => {
     const id = useId();
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    let arrowElement = _state.raw<HTMLElement | null>(null);
     const layer = createAnchoredLayer();
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const self = { hide: () => (open = false) };
-
-    function schedule(next: boolean, wait: number) {
-      clearTimeout(timer);
-      if (wait <= 0) open = next;
-      else timer = setTimeout(() => (open = next), wait);
-    }
-    const warm = () => shown != null || Date.now() - lastHidden < SKIP_DELAY;
-
-    function onPointerenter(event: PointerEvent) {
-      if (disabled || event.pointerType === 'touch') return;
-      schedule(true, warm() ? 0 : delay);
-    }
-    function onFocus(event: FocusEvent) {
-      if (disabled) return;
-      // 只在键盘聚焦时显示；点击聚焦（按钮被按下）时不显示
-      if ((event.target as Element).matches(':focus-visible')) schedule(true, 0);
-    }
-    const hideSoon = () => schedule(false, CLOSE_DELAY);
-    const hideNow = () => schedule(false, 0);
+    const hover = useHoverIntent(
+      tooltips,
+      () => ({ delay, closeDelay: CLOSE_DELAY, disabled }),
+      (next) => (open = next),
+    );
 
     // Esc 关闭提示；提示在对话框里时只关提示，不让同一次 Esc 关掉对话框
     function onKeydown(event: KeyboardEvent) {
       if (event.key !== 'Escape' || !open) return;
       event.preventDefault();
       event.stopPropagation();
-      hideNow();
+      hover.closeNow();
     }
 
     _effect(() => {
       if (!open || disabled) {
-        if (layer.visible) lastHidden = Date.now();
         layer.hide({ restoreFocus: false });
-        if (shown === self) shown = undefined;
+        hover.closed();
         return;
       }
       if (!anchor || !panel) return;
-      if (shown !== self) shown?.hide();
-      shown = self;
-      void layer.show(anchor, panel, { placement, offset });
+      hover.opened();
+      void layer.show(anchor, panel, { placement, offset, arrow: arrowElement });
       document.addEventListener('keydown', onKeydown, true);
       return () => document.removeEventListener('keydown', onKeydown, true);
     });
-    onBeforeUnmount(() => {
-      clearTimeout(timer);
-      layer.hide({ restoreFocus: false });
-      if (shown === self) shown = undefined;
-    });
+    onBeforeUnmount(() => layer.hide({ restoreFocus: false }));
 
     return () => (
       <>
         {trigger({
           ref: (value) => (anchor = toElement(value)),
           'aria-describedby': id,
-          onPointerenter,
-          onPointerleave: hideSoon,
-          onPointerdown: hideNow,
-          onFocus,
-          onBlur: hideNow,
+          ...hover.trigger,
         })}
         <div
           {...elementProps(
             mergeProps<'div'>(
-              { sx: [floatingStyles.anchored, tooltipStyles.panel, transitions.fade] },
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  tooltipStyles.panel,
+                  transitions.fade,
+                  arrow && floatingStyles.withArrow,
+                ],
+              },
               rest,
               {
                 ref: _toRef(panel),
@@ -174,14 +160,23 @@ export const Tooltip = _component(
                 popover: 'manual',
                 role: 'tooltip',
                 // 指针移到提示上不消失，离开提示后再隐藏
-                onPointerenter: () => clearTimeout(timer),
-                onPointerleave: hideSoon,
+                ...hover.panel,
               },
             ),
           )}
           data-state={open && !disabled ? 'open' : 'closed'}
         >
           {children}
+          {arrow && (
+            <span
+              {...elementProps(
+                mergeProps<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
+                  ref: _toRef(arrowElement),
+                  'aria-hidden': true,
+                }),
+              )}
+            />
+          )}
         </div>
       </>
     );

@@ -13,6 +13,7 @@
  * - 最终方向写到 data-side / data-align，缩放原点（transform-origin）朝向锚点，进出场的 scale 过渡从锚点那侧展开。
  */
 import {
+  arrow as arrowMiddleware,
   autoUpdate,
   computePosition,
   flip,
@@ -68,6 +69,8 @@ export interface FloatingOptions {
   matchWidth?: boolean;
   /** 最大高度限制在视口剩余空间内（浮层自己设 overflow 滚动）：菜单、选项列表 */
   fitHeight?: boolean;
+  /** 箭头元素（浮层里的子元素，样式用 floatingStyles.arrow）：指向锚点，随翻转换边；距离自动加上箭头露出的一半 */
+  arrow?: HTMLElement | null;
 }
 
 /** anchorFloating 的返回值 */
@@ -88,25 +91,55 @@ const TRANSFORM_ORIGIN: Record<Side, string> = {
   left: 'right',
 };
 
+/** 箭头贴着浮层的哪条边（与弹出方向相反） */
+const ARROW_EDGE: Record<Side, Side> = {
+  top: 'bottom',
+  right: 'left',
+  bottom: 'top',
+  left: 'right',
+};
+/** 箭头（画了右、下两条边的方块）转多少度才朝向锚点 */
+const ARROW_ROTATION: Record<Side, number> = { top: 45, right: 135, bottom: 225, left: -45 };
+
 // 写明类型：导出的 stylex.create 结果若靠推导，类型声明里会引用 StyleX 内部无法命名的类型
 /** 锚定浮层的基础样式：定位与表面 */
-export const floatingStyles: Readonly<Record<'anchored' | 'surface', StyleXStyles>> = stylex.create(
-  {
-    /** 原生 popover 默认居中显示、带外边距，改为由 anchorFloating 写入的 left / top 定位 */
-    anchored: { position: 'fixed', inset: 'auto', margin: 0 },
-    /** 浮起的表面：边框、圆角、阴影（Popover、Menu、选项列表）；内边距各自定 */
-    surface: {
-      boxSizing: 'border-box',
-      borderWidth: '_xs',
-      borderStyle: 'solid',
-      borderColor: '_border',
-      borderRadius: '_lg',
-      backgroundColor: '_surfaceRaised',
-      color: '_text',
-      boxShadow: '_lg',
-    },
+export const floatingStyles: Readonly<
+  Record<'anchored' | 'surface' | 'arrow' | 'withArrow', StyleXStyles>
+> = stylex.create({
+  /** 原生 popover 默认居中显示、带外边距，改为由 anchorFloating 写入的 left / top 定位 */
+  anchored: { position: 'fixed', inset: 'auto', margin: 0 },
+  /** 浮起的表面：边框、圆角、阴影（Popover、Menu、选项列表）；内边距各自定 */
+  surface: {
+    boxSizing: 'border-box',
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_border',
+    borderRadius: '_lg',
+    backgroundColor: '_surfaceRaised',
+    color: '_text',
+    boxShadow: '_lg',
   },
-);
+  /**
+   * 箭头：一个小方块，只画右、下两条边，旋转后尖角朝向锚点；底色、边框跟随浮层（inherit）。
+   * 位置与旋转由 anchorFloating 写
+   */
+  arrow: {
+    position: 'absolute',
+    boxSizing: 'border-box',
+    width: '0.625em',
+    height: '0.625em',
+    backgroundColor: 'inherit',
+    borderStyle: 'solid',
+    borderColor: 'inherit',
+    borderWidth: 0,
+    borderRightWidth: 'inherit',
+    borderBottomWidth: 'inherit',
+    borderBottomRightRadius: '_borderWidths.sm',
+    pointerEvents: 'none',
+  },
+  /** 有箭头的浮层：原生 popover 默认 overflow: auto 会把伸出去的箭头裁掉 */
+  withArrow: { overflow: 'visible' },
+});
 
 /** 与视口边缘至少留出的距离（px） */
 const VIEWPORT_PADDING = 8;
@@ -115,13 +148,23 @@ const VIEWPORT_PADDING = 8;
 export function anchorFloating(
   anchor: HTMLElement,
   floating: HTMLElement,
-  { placement = 'bottom-start', offset: distance = 6, matchWidth, fitHeight }: FloatingOptions = {},
+  {
+    placement = 'bottom-start',
+    offset: distance = 6,
+    matchWidth,
+    fitHeight,
+    arrow,
+  }: FloatingOptions = {},
 ): Anchored {
+  // 箭头伸出浮层一半（旋转后的对角线的一半约等于边长的 0.7）：距离加上这一段，尖角才不压在锚点上
+  const arrowSize = arrow?.offsetWidth ?? 0;
   const middleware: Middleware[] = [
-    offset(distance),
+    offset(distance + arrowSize * 0.7),
     flip({ padding: VIEWPORT_PADDING }),
     shift({ padding: VIEWPORT_PADDING }),
   ];
+  // 箭头离浮层的圆角留出距离，不会画到圆角外面
+  if (arrow) middleware.push(arrowMiddleware({ element: arrow, padding: arrowSize }));
   if (matchWidth || fitHeight) {
     middleware.push(
       size({
@@ -141,9 +184,20 @@ export function anchorFloating(
 
   const update = () =>
     void computePosition(anchor, floating, { placement, strategy: 'fixed', middleware }).then(
-      ({ x, y, placement: final }) => {
+      ({ x, y, placement: final, middlewareData }) => {
         if (stopped) return;
         const [side, align = 'center'] = final.split('-') as [Side, string?];
+        if (arrow && middlewareData.arrow) {
+          const { x: arrowX, y: arrowY } = middlewareData.arrow;
+          Object.assign(arrow.style, {
+            left: arrowX != null ? `${arrowX}px` : '',
+            top: arrowY != null ? `${arrowY}px` : '',
+            right: '',
+            bottom: '',
+            [ARROW_EDGE[side]]: `${-arrowSize / 2}px`,
+            transform: `rotate(${ARROW_ROTATION[side]}deg)`,
+          });
+        }
         Object.assign(floating.style, {
           left: `${x}px`,
           top: `${y}px`,
