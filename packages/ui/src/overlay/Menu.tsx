@@ -26,7 +26,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
-import { buttonSx, type ButtonTones } from '../base/button-styles';
+import type { ButtonTones } from '../base/button-styles';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import {
@@ -38,7 +38,9 @@ import {
 import { useRouterLink } from '../utils/link';
 import { toElement } from '../utils/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/ripple';
+import { itemStyles } from '../utils/item-styles';
+import { focusRingStyles } from '../utils/styles';
+import { rippleHostStyles, useRipple } from '../utils/ripple';
 import { rovingFocus } from '../utils/roving-focus';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
 import { transitions } from '../utils/transitions';
@@ -103,13 +105,6 @@ const styles = stylex.create({
     padding: '_xs',
     overflowY: 'auto',
     lineHeight: '_normal',
-  },
-  item: {
-    justifyContent: 'flex-start',
-    gap: '_sm',
-    paddingInline: '_sm',
-    fontWeight: '_normal',
-    textAlign: 'start',
   },
   label: { flexGrow: 1, minWidth: 0 },
   // 复选、单选的标记占一列，有没有勾都对齐
@@ -292,11 +287,11 @@ function itemContent(
 /** 菜单项的外观：幽灵按钮，内容靠起始边排列 */
 function itemSx(tone: keyof ButtonTones, disabled: boolean): StyleXStyles {
   return [
-    buttonSx(
-      { variant: 'ghost', tone, radius: 'sm', size: undefined },
-      { disabled, fullWidth: true },
-    ),
-    styles.item,
+    itemStyles.row,
+    tone === 'danger' ? itemStyles.danger : itemStyles.hoverable,
+    focusRingStyles.visible,
+    rippleHostStyles.host,
+    disabled && itemStyles.disabled,
   ] as StyleXStyles;
 }
 

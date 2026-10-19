@@ -21,6 +21,7 @@ import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import type { SelectionModes } from '../utils/selection';
+import { itemStyles } from '../utils/item-styles';
 import { focusRingStyles } from '../utils/styles';
 import { useFieldControl } from './Field';
 import {
@@ -83,22 +84,6 @@ const styles = stylex.create({
     paddingInline: '_sm',
     fontWeight: '_semibold',
   },
-  option: {
-    boxSizing: 'border-box',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_sm',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
-    paddingBlock: '_xs',
-    paddingInline: '_sm',
-    borderRadius: '_sm',
-    color: '_text',
-    cursor: 'pointer',
-    userSelect: 'none',
-  },
-  active: { backgroundColor: '_fillHover' },
-  selected: { color: '_accentText' },
-  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
   content: { display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 },
   description: { color: '_textMuted' },
   check: { flexShrink: 0 },
@@ -141,10 +126,10 @@ export const ListboxView = _component(
             mergeProps<'div'>(
               {
                 sx: [
-                  styles.option,
-                  state.active && styles.active,
-                  state.selected && styles.selected,
-                  option.disabled && styles.disabled,
+                  itemStyles.row,
+                  state.active && itemStyles.highlighted,
+                  state.selected && itemStyles.selected,
+                  option.disabled && itemStyles.disabled,
                 ],
               },
               own,

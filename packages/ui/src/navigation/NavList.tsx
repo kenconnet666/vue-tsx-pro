@@ -22,6 +22,7 @@ import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
 import { useRouterLink } from '../utils/link';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/ripple';
+import { itemStyles } from '../utils/item-styles';
 import { focusRingStyles, listStyles } from '../utils/styles';
 
 /** 分组向里面的项要的信息：哪些项是当前页（有当前页时自动展开） */
@@ -34,41 +35,16 @@ const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 const styles = stylex.create({
   list: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
-  // 链接与分组的触发器共用的外观
+  // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
   row: {
-    boxSizing: 'border-box',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_sm',
-    width: '_full',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
     paddingInline: '_md',
-    margin: 0,
-    borderWidth: 0,
     borderRadius: '_md',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
     color: { default: '_textMuted', ':hover': '_text' },
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
     fontWeight: '_medium',
-    textAlign: 'start',
-    textDecoration: 'none',
-    cursor: 'pointer',
-    transition:
-      'background-color _durations.sm _easings.standard, color _durations.sm _easings.standard',
   },
-  active: {
-    backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
-    color: { default: '_accentText', ':hover': '_accentText' },
-  },
-  disabled: { opacity: '_disabled', cursor: 'not-allowed', pointerEvents: 'none' },
-  label: {
-    flexGrow: 1,
-    minWidth: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
+  // 当前页的颜色来自 itemStyles.current；悬停时也保持品牌色
+  current: { color: { default: '_accentText', ':hover': '_accentText' } },
+  disabled: { pointerEvents: 'none' },
   chevron: { transition: 'transform _durations.md _easings.standard' },
   chevronOpen: { transform: 'rotate(90deg)' },
 });
@@ -157,11 +133,13 @@ export const NavItem = _component(
             mergeProps<'a'>(
               {
                 sx: [
+                  itemStyles.row,
+                  itemStyles.hoverable,
                   styles.row,
                   focusRingStyles.visible,
                   rippleHostStyles.host,
-                  current && styles.active,
-                  disabled && styles.disabled,
+                  current && [itemStyles.current, styles.current],
+                  disabled && [itemStyles.disabled, styles.disabled],
                 ],
               },
               rest,
@@ -178,7 +156,7 @@ export const NavItem = _component(
           data-state={current ? 'active' : 'inactive'}
         >
           {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
-          <span {...elementProps(mergeProps<'span'>({ sx: styles.label }, propsLabel))}>
+          <span {...elementProps(mergeProps<'span'>({ sx: itemStyles.label }, propsLabel))}>
             {children}
           </span>
           {end}
@@ -244,14 +222,22 @@ export const NavGroup = _component(
                 <button
                   {...elementProps(
                     mergeProps<'button'>(
-                      { sx: [styles.row, focusRingStyles.visible], type: 'button' },
+                      {
+                        sx: [
+                          itemStyles.row,
+                          itemStyles.hoverable,
+                          styles.row,
+                          focusRingStyles.visible,
+                        ],
+                        type: 'button',
+                      },
                       propsTrigger,
                       props,
                     ),
                   )}
                 >
                   {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
-                  <span {...elementProps(mergeProps<'span'>({ sx: styles.label }, propsLabel))}>
+                  <span {...elementProps(mergeProps<'span'>({ sx: itemStyles.label }, propsLabel))}>
                     {label}
                   </span>
                   <Icon

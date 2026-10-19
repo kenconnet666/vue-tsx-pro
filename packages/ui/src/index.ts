@@ -342,6 +342,8 @@ export {
   type RovingOrientations,
 } from './utils/roving-focus';
 export { plainText } from './utils/text';
+export { itemStyles } from './utils/item-styles';
+export { createComparer, createMatcher, type SortValue } from './utils/collation';
 export { createTypeahead, type Typeahead } from './utils/typeahead';
 export { toggleSelection, type SelectionModes, type SelectionOptions } from './utils/selection';
 export {

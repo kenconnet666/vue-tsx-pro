@@ -24,6 +24,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Spinner } from '../base/Spinner';
 import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/floating';
+import { createMatcher } from '../utils/collation';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/transitions';
 import { fontSizeStyles } from '../utils/typography';
@@ -162,17 +163,9 @@ export const Combobox = _component(
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
 
-    const collator = () => new Intl.Collator(lang.code, { usage: 'search', sensitivity: 'base' });
     function matches(option: T, text: string) {
       if (!text) return true;
-      if (filter) return filter(option, text);
-      // Collator 忽略大小写与重音：逐个位置比较等长的片段
-      const compare = collator();
-      const label = option.label;
-      for (let start = 0; start + text.length <= label.length; start++) {
-        if (compare.compare(label.slice(start, start + text.length), text) === 0) return true;
-      }
-      return false;
+      return filter ? filter(option, text) : createMatcher(lang.code)(option.label, text);
     }
 
     const list = createListState({
