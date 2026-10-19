@@ -98,17 +98,16 @@ import {
   ToggleGroup,
   ToggleItem,
   Toolbar,
-  themeTransition,
   Toaster,
   useConfirm,
   VirtualList,
   VisuallyHidden,
   type VirtualListHandle,
 } from '@vue-tsx-pro/ui';
-import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
 import { toaster } from '../toaster';
 import { FormDemo } from './FormDemo';
+import { MotionDemo } from './MotionDemo';
 import { TableDemo } from './TableDemo';
 
 const sampleCode = `export const Counter = _component(() => {
@@ -186,19 +185,6 @@ const styles = stylex.create({
   block: { backgroundColor: '_accent', boxShadow: '_md' },
   slider: { maxWidth: '16em' },
   outlined: { borderWidth: '_xs', borderStyle: 'dashed', borderColor: '_border' },
-  track: {
-    // 小球的宽度加上移动的距离
-    width: 'calc(_control + 120px)',
-    padding: '_xs',
-    borderRadius: '_full',
-    backgroundColor: '_fill',
-  },
-  ball: {
-    width: '_control',
-    height: '_control',
-    borderRadius: '_full',
-    backgroundColor: '_accent',
-  },
 });
 
 // 拼图块的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -248,8 +234,6 @@ const fruitOptions: ListboxOption[] = [
 /** /base 演示页：按分类演示组件库的基础组件，浏览器测试与 axe 检查也跑在这一页上 */
 export const Base = _component(() => {
   let dark = _state(false);
-  let ball = _state.raw<HTMLElement | null>(null);
-  let moved = false;
   let listHandle: VirtualListHandle | undefined;
   let volume = _state(40);
   let saving = _state(false);
@@ -338,15 +322,6 @@ export const Base = _component(() => {
   function resetPuzzle() {
     puzzleTarget = 0.3 + Math.random() * 0.6;
     puzzleStatus = 'idle';
-  }
-
-  // JS 动画：Anime.js 的 animate 加上主题的弹簧时长；减少动态效果时立即到位
-  function move() {
-    moved = !moved;
-    void animate(ball!, {
-      x: moved ? 120 : 0,
-      ...themeTransition(ball!, { duration: 'lg', bounce: 0.3 }),
-    });
   }
 
   return () => (
@@ -1060,14 +1035,7 @@ export const Base = _component(() => {
         </Section>
 
         <Section title="动效 Anime.js">
-          <div {...stylex.attrs(styles.row)}>
-            <Button variant="outline" class="move-ball" onClick={move}>
-              移动
-            </Button>
-            <div {...stylex.attrs(styles.track)}>
-              <div class="ball" ref={_toRef(ball)} {...stylex.attrs(styles.ball)} />
-            </div>
-          </div>
+          <MotionDemo />
         </Section>
       </main>
       <Toaster controller={toaster} class="toaster-demo" />

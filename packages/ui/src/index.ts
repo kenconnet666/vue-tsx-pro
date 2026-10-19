@@ -702,10 +702,17 @@ export {
 // 工具：JS 动画与动效
 export {
   themeTransition,
+  themeTransitionOrInstant,
   useAnimate,
   type ThemeAnimate,
+  type ThemeTiming,
   type ThemeTransitionOptions,
 } from './utils/motion/animation';
+export {
+  useLayoutAnimation,
+  type LayoutAnimation,
+  type LayoutAnimationOptions,
+} from './utils/motion/layout';
 export { usePresence, type Presence, type PresenceOptions } from './utils/motion/presence';
 export {
   useSpring,

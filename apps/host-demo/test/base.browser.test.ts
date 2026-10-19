@@ -131,6 +131,22 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     await animate(target, { x: 100, ...options });
     expect(target.x).toBe(100);
   });
+
+  it('布局动画：加一项时原来的项从旧位置平移过去，结束后停在新位置', async () => {
+    const list = $('.layout-demo');
+    const chip = [...list.children].find((element) => element.textContent === '1') as HTMLElement;
+    // 视觉位置（含变换）与布局位置（offsetLeft 不受变换影响）之差：动画中不为 0
+    const offset = () =>
+      chip.getBoundingClientRect().left -
+      list.getBoundingClientRect().left -
+      (chip.offsetLeft - list.offsetLeft);
+    // offsetLeft 取整，留 1px 余量
+    expect(Math.abs(offset())).toBeLessThan(1);
+    $('.layout-add').click();
+    await expect.poll(() => Math.abs(offset())).toBeGreaterThan(2);
+    await expect.poll(() => Math.abs(offset()), { timeout: 3000 }).toBeLessThan(1);
+    expect(list.firstElementChild!.textContent).toBe('7');
+  });
 });
 
 describe('折叠：Collapsible 与 Collapse', () => {

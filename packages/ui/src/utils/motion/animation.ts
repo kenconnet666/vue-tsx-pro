@@ -11,7 +11,14 @@
  *
  * 进出场、展开收起能用 CSS 过渡的仍用 CSS：原生 popover / dialog 被 Esc、点击外部关闭时，JS 来不及介入。
  */
-import { animate, cubicBezier, spring, type AnimationParams, type JSAnimation } from 'animejs';
+import {
+  animate,
+  cubicBezier,
+  spring,
+  type AnimationParams,
+  type EasingParam,
+  type JSAnimation,
+} from 'animejs';
 import { onBeforeUnmount } from 'vue';
 import { readToken } from '../../config/theme/theme';
 import { durations, easings } from '../../config/theme/tokens.stylex';
@@ -26,11 +33,19 @@ export interface ThemeTransitionOptions {
   bounce?: number;
 }
 
+/** themeTransition 的结果：展开到 Anime.js 的 animate、createLayout 等的参数里 */
+export interface ThemeTiming {
+  /** 时长（毫秒）；用弹簧时不给，由弹簧决定 */
+  duration?: number;
+  /** 缓动曲线或弹簧 */
+  ease?: EasingParam;
+}
+
 /** 按主题 tokens 生成 Anime.js 的时长与缓动参数，展开到 animate 的参数里；element 决定读哪个主题范围里的取值 */
 export function themeTransition(
   element: Element,
   { duration = 'md', ease = 'standard', bounce }: ThemeTransitionOptions = {},
-): Pick<AnimationParams, 'duration' | 'ease'> {
+): ThemeTiming {
   const milliseconds = parseDuration(readToken(element, durations[duration]));
   if (milliseconds === 0) return { duration: 0 };
   if (bounce != null) return { ease: spring({ bounce, duration: milliseconds }) };
@@ -64,6 +79,21 @@ export type ThemeAnimate = <Target extends object>(
 ) => JSAnimation;
 
 /**
+ * 同 themeTransition，但读不到主题 token（页面没加载组件库的样式，如单元测试）时返回时长 0（直接到位），
+ * 不让动画报错打断交互。组件里的动画都用它。
+ */
+export function themeTransitionOrInstant(
+  element: Element,
+  transition?: ThemeTransitionOptions,
+): ThemeTiming {
+  try {
+    return themeTransition(element, transition);
+  } catch {
+    return { duration: 0 };
+  }
+}
+
+/**
  * 组件里的 JS 动画（在 setup 里调用）：时长、缓动、弹簧取主题 tokens（themeTransition），组件卸载时取消还在跑的动画。
  * 同一目标同一属性上的新动画会替换旧的（Anime.js 默认的 composition: 'replace'），快速连续触发不会互相打架；
  * params 里写的 duration、ease 优先于主题。目标不是元素（JS 对象）时按根元素读主题。
@@ -73,14 +103,6 @@ export type ThemeAnimate = <Target extends object>(
  *   await animate(item, { x: width, opacity: 0 }, { duration: 'sm', ease: 'exit' }); // 滑出后再移除
  */
 export function useAnimate(): ThemeAnimate {
-  // 读不到主题 token（页面没加载组件库的样式，如单元测试）时直接到位，不让动画报错打断交互
-  const timing = (scope: Element, transition?: ThemeTransitionOptions) => {
-    try {
-      return themeTransition(scope, transition);
-    } catch {
-      return { duration: 0 };
-    }
-  };
   const running = new Set<JSAnimation>();
   onBeforeUnmount(() => {
     for (const animation of running) void animation.cancel();
@@ -92,7 +114,10 @@ export function useAnimate(): ThemeAnimate {
     for (const animation of running) {
       if (animation.completed || animation.cancelled) running.delete(animation);
     }
-    const animation = animate(target, { ...timing(scope, transition), ...params });
+    const animation = animate(target, {
+      ...themeTransitionOrInstant(scope, transition),
+      ...params,
+    });
     // 时长为 0（减少动态效果、读不到主题）时当场到位：不等下一帧，读取结果的代码不会先看到旧值
     if (animation.duration < 1) return animation.complete();
     running.add(animation);
