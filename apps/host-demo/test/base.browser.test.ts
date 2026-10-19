@@ -3,6 +3,7 @@ import axe from 'axe-core';
 import { afterTransitions, themeTransition } from '@vue-tsx-pro/ui';
 import { durations } from '@vue-tsx-pro/ui/tokens.stylex';
 import { animate, cubicBezier } from 'animejs';
+import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
@@ -52,16 +53,32 @@ it('性能：演示页（含一万行表格、一万个选项）挂载在 2 秒�
 
 it('表单：必填标记与输入框的约束来自 zod schema；提交不通过时显示错误并聚焦第一个出错的控件', async () => {
   const form = $('.zod-form-demo');
-  const [email, nickname] = form.querySelectorAll('input');
-  const [emailLabel, nicknameLabel] = form.querySelectorAll('label');
+  const [username, email, nickname] = form.querySelectorAll('input');
+  const [, emailLabel, nicknameLabel] = form.querySelectorAll('label');
   expect([email!.type, email!.required]).toEqual(['email', true]);
   expect(nickname!.getAttribute('maxlength')).toBe('12');
   expect(emailLabel!.querySelector('svg')).not.toBeNull();
   expect(nicknameLabel!.querySelector('svg')).toBeNull();
   form.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
-  await expect.poll(() => document.activeElement).toBe(email);
+  await expect.poll(() => document.activeElement).toBe(username);
   expect(form.textContent).toContain('邮箱格式不对');
   expect(form.textContent).toContain('请选择城市');
+  expect(form.textContent).toContain('请填写联系人');
+});
+
+it('表单：用户名的异步校验失焦后显示“已占用”；联系人可以增删；有修改时提示未保存', async () => {
+  const form = $('.zod-form-demo');
+  const username = form.querySelector('input')!;
+  expect($('.form-dirty').textContent).toBe('没有修改');
+  // 先点按钮：字段失焦时出现的错误会把下面的按钮挤下去，鼠标抬起时就不在按钮上了
+  await userEvent.click($('.contact-add'));
+  await expect.poll(() => form.querySelectorAll('.contact-row').length).toBe(2);
+  expect($('.form-dirty').textContent).toBe('有未保存的修改');
+  await userEvent.click(form.querySelector('[aria-label="删除联系人 1"]')!);
+  await expect.poll(() => form.querySelectorAll('.contact-row').length).toBe(1);
+  await userEvent.type(username, 'admin');
+  await userEvent.tab();
+  await expect.poll(() => form.textContent, { timeout: 3000 }).toContain('用户名已占用');
 });
 
 it('VisuallyHidden：视觉上不占位，读屏名称仍然在', () => {

@@ -558,11 +558,15 @@ export {
 } from './input/list-state';
 export {
   useForm,
+  type ArrayPath,
+  type FieldArray,
   type FieldPath,
+  type FieldValidator,
   type FormController,
   type FormControllerBase,
   type FormErrors,
   type FormOptions,
+  type PathValue,
 } from './input/useForm';
 
 // 表格
@@ -753,6 +757,7 @@ export {
   type HoverIntent,
   type HoverIntentOptions,
 } from './utils/dom/hover-intent';
+export { useLeaveConfirmation } from './utils/dom/leave-confirmation';
 export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {

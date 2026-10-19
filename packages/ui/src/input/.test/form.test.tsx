@@ -156,3 +156,87 @@ describe('Form + Field', () => {
     });
   });
 });
+
+describe('数组字段、dirty、单字段异步校验', () => {
+  it('array：增删、插入、移动，key 稳定；错误与失焦记录跟着下标移动', async () => {
+    const form = useForm({ initial: { items: [{ name: 'a' }, { name: 'b' }, { name: 'c' }] } });
+    const items = form.array('items');
+    const [a, b, c] = items.keys;
+    form.setError('items.2.name', '重复');
+    form.blur('items.2.name');
+    items.remove(0);
+    expect(items.items.map((item) => item.name)).toEqual(['b', 'c']);
+    expect(items.keys).toEqual([b, c]);
+    expect(form.errors).toEqual({ 'items.1.name': '重复' });
+    items.move(1, 0);
+    expect(items.keys).toEqual([c, b]);
+    expect(form.visibleError('items.0.name')).toBe('重复');
+    items.insert(1, { name: 'x' });
+    items.append({ name: 'y' });
+    expect(form.values.items.map((item) => item.name)).toEqual(['c', 'x', 'b', 'y']);
+    expect(items.keys[0]).toBe(c);
+    expect(new Set(items.keys).size).toBe(4);
+    expect(items.keys).not.toContain(a);
+  });
+
+  it('dirty：与初始值比较；reset(form.values) 之后以它为准', async () => {
+    const form = useForm({ initial: { name: 'a', tags: ['x'] } });
+    expect(form.dirty).toBe(false);
+    form.values.tags.push('y');
+    expect(form.dirty).toBe(true);
+    expect(form.isDirty('tags')).toBe(true);
+    expect(form.isDirty('name')).toBe(false);
+    form.reset(form.values);
+    expect(form.dirty).toBe(false);
+    form.values.name = 'b';
+    expect(form.dirty).toBe(true);
+    form.values.name = 'a';
+    expect(form.dirty).toBe(false);
+  });
+
+  it('单字段校验：防抖、只采用最后一次结果；提交时等它完成', async () => {
+    vi.useFakeTimers();
+    try {
+      const resolvers: ((message: string | undefined) => void)[] = [];
+      const validate = vi.fn(
+        (_name: string, _values: unknown, signal: AbortSignal) =>
+          new Promise<string | undefined>((resolve) => {
+            resolvers.push(resolve);
+            signal.addEventListener('abort', () => resolve(undefined));
+          }),
+      );
+      const onSubmit = vi.fn();
+      const form = useForm({
+        initial: { username: '' },
+        fields: { username: { validate, debounce: 200 } },
+        onSubmit,
+      });
+      form.values.username = 'ad';
+      await nextTick();
+      form.values.username = 'admin';
+      await nextTick();
+      await vi.advanceTimersByTimeAsync(200);
+      // 防抖：只按最后的值校验一次
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.calls[0]![0]).toBe('admin');
+      expect(form.validating('username')).toBe(true);
+      resolvers[0]!('用户名已占用');
+      await flush();
+      expect(form.validating()).toBe(false);
+      expect(form.errors.username).toBe('用户名已占用');
+      // 值没变：提交时直接用上次的结果，不再请求
+      expect(await form.submit()).toBe(false);
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      form.values.username = 'ada';
+      const submitted = form.submit();
+      await flush();
+      expect(validate).toHaveBeenCalledTimes(2);
+      resolvers[1]!(undefined);
+      expect(await submitted).toBe(true);
+      expect(onSubmit).toHaveBeenCalledWith({ username: 'ada' });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

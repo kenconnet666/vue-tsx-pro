@@ -30,3 +30,15 @@ form.setError('address.street', '不存在');
 export const field = <form.Field name="address.city" label="城市" />;
 // @ts-expect-error 没有这个字段
 export const wrongField = <form.Field name="city" label="城市" />;
+
+// 数组字段：只接受值是数组的路径，项的类型跟着推出
+export const names: string[] = form.array('items').items.map((item) => item.name);
+// @ts-expect-error email 不是数组
+form.array('email');
+// 单字段校验：value 的类型是这个字段的类型
+useForm<Values>({
+  initial: { email: '', birthday: new Date(), items: [] },
+  fields: {
+    email: { validate: (email) => (email.endsWith('@x.com') ? undefined : '只能用公司邮箱') },
+  },
+});
