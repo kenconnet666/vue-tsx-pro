@@ -592,6 +592,22 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **没有按原方案做的**：`useListState` 仍按字段给读取函数（一个 `read` 会让选择变化也重新整理上万个选项）；三处 `SKELETON_ROWS` 取值不同，留在各自组件里；overlay 组件依赖原生 popover，happy-dom 没有，行为仍在浏览器测试里测（补了 Popover 的焦点用例）。
 
+### 10.15 动效、反馈与交互组件（已完成）
+
+三个阶段一起做，加上与用户讨论后确定的已有组件整理（A–E），每块单独提交：
+
+| 项       | 改动                                                                                                                                                                                                                                                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 动效基础 | `useTween` / `useSpring`、`usePresence`（Toast、Tag、Alert 的离场）、`useLayoutAnimation`（Anime.js createLayout）、`useActiveIndicator`（Tabs、ToggleGroup）、`useReducedMotion`、`useDelayedLoading`（Button、Table、ListboxView、VirtualList）；取主题时长，减少动态效果时直接到位 |
+| 交互基础 | `useHotkeys`（Menu 的快捷键真正触发）、`useClipboard`（CopyButton、CodeBlock）、`useSortable`（指针拖动实时重排、边缘自动滚动、键盘拿起 / 移动 / 放下 / 取消与读屏播报）、`useLeaveConfirmation`；`utils/data/tree.ts`（展开成行、勾选联动与半选、懒加载，Tree 与 TreeTable 共用）    |
+| 新组件   | AnimatedNumber、LoadingOverlay、CopyButton、Result、Icon 的 `draw`、HoverCard、Accordion、ContextMenu、MenuSub、TagsInput、PageSizeSelect / PageJump、AvatarGroup、Indicator、Descriptions、Timeline、Tree、FileDrop / Upload、Sortable、Marquee、Tour                                |
+| 组件增强 | Toast 的 `stack` 与剩余时间、ToggleGroup 滑块、Tag 移除动画、Progress 数值过渡、Checkbox 描线；TextField / Textarea 前后缀与计数、Switch 的 loading 与内部文字、Slider 范围与刻度、Popover / Tooltip 箭头                                                                             |
+| 表单     | `form.array`（稳定 key、错误随下标移动）、`form.dirty` / `isDirty`、`fields` 单字段异步校验（防抖、只采用最后一次、提交时等待、`validating`）                                                                                                                                         |
+| 整理     | Table / TreeTable 的 `size` 改名 `density`（compact / standard / comfortable）；variant 词表写进 §1，输入框的 `outline` 改名 `surface`；`useFormat` 加 `fileSize`；`anchorFloating` 加 `crossAxisFallback`                                                                            |
+| 顺手修的 | 虚拟滚动只在元素第一次出现时同步测量（浮层进场的 scale 让每次渲染量出不同的值，WebKit 下 ListboxView 递归更新）；Menu 的 Esc 显式关闭（Firefox 偶尔不关）；几个浏览器测试开始前把指针移开（指针停在原处时 hover 不产生移动）                                                          |
+
+**没有按原方案做的**：Sortable 没接上 Table 的列顺序（API 已能接：把手放在表头里用 `useSortable`），留作下一步；Tree 的焦点用 aria-activedescendant（与 Listbox 一致，虚拟滚动下不用移动 DOM 焦点）而不是逐项 tabindex；Tour 的目标在模态打开期间不可交互（整页 inert），只做展示与说明；Marquee 的速度按 px/s 换算，内容变化时由 ResizeObserver 重新量。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14），均已完成，每步单独提交。下一批：日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15），均已完成，每步单独提交。下一批：日期选择。正式组件按 §8 验收，文档页暂用演示页代替。

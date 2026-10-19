@@ -2,20 +2,20 @@
 
 给接手这个仓库的人（或下一个会话）：读完这一页就能接着做。细节以各自的规范文档为准，这里只讲现状、地图、做事方式和踩过的坑。
 
-## 1. 现状（2026-10-19）
+## 1. 现状（2026-10-20）
 
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。
-- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.14：
-  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton）、Badge、Tag
+- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.15：
+  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton / CopyButton）、Badge、Indicator（角标）、Tag
   - 布局：Flex / FlexList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）
-  - 展示：Collapse、Collapsible、VirtualList（虚拟滚动，带加载状态）、Card、Avatar
-  - 反馈：Progress、Skeleton、Alert、Empty、Dialog / Drawer / AlertDialog（含命令式的 useConfirm）、Toast（createToaster + Toaster，可滑动关闭）
-  - 浮层：Popover、Tooltip、Menu（复合，含链接 / 复选 / 单选项）
-  - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination、NavList（复合）
-  - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
+  - 展示：Collapse、Collapsible、Accordion、VirtualList（虚拟滚动，带加载状态）、Card、Avatar / AvatarGroup、AnimatedNumber、Descriptions、Timeline、Tree、Sortable、Marquee
+  - 反馈：Progress、Skeleton、Alert、Empty、Dialog / Drawer / AlertDialog（含命令式的 useConfirm）、Toast（createToaster + Toaster，可滑动关闭、可堆叠）、LoadingOverlay、Result
+  - 浮层：Popover、Tooltip、HoverCard、Menu（复合，含链接 / 复选 / 单选项、子菜单）、ContextMenu、Tour
+  - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination（配套 PageSizeSelect、PageJump）、NavList（复合）
+  - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
   - 表格：Table（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeTable（建在 Table 上，懒加载子项）
-  - 表单（也在 input/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型）
+  - 表单（也在 input/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型；数组字段、dirty、单字段异步校验）
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
 
@@ -89,6 +89,9 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 方向键在一组项里移动                               | `rovingFocus(container, { items, orientation })`                                                                                            |
 | 单选 / 多选                                        | `toggleSelection`                                                                                                                           |
 | 拖动                                               | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                                            |
+| 拖动排序（指针 + 键盘 + 读屏播报）                 | `useSortable({ items, getKey, onChange, container })`：`handleProps(key)`、`itemProps(key)`、`announcement`（`utils/dom/sortable.ts`）      |
+| 树：展开成行、勾选联动、懒加载                     | `flattenTree`、`indexTree` + `toggleChecked` / `checkStates`、`useTreeExpansion`（`utils/data/tree.ts`；Tree、TreeTable 用它）              |
+| 未保存离开的提醒                                   | `useLeaveConfirmation(() => form.dirty)`（`utils/dom/leave-confirmation.ts`）                                                               |
 | 进出场过渡、等过渡结束                             | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                                           |
 | 关闭后等离场结束再卸载                             | `usePresence(() => open, { onExited, exit })`：`mounted`、`state`、`ref`（`utils/motion/presence.ts`；Toast、Tag、Alert 用它）              |
 | 子元素换位置时平移（增删、排序）                   | `useLayoutAnimation(() => container, { children })`，`layout.change(() => mutate())`（`utils/motion/layout.ts`）                            |
@@ -104,7 +107,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 菜单、列表里按字母跳转                             | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                                                                |
 | 输入框外壳、勾选类控件                             | `input/control.ts`、`input/choice-styles.ts`                                                                                                |
 | 控件接入 Field（标签、说明、错误、状态）           | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                                                                    |
-| 表单值与校验                                       | `useForm({ initial, schema, onSubmit })` + `<Form controller>`                                                                              |
+| 表单值与校验                                       | `useForm({ initial, schema, fields, onSubmit })` + `<Form controller>`；`form.array(path)`、`form.dirty`、`form.validating(path)`           |
 | 选项列表（高亮、选择、键盘）                       | `useListState` + `handleListKeydown` + `ListboxView`（`input/`）                                                                            |
 | 命令式确认                                         | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                                                                 |
 | 状态色调的颜色与默认图标                           | `statusToneSx`、`statusIcons`（`utils/style/tone-styles.ts`）                                                                               |
