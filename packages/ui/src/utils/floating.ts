@@ -23,7 +23,7 @@ import {
   type Placement,
 } from '@floating-ui/dom';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { returnFocus } from './overlay';
+import { returnFocus } from './focus';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 
 /** 弹出位置：主方向 + 对齐方式（start 对齐锚点的起始边，end 对齐结束边）；空间不够时自动翻转 */

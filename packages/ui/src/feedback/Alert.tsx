@@ -13,7 +13,7 @@ import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
-import { focusAfterRemoval } from '../utils/overlay';
+import { focusAfterRemoval } from '../utils/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/tone-styles';
 

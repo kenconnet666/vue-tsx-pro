@@ -8,7 +8,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
-import { focusAfterRemoval } from '../utils/overlay';
+import { focusAfterRemoval } from '../utils/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';

@@ -311,18 +311,8 @@ export {
   type FontWeight,
   type Tone,
 } from './utils/typography';
-export {
-  dismissOnBackdrop,
-  focusAfterRemoval,
-  focusFirst,
-  focusOrigin,
-  lockScroll,
-  returnFocus,
-  toElement,
-  topModal,
-  trackModal,
-  trapFocus,
-} from './utils/overlay';
+export { dismissOnBackdrop, lockScroll, toElement, topModal, trackModal } from './utils/overlay';
+export { focusAfterRemoval, focusFirst, focusOrigin, returnFocus, trapFocus } from './utils/focus';
 export {
   anchorFloating,
   createAnchoredPopover,

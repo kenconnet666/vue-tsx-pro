@@ -23,14 +23,8 @@ import { Flex, type FlexProps } from '../layout/Flex';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import type { ContainerSizes } from '../layout/Container';
 import { useDefaults } from '../config/defaults';
-import {
-  dismissOnBackdrop,
-  focusOrigin,
-  lockScroll,
-  returnFocus,
-  trackModal,
-  trapFocus,
-} from '../utils/overlay';
+import { dismissOnBackdrop, lockScroll, trackModal } from '../utils/overlay';
+import { focusOrigin, returnFocus, trapFocus } from '../utils/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/transitions';
 

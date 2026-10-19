@@ -16,7 +16,8 @@ import {
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/floating';
-import { focusFirst, toElement } from '../utils/overlay';
+import { toElement } from '../utils/overlay';
+import { focusFirst } from '../utils/focus';
 import { elementProps, mergeProps, type PartProps, type TriggerProps } from '../utils/props';
 import { transitions } from '../utils/transitions';
 
