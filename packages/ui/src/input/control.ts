@@ -13,14 +13,14 @@ import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 /** 输入框的样式 */
 export interface ControlVariants {
   /** 表面色加描边（默认） */
-  outline: unknown;
+  surface: unknown;
   /** 浅色底，没有描边：表单很密、或放在有底色的区域里 */
   soft: unknown;
 }
 
 /** 输入框的外观选项；可以用 createUi / Provider 的 defaults.Input 统一改默认值 */
 export interface ControlOptions {
-  /** 样式，默认 outline */
+  /** 样式，默认 surface */
   variant?: keyof ControlVariants;
   /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
   size?: TextSize;
@@ -126,11 +126,11 @@ export type ControlAppearance = Required<Pick<ControlOptions, 'variant' | 'radiu
   Pick<ControlOptions, 'size'>;
 
 /**
- * 输入框的外观：显式写的 prop > createUi / Provider 的 defaults.Input > 默认（outline）。
+ * 输入框的外观：显式写的 prop > createUi / Provider 的 defaults.Input > 默认（surface）。
  * 在 setup 里调用，返回的函数在渲染时调用
  */
 export function useControlAppearance(read: () => ControlOptions): () => ControlAppearance {
-  return useDefaults('Input', read, { variant: 'outline', radius: 'md' });
+  return useDefaults('Input', read, { variant: 'surface', radius: 'md' });
 }
 
 /** 外观与状态 → 外壳的样式；multiline 给 Textarea */
