@@ -1065,7 +1065,7 @@ export const Base = _component(() => {
           <MotionDemo />
         </Section>
       </main>
-      <Toaster controller={toaster} class="toaster-demo" />
+      <Toaster controller={toaster} class="toaster-demo" progress />
     </Provider>
   );
 });

@@ -37,6 +37,24 @@ describe('createToaster', () => {
     expect(closing(toaster, id)).toBe(true);
   });
 
+  it('countdown 给剩余时间条：重新计时换编号，加载中、关闭后为 null；paused 跟随暂停', () => {
+    const toaster = createToaster({ duration: 1000 });
+    const id = toaster.show({ title: 'x' });
+    const record = () => toaster.toasts.find((toast) => toast.id === id)!;
+    const first = record().countdown!;
+    expect(first.duration).toBe(1000);
+    toaster.update(id, { duration: 3000 });
+    expect(record().countdown).toEqual({ duration: 3000, id: first.id + 1 });
+    toaster.update(id, { loading: true });
+    expect(record().countdown).toBeNull();
+    expect(toaster.paused).toBe(false);
+    toaster.pause();
+    expect(toaster.paused).toBe(true);
+    toaster.update(id, { loading: false });
+    toaster.dismiss(id);
+    expect(record().countdown).toBeNull();
+  });
+
   it('暂停期间新加的通知也等继续后才开始计时', () => {
     const toaster = createToaster({ duration: 1000 });
     toaster.pause();

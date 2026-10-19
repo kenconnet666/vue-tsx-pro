@@ -213,6 +213,18 @@ describe('Toast', () => {
     await expect.poll(() => region().querySelectorAll('li').length, { timeout: 3000 }).toBe(0);
   });
 
+  it('剩余时间条从满到空，悬停暂停计时时一起停', async () => {
+    toaster.show({ title: '计时', duration: 4000 });
+    await expect.poll(() => items().length).toBe(1);
+    const bar = items()[0]!.querySelector<HTMLElement>('span[aria-hidden="true"]:not(svg)')!;
+    const animation = () => bar.getAnimations()[0]!;
+    expect(animation().playState).toBe('running');
+    region().dispatchEvent(new PointerEvent('pointerenter'));
+    await expect.poll(() => animation().playState).toBe('paused');
+    region().dispatchEvent(new PointerEvent('pointerleave'));
+    await expect.poll(() => animation().playState).toBe('running');
+  });
+
   it('关闭一条后焦点交给相邻的通知', async () => {
     toaster.show({ title: '第一条', duration: Infinity });
     toaster.show({ title: '第二条', duration: Infinity });

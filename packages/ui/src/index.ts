@@ -231,6 +231,7 @@ export { Result, resultStyles, type ResultProps, type ResultStatuses } from './f
 export { Skeleton, skeletonStyles, type SkeletonProps } from './feedback/Skeleton';
 export {
   createToaster,
+  toastCountdownStyles,
   Toaster,
   ToastItem,
   toastPlacementStyles,

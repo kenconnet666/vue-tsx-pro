@@ -25,6 +25,7 @@
 import { utils } from 'animejs';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import {
   nextTick,
   onBeforeUnmount,
@@ -74,6 +75,8 @@ export interface ToastRecord extends ToastOptions {
   readonly id: string;
   /** 正在离场（已关闭，等离场过渡结束后移除） */
   readonly closing: boolean;
+  /** 本轮自动关闭的计时：总时长（毫秒）与编号（重新计时时换一个）；不自动关闭（加载中、Infinity）时为 null */
+  readonly countdown: { readonly duration: number; readonly id: number } | null;
 }
 
 /** promise 各阶段的通知：固定内容，或由结果算出 */
@@ -99,6 +102,8 @@ export interface ToasterOptions {
 export interface ToasterController {
   /** 当前的通知，旧的在前 */
   readonly toasts: readonly ToastRecord[];
+  /** 计时是否暂停（悬停、聚焦、页面隐藏时） */
+  readonly paused: boolean;
   /** 显示一条通知，返回它的编号 */
   show(options: ToastOptions): string;
   /** 改一条通知的内容（如加载完成）；计时按新的 duration 重新开始 */
@@ -115,6 +120,9 @@ export interface ToasterController {
   remove(id: string): void;
 }
 
+/** 控制器内部可写的通知记录 */
+type MutableToast = { -readonly [K in keyof ToastRecord]: ToastRecord[K] };
+
 interface Timer {
   remaining: number;
   startedAt: number;
@@ -128,9 +136,10 @@ export function createToaster({
   duration: defaultDuration = 5000,
 }: ToasterOptions = {}): ToasterController {
   // 浅层响应：列表增删与每条通知的字段变化会触发渲染；内容是 VNode，不需要（也不该）深层代理
-  const toasts = shallowReactive<(ToastRecord & { closing: boolean })[]>([]);
+  const toasts = shallowReactive<MutableToast[]>([]);
   const timers = new Map<string, Timer>();
-  let paused = false;
+  const state = shallowReactive({ paused: false });
+  let countdowns = 0;
 
   const find = (id: string) => toasts.find((toast) => toast.id === id);
 
@@ -139,14 +148,15 @@ export function createToaster({
     timer.handle = setTimeout(() => controller.dismiss(id), timer.remaining);
   }
 
-  function schedule(toast: ToastRecord) {
+  function schedule(toast: MutableToast) {
     clearTimeout(timers.get(toast.id)?.handle);
     timers.delete(toast.id);
     const duration = toast.loading ? Infinity : (toast.duration ?? defaultDuration);
-    if (!Number.isFinite(duration)) return;
+    toast.countdown = Number.isFinite(duration) ? { duration, id: ++countdowns } : null;
+    if (!toast.countdown) return;
     const timer: Timer = { remaining: duration, startedAt: 0 };
     timers.set(toast.id, timer);
-    if (!paused) start(toast.id, timer);
+    if (!state.paused) start(toast.id, timer);
   }
 
   const resolve = <T,>(message: ToastMessage<T>, value: T) =>
@@ -154,9 +164,12 @@ export function createToaster({
 
   const controller: ToasterController = {
     toasts,
+    get paused() {
+      return state.paused;
+    },
     show(options) {
       const id = `toast-${++nextId}`;
-      toasts.push(shallowReactive({ ...options, id, closing: false }));
+      toasts.push(shallowReactive({ ...options, id, closing: false, countdown: null }));
       schedule(find(id)!);
       return id;
     },
@@ -170,6 +183,7 @@ export function createToaster({
       for (const toast of id == null ? toasts : [find(id)]) {
         if (!toast || toast.closing) continue;
         toast.closing = true;
+        toast.countdown = null;
         clearTimeout(timers.get(toast.id)?.handle);
         timers.delete(toast.id);
       }
@@ -196,8 +210,8 @@ export function createToaster({
       }
     },
     pause() {
-      if (paused) return;
-      paused = true;
+      if (state.paused) return;
+      state.paused = true;
       for (const timer of timers.values()) {
         clearTimeout(timer.handle);
         timer.handle = undefined;
@@ -205,8 +219,8 @@ export function createToaster({
       }
     },
     resume() {
-      if (!paused) return;
-      paused = false;
+      if (!state.paused) return;
+      state.paused = false;
       for (const [id, timer] of timers) start(id, timer);
     },
     remove(id) {
@@ -243,13 +257,22 @@ export interface ToasterProps extends PartProps<'section', 'popover' | 'tabindex
   placement?: keyof ToastPlacements;
   /** 最多同时显示几条，默认 3；更早的先不显示，前面的关闭后补上 */
   max?: number;
+  /** 在自动关闭的通知底部显示剩余时间条（暂停计时时一起停），默认 false */
+  progress?: boolean;
   /** 列表（ol）的部件属性 */
   propsList?: PartProps<'ol', 'aria-live'>;
   /** 每一项（li）的部件属性 */
   propsItem?: PartProps<'li'> | ((toast: ToastRecord) => PartProps<'li'>);
   /** 每条通知（Alert）的部件属性 */
   propsToast?: Partial<AlertProps> | ((toast: ToastRecord) => Partial<AlertProps>);
+  /** 剩余时间条的部件属性 */
+  propsProgress?: PartProps<'span'>;
 }
+
+const countdown = stylex.keyframes({
+  from: { transform: 'scaleX(1)' },
+  to: { transform: 'scaleX(0)' },
+});
 
 /** Toaster 的样式：region、list、listFromTop、item、itemFromBottom、itemFromTop 等 */
 export const toastStyles: StyleTable<
@@ -262,6 +285,8 @@ export const toastStyles: StyleTable<
   | 'itemClosing'
   | 'gap'
   | 'toast'
+  | 'countdown'
+  | 'countdownPaused'
 > = stylex.create({
   region: {
     // 原生 popover 默认居中、带边框与底色，改为贴着视口的一角
@@ -301,10 +326,32 @@ export const toastStyles: StyleTable<
     opacity: 0,
     transition: 'opacity _durations.sm _easings.exit',
   },
-  // 间距放在每一项里：离场收起高度时间距一起收掉
-  gap: { paddingBlock: '_xs' },
+  // 间距放在每一项里：离场收起高度时间距一起收掉；剩余时间条按它定位
+  gap: { position: 'relative', paddingBlock: '_xs' },
   toast: { boxShadow: '_lg' },
+  // 贴着通知底边的细条，从满到空；时长是这条通知的计时（不是主题时长），由动态样式给出
+  countdown: {
+    position: 'absolute',
+    insetInline: '_md',
+    bottom: 'calc(_space.xs + _borderWidths.xs)',
+    height: '_borderWidths.sm',
+    borderRadius: '_full',
+    backgroundColor: 'color-mix(in srgb, _textMuted 50%, transparent)',
+    transformOrigin: { default: 'left', ':dir(rtl)': 'right' },
+    animationName: countdown,
+    animationTimingFunction: 'linear',
+    animationFillMode: 'forwards',
+    pointerEvents: 'none',
+  },
+  countdownPaused: { animationPlayState: 'paused' },
 });
+
+// 时长来自每条通知，用动态样式；单独一个 create，见 COMPONENTS.md §4
+/** Toaster 的样式：剩余时间条的时长 */
+export const toastCountdownStyles: Readonly<{ duration: (ms: string) => StyleXStyles }> =
+  stylex.create({
+    duration: (ms: string) => ({ animationDuration: ms }),
+  });
 
 /** Toaster 的样式：top-start、top、top-end、bottom-start、bottom、bottom-end */
 export const toastPlacementStyles: StyleTable<
@@ -332,6 +379,10 @@ export interface ToastItemProps {
   propsItem: ToasterProps['propsItem'];
   /** 通知本身（Alert）的部件属性 */
   propsToast: ToasterProps['propsToast'];
+  /** 显示剩余时间条 */
+  progress: boolean;
+  /** 剩余时间条的部件属性 */
+  propsProgress: ToasterProps['propsProgress'];
 }
 
 /** 滑动超过宽度的这个比例就关闭 */
@@ -339,7 +390,16 @@ const SWIPE_RATIO = 0.35;
 
 /** 列表里的一项：Collapse 负责离场时收起高度，收起后从控制器里移除 */
 export const ToastItem = _component(
-  ({ toast, controller, fromTop, fallbackFocus, propsItem, propsToast }: ToastItemProps) => {
+  ({
+    toast,
+    controller,
+    fromTop,
+    fallbackFocus,
+    progress,
+    propsItem,
+    propsToast,
+    propsProgress,
+  }: ToastItemProps) => {
     let item: HTMLElement | null = null;
     const animate = useAnimate();
 
@@ -433,6 +493,20 @@ export const ToastItem = _component(
             >
               {toast.description}
             </Alert>
+            {progress && toast.countdown && (
+              <span
+                key={toast.countdown.id}
+                {...elementProps(
+                  mergeProps<'span'>({ sx: toastStyles.countdown }, propsProgress, {
+                    sx: [
+                      toastCountdownStyles.duration(`${toast.countdown.duration}ms`),
+                      controller.paused && toastStyles.countdownPaused,
+                    ],
+                    'aria-hidden': true,
+                  }),
+                )}
+              />
+            )}
           </Collapse>
         </li>
       );
@@ -447,9 +521,11 @@ export const Toaster = _component(
     controller,
     placement = 'bottom-end',
     max = 3,
+    progress = false,
     propsList,
     propsItem,
     propsToast,
+    propsProgress,
     ...rest
   }: ToasterProps) => {
     const lang = useLang();
@@ -546,6 +622,8 @@ export const Toaster = _component(
                     fallbackFocus={() => outsideFocus}
                     propsItem={propsItem}
                     propsToast={propsToast}
+                    progress={progress}
+                    propsProgress={propsProgress}
                   />
                 ))}
               </ol>
