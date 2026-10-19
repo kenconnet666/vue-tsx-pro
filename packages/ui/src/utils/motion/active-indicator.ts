@@ -50,8 +50,8 @@ export function useActiveIndicator(read: () => ActiveIndicatorOptions): void {
     const target: AnimationParams = { x, y };
     if (axis !== 'vertical') target.width = item.offsetWidth;
     if (axis !== 'horizontal') target.height = item.offsetHeight;
-    if (animated) animate(indicator, target);
-    else utils.set(indicator, target);
+    if (animated) void animate(indicator, target);
+    else void utils.set(indicator, target);
   }
 
   onMounted(() => place(false));

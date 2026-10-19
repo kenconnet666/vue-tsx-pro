@@ -110,7 +110,7 @@
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
-- 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `themeTransition(元素, { duration, ease, bounce })`；主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。已用在 Toast 的滑动、SlideVerify 的弹回与失败晃动、Tabs 的下划线。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
+- 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `themeTransition(元素, { duration, ease, bounce })`；主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。已用在 Toast 的滑动、SlideVerify 的弹回与失败晃动。常见场景有现成的组合式函数（`utils/motion/`）：跟随数值用 `useTween` / `useSpring`，关闭后等离场再卸载用 `usePresence`，增删、换位置的平移用 `useLayoutAnimation`，跟着当前项走的指示条用 `useActiveIndicator`，加载指示防闪烁用 `useDelayedLoading`，装饰性动画看 `useReducedMotion`。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
 - 含动态样式函数的 `stylex.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
 - 标签名来自数据时（如图标的 path、circle）TSX 没有属性类型，用 Vue 的 `h()` 渲染。
 

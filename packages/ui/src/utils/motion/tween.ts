@@ -64,7 +64,7 @@ function useTweened(
   watch(
     target,
     (value) => {
-      animate(state, { value, onUpdate: () => (current.value = state.value) }, transition);
+      void animate(state, { value, onUpdate: () => (current.value = state.value) }, transition);
     },
     { immediate: from != null },
   );
