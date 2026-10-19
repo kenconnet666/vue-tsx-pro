@@ -22,6 +22,8 @@ export const enUS: Lang = {
   passwordShow: 'Show password',
   characterCount: (count, max) =>
     max == null ? `${count} characters` : `${count} of ${max} characters`,
+  sliderMin: 'Minimum',
+  sliderMax: 'Maximum',
   numberDecrement: 'Decrease',
   numberIncrement: 'Increase',
   comboboxToggle: 'Show options',

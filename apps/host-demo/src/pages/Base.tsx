@@ -239,6 +239,7 @@ export const Base = _component(() => {
   let dark = _state(false);
   let listHandle: VirtualListHandle | undefined;
   let volume = _state(40);
+  let priceRange = _state<[number, number]>([200, 600]);
   let saving = _state(false);
   let cities = _state(['上海', '北京', '深圳', '广州', '杭州']);
   // 标签离场后，其余的平移补位
@@ -1004,6 +1005,27 @@ export const Base = _component(() => {
               propsRoot={{ class: 'slider-root', sx: styles.slider }}
             />
             <Text class="slider-value">{volume}%</Text>
+          </Flex>
+          <Flex gap="md" align="center">
+            <Slider
+              class="slider-range-demo"
+              value={_bind(priceRange)}
+              max={1000}
+              step={50}
+              marks={[
+                0,
+                { value: 250, label: '250' },
+                { value: 500, label: '500' },
+                { value: 750, label: '750' },
+                1000,
+              ]}
+              aria-label="价格"
+              valueText={(value) => `${value} 元`}
+              propsRoot={{ class: 'slider-range-root', sx: styles.slider }}
+            />
+            <Text class="slider-range-value">
+              {priceRange[0]}–{priceRange[1]} 元
+            </Text>
           </Flex>
         </Section>
 

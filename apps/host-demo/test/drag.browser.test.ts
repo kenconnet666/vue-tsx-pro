@@ -132,6 +132,27 @@ describe('Slider', () => {
     expect(document.activeElement).toBe(slider());
   });
 
+  it('范围：拖动离得近的滑块，拖过另一个时停在它的位置；刻度文字在轨道下方', async () => {
+    const root = $('.slider-range-root');
+    const [low, high] = root.querySelectorAll<HTMLElement>('[role="slider"]');
+    const rect = root.querySelector('div')!.getBoundingClientRect();
+    const y = rect.top + rect.height / 2;
+    // 从 600 附近拖到 150：越过低端的 200 时停在 200
+    await drag(
+      root,
+      { x: rect.left + rect.width * 0.62, y },
+      { x: rect.left + rect.width * 0.15, y },
+    );
+    expect([low!.getAttribute('aria-valuenow'), high!.getAttribute('aria-valuenow')]).toEqual([
+      '200',
+      '200',
+    ]);
+    expect(document.activeElement).toBe(high);
+    expect($('.slider-range-value').textContent).toBe('200–200 元');
+    const label = [...root.querySelectorAll('span')].find((span) => span.textContent === '500')!;
+    expect(label.getBoundingClientRect().top).toBeGreaterThan(rect.bottom);
+  });
+
   it('键盘：方向键与 Home/End', async () => {
     slider().focus();
     slider().dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));

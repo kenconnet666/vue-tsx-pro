@@ -5,10 +5,17 @@
  *
  *   <Slider value={_bind(volume)} aria-label="音量" />
  *   <Slider value={_bind(price)} min={0} max={1000} step={50} valueText={(v) => `${v} 元`} />
+ *   <Slider value={_bind(range)} aria-label="价格" marks={[0, { value: 500, label: '500' }, 1000]} />   范围：[低, 高]
+ *
+ * value 是数组 [低, 高] 时是范围选择：两个滑块各自可聚焦、可拖动，不能交叉；点击轨道移动离得近的那个。
+ * 两个滑块的名称在 aria-label（或 Field 的标签）后面加上“最小值”“最大值”，取值范围互相限制（同 WAI-ARIA 多滑块）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import { useId, type VNodeChild } from 'vue';
+import { VisuallyHidden } from '../base/VisuallyHidden';
+import { useLang } from '../config/context';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
@@ -25,6 +32,17 @@ export interface SliderOrientations {
   vertical: unknown;
 }
 
+/** 单值，或范围 [低, 高] */
+export type SliderValue = number | readonly [number, number];
+
+/** 轨道上的一个刻度 */
+export interface SliderMark {
+  /** 刻度所在的值 */
+  value: number;
+  /** 刻度下方（纵向时右侧）的文字 */
+  label?: VNodeChild;
+}
+
 /** 角色、取值与可聚焦由组件管理 */
 export type SliderManaged =
   | 'role'
@@ -36,10 +54,13 @@ export type SliderManaged =
   | 'aria-orientation'
   | 'aria-disabled';
 
-/** 未声明的属性落到滑块（role="slider" 的主元素）上，名称写 aria-label；外层用 propsRoot */
-export interface SliderProps extends PartProps<'div', SliderManaged> {
-  /** 当前值：父级写 value={_bind(x)} 双向绑定，拖动中实时写回 */
-  value?: number;
+/** 未声明的属性落到滑块（role="slider" 的主元素，范围时两个都有）上，名称写 aria-label；外层用 propsRoot */
+export interface SliderProps<V extends SliderValue = number> extends PartProps<
+  'div',
+  SliderManaged
+> {
+  /** 当前值：父级写 value={_bind(x)} 双向绑定，拖动中实时写回；数组 [低, 高] 时是范围选择 */
+  value?: V;
   /** 最小值，默认 0 */
   min?: number;
   /** 最大值，默认 100 */
@@ -54,25 +75,33 @@ export interface SliderProps extends PartProps<'div', SliderManaged> {
   disabled?: boolean;
   /** 字号档位，滑块与轨道随之缩放；不写时继承 */
   size?: TextSize;
+  /** 刻度：数字或带文字的 { value, label }；有文字时滑块下方（纵向时右侧）留出位置 */
+  marks?: readonly (number | SliderMark)[];
   /** 读屏念的取值文字（aria-valuetext），如 `(v) => \`${v}%\``；不写时念数字 */
   valueText?: (value: number) => string;
-  /** 表单字段名：给了就带一个隐藏的 input，随表单提交 */
+  /** 表单字段名：给了就带隐藏的 input（范围时两个同名），随表单提交 */
   name?: string;
   /** 一次操作结束（松开、按键）时的值：保存、发请求放在这里，不必每次移动都发 */
-  onValueCommit?: (value: number) => void;
+  onValueCommit?: (value: V) => void;
   /** 外层（轨道与滑块的容器）的部件属性 */
   propsRoot?: PartProps<'div'>;
   /** 轨道的部件属性 */
   propsTrack?: PartProps<'div'>;
-  /** 已选范围（轨道上着色的部分）的部件属性；长度由组件写在行内样式上 */
+  /** 已选范围（轨道上着色的部分）的部件属性；位置与长度由组件写 */
   propsRange?: PartProps<'div'>;
+  /** 刻度点的部件属性 */
+  propsMark?: PartProps<'span'> | ((mark: SliderMark) => PartProps<'span'>);
+  /** 刻度文字的部件属性 */
+  propsMarkLabel?: PartProps<'span'> | ((mark: SliderMark) => PartProps<'span'>);
 }
 
-/** Slider 的样式：root、horizontal、vertical、disabled、track、trackHorizontal 等 */
+/** Slider 的样式：root、horizontal、vertical、disabled、track、range、thumb、mark、markLabel 等 */
 export const sliderStyles: StyleTable<
   | 'root'
   | 'horizontal'
   | 'vertical'
+  | 'labelledHorizontal'
+  | 'labelledVertical'
   | 'disabled'
   | 'track'
   | 'trackHorizontal'
@@ -83,6 +112,13 @@ export const sliderStyles: StyleTable<
   | 'thumb'
   | 'thumbHorizontal'
   | 'thumbVertical'
+  | 'mark'
+  | 'markHorizontal'
+  | 'markVertical'
+  | 'markActive'
+  | 'markLabel'
+  | 'markLabelHorizontal'
+  | 'markLabelVertical'
 > = stylex.create({
   root: {
     position: 'relative',
@@ -96,6 +132,9 @@ export const sliderStyles: StyleTable<
   // 点击区域至少 24px（WCAG 2.5.8）
   horizontal: { width: '_full', minHeight: '_minTarget' },
   vertical: { flexDirection: 'column', height: '10em', minWidth: '_minTarget' },
+  // 刻度文字放在轨道下方（纵向时右侧），给它留出位置
+  labelledHorizontal: { paddingBlockEnd: '1.5em' },
+  labelledVertical: { paddingInlineEnd: '3em' },
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },
   track: {
     position: 'relative',
@@ -107,8 +146,8 @@ export const sliderStyles: StyleTable<
   trackHorizontal: { height: 'calc(_space.xs * 1.5)' },
   trackVertical: { width: 'calc(_space.xs * 1.5)' },
   range: { position: 'absolute', backgroundColor: '_accent' },
-  rangeHorizontal: { insetBlock: 0, insetInlineStart: 0 },
-  rangeVertical: { insetInline: 0, bottom: 0 },
+  rangeHorizontal: { insetBlock: 0 },
+  rangeVertical: { insetInline: 0 },
   thumb: {
     position: 'absolute',
     boxSizing: 'border-box',
@@ -125,26 +164,51 @@ export const sliderStyles: StyleTable<
   // 用逻辑方向的外边距把滑块的中心对准取值位置：从右到左排版时也对
   thumbHorizontal: { marginInlineStart: 'calc((_space.lg + _space.xs) / -2)' },
   thumbVertical: { marginBottom: 'calc((_space.lg + _space.xs) / -2)' },
+  // 轨道里的小圆点；在已选范围里时换成反色
+  mark: {
+    position: 'absolute',
+    width: '_space.xs',
+    height: '_space.xs',
+    borderRadius: '_full',
+    backgroundColor: '_borderStrong',
+    pointerEvents: 'none',
+  },
+  markHorizontal: { top: '50%', translate: { default: '-50% -50%', ':dir(rtl)': '50% -50%' } },
+  markVertical: { left: '50%', translate: '-50% 50%' },
+  markActive: { backgroundColor: '_accentContrast' },
+  markLabel: {
+    position: 'absolute',
+    fontSize: '_sm',
+    lineHeight: '_tight',
+    color: '_textMuted',
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
+  },
+  markLabelHorizontal: {
+    top: 'calc(50% + _space.sm)',
+    translate: { default: '-50% -0.75em', ':dir(rtl)': '50% -0.75em' },
+  },
+  markLabelVertical: { left: 'calc(50% + _space.md)', translate: '0 50%' },
 });
 
 // 位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
-/** Slider 的样式：rangeWidth、rangeHeight、thumbInline、thumbBottom */
+/** Slider 的样式：inline（横向的起点）、size（横向的长度）、bottom、height（纵向） */
 export const sliderPositionStyles: Readonly<{
-  rangeWidth: (percent: string) => StyleXStyles;
-  rangeHeight: (percent: string) => StyleXStyles;
-  thumbInline: (percent: string) => StyleXStyles;
-  thumbBottom: (percent: string) => StyleXStyles;
+  inline: (percent: string) => StyleXStyles;
+  width: (percent: string) => StyleXStyles;
+  bottom: (percent: string) => StyleXStyles;
+  height: (percent: string) => StyleXStyles;
 }> = stylex.create({
-  rangeWidth: (percent: string) => ({ width: percent }),
-  rangeHeight: (percent: string) => ({ height: percent }),
-  thumbInline: (percent: string) => ({ insetInlineStart: percent }),
-  thumbBottom: (percent: string) => ({ bottom: percent }),
+  inline: (percent: string) => ({ insetInlineStart: percent }),
+  width: (percent: string) => ({ width: percent }),
+  bottom: (percent: string) => ({ bottom: percent }),
+  height: (percent: string) => ({ height: percent }),
 });
 
-/** 滑块：在 min–max 之间按 step 拖动或用键盘选值 */
+/** 滑块：在 min–max 之间按 step 拖动或用键盘选值；value 为 [低, 高] 时选一个范围 */
 export const Slider = _component(
-  ({
-    value = _bindable(0),
+  <V extends SliderValue = number>({
+    value = _bindable<V>(0 as V),
     min = 0,
     max = 100,
     step = 1,
@@ -152,24 +216,52 @@ export const Slider = _component(
     orientation = 'horizontal',
     disabled,
     size,
+    marks,
     valueText,
     name,
     onValueCommit,
     propsRoot,
     propsTrack,
     propsRange,
+    propsMark,
+    propsMarkLabel,
     id,
     ...rest
-  }: SliderProps) => {
+  }: SliderProps<V>) => {
+    const lang = useLang();
     // 在 Field 里时：标签作为名称、关联说明与错误、沿用不可用
     const control = useFieldControl(() => ({ id, disabled }));
     const off = () => control().disabled;
+    const labelId = useId();
     let track = _state.raw<HTMLElement | null>(null);
-    let thumb = _state.raw<HTMLElement | null>(null);
+    const thumbs: (HTMLElement | null)[] = [null, null];
 
+    const isRange = () => Array.isArray(value);
+    /** 各滑块的值（单值时只有一个） */
+    const values = (): number[] => (Array.isArray(value) ? [...value] : [value as number]);
     /** 夹在范围内并对齐到步长 */
     const snap = (raw: number) => snapToStep(raw, step, min, max);
     const rtl = () => orientation === 'horizontal' && !!track && isRtl(track);
+
+    /** 第 index 个滑块能取的范围：范围选择时不能越过另一个 */
+    function bounds(index: number): [number, number] {
+      if (!isRange()) return [min, max];
+      const [low, high] = values() as [number, number];
+      return index === 0 ? [min, high] : [low, max];
+    }
+
+    /** 改第 index 个滑块的值 */
+    function set(index: number, raw: number) {
+      const [lower, upper] = bounds(index);
+      const next = clamp(snap(raw), lower, upper);
+      if (!isRange()) {
+        value = next as V;
+        return;
+      }
+      const pair = values() as [number, number];
+      pair[index] = next;
+      value = pair as unknown as V;
+    }
 
     /** 指针位置对应的值 */
     function valueAt(clientX: number, clientY: number) {
@@ -182,46 +274,123 @@ export const Slider = _component(
       return snap(min + clamp(ratio, 0, 1) * (max - min));
     }
 
+    /** 离 target 最近的滑块；两个重合时按方向选（往高处去的拿高的那个） */
+    function nearest(target: number) {
+      if (!isRange()) return 0;
+      const [low, high] = values() as [number, number];
+      if (low === high) return target > high ? 1 : 0;
+      return Math.abs(target - low) <= Math.abs(target - high) ? 0 : 1;
+    }
+
     function grab(event: PointerEvent) {
       if (off() || event.button !== 0 || !track) return;
       // 不让浏览器把焦点放到别处、开始选中文字；焦点交给滑块，键盘接着可以微调
       event.preventDefault();
-      thumb?.focus();
-      value = valueAt(event.clientX, event.clientY);
+      const target = valueAt(event.clientX, event.clientY);
+      const index = nearest(target);
+      thumbs[index]?.focus();
+      set(index, target);
       startMove(event, {
-        onMove: ({ clientX, clientY }) => (value = valueAt(clientX, clientY)),
+        onMove: ({ clientX, clientY }) => set(index, valueAt(clientX, clientY)),
         onEnd: () => onValueCommit?.(value),
       });
     }
 
-    function onKeydown(event: KeyboardEvent) {
+    function onKeydown(index: number, event: KeyboardEvent) {
       if (off()) return;
+      const current = values()[index]!;
       const big = bigStep ?? Math.max(step, (max - min) / 10);
       // 从右到左排版时，横向的左右键反过来（右边是起点）
       const forward = rtl() ? 'ArrowLeft' : 'ArrowRight';
       const backward = rtl() ? 'ArrowRight' : 'ArrowLeft';
+      const [lower, upper] = bounds(index);
       const next: Record<string, number> = {
-        [forward]: value + step,
-        ArrowUp: value + step,
-        [backward]: value - step,
-        ArrowDown: value - step,
-        PageUp: value + big,
-        PageDown: value - big,
-        Home: min,
-        End: max,
+        [forward]: current + step,
+        ArrowUp: current + step,
+        [backward]: current - step,
+        ArrowDown: current - step,
+        PageUp: current + big,
+        PageDown: current - big,
+        Home: lower,
+        End: upper,
       };
       if (!(event.key in next)) return;
       event.preventDefault();
-      value = snap(next[event.key]!);
+      set(index, next[event.key]!);
       onValueCommit?.(value);
     }
 
+    const percentOf = (number: number) =>
+      max > min ? ((clamp(number, min, max) - min) / (max - min)) * 100 : 0;
+
     return () => {
       const vertical = orientation === 'vertical';
-      // 父级传入超出范围的值时按范围内显示（不改父级的值），滑块不会跑出轨道
       const field = control();
-      const shown = clamp(value, min, max);
-      const percent = `${max > min ? ((shown - min) / (max - min)) * 100 : 0}%`;
+      const range = isRange();
+      // 父级传入超出范围的值时按范围内显示（不改父级的值），滑块不会跑出轨道
+      const shown = values().map((number) => clamp(number, min, max));
+      const [start, end] = range
+        ? [percentOf(shown[0]!), percentOf(shown[1]!)]
+        : [0, percentOf(shown[0]!)];
+      const normalized = (marks ?? []).map((mark) =>
+        typeof mark === 'number' ? { value: mark } : mark,
+      );
+      const labelled = normalized.some((mark) => mark.label != null);
+      const position = (percent: number) =>
+        vertical
+          ? sliderPositionStyles.bottom(`${percent}%`)
+          : sliderPositionStyles.inline(`${percent}%`);
+
+      const renderThumb = (number: number, index: number) => {
+        const [lower, upper] = bounds(index);
+        const part = range ? (index === 0 ? lang.sliderMin : lang.sliderMax) : undefined;
+        const ownLabel = rest['aria-label'];
+        // 范围时每个滑块的名称后面加“最小值 / 最大值”：有 aria-label 时拼在一起，用 Field 的标签时连上隐藏的文字
+        const labelledBy =
+          rest['aria-labelledby'] ?? (ownLabel == null ? field.labelledBy : undefined);
+        return (
+          <div
+            key={index}
+            {...elementProps(
+              mergeProps<'div'>(
+                {
+                  sx: [
+                    sliderStyles.thumb,
+                    focusRingStyles.visible,
+                    vertical ? sliderStyles.thumbVertical : sliderStyles.thumbHorizontal,
+                    position(percentOf(number)),
+                  ],
+                },
+                rest,
+                {
+                  ref: (element: unknown) => (thumbs[index] = element as HTMLElement | null),
+                  role: 'slider',
+                  id: index === 0 ? field.id : undefined,
+                  tabindex: field.disabled ? undefined : 0,
+                  'aria-valuemin': lower,
+                  'aria-valuemax': upper,
+                  'aria-valuenow': number,
+                  'aria-valuetext': valueText?.(number),
+                  'aria-orientation': orientation,
+                  'aria-disabled': field.disabled || undefined,
+                  'aria-label': part && ownLabel != null ? `${ownLabel} ${part}` : ownLabel,
+                  'aria-labelledby':
+                    part && labelledBy ? `${labelledBy} ${labelId}-${index}` : labelledBy,
+                  'aria-describedby': field.describedBy,
+                  'aria-invalid': field.invalid || undefined,
+                  onKeydown: (event: KeyboardEvent) => onKeydown(index, event),
+                },
+              ),
+            )}
+            data-index={range ? index : undefined}
+          >
+            {part && labelledBy && (
+              <VisuallyHidden id={`${labelId}-${index}`}>{part}</VisuallyHidden>
+            )}
+          </div>
+        );
+      };
+
       return (
         <div
           {...elementProps(
@@ -230,6 +399,8 @@ export const Slider = _component(
                 sx: [
                   sliderStyles.root,
                   vertical ? sliderStyles.vertical : sliderStyles.horizontal,
+                  labelled &&
+                    (vertical ? sliderStyles.labelledVertical : sliderStyles.labelledHorizontal),
                   size && fontSizeStyles[size],
                 ],
               },
@@ -239,6 +410,7 @@ export const Slider = _component(
           )}
           data-disabled={field.disabled || undefined}
           data-orientation={orientation}
+          data-range={range || undefined}
         >
           <div
             {...elementProps(
@@ -265,49 +437,67 @@ export const Slider = _component(
                   },
                   propsRange,
                   {
-                    sx: vertical
-                      ? sliderPositionStyles.rangeHeight(percent)
-                      : sliderPositionStyles.rangeWidth(percent),
+                    sx: [
+                      position(start),
+                      vertical
+                        ? sliderPositionStyles.height(`${end - start}%`)
+                        : sliderPositionStyles.width(`${end - start}%`),
+                    ],
                   },
                 ),
               )}
             />
+            {normalized.map((mark) => {
+              const percent = percentOf(mark.value);
+              const own = typeof propsMark === 'function' ? propsMark(mark) : propsMark;
+              return (
+                <span
+                  key={mark.value}
+                  {...elementProps(
+                    mergeProps<'span'>(
+                      {
+                        sx: [
+                          sliderStyles.mark,
+                          vertical ? sliderStyles.markVertical : sliderStyles.markHorizontal,
+                          percent >= start && percent <= end && sliderStyles.markActive,
+                        ],
+                      },
+                      own,
+                      { sx: position(percent) },
+                    ),
+                  )}
+                />
+              );
+            })}
           </div>
-          <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    sliderStyles.thumb,
-                    focusRingStyles.visible,
-                    vertical
-                      ? [sliderStyles.thumbVertical, sliderPositionStyles.thumbBottom(percent)]
-                      : [sliderStyles.thumbHorizontal, sliderPositionStyles.thumbInline(percent)],
-                  ],
-                },
-                rest,
-                {
-                  ref: _toRef(thumb),
-                  role: 'slider',
-                  id: field.id,
-                  tabindex: field.disabled ? undefined : 0,
-                  'aria-valuemin': min,
-                  'aria-valuemax': max,
-                  'aria-valuenow': shown,
-                  'aria-valuetext': valueText?.(shown),
-                  'aria-orientation': orientation,
-                  'aria-disabled': field.disabled || undefined,
-                  'aria-labelledby':
-                    rest['aria-labelledby'] ??
-                    (rest['aria-label'] == null ? field.labelledBy : undefined),
-                  'aria-describedby': field.describedBy,
-                  'aria-invalid': field.invalid || undefined,
-                  onKeydown,
-                },
-              ),
-            )}
-          />
-          <FormValue name={name} value={value} />
+          {shown.map(renderThumb)}
+          {normalized.map((mark) => {
+            if (mark.label == null) return null;
+            const own =
+              typeof propsMarkLabel === 'function' ? propsMarkLabel(mark) : propsMarkLabel;
+            return (
+              <span
+                key={mark.value}
+                {...elementProps(
+                  mergeProps<'span'>(
+                    {
+                      sx: [
+                        sliderStyles.markLabel,
+                        vertical
+                          ? sliderStyles.markLabelVertical
+                          : sliderStyles.markLabelHorizontal,
+                      ],
+                    },
+                    own,
+                    { sx: position(percentOf(mark.value)), 'aria-hidden': true },
+                  ),
+                )}
+              >
+                {mark.label}
+              </span>
+            );
+          })}
+          <FormValue name={name} value={range ? shown : shown[0]} />
         </div>
       );
     };

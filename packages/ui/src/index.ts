@@ -429,8 +429,10 @@ export {
   sliderPositionStyles,
   sliderStyles,
   type SliderManaged,
+  type SliderMark,
   type SliderOrientations,
   type SliderProps,
+  type SliderValue,
 } from './input/Slider';
 export { Switch, switchStyles, type SwitchManaged, type SwitchProps } from './input/Switch';
 export { TextField, type TextFieldManaged, type TextFieldProps } from './input/TextField';

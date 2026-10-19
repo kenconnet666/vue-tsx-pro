@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
+import { Field } from '../Field';
 import { Slider } from '../Slider';
 
 const thumbOf = (root: Element) => root.querySelector<HTMLElement>('[role="slider"]')!;
@@ -96,5 +97,78 @@ describe('Slider 的边界情况', () => {
   it('父级传入超出范围的值时按范围内显示，滑块不跑出轨道', () => {
     const root = mount(() => <Slider value={150} aria-label="x" />);
     expect(thumbOf(root).getAttribute('aria-valuenow')).toBe('100');
+  });
+});
+
+describe('Slider 的范围选择', () => {
+  it('两个滑块：名称加上最小值 / 最大值，取值范围互相限制，键盘不能交叉', async () => {
+    let range = _state<[number, number]>([20, 60]);
+    const commit = vi.fn();
+    const root = mount(() => (
+      <Slider
+        value={_bind(range)}
+        step={10}
+        aria-label="价格"
+        name="price"
+        onValueCommit={commit}
+      />
+    ));
+    const [low, high] = root.querySelectorAll<HTMLElement>('[role="slider"]');
+    expect(low!.getAttribute('aria-label')).toBe('价格 最小值');
+    expect(high!.getAttribute('aria-label')).toBe('价格 最大值');
+    expect([low!.getAttribute('aria-valuemax'), high!.getAttribute('aria-valuemin')]).toEqual([
+      '60',
+      '20',
+    ]);
+    key(low!, 'End');
+    expect(range).toEqual([60, 60]);
+    expect(commit).toHaveBeenLastCalledWith([60, 60]);
+    key(high!, 'Home');
+    expect(range).toEqual([60, 60]);
+    key(high!, 'ArrowRight');
+    expect(range).toEqual([60, 70]);
+    await nextTick();
+    expect(
+      [...root.querySelectorAll<HTMLInputElement>('input[name="price"]')].map((i) => i.value),
+    ).toEqual(['60', '70']);
+  });
+
+  it('点击轨道移动离得近的那个滑块', () => {
+    let range = _state<[number, number]>([20, 60]);
+    const root = mount(() => <Slider value={_bind(range)} aria-label="x" />);
+    const track = root.querySelector<HTMLElement>('[role="slider"]')!
+      .previousElementSibling as HTMLElement;
+    track.getBoundingClientRect = () =>
+      ({ left: 0, width: 100, top: 0, bottom: 10, height: 10 }) as DOMRect;
+    root.firstElementChild!.dispatchEvent(
+      new PointerEvent('pointerdown', { clientX: 90, button: 0, pointerId: 1, bubbles: true }),
+    );
+    expect(range).toEqual([20, 90]);
+  });
+
+  it('在 Field 里：名称连上隐藏的“最小值 / 最大值”', () => {
+    const root = mount(() => (
+      <Field label="价格">
+        <Slider value={[1, 2]} />
+      </Field>
+    ));
+    const [low] = root.querySelectorAll<HTMLElement>('[role="slider"]');
+    const ids = low!.getAttribute('aria-labelledby')!.split(' ');
+    expect(ids.map((id) => document.getElementById(id)!.textContent)).toEqual(['价格', '最小值']);
+  });
+});
+
+describe('Slider 的刻度', () => {
+  it('每个刻度一个点，在已选范围里的点标记出来；有文字的刻度显示文字', () => {
+    const root = mount(() => (
+      <Slider
+        value={50}
+        aria-label="x"
+        marks={[0, { value: 50, label: '一半' }, 100]}
+        propsMark={(mark) => ({ class: `mark-${mark.value}` })}
+      />
+    ));
+    expect(root.querySelectorAll('[class^="mark-"]')).toHaveLength(3);
+    expect(root.textContent).toBe('一半');
   });
 });

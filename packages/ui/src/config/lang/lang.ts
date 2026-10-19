@@ -69,6 +69,10 @@ export interface Lang {
   readonly passwordShow: string;
   /** 字数计数给读屏的说明：`(12, 100)` → “已输入 12 个字符，最多 100 个” */
   readonly characterCount: (count: number, max?: number) => string;
+  /** 范围滑块里较小一端的滑块名称，默认“最小值” */
+  readonly sliderMin: string;
+  /** 范围滑块里较大一端的滑块名称，默认“最大值” */
+  readonly sliderMax: string;
   /** 数字输入框“减少”按钮的名称，默认“减少” */
   readonly numberDecrement: string;
   /** 数字输入框“增加”按钮的名称，默认“增加” */

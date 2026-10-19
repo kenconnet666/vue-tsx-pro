@@ -21,6 +21,8 @@ export const zhCN: Lang = {
   passwordShow: '显示密码',
   characterCount: (count, max) =>
     max == null ? `已输入 ${count} 个字符` : `已输入 ${count} 个字符，最多 ${max} 个`,
+  sliderMin: '最小值',
+  sliderMax: '最大值',
   numberDecrement: '减少',
   numberIncrement: '增加',
   comboboxToggle: '显示选项',
