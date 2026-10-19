@@ -27,7 +27,7 @@
 | [PLAN.md](PLAN.md)                  | 定位与决定、仓库结构、测试分层、里程碑、技术约束与退路                                                          |
 | [RUNES.md](RUNES.md)                | 符文规范：`_state`、`_derived`、`_effect`、props、`_bindable` / `_bind`、`_untrack` 等                          |
 | [COMPONENTS.md](COMPONENTS.md)      | 组件库规范：API 约定（§1）、部件与透传（§2）、样式与 token（§4）、依赖与待办（§7）、每批组件的设计与取舍（§10） |
-| `packages/ui/src/index.ts`          | 组件库的全部导出，按分类分组                                                                                    |
+| `packages/ui/src/index.ts`          | 组件库的全部导出，按目录分组；由 `pnpm exports` 生成，不要手改                                                  |
 | `apps/host-demo/src/pages/Base.tsx` | 所有组件的演示页（`/base`），浏览器测试与 axe 检查也跑在这一页                                                  |
 
 ## 3. 上手
@@ -48,6 +48,7 @@ pnpm -C packages/ui exec vitest run src/navigation          # 只跑相关目录
 pnpm -C apps/host-demo exec tsc -p . --noEmit
 pnpm docs:check      # 导出的声明都要有 JSDoc（只检查已被 git 跟踪的文件：新文件先 git add）
 pnpm css-docs:check  # 改了 tokens 或 StyleX 属性数据后先 pnpm css-docs 重新生成
+pnpm exports:check   # 模块里加、改了导出后先 pnpm exports 重新生成入口
 ```
 
 单独跑某个浏览器的某个测试文件（几十秒，放后台）：
@@ -138,6 +139,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | WebKit 里“点击后应有过渡”偶发失败                              | WebKit 不一定在下一帧建好过渡，用 `expect.poll`                                                                                                                              |
 | “ResizeObserver loop completed with undelivered notifications” | 不要在 ResizeObserver 回调里同步改布局；Virtualizer 已改为下一帧应用测量结果                                                                                                 |
 | `docs:check` 没查新文件                                        | 它按 `git ls-files` 取文件，新文件先 `git add`                                                                                                                               |
+| CI 的 `exports:check` 失败，或使用方导入不到新加的工具         | 入口由脚本生成：模块里加、改了导出后运行 `pnpm exports`；报重名时按 COMPONENTS §4 改成全局唯一的名字                                                                         |
 | 改了 tokens 后 CI 的 `css-docs:check` 失败                     | `token-names.ts` 由 `pnpm css-docs` 生成，改了 tokens 要重新生成                                                                                                             |
 | 宽的内容（表格）把 grid / flex 容器撑宽，页面横向溢出          | 网格项、弹性项的最小宽度默认等于内容宽度；表格外层用了 `contain: inline-size`，自己写的宽内容外层加 `minWidth: 0`                                                            |
 | 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找（findLast、includes）；用 computed 缓存集合或映射。演示页有“2 秒内挂载完”的测试，table / Listbox 的单元测试有全选、大量展开与已选的性能用例 |

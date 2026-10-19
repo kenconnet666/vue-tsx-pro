@@ -1,35 +1,96 @@
-// 组件平铺在 src/<分类>/<Name>.tsx，测试在同级的 .test 目录；在这里统一导出
+// 由 pnpm exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成
 
-// 基础
-export { Icon, type IconData, type IconProps } from './base/Icon';
-export { VisuallyHidden, type VisuallyHiddenProps } from './base/VisuallyHidden';
-export { Em, Paragraph, Small, Strong, Text, type TextProps } from './base/Text';
-export { H1, H2, H3, H4, H5, H6, type HeadingProps } from './base/Heading';
-export { Link, type LinkProps } from './base/Link';
-export { Code, type CodeProps } from './base/Code';
-export { CodeBlock, type CodeBlockProps } from './base/CodeBlock';
-export { Kbd, type KbdProps } from './base/Kbd';
-export { Spinner, type SpinnerProps } from './base/Spinner';
-export { Button, type ButtonProps } from './base/Button';
-export { LinkButton, type LinkButtonProps } from './base/LinkButton';
-export { IconButton, type IconButtonProps } from './base/IconButton';
-export { ClearButton, CloseButton, type PresetIconButtonProps } from './base/CloseButton';
+// 基础：文字、图标、链接、按钮家族、标记、代码、加载
 export { Badge, type BadgeProps } from './base/Badge';
-export { Tag, type TagProps } from './base/Tag';
-export type { BadgeOptions, BadgeRadii } from './base/badge-styles';
-export type {
-  ButtonContentOptions,
-  ButtonOptions,
-  ButtonRadii,
-  ButtonTones,
-  ButtonVariants,
+export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
+export {
+  ClearButton,
+  CloseButton,
+  createPresetIconButton,
+  type PresetIconButtonProps,
+} from './base/CloseButton';
+export { Code, codeStyles, type CodeProps } from './base/Code';
+export { CodeBlock, codeBlockStyles, type CodeBlockProps } from './base/CodeBlock';
+export {
+  createHeading,
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  headingStyles,
+  type HeadingProps,
+  type HeadingTag,
+} from './base/Heading';
+export {
+  Icon,
+  iconStyles,
+  renderIconNode,
+  type IconData,
+  type IconManaged,
+  type IconNode,
+  type IconProps,
+} from './base/Icon';
+export { IconButton, type IconButtonManaged, type IconButtonProps } from './base/IconButton';
+export { Kbd, kbdStyles, type KbdProps } from './base/Kbd';
+export { Link, linkStyles, type LinkProps, type LinkUnderlines } from './base/Link';
+export { LinkButton, type LinkButtonManaged, type LinkButtonProps } from './base/LinkButton';
+export { Spinner, spinnerStyles, type SpinnerProps } from './base/Spinner';
+export { Tag, tagStyles, type TagProps } from './base/Tag';
+export {
+  createText,
+  Em,
+  Paragraph,
+  Small,
+  Strong,
+  Text,
+  textComponentStyles,
+  type TextOptions,
+  type TextProps,
+  type TextTag,
+} from './base/Text';
+export {
+  VisuallyHidden,
+  visuallyHiddenStyles,
+  type VisuallyHiddenProps,
+} from './base/VisuallyHidden';
+export { badgeStyles, badgeSx, type BadgeOptions, type BadgeRadii } from './base/badge-styles';
+export {
+  buttonContent,
+  buttonLinkStyles,
+  buttonRadiusStyles,
+  buttonStyles,
+  buttonSx,
+  buttonVariantStyles,
+  guardClick,
+  useButtonAppearance,
+  type ButtonAppearance,
+  type ButtonContentOptions,
+  type ButtonOptions,
+  type ButtonRadii,
+  type ButtonTones,
+  type ButtonVariants,
 } from './base/button-core';
 
 // 布局
 export {
+  Container,
+  containerPaddingStyles,
+  containerSizeStyles,
+  containerStyles,
+  createContainer,
+  type ContainerOptions,
+  type ContainerProps,
+  type ContainerSizes,
+} from './layout/Container';
+export {
   createFlex,
   Flex,
+  flexAlignStyles,
+  flexJustifyStyles,
   FlexList,
+  flexStyles,
   type FlexAligns,
   type FlexDirections,
   type FlexJustifies,
@@ -39,55 +100,98 @@ export {
 export {
   createGrid,
   Grid,
+  gridAlignStyles,
+  gridDynamicStyles,
+  gridFlowStyles,
+  gridJustifyStyles,
   GridList,
+  gridStyles,
   type GridAligns,
   type GridFlows,
   type GridOptions,
   type GridProps,
 } from './layout/Grid';
 export {
-  Container,
-  createContainer,
-  type ContainerOptions,
-  type ContainerProps,
-  type ContainerSizes,
-} from './layout/Container';
-export { Separator, type SeparatorProps } from './layout/Separator';
-export {
   ScrollArea,
+  scrollAreaBarStyles,
+  scrollAreaStyles,
   type ScrollAreaAxes,
   type ScrollAreaProps,
   type ScrollbarTypes,
 } from './layout/ScrollArea';
+export {
+  Separator,
+  separatorStyles,
+  type SeparatorManaged,
+  type SeparatorOrientations,
+  type SeparatorProps,
+} from './layout/Separator';
 
 // 展示
-export { Collapse, type CollapseProps } from './display/Collapse';
-export { Collapsible, type CollapsibleProps } from './display/Collapsible';
-export { Card, type CardOptions, type CardProps, type CardVariants } from './display/Card';
 export {
   Avatar,
+  avatarStyles,
   initials,
+  type AvatarManaged,
   type AvatarOptions,
   type AvatarProps,
   type AvatarRadii,
 } from './display/Avatar';
 export {
+  Card,
+  cardPaddingStyles,
+  cardStyles,
+  cardVariantStyles,
+  type CardOptions,
+  type CardProps,
+  type CardVariants,
+} from './display/Card';
+export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
+export { Collapsible, type CollapsibleProps } from './display/Collapsible';
+export {
   VirtualList,
+  virtualListSizeStyles,
+  virtualListStyles,
   type VirtualListHandle,
+  type VirtualListManaged,
   type VirtualListProps,
   type VirtualListScrolls,
 } from './display/VirtualList';
 
 // 反馈
-export { Progress, type ProgressProps, type ProgressTones } from './feedback/Progress';
-export { Skeleton, type SkeletonProps } from './feedback/Skeleton';
 export {
   Alert,
+  alertStyles,
   type AlertLives,
+  type AlertManaged,
   type AlertOptions,
   type AlertProps,
   type AlertVariants,
 } from './feedback/Alert';
+export {
+  AlertDialog,
+  useConfirm,
+  type AlertDialogProps,
+  type ConfirmOptions,
+} from './feedback/AlertDialog';
+export {
+  Dialog,
+  dialogPanelSx,
+  dialogSizeStyles,
+  dialogStyles,
+  type DialogOptions,
+  type DialogProps,
+  type DialogSizes,
+} from './feedback/Dialog';
+export {
+  Drawer,
+  drawerSizeStyles,
+  drawerStyles,
+  type DrawerOptions,
+  type DrawerProps,
+  type DrawerSides,
+} from './feedback/Drawer';
+export { Empty, emptyStyles, type EmptyProps } from './feedback/Empty';
 export {
   ModalCore,
   modalStyles,
@@ -96,26 +200,25 @@ export {
   type ModalProps,
 } from './feedback/Modal';
 export {
-  Dialog,
-  dialogPanelSx,
-  type DialogOptions,
-  type DialogProps,
-  type DialogSizes,
-} from './feedback/Dialog';
-export { Drawer, type DrawerOptions, type DrawerProps, type DrawerSides } from './feedback/Drawer';
-export {
-  AlertDialog,
-  useConfirm,
-  type AlertDialogProps,
-  type ConfirmOptions,
-} from './feedback/AlertDialog';
-export { Empty, type EmptyProps } from './feedback/Empty';
+  Progress,
+  progressStyles,
+  progressToneStyles,
+  progressWidthStyles,
+  type ProgressManaged,
+  type ProgressProps,
+  type ProgressTones,
+} from './feedback/Progress';
+export { Skeleton, skeletonStyles, type SkeletonProps } from './feedback/Skeleton';
 export {
   createToaster,
   Toaster,
+  ToastItem,
+  toastPlacementStyles,
+  toastStyles,
   type ToasterController,
   type ToasterOptions,
   type ToasterProps,
+  type ToastItemProps,
   type ToastMessage,
   type ToastOptions,
   type ToastPlacements,
@@ -123,57 +226,215 @@ export {
   type ToastRecord,
 } from './feedback/Toast';
 
+// 浮层
+export {
+  Menu,
+  MenuCheckboxItem,
+  MenuContext,
+  MenuGroup,
+  MenuItem,
+  menuItemContent,
+  menuItemSx,
+  MenuLinkItem,
+  MenuRadioGroup,
+  MenuRadioGroupContext,
+  MenuRadioItem,
+  menuStyles,
+  useMenuItem,
+  type MenuButtonItemProps,
+  type MenuCheckboxItemProps,
+  type MenuGroupProps,
+  type MenuItemContentProps,
+  type MenuItemMark,
+  type MenuItemProps,
+  type MenuLinkItemProps,
+  type MenuProps,
+  type MenuRadioGroupProps,
+  type MenuRadioGroupState,
+  type MenuRadioItemProps,
+  type MenuState,
+  type MenuTriggerProps,
+} from './overlay/Menu';
+export {
+  Popover,
+  popoverStyles,
+  type PopoverProps,
+  type PopoverTriggerProps,
+} from './overlay/Popover';
+export {
+  Tooltip,
+  tooltipStyles,
+  type TooltipProps,
+  type TooltipTriggerProps,
+} from './overlay/Tooltip';
+
 // 导航
-export { Toolbar, type ToolbarOrientations, type ToolbarProps } from './navigation/Toolbar';
+export {
+  Breadcrumbs,
+  breadcrumbsStyles,
+  type BreadcrumbItem,
+  type BreadcrumbsProps,
+} from './navigation/Breadcrumbs';
+export {
+  NavGroup,
+  NavGroupContext,
+  NavItem,
+  NavList,
+  navListStyles,
+  type NavGroupProps,
+  type NavGroupState,
+  type NavItemManaged,
+  type NavItemProps,
+  type NavListProps,
+} from './navigation/NavList';
+export { Pagination, paginationStyles, type PaginationProps } from './navigation/Pagination';
+export {
+  Steps,
+  stepsStateStyles,
+  stepsStyles,
+  type StepItem,
+  type StepsOrientations,
+  type StepsProps,
+  type StepState,
+} from './navigation/Steps';
 export {
   Tab,
   TabList,
+  tabListStyles,
   TabPanel,
+  tabPanelStyles,
   Tabs,
+  TabsContext,
+  tabsStyles,
+  tabStyles,
+  type TabListManaged,
   type TabListProps,
+  type TabManaged,
+  type TabPanelManaged,
   type TabPanelProps,
   type TabProps,
   type TabsActivations,
   type TabsOptions,
   type TabsOrientations,
   type TabsProps,
+  type TabsState,
   type TabsVariants,
 } from './navigation/Tabs';
-export { Steps, type StepItem, type StepsOrientations, type StepsProps } from './navigation/Steps';
-export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from './navigation/Breadcrumbs';
-export { Pagination, type PaginationProps } from './navigation/Pagination';
 export {
-  NavGroup,
-  NavItem,
-  NavList,
-  type NavGroupProps,
-  type NavItemProps,
-  type NavListProps,
-} from './navigation/NavList';
+  Toolbar,
+  toolbarStyles,
+  type ToolbarManaged,
+  type ToolbarOrientations,
+  type ToolbarProps,
+} from './navigation/Toolbar';
 
-// 浮层
-export { Popover, type PopoverProps, type PopoverTriggerProps } from './overlay/Popover';
-export { Tooltip, type TooltipProps, type TooltipTriggerProps } from './overlay/Tooltip';
+// 输入与表单
 export {
-  Menu,
-  MenuCheckboxItem,
-  MenuGroup,
-  MenuItem,
-  MenuLinkItem,
-  MenuRadioGroup,
-  MenuRadioItem,
-  type MenuCheckboxItemProps,
-  type MenuGroupProps,
-  type MenuItemProps,
-  type MenuLinkItemProps,
-  type MenuProps,
-  type MenuRadioGroupProps,
-  type MenuRadioItemProps,
-  type MenuTriggerProps,
-} from './overlay/Menu';
-
-// 输入
+  Checkbox,
+  CheckboxGroup,
+  CheckboxGroupContext,
+  checkboxStyles,
+  type CheckboxGroupProps,
+  type CheckboxGroupState,
+  type CheckboxManaged,
+  type CheckboxProps,
+} from './input/Checkbox';
 export {
+  Combobox,
+  comboboxStyles,
+  type ComboboxManaged,
+  type ComboboxProps,
+} from './input/Combobox';
+export {
+  Field,
+  FieldContext,
+  fieldStyles,
+  Label,
+  labelStyles,
+  useFieldControl,
+  type FieldControl,
+  type FieldControlOptions,
+  type FieldProps,
+  type FieldState,
+  type LabelProps,
+} from './input/Field';
+export { Form, FormContext, type FormProps } from './input/Form';
+export { FormValue, type FormValueProps } from './input/FormValue';
+export {
+  activeOptionId,
+  Listbox,
+  listboxPositionStyles,
+  listboxStyles,
+  ListboxView,
+  type ListboxProps,
+  type ListboxViewProps,
+  type OptionRenderState,
+} from './input/Listbox';
+export {
+  NumberField,
+  parseNumber,
+  type NumberFieldManaged,
+  type NumberFieldProps,
+} from './input/NumberField';
+export {
+  Radio,
+  RadioGroup,
+  RadioGroupContext,
+  radioStyles,
+  type RadioGroupProps,
+  type RadioGroupState,
+  type RadioManaged,
+  type RadioProps,
+} from './input/Radio';
+export { Select, selectStyles, type SelectManaged, type SelectProps } from './input/Select';
+export {
+  SlideVerify,
+  slideVerifyStyles,
+  type SlideVerifyPoint,
+  type SlideVerifyProps,
+  type SlideVerifyResult,
+  type SlideVerifyStatuses,
+  type SlideVerifyTargets,
+} from './input/SlideVerify';
+export {
+  Slider,
+  sliderPositionStyles,
+  sliderStyles,
+  type SliderManaged,
+  type SliderOrientations,
+  type SliderProps,
+} from './input/Slider';
+export { Switch, switchStyles, type SwitchManaged, type SwitchProps } from './input/Switch';
+export { TextField, type TextFieldManaged, type TextFieldProps } from './input/TextField';
+export {
+  Textarea,
+  textareaRowStyles,
+  textareaStyles,
+  type TextareaManaged,
+  type TextareaProps,
+} from './input/Textarea';
+export {
+  ToggleGroup,
+  ToggleGroupContext,
+  toggleGroupStyles,
+  ToggleItem,
+  type ToggleGroupItemManaged,
+  type ToggleGroupManaged,
+  type ToggleGroupOrientations,
+  type ToggleGroupProps,
+  type ToggleGroupState,
+  type ToggleItemProps,
+} from './input/ToggleGroup';
+export {
+  choiceGroupStyles,
+  choiceStyles,
+  useChoiceSize,
+  type ChoiceOptions,
+  type ChoiceOrientations,
+} from './input/choice-styles';
+export {
+  controlRadiusStyles,
+  controlShellStyles,
   controlStyles,
   controlSx,
   focusOnShell,
@@ -183,86 +444,28 @@ export {
   type ControlState,
   type ControlVariants,
 } from './input/control';
-export { TextField, type TextFieldProps } from './input/TextField';
-export { FormValue, type FormValueProps } from './input/FormValue';
-export { Textarea, type TextareaProps } from './input/Textarea';
-export { NumberField, parseNumber, type NumberFieldProps } from './input/NumberField';
 export {
-  choiceGroupStyles,
-  choiceStyles,
-  useChoiceSize,
-  type ChoiceOptions,
-  type ChoiceOrientations,
-} from './input/choice-styles';
-export {
-  Checkbox,
-  CheckboxGroup,
-  type CheckboxGroupProps,
-  type CheckboxProps,
-} from './input/Checkbox';
-export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from './input/Radio';
-export { Switch, type SwitchProps } from './input/Switch';
-export {
-  useListState,
   handleListKeydown,
+  useListState,
   type ListboxOption,
   type ListKeydownOptions,
   type ListState,
   type ListStateOptions,
 } from './input/list-state';
-export {
-  activeOptionId,
-  Listbox,
-  ListboxView,
-  type ListboxProps,
-  type ListboxViewProps,
-  type OptionRenderState,
-} from './input/Listbox';
-export { Select, type SelectProps } from './input/Select';
-export { Combobox, type ComboboxProps } from './input/Combobox';
-export { Slider, type SliderOrientations, type SliderProps } from './input/Slider';
-export {
-  ToggleGroup,
-  ToggleItem,
-  type ToggleGroupOrientations,
-  type ToggleGroupProps,
-  type ToggleItemProps,
-} from './input/ToggleGroup';
-export {
-  SlideVerify,
-  type SlideVerifyPoint,
-  type SlideVerifyProps,
-  type SlideVerifyResult,
-  type SlideVerifyStatuses,
-  type SlideVerifyTargets,
-} from './input/SlideVerify';
-
-// 输入：表单结构与校验（Field、Form、useForm）
-export { Form, type FormProps } from './input/Form';
 export { useForm, type FormController, type FormErrors, type FormOptions } from './input/useForm';
-export {
-  Field,
-  Label,
-  useFieldControl,
-  type FieldControl,
-  type FieldControlOptions,
-  type FieldProps,
-  type FieldState,
-  type LabelProps,
-} from './input/Field';
 
 // 表格
 export {
-  columnValue,
-  nextSort,
-  sortRows,
-  type ColumnAligns,
-  type ColumnStickies,
-  type SortDirections,
-  type SortState,
-  type TableColumn,
-} from './table/columns';
+  ColumnResizer,
+  columnResizerStyles,
+  type ColumnResizerManaged,
+  type ColumnResizerProps,
+} from './table/ColumnResizer';
+export { Table, type TableProps } from './table/Table';
 export {
+  tableDynamicStyles,
+  tableSizeStyles,
+  tableStyles,
   TableView,
   type TableOptions,
   type TableRowModel,
@@ -271,42 +474,74 @@ export {
   type TableVariants,
   type TableViewProps,
 } from './table/TableView';
-export { Table, type TableProps } from './table/Table';
-export { TreeTable, type TreeTableProps } from './table/TreeTable';
+export {
+  TreeTable,
+  treeTableIndentStyles,
+  treeTableStyles,
+  type TreeTableProps,
+} from './table/TreeTable';
+export {
+  COLUMN_FLEX_MIN_WIDTH,
+  COLUMN_MIN_WIDTH,
+  columnValue,
+  nextSort,
+  sortRows,
+  stickyOffsets,
+  tableMinWidth,
+  type ColumnAligns,
+  type ColumnStickies,
+  type ColumnWidthOf,
+  type SortDirections,
+  type SortState,
+  type TableColumn,
+} from './table/columns';
 
-// 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
+// 配置：Provider、createUi、组件默认值
 export {
   ConfigScope,
   Provider,
+  providerStyles,
   type ConfigScopeProps,
   type ProviderProps,
 } from './config/Provider';
-export { createUi, type UiOptions } from './config/createUi';
 export {
+  ConfigContext,
+  defaultConfig,
   useConfig,
   useLang,
   type Highlighter,
   type UiConfig,
   type UiRouter,
 } from './config/context';
-export { useDefaults, type ComponentDefaults } from './config/defaults';
+export { createUi, type UiOptions } from './config/createUi';
+export { mergeDefaults, useDefaults, type ComponentDefaults } from './config/defaults';
+
+// 主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
+export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
+export { lightTheme } from './config/theme/light';
+export { usePrefersDark } from './config/theme/prefers-dark';
 export {
   defineTheme,
   readToken,
+  resolveTheme,
+  themeAttrs,
+  themeVariables,
+  type ColorSchemes,
+  type GroupTheme,
   type Theme,
   type ThemeInput,
   type ThemeOverrides,
 } from './config/theme/theme';
-export { lightTheme } from './config/theme/light';
-export { darkTheme } from './config/theme/dark';
-// 主题 tokens 字符串写法的类型（declare module），让产物的类型声明也带上它
 import './config/theme/token-names';
-export { defineLang, type Lang } from './config/lang/lang';
-export { zhCN } from './config/lang/zh-CN';
+
+// 语言与格式化
 export { enUS } from './config/lang/en-US';
 export { useFormat } from './config/lang/format';
+export { defineLang, type Directions, type HourCycles, type Lang } from './config/lang/lang';
+export { zhCN } from './config/lang/zh-CN';
 
-// 部件 props、弹层、动画与虚拟滚动工具
+// 工具：部件属性的合并、JS 动画
+export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
 export {
   elementProps,
   mergePartProps,
@@ -314,17 +549,34 @@ export {
   type PartProps,
   type TriggerProps,
 } from './utils/props';
+
+// 工具：档位、字号、色调、过渡等共用样式
+export { itemStyles } from './utils/style/item-styles';
 export {
   columnGapStyles,
   focusRingStyles,
   gapStyles,
+  listRole,
+  listStyles,
   rowGapStyles,
   type LayoutTag,
   type Size,
   type SizeScale,
   type Space,
   type SpaceScale,
+  type StyleTable,
 } from './utils/style/styles';
+export {
+  statusIcons,
+  statusToneBorderStyles,
+  statusToneStyles,
+  statusToneSx,
+  type StatusTone,
+  type StatusTones,
+  type StatusVariant,
+  type StatusVariants,
+} from './utils/style/tone-styles';
+export { afterTransitions, transitions } from './utils/style/transitions';
 export {
   fontSizeStyles,
   fontWeightStyles,
@@ -335,6 +587,7 @@ export {
   toneStyles,
   type FontSize,
   type FontSizes,
+  type FontWeight,
   type FontWeights,
   type TextAlign,
   type TextAligns,
@@ -342,24 +595,11 @@ export {
   type TextSizes,
   type TextWrap,
   type TextWraps,
-  type Tones,
-  type FontWeight,
   type Tone,
+  type Tones,
 } from './utils/style/typography';
-export {
-  dismissOnBackdrop,
-  lockScroll,
-  toElement,
-  topModal,
-  trackModal,
-} from './utils/dom/overlay';
-export {
-  focusAfterRemoval,
-  focusFirst,
-  focusOrigin,
-  returnFocus,
-  trapFocus,
-} from './utils/dom/focus';
+
+// 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接
 export {
   anchorFloating,
   createAnchoredLayer,
@@ -373,42 +613,64 @@ export {
   type FloatingPlacement,
   type FloatingPlacements,
 } from './utils/dom/floating';
-export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
+export {
+  focusAfterRemoval,
+  focusFirst,
+  focusOrigin,
+  returnFocus,
+  trapFocus,
+} from './utils/dom/focus';
+export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
+export {
+  dismissOnBackdrop,
+  lockScroll,
+  toElement,
+  topModal,
+  trackModal,
+} from './utils/dom/overlay';
+export {
+  rippleHostStyles,
+  ripplePlacementStyles,
+  rippleStyles,
+  startRipple,
+  useRipple,
+  type RippleHandlers,
+} from './utils/dom/ripple';
 export {
   rovingFocus,
   type RovingFocusOptions,
   type RovingOrientations,
 } from './utils/dom/roving-focus';
-export { plainText } from './utils/data/text';
-export { itemStyles } from './utils/style/item-styles';
-export { createComparer, createMatcher, type SortValue } from './utils/data/collation';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
-export {
-  toggleSelection,
-  type SelectionModes,
-  type SelectionOptions,
-} from './utils/data/selection';
-export {
-  statusIcons,
-  statusToneSx,
-  type StatusTone,
-  type StatusTones,
-  type StatusVariant,
-  type StatusVariants,
-} from './utils/style/tone-styles';
-export { rippleHostStyles, startRipple, useRipple, type RippleHandlers } from './utils/dom/ripple';
-export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
+
+// 工具：比较与匹配、选择、分页、文字、数值
+export { createComparer, createMatcher, type SortValue } from './utils/data/collation';
+export { clamp, isRtl, snapToStep } from './utils/data/layout';
 export {
   paginationItems,
   type PaginationEllipsis,
   type PaginationOptions,
 } from './utils/data/pagination';
-export { afterTransitions, transitions } from './utils/style/transitions';
+export {
+  selectedValues,
+  toggleSelection,
+  type SelectionModes,
+  type SelectionOptions,
+} from './utils/data/selection';
+export { plainText } from './utils/data/text';
+
+// 工具：虚拟滚动
+export {
+  useVirtualizer,
+  type UseVirtualizerOptions,
+  type VirtualView,
+} from './utils/virtual/use-virtualizer';
 export {
   computeMeasurements,
   defaultRangeExtractor,
   findVisibleRange,
+  isWindow,
   Virtualizer,
   type ExtractorRange,
   type ScrollAligns,
@@ -417,8 +679,3 @@ export {
   type VirtualScrollOptions,
   type VisibleRange,
 } from './utils/virtual/virtualizer';
-export {
-  useVirtualizer,
-  type UseVirtualizerOptions,
-  type VirtualView,
-} from './utils/virtual/use-virtualizer';

@@ -24,6 +24,8 @@
     "css-docs": "node scripts/css-docs/generate.mjs",
     "css-docs:check": "node scripts/css-docs/generate.mjs --check",
     "docs:check": "node scripts/doc-comments/check.mjs",
+    "exports": "node scripts/exports/generate.mjs",
+    "exports:check": "node scripts/exports/generate.mjs --check",
     "lsp:setup": "node scripts/language-services/setup.mjs",
     "lsp:verify": "node scripts/language-services/verify.mjs"
   },

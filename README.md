@@ -86,6 +86,7 @@ pnpm build:host     # 构建宿主示例
 pnpm test:consumer  # 发布产物验证：pnpm pack 的包在独立应用里安装、构建、浏览器运行
 pnpm test:browser   # 真实浏览器测试（首次先运行 pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium）
 pnpm css-docs       # 重新生成 StyleX 属性的中文注释（数据见 scripts/css-docs）
+pnpm exports        # 重新生成组件库入口 packages/ui/src/index.ts（模块里加了导出后）
 pnpm lint           # oxlint（含类型感知规则）
 pnpm format         # prettier
 ```
