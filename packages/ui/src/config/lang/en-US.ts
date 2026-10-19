@@ -19,6 +19,7 @@ export const enUS: Lang = {
   toasterLabel: 'Notifications',
 
   linkNewWindow: ' (opens in a new window)',
+  passwordShow: 'Show password',
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
   paginationTotal: (total) => `${total} items`,

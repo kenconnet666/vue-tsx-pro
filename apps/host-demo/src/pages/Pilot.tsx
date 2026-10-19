@@ -10,10 +10,10 @@ import {
   LinkButton,
   Popover,
   Provider,
+  TextField,
   useLang,
   zhCN,
 } from '@vue-tsx-pro/ui';
-import { TextField } from '../pilot/TextField';
 
 const styles = stylex.create({
   // Provider 不产生盒子、不画背景：主题区域自己铺底色

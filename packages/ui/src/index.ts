@@ -163,6 +163,16 @@ export {
 } from './overlay/Menu';
 
 // 输入
+export {
+  controlStyles,
+  controlSx,
+  useControlAppearance,
+  type ControlAppearance,
+  type ControlOptions,
+  type ControlState,
+  type ControlVariants,
+} from './input/control-styles';
+export { TextField, type TextFieldProps } from './input/TextField';
 export { Slider, type SliderOrientations, type SliderProps } from './input/Slider';
 export {
   ToggleGroup,
@@ -179,6 +189,18 @@ export {
   type SlideVerifyStatuses,
   type SlideVerifyTargets,
 } from './input/SlideVerify';
+
+// 表单
+export {
+  Field,
+  Label,
+  useFieldControl,
+  type FieldControl,
+  type FieldControlOptions,
+  type FieldProps,
+  type FieldState,
+  type LabelProps,
+} from './form/Field';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export {

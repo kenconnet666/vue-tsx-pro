@@ -18,6 +18,7 @@ export const zhCN: Lang = {
 
   toasterLabel: '通知',
   linkNewWindow: '（在新窗口打开）',
+  passwordShow: '显示密码',
   selectEmpty: '没有选项',
   selectPlaceholder: '请选择',
   paginationTotal: (total) => `共 ${total} 条`,
