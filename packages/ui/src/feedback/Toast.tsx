@@ -20,6 +20,7 @@
  * - 顶层：区域是 popover="manual"，显示在页面之上；模态打开时外面的元素都是 inert 的（顶层也不例外），
  *   所以这时区域移进最上层的模态 dialog 里（topModal），通知里的按钮仍可点击、可 Tab 到。
  * - 动画：进场淡入并从边缘移入（@starting-style），离场时高度收起（复用 Collapse）后从列表移除。
+ * - 横向滑动（触摸、鼠标拖动）超过宽度的 35% 就关闭，否则弹回（startMove；同 Sonner、Radix Toast 的滑动关闭）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -36,6 +37,7 @@ import type { IconData } from '../base/Icon';
 import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse } from '../display/Collapse';
+import { startMove } from '../utils/move';
 import { focusAfterRemoval, topModal } from '../utils/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/tone-styles';
@@ -273,6 +275,8 @@ const styles = stylex.create({
   listFromTop: { flexDirection: 'column-reverse' },
   item: {
     pointerEvents: 'auto',
+    // 纵向仍可滚动页面，横向交给滑动关闭
+    touchAction: 'pan-y',
     opacity: { default: 1, '@starting-style': 0 },
     transition: 'opacity _durations.md _easings.enter, translate _durations.md _easings.enter',
   },
@@ -306,6 +310,9 @@ interface ToastItemProps {
   propsToast: ToasterProps['propsToast'];
 }
 
+/** 滑动超过宽度的这个比例就关闭 */
+const SWIPE_RATIO = 0.35;
+
 /** 列表里的一项：Collapse 负责离场时收起高度，收起后从控制器里移除 */
 const ToastItem = _component(
   ({ toast, controller, fromTop, fallbackFocus, propsItem, propsToast }: ToastItemProps) => {
@@ -325,6 +332,31 @@ const ToastItem = _component(
       controller.dismiss(toast.id);
     }
 
+    // 横向滑动关闭：拖动中直接写元素的样式（不触发渲染），松开时按距离决定关闭或弹回
+    function onPointerdown(event: PointerEvent) {
+      const element = item;
+      if (!element || toast.closing) return;
+      if ((event.target as Element).closest('button, a, input, textarea, select')) return;
+      const width = element.getBoundingClientRect().width;
+      startMove(event, {
+        threshold: 4,
+        onMove: ({ deltaX }) => {
+          element.style.transition = 'none';
+          element.style.translate = `${deltaX}px 0`;
+          element.style.opacity = String(Math.max(0, 1 - Math.abs(deltaX) / width));
+        },
+        onEnd: ({ deltaX, moved, cancelled }) => {
+          element.style.transition = '';
+          if (moved && !cancelled && Math.abs(deltaX) > width * SWIPE_RATIO) {
+            close();
+            return;
+          }
+          element.style.translate = '';
+          element.style.opacity = '';
+        },
+      });
+    }
+
     return () => {
       const itemProps = typeof propsItem === 'function' ? propsItem(toast) : propsItem;
       const toastProps = typeof propsToast === 'function' ? propsToast(toast) : propsToast;
@@ -340,7 +372,7 @@ const ToastItem = _component(
                 ],
               },
               itemProps,
-              { ref: _toRef(item) },
+              { ref: _toRef(item), onPointerdown },
             ),
           )}
           data-state={toast.closing ? 'closed' : 'open'}

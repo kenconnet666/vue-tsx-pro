@@ -241,6 +241,37 @@ describe('Toast', () => {
     await expect.poll(() => region().matches(':popover-open')).toBe(true);
   });
 
+  it('横向滑动超过宽度的 35% 关闭，不够时弹回', async () => {
+    toaster.show({ title: '可以滑走', duration: Infinity });
+    await expect.poll(() => items().length).toBe(1);
+    const item = items()[0]!;
+    const rect = item.getBoundingClientRect();
+    const swipe = async (distance: number) => {
+      const init = (x: number) => ({
+        clientX: x,
+        clientY: rect.top + rect.height / 2,
+        pointerId: 1,
+        pointerType: 'touch',
+        button: 0,
+        buttons: 1,
+        bubbles: true,
+        cancelable: true,
+      });
+      const start = rect.left + 20;
+      item.dispatchEvent(new PointerEvent('pointerdown', init(start)));
+      for (let step = 1; step <= 4; step++) {
+        item.dispatchEvent(new PointerEvent('pointermove', init(start + (distance * step) / 4)));
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+      }
+      item.dispatchEvent(new PointerEvent('pointerup', init(start + distance)));
+    };
+    await swipe(rect.width * 0.2);
+    expect(item.dataset.state).toBe('open');
+    expect(item.style.translate).toBe('');
+    await swipe(rect.width * 0.5);
+    await expect.poll(() => region().querySelectorAll('li').length).toBe(0);
+  });
+
   it('传送到 body 后仍跟随页面的主题', async () => {
     const scope = region().parentElement!;
     expect(scope.dataset.theme).toBe('light');
