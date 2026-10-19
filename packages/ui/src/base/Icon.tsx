@@ -118,7 +118,7 @@ function useDraw(element: () => SVGSVGElement | null, draw: () => boolean) {
     const strokes = createDrawable([...svg.children] as SVGGeometryElement[]);
     // 先擦掉再画：挂载时在浏览器绘制前就擦掉，不会先闪一下完整的图标
     void utils.set(strokes, { draw: '0 0' });
-    void animate(strokes, { draw: '0 1' }, { duration: 'xl', ease: 'enter' });
+    void animate(strokes, { draw: '0 1' }, { duration: 'xl', ease: 'enter', scope: svg });
   };
   onMounted(play);
   watch(draw, play, { flush: 'post' });

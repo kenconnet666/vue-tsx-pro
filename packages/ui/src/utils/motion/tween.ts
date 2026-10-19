@@ -26,6 +26,8 @@ export interface TweenOptions {
   ease?: ThemeTransitionOptions['ease'];
   /** 挂载时从这个值过渡到第一个目标；不给时第一个目标直接显示 */
   from?: number;
+  /** 读哪个元素上的主题时长（子树里覆盖了主题时），默认根元素 */
+  scope?: () => Element | null | undefined;
 }
 
 /** useSpring 的选项 */
@@ -36,25 +38,31 @@ export interface SpringOptions {
   duration?: ThemeTransitionOptions['duration'];
   /** 挂载时从这个值过渡到第一个目标；不给时第一个目标直接显示 */
   from?: number;
+  /** 读哪个元素上的主题时长，默认根元素 */
+  scope?: () => Element | null | undefined;
 }
 
 /** 数值变化时按主题时长与缓动过渡（在 setup 里调用） */
-export function useTween(read: () => number, { from, ...transition }: TweenOptions = {}): Tweened {
-  return useTweened(read, from, transition);
+export function useTween(
+  read: () => number,
+  { from, scope, ...transition }: TweenOptions = {},
+): Tweened {
+  return useTweened(read, from, transition, scope);
 }
 
 /** 数值变化时用弹簧过渡（在 setup 里调用） */
 export function useSpring(
   read: () => number,
-  { from, bounce = 0.25, duration }: SpringOptions = {},
+  { from, bounce = 0.25, duration, scope }: SpringOptions = {},
 ): Tweened {
-  return useTweened(read, from, { bounce, duration });
+  return useTweened(read, from, { bounce, duration }, scope);
 }
 
 function useTweened(
   read: () => number,
   from: number | undefined,
   transition: ThemeTransitionOptions,
+  scope?: () => Element | null | undefined,
 ): Tweened {
   const animate = useAnimate();
   const target = computed(read);
@@ -64,7 +72,11 @@ function useTweened(
   watch(
     target,
     (value) => {
-      void animate(state, { value, onUpdate: () => (current.value = state.value) }, transition);
+      void animate(
+        state,
+        { value, onUpdate: () => (current.value = state.value) },
+        { ...transition, scope: scope?.() ?? undefined },
+      );
     },
     { immediate: from != null },
   );

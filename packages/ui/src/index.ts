@@ -790,6 +790,7 @@ export {
   themeTransitionOrInstant,
   useAnimate,
   type ThemeAnimate,
+  type ThemeAnimateOptions,
   type ThemeTiming,
   type ThemeTransitionOptions,
 } from './utils/motion/animation';

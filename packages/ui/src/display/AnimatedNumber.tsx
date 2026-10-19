@@ -78,7 +78,13 @@ export const AnimatedNumber = _component(
   }: AnimatedNumberProps) => {
     const lang = useLang();
     const formatter = useFormat();
-    const tween = useTween(() => value, { duration: _untrack(duration), from: _untrack(from) });
+    let root: HTMLElement | null = null;
+    // 时长按自己所在的主题范围读（子树里可能覆盖了主题）
+    const tween = useTween(() => value, {
+      duration: _untrack(duration),
+      from: _untrack(from),
+      scope: () => root,
+    });
 
     const text = (number: number) =>
       formatter.number(
@@ -101,6 +107,7 @@ export const AnimatedNumber = _component(
             mergeProps<'span'>(
               { sx: [animatedNumberStyles.root, color && toneStyles[color]] },
               rest,
+              { ref: (element: unknown) => (root = element as HTMLElement | null) },
             ),
           )}
           data-trend={trend ? direction : undefined}

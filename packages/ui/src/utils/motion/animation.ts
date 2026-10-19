@@ -75,8 +75,14 @@ function parseEasing(value: string): [number, number, number, number] {
 export type ThemeAnimate = <Target extends object>(
   target: Target,
   params: AnimationParams,
-  transition?: ThemeTransitionOptions,
+  transition?: ThemeAnimateOptions,
 ) => JSAnimation;
+
+/** useAnimate 的时长选项：主题档位，加上按哪个元素读主题 */
+export interface ThemeAnimateOptions extends ThemeTransitionOptions {
+  /** 读这个元素上的主题取值；目标是元素时默认是它，否则（JS 对象、描线的代理）默认是根元素 */
+  scope?: Element;
+}
 
 /**
  * 同 themeTransition，但读不到主题 token（页面没加载组件库的样式，如单元测试）时返回时长 0（直接到位），
@@ -96,7 +102,7 @@ export function themeTransitionOrInstant(
 /**
  * 组件里的 JS 动画（在 setup 里调用）：时长、缓动、弹簧取主题 tokens（themeTransition），组件卸载时取消还在跑的动画。
  * 同一目标同一属性上的新动画会替换旧的（Anime.js 默认的 composition: 'replace'），快速连续触发不会互相打架；
- * params 里写的 duration、ease 优先于主题。目标不是元素（JS 对象）时按根元素读主题。
+ * params 里写的 duration、ease 优先于主题。目标不是元素（JS 对象、描线的代理）时按 scope（默认根元素）读主题。
  *
  *   const animate = useAnimate();
  *   animate(item, { x: 0, opacity: 1 }, { bounce: 0.35 });                       // 弹回
@@ -109,7 +115,8 @@ export function useAnimate(): ThemeAnimate {
     running.clear();
   });
   return (target, params, transition) => {
-    const scope = target instanceof Element ? target : document.documentElement;
+    const scope =
+      transition?.scope ?? (target instanceof Element ? target : document.documentElement);
     // 播完的、被新动画整个替换掉的不再需要取消
     for (const animation of running) {
       if (animation.completed || animation.cancelled) running.delete(animation);
