@@ -110,6 +110,8 @@ export const Checkbox = _component(
     const resolvedSize = useChoiceSize(() => size);
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
     let input = _state.raw<HTMLInputElement | null>(null);
+    // 用户点击勾上时对勾描线；初次渲染、外部改值不播
+    let drawCheck = _state(false);
 
     // indeterminate 只能经 DOM 属性设置
     _effect(() => {
@@ -118,6 +120,7 @@ export const Checkbox = _component(
 
     function onChange(event: Event) {
       const next = (event.target as HTMLInputElement).checked;
+      drawCheck = next;
       if (group && value != null) group.toggle(value);
       else checked = next;
     }
@@ -179,6 +182,7 @@ export const Checkbox = _component(
               {...mergePartProps<IconProps>(
                 {
                   icon: indeterminate ? Minus : Check,
+                  draw: drawCheck && isChecked && !indeterminate,
                   strokeWidth: 3,
                   sx: [
                     choiceStyles.mark,

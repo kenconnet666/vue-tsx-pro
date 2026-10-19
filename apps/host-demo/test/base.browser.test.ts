@@ -142,6 +142,17 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     await expect.poll(end, { timeout: 3000 }).toBe(1);
   });
 
+  it('Checkbox：初次渲染不描线，用户勾上时对勾一笔画出', async () => {
+    const input = $<HTMLInputElement>('.agree-demo');
+    const stroke = () => input.parentElement!.querySelector('svg')!.firstElementChild!;
+    expect(stroke().hasAttribute('draw')).toBe(false);
+    input.click();
+    await nextFrame();
+    const end = () => Number(stroke().getAttribute('draw')?.split(' ')[1]);
+    expect(end()).toBeLessThan(1);
+    await expect.poll(end, { timeout: 3000 }).toBe(1);
+  });
+
   it('AnimatedNumber：数值变化时滚动，读屏文字直接是终值，滚完两者一致', async () => {
     const number = $('.revenue-demo');
     const shown = () => number.querySelector('[aria-hidden="true"]')!.textContent;

@@ -707,7 +707,9 @@ export const Base = _component(() => {
             <li>
               <Flex direction="column" gap="sm">
                 <Switch checked={_bind(notify)}>接收通知</Switch>
-                <Checkbox checked={_bind(agreed)}>我已阅读并同意服务条款</Checkbox>
+                <Checkbox class="agree-demo" checked={_bind(agreed)}>
+                  我已阅读并同意服务条款
+                </Checkbox>
               </Flex>
             </li>
           </GridList>
