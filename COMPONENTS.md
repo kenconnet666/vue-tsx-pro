@@ -351,8 +351,8 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 | `display/`    | `Collapse`                                                         | 高度动画（`grid-template-rows: 0fr ↔ 1fr`，各浏览器可用；`interpolate-size` 只有 Chromium）；收起后 `hidden="until-found"`：页内搜索命中时自动展开并写回 `open`，不支持的浏览器用 `inert`；`lazy` 第一次展开才渲染内容（同 Ark UI 的 lazyMount）  |
 | `display/`    | `Collapsible`                                                      | 触发器（渲染函数，带 `aria-expanded` / `aria-controls`，`disabled` 时带 `disabled`）+ `Collapse`；以后的 Accordion 建在它上面                                                                                                                     |
 | `layout/`     | `ScrollArea`                                                       | 浮层滚动条，见 10.8                                                                                                                                                                                                                               |
-| `form/`       | `Slider`                                                           | 滑块，见 10.8                                                                                                                                                                                                                                     |
-| `form/`       | `SlideVerify`                                                      | 拖动验证（滑块 / 拼图验证码），见 10.8                                                                                                                                                                                                            |
+| `input/`      | `Slider`                                                           | 滑块，见 10.8                                                                                                                                                                                                                                     |
+| `input/`      | `SlideVerify`                                                      | 拖动验证（滑块 / 拼图验证码），见 10.8                                                                                                                                                                                                            |
 | `base/`       | `Badge`、`Tag`                                                     | 见 10.10                                                                                                                                                                                                                                          |
 | `display/`    | `Card`、`Avatar`                                                   | 见 10.10                                                                                                                                                                                                                                          |
 | `feedback/`   | `Progress`、`Skeleton`、`Alert`                                    | 见 10.10                                                                                                                                                                                                                                          |
@@ -419,8 +419,8 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - 滑块长度按可见比例（至少 20px），拖动滑块按比例滚动，点击轨道翻一页，滚轮落在滚动条上转交给视口；从右到左排版下横向方向反过来。
   - 滚动条是单独的内部组件，滑块位置随滚动直接写到元素上：滚动、悬停不会让内容重新渲染。
   - 视口可聚焦（键盘滚动），滚动条对读屏隐藏；外层是纵向 flex，使用方只给 `max-height` 也能限制住视口。
-- **`form/Slider`**（WAI-ARIA Slider，参考 Radix / React Aria）：`value`（可双向绑定）、`min`、`max`、`step`、`bigStep`、`orientation`、`disabled`、`size`、`valueText`（aria-valuetext）、`name`（隐藏 input 随表单提交）、`onValueCommit`（松手或按键后一次）。点击轨道跳过去并接着拖；方向键、Page 键、Home/End；从右到左排版下横向方向键反过来；小数步长没有浮点误差。未声明的属性落到滑块（主元素）上，外层用 `propsRoot`。
-- **`form/SlideVerify`**（滑块验证码）：只负责交互，判定交给服务端。`target="end"` 拖到头才算（没到头弹回），`"free"` 任意位置松手（拼图：服务端生成图片与缺口，应用按 `position` 画拼图块）。`onRelease` 交出位置、拖动轨迹（时间 + 位置序列）与用时，发给服务端校验；`status`（idle / verifying / success / error）由应用控制，设回 idle 时回到起点。
+- **`input/Slider`**（WAI-ARIA Slider，参考 Radix / React Aria）：`value`（可双向绑定）、`min`、`max`、`step`、`bigStep`、`orientation`、`disabled`、`size`、`valueText`（aria-valuetext）、`name`（隐藏 input 随表单提交）、`onValueCommit`（松手或按键后一次）。点击轨道跳过去并接着拖；方向键、Page 键、Home/End；从右到左排版下横向方向键反过来；小数步长没有浮点误差。未声明的属性落到滑块（主元素）上，外层用 `propsRoot`。
+- **`input/SlideVerify`**（滑块验证码）：只负责交互，判定交给服务端。`target="end"` 拖到头才算（没到头弹回），`"free"` 任意位置松手（拼图：服务端生成图片与缺口，应用按 `position` 画拼图块）。`onRelease` 交出位置、拖动轨迹（时间 + 位置序列）与用时，发给服务端校验；`status`（idle / verifying / success / error）由应用控制，设回 idle 时回到起点。
   - 前端的滑块本身挡不住脚本，必须服务端校验；
   - 无障碍：滑块是 role="slider"，←/→、Home/End 移动，Enter 或空格松手；状态经 aria-live 播报。这类验证对读屏与运动障碍用户仍不友好，应用应另外提供其他验证方式。
 - **顺手修复**：组件单独解构的 `children` 原来经 computed 缓存，父级传入渲染时算好的值（插槽里没有响应式读取）时子组件停在旧内容（如 `<VisuallyHidden>{text}</VisuallyHidden>`），改为不缓存的只读访问器 `childrenProp`；表外属性用了短写时，报错信息改为列出真正有这个 token 的组（原来固定举例 `_space.x`，会误导）。
@@ -463,7 +463,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - NavList / NavItem / NavGroup：当前页按路由适配的 `isActive`（或 `active`），含当前页的分组自动展开；分组用 Collapsible。
 - **迁移到新基础设施**：Link 的站内链接改经路由适配跳转；CodeBlock 加复制按钮（IconButton，Lucide 的 Copy / Check，“已复制”经 aria-live 播报，外层改为包着 pre 与按钮的 div，`...rest` 仍落到 pre，外层用 `propsRoot`）；Collapse 输出 `data-state`（open / closed），Slider 输出 `data-orientation`。
 - **选择模型** `utils/selection.ts`：`toggleSelection(selected, key, { mode, required })`，单选 / 多选；第一个使用者是 ToggleGroup。
-- **form/ToggleGroup / ToggleItem**：复合组件，`type` single / multiple，`required`，整组 `disabled`，横竖，`aria-pressed` 表示选中，漫游焦点的进入点落在选中项上（漫游焦点改为也认 `aria-pressed` / `aria-checked`）；外观复用按钮家族的样式表（选中 surface accent，其余 ghost neutral）。
+- **input/ToggleGroup / ToggleItem**：复合组件，`type` single / multiple，`required`，整组 `disabled`，横竖，`aria-pressed` 表示选中，漫游焦点的进入点落在选中项上（漫游焦点改为也认 `aria-pressed` / `aria-checked`）；外观复用按钮家族的样式表（选中 surface accent，其余 ghost neutral）。
 
 ### 10.6 顺序
 

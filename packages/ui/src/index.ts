@@ -117,15 +117,15 @@ export {
   type NavListProps,
 } from './navigation/NavList';
 
-// 表单
-export { Slider, type SliderOrientations, type SliderProps } from './form/Slider';
+// 输入
+export { Slider, type SliderOrientations, type SliderProps } from './input/Slider';
 export {
   ToggleGroup,
   ToggleItem,
   type ToggleGroupOrientations,
   type ToggleGroupProps,
   type ToggleItemProps,
-} from './form/ToggleGroup';
+} from './input/ToggleGroup';
 export {
   SlideVerify,
   type SlideVerifyPoint,
@@ -133,7 +133,7 @@ export {
   type SlideVerifyResult,
   type SlideVerifyStatuses,
   type SlideVerifyTargets,
-} from './form/SlideVerify';
+} from './input/SlideVerify';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { Provider, type ProviderProps } from './config/Provider';

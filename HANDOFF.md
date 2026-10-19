@@ -12,7 +12,7 @@
   - 展示：Collapse、Collapsible、VirtualList、Card、Avatar
   - 反馈：Progress、Skeleton、Alert
   - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination、NavList（复合）
-  - 表单：Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
+  - 输入：Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
 - **试点组件**（`apps/host-demo/src/pilot`：Popover、Dialog、TextField）还没转正，下一批处理。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
 
