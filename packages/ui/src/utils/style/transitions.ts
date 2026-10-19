@@ -72,10 +72,21 @@ export const transitions: StyleTable<'fade' | 'scale' | 'backdrop'> = stylex.cre
  * 等元素（含子元素）上正在进行的过渡与动画结束；没有时立即完成，“减少动态效果”时也就立即完成。
  * 被打断（取消、反向）的动画也算结束，调用方按当前状态决定下一步。
  * 无限循环的动画（加载指示的旋转）永远不会结束，不等它。
+ * 最多等 timeout 毫秒（默认 1500，比主题最长的时长宽裕得多）：Linux 上的 WebKit 偶尔把过渡停在起点不动，
+ * 不能让离场、收起的流程一直挂着。
  */
-export async function afterTransitions(element: Element): Promise<void> {
+export async function afterTransitions(
+  element: Element,
+  { timeout = 1500 }: { timeout?: number } = {},
+): Promise<void> {
   const animations = element
     .getAnimations({ subtree: true })
     .filter((animation) => animation.effect?.getTiming().iterations !== Infinity);
-  await Promise.allSettled(animations.map((animation) => animation.finished));
+  if (!animations.length) return;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  await Promise.race([
+    Promise.allSettled(animations.map((animation) => animation.finished)),
+    new Promise((resolve) => (timer = setTimeout(resolve, timeout))),
+  ]);
+  clearTimeout(timer);
 }
