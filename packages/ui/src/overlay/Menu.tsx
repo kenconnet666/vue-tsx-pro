@@ -181,6 +181,12 @@ export const Menu = _component(
     }
 
     function onPanelKeydown(event: KeyboardEvent) {
+      // Esc 也由原生 popover 关闭；这里显式关一次，不依赖各浏览器 close watcher 的细节（Firefox 偶尔不关）
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        open = false;
+        return;
+      }
       if (event.key !== 'Tab') return;
       restoreFocus = false;
       open = false;
@@ -755,7 +761,8 @@ export const MenuSub = _component(
     }
 
     function onPanelKeydown(event: KeyboardEvent) {
-      if (event.key !== (rtl() ? 'ArrowRight' : 'ArrowLeft')) return;
+      // Esc 只关最上层的子菜单，不冒泡到父菜单
+      if (event.key !== 'Escape' && event.key !== (rtl() ? 'ArrowRight' : 'ArrowLeft')) return;
       event.preventDefault();
       event.stopPropagation();
       open = false;
