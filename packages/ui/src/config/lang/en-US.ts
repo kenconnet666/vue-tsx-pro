@@ -20,6 +20,8 @@ export const enUS: Lang = {
 
   linkNewWindow: ' (opens in a new window)',
   passwordShow: 'Show password',
+  numberDecrement: 'Decrease',
+  numberIncrement: 'Increase',
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
   paginationTotal: (total) => `${total} items`,

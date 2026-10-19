@@ -173,6 +173,17 @@ export {
   type ControlVariants,
 } from './input/control-styles';
 export { TextField, type TextFieldProps } from './input/TextField';
+export { Textarea, type TextareaProps } from './input/Textarea';
+export { NumberField, parseNumber, type NumberFieldProps } from './input/NumberField';
+export { choiceGroupStyles, choiceStyles, type ChoiceOrientations } from './input/choice-styles';
+export {
+  Checkbox,
+  CheckboxGroup,
+  type CheckboxGroupProps,
+  type CheckboxProps,
+} from './input/Checkbox';
+export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from './input/Radio';
+export { Switch, type SwitchProps } from './input/Switch';
 export { Slider, type SliderOrientations, type SliderProps } from './input/Slider';
 export {
   ToggleGroup,

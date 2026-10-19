@@ -67,6 +67,10 @@ export interface Lang {
   readonly linkNewWindow: string;
   /** 密码框里“显示密码”切换按钮的名称（按下状态由 aria-pressed 表示），默认“显示密码” */
   readonly passwordShow: string;
+  /** 数字输入框“减少”按钮的名称，默认“减少” */
+  readonly numberDecrement: string;
+  /** 数字输入框“增加”按钮的名称，默认“增加” */
+  readonly numberIncrement: string;
   /** 下拉框没有选项时的提示，默认“没有选项” */
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */

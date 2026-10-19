@@ -12,7 +12,7 @@ import { startMove } from '../utils/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
-import { clamp, isRtl } from '../utils/layout';
+import { clamp, isRtl, snapToStep } from '../utils/layout';
 
 /** 滑块方向 */
 export interface SliderOrientations {
@@ -117,9 +117,6 @@ const positionStyles = stylex.create({
   thumbBottom: (percent: string) => ({ bottom: percent }),
 });
 
-/** 小数位数：0.1 → 1，避免 0.1 + 0.2 这类浮点误差带进取值 */
-const decimals = (step: number) => (String(step).split('.')[1] ?? '').length;
-
 /** 滑块：在 min–max 之间按 step 拖动或用键盘选值 */
 export const Slider = _component(
   ({
@@ -143,10 +140,7 @@ export const Slider = _component(
     let thumb = _state.raw<HTMLElement | null>(null);
 
     /** 夹在范围内并对齐到步长 */
-    const snap = (raw: number) => {
-      const stepped = min + Math.round((raw - min) / step) * step;
-      return Number(clamp(stepped, min, max).toFixed(decimals(step)));
-    };
+    const snap = (raw: number) => snapToStep(raw, step, min, max);
     const rtl = () => orientation === 'horizontal' && !!track && isRtl(track);
 
     /** 指针位置对应的值 */

@@ -9,12 +9,7 @@ describe('TextField', () => {
   it('未声明的属性落到 input；外壳用 propsRoot；清空后写回并聚焦 input', async () => {
     let value = _state('vue');
     const root = mount(() => (
-      <TextField
-        value={_bind(value)}
-        clearable
-        placeholder="搜索"
-        propsRoot={{ class: 'shell' }}
-      />
+      <TextField value={_bind(value)} clearable placeholder="搜索" propsRoot={{ class: 'shell' }} />
     ));
     const input = root.querySelector('input')!;
     expect(input.placeholder).toBe('搜索');

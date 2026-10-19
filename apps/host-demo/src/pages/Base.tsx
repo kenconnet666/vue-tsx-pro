@@ -26,6 +26,15 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Button,
   Alert,
+  Checkbox,
+  CheckboxGroup,
+  Field,
+  NumberField,
+  Radio,
+  RadioGroup,
+  Switch,
+  Textarea,
+  TextField,
   AlertDialog,
   Dialog,
   Drawer,
@@ -214,6 +223,14 @@ export const Base = _component(() => {
   let drawerOpen = _state(false);
   let confirmOpen = _state(false);
   let deleted = _state(0);
+  let email = _state('');
+  let password = _state('');
+  let quantity = _state<number | null>(1);
+  let note = _state('');
+  let agreed = _state(false);
+  let channels = _state<string[]>(['email']);
+  let shipping = _state<string | undefined>('express');
+  let notify = _state(true);
   let menuAction = _state('');
   let showGrid = _state(true);
   let sortBy = _state('name');
@@ -540,6 +557,66 @@ export const Base = _component(() => {
           >
             <Paragraph>筛选条件放在这里。</Paragraph>
           </Drawer>
+        </Section>
+
+        <Section title="表单 Field · TextField · NumberField · Textarea · Checkbox · Radio · Switch">
+          <GridList minItemWidth="16em" gap="lg" class="form-demo">
+            <li>
+              <Field
+                label="邮箱"
+                description="用于找回密码"
+                error={email && !email.includes('@') ? '邮箱格式不对' : undefined}
+                required
+              >
+                <TextField
+                  value={_bind(email)}
+                  type="email"
+                  clearable
+                  placeholder="name@example.com"
+                />
+              </Field>
+            </li>
+            <li>
+              <Field label="密码">
+                <TextField value={_bind(password)} type="password" />
+              </Field>
+            </li>
+            <li>
+              <Field label="数量" description="1–99">
+                <NumberField value={_bind(quantity)} min={1} max={99} />
+              </Field>
+            </li>
+            <li>
+              <Field label="备注">
+                <Textarea value={_bind(note)} rows={2} maxRows={6} />
+              </Field>
+            </li>
+            <li>
+              <Field label="通知方式">
+                <CheckboxGroup value={_bind(channels)}>
+                  <Checkbox value="email">邮件</Checkbox>
+                  <Checkbox value="sms">短信</Checkbox>
+                  <Checkbox value="push" disabled>
+                    推送（即将上线）
+                  </Checkbox>
+                </CheckboxGroup>
+              </Field>
+            </li>
+            <li>
+              <Field label="配送方式">
+                <RadioGroup value={_bind(shipping)}>
+                  <Radio value="express">快递</Radio>
+                  <Radio value="pickup">到店自提</Radio>
+                </RadioGroup>
+              </Field>
+            </li>
+            <li>
+              <Flex direction="column" gap="sm">
+                <Switch checked={_bind(notify)}>接收通知</Switch>
+                <Checkbox checked={_bind(agreed)}>我已阅读并同意服务条款</Checkbox>
+              </Flex>
+            </li>
+          </GridList>
         </Section>
 
         <Section title="浮层 Popover · Tooltip · Menu">
