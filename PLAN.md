@@ -31,7 +31,8 @@ packages/
   ui/    @vue-tsx-pro/ui
     src/base/         基础：文字、图标、链接、按钮家族、标记、代码块、加载
     src/layout/       布局：Flex、Grid、Container、Separator、ScrollArea
-    src/display/      展示：折叠、虚拟列表、进度、骨架屏、提示条、卡片、头像
+    src/display/      展示：折叠、虚拟列表、卡片、头像
+    src/feedback/     反馈：进度、骨架屏、提示条
     src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList
     src/form/         表单：Slider、SlideVerify、ToggleGroup
     src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）、

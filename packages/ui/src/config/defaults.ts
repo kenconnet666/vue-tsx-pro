@@ -9,7 +9,7 @@
  */
 import { useConfig } from './context';
 import type { BadgeOptions } from '../base/badge-styles';
-import type { AlertOptions } from '../display/Alert';
+import type { AlertOptions } from '../feedback/Alert';
 import type { AvatarOptions } from '../display/Avatar';
 import type { CardOptions } from '../display/Card';
 import type { TabsOptions } from '../navigation/Tabs';

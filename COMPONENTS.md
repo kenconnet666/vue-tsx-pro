@@ -354,7 +354,8 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 | `form/`       | `Slider`                                                           | 滑块，见 10.8                                                                                                                                                                                                                                     |
 | `form/`       | `SlideVerify`                                                      | 拖动验证（滑块 / 拼图验证码），见 10.8                                                                                                                                                                                                            |
 | `base/`       | `Badge`、`Tag`                                                     | 见 10.10                                                                                                                                                                                                                                          |
-| `display/`    | `Progress`、`Skeleton`、`Alert`、`Card`、`Avatar`                  | 见 10.10                                                                                                                                                                                                                                          |
+| `display/`    | `Card`、`Avatar`                                                   | 见 10.10                                                                                                                                                                                                                                          |
+| `feedback/`   | `Progress`、`Skeleton`、`Alert`                                    | 见 10.10                                                                                                                                                                                                                                          |
 | `navigation/` | `Toolbar`、`Tabs`、`Steps`、`Breadcrumbs`、`Pagination`、`NavList` | 见 10.10                                                                                                                                                                                                                                          |
 | `display/`    | `VirtualList`                                                      | 虚拟列表，见 10.7；以后的表格、长下拉列表建在 `Virtualizer` 上                                                                                                                                                                                    |
 
@@ -446,7 +447,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 - **状态色调** `utils/tone-styles.ts`：solid / soft / surface / outline × neutral / accent / info / success / warning / danger，Badge、Tag、Alert 共用。实底用该色调的文字色作底、页面背景色作字（success、warning、info 没有专门的实底色），两套主题都满足 4.5:1。
 - **base/**：Badge（只展示）、Tag（外观同 Badge，可带移除按钮，名称是“移除 + 标签文字”，取文字用 `utils/text.ts` 的 `plainText`）。
-- **display/**：
+- **feedback/**（Progress、Skeleton、Alert）与 **display/**（Card、Avatar）：
   - Progress：有值时完成比例，没值时不确定进度（循环动画不随 durations 变为 0，减少动态效果时变慢）；`valueText`；`data-state` 为 indeterminate / loading / complete。
   - Skeleton：包着内容时与内容一样大（内容 `visibility: hidden`、整块 `inert` 与 `aria-hidden`），加载完布局不跳；闪烁在减少动态效果时关闭。
   - Alert：图标按色调自动选（Lucide），`live` 为 off / polite（status）/ assertive（alert），`action`、`onClose`。

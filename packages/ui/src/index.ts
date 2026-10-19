@@ -63,15 +63,6 @@ export {
 // 展示
 export { Collapse, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
-export { Progress, type ProgressProps, type ProgressTones } from './display/Progress';
-export { Skeleton, type SkeletonProps } from './display/Skeleton';
-export {
-  Alert,
-  type AlertLives,
-  type AlertOptions,
-  type AlertProps,
-  type AlertVariants,
-} from './display/Alert';
 export { Card, type CardOptions, type CardProps, type CardVariants } from './display/Card';
 export {
   Avatar,
@@ -86,6 +77,17 @@ export {
   type VirtualListProps,
   type VirtualListScrolls,
 } from './display/VirtualList';
+
+// 反馈
+export { Progress, type ProgressProps, type ProgressTones } from './feedback/Progress';
+export { Skeleton, type SkeletonProps } from './feedback/Skeleton';
+export {
+  Alert,
+  type AlertLives,
+  type AlertOptions,
+  type AlertProps,
+  type AlertVariants,
+} from './feedback/Alert';
 
 // 导航
 export { Toolbar, type ToolbarOrientations, type ToolbarProps } from './navigation/Toolbar';

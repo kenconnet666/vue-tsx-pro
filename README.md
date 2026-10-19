@@ -69,7 +69,7 @@ const styles = stylex.create({
 
 依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → ui + tsx`。
 
-组件库现有的组件（基础、布局、展示、导航、表单）与基础设施见 COMPONENTS.md §10，交接说明见 [HANDOFF.md](HANDOFF.md)。
+组件库现有的组件（基础、布局、展示、反馈、导航、表单）与基础设施见 COMPONENTS.md §10，交接说明见 [HANDOFF.md](HANDOFF.md)。
 
 ## 命令
 

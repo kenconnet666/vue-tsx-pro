@@ -9,7 +9,8 @@
 - **ui 包**：第一批组件与基础设施已完成，见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.10：
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton）、Badge、Tag
   - 布局：Flex / FlexList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）
-  - 展示：Collapse、Collapsible、VirtualList、Progress、Skeleton、Alert、Card、Avatar
+  - 展示：Collapse、Collapsible、VirtualList、Card、Avatar
+  - 反馈：Progress、Skeleton、Alert
   - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination、NavList（复合）
   - 表单：Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
 - **试点组件**（`apps/host-demo/src/pilot`：Popover、Dialog、TextField）还没转正，下一批处理。
