@@ -2,7 +2,7 @@
 
 适用于 `@vue-tsx-pro/ui`。写法基础见 [RUNES.md](RUNES.md)，工程规划见 [PLAN.md](PLAN.md)。
 
-> 状态：基础设施与试点已完成，正式组件尚未开始（§7）。
+> 状态：基础设施与 §10 各批组件已完成，下一批是日期选择（§7）。
 
 ---
 
@@ -271,7 +271,6 @@ interface Lang {
 **待办**：
 
 - 文档页的 props 表生成。
-- 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
 - 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
 - 下一批：日期选择（Calendar、DateField、DatePicker，`@internationalized/date`）；表格的单元格编辑、多级表头、横向虚拟化按需再加。
 - 验证覆盖：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
@@ -316,21 +315,21 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 - 数据以本仓库 `scripts/css-docs/` 为唯一来源，以后需要时再抽成与 zerodep-js 共用的数据包。
 - 主题 tokens 用 `defineVars` 定义时每个变量写 JSDoc（用途 + 明暗取值），属性访问悬停即可看到。
 
-## 10. 第一批基础组件
+## 10. 各批组件的设计与取舍
 
 上层组件（表单、弹层、数据展示）都建在这一层上，所以先把基础设施与基础组件做扎实：上层组件只组合它们，不再各写一遍布局、文字、动效。
 
 ### 10.1 基础设施
 
-| 项           | 位置                                | 内容                                                                                                                                                                                    |
-| ------------ | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 档位类型     | `utils/styles.ts`                   | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                    |
-| 共享样式表   | `utils/styles.ts`                   | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                         |
-| 减少动态效果 | `config/theme/tokens.stylex.ts`     | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                               |
-| 一元素一组件 | `base/Text.tsx`、`layout/*`         | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag` |
-| 过渡预设     | `utils/transitions.ts`（第 4 阶段） | `fade`、`scale`、`slide` 等 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`afterTransition(元素, 回调)` 等过渡结束（时长为 0 时立即回调）     |
-| JS 动画      | `utils/animation.ts`（已完成）      | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                             |
-| 演示页       | `apps/host-demo` 的 `/base`         | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                         |
+| 项           | 位置                            | 内容                                                                                                                                                                                                                 |
+| ------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 档位类型     | `utils/styles.ts`               | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                                                 |
+| 共享样式表   | `utils/styles.ts`               | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                                                      |
+| 减少动态效果 | `config/theme/tokens.stylex.ts` | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                                                            |
+| 一元素一组件 | `base/Text.tsx`、`layout/*`     | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag`                              |
+| 过渡预设     | `utils/transitions.ts`          | `fade`、`scale`、`backdrop` 三套 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`await afterTransitions(元素)` 等元素与子元素的过渡结束（没有过渡、减少动态效果时立即完成） |
+| JS 动画      | `utils/animation.ts`            | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                          |
+| 演示页       | `apps/host-demo` 的 `/base`     | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                                                      |
 
 ### 10.2 组件
 
@@ -568,4 +567,4 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）。下一批：日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13），均已完成，每步单独提交。下一批：日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
