@@ -235,6 +235,7 @@ export {
   Toaster,
   ToastItem,
   toastPlacementStyles,
+  toastStackStyles,
   toastStyles,
   type ToasterController,
   type ToasterOptions,

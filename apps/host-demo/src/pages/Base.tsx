@@ -246,6 +246,7 @@ export const Base = _component(() => {
   const tagLayout = useLayoutAnimation(() => tagList);
   let loadingProfile = _state(true);
   let refreshing = _state(false);
+  let stackToasts = _state(false);
   function refresh() {
     refreshing = true;
     setTimeout(() => (refreshing = false), 1500);
@@ -807,6 +808,9 @@ export const Base = _component(() => {
             <Button class="toast-promise" variant="soft" onClick={upload}>
               上传
             </Button>
+            <Switch class="toast-stack" checked={_bind(stackToasts)}>
+              叠放
+            </Switch>
           </Flex>
         </Section>
 
@@ -1065,7 +1069,7 @@ export const Base = _component(() => {
           <MotionDemo />
         </Section>
       </main>
-      <Toaster controller={toaster} class="toaster-demo" progress />
+      <Toaster controller={toaster} class="toaster-demo" progress stack={stackToasts} />
     </Provider>
   );
 });

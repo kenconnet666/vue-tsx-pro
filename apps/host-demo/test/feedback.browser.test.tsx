@@ -213,6 +213,35 @@ describe('Toast', () => {
     await expect.poll(() => region().querySelectorAll('li').length, { timeout: 3000 }).toBe(0);
   });
 
+  it('stack：叠成一摞只露出最新的一条，悬停时展开、离开后收起', async () => {
+    $<HTMLInputElement>('.toast-stack').click();
+    await expect.poll(() => region().dataset.expanded).toBe('false');
+    for (const title of ['一', '二', '三']) toaster.show({ title, duration: Infinity });
+    await expect.poll(() => items().length).toBe(3);
+    const bottoms = () => items().map((item) => Math.round(item.getBoundingClientRect().bottom));
+    // 收起：后面的两条只错开一点点，整摞比一条高不了多少
+    await expect
+      .poll(() => Math.max(...bottoms()) - Math.min(...bottoms()), { timeout: 3000 })
+      .toBeLessThan(40);
+    region().dispatchEvent(new PointerEvent('pointerenter'));
+    await expect.poll(() => region().dataset.expanded).toBe('true');
+    // 展开：一条接一条，不再重叠
+    await expect
+      .poll(
+        () =>
+          items().every(
+            (item, index) =>
+              index === 0 ||
+              item.getBoundingClientRect().top >=
+                items()[index - 1]!.getBoundingClientRect().bottom - 1,
+          ),
+        { timeout: 3000 },
+      )
+      .toBe(true);
+    region().dispatchEvent(new PointerEvent('pointerleave'));
+    await expect.poll(() => region().dataset.expanded).toBe('false');
+  });
+
   it('剩余时间条从满到空，悬停暂停计时时一起停', async () => {
     toaster.show({ title: '计时', duration: 4000 });
     await expect.poll(() => items().length).toBe(1);

@@ -40,6 +40,7 @@ import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse } from '../display/Collapse';
 import { useAnimate } from '../utils/motion/animation';
+import { useLayoutAnimation } from '../utils/motion/layout';
 import { usePresence } from '../utils/motion/presence';
 import { startMove } from '../utils/dom/move';
 import { toElement, topModal } from '../utils/dom/overlay';
@@ -257,6 +258,8 @@ export interface ToasterProps extends PartProps<'section', 'popover' | 'tabindex
   placement?: keyof ToastPlacements;
   /** 最多同时显示几条，默认 3；更早的先不显示，前面的关闭后补上 */
   max?: number;
+  /** 叠成一摞（同 Sonner）：只露出最新的一条，更早的缩小叠在后面；悬停或聚焦时展开，展开收起有布局动画。默认 false（平铺） */
+  stack?: boolean;
   /** 在自动关闭的通知底部显示剩余时间条（暂停计时时一起停），默认 false */
   progress?: boolean;
   /** 列表（ol）的部件属性 */
@@ -287,6 +290,11 @@ export const toastStyles: StyleTable<
   | 'toast'
   | 'countdown'
   | 'countdownPaused'
+  | 'stacked'
+  | 'stackedBehind'
+  | 'stackedHidden'
+  | 'stackedFromTop'
+  | 'stackedFromBottom'
 > = stylex.create({
   region: {
     // 原生 popover 默认居中、带边框与底色，改为贴着视口的一角
@@ -344,6 +352,24 @@ export const toastStyles: StyleTable<
     pointerEvents: 'none',
   },
   countdownPaused: { animationPlayState: 'paused' },
+  // 叠放：每一项都定位、按深度排层叠顺序；最新的一条留在文档流里撑起高度，更早的绝对定位叠在它后面
+  stacked: {
+    position: 'relative',
+    transition:
+      'opacity _durations.md _easings.standard, translate _durations.md _easings.standard, scale _durations.md _easings.standard',
+  },
+  stackedBehind: { position: 'absolute', insetInline: 0 },
+  stackedHidden: { opacity: 0 },
+  stackedFromTop: { top: 0 },
+  stackedFromBottom: { bottom: 0 },
+});
+
+// 深度是运行时的数，用动态样式；单独一个 create，见 COMPONENTS.md §4
+/** Toaster 的样式：叠放时第 depth 层（0 是最新的）的位移、缩放与层叠顺序 */
+export const toastStackStyles: Readonly<{
+  depth: (offset: string, scale: number, zIndex: number) => StyleXStyles;
+}> = stylex.create({
+  depth: (offset: string, scale: number, zIndex: number) => ({ translate: offset, scale, zIndex }),
 });
 
 // 时长来自每条通知，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -379,6 +405,8 @@ export interface ToastItemProps {
   propsItem: ToasterProps['propsItem'];
   /** 通知本身（Alert）的部件属性 */
   propsToast: ToasterProps['propsToast'];
+  /** 叠放时的深度（0 是最新的一条）；平铺或展开时为 null */
+  depth: number | null;
   /** 显示剩余时间条 */
   progress: boolean;
   /** 剩余时间条的部件属性 */
@@ -388,6 +416,20 @@ export interface ToastItemProps {
 /** 滑动超过宽度的这个比例就关闭 */
 const SWIPE_RATIO = 0.35;
 
+/** 叠放的一层：每深一层错开 0.75em、缩小 5%，第三层之后隐藏 */
+function stackSx(depth: number, fromTop: boolean) {
+  const offset = `0 ${(fromTop ? 0.75 : -0.75) * depth}em`;
+  return [
+    toastStyles.stacked,
+    depth > 0 && [
+      toastStyles.stackedBehind,
+      fromTop ? toastStyles.stackedFromTop : toastStyles.stackedFromBottom,
+    ],
+    toastStackStyles.depth(offset, 1 - depth * 0.05, 100 - depth),
+    depth > 2 && toastStyles.stackedHidden,
+  ];
+}
+
 /** 列表里的一项：Collapse 负责离场时收起高度，收起后从控制器里移除 */
 export const ToastItem = _component(
   ({
@@ -395,6 +437,7 @@ export const ToastItem = _component(
     controller,
     fromTop,
     fallbackFocus,
+    depth,
     progress,
     propsItem,
     propsToast,
@@ -460,6 +503,7 @@ export const ToastItem = _component(
                 sx: [
                   toastStyles.item,
                   fromTop ? toastStyles.itemFromTop : toastStyles.itemFromBottom,
+                  depth != null && stackSx(depth, fromTop),
                   toast.closing && toastStyles.itemClosing,
                 ],
               },
@@ -521,6 +565,7 @@ export const Toaster = _component(
     controller,
     placement = 'bottom-end',
     max = 3,
+    stack = false,
     progress = false,
     propsList,
     propsItem,
@@ -533,6 +578,17 @@ export const Toaster = _component(
     let hovering = _state(false);
     let focused = _state(false);
     let hidden = _state(typeof document !== 'undefined' && document.hidden);
+    // 叠放时悬停或聚焦就展开；展开、收起时各项从旧位置平移过去
+    let list = _state.raw<HTMLElement | null>(null);
+    let expanded = _state(false);
+    const layout = useLayoutAnimation(() => list, { children: ':scope > li' });
+    watch(
+      () => hovering || focused,
+      (next) => {
+        if (stack) void layout.change(() => (expanded = next));
+        else expanded = next;
+      },
+    );
     // 进入通知区域之前焦点所在的元素：最后一条通知被关闭后焦点回到这里
     let outsideFocus: HTMLElement | null = null;
 
@@ -578,6 +634,10 @@ export const Toaster = _component(
     return () => {
       const fromTop = placement.startsWith('top');
       const visible = controller.toasts.slice(-max);
+      // 深度只数还在显示的：正在离场的不占一层
+      let depth = visible.filter((toast) => !toast.closing).length;
+      const depths = visible.map((toast) => (toast.closing ? depth : --depth));
+      const stacked = stack && !expanded;
       return (
         <Teleport to={topModal() ?? 'body'}>
           <ConfigScope>
@@ -601,6 +661,7 @@ export const Toaster = _component(
                 ),
               )}
               data-placement={placement}
+              data-expanded={stack ? String(!stacked) : undefined}
             >
               <ol
                 {...elementProps(
@@ -608,14 +669,16 @@ export const Toaster = _component(
                     { sx: [toastStyles.list, fromTop && toastStyles.listFromTop] },
                     propsList,
                     {
+                      ref: _toRef(list),
                       'aria-live': 'polite',
                     },
                   ),
                 )}
               >
-                {visible.map((toast) => (
+                {visible.map((toast, index) => (
                   <ToastItem
                     key={toast.id}
+                    depth={stacked ? depths[index]! : null}
                     toast={toast}
                     controller={controller}
                     fromTop={fromTop}
