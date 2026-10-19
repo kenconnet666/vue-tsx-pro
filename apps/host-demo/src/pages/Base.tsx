@@ -46,6 +46,8 @@ import {
   AlertDialog,
   Dialog,
   Drawer,
+  Accordion,
+  AccordionItem,
   Avatar,
   AvatarGroup,
   Badge,
@@ -327,6 +329,7 @@ export const Base = _component(() => {
   let step = _state(1);
   let page = _state(3);
   let pageSize = _state(20);
+  let faq = _state<string | undefined>('ship');
   let view = _state<string | undefined>('list');
   let marks = _state<string[]>(['bold']);
 
@@ -1170,7 +1173,7 @@ export const Base = _component(() => {
           </VirtualList>
         </Section>
 
-        <Section title="折叠 Collapsible">
+        <Section title="折叠 Collapsible · Accordion">
           <Collapsible
             class="details"
             trigger={(props) => (
@@ -1184,6 +1187,22 @@ export const Base = _component(() => {
               hidden=&quot;until-found&quot;：用浏览器的页内搜索找“隐藏的关键词”会自动展开。
             </p>
           </Collapsible>
+          <Accordion
+            class="accordion-demo"
+            value={_bind(faq)}
+            aria-label="常见问题"
+            sx={styles.narrow}
+          >
+            <AccordionItem value="ship" title="多久发货？">
+              付款后 48 小时内发货，节假日顺延。
+            </AccordionItem>
+            <AccordionItem value="refund" title="怎么退款？">
+              在订单详情里申请，审核通过后原路退回。
+            </AccordionItem>
+            <AccordionItem value="invoice" title="能开发票吗？" disabled>
+              暂不支持。
+            </AccordionItem>
+          </Accordion>
         </Section>
 
         <Section title="动效 Anime.js">
