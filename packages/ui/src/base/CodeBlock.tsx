@@ -6,15 +6,12 @@
  *
  * 高亮是异步的：先显示纯文本，结果到了再替换；等宽字体下两者排版相同，布局不跳动。
  * 横向可滚动的代码块要能用键盘滚动，所以 pre 可聚焦（tabindex=0，带焦点环）。
- * 右上角有复制按钮（IconButton，图标来自 Lucide），复制成功后图标变成对勾并经 aria-live 播报“已复制”。
+ * 右上角有复制按钮（CopyButton）：复制成功后图标变成对勾并经 aria-live 播报“已复制”。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Check, Copy } from '@lucide/icons';
-import { useClipboard } from '../utils/dom/clipboard';
-import { useConfig, useLang } from '../config/context';
-import { IconButton, type IconButtonProps } from './IconButton';
-import { VisuallyHidden } from './VisuallyHidden';
+import { useConfig } from '../config/context';
+import { CopyButton, type CopyButtonProps } from './CopyButton';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 
@@ -33,7 +30,7 @@ export interface CodeBlockProps extends PartProps<'pre'> {
   /** 外层（包着 pre 与复制按钮的 div）的部件属性 */
   propsRoot?: PartProps<'div'>;
   /** 复制按钮的部件属性 */
-  propsCopy?: Partial<IconButtonProps>;
+  propsCopy?: Partial<CopyButtonProps>;
 }
 
 /** CodeBlock 的样式：wrapper、withCopy、copy、root、wrap、code */
@@ -82,9 +79,6 @@ export const CodeBlock = _component(
     ...rest
   }: CodeBlockProps) => {
     const config = useConfig();
-    const text = useLang();
-    // 刚复制过：按钮显示对勾，两秒后复原
-    const clipboard = useClipboard();
     // 当前代码的高亮结果；代码或语言变了先清空，回到纯文本
     let html = _state.raw<string | null>(null);
 
@@ -130,25 +124,12 @@ export const CodeBlock = _component(
             )}
           </pre>
           {copyable && (
-            <>
-              <IconButton
-                {...mergePartProps<IconButtonProps>(
-                  {
-                    sx: codeBlockStyles.copy,
-                    size: 'sm',
-                    variant: 'ghost',
-                    tone: 'neutral',
-                    'aria-label': text.copy,
-                    icon: clipboard.copied ? Check : Copy,
-                  },
-                  propsCopy,
-                  { onClick: () => void clipboard.copy(code) },
-                )}
-              />
-              <VisuallyHidden aria-live="polite">
-                {clipboard.copied ? text.copied : ''}
-              </VisuallyHidden>
-            </>
+            <CopyButton
+              {...mergePartProps<CopyButtonProps>(
+                { sx: codeBlockStyles.copy, size: 'sm', tone: 'neutral', value: code },
+                propsCopy,
+              )}
+            />
           )}
         </div>
       );

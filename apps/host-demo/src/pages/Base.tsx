@@ -59,6 +59,7 @@ import {
   H4,
   ClearButton,
   CloseButton,
+  CopyButton,
   Icon,
   IconButton,
   Kbd,
@@ -333,7 +334,7 @@ export const Base = _component(() => {
           </Button>
         </div>
 
-        <Section title="按钮 Button · LinkButton · IconButton">
+        <Section title="按钮 Button · LinkButton · IconButton · CopyButton">
           {(['accent', 'neutral', 'danger'] as const).map((tone) => (
             <Flex key={tone} gap="sm" wrap align="center" class={`button-row-${tone}`}>
               {(['solid', 'soft', 'surface', 'outline', 'ghost', 'link'] as const).map(
@@ -383,6 +384,7 @@ export const Base = _component(() => {
             <IconButton icon={Trash2} aria-label="删除" tone="danger" variant="soft" />
             <IconButton icon={Plus} aria-label="添加" variant="solid" radius="full" />
             <CloseButton />
+            <CopyButton value="npm i @vue-tsx-pro/ui" class="copy-button-demo" />
             <ClearButton size="sm" />
           </Flex>
         </Section>

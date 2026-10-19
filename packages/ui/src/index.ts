@@ -12,6 +12,12 @@ export {
 export { Code, codeStyles, type CodeProps } from './base/Code';
 export { CodeBlock, codeBlockStyles, type CodeBlockProps } from './base/CodeBlock';
 export {
+  CopyButton,
+  copyButtonStyles,
+  type CopyButtonManaged,
+  type CopyButtonProps,
+} from './base/CopyButton';
+export {
   createHeading,
   H1,
   H2,
