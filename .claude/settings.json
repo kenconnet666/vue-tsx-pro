@@ -1,3 +1,14 @@
 {
-  "enabledMcpjsonServers": ["vue_tsx_pro_lsp"]
+  "enabledMcpjsonServers": ["vue_tsx_pro_lsp"],
+  "extraKnownMarketplaces": {
+    "vue-tsx-pro": {
+      "source": {
+        "source": "directory",
+        "path": "./.claude/marketplace"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "vue-tsx-pro-lsp@vue-tsx-pro": true
+  }
 }

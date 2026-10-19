@@ -1,0 +1,12 @@
+{
+  "name": "vue-tsx-pro",
+  "description": "仓库内的本地插件市场：只提供本项目的 Claude Code 插件",
+  "owner": { "name": "vue-tsx-pro" },
+  "plugins": [
+    {
+      "name": "vue-tsx-pro-lsp",
+      "source": "./vue-tsx-pro-lsp",
+      "description": "TS/TSX 原生 LSP：用仓库固定的 typescript-language-server 与 TypeScript"
+    }
+  ]
+}

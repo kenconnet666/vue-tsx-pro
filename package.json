@@ -37,6 +37,7 @@
     "prettier": "catalog:",
     "smol-toml": "catalog:",
     "typescript": "catalog:",
+    "typescript-language-server": "catalog:",
     "vitest": "catalog:",
     "web-features": "catalog:",
     "zod": "catalog:"

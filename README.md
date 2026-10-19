@@ -110,6 +110,14 @@ pnpm lsp:verify            # 按 .mcp.json 真实启动并逐项检查
 pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
 ```
 
+### Claude Code 原生 LSP
+
+除上面的 MCP 外，Claude Code 还通过项目级插件 `vue-tsx-pro-lsp` 接入原生 LSP：编辑 `.ts`/`.tsx`/`.js` 等文件后自动推送诊断，并提供内置 `LSP` 工具（定义、引用、悬停、符号）。
+
+- 插件在仓库内的本地市场 `.claude/marketplace/`，`.claude/settings.json` 用 `extraKnownMarketplaces`（相对路径）声明并在 `enabledPlugins` 中启用；首次打开仓库时按提示信任即可。
+- 语言服务器是 catalog 里固定的 `typescript-language-server`，通过 `node` 直接启动 `node_modules` 里的入口（不依赖全局安装，也绕开 Windows 的 `.cmd` 包装），并自动使用仓库的 TypeScript。需先 `pnpm install`。
+- 改了 `.lsp.json` 后在新会话中生效；排查启动失败看 `/plugin` 的 **Errors** 页。
+
 ## 配置要点
 
 - **版本**：共享依赖的精确版本集中在 `pnpm-workspace.yaml` 的 `catalog`，各包写 `"catalog:"`。升级只改这一处。
