@@ -1,8 +1,9 @@
-// 列表状态与 Listbox：分组排序、移动跳过不可用项、单选 / 多选、键盘与 aria-activedescendant
+// 列表状态、Listbox 与 Select：分组排序、移动跳过不可用项、单选 / 多选、键盘与 aria-activedescendant、大量选项
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Listbox } from '../Listbox';
+import { Select } from '../Select';
 import { createListState, handleListKeydown, type ListboxOption } from '../list-state';
 
 // happy-dom 不排版：给滚动容器一个 300px 的视口（选项是虚拟滚动的）
@@ -135,5 +136,28 @@ describe('Listbox', () => {
     expect(rendered).toBeLessThan(40);
     expect(pending!.getAttribute('aria-busy')).toBe('true');
     expect(pending!.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0);
+  });
+});
+
+describe('Select', () => {
+  it('性能：三万个选项全部选中时挂载在 1 秒内', async () => {
+    // 触发框取已选项时曾经对每个选项在已选值里逐个 includes（O(n²)）
+    const items = Array.from({ length: 30_000 }, (_, index) => ({
+      value: String(index),
+      label: `选项 ${index}`,
+    }));
+    const start = performance.now();
+    const root = mount(() => (
+      <Select
+        items={items}
+        type="multiple"
+        value={items.map((item) => item.value)}
+        renderValue={(selected) => `已选 ${selected.length} 项`}
+        aria-label="很多"
+      />
+    ));
+    await nextTick();
+    expect(performance.now() - start).toBeLessThan(1000);
+    expect(root.textContent).toContain('已选 30000 项');
   });
 });

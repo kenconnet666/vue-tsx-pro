@@ -78,6 +78,8 @@ export const TreeTable = _component(
 
     const canExpand = (row: T) => hasChildren?.(row) ?? (getChildren(row)?.length ?? 0) > 0;
 
+    const expandedKeys = _derived.by(() => new Set(expanded));
+
     /** 按展开状态深度优先展开成一列；同级之间按当前排序 */
     const flat = _derived.by(() => {
       const result: { row: T; key: string; depth: number }[] = [];
@@ -85,7 +87,7 @@ export const TreeTable = _component(
         sortRows(level, columns, sort, lang.code).forEach((row, index) => {
           const key = rowKey(row, index);
           result.push({ row, key, depth });
-          if (expanded.includes(key)) visit(getChildren(row) ?? [], depth + 1);
+          if (expandedKeys.has(key)) visit(getChildren(row) ?? [], depth + 1);
         });
       };
       visit(rows, 0);
@@ -94,7 +96,7 @@ export const TreeTable = _component(
     const depthOf = _derived.by(() => new Map(flat.map((item) => [item.key, item.depth])));
 
     async function toggle(row: T, key: string) {
-      const opening = !expanded.includes(key);
+      const opening = !expandedKeys.has(key);
       expanded = [...toggleSelection(expanded, key, { mode: 'multiple' })];
       if (!opening || !loadChildren || (getChildren(row)?.length ?? 0) > 0) return;
       const pending = loadChildren(row);
@@ -111,7 +113,7 @@ export const TreeTable = _component(
       const depth = depthOf.get(model.key) ?? 0;
       const first = columns[0] ? columnValue(columns[0], model.data) : undefined;
       const label = first != null ? String(first) : model.key;
-      const open = expanded.includes(model.key);
+      const open = expandedKeys.has(model.key);
       return (
         <>
           {depth > 0 && <span {...stylex.attrs(indentStyles.depth(depth * indent))} />}

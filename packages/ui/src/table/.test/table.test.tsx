@@ -104,6 +104,35 @@ describe('Table', () => {
     expect(root.querySelectorAll('tbody tr[aria-selected="true"]')).toHaveLength(2);
   });
 
+  it('性能：五万行全选、取消全选各在 1 秒内', async () => {
+    // 曾经逐个 includes（O(n²)），五万行全选要好几秒；正常时几十毫秒，给慢的 CI 机器留足余量
+    const many = Array.from({ length: 50_000 }, (_, index) => ({
+      id: String(index),
+      name: `第 ${index} 行`,
+      age: index,
+    }));
+    let picked = _state<string[]>([]);
+    const root = mount(() => (
+      <Table
+        rows={many}
+        columns={columns}
+        rowKey={(p) => p.id}
+        selection="multiple"
+        selected={_bind(picked)}
+        aria-label="很多"
+      />
+    ));
+    await flush();
+    const all = root.querySelector<HTMLInputElement>('thead input[type=checkbox]')!;
+    for (const expected of [50_000, 0]) {
+      const start = performance.now();
+      all.click();
+      await flush();
+      expect(performance.now() - start).toBeLessThan(1000);
+      expect(picked).toHaveLength(expected);
+    }
+  });
+
   it('虚拟滚动：一万行只渲染一部分，上下有占位行；没有数据时加载显示骨架、否则显示空状态', async () => {
     const many = Array.from({ length: 10_000 }, (_, index) => ({
       id: String(index),
@@ -175,5 +204,30 @@ describe('TreeTable', () => {
     root.querySelectorAll<HTMLButtonElement>('button[aria-expanded]')[1]!.click();
     await flush();
     expect(loaded).toEqual(['lazy']);
+  });
+
+  it('性能：两万个展开的节点挂载在 1 秒内', async () => {
+    // 展开时曾经对每个节点在 expanded 里逐个 includes（O(n²)）
+    const parents: Person[] = Array.from({ length: 20_000 }, (_, index) => ({
+      id: `p${index}`,
+      name: `部门 ${index}`,
+      age: null,
+      children: [{ id: `c${index}`, name: `成员 ${index}`, age: index }],
+    }));
+    const open = parents.map((p) => p.id);
+    const start = performance.now();
+    const root = mount(() => (
+      <TreeTable
+        rows={parents}
+        columns={columns}
+        rowKey={(p) => p.id}
+        getChildren={(p) => p.children}
+        expanded={open}
+        aria-label="很多"
+      />
+    ));
+    await flush();
+    expect(performance.now() - start).toBeLessThan(1000);
+    expect(root.querySelector('table')!.getAttribute('aria-rowcount')).toBe('40001');
   });
 });

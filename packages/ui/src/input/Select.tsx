@@ -264,7 +264,7 @@ export const Select = _component(
     return () => {
       const state = control();
       const values = toArray(value);
-      const selected = list.options.filter((option) => values.includes(option.value));
+      const selected = list.options.filter((option) => list.isSelected(option.value));
       const off = state.disabled;
       const shown =
         renderValue?.(selected) ??

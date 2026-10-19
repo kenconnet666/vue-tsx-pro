@@ -83,12 +83,17 @@ export const Table = _component(
       selected = [...toggleSelection(selected, key, { mode: selection ?? 'multiple' })];
     }
 
+    // 用集合查找：逐个 includes 是 O(n²)，十万行全选会卡住页面
     function toggleAll() {
       const keys = models.map((row) => row.key);
-      const all = keys.length > 0 && keys.every((key) => selected.includes(key));
-      selected = all
-        ? selected.filter((key) => !keys.includes(key))
-        : [...new Set([...selected, ...keys])];
+      const current = new Set(selected);
+      const all = keys.length > 0 && keys.every((key) => current.has(key));
+      if (!all) {
+        selected = [...new Set([...selected, ...keys])];
+        return;
+      }
+      const visible = new Set(keys);
+      selected = selected.filter((key) => !visible.has(key));
     }
 
     return () => (
