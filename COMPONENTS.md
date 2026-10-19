@@ -242,7 +242,7 @@ interface Lang {
 
 **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`（base、layout、display…），共用工具在 `utils/`，配置在 `config/`；测试集中在各目录下的 `.test/`（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
-**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
 **试点组件**（原 `apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）已全部转正并删除，`/pilot` 页面改用正式组件。试点阶段在 Chromium、Firefox、WebKit 中验证过：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
@@ -266,7 +266,7 @@ interface Lang {
 | 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                    |
 | 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                  |
 | 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`input/form-constraints.ts`） |
-| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/animation`                                                      |
+| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                               |
 | 图表     | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置                           |
 | 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                                            |
 | 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                      |
@@ -337,7 +337,7 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 | 减少动态效果 | `config/theme/tokens.stylex.ts` | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                                                            |
 | 一元素一组件 | `base/Text.tsx`、`layout/*`     | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag`                              |
 | 过渡预设     | `utils/style/transitions.ts`    | `fade`、`scale`、`backdrop` 三套 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`await afterTransitions(元素)` 等元素与子元素的过渡结束（没有过渡、减少动态效果时立即完成） |
-| JS 动画      | `utils/animation.ts`            | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                          |
+| JS 动画      | `utils/motion/animation.ts`     | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                          |
 | 演示页       | `apps/host-demo` 的 `/base`     | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                                                      |
 
 ### 10.2 组件
@@ -578,16 +578,16 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 第二轮架构审核后的整理与改进，每块单独提交：
 
-| 项     | 改动                                                                                                                                                                                                     |
-| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 目录   | utils 按职责分成 `style/`、`dom/`、`data/`、`virtual/`；Dialog.tsx 拆成 Modal、Dialog、Drawer；TableView 的列宽计算挪到 columns.ts，列宽手柄成为 ColumnResizer；`button-styles.ts` 改名 `button-core.ts` |
-| 导出   | 工具全部导出、名字全局唯一（§2.5、§4）；入口由 `pnpm exports` 生成并进 CI；重复的 `Table<K>` 类型、`toArray`、`isWindow` 合并                                                                            |
-| 默认值 | `useDefaults(name, read, fallback)` 一次合并，去掉散落的约 30 处 `x ?? defaults.x ?? '…'`                                                                                                                |
-| 按钮   | `useButtonBehavior`：Button、IconButton、LinkButton 共用不可用、加载中、拦截点击、波纹与 data 属性                                                                                                       |
-| 选择   | `selectionMode` 统一命名、`SelectionProps` 合并三份单选 / 多选 props；Listbox、Select、Combobox 的 `toOption`；列表状态缓存 值 → 位置                                                                    |
-| 表单   | zod 成为 peer 依赖；值的类型取自 schema、`onSubmit` 拿到解析后的输出；schema 推出约束交给 Field 与控件；`FieldPath` 与 `form.Field`；演示页加了表单一节                                                  |
-| 动画   | `useAnimate`；Toast 滑动弹回 / 滑出、SlideVerify 弹回与失败晃动、Tabs 下划线滑动（TabList 的指示条）                                                                                                     |
-| 性能   | Table 全选、TreeTable 展开、Select 已选项的 O(n²) 改为集合查找，补交互性能测试                                                                                                                           |
+| 项     | 改动                                                                                                                                                                                                                             |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 目录   | utils 按职责分成 `style/`、`dom/`、`data/`、`virtual/`（之后又加了 `motion/`）；Dialog.tsx 拆成 Modal、Dialog、Drawer；TableView 的列宽计算挪到 columns.ts，列宽手柄成为 ColumnResizer；`button-styles.ts` 改名 `button-core.ts` |
+| 导出   | 工具全部导出、名字全局唯一（§2.5、§4）；入口由 `pnpm exports` 生成并进 CI；重复的 `Table<K>` 类型、`toArray`、`isWindow` 合并                                                                                                    |
+| 默认值 | `useDefaults(name, read, fallback)` 一次合并，去掉散落的约 30 处 `x ?? defaults.x ?? '…'`                                                                                                                                        |
+| 按钮   | `useButtonBehavior`：Button、IconButton、LinkButton 共用不可用、加载中、拦截点击、波纹与 data 属性                                                                                                                               |
+| 选择   | `selectionMode` 统一命名、`SelectionProps` 合并三份单选 / 多选 props；Listbox、Select、Combobox 的 `toOption`；列表状态缓存 值 → 位置                                                                                            |
+| 表单   | zod 成为 peer 依赖；值的类型取自 schema、`onSubmit` 拿到解析后的输出；schema 推出约束交给 Field 与控件；`FieldPath` 与 `form.Field`；演示页加了表单一节                                                                          |
+| 动画   | `useAnimate`；Toast 滑动弹回 / 滑出、SlideVerify 弹回与失败晃动、Tabs 下划线滑动（TabList 的指示条）                                                                                                                             |
+| 性能   | Table 全选、TreeTable 展开、Select 已选项的 O(n²) 改为集合查找，补交互性能测试                                                                                                                                                   |
 
 **没有按原方案做的**：`useListState` 仍按字段给读取函数（一个 `read` 会让选择变化也重新整理上万个选项）；三处 `SKELETON_ROWS` 取值不同，留在各自组件里；overlay 组件依赖原生 popover，happy-dom 没有，行为仍在浏览器测试里测（补了 Popover 的焦点用例）。
 

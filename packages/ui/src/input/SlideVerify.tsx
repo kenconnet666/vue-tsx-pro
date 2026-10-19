@@ -19,7 +19,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import type { JSAnimation } from 'animejs';
-import { useAnimate } from '../utils/animation';
+import { useAnimate } from '../utils/motion/animation';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';

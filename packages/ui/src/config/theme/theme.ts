@@ -118,7 +118,7 @@ export function themeVariables(theme: Theme): Record<string, string> {
 
 /**
  * token 在元素上的当前取值，含主题覆盖与媒体查询：`readToken(el, colors.accent)` → `'#3e63dd'`。
- * 给拿不到 CSS 变量的地方用：JS 动画的时长与缓动（utils/animation 的 themeTransition、useAnimate）、canvas 图表与 3D 场景的颜色。
+ * 给拿不到 CSS 变量的地方用：JS 动画的时长与缓动（utils/motion/animation 的 themeTransition、useAnimate）、canvas 图表与 3D 场景的颜色。
  */
 export function readToken(element: Element, token: StyleXVar<string>): string {
   const value = getComputedStyle(element)

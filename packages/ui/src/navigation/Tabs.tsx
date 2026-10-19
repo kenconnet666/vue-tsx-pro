@@ -22,7 +22,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { utils, type AnimationParams } from 'animejs';
 import { onBeforeUnmount, onMounted, useId, watch, type VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
-import { useAnimate } from '../utils/animation';
+import { useAnimate } from '../utils/motion/animation';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';

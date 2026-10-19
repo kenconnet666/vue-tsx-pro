@@ -80,7 +80,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 档位样式（间距、字号、色调、焦点环…）    | `utils/style/styles.ts`、`utils/style/typography.ts`、`utils/style/tone-styles.ts`                                                          |
 | 波纹                                     | `useRipple(() => ripple)`，返回值展开到受管层                                                                                               |
 | 按钮类的不可用、加载中、拦截点击         | `useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick)`（`base/button-core.ts`）                   |
-| 组件里的 JS 动画                         | `useAnimate()`：取主题时长、缓动、弹簧，卸载时取消（`utils/animation.ts`）                                                                  |
+| 组件里的 JS 动画                         | `useAnimate()`：取主题时长、缓动、弹簧，卸载时取消（`utils/motion/animation.ts`）                                                           |
 | 表单字段的约束（必填、长度、范围）       | 从 zod schema 推出（`input/form-constraints.ts`），控件经 `useFieldControl()` 的 `constraints` 拿到                                         |
 | 单选 / 多选组件的 props                  | `SelectionProps`（`selectionMode` + `value`）、选项数据的 `OptionMapping`（`toOption`）                                                     |
 | 链接走路由、判断当前页                   | `useRouterLink()`                                                                                                                           |

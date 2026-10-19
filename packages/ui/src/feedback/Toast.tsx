@@ -38,7 +38,7 @@ import type { IconData } from '../base/Icon';
 import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse } from '../display/Collapse';
-import { useAnimate } from '../utils/animation';
+import { useAnimate } from '../utils/motion/animation';
 import { startMove } from '../utils/dom/move';
 import { topModal } from '../utils/dom/overlay';
 import { focusAfterRemoval } from '../utils/dom/focus';

@@ -43,11 +43,12 @@ const GROUPS = [
     '主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）',
   ],
   ['config/lang', '语言与格式化'],
-  ['utils', '工具：部件属性的合并、JS 动画'],
+  ['utils', '工具：部件属性的合并'],
   ['utils/style', '工具：档位、字号、色调、过渡等共用样式'],
   ['utils/dom', '工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接'],
   ['utils/data', '工具：比较与匹配、选择、分页、文字、数值'],
   ['utils/virtual', '工具：虚拟滚动'],
+  ['utils/motion', '工具：JS 动画与动效'],
 ];
 
 function modules(dir = src) {

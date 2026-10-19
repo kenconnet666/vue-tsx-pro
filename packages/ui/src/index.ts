@@ -557,13 +557,7 @@ export { useFormat } from './config/lang/format';
 export { defineLang, type Directions, type HourCycles, type Lang } from './config/lang/lang';
 export { zhCN } from './config/lang/zh-CN';
 
-// 工具：部件属性的合并、JS 动画
-export {
-  themeTransition,
-  useAnimate,
-  type ThemeAnimate,
-  type ThemeTransitionOptions,
-} from './utils/animation';
+// 工具：部件属性的合并
 export {
   elementProps,
   mergePartProps,
@@ -704,3 +698,11 @@ export {
   type VirtualScrollOptions,
   type VisibleRange,
 } from './utils/virtual/virtualizer';
+
+// 工具：JS 动画与动效
+export {
+  themeTransition,
+  useAnimate,
+  type ThemeAnimate,
+  type ThemeTransitionOptions,
+} from './utils/motion/animation';

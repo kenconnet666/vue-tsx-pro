@@ -3,8 +3,8 @@ import { cubicBezier, type JSAnimation } from 'animejs';
 import { createApp } from 'vue';
 import { _component } from '@vue-tsx-pro/tsx';
 import { afterEach, describe, expect, it } from 'vitest';
-import { readToken } from '../../config/theme/theme';
-import { durations, easings } from '../../config/theme/tokens.stylex';
+import { readToken } from '../../../config/theme/theme';
+import { durations, easings } from '../../../config/theme/tokens.stylex';
 import { themeTransition, useAnimate } from '../animation';
 
 const variable = (token: unknown) => /^var\((--[\w-]+)\)$/.exec(String(token))![1]!;

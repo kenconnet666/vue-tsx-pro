@@ -13,8 +13,8 @@
  */
 import { animate, cubicBezier, spring, type AnimationParams, type JSAnimation } from 'animejs';
 import { onBeforeUnmount } from 'vue';
-import { readToken } from '../config/theme/theme';
-import { durations, easings } from '../config/theme/tokens.stylex';
+import { readToken } from '../../config/theme/theme';
+import { durations, easings } from '../../config/theme/tokens.stylex';
 
 /** themeTransition 的选项：取哪一档时长与缓动，或用弹簧 */
 export interface ThemeTransitionOptions {
