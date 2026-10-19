@@ -1,7 +1,7 @@
 // Checkbox / CheckboxGroup、RadioGroup / Radio、Switch：原生 input 的状态、写回与 Field 关联
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
-import { Field } from '../../form/Field';
+import { Field } from '../Field';
 import { mount } from '../../utils/.test/mount';
 import { Checkbox, CheckboxGroup } from '../Checkbox';
 import { Radio, RadioGroup } from '../Radio';

@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import * as z from 'zod';
-import { TextField } from '../../input/TextField';
+import { TextField } from '../TextField';
 import { mount } from '../../utils/.test/mount';
 import { Field } from '../Field';
 import { Form } from '../Form';

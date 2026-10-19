@@ -201,9 +201,9 @@ export {
   type SlideVerifyTargets,
 } from './input/SlideVerify';
 
-// 表单
-export { Form, type FormProps } from './form/Form';
-export { useForm, type FormController, type FormErrors, type FormOptions } from './form/useForm';
+// 输入：表单结构与校验（Field、Form、useForm）
+export { Form, type FormProps } from './input/Form';
+export { useForm, type FormController, type FormErrors, type FormOptions } from './input/useForm';
 export {
   Field,
   Label,
@@ -213,7 +213,7 @@ export {
   type FieldProps,
   type FieldState,
   type LabelProps,
-} from './form/Field';
+} from './input/Field';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export {

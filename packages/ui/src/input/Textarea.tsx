@@ -11,7 +11,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick } from 'vue';
-import { useFieldControl } from '../form/Field';
+import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import {
   controlStyles,

@@ -16,7 +16,7 @@ import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
-import { useFieldControl } from '../form/Field';
+import { useFieldControl } from './Field';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import {
   controlStyles,

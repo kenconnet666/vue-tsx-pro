@@ -16,7 +16,7 @@
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
-import { useFieldControl } from '../form/Field';
+import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
 import { choiceGroupStyles, choiceStyles, type ChoiceOrientations } from './choice-styles';
