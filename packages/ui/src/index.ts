@@ -706,3 +706,10 @@ export {
   type ThemeAnimate,
   type ThemeTransitionOptions,
 } from './utils/motion/animation';
+export {
+  useSpring,
+  useTween,
+  type SpringOptions,
+  type Tweened,
+  type TweenOptions,
+} from './utils/motion/tween';

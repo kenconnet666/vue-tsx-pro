@@ -86,8 +86,10 @@ describe('useAnimate', () => {
       }),
     );
     app.mount(document.createElement('div'));
-    // Anime.js 把 0 当作一个极小的正数
+    // Anime.js 把 0 当作一个极小的正数；时长为 0 的动画当场完成
     expect(animation!.duration).toBeLessThan(1);
+    expect(animation!.completed).toBe(true);
+    expect(target.value).toBe(1);
     app.unmount();
   });
 });

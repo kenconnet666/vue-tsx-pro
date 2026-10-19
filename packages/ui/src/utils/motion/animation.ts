@@ -93,6 +93,8 @@ export function useAnimate(): ThemeAnimate {
       if (animation.completed || animation.cancelled) running.delete(animation);
     }
     const animation = animate(target, { ...timing(scope, transition), ...params });
+    // 时长为 0（减少动态效果、读不到主题）时当场到位：不等下一帧，读取结果的代码不会先看到旧值
+    if (animation.duration < 1) return animation.complete();
     running.add(animation);
     return animation;
   };
