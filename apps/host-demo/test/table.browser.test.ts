@@ -159,7 +159,12 @@ describe('TreeTable', () => {
       (button) => button.getAttribute('aria-label') === '市场部 的子项',
     )!;
     await userEvent.click(market);
-    await expect.poll(() => market.getAttribute('aria-busy')).toBe('true');
+    // 每次重新取：展开时这一行会重新渲染
+    const toggle = () =>
+      [...tree().querySelectorAll<HTMLButtonElement>('button[aria-expanded]')].find(
+        (button) => button.getAttribute('aria-label') === '市场部 的子项',
+      );
+    await expect.poll(() => toggle()?.getAttribute('aria-busy')).toBe('true');
     await expect.poll(names, { timeout: 3000 }).toEqual(['研发部', '市场部', '品牌组', '渠道组']);
     await nextTick();
   });
