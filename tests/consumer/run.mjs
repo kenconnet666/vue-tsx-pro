@@ -132,7 +132,7 @@ writeFileSync(
       dependencies: {
         '@vue-tsx-pro/tsx': pack('tsx'),
         '@vue-tsx-pro/ui': pack('ui'),
-        ...catalogVersions(['vue', '@stylexjs/stylex', '@lucide/icons', 'shiki']),
+        ...catalogVersions(['vue', '@stylexjs/stylex', '@lucide/icons', 'shiki', 'zod']),
       },
       devDependencies: catalogVersions(['vite', 'typescript']),
     },

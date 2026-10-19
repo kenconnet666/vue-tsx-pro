@@ -113,6 +113,8 @@ export const Textarea = _component(
                     textareaRowStyles.min(rows),
                     maxRows != null && !fixed && textareaRowStyles.max(maxRows),
                   ],
+                  minlength: state.constraints.minLength,
+                  maxlength: state.constraints.maxLength,
                 },
                 rest,
                 {

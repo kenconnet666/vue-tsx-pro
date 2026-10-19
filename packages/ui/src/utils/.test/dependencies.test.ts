@@ -3,11 +3,11 @@ import { expect, it } from 'vitest';
 import { computePosition } from '@floating-ui/dom';
 import { parseDate } from '@internationalized/date';
 import { Check } from '@lucide/icons';
-import type { StandardSchemaV1 } from '@standard-schema/spec';
 import Decimal from 'decimal.js';
 import { animate, createDraggable, createLayout } from 'animejs';
 import { tabbable } from 'tabbable';
 import { z } from 'zod';
+import { safeParseAsync, toJSONSchema } from 'zod/v4/core';
 
 it('decimal.js：十进制精确运算', () => {
   expect(new Decimal('0.1').plus('0.2').toString()).toBe('0.3');
@@ -51,10 +51,11 @@ it('@unovis/ts、three：按需导入可以解析', async () => {
   expect(new Vector3(3, 4, 0).length()).toBe(5);
 });
 
-it('zod 实现 Standard Schema，表单只依赖接口', async () => {
-  const schema: StandardSchemaV1<unknown, string> = z.string().min(2);
-  const result = await schema['~standard'].validate('x');
-  expect(result.issues?.length).toBe(1);
+it('zod（peer 依赖）：useForm 用 zod/v4/core 的校验与 JSON Schema 转换，zod 与 zod/mini 的 schema 都能用', async () => {
+  const schema = z.object({ name: z.string().min(2) });
+  const result = await safeParseAsync(schema, { name: 'x' });
+  expect(result.error?.issues[0]!.path).toEqual(['name']);
+  expect(toJSONSchema(schema, { io: 'input' })).toMatchObject({ required: ['name'] });
 });
 
 // 可选 peer 依赖：路由适配（子路径 @vue-tsx-pro/ui/vue-router）与以后需要共享状态的组件

@@ -39,7 +39,6 @@
   "dependencies": {
     "@floating-ui/dom": "catalog:",
     "@internationalized/date": "catalog:",
-    "@standard-schema/spec": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
     "animejs": "catalog:",
     "decimal.js": "catalog:",
@@ -53,7 +52,8 @@
     "three": ">=0.170.0",
     "@unovis/ts": "^1.7.0",
     "vue": "^3.5.0",
-    "vue-router": "^5.0.0"
+    "vue-router": "^5.0.0",
+    "zod": "^4.6.0"
   },
   "peerDependenciesMeta": {
     "pinia": {

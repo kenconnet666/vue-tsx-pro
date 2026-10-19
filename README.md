@@ -6,7 +6,13 @@
 
 ## 在已有 Vue 项目中使用
 
-要求 Vue 3.5+、Vite 8。
+要求 Vue 3.5+、Vite 8。组件库的 peer 依赖由宿主安装：
+
+```bash
+pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @stylexjs/stylex @lucide/icons zod
+```
+
+`@lucide/icons` 是组件用的图标数据，`zod` 是表单（`useForm`）的校验库：字段的必填、长度、范围也从 zod schema 推出。
 
 ```ts
 // vite.config.ts：宿主原有的 @vitejs/plugin-vue 保留，再加上预设

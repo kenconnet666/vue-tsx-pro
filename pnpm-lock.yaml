@@ -185,9 +185,6 @@ catalogs:
     '@radix-ui/colors':
       specifier: 3.0.0
       version: 3.0.0
-    '@standard-schema/spec':
-      specifier: 1.1.0
-      version: 1.1.0
     '@stylexjs/stylex':
       specifier: 0.19.1
       version: 0.19.1
@@ -475,9 +472,6 @@ importers:
       '@internationalized/date':
         specifier: 'catalog:'
         version: 3.12.4
-      '@standard-schema/spec':
-        specifier: 'catalog:'
-        version: 1.1.0
       '@vue-tsx-pro/tsx':
         specifier: workspace:^
         version: link:../tsx
@@ -1267,9 +1261,6 @@ packages:
 
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
-
-  '@standard-schema/spec@1.1.0':
-    resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
   '@stylexjs/babel-plugin@0.19.1':
     resolution: {integrity: sha512-Ig3crX6MuGWDEAx+f89aLxTQUWVeEc2Aco2moIdcObyvo7hZJgU26rxJN3k7geFjhi+5dfna6TNR8iTRK0PQGA==}
@@ -3957,8 +3948,6 @@ snapshots:
       '@types/hast': 3.0.5
 
   '@shikijs/vscode-textmate@10.0.2': {}
-
-  '@standard-schema/spec@1.1.0': {}
 
   '@stylexjs/babel-plugin@0.19.1':
     dependencies:

@@ -1,7 +1,8 @@
-// useForm + Form + Field：Standard Schema（zod）校验、何时显示错误、提交、重置、聚焦第一个出错的控件
+// useForm + Form + Field：zod 校验、何时显示错误、提交、重置、聚焦第一个出错的控件、schema 推出的字段约束
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import * as z from 'zod';
+import { NumberField } from '../NumberField';
 import { TextField } from '../TextField';
 import { mount } from '../../utils/.test/mount';
 import { Field } from '../Field';
@@ -108,5 +109,50 @@ describe('Form + Field', () => {
     await flush();
     expect(root.textContent).toContain('邮箱格式不对');
     expect(root.textContent).not.toContain('请填写名字');
+  });
+
+  it('schema 推出约束：必填标记、输入框的 type 与 maxlength、NumberField 的范围；onSubmit 拿到解析后的值', async () => {
+    const onSubmit = vi.fn();
+    const form = useForm({
+      schema: z.object({
+        email: z.email('邮箱格式不对'),
+        nickname: z.string().max(12),
+        count: z.number().int().min(1).max(9),
+        age: z.coerce.number().int().min(18),
+      }),
+      initial: { email: 'ada@lovelace.dev', nickname: '', count: 1, age: '20' },
+      onSubmit,
+    });
+    const root = mount(() => (
+      <Form controller={form}>
+        <form.Field name="email" label="邮箱">
+          <TextField value={_bind(form.values.email)} />
+        </form.Field>
+        <form.Field name="nickname" label="昵称">
+          <TextField value={_bind(form.values.nickname)} />
+        </form.Field>
+        <form.Field name="count" label="数量">
+          <NumberField value={_bind(form.values.count)} />
+        </form.Field>
+      </Form>
+    ));
+    const [emailLabel, nicknameLabel] = root.querySelectorAll('label');
+    const [email, nickname, count] = root.querySelectorAll('input');
+    expect(emailLabel!.querySelector('svg')).not.toBeNull();
+    expect(nicknameLabel!.querySelector('svg')).toBeNull();
+    expect([email!.type, email!.required]).toEqual(['email', true]);
+    expect([nickname!.required, nickname!.getAttribute('maxlength')]).toEqual([false, '12']);
+    expect([count!.getAttribute('aria-valuemin'), count!.getAttribute('aria-valuemax')]).toEqual([
+      '1',
+      '9',
+    ]);
+    root.querySelector('form')!.dispatchEvent(new Event('submit', { cancelable: true }));
+    await flush();
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: 'ada@lovelace.dev',
+      nickname: '',
+      count: 1,
+      age: 20,
+    });
   });
 });

@@ -249,24 +249,24 @@ interface Lang {
 
 **依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/src/utils/.test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
-| 用途     | 选择                                | 说明                                                                                                    |
-| -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                       |
-| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                          |
-| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                    |
-| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                          |
-| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                        |
-| 校验     | `@standard-schema/spec`（接口）     | 表单只依赖接口，使用方可选 zod、valibot 等                                                              |
-| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/animation`                            |
-| 图表     | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置 |
-| 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                  |
-| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                            |
-| 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）  |
-| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                        |
-| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                                                  |
-| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                    |
-| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                              |
-| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                               |
+| 用途     | 选择                                | 说明                                                                                                                              |
+| -------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                 |
+| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                    |
+| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                              |
+| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                    |
+| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                  |
+| 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`input/form-constraints.ts`） |
+| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/animation`                                                      |
+| 图表     | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置                           |
+| 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                                            |
+| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                      |
+| 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                            |
+| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                  |
+| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                                                                            |
+| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                              |
+| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                                                        |
+| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                         |
 
 **待办**：
 
@@ -490,7 +490,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - Toast：`createToaster()` 控制器（组件外也能用）+ `<Toaster>` 区域；每条就是 Alert（Alert 新增 `loading`）；悬停、聚焦、页面隐藏时暂停计时；`promise()`；区域是带名称的 landmark，F8 跳到它，列表 `aria-live="polite"`；顶层 manual popover，模态打开时移进模态；离场用 Collapse 收起高度。
 - **overlay/**：Popover（试点转正）；Tooltip（悬停延迟、在一排触发器间移动不再等待、键盘聚焦立即显示、Esc 只关提示、可移到提示上、触屏不显示，manual popover 不会关掉打开着的菜单）；Menu（菜单按钮模式：MenuItem、MenuLinkItem、MenuCheckboxItem、MenuRadioGroup / MenuRadioItem、MenuGroup，漫游焦点 + 类型搜索，↑ 打开时落在最后一项，Tab 关闭且焦点继续往后）。Breadcrumbs 的折叠改为菜单。
 - **input/**：TextField（试点转正：图标、清空、显示密码的切换按钮名称不变而用 `aria-pressed`）、Textarea（随内容增高，`rows`–`maxRows`）、NumberField（`role="spinbutton"`，按语言解析、认全角数字，提交时夹到范围并对齐步长，步进按钮不进 Tab 顺序）、Checkbox / CheckboxGroup、RadioGroup / Radio（同名原生 radio，方向键是浏览器的）、Switch（`role="switch"`）。
-- **input/ 的表单部分**：Field、Label、Form（`novalidate`，提交失败时聚焦第一个出错的控件，原生 reset 回到初始值）、`useForm`（只依赖 Standard Schema 接口，可加 `validate` 函数；失焦后才显示该字段的错误，提交过之后随输入更新；`setError` 写服务端错误）。
+- **input/ 的表单部分**：Field、Label、Form（`novalidate`，提交失败时聚焦第一个出错的控件，原生 reset 回到初始值）、`useForm`（zod schema 校验，值的类型取自 schema 的输入、`onSubmit` 拿到解析后的输出，可加 `validate` 函数；schema 推出字段约束：必填标记、`maxlength`、NumberField 的范围；`form.Field` 的 `name` 带类型；失焦后才显示该字段的错误，提交过之后随输入更新；`setError` 写服务端错误）。
 
 **取舍**：
 

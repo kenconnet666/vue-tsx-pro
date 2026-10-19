@@ -18,9 +18,10 @@ catalog:
   '@floating-ui/dom': 1.8.0
   '@lucide/icons': 1.59.0
   '@internationalized/date': 3.12.4
-  '@standard-schema/spec': 1.1.0
   decimal.js: 10.6.0
   tabbable: 6.5.0
+  # 表单校验（peer，使用方安装；scripts 里也用它校验数据）
+  zod: 4.6.7
   # 动画引擎（MIT）：animate、timeline、spring、stagger、拖拽、布局动画、滚动观察
   animejs: 4.5.0
   # 可选 peer 依赖（组件库开发时安装）：常规图表 Unovis、3D three.js、代码高亮 Shiki
@@ -49,7 +50,6 @@ catalog:
   # CSS 注释数据（scripts/css-docs）：事实字段来源
   mdn-data: 2.37.2
   web-features: 3.43.0
-  zod: 4.6.7
   smol-toml: 1.9.1
   typescript: 6.0.3
   # Claude Code 原生 LSP（.claude/marketplace 里的 vue-tsx-pro-lsp 插件）用的语言服务器

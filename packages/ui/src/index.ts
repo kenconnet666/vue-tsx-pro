@@ -447,6 +447,7 @@ export {
   type ControlState,
   type ControlVariants,
 } from './input/control';
+export { createConstraints, type FieldConstraints } from './input/form-constraints';
 export {
   handleListKeydown,
   useListState,

@@ -15,7 +15,7 @@
   - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination、NavList（复合）
   - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
   - 表格：Table（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeTable（建在 Table 上，懒加载子项）
-  - 表单（也在 input/）：Field、Label、Form、useForm（Standard Schema 校验）
+  - 表单（也在 input/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型）
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
 

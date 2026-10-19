@@ -47,11 +47,11 @@ export type NumberFieldManaged =
 export interface NumberFieldProps extends PartProps<'input', NumberFieldManaged>, ControlOptions {
   /** 当前值：父级写 value={_bind(x)}；空着时为 null */
   value?: number | null;
-  /** 最小值 */
+  /** 最小值；在表单里默认按 schema（z.number().min(0)） */
   min?: number;
-  /** 最大值 */
+  /** 最大值；在表单里默认按 schema */
   max?: number;
-  /** 步长，默认 1；提交时对齐到 min + n × step */
+  /** 步长，默认 1（schema 是 z.number().multipleOf(0.5) 时按它）；提交时对齐到 min + n × step */
   step?: number;
   /** Page Up / Page Down 的步长，默认 step × 10 */
   bigStep?: number;
@@ -106,9 +106,9 @@ export function parseNumber(text: string, locale: string): number | null {
 export const NumberField = _component(
   ({
     value = _bindable<number | null>(null),
-    min = -Infinity,
-    max = Infinity,
-    step = 1,
+    min,
+    max,
+    step,
     bigStep,
     format,
     stepper = true,
@@ -129,11 +129,15 @@ export const NumberField = _component(
     const formatter = useFormat();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    // 范围与步长：显式写的 > 表单 schema 推出的（z.number().int().min(0)）> 不限、1
+    const low = () => min ?? control().constraints.min ?? -Infinity;
+    const high = () => max ?? control().constraints.max ?? Infinity;
+    const increment = () => step ?? control().constraints.step ?? 1;
     let input = _state.raw<HTMLInputElement | null>(null);
     // 编辑中的文字；不在编辑时为 null，显示格式化后的值
     let draft = _state<string | null>(null);
 
-    const snap = (next: number) => snapToStep(next, step, min, max);
+    const snap = (next: number) => snapToStep(next, increment(), low(), high());
     const plain = (next: number | null) =>
       next == null ? '' : formatter.number(next, { useGrouping: false, maximumFractionDigits: 20 });
 
@@ -150,7 +154,7 @@ export const NumberField = _component(
     function stepBy(delta: number) {
       const current = draft != null ? parseNumber(draft, lang.code) : value;
       const base =
-        current == null || Number.isNaN(current) ? (Number.isFinite(min) ? min : 0) : current;
+        current == null || Number.isNaN(current) ? (Number.isFinite(low()) ? low() : 0) : current;
       value = snap(current == null || Number.isNaN(current) ? base : base + delta);
       if (draft != null) draft = plain(value);
     }
@@ -158,14 +162,14 @@ export const NumberField = _component(
     function onKeydown(event: KeyboardEvent) {
       const state = control();
       if (state.disabled || state.readonly) return;
-      const big = bigStep ?? step * 10;
+      const big = bigStep ?? increment() * 10;
       const actions: Record<string, (() => void) | undefined> = {
-        ArrowUp: () => stepBy(step),
-        ArrowDown: () => stepBy(-step),
+        ArrowUp: () => stepBy(increment()),
+        ArrowDown: () => stepBy(-increment()),
         PageUp: () => stepBy(big),
         PageDown: () => stepBy(-big),
-        Home: Number.isFinite(min) ? () => (value = min) : undefined,
-        End: Number.isFinite(max) ? () => (value = max) : undefined,
+        Home: Number.isFinite(low()) ? () => (value = low()) : undefined,
+        End: Number.isFinite(high()) ? () => (value = high()) : undefined,
         Enter: commit,
       };
       const action = actions[event.key];
@@ -209,7 +213,8 @@ export const NumberField = _component(
       const state = control();
       const editable = !state.disabled && !state.readonly;
       const shown = draft ?? (value == null ? '' : formatter.number(value, format));
-      const integer = Number.isInteger(step) && (!Number.isFinite(min) || Number.isInteger(min));
+      const integer =
+        Number.isInteger(increment()) && (!Number.isFinite(low()) || Number.isInteger(low()));
       return (
         <div
           {...elementProps(mergeProps<'div'>({ sx: controlSx(appearance(), state) }, propsRoot))}
@@ -223,15 +228,15 @@ export const NumberField = _component(
                 id: state.id,
                 type: 'text',
                 role: 'spinbutton',
-                inputmode: integer && min >= 0 ? 'numeric' : 'decimal',
+                inputmode: integer && low() >= 0 ? 'numeric' : 'decimal',
                 autocomplete: rest.autocomplete ?? 'off',
                 value: shown,
                 disabled: state.disabled,
                 readonly: state.readonly,
                 required: state.required,
                 'aria-valuenow': value ?? undefined,
-                'aria-valuemin': Number.isFinite(min) ? min : undefined,
-                'aria-valuemax': Number.isFinite(max) ? max : undefined,
+                'aria-valuemin': Number.isFinite(low()) ? low() : undefined,
+                'aria-valuemax': Number.isFinite(high()) ? high() : undefined,
                 'aria-valuetext': value == null ? undefined : formatter.number(value, format),
                 'aria-invalid': state.invalid || undefined,
                 'aria-describedby': state.describedBy,
@@ -255,9 +260,9 @@ export const NumberField = _component(
                   propsDecrement,
                   {
                     tabindex: -1,
-                    disabled: !editable || (value != null && value <= min),
-                    onPointerdown: (event: PointerEvent) => hold(event, -step),
-                    onClick: () => clickStep(-step),
+                    disabled: !editable || (value != null && value <= low()),
+                    onPointerdown: (event: PointerEvent) => hold(event, -increment()),
+                    onClick: () => clickStep(-increment()),
                   },
                 )}
               />
@@ -272,9 +277,9 @@ export const NumberField = _component(
                   propsIncrement,
                   {
                     tabindex: -1,
-                    disabled: !editable || (value != null && value >= max),
-                    onPointerdown: (event: PointerEvent) => hold(event, step),
-                    onClick: () => clickStep(step),
+                    disabled: !editable || (value != null && value >= high()),
+                    onPointerdown: (event: PointerEvent) => hold(event, increment()),
+                    onClick: () => clickStep(increment()),
                   },
                 )}
               />

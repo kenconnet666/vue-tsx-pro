@@ -21,6 +21,9 @@ import { Text, type TextProps } from '../base/Text';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { FormContext } from './Form';
+import type { FieldConstraints } from './form-constraints';
+
+const NO_CONSTRAINTS: FieldConstraints = Object.freeze({});
 import type { StyleTable } from '../utils/style/styles';
 
 /** Field 交给控件的信息 */
@@ -39,6 +42,8 @@ export interface FieldState {
   readonly disabled: boolean;
   /** 只读 */
   readonly readonly: boolean;
+  /** 从表单 schema 推出的约束（在 Form 里写了 name 时）；控件据此加 maxlength、min / max 等 */
+  readonly constraints: FieldConstraints;
 }
 
 /** Field 的上下文：自定义控件用 useFieldControl 接入，一般不直接读它 */
@@ -50,7 +55,7 @@ export interface FieldControlOptions {
   id?: string;
   /** 校验未通过 */
   invalid?: boolean;
-  /** 必填 */
+  /** 必填；在 Form 里写了 name 时默认按表单的 schema（如 z.string().min(1)） */
   required?: boolean;
   /** 不可用 */
   disabled?: boolean;
@@ -74,6 +79,8 @@ export interface FieldControl {
   disabled: boolean;
   /** 只读 */
   readonly: boolean;
+  /** 从表单 schema 推出的约束；不在 Field 里、或推不出时为空对象。控件上显式写的属性优先 */
+  constraints: FieldConstraints;
 }
 
 /**
@@ -92,6 +99,7 @@ export function useFieldControl(read: () => FieldControlOptions): () => FieldCon
       required: own.required ?? field?.required ?? false,
       disabled: own.disabled ?? field?.disabled ?? false,
       readonly: own.readonly ?? field?.readonly ?? false,
+      constraints: field?.constraints ?? NO_CONSTRAINTS,
     };
   };
 }
@@ -189,7 +197,7 @@ export const Field = _component(
     description,
     error,
     invalid,
-    required = false,
+    required,
     disabled = false,
     readonly = false,
     propsLabel,
@@ -208,6 +216,8 @@ export const Field = _component(
     const form = FormContext.inject(null);
     const message = () => error ?? (name != null ? form?.visibleError(name) : undefined);
     const showError = () => message() != null && invalid !== false;
+    const constraints = () => (name != null && form ? form.constraints(name) : NO_CONSTRAINTS);
+    const isRequired = () => required ?? constraints().required ?? false;
 
     FieldContext.provide({
       controlId: ids.control,
@@ -222,7 +232,10 @@ export const Field = _component(
         return invalid ?? message() != null;
       },
       get required() {
-        return required;
+        return isRequired();
+      },
+      get constraints() {
+        return constraints();
       },
       get disabled() {
         return disabled;
@@ -247,7 +260,7 @@ export const Field = _component(
       >
         {label != null && (
           <Label
-            {...mergePartProps<LabelProps>({ required, disabled }, propsLabel, {
+            {...mergePartProps<LabelProps>({ required: isRequired(), disabled }, propsLabel, {
               id: ids.label,
               for: ids.control,
             })}

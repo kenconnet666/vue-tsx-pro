@@ -30,6 +30,9 @@ import {
 export type TextFieldManaged =
   'value' | 'disabled' | 'readonly' | 'required' | 'size' | 'aria-invalid' | 'aria-describedby';
 
+/** schema 的格式（JSON Schema format）→ 输入框的 type：手机上弹出对应的键盘 */
+const FORMAT_TYPES: Readonly<Record<string, 'email' | 'url'>> = { email: 'email', uri: 'url' };
+
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
 export interface TextFieldProps extends PartProps<'input', TextFieldManaged>, ControlOptions {
   /** 输入值：父级写 value={_bind(x)} 双向绑定 */
@@ -64,7 +67,7 @@ export interface TextFieldProps extends PartProps<'input', TextFieldManaged>, Co
 export const TextField = _component(
   ({
     value = _bindable(''),
-    type = 'text',
+    type,
     variant,
     size,
     radius,
@@ -97,7 +100,10 @@ export const TextField = _component(
     return () => {
       const state = control();
       const editable = !state.disabled && !state.readonly;
-      const password = type === 'password';
+      const constraints = state.constraints;
+      // 不写 type 时按 schema 的格式选：z.email() → email、z.url() → url
+      const inputType = type ?? FORMAT_TYPES[constraints.format ?? ''] ?? 'text';
+      const password = inputType === 'password';
       return (
         <div
           {...elementProps(
@@ -114,16 +120,24 @@ export const TextField = _component(
           {/* _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回 */}
           <input
             {...elementProps(
-              mergeProps<'input'>({ sx: controlStyles.input }, rest, {
-                ref: _toRef(input),
-                id: state.id,
-                type: password && revealed ? 'text' : type,
-                disabled: state.disabled,
-                readonly: state.readonly,
-                required: state.required,
-                'aria-invalid': state.invalid || undefined,
-                'aria-describedby': state.describedBy,
-              }),
+              mergeProps<'input'>(
+                {
+                  sx: controlStyles.input,
+                  minlength: constraints.minLength,
+                  maxlength: constraints.maxLength,
+                },
+                rest,
+                {
+                  ref: _toRef(input),
+                  id: state.id,
+                  type: password && revealed ? 'text' : inputType,
+                  disabled: state.disabled,
+                  readonly: state.readonly,
+                  required: state.required,
+                  'aria-invalid': state.invalid || undefined,
+                  'aria-describedby': state.describedBy,
+                },
+              ),
             )}
             value={_bind(value)}
           />
