@@ -136,7 +136,7 @@ export const NavItem = _component(
   }: NavItemProps) => {
     const router = useRouterLink();
     const group = NavGroupContext.inject(null);
-    const onRipple = useRipple(() => ripple);
+    const rippleHandlers = useRipple(() => ripple);
     const current = _derived(active ?? router.isActive(href));
     const id = Symbol('NavItem');
 
@@ -171,8 +171,7 @@ export const NavItem = _component(
                 'aria-disabled': disabled || undefined,
                 // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转
                 onClick: router.onClick,
-                onPointerdown: onRipple,
-                onKeydown: onRipple,
+                ...rippleHandlers,
               },
             ),
           )}

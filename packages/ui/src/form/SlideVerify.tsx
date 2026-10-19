@@ -21,6 +21,7 @@ import { useLang } from '../config/context';
 import { startMove } from '../utils/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
+import { clamp, isRtl } from '../utils/layout';
 
 /** 验证状态，由应用控制 */
 export interface SlideVerifyStatuses {
@@ -183,8 +184,8 @@ export const SlideVerify = _component(
     let startedAt = 0;
 
     const interactive = () => status === 'idle' && !disabled;
-    const clamp = (value: number) => Math.min(1, Math.max(0, value));
-    const isRtl = () => !!root && getComputedStyle(root).direction === 'rtl';
+    const toRange = (value: number) => clamp(value, 0, 1);
+    const rtl = () => !!root && isRtl(root);
 
     function record() {
       if (!trail.length) startedAt = performance.now();
@@ -208,14 +209,14 @@ export const SlideVerify = _component(
       event.preventDefault();
       handle.focus();
       const travel = root.clientWidth - handle.offsetWidth;
-      const direction = isRtl() ? -1 : 1;
+      const direction = rtl() ? -1 : 1;
       const start = position;
       trail = [];
       record();
       dragging = true;
       startMove(event, {
         onMove: ({ deltaX }) => {
-          position = clamp(start + (direction * deltaX) / travel);
+          position = toRange(start + (direction * deltaX) / travel);
           record();
         },
         onEnd: ({ cancelled }) => {
@@ -230,11 +231,11 @@ export const SlideVerify = _component(
 
     function onKeydown(event: KeyboardEvent) {
       if (!interactive()) return;
-      const forward = isRtl() ? 'ArrowLeft' : 'ArrowRight';
-      const backward = isRtl() ? 'ArrowRight' : 'ArrowLeft';
+      const forward = rtl() ? 'ArrowLeft' : 'ArrowRight';
+      const backward = rtl() ? 'ArrowRight' : 'ArrowLeft';
       const moves: Record<string, () => number> = {
-        [forward]: () => clamp(position + KEY_STEP),
-        [backward]: () => clamp(position - KEY_STEP),
+        [forward]: () => toRange(position + KEY_STEP),
+        [backward]: () => toRange(position - KEY_STEP),
         Home: () => 0,
         End: () => 1,
       };

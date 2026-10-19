@@ -295,7 +295,7 @@ const tabStyles = stylex.create({
 export const Tab = _component(({ value, disabled = false, children, ...rest }: TabProps) => {
   const tabs = TabsContext.inject();
   onBeforeUnmount(tabs.register(_untrack(value)));
-  const onRipple = useRipple(() => tabs.ripple);
+  const rippleHandlers = useRipple(() => tabs.ripple);
 
   return () => {
     const selected = tabs.value === value;
@@ -333,8 +333,7 @@ export const Tab = _component(({ value, disabled = false, children, ...rest }: T
               onFocus: () => {
                 if (tabs.activation === 'automatic') tabs.select(value);
               },
-              onPointerdown: onRipple,
-              onKeydown: onRipple,
+              ...rippleHandlers,
             },
           ),
         )}

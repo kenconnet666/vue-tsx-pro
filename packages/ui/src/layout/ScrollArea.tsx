@@ -14,6 +14,7 @@ import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
+import { isRtl } from '../utils/layout';
 
 /** 哪个方向可以滚动 */
 export interface ScrollAreaAxes {
@@ -155,8 +156,7 @@ const Scrollbar = _component(
             position: Math.abs(element.scrollLeft),
           };
     /** 从右到左排版时横向的方向要反过来 */
-    const sign = () =>
-      axis === 'x' && viewport && getComputedStyle(viewport).direction === 'rtl' ? -1 : 1;
+    const sign = () => (axis === 'x' && viewport && isRtl(viewport) ? -1 : 1);
     const thumbSize = (view: number, size: number, trackSize: number) =>
       Math.max(MIN_THUMB, (view / size) * trackSize);
 

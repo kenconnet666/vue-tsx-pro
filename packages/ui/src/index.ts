@@ -225,7 +225,7 @@ export {
   type StatusVariant,
   type StatusVariants,
 } from './utils/tone-styles';
-export { rippleHostStyles, startRipple, useRipple } from './utils/ripple';
+export { rippleHostStyles, startRipple, useRipple, type RippleHandlers } from './utils/ripple';
 export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/link';
 export {
   paginationItems,

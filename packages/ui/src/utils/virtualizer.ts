@@ -8,6 +8,7 @@
  *   virtualizer.getVirtualItems()   // 要渲染的项：index、start（相对列表开头的偏移）、size
  *   <div data-index={item.index} ref={virtualizer.measureElement}>  // 测量真实大小
  */
+import { clamp } from './layout';
 
 /** 一个要渲染的项；位置都相对列表开头，单位 px */
 export interface VirtualItem {
@@ -287,7 +288,7 @@ export class Virtualizer {
 
   /** 第 index 项按 align 对齐时的滚动位置；auto 且已经完整可见时为 null */
   private offsetForIndex(index: number, align: keyof ScrollAligns): number | null {
-    const item = this.getMeasurements()[Math.max(0, Math.min(index, this.options.count - 1))];
+    const item = this.getMeasurements()[clamp(index, 0, this.options.count - 1)];
     if (!item) return null;
     const { offset, viewport } = this;
     let target: number;
@@ -297,7 +298,7 @@ export class Virtualizer {
     } else if (align === 'start') target = item.start;
     else if (align === 'end') target = item.end - viewport;
     else target = item.start + item.size / 2 - viewport / 2;
-    return Math.max(0, Math.min(target, this.getTotalSize() - viewport));
+    return clamp(target, 0, Math.max(0, this.getTotalSize() - viewport));
   }
 
   private resizeItem(element: Element, size: number) {

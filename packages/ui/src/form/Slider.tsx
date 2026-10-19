@@ -12,6 +12,7 @@ import { startMove } from '../utils/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
 import { fontSizeStyles, type TextSize } from '../utils/typography';
+import { clamp, isRtl } from '../utils/layout';
 
 /** 滑块方向 */
 export interface SliderOrientations {
@@ -144,10 +145,9 @@ export const Slider = _component(
     /** 夹在范围内并对齐到步长 */
     const snap = (raw: number) => {
       const stepped = min + Math.round((raw - min) / step) * step;
-      return Number(Math.min(max, Math.max(min, stepped)).toFixed(decimals(step)));
+      return Number(clamp(stepped, min, max).toFixed(decimals(step)));
     };
-    const isRtl = () =>
-      orientation === 'horizontal' && !!track && getComputedStyle(track).direction === 'rtl';
+    const rtl = () => orientation === 'horizontal' && !!track && isRtl(track);
 
     /** 指针位置对应的值 */
     function valueAt(clientX: number, clientY: number) {
@@ -156,8 +156,8 @@ export const Slider = _component(
         orientation === 'vertical'
           ? (rect.bottom - clientY) / rect.height
           : (clientX - rect.left) / rect.width;
-      if (isRtl()) ratio = 1 - ratio;
-      return snap(min + Math.min(1, Math.max(0, ratio)) * (max - min));
+      if (rtl()) ratio = 1 - ratio;
+      return snap(min + clamp(ratio, 0, 1) * (max - min));
     }
 
     function grab(event: PointerEvent) {
@@ -176,8 +176,8 @@ export const Slider = _component(
       if (disabled) return;
       const big = bigStep ?? Math.max(step, (max - min) / 10);
       // 从右到左排版时，横向的左右键反过来（右边是起点）
-      const forward = isRtl() ? 'ArrowLeft' : 'ArrowRight';
-      const backward = isRtl() ? 'ArrowRight' : 'ArrowLeft';
+      const forward = rtl() ? 'ArrowLeft' : 'ArrowRight';
+      const backward = rtl() ? 'ArrowRight' : 'ArrowLeft';
       const next: Record<string, number> = {
         [forward]: value + step,
         ArrowUp: value + step,
@@ -197,7 +197,7 @@ export const Slider = _component(
     return () => {
       const vertical = orientation === 'vertical';
       // 父级传入超出范围的值时按范围内显示（不改父级的值），滑块不会跑出轨道
-      const shown = Math.min(max, Math.max(min, value));
+      const shown = clamp(value, min, max);
       const percent = `${max > min ? ((shown - min) / (max - min)) * 100 : 0}%`;
       return (
         <div

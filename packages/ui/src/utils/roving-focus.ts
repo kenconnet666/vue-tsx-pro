@@ -7,6 +7,7 @@
  *
  *   _effect(() => (list ? rovingFocus(list, { items: '[role="tab"]', orientation: 'horizontal' }) : undefined));
  */
+import { clamp, isRtl } from './layout';
 
 /** 方向键的方向 */
 export interface RovingOrientations {
@@ -68,7 +69,7 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
     const items = enabled();
     const index = items.indexOf(event.target as HTMLElement);
     if (index < 0) return;
-    const rtl = getComputedStyle(container).direction === 'rtl';
+    const rtl = isRtl(container);
     const horizontal = orientation !== 'vertical';
     const vertical = orientation !== 'horizontal';
     const steps: Record<string, number | 'first' | 'last' | undefined> = {
@@ -86,7 +87,7 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
     if (step === 'first') next = 0;
     else if (step === 'last') next = items.length - 1;
     else if (loop) next = (index + step + items.length) % items.length;
-    else next = Math.min(items.length - 1, Math.max(0, index + step));
+    else next = clamp(index + step, 0, items.length - 1);
     items[next]!.focus();
   }
 

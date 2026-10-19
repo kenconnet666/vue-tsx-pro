@@ -64,7 +64,7 @@ export const LinkButton = _component(
     const lang = useLang();
     const router = useRouterLink();
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'solid');
-    const onRipple = useRipple(() => ripple);
+    const rippleHandlers = useRipple(() => ripple);
     // 加载中、不可用时点击无效；使用方的 onClick 先于路由跳转执行，可以 preventDefault 拦下
     const click = guardClick<MouseEvent>(
       () => loading || disabled,
@@ -90,8 +90,7 @@ export const LinkButton = _component(
               'aria-disabled': disabled || undefined,
               'aria-busy': loading || undefined,
               onClick: click,
-              onPointerdown: onRipple,
-              onKeydown: onRipple,
+              ...rippleHandlers,
             },
           ),
         )}

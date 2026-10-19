@@ -182,7 +182,7 @@ export const ToggleItem = _component(
     ...rest
   }: ToggleItemProps) => {
     const group = ToggleGroupContext.inject();
-    const onRipple = useRipple(() => group.ripple);
+    const rippleHandlers = useRipple(() => group.ripple);
     // 选中的是浅色底，其余是幽灵按钮；尺寸跟随组
     const appearance = useButtonAppearance(
       () => ({ variant: undefined, tone: 'neutral', size: group.size, radius: radius ?? 'sm' }),
@@ -214,8 +214,7 @@ export const ToggleItem = _component(
                 disabled: off,
                 // 使用方的 onClick 先执行，preventDefault 可以拦下切换（mergeProps 的规则）
                 onClick: () => group.toggle(value),
-                onPointerdown: onRipple,
-                onKeydown: onRipple,
+                ...rippleHandlers,
               },
             ),
           )}

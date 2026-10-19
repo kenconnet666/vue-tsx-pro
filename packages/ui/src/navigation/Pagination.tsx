@@ -17,6 +17,7 @@ import { paginationItems } from '../utils/pagination';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { listStyles } from '../utils/styles';
 import type { TextSize } from '../utils/typography';
+import { clamp } from '../utils/layout';
 
 /** 未声明的属性落到 nav 上；aria-label 默认取语言包（分页） */
 export interface PaginationProps extends PartProps<'nav'> {
@@ -93,10 +94,10 @@ export const Pagination = _component(
     const lang = useLang();
     const count = _derived(Math.max(1, pageCount ?? Math.ceil((total ?? 0) / pageSize)));
     // 显示用的当前页：总数变少（筛选后）时父级的 page 可能超出范围，夹回去，不显示不存在的页
-    const current = _derived(Math.min(count, Math.max(1, page)));
+    const current = _derived(clamp(page, 1, count));
 
     function go(target: number) {
-      page = Math.min(count, Math.max(1, target));
+      page = clamp(target, 1, count);
     }
 
     /** 一个页码：当前页是实底，其余是 ghost；有 href 时是链接 */

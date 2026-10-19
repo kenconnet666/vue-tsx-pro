@@ -46,8 +46,8 @@ describe('startRipple', () => {
 
 describe('useRipple 的开关', () => {
   const Clickable = _component(({ ripple }: { ripple?: boolean }) => {
-    const onRipple = useRipple(() => ripple);
-    return () => <button onPointerdown={onRipple}>x</button>;
+    const handlers = useRipple(() => ripple);
+    return () => <button {...handlers}>x</button>;
   });
 
   it('默认开启；Provider 可以全局关闭，组件的 prop 优先', () => {

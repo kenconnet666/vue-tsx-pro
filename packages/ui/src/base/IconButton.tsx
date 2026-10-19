@@ -55,7 +55,7 @@ export const IconButton = _component(
     ...rest
   }: IconButtonProps) => {
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'ghost');
-    const onRipple = useRipple(() => ripple);
+    const rippleHandlers = useRipple(() => ripple);
     const click = guardClick(
       () => loading || (disabled && focusableWhenDisabled),
       () => onClick,
@@ -73,8 +73,7 @@ export const IconButton = _component(
               'aria-disabled': (disabled && focusableWhenDisabled) || undefined,
               'aria-busy': loading || undefined,
               onClick: click,
-              onPointerdown: onRipple,
-              onKeydown: onRipple,
+              ...rippleHandlers,
             },
           ),
         )}

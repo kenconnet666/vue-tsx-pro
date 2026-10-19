@@ -5,7 +5,7 @@
  * 默认开启，createUi / Provider 的 ripple 全局开关，组件的 ripple prop 单独覆盖（见 useRipple）。
  *
  *   const ripple = useRipple(() => props.ripple)
- *   onPointerdown={ripple} onKeydown={ripple}
+ *   mergeProps<'button'>(默认, rest, { ...ripple })
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
@@ -43,17 +43,24 @@ const placement = stylex.create({
   at: (x: number, y: number, size: number) => ({ left: x, top: y, width: size, height: size }),
 });
 
+/** useRipple 的结果：展开到宿主元素上（mergeProps 的受管层） */
+export interface RippleHandlers {
+  /** 指针按下：从按下的位置扩散 */
+  onPointerdown: (event: PointerEvent) => void;
+  /** Enter / 空格：从中心扩散 */
+  onKeydown: (event: KeyboardEvent) => void;
+}
+
 /**
- * 组件里用的波纹处理函数：按开关决定是否出波纹，展开到 onPointerdown 与 onKeydown 上。
+ * 组件里用的波纹：按开关决定是否出波纹，返回的两个处理函数展开到宿主元素上（`...ripple`）。
  * own 读组件自己的 ripple prop（没写时为 undefined，沿用配置）；在 setup 里调用
  */
-export function useRipple(
-  own: () => boolean | undefined,
-): (event: PointerEvent | KeyboardEvent) => void {
+export function useRipple(own: () => boolean | undefined): RippleHandlers {
   const config = useConfig();
-  return (event) => {
+  const handler = (event: PointerEvent | KeyboardEvent) => {
     if (own() ?? config.ripple) startRipple(event);
   };
+  return { onPointerdown: handler, onKeydown: handler };
 }
 
 /** 不可用的宿主不出波纹 */

@@ -8,6 +8,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { clamp } from '../utils/layout';
 
 /** 进度条的色调 */
 export interface ProgressTones {
@@ -84,7 +85,7 @@ export const Progress = _component(
   ({ value, max = 100, tone = 'accent', valueText, propsIndicator, ...rest }: ProgressProps) =>
     () => {
       const determinate = value != null;
-      const clamped = determinate ? Math.min(max, Math.max(0, value)) : 0;
+      const clamped = determinate ? clamp(value, 0, max) : 0;
       const percent = max > 0 ? (clamped / max) * 100 : 0;
       return (
         <div
