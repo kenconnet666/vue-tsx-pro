@@ -9,7 +9,9 @@
 import type { LucideIconData } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { h, type VNode } from 'vue';
+import { createDrawable, utils } from 'animejs';
+import { h, onMounted, watch, type VNode } from 'vue';
+import { useAnimate } from '../utils/motion/animation';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { StyleTable } from '../utils/style/styles';
@@ -38,6 +40,11 @@ export interface IconProps extends PartProps<'svg', IconManaged> {
   strokeWidth?: number;
   /** 从右到左排版时水平翻转：箭头、chevron 这类有方向的图标 */
   flipInRtl?: boolean;
+  /**
+   * 描线动画（一笔画出）：挂载时为 true 就在挂载时播，之后每次由 false 变为 true 再播（Anime.js 的 createDrawable，
+   * 时长取主题，减少动态效果时直接画好）。要在挂载时就给出（true / false），不给的图标不建动画
+   */
+  draw?: boolean;
 }
 
 /** Icon 的样式：icon、flip */
@@ -56,8 +63,15 @@ export const iconStyles: StyleTable<'icon' | 'flip'> = stylex.create({
 
 /** 图标（svg）：渲染 Lucide 格式的图标数据；不传 aria-label 时是装饰性的，对读屏隐藏 */
 export const Icon = _component(
-  ({ icon, size, strokeWidth, flipInRtl = false, ...rest }: IconProps) =>
-    () => {
+  ({ icon, size, strokeWidth, flipInRtl = false, draw, ...rest }: IconProps) => {
+    let svg = _state.raw<SVGSVGElement | null>(null);
+    // 大多数图标不描线：不给 draw 时不建监听与动画
+    if (_untrack(draw) !== undefined)
+      useDraw(
+        () => svg,
+        () => draw === true,
+      );
+    return () => {
       const labelled = rest['aria-label'] != null || rest['aria-labelledby'] != null;
       return (
         <svg
@@ -83,6 +97,7 @@ export const Icon = _component(
                 'stroke-linejoin': 'round',
                 role: labelled ? 'img' : undefined,
                 'aria-hidden': labelled ? undefined : 'true',
+                ref: _toRef(svg),
               },
             ),
           )}
@@ -90,8 +105,24 @@ export const Icon = _component(
           {icon.node.map(renderIconNode)}
         </svg>
       );
-    },
+    };
+  },
 );
+
+/** 描线：draw 变为 true（含挂载时）就从无到有画出每一笔 */
+function useDraw(element: () => SVGSVGElement | null, draw: () => boolean) {
+  const animate = useAnimate();
+  const play = () => {
+    const svg = element();
+    if (!svg || !draw()) return;
+    const strokes = createDrawable([...svg.children] as SVGGeometryElement[]);
+    // 先擦掉再画：挂载时在浏览器绘制前就擦掉，不会先闪一下完整的图标
+    void utils.set(strokes, { draw: '0 0' });
+    void animate(strokes, { draw: '0 1' }, { duration: 'xl', ease: 'enter' });
+  };
+  onMounted(play);
+  watch(draw, play, { flush: 'post' });
+}
 
 /** Lucide 图标默认画在 24×24 的画布上；自定义图标可以给出自己的 size 或 width / height */
 function viewBox(icon: IconData) {
