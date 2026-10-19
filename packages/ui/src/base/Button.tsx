@@ -7,6 +7,7 @@
  *   <Button type="submit" loading={saving}>提交</Button>
  */
 import { _component } from '@vue-tsx-pro/tsx';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import {
   buttonContent,
@@ -58,6 +59,8 @@ export const Button = _component(
     ...rest
   }: ButtonProps) => {
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'solid');
+    // 很快完成的加载不换成加载指示；点击拦截、aria-busy 仍按 loading 立即生效
+    const spinner = useDelayedLoading(() => loading);
     const behavior = useButtonBehavior(
       () => ({ disabled, loading, focusableWhenDisabled, ripple }),
       () => onClick,
@@ -75,7 +78,7 @@ export const Button = _component(
       >
         {buttonContent(
           { icon, iconEnd, children, propsContent, propsIcon, propsIconEnd },
-          { loading, propsSpinner },
+          { loading: spinner.value, propsSpinner },
         )}
       </button>
     );

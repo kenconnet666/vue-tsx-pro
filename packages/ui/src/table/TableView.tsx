@@ -17,6 +17,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress } from '../feedback/Progress';
@@ -323,6 +324,8 @@ export const TableView = _component(
     ...rest
   }: TableViewProps<T>) => {
     const lang = useLang();
+    // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
+    const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
     let viewport = _state.raw<HTMLElement | null>(null);
     let body = _state.raw<HTMLElement | null>(null);
@@ -578,7 +581,7 @@ export const TableView = _component(
                 )}
                 {columns.map(renderHeaderCell)}
               </tr>
-              {loading && rows.length > 0 && (
+              {indicator.value && rows.length > 0 && (
                 <tr aria-hidden="true">
                   <td colspan={span} {...stylex.attrs(tableStyles.progressCell)}>
                     <div {...stylex.attrs(tableStyles.progress)}>
@@ -590,7 +593,7 @@ export const TableView = _component(
             </thead>
             <tbody ref={_toRef(body)}>
               {rows.length === 0 &&
-                loading &&
+                indicator.value &&
                 Array.from({ length: SKELETON_ROWS }, (_, index) => (
                   <tr
                     key={`skeleton-${index}`}

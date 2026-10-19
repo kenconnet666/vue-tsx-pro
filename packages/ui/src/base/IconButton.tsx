@@ -5,6 +5,7 @@
  *   <IconButton icon={Settings} aria-label="设置" />
  */
 import { _component } from '@vue-tsx-pro/tsx';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import {
   buttonContent,
@@ -54,6 +55,8 @@ export const IconButton = _component(
     ...rest
   }: IconButtonProps) => {
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'ghost');
+    // 很快完成的加载不换成加载指示；点击拦截、aria-busy 仍按 loading 立即生效
+    const spinner = useDelayedLoading(() => loading);
     const behavior = useButtonBehavior(
       () => ({ disabled, loading, focusableWhenDisabled, ripple }),
       () => onClick,
@@ -69,7 +72,7 @@ export const IconButton = _component(
           ),
         )}
       >
-        {buttonContent({ icon, propsIcon }, { loading, propsSpinner })}
+        {buttonContent({ icon, propsIcon }, { loading: spinner.value, propsSpinner })}
       </button>
     );
   },

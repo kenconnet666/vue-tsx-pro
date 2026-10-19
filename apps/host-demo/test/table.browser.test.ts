@@ -126,7 +126,8 @@ describe('Table', () => {
   it('刷新时表头下方出现进度条，表格 aria-busy', async () => {
     await userEvent.click($('.table-refresh'));
     await expect.poll(() => table().getAttribute('aria-busy')).toBe('true');
-    expect(table().querySelector('thead [role="progressbar"]')).not.toBeNull();
+    // 进度条防闪烁：过一会儿才出现（useDelayedLoading）
+    await expect.poll(() => table().querySelector('thead [role="progressbar"]')).not.toBeNull();
     await expect.poll(() => table().getAttribute('aria-busy'), { timeout: 3000 }).toBeNull();
   });
 

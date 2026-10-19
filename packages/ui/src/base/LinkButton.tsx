@@ -9,6 +9,7 @@ import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import {
   buttonContent,
@@ -64,6 +65,8 @@ export const LinkButton = _component(
     const router = useRouterLink();
     const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'solid');
     // 链接没有原生 disabled：不可用时去掉 href、用 aria-disabled。使用方的 onClick 先于路由跳转执行，可以 preventDefault 拦下
+    // 很快完成的加载不换成加载指示；点击拦截、aria-busy 仍按 loading 立即生效
+    const spinner = useDelayedLoading(() => loading);
     const behavior = useButtonBehavior(
       () => ({ disabled, loading, focusableWhenDisabled: true, ripple }),
       () => (event) => {
@@ -99,7 +102,7 @@ export const LinkButton = _component(
             propsIconEnd,
             children: [children, external && <VisuallyHidden>{lang.linkNewWindow}</VisuallyHidden>],
           },
-          { loading, propsSpinner },
+          { loading: spinner.value, propsSpinner },
         )}
       </a>
     );

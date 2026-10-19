@@ -13,6 +13,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
@@ -143,6 +144,8 @@ export const VirtualList = _component(
     ...rest
   }: VirtualListProps<T>) => {
     const lang = useLang();
+    // 骨架、进度条防闪烁；aria-busy 按真实的 loading
+    const indicator = useDelayedLoading(() => loading);
     let root = _state.raw<HTMLElement | null>(null);
     let list = _state.raw<HTMLElement | null>(null);
     const virtual = useVirtualizer(() => {
@@ -200,7 +203,7 @@ export const VirtualList = _component(
             ),
           )}
         >
-          {loading && hasItems && (
+          {indicator.value && hasItems && (
             <div aria-hidden="true" {...stylex.attrs(virtualListStyles.progress)}>
               <Progress size="xs" aria-label={lang.loading} />
             </div>
@@ -254,6 +257,7 @@ export const VirtualList = _component(
               })}
             </div>
           ) : loading ? (
+            indicator.value &&
             Array.from({ length: SKELETON_ROWS }, (_, index) => (
               <div key={index} aria-hidden="true" {...stylex.attrs(virtualListStyles.skeletonRow)}>
                 <Skeleton

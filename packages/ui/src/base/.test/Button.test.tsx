@@ -1,7 +1,7 @@
 // 按钮家族：Button、LinkButton、IconButton、CloseButton、ClearButton 的行为与组件默认值
 import { Plus, Settings } from '@lucide/icons';
 import { describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, shallowRef } from 'vue';
 import { Provider } from '../../config/Provider';
 import { mount } from '../../utils/.test/mount';
 import { Button } from '../Button';
@@ -24,6 +24,21 @@ describe('Button', () => {
     expect(button.dataset.x).toBe('1');
     expect(first(root, '.content').querySelector('svg')).not.toBeNull();
     expect(button.textContent).toBe('新建');
+  });
+
+  it('loading 变为 true 后先拦下点击，过一会儿才换成加载指示（很快完成时不闪）', async () => {
+    vi.useFakeTimers();
+    const loading = shallowRef(false);
+    const root = mount(() => <Button loading={loading.value}>保存</Button>);
+    const button = first<HTMLButtonElement>(root, 'button');
+    loading.value = true;
+    await nextTick();
+    expect(button.getAttribute('aria-busy')).toBe('true');
+    expect(button.querySelector('svg')).toBeNull();
+    vi.advanceTimersByTime(200);
+    await nextTick();
+    expect(button.querySelector('svg')).not.toBeNull();
+    vi.useRealTimers();
   });
 
   it('loading：不用 disabled（焦点保留），aria-busy，点击被拦下、不提交表单', () => {

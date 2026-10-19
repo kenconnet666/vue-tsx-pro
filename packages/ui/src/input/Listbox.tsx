@@ -24,6 +24,7 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress } from '../feedback/Progress';
@@ -170,6 +171,8 @@ export const ListboxView = _component(
     ...rest
   }: ListboxViewProps<T>) => {
     const lang = useLang();
+    // 骨架、进度条防闪烁；aria-busy 按真实的 loading
+    const indicator = useDelayedLoading(() => loading);
     let root = _state.raw<HTMLElement | null>(null);
     let sizer = _state.raw<HTMLElement | null>(null);
 
@@ -316,6 +319,7 @@ export const ListboxView = _component(
     function renderBody() {
       if (rows.length === 0) {
         if (loading) {
+          if (!indicator.value) return null;
           return Array.from({ length: SKELETON_ROWS }, (_, index) => (
             <Skeleton
               key={index}
@@ -398,7 +402,7 @@ export const ListboxView = _component(
           ),
         )}
       >
-        {loading && rows.length > 0 && (
+        {indicator.value && rows.length > 0 && (
           <div aria-hidden="true" {...stylex.attrs(listboxStyles.progress)}>
             <Progress size="xs" aria-label={lang.loading} />
           </div>
