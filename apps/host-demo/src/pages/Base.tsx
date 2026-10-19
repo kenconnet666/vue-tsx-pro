@@ -74,12 +74,14 @@ import {
   ToggleItem,
   Toolbar,
   themeTransition,
+  Toaster,
   VirtualList,
   VisuallyHidden,
   type VirtualListHandle,
 } from '@vue-tsx-pro/ui';
 import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
+import { toaster } from '../toaster';
 
 const sampleCode = `export const Counter = _component(() => {
   let count = _state(0); // 像普通变量一样读写
@@ -201,6 +203,27 @@ export const Base = _component(() => {
   let drawerOpen = _state(false);
   let confirmOpen = _state(false);
   let deleted = _state(0);
+
+  function notifyUndo() {
+    const id = toaster.show({
+      title: '已移到回收站',
+      description: '30 天后自动删除。',
+      action: (
+        <Button size="sm" variant="soft" class="toast-undo" onClick={() => toaster.dismiss(id)}>
+          撤销
+        </Button>
+      ),
+    });
+  }
+  function upload() {
+    void toaster
+      .promise(new Promise((resolve) => setTimeout(resolve, 800)), {
+        loading: { title: '正在上传' },
+        success: { title: '上传完成' },
+        error: { title: '上传失败' },
+      })
+      .catch(() => {});
+  }
   let orderTab = _state('all');
   let step = _state(1);
   let page = _state(3);
@@ -505,6 +528,24 @@ export const Base = _component(() => {
           </Drawer>
         </Section>
 
+        <Section title="通知 Toast">
+          <Flex gap="sm" wrap align="center">
+            <Button
+              class="toast-success"
+              variant="soft"
+              onClick={() => toaster.show({ tone: 'success', title: '已保存' })}
+            >
+              保存
+            </Button>
+            <Button class="toast-action" variant="soft" onClick={notifyUndo}>
+              删除（可撤销）
+            </Button>
+            <Button class="toast-promise" variant="soft" onClick={upload}>
+              上传
+            </Button>
+          </Flex>
+        </Section>
+
         <Section title="进度与占位 Progress · Skeleton">
           <Progress class="progress-demo" value={volume} aria-label="演示进度" />
           <Progress tone="success" value={100} aria-label="已完成" />
@@ -756,6 +797,7 @@ export const Base = _component(() => {
           </div>
         </Section>
       </main>
+      <Toaster controller={toaster} class="toaster-demo" />
     </Provider>
   );
 });

@@ -11,6 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
+import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
 import { focusAfterRemoval } from '../utils/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
@@ -42,8 +43,8 @@ export interface AlertOptions {
   variant?: keyof AlertVariants;
 }
 
-/** 角色由 live 决定；原生的 title 属性（悬停提示）让给标题 */
-type Managed = 'role' | 'title';
+/** 角色由 live 决定，忙碌由 loading 决定；原生的 title 属性（悬停提示）让给标题 */
+type Managed = 'role' | 'title' | 'aria-busy';
 
 /** 未声明的属性落到外层 div 上 */
 export interface AlertProps extends PartProps<'div', Managed>, AlertOptions {
@@ -53,6 +54,8 @@ export interface AlertProps extends PartProps<'div', Managed>, AlertOptions {
   title?: VNodeChild;
   /** 图标；不写时按色调选，false 不显示 */
   icon?: IconData | false;
+  /** 进行中（如“正在上传”）：图标换成加载指示，带 aria-busy */
+  loading?: boolean;
   /** 读屏播报方式，默认 off */
   live?: keyof AlertLives;
   /** 右侧的操作（如“重试”按钮） */
@@ -61,6 +64,8 @@ export interface AlertProps extends PartProps<'div', Managed>, AlertOptions {
   onClose?: () => void;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
+  /** 加载指示（loading 时代替图标）的部件属性 */
+  propsSpinner?: Partial<SpinnerProps>;
   /** 文字区（标题与正文的容器）的部件属性 */
   propsBody?: PartProps<'div'>;
   /** 标题的部件属性 */
@@ -102,10 +107,12 @@ export const Alert = _component(
     tone = 'info',
     title,
     icon,
+    loading = false,
     live = 'off',
     action,
     onClose,
     propsIcon,
+    propsSpinner,
     propsBody,
     propsTitle,
     propsDescription,
@@ -123,13 +130,19 @@ export const Alert = _component(
             mergeProps<'div'>(
               { sx: [styles.root, statusToneSx(variant ?? defaults.variant ?? 'soft', tone)] },
               rest,
-              { role: ROLES[live] },
+              { role: ROLES[live], 'aria-busy': loading || undefined },
             ),
           )}
           data-tone={tone}
         >
-          {shownIcon && (
-            <Icon {...mergePartProps<IconProps>({ icon: shownIcon, sx: styles.icon }, propsIcon)} />
+          {loading ? (
+            <Spinner {...mergePartProps<SpinnerProps>({ sx: styles.icon }, propsSpinner)} />
+          ) : (
+            shownIcon && (
+              <Icon
+                {...mergePartProps<IconProps>({ icon: shownIcon, sx: styles.icon }, propsIcon)}
+              />
+            )
           )}
           <div {...elementProps(mergeProps<'div'>({ sx: styles.body }, propsBody))}>
             {title != null && (

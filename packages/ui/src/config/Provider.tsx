@@ -79,3 +79,26 @@ export const Provider = _component(
     );
   },
 );
+
+/** ConfigScope 的 props */
+export interface ConfigScopeProps {
+  children?: VNodeChild;
+}
+
+/**
+ * 给移出 Provider 的内容（Teleport 到 body 的 Toaster 等）重新带上当前的主题、语言与文字方向：
+ * 主题变量、lang、dir 都挂在 Provider 的元素上，传送出去的元素不再是它的后代。
+ */
+export const ConfigScope = _component(({ children }: ConfigScopeProps) => {
+  const config = useConfig();
+  return () => (
+    <div
+      {...themeAttrs(config.theme)}
+      {...stylex.attrs(styles.root, styles.themed)}
+      lang={config.lang.code}
+      dir={config.lang.direction}
+    >
+      {children}
+    </div>
+  );
+});

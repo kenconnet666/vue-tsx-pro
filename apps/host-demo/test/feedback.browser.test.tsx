@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { nextTick, type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
 import { createHostApp } from '../src/app';
+import { toaster } from '../src/toaster';
 
 let app: App;
 let root: HTMLElement;
@@ -19,6 +20,7 @@ beforeEach(async () => {
   app.mount(root);
 });
 afterEach(() => {
+  for (const toast of [...toaster.toasts]) toaster.remove(toast.id);
   app.unmount();
   root.remove();
 });
@@ -156,5 +158,87 @@ describe('Dialog · AlertDialog · Drawer', () => {
     const { violations } = await axe.run(dialog);
     expect(violations.map((violation) => violation.id)).toEqual([]);
     dialog.close();
+  });
+});
+
+describe('Toast', () => {
+  const region = () => document.querySelector<HTMLElement>('.toaster-demo')!;
+  const items = () => [...region().querySelectorAll<HTMLElement>('li[data-state="open"]')];
+
+  it('区域是带名称的 landmark，显示在顶层；到时自动关闭并移除', async () => {
+    expect(region().tagName).toBe('SECTION');
+    expect(region().getAttribute('aria-label')).toBe('通知');
+    expect(region().matches(':popover-open')).toBe(true);
+    toaster.show({ tone: 'success', title: '已保存', duration: 300 });
+    await expect.poll(() => items().length).toBe(1);
+    expect(region().querySelector('ol')!.getAttribute('aria-live')).toBe('polite');
+    await expect.poll(() => region().querySelectorAll('li').length, { timeout: 3000 }).toBe(0);
+  });
+
+  it('关闭一条后焦点交给相邻的通知', async () => {
+    toaster.show({ title: '第一条', duration: Infinity });
+    toaster.show({ title: '第二条', duration: Infinity });
+    await expect.poll(() => items().length).toBe(2);
+    const close = (item: HTMLElement) =>
+      item.querySelector<HTMLElement>('button[aria-label="关闭"]')!;
+    const [first, second] = items();
+    close(first!).focus();
+    close(first!).click();
+    await expect.poll(() => region().querySelectorAll('li').length).toBe(1);
+    expect(document.activeElement).toBe(close(second!));
+  });
+
+  it('promise：加载中显示加载指示，完成后换成结果', async () => {
+    await userEvent.click($('.toast-promise'));
+    await expect.poll(() => items()[0]?.querySelector('[aria-busy="true"]')).not.toBeNull();
+    await expect.poll(() => items()[0]?.textContent, { timeout: 3000 }).toContain('上传完成');
+    expect(items()[0]!.querySelector('[aria-busy]')).toBeNull();
+  });
+
+  it('模态打开时区域移进对话框里，通知里的按钮仍能点击；关闭后回到 body', async () => {
+    const dialog = $<HTMLDialogElement>('.dialog-demo');
+    await userEvent.click($('.dialog-open'));
+    await expect.poll(() => dialog.open).toBe(true);
+    // 对话框打开时页面上的按钮是 inert 的：直接用控制器发通知
+    const id = toaster.show({
+      title: '在对话框里',
+      duration: Infinity,
+      action: (
+        <button class="in-dialog-action" onClick={() => toaster.dismiss(id)}>
+          好的
+        </button>
+      ),
+    });
+    await expect.poll(() => dialog.contains(region())).toBe(true);
+    await expect.poll(() => region().matches(':popover-open')).toBe(true);
+    await userEvent.click(region().querySelector<HTMLElement>('.in-dialog-action')!);
+    await expect.poll(() => region().querySelectorAll('li').length).toBe(0);
+    expect(dialog.open).toBe(true);
+    dialog.close();
+    await expect.poll(() => region().parentElement?.parentElement).toBe(document.body);
+    await expect.poll(() => region().matches(':popover-open')).toBe(true);
+  });
+
+  it('传送到 body 后仍跟随页面的主题', async () => {
+    const scope = region().parentElement!;
+    expect(scope.dataset.theme).toBe('light');
+    $('.toggle-theme').click();
+    await expect.poll(() => scope.dataset.theme).toBe('dark');
+  });
+
+  it('无障碍：有通知时 axe-core 没有违规', async () => {
+    toaster.show({ tone: 'danger', title: '保存失败', description: '请重试', duration: Infinity });
+    toaster.show({ tone: 'success', title: '已保存', duration: Infinity });
+    await expect.poll(() => items().length).toBe(2);
+    await Promise.race([
+      Promise.all(
+        region()
+          .getAnimations({ subtree: true })
+          .map((animation) => animation.finished),
+      ),
+      new Promise((resolve) => setTimeout(resolve, 1000)),
+    ]);
+    const { violations } = await axe.run(region());
+    expect(violations.map((violation) => violation.id)).toEqual([]);
   });
 });

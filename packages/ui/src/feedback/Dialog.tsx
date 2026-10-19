@@ -28,6 +28,7 @@ import {
   focusOrigin,
   lockScroll,
   returnFocus,
+  trackModal,
   trapFocus,
 } from '../utils/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
@@ -133,6 +134,7 @@ export const ModalCore = _component(
       dialog.showModal();
       const target = dialog;
       const cleanups = [
+        trackModal(target),
         lockScroll(),
         trapFocus(target),
         dismissible ? dismissOnBackdrop(target, () => target.close()) : undefined,
@@ -309,7 +311,8 @@ const drawerStyles = stylex.create({
     maxHeight: '100dvh',
     borderRadius: 0,
     // 进场从所在一侧滑入（@starting-style），离场淡出（allow-discrete，目前只有 Chromium）：
-    // 离场不滑回去，方向只需在进场的起始值里区分一次；“减少动态效果”时时长为 0
+    // 离场不滑回去，方向只需在进场的起始值里区分一次；“减少动态效果”时时长为 0。
+    // 平时 translate 是 none 而不是 0 0：否则抽屉会成为 fixed 子元素（移进来的 Toaster）的包含块
     opacity: { default: 0, ':modal': 1 },
     transition: {
       default:
@@ -326,9 +329,9 @@ const drawerStyles = stylex.create({
     insetInlineEnd: 'auto',
     borderInlineStartWidth: 0,
     translate: {
-      default: '0 0',
+      default: 'none',
       ':modal': {
-        default: '0 0',
+        default: 'none',
         '@starting-style': { default: '-100% 0', ':dir(rtl)': '100% 0' },
       },
     },
@@ -338,9 +341,9 @@ const drawerStyles = stylex.create({
     insetInlineEnd: 0,
     borderInlineEndWidth: 0,
     translate: {
-      default: '0 0',
+      default: 'none',
       ':modal': {
-        default: '0 0',
+        default: 'none',
         '@starting-style': { default: '100% 0', ':dir(rtl)': '-100% 0' },
       },
     },
@@ -349,13 +352,13 @@ const drawerStyles = stylex.create({
     top: 0,
     bottom: 'auto',
     borderBlockStartWidth: 0,
-    translate: { default: '0 0', ':modal': { default: '0 0', '@starting-style': '0 -100%' } },
+    translate: { default: 'none', ':modal': { default: 'none', '@starting-style': '0 -100%' } },
   },
   bottom: {
     top: 'auto',
     bottom: 0,
     borderBlockEndWidth: 0,
-    translate: { default: '0 0', ':modal': { default: '0 0', '@starting-style': '0 100%' } },
+    translate: { default: 'none', ':modal': { default: 'none', '@starting-style': '0 100%' } },
   },
 });
 

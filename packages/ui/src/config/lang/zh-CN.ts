@@ -16,6 +16,7 @@ export const zhCN: Lang = {
   copy: '复制',
   copied: '已复制',
 
+  toasterLabel: '通知',
   linkNewWindow: '（在新窗口打开）',
   selectEmpty: '没有选项',
   selectPlaceholder: '请选择',

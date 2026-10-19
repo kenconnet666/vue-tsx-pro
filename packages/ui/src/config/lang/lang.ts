@@ -61,6 +61,8 @@ export interface Lang {
 
   // ───────── 组件文案 ─────────
 
+  /** 通知区域（Toaster）的无障碍名称，默认“通知” */
+  readonly toasterLabel: string;
   /** 外链（target=_blank）给读屏的提示，默认“（在新窗口打开）” */
   readonly linkNewWindow: string;
   /** 下拉框没有选项时的提示，默认“没有选项” */

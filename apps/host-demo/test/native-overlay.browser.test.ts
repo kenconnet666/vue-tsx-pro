@@ -97,3 +97,20 @@ it('点击模态 dialog 的背景（::backdrop）时，事件目标是 dialog �
   await userEvent.click(dialog, { position: { x: -40, y: -40 } });
   expect(target).toBe(dialog);
 });
+
+it('模态 dialog 打开时，外面的 manual popover 即使在之后显示也是 inert（所以 Toaster 要移进最上层的模态里）', async () => {
+  const toast = html<HTMLElement>(
+    '<div id="toast" popover="manual"><button id="tb">通知里的按钮</button></div>',
+    '#toast',
+  );
+  const dialog = html<HTMLDialogElement>('<dialog id="d"><button>里面</button></dialog>', '#d');
+  let clicks = 0;
+  const button = toast.querySelector<HTMLButtonElement>('#tb')!;
+  button.addEventListener('click', () => clicks++);
+  dialog.showModal();
+  toast.showPopover();
+  button.focus();
+  expect(document.activeElement).not.toBe(button);
+  await userEvent.click(button, { force: true });
+  expect(clicks).toBe(0);
+});

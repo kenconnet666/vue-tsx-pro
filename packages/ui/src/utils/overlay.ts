@@ -5,6 +5,7 @@
  * 以及元素被移除后焦点的去向。
  */
 import { tabbable } from 'tabbable';
+import { shallowReactive } from 'vue';
 
 /** ref 落在组件上拿到的是组件实例，取它的根元素；本来就是元素时原样返回 */
 export function toElement(value: unknown): HTMLElement | null {
@@ -140,6 +141,27 @@ export function dismissOnBackdrop(dialog: HTMLDialogElement, onDismiss: () => vo
     dialog.removeEventListener('pointerdown', onPointerDown);
     dialog.removeEventListener('click', onClick);
   };
+}
+
+/** 打开着的模态 dialog，后打开的在后面 */
+const modals = shallowReactive<HTMLDialogElement[]>([]);
+
+/**
+ * 记下一个打开的模态（Dialog 等组件在 showModal 后调用），返回移除函数，重复调用无副作用。
+ * 模态打开时外面的元素都是 inert 的，顶层的 manual popover 也不例外（见 native-overlay 的浏览器测试），
+ * 所以要在模态打开期间可交互的浮层（Toaster）用 topModal() 把自己移进最上层的模态里。
+ */
+export function trackModal(dialog: HTMLDialogElement): () => void {
+  modals.push(dialog);
+  return () => {
+    const index = modals.indexOf(dialog);
+    if (index >= 0) modals.splice(index, 1);
+  };
+}
+
+/** 最上层的模态 dialog；没有时为 undefined。在渲染或 computed 里读取会跟着变化 */
+export function topModal(): HTMLDialogElement | undefined {
+  return modals.at(-1);
 }
 
 let locks = 0;

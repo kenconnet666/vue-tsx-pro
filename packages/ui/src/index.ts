@@ -100,6 +100,18 @@ export {
   type ModalProps,
 } from './feedback/Dialog';
 export { AlertDialog, type AlertDialogProps } from './feedback/AlertDialog';
+export {
+  createToaster,
+  Toaster,
+  type ToasterController,
+  type ToasterOptions,
+  type ToasterProps,
+  type ToastMessage,
+  type ToastOptions,
+  type ToastPlacements,
+  type ToastPromiseMessages,
+  type ToastRecord,
+} from './feedback/Toast';
 
 // 导航
 export { Toolbar, type ToolbarOrientations, type ToolbarProps } from './navigation/Toolbar';
@@ -148,7 +160,12 @@ export {
 } from './input/SlideVerify';
 
 // 配置：主题与语言；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
-export { Provider, type ProviderProps } from './config/Provider';
+export {
+  ConfigScope,
+  Provider,
+  type ConfigScopeProps,
+  type ProviderProps,
+} from './config/Provider';
 export { createUi, type UiOptions } from './config/createUi';
 export {
   useConfig,
@@ -222,6 +239,8 @@ export {
   lockScroll,
   returnFocus,
   toElement,
+  topModal,
+  trackModal,
   trapFocus,
 } from './utils/overlay';
 export {

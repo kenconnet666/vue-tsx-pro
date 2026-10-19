@@ -16,6 +16,8 @@ export const enUS: Lang = {
   copy: 'Copy',
   copied: 'Copied',
 
+  toasterLabel: 'Notifications',
+
   linkNewWindow: ' (opens in a new window)',
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
