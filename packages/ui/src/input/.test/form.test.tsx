@@ -93,15 +93,16 @@ describe('Form + Field', () => {
     expect(document.activeElement).toBe(email);
   });
 
-  it('焦点离开字段时报告失焦，显示这个字段的错误', async () => {
+  it('焦点离开字段时报告失焦，显示这个字段的错误；form.Field 就是 Field（name 带类型）', async () => {
     const form = useForm({ initial: { email: 'x', profile: { name: '' } }, schema });
     const root = mount(() => (
       <Form controller={form}>
-        <Field name="email" label="邮箱">
+        <form.Field name="email" label="邮箱">
           <TextField value={_bind(form.values.email)} />
-        </Field>
+        </form.Field>
       </Form>
     ));
+    expect(form.Field).toBe(Field);
     const input = root.querySelector('input')!;
     input.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
     await flush();

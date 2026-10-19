@@ -3,7 +3,7 @@
  * 原生的 reset（type="reset" 的按钮）回到初始值。
  *
  *   <Form controller={form}>
- *     <Field name="email" label="邮箱"><TextField value={_bind(form.values.email)} /></Field>
+ *     <form.Field name="email" label="邮箱"><TextField value={_bind(form.values.email)} /></form.Field>
  *     <Button type="submit" loading={form.submitting}>保存</Button>
  *   </Form>
  *
@@ -12,22 +12,23 @@
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import { nextTick, type VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { FormController } from './useForm';
+import type { FormControllerBase } from './useForm';
 
 /** 表单控制器（Field 按 name 读取错误、报告失焦） */
-export const FormContext = createContext<FormController<object>>('Form');
+export const FormContext = createContext<FormControllerBase>('Form');
 
 /** 提交与重置由组件管理；未声明的属性落到 form 上 */
 export interface FormProps extends PartProps<'form', 'novalidate'> {
   /** useForm() 创建的控制器 */
-  controller: FormController<object>;
+  controller: FormControllerBase;
   children?: VNodeChild;
 }
 
 /** 表单：提交时校验并聚焦第一个出错的控件，重置回到初始值 */
 export const Form = _component(({ controller, children, ...rest }: FormProps) => {
   let form = _state.raw<HTMLFormElement | null>(null);
-  FormContext.provide(controller);
+  // 控制器在表单存在期间不换：只取当前值提供下去
+  FormContext.provide(_untrack(controller));
 
   async function onSubmit(event: Event) {
     event.preventDefault();

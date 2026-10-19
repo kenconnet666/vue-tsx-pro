@@ -457,7 +457,14 @@ export {
   type ListStateOptions,
   type OptionMapping,
 } from './input/list-state';
-export { useForm, type FormController, type FormErrors, type FormOptions } from './input/useForm';
+export {
+  useForm,
+  type FieldPath,
+  type FormController,
+  type FormControllerBase,
+  type FormErrors,
+  type FormOptions,
+} from './input/useForm';
 
 // 表格
 export {

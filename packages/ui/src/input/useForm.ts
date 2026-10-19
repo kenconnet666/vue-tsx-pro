@@ -9,7 +9,7 @@
  *     onSubmit: (values) => api.login(values),
  *   });
  *   <Form controller={form}>
- *     <Field name="email" label="邮箱"><TextField value={_bind(form.values.email)} /></Field>
+ *     <form.Field name="email" label="邮箱"><TextField value={_bind(form.values.email)} /></form.Field>
  *     <Button type="submit" loading={form.submitting}>登录</Button>
  *   </Form>
  *
@@ -17,10 +17,33 @@
  * 字段的值经 v-model 写回，中文输入法组合输入期间不写回，所以组合中途不会触发校验。
  */
 import type { StandardSchemaV1 } from '@standard-schema/spec';
+import type { TsxComponent } from '@vue-tsx-pro/tsx';
 import { reactive, shallowReactive, watch } from 'vue';
+import { Field, type FieldProps } from './Field';
 
 /** 字段路径 → 错误信息；路径用点连接（`address.city`、`items.0.name`） */
 export type FormErrors = Partial<Record<string, string>>;
+
+/** 当作一个整体的值：不再往里展开路径 */
+type FieldLeaf = string | number | boolean | bigint | symbol | null | undefined | Date | Blob;
+
+/**
+ * 值里的字段路径：点连接，数组下标是数字（`email`、`address.city`、`items.0.name`）。
+ * 最多展开 6 层，再深的结构写成 string 也照样能用（Field 的 name、setError 都接受）
+ */
+export type FieldPath<Values, Depth extends unknown[] = []> = Depth['length'] extends 6
+  ? never
+  : Values extends readonly (infer Item)[]
+    ? `${number}` | `${number}.${FieldPath<Item, [...Depth, unknown]>}`
+    : Values extends object
+      ? {
+          [K in keyof Values & string]:
+            | K
+            | (NonNullable<Values[K]> extends FieldLeaf
+                ? never
+                : `${K}.${FieldPath<NonNullable<Values[K]>, [...Depth, unknown]>}`);
+        }[keyof Values & string]
+      : never;
 
 /** useForm 的选项 */
 export interface FormOptions<Values extends object> {
@@ -36,10 +59,8 @@ export interface FormOptions<Values extends object> {
   onSubmit?: (values: Values) => unknown;
 }
 
-/** 表单控制器：useForm 的返回值 */
-export interface FormController<Values extends object> {
-  /** 当前值（响应式）：控件写 value={_bind(form.values.email)} */
-  readonly values: Values;
+/** 控制器里与值的类型无关的部分：Form、Field 只用到它，任何 FormController 都能交给 <Form controller> */
+export interface FormControllerBase {
   /** 所有字段当前的校验错误（含还没显示的） */
   readonly errors: Readonly<FormErrors>;
   /** 正在执行 onSubmit */
@@ -54,10 +75,23 @@ export interface FormController<Values extends object> {
   validate(): Promise<boolean>;
   /** 提交：先校验，通过后调用 onSubmit；返回是否通过校验 */
   submit(): Promise<boolean>;
+  /** 回到初始值，清空错误与失焦记录 */
+  reset(): void;
+}
+
+/** 表单控制器：useForm 的返回值 */
+export interface FormController<Values extends object> extends FormControllerBase {
+  /** 当前值（响应式）：控件写 value={_bind(form.values.email)} */
+  readonly values: Values;
   /** 回到初始值（或给定的值），清空错误与失焦记录 */
   reset(values?: Values): void;
   /** 设置某个字段的错误（如服务端返回的“邮箱已注册”），undefined 清除；下次校验时被覆盖 */
-  setError(path: string, message: string | undefined): void;
+  setError(path: FieldPath<Values>, message: string | undefined): void;
+  /**
+   * 就是 Field 组件，只是 name 的类型收窄为这份值的字段路径，写错字段名时类型检查报错：
+   * `<form.Field name="email" label="邮箱">…</form.Field>`（参考 TanStack Form 的 form.Field）
+   */
+  readonly Field: TsxComponent<Omit<FieldProps, 'name'> & { name?: FieldPath<Values> }>;
 }
 
 /** Standard Schema 的 issue 路径 → 点连接的字符串 */
@@ -147,6 +181,7 @@ export function useForm<Values extends object>(
     setError(path, message) {
       state.errors = { ...state.errors, [path]: message };
     },
+    Field,
   };
 
   // 输入时：change 模式一开始就校验；其他模式在提交过之后才随输入更新
