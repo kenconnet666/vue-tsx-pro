@@ -251,10 +251,11 @@ export class Virtualizer {
       }
       return;
     }
-    if (!this.observed.has(element)) {
-      this.observed.add(element);
-      this.itemObserver?.observe(element);
-    }
+    // 只在元素第一次出现时同步量：之后的变化交给 ResizeObserver。每次渲染都量的话，
+    // 浮层进场的 scale 变换会让 getBoundingClientRect 每次量出不同的值，测量 → 渲染 → 测量停不下来
+    if (this.observed.has(element)) return;
+    this.observed.add(element);
+    this.itemObserver?.observe(element);
     const rect = element.getBoundingClientRect();
     this.resizeItem(element, this.options.horizontal ? rect.width : rect.height);
   };
