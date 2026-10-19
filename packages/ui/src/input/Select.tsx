@@ -321,7 +321,12 @@ export const Select = _component(
                   'aria-invalid': state.invalid || undefined,
                   'aria-required': state.required || undefined,
                   'aria-describedby': state.describedBy,
-                  onClick: () => (open ? (open = false) : show()),
+                  onClick: () => {
+                    // Safari 点击按钮不会聚焦它：焦点要在触发按钮上，键盘与 aria-activedescendant 才有效
+                    trigger?.focus();
+                    if (open) open = false;
+                    else show();
+                  },
                   onKeydown,
                 }),
               )}
