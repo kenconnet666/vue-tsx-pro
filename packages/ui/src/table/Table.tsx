@@ -6,7 +6,7 @@
  *     columns={columns}
  *     rowKey={(order) => order.id}
  *     sort={_bind(sort)}
- *     selection="multiple"
+ *     selectionMode="multiple"
  *     selected={_bind(picked)}
  *     loading={loading}
  *     aria-label="订单"
@@ -16,7 +16,7 @@
  * - 高度：外层滚动区域默认最高 32em，用 propsRoot 的 sx 改；表头吸顶、固定列不随横向滚动。
  * - 排序：点可排序的列标题在 升序 → 降序 → 不排 之间切换；默认在本地排（createComparer：数字、日期、按语言的文字），
  *   manualSort 时只写回 sort，由调用方向服务端要排好序的数据。
- * - 选择：selection 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
+ * - 选择：selectionMode 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
  * - 列宽：resizable 时可以拖动或用键盘调整，columnWidths 记录调整后的宽度（可以双向绑定，保存到本地设置里）。
  * - 加载：loading 时没有数据显示骨架行，已有数据显示进度条；接近末尾加载更多用 onRangeChange。
  * - 工具栏（搜索、筛选、列显示开关、批量操作、分页）用 TextField、Select、Menu、Toolbar、Pagination 组合，不内置。
@@ -63,7 +63,7 @@ export const Table = _component(
     columns,
     sort = _bindable<SortState | null>(null),
     manualSort = false,
-    selection,
+    selectionMode,
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
     size,
@@ -84,7 +84,7 @@ export const Table = _component(
     });
 
     function toggleRow(key: string) {
-      selected = [...toggleSelection(selected, key, { mode: selection ?? 'multiple' })];
+      selected = [...toggleSelection(selected, key, { mode: selectionMode ?? 'multiple' })];
     }
 
     // 用集合查找：逐个 includes 是 O(n²)，十万行全选会卡住页面
@@ -114,7 +114,7 @@ export const Table = _component(
             rows: models,
             sort,
             onSortClick: (key: string) => (sort = nextSort(sort, key)),
-            selection,
+            selectionMode,
             selectedKeys: selected,
             onToggleRow: toggleRow,
             onToggleAll: toggleAll,

@@ -462,7 +462,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - NavList / NavItem / NavGroup：当前页按路由适配的 `isActive`（或 `active`），含当前页的分组自动展开；分组用 Collapsible。
 - **迁移到新基础设施**：Link 的站内链接改经路由适配跳转；CodeBlock 加复制按钮（IconButton，Lucide 的 Copy / Check，“已复制”经 aria-live 播报，外层改为包着 pre 与按钮的 div，`...rest` 仍落到 pre，外层用 `propsRoot`）；Collapse 输出 `data-state`（open / closed），Slider 输出 `data-orientation`。
 - **选择模型** `utils/data/selection.ts`：`toggleSelection(selected, key, { mode, required })`，单选 / 多选；第一个使用者是 ToggleGroup。
-- **input/ToggleGroup / ToggleItem**：复合组件，`type` single / multiple，`required`，整组 `disabled`，横竖，`aria-pressed` 表示选中，漫游焦点的进入点落在选中项上（漫游焦点改为也认 `aria-pressed` / `aria-checked`）；外观复用按钮家族的样式表（选中 surface accent，其余 ghost neutral）。
+- **input/ToggleGroup / ToggleItem**：复合组件，`selectionMode` single / multiple（与 Listbox、Select、Table 同名），`required`，整组 `disabled`，横竖，`aria-pressed` 表示选中，漫游焦点的进入点落在选中项上（漫游焦点改为也认 `aria-pressed` / `aria-checked`）；外观复用按钮家族的样式表（选中 surface accent，其余 ghost neutral）。
 
 ### 10.11 浮层、反馈、输入与表单（已完成）
 

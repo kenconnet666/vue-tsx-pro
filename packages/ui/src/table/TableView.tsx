@@ -25,6 +25,7 @@ import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VisibleRange } from '../utils/virtual/virtualizer';
@@ -65,14 +66,6 @@ export interface TableOptions {
   striped?: boolean;
 }
 
-/** 选择方式 */
-export interface TableSelections {
-  /** 单选：勾选一行会取消其他行 */
-  single: unknown;
-  /** 多选：表头有全选 */
-  multiple: unknown;
-}
-
 /** 要渲染的一行：Table 是平铺的行，TreeTable 是展开后的树（带层级） */
 export interface TableRowModel<T> {
   /** 行的 key（选择、展开、测量都按它） */
@@ -97,8 +90,8 @@ export interface TableViewProps<T> extends PartProps<'table', 'role'>, TableOpti
   sort?: SortState | null;
   /** 点了可排序的列标题 */
   onSortClick?: (key: string) => void;
-  /** 选择方式；不写时没有勾选列 */
-  selection?: keyof TableSelections;
+  /** 选择方式；不写时没有勾选列。多选时表头有全选 */
+  selectionMode?: keyof SelectionModes;
   /** 已选行的 key */
   selectedKeys?: readonly string[];
   /** 勾选或取消一行 */
@@ -304,7 +297,7 @@ export const TableView = _component(
     columns,
     sort,
     onSortClick,
-    selection,
+    selectionMode,
     selectedKeys = [],
     onToggleRow,
     onToggleAll,
@@ -350,7 +343,7 @@ export const TableView = _component(
     /** 列的宽度：调整过的、列定义里的，或者没有（与其他没写宽度的列平分） */
     const widthOf = (column: TableColumn<T>) => widths[column.key] ?? column.width;
 
-    const leadingWidth = () => (selection ? SELECT_WIDTH : 0);
+    const leadingWidth = () => (selectionMode ? SELECT_WIDTH : 0);
     const offsets = _derived.by(() => stickyOffsets(columns, widthOf, leadingWidth()));
     const minWidth = () => tableMinWidth(columns, widthOf, leadingWidth());
 
@@ -433,7 +426,7 @@ export const TableView = _component(
 
     function renderRow(row: TableRowModel<T>, index: number, measured: boolean) {
       const own = typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow;
-      const selected = selection != null && selectedSet.has(row.key);
+      const selected = selectionMode != null && selectedSet.has(row.key);
       return (
         <tr
           key={row.key}
@@ -450,14 +443,14 @@ export const TableView = _component(
               {
                 ref: measured ? virtual.measure : undefined,
                 'aria-rowindex': index + 2,
-                'aria-selected': selection != null ? selected : undefined,
+                'aria-selected': selectionMode != null ? selected : undefined,
               },
             ),
           )}
           data-index={index}
           data-state={selected ? 'selected' : undefined}
         >
-          {selection && (
+          {selectionMode && (
             <td
               {...stylex.attrs(
                 tableStyles.cell,
@@ -513,7 +506,7 @@ export const TableView = _component(
     }
 
     return () => {
-      const span = columns.length + (selection ? 1 : 0);
+      const span = columns.length + (selectionMode ? 1 : 0);
       const items = virtual.items;
       const top = items[0]?.start ?? 0;
       const bottom = items.length ? virtual.total - items.at(-1)!.end : 0;
@@ -549,7 +542,7 @@ export const TableView = _component(
             )}
           >
             <colgroup>
-              {selection && <col {...stylex.attrs(tableDynamicStyles.width(SELECT_WIDTH))} />}
+              {selectionMode && <col {...stylex.attrs(tableDynamicStyles.width(SELECT_WIDTH))} />}
               {columns.map((column) => {
                 const width = widthOf(column);
                 return (
@@ -562,7 +555,7 @@ export const TableView = _component(
             </colgroup>
             <thead {...stylex.attrs(tableStyles.head)}>
               <tr aria-rowindex={1}>
-                {selection && (
+                {selectionMode && (
                   <th
                     scope="col"
                     {...stylex.attrs(
@@ -572,7 +565,7 @@ export const TableView = _component(
                       offsets.start.size > 0 && tableStyles.stickySelect,
                     )}
                   >
-                    {selection === 'multiple' && (
+                    {selectionMode === 'multiple' && (
                       <Checkbox
                         checked={allSelected}
                         indeterminate={someSelected}
@@ -604,7 +597,9 @@ export const TableView = _component(
                     aria-hidden="true"
                     {...stylex.attrs(variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row)}
                   >
-                    {selection && <td {...stylex.attrs(tableStyles.cell, tableSizeStyles[size])} />}
+                    {selectionMode && (
+                      <td {...stylex.attrs(tableStyles.cell, tableSizeStyles[size])} />
+                    )}
                     {columns.map((column, position) => (
                       <td
                         key={column.key}

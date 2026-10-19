@@ -2,7 +2,8 @@
  * 下拉选择（WAI-ARIA 的 select-only combobox）：点触发框弹出选项列表，单选或多选。
  *
  *   <Field label="城市"><Select items={cities} value={_bind(city)} placeholder="选择城市" /></Field>
- *   <Select items={tags} type="multiple" value={_bind(picked)} clearable aria-label="标签" />
+ *   <Select items={tags} selectionMode="multiple" value={_bind(picked)} clearable aria-label="标签" />
+ *   <Select items={users} toOption={(user) => ({ value: user.id, label: user.name })} value={_bind(id)} />
  *
  * 组合已有的部件：外壳是输入框外壳（controlSx），弹出层用 useAnchoredPopover（与外壳同宽、最高到视口剩余空间），
  * 列表是 ListboxView（状态与键盘见 list-state.ts），多选时触发框里是 Tag。
@@ -24,7 +25,7 @@ import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { selectedValues, type SelectionModes } from '../utils/data/selection';
+import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { transitions } from '../utils/style/transitions';
 import { fontSizeStyles } from '../utils/style/typography';
 import {
@@ -42,7 +43,12 @@ import {
   type ListboxViewProps,
   type OptionRenderState,
 } from './Listbox';
-import { useListState, handleListKeydown, type ListboxOption } from './list-state';
+import {
+  handleListKeydown,
+  useListState,
+  type ListboxOption,
+  type OptionMapping,
+} from './list-state';
 import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、展开状态与可用性由组件管理 */
@@ -60,9 +66,8 @@ export type SelectManaged =
   | 'aria-describedby';
 
 /** 下拉选择共有的属性；未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
-interface SelectBaseProps<T extends ListboxOption>
-  extends PartProps<'button', SelectManaged>, ControlOptions {
-  /** 选项 */
+interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, ControlOptions {
+  /** 数据：ListboxOption，或任意数据加 toOption */
   items: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
@@ -81,7 +86,7 @@ interface SelectBaseProps<T extends ListboxOption>
   /** 校验未通过 */
   invalid?: boolean;
   /** 自定义选项内容：`{(option, { selected, active }) => …}` */
-  children?: (option: T, state: OptionRenderState) => VNodeChild;
+  children?: (item: T, state: OptionRenderState) => VNodeChild;
   /** 自定义触发框里显示的内容（已选的选项）；默认单选显示文字、多选显示标签 */
   renderValue?: (selected: readonly T[]) => VNodeChild;
   /** 正在取选项（异步加载）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
@@ -104,25 +109,8 @@ interface SelectBaseProps<T extends ListboxOption>
   propsListbox?: Partial<ListboxViewProps<T>>;
 }
 
-/** 单选：value 是选中项的值 */
-interface SingleProps<T extends ListboxOption> extends SelectBaseProps<T> {
-  /** 选择方式，默认 single */
-  type?: Extract<keyof SelectionModes, 'single'>;
-  /** 选中项：父级写 value={_bind(x)} */
-  value?: string;
-}
-
-/** 多选：value 是选中项的值的数组 */
-interface MultipleProps<T extends ListboxOption> extends SelectBaseProps<T> {
-  /** 选择方式 */
-  type: Extract<keyof SelectionModes, 'multiple'>;
-  /** 选中项：父级写 value={_bind(list)} */
-  value?: string[];
-}
-
-/** 单选或多选 */
-export type SelectProps<T extends ListboxOption = ListboxOption> =
-  SingleProps<T> | MultipleProps<T>;
+/** 单选或多选；items 不是 ListboxOption 时要给 toOption */
+export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
 
 /** Select 的样式：root、trigger、value、placeholder、chevron、chevronOpen 等 */
 export const selectStyles: StyleTable<
@@ -165,9 +153,10 @@ export const selectStyles: StyleTable<
 
 /** 下拉选择：触发框 + 弹出的选项列表 */
 export const Select = _component(
-  <T extends ListboxOption>({
+  <T,>({
     items,
-    type = 'single',
+    toOption,
+    selectionMode = 'single',
     value = _bindable<string | string[] | undefined>(undefined),
     open = _bindable(false),
     placeholder,
@@ -198,11 +187,12 @@ export const Select = _component(
     const listId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
-    const multiple = () => type === 'multiple';
+    const multiple = () => selectionMode === 'multiple';
     const list = useListState({
-      options: () => items,
+      items: () => items,
+      toOption: (item) => (toOption ? toOption(item) : (item as ListboxOption)),
       selected: () => selectedValues(value),
-      mode: () => type,
+      mode: () => selectionMode,
       onChange: (next) => (value = multiple() ? [...next] : next[0]),
     });
     let shell = _state.raw<HTMLElement | null>(null);
@@ -268,7 +258,7 @@ export const Select = _component(
       const selected = list.options.filter((option) => list.isSelected(option.value));
       const off = state.disabled;
       const shown =
-        renderValue?.(selected) ??
+        renderValue?.(selected.map((option) => option.item)) ??
         (selected.length === 0 ? (
           <span {...stylex.attrs(selectStyles.placeholder)}>
             {placeholder ?? lang.selectPlaceholder}

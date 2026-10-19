@@ -227,7 +227,7 @@ export const TableDemo = _component(() => {
           columns={shown}
           rowKey={(order) => order.id}
           sort={_bind(sort)}
-          selection="multiple"
+          selectionMode="multiple"
           selected={_bind(picked)}
           columnWidths={_bind(widths)}
           resizable

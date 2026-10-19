@@ -1,5 +1,6 @@
 /**
- * 选择模型：单选、多选怎样响应“点了一项”。纯函数，ToggleGroup 用；以后的 Select、Menu 的复选组、Table 的行选择也用它。
+ * 选择模型：单选、多选怎样响应“点了一项”（纯函数），以及单选 / 多选组件共用的 props。
+ * ToggleGroup、Listbox、Select、Combobox、CheckboxGroup、Table 的行选择都用它。
  */
 
 /** 选择方式 */
@@ -9,6 +10,25 @@ export interface SelectionModes {
   /** 多选：每项独立切换 */
   multiple: unknown;
 }
+
+/** 单选：value 是选中项的值 */
+export interface SingleSelectionProps {
+  /** 选择方式，默认 single */
+  selectionMode?: Extract<keyof SelectionModes, 'single'>;
+  /** 选中项：父级写 value={_bind(x)} */
+  value?: string;
+}
+
+/** 多选：value 是选中项的值的数组 */
+export interface MultipleSelectionProps {
+  /** 选择方式 */
+  selectionMode: Extract<keyof SelectionModes, 'multiple'>;
+  /** 选中项：父级写 value={_bind(list)} */
+  value?: string[];
+}
+
+/** 单选或多选：按 selectionMode 区分 value 是一个值还是数组（Listbox、Select、ToggleGroup） */
+export type SelectionProps = SingleSelectionProps | MultipleSelectionProps;
 
 /** toggleSelection 的选项 */
 export interface SelectionOptions {

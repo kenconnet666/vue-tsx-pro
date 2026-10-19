@@ -682,7 +682,7 @@ export const Base = _component(() => {
               <Field label="城市（多选）">
                 <Select
                   items={cityOptions}
-                  type="multiple"
+                  selectionMode="multiple"
                   value={_bind(pickedCities)}
                   clearable
                   propsRoot={{ class: 'select-multiple-demo' }}
@@ -978,7 +978,7 @@ export const Base = _component(() => {
             </ToggleGroup>
             <ToggleGroup
               class="toggle-multiple"
-              type="multiple"
+              selectionMode="multiple"
               value={_bind(marks)}
               aria-label="格式"
             >

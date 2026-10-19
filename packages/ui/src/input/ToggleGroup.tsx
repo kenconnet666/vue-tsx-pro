@@ -7,7 +7,7 @@
  *     <ToggleItem value="list" icon={List} aria-label="列表" />
  *     <ToggleItem value="grid" icon={LayoutGrid} aria-label="网格" />
  *   </ToggleGroup>
- *   <ToggleGroup type="multiple" value={_bind(marks)} aria-label="格式">…</ToggleGroup>
+ *   <ToggleGroup selectionMode="multiple" value={_bind(marks)} aria-label="格式">…</ToggleGroup>
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -22,7 +22,7 @@ import type { IconData, IconProps } from '../base/Icon';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
-import { toggleSelection, type SelectionModes } from '../utils/data/selection';
+import { toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { useFieldControl } from './Field';
 import type { TextSize } from '../utils/style/typography';
 import type { StyleTable } from '../utils/style/styles';
@@ -70,24 +70,8 @@ interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
   children?: VNodeChild;
 }
 
-/** 单选：value 是选中项的值，没有选中时为 undefined */
-interface SingleProps extends ToggleGroupBaseProps {
-  /** 选择方式，默认 single */
-  type?: Extract<keyof SelectionModes, 'single'>;
-  /** 选中项：父级写 value={_bind(x)} */
-  value?: string;
-}
-
-/** 多选：value 是选中项的值的数组 */
-interface MultipleProps extends ToggleGroupBaseProps {
-  /** 选择方式 */
-  type: Extract<keyof SelectionModes, 'multiple'>;
-  /** 选中项：父级写 value={_bind(list)} */
-  value?: string[];
-}
-
 /** 单选或多选 */
-export type ToggleGroupProps = SingleProps | MultipleProps;
+export type ToggleGroupProps = ToggleGroupBaseProps & SelectionProps;
 
 /** ToggleGroup 的样式：root、vertical */
 export const toggleGroupStyles: StyleTable<'root' | 'vertical'> = stylex.create({
@@ -104,7 +88,7 @@ export const toggleGroupStyles: StyleTable<'root' | 'vertical'> = stylex.create(
 /** 切换按钮组：单选或多选，整组一个 Tab 位置 */
 export const ToggleGroup = _component(
   ({
-    type = 'single',
+    selectionMode = 'single',
     value = _bindable<string | string[] | undefined>(undefined),
     required = false,
     disabled,
@@ -139,9 +123,9 @@ export const ToggleGroup = _component(
         return ripple;
       },
       toggle(item) {
-        const next = toggleSelection(selected, item, { mode: type, required });
+        const next = toggleSelection(selected, item, { mode: selectionMode, required });
         if (next === selected) return;
-        value = type === 'multiple' ? [...next] : next[0];
+        value = selectionMode === 'multiple' ? [...next] : next[0];
       },
     });
 

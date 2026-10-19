@@ -26,7 +26,7 @@ describe('useListState', () => {
   it('按分组排序；移动跳过不可用项，到头停住；类型搜索', () => {
     let selected: readonly string[] = [];
     const list = useListState({
-      options: () => fruits,
+      items: () => fruits,
       selected: () => selected,
       mode: () => 'single',
       onChange: (next) => (selected = next),
@@ -54,7 +54,7 @@ describe('useListState', () => {
   it('键盘：Enter / 空格选中；homeEnd: false 时不处理 Home / End', () => {
     let selected: readonly string[] = ['apple'];
     const list = useListState({
-      options: () => fruits,
+      items: () => fruits,
       selected: () => selected,
       mode: () => 'multiple',
       onChange: (next) => (selected = next),
@@ -101,7 +101,7 @@ describe('Listbox', () => {
     let picked = _state<string[]>([]);
     const root = mount(() => (
       <>
-        <Listbox items={fruits} type="multiple" value={_bind(picked)} aria-label="水果" />
+        <Listbox items={fruits} selectionMode="multiple" value={_bind(picked)} aria-label="水果" />
         <Listbox items={[]} aria-label="空" />
       </>
     ));
@@ -116,6 +116,32 @@ describe('Listbox', () => {
     options[1]!.click(); // 不可用
     expect(picked).toEqual(['apple', 'cherry']);
     expect(blank!.textContent).toContain('没有选项');
+  });
+
+  it('toOption：任意形状的数据直接传给 items，渲染函数拿到原始数据', async () => {
+    const users = [
+      { id: 7, name: '张三', active: true },
+      { id: 9, name: '李四', active: false },
+    ];
+    let picked = _state<string | undefined>();
+    const root = mount(() => (
+      <Listbox
+        items={users}
+        toOption={(user) => ({ value: String(user.id), label: user.name, disabled: !user.active })}
+        value={_bind(picked)}
+        aria-label="成员"
+      >
+        {(user, { selected }) => `${user.name}#${user.id}${selected ? '✓' : ''}`}
+      </Listbox>
+    ));
+    await nextTick();
+    const options = root.querySelectorAll<HTMLElement>('[role="option"]');
+    expect([...options].map((option) => option.textContent)).toEqual(['张三#7', '李四#9']);
+    expect(options[1]!.getAttribute('aria-disabled')).toBe('true');
+    options[0]!.click();
+    await nextTick();
+    expect(picked).toBe('7');
+    expect(options[0]!.textContent).toBe('张三#7✓');
   });
 
   it('虚拟滚动：一千个选项只渲染看得见的一部分；loading 且没有选项时显示骨架行', async () => {
@@ -150,7 +176,7 @@ describe('Select', () => {
     const root = mount(() => (
       <Select
         items={items}
-        type="multiple"
+        selectionMode="multiple"
         value={items.map((item) => item.value)}
         renderValue={(selected) => `已选 ${selected.length} 项`}
         aria-label="很多"

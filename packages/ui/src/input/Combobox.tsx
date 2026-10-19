@@ -42,7 +42,12 @@ import {
   type ListboxViewProps,
   type OptionRenderState,
 } from './Listbox';
-import { useListState, handleListKeydown, type ListboxOption } from './list-state';
+import {
+  handleListKeydown,
+  useListState,
+  type ListboxOption,
+  type OptionMapping,
+} from './list-state';
 import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、展开状态、值与可用性由组件管理 */
@@ -61,10 +66,9 @@ export type ComboboxManaged =
   | 'aria-invalid'
   | 'aria-describedby';
 
-/** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
-export interface ComboboxProps<T extends ListboxOption = ListboxOption>
-  extends PartProps<'input', ComboboxManaged>, ControlOptions {
-  /** 选项 */
+/** Combobox 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
+export interface ComboboxBaseProps<T> extends PartProps<'input', ComboboxManaged>, ControlOptions {
+  /** 数据：ListboxOption，或任意数据加 toOption */
   items: readonly T[];
   /** 选中项的值：父级写 value={_bind(x)} */
   value?: string;
@@ -73,7 +77,7 @@ export interface ComboboxProps<T extends ListboxOption = ListboxOption>
   /** 是否打开：父级可以写 open={_bind(x)} */
   open?: boolean;
   /** 过滤：默认按显示文字包含输入（忽略大小写与重音）；函数自定义；false 不过滤（异步搜索） */
-  filter?: false | ((option: T, query: string) => boolean);
+  filter?: false | ((item: T, query: string) => boolean);
   /** 允许输入不在选项里的文字：失焦时保留，value 为 undefined */
   allowCustomValue?: boolean;
   /** 正在取选项（异步搜索）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
@@ -92,8 +96,8 @@ export interface ComboboxProps<T extends ListboxOption = ListboxOption>
   required?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
-  /** 自定义选项内容：`{(option, { selected, active }) => …}` */
-  children?: (option: T, state: OptionRenderState) => VNodeChild;
+  /** 自定义选项内容：`{(item, { selected, active }) => …}`，拿到 items 里的原始数据 */
+  children?: (item: T, state: OptionRenderState) => VNodeChild;
   /** 没有匹配的选项时列表里显示的内容 */
   empty?: VNodeChild;
   /** 外壳的部件属性 */
@@ -107,6 +111,9 @@ export interface ComboboxProps<T extends ListboxOption = ListboxOption>
   /** 列表的部件属性 */
   propsListbox?: Partial<ListboxViewProps<T>>;
 }
+
+/** 组合框的属性；items 不是 ListboxOption 时要给 toOption */
+export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapping<T>;
 
 /** Combobox 的样式：popover、chevron、chevronOpen、loading */
 export const comboboxStyles: StyleTable<'popover' | 'chevron' | 'chevronOpen' | 'loading'> =
@@ -125,8 +132,9 @@ export const comboboxStyles: StyleTable<'popover' | 'chevron' | 'chevronOpen' | 
 
 /** 组合框：输入框 + 过滤后的选项列表 */
 export const Combobox = _component(
-  <T extends ListboxOption>({
+  <T,>({
     items,
+    toOption,
     value = _bindable<string | undefined>(undefined),
     inputValue = _bindable(''),
     open = _bindable(false),
@@ -165,13 +173,16 @@ export const Combobox = _component(
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
 
-    function matches(option: T, text: string) {
+    const optionOf = (item: T) => (toOption ? toOption(item) : (item as ListboxOption));
+
+    function matches(item: T, text: string) {
       if (!text) return true;
-      return filter ? filter(option, text) : createMatcher(lang.code)(option.label, text);
+      return filter ? filter(item, text) : createMatcher(lang.code)(optionOf(item).label, text);
     }
 
     const list = useListState({
-      options: () => (filter === false ? items : items.filter((option) => matches(option, query))),
+      items: () => (filter === false ? items : items.filter((item) => matches(item, query))),
+      toOption: optionOf,
       selected: () => (value != null ? [value] : []),
       mode: () => 'single',
       // 再选已选的项不取消
@@ -179,7 +190,10 @@ export const Combobox = _component(
       onChange: (next) => (value = next[0]),
     });
 
-    const selectedLabel = () => items.find((option) => option.value === value)?.label ?? '';
+    const selectedLabel = () => {
+      const selected = items.find((item) => optionOf(item).value === value);
+      return selected === undefined ? '' : optionOf(selected).label;
+    };
 
     function setText(text: string) {
       if (inputValue === text) return;

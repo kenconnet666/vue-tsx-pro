@@ -344,6 +344,7 @@ export {
 export {
   Combobox,
   comboboxStyles,
+  type ComboboxBaseProps,
   type ComboboxManaged,
   type ComboboxProps,
 } from './input/Combobox';
@@ -450,9 +451,11 @@ export {
   handleListKeydown,
   useListState,
   type ListboxOption,
+  type ListItem,
   type ListKeydownOptions,
   type ListState,
   type ListStateOptions,
+  type OptionMapping,
 } from './input/list-state';
 export { useForm, type FormController, type FormErrors, type FormOptions } from './input/useForm';
 
@@ -471,7 +474,6 @@ export {
   TableView,
   type TableOptions,
   type TableRowModel,
-  type TableSelections,
   type TableSizes,
   type TableVariants,
   type TableViewProps,
@@ -662,8 +664,11 @@ export {
 export {
   selectedValues,
   toggleSelection,
+  type MultipleSelectionProps,
   type SelectionModes,
   type SelectionOptions,
+  type SelectionProps,
+  type SingleSelectionProps,
 } from './utils/data/selection';
 export { plainText } from './utils/data/text';
 

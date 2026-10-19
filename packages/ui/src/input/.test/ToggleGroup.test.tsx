@@ -49,7 +49,12 @@ describe('ToggleGroup', () => {
     let marks = _state<string[]>([]);
     let disabled = _state(false);
     const root = mount(() => (
-      <ToggleGroup type="multiple" value={_bind(marks)} disabled={disabled} aria-label="格式">
+      <ToggleGroup
+        selectionMode="multiple"
+        value={_bind(marks)}
+        disabled={disabled}
+        aria-label="格式"
+      >
         <ToggleItem value="bold" aria-label="加粗" />
         <ToggleItem value="italic" aria-label="斜体" />
       </ToggleGroup>

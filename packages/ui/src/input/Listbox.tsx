@@ -2,9 +2,11 @@
  * 列表框（role="listbox"）：在一列选项里单选或多选。数据驱动，始终虚拟滚动（上万个选项也只渲染看得见的几十个）：
  *
  *   <Listbox items={cities} value={_bind(city)} aria-label="城市" />
- *   <Listbox items={tags} type="multiple" value={_bind(picked)}>{(option) => <Badge>{option.label}</Badge>}</Listbox>
+ *   <Listbox items={tags} selectionMode="multiple" value={_bind(picked)}>{(tag) => <Badge>{tag.label}</Badge>}</Listbox>
+ *   <Listbox items={users} toOption={(user) => ({ value: user.id, label: user.name })} value={_bind(id)} aria-label="成员" />
  *
- * 选项是 { value, label, disabled?, description?, icon?, group? }（ListboxOption）；需要自定义内容时传渲染函数。
+ * 选项是 { value, label, disabled?, description?, icon?, group? }（ListboxOption）；别的形状的数据用 toOption 转换，
+ * 自定义内容的渲染函数拿到的仍是原始数据。
  * 焦点在列表上，高亮项经 aria-activedescendant 告诉读屏：↑↓、Home / End、Page Up / Down 移动，
  * Enter / 空格选中，按字母跳到以它开头的项。状态与键盘见 list-state.ts；Select、Combobox 用同一个 ListboxView 渲染。
  *
@@ -28,12 +30,19 @@ import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { itemStyles } from '../utils/style/item-styles';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { selectedValues, type SelectionModes } from '../utils/data/selection';
+import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
 import { useFieldControl } from './Field';
-import { useListState, handleListKeydown, type ListboxOption, type ListState } from './list-state';
+import {
+  handleListKeydown,
+  useListState,
+  type ListboxOption,
+  type ListItem,
+  type ListState,
+  type OptionMapping,
+} from './list-state';
 
 /** 选项的渲染状态：渲染函数据此画高亮、已选的样子 */
 export interface OptionRenderState {
@@ -43,14 +52,14 @@ export interface OptionRenderState {
   active: boolean;
 }
 
-/** 选项的部件属性：可以按选项计算 */
+/** 选项的部件属性：可以按选项（items 里的原始数据）计算 */
 type OptionProps<T> =
   | PartProps<'div', 'role' | 'id' | 'aria-selected' | 'aria-disabled'>
-  | ((option: T, state: OptionRenderState) => PartProps<'div'>);
+  | ((item: T, state: OptionRenderState) => PartProps<'div'>);
 
 /** ListboxView 的属性：Listbox、Select、Combobox 共用的渲染层 */
-export interface ListboxViewProps<T extends ListboxOption> extends PartProps<'div', 'role'> {
-  /** 列表状态（createListState） */
+export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
+  /** 列表状态（useListState） */
   list: ListState<T>;
   /** 列表的 id；选项的 id 是 `${id}-${序号}`（aria-activedescendant 指向它） */
   id: string;
@@ -62,8 +71,8 @@ export interface ListboxViewProps<T extends ListboxOption> extends PartProps<'di
   loading?: boolean;
   /** 选项的估计高度（px），默认 36；渲染后以实际高度为准 */
   estimateSize?: number;
-  /** 自定义选项内容 */
-  renderOption?: (option: T, state: OptionRenderState) => VNodeChild;
+  /** 自定义选项内容：拿到 items 里的原始数据 */
+  renderOption?: (item: T, state: OptionRenderState) => VNodeChild;
   /** 没有选项时显示的内容；默认是 Empty（文案取语言包） */
   empty?: VNodeChild;
   /** 点选了一项（Select 据此关闭） */
@@ -83,7 +92,13 @@ export interface ListboxViewProps<T extends ListboxOption> extends PartProps<'di
 /** 渲染用的一行：分组标题或选项 */
 type Row<T> =
   | { kind: 'group'; key: string; label: string; id: string }
-  | { kind: 'option'; key: string; option: T; index: number; groupId: string | undefined };
+  | {
+      kind: 'option';
+      key: string;
+      option: ListItem<T>;
+      index: number;
+      groupId: string | undefined;
+    };
 
 /** 加载中显示几行骨架 */
 const SKELETON_ROWS = 4;
@@ -137,7 +152,7 @@ export const listboxPositionStyles: Readonly<{
 
 /** 列表的渲染层：虚拟滚动的选项、分组标题、已选标记、空状态与加载中；不管焦点，指针悬停高亮、点击选中 */
 export const ListboxView = _component(
-  <T extends ListboxOption>({
+  <T,>({
     list,
     id,
     multiple = false,
@@ -233,7 +248,7 @@ export const ListboxView = _component(
         selected: list.isSelected(option.value),
         active: list.active === option.value,
       };
-      const own = typeof propsOption === 'function' ? propsOption(option, state) : propsOption;
+      const own = typeof propsOption === 'function' ? propsOption(option.item, state) : propsOption;
       return (
         <div
           {...elementProps(
@@ -274,7 +289,7 @@ export const ListboxView = _component(
           data-disabled={option.disabled || undefined}
         >
           {renderOption ? (
-            renderOption(option, state)
+            renderOption(option.item, state)
           ) : (
             <>
               {option.icon && <Icon icon={option.icon} />}
@@ -396,56 +411,39 @@ export const ListboxView = _component(
 );
 
 /** 高亮项的 id（给 aria-activedescendant）；没有高亮时 undefined */
-export function activeOptionId<T extends ListboxOption>(
-  list: ListState<T>,
-  id: string,
-): string | undefined {
-  const index = list.options.findIndex((option) => option.value === list.active);
+export function activeOptionId<T>(list: ListState<T>, id: string): string | undefined {
+  const index = list.active === undefined ? -1 : list.indexOf(list.active);
   return index < 0 ? undefined : `${id}-${index}`;
 }
 
-/** 单选：value 是选中项的值 */
-interface SingleProps {
-  /** 选择方式，默认 single */
-  type?: Extract<keyof SelectionModes, 'single'>;
-  /** 选中项：父级写 value={_bind(x)} */
-  value?: string;
-}
-
-/** 多选：value 是选中项的值的数组 */
-interface MultipleProps {
-  /** 选择方式 */
-  type: Extract<keyof SelectionModes, 'multiple'>;
-  /** 选中项：父级写 value={_bind(list)} */
-  value?: string[];
-}
-
 /** 列表框共有的属性；未声明的属性落到 role="listbox" 的 div 上 */
-type ListboxBaseProps<T extends ListboxOption> = Omit<
+type ListboxBaseProps<T> = Omit<
   ListboxViewProps<T>,
   'list' | 'id' | 'multiple' | 'renderOption' | 'onPick'
 > & {
   /** 列表的 id；在 Field 里时默认用 Field 给的 */
   id?: string;
-  /** 选项 */
+  /** 数据：ListboxOption，或任意数据加 toOption */
   items: readonly T[];
   /** 单选时至少保留一项：再点已选项不取消 */
   required?: boolean;
   /** 不可用 */
   disabled?: boolean;
-  /** 自定义选项内容：`{(option, { selected, active }) => …}` */
-  children?: (option: T, state: OptionRenderState) => VNodeChild;
+  /** 自定义选项内容：`{(item, { selected, active }) => …}`，拿到 items 里的原始数据 */
+  children?: (item: T, state: OptionRenderState) => VNodeChild;
 };
 
-/** 单选或多选 */
-export type ListboxProps<T extends ListboxOption = ListboxOption> = ListboxBaseProps<T> &
-  (SingleProps | MultipleProps);
+/** 单选或多选；items 不是 ListboxOption 时要给 toOption */
+export type ListboxProps<T = ListboxOption> = ListboxBaseProps<T> &
+  SelectionProps &
+  OptionMapping<T>;
 
 /** 列表框：焦点在列表上，方向键移动高亮、Enter / 空格选中 */
 export const Listbox = _component(
-  <T extends ListboxOption>({
+  <T,>({
     items,
-    type = 'single',
+    toOption,
+    selectionMode = 'single',
     value = _bindable<string | string[] | undefined>(undefined),
     required = false,
     disabled,
@@ -456,11 +454,12 @@ export const Listbox = _component(
     const generatedId = useId();
     const control = useFieldControl(() => ({ id, disabled }));
     const list = useListState({
-      options: () => items,
+      items: () => items,
+      toOption: (item) => (toOption ? toOption(item) : (item as ListboxOption)),
       selected: () => selectedValues(value),
-      mode: () => type,
+      mode: () => selectionMode,
       required: () => required,
-      onChange: (next) => (value = type === 'multiple' ? [...next] : next[0]),
+      onChange: (next) => (value = selectionMode === 'multiple' ? [...next] : next[0]),
     });
 
     function onKeydown(event: KeyboardEvent) {
@@ -474,7 +473,7 @@ export const Listbox = _component(
       return (
         <ListboxView
           {...mergePartProps<ListboxViewProps<T>>(
-            { list, id: prefix, multiple: type === 'multiple', renderOption: children },
+            { list, id: prefix, multiple: selectionMode === 'multiple', renderOption: children },
             rest as Partial<ListboxViewProps<T>>,
             {
               id: prefix,

@@ -86,7 +86,7 @@ describe('Table', () => {
         rows={people}
         columns={columns}
         rowKey={(p) => p.id}
-        selection="multiple"
+        selectionMode="multiple"
         selected={_bind(picked)}
         aria-label="人员"
       />
@@ -117,7 +117,7 @@ describe('Table', () => {
         rows={many}
         columns={columns}
         rowKey={(p) => p.id}
-        selection="multiple"
+        selectionMode="multiple"
         selected={_bind(picked)}
         aria-label="很多"
       />
