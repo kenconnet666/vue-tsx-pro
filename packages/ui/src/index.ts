@@ -593,13 +593,13 @@ export {
 } from './table/ColumnResizer';
 export { Table, type TableProps } from './table/Table';
 export {
+  tableDensityStyles,
   tableDynamicStyles,
-  tableSizeStyles,
   tableStyles,
   TableView,
+  type TableDensities,
   type TableOptions,
   type TableRowModel,
-  type TableSizes,
   type TableVariants,
   type TableViewProps,
 } from './table/TableView';

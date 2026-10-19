@@ -66,14 +66,14 @@ export const Table = _component(
     selectionMode,
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
-    size,
+    density,
     variant,
     striped,
     ...rest
   }: TableProps<T>) => {
     const lang = useLang();
-    const appearance = useDefaults('Table', () => ({ size, variant, striped }), {
-      size: 'md',
+    const appearance = useDefaults('Table', () => ({ density, variant, striped }), {
+      density: 'standard',
       variant: 'surface',
       striped: false,
     });

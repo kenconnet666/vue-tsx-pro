@@ -245,7 +245,7 @@ export const TableDemo = _component(() => {
           hasChildren={(unit) => unit.lazy === true || (unit.children?.length ?? 0) > 0}
           loadChildren={loadUnit}
           expanded={_bind(expanded)}
-          size="sm"
+          density="compact"
           aria-label="组织架构"
           class="tree-table-demo"
           propsRoot={{ sx: styles.tree }}

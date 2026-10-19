@@ -39,14 +39,14 @@ import {
   type TableColumn,
 } from './columns';
 
-/** 表格的密度 */
-export interface TableSizes {
-  /** 紧凑：数据很多、要一屏看更多行 */
-  sm: unknown;
-  /** 默认 */
-  md: unknown;
+/** 表格的密度（行高与字号） */
+export interface TableDensities {
+  /** 紧凑：数据很多、要一屏看更多行（字号也小一档） */
+  compact: unknown;
+  /** 标准（默认） */
+  standard: unknown;
   /** 宽松：行里有头像、两行文字 */
-  lg: unknown;
+  comfortable: unknown;
 }
 
 /** 表格的样式 */
@@ -59,8 +59,8 @@ export interface TableVariants {
 
 /** 表格的外观选项；可以用 createUi / Provider 的 defaults.Table 统一改默认值（TreeTable 也用它） */
 export interface TableOptions {
-  /** 密度，默认 md */
-  size?: keyof TableSizes;
+  /** 密度，默认 standard */
+  density?: keyof TableDensities;
   /** 样式，默认 surface */
   variant?: keyof TableVariants;
   /** 斑马纹：隔行浅色底 */
@@ -138,7 +138,11 @@ const SELECT_WIDTH = 44;
 /** 加载中显示几行骨架 */
 const SKELETON_ROWS = 6;
 /** 各密度下行高的估计（px） */
-const ROW_HEIGHT: Record<keyof TableSizes, number> = { sm: 36, md: 44, lg: 52 };
+const ROW_HEIGHT: Record<keyof TableDensities, number> = {
+  compact: 36,
+  standard: 44,
+  comfortable: 52,
+};
 
 /** Table、TreeTable 的样式：root、surface、ghost、table、sm、md 等 */
 export const tableStyles: StyleTable<
@@ -146,9 +150,9 @@ export const tableStyles: StyleTable<
   | 'surface'
   | 'ghost'
   | 'table'
-  | 'sm'
-  | 'md'
-  | 'lg'
+  | 'compact'
+  | 'standard'
+  | 'comfortable'
   | 'head'
   | 'headerCell'
   | 'cell'
@@ -194,9 +198,9 @@ export const tableStyles: StyleTable<
     color: '_text',
     lineHeight: '_normal',
   },
-  sm: { fontSize: '_sm' },
-  md: {},
-  lg: {},
+  compact: { fontSize: '_sm' },
+  standard: {},
+  comfortable: {},
   head: { position: 'sticky', top: 0, zIndex: 2 },
   headerCell: {
     position: 'relative',
@@ -266,11 +270,11 @@ export const tableStyles: StyleTable<
   emptyCell: { padding: 0, whiteSpace: 'normal' },
 });
 
-/** Table、TreeTable 的样式：sm、md、lg */
-export const tableSizeStyles: StyleTable<'sm' | 'md' | 'lg'> = stylex.create({
-  sm: { paddingBlock: '_xs' },
-  md: { paddingBlock: '_sm' },
-  lg: { paddingBlock: '_md' },
+/** Table、TreeTable 的样式：单元格按密度的上下内边距 */
+export const tableDensityStyles: StyleTable<keyof TableDensities> = stylex.create({
+  compact: { paddingBlock: '_xs' },
+  standard: { paddingBlock: '_sm' },
+  comfortable: { paddingBlock: '_md' },
 });
 
 // 列宽、偏移、占位高度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -308,7 +312,7 @@ export const TableView = _component(
     loading = false,
     empty,
     leading,
-    size = 'md',
+    density = 'standard',
     variant = 'surface',
     striped = false,
     estimateRowHeight,
@@ -336,7 +340,7 @@ export const TableView = _component(
         count: current.length,
         scrollElement: viewport,
         list: body,
-        estimateSize: () => estimateRowHeight ?? ROW_HEIGHT[size],
+        estimateSize: () => estimateRowHeight ?? ROW_HEIGHT[density],
         getItemKey: (index: number) => current[index]!.key,
         overscan: 8,
         onRangeChange,
@@ -371,7 +375,7 @@ export const TableView = _component(
               {
                 sx: [
                   tableStyles.headerCell,
-                  tableSizeStyles[size],
+                  tableDensityStyles[density],
                   tableStyles[column.align ?? 'start'],
                   stickySx(column),
                 ],
@@ -457,7 +461,7 @@ export const TableView = _component(
             <td
               {...stylex.attrs(
                 tableStyles.cell,
-                tableSizeStyles[size],
+                tableDensityStyles[density],
                 tableStyles.selectCell,
                 offsets.start.size > 0 && tableStyles.stickySelect,
               )}
@@ -483,7 +487,7 @@ export const TableView = _component(
                     {
                       sx: [
                         tableStyles.cell,
-                        tableSizeStyles[size],
+                        tableDensityStyles[density],
                         tableStyles[column.align ?? 'start'],
                         column.wrap && tableStyles.wrap,
                         stickySx(column),
@@ -532,7 +536,7 @@ export const TableView = _component(
                 {
                   sx: [
                     tableStyles.table,
-                    tableStyles[size],
+                    tableStyles[density],
                     tableDynamicStyles.minWidth(minWidth()),
                   ],
                 },
@@ -563,7 +567,7 @@ export const TableView = _component(
                     scope="col"
                     {...stylex.attrs(
                       tableStyles.headerCell,
-                      tableSizeStyles[size],
+                      tableDensityStyles[density],
                       tableStyles.selectCell,
                       offsets.start.size > 0 && tableStyles.stickySelect,
                     )}
@@ -601,12 +605,12 @@ export const TableView = _component(
                     {...stylex.attrs(variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row)}
                   >
                     {selectionMode && (
-                      <td {...stylex.attrs(tableStyles.cell, tableSizeStyles[size])} />
+                      <td {...stylex.attrs(tableStyles.cell, tableDensityStyles[density])} />
                     )}
                     {columns.map((column, position) => (
                       <td
                         key={column.key}
-                        {...stylex.attrs(tableStyles.cell, tableSizeStyles[size])}
+                        {...stylex.attrs(tableStyles.cell, tableDensityStyles[density])}
                       >
                         <Skeleton
                           {...mergePartProps<SkeletonProps>(

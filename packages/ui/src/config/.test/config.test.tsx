@@ -101,8 +101,8 @@ describe('createUi', () => {
 });
 
 describe('useDefaults', () => {
-  const Probe = _component(({ size, variant, striped }: TableOptions) => {
-    const resolved = useDefaults('Table', () => ({ size, variant, striped }), {
+  const Probe = _component(({ density, variant, striped }: TableOptions) => {
+    const resolved = useDefaults('Table', () => ({ density, variant, striped }), {
       variant: 'surface',
     });
     return () => <i>{JSON.stringify(resolved())}</i>;
@@ -112,20 +112,20 @@ describe('useDefaults', () => {
     const el = mount(
       () => (
         <>
-          <Provider defaults={{ Table: { size: 'lg' } }}>
+          <Provider defaults={{ Table: { density: 'comfortable' } }}>
             <Probe variant="ghost" />
           </Provider>
           <Probe />
         </>
       ),
-      (app) => app.use(createUi({ defaults: { Table: { size: 'sm', striped: true } } })),
+      (app) => app.use(createUi({ defaults: { Table: { density: 'compact', striped: true } } })),
     );
     const [inner, outer] = [...el.querySelectorAll('i')].map((i) => JSON.parse(i.textContent!));
-    expect(inner).toEqual({ size: 'lg', variant: 'ghost', striped: true });
-    expect(outer).toEqual({ size: 'sm', variant: 'surface', striped: true });
+    expect(inner).toEqual({ density: 'comfortable', variant: 'ghost', striped: true });
+    expect(outer).toEqual({ density: 'compact', variant: 'surface', striped: true });
   });
 
-  it('没有 fallback、也没有配置的项是 undefined（如继承字号的 size）', () => {
+  it('没有 fallback、也没有配置的项是 undefined（如没写的 density）', () => {
     expect(mount(() => <Probe />).textContent).toBe('{"variant":"surface"}');
   });
 });
