@@ -272,6 +272,7 @@ export {
 } from './feedback/Toast';
 
 // 浮层
+export { ContextMenu, type ContextMenuProps } from './overlay/ContextMenu';
 export {
   HoverCard,
   hoverCardStyles,
@@ -291,6 +292,7 @@ export {
   MenuRadioGroupContext,
   MenuRadioItem,
   menuStyles,
+  MenuSub,
   useMenuItem,
   type MenuButtonItemProps,
   type MenuCheckboxItemProps,
@@ -304,6 +306,7 @@ export {
   type MenuRadioGroupState,
   type MenuRadioItemProps,
   type MenuState,
+  type MenuSubProps,
   type MenuTriggerProps,
 } from './overlay/Menu';
 export {
@@ -679,11 +682,13 @@ export {
   anchorFloating,
   createAnchoredLayer,
   floatingStyles,
+  pointAnchor,
   useAnchoredPopover,
   type Anchored,
   type AnchoredLayer,
   type AnchoredPopoverEvents,
   type AnchoredPopoverState,
+  type FloatingAnchor,
   type FloatingOptions,
   type FloatingPlacement,
   type FloatingPlacements,

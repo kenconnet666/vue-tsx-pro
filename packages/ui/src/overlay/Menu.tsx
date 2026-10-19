@@ -21,20 +21,22 @@
  * 执行普通项后关闭菜单；复选项默认不关（常连续勾选几项），单选项默认关闭；都可以用 closeOnSelect 改。
  * 原生 popover="auto" 负责顶层、点击外部关闭与嵌套顺序，定位与焦点进出见 utils/dom/floating。
  */
-import { Check, Dot } from '@lucide/icons';
+import { Check, ChevronRight, Dot } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import { useId, type VNodeChild } from 'vue';
+import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import type { ButtonTones } from '../base/button-core';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import {
   floatingStyles,
+  pointAnchor,
   useAnchoredPopover,
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/dom/floating';
+import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
@@ -42,6 +44,7 @@ import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
+import { isRtl } from '../utils/data/layout';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { transitions } from '../utils/style/transitions';
 
@@ -96,14 +99,25 @@ export interface MenuProps
   size?: TextSize;
   /** 菜单项按下时的波纹；不写时沿用 createUi / Provider 的 ripple */
   ripple?: boolean;
-  /** 触发器：`(props) => <Button {...props}>操作</Button>` */
+  /** 触发器：`(props) => <Button {...props}>操作</Button>`；ContextMenu 不用触发器时返回 null */
   trigger: (props: MenuTriggerProps) => VNodeChild;
-  /** 菜单项：MenuItem、MenuLinkItem、MenuCheckboxItem、MenuRadioGroup、MenuGroup、Separator */
+  /** 从视口里这个点弹出（右键菜单的指针位置），不以触发器为锚点；关闭后焦点由使用方安排 */
+  point?: { x: number; y: number };
+  /** 菜单项：MenuItem、MenuLinkItem、MenuCheckboxItem、MenuRadioGroup、MenuGroup、MenuSub、Separator */
   children?: VNodeChild;
 }
 
 /** 菜单项的选择器（漫游焦点、打开时聚焦第一项 / 最后一项） */
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
+
+/** 菜单自己的可用项：不含子菜单里的 */
+function menuItemsOf(panel: HTMLElement | null): HTMLElement[] {
+  return [...(panel?.querySelectorAll<HTMLElement>(ITEMS) ?? [])].filter(
+    (item) =>
+      item.parentElement?.closest('[role="menu"]') === panel &&
+      !item.matches(':disabled, [aria-disabled="true"]'),
+  );
+}
 
 /** Menu 的样式：panel、label、indicator、hidden、shortcut、groupLabel */
 export const menuStyles: StyleTable<
@@ -138,6 +152,7 @@ export const Menu = _component(
     size,
     ripple,
     trigger,
+    point,
     children,
     ...rest
   }: MenuProps) => {
@@ -149,10 +164,7 @@ export const Menu = _component(
     let focusOnOpen: 'first' | 'last' = 'first';
     let restoreFocus = true;
 
-    const enabledItems = () =>
-      [...(panel?.querySelectorAll<HTMLElement>(ITEMS) ?? [])].filter(
-        (item) => !item.matches(':disabled, [aria-disabled="true"]'),
-      );
+    const enabledItems = () => menuItemsOf(panel);
 
     MenuContext.provide({
       get ripple() {
@@ -177,7 +189,7 @@ export const Menu = _component(
     const { onToggle } = useAnchoredPopover(
       () => ({
         open,
-        anchor,
+        anchor: point ? pointAnchor(point.x, point.y) : anchor,
         panel,
         floating: { placement, offset, fitHeight: true },
         restoreFocus,
@@ -221,7 +233,8 @@ export const Menu = _component(
                   size && fontSizeStyles[size],
                   transitions.scale,
                 ],
-                'aria-labelledby': triggerId,
+                // 右键菜单没有触发器：名称由使用方的 aria-label 给
+                'aria-labelledby': anchor ? triggerId : undefined,
               },
               rest,
               {
@@ -247,7 +260,10 @@ export const Menu = _component(
 export interface MenuItemContentProps {
   /** 文字前的图标 */
   icon?: IconData;
-  /** 右侧的快捷键提示（只是文字，按键要应用自己处理） */
+  /**
+   * 快捷键：`'Mod+D'`（Mod 在 macOS 上是 ⌘，其他系统是 Ctrl，写法见 useHotkeys）。右侧显示成当前系统的写法；
+   * MenuItem、MenuCheckboxItem 在菜单挂载期间注册它（菜单不必打开），按下时执行这一项
+   */
   shortcut?: string;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
@@ -293,10 +309,18 @@ export function menuItemContent(
           propsShortcut,
         )}
       >
-        {shortcut}
+        {formatHotkey(shortcut)}
       </Text>
     ),
   ];
+}
+
+/** 菜单项的快捷键：不可用时不触发；按下时和点击这一项一样执行（不关心菜单是否打开） */
+function useItemShortcut(read: () => { shortcut?: string; disabled: boolean }, run: () => void) {
+  useHotkeys(() => {
+    const { shortcut, disabled } = read();
+    return shortcut && !disabled ? { [shortcut]: run } : {};
+  });
 }
 
 /** 菜单项的外观：幽灵按钮，内容靠起始边排列 */
@@ -349,6 +373,10 @@ export const MenuItem = _component(
     ...rest
   }: MenuItemProps) => {
     const item = useMenuItem();
+    useItemShortcut(
+      () => ({ shortcut, disabled }),
+      () => onAction?.(),
+    );
     return () => (
       <button
         {...elementProps(
@@ -442,6 +470,10 @@ export const MenuCheckboxItem = _component(
     ...rest
   }: MenuCheckboxItemProps) => {
     const item = useMenuItem();
+    useItemShortcut(
+      () => ({ shortcut, disabled }),
+      () => (checked = !checked),
+    );
     return () => (
       <button
         {...elementProps(
@@ -592,5 +624,243 @@ export const MenuRadioItem = _component(
         </button>
       );
     };
+  },
+);
+
+/** 未声明的属性落到打开子菜单的 button（role="menuitem"）上 */
+export interface MenuSubProps
+  extends
+    PartProps<
+      'button',
+      'role' | 'type' | 'disabled' | 'aria-haspopup' | 'aria-expanded' | 'aria-controls'
+    >,
+    Omit<MenuItemContentProps, 'shortcut' | 'propsShortcut' | 'children'> {
+  /** 这一项的文字 */
+  label: VNodeChild;
+  /** 不可用：不能打开子菜单 */
+  disabled?: boolean;
+  /** 子菜单是否打开：父级可以写 open={_bind(x)} */
+  open?: boolean;
+  /** 子菜单（role="menu" 的 div）的部件属性 */
+  propsPanel?: PartProps<'div', 'id' | 'popover' | 'role'>;
+  /** 右侧箭头的部件属性 */
+  propsChevron?: Partial<IconProps>;
+  /** 子菜单里的项 */
+  children?: VNodeChild;
+}
+
+/** 指针停在子菜单项上多久后打开（毫秒） */
+const SUBMENU_OPEN_DELAY = 100;
+/** 指针离开后，在安全三角里最多保持多久（毫秒） */
+const SUBMENU_GRACE = 400;
+
+type Point = readonly [number, number];
+
+/** 点 p 是否在三角形 abc 里（三条边的同侧判断） */
+function inTriangle(p: Point, a: Point, b: Point, c: Point) {
+  const side = (from: Point, to: Point) =>
+    (p[0] - to[0]) * (from[1] - to[1]) - (from[0] - to[0]) * (p[1] - to[1]);
+  const d1 = side(a, b);
+  const d2 = side(b, c);
+  const d3 = side(c, a);
+  return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+}
+
+/**
+ * 子菜单：菜单里的一项，打开另一列菜单（WAI-ARIA 的子菜单）。→（从右到左排版时 ←）、Enter、空格打开并聚焦第一项，
+ * 子菜单里 ←（→）或 Esc 关闭并回到这一项；指针停一会儿打开，朝子菜单斜着移动时经过别的项也不关（安全三角）。
+ * 子菜单里执行一项后，整串菜单都关闭。
+ *
+ *   <MenuSub label="分享" icon={Share}>
+ *     <MenuItem onAction={copyLink}>复制链接</MenuItem>
+ *   </MenuSub>
+ */
+export const MenuSub = _component(
+  ({
+    label,
+    open = _bindable(false),
+    disabled = false,
+    icon,
+    propsIcon,
+    propsLabel,
+    propsPanel,
+    propsChevron,
+    children,
+    ...rest
+  }: MenuSubProps) => {
+    const parent = MenuContext.inject();
+    const ripple = useRipple(() => parent.ripple);
+    const id = useId();
+    const triggerId = `${id}-trigger`;
+    let trigger = _state.raw<HTMLElement | null>(null);
+    let panel = _state.raw<HTMLElement | null>(null);
+    let focusOnOpen = false;
+    let openTimer: ReturnType<typeof setTimeout> | undefined;
+    let stopGrace: (() => void) | undefined;
+
+    MenuContext.provide({
+      get ripple() {
+        return parent.ripple;
+      },
+      close: () => {
+        open = false;
+        parent.close();
+      },
+    });
+
+    const { onToggle } = useAnchoredPopover(
+      () => ({
+        open,
+        anchor: trigger,
+        panel,
+        // 往书写方向的结束边弹出；floating-ui 的 left / right 是物理方向
+        floating: {
+          placement: trigger && isRtl(trigger) ? 'left-start' : 'right-start',
+          offset: 2,
+          fitHeight: true,
+        },
+      }),
+      {
+        close: () => (open = false),
+        shown: () => {
+          if (focusOnOpen) menuItemsOf(panel)[0]?.focus();
+          focusOnOpen = false;
+        },
+      },
+    );
+    _effect(() =>
+      panel
+        ? rovingFocus(panel, { items: ITEMS, orientation: 'vertical', loop: true, typeahead: true })
+        : undefined,
+    );
+    onBeforeUnmount(() => {
+      clearTimeout(openTimer);
+      stopGrace?.();
+    });
+
+    const rtl = () => !!trigger && isRtl(trigger);
+
+    function openWithFocus() {
+      if (disabled) return;
+      focusOnOpen = true;
+      // 已经开着（指针打开的）时直接把焦点移进去
+      if (open) menuItemsOf(panel)[0]?.focus();
+      open = true;
+    }
+
+    function onTriggerKeydown(event: KeyboardEvent) {
+      if (event.key !== (rtl() ? 'ArrowLeft' : 'ArrowRight')) return;
+      event.preventDefault();
+      openWithFocus();
+    }
+
+    function onPanelKeydown(event: KeyboardEvent) {
+      if (event.key !== (rtl() ? 'ArrowRight' : 'ArrowLeft')) return;
+      event.preventDefault();
+      event.stopPropagation();
+      open = false;
+    }
+
+    // 指针离开这一项：朝子菜单移动（在离开点与子菜单近边组成的三角形里）时保持打开，否则关闭
+    function onTriggerPointerleave(event: PointerEvent) {
+      clearTimeout(openTimer);
+      if (!open || !panel) return;
+      stopGrace?.();
+      const rect = panel.getBoundingClientRect();
+      const edge = rect.left >= event.clientX ? rect.left : rect.right;
+      const start: Point = [event.clientX, event.clientY];
+      const close = () => {
+        stopGrace?.();
+        open = false;
+      };
+      const onMove = (move: PointerEvent) => {
+        const target = move.target as Node;
+        if (panel?.contains(target) || trigger?.contains(target)) {
+          stopGrace?.();
+          return;
+        }
+        if (!inTriangle([move.clientX, move.clientY], start, [edge, rect.top], [edge, rect.bottom]))
+          close();
+      };
+      const timer = setTimeout(close, SUBMENU_GRACE);
+      document.addEventListener('pointermove', onMove);
+      stopGrace = () => {
+        clearTimeout(timer);
+        document.removeEventListener('pointermove', onMove);
+        stopGrace = undefined;
+      };
+    }
+
+    function onTriggerPointerenter(event: PointerEvent) {
+      if (disabled || event.pointerType === 'touch') return;
+      stopGrace?.();
+      clearTimeout(openTimer);
+      openTimer = setTimeout(() => (open = true), SUBMENU_OPEN_DELAY);
+    }
+
+    return () => (
+      <>
+        <button
+          {...elementProps(
+            mergeProps<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
+              ref: _toRef(trigger),
+              id: triggerId,
+              type: 'button',
+              role: 'menuitem',
+              disabled,
+              'aria-haspopup': 'menu',
+              'aria-expanded': open,
+              'aria-controls': id,
+              onClick: openWithFocus,
+              onKeydown: (event: KeyboardEvent) => {
+                ripple.onKeydown(event);
+                onTriggerKeydown(event);
+              },
+              onPointerenter: onTriggerPointerenter,
+              onPointerleave: onTriggerPointerleave,
+              onPointerdown: ripple.onPointerdown,
+            }),
+          )}
+          data-disabled={disabled || undefined}
+          data-state={open ? 'open' : 'closed'}
+        >
+          {menuItemContent({ icon, propsIcon, propsLabel, children: label })}
+          <Icon
+            {...mergePartProps<IconProps>(
+              { icon: ChevronRight, flipInRtl: true, sx: menuStyles.shortcut },
+              propsChevron,
+            )}
+          />
+        </button>
+        <div
+          {...elementProps(
+            mergeProps<'div'>(
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  floatingStyles.surface,
+                  menuStyles.panel,
+                  transitions.scale,
+                ],
+                'aria-labelledby': triggerId,
+              },
+              propsPanel,
+              {
+                ref: _toRef(panel),
+                id,
+                popover: 'auto',
+                role: 'menu',
+                onToggle,
+                onKeydown: onPanelKeydown,
+                onPointerenter: () => stopGrace?.(),
+              },
+            ),
+          )}
+          data-state={open ? 'open' : 'closed'}
+        >
+          {children}
+        </div>
+      </>
+    );
   },
 );

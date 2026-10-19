@@ -22,6 +22,7 @@ import {
   size,
   type Middleware,
   type Placement,
+  type VirtualElement,
 } from '@floating-ui/dom';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, watchPostEffect } from 'vue';
@@ -58,6 +59,17 @@ export interface FloatingPlacements {
 
 /** 弹出位置 */
 export type FloatingPlacement = keyof FloatingPlacements & Placement;
+
+/**
+ * 锚点：元素，或只有位置的虚拟锚点（右键菜单从指针的位置弹出：`pointAnchor(x, y)`）。
+ * 虚拟锚点没有元素可以还焦点，关闭后焦点由组件自己安排
+ */
+export type FloatingAnchor = HTMLElement | VirtualElement;
+
+/** 视口里一个点（clientX / clientY）做锚点 */
+export function pointAnchor(x: number, y: number): VirtualElement {
+  return { getBoundingClientRect: () => new DOMRect(x, y, 0, 0) };
+}
 
 /** anchorFloating 的选项 */
 export interface FloatingOptions {
@@ -146,7 +158,7 @@ const VIEWPORT_PADDING = 8;
 
 /** 把 floating 定位到 anchor 旁边并持续跟随；floating 需要已经显示（如 showPopover 之后） */
 export function anchorFloating(
-  anchor: HTMLElement,
+  anchor: FloatingAnchor,
   floating: HTMLElement,
   {
     placement = 'bottom-start',
@@ -226,7 +238,7 @@ export interface AnchoredLayer {
   /** 是否显示着（show 之后、hide 之前） */
   readonly visible: boolean;
   /** 显示 panel（showPopover）并贴着 anchor 定位；返回第一次定位完成、可以移入焦点的 Promise。已显示时不重复 */
-  show(anchor: HTMLElement, panel: HTMLElement, options?: FloatingOptions): Promise<void>;
+  show(anchor: FloatingAnchor, panel: HTMLElement, options?: FloatingOptions): Promise<void>;
   /** 停止定位并隐藏；restoreFocus（默认 true）时焦点还在浮层里或已丢失则还给锚点。未显示时什么也不做 */
   hide(options?: { restoreFocus?: boolean }): void;
 }
@@ -236,7 +248,7 @@ export interface AnchoredLayer {
  * 原生 popover="auto" 被 Esc、点击外部关闭（light dismiss）时浏览器先隐藏了它，组件在 toggle 事件里调用 hide 收尾。
  */
 export function createAnchoredLayer(): AnchoredLayer {
-  let current: { anchor: HTMLElement; panel: HTMLElement; anchored: Anchored } | undefined;
+  let current: { anchor: FloatingAnchor; panel: HTMLElement; anchored: Anchored } | undefined;
   let ready: Promise<void> = Promise.resolve();
   return {
     get visible() {
@@ -256,7 +268,7 @@ export function createAnchoredLayer(): AnchoredLayer {
       current = undefined;
       anchored.stop();
       if (panel.matches(':popover-open')) panel.hidePopover();
-      if (restoreFocus) returnFocus(panel, anchor);
+      if (restoreFocus && anchor instanceof HTMLElement) returnFocus(panel, anchor);
     },
   };
 }
@@ -265,8 +277,8 @@ export function createAnchoredLayer(): AnchoredLayer {
 export interface AnchoredPopoverState {
   /** 是否打开 */
   open: boolean;
-  /** 锚点（触发器或输入框外壳） */
-  anchor: HTMLElement | null;
+  /** 锚点（触发器、输入框外壳，或右键菜单的虚拟锚点） */
+  anchor: FloatingAnchor | null;
   /** 浮层（popover 元素） */
   panel: HTMLElement | null;
   /** 定位选项 */

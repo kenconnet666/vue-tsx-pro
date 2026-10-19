@@ -21,6 +21,7 @@ import {
   Italic,
   Plus,
   Settings,
+  Share2,
   Star,
   Trash2,
 } from '@lucide/icons';
@@ -77,6 +78,8 @@ import {
   MenuItem,
   MenuRadioGroup,
   MenuRadioItem,
+  MenuSub,
+  ContextMenu,
   Popover,
   Tooltip,
   HoverCard,
@@ -785,7 +788,7 @@ export const Base = _component(() => {
           <TableDemo />
         </Section>
 
-        <Section title="浮层 Popover · Tooltip · HoverCard · Menu">
+        <Section title="浮层 Popover · Tooltip · HoverCard · Menu · ContextMenu">
           <Flex gap="sm" wrap align="center">
             <Popover
               class="popover-demo"
@@ -856,10 +859,14 @@ export const Base = _component(() => {
               <MenuItem icon={Pencil} onAction={() => (menuAction = '编辑')}>
                 编辑
               </MenuItem>
-              <MenuItem icon={Copy} shortcut="Ctrl+D" onAction={() => (menuAction = '复制')}>
+              <MenuItem icon={Copy} shortcut="Mod+D" onAction={() => (menuAction = '复制')}>
                 复制
               </MenuItem>
               <MenuItem disabled>归档</MenuItem>
+              <MenuSub label="分享" icon={Share2} class="menu-sub">
+                <MenuItem onAction={() => (menuAction = '复制链接')}>复制链接</MenuItem>
+                <MenuItem onAction={() => (menuAction = '发邮件')}>发邮件</MenuItem>
+              </MenuSub>
               <Separator decorative={false} />
               <MenuGroup label="视图">
                 <MenuCheckboxItem checked={_bind(showGrid)}>显示网格</MenuCheckboxItem>
@@ -873,6 +880,30 @@ export const Base = _component(() => {
                 删除
               </MenuItem>
             </Menu>
+            <ContextMenu
+              class="context-demo"
+              menu={
+                <>
+                  <MenuItem icon={Pencil} onAction={() => (menuAction = '右键：重命名')}>
+                    重命名
+                  </MenuItem>
+                  <MenuSub label="移动到">
+                    <MenuItem onAction={() => (menuAction = '右键：移到归档')}>归档</MenuItem>
+                  </MenuSub>
+                  <MenuItem
+                    icon={Trash2}
+                    tone="danger"
+                    onAction={() => (menuAction = '右键：删除')}
+                  >
+                    删除
+                  </MenuItem>
+                </>
+              }
+            >
+              <Button variant="soft" class="context-target">
+                在这里右键（或 Shift+F10）
+              </Button>
+            </ContextMenu>
             <Text tone="muted" class="menu-result">
               {menuAction ? `执行了：${menuAction}` : '未执行'} · 网格{showGrid ? '开' : '关'} ·
               排序 {sortBy}

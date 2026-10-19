@@ -44,6 +44,7 @@ export const enUS: Lang = {
   pageJumpBefore: 'Go to',
   pageJumpAfter: '',
   pageJumpLabel: 'Go to page',
+  contextMenuLabel: 'More actions',
   previousPage: 'Previous page',
   nextPage: 'Next page',
   pageLabel: (page) => `Page ${page}`,

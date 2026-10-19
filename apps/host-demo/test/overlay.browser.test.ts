@@ -1,6 +1,6 @@
 // 锚定浮层：Popover、Tooltip、Menu 在真实浏览器里（演示页 /base）
 import axe from 'axe-core';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
@@ -121,6 +121,8 @@ describe('Tooltip', () => {
 });
 
 describe('Menu', () => {
+  // 子菜单、右键菜单要有地方往右、往下弹出：默认的窄视口里会翻转、挪动，几何断言不成立
+  beforeEach(() => page.viewport(1280, 800));
   const items = (menu: Element) => [...menu.querySelectorAll<HTMLElement>('[role^="menuitem"]')];
   const result = () => $('.menu-result').textContent!;
 
@@ -131,14 +133,95 @@ describe('Menu', () => {
     await userEvent.click(trigger);
     await expect.poll(() => isOpen(menu)).toBe(true);
     await expect.poll(() => document.activeElement).toBe(items(menu)[0]);
-    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
-    // “归档”不可用，被跳过
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+    // “归档”不可用，被跳过；“分享”是子菜单项，子菜单里的项不在这一列里
     expect(document.activeElement!.textContent).toBe('显示网格');
-    await userEvent.keyboard('{ArrowUp}{Enter}');
+    await userEvent.keyboard('{ArrowUp}{ArrowUp}{Enter}');
     expect(result()).toContain('执行了：复制');
     await expect.poll(() => isOpen(menu)).toBe(false);
     expect(document.activeElement).toBe(trigger);
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('子菜单：→ 打开并聚焦第一项，← 关闭回到这一项；子菜单里执行后整串菜单关闭', async () => {
+    const trigger = $('.menu-open');
+    const menu = $('.menu-demo');
+    const sub = $('.menu-sub');
+    const subMenu = document.getElementById(sub.getAttribute('aria-controls')!)!;
+    expect(sub.getAttribute('aria-haspopup')).toBe('menu');
+    await userEvent.click(trigger);
+    await expect.poll(() => isOpen(menu)).toBe(true);
+    sub.focus();
+    await userEvent.keyboard('{ArrowRight}');
+    await expect.poll(() => isOpen(subMenu)).toBe(true);
+    await expect.poll(() => document.activeElement!.textContent).toBe('复制链接');
+    expect(sub.getAttribute('aria-expanded')).toBe('true');
+    expect(subMenu.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+      menu.getBoundingClientRect().right - 4,
+    );
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect.poll(() => isOpen(subMenu)).toBe(false);
+    expect(isOpen(menu)).toBe(true);
+    expect(document.activeElement).toBe(sub);
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => document.activeElement!.textContent).toBe('复制链接');
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect(result()).toContain('执行了：发邮件');
+    await expect.poll(() => isOpen(menu)).toBe(false);
+    expect(isOpen(subMenu)).toBe(false);
+  });
+
+  it('子菜单：指针停一会儿打开，斜着移向子菜单时经过别的项也不关', async () => {
+    const menu = $('.menu-demo');
+    const sub = $('.menu-sub');
+    const subMenu = document.getElementById(sub.getAttribute('aria-controls')!)!;
+    await userEvent.click($('.menu-open'));
+    await expect.poll(() => isOpen(menu)).toBe(true);
+    await userEvent.hover(sub);
+    await expect.poll(() => isOpen(subMenu)).toBe(true);
+    const from = sub.getBoundingClientRect();
+    const to = subMenu.getBoundingClientRect();
+    // 从这一项的中间朝子菜单的下半部斜着移动：路上会经过下一项
+    const fire = (type: string, target: Element, x: number, y: number) =>
+      target.dispatchEvent(
+        new PointerEvent(type, { bubbles: true, clientX: x, clientY: y, pointerType: 'mouse' }),
+      );
+    fire('pointerleave', sub, from.right - 2, from.bottom - 2);
+    fire('pointermove', menu, (from.right + to.left) / 2, from.bottom + 4);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(isOpen(subMenu)).toBe(true);
+    // 移出三角形：关闭
+    fire('pointermove', menu, from.left + 4, from.bottom + 30);
+    await expect.poll(() => isOpen(subMenu)).toBe(false);
+  });
+
+  it('快捷键：菜单没打开时按下也执行对应的项；显示成当前系统的写法', async () => {
+    const shortcut = [...$('.menu-demo').querySelectorAll('span, p')].find((node) =>
+      /D$/.test(node.textContent!),
+    );
+    expect(['Ctrl+D', '⌘D']).toContain(shortcut!.textContent);
+    const mac = shortcut!.textContent === '⌘D';
+    await userEvent.keyboard(mac ? '{Meta>}d{/Meta}' : '{Control>}d{/Control}');
+    expect(result()).toContain('执行了：复制');
+  });
+
+  it('右键菜单：在区域里右键时从指针位置弹出，执行后关闭', async () => {
+    const target = $('.context-target');
+    target.scrollIntoView({ block: 'center' });
+    const box = target.getBoundingClientRect();
+    const x = box.left + 10;
+    const y = box.top + 5;
+    target.dispatchEvent(
+      new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: x, clientY: y }),
+    );
+    const menu = () => $('.context-demo').querySelector<HTMLElement>('[role="menu"]')!;
+    await expect.poll(() => isOpen(menu())).toBe(true);
+    expect(menu().getAttribute('aria-label')).toBe('更多操作');
+    await expect.poll(() => Math.abs(menu().getBoundingClientRect().left - x)).toBeLessThan(10);
+    await expect.poll(() => document.activeElement!.textContent).toBe('重命名');
+    await userEvent.keyboard('{Enter}');
+    expect(result()).toContain('执行了：右键：重命名');
+    await expect.poll(() => isOpen(menu())).toBe(false);
   });
 
   it('↑ 打开并聚焦最后一项；按字母跳到以它开头的项；Esc 关闭', async () => {

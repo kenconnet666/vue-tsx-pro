@@ -43,6 +43,7 @@ export const zhCN: Lang = {
   pageJumpBefore: '跳至',
   pageJumpAfter: '页',
   pageJumpLabel: '跳到第几页',
+  contextMenuLabel: '更多操作',
   previousPage: '上一页',
   nextPage: '下一页',
   pageLabel: (page) => `第 ${page} 页`,

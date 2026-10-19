@@ -113,6 +113,8 @@ export interface Lang {
   readonly pageJumpAfter: string;
   /** 跳页输入框的名称，默认“跳到第几页” */
   readonly pageJumpLabel: string;
+  /** 右键菜单（ContextMenu）的默认名称，默认“更多操作” */
+  readonly contextMenuLabel: string;
   /** 上一页按钮的名称，默认“上一页” */
   readonly previousPage: string;
   /** 下一页按钮的名称，默认“下一页” */
