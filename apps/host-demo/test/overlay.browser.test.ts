@@ -72,6 +72,9 @@ describe('Popover', () => {
 });
 
 describe('Tooltip', () => {
+  // 上一个用例的指针可能正停在触发器的位置：再 hover 同一点不算移动，WebKit 不发 pointerenter。先移到页面顶部
+  beforeEach(() => userEvent.hover($('.toggle-theme')));
+
   it('箭头随翻转换边：上方显示时箭头在提示下沿', async () => {
     const trigger = $('.tooltip-arrow-trigger');
     const tooltip = $('.tooltip-arrow-demo');
@@ -275,6 +278,8 @@ describe('Menu', () => {
 });
 
 describe('HoverCard', () => {
+  beforeEach(() => userEvent.hover($('.toggle-theme')));
+
   it('悬停一段时间后打开，能移到卡片上；键盘聚焦打开后 Tab 进卡片不关，离开后关闭', async () => {
     const trigger = $('.hovercard-trigger');
     const card = $('.hovercard-demo');
