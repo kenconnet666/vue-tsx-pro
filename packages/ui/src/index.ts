@@ -206,6 +206,12 @@ export {
 } from './feedback/Drawer';
 export { Empty, emptyStyles, type EmptyProps } from './feedback/Empty';
 export {
+  LoadingOverlay,
+  loadingOverlayStyles,
+  type LoadingOverlayManaged,
+  type LoadingOverlayProps,
+} from './feedback/LoadingOverlay';
+export {
   ModalCore,
   modalStyles,
   type ModalCoreProps,

@@ -74,6 +74,18 @@ describe('Progress · Skeleton', () => {
     expect($('.progress-indeterminate').firstElementChild!.getAnimations().length).toBe(1);
   });
 
+  it('LoadingOverlay：刷新时遮罩盖住整个区域并淡入，结束后移除', async () => {
+    const area = $('.overlay-demo');
+    $('.overlay-trigger').click();
+    await expect.poll(() => area.getAttribute('aria-busy')).toBe('true');
+    const overlay = () => area.querySelector<HTMLElement>('[data-state]');
+    await expect.poll(overlay).not.toBeNull();
+    const box = overlay()!.getBoundingClientRect();
+    const outer = area.getBoundingClientRect();
+    expect([box.width, box.height]).toEqual([outer.width, outer.height]);
+    await expect.poll(overlay, { timeout: 4000 }).toBeNull();
+  });
+
   it('Skeleton 与内容一样大：加载完成前后卡片的尺寸不变', async () => {
     const card = $('.card-demo');
     const before = card.getBoundingClientRect();

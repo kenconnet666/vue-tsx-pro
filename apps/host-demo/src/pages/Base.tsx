@@ -74,6 +74,7 @@ import {
   Tooltip,
   Link,
   LinkButton,
+  LoadingOverlay,
   Paragraph,
   Progress,
   Skeleton,
@@ -240,6 +241,11 @@ export const Base = _component(() => {
   let saving = _state(false);
   let cities = _state(['上海', '北京', '深圳']);
   let loadingProfile = _state(true);
+  let refreshing = _state(false);
+  function refresh() {
+    refreshing = true;
+    setTimeout(() => (refreshing = false), 1500);
+  }
   let showAlert = _state(true);
   let dialogOpen = _state(false);
   let drawerOpen = _state(false);
@@ -796,7 +802,7 @@ export const Base = _component(() => {
           </Flex>
         </Section>
 
-        <Section title="进度与占位 Progress · Skeleton">
+        <Section title="进度与占位 Progress · Skeleton · LoadingOverlay">
           <Progress class="progress-demo" value={volume} aria-label="演示进度" />
           <Progress tone="success" value={100} aria-label="已完成" />
           <Progress class="progress-indeterminate" aria-label="正在加载" />
@@ -822,6 +828,17 @@ export const Base = _component(() => {
               <Paragraph>第一位程序员，为分析机写出了第一个算法。</Paragraph>
             </Skeleton>
           </Card>
+          <LoadingOverlay class="overlay-demo" loading={refreshing} blur>
+            <Card
+              footer={
+                <Button variant="soft" class="overlay-trigger" onClick={refresh}>
+                  刷新（1.5 秒）
+                </Button>
+              }
+            >
+              <Paragraph>刷新时遮罩盖住卡片，内容保留；很快完成的加载不出现遮罩。</Paragraph>
+            </Card>
+          </LoadingOverlay>
           <Flex gap="sm" align="center">
             <Avatar name="张三" />
             <Avatar name="Grace Hopper" radius="md" />
