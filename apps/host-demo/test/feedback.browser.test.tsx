@@ -32,18 +32,18 @@ describe('Badge · Tag · Alert', () => {
   it('Tag 的移除按钮先播离场再移除它；焦点交给下一个标签，最后一个被移除时交给上一个', async () => {
     const tags = () => root.querySelectorAll<HTMLElement>('.tag-demo > span');
     const removeButton = (index: number) => tags()[index]!.querySelector('button')!;
-    expect(tags()).toHaveLength(3);
+    expect(tags()).toHaveLength(5);
     removeButton(0).focus();
     removeButton(0).click();
     await nextTick();
     expect(tags()[0]!.dataset.state).toBe('closed');
-    await expect.poll(() => tags().length).toBe(2);
+    await expect.poll(() => tags().length).toBe(4);
     await expect.poll(() => document.activeElement).toBe(removeButton(0));
 
-    removeButton(1).focus();
-    removeButton(1).click();
-    await expect.poll(() => tags().length).toBe(1);
-    await expect.poll(() => document.activeElement).toBe(removeButton(0));
+    removeButton(3).focus();
+    removeButton(3).click();
+    await expect.poll(() => tags().length).toBe(3);
+    await expect.poll(() => document.activeElement).toBe(removeButton(2));
   });
 
   it('Alert 关闭后消失，焦点留在相邻的可聚焦元素上而不是掉回页面开头', async () => {

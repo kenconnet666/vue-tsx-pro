@@ -2,6 +2,10 @@
  * 标签（span）：外观同 Badge，可以带移除按钮（筛选条件、已选项、输入的关键词）。
  *
  *   <Tag onRemove={() => remove(item)}>{item.name}</Tag>
+ *
+ * 移除时标签先淡出缩小（usePresence），离场结束才调用 onRemove。其余标签平移补位交给所在容器：
+ *   const layout = useLayoutAnimation(() => list);
+ *   <Tag onRemove={() => layout.change(() => remove(item))}>…</Tag>
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';

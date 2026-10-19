@@ -102,6 +102,7 @@ import {
   Toolbar,
   Toaster,
   useConfirm,
+  useLayoutAnimation,
   VirtualList,
   VisuallyHidden,
   type VirtualListHandle,
@@ -239,7 +240,10 @@ export const Base = _component(() => {
   let listHandle: VirtualListHandle | undefined;
   let volume = _state(40);
   let saving = _state(false);
-  let cities = _state(['上海', '北京', '深圳']);
+  let cities = _state(['上海', '北京', '深圳', '广州', '杭州']);
+  // 标签离场后，其余的平移补位
+  let tagList = _state.raw<unknown>(null);
+  const tagLayout = useLayoutAnimation(() => tagList);
   let loadingProfile = _state(true);
   let refreshing = _state(false);
   function refresh() {
@@ -493,12 +497,14 @@ export const Base = _component(() => {
               )}
             </Flex>
           ))}
-          <Flex gap="sm" wrap align="center" class="tag-demo">
+          <Flex gap="sm" wrap align="center" class="tag-demo" ref={_toRef(tagList)}>
             {cities.map((city) => (
               <Tag
                 key={city}
                 variant="surface"
-                onRemove={() => (cities = cities.filter((c) => c !== city))}
+                onRemove={() =>
+                  void tagLayout.change(() => (cities = cities.filter((c) => c !== city)))
+                }
               >
                 {city}
               </Tag>
