@@ -13,12 +13,8 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/styles';
-import {
-  Virtualizer,
-  type VirtualItem,
-  type VirtualScrollOptions,
-  type VisibleRange,
-} from '../utils/virtualizer';
+import { useVirtualizer } from '../utils/use-virtualizer';
+import type { VirtualScrollOptions, VisibleRange } from '../utils/virtualizer';
 
 /** 跟着谁滚动 */
 export interface VirtualListScrolls {
@@ -110,15 +106,7 @@ export const VirtualList = _component(
   }: VirtualListProps<T>) => {
     let root = _state.raw<HTMLElement | null>(null);
     let list = _state.raw<HTMLElement | null>(null);
-    // 渲染需要的只有这两样；滚动本身不触发重新渲染
-    let view = _state.raw<{ items: VirtualItem[]; total: number }>({ items: [], total: 0 });
-
-    /** 上次报告给 onRangeChange 的范围 */
-    let reported: VisibleRange | null = null;
-    const virtualizer = new Virtualizer(options());
-
-    /** 读取 props 生成选项；props 变化时重新同步（见下面的 watch） */
-    function options() {
+    const virtual = useVirtualizer(() => {
       const data = items;
       const estimate = estimateSize;
       const keyOf = itemKey;
@@ -126,58 +114,27 @@ export const VirtualList = _component(
         count: data.length,
         overscan,
         horizontal,
+        scrollElement: scroll === 'window' ? window : root,
+        list,
         estimateSize: (index: number) =>
           typeof estimate === 'number' ? estimate : estimate(data[index]!, index),
         getItemKey: keyOf ? (index: number) => keyOf(data[index]!, index) : undefined,
-        getScrollElement: () => (scroll === 'window' ? window : root),
-        // 列表开头距滚动内容开头的距离：容器的内边距、页面里列表上方的内容
-        scrollMargin: () => {
-          if (!list) return 0;
-          const listRect = list.getBoundingClientRect();
-          if (scroll === 'window') {
-            return horizontal ? listRect.left + window.scrollX : listRect.top + window.scrollY;
-          }
-          const rootRect = root!.getBoundingClientRect();
-          return horizontal
-            ? listRect.left - rootRect.left + root!.scrollLeft
-            : listRect.top - rootRect.top + root!.scrollTop;
-        },
-        onChange: (changed: Virtualizer) => {
-          view = { items: changed.getVirtualItems(), total: changed.getTotalSize() };
-          const range = changed.getVisibleRange();
-          // 测量也会触发 onChange，可见范围没变时不报告
-          if (
-            !range ||
-            (range.startIndex === reported?.startIndex && range.endIndex === reported.endIndex)
-          )
-            return;
-          reported = range;
-          onRangeChange?.(range);
-        },
+        onRangeChange,
       };
-    }
+    });
 
-    // 用 watch 而不是 _effect：同步与挂载时会调用使用方的 estimateSize、onRangeChange，
-    // 它们读到的响应式变量不该变成这里的依赖
-    watch(
-      () => [items, itemKey, estimateSize, overscan, horizontal, scroll],
-      () => virtualizer.setOptions(options()),
-    );
-    const api: VirtualListHandle = {
-      scrollToIndex: (index, scrollOptions) => virtualizer.scrollToIndex(index, scrollOptions),
-      scrollToOffset: (offset, scrollOptions) => virtualizer.scrollToOffset(offset, scrollOptions),
-    };
-    // root 就绪后开始监听滚动与大小；滚动方式变了重新挂载。
     // 挂载之后才交出 handle：使用方在回调里立即滚动（恢复上次的位置）也能生效。
-    // handle 不放进监听源：父级写的箭头函数每次渲染都是新的，不该因此重新挂载
+    // handle 不放进监听源：父级写的箭头函数每次渲染都是新的，不该因此重新交出
+    const api: VirtualListHandle = {
+      scrollToIndex: virtual.scrollToIndex,
+      scrollToOffset: virtual.scrollToOffset,
+    };
     watch(
-      () => [root, scroll],
-      (_, __, onCleanup) => {
-        if (!root) return;
-        onCleanup(virtualizer.mount());
-        handle?.(api);
+      () => root,
+      (element) => {
+        if (element) handle?.(api);
       },
-      { immediate: true, flush: 'post' },
+      { flush: 'post' },
     );
 
     return () => {
@@ -204,13 +161,15 @@ export const VirtualList = _component(
             <div
               {...elementProps(
                 mergeProps<'div'>({ sx: styles.list }, propsList, {
-                  sx: horizontal ? sizeStyles.width(view.total) : sizeStyles.height(view.total),
+                  sx: horizontal
+                    ? sizeStyles.width(virtual.total)
+                    : sizeStyles.height(virtual.total),
                   ref: _toRef(list),
                   role: 'presentation',
                 }),
               )}
             >
-              {view.items.map((item) => {
+              {virtual.items.map((item) => {
                 const data = items[item.index]!;
                 const own =
                   typeof propsItem === 'function' ? propsItem(data, item.index) : propsItem;
@@ -228,7 +187,7 @@ export const VirtualList = _component(
                         own,
                         {
                           sx: horizontal ? sizeStyles.x(item.start) : sizeStyles.y(item.start),
-                          ref: virtualizer.measureElement as (element: unknown) => void,
+                          ref: virtual.measure,
                           role: 'listitem',
                           'aria-setsize': items.length,
                           'aria-posinset': item.index + 1,

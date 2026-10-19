@@ -374,3 +374,8 @@ export {
   type VirtualScrollOptions,
   type VisibleRange,
 } from './utils/virtualizer';
+export {
+  useVirtualizer,
+  type UseVirtualizerOptions,
+  type VirtualView,
+} from './utils/use-virtualizer';
