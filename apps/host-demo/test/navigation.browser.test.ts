@@ -119,6 +119,32 @@ describe('Breadcrumbs · Pagination · NavList', () => {
     expect(current()).toBe('16');
   });
 
+  it('跳页：输入页码回车后跳过去，超出范围时夹到最后一页；换每页条数后回到第 1 页', async () => {
+    const current = () => $('.pagination-demo [aria-current="page"]').textContent;
+    const input = $<HTMLInputElement>('.page-jump-demo input');
+    expect(input.getAttribute('aria-label')).toBe('跳到第几页');
+    await userEvent.click(input);
+    await userEvent.keyboard('7{Enter}');
+    await expect.poll(current).toBe('7');
+    expect(input.value).toBe('');
+    await userEvent.keyboard('99{Enter}');
+    await expect.poll(current).toBe('16');
+
+    // class 落在 Select 的触发按钮（主元素）上
+    const trigger = $('button.page-size-demo');
+    expect(trigger.getAttribute('aria-label')).toBe('每页条数');
+    await userEvent.click(trigger);
+    const option = () =>
+      [...document.querySelectorAll<HTMLElement>('[role="option"]')].find(
+        (o) => o.textContent === '50 条/页',
+      );
+    await expect.poll(option).toBeTruthy();
+    option()!.click();
+    await expect.poll(current).toBe('1');
+    expect(all('.pagination-demo button').some((b) => b.textContent === '7')).toBe(true);
+    expect(all('.pagination-demo button').some((b) => b.textContent === '16')).toBe(false);
+  });
+
   it('侧边导航：路由适配判断当前页（/base），分组点开后显示子项', async () => {
     const nav = $('.navlist-demo');
     expect(nav.querySelector('[aria-current="page"]')!.textContent).toBe('基础组件');

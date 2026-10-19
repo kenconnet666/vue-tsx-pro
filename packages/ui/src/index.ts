@@ -329,6 +329,8 @@ export {
   type NavItemProps,
   type NavListProps,
 } from './navigation/NavList';
+export { PageJump, pageJumpStyles, type PageJumpProps } from './navigation/PageJump';
+export { PageSizeSelect, type PageSizeSelectProps } from './navigation/PageSizeSelect';
 export { Pagination, paginationStyles, type PaginationProps } from './navigation/Pagination';
 export {
   Steps,

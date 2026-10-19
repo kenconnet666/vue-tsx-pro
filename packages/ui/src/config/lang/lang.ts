@@ -103,6 +103,16 @@ export interface Lang {
   readonly paginationTotal: (total: number) => string;
   /** 分页导航的无障碍名称，默认“分页” */
   readonly pagination: string;
+  /** 每页条数选择里的一项：`(20)` → “20 条/页” */
+  readonly pageSizeOption: (size: number) => string;
+  /** 每页条数选择的名称，默认“每页条数” */
+  readonly pageSizeLabel: string;
+  /** 跳页输入框前的文字，默认“跳至” */
+  readonly pageJumpBefore: string;
+  /** 跳页输入框后的文字，默认“页” */
+  readonly pageJumpAfter: string;
+  /** 跳页输入框的名称，默认“跳到第几页” */
+  readonly pageJumpLabel: string;
   /** 上一页按钮的名称，默认“上一页” */
   readonly previousPage: string;
   /** 下一页按钮的名称，默认“下一页” */

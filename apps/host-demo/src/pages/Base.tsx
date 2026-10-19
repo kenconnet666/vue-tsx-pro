@@ -87,6 +87,8 @@ import {
   NavGroup,
   NavItem,
   NavList,
+  PageJump,
+  PageSizeSelect,
   Pagination,
   Steps,
   Tab,
@@ -324,6 +326,7 @@ export const Base = _component(() => {
   let orderTab = _state('all');
   let step = _state(1);
   let page = _state(3);
+  let pageSize = _state(20);
   let view = _state<string | undefined>('list');
   let marks = _state<string[]>(['bold']);
 
@@ -452,13 +455,25 @@ export const Base = _component(() => {
               { label: '面包屑' },
             ]}
           />
-          <Pagination
-            class="pagination-demo"
-            page={_bind(page)}
-            total={320}
-            pageSize={20}
-            showTotal
-          />
+          <Flex gap="md" wrap align="center">
+            <Pagination
+              class="pagination-demo"
+              page={_bind(page)}
+              total={320}
+              pageSize={pageSize}
+              showTotal
+            />
+            <PageSizeSelect
+              class="page-size-demo"
+              value={_bind(pageSize)}
+              onUpdate={() => (page = 1)}
+            />
+            <PageJump
+              class="page-jump-demo"
+              page={_bind(page)}
+              pageCount={Math.ceil(320 / pageSize)}
+            />
+          </Flex>
           <NavList aria-label="演示站点" class="navlist-demo" sx={styles.narrow}>
             <NavItem href="/" icon={House}>
               首页
