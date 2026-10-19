@@ -193,6 +193,12 @@ export {
   type DescriptionsProps,
 } from './display/Descriptions';
 export {
+  Sortable,
+  sortableStyles,
+  type SortableItemState,
+  type SortableProps,
+} from './display/Sortable';
+export {
   Timeline,
   timelineStyles,
   timelineToneStyles,
@@ -780,6 +786,7 @@ export {
   type RovingFocusOptions,
   type RovingOrientations,
 } from './utils/dom/roving-focus';
+export { useSortable, type SortableOptions, type SortableState } from './utils/dom/sortable';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
 // 工具：比较与匹配、选择、分页、文字、数值

@@ -130,6 +130,7 @@ import { MotionDemo } from './MotionDemo';
 import { TableDemo } from './TableDemo';
 import { TreeDemo } from './TreeDemo';
 import { UploadDemo } from './UploadDemo';
+import { SortableDemo } from './SortableDemo';
 
 const sampleCode = `export const Counter = _component(() => {
   let count = _state(0); // 像普通变量一样读写
@@ -1269,6 +1270,10 @@ export const Base = _component(() => {
 
         <Section title="上传 Upload · FileDrop">
           <UploadDemo />
+        </Section>
+
+        <Section title="拖动排序 Sortable">
+          <SortableDemo />
         </Section>
 
         <Section title="树 Tree">

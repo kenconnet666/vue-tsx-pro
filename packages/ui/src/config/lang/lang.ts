@@ -109,6 +109,18 @@ export interface Lang {
   readonly uploadRetry: (file: string) => string;
   /** 移除文件按钮的名称，默认“移除 文件名” */
   readonly uploadRemove: (file: string) => string;
+  /** 拖动排序把手的名称，默认“移动 项名” */
+  readonly sortableHandle: (item: string) => string;
+  /** 拖动排序把手的操作说明（aria-describedby），默认“按空格拿起，用方向键移动，再按空格放下，Esc 取消” */
+  readonly sortableInstructions: string;
+  /** 拿起时的播报，默认“已拿起 项名，在第 n 位，共 m 项” */
+  readonly sortableGrabbed: (item: string, position: number, total: number) => string;
+  /** 移动后的播报，默认“项名 移到第 n 位，共 m 项” */
+  readonly sortableMoved: (item: string, position: number, total: number) => string;
+  /** 放下时的播报，默认“已放下 项名，在第 n 位，共 m 项” */
+  readonly sortableDropped: (item: string, position: number, total: number) => string;
+  /** 取消时的播报，默认“已取消，项名 回到第 n 位” */
+  readonly sortableCancelled: (item: string, position: number) => string;
   /** 下拉框没有选项时的提示，默认“没有选项” */
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */

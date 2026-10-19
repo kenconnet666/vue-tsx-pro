@@ -42,6 +42,13 @@ export const enUS: Lang = {
   uploadDone: 'Uploaded',
   uploadRetry: (file) => `Retry uploading ${file}`,
   uploadRemove: (file) => `Remove ${file}`,
+  sortableHandle: (item) => `Move ${item}`,
+  sortableInstructions:
+    'Press Space to pick up, use the arrow keys to move, Space again to drop, Escape to cancel',
+  sortableGrabbed: (item, position, total) => `Picked up ${item}, position ${position} of ${total}`,
+  sortableMoved: (item, position, total) => `${item} moved to position ${position} of ${total}`,
+  sortableDropped: (item, position, total) => `Dropped ${item}, position ${position} of ${total}`,
+  sortableCancelled: (item, position) => `Cancelled, ${item} returned to position ${position}`,
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
   paginationTotal: (total) => `${total} items`,
