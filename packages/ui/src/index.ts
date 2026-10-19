@@ -706,6 +706,7 @@ export {
   type ThemeAnimate,
   type ThemeTransitionOptions,
 } from './utils/motion/animation';
+export { usePresence, type Presence, type PresenceOptions } from './utils/motion/presence';
 export {
   useSpring,
   useTween,

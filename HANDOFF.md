@@ -90,6 +90,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 单选 / 多选                              | `toggleSelection`                                                                                                                           |
 | 拖动                                     | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                                            |
 | 进出场过渡、等过渡结束                   | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                                           |
+| 关闭后等离场结束再卸载                   | `usePresence(() => open, { onExited, exit })`：`mounted`、`state`、`ref`（`utils/motion/presence.ts`；Toast、Tag、Alert 用它）              |
 | 弹层：焦点、遮罩、锁滚动、移除后的焦点   | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                                            |
 | 浮层贴着触发器定位、打开与关闭           | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                                             |
 | 模态打开期间还要可交互的浮层             | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                                   |

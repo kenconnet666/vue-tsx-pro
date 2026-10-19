@@ -9,6 +9,7 @@ import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
 import { focusAfterRemoval } from '../utils/dom/focus';
+import { usePresence } from '../utils/motion/presence';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/data/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
@@ -20,7 +21,7 @@ import type { StyleTable } from '../utils/style/styles';
 export interface TagProps extends PartProps<'span'>, BadgeOptions {
   /** 文字前的图标 */
   icon?: IconData;
-  /** 给了就显示移除按钮，点击时调用；标签随后被移除时，焦点交给同组的下一个（没有就上一个）可聚焦元素 */
+  /** 给了就显示移除按钮：点击后标签先淡出缩小，离场结束再调用；标签随后被移除时，焦点交给同组的下一个（没有就上一个）可聚焦元素；没被移除就重新显示 */
   onRemove?: () => void;
   /** 移除按钮的无障碍名称，默认“移除”加上标签文字（内容只有文字时） */
   removeLabel?: string;
@@ -31,8 +32,12 @@ export interface TagProps extends PartProps<'span'>, BadgeOptions {
   children?: VNodeChild;
 }
 
-/** Tag 的样式：removable、remove */
-export const tagStyles: StyleTable<'removable' | 'remove'> = stylex.create({
+/** Tag 的样式：root、removable、remove、removing */
+export const tagStyles: StyleTable<'root' | 'removable' | 'remove' | 'removing'> = stylex.create({
+  // 移除被拒绝（使用方没移除）时从离场状态过渡回来
+  root: {
+    transition: 'opacity _durations.sm _easings.enter, scale _durations.sm _easings.enter',
+  },
   // 移除按钮紧贴右侧，比独立的图标按钮紧凑（标签之间留有间距，满足目标尺寸的间距例外）
   removable: { paddingInlineEnd: '_xs' },
   remove: {
@@ -40,6 +45,11 @@ export const tagStyles: StyleTable<'removable' | 'remove'> = stylex.create({
     minHeight: '1.5em',
     marginBlock: 'calc(-1 * _space.xs)',
     color: 'inherit',
+  },
+  removing: {
+    opacity: 0,
+    scale: 0.8,
+    transition: 'opacity _durations.sm _easings.exit, scale _durations.sm _easings.exit',
   },
 });
 
@@ -60,6 +70,14 @@ export const Tag = _component(
   }: TagProps) => {
     const lang = useLang();
     const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
+    let removing = _state(false);
+    // 离场结束才交给使用方移除；使用方没移除（如拒绝删除）时 removing 复位，标签重新出现
+    const presence = usePresence(() => !removing, {
+      onExited: () => {
+        removing = false;
+        onRemove?.();
+      },
+    });
     return () => {
       const text = plainText(children);
       const label = removeLabel ?? (text ? `${lang.remove} ${text}` : lang.remove);
@@ -68,11 +86,18 @@ export const Tag = _component(
           {...elementProps(
             mergeProps<'span'>(
               {
-                sx: [badgeSx(appearance()), onRemove && tagStyles.removable],
+                sx: [
+                  badgeSx(appearance()),
+                  tagStyles.root,
+                  onRemove && tagStyles.removable,
+                  removing && tagStyles.removing,
+                ],
               },
               rest,
+              { ref: presence.ref },
             ),
           )}
+          data-state={presence.state}
         >
           {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
           {children}
@@ -83,8 +108,9 @@ export const Tag = _component(
                 propsRemove,
                 {
                   onClick: (event: MouseEvent) => {
+                    if (removing) return;
                     focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
-                    onRemove();
+                    removing = true;
                   },
                 },
               )}

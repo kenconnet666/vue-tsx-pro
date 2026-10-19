@@ -39,12 +39,12 @@ import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse } from '../display/Collapse';
 import { useAnimate } from '../utils/motion/animation';
+import { usePresence } from '../utils/motion/presence';
 import { startMove } from '../utils/dom/move';
-import { topModal } from '../utils/dom/overlay';
+import { toElement, topModal } from '../utils/dom/overlay';
 import { focusAfterRemoval } from '../utils/dom/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
-import { afterTransitions } from '../utils/style/transitions';
 import { Alert, type AlertProps } from './Alert';
 import type { StyleTable } from '../utils/style/styles';
 
@@ -340,16 +340,11 @@ const SWIPE_RATIO = 0.35;
 /** 列表里的一项：Collapse 负责离场时收起高度，收起后从控制器里移除 */
 export const ToastItem = _component(
   ({ toast, controller, fromTop, fallbackFocus, propsItem, propsToast }: ToastItemProps) => {
-    let item = _state.raw<HTMLElement | null>(null);
+    let item: HTMLElement | null = null;
     const animate = useAnimate();
 
-    _effect(() => {
-      if (!toast.closing || !item) return;
-      let cancelled = false;
-      void afterTransitions(item).then(() => {
-        if (!cancelled) controller.remove(toast.id);
-      });
-      return () => (cancelled = true);
+    const presence = usePresence(() => !toast.closing, {
+      onExited: () => controller.remove(toast.id),
     });
 
     function close() {
@@ -409,10 +404,16 @@ export const ToastItem = _component(
                 ],
               },
               itemProps,
-              { ref: _toRef(item), onPointerdown },
+              {
+                ref: (element: unknown) => {
+                  item = toElement(element);
+                  presence.ref(element);
+                },
+                onPointerdown,
+              },
             ),
           )}
-          data-state={toast.closing ? 'closed' : 'open'}
+          data-state={presence.state}
         >
           <Collapse open={!toast.closing} propsContent={{ sx: toastStyles.gap }}>
             <Alert

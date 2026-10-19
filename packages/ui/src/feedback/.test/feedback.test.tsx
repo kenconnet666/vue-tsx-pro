@@ -81,12 +81,12 @@ describe('Alert', () => {
     expect(polite!.getAttribute('role')).toBe('status');
   });
 
-  it('给了 onClose 才有关闭按钮', () => {
+  it('给了 onClose 才有关闭按钮；离场结束后才调用', async () => {
     const onClose = vi.fn();
     const root = mount(() => <Alert onClose={onClose}>x</Alert>);
     const button = root.querySelector('button')!;
     expect(button.getAttribute('aria-label')).toBe('关闭');
     button.click();
-    expect(onClose).toHaveBeenCalled();
+    await vi.waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });

@@ -1,4 +1,5 @@
 import { Star } from '@lucide/icons';
+import { nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { Provider } from '../../config/Provider';
 import { mount } from '../../utils/.test/mount';
@@ -38,7 +39,7 @@ describe('Badge', () => {
 });
 
 describe('Tag', () => {
-  it('给了 onRemove 才有移除按钮；名称带上标签文字，可以改', () => {
+  it('给了 onRemove 才有移除按钮；名称带上标签文字，可以改；离场结束后才调用', async () => {
     const onRemove = vi.fn();
     const root = mount(() => (
       <>
@@ -55,6 +56,11 @@ describe('Tag', () => {
       '删除筛选条件',
     ]);
     buttons[0]!.click();
-    expect(onRemove).toHaveBeenCalledTimes(1);
+    await nextTick();
+    expect(buttons[0]!.parentElement!.dataset.state).toBe('closed');
+    await vi.waitFor(() => expect(onRemove).toHaveBeenCalledTimes(1));
+    // 使用方没移除：重新显示
+    await nextTick();
+    expect(buttons[0]!.parentElement!.dataset.state).toBe('open');
   });
 });

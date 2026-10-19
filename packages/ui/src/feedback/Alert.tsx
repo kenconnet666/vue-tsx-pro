@@ -14,6 +14,7 @@ import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
 import { focusAfterRemoval } from '../utils/dom/focus';
+import { usePresence } from '../utils/motion/presence';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import type { StyleTable } from '../utils/style/styles';
@@ -61,7 +62,7 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
   live?: keyof AlertLives;
   /** 右侧的操作（如“重试”按钮） */
   action?: VNodeChild;
-  /** 给了就显示关闭按钮，点击时调用；提示条随后被移除时，焦点交给相邻的可聚焦元素 */
+  /** 给了就显示关闭按钮：点击后提示条先淡出，离场结束再调用；提示条随后被移除时，焦点交给相邻的可聚焦元素；没被移除就重新显示 */
   onClose?: () => void;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
@@ -80,11 +81,12 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
   children?: VNodeChild;
 }
 
-/** Alert 的样式：root、icon、body、title、description、action 等 */
+/** Alert 的样式：root、icon、body、title、description、action、close、closing */
 export const alertStyles: StyleTable<
-  'root' | 'icon' | 'body' | 'title' | 'description' | 'action' | 'close'
+  'root' | 'icon' | 'body' | 'title' | 'description' | 'action' | 'close' | 'closing'
 > = stylex.create({
   root: {
+    transition: 'opacity _durations.sm _easings.enter',
     boxSizing: 'border-box',
     display: 'flex',
     alignItems: 'flex-start',
@@ -100,6 +102,7 @@ export const alertStyles: StyleTable<
   description: { color: '_text' },
   action: { flexShrink: 0, alignSelf: 'center' },
   close: { flexShrink: 0, marginBlock: 'calc(-1 * _space.xs)', color: 'inherit' },
+  closing: { opacity: 0, transition: 'opacity _durations.sm _easings.exit' },
 });
 
 const ROLES = { off: undefined, polite: 'status', assertive: 'alert' } as const;
@@ -126,18 +129,33 @@ export const Alert = _component(
     ...rest
   }: AlertProps) => {
     const appearance = useDefaults('Alert', () => ({ variant }), { variant: 'soft' });
+    let closing = _state(false);
+    // 离场结束才交给使用方移除；使用方没移除时 closing 复位，提示条重新出现
+    const presence = usePresence(() => !closing, {
+      onExited: () => {
+        closing = false;
+        onClose?.();
+      },
+    });
     return () => {
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       return (
         <div
           {...elementProps(
             mergeProps<'div'>(
-              { sx: [alertStyles.root, statusToneSx(appearance().variant, tone)] },
+              {
+                sx: [
+                  alertStyles.root,
+                  statusToneSx(appearance().variant, tone),
+                  closing && alertStyles.closing,
+                ],
+              },
               rest,
-              { role: ROLES[live], 'aria-busy': loading || undefined },
+              { ref: presence.ref, role: ROLES[live], 'aria-busy': loading || undefined },
             ),
           )}
           data-tone={tone}
+          data-state={presence.state}
         >
           {loading ? (
             <Spinner {...mergePartProps<SpinnerProps>({ sx: alertStyles.icon }, propsSpinner)} />
@@ -176,8 +194,9 @@ export const Alert = _component(
                 propsClose,
                 {
                   onClick: (event: MouseEvent) => {
+                    if (closing) return;
                     focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
-                    onClose();
+                    closing = true;
                   },
                 },
               )}
