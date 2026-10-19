@@ -9,10 +9,10 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
 import {
-  createAnchoredPopover,
   floatingStyles,
+  useAnchoredPopover,
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/floating';
@@ -61,27 +61,11 @@ export const Popover = _component(
     const triggerId = `${id}-trigger`;
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    const layer = createAnchoredPopover();
-
-    // 原生 popover="auto" 自带 Esc 与点击外部关闭（light dismiss），这里把结果写回 open 并收尾
-    function onToggle(event: Event) {
-      const opened = (event as ToggleEvent).newState === 'open';
-      if (opened !== open) open = opened;
-      if (!opened) layer.hide();
-    }
-
-    // DOM 更新后执行（首次在挂载后，anchor 与 panel 已就位）
-    _effect(() => {
-      if (!open) {
-        layer.hide();
-        return;
-      }
-      if (!anchor || !panel) return;
-      const target = panel;
-      // 不可见的元素不能获得焦点：等第一次定位、显示出来之后再移入
-      void layer.show(anchor, target, { placement, offset }).then(() => focusFirst(target));
-    });
-    onBeforeUnmount(() => layer.hide());
+    // 打开时焦点移入（等第一次定位、可见之后），Esc 与点击外部关闭后写回 open、焦点回到触发器
+    const { onToggle } = useAnchoredPopover(
+      () => ({ open, anchor, panel, floating: { placement, offset } }),
+      { close: () => (open = false), shown: focusFirst },
+    );
 
     return () => (
       <>

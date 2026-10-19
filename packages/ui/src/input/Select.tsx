@@ -4,7 +4,7 @@
  *   <Field label="城市"><Select items={cities} value={_bind(city)} placeholder="选择城市" /></Field>
  *   <Select items={tags} type="multiple" value={_bind(picked)} clearable aria-label="标签" />
  *
- * 组合已有的部件：外壳是输入框外壳（controlSx），弹出层用 createAnchoredPopover（与外壳同宽、最高到视口剩余空间），
+ * 组合已有的部件：外壳是输入框外壳（controlSx），弹出层用 useAnchoredPopover（与外壳同宽、最高到视口剩余空间），
  * 列表是 ListboxView（状态与键盘见 list-state.ts），多选时触发框里是 Tag。
  * 焦点一直在触发按钮上，高亮项经 aria-activedescendant 告诉读屏。
  *
@@ -17,12 +17,12 @@
 import { ChevronDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
-import { createAnchoredPopover, floatingStyles, type FloatingPlacement } from '../utils/floating';
+import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/floating';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import type { SelectionModes } from '../utils/selection';
 import { transitions } from '../utils/transitions';
@@ -200,7 +200,6 @@ export const Select = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    const layer = createAnchoredPopover();
 
     function show(highlight: 'default' | 'last' = 'default') {
       list.activateDefault();
@@ -243,23 +242,17 @@ export const Select = _component(
       trigger?.focus();
     }
 
-    // 原生 popover="auto" 的 Esc 与点击外部关闭，写回 open
-    function onToggle(event: Event) {
-      const opened = (event as ToggleEvent).newState === 'open';
-      if (opened !== open) open = opened;
-      if (!opened) layer.hide({ restoreFocus: false });
-    }
-
-    _effect(() => {
-      if (!open) {
-        layer.hide({ restoreFocus: false });
-        return;
-      }
-      if (shell && panel) {
-        void layer.show(shell, panel, { placement, matchWidth: true, fitHeight: true });
-      }
-    });
-    onBeforeUnmount(() => layer.hide({ restoreFocus: false }));
+    // 弹层贴着外壳、与它同宽；焦点一直在触发按钮上，关闭时不用归还
+    const { onToggle } = useAnchoredPopover(
+      () => ({
+        open,
+        anchor: shell,
+        panel,
+        floating: { placement, matchWidth: true, fitHeight: true },
+        restoreFocus: false,
+      }),
+      { close: () => (open = false) },
+    );
 
     return () => {
       const state = control();

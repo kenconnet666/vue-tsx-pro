@@ -25,13 +25,13 @@ import { Check, Dot } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
 import { buttonSx, type ButtonTones } from '../base/button-styles';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import {
-  createAnchoredPopover,
   floatingStyles,
+  useAnchoredPopover,
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/floating';
@@ -140,7 +140,6 @@ export const Menu = _component(
     const triggerId = `${id}-trigger`;
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    const layer = createAnchoredPopover();
     // 打开时聚焦哪一项；Tab 关闭时焦点照常往后走，不还给触发器
     let focusOnOpen: 'first' | 'last' = 'first';
     let restoreFocus = true;
@@ -157,12 +156,6 @@ export const Menu = _component(
       close: () => (open = false),
     });
 
-    function onToggle(event: Event) {
-      const opened = (event as ToggleEvent).newState === 'open';
-      if (opened !== open) open = opened;
-      if (!opened) layer.hide({ restoreFocus });
-    }
-
     function onTriggerKeydown(event: KeyboardEvent) {
       if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
       event.preventDefault();
@@ -176,25 +169,30 @@ export const Menu = _component(
       open = false;
     }
 
-    _effect(() => {
-      if (!open) {
-        layer.hide({ restoreFocus });
-        restoreFocus = true;
-        focusOnOpen = 'first';
-        return;
-      }
-      if (!anchor || !panel) return;
-      void layer.show(anchor, panel, { placement, offset, fitHeight: true }).then(() => {
-        const items = enabledItems();
-        (focusOnOpen === 'first' ? items[0] : items.at(-1))?.focus();
-      });
-    });
+    const { onToggle } = useAnchoredPopover(
+      () => ({
+        open,
+        anchor,
+        panel,
+        floating: { placement, offset, fitHeight: true },
+        restoreFocus,
+      }),
+      {
+        close: () => (open = false),
+        // 打开后聚焦第一项（↑ 打开时最后一项），并为下一次打开恢复默认
+        shown: () => {
+          const items = enabledItems();
+          (focusOnOpen === 'first' ? items[0] : items.at(-1))?.focus();
+          focusOnOpen = 'first';
+          restoreFocus = true;
+        },
+      },
+    );
     _effect(() =>
       panel
         ? rovingFocus(panel, { items: ITEMS, orientation: 'vertical', loop: true, typeahead: true })
         : undefined,
     );
-    onBeforeUnmount(() => layer.hide());
 
     return () => (
       <>

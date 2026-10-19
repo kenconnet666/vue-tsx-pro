@@ -4,7 +4,7 @@
  *   <Field label="城市"><Combobox items={cities} value={_bind(city)} /></Field>
  *   <Combobox items={results} filter={false} loading={searching} inputValue={_bind(keyword)} aria-label="搜索用户" />
  *
- * 组合已有的部件：外壳同 TextField（controlSx），弹出层用 createAnchoredPopover（与外壳同宽），列表是 ListboxView。
+ * 组合已有的部件：外壳同 TextField（controlSx），弹出层用 useAnchoredPopover（与外壳同宽），列表是 ListboxView。
  * 焦点一直在输入框里，高亮项经 aria-activedescendant 告诉读屏。
  *
  * - 过滤：默认本地按显示文字包含输入（Intl.Collator，忽略大小写与重音）；filter={false} 时不过滤，
@@ -18,12 +18,12 @@
 import { ChevronDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
+import { useId, watch, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Spinner } from '../base/Spinner';
 import { useLang } from '../config/context';
-import { createAnchoredPopover, floatingStyles, type FloatingPlacement } from '../utils/floating';
+import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/floating';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/transitions';
 import {
@@ -157,7 +157,6 @@ export const Combobox = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    const layer = createAnchoredPopover();
 
     const collator = () => new Intl.Collator(lang.code, { usage: 'search', sensitivity: 'base' });
     function matches(option: T, text: string) {
@@ -259,22 +258,17 @@ export const Combobox = _component(
       if (handleListKeydown(list, event, { homeEnd: false }, pick)) event.preventDefault();
     }
 
-    function onToggle(event: Event) {
-      const opened = (event as ToggleEvent).newState === 'open';
-      if (opened !== open) open = opened;
-      if (!opened) layer.hide({ restoreFocus: false });
-    }
-
-    _effect(() => {
-      if (!open) {
-        layer.hide({ restoreFocus: false });
-        return;
-      }
-      if (shell && panel) {
-        void layer.show(shell, panel, { placement, matchWidth: true, fitHeight: true });
-      }
-    });
-    onBeforeUnmount(() => layer.hide({ restoreFocus: false }));
+    // 弹层贴着外壳、与它同宽；焦点一直在输入框上，关闭时不用归还
+    const { onToggle } = useAnchoredPopover(
+      () => ({
+        open,
+        anchor: shell,
+        panel,
+        floating: { placement, matchWidth: true, fitHeight: true },
+        restoreFocus: false,
+      }),
+      { close: () => (open = false) },
+    );
 
     return () => {
       const state = control();

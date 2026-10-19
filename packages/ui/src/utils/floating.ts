@@ -23,6 +23,7 @@ import {
   type Placement,
 } from '@floating-ui/dom';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { onBeforeUnmount, watchPostEffect } from 'vue';
 import { returnFocus } from './focus';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 
@@ -202,6 +203,68 @@ export function createAnchoredPopover(): AnchoredPopover {
       anchored.stop();
       if (panel.matches(':popover-open')) panel.hidePopover();
       if (restoreFocus) returnFocus(panel, anchor);
+    },
+  };
+}
+
+/** useAnchoredPopover 每次渲染后读取的状态 */
+export interface AnchoredPopoverState {
+  /** 是否打开 */
+  open: boolean;
+  /** 锚点（触发器或输入框外壳） */
+  anchor: HTMLElement | null;
+  /** 浮层（popover 元素） */
+  panel: HTMLElement | null;
+  /** 定位选项 */
+  floating?: FloatingOptions;
+  /** 关闭时把焦点还给锚点，默认 true；焦点一直在锚点上的组件（Select、Combobox）设 false */
+  restoreFocus?: boolean;
+}
+
+/** useAnchoredPopover 的回调 */
+export interface AnchoredPopoverEvents {
+  /** 浏览器关掉了浮层（Esc、点击外部）：组件把 open 写回 false */
+  close: () => void;
+  /** 浮层打开并第一次定位完成（可见）：移入焦点等 */
+  shown?: (panel: HTMLElement) => void;
+}
+
+/**
+ * 原生 popover="auto" 的锚定浮层接到组件的 open 上（Popover、Menu、Select、Combobox 共用）：
+ * open 变化时显示或隐藏（DOM 更新之后），浏览器的 light dismiss 写回 open，卸载时收起。
+ * 返回要放到浮层元素上的 onToggle。在组件 setup 里调用。
+ *
+ *   const { onToggle } = useAnchoredPopover(
+ *     () => ({ open, anchor, panel, floating: { placement } }),
+ *     { close: () => (open = false), shown: focusFirst },
+ *   );
+ */
+export function useAnchoredPopover(
+  read: () => AnchoredPopoverState,
+  events: AnchoredPopoverEvents,
+): { onToggle: (event: Event) => void } {
+  const layer = createAnchoredPopover();
+
+  watchPostEffect(() => {
+    const { open, anchor, panel, floating, restoreFocus = true } = read();
+    if (!open) {
+      layer.hide({ restoreFocus });
+      return;
+    }
+    if (!anchor || !panel) return;
+    // 已经显示着（只是定位选项变了）时不再触发 shown，焦点不会被拉回第一项
+    const opening = !layer.visible;
+    const ready = layer.show(anchor, panel, floating);
+    if (opening && events.shown) void ready.then(() => events.shown!(panel));
+  });
+  onBeforeUnmount(() => layer.hide({ restoreFocus: read().restoreFocus ?? true }));
+
+  return {
+    onToggle(event) {
+      if ((event as ToggleEvent).newState === 'open') return;
+      const state = read();
+      if (state.open) events.close();
+      layer.hide({ restoreFocus: state.restoreFocus ?? true });
     },
   };
 }
