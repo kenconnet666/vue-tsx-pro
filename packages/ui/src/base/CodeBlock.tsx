@@ -11,7 +11,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { Check, Copy } from '@lucide/icons';
-import { onBeforeUnmount } from 'vue';
+import { useClipboard } from '../utils/dom/clipboard';
 import { useConfig, useLang } from '../config/context';
 import { IconButton, type IconButtonProps } from './IconButton';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -84,22 +84,7 @@ export const CodeBlock = _component(
     const config = useConfig();
     const text = useLang();
     // 刚复制过：按钮显示对勾，两秒后复原
-    let copied = _state(false);
-    let resetTimer: ReturnType<typeof setTimeout> | undefined;
-    onBeforeUnmount(() => clearTimeout(resetTimer));
-
-    async function copy() {
-      try {
-        await navigator.clipboard.writeText(code);
-      } catch (error) {
-        // 不安全的上下文（http）或用户拒绝了剪贴板权限
-        console.error('CodeBlock 复制失败', error);
-        return;
-      }
-      copied = true;
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(() => (copied = false), 2000);
-    }
+    const clipboard = useClipboard();
     // 当前代码的高亮结果；代码或语言变了先清空，回到纯文本
     let html = _state.raw<string | null>(null);
 
@@ -154,13 +139,15 @@ export const CodeBlock = _component(
                     variant: 'ghost',
                     tone: 'neutral',
                     'aria-label': text.copy,
-                    icon: copied ? Check : Copy,
+                    icon: clipboard.copied ? Check : Copy,
                   },
                   propsCopy,
-                  { onClick: () => void copy() },
+                  { onClick: () => void clipboard.copy(code) },
                 )}
               />
-              <VisuallyHidden aria-live="polite">{copied ? text.copied : ''}</VisuallyHidden>
+              <VisuallyHidden aria-live="polite">
+                {clipboard.copied ? text.copied : ''}
+              </VisuallyHidden>
             </>
           )}
         </div>

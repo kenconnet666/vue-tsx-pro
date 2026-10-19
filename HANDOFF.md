@@ -95,6 +95,8 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 跟着当前项走的指示条（下划线、选中滑块）       | `useActiveIndicator(() => ({ container, indicator, active, axis, value }))`（`utils/motion/active-indicator.ts`）                           |
 | 加载指示防闪烁（骨架、进度条、按钮的加载指示） | `useDelayedLoading(() => loading, { delay, minDuration })`；aria-busy 仍按真实的 loading（`utils/motion/delayed-loading.ts`）               |
 | 装饰性动画要不要播                             | `useReducedMotion()`（取主题时长的动画不需要，时长 token 已是 0）                                                                           |
+| 键盘快捷键                                     | `useHotkeys(() => ({ 'Mod+K': open }))`，显示用 `formatHotkey`（`utils/dom/hotkeys.ts`）                                                    |
+| 复制到剪贴板                                   | `useClipboard()`：`copy(text)`、`copied`（自动复原）、`error`（`utils/dom/clipboard.ts`）                                                   |
 | 弹层：焦点、遮罩、锁滚动、移除后的焦点         | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                                            |
 | 浮层贴着触发器定位、打开与关闭                 | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                                             |
 | 模态打开期间还要可交互的浮层                   | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                                   |

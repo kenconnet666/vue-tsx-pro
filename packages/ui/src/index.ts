@@ -615,7 +615,8 @@ export {
   type Tones,
 } from './utils/style/typography';
 
-// 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接
+// 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板
+export { useClipboard, type ClipboardOptions, type ClipboardState } from './utils/dom/clipboard';
 export {
   anchorFloating,
   createAnchoredLayer,
@@ -636,6 +637,15 @@ export {
   returnFocus,
   trapFocus,
 } from './utils/dom/focus';
+export {
+  formatHotkey,
+  isApplePlatform,
+  matchesHotkey,
+  parseHotkey,
+  useHotkeys,
+  type HotkeyMap,
+  type HotkeyOptions,
+} from './utils/dom/hotkeys';
 export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
