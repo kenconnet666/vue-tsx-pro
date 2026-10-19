@@ -1,6 +1,6 @@
 /**
- * 锚定浮层的定位：Popover、Tooltip、Menu、Select 的弹出层贴着触发器显示。只算位置（floating-ui），
- * 显示、隐藏、Esc、点击外部仍交给原生 popover（见 utils/overlay）。
+ * 锚定浮层：Popover、Tooltip、Menu、Select 的弹出层贴着触发器显示。位置由 floating-ui 计算，
+ * 显示、隐藏、Esc、点击外部仍交给原生 popover（见 utils/overlay）；createAnchoredPopover 把两者串成打开、关闭的流程。
  *
  *   const anchored = anchorFloating(trigger, panel, { placement: 'bottom-start' });
  *   await anchored.ready;   // 第一次定位完成、已经可见：这时才能把焦点移进去
@@ -23,6 +23,7 @@ import {
   type Placement,
 } from '@floating-ui/dom';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { returnFocus } from './overlay';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 
 /** 弹出位置：主方向 + 对齐方式（start 对齐锚点的起始边，end 对齐结束边）；空间不够时自动翻转 */
@@ -87,11 +88,24 @@ const TRANSFORM_ORIGIN: Record<Side, string> = {
 };
 
 // 写明类型：导出的 stylex.create 结果若靠推导，类型声明里会引用 StyleX 内部无法命名的类型
-/** 锚定浮层的基础样式 */
-export const floatingStyles: Readonly<Record<'anchored', StyleXStyles>> = stylex.create({
-  /** 原生 popover 默认居中显示、带外边距，改为由 anchorFloating 写入的 left / top 定位 */
-  anchored: { position: 'fixed', inset: 'auto', margin: 0 },
-});
+/** 锚定浮层的基础样式：定位与表面 */
+export const floatingStyles: Readonly<Record<'anchored' | 'surface', StyleXStyles>> = stylex.create(
+  {
+    /** 原生 popover 默认居中显示、带外边距，改为由 anchorFloating 写入的 left / top 定位 */
+    anchored: { position: 'fixed', inset: 'auto', margin: 0 },
+    /** 浮起的表面：边框、圆角、阴影（Popover、Menu、选项列表）；内边距各自定 */
+    surface: {
+      boxSizing: 'border-box',
+      borderWidth: '_xs',
+      borderStyle: 'solid',
+      borderColor: '_border',
+      borderRadius: '_lg',
+      backgroundColor: '_surfaceRaised',
+      color: '_text',
+      boxShadow: '_lg',
+    },
+  },
+);
 
 /** 与视口边缘至少留出的距离（px） */
 const VIEWPORT_PADDING = 8;
@@ -148,6 +162,46 @@ export function anchorFloating(
       if (stopped) return;
       stopped = true;
       cleanup();
+    },
+  };
+}
+
+/** createAnchoredPopover 的返回值：一个原生 popover 浮层的打开与关闭 */
+export interface AnchoredPopover {
+  /** 是否显示着（show 之后、hide 之前） */
+  readonly visible: boolean;
+  /** 显示 panel（showPopover）并贴着 anchor 定位；返回第一次定位完成、可以移入焦点的 Promise。已显示时不重复 */
+  show(anchor: HTMLElement, panel: HTMLElement, options?: FloatingOptions): Promise<void>;
+  /** 停止定位并隐藏；restoreFocus（默认 true）时焦点还在浮层里或已丢失则还给锚点。未显示时什么也不做 */
+  hide(options?: { restoreFocus?: boolean }): void;
+}
+
+/**
+ * 锚定浮层的生命周期（Popover、Menu、Tooltip 共用）：显示 → 定位 → 关闭时停止定位、归还焦点。
+ * 原生 popover="auto" 被 Esc、点击外部关闭（light dismiss）时浏览器先隐藏了它，组件在 toggle 事件里调用 hide 收尾。
+ */
+export function createAnchoredPopover(): AnchoredPopover {
+  let current: { anchor: HTMLElement; panel: HTMLElement; anchored: Anchored } | undefined;
+  let ready: Promise<void> = Promise.resolve();
+  return {
+    get visible() {
+      return current != null;
+    },
+    show(anchor, panel, options) {
+      if (current) return ready;
+      if (!panel.matches(':popover-open')) panel.showPopover();
+      const anchored = anchorFloating(anchor, panel, options);
+      current = { anchor, panel, anchored };
+      ready = anchored.ready;
+      return ready;
+    },
+    hide({ restoreFocus = true } = {}) {
+      if (!current) return;
+      const { anchor, panel, anchored } = current;
+      current = undefined;
+      anchored.stop();
+      if (panel.matches(':popover-open')) panel.hidePopover();
+      if (restoreFocus) returnFocus(panel, anchor);
     },
   };
 }

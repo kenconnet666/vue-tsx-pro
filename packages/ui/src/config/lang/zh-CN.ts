@@ -26,7 +26,7 @@ export const zhCN: Lang = {
   nextPage: '下一页',
   pageLabel: (page) => `第 ${page} 页`,
   breadcrumbs: '面包屑',
-  breadcrumbsExpand: '显示完整路径',
+  breadcrumbsExpand: '显示被折叠的路径',
   formRequired: (label) => `请填写${label}`,
   slideVerifyHint: '拖动滑块完成验证',
   slideVerifyChecking: '验证中…',

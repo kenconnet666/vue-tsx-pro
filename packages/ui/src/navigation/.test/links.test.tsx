@@ -29,18 +29,15 @@ describe('Breadcrumbs', () => {
     expect(items[3]!.querySelector('[aria-hidden="true"]')).toBeNull();
   });
 
-  it('maxItems：折叠中间部分，点开显示完整路径', async () => {
+  it('maxItems：折叠中间部分，被折叠的各级是菜单里的链接', () => {
     const root = mount(() => <Breadcrumbs items={trail} maxItems={3} />);
     const expand = root.querySelector('button')!;
-    expect(expand.getAttribute('aria-label')).toBe('显示完整路径');
-    expect(root.querySelectorAll('li')).toHaveLength(4); // 首页、折叠按钮、退款、#1024
-    expect(root.textContent).not.toContain('订单');
-    expand.click();
-    await nextTick();
-    await nextTick();
-    expect(root.textContent).toContain('订单');
-    // 折叠按钮消失后焦点落在第一个原本被折叠的链接上
-    expect(document.activeElement!.textContent).toBe('订单');
+    expect(expand.getAttribute('aria-label')).toBe('显示被折叠的路径');
+    expect(expand.getAttribute('aria-haspopup')).toBe('menu');
+    expect(root.querySelectorAll('ol > li')).toHaveLength(4); // 首页、折叠按钮、退款、#1024
+    const menu = root.querySelector('[role="menu"]')!;
+    const link = menu.querySelector<HTMLAnchorElement>('a[role="menuitem"]')!;
+    expect([link.textContent, link.getAttribute('href')]).toEqual(['订单', '/orders']);
   });
 });
 

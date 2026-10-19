@@ -1,0 +1,118 @@
+/**
+ * 弹出框（非模态）：点击触发器在旁边弹出一块内容（筛选条件、简短表单、详情），点击外部或 Esc 关闭。
+ * 原生 popover="auto" 负责顶层渲染、Esc、点击外部与嵌套顺序，floating-ui 负责定位（utils/floating）。
+ * 打开时焦点移到第一个可聚焦元素（有 autofocus 的优先），关闭后回到触发器。参考 Radix Popover。
+ *
+ *   <Popover open={_bind(open)} trigger={(props) => <Button {...props}>筛选</Button>}>…</Popover>
+ *
+ * 弹出层是 role="dialog"，默认以触发器的文字作为名称（aria-labelledby）；内容有自己的标题时用 aria-labelledby 指向它。
+ */
+import { _component } from '@vue-tsx-pro/tsx';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import {
+  createAnchoredPopover,
+  floatingStyles,
+  type FloatingOptions,
+  type FloatingPlacement,
+} from '../utils/floating';
+import { focusFirst, toElement } from '../utils/overlay';
+import { elementProps, mergeProps, type PartProps, type TriggerProps } from '../utils/props';
+import { transitions } from '../utils/transitions';
+
+/** 交给触发器的属性：展开收起的通用属性，加上弹层需要的 id、ref 与 aria-haspopup */
+export interface PopoverTriggerProps extends TriggerProps {
+  /** 弹出层默认以触发器的文字作为无障碍名称（aria-labelledby） */
+  id: string;
+  /** 取得触发器元素：定位的参照、关闭后焦点回到这里 */
+  ref: (element: unknown) => void;
+  /** 告诉读屏这个按钮会打开对话框类的弹层 */
+  'aria-haspopup': 'dialog';
+}
+
+/** 未声明的属性落到弹出层的 div 上 */
+export interface PopoverProps
+  extends PartProps<'div', 'id' | 'popover' | 'role'>, Pick<FloatingOptions, 'offset'> {
+  /** 是否打开：父级写 open={_bind(x)}；Esc 与点击外部会关闭并写回 */
+  open?: boolean;
+  /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
+  placement?: FloatingPlacement;
+  /** 触发器：`(props) => <Button {...props}>更多</Button>` */
+  trigger: (props: PopoverTriggerProps) => VNodeChild;
+  children?: VNodeChild;
+}
+
+const styles = stylex.create({
+  panel: { padding: '_md', maxWidth: 'calc(100vw - 2em)' },
+});
+
+/** 弹出框：原生 popover + floating-ui 定位，打开时焦点进入、关闭后回到触发器 */
+export const Popover = _component(
+  ({
+    open = _bindable(false),
+    placement = 'bottom-start',
+    offset,
+    trigger,
+    children,
+    ...rest
+  }: PopoverProps) => {
+    const id = useId();
+    const triggerId = `${id}-trigger`;
+    let anchor = _state.raw<HTMLElement | null>(null);
+    let panel = _state.raw<HTMLElement | null>(null);
+    const layer = createAnchoredPopover();
+
+    // 原生 popover="auto" 自带 Esc 与点击外部关闭（light dismiss），这里把结果写回 open 并收尾
+    function onToggle(event: Event) {
+      const opened = (event as ToggleEvent).newState === 'open';
+      if (opened !== open) open = opened;
+      if (!opened) layer.hide();
+    }
+
+    // DOM 更新后执行（首次在挂载后，anchor 与 panel 已就位）
+    _effect(() => {
+      if (!open) {
+        layer.hide();
+        return;
+      }
+      if (!anchor || !panel) return;
+      const target = panel;
+      // 不可见的元素不能获得焦点：等第一次定位、显示出来之后再移入
+      void layer.show(anchor, target, { placement, offset }).then(() => focusFirst(target));
+    });
+    onBeforeUnmount(() => layer.hide());
+
+    return () => (
+      <>
+        {trigger({
+          ref: (value) => (anchor = toElement(value)),
+          onClick: () => (open = !open),
+          'aria-expanded': open,
+          id: triggerId,
+          'aria-controls': id,
+          'aria-haspopup': 'dialog',
+        })}
+        <div
+          {...elementProps(
+            mergeProps<'div'>(
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  floatingStyles.surface,
+                  styles.panel,
+                  transitions.scale,
+                ],
+                'aria-labelledby': triggerId,
+              },
+              rest,
+              { ref: _toRef(panel), id, popover: 'auto', role: 'dialog', onToggle },
+            ),
+          )}
+          data-state={open ? 'open' : 'closed'}
+        >
+          {children}
+        </div>
+      </>
+    );
+  },
+);

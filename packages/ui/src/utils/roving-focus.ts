@@ -8,6 +8,7 @@
  *   _effect(() => (list ? rovingFocus(list, { items: '[role="tab"]', orientation: 'horizontal' }) : undefined));
  */
 import { clamp, isRtl } from './layout';
+import { createTypeahead } from './typeahead';
 
 /** 方向键的方向 */
 export interface RovingOrientations {
@@ -27,6 +28,8 @@ export interface RovingFocusOptions {
   orientation?: keyof RovingOrientations;
   /** 到两端后是否从另一端继续，默认 true */
   loop?: boolean;
+  /** 按字母跳到以它开头的项（菜单、列表），默认 false；匹配的是项的文字 */
+  typeahead?: boolean;
   /** Tab 进入时落在哪一项：默认是上次聚焦的项，其次是选中或当前的项（aria-selected / pressed / checked / current），再其次是第一项 */
   initial?: (items: HTMLElement[]) => HTMLElement | undefined;
 }
@@ -45,6 +48,7 @@ const isMarked = (element: HTMLElement) =>
 /** 开始管理容器里各项的焦点，返回清理函数 */
 export function rovingFocus(container: HTMLElement, options: RovingFocusOptions): () => void {
   const { orientation = 'horizontal', loop = true } = options;
+  const typeahead = options.typeahead ? createTypeahead() : undefined;
   let current: HTMLElement | undefined;
 
   // 嵌套的组（工具栏里的切换按钮组）各管各的：只取最近的组是自己的项
@@ -85,7 +89,18 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
       End: 'last',
     };
     const step = steps[event.key];
-    if (step === undefined) return;
+    if (step === undefined) {
+      const match = typeahead?.next(
+        event.key,
+        items.map((item) => item.textContent ?? ''),
+        index,
+      );
+      if (match != null && match >= 0) {
+        event.preventDefault();
+        items[match]!.focus();
+      }
+      return;
+    }
     event.preventDefault();
     let next: number;
     if (step === 'first') next = 0;

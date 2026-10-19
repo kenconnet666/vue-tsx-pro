@@ -8,11 +8,11 @@ import {
   enUS,
   lightTheme,
   LinkButton,
+  Popover,
   Provider,
   useLang,
   zhCN,
 } from '@vue-tsx-pro/ui';
-import { Popover } from '../pilot/Popover';
 import { TextField } from '../pilot/TextField';
 
 const styles = stylex.create({

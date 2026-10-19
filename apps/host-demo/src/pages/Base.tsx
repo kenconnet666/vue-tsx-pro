@@ -5,6 +5,9 @@ import {
   AlignRight,
   ArrowRight,
   Bold,
+  ChevronDown,
+  Copy,
+  Pencil,
   Download,
   House,
   LayoutGrid,
@@ -46,6 +49,14 @@ import {
   IconButton,
   Kbd,
   lightTheme,
+  Menu,
+  MenuCheckboxItem,
+  MenuGroup,
+  MenuItem,
+  MenuRadioGroup,
+  MenuRadioItem,
+  Popover,
+  Tooltip,
   Link,
   LinkButton,
   Paragraph,
@@ -203,6 +214,9 @@ export const Base = _component(() => {
   let drawerOpen = _state(false);
   let confirmOpen = _state(false);
   let deleted = _state(0);
+  let menuAction = _state('');
+  let showGrid = _state(true);
+  let sortBy = _state('name');
 
   function notifyUndo() {
     const id = toaster.show({
@@ -526,6 +540,69 @@ export const Base = _component(() => {
           >
             <Paragraph>筛选条件放在这里。</Paragraph>
           </Drawer>
+        </Section>
+
+        <Section title="浮层 Popover · Tooltip · Menu">
+          <Flex gap="sm" wrap align="center">
+            <Popover
+              class="popover-demo"
+              trigger={(props) => (
+                <Button {...props} variant="outline" class="popover-open">
+                  筛选条件
+                </Button>
+              )}
+            >
+              <Flex direction="column" gap="sm">
+                <Text>只显示已完成的订单</Text>
+                <Button size="sm">应用</Button>
+              </Flex>
+            </Popover>
+            <Tooltip
+              class="tooltip-demo"
+              trigger={(props) => (
+                <IconButton {...props} icon={Copy} aria-label="复制" class="tooltip-trigger" />
+              )}
+            >
+              复制链接（Ctrl+C）
+            </Tooltip>
+            <Tooltip
+              trigger={(props) => <IconButton {...props} icon={Settings} aria-label="设置" />}
+            >
+              设置
+            </Tooltip>
+            <Menu
+              class="menu-demo"
+              trigger={(props) => (
+                <Button {...props} variant="outline" iconEnd={ChevronDown} class="menu-open">
+                  操作
+                </Button>
+              )}
+            >
+              <MenuItem icon={Pencil} onAction={() => (menuAction = '编辑')}>
+                编辑
+              </MenuItem>
+              <MenuItem icon={Copy} shortcut="Ctrl+D" onAction={() => (menuAction = '复制')}>
+                复制
+              </MenuItem>
+              <MenuItem disabled>归档</MenuItem>
+              <Separator decorative={false} />
+              <MenuGroup label="视图">
+                <MenuCheckboxItem checked={_bind(showGrid)}>显示网格</MenuCheckboxItem>
+              </MenuGroup>
+              <MenuRadioGroup label="排序" value={_bind(sortBy)}>
+                <MenuRadioItem value="name">按名称</MenuRadioItem>
+                <MenuRadioItem value="date">按日期</MenuRadioItem>
+              </MenuRadioGroup>
+              <Separator decorative={false} />
+              <MenuItem icon={Trash2} tone="danger" onAction={() => (menuAction = '删除')}>
+                删除
+              </MenuItem>
+            </Menu>
+            <Text tone="muted" class="menu-result">
+              {menuAction ? `执行了：${menuAction}` : '未执行'} · 网格{showGrid ? '开' : '关'} ·
+              排序 {sortBy}
+            </Text>
+          </Flex>
         </Section>
 
         <Section title="通知 Toast">

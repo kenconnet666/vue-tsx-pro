@@ -85,12 +85,15 @@ describe('Steps', () => {
 });
 
 describe('Breadcrumbs · Pagination · NavList', () => {
-  it('面包屑折叠后点开显示完整路径，当前页仍是最后一项', async () => {
+  it('面包屑折叠后点开菜单列出被折叠的各级，焦点进入菜单；当前页仍是最后一项', async () => {
     const crumbs = $('.breadcrumbs-demo');
-    expect(crumbs.textContent).not.toContain('组件');
+    const menu = crumbs.querySelector<HTMLElement>('[role="menu"]')!;
+    expect(menu.matches(':popover-open')).toBe(false);
     crumbs.querySelector('button')!.click();
-    await nextTick();
-    expect(crumbs.textContent).toContain('组件');
+    await expect.poll(() => menu.matches(':popover-open')).toBe(true);
+    const link = [...menu.querySelectorAll('a')].find((a) => a.textContent === '组件');
+    expect(link).toBeDefined();
+    await expect.poll(() => menu.contains(document.activeElement)).toBe(true);
     expect(crumbs.querySelector('[aria-current="page"]')!.textContent).toBe('面包屑');
   });
 

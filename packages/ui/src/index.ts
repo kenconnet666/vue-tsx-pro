@@ -141,6 +141,27 @@ export {
   type NavListProps,
 } from './navigation/NavList';
 
+// 浮层
+export { Popover, type PopoverProps, type PopoverTriggerProps } from './overlay/Popover';
+export { Tooltip, type TooltipProps, type TooltipTriggerProps } from './overlay/Tooltip';
+export {
+  Menu,
+  MenuCheckboxItem,
+  MenuGroup,
+  MenuItem,
+  MenuLinkItem,
+  MenuRadioGroup,
+  MenuRadioItem,
+  type MenuCheckboxItemProps,
+  type MenuGroupProps,
+  type MenuItemProps,
+  type MenuLinkItemProps,
+  type MenuProps,
+  type MenuRadioGroupProps,
+  type MenuRadioItemProps,
+  type MenuTriggerProps,
+} from './overlay/Menu';
+
 // 输入
 export { Slider, type SliderOrientations, type SliderProps } from './input/Slider';
 export {
@@ -245,8 +266,10 @@ export {
 } from './utils/overlay';
 export {
   anchorFloating,
+  createAnchoredPopover,
   floatingStyles,
   type Anchored,
+  type AnchoredPopover,
   type FloatingOptions,
   type FloatingPlacement,
   type FloatingPlacements,
@@ -259,6 +282,7 @@ export {
   type RovingOrientations,
 } from './utils/roving-focus';
 export { plainText } from './utils/text';
+export { createTypeahead, type Typeahead } from './utils/typeahead';
 export { toggleSelection, type SelectionModes, type SelectionOptions } from './utils/selection';
 export {
   statusIcons,

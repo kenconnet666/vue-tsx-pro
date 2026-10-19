@@ -4,16 +4,18 @@
  *
  *   <Breadcrumbs items={[{ label: '首页', href: '/' }, { label: '订单', href: '/orders' }, { label: '#1024' }]} />
  *
- * 路径太长时用 maxItems 折叠中间部分，折叠处是一个按钮，点开显示完整路径。
+ * 路径太长时用 maxItems 折叠中间部分：折叠处是一个菜单按钮，被折叠的各级在菜单里（链接菜单项），
+ * 同 Radix Themes / shadcn 的做法；展开整条路径会把布局撑乱，菜单不会。
  */
 import { ChevronRight, Ellipsis } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { nextTick, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Icon, type IconData } from '../base/Icon';
 import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
+import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { listStyles } from '../utils/styles';
 
@@ -33,7 +35,7 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   items: readonly BreadcrumbItem[];
   /** 分隔符，默认是右向的 chevron 图标 */
   separator?: VNodeChild;
-  /** 超过这么多项时折叠中间部分（保留第一项与最后两项），点开显示完整路径 */
+  /** 超过这么多项时折叠中间部分（保留第一项与最后两项），被折叠的各级放进菜单 */
   maxItems?: number;
   /** 列表（ol）的部件属性 */
   propsList?: PartProps<'ol'>;
@@ -47,8 +49,10 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   propsCurrent?: PartProps<'span'>;
   /** 分隔符的部件属性 */
   propsSeparator?: PartProps<'span'>;
-  /** 折叠按钮的部件属性 */
+  /** 折叠按钮（菜单的触发器）的部件属性 */
   propsExpand?: Partial<IconButtonProps>;
+  /** 被折叠各级的菜单的部件属性 */
+  propsMenu?: Partial<MenuProps>;
 }
 
 const styles = stylex.create({
@@ -73,21 +77,13 @@ export const Breadcrumbs = _component(
     propsCurrent,
     propsSeparator,
     propsExpand,
+    propsMenu,
     ...rest
   }: BreadcrumbsProps) => {
     const lang = useLang();
-    let expanded = _state(false);
-    let list = _state.raw<HTMLElement | null>(null);
-
-    // 展开后折叠按钮消失，焦点移到第一个原本被折叠的链接上，不掉回页面开头
-    async function expand() {
-      expanded = true;
-      await nextTick();
-      list?.querySelectorAll<HTMLElement>('li a')[1]?.focus();
-    }
 
     return () => {
-      const collapse = !expanded && maxItems != null && items.length > maxItems;
+      const collapse = maxItems != null && items.length > maxItems;
       // 折叠时保留第一项与最后两项，中间换成展开按钮
       const shown: (BreadcrumbItem | 'collapsed')[] = collapse
         ? [items[0]!, 'collapsed', ...items.slice(-2)]
@@ -107,28 +103,45 @@ export const Breadcrumbs = _component(
       return (
         <nav {...elementProps(mergeProps<'nav'>({ 'aria-label': lang.breadcrumbs }, rest))}>
           <ol
-            {...elementProps(
-              mergeProps<'ol'>({ sx: [listStyles.reset, styles.list] }, propsList, {
-                ref: _toRef(list),
-              }),
-            )}
+            {...elementProps(mergeProps<'ol'>({ sx: [listStyles.reset, styles.list] }, propsList))}
           >
             {shown.map((entry, position) => {
               if (entry === 'collapsed') {
                 return (
                   <li key="collapsed" {...stylex.attrs(styles.item)}>
-                    <IconButton
-                      {...mergePartProps<IconButtonProps>(
+                    <Menu
+                      {...mergePartProps<MenuProps>(
                         {
-                          sx: styles.expand,
-                          size: 'sm',
-                          icon: Ellipsis,
-                          'aria-label': lang.breadcrumbsExpand,
+                          trigger: (props) => (
+                            <IconButton
+                              {...mergePartProps<IconButtonProps>(
+                                {
+                                  sx: styles.expand,
+                                  size: 'sm',
+                                  icon: Ellipsis,
+                                  'aria-label': lang.breadcrumbsExpand,
+                                },
+                                propsExpand,
+                                props,
+                              )}
+                            />
+                          ),
                         },
-                        propsExpand,
-                        { onClick: () => void expand() },
+                        propsMenu,
                       )}
-                    />
+                    >
+                      {items.slice(1, -2).map((hidden, offset) =>
+                        hidden.href != null ? (
+                          <MenuLinkItem key={offset} href={hidden.href} icon={hidden.icon}>
+                            {hidden.label}
+                          </MenuLinkItem>
+                        ) : (
+                          <MenuItem key={offset} icon={hidden.icon} disabled>
+                            {hidden.label}
+                          </MenuItem>
+                        ),
+                      )}
+                    </Menu>
                     {sep()}
                   </li>
                 );

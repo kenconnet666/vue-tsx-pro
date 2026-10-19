@@ -27,7 +27,7 @@ export const enUS: Lang = {
   nextPage: 'Next page',
   pageLabel: (page) => `Page ${page}`,
   breadcrumbs: 'Breadcrumb',
-  breadcrumbsExpand: 'Show full path',
+  breadcrumbsExpand: 'Show hidden levels',
   formRequired: (label) => `${label} is required`,
   slideVerifyHint: 'Slide to verify',
   slideVerifyChecking: 'Verifying…',
