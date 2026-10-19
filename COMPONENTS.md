@@ -258,8 +258,7 @@ interface Lang {
 | 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                        |
 | 校验     | `@standard-schema/spec`（接口）     | 表单只依赖接口，使用方可选 zod、valibot 等                                                              |
 | 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/animation`                            |
-| 常规图表 | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置 |
-| 特殊图表 | `echarts`（可选 peer）              | Unovis 没有的：仪表盘、雷达、K 线、日历热力图、超大数据量、3D 图表                                      |
+| 图表     | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置 |
 | 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                  |
 | 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                            |
 | 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）  |

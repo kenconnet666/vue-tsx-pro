@@ -23,9 +23,8 @@ catalog:
   tabbable: 6.5.0
   # 动画引擎（MIT）：animate、timeline、spring、stagger、拖拽、布局动画、滚动观察
   animejs: 4.5.0
-  # 可选 peer 依赖（组件库开发时安装）：常规图表 Unovis、特殊图表 ECharts、3D three.js、代码高亮 Shiki
+  # 可选 peer 依赖（组件库开发时安装）：常规图表 Unovis、3D three.js、代码高亮 Shiki
   '@unovis/ts': 1.7.1
-  echarts: 6.1.0
   three: 0.186.1
   '@types/three': 0.186.0
   shiki: 4.5.0

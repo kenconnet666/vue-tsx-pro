@@ -46,7 +46,6 @@
     "tabbable": "catalog:"
   },
   "peerDependencies": {
-    "echarts": "^6.0.0",
     "@lucide/icons": "^1.59.0",
     "pinia": "^4.0.0",
     "shiki": "^4.0.0",
@@ -57,9 +56,6 @@
     "vue-router": "^5.0.0"
   },
   "peerDependenciesMeta": {
-    "echarts": {
-      "optional": true
-    },
     "pinia": {
       "optional": true
     },
@@ -77,7 +73,6 @@
     }
   },
   "devDependencies": {
-    "echarts": "catalog:",
     "happy-dom": "catalog:",
     "@lucide/icons": "catalog:",
     "pinia": "catalog:",

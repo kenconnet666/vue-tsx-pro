@@ -40,17 +40,13 @@ it('animejs：动画 JS 对象的数值（canvas、3D 场景用）；拖拽与�
 });
 
 // 可选 peer 依赖：以后的图表、3D 组件用，组件库开发时安装
-it('@unovis/ts、echarts、three：按需导入可以解析', async () => {
-  const [{ XYContainer, Line }, echarts, { LineChart }, { Scene, Vector3 }] = await Promise.all([
+it('@unovis/ts、three：按需导入可以解析', async () => {
+  const [{ XYContainer, Line }, { Scene, Vector3 }] = await Promise.all([
     import('@unovis/ts'),
-    import('echarts/core'),
-    import('echarts/charts'),
     import('three'),
   ]);
   expect(XYContainer).toBeTypeOf('function');
   expect(Line).toBeTypeOf('function');
-  expect(echarts.use).toBeTypeOf('function');
-  expect(LineChart).toBeDefined();
   expect(new Scene().children).toEqual([]);
   expect(new Vector3(3, 4, 0).length()).toBe(5);
 });
