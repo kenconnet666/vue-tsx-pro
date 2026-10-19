@@ -202,6 +202,8 @@ export {
 } from './input/SlideVerify';
 
 // 表单
+export { Form, type FormProps } from './form/Form';
+export { useForm, type FormController, type FormErrors, type FormOptions } from './form/useForm';
 export {
   Field,
   Label,

@@ -8,6 +8,7 @@
  * Field 经上下文告诉里面的控件：控件的 id（标签的 for 指向它）、标签的 id（不是原生输入的控件用 aria-labelledby）、
  * 说明与错误的 id（aria-describedby），以及 invalid / required / disabled / readonly。
  * 控件上显式写的状态优先于 Field 的。控件用 useFieldControl 读取这些信息，单独使用（不在 Field 里）时照常工作。
+ * 在 Form 里写了 name 时，错误信息取自表单控制器（useForm），焦点离开字段时报告失焦（何时显示错误见 useForm）。
  *
  * 部件：Root（div）、Label（Label）、Description（Text）、Error（Text，带警示图标）。
  */
@@ -19,6 +20,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/tone-styles';
+import { FormContext } from './Form';
 
 /** Field 交给控件的信息 */
 export interface FieldState {
@@ -142,11 +144,13 @@ export const Label = _component(
 
 /** 未声明的属性落到外层 div 上 */
 export interface FieldProps extends PartProps<'div'> {
+  /** 在 Form 里对应的字段路径（如 `email`、`address.city`）：错误取自表单控制器 */
+  name?: string;
   /** 标签 */
   label?: VNodeChild;
   /** 控件下方的说明 */
   description?: VNodeChild;
-  /** 错误信息：给了（且 invalid 不是 false）就显示，并把控件标为出错 */
+  /** 错误信息：给了（且 invalid 不是 false）就显示，并把控件标为出错；在 Form 里写了 name 时默认取表单的错误 */
   error?: VNodeChild;
   /** 校验未通过；不写时有 error 就算出错 */
   invalid?: boolean;
@@ -176,6 +180,7 @@ const styles = stylex.create({
 /** 表单字段：标签、控件、说明、错误信息，自动关联 id 与状态 */
 export const Field = _component(
   ({
+    name,
     label,
     description,
     error,
@@ -196,7 +201,9 @@ export const Field = _component(
       description: `${id}-description`,
       error: `${id}-error`,
     };
-    const showError = () => error != null && invalid !== false;
+    const form = FormContext.inject(null);
+    const message = () => error ?? (name != null ? form?.visibleError(name) : undefined);
+    const showError = () => message() != null && invalid !== false;
 
     FieldContext.provide({
       controlId: ids.control,
@@ -208,7 +215,7 @@ export const Field = _component(
         return parts.filter(Boolean).join(' ') || undefined;
       },
       get invalid() {
-        return invalid ?? error != null;
+        return invalid ?? message() != null;
       },
       get required() {
         return required;
@@ -221,10 +228,17 @@ export const Field = _component(
       },
     });
 
+    // 焦点离开整个字段（不是在字段内部移动）时报告失焦
+    function onFocusout(event: FocusEvent) {
+      const next = event.relatedTarget;
+      const field = event.currentTarget as HTMLElement;
+      if (name != null && !(next instanceof Node && field.contains(next))) form?.blur(name);
+    }
+
     return () => (
       <div
-        {...elementProps(mergeProps<'div'>({ sx: styles.root }, rest))}
-        data-invalid={(invalid ?? error != null) || undefined}
+        {...elementProps(mergeProps<'div'>({ sx: styles.root }, rest, { onFocusout }))}
+        data-invalid={(invalid ?? message() != null) || undefined}
         data-disabled={disabled || undefined}
       >
         {label != null && (
@@ -256,7 +270,7 @@ export const Field = _component(
             )}
           >
             <Icon icon={statusIcons.danger} sx={styles.errorIcon} />
-            {error}
+            {message()}
           </Text>
         )}
       </div>
