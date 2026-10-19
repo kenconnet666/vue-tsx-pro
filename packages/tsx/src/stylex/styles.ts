@@ -3,6 +3,23 @@
 // oxlint-disable no-redundant-type-constituents
 import type { CSSProperties } from '@stylexjs/stylex';
 import type { KeywordValue, StyleValue } from './value';
+import type {
+  BorderWidthsTokens,
+  ColorsTokens,
+  DurationsTokens,
+  EasingsTokens,
+  FontSizesTokens,
+  FontWeightsTokens,
+  FontsTokens,
+  LetterSpacingsTokens,
+  LineHeightsTokens,
+  OpacitiesTokens,
+  RadiiTokens,
+  ShadowsTokens,
+  SizesTokens,
+  SpaceTokens,
+  StrokeWidthsTokens,
+} from './index';
 
 /** StyleX 样式对象：每个属性带中文说明，值类型直接引用 StyleX 自己的定义 */
 export interface DocumentedStyles {
@@ -4321,23 +4338,6 @@ export interface DocumentedStyles {
    */
   '::-moz-range-progress'?: DocumentedStyles;
 }
-
-// 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，由主题库用 declare module 填入以 `_` 开头的 token 名
-export interface SpaceTokens {}
-export interface ColorsTokens {}
-export interface FontsTokens {}
-export interface FontSizesTokens {}
-export interface FontWeightsTokens {}
-export interface LineHeightsTokens {}
-export interface LetterSpacingsTokens {}
-export interface SizesTokens {}
-export interface BorderWidthsTokens {}
-export interface OpacitiesTokens {}
-export interface StrokeWidthsTokens {}
-export interface RadiiTokens {}
-export interface ShadowsTokens {}
-export interface DurationsTokens {}
-export interface EasingsTokens {}
 
 // 各属性的关键字说明：键上的注释在悬停取值时显示
 interface JustifyContentKeywords {

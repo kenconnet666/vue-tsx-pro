@@ -257,16 +257,14 @@ async function generate() {
     '// oxlint-disable no-redundant-type-constituents',
     "import type { CSSProperties } from '@stylexjs/stylex';",
     "import type { KeywordValue, StyleValue } from './value';",
+    // token 接口声明在入口 index.ts：主题库用 declare module 增补的就是入口模块，声明与增补在同一个模块里，
+    // IDE 才能把 '_xs' 解析到唯一的那一组（声明在这里再转出时，WebStorm 会列出所有同名的 token）
+    `import type { ${[...new Set(TOKEN_GROUP_OF.values())].map(tokenInterfaceName).sort().join(', ')} } from './index';`,
     '',
     '/** StyleX 样式对象：每个属性带中文说明，值类型直接引用 StyleX 自己的定义 */',
     'export interface DocumentedStyles {',
     ...members.flat(),
     '}',
-    '',
-    "// 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，由主题库用 declare module 填入以 `_` 开头的 token 名",
-    ...[...new Set(TOKEN_GROUP_OF.values())].map(
-      (group) => `export interface ${tokenInterfaceName(group)} {}`,
-    ),
     '',
     '// 各属性的关键字说明：键上的注释在悬停取值时显示',
     ...keywordInterfaces,

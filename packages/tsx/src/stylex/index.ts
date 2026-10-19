@@ -14,24 +14,44 @@ import type { CSSProperties, InlineStyles, MapNamespaces } from '@stylexjs/style
 import type { DocumentedStyles } from './styles';
 
 export * from '@stylexjs/stylex';
-export type {
-  BorderWidthsTokens,
-  ColorsTokens,
-  DocumentedStyles,
-  DurationsTokens,
-  EasingsTokens,
-  FontSizesTokens,
-  FontsTokens,
-  FontWeightsTokens,
-  LetterSpacingsTokens,
-  LineHeightsTokens,
-  OpacitiesTokens,
-  RadiiTokens,
-  ShadowsTokens,
-  SizesTokens,
-  SpaceTokens,
-  StrokeWidthsTokens,
-} from './styles';
+export type { DocumentedStyles } from './styles';
+
+/*
+ * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@vue-tsx-pro/ui 的 token-names.ts）用
+ * declare module '@vue-tsx-pro/tsx/stylex' 填入以 `_` 开头的 token 名。接口必须声明在这个入口模块里：
+ * 增补与声明在同一个模块，WebStorm 才能把 '_xs' 解析到唯一的那一组（跳转、悬停注释、补全都靠它）；
+ * 声明在别的文件再转出时，它会列出所有同名的 token 让人选。
+ */
+/** 间距 token（`_space.*`）：gap、padding、margin 等 */
+export interface SpaceTokens {}
+/** 颜色 token（`_colors.*`） */
+export interface ColorsTokens {}
+/** 字体族 token */
+export interface FontsTokens {}
+/** 字号 token */
+export interface FontSizesTokens {}
+/** 字重 token */
+export interface FontWeightsTokens {}
+/** 行高 token */
+export interface LineHeightsTokens {}
+/** 字距 token */
+export interface LetterSpacingsTokens {}
+/** 尺寸 token：width、height 等 */
+export interface SizesTokens {}
+/** 边框宽度 token */
+export interface BorderWidthsTokens {}
+/** 不透明度 token */
+export interface OpacitiesTokens {}
+/** 描边宽度 token：SVG 的 strokeWidth */
+export interface StrokeWidthsTokens {}
+/** 圆角 token */
+export interface RadiiTokens {}
+/** 阴影 token */
+export interface ShadowsTokens {}
+/** 时长 token：transition、animation */
+export interface DurationsTokens {}
+/** 缓动 token */
+export interface EasingsTokens {}
 export type { StyleValue } from './value';
 
 /** 动态样式：参数在运行时决定，编译为 CSS 变量与行内 style */
