@@ -88,6 +88,18 @@ export {
   type AlertProps,
   type AlertVariants,
 } from './feedback/Alert';
+export {
+  Dialog,
+  Drawer,
+  type DialogOptions,
+  type DialogProps,
+  type DialogSizes,
+  type DrawerOptions,
+  type DrawerProps,
+  type DrawerSides,
+  type ModalProps,
+} from './feedback/Dialog';
+export { AlertDialog, type AlertDialogProps } from './feedback/AlertDialog';
 
 // 导航
 export { Toolbar, type ToolbarOrientations, type ToolbarProps } from './navigation/Toolbar';

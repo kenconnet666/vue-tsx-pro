@@ -134,11 +134,12 @@ it('Dialog：打开时焦点进入并锁定页面滚动，焦点在两端循环'
   expect(dialog.contains(document.activeElement)).toBe(true);
   expect(document.documentElement.style.overflow).toBe('hidden');
 
-  const input = $('.dialog-field input');
+  // 第一个可聚焦元素是标题行的关闭按钮
+  const close = dialog.querySelector<HTMLElement>('button[aria-label="关闭"]')!;
   const ok = $('.dialog-ok');
   ok.focus();
   await userEvent.keyboard('{Tab}');
-  expect(document.activeElement).toBe(input);
+  expect(document.activeElement).toBe(close);
   await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
   expect(document.activeElement).toBe(ok);
 });

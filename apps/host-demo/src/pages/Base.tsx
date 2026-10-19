@@ -23,6 +23,9 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Button,
   Alert,
+  AlertDialog,
+  Dialog,
+  Drawer,
   Avatar,
   Badge,
   Card,
@@ -194,6 +197,10 @@ export const Base = _component(() => {
   let cities = _state(['上海', '北京', '深圳']);
   let loadingProfile = _state(true);
   let showAlert = _state(true);
+  let dialogOpen = _state(false);
+  let drawerOpen = _state(false);
+  let confirmOpen = _state(false);
+  let deleted = _state(0);
   let orderTab = _state('all');
   let step = _state(1);
   let page = _state(3);
@@ -429,6 +436,73 @@ export const Base = _component(() => {
           >
             网络连接失败
           </Alert>
+        </Section>
+
+        <Section title="对话框 Dialog · AlertDialog · Drawer">
+          <Flex gap="sm" wrap align="center">
+            <Button class="dialog-open" onClick={() => (dialogOpen = true)}>
+              编辑资料
+            </Button>
+            <Button
+              class="confirm-open"
+              variant="soft"
+              tone="danger"
+              icon={Trash2}
+              onClick={() => (confirmOpen = true)}
+            >
+              删除项目
+            </Button>
+            <Button class="drawer-open" variant="outline" onClick={() => (drawerOpen = true)}>
+              筛选
+            </Button>
+            <Text tone="muted" class="deleted-count">
+              已删除 {deleted} 个
+            </Text>
+          </Flex>
+          <Dialog
+            open={_bind(dialogOpen)}
+            class="dialog-demo"
+            title="编辑资料"
+            description="修改后立即生效。"
+            footer={
+              <>
+                <Button variant="soft" tone="neutral" onClick={() => (dialogOpen = false)}>
+                  取消
+                </Button>
+                <Button onClick={() => (dialogOpen = false)}>保存</Button>
+              </>
+            }
+          >
+            {Array.from({ length: 12 }, (_, index) => (
+              <Paragraph key={index}>
+                第 {index + 1} 段内容：正文较长时只滚动这里，标题与按钮固定。
+              </Paragraph>
+            ))}
+          </Dialog>
+          <AlertDialog
+            open={_bind(confirmOpen)}
+            class="confirm-demo"
+            tone="danger"
+            title="删除这个项目？"
+            description="删除后无法恢复。"
+            confirmText="删除"
+            onConfirm={() =>
+              new Promise<void>((resolve) =>
+                setTimeout(() => {
+                  deleted++;
+                  resolve();
+                }, 300),
+              )
+            }
+          />
+          <Drawer
+            open={_bind(drawerOpen)}
+            class="drawer-demo"
+            title="筛选"
+            footer={<Button onClick={() => (drawerOpen = false)}>应用</Button>}
+          >
+            <Paragraph>筛选条件放在这里。</Paragraph>
+          </Drawer>
         </Section>
 
         <Section title="进度与占位 Progress · Skeleton">

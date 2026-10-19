@@ -10,6 +10,7 @@
 import { useConfig } from './context';
 import type { BadgeOptions } from '../base/badge-styles';
 import type { AlertOptions } from '../feedback/Alert';
+import type { DialogOptions, DrawerOptions } from '../feedback/Dialog';
 import type { AvatarOptions } from '../display/Avatar';
 import type { CardOptions } from '../display/Card';
 import type { TabsOptions } from '../navigation/Tabs';
@@ -25,6 +26,10 @@ export interface ComponentDefaults {
   Alert?: AlertOptions;
   /** Card */
   Card?: CardOptions;
+  /** Dialog、AlertDialog 共用 */
+  Dialog?: DialogOptions;
+  /** Drawer */
+  Drawer?: DrawerOptions;
   /** Avatar */
   Avatar?: AvatarOptions;
   /** Tabs */

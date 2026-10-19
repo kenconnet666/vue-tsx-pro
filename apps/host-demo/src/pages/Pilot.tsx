@@ -4,6 +4,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Button,
   darkTheme,
+  Dialog,
   enUS,
   lightTheme,
   LinkButton,
@@ -11,7 +12,6 @@ import {
   useLang,
   zhCN,
 } from '@vue-tsx-pro/ui';
-import { Dialog } from '../pilot/Dialog';
 import { Popover } from '../pilot/Popover';
 import { TextField } from '../pilot/TextField';
 

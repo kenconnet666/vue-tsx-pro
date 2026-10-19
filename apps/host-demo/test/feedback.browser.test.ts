@@ -1,4 +1,6 @@
 // 标记、提示、进度、占位在真实浏览器里（演示页 /base；颜色对比度由 base 的 axe 检查覆盖）
+import axe from 'axe-core';
+import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { nextTick, type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
@@ -80,5 +82,79 @@ describe('Progress · Skeleton', () => {
     await nextTick();
     const after = card.getBoundingClientRect();
     expect(Math.round(after.height)).toBe(Math.round(before.height));
+  });
+});
+
+describe('Dialog · AlertDialog · Drawer', () => {
+  it('Dialog：标题与说明是无障碍名称与描述；正文过长时只滚正文，标题与页脚留在视口内', async () => {
+    const dialog = $<HTMLDialogElement>('.dialog-demo');
+    await userEvent.click($('.dialog-open'));
+    await expect.poll(() => dialog.open).toBe(true);
+    const title = document.getElementById(dialog.getAttribute('aria-labelledby')!)!;
+    expect(title.tagName).toBe('H2');
+    expect(document.getElementById(dialog.getAttribute('aria-describedby')!)!.textContent).toBe(
+      '修改后立即生效。',
+    );
+    const rect = dialog.getBoundingClientRect();
+    expect(rect.bottom).toBeLessThanOrEqual(window.innerHeight);
+    const footer = dialog.lastElementChild!.getBoundingClientRect();
+    expect(footer.bottom).toBeLessThanOrEqual(rect.bottom + 1);
+
+    await userEvent.click(dialog.querySelector<HTMLElement>('button[aria-label="关闭"]')!);
+    await expect.poll(() => dialog.open).toBe(false);
+    expect(document.activeElement).toBe($('.dialog-open'));
+  });
+
+  it('AlertDialog：role="alertdialog"，焦点先落在取消上，点击遮罩不关闭', async () => {
+    const dialog = $<HTMLDialogElement>('.confirm-demo');
+    await userEvent.click($('.confirm-open'));
+    await expect.poll(() => dialog.open).toBe(true);
+    expect(dialog.getAttribute('role')).toBe('alertdialog');
+    expect(document.activeElement!.textContent).toBe('取消');
+    expect(dialog.querySelector('button[aria-label="关闭"]')).toBeNull();
+    await userEvent.click(dialog, { position: { x: 10, y: -10 }, force: true });
+    expect(dialog.open).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => dialog.open).toBe(false);
+    expect($('.deleted-count').textContent).toContain('0');
+  });
+
+  it('AlertDialog：确认返回 Promise 时显示加载中，完成后关闭', async () => {
+    const dialog = $<HTMLDialogElement>('.confirm-demo');
+    await userEvent.click($('.confirm-open'));
+    await expect.poll(() => dialog.open).toBe(true);
+    const confirm = [...dialog.querySelectorAll('button')].find((b) => b.textContent === '删除')!;
+    await userEvent.click(confirm);
+    await expect.poll(() => confirm.getAttribute('aria-busy')).toBe('true');
+    expect(dialog.open).toBe(true);
+    await expect.poll(() => dialog.open).toBe(false);
+    expect($('.deleted-count').textContent).toContain('1');
+  });
+
+  it('Drawer：贴着结束边、占满高度，从那一侧滑入', async () => {
+    const drawer = $<HTMLDialogElement>('.drawer-demo');
+    await userEvent.click($('.drawer-open'));
+    await expect.poll(() => drawer.open).toBe(true);
+    await expect.poll(() => getComputedStyle(drawer).translate).toMatch(/^(none|0px)$/);
+    const rect = drawer.getBoundingClientRect();
+    expect(Math.round(rect.right)).toBe(document.documentElement.clientWidth);
+    expect(Math.round(rect.height)).toBe(window.innerHeight);
+    expect(drawer.dataset.side).toBe('end');
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => drawer.open).toBe(false);
+  });
+
+  it.each(['dialog', 'confirm', 'drawer'])('无障碍：%s 打开时 axe-core 没有违规', async (name) => {
+    const dialog = $<HTMLDialogElement>(`.${name}-demo`);
+    await userEvent.click($(`.${name}-open`));
+    await expect.poll(() => dialog.open).toBe(true);
+    // 等进场过渡结束再检查对比度（最多 1 秒）
+    await Promise.race([
+      Promise.all(dialog.getAnimations({ subtree: true }).map((animation) => animation.finished)),
+      new Promise((resolve) => setTimeout(resolve, 1000)),
+    ]);
+    const { violations } = await axe.run(dialog);
+    expect(violations.map((violation) => violation.id)).toEqual([]);
+    dialog.close();
   });
 });
