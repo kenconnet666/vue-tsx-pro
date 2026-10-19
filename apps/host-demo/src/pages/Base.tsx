@@ -72,6 +72,7 @@ import {
   IconButton,
   Indicator,
   Kbd,
+  Marquee,
   lightTheme,
   Menu,
   MenuCheckboxItem,
@@ -267,6 +268,7 @@ export const Base = _component(() => {
   let loadingProfile = _state(true);
   let refreshing = _state(false);
   let stackToasts = _state(false);
+  let marqueePaused = _state(false);
   function refresh() {
     refreshing = true;
     setTimeout(() => (refreshing = false), 1500);
@@ -1270,6 +1272,25 @@ export const Base = _component(() => {
 
         <Section title="上传 Upload · FileDrop">
           <UploadDemo />
+        </Section>
+
+        <Section title="跑马灯 Marquee">
+          <Marquee class="marquee-demo" fade paused={marqueePaused} aria-label="技术栈">
+            {['Vue', 'Vite', 'StyleX', 'Anime.js', 'Lucide', 'Zod', 'Vitest', 'Playwright'].map(
+              (name) => (
+                <Badge key={name}>{name}</Badge>
+              ),
+            )}
+          </Marquee>
+          <Button
+            variant="outline"
+            size="sm"
+            class="marquee-toggle"
+            aria-pressed={marqueePaused}
+            onClick={() => (marqueePaused = !marqueePaused)}
+          >
+            {marqueePaused ? '继续滚动' : '暂停滚动'}
+          </Button>
         </Section>
 
         <Section title="拖动排序 Sortable">

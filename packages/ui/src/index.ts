@@ -193,6 +193,14 @@ export {
   type DescriptionsProps,
 } from './display/Descriptions';
 export {
+  Marquee,
+  marqueeDynamicStyles,
+  marqueeStyles,
+  marqueeTrailStyles,
+  type MarqueeDirections,
+  type MarqueeProps,
+} from './display/Marquee';
+export {
   Sortable,
   sortableStyles,
   type SortableItemState,
