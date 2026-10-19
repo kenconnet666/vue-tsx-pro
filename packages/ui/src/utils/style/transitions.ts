@@ -71,8 +71,11 @@ export const transitions: StyleTable<'fade' | 'scale' | 'backdrop'> = stylex.cre
 /**
  * 等元素（含子元素）上正在进行的过渡与动画结束；没有时立即完成，“减少动态效果”时也就立即完成。
  * 被打断（取消、反向）的动画也算结束，调用方按当前状态决定下一步。
+ * 无限循环的动画（加载指示的旋转）永远不会结束，不等它。
  */
 export async function afterTransitions(element: Element): Promise<void> {
-  const animations = element.getAnimations({ subtree: true });
+  const animations = element
+    .getAnimations({ subtree: true })
+    .filter((animation) => animation.effect?.getTiming().iterations !== Infinity);
   await Promise.allSettled(animations.map((animation) => animation.finished));
 }
