@@ -50,7 +50,7 @@ describe('Badge · Tag · Alert', () => {
     const close = $('.alert-demo button');
     close.focus();
     close.click();
-    await expect.poll(() => root.querySelector('.alert-demo')).toBeNull();
+    await expect.poll(() => root.querySelector('.alert-demo'), { timeout: 3000 }).toBeNull();
     expect(document.activeElement).not.toBe(document.body);
     expect(root.contains(document.activeElement)).toBe(true);
   });

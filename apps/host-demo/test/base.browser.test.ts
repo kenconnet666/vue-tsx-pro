@@ -28,6 +28,12 @@ afterEach(() => {
 const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
   root.querySelector<T>(selector)!;
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+/**
+ * 把元素子树里的某档时长调慢：慢的 CI 机器上一帧就可能超过整个动画，“过程中”的断言会落空。
+ * 行内覆盖 token 变量，readToken（useAnimate）按元素读到的就是这个值
+ */
+const slowDown = (element: HTMLElement, token: unknown, value = '2s') =>
+  element.style.setProperty(/--[\w-]+/.exec(String(token))![0], value);
 
 it('性能：演示页（含一万行表格、一万个选项）挂载在 2 秒内', async () => {
   // 曾经因为选项列表生成行时 O(n²) 而要 5–10 秒；正常时一两百毫秒，这里给慢的 CI 机器留足余量
@@ -113,7 +119,7 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
         () =>
           $('.ball').getBoundingClientRect().left -
           $('.ball').parentElement!.getBoundingClientRect().left,
-        { timeout: 3000 },
+        { timeout: 5000 },
       )
       .toBeGreaterThanOrEqual(120);
   });
@@ -133,24 +139,26 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
   });
 
   it('Result 的图标挂载时一笔画出：先擦掉、再画完整', async () => {
+    slowDown($('.result-demo').parentElement!, durations.xl);
     $('.result-replay').click();
     await nextFrame();
     const stroke = () => $('.result-demo svg').firstElementChild as SVGGeometryElement;
     // Anime.js 把进度写在 draw 属性上：'起点 终点'（0–1）
     const end = () => Number(stroke().getAttribute('draw')?.split(' ')[1]);
     expect(end()).toBeLessThan(1);
-    await expect.poll(end, { timeout: 3000 }).toBe(1);
+    await expect.poll(end, { timeout: 5000 }).toBe(1);
   });
 
   it('Checkbox：初次渲染不描线，用户勾上时对勾一笔画出', async () => {
     const input = $<HTMLInputElement>('.agree-demo');
     const stroke = () => input.parentElement!.querySelector('svg')!.firstElementChild!;
     expect(stroke().hasAttribute('draw')).toBe(false);
+    slowDown(input.closest('label')!, durations.xl);
     input.click();
     await nextFrame();
     const end = () => Number(stroke().getAttribute('draw')?.split(' ')[1]);
     expect(end()).toBeLessThan(1);
-    await expect.poll(end, { timeout: 3000 }).toBe(1);
+    await expect.poll(end, { timeout: 5000 }).toBe(1);
   });
 
   it('AnimatedNumber：数值变化时滚动，读屏文字直接是终值，滚完两者一致', async () => {
@@ -158,11 +166,12 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     const shown = () => number.querySelector('[aria-hidden="true"]')!.textContent;
     const label = () =>
       number.querySelector('[aria-hidden="true"]')!.nextElementSibling!.textContent;
+    slowDown(number, durations.lg);
     const before = label();
     $('.stats-update').click();
     await expect.poll(label).not.toBe(before);
     expect(shown()).not.toBe(label());
-    await expect.poll(() => shown() === label(), { timeout: 3000 }).toBe(true);
+    await expect.poll(() => shown() === label(), { timeout: 5000 }).toBe(true);
   });
 
   it('布局动画：加一项时原来的项从旧位置平移过去，结束后停在新位置', async () => {
@@ -175,9 +184,10 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
       (chip.offsetLeft - list.offsetLeft);
     // offsetLeft 取整，留 1px 余量
     expect(Math.abs(offset())).toBeLessThan(1);
+    slowDown(list, durations.md);
     $('.layout-add').click();
     await expect.poll(() => Math.abs(offset())).toBeGreaterThan(2);
-    await expect.poll(() => Math.abs(offset()), { timeout: 3000 }).toBeLessThan(1);
+    await expect.poll(() => Math.abs(offset()), { timeout: 5000 }).toBeLessThan(1);
     expect(list.firstElementChild!.textContent).toBe('7');
   });
 });
@@ -338,11 +348,12 @@ describe('切换按钮组：ToggleGroup', () => {
       box(a).every((value, index) => Math.abs(value - box(b)[index]!) <= 1);
     const items = group.querySelectorAll('button');
     expect(overlaps(thumb, group.querySelector('[aria-pressed="true"]')!)).toBe(true);
+    slowDown(group, durations.md);
     const target = [...items].find((item) => item.getAttribute('aria-pressed') === 'false')!;
     target.click();
     await nextFrame();
     expect(overlaps(thumb, target)).toBe(false);
-    await expect.poll(() => overlaps(thumb, target), { timeout: 3000 }).toBe(true);
+    await expect.poll(() => overlaps(thumb, target), { timeout: 5000 }).toBe(true);
   });
 });
 
