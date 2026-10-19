@@ -21,6 +21,7 @@ export const zhCN: Lang = {
   passwordShow: '显示密码',
   numberDecrement: '减少',
   numberIncrement: '增加',
+  comboboxToggle: '显示选项',
   selectEmpty: '没有选项',
   selectPlaceholder: '请选择',
   paginationTotal: (total) => `共 ${total} 条`,

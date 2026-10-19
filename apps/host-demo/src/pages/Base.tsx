@@ -28,6 +28,11 @@ import {
   Alert,
   Checkbox,
   CheckboxGroup,
+  Combobox,
+  Empty,
+  Listbox,
+  Select,
+  type ListboxOption,
   Field,
   NumberField,
   Radio,
@@ -208,6 +213,30 @@ const Section = _component(
     ),
 );
 
+/** 下拉、组合框的演示选项 */
+const cityOptions: ListboxOption[] = [
+  { value: 'bj', label: '北京', group: '华北' },
+  { value: 'tj', label: '天津', group: '华北' },
+  { value: 'sh', label: '上海', group: '华东' },
+  { value: 'hz', label: '杭州', group: '华东', description: '浙江省会' },
+  { value: 'nj', label: '南京', group: '华东', disabled: true },
+  { value: 'gz', label: '广州', group: '华南' },
+  { value: 'sz', label: '深圳', group: '华南' },
+];
+const languageOptions: ListboxOption[] = [
+  'TypeScript',
+  'JavaScript',
+  'Rust',
+  'Go',
+  'Python',
+  'Kotlin',
+].map((label) => ({ value: label.toLowerCase(), label }));
+const fruitOptions: ListboxOption[] = [
+  { value: 'apple', label: '苹果' },
+  { value: 'banana', label: '香蕉' },
+  { value: 'cherry', label: '樱桃' },
+];
+
 /** /base 演示页：按分类演示组件库的基础组件，浏览器测试与 axe 检查也跑在这一页上 */
 export const Base = _component(() => {
   let dark = _state(false);
@@ -231,6 +260,10 @@ export const Base = _component(() => {
   let channels = _state<string[]>(['email']);
   let shipping = _state<string | undefined>('express');
   let notify = _state(true);
+  let city = _state<string | undefined>(undefined);
+  let pickedCities = _state<string[]>(['sh']);
+  let language = _state<string | undefined>(undefined);
+  let fruit = _state<string | undefined>('banana');
   let menuAction = _state('');
   let showGrid = _state(true);
   let sortBy = _state('name');
@@ -609,6 +642,49 @@ export const Base = _component(() => {
                   <Radio value="pickup">到店自提</Radio>
                 </RadioGroup>
               </Field>
+            </li>
+            <li>
+              <Field label="城市（单选）">
+                <Select
+                  items={cityOptions}
+                  value={_bind(city)}
+                  name="city"
+                  propsRoot={{ class: 'select-demo' }}
+                />
+              </Field>
+            </li>
+            <li>
+              <Field label="城市（多选）">
+                <Select
+                  items={cityOptions}
+                  type="multiple"
+                  value={_bind(pickedCities)}
+                  clearable
+                  propsRoot={{ class: 'select-multiple-demo' }}
+                />
+              </Field>
+            </li>
+            <li>
+              <Field label="编程语言" description="输入可以过滤">
+                <Combobox
+                  items={languageOptions}
+                  value={_bind(language)}
+                  clearable
+                  propsRoot={{ class: 'combobox-demo' }}
+                />
+              </Field>
+            </li>
+            <li>
+              <Field label="水果">
+                <Listbox items={fruitOptions} value={_bind(fruit)} class="listbox-demo" />
+              </Field>
+            </li>
+            <li>
+              <Empty
+                title="还没有订单"
+                description="下单后会显示在这里。"
+                action={<Button size="sm">去逛逛</Button>}
+              />
             </li>
             <li>
               <Flex direction="column" gap="sm">

@@ -1,0 +1,410 @@
+/**
+ * 组合框（WAI-ARIA Combobox，aria-autocomplete="list"）：边输入边从列表里选，或者只当带建议的输入框用。
+ *
+ *   <Field label="城市"><Combobox items={cities} value={_bind(city)} /></Field>
+ *   <Combobox items={results} filter={false} loading={searching} inputValue={_bind(keyword)} aria-label="搜索用户" />
+ *
+ * 组合已有的部件：外壳同 TextField（controlSx），弹出层用 createAnchoredPopover（与外壳同宽），列表是 ListboxView。
+ * 焦点一直在输入框里，高亮项经 aria-activedescendant 告诉读屏。
+ *
+ * - 过滤：默认本地按显示文字包含输入（Intl.Collator，忽略大小写与重音）；filter={false} 时不过滤，
+ *   由调用方按 inputValue 换 items（异步搜索，配合 loading）。
+ * - 中文输入法：输入经 v-model 写回，组合输入期间 inputValue 不变，所以不会拿拼音去过滤。
+ * - 选中后输入框显示选项文字；失焦时如果文字不是某个选项（且没开 allowCustomValue），恢复成已选项的文字，清空则取消选择。
+ * - 键盘：↓ 打开、↑↓ / Page Up / Down 移动，Enter 选中，Esc 关闭（关闭时再按 Esc 清空）；Home / End 照常移动光标。
+ *
+ * 部件：Root（外壳）、Input（主元素）、Clear、Chevron（切换按钮）、Popover、Listbox。
+ */
+import { ChevronDown } from '@lucide/icons';
+import { _component } from '@vue-tsx-pro/tsx';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
+import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
+import { Spinner } from '../base/Spinner';
+import { useLang } from '../config/context';
+import { createAnchoredPopover, floatingStyles, type FloatingPlacement } from '../utils/floating';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { transitions } from '../utils/transitions';
+import {
+  controlStyles,
+  controlSx,
+  useControlAppearance,
+  type ControlOptions,
+} from './control-styles';
+import { useFieldControl } from './Field';
+import {
+  activeOptionId,
+  ListboxView,
+  type ListboxViewProps,
+  type OptionRenderState,
+} from './Listbox';
+import { createListState, handleListKeydown, type ListboxOption } from './list-state';
+
+/** 角色、展开状态、值与可用性由组件管理 */
+type Managed =
+  | 'value'
+  | 'role'
+  | 'size'
+  | 'disabled'
+  | 'readonly'
+  | 'required'
+  | 'autocomplete'
+  | 'aria-autocomplete'
+  | 'aria-expanded'
+  | 'aria-controls'
+  | 'aria-activedescendant'
+  | 'aria-invalid'
+  | 'aria-describedby';
+
+/** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
+export interface ComboboxProps<T extends ListboxOption = ListboxOption>
+  extends PartProps<'input', Managed>, ControlOptions {
+  /** 选项 */
+  items: readonly T[];
+  /** 选中项的值：父级写 value={_bind(x)} */
+  value?: string;
+  /** 输入框里的文字：父级可以写 inputValue={_bind(x)}（异步搜索时据此取数据） */
+  inputValue?: string;
+  /** 是否打开：父级可以写 open={_bind(x)} */
+  open?: boolean;
+  /** 过滤：默认按显示文字包含输入（忽略大小写与重音）；函数自定义；false 不过滤（异步搜索） */
+  filter?: false | ((option: T, query: string) => boolean);
+  /** 允许输入不在选项里的文字：失焦时保留，value 为 undefined */
+  allowCustomValue?: boolean;
+  /** 正在取选项（异步搜索）：列表里显示加载指示 */
+  loading?: boolean;
+  /** 弹出位置，默认 bottom-start */
+  placement?: FloatingPlacement;
+  /** 有内容时显示清空按钮 */
+  clearable?: boolean;
+  /** 表单提交时的 name（用隐藏的 input 提交 value） */
+  name?: string;
+  /** 不可用 */
+  disabled?: boolean;
+  /** 只读 */
+  readonly?: boolean;
+  /** 必填 */
+  required?: boolean;
+  /** 校验未通过 */
+  invalid?: boolean;
+  /** 自定义选项内容：`{(option, { selected, active }) => …}` */
+  children?: (option: T, state: OptionRenderState) => VNodeChild;
+  /** 没有匹配的选项时列表里显示的内容 */
+  empty?: VNodeChild;
+  /** 外壳的部件属性 */
+  propsRoot?: PartProps<'div'>;
+  /** 清空按钮的部件属性 */
+  propsClear?: Partial<PresetIconButtonProps>;
+  /** 切换按钮（下拉箭头）的部件属性 */
+  propsChevron?: Partial<IconButtonProps>;
+  /** 弹出层的部件属性 */
+  propsPopover?: PartProps<'div', 'id' | 'popover'>;
+  /** 列表的部件属性 */
+  propsListbox?: Partial<ListboxViewProps<T>>;
+}
+
+const styles = stylex.create({
+  popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
+  chevron: { transition: 'rotate _durations.sm _easings.standard' },
+  chevronOpen: { rotate: '180deg' },
+  loading: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '_sm',
+    padding: '_sm',
+    color: '_textMuted',
+  },
+});
+
+/** 组合框：输入框 + 过滤后的选项列表 */
+export const Combobox = _component(
+  <T extends ListboxOption>({
+    items,
+    value = _bindable<string | undefined>(undefined),
+    inputValue = _bindable(''),
+    open = _bindable(false),
+    filter,
+    allowCustomValue = false,
+    loading = false,
+    placement = 'bottom-start',
+    clearable = false,
+    name,
+    variant,
+    size,
+    disabled,
+    readonly,
+    required,
+    invalid,
+    id,
+    children,
+    empty,
+    propsRoot,
+    propsClear,
+    propsChevron,
+    propsPopover,
+    propsListbox,
+    ...rest
+  }: ComboboxProps<T>) => {
+    const lang = useLang();
+    const listId = useId();
+    const appearance = useControlAppearance(() => ({ variant, size }));
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    // 用户输入的过滤词：选中、用箭头打开时清空（显示全部选项）
+    let query = _state('');
+    // 组件自己改 inputValue（选中后写入选项文字）时，不当作用户输入
+    let writing = false;
+    let shell = _state.raw<HTMLElement | null>(null);
+    let input = _state.raw<HTMLInputElement | null>(null);
+    let panel = _state.raw<HTMLElement | null>(null);
+    const layer = createAnchoredPopover();
+
+    const collator = () => new Intl.Collator(lang.code, { usage: 'search', sensitivity: 'base' });
+    function matches(option: T, text: string) {
+      if (!text) return true;
+      if (filter) return filter(option, text);
+      // Collator 忽略大小写与重音：逐个位置比较等长的片段
+      const compare = collator();
+      const label = option.label;
+      for (let start = 0; start + text.length <= label.length; start++) {
+        if (compare.compare(label.slice(start, start + text.length), text) === 0) return true;
+      }
+      return false;
+    }
+
+    const list = createListState({
+      options: () => (filter === false ? items : items.filter((option) => matches(option, query))),
+      selected: () => (value != null ? [value] : []),
+      mode: () => 'single',
+      // 再选已选的项不取消
+      required: () => true,
+      onChange: (next) => (value = next[0]),
+    });
+
+    const selectedLabel = () => items.find((option) => option.value === value)?.label ?? '';
+
+    function setText(text: string) {
+      if (inputValue === text) return;
+      writing = true;
+      inputValue = text;
+    }
+
+    // 用户输入（含输入法组合结束）：打开并按输入过滤，高亮第一项
+    watch(
+      () => inputValue,
+      (text) => {
+        if (writing) {
+          writing = false;
+          return;
+        }
+        query = text;
+        if (!control().readonly) open = true;
+        list.move('first');
+      },
+    );
+
+    // 父级改了 value：输入框跟着显示它的文字
+    watch(
+      () => value,
+      () => {
+        if (!allowCustomValue || value != null) setText(selectedLabel());
+      },
+      { immediate: true },
+    );
+
+    function pick(choice: string) {
+      value = choice;
+      setText(selectedLabel());
+      query = '';
+      open = false;
+    }
+
+    function show() {
+      query = '';
+      list.activateDefault();
+      open = true;
+    }
+
+    // 失焦：文字不是选项时恢复（或清空选择）
+    function commit() {
+      open = false;
+      if (allowCustomValue) {
+        if (inputValue !== selectedLabel()) value = undefined;
+        return;
+      }
+      if (!inputValue) value = undefined;
+      else setText(selectedLabel());
+      query = '';
+    }
+
+    function onKeydown(event: KeyboardEvent) {
+      const state = control();
+      if (state.disabled || state.readonly) return;
+      if (event.key === 'Escape') {
+        // 打开时交给原生 popover 关闭；关闭时清空
+        if (!open && inputValue) {
+          event.preventDefault();
+          setText('');
+          value = undefined;
+        }
+        return;
+      }
+      if (!open) {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          show();
+        }
+        return;
+      }
+      if (handleListKeydown(list, event, { homeEnd: false }, pick)) event.preventDefault();
+    }
+
+    function onToggle(event: Event) {
+      const opened = (event as ToggleEvent).newState === 'open';
+      if (opened !== open) open = opened;
+      if (!opened) layer.hide({ restoreFocus: false });
+    }
+
+    _effect(() => {
+      if (!open) {
+        layer.hide({ restoreFocus: false });
+        return;
+      }
+      if (shell && panel) {
+        void layer.show(shell, panel, { placement, matchWidth: true, fitHeight: true });
+      }
+    });
+    onBeforeUnmount(() => layer.hide({ restoreFocus: false }));
+
+    return () => {
+      const state = control();
+      const editable = !state.disabled && !state.readonly;
+      return (
+        <>
+          <div
+            {...elementProps(
+              mergeProps<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
+                ref: _toRef(shell),
+                onPointerdown: (event: PointerEvent) => {
+                  if (event.target === input || (event.target as Element).closest('button')) return;
+                  event.preventDefault();
+                  input?.focus();
+                },
+              }),
+            )}
+            data-state={open ? 'open' : 'closed'}
+            data-invalid={state.invalid || undefined}
+            data-disabled={state.disabled || undefined}
+          >
+            {/* _bind 编译为 v-model：输入法组合期间不写回 */}
+            <input
+              {...elementProps(
+                mergeProps<'input'>({ sx: controlStyles.input }, rest, {
+                  ref: _toRef(input),
+                  id: state.id,
+                  role: 'combobox',
+                  autocomplete: 'off',
+                  disabled: state.disabled,
+                  readonly: state.readonly,
+                  required: state.required,
+                  'aria-autocomplete': 'list',
+                  'aria-expanded': open,
+                  'aria-controls': listId,
+                  'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
+                  'aria-invalid': state.invalid || undefined,
+                  'aria-describedby': state.describedBy,
+                  onKeydown,
+                  onBlur: commit,
+                }),
+              )}
+              value={_bind(inputValue)}
+            />
+            {clearable && inputValue && editable && (
+              <ClearButton
+                {...mergePartProps<PresetIconButtonProps>(
+                  { sx: controlStyles.button, radius: 'full' },
+                  propsClear,
+                  {
+                    onClick: () => {
+                      setText('');
+                      value = undefined;
+                      input?.focus();
+                    },
+                  },
+                )}
+              />
+            )}
+            <IconButton
+              {...mergePartProps<IconButtonProps>(
+                {
+                  sx: [controlStyles.button, styles.chevron, open && styles.chevronOpen],
+                  radius: 'full',
+                  icon: ChevronDown,
+                  'aria-label': lang.comboboxToggle,
+                },
+                propsChevron,
+                {
+                  tabindex: -1,
+                  disabled: !editable,
+                  'aria-expanded': open,
+                  'aria-controls': listId,
+                  // 不让输入框失焦（失焦会提交并关闭）
+                  onPointerdown: (event: PointerEvent) => event.preventDefault(),
+                  onClick: () => {
+                    if (open) open = false;
+                    else show();
+                    input?.focus();
+                  },
+                },
+              )}
+            />
+            {name != null && value != null && <input type="hidden" name={name} value={value} />}
+          </div>
+          <div
+            {...elementProps(
+              mergeProps<'div'>(
+                {
+                  sx: [
+                    floatingStyles.anchored,
+                    floatingStyles.surface,
+                    styles.popover,
+                    transitions.scale,
+                  ],
+                },
+                propsPopover,
+                { ref: _toRef(panel), popover: 'auto', onToggle },
+              ),
+            )}
+          >
+            <ListboxView
+              {...mergePartProps<ListboxViewProps<T>>(
+                {
+                  list,
+                  id: listId,
+                  renderOption: children,
+                  empty:
+                    loading && !list.options.length ? (
+                      <div {...stylex.attrs(styles.loading)}>
+                        <Spinner />
+                        {lang.loading}
+                      </div>
+                    ) : (
+                      empty
+                    ),
+                },
+                propsListbox,
+                {
+                  id: listId,
+                  'aria-labelledby': state.labelledBy,
+                  'aria-label': state.labelledBy ? undefined : rest['aria-label'],
+                  'aria-busy': loading || undefined,
+                  onPick: pick,
+                },
+              )}
+            />
+          </div>
+        </>
+      );
+    };
+  },
+);

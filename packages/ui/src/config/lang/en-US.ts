@@ -22,6 +22,7 @@ export const enUS: Lang = {
   passwordShow: 'Show password',
   numberDecrement: 'Decrease',
   numberIncrement: 'Increase',
+  comboboxToggle: 'Show options',
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
   paginationTotal: (total) => `${total} items`,
