@@ -6,7 +6,7 @@
 
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。
-- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.13：
+- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.14：
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton）、Badge、Tag
   - 布局：Flex / FlexList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）
   - 展示：Collapse、Collapsible、VirtualList（虚拟滚动，带加载状态）、Card、Avatar
@@ -79,13 +79,16 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 合并部件属性                             | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件）                                                                       |
 | 档位样式（间距、字号、色调、焦点环…）    | `utils/style/styles.ts`、`utils/style/typography.ts`、`utils/style/tone-styles.ts`                                                          |
 | 波纹                                     | `useRipple(() => ripple)`，返回值展开到受管层                                                                                               |
+| 按钮类的不可用、加载中、拦截点击         | `useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick)`（`base/button-core.ts`）                   |
+| 组件里的 JS 动画                         | `useAnimate()`：取主题时长、缓动、弹簧，卸载时取消（`utils/animation.ts`）                                                                  |
+| 表单字段的约束（必填、长度、范围）       | 从 zod schema 推出（`input/form-constraints.ts`），控件经 `useFieldControl()` 的 `constraints` 拿到                                         |
+| 单选 / 多选组件的 props                  | `SelectionProps`（`selectionMode` + `value`）、选项数据的 `OptionMapping`（`toOption`）                                                     |
 | 链接走路由、判断当前页                   | `useRouterLink()`                                                                                                                           |
 | 组件默认值                               | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })`，渲染时读 `appearance().variant` |
 | 方向键在一组项里移动                     | `rovingFocus(container, { items, orientation })`                                                                                            |
 | 单选 / 多选                              | `toggleSelection`                                                                                                                           |
 | 拖动                                     | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                                            |
 | 进出场过渡、等过渡结束                   | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                                           |
-| JS 动画取主题时长 / 缓动                 | `themeTransition(element, …)`（Anime.js）                                                                                                   |
 | 弹层：焦点、遮罩、锁滚动、移除后的焦点   | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                                            |
 | 浮层贴着触发器定位、打开与关闭           | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                                             |
 | 模态打开期间还要可交互的浮层             | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                                   |
@@ -114,6 +117,8 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 7. **配置接入**：有外观档位的组件登记到 `ComponentDefaults`；可点击的组件接入波纹（默认开启，可全局或单独关）；链接用路由适配。
 8. **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`。
 9. **对比度**：两套主题都满足 WCAG AA 4.5:1。演示页的 axe 检查会跑亮色与暗色，改颜色前先算对比度。
+10. **工具全部导出**：样式表、样式函数、上下文、工厂、组合式函数都导出，名字全局唯一（`<组件>Styles`、`<组件>Managed`）；入口 `index.ts` 由 `pnpm exports` 生成，不手写（COMPONENTS §2.5、§4）。
+11. **依赖用起来**：表单校验用 zod（使用方必装的 peer），JS 动画用 Anime.js（`useAnimate`）；先看已有依赖能不能做，再自己写。
 
 ## 6. 做事方式
 

@@ -44,6 +44,20 @@ it('性能：演示页（含一万行表格、一万个选项）挂载在 2 秒�
   expect(elapsed).toBeLessThan(2000);
 });
 
+it('表单：必填标记与输入框的约束来自 zod schema；提交不通过时显示错误并聚焦第一个出错的控件', async () => {
+  const form = $('.zod-form-demo');
+  const [email, nickname] = form.querySelectorAll('input');
+  const [emailLabel, nicknameLabel] = form.querySelectorAll('label');
+  expect([email!.type, email!.required]).toEqual(['email', true]);
+  expect(nickname!.getAttribute('maxlength')).toBe('12');
+  expect(emailLabel!.querySelector('svg')).not.toBeNull();
+  expect(nicknameLabel!.querySelector('svg')).toBeNull();
+  form.querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
+  await expect.poll(() => document.activeElement).toBe(email);
+  expect(form.textContent).toContain('邮箱格式不对');
+  expect(form.textContent).toContain('请选择城市');
+});
+
 it('VisuallyHidden：视觉上不占位，读屏名称仍然在', () => {
   const button = $('.icon-only');
   const hidden = button.querySelector('span')!;

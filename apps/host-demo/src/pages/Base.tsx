@@ -108,6 +108,7 @@ import {
 import { animate } from 'animejs';
 import type { VNodeChild } from 'vue';
 import { toaster } from '../toaster';
+import { FormDemo } from './FormDemo';
 import { TableDemo } from './TableDemo';
 
 const sampleCode = `export const Counter = _component(() => {
@@ -727,6 +728,10 @@ export const Base = _component(() => {
               </Flex>
             </li>
           </GridList>
+        </Section>
+
+        <Section title="表单校验 useForm · zod">
+          <FormDemo />
         </Section>
 
         <Section title="表格 Table · TreeTable">

@@ -16,6 +16,10 @@
 | 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7）                                                                                                                                                                                                                                    |
 | 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                                                                                                                                                                                                                                                                |
 | 多态         | 不做 `as`：一个元素一个组件，不靠 prop 切换标签。Button（`<button>`）与 LinkButton（`<a>`）、H1–H6、Text / Paragraph / Strong / Em / Small 各是一个组件，用同一个工厂或共用样式表复用（默认值可以各不相同），每个组件只接受自己元素的属性。布局容器内置 div 与 ul 两种（Flex / FlexList、Grid / GridList、Container），其他语义标签用导出的工厂生成：`const Toolbar = createFlex('nav', 'Toolbar')`      |
+| 选择         | 单选、多选用 `selectionMode: 'single' \| 'multiple'`（Listbox、Select、ToggleGroup、Table 同名），props 用 `SelectionProps` 按它区分 `value` 是一个值还是数组；选项的值是 string（与原生表单、URL 参数一致）。选项列表的 `items` 可以是任意数据加 `toOption`（转成 `{ value, label, … }`），渲染函数拿到的仍是原始数据                                                                                   |
+| 表单         | 校验用 zod（peer 依赖）：`useForm({ schema, initial, onSubmit })`，值的类型取自 schema 的输入、`onSubmit` 拿到解析后的输出；必填、长度、范围从 schema 推出交给 Field 与控件，控件上显式写的优先；`form.Field` 的 `name` 带类型                                                                                                                                                                           |
+| 默认值       | 有外观档位的组件在 `ComponentDefaults` 登记，组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })` 一次合并：显式 prop > Provider > createUi > 组件自己的默认值                                                                                                                                                                                                                   |
+| 命名         | `use*` 只能在 setup 里调用（用到生命周期、注入、computed）；`create*` 在哪里都能调用。组合式函数的选项写成读取函数：一般是一个返回整个对象的 `read`（`useFieldControl(() => ({ … }))`），要分开追踪依赖时（大列表的 `useListState`）按字段给；回调放在第二个参数（`useAnchoredPopover(read, { close })`）                                                                                                |
 | 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                                                                                                   |
 | 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop                                                                                                                                                                                                                                                                                                                                |
 | 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/style/styles`（SizeScale、SpaceScale）与 `utils/style/typography`（TextSizes、Tones 等）。导出的组件、函数、类型本身也写 JSDoc（文件开头的说明不会挂到导出上）；`pnpm docs:check`（CI 的静态检查）逐个检查 |
@@ -78,6 +82,10 @@
 | 状态类属性（`role`、`aria-expanded`、`aria-checked`、`aria-selected`、`tabindex` 等） | 以内部为准，并在类型上去掉，避免意外破坏无障碍语义                                                                           |
 | 静态属性（`id`、`aria-label`、`title`、`data-*` 等）                                  | 以使用方为准                                                                                                                 |
 
+### 2.5 导出
+
+工具都对外导出，方便使用方定制：组件、样式表与样式函数、上下文与状态类型、工厂、组合式函数都导出；模块内部状态（计数器、缓存、注册表）与一两行的私有帮助函数不导出。入口 `packages/ui/src/index.ts` 由 `pnpm exports` 生成，模块里写了 `export` 的就进入口；名字要全局唯一（规则见 §4），重名时生成脚本报错。
+
 ## 3. 尺寸：字号 + em
 
 - 组件根元素决定字号，**内部所有尺寸用 em**：内边距、间距、高度、圆角、图标（`1em`），整体等比缩放。
@@ -90,6 +98,7 @@
 ## 4. 样式
 
 - 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。
+- 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；类型写 `StyleTable<'root' | 'icon'>`（`utils/style/styles.ts`），动态样式写出函数签名。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
@@ -101,7 +110,7 @@
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
-- 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js，时长与缓动用 `themeTransition(元素, { duration, ease, bounce })` 取主题 tokens：主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
+- 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `themeTransition(元素, { duration, ease, bounce })`；主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。已用在 Toast 的滑动、SlideVerify 的弹回与失败晃动、Tabs 的下划线。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
 - 含动态样式函数的 `stylex.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
 - 标签名来自数据时（如图标的 path、circle）TSX 没有属性类型，用 Vue 的 `h()` 渲染。
 
@@ -565,6 +574,23 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **暂不做**：单元格编辑与 treegrid 键盘导航、列拖动排序、行拖动排序、表头分组（多级表头）、列筛选弹层（用工具栏组合）、横向虚拟化（列很多时）。
 
+### 10.14 导出、默认值、选择模型、zod 与动画（已完成）
+
+第二轮架构审核后的整理与改进，每块单独提交：
+
+| 项     | 改动                                                                                                                                                                                                     |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 目录   | utils 按职责分成 `style/`、`dom/`、`data/`、`virtual/`；Dialog.tsx 拆成 Modal、Dialog、Drawer；TableView 的列宽计算挪到 columns.ts，列宽手柄成为 ColumnResizer；`button-styles.ts` 改名 `button-core.ts` |
+| 导出   | 工具全部导出、名字全局唯一（§2.5、§4）；入口由 `pnpm exports` 生成并进 CI；重复的 `Table<K>` 类型、`toArray`、`isWindow` 合并                                                                            |
+| 默认值 | `useDefaults(name, read, fallback)` 一次合并，去掉散落的约 30 处 `x ?? defaults.x ?? '…'`                                                                                                                |
+| 按钮   | `useButtonBehavior`：Button、IconButton、LinkButton 共用不可用、加载中、拦截点击、波纹与 data 属性                                                                                                       |
+| 选择   | `selectionMode` 统一命名、`SelectionProps` 合并三份单选 / 多选 props；Listbox、Select、Combobox 的 `toOption`；列表状态缓存 值 → 位置                                                                    |
+| 表单   | zod 成为 peer 依赖；值的类型取自 schema、`onSubmit` 拿到解析后的输出；schema 推出约束交给 Field 与控件；`FieldPath` 与 `form.Field`；演示页加了表单一节                                                  |
+| 动画   | `useAnimate`；Toast 滑动弹回 / 滑出、SlideVerify 弹回与失败晃动、Tabs 下划线滑动（TabList 的指示条）                                                                                                     |
+| 性能   | Table 全选、TreeTable 展开、Select 已选项的 O(n²) 改为集合查找，补交互性能测试                                                                                                                           |
+
+**没有按原方案做的**：`useListState` 仍按字段给读取函数（一个 `read` 会让选择变化也重新整理上万个选项）；三处 `SKELETON_ROWS` 取值不同，留在各自组件里；overlay 组件依赖原生 popover，happy-dom 没有，行为仍在浏览器测试里测（补了 Popover 的焦点用例）。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13），均已完成，每步单独提交。下一批：日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14），均已完成，每步单独提交。下一批：日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
