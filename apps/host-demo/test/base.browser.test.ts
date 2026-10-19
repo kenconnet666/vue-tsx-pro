@@ -132,6 +132,16 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     expect(target.x).toBe(100);
   });
 
+  it('Result 的图标挂载时一笔画出：先擦掉、再画完整', async () => {
+    $('.result-replay').click();
+    await nextFrame();
+    const stroke = () => $('.result-demo svg').firstElementChild as SVGGeometryElement;
+    // Anime.js 把进度写在 draw 属性上：'起点 终点'（0–1）
+    const end = () => Number(stroke().getAttribute('draw')?.split(' ')[1]);
+    expect(end()).toBeLessThan(1);
+    await expect.poll(end, { timeout: 3000 }).toBe(1);
+  });
+
   it('AnimatedNumber：数值变化时滚动，读屏文字直接是终值，滚完两者一致', async () => {
     const number = $('.revenue-demo');
     const shown = () => number.querySelector('[aria-hidden="true"]')!.textContent;

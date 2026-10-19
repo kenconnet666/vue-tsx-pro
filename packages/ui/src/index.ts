@@ -227,6 +227,7 @@ export {
   type ProgressProps,
   type ProgressTones,
 } from './feedback/Progress';
+export { Result, resultStyles, type ResultProps, type ResultStatuses } from './feedback/Result';
 export { Skeleton, skeletonStyles, type SkeletonProps } from './feedback/Skeleton';
 export {
   createToaster,

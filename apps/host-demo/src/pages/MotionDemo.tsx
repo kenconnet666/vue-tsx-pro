@@ -1,10 +1,11 @@
-// /base 页上的动效演示：Anime.js 取主题时长的弹簧、数字滚动（AnimatedNumber）、布局动画（useLayoutAnimation）
+// /base 页上的动效演示：Anime.js 取主题时长的弹簧、数字滚动（AnimatedNumber）、描线（Result）、布局动画（useLayoutAnimation）
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   AnimatedNumber,
   Button,
   Flex,
+  Result,
   Text,
   themeTransition,
   useLayoutAnimation,
@@ -45,6 +46,8 @@ export const MotionDemo = _component(() => {
   let chips = _state([1, 2, 3, 4, 5, 6]);
   let chipList = _state.raw<HTMLElement | null>(null);
   let nextChip = 7;
+  // 换 key 重新挂载：Result 的图标再画一遍
+  let resultKey = _state(0);
   let revenue = _state(12800);
   let change = _state(0.042);
   const layout = useLayoutAnimation(() => chipList, { children: '[data-chip]' });
@@ -110,6 +113,18 @@ export const MotionDemo = _component(() => {
           </span>
         ))}
       </Flex>
+      <Flex gap="sm" wrap>
+        <Button variant="outline" class="result-replay" onClick={() => resultKey++}>
+          重新描线
+        </Button>
+      </Flex>
+      <Result
+        key={resultKey}
+        class="result-demo"
+        title="提交成功"
+        description="审核结果会通过邮件通知你。"
+        action={<Button variant="soft">返回列表</Button>}
+      />
     </div>
   );
 });
