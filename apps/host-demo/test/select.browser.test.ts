@@ -74,10 +74,11 @@ describe('Select', () => {
     expect(popover.querySelectorAll('[role="option"]').length).toBeLessThan(60);
     await userEvent.keyboard('{End}');
     await expect.poll(() => activeText(trigger)).toBe('编号 10000');
-    const last = document.getElementById(trigger.getAttribute('aria-activedescendant')!)!;
-    expect(last.getAttribute('aria-posinset')).toBe('10000');
+    const last = () => document.getElementById(trigger.getAttribute('aria-activedescendant')!)!;
+    expect(last().getAttribute('aria-posinset')).toBe('10000');
+    // 每次重新取：测量真实行高后虚拟列表会修正滚动位置，期间这一项可能被重新渲染
     await expect
-      .poll(() => last.getBoundingClientRect().bottom)
+      .poll(() => last().getBoundingClientRect().bottom)
       .toBeLessThanOrEqual(popover.getBoundingClientRect().bottom + 1);
   });
 
