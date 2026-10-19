@@ -126,7 +126,7 @@ const DELIMITERS = [',', '，', ';', '；'];
 
 /** 标签输入：输入框里排着 Tag，回车或分隔符加入，退格删最后一个 */
 export const TagsInput = _component(
-  <T,>({
+  <T = ListboxOption,>({
     value = _bindable<string[]>([]),
     items = [],
     toOption,
