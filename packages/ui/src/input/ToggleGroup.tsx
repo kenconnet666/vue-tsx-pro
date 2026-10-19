@@ -19,6 +19,7 @@ import {
   type ButtonOptions,
 } from '../base/button-core';
 import type { IconData, IconProps } from '../base/Icon';
+import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
@@ -37,6 +38,8 @@ export interface ToggleGroupState {
   readonly disabled: boolean;
   /** 波纹；不写时沿用配置 */
   readonly ripple: boolean | undefined;
+  /** 单选：选中底色由组里的滑块（Indicator）画，项本身不画底色 */
+  readonly sliding: boolean;
   /** 切换一项（单选、多选的规则由组决定） */
   toggle(value: string): void;
 }
@@ -67,15 +70,20 @@ interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
   size?: TextSize;
   /** 按下时的波纹；不写时沿用全局配置 */
   ripple?: boolean;
+  /** 单选时选中项下面的滑块（切换时滑过去）的部件属性 */
+  propsIndicator?: PartProps<'span'>;
   children?: VNodeChild;
 }
 
 /** 单选或多选 */
 export type ToggleGroupProps = ToggleGroupBaseProps & SelectionProps;
 
-/** ToggleGroup 的样式：root、vertical */
-export const toggleGroupStyles: StyleTable<'root' | 'vertical'> = stylex.create({
+/** ToggleGroup 的样式：root、vertical、indicator */
+export const toggleGroupStyles: StyleTable<'root' | 'vertical' | 'indicator'> = stylex.create({
   root: {
+    // 滑块按项的 offsetLeft / offsetTop 定位；isolation 让 zIndex: -1 的滑块压在项下、组的底色之上
+    position: 'relative',
+    isolation: 'isolate',
     display: 'inline-flex',
     gap: '_xs',
     padding: '_xs',
@@ -83,6 +91,20 @@ export const toggleGroupStyles: StyleTable<'root' | 'vertical'> = stylex.create(
     backgroundColor: '_fill',
   },
   vertical: { flexDirection: 'column' },
+  // 同按钮的 surface 外观；位置与宽高由脚本写（useActiveIndicator）
+  indicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: -1,
+    boxSizing: 'border-box',
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_accentBorder',
+    borderRadius: '_sm',
+    backgroundColor: '_accentSoft',
+    pointerEvents: 'none',
+  },
 });
 
 /** 切换按钮组：单选或多选，整组一个 Tab 位置 */
@@ -95,6 +117,7 @@ export const ToggleGroup = _component(
     orientation = 'horizontal',
     size,
     ripple,
+    propsIndicator,
     children,
     id,
     ...rest
@@ -108,6 +131,14 @@ export const ToggleGroup = _component(
     const selected = _derived<readonly string[]>(
       Array.isArray(value) ? value : value != null ? [value] : [],
     );
+    let indicator = _state.raw<HTMLElement | null>(null);
+    useActiveIndicator(() => ({
+      container: root,
+      indicator,
+      active: '[aria-pressed="true"]',
+      axis: 'both',
+      value: selected[0],
+    }));
 
     ToggleGroupContext.provide({
       get selected() {
@@ -121,6 +152,9 @@ export const ToggleGroup = _component(
       },
       get ripple() {
         return ripple;
+      },
+      get sliding() {
+        return selectionMode === 'single';
       },
       toggle(item) {
         const next = toggleSelection(selected, item, { mode: selectionMode, required });
@@ -156,6 +190,16 @@ export const ToggleGroup = _component(
           data-orientation={orientation}
           data-disabled={field.disabled || undefined}
         >
+          {selectionMode === 'single' && selected.length > 0 && (
+            <span
+              {...elementProps(
+                mergeProps<'span'>({ sx: toggleGroupStyles.indicator }, propsIndicator, {
+                  ref: _toRef(indicator),
+                  'aria-hidden': true,
+                }),
+              )}
+            />
+          )}
           {children}
         </div>
       );
@@ -214,7 +258,8 @@ export const ToggleItem = _component(
                 sx: buttonSx(
                   {
                     ...base,
-                    variant: pressed ? 'surface' : 'ghost',
+                    // 单选时选中底色由组的滑块画
+                    variant: pressed && !group.sliding ? 'surface' : 'ghost',
                     tone: pressed ? 'accent' : 'neutral',
                   },
                   { disabled: off, square: children == null },

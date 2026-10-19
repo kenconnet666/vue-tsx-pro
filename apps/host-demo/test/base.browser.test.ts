@@ -313,6 +313,27 @@ describe('虚拟列表：VirtualList', () => {
   });
 });
 
+describe('切换按钮组：ToggleGroup', () => {
+  it('单选的滑块盖住选中项，切换时滑过去，滑完与新选中项重合', async () => {
+    const group = $('.toggle-single');
+    const thumb = group.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+    const box = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+      return [rect.left, rect.top, rect.width, rect.height];
+    };
+    // offsetLeft 等取整，留 1px 余量
+    const overlaps = (a: Element, b: Element) =>
+      box(a).every((value, index) => Math.abs(value - box(b)[index]!) <= 1);
+    const items = group.querySelectorAll('button');
+    expect(overlaps(thumb, group.querySelector('[aria-pressed="true"]')!)).toBe(true);
+    const target = [...items].find((item) => item.getAttribute('aria-pressed') === 'false')!;
+    target.click();
+    await nextFrame();
+    expect(overlaps(thumb, target)).toBe(false);
+    await expect.poll(() => overlaps(thumb, target), { timeout: 3000 }).toBe(true);
+  });
+});
+
 describe('布局：Flex、Grid、Container、Separator', () => {
   const px = (value: string) => Number.parseFloat(value);
   const columnCount = (grid: HTMLElement) =>
