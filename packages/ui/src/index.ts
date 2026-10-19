@@ -442,6 +442,7 @@ export {
   type FieldState,
   type LabelProps,
 } from './input/Field';
+export { FileDrop, fileDropStyles, matchesAccept, type FileDropProps } from './input/FileDrop';
 export { Form, FormContext, type FormProps } from './input/Form';
 export { FormValue, type FormValueProps } from './input/FormValue';
 export {
@@ -518,6 +519,13 @@ export {
   type ToggleGroupState,
   type ToggleItemProps,
 } from './input/ToggleGroup';
+export {
+  Upload,
+  uploadStyles,
+  type UploadFile,
+  type UploadHandler,
+  type UploadProps,
+} from './input/Upload';
 export {
   choiceGroupStyles,
   choiceStyles,

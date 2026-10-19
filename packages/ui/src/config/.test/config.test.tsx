@@ -150,6 +150,14 @@ describe('useFormat', () => {
     ));
     expect(english.textContent).toBe('1,234.5|$0.30|October 18, 2026');
   });
+
+  it('文件大小按 1000 进位取单位', () => {
+    const Sizes = _component(() => {
+      const format = useFormat();
+      return () => <i>{[0, 999, 1_234_567].map((bytes) => format.fileSize(bytes)).join('|')}</i>;
+    });
+    expect(mount(() => <Sizes />).textContent).toBe('0 B|999 B|1.2 MB');
+  });
 });
 
 describe('useLang', () => {

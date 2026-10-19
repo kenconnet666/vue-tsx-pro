@@ -95,6 +95,20 @@ export interface Lang {
   readonly tableEmpty: string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
+  /** 选择文件区域的提示，默认“点击或拖放文件到这里” */
+  readonly fileDrop: string;
+  /** 文件超过大小上限时的错误，默认“文件不能超过 上限” */
+  readonly fileTooLarge: (max: string) => string;
+  /** 文件类型不在 accept 里时的错误，默认“不支持这种文件类型” */
+  readonly fileTypeRejected: string;
+  /** 上传失败时的提示，默认“上传失败” */
+  readonly uploadFailed: string;
+  /** 上传完成时的提示，默认“已上传” */
+  readonly uploadDone: string;
+  /** 重新上传按钮的名称，默认“重新上传 文件名” */
+  readonly uploadRetry: (file: string) => string;
+  /** 移除文件按钮的名称，默认“移除 文件名” */
+  readonly uploadRemove: (file: string) => string;
   /** 下拉框没有选项时的提示，默认“没有选项” */
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */

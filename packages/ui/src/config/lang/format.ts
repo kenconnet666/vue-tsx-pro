@@ -20,6 +20,18 @@ export function useFormat() {
     /** 金额，默认使用语言的币种：`format.currency(new Decimal('19.9'))` → `¥19.90` */
     currency: (value: NumberInput, currency = lang.currency) =>
       numberFormatter(lang, { style: 'currency', currency }).format(toIntl(value)),
+    /** 文件大小，按 1000 进位取合适的单位：`format.fileSize(1_234_567)` → `1.2 MB` */
+    fileSize: (bytes: number) => {
+      const exponent = Math.min(
+        Math.max(Math.floor(Math.log10(Math.max(bytes, 1)) / 3), 0),
+        FILE_SIZE_UNITS.length - 1,
+      );
+      return numberFormatter(lang, {
+        style: 'unit',
+        unit: FILE_SIZE_UNITS[exponent],
+        maximumFractionDigits: exponent === 0 ? 0 : 1,
+      }).format(bytes / 1000 ** exponent);
+    },
     /** 日期时间，带上语言的时区、日历与小时制；DateValue 按语言时区换算 */
     date: (
       value: Date | DateValue,
@@ -32,6 +44,9 @@ export function useFormat() {
 }
 
 // ───────── 内部实现 ─────────
+
+/** Intl 支持的文件大小单位（SI，1000 进位） */
+const FILE_SIZE_UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'] as const;
 
 const cache = new Map<string, Intl.NumberFormat | DateFormatter>();
 
