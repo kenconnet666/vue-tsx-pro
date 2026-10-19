@@ -128,6 +128,7 @@ import { toaster } from '../toaster';
 import { FormDemo } from './FormDemo';
 import { MotionDemo } from './MotionDemo';
 import { TableDemo } from './TableDemo';
+import { TreeDemo } from './TreeDemo';
 
 const sampleCode = `export const Counter = _component(() => {
   let count = _state(0); // 像普通变量一样读写
@@ -1263,6 +1264,10 @@ export const Base = _component(() => {
               { title: '2.0 发布', time: '2026', tone: 'accent' },
             ]}
           />
+        </Section>
+
+        <Section title="树 Tree">
+          <TreeDemo />
         </Section>
 
         <Section title="折叠 Collapsible · Accordion">

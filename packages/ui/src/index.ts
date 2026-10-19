@@ -200,6 +200,13 @@ export {
   type TimelineProps,
 } from './display/Timeline';
 export {
+  Tree,
+  treeDynamicStyles,
+  treeStyles,
+  type TreeItemRenderState,
+  type TreeProps,
+} from './display/Tree';
+export {
   VirtualList,
   virtualListSizeStyles,
   virtualListStyles,
