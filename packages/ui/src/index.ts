@@ -204,6 +204,7 @@ export {
 } from './utils/typography';
 export {
   dismissOnBackdrop,
+  focusAfterRemoval,
   focusFirst,
   focusOrigin,
   lockScroll,
@@ -211,6 +212,14 @@ export {
   toElement,
   trapFocus,
 } from './utils/overlay';
+export {
+  anchorFloating,
+  floatingStyles,
+  type Anchored,
+  type FloatingOptions,
+  type FloatingPlacement,
+  type FloatingPlacements,
+} from './utils/floating';
 export { themeTransition, type ThemeTransitionOptions } from './utils/animation';
 export { startMove, type MoveOptions, type MovePoint } from './utils/move';
 export {
@@ -221,6 +230,7 @@ export {
 export { plainText } from './utils/text';
 export { toggleSelection, type SelectionModes, type SelectionOptions } from './utils/selection';
 export {
+  statusIcons,
   statusToneSx,
   type StatusTone,
   type StatusTones,

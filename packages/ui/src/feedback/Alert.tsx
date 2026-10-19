@@ -6,15 +6,15 @@
  *
  * 页面加载时就在的提示不需要读屏打断；操作后才出现的用 live 让读屏播报。
  */
-import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
+import { focusAfterRemoval } from '../utils/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { statusToneSx, type StatusTone } from '../utils/tone-styles';
+import { statusIcons, statusToneSx, type StatusTone } from '../utils/tone-styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {
@@ -57,7 +57,7 @@ export interface AlertProps extends PartProps<'div', Managed>, AlertOptions {
   live?: keyof AlertLives;
   /** 右侧的操作（如“重试”按钮） */
   action?: VNodeChild;
-  /** 给了就显示关闭按钮，点击时调用 */
+  /** 给了就显示关闭按钮，点击时调用；提示条随后被移除时，焦点交给相邻的可聚焦元素 */
   onClose?: () => void;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
@@ -73,16 +73,6 @@ export interface AlertProps extends PartProps<'div', Managed>, AlertOptions {
   propsClose?: Partial<PresetIconButtonProps>;
   children?: VNodeChild;
 }
-
-/** 每种色调默认的图标 */
-const TONE_ICONS: Record<StatusTone, IconData> = {
-  neutral: Info,
-  accent: Info,
-  info: Info,
-  success: CircleCheck,
-  warning: TriangleAlert,
-  danger: CircleAlert,
-};
 
 const styles = stylex.create({
   root: {
@@ -126,7 +116,7 @@ export const Alert = _component(
   }: AlertProps) => {
     const defaults = useDefaults('Alert');
     return () => {
-      const shownIcon = icon === false ? undefined : (icon ?? TONE_ICONS[tone]);
+      const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       return (
         <div
           {...elementProps(
@@ -163,7 +153,10 @@ export const Alert = _component(
           {onClose && (
             <CloseButton
               {...mergeProps<PresetIconButtonProps>({ sx: styles.close, size: 'sm' }, propsClose, {
-                onClick: () => onClose(),
+                onClick: (event: MouseEvent) => {
+                  focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
+                  onClose();
+                },
               })}
             />
           )}

@@ -25,18 +25,33 @@ const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
   root.querySelector<T>(selector)!;
 
 describe('Badge · Tag · Alert', () => {
-  it('Tag 的移除按钮移除它', async () => {
+  it('Tag 的移除按钮移除它；焦点交给下一个标签，最后一个被移除时交给上一个', async () => {
     const tags = () => root.querySelectorAll('.tag-demo > span');
+    const removeButton = (index: number) => tags()[index]!.querySelector('button')!;
     expect(tags()).toHaveLength(3);
-    tags()[0]!.querySelector('button')!.click();
+    removeButton(0).focus();
+    removeButton(0).click();
     await nextTick();
+    await Promise.resolve();
     expect(tags()).toHaveLength(2);
+    expect(document.activeElement).toBe(removeButton(0));
+
+    removeButton(1).focus();
+    removeButton(1).click();
+    await nextTick();
+    await Promise.resolve();
+    expect(document.activeElement).toBe(removeButton(0));
   });
 
-  it('Alert 关闭后消失', async () => {
-    $('.alert-demo button').click();
+  it('Alert 关闭后消失，焦点留在相邻的可聚焦元素上而不是掉回页面开头', async () => {
+    const close = $('.alert-demo button');
+    close.focus();
+    close.click();
     await nextTick();
+    await Promise.resolve();
     expect(root.querySelector('.alert-demo')).toBeNull();
+    expect(document.activeElement).not.toBe(document.body);
+    expect(root.contains(document.activeElement)).toBe(true);
   });
 
   it('每种样式的标记高度一致（切换样式时尺寸不变）', () => {

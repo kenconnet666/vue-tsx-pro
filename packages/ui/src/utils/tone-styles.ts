@@ -1,10 +1,12 @@
 /**
- * 状态色调的样式表：Badge、Tag、Alert 等“带颜色的标记与提示”共用。
+ * 状态色调的样式表与默认图标：Badge、Tag、Alert、Toast 等“带颜色的标记与提示”共用。
  * 外观 = variant（实底 / 浅色底 / 浅色底加描边 / 描边）× tone（六种色调）。
  * 实底用该色调的文字色作底色、页面背景色作字色：两套主题里都满足 4.5:1（success、warning、info 没有专门的实底色）。
  */
+import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import type { IconData } from '../base/Icon';
 
 /** 状态色调 */
 export interface StatusTones {
@@ -91,6 +93,16 @@ const base: Readonly<Record<'bordered', StyleXStyles>> = stylex.create({
 });
 
 const tables: Readonly<Record<StatusVariant, Table>> = { solid, soft, surface, outline };
+
+/** 每种状态色调默认的图标（Lucide）：提示条、通知、确认对话框按色调自动选图标 */
+export const statusIcons: Readonly<Record<StatusTone, IconData>> = {
+  neutral: Info,
+  accent: Info,
+  info: Info,
+  success: CircleCheck,
+  warning: TriangleAlert,
+  danger: CircleAlert,
+};
 
 /** 样式 × 色调 → 颜色、底色与边框 */
 export function statusToneSx(variant: StatusVariant, tone: StatusTone): StyleXStyles {

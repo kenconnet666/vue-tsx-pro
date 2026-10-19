@@ -115,7 +115,9 @@
 - 浏览器不做或做得不一致的，由 `utils/overlay` 补上，弹层组件都要用：
   - `focusOrigin()` 在打开前记下焦点来源，关闭后 `returnFocus(弹层, 来源)` 把焦点还回去（WebKit 关闭原生弹层后会把焦点留在弹层里；Safari 点击按钮不聚焦它，`focusOrigin` 会取最近按下的元素）；
   - 打开时 `focusFirst(弹层)`；模态里 `trapFocus(弹层)` 做焦点循环（原生不循环）；
-  - 模态打开时 `lockScroll()`，可叠加，最后一个解锁时恢复，并补上滚动条宽度避免页面跳动。
+  - 模态打开时 `lockScroll()`，可叠加，最后一个解锁时恢复，并补上滚动条宽度避免页面跳动；
+  - 带关闭、移除按钮的组件（Tag、Alert、Toast）在调用回调前 `focusAfterRemoval(元素)`：元素真被移除、焦点掉到 body 上时，交给同组的下一个（没有就上一个）可聚焦元素（同 React Aria TagGroup）。
+- 锚定在触发器上的浮层（Popover、Tooltip、Menu、Select）用 `utils/floating` 的 `anchorFloating(锚点, 浮层, { placement, matchWidth, fitHeight })` 定位，浮层样式加 `floatingStyles.anchored`：第一次定位前隐藏、翻转与贴边、持续跟随，最终方向写到 `data-side` / `data-align`，缩放原点朝向锚点；`ready` 完成后浮层可见，才能移入焦点。
 - 弹层要用点击等用户操作打开：没有用户操作就打开的弹层会被浏览器并成一组，一次 Esc 全部关闭。
 
 ---

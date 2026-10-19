@@ -8,6 +8,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { focusAfterRemoval } from '../utils/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
@@ -18,7 +19,7 @@ import { Icon, type IconData, type IconProps } from './Icon';
 export interface TagProps extends PartProps<'span'>, BadgeOptions {
   /** 文字前的图标 */
   icon?: IconData;
-  /** 给了就显示移除按钮，点击时调用 */
+  /** 给了就显示移除按钮，点击时调用；标签随后被移除时，焦点交给同组的下一个（没有就上一个）可聚焦元素 */
   onRemove?: () => void;
   /** 移除按钮的无障碍名称，默认“移除”加上标签文字（内容只有文字时） */
   removeLabel?: string;
@@ -86,7 +87,12 @@ export const Tag = _component(
               {...mergeProps<PresetIconButtonProps>(
                 { sx: styles.remove, 'aria-label': label, radius: 'full' },
                 propsRemove,
-                { onClick: () => onRemove() },
+                {
+                  onClick: (event: MouseEvent) => {
+                    focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
+                    onRemove();
+                  },
+                },
               )}
             />
           )}

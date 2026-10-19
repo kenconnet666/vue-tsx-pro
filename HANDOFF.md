@@ -70,21 +70,23 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 **ui 包**（`packages/ui/src`）的基础设施都在 `utils/` 与 `config/`。写新组件前先看有没有现成的：
 
-| 需要                                  | 用                                                                    |
-| ------------------------------------- | --------------------------------------------------------------------- |
-| 合并部件属性                          | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件） |
-| 档位样式（间距、字号、色调、焦点环…） | `utils/styles.ts`、`utils/typography.ts`、`utils/tone-styles.ts`      |
-| 波纹                                  | `useRipple(() => ripple)`，返回值展开到受管层                         |
-| 链接走路由、判断当前页                | `useRouterLink()`                                                     |
-| 组件默认值                            | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx')`             |
-| 方向键在一组项里移动                  | `rovingFocus(container, { items, orientation })`                      |
-| 单选 / 多选                           | `toggleSelection`                                                     |
-| 拖动                                  | `startMove(pointerdownEvent, { onMove, onEnd })`                      |
-| 进出场过渡、等过渡结束                | `utils/transitions.ts`（`transitions`、`afterTransitions`）           |
-| JS 动画取主题时长 / 缓动              | `themeTransition(element, …)`（Anime.js）                             |
-| 弹层：焦点、遮罩、锁滚动              | `utils/overlay.ts`                                                    |
-| 虚拟滚动                              | `Virtualizer`（`utils/virtualizer.ts`）                               |
-| 夹取值、判断从右到左                  | `clamp`、`isRtl`（`utils/layout.ts`）                                 |
+| 需要                                   | 用                                                                    |
+| -------------------------------------- | --------------------------------------------------------------------- |
+| 合并部件属性                           | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件） |
+| 档位样式（间距、字号、色调、焦点环…）  | `utils/styles.ts`、`utils/typography.ts`、`utils/tone-styles.ts`      |
+| 波纹                                   | `useRipple(() => ripple)`，返回值展开到受管层                         |
+| 链接走路由、判断当前页                 | `useRouterLink()`                                                     |
+| 组件默认值                             | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx')`             |
+| 方向键在一组项里移动                   | `rovingFocus(container, { items, orientation })`                      |
+| 单选 / 多选                            | `toggleSelection`                                                     |
+| 拖动                                   | `startMove(pointerdownEvent, { onMove, onEnd })`                      |
+| 进出场过渡、等过渡结束                 | `utils/transitions.ts`（`transitions`、`afterTransitions`）           |
+| JS 动画取主题时长 / 缓动               | `themeTransition(element, …)`（Anime.js）                             |
+| 弹层：焦点、遮罩、锁滚动、移除后的焦点 | `utils/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）          |
+| 浮层贴着触发器定位                     | `anchorFloating` + `floatingStyles.anchored`（`utils/floating.ts`）   |
+| 状态色调的颜色与默认图标               | `statusToneSx`、`statusIcons`（`utils/tone-styles.ts`）               |
+| 虚拟滚动                               | `Virtualizer`（`utils/virtualizer.ts`）                               |
+| 夹取值、判断从右到左                   | `clamp`、`isRtl`（`utils/layout.ts`）                                 |
 
 ## 5. 硬性约定（用户的长期要求）
 
@@ -141,7 +143,6 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 ## 9. 已知局限
 
-- Tag、Alert 被移除或关闭后，焦点会掉回页面开头。组件不知道焦点该去哪，由使用方在回调里处理；以后考虑给出建议做法或工具。
 - VirtualList 还不支持从右到左排版下的横向滚动（`scrollLeft` 为负），见 §10.7。
 - Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动。Radix 用专门的 ToolbarToggleGroup，需要时再做。
 - Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色），这是有意的取舍。

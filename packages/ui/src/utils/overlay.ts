@@ -1,7 +1,8 @@
 /**
  * 弹层的基础工具。弹层本身用原生 popover / dialog（顶层渲染、Esc、点击外部、嵌套顺序、
  * 背景 inert 都由浏览器负责，见 apps/host-demo/test/native-overlay.browser.test.ts），
- * 这里只补浏览器不做或做得不一致的：组件实例 → 元素、关闭后归还焦点、模态里的焦点循环、点击遮罩关闭、锁定页面滚动。
+ * 这里只补浏览器不做或做得不一致的：组件实例 → 元素、关闭后归还焦点、模态里的焦点循环、点击遮罩关闭、锁定页面滚动，
+ * 以及元素被移除后焦点的去向。
  */
 import { tabbable } from 'tabbable';
 
@@ -46,6 +47,46 @@ export function returnFocus(overlay: HTMLElement, target: Element | null): void 
   const active = document.activeElement;
   const lost = !active || active === document.body || overlay.contains(active);
   if (lost && target instanceof HTMLElement && target.isConnected) target.focus();
+}
+
+/**
+ * 用户在 element 里点了移除或关闭（Tag 的移除、Alert 与 Toast 的关闭）时、调用回调之前调用：
+ * element 随后真的被移除、焦点随之掉到 body 上时，把焦点交给同组（父元素里）的下一个可聚焦元素，
+ * 没有就交给上一个，都没有时交给 fallback（同 React Aria TagGroup：移除后焦点落到相邻的项上）。
+ * 浏览器只保留 Tab 的起点，读屏用户却会被带回页面开头，所以由组件接住。
+ * 焦点已经移到别处、或 element 没被移除，都不打扰。
+ */
+export function focusAfterRemoval(element: HTMLElement, fallback?: HTMLElement | null): void {
+  const group = element.parentElement;
+  if (!group || !element.contains(document.activeElement)) return;
+  const others = tabbable(group).filter((item) => !element.contains(item));
+  const following = others.filter(
+    (item) => element.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING,
+  );
+  const preceding = others.filter((item) => !following.includes(item)).reverse();
+  const candidates = fallback
+    ? [...following, ...preceding, fallback]
+    : [...following, ...preceding];
+
+  const stop = () => {
+    observer.disconnect();
+    element.removeEventListener('focusout', onFocusOut);
+  };
+  // 焦点被用户移到 element 外面：不再接管
+  const onFocusOut = (event: FocusEvent) => {
+    const next = event.relatedTarget;
+    if (next instanceof Node && !element.contains(next)) stop();
+  };
+  // 移除发生在 Vue 更新 DOM 时；MutationObserver 的回调在这之后的微任务里运行
+  const observer = new MutationObserver(() => {
+    if (element.isConnected) return;
+    stop();
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    candidates.find((item) => item.isConnected)?.focus();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  element.addEventListener('focusout', onFocusOut);
 }
 
 /**

@@ -5,13 +5,14 @@
  *   <Steps current={1} items={[{ title: '填写信息' }, { title: '确认订单' }, { title: '完成' }]} />
  *   <Steps current={step} items={items} onStepChange={(index) => (step = index)} />   已完成的步骤可以点回去
  */
-import { Check, CircleAlert } from '@lucide/icons';
+import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, listStyles } from '../utils/styles';
+import { statusIcons } from '../utils/tone-styles';
 
 /** 步骤条方向 */
 export interface StepsOrientations {
@@ -171,7 +172,7 @@ export const Steps = _component(
                 {state === 'complete' ? (
                   <Icon icon={Check} />
                 ) : state === 'error' ? (
-                  <Icon icon={CircleAlert} />
+                  <Icon icon={statusIcons.danger} />
                 ) : (
                   index + 1
                 )}
