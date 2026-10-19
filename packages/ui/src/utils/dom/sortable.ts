@@ -212,7 +212,7 @@ export function useSortable<T>(options: SortableOptions<T>): SortableState {
       if (!current) return;
       const natural = startOf(current.getBoundingClientRect()) - offset;
       offset = originStart + delta - natural;
-      set(current, axis() === 'x' ? { x: offset } : { y: offset });
+      void set(current, axis() === 'x' ? { x: offset } : { y: offset });
     };
 
     /** 越过了几个别的项的中线，就排到第几位 */
