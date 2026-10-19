@@ -121,6 +121,16 @@ export interface Lang {
   readonly sortableDropped: (item: string, position: number, total: number) => string;
   /** 取消时的播报，默认“已取消，项名 回到第 n 位” */
   readonly sortableCancelled: (item: string, position: number) => string;
+  /** 引导的“上一步”按钮，默认“上一步” */
+  readonly tourPrevious: string;
+  /** 引导的“下一步”按钮，默认“下一步” */
+  readonly tourNext: string;
+  /** 引导最后一步的按钮，默认“完成” */
+  readonly tourFinish: string;
+  /** 跳过引导的按钮，默认“跳过” */
+  readonly tourSkip: string;
+  /** 引导的步数，默认“n / m” */
+  readonly tourProgress: (current: number, total: number) => string;
   /** 下拉框没有选项时的提示，默认“没有选项” */
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */

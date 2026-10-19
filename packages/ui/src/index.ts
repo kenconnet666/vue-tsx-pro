@@ -357,6 +357,7 @@ export {
   type TooltipProps,
   type TooltipTriggerProps,
 } from './overlay/Tooltip';
+export { Tour, tourDynamicStyles, tourStyles, type TourProps, type TourStep } from './overlay/Tour';
 
 // 导航
 export {

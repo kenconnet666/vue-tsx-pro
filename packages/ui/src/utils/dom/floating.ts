@@ -83,6 +83,8 @@ export interface FloatingOptions {
   fitHeight?: boolean;
   /** 箭头元素（浮层里的子元素，样式用 floatingStyles.arrow）：指向锚点，随翻转换边；距离自动加上箭头露出的一半 */
   arrow?: HTMLElement | null;
+  /** 主方向与对侧都放不下时，再试垂直的两侧（窄屏上“右侧”的大卡片改到上下）：引导卡片 */
+  crossAxisFallback?: boolean;
 }
 
 /** anchorFloating 的返回值 */
@@ -166,13 +168,17 @@ export function anchorFloating(
     matchWidth,
     fitHeight,
     arrow,
+    crossAxisFallback,
   }: FloatingOptions = {},
 ): Anchored {
   // 箭头伸出浮层一半（旋转后的对角线的一半约等于边长的 0.7）：距离加上这一段，尖角才不压在锚点上
   const arrowSize = arrow?.offsetWidth ?? 0;
   const middleware: Middleware[] = [
     offset(distance + arrowSize * 0.7),
-    flip({ padding: VIEWPORT_PADDING }),
+    flip({
+      padding: VIEWPORT_PADDING,
+      fallbackAxisSideDirection: crossAxisFallback ? 'end' : 'none',
+    }),
     shift({ padding: VIEWPORT_PADDING }),
   ];
   // 箭头离浮层的圆角留出距离，不会画到圆角外面

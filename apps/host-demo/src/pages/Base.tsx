@@ -104,6 +104,7 @@ import {
   Tabs,
   Tag,
   Timeline,
+  Tour,
   TagsInput,
   Provider,
   ScrollArea,
@@ -269,6 +270,8 @@ export const Base = _component(() => {
   let refreshing = _state(false);
   let stackToasts = _state(false);
   let marqueePaused = _state(false);
+  let touring = _state(false);
+  let tourStep = _state(0);
   function refresh() {
     refreshing = true;
     setTimeout(() => (refreshing = false), 1500);
@@ -1272,6 +1275,40 @@ export const Base = _component(() => {
 
         <Section title="上传 Upload · FileDrop">
           <UploadDemo />
+        </Section>
+
+        <Section title="新手引导 Tour">
+          <Button
+            variant="outline"
+            class="tour-start"
+            onClick={() => {
+              tourStep = 0;
+              touring = true;
+            }}
+          >
+            开始引导
+          </Button>
+          <Tour
+            class="tour-demo"
+            open={_bind(touring)}
+            current={_bind(tourStep)}
+            steps={[
+              { target: '.toggle-theme', title: '切换主题', content: '亮色与暗色随时切换' },
+              {
+                target: '.tree-demo',
+                title: '目录树',
+                content: '方向键展开、收起，按字母跳到对应的文件',
+                placement: 'right',
+              },
+              {
+                target: '.upload-demo',
+                title: '上传',
+                content: '点击或把文件拖进来',
+                placement: 'top',
+              },
+              { title: '就这些', content: '随时可以再点“开始引导”重新查看' },
+            ]}
+          />
         </Section>
 
         <Section title="跑马灯 Marquee">
