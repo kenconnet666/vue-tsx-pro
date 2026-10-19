@@ -65,7 +65,7 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   children?: VNodeChild;
 }
 
-/** Switch 的样式：track、trackWide、trackOff、thumb、thumbOn、content、contentOn、contentOff、contentHidden、spinner */
+/** Switch 的样式：track、trackWide、trackOff、thumb、thumbOn、content、contentOn、contentOff、contentHidden、contentText、spinner */
 export const switchStyles: StyleTable<
   | 'track'
   | 'trackWide'
@@ -76,6 +76,7 @@ export const switchStyles: StyleTable<
   | 'contentOn'
   | 'contentOff'
   | 'contentHidden'
+  | 'contentText'
   | 'spinner'
 > = stylex.create({
   track: { width: '2.25em', height: '1.25em', borderRadius: '_full', borderColor: 'transparent' },
@@ -100,9 +101,6 @@ export const switchStyles: StyleTable<
   content: {
     gridArea: '1 / 1',
     justifySelf: 'stretch',
-    fontSize: '_xs',
-    fontWeight: '_semibold',
-    lineHeight: 1,
     textAlign: 'center',
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
@@ -111,6 +109,8 @@ export const switchStyles: StyleTable<
   contentOn: { paddingInlineStart: '0.5em', paddingInlineEnd: '1.375em', color: '_accentContrast' },
   contentOff: { paddingInlineStart: '1.375em', paddingInlineEnd: '0.5em', color: '_text' },
   contentHidden: { visibility: 'hidden' },
+  // 字号缩在里层：外层的内边距按开关的字号算，给滑块留的位置才够
+  contentText: { fontSize: '_xs', fontWeight: '_semibold', lineHeight: 1 },
   spinner: { width: '0.75em', height: '0.75em', color: '_accent' },
 });
 
@@ -158,7 +158,7 @@ export const Switch = _component(
             ),
           )}
         >
-          {child}
+          <span {...stylex.attrs(switchStyles.contentText)}>{child}</span>
         </span>
       );
       return (
