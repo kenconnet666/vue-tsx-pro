@@ -274,7 +274,7 @@ interface Lang {
 - 文档页的 props 表生成。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
 - 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
-- 下一批：表格（建在 `Virtualizer` 上，空状态用 Empty，行选择用 `toggleSelection`）；日期选择（`@internationalized/date`）；选项列表的虚拟化。
+- 下一批：日期选择（Calendar、DateField、DatePicker，`@internationalized/date`）；表格的单元格编辑、多级表头、横向虚拟化按需再加。
 - 验证覆盖：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
 
 ## 8. 正式组件的完成标准（供之后使用）
@@ -531,6 +531,42 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **暂不做**：选项列表的虚拟化（要让 `aria-activedescendant` 指向的高亮项始终渲染，在 `Virtualizer` 的 `rangeExtractor` 上加）、Combobox 多选（TagsInput）、子菜单、环形进度。
 
+### 10.13 审核整理、虚拟化与表格（已完成）
+
+**审核后的整理**（行为不变，各自单独提交）：
+
+| 项         | 改动                                                                                                                                                                       |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 焦点工具   | `utils/overlay.ts` 里的焦点函数拆到 `utils/focus.ts`（focusFirst、focusOrigin、returnFocus、trapFocus、focusAfterRemoval）；overlay 只留 toElement、遮罩、模态登记、锁滚动 |
+| 浮层同步   | `useAnchoredPopover(read, { close, shown })`：open ↔ 显示 / 隐藏、浏览器 light dismiss 写回、卸载时收起。Popover、Menu、Select、Combobox 原来各写一份                      |
+| 输入框外壳 | `input/control-styles.ts` 改名为 `input/control.ts`，加 `focusOnShell()`（点外壳空白处聚焦主元素）                                                                         |
+| 表单值     | `FormValue`：Slider、Select、Combobox 的隐藏 input                                                                                                                         |
+| 列表行     | `utils/item-styles.ts` 的 `itemStyles`：Menu、ListboxView、NavList 的行外观与状态色只在这里定义，表格行用同一套状态                                                        |
+| 文字比较   | `utils/collation.ts`：`createMatcher`（忽略大小写与重音的包含，Combobox 用）、`createComparer`（数字、日期、按语言的文字，空值在后，表格排序用）                           |
+| 虚拟化接线 | `utils/use-virtualizer.ts` 的 `useVirtualizer(read)`：Virtualizer 的选项同步、挂载、渲染状态；VirtualList、ListboxView、TableView 共用                                     |
+
+**样式补齐**：输入框外壳加 `radius`（none / sm / md / full，同按钮，经 defaults.Input）；Select / Combobox 的弹层按同一个 `size` 设字号（弹层不是外壳的后代，原来不继承）；Checkbox、RadioGroup、Switch 读 `defaults.Choice.size`。
+
+**虚拟化**：选项列表与表格始终虚拟滚动，不另做非虚拟的版本。
+
+- ListboxView：行 = 分组标题 + 选项，绝对定位在撑开总高度的容器里；高亮项经 `rangeExtractor` 始终渲染，键盘移动时滚进可见范围；选项带 `aria-setsize` / `aria-posinset`。各行独立定位后分组没法用 `role="group"` 包住选项，标题只是视觉上的一行，组名经 `aria-describedby` 交给组里的每个选项。Select、Combobox 把弹出层作为滚动容器传入，单独的 Listbox 自己滚动（最高 20em）。
+- 性能：选项展开成行原来每个选项都回头找分组标题（O(n²)，一万个选项时演示页挂载 5–10 秒），改为在循环里记住；列表状态的分组排序、值集合、已选集合用 computed 缓存。演示页有“2 秒内挂载完”的回归测试。
+
+**表格**（`table/`）：
+
+| 层           | 内容                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `columns.ts` | 列定义 `TableColumn`（key、header、cell、value、width、minWidth、align、sortable、sticky、resizable、wrap）、`nextSort`、`sortRows`                                                                                                                                                                                                                                                                                                                       |
+| `TableView`  | 渲染层：原生 table + `table-layout: fixed` + colgroup；外层 ScrollArea 两个方向滚动；虚拟滚动用上下两行占位撑出高度（各列仍在同一张表里对齐），`aria-rowcount` / `aria-rowindex`；表头吸顶与固定列用 sticky（逻辑方向，偏移按列宽累加，固定列单元格继承行的不透明底色）；排序按钮与 `aria-sort`；勾选列（Checkbox，全选有部分选中）；列宽手柄可拖动或用方向键调整（`role="separator"`）；外层 `contain: inline-size`，宽表格不撑宽外面的 grid / flex 容器 |
+| `Table`      | 平铺的数据：本地排序（`manualSort` 时交给调用方）、单选 / 多选、`columnWidths` 可双向绑定、`leading` 给第一列前加内容；外观 `defaults.Table`（size sm / md / lg、variant surface / ghost、striped）                                                                                                                                                                                                                                                       |
+| `TreeTable`  | 建在 Table 上：按展开状态把树展开成行（同级之间排序），第一列加缩进与展开按钮（名称固定、`aria-expanded` 表示状态），`hasChildren` + `loadChildren` 懒加载（按钮显示加载中）。仍是 table 语义（treegrid 要求逐个单元格的方向键导航）                                                                                                                                                                                                                      |
+
+工具栏不内置，用现有组件组合：搜索 TextField（`radius="full"`）、列显示开关 Menu + MenuCheckboxItem、刷新 Button（`loading`）、批量操作 Toolbar、分页 Pagination。演示页有一万行订单表与懒加载的组织架构树。
+
+**加载状态统一**：会异步取数据的组件都有 `loading`，规则一致——没有数据时显示骨架行（Skeleton），已有数据（刷新、加载更多）时在顶部显示一条进度条（Progress，对读屏隐藏），容器带 `aria-busy`：ListboxView（Select、Combobox）、Table / TreeTable、VirtualList。按钮、Alert、Toast 的加载中沿用各自已有的 Spinner。
+
+**暂不做**：单元格编辑与 treegrid 键盘导航、列拖动排序、行拖动排序、表头分组（多级表头）、列筛选弹层（用工具栏组合）、横向虚拟化（列很多时）。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）。下一批：表格，之后是日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）。下一批：日期选择。正式组件按 §8 验收，文档页暂用演示页代替。

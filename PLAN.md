@@ -32,6 +32,7 @@ packages/
     src/base/         基础：文字、图标、链接、按钮家族、标记、代码块、加载
     src/layout/       布局：Flex、Grid、Container、Separator、ScrollArea
     src/display/      展示：折叠、虚拟列表、卡片、头像
+    src/table/        表格：Table、TreeTable（虚拟滚动）
     src/feedback/     反馈：进度、骨架屏、提示条、对话框、抽屉、通知
     src/overlay/      浮层：Popover、Tooltip、Menu
     src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList

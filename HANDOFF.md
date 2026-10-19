@@ -6,14 +6,15 @@
 
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。
-- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.12：
+- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.13：
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton）、Badge、Tag
   - 布局：Flex / FlexList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）
-  - 展示：Collapse、Collapsible、VirtualList、Card、Avatar
+  - 展示：Collapse、Collapsible、VirtualList（虚拟滚动，带加载状态）、Card、Avatar
   - 反馈：Progress、Skeleton、Alert、Empty、Dialog / Drawer / AlertDialog（含命令式的 useConfirm）、Toast（createToaster + Toaster，可滑动关闭）
   - 浮层：Popover、Tooltip、Menu（复合，含链接 / 复选 / 单选项）
   - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination、NavList（复合）
   - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
+  - 表格：Table（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeTable（建在 Table 上，懒加载子项）
   - 表单（也在 input/）：Field、Label、Form、useForm（Standard Schema 校验）
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
@@ -72,30 +73,34 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 **ui 包**（`packages/ui/src`）的基础设施都在 `utils/` 与 `config/`。写新组件前先看有没有现成的：
 
-| 需要                                     | 用                                                                                            |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 合并部件属性                             | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件）                         |
-| 档位样式（间距、字号、色调、焦点环…）    | `utils/styles.ts`、`utils/typography.ts`、`utils/tone-styles.ts`                              |
-| 波纹                                     | `useRipple(() => ripple)`，返回值展开到受管层                                                 |
-| 链接走路由、判断当前页                   | `useRouterLink()`                                                                             |
-| 组件默认值                               | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx')`                                     |
-| 方向键在一组项里移动                     | `rovingFocus(container, { items, orientation })`                                              |
-| 单选 / 多选                              | `toggleSelection`                                                                             |
-| 拖动                                     | `startMove(pointerdownEvent, { onMove, onEnd })`                                              |
-| 进出场过渡、等过渡结束                   | `utils/transitions.ts`（`transitions`、`afterTransitions`）                                   |
-| JS 动画取主题时长 / 缓动                 | `themeTransition(element, …)`（Anime.js）                                                     |
-| 弹层：焦点、遮罩、锁滚动、移除后的焦点   | `utils/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                  |
-| 浮层贴着触发器定位、打开与关闭           | `createAnchoredPopover()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/floating.ts`） |
-| 模态打开期间还要可交互的浮层             | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                     |
-| 菜单、列表里按字母跳转                   | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                  |
-| 输入框外壳、勾选类控件                   | `input/control.ts`、`input/choice-styles.ts`                                                  |
-| 控件接入 Field（标签、说明、错误、状态） | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                      |
-| 表单值与校验                             | `useForm({ initial, schema, onSubmit })` + `<Form controller>`                                |
-| 选项列表（高亮、选择、键盘）             | `createListState` + `handleListKeydown` + `ListboxView`（`input/`）                           |
-| 命令式确认                               | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                   |
-| 状态色调的颜色与默认图标                 | `statusToneSx`、`statusIcons`（`utils/tone-styles.ts`）                                       |
-| 虚拟滚动                                 | `Virtualizer`（`utils/virtualizer.ts`）                                                       |
-| 夹取值、对齐步长、判断从右到左           | `clamp`、`snapToStep`、`isRtl`（`utils/layout.ts`）                                           |
+| 需要                                     | 用                                                                                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 合并部件属性                             | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件）                                        |
+| 档位样式（间距、字号、色调、焦点环…）    | `utils/styles.ts`、`utils/typography.ts`、`utils/tone-styles.ts`                                             |
+| 波纹                                     | `useRipple(() => ripple)`，返回值展开到受管层                                                                |
+| 链接走路由、判断当前页                   | `useRouterLink()`                                                                                            |
+| 组件默认值                               | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx')`                                                    |
+| 方向键在一组项里移动                     | `rovingFocus(container, { items, orientation })`                                                             |
+| 单选 / 多选                              | `toggleSelection`                                                                                            |
+| 拖动                                     | `startMove(pointerdownEvent, { onMove, onEnd })`                                                             |
+| 进出场过渡、等过渡结束                   | `utils/transitions.ts`（`transitions`、`afterTransitions`）                                                  |
+| JS 动画取主题时长 / 缓动                 | `themeTransition(element, …)`（Anime.js）                                                                    |
+| 弹层：焦点、遮罩、锁滚动、移除后的焦点   | `utils/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                 |
+| 浮层贴着触发器定位、打开与关闭           | `createAnchoredPopover()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/floating.ts`）                |
+| 模态打开期间还要可交互的浮层             | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                    |
+| 菜单、列表里按字母跳转                   | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                                 |
+| 输入框外壳、勾选类控件                   | `input/control.ts`、`input/choice-styles.ts`                                                                 |
+| 控件接入 Field（标签、说明、错误、状态） | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                                     |
+| 表单值与校验                             | `useForm({ initial, schema, onSubmit })` + `<Form controller>`                                               |
+| 选项列表（高亮、选择、键盘）             | `createListState` + `handleListKeydown` + `ListboxView`（`input/`）                                          |
+| 命令式确认                               | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                                  |
+| 状态色调的颜色与默认图标                 | `statusToneSx`、`statusIcons`（`utils/tone-styles.ts`）                                                      |
+| 虚拟滚动                                 | `useVirtualizer(read)`（`utils/use-virtualizer.ts`，Vue 接线）；核心 `Virtualizer`（`utils/virtualizer.ts`） |
+| 列表行的外观与状态色                     | `itemStyles`（`utils/item-styles.ts`）                                                                       |
+| 按语言匹配、比较文字                     | `createMatcher`、`createComparer`（`utils/collation.ts`）                                                    |
+| 浮层的 open 同步                         | `useAnchoredPopover(read, { close, shown })`（`utils/floating.ts`）                                          |
+| 焦点进出、移除后的焦点                   | `utils/focus.ts`                                                                                             |
+| 夹取值、对齐步长、判断从右到左           | `clamp`、`snapToStep`、`isRtl`（`utils/layout.ts`）                                                          |
 
 ## 5. 硬性约定（用户的长期要求）
 
@@ -134,6 +139,8 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | “ResizeObserver loop completed with undelivered notifications” | 不要在 ResizeObserver 回调里同步改布局；Virtualizer 已改为下一帧应用测量结果                                                            |
 | `docs:check` 没查新文件                                        | 它按 `git ls-files` 取文件，新文件先 `git add`                                                                                          |
 | 改了 tokens 后 CI 的 `css-docs:check` 失败                     | `token-names.ts` 由 `pnpm css-docs` 生成，改了 tokens 要重新生成                                                                        |
+| 宽的内容（表格）把 grid / flex 容器撑宽，页面横向溢出          | 网格项、弹性项的最小宽度默认等于内容宽度；表格外层用了 `contain: inline-size`，自己写的宽内容外层加 `minWidth: 0`                       |
+| 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找（findLast、includes）；用 computed 缓存集合或映射。演示页有“2 秒内挂载完”的测试                        |
 | WebKit 里点开下拉后方向键无效，焦点在 body 上                  | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件（Select 的触发按钮）在 click 里自己 `focus()`；`focusOrigin` 已经处理了归还焦点的情况 |
 | 组件事件名和原生事件冲突（如 `onSelect`）                      | 组件 props 继承了元素属性，自定义回调起不冲突的名字（`onStepChange`）或把原生的放进受管属性                                             |
 
@@ -141,11 +148,10 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 按优先级：
 
-1. **表格**：建在 `Virtualizer` 上，吸顶表头经 `rangeExtractor` 接入，空状态用 Empty，行选择用 `toggleSelection`。
-2. **日期**：Calendar、DateField、DatePicker（`@internationalized/date`）。
-3. **选项列表的虚拟化**：在 `Virtualizer` 的 `rangeExtractor` 上让高亮项始终渲染（`aria-activedescendant` 要指得到）。
-4. **M3 文档站**：组件页演示 + props 表（从 TS 类型生成）。
-5. **M5 发布准备**：changesets、发 0.x。
+1. **日期**：Calendar、DateField、DatePicker（`@internationalized/date`）。
+2. **表格的进阶能力**（按需）：单元格编辑、多级表头、列与行的拖动排序、横向虚拟化。
+3. **M3 文档站**：组件页演示 + props 表（从 TS 类型生成）。
+4. **M5 发布准备**：changesets、发 0.x。
 
 ## 9. 已知局限
 
@@ -154,4 +160,6 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 - Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色），这是有意的取舍。
 - Toaster 只显示最新的 `max` 条，更早的照样计时，可能没露面就到时了。
 - Drawer 离场是淡出（不是滑回），见 §10.11 的取舍。
-- Menu 没有子菜单；Combobox 只能单选（多选的 TagsInput 以后做）；选项列表还没有虚拟化。
+- Menu 没有子菜单；Combobox 只能单选（多选的 TagsInput 以后做）。
+- 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出（没法用 role="group" 包住各自定位的选项）。
+- 表格是 table 语义，不是 grid：没有单元格之间的方向键导航；TreeTable 的层级由缩进与展开按钮表达。
