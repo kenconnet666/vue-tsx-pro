@@ -30,23 +30,31 @@ import {
   useChoiceSize,
   type ChoiceOrientations,
 } from './choice-styles';
+import type { StyleTable } from '../utils/style/styles';
 
-interface GroupState {
+/** CheckboxGroup 交给组内 Checkbox 的状态 */
+export interface CheckboxGroupState {
+  /** 已勾选的值 */
   readonly value: readonly string[];
+  /** 表单提交时的 name，组内每个 Checkbox 共用 */
   readonly name: string | undefined;
+  /** 整组不可用 */
   readonly disabled: boolean;
+  /** 整组校验未通过 */
   readonly invalid: boolean;
+  /** 勾选或取消一个值 */
   toggle(value: string): void;
 }
 
-const GroupContext = createContext<GroupState>('CheckboxGroup');
+/** CheckboxGroup 的上下文：自定义的勾选项可以 inject 它接入组 */
+export const CheckboxGroupContext = createContext<CheckboxGroupState>('CheckboxGroup');
 
 /** 勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
-type Managed =
+export type CheckboxManaged =
   'type' | 'checked' | 'disabled' | 'required' | 'size' | 'aria-invalid' | 'aria-describedby';
 
 /** 未声明的属性落到 input 上；外层 label 用 propsRoot */
-export interface CheckboxProps extends PartProps<'input', Managed> {
+export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
   /** 是否勾选：父级写 checked={_bind(x)}；在复选组里时由组决定 */
   checked?: boolean;
   /** 部分勾选（“全选”下面只选了一部分）：显示横线，读屏念“部分选中” */
@@ -73,7 +81,8 @@ export interface CheckboxProps extends PartProps<'input', Managed> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Checkbox 的样式：box、indicator、hidden */
+export const checkboxStyles: StyleTable<'box' | 'indicator' | 'hidden'> = stylex.create({
   box: { width: '1.125em', height: '1.125em', borderRadius: '_sm' },
   indicator: { width: '0.875em', height: '0.875em', color: '_accentContrast' },
   hidden: { visibility: 'hidden' },
@@ -97,7 +106,7 @@ export const Checkbox = _component(
     children,
     ...rest
   }: CheckboxProps) => {
-    const group = GroupContext.inject(null);
+    const group = CheckboxGroupContext.inject(null);
     const resolvedSize = useChoiceSize(() => size);
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
     let input = _state.raw<HTMLInputElement | null>(null);
@@ -144,7 +153,7 @@ export const Checkbox = _component(
                   {
                     sx: [
                       choiceStyles.input,
-                      styles.box,
+                      checkboxStyles.box,
                       marked && choiceStyles.checked,
                       bad && choiceStyles.invalid,
                     ],
@@ -171,7 +180,11 @@ export const Checkbox = _component(
                 {
                   icon: indeterminate ? Minus : Check,
                   strokeWidth: 3,
-                  sx: [choiceStyles.mark, styles.indicator, !marked && styles.hidden],
+                  sx: [
+                    choiceStyles.mark,
+                    checkboxStyles.indicator,
+                    !marked && checkboxStyles.hidden,
+                  ],
                 },
                 propsIndicator,
               )}
@@ -217,7 +230,7 @@ export const CheckboxGroup = _component(
     ...rest
   }: CheckboxGroupProps) => {
     const control = useFieldControl(() => ({ id, disabled, invalid }));
-    GroupContext.provide({
+    CheckboxGroupContext.provide({
       get value() {
         return value;
       },

@@ -86,12 +86,14 @@ const outline: StyleTable<StatusTone> = stylex.create({
   danger: { color: '_dangerText', borderColor: '_dangerBorder' },
 });
 
-const base: StyleTable<'bordered'> = stylex.create({
+/** 状态色调 的样式：bordered */
+export const statusToneBorderStyles: StyleTable<'bordered'> = stylex.create({
   // 每种样式都留出边框的位置（实底、浅色底时透明），切换样式时尺寸不变
   bordered: { borderWidth: '_xs', borderStyle: 'solid', borderColor: 'transparent' },
 });
 
-const tables: Readonly<Record<StatusVariant, StyleTable<StatusTone>>> = {
+/** 样式 × 状态色调 → 样式表：statusToneStyles[variant][tone]（一般用 statusToneSx） */
+export const statusToneStyles: Readonly<Record<StatusVariant, StyleTable<StatusTone>>> = {
   solid,
   soft,
   surface,
@@ -110,5 +112,5 @@ export const statusIcons: Readonly<Record<StatusTone, IconData>> = {
 
 /** 样式 × 色调 → 颜色、底色与边框 */
 export function statusToneSx(variant: StatusVariant, tone: StatusTone): StyleXStyles {
-  return [base.bordered, tables[variant][tone]] as StyleXStyles;
+  return [statusToneBorderStyles.bordered, statusToneStyles[variant][tone]] as StyleXStyles;
 }

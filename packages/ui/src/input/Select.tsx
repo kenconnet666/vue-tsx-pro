@@ -42,10 +42,11 @@ import {
   type ListboxViewProps,
   type OptionRenderState,
 } from './Listbox';
-import { createListState, handleListKeydown, type ListboxOption } from './list-state';
+import { useListState, handleListKeydown, type ListboxOption } from './list-state';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、展开状态与可用性由组件管理 */
-type Managed =
+export type SelectManaged =
   | 'type'
   | 'role'
   | 'value'
@@ -60,7 +61,7 @@ type Managed =
 
 /** 下拉选择共有的属性；未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 interface SelectBaseProps<T extends ListboxOption>
-  extends PartProps<'button', Managed>, ControlOptions {
+  extends PartProps<'button', SelectManaged>, ControlOptions {
   /** 选项 */
   items: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */
@@ -123,7 +124,10 @@ interface MultipleProps<T extends ListboxOption> extends SelectBaseProps<T> {
 export type SelectProps<T extends ListboxOption = ListboxOption> =
   SingleProps<T> | MultipleProps<T>;
 
-const styles = stylex.create({
+/** Select 的样式：root、trigger、value、placeholder、chevron、chevronOpen 等 */
+export const selectStyles: StyleTable<
+  'root' | 'trigger' | 'value' | 'placeholder' | 'chevron' | 'chevronOpen' | 'popover'
+> = stylex.create({
   root: { cursor: 'pointer' },
   trigger: {
     display: 'flex',
@@ -195,7 +199,7 @@ export const Select = _component(
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
     const multiple = () => type === 'multiple';
-    const list = createListState({
+    const list = useListState({
       options: () => items,
       selected: () => selectedValues(value),
       mode: () => type,
@@ -266,7 +270,9 @@ export const Select = _component(
       const shown =
         renderValue?.(selected) ??
         (selected.length === 0 ? (
-          <span {...stylex.attrs(styles.placeholder)}>{placeholder ?? lang.selectPlaceholder}</span>
+          <span {...stylex.attrs(selectStyles.placeholder)}>
+            {placeholder ?? lang.selectPlaceholder}
+          </span>
         ) : multiple() ? (
           selected.map((option) => (
             <Tag
@@ -283,17 +289,21 @@ export const Select = _component(
         <>
           <div
             {...elementProps(
-              mergeProps<'div'>({ sx: [controlSx(appearance(), state), styles.root] }, propsRoot, {
-                ref: _toRef(shell),
-                // 点在外壳的空白处也打开：焦点交给触发按钮
-                // 点在外壳空白处：焦点交给触发按钮并切换打开
-                onPointerdown: off
-                  ? undefined
-                  : focusOnShell(
-                      () => trigger,
-                      () => (open = !open),
-                    ),
-              }),
+              mergeProps<'div'>(
+                { sx: [controlSx(appearance(), state), selectStyles.root] },
+                propsRoot,
+                {
+                  ref: _toRef(shell),
+                  // 点在外壳的空白处也打开：焦点交给触发按钮
+                  // 点在外壳空白处：焦点交给触发按钮并切换打开
+                  onPointerdown: off
+                    ? undefined
+                    : focusOnShell(
+                        () => trigger,
+                        () => (open = !open),
+                      ),
+                },
+              ),
             )}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
@@ -301,7 +311,7 @@ export const Select = _component(
           >
             <button
               {...elementProps(
-                mergeProps<'button'>({ sx: styles.trigger }, rest, {
+                mergeProps<'button'>({ sx: selectStyles.trigger }, rest, {
                   ref: _toRef(trigger),
                   id: state.id,
                   type: 'button',
@@ -324,7 +334,7 @@ export const Select = _component(
                 }),
               )}
             >
-              <span {...elementProps(mergeProps<'span'>({ sx: styles.value }, propsValue))}>
+              <span {...elementProps(mergeProps<'span'>({ sx: selectStyles.value }, propsValue))}>
                 {shown}
               </span>
             </button>
@@ -341,7 +351,7 @@ export const Select = _component(
               {...mergePartProps<IconProps>(
                 {
                   icon: ChevronDown,
-                  sx: [controlStyles.icon, styles.chevron, open && styles.chevronOpen],
+                  sx: [controlStyles.icon, selectStyles.chevron, open && selectStyles.chevronOpen],
                 },
                 propsChevron,
               )}
@@ -355,7 +365,7 @@ export const Select = _component(
                   sx: [
                     floatingStyles.anchored,
                     floatingStyles.surface,
-                    styles.popover,
+                    selectStyles.popover,
                     // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
                     appearance().size && fontSizeStyles[appearance().size!],
                     transitions.scale,

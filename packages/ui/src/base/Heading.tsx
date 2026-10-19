@@ -23,8 +23,10 @@ import {
   type TextAlign,
   type Tone,
 } from '../utils/style/typography';
+import type { StyleTable } from '../utils/style/styles';
 
-type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+/** 标题组件可用的标签 */
+export type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 /** 未声明的属性落到 h1–h6 元素上 */
 export interface HeadingProps extends PartProps<HeadingTag> {
@@ -41,14 +43,16 @@ export interface HeadingProps extends PartProps<HeadingTag> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** H1–H6 的样式：root、xxl、xxxl */
+export const headingStyles: StyleTable<'root' | 'xxl' | 'xxxl'> = stylex.create({
   root: { margin: 0, lineHeight: '_tight', textWrap: 'balance' },
   // 大字号的字形间距显得松，略收紧
   xxl: { letterSpacing: '_tight' },
   xxxl: { letterSpacing: '_tighter' },
 });
 
-function createHeading(tag: HeadingTag, defaultSize: FontSize) {
+/** 生成标题组件：标签与默认字号（H1–H6 由它生成） */
+export function createHeading(tag: HeadingTag, defaultSize: FontSize) {
   return _component(
     ({
       size = defaultSize,
@@ -62,9 +66,9 @@ function createHeading(tag: HeadingTag, defaultSize: FontSize) {
       () => {
         const Tag = tag;
         const sx = [
-          styles.root,
+          headingStyles.root,
           fontSizeStyles[size],
-          (size === 'xxl' || size === 'xxxl') && styles[size],
+          (size === 'xxl' || size === 'xxxl') && headingStyles[size],
           fontWeightStyles[weight],
           tone && toneStyles[tone],
           align && textAlignStyles[align],

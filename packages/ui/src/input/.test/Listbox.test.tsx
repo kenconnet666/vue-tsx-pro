@@ -4,7 +4,7 @@ import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Listbox } from '../Listbox';
 import { Select } from '../Select';
-import { createListState, handleListKeydown, type ListboxOption } from '../list-state';
+import { useListState, handleListKeydown, type ListboxOption } from '../list-state';
 
 // happy-dom 不排版：给滚动容器一个 300px 的视口（选项是虚拟滚动的）
 const clientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')!;
@@ -22,10 +22,10 @@ const fruits: ListboxOption[] = [
   { value: 'cherry', label: 'Cherry', group: '常见' },
 ];
 
-describe('createListState', () => {
+describe('useListState', () => {
   it('按分组排序；移动跳过不可用项，到头停住；类型搜索', () => {
     let selected: readonly string[] = [];
-    const list = createListState({
+    const list = useListState({
       options: () => fruits,
       selected: () => selected,
       mode: () => 'single',
@@ -53,7 +53,7 @@ describe('createListState', () => {
 
   it('键盘：Enter / 空格选中；homeEnd: false 时不处理 Home / End', () => {
     let selected: readonly string[] = ['apple'];
-    const list = createListState({
+    const list = useListState({
       options: () => fruits,
       selected: () => selected,
       mode: () => 'multiple',

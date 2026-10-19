@@ -12,12 +12,13 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { h, type VNode } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 图标数据：Lucide 的标准格式 */
 export type IconData = LucideIconData;
 
 /** 绘制与无障碍相关的属性由组件管理 */
-type Managed =
+export type IconManaged =
   | 'viewBox'
   | 'fill'
   | 'stroke'
@@ -28,7 +29,7 @@ type Managed =
   | 'aria-hidden';
 
 /** 未声明的属性落到 svg 上；传了 aria-label 或 aria-labelledby 才对读屏可见 */
-export interface IconProps extends PartProps<'svg', Managed> {
+export interface IconProps extends PartProps<'svg', IconManaged> {
   /** 图标数据：`import { Search } from '@lucide/icons'` */
   icon: IconData;
   /** 不写时为 1em，跟随所在文字；档位对应主题字号，数字为像素 */
@@ -39,7 +40,8 @@ export interface IconProps extends PartProps<'svg', Managed> {
   flipInRtl?: boolean;
 }
 
-const styles = stylex.create({
+/** Icon 的样式：icon、flip */
+export const iconStyles: StyleTable<'icon' | 'flip'> = stylex.create({
   icon: {
     width: '1em',
     height: '1em',
@@ -63,9 +65,9 @@ export const Icon = _component(
             mergeProps<'svg'>(
               {
                 sx: [
-                  styles.icon,
+                  iconStyles.icon,
                   typeof size === 'string' && fontSizeStyles[size],
-                  flipInRtl && styles.flip,
+                  flipInRtl && iconStyles.flip,
                 ],
               },
               rest,
@@ -85,7 +87,7 @@ export const Icon = _component(
             ),
           )}
         >
-          {icon.node.map(renderNode)}
+          {icon.node.map(renderIconNode)}
         </svg>
       );
     },
@@ -98,9 +100,10 @@ function viewBox(icon: IconData) {
   return `0 0 ${width} ${height}`;
 }
 
-type IconNode = IconData['node'][number];
+/** Lucide 图标数据里的一个节点：[标签, 属性, 子节点] */
+export type IconNode = IconData['node'][number];
 
 /** 标签名来自数据（path、circle…），TSX 里没有对应的属性类型，用 h() 渲染；节点里的 key 正好作为 vnode 的 key */
-function renderNode([tag, attrs, children]: IconNode): VNode {
-  return h(tag, attrs, children?.map(renderNode));
+export function renderIconNode([tag, attrs, children]: IconNode): VNode {
+  return h(tag, attrs, children?.map(renderIconNode));
 }

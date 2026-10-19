@@ -14,9 +14,10 @@ import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { choiceStyles, useChoiceSize } from './choice-styles';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
-type Managed =
+export type SwitchManaged =
   | 'type'
   | 'role'
   | 'checked'
@@ -27,7 +28,7 @@ type Managed =
   | 'aria-describedby';
 
 /** 未声明的属性落到 input 上；外层 label 用 propsRoot */
-export interface SwitchProps extends PartProps<'input', Managed> {
+export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   /** 是否打开：父级写 checked={_bind(x)} */
   checked?: boolean;
   /** 不可用 */
@@ -50,7 +51,8 @@ export interface SwitchProps extends PartProps<'input', Managed> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Switch 的样式：track、trackOff、thumb、thumbOn */
+export const switchStyles: StyleTable<'track' | 'trackOff' | 'thumb' | 'thumbOn'> = stylex.create({
   track: { width: '2.25em', height: '1.25em', borderRadius: '_full', borderColor: 'transparent' },
   trackOff: { backgroundColor: '_borderStrong' },
   // 滑块靠起始边，打开后移到结束边：用逻辑方向的外边距，从右到左排版自动反过来
@@ -111,8 +113,8 @@ export const Switch = _component(
                   {
                     sx: [
                       choiceStyles.input,
-                      styles.track,
-                      checked ? choiceStyles.checked : styles.trackOff,
+                      switchStyles.track,
+                      checked ? choiceStyles.checked : switchStyles.trackOff,
                       state.invalid && choiceStyles.invalid,
                     ],
                   },
@@ -135,7 +137,7 @@ export const Switch = _component(
             <span
               {...elementProps(
                 mergeProps<'span'>(
-                  { sx: [choiceStyles.mark, styles.thumb, checked && styles.thumbOn] },
+                  { sx: [choiceStyles.mark, switchStyles.thumb, checked && switchStyles.thumbOn] },
                   propsThumb,
                 ),
               )}

@@ -10,7 +10,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { Space } from '../utils/style/styles';
+import type { Space, StyleTable } from '../utils/style/styles';
 
 /** 卡片样式 */
 export interface CardVariants {
@@ -47,7 +47,8 @@ export interface CardProps extends PartProps<'div'>, CardOptions {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Card 的样式：root、header、footer */
+export const cardStyles: StyleTable<'root' | 'header' | 'footer'> = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'flex',
@@ -75,21 +76,25 @@ const styles = stylex.create({
   },
 });
 
-const variantStyles = stylex.create({
-  surface: { backgroundColor: '_surface', borderColor: '_border' },
-  outline: { borderColor: '_border' },
-  elevated: { backgroundColor: '_surfaceRaised', boxShadow: '_md' },
-  ghost: {},
-});
+/** Card 的样式：surface、outline、elevated、ghost */
+export const cardVariantStyles: StyleTable<'surface' | 'outline' | 'elevated' | 'ghost'> =
+  stylex.create({
+    surface: { backgroundColor: '_surface', borderColor: '_border' },
+    outline: { borderColor: '_border' },
+    elevated: { backgroundColor: '_surfaceRaised', boxShadow: '_md' },
+    ghost: {},
+  });
 
-const paddingStyles = stylex.create({
-  none: { padding: '_none' },
-  xs: { padding: '_xs' },
-  sm: { padding: '_sm' },
-  md: { padding: '_md' },
-  lg: { padding: '_lg' },
-  xl: { padding: '_xl' },
-});
+/** Card 的样式：none、xs、sm、md、lg、xl */
+export const cardPaddingStyles: StyleTable<'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'> =
+  stylex.create({
+    none: { padding: '_none' },
+    xs: { padding: '_xs' },
+    sm: { padding: '_sm' },
+    md: { padding: '_md' },
+    lg: { padding: '_lg' },
+    xl: { padding: '_xl' },
+  });
 
 /** 卡片：表面 + 可选的页头与页脚 */
 export const Card = _component(
@@ -106,24 +111,30 @@ export const Card = _component(
   }: CardProps) => {
     const defaults = useDefaults('Card');
     return () => {
-      const space = paddingStyles[padding ?? defaults.padding ?? 'lg'];
+      const space = cardPaddingStyles[padding ?? defaults.padding ?? 'lg'];
       return (
         <div
           {...elementProps(
             mergeProps<'div'>(
-              { sx: [styles.root, variantStyles[variant ?? defaults.variant ?? 'surface']] },
+              {
+                sx: [cardStyles.root, cardVariantStyles[variant ?? defaults.variant ?? 'surface']],
+              },
               rest,
             ),
           )}
         >
           {header != null && (
-            <div {...elementProps(mergeProps<'div'>({ sx: [styles.header, space] }, propsHeader))}>
+            <div
+              {...elementProps(mergeProps<'div'>({ sx: [cardStyles.header, space] }, propsHeader))}
+            >
               {header}
             </div>
           )}
           <div {...elementProps(mergeProps<'div'>({ sx: space }, propsBody))}>{children}</div>
           {footer != null && (
-            <div {...elementProps(mergeProps<'div'>({ sx: [styles.footer, space] }, propsFooter))}>
+            <div
+              {...elementProps(mergeProps<'div'>({ sx: [cardStyles.footer, space] }, propsFooter))}
+            >
               {footer}
             </div>
           )}

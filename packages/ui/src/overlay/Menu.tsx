@@ -39,26 +39,33 @@ import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { transitions } from '../utils/style/transitions';
 
-interface MenuState {
+/** Menu 交给菜单项的状态 */
+export interface MenuState {
+  /** 波纹；不写时沿用配置 */
   readonly ripple: boolean | undefined;
   /** 关闭菜单，焦点回到触发器 */
   close(): void;
 }
 
-const MenuContext = createContext<MenuState>('Menu');
+/** Menu 的上下文：自定义菜单项用 useMenuItem 读取 */
+export const MenuContext = createContext<MenuState>('Menu');
 
-interface RadioGroupState {
+/** MenuRadioGroup 交给组内单选项的状态 */
+export interface MenuRadioGroupState {
+  /** 选中的值 */
   readonly value: string | undefined;
+  /** 选中一个值 */
   select(value: string): void;
 }
 
-const RadioGroupContext = createContext<RadioGroupState>('MenuRadioGroup');
+/** MenuRadioGroup 的上下文 */
+export const MenuRadioGroupContext = createContext<MenuRadioGroupState>('MenuRadioGroup');
 
 /** 交给触发器的属性：展开到按钮上（`{...props}`） */
 export interface MenuTriggerProps {
@@ -98,7 +105,10 @@ export interface MenuProps
 /** 菜单项的选择器（漫游焦点、打开时聚焦第一项 / 最后一项） */
 const ITEMS = '[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]';
 
-const styles = stylex.create({
+/** Menu 的样式：panel、label、indicator、hidden、shortcut、groupLabel */
+export const menuStyles: StyleTable<
+  'panel' | 'label' | 'indicator' | 'hidden' | 'shortcut' | 'groupLabel'
+> = stylex.create({
   panel: {
     minWidth: '12em',
     maxWidth: 'calc(100vw - 2em)',
@@ -207,7 +217,7 @@ export const Menu = _component(
                 sx: [
                   floatingStyles.anchored,
                   floatingStyles.surface,
-                  styles.panel,
+                  menuStyles.panel,
                   size && fontSizeStyles[size],
                   transitions.scale,
                 ],
@@ -234,7 +244,7 @@ export const Menu = _component(
 );
 
 /** 菜单项内容（图标、文字、快捷键）的选项，各种菜单项共有 */
-interface ItemContentProps {
+export interface MenuItemContentProps {
   /** 文字前的图标 */
   icon?: IconData;
   /** 右侧的快捷键提示（只是文字，按键要应用自己处理） */
@@ -249,32 +259,37 @@ interface ItemContentProps {
 }
 
 /** 复选、单选项的标记：占一列，没勾选时只占位，各项文字对齐 */
-interface ItemMark {
+export interface MenuItemMark {
+  /** 勾选时显示的图标 */
   icon: IconData;
+  /** 是否勾选 */
   checked: boolean;
+  /** 标记图标的部件属性 */
   props?: Partial<IconProps>;
 }
 
 /** 菜单项的内容：标记 + 图标 + 文字 + 快捷键 */
-function itemContent(
-  { icon, shortcut, propsIcon, propsLabel, propsShortcut, children }: ItemContentProps,
-  mark?: ItemMark,
+export function menuItemContent(
+  { icon, shortcut, propsIcon, propsLabel, propsShortcut, children }: MenuItemContentProps,
+  mark?: MenuItemMark,
 ): VNodeChild {
   return [
     mark && (
       <Icon
         {...mergePartProps<IconProps>(
-          { icon: mark.icon, sx: [styles.indicator, !mark.checked && styles.hidden] },
+          { icon: mark.icon, sx: [menuStyles.indicator, !mark.checked && menuStyles.hidden] },
           mark.props,
         )}
       />
     ),
     icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />,
-    <span {...elementProps(mergeProps<'span'>({ sx: styles.label }, propsLabel))}>{children}</span>,
+    <span {...elementProps(mergeProps<'span'>({ sx: menuStyles.label }, propsLabel))}>
+      {children}
+    </span>,
     shortcut && (
       <Text
         {...mergePartProps<TextProps>(
-          { tone: 'muted', size: 'sm', sx: styles.shortcut },
+          { tone: 'muted', size: 'sm', sx: menuStyles.shortcut },
           propsShortcut,
         )}
       >
@@ -285,7 +300,7 @@ function itemContent(
 }
 
 /** 菜单项的外观：幽灵按钮，内容靠起始边排列 */
-function itemSx(tone: keyof ButtonTones, disabled: boolean): StyleXStyles {
+export function menuItemSx(tone: keyof ButtonTones, disabled: boolean): StyleXStyles {
   return [
     itemStyles.row,
     tone === 'danger' ? itemStyles.danger : itemStyles.hoverable,
@@ -296,14 +311,14 @@ function itemSx(tone: keyof ButtonTones, disabled: boolean): StyleXStyles {
 }
 
 /** 菜单项共用的：按下的波纹、执行后关闭菜单 */
-function useMenuItem() {
+export function useMenuItem() {
   const menu = MenuContext.inject();
   return { ripple: useRipple(() => menu.ripple), close: () => menu.close() };
 }
 
 /** 按钮类菜单项共有的属性；未声明的属性落到 button 上 */
-interface ButtonItemProps
-  extends PartProps<'button', 'role' | 'type' | 'disabled' | 'aria-checked'>, ItemContentProps {
+export interface MenuButtonItemProps
+  extends PartProps<'button', 'role' | 'type' | 'disabled' | 'aria-checked'>, MenuItemContentProps {
   /** 不可用：跳过方向键移动，不能执行 */
   disabled?: boolean;
   /** 执行后是否关闭菜单 */
@@ -311,7 +326,7 @@ interface ButtonItemProps
 }
 
 /** 未声明的属性落到 button（role="menuitem"）上 */
-export interface MenuItemProps extends ButtonItemProps {
+export interface MenuItemProps extends MenuButtonItemProps {
   /** 色调：删除等破坏性操作用 danger，默认 neutral */
   tone?: Extract<keyof ButtonTones, 'neutral' | 'danger'>;
   /** 执行（点击、Enter、空格）时调用；默认随后关闭菜单 */
@@ -337,7 +352,7 @@ export const MenuItem = _component(
     return () => (
       <button
         {...elementProps(
-          mergeProps<'button'>({ sx: itemSx(tone, disabled) }, rest, {
+          mergeProps<'button'>({ sx: menuItemSx(tone, disabled) }, rest, {
             type: 'button',
             role: 'menuitem',
             disabled,
@@ -351,7 +366,7 @@ export const MenuItem = _component(
         )}
         data-disabled={disabled || undefined}
       >
-        {itemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
+        {menuItemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
       </button>
     );
   },
@@ -359,7 +374,7 @@ export const MenuItem = _component(
 
 /** 未声明的属性落到 a（role="menuitem"）上 */
 export interface MenuLinkItemProps
-  extends PartProps<'a', 'role' | 'aria-disabled'>, ItemContentProps {
+  extends PartProps<'a', 'role' | 'aria-disabled'>, MenuItemContentProps {
   /** 地址：站内链接经路由适配跳转，新标签页打开等照常交给浏览器 */
   href: string;
   /** 不可用：去掉 href，跳过方向键移动 */
@@ -384,7 +399,7 @@ export const MenuLinkItem = _component(
     return () => (
       <a
         {...elementProps(
-          mergeProps<'a'>({ sx: itemSx('neutral', disabled) }, rest, {
+          mergeProps<'a'>({ sx: menuItemSx('neutral', disabled) }, rest, {
             role: 'menuitem',
             href: disabled ? undefined : href,
             'aria-disabled': disabled || undefined,
@@ -397,14 +412,14 @@ export const MenuLinkItem = _component(
         )}
         data-disabled={disabled || undefined}
       >
-        {itemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
+        {menuItemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
       </a>
     );
   },
 );
 
 /** 未声明的属性落到 button（role="menuitemcheckbox"）上 */
-export interface MenuCheckboxItemProps extends ButtonItemProps {
+export interface MenuCheckboxItemProps extends MenuButtonItemProps {
   /** 是否勾选：父级写 checked={_bind(x)} */
   checked?: boolean;
   /** 勾选标记的部件属性 */
@@ -430,7 +445,7 @@ export const MenuCheckboxItem = _component(
     return () => (
       <button
         {...elementProps(
-          mergeProps<'button'>({ sx: itemSx('neutral', disabled) }, rest, {
+          mergeProps<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
             type: 'button',
             role: 'menuitemcheckbox',
             disabled,
@@ -445,7 +460,7 @@ export const MenuCheckboxItem = _component(
         data-disabled={disabled || undefined}
         data-state={checked ? 'checked' : 'unchecked'}
       >
-        {itemContent(
+        {menuItemContent(
           { icon, shortcut, propsIcon, propsLabel, propsShortcut, children },
           { icon: Check, checked, props: propsIndicator },
         )}
@@ -480,7 +495,7 @@ function renderGroup(
       {label != null && (
         <Text
           {...mergePartProps<TextProps>(
-            { tone: 'muted', size: 'sm', sx: styles.groupLabel },
+            { tone: 'muted', size: 'sm', sx: menuStyles.groupLabel },
             propsLabel,
             { id: labelId },
           )}
@@ -515,7 +530,7 @@ export const MenuRadioGroup = _component(
     ...rest
   }: MenuRadioGroupProps) => {
     const labelId = useId();
-    RadioGroupContext.provide({
+    MenuRadioGroupContext.provide({
       get value() {
         return value;
       },
@@ -526,7 +541,7 @@ export const MenuRadioGroup = _component(
 );
 
 /** 未声明的属性落到 button（role="menuitemradio"）上 */
-export interface MenuRadioItemProps extends ButtonItemProps {
+export interface MenuRadioItemProps extends MenuButtonItemProps {
   /** 这一项的值 */
   value: string;
   /** 选中标记的部件属性 */
@@ -549,13 +564,13 @@ export const MenuRadioItem = _component(
     ...rest
   }: MenuRadioItemProps) => {
     const item = useMenuItem();
-    const group = RadioGroupContext.inject();
+    const group = MenuRadioGroupContext.inject();
     return () => {
       const checked = group.value === value;
       return (
         <button
           {...elementProps(
-            mergeProps<'button'>({ sx: itemSx('neutral', disabled) }, rest, {
+            mergeProps<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
               type: 'button',
               role: 'menuitemradio',
               disabled,
@@ -570,7 +585,7 @@ export const MenuRadioItem = _component(
           data-disabled={disabled || undefined}
           data-state={checked ? 'checked' : 'unchecked'}
         >
-          {itemContent(
+          {menuItemContent(
             { icon, shortcut, propsIcon, propsLabel, propsShortcut, children },
             { icon: Dot, checked, props: propsIndicator },
           )}

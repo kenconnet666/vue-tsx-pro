@@ -203,7 +203,7 @@ export {
 export { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from './input/Radio';
 export { Switch, type SwitchProps } from './input/Switch';
 export {
-  createListState,
+  useListState,
   handleListKeydown,
   type ListboxOption,
   type ListKeydownOptions,
@@ -362,11 +362,11 @@ export {
 } from './utils/dom/focus';
 export {
   anchorFloating,
-  createAnchoredPopover,
+  createAnchoredLayer,
   floatingStyles,
   useAnchoredPopover,
   type Anchored,
-  type AnchoredPopover,
+  type AnchoredLayer,
   type AnchoredPopoverEvents,
   type AnchoredPopoverState,
   type FloatingOptions,

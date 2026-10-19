@@ -17,7 +17,7 @@ import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
 import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { listStyles } from '../utils/style/styles';
+import { listStyles, type StyleTable } from '../utils/style/styles';
 
 /** 一级路径 */
 export interface BreadcrumbItem {
@@ -55,7 +55,10 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   propsMenu?: Partial<MenuProps>;
 }
 
-const styles = stylex.create({
+/** Breadcrumbs 的样式：list、item、current、separator、label、expand */
+export const breadcrumbsStyles: StyleTable<
+  'list' | 'item' | 'current' | 'separator' | 'label' | 'expand'
+> = stylex.create({
   list: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_xs', fontSize: '_sm' },
   item: { display: 'inline-flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   current: { color: '_text', fontWeight: '_medium' },
@@ -93,7 +96,9 @@ export const Breadcrumbs = _component(
       const sep = () => (
         <span
           {...elementProps(
-            mergeProps<'span'>({ sx: styles.separator }, propsSeparator, { 'aria-hidden': true }),
+            mergeProps<'span'>({ sx: breadcrumbsStyles.separator }, propsSeparator, {
+              'aria-hidden': true,
+            }),
           )}
         >
           {separator ?? <Icon icon={ChevronRight} flipInRtl />}
@@ -103,12 +108,14 @@ export const Breadcrumbs = _component(
       return (
         <nav {...elementProps(mergeProps<'nav'>({ 'aria-label': lang.breadcrumbs }, rest))}>
           <ol
-            {...elementProps(mergeProps<'ol'>({ sx: [listStyles.reset, styles.list] }, propsList))}
+            {...elementProps(
+              mergeProps<'ol'>({ sx: [listStyles.reset, breadcrumbsStyles.list] }, propsList),
+            )}
           >
             {shown.map((entry, position) => {
               if (entry === 'collapsed') {
                 return (
-                  <li key="collapsed" {...stylex.attrs(styles.item)}>
+                  <li key="collapsed" {...stylex.attrs(breadcrumbsStyles.item)}>
                     <Menu
                       {...mergePartProps<MenuProps>(
                         {
@@ -116,7 +123,7 @@ export const Breadcrumbs = _component(
                             <IconButton
                               {...mergePartProps<IconButtonProps>(
                                 {
-                                  sx: styles.expand,
+                                  sx: breadcrumbsStyles.expand,
                                   size: 'sm',
                                   icon: Ellipsis,
                                   'aria-label': lang.breadcrumbsExpand,
@@ -149,17 +156,22 @@ export const Breadcrumbs = _component(
               const index = items.indexOf(entry);
               const own = typeof propsItem === 'function' ? propsItem(entry, index) : propsItem;
               const label = (
-                <span {...elementProps(mergeProps<'span'>({ sx: styles.label }, propsLabel))}>
+                <span
+                  {...elementProps(mergeProps<'span'>({ sx: breadcrumbsStyles.label }, propsLabel))}
+                >
                   {entry.icon && <Icon icon={entry.icon} />}
                   {entry.label}
                 </span>
               );
               return (
-                <li key={index} {...elementProps(mergeProps<'li'>({ sx: styles.item }, own))}>
+                <li
+                  key={index}
+                  {...elementProps(mergeProps<'li'>({ sx: breadcrumbsStyles.item }, own))}
+                >
                   {index === last ? (
                     <span
                       {...elementProps(
-                        mergeProps<'span'>({ sx: styles.current }, propsCurrent, {
+                        mergeProps<'span'>({ sx: breadcrumbsStyles.current }, propsCurrent, {
                           'aria-current': 'page',
                         }),
                       )}

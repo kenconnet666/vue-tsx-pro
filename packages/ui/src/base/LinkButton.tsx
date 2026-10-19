@@ -22,11 +22,11 @@ import {
 import { VisuallyHidden } from './VisuallyHidden';
 
 /** 地址、不可用与忙碌由组件管理 */
-type Managed = 'href' | 'aria-disabled' | 'aria-busy' | 'role';
+export type LinkButtonManaged = 'href' | 'aria-disabled' | 'aria-busy' | 'role';
 
 /** 未声明的属性落到 a 上 */
 export interface LinkButtonProps
-  extends PartProps<'a', Managed>, ButtonOptions, ButtonContentOptions {
+  extends PartProps<'a', LinkButtonManaged>, ButtonOptions, ButtonContentOptions {
   /** 链接地址 */
   href: string;
   /** 外部链接：新窗口打开，加 rel="noopener noreferrer"、外链图标（没给 iconEnd 时）与读屏提示 */

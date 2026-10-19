@@ -10,7 +10,14 @@ import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { gapStyles, listRole, listStyles, type LayoutTag, type Space } from '../utils/style/styles';
+import {
+  gapStyles,
+  listRole,
+  listStyles,
+  type LayoutTag,
+  type Space,
+  type StyleTable,
+} from '../utils/style/styles';
 
 /** 主轴方向（flex-direction） */
 export interface FlexDirections {
@@ -71,7 +78,10 @@ export interface FlexOptions {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Flex 的样式：root、inline、row、column、row-reverse、column-reverse 等 */
+export const flexStyles: StyleTable<
+  'root' | 'inline' | 'row' | 'column' | 'row-reverse' | 'column-reverse' | 'wrap' | 'wrapReverse'
+> = stylex.create({
   root: { display: 'flex' },
   inline: { display: 'inline-flex' },
   row: { flexDirection: 'row' },
@@ -82,15 +92,20 @@ const styles = stylex.create({
   wrapReverse: { flexWrap: 'wrap-reverse' },
 });
 
-const alignStyles = stylex.create({
-  start: { alignItems: 'flex-start' },
-  center: { alignItems: 'center' },
-  end: { alignItems: 'flex-end' },
-  stretch: { alignItems: 'stretch' },
-  baseline: { alignItems: 'baseline' },
-});
+/** Flex 的样式：start、center、end、stretch、baseline */
+export const flexAlignStyles: StyleTable<'start' | 'center' | 'end' | 'stretch' | 'baseline'> =
+  stylex.create({
+    start: { alignItems: 'flex-start' },
+    center: { alignItems: 'center' },
+    end: { alignItems: 'flex-end' },
+    stretch: { alignItems: 'stretch' },
+    baseline: { alignItems: 'baseline' },
+  });
 
-const justifyStyles = stylex.create({
+/** Flex 的样式：start、center、end、between、around、evenly */
+export const flexJustifyStyles: StyleTable<
+  'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'
+> = stylex.create({
   start: { justifyContent: 'flex-start' },
   center: { justifyContent: 'center' },
   end: { justifyContent: 'flex-end' },
@@ -125,11 +140,11 @@ export function createFlex<Tag extends LayoutTag>(
       () => {
         const Tag = tag as LayoutTag;
         const sx = [
-          inline ? styles.inline : styles.root,
-          styles[direction],
-          wrap && (wrap === 'reverse' ? styles.wrapReverse : styles.wrap),
-          align && alignStyles[align],
-          justify && justifyStyles[justify],
+          inline ? flexStyles.inline : flexStyles.root,
+          flexStyles[direction],
+          wrap && (wrap === 'reverse' ? flexStyles.wrapReverse : flexStyles.wrap),
+          align && flexAlignStyles[align],
+          justify && flexJustifyStyles[justify],
           gap && gapStyles[gap],
           listRole(tag) && listStyles.reset,
         ];

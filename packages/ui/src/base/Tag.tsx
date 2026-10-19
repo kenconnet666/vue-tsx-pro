@@ -14,6 +14,7 @@ import { plainText } from '../utils/data/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
 import { Icon, type IconData, type IconProps } from './Icon';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 span 上 */
 export interface TagProps extends PartProps<'span'>, BadgeOptions {
@@ -30,7 +31,8 @@ export interface TagProps extends PartProps<'span'>, BadgeOptions {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Tag 的样式：removable、remove */
+export const tagStyles: StyleTable<'removable' | 'remove'> = stylex.create({
   // 移除按钮紧贴右侧，比独立的图标按钮紧凑（标签之间留有间距，满足目标尺寸的间距例外）
   removable: { paddingInlineEnd: '_xs' },
   remove: {
@@ -73,7 +75,7 @@ export const Tag = _component(
                     size: size ?? defaults.size,
                     radius: radius ?? defaults.radius,
                   }),
-                  onRemove && styles.removable,
+                  onRemove && tagStyles.removable,
                 ],
               },
               rest,
@@ -85,7 +87,7 @@ export const Tag = _component(
           {onRemove && (
             <CloseButton
               {...mergeProps<PresetIconButtonProps>(
-                { sx: styles.remove, 'aria-label': label, radius: 'full' },
+                { sx: tagStyles.remove, 'aria-label': label, radius: 'full' },
                 propsRemove,
                 {
                   onClick: (event: MouseEvent) => {

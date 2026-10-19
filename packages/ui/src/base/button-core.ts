@@ -88,7 +88,8 @@ export interface ButtonContentOptions {
   children?: VNodeChild;
 }
 
-const base: StyleTable<
+/** 按钮家族 的样式：root、square、fullWidth、disabled、content、hidden 等 */
+export const buttonStyles: StyleTable<
   'root' | 'square' | 'fullWidth' | 'disabled' | 'content' | 'hidden' | 'spinner'
 > = stylex.create({
   root: {
@@ -138,7 +139,8 @@ const base: StyleTable<
   },
 });
 
-const radiusStyles: StyleTable<keyof ButtonRadii> = stylex.create({
+/** 按钮家族 的样式：none、sm、md、full */
+export const buttonRadiusStyles: StyleTable<keyof ButtonRadii> = stylex.create({
   none: { borderRadius: 0 },
   sm: { borderRadius: '_sm' },
   md: { borderRadius: '_md' },
@@ -243,7 +245,8 @@ const link: StyleTable<keyof ButtonTones> = stylex.create({
   danger: { color: '_dangerText' },
 });
 
-const linkBase: StyleTable<'root'> = stylex.create({
+/** 按钮家族 的样式：root */
+export const buttonLinkStyles: StyleTable<'root'> = stylex.create({
   root: {
     minHeight: 0,
     paddingInline: 0,
@@ -253,7 +256,10 @@ const linkBase: StyleTable<'root'> = stylex.create({
   },
 });
 
-const variants: Readonly<Record<keyof ButtonVariants, StyleTable<keyof ButtonTones>>> = {
+/** 样式 × 色调 → 样式表：buttonVariantStyles[variant][tone] */
+export const buttonVariantStyles: Readonly<
+  Record<keyof ButtonVariants, StyleTable<keyof ButtonTones>>
+> = {
   solid,
   soft,
   surface,
@@ -292,16 +298,16 @@ export function buttonSx(
   state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
 ): StyleXStyles {
   return [
-    base.root,
+    buttonStyles.root,
     focusRingStyles.visible,
     rippleHostStyles.host,
-    variants[variant][tone],
-    variant === 'link' && linkBase.root,
-    radiusStyles[radius],
+    buttonVariantStyles[variant][tone],
+    variant === 'link' && buttonLinkStyles.root,
+    buttonRadiusStyles[radius],
     size && fontSizeStyles[size],
-    state.square && base.square,
-    state.fullWidth && base.fullWidth,
-    state.disabled && base.disabled,
+    state.square && buttonStyles.square,
+    state.fullWidth && buttonStyles.fullWidth,
+    state.disabled && buttonStyles.disabled,
   ] as StyleXStyles;
 }
 
@@ -321,7 +327,9 @@ export function buttonContent(
     h(
       'span',
       elementProps(
-        mergeProps<'span'>({ sx: base.content }, propsContent, { sx: loading && base.hidden }),
+        mergeProps<'span'>({ sx: buttonStyles.content }, propsContent, {
+          sx: loading && buttonStyles.hidden,
+        }),
       ),
       [
         icon && h(Icon, mergeProps<IconProps>({ icon }, propsIcon) as IconProps),
@@ -330,7 +338,10 @@ export function buttonContent(
       ],
     ),
     loading &&
-      h(Spinner, mergeProps<SpinnerProps>({ sx: base.spinner }, propsSpinner) as SpinnerProps),
+      h(
+        Spinner,
+        mergeProps<SpinnerProps>({ sx: buttonStyles.spinner }, propsSpinner) as SpinnerProps,
+      ),
   ];
 }
 

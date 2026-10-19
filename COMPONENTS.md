@@ -470,18 +470,18 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **基础设施**（上层组件只组合它们）：
 
-| 项             | 位置                         | 内容                                                                                                                                                                                                                                                   |
-| -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 锚定浮层       | `utils/dom/floating.ts`      | `anchorFloating`（第一次定位前隐藏、flip / shift、autoUpdate、`matchWidth` / `fitHeight`、`data-side`、缩放原点）；`createAnchoredPopover`（显示 → 定位 → 关闭时停止、归还焦点，Popover / Menu / Tooltip 共用）；`floatingStyles.anchored` / `surface` |
-| 模态登记       | `utils/dom/overlay.ts`       | `trackModal` / `topModal`：模态打开时外面连顶层的 manual popover 也是 inert（三大浏览器实测，写进 native-overlay 的回归测试），Toaster 据此移进最上层的模态                                                                                            |
-| 移除后的焦点   | `utils/dom/overlay.ts`       | `focusAfterRemoval`：关闭、移除按钮所在的元素真被移除时，焦点交给同组的下一个 / 上一个（同 React Aria TagGroup）；Tag、Alert、Toast 用                                                                                                                 |
-| 状态图标       | `utils/style/tone-styles.ts` | `statusIcons`：Alert、Toast、Steps、Field 的错误信息共用                                                                                                                                                                                               |
-| 类型搜索       | `utils/dom/typeahead.ts`     | `createTypeahead`：连续输入拼词、同一字母轮换；`rovingFocus` 的 `typeahead` 选项用它，以后的 Listbox 也用                                                                                                                                              |
-| 步长对齐       | `utils/data/layout.ts`       | `snapToStep`：Slider、NumberField 共用，按 step 与 min 的小数位取整                                                                                                                                                                                    |
-| 传送内容的配置 | `config/Provider.tsx`        | `ConfigScope`：Teleport 出去的内容重新带上主题、lang、dir                                                                                                                                                                                              |
-| 输入框外壳     | `input/control.ts`           | `controlSx` / `controlStyles` / `useControlAppearance`：outline / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                                                                                        |
-| 勾选类控件     | `input/choice-styles.ts`     | label > 叠放层（原生 input 画成方框 / 圆 / 轨道 + 不接收指针的标记）> 文字；复选组、单选组的排列                                                                                                                                                       |
-| 字段           | `input/Field.tsx`            | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                     |
+| 项             | 位置                         | 内容                                                                                                                                                                                                                                                 |
+| -------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 锚定浮层       | `utils/dom/floating.ts`      | `anchorFloating`（第一次定位前隐藏、flip / shift、autoUpdate、`matchWidth` / `fitHeight`、`data-side`、缩放原点）；`createAnchoredLayer`（显示 → 定位 → 关闭时停止、归还焦点，Popover / Menu / Tooltip 共用）；`floatingStyles.anchored` / `surface` |
+| 模态登记       | `utils/dom/overlay.ts`       | `trackModal` / `topModal`：模态打开时外面连顶层的 manual popover 也是 inert（三大浏览器实测，写进 native-overlay 的回归测试），Toaster 据此移进最上层的模态                                                                                          |
+| 移除后的焦点   | `utils/dom/overlay.ts`       | `focusAfterRemoval`：关闭、移除按钮所在的元素真被移除时，焦点交给同组的下一个 / 上一个（同 React Aria TagGroup）；Tag、Alert、Toast 用                                                                                                               |
+| 状态图标       | `utils/style/tone-styles.ts` | `statusIcons`：Alert、Toast、Steps、Field 的错误信息共用                                                                                                                                                                                             |
+| 类型搜索       | `utils/dom/typeahead.ts`     | `createTypeahead`：连续输入拼词、同一字母轮换；`rovingFocus` 的 `typeahead` 选项用它，以后的 Listbox 也用                                                                                                                                            |
+| 步长对齐       | `utils/data/layout.ts`       | `snapToStep`：Slider、NumberField 共用，按 step 与 min 的小数位取整                                                                                                                                                                                  |
+| 传送内容的配置 | `config/Provider.tsx`        | `ConfigScope`：Teleport 出去的内容重新带上主题、lang、dir                                                                                                                                                                                            |
+| 输入框外壳     | `input/control.ts`           | `controlSx` / `controlStyles` / `useControlAppearance`：outline / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                                                                                      |
+| 勾选类控件     | `input/choice-styles.ts`     | label > 叠放层（原生 input 画成方框 / 圆 / 轨道 + 不接收指针的标记）> 文字；复选组、单选组的排列                                                                                                                                                     |
+| 字段           | `input/Field.tsx`            | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                   |
 
 **组件**：
 
@@ -508,14 +508,14 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **选择类控件**分三层（参考 React Aria 的 useListState / useListBox / useSelect / useComboBox）：
 
-| 层   | 位置                                 | 内容                                                                                                                                                                                      |
-| ---- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 状态 | `input/list-state.ts`                | `createListState`：选项按分组排序、高亮项、已选项（`toggleSelection`）、跳过不可用项的移动、类型搜索（`createTypeahead`）；不碰 DOM。`handleListKeydown` 按宿主开关空格、字母、Home / End |
-| 渲染 | `input/Listbox.tsx` 的 `ListboxView` | 选项、分组（`role="group"` 加标题）、已选标记、空状态（Empty）；指针悬停高亮、点击选中，按下时不抢焦点；高亮项滚进可见范围                                                                |
-| 组件 | `Listbox`、`Select`、`Combobox`      | 各自决定焦点在哪：列表自己、触发按钮、输入框；高亮项都经 `aria-activedescendant` 告诉读屏                                                                                                 |
+| 层   | 位置                                 | 内容                                                                                                                                                                                   |
+| ---- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 状态 | `input/list-state.ts`                | `useListState`：选项按分组排序、高亮项、已选项（`toggleSelection`）、跳过不可用项的移动、类型搜索（`createTypeahead`）；不碰 DOM。`handleListKeydown` 按宿主开关空格、字母、Home / End |
+| 渲染 | `input/Listbox.tsx` 的 `ListboxView` | 选项、分组（`role="group"` 加标题）、已选标记、空状态（Empty）；指针悬停高亮、点击选中，按下时不抢焦点；高亮项滚进可见范围                                                             |
+| 组件 | `Listbox`、`Select`、`Combobox`      | 各自决定焦点在哪：列表自己、触发按钮、输入框；高亮项都经 `aria-activedescendant` 告诉读屏                                                                                              |
 
 - 选项是数据：`{ value, label, disabled?, description?, icon?, group? }`，需要自定义内容时传渲染函数。虚拟化与过滤都需要数据，所以不做 `<Option>` 子组件。
-- **Select**（select-only combobox）：外壳用 `controlSx`，主元素是 `button role="combobox"`；弹出层 `createAnchoredPopover({ matchWidth, fitHeight })`；关闭时按字母直接选中（同原生 select）；多选时触发框里是 Tag；`name` 用隐藏的 input 随表单提交。占位文字是真正的文字（不是原生 placeholder），用 textMuted 满足 4.5:1。
+- **Select**（select-only combobox）：外壳用 `controlSx`，主元素是 `button role="combobox"`；弹出层 `useAnchoredPopover`（`floating: { matchWidth, fitHeight }`）；关闭时按字母直接选中（同原生 select）；多选时触发框里是 Tag；`name` 用隐藏的 input 随表单提交。占位文字是真正的文字（不是原生 placeholder），用 textMuted 满足 4.5:1。
 - **Combobox**：输入框是 `role="combobox"`、`aria-autocomplete="list"`；本地过滤用 `Intl.Collator`（忽略大小写与重音），`filter={false}` 时由调用方按 `inputValue` 换数据（配合 `loading`）；过滤跟着 v-model 的值走，输入法组合期间不会拿拼音过滤；失焦时文字不是选项则恢复（`allowCustomValue` 除外）；Home / End 留给光标。
 - **Empty**（feedback/）：图标 + 标题 + 说明 + 操作；ListboxView 的空状态用它，表格、VirtualList 也可以用。
 

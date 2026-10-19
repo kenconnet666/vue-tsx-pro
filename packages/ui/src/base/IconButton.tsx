@@ -17,10 +17,10 @@ import {
 import type { IconData, IconProps } from './Icon';
 
 /** 不可用、忙碌由组件管理；aria-label 必填，单独声明 */
-type Managed = 'disabled' | 'aria-disabled' | 'aria-busy' | 'aria-label';
+export type IconButtonManaged = 'disabled' | 'aria-disabled' | 'aria-busy' | 'aria-label';
 
 /** 未声明的属性落到 button 上 */
-export interface IconButtonProps extends PartProps<'button', Managed>, ButtonOptions {
+export interface IconButtonProps extends PartProps<'button', IconButtonManaged>, ButtonOptions {
   /** 图标：`import { Settings } from '@lucide/icons'` */
   icon: IconData;
   /** 按钮的无障碍名称（读屏念的），必填 */

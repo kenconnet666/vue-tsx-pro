@@ -8,9 +8,10 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { clamp, isRtl, snapToStep } from '../utils/data/layout';
 import { useFieldControl } from './Field';
@@ -25,7 +26,7 @@ export interface SliderOrientations {
 }
 
 /** 角色、取值与可聚焦由组件管理 */
-type Managed =
+export type SliderManaged =
   | 'role'
   | 'tabindex'
   | 'aria-valuemin'
@@ -36,7 +37,7 @@ type Managed =
   | 'aria-disabled';
 
 /** 未声明的属性落到滑块（role="slider" 的主元素）上，名称写 aria-label；外层用 propsRoot */
-export interface SliderProps extends PartProps<'div', Managed> {
+export interface SliderProps extends PartProps<'div', SliderManaged> {
   /** 当前值：父级写 value={_bind(x)} 双向绑定，拖动中实时写回 */
   value?: number;
   /** 最小值，默认 0 */
@@ -67,7 +68,22 @@ export interface SliderProps extends PartProps<'div', Managed> {
   propsRange?: PartProps<'div'>;
 }
 
-const styles = stylex.create({
+/** Slider 的样式：root、horizontal、vertical、disabled、track、trackHorizontal 等 */
+export const sliderStyles: StyleTable<
+  | 'root'
+  | 'horizontal'
+  | 'vertical'
+  | 'disabled'
+  | 'track'
+  | 'trackHorizontal'
+  | 'trackVertical'
+  | 'range'
+  | 'rangeHorizontal'
+  | 'rangeVertical'
+  | 'thumb'
+  | 'thumbHorizontal'
+  | 'thumbVertical'
+> = stylex.create({
   root: {
     position: 'relative',
     display: 'flex',
@@ -112,7 +128,13 @@ const styles = stylex.create({
 });
 
 // 位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
-const positionStyles = stylex.create({
+/** Slider 的样式：rangeWidth、rangeHeight、thumbInline、thumbBottom */
+export const sliderPositionStyles: Readonly<{
+  rangeWidth: (percent: string) => StyleXStyles;
+  rangeHeight: (percent: string) => StyleXStyles;
+  thumbInline: (percent: string) => StyleXStyles;
+  thumbBottom: (percent: string) => StyleXStyles;
+}> = stylex.create({
   rangeWidth: (percent: string) => ({ width: percent }),
   rangeHeight: (percent: string) => ({ height: percent }),
   thumbInline: (percent: string) => ({ insetInlineStart: percent }),
@@ -206,13 +228,13 @@ export const Slider = _component(
             mergeProps<'div'>(
               {
                 sx: [
-                  styles.root,
-                  vertical ? styles.vertical : styles.horizontal,
+                  sliderStyles.root,
+                  vertical ? sliderStyles.vertical : sliderStyles.horizontal,
                   size && fontSizeStyles[size],
                 ],
               },
               propsRoot,
-              { sx: field.disabled && styles.disabled, onPointerdown: grab },
+              { sx: field.disabled && sliderStyles.disabled, onPointerdown: grab },
             ),
           )}
           data-disabled={field.disabled || undefined}
@@ -221,7 +243,12 @@ export const Slider = _component(
           <div
             {...elementProps(
               mergeProps<'div'>(
-                { sx: [styles.track, vertical ? styles.trackVertical : styles.trackHorizontal] },
+                {
+                  sx: [
+                    sliderStyles.track,
+                    vertical ? sliderStyles.trackVertical : sliderStyles.trackHorizontal,
+                  ],
+                },
                 propsTrack,
                 { ref: _toRef(track) },
               ),
@@ -230,12 +257,17 @@ export const Slider = _component(
             <div
               {...elementProps(
                 mergeProps<'div'>(
-                  { sx: [styles.range, vertical ? styles.rangeVertical : styles.rangeHorizontal] },
+                  {
+                    sx: [
+                      sliderStyles.range,
+                      vertical ? sliderStyles.rangeVertical : sliderStyles.rangeHorizontal,
+                    ],
+                  },
                   propsRange,
                   {
                     sx: vertical
-                      ? positionStyles.rangeHeight(percent)
-                      : positionStyles.rangeWidth(percent),
+                      ? sliderPositionStyles.rangeHeight(percent)
+                      : sliderPositionStyles.rangeWidth(percent),
                   },
                 ),
               )}
@@ -246,11 +278,11 @@ export const Slider = _component(
               mergeProps<'div'>(
                 {
                   sx: [
-                    styles.thumb,
+                    sliderStyles.thumb,
                     focusRingStyles.visible,
                     vertical
-                      ? [styles.thumbVertical, positionStyles.thumbBottom(percent)]
-                      : [styles.thumbHorizontal, positionStyles.thumbInline(percent)],
+                      ? [sliderStyles.thumbVertical, sliderPositionStyles.thumbBottom(percent)]
+                      : [sliderStyles.thumbHorizontal, sliderPositionStyles.thumbInline(percent)],
                   ],
                 },
                 rest,

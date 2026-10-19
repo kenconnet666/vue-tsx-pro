@@ -15,7 +15,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import {
-  createAnchoredPopover,
+  createAnchoredLayer,
   floatingStyles,
   type FloatingOptions,
   type FloatingPlacement,
@@ -23,6 +23,7 @@ import {
 import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
 export interface TooltipTriggerProps {
@@ -68,7 +69,8 @@ const SKIP_DELAY = 300;
 let shown: { hide: () => void } | undefined;
 let lastHidden = 0;
 
-const styles = stylex.create({
+/** Tooltip 的样式：panel */
+export const tooltipStyles: StyleTable<'panel'> = stylex.create({
   panel: {
     boxSizing: 'border-box',
     maxWidth: 'min(20em, calc(100vw - 2em))',
@@ -99,7 +101,7 @@ export const Tooltip = _component(
     const id = useId();
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    const layer = createAnchoredPopover();
+    const layer = createAnchoredLayer();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const self = { hide: () => (open = false) };
 
@@ -164,7 +166,7 @@ export const Tooltip = _component(
         <div
           {...elementProps(
             mergeProps<'div'>(
-              { sx: [floatingStyles.anchored, styles.panel, transitions.fade] },
+              { sx: [floatingStyles.anchored, tooltipStyles.panel, transitions.fade] },
               rest,
               {
                 ref: _toRef(panel),

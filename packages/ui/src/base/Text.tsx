@@ -24,11 +24,13 @@ import {
   type TextWrap,
   type Tone,
 } from '../utils/style/typography';
+import type { StyleTable } from '../utils/style/styles';
 
-type TextTag = 'span' | 'p' | 'strong' | 'em' | 'small';
+/** 文字组件可用的标签 */
+export type TextTag = 'span' | 'p' | 'strong' | 'em' | 'small';
 
 /** 文字的样式选项，五个文字组件共用 */
-interface TextOptions {
+export interface TextOptions {
   /** 字号档位，对应主题的 fontSizes；不写时继承（Small 默认 xs） */
   size?: TextSize;
   /** 字重，对应主题的 fontWeights；不写时继承（Strong 默认 semibold） */
@@ -49,12 +51,14 @@ interface TextOptions {
 /** 未声明的属性落到对应元素上：Text 为 span，Paragraph 为 p，以此类推 */
 export type TextProps<Tag extends TextTag = 'span'> = PartProps<Tag> & TextOptions;
 
-const styles = stylex.create({
+/** Text 系列 的样式：paragraph */
+export const textComponentStyles: StyleTable<'paragraph'> = stylex.create({
   // 段落之间的距离交给布局（Flex 的 gap），与标题一致
   paragraph: { margin: 0 },
 });
 
-function createText<Tag extends TextTag>(
+/** 生成文字组件：标签、组件名与默认的字号、字重、换行（Text、Paragraph、Strong、Em、Small 由它生成） */
+export function createText<Tag extends TextTag>(
   tag: Tag,
   name: string,
   defaults: Pick<TextOptions, 'size' | 'weight' | 'wrap'> = {},
@@ -75,7 +79,7 @@ function createText<Tag extends TextTag>(
       () => {
         const Tag = tag as TextTag;
         const sx = [
-          tag === 'p' && styles.paragraph,
+          tag === 'p' && textComponentStyles.paragraph,
           size && fontSizeStyles[size],
           weight && fontWeightStyles[weight],
           tone && toneStyles[tone],

@@ -86,13 +86,13 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 进出场过渡、等过渡结束                   | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                            |
 | JS 动画取主题时长 / 缓动                 | `themeTransition(element, …)`（Anime.js）                                                                                    |
 | 弹层：焦点、遮罩、锁滚动、移除后的焦点   | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                             |
-| 浮层贴着触发器定位、打开与关闭           | `createAnchoredPopover()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                            |
+| 浮层贴着触发器定位、打开与关闭           | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                              |
 | 模态打开期间还要可交互的浮层             | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                    |
 | 菜单、列表里按字母跳转                   | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                                                 |
 | 输入框外壳、勾选类控件                   | `input/control.ts`、`input/choice-styles.ts`                                                                                 |
 | 控件接入 Field（标签、说明、错误、状态） | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                                                     |
 | 表单值与校验                             | `useForm({ initial, schema, onSubmit })` + `<Form controller>`                                                               |
-| 选项列表（高亮、选择、键盘）             | `createListState` + `handleListKeydown` + `ListboxView`（`input/`）                                                          |
+| 选项列表（高亮、选择、键盘）             | `useListState` + `handleListKeydown` + `ListboxView`（`input/`）                                                             |
 | 命令式确认                               | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                                                  |
 | 状态色调的颜色与默认图标                 | `statusToneSx`、`statusIcons`（`utils/style/tone-styles.ts`）                                                                |
 | 虚拟滚动                                 | `useVirtualizer(read)`（`utils/virtual/use-virtualizer.ts`，Vue 接线）；核心 `Virtualizer`（`utils/virtual/virtualizer.ts`） |

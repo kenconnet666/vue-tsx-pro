@@ -16,7 +16,7 @@ import { useConfig, useLang } from '../config/context';
 import { IconButton, type IconButtonProps } from './IconButton';
 import { VisuallyHidden } from './VisuallyHidden';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 pre 上 */
 export interface CodeBlockProps extends PartProps<'pre'> {
@@ -36,7 +36,10 @@ export interface CodeBlockProps extends PartProps<'pre'> {
   propsCopy?: Partial<IconButtonProps>;
 }
 
-const styles = stylex.create({
+/** CodeBlock 的样式：wrapper、withCopy、copy、root、wrap、code */
+export const codeBlockStyles: StyleTable<
+  'wrapper' | 'withCopy' | 'copy' | 'root' | 'wrap' | 'code'
+> = stylex.create({
   // minWidth: 0：放在 grid / flex 里时外层不被最长的一行代码撑宽（滚动的是里面的 pre）
   wrapper: { position: 'relative', minWidth: 0 },
   // 给复制按钮留出位置，第一行的末尾不被盖住
@@ -115,18 +118,22 @@ export const CodeBlock = _component(
     });
 
     return () => {
-      const codeProps = elementProps(mergeProps<'code'>({ sx: styles.code }, propsCode));
+      const codeProps = elementProps(mergeProps<'code'>({ sx: codeBlockStyles.code }, propsCode));
       return (
-        <div {...elementProps(mergeProps<'div'>({ sx: styles.wrapper }, propsRoot))}>
+        <div {...elementProps(mergeProps<'div'>({ sx: codeBlockStyles.wrapper }, propsRoot))}>
           <pre
             {...elementProps(
               mergeProps<'pre'>(
                 {
-                  sx: [styles.root, focusRingStyles.visible, copyable && styles.withCopy],
+                  sx: [
+                    codeBlockStyles.root,
+                    focusRingStyles.visible,
+                    copyable && codeBlockStyles.withCopy,
+                  ],
                   tabindex: 0,
                 },
                 rest,
-                { sx: wrap && styles.wrap },
+                { sx: wrap && codeBlockStyles.wrap },
               ),
             )}
             data-lang={lang}
@@ -142,7 +149,7 @@ export const CodeBlock = _component(
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {
-                    sx: styles.copy,
+                    sx: codeBlockStyles.copy,
                     size: 'sm',
                     variant: 'ghost',
                     tone: 'neutral',

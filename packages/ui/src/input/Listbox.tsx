@@ -18,6 +18,7 @@
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
@@ -28,16 +29,11 @@ import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { itemStyles } from '../utils/style/item-styles';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { selectedValues, type SelectionModes } from '../utils/data/selection';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
 import { useFieldControl } from './Field';
-import {
-  createListState,
-  handleListKeydown,
-  type ListboxOption,
-  type ListState,
-} from './list-state';
+import { useListState, handleListKeydown, type ListboxOption, type ListState } from './list-state';
 
 /** 选项的渲染状态：渲染函数据此画高亮、已选的样子 */
 export interface OptionRenderState {
@@ -92,7 +88,20 @@ type Row<T> =
 /** 加载中显示几行骨架 */
 const SKELETON_ROWS = 4;
 
-const styles = stylex.create({
+/** Listbox 的样式：root、scroll、sizer、row、groupLabel、content 等 */
+export const listboxStyles: StyleTable<
+  | 'root'
+  | 'scroll'
+  | 'sizer'
+  | 'row'
+  | 'groupLabel'
+  | 'content'
+  | 'description'
+  | 'check'
+  | 'hidden'
+  | 'progress'
+  | 'skeleton'
+> = stylex.create({
   root: { position: 'relative', padding: '_xs', lineHeight: '_normal', outlineStyle: 'none' },
   // 自己是滚动容器时（单独使用的 Listbox）：限制高度，滚动不传给页面
   scroll: { maxHeight: '20em', overflowY: 'auto', overscrollBehavior: 'contain' },
@@ -115,7 +124,12 @@ const styles = stylex.create({
 });
 
 // 行的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
-const positionStyles = stylex.create({
+/** Listbox 的样式：y、height、width */
+export const listboxPositionStyles: Readonly<{
+  y: (px: number) => StyleXStyles;
+  height: (px: number) => StyleXStyles;
+  width: (percent: string) => StyleXStyles;
+}> = stylex.create({
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),
   width: (percent: string) => ({ width: percent }),
@@ -264,10 +278,10 @@ export const ListboxView = _component(
           ) : (
             <>
               {option.icon && <Icon icon={option.icon} />}
-              <span {...stylex.attrs(styles.content)}>
+              <span {...stylex.attrs(listboxStyles.content)}>
                 <span {...stylex.attrs(itemStyles.label)}>{option.label}</span>
                 {option.description && (
-                  <Text size="sm" sx={styles.description}>
+                  <Text size="sm" sx={listboxStyles.description}>
                     {option.description}
                   </Text>
                 )}
@@ -276,7 +290,7 @@ export const ListboxView = _component(
           )}
           <Icon
             {...mergePartProps<IconProps>(
-              { icon: Check, sx: [styles.check, !state.selected && styles.hidden] },
+              { icon: Check, sx: [listboxStyles.check, !state.selected && listboxStyles.hidden] },
               propsCheck,
             )}
           />
@@ -291,7 +305,9 @@ export const ListboxView = _component(
             <Skeleton
               key={index}
               {...mergePartProps<SkeletonProps>(
-                { sx: [styles.skeleton, positionStyles.width(`${85 - index * 15}%`)] },
+                {
+                  sx: [listboxStyles.skeleton, listboxPositionStyles.width(`${85 - index * 15}%`)],
+                },
                 propsSkeleton,
               )}
             />
@@ -312,7 +328,7 @@ export const ListboxView = _component(
         <div
           ref={_toRef(sizer)}
           role="presentation"
-          {...stylex.attrs(styles.sizer, positionStyles.height(virtual.total))}
+          {...stylex.attrs(listboxStyles.sizer, listboxPositionStyles.height(virtual.total))}
         >
           {virtual.items.map((item) => {
             const row = rows[item.index]!;
@@ -322,12 +338,12 @@ export const ListboxView = _component(
                 ref={virtual.measure}
                 data-index={item.index}
                 role="presentation"
-                {...stylex.attrs(styles.row, positionStyles.y(item.start))}
+                {...stylex.attrs(listboxStyles.row, listboxPositionStyles.y(item.start))}
               >
                 {row.kind === 'group' ? (
                   <Text
                     {...mergePartProps<TextProps>(
-                      { tone: 'muted', size: 'sm', sx: styles.groupLabel },
+                      { tone: 'muted', size: 'sm', sx: listboxStyles.groupLabel },
                       propsGroupLabel,
                       // 只是视觉上的标题：组名经各选项的 aria-describedby 念出
                       { id: row.id, 'aria-hidden': true },
@@ -350,7 +366,11 @@ export const ListboxView = _component(
         {...elementProps(
           mergeProps<'div'>(
             {
-              sx: [styles.root, scroller === undefined && styles.scroll, focusRingStyles.visible],
+              sx: [
+                listboxStyles.root,
+                scroller === undefined && listboxStyles.scroll,
+                focusRingStyles.visible,
+              ],
             },
             rest,
             {
@@ -364,7 +384,7 @@ export const ListboxView = _component(
         )}
       >
         {loading && rows.length > 0 && (
-          <div aria-hidden="true" {...stylex.attrs(styles.progress)}>
+          <div aria-hidden="true" {...stylex.attrs(listboxStyles.progress)}>
             <Progress size="xs" aria-label={lang.loading} />
           </div>
         )}
@@ -435,7 +455,7 @@ export const Listbox = _component(
   }: ListboxProps<T>) => {
     const generatedId = useId();
     const control = useFieldControl(() => ({ id, disabled }));
-    const list = createListState({
+    const list = useListState({
       options: () => items,
       selected: () => selectedValues(value),
       mode: () => type,

@@ -38,49 +38,52 @@ export interface ControlState {
   readonly?: boolean;
 }
 
-const shell: StyleTable<'root' | 'soft' | 'invalid' | 'disabled' | 'readonly' | 'multiline'> =
-  stylex.create({
-    root: {
-      boxSizing: 'border-box',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '_sm',
-      minWidth: 0,
-      minHeight: 'max(_sizes.control, _sizes.minTarget)',
-      paddingInline: '_md',
-      borderWidth: '_xs',
-      borderStyle: 'solid',
-      borderColor: { default: '_border', ':hover': '_borderStrong' },
-      borderRadius: '_md',
-      backgroundColor: '_surface',
-      color: '_text',
-      lineHeight: '_normal',
-      cursor: 'text',
-      outlineStyle: { default: 'none', ':focus-within': 'solid' },
-      outlineWidth: '_sm',
-      outlineColor: '_focusRing',
-      // 压住边框
-      outlineOffset: 'calc(-1 * _xs)',
-      transition: 'border-color _durations.sm _easings.standard',
-    },
-    soft: {
-      borderColor: { default: 'transparent', ':hover': 'transparent' },
-      backgroundColor: '_fill',
-    },
-    invalid: {
-      borderColor: { default: '_danger', ':hover': '_danger' },
-      outlineColor: '_danger',
-    },
-    disabled: { opacity: '_disabled', cursor: 'not-allowed' },
-    readonly: {
-      borderColor: { default: '_borderMuted', ':hover': '_borderMuted' },
-      backgroundColor: '_fill',
-    },
-    // 多行（Textarea）：内容从顶部开始，上下也留内边距
-    multiline: { alignItems: 'stretch', paddingBlock: '_xs' },
-  });
+/** 输入框外壳 的样式：root、soft、invalid、disabled、readonly、multiline */
+export const controlShellStyles: StyleTable<
+  'root' | 'soft' | 'invalid' | 'disabled' | 'readonly' | 'multiline'
+> = stylex.create({
+  root: {
+    boxSizing: 'border-box',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '_sm',
+    minWidth: 0,
+    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    paddingInline: '_md',
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: { default: '_border', ':hover': '_borderStrong' },
+    borderRadius: '_md',
+    backgroundColor: '_surface',
+    color: '_text',
+    lineHeight: '_normal',
+    cursor: 'text',
+    outlineStyle: { default: 'none', ':focus-within': 'solid' },
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    // 压住边框
+    outlineOffset: 'calc(-1 * _xs)',
+    transition: 'border-color _durations.sm _easings.standard',
+  },
+  soft: {
+    borderColor: { default: 'transparent', ':hover': 'transparent' },
+    backgroundColor: '_fill',
+  },
+  invalid: {
+    borderColor: { default: '_danger', ':hover': '_danger' },
+    outlineColor: '_danger',
+  },
+  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  readonly: {
+    borderColor: { default: '_borderMuted', ':hover': '_borderMuted' },
+    backgroundColor: '_fill',
+  },
+  // 多行（Textarea）：内容从顶部开始，上下也留内边距
+  multiline: { alignItems: 'stretch', paddingBlock: '_xs' },
+});
 
-const radii: StyleTable<keyof ButtonRadii> = stylex.create({
+/** 输入框外壳 的样式：none、sm、md、full */
+export const controlRadiusStyles: StyleTable<keyof ButtonRadii> = stylex.create({
   none: { borderRadius: 0 },
   sm: { borderRadius: '_sm' },
   md: { borderRadius: '_md' },
@@ -143,14 +146,14 @@ export function controlSx(
   multiline = false,
 ): StyleXStyles {
   return [
-    shell.root,
-    variant === 'soft' && shell.soft,
-    radii[radius],
+    controlShellStyles.root,
+    variant === 'soft' && controlShellStyles.soft,
+    controlRadiusStyles[radius],
     size && fontSizeStyles[size],
-    readonly && shell.readonly,
-    invalid && shell.invalid,
-    disabled && shell.disabled,
-    multiline && shell.multiline,
+    readonly && controlShellStyles.readonly,
+    invalid && controlShellStyles.invalid,
+    disabled && controlShellStyles.disabled,
+    multiline && controlShellStyles.multiline,
   ] as StyleXStyles;
 }
 

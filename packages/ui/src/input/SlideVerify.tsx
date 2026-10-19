@@ -20,7 +20,7 @@ import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { clamp, isRtl } from '../utils/data/layout';
 
 /** 验证状态，由应用控制 */
@@ -99,7 +99,10 @@ const END = 0.98;
 /** 键盘每次移动的距离 */
 const KEY_STEP = 0.05;
 
-const styles = stylex.create({
+/** SlideVerify 的样式：root、disabled、fill、hint、handle、settle 等 */
+export const slideVerifyStyles: StyleTable<
+  'root' | 'disabled' | 'fill' | 'hint' | 'handle' | 'settle' | 'locked' | 'success' | 'error'
+> = stylex.create({
   root: {
     position: 'relative',
     boxSizing: 'border-box',
@@ -271,8 +274,8 @@ export const SlideVerify = _component(
       return (
         <div
           {...elementProps(
-            mergeProps<'div'>({ sx: styles.root }, rest, {
-              sx: disabled && styles.disabled,
+            mergeProps<'div'>({ sx: slideVerifyStyles.root }, rest, {
+              sx: disabled && slideVerifyStyles.disabled,
               ref: _toRef(root),
               style: { '--slide-verify-position': String(position) },
               'aria-busy': status === 'verifying' || undefined,
@@ -282,18 +285,20 @@ export const SlideVerify = _component(
         >
           <div
             {...elementProps(
-              mergeProps<'div'>({ sx: styles.fill }, propsFill, {
+              mergeProps<'div'>({ sx: slideVerifyStyles.fill }, propsFill, {
                 sx: [
-                  !dragging && styles.settle,
-                  status === 'success' && styles.success,
-                  status === 'error' && styles.error,
+                  !dragging && slideVerifyStyles.settle,
+                  status === 'success' && slideVerifyStyles.success,
+                  status === 'error' && slideVerifyStyles.error,
                 ],
               }),
             )}
           />
           <span
             {...elementProps(
-              mergeProps<'span'>({ sx: styles.hint }, propsHint, { 'aria-hidden': true }),
+              mergeProps<'span'>({ sx: slideVerifyStyles.hint }, propsHint, {
+                'aria-hidden': true,
+              }),
             )}
           >
             {position === 0 || status !== 'idle' ? text : null}
@@ -303,16 +308,16 @@ export const SlideVerify = _component(
               mergeProps<'div'>(
                 {
                   // 焦点环在前：滑块自己的 outlineOffset（画在里面，外层会裁掉外面）覆盖它
-                  sx: [focusRingStyles.visible, styles.handle],
+                  sx: [focusRingStyles.visible, slideVerifyStyles.handle],
                   'aria-label': lang.slideVerifyHint,
                 },
                 propsHandle,
                 {
                   sx: [
-                    !dragging && styles.settle,
-                    locked && styles.locked,
-                    status === 'success' && styles.success,
-                    status === 'error' && styles.error,
+                    !dragging && slideVerifyStyles.settle,
+                    locked && slideVerifyStyles.locked,
+                    status === 'success' && slideVerifyStyles.success,
+                    status === 'error' && slideVerifyStyles.error,
                   ],
                   ref: _toRef(handle),
                   role: 'slider',

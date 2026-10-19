@@ -24,7 +24,7 @@ import { elementProps, mergePartProps, mergeProps, type PartProps } from '../uti
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 
 /** 值、角色与状态由组件管理 */
-type Managed =
+export type NumberFieldManaged =
   | 'value'
   | 'type'
   | 'role'
@@ -44,7 +44,7 @@ type Managed =
   | 'aria-describedby';
 
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
-export interface NumberFieldProps extends PartProps<'input', Managed>, ControlOptions {
+export interface NumberFieldProps extends PartProps<'input', NumberFieldManaged>, ControlOptions {
   /** 当前值：父级写 value={_bind(x)}；空着时为 null */
   value?: number | null;
   /** 最小值 */

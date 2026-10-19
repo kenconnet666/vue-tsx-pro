@@ -14,6 +14,7 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useLang } from '../config/context';
@@ -23,7 +24,7 @@ import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VisibleRange } from '../utils/virtual/virtualizer';
@@ -145,7 +146,41 @@ const SKELETON_ROWS = 6;
 /** 各密度下行高的估计（px） */
 const ROW_HEIGHT: Record<keyof TableSizes, number> = { sm: 36, md: 44, lg: 52 };
 
-const styles = stylex.create({
+/** Table、TreeTable 的样式：root、surface、ghost、table、sm、md 等 */
+export const tableStyles: StyleTable<
+  | 'root'
+  | 'surface'
+  | 'ghost'
+  | 'table'
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'head'
+  | 'headerCell'
+  | 'cell'
+  | 'wrap'
+  | 'start'
+  | 'center'
+  | 'end'
+  | 'row'
+  | 'rowGhost'
+  | 'striped'
+  | 'selected'
+  | 'sticky'
+  | 'stickySelect'
+  | 'selectCell'
+  | 'sortButton'
+  | 'sortLabel'
+  | 'sortIcon'
+  | 'sortActive'
+  | 'leading'
+  | 'content'
+  | 'spacer'
+  | 'progressCell'
+  | 'progress'
+  | 'skeleton'
+  | 'emptyCell'
+> = stylex.create({
   // contain: inline-size：宽表格不会把外层的 grid / flex 容器撑宽（它们的最小宽度默认等于内容宽度），
   // 宽度只由所在的容器决定，放不下的部分在表格里横向滚动
   root: { maxHeight: '32em', minWidth: 0, contain: 'inline-size' },
@@ -237,14 +272,23 @@ const styles = stylex.create({
   emptyCell: { padding: 0, whiteSpace: 'normal' },
 });
 
-const sizeStyles = stylex.create({
+/** Table、TreeTable 的样式：sm、md、lg */
+export const tableSizeStyles: StyleTable<'sm' | 'md' | 'lg'> = stylex.create({
   sm: { paddingBlock: '_xs' },
   md: { paddingBlock: '_sm' },
   lg: { paddingBlock: '_md' },
 });
 
 // 列宽、偏移、占位高度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
-const dynamicStyles = stylex.create({
+/** Table、TreeTable 的样式：width、minWidth、height、start、end、percent */
+export const tableDynamicStyles: Readonly<{
+  width: (px: number) => StyleXStyles;
+  minWidth: (px: number) => StyleXStyles;
+  height: (px: number) => StyleXStyles;
+  start: (px: number) => StyleXStyles;
+  end: (px: number) => StyleXStyles;
+  percent: (value: string) => StyleXStyles;
+}> = stylex.create({
   width: (px: number) => ({ width: px }),
   minWidth: (px: number) => ({ minWidth: px }),
   height: (px: number) => ({ height: px }),
@@ -312,9 +356,9 @@ export const TableView = _component(
 
     function stickySx(column: TableColumn<T>) {
       if (column.sticky === 'start')
-        return [styles.sticky, dynamicStyles.start(offsets.start.get(column.key)!)];
+        return [tableStyles.sticky, tableDynamicStyles.start(offsets.start.get(column.key)!)];
       if (column.sticky === 'end')
-        return [styles.sticky, dynamicStyles.end(offsets.end.get(column.key)!)];
+        return [tableStyles.sticky, tableDynamicStyles.end(offsets.end.get(column.key)!)];
       return null;
     }
 
@@ -330,9 +374,9 @@ export const TableView = _component(
             mergeProps<'th'>(
               {
                 sx: [
-                  styles.headerCell,
-                  sizeStyles[size],
-                  styles[column.align ?? 'start'],
+                  tableStyles.headerCell,
+                  tableSizeStyles[size],
+                  tableStyles[column.align ?? 'start'],
                   stickySx(column),
                 ],
               },
@@ -349,13 +393,13 @@ export const TableView = _component(
             <button
               {...elementProps(
                 mergeProps<'button'>(
-                  { sx: [styles.sortButton, focusRingStyles.visible] },
+                  { sx: [tableStyles.sortButton, focusRingStyles.visible] },
                   propsSortButton,
                   { type: 'button', onClick: () => onSortClick?.(column.key) },
                 ),
               )}
             >
-              <span {...stylex.attrs(styles.sortLabel)}>{column.header}</span>
+              <span {...stylex.attrs(tableStyles.sortLabel)}>{column.header}</span>
               <Icon
                 icon={
                   sorted === 'ascending'
@@ -364,7 +408,7 @@ export const TableView = _component(
                       ? ArrowDown
                       : ArrowUpDown
                 }
-                sx={[styles.sortIcon, sorted && styles.sortActive]}
+                sx={[tableStyles.sortIcon, sorted && tableStyles.sortActive]}
               />
             </button>
           ) : (
@@ -397,9 +441,9 @@ export const TableView = _component(
             mergeProps<'tr'>(
               {
                 sx: [
-                  variant === 'ghost' ? styles.rowGhost : styles.row,
-                  striped && index % 2 === 1 && styles.striped,
-                  selected && styles.selected,
+                  variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row,
+                  striped && index % 2 === 1 && tableStyles.striped,
+                  selected && tableStyles.selected,
                 ],
               },
               own,
@@ -416,10 +460,10 @@ export const TableView = _component(
           {selection && (
             <td
               {...stylex.attrs(
-                styles.cell,
-                sizeStyles[size],
-                styles.selectCell,
-                offsets.start.size > 0 && styles.stickySelect,
+                tableStyles.cell,
+                tableSizeStyles[size],
+                tableStyles.selectCell,
+                offsets.start.size > 0 && tableStyles.stickySelect,
               )}
             >
               <Checkbox
@@ -442,10 +486,10 @@ export const TableView = _component(
                   mergeProps<'td'>(
                     {
                       sx: [
-                        styles.cell,
-                        sizeStyles[size],
-                        styles[column.align ?? 'start'],
-                        column.wrap && styles.wrap,
+                        tableStyles.cell,
+                        tableSizeStyles[size],
+                        tableStyles[column.align ?? 'start'],
+                        column.wrap && tableStyles.wrap,
                         stickySx(column),
                       ],
                     },
@@ -454,9 +498,9 @@ export const TableView = _component(
                 )}
               >
                 {position === 0 && leading ? (
-                  <div {...stylex.attrs(styles.leading)}>
+                  <div {...stylex.attrs(tableStyles.leading)}>
                     {leading(row, index)}
-                    <div {...stylex.attrs(styles.content)}>{value}</div>
+                    <div {...stylex.attrs(tableStyles.content)}>{value}</div>
                   </div>
                 ) : (
                   value
@@ -480,7 +524,7 @@ export const TableView = _component(
           {...mergePartProps<ScrollAreaProps>(
             {
               axis: 'both',
-              sx: [styles.root, variant === 'ghost' ? styles.ghost : styles.surface],
+              sx: [tableStyles.root, variant === 'ghost' ? tableStyles.ghost : tableStyles.surface],
             },
             propsRoot,
             { propsViewport: { ref: _toRef(viewport) } },
@@ -489,7 +533,13 @@ export const TableView = _component(
           <table
             {...elementProps(
               mergeProps<'table'>(
-                { sx: [styles.table, styles[size], dynamicStyles.minWidth(minWidth())] },
+                {
+                  sx: [
+                    tableStyles.table,
+                    tableStyles[size],
+                    tableDynamicStyles.minWidth(minWidth()),
+                  ],
+                },
                 rest,
                 {
                   'aria-rowcount': rows.length + 1,
@@ -499,27 +549,27 @@ export const TableView = _component(
             )}
           >
             <colgroup>
-              {selection && <col {...stylex.attrs(dynamicStyles.width(SELECT_WIDTH))} />}
+              {selection && <col {...stylex.attrs(tableDynamicStyles.width(SELECT_WIDTH))} />}
               {columns.map((column) => {
                 const width = widthOf(column);
                 return (
                   <col
                     key={column.key}
-                    {...(width != null ? stylex.attrs(dynamicStyles.width(width)) : {})}
+                    {...(width != null ? stylex.attrs(tableDynamicStyles.width(width)) : {})}
                   />
                 );
               })}
             </colgroup>
-            <thead {...stylex.attrs(styles.head)}>
+            <thead {...stylex.attrs(tableStyles.head)}>
               <tr aria-rowindex={1}>
                 {selection && (
                   <th
                     scope="col"
                     {...stylex.attrs(
-                      styles.headerCell,
-                      sizeStyles[size],
-                      styles.selectCell,
-                      offsets.start.size > 0 && styles.stickySelect,
+                      tableStyles.headerCell,
+                      tableSizeStyles[size],
+                      tableStyles.selectCell,
+                      offsets.start.size > 0 && tableStyles.stickySelect,
                     )}
                   >
                     {selection === 'multiple' && (
@@ -537,8 +587,8 @@ export const TableView = _component(
               </tr>
               {loading && rows.length > 0 && (
                 <tr aria-hidden="true">
-                  <td colspan={span} {...stylex.attrs(styles.progressCell)}>
-                    <div {...stylex.attrs(styles.progress)}>
+                  <td colspan={span} {...stylex.attrs(tableStyles.progressCell)}>
+                    <div {...stylex.attrs(tableStyles.progress)}>
                       <Progress size="xs" aria-label={lang.loading} />
                     </div>
                   </td>
@@ -552,17 +602,22 @@ export const TableView = _component(
                   <tr
                     key={`skeleton-${index}`}
                     aria-hidden="true"
-                    {...stylex.attrs(variant === 'ghost' ? styles.rowGhost : styles.row)}
+                    {...stylex.attrs(variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row)}
                   >
-                    {selection && <td {...stylex.attrs(styles.cell, sizeStyles[size])} />}
+                    {selection && <td {...stylex.attrs(tableStyles.cell, tableSizeStyles[size])} />}
                     {columns.map((column, position) => (
-                      <td key={column.key} {...stylex.attrs(styles.cell, sizeStyles[size])}>
+                      <td
+                        key={column.key}
+                        {...stylex.attrs(tableStyles.cell, tableSizeStyles[size])}
+                      >
                         <Skeleton
                           {...mergePartProps<SkeletonProps>(
                             {
                               sx: [
-                                styles.skeleton,
-                                dynamicStyles.percent(`${90 - ((index + position) % 4) * 15}%`),
+                                tableStyles.skeleton,
+                                tableDynamicStyles.percent(
+                                  `${90 - ((index + position) % 4) * 15}%`,
+                                ),
                               ],
                             },
                             propsSkeleton,
@@ -574,7 +629,7 @@ export const TableView = _component(
                 ))}
               {rows.length === 0 && !loading && (
                 <tr>
-                  <td colspan={span} {...stylex.attrs(styles.cell, styles.emptyCell)}>
+                  <td colspan={span} {...stylex.attrs(tableStyles.cell, tableStyles.emptyCell)}>
                     {empty ?? (
                       <Empty
                         {...mergePartProps<EmptyProps>(
@@ -588,7 +643,10 @@ export const TableView = _component(
               )}
               {top > 0 && (
                 <tr aria-hidden="true">
-                  <td colspan={span} {...stylex.attrs(styles.spacer, dynamicStyles.height(top))} />
+                  <td
+                    colspan={span}
+                    {...stylex.attrs(tableStyles.spacer, tableDynamicStyles.height(top))}
+                  />
                 </tr>
               )}
               {items.map((item) => renderRow(rows[item.index]!, item.index, true))}
@@ -596,7 +654,7 @@ export const TableView = _component(
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
-                    {...stylex.attrs(styles.spacer, dynamicStyles.height(bottom))}
+                    {...stylex.attrs(tableStyles.spacer, tableDynamicStyles.height(bottom))}
                   />
                 </tr>
               )}

@@ -25,18 +25,28 @@ import {
   useChoiceSize,
   type ChoiceOrientations,
 } from './choice-styles';
+import type { StyleTable } from '../utils/style/styles';
 
-interface GroupState {
+/** RadioGroup 交给组内 Radio 的状态 */
+export interface RadioGroupState {
+  /** 选中的值 */
   readonly value: string | undefined;
+  /** 原生单选框的 name：同组共用，方向键在组内移动 */
   readonly name: string;
+  /** 整组不可用 */
   readonly disabled: boolean;
+  /** 必填 */
   readonly required: boolean;
+  /** 整组校验未通过 */
   readonly invalid: boolean;
+  /** 字号档位；不写时继承 */
   readonly size: TextSize | undefined;
+  /** 选中一个值 */
   select(value: string): void;
 }
 
-const GroupContext = createContext<GroupState>('RadioGroup');
+/** RadioGroup 的上下文：自定义的单选项可以 inject 它接入组 */
+export const RadioGroupContext = createContext<RadioGroupState>('RadioGroup');
 
 /** 未声明的属性落到 div（role="radiogroup"）上 */
 export interface RadioGroupProps extends PartProps<'div', 'role'> {
@@ -75,7 +85,7 @@ export const RadioGroup = _component(
     const generatedName = useId();
     const control = useFieldControl(() => ({ id, disabled, required, invalid }));
     const resolvedSize = useChoiceSize(() => size);
-    GroupContext.provide({
+    RadioGroupContext.provide({
       get value() {
         return value;
       },
@@ -122,10 +132,10 @@ export const RadioGroup = _component(
 );
 
 /** 选中、名称与可用性由组管理 */
-type Managed = 'type' | 'name' | 'checked' | 'required' | 'size' | 'value';
+export type RadioManaged = 'type' | 'name' | 'checked' | 'required' | 'size' | 'value';
 
 /** 未声明的属性落到 input 上；外层 label 用 propsRoot */
-export interface RadioProps extends PartProps<'input', Managed> {
+export interface RadioProps extends PartProps<'input', RadioManaged> {
   /** 这一项的值 */
   value: string;
   /** 这一项不可用 */
@@ -142,7 +152,8 @@ export interface RadioProps extends PartProps<'input', Managed> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** RadioGroup、Radio 的样式：circle、dot、dotChecked */
+export const radioStyles: StyleTable<'circle' | 'dot' | 'dotChecked'> = stylex.create({
   circle: { width: '1.125em', height: '1.125em', borderRadius: '_full' },
   dot: {
     width: '0.45em',
@@ -167,7 +178,7 @@ export const Radio = _component(
     children,
     ...rest
   }: RadioProps) => {
-    const group = GroupContext.inject();
+    const group = RadioGroupContext.inject();
     return () => {
       const checked = group.value === value;
       const off = disabled ?? group.disabled;
@@ -195,7 +206,7 @@ export const Radio = _component(
                   {
                     sx: [
                       choiceStyles.input,
-                      styles.circle,
+                      radioStyles.circle,
                       checked && choiceStyles.checked,
                       group.invalid && choiceStyles.invalid,
                     ],
@@ -216,7 +227,7 @@ export const Radio = _component(
             <span
               {...elementProps(
                 mergeProps<'span'>(
-                  { sx: [choiceStyles.mark, styles.dot, checked && styles.dotChecked] },
+                  { sx: [choiceStyles.mark, radioStyles.dot, checked && radioStyles.dotChecked] },
                   propsIndicator,
                 ),
               )}

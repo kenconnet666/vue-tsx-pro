@@ -3,7 +3,7 @@
  * 不碰 DOM：Listbox、Select、Combobox 各自决定焦点在哪（列表自己、触发按钮、输入框），
  * 高亮项用 aria-activedescendant 告诉读屏（焦点不动，Combobox 才能边输入边选）。参考 React Aria 的 useListState。
  *
- *   const list = createListState({ options: () => items, selected: () => [value], mode: () => 'single', onChange });
+ *   const list = useListState({ options: () => items, selected: () => [value], mode: () => 'single', onChange });
  *   if (handleListKeydown(list, event, { space: true, typeahead: true })) event.preventDefault();
  */
 import { computed, ref } from 'vue';
@@ -27,7 +27,7 @@ export interface ListboxOption {
   group?: string;
 }
 
-/** createListState 的选项：都是读取函数，渲染时读到最新的 props */
+/** useListState 的选项：都是读取函数，渲染时读到最新的 props */
 export interface ListStateOptions<T extends ListboxOption> {
   /** 选项 */
   options: () => readonly T[];
@@ -74,9 +74,7 @@ function grouped<T extends ListboxOption>(options: readonly T[]): readonly T[] {
 }
 
 /** 创建列表状态（组件 setup 里调用） */
-export function createListState<T extends ListboxOption>(
-  config: ListStateOptions<T>,
-): ListState<T> {
+export function useListState<T extends ListboxOption>(config: ListStateOptions<T>): ListState<T> {
   const active = ref<string | undefined>();
   const search = createTypeahead();
   // 选项多（上万）时这些每次渲染要读很多遍：缓存起来，选项或选择变了才重算

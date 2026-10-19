@@ -13,6 +13,7 @@ import { Icon } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 头像的圆角 */
 export interface AvatarRadii {
@@ -31,10 +32,10 @@ export interface AvatarOptions {
 }
 
 /** 角色与读屏可见性由组件按 name 决定 */
-type Managed = 'role' | 'aria-hidden';
+export type AvatarManaged = 'role' | 'aria-hidden';
 
 /** 未声明的属性落到外层 span 上 */
-export interface AvatarProps extends PartProps<'span', Managed>, AvatarOptions {
+export interface AvatarProps extends PartProps<'span', AvatarManaged>, AvatarOptions {
   /** 图片地址；不写或加载失败时显示后备内容 */
   src?: string;
   /** 名字：无障碍名称，也用来生成首字母；不写时头像是装饰性的 */
@@ -47,28 +48,30 @@ export interface AvatarProps extends PartProps<'span', Managed>, AvatarOptions {
   propsFallback?: PartProps<'span'>;
 }
 
-const styles = stylex.create({
-  root: {
-    position: 'relative',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    width: '2.5em',
-    height: '2.5em',
-    overflow: 'hidden',
-    verticalAlign: 'middle',
-    backgroundColor: '_accentSoft',
-    color: '_accentText',
-    userSelect: 'none',
-  },
-  full: { borderRadius: '_full' },
-  md: { borderRadius: '_md' },
-  image: { width: '_full', height: '_full', objectFit: 'cover' },
-  // 图片加载完之前先藏起来（仍在 DOM 里加载），后备内容垫在下面
-  loading: { position: 'absolute', opacity: 0 },
-  fallback: { fontWeight: '_medium', lineHeight: 1, textTransform: 'uppercase' },
-});
+/** Avatar 的样式：root、full、md、image、loading、fallback */
+export const avatarStyles: StyleTable<'root' | 'full' | 'md' | 'image' | 'loading' | 'fallback'> =
+  stylex.create({
+    root: {
+      position: 'relative',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+      width: '2.5em',
+      height: '2.5em',
+      overflow: 'hidden',
+      verticalAlign: 'middle',
+      backgroundColor: '_accentSoft',
+      color: '_accentText',
+      userSelect: 'none',
+    },
+    full: { borderRadius: '_full' },
+    md: { borderRadius: '_md' },
+    image: { width: '_full', height: '_full', objectFit: 'cover' },
+    // 图片加载完之前先藏起来（仍在 DOM 里加载），后备内容垫在下面
+    loading: { position: 'absolute', opacity: 0 },
+    fallback: { fontWeight: '_medium', lineHeight: 1, textTransform: 'uppercase' },
+  });
 
 /** 名字的首字母：中文取最后一个字（通常是名），其他语言取前两个词的首字母 */
 export function initials(name: string): string {
@@ -98,8 +101,8 @@ export const Avatar = _component(
             mergeProps<'span'>(
               {
                 sx: [
-                  styles.root,
-                  styles[radius ?? defaults.radius ?? 'full'],
+                  avatarStyles.root,
+                  avatarStyles[radius ?? defaults.radius ?? 'full'],
                   (size ?? defaults.size) && fontSizeStyles[(size ?? defaults.size)!],
                 ],
               },
@@ -114,7 +117,7 @@ export const Avatar = _component(
               key={src}
               {...elementProps(
                 mergeProps<'img'>(
-                  { sx: [styles.image, status === 'loading' && styles.loading] },
+                  { sx: [avatarStyles.image, status === 'loading' && avatarStyles.loading] },
                   propsImage,
                   {
                     src,
@@ -129,7 +132,9 @@ export const Avatar = _component(
           {showFallback && (
             <span
               {...elementProps(
-                mergeProps<'span'>({ sx: styles.fallback }, propsFallback, { 'aria-hidden': true }),
+                mergeProps<'span'>({ sx: avatarStyles.fallback }, propsFallback, {
+                  'aria-hidden': true,
+                }),
               )}
             >
               {fallback ?? (name ? initials(name) : <Icon icon={User} />)}

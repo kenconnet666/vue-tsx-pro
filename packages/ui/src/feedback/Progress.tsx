@@ -7,9 +7,11 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/layout';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 进度条的色调 */
 export interface ProgressTones {
@@ -24,10 +26,11 @@ export interface ProgressTones {
 }
 
 /** 角色与取值由组件管理 */
-type Managed = 'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow' | 'aria-valuetext';
+export type ProgressManaged =
+  'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow' | 'aria-valuetext';
 
 /** 未声明的属性落到轨道（role="progressbar" 的主元素）上 */
-export interface ProgressProps extends PartProps<'div', Managed> {
+export interface ProgressProps extends PartProps<'div', ProgressManaged> {
   /** 当前值；不写（或 null）时为不确定进度 */
   value?: number | null;
   /** 最大值，默认 100 */
@@ -47,7 +50,8 @@ const slide = stylex.keyframes({
   to: { transform: 'translateX(250%)' },
 });
 
-const styles = stylex.create({
+/** Progress 的样式：root、indicator、indeterminate */
+export const progressStyles: StyleTable<'root' | 'indicator' | 'indeterminate'> = stylex.create({
   root: {
     position: 'relative',
     overflow: 'hidden',
@@ -71,17 +75,21 @@ const styles = stylex.create({
   },
 });
 
-const toneStyles = stylex.create({
-  accent: { backgroundColor: '_accent' },
-  success: { backgroundColor: '_successText' },
-  warning: { backgroundColor: '_warningText' },
-  danger: { backgroundColor: '_danger' },
-});
+/** Progress 的样式：accent、success、warning、danger */
+export const progressToneStyles: StyleTable<'accent' | 'success' | 'warning' | 'danger'> =
+  stylex.create({
+    accent: { backgroundColor: '_accent' },
+    success: { backgroundColor: '_successText' },
+    warning: { backgroundColor: '_warningText' },
+    danger: { backgroundColor: '_danger' },
+  });
 
 // 宽度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
-const widthStyles = stylex.create({
-  percent: (percent: string) => ({ width: percent }),
-});
+/** Progress 的样式：percent */
+export const progressWidthStyles: Readonly<{ percent: (percent: string) => StyleXStyles }> =
+  stylex.create({
+    percent: (percent: string) => ({ width: percent }),
+  });
 
 /** 进度条：有 value 时为完成比例，没有时为不确定进度 */
 export const Progress = _component(
@@ -101,7 +109,7 @@ export const Progress = _component(
       return (
         <div
           {...elementProps(
-            mergeProps<'div'>({ sx: [styles.root, size && fontSizeStyles[size]] }, rest, {
+            mergeProps<'div'>({ sx: [progressStyles.root, size && fontSizeStyles[size]] }, rest, {
               role: 'progressbar',
               'aria-valuemin': 0,
               'aria-valuemax': max,
@@ -115,9 +123,15 @@ export const Progress = _component(
         >
           <div
             {...elementProps(
-              mergeProps<'div'>({ sx: [styles.indicator, toneStyles[tone]] }, propsIndicator, {
-                sx: determinate ? widthStyles.percent(`${percent}%`) : styles.indeterminate,
-              }),
+              mergeProps<'div'>(
+                { sx: [progressStyles.indicator, progressToneStyles[tone]] },
+                propsIndicator,
+                {
+                  sx: determinate
+                    ? progressWidthStyles.percent(`${percent}%`)
+                    : progressStyles.indeterminate,
+                },
+              ),
             )}
           />
         </div>

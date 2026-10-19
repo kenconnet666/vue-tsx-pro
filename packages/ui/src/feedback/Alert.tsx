@@ -16,6 +16,7 @@ import { useDefaults } from '../config/defaults';
 import { focusAfterRemoval } from '../utils/dom/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {
@@ -44,10 +45,10 @@ export interface AlertOptions {
 }
 
 /** 角色由 live 决定，忙碌由 loading 决定；原生的 title 属性（悬停提示）让给标题 */
-type Managed = 'role' | 'title' | 'aria-busy';
+export type AlertManaged = 'role' | 'title' | 'aria-busy';
 
 /** 未声明的属性落到外层 div 上 */
-export interface AlertProps extends PartProps<'div', Managed>, AlertOptions {
+export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions {
   /** 色调，默认 info */
   tone?: StatusTone;
   /** 标题（加粗的第一行） */
@@ -79,7 +80,10 @@ export interface AlertProps extends PartProps<'div', Managed>, AlertOptions {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Alert 的样式：root、icon、body、title、description、action 等 */
+export const alertStyles: StyleTable<
+  'root' | 'icon' | 'body' | 'title' | 'description' | 'action' | 'close'
+> = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'flex',
@@ -128,7 +132,7 @@ export const Alert = _component(
         <div
           {...elementProps(
             mergeProps<'div'>(
-              { sx: [styles.root, statusToneSx(variant ?? defaults.variant ?? 'soft', tone)] },
+              { sx: [alertStyles.root, statusToneSx(variant ?? defaults.variant ?? 'soft', tone)] },
               rest,
               { role: ROLES[live], 'aria-busy': loading || undefined },
             ),
@@ -136,41 +140,47 @@ export const Alert = _component(
           data-tone={tone}
         >
           {loading ? (
-            <Spinner {...mergePartProps<SpinnerProps>({ sx: styles.icon }, propsSpinner)} />
+            <Spinner {...mergePartProps<SpinnerProps>({ sx: alertStyles.icon }, propsSpinner)} />
           ) : (
             shownIcon && (
               <Icon
-                {...mergePartProps<IconProps>({ icon: shownIcon, sx: styles.icon }, propsIcon)}
+                {...mergePartProps<IconProps>({ icon: shownIcon, sx: alertStyles.icon }, propsIcon)}
               />
             )
           )}
-          <div {...elementProps(mergeProps<'div'>({ sx: styles.body }, propsBody))}>
+          <div {...elementProps(mergeProps<'div'>({ sx: alertStyles.body }, propsBody))}>
             {title != null && (
-              <div {...elementProps(mergeProps<'div'>({ sx: styles.title }, propsTitle))}>
+              <div {...elementProps(mergeProps<'div'>({ sx: alertStyles.title }, propsTitle))}>
                 {title}
               </div>
             )}
             {children != null && (
               <div
-                {...elementProps(mergeProps<'div'>({ sx: styles.description }, propsDescription))}
+                {...elementProps(
+                  mergeProps<'div'>({ sx: alertStyles.description }, propsDescription),
+                )}
               >
                 {children}
               </div>
             )}
           </div>
           {action != null && (
-            <div {...elementProps(mergeProps<'div'>({ sx: styles.action }, propsAction))}>
+            <div {...elementProps(mergeProps<'div'>({ sx: alertStyles.action }, propsAction))}>
               {action}
             </div>
           )}
           {onClose && (
             <CloseButton
-              {...mergeProps<PresetIconButtonProps>({ sx: styles.close, size: 'sm' }, propsClose, {
-                onClick: (event: MouseEvent) => {
-                  focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
-                  onClose();
+              {...mergeProps<PresetIconButtonProps>(
+                { sx: alertStyles.close, size: 'sm' },
+                propsClose,
+                {
+                  onClick: (event: MouseEvent) => {
+                    focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
+                    onClose();
+                  },
                 },
-              })}
+              )}
             />
           )}
         </div>

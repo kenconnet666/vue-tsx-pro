@@ -19,11 +19,11 @@ import {
 } from './button-core';
 
 /** 不可用、忙碌由组件按 disabled、loading 管理 */
-type Managed = 'disabled' | 'aria-disabled' | 'aria-busy';
+export type ButtonManaged = 'disabled' | 'aria-disabled' | 'aria-busy';
 
 /** 未声明的属性落到 button 上 */
 export interface ButtonProps
-  extends PartProps<'button', Managed>, ButtonOptions, ButtonContentOptions {
+  extends PartProps<'button', ButtonManaged>, ButtonOptions, ButtonContentOptions {
   /** 不可用：原生 disabled，不能聚焦 */
   disabled?: boolean;
   /**

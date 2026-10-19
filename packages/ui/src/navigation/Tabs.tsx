@@ -21,7 +21,7 @@ import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 标签的排列方向 */
@@ -56,13 +56,21 @@ export interface TabsOptions {
   size?: TextSize;
 }
 
-interface TabsState {
+/** Tabs 交给 TabList、Tab、TabPanel 的状态 */
+export interface TabsState {
+  /** 当前标签的值 */
   readonly value: string | undefined;
+  /** 横排或竖排 */
   readonly orientation: keyof TabsOrientations;
+  /** 方向键移动焦点时是否同时切换 */
   readonly activation: keyof TabsActivations;
+  /** 样式 */
   readonly variant: keyof TabsVariants;
+  /** 面板第一次显示时才渲染 */
   readonly lazy: boolean;
+  /** 波纹；不写时沿用配置 */
   readonly ripple: boolean | undefined;
+  /** 切换到某个标签 */
   select(value: string): void;
   /** 标签与面板的 id，互相引用 */
   id(part: 'tab' | 'panel', value: string): string;
@@ -70,7 +78,8 @@ interface TabsState {
   register(value: string): () => void;
 }
 
-const TabsContext = createContext<TabsState>('Tabs');
+/** Tabs 的上下文：自定义的标签或面板可以 inject 它 */
+export const TabsContext = createContext<TabsState>('Tabs');
 
 /** 值里的空格等字符不能出现在 id 里 */
 const idSafe = (value: string) => value.replace(/[^\w-]/g, '_');
@@ -92,7 +101,8 @@ export interface TabsProps extends PartProps<'div'>, TabsOptions {
   children?: VNodeChild;
 }
 
-const rootStyles = stylex.create({
+/** Tabs 的样式：root、vertical */
+export const tabsStyles: StyleTable<'root' | 'vertical'> = stylex.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_md' },
   vertical: { flexDirection: 'row', alignItems: 'flex-start' },
 });
@@ -148,8 +158,8 @@ export const Tabs = _component(
           mergeProps<'div'>(
             {
               sx: [
-                rootStyles.root,
-                orientation === 'vertical' && rootStyles.vertical,
+                tabsStyles.root,
+                orientation === 'vertical' && tabsStyles.vertical,
                 (size ?? defaults.size) && fontSizeStyles[(size ?? defaults.size)!],
               ],
             },
@@ -167,34 +177,36 @@ export const Tabs = _component(
 // ─────────────── TabList ───────────────
 
 /** 角色、方向由组件管理 */
-type ListManaged = 'role' | 'aria-orientation';
+export type TabListManaged = 'role' | 'aria-orientation';
 
 /** 未声明的属性落到 role="tablist" 的 div 上；aria-label 是这组标签的名称 */
-export interface TabListProps extends PartProps<'div', ListManaged> {
+export interface TabListProps extends PartProps<'div', TabListManaged> {
   /** 到两端后是否从另一端继续，默认 true */
   loop?: boolean;
   children?: VNodeChild;
 }
 
-const listStyles = stylex.create({
-  root: { display: 'flex', flexShrink: 0 },
-  line: {
-    gap: '_md',
-    borderBottomWidth: '_xs',
-    borderBottomStyle: 'solid',
-    borderBottomColor: '_borderMuted',
-  },
-  lineVertical: {
-    flexDirection: 'column',
-    gap: '_xs',
-    borderBottomWidth: 0,
-    borderInlineEndWidth: '_xs',
-    borderInlineEndStyle: 'solid',
-    borderInlineEndColor: '_borderMuted',
-  },
-  soft: { gap: '_xs', padding: '_xs', borderRadius: '_md', backgroundColor: '_fill' },
-  softVertical: { flexDirection: 'column' },
-});
+/** Tabs 的样式：root、line、lineVertical、soft、softVertical */
+export const tabListStyles: StyleTable<'root' | 'line' | 'lineVertical' | 'soft' | 'softVertical'> =
+  stylex.create({
+    root: { display: 'flex', flexShrink: 0 },
+    line: {
+      gap: '_md',
+      borderBottomWidth: '_xs',
+      borderBottomStyle: 'solid',
+      borderBottomColor: '_borderMuted',
+    },
+    lineVertical: {
+      flexDirection: 'column',
+      gap: '_xs',
+      borderBottomWidth: 0,
+      borderInlineEndWidth: '_xs',
+      borderInlineEndStyle: 'solid',
+      borderInlineEndColor: '_borderMuted',
+    },
+    soft: { gap: '_xs', padding: '_xs', borderRadius: '_md', backgroundColor: '_fill' },
+    softVertical: { flexDirection: 'column' },
+  });
 
 /** 标签列表（role="tablist"）：方向键在标签之间移动 */
 export const TabList = _component(({ loop = true, children, ...rest }: TabListProps) => {
@@ -214,10 +226,10 @@ export const TabList = _component(({ loop = true, children, ...rest }: TabListPr
           mergeProps<'div'>(
             {
               sx: [
-                listStyles.root,
+                tabListStyles.root,
                 tabs.variant === 'line'
-                  ? [listStyles.line, vertical && listStyles.lineVertical]
-                  : [listStyles.soft, vertical && listStyles.softVertical],
+                  ? [tabListStyles.line, vertical && tabListStyles.lineVertical]
+                  : [tabListStyles.soft, vertical && tabListStyles.softVertical],
               ],
             },
             rest,
@@ -234,7 +246,8 @@ export const TabList = _component(({ loop = true, children, ...rest }: TabListPr
 // ─────────────── Tab ───────────────
 
 /** 角色、选中、关联与可聚焦由组件管理 */
-type TabManaged = 'role' | 'aria-selected' | 'aria-controls' | 'id' | 'tabindex' | 'disabled';
+export type TabManaged =
+  'role' | 'aria-selected' | 'aria-controls' | 'id' | 'tabindex' | 'disabled';
 
 /** 未声明的属性落到 role="tab" 的 button 上 */
 export interface TabProps extends PartProps<'button', TabManaged> {
@@ -245,7 +258,10 @@ export interface TabProps extends PartProps<'button', TabManaged> {
   children?: VNodeChild;
 }
 
-const tabStyles = stylex.create({
+/** Tabs 的样式：root、hover、line、lineVertical、lineActive、soft 等 */
+export const tabStyles: StyleTable<
+  'root' | 'hover' | 'line' | 'lineVertical' | 'lineActive' | 'soft' | 'softActive' | 'disabled'
+> = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'inline-flex',
@@ -349,16 +365,17 @@ export const Tab = _component(({ value, disabled = false, children, ...rest }: T
 // ─────────────── TabPanel ───────────────
 
 /** 角色、关联与显示由组件管理 */
-type PanelManaged = 'role' | 'id' | 'aria-labelledby' | 'hidden';
+export type TabPanelManaged = 'role' | 'id' | 'aria-labelledby' | 'hidden';
 
 /** 未声明的属性落到 role="tabpanel" 的 div 上 */
-export interface TabPanelProps extends PartProps<'div', PanelManaged> {
+export interface TabPanelProps extends PartProps<'div', TabPanelManaged> {
   /** 对应标签的 value */
   value: string;
   children?: VNodeChild;
 }
 
-const panelStyles = stylex.create({
+/** Tabs 的样式：root */
+export const tabPanelStyles: StyleTable<'root'> = stylex.create({
   root: { flexGrow: 1, minWidth: 0, borderRadius: '_sm' },
 });
 
@@ -378,7 +395,7 @@ export const TabPanel = _component(({ value, children, ...rest }: TabPanelProps)
         {...elementProps(
           mergeProps<'div'>(
             // 面板本身可聚焦：里面没有可聚焦元素时，键盘用户也能 Tab 到内容
-            { sx: [panelStyles.root, focusRingStyles.visible], tabindex: 0 },
+            { sx: [tabPanelStyles.root, focusRingStyles.visible], tabindex: 0 },
             rest,
             {
               role: 'tabpanel',

@@ -15,7 +15,7 @@ import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';
 import { paginationItems } from '../utils/data/pagination';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { listStyles } from '../utils/style/styles';
+import { listStyles, type StyleTable } from '../utils/style/styles';
 import type { TextSize } from '../utils/style/typography';
 import { clamp } from '../utils/data/layout';
 
@@ -55,7 +55,10 @@ export interface PaginationProps extends PartProps<'nav'> {
   propsTotal?: PartProps<'span'>;
 }
 
-const styles = stylex.create({
+/** Pagination 的样式：root、list、page、ellipsis、total、tabular */
+export const paginationStyles: StyleTable<
+  'root' | 'list' | 'page' | 'ellipsis' | 'total' | 'tabular'
+> = stylex.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_md' },
   list: { display: 'flex', alignItems: 'center', gap: '_xs' },
   // 页码按钮等宽，翻页时位置不晃
@@ -106,7 +109,7 @@ export const Pagination = _component(
       const own = typeof propsPage === 'function' ? propsPage(target) : propsPage;
       const shared = mergeProps<ButtonProps & LinkButtonProps>(
         {
-          sx: [styles.page, styles.tabular],
+          sx: [paginationStyles.page, paginationStyles.tabular],
           size,
           variant: isCurrent ? 'soft' : 'ghost',
           tone: isCurrent ? 'accent' : 'neutral',
@@ -162,10 +165,14 @@ export const Pagination = _component(
     return () => (
       <nav
         {...elementProps(
-          mergeProps<'nav'>({ sx: styles.root, 'aria-label': lang.pagination }, rest),
+          mergeProps<'nav'>({ sx: paginationStyles.root, 'aria-label': lang.pagination }, rest),
         )}
       >
-        <ul {...elementProps(mergeProps<'ul'>({ sx: [listStyles.reset, styles.list] }, propsList))}>
+        <ul
+          {...elementProps(
+            mergeProps<'ul'>({ sx: [listStyles.reset, paginationStyles.list] }, propsList),
+          )}
+        >
           <li {...elementProps(mergeProps<'li'>({}, propsItem))}>{stepButton(-1)}</li>
           {paginationItems({ page: current, pageCount: count, siblings, boundaries }).map(
             (item) => (
@@ -175,7 +182,7 @@ export const Pagination = _component(
                 ) : (
                   <span
                     {...elementProps(
-                      mergeProps<'span'>({ sx: styles.ellipsis }, propsEllipsis, {
+                      mergeProps<'span'>({ sx: paginationStyles.ellipsis }, propsEllipsis, {
                         'aria-hidden': true,
                       }),
                     )}
@@ -191,7 +198,10 @@ export const Pagination = _component(
         {showTotal && total != null && (
           <span
             {...elementProps(
-              mergeProps<'span'>({ sx: [styles.total, styles.tabular] }, propsTotal),
+              mergeProps<'span'>(
+                { sx: [paginationStyles.total, paginationStyles.tabular] },
+                propsTotal,
+              ),
             )}
           >
             {lang.paginationTotal(total)}

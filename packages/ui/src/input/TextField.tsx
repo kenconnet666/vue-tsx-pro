@@ -27,11 +27,11 @@ import {
 } from './control';
 
 /** 值与状态由组件管理；原生的 size 属性（字符宽度）让给字号档位 */
-type Managed =
+export type TextFieldManaged =
   'value' | 'disabled' | 'readonly' | 'required' | 'size' | 'aria-invalid' | 'aria-describedby';
 
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
-export interface TextFieldProps extends PartProps<'input', Managed>, ControlOptions {
+export interface TextFieldProps extends PartProps<'input', TextFieldManaged>, ControlOptions {
   /** 输入值：父级写 value={_bind(x)} 双向绑定 */
   value?: string;
   /** 不可用 */

@@ -13,7 +13,7 @@ import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { toneStyles, type Tone } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -43,7 +43,8 @@ export interface LinkProps extends PartProps<'a', 'href'> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Link 的样式：root、always、hover、none、icon */
+export const linkStyles: StyleTable<'root' | 'always' | 'hover' | 'none' | 'icon'> = stylex.create({
   root: {
     borderRadius: '_xs',
     textDecorationThickness: '_xs',
@@ -74,7 +75,14 @@ export const Link = _component(
       <a
         {...elementProps(
           mergeProps<'a'>(
-            { sx: [styles.root, focusRingStyles.visible, toneStyles[tone], styles[underline]] },
+            {
+              sx: [
+                linkStyles.root,
+                focusRingStyles.visible,
+                toneStyles[tone],
+                linkStyles[underline],
+              ],
+            },
             rest,
             external
               ? { href, target: '_blank', rel: 'noopener noreferrer' }
@@ -87,7 +95,7 @@ export const Link = _component(
         {external && (
           <>
             <Icon
-              {...mergePartProps<IconProps>({ icon: ArrowUpRight, sx: styles.icon }, propsIcon)}
+              {...mergePartProps<IconProps>({ icon: ArrowUpRight, sx: linkStyles.icon }, propsIcon)}
             />
             <VisuallyHidden>{lang.linkNewWindow}</VisuallyHidden>
           </>

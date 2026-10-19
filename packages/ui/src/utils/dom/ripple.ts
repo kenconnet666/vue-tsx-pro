@@ -11,6 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useConfig } from '../../config/context';
 import { afterTransitions } from '../style/transitions';
+import type { StyleTable } from '../style/styles';
 
 const expand = stylex.keyframes({
   from: { transform: 'scale(0)' },
@@ -22,7 +23,8 @@ export const rippleHostStyles: Readonly<Record<'host', StyleXStyles>> = stylex.c
   host: { position: 'relative', overflow: 'hidden' },
 });
 
-const styles = stylex.create({
+/** 波纹 的样式：ripple、fading */
+export const rippleStyles: StyleTable<'ripple' | 'fading'> = stylex.create({
   ripple: {
     position: 'absolute',
     borderRadius: '_full',
@@ -39,7 +41,10 @@ const styles = stylex.create({
 });
 
 // 位置与大小是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
-const placement = stylex.create({
+/** 波纹 的样式：at */
+export const ripplePlacementStyles: Readonly<{
+  at: (x: number, y: number, size: number) => StyleXStyles;
+}> = stylex.create({
   at: (x: number, y: number, size: number) => ({ left: x, top: y, width: size, height: size }),
 });
 
@@ -85,8 +90,8 @@ export function startRipple(event: PointerEvent | KeyboardEvent): void {
   const ripple = document.createElement('span');
   ripple.setAttribute('aria-hidden', 'true');
   const { class: className, style } = stylex.attrs(
-    styles.ripple,
-    placement.at(x - radius, y - radius, radius * 2),
+    rippleStyles.ripple,
+    ripplePlacementStyles.at(x - radius, y - radius, radius * 2),
   );
   ripple.className = className ?? '';
   if (style) ripple.setAttribute('style', style);
@@ -94,7 +99,7 @@ export function startRipple(event: PointerEvent | KeyboardEvent): void {
 
   const release = () => {
     for (const [type, target] of releaseEvents) target.removeEventListener(type, release);
-    ripple.classList.add(...(stylex.attrs(styles.fading).class ?? '').split(' '));
+    ripple.classList.add(...(stylex.attrs(rippleStyles.fading).class ?? '').split(' '));
     void afterTransitions(ripple).then(() => ripple.remove());
   };
   const releaseEvents: [string, EventTarget][] = keyboard

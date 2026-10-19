@@ -42,10 +42,11 @@ import {
   type ListboxViewProps,
   type OptionRenderState,
 } from './Listbox';
-import { createListState, handleListKeydown, type ListboxOption } from './list-state';
+import { useListState, handleListKeydown, type ListboxOption } from './list-state';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、展开状态、值与可用性由组件管理 */
-type Managed =
+export type ComboboxManaged =
   | 'value'
   | 'role'
   | 'size'
@@ -62,7 +63,7 @@ type Managed =
 
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
 export interface ComboboxProps<T extends ListboxOption = ListboxOption>
-  extends PartProps<'input', Managed>, ControlOptions {
+  extends PartProps<'input', ComboboxManaged>, ControlOptions {
   /** 选项 */
   items: readonly T[];
   /** 选中项的值：父级写 value={_bind(x)} */
@@ -107,18 +108,20 @@ export interface ComboboxProps<T extends ListboxOption = ListboxOption>
   propsListbox?: Partial<ListboxViewProps<T>>;
 }
 
-const styles = stylex.create({
-  popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
-  chevron: { transition: 'rotate _durations.sm _easings.standard' },
-  chevronOpen: { rotate: '180deg' },
-  loading: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_sm',
-    padding: '_sm',
-    color: '_textMuted',
-  },
-});
+/** Combobox 的样式：popover、chevron、chevronOpen、loading */
+export const comboboxStyles: StyleTable<'popover' | 'chevron' | 'chevronOpen' | 'loading'> =
+  stylex.create({
+    popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
+    chevron: { transition: 'rotate _durations.sm _easings.standard' },
+    chevronOpen: { rotate: '180deg' },
+    loading: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '_sm',
+      padding: '_sm',
+      color: '_textMuted',
+    },
+  });
 
 /** 组合框：输入框 + 过滤后的选项列表 */
 export const Combobox = _component(
@@ -167,7 +170,7 @@ export const Combobox = _component(
       return filter ? filter(option, text) : createMatcher(lang.code)(option.label, text);
     }
 
-    const list = createListState({
+    const list = useListState({
       options: () => (filter === false ? items : items.filter((option) => matches(option, query))),
       selected: () => (value != null ? [value] : []),
       mode: () => 'single',
@@ -323,7 +326,11 @@ export const Combobox = _component(
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
-                  sx: [controlStyles.button, styles.chevron, open && styles.chevronOpen],
+                  sx: [
+                    controlStyles.button,
+                    comboboxStyles.chevron,
+                    open && comboboxStyles.chevronOpen,
+                  ],
                   radius: 'full',
                   icon: ChevronDown,
                   'aria-label': lang.comboboxToggle,
@@ -353,7 +360,7 @@ export const Combobox = _component(
                   sx: [
                     floatingStyles.anchored,
                     floatingStyles.surface,
-                    styles.popover,
+                    comboboxStyles.popover,
                     // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
                     appearance().size && fontSizeStyles[appearance().size!],
                     transitions.scale,

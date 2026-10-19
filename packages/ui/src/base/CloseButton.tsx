@@ -19,7 +19,8 @@ export type PresetIconButtonProps = Omit<IconButtonProps, 'icon' | 'aria-label'>
   'aria-label'?: string;
 };
 
-function createPreset(
+/** 预设图标与名称的图标按钮（CloseButton、ClearButton 由它生成）：名称默认取语言包，可以用 aria-label 覆盖 */
+export function createPresetIconButton(
   name: string,
   icon: IconData,
   label: (lang: Lang) => string,
@@ -34,6 +35,6 @@ function createPreset(
 }
 
 /** 关闭按钮：X 图标，名称“关闭” */
-export const CloseButton = createPreset('CloseButton', X, (lang) => lang.close);
+export const CloseButton = createPresetIconButton('CloseButton', X, (lang) => lang.close);
 /** 清空按钮：圆圈 X 图标，名称“清空”；输入框里清空内容用 */
-export const ClearButton = createPreset('ClearButton', CircleX, (lang) => lang.clear);
+export const ClearButton = createPresetIconButton('ClearButton', CircleX, (lang) => lang.clear);

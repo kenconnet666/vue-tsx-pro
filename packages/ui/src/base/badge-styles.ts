@@ -27,7 +27,8 @@ export interface BadgeOptions {
   radius?: keyof BadgeRadii;
 }
 
-const styles: Readonly<Record<'root' | 'sm' | 'full', StyleXStyles>> = stylex.create({
+/** Badge、Tag 的样式：root、sm、full */
+export const badgeStyles: Readonly<Record<'root' | 'sm' | 'full', StyleXStyles>> = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'inline-flex',
@@ -53,9 +54,9 @@ export function badgeSx({
   radius = 'sm',
 }: BadgeOptions): StyleXStyles {
   return [
-    styles.root,
+    badgeStyles.root,
     statusToneSx(variant, tone),
     fontSizeStyles[size],
-    styles[radius],
+    badgeStyles[radius],
   ] as StyleXStyles;
 }

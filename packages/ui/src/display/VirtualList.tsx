@@ -11,12 +11,13 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
 
@@ -37,10 +38,10 @@ export interface VirtualListHandle {
 }
 
 /** 受管属性：角色与可聚焦由组件决定 */
-type Managed = 'role' | 'tabindex';
+export type VirtualListManaged = 'role' | 'tabindex';
 
 /** 未声明的属性落到外层元素（滚动容器）上；aria-label 写在这里就是列表的名称 */
-export interface VirtualListProps<T> extends PartProps<'div', Managed> {
+export interface VirtualListProps<T> extends PartProps<'div', VirtualListManaged> {
   /** 数据 */
   items: readonly T[];
   /** 渲染一项：`{(item, index) => …}` */
@@ -80,7 +81,18 @@ type ItemProps = PartProps<'div', 'role' | 'aria-setsize' | 'aria-posinset'>;
 /** 加载中显示几行骨架 */
 const SKELETON_ROWS = 5;
 
-const styles = stylex.create({
+/** VirtualList 的样式：root、container、list、item、itemVertical、itemHorizontal 等 */
+export const virtualListStyles: StyleTable<
+  | 'root'
+  | 'container'
+  | 'list'
+  | 'item'
+  | 'itemVertical'
+  | 'itemHorizontal'
+  | 'progress'
+  | 'skeletonRow'
+  | 'skeleton'
+> = stylex.create({
   // 自己调整滚动位置（见 virtualizer.ts），不要浏览器再按锚点调整一次
   root: { overflowAnchor: 'none' },
   container: { overflow: 'auto', overscrollBehavior: 'contain' },
@@ -95,7 +107,14 @@ const styles = stylex.create({
 });
 
 // 总大小与位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
-const sizeStyles = stylex.create({
+/** VirtualList 的样式：height、width、y、x、skeleton */
+export const virtualListSizeStyles: Readonly<{
+  height: (px: number) => StyleXStyles;
+  width: (px: number) => StyleXStyles;
+  y: (px: number) => StyleXStyles;
+  x: (px: number) => StyleXStyles;
+  skeleton: (px: number) => StyleXStyles;
+}> = stylex.create({
   height: (px: number) => ({ height: px }),
   width: (px: number) => ({ width: px, height: '_full' }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
@@ -165,7 +184,10 @@ export const VirtualList = _component(
           {...elementProps(
             mergeProps<'div'>(
               {
-                sx: [styles.root, isContainer && [styles.container, focusRingStyles.visible]],
+                sx: [
+                  virtualListStyles.root,
+                  isContainer && [virtualListStyles.container, focusRingStyles.visible],
+                ],
               },
               rest,
               {
@@ -179,17 +201,17 @@ export const VirtualList = _component(
           )}
         >
           {loading && hasItems && (
-            <div aria-hidden="true" {...stylex.attrs(styles.progress)}>
+            <div aria-hidden="true" {...stylex.attrs(virtualListStyles.progress)}>
               <Progress size="xs" aria-label={lang.loading} />
             </div>
           )}
           {hasItems ? (
             <div
               {...elementProps(
-                mergeProps<'div'>({ sx: styles.list }, propsList, {
+                mergeProps<'div'>({ sx: virtualListStyles.list }, propsList, {
                   sx: horizontal
-                    ? sizeStyles.width(virtual.total)
-                    : sizeStyles.height(virtual.total),
+                    ? virtualListSizeStyles.width(virtual.total)
+                    : virtualListSizeStyles.height(virtual.total),
                   ref: _toRef(list),
                   role: 'presentation',
                 }),
@@ -206,13 +228,17 @@ export const VirtualList = _component(
                       mergeProps<'div'>(
                         {
                           sx: [
-                            styles.item,
-                            horizontal ? styles.itemHorizontal : styles.itemVertical,
+                            virtualListStyles.item,
+                            horizontal
+                              ? virtualListStyles.itemHorizontal
+                              : virtualListStyles.itemVertical,
                           ],
                         },
                         own,
                         {
-                          sx: horizontal ? sizeStyles.x(item.start) : sizeStyles.y(item.start),
+                          sx: horizontal
+                            ? virtualListSizeStyles.x(item.start)
+                            : virtualListSizeStyles.y(item.start),
                           ref: virtual.measure,
                           role: 'listitem',
                           'aria-setsize': items.length,
@@ -229,13 +255,15 @@ export const VirtualList = _component(
             </div>
           ) : loading ? (
             Array.from({ length: SKELETON_ROWS }, (_, index) => (
-              <div key={index} aria-hidden="true" {...stylex.attrs(styles.skeletonRow)}>
+              <div key={index} aria-hidden="true" {...stylex.attrs(virtualListStyles.skeletonRow)}>
                 <Skeleton
                   {...mergePartProps<SkeletonProps>(
                     {
                       sx: [
-                        styles.skeleton,
-                        sizeStyles.skeleton(typeof estimateSize === 'number' ? estimateSize : 40),
+                        virtualListStyles.skeleton,
+                        virtualListSizeStyles.skeleton(
+                          typeof estimateSize === 'number' ? estimateSize : 40,
+                        ),
                       ],
                     },
                     propsSkeleton,

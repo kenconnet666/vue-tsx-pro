@@ -7,13 +7,15 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 code 上 */
 export interface CodeProps extends PartProps<'code'> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Code 的样式：root */
+export const codeStyles: StyleTable<'root'> = stylex.create({
   root: {
     paddingInline: '_xs',
     borderRadius: '_sm',
@@ -29,5 +31,5 @@ const styles = stylex.create({
 
 /** 行内代码（code）：命令、文件名、标识符；等宽字体，长内容可在任意位置换行 */
 export const Code = _component(({ children, ...rest }: CodeProps) => () => (
-  <code {...elementProps(mergeProps<'code'>({ sx: styles.root }, rest))}>{children}</code>
+  <code {...elementProps(mergeProps<'code'>({ sx: codeStyles.root }, rest))}>{children}</code>
 ));

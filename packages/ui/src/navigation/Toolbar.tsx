@@ -14,7 +14,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
-import { gapStyles, type Space } from '../utils/style/styles';
+import { gapStyles, type Space, type StyleTable } from '../utils/style/styles';
 
 /** 工具栏方向 */
 export interface ToolbarOrientations {
@@ -25,10 +25,10 @@ export interface ToolbarOrientations {
 }
 
 /** 角色与方向由组件管理 */
-type Managed = 'role' | 'aria-orientation';
+export type ToolbarManaged = 'role' | 'aria-orientation';
 
 /** 未声明的属性落到 div 上；aria-label 是工具栏的名称 */
-export interface ToolbarProps extends PartProps<'div', Managed> {
+export interface ToolbarProps extends PartProps<'div', ToolbarManaged> {
   /** 方向，默认 horizontal */
   orientation?: keyof ToolbarOrientations;
   /** 到两端后是否从另一端继续，默认 true */
@@ -40,7 +40,8 @@ export interface ToolbarProps extends PartProps<'div', Managed> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Toolbar 的样式：root、vertical */
+export const toolbarStyles: StyleTable<'root' | 'vertical'> = stylex.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap' },
   vertical: { flexDirection: 'column', alignItems: 'stretch' },
 });
@@ -65,7 +66,13 @@ export const Toolbar = _component(
       <div
         {...elementProps(
           mergeProps<'div'>(
-            { sx: [styles.root, orientation === 'vertical' && styles.vertical, gapStyles[gap]] },
+            {
+              sx: [
+                toolbarStyles.root,
+                orientation === 'vertical' && toolbarStyles.vertical,
+                gapStyles[gap],
+              ],
+            },
             rest,
             { ref: _toRef(root), role: 'toolbar', 'aria-orientation': orientation },
           ),

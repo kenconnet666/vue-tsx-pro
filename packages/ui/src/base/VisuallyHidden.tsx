@@ -6,13 +6,15 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 span 上 */
 export interface VisuallyHiddenProps extends PartProps<'span'> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** VisuallyHidden 的样式：hidden */
+export const visuallyHiddenStyles: StyleTable<'hidden'> = stylex.create({
   // 不用 display: none / visibility: hidden：那样读屏也读不到
   hidden: {
     position: 'absolute',
@@ -29,5 +31,7 @@ const styles = stylex.create({
 
 /** 只给读屏器看的文字（span）：视觉上不占位 */
 export const VisuallyHidden = _component(({ children, ...rest }: VisuallyHiddenProps) => () => (
-  <span {...elementProps(mergeProps<'span'>({ sx: styles.hidden }, rest))}>{children}</span>
+  <span {...elementProps(mergeProps<'span'>({ sx: visuallyHiddenStyles.hidden }, rest))}>
+    {children}
+  </span>
 ));

@@ -10,17 +10,19 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { nextTick } from 'vue';
 import { useFieldControl } from './Field';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 值与状态由组件管理 */
-type Managed =
+export type TextareaManaged =
   'value' | 'rows' | 'disabled' | 'readonly' | 'required' | 'aria-invalid' | 'aria-describedby';
 
 /** 未声明的属性落到 textarea（主元素）上；外壳用 propsRoot */
-export interface TextareaProps extends PartProps<'textarea', Managed>, ControlOptions {
+export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, ControlOptions {
   /** 输入值：父级写 value={_bind(x)} 双向绑定 */
   value?: string;
   /** 最少显示几行，默认 3 */
@@ -41,13 +43,18 @@ export interface TextareaProps extends PartProps<'textarea', Managed>, ControlOp
   propsRoot?: PartProps<'div'>;
 }
 
-const styles = stylex.create({
+/** Textarea 的样式：textarea、fixed */
+export const textareaStyles: StyleTable<'textarea' | 'fixed'> = stylex.create({
   textarea: { resize: 'none', overflowY: 'auto' },
   fixed: { resize: 'vertical' },
 });
 
 // 行数是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
-const rowStyles = stylex.create({
+/** Textarea 的样式：min、max */
+export const textareaRowStyles: Readonly<{
+  min: (rows: number) => StyleXStyles;
+  max: (rows: number) => StyleXStyles;
+}> = stylex.create({
   min: (rows: number) => ({ minHeight: `${rows}lh` }),
   max: (rows: number) => ({ maxHeight: `${rows}lh` }),
 });
@@ -101,10 +108,10 @@ export const Textarea = _component(
                 {
                   sx: [
                     controlStyles.input,
-                    styles.textarea,
-                    fixed && styles.fixed,
-                    rowStyles.min(rows),
-                    maxRows != null && !fixed && rowStyles.max(maxRows),
+                    textareaStyles.textarea,
+                    fixed && textareaStyles.fixed,
+                    textareaRowStyles.min(rows),
+                    maxRows != null && !fixed && textareaRowStyles.max(maxRows),
                   ],
                 },
                 rest,

@@ -13,7 +13,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { isRtl } from '../utils/data/layout';
 
 /** 哪个方向可以滚动 */
@@ -58,7 +58,10 @@ export interface ScrollAreaProps extends PartProps<'div'> {
 /** 滑块的最小长度（px）：内容再长也能抓得住 */
 const MIN_THUMB = 20;
 
-const styles = stylex.create({
+/** ScrollArea 的样式：root、viewport、y、x、both、wideContent */
+export const scrollAreaStyles: StyleTable<
+  'root' | 'viewport' | 'y' | 'x' | 'both' | 'wideContent'
+> = stylex.create({
   // flex 纵向：使用方只给 max-height 时视口也能被限制住（视口 min-height: 0 可以收缩）
   root: { position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
   viewport: {
@@ -77,7 +80,10 @@ const styles = stylex.create({
   wideContent: { display: 'table', minWidth: '_full' },
 });
 
-const barStyles = stylex.create({
+/** ScrollArea 的样式：track、hidden、y、x、yCorner、xCorner 等 */
+export const scrollAreaBarStyles: StyleTable<
+  'track' | 'hidden' | 'y' | 'x' | 'yCorner' | 'xCorner' | 'thumb' | 'thumbY' | 'thumbX'
+> = stylex.create({
   track: {
     position: 'absolute',
     zIndex: 1,
@@ -274,14 +280,15 @@ const Scrollbar = _component(
             mergeProps<'div'>(
               {
                 sx: [
-                  barStyles.track,
-                  barStyles[axis],
-                  corner && (axis === 'y' ? barStyles.yCorner : barStyles.xCorner),
+                  scrollAreaBarStyles.track,
+                  scrollAreaBarStyles[axis],
+                  corner &&
+                    (axis === 'y' ? scrollAreaBarStyles.yCorner : scrollAreaBarStyles.xCorner),
                 ],
               },
               propsScrollbar,
               {
-                sx: !visible && barStyles.hidden,
+                sx: !visible && scrollAreaBarStyles.hidden,
                 ref: _toRef(track),
                 'aria-hidden': true,
                 onPointerdown: pageTo,
@@ -295,7 +302,12 @@ const Scrollbar = _component(
           <div
             {...elementProps(
               mergeProps<'div'>(
-                { sx: [barStyles.thumb, axis === 'y' ? barStyles.thumbY : barStyles.thumbX] },
+                {
+                  sx: [
+                    scrollAreaBarStyles.thumb,
+                    axis === 'y' ? scrollAreaBarStyles.thumbY : scrollAreaBarStyles.thumbX,
+                  ],
+                },
                 propsThumb,
                 { ref: _toRef(thumb), onPointerdown: dragThumb },
               ),
@@ -341,12 +353,18 @@ export const ScrollArea = _component(
         />
       );
       return (
-        <div {...elementProps(mergeProps<'div'>({ sx: styles.root }, rest, { ref: _toRef(root) }))}>
+        <div
+          {...elementProps(
+            mergeProps<'div'>({ sx: scrollAreaStyles.root }, rest, { ref: _toRef(root) }),
+          )}
+        >
           <div
             {...elementProps(
               mergeProps<'div'>(
                 // 焦点环在前：视口自己的 outlineOffset（画在里面）覆盖它
-                { sx: [focusRingStyles.visible, styles.viewport, styles[axis]] },
+                {
+                  sx: [focusRingStyles.visible, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
+                },
                 propsViewport,
                 // 可聚焦：键盘用户也能滚动（axe 的 scrollable-region-focusable）
                 { ref: _toRef(viewport), tabindex: 0 },
@@ -355,9 +373,13 @@ export const ScrollArea = _component(
           >
             <div
               {...elementProps(
-                mergeProps<'div'>({ sx: axis !== 'y' && styles.wideContent }, propsContent, {
-                  ref: _toRef(content),
-                }),
+                mergeProps<'div'>(
+                  { sx: axis !== 'y' && scrollAreaStyles.wideContent },
+                  propsContent,
+                  {
+                    ref: _toRef(content),
+                  },
+                ),
               )}
             >
               {children}

@@ -9,6 +9,7 @@
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import {
@@ -19,6 +20,7 @@ import {
   rowGapStyles,
   type LayoutTag,
   type Space,
+  type StyleTable,
 } from '../utils/style/styles';
 
 /** 单元格内容在格子里的对齐（align-items 为块方向、justify-items 为行内方向） */
@@ -66,12 +68,17 @@ export interface GridOptions {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Grid 的样式：root */
+export const gridStyles: StyleTable<'root'> = stylex.create({
   root: { display: 'grid' },
 });
 
 // 列数与最小宽度是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
-const dynamicStyles = stylex.create({
+/** Grid 的样式：columns、minItemWidth */
+export const gridDynamicStyles: Readonly<{
+  columns: (count: number) => StyleXStyles;
+  minItemWidth: (width: string) => StyleXStyles;
+}> = stylex.create({
   columns: (count: number) => ({ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }),
   // min(…, 100%)：容器比最小宽度还窄时不溢出
   minItemWidth: (width: string) => ({
@@ -79,26 +86,30 @@ const dynamicStyles = stylex.create({
   }),
 });
 
-const alignStyles = stylex.create({
+/** Grid 的样式：start、center、end、stretch */
+export const gridAlignStyles: StyleTable<'start' | 'center' | 'end' | 'stretch'> = stylex.create({
   start: { alignItems: 'start' },
   center: { alignItems: 'center' },
   end: { alignItems: 'end' },
   stretch: { alignItems: 'stretch' },
 });
 
-const justifyStyles = stylex.create({
+/** Grid 的样式：start、center、end、stretch */
+export const gridJustifyStyles: StyleTable<'start' | 'center' | 'end' | 'stretch'> = stylex.create({
   start: { justifyItems: 'start' },
   center: { justifyItems: 'center' },
   end: { justifyItems: 'end' },
   stretch: { justifyItems: 'stretch' },
 });
 
-const flowStyles = stylex.create({
-  row: { gridAutoFlow: 'row' },
-  column: { gridAutoFlow: 'column' },
-  'row dense': { gridAutoFlow: 'row dense' },
-  'column dense': { gridAutoFlow: 'column dense' },
-});
+/** Grid 的样式：row、column、row dense、column dense */
+export const gridFlowStyles: StyleTable<'row' | 'column' | 'row dense' | 'column dense'> =
+  stylex.create({
+    row: { gridAutoFlow: 'row' },
+    column: { gridAutoFlow: 'column' },
+    'row dense': { gridAutoFlow: 'row dense' },
+    'column dense': { gridAutoFlow: 'column dense' },
+  });
 
 /** 未声明的属性落到元素上：Grid 为 div，GridList 为 ul，createGrid 生成的为给定的标签 */
 export type GridProps<Tag extends LayoutTag = 'div'> = PartProps<Tag> & GridOptions;
@@ -129,17 +140,17 @@ export function createGrid<Tag extends LayoutTag>(
         const Tag = tag as LayoutTag;
         const template =
           minItemWidth != null
-            ? dynamicStyles.minItemWidth(minItemWidth)
-            : columns != null && dynamicStyles.columns(columns);
+            ? gridDynamicStyles.minItemWidth(minItemWidth)
+            : columns != null && gridDynamicStyles.columns(columns);
         const sx = [
-          styles.root,
+          gridStyles.root,
           template,
           gap && gapStyles[gap],
           rowGap && rowGapStyles[rowGap],
           columnGap && columnGapStyles[columnGap],
-          align && alignStyles[align],
-          justify && justifyStyles[justify],
-          flow && flowStyles[flow],
+          align && gridAlignStyles[align],
+          justify && gridJustifyStyles[justify],
+          flow && gridFlowStyles[flow],
           listRole(tag) && listStyles.reset,
         ];
         return (

@@ -21,6 +21,7 @@ import { Text, type TextProps } from '../base/Text';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { FormContext } from './Form';
+import type { StyleTable } from '../utils/style/styles';
 
 /** Field 交给控件的信息 */
 export interface FieldState {
@@ -40,7 +41,8 @@ export interface FieldState {
   readonly readonly: boolean;
 }
 
-const FieldContext = createContext<FieldState>('Field');
+/** Field 的上下文：自定义控件用 useFieldControl 接入，一般不直接读它 */
+export const FieldContext = createContext<FieldState>('Field');
 
 /** 控件自己的状态（不写时取 Field 的） */
 export interface FieldControlOptions {
@@ -105,7 +107,8 @@ export interface LabelProps extends PartProps<'label'> {
   children?: VNodeChild;
 }
 
-const labelStyles = stylex.create({
+/** Field 的样式：root、disabled、required */
+export const labelStyles: StyleTable<'root' | 'disabled' | 'required'> = stylex.create({
   root: {
     display: 'inline-flex',
     alignItems: 'baseline',
@@ -170,7 +173,8 @@ export interface FieldProps extends PartProps<'div'> {
   children?: VNodeChild;
 }
 
-const styles = stylex.create({
+/** Field 的样式：root、hint、error、errorIcon */
+export const fieldStyles: StyleTable<'root' | 'hint' | 'error' | 'errorIcon'> = stylex.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
   hint: { fontSize: '_sm', lineHeight: '_normal' },
   error: { display: 'inline-flex', alignItems: 'flex-start', gap: '_xs' },
@@ -237,7 +241,7 @@ export const Field = _component(
 
     return () => (
       <div
-        {...elementProps(mergeProps<'div'>({ sx: styles.root }, rest, { onFocusout }))}
+        {...elementProps(mergeProps<'div'>({ sx: fieldStyles.root }, rest, { onFocusout }))}
         data-invalid={(invalid ?? message() != null) || undefined}
         data-disabled={disabled || undefined}
       >
@@ -254,9 +258,13 @@ export const Field = _component(
         {children}
         {description != null && (
           <Text
-            {...mergePartProps<TextProps>({ tone: 'muted', sx: styles.hint }, propsDescription, {
-              id: ids.description,
-            })}
+            {...mergePartProps<TextProps>(
+              { tone: 'muted', sx: fieldStyles.hint },
+              propsDescription,
+              {
+                id: ids.description,
+              },
+            )}
           >
             {description}
           </Text>
@@ -264,12 +272,12 @@ export const Field = _component(
         {showError() && (
           <Text
             {...mergePartProps<TextProps>(
-              { tone: 'danger', sx: [styles.hint, styles.error] },
+              { tone: 'danger', sx: [fieldStyles.hint, fieldStyles.error] },
               propsError,
               { id: ids.error },
             )}
           >
-            <Icon icon={statusIcons.danger} sx={styles.errorIcon} />
+            <Icon icon={statusIcons.danger} sx={fieldStyles.errorIcon} />
             {message()}
           </Text>
         )}

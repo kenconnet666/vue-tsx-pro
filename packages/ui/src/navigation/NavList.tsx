@@ -23,16 +23,21 @@ import { useRouterLink } from '../utils/dom/link';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { itemStyles } from '../utils/style/item-styles';
-import { focusRingStyles, listStyles } from '../utils/style/styles';
+import { focusRingStyles, listStyles, type StyleTable } from '../utils/style/styles';
 
 /** 分组向里面的项要的信息：哪些项是当前页（有当前页时自动展开） */
-interface NavGroupState {
+export interface NavGroupState {
+  /** 组内的一项报告自己是不是当前页（item 是这一项的标识） */
   report(item: symbol, active: boolean): void;
 }
 
-const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
+/** NavGroup 的上下文：组内的项据此缩进；不在组内时为 null */
+export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 
-const styles = stylex.create({
+/** NavList 的样式：list、nested、row、current、disabled、chevron 等 */
+export const navListStyles: StyleTable<
+  'list' | 'nested' | 'row' | 'current' | 'disabled' | 'chevron' | 'chevronOpen'
+> = stylex.create({
   list: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
   // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
@@ -61,7 +66,9 @@ export interface NavListProps extends PartProps<'nav'> {
 /** 侧边导航（nav > ul），里面放 NavItem 与 NavGroup */
 export const NavList = _component(({ propsList, children, ...rest }: NavListProps) => () => (
   <nav {...elementProps(mergeProps<'nav'>({}, rest))}>
-    <ul {...elementProps(mergeProps<'ul'>({ sx: [listStyles.reset, styles.list] }, propsList))}>
+    <ul
+      {...elementProps(mergeProps<'ul'>({ sx: [listStyles.reset, navListStyles.list] }, propsList))}
+    >
       {children}
     </ul>
   </nav>
@@ -70,10 +77,10 @@ export const NavList = _component(({ propsList, children, ...rest }: NavListProp
 // ─────────────── NavItem ───────────────
 
 /** 地址与当前页由组件管理 */
-type ItemManaged = 'href' | 'aria-current';
+export type NavItemManaged = 'href' | 'aria-current';
 
 /** 未声明的属性落到链接（a）上 */
-export interface NavItemProps extends PartProps<'a', ItemManaged> {
+export interface NavItemProps extends PartProps<'a', NavItemManaged> {
   /** 链接地址 */
   href: string;
   /** 文字前的图标 */
@@ -135,11 +142,11 @@ export const NavItem = _component(
                 sx: [
                   itemStyles.row,
                   itemStyles.hoverable,
-                  styles.row,
+                  navListStyles.row,
                   focusRingStyles.visible,
                   rippleHostStyles.host,
-                  current && [itemStyles.current, styles.current],
-                  disabled && [itemStyles.disabled, styles.disabled],
+                  current && [itemStyles.current, navListStyles.current],
+                  disabled && [itemStyles.disabled, navListStyles.disabled],
                 ],
               },
               rest,
@@ -226,7 +233,7 @@ export const NavGroup = _component(
                         sx: [
                           itemStyles.row,
                           itemStyles.hoverable,
-                          styles.row,
+                          navListStyles.row,
                           focusRingStyles.visible,
                         ],
                         type: 'button',
@@ -243,7 +250,7 @@ export const NavGroup = _component(
                   <Icon
                     icon={ChevronRight}
                     flipInRtl
-                    sx={[styles.chevron, open && styles.chevronOpen]}
+                    sx={[navListStyles.chevron, open && navListStyles.chevronOpen]}
                   />
                 </button>
               ),
@@ -254,7 +261,10 @@ export const NavGroup = _component(
         >
           <ul
             {...elementProps(
-              mergeProps<'ul'>({ sx: [listStyles.reset, styles.list, styles.nested] }, propsList),
+              mergeProps<'ul'>(
+                { sx: [listStyles.reset, navListStyles.list, navListStyles.nested] },
+                propsList,
+              ),
             )}
           >
             {children}

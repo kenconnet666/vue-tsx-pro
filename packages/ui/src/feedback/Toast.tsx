@@ -44,6 +44,7 @@ import { elementProps, mergePartProps, mergeProps, type PartProps } from '../uti
 import type { StatusTone } from '../utils/style/tone-styles';
 import { afterTransitions } from '../utils/style/transitions';
 import { Alert, type AlertProps } from './Alert';
+import type { StyleTable } from '../utils/style/styles';
 
 /** 一条通知的内容与行为 */
 export interface ToastOptions {
@@ -248,7 +249,18 @@ export interface ToasterProps extends PartProps<'section', 'popover' | 'tabindex
   propsToast?: Partial<AlertProps> | ((toast: ToastRecord) => Partial<AlertProps>);
 }
 
-const styles = stylex.create({
+/** Toaster 的样式：region、list、listFromTop、item、itemFromBottom、itemFromTop 等 */
+export const toastStyles: StyleTable<
+  | 'region'
+  | 'list'
+  | 'listFromTop'
+  | 'item'
+  | 'itemFromBottom'
+  | 'itemFromTop'
+  | 'itemClosing'
+  | 'gap'
+  | 'toast'
+> = stylex.create({
   region: {
     // 原生 popover 默认居中、带边框与底色，改为贴着视口的一角
     position: 'fixed',
@@ -292,7 +304,10 @@ const styles = stylex.create({
   toast: { boxShadow: '_lg' },
 });
 
-const placementStyles = stylex.create({
+/** Toaster 的样式：top-start、top、top-end、bottom-start、bottom、bottom-end */
+export const toastPlacementStyles: StyleTable<
+  'top-start' | 'top' | 'top-end' | 'bottom-start' | 'bottom' | 'bottom-end'
+> = stylex.create({
   'top-start': { top: 0, insetInlineStart: 0 },
   top: { top: 0, insetInline: 0, marginInline: 'auto' },
   'top-end': { top: 0, insetInlineEnd: 0 },
@@ -301,13 +316,19 @@ const placementStyles = stylex.create({
   'bottom-end': { bottom: 0, insetInlineEnd: 0 },
 });
 
-interface ToastItemProps {
+/** Toaster 里每条通知的 props */
+export interface ToastItemProps {
+  /** 这条通知 */
   toast: ToastRecord;
+  /** 所属的通知器：关闭、暂停计时 */
   controller: ToasterController;
+  /** Toaster 在顶部：进场从上方滑入 */
   fromTop: boolean;
   /** 最后一条被关闭时焦点回到这里 */
   fallbackFocus: () => HTMLElement | null;
+  /** 每条通知外层（li）的部件属性 */
   propsItem: ToasterProps['propsItem'];
+  /** 通知本身（Alert）的部件属性 */
   propsToast: ToasterProps['propsToast'];
 }
 
@@ -315,7 +336,7 @@ interface ToastItemProps {
 const SWIPE_RATIO = 0.35;
 
 /** 列表里的一项：Collapse 负责离场时收起高度，收起后从控制器里移除 */
-const ToastItem = _component(
+export const ToastItem = _component(
   ({ toast, controller, fromTop, fallbackFocus, propsItem, propsToast }: ToastItemProps) => {
     let item = _state.raw<HTMLElement | null>(null);
 
@@ -367,9 +388,9 @@ const ToastItem = _component(
             mergeProps<'li'>(
               {
                 sx: [
-                  styles.item,
-                  fromTop ? styles.itemFromTop : styles.itemFromBottom,
-                  toast.closing && styles.itemClosing,
+                  toastStyles.item,
+                  fromTop ? toastStyles.itemFromTop : toastStyles.itemFromBottom,
+                  toast.closing && toastStyles.itemClosing,
                 ],
               },
               itemProps,
@@ -378,7 +399,7 @@ const ToastItem = _component(
           )}
           data-state={toast.closing ? 'closed' : 'open'}
         >
-          <Collapse open={!toast.closing} propsContent={{ sx: styles.gap }}>
+          <Collapse open={!toast.closing} propsContent={{ sx: toastStyles.gap }}>
             <Alert
               {...mergePartProps<AlertProps>(
                 {
@@ -388,7 +409,7 @@ const ToastItem = _component(
                   loading: toast.loading,
                   title: toast.title,
                   action: toast.action,
-                  sx: styles.toast,
+                  sx: toastStyles.toast,
                 },
                 toastProps,
                 { onClose: toast.closable === false ? undefined : close },
@@ -472,7 +493,7 @@ export const Toaster = _component(
               {...elementProps(
                 mergeProps<'section'>(
                   {
-                    sx: [styles.region, placementStyles[placement]],
+                    sx: [toastStyles.region, toastPlacementStyles[placement]],
                     'aria-label': lang.toasterLabel,
                   },
                   rest,
@@ -492,7 +513,7 @@ export const Toaster = _component(
               <ol
                 {...elementProps(
                   mergeProps<'ol'>(
-                    { sx: [styles.list, fromTop && styles.listFromTop] },
+                    { sx: [toastStyles.list, fromTop && toastStyles.listFromTop] },
                     propsList,
                     {
                       'aria-live': 'polite',

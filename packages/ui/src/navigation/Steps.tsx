@@ -11,7 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, listStyles } from '../utils/style/styles';
+import { focusRingStyles, listStyles, type StyleTable } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 
 /** 步骤条方向 */
@@ -35,7 +35,7 @@ export interface StepItem {
 }
 
 /** 步骤的状态：已完成、当前、未开始、出错 */
-type StepState = 'complete' | 'current' | 'upcoming' | 'error';
+export type StepState = 'complete' | 'current' | 'upcoming' | 'error';
 
 /** 未声明的属性落到 ol 上；aria-label 是步骤条的名称 */
 export interface StepsProps extends PartProps<'ol'> {
@@ -63,7 +63,19 @@ export interface StepsProps extends PartProps<'ol'> {
   propsConnector?: PartProps<'span'>;
 }
 
-const styles = stylex.create({
+/** Steps 的样式：root、vertical、item、trigger、indicator、text 等 */
+export const stepsStyles: StyleTable<
+  | 'root'
+  | 'vertical'
+  | 'item'
+  | 'trigger'
+  | 'indicator'
+  | 'text'
+  | 'title'
+  | 'description'
+  | 'connector'
+  | 'connectorDone'
+> = stylex.create({
   root: { display: 'flex', gap: '_sm' },
   vertical: { flexDirection: 'column', gap: '_lg' },
   item: {
@@ -116,12 +128,14 @@ const styles = stylex.create({
   connectorDone: { backgroundColor: '_accent' },
 });
 
-const stateStyles = stylex.create({
-  complete: { borderColor: '_accent', backgroundColor: '_accent', color: '_accentContrast' },
-  current: { borderColor: '_accent', color: '_accentText' },
-  upcoming: { borderColor: '_border', color: '_textMuted' },
-  error: { borderColor: '_danger', backgroundColor: '_dangerSoft', color: '_dangerText' },
-});
+/** Steps 的样式：complete、current、upcoming、error */
+export const stepsStateStyles: StyleTable<'complete' | 'current' | 'upcoming' | 'error'> =
+  stylex.create({
+    complete: { borderColor: '_accent', backgroundColor: '_accent', color: '_accentContrast' },
+    current: { borderColor: '_accent', color: '_accentText' },
+    upcoming: { borderColor: '_border', color: '_textMuted' },
+    error: { borderColor: '_danger', backgroundColor: '_dangerSoft', color: '_dangerText' },
+  });
 
 /** 步骤条：已完成、当前、未开始，可选点回已完成的步骤 */
 export const Steps = _component(
@@ -145,7 +159,7 @@ export const Steps = _component(
         <ol
           {...elementProps(
             mergeProps<'ol'>(
-              { sx: [listStyles.reset, styles.root, vertical && styles.vertical] },
+              { sx: [listStyles.reset, stepsStyles.root, vertical && stepsStyles.vertical] },
               rest,
             ),
           )}
@@ -163,8 +177,8 @@ export const Steps = _component(
             const content = [
               <span
                 {...elementProps(
-                  mergeProps<'span'>({ sx: styles.indicator }, propsIndicator, {
-                    sx: stateStyles[state],
+                  mergeProps<'span'>({ sx: stepsStyles.indicator }, propsIndicator, {
+                    sx: stepsStateStyles[state],
                     'aria-hidden': true,
                   }),
                 )}
@@ -177,14 +191,14 @@ export const Steps = _component(
                   index + 1
                 )}
               </span>,
-              <span {...elementProps(mergeProps<'span'>({ sx: styles.text }, propsText))}>
-                <span {...elementProps(mergeProps<'span'>({ sx: styles.title }, propsTitle))}>
+              <span {...elementProps(mergeProps<'span'>({ sx: stepsStyles.text }, propsText))}>
+                <span {...elementProps(mergeProps<'span'>({ sx: stepsStyles.title }, propsTitle))}>
                   {item.title}
                 </span>
                 {item.description != null && (
                   <span
                     {...elementProps(
-                      mergeProps<'span'>({ sx: styles.description }, propsDescription),
+                      mergeProps<'span'>({ sx: stepsStyles.description }, propsDescription),
                     )}
                   >
                     {item.description}
@@ -197,7 +211,7 @@ export const Steps = _component(
               <li
                 key={index}
                 {...elementProps(
-                  mergeProps<'li'>({ sx: styles.item }, own, {
+                  mergeProps<'li'>({ sx: stepsStyles.item }, own, {
                     'aria-current': state === 'current' ? 'step' : undefined,
                   }),
                 )}
@@ -207,7 +221,7 @@ export const Steps = _component(
                   <button
                     {...elementProps(
                       mergeProps<'button'>(
-                        { sx: [styles.trigger, focusRingStyles.visible] },
+                        { sx: [stepsStyles.trigger, focusRingStyles.visible] },
                         propsTrigger,
                         { type: 'button', onClick: () => onStepChange(index) },
                       ),
@@ -221,8 +235,8 @@ export const Steps = _component(
                 {!vertical && index < items.length - 1 && (
                   <span
                     {...elementProps(
-                      mergeProps<'span'>({ sx: styles.connector }, propsConnector, {
-                        sx: index < current && styles.connectorDone,
+                      mergeProps<'span'>({ sx: stepsStyles.connector }, propsConnector, {
+                        sx: index < current && stepsStyles.connectorDone,
                         'aria-hidden': true,
                       }),
                     )}

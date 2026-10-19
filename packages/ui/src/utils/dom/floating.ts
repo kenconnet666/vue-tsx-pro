@@ -1,6 +1,6 @@
 /**
  * 锚定浮层：Popover、Tooltip、Menu、Select 的弹出层贴着触发器显示。位置由 floating-ui 计算，
- * 显示、隐藏、Esc、点击外部仍交给原生 popover（见 utils/dom/overlay）；createAnchoredPopover 把两者串成打开、关闭的流程。
+ * 显示、隐藏、Esc、点击外部仍交给原生 popover（见 utils/dom/overlay）；createAnchoredLayer 把两者串成打开、关闭的流程。
  *
  *   const anchored = anchorFloating(trigger, panel, { placement: 'bottom-start' });
  *   await anchored.ready;   // 第一次定位完成、已经可见：这时才能把焦点移进去
@@ -167,8 +167,8 @@ export function anchorFloating(
   };
 }
 
-/** createAnchoredPopover 的返回值：一个原生 popover 浮层的打开与关闭 */
-export interface AnchoredPopover {
+/** createAnchoredLayer 的返回值：一个原生 popover 浮层的打开与关闭 */
+export interface AnchoredLayer {
   /** 是否显示着（show 之后、hide 之前） */
   readonly visible: boolean;
   /** 显示 panel（showPopover）并贴着 anchor 定位；返回第一次定位完成、可以移入焦点的 Promise。已显示时不重复 */
@@ -181,7 +181,7 @@ export interface AnchoredPopover {
  * 锚定浮层的生命周期（Popover、Menu、Tooltip 共用）：显示 → 定位 → 关闭时停止定位、归还焦点。
  * 原生 popover="auto" 被 Esc、点击外部关闭（light dismiss）时浏览器先隐藏了它，组件在 toggle 事件里调用 hide 收尾。
  */
-export function createAnchoredPopover(): AnchoredPopover {
+export function createAnchoredLayer(): AnchoredLayer {
   let current: { anchor: HTMLElement; panel: HTMLElement; anchored: Anchored } | undefined;
   let ready: Promise<void> = Promise.resolve();
   return {
@@ -243,7 +243,7 @@ export function useAnchoredPopover(
   read: () => AnchoredPopoverState,
   events: AnchoredPopoverEvents,
 ): { onToggle: (event: Event) => void } {
-  const layer = createAnchoredPopover();
+  const layer = createAnchoredLayer();
 
   watchPostEffect(() => {
     const { open, anchor, panel, floating, restoreFocus = true } = read();

@@ -25,16 +25,24 @@ import { rovingFocus } from '../utils/dom/roving-focus';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import { useFieldControl } from './Field';
 import type { TextSize } from '../utils/style/typography';
+import type { StyleTable } from '../utils/style/styles';
 
-interface ToggleGroupState {
+/** ToggleGroup 交给组内 ToggleGroupItem 的状态 */
+export interface ToggleGroupState {
+  /** 按下（选中）的项的值 */
   readonly selected: readonly string[];
+  /** 字号档位；不写时继承 */
   readonly size: TextSize | undefined;
+  /** 整组不可用 */
   readonly disabled: boolean;
+  /** 波纹；不写时沿用配置 */
   readonly ripple: boolean | undefined;
+  /** 切换一项（单选、多选的规则由组决定） */
   toggle(value: string): void;
 }
 
-const ToggleGroupContext = createContext<ToggleGroupState>('ToggleGroup');
+/** ToggleGroup 的上下文：自定义的项可以 inject 它接入组 */
+export const ToggleGroupContext = createContext<ToggleGroupState>('ToggleGroup');
 
 /** 方向 */
 export interface ToggleGroupOrientations {
@@ -45,10 +53,10 @@ export interface ToggleGroupOrientations {
 }
 
 /** 角色由组件管理（role="group" 不允许 aria-orientation，方向只写在 data-orientation 上） */
-type Managed = 'role';
+export type ToggleGroupManaged = 'role';
 
 /** 两种选择方式共有的选项；未声明的属性落到 role="group" 的 div 上，aria-label 是这组的名称 */
-interface ToggleGroupBaseProps extends PartProps<'div', Managed> {
+interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
   /** 至少保留一项选中（分段控件通常要求） */
   required?: boolean;
   /** 整组不可用 */
@@ -81,7 +89,8 @@ interface MultipleProps extends ToggleGroupBaseProps {
 /** 单选或多选 */
 export type ToggleGroupProps = SingleProps | MultipleProps;
 
-const styles = stylex.create({
+/** ToggleGroup 的样式：root、vertical */
+export const toggleGroupStyles: StyleTable<'root' | 'vertical'> = stylex.create({
   root: {
     display: 'inline-flex',
     gap: '_xs',
@@ -142,7 +151,12 @@ export const ToggleGroup = _component(
         <div
           {...elementProps(
             mergeProps<'div'>(
-              { sx: [styles.root, orientation === 'vertical' && styles.vertical] },
+              {
+                sx: [
+                  toggleGroupStyles.root,
+                  orientation === 'vertical' && toggleGroupStyles.vertical,
+                ],
+              },
               rest,
               {
                 ref: _toRef(root),
@@ -166,11 +180,11 @@ export const ToggleGroup = _component(
 );
 
 /** 选中、不可用由组件管理 */
-type ItemManaged = 'aria-pressed' | 'disabled' | 'type';
+export type ToggleGroupItemManaged = 'aria-pressed' | 'disabled' | 'type';
 
 /** 未声明的属性落到 button 上；只有图标时写 aria-label */
 export interface ToggleItemProps
-  extends PartProps<'button', ItemManaged>, Pick<ButtonOptions, 'radius'> {
+  extends PartProps<'button', ToggleGroupItemManaged>, Pick<ButtonOptions, 'radius'> {
   /** 这一项的值 */
   value: string;
   /** 图标 */
