@@ -235,7 +235,7 @@ interface Lang {
 
 **已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/overlay`）、过渡与 JS 动画（`utils/transitions`、`utils/animation`）、虚拟滚动核心（`utils/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
-**试点组件**（`apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）按本规范写，但不进组件库、不承诺 API。在 Chromium、Firefox、WebKit 中已验证：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
+**试点组件**（原 `apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）已全部转正并删除，`/pilot` 页面改用正式组件。试点阶段在 Chromium、Firefox、WebKit 中验证过：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
 **StyleX 相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
 
@@ -274,8 +274,7 @@ interface Lang {
 - 文档页的 props 表生成。
 - 表格：建在 `Virtualizer` 上（行虚拟化；列很多时在核心上加横向虚拟化），吸顶表头经 `rangeExtractor` 接入。
 - 双指缩放、旋转等手势：图片预览组件出现时在 `utils/move.ts` 旁边加。拖动工具已完成（§10.8）。
-- 下一批：浮层工具（从试点 Popover 抽出 floating-ui 定位、方向翻转、缩放原点），Popover、Tooltip、Dialog 转正，Menu（菜单按钮模式，用漫游焦点与 `toggleSelection` 的复选组）；Breadcrumbs 的折叠到时可改为菜单。
-- Select、Combobox 等表单控件：选择模型已就绪（`utils/selection.ts`），等浮层工具完成后做。
+- 下一批：Listbox（`role="listbox"`，`aria-activedescendant`，类型搜索用 `createTypeahead`，长列表建在 `Virtualizer` 上，选择用 `toggleSelection`），Select（输入框外壳的触发框 + `createAnchoredPopover` 的 `matchWidth` / `fitHeight` + Listbox）、Combobox（TextField + Listbox，输入法组合期间不搜索）；日期选择（`@internationalized/date`）。
 - 验证覆盖：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
 
 ## 8. 正式组件的完成标准（供之后使用）
@@ -467,6 +466,46 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - **选择模型** `utils/selection.ts`：`toggleSelection(selected, key, { mode, required })`，单选 / 多选；第一个使用者是 ToggleGroup。
 - **input/ToggleGroup / ToggleItem**：复合组件，`type` single / multiple，`required`，整组 `disabled`，横竖，`aria-pressed` 表示选中，漫游焦点的进入点落在选中项上（漫游焦点改为也认 `aria-pressed` / `aria-checked`）；外观复用按钮家族的样式表（选中 surface accent，其余 ghost neutral）。
 
+### 10.11 浮层、反馈、输入与表单（已完成）
+
+**目录整理**：`integrations/` 删除，Shiki 与 vue-router 的适配移到 `config/`（它们实现 `config/context.ts` 里的 `Highlighter`、`UiRouter`，子路径名不变）；新增 `feedback/`（Alert、Progress、Skeleton 从 display 移入）、`overlay/`、`input/`（Slider、ToggleGroup、SlideVerify 从 form 移入，表单结构与校验 Field、Form、useForm 也放在这里，`form/` 删除）。Spinner 留在 base：Button 的 loading 依赖它。
+
+**基础设施**（上层组件只组合它们）：
+
+| 项             | 位置                      | 内容                                                                                                                                                                                                                                                   |
+| -------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 锚定浮层       | `utils/floating.ts`       | `anchorFloating`（第一次定位前隐藏、flip / shift、autoUpdate、`matchWidth` / `fitHeight`、`data-side`、缩放原点）；`createAnchoredPopover`（显示 → 定位 → 关闭时停止、归还焦点，Popover / Menu / Tooltip 共用）；`floatingStyles.anchored` / `surface` |
+| 模态登记       | `utils/overlay.ts`        | `trackModal` / `topModal`：模态打开时外面连顶层的 manual popover 也是 inert（三大浏览器实测，写进 native-overlay 的回归测试），Toaster 据此移进最上层的模态                                                                                            |
+| 移除后的焦点   | `utils/overlay.ts`        | `focusAfterRemoval`：关闭、移除按钮所在的元素真被移除时，焦点交给同组的下一个 / 上一个（同 React Aria TagGroup）；Tag、Alert、Toast 用                                                                                                                 |
+| 状态图标       | `utils/tone-styles.ts`    | `statusIcons`：Alert、Toast、Steps、Field 的错误信息共用                                                                                                                                                                                               |
+| 类型搜索       | `utils/typeahead.ts`      | `createTypeahead`：连续输入拼词、同一字母轮换；`rovingFocus` 的 `typeahead` 选项用它，以后的 Listbox 也用                                                                                                                                              |
+| 步长对齐       | `utils/layout.ts`         | `snapToStep`：Slider、NumberField 共用，按 step 与 min 的小数位取整                                                                                                                                                                                    |
+| 传送内容的配置 | `config/Provider.tsx`     | `ConfigScope`：Teleport 出去的内容重新带上主题、lang、dir                                                                                                                                                                                              |
+| 输入框外壳     | `input/control-styles.ts` | `controlSx` / `controlStyles` / `useControlAppearance`：outline / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                                                                                        |
+| 勾选类控件     | `input/choice-styles.ts`  | label > 叠放层（原生 input 画成方框 / 圆 / 轨道 + 不接收指针的标记）> 文字；复选组、单选组的排列                                                                                                                                                       |
+| 字段           | `input/Field.tsx`         | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                     |
+
+**组件**：
+
+- **feedback/**：
+  - Dialog / Drawer / AlertDialog 共用一个模态内核（原生 `showModal` + utils/overlay），部件复用 H2、CloseButton、Paragraph、ScrollArea（只滚正文）、Flex；Dialog 宽度档位同 Container；Drawer 四个方向（逻辑方向，进场滑入、离场淡出）；AlertDialog 不能点遮罩关闭，焦点先落在取消上，`onConfirm` 返回 Promise 时确认按钮加载中、Esc 暂不可用。
+  - Toast：`createToaster()` 控制器（组件外也能用）+ `<Toaster>` 区域；每条就是 Alert（Alert 新增 `loading`）；悬停、聚焦、页面隐藏时暂停计时；`promise()`；区域是带名称的 landmark，F8 跳到它，列表 `aria-live="polite"`；顶层 manual popover，模态打开时移进模态；离场用 Collapse 收起高度。
+- **overlay/**：Popover（试点转正）；Tooltip（悬停延迟、在一排触发器间移动不再等待、键盘聚焦立即显示、Esc 只关提示、可移到提示上、触屏不显示，manual popover 不会关掉打开着的菜单）；Menu（菜单按钮模式：MenuItem、MenuLinkItem、MenuCheckboxItem、MenuRadioGroup / MenuRadioItem、MenuGroup，漫游焦点 + 类型搜索，↑ 打开时落在最后一项，Tab 关闭且焦点继续往后）。Breadcrumbs 的折叠改为菜单。
+- **input/**：TextField（试点转正：图标、清空、显示密码的切换按钮名称不变而用 `aria-pressed`）、Textarea（随内容增高，`rows`–`maxRows`）、NumberField（`role="spinbutton"`，按语言解析、认全角数字，提交时夹到范围并对齐步长，步进按钮不进 Tab 顺序）、Checkbox / CheckboxGroup、RadioGroup / Radio（同名原生 radio，方向键是浏览器的）、Switch（`role="switch"`）。
+- **input/ 的表单部分**：Field、Label、Form（`novalidate`，提交失败时聚焦第一个出错的控件，原生 reset 回到初始值）、`useForm`（只依赖 Standard Schema 接口，可加 `validate` 函数；失焦后才显示该字段的错误，提交过之后随输入更新；`setError` 写服务端错误）。
+
+**取舍**：
+
+- 点击遮罩关闭仍用 `dismissOnBackdrop`：原生 `closedby="any"` 到 2026 年 Safari 仍不支持。
+- Toaster 不用 z-index：没有层级 token，顶层渲染才盖得住非模态浮层；模态打开时移进模态而不是另建弹层栈。
+- Drawer 离场淡出而不是滑回：StyleX 不允许同一属性里 `:dir(rtl)` 出现两次，方向只在进场的起始值里区分；离场过渡本来也只有 Chromium 支持。
+- Tooltip 用 `popover="manual"` 而不是 `hint`：`hint` 只有 Chromium 支持。
+- 勾选类控件用原生 input 而不是 `button` + role：键盘、表单提交与重置、label 点击都由浏览器负责。
+- Textarea 用 JS 自动增高：`field-sizing` Firefox 不支持，StyleX 的类型里也没有。
+- 控制器（Toast、Form）都是普通对象，不经 Provider 注入，组件外也能用（§1 的“命令式能力”）。
+
+**暂不做**：Select / Combobox / Listbox、日期选择、子菜单、Toast 滑动关闭、环形进度、空状态、Popconfirm 与命令式的 `confirm()`。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。下一批：浮层工具，以及 Popover、Tooltip、Dialog 转正和 Menu（Menu 用漫游焦点，Breadcrumbs 的折叠到时可改为菜单）。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8），均已完成，每步单独提交。→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）。→ 浮层、反馈、输入与表单（10.11）。下一批：Listbox、Select、Combobox，之后是日期选择与表格。正式组件按 §8 验收，文档页暂用演示页代替。

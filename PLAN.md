@@ -32,17 +32,18 @@ packages/
     src/base/         基础：文字、图标、链接、按钮家族、标记、代码块、加载
     src/layout/       布局：Flex、Grid、Container、Separator、ScrollArea
     src/display/      展示：折叠、虚拟列表、卡片、头像
-    src/feedback/     反馈：进度、骨架屏、提示条
+    src/feedback/     反馈：进度、骨架屏、提示条、对话框、抽屉、通知
+    src/overlay/      浮层：Popover、Tooltip、Menu
     src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList
-    src/input/        输入：Slider、SlideVerify、ToggleGroup
-    src/form/         表单结构与校验：Form、Field、useForm（待做）
+    src/input/        输入：TextField、Textarea、NumberField、Checkbox、Radio、Switch、Slider、SlideVerify、ToggleGroup，
+                      以及表单结构与校验：Field、Label、Form、useForm
     src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）、
                       可选依赖的适配（子路径 shiki、vue-router）
     src/utils/        部件 props 合并、样式档位、波纹、拖动、漫游焦点、虚拟滚动、路由适配等
     （每个目录下的 .test/ 放测试）
 apps/
   docs/        文档站（VitePress 2）
-  host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面 + 试点组件（src/pilot）
+  host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面（/base 演示页、/pilot 集成验证页）
 scripts/
   css-docs/            StyleX 属性注释的数据与生成器
   language-services/   TSX 语言服务（MCP）
@@ -73,14 +74,14 @@ scripts/
 
 ## 5. 里程碑
 
-| 阶段            | 内容                                                                                                                                          | 状态   |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| **M0 骨架**     | workspace、catalog、lint / format、CI                                                                                                         | 完成   |
-| **M1 tsx 包**   | 符文与 props 编译、Vue 3.5 + 官方 JSX 插件底座、宿主示例、语言服务                                                                            | 完成   |
-| **M2 UI 基础**  | tokens 与明暗主题、Provider / createUi、语言与格式化、mergeProps、试点组件、浏览器测试链路                                                    | 完成   |
-| **M3 文档站**   | 写法指南、组件页（演示 + props 表）、部署、E2E 冒烟                                                                                           | 未开始 |
-| **M4 正式组件** | 已完成：基础设施、文本、布局、折叠、代码块、虚拟滚动、拖动类、按钮家族、标记与反馈、导航（COMPONENTS.md §10）；下一批：浮层与菜单，之后是表单 | 进行中 |
-| **M5 发布准备** | 放宽 Vite peer 范围、changesets、发 `0.x`（发布产物验证已提前完成）                                                                           | 未开始 |
+| 阶段            | 内容                                                                                                                                                                                                       | 状态   |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| **M0 骨架**     | workspace、catalog、lint / format、CI                                                                                                                                                                      | 完成   |
+| **M1 tsx 包**   | 符文与 props 编译、Vue 3.5 + 官方 JSX 插件底座、宿主示例、语言服务                                                                                                                                         | 完成   |
+| **M2 UI 基础**  | tokens 与明暗主题、Provider / createUi、语言与格式化、mergeProps、试点组件、浏览器测试链路                                                                                                                 | 完成   |
+| **M3 文档站**   | 写法指南、组件页（演示 + props 表）、部署、E2E 冒烟                                                                                                                                                        | 未开始 |
+| **M4 正式组件** | 已完成：基础设施、文本、布局、折叠、代码块、虚拟滚动、拖动类、按钮家族、标记与反馈、导航、浮层与菜单、对话框与通知、输入与表单（COMPONENTS.md §10）；下一批：Listbox / Select / Combobox，之后是日期与表格 | 进行中 |
+| **M5 发布准备** | 放宽 Vite peer 范围、changesets、发 `0.x`（发布产物验证已提前完成）                                                                                                                                        | 未开始 |
 
 ## 6. 技术约束与退路
 
