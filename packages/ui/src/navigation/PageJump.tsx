@@ -57,7 +57,8 @@ export const PageJump = _component(
       () => draft,
       (target) => {
         if (target == null) return;
-        page = clamp(Math.round(target), 1, Math.max(1, pageCount));
+        const next = clamp(Math.round(target), 1, Math.max(1, pageCount));
+        if (next !== page) page = next;
         draft = null;
       },
     );
