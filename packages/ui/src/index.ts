@@ -185,6 +185,21 @@ export {
 export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 export {
+  Descriptions,
+  descriptionsGridStyles,
+  descriptionsStyles,
+  type DescriptionItem,
+  type DescriptionsLayouts,
+  type DescriptionsProps,
+} from './display/Descriptions';
+export {
+  Timeline,
+  timelineStyles,
+  timelineToneStyles,
+  type TimelineItem,
+  type TimelineProps,
+} from './display/Timeline';
+export {
   VirtualList,
   virtualListSizeStyles,
   virtualListStyles,

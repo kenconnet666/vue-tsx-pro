@@ -67,6 +67,7 @@ import {
   ClearButton,
   CloseButton,
   CopyButton,
+  Descriptions,
   Icon,
   IconButton,
   Indicator,
@@ -101,6 +102,7 @@ import {
   TabPanel,
   Tabs,
   Tag,
+  Timeline,
   TagsInput,
   Provider,
   ScrollArea,
@@ -1214,6 +1216,53 @@ export const Base = _component(() => {
           >
             {(row) => <div {...stylex.attrs(styles.virtualRow)}>{row.text}</div>}
           </VirtualList>
+        </Section>
+
+        <Section title="描述与时间线 Descriptions · Timeline">
+          <Descriptions
+            class="descriptions-demo"
+            title="订单信息"
+            columns={3}
+            items={[
+              { label: '订单号', value: 'A-1024' },
+              { label: '状态', value: <Badge tone="success">已发货</Badge> },
+              { label: '金额', value: '¥1,280.00' },
+              { label: '收货地址', value: '上海市徐汇区漕溪北路 1 号', span: 3 },
+            ]}
+          />
+          <Descriptions
+            bordered
+            layout="vertical"
+            columns={2}
+            items={[
+              { label: '创建人', value: 'Ada Lovelace' },
+              { label: '创建时间', value: '2026-10-18 09:12' },
+            ]}
+          />
+          <Timeline
+            class="timeline-demo"
+            items={[
+              { title: '已下单', time: '10-18 09:12', dateTime: '2026-10-18T09:12' },
+              { title: '已付款', time: '10-18 09:15', tone: 'accent' },
+              {
+                title: '已发货',
+                time: '10-18 15:40',
+                tone: 'success',
+                icon: Check,
+                description: '顺丰 SF1024',
+              },
+            ]}
+            pending="正在派送"
+          />
+          <Timeline
+            alternate
+            class="timeline-alternate-demo"
+            items={[
+              { title: '立项', time: '2024' },
+              { title: '1.0 发布', time: '2025', tone: 'success' },
+              { title: '2.0 发布', time: '2026', tone: 'accent' },
+            ]}
+          />
         </Section>
 
         <Section title="折叠 Collapsible · Accordion">
