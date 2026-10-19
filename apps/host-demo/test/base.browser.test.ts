@@ -313,6 +313,18 @@ describe('虚拟列表：VirtualList', () => {
   });
 });
 
+describe('开关：Switch', () => {
+  it('轨道里有文字时随文字加宽，打开时滑块贴着结束边', () => {
+    const input = $<HTMLInputElement>('.switch-loading-demo');
+    const plain = input.closest('li')!.querySelector<HTMLInputElement>('input[role="switch"]')!;
+    const track = input.getBoundingClientRect();
+    expect(track.width).toBeGreaterThan(plain.getBoundingClientRect().width);
+    const thumb = input.parentElement!.lastElementChild!.getBoundingClientRect();
+    expect(input.checked).toBe(true);
+    expect(track.right - thumb.right).toBeLessThan(track.height / 2);
+  });
+});
+
 describe('切换按钮组：ToggleGroup', () => {
   it('单选的滑块盖住选中项，切换时滑过去，滑完与新选中项重合', async () => {
     const group = $('.toggle-single');

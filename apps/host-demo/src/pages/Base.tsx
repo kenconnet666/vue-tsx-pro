@@ -272,6 +272,15 @@ export const Base = _component(() => {
   let quantity = _state<number | null>(1);
   let note = _state('');
   let homepage = _state('my-site');
+  let autoSave = _state(true);
+  let savingSwitch = _state(false);
+  function toggleAutoSave() {
+    savingSwitch = true;
+    setTimeout(() => {
+      autoSave = !autoSave;
+      savingSwitch = false;
+    }, 1000);
+  }
   let agreed = _state(false);
   let channels = _state<string[]>(['email']);
   let shipping = _state<string | undefined>('express');
@@ -725,6 +734,16 @@ export const Base = _component(() => {
             <li>
               <Flex direction="column" gap="sm">
                 <Switch checked={_bind(notify)}>接收通知</Switch>
+                <Switch
+                  class="switch-loading-demo"
+                  checked={autoSave}
+                  loading={savingSwitch}
+                  checkedContent="开"
+                  uncheckedContent="关"
+                  onChange={toggleAutoSave}
+                >
+                  自动保存（切换要等 1 秒）
+                </Switch>
                 <Checkbox class="agree-demo" checked={_bind(agreed)}>
                   我已阅读并同意服务条款
                 </Checkbox>

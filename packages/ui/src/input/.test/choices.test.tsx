@@ -97,4 +97,23 @@ describe('Switch', () => {
     await click(input);
     expect(on).toBe(true);
   });
+
+  it('loading：aria-busy，点击不切换；轨道里的文字对读屏隐藏，只显示当前状态那份', async () => {
+    let on = _state(false);
+    const root = mount(() => (
+      <Switch checked={_bind(on)} loading checkedContent="开" uncheckedContent="关">
+        自动保存
+      </Switch>
+    ));
+    const input = root.querySelector('input')!;
+    expect(input.getAttribute('aria-busy')).toBe('true');
+    expect(root.querySelector('label')!.dataset.loading).toBe('true');
+    await click(input);
+    expect(on).toBe(false);
+    expect(input.checked).toBe(false);
+    const contents = [...root.querySelectorAll('span[aria-hidden="true"]')].map(
+      (span) => span.textContent,
+    );
+    expect(contents).toEqual(['开', '关']);
+  });
 });

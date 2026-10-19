@@ -5,13 +5,16 @@
  *   <Switch checked={_bind(notify)}>接收通知</Switch>
  *
  * 读屏念“开关，开 / 关”；空格切换（原生）。在 Field 里时关联说明与错误、沿用其状态。
- * 部件：Root（label）、Control（叠放层）、Thumb（滑块）、Label（文字）；未声明的属性落到 input 上。
+ * 切换要等接口时用 loading：滑块里转圈、点击无效。轨道里可以放文字或图标（checkedContent / uncheckedContent），对读屏隐藏。
+ * 部件：Root（label）、Control（叠放层）、Thumb（滑块）、Content（轨道里的文字）、Spinner、Label（文字）；未声明的属性落到 input 上。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from './Field';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { Spinner, type SpinnerProps } from '../base/Spinner';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
+import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { choiceStyles, useChoiceSize } from './choice-styles';
 import type { StyleTable } from '../utils/style/styles';
@@ -25,7 +28,8 @@ export type SwitchManaged =
   | 'required'
   | 'size'
   | 'aria-invalid'
-  | 'aria-describedby';
+  | 'aria-describedby'
+  | 'aria-busy';
 
 /** 未声明的属性落到 input 上；外层 label 用 propsRoot */
 export interface SwitchProps extends PartProps<'input', SwitchManaged> {
@@ -37,6 +41,12 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   required?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
+  /** 切换中（如等接口返回）：滑块里显示加载指示，点击无效，带 aria-busy */
+  loading?: boolean;
+  /** 打开时轨道里的文字或图标（如“开”、对勾）；给了它或 uncheckedContent 时轨道随内容加宽 */
+  checkedContent?: VNodeChild;
+  /** 关闭时轨道里的文字或图标 */
+  uncheckedContent?: VNodeChild;
   /** 字号档位；不写时继承上下文字号 */
   size?: TextSize;
   /** 外层 label 的部件属性 */
@@ -45,18 +55,37 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   propsControl?: PartProps<'span'>;
   /** 滑块的部件属性 */
   propsThumb?: PartProps<'span'>;
+  /** 轨道里文字（开、关两份）的部件属性 */
+  propsContent?: PartProps<'span'>;
+  /** 加载指示的部件属性 */
+  propsSpinner?: Partial<SpinnerProps>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
   /** 文字 */
   children?: VNodeChild;
 }
 
-/** Switch 的样式：track、trackOff、thumb、thumbOn */
-export const switchStyles: StyleTable<'track' | 'trackOff' | 'thumb' | 'thumbOn'> = stylex.create({
+/** Switch 的样式：track、trackWide、trackOff、thumb、thumbOn、content、contentOn、contentOff、contentHidden、spinner */
+export const switchStyles: StyleTable<
+  | 'track'
+  | 'trackWide'
+  | 'trackOff'
+  | 'thumb'
+  | 'thumbOn'
+  | 'content'
+  | 'contentOn'
+  | 'contentOff'
+  | 'contentHidden'
+  | 'spinner'
+> = stylex.create({
   track: { width: '2.25em', height: '1.25em', borderRadius: '_full', borderColor: 'transparent' },
+  // 轨道里有文字：宽度随文字（两份文字叠在同一格里，取较宽的，切换时宽度不跳）
+  trackWide: { width: '_full', minWidth: '2.25em' },
   trackOff: { backgroundColor: '_borderStrong' },
   // 滑块靠起始边，打开后移到结束边：用逻辑方向的外边距，从右到左排版自动反过来
   thumb: {
+    display: 'grid',
+    placeItems: 'center',
     justifySelf: 'start',
     width: '0.875em',
     height: '0.875em',
@@ -66,7 +95,23 @@ export const switchStyles: StyleTable<'track' | 'trackOff' | 'thumb' | 'thumbOn'
     boxShadow: '_sm',
     transition: 'margin-inline-start _durations.sm _easings.standard',
   },
-  thumbOn: { marginInlineStart: '1.1875em', backgroundColor: '_accentContrast' },
+  // 移到结束边：百分比相对整条轨道，轨道随文字加宽时同样贴边
+  thumbOn: { marginInlineStart: 'calc(100% - 1.0625em)', backgroundColor: '_accentContrast' },
+  content: {
+    gridArea: '1 / 1',
+    justifySelf: 'stretch',
+    fontSize: '_xs',
+    fontWeight: '_semibold',
+    lineHeight: 1,
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+    pointerEvents: 'none',
+  },
+  // 文字在滑块的另一侧
+  contentOn: { paddingInlineStart: '0.5em', paddingInlineEnd: '1.375em', color: '_accentContrast' },
+  contentOff: { paddingInlineStart: '1.375em', paddingInlineEnd: '0.5em', color: '_text' },
+  contentHidden: { visibility: 'hidden' },
+  spinner: { width: '0.75em', height: '0.75em', color: '_accent' },
 });
 
 /** 开关：立即生效的开 / 关 */
@@ -77,18 +122,45 @@ export const Switch = _component(
     required,
     invalid,
     size,
+    loading = false,
+    checkedContent,
+    uncheckedContent,
     id,
     propsRoot,
     propsControl,
     propsThumb,
+    propsContent,
+    propsSpinner,
     propsLabel,
     children,
     ...rest
   }: SwitchProps) => {
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
     const resolvedSize = useChoiceSize(() => size);
+    // 很快完成的切换不闪加载指示；点击拦截、aria-busy 按真实的 loading
+    const spinner = useDelayedLoading(() => loading);
     return () => {
       const state = control();
+      const wide = checkedContent != null || uncheckedContent != null;
+      const content = (on: boolean, child: VNodeChild) => (
+        <span
+          {...elementProps(
+            mergeProps<'span'>(
+              {
+                sx: [
+                  switchStyles.content,
+                  on ? switchStyles.contentOn : switchStyles.contentOff,
+                  on !== checked && switchStyles.contentHidden,
+                ],
+              },
+              propsContent,
+              { 'aria-hidden': true },
+            ),
+          )}
+        >
+          {child}
+        </span>
+      );
       return (
         <label
           {...elementProps(
@@ -105,6 +177,7 @@ export const Switch = _component(
           )}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={state.disabled || undefined}
+          data-loading={loading || undefined}
         >
           <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.control }, propsControl))}>
             <input
@@ -114,6 +187,7 @@ export const Switch = _component(
                     sx: [
                       choiceStyles.input,
                       switchStyles.track,
+                      wide && switchStyles.trackWide,
                       checked ? choiceStyles.checked : switchStyles.trackOff,
                       state.invalid && choiceStyles.invalid,
                     ],
@@ -128,12 +202,19 @@ export const Switch = _component(
                     required: state.required,
                     'aria-invalid': state.invalid || undefined,
                     'aria-describedby': state.describedBy,
+                    'aria-busy': loading || undefined,
+                    // 切换中不接受新的切换：拦下 click，勾选状态就不变
+                    onClick: (event: MouseEvent) => {
+                      if (loading) event.preventDefault();
+                    },
                     onChange: (event: Event) =>
                       (checked = (event.target as HTMLInputElement).checked),
                   },
                 ),
               )}
             />
+            {wide && content(true, checkedContent)}
+            {wide && content(false, uncheckedContent)}
             <span
               {...elementProps(
                 mergeProps<'span'>(
@@ -141,7 +222,16 @@ export const Switch = _component(
                   propsThumb,
                 ),
               )}
-            />
+            >
+              {spinner.value && (
+                <Spinner
+                  {...mergePartProps<SpinnerProps>(
+                    { propsIcon: { sx: switchStyles.spinner } },
+                    propsSpinner,
+                  )}
+                />
+              )}
+            </span>
           </span>
           {children != null && (
             <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.label }, propsLabel))}>
