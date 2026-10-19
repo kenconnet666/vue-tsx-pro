@@ -7,6 +7,7 @@ import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { IconData } from '../../base/Icon';
+import type { StyleTable } from './styles';
 
 /** 状态色调 */
 export interface StatusTones {
@@ -41,9 +42,7 @@ export type StatusTone = keyof StatusTones;
 /** 标记与提示的样式 */
 export type StatusVariant = keyof StatusVariants;
 
-type Table = Readonly<Record<StatusTone, StyleXStyles>>;
-
-const solid: Table = stylex.create({
+const solid: StyleTable<StatusTone> = stylex.create({
   neutral: { color: '_inverseText', backgroundColor: '_inverseSurface' },
   accent: { color: '_accentContrast', backgroundColor: '_accent' },
   info: { color: '_background', backgroundColor: '_infoText' },
@@ -52,7 +51,7 @@ const solid: Table = stylex.create({
   danger: { color: '_dangerContrast', backgroundColor: '_danger' },
 });
 
-const soft: Table = stylex.create({
+const soft: StyleTable<StatusTone> = stylex.create({
   neutral: { color: '_text', backgroundColor: '_fill' },
   accent: { color: '_accentText', backgroundColor: '_accentSoft' },
   info: { color: '_infoText', backgroundColor: '_infoSoft' },
@@ -61,7 +60,7 @@ const soft: Table = stylex.create({
   danger: { color: '_dangerText', backgroundColor: '_dangerSoft' },
 });
 
-const surface: Table = stylex.create({
+const surface: StyleTable<StatusTone> = stylex.create({
   neutral: { color: '_text', backgroundColor: '_surface', borderColor: '_border' },
   accent: { color: '_accentText', backgroundColor: '_accentSoft', borderColor: '_accentBorder' },
   info: { color: '_infoText', backgroundColor: '_infoSoft', borderColor: '_infoBorder' },
@@ -78,7 +77,7 @@ const surface: Table = stylex.create({
   danger: { color: '_dangerText', backgroundColor: '_dangerSoft', borderColor: '_dangerBorder' },
 });
 
-const outline: Table = stylex.create({
+const outline: StyleTable<StatusTone> = stylex.create({
   neutral: { color: '_text', borderColor: '_border' },
   accent: { color: '_accentText', borderColor: '_accentBorder' },
   info: { color: '_infoText', borderColor: '_infoBorder' },
@@ -87,12 +86,17 @@ const outline: Table = stylex.create({
   danger: { color: '_dangerText', borderColor: '_dangerBorder' },
 });
 
-const base: Readonly<Record<'bordered', StyleXStyles>> = stylex.create({
+const base: StyleTable<'bordered'> = stylex.create({
   // 每种样式都留出边框的位置（实底、浅色底时透明），切换样式时尺寸不变
   bordered: { borderWidth: '_xs', borderStyle: 'solid', borderColor: 'transparent' },
 });
 
-const tables: Readonly<Record<StatusVariant, Table>> = { solid, soft, surface, outline };
+const tables: Readonly<Record<StatusVariant, StyleTable<StatusTone>>> = {
+  solid,
+  soft,
+  surface,
+  outline,
+};
 
 /** 每种状态色调默认的图标（Lucide）：提示条、通知、确认对话框按色调自动选图标 */
 export const statusIcons: Readonly<Record<StatusTone, IconData>> = {

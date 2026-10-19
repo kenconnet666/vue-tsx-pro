@@ -18,6 +18,10 @@ export interface SelectionOptions {
   required?: boolean;
 }
 
+/** 单选的值或多选的值数组 → 已选值的数组（单选、多选共用一套渲染与列表状态时） */
+export const selectedValues = (value: string | readonly string[] | undefined): readonly string[] =>
+  typeof value === 'string' ? [value] : (value ?? []);
+
 /** 点了 key 之后的选择；没有变化时返回原数组 */
 export function toggleSelection<Key>(
   selected: readonly Key[],

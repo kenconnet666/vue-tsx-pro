@@ -4,9 +4,8 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import type { StyleTable } from './styles';
 // 导出的样式表写明类型：靠推导时，类型声明里会引用 StyleX 内部无法命名的类型
-type Table<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
-
 // 取值类型写成带注释接口的 keyof：补全与悬停能看到每个取值的效果（见 styles.ts）
 
 /** 界面文字的字号档位，对应主题的 fontSizes；组件的 size 档位也用它，括号里是默认主题的值 */
@@ -103,7 +102,7 @@ export interface TextWraps {
 export type TextWrap = keyof TextWraps;
 
 /** 字号档位 → fontSizes token */
-export const fontSizeStyles: Table<FontSize> = stylex.create({
+export const fontSizeStyles: StyleTable<FontSize> = stylex.create({
   xs: { fontSize: '_xs' },
   sm: { fontSize: '_sm' },
   md: { fontSize: '_md' },
@@ -114,7 +113,7 @@ export const fontSizeStyles: Table<FontSize> = stylex.create({
 });
 
 /** 字重档位 → fontWeights token */
-export const fontWeightStyles: Table<FontWeight> = stylex.create({
+export const fontWeightStyles: StyleTable<FontWeight> = stylex.create({
   light: { fontWeight: '_light' },
   normal: { fontWeight: '_normal' },
   medium: { fontWeight: '_medium' },
@@ -123,7 +122,7 @@ export const fontWeightStyles: Table<FontWeight> = stylex.create({
 });
 
 /** 色调 → 文字颜色 token */
-export const toneStyles: Table<Tone> = stylex.create({
+export const toneStyles: StyleTable<Tone> = stylex.create({
   default: { color: '_text' },
   muted: { color: '_textMuted' },
   accent: { color: '_accentText' },
@@ -134,14 +133,14 @@ export const toneStyles: Table<Tone> = stylex.create({
 });
 
 /** 水平对齐（按书写方向） */
-export const textAlignStyles: Table<TextAlign> = stylex.create({
+export const textAlignStyles: StyleTable<TextAlign> = stylex.create({
   start: { textAlign: 'start' },
   center: { textAlign: 'center' },
   end: { textAlign: 'end' },
 });
 
 /** 换行方式（text-wrap） */
-export const textWrapStyles: Table<TextWrap> = stylex.create({
+export const textWrapStyles: StyleTable<TextWrap> = stylex.create({
   wrap: { textWrap: 'wrap' },
   nowrap: { textWrap: 'nowrap' },
   // 标题：各行长度尽量均衡
@@ -151,7 +150,7 @@ export const textWrapStyles: Table<TextWrap> = stylex.create({
 });
 
 /** 截断：truncate 单行省略，clamp 多行截断（行数见 lineClampStyles） */
-export const textStyles: Table<'truncate' | 'clamp'> = stylex.create({
+export const textStyles: StyleTable<'truncate' | 'clamp'> = stylex.create({
   // 单行省略：在块级元素或 flex 子项上生效
   truncate: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 },
   // 多行截断用带 -webkit- 前缀的写法（标准的 line-clamp 尚无浏览器支持），行数见 lineClampStyles

@@ -24,7 +24,7 @@ import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { SelectionModes } from '../utils/data/selection';
+import { selectedValues, type SelectionModes } from '../utils/data/selection';
 import { transitions } from '../utils/style/transitions';
 import { fontSizeStyles } from '../utils/style/typography';
 import {
@@ -159,9 +159,6 @@ const styles = stylex.create({
   popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
 });
 
-const toArray = (value: string | string[] | undefined): readonly string[] =>
-  Array.isArray(value) ? value : value != null ? [value] : [];
-
 /** 下拉选择：触发框 + 弹出的选项列表 */
 export const Select = _component(
   <T extends ListboxOption>({
@@ -200,7 +197,7 @@ export const Select = _component(
     const multiple = () => type === 'multiple';
     const list = createListState({
       options: () => items,
-      selected: () => toArray(value),
+      selected: () => selectedValues(value),
       mode: () => type,
       onChange: (next) => (value = multiple() ? [...next] : next[0]),
     });
@@ -210,7 +207,7 @@ export const Select = _component(
 
     function show(highlight: 'default' | 'last' = 'default') {
       list.activateDefault();
-      if (highlight === 'last' && toArray(value).length === 0) list.move('last');
+      if (highlight === 'last' && selectedValues(value).length === 0) list.move('last');
       open = true;
     }
 
@@ -263,7 +260,7 @@ export const Select = _component(
 
     return () => {
       const state = control();
-      const values = toArray(value);
+      const values = selectedValues(value);
       const selected = list.options.filter((option) => list.isSelected(option.value));
       const off = state.disabled;
       const shown =

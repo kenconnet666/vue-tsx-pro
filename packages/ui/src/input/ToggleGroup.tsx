@@ -17,7 +17,7 @@ import {
   buttonSx,
   useButtonAppearance,
   type ButtonOptions,
-} from '../base/button-styles';
+} from '../base/button-core';
 import type { IconData, IconProps } from '../base/Icon';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { useRipple } from '../utils/dom/ripple';

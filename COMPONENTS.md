@@ -426,7 +426,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 ### 10.9 按钮家族与交互基础设施（已完成）
 
-- **按钮家族**（一个元素一个组件，共用 `base/button-styles.ts` 的样式表、选项类型与内容排布）：
+- **按钮家族**（一个元素一个组件，共用 `base/button-core.ts` 的样式表、选项类型与内容排布）：
   - **Button**（button）：`variant` solid / soft / surface / outline / ghost / link × `tone` accent / neutral / danger × `size`（字号档位，em 缩放）× `radius` none / sm / md / full；`icon` / `iconEnd`、`fullWidth`；`loading`（Spinner 盖在内容上，内容透明但保留宽度与读屏名称，`aria-busy`，焦点保留，点击与表单提交被拦下）；`disabled` 用原生属性，`focusableWhenDisabled` 改用 `aria-disabled`；`type` 默认 button。
   - **LinkButton**（a）：外观同 Button，站内链接经路由适配跳转；`external`；不可用时去掉 href，保留 `role="link"` 与 `aria-disabled`。
   - **IconButton**：方形，类型上必须有 `aria-label`，默认 ghost。

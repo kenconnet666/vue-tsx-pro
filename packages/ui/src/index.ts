@@ -23,7 +23,7 @@ export type {
   ButtonRadii,
   ButtonTones,
   ButtonVariants,
-} from './base/button-styles';
+} from './base/button-core';
 
 // 布局
 export {
@@ -89,16 +89,20 @@ export {
   type AlertVariants,
 } from './feedback/Alert';
 export {
+  ModalCore,
+  modalStyles,
+  type ModalCoreProps,
+  type ModalManaged,
+  type ModalProps,
+} from './feedback/Modal';
+export {
   Dialog,
-  Drawer,
+  dialogPanelSx,
   type DialogOptions,
   type DialogProps,
   type DialogSizes,
-  type DrawerOptions,
-  type DrawerProps,
-  type DrawerSides,
-  type ModalProps,
 } from './feedback/Dialog';
+export { Drawer, type DrawerOptions, type DrawerProps, type DrawerSides } from './feedback/Drawer';
 export {
   AlertDialog,
   useConfirm,

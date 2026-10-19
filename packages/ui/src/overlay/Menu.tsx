@@ -26,7 +26,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
-import type { ButtonTones } from '../base/button-styles';
+import type { ButtonTones } from '../base/button-core';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import {

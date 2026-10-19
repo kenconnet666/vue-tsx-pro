@@ -40,7 +40,7 @@ export interface TableColumn<T> {
   value?: (row: T) => SortValue;
   /** 宽度（px）；不写时与其他没写宽度的列平分剩余宽度。固定列一定要写（偏移量按它算） */
   width?: number;
-  /** 拖动调整宽度时的最小宽度（px），默认 64 */
+  /** 拖动调整宽度时的最小宽度（px），默认 COLUMN_MIN_WIDTH（64） */
   minWidth?: number;
   /** 对齐，默认 start */
   align?: keyof ColumnAligns;
@@ -68,6 +68,49 @@ export interface SortState {
   key: string;
   /** 方向 */
   direction: keyof SortDirections;
+}
+
+/** 没写宽度的列，计算表格最小宽度与固定列偏移时按这么宽算（px） */
+export const COLUMN_FLEX_MIN_WIDTH = 120;
+
+/** 拖动调整列宽时默认的最小宽度（px） */
+export const COLUMN_MIN_WIDTH = 64;
+
+/** 列当前的宽度（px）：调整过的、列定义里的；都没有时 undefined（与其他没写宽度的列平分） */
+export type ColumnWidthOf<T> = (column: TableColumn<T>) => number | undefined;
+
+/** 固定列的偏移（px）：起始边的从 leading（勾选列的宽度）之后累加，结束边的从末尾往回累加 */
+export function stickyOffsets<T>(
+  columns: readonly TableColumn<T>[],
+  widthOf: ColumnWidthOf<T>,
+  leading: number,
+): { start: Map<string, number>; end: Map<string, number> } {
+  const accumulate = (side: 'start' | 'end', ordered: readonly TableColumn<T>[], from: number) => {
+    const offsets = new Map<string, number>();
+    let offset = from;
+    for (const column of ordered) {
+      if (column.sticky !== side) continue;
+      offsets.set(column.key, offset);
+      offset += widthOf(column) ?? COLUMN_FLEX_MIN_WIDTH;
+    }
+    return offsets;
+  };
+  return {
+    start: accumulate('start', columns, leading),
+    end: accumulate('end', [...columns].reverse(), 0),
+  };
+}
+
+/** 表格的最小宽度（px）：写了宽度的列按宽度，没写的按 COLUMN_FLEX_MIN_WIDTH；放不下时横向滚动 */
+export function tableMinWidth<T>(
+  columns: readonly TableColumn<T>[],
+  widthOf: ColumnWidthOf<T>,
+  leading: number,
+): number {
+  return columns.reduce(
+    (total, column) => total + (widthOf(column) ?? COLUMN_FLEX_MIN_WIDTH),
+    leading,
+  );
 }
 
 /** 列在这一行的值：value 函数，或 row[key] */

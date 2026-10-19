@@ -5,8 +5,9 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import type { ButtonRadii } from '../base/button-styles';
+import type { ButtonRadii } from '../base/button-core';
 import { useDefaults } from '../config/defaults';
+import type { StyleTable } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 输入框的样式 */
@@ -37,9 +38,7 @@ export interface ControlState {
   readonly?: boolean;
 }
 
-type Table<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
-
-const shell: Table<'root' | 'soft' | 'invalid' | 'disabled' | 'readonly' | 'multiline'> =
+const shell: StyleTable<'root' | 'soft' | 'invalid' | 'disabled' | 'readonly' | 'multiline'> =
   stylex.create({
     root: {
       boxSizing: 'border-box',
@@ -81,7 +80,7 @@ const shell: Table<'root' | 'soft' | 'invalid' | 'disabled' | 'readonly' | 'mult
     multiline: { alignItems: 'stretch', paddingBlock: '_xs' },
   });
 
-const radii: Table<keyof ButtonRadii> = stylex.create({
+const radii: StyleTable<keyof ButtonRadii> = stylex.create({
   none: { borderRadius: 0 },
   sm: { borderRadius: '_sm' },
   md: { borderRadius: '_md' },
@@ -89,7 +88,7 @@ const radii: Table<keyof ButtonRadii> = stylex.create({
 });
 
 /** 外壳里的各部分：原生输入元素、前后图标、框里的小按钮（清除、显示密码、步进） */
-export const controlStyles: Table<'input' | 'icon' | 'button'> = stylex.create({
+export const controlStyles: StyleTable<'input' | 'icon' | 'button'> = stylex.create({
   /** 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳 */
   input: {
     flexGrow: 1,

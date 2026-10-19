@@ -22,13 +22,14 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { getCurrentInstance, h, render, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
-import type { ButtonTones } from '../base/button-styles';
+import type { ButtonTones } from '../base/button-core';
 import { ConfigContext, useConfig, useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { afterTransitions } from '../utils/style/transitions';
 import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
-import { dialogPanelSx, ModalCore, type DialogProps, type ModalCoreProps } from './Dialog';
+import { dialogPanelSx, type DialogProps } from './Dialog';
+import { ModalCore, type ModalCoreProps } from './Modal';
 
 /** 未声明的属性落到 dialog 上 */
 export interface AlertDialogProps extends Omit<DialogProps, 'footer' | 'closable' | 'dismissible'> {

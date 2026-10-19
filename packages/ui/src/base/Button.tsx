@@ -1,5 +1,5 @@
 /**
- * 按钮（button）。外观与内容排布和 LinkButton、IconButton 共用（button-styles.ts）；
+ * 按钮（button）。外观与内容排布和 LinkButton、IconButton 共用（button-core.ts）；
  * 跳转到别的页面用 LinkButton（a），只有图标用 IconButton。
  *
  *   <Button onClick={save}>保存</Button>
@@ -16,7 +16,7 @@ import {
   useButtonAppearance,
   type ButtonContentOptions,
   type ButtonOptions,
-} from './button-styles';
+} from './button-core';
 
 /** 不可用、忙碌由组件按 disabled、loading 管理 */
 type Managed = 'disabled' | 'aria-disabled' | 'aria-busy';

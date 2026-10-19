@@ -1,6 +1,6 @@
 /**
  * 外观是按钮的链接（a）：跳转到别的页面时用它，而不是 Button + 点击里跳转（链接能右键、新标签页打开、读屏念“链接”）。
- * 外观与内容排布和 Button 共用（button-styles.ts）；站内链接经 createUi 的 router 不刷新页面地跳转。
+ * 外观与内容排布和 Button 共用（button-core.ts）；站内链接经 createUi 的 router 不刷新页面地跳转。
  *
  *   <LinkButton href="/orders/new" icon={Plus}>新建订单</LinkButton>
  *   <LinkButton href="https://example.com" external variant="outline">文档</LinkButton>
@@ -18,7 +18,7 @@ import {
   useButtonAppearance,
   type ButtonContentOptions,
   type ButtonOptions,
-} from './button-styles';
+} from './button-core';
 import { VisuallyHidden } from './VisuallyHidden';
 
 /** 地址、不可用与忙碌由组件管理 */

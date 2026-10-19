@@ -131,7 +131,8 @@ export function defaultRangeExtractor({
   return Array.from({ length: to - from + 1 }, (_, index) => from + index);
 }
 
-const isWindow = (target: HTMLElement | Window): target is Window =>
+/** 滚动容器是不是 window（整页滚动） */
+export const isWindow = (target: HTMLElement | Window): target is Window =>
   typeof window !== 'undefined' && target === window;
 
 /** 动态大小下 scrollToIndex 重新对准的最多次数 */

@@ -17,6 +17,7 @@
  */
 import { onBeforeUnmount, shallowRef, watch } from 'vue';
 import {
+  isWindow,
   Virtualizer,
   type ExtractorRange,
   type VirtualItem,
@@ -61,9 +62,6 @@ export interface VirtualView {
   /** 滚动到相对列表开头的位置 */
   scrollToOffset: (offset: number, options?: VirtualScrollOptions) => void;
 }
-
-const isWindow = (target: HTMLElement | Window): target is Window =>
-  typeof window !== 'undefined' && target === window;
 
 /** 在组件 setup 里调用 */
 export function useVirtualizer(read: () => UseVirtualizerOptions): VirtualView {

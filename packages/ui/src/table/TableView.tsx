@@ -8,7 +8,7 @@
  * - 吸顶表头、固定列：position: sticky，固定列的偏移按列宽累加（逻辑方向，从右到左排版自动换边）；
  *   固定列的单元格继承行的底色，盖住滚过去的内容。
  * - 排序：可排序的列标题是按钮，th 带 aria-sort；勾选列用 Checkbox（表头的全选有部分选中状态）。
- * - 列宽：表头右侧的手柄拖动（startMove）或聚焦后用 ← / →（WCAG 2.5.7 的替代操作）调整，role="separator"。
+ * - 列宽：表头结束边的 ColumnResizer（拖动或 ← / →）调整；固定列偏移与最小宽度的计算在 columns.ts。
  * - 加载：没有数据时显示骨架行；已有数据（刷新中）时表头下方显示一条进度条；表格带 aria-busy。没有数据时显示 Empty。
  */
 import { ArrowDown, ArrowUp, ArrowUpDown } from '@lucide/icons';
@@ -22,14 +22,19 @@ import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
-import { isRtl } from '../utils/data/layout';
-import { startMove } from '../utils/dom/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VisibleRange } from '../utils/virtual/virtualizer';
-import { columnValue, type SortState, type TableColumn } from './columns';
+import { ColumnResizer, type ColumnResizerProps } from './ColumnResizer';
+import {
+  columnValue,
+  stickyOffsets,
+  tableMinWidth,
+  type SortState,
+  type TableColumn,
+} from './columns';
 
 /** 表格的密度 */
 export interface TableSizes {
@@ -127,16 +132,16 @@ export interface TableViewProps<T> extends PartProps<'table', 'role'>, TableOpti
   propsEmpty?: Partial<EmptyProps>;
   /** 加载中占位的部件属性 */
   propsSkeleton?: Partial<SkeletonProps>;
+  /** 可排序列标题里的排序按钮的部件属性 */
+  propsSortButton?: PartProps<'button', 'type'>;
+  /** 列宽调整手柄的部件属性 */
+  propsResizer?: Partial<ColumnResizerProps>;
 }
 
 /** 勾选列的宽度（px） */
 const SELECT_WIDTH = 44;
-/** 没写宽度的列，表格最小宽度按这么宽算（px） */
-const FLEX_MIN = 120;
 /** 加载中显示几行骨架 */
 const SKELETON_ROWS = 6;
-/** 键盘调整列宽的步长（px） */
-const RESIZE_STEP = 16;
 /** 各密度下行高的估计（px） */
 const ROW_HEIGHT: Record<keyof TableSizes, number> = { sm: 36, md: 44, lg: 52 };
 
@@ -223,22 +228,6 @@ const styles = stylex.create({
   sortLabel: { overflow: 'hidden', textOverflow: 'ellipsis' },
   sortIcon: { flexShrink: 0 },
   sortActive: { color: '_accentText' },
-  resize: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    insetInlineEnd: 0,
-    width: '_space.sm',
-    cursor: 'col-resize',
-    touchAction: 'none',
-    // 手柄是表头右边的一条细线：悬停、聚焦、拖动时显示
-    backgroundColor: {
-      default: 'transparent',
-      ':hover': '_borderStrong',
-      ':focus-visible': '_accent',
-    },
-    outlineStyle: 'none',
-  },
   leading: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   content: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' },
   spacer: { padding: 0, borderWidth: 0 },
@@ -292,6 +281,8 @@ export const TableView = _component(
     propsHeaderCell,
     propsEmpty,
     propsSkeleton,
+    propsSortButton,
+    propsResizer,
     ...rest
   }: TableViewProps<T>) => {
     const lang = useLang();
@@ -315,29 +306,9 @@ export const TableView = _component(
     /** 列的宽度：调整过的、列定义里的，或者没有（与其他没写宽度的列平分） */
     const widthOf = (column: TableColumn<T>) => widths[column.key] ?? column.width;
 
-    /** 固定列的偏移：起始边的从勾选列之后累加，结束边的从末尾往回累加 */
-    const offsets = _derived.by(() => {
-      const start = new Map<string, number>();
-      const end = new Map<string, number>();
-      let offset = selection ? SELECT_WIDTH : 0;
-      for (const column of columns) {
-        if (column.sticky !== 'start') continue;
-        start.set(column.key, offset);
-        offset += widthOf(column) ?? FLEX_MIN;
-      }
-      offset = 0;
-      for (const column of [...columns].reverse()) {
-        if (column.sticky !== 'end') continue;
-        end.set(column.key, offset);
-        offset += widthOf(column) ?? FLEX_MIN;
-      }
-      return { start, end, selectionSticky: start.size > 0 };
-    });
-
-    /** 表格的最小宽度：写了宽度的列按宽度，没写的按 FLEX_MIN；放不下时横向滚动 */
-    const minWidth = () =>
-      (selection ? SELECT_WIDTH : 0) +
-      columns.reduce((total, column) => total + (widthOf(column) ?? FLEX_MIN), 0);
+    const leadingWidth = () => (selection ? SELECT_WIDTH : 0);
+    const offsets = _derived.by(() => stickyOffsets(columns, widthOf, leadingWidth()));
+    const minWidth = () => tableMinWidth(columns, widthOf, leadingWidth());
 
     function stickySx(column: TableColumn<T>) {
       if (column.sticky === 'start')
@@ -345,32 +316,6 @@ export const TableView = _component(
       if (column.sticky === 'end')
         return [styles.sticky, dynamicStyles.end(offsets.end.get(column.key)!)];
       return null;
-    }
-
-    function startResize(event: PointerEvent, column: TableColumn<T>) {
-      const cell = (event.currentTarget as HTMLElement).parentElement!;
-      const from = cell.getBoundingClientRect().width;
-      const rtl = isRtl(cell);
-      const min = column.minWidth ?? 64;
-      event.preventDefault();
-      startMove(event, {
-        onMove: ({ deltaX }) =>
-          onResize?.(column.key, Math.max(min, from + (rtl ? -deltaX : deltaX))),
-      });
-    }
-
-    function onResizeKeydown(event: KeyboardEvent, column: TableColumn<T>) {
-      const cell = (event.currentTarget as HTMLElement).parentElement!;
-      const rtl = isRtl(cell);
-      const steps: Record<string, number> = {
-        ArrowRight: rtl ? -RESIZE_STEP : RESIZE_STEP,
-        ArrowLeft: rtl ? RESIZE_STEP : -RESIZE_STEP,
-      };
-      const step = steps[event.key];
-      if (step === undefined) return;
-      event.preventDefault();
-      const from = widthOf(column) ?? cell.getBoundingClientRect().width;
-      onResize?.(column.key, Math.max(column.minWidth ?? 64, from + step));
     }
 
     function renderHeaderCell(column: TableColumn<T>) {
@@ -405,7 +350,7 @@ export const TableView = _component(
               {...elementProps(
                 mergeProps<'button'>(
                   { sx: [styles.sortButton, focusRingStyles.visible] },
-                  {},
+                  propsSortButton,
                   { type: 'button', onClick: () => onSortClick?.(column.key) },
                 ),
               )}
@@ -426,16 +371,16 @@ export const TableView = _component(
             column.header
           )}
           {canResize && (
-            <span
-              role="separator"
-              tabindex={0}
-              aria-orientation="vertical"
-              aria-label={lang.tableResizeColumn(label ?? column.key)}
-              aria-valuenow={widthOf(column)}
-              aria-valuemin={column.minWidth ?? 64}
-              {...stylex.attrs(styles.resize)}
-              onPointerdown={(event: PointerEvent) => startResize(event, column)}
-              onKeydown={(event: KeyboardEvent) => onResizeKeydown(event, column)}
+            <ColumnResizer
+              {...mergePartProps<ColumnResizerProps>(
+                {
+                  label: label ?? column.key,
+                  width: widthOf(column),
+                  minWidth: column.minWidth,
+                  onWidthChange: (width: number) => onResize?.(column.key, width),
+                },
+                propsResizer,
+              )}
             />
           )}
         </th>
@@ -474,7 +419,7 @@ export const TableView = _component(
                 styles.cell,
                 sizeStyles[size],
                 styles.selectCell,
-                offsets.selectionSticky && styles.stickySelect,
+                offsets.start.size > 0 && styles.stickySelect,
               )}
             >
               <Checkbox
@@ -574,7 +519,7 @@ export const TableView = _component(
                       styles.headerCell,
                       sizeStyles[size],
                       styles.selectCell,
-                      offsets.selectionSticky && styles.stickySelect,
+                      offsets.start.size > 0 && styles.stickySelect,
                     )}
                   >
                     {selection === 'multiple' && (

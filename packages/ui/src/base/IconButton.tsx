@@ -1,6 +1,6 @@
 /**
  * 只有图标的按钮（button）：宽高相等，类型上必须给 aria-label（读屏要知道它是做什么的）。
- * 外观与 Button 共用（button-styles.ts），默认 ghost 样式。关闭、清除这类常用的见 CloseButton、ClearButton。
+ * 外观与 Button 共用（button-core.ts），默认 ghost 样式。关闭、清除这类常用的见 CloseButton、ClearButton。
  *
  *   <IconButton icon={Settings} aria-label="设置" />
  */
@@ -13,7 +13,7 @@ import {
   guardClick,
   useButtonAppearance,
   type ButtonOptions,
-} from './button-styles';
+} from './button-core';
 import type { IconData, IconProps } from './Icon';
 
 /** 不可用、忙碌由组件管理；aria-label 必填，单独声明 */

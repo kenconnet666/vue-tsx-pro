@@ -47,11 +47,14 @@ export interface SpaceScale {
 /** 间距档位：五档之外可以是 none */
 export type Space = keyof SpaceScale;
 
-// 导出的样式表写明类型：靠推导时，类型声明里会引用 StyleX 内部无法命名的类型
-type Table<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
+/**
+ * 样式表的类型：导出的 stylex.create 结果写明它（StyleTable<'root' | 'icon'>）。
+ * 靠推导时，类型声明里会引用 StyleX 内部无法命名的类型（TS2883）
+ */
+export type StyleTable<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
 
 /** 间距 gap：Flex、Grid */
-export const gapStyles: Table<Space> = stylex.create({
+export const gapStyles: StyleTable<Space> = stylex.create({
   none: { gap: '_none' },
   xs: { gap: '_xs' },
   sm: { gap: '_sm' },
@@ -61,7 +64,7 @@ export const gapStyles: Table<Space> = stylex.create({
 });
 
 /** 行间距：Grid 单独指定时 */
-export const rowGapStyles: Table<Space> = stylex.create({
+export const rowGapStyles: StyleTable<Space> = stylex.create({
   none: { rowGap: '_none' },
   xs: { rowGap: '_xs' },
   sm: { rowGap: '_sm' },
@@ -71,7 +74,7 @@ export const rowGapStyles: Table<Space> = stylex.create({
 });
 
 /** 列间距：Grid 单独指定时 */
-export const columnGapStyles: Table<Space> = stylex.create({
+export const columnGapStyles: StyleTable<Space> = stylex.create({
   none: { columnGap: '_none' },
   xs: { columnGap: '_xs' },
   sm: { columnGap: '_sm' },
@@ -81,7 +84,7 @@ export const columnGapStyles: Table<Space> = stylex.create({
 });
 
 /** 键盘聚焦时的焦点环（:focus-visible）：Link、Button 等可交互元素共用，外观一致 */
-export const focusRingStyles: Table<'visible'> = stylex.create({
+export const focusRingStyles: StyleTable<'visible'> = stylex.create({
   visible: {
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
     outlineWidth: '_sm',
@@ -94,7 +97,7 @@ export const focusRingStyles: Table<'visible'> = stylex.create({
  * 列表元素（ul、ol）当布局容器时去掉默认的圆点与缩进。
  * Safari 去掉圆点后会把它当成普通容器，读屏不再报“列表”，所以组件同时补上 role="list"（见 listRole）
  */
-export const listStyles: Table<'reset'> = stylex.create({
+export const listStyles: StyleTable<'reset'> = stylex.create({
   reset: { margin: 0, paddingInlineStart: 0, listStyleType: 'none' },
 });
 

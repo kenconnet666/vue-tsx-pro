@@ -27,7 +27,7 @@ import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { itemStyles } from '../utils/style/item-styles';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { SelectionModes } from '../utils/data/selection';
+import { selectedValues, type SelectionModes } from '../utils/data/selection';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
@@ -421,9 +421,6 @@ type ListboxBaseProps<T extends ListboxOption> = Omit<
 export type ListboxProps<T extends ListboxOption = ListboxOption> = ListboxBaseProps<T> &
   (SingleProps | MultipleProps);
 
-const toArray = (value: string | string[] | undefined): readonly string[] =>
-  Array.isArray(value) ? value : value != null ? [value] : [];
-
 /** 列表框：焦点在列表上，方向键移动高亮、Enter / 空格选中 */
 export const Listbox = _component(
   <T extends ListboxOption>({
@@ -440,7 +437,7 @@ export const Listbox = _component(
     const control = useFieldControl(() => ({ id, disabled }));
     const list = createListState({
       options: () => items,
-      selected: () => toArray(value),
+      selected: () => selectedValues(value),
       mode: () => type,
       required: () => required,
       onChange: (next) => (value = type === 'multiple' ? [...next] : next[0]),

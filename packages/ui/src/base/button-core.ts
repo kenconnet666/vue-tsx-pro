@@ -1,5 +1,5 @@
 /**
- * 按钮家族（Button、LinkButton、IconButton、CloseButton、ClearButton）共用的外观、选项与内容。
+ * 按钮家族（Button、LinkButton、IconButton、CloseButton、ClearButton）的内核：共用的外观、选项、内容排布与行为。
  * 一个元素一个组件（COMPONENTS.md §1）：各组件只管自己元素的行为，样式与内容排布都从这里取。
  *
  * 外观 = variant（样式）× tone（色调）× size（字号档位，内部尺寸随之按 em 缩放）× radius（圆角）。
@@ -12,7 +12,7 @@ import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
 import { rippleHostStyles } from '../utils/dom/ripple';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 按钮样式 */
@@ -88,58 +88,57 @@ export interface ButtonContentOptions {
   children?: VNodeChild;
 }
 
-type Table<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
+const base: StyleTable<
+  'root' | 'square' | 'fullWidth' | 'disabled' | 'content' | 'hidden' | 'spinner'
+> = stylex.create({
+  root: {
+    boxSizing: 'border-box',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '_sm',
+    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    margin: 0,
+    paddingBlock: '_xs',
+    paddingInline: '_lg',
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: 'transparent',
+    backgroundColor: 'transparent',
+    fontFamily: 'inherit',
+    fontSize: 'inherit',
+    fontWeight: '_semibold',
+    lineHeight: '_tight',
+    textDecoration: 'none',
+    whiteSpace: 'nowrap',
+    cursor: 'pointer',
+    userSelect: 'none',
+    // 触摸时不等双击缩放的判定，点击立即响应
+    touchAction: 'manipulation',
+    transition:
+      'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard, color _durations.sm _easings.standard',
+  },
+  // 图标按钮：宽高相等
+  square: {
+    paddingInline: 0,
+    width: 'max(_sizes.control, _sizes.minTarget)',
+    flexShrink: 0,
+  },
+  fullWidth: { display: 'flex', width: '_full' },
+  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  content: { display: 'inline-flex', alignItems: 'center', gap: '_sm' },
+  // 加载中隐藏内容但保留占位与无障碍名称（不用 visibility: hidden，那样读屏也读不到）
+  hidden: { opacity: 0 },
+  spinner: {
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
-const base: Table<'root' | 'square' | 'fullWidth' | 'disabled' | 'content' | 'hidden' | 'spinner'> =
-  stylex.create({
-    root: {
-      boxSizing: 'border-box',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '_sm',
-      minHeight: 'max(_sizes.control, _sizes.minTarget)',
-      margin: 0,
-      paddingBlock: '_xs',
-      paddingInline: '_lg',
-      borderWidth: '_xs',
-      borderStyle: 'solid',
-      borderColor: 'transparent',
-      backgroundColor: 'transparent',
-      fontFamily: 'inherit',
-      fontSize: 'inherit',
-      fontWeight: '_semibold',
-      lineHeight: '_tight',
-      textDecoration: 'none',
-      whiteSpace: 'nowrap',
-      cursor: 'pointer',
-      userSelect: 'none',
-      // 触摸时不等双击缩放的判定，点击立即响应
-      touchAction: 'manipulation',
-      transition:
-        'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard, color _durations.sm _easings.standard',
-    },
-    // 图标按钮：宽高相等
-    square: {
-      paddingInline: 0,
-      width: 'max(_sizes.control, _sizes.minTarget)',
-      flexShrink: 0,
-    },
-    fullWidth: { display: 'flex', width: '_full' },
-    disabled: { opacity: '_disabled', cursor: 'not-allowed' },
-    content: { display: 'inline-flex', alignItems: 'center', gap: '_sm' },
-    // 加载中隐藏内容但保留占位与无障碍名称（不用 visibility: hidden，那样读屏也读不到）
-    hidden: { opacity: 0 },
-    spinner: {
-      position: 'absolute',
-      inset: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  });
-
-const radiusStyles: Table<keyof ButtonRadii> = stylex.create({
+const radiusStyles: StyleTable<keyof ButtonRadii> = stylex.create({
   none: { borderRadius: 0 },
   sm: { borderRadius: '_sm' },
   md: { borderRadius: '_md' },
@@ -148,7 +147,7 @@ const radiusStyles: Table<keyof ButtonRadii> = stylex.create({
 
 // 每种样式按色调各一组；中性色没有专门的实底色，用反色表面。
 // 实底悬停时混入黑色加深，而不是用 accentHover / dangerHover：两套主题里白字的对比度都只升不降
-const solid: Table<keyof ButtonTones> = stylex.create({
+const solid: StyleTable<keyof ButtonTones> = stylex.create({
   accent: {
     color: '_accentContrast',
     backgroundColor: {
@@ -172,7 +171,7 @@ const solid: Table<keyof ButtonTones> = stylex.create({
   },
 });
 
-const soft: Table<keyof ButtonTones> = stylex.create({
+const soft: StyleTable<keyof ButtonTones> = stylex.create({
   accent: {
     color: '_accentText',
     backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
@@ -187,7 +186,7 @@ const soft: Table<keyof ButtonTones> = stylex.create({
   },
 });
 
-const surface: Table<keyof ButtonTones> = stylex.create({
+const surface: StyleTable<keyof ButtonTones> = stylex.create({
   accent: {
     color: '_accentText',
     borderColor: '_accentBorder',
@@ -205,7 +204,7 @@ const surface: Table<keyof ButtonTones> = stylex.create({
   },
 });
 
-const outline: Table<keyof ButtonTones> = stylex.create({
+const outline: StyleTable<keyof ButtonTones> = stylex.create({
   accent: {
     color: '_accentText',
     borderColor: '_accentBorder',
@@ -223,7 +222,7 @@ const outline: Table<keyof ButtonTones> = stylex.create({
   },
 });
 
-const ghost: Table<keyof ButtonTones> = stylex.create({
+const ghost: StyleTable<keyof ButtonTones> = stylex.create({
   accent: {
     color: '_accentText',
     backgroundColor: { default: 'transparent', ':hover': '_accentSoft' },
@@ -238,13 +237,13 @@ const ghost: Table<keyof ButtonTones> = stylex.create({
   },
 });
 
-const link: Table<keyof ButtonTones> = stylex.create({
+const link: StyleTable<keyof ButtonTones> = stylex.create({
   accent: { color: '_accentText' },
   neutral: { color: '_text' },
   danger: { color: '_dangerText' },
 });
 
-const linkBase: Table<'root'> = stylex.create({
+const linkBase: StyleTable<'root'> = stylex.create({
   root: {
     minHeight: 0,
     paddingInline: 0,
@@ -254,7 +253,7 @@ const linkBase: Table<'root'> = stylex.create({
   },
 });
 
-const variants: Readonly<Record<keyof ButtonVariants, Table<keyof ButtonTones>>> = {
+const variants: Readonly<Record<keyof ButtonVariants, StyleTable<keyof ButtonTones>>> = {
   solid,
   soft,
   surface,
