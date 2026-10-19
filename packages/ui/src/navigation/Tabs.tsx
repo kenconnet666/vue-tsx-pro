@@ -14,15 +14,14 @@
  * 键盘：标签之间用方向键移动（漫游焦点，整组一个 Tab 位置），Home / End 到两端；
  * activation="automatic"（默认）时焦点移到哪个标签就切换到哪个，"manual" 时按 Enter / 空格才切换。
  *
- * line 样式的下划线是 TabList 里的一个指示条（Indicator）：量出当前标签的位置，切换时用 Anime.js 滑过去
- * （时长取主题，减少动态效果时直接到位），尺寸变化时直接对齐。
+ * line 样式的下划线是 TabList 里的一个指示条（Indicator）：跟着当前标签走（useActiveIndicator：
+ * 切换时用 Anime.js 滑过去，时长取主题，减少动态效果时直接到位；尺寸变化时直接对齐）。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { utils, type AnimationParams } from 'animejs';
-import { onBeforeUnmount, onMounted, useId, watch, type VNodeChild } from 'vue';
+import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
-import { useAnimate } from '../utils/motion/animation';
+import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
@@ -243,56 +242,19 @@ export const TabList = _component(
     const tabs = TabsContext.inject();
     let list = _state.raw<HTMLElement | null>(null);
     let indicator = _state.raw<HTMLElement | null>(null);
-    const animate = useAnimate();
     _effect(() =>
       list
         ? rovingFocus(list, { items: '[role="tab"]', orientation: tabs.orientation, loop })
         : undefined,
     );
 
-    /** 指示条移到当前标签：切换时滑过去，初次与尺寸变化时直接对齐 */
-    function place(animated: boolean) {
-      const active = list?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
-      if (!indicator || !active) return;
-      const vertical = tabs.orientation === 'vertical';
-      const target: AnimationParams = vertical
-        ? { x: 0, y: active.offsetTop, height: active.offsetHeight }
-        : { x: active.offsetLeft, y: 0, width: active.offsetWidth };
-      if (animated) void animate(indicator, target);
-      else void utils.set(indicator, target);
-    }
-
-    onMounted(() => place(false));
-    watch(
-      () => tabs.value,
-      () => place(true),
-      { flush: 'post' },
-    );
-    // 换了方向：横排时写的宽度、竖排时写的高度不再适用，清掉后重新对齐
-    watch(
-      () => [tabs.orientation, tabs.variant],
-      () => {
-        for (const property of ['width', 'height', 'transform']) {
-          indicator?.style.removeProperty(property);
-        }
-        place(false);
-      },
-      { flush: 'post' },
-    );
-    // 字体加载、容器变宽时标签的位置会变：下一帧直接对齐（不在 ResizeObserver 回调里同步改样式）
-    _effect(() => {
-      if (!list) return;
-      let frame = 0;
-      const observer = new ResizeObserver(() => {
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => place(false));
-      });
-      observer.observe(list);
-      return () => {
-        cancelAnimationFrame(frame);
-        observer.disconnect();
-      };
-    });
+    useActiveIndicator(() => ({
+      container: list,
+      indicator,
+      active: '[role="tab"][aria-selected="true"]',
+      axis: tabs.orientation,
+      value: tabs.value,
+    }));
 
     return () => {
       const vertical = tabs.orientation === 'vertical';

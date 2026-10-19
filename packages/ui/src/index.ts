@@ -701,6 +701,11 @@ export {
 
 // 工具：JS 动画与动效
 export {
+  useActiveIndicator,
+  type ActiveIndicatorOptions,
+  type IndicatorAxes,
+} from './utils/motion/active-indicator';
+export {
   themeTransition,
   themeTransitionOrInstant,
   useAnimate,
