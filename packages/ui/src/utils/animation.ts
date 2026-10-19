@@ -83,7 +83,7 @@ export function useAnimate(): ThemeAnimate {
   };
   const running = new Set<JSAnimation>();
   onBeforeUnmount(() => {
-    for (const animation of running) animation.cancel();
+    for (const animation of running) void animation.cancel();
     running.clear();
   });
   return (target, params, transition) => {

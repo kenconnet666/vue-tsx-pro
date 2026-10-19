@@ -28,8 +28,8 @@ export class RunesTransform {
   private pending = new Map<t.VariableDeclarator, TrackedInfo>();
   private tracked = new Map<Binding, TrackedInfo>();
   private program: NodePath<t.Program>;
-  private filename: string | undefined;
-  private imports: RuntimeImports;
+  private readonly filename: string | undefined;
+  private readonly imports: RuntimeImports;
 
   constructor(program: NodePath<t.Program>, filename: string | undefined) {
     this.program = program;

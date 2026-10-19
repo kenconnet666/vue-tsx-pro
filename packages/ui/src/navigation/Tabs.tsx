@@ -258,8 +258,8 @@ export const TabList = _component(
       const target: AnimationParams = vertical
         ? { x: 0, y: active.offsetTop, height: active.offsetHeight }
         : { x: active.offsetLeft, y: 0, width: active.offsetWidth };
-      if (animated) animate(indicator, target);
-      else utils.set(indicator, target);
+      if (animated) void animate(indicator, target);
+      else void utils.set(indicator, target);
     }
 
     onMounted(() => place(false));

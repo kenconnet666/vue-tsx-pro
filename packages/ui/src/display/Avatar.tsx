@@ -112,13 +112,13 @@ export const Avatar = _component(
           {src && status !== 'error' && (
             <img
               key={src}
+              alt=""
               {...elementProps(
                 mergeProps<'img'>(
                   { sx: [avatarStyles.image, status === 'loading' && avatarStyles.loading] },
                   propsImage,
                   {
                     src,
-                    alt: '',
                     onLoad: () => (status = 'loaded'),
                     onError: () => (status = 'error'),
                   },

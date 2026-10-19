@@ -105,7 +105,7 @@ class TokenRewriter {
 
   private program: NodePath<t.Program>;
 
-  private load: TokenModuleLoader;
+  private readonly load: TokenModuleLoader;
 
   constructor(program: NodePath<t.Program>, load: TokenModuleLoader) {
     this.program = program;

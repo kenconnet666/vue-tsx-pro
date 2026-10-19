@@ -369,7 +369,10 @@ export const ToastItem = _component(
         onMove: ({ deltaX }) => {
           // 拖动中跟手：去掉进出场的 CSS 过渡，不然每一帧都在追赶
           element.style.transition = 'none';
-          utils.set(element, { x: deltaX, opacity: Math.max(0, 1 - Math.abs(deltaX) / width) });
+          void utils.set(element, {
+            x: deltaX,
+            opacity: Math.max(0, 1 - Math.abs(deltaX) / width),
+          });
         },
         onEnd: ({ deltaX, moved, cancelled }) => {
           // 弹回后去掉内联样式：之后的离场淡出要靠 CSS 的 opacity

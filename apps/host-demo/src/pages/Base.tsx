@@ -343,7 +343,7 @@ export const Base = _component(() => {
   // JS 动画：Anime.js 的 animate 加上主题的弹簧时长；减少动态效果时立即到位
   function move() {
     moved = !moved;
-    animate(ball!, {
+    void animate(ball!, {
       x: moved ? 120 : 0,
       ...themeTransition(ball!, { duration: 'lg', bounce: 0.3 }),
     });

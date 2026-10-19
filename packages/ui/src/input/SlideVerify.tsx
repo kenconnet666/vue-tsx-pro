@@ -284,7 +284,7 @@ export const SlideVerify = _component(
       (next) => {
         if (next === 'idle') returnHome();
         if (next === 'error' && handle)
-          animate(handle, { x: [0, -6, 6, -4, 4, 0] }, { duration: 'lg' });
+          void animate(handle, { x: [0, -6, 6, -4, 4, 0] }, { duration: 'lg' });
       },
     );
 
