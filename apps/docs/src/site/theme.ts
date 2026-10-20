@@ -1,30 +1,18 @@
 /**
- * 站点的主题：主题偏好（五套内置主题或跟随系统）加上主题编辑器的设置，都记在 localStorage。
+ * 站点的主题：主题偏好（全部内置主题或跟随系统）加上主题编辑器的设置，都记在 localStorage。
  * index.html 里的防闪烁脚本用同一个偏好存储键；编辑器的设置在应用加载后套上。
  */
 import {
+  builtinThemes,
   createThemePreference,
   customizeTheme,
-  darkTheme,
-  highContrastTheme,
-  lightTheme,
-  midnightTheme,
-  paperTheme,
   useReducedMotion,
   type Theme,
   type ThemeSettings,
 } from '@vue-tsx-pro/ui';
 import { effectScope, ref, watch } from 'vue';
 
-export const preference = createThemePreference({
-  themes: {
-    light: lightTheme,
-    dark: darkTheme,
-    paper: paperTheme,
-    midnight: midnightTheme,
-    'high-contrast': highContrastTheme,
-  },
-});
+export const preference = createThemePreference({ themes: builtinThemes });
 
 const SETTINGS_KEY = 'vue-tsx-pro-theme-settings';
 

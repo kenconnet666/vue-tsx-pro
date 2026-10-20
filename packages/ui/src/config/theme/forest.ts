@@ -1,0 +1,105 @@
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { defaultFonts, defaultRadii } from './light';
+import type { Theme } from './theme';
+import { colors, shadows } from './tokens.stylex';
+
+// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
+
+/**
+ * 森林主题的颜色：带一点叶绿的页面、林木绿的品牌色。中性色按 slate 各级亮度换成绿色相（oklch 145°），品牌色取 Radix grass 色阶、实色加深到林木绿 `#2b7a3b`；成功色换成 jade，和品牌色区分开。
+ * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ */
+export const forestColors = stylex.createTheme(colors, {
+  background: '#f9fef9',
+  surface: '#f9fef9',
+  surfaceMuted: '#f6fbf6',
+  surfaceRaised: '#f9fef9',
+  fill: '#ebf3eb',
+  fillHover: '#e3ebe3',
+  fillActive: '#dce4dc',
+  text: '#182318',
+  textMuted: '#5b685b',
+  textPlaceholder: '#7a887a',
+  textDisabled: '#b6beb6',
+  borderMuted: '#d4dcd4',
+  border: '#c9d1c9',
+  borderStrong: '#b6beb6',
+  accent: '#2b7a3b',
+  accentHover: '#236630',
+  accentContrast: '#ffffff',
+  accentText: '#237835',
+  accentSoft: '#e9f6e9',
+  accentSoftHover: '#daf1db',
+  accentBorder: '#94ce9a',
+  danger: '#d83a3f',
+  dangerHover: '#b62f34',
+  dangerContrast: '#ffffff',
+  dangerText: '#c31e28',
+  dangerSoft: '#feebec',
+  dangerSoftHover: '#ffdbdc',
+  dangerBorder: '#f4a9aa',
+  successText: '#1d3b31',
+  successSoft: '#e6f7ed',
+  successBorder: '#8bceb6',
+  success: '#008667',
+  successHover: '#007056',
+  successContrast: '#ffffff',
+  successSoftHover: '#d6f1e3',
+  warningText: '#4f3422',
+  warningSoft: '#fff7c2',
+  warningBorder: '#e9c162',
+  warning: '#ffc53d',
+  warningHover: '#ffcd5f',
+  warningContrast: '#4f3422',
+  warningSoftHover: '#ffee9c',
+  infoText: '#113264',
+  infoSoft: '#e6f4fe',
+  infoBorder: '#8ec8f6',
+  info: '#0073e0',
+  infoHover: '#0060bd',
+  infoContrast: '#ffffff',
+  infoSoftHover: '#d5efff',
+  inverseSurface: '#182318',
+  inverseText: '#f9fef9',
+  focusRing: '#2b7a3b',
+  overlay: 'rgba(24, 35, 24, 0.4)',
+  selection: '#c9e8ca',
+  highlight: '#ffee9c',
+  surfaceTranslucent: 'rgba(249, 254, 249, 0.8)',
+  codeKeyword: '#237835',
+  codeString: '#1f8157',
+  codeNumber: '#c74900',
+  codeFunction: '#6550b9',
+  codeType: '#0c7b96',
+  codeComment: '#5b685b',
+  codeTag: '#cb1d63',
+  codeAttribute: '#815e46',
+  codeInserted: '#e6f6eb',
+  codeDeleted: '#feebec',
+  chart1: '#2b7a3b',
+  chart2: '#26997b',
+  chart3: '#6fa000',
+  chart4: '#c68400',
+  chart5: '#a07553',
+  chart6: '#0d9b8a',
+  chart7: '#ef5f00',
+  chart8: '#7f847d',
+});
+
+/** 森林主题的阴影：带主色调的投影 */
+export const forestShadows = stylex.createTheme(shadows, {
+  none: 'none',
+  xs: '0 1px 1px 0 rgba(24, 56, 28, 0.04), 0 2px 1px -1px rgba(24, 56, 28, 0.05), 0 1px 3px 0 rgba(24, 56, 28, 0.05)',
+  sm: '0 2px 3px -2px rgba(24, 56, 28, 0.06), 0 3px 12px -4px rgba(24, 56, 28, 0.1), 0 4px 16px -8px rgba(24, 56, 28, 0.1)',
+  md: '0 8px 40px rgba(24, 56, 28, 0.05), 0 12px 32px -16px rgba(24, 56, 28, 0.08)',
+  lg: '0 12px 60px rgba(24, 56, 28, 0.15), 0 12px 32px -16px rgba(24, 56, 28, 0.12)',
+  xl: '0 12px 60px rgba(24, 56, 28, 0.15), 0 16px 64px rgba(24, 56, 28, 0.04), 0 16px 36px -20px rgba(24, 56, 28, 0.2)',
+});
+
+/** 森林主题：叶绿底、林木绿品牌色、带绿调的阴影；浏览器配色按亮色 */
+export const forestTheme: Theme = {
+  name: 'forest',
+  colorScheme: 'light',
+  styles: [forestColors, forestShadows, defaultFonts, defaultRadii],
+  overrides: {},
+};

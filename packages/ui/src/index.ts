@@ -822,6 +822,8 @@ export {
   themeBootScript,
   type ThemeBootColors,
 } from './config/theme/boot';
+export { builtinThemes, type BuiltinThemeName } from './config/theme/builtin';
+export { coffeeColors, coffeeTheme } from './config/theme/coffee';
 export {
   checkContrast,
   CONTRAST_PAIRS,
@@ -838,13 +840,23 @@ export {
   type RadiusPresets,
   type ThemeSettings,
 } from './config/theme/customize';
+export {
+  cyberpunkColors,
+  cyberpunkFonts,
+  cyberpunkRadii,
+  cyberpunkShadows,
+  cyberpunkTheme,
+} from './config/theme/cyberpunk';
 export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
+export { festiveColors, festiveShadows, festiveTheme } from './config/theme/festive';
+export { forestColors, forestShadows, forestTheme } from './config/theme/forest';
 export {
   highContrastColors,
   highContrastRadii,
   highContrastShadows,
   highContrastTheme,
 } from './config/theme/high-contrast';
+export { lemonColors, lemonRadii, lemonShadows, lemonTheme } from './config/theme/lemon';
 export {
   defaultFonts,
   defaultRadii,
@@ -853,6 +865,7 @@ export {
   lightTheme,
 } from './config/theme/light';
 export { midnightColors, midnightTheme } from './config/theme/midnight';
+export { oceanColors, oceanRadii, oceanShadows, oceanTheme } from './config/theme/ocean';
 export {
   ACCENT_SCALES,
   ACCENT_STEPS,
@@ -870,6 +883,7 @@ export {
   type ThemePreference,
   type ThemePreferenceOptions,
 } from './config/theme/preference';
+export { sakuraColors, sakuraRadii, sakuraShadows, sakuraTheme } from './config/theme/sakura';
 export {
   defineTheme,
   readToken,

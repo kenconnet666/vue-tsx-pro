@@ -40,7 +40,7 @@ import { preference, themeSettings } from '../../site/theme';
 const meta = {
   title: '主题定制',
   description:
-    '五套内置主题，局部主题、跟随系统、运行时切换与自定义品牌色的用法；调品牌色、中性色、圆角、缩放、字体与动效，改动立即作用在整个站点上，满意后复制代码到自己的项目。',
+    '十二套内置主题，局部主题、跟随系统、运行时切换与自定义品牌色的用法；调品牌色、中性色、圆角、缩放、字体与动效，改动立即作用在整个站点上，满意后复制代码到自己的项目。',
 };
 
 const styles = stylex.create({
@@ -171,11 +171,11 @@ export default _component(() => () => (
       </div>
     </div>
     <Example id="builtin" title="内置主题" demo={ThemeGallery}>
-      亮色（<Code>lightTheme</Code>，默认）、暗色（<Code>darkTheme</Code>）、纸张（
-      <Code>paperTheme</Code>，米黄纸色与衬线标题）、 午夜（<Code>midnightTheme</Code>
-      ，深海军蓝与青色）、高对比（<Code>highContrastTheme</Code>，纯白纯黑、文字到
-      7:1）。每套都通过对比度检查。示例里每张卡片套一层 <Code>Provider</Code>
-      ：主题只作用在这一块，这就是局部主题的写法。
+      十二套内置主题都在 <Code>builtinThemes</Code>{' '}
+      里：亮色（默认）、暗色、纸张（米黄纸色与衬线标题）、午夜（深海军蓝与青色）、高对比（文字到
+      7:1）、海洋（天空蓝与深海蓝）、森林（叶绿与林木绿）、柠檬（奶油黄与柠檬黄）、樱花（淡粉）、喜庆（中国红与金色）、赛博朋克（深紫黑与霓虹）、咖啡（浓缩咖啡与焦糖）。
+      每套都通过对比度检查；示例里每张卡片套一层 <Code>Provider</Code>
+      ，主题只作用在这一块，这就是局部主题的写法。
     </Example>
     <Example id="follow-system" title="跟随系统" demo={FollowSystem}>
       <Code>theme</Code> 写成 <Code>{'{ light, dark }'}</Code> 两套，按系统的明暗选一套；

@@ -218,6 +218,20 @@ export interface Lang {
   readonly themeMidnight: string;
   /** 主题：高对比，默认“高对比” */
   readonly themeHighContrast: string;
+  /** 主题：海洋，默认“海洋” */
+  readonly themeOcean: string;
+  /** 主题：森林，默认“森林” */
+  readonly themeForest: string;
+  /** 主题：柠檬，默认“柠檬” */
+  readonly themeLemon: string;
+  /** 主题：樱花，默认“樱花” */
+  readonly themeSakura: string;
+  /** 主题：喜庆，默认“喜庆” */
+  readonly themeFestive: string;
+  /** 主题：赛博朋克，默认“赛博朋克” */
+  readonly themeCyberpunk: string;
+  /** 主题：咖啡，默认“咖啡” */
+  readonly themeCoffee: string;
   /** ThemeCustomizer：品牌色一组的标题，默认“品牌色” */
   readonly customizeAccent: string;
   /** ThemeCustomizer：中性色一组的标题，默认“中性色” */

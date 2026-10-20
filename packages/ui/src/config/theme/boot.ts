@@ -47,7 +47,7 @@ export function themeBootScript<Name extends string>(options: {
 }
 
 /**
- * 内置主题（lightTheme、darkTheme、paperTheme、midnightTheme、highContrastTheme）的底色、文字色与配色方案，给 themeBootScript 用。
+ * 内置主题（builtinThemes）的底色、文字色与配色方案，给 themeBootScript 用。
  * 与主题文件里的 background、text 一致（pnpm themes:check 核对）
  */
 export const builtinThemeBootColors = {
@@ -56,4 +56,11 @@ export const builtinThemeBootColors = {
   paper: { background: '#f5efdf', text: '#3b2f20', colorScheme: 'light' },
   midnight: { background: '#0d1321', text: '#eef2fa', colorScheme: 'dark' },
   'high-contrast': { background: '#ffffff', text: '#000000', colorScheme: 'light' },
+  ocean: { background: '#f7fdff', text: '#10222c', colorScheme: 'light' },
+  forest: { background: '#f9fef9', text: '#182318', colorScheme: 'light' },
+  lemon: { background: '#fefdf2', text: '#232010', colorScheme: 'light' },
+  sakura: { background: '#fffafc', text: '#281b20', colorScheme: 'light' },
+  festive: { background: '#fffaf6', text: '#2c1b13', colorScheme: 'light' },
+  cyberpunk: { background: '#110e20', text: '#ede9ff', colorScheme: 'dark' },
+  coffee: { background: '#180f0a', text: '#ffe9dc', colorScheme: 'dark' },
 } as const satisfies Record<string, ThemeBootColors>;

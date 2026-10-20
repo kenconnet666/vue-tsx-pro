@@ -20,6 +20,7 @@ import { ToggleGroup, ToggleItem } from '../input/ToggleGroup';
 import { Flex } from '../layout/Flex';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { useLang } from './context';
+import { builtinThemes } from './theme/builtin';
 import { checkContrast, type ContrastIssue } from './theme/contrast';
 import {
   themeSettingsCode,
@@ -68,14 +69,11 @@ export const themeCustomizerDynamicStyles = stylex.create({
   fill: (color: string) => ({ backgroundColor: color }),
 });
 
-/** 内置主题名 → 导出代码里的变量名；自定义主题按亮暗取一个内置主题作基础 */
-const BASE_NAMES: Record<string, string> = {
-  light: 'lightTheme',
-  dark: 'darkTheme',
-  paper: 'paperTheme',
-  midnight: 'midnightTheme',
-  'high-contrast': 'highContrastTheme',
-};
+/** 内置主题名 → 导出代码里的变量名（high-contrast → highContrastTheme）；不是内置主题时没有 */
+function baseVariable(name: string): string | undefined {
+  if (!(name in builtinThemes)) return undefined;
+  return `${name.replace(/-(\w)/g, (_, letter: string) => letter.toUpperCase())}Theme`;
+}
 
 const SCALINGS = ['0.9', '0.95', '1', '1.05', '1.1'];
 
@@ -189,7 +187,7 @@ export const ThemeCustomizer = _component(
         ['slow', lang.customizeMotionSlow],
       ];
       const code = themeSettingsCode(
-        BASE_NAMES[base.name.replace(/-custom$/, '')] ??
+        baseVariable(base.name.replace(/-custom$/, '')) ??
           (appearance() === 'dark' ? 'darkTheme' : 'lightTheme'),
         settings,
         appearance(),

@@ -1,14 +1,10 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import {
   Badge,
+  builtinThemes,
   Card,
   createThemePreference,
-  darkTheme,
   Flex,
-  highContrastTheme,
-  lightTheme,
-  midnightTheme,
-  paperTheme,
   Provider,
   Text,
   ThemeSwitcher,
@@ -16,16 +12,7 @@ import {
 
 export default _component(() => {
   // 应用里一般在创建应用前调用一次，交给 createUi；这里只管这一块，也不记到本地存储
-  const preference = createThemePreference({
-    themes: {
-      light: lightTheme,
-      dark: darkTheme,
-      paper: paperTheme,
-      midnight: midnightTheme,
-      'high-contrast': highContrastTheme,
-    },
-    storageKey: false,
-  });
+  const preference = createThemePreference({ themes: builtinThemes, storageKey: false });
   return () => (
     <Provider theme={preference.theme}>
       <Card>

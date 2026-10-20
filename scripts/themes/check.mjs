@@ -1,6 +1,5 @@
 /**
- * 主题颜色的对比度检查（WCAG 2.2 AA）：亮色（tokens.stylex.ts 的默认值）、暗色（dark.ts）、纸张（paper.ts）、
- * 午夜（midnight.ts）、高对比（high-contrast.ts）逐套逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
+ * 主题颜色的对比度检查（WCAG 2.2 AA）：每套内置主题（亮色即 tokens.stylex.ts 的默认值，其余见 themeFiles）逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
  *
  * 用法：node scripts/themes/check.mjs（CI 的静态检查里跑；改颜色前后都跑一遍）
  *
@@ -60,14 +59,25 @@ function readColors(file, group = 'colors') {
   return values;
 }
 
-const light = readColors('tokens.stylex.ts');
-const themes = {
-  亮色: light,
-  暗色: { ...light, ...readColors('dark.ts') },
-  纸张: { ...light, ...readColors('paper.ts') },
-  午夜: { ...light, ...readColors('midnight.ts') },
-  高对比: { ...light, ...readColors('high-contrast.ts') },
+// 内置主题名 → 主题文件（亮色即 tokens.stylex.ts 的默认值）；与 builtin.ts 的 builtinThemes 一一对应
+const themeFiles = {
+  light: 'tokens.stylex.ts',
+  dark: 'dark.ts',
+  paper: 'paper.ts',
+  midnight: 'midnight.ts',
+  'high-contrast': 'high-contrast.ts',
+  ocean: 'ocean.ts',
+  forest: 'forest.ts',
+  lemon: 'lemon.ts',
+  sakura: 'sakura.ts',
+  festive: 'festive.ts',
+  cyberpunk: 'cyberpunk.ts',
+  coffee: 'coffee.ts',
 };
+const light = readColors('tokens.stylex.ts');
+const themes = Object.fromEntries(
+  Object.entries(themeFiles).map(([name, file]) => [name, { ...light, ...readColors(file) }]),
+);
 
 // 要检查的组合与对比度计算都来自组件库：主题编辑器的实时提示用同一套
 const { CONTRAST_PAIRS, checkContrast } =
@@ -97,15 +107,13 @@ for (const group of ['colors', 'shadows', 'fonts', 'radii']) {
 
 // 防闪烁脚本用的底色、文字色要与主题文件一致（boot.ts 不能依赖 StyleX，只好抄一份）
 const { builtinThemeBootColors } = await import('../../packages/ui/src/config/theme/boot.ts');
-const bootNames = {
-  light: '亮色',
-  dark: '暗色',
-  paper: '纸张',
-  midnight: '午夜',
-  'high-contrast': '高对比',
-};
+const bootKeys = Object.keys(builtinThemeBootColors).sort().join();
+if (bootKeys !== Object.keys(themes).sort().join())
+  failures.push(
+    `boot.ts 的主题（${bootKeys}）与内置主题（${Object.keys(themes).sort().join()}）不一致`,
+  );
 for (const [key, colors] of Object.entries(builtinThemeBootColors)) {
-  const theme = themes[bootNames[key]];
+  const theme = themes[key];
   for (const token of ['background', 'text']) {
     if (colors[token] !== theme[token])
       failures.push(
