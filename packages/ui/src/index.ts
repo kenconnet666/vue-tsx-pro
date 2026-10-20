@@ -107,6 +107,7 @@ export {
   flexAlignStyles,
   flexJustifyStyles,
   FlexList,
+  FlexOrderedList,
   flexStyles,
   type FlexAligns,
   type FlexDirections,

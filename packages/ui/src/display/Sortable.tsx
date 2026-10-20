@@ -19,6 +19,8 @@ import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useSortable } from '../utils/dom/sortable';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { FlexList, type FlexProps } from '../layout/Flex';
+import { toElement } from '../utils/dom/overlay';
 
 /** 项的渲染状态 */
 export interface SortableItemState {
@@ -52,15 +54,8 @@ export interface SortableProps<T> extends PartProps<'ul'> {
 
 /** Sortable 的样式：root、horizontal、item、active、handle、content */
 export const sortableStyles = stylex.create({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_xs',
-    margin: 0,
-    padding: 0,
-    listStyle: 'none',
-  },
-  horizontal: { flexDirection: 'row', flexWrap: 'nowrap', overflowX: 'auto' },
+  // 方向、间距、去掉圆点由 FlexList 给；横排时可以横向滚动
+  horizontal: { overflowX: 'auto' },
   item: {
     position: 'relative',
     display: 'flex',
@@ -122,13 +117,15 @@ export const Sortable = _component(
 
     return () => (
       <>
-        <ul
-          {...mergeAttrs<'ul'>(
+        <FlexList
+          {...mergePartProps<FlexProps<'ul'>>(
             {
-              sx: [sortableStyles.root, orientation === 'horizontal' && sortableStyles.horizontal],
+              direction: orientation === 'horizontal' ? 'row' : 'column',
+              gap: 'xs',
+              sx: orientation === 'horizontal' && sortableStyles.horizontal,
             },
             rest,
-            { ref: _toRef(root) },
+            { ref: (value: unknown) => (root = toElement(value)) },
           )}
           data-orientation={orientation}
         >
@@ -165,7 +162,7 @@ export const Sortable = _component(
               </li>
             );
           })}
-        </ul>
+        </FlexList>
         <VisuallyHidden id={sortable.instructionsId}>{lang.sortableInstructions}</VisuallyHidden>
         <VisuallyHidden aria-live="assertive">{sortable.announcement}</VisuallyHidden>
       </>

@@ -24,7 +24,8 @@ import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { itemStyles } from '../utils/style/item-styles';
-import { focusRingStyles, listStyles } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
+import { FlexList, type FlexProps } from '../layout/Flex';
 
 /** 分组向里面的项要的信息：哪些项是当前页（有当前页时自动展开） */
 export interface NavGroupState {
@@ -37,7 +38,6 @@ export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 
 /** NavList 的样式：list、nested、row、current、disabled、chevron 等 */
 export const navListStyles = stylex.create({
-  list: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
   // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
   row: {
@@ -58,16 +58,16 @@ export const navListStyles = stylex.create({
 /** 未声明的属性落到 nav 上；aria-label 是导航的名称 */
 export interface NavListProps extends PartProps<'nav'> {
   /** 列表（ul）的部件属性 */
-  propsList?: PartProps<'ul'>;
+  propsList?: Partial<FlexProps<'ul'>>;
   children?: VNodeChild;
 }
 
 /** 侧边导航（nav > ul），里面放 NavItem 与 NavGroup */
 export const NavList = _component(({ propsList, children, ...rest }: NavListProps) => () => (
   <nav {...mergeAttrs<'nav'>({}, rest)}>
-    <ul {...mergeAttrs<'ul'>({ sx: [listStyles.reset, navListStyles.list] }, propsList)}>
+    <FlexList {...mergePartProps<FlexProps<'ul'>>({ direction: 'column', gap: 'xs' }, propsList)}>
       {children}
-    </ul>
+    </FlexList>
   </nav>
 ));
 
@@ -181,7 +181,7 @@ export interface NavGroupProps extends PartProps<'li'> {
   /** 展开区（Collapsible）的部件属性 */
   propsContent?: Partial<CollapsibleProps>;
   /** 里面的列表（ul）的部件属性 */
-  propsList?: PartProps<'ul'>;
+  propsList?: Partial<FlexProps<'ul'>>;
   /** 标题文字的部件属性 */
   propsLabel?: PartProps<'span'>;
   /** 标题图标的部件属性 */
@@ -240,14 +240,14 @@ export const NavGroup = _component(
           )}
           open={_bind(open)}
         >
-          <ul
-            {...mergeAttrs<'ul'>(
-              { sx: [listStyles.reset, navListStyles.list, navListStyles.nested] },
+          <FlexList
+            {...mergePartProps<FlexProps<'ul'>>(
+              { direction: 'column', gap: 'xs', sx: navListStyles.nested },
               propsList,
             )}
           >
             {children}
-          </ul>
+          </FlexList>
         </Collapsible>
       </li>
     );

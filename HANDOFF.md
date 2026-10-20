@@ -186,7 +186,6 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 - Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动。Radix 用专门的 ToolbarToggleGroup，需要时再做。
 - Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色），这是有意的取舍。
 - Toaster 只显示最新的 `max` 条，更早的照样计时，可能没露面就到时了。
-- Drawer 离场是淡出（不是滑回），见 §10.11 的取舍。
 - Menu 没有子菜单；Combobox 只能单选（多选的 TagsInput 以后做）。
 - 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出（没法用 role="group" 包住各自定位的选项）。
 - 表格是 table 语义，不是 grid：没有单元格之间的方向键导航；TreeDataTable 的层级由缩进与展开按钮表达。

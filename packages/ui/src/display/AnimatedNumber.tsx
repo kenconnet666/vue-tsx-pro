@@ -93,9 +93,19 @@ export const AnimatedNumber = _component(
           : (format ?? {}),
       );
 
-    return () => {
+    /** 过渡中当前显示的文字 */
+    const shownText = () => {
       const places = 10 ** decimals(value);
-      const shown = Math.round(tween.current * places) / places;
+      return text(Math.round(tween.current * places) / places);
+    };
+    // 过渡中每帧直接改文字，不为一个数字重新渲染整个组件；渲染里只取当前值、不追踪
+    let valueElement = _state.raw<HTMLElement | null>(null);
+    _effect(() => {
+      const shown = shownText();
+      if (valueElement) valueElement.textContent = shown;
+    });
+
+    return () => {
       const direction = value > 0 ? 'up' : value < 0 ? 'down' : 'flat';
       const color = trend
         ? ({ up: 'success', down: 'danger', flat: tone } as const)[direction]
@@ -110,8 +120,13 @@ export const AnimatedNumber = _component(
           data-trend={trend ? direction : undefined}
         >
           {prefix != null && <span {...mergeAttrs<'span'>({}, propsPrefix)}>{prefix}</span>}
-          <span {...mergeAttrs<'span'>({}, propsValue, { 'aria-hidden': true })}>
-            {text(shown)}
+          <span
+            {...mergeAttrs<'span'>({}, propsValue, {
+              'aria-hidden': true,
+              ref: _toRef(valueElement),
+            })}
+          >
+            {_untrack(shownText())}
           </span>
           <VisuallyHidden {...mergePartProps<VisuallyHiddenProps>({}, propsLabel)}>
             {text(value)}

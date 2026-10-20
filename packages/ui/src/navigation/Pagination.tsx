@@ -15,9 +15,9 @@ import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';
 import { paginationItems } from '../utils/data/pagination';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { listStyles } from '../utils/style/styles';
 import type { TextSize } from '../utils/style/typography';
 import { clamp } from '../utils/data/number';
+import { FlexList, type FlexProps } from '../layout/Flex';
 
 /** 未声明的属性落到 nav 上；aria-label 默认取语言包（分页） */
 export interface PaginationProps extends PartProps<'nav'> {
@@ -40,7 +40,7 @@ export interface PaginationProps extends PartProps<'nav'> {
   /** 字号档位，按钮随之缩放，默认 sm */
   size?: TextSize;
   /** 列表（ul）的部件属性 */
-  propsList?: PartProps<'ul'>;
+  propsList?: Partial<FlexProps<'ul'>>;
   /** 每一项（li，包着按钮或省略号）的部件属性 */
   propsItem?: PartProps<'li'>;
   /** 页码按钮的部件属性（按钮或链接按钮），可以按页计算 */
@@ -58,7 +58,6 @@ export interface PaginationProps extends PartProps<'nav'> {
 /** Pagination 的样式：root、list、page、ellipsis、total、tabular */
 export const paginationStyles = stylex.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_md' },
-  list: { display: 'flex', alignItems: 'center', gap: '_xs' },
   // 页码按钮等宽，翻页时位置不晃
   page: { minWidth: 'max(_sizes.control, _sizes.minTarget)', paddingInline: '_xs' },
   ellipsis: {
@@ -164,7 +163,7 @@ export const Pagination = _component(
       <nav
         {...mergeAttrs<'nav'>({ sx: paginationStyles.root, 'aria-label': lang.pagination }, rest)}
       >
-        <ul {...mergeAttrs<'ul'>({ sx: [listStyles.reset, paginationStyles.list] }, propsList)}>
+        <FlexList {...mergePartProps<FlexProps<'ul'>>({ align: 'center', gap: 'xs' }, propsList)}>
           <li {...mergeAttrs<'li'>({}, propsItem)}>{stepButton(-1)}</li>
           {paginationItems({ page: current, pageCount: count, siblings, boundaries }).map(
             (item) => (
@@ -184,7 +183,7 @@ export const Pagination = _component(
             ),
           )}
           <li {...mergeAttrs<'li'>({}, propsItem)}>{stepButton(1)}</li>
-        </ul>
+        </FlexList>
         {showTotal && total != null && (
           <span
             {...mergeAttrs<'span'>(

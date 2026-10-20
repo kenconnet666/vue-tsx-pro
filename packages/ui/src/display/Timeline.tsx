@@ -18,9 +18,10 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { StatusTone } from '../utils/style/tone-styles';
+import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 
 /** 时间线上的一项 */
 export interface TimelineItem {
@@ -60,7 +61,8 @@ export interface TimelineProps extends PartProps<'ol'> {
 
 /** Timeline 的样式：root、item、marker、line、content、title、time、description 等 */
 export const timelineStyles = stylex.create({
-  root: { margin: 0, padding: 0, listStyle: 'none', containerType: 'inline-size' },
+  // 竖排、去掉编号由 FlexOrderedList 给；交替排布按容器宽度切换
+  root: { containerType: 'inline-size' },
   // 节点一列、内容一列；交替时三列：左内容、节点、右内容
   item: { display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: '_md' },
   itemAlternate: {
@@ -142,8 +144,11 @@ export const Timeline = _component(
         ...(pending != null ? [{ key: 'pending', title: pending, pending: true as const }] : []),
       ];
       return (
-        <ol
-          {...mergeAttrs<'ol'>({ sx: [timelineStyles.root, size && fontSizeStyles[size]] }, rest)}
+        <FlexOrderedList
+          {...mergePartProps<FlexProps<'ol'>>(
+            { direction: 'column', sx: [timelineStyles.root, size && fontSizeStyles[size]] },
+            rest,
+          )}
           data-alternate={alternate || undefined}
         >
           {all.map((item, index) => {
@@ -210,7 +215,7 @@ export const Timeline = _component(
               </li>
             );
           })}
-        </ol>
+        </FlexOrderedList>
       );
     },
 );

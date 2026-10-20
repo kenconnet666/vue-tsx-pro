@@ -17,7 +17,7 @@ import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
 import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { listStyles } from '../utils/style/styles';
+import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 
 /** 一级路径 */
 export interface BreadcrumbItem {
@@ -38,7 +38,7 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   /** 超过这么多项时折叠中间部分（保留第一项与最后两项），被折叠的各级放进菜单 */
   maxItems?: number;
   /** 列表（ol）的部件属性 */
-  propsList?: PartProps<'ol'>;
+  propsList?: Partial<FlexProps<'ol'>>;
   /** 每一项（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: BreadcrumbItem, index: number) => PartProps<'li'>);
   /** 链接的部件属性 */
@@ -57,7 +57,8 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
 
 /** Breadcrumbs 的样式：list、item、current、separator、label、expand */
 export const breadcrumbsStyles = stylex.create({
-  list: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_xs', fontSize: '_sm' },
+  // 横排、换行、间距由 FlexOrderedList 给
+  list: { fontSize: '_sm' },
   item: { display: 'inline-flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   current: { color: '_text', fontWeight: '_medium' },
   separator: { display: 'inline-flex', color: '_textMuted' },
@@ -103,7 +104,12 @@ export const Breadcrumbs = _component(
 
       return (
         <nav {...mergeAttrs<'nav'>({ 'aria-label': lang.breadcrumbs }, rest)}>
-          <ol {...mergeAttrs<'ol'>({ sx: [listStyles.reset, breadcrumbsStyles.list] }, propsList)}>
+          <FlexOrderedList
+            {...mergePartProps<FlexProps<'ol'>>(
+              { wrap: true, align: 'center', gap: 'xs', sx: breadcrumbsStyles.list },
+              propsList,
+            )}
+          >
             {shown.map((entry, position) => {
               if (entry === 'collapsed') {
                 return (
@@ -181,7 +187,7 @@ export const Breadcrumbs = _component(
                 </li>
               );
             })}
-          </ol>
+          </FlexOrderedList>
         </nav>
       );
     };

@@ -29,6 +29,7 @@ import { Progress } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { FileDrop, type FileDropProps } from './FileDrop';
+import { GridList, type GridProps } from '../layout/Grid';
 
 /** 列表里的一个文件 */
 export interface UploadFile {
@@ -81,7 +82,7 @@ export interface UploadProps extends PartProps<'div'> {
   /** 选择区域（FileDrop）的部件属性 */
   propsDrop?: Partial<FileDropProps>;
   /** 列表的部件属性 */
-  propsList?: PartProps<'ul'>;
+  propsList?: Partial<GridProps<'ul'>>;
   /** 每一项的部件属性，可以按文件计算 */
   propsItem?: PartProps<'li'> | ((file: UploadFile) => PartProps<'li'>);
 }
@@ -89,7 +90,6 @@ export interface UploadProps extends PartProps<'div'> {
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
 export const uploadStyles = stylex.create({
   root: { display: 'grid', gap: '_sm' },
-  list: { display: 'grid', gap: '_xs', margin: 0, padding: 0, listStyle: 'none' },
   item: {
     cursor: 'default',
     gap: '_sm',
@@ -275,9 +275,12 @@ export const Upload = _component(
         )}
         {value.length > 0 && (
           // 状态变化（失败、完成）由读屏播报
-          <ul {...mergeAttrs<'ul'>({ sx: uploadStyles.list }, propsList)} aria-live="polite">
+          <GridList
+            {...mergePartProps<GridProps<'ul'>>({ gap: 'xs' }, propsList)}
+            aria-live="polite"
+          >
             {value.map(renderItem)}
-          </ul>
+          </GridList>
         )}
       </div>
     );

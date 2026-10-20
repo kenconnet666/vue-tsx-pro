@@ -40,13 +40,12 @@ export const drawerStyles = stylex.create({
     maxWidth: '100vw',
     maxHeight: '100dvh',
     borderRadius: 0,
-    // 进场从所在一侧滑入（@starting-style），离场淡出（allow-discrete，目前只有 Chromium）：
-    // 离场不滑回去，方向只需在进场的起始值里区分一次；“减少动态效果”时时长为 0。
-    // 平时 translate 是 none 而不是 0 0：否则抽屉会成为 fixed 子元素（移进来的 Toaster）的包含块
-    opacity: { default: 0, ':modal': 1 },
+    // 进场从所在一侧滑入（@starting-style），离场滑回去（allow-discrete，离场过渡目前只有 Chromium）；
+    // “减少动态效果”时时长为 0。打开时 translate 是 none 而不是 0 0：否则抽屉会成为 fixed 子元素
+    // （移进来的 Toaster）的包含块；关闭时不显示，移到所在一侧之外没有这个问题
     transition: {
       default:
-        'opacity _durations.sm _easings.exit, display _durations.sm allow-discrete, overlay _durations.sm allow-discrete',
+        'translate _durations.md _easings.exit, display _durations.md allow-discrete, overlay _durations.md allow-discrete',
       ':modal':
         'translate _durations.lg _easings.enter, display _durations.lg allow-discrete, overlay _durations.lg allow-discrete',
     },
@@ -59,7 +58,8 @@ export const drawerStyles = stylex.create({
     insetInlineEnd: 'auto',
     borderInlineStartWidth: 0,
     translate: {
-      default: 'none',
+      default: '-100% 0',
+      ':dir(rtl)': '100% 0',
       ':modal': {
         default: 'none',
         '@starting-style': { default: '-100% 0', ':dir(rtl)': '100% 0' },
@@ -71,7 +71,8 @@ export const drawerStyles = stylex.create({
     insetInlineEnd: 0,
     borderInlineEndWidth: 0,
     translate: {
-      default: 'none',
+      default: '100% 0',
+      ':dir(rtl)': '-100% 0',
       ':modal': {
         default: 'none',
         '@starting-style': { default: '100% 0', ':dir(rtl)': '-100% 0' },
@@ -82,13 +83,13 @@ export const drawerStyles = stylex.create({
     top: 0,
     bottom: 'auto',
     borderBlockStartWidth: 0,
-    translate: { default: 'none', ':modal': { default: 'none', '@starting-style': '0 -100%' } },
+    translate: { default: '0 -100%', ':modal': { default: 'none', '@starting-style': '0 -100%' } },
   },
   bottom: {
     top: 'auto',
     bottom: 0,
     borderBlockEndWidth: 0,
-    translate: { default: 'none', ':modal': { default: 'none', '@starting-style': '0 100%' } },
+    translate: { default: '0 100%', ':modal': { default: 'none', '@starting-style': '0 100%' } },
   },
 });
 

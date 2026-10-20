@@ -4,7 +4,7 @@
  * 其他语义容器用 createFlex 生成，如 `const Toolbar = createFlex('nav', 'Toolbar')`。
  *
  *   <Flex gap="sm" align="center">…</Flex>
- *   <FlexList direction="column" gap="xs">…</FlexList>   列表：去掉圆点并保留列表语义
+ *   <FlexList direction="column" gap="xs">…</FlexList>   列表：去掉圆点并保留列表语义（有序的用 FlexOrderedList）
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -146,3 +146,6 @@ export function createFlex<Tag extends LayoutTag>(
 export const Flex = createFlex('div', 'Flex');
 /** flex 布局的列表（ul）：去掉圆点与缩进，保留列表语义；子元素用 li */
 export const FlexList = createFlex('ul', 'FlexList');
+
+/** 有序列表（ol）的 flex 布局：顺序有意义的一组（面包屑、步骤、时间线、通知），去掉编号并保留列表语义 */
+export const FlexOrderedList = createFlex('ol', 'FlexOrderedList');

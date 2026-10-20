@@ -12,8 +12,8 @@ import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { listStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
+import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 
 /** 步骤条方向 */
 export interface StepsOrientations {
@@ -66,8 +66,6 @@ export interface StepsProps extends PartProps<'ol'> {
 
 /** Steps 的样式：root、vertical、item、trigger、indicator、text 等 */
 export const stepsStyles = stylex.create({
-  root: { display: 'flex', gap: '_sm' },
-  vertical: { flexDirection: 'column', gap: '_lg' },
   item: {
     display: 'flex',
     flexGrow: 1,
@@ -140,9 +138,9 @@ export const Steps = _component(
     () => {
       const vertical = orientation === 'vertical';
       return (
-        <ol
-          {...mergeAttrs<'ol'>(
-            { sx: [listStyles.reset, stepsStyles.root, vertical && stepsStyles.vertical] },
+        <FlexOrderedList
+          {...mergePartProps<FlexProps<'ol'>>(
+            { direction: vertical ? 'column' : 'row', gap: vertical ? 'lg' : 'sm' },
             rest,
           )}
           data-orientation={orientation}
@@ -213,7 +211,7 @@ export const Steps = _component(
               </li>
             );
           })}
-        </ol>
+        </FlexOrderedList>
       );
     },
 );

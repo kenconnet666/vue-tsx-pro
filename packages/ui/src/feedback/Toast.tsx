@@ -48,6 +48,7 @@ import { focusAfterRemoval } from '../utils/dom/focus';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { Alert, type AlertProps } from './Alert';
+import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 
 /** 一条通知的内容与行为 */
 export interface ToastOptions {
@@ -262,7 +263,7 @@ export interface ToasterProps extends PartProps<'section', 'popover' | 'tabindex
   /** 在自动关闭的通知底部显示剩余时间条（暂停计时时一起停），默认 false */
   progress?: boolean;
   /** 列表（ol）的部件属性 */
-  propsList?: PartProps<'ol', 'aria-live'>;
+  propsList?: Omit<Partial<FlexProps<'ol'>>, 'aria-live'>;
   /** 每一项（li）的部件属性 */
   propsItem?: PartProps<'li'> | ((toast: ToastRecord) => PartProps<'li'>);
   /** 每条通知（Alert）的部件属性 */
@@ -294,15 +295,6 @@ export const toastStyles = stylex.create({
     pointerEvents: 'none',
     outlineStyle: 'none',
   },
-  list: {
-    display: 'flex',
-    flexDirection: 'column',
-    margin: 0,
-    padding: 0,
-    listStyle: 'none',
-  },
-  // 新通知靠近所在的边缘：在顶部时最新的在最上面
-  listFromTop: { flexDirection: 'column-reverse' },
   item: {
     pointerEvents: 'auto',
     // 纵向仍可滚动页面，横向交给滑动关闭
@@ -632,12 +624,13 @@ export const Toaster = _component(
               data-placement={placement}
               data-expanded={stack ? String(!stacked) : undefined}
             >
-              <ol
-                {...mergeAttrs<'ol'>(
-                  { sx: [toastStyles.list, fromTop && toastStyles.listFromTop] },
+              <FlexOrderedList
+                {...mergePartProps<FlexProps<'ol'>>(
+                  // 新通知靠近所在的边缘：在顶部时最新的在最上面
+                  { direction: fromTop ? 'column-reverse' : 'column' },
                   propsList,
                   {
-                    ref: _toRef(list),
+                    ref: (value: unknown) => (list = toElement(value)),
                     'aria-live': 'polite',
                   },
                 )}
@@ -656,7 +649,7 @@ export const Toaster = _component(
                     propsProgress={propsProgress}
                   />
                 ))}
-              </ol>
+              </FlexOrderedList>
             </section>
           </ConfigScope>
         </Teleport>

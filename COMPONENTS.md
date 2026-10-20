@@ -520,7 +520,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 - 点击遮罩关闭仍用 `dismissOnBackdrop`：原生 `closedby="any"` 到 2026 年 Safari 仍不支持。
 - Toaster 不用 z-index：没有层级 token，顶层渲染才盖得住非模态浮层；模态打开时移进模态而不是另建弹层栈。
-- Drawer 离场淡出而不是滑回：StyleX 不允许同一属性里 `:dir(rtl)` 出现两次，方向只在进场的起始值里区分；离场过渡本来也只有 Chromium 支持。
+- Drawer 离场原先淡出而不是滑回（当时的 StyleX 不允许同一属性里 `:dir(rtl)` 出现两次）；§10.16 起改为滑回：关闭状态的 translate 移出到所在一侧，三种浏览器、两种排版方向实测通过。离场过渡仍只有 Chromium 支持。
 - Tooltip 用 `popover="manual"` 而不是 `hint`：`hint` 只有 Chromium 支持。
 - 勾选类控件用原生 input 而不是 `button` + role：键盘、表单提交与重置、label 点击都由浏览器负责。
 - Textarea 用 JS 自动增高：`field-sizing` Firefox 不支持，StyleX 的类型里也没有。
