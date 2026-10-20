@@ -23,10 +23,10 @@
 
 相关的组件放在同一页讲（括号里是并入同一页的组件），做完的打勾：
 
-- **基础**：[x] Text（Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6，List 待并入）· [x] Button（ButtonGroup、LinkButton）· [x] IconButton（IconLinkButton、CloseButton、ClearButton、CopyButton）· [x] Badge（Tag）· [ ] Code（CodeBlock、CodeGroup、CodePreview）· [ ] ButtonBase 与 VisuallyHidden（并入“无障碍与基础部件”）
-- **布局**：[ ] Flex 与 Grid（FlexList、GridList、Container、Separator）· [ ] ScrollArea（OverlayScrollbar、PageScrollbar）· [ ] Prose · [ ] AppShell
-- **展示**：[ ] Card · [ ] Accordion（AccordionItem、Collapsible、Collapse）· [ ] Avatar（AvatarGroup、Indicator）· [ ] AnimatedNumber（并入 Stat 页）· [ ] Descriptions · [ ] Timeline · [ ] Tree · [ ] VirtualList · [ ] Marquee · [ ] Sortable · [ ] ColorSwatch（并入 ColorField 页）
-- **反馈**：[ ] Alert · [ ] 加载与进度（Spinner、Progress、LoadingOverlay）· [ ] Empty 与 Result · [ ] Toast（Toaster）· [x] Skeleton（SkeletonText）
+- **基础**：[x] Text（Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6；List 在 Prose 页）· [x] Button（ButtonGroup、LinkButton）· [x] IconButton（IconLinkButton、CloseButton、ClearButton、CopyButton）· [x] Badge（Tag）· [x] Code（CodeBlock、CodeGroup、CodePreview）· [ ] ButtonBase 与 VisuallyHidden（并入“无障碍与基础部件”）
+- **布局**：[x] Flex 与 Grid（FlexList、GridList、Container、Separator）· [x] ScrollArea（OverlayScrollbar、PageScrollbar）· [x] Prose（List、OrderedList）· [x] AppShell（整页示例：frames 目录 + Example 的 frame）
+- **展示**：[x] Card · [x] Accordion（AccordionItem、Collapsible、Collapse）· [x] Avatar（AvatarGroup、Indicator）· [x] AnimatedNumber（并入 Stat 页）· [x] Descriptions · [x] Timeline · [x] Tree · [x] VirtualList · [x] Marquee · [x] Sortable · [ ] ColorSwatch（并入 ColorField 页）
+- **反馈**：[x] Alert · [x] 加载与进度（Spinner、Progress、LoadingOverlay）· [x] Empty 与 Result · [x] Toast（Toaster）· [x] Skeleton（SkeletonText）
 - **浮层**：[ ] Dialog（AlertDialog、Drawer）· [ ] Popover（HoverCard、Tooltip）· [ ] Menu（全部菜单项、ContextMenu）· [ ] CommandPalette · [ ] Tour
 - **导航**：[ ] Tabs · [ ] Pagination（PageJump、PageSizeSelect、Pager）· [ ] Breadcrumbs 与 Steps · [ ] NavList（NavItem、NavGroup、NavSection、TableOfContents、SkipLink）· [ ] Toolbar
 - **输入**：[x] NumberField · [ ] TextField（Textarea、CharacterCount）· [ ] Checkbox、Radio 与 Switch · [ ] Select（Combobox、TagsInput、Listbox）· [ ] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
