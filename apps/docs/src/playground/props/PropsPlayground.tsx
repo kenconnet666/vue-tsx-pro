@@ -55,7 +55,7 @@ const styles = stylex.create({
       [breakpoints.md]: 'minmax(0, 1fr) 20rem',
     },
   },
-  // 效果区：点阵画布（canvasStyles）加边框
+  // 效果区：画布（canvasStyles）加边框
   canvas: {
     display: 'grid',
     placeItems: 'center',
