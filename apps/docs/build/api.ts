@@ -363,6 +363,9 @@ export function componentApi(): Plugin {
       // Vitest 的服务器没有 httpServer：不预热、不监听文件
       if (!server.httpServer) return;
       worker.warm();
+      // 组件库源码在 docs 根目录之外：Vite 只监听页面加载过的文件，没打开过的入口（three/index.ts）改了收不到，
+      // API 数据就一直是旧的。整个源码目录都监听上
+      server.watcher.add(src);
       server.watcher.on('change', (file) => {
         if (!file.split('\\').join('/').startsWith(src)) return;
         worker.invalidate();
