@@ -20,8 +20,9 @@
  * - 懒加载：hasChildren 说有子节点、getChildren 还没有时，展开会调用 loadChildren（加载中显示加载指示）。
  * - 节点平铺渲染（虚拟滚动没法嵌套 role="group"），层级经 aria-level / aria-setsize / aria-posinset 告诉读屏。
  *
- * 展开状态与勾选联动见 utils/data/tree.ts（TreeDataTable 共用）。部件：Root（div，role="tree"）、Item（div，role="treeitem"）、
- * Toggle（展开箭头）、Checkbox（勾选框，只是外观，状态在 treeitem 的 aria-checked 上）、Label。
+ * 展开状态与勾选联动见 utils/data/tree.ts（TreeDataTable 共用）。部件：Root（div，role="tree"）、
+ * Row（虚拟滚动定位的一行，包着 Item）、Item（div，role="treeitem"）、Toggle（展开箭头）、
+ * Checkbox（勾选框，只是外观，状态在 treeitem 的 aria-checked 上）、Label。
  */
 import { Check, ChevronRight, Minus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -102,6 +103,12 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   /** 每一项的部件属性，可以按节点计算 */
   propsItem?:
     PartProps<'div', 'role' | 'id'> | ((node: T, state: TreeItemRenderState) => PartProps<'div'>);
+  /** 每一行（虚拟滚动定位的容器，包着 treeitem）的部件属性 */
+  propsRow?: PartProps<'div', 'role'>;
+  /** 展开箭头的部件属性 */
+  propsToggle?: PartProps<'span'>;
+  /** 勾选框的部件属性 */
+  propsCheckbox?: PartProps<'span'>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
 }
@@ -166,6 +173,9 @@ export const Tree = _component(
     estimateSize = 32,
     renderItem,
     propsItem,
+    propsRow,
+    propsToggle,
+    propsCheckbox,
     propsLabel,
     id,
     ...rest
@@ -387,15 +397,16 @@ export const Tree = _component(
             <span {...stylex.attrs(treeDynamicStyles.indent(row.depth * indent))} />
           )}
           <span
-            {...stylex.attrs(treeStyles.toggle)}
-            aria-hidden="true"
-            onClick={(event: MouseEvent) => {
-              if (!row.expandable) return;
-              event.stopPropagation();
-              active = row.key;
-              root?.focus({ preventScroll: true });
-              toggle(position);
-            }}
+            {...mergeAttrs<'span'>({ sx: treeStyles.toggle }, propsToggle, {
+              'aria-hidden': true,
+              onClick: (event: MouseEvent) => {
+                if (!row.expandable) return;
+                event.stopPropagation();
+                active = row.key;
+                root?.focus({ preventScroll: true });
+                toggle(position);
+              },
+            })}
           >
             {loading ? (
               <Spinner />
@@ -411,14 +422,19 @@ export const Tree = _component(
           </span>
           {checkable && (
             <span
-              {...stylex.attrs(choiceStyles.control, treeStyles.checkbox)}
-              aria-hidden="true"
-              onClick={(event: MouseEvent) => {
-                event.stopPropagation();
-                active = row.key;
-                root?.focus({ preventScroll: true });
-                check(position);
-              }}
+              {...mergeAttrs<'span'>(
+                { sx: [choiceStyles.control, treeStyles.checkbox] },
+                propsCheckbox,
+                {
+                  'aria-hidden': true,
+                  onClick: (event: MouseEvent) => {
+                    event.stopPropagation();
+                    active = row.key;
+                    root?.focus({ preventScroll: true });
+                    check(position);
+                  },
+                },
+              )}
             >
               <span
                 {...stylex.attrs(
@@ -470,10 +486,12 @@ export const Tree = _component(
             {virtual.items.map((item) => (
               <div
                 key={item.key}
-                ref={virtual.measure}
+                {...mergeAttrs<'div'>({ sx: treeStyles.row }, propsRow, {
+                  ref: virtual.measure,
+                  role: 'presentation',
+                  sx: treeDynamicStyles.y(item.start),
+                })}
                 data-index={item.index}
-                role="presentation"
-                {...stylex.attrs(treeStyles.row, treeDynamicStyles.y(item.start))}
               >
                 {renderRow(item.index)}
               </div>

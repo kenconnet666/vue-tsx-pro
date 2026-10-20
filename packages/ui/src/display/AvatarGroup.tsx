@@ -7,7 +7,7 @@
  *
  * 头像的大小随组的 size（或上下文字号）；组里的 Avatar 经 AvatarGroupContext 得知自己在组里，叠放并加一圈页面底色的描边。
  * “+N”读屏念“还有 N 人”（语言包的 avatarMore）；total 给了时按它算 N（列表只拿到了一部分时）。
- * 部件：Root（div）、More（+N）。
+ * 部件：Root（div）、More（+N）、MoreText（More 里的“+N”文字）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -31,6 +31,8 @@ export interface AvatarGroupProps extends PartProps<'div', AvatarGroupManaged> {
   size?: TextSize;
   /** “+N”的部件属性 */
   propsMore?: PartProps<'span', 'role'>;
+  /** “+N”文字的部件属性；读屏念的是 More 的 aria-label，这里对读屏隐藏 */
+  propsMoreText?: PartProps<'span', 'aria-hidden'>;
   /** 头像（Avatar） */
   children?: VNodeChild;
 }
@@ -45,7 +47,7 @@ export const avatarGroupStyles = stylex.create({
 
 /** 头像组：叠放的头像，超过 max 的折叠成“+N” */
 export const AvatarGroup = _component(
-  ({ max, total, size, propsMore, children, ...rest }: AvatarGroupProps) => {
+  ({ max, total, size, propsMore, propsMoreText, children, ...rest }: AvatarGroupProps) => {
     const lang = useLang();
     AvatarGroupContext.provide({ grouped: true });
     return () => {
@@ -77,7 +79,11 @@ export const AvatarGroup = _component(
                 { role: 'img' },
               )}
             >
-              <span aria-hidden="true" {...stylex.attrs(avatarGroupStyles.moreText)}>
+              <span
+                {...mergeAttrs<'span'>({ sx: avatarGroupStyles.moreText }, propsMoreText, {
+                  'aria-hidden': true,
+                })}
+              >
                 +{hidden}
               </span>
             </span>

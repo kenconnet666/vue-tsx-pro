@@ -1,4 +1,4 @@
-// Tree：treeitem 的层级属性、方向键展开 / 收起 / 进出子节点、选中、勾选联动、懒加载
+// Tree：treeitem 的层级属性、方向键展开 / 收起 / 进出子节点、选中、勾选联动、懒加载、部件属性
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
@@ -172,5 +172,31 @@ describe('Tree', () => {
     resolve();
     await flush();
     expect(items(root)[0]!.hasAttribute('aria-busy')).toBe(false);
+  });
+
+  it('propsRow、propsToggle、propsCheckbox 落到各自的节点上；点击仍按组件的处理', async () => {
+    const { root } = renderTree({
+      checkable: true,
+      propsRow: { class: 'row', 'data-test': '1' },
+      propsToggle: { class: 'toggle' },
+      propsCheckbox: { class: 'checkbox' },
+    });
+    await flush();
+    const row = root.querySelector<HTMLElement>('.row')!;
+    expect(row.getAttribute('role')).toBe('presentation');
+    expect(row.getAttribute('data-test')).toBe('1');
+    expect(row.hasAttribute('data-index')).toBe(true);
+    const [src] = items(root);
+    expect(row.firstElementChild).toBe(src);
+    const toggle = src!.querySelector<HTMLElement>('.toggle')!;
+    expect(toggle.getAttribute('aria-hidden')).toBe('true');
+    toggle.click();
+    await flush();
+    expect(items(root)).toHaveLength(4);
+    const checkbox = src!.querySelector<HTMLElement>('.checkbox')!;
+    expect(checkbox.getAttribute('aria-hidden')).toBe('true');
+    checkbox.click();
+    await flush();
+    expect(items(root)[0]!.getAttribute('aria-checked')).toBe('true');
   });
 });

@@ -156,6 +156,47 @@ describe('DataTable', () => {
     expect(pending!.querySelectorAll('tbody tr[aria-hidden="true"]').length).toBeGreaterThan(0);
     expect(blank!.textContent).toContain('暂无数据');
   });
+
+  it('部件属性：表头、排序文字、勾选列、leading 与内容、进度条、空状态单元格', async () => {
+    const root = mount(() => (
+      <>
+        <DataTable
+          rows={people}
+          columns={columns}
+          rowKey={(p) => p.id}
+          selectionMode="multiple"
+          loading
+          leading={() => <i>›</i>}
+          propsHead={{ class: 'head' }}
+          propsSortLabel={{ class: 'sort-label' }}
+          propsSelectHeaderCell={{ class: 'select-th' }}
+          propsSelectCell={{ class: 'select-td' }}
+          propsLeading={{ class: 'leading' }}
+          propsContent={{ class: 'content' }}
+          propsProgress={{ class: 'progress' }}
+          aria-label="人员"
+        />
+        <DataTable
+          rows={[]}
+          columns={columns}
+          rowKey={(p) => p.id}
+          propsEmptyCell={{ class: 'empty' }}
+          aria-label="空"
+        />
+      </>
+    ));
+    await flush();
+    const [table, blank] = root.querySelectorAll('table');
+    expect(table!.querySelector('thead')!.classList).toContain('head');
+    expect(table!.querySelectorAll('th .sort-label')).toHaveLength(2);
+    expect(table!.querySelector('th.select-th')!.getAttribute('scope')).toBe('col');
+    expect(table!.querySelectorAll('tbody td.select-td')).toHaveLength(3);
+    const leading = table!.querySelector('tbody .leading')!;
+    expect(leading.querySelector('.content')!.textContent).toBe('张三');
+    expect(table!.querySelector('thead .progress[role="progressbar"]')).not.toBeNull();
+    const empty = blank!.querySelector('td.empty')!;
+    expect([empty.getAttribute('colspan'), empty.textContent]).toEqual(['2', '暂无数据']);
+  });
 });
 
 describe('TreeDataTable', () => {
@@ -204,6 +245,35 @@ describe('TreeDataTable', () => {
     root.querySelectorAll<HTMLButtonElement>('button[aria-expanded]')[1]!.click();
     await flush();
     expect(loaded).toEqual(['lazy']);
+  });
+
+  it('propsToggle 落到展开按钮上；propsIcon 与箭头的转向合并，aria-expanded 与点击仍由组件管理', async () => {
+    let open = _state<string[]>([]);
+    const root = mount(() => (
+      <TreeDataTable
+        rows={tree}
+        columns={columns}
+        rowKey={(p) => p.id}
+        getChildren={(p) => p.children}
+        expanded={_bind(open)}
+        propsToggle={{
+          class: 'toggle',
+          'aria-expanded': false,
+          propsIcon: { class: 'chevron' },
+        }}
+        aria-label="组织"
+      />
+    ));
+    await flush();
+    const toggle = root.querySelector<HTMLButtonElement>('button.toggle')!;
+    const chevron = toggle.querySelector('svg')!;
+    expect(chevron.classList.contains('chevron')).toBe(true);
+    const closedClass = chevron.getAttribute('class');
+    toggle.click();
+    await flush();
+    expect(open).toEqual(['dept']);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(toggle.querySelector('svg')!.getAttribute('class')).not.toBe(closedClass);
   });
 
   it('性能：两万个展开的节点挂载在 1 秒内', async () => {

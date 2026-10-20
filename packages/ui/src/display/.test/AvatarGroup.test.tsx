@@ -1,4 +1,4 @@
-// AvatarGroup：超过 max 折叠成 +N（total 优先）；组里的头像知道自己在组里；v-for 的数组、Fragment 都能数
+// AvatarGroup：超过 max 折叠成 +N（total 优先）；组里的头像知道自己在组里；v-for 的数组、Fragment 都能数；“+N”的部件属性
 import { expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
 import { Avatar } from '../Avatar';
@@ -20,6 +20,23 @@ it('超过 max 的折叠成“+N”，读屏念“还有 N 人”', () => {
   expect(items).toHaveLength(4);
   expect(items.at(-1)!.getAttribute('aria-label')).toBe('还有 2 人');
   expect(items.at(-1)!.textContent).toBe('+2');
+});
+
+it('propsMore、propsMoreText 落到“+N”与里面的文字上；文字仍对读屏隐藏', () => {
+  const root = mount(() => (
+    <AvatarGroup
+      max={1}
+      propsMore={{ class: 'more' }}
+      propsMoreText={{ class: 'more-text', title: '更多' }}
+    >
+      <Avatar name="A" />
+      <Avatar name="B" />
+    </AvatarGroup>
+  ));
+  const text = root.querySelector('.more > .more-text')!;
+  expect(text.textContent).toBe('+1');
+  expect(text.getAttribute('title')).toBe('更多');
+  expect(text.getAttribute('aria-hidden')).toBe('true');
 });
 
 it('total 给了时按它算；没超过 max 时不折叠', () => {

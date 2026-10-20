@@ -10,7 +10,8 @@
  *     pending="正在派送"
  *   />
  *
- * 语义是有序列表；时间用 <time>（给了 dateTime 时写上机器可读的时间）。部件：Root（ol）、Item（li）、Marker、Content、Title、Time、Description。
+ * 语义是有序列表；时间用 <time>（给了 dateTime 时写上机器可读的时间）。
+ * 部件：Root（ol）、Item（li）、Rail（节点与连接线所在的列）、Marker、Line（连接线）、Content、Title、Time、Description。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -53,10 +54,20 @@ export interface TimelineProps extends PartProps<'ol'> {
   size?: TextSize;
   /** 每一项（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: TimelineItem, index: number) => PartProps<'li'>);
+  /** 节点与连接线所在的列的部件属性 */
+  propsRail?: PartProps<'div'>;
   /** 节点的部件属性 */
   propsMarker?: PartProps<'span'>;
+  /** 连接线的部件属性 */
+  propsLine?: PartProps<'span'>;
   /** 内容（标题、时间、说明）的部件属性 */
   propsContent?: PartProps<'div'>;
+  /** 标题的部件属性 */
+  propsTitle?: PartProps<'div'>;
+  /** 时间的部件属性 */
+  propsTime?: PartProps<'time', 'datetime'>;
+  /** 说明的部件属性 */
+  propsDescription?: PartProps<'div'>;
 }
 
 /** Timeline 的样式：root、item、marker、line、content、title、time、description 等 */
@@ -134,8 +145,13 @@ export const Timeline = _component(
     alternate = false,
     size,
     propsItem,
+    propsRail,
     propsMarker,
+    propsLine,
     propsContent,
+    propsTitle,
+    propsTime,
+    propsDescription,
     ...rest
   }: TimelineProps) =>
     () => {
@@ -158,7 +174,11 @@ export const Timeline = _component(
             // 交替排布时时间放在对侧，占一格（没有时间也占，保持三列对齐）；窄的容器里改在内容里显示
             const time = (sx: StyleXStyles) =>
               item.time != null ? (
-                <time {...stylex.attrs(timelineStyles.time, sx)} datetime={item.dateTime}>
+                <time
+                  {...mergeAttrs<'time'>({ sx: [timelineStyles.time, sx] }, propsTime, {
+                    datetime: item.dateTime,
+                  })}
+                >
                   {item.time}
                 </time>
               ) : (
@@ -195,9 +215,15 @@ export const Timeline = _component(
               >
                 {/* 交替排布：奇数项左侧放时间，偶数项右侧放时间 */}
                 {alternate && !end && time(timelineStyles.timeOpposite)}
-                <div {...stylex.attrs(timelineStyles.rail)}>
+                <div {...mergeAttrs<'div'>({ sx: timelineStyles.rail }, propsRail)}>
                   {marker}
-                  {!last && <span {...stylex.attrs(timelineStyles.line)} />}
+                  {!last && (
+                    <span
+                      {...mergeAttrs<'span'>({ sx: timelineStyles.line }, propsLine, {
+                        'aria-hidden': true,
+                      })}
+                    />
+                  )}
                 </div>
                 <div
                   {...mergeAttrs<'div'>(
@@ -205,10 +231,16 @@ export const Timeline = _component(
                     propsContent,
                   )}
                 >
-                  <div {...stylex.attrs(timelineStyles.title)}>{item.title}</div>
+                  <div {...mergeAttrs<'div'>({ sx: timelineStyles.title }, propsTitle)}>
+                    {item.title}
+                  </div>
                   {alternate ? item.time != null && time(timelineStyles.timeInline) : time(null)}
                   {item.description != null && (
-                    <div {...stylex.attrs(timelineStyles.description)}>{item.description}</div>
+                    <div
+                      {...mergeAttrs<'div'>({ sx: timelineStyles.description }, propsDescription)}
+                    >
+                      {item.description}
+                    </div>
                   )}
                 </div>
                 {end && time(timelineStyles.timeOpposite)}

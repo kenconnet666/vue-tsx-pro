@@ -16,16 +16,20 @@
  *   调用方把取到的子项放进数据里。
  * - 展开按钮的名称是“行名 的子项”（第一列的文字），展开与否由 aria-expanded 表示。
  *   表格仍是 table 语义（不是 treegrid：那要求逐个单元格的方向键导航），层级由缩进与按钮表达。
+ *
+ * 部件：DataTable 的全部部件，加上 Toggle（展开按钮，IconButton）。
  */
 import { ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { IconButton } from '../base/IconButton';
+import type { IconProps } from '../base/Icon';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { flattenTree, useTreeExpansion, type TreeAccessors } from '../utils/data/tree';
 import { columnValue, sortRows, type SortState } from './columns';
 import { DataTable, type DataTableProps } from './DataTable';
 import type { DataTableRowModel } from './DataTableView';
+import { mergePartProps, mergeProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
@@ -42,6 +46,8 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSo
   expanded?: string[];
   /** 每一层缩进多少（em），默认 1.25 */
   indent?: number;
+  /** 展开按钮的部件属性 */
+  propsToggle?: Partial<IconButtonProps>;
 }
 
 /** TreeDataTable 的样式：toggle、chevronOpen、placeholder */
@@ -69,6 +75,7 @@ export const TreeDataTable = _component(
     loadChildren,
     expanded = _bindable<string[]>([]),
     indent = 1.25,
+    propsToggle,
     sort = _bindable<SortState | null>(null),
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
@@ -105,18 +112,27 @@ export const TreeDataTable = _component(
           {depth > 0 && <span {...stylex.attrs(treeDataTableIndentStyles.depth(depth * indent))} />}
           {item?.expandable ? (
             <IconButton
-              icon={ChevronRight}
-              size="sm"
-              radius="full"
-              loading={expansion.isLoading(model.key)}
-              aria-label={lang.treeToggle(label)}
-              aria-expanded={open}
-              sx={treeDataTableStyles.toggle}
-              propsIcon={{
-                flipInRtl: true,
-                sx: [disclosureStyles.icon, open && treeDataTableStyles.chevronOpen],
-              }}
-              onClick={() => void expansion.setOpen(model.data, model.key, !open)}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: ChevronRight,
+                  size: 'sm',
+                  radius: 'full',
+                  'aria-label': lang.treeToggle(label),
+                  sx: treeDataTableStyles.toggle,
+                },
+                propsToggle,
+                {
+                  loading: expansion.isLoading(model.key),
+                  'aria-expanded': open,
+                  // 箭头的转向跟着展开状态：使用方的 propsIcon 合并进来，而不是整个替换掉
+                  propsIcon: mergeProps<IconProps>(
+                    { flipInRtl: true, sx: disclosureStyles.icon },
+                    propsToggle?.propsIcon,
+                    open ? { sx: treeDataTableStyles.chevronOpen } : undefined,
+                  ),
+                  onClick: () => void expansion.setOpen(model.data, model.key, !open),
+                },
+              )}
             />
           ) : (
             <span {...stylex.attrs(treeDataTableStyles.placeholder)} />
