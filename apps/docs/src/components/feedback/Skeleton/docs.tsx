@@ -20,8 +20,8 @@ export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { Skeleton, SkeletonText } from '@vue-tsx-pro/ui';">
     <Examples>
       <Example id="shapes" title="形状" demo={Shapes}>
-        <Code>variant</Code> 给出常用形状：文字行、标题、头像、按钮、图片；多行段落用 SkeletonText，
-        最后一行短一些，各行的光带依次错开。其他大小用 <Code>sx</Code> 给。
+        <Code>variant</Code> 给出常用形状：文字行、标题、头像、按钮、图片；多行段落用
+        SkeletonText，最后一行短一些，各行的光带依次错开。其他大小用 <Code>sx</Code> 给。
       </Example>
       <Example id="wrapping" title="包着内容" demo={Wrapping}>
         包着真实内容时，内容照常排版但看不见，占位正好是内容的大小，加载完换成内容时布局不跳。

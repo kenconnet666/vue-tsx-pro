@@ -25,8 +25,8 @@ export default _component(() => () => (
       </Example>
       <Example id="checkable" title="勾选" demo={Checkable}>
         <Code>checkable</Code>{' '}
-        时每项前有勾选框：勾上父节点会勾上全部子孙，子节点全勾上时父节点也勾上，
-        只勾一部分时父节点半选（读屏念“部分选中”）。<Code>checked</Code> 里是全部勾上的节点。
+        时每项前有勾选框：勾上父节点会勾上全部子孙，子节点全勾上时父节点也勾上，只勾一部分时父节点半选（读屏念“部分选中”）。
+        <Code>checked</Code> 里是全部勾上的节点。
       </Example>
     </Examples>
     <ApiReference api={api} />

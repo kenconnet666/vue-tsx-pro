@@ -36,8 +36,8 @@ export default _component(() => () => (
         隐藏。提示经 aria-describedby 补充说明，触发器自己要有名称，提示里不放可交互的内容。
       </Example>
       <Example id="hover-card" title="HoverCard" demo={Profile}>
-        悬停或聚焦链接时弹出一张富内容卡片：可以移到卡片上，卡片里能放按钮（键盘 Tab 进入）。
-        卡片只是预览，里面的信息在别处也要能拿到——触屏没有悬停。
+        悬停或聚焦链接时弹出一张富内容卡片：可以移到卡片上，卡片里能放按钮（键盘 Tab
+        进入）。卡片只是预览，里面的信息在别处也要能拿到——触屏没有悬停。
       </Example>
       <Example id="placement" title="位置与箭头" demo={Placements}>
         <Code>placement</Code> 是边加对齐，共 12 种；空间不够时自动翻到另一边、贴着视口平移。

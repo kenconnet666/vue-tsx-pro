@@ -24,8 +24,8 @@ export default _component(() => () => (
     <Examples>
       <Example id="basic" title="基础用法" demo={Basic}>
         <Code>data</Code> 的每一行是一个类目，<Code>index</Code> 指定类目字段，
-        <Code>series</Code> 的每一项是一个数值字段。<Code>unit</Code> 显示在数值轴上方，
-        提示框里的数值也会带上；悬停一个类目时提示框列出这一组的全部系列。
+        <Code>series</Code> 的每一项是一个数值字段。<Code>unit</Code>{' '}
+        显示在数值轴上方，提示框里的数值也会带上；悬停一个类目时提示框列出这一组的全部系列。
       </Example>
       <Example id="stacked" title="堆叠" demo={Stacked}>
         <Code>stacked</Code> 把同一类目的系列叠成一根柱子，看总量与构成。

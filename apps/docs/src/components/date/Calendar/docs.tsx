@@ -41,8 +41,7 @@ export default _component(() => () => (
         之外的日期变淡，焦点也进不去。
       </Example>
       <Example id="prices" title="自定义格子" demo={Prices}>
-        子节点是渲染函数，拿到日期与这一格的状态（选中、今天、不可选、在不在本月）：价格日历、标记点、农历都在这里放。
-        读屏先念完整日期，再念格子里的文字（房价也能听到）；重复的日期数字加{' '}
+        子节点是渲染函数，拿到日期与这一格的状态（选中、今天、不可选、在不在本月）：价格日历、标记点、农历都在这里放。读屏先念完整日期，再念格子里的文字（房价也能听到）；重复的日期数字加{' '}
         <Code>aria-hidden</Code> 不再念一遍。
       </Example>
       <Example id="multiple" title="多选" demo={Multiple}>
@@ -60,9 +59,8 @@ export default _component(() => () => (
       </Example>
       <Example id="locales" title="跟随语言" demo={Locales}>
         月份名、星期名、读屏念的“2026年10月20日星期二”都由 Intl
-        按当前语言生成，组件里没有写死的文字；
-        一周从哪天开始按地区惯例（中国周一、美国周日），语言配置的 <Code>firstDayOfWeek</Code>{' '}
-        或组件上的同名属性可以覆盖。
+        按当前语言生成，组件里没有写死的文字；一周从哪天开始按地区惯例（中国周一、美国周日），语言配置的{' '}
+        <Code>firstDayOfWeek</Code> 或组件上的同名属性可以覆盖。
       </Example>
       <Example id="sizes" title="尺寸与状态" demo={Sizes}>
         <Code>size</Code> 对应主题的字号档位，格子、按钮按比例缩放，点击区域不小于 24px。

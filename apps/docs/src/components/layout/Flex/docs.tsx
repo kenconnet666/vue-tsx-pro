@@ -34,8 +34,8 @@ export default _component(() => () => (
       </Example>
       <Example id="auto-grid" title="自动换列" demo={AutoGrid}>
         <Code>minItemWidth</Code>{' '}
-        给每项的最小宽度，容器多宽就放几列，不需要断点；项目少于放得下的列数时各项拉宽占满（auto-fit）。
-        这里用 GridList：渲染为 ul，子元素用 li，读屏念“列表，6 项”。
+        给每项的最小宽度，容器多宽就放几列，不需要断点；项目少于放得下的列数时各项拉宽占满（auto-fit）。这里用
+        GridList：渲染为 ul，子元素用 li，读屏念“列表，6 项”。
       </Example>
       <Example id="dashboard" title="固定列数与跨格" demo={Dashboard}>
         <Code>columns</Code> 固定等宽列；跨几列、几行用 <Code>sx</Code> 写 gridColumn / gridRow。

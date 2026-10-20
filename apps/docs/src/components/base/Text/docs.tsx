@@ -36,8 +36,8 @@ export default _component(() => () => (
         <Code>Small</Code> 默认 xs，<Code>Strong</Code> 默认 semibold。
       </Example>
       <Example id="tones" title="色调" demo={Tones}>
-        <Code>tone</Code> 取主题的文字色：muted 用于次要说明，其余是品牌色与提示色的文字色，
-        在每套主题下都通过对比度检查。
+        <Code>tone</Code> 取主题的文字色：muted
+        用于次要说明，其余是品牌色与提示色的文字色，在每套主题下都通过对比度检查。
       </Example>
       <Example id="overflow" title="截断与换行" demo={Overflow}>
         <Code>truncate</Code> 单行省略，<Code>lineClamp</Code> 限制行数；<Code>wrap</Code> 的 pretty

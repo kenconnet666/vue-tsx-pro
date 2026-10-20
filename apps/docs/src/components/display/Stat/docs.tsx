@@ -32,8 +32,8 @@ export default _component(() => () => (
         <Code>invertChange</Code>。
       </Example>
       <Example id="live" title="数值变化" demo={Live}>
-        数值变化时从旧值滚动到新值（AnimatedNumber），读屏只读终值；减少动态效果时直接跳到新值。
-        下方的迷你趋势是示例自己拼的最近 12 次取值，装饰性、对读屏隐藏。
+        数值变化时从旧值滚动到新值（AnimatedNumber），读屏只读终值；减少动态效果时直接跳到新值。下方的迷你趋势是示例自己拼的最近
+        12 次取值，装饰性、对读屏隐藏。
       </Example>
       <Example id="animated-number" title="AnimatedNumber 单独使用" demo={Numbers}>
         值变化时从旧值滚到新值，等宽数字不抖动。<Code>format</Code> 是 Intl.NumberFormat

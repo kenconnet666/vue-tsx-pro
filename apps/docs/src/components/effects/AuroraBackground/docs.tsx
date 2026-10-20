@@ -19,8 +19,9 @@ export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { AuroraBackground } from '@vue-tsx-pro/ui/three';">
     <Examples>
       <Example id="night" title="夜空" demo={Night}>
-        包在 <Code>Provider</Code> 里用暗色主题，光幕叠在主题的底色上；子元素是叠在上面的内容。
-        暗色主题里光更亮（着色器里有 <Code>uDark</Code>），亮色主题里收敛成雾，不抢文字。
+        包在 <Code>Provider</Code>{' '}
+        里用暗色主题，光幕叠在主题的底色上；子元素是叠在上面的内容。暗色主题里光更亮（着色器里有{' '}
+        <Code>uDark</Code>），亮色主题里收敛成雾，不抢文字。
       </Example>
       <Example id="controls" title="色板、亮度与高度" demo={Controls}>
         这一块跟随站点的主题，切换右上角的主题看看。<Code>height</Code> 是光幕下缘的位置（0 底部、1

@@ -20,8 +20,8 @@ export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { MeshGradient } from '@vue-tsx-pro/ui/three';">
     <Examples>
       <Example id="hero" title="标题区" demo={Hero}>
-        子元素叠在渐变上面，照常排版与交互；画布在底层，不接收指针，指针跟随监听的是整个窗口。
-        画面不透明，文字放在半透明的面板上保证对比度。尺寸由 <Code>sx</Code> 或内容决定。
+        子元素叠在渐变上面，照常排版与交互；画布在底层，不接收指针，指针跟随监听的是整个窗口。画面不透明，文字放在半透明的面板上保证对比度。尺寸由{' '}
+        <Code>sx</Code> 或内容决定。
       </Example>
       <Example id="palettes" title="色板" demo={Palettes}>
         <Code>palette</Code> 接受 2–6 个 token 或 CSS 颜色，默认是品牌色加图表色板的紫、粉、青。 用

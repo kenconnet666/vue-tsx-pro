@@ -24,8 +24,8 @@ export default _component(() => () => (
         <Code>size</Code> 跟字号档位缩放，下拉选项里用 sm。
       </Example>
       <Example id="result" title="结果" demo={Results}>
-        <Code>Result</Code> 是提交、支付这类操作后的整块反馈：<Code>status</Code> 决定图标与颜色，
-        图标挂载时一笔画出（<Code>draw</Code>），减少动态效果时直接显示。
+        <Code>Result</Code> 是提交、支付这类操作后的整块反馈：<Code>status</Code>{' '}
+        决定图标与颜色，图标挂载时一笔画出（<Code>draw</Code>），减少动态效果时直接显示。
       </Example>
     </Examples>
     <ApiReference api={[api, resultApi]} />

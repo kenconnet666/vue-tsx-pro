@@ -1113,8 +1113,7 @@ export const Base = _component(() => {
             ))}
           </Flex>
           <Paragraph class="clamp-demo" lineClamp={2} {...stylex.attrs(styles.narrow)}>
-            多行截断：这是一段比较长的说明文字，超过两行之后会被截断并在末尾显示省略号，完整内容不会撑开布局。
-            这一句话会被隐藏起来，用来确认截断确实生效。
+            多行截断：这是一段比较长的说明文字，超过两行之后会被截断并在末尾显示省略号，完整内容不会撑开布局。这一句话会被隐藏起来，用来确认截断确实生效。
           </Paragraph>
           <Paragraph>
             <Strong>提示：</Strong>阅读 <Link href="#">使用说明</Link>，或查看{' '}

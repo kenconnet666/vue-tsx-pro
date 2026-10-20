@@ -1,7 +1,10 @@
 /**
- * 源码文字检查：源码里不直接写不可见字符、控制字符、双向控制符与从右往左的文字，要写就用 \uXXXX 转义。
- * 它们在编辑器里看不见或会改变显示顺序（“Trojan Source”），代码看起来和实际执行的不一样，审代码时发现不了；
- * IDEA 也会对这类文件提示“双向文本”。
+ * 源码文字检查：
+ * - 源码里不直接写不可见字符、控制字符、双向控制符与从右往左的文字，要写就用 \uXXXX 转义。
+ *   它们在编辑器里看不见或会改变显示顺序（“Trojan Source”），代码看起来和实际执行的不一样，审代码时发现不了；
+ *   IDEA 也会对这类文件提示“双向文本”。
+ * - TSX 里的中文文本不跨行：JSX 把文本中间的换行渲染成一个空格，中文之间就多出空格（“显示。 三个”）。
+ *   接成一行即可，Prettier 不会在没有空格的中文里断行；紧挨标签的换行会被 JSX 去掉，不受影响。
  *
  * 用法：pnpm text:check。检查 git 跟踪的文件，本地加上还没提交的新文件。
  */
@@ -60,7 +63,27 @@ const files = execFileSync(
   .split('\n')
   .filter(Boolean);
 
+/** 中文字符与全角标点 */
+const CJK = /[　-〿一-鿿＀-￯“”]/;
+
+/**
+ * TSX 里跨行的中文文本：上一行以中文结尾、下一行以中文开头，且两行都不是标签、表达式、注释或字符串的边界。
+ * 只是启发式：多行字符串、模板里也可能命中，那里同样会多出换行，一并改成一行
+ */
+function cjkLineBreaks(lines) {
+  const found = [];
+  for (let index = 1; index < lines.length; index++) {
+    const before = lines[index - 1].trimEnd();
+    const after = lines[index].trimStart();
+    if (!before || !after || /^\s*(\/\/|\/?\*)/.test(lines[index - 1])) continue;
+    if (!CJK.test(before.at(-1)) || !CJK.test(after[0])) continue;
+    found.push(index + 1);
+  }
+  return found;
+}
+
 const problems = [];
+const breaks = [];
 for (const file of files) {
   let text;
   try {
@@ -82,6 +105,9 @@ for (const file of files) {
       problems.push(`${file}:${index + 1}  ${name}，改写成 ${escaped}`);
     }
   });
+  if (file.endsWith('.tsx')) {
+    for (const line of cjkLineBreaks(lines)) breaks.push(`${file}:${line}`);
+  }
 }
 
 if (problems.length) {
@@ -90,6 +116,12 @@ if (problems.length) {
   );
   console.error(problems.join('\n'));
   process.exitCode = 1;
-} else {
-  console.log(`文字检查通过：${files.length} 个文件`);
 }
+if (breaks.length) {
+  console.error(
+    `TSX 里的中文文本跨行（共 ${breaks.length} 处），渲染时中文之间会多出空格，请接成一行：`,
+  );
+  console.error(breaks.join('\n'));
+  process.exitCode = 1;
+}
+if (!process.exitCode) console.log(`文字检查通过：${files.length} 个文件`);

@@ -64,8 +64,8 @@ export default _component(() => () => (
     <Example id="builtin" title="内置主题" demo={ThemeGallery}>
       十二套内置主题都在 <Code>builtinThemes</Code>{' '}
       里：亮色（默认）、暗色、纸张（米黄纸色与衬线标题）、午夜（深海军蓝与青色）、高对比（文字到
-      7:1）、海洋（天空蓝与深海蓝）、森林（叶绿与林木绿）、柠檬（奶油黄与柠檬黄）、樱花（淡粉）、喜庆（中国红与金色）、赛博朋克（深紫黑与霓虹）、咖啡（浓缩咖啡与焦糖）。
-      每套都通过对比度检查；示例里每张卡片套一层 <Code>Provider</Code>
+      7:1）、海洋（天空蓝与深海蓝）、森林（叶绿与林木绿）、柠檬（奶油黄与柠檬黄）、樱花（淡粉）、喜庆（中国红与金色）、赛博朋克（深紫黑与霓虹）、咖啡（浓缩咖啡与焦糖）。每套都通过对比度检查；示例里每张卡片套一层{' '}
+      <Code>Provider</Code>
       ，主题只作用在这一块，这就是局部主题的写法。
     </Example>
     <Example id="follow-system" title="跟随系统" demo={FollowSystem}>

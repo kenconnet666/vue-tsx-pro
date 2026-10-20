@@ -28,8 +28,8 @@ export default _component(() => () => (
   >
     <Examples>
       <Example id="basic" title="基础用法" demo={Basic}>
-        从 <Code>@lucide/icons</Code> 按名导入图标数据交给 <Code>icon</Code>；只打包用到的图标。
-        全部图标见页面下方的图标库。
+        从 <Code>@lucide/icons</Code> 按名导入图标数据交给 <Code>icon</Code>
+        ；只打包用到的图标。全部图标见页面下方的图标库。
       </Example>
       <Example id="sizes" title="尺寸与线宽" demo={Sizes}>
         不写 <Code>size</Code> 时是 1em，跟随所在文字；档位对应主题字号，数字是像素。

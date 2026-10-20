@@ -28,8 +28,8 @@ export default _component(() => () => (
     <Examples>
       <Example id="line" title="订单状态" demo={Orders}>
         <Code>value</Code>{' '}
-        双向绑定当前标签；标签里可以放任意内容（计数徽标）。下划线是一个指示条，切换时滑过去，减少动态效果时直接到位。
-        整组只占一个 Tab 位置，方向键移动、Home / End 到两端。
+        双向绑定当前标签；标签里可以放任意内容（计数徽标）。下划线是一个指示条，切换时滑过去，减少动态效果时直接到位。整组只占一个
+        Tab 位置，方向键移动、Home / End 到两端。
       </Example>
       <Example id="soft" title="浅色底与手动切换" demo={Soft}>
         <Code>variant="soft"</Code> 像分段控件；<Code>activation="manual"</Code> 时按 Enter /

@@ -20,9 +20,8 @@ export default _component(() => () => (
     <Examples>
       <Example id="hotel" title="入住与离店" demo={Hotel}>
         值是 <Code>{'{ start, end }'}</Code>（ISO
-        日期，两端都含），反着点也会排好序。默认区间里不能夹着不可选的日子：
-        点了入住之后，越过订满那晚的一侧都变成不可选，悬停预览也停在边界；选到一半按 <Kbd>Esc</Kbd>{' '}
-        取消。
+        日期，两端都含），反着点也会排好序。默认区间里不能夹着不可选的日子：点了入住之后，越过订满那晚的一侧都变成不可选，悬停预览也停在边界；选到一半按{' '}
+        <Kbd>Esc</Kbd> 取消。
       </Example>
       <Example id="leave" title="跨过不可选的日子" demo={Leave}>
         <Code>allowsUnavailableInRange</Code>{' '}
@@ -30,8 +29,8 @@ export default _component(() => () => (
       </Example>
       <Example id="presets" title="页脚的快捷区间" demo={Report}>
         <Code>footer</Code> 放在网格下面；<Code>presetIsoRange</Code>{' '}
-        按今天与语言的一周第一天算出“最近 7 天”“本月”。
-        外面改了值、新区间不在这一页时，日历自动翻过去。要输入框加弹出日历与快捷选项用
+        按今天与语言的一周第一天算出“最近 7
+        天”“本月”。外面改了值、新区间不在这一页时，日历自动翻过去。要输入框加弹出日历与快捷选项用
         DateRangePicker。
       </Example>
     </Examples>

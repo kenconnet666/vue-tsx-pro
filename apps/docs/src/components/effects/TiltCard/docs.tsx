@@ -19,8 +19,9 @@ export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { TiltCard } from '@vue-tsx-pro/ui';">
     <Examples>
       <Example id="pricing" title="价格卡片" demo={Pricing}>
-        包住任意内容，常见是 <Code>Card</Code>；内容的语义与焦点顺序不变，按钮照常可点。
-        回弹与时长取主题的动效 token；系统要求减少动态效果时不倾斜、不放大。
+        包住任意内容，常见是 <Code>Card</Code>
+        ；内容的语义与焦点顺序不变，按钮照常可点。回弹与时长取主题的动效
+        token；系统要求减少动态效果时不倾斜、不放大。
       </Example>
       <Example id="options" title="角度、放大与高光" demo={Options}>
         <Code>maxTilt</Code> 是最大倾斜角度，<Code>scale</Code> 是悬停时的放大倍数，
