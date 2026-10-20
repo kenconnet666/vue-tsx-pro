@@ -27,6 +27,7 @@ import {
   choiceRootSx,
   useChoiceAppearance,
   type ChoiceOrientations,
+  syncChecked,
 } from './choice-styles';
 
 /** RadioGroup 交给组内 Radio 的状态 */
@@ -216,7 +217,14 @@ export const Radio = _component(
                   checked,
                   disabled: off,
                   required: group.required,
-                  onChange: () => group.select(value),
+                  onChange: (event: Event) => {
+                    group.select(value);
+                    // 浏览器已经取消了同组原来选中的那个：整组一起对回父级的值
+                    const radios = (event.target as HTMLElement)
+                      .closest('[role="radiogroup"]')
+                      ?.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+                    syncChecked([...(radios ?? [])], (input) => input.value === group.value);
+                  },
                 },
               )}
             />

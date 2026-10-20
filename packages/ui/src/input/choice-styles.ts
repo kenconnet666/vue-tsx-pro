@@ -10,6 +10,7 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import { nextTick } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -41,6 +42,23 @@ export function choiceRootSx({ size, tone }: ChoiceAppearance, disabled: boolean
     size && fontSizeStyles[size],
     disabled && choiceStyles.disabled,
   ] as StyleXStyles;
+}
+
+/**
+ * 受控的勾选：改值之后，父级没接受（或改成了别的值）时把原生 input 的 checked 改回去。
+ * 浏览器在点击时已经改了 checked（单选还取消了同组原来选中的那个），而 Vue 比较的是 prop：
+ * 父级的值没变就不会去动 DOM，界面和值就对不上了（切换要等接口的开关、只能选几项的复选框）
+ */
+export function syncChecked(
+  inputs: readonly HTMLInputElement[],
+  isChecked: (input: HTMLInputElement) => boolean,
+): void {
+  void nextTick(() => {
+    for (const input of inputs) {
+      const checked = isChecked(input);
+      if (input.checked !== checked) input.checked = checked;
+    }
+  });
 }
 
 /** 勾选类控件各部分的样式 */

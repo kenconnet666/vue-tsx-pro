@@ -140,6 +140,40 @@ describe('Switch', () => {
   });
 });
 
+describe('受控：父级不接受新值时，原生 input 回到父级的值', () => {
+  // 写回交给一个什么都不做的 set：值一直不变，Vue 不会去动 DOM，要组件自己改回去
+  const ignore = () => {};
+
+  it('Switch 与 Checkbox', async () => {
+    const root = mount(() => (
+      <>
+        <Switch checked={_bind(() => false, ignore)}>开关</Switch>
+        <Checkbox checked={_bind(() => true, ignore)}>勾选</Checkbox>
+      </>
+    ));
+    const [switchInput, checkbox] = root.querySelectorAll('input');
+    switchInput!.click();
+    checkbox!.click();
+    await nextTick();
+    await nextTick();
+    expect([switchInput!.checked, checkbox!.checked]).toEqual([false, true]);
+  });
+
+  it('Radio：整组对回父级的值（浏览器已经取消了原来选中的那个）', async () => {
+    const root = mount(() => (
+      <RadioGroup value={_bind(() => 'a', ignore)} aria-label="选项">
+        <Radio value="a">A</Radio>
+        <Radio value="b">B</Radio>
+      </RadioGroup>
+    ));
+    const [a, b] = root.querySelectorAll('input');
+    b!.click();
+    await nextTick();
+    await nextTick();
+    expect([a!.checked, b!.checked]).toEqual([true, false]);
+  });
+});
+
 describe('色调', () => {
   const hasTone = (element: Element, tone: keyof typeof toneFillStyles) =>
     stylex

@@ -18,7 +18,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
-import { choiceRootSx, choiceStyles, useChoiceAppearance } from './choice-styles';
+import { choiceRootSx, choiceStyles, syncChecked, useChoiceAppearance } from './choice-styles';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
 export type SwitchManaged =
@@ -195,8 +195,11 @@ export const Switch = _component(
                   onClick: (event: MouseEvent) => {
                     if (loading) event.preventDefault();
                   },
-                  onChange: (event: Event) =>
-                    (checked = (event.target as HTMLInputElement).checked),
+                  onChange: (event: Event) => {
+                    const target = event.target as HTMLInputElement;
+                    checked = target.checked;
+                    syncChecked([target], () => checked);
+                  },
                 },
               )}
             />

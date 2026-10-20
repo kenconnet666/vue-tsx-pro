@@ -32,6 +32,7 @@ import {
   choiceRootSx,
   useChoiceAppearance,
   type ChoiceOrientations,
+  syncChecked,
 } from './choice-styles';
 
 /** CheckboxGroup 交给组内 Checkbox 的状态 */
@@ -124,10 +125,12 @@ export const Checkbox = _component(
     });
 
     function onChange(event: Event) {
-      const next = (event.target as HTMLInputElement).checked;
+      const target = event.target as HTMLInputElement;
+      const next = target.checked;
       drawCheck = next;
       if (group && value != null) group.toggle(value);
       else checked = next;
+      syncChecked([target], () => (group && value != null ? group.value.includes(value) : checked));
     }
 
     return () => {
