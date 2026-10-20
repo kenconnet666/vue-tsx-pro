@@ -29,7 +29,7 @@ export interface ListboxOption {
 }
 
 /** 列表里的一项：选项的显示信息，加上它来自的原始数据 */
-export interface ListItem<T> extends ListboxOption {
+export interface ListStateEntry<T> extends ListboxOption {
   /** items 里对应的那一项：自定义渲染、renderValue 拿到的就是它 */
   readonly item: T;
 }
@@ -71,7 +71,7 @@ export interface ListStateOptions<T> {
 /** 列表的状态与操作 */
 export interface ListState<T> {
   /** 按分组排好的选项：渲染与键盘移动都按这个顺序 */
-  readonly options: readonly ListItem<T>[];
+  readonly options: readonly ListStateEntry<T>[];
   /** 高亮（键盘或指针所在）的选项的值 */
   readonly active: string | undefined;
   /** 值在 options 里的位置；不在时 -1 */
@@ -109,7 +109,7 @@ export function useListState<T>(config: ListStateOptions<T>): ListState<T> {
   // 选项多（上万）时这些每次渲染要读很多遍：缓存起来，数据或选择变了才重算
   const options = computed(() =>
     grouped(
-      config.items().map((item): ListItem<T> => {
+      config.items().map((item): ListStateEntry<T> => {
         const option = config.toOption ? config.toOption(item) : (item as ListboxOption);
         return { ...option, item };
       }),
@@ -120,7 +120,8 @@ export function useListState<T>(config: ListStateOptions<T>): ListState<T> {
   );
   const selected = computed(() => new Set(config.selected()));
 
-  const enabled = (options: readonly ListItem<T>[]) => options.filter((option) => !option.disabled);
+  const enabled = (options: readonly ListStateEntry<T>[]) =>
+    options.filter((option) => !option.disabled);
 
   const state: ListState<T> = {
     get options() {

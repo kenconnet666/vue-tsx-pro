@@ -3,7 +3,7 @@ import { nextTick } from 'vue';
 import { Provider } from '../../config/Provider';
 import type { Highlighter } from '../../config/context';
 import { mount } from '../../utils/.test/mount';
-import { CodeBlock } from '../CodeBlock';
+import { CodeBlock, parseLineSpec } from '../CodeBlock';
 
 const pre = (root: Element) => root.querySelector('pre')!;
 const settle = async () => {
@@ -92,5 +92,45 @@ describe('CodeBlock', () => {
     expect(pre(root).textContent).toBe('x');
     expect(error).toHaveBeenCalled();
     error.mockRestore();
+  });
+});
+
+describe('CodeBlock 的行与折叠', () => {
+  const source = ['const a = 1;', 'const b = 2;', 'const c = 3;', 'const d = 4;'].join(
+    String.fromCharCode(10),
+  );
+
+  it('行号写法：逗号分隔、区间、数组', () => {
+    expect([...parseLineSpec('1,3-4')]).toEqual([1, 3, 4]);
+    expect([...parseLineSpec([2, 5])]).toEqual([2, 5]);
+    expect(parseLineSpec(undefined).size).toBe(0);
+  });
+
+  it('按行渲染：行号不进复制的文本，新增与删除的行带 data-diff', () => {
+    const root = mount(() => (
+      <CodeBlock code={source} lineNumbers addedLines="2" removedLines={[3]} copyable={false} />
+    ));
+    const lines = pre(root).querySelectorAll('code > span');
+    expect(lines).toHaveLength(4);
+    expect(lines[0]!.querySelector('[aria-hidden="true"]')!.textContent).toBe('1');
+    expect([lines[1]!.getAttribute('data-diff'), lines[2]!.getAttribute('data-diff')]).toEqual([
+      'added',
+      'removed',
+    ]);
+  });
+
+  it('有标题时复制按钮在标题栏里；超过 maxLines 时折叠，按钮展开与收起', async () => {
+    const root = mount(() => <CodeBlock code={source} title="main.ts" maxLines={2} />);
+    expect(root.textContent).toContain('main.ts');
+    const toggle = [...root.querySelectorAll('button')].find((b) =>
+      b.hasAttribute('aria-expanded'),
+    )!;
+    expect([toggle.textContent, toggle.getAttribute('aria-expanded')]).toEqual([
+      '展开全部',
+      'false',
+    ]);
+    toggle.click();
+    await nextTick();
+    expect([toggle.textContent, toggle.getAttribute('aria-expanded')]).toEqual(['收起', 'true']);
   });
 });

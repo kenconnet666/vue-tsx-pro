@@ -45,6 +45,8 @@ export interface ComponentDefaults {
   Choice?: ChoiceOptions;
   /** 表格：DataTable、TreeDataTable 共用 */
   DataTable?: DataTableOptions;
+  /** 静态表格 Table */
+  Table?: DataTableOptions;
 }
 
 /** 合并两层默认值：按组件逐个合并，内层写了的选项覆盖外层 */

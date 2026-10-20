@@ -39,7 +39,7 @@ import {
   handleListKeydown,
   useListState,
   type ListboxOption,
-  type ListItem,
+  type ListStateEntry,
   type ListState,
   type OptionMapping,
 } from './list-state';
@@ -95,7 +95,7 @@ type Row<T> =
   | {
       kind: 'option';
       key: string;
-      option: ListItem<T>;
+      option: ListStateEntry<T>;
       index: number;
       groupId: string | undefined;
     };

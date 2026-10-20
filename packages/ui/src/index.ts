@@ -2,6 +2,7 @@
 
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
 export { Badge, type BadgeProps } from './base/Badge';
+export { Blockquote, blockquoteStyles, type BlockquoteProps } from './base/Blockquote';
 export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
 export { ButtonBase, type ButtonBaseManaged, type ButtonBaseProps } from './base/ButtonBase';
 export {
@@ -11,7 +12,14 @@ export {
   type PresetIconButtonProps,
 } from './base/CloseButton';
 export { Code, codeStyles, type CodeProps } from './base/Code';
-export { CodeBlock, codeBlockStyles, type CodeBlockProps } from './base/CodeBlock';
+export {
+  CodeBlock,
+  codeBlockDynamicStyles,
+  codeBlockStyles,
+  parseLineSpec,
+  type CodeBlockProps,
+  type LineSpec,
+} from './base/CodeBlock';
 export {
   CopyButton,
   copyButtonStyles,
@@ -50,6 +58,16 @@ export {
 export { Kbd, kbdStyles, type KbdProps } from './base/Kbd';
 export { Link, linkStyles, type LinkProps, type LinkUnderlines } from './base/Link';
 export { LinkButton, type LinkButtonManaged, type LinkButtonProps } from './base/LinkButton';
+export {
+  List,
+  ListItem,
+  listStylesProse,
+  OrderedList,
+  type ListItemProps,
+  type ListProps,
+  type OrderedListProps,
+} from './base/List';
+export { Mark, markStyles, type MarkProps } from './base/Mark';
 export { Spinner, spinnerStyles, type SpinnerProps } from './base/Spinner';
 export { Tag, tagStyles, type TagProps } from './base/Tag';
 export {
@@ -129,6 +147,7 @@ export {
   type GridOptions,
   type GridProps,
 } from './layout/Grid';
+export { Prose, proseStyles, type ProseProps } from './layout/Prose';
 export {
   ScrollArea,
   scrollAreaBarStyles,
@@ -185,6 +204,12 @@ export {
   type CardProps,
   type CardVariants,
 } from './display/Card';
+export {
+  CodeGroup,
+  codeGroupStyles,
+  type CodeGroupItem,
+  type CodeGroupProps,
+} from './display/CodeGroup';
 export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 export {
@@ -552,9 +577,9 @@ export {
   handleListKeydown,
   useListState,
   type ListboxOption,
-  type ListItem,
   type ListKeydownOptions,
   type ListState,
+  type ListStateEntry,
   type ListStateOptions,
   type OptionMapping,
 } from './input/list-state';
@@ -610,6 +635,23 @@ export {
   type DataTableVariants,
   type DataTableViewProps,
 } from './table/DataTableView';
+export {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableContext,
+  TableFoot,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  tableStyles,
+  type TableAligns,
+  type TableCellProps,
+  type TableHeaderCellProps,
+  type TableProps,
+  type TableState,
+} from './table/Table';
 export {
   TreeDataTable,
   treeDataTableIndentStyles,
@@ -703,6 +745,7 @@ export {
 
 // 工具：档位、字号、色调、过渡等共用样式
 export { itemStyles } from './utils/style/item-styles';
+export { headingMarker } from './utils/style/markers.stylex';
 export {
   columnGapStyles,
   focusRingStyles,

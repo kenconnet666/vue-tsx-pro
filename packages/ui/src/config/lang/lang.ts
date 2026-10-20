@@ -171,6 +171,47 @@ export interface Lang {
   readonly slideVerifySuccess: string;
   /** 拖动验证：没通过，默认“验证失败，请重试” */
   readonly slideVerifyError: string;
+
+  // ───────── 文档站一类页面的组件 ─────────
+
+  /** 长代码折叠时展开的按钮，默认“展开全部” */
+  readonly codeExpand: string;
+  /** 展开后收起长代码的按钮，默认“收起” */
+  readonly codeCollapse: string;
+  /** 代码示例的预览区域名称，默认“预览” */
+  readonly codePreview: string;
+  /** 代码示例里显示源码的按钮，默认“显示代码” */
+  readonly codeShow: string;
+  /** 代码示例里收起源码的按钮，默认“隐藏代码” */
+  readonly codeHide: string;
+  /** 标题旁的锚点链接名称，默认“链接到本节” */
+  readonly headingAnchor: string;
+  /** 跳到正文的链接，默认“跳到正文” */
+  readonly skipToContent: string;
+  /** 页内目录的名称，默认“本页目录” */
+  readonly tableOfContents: string;
+  /** 窄屏时打开侧边导航的按钮，默认“打开导航” */
+  readonly navigationOpen: string;
+  /** 搜索面板与搜索按钮的名称，默认“搜索” */
+  readonly searchLabel: string;
+  /** 搜索框的占位文字，默认“搜索文档” */
+  readonly searchPlaceholder: string;
+  /** 搜索没有结果，默认“没有找到相关内容” */
+  readonly searchEmpty: string;
+  /** 主题切换的名称，默认“主题” */
+  readonly themeLabel: string;
+  /** 主题：跟随系统，默认“跟随系统” */
+  readonly themeSystem: string;
+  /** 主题：亮色，默认“亮色” */
+  readonly themeLight: string;
+  /** 主题：暗色，默认“暗色” */
+  readonly themeDark: string;
+  /** 主题：纸张，默认“纸张” */
+  readonly themePaper: string;
+  /** 上一篇（翻页导航），默认“上一篇” */
+  readonly pagerPrevious: string;
+  /** 下一篇（翻页导航），默认“下一篇” */
+  readonly pagerNext: string;
 }
 
 /** 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })` */

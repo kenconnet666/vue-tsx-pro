@@ -5,13 +5,20 @@
  *
  *   <H1>订单详情</H1>
  *   <H2 size="lg">收货地址</H2>
+ *   <H2 id="install" anchor>安装</H2>   末尾带指向本节的锚点链接（悬停或聚焦时显示）
  *
  * 级别要连续，不要为了字号跳级（字号用 size 改）。
  */
+import { Hash } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { useLang } from '../config/context';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { headingMarker } from '../utils/style/markers.stylex';
+import { focusRingStyles } from '../utils/style/styles';
+import { Icon } from './Icon';
 import {
   fontSizeStyles,
   fontWeightStyles,
@@ -39,6 +46,10 @@ export interface HeadingProps extends PartProps<HeadingTag> {
   align?: TextAlign;
   /** 单行省略 */
   truncate?: boolean;
+  /** 有 id 时在末尾放一个指向本节的锚点链接（#），悬停或聚焦时显示：文档里方便复制本节的链接 */
+  anchor?: boolean;
+  /** 锚点链接的部件属性 */
+  propsAnchor?: PartProps<'a'>;
   children?: VNodeChild;
 }
 
@@ -49,6 +60,21 @@ export const headingStyles = stylex.create({
   // 大字号的字形间距显得松，略收紧
   xxl: { letterSpacing: '_tight' },
   xxxl: { letterSpacing: '_tighter' },
+  anchor: {
+    display: 'inline-flex',
+    verticalAlign: 'middle',
+    marginInlineStart: '_xs',
+    borderRadius: '_xs',
+    color: { default: '_textMuted', ':hover': '_accentText' },
+    fontSize: '0.75em',
+    textDecoration: 'none',
+    opacity: {
+      default: 0,
+      ':focus-visible': 1,
+      [stylex.when.ancestor(':hover', headingMarker)]: 1,
+    },
+    transition: 'opacity _durations.sm _easings.standard',
+  },
 });
 
 /** 生成标题组件：标签与默认字号（H1–H6 由它生成） */
@@ -60,10 +86,13 @@ export function createHeading(tag: HeadingTag, defaultSize: FontSize) {
       tone,
       align,
       truncate = false,
+      anchor = false,
+      propsAnchor,
       children,
       ...rest
-    }: HeadingProps) =>
-      () => {
+    }: HeadingProps) => {
+      const lang = useLang();
+      return () => {
         const Tag = tag;
         const sx = [
           headingStyles.root,
@@ -73,9 +102,28 @@ export function createHeading(tag: HeadingTag, defaultSize: FontSize) {
           tone && toneStyles[tone],
           align && textAlignStyles[align],
           truncate && textStyles.truncate,
+          // 标记不是样式，类型上不在 StyleXStyles 里；StyleX 把它当作一个 class 合并
+          anchor && (headingMarker as unknown as StyleXStyles),
         ];
-        return <Tag {...mergeAttrs<HeadingTag>({ sx }, rest)}>{children}</Tag>;
-      },
+        const id = rest.id;
+        return (
+          <Tag {...mergeAttrs<HeadingTag>({ sx }, rest)}>
+            {children}
+            {anchor && id && (
+              <a
+                {...mergeAttrs<'a'>(
+                  { sx: [headingStyles.anchor, focusRingStyles.visible] },
+                  propsAnchor,
+                  { href: `#${id}`, 'aria-label': lang.headingAnchor },
+                )}
+              >
+                <Icon icon={Hash} />
+              </a>
+            )}
+          </Tag>
+        );
+      };
+    },
     { name: tag.toUpperCase() },
   );
 }
