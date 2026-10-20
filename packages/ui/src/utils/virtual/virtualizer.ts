@@ -197,6 +197,8 @@ export class Virtualizer {
           for (const [target, size] of sizes) this.resizeItem(target, size);
         });
       });
+      // 项的 ref 回调早于外层组件的 onMounted：挂载前就登记过的项这里补上观察，否则它们之后的大小变化永远收不到
+      for (const element of this.observed) this.itemObserver.observe(element);
     }
     this.readViewport();
     this.readScroll();
@@ -207,7 +209,9 @@ export class Virtualizer {
       viewportObserver?.disconnect();
       this.itemObserver?.disconnect();
       this.itemObserver = null;
-      this.observed.clear();
+      // 换滚动容器时会重新 mount：还在文档里的项留着，下次 mount 接着观察（它们的 ref 回调不会再来）
+      for (const observed of this.observed)
+        if (!observed.isConnected) this.observed.delete(observed);
       cancelAnimationFrame(this.pendingScroll);
       this.scrollElement = null;
     };
@@ -276,13 +280,14 @@ export class Virtualizer {
       }
       return;
     }
-    // 只在元素第一次出现时同步量：之后的变化交给 ResizeObserver。每次渲染都量的话，
-    // 浮层进场的 scale 变换会让 getBoundingClientRect 每次量出不同的值，测量 → 渲染 → 测量停不下来
+    // 只在元素第一次出现时同步量：之后的变化交给 ResizeObserver。
+    // 量布局尺寸（offsetHeight）而不是 getBoundingClientRect：浮层进场的 scale 变换会把后者缩小，
+    // 元素之后被复用（列表过滤、重排）时 ResizeObserver 不会再报，缩小的值就一直留着，行与行叠在一起
     if (this.observed.has(element)) return;
     this.observed.add(element);
     this.itemObserver?.observe(element);
-    const rect = element.getBoundingClientRect();
-    this.resizeItem(element, this.options.horizontal ? rect.width : rect.height);
+    const box = element as HTMLElement;
+    this.resizeItem(element, this.options.horizontal ? box.offsetWidth : box.offsetHeight);
   };
 
   /** 滚动到第 index 项 */

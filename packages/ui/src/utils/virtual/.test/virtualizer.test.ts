@@ -79,7 +79,11 @@ function fakeScroller(viewport = 100) {
 function itemElement(index: number, height: number) {
   const element = document.createElement('div');
   element.dataset.index = String(index);
-  element.getBoundingClientRect = () => ({ height, width: 100 }) as DOMRect;
+  // 首次测量读布局尺寸（不受 transform 影响）
+  Object.defineProperties(element, {
+    offsetHeight: { value: height },
+    offsetWidth: { value: 100 },
+  });
   document.body.append(element);
   return element;
 }
@@ -152,6 +156,40 @@ describe('Virtualizer', () => {
     expect(items[4]).toMatchObject({ start: 120, size: 30, end: 150 });
     expect(items[5]!.start).toBe(150);
     expect(virtualizer.getTotalSize()).toBe(20000 + 5 * 10);
+  });
+
+  it('首次测量取布局尺寸：浮层进场的 scale 变换不影响（getBoundingClientRect 会被缩小）', () => {
+    const { virtualizer } = create();
+    const element = itemElement(0, 48);
+    element.getBoundingClientRect = () => ({ height: 36, width: 75 }) as DOMRect;
+    virtualizer.measureElement(element);
+    expect(virtualizer.getMeasurements()[0]!.size).toBe(48);
+  });
+
+  it('挂载前就登记的项（ref 回调早于 onMounted）在挂载时补上 ResizeObserver 观察', () => {
+    const observe = vi.fn();
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe = observe;
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    try {
+      const element = fakeScroller();
+      const virtualizer = new Virtualizer({
+        count: 10,
+        estimateSize: () => 20,
+        getScrollElement: () => element,
+      });
+      const early = itemElement(0, 0);
+      virtualizer.measureElement(early);
+      cleanups.push(virtualizer.mount());
+      expect(observe).toHaveBeenCalledWith(early);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('大小为 0（还没排版）的测量值不采用', () => {
