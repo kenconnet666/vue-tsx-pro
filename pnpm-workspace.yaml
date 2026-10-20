@@ -36,6 +36,9 @@ catalog:
   lightningcss: 1.33.0
   # 色板（只用于校验 tokens 取值）
   '@radix-ui/colors': 3.0.0
+  # 颜色解析、转换与对比度（主题编辑器、themes:check）；按函数引入（culori/fn）
+  culori: 4.0.2
+  '@types/culori': 4.0.1
   # 构建与测试
   vite: 8.3.4
   vitest: 5.0.5

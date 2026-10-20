@@ -210,6 +210,52 @@ export interface Lang {
   readonly themeDark: string;
   /** 主题：纸张，默认“纸张” */
   readonly themePaper: string;
+  /** ThemeCustomizer：品牌色一组的标题，默认“品牌色” */
+  readonly customizeAccent: string;
+  /** ThemeCustomizer：中性色一组的标题，默认“中性色” */
+  readonly customizeNeutral: string;
+  /** ThemeCustomizer：沿用主题本来的颜色，默认“主题默认” */
+  readonly customizeDefault: string;
+  /** ThemeCustomizer：圆角一组的标题，默认“圆角” */
+  readonly customizeRadius: string;
+  /** ThemeCustomizer：圆角选项，默认“直角” */
+  readonly customizeRadiusNone: string;
+  /** ThemeCustomizer：圆角选项，默认“小” */
+  readonly customizeRadiusSmall: string;
+  /** ThemeCustomizer：圆角选项，默认“中” */
+  readonly customizeRadiusMedium: string;
+  /** ThemeCustomizer：圆角选项，默认“大” */
+  readonly customizeRadiusLarge: string;
+  /** ThemeCustomizer：缩放一组的标题，默认“缩放” */
+  readonly customizeScaling: string;
+  /** ThemeCustomizer：字体一组的标题，默认“字体” */
+  readonly customizeFont: string;
+  /** ThemeCustomizer：字体选项，默认“无衬线” */
+  readonly customizeFontSans: string;
+  /** ThemeCustomizer：字体选项，默认“衬线标题” */
+  readonly customizeFontSerifHeadings: string;
+  /** ThemeCustomizer：动效一组的标题，默认“动效” */
+  readonly customizeMotion: string;
+  /** ThemeCustomizer：动效选项，默认“关闭” */
+  readonly customizeMotionNone: string;
+  /** ThemeCustomizer：动效选项，默认“快” */
+  readonly customizeMotionFast: string;
+  /** ThemeCustomizer：动效选项，默认“正常” */
+  readonly customizeMotionNormal: string;
+  /** ThemeCustomizer：动效选项，默认“慢” */
+  readonly customizeMotionSlow: string;
+  /** ThemeCustomizer：对比度检查一组的标题，默认“对比度” */
+  readonly customizeContrast: string;
+  /** 配色全部达到对比度要求时的提示 */
+  readonly customizeContrastOk: string;
+  /** 一处对比度不够：前景 / 背景 token、实际与要求的对比度 */
+  readonly customizeContrastIssue: (pair: string, ratio: string, minimum: number) => string;
+  /** ThemeCustomizer：导出代码一组的标题，默认“代码” */
+  readonly customizeCode: string;
+  /** ThemeCustomizer：恢复默认设置的按钮，默认“恢复默认” */
+  readonly customizeReset: string;
+  /** ColorField 色块（原生取色器）的名称，默认“选择颜色” */
+  readonly colorPick: string;
   /** PropsTable 的列标题，默认“名称” */
   readonly apiName: string;
   /** PropsTable 的列标题，默认“类型” */

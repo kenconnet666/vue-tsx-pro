@@ -50,7 +50,7 @@ export function generateTokenNames(root) {
 }
 
 /** export const 组 = stylex.defineVars({ … }) → 组名、注释与各 token 的名字、注释 */
-function readTokenGroups(file) {
+export function readTokenGroups(file) {
   const text = readFileSync(file, 'utf8');
   const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
   const groups = [];
@@ -70,11 +70,23 @@ function readTokenGroups(file) {
         tokens: object.properties.map((property) => ({
           name: property.name.getText(),
           doc: leadingDoc(text, property),
+          // 默认值（亮色主题）：字符串字面量，或带条件的取值（如“减少动态效果”时为 0）里的 default
+          value: ts.isPropertyAssignment(property) ? defaultValue(property.initializer) : undefined,
         })),
       });
     }
   }
   return groups;
+}
+
+/** 取值表达式的默认值：`'14px'` → 14px；`{ default: '120ms', [reduce]: '0ms' }` → 120ms */
+function defaultValue(node) {
+  if (ts.isStringLiteralLike(node)) return node.text;
+  if (!ts.isObjectLiteralExpression(node)) return undefined;
+  const fallback = node.properties.find(
+    (property) => ts.isPropertyAssignment(property) && property.name.getText() === 'default',
+  );
+  return fallback ? defaultValue(fallback.initializer) : undefined;
 }
 
 /** 节点前最后一段 `/** … *\/` 注释 */
@@ -100,5 +112,63 @@ function docWith(doc, path) {
     ` *`,
     ` * \`${path}\``,
     ' */',
+  ].join('\n');
+}
+
+/** 注释的正文：去掉开头结尾的注释符号与每行开头的星号，合成一段 */
+function docText(doc) {
+  if (!doc) return '';
+  return doc
+    .replace(/^\/\*\*\s?/, '')
+    .replace(/\s*\*\/$/, '')
+    .split('\n')
+    .map((line) => line.replace(/^\s*\*\s?/, '').trim())
+    .filter(Boolean)
+    .join(' ');
+}
+
+export function tokenCatalogOutput(root) {
+  return join(root, 'packages/ui/src/config/theme/token-catalog.ts');
+}
+
+/**
+ * 生成 packages/ui/src/config/theme/token-catalog.ts：每组每个 token 的默认值（亮色主题）与说明。
+ * 主题编辑器按默认值换算（圆角、缩放、动效速度），文档站的 token 表也读它
+ */
+export function generateTokenCatalog(root) {
+  const groups = readTokenGroups(join(root, 'packages/ui/src/config/theme/tokens.stylex.ts'));
+  const catalog = groups.map((group) => ({
+    name: group.name,
+    description: docText(group.doc),
+    tokens: group.tokens
+      .filter((token) => token.value !== undefined)
+      .map((token) => ({ name: token.name, value: token.value, description: docText(token.doc) })),
+  }));
+  return [
+    '// 由 scripts/css-docs/generate.mjs 根据 tokens.stylex.ts 生成，请勿手改。',
+    '',
+    '/** 一个主题 token */',
+    'export interface TokenEntry {',
+    '  /** 键，如 accent */',
+    '  readonly name: string;',
+    '  /** 默认值（亮色主题） */',
+    '  readonly value: string;',
+    '  /** 说明 */',
+    '  readonly description: string;',
+    '}',
+    '',
+    '/** 一组主题 token */',
+    'export interface TokenGroupEntry {',
+    '  /** 组名，如 colors */',
+    '  readonly name: string;',
+    '  /** 说明 */',
+    '  readonly description: string;',
+    '  /** 组里的 token */',
+    '  readonly tokens: readonly TokenEntry[];',
+    '}',
+    '',
+    '/** 主题 tokens 的清单：每组每个 token 的默认值与说明（主题编辑器、文档的 token 表用它） */',
+    `export const tokenCatalog: readonly TokenGroupEntry[] = ${JSON.stringify(catalog, null, 2)};`,
+    '',
   ].join('\n');
 }

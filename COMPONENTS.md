@@ -191,7 +191,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
-- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
+- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。定制品牌色、中性色、圆角、缩放、字体、动效用 `customizeTheme(preference.theme, settings)`，界面是 `ThemeCustomizer`（§10.19）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
 - 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
 - 对比度：`pnpm themes:check`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把三套主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查依次跑三套主题。改颜色前后都跑一遍。
@@ -689,6 +689,33 @@ apps/docs/src/components/base/Button/
 
 **顺手的组件库改动**：`PropsTable`（API 表格，数据类型 `ComponentApi`、`ApiProp`、`ApiValue`）、`IconLinkButton`（只有图标的链接）、Icon 的 `tone`、`@vue-tsx-pro/ui/theme-boot`（Node 可用的防闪烁脚本与内置主题底色）、静态 Table 的列宽按内容分配（`table-layout: auto`）、`scripts/structure/move.mjs`（移动文件并改写导入）。
 
+### 10.19 浮层滚动条铺开与主题编辑器（已完成）
+
+**浮层滚动条**：滚动条半透明、浮在内容上，出现与消失都不占位（滚动仍是原生的）。
+
+| 项              | 做法                                                                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 公共部件        | `OverlayScrollbar`（从 ScrollArea 抽出）：视口可以是元素，也可以是整页（`document.scrollingElement`，滚动事件在 window 上）                                                          |
+| 整页            | `PageScrollbar`：窗口照常滚动（前进后退恢复位置、手机收起地址栏、粘性定位都不变），只隐藏页面的原生滚动条，换成固定在视口一侧的浮层滚动条；指针移到窗口边缘时显示。AppShell 默认开启 |
+| 改用 ScrollArea | AppShell 两侧栏、CodeBlock 的横向滚动、静态 Table、CodePreview 的效果区                                                                                                              |
+| 列表与树        | ListboxView（自己滚动时）、Tree、VirtualList（容器模式）：列表元素就是 ScrollArea 的视口（`focusable={false}`），焦点与 aria-activedescendant 不变                                   |
+| 弹出层          | Select、Combobox、TagsInput、Menu、MenuSub：`floatingStyles.scrollPanel` + `scrollArea`，虚拟滚动的滚动容器是视口；顺带去掉原生 popover 默认的 0.25em 内边距                         |
+| 不改            | Textarea（滚动条属于原生元素）、Sortable 的横向列表（拖动时的边缘自动滚动直接驱动列表元素）                                                                                          |
+
+**主题编辑器**：
+
+| 项         | 做法                                                                                                                                                                                                     |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                               |
+| 色阶规则   | `config/theme/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                    |
+| 对比度规则 | `config/theme/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                         |
+| token 清单 | `config/theme/token-catalog.ts`（`pnpm css-docs` 从 tokens.stylex.ts 生成）：每个 token 的默认值与说明                                                                                                   |
+| 定制逻辑   | `config/theme/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)` |
+| 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                               |
+| 文档站     | “主题定制”指南页：左边编辑器，右边样板间；设置记在本地，与明暗偏好叠加生效                                                                                                                               |
+
+**取舍**：运行时覆盖写在根元素的行内样式上，会盖过“减少动态效果时为 0”的媒体查询，所以用户开启减少动态效果时动效旋钮不覆盖时长。中间亮度的色阶（如 crimson、teal）上白字与深色字都可能到不了 4.5:1，编辑器如实提示。逐个 token 编辑、任意颜色生成色阶（OKLCH）留到第二期。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16）→ 文档站的准备（10.17）→ 文档站的框架（10.18），均已完成，每步单独提交。下一批：按分类迁移其余组件的示例、文档页与浏览器测试到文档站，之后是日期选择。正式组件按 §8 验收。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16）→ 文档站的准备（10.17）→ 文档站的框架（10.18）→ 浮层滚动条铺开与主题编辑器（10.19），均已完成，每步单独提交。下一批：按分类迁移其余组件的示例、文档页与浏览器测试到文档站，之后是日期选择。正式组件按 §8 验收。

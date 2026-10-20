@@ -44,8 +44,10 @@
   "dependencies": {
     "@floating-ui/dom": "catalog:",
     "@internationalized/date": "catalog:",
+    "@radix-ui/colors": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
     "animejs": "catalog:",
+    "culori": "catalog:",
     "decimal.js": "catalog:",
     "tabbable": "catalog:"
   },
@@ -81,7 +83,6 @@
     "happy-dom": "catalog:",
     "@lucide/icons": "catalog:",
     "pinia": "catalog:",
-    "@radix-ui/colors": "catalog:",
     "shiki": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "three": "catalog:",
@@ -92,6 +93,7 @@
     "vitest": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@types/culori": "catalog:"
   }
 }

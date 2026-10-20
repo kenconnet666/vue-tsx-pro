@@ -3,29 +3,14 @@ import * as radix from '@radix-ui/colors';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { contrastRatio } from '../../utils/data/color';
+import { paletteColors } from '../theme/palette';
 
-/** token → [亮色色阶, 暗色色阶]；实色上的文字（accentContrast、dangerContrast）是白色，不在色板里 */
+/**
+ * 品牌色、中性色之外的 token → [亮色色阶, 暗色色阶]；品牌色与中性色按 palette.ts 的规则从 indigo、slate 生成。
+ * 危险色的实色上的文字（dangerContrast）是白色，不在色板里
+ */
 const steps: Record<string, [string, string]> = {
-  background: ['slate1', 'slateDark1'],
-  surface: ['slate1', 'slateDark2'],
-  surfaceMuted: ['slate2', 'slateDark2'],
-  surfaceRaised: ['slate1', 'slateDark3'],
-  fill: ['slate3', 'slateDark3'],
-  fillHover: ['slate4', 'slateDark4'],
-  fillActive: ['slate5', 'slateDark5'],
-  text: ['slate12', 'slateDark12'],
-  textMuted: ['slate11', 'slateDark11'],
-  textPlaceholder: ['slate10', 'slateDark10'],
-  textDisabled: ['slate8', 'slateDark8'],
-  borderMuted: ['slate6', 'slateDark6'],
-  border: ['slate7', 'slateDark7'],
-  borderStrong: ['slate8', 'slateDark8'],
-  accent: ['indigo9', 'indigoDark9'],
-  accentHover: ['indigo10', 'indigoDark10'],
-  accentText: ['indigo11', 'indigoDark11'],
-  accentSoft: ['indigo3', 'indigoDark3'],
-  accentSoftHover: ['indigo4', 'indigoDark4'],
-  accentBorder: ['indigo7', 'indigoDark7'],
   // red 9 配白字不到 4.5:1，见 tokens.stylex.ts
   danger: ['red11', 'redDark8'],
   dangerHover: ['red10', 'redDark10'],
@@ -43,18 +28,12 @@ const steps: Record<string, [string, string]> = {
   infoText: ['blue12', 'blueDark11'],
   infoSoft: ['blue3', 'blueDark3'],
   infoBorder: ['blue7', 'blueDark7'],
-  inverseSurface: ['slate12', 'slateDark12'],
-  inverseText: ['slate1', 'slateDark1'],
-  focusRing: ['indigo9', 'indigoDark9'],
   overlay: ['blackA6', 'blackA8'],
-  selection: ['indigo5', 'indigoDark5'],
   highlight: ['amber4', 'amberDark4'],
-  codeKeyword: ['indigo11', 'indigoDark11'],
   codeString: ['green11', 'greenDark11'],
   codeNumber: ['orange11', 'orangeDark11'],
   codeFunction: ['violet11', 'violetDark11'],
   codeType: ['cyan11', 'cyanDark11'],
-  codeComment: ['slate11', 'slateDark11'],
   codeTag: ['crimson11', 'crimsonDark11'],
   codeAttribute: ['brown11', 'brownDark11'],
   codeInserted: ['green3', 'greenDark3'],
@@ -62,25 +41,21 @@ const steps: Record<string, [string, string]> = {
 };
 
 /**
- * 为满足对比度而偏离色阶的取值（scripts/themes/check.mjs 校验）：实色上的白字、悬停态比实色更深，
- * 文字比 11 级深一点；半透明表面是页面背景加透明度
+ * 为满足对比度而偏离色阶的取值（scripts/themes/check.mjs 校验）：危险色实色上的白字、悬停态比实色更深，
+ * 文字比 11 级深一点
  */
 const adjusted: [Record<string, string>, Record<string, string>] = [
   {
-    accentContrast: '#ffffff',
     dangerContrast: '#ffffff',
     dangerHover: '#b8272c',
     dangerText: '#b8272c',
     codeString: '#1c7a51',
     codeNumber: '#c24b00',
-    surfaceTranslucent: 'rgba(252, 252, 253, 0.8)',
   },
   {
-    accentContrast: '#ffffff',
     dangerContrast: '#ffffff',
     accentHover: '#3758d4',
     dangerHover: '#a33b3e',
-    surfaceTranslucent: 'rgba(17, 17, 19, 0.8)',
   },
 ];
 
@@ -105,12 +80,40 @@ describe('颜色 token', () => {
   const light = literals('tokens.stylex.ts', 'export const colors');
   const dark = literals('dark.ts', 'const darkColors');
 
-  it('亮色与暗色取值都与 Radix 色阶一致（为对比度调整过的单独列出）', () => {
-    const expected = (index: 0 | 1) =>
-      Object.fromEntries(
+  it('亮色与暗色取值都与 Radix 色阶一致：品牌色、中性色按 paletteColors 生成（为对比度调整过的单独列出）', () => {
+    const expected = (index: 0 | 1) => ({
+      ...paletteColors({
+        accent: 'indigo',
+        neutral: 'slate',
+        appearance: index === 0 ? 'light' : 'dark',
+      }),
+      ...Object.fromEntries(
         Object.entries(steps).map(([token, pair]) => [token, radixColor(pair[index])]),
-      );
+      ),
+    });
     expect(light).toEqual({ ...expected(0), ...adjusted[0] });
     expect(dark).toEqual({ ...expected(1), ...adjusted[1] });
+  });
+});
+
+describe('paletteColors', () => {
+  it('换品牌色：整组按同样的级别替换；实色上的文字按对比度选白字或深色字', () => {
+    const crimson = paletteColors({ accent: 'crimson', appearance: 'light' });
+    expect(crimson.accent).toBe(radix.crimson.crimson9);
+    expect(crimson.accentText).toBe(radix.crimson.crimson11);
+    // 实色上的文字：白字够 4.5:1 就用白字（indigo），不够时换对比度更高的深色（亮黄）。
+    // 中间亮度的色阶两者都可能不到 4.5:1，主题编辑器会提示
+    expect(paletteColors({ accent: 'indigo', appearance: 'light' }).accentContrast).toBe('#ffffff');
+    expect(paletteColors({ accent: 'yellow', appearance: 'light' }).accentContrast).not.toBe(
+      '#ffffff',
+    );
+    for (const accent of ['crimson', 'yellow', 'teal'] as const) {
+      const colors = paletteColors({ accent, appearance: 'light' });
+      const chosen = contrastRatio(colors.accentContrast!, colors.accent!);
+      const ratios = ['#ffffff', '#1c2024'].map((text) => contrastRatio(text, colors.accent!));
+      expect(chosen >= 4.5 || chosen === Math.max(...ratios)).toBe(true);
+    }
+    // 只给品牌色时不动中性色
+    expect(crimson.background).toBeUndefined();
   });
 });

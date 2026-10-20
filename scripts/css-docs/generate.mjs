@@ -22,7 +22,13 @@ import prettier from 'prettier';
 import ts from 'typescript';
 import { features } from 'web-features';
 import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
-import { generateTokenNames, tokenInterfaceName, tokenNamesOutput } from './tokens.mjs';
+import {
+  generateTokenCatalog,
+  generateTokenNames,
+  tokenCatalogOutput,
+  tokenInterfaceName,
+  tokenNamesOutput,
+} from './tokens.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'packages/tsx/src/stylex/styles.ts');
@@ -281,6 +287,7 @@ const tokenNames = tokenNamesOutput(root);
 const outputs = [
   [output, await generate()],
   [tokenNames, await format(generateTokenNames(root), tokenNames)],
+  [tokenCatalogOutput(root), await format(generateTokenCatalog(root), tokenCatalogOutput(root))],
 ];
 const check = process.argv.includes('--check');
 for (const [file, code] of outputs) {

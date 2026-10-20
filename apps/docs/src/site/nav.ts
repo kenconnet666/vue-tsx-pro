@@ -48,6 +48,12 @@ const guide: NavSection = {
       description: '安装、配置 Vite 与 createUi，写第一个 TSX 页面',
       component: () => import('../pages/guide/GettingStarted'),
     },
+    {
+      path: '/guide/theming',
+      title: '主题定制',
+      description: '调品牌色、中性色、圆角、缩放、字体与动效，实时检查对比度，导出代码',
+      component: () => import('../pages/guide/Theming'),
+    },
   ],
 };
 

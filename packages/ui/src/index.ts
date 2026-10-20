@@ -516,6 +516,13 @@ export {
   type CheckboxProps,
 } from './input/Checkbox';
 export {
+  ColorField,
+  colorFieldDynamicStyles,
+  colorFieldStyles,
+  type ColorFieldManaged,
+  type ColorFieldProps,
+} from './input/ColorField';
+export {
   Combobox,
   comboboxStyles,
   type ComboboxBaseProps,
@@ -733,6 +740,12 @@ export {
   type ConfigScopeProps,
   type ProviderProps,
 } from './config/Provider';
+export {
+  ThemeCustomizer,
+  themeCustomizerDynamicStyles,
+  themeCustomizerStyles,
+  type ThemeCustomizerProps,
+} from './config/ThemeCustomizer';
 export { ThemeSwitcher, type ThemeSwitcherProps } from './config/ThemeSwitcher';
 export {
   ConfigContext,
@@ -759,8 +772,35 @@ export {
   themeBootScript,
   type ThemeBootColors,
 } from './config/theme/boot';
+export {
+  checkContrast,
+  CONTRAST_PAIRS,
+  type ContrastIssue,
+  type ContrastPair,
+} from './config/theme/contrast';
+export {
+  customizeTheme,
+  themeSettingsCode,
+  themeSettingsOverrides,
+  type CustomizeOptions,
+  type FontPresets,
+  type MotionPresets,
+  type RadiusPresets,
+  type ThemeSettings,
+} from './config/theme/customize';
 export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
 export { lightTheme } from './config/theme/light';
+export {
+  ACCENT_SCALES,
+  ACCENT_STEPS,
+  NEUTRAL_SCALES,
+  NEUTRAL_STEPS,
+  paletteColors,
+  scaleSwatch,
+  type AccentScale,
+  type NeutralScale,
+  type PaletteOptions,
+} from './config/theme/palette';
 export { paperColors, paperFonts, paperShadows, paperTheme } from './config/theme/paper';
 export {
   createThemePreference,
@@ -779,6 +819,7 @@ export {
   type ThemeInput,
   type ThemeOverrides,
 } from './config/theme/theme';
+export { tokenCatalog, type TokenEntry, type TokenGroupEntry } from './config/theme/token-catalog';
 import './config/theme/token-names';
 
 // 语言与格式化
@@ -931,6 +972,14 @@ export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
 // 工具：比较与匹配、选择、分页、文字、数值
 export { createComparer, createMatcher, type SortValue } from './utils/data/collation';
+export {
+  CONTRAST_AA,
+  contrastRatio,
+  parseColor,
+  readableText,
+  toHex,
+  withAlpha,
+} from './utils/data/color';
 export { clamp, snapToStep } from './utils/data/number';
 export {
   paginationItems,

@@ -10,76 +10,22 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { registerHooks } from 'node:module';
+
+// 组件库源码的相对导入不写扩展名（由打包工具补全）：Node 直接加载时补上 .ts
+registerHooks({
+  resolve(specifier, context, next) {
+    try {
+      return next(specifier, context);
+    } catch (error) {
+      if (!specifier.startsWith('.') || /\.\w+$/.test(specifier)) throw error;
+      return next(`${specifier}.ts`, context);
+    }
+  },
+});
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const themeDir = join(root, 'packages/ui/src/config/theme');
-
-/** 文字 4.5:1；大字、图形与界面部件（焦点环、选中的勾选框）3:1；占位文字按 3:1（同多数组件库） */
-const TEXT = 4.5;
-const UI = 3;
-
-/** [前景, 背景, 最低对比度, 说明] */
-const PAIRS = [
-  ...[
-    'background',
-    'surface',
-    'surfaceMuted',
-    'surfaceRaised',
-    'fill',
-    'fillHover',
-    'fillActive',
-  ].map((bg) => ['text', bg, TEXT, '正文']),
-  ...['background', 'surface', 'surfaceMuted', 'surfaceRaised', 'fill'].map((bg) => [
-    'textMuted',
-    bg,
-    TEXT,
-    '次要文字',
-  ]),
-  ['textPlaceholder', 'surface', UI, '占位文字'],
-  ['accentContrast', 'accent', TEXT, '主按钮'],
-  ['accentContrast', 'accentHover', TEXT, '主按钮悬停'],
-  ...['background', 'surface', 'surfaceRaised', 'accentSoft', 'accentSoftHover'].map((bg) => [
-    'accentText',
-    bg,
-    TEXT,
-    '链接、选中项',
-  ]),
-  ['dangerContrast', 'danger', TEXT, '危险按钮'],
-  ['dangerContrast', 'dangerHover', TEXT, '危险按钮悬停'],
-  ...['background', 'surface', 'dangerSoft', 'dangerSoftHover'].map((bg) => [
-    'dangerText',
-    bg,
-    TEXT,
-    '错误文字',
-  ]),
-  ...[
-    ['successText', 'successSoft'],
-    ['warningText', 'warningSoft'],
-    ['infoText', 'infoSoft'],
-  ].flatMap(([fg, soft]) => [
-    [fg, soft, TEXT, '提示条'],
-    [fg, 'background', TEXT, '提示文字'],
-    [fg, 'surface', TEXT, '提示文字'],
-  ]),
-  ['inverseText', 'inverseSurface', TEXT, '反色表面'],
-  ...[
-    'codeKeyword',
-    'codeString',
-    'codeNumber',
-    'codeFunction',
-    'codeType',
-    'codeComment',
-    'codeTag',
-    'codeAttribute',
-  ].map((fg) => [fg, 'surfaceMuted', TEXT, '代码高亮']),
-  ['text', 'codeInserted', TEXT, 'diff 新增行'],
-  ['text', 'codeDeleted', TEXT, 'diff 删除行'],
-  ['text', 'selection', TEXT, '选中的文字'],
-  ['text', 'highlight', TEXT, '高亮标记'],
-  ['focusRing', 'background', UI, '焦点环'],
-  ['focusRing', 'surface', UI, '焦点环'],
-  ['accent', 'surface', UI, '选中的勾选框、开关'],
-];
 
 /**
  * 从源码里取出颜色：tokens.stylex.ts 的 `colors = stylex.defineVars({...})`，
@@ -120,60 +66,17 @@ const themes = {
   纸张: { ...light, ...readColors('paper.ts') },
 };
 
-/** 颜色 → [r, g, b, a]，支持 #rgb、#rrggbb、#rrggbbaa、rgb()、rgba() */
-function parse(color) {
-  const hex = /^#([\da-f]{3,8})$/i.exec(color)?.[1];
-  if (hex) {
-    const full =
-      hex.length <= 4
-        ? hex
-            .split('')
-            .map((c) => c + c)
-            .join('')
-        : hex;
-    const [r, g, b, a = 255] = full.match(/../g).map((h) => parseInt(h, 16));
-    return [r, g, b, a / 255];
-  }
-  const rgb = /^rgba?\(([^)]+)\)$/.exec(color)?.[1];
-  if (rgb) {
-    const [r, g, b, a = 1] = rgb.split(',').map((part) => Number(part.trim()));
-    return [r, g, b, a];
-  }
-  throw new Error(`无法解析的颜色：${color}`);
-}
-
-/** 半透明的前景先与背景合成 */
-const over = ([r, g, b, a], [br, bgG, bb]) => [
-  r * a + br * (1 - a),
-  g * a + bgG * (1 - a),
-  b * a + bb * (1 - a),
-  1,
-];
-
-const luminance = ([r, g, b]) => {
-  const channel = (value) => {
-    const c = value / 255;
-    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  };
-  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
-};
-
-function contrast(foreground, background, page) {
-  const bg = over(parse(background), parse(page));
-  const fg = over(parse(foreground), bg);
-  const [high, low] = [luminance(fg), luminance(bg)].sort((a, b) => b - a);
-  return (high + 0.05) / (low + 0.05);
-}
+// 要检查的组合与对比度计算都来自组件库：主题编辑器的实时提示用同一套
+const { CONTRAST_PAIRS, checkContrast } =
+  await import('../../packages/ui/src/config/theme/contrast.ts');
 
 const failures = [];
 for (const [name, theme] of Object.entries(themes)) {
-  for (const [fg, bg, min, label] of PAIRS) {
-    const ratio = contrast(theme[fg], theme[bg], theme.background);
-    if (ratio < min) {
-      failures.push(
-        `${name}：${label} ${fg}（${theme[fg]}）在 ${bg}（${theme[bg]}）上 ${ratio.toFixed(2)}，要求 ${min}`,
-      );
-    }
+  for (const issue of checkContrast((token) => theme[token])) {
+    const { foreground: fg, background: bg, ratio, minimum, label } = issue;
+    failures.push(
+      `${name}：${label} ${fg}（${theme[fg]}）在 ${bg}（${theme[bg]}）上 ${ratio.toFixed(2)}，要求 ${minimum}`,
+    );
   }
 }
 
@@ -194,4 +97,6 @@ if (failures.length) {
   console.error(`主题对比度不达标（${failures.length} 处）：\n${failures.join('\n')}`);
   process.exit(1);
 }
-console.log(`主题对比度检查通过：${Object.keys(themes).length} 套主题 × ${PAIRS.length} 组`);
+console.log(
+  `主题对比度检查通过：${Object.keys(themes).length} 套主题 × ${CONTRAST_PAIRS.length} 组`,
+);

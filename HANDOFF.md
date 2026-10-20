@@ -7,16 +7,16 @@
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。
 - **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.17：
-  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6，标题可带锚点链接）、List / OrderedList / ListItem、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制、行号、行高亮、diff、长代码折叠）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / CloseButton / ClearButton / CopyButton）、Badge、Indicator（角标）、Tag
-  - 布局：Flex / FlexList / FlexOrderedList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）、Prose（长文容器）、AppShell（顶栏 + 两侧栏的整页骨架）
-  - 展示：Collapse、Collapsible、Accordion、VirtualList（虚拟滚动，带加载状态）、Card、Avatar / AvatarGroup、AnimatedNumber、Descriptions、Timeline、Tree、Sortable、Marquee、CodeGroup、CodePreview（代码示例卡片）、ColorSwatch
+  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6，标题可带锚点链接）、List / OrderedList / ListItem、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制、行号、行高亮、diff、长代码折叠）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton）、Badge、Indicator（角标）、Tag
+  - 布局：Flex / FlexList / FlexOrderedList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea 与 PageScrollbar（浮层滚动条）、Prose（长文容器）、AppShell（顶栏 + 两侧栏的整页骨架）
+  - 展示：Collapse、Collapsible、Accordion、VirtualList（虚拟滚动，带加载状态）、Card、Avatar / AvatarGroup、AnimatedNumber、Descriptions、Timeline、Tree、Sortable、Marquee、CodeGroup、CodePreview（代码示例卡片）、ColorSwatch、PropsTable（API 表格）
   - 反馈：Progress、Skeleton、Alert、Empty、Toast（createToaster + Toaster，可滑动关闭、可堆叠）、LoadingOverlay、Result
   - 浮层：Dialog / Drawer / AlertDialog（共用 Modal 内核，含命令式的 useConfirm）、Popover、Tooltip、HoverCard、Menu（复合，含链接 / 复选 / 单选项、子菜单）、ContextMenu、Tour、CommandPalette（Mod+K 搜索面板）
-  - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination（配套 PageSizeSelect、PageJump）、NavList（复合）、TableOfContents（本页目录，滚动高亮）、Pager（上一篇 / 下一篇）、SkipLink
-  - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
+  - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination（配套 PageSizeSelect、PageJump）、NavList（复合，含 NavGroup、NavSection）、TableOfContents（本页目录，滚动高亮）、Pager（上一篇 / 下一篇）、SkipLink
+  - 输入：TextField、ColorField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
   - 表格：Table 家族（静态表格，内容写在 JSX 里）、DataTable（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeDataTable（建在 DataTable 上，懒加载子项）
   - 表单（form/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型；数组字段、dirty、单字段异步校验）
-- **主题**（§6.2、§10.17）：亮色、暗色、纸张三套内置主题，`createThemePreference` 记住选择，`ThemeSwitcher` 切换（从按钮处圆形展开），`themeBootScript` 防闪烁，`pnpm themes:check` 检查对比度。
+- **主题**（§6.2、§10.17）：亮色、暗色、纸张三套内置主题，`createThemePreference` 记住选择，`ThemeSwitcher` 切换（从按钮处圆形展开），`ThemeCustomizer` 定制品牌色、圆角等，`themeBootScript` 防闪烁，`pnpm themes:check` 检查对比度。
 - **性能、类型与基础设施**（§10.16）：编译器的渲染优化（稳定插槽、属性值缓存，RUNES §9）、表格行组件、浮层延迟渲染、Virtualizer 增量重排、Icon 用 innerHTML、`mergeAttrs`；`stylex.create` 不再标类型；表单拆到 `form/`、对话框一族在 `overlay/`。
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
@@ -75,57 +75,60 @@ pnpm -C apps/host-demo exec vitest run --configLoader native --config vitest.bro
 
 **ui 包**（`packages/ui/src`）的基础设施都在 `utils/` 与 `config/`。写新组件前先看有没有现成的：
 
-| 需要                                                           | 用                                                                                                                                          |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 合并部件属性                                                   | `mergeAttrs<'tag'>`（原生元素，直接展开到元素上）、`mergePartProps<XxxProps>`（子组件）；底层是 `mergeProps` + `elementProps`               |
-| 档位样式（间距、字号、色调、焦点环…）                          | `utils/style/styles.ts`、`utils/style/typography.ts`、`utils/style/tone-styles.ts`                                                          |
-| 波纹                                                           | `useRipple(() => ripple)`，返回值展开到受管层                                                                                               |
-| 按钮类的不可用、加载中、拦截点击                               | `useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick)`（`base/button-core.ts`）                   |
-| 长得不像按钮的按钮（菜单项、标签页、折叠标题、步骤、排序按钮） | `ButtonBase`：去掉默认外观，焦点环、波纹、颜色过渡、不可用与加载中都有；外观经 sx 给（`base/ButtonBase.tsx`）                               |
-| 交互颜色过渡、展开箭头旋转、出现与离场的淡入淡出               | `interactionTransitions.colors`、`disclosureStyles.icon`、`presenceStyles.fade` / `leaving`（`utils/style/transitions.ts`）                 |
-| 组件里的 JS 动画                                               | `useAnimate()`：取主题时长、缓动、弹簧，卸载时取消（`utils/motion/animation.ts`）                                                           |
-| 跟随数值的过渡（数字滚动、进度）                               | `useTween(() => value)`、`useSpring(() => value)`，渲染里读 `.current`（`utils/motion/tween.ts`）                                           |
-| 表单字段的约束（必填、长度、范围）                             | 从 zod schema 推出（`form/form-constraints.ts`），控件经 `useFieldControl()` 的 `constraints` 拿到                                          |
-| 单选 / 多选组件的 props                                        | `SelectionProps`（`selectionMode` + `value`）、选项数据的 `OptionMapping`（`toOption`）                                                     |
-| 链接走路由、判断当前页                                         | `useRouterLink()`                                                                                                                           |
-| 组件默认值                                                     | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })`，渲染时读 `appearance().variant` |
-| 方向键在一组项里移动                                           | `rovingFocus(container, { items, orientation })`                                                                                            |
-| 单选 / 多选                                                    | `toggleSelection`                                                                                                                           |
-| 拖动                                                           | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                                            |
-| 拖动排序（指针 + 键盘 + 读屏播报）                             | `useSortable({ items, getKey, onChange, container })`：`handleProps(key)`、`itemProps(key)`、`announcement`（`utils/dom/sortable.ts`）      |
-| 树：展开成行、勾选联动、懒加载                                 | `flattenTree`、`indexTree` + `toggleChecked` / `checkStates`、`useTreeExpansion`（`utils/data/tree.ts`；Tree、TreeDataTable 用它）          |
-| 未保存离开的提醒                                               | `useLeaveConfirmation(() => form.dirty)`（`utils/dom/leave-confirmation.ts`）                                                               |
-| 进出场过渡、等过渡结束                                         | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                                           |
-| 关闭后等离场结束再卸载                                         | `usePresence(() => open, { onExited, exit })`：`mounted`、`state`、`ref`（`utils/motion/presence.ts`；Toast、Tag、Alert 用它）              |
-| 内容第一次打开时才渲染（浮层默认、Collapse / Tabs 可选）       | `useLazyContent(() => open, () => lazy)`，浮层的 `lazy` prop 用 `LazyContentOptions`（`utils/motion/presence.ts`）                          |
-| 子元素换位置时平移（增删、排序）                               | `useLayoutAnimation(() => container, { children })`，`layout.change(() => mutate())`（`utils/motion/layout.ts`）                            |
-| 跟着当前项走的指示条（下划线、选中滑块）                       | `useActiveIndicator(() => ({ container, indicator, active, axis, value }))`（`utils/motion/active-indicator.ts`）                           |
-| 加载指示防闪烁（骨架、进度条、按钮的加载指示）                 | `useDelayedLoading(() => loading, { delay, minDuration })`；aria-busy 仍按真实的 loading（`utils/motion/delayed-loading.ts`）               |
-| 装饰性动画要不要播                                             | `useReducedMotion()`（取主题时长的动画不需要，时长 token 已是 0）                                                                           |
-| 行为随视口、系统设置变化                                       | `useMediaQuery('(min-width: 64rem)')`；只是显示与隐藏时写在样式的媒体查询里（`utils/dom/media-query.ts`）                                   |
-| 滚动到哪一节                                                   | `useScrollSpy(() => ({ ids, root }))`、`collectHeadings(container)`（`utils/dom/scroll-spy.ts`；TableOfContents 用它）                      |
-| 粘性顶栏挡住的高度                                             | `layoutVars.stickyOffset`（`utils/style/vars.stylex.ts`）：AppShell 设置，标题的 `scroll-margin` 读它                                       |
-| 子元素按祖先的悬停、聚焦取样式                                 | `stylex.when.ancestor(':hover', marker)`，标记在 `utils/style/markers.stylex.ts`（标题的锚点链接用它）                                      |
-| 键盘快捷键                                                     | `useHotkeys(() => ({ 'Mod+K': open }))`，显示用 `formatHotkey`（`utils/dom/hotkeys.ts`）                                                    |
-| 复制到剪贴板                                                   | `useClipboard()`：`copy(text)`、`copied`（自动复原）、`error`（`utils/dom/clipboard.ts`）                                                   |
-| 弹层：焦点、遮罩、锁滚动、移除后的焦点                         | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                                            |
-| 浮层贴着触发器定位、打开与关闭                                 | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                                             |
-| 悬停打开的浮层（延迟、可移到浮层上、同组只开一个）             | `useHoverIntent(createHoverGroup(), read, setOpen)`（`utils/dom/hover-intent.ts`；Tooltip、HoverCard 用它）                                 |
-| 模态打开期间还要可交互的浮层                                   | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                                   |
-| 菜单、列表里按字母跳转                                         | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                                                                |
-| 输入框外壳、勾选类控件                                         | `input/control.ts`、`input/choice-styles.ts`                                                                                                |
-| 控件接入 Field（标签、说明、错误、状态）                       | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                                                                    |
-| 表单值与校验                                                   | `useForm({ initial, schema, fields, onSubmit })` + `<Form controller>`；`form.array(path)`、`form.dirty`、`form.validating(path)`           |
-| 选项列表（高亮、选择、键盘）                                   | `useListState` + `handleListKeydown` + `ListboxView`（`input/`）                                                                            |
-| 命令式确认                                                     | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                                                                 |
-| 状态色调的颜色与默认图标                                       | `statusToneSx`、`statusIcons`（`utils/style/tone-styles.ts`）                                                                               |
-| 虚拟滚动                                                       | `useVirtualizer(read)`（`utils/virtual/use-virtualizer.ts`，Vue 接线）；核心 `Virtualizer`（`utils/virtual/virtualizer.ts`）                |
-| 列表行的外观与状态色                                           | `itemStyles`（`utils/style/item-styles.ts`）                                                                                                |
-| 按语言匹配、比较文字                                           | `createMatcher`、`createComparer`（`utils/data/collation.ts`）                                                                              |
-| 浮层的 open 同步                                               | `useAnchoredPopover(read, { close, shown })`（`utils/dom/floating.ts`）                                                                     |
-| 焦点进出、移除后的焦点                                         | `utils/dom/focus.ts`                                                                                                                        |
-| 夹取值、对齐步长                                               | `clamp`、`snapToStep`（`utils/data/number.ts`）；判断从右到左用 `isRtl`（`utils/dom/direction.ts`）                                         |
-| 元素大小变化                                                   | `useResizeObserver(() => [a, b], onResize)`：目标换了自动重新观察，卸载时断开（`utils/dom/resize.ts`）                                      |
+| 需要                                                           | 用                                                                                                                                                                                  |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 合并部件属性                                                   | `mergeAttrs<'tag'>`（原生元素，直接展开到元素上）、`mergePartProps<XxxProps>`（子组件）；底层是 `mergeProps` + `elementProps`                                                       |
+| 档位样式（间距、字号、色调、焦点环…）                          | `utils/style/styles.ts`、`utils/style/typography.ts`、`utils/style/tone-styles.ts`                                                                                                  |
+| 波纹                                                           | `useRipple(() => ripple)`，返回值展开到受管层                                                                                                                                       |
+| 按钮类的不可用、加载中、拦截点击                               | `useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick)`（`base/button-core.ts`）                                                           |
+| 长得不像按钮的按钮（菜单项、标签页、折叠标题、步骤、排序按钮） | `ButtonBase`：去掉默认外观，焦点环、波纹、颜色过渡、不可用与加载中都有；外观经 sx 给（`base/ButtonBase.tsx`）                                                                       |
+| 交互颜色过渡、展开箭头旋转、出现与离场的淡入淡出               | `interactionTransitions.colors`、`disclosureStyles.icon`、`presenceStyles.fade` / `leaving`（`utils/style/transitions.ts`）                                                         |
+| 组件里的 JS 动画                                               | `useAnimate()`：取主题时长、缓动、弹簧，卸载时取消（`utils/motion/animation.ts`）                                                                                                   |
+| 跟随数值的过渡（数字滚动、进度）                               | `useTween(() => value)`、`useSpring(() => value)`，渲染里读 `.current`（`utils/motion/tween.ts`）                                                                                   |
+| 表单字段的约束（必填、长度、范围）                             | 从 zod schema 推出（`form/form-constraints.ts`），控件经 `useFieldControl()` 的 `constraints` 拿到                                                                                  |
+| 单选 / 多选组件的 props                                        | `SelectionProps`（`selectionMode` + `value`）、选项数据的 `OptionMapping`（`toOption`）                                                                                             |
+| 链接走路由、判断当前页                                         | `useRouterLink()`                                                                                                                                                                   |
+| 组件默认值                                                     | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })`，渲染时读 `appearance().variant`                                         |
+| 方向键在一组项里移动                                           | `rovingFocus(container, { items, orientation })`                                                                                                                                    |
+| 单选 / 多选                                                    | `toggleSelection`                                                                                                                                                                   |
+| 拖动                                                           | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                                                                                    |
+| 拖动排序（指针 + 键盘 + 读屏播报）                             | `useSortable({ items, getKey, onChange, container })`：`handleProps(key)`、`itemProps(key)`、`announcement`（`utils/dom/sortable.ts`）                                              |
+| 树：展开成行、勾选联动、懒加载                                 | `flattenTree`、`indexTree` + `toggleChecked` / `checkStates`、`useTreeExpansion`（`utils/data/tree.ts`；Tree、TreeDataTable 用它）                                                  |
+| 未保存离开的提醒                                               | `useLeaveConfirmation(() => form.dirty)`（`utils/dom/leave-confirmation.ts`）                                                                                                       |
+| 进出场过渡、等过渡结束                                         | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                                                                                   |
+| 关闭后等离场结束再卸载                                         | `usePresence(() => open, { onExited, exit })`：`mounted`、`state`、`ref`（`utils/motion/presence.ts`；Toast、Tag、Alert 用它）                                                      |
+| 内容第一次打开时才渲染（浮层默认、Collapse / Tabs 可选）       | `useLazyContent(() => open, () => lazy)`，浮层的 `lazy` prop 用 `LazyContentOptions`（`utils/motion/presence.ts`）                                                                  |
+| 子元素换位置时平移（增删、排序）                               | `useLayoutAnimation(() => container, { children })`，`layout.change(() => mutate())`（`utils/motion/layout.ts`）                                                                    |
+| 跟着当前项走的指示条（下划线、选中滑块）                       | `useActiveIndicator(() => ({ container, indicator, active, axis, value }))`（`utils/motion/active-indicator.ts`）                                                                   |
+| 加载指示防闪烁（骨架、进度条、按钮的加载指示）                 | `useDelayedLoading(() => loading, { delay, minDuration })`；aria-busy 仍按真实的 loading（`utils/motion/delayed-loading.ts`）                                                       |
+| 装饰性动画要不要播                                             | `useReducedMotion()`（取主题时长的动画不需要，时长 token 已是 0）                                                                                                                   |
+| 行为随视口、系统设置变化                                       | `useMediaQuery('(min-width: 64rem)')`；只是显示与隐藏时写在样式的媒体查询里（`utils/dom/media-query.ts`）                                                                           |
+| 滚动到哪一节                                                   | `useScrollSpy(() => ({ ids, root }))`、`collectHeadings(container)`（`utils/dom/scroll-spy.ts`；TableOfContents 用它）                                                              |
+| 粘性顶栏挡住的高度                                             | `layoutVars.stickyOffset`（`utils/style/vars.stylex.ts`）：AppShell 设置，标题的 `scroll-margin` 读它                                                                               |
+| 子元素按祖先的悬停、聚焦取样式                                 | `stylex.when.ancestor(':hover', marker)`，标记在 `utils/style/markers.stylex.ts`（标题的锚点链接用它）                                                                              |
+| 键盘快捷键                                                     | `useHotkeys(() => ({ 'Mod+K': open }))`，显示用 `formatHotkey`（`utils/dom/hotkeys.ts`）                                                                                            |
+| 复制到剪贴板                                                   | `useClipboard()`：`copy(text)`、`copied`（自动复原）、`error`（`utils/dom/clipboard.ts`）                                                                                           |
+| 弹层：焦点、遮罩、锁滚动、移除后的焦点                         | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                                                                                    |
+| 浮层贴着触发器定位、打开与关闭                                 | `createAnchoredLayer()`（内部用 `anchorFloating`）+ `floatingStyles`（`utils/dom/floating.ts`）                                                                                     |
+| 悬停打开的浮层（延迟、可移到浮层上、同组只开一个）             | `useHoverIntent(createHoverGroup(), read, setOpen)`（`utils/dom/hover-intent.ts`；Tooltip、HoverCard 用它）                                                                         |
+| 模态打开期间还要可交互的浮层                                   | `topModal()` 取最上层的模态，Teleport 进去；内容用 `ConfigScope` 带上主题                                                                                                           |
+| 菜单、列表里按字母跳转                                         | `rovingFocus(…, { typeahead: true })` 或 `createTypeahead()`                                                                                                                        |
+| 输入框外壳、勾选类控件                                         | `input/control.ts`、`input/choice-styles.ts`                                                                                                                                        |
+| 控件接入 Field（标签、说明、错误、状态）                       | `useFieldControl(() => ({ id, invalid, required, disabled, readonly }))`                                                                                                            |
+| 表单值与校验                                                   | `useForm({ initial, schema, fields, onSubmit })` + `<Form controller>`；`form.array(path)`、`form.dirty`、`form.validating(path)`                                                   |
+| 选项列表（高亮、选择、键盘）                                   | `useListState` + `handleListKeydown` + `ListboxView`（`input/`）                                                                                                                    |
+| 命令式确认                                                     | `const confirm = useConfirm()`（setup 里），之后 `await confirm({ title })`                                                                                                         |
+| 状态色调的颜色与默认图标                                       | `statusToneSx`、`statusIcons`（`utils/style/tone-styles.ts`）                                                                                                                       |
+| 虚拟滚动                                                       | `useVirtualizer(read)`（`utils/virtual/use-virtualizer.ts`，Vue 接线）；核心 `Virtualizer`（`utils/virtual/virtualizer.ts`）                                                        |
+| 列表行的外观与状态色                                           | `itemStyles`（`utils/style/item-styles.ts`）                                                                                                                                        |
+| 按语言匹配、比较文字                                           | `createMatcher`、`createComparer`（`utils/data/collation.ts`）                                                                                                                      |
+| 浮层的 open 同步                                               | `useAnchoredPopover(read, { close, shown })`（`utils/dom/floating.ts`）                                                                                                             |
+| 焦点进出、移除后的焦点                                         | `utils/dom/focus.ts`                                                                                                                                                                |
+| 夹取值、对齐步长                                               | `clamp`、`snapToStep`（`utils/data/number.ts`）；判断从右到左用 `isRtl`（`utils/dom/direction.ts`）                                                                                 |
+| 浮层滚动条                                                     | 局部区域用 `ScrollArea`（视口本身管焦点时 `focusable={false}`，拿视口用 `propsViewport.ref`）；整页用 `PageScrollbar`；会滚动的弹出层用 `floatingStyles.scrollPanel` + `scrollArea` |
+| 颜色解析、对比度                                               | `parseColor`、`toHex`、`contrastRatio`、`readableText`、`withAlpha`（`utils/data/color.ts`，culori）                                                                                |
+| 主题定制                                                       | `paletteColors`（Radix 色阶）、`customizeTheme` / `themeSettingsCode`、`checkContrast`、`tokenCatalog`（`config/theme/`）                                                           |
+| 元素大小变化                                                   | `useResizeObserver(() => [a, b], onResize)`：目标换了自动重新观察，卸载时断开（`utils/dom/resize.ts`）                                                                              |
 
 ## 5. 硬性约定（用户的长期要求）
 
