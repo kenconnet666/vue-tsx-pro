@@ -11,7 +11,7 @@ import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
 import type { Lang } from '../config/lang/lang';
 import { IconButton, type IconButtonProps } from './IconButton';
-import type { IconData } from './Icon';
+import type { IconData } from './Icon/Icon';
 
 /** 未声明的属性落到 IconButton 上；图标固定，名称默认取语言包 */
 export type PresetIconButtonProps = Omit<IconButtonProps, 'icon' | 'aria-label'> & {

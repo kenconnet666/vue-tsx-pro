@@ -18,7 +18,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Icon, type IconData, type IconProps } from '../base/Icon';
+import { Icon, type IconData, type IconProps } from '../base/Icon/Icon';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
 import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';

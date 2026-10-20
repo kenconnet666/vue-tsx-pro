@@ -18,7 +18,7 @@ import {
   useButtonBehavior,
   type ButtonOptions,
 } from './button-core';
-import type { IconProps } from './Icon';
+import type { IconProps } from './Icon/Icon';
 import { VisuallyHidden, type VisuallyHiddenProps } from './VisuallyHidden';
 
 /** 不可用、忙碌由组件管理；value 是要复制的文字（不是原生 value） */

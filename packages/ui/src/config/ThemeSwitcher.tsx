@@ -10,7 +10,7 @@
 import { Monitor, Moon, Palette, ScrollText, Sun } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import type { IconData } from '../base/Icon';
+import type { IconData } from '../base/Icon/Icon';
 import { Menu, MenuRadioGroup, MenuRadioItem, type MenuProps } from '../overlay/Menu';
 import { toElement } from '../utils/dom/overlay';
 import { mergePartProps } from '../utils/props';

@@ -14,7 +14,7 @@ import { Code as CodeIcon } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
-import { Button, type ButtonProps } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button/Button';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { CopyButton, type CopyButtonProps } from '../base/CopyButton';
 import { useLang } from '../config/context';

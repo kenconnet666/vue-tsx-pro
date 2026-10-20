@@ -16,7 +16,7 @@ import { Asterisk } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
-import { Icon, type IconProps } from '../base/Icon';
+import { Icon, type IconProps } from '../base/Icon/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';

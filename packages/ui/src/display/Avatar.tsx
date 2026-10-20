@@ -9,7 +9,7 @@ import { User } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
-import { Icon } from '../base/Icon';
+import { Icon } from '../base/Icon/Icon';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';

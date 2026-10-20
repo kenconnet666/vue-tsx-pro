@@ -9,7 +9,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
-import { Icon, type IconProps } from './Icon';
+import { Icon, type IconProps } from './Icon/Icon';
 import { VisuallyHidden } from './VisuallyHidden';
 
 /** 未声明的属性落到外层的 span 上 */

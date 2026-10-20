@@ -6,7 +6,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../../utils/props';
 
 /** 未声明的属性落到 code 上 */
 export interface CodeProps extends PartProps<'code'> {

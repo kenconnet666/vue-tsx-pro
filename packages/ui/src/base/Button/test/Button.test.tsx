@@ -2,12 +2,12 @@
 import { Plus, Settings } from '@lucide/icons';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
-import { Provider } from '../../config/Provider';
-import { mount } from '../../utils/.test/mount';
+import { Provider } from '../../../config/Provider';
+import { mount } from '../../../utils/.test/mount';
 import { Button } from '../Button';
-import { ClearButton, CloseButton } from '../CloseButton';
-import { IconButton } from '../IconButton';
-import { LinkButton } from '../LinkButton';
+import { ClearButton, CloseButton } from '../../CloseButton';
+import { IconButton } from '../../IconButton';
+import { LinkButton } from '../../LinkButton';
 
 const first = <T extends Element>(root: Element, selector: string) =>
   root.querySelector<T>(selector)!;

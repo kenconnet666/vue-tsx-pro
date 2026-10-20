@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { mount } from '../../utils/.test/mount';
-import { Kbd } from '../Kbd';
+import { mount } from '../../../utils/.test/mount';
+import { Kbd } from '../../Kbd';
 import { Code } from '../Code';
 
 describe('Code 与 Kbd', () => {

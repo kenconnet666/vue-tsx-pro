@@ -10,7 +10,7 @@ import { ArrowLeft, ArrowRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { Icon } from '../base/Icon';
+import { Icon } from '../base/Icon/Icon';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, type PartProps } from '../utils/props';

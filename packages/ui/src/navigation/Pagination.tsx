@@ -8,8 +8,8 @@
 import { ChevronLeft, ChevronRight, Ellipsis } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Button, type ButtonProps } from '../base/Button';
-import { Icon } from '../base/Icon';
+import { Button, type ButtonProps } from '../base/Button/Button';
+import { Icon } from '../base/Icon/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';

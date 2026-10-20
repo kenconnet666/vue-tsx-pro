@@ -18,7 +18,7 @@ import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils
 import { plainText } from '../utils/data/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
-import { Icon, type IconData, type IconProps } from './Icon';
+import { Icon, type IconData, type IconProps } from './Icon/Icon';
 
 /** 未声明的属性落到 span 上 */
 export interface TagProps extends PartProps<'span'>, BadgeOptions {

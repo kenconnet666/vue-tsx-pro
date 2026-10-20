@@ -21,7 +21,7 @@ import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, withMemo, type VNode, type VNodeChild } from 'vue';
-import { Icon, type IconProps } from '../base/Icon';
+import { Icon, type IconProps } from '../base/Icon/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';

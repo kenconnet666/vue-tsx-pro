@@ -11,5 +11,6 @@
   },
   "include": ["src"],
   // 测试集中在各分类的 .test 目录
-  "exclude": ["src/**/.test"]
+  // 组件文件夹里的演示、测试、文档页不发布
+  "exclude": ["src/**/.test", "src/**/test", "src/**/demo", "src/**/docs.tsx"]
 }

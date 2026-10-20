@@ -15,7 +15,7 @@ import { rippleHostStyles } from '../utils/dom/ripple';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { interactionTransitions } from '../utils/style/transitions';
-import type { ButtonManaged } from './Button';
+import type { ButtonManaged } from './Button/Button';
 import { buttonBaseStyles, useButtonBehavior } from './button-core';
 
 /** 不可用、忙碌由组件按 disabled、loading 管理（同 Button） */

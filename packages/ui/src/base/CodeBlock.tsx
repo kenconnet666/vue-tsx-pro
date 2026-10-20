@@ -22,7 +22,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import { disclosureStyles } from '../utils/style/transitions';
 import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
 import { CopyButton, type CopyButtonProps } from './CopyButton';
-import { Icon } from './Icon';
+import { Icon } from './Icon/Icon';
 
 /** 行号的写法：`'1,3-5'` 或 `[1, 3, 4, 5]`（从 1 开始） */
 export type LineSpec = string | readonly number[];

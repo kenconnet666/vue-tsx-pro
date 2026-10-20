@@ -3,15 +3,14 @@
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
 export { Badge, type BadgeProps } from './base/Badge';
 export { Blockquote, blockquoteStyles, type BlockquoteProps } from './base/Blockquote';
-export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
 export { ButtonBase, type ButtonBaseManaged, type ButtonBaseProps } from './base/ButtonBase';
+export { Button, type ButtonManaged, type ButtonProps } from './base/Button/Button';
 export {
   ClearButton,
   CloseButton,
   createPresetIconButton,
   type PresetIconButtonProps,
 } from './base/CloseButton';
-export { Code, codeStyles, type CodeProps } from './base/Code';
 export {
   CodeBlock,
   codeBlockDynamicStyles,
@@ -20,6 +19,7 @@ export {
   type CodeBlockProps,
   type LineSpec,
 } from './base/CodeBlock';
+export { Code, codeStyles, type CodeProps } from './base/Code/Code';
 export {
   CopyButton,
   copyButtonStyles,
@@ -38,6 +38,7 @@ export {
   type HeadingProps,
   type HeadingTag,
 } from './base/Heading';
+export { IconButton, type IconButtonManaged, type IconButtonProps } from './base/IconButton';
 export {
   Icon,
   iconMarkup,
@@ -46,8 +47,7 @@ export {
   type IconManaged,
   type IconNode,
   type IconProps,
-} from './base/Icon';
-export { IconButton, type IconButtonManaged, type IconButtonProps } from './base/IconButton';
+} from './base/Icon/Icon';
 export {
   Indicator,
   indicatorStyles,

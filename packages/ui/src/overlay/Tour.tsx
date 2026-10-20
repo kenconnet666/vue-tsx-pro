@@ -23,7 +23,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { autoUpdate } from '@floating-ui/dom';
 import { nextTick, onBeforeUnmount, useId, type VNodeChild } from 'vue';
-import { Button } from '../base/Button';
+import { Button } from '../base/Button/Button';
 import { H2 } from '../base/Heading';
 import { Text } from '../base/Text';
 import { useLang } from '../config/context';

@@ -6,7 +6,7 @@
 import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import type { IconData } from '../../base/Icon';
+import type { IconData } from '../../base/Icon/Icon';
 import type { StyleTable } from './styles';
 
 /** 状态色调 */

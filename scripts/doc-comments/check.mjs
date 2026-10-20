@@ -21,8 +21,15 @@ const INCLUDE = [
   'packages/ui/src/**/*.tsx',
   'apps/host-demo/src/pilot/*.tsx',
 ];
-/** 生成的文件（注释由生成器负责）与测试 */
-const EXCLUDE = [/\/\.test\//, /\/test\//, /stylex\/styles\.ts$/, /token-names\.ts$/];
+/** 生成的文件（注释由生成器负责）、测试、演示（给读者看的示例代码）与文档页 */
+const EXCLUDE = [
+  /\/\.test\//,
+  /\/test\//,
+  /\/demo\//,
+  /\/docs\.tsx$/,
+  /stylex\/styles\.ts$/,
+  /token-names\.ts$/,
+];
 
 const files = execFileSync('git', ['ls-files', ...INCLUDE], { cwd: root, encoding: 'utf8' })
   .split('\n')

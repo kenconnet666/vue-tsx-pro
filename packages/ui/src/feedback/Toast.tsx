@@ -34,7 +34,7 @@ import {
   watch,
   type VNodeChild,
 } from 'vue';
-import type { IconData } from '../base/Icon';
+import type { IconData } from '../base/Icon/Icon';
 import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse } from '../display/Collapse';

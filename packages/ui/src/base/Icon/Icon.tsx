@@ -11,9 +11,9 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { createDrawable, utils } from 'animejs';
 import { onMounted, watch } from 'vue';
-import { useAnimate } from '../utils/motion/animation';
-import { mergeAttrs, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { useAnimate } from '../../utils/motion/animation';
+import { mergeAttrs, type PartProps } from '../../utils/props';
+import { fontSizeStyles, type TextSize } from '../../utils/style/typography';
 
 /** 图标数据：Lucide 的标准格式 */
 export type IconData = LucideIconData;

@@ -14,7 +14,7 @@ import {
   useButtonBehavior,
   type ButtonOptions,
 } from './button-core';
-import type { IconData, IconProps } from './Icon';
+import type { IconData, IconProps } from './Icon/Icon';
 
 /** 不可用、忙碌由组件管理；aria-label 必填，单独声明 */
 export type IconButtonManaged = 'disabled' | 'aria-disabled' | 'aria-busy' | 'aria-label';

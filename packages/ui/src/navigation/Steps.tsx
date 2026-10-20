@@ -10,7 +10,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Icon } from '../base/Icon';
+import { Icon } from '../base/Icon/Icon';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
