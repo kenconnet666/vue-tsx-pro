@@ -38,8 +38,11 @@ import {
 
 /** 画布的尺寸（CSS 像素）与实际使用的像素比 */
 export interface ThreeSize {
+  /** 宽度（CSS 像素） */
   width: number;
+  /** 高度（CSS 像素） */
   height: number;
+  /** 实际使用的像素比：设备像素比按画质档位封顶 */
   pixelRatio: number;
 }
 
@@ -51,6 +54,7 @@ export interface ThreeContext {
   readonly scene: Scene;
   /** 相机：默认是透视相机（视角 45°，位于 z = 5），宽高比自动跟随；可以换成别的相机 */
   camera: Camera;
+  /** 渲染器画到的 canvas 元素 */
   readonly canvas: HTMLCanvasElement;
   /** 当前尺寸，随布局变化 */
   readonly size: Readonly<ThreeSize>;

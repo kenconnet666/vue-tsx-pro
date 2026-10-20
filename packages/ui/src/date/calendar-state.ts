@@ -15,7 +15,7 @@ import {
   type CalendarDate,
   type DateDuration,
 } from '@internationalized/date';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import {
   clampDate,
   compareDates,
@@ -52,7 +52,7 @@ export interface CalendarStateOptions {
   mode: () => CalendarSelectionMode;
   /** 已选的日期：单选一个、区间是 [开始, 结束]、多选若干；没有时空数组 */
   selected: () => readonly CalendarDate[];
-  /** 选择变化：单选 [日期]，区间 [开始, 结束]（已排好序），多选是新的列表 */
+  /** 选了日期：单选 [日期]（再点已选的那天也会调用），区间 [开始, 结束]（已排好序），多选是新的列表 */
   onChange: (dates: readonly CalendarDate[]) => void;
   /** 今天（按语言的时区与日历）：没有已选日期时焦点从这里开始 */
   today: () => CalendarDate;
@@ -96,6 +96,8 @@ export interface CalendarCellState {
 
 /** 日历的状态与操作 */
 export interface CalendarState {
+  /** 选择方式 */
+  readonly mode: CalendarSelectionMode;
   /** 当前视图 */
   readonly view: DateUnit;
   /** 选择的粒度 */
@@ -222,7 +224,8 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
     const same = (item: CalendarDate) => isSameDate(item, date, unit());
     switch (config.mode()) {
       case 'single':
-        if (!current.some(same)) config.onChange([date]);
+        // 再点已选的那天也通知：日期选择器据此关闭弹层
+        config.onChange([date]);
         return;
       case 'multiple':
         config.onChange(
@@ -243,6 +246,9 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
   }
 
   const state: CalendarState = {
+    get mode() {
+      return config.mode();
+    },
     get view() {
       return view.value;
     },
@@ -346,6 +352,13 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
       };
     },
   };
+  // 父级从外面改了值（快捷按钮、重置）且不在这一页：翻到它那里
+  watch(
+    () => config.selected()[0],
+    (date) => {
+      if (date && (date.compare(page.value) < 0 || date.compare(pageEnd()) > 0)) state.focus(date);
+    },
+  );
   return state;
 }
 

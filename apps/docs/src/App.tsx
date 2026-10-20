@@ -85,7 +85,21 @@ export const App = _component(() => {
       });
     };
     collect();
-    const observer = new MutationObserver(collect);
+    // 只看增删的节点里有没有标题：示例里的动画、计数会频繁改动 DOM，不必每次都重新收集
+    const touchesHeadings = (nodes: NodeList) =>
+      [...nodes].some(
+        (node) =>
+          node instanceof Element && (node.matches('h2, h3') || !!node.querySelector('h2, h3')),
+      );
+    const observer = new MutationObserver((records) => {
+      if (
+        records.some(
+          (record) => touchesHeadings(record.addedNodes) || touchesHeadings(record.removedNodes),
+        )
+      ) {
+        collect();
+      }
+    });
     observer.observe(root, { childList: true, subtree: true });
     return () => {
       observer.disconnect();

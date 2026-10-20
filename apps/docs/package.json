@@ -22,6 +22,7 @@
     "@floating-ui/dom": "catalog:",
     "@lezer/highlight": "catalog:",
     "@lucide/icons": "catalog:",
+    "@shikijs/langs": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
     "@vue-tsx-pro/ui": "workspace:^",

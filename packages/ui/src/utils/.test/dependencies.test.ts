@@ -83,7 +83,7 @@ function runtimeImports(directory: string): Set<string> {
     const patterns = [
       /^(?:import|export)\s+(?!type\s)[^;]*?from\s*'([^']+)'/gm,
       /^import\s*'([^']+)'/gm,
-      /import\(\s*'([^']+)'\s*\)/g,
+      /\bimport\(\s*'([^']+)'\s*\)/g,
     ];
     for (const pattern of patterns) {
       for (const [, specifier] of code.matchAll(pattern)) found.add(specifier!);

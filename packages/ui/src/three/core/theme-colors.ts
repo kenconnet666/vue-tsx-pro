@@ -74,9 +74,11 @@ export function readThemeColor(scope: Element, value: string, target: Color): bo
 
 /** 一组跟随主题的颜色：refresh 读取并过渡，stop 取消还在跑的过渡 */
 export interface ThemeColorSet<Sources extends ThemeColorSources> {
+  /** 名字 → THREE.Color：材质直接引用这些对象，换主题时原地改值 */
   readonly colors: ThemeColors<Sources>;
   /** 在 scope 上重新读取；transition 为 false（第一次读）时直接换 */
   refresh(scope: Element, sources: Sources, transition: boolean): void;
+  /** 取消还在跑的过渡 */
   stop(): void;
 }
 

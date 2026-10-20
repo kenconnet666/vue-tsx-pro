@@ -567,6 +567,7 @@ export {
   type OptionRenderState,
 } from './input/Listbox';
 export {
+  normalizeNumber,
   NumberField,
   parseNumber,
   type NumberFieldManaged,
@@ -671,6 +672,42 @@ export {
 
 // 日期：日历、分段输入、日期与时间选择
 export {
+  Calendar,
+  type CalendarProps,
+  type MultipleCalendarProps,
+  type SingleCalendarProps,
+} from './date/Calendar';
+export {
+  calendarStyles,
+  CalendarView,
+  type CalendarItemProps,
+  type CalendarViewManaged,
+  type CalendarViewOptions,
+  type CalendarViewProps,
+} from './date/CalendarView';
+export { DateField, type DateFieldProps } from './date/DateField';
+export {
+  DateSegmentGroup,
+  dateSegmentStyles,
+  type DateSegmentGroupManaged,
+  type DateSegmentGroupProps,
+  type DateSegmentManaged,
+} from './date/DateSegmentGroup';
+export { RangeCalendar, type RangeCalendarProps } from './date/RangeCalendar';
+export {
+  SegmentedField,
+  segmentedFieldStyles,
+  type SegmentedFieldManaged,
+  type SegmentedFieldOptions,
+  type SegmentedFieldProps,
+} from './date/SegmentedField';
+export {
+  TimeField,
+  type TimeFieldGranularities,
+  type TimeFieldProps,
+  type TimeInput,
+} from './date/TimeField';
+export {
   handleCalendarKeydown,
   useCalendarState,
   type CalendarCellState,
@@ -680,8 +717,23 @@ export {
   type CalendarStateOptions,
 } from './date/calendar-state';
 export {
+  toDateLimits,
+  useDateLocale,
+  writeDateLike,
+  type DateInput,
+  type DateLimitProps,
+  type DateLocale,
+  type DateLocaleOverrides,
+  type DateValueTypes,
+} from './date/date-locale';
+export {
+  fieldsToIso,
   handleSegmentKeydown,
+  isoToFields,
+  segmentFields,
   useDateSegments,
+  type DateFieldGranularities,
+  type DateFieldGranularity,
   type DateFieldValues,
   type DateSegment,
   type DateSegmentsOptions,
@@ -1099,8 +1151,10 @@ export {
   clampDate,
   compareDates,
   dayOfWeekIndex,
+  daysBetween,
   isDateDisabled,
   isInRange,
+  isoDayOfWeek,
   isOutOfRange,
   isOutsideDecade,
   isSameDate,
@@ -1111,9 +1165,12 @@ export {
   parseIsoDateTime,
   parseIsoRange,
   parseIsoTime,
+  presetIsoRange,
   presetRange,
   rangeDays,
   rangeHasUnavailable,
+  shiftIsoDate,
+  todayIso,
   toDayOfWeek,
   toIsoDate,
   toIsoDateTime,
@@ -1135,12 +1192,18 @@ export {
 } from './utils/data/date';
 export { clamp, snapToStep } from './utils/data/number';
 export {
+  addNumeric,
   compareNumeric,
   isDecimal,
   isNumeric,
+  multiplyNumeric,
+  numericKind,
   numericText,
   sameNumeric,
+  snapNumeric,
   toNumber,
+  toNumericKind,
+  type NumericKind,
   type NumericValue,
 } from './utils/data/numeric';
 export {
