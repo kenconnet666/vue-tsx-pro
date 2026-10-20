@@ -1,4 +1,6 @@
 // 组件库依赖的工具库在本工具链（Vite + happy-dom）下能正常解析与使用；升级依赖时先看这里
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, it } from 'vitest';
 import { computePosition } from '@floating-ui/dom';
 import { parseDate } from '@internationalized/date';
@@ -8,6 +10,7 @@ import { animate, createDraggable, createLayout } from 'animejs';
 import { tabbable } from 'tabbable';
 import { z } from 'zod';
 import { safeParseAsync, toJSONSchema } from 'zod/v4/core';
+import { UI_DEPENDENCIES } from '../../../prebundle.config';
 
 it('decimal.js：十进制精确运算', () => {
   expect(new Decimal('0.1').plus('0.2').toString()).toBe('0.3');
@@ -68,4 +71,36 @@ it('vue-router、pinia：按需导入可以解析', async () => {
   expect(typeof router.push).toBe('function');
   expect(typeof createPinia().install).toBe('function');
   expect(defineStore).toBeTypeOf('function');
+});
+
+/** 源码（不含测试）运行时导入的第三方模块：去掉注释与 import type，不含 vue 与本仓库的包 */
+function runtimeImports(directory: string): Set<string> {
+  const found = new Set<string>();
+  for (const entry of readdirSync(directory, { withFileTypes: true, recursive: true })) {
+    const path = join(entry.parentPath, entry.name);
+    if (!entry.isFile() || !/\.tsx?$/.test(entry.name) || /[\\/]\.test[\\/]/.test(path)) continue;
+    const code = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
+    const patterns = [
+      /^(?:import|export)\s+(?!type\s)[^;]*?from\s*'([^']+)'/gm,
+      /^import\s*'([^']+)'/gm,
+      /import\(\s*'([^']+)'\s*\)/g,
+    ];
+    for (const pattern of patterns) {
+      for (const [, specifier] of code.matchAll(pattern)) found.add(specifier!);
+    }
+  }
+  return new Set(
+    [...found].filter(
+      (specifier) =>
+        !specifier.startsWith('.') &&
+        !specifier.startsWith('node:') &&
+        !specifier.startsWith('@vue-tsx-pro/') &&
+        specifier !== 'vue',
+    ),
+  );
+}
+
+it('prebundle.config.ts 列全了源码运行时导入的第三方依赖（漏了浏览器测试会中途刷新）', () => {
+  const imports = runtimeImports(join(import.meta.dirname, '../..'));
+  expect([...imports].sort()).toEqual([...UI_DEPENDENCIES].sort());
 });
