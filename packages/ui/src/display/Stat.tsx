@@ -17,6 +17,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
 import { toneStyles } from '../utils/style/typography';
+import type { NumericValue } from '../utils/data/numeric';
 import { AnimatedNumber } from './AnimatedNumber';
 
 /** 忙碌由组件按 loading 管理 */
@@ -26,8 +27,8 @@ export type StatManaged = 'aria-busy';
 export interface StatProps extends PartProps<'dl', StatManaged> {
   /** 指标名 */
   label: VNodeChild;
-  /** 数值：数字按当前语言格式化并在变化时滚动；字符串原样显示（如“—”、“98.5%”） */
-  value: number | string;
+  /** 数值：number、bigint、Decimal 按当前语言格式化并在变化时滚动；字符串原样显示（如“—”、“98.5%”） */
+  value: NumericValue | string;
   /** 数值的格式（Intl.NumberFormatOptions），如两位小数 `{ minimumFractionDigits: 2 }`、百分比 `{ style: 'percent' }` */
   format?: Intl.NumberFormatOptions;
   /** 单位，跟在数值后面、字号小一档 */
@@ -154,7 +155,7 @@ export const Stat = _component(
           <dd {...mergeAttrs<'dd'>({ sx: [statStyles.value, reveal] }, propsValue)}>
             {skeleton.value ? (
               <Skeleton sx={statStyles.numberSkeleton} />
-            ) : typeof value === 'number' ? (
+            ) : typeof value !== 'string' ? (
               <AnimatedNumber value={value} format={format} sx={statStyles.number} />
             ) : (
               <span {...stylex.attrs(statStyles.number)}>{value}</span>

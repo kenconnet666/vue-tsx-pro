@@ -2,6 +2,7 @@
 import { expect, it } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
 import { mount } from '../../utils/.test/mount';
+import Decimal from 'decimal.js';
 import { AnimatedNumber } from '../AnimatedNumber';
 
 it('金额默认取语言包的币种；滚动中的数字对读屏隐藏，另有终值文字', () => {
@@ -34,4 +35,17 @@ it('trend：data-trend 按正负写 up / down / flat', () => {
   expect(
     [...root.querySelectorAll('[data-trend]')].map((el) => el.getAttribute('data-trend')),
   ).toEqual(['up', 'down', 'flat']);
+});
+
+it('bigint、Decimal：停下时与读屏的终值按原值格式化，不丢精度；trend 按大小比较', () => {
+  const root = mount(() => (
+    <>
+      <AnimatedNumber value={9_007_199_254_740_993n} />
+      <AnimatedNumber value={new Decimal('-0.000000000000000001')} trend />
+    </>
+  ));
+  const [big, tiny] = root.querySelectorAll<HTMLElement>(':scope > span');
+  expect(big!.querySelector('[aria-hidden="true"]')!.textContent).toBe('9,007,199,254,740,993');
+  expect(big!.textContent).toContain('9,007,199,254,740,993');
+  expect(tiny!.dataset.trend).toBe('down');
 });

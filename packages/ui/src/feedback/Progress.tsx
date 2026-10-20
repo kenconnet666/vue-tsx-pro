@@ -9,6 +9,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/number';
+import { compareNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -28,10 +29,10 @@ export type ProgressManaged =
 
 /** 未声明的属性落到轨道（role="progressbar" 的主元素）上 */
 export interface ProgressProps extends PartProps<'div', ProgressManaged> {
-  /** 当前值；不写（或 null）时为不确定进度 */
-  value?: number | null;
+  /** 当前值：number、bigint 或 Decimal；不写（或 null）时为不确定进度 */
+  value?: NumericValue | null;
   /** 最大值，默认 100 */
-  max?: number;
+  max?: NumericValue;
   /** 色调（与 Badge、Alert 等同一套），默认 accent */
   tone?: StatusTone;
   /** 字号档位：进度条的粗细随之缩放；不写时继承上下文字号 */
@@ -39,7 +40,7 @@ export interface ProgressProps extends PartProps<'div', ProgressManaged> {
   /** 圆角，默认 full */
   radius?: keyof ProgressRadii;
   /** 读屏念的取值文字，如 `(value, max) => \`已上传 ${value} / ${max} 个文件\``；默认是百分比 */
-  valueText?: (value: number, max: number) => string;
+  valueText?: (value: NumericValue, max: NumericValue) => string;
   /** 进度（着色部分）的部件属性 */
   propsIndicator?: PartProps<'div'>;
 }
@@ -111,8 +112,16 @@ export const Progress = _component(
   }: ProgressProps) =>
     () => {
       const determinate = value != null;
-      const clamped = determinate ? clamp(value, 0, max) : 0;
-      const percent = max > 0 ? (clamped / max) * 100 : 0;
+      // 夹在 0–max 之间、按原值比较；比例与读屏的 aria-valuenow 用浮点数就够
+      const clamped: NumericValue = !determinate
+        ? 0
+        : compareNumeric(value, 0) < 0
+          ? 0
+          : compareNumeric(value, max) > 0
+            ? max
+            : value;
+      const total = toNumber(max);
+      const percent = total > 0 ? clamp((toNumber(clamped) / total) * 100, 0, 100) : 0;
       return (
         <div
           {...mergeAttrs<'div'>(
@@ -123,14 +132,20 @@ export const Progress = _component(
             {
               role: 'progressbar',
               'aria-valuemin': 0,
-              'aria-valuemax': max,
-              'aria-valuenow': determinate ? clamped : undefined,
+              'aria-valuemax': total,
+              'aria-valuenow': determinate ? toNumber(clamped) : undefined,
               'aria-valuetext': determinate
                 ? (valueText?.(clamped, max) ?? `${Math.round(percent)}%`)
                 : undefined,
             },
           )}
-          data-state={!determinate ? 'indeterminate' : clamped >= max ? 'complete' : 'loading'}
+          data-state={
+            !determinate
+              ? 'indeterminate'
+              : compareNumeric(clamped, max) >= 0
+                ? 'complete'
+                : 'loading'
+          }
         >
           <div
             {...mergeAttrs<'div'>(

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Alert } from '../Alert';
+import Decimal from 'decimal.js';
 import { Progress } from '../Progress';
 import { Skeleton } from '../Skeleton';
 import { SkeletonText } from '../SkeletonText';
@@ -31,10 +32,37 @@ describe('Progress', () => {
     expect(el.dataset.state).toBe('indeterminate');
     const custom = first(
       mount(() => (
-        <Progress value={2} max={5} valueText={(v, m) => `${v} / ${m} 个文件`} aria-label="x" />
+        <Progress
+          value={2}
+          max={5}
+          valueText={(v, m) => `${v.toString()} / ${m.toString()} 个文件`}
+          aria-label="x"
+        />
       )),
     );
     expect(custom.getAttribute('aria-valuetext')).toBe('2 / 5 个文件');
+  });
+
+  it('bigint、Decimal：按原值比较与夹住，valueText 拿到原值', () => {
+    const big = first(
+      mount(() => (
+        <Progress
+          value={9_007_199_254_740_993n}
+          max={9_007_199_254_740_993n}
+          valueText={(v) => `${v.toString()} 字节`}
+          aria-label="x"
+        />
+      )),
+    );
+    expect(big.dataset.state).toBe('complete');
+    expect(big.getAttribute('aria-valuetext')).toBe('9007199254740993 字节');
+    const money = first(
+      mount(() => (
+        <Progress value={new Decimal('150.5')} max={new Decimal('100')} aria-label="y" />
+      )),
+    );
+    expect(money.getAttribute('aria-valuenow')).toBe('100');
+    expect(money.getAttribute('aria-valuetext')).toBe('100%');
   });
 });
 
