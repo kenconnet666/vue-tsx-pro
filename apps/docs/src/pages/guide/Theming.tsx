@@ -77,12 +77,15 @@ export default _component(() => () => (
     </Example>
     <Example id="follow-system" title="跟随系统" demo={FollowSystem}>
       <Code>theme</Code> 写成 <Code>{'{ light, dark }'}</Code> 两套，按系统的明暗选一套；
-      <Code>createUi</Code> 与 <Code>Provider</Code> 都接受这种写法。
+      <Code>createUi</Code> 与 <Code>Provider</Code>{' '}
+      都接受这种写法。左边一张跟随系统，右边两张是系统亮、暗时它的样子。
     </Example>
     <Example id="switch" title="运行时切换" demo={RuntimeSwitch}>
       <Code>createThemePreference</Code> 记住用户的选择（某一套主题或跟随系统），
-      <Code>ThemeSwitcher</Code> 列出选项，切换时从按钮处圆形展开。页面首次加载不闪默认主题：把{' '}
-      <Code>themeBootScript</Code> 生成的脚本内联到 HTML 的 head 里。
+      <Code>ThemeSwitcher</Code> 是顶栏里一个按钮的紧凑写法，设置页可以用{' '}
+      <Code>ThemeThumbnail</Code> 与 <Code>builtinThemeLabel</Code>{' '}
+      列出每套主题的缩略图与名字。页面首次加载不闪默认主题：把 <Code>themeBootScript</Code>{' '}
+      生成的脚本内联到 HTML 的 head 里。
     </Example>
     <Example id="brand" title="自定义品牌色与圆角" demo={CustomBrand}>
       <Code>defineTheme</Code> 在已有主题上改 token，<Code>paletteColors</Code> 按 Radix
