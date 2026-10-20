@@ -31,8 +31,9 @@ export interface ListPopoverProps<T> {
   onToggle: (event: ToggleEvent) => void;
   /** 字号档位：同输入框外壳 */
   size?: TextSize;
-  /** 列表的名称来源：外部标签的 id（优先）或 aria-label */
+  /** 列表的名称：外部标签的 id（有它时优先） */
   labelledBy?: string;
+  /** 列表的名称：没有外部标签时用这段文字（aria-label） */
   label?: string;
   /** 加载中：列表显示骨架或顶部进度条 */
   loading?: boolean;
