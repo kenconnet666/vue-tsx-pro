@@ -63,7 +63,7 @@ export interface Theme {
   readonly name: string;
   /** 浏览器配色方案，影响原生表单控件与滚动条 */
   readonly colorScheme: keyof ColorSchemes;
-  /** 编译期生成的主题样式，每组一个（createTheme 的结果）；亮色主题即默认值，为空 */
+  /** 编译期生成的主题样式，每组一个（createTheme 的结果）；内置主题都写全颜色、阴影、字体、圆角，嵌套时不继承外层主题 */
   readonly styles: readonly GroupTheme[];
   /** 运行时覆盖的取值 */
   readonly overrides: ThemeOverrides;

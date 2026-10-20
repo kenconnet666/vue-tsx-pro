@@ -47,11 +47,13 @@ export function themeBootScript<Name extends string>(options: {
 }
 
 /**
- * 内置三套主题（lightTheme、darkTheme、paperTheme）的底色、文字色与配色方案，给 themeBootScript 用。
+ * 内置主题（lightTheme、darkTheme、paperTheme、midnightTheme、highContrastTheme）的底色、文字色与配色方案，给 themeBootScript 用。
  * 与主题文件里的 background、text 一致（pnpm themes:check 核对）
  */
 export const builtinThemeBootColors = {
   light: { background: '#fcfcfd', text: '#1c2024', colorScheme: 'light' },
   dark: { background: '#111113', text: '#edeef0', colorScheme: 'dark' },
   paper: { background: '#f5efdf', text: '#3b2f20', colorScheme: 'light' },
-} as const satisfies Record<'light' | 'dark' | 'paper', ThemeBootColors>;
+  midnight: { background: '#0d1321', text: '#eef2fa', colorScheme: 'dark' },
+  'high-contrast': { background: '#ffffff', text: '#000000', colorScheme: 'light' },
+} as const satisfies Record<string, ThemeBootColors>;

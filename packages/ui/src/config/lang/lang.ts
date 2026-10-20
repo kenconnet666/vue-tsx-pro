@@ -214,6 +214,10 @@ export interface Lang {
   readonly themeDark: string;
   /** 主题：纸张，默认“纸张” */
   readonly themePaper: string;
+  /** 主题：午夜，默认“午夜” */
+  readonly themeMidnight: string;
+  /** 主题：高对比，默认“高对比” */
+  readonly themeHighContrast: string;
   /** ThemeCustomizer：品牌色一组的标题，默认“品牌色” */
   readonly customizeAccent: string;
   /** ThemeCustomizer：中性色一组的标题，默认“中性色” */

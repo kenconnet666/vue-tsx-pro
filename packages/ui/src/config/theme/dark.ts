@@ -1,4 +1,5 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { defaultFonts, defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors, shadows } from './tokens.stylex';
 
@@ -87,6 +88,6 @@ export const darkShadows = stylex.createTheme(shadows, {
 export const darkTheme: Theme = {
   name: 'dark',
   colorScheme: 'dark',
-  styles: [darkColors, darkShadows],
+  styles: [darkColors, darkShadows, defaultFonts, defaultRadii],
   overrides: {},
 };

@@ -92,6 +92,8 @@ export const zhCN: Lang = {
   themeLight: '亮色',
   themeDark: '暗色',
   themePaper: '纸张',
+  themeMidnight: '午夜',
+  themeHighContrast: '高对比',
   customizeAccent: '品牌色',
   customizeNeutral: '中性色',
   customizeDefault: '主题默认',

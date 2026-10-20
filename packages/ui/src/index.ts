@@ -803,7 +803,20 @@ export {
   type ThemeSettings,
 } from './config/theme/customize';
 export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
-export { lightTheme } from './config/theme/light';
+export {
+  highContrastColors,
+  highContrastRadii,
+  highContrastShadows,
+  highContrastTheme,
+} from './config/theme/high-contrast';
+export {
+  defaultFonts,
+  defaultRadii,
+  lightColors,
+  lightShadows,
+  lightTheme,
+} from './config/theme/light';
+export { midnightColors, midnightTheme } from './config/theme/midnight';
 export {
   ACCENT_SCALES,
   ACCENT_STEPS,

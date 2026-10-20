@@ -1,4 +1,5 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors, fonts, shadows } from './tokens.stylex';
 
@@ -97,6 +98,6 @@ export const paperFonts = stylex.createTheme(fonts, {
 export const paperTheme: Theme = {
   name: 'paper',
   colorScheme: 'light',
-  styles: [paperColors, paperShadows, paperFonts],
+  styles: [paperColors, paperShadows, paperFonts, defaultRadii],
   overrides: {},
 };

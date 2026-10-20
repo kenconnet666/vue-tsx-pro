@@ -1,6 +1,6 @@
 /**
- * 主题颜色的对比度检查（WCAG 2.2 AA）：亮色（tokens.stylex.ts 的默认值）、暗色（dark.ts）、纸张（paper.ts）
- * 三套主题逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
+ * 主题颜色的对比度检查（WCAG 2.2 AA）：亮色（tokens.stylex.ts 的默认值）、暗色（dark.ts）、纸张（paper.ts）、
+ * 午夜（midnight.ts）、高对比（high-contrast.ts）逐套逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
  *
  * 用法：node scripts/themes/check.mjs（CI 的静态检查里跑；改颜色前后都跑一遍）
  *
@@ -28,10 +28,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const themeDir = join(root, 'packages/ui/src/config/theme');
 
 /**
- * 从源码里取出颜色：tokens.stylex.ts 的 `colors = stylex.defineVars({...})`，
+ * 从源码里取出一组 token 的取值（默认是颜色）：tokens.stylex.ts 的 `colors = stylex.defineVars({...})`，
  * 或主题文件里 `stylex.createTheme(colors, {...})` 的第二个参数
  */
-function readColors(file) {
+function readColors(file, group = 'colors') {
   const text = readFileSync(join(themeDir, file), 'utf8');
   const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
   let object;
@@ -39,17 +39,18 @@ function readColors(file) {
     if (object || !ts.isCallExpression(node)) return ts.forEachChild(node, visit);
     const callee = node.expression.getText(source);
     const [first, second] = node.arguments;
-    if (callee.endsWith('createTheme') && first?.getText(source) === 'colors') object = second;
+    if (callee.endsWith('createTheme') && first?.getText(source) === group) object = second;
     else if (
       callee.endsWith('defineVars') &&
       ts.isVariableDeclaration(node.parent) &&
-      node.parent.name.getText(source) === 'colors'
+      node.parent.name.getText(source) === group
     ) {
       object = first;
     } else ts.forEachChild(node, visit);
   };
   visit(source);
-  if (!object || !ts.isObjectLiteralExpression(object)) throw new Error(`${file} 里找不到颜色定义`);
+  if (!object || !ts.isObjectLiteralExpression(object))
+    throw new Error(`${file} 里找不到 ${group} 的定义`);
   const values = {};
   for (const property of object.properties) {
     if (ts.isPropertyAssignment(property) && ts.isStringLiteral(property.initializer)) {
@@ -64,6 +65,8 @@ const themes = {
   亮色: light,
   暗色: { ...light, ...readColors('dark.ts') },
   纸张: { ...light, ...readColors('paper.ts') },
+  午夜: { ...light, ...readColors('midnight.ts') },
+  高对比: { ...light, ...readColors('high-contrast.ts') },
 };
 
 // 要检查的组合与对比度计算都来自组件库：主题编辑器的实时提示用同一套
@@ -80,9 +83,27 @@ for (const [name, theme] of Object.entries(themes)) {
   }
 }
 
+// light.ts 把默认值再写了一遍（嵌套的 Provider 才能盖过外层主题），要与 tokens.stylex.ts 一致
+for (const group of ['colors', 'shadows', 'fonts', 'radii']) {
+  const defaults = readColors('tokens.stylex.ts', group);
+  const written = readColors('light.ts', group);
+  for (const token of new Set([...Object.keys(defaults), ...Object.keys(written)])) {
+    if (defaults[token] !== written[token])
+      failures.push(
+        `light.ts 的 ${group}.${token}（${written[token]}）与 tokens.stylex.ts 的默认值（${defaults[token]}）不一致`,
+      );
+  }
+}
+
 // 防闪烁脚本用的底色、文字色要与主题文件一致（boot.ts 不能依赖 StyleX，只好抄一份）
 const { builtinThemeBootColors } = await import('../../packages/ui/src/config/theme/boot.ts');
-const bootNames = { light: '亮色', dark: '暗色', paper: '纸张' };
+const bootNames = {
+  light: '亮色',
+  dark: '暗色',
+  paper: '纸张',
+  midnight: '午夜',
+  'high-contrast': '高对比',
+};
 for (const [key, colors] of Object.entries(builtinThemeBootColors)) {
   const theme = themes[bootNames[key]];
   for (const token of ['background', 'text']) {

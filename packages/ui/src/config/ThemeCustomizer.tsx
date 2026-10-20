@@ -73,6 +73,8 @@ const BASE_NAMES: Record<string, string> = {
   light: 'lightTheme',
   dark: 'darkTheme',
   paper: 'paperTheme',
+  midnight: 'midnightTheme',
+  'high-contrast': 'highContrastTheme',
 };
 
 const SCALINGS = ['0.9', '0.95', '1', '1.05', '1.1'];

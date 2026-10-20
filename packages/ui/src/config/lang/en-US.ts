@@ -94,6 +94,8 @@ export const enUS: Lang = {
   themeLight: 'Light',
   themeDark: 'Dark',
   themePaper: 'Paper',
+  themeMidnight: 'Midnight',
+  themeHighContrast: 'High contrast',
   customizeAccent: 'Accent',
   customizeNeutral: 'Neutral',
   customizeDefault: 'Theme default',

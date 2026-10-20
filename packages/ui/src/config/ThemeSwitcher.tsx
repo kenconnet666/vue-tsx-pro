@@ -5,9 +5,9 @@
  *   <ThemeSwitcher preference={preference} />
  *
  * 选中后新主题从按钮处圆形展开（revealTransition；不支持 View Transitions 或减少动态效果时直接切换）。
- * 按钮的图标表示当前的选择；内置的 light、dark、paper 与跟随系统有默认的文字和图标，其他主题用 labels、icons 补上。
+ * 按钮的图标表示当前的选择；内置的 light、dark、paper、midnight、high-contrast 与跟随系统有默认的文字和图标，其他主题用 labels、icons 补上。
  */
-import { Monitor, Moon, Palette, ScrollText, Sun } from '@lucide/icons';
+import { Contrast, Monitor, Moon, MoonStar, Palette, ScrollText, Sun } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import type { IconData } from '../base/Icon';
@@ -40,6 +40,8 @@ const DEFAULT_ICONS: Record<string, IconData> = {
   light: Sun,
   dark: Moon,
   paper: ScrollText,
+  midnight: MoonStar,
+  'high-contrast': Contrast,
 };
 
 /** 主题切换（图标按钮 + 单选菜单）：选中后从按钮处圆形展开新主题 */
@@ -62,6 +64,8 @@ export const ThemeSwitcher = _component(
         light: lang.themeLight,
         dark: lang.themeDark,
         paper: lang.themePaper,
+        midnight: lang.themeMidnight,
+        'high-contrast': lang.themeHighContrast,
       }[name] ??
       name;
     const iconOf = (name: string) =>

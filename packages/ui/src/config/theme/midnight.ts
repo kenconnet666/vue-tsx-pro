@@ -1,0 +1,86 @@
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { darkShadows } from './dark';
+import { defaultFonts, defaultRadii } from './light';
+import type { Theme } from './theme';
+import { colors } from './tokens.stylex';
+
+// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
+
+/**
+ * 午夜主题的颜色：深海军蓝的页面、青色的品牌色。
+ * 中性色按 Radix slate 暗色各级的亮度、换成蓝色相（oklch 265°）重新取色，层级用途与 slate 相同；
+ * 品牌色取 Radix cyan 暗色色阶：实色用 8 级（9 级太亮，白字不到 4.5:1，按钮悬停又会混黑加深），
+ * 文字、浅底、边框按常规取 11、3–4、6 级；提示色、代码高亮沿用暗色主题
+ */
+export const midnightColors = stylex.createTheme(colors, {
+  background: '#0d1321',
+  surface: '#131b2c',
+  surfaceMuted: '#131b2c',
+  surfaceRaised: '#1b2539',
+  fill: '#1b2539',
+  fillHover: '#212c43',
+  fillActive: '#28334d',
+  text: '#eef2fa',
+  textMuted: '#aeb8cb',
+  textPlaceholder: '#737f97',
+  textDisabled: '#566381',
+  borderMuted: '#303c57',
+  border: '#3d4a67',
+  borderStrong: '#566381',
+  accent: '#11809c',
+  accentHover: '#12677e',
+  accentContrast: '#ffffff',
+  accentText: '#4ccce6',
+  accentSoft: '#082c36',
+  accentSoftHover: '#003848',
+  accentBorder: '#045468',
+  danger: '#b54548',
+  dangerHover: '#a33b3e',
+  dangerContrast: '#ffffff',
+  dangerText: '#ff9592',
+  dangerSoft: '#3b1219',
+  dangerSoftHover: '#500f1c',
+  dangerBorder: '#8c333a',
+  successText: '#3dd68c',
+  successSoft: '#132d21',
+  successBorder: '#28684a',
+  warningText: '#ffca16',
+  warningSoft: '#302008',
+  warningBorder: '#714f19',
+  infoText: '#70b8ff',
+  infoSoft: '#0d2847',
+  infoBorder: '#205d9e',
+  inverseSurface: '#eef2fa',
+  inverseText: '#0d1321',
+  focusRing: '#11809c',
+  overlay: 'rgba(3, 6, 15, 0.65)',
+  selection: '#004558',
+  highlight: '#3f2700',
+  surfaceTranslucent: 'rgba(13, 19, 33, 0.8)',
+  codeKeyword: '#4ccce6',
+  codeString: '#3dd68c',
+  codeNumber: '#ffa057',
+  codeFunction: '#baa7ff',
+  codeType: '#9eb1ff',
+  codeComment: '#aeb8cb',
+  codeTag: '#ff92ad',
+  codeAttribute: '#dbb594',
+  codeInserted: '#132d21',
+  codeDeleted: '#3b1219',
+  chart1: '#11809c',
+  chart2: '#6e56cf',
+  chart3: '#f76b15',
+  chart4: '#e93d82',
+  chart5: '#3e63dd',
+  chart6: '#12a594',
+  chart7: '#46a758',
+  chart8: '#ffc53d',
+});
+
+/** 午夜主题：深海军蓝底、青色品牌色；阴影同暗色主题，浏览器配色按暗色 */
+export const midnightTheme: Theme = {
+  name: 'midnight',
+  colorScheme: 'dark',
+  styles: [midnightColors, darkShadows, defaultFonts, defaultRadii],
+  overrides: {},
+};
