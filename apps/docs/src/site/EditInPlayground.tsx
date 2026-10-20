@@ -16,10 +16,14 @@ export const EditInPlayground = _component(({ code }: { code: string }) => {
   watch(
     () => code,
     (source) =>
-      void playgroundHref(source).then((result) => {
-        // 期间代码又变了：留给最新的那次
-        if (source === code) href = result;
-      }),
+      void playgroundHref(source).then(
+        (result) => {
+          // 期间代码又变了：留给最新的那次
+          if (source === code) href = result;
+        },
+        // 压缩失败（页面卸载、测试环境关闭时流被中止）：链接留在空白的演练场
+        () => undefined,
+      ),
     { immediate: true },
   );
   return () => (

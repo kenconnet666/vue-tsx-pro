@@ -87,6 +87,8 @@ const cases = [lightTheme, darkTheme].flatMap((theme) =>
 
 it.each(cases)(
   '无障碍：%s 主题下 %s 分类的示例没有 axe 违规',
+  // 日期一类有十几个日历：CI 上 Windows 的 WebKit 超过了默认的 15 秒
+  { timeout: 60_000 },
   async (_name, _category, theme, items) => {
     expect(
       await violationsOf(
