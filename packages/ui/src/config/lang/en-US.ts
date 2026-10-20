@@ -58,7 +58,7 @@ export const enUS: Lang = {
   tourProgress: (current, total) => `${current} of ${total}`,
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
-  paginationTotal: (total) => `${total} items`,
+  paginationTotal: (total) => `${total.toLocaleString('en-US')} items`,
   pagination: 'Pagination',
   pageSizeOption: (size) => `${size} / page`,
   pageSizeLabel: 'Items per page',

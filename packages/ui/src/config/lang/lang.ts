@@ -146,7 +146,7 @@ export interface Lang {
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */
   readonly selectPlaceholder: string;
-  /** 分页的总条数，默认“共 n 条” */
+  /** 分页的总条数，默认“共 1,286 条”（按语言加千分位） */
   readonly paginationTotal: (total: number) => string;
   /** 分页导航的无障碍名称，默认“分页” */
   readonly pagination: string;

@@ -74,6 +74,11 @@ describe('Pagination', () => {
     expect(nav.textContent).toContain('共 95 条');
   });
 
+  it('总条数按语言加千分位', () => {
+    const root = mount(() => <Pagination total={1286} pageSize={20} showTotal />);
+    expect(root.textContent).toContain('共 1,286 条');
+  });
+
   it('点页码、下一页写回 page；页码多时出现省略号', async () => {
     let page = _state(1);
     const root = mount(() => <Pagination page={_bind(page)} pageCount={20} />);
