@@ -36,6 +36,11 @@ export interface IconButtonProps extends PartProps<'button', IconButtonManaged>,
    * @default 'ghost'
    */
   variant?: ButtonOptions['variant'];
+  /**
+   * 色调：只有图标时默认中性色（工具栏、卡片上的次要操作）
+   * @default 'neutral'
+   */
+  tone?: ButtonOptions['tone'];
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
 }
@@ -59,7 +64,12 @@ export const IconButton = _component(
     onClick,
     ...rest
   }: IconButtonProps) => {
-    const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'ghost');
+    const appearance = useButtonAppearance(
+      () => ({ variant, tone, size, radius }),
+      'ghost',
+      // 只有图标的按钮多是工具栏、卡片角上的次要操作：默认中性色，一排图标不会满屏品牌色
+      'neutral',
+    );
     // 很快完成的加载不换成加载指示；点击拦截、aria-busy 仍按 loading 立即生效
     const spinner = useDelayedLoading(() => loading);
     const behavior = useButtonBehavior(

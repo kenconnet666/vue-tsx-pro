@@ -367,6 +367,7 @@ export type ButtonAppearance = Required<Pick<ButtonOptions, 'variant' | 'tone' |
 export function useButtonAppearance(
   read: () => Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>,
   fallbackVariant: keyof ButtonVariants,
+  fallbackTone: StatusTone = 'accent',
 ): () => ButtonAppearance {
   const group = ButtonGroupContext.inject(null);
   return useDefaults(
@@ -382,7 +383,7 @@ export function useButtonAppearance(
         attached: group?.orientation,
       };
     },
-    { variant: fallbackVariant, tone: 'accent', radius: 'md' },
+    { variant: fallbackVariant, tone: fallbackTone, radius: 'md' },
   );
 }
 

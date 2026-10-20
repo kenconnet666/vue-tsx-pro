@@ -38,6 +38,11 @@ export interface IconLinkButtonProps
    * @default 'ghost'
    */
   variant?: ButtonOptions['variant'];
+  /**
+   * 色调：只有图标时默认中性色（工具栏、卡片上的次要操作）
+   * @default 'neutral'
+   */
+  tone?: ButtonOptions['tone'];
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
 }
@@ -61,7 +66,12 @@ export const IconLinkButton = _component(
   }: IconLinkButtonProps) => {
     const lang = useLang();
     const router = useRouterLink();
-    const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'ghost');
+    const appearance = useButtonAppearance(
+      () => ({ variant, tone, size, radius }),
+      'ghost',
+      // 只有图标的按钮多是工具栏、卡片角上的次要操作：默认中性色，一排图标不会满屏品牌色
+      'neutral',
+    );
     const behavior = useButtonBehavior(
       () => ({ disabled, loading: false, focusableWhenDisabled: true, ripple }),
       () => (event) => {

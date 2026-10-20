@@ -14,28 +14,28 @@
 - [x] 起点主题改成缩略图卡片（ThemeThumbnail），选中时品牌色描边
 - [x] 主题名走语言包（builtinThemeLabel），ThemeSwitcher 与起点共用
 - [x] 色板改成按色相排列的紧凑色块网格，名字走语言包（customizeColorNames），悬停与读屏给名字和色值，标题旁显示选中的名字与色值
-- [ ] “跟随系统”示例：并排展示亮色时与暗色时的同一张卡片
-- [ ] “运行时切换”示例：完整的主题切换面板（缩略图卡片 + 跟随系统），显示主题名而不是内部 key
+- [x] “跟随系统”示例：并排展示亮色时与暗色时的同一张卡片
+- [x] “运行时切换”示例：完整的主题切换面板（缩略图卡片 + 跟随系统），显示主题名而不是内部 key
 
 ## 2. 已有组件补齐文档、示例、注释与测试
 
 每个页面：示例饱满（多组合、占满宽度、贴近真实场景）、API 表（virtual:api）、注释齐全、有单元测试；在宽屏 Chrome 里逐页看效果，必要时美化组件、优化 API，或调整主题与基础设施。已有页面同样复查效果并优化。
 
-按分类，一个页面讲一个组件及它的子部件（括号里是并入同一页的子组件）：
+相关的组件放在同一页讲（括号里是并入同一页的组件），做完的打勾：
 
-- **基础**：Text（Paragraph、Strong、Em、Small、Mark、Kbd、Blockquote、H1–H6）、Link、Badge、Tag、Spinner、IconButton（IconLinkButton、CloseButton、ClearButton、CopyButton）、LinkButton、ButtonBase、Indicator、List（OrderedList、ListItem）、CodeBlock、VisuallyHidden
-- **布局**：Flex（FlexList、FlexOrderedList）、Grid（GridList）、Container、Separator、ScrollArea（OverlayScrollbar、PageScrollbar）、Prose、AppShell
-- **展示**：Card、Accordion（AccordionItem）、Collapsible（Collapse）、Avatar（AvatarGroup）、AnimatedNumber、Descriptions、Timeline、Tree、VirtualList、Marquee、Sortable、ColorSwatch、CodeGroup、CodePreview、PropsTable
-- **反馈**：Alert、Progress、Empty、Result、LoadingOverlay、Toast（Toaster、ToastItem）、SkeletonText（并入 Skeleton 页）
-- **浮层**：Dialog（AlertDialog、ModalCore）、Drawer、Popover、HoverCard、Tooltip、Menu（MenuItem、MenuLinkItem、MenuCheckboxItem、MenuGroup、MenuRadioGroup、MenuRadioItem、MenuSub）、ContextMenu、CommandPalette、Tour
-- **导航**：Tabs（TabList、Tab、TabPanel）、Pagination（PageJump、PageSizeSelect）、Pager、Breadcrumbs、Steps、NavList（NavItem、NavGroup、NavSection）、TableOfContents、Toolbar、SkipLink
-- **输入**：TextField（CharacterCount）、Textarea、Checkbox（CheckboxGroup）、RadioGroup（Radio）、Switch、Select、Combobox、TagsInput、Slider、ToggleGroup（ToggleItem）、ColorField、Upload（FileDrop）、Listbox（ListboxView、ListPopover）、SlideVerify
+- **基础**：[x] Text（Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6，List 待并入）· [x] Button（ButtonGroup、LinkButton）· [x] IconButton（IconLinkButton、CloseButton、ClearButton、CopyButton）· [x] Badge（Tag）· [ ] Code（CodeBlock、CodeGroup、CodePreview）· [ ] ButtonBase 与 VisuallyHidden（并入“无障碍与基础部件”）
+- **布局**：[ ] Flex 与 Grid（FlexList、GridList、Container、Separator）· [ ] ScrollArea（OverlayScrollbar、PageScrollbar）· [ ] Prose · [ ] AppShell
+- **展示**：[ ] Card · [ ] Accordion（AccordionItem、Collapsible、Collapse）· [ ] Avatar（AvatarGroup、Indicator）· [ ] AnimatedNumber（并入 Stat 页）· [ ] Descriptions · [ ] Timeline · [ ] Tree · [ ] VirtualList · [ ] Marquee · [ ] Sortable · [ ] ColorSwatch（并入 ColorField 页）
+- **反馈**：[ ] Alert · [ ] 加载与进度（Spinner、Progress、LoadingOverlay）· [ ] Empty 与 Result · [ ] Toast（Toaster）· [x] Skeleton（SkeletonText）
+- **浮层**：[ ] Dialog（AlertDialog、Drawer）· [ ] Popover（HoverCard、Tooltip）· [ ] Menu（全部菜单项、ContextMenu）· [ ] CommandPalette · [ ] Tour
+- **导航**：[ ] Tabs · [ ] Pagination（PageJump、PageSizeSelect、Pager）· [ ] Breadcrumbs 与 Steps · [ ] NavList（NavItem、NavGroup、NavSection、TableOfContents、SkipLink）· [ ] Toolbar
+- **输入**：[x] NumberField · [ ] TextField（Textarea、CharacterCount）· [ ] Checkbox、Radio 与 Switch · [ ] Select（Combobox、TagsInput、Listbox）· [ ] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
 - **日期**：CalendarView、DateSegmentGroup、SegmentedField 是内部部件，在 Calendar / DateField 页说明
-- **表单**：Form（Field、Label、FormValue）与 useForm、zod schema（decimalSchema、bigintSchema）
-- **表格**：Table（TableCaption、TableHead、TableBody、TableFoot、TableRow、TableHeaderCell、TableCell）、DataTable（DataTableView、DataTableRow、ColumnResizer）、TreeDataTable
-- **图表**：XYChart（并入图表总览）
-- **配置**：Provider（ConfigScope、createUi、defaults）、ThemeSwitcher、ThemeCustomizer、ThemeThumbnail、语言包与 useFormat
-- **3D**：EffectSurface（并入 ShaderBackground 页）
+- **表单**：[ ] Form（Field、Label、FormValue、useForm、decimalSchema、bigintSchema）
+- **表格**：[ ] Table（全部子部件）· [ ] DataTable（DataTableView、DataTableRow、ColumnResizer、TreeDataTable）
+- **图表**：XYChart 并入图表总览
+- **配置**：[ ] Provider（ConfigScope、createUi、defaults、语言包、useFormat）· [ ] ThemeSwitcher、ThemeCustomizer、ThemeThumbnail（并入主题定制指南）
+- **3D**：EffectSurface 并入 ShaderBackground 页
 
 ## 3. 内置值类型（Decimal、bigint、日期）
 

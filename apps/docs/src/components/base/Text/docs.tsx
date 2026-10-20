@@ -3,6 +3,7 @@ import { Code } from '@vue-tsx-pro/ui';
 import blockquoteApi from 'virtual:api/BlockquoteProps';
 import headingApi from 'virtual:api/HeadingProps';
 import kbdApi from 'virtual:api/KbdProps';
+import linkApi from 'virtual:api/LinkProps';
 import markApi from 'virtual:api/MarkProps';
 import api from 'virtual:api/TextProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -11,6 +12,7 @@ import { Example } from '../../../site/Example';
 import { Examples } from '../../../site/Examples';
 import Headings from './demo/Headings.tsx?demo';
 import Inline from './demo/Inline.tsx?demo';
+import Links from './demo/Links.tsx?demo';
 import Overflow from './demo/Overflow.tsx?demo';
 import Scale from './demo/Scale.tsx?demo';
 import Tones from './demo/Tones.tsx?demo';
@@ -18,7 +20,7 @@ import Tones from './demo/Tones.tsx?demo';
 export const meta = {
   title: 'Text 文字',
   description:
-    '正文与标题：字号、字重、色调、截断与换行；Paragraph、Strong、Em、Small、Mark、Kbd、Blockquote、H1–H6。',
+    '正文、链接与标题：字号、字重、色调、截断与换行；Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6。',
   order: 0,
 };
 
@@ -26,7 +28,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Text, Paragraph, Strong, Em, Small, Mark, Kbd, Blockquote, H1, H2 } from '@vue-tsx-pro/ui';"
+    imports="import { Text, Paragraph, Strong, Em, Small, Link, Mark, Kbd, Blockquote, H1, H2 } from '@vue-tsx-pro/ui';"
   >
     <Examples>
       <Example id="scale" title="字号与字重" demo={Scale}>
@@ -46,11 +48,16 @@ export default _component(() => () => (
         <Code>Mark</Code>（高亮）、<Code>Kbd</Code>（按键）、<Code>Code</Code>
         （行内代码）、<Code>Blockquote</Code>（引用）。
       </Example>
+      <Example id="links" title="链接" demo={Links}>
+        <Code>Link</Code> 默认带下划线（WCAG
+        1.4.1：正文里的链接不能只靠颜色区分）；导航这类上下文明确的地方可以
+        <Code>underline="hover"</Code> 或 none。按钮样式的链接用 LinkButton。
+      </Example>
       <Example id="headings" title="标题" demo={Headings}>
         H1–H6 是六个组件，默认字号依次减小；级别要连续，视觉层级用 <Code>size</Code> 单独改。
         <Code>anchor</Code> 加指向本节的锚点链接。
       </Example>
     </Examples>
-    <ApiReference api={[api, headingApi, markApi, kbdApi, blockquoteApi]} />
+    <ApiReference api={[api, headingApi, linkApi, markApi, kbdApi, blockquoteApi]} />
   </DocPage>
 ));

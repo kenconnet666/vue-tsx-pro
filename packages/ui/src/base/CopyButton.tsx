@@ -33,6 +33,16 @@ export interface CopyButtonProps
   'aria-label'?: string;
   /** 对勾保持多久（毫秒）后复原，默认 2000 */
   timeout?: number;
+  /**
+   * 样式：默认不带底色
+   * @default 'ghost'
+   */
+  variant?: ButtonOptions['variant'];
+  /**
+   * 色调：默认中性色
+   * @default 'neutral'
+   */
+  tone?: ButtonOptions['tone'];
   /** 不可用 */
   disabled?: boolean;
   /** 复制完成后调用，参数是是否成功（不安全的上下文、用户拒绝权限时失败） */
@@ -73,7 +83,12 @@ export const CopyButton = _component(
   }: CopyButtonProps) => {
     const lang = useLang();
     const clipboard = useClipboard({ timeout: _untrack(timeout) });
-    const appearance = useButtonAppearance(() => ({ variant, tone, size, radius }), 'ghost');
+    const appearance = useButtonAppearance(
+      () => ({ variant, tone, size, radius }),
+      'ghost',
+      // 只有图标的按钮多是工具栏、卡片角上的次要操作：默认中性色，一排图标不会满屏品牌色
+      'neutral',
+    );
     const behavior = useButtonBehavior(
       () => ({ disabled, loading: false, ripple }),
       () => () => void copy(),

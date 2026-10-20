@@ -2,6 +2,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/ButtonProps';
 import groupApi from 'virtual:api/ButtonGroupProps';
+import linkApi from 'virtual:api/LinkButtonProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Examples } from '../../../site/Examples';
@@ -10,6 +11,7 @@ import Basic from './demo/Basic.tsx?demo';
 import Disabled from './demo/Disabled.tsx?demo';
 import FullWidth from './demo/FullWidth.tsx?demo';
 import Group from './demo/Group.tsx?demo';
+import Links from './demo/Links.tsx?demo';
 import Loading from './demo/Loading.tsx?demo';
 import Radius from './demo/Radius.tsx?demo';
 import Sizes from './demo/Sizes.tsx?demo';
@@ -24,7 +26,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Button, ButtonGroup } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { Button, ButtonGroup, LinkButton } from '@vue-tsx-pro/ui';"
+  >
     <Examples>
       <Example id="basic" title="基础用法" demo={Basic}>
         一组操作里只有一个主要操作用默认的实底样式，其余按重要程度依次减弱；破坏性操作放在另一侧。
@@ -57,6 +63,11 @@ export default _component(() => () => (
       <Example id="full-width" title="占满宽度" demo={FullWidth}>
         <Code>fullWidth</Code> 让按钮占满容器宽度，并排的几个平分：登录框、移动端底部的操作。
       </Example>
+      <Example id="links" title="链接按钮" demo={Links}>
+        跳转到别的页面用 <Code>LinkButton</Code>（a 元素）而不是 Button
+        加点击跳转：能右键、在新标签页打开， 读屏念“链接”。外观同 Button，站内链接经 router
+        不刷新页面地跳转，<Code>external</Code> 在新窗口打开。
+      </Example>
       <Example id="group" title="按钮组" demo={Group}>
         ButtonGroup 把相关的按钮连成一条：拆分按钮、翻页、缩放、对齐方式。组上写的{' '}
         <Code>variant</Code>、<Code>tone</Code>、<Code>size</Code> 是组里按钮的默认值；
@@ -68,6 +79,6 @@ export default _component(() => () => (
         ，按钮仍能聚焦，悬停或聚焦时提示照常显示。
       </Example>
     </Examples>
-    <ApiReference api={[api, groupApi]} />
+    <ApiReference api={[api, groupApi, linkApi]} />
   </DocPage>
 ));
