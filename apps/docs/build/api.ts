@@ -49,13 +49,20 @@ function currentProgram(): ts.Program {
 const docOf = (symbol: ts.Symbol, checker: ts.TypeChecker) =>
   ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim();
 
-/** 组件库入口导出的名字 → 符号 */
+/** 有组件的入口：主入口与子路径（图表在 @vue-tsx-pro/ui/charts） */
+const ENTRIES = ['index.ts', 'charts/index.ts'];
+
+/** 组件库入口（含子路径）导出的名字 → 符号 */
 function exportedSymbol(checker: ts.TypeChecker, name: string): ts.Symbol {
-  const index = currentProgram().getSourceFile(`${src}/index.ts`)!;
-  const module = checker.getSymbolAtLocation(index)!;
-  const symbol = checker.getExportsOfModule(module).find((item) => item.name === name);
-  if (!symbol) throw new Error(`@vue-tsx-pro/ui 没有导出 ${name}`);
-  return symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
+  for (const entry of ENTRIES) {
+    const file = currentProgram().getSourceFile(`${src}/${entry}`)!;
+    const module = checker.getSymbolAtLocation(file)!;
+    const symbol = checker.getExportsOfModule(module).find((item) => item.name === name);
+    if (symbol) {
+      return symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
+    }
+  }
+  throw new Error(`@vue-tsx-pro/ui 的入口（${ENTRIES.join('、')}）都没有导出 ${name}`);
 }
 
 /** 档位类型展开成可选值：`keyof X` 取 X 的键与注释；类型别名顺着找；字面量联合直接列出 */

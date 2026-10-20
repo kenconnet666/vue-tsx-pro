@@ -4337,6 +4337,10 @@ export interface DocumentedStyles {
    * 伪元素 `::-moz-range-progress`：type="range" 滑块轨道中已滑过的部分（Firefox），非标准。
    */
   '::-moz-range-progress'?: DocumentedStyles;
+  /**
+   * 自定义属性（CSS 变量）：`'--vis-axis-grid-color': colors.borderMuted`，把第三方库的主题变量指到 tokens 上。
+   */
+  [customProperty: `--${string}`]: StyleValue<string | number> | undefined;
 }
 
 // 各属性的关键字说明：键上的注释在悬停取值时显示
