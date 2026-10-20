@@ -742,7 +742,6 @@ export {
   type DateSegmentType,
   type DateSegmentTypes,
 } from './date/date-segments';
-export { useDateTexts, type DateTexts } from './date/date-texts';
 
 // 表单：字段、校验
 export {
@@ -883,6 +882,11 @@ export {
 } from './config/ThemeCustomizer';
 export { ThemeSwitcher, type ThemeSwitcherProps } from './config/ThemeSwitcher';
 export {
+  ThemeThumbnail,
+  themeThumbnailStyles,
+  type ThemeThumbnailProps,
+} from './config/ThemeThumbnail';
+export {
   ConfigContext,
   defaultConfig,
   useConfig,
@@ -907,7 +911,7 @@ export {
   themeBootScript,
   type ThemeBootColors,
 } from './config/theme/boot';
-export { builtinThemes, type BuiltinThemeName } from './config/theme/builtin';
+export { builtinThemeLabel, builtinThemes, type BuiltinThemeName } from './config/theme/builtin';
 export { coffeeColors, coffeeTheme } from './config/theme/coffee';
 export {
   checkContrast,
@@ -1278,6 +1282,7 @@ export {
   type LayoutAnimation,
   type LayoutAnimationOptions,
 } from './utils/motion/layout';
+export { usePointer, type PointerOptions, type PointerState } from './utils/motion/pointer';
 export {
   useLazyContent,
   usePresence,

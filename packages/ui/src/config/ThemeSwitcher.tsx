@@ -31,6 +31,7 @@ import { toElement } from '../utils/dom/overlay';
 import { mergePartProps } from '../utils/props';
 import { useLang } from './context';
 import { SYSTEM_THEME } from './theme/boot';
+import { builtinThemeLabel, builtinThemes, type BuiltinThemeName } from './theme/builtin';
 import type { ThemePreference } from './theme/preference';
 
 /** 未声明的属性落到菜单（role="menu" 的 div）上 */
@@ -81,22 +82,11 @@ export const ThemeSwitcher = _component(
 
     const labelOf = (name: string) =>
       (labels as Record<string, string | undefined> | undefined)?.[name] ??
-      {
-        [SYSTEM_THEME]: lang.themeSystem,
-        light: lang.themeLight,
-        dark: lang.themeDark,
-        paper: lang.themePaper,
-        midnight: lang.themeMidnight,
-        'high-contrast': lang.themeHighContrast,
-        ocean: lang.themeOcean,
-        forest: lang.themeForest,
-        lemon: lang.themeLemon,
-        sakura: lang.themeSakura,
-        festive: lang.themeFestive,
-        cyberpunk: lang.themeCyberpunk,
-        coffee: lang.themeCoffee,
-      }[name] ??
-      name;
+      (name === SYSTEM_THEME
+        ? lang.themeSystem
+        : name in builtinThemes
+          ? builtinThemeLabel(lang, name as BuiltinThemeName)
+          : name);
     const iconOf = (name: string) =>
       (icons as Record<string, IconData | undefined> | undefined)?.[name] ??
       DEFAULT_ICONS[name] ??
