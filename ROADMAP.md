@@ -34,7 +34,7 @@
 - **表单**：[x] Form（Field、Label、FormValue、useForm、decimalSchema、bigintSchema）
 - **表格**：[x] Table（全部子部件）· [x] DataTable（DataTableView、DataTableRow、ColumnResizer、TreeDataTable）
 - **图表**：XYChart 并入图表总览
-- **配置**：[ ] Provider（ConfigScope、createUi、defaults、语言包、useFormat）· [ ] ThemeSwitcher、ThemeCustomizer、ThemeThumbnail（并入主题定制指南）
+- **配置**：[x] Provider（ConfigScope、createUi、defaults、语言包、useFormat）· [x] ThemeSwitcher、ThemeCustomizer、ThemeThumbnail（并入主题定制指南）
 - **3D**：EffectSurface 并入 ShaderBackground 页
 
 ## 3. 内置值类型（Decimal、bigint、日期）
