@@ -40,7 +40,9 @@ export interface ChartLegendItem {
 
 /** 给读屏的数据表：列名与每一行（行标题加各列的文字） */
 export interface ChartTable {
+  /** 列名：第一列是行标题的列 */
   columns: readonly string[];
+  /** 每一行：行标题加其余各列的文字 */
   rows: readonly { header: string; cells: readonly string[] }[];
 }
 
@@ -150,8 +152,11 @@ export const chartStyles = stylex.create({
 
 /** 提示框的一行 */
 export interface ChartTooltipItem {
+  /** 系列或数值的名字 */
   label: string;
+  /** 色块的 CSS 颜色；transparent 时不画色块 */
   color: string;
+  /** 格式化好的数值 */
   value: string;
 }
 
