@@ -81,7 +81,10 @@ export default _component(() => {
           items={results}
           filter={false}
           loading={searching}
-          inputValue={_bind(() => keyword, onKeyword)}
+          inputValue={_bind(
+            () => keyword,
+            (next) => void onKeyword(next),
+          )}
           value={_bind(user)}
           placeholder="输入用户名"
           empty={keyword ? '没有匹配的成员' : '输入关键词开始搜索'}
