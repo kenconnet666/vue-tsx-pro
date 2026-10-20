@@ -6,18 +6,22 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { CodePreview, createFlex, H2, Paragraph, type CodePreviewAligns } from '@vue-tsx-pro/ui';
+import {
+  CodePreview,
+  createFlex,
+  dataAttrs,
+  H2,
+  Paragraph,
+  type CodePreviewAligns,
+} from '@vue-tsx-pro/ui';
 import { h, type VNodeChild } from 'vue';
 import { canvasStyles } from './canvas';
 import { EditInPlayground } from './EditInPlayground';
-import { ExamplesContext } from './Examples';
 import type { Demo } from './types';
 
 const styles = stylex.create({
   canvas: { minHeight: '7rem' },
   description: { color: '_textMuted' },
-  // 多列里：整个小节留在同一列；上下两个示例之间比左右两列之间留得更开，一眼看出哪段说明属于哪张卡片
-  inColumns: { breakInside: 'avoid', paddingBlockEnd: '3rem' },
 });
 
 /** 每个示例是一个小节（section） */
@@ -39,9 +43,8 @@ export interface ExampleProps {
 
 /** 示例小节：标题、说明、示例卡片 */
 export const Example = _component(({ id, title, demo, align, children }: ExampleProps) => {
-  const inColumns = ExamplesContext.inject(null) !== null;
   return () => (
-    <Section direction="column" gap="md" sx={inColumns && styles.inColumns}>
+    <Section direction="column" gap="md">
       <H2 id={id} size="xl" anchor>
         {title}
       </H2>
@@ -50,7 +53,11 @@ export const Example = _component(({ id, title, demo, align, children }: Example
         code={demo.source}
         align={align}
         actions={<EditInPlayground code={demo.source} />}
-        propsPreview={{ sx: [canvasStyles.canvas, styles.canvas] }}
+        propsPreview={{
+          sx: [canvasStyles.canvas, styles.canvas],
+          // 示例里的标题不进本页目录（App 收集目录时跳过 data-demo 里的标题）
+          ...dataAttrs({ 'data-demo': '' }),
+        }}
       >
         {h(demo.component)}
       </CodePreview>

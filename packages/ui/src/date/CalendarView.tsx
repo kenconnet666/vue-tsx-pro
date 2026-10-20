@@ -29,7 +29,7 @@ import {
   yearsOfDecade,
 } from '../utils/data/date';
 import { isRtl } from '../utils/dom/direction';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -90,9 +90,6 @@ export interface CalendarViewOptions {
   /** 页脚的部件属性 */
   propsFooter?: PartProps<'div'>;
 }
-
-/** data-* 属性：部件属性的对象字面量不收 data-* 键，写成这样再展开进受管层 */
-const dataAttrs = (attrs: Record<`data-${string}`, string | boolean | undefined>) => attrs;
 
 /** 未声明的属性落到根元素上（aria-label 等） */
 export interface CalendarViewProps

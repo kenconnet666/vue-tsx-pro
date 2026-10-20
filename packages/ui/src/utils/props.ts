@@ -38,6 +38,15 @@ export interface TriggerProps {
   disabled?: boolean;
 }
 
+/**
+ * data-* 属性写进对象字面量（部件属性、mergeAttrs 的各层）：元素的属性类型不收 data-* 键，
+ * 用它包一层再展开。JSX 上直接写 data-* 不需要它。
+ *
+ *   mergeAttrs<'td'>(defaults, user, { role: 'gridcell', ...dataAttrs({ 'data-in-range': inRange || undefined }) })
+ */
+export const dataAttrs = (attrs: Record<`data-${string}`, string | number | boolean | undefined>) =>
+  attrs;
+
 type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => unknown;
 type RefSetter = ((element: unknown) => void) | Ref<unknown>;

@@ -80,7 +80,8 @@ export const App = _component(() => {
     const collect = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const next = collectHeadings(root);
+        // 示例里的标题（data-demo 里面）是示例内容，不进本页目录
+        const next = collectHeadings(root, 'h2[id]:not([data-demo] *), h3[id]:not([data-demo] *)');
         if (JSON.stringify(next) !== JSON.stringify(headings)) headings = next;
       });
     };
