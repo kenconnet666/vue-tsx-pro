@@ -24,7 +24,6 @@ import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
 import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
 export interface TooltipTriggerProps {
@@ -72,7 +71,7 @@ const CLOSE_DELAY = 100;
 const tooltips = createHoverGroup();
 
 /** Tooltip 的样式：panel */
-export const tooltipStyles: StyleTable<'panel'> = stylex.create({
+export const tooltipStyles = stylex.create({
   panel: {
     boxSizing: 'border-box',
     maxWidth: 'min(20em, calc(100vw - 2em))',

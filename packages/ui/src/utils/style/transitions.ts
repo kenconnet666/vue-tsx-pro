@@ -9,11 +9,10 @@
  * 进场过渡各浏览器都有。属于渐进增强：不支持时少了离场动画，状态不受影响。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleTable } from './styles';
 
 // 写明类型：导出的 stylex.create 结果若靠推导，类型声明里会引用 StyleX 内部无法命名的类型
 /** 顶层元素的进出场过渡：fade 淡入淡出、scale 缩放加淡入、backdrop 模态遮罩的淡入 */
-export const transitions: StyleTable<'fade' | 'scale' | 'backdrop'> = stylex.create({
+export const transitions = stylex.create({
   /** 淡入淡出 */
   fade: {
     opacity: {

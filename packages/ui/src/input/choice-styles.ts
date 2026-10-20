@@ -10,7 +10,6 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useDefaults } from '../config/defaults';
-import type { StyleTable } from '../utils/style/styles';
 import type { TextSize } from '../utils/style/typography';
 
 /** 勾选类控件的外观选项；可以用 createUi / Provider 的 defaults.Choice 统一改默认值 */
@@ -26,9 +25,7 @@ export function useChoiceSize(read: () => TextSize | undefined): () => TextSize 
 }
 
 /** 勾选类控件各部分的样式 */
-export const choiceStyles: StyleTable<
-  'root' | 'disabled' | 'control' | 'input' | 'checked' | 'invalid' | 'mark' | 'label'
-> = stylex.create({
+export const choiceStyles = stylex.create({
   /** 外层 label：控件与文字一行，整块可点；点击区域不小于 24px（WCAG 2.5.8） */
   root: {
     display: 'inline-flex',
@@ -84,7 +81,7 @@ export interface ChoiceOrientations {
 }
 
 /** 复选组、单选组的排列 */
-export const choiceGroupStyles: StyleTable<keyof ChoiceOrientations> = stylex.create({
+export const choiceGroupStyles = stylex.create({
   vertical: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   horizontal: { display: 'flex', flexWrap: 'wrap', columnGap: '_lg', rowGap: '_xs' },
 });

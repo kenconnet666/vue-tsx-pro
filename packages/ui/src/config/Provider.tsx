@@ -6,7 +6,6 @@ import { mergeDefaults, type ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from './theme/prefers-dark';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 局部配置；都不写时只是透明的容器，沿用上层配置 */
 export interface ProviderProps {
@@ -26,7 +25,7 @@ export interface ProviderProps {
 }
 
 /** Provider 的样式：root、themed */
-export const providerStyles: StyleTable<'root' | 'themed'> = stylex.create({
+export const providerStyles = stylex.create({
   // 不产生盒子，不影响布局；主题变量与文字样式照常由子元素继承
   root: { display: 'contents' },
   themed: {

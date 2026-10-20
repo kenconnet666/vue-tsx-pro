@@ -89,9 +89,7 @@ export interface ButtonContentOptions {
 }
 
 /** 按钮家族 的样式：root、square、fullWidth、disabled、content、hidden 等 */
-export const buttonStyles: StyleTable<
-  'root' | 'square' | 'fullWidth' | 'disabled' | 'content' | 'hidden' | 'spinner'
-> = stylex.create({
+export const buttonStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'inline-flex',
@@ -140,7 +138,7 @@ export const buttonStyles: StyleTable<
 });
 
 /** 按钮家族 的样式：none、sm、md、full */
-export const buttonRadiusStyles: StyleTable<keyof ButtonRadii> = stylex.create({
+export const buttonRadiusStyles = stylex.create({
   none: { borderRadius: 0 },
   sm: { borderRadius: '_sm' },
   md: { borderRadius: '_md' },
@@ -149,7 +147,7 @@ export const buttonRadiusStyles: StyleTable<keyof ButtonRadii> = stylex.create({
 
 // 每种样式按色调各一组；中性色没有专门的实底色，用反色表面。
 // 实底悬停时混入黑色加深，而不是用 accentHover / dangerHover：两套主题里白字的对比度都只升不降
-const solid: StyleTable<keyof ButtonTones> = stylex.create({
+const solid = stylex.create({
   accent: {
     color: '_accentContrast',
     backgroundColor: {
@@ -173,7 +171,7 @@ const solid: StyleTable<keyof ButtonTones> = stylex.create({
   },
 });
 
-const soft: StyleTable<keyof ButtonTones> = stylex.create({
+const soft = stylex.create({
   accent: {
     color: '_accentText',
     backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
@@ -188,7 +186,7 @@ const soft: StyleTable<keyof ButtonTones> = stylex.create({
   },
 });
 
-const surface: StyleTable<keyof ButtonTones> = stylex.create({
+const surface = stylex.create({
   accent: {
     color: '_accentText',
     borderColor: '_accentBorder',
@@ -206,7 +204,7 @@ const surface: StyleTable<keyof ButtonTones> = stylex.create({
   },
 });
 
-const outline: StyleTable<keyof ButtonTones> = stylex.create({
+const outline = stylex.create({
   accent: {
     color: '_accentText',
     borderColor: '_accentBorder',
@@ -224,7 +222,7 @@ const outline: StyleTable<keyof ButtonTones> = stylex.create({
   },
 });
 
-const ghost: StyleTable<keyof ButtonTones> = stylex.create({
+const ghost = stylex.create({
   accent: {
     color: '_accentText',
     backgroundColor: { default: 'transparent', ':hover': '_accentSoft' },
@@ -239,14 +237,14 @@ const ghost: StyleTable<keyof ButtonTones> = stylex.create({
   },
 });
 
-const link: StyleTable<keyof ButtonTones> = stylex.create({
+const link = stylex.create({
   accent: { color: '_accentText' },
   neutral: { color: '_text' },
   danger: { color: '_dangerText' },
 });
 
 /** 按钮家族 的样式：root */
-export const buttonLinkStyles: StyleTable<'root'> = stylex.create({
+export const buttonLinkStyles = stylex.create({
   root: {
     minHeight: 0,
     paddingInline: 0,

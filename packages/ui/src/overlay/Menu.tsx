@@ -41,7 +41,7 @@ import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { isRtl } from '../utils/data/layout';
@@ -120,9 +120,7 @@ function menuItemsOf(panel: HTMLElement | null): HTMLElement[] {
 }
 
 /** Menu 的样式：panel、label、indicator、hidden、shortcut、groupLabel */
-export const menuStyles: StyleTable<
-  'panel' | 'label' | 'indicator' | 'hidden' | 'shortcut' | 'groupLabel'
-> = stylex.create({
+export const menuStyles = stylex.create({
   panel: {
     minWidth: '12em',
     maxWidth: 'calc(100vw - 2em)',

@@ -16,11 +16,9 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 描述列表里的一项 */
 export interface DescriptionItem {
@@ -69,20 +67,7 @@ export interface DescriptionsProps extends PartProps<'div', 'title'> {
 }
 
 /** Descriptions 的样式：root、title、list、item、label、value 与各排列、边框 */
-export const descriptionsStyles: StyleTable<
-  | 'root'
-  | 'title'
-  | 'list'
-  | 'listBordered'
-  | 'item'
-  | 'itemHorizontal'
-  | 'itemVertical'
-  | 'itemBordered'
-  | 'label'
-  | 'labelBordered'
-  | 'cellBordered'
-  | 'value'
-> = stylex.create({
+export const descriptionsStyles = stylex.create({
   // 容器查询的容器：dl 按它的宽度决定要不要排成一列
   root: { containerType: 'inline-size', display: 'grid', gap: '_md' },
   title: { fontWeight: '_semibold', fontSize: '_md' },
@@ -122,10 +107,7 @@ export const descriptionsStyles: StyleTable<
 
 // 栏数与跨度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Descriptions 的样式：columns（栏数）、span（跨几栏） */
-export const descriptionsGridStyles: Readonly<{
-  columns: (count: number) => StyleXStyles;
-  span: (count: number) => StyleXStyles;
-}> = stylex.create({
+export const descriptionsGridStyles = stylex.create({
   // 容器不到 32em 时排成一列
   columns: (count: number) => ({
     gridTemplateColumns: {

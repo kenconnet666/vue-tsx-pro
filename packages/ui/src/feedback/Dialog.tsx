@@ -8,7 +8,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { ContainerSizes } from '../layout/Container';
 import { useDefaults } from '../config/defaults';
-import type { StyleTable } from '../utils/style/styles';
 import { transitions } from '../utils/style/transitions';
 import { ModalCore, type ModalProps } from './Modal';
 
@@ -28,7 +27,7 @@ export interface DialogOptions {
 export interface DialogProps extends ModalProps, DialogOptions {}
 
 /** 居中对话框的面板样式：宽度占满可用空间、高度上限、圆角；full 占满视口 */
-export const dialogStyles: StyleTable<'panel' | 'full'> = stylex.create({
+export const dialogStyles = stylex.create({
   panel: {
     width: '_full',
     // 原生 dialog 已限制 max-width / max-height 不超出视口；这里只把高度上限放到四周各留 1em
@@ -39,7 +38,7 @@ export const dialogStyles: StyleTable<'panel' | 'full'> = stylex.create({
 });
 
 /** 对话框的宽度档位：不超出视口 */
-export const dialogSizeStyles: StyleTable<keyof ContainerSizes> = stylex.create({
+export const dialogSizeStyles = stylex.create({
   xs: { maxWidth: 'min(_xs, calc(100vw - 2em))' },
   sm: { maxWidth: 'min(_sm, calc(100vw - 2em))' },
   md: { maxWidth: 'min(_md, calc(100vw - 2em))' },

@@ -10,14 +10,7 @@ import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import {
-  gapStyles,
-  listRole,
-  listStyles,
-  type LayoutTag,
-  type Space,
-  type StyleTable,
-} from '../utils/style/styles';
+import { gapStyles, listRole, listStyles, type LayoutTag, type Space } from '../utils/style/styles';
 
 /** 主轴方向（flex-direction） */
 export interface FlexDirections {
@@ -79,9 +72,7 @@ export interface FlexOptions {
 }
 
 /** Flex 的样式：root、inline、row、column、row-reverse、column-reverse 等 */
-export const flexStyles: StyleTable<
-  'root' | 'inline' | 'row' | 'column' | 'row-reverse' | 'column-reverse' | 'wrap' | 'wrapReverse'
-> = stylex.create({
+export const flexStyles = stylex.create({
   root: { display: 'flex' },
   inline: { display: 'inline-flex' },
   row: { flexDirection: 'row' },
@@ -93,19 +84,16 @@ export const flexStyles: StyleTable<
 });
 
 /** Flex 的样式：start、center、end、stretch、baseline */
-export const flexAlignStyles: StyleTable<'start' | 'center' | 'end' | 'stretch' | 'baseline'> =
-  stylex.create({
-    start: { alignItems: 'flex-start' },
-    center: { alignItems: 'center' },
-    end: { alignItems: 'flex-end' },
-    stretch: { alignItems: 'stretch' },
-    baseline: { alignItems: 'baseline' },
-  });
+export const flexAlignStyles = stylex.create({
+  start: { alignItems: 'flex-start' },
+  center: { alignItems: 'center' },
+  end: { alignItems: 'flex-end' },
+  stretch: { alignItems: 'stretch' },
+  baseline: { alignItems: 'baseline' },
+});
 
 /** Flex 的样式：start、center、end、between、around、evenly */
-export const flexJustifyStyles: StyleTable<
-  'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'
-> = stylex.create({
+export const flexJustifyStyles = stylex.create({
   start: { justifyContent: 'flex-start' },
   center: { justifyContent: 'center' },
   end: { justifyContent: 'flex-end' },

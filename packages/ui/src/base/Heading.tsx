@@ -23,7 +23,6 @@ import {
   type TextAlign,
   type Tone,
 } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 标题组件可用的标签 */
 export type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -44,7 +43,7 @@ export interface HeadingProps extends PartProps<HeadingTag> {
 }
 
 /** H1–H6 的样式：root、xxl、xxxl */
-export const headingStyles: StyleTable<'root' | 'xxl' | 'xxxl'> = stylex.create({
+export const headingStyles = stylex.create({
   root: { margin: 0, lineHeight: '_tight', textWrap: 'balance' },
   // 大字号的字形间距显得松，略收紧
   xxl: { letterSpacing: '_tight' },

@@ -16,7 +16,6 @@ import { Icon, type IconProps } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 import { useFieldControl } from './Field';
 
 /** 文件是否符合 accept（`image/*`、`.pdf`、`application/json` 这样的逗号分隔列表）；accept 为空时都符合 */
@@ -67,9 +66,7 @@ export interface FileDropProps extends PartProps<
 }
 
 /** FileDrop 的样式：root、dragging、disabled、invalid、icon、hint、description */
-export const fileDropStyles: StyleTable<
-  'root' | 'dragging' | 'disabled' | 'invalid' | 'icon' | 'hint' | 'description'
-> = stylex.create({
+export const fileDropStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'flex',

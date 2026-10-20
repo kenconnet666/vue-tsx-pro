@@ -30,7 +30,6 @@ import {
   useChoiceSize,
   type ChoiceOrientations,
 } from './choice-styles';
-import type { StyleTable } from '../utils/style/styles';
 
 /** CheckboxGroup 交给组内 Checkbox 的状态 */
 export interface CheckboxGroupState {
@@ -82,7 +81,7 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
 }
 
 /** Checkbox 的样式：box、indicator、hidden */
-export const checkboxStyles: StyleTable<'box' | 'indicator' | 'hidden'> = stylex.create({
+export const checkboxStyles = stylex.create({
   box: { width: '1.125em', height: '1.125em', borderRadius: '_sm' },
   indicator: { width: '0.875em', height: '0.875em', color: '_accentContrast' },
   hidden: { visibility: 'hidden' },

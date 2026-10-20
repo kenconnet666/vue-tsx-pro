@@ -49,7 +49,6 @@ import {
   type ListboxOption,
   type OptionMapping,
 } from './list-state';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、展开状态与可用性由组件管理 */
 export type SelectManaged =
@@ -113,9 +112,7 @@ interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, Control
 export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
 
 /** Select 的样式：root、trigger、value、placeholder、chevron、chevronOpen 等 */
-export const selectStyles: StyleTable<
-  'root' | 'trigger' | 'value' | 'placeholder' | 'chevron' | 'chevronOpen' | 'popover'
-> = stylex.create({
+export const selectStyles = stylex.create({
   root: { cursor: 'pointer' },
   trigger: {
     display: 'flex',

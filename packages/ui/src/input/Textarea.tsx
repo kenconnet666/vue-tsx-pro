@@ -10,13 +10,11 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { nextTick, useId } from 'vue';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from './Field';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 值与状态由组件管理 */
 export type TextareaManaged =
@@ -49,7 +47,7 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
 }
 
 /** Textarea 的样式：textarea、fixed、count */
-export const textareaStyles: StyleTable<'textarea' | 'fixed' | 'count'> = stylex.create({
+export const textareaStyles = stylex.create({
   textarea: { resize: 'none', overflowY: 'auto' },
   fixed: { resize: 'vertical' },
   // 计数贴在右下角
@@ -58,10 +56,7 @@ export const textareaStyles: StyleTable<'textarea' | 'fixed' | 'count'> = stylex
 
 // 行数是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Textarea 的样式：min、max */
-export const textareaRowStyles: Readonly<{
-  min: (rows: number) => StyleXStyles;
-  max: (rows: number) => StyleXStyles;
-}> = stylex.create({
+export const textareaRowStyles = stylex.create({
   min: (rows: number) => ({ minHeight: `${rows}lh` }),
   max: (rows: number) => ({ maxHeight: `${rows}lh` }),
 });

@@ -23,7 +23,7 @@ import { useRouterLink } from '../utils/dom/link';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { itemStyles } from '../utils/style/item-styles';
-import { focusRingStyles, listStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles, listStyles } from '../utils/style/styles';
 
 /** 分组向里面的项要的信息：哪些项是当前页（有当前页时自动展开） */
 export interface NavGroupState {
@@ -35,9 +35,7 @@ export interface NavGroupState {
 export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 
 /** NavList 的样式：list、nested、row、current、disabled、chevron 等 */
-export const navListStyles: StyleTable<
-  'list' | 'nested' | 'row' | 'current' | 'disabled' | 'chevron' | 'chevronOpen'
-> = stylex.create({
+export const navListStyles = stylex.create({
   list: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
   // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色

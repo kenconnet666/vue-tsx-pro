@@ -9,7 +9,7 @@ import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { LayoutTag, Space, StyleTable } from '../utils/style/styles';
+import type { LayoutTag, Space } from '../utils/style/styles';
 
 /** 容器最大宽度档位，对应主题 sizes 的容器宽度（rem，跟随浏览器字号），括号里是默认主题的值 */
 export interface ContainerSizes {
@@ -38,12 +38,12 @@ export interface ContainerOptions {
 export type ContainerProps<Tag extends LayoutTag = 'div'> = PartProps<Tag> & ContainerOptions;
 
 /** Container 的样式：root */
-export const containerStyles: StyleTable<'root'> = stylex.create({
+export const containerStyles = stylex.create({
   root: { boxSizing: 'border-box', width: '_full', marginInline: 'auto' },
 });
 
 /** Container 的样式：xs、sm、md、lg、xl */
-export const containerSizeStyles: StyleTable<'xs' | 'sm' | 'md' | 'lg' | 'xl'> = stylex.create({
+export const containerSizeStyles = stylex.create({
   xs: { maxWidth: '_xs' },
   sm: { maxWidth: '_sm' },
   md: { maxWidth: '_md' },
@@ -52,15 +52,14 @@ export const containerSizeStyles: StyleTable<'xs' | 'sm' | 'md' | 'lg' | 'xl'> =
 });
 
 /** Container 的样式：none、xs、sm、md、lg、xl */
-export const containerPaddingStyles: StyleTable<'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'> =
-  stylex.create({
-    none: { paddingInline: '_none' },
-    xs: { paddingInline: '_xs' },
-    sm: { paddingInline: '_sm' },
-    md: { paddingInline: '_md' },
-    lg: { paddingInline: '_lg' },
-    xl: { paddingInline: '_xl' },
-  });
+export const containerPaddingStyles = stylex.create({
+  none: { paddingInline: '_none' },
+  xs: { paddingInline: '_xs' },
+  sm: { paddingInline: '_sm' },
+  md: { paddingInline: '_md' },
+  lg: { paddingInline: '_lg' },
+  xl: { paddingInline: '_xl' },
+});
 
 /** 生成渲染为指定语义标签（main、section、article…）的容器组件；name 是 DevTools 里显示的组件名 */
 export function createContainer<Tag extends LayoutTag>(

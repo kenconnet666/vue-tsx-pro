@@ -9,7 +9,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 span 上；id 给输入框的 aria-describedby 关联 */
 export interface CharacterCountProps extends PartProps<'span'> {
@@ -20,7 +19,7 @@ export interface CharacterCountProps extends PartProps<'span'> {
 }
 
 /** CharacterCount 的样式：root、over */
-export const characterCountStyles: StyleTable<'root' | 'over'> = stylex.create({
+export const characterCountStyles = stylex.create({
   root: {
     flexShrink: 0,
     fontSize: '_sm',

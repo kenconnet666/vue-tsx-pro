@@ -24,7 +24,6 @@ import { FormContext } from './Form';
 import type { FieldConstraints } from './form-constraints';
 
 const NO_CONSTRAINTS: FieldConstraints = Object.freeze({});
-import type { StyleTable } from '../utils/style/styles';
 
 /** Field 交给控件的信息 */
 export interface FieldState {
@@ -116,7 +115,7 @@ export interface LabelProps extends PartProps<'label'> {
 }
 
 /** Field 的样式：root、disabled、required */
-export const labelStyles: StyleTable<'root' | 'disabled' | 'required'> = stylex.create({
+export const labelStyles = stylex.create({
   root: {
     display: 'inline-flex',
     alignItems: 'baseline',
@@ -182,7 +181,7 @@ export interface FieldProps extends PartProps<'div'> {
 }
 
 /** Field 的样式：root、hint、error、errorIcon */
-export const fieldStyles: StyleTable<'root' | 'hint' | 'error' | 'errorIcon'> = stylex.create({
+export const fieldStyles = stylex.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
   hint: { fontSize: '_sm', lineHeight: '_normal' },
   error: { display: 'inline-flex', alignItems: 'flex-start', gap: '_xs' },

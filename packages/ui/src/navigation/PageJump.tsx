@@ -14,7 +14,6 @@ import { NumberField, type NumberFieldProps } from '../input/NumberField';
 import { clamp } from '../utils/data/layout';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface PageJumpProps extends PartProps<'div'> {
@@ -33,7 +32,7 @@ export interface PageJumpProps extends PartProps<'div'> {
 }
 
 /** PageJump 的样式：root、input、text */
-export const pageJumpStyles: StyleTable<'root' | 'input' | 'text'> = stylex.create({
+export const pageJumpStyles = stylex.create({
   root: { display: 'inline-flex', alignItems: 'center', gap: '_sm' },
   input: { width: '4.5em' },
   text: { color: '_textMuted', whiteSpace: 'nowrap' },

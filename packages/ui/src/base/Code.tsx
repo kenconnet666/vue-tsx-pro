@@ -7,7 +7,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 code 上 */
 export interface CodeProps extends PartProps<'code'> {
@@ -15,7 +14,7 @@ export interface CodeProps extends PartProps<'code'> {
 }
 
 /** Code 的样式：root */
-export const codeStyles: StyleTable<'root'> = stylex.create({
+export const codeStyles = stylex.create({
   root: {
     paddingInline: '_xs',
     borderRadius: '_sm',

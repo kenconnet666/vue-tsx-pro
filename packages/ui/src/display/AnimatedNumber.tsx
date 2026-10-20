@@ -15,7 +15,6 @@ import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { useTween, type TweenOptions } from '../utils/motion/tween';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 import { toneStyles, type Tone } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 span 上；原生的 prefix 属性（RDFa）让给前缀内容 */
@@ -47,7 +46,7 @@ export interface AnimatedNumberProps extends PartProps<'span', 'prefix'> {
 }
 
 /** AnimatedNumber 的样式：root */
-export const animatedNumberStyles: StyleTable<'root'> = stylex.create({
+export const animatedNumberStyles = stylex.create({
   // 等宽数字：滚动时宽度不跳
   root: { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
 });

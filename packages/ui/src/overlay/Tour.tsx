@@ -21,7 +21,6 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { autoUpdate } from '@floating-ui/dom';
 import { nextTick, onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
@@ -33,7 +32,6 @@ import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
 import { trackModal } from '../utils/dom/overlay';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 引导的一步 */
 export interface TourStep {
@@ -69,17 +67,7 @@ export interface TourProps extends PartProps<
 }
 
 /** Tour 的样式：root、spotlight、dimmed、panel、title、content、footer、progress */
-export const tourStyles: StyleTable<
-  | 'root'
-  | 'spotlight'
-  | 'dimmed'
-  | 'panel'
-  | 'centered'
-  | 'title'
-  | 'content'
-  | 'footer'
-  | 'progress'
-> = stylex.create({
+export const tourStyles = stylex.create({
   // 整屏透明的 dialog：遮罩由镂空的阴影画，原生 ::backdrop 不用
   root: {
     position: 'fixed',
@@ -122,9 +110,7 @@ export const tourStyles: StyleTable<
 
 // 镂空的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Tour 的样式：rect（镂空的位置与大小） */
-export const tourDynamicStyles: Readonly<{
-  rect: (left: number, top: number, width: number, height: number) => StyleXStyles;
-}> = stylex.create({
+export const tourDynamicStyles = stylex.create({
   rect: (left: number, top: number, width: number, height: number) => ({
     left,
     top,

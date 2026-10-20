@@ -28,7 +28,7 @@ export interface BadgeOptions {
 }
 
 /** Badge、Tag 的样式：root、sm、full */
-export const badgeStyles: Readonly<Record<'root' | 'sm' | 'full', StyleXStyles>> = stylex.create({
+export const badgeStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'inline-flex',

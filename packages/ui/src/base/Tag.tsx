@@ -19,7 +19,6 @@ import { plainText } from '../utils/data/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
 import { Icon, type IconData, type IconProps } from './Icon';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 span 上 */
 export interface TagProps extends PartProps<'span'>, BadgeOptions {
@@ -37,7 +36,7 @@ export interface TagProps extends PartProps<'span'>, BadgeOptions {
 }
 
 /** Tag 的样式：root、removable、remove、removing */
-export const tagStyles: StyleTable<'root' | 'removable' | 'remove' | 'removing'> = stylex.create({
+export const tagStyles = stylex.create({
   // 移除被拒绝（使用方没移除）时从离场状态过渡回来
   root: {
     transition: 'opacity _durations.sm _easings.enter, scale _durations.sm _easings.enter',

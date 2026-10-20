@@ -20,7 +20,6 @@
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
@@ -32,7 +31,7 @@ import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { itemStyles } from '../utils/style/item-styles';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
 import { useFieldControl } from './Field';
@@ -105,19 +104,7 @@ type Row<T> =
 const SKELETON_ROWS = 4;
 
 /** Listbox 的样式：root、scroll、sizer、row、groupLabel、content 等 */
-export const listboxStyles: StyleTable<
-  | 'root'
-  | 'scroll'
-  | 'sizer'
-  | 'row'
-  | 'groupLabel'
-  | 'content'
-  | 'description'
-  | 'check'
-  | 'hidden'
-  | 'progress'
-  | 'skeleton'
-> = stylex.create({
+export const listboxStyles = stylex.create({
   root: { position: 'relative', padding: '_xs', lineHeight: '_normal', outlineStyle: 'none' },
   // 自己是滚动容器时（单独使用的 Listbox）：限制高度，滚动不传给页面
   scroll: { maxHeight: '20em', overflowY: 'auto', overscrollBehavior: 'contain' },
@@ -141,11 +128,7 @@ export const listboxStyles: StyleTable<
 
 // 行的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Listbox 的样式：y、height、width */
-export const listboxPositionStyles: Readonly<{
-  y: (px: number) => StyleXStyles;
-  height: (px: number) => StyleXStyles;
-  width: (percent: string) => StyleXStyles;
-}> = stylex.create({
+export const listboxPositionStyles = stylex.create({
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),
   width: (percent: string) => ({ width: percent }),

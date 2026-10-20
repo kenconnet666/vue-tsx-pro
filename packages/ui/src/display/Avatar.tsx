@@ -13,7 +13,6 @@ import { Icon } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 头像的圆角 */
 export interface AvatarRadii {
@@ -52,9 +51,7 @@ export interface AvatarProps extends PartProps<'span', AvatarManaged>, AvatarOpt
 export const AvatarGroupContext = createContext<{ readonly grouped: true }>('AvatarGroup');
 
 /** Avatar 的样式：root、full、md、image、loading、fallback、grouped */
-export const avatarStyles: StyleTable<
-  'root' | 'full' | 'md' | 'image' | 'loading' | 'fallback' | 'grouped'
-> = stylex.create({
+export const avatarStyles = stylex.create({
   root: {
     position: 'relative',
     display: 'inline-flex',

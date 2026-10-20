@@ -42,7 +42,7 @@ export type StatusTone = keyof StatusTones;
 /** 标记与提示的样式 */
 export type StatusVariant = keyof StatusVariants;
 
-const solid: StyleTable<StatusTone> = stylex.create({
+const solid = stylex.create({
   neutral: { color: '_inverseText', backgroundColor: '_inverseSurface' },
   accent: { color: '_accentContrast', backgroundColor: '_accent' },
   info: { color: '_background', backgroundColor: '_infoText' },
@@ -51,7 +51,7 @@ const solid: StyleTable<StatusTone> = stylex.create({
   danger: { color: '_dangerContrast', backgroundColor: '_danger' },
 });
 
-const soft: StyleTable<StatusTone> = stylex.create({
+const soft = stylex.create({
   neutral: { color: '_text', backgroundColor: '_fill' },
   accent: { color: '_accentText', backgroundColor: '_accentSoft' },
   info: { color: '_infoText', backgroundColor: '_infoSoft' },
@@ -60,7 +60,7 @@ const soft: StyleTable<StatusTone> = stylex.create({
   danger: { color: '_dangerText', backgroundColor: '_dangerSoft' },
 });
 
-const surface: StyleTable<StatusTone> = stylex.create({
+const surface = stylex.create({
   neutral: { color: '_text', backgroundColor: '_surface', borderColor: '_border' },
   accent: { color: '_accentText', backgroundColor: '_accentSoft', borderColor: '_accentBorder' },
   info: { color: '_infoText', backgroundColor: '_infoSoft', borderColor: '_infoBorder' },
@@ -77,7 +77,7 @@ const surface: StyleTable<StatusTone> = stylex.create({
   danger: { color: '_dangerText', backgroundColor: '_dangerSoft', borderColor: '_dangerBorder' },
 });
 
-const outline: StyleTable<StatusTone> = stylex.create({
+const outline = stylex.create({
   neutral: { color: '_text', borderColor: '_border' },
   accent: { color: '_accentText', borderColor: '_accentBorder' },
   info: { color: '_infoText', borderColor: '_infoBorder' },
@@ -87,7 +87,7 @@ const outline: StyleTable<StatusTone> = stylex.create({
 });
 
 /** 状态色调 的样式：bordered */
-export const statusToneBorderStyles: StyleTable<'bordered'> = stylex.create({
+export const statusToneBorderStyles = stylex.create({
   // 每种样式都留出边框的位置（实底、浅色底时透明），切换样式时尺寸不变
   bordered: { borderWidth: '_xs', borderStyle: 'solid', borderColor: 'transparent' },
 });

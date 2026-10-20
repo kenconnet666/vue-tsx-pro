@@ -17,7 +17,7 @@ import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
 import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { listStyles, type StyleTable } from '../utils/style/styles';
+import { listStyles } from '../utils/style/styles';
 
 /** 一级路径 */
 export interface BreadcrumbItem {
@@ -56,9 +56,7 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
 }
 
 /** Breadcrumbs 的样式：list、item、current、separator、label、expand */
-export const breadcrumbsStyles: StyleTable<
-  'list' | 'item' | 'current' | 'separator' | 'label' | 'expand'
-> = stylex.create({
+export const breadcrumbsStyles = stylex.create({
   list: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_xs', fontSize: '_sm' },
   item: { display: 'inline-flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   current: { color: '_text', fontWeight: '_medium' },

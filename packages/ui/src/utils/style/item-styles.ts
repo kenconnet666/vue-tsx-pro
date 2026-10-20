@@ -5,16 +5,10 @@
  *   sx: [itemStyles.row, itemStyles.hoverable, active && itemStyles.highlighted, disabled && itemStyles.disabled]
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 
 // 写明类型：导出的 stylex.create 结果若靠推导，类型声明里会引用 StyleX 内部无法命名的类型
 /** 列表行的布局与各状态的颜色 */
-export const itemStyles: Readonly<
-  Record<
-    'row' | 'hoverable' | 'highlighted' | 'selected' | 'current' | 'danger' | 'disabled' | 'label',
-    StyleXStyles
-  >
-> = stylex.create({
+export const itemStyles = stylex.create({
   /** 一行：图标、文字、尾部内容横排；按钮、链接、div 都能用（去掉了按钮与链接的默认外观） */
   row: {
     boxSizing: 'border-box',

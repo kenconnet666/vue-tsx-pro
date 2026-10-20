@@ -25,7 +25,7 @@ import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 标签的排列方向 */
@@ -106,7 +106,7 @@ export interface TabsProps extends PartProps<'div'>, TabsOptions {
 }
 
 /** Tabs 的样式：root、vertical */
-export const tabsStyles: StyleTable<'root' | 'vertical'> = stylex.create({
+export const tabsStyles = stylex.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_md' },
   vertical: { flexDirection: 'row', alignItems: 'flex-start' },
 });
@@ -193,9 +193,7 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
 }
 
 /** Tabs 的样式：root、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
-export const tabListStyles: StyleTable<
-  'root' | 'line' | 'lineVertical' | 'soft' | 'softVertical' | 'indicator' | 'indicatorVertical'
-> = stylex.create({
+export const tabListStyles = stylex.create({
   root: { display: 'flex', flexShrink: 0 },
   // 指示条按标签的 offsetLeft / offsetTop 定位，列表要是它的定位容器
   line: {
@@ -309,9 +307,7 @@ export interface TabProps extends PartProps<'button', TabManaged> {
 }
 
 /** Tabs 的样式：root、hover、line、lineVertical、lineActive、soft 等 */
-export const tabStyles: StyleTable<
-  'root' | 'hover' | 'line' | 'lineVertical' | 'lineActive' | 'soft' | 'softActive' | 'disabled'
-> = stylex.create({
+export const tabStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'inline-flex',
@@ -425,7 +421,7 @@ export interface TabPanelProps extends PartProps<'div', TabPanelManaged> {
 }
 
 /** Tabs 的样式：root */
-export const tabPanelStyles: StyleTable<'root'> = stylex.create({
+export const tabPanelStyles = stylex.create({
   root: { flexGrow: 1, minWidth: 0, borderRadius: '_sm' },
 });
 

@@ -11,7 +11,6 @@ import { useLang } from '../config/context';
 import { isRtl } from '../utils/data/layout';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 import { COLUMN_MIN_WIDTH } from './columns';
 
 /** 分隔条的角色、可聚焦与取值由组件管理 */
@@ -33,7 +32,7 @@ export interface ColumnResizerProps extends PartProps<'span', ColumnResizerManag
 }
 
 /** 手柄的样式：贴着单元格结束边的细线 */
-export const columnResizerStyles: StyleTable<'handle'> = stylex.create({
+export const columnResizerStyles = stylex.create({
   handle: {
     position: 'absolute',
     top: 0,

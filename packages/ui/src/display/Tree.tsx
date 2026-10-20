@@ -26,7 +26,6 @@
 import { Check, ChevronRight, Minus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
@@ -46,7 +45,7 @@ import {
 import { createTypeahead } from '../utils/dom/typeahead';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
 
@@ -106,18 +105,7 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
 }
 
 /** Tree 的样式：root、sizer、row、item、toggle、chevron、checkbox、label 等 */
-export const treeStyles: StyleTable<
-  | 'root'
-  | 'sizer'
-  | 'row'
-  | 'item'
-  | 'toggle'
-  | 'chevron'
-  | 'chevronOpen'
-  | 'checkbox'
-  | 'checkMark'
-  | 'hidden'
-> = stylex.create({
+export const treeStyles = stylex.create({
   root: {
     position: 'relative',
     overflowY: 'auto',
@@ -145,11 +133,7 @@ export const treeStyles: StyleTable<
 
 // 缩进与位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Tree 的样式：indent（缩进）、y、height */
-export const treeDynamicStyles: Readonly<{
-  indent: (em: number) => StyleXStyles;
-  y: (px: number) => StyleXStyles;
-  height: (px: number) => StyleXStyles;
-}> = stylex.create({
+export const treeDynamicStyles = stylex.create({
   indent: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),

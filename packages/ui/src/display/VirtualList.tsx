@@ -11,14 +11,13 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
 
@@ -83,17 +82,7 @@ type ItemProps = PartProps<'div', 'role' | 'aria-setsize' | 'aria-posinset'>;
 const SKELETON_ROWS = 5;
 
 /** VirtualList 的样式：root、container、list、item、itemVertical、itemHorizontal 等 */
-export const virtualListStyles: StyleTable<
-  | 'root'
-  | 'container'
-  | 'list'
-  | 'item'
-  | 'itemVertical'
-  | 'itemHorizontal'
-  | 'progress'
-  | 'skeletonRow'
-  | 'skeleton'
-> = stylex.create({
+export const virtualListStyles = stylex.create({
   // 自己调整滚动位置（见 virtualizer.ts），不要浏览器再按锚点调整一次
   root: { overflowAnchor: 'none' },
   container: { overflow: 'auto', overscrollBehavior: 'contain' },
@@ -109,13 +98,7 @@ export const virtualListStyles: StyleTable<
 
 // 总大小与位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
 /** VirtualList 的样式：height、width、y、x、skeleton */
-export const virtualListSizeStyles: Readonly<{
-  height: (px: number) => StyleXStyles;
-  width: (px: number) => StyleXStyles;
-  y: (px: number) => StyleXStyles;
-  x: (px: number) => StyleXStyles;
-  skeleton: (px: number) => StyleXStyles;
-}> = stylex.create({
+export const virtualListSizeStyles = stylex.create({
   height: (px: number) => ({ height: px }),
   width: (px: number) => ({ width: px, height: '_full' }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),

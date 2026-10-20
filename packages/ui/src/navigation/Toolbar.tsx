@@ -14,7 +14,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
-import { gapStyles, type Space, type StyleTable } from '../utils/style/styles';
+import { gapStyles, type Space } from '../utils/style/styles';
 
 /** 工具栏方向 */
 export interface ToolbarOrientations {
@@ -41,7 +41,7 @@ export interface ToolbarProps extends PartProps<'div', ToolbarManaged> {
 }
 
 /** Toolbar 的样式：root、vertical */
-export const toolbarStyles: StyleTable<'root' | 'vertical'> = stylex.create({
+export const toolbarStyles = stylex.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap' },
   vertical: { flexDirection: 'column', alignItems: 'stretch' },
 });

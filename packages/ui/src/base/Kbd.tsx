@@ -7,7 +7,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 kbd 上 */
 export interface KbdProps extends PartProps<'kbd'> {
@@ -15,7 +14,7 @@ export interface KbdProps extends PartProps<'kbd'> {
 }
 
 /** Kbd 的样式：root */
-export const kbdStyles: StyleTable<'root'> = stylex.create({
+export const kbdStyles = stylex.create({
   root: {
     display: 'inline-block',
     // 单个字母的键也接近方形

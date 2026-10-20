@@ -6,7 +6,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 span 上 */
 export interface VisuallyHiddenProps extends PartProps<'span'> {
@@ -14,7 +13,7 @@ export interface VisuallyHiddenProps extends PartProps<'span'> {
 }
 
 /** VisuallyHidden 的样式：hidden */
-export const visuallyHiddenStyles: StyleTable<'hidden'> = stylex.create({
+export const visuallyHiddenStyles = stylex.create({
   // 不用 display: none / visibility: hidden：那样读屏也读不到
   hidden: {
     position: 'absolute',

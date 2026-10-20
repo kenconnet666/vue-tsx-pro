@@ -24,7 +24,6 @@ import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
 import { toElement } from '../utils/dom/overlay';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
 export interface HoverCardTriggerProps {
@@ -66,7 +65,7 @@ export interface HoverCardProps
 }
 
 /** HoverCard 的样式：panel */
-export const hoverCardStyles: StyleTable<'panel'> = stylex.create({
+export const hoverCardStyles = stylex.create({
   panel: { padding: '_md', maxWidth: 'min(22em, calc(100vw - 2em))' },
 });
 

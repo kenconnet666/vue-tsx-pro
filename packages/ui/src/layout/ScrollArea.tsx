@@ -13,7 +13,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { isRtl } from '../utils/data/layout';
 
 /** 哪个方向可以滚动 */
@@ -59,9 +59,7 @@ export interface ScrollAreaProps extends PartProps<'div'> {
 const MIN_THUMB = 20;
 
 /** ScrollArea 的样式：root、viewport、y、x、both、wideContent */
-export const scrollAreaStyles: StyleTable<
-  'root' | 'viewport' | 'y' | 'x' | 'both' | 'wideContent'
-> = stylex.create({
+export const scrollAreaStyles = stylex.create({
   // flex 纵向：使用方只给 max-height 时视口也能被限制住（视口 min-height: 0 可以收缩）
   root: { position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
   viewport: {
@@ -81,9 +79,7 @@ export const scrollAreaStyles: StyleTable<
 });
 
 /** ScrollArea 的样式：track、hidden、y、x、yCorner、xCorner 等 */
-export const scrollAreaBarStyles: StyleTable<
-  'track' | 'hidden' | 'y' | 'x' | 'yCorner' | 'xCorner' | 'thumb' | 'thumbY' | 'thumbX'
-> = stylex.create({
+export const scrollAreaBarStyles = stylex.create({
   track: {
     position: 'absolute',
     zIndex: 1,

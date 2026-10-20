@@ -17,7 +17,6 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { choiceStyles, useChoiceSize } from './choice-styles';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
 export type SwitchManaged =
@@ -66,19 +65,7 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
 }
 
 /** Switch 的样式：track、trackWide、trackOff、thumb、thumbOn、content、contentOn、contentOff、contentHidden、contentText、spinner */
-export const switchStyles: StyleTable<
-  | 'track'
-  | 'trackWide'
-  | 'trackOff'
-  | 'thumb'
-  | 'thumbOn'
-  | 'content'
-  | 'contentOn'
-  | 'contentOff'
-  | 'contentHidden'
-  | 'contentText'
-  | 'spinner'
-> = stylex.create({
+export const switchStyles = stylex.create({
   track: { width: '2.25em', height: '1.25em', borderRadius: '_full', borderColor: 'transparent' },
   // 轨道里有文字：宽度随文字（两份文字叠在同一格里，取较宽的，切换时宽度不跳）
   trackWide: { width: '_full', minWidth: '2.25em' },

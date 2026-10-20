@@ -8,7 +8,6 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 角色与朝向由组件管理 */
 export type SeparatorManaged = 'role' | 'aria-orientation' | 'aria-hidden';
@@ -30,7 +29,7 @@ export interface SeparatorProps extends PartProps<'div', SeparatorManaged> {
 }
 
 /** Separator 的样式：root、horizontal、vertical */
-export const separatorStyles: StyleTable<'root' | 'horizontal' | 'vertical'> = stylex.create({
+export const separatorStyles = stylex.create({
   root: { flexShrink: 0, backgroundColor: '_borderMuted' },
   horizontal: { height: '_borderWidths.xs', width: '_full' },
   // 在 flex 容器里随行高拉伸

@@ -27,7 +27,6 @@ import {
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, watchPostEffect } from 'vue';
 import { returnFocus } from './focus';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 
 /** 弹出位置：主方向 + 对齐方式（start 对齐锚点的起始边，end 对齐结束边）；空间不够时自动翻转 */
 export interface FloatingPlacements {
@@ -117,9 +116,7 @@ const ARROW_ROTATION: Record<Side, number> = { top: 45, right: 135, bottom: 225,
 
 // 写明类型：导出的 stylex.create 结果若靠推导，类型声明里会引用 StyleX 内部无法命名的类型
 /** 锚定浮层的基础样式：定位与表面 */
-export const floatingStyles: Readonly<
-  Record<'anchored' | 'surface' | 'arrow' | 'withArrow', StyleXStyles>
-> = stylex.create({
+export const floatingStyles = stylex.create({
   /** 原生 popover 默认居中显示、带外边距，改为由 anchorFloating 写入的 left / top 定位 */
   anchored: { position: 'fixed', inset: 'auto', margin: 0 },
   /** 浮起的表面：边框、圆角、阴影（Popover、Menu、选项列表）；内边距各自定 */

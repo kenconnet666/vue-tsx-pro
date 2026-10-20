@@ -25,7 +25,6 @@ import {
   useChoiceSize,
   type ChoiceOrientations,
 } from './choice-styles';
-import type { StyleTable } from '../utils/style/styles';
 
 /** RadioGroup 交给组内 Radio 的状态 */
 export interface RadioGroupState {
@@ -153,7 +152,7 @@ export interface RadioProps extends PartProps<'input', RadioManaged> {
 }
 
 /** RadioGroup、Radio 的样式：circle、dot、dotChecked */
-export const radioStyles: StyleTable<'circle' | 'dot' | 'dotChecked'> = stylex.create({
+export const radioStyles = stylex.create({
   circle: { width: '1.125em', height: '1.125em', borderRadius: '_full' },
   dot: {
     width: '0.45em',

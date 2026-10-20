@@ -21,7 +21,6 @@ import { Spinner } from '../base/Spinner';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { StatusTone } from '../utils/style/tone-styles';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 时间线上的一项 */
 export interface TimelineItem {
@@ -60,23 +59,7 @@ export interface TimelineProps extends PartProps<'ol'> {
 }
 
 /** Timeline 的样式：root、item、marker、line、content、title、time、description 等 */
-export const timelineStyles: StyleTable<
-  | 'root'
-  | 'item'
-  | 'itemAlternate'
-  | 'rail'
-  | 'marker'
-  | 'markerIcon'
-  | 'pending'
-  | 'line'
-  | 'content'
-  | 'contentEnd'
-  | 'title'
-  | 'time'
-  | 'timeOpposite'
-  | 'timeInline'
-  | 'description'
-> = stylex.create({
+export const timelineStyles = stylex.create({
   root: { margin: 0, padding: 0, listStyle: 'none', containerType: 'inline-size' },
   // 节点一列、内容一列；交替时三列：左内容、节点、右内容
   item: { display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: '_md' },
@@ -132,7 +115,7 @@ export const timelineStyles: StyleTable<
 });
 
 /** Timeline 的样式：节点的色调 */
-export const timelineToneStyles: StyleTable<StatusTone> = stylex.create({
+export const timelineToneStyles = stylex.create({
   neutral: { color: '_borderStrong' },
   accent: { color: '_accent' },
   info: { color: '_infoText' },

@@ -21,7 +21,6 @@ import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { dismissOnBackdrop, lockScroll, trackModal } from '../utils/dom/overlay';
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 import { transitions } from '../utils/style/transitions';
 
 /** 打开、关闭与无障碍关联由组件管理；原生的 title 属性（悬停提示）让给标题 */
@@ -66,9 +65,7 @@ export interface ModalCoreProps extends ModalProps {
 }
 
 /** 模态面板共有的样式：面板、标题行、标题、关闭按钮、说明、正文、页脚 */
-export const modalStyles: StyleTable<
-  'panel' | 'header' | 'title' | 'close' | 'description' | 'body' | 'bodyContent' | 'footer'
-> = stylex.create({
+export const modalStyles = stylex.create({
   panel: {
     boxSizing: 'border-box',
     // 只在模态打开时排版；关闭时回到 none，离场过渡由 display 的 allow-discrete 撑住

@@ -11,7 +11,6 @@ import { elementProps, mergePartProps, mergeProps, type PartProps } from '../uti
 import type { TextSize } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到外层的 span 上 */
 export interface SpinnerProps extends PartProps<'span', 'role'> {
@@ -26,7 +25,7 @@ export interface SpinnerProps extends PartProps<'span', 'role'> {
 const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } });
 
 /** Spinner 的样式：root、icon */
-export const spinnerStyles: StyleTable<'root' | 'icon'> = stylex.create({
+export const spinnerStyles = stylex.create({
   root: { display: 'inline-flex', flexShrink: 0 },
   icon: {
     animationName: spin,

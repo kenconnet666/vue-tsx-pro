@@ -26,7 +26,6 @@ import { rovingFocus } from '../utils/dom/roving-focus';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { useFieldControl } from './Field';
 import type { TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** ToggleGroup 交给组内 ToggleGroupItem 的状态 */
 export interface ToggleGroupState {
@@ -79,7 +78,7 @@ interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
 export type ToggleGroupProps = ToggleGroupBaseProps & SelectionProps;
 
 /** ToggleGroup 的样式：root、vertical、indicator */
-export const toggleGroupStyles: StyleTable<'root' | 'vertical' | 'indicator'> = stylex.create({
+export const toggleGroupStyles = stylex.create({
   root: {
     // 滑块按项的 offsetLeft / offsetTop 定位；isolation 让 zIndex: -1 的滑块压在项下、组的底色之上
     position: 'relative',

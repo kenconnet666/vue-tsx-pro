@@ -15,7 +15,6 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, type VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { gapStyles, type Space, type StyleTable } from '../utils/style/styles';
@@ -64,19 +63,7 @@ const scrollY = stylex.keyframes({
 });
 
 /** Marquee 的样式：root、vertical、fade、track、trackVertical、reverse、pausable、paused、group */
-export const marqueeStyles: StyleTable<
-  | 'root'
-  | 'vertical'
-  | 'fade'
-  | 'fadeVertical'
-  | 'track'
-  | 'trackVertical'
-  | 'reverse'
-  | 'pausable'
-  | 'paused'
-  | 'group'
-  | 'groupVertical'
-> = stylex.create({
+export const marqueeStyles = stylex.create({
   root: {
     display: 'flex',
     overflow: { default: 'hidden', '@media (prefers-reduced-motion: reduce)': 'auto' },
@@ -134,10 +121,9 @@ export const marqueeTrailStyles: Readonly<Record<'inline' | 'block', StyleTable<
 
 // 时长是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Marquee 的样式：duration（一圈的时长） */
-export const marqueeDynamicStyles: Readonly<{ duration: (seconds: number) => StyleXStyles }> =
-  stylex.create({
-    duration: (seconds: number) => ({ animationDuration: `${seconds}s` }),
-  });
+export const marqueeDynamicStyles = stylex.create({
+  duration: (seconds: number) => ({ animationDuration: `${seconds}s` }),
+});
 
 /** 跑马灯：内容复制一份，纯 CSS 无缝循环滚动 */
 export const Marquee = _component(

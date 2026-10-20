@@ -16,7 +16,6 @@ import { useLang } from '../config/context';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { usePresence } from '../utils/motion/presence';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 忙碌由组件按 loading 管理 */
 export type LoadingOverlayManaged = 'aria-busy';
@@ -37,25 +36,24 @@ export interface LoadingOverlayProps extends PartProps<'div', LoadingOverlayMana
 }
 
 /** LoadingOverlay 的样式：root、overlay、blur、closing、spinner */
-export const loadingOverlayStyles: StyleTable<'root' | 'overlay' | 'blur' | 'closing' | 'spinner'> =
-  stylex.create({
-    // 遮罩按外层定位
-    root: { position: 'relative' },
-    overlay: {
-      position: 'absolute',
-      inset: 0,
-      zIndex: 1,
-      display: 'grid',
-      placeItems: 'center',
-      borderRadius: 'inherit',
-      backgroundColor: 'color-mix(in srgb, _surface 70%, transparent)',
-      opacity: { default: 1, '@starting-style': 0 },
-      transition: 'opacity _durations.md _easings.enter',
-    },
-    blur: { backdropFilter: 'blur(2px)' },
-    closing: { opacity: 0, transition: 'opacity _durations.sm _easings.exit' },
-    spinner: { fontSize: '_xl', color: '_accent' },
-  });
+export const loadingOverlayStyles = stylex.create({
+  // 遮罩按外层定位
+  root: { position: 'relative' },
+  overlay: {
+    position: 'absolute',
+    inset: 0,
+    zIndex: 1,
+    display: 'grid',
+    placeItems: 'center',
+    borderRadius: 'inherit',
+    backgroundColor: 'color-mix(in srgb, _surface 70%, transparent)',
+    opacity: { default: 1, '@starting-style': 0 },
+    transition: 'opacity _durations.md _easings.enter',
+  },
+  blur: { backdropFilter: 'blur(2px)' },
+  closing: { opacity: 0, transition: 'opacity _durations.sm _easings.exit' },
+  spinner: { fontSize: '_xl', color: '_accent' },
+});
 
 /** 加载遮罩：盖住内容，显示加载指示 */
 export const LoadingOverlay = _component(

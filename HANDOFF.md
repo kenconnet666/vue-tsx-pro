@@ -125,7 +125,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 3. **状态写成 data 属性**：`data-state`、`data-disabled`、`data-loading`、`data-orientation` 等（§2.2）。
 4. **图标一律用 `@lucide/icons` + `Icon`**。不手画 SVG，不用字符（×、›、… 之类）代替图标。
 5. **主题 tokens 用字符串写法，不写裸值**。注意 `width`、`height` 里的短写取的是 `sizes`，要间距就写 `'_space.lg'`（§4）。
-6. **类型与注释**：`mergeProps` 写类型参数；导出的 `stylex.create` 结果写明类型；所有导出都写 JSDoc；枚举类取值写成带注释接口的 `keyof`。
+6. **类型与注释**：`mergeProps` 写类型参数；`stylex.create` 的结果不标类型（推导出的是具名的 `CompiledStyles`）；所有导出都写 JSDoc；枚举类取值写成带注释接口的 `keyof`。
 7. **配置接入**：有外观档位的组件登记到 `ComponentDefaults`；可点击的组件接入波纹（默认开启，可全局或单独关）；链接用路由适配。
 8. **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`。
 9. **对比度**：两套主题都满足 WCAG AA 4.5:1。演示页的 axe 检查会跑亮色与暗色，改颜色前先算对比度。
@@ -149,7 +149,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 覆盖样式不生效（如 `borderColor`）                             | StyleX 里长属性总是优先于简写，要写同一个长属性（`borderBottomColor`）                                                                                                       |
 | `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉（`Features.DirSelector`）                                                                                              |
 | `width: '_lg'` 变成 64rem                                      | 短写按属性找组，`width` 属于 sizes；间距写 `'_space.lg'`                                                                                                                     |
-| 构建报 TS2883（类型无法命名）                                  | 导出的 `stylex.create` 结果写明类型；泛型组件需要的类型（如 `TsxNode`）要从入口导出                                                                                          |
+| 构建报 TS2883（类型无法命名）                                  | 推导出的类型引用了没导出的类型：泛型组件需要的类型（如 `TsxNode`）要从入口导出；StyleX 的样式引用已是具名的 `CompiledStyles`                                                 |
 | StyleX 报 “Referenced constant is not defined”                 | 把导入的样式（如 `focusRingStyles`）直接传给 `stylex.attrs` 会触发编译期求值失败；经 `elementProps({ sx })` 传                                                               |
 | axe 在暗色主题报对比度不足，背景是 #ffffff                     | 元素溢出到视口外，axe 取不到背景按白色算（亮色主题刚好蒙对）。演示页有“窄屏不横向溢出”的回归测试；容器里的滚动元素外层要 `minWidth: 0`                                       |
 | Firefox / WebKit 里 axe 测试超时                               | Firefox 里个别过渡永远停在 running；等动画结束要设上限，并跳过无限循环的动画（加载指示）                                                                                     |

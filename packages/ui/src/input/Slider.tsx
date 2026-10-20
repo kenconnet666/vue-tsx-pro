@@ -12,13 +12,12 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { clamp, isRtl, snapToStep } from '../utils/data/layout';
 import { useFieldControl } from './Field';
@@ -96,30 +95,7 @@ export interface SliderProps<V extends SliderValue = number> extends PartProps<
 }
 
 /** Slider 的样式：root、horizontal、vertical、disabled、track、range、thumb、mark、markLabel 等 */
-export const sliderStyles: StyleTable<
-  | 'root'
-  | 'horizontal'
-  | 'vertical'
-  | 'labelledHorizontal'
-  | 'labelledVertical'
-  | 'disabled'
-  | 'track'
-  | 'trackHorizontal'
-  | 'trackVertical'
-  | 'range'
-  | 'rangeHorizontal'
-  | 'rangeVertical'
-  | 'thumb'
-  | 'thumbHorizontal'
-  | 'thumbVertical'
-  | 'mark'
-  | 'markHorizontal'
-  | 'markVertical'
-  | 'markActive'
-  | 'markLabel'
-  | 'markLabelHorizontal'
-  | 'markLabelVertical'
-> = stylex.create({
+export const sliderStyles = stylex.create({
   root: {
     position: 'relative',
     display: 'flex',
@@ -193,12 +169,7 @@ export const sliderStyles: StyleTable<
 
 // 位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
 /** Slider 的样式：inline（横向的起点）、size（横向的长度）、bottom、height（纵向） */
-export const sliderPositionStyles: Readonly<{
-  inline: (percent: string) => StyleXStyles;
-  width: (percent: string) => StyleXStyles;
-  bottom: (percent: string) => StyleXStyles;
-  height: (percent: string) => StyleXStyles;
-}> = stylex.create({
+export const sliderPositionStyles = stylex.create({
   inline: (percent: string) => ({ insetInlineStart: percent }),
   width: (percent: string) => ({ width: percent }),
   bottom: (percent: string) => ({ bottom: percent }),

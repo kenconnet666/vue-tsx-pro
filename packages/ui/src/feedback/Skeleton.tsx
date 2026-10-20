@@ -11,7 +11,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到占位的 span 上（加载完成后不渲染它，只渲染内容） */
 export interface SkeletonProps extends PartProps<'span', 'aria-hidden' | 'inert'> {
@@ -29,7 +28,7 @@ const pulse = stylex.keyframes({
 });
 
 /** Skeleton 的样式：root、wrapping、hidden */
-export const skeletonStyles: StyleTable<'root' | 'wrapping' | 'hidden'> = stylex.create({
+export const skeletonStyles = stylex.create({
   root: {
     display: 'inline-block',
     borderRadius: '_sm',

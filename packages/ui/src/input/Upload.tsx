@@ -28,7 +28,6 @@ import { useFormat } from '../config/lang/format';
 import { Progress } from '../feedback/Progress';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
-import type { StyleTable } from '../utils/style/styles';
 import { FileDrop, type FileDropProps } from './FileDrop';
 
 /** 列表里的一个文件 */
@@ -88,9 +87,7 @@ export interface UploadProps extends PartProps<'div'> {
 }
 
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
-export const uploadStyles: StyleTable<
-  'root' | 'list' | 'item' | 'icon' | 'body' | 'name' | 'meta' | 'error' | 'done' | 'progress'
-> = stylex.create({
+export const uploadStyles = stylex.create({
   root: { display: 'grid', gap: '_sm' },
   list: { display: 'grid', gap: '_xs', margin: 0, padding: 0, listStyle: 'none' },
   item: {

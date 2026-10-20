@@ -7,7 +7,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { ContainerSizes } from '../layout/Container';
 import { useDefaults } from '../config/defaults';
-import type { StyleTable } from '../utils/style/styles';
 import { ModalCore, type ModalProps } from './Modal';
 
 /** 抽屉从哪一侧滑入；start / end 是逻辑方向，从右到左排版下左右互换 */
@@ -35,9 +34,7 @@ export interface DrawerProps extends ModalProps, DrawerOptions {
 }
 
 /** 抽屉的面板样式：去掉居中、按所在一侧定位与滑入 */
-export const drawerStyles: StyleTable<
-  'panel' | 'inline' | 'block' | 'start' | 'end' | 'top' | 'bottom'
-> = stylex.create({
+export const drawerStyles = stylex.create({
   panel: {
     margin: 0,
     maxWidth: '100vw',
@@ -96,7 +93,7 @@ export const drawerStyles: StyleTable<
 });
 
 /** 抽屉（左右两侧）的宽度档位 */
-export const drawerSizeStyles: StyleTable<keyof ContainerSizes> = stylex.create({
+export const drawerSizeStyles = stylex.create({
   xs: { maxWidth: 'min(_xs, 100vw)' },
   sm: { maxWidth: 'min(_sm, 100vw)' },
   md: { maxWidth: 'min(_md, 100vw)' },

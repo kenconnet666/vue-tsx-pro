@@ -15,7 +15,6 @@ import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
 export interface EmptyProps extends PartProps<'div', 'title'> {
@@ -42,23 +41,22 @@ export interface EmptyProps extends PartProps<'div', 'title'> {
 }
 
 /** Empty 的样式：root、icon、title、description、action */
-export const emptyStyles: StyleTable<'root' | 'icon' | 'title' | 'description' | 'action'> =
-  stylex.create({
-    root: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '_sm',
-      paddingBlock: '_xl',
-      paddingInline: '_lg',
-      textAlign: 'center',
-      color: '_text',
-    },
-    icon: { width: '2.5em', height: '2.5em', color: '_textMuted', strokeWidth: '_sm' },
-    title: { fontWeight: '_semibold' },
-    description: { maxWidth: '32em', color: '_textMuted' },
-    action: { marginBlockStart: '_sm' },
-  });
+export const emptyStyles = stylex.create({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '_sm',
+    paddingBlock: '_xl',
+    paddingInline: '_lg',
+    textAlign: 'center',
+    color: '_text',
+  },
+  icon: { width: '2.5em', height: '2.5em', color: '_textMuted', strokeWidth: '_sm' },
+  title: { fontWeight: '_semibold' },
+  description: { maxWidth: '32em', color: '_textMuted' },
+  action: { marginBlockStart: '_sm' },
+});
 
 /** 空状态：图标、标题、说明、操作，居中排列 */
 export const Empty = _component(

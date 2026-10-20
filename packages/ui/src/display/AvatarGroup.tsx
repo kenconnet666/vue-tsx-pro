@@ -16,7 +16,6 @@ import { useLang } from '../config/context';
 import { childNodes } from '../utils/data/text';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 import { AvatarGroupContext, avatarStyles } from './Avatar';
 
 /** 角色由组件管理 */
@@ -37,7 +36,7 @@ export interface AvatarGroupProps extends PartProps<'div', AvatarGroupManaged> {
 }
 
 /** AvatarGroup 的样式：root、more、moreText */
-export const avatarGroupStyles: StyleTable<'root' | 'more' | 'moreText'> = stylex.create({
+export const avatarGroupStyles = stylex.create({
   root: { display: 'inline-flex', alignItems: 'center' },
   more: { backgroundColor: '_fill', color: '_text' },
   // 字号缩在文字上：“+N”的圆仍和头像一样大

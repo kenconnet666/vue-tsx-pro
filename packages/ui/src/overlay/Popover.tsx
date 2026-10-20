@@ -20,7 +20,6 @@ import { toElement } from '../utils/dom/overlay';
 import { focusFirst } from '../utils/dom/focus';
 import { elementProps, mergeProps, type PartProps, type TriggerProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 交给触发器的属性：展开收起的通用属性，加上弹层需要的 id、ref 与 aria-haspopup */
 export interface PopoverTriggerProps extends TriggerProps {
@@ -49,7 +48,7 @@ export interface PopoverProps
 }
 
 /** Popover 的样式：panel */
-export const popoverStyles: StyleTable<'panel'> = stylex.create({
+export const popoverStyles = stylex.create({
   panel: { padding: '_md', maxWidth: 'calc(100vw - 2em)' },
 });
 

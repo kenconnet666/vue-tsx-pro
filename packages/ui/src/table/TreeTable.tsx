@@ -20,14 +20,12 @@
 import { ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { IconButton } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { flattenTree, useTreeExpansion, type TreeAccessors } from '../utils/data/tree';
 import { columnValue, sortRows, type SortState } from './columns';
 import { Table, type TableProps } from './Table';
 import type { TableRowModel } from './TableView';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
 export interface TreeTableProps<T> extends Omit<TableProps<T>, 'manualSort' | 'leading'> {
@@ -46,21 +44,19 @@ export interface TreeTableProps<T> extends Omit<TableProps<T>, 'manualSort' | 'l
 }
 
 /** TreeTable 的样式：toggle、chevron、chevronOpen、placeholder */
-export const treeTableStyles: StyleTable<'toggle' | 'chevron' | 'chevronOpen' | 'placeholder'> =
-  stylex.create({
-    toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
-    chevron: { transition: 'rotate _durations.sm _easings.standard' },
-    chevronOpen: { rotate: '90deg' },
-    // 叶子没有按钮，用同样宽的占位让文字对齐
-    placeholder: { flexShrink: 0, width: '1.5em' },
-  });
+export const treeTableStyles = stylex.create({
+  toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
+  chevron: { transition: 'rotate _durations.sm _easings.standard' },
+  chevronOpen: { rotate: '90deg' },
+  // 叶子没有按钮，用同样宽的占位让文字对齐
+  placeholder: { flexShrink: 0, width: '1.5em' },
+});
 
 // 缩进是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** TreeTable 的样式：depth */
-export const treeTableIndentStyles: Readonly<{ depth: (em: number) => StyleXStyles }> =
-  stylex.create({
-    depth: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
-  });
+export const treeTableIndentStyles = stylex.create({
+  depth: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
+});
 
 /** 树形表格：按展开状态展开的层级行，复用 Table 的一切 */
 export const TreeTable = _component(

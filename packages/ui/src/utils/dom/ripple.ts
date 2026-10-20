@@ -8,10 +8,8 @@
  *   mergeProps<'button'>(默认, rest, { ...ripple })
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useConfig } from '../../config/context';
 import { afterTransitions } from '../style/transitions';
-import type { StyleTable } from '../style/styles';
 
 const expand = stylex.keyframes({
   from: { transform: 'scale(0)' },
@@ -19,12 +17,12 @@ const expand = stylex.keyframes({
 });
 
 /** 宿主元素需要的样式：波纹相对它定位，超出圆角的部分裁掉 */
-export const rippleHostStyles: Readonly<Record<'host', StyleXStyles>> = stylex.create({
+export const rippleHostStyles = stylex.create({
   host: { position: 'relative', overflow: 'hidden' },
 });
 
 /** 波纹 的样式：ripple、fading */
-export const rippleStyles: StyleTable<'ripple' | 'fading'> = stylex.create({
+export const rippleStyles = stylex.create({
   ripple: {
     position: 'absolute',
     borderRadius: '_full',
@@ -42,9 +40,7 @@ export const rippleStyles: StyleTable<'ripple' | 'fading'> = stylex.create({
 
 // 位置与大小是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** 波纹 的样式：at */
-export const ripplePlacementStyles: Readonly<{
-  at: (x: number, y: number, size: number) => StyleXStyles;
-}> = stylex.create({
+export const ripplePlacementStyles = stylex.create({
   at: (x: number, y: number, size: number) => ({ left: x, top: y, width: size, height: size }),
 });
 

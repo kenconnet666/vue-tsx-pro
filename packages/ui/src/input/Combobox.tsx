@@ -48,7 +48,6 @@ import {
   type ListboxOption,
   type OptionMapping,
 } from './list-state';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 角色、展开状态、值与可用性由组件管理 */
 export type ComboboxManaged =
@@ -116,19 +115,18 @@ export interface ComboboxBaseProps<T> extends PartProps<'input', ComboboxManaged
 export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapping<T>;
 
 /** Combobox 的样式：popover、chevron、chevronOpen、loading */
-export const comboboxStyles: StyleTable<'popover' | 'chevron' | 'chevronOpen' | 'loading'> =
-  stylex.create({
-    popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
-    chevron: { transition: 'rotate _durations.sm _easings.standard' },
-    chevronOpen: { rotate: '180deg' },
-    loading: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '_sm',
-      padding: '_sm',
-      color: '_textMuted',
-    },
-  });
+export const comboboxStyles = stylex.create({
+  popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
+  chevron: { transition: 'rotate _durations.sm _easings.standard' },
+  chevronOpen: { rotate: '180deg' },
+  loading: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '_sm',
+    padding: '_sm',
+    color: '_textMuted',
+  },
+});
 
 /** 组合框：输入框 + 过滤后的选项列表 */
 export const Combobox = _component(

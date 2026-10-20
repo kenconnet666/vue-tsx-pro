@@ -15,7 +15,6 @@ import { Paragraph, Text, type TextProps } from '../base/Text';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { fontSizeStyles, toneStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 结果的状态：决定图标与颜色 */
 export interface ResultStatuses {
@@ -58,29 +57,28 @@ export interface ResultProps extends PartProps<'div', 'title'> {
 }
 
 /** Result 的样式：root、icon、title、description、action */
-export const resultStyles: StyleTable<'root' | 'icon' | 'title' | 'description' | 'action'> =
-  stylex.create({
-    root: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '_sm',
-      paddingBlock: '_xl',
-      paddingInline: '_lg',
-      textAlign: 'center',
-      color: '_text',
-    },
-    icon: { width: '4em', height: '4em', marginBlockEnd: '_sm', strokeWidth: '_sm' },
-    title: { fontSize: '_xl', fontWeight: '_semibold', lineHeight: '_tight' },
-    description: { maxWidth: '36em', color: '_textMuted' },
-    action: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      gap: '_sm',
-      marginBlockStart: '_md',
-    },
-  });
+export const resultStyles = stylex.create({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '_sm',
+    paddingBlock: '_xl',
+    paddingInline: '_lg',
+    textAlign: 'center',
+    color: '_text',
+  },
+  icon: { width: '4em', height: '4em', marginBlockEnd: '_sm', strokeWidth: '_sm' },
+  title: { fontSize: '_xl', fontWeight: '_semibold', lineHeight: '_tight' },
+  description: { maxWidth: '36em', color: '_textMuted' },
+  action: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: '_sm',
+    marginBlockStart: '_md',
+  },
+});
 
 /** 结果页：状态图标、标题、说明、操作，居中排列 */
 export const Result = _component(

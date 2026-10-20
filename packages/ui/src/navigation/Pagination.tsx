@@ -15,7 +15,7 @@ import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';
 import { paginationItems } from '../utils/data/pagination';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { listStyles, type StyleTable } from '../utils/style/styles';
+import { listStyles } from '../utils/style/styles';
 import type { TextSize } from '../utils/style/typography';
 import { clamp } from '../utils/data/layout';
 
@@ -56,9 +56,7 @@ export interface PaginationProps extends PartProps<'nav'> {
 }
 
 /** Pagination 的样式：root、list、page、ellipsis、total、tabular */
-export const paginationStyles: StyleTable<
-  'root' | 'list' | 'page' | 'ellipsis' | 'total' | 'tabular'
-> = stylex.create({
+export const paginationStyles = stylex.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_md' },
   list: { display: 'flex', alignItems: 'center', gap: '_xs' },
   // 页码按钮等宽，翻页时位置不晃

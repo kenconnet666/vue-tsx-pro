@@ -14,7 +14,6 @@ import { h, onMounted, watch, type VNode } from 'vue';
 import { useAnimate } from '../utils/motion/animation';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 图标数据：Lucide 的标准格式 */
 export type IconData = LucideIconData;
@@ -48,7 +47,7 @@ export interface IconProps extends PartProps<'svg', IconManaged> {
 }
 
 /** Icon 的样式：icon、flip */
-export const iconStyles: StyleTable<'icon' | 'flip'> = stylex.create({
+export const iconStyles = stylex.create({
   icon: {
     width: '1em',
     height: '1em',

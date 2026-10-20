@@ -7,11 +7,9 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/layout';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 进度条的色调 */
 export interface ProgressTones {
@@ -51,7 +49,7 @@ const slide = stylex.keyframes({
 });
 
 /** Progress 的样式：root、indicator、indeterminate */
-export const progressStyles: StyleTable<'root' | 'indicator' | 'indeterminate'> = stylex.create({
+export const progressStyles = stylex.create({
   root: {
     position: 'relative',
     overflow: 'hidden',
@@ -76,20 +74,18 @@ export const progressStyles: StyleTable<'root' | 'indicator' | 'indeterminate'> 
 });
 
 /** Progress 的样式：accent、success、warning、danger */
-export const progressToneStyles: StyleTable<'accent' | 'success' | 'warning' | 'danger'> =
-  stylex.create({
-    accent: { backgroundColor: '_accent' },
-    success: { backgroundColor: '_successText' },
-    warning: { backgroundColor: '_warningText' },
-    danger: { backgroundColor: '_danger' },
-  });
+export const progressToneStyles = stylex.create({
+  accent: { backgroundColor: '_accent' },
+  success: { backgroundColor: '_successText' },
+  warning: { backgroundColor: '_warningText' },
+  danger: { backgroundColor: '_danger' },
+});
 
 // 宽度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Progress 的样式：percent */
-export const progressWidthStyles: Readonly<{ percent: (percent: string) => StyleXStyles }> =
-  stylex.create({
-    percent: (percent: string) => ({ width: percent }),
-  });
+export const progressWidthStyles = stylex.create({
+  percent: (percent: string) => ({ width: percent }),
+});
 
 /** 进度条：有 value 时为完成比例，没有时为不确定进度 */
 export const Progress = _component(

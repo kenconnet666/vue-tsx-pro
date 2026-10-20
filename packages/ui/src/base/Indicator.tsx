@@ -14,7 +14,6 @@ import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
 import { statusToneSx, type StatusTone } from '../utils/style/tone-styles';
-import type { StyleTable } from '../utils/style/styles';
 import { VisuallyHidden } from './VisuallyHidden';
 
 /** 角标在被标记元素的哪个角（按书写方向） */
@@ -62,17 +61,7 @@ export interface IndicatorProps extends PartProps<'span'> {
 }
 
 /** Indicator 的样式：root、badge、count、dot、各位置与 circular */
-export const indicatorStyles: StyleTable<
-  | 'root'
-  | 'badge'
-  | 'count'
-  | 'dot'
-  | 'top-end'
-  | 'bottom-end'
-  | 'top-start'
-  | 'bottom-start'
-  | 'circular'
-> = stylex.create({
+export const indicatorStyles = stylex.create({
   root: { position: 'relative', display: 'inline-flex', verticalAlign: 'middle', flexShrink: 0 },
   badge: {
     position: 'absolute',

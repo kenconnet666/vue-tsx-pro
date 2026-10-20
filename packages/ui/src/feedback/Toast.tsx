@@ -25,7 +25,6 @@
 import { utils } from 'animejs';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import {
   nextTick,
   onBeforeUnmount,
@@ -48,7 +47,6 @@ import { focusAfterRemoval } from '../utils/dom/focus';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { Alert, type AlertProps } from './Alert';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 一条通知的内容与行为 */
 export interface ToastOptions {
@@ -278,24 +276,7 @@ const countdown = stylex.keyframes({
 });
 
 /** Toaster 的样式：region、list、listFromTop、item、itemFromBottom、itemFromTop 等 */
-export const toastStyles: StyleTable<
-  | 'region'
-  | 'list'
-  | 'listFromTop'
-  | 'item'
-  | 'itemFromBottom'
-  | 'itemFromTop'
-  | 'itemClosing'
-  | 'gap'
-  | 'toast'
-  | 'countdown'
-  | 'countdownPaused'
-  | 'stacked'
-  | 'stackedBehind'
-  | 'stackedHidden'
-  | 'stackedFromTop'
-  | 'stackedFromBottom'
-> = stylex.create({
+export const toastStyles = stylex.create({
   region: {
     // 原生 popover 默认居中、带边框与底色，改为贴着视口的一角
     position: 'fixed',
@@ -366,23 +347,18 @@ export const toastStyles: StyleTable<
 
 // 深度是运行时的数，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Toaster 的样式：叠放时第 depth 层（0 是最新的）的位移、缩放与层叠顺序 */
-export const toastStackStyles: Readonly<{
-  depth: (offset: string, scale: number, zIndex: number) => StyleXStyles;
-}> = stylex.create({
+export const toastStackStyles = stylex.create({
   depth: (offset: string, scale: number, zIndex: number) => ({ translate: offset, scale, zIndex }),
 });
 
 // 时长来自每条通知，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Toaster 的样式：剩余时间条的时长 */
-export const toastCountdownStyles: Readonly<{ duration: (ms: string) => StyleXStyles }> =
-  stylex.create({
-    duration: (ms: string) => ({ animationDuration: ms }),
-  });
+export const toastCountdownStyles = stylex.create({
+  duration: (ms: string) => ({ animationDuration: ms }),
+});
 
 /** Toaster 的样式：top-start、top、top-end、bottom-start、bottom、bottom-end */
-export const toastPlacementStyles: StyleTable<
-  'top-start' | 'top' | 'top-end' | 'bottom-start' | 'bottom' | 'bottom-end'
-> = stylex.create({
+export const toastPlacementStyles = stylex.create({
   'top-start': { top: 0, insetInlineStart: 0 },
   top: { top: 0, insetInline: 0, marginInline: 'auto' },
   'top-end': { top: 0, insetInlineEnd: 0 },

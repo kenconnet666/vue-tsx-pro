@@ -63,17 +63,20 @@ type HasDynamic<S> = true extends {
   ? true
   : false;
 
+type CompiledGroup = MapNamespaces<{ group: CSSProperties }>['group'];
+
 /**
  * 一个样式组编译后的样式引用，与 StyleX 由自己的 CSSProperties 推出的类型相同，
  * 因此能直接交给 attrs / props 与 StyleXStyles 类型的 prop（输入侧才用带注释的类型）。
+ * 写成导出的具名接口：create 的结果不必标注类型，生成声明文件时也能写出它的名字（否则报 TS2883）。
  */
-type CompiledGroup = MapNamespaces<{ group: CSSProperties }>['group'];
+export interface CompiledStyles extends CompiledGroup {}
 
 /** 静态样式组 → 样式引用；动态样式组 → 返回 [样式引用, 行内 style] 的函数 */
 type MapStyles<S> = Readonly<{
   [Name in keyof S]: S[Name] extends (...args: infer Args) => unknown
-    ? (...args: Args) => Readonly<[CompiledGroup, InlineStyles]>
-    : CompiledGroup;
+    ? (...args: Args) => Readonly<[CompiledStyles, InlineStyles]>
+    : CompiledStyles;
 }>;
 
 /** stylex.create 的类型：样式组名保留推导，组内属性值的上下文类型固定为带注释的 DocumentedStyles（COMPONENTS.md §9.2） */
@@ -90,7 +93,7 @@ export interface Create {
    */
   <const Name extends string>(styles: {
     readonly [N in Name]: DocumentedStyles;
-  }): Readonly<{ [N in Name]: CompiledGroup }>;
+  }): Readonly<{ [N in Name]: CompiledStyles }>;
   /**
    * 含动态样式函数时（`(width: number) => ({ width })`）走这个签名：保留函数参数类型，
    * 但组内属性没有中文悬停提示——动态样式建议单独写一个 create。

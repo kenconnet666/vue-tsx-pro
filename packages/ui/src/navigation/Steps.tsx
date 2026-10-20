@@ -11,7 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, listStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles, listStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 
 /** 步骤条方向 */
@@ -64,18 +64,7 @@ export interface StepsProps extends PartProps<'ol'> {
 }
 
 /** Steps 的样式：root、vertical、item、trigger、indicator、text 等 */
-export const stepsStyles: StyleTable<
-  | 'root'
-  | 'vertical'
-  | 'item'
-  | 'trigger'
-  | 'indicator'
-  | 'text'
-  | 'title'
-  | 'description'
-  | 'connector'
-  | 'connectorDone'
-> = stylex.create({
+export const stepsStyles = stylex.create({
   root: { display: 'flex', gap: '_sm' },
   vertical: { flexDirection: 'column', gap: '_lg' },
   item: {
@@ -129,13 +118,12 @@ export const stepsStyles: StyleTable<
 });
 
 /** Steps 的样式：complete、current、upcoming、error */
-export const stepsStateStyles: StyleTable<'complete' | 'current' | 'upcoming' | 'error'> =
-  stylex.create({
-    complete: { borderColor: '_accent', backgroundColor: '_accent', color: '_accentContrast' },
-    current: { borderColor: '_accent', color: '_accentText' },
-    upcoming: { borderColor: '_border', color: '_textMuted' },
-    error: { borderColor: '_danger', backgroundColor: '_dangerSoft', color: '_dangerText' },
-  });
+export const stepsStateStyles = stylex.create({
+  complete: { borderColor: '_accent', backgroundColor: '_accent', color: '_accentContrast' },
+  current: { borderColor: '_accent', color: '_accentText' },
+  upcoming: { borderColor: '_border', color: '_textMuted' },
+  error: { borderColor: '_danger', backgroundColor: '_dangerSoft', color: '_dangerText' },
+});
 
 /** 步骤条：已完成、当前、未开始，可选点回已完成的步骤 */
 export const Steps = _component(

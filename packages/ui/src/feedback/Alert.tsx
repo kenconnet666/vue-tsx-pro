@@ -17,7 +17,6 @@ import { focusAfterRemoval } from '../utils/dom/focus';
 import { usePresence } from '../utils/motion/presence';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {
@@ -82,9 +81,7 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
 }
 
 /** Alert 的样式：root、icon、body、title、description、action、close、closing */
-export const alertStyles: StyleTable<
-  'root' | 'icon' | 'body' | 'title' | 'description' | 'action' | 'close' | 'closing'
-> = stylex.create({
+export const alertStyles = stylex.create({
   root: {
     transition: 'opacity _durations.sm _easings.enter',
     boxSizing: 'border-box',

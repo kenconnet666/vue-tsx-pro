@@ -18,7 +18,7 @@ import { h, useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { Collapse, type CollapseProps } from './Collapse';
 
@@ -55,16 +55,7 @@ interface AccordionBaseProps extends PartProps<'div'> {
 export type AccordionProps = AccordionBaseProps & SelectionProps;
 
 /** Accordion 的样式：root、item、heading、trigger、chevron、chevronOpen、content */
-export const accordionStyles: StyleTable<
-  | 'root'
-  | 'item'
-  | 'heading'
-  | 'trigger'
-  | 'triggerDisabled'
-  | 'chevron'
-  | 'chevronOpen'
-  | 'content'
-> = stylex.create({
+export const accordionStyles = stylex.create({
   root: { display: 'flex', flexDirection: 'column' },
   item: {
     borderBottomWidth: '_xs',

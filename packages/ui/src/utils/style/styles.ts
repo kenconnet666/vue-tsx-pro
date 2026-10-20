@@ -48,13 +48,13 @@ export interface SpaceScale {
 export type Space = keyof SpaceScale;
 
 /**
- * 样式表的类型：导出的 stylex.create 结果写明它（StyleTable<'root' | 'icon'>）。
- * 靠推导时，类型声明里会引用 StyleX 内部无法命名的类型（TS2883）
+ * 一组按名字取的样式（如按变体分组的色调表 Record<变体, StyleTable<色调>>）。
+ * stylex.create 的结果不用写它：create 返回具名的 CompiledStyles，类型直接推导
  */
 export type StyleTable<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
 
 /** 间距 gap：Flex、Grid */
-export const gapStyles: StyleTable<Space> = stylex.create({
+export const gapStyles = stylex.create({
   none: { gap: '_none' },
   xs: { gap: '_xs' },
   sm: { gap: '_sm' },
@@ -64,7 +64,7 @@ export const gapStyles: StyleTable<Space> = stylex.create({
 });
 
 /** 行间距：Grid 单独指定时 */
-export const rowGapStyles: StyleTable<Space> = stylex.create({
+export const rowGapStyles = stylex.create({
   none: { rowGap: '_none' },
   xs: { rowGap: '_xs' },
   sm: { rowGap: '_sm' },
@@ -74,7 +74,7 @@ export const rowGapStyles: StyleTable<Space> = stylex.create({
 });
 
 /** 列间距：Grid 单独指定时 */
-export const columnGapStyles: StyleTable<Space> = stylex.create({
+export const columnGapStyles = stylex.create({
   none: { columnGap: '_none' },
   xs: { columnGap: '_xs' },
   sm: { columnGap: '_sm' },
@@ -84,7 +84,7 @@ export const columnGapStyles: StyleTable<Space> = stylex.create({
 });
 
 /** 键盘聚焦时的焦点环（:focus-visible）：Link、Button 等可交互元素共用，外观一致 */
-export const focusRingStyles: StyleTable<'visible'> = stylex.create({
+export const focusRingStyles = stylex.create({
   visible: {
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
     outlineWidth: '_sm',
@@ -97,7 +97,7 @@ export const focusRingStyles: StyleTable<'visible'> = stylex.create({
  * 列表元素（ul、ol）当布局容器时去掉默认的圆点与缩进。
  * Safari 去掉圆点后会把它当成普通容器，读屏不再报“列表”，所以组件同时补上 role="list"（见 listRole）
  */
-export const listStyles: StyleTable<'reset'> = stylex.create({
+export const listStyles = stylex.create({
   reset: { margin: 0, paddingInlineStart: 0, listStyleType: 'none' },
 });
 

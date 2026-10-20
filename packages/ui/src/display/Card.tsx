@@ -10,7 +10,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { Space, StyleTable } from '../utils/style/styles';
+import type { Space } from '../utils/style/styles';
 
 /** 卡片样式 */
 export interface CardVariants {
@@ -48,7 +48,7 @@ export interface CardProps extends PartProps<'div'>, CardOptions {
 }
 
 /** Card 的样式：root、header、footer */
-export const cardStyles: StyleTable<'root' | 'header' | 'footer'> = stylex.create({
+export const cardStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
     display: 'flex',
@@ -77,24 +77,22 @@ export const cardStyles: StyleTable<'root' | 'header' | 'footer'> = stylex.creat
 });
 
 /** Card 的样式：surface、outline、elevated、ghost */
-export const cardVariantStyles: StyleTable<'surface' | 'outline' | 'elevated' | 'ghost'> =
-  stylex.create({
-    surface: { backgroundColor: '_surface', borderColor: '_border' },
-    outline: { borderColor: '_border' },
-    elevated: { backgroundColor: '_surfaceRaised', boxShadow: '_md' },
-    ghost: {},
-  });
+export const cardVariantStyles = stylex.create({
+  surface: { backgroundColor: '_surface', borderColor: '_border' },
+  outline: { borderColor: '_border' },
+  elevated: { backgroundColor: '_surfaceRaised', boxShadow: '_md' },
+  ghost: {},
+});
 
 /** Card 的样式：none、xs、sm、md、lg、xl */
-export const cardPaddingStyles: StyleTable<'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'> =
-  stylex.create({
-    none: { padding: '_none' },
-    xs: { padding: '_xs' },
-    sm: { padding: '_sm' },
-    md: { padding: '_md' },
-    lg: { padding: '_lg' },
-    xl: { padding: '_xl' },
-  });
+export const cardPaddingStyles = stylex.create({
+  none: { padding: '_none' },
+  xs: { padding: '_xs' },
+  sm: { padding: '_sm' },
+  md: { padding: '_md' },
+  lg: { padding: '_lg' },
+  xl: { padding: '_xl' },
+});
 
 /** 卡片：表面 + 可选的页头与页脚 */
 export const Card = _component(

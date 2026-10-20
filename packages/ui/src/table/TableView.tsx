@@ -14,7 +14,6 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
@@ -25,7 +24,7 @@ import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -145,40 +144,7 @@ const ROW_HEIGHT: Record<keyof TableDensities, number> = {
 };
 
 /** Table、TreeTable 的样式：root、surface、ghost、table、sm、md 等 */
-export const tableStyles: StyleTable<
-  | 'root'
-  | 'surface'
-  | 'ghost'
-  | 'table'
-  | 'compact'
-  | 'standard'
-  | 'comfortable'
-  | 'head'
-  | 'headerCell'
-  | 'cell'
-  | 'wrap'
-  | 'start'
-  | 'center'
-  | 'end'
-  | 'row'
-  | 'rowGhost'
-  | 'striped'
-  | 'selected'
-  | 'sticky'
-  | 'stickySelect'
-  | 'selectCell'
-  | 'sortButton'
-  | 'sortLabel'
-  | 'sortIcon'
-  | 'sortActive'
-  | 'leading'
-  | 'content'
-  | 'spacer'
-  | 'progressCell'
-  | 'progress'
-  | 'skeleton'
-  | 'emptyCell'
-> = stylex.create({
+export const tableStyles = stylex.create({
   // contain: inline-size：宽表格不会把外层的 grid / flex 容器撑宽（它们的最小宽度默认等于内容宽度），
   // 宽度只由所在的容器决定，放不下的部分在表格里横向滚动
   root: { maxHeight: '32em', minWidth: 0, contain: 'inline-size' },
@@ -271,7 +237,7 @@ export const tableStyles: StyleTable<
 });
 
 /** Table、TreeTable 的样式：单元格按密度的上下内边距 */
-export const tableDensityStyles: StyleTable<keyof TableDensities> = stylex.create({
+export const tableDensityStyles = stylex.create({
   compact: { paddingBlock: '_xs' },
   standard: { paddingBlock: '_sm' },
   comfortable: { paddingBlock: '_md' },
@@ -279,14 +245,7 @@ export const tableDensityStyles: StyleTable<keyof TableDensities> = stylex.creat
 
 // 列宽、偏移、占位高度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Table、TreeTable 的样式：width、minWidth、height、start、end、percent */
-export const tableDynamicStyles: Readonly<{
-  width: (px: number) => StyleXStyles;
-  minWidth: (px: number) => StyleXStyles;
-  height: (px: number) => StyleXStyles;
-  start: (px: number) => StyleXStyles;
-  end: (px: number) => StyleXStyles;
-  percent: (value: string) => StyleXStyles;
-}> = stylex.create({
+export const tableDynamicStyles = stylex.create({
   width: (px: number) => ({ width: px }),
   minWidth: (px: number) => ({ minWidth: px }),
   height: (px: number) => ({ height: px }),

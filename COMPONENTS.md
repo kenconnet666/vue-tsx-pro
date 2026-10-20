@@ -99,7 +99,7 @@
 ## 4. 样式
 
 - 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。
-- 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；类型写 `StyleTable<'root' | 'icon'>`（`utils/style/styles.ts`），动态样式写出函数签名。受管属性的类型叫 `<组件>Managed`。
+- 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；`stylex.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；

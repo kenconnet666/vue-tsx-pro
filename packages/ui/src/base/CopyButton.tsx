@@ -11,7 +11,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useLang } from '../config/context';
 import { useClipboard } from '../utils/dom/clipboard';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 import {
   buttonContent,
   buttonSx,
@@ -47,7 +46,7 @@ export interface CopyButtonProps
 const pop = stylex.keyframes({ from: { transform: 'scale(0.5)', opacity: 0 } });
 
 /** CopyButton 的样式：copied（对勾弹出；减少动态效果时时长为 0） */
-export const copyButtonStyles: StyleTable<'copied'> = stylex.create({
+export const copyButtonStyles = stylex.create({
   copied: {
     animationName: pop,
     animationDuration: '_durations.md',

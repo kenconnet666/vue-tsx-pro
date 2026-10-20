@@ -22,7 +22,7 @@ import type { JSAnimation } from 'animejs';
 import { useAnimate } from '../utils/motion/animation';
 import { startMove } from '../utils/dom/move';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { clamp, isRtl } from '../utils/data/layout';
 
 /** 验证状态，由应用控制 */
@@ -102,9 +102,7 @@ const END = 0.98;
 const KEY_STEP = 0.05;
 
 /** SlideVerify 的样式：root、disabled、fill、hint、handle、settle 等 */
-export const slideVerifyStyles: StyleTable<
-  'root' | 'disabled' | 'fill' | 'hint' | 'handle' | 'settle' | 'locked' | 'success' | 'error'
-> = stylex.create({
+export const slideVerifyStyles = stylex.create({
   root: {
     position: 'relative',
     boxSizing: 'border-box',

@@ -13,7 +13,7 @@ import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { toneStyles, type Tone } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -44,7 +44,7 @@ export interface LinkProps extends PartProps<'a', 'href'> {
 }
 
 /** Link 的样式：root、always、hover、none、icon */
-export const linkStyles: StyleTable<'root' | 'always' | 'hover' | 'none' | 'icon'> = stylex.create({
+export const linkStyles = stylex.create({
   root: {
     borderRadius: '_xs',
     textDecorationThickness: '_xs',

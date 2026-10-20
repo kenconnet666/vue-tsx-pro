@@ -18,7 +18,6 @@ import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useSortable } from '../utils/dom/sortable';
 import { elementProps, mergeProps, type PartProps } from '../utils/props';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 项的渲染状态 */
 export interface SortableItemState {
@@ -51,9 +50,7 @@ export interface SortableProps<T> extends PartProps<'ul'> {
 }
 
 /** Sortable 的样式：root、horizontal、item、active、handle、content */
-export const sortableStyles: StyleTable<
-  'root' | 'horizontal' | 'item' | 'active' | 'handle' | 'content'
-> = stylex.create({
+export const sortableStyles = stylex.create({
   root: {
     display: 'flex',
     flexDirection: 'column',

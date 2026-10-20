@@ -24,7 +24,6 @@ import { useLayoutAnimation } from '../utils/motion/layout';
 import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 import { fontSizeStyles } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 import {
   controlStyles,
   controlSx,
@@ -113,7 +112,7 @@ export interface TagsInputBaseProps<T>
 export type TagsInputProps<T = ListboxOption> = TagsInputBaseProps<T> & OptionMapping<T>;
 
 /** TagsInput 的样式：root、input、popover */
-export const tagsInputStyles: StyleTable<'root' | 'input' | 'popover'> = stylex.create({
+export const tagsInputStyles = stylex.create({
   // 标签多了换行；行与行之间留出间距
   root: { flexWrap: 'wrap', rowGap: '_xs', paddingBlock: '_xs' },
   // 输入框至少留出几个字的位置，放不下时换到下一行

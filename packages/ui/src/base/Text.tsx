@@ -24,7 +24,6 @@ import {
   type TextWrap,
   type Tone,
 } from '../utils/style/typography';
-import type { StyleTable } from '../utils/style/styles';
 
 /** 文字组件可用的标签 */
 export type TextTag = 'span' | 'p' | 'strong' | 'em' | 'small';
@@ -52,7 +51,7 @@ export interface TextOptions {
 export type TextProps<Tag extends TextTag = 'span'> = PartProps<Tag> & TextOptions;
 
 /** Text 系列 的样式：paragraph */
-export const textComponentStyles: StyleTable<'paragraph'> = stylex.create({
+export const textComponentStyles = stylex.create({
   // 段落之间的距离交给布局（Flex 的 gap），与标题一致
   paragraph: { margin: 0 },
 });
