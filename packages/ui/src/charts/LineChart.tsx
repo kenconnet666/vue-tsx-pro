@@ -46,7 +46,8 @@ export interface LineChartProps<T extends object> extends XYChartProps<T> {
   lineWidth?: number;
 }
 
-const CURVES = {
+/** 曲线的形状 → Unovis 的 CurveType（折线图、面积图共用） */
+export const CURVES = {
   linear: CurveType.Linear,
   monotone: CurveType.MonotoneX,
   step: CurveType.StepAfter,

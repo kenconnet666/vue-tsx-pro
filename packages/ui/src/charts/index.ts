@@ -5,10 +5,20 @@
  *
  * 主入口不导入图表，没用到图表的应用不会打包 Unovis。
  */
+export { AreaChart, type AreaChartProps } from './AreaChart';
 export { BarChart, type BarChartProps } from './BarChart';
+export { DonutChart, donutChartStyles, type DonutChartProps } from './DonutChart';
 export { chartStyles, type ChartFrameParts, type ChartLegendItem } from './frame';
-export { LineChart, type LineChartProps, type LineCurves, type LineDots } from './LineChart';
 export {
+  CURVES,
+  LineChart,
+  type LineChartProps,
+  type LineCurves,
+  type LineDots,
+} from './LineChart';
+export { ScatterChart, type ScatterChartProps } from './ScatterChart';
+export {
+  resolveColor,
   resolveSeries,
   type ChartColor,
   type ChartPaletteColor,

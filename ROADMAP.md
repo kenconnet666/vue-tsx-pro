@@ -67,7 +67,7 @@
 ## 6. 图表（@unovis/ts 包装，见 .claude/reports/unovis-api.md）
 
 - [x] P0：ChartFrame 公共结构（图例改用 ButtonBase、部件属性补齐）；XYChart 换绘图区时连同全部实例重建（SingleChart 等第二种单容器图表时再抽）
-- [ ] P1：AreaChart、ScatterChart、DonutChart、StackedBarChart、图例与提示框统一
+- [x] P1：AreaChart（重叠或堆叠）、ScatterChart（连续横轴、气泡）、DonutChart（第一种单容器图表）；StackedBarChart 即 BarChart 的 stacked；图例与提示框统一在 ChartFrame
 - [ ] P2：Timeline、Sankey、Graph、ChordDiagram
 - [ ] P3：TopoJSON 地图、LeafletMap、BulletLegend 等其余组件
 

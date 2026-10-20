@@ -4,8 +4,11 @@ import { describe, expect, it } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
 import { colors } from '../../config/theme/tokens.stylex';
 import { mount } from '../../utils/.test/mount';
+import { AreaChart } from '../AreaChart';
 import { BarChart } from '../BarChart';
+import { DonutChart } from '../DonutChart';
 import { LineChart } from '../LineChart';
+import { ScatterChart } from '../ScatterChart';
 import { resolveSeries, seriesNumber, seriesValue } from '../series';
 
 interface Row {
@@ -173,5 +176,65 @@ describe('BarChart、LineChart', () => {
     const block = line!.querySelectorAll('[aria-hidden="true"]');
     expect(block).toHaveLength(1);
     expect(block[0]!.children).toHaveLength(0);
+  });
+});
+
+describe('DonutChart、ScatterChart、AreaChart', () => {
+  const sources = [
+    { name: '搜索', visits: 300 },
+    { name: '直接', visits: 100 },
+  ];
+
+  it('环形图：数据表列出数值与占比；点图例隐藏一项后占比按剩下的算', async () => {
+    const root = mount(() => (
+      <DonutChart aria-label="来源" data={sources} index="name" value="visits" unit="次" />
+    ));
+    const table = root.querySelector('table')!;
+    expect([...table.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual([
+      '类目',
+      '数值（次）',
+      '占比',
+    ]);
+    expect([...table.querySelectorAll('tbody tr')].map((tr) => tr.textContent)).toEqual([
+      '搜索30075%',
+      '直接10025%',
+    ]);
+    root.querySelector<HTMLButtonElement>('[role="group"] button')!.click();
+    await nextTick();
+    expect([...table.querySelectorAll('tbody tr')].map((tr) => tr.textContent)).toEqual([
+      '直接100100%',
+    ]);
+  });
+
+  it('散点图：数据表多一列横轴的值', () => {
+    const root = mount(() => (
+      <ScatterChart
+        aria-label="城市"
+        data={[{ name: '北京', gdp: 20, commute: 47 }]}
+        index="name"
+        x="gdp"
+        xLabel="人均 GDP"
+        series={[{ key: 'commute', label: '通勤' }]}
+      />
+    ));
+    expect([...root.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual([
+      '类目',
+      '人均 GDP',
+      '通勤',
+    ]);
+    expect(root.querySelector('tbody tr')!.textContent).toBe('北京2047');
+  });
+
+  it('面积图：外层 figure 与数据表同折线图；没有数据时显示空状态', () => {
+    const root = mount(() => (
+      <>
+        <AreaChart aria-label="面积" data={rows} index="name" series={[...series]} stacked />
+        <AreaChart aria-label="空" data={[] as Row[]} index="name" series={[...series]} />
+      </>
+    ));
+    // 只取外层：Unovis 画出的 svg 自己也带 role="figure"
+    const [area, empty] = root.querySelectorAll(':scope > [role="figure"]');
+    expect(area!.querySelectorAll('tbody tr')).toHaveLength(2);
+    expect(empty!.textContent).toContain('暂无数据');
   });
 });

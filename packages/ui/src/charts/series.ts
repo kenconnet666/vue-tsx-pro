@@ -48,15 +48,16 @@ const PALETTE: readonly string[] = [
 
 const PALETTE_NAME = /^chart([1-8])$/;
 
-/** 系列颜色：色板名换成 CSS 变量；没写时按位置取，多于 8 个系列时循环使用 */
+/** 一个颜色：色板名换成 CSS 变量；没写时按位置取色板，多于 8 个时循环使用（系列、环形图的扇区共用） */
+export function resolveColor(color: ChartColor | undefined, index: number): string {
+  const palette = color && PALETTE_NAME.exec(color);
+  if (palette) return PALETTE[Number(palette[1]) - 1]!;
+  return color ?? PALETTE[index % PALETTE.length]!;
+}
+
+/** 系列颜色：见 resolveColor */
 export function resolveSeries<T>(series: readonly ChartSeries<T>[]): ResolvedSeries<T>[] {
-  return series.map((item, index) => {
-    const palette = item.color && PALETTE_NAME.exec(item.color);
-    const color = palette
-      ? PALETTE[Number(palette[1]) - 1]!
-      : (item.color ?? PALETTE[index % PALETTE.length]!);
-    return { ...item, color };
-  });
+  return series.map((item, index) => ({ ...item, color: resolveColor(item.color, index) }));
 }
 
 /** 数据行里一个系列的原值：提示框、数据表按它格式化；空值、非数字、NaN 与无穷返回 undefined */

@@ -37,6 +37,7 @@ export const BarChart = _component(
     const kind = _derived<XYChartKind<T>>({
       horizontal: orientation === 'horizontal',
       skeleton: 'bars',
+      stacked,
       components: ({ series, x, y, instance }) => {
         const common = {
           x,

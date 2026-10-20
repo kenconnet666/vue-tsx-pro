@@ -104,6 +104,12 @@ export interface Lang {
   readonly chartEmpty: string;
   /** 图表的数据表（给读屏）里类目那一列的表头，默认“类目” */
   readonly chartCategory: string;
+  /** 环形图数据表的“数值”一列，默认“数值” */
+  readonly chartValue: string;
+  /** 环形图数据表与提示框的“占比”，默认“占比” */
+  readonly chartShare: string;
+  /** 环形图中间总数下面的说明，默认“合计” */
+  readonly chartTotal: string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
   /** 选择文件区域的提示，默认“点击或拖放文件到这里” */

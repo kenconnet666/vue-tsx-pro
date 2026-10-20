@@ -101,6 +101,16 @@ export interface XYChartKind<T extends object> {
   padding?: { left?: number; right?: number; top?: number; bottom?: number };
   /** 数值范围按堆叠后的总和算（堆叠的柱子、面积） */
   stacked?: boolean;
+  /** 横轴是连续的数值（散点图）：取值、刻度与提示框里的写法、数据表的列名；不写时横轴是类目（第几行） */
+  continuousX?: {
+    value: (row: T) => number | undefined;
+    format: (value: number) => string;
+    label: string;
+  };
+  /** 数值轴默认从 0 起（数据有负数时取负数）；false 时按数据自动取（散点图） */
+  zeroBaseline?: boolean;
+  /** 提示框跟着数据点（散点图），没有十字线：按选择器触发，悬停的数据是这一行 */
+  pointTooltip?: string;
 }
 
 /** 骨架柱的高度（百分比）：高低错落，看起来像一组数据 */
@@ -189,6 +199,11 @@ export const XYChart = _component(
     const valueText = (value: NumericValue | undefined) =>
       value === undefined ? '—' : `${format.number(value, valueFormat)}${unit ? ` ${unit}` : ''}`;
 
+    const xText = (row: T) => {
+      const x = kind.continuousX?.value(row);
+      return x === undefined ? '—' : kind.continuousX!.format(x);
+    };
+
     function toggle(key: string) {
       hiddenSeries = hiddenSeries.includes(key)
         ? hiddenSeries.filter((item) => item !== key)
@@ -202,14 +217,19 @@ export const XYChart = _component(
     function renderTooltip(row: T) {
       tooltipElement ??= document.createElement('div');
       render(
-        chartTooltip(
-          categoryText(row),
-          visible.map((item) => ({
-            label: item.label,
-            color: item.color,
-            value: valueText(seriesValue(row, item.key)),
-          })),
-        ),
+        chartTooltip(categoryText(row), [
+          ...(kind.continuousX
+            ? [{ label: kind.continuousX.label, color: 'transparent', value: xText(row) }]
+            : []),
+          // 跟着数据点的提示框只列这一行有值的系列（散点图里一行通常只落在一个系列上）
+          ...visible
+            .filter((item) => !kind.pointTooltip || seriesValue(row, item.key) !== undefined)
+            .map((item) => ({
+              label: item.label,
+              color: item.color,
+              value: valueText(seriesValue(row, item.key)),
+            })),
+        ]),
         tooltipElement,
       );
       return tooltipElement;
@@ -242,12 +262,14 @@ export const XYChart = _component(
           ])
         : totals.flat();
       const domain: [number | undefined, number | undefined] = [
-        valueDomain?.[0] ?? Math.min(0, ...values),
+        valueDomain?.[0] ?? (kind.zeroBaseline === false ? undefined : Math.min(0, ...values)),
         valueDomain?.[1],
       ];
       const components = kind.components({
         series: shown,
-        x: (_row, position) => position,
+        x: kind.continuousX
+          ? (row) => kind.continuousX!.value(row) ?? Number.NaN
+          : (_row, position) => position,
         y: (item) => (row) => seriesNumber(row, item.key),
         instance: instances.get,
       });
@@ -256,11 +278,16 @@ export const XYChart = _component(
       const crosshair = instances.get('crosshair', () => new Crosshair<T>());
       const tooltipBox = instances.get('tooltip', () => new Tooltip());
       const [categoryAxis, valueAxis] = kind.horizontal ? [yAxis, xAxis] : [xAxis, yAxis];
+      const continuous = kind.continuousX;
       categoryAxis.setConfig({
         type: kind.horizontal ? 'y' : 'x',
-        tickValues: rows.map((_row, position) => position),
-        tickFormat: (tick) => categoryText(rows[Number(tick)]),
-        gridLine: false,
+        // 连续的横轴：Unovis 自己取刻度，网格线与数值轴一样；类目轴：每行一个刻度
+        tickValues: continuous ? undefined : rows.map((_row, position) => position),
+        numTicks: continuous ? 6 : undefined,
+        tickFormat: continuous
+          ? (tick) => continuous.format(Number(tick))
+          : (tick) => categoryText(rows[Number(tick)]),
+        gridLine: continuous ? grid : false,
         tickLine: false,
         domainLine: false,
         tickTextHideOverlapping: true,
@@ -282,11 +309,14 @@ export const XYChart = _component(
         hideWhenFarFromPointer: false,
       });
 
+      tooltipBox.setConfig({
+        triggers: kind.pointTooltip ? { [kind.pointTooltip]: (row: T) => renderTooltip(row) } : {},
+      });
       const config = {
         components,
         xAxis,
         yAxis,
-        crosshair: tooltip ? crosshair : undefined,
+        crosshair: tooltip && !kind.pointTooltip ? crosshair : undefined,
         tooltip: tooltip ? tooltipBox : undefined,
         [kind.horizontal ? 'xDomain' : 'yDomain']: domain,
         padding: kind.padding ?? {},
@@ -317,14 +347,18 @@ export const XYChart = _component(
         table={{
           columns: [
             lang.chartCategory,
+            ...(kind.continuousX ? [kind.continuousX.label] : []),
             ...resolved.map((item) => (unit ? `${item.label}（${unit}）` : item.label)),
           ],
           rows: data.map((row) => ({
             header: categoryText(row),
-            cells: resolved.map((item) => {
-              const value = seriesValue(row, item.key);
-              return value === undefined ? '—' : format.number(value, valueFormat);
-            }),
+            cells: [
+              ...(kind.continuousX ? [xText(row)] : []),
+              ...resolved.map((item) => {
+                const value = seriesValue(row, item.key);
+                return value === undefined ? '—' : format.number(value, valueFormat);
+              }),
+            ],
           })),
         }}
         plotRef={(element) => (plot = element)}
