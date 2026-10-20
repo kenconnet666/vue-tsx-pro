@@ -6,6 +6,8 @@ export interface Demo {
   component: Component;
   /** 示例文件的源码，原样显示 */
   source: string;
+  /** 相对组件目录、不带扩展名的路径（layout/AppShell/frames/Admin）：整页示例按它打开 /frame/… */
+  path: string;
 }
 
 /** 每个文档页导出的 meta：字面量，构建时静态读出 */

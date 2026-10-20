@@ -25,6 +25,7 @@ import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { allPages, sectionOf, sections } from './site/nav';
 import { PropsPlaygroundButton } from './site/PropsPlaygroundButton';
+import { isFrame } from './router';
 import { preference } from './site/theme';
 
 const pageEnter = stylex.keyframes({
@@ -123,6 +124,8 @@ export const App = _component(() => {
   };
 
   return () => {
+    // 整页示例在 iframe 里单独渲染，不套站点外壳
+    if (isFrame) return <RouterView />;
     const isHome = route.path === '/';
     return (
       <AppShell

@@ -2,6 +2,16 @@
 import { createRouter, createWebHistory, type RouterHistory } from 'vue-router';
 import { allPages } from './site/nav';
 
+/** 整页示例的地址（示例卡片里 iframe 的 src） */
+export const framePath = (demoPath: string) => `${import.meta.env.BASE_URL}frame/${demoPath}`;
+
+/**
+ * 当前文档是不是整页示例（iframe 里）。按加载时的地址判断、不看路由：
+ * 路由第一次解析完成之前 App 就渲染了，要一开始就知道不套外壳；iframe 里也不会换到别的页面
+ */
+export const isFrame =
+  typeof location !== 'undefined' && location.pathname.startsWith(framePath(''));
+
 /** 创建路由；测试传入内存路由历史 */
 export function createDocsRouter(
   history: RouterHistory = createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +25,8 @@ export function createDocsRouter(
         component: page.component,
         meta: { title: page.title },
       })),
+      // 整页示例：示例卡片里的 iframe 打开它，不套站点外壳（见 isFrame）
+      { path: '/frame/:path(.*)', component: () => import('./pages/Frame'), meta: { title: '' } },
       {
         path: '/:missing(.*)*',
         component: () => import('./pages/NotFound'),
