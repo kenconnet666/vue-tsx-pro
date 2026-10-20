@@ -5,6 +5,9 @@
  * 命名：通用文案不加前缀；组件文案用组件名作前缀（selectEmpty），键入 lang.select 即可筛出。
  * 需要插值的文案写成函数。
  */
+import type { DateSegmentType } from '../../date/date-segments';
+import type { DateRangePreset } from '../../utils/data/date';
+
 /** 文字方向 */
 export interface Directions {
   /** 从左到右：中文、英文等 */
@@ -31,7 +34,10 @@ export interface Lang {
   readonly direction: keyof Directions;
   /** 时区，如 `'Asia/Shanghai'`；不写时使用浏览器时区 */
   readonly timeZone?: string;
-  /** 日历系统，如 `'gregory'`（公历）、`'chinese'`（农历） */
+  /**
+   * 日历系统，如 `'gregory'`（公历）、`'japanese'`（和历）。Intl 格式化都认；日期组件的网格与运算用
+   * @internationalized/date，它不支持的（如 `'chinese'` 农历）按公历排
+   */
   readonly calendar: string;
   /** 一周的第一天，0 表示周日；不写时按地区惯例 */
   readonly firstDayOfWeek?: number;
@@ -175,6 +181,51 @@ export interface Lang {
   readonly slideVerifySuccess: string;
   /** 拖动验证：没通过，默认“验证失败，请重试” */
   readonly slideVerifyError: string;
+
+  // ───────── 日期组件 ─────────
+
+  /** 日历“上个月”按钮，默认“上个月” */
+  readonly calendarPreviousMonth: string;
+  /** 日历“下个月”按钮，默认“下个月” */
+  readonly calendarNextMonth: string;
+  /** 月份视图“上一年”按钮，默认“上一年” */
+  readonly calendarPreviousYear: string;
+  /** 月份视图“下一年”按钮，默认“下一年” */
+  readonly calendarNextYear: string;
+  /** 年份视图“上一个十年”按钮，默认“上一个十年” */
+  readonly calendarPreviousDecade: string;
+  /** 年份视图“下一个十年”按钮，默认“下一个十年” */
+  readonly calendarNextDecade: string;
+  /** 标题按钮（切到月份视图）的名称：`('2026年10月')` → “选择月份：2026年10月” */
+  readonly calendarChooseMonth: (current: string) => string;
+  /** 标题按钮（切到年份视图）的名称：`('2026年')` → “选择年份：2026年” */
+  readonly calendarChooseYear: (current: string) => string;
+  /** 周数一列的表头，默认“周” */
+  readonly calendarWeek: string;
+  /** 周数给读屏的说明：`(43)` → “第 43 周” */
+  readonly calendarWeekNumber: (week: number) => string;
+  /** 今天那一格的读屏名称：`('2026年10月20日星期二')` → “今天，2026年10月20日星期二” */
+  readonly calendarToday: (date: string) => string;
+  /** 区间选了开始、等着选结束时给读屏的提示，默认“请选择结束日期” */
+  readonly calendarPickEnd: string;
+  /** 日期选择器打开日历的按钮，默认“选择日期” */
+  readonly datePickerOpen: string;
+  /** 时间选择器打开列表的按钮，默认“选择时间” */
+  readonly timePickerOpen: string;
+  /** 区间开始那组分段的名称，默认“开始日期” */
+  readonly dateRangeStart: string;
+  /** 区间结束那组分段的名称，默认“结束日期” */
+  readonly dateRangeEnd: string;
+  /** 快捷选项那一组的名称，默认“快捷选项” */
+  readonly dateRangePresets: string;
+  /** 快捷区间的名字 */
+  readonly dateRangePreset: Readonly<Record<DateRangePreset, string>>;
+  /** 选“现在”的按钮（时间、日期时间选择器），默认“此刻” */
+  readonly timePickerNow: string;
+  /** 还没填的段给读屏的取值，默认“未填写” */
+  readonly dateFieldEmpty: string;
+  /** 分段的占位文字 */
+  readonly dateFieldPlaceholders: Readonly<Partial<Record<DateSegmentType, string>>>;
 
   // ───────── 文档站一类页面的组件 ─────────
 

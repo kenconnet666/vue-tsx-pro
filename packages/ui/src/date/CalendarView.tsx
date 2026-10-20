@@ -39,7 +39,7 @@ import {
   type CalendarState,
 } from './calendar-state';
 import { useDateLocale } from './date-locale';
-import { useDateTexts } from './date-texts';
+import { useLang } from '../config/context';
 import type { CalendarDate } from '@internationalized/date';
 
 /** 角色由组件管理 */
@@ -242,7 +242,7 @@ export const CalendarView = _component(
   }: CalendarViewProps) => {
     const format = useFormat();
     const locale = useDateLocale(() => ({ firstDayOfWeek }));
-    const texts = useDateTexts();
+    const lang = useLang();
     const id = useId();
     const hintId = `${id}-hint`;
     let root = _state.raw<HTMLElement | null>(null);
@@ -349,7 +349,7 @@ export const CalendarView = _component(
           >
             {/* 每格一个：直接用样式，不多建几百个组件实例 */}
             <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
-              {state.today ? texts().calendarToday(label) : label}
+              {state.today ? lang.calendarToday(label) : label}
             </span>
             {kind === 'custom' ? content : <span aria-hidden="true">{content}</span>}
           </button>
@@ -392,7 +392,7 @@ export const CalendarView = _component(
                     scope: 'col',
                   })}
                 >
-                  {texts().calendarWeek}
+                  {lang.calendarWeek}
                 </th>
               )}
               {names.map((name, index) => (
@@ -417,7 +417,7 @@ export const CalendarView = _component(
                 {showWeekNumbers && (
                   <th
                     {...mergeAttrs<'th'>({ sx: calendarStyles.weekNumber }, propsWeekNumber, {
-                      'aria-label': texts().calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
+                      'aria-label': lang.calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
                       scope: 'row',
                     })}
                   >
@@ -476,16 +476,15 @@ export const CalendarView = _component(
     }
 
     return () => {
-      const t = texts();
       const view = calendar.view;
       const months = calendar.months;
       const coarser = view === 'day' ? 'month' : view === 'month' ? 'year' : undefined;
       const [previousLabel, nextLabel] =
         view === 'day'
-          ? [t.calendarPreviousMonth, t.calendarNextMonth]
+          ? [lang.calendarPreviousMonth, lang.calendarNextMonth]
           : view === 'month'
-            ? [t.calendarPreviousYear, t.calendarNextYear]
-            : [t.calendarPreviousDecade, t.calendarNextDecade];
+            ? [lang.calendarPreviousYear, lang.calendarNextYear]
+            : [lang.calendarPreviousDecade, lang.calendarNextDecade];
       const previous = (
         <IconButton
           {...mergePartProps<IconButtonProps>(
@@ -539,8 +538,8 @@ export const CalendarView = _component(
                           {
                             'aria-label':
                               coarser === 'month'
-                                ? t.calendarChooseMonth(label)
-                                : t.calendarChooseYear(label),
+                                ? lang.calendarChooseMonth(label)
+                                : lang.calendarChooseYear(label),
                             type: 'button',
                             onClick: () => calendar.setView(coarser),
                           },
@@ -563,7 +562,7 @@ export const CalendarView = _component(
           </div>
           {/* 翻页、换视图时播报新的标题；不放在标题按钮上，免得聚焦按钮时重复念 */}
           <VisuallyHidden aria-live="polite">{months.map(title).join('，')}</VisuallyHidden>
-          {calendar.anchor && <VisuallyHidden id={hintId}>{t.calendarPickEnd}</VisuallyHidden>}
+          {calendar.anchor && <VisuallyHidden id={hintId}>{lang.calendarPickEnd}</VisuallyHidden>}
           {footer != null && (
             <div {...mergeAttrs<'div'>({ sx: calendarStyles.footer }, propsFooter)}>{footer}</div>
           )}

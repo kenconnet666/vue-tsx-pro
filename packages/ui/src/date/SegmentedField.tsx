@@ -31,7 +31,6 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { useDateLocale } from './date-locale';
 import { fieldsToIso, isoToFields, useDateSegments, type DateSegmentType } from './date-segments';
 import { DateSegmentGroup, type DateSegmentGroupProps } from './DateSegmentGroup';
-import { useDateTexts } from './date-texts';
 
 /** 由组件管理：角色与关联 */
 export type SegmentedFieldManaged = 'role' | 'aria-describedby';
@@ -112,7 +111,6 @@ export const SegmentedField = _component(
   }: SegmentedFieldProps) => {
     const lang = useLang();
     const locale = useDateLocale();
-    const texts = useDateTexts();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let group = _state.raw<HTMLElement | null>(null);
@@ -134,7 +132,7 @@ export const SegmentedField = _component(
           second: 0,
         };
       },
-      placeholders: () => texts().dateFieldPlaceholders,
+      placeholders: () => lang.dateFieldPlaceholders,
       readonly: () => control().disabled || control().readonly,
     });
 

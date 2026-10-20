@@ -20,7 +20,7 @@ import {
   type DateSegmentsState,
   type DateSegmentType,
 } from './date-segments';
-import { useDateTexts } from './date-texts';
+import { useLang } from '../config/context';
 
 /** 角色与状态由组件管理 */
 export type DateSegmentGroupManaged = 'role';
@@ -109,7 +109,7 @@ export const DateSegmentGroup = _component(
     propsLiteral,
     ...rest
   }: DateSegmentGroupProps) => {
-    const texts = useDateTexts();
+    const lang = useLang();
     const id = useId();
     const elements = new Map<DateSegmentType, HTMLElement>();
     let root = _state.raw<HTMLElement | null>(null);
@@ -160,7 +160,6 @@ export const DateSegmentGroup = _component(
     }
 
     return () => {
-      const t = texts();
       return (
         <div
           {...mergeAttrs<'div'>(
@@ -222,7 +221,7 @@ export const DateSegmentGroup = _component(
                     'aria-valuenow': segment.value ?? undefined,
                     'aria-valuemin': segment.min,
                     'aria-valuemax': segment.max,
-                    'aria-valuetext': segment.placeholder ? t.dateFieldEmpty : segment.text,
+                    'aria-valuetext': segment.placeholder ? lang.dateFieldEmpty : segment.text,
                     'aria-required': required || undefined,
                     'aria-invalid': invalid || undefined,
                     'aria-readonly': readonly || undefined,
