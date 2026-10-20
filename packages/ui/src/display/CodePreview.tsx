@@ -8,6 +8,7 @@
  *
  * 效果与源码由使用方各自给出（组件本身不执行代码）：示例组件照常 import，源码用 Vite 的 ?raw 导入同一个文件，
  * 两者永远一致。源码默认收起，“显示代码”按钮带 aria-expanded / aria-controls；复制按钮一直在工具栏上。
+ * actions 往工具栏最前面加按钮，例如文档站的“在演练场里编辑”。
  * 外框是 Card（outline），源码是 CodeBlock，收起展开用 Collapse（高度过渡，收起后页内搜索仍能找到）。
  */
 import { Code as CodeIcon } from '@lucide/icons';
@@ -43,6 +44,8 @@ export interface CodePreviewProps extends PartProps<'div'> {
   align?: keyof CodePreviewAligns;
   /** 源码超过这么多行时折叠（见 CodeBlock 的 maxLines）；不写时不折叠 */
   maxLines?: number;
+  /** 工具栏上额外的操作，排在“显示代码”前面 */
+  actions?: VNodeChild;
   /** 运行中的效果 */
   children?: VNodeChild;
   /** 外框（Card）的部件属性 */
@@ -95,6 +98,7 @@ export const CodePreview = _component(
     showCode = _bindable(false),
     align = 'start',
     maxLines,
+    actions,
     children,
     propsCard,
     propsPreview,
@@ -118,6 +122,7 @@ export const CodePreview = _component(
         footer={
           <>
             <div {...mergeAttrs<'div'>({ sx: codePreviewStyles.toolbar }, propsToolbar)}>
+              {actions}
               <Button
                 {...mergePartProps<ButtonProps>(
                   { variant: 'ghost', tone: 'neutral', size: 'sm', icon: CodeIcon },

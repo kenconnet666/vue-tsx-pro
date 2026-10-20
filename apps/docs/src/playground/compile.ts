@@ -1,5 +1,5 @@
 /**
- * 代码演练场（试点）的编译：把一段 TSX 编译成能直接执行的代码与它的 CSS，在 Worker 里运行（compile.worker.ts）。
+ * 代码演练场的编译：把一段 TSX 编译成能直接执行的代码与它的 CSS，在 Worker 里运行（compile.worker.ts）。
  *
  * 插件顺序与 Vite 预设一致：token 字符串写法（compileTokens）→ 去掉类型 → 符文（runesBabelPlugin）→ StyleX → Vue JSX；
  * 最后把 import 改成从主线程给的模块表里取（见 run.ts），export default 改成交出组件。

@@ -19,6 +19,15 @@ catalog:
   pathe: 2.0.3
   '@types/babel__core': 7.20.5
   '@types/babel__traverse': 7.28.0
+  # 文档站代码演练场的编辑器（CodeMirror 6，进入演练场才加载）
+  '@codemirror/autocomplete': 6.20.3
+  '@codemirror/commands': 6.11.1
+  '@codemirror/lang-javascript': 6.2.5
+  '@codemirror/language': 6.13.1
+  '@codemirror/search': 6.7.2
+  '@codemirror/state': 6.7.6
+  '@codemirror/view': 6.43.14
+  '@lezer/highlight': 1.2.5
   # 宿主示例（apps/host-demo）：普通 Vue 项目常用的三件套
   '@vitejs/plugin-vue': 6.0.10
   vue-router: 5.4.0

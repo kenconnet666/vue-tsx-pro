@@ -34,6 +34,17 @@ describe('CodePreview', () => {
     // 复制按钮在工具栏上，源码里不再重复一个
     expect(root.querySelectorAll('button[aria-label="复制"]')).toHaveLength(1);
   });
+
+  it('actions 排在工具栏最前面', () => {
+    const root = mount(() => (
+      <CodePreview code="x" actions={<a href="/edit">编辑</a>}>
+        x
+      </CodePreview>
+    ));
+    const toolbar = root.querySelector('a')!.parentElement!;
+    expect(toolbar.firstElementChild!.textContent).toBe('编辑');
+    expect(toolbar.querySelector('button[aria-controls]')).not.toBeNull();
+  });
 });
 
 describe('ColorSwatch', () => {

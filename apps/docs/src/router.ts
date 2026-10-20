@@ -10,12 +10,6 @@ export function createDocsRouter(
     history,
     routes: [
       { path: '/', component: () => import('./pages/Home'), meta: { title: '' } },
-      // 代码演练场试点：还不在侧栏里
-      {
-        path: '/playground',
-        component: () => import('./pages/Playground'),
-        meta: { title: '代码演练场（试点）' },
-      },
       ...allPages.map((page) => ({
         path: page.path,
         component: page.component,
@@ -27,13 +21,13 @@ export function createDocsRouter(
         meta: { title: '找不到页面' },
       },
     ],
-    // 换页回到顶部；带锚点时滚到那一节，让开粘性顶栏（标题的 scroll-margin-top）
+    // 换页回到顶部；带锚点时滚到那一节，让开粘性顶栏（标题的 scroll-margin-top）。
+    // hash 不是页内锚点（演练场的 #code=…）时也回到顶部
     scrollBehavior(to, _from, saved) {
       if (saved) return saved;
-      if (!to.hash) return { top: 0 };
-      const target = document.getElementById(decodeURIComponent(to.hash.slice(1)));
-      const offset = target ? parseFloat(getComputedStyle(target).scrollMarginTop) || 0 : 0;
-      return { el: to.hash, top: offset };
+      const target = to.hash && document.getElementById(decodeURIComponent(to.hash.slice(1)));
+      if (!target) return { top: 0 };
+      return { el: target, top: parseFloat(getComputedStyle(target).scrollMarginTop) || 0 };
     },
   });
 }

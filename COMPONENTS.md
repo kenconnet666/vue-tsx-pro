@@ -653,7 +653,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 | 基础组件 | `ButtonBase`（无外观的按钮）：菜单项、标签页、折叠标题、步骤、排序按钮、拖动把手、导航分组都建在它上面；过渡写法抽成 `interactionTransitions` / `disclosureStyles` / `presenceStyles`；8 处手写的 ul / ol 改用 `FlexList` / `FlexOrderedList` / `GridList`                                                                                     |
 | 改名     | 虚拟滚动表格 `Table` / `TreeTable` → `DataTable` / `TreeDataTable`，`Table` 留给静态表格；列表状态的类型 `ListItem` → `ListStateEntry`（`ListItem` 是列表项组件）                                                                                                                                                                              |
 | 正文排版 | 静态表格 `Table` 家族（与 DataTable 共用样式表）、`List` / `OrderedList` / `ListItem`、`Blockquote`、`Mark`、`Prose`（长文容器：阅读宽度、宽松行高）；标题的 `anchor`（悬停或聚焦时显示的 # 链接，`stylex.when.ancestor` + `headingMarker`）                                                                                                   |
-| 代码展示 | `CodeBlock` 的标题栏、行号、行高亮、diff 的增删行、`maxLines` 折叠；`CodeGroup`（标签页切换几段代码）；`CodePreview`（效果 + 可收起的源码 + 复制，示例组件与 `?raw` 源码由使用方各自导入，两者永远一致）                                                                                                                                       |
+| 代码展示 | `CodeBlock` 的标题栏、行号、行高亮、diff 的增删行、`maxLines` 折叠；`CodeGroup`（标签页切换几段代码）；`CodePreview`（效果 + 可收起的源码 + 复制，`actions` 往工具栏加按钮；示例组件与 `?raw` 源码由使用方各自导入，两者永远一致）                                                                                                             |
 | 页面外壳 | `AppShell`（粘性半透明顶栏、左侧栏、正文、右侧栏；64rem 以下左侧栏收进抽屉，80rem 以下隐藏右侧栏；自带 `SkipLink`）、`TableOfContents`（`useScrollSpy` 滚动高亮，`collectHeadings` 收集标题）、`CommandPalette`（Mod+K，Dialog + `useListState` + `ListboxView`）、`Pager`（上一篇 / 下一篇）、`ColorSwatch`（色块，token 按当前主题读出取值） |
 | 基础设施 | `useMediaQuery`（`usePrefersDark`、`useReducedMotion` 并入 `utils/dom/media-query.ts`）；`layoutVars.stickyOffset`（`utils/style/vars.stylex.ts`：AppShell 设为顶栏高度，标题的 `scroll-margin` 与粘性侧栏据此让开）；抽屉关闭时滑回所在一侧；AnimatedNumber 每帧直接改文字                                                                    |
 
@@ -716,26 +716,30 @@ apps/docs/src/components/base/Button/
 
 **取舍**：运行时覆盖写在根元素的行内样式上，会盖过“减少动态效果时为 0”的媒体查询，所以用户开启减少动态效果时动效旋钮不覆盖时长。中间亮度的色阶（如 crimson、teal）上白字与深色字都可能到不了 4.5:1，编辑器如实提示。逐个 token 编辑、任意颜色生成色阶（OKLCH）留到第二期。
 
-### 10.20 代码演练场试点：Web Worker 里编译（结论：可行）
+### 10.20 代码演练场：Web Worker 里编译，独立应用里预览
 
-目标：用户在文档站改示例代码、立即看到效果，不打开 StackBlitz。试点页面 `/playground`（不在侧栏），代码在 `apps/docs/src/playground/`。
+目标：用户在文档站改示例代码、立即看到效果，不打开 StackBlitz。页面 `/playground`（侧栏“指南”里），页面在 `apps/docs/src/pages/Playground.tsx`，其余代码在 `apps/docs/src/playground/`。先做试点验证可行，再正式化。
 
-| 环节      | 做法                                                                                                                                                                                                                        |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 编译      | `compile.ts`：与 Vite 预设同一套 Babel 插件——token 字符串写法（`compileTokens`）→ 去类型 → 符文 → StyleX → Vue JSX，最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                       |
-| 样式      | StyleX 的规则从 metadata 取出转成 CSS，主线程写进一个 `<style data-playground>`；模块解析与站点构建用同一个规范名（`@vue-tsx-pro/ui:config/theme/tokens.stylex`），`'_md'` 与 `colors.accent` 编译出组件库的同一个 CSS 变量 |
-| 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、stylex、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                            |
-| Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）、StyleX 浏览器版要的 `@babel/standalone`（转交 parser/traverse/types）；依赖预构建见 vite.config.ts    |
-| 测试      | `compile.test.ts`：Node 里跑同一套编译，执行、挂载、点击；核对 token 变量与组件库一致；语法与 token 写错时报错带代码帧                                                                                                      |
+| 环节      | 做法                                                                                                                                                                                                                                                                               |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 编译      | `compile.ts`：与 Vite 预设同一套 Babel 插件——token 字符串写法（`compileTokens`）→ 去类型 → 符文 → StyleX → Vue JSX，最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                                                              |
+| 样式      | StyleX 的规则从 metadata 取出转成 CSS，主线程写进一个 `<style data-playground>`；模块解析与站点构建用同一个规范名（`@vue-tsx-pro/ui:config/theme/tokens.stylex`），`'_md'` 与 `colors.accent` 编译出组件库的同一个 CSS 变量                                                        |
+| 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、stylex、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                                   |
+| Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）、StyleX 浏览器版要的 `@babel/standalone`（转交 parser/traverse/types）；依赖预构建见 vite.config.ts                                                           |
+| 编辑器    | `editor.ts`：CodeMirror 6 + TSX 语法（括号补全与匹配、折叠、搜索、撤销）；颜色、字体全取主题 token（`colors.code*` 与 Shiki 代码块同一套），明暗用 Compartment 切换。`CodeEditor.tsx` 挂载后才 `import()` 它，外壳复用输入框的 `controlShellStyles`；Tab 缩进，Esc 后 Tab 移出焦点 |
+| 预览隔离  | `preview.ts`：用户组件挂在独立的 Vue 应用里，与页面共用 `ConfigContext`（主题、语言跟着站点变）；根组件是错误边界（`onErrorCaptured`），setup、渲染、事件处理、侦听器里的错误只在预览区报“运行出错”，可“重新运行”；每次编译成功先卸载旧应用                                        |
+| 分享      | `share.ts`：代码 deflate-raw 压缩、base64url 后放进 hash（`/playground#code=…`），停止输入 300 ms 后 `history.replaceState` 写入（不新增历史记录）；起始示例不写 hash；链接损坏时提示并显示起始示例。路由的 `scrollBehavior` 遇到不是页内锚点的 hash 回到顶部                      |
+| 编辑按钮  | `CodePreview` 新增 `actions`（工具栏最前面的额外操作）；文档站的 `EditInPlayground` 是一个链接按钮，`Example` 与首页的示例卡片都带它，点开即带着源码进演练场                                                                                                                       |
+| 测试      | `compile.test.ts`：Node 里跑同一套编译，执行、挂载、点击；核对 token 变量与组件库一致；语法与 token 写错时报错带代码帧。`share.test.ts`：往返、损坏链接。`preview.test.tsx`：共用配置、渲染与事件里出错只报告                                                                      |
 
-**代价（生产构建，本机）**：Worker 2.2 MB，gzip 588 KB / brotli 413 KB，只在进入演练场时下载；页面块 64 KB（gzip，含整个组件库的模块表）。首次出效果约 0.8 s（含 Worker 下载、Babel 初始化与第一次编译约 135 ms），之后每次编译 5–15 ms，执行约 1 ms。
+**代价（生产构建，本机）**：Worker 2.2 MB，gzip 588 KB / brotli 413 KB，只在进入演练场时下载；页面块 66 KB（gzip，含整个组件库的模块表）；编辑器块 476 KB，gzip 160 KB，同样只在演练场加载。首次出效果约 0.8 s（含 Worker 下载、Babel 初始化与第一次编译约 135 ms），之后每次编译 5–15 ms，执行约 1 ms。
 
 **遇到的坑**：StyleX 浏览器版的运行时注入要插 import，它精简过的 Babel types 缺函数，改为从 metadata 取 CSS；它默认读 package.json 算调试路径，用 `debugFilePath` 跳过；替身源码改了要删 `node_modules/.vite` 重新预构建（替身被打进了预构建的依赖）。
 
-**限制**：没有类型检查（`colors.typo` 这类写错的变量 StyleX 不报错，编译成一个不存在的 CSS 变量）；只能导入模块表里的包；单文件。
+**限制**：没有类型检查（`colors.typo` 这类写错的变量 StyleX 不报错，编译成一个不存在的 CSS 变量）；只能导入模块表里的包；单文件。预览与页面同一个线程、同一个文档：死循环会卡住页面，定时器与 Promise 里的错误不经过 Vue，只出现在控制台（真正的隔离要 iframe，代价是另加载一份 Vue 与组件库）。
 
-**正式化要做的**：把编辑器换成带高亮的（CodeMirror 6，按需加载）、示例上加“编辑”按钮把源码带进演练场、代码存进地址栏方便分享、预览放进 ErrorBoundary 与独立的 Vue 应用（用户代码出错不影响页面）；类型检查（在 Worker 里跑 TypeScript，再多约 3 MB）视需要再定。
+**以后再定**：类型检查与补全（在 Worker 里跑 TypeScript，再多约 3 MB）；编辑器若别处也要用，再收进组件库（CodeMirror 作可选 peer 依赖，同 Shiki）。
 
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16）→ 文档站的准备（10.17）→ 文档站的框架（10.18）→ 浮层滚动条铺开与主题编辑器（10.19）→ 代码演练场试点（10.20），均已完成，每步单独提交。下一批：按分类迁移其余组件的示例、文档页与浏览器测试到文档站，之后是日期选择。正式组件按 §8 验收。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16）→ 文档站的准备（10.17）→ 文档站的框架（10.18）→ 浮层滚动条铺开与主题编辑器（10.19）→ 代码演练场（10.20），均已完成，每步单独提交。下一批：按分类迁移其余组件的示例、文档页与浏览器测试到文档站，之后是日期选择。正式组件按 §8 验收。

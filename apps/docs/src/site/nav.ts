@@ -4,6 +4,7 @@
  */
 import componentPages from 'virtual:doc-pages';
 import type { Component } from 'vue';
+import { PLAYGROUND_PATH } from '../playground/share';
 import type { PageMeta } from './types';
 
 /** 一个页面 */
@@ -53,6 +54,12 @@ const guide: NavSection = {
       title: '主题定制',
       description: '调品牌色、中性色、圆角、缩放、字体与动效，实时检查对比度，导出代码',
       component: () => import('../pages/guide/Theming'),
+    },
+    {
+      path: PLAYGROUND_PATH,
+      title: '代码演练场',
+      description: '在浏览器里改代码、立即看效果，复制链接分享；示例卡片上的“编辑”把示例带进来',
+      component: () => import('../pages/Playground'),
     },
   ],
 };

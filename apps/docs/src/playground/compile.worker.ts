@@ -1,4 +1,4 @@
-/** 代码演练场（试点）的编译 Worker：编译（compile.ts）放在页面线程之外，打字时界面不卡 */
+/** 代码演练场的编译 Worker：编译（compile.ts）放在页面线程之外，打字时界面不卡 */
 // 必须是第一个导入：给 Babel 补上 process
 import './node-shims/globals';
 import { compilePlayground, type TokenGroups } from './compile';

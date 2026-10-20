@@ -12,7 +12,15 @@
     "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "catalog:",
+    "@codemirror/commands": "catalog:",
+    "@codemirror/lang-javascript": "catalog:",
+    "@codemirror/language": "catalog:",
+    "@codemirror/search": "catalog:",
+    "@codemirror/state": "catalog:",
+    "@codemirror/view": "catalog:",
     "@floating-ui/dom": "catalog:",
+    "@lezer/highlight": "catalog:",
     "@lucide/icons": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",

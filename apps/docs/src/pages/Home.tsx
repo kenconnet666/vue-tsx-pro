@@ -17,6 +17,7 @@ import {
 } from '@vue-tsx-pro/ui';
 import Counter from './demo/Counter.tsx?demo';
 import { h } from 'vue';
+import { EditInPlayground } from '../site/EditInPlayground';
 
 const styles = stylex.create({
   // 标题后面一团很淡的品牌色光晕：亮色、暗色、纸张都取各自的浅品牌色
@@ -116,7 +117,12 @@ export default _component(() => () => (
           </Card>
         ))}
       </Grid>
-      <CodePreview code={Counter.source} showCode align="center">
+      <CodePreview
+        code={Counter.source}
+        showCode
+        align="center"
+        actions={<EditInPlayground code={Counter.source} />}
+      >
         {h(Counter.component)}
       </CodePreview>
     </Flex>

@@ -1,5 +1,5 @@
 /**
- * 一个示例：小节标题（带锚点，进本页目录）、说明文字、示例卡片（效果 + 源码）。
+ * 一个示例：小节标题（带锚点，进本页目录）、说明文字、示例卡片（效果 + 源码，可以带进演练场编辑）。
  *
  *   import Variants from './demo/Variants.tsx?demo';
  *   <Example id="variants" title="样式" demo={Variants}>六种样式对应不同的强调程度…</Example>
@@ -8,6 +8,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { CodePreview, createFlex, H2, Paragraph, type CodePreviewAligns } from '@vue-tsx-pro/ui';
 import { h, type VNodeChild } from 'vue';
+import { EditInPlayground } from './EditInPlayground';
 import type { Demo } from './types';
 
 const styles = stylex.create({
@@ -48,7 +49,12 @@ export const Example = _component(({ id, title, demo, align, children }: Example
       {title}
     </H2>
     {children != null && <Paragraph sx={styles.description}>{children}</Paragraph>}
-    <CodePreview code={demo.source} align={align} propsPreview={{ sx: styles.canvas }}>
+    <CodePreview
+      code={demo.source}
+      align={align}
+      actions={<EditInPlayground code={demo.source} />}
+      propsPreview={{ sx: styles.canvas }}
+    >
       {h(demo.component)}
     </CodePreview>
   </Section>

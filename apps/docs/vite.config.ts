@@ -53,6 +53,15 @@ export default defineConfig({
       '@vue/babel-plugin-jsx',
       '@stylexjs/babel-plugin',
       '@stylexjs/babel-plugin > postcss-value-parser',
+      // 演练场的编辑器：进入演练场才加载，预构建好免得那时才发现新依赖、重新预构建并刷新页面
+      '@codemirror/autocomplete',
+      '@codemirror/commands',
+      '@codemirror/lang-javascript',
+      '@codemirror/language',
+      '@codemirror/search',
+      '@codemirror/state',
+      '@codemirror/view',
+      '@lezer/highlight',
     ],
   },
   resolve: {

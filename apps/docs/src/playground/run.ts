@@ -1,5 +1,5 @@
 /**
- * 代码演练场（试点）的主线程部分：把代码交给 Worker 编译，执行结果拿到组件。
+ * 代码演练场的主线程部分：把代码交给 Worker 编译，执行结果拿到组件。
  * 用户代码里的 import 都从这张模块表取：复用文档站已经加载的 vue、组件库，不再下载一份。
  */
 import * as tsx from '@vue-tsx-pro/tsx';
@@ -38,7 +38,7 @@ let nextId = 0;
 const pending = new Map<number, (response: CompileResponse) => void>();
 
 /** 编译一段代码（第一次调用时启动 Worker） */
-export function compile(code: string): Promise<CompileResponse> {
+export async function compile(code: string): Promise<CompileResponse> {
   if (!worker) {
     worker = new Worker(new URL('./compile.worker.ts', import.meta.url), { type: 'module' });
     worker.onmessage = (event: MessageEvent<CompileResponse>) => {
@@ -53,7 +53,7 @@ export function compile(code: string): Promise<CompileResponse> {
   });
 }
 
-/** 演练场代码的样式：一个 style 元素，每次编译后整体替换 */
+/** 演练场代码的样式：一个 style 元素，每次编译后整体替换；离开演练场时传空字符串清掉 */
 let style: HTMLStyleElement | undefined;
 export function applyStyles(css: string) {
   style ??= document.head.appendChild(document.createElement('style'));
