@@ -78,8 +78,10 @@ export const descriptionsStyles = stylex.create({
     rowGap: '_md',
     margin: 0,
   },
+  // 用长写：StyleX 里长写优先于简写，gap: 0 压不住 list 的 columnGap / rowGap
   listBordered: {
-    gap: 0,
+    columnGap: 0,
+    rowGap: 0,
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: '_borderMuted',
@@ -97,12 +99,14 @@ export const descriptionsStyles = stylex.create({
     marginInlineStart: 'calc(-1 * _borderWidths.xs)',
     borderBlockStartWidth: '_xs',
     borderInlineStartWidth: '_xs',
-    borderStyle: 'solid',
+    borderBlockStartStyle: 'solid',
+    borderInlineStartStyle: 'solid',
     borderColor: '_borderMuted',
   },
   label: { flexShrink: 0, margin: 0, color: '_textMuted' },
   cellBordered: { paddingBlock: '_sm', paddingInline: '_md' },
-  labelBordered: { backgroundColor: '_surfaceMuted', minWidth: '8em' },
+  // 暗色主题的 surfaceMuted 与 surface 同色，标签格要在两种模式下都看得出来
+  labelBordered: { backgroundColor: '_fill', minWidth: '8em' },
   value: { minWidth: 0, margin: 0, color: '_text', overflowWrap: 'anywhere' },
 });
 

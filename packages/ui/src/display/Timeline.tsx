@@ -74,10 +74,14 @@ export interface TimelineProps extends PartProps<'ol'> {
 export const timelineStyles = stylex.create({
   // 竖排、去掉编号由 FlexOrderedList 给；交替排布按容器宽度切换
   root: { containerType: 'inline-size' },
-  // 节点一列、内容一列；交替时三列：左内容、节点、右内容
-  item: { display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: '_md' },
+  // 节点一列、内容一列；交替时三列：左内容、节点、右内容。
+  // 每项是独立的 grid，节点列至少有图标节点那么宽，圆点、图标、加载指示混排时各项才对得齐
+  item: { display: 'grid', gridTemplateColumns: 'minmax(1.5em, auto) 1fr', columnGap: '_md' },
   itemAlternate: {
-    gridTemplateColumns: { default: '1fr auto 1fr', '@container (max-width: 32em)': 'auto 1fr' },
+    gridTemplateColumns: {
+      default: '1fr minmax(1.5em, auto) 1fr',
+      '@container (max-width: 32em)': 'minmax(1.5em, auto) 1fr',
+    },
   },
   rail: { display: 'flex', flexDirection: 'column', alignItems: 'center' },
   marker: {
