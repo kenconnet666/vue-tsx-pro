@@ -56,13 +56,22 @@ export interface ButtonRadii {
 
 /** 按钮家族共用的外观选项；可以用 createUi / Provider 的 defaults.Button 统一改默认值 */
 export interface ButtonOptions {
-  /** 样式，默认 solid（IconButton 默认 ghost） */
+  /**
+   * 样式；可以用 createUi / Provider 的 defaults.Button 统一改
+   * @default 'solid'
+   */
   variant?: keyof ButtonVariants;
-  /** 色调，默认 accent */
+  /**
+   * 色调
+   * @default 'accent'
+   */
   tone?: keyof ButtonTones;
   /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
   size?: TextSize;
-  /** 圆角，默认 md */
+  /**
+   * 圆角
+   * @default 'md'
+   */
   radius?: keyof ButtonRadii;
   /** 加载中：显示旋转指示，宽度不变，点击无效，焦点保留；读屏会得知 aria-busy */
   loading?: boolean;
@@ -86,6 +95,7 @@ export interface ButtonContentOptions {
   propsIcon?: Partial<IconProps>;
   /** 后置图标的部件属性 */
   propsIconEnd?: Partial<IconProps>;
+  /** 按钮文字；加载中仍保留（读屏名称不变） */
   children?: VNodeChild;
 }
 

@@ -247,6 +247,15 @@ export {
   type MarqueeProps,
 } from './display/Marquee';
 export {
+  PropsTable,
+  propsTableStyles,
+  type ApiProp,
+  type ApiPropKinds,
+  type ApiValue,
+  type ComponentApi,
+  type PropsTableProps,
+} from './display/PropsTable';
+export {
   Sortable,
   sortableStyles,
   type SortableItemState,

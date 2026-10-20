@@ -33,6 +33,11 @@ export interface IconLinkButtonProps
   external?: boolean;
   /** 不可用：去掉 href，保留 role="link" 与 aria-disabled（同 LinkButton） */
   disabled?: boolean;
+  /**
+   * 样式：只有图标时默认不带底色
+   * @default 'ghost'
+   */
+  variant?: ButtonOptions['variant'];
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
 }

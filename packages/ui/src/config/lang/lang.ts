@@ -210,6 +210,18 @@ export interface Lang {
   readonly themeDark: string;
   /** 主题：纸张，默认“纸张” */
   readonly themePaper: string;
+  /** PropsTable 的列标题，默认“名称” */
+  readonly apiName: string;
+  /** PropsTable 的列标题，默认“类型” */
+  readonly apiType: string;
+  /** PropsTable 的列标题，默认“默认值” */
+  readonly apiDefault: string;
+  /** PropsTable 的列标题，默认“说明” */
+  readonly apiDescription: string;
+  /** PropsTable 里必填的 prop 的标记，默认“必填” */
+  readonly apiRequired: string;
+  /** PropsTable 里能 _bind 双向绑定的 prop 的标记，默认“可绑定” */
+  readonly apiBindable: string;
   /** 翻页导航（上一篇、下一篇）的名称，默认“翻页” */
   readonly pagerLabel: string;
   /** 上一篇（翻页导航），默认“上一篇” */

@@ -31,6 +31,11 @@ export interface IconButtonProps extends PartProps<'button', IconButtonManaged>,
   focusableWhenDisabled?: boolean;
   /** 按钮类型，默认 button */
   type?: 'button' | 'submit' | 'reset';
+  /**
+   * 样式：只有图标时默认不带底色
+   * @default 'ghost'
+   */
+  variant?: ButtonOptions['variant'];
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
 }

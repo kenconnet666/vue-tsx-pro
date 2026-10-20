@@ -11,7 +11,7 @@
  *     </TableBody>
  *   </Table>
  *
- * 外观（密度、样式、斑马纹）与 DataTable 相同，样式表也共用（dataTableStyles）；单元格默认可以换行。
+ * 外观（密度、样式、斑马纹）与 DataTable 相同，样式表也共用（dataTableStyles）；单元格默认可以换行，列宽按内容分配。
  * 表格比容器宽时在外层横向滚动，不撑宽页面。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
@@ -60,7 +60,7 @@ export interface TableProps extends PartProps<'table'>, DataTableOptions {
   children?: VNodeChild;
 }
 
-/** 静态表格的样式：外层滚动容器、标题、斑马纹（其余与 DataTable 共用 dataTableStyles） */
+/** 静态表格的样式：外层滚动容器、标题、列宽按内容、斑马纹（其余与 DataTable 共用 dataTableStyles） */
 export const tableStyles = stylex.create({
   // contain: inline-size：宽表格不撑宽外层的 grid / flex 容器，放不下的在这里横向滚动
   root: { minWidth: 0, overflowX: 'auto', contain: 'inline-size' },
@@ -72,6 +72,8 @@ export const tableStyles = stylex.create({
     fontSize: '_sm',
     textAlign: 'start',
   },
+  // 列宽按内容分配：DataTable 为虚拟滚动与列宽拖动用固定布局，静态表格不需要
+  layout: { tableLayout: 'auto' },
   stripedRow: { backgroundColor: { default: null, ':nth-child(even)': '_fill' } },
 });
 
@@ -108,7 +110,13 @@ export const Table = _component(
       >
         <table
           {...mergeAttrs<'table'>(
-            { sx: [dataTableStyles.table, dataTableStyles[appearance().density]] },
+            {
+              sx: [
+                dataTableStyles.table,
+                tableStyles.layout,
+                dataTableStyles[appearance().density],
+              ],
+            },
             rest,
           )}
         >
