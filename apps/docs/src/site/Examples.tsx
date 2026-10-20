@@ -8,13 +8,14 @@
  *   </Examples>
  *
  * 和 CSS 多列一样，前一段示例在左列、后一段在右列（阅读、Tab 与本页目录的顺序都是示例的顺序），
- * 分界点按量出的高度选在两列最接近的地方。分界只在排版时定一次：之后展开代码、示例自己变高，
- * 只把同一列下面的示例往下推，另一列不动（CSS 多列会把所有示例重新分配）。窗口变宽变窄、列数变了时才重新分。
+ * 分界点按量出的高度选在两列最接近的地方。用户动手之后分界就固定：展开代码、示例自己变高，
+ * 只把同一列下面的示例往下推，另一列不动（CSS 多列会把所有示例重新分配）；窗口变宽变窄、列数变了时才重新分。
+ * 动手之前（示例还在加载字体、图标、高亮而长高）高度变了会重新分。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useResizeObserver } from '@vue-tsx-pro/ui';
-import { onMounted, onUpdated, type VNode, type VNodeChild } from 'vue';
+import { onBeforeUnmount, onMounted, onUpdated, type VNode, type VNodeChild } from 'vue';
 
 /** 一列的最小宽度与列间距（rem） */
 const COLUMN_WIDTH = 26;
@@ -50,12 +51,16 @@ export const Examples = _component(({ children }: { children?: VNodeChild }) => 
     ([entry]) => fit(entry?.contentRect.width ?? 0),
   );
 
+  const examples = () =>
+    root
+      ? [...root.querySelectorAll<HTMLElement>('[data-example]')].sort(
+          (a, b) => Number(a.dataset.example) - Number(b.dataset.example),
+        )
+      : [];
+
   /** 量出各示例的高度，找两列高度最接近的分界点 */
-  function place() {
-    if (split != null || columns === 1 || !root) return;
-    const heights = [...root.querySelectorAll<HTMLElement>('[data-example]')]
-      .sort((a, b) => Number(a.dataset.example) - Number(b.dataset.example))
-      .map((element) => element.offsetHeight);
+  function bestSplit() {
+    const heights = examples().map((element) => element.offsetHeight);
     const total = heights.reduce((sum, height) => sum + height, 0);
     let best = 0;
     let bestTaller = Infinity;
@@ -65,14 +70,45 @@ export const Examples = _component(({ children }: { children?: VNodeChild }) => 
       if (taller < bestTaller) [best, bestTaller] = [index, taller];
       left += heights[index] ?? 0;
     }
-    split = best;
+    return best;
   }
+  function place() {
+    if (split != null || columns === 1 || !root) return;
+    split = bestSplit();
+  }
+
+  // 挂载后示例还会长高（字体、图标、异步高亮）：用户动手之前（第一次按下指针或按键，最多 3 秒），
+  // 高度变了就重新分列；动手之后分界固定，展开代码只推同一列下面的示例
+  let settled = false;
+  const settle = () => {
+    settled = true;
+    resizes.disconnect();
+    document.removeEventListener('pointerdown', settle, true);
+    document.removeEventListener('keydown', settle, true);
+  };
+  const resizes = new ResizeObserver(() => {
+    if (settled || columns === 1 || !root) return;
+    const next = bestSplit();
+    if (next !== split) split = next;
+  });
+  const observeExamples = () => {
+    if (!settled) for (const element of examples()) resizes.observe(element);
+  };
+
   // 挂载时（浏览器绘制之前）就定下列数并分好列：第一帧就是最终布局，不先闪一列，锚点也不会被挤走
   onMounted(() => {
     if (root) fit(root.clientWidth);
     place();
+    observeExamples();
+    document.addEventListener('pointerdown', settle, true);
+    document.addEventListener('keydown', settle, true);
+    setTimeout(settle, 3000);
   });
-  onUpdated(place);
+  onUpdated(() => {
+    place();
+    observeExamples();
+  });
+  onBeforeUnmount(settle);
 
   return () => {
     const list = items(children);
