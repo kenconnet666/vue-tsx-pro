@@ -19,6 +19,11 @@ describe('extractComponentApi', () => {
     expect(prop('icon').default).toBeUndefined();
   });
 
+  it('默认值里的类型断言不显示（_bindable(0 as V) 显示 0）', () => {
+    const slider = extractComponentApi('SliderProps');
+    expect(slider.props.find((item) => item.name === 'value')!.default).toBe('0');
+  });
+
   it('泛型组件的 XxxBaseProps：默认值从组件 Xxx 的参数里读', () => {
     const palette = extractComponentApi('CommandPaletteBaseProps');
     expect(palette.props.find((item) => item.name === 'hotkey')!.default).toBe("'Mod+K'");

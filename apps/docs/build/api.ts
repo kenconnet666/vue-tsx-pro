@@ -159,10 +159,25 @@ function implementationDefaults(checker: ts.TypeChecker, componentName: string) 
     const initializer = element.initializer;
     const isBindable =
       ts.isCallExpression(initializer) && initializer.expression.getText() === '_bindable';
-    const value = isBindable ? initializer.arguments[0]?.getText() : initializer.getText();
-    defaults.set(name, { value, bindable: isBindable });
+    const expression = isBindable ? initializer.arguments[0] : initializer;
+    defaults.set(name, {
+      value: expression && withoutAssertions(expression).getText(),
+      bindable: isBindable,
+    });
   }
   return defaults;
+}
+
+/** 默认值里的类型断言只是给类型检查看的（_bindable(0 as V)）：表格里显示表达式本身 */
+function withoutAssertions(node: ts.Expression): ts.Expression {
+  while (
+    ts.isAsExpression(node) ||
+    ts.isSatisfiesExpression(node) ||
+    ts.isTypeAssertionExpression(node)
+  ) {
+    node = node.expression;
+  }
+  return node;
 }
 
 function kindOf(name: string): keyof ApiPropKinds {
