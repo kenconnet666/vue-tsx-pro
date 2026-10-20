@@ -20,7 +20,7 @@ import {
   type HeadingEntry,
 } from '@vue-tsx-pro/ui';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { nextTick, watch } from 'vue';
+import { watch } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { allPages, sectionOf, sections } from './site/nav';
@@ -71,15 +71,27 @@ export const App = _component(() => {
   let content = _state.raw<HTMLElement | null>(null);
   let headings = _state.raw<HeadingEntry[]>([]);
 
-  // 换页后从正文收集带 id 的 h2、h3，生成本页目录
-  watch(
-    () => route.path,
-    async () => {
-      await nextTick();
-      headings = content ? collectHeadings(content) : [];
-    },
-    { flush: 'post', immediate: true },
-  );
+  // 从正文收集带 id 的 h2、h3，生成本页目录。页面组件是懒加载的，换页后的下一个 tick 正文可能还没渲染出来
+  // （开发服务器忙时尤其明显），所以观察正文的增删，下一帧重新收集；结果没变就不更新，示例里的动画不会让目录跟着重绘
+  _effect(() => {
+    const root = content;
+    if (!root) return;
+    let frame = 0;
+    const collect = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const next = collectHeadings(root);
+        if (JSON.stringify(next) !== JSON.stringify(headings)) headings = next;
+      });
+    };
+    collect();
+    const observer = new MutationObserver(collect);
+    observer.observe(root, { childList: true, subtree: true });
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  });
   // 浏览器标签上的标题
   watch(
     () => route.meta.title as string | undefined,
