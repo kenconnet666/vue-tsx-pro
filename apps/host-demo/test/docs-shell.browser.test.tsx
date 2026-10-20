@@ -20,8 +20,17 @@ import {
 } from '@vue-tsx-pro/ui';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 import { page, userEvent } from 'vitest/browser';
-import { afterEach, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, expect, it } from 'vitest';
 import { createApp, nextTick, type App, type VNodeChild } from 'vue';
+
+// Windows 上的 Playwright WebKit 在 View Transitions 期间会崩溃（Safari 正常）。这里的测试关心切换的结果，
+// 不测过渡：去掉 startViewTransition，revealTransition 走直接更新的分支
+beforeAll(() => {
+  Object.defineProperty(document, 'startViewTransition', { value: undefined, configurable: true });
+});
+afterAll(() => {
+  delete (document as { startViewTransition?: unknown }).startViewTransition;
+});
 
 let app: App | undefined;
 let root: HTMLElement;
@@ -102,6 +111,8 @@ it('SkipLink：聚焦时出现，点击后焦点到正文', async () => {
 });
 
 it('本页目录：从标题收集；滚到哪一节高亮哪一节，锚点跳转后标题不被顶栏挡住', async () => {
+  // 右侧目录只在 80rem 以上显示：不依赖前面的测试设好的视口
+  await page.viewport(1280, 800);
   let toc = _state<HeadingEntry[]>([]);
   render(docsPage(() => toc));
   toc = collectHeadings(root.querySelector('main')!);
@@ -191,8 +202,11 @@ it('色块：token 的取值按当前主题读出，换主题时跟着变', asyn
 
 it('整页浮层滚动条：隐藏原生滚动条，滚动时出现、滑块跟着位置走，拖动能滚动页面；卸载后恢复', async () => {
   await page.viewport(1280, 800);
-  render(docsPage(() => []));
   const html = document.documentElement;
+  const classesBefore = html.className;
+  render(docsPage(() => []));
+  // 隐藏原生滚动条的样式写在页面根元素的 class 上
+  expect(html.className).not.toBe(classesBefore);
   expect(getComputedStyle(html).scrollbarWidth).toBe('none');
   const track = () =>
     [...document.body.querySelectorAll<HTMLElement>('[data-axis="y"]')].find(
@@ -230,5 +244,5 @@ it('整页浮层滚动条：隐藏原生滚动条，滚动时出现、滑块跟�
 
   app!.unmount();
   app = undefined;
-  expect(getComputedStyle(html).scrollbarWidth).not.toBe('none');
+  expect(html.className).toBe(classesBefore);
 });
