@@ -87,8 +87,6 @@ export default defineConfig({
   test: {
     name: 'docs',
     environment: 'happy-dom',
-    // 整页示例的 iframe 不加载页面（happy-dom 默认禁止），当作加载成功，不报错
-    environmentOptions: { happyDOM: { settings: { handleDisabledFileLoadingAsSuccess: true } } },
     setupFiles: ['./src/test/setup.ts'],
     // 真实浏览器里的测试见 vitest.browser.config.ts
     exclude: [...configDefaults.exclude, '**/*.browser.test.{ts,tsx}'],
