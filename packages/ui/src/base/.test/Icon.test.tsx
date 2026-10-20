@@ -2,7 +2,7 @@ import { Check } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import type { VNodeChild } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { Icon, type IconData } from '../Icon';
+import { Icon, iconMarkup, type IconData } from '../Icon';
 
 const render = (node: () => VNodeChild) => mount(node).querySelector('svg')!;
 
@@ -17,6 +17,14 @@ describe('Icon', () => {
     const custom = render(() => <Icon icon={dot} />);
     expect(custom.getAttribute('viewBox')).toBe('0 0 16 16');
     expect(custom.querySelector('circle')!.getAttribute('r')).toBe('4');
+  });
+
+  it('子元素拼成标记并按图标缓存：去掉 key，属性值转义，标签名不合法时报错', () => {
+    expect(iconMarkup(dot)).toBe('<circle cx="8" cy="8" r="4"></circle>');
+    expect(iconMarkup(dot)).toBe(iconMarkup(dot));
+    const quoted: IconData = { node: [['path', { d: 'M0 0"&<', key: 'q' }]] };
+    expect(iconMarkup(quoted)).toBe('<path d="M0 0&quot;&amp;&lt;"></path>');
+    expect(() => iconMarkup({ node: [['img onerror=x', {}]] } as unknown as IconData)).toThrow();
   });
 
   it('默认是装饰性的；传了 aria-label 才作为图片暴露给读屏', () => {

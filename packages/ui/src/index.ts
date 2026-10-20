@@ -31,8 +31,8 @@ export {
 } from './base/Heading';
 export {
   Icon,
+  iconMarkup,
   iconStyles,
-  renderIconNode,
   type IconData,
   type IconManaged,
   type IconNode,

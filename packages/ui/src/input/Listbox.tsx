@@ -20,7 +20,7 @@
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId, watch, type VNodeChild } from 'vue';
+import { useId, watch, withMemo, type VNode, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
@@ -228,6 +228,32 @@ export const ListboxView = _component(
       { flush: 'post' },
     );
 
+    /**
+     * 选项行按“会影响它的值”缓存（Vue 的 withMemo，同模板的 v-memo）：方向键移动高亮时只重建前后两行，
+     * 不再重建全部可见行与其中的图标。自定义了 renderOption 或按项计算的 propsOption 时不缓存：
+     * 使用方的函数可能读别的状态，缓存了会显示旧内容
+     */
+    const memoCache: VNode[] = [];
+    function optionRow(row: Extract<Row<T>, { kind: 'option' }>) {
+      if (renderOption || typeof propsOption === 'function') return renderOptionRow(row);
+      const { option } = row;
+      return withMemo(
+        [
+          option,
+          row.index,
+          row.groupId,
+          list.isSelected(option.value),
+          list.active === option.value,
+          list.options.length,
+          propsOption,
+          propsCheck,
+        ],
+        () => renderOptionRow(row),
+        memoCache,
+        row.index,
+      );
+    }
+
     function renderOptionRow(row: Extract<Row<T>, { kind: 'option' }>) {
       const { option, index } = row;
       const state = {
@@ -351,7 +377,7 @@ export const ListboxView = _component(
                     {row.label}
                   </Text>
                 ) : (
-                  renderOptionRow(row)
+                  optionRow(row)
                 )}
               </div>
             );
