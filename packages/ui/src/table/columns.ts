@@ -79,12 +79,20 @@ export const COLUMN_MIN_WIDTH = 64;
 /** 列当前的宽度（px）：调整过的、列定义里的；都没有时 undefined（与其他没写宽度的列平分） */
 export type ColumnWidthOf<T> = (column: TableColumn<T>) => number | undefined;
 
+/** 固定列的偏移（px），按列的 key 取 */
+export interface StickyOffsets {
+  /** 固定在起始边的列 */
+  start: Map<string, number>;
+  /** 固定在结束边的列 */
+  end: Map<string, number>;
+}
+
 /** 固定列的偏移（px）：起始边的从 leading（勾选列的宽度）之后累加，结束边的从末尾往回累加 */
 export function stickyOffsets<T>(
   columns: readonly TableColumn<T>[],
   widthOf: ColumnWidthOf<T>,
   leading: number,
-): { start: Map<string, number>; end: Map<string, number> } {
+): StickyOffsets {
   const accumulate = (side: 'start' | 'end', ordered: readonly TableColumn<T>[], from: number) => {
     const offsets = new Map<string, number>();
     let offset = from;

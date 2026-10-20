@@ -90,6 +90,9 @@ export const TreeTable = _component(
       ),
     );
     const byKey = _derived.by(() => new Map(flat.map((item) => [item.key, item])));
+    // 交给 Table 的行与取 key 的函数要保持同一个引用：每次渲染都新建的话，Table 会重排全部行
+    const nodes = _derived(flat.map((item) => item.node));
+    const keyOf = (_: T, index: number) => flat[index]!.key;
 
     function leading(model: TableRowModel<T>) {
       const item = byKey.get(model.key);
@@ -125,8 +128,8 @@ export const TreeTable = _component(
     return () => (
       <Table
         {...rest}
-        rows={flat.map((item) => item.node)}
-        rowKey={(_, index) => flat[index]!.key}
+        rows={nodes}
+        rowKey={keyOf}
         columns={columns}
         manualSort
         sort={_bind(sort)}

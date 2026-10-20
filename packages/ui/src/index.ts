@@ -597,11 +597,13 @@ export { Table, type TableProps } from './table/Table';
 export {
   tableDensityStyles,
   tableDynamicStyles,
+  TableRow,
   tableStyles,
   TableView,
   type TableDensities,
   type TableOptions,
   type TableRowModel,
+  type TableRowProps,
   type TableVariants,
   type TableViewProps,
 } from './table/TableView';
@@ -624,6 +626,7 @@ export {
   type ColumnWidthOf,
   type SortDirections,
   type SortState,
+  type StickyOffsets,
   type TableColumn,
 } from './table/columns';
 

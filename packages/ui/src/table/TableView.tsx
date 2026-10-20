@@ -35,6 +35,7 @@ import {
   stickyOffsets,
   tableMinWidth,
   type SortState,
+  type StickyOffsets,
   type TableColumn,
 } from './columns';
 
@@ -254,6 +255,141 @@ export const tableDynamicStyles = stylex.create({
   percent: (value: string) => ({ width: value }),
 });
 
+/** 固定列单元格的样式：position: sticky 加上按列宽累加的偏移 */
+function stickyCellSx(column: TableColumn<never>, offsets: StickyOffsets) {
+  if (column.sticky === 'start')
+    return [tableStyles.sticky, tableDynamicStyles.start(offsets.start.get(column.key)!)];
+  if (column.sticky === 'end')
+    return [tableStyles.sticky, tableDynamicStyles.end(offsets.end.get(column.key)!)];
+  return null;
+}
+
+/** TableRow 的属性：一行要用到的全部数据；除了 row、index、selected，同一张表里各行都相同 */
+export interface TableRowProps<T> {
+  /** 这一行 */
+  row: TableRowModel<T>;
+  /** 在全部行里的序号 */
+  index: number;
+  /** 是否已选 */
+  selected: boolean;
+  /** 选择方式；不写时没有勾选列 */
+  selectionMode?: keyof SelectionModes;
+  /** 列 */
+  columns: readonly TableColumn<T>[];
+  /** 密度 */
+  density: keyof TableDensities;
+  /** 样式 */
+  variant: keyof TableVariants;
+  /** 斑马纹 */
+  striped: boolean;
+  /** 固定列的偏移 */
+  offsets: StickyOffsets;
+  /** 第一个数据列前面加的东西（TreeTable 的缩进与展开按钮） */
+  leading?: (row: TableRowModel<T>, index: number) => VNodeChild;
+  /** 行的部件属性 */
+  propsRow?: RowPartProps<T>;
+  /** 单元格的部件属性 */
+  propsCell?: CellPartProps<T>;
+  /** 测量行高（虚拟滚动） */
+  measure: (element: unknown) => void;
+  /** 勾选或取消这一行 */
+  onToggle?: (key: string) => void;
+}
+
+/**
+ * 表格的一行：单独成组件，props 没变的行在表格重新渲染时直接跳过——
+ * 滚动只挂载新进入视口的行，勾选一行只更新这一行（原来每次都重建全部可见行与其中的勾选框）
+ */
+export const TableRow = _component(
+  <T,>({
+    row,
+    index,
+    selected,
+    selectionMode,
+    columns,
+    density,
+    variant,
+    striped,
+    offsets,
+    leading,
+    propsRow,
+    propsCell,
+    measure,
+    onToggle,
+  }: TableRowProps<T>) => {
+    const lang = useLang();
+    return () => (
+      <tr
+        {...mergeAttrs<'tr'>(
+          {
+            sx: [
+              variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row,
+              striped && index % 2 === 1 && tableStyles.striped,
+              selected && tableStyles.selected,
+            ],
+          },
+          typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow,
+          {
+            ref: measure,
+            'aria-rowindex': index + 2,
+            'aria-selected': selectionMode != null ? selected : undefined,
+          },
+        )}
+        data-index={index}
+        data-state={selected ? 'selected' : undefined}
+      >
+        {selectionMode && (
+          <td
+            {...stylex.attrs(
+              tableStyles.cell,
+              tableDensityStyles[density],
+              tableStyles.selectCell,
+              offsets.start.size > 0 && tableStyles.stickySelect,
+            )}
+          >
+            <Checkbox
+              checked={selected}
+              aria-label={lang.tableSelectRow(index + 1)}
+              onChange={() => onToggle?.(row.key)}
+            />
+          </td>
+        )}
+        {columns.map((column, position) => {
+          const value = column.cell
+            ? column.cell(row.data, index)
+            : String(columnValue(column, row.data) ?? '');
+          return (
+            <td
+              key={column.key}
+              {...mergeAttrs<'td'>(
+                {
+                  sx: [
+                    tableStyles.cell,
+                    tableDensityStyles[density],
+                    tableStyles[column.align ?? 'start'],
+                    column.wrap && tableStyles.wrap,
+                    stickyCellSx(column, offsets),
+                  ],
+                },
+                typeof propsCell === 'function' ? propsCell(row.data, column) : propsCell,
+              )}
+            >
+              {position === 0 && leading ? (
+                <div {...stylex.attrs(tableStyles.leading)}>
+                  {leading(row, index)}
+                  <div {...stylex.attrs(tableStyles.content)}>{value}</div>
+                </div>
+              ) : (
+                value
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    );
+  },
+);
+
 /** 表格的渲染层：虚拟滚动的行、吸顶表头、固定列、排序、勾选、列宽调整、加载与空状态 */
 export const TableView = _component(
   <T,>({
@@ -290,6 +426,9 @@ export const TableView = _component(
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
+    // 遍历全部行：放在派生里，滚动时的重新渲染不必再算一遍
+    const allSelected = _derived(rows.length > 0 && rows.every((row) => selectedSet.has(row.key)));
+    const someSelected = _derived(!allSelected && rows.some((row) => selectedSet.has(row.key)));
     let viewport = _state.raw<HTMLElement | null>(null);
     let body = _state.raw<HTMLElement | null>(null);
 
@@ -313,14 +452,6 @@ export const TableView = _component(
     const offsets = _derived.by(() => stickyOffsets(columns, widthOf, leadingWidth()));
     const minWidth = () => tableMinWidth(columns, widthOf, leadingWidth());
 
-    function stickySx(column: TableColumn<T>) {
-      if (column.sticky === 'start')
-        return [tableStyles.sticky, tableDynamicStyles.start(offsets.start.get(column.key)!)];
-      if (column.sticky === 'end')
-        return [tableStyles.sticky, tableDynamicStyles.end(offsets.end.get(column.key)!)];
-      return null;
-    }
-
     function renderHeaderCell(column: TableColumn<T>) {
       const own = typeof propsHeaderCell === 'function' ? propsHeaderCell(column) : propsHeaderCell;
       const sorted = sort?.key === column.key ? sort.direction : undefined;
@@ -335,7 +466,7 @@ export const TableView = _component(
                 tableStyles.headerCell,
                 tableDensityStyles[density],
                 tableStyles[column.align ?? 'start'],
-                stickySx(column),
+                stickyCellSx(column, offsets),
               ],
             },
             own,
@@ -386,90 +517,11 @@ export const TableView = _component(
       );
     }
 
-    function renderRow(row: TableRowModel<T>, index: number, measured: boolean) {
-      const own = typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow;
-      const selected = selectionMode != null && selectedSet.has(row.key);
-      return (
-        <tr
-          key={row.key}
-          {...mergeAttrs<'tr'>(
-            {
-              sx: [
-                variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row,
-                striped && index % 2 === 1 && tableStyles.striped,
-                selected && tableStyles.selected,
-              ],
-            },
-            own,
-            {
-              ref: measured ? virtual.measure : undefined,
-              'aria-rowindex': index + 2,
-              'aria-selected': selectionMode != null ? selected : undefined,
-            },
-          )}
-          data-index={index}
-          data-state={selected ? 'selected' : undefined}
-        >
-          {selectionMode && (
-            <td
-              {...stylex.attrs(
-                tableStyles.cell,
-                tableDensityStyles[density],
-                tableStyles.selectCell,
-                offsets.start.size > 0 && tableStyles.stickySelect,
-              )}
-            >
-              <Checkbox
-                checked={selected}
-                aria-label={lang.tableSelectRow(index + 1)}
-                onChange={() => onToggleRow?.(row.key)}
-              />
-            </td>
-          )}
-          {columns.map((column, position) => {
-            const cellProps =
-              typeof propsCell === 'function' ? propsCell(row.data, column) : propsCell;
-            const value = column.cell
-              ? column.cell(row.data, index)
-              : String(columnValue(column, row.data) ?? '');
-            return (
-              <td
-                key={column.key}
-                {...mergeAttrs<'td'>(
-                  {
-                    sx: [
-                      tableStyles.cell,
-                      tableDensityStyles[density],
-                      tableStyles[column.align ?? 'start'],
-                      column.wrap && tableStyles.wrap,
-                      stickySx(column),
-                    ],
-                  },
-                  cellProps,
-                )}
-              >
-                {position === 0 && leading ? (
-                  <div {...stylex.attrs(tableStyles.leading)}>
-                    {leading(row, index)}
-                    <div {...stylex.attrs(tableStyles.content)}>{value}</div>
-                  </div>
-                ) : (
-                  value
-                )}
-              </td>
-            );
-          })}
-        </tr>
-      );
-    }
-
     return () => {
       const span = columns.length + (selectionMode ? 1 : 0);
       const items = virtual.items;
       const top = items[0]?.start ?? 0;
       const bottom = items.length ? virtual.total - items.at(-1)!.end : 0;
-      const allSelected = rows.length > 0 && rows.every((row) => selectedSet.has(row.key));
-      const someSelected = !allSelected && rows.some((row) => selectedSet.has(row.key));
       return (
         <ScrollArea
           {...mergePartProps<ScrollAreaProps>(
@@ -600,7 +652,28 @@ export const TableView = _component(
                   />
                 </tr>
               )}
-              {items.map((item) => renderRow(rows[item.index]!, item.index, true))}
+              {items.map((item) => {
+                const row = rows[item.index]!;
+                return (
+                  <TableRow
+                    key={row.key}
+                    row={row}
+                    index={item.index}
+                    selected={selectionMode != null && selectedSet.has(row.key)}
+                    selectionMode={selectionMode}
+                    columns={columns}
+                    density={density}
+                    variant={variant}
+                    striped={striped}
+                    offsets={offsets}
+                    leading={leading}
+                    propsRow={propsRow}
+                    propsCell={propsCell}
+                    measure={virtual.measure}
+                    onToggle={onToggleRow}
+                  />
+                );
+              })}
               {bottom > 0 && (
                 <tr aria-hidden="true">
                   <td
