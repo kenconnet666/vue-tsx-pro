@@ -31,18 +31,18 @@ packages/
   ui/    @vue-tsx-pro/ui
     src/base/         基础：文字、图标、链接、按钮家族、标记、代码块、加载
     src/layout/       布局：Flex、Grid、Container、Separator、ScrollArea
-    src/display/      展示：折叠、虚拟列表、卡片、头像
+    src/display/      展示：折叠、虚拟列表、卡片、头像、树、时间线
     src/table/        表格：Table、TreeTable（虚拟滚动）
-    src/feedback/     反馈：进度、骨架屏、提示条、对话框、抽屉、通知
-    src/overlay/      浮层：Popover、Tooltip、Menu
+    src/feedback/     反馈：进度、骨架屏、提示条、通知、空状态、结果
+    src/overlay/      浮层：对话框、抽屉（共用 Modal 内核）、Popover、Tooltip、HoverCard、Menu、Tour
     src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList
-    src/input/        输入：TextField、Textarea、NumberField、Checkbox、Radio、Switch、Listbox、Select、Combobox、Slider、SlideVerify、ToggleGroup，
-                      以及表单结构与校验：Field、Label、Form、useForm
+    src/input/        输入：TextField、Textarea、NumberField、Checkbox、Radio、Switch、Listbox、Select、Combobox、Slider、SlideVerify、ToggleGroup、Upload
+    src/form/         表单结构与校验：Field、Label、Form、useForm（控件经 useFieldControl 接入）
     src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）、
                       可选依赖的适配（子路径 shiki、vue-router）
     src/utils/        部件 props 合并（props.ts）、JS 动画（animation.ts），以及按职责分的子目录：
-                      style/（档位、字号、色调、过渡样式）、dom/（焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接）、
-                      data/（比较与匹配、选择、分页、数值）、virtual/（虚拟滚动）
+                      style/（档位、字号、色调、过渡样式）、dom/（焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、
+                      排版方向、尺寸监听）、motion/（动画、过渡、布局动画）、data/（比较与匹配、选择、分页、数值、树）、virtual/（虚拟滚动）
     （每个目录下的 .test/ 放测试）
 apps/
   docs/        文档站（VitePress 2）

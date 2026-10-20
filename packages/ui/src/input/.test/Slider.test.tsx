@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { Field } from '../Field';
+import { Field } from '../../form/Field';
 import { Slider } from '../Slider';
 
 const thumbOf = (root: Element) => root.querySelector<HTMLElement>('[role="slider"]')!;

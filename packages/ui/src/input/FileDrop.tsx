@@ -16,7 +16,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 
 /** 文件是否符合 accept（`image/*`、`.pdf`、`application/json` 这样的逗号分隔列表）；accept 为空时都符合 */
 export function matchesAccept(file: File, accept: string | undefined): boolean {

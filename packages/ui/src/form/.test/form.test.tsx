@@ -2,8 +2,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import * as z from 'zod';
-import { NumberField } from '../NumberField';
-import { TextField } from '../TextField';
+import { NumberField } from '../../input/NumberField';
+import { TextField } from '../../input/TextField';
 import { mount } from '../../utils/.test/mount';
 import { Field } from '../Field';
 import { Form } from '../Form';

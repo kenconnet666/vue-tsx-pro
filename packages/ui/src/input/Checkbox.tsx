@@ -20,7 +20,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toggleSelection } from '../utils/data/selection';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';

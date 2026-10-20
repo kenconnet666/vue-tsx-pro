@@ -21,8 +21,8 @@ import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { clamp, snapToStep } from '../utils/data/number';
 import { isRtl } from '../utils/dom/direction';
-import { useFieldControl } from './Field';
-import { FormValue } from './FormValue';
+import { useFieldControl } from '../form/Field';
+import { FormValue } from '../form/FormValue';
 
 /** 滑块方向 */
 export interface SliderOrientations {

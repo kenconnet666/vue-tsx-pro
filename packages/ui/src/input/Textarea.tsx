@@ -12,7 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick, useId } from 'vue';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 

@@ -19,7 +19,7 @@ import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   controlStyles,

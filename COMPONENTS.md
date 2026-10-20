@@ -259,24 +259,24 @@ interface Lang {
 
 **依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/src/utils/.test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
-| 用途     | 选择                                | 说明                                                                                                                              |
-| -------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                 |
-| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                    |
-| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                              |
-| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                    |
-| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                  |
-| 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`input/form-constraints.ts`） |
-| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                               |
-| 图表     | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置                           |
-| 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                                            |
-| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                      |
-| 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                            |
-| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                  |
-| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                                                                            |
-| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                              |
-| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                                                        |
-| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                         |
+| 用途     | 选择                                | 说明                                                                                                                             |
+| -------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                |
+| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                   |
+| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                             |
+| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                   |
+| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                 |
+| 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`） |
+| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                              |
+| 图表     | `@unovis/ts`（可选 peer）           | 折线、面积、柱状、散点、环形、桑基、地图等；SVG，主题全靠 CSS 变量，直接接 tokens，明暗切换不用重新设置                          |
+| 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                                           |
+| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                     |
+| 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                           |
+| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                 |
+| 色板     | `@radix-ui/colors`（开发依赖）      | 只用于校验 tokens 取值                                                                                                           |
+| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                             |
+| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                                                       |
+| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                        |
 
 **待办**：
 
@@ -491,7 +491,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 | 传送内容的配置 | `config/Provider.tsx`        | `ConfigScope`：Teleport 出去的内容重新带上主题、lang、dir                                                                                                                                                                                            |
 | 输入框外壳     | `input/control.ts`           | `controlSx` / `controlStyles` / `useControlAppearance`：surface / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                                                                                      |
 | 勾选类控件     | `input/choice-styles.ts`     | label > 叠放层（原生 input 画成方框 / 圆 / 轨道 + 不接收指针的标记）> 文字；复选组、单选组的排列                                                                                                                                                     |
-| 字段           | `input/Field.tsx`            | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                   |
+| 字段           | `form/Field.tsx`             | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                   |
 
 **组件**：
 

@@ -11,7 +11,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';

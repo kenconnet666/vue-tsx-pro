@@ -1,7 +1,7 @@
 // TextField 与 Field：值的双向绑定、清空、显示密码、Field 的关联与状态
 import { describe, expect, it } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
-import { Field } from '../Field';
+import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
 import { TextField } from '../TextField';
 import { Textarea } from '../Textarea';

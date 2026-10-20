@@ -10,12 +10,12 @@
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton / CopyButton）、Badge、Indicator（角标）、Tag
   - 布局：Flex / FlexList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）
   - 展示：Collapse、Collapsible、Accordion、VirtualList（虚拟滚动，带加载状态）、Card、Avatar / AvatarGroup、AnimatedNumber、Descriptions、Timeline、Tree、Sortable、Marquee
-  - 反馈：Progress、Skeleton、Alert、Empty、Dialog / Drawer / AlertDialog（含命令式的 useConfirm）、Toast（createToaster + Toaster，可滑动关闭、可堆叠）、LoadingOverlay、Result
-  - 浮层：Popover、Tooltip、HoverCard、Menu（复合，含链接 / 复选 / 单选项、子菜单）、ContextMenu、Tour
+  - 反馈：Progress、Skeleton、Alert、Empty、Toast（createToaster + Toaster，可滑动关闭、可堆叠）、LoadingOverlay、Result
+  - 浮层：Dialog / Drawer / AlertDialog（共用 Modal 内核，含命令式的 useConfirm）、Popover、Tooltip、HoverCard、Menu（复合，含链接 / 复选 / 单选项、子菜单）、ContextMenu、Tour
   - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination（配套 PageSizeSelect、PageJump）、NavList（复合）
   - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
   - 表格：Table（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeTable（建在 Table 上，懒加载子项）
-  - 表单（也在 input/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型；数组字段、dirty、单字段异步校验）
+  - 表单（form/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型；数组字段、dirty、单字段异步校验）
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
 
@@ -82,7 +82,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 按钮类的不可用、加载中、拦截点击                   | `useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick)`（`base/button-core.ts`）                   |
 | 组件里的 JS 动画                                   | `useAnimate()`：取主题时长、缓动、弹簧，卸载时取消（`utils/motion/animation.ts`）                                                           |
 | 跟随数值的过渡（数字滚动、进度）                   | `useTween(() => value)`、`useSpring(() => value)`，渲染里读 `.current`（`utils/motion/tween.ts`）                                           |
-| 表单字段的约束（必填、长度、范围）                 | 从 zod schema 推出（`input/form-constraints.ts`），控件经 `useFieldControl()` 的 `constraints` 拿到                                         |
+| 表单字段的约束（必填、长度、范围）                 | 从 zod schema 推出（`form/form-constraints.ts`），控件经 `useFieldControl()` 的 `constraints` 拿到                                          |
 | 单选 / 多选组件的 props                            | `SelectionProps`（`selectionMode` + `value`）、选项数据的 `OptionMapping`（`toOption`）                                                     |
 | 链接走路由、判断当前页                             | `useRouterLink()`                                                                                                                           |
 | 组件默认值                                         | 在 `config/defaults.ts` 登记，组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })`，渲染时读 `appearance().variant` |

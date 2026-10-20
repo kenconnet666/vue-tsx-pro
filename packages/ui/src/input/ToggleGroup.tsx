@@ -24,7 +24,7 @@ import { mergeAttrs, type PartProps } from '../utils/props';
 import { useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 import type { TextSize } from '../utils/style/typography';
 
 /** ToggleGroup 交给组内 ToggleGroupItem 的状态 */

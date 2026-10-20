@@ -34,7 +34,7 @@ import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 import {
   handleListKeydown,
   useListState,

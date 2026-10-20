@@ -18,7 +18,7 @@ import { onBeforeUnmount } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
-import { useFieldControl } from './Field';
+import { useFieldControl } from '../form/Field';
 import { snapToStep } from '../utils/data/number';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';

@@ -230,7 +230,7 @@ export {
   type VirtualListScrolls,
 } from './display/VirtualList';
 
-// 反馈
+// 反馈：进度、骨架、提示条、通知、空状态、结果
 export {
   Alert,
   alertStyles,
@@ -240,29 +240,6 @@ export {
   type AlertProps,
   type AlertVariants,
 } from './feedback/Alert';
-export {
-  AlertDialog,
-  useConfirm,
-  type AlertDialogProps,
-  type ConfirmOptions,
-} from './feedback/AlertDialog';
-export {
-  Dialog,
-  dialogPanelSx,
-  dialogSizeStyles,
-  dialogStyles,
-  type DialogOptions,
-  type DialogProps,
-  type DialogSizes,
-} from './feedback/Dialog';
-export {
-  Drawer,
-  drawerSizeStyles,
-  drawerStyles,
-  type DrawerOptions,
-  type DrawerProps,
-  type DrawerSides,
-} from './feedback/Drawer';
 export { Empty, emptyStyles, type EmptyProps } from './feedback/Empty';
 export {
   LoadingOverlay,
@@ -270,13 +247,6 @@ export {
   type LoadingOverlayManaged,
   type LoadingOverlayProps,
 } from './feedback/LoadingOverlay';
-export {
-  ModalCore,
-  modalStyles,
-  type ModalCoreProps,
-  type ModalManaged,
-  type ModalProps,
-} from './feedback/Modal';
 export {
   Progress,
   progressStyles,
@@ -307,8 +277,31 @@ export {
   type ToastRecord,
 } from './feedback/Toast';
 
-// 浮层
+// 浮层：对话框、抽屉、弹出层、提示、菜单、引导
+export {
+  AlertDialog,
+  useConfirm,
+  type AlertDialogProps,
+  type ConfirmOptions,
+} from './overlay/AlertDialog';
 export { ContextMenu, type ContextMenuProps } from './overlay/ContextMenu';
+export {
+  Dialog,
+  dialogPanelSx,
+  dialogSizeStyles,
+  dialogStyles,
+  type DialogOptions,
+  type DialogProps,
+  type DialogSizes,
+} from './overlay/Dialog';
+export {
+  Drawer,
+  drawerSizeStyles,
+  drawerStyles,
+  type DrawerOptions,
+  type DrawerProps,
+  type DrawerSides,
+} from './overlay/Drawer';
 export {
   HoverCard,
   hoverCardStyles,
@@ -345,6 +338,13 @@ export {
   type MenuSubProps,
   type MenuTriggerProps,
 } from './overlay/Menu';
+export {
+  ModalCore,
+  modalStyles,
+  type ModalCoreProps,
+  type ModalManaged,
+  type ModalProps,
+} from './overlay/Modal';
 export {
   Popover,
   popoverStyles,
@@ -421,7 +421,7 @@ export {
   type ToolbarProps,
 } from './navigation/Toolbar';
 
-// 输入与表单
+// 输入
 export {
   CharacterCount,
   characterCountStyles,
@@ -444,22 +444,7 @@ export {
   type ComboboxManaged,
   type ComboboxProps,
 } from './input/Combobox';
-export {
-  Field,
-  FieldContext,
-  fieldStyles,
-  Label,
-  labelStyles,
-  useFieldControl,
-  type FieldControl,
-  type FieldControlOptions,
-  type FieldProps,
-  type FieldState,
-  type LabelProps,
-} from './input/Field';
 export { FileDrop, fileDropStyles, matchesAccept, type FileDropProps } from './input/FileDrop';
-export { Form, FormContext, type FormProps } from './input/Form';
-export { FormValue, type FormValueProps } from './input/FormValue';
 export {
   activeOptionId,
   Listbox,
@@ -560,7 +545,6 @@ export {
   type ControlState,
   type ControlVariants,
 } from './input/control';
-export { createConstraints, type FieldConstraints } from './input/form-constraints';
 export {
   handleListKeydown,
   useListState,
@@ -571,6 +555,24 @@ export {
   type ListStateOptions,
   type OptionMapping,
 } from './input/list-state';
+
+// 表单：字段、校验
+export {
+  Field,
+  FieldContext,
+  fieldStyles,
+  Label,
+  labelStyles,
+  useFieldControl,
+  type FieldControl,
+  type FieldControlOptions,
+  type FieldProps,
+  type FieldState,
+  type LabelProps,
+} from './form/Field';
+export { Form, FormContext, type FormProps } from './form/Form';
+export { FormValue, type FormValueProps } from './form/FormValue';
+export { createConstraints, type FieldConstraints } from './form/form-constraints';
 export {
   useForm,
   type ArrayPath,
@@ -582,7 +584,7 @@ export {
   type FormErrors,
   type FormOptions,
   type PathValue,
-} from './input/useForm';
+} from './form/useForm';
 
 // 表格
 export {

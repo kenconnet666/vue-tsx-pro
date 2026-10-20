@@ -34,8 +34,8 @@ import {
   useControlAppearance,
   type ControlOptions,
 } from './control';
-import { useFieldControl } from './Field';
-import { FormValue } from './FormValue';
+import { useFieldControl } from '../form/Field';
+import { FormValue } from '../form/FormValue';
 import {
   activeOptionId,
   ListboxView,
