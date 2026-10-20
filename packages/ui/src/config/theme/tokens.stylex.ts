@@ -304,6 +304,23 @@ export const sizes = stylex.defineVars({
   full: '100%',
 });
 
+/**
+ * 响应式断点：视口不窄于对应的容器宽度（与 sizes 的 sm / md / lg / xl 一致）。
+ * 媒体查询里不能用 CSS 变量，所以是编译期常量：
+ *
+ *   gridTemplateColumns: { default: 'minmax(0, 1fr)', [breakpoints.lg]: 'minmax(0, 1fr) 20rem' }
+ */
+export const breakpoints = stylex.defineConsts({
+  /** 40rem（640px）以上：大屏手机横屏、小平板 */
+  sm: '@media (min-width: 40rem)',
+  /** 48rem（768px）以上：平板 */
+  md: '@media (min-width: 48rem)',
+  /** 64rem（1024px）以上：桌面，侧栏常驻 */
+  lg: '@media (min-width: 64rem)',
+  /** 80rem（1280px）以上：宽屏，右侧栏也显示 */
+  xl: '@media (min-width: 80rem)',
+});
+
 /** 圆角：em，随组件字号缩放；整体改成直角或更圆时覆盖这一组 */
 export const radii = stylex.defineVars({
   /** `0` */

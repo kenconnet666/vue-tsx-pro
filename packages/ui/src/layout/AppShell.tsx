@@ -31,14 +31,13 @@ import { ScrollArea } from './ScrollArea';
 import { Drawer, type DrawerProps } from '../overlay/Drawer';
 import { useMediaQuery } from '../utils/dom/media-query';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { breakpoints } from '../config/theme/tokens.stylex';
 import { layoutVars } from '../utils/style/vars.stylex';
 
 /** 顶栏高度：也是两侧栏粘住的位置、标题跳转时让开的距离 */
 const HEADER_HEIGHT = '3rem';
-// 与 sizes.lg / sizes.xl 相同（媒体查询里不能用 CSS 变量）
-const WIDE_QUERY = '(min-width: 64rem)';
-const WIDE = '@media (min-width: 64rem)';
-const WIDER = '@media (min-width: 80rem)';
+// 运行时判断侧栏是否常驻（useMediaQuery 要的是不带 @media 的查询）
+const WIDE_QUERY = breakpoints.lg.replace('@media ', '');
 
 /** 未声明的属性落到外层 div 上 */
 export interface AppShellProps extends PartProps<'div'> {
@@ -104,16 +103,16 @@ export const appShellStyles = stylex.create({
     backgroundColor: '_surfaceTranslucent',
     backdropFilter: 'blur(12px) saturate(1.5)',
   },
-  menuButton: { display: { default: 'inline-flex', [WIDE]: 'none' }, flexShrink: 0 },
+  menuButton: { display: { default: 'inline-flex', [breakpoints.lg]: 'none' }, flexShrink: 0 },
   headerContent: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
   body: { display: 'grid', flexGrow: 1, gridTemplateColumns: 'minmax(0, 1fr)' },
-  withSidebar: { gridTemplateColumns: { default: null, [WIDE]: '16rem minmax(0, 1fr)' } },
-  withAside: { gridTemplateColumns: { default: null, [WIDER]: 'minmax(0, 1fr) 14rem' } },
+  withSidebar: { gridTemplateColumns: { default: null, [breakpoints.lg]: '16rem minmax(0, 1fr)' } },
+  withAside: { gridTemplateColumns: { default: null, [breakpoints.xl]: 'minmax(0, 1fr) 14rem' } },
   withBoth: {
     gridTemplateColumns: {
       default: null,
-      [WIDE]: '16rem minmax(0, 1fr)',
-      [WIDER]: '16rem minmax(0, 1fr) 14rem',
+      [breakpoints.lg]: '16rem minmax(0, 1fr)',
+      [breakpoints.xl]: '16rem minmax(0, 1fr) 14rem',
     },
   },
   // 两侧栏：粘在顶栏下面、占满剩下的视口高度，内容多时各自滚动，滚到头不带动页面
@@ -127,13 +126,13 @@ export const appShellStyles = stylex.create({
   railScroll: { height: '_full' },
   railViewport: { overscrollBehavior: 'contain' },
   sidebar: {
-    display: { default: 'none', [WIDE]: 'block' },
+    display: { default: 'none', [breakpoints.lg]: 'block' },
     borderInlineEndWidth: '_xs',
     borderInlineEndStyle: 'solid',
     borderInlineEndColor: '_border',
   },
   sidebarContent: { paddingBlock: '_xl', paddingInline: '_md' },
-  aside: { display: { default: 'none', [WIDER]: 'block' } },
+  aside: { display: { default: 'none', [breakpoints.xl]: 'block' } },
   asideContent: { paddingBlock: '_xl', paddingInline: '_lg' },
   // 正文由 SkipLink 聚焦（tabindex=-1）：不显示焦点框
   main: { minWidth: 0, paddingBlock: '_xl', paddingInline: '_xl', outlineStyle: 'none' },

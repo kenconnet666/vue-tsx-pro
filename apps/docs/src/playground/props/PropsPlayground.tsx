@@ -6,6 +6,7 @@
 import { RotateCcw, X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
 import * as ui from '@vue-tsx-pro/ui';
 import {
   Alert,
@@ -51,7 +52,7 @@ const styles = stylex.create({
     alignItems: 'start',
     gridTemplateColumns: {
       default: 'minmax(0, 1fr)',
-      '@media (min-width: 60rem)': 'minmax(0, 1fr) 20rem',
+      [breakpoints.md]: 'minmax(0, 1fr) 20rem',
     },
   },
   // 效果区：点阵画布（canvasStyles）加边框

@@ -2,6 +2,7 @@
 import { Check, Copy, Download, FileCode } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
 import {
   Button,
   Card,
@@ -25,7 +26,7 @@ const styles = stylex.create({
     alignItems: 'start',
     gridTemplateColumns: {
       default: 'minmax(0, 1fr)',
-      '@media (min-width: 64rem)': 'minmax(0, 1fr) 22rem',
+      [breakpoints.lg]: 'minmax(0, 1fr) 22rem',
     },
   },
   // 详情跟着页面滚动停在顶栏下：网格很长时也能看到选中的图标

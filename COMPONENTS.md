@@ -186,7 +186,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 - 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `'calc(_md * 2)'`；只有运行时的值才 import 后写 `space.md`。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
-- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只有 AppShell 的粘性顶栏（10）与 SkipLink（100）写了层级。不设断点 token：StyleX 的媒体查询不能引用变量，组件优先用容器查询；整页骨架（AppShell）与命令面板的触发器按容器宽度档位写死媒体查询（40/64/80rem，与 `sizes.sm` / `lg` / `xl` 一致），行为要跟着变时用 `useMediaQuery`。
+- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只有 AppShell 的粘性顶栏（10）与 SkipLink（100）写了层级。断点是编译期常量 `breakpoints`（`tokens.stylex.ts` 的 `defineConsts`，`sm` / `md` / `lg` / `xl` 与 `sizes` 的容器宽度一致：40/48/64/80rem）：媒体查询不能用 CSS 变量，常量在编译时内联，样式里写 `[breakpoints.lg]: …`，运行时去掉 `@media ` 前缀交给 `useMediaQuery`。组件仍优先用容器查询；断点只给整页骨架（AppShell）、命令面板的触发器与页面级布局，不再各写各的数值。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）、`paper.ts`（纸张：米黄纸色、深棕墨色文字、墨蓝品牌色，覆盖颜色、阴影与字体，标题用衬线）。
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
@@ -384,7 +384,7 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 
 FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工厂可用的标签（`LayoutTag`）：`div`、`section`、`article`、`ul`、`ol`、`li`、`nav`、`header`、`footer`、`main`、`aside`、`form`，ol 同样按列表处理。VisuallyHidden 只渲染 span，Collapse 只渲染 div（要分区语义时在外面包 section）。
 
-不做：`Box`（就是 `div` + `sx`）、`AspectRatio`（`sx` 里写 `aspectRatio`）、`Spacer`。响应式这批不做：`Grid` 的 `minItemWidth` 已覆盖最常见的自动换列，其余用 `sx` 加容器查询；以后需要时用容器查询实现，不引入断点。
+不做：`Box`（就是 `div` + `sx`）、`AspectRatio`（`sx` 里写 `aspectRatio`）、`Spacer`。响应式这批不做：`Grid` 的 `minItemWidth` 已覆盖最常见的自动换列，其余用 `sx` 加容器查询；以后需要时用容器查询实现；页面级布局用 `breakpoints`（§6.2）。
 
 ### 10.3 取舍依据
 
@@ -660,7 +660,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 **设计取舍**：
 
 - 文档站专用的组件都按通用组件设计：数据由使用方给（CommandPalette 的 `items` 与 `onAction`、TableOfContents 的 `items`），不绑定路由、搜索索引或页面结构。
-- AppShell 的响应式用写死的媒体查询（40/64/80rem，与容器宽度档位一致），不加断点 token（§6.2）；顶栏高度固定 3rem，经 `layoutVars.stickyOffset` 交给里面的标题与侧栏。
+- AppShell 的响应式用断点常量 `breakpoints.lg` / `xl`（§6.2）；顶栏高度固定 3rem，经 `layoutVars.stickyOffset` 交给里面的标题与侧栏。
 - 本页目录的阅读线取标题自己的 `scroll-margin-top`：点目录跳过去后，高亮的正好是跳到的那一节；滚到底时高亮视口里的最后一节。
 - 命令面板的焦点一直在输入框上（aria-activedescendant 指向高亮项），与 Combobox 相同；面板不记选择，选中就是执行，所以回调叫 `onAction`（与 MenuItem 一致，也避开原生 select 事件）。
 

@@ -8,6 +8,7 @@
 import { RotateCcw } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
 import { Alert, Button, CopyButton, Flex, Text, useConfig } from '@vue-tsx-pro/ui';
 import { onBeforeUnmount, onMounted, watch, type Component } from 'vue';
 import { CodeEditor } from '../playground/CodeEditor';
@@ -30,12 +31,12 @@ const styles = stylex.create({
     gridTemplateColumns: {
       default: 'minmax(0, 1fr)',
       // 代码行比效果宽：编辑器多分一些
-      '@media (min-width: 72rem)': 'minmax(0, 3fr) minmax(0, 2fr)',
+      [breakpoints.xl]: 'minmax(0, 3fr) minmax(0, 2fr)',
     },
     alignItems: 'start',
   },
   // 窄屏时编辑器矮一些，下面的效果不至于离得太远
-  editor: { height: { default: '22rem', '@media (min-width: 72rem)': '36rem' } },
+  editor: { height: { default: '22rem', [breakpoints.xl]: '36rem' } },
   // 编辑器加载前占住同样的高度，加载后不跳动
   placeholder: {
     borderWidth: '_xs',

@@ -37,9 +37,8 @@ import {
 import { createMatcher } from '../utils/data/collation';
 import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { breakpoints } from '../config/theme/tokens.stylex';
 import { Dialog, type DialogProps } from './Dialog';
-
-const WIDE = '@media (min-width: 40rem)';
 
 /** 交给触发器的属性：展开到按钮上 */
 export interface CommandPaletteTriggerProps {
@@ -108,11 +107,11 @@ export const commandPaletteStyles = stylex.create({
   // 窄屏（40rem 以下，sizes.sm）只留放大镜图标，不挤占顶栏
   trigger: {
     gap: '_sm',
-    minWidth: { default: null, [WIDE]: '12rem' },
+    minWidth: { default: null, [breakpoints.sm]: '12rem' },
     color: '_textMuted',
     cursor: 'pointer',
   },
-  triggerText: { display: { default: 'none', [WIDE]: 'initial' } },
+  triggerText: { display: { default: 'none', [breakpoints.sm]: 'initial' } },
   triggerLabel: { flexGrow: 1, textAlign: 'start' },
 });
 
