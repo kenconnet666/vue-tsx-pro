@@ -12,7 +12,7 @@ export const darkColors = stylex.createTheme(colors, {
   background: '#111113',
   surface: '#18191b',
   surfaceMuted: '#18191b',
-  surfaceRaised: '#212225',
+  surfaceRaised: '#18191b',
   fill: '#212225',
   fillHover: '#272a2d',
   fillActive: '#2e3135',

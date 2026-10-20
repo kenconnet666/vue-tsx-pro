@@ -24,7 +24,10 @@ export const colors = stylex.defineVars({
   surface: '#fcfcfd',
   /** 弱化的区域背景：表头、侧栏、代码块。slate 2：亮色 `#f9f9fb`，暗色 `#18191b` */
   surfaceMuted: '#f9f9fb',
-  /** 浮层（弹出框、菜单、对话框）表面。亮色 slate 1 `#fcfcfd`（靠阴影区分），暗色 slate 3 `#212225` */
+  /**
+   * 浮层（弹出框、菜单、对话框）表面，靠描边与阴影区分层级。亮色 slate 1 `#fcfcfd`，暗色 slate 2 `#18191b`
+   * （不取第 3 级：那是 fill，浮层里的填充会看不见）
+   */
   surfaceRaised: '#fcfcfd',
 
   // ───────── 中性填充：没有背景的元素在交互时铺的底色 ─────────

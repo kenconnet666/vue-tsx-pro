@@ -15,7 +15,7 @@ export const coffeeColors = stylex.createTheme(colors, {
   background: '#180f0a',
   surface: '#201711',
   surfaceMuted: '#201711',
-  surfaceRaised: '#2c1f16',
+  surfaceRaised: '#201711',
   fill: '#2c1f16',
   fillHover: '#34261d',
   fillActive: '#3b2d24',

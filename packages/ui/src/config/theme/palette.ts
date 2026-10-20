@@ -143,7 +143,8 @@ export const NEUTRAL_STEPS = {
   background: [1, 1],
   surface: [1, 2],
   surfaceMuted: [2, 2],
-  surfaceRaised: [1, 3],
+  // 暗色不取第 3 级：那是 fill，滑块轨道、进度条底色、标签放进浮层会看不见；浮层靠描边与阴影分层（同 Radix Themes 的 panel）
+  surfaceRaised: [1, 2],
   fill: [3, 3],
   fillHover: [4, 4],
   fillActive: [5, 5],

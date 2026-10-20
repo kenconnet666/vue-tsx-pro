@@ -16,7 +16,7 @@ export const midnightColors = stylex.createTheme(colors, {
   background: '#0d1321',
   surface: '#131b2c',
   surfaceMuted: '#131b2c',
-  surfaceRaised: '#1b2539',
+  surfaceRaised: '#131b2c',
   fill: '#1b2539',
   fillHover: '#212c43',
   fillActive: '#28334d',

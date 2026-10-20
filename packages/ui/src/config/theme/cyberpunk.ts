@@ -12,7 +12,7 @@ export const cyberpunkColors = stylex.createTheme(colors, {
   background: '#110e20',
   surface: '#191628',
   surfaceMuted: '#191628',
-  surfaceRaised: '#221c3d',
+  surfaceRaised: '#191628',
   fill: '#221c3d',
   fillHover: '#2a2445',
   fillActive: '#312b4d',
