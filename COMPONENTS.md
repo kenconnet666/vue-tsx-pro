@@ -169,7 +169,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 | 组               | 档位                                                                                                                                                                                                     |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `colors`         | 语义命名，不分档：背景与表面、中性填充（常态/悬停/按下）、文字四级、边框三级、品牌色与危险色（实色/悬停/实色上的文字/文字/浅底/浅底悬停/边框）、成功/警告/信息（文字/浅底/边框）、反色表面、焦点环、遮罩 |
-| `fonts`          | `sans`、`mono`                                                                                                                                                                                           |
+| `fonts`          | `sans`、`serif`、`mono`、`heading`（标题，默认同 `sans`）                                                                                                                                                |
 | `fontSizes`      | `xs`–`xl`（12/13/14/16/18px，界面文字与组件 size 档位）、`xxl`、`xxxl`（标题）                                                                                                                           |
 | `fontWeights`    | `light`、`normal`、`medium`、`semibold`、`bold`                                                                                                                                                          |
 | `lineHeights`    | `none`、`tight`、`snug`、`normal`、`relaxed`（不带单位）                                                                                                                                                 |
@@ -186,12 +186,12 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 - 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `'calc(_md * 2)'`；只有运行时的值才 import 后写 `space.md`。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
-- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染。不设断点：StyleX 的媒体查询不能引用变量，组件优先用容器查询。
+- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只有 AppShell 的粘性顶栏（10）与 SkipLink（100）写了层级。不设断点 token：StyleX 的媒体查询不能引用变量，组件优先用容器查询；整页骨架（AppShell）与命令面板的触发器按容器宽度档位写死媒体查询（40/64/80rem，与 `sizes.sm` / `lg` / `xl` 一致），行为要跟着变时用 `useMediaQuery`。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）、`paper.ts`（纸张：米黄纸色、深棕墨色文字、墨蓝品牌色，覆盖颜色、阴影与字体，标题用衬线）。
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
-- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。
+- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
 - 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
 - 对比度：`pnpm themes:check`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把三套主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查依次跑三套主题。改颜色前后都跑一遍。
@@ -642,6 +642,30 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **行为变化**：浮层的内容关闭时不在 DOM 里（`lazy={false}` 恢复）；带快捷键的菜单照常渲染；使用方传 `onClick={undefined}` 不再盖掉组件默认层的处理；界面要读响应式数据（RUNES §9）。
 
+### 10.17 文档站的准备：主题、排版、外壳与组件整理（已完成）
+
+文档站不用 Markdown，是用组件库自己写的 TSX 网站；它要用的组件都进组件库、按通用组件设计。先补主题与基础设施，再逐类检查已有组件有没有用好基础组件，最后补文档站专用的几类组件，每块单独提交：
+
+| 项       | 改动                                                                                                                                                                                                                                                                                                                                           |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 主题     | 第三套内置主题 `paperTheme`（米黄纸色、深棕墨色、墨蓝品牌色、衬线标题）；新 tokens：`selection`、`highlight`、`surfaceTranslucent`、代码高亮 `code*`、`fonts.serif` / `heading`；`pnpm themes:check` 逐对检查三套主题的 WCAG AA 对比度（CI）                                                                                                   |
+| 主题切换 | `createThemePreference`（跟随系统或某一套，localStorage 记住、多标签页同步，`names` 列出可选主题）、`themeBootScript`（防闪烁）、`revealTransition`（从一点圆形展开，View Transitions API）、`paintDocument`（页面根元素用主题的底色、文字色、字体与行高）；`ThemeSwitcher` 是现成的切换界面                                                   |
+| 基础组件 | `ButtonBase`（无外观的按钮）：菜单项、标签页、折叠标题、步骤、排序按钮、拖动把手、导航分组都建在它上面；过渡写法抽成 `interactionTransitions` / `disclosureStyles` / `presenceStyles`；8 处手写的 ul / ol 改用 `FlexList` / `FlexOrderedList` / `GridList`                                                                                     |
+| 改名     | 虚拟滚动表格 `Table` / `TreeTable` → `DataTable` / `TreeDataTable`，`Table` 留给静态表格；列表状态的类型 `ListItem` → `ListStateEntry`（`ListItem` 是列表项组件）                                                                                                                                                                              |
+| 正文排版 | 静态表格 `Table` 家族（与 DataTable 共用样式表）、`List` / `OrderedList` / `ListItem`、`Blockquote`、`Mark`、`Prose`（长文容器：阅读宽度、宽松行高）；标题的 `anchor`（悬停或聚焦时显示的 # 链接，`stylex.when.ancestor` + `headingMarker`）                                                                                                   |
+| 代码展示 | `CodeBlock` 的标题栏、行号、行高亮、diff 的增删行、`maxLines` 折叠；`CodeGroup`（标签页切换几段代码）；`CodePreview`（效果 + 可收起的源码 + 复制，示例组件与 `?raw` 源码由使用方各自导入，两者永远一致）                                                                                                                                       |
+| 页面外壳 | `AppShell`（粘性半透明顶栏、左侧栏、正文、右侧栏；64rem 以下左侧栏收进抽屉，80rem 以下隐藏右侧栏；自带 `SkipLink`）、`TableOfContents`（`useScrollSpy` 滚动高亮，`collectHeadings` 收集标题）、`CommandPalette`（Mod+K，Dialog + `useListState` + `ListboxView`）、`Pager`（上一篇 / 下一篇）、`ColorSwatch`（色块，token 按当前主题读出取值） |
+| 基础设施 | `useMediaQuery`（`usePrefersDark`、`useReducedMotion` 并入 `utils/dom/media-query.ts`）；`layoutVars.stickyOffset`（`utils/style/vars.stylex.ts`：AppShell 设为顶栏高度，标题的 `scroll-margin` 与粘性侧栏据此让开）；抽屉关闭时滑回所在一侧；AnimatedNumber 每帧直接改文字                                                                    |
+
+**设计取舍**：
+
+- 文档站专用的组件都按通用组件设计：数据由使用方给（CommandPalette 的 `items` 与 `onAction`、TableOfContents 的 `items`），不绑定路由、搜索索引或页面结构。
+- AppShell 的响应式用写死的媒体查询（40/64/80rem，与容器宽度档位一致），不加断点 token（§6.2）；顶栏高度固定 3.5rem，经 `layoutVars.stickyOffset` 交给里面的标题与侧栏。
+- 本页目录的阅读线取标题自己的 `scroll-margin-top`：点目录跳过去后，高亮的正好是跳到的那一节；滚到底时高亮视口里的最后一节。
+- 命令面板的焦点一直在输入框上（aria-activedescendant 指向高亮项），与 Combobox 相同；面板不记选择，选中就是执行，所以回调叫 `onAction`（与 MenuItem 一致，也避开原生 select 事件）。
+
+**行为变化**：`paintDocument` 时页面根元素的字体与行高也由主题决定；`usePrefersDark`、`useReducedMotion` 的导出名不变，模块路径改为 `utils/dom/media-query.ts`。
+
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16），均已完成，每步单独提交。下一批：文档站要用的组件（页面骨架、页内目录、命令面板、静态表格、排版、CodeBlock 增强、明暗切换）与已有组件的逐类审查，之后是日期选择。正式组件按 §8 验收，文档页暂用演示页代替。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16）→ 文档站的准备（10.17），均已完成，每步单独提交。下一批：用组件库自己搭文档站（普通 TSX 网站，不用 Markdown），把各组件的示例与测试搬进 `<分类>/<组件>/` 文件夹，之后是日期选择。正式组件按 §8 验收。

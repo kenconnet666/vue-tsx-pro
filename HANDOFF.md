@@ -6,16 +6,17 @@
 
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。
-- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.15：
-  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制）、Spinner、按钮家族（Button / LinkButton / IconButton / CloseButton / ClearButton / CopyButton）、Badge、Indicator（角标）、Tag
-  - 布局：Flex / FlexList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）
-  - 展示：Collapse、Collapsible、Accordion、VirtualList（虚拟滚动，带加载状态）、Card、Avatar / AvatarGroup、AnimatedNumber、Descriptions、Timeline、Tree、Sortable、Marquee
+- **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.17：
+  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6，标题可带锚点链接）、List / OrderedList / ListItem、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制、行号、行高亮、diff、长代码折叠）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / CloseButton / ClearButton / CopyButton）、Badge、Indicator（角标）、Tag
+  - 布局：Flex / FlexList / FlexOrderedList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea（浮层滚动条）、Prose（长文容器）、AppShell（顶栏 + 两侧栏的整页骨架）
+  - 展示：Collapse、Collapsible、Accordion、VirtualList（虚拟滚动，带加载状态）、Card、Avatar / AvatarGroup、AnimatedNumber、Descriptions、Timeline、Tree、Sortable、Marquee、CodeGroup、CodePreview（代码示例卡片）、ColorSwatch
   - 反馈：Progress、Skeleton、Alert、Empty、Toast（createToaster + Toaster，可滑动关闭、可堆叠）、LoadingOverlay、Result
-  - 浮层：Dialog / Drawer / AlertDialog（共用 Modal 内核，含命令式的 useConfirm）、Popover、Tooltip、HoverCard、Menu（复合，含链接 / 复选 / 单选项、子菜单）、ContextMenu、Tour
-  - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination（配套 PageSizeSelect、PageJump）、NavList（复合）
+  - 浮层：Dialog / Drawer / AlertDialog（共用 Modal 内核，含命令式的 useConfirm）、Popover、Tooltip、HoverCard、Menu（复合，含链接 / 复选 / 单选项、子菜单）、ContextMenu、Tour、CommandPalette（Mod+K 搜索面板）
+  - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination（配套 PageSizeSelect、PageJump）、NavList（复合）、TableOfContents（本页目录，滚动高亮）、Pager（上一篇 / 下一篇）、SkipLink
   - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
-  - 表格：DataTable（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeDataTable（建在 DataTable 上，懒加载子项）
+  - 表格：Table 家族（静态表格，内容写在 JSX 里）、DataTable（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeDataTable（建在 DataTable 上，懒加载子项）
   - 表单（form/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型；数组字段、dirty、单字段异步校验）
+- **主题**（§6.2、§10.17）：亮色、暗色、纸张三套内置主题，`createThemePreference` 记住选择，`ThemeSwitcher` 切换（从按钮处圆形展开），`themeBootScript` 防闪烁，`pnpm themes:check` 检查对比度。
 - **性能、类型与基础设施**（§10.16）：编译器的渲染优化（稳定插槽、属性值缓存，RUNES §9）、表格行组件、浮层延迟渲染、Virtualizer 增量重排、Icon 用 innerHTML、`mergeAttrs`；`stylex.create` 不再标类型；表单拆到 `form/`、对话框一族在 `overlay/`。
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
@@ -102,6 +103,10 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 跟着当前项走的指示条（下划线、选中滑块）                       | `useActiveIndicator(() => ({ container, indicator, active, axis, value }))`（`utils/motion/active-indicator.ts`）                           |
 | 加载指示防闪烁（骨架、进度条、按钮的加载指示）                 | `useDelayedLoading(() => loading, { delay, minDuration })`；aria-busy 仍按真实的 loading（`utils/motion/delayed-loading.ts`）               |
 | 装饰性动画要不要播                                             | `useReducedMotion()`（取主题时长的动画不需要，时长 token 已是 0）                                                                           |
+| 行为随视口、系统设置变化                                       | `useMediaQuery('(min-width: 64rem)')`；只是显示与隐藏时写在样式的媒体查询里（`utils/dom/media-query.ts`）                                   |
+| 滚动到哪一节                                                   | `useScrollSpy(() => ({ ids, root }))`、`collectHeadings(container)`（`utils/dom/scroll-spy.ts`；TableOfContents 用它）                      |
+| 粘性顶栏挡住的高度                                             | `layoutVars.stickyOffset`（`utils/style/vars.stylex.ts`）：AppShell 设置，标题的 `scroll-margin` 读它                                       |
+| 子元素按祖先的悬停、聚焦取样式                                 | `stylex.when.ancestor(':hover', marker)`，标记在 `utils/style/markers.stylex.ts`（标题的锚点链接用它）                                      |
 | 键盘快捷键                                                     | `useHotkeys(() => ({ 'Mod+K': open }))`，显示用 `formatHotkey`（`utils/dom/hotkeys.ts`）                                                    |
 | 复制到剪贴板                                                   | `useClipboard()`：`copy(text)`、`copied`（自动复原）、`error`（`utils/dom/clipboard.ts`）                                                   |
 | 弹层：焦点、遮罩、锁滚动、移除后的焦点                         | `utils/dom/overlay.ts`（`focusAfterRemoval` 用于关闭、移除按钮）                                                                            |
@@ -175,7 +180,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 1. **M3 文档站**（已定方向）：不用 Markdown，用 TSX 与本组件库写的普通网站；代码卡片既显示代码也显示运行效果。
    演示与测试按组件放进 `packages/ui/src/<分类>/<Name>/`（如 `base/Button/`），文件夹里只放演示与对应测试，测试借助演示来测，文档站直接用这些演示；组件源码仍是 `base/Button.tsx` 平铺。
-   先补文档站要用的组件（页面骨架、页内目录、命令面板、静态表格、排版、CodeBlock 增强、明暗切换），再逐类审查美化已有组件。
+   文档站要用的组件已经补齐（§10.17）：用 AppShell 搭骨架，TableOfContents、CommandPalette、ThemeSwitcher、CodePreview、Pager、ColorSwatch 都现成；`apps/docs` 现在的 VitePress 冒烟页开始做时替换。
 2. **日期**：Calendar、DateField、DatePicker（`@internationalized/date`）。
 3. **表格的进阶能力**（按需）：单元格编辑、多级表头、列与行的拖动排序、横向虚拟化。
 4. **M5 发布准备**：changesets、发 0.x。
@@ -186,6 +191,6 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 - Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动。Radix 用专门的 ToolbarToggleGroup，需要时再做。
 - Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色），这是有意的取舍。
 - Toaster 只显示最新的 `max` 条，更早的照样计时，可能没露面就到时了。
-- Menu 没有子菜单；Combobox 只能单选（多选的 TagsInput 以后做）。
+- Combobox 只能单选。
 - 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出（没法用 role="group" 包住各自定位的选项）。
 - 表格是 table 语义，不是 grid：没有单元格之间的方向键导航；TreeDataTable 的层级由缩进与展开按钮表达。
