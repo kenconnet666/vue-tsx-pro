@@ -6,7 +6,7 @@
  *   </VirtualList>
  *
  * 默认组件自己是滚动容器，高度由使用方给（sx、class 或 style）；scroll="window" 时随页面滚动。
- * 读屏：role="list"，每项带 aria-setsize / aria-posinset，未渲染的项也算在总数里。
+ * 读屏：role="list"，每项带 aria-setsize / aria-posinset，未渲染的项也算在总数里；没有数据时是 role="group"（空状态、骨架不是列表项）。
  * loading：没有数据时显示骨架行（按 estimateSize 的高度），已有数据（刷新、加载更多）时顶部显示进度条；带 aria-busy。
  */
 import { _component } from '@vue-tsx-pro/tsx';
@@ -184,7 +184,8 @@ export const VirtualList = _component(
         rest,
         {
           ref: _toRef(root),
-          role: hasItems ? 'list' : undefined,
+          // 没有数据（空状态、首次加载的骨架）时不是列表；仍给 group 角色，写在外层的 aria-label 才有效
+          role: hasItems ? 'list' : 'group',
           'aria-busy': loading || undefined,
           // 容器模式下可以用键盘滚动
           tabindex: isContainer ? 0 : undefined,

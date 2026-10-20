@@ -61,15 +61,16 @@ describe('VirtualList', () => {
     expect(spacer()).toContain('200');
   });
 
-  it('没有数据时显示 empty，不是列表', async () => {
+  it('没有数据时显示 empty，不是列表：role="group"，外层的名称仍有效', async () => {
     const root = mount(() => (
-      <VirtualList items={[]} empty={<p class="empty">暂无数据</p>}>
+      <VirtualList items={[]} empty={<p class="empty">暂无数据</p>} aria-label="联系人">
         {() => null}
       </VirtualList>
     ));
     await nextTick();
     expect(root.querySelector('.empty')).not.toBeNull();
     expect(root.querySelector('[role="list"]')).toBeNull();
+    expect(root.querySelector('[role="group"]')!.getAttribute('aria-label')).toBe('联系人');
   });
 
   it('window 模式不是滚动容器：不加 tabindex', async () => {
