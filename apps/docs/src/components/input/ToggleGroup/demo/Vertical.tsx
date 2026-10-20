@@ -21,8 +21,8 @@ export default _component(() => {
         </ToggleGroup>
       </Field>
       <Flex direction="column" gap="md">
-        <Field label="密度（不可用）" disabled>
-          <ToggleGroup value={_bind(density)} required>
+        <Field label="整组不可用">
+          <ToggleGroup value={_bind(density)} required disabled>
             <ToggleItem value="compact">紧凑</ToggleItem>
             <ToggleItem value="comfortable">适中</ToggleItem>
           </ToggleGroup>

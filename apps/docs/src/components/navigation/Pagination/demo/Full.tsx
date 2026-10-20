@@ -12,7 +12,13 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <Flex align="center" gap="md" wrap>
-          <Pagination page={_bind(page)} total={total} pageSize={size} showTotal />
+          <Pagination
+            aria-label="订单分页"
+            page={_bind(page)}
+            total={total}
+            pageSize={size}
+            showTotal
+          />
           <PageSizeSelect value={_bind(size)} onUpdate={() => (page = 1)} />
           <PageJump page={_bind(page)} pageCount={pageCount} />
         </Flex>

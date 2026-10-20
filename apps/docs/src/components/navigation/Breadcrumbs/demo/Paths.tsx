@@ -17,6 +17,7 @@ export default _component(() => () => (
     <Flex direction="column" gap="xs">
       <Small tone="muted">默认：最后一项是当前页，不是链接</Small>
       <Breadcrumbs
+        aria-label="订单位置"
         items={[
           { label: '首页', href: '#home', icon: House },
           { label: '订单', href: '#orders' },
@@ -26,11 +27,12 @@ export default _component(() => () => (
     </Flex>
     <Flex direction="column" gap="xs">
       <Small tone="muted">maxItems={'{4}'}：中间几级收进菜单</Small>
-      <Breadcrumbs items={deep} maxItems={4} />
+      <Breadcrumbs aria-label="设计稿位置" items={deep} maxItems={4} />
     </Flex>
     <Flex direction="column" gap="xs">
       <Small tone="muted">自定义分隔符与图标</Small>
       <Breadcrumbs
+        aria-label="代码位置"
         separator={<Icon icon={Slash} />}
         items={[
           { label: 'vue-tsx-pro', href: '#repo', icon: Folder },

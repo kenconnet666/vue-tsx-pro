@@ -1,6 +1,6 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, ScrollArea } from '@vue-tsx-pro/ui';
+import { Card, ScrollArea, VisuallyHidden } from '@vue-tsx-pro/ui';
 
 const columns = Array.from({ length: 14 }, (_, index) => String.fromCharCode(65 + index));
 const rows = Array.from({ length: 30 }, (_, index) => index + 1);
@@ -40,7 +40,9 @@ export default _component(() => () => (
       <table {...stylex.attrs(styles.table)}>
         <thead>
           <tr>
-            <th {...stylex.attrs(styles.cell, styles.head, styles.rowHead, styles.corner)} />
+            <th {...stylex.attrs(styles.cell, styles.head, styles.rowHead, styles.corner)}>
+              <VisuallyHidden>行号</VisuallyHidden>
+            </th>
             {columns.map((column) => (
               <th key={column} scope="col" {...stylex.attrs(styles.cell, styles.head)}>
                 {column}
