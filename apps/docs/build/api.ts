@@ -172,14 +172,14 @@ function kindOf(name: string): keyof ApiPropKinds {
   return 'prop';
 }
 
-/** 一个 Props 接口的 API 数据；组件名默认是接口名去掉 Props */
+/** 一个 Props 接口的 API 数据；组件名是接口名去掉 Props（泛型组件的 XxxBaseProps 去掉 BaseProps） */
 export function extractComponentApi(interfaceName: string): ComponentApi {
   const checker = currentProgram().getTypeChecker();
   const symbol = exportedSymbol(checker, interfaceName);
   const declaration = symbol.declarations?.[0];
   if (!declaration) throw new Error(`找不到 ${interfaceName} 的声明`);
   const type = checker.getDeclaredTypeOfSymbol(symbol);
-  const defaults = implementationDefaults(checker, interfaceName.replace(/Props$/, ''));
+  const defaults = implementationDefaults(checker, interfaceName.replace(/(Base)?Props$/, ''));
 
   const props: ApiProp[] = [];
   for (const property of checker.getPropertiesOfType(type)) {
