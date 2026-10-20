@@ -109,6 +109,7 @@ export {
 } from './base/button-core';
 
 // 布局
+export { AppShell, appShellOffset, appShellStyles, type AppShellProps } from './layout/AppShell';
 export {
   Container,
   containerPaddingStyles,
@@ -312,6 +313,13 @@ export {
   type AlertDialogProps,
   type ConfirmOptions,
 } from './overlay/AlertDialog';
+export {
+  CommandPalette,
+  commandPaletteStyles,
+  type CommandPaletteBaseProps,
+  type CommandPaletteProps,
+  type CommandPaletteTriggerProps,
+} from './overlay/CommandPalette';
 export { ContextMenu, type ContextMenuProps } from './overlay/ContextMenu';
 export {
   Dialog,
@@ -409,6 +417,7 @@ export {
 export { PageJump, pageJumpStyles, type PageJumpProps } from './navigation/PageJump';
 export { PageSizeSelect, type PageSizeSelectProps } from './navigation/PageSizeSelect';
 export { Pagination, paginationStyles, type PaginationProps } from './navigation/Pagination';
+export { SkipLink, skipLinkStyles, type SkipLinkProps } from './navigation/SkipLink';
 export {
   Steps,
   stepsStateStyles,
@@ -418,6 +427,11 @@ export {
   type StepsProps,
   type StepState,
 } from './navigation/Steps';
+export {
+  TableOfContents,
+  tableOfContentsStyles,
+  type TableOfContentsProps,
+} from './navigation/TableOfContents';
 export {
   Tab,
   TabList,
@@ -683,6 +697,7 @@ export {
   type ConfigScopeProps,
   type ProviderProps,
 } from './config/Provider';
+export { ThemeSwitcher, type ThemeSwitcherProps } from './config/ThemeSwitcher';
 export {
   ConfigContext,
   defaultConfig,
@@ -712,7 +727,6 @@ export {
   type ThemePreference,
   type ThemePreferenceOptions,
 } from './config/theme/preference';
-export { usePrefersDark } from './config/theme/prefers-dark';
 export {
   defineTheme,
   readToken,
@@ -798,6 +812,7 @@ export {
   type Tone,
   type Tones,
 } from './utils/style/typography';
+export { layoutVars } from './utils/style/vars.stylex';
 
 // 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板
 export { useClipboard, type ClipboardOptions, type ClipboardState } from './utils/dom/clipboard';
@@ -842,6 +857,7 @@ export {
 } from './utils/dom/hover-intent';
 export { useLeaveConfirmation } from './utils/dom/leave-confirmation';
 export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
+export { useMediaQuery, usePrefersDark, useReducedMotion } from './utils/dom/media-query';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
   dismissOnBackdrop,
@@ -864,6 +880,12 @@ export {
   type RovingFocusOptions,
   type RovingOrientations,
 } from './utils/dom/roving-focus';
+export {
+  collectHeadings,
+  useScrollSpy,
+  type HeadingEntry,
+  type ScrollSpyOptions,
+} from './utils/dom/scroll-spy';
 export { useSortable, type SortableOptions, type SortableState } from './utils/dom/sortable';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
@@ -948,7 +970,6 @@ export {
   type Presence,
   type PresenceOptions,
 } from './utils/motion/presence';
-export { useReducedMotion } from './utils/motion/reduced-motion';
 export { revealTransition, type RevealOrigin } from './utils/motion/reveal';
 export {
   useSpring,

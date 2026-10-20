@@ -80,6 +80,7 @@ export const zhCN: Lang = {
   headingAnchor: '链接到本节',
   skipToContent: '跳到正文',
   tableOfContents: '本页目录',
+  navigation: '导航',
   navigationOpen: '打开导航',
   searchLabel: '搜索',
   searchPlaceholder: '搜索文档',

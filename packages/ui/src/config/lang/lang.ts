@@ -190,6 +190,8 @@ export interface Lang {
   readonly skipToContent: string;
   /** 页内目录的名称，默认“本页目录” */
   readonly tableOfContents: string;
+  /** 窄屏时收着侧边导航的抽屉的标题，默认“导航” */
+  readonly navigation: string;
   /** 窄屏时打开侧边导航的按钮，默认“打开导航” */
   readonly navigationOpen: string;
   /** 搜索面板与搜索按钮的名称，默认“搜索” */

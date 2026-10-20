@@ -10,7 +10,7 @@
  */
 import { computed, effectScope, shallowRef } from 'vue';
 import { revealTransition, type RevealOrigin } from '../../utils/motion/reveal';
-import { usePrefersDark } from './prefers-dark';
+import { usePrefersDark } from '../../utils/dom/media-query';
 import type { ColorSchemes, Theme } from './theme';
 
 /** 跟随系统的取值 */
@@ -30,6 +30,8 @@ export interface ThemePreferenceOptions<Name extends string> {
 
 /** 主题偏好：当前的选择、解析出的主题，以及切换 */
 export interface ThemePreference<Name extends string> {
+  /** 可选的主题名，按 themes 里的顺序（ThemeSwitcher 据此列出选项） */
+  readonly names: readonly Name[];
   /** 当前的选择：某一套主题，或 'system' */
   readonly preference: Name | typeof SYSTEM_THEME;
   /** 解析出的主题名（跟随系统时按系统明暗） */
@@ -81,6 +83,7 @@ export function createThemePreference<Name extends string>(
   }
 
   return {
+    names,
     get preference() {
       return preference.value;
     },

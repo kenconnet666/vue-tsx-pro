@@ -4,7 +4,7 @@ import type { VNodeChild } from 'vue';
 import { ConfigContext, useConfig, type Highlighter, type UiRouter } from './context';
 import { mergeDefaults, type ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
-import { usePrefersDark } from './theme/prefers-dark';
+import { usePrefersDark } from '../utils/dom/media-query';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
 
 /** 局部配置；都不写时只是透明的容器，沿用上层配置 */

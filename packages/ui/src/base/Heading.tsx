@@ -16,7 +16,9 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { space } from '../config/theme/tokens.stylex';
 import { headingMarker } from '../utils/style/markers.stylex';
+import { layoutVars } from '../utils/style/vars.stylex';
 import { focusRingStyles } from '../utils/style/styles';
 import { Icon } from './Icon';
 import {
@@ -56,7 +58,14 @@ export interface HeadingProps extends PartProps<HeadingTag> {
 /** H1–H6 的样式：root、xxl、xxxl */
 export const headingStyles = stylex.create({
   // 字体取 fonts.heading：默认同正文，纸张主题换成衬线
-  root: { margin: 0, fontFamily: '_heading', lineHeight: '_tight', textWrap: 'balance' },
+  root: {
+    margin: 0,
+    fontFamily: '_heading',
+    lineHeight: '_tight',
+    textWrap: 'balance',
+    // 锚点跳转（#install）后让开粘性顶栏，再留一点空
+    scrollMarginBlockStart: `calc(${layoutVars.stickyOffset} + ${space.lg})`,
+  },
   // 大字号的字形间距显得松，略收紧
   xxl: { letterSpacing: '_tight' },
   xxxl: { letterSpacing: '_tighter' },

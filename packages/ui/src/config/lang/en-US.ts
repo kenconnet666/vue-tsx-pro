@@ -82,6 +82,7 @@ export const enUS: Lang = {
   headingAnchor: 'Link to this section',
   skipToContent: 'Skip to content',
   tableOfContents: 'On this page',
+  navigation: 'Navigation',
   navigationOpen: 'Open navigation',
   searchLabel: 'Search',
   searchPlaceholder: 'Search docs',

@@ -14,7 +14,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { ConfigContext, defaultConfig, type Highlighter, type UiRouter } from './context';
 import type { ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
-import { usePrefersDark } from './theme/prefers-dark';
+import { usePrefersDark } from '../utils/dom/media-query';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
 
 /** 应用级配置；都可以传 ref 或 getter，运行时切换 */
