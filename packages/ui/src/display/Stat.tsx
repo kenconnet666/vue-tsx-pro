@@ -15,6 +15,7 @@ import { Icon, type IconData } from '../base/Icon';
 import { Skeleton } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { shimmerStyles } from '../utils/style/shimmer';
 import { toneStyles } from '../utils/style/typography';
 import { AnimatedNumber } from './AnimatedNumber';
 
@@ -128,7 +129,11 @@ export const Stat = _component(
   }: StatProps) => {
     // 骨架防闪烁；aria-busy 按真实的 loading
     const skeleton = useDelayedLoading(() => loading);
+    // 出现过骨架之后，换回数值时淡入（样式在切换的那一刻加上，动画才会播）
+    let revealing = false;
     return () => {
+      if (skeleton.value) revealing = true;
+      const reveal = revealing && !skeleton.value && shimmerStyles.reveal;
       const direction = change === undefined || change === 0 ? 'flat' : change > 0 ? 'up' : 'down';
       const improved = invertChange ? direction === 'down' : direction === 'up';
       const changeTone = direction === 'flat' ? 'muted' : improved ? 'success' : 'danger';
@@ -146,7 +151,7 @@ export const Stat = _component(
               </span>
             )}
           </dt>
-          <dd {...mergeAttrs<'dd'>({ sx: statStyles.value }, propsValue)}>
+          <dd {...mergeAttrs<'dd'>({ sx: [statStyles.value, reveal] }, propsValue)}>
             {skeleton.value ? (
               <Skeleton sx={statStyles.numberSkeleton} />
             ) : typeof value === 'number' ? (
@@ -160,7 +165,7 @@ export const Stat = _component(
           </dd>
           {change !== undefined && (
             <dd
-              {...stylex.attrs(statStyles.change)}
+              {...stylex.attrs(statStyles.change, reveal)}
               data-trend={skeleton.value ? undefined : direction}
             >
               {skeleton.value ? (

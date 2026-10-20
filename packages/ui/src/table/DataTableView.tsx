@@ -22,6 +22,7 @@ import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
+import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { Checkbox, type CheckboxProps } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -126,7 +127,7 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   /** 空状态的部件属性 */
   propsEmpty?: Partial<EmptyProps>;
   /** 加载中占位的部件属性 */
-  propsSkeleton?: Partial<SkeletonProps>;
+  propsSkeleton?: Omit<Partial<SkeletonProps>, 'loading' | 'children'>;
   /** 可排序列标题里的排序按钮的部件属性 */
   propsSortButton?: Partial<ButtonBaseProps>;
   /** 列宽调整手柄的部件属性 */
@@ -700,6 +701,8 @@ export const DataTableView = _component(
                                   `${90 - ((index + position) % 4) * 15}%`,
                                 ),
                               ],
+                              // 同一行的单元格一起扫，行与行依次错开：一道波从上往下推过表格
+                              delay: index * SHIMMER_STAGGER,
                             },
                             propsSkeleton,
                           )}

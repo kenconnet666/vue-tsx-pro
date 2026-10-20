@@ -3,7 +3,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Card, Grid, Stat } from '@vue-tsx-pro/ui';
 
 export default _component(() => () => (
-  <Grid minItemWidth="12em" gap="md">
+  <Grid minItemWidth="14em" gap="md">
     <Card>
       <Stat label="降本项目总数" value={6} unit="项" icon={ClipboardList} />
     </Card>

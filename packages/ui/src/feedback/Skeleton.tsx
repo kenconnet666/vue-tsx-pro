@@ -5,6 +5,7 @@
  *
  *   <Skeleton loading={loading}><Text>{user.name}</Text></Skeleton>
  *   <Skeleton variant="circle" />
+ *   <Skeleton variant="heading" delay={120} />      几块骨架依次扫过
  *   <Skeleton sx={styles.cover} />
  *
  * 占位对读屏隐藏；整块区域在加载时在外层加 aria-busy。减少动态效果时不扫光。
@@ -39,6 +40,8 @@ export interface SkeletonProps extends PartProps<'span', 'aria-hidden' | 'inert'
   loading?: boolean;
   /** 形状；不写时大小由包着的内容或 sx 决定 */
   variant?: keyof SkeletonVariants;
+  /** 扫光的延迟（毫秒）：几块骨架依次扫过、连成一道波时用（SkeletonText 的各行就是这样错开的） */
+  delay?: number;
   /** 包着内容的那一层（不可见、只用来撑出大小）的部件属性 */
   propsContent?: PartProps<'span'>;
   children?: VNodeChild;
@@ -49,8 +52,10 @@ export const skeletonStyles = stylex.create({
   root: {
     display: 'inline-block',
     borderRadius: '_sm',
-    backgroundColor: '_fillHover',
-    [shimmerVars.highlight]: 'color-mix(in oklab, _colors.text 8%, transparent)',
+    // 底色与光带都是半透明的正文色：叠在任何表面（页面、卡片、浮层）上都比表面深一档（暗色主题里浅一档），
+    // 十二套主题不必各调一遍；光带叠在底色上，再深一档
+    backgroundColor: 'color-mix(in oklab, _colors.text 9%, transparent)',
+    [shimmerVars.highlight]: 'color-mix(in oklab, _colors.text 9%, transparent)',
     pointerEvents: 'none',
     userSelect: 'none',
   },
@@ -75,7 +80,7 @@ export const skeletonVariantStyles = stylex.create({
 
 /** 骨架屏：加载时占位并扫光，包着内容时与内容一样大 */
 export const Skeleton = _component(
-  ({ loading = true, variant, propsContent, children, ...rest }: SkeletonProps) =>
+  ({ loading = true, variant, delay, propsContent, children, ...rest }: SkeletonProps) =>
     () => {
       if (!loading) return children;
       const wrapping = children != null;
@@ -87,6 +92,7 @@ export const Skeleton = _component(
                 skeletonStyles.root,
                 shimmerStyles.wave,
                 variant && skeletonVariantStyles[variant],
+                !!delay && shimmerStyles.delay(`${delay}ms`),
                 wrapping && skeletonStyles.wrapping,
               ],
             },

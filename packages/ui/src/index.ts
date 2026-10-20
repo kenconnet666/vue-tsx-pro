@@ -706,8 +706,19 @@ export {
   type LabelProps,
 } from './form/Field';
 export { Form, FormContext, type FormProps } from './form/Form';
-export { FormValue, type FormValueProps } from './form/FormValue';
+export {
+  FormValue,
+  formValueText,
+  type FormValueItem,
+  type FormValueProps,
+} from './form/FormValue';
 export { createConstraints, type FieldConstraints } from './form/form-constraints';
+export {
+  bigintSchema,
+  decimalSchema,
+  type BigIntSchemaOptions,
+  type DecimalSchemaOptions,
+} from './form/schemas';
 export {
   useForm,
   type ArrayPath,
@@ -1102,6 +1113,15 @@ export {
   type WeekOptions,
 } from './utils/data/date';
 export { clamp, snapToStep } from './utils/data/number';
+export {
+  compareNumeric,
+  isDecimal,
+  isNumeric,
+  numericText,
+  sameNumeric,
+  toNumber,
+  type NumericValue,
+} from './utils/data/numeric';
 export {
   paginationItems,
   type PaginationEllipsis,

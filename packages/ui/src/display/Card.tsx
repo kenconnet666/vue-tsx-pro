@@ -12,7 +12,8 @@ import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { SkeletonText, type SkeletonTextProps } from '../feedback/SkeletonText';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { shimmerStyles } from '../utils/style/shimmer';
 import type { Space } from '../utils/style/styles';
 
 /** 卡片样式 */
@@ -128,8 +129,11 @@ export const Card = _component(
     });
     // 骨架防闪烁；aria-busy 按真实的 loading
     const skeleton = useDelayedLoading(() => loading);
+    // 出现过骨架之后，骨架与正文互换时都淡入（样式在切换的那一刻加上，动画才会播）；一开始就有内容的卡片不播
+    let revealing = false;
     return () => {
       const space = cardPaddingStyles[appearance().padding];
+      if (skeleton.value) revealing = true;
       return (
         <div
           {...mergeAttrs<'div'>(
@@ -145,8 +149,19 @@ export const Card = _component(
               {header}
             </div>
           )}
-          <div {...mergeAttrs<'div'>({ sx: space }, propsBody)}>
-            {skeleton.value ? <SkeletonText {...propsSkeleton} /> : children}
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: [space, revealing && !skeleton.value && shimmerStyles.reveal] },
+              propsBody,
+            )}
+          >
+            {skeleton.value ? (
+              <SkeletonText
+                {...mergePartProps<SkeletonTextProps>({ sx: shimmerStyles.reveal }, propsSkeleton)}
+              />
+            ) : (
+              children
+            )}
           </div>
           {footer != null && (
             <div {...mergeAttrs<'div'>({ sx: [cardStyles.footer, space] }, propsFooter)}>

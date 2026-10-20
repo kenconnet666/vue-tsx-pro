@@ -5,6 +5,9 @@
  *   const match = createMatcher('zh-CN');  match('Ångström', 'ang') → true（忽略大小写与重音）
  *   rows.sort(createComparer('zh-CN'))     数字按大小、日期按时间、文字按语言的排序规则（中文按拼音）
  */
+import type { DateValue } from '@internationalized/date';
+import type Decimal from 'decimal.js';
+import { compareNumeric, isNumeric } from './numeric';
 
 const collators = new Map<string, Intl.Collator>();
 
@@ -32,16 +35,28 @@ export function createMatcher(locale: string): (text: string, query: string) => 
 }
 
 /** 可以排序的值：表格列的 value 返回它 */
-export type SortValue = string | number | bigint | boolean | Date | null | undefined;
+export type SortValue =
+  string | number | bigint | Decimal | boolean | Date | DateValue | null | undefined;
 
-/** 比较两个值，给排序用：null / undefined 排在最后；数字、bigint 按大小；Date 按时间；布尔 false 在前；文字按语言比较（“第2章”排在“第10章”前） */
+/** @internationalized/date 的日期值（CalendarDate、CalendarDateTime、ZonedDateTime）：不在运行时导入，按形状识别 */
+const isDateValue = (value: unknown): value is DateValue =>
+  typeof value === 'object' &&
+  value !== null &&
+  'calendar' in value &&
+  typeof (value as DateValue).compare === 'function';
+
+/**
+ * 比较两个值，给排序用：null / undefined 排在最后；number、bigint、Decimal 按大小（混着也行，不丢精度）；
+ * Date 按时间，DateValue 按它自己的 compare（不经过时区换算）；布尔 false 在前；
+ * 文字按语言比较（“第2章”排在“第10章”前）
+ */
 export function createComparer(locale: string): (a: SortValue, b: SortValue) => number {
   const compare = collator(locale, 'sort');
   return (a, b) => {
     if (a == null || b == null) return a == null ? (b == null ? 0 : 1) : -1;
-    if (typeof a === 'number' && typeof b === 'number') return a - b;
-    if (typeof a === 'bigint' && typeof b === 'bigint') return a < b ? -1 : a > b ? 1 : 0;
+    if (isNumeric(a) && isNumeric(b)) return compareNumeric(a, b);
     if (a instanceof Date && b instanceof Date) return a.getTime() - b.getTime();
+    if (isDateValue(a) && isDateValue(b)) return a.compare(b);
     if (typeof a === 'boolean' && typeof b === 'boolean') return Number(a) - Number(b);
     return compare.compare(String(a), String(b));
   };

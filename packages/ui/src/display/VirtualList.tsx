@@ -16,6 +16,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
+import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import {
   elementProps,
   mergeAttrs,
@@ -68,7 +69,7 @@ export interface VirtualListProps<T> extends PartProps<'div', VirtualListManaged
   /** 加载中：没有数据时显示骨架行，已有数据时顶部显示进度条 */
   loading?: boolean;
   /** 加载中占位行的部件属性 */
-  propsSkeleton?: Partial<SkeletonProps>;
+  propsSkeleton?: Omit<Partial<SkeletonProps>, 'loading' | 'children'>;
   /** 拿到滚动方法：`handle={(list) => (listHandle = list)}` */
   handle?: (handle: VirtualListHandle) => void;
   /** 可见范围变化（不含 overscan）：接近末尾时加载更多 */
@@ -253,6 +254,7 @@ export const VirtualList = _component(
                           typeof estimateSize === 'number' ? estimateSize : 40,
                         ),
                       ],
+                      delay: index * SHIMMER_STAGGER,
                     },
                     propsSkeleton,
                   )}

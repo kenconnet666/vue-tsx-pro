@@ -1,0 +1,71 @@
+/**
+ * 内置支持的数值类型：number、bigint 与 decimal.js 的 Decimal（金额、精确运算）。
+ * 组件的数值属性都接受它们（NumericValue），排序、格式化、表单提交不丢精度。
+ *
+ *   compareNumeric(new Decimal('1.5'), 1.25)   // 1：不同类型也按大小比
+ *   numericText(new Decimal('1e21'))           // '1000000000000000000000'：提交给服务端的十进制文本
+ *
+ * 这里不在运行时导入 decimal.js：按实例自己的构造函数识别与运算（使用方可能用 Decimal.clone 配了精度），
+ * 没用到 Decimal 的应用不会因此打包它。
+ */
+import type Decimal from 'decimal.js';
+
+/** 组件接受的数值 */
+export type NumericValue = number | bigint | Decimal;
+
+type DecimalConstructor = typeof Decimal;
+
+/** 是不是 decimal.js 的 Decimal（含 Decimal.clone 出来的构造函数的实例） */
+export function isDecimal(value: unknown): value is Decimal {
+  if (typeof value !== 'object' || value === null) return false;
+  const constructor = (value as { constructor?: Partial<DecimalConstructor> }).constructor;
+  return typeof constructor?.isDecimal === 'function' && constructor.isDecimal(value);
+}
+
+/** 是不是组件接受的数值（NaN 也算 number，由使用方决定怎么处理） */
+export function isNumeric(value: unknown): value is NumericValue {
+  return typeof value === 'number' || typeof value === 'bigint' || isDecimal(value);
+}
+
+/** 转成 number：只给需要浮点数的地方用（动画的中间帧、图表坐标、aria-valuenow），会丢精度 */
+export function toNumber(value: NumericValue): number {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'bigint') return Number(value);
+  return value.toNumber();
+}
+
+/** 十进制文本，不用科学计数法：表单提交、复制给服务端；NaN、Infinity 原样 */
+export function numericText(value: NumericValue): string {
+  if (typeof value === 'bigint') return value.toString();
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return String(value);
+    // 1e21 以上 String() 会写成科学计数法；toLocaleString 不带分组时给出完整的十进制
+    return Math.abs(value) < 1e21
+      ? String(value)
+      : value.toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 20 });
+  }
+  return value.isFinite() ? value.toFixed() : value.toString();
+}
+
+/** 用 Decimal 的构造函数（从 a 或 b 里找）把两个值都转成 Decimal 比较 */
+function compareWithDecimal(a: NumericValue, b: NumericValue, Ctor: DecimalConstructor): number {
+  const left = isDecimal(a) ? a : new Ctor(numericText(a));
+  return left.cmp(isDecimal(b) ? b : new Ctor(numericText(b)));
+}
+
+/**
+ * 按大小比较两个数值，不同类型混着也行：返回负数、0 或正数（同 Array.prototype.sort 的约定）。
+ * 有 Decimal 时按十进制精确比较；number 与 bigint 之间不经过浮点数（大整数不丢精度）；NaN 排在最后
+ */
+export function compareNumeric(a: NumericValue, b: NumericValue): number {
+  if (typeof a === 'number' && Number.isNaN(a))
+    return typeof b === 'number' && Number.isNaN(b) ? 0 : 1;
+  if (typeof b === 'number' && Number.isNaN(b)) return -1;
+  if (isDecimal(a)) return compareWithDecimal(a, b, a.constructor as DecimalConstructor);
+  if (isDecimal(b)) return compareWithDecimal(a, b, b.constructor as DecimalConstructor);
+  // number、bigint 之间：JavaScript 的关系运算符对混合类型按数学值比较，不丢精度
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/** 两个数值是否相等（1 与 1n、Decimal('1.0') 与 1 都算相等） */
+export const sameNumeric = (a: NumericValue, b: NumericValue) => compareNumeric(a, b) === 0;

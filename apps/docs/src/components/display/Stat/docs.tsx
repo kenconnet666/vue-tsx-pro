@@ -29,6 +29,7 @@ export default _component(() => () => (
       </Example>
       <Example id="live" title="数值变化" demo={Live}>
         数值变化时从旧值滚动到新值（AnimatedNumber），读屏只读终值；减少动态效果时直接跳到新值。
+        下方的迷你趋势是示例自己拼的最近 12 次取值，装饰性、对读屏隐藏。
       </Example>
       <Example id="loading" title="加载中" demo={Loading}>
         <Code>loading</Code> 时数值与变化量换成骨架，一道光带从起始边扫过，指标名照常显示； Card 的{' '}

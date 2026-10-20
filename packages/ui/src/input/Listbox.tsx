@@ -28,6 +28,7 @@ import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
+import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { itemStyles } from '../utils/style/item-styles';
 import {
   elementProps,
@@ -93,7 +94,7 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   /** 空状态的部件属性 */
   propsEmpty?: Partial<EmptyProps>;
   /** 加载中占位行的部件属性 */
-  propsSkeleton?: Partial<SkeletonProps>;
+  propsSkeleton?: Omit<Partial<SkeletonProps>, 'loading' | 'children'>;
 }
 
 /** 渲染用的一行：分组标题或选项 */
@@ -339,6 +340,7 @@ export const ListboxView = _component(
               {...mergePartProps<SkeletonProps>(
                 {
                   sx: [listboxStyles.skeleton, listboxPositionStyles.width(`${85 - index * 15}%`)],
+                  delay: index * SHIMMER_STAGGER,
                 },
                 propsSkeleton,
               )}

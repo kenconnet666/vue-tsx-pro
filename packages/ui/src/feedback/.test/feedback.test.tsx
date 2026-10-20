@@ -6,6 +6,7 @@ import { Alert } from '../Alert';
 import { Progress } from '../Progress';
 import { Skeleton } from '../Skeleton';
 import { SkeletonText } from '../SkeletonText';
+import { SHIMMER_STAGGER } from '../../utils/style/shimmer';
 
 const first = (root: Element) => root.firstElementChild as HTMLElement;
 
@@ -70,17 +71,21 @@ describe('Skeleton', () => {
 });
 
 describe('SkeletonText', () => {
-  it('lines 行骨架，最后一行短一些；整块对读屏隐藏', () => {
-    const root = first(mount(() => <SkeletonText lines={4} />));
+  it('lines 行骨架，最后一行短一些，各行扫光依次错开；整块对读屏隐藏', () => {
+    const root = first(mount(() => <SkeletonText lines={4} delay={100} />));
     expect(root.getAttribute('aria-hidden')).toBe('true');
-    const lines = [...root.children];
+    const lines = [...root.children] as HTMLElement[];
     expect(lines).toHaveLength(4);
-    expect(lines[0]!.className).toBe(lines[2]!.className);
-    expect(lines[3]!.className).not.toBe(lines[0]!.className);
+    expect(lines[1]!.className).toBe(lines[2]!.className);
+    expect(lines[3]!.className).not.toBe(lines[2]!.className);
+    // 延迟写在内联的 CSS 变量里：从 delay 起，每行晚 SHIMMER_STAGGER
+    const delays = lines.map((line) => line.getAttribute('style'));
+    expect(delays[0]).toContain('100ms');
+    expect(delays[1]).toContain(`${100 + SHIMMER_STAGGER}ms`);
+    expect(new Set(delays).size).toBe(4);
     // 只有一行时不缩短
-    expect(first(first(mount(() => <SkeletonText lines={1} />))).className).toBe(
-      lines[0]!.className,
-    );
+    const single = first(first(mount(() => <SkeletonText lines={1} delay={100} />)));
+    expect(single.className).toBe(lines[0]!.className);
   });
 });
 
