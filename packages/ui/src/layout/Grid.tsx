@@ -49,7 +49,10 @@ export interface GridFlows {
 export interface GridOptions {
   /** 列数（等宽列）；与 minItemWidth 同时给时以 minItemWidth 为准 */
   columns?: number;
-  /** 每项的最小宽度（CSS 长度，如 '14em'）：按容器宽度自动决定列数（auto-fill），窄于它时单列 */
+  /**
+   * 每项的最小宽度（CSS 长度，如 '14em'）：按容器宽度自动决定列数，窄于它时单列。
+   * 项目比放得下的列数少时，空列收起、各项拉宽占满（auto-fit，同 Chakra 的 minChildWidth），不在右边留空
+   */
   minItemWidth?: string;
   /** 间距档位，对应主题的 space */
   gap?: Space;
@@ -77,7 +80,7 @@ export const gridDynamicStyles = stylex.create({
   columns: (count: number) => ({ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }),
   // min(…, 100%)：容器比最小宽度还窄时不溢出
   minItemWidth: (width: string) => ({
-    gridTemplateColumns: `repeat(auto-fill, minmax(min(${width}, 100%), 1fr))`,
+    gridTemplateColumns: `repeat(auto-fit, minmax(min(${width}, 100%), 1fr))`,
   }),
 });
 

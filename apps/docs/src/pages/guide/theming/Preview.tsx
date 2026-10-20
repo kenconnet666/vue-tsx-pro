@@ -63,7 +63,7 @@ const styles = stylex.create({
   topbar: { display: 'flex', alignItems: 'center', gap: '_md', flexWrap: 'wrap' },
   brand: { fontWeight: '_bold', fontFamily: '_heading' },
   spacer: { flexGrow: 1 },
-  // 一行里的卡片按基准宽度分摊整行，放不下就换行（Grid 的 auto-fill 会在右边留下空列）
+  // 一行里的卡片宽窄不一（small、wide 的基准宽度不同），按基准分摊整行、放不下就换行：等宽列的 Grid 做不到
   row: { display: 'flex', flexWrap: 'wrap', gap: '_md' },
   small: { flex: '1 1 10em', minWidth: 0 },
   wide: { flex: '1 1 16em', minWidth: 0 },

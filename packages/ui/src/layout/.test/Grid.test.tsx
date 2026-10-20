@@ -11,7 +11,7 @@ describe('Grid', () => {
     expect(fixed.tagName).toBe('DIV');
     expect(fixed.getAttribute('style')).toContain('repeat(3, minmax(0, 1fr))');
     const auto = render(() => <Grid minItemWidth="14em">a</Grid>);
-    expect(auto.getAttribute('style')).toContain('auto-fill');
+    expect(auto.getAttribute('style')).toContain('auto-fit');
     expect(auto.getAttribute('style')).toContain('14em');
   });
 
@@ -22,7 +22,7 @@ describe('Grid', () => {
       </GridList>
     ));
     expect(grid.tagName).toBe('UL');
-    expect(grid.getAttribute('style')).toContain('auto-fill');
+    expect(grid.getAttribute('style')).toContain('auto-fit');
     expect(grid.getAttribute('role')).toBe('list');
   });
 
