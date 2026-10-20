@@ -1,0 +1,31 @@
+// Tour：卡片里各部件的属性透传与无障碍关联（遮罩、定位、焦点见浏览器测试）
+import { describe, expect, it } from 'vitest';
+import { mount } from '../../utils/.test/mount';
+import { Tour } from '../Tour';
+
+const steps = [
+  { title: '搜索', content: '按名称或编号查找订单' },
+  { title: '导出', content: '导出为 Excel' },
+];
+
+describe('Tour', () => {
+  it('部件属性：标题、说明、底部一行、步数；标题与说明的 id 仍关联到 dialog', () => {
+    const root = mount(() => (
+      <Tour
+        steps={steps}
+        propsTitle={{ class: 'title' }}
+        propsContent={{ class: 'content' }}
+        propsFooter={{ class: 'footer' }}
+        propsProgress={{ class: 'progress' }}
+      />
+    ));
+    const dialog = root.querySelector('dialog')!;
+    const title = dialog.querySelector('.title')!;
+    const content = dialog.querySelector('.content')!;
+    expect([title.tagName, title.textContent]).toEqual(['H2', '搜索']);
+    expect(dialog.getAttribute('aria-labelledby')).toBe(title.id);
+    expect(content.textContent).toBe('按名称或编号查找订单');
+    expect(dialog.getAttribute('aria-describedby')).toBe(content.id);
+    expect(dialog.querySelector('.footer .progress')!.textContent).toContain('1');
+  });
+});

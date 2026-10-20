@@ -6,7 +6,7 @@
  *   <FileDrop accept="image/*" multiple onFiles={(files) => add(files)} />
  *
  * 原生 input 只是视觉上隐藏，焦点、键盘、读屏都是浏览器的；区域的文字是它的名称。拖着文件经过时写 data-dragging。
- * 在 Field 里时关联标签、说明与错误。部件：Root（label）、Input（input）、Icon、Hint（提示文字）。
+ * 在 Field 里时关联标签、说明与错误。部件：Root（label）、Input（input）、Icon、Hint（提示文字）、Description（说明）。
  */
 import { Upload as UploadIcon } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -62,6 +62,8 @@ export interface FileDropProps extends PartProps<
   propsIcon?: Partial<IconProps>;
   /** 提示文字的部件属性 */
   propsHint?: PartProps<'span'>;
+  /** 提示文字下面的说明的部件属性 */
+  propsDescription?: PartProps<'span'>;
   /** 区域里的内容；默认是图标、提示文字（取语言包）与 description */
   children?: VNodeChild;
 }
@@ -112,6 +114,7 @@ export const FileDrop = _component(
     propsRoot,
     propsIcon,
     propsHint,
+    propsDescription,
     children,
     ...rest
   }: FileDropProps) => {
@@ -212,7 +215,9 @@ export const FileDrop = _component(
                 {lang.fileDrop}
               </span>
               {description != null && (
-                <span {...stylex.attrs(fileDropStyles.description)}>{description}</span>
+                <span {...mergeAttrs<'span'>({ sx: fileDropStyles.description }, propsDescription)}>
+                  {description}
+                </span>
               )}
             </>
           )}

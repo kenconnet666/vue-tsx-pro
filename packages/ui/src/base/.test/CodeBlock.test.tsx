@@ -134,4 +134,25 @@ describe('CodeBlock 的行与折叠', () => {
     await nextTick();
     expect([toggle.textContent, toggle.getAttribute('aria-expanded')]).toEqual(['收起', 'true']);
   });
+
+  it('部件属性：标题、代码区、每一行与行号；行号始终对读屏隐藏', () => {
+    const root = mount(() => (
+      <CodeBlock
+        code={source}
+        title="main.ts"
+        lineNumbers
+        propsTitle={{ class: 'title' }}
+        propsBody={{ class: 'body' }}
+        propsLine={{ class: 'line' }}
+        propsLineNumber={{ class: 'number' }}
+      />
+    ));
+    expect(root.querySelector('.title')!.textContent).toBe('main.ts');
+    expect(root.querySelector('.body pre')).not.toBeNull();
+    const lines = root.querySelectorAll('code > .line');
+    expect(lines).toHaveLength(4);
+    const numbers = [...root.querySelectorAll('.number')];
+    expect(numbers.map((span) => span.textContent)).toEqual(['1', '2', '3', '4']);
+    expect(numbers.every((span) => span.getAttribute('aria-hidden') === 'true')).toBe(true);
+  });
 });

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
 import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
+import { CharacterCount } from '../CharacterCount';
 import { TextField } from '../TextField';
 import { Textarea } from '../Textarea';
 
@@ -118,5 +119,19 @@ describe('前后缀与字数计数', () => {
     const ids = textarea.getAttribute('aria-describedby')!.split(' ');
     expect(ids).toHaveLength(2);
     expect(document.getElementById(ids[1]!)!.querySelector('[aria-hidden]')!.textContent).toBe('3');
+  });
+
+  it('CharacterCount 的部件属性：看得见的字数始终对读屏隐藏，读屏的句子另是一个部件', () => {
+    const root = mount(() => (
+      <CharacterCount
+        count={2}
+        max={3}
+        propsValue={{ class: 'value' }}
+        propsLabel={{ class: 'label' }}
+      />
+    ));
+    const value = root.querySelector('.value')!;
+    expect([value.textContent, value.getAttribute('aria-hidden')]).toEqual(['2 / 3', 'true']);
+    expect(root.querySelector('.label')!.textContent).toBe('已输入 2 个字符，最多 3 个');
   });
 });

@@ -6,7 +6,7 @@
  *
  * 读屏念“开关，开 / 关”；空格切换（原生）。在 Field 里时关联说明与错误、沿用其状态。
  * 切换要等接口时用 loading：滑块里转圈、点击无效。轨道里可以放文字或图标（checkedContent / uncheckedContent），对读屏隐藏。
- * 部件：Root（label）、Control（叠放层）、Thumb（滑块）、Content（轨道里的文字）、Spinner、Label（文字）；未声明的属性落到 input 上。
+ * 部件：Root（label）、Control（叠放层）、Thumb（滑块）、Content（轨道里的文字）、ContentText（文字的字号层）、Spinner、Label（文字）；未声明的属性落到 input 上。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -60,6 +60,8 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   propsThumb?: PartProps<'span'>;
   /** 轨道里文字（开、关两份）的部件属性 */
   propsContent?: PartProps<'span'>;
+  /** 轨道里文字的内层（定字号、字重）的部件属性；改字号写这里，外层的内边距才仍按开关的字号算 */
+  propsContentText?: PartProps<'span'>;
   /** 加载指示的部件属性 */
   propsSpinner?: Partial<SpinnerProps>;
   /** 文字的部件属性 */
@@ -126,6 +128,7 @@ export const Switch = _component(
     propsControl,
     propsThumb,
     propsContent,
+    propsContentText,
     propsSpinner,
     propsLabel,
     children,
@@ -152,7 +155,9 @@ export const Switch = _component(
             { 'aria-hidden': true },
           )}
         >
-          <span {...stylex.attrs(switchStyles.contentText)}>{child}</span>
+          <span {...mergeAttrs<'span'>({ sx: switchStyles.contentText }, propsContentText)}>
+            {child}
+          </span>
         </span>
       );
       return (

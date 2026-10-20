@@ -44,6 +44,18 @@ describe('FileDrop', () => {
     expect(onReject).toHaveBeenCalledWith([txt]);
     expect(root.querySelector('input')!.type).toBe('file');
   });
+
+  it('部件属性：提示文字与说明是两个部件', () => {
+    const root = mount(() => (
+      <FileDrop
+        description="最大 5 MB"
+        propsHint={{ class: 'hint' }}
+        propsDescription={{ class: 'description' }}
+      />
+    ));
+    expect(root.querySelector('.hint')!.textContent).toBe('点击或拖放文件到这里');
+    expect(root.querySelector('.description')!.textContent).toBe('最大 5 MB');
+  });
 });
 
 describe('Upload', () => {
@@ -105,5 +117,29 @@ describe('Upload', () => {
     await flush();
     expect(list.map((item) => item.file.name)).toEqual(['small.txt']);
     expect(upload).toHaveBeenCalledTimes(1);
+  });
+
+  it('部件属性：每一项的 body、文件名、大小或错误、进度条；进度值由组件决定', () => {
+    const items: UploadFile[] = [
+      { id: 'a', file: file('a.txt'), status: 'uploading', progress: 0.5 },
+      { id: 'b', file: file('b.txt'), status: 'error', error: '网络错误' },
+    ];
+    const root = mount(() => (
+      <Upload
+        value={items}
+        propsBody={{ class: 'body' }}
+        propsName={{ class: 'name' }}
+        propsMeta={{ class: 'meta' }}
+        propsProgress={{ class: 'progress', value: 10 }}
+      />
+    ));
+    expect(root.querySelectorAll('li .body')).toHaveLength(2);
+    expect([...root.querySelectorAll('.name')].map((span) => span.textContent)).toEqual([
+      'a.txt',
+      'b.txt',
+    ]);
+    expect(root.querySelector('.meta')!.textContent).toBe('网络错误');
+    const progress = root.querySelector('.progress[role="progressbar"]')!;
+    expect(progress.getAttribute('aria-valuenow')).toBe('50');
   });
 });

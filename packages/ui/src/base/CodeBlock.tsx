@@ -55,6 +55,14 @@ export interface CodeBlockProps extends PartProps<'pre', 'title'> {
   propsRoot?: PartProps<'div'>;
   /** 标题栏的部件属性 */
   propsHeader?: PartProps<'div'>;
+  /** 标题栏里标题文字的部件属性 */
+  propsTitle?: PartProps<'span'>;
+  /** 代码区（包着滚动区域与右上角复制按钮的 div）的部件属性 */
+  propsBody?: PartProps<'div'>;
+  /** 按行渲染时每一行的部件属性 */
+  propsLine?: PartProps<'span'>;
+  /** 每行行号的部件属性 */
+  propsLineNumber?: PartProps<'span', 'aria-hidden'>;
   /** 复制按钮的部件属性 */
   propsCopy?: Partial<CopyButtonProps>;
   /** 横向滚动区域（ScrollArea）的部件属性 */
@@ -190,6 +198,10 @@ export const CodeBlock = _component(
     propsCode,
     propsRoot,
     propsHeader,
+    propsTitle,
+    propsBody,
+    propsLine,
+    propsLineNumber,
     propsCopy,
     propsScroll,
     propsExpand,
@@ -233,18 +245,27 @@ export const CodeBlock = _component(
         return (
           <span
             key={number}
-            {...stylex.attrs(
-              codeBlockStyles.line,
-              marks.highlighted.has(number) && codeBlockStyles.highlighted,
-              marks.added.has(number) && codeBlockStyles.added,
-              marks.removed.has(number) && codeBlockStyles.removed,
+            {...mergeAttrs<'span'>(
+              {
+                sx: [
+                  codeBlockStyles.line,
+                  marks.highlighted.has(number) && codeBlockStyles.highlighted,
+                  marks.added.has(number) && codeBlockStyles.added,
+                  marks.removed.has(number) && codeBlockStyles.removed,
+                ],
+              },
+              propsLine,
             )}
             data-diff={
               marks.added.has(number) ? 'added' : marks.removed.has(number) ? 'removed' : undefined
             }
           >
             {lineNumbers && (
-              <span {...stylex.attrs(codeBlockStyles.lineNumber)} aria-hidden="true">
+              <span
+                {...mergeAttrs<'span'>({ sx: codeBlockStyles.lineNumber }, propsLineNumber, {
+                  'aria-hidden': 'true',
+                })}
+              >
                 {number}
               </span>
             )}
@@ -273,11 +294,13 @@ export const CodeBlock = _component(
         <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.wrapper }, propsRoot)}>
           {title != null && (
             <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.header }, propsHeader)}>
-              <span {...stylex.attrs(codeBlockStyles.title)}>{title}</span>
+              <span {...mergeAttrs<'span'>({ sx: codeBlockStyles.title }, propsTitle)}>
+                {title}
+              </span>
               {copyable && copyButton(true)}
             </div>
           )}
-          <div {...stylex.attrs(codeBlockStyles.body)}>
+          <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.body }, propsBody)}>
             <ScrollArea axis="x" {...mergePartProps<ScrollAreaProps>({}, propsScroll)}>
               <pre
                 {...mergeAttrs<'pre'>(

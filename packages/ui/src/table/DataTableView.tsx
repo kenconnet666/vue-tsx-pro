@@ -20,7 +20,7 @@ import { Icon } from '../base/Icon';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
-import { Progress } from '../feedback/Progress';
+import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
@@ -131,6 +131,22 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsSortButton?: Partial<ButtonBaseProps>;
   /** 列宽调整手柄的部件属性 */
   propsResizer?: Partial<ColumnResizerProps>;
+  /** 可排序列标题里的文字（排序按钮里、图标前）的部件属性 */
+  propsSortLabel?: PartProps<'span'>;
+  /** 表头（thead，吸顶）的部件属性 */
+  propsHead?: PartProps<'thead'>;
+  /** 表头勾选列（th，多选时里面是全选框）的部件属性 */
+  propsSelectHeaderCell?: PartProps<'th', 'scope'>;
+  /** 每行勾选列（td）的部件属性 */
+  propsSelectCell?: PartProps<'td'>;
+  /** 第一个数据列里 leading 与内容的外层（有 leading 时才有）的部件属性 */
+  propsLeading?: PartProps<'div'>;
+  /** 第一个数据列里内容的包装（有 leading 时才有）的部件属性 */
+  propsContent?: PartProps<'div'>;
+  /** 刷新中表头下方的进度条的部件属性 */
+  propsProgress?: Partial<ProgressProps>;
+  /** 空状态所在的单元格（td，跨全部列）的部件属性 */
+  propsEmptyCell?: PartProps<'td', 'colspan'>;
 }
 
 /** 勾选列的宽度（px） */
@@ -284,6 +300,12 @@ export interface DataTableRowProps<T> {
   propsRow?: RowPartProps<T>;
   /** 单元格的部件属性 */
   propsCell?: CellPartProps<T>;
+  /** 勾选列单元格的部件属性 */
+  propsSelectCell?: PartProps<'td'>;
+  /** leading 与内容外层的部件属性 */
+  propsLeading?: PartProps<'div'>;
+  /** 内容包装的部件属性 */
+  propsContent?: PartProps<'div'>;
   /** 测量行高（虚拟滚动） */
   measure: (element: unknown) => void;
   /** 勾选或取消这一行 */
@@ -308,6 +330,9 @@ export const DataTableRow = _component(
     leading,
     propsRow,
     propsCell,
+    propsSelectCell,
+    propsLeading,
+    propsContent,
     measure,
     onToggle,
   }: DataTableRowProps<T>) => {
@@ -334,11 +359,16 @@ export const DataTableRow = _component(
       >
         {selectionMode && (
           <td
-            {...stylex.attrs(
-              dataTableStyles.cell,
-              dataTableDensityStyles[density],
-              dataTableStyles.selectCell,
-              offsets.start.size > 0 && dataTableStyles.stickySelect,
+            {...mergeAttrs<'td'>(
+              {
+                sx: [
+                  dataTableStyles.cell,
+                  dataTableDensityStyles[density],
+                  dataTableStyles.selectCell,
+                  offsets.start.size > 0 && dataTableStyles.stickySelect,
+                ],
+              },
+              propsSelectCell,
             )}
           >
             <Checkbox
@@ -369,9 +399,11 @@ export const DataTableRow = _component(
               )}
             >
               {position === 0 && leading ? (
-                <div {...stylex.attrs(dataTableStyles.leading)}>
+                <div {...mergeAttrs<'div'>({ sx: dataTableStyles.leading }, propsLeading)}>
                   {leading(row, index)}
-                  <div {...stylex.attrs(dataTableStyles.content)}>{value}</div>
+                  <div {...mergeAttrs<'div'>({ sx: dataTableStyles.content }, propsContent)}>
+                    {value}
+                  </div>
                 </div>
               ) : (
                 value
@@ -414,6 +446,14 @@ export const DataTableView = _component(
     propsSkeleton,
     propsSortButton,
     propsResizer,
+    propsSortLabel,
+    propsHead,
+    propsSelectHeaderCell,
+    propsSelectCell,
+    propsLeading,
+    propsContent,
+    propsProgress,
+    propsEmptyCell,
     ...rest
   }: DataTableViewProps<T>) => {
     const lang = useLang();
@@ -479,7 +519,9 @@ export const DataTableView = _component(
                 { onClick: () => onSortClick?.(column.key) },
               )}
             >
-              <span {...stylex.attrs(dataTableStyles.sortLabel)}>{column.header}</span>
+              <span {...mergeAttrs<'span'>({ sx: dataTableStyles.sortLabel }, propsSortLabel)}>
+                {column.header}
+              </span>
               <Icon
                 icon={
                   sorted === 'ascending'
@@ -560,16 +602,21 @@ export const DataTableView = _component(
                 );
               })}
             </colgroup>
-            <thead {...stylex.attrs(dataTableStyles.head)}>
+            <thead {...mergeAttrs<'thead'>({ sx: dataTableStyles.head }, propsHead)}>
               <tr aria-rowindex={1}>
                 {selectionMode && (
                   <th
-                    scope="col"
-                    {...stylex.attrs(
-                      dataTableStyles.headerCell,
-                      dataTableDensityStyles[density],
-                      dataTableStyles.selectCell,
-                      offsets.start.size > 0 && dataTableStyles.stickySelect,
+                    {...mergeAttrs<'th'>(
+                      {
+                        sx: [
+                          dataTableStyles.headerCell,
+                          dataTableDensityStyles[density],
+                          dataTableStyles.selectCell,
+                          offsets.start.size > 0 && dataTableStyles.stickySelect,
+                        ],
+                      },
+                      propsSelectHeaderCell,
+                      { scope: 'col' },
                     )}
                   >
                     {selectionMode === 'multiple' && (
@@ -589,7 +636,12 @@ export const DataTableView = _component(
                 <tr aria-hidden="true">
                   <td colspan={span} {...stylex.attrs(dataTableStyles.progressCell)}>
                     <div {...stylex.attrs(dataTableStyles.progress)}>
-                      <Progress size="xs" aria-label={lang.loading} />
+                      <Progress
+                        {...mergePartProps<ProgressProps>(
+                          { size: 'xs', 'aria-label': lang.loading },
+                          propsProgress,
+                        )}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -636,8 +688,11 @@ export const DataTableView = _component(
               {rows.length === 0 && !loading && (
                 <tr>
                   <td
-                    colspan={span}
-                    {...stylex.attrs(dataTableStyles.cell, dataTableStyles.emptyCell)}
+                    {...mergeAttrs<'td'>(
+                      { sx: [dataTableStyles.cell, dataTableStyles.emptyCell] },
+                      propsEmptyCell,
+                      { colspan: span },
+                    )}
                   >
                     {empty ?? (
                       <Empty
@@ -675,6 +730,9 @@ export const DataTableView = _component(
                     leading={leading}
                     propsRow={propsRow}
                     propsCell={propsCell}
+                    propsSelectCell={propsSelectCell}
+                    propsLeading={propsLeading}
+                    propsContent={propsContent}
                     measure={virtual.measure}
                     onToggle={onToggleRow}
                   />

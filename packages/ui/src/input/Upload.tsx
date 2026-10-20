@@ -14,7 +14,7 @@
  * - 超过 maxSize、不在 accept 里的文件也列出来，带错误、不上传；单选（不写 multiple）时新文件替换旧的；
  * - 在 Field 里时关联标签与错误；写了 name 时有一个隐藏的 file input 带着全部文件，原生提交（FormData）也拿得到。
  *
- * 部件：Root（div）、Drop（FileDrop）、List（ul）、Item（li）、Name、Meta（大小或错误）、Progress。
+ * 部件：Root（div）、Drop（FileDrop）、List（ul）、Item（li）、Body（文件名与下一行）、Name、Meta（大小或错误）、Progress。
  */
 import { CircleAlert, CircleCheck, File as FileIcon, RotateCw, X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -25,7 +25,7 @@ import { IconButton } from '../base/IconButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
-import { Progress } from '../feedback/Progress';
+import { Progress, type ProgressProps } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { FileDrop, type FileDropProps } from './FileDrop';
@@ -85,6 +85,14 @@ export interface UploadProps extends PartProps<'div'> {
   propsList?: Partial<GridProps<'ul'>>;
   /** 每一项的部件属性，可以按文件计算 */
   propsItem?: PartProps<'li'> | ((file: UploadFile) => PartProps<'li'>);
+  /** 每一项里文件名与下一行（大小、错误或进度）的外层的部件属性 */
+  propsBody?: PartProps<'div'>;
+  /** 每一项里文件名的部件属性 */
+  propsName?: PartProps<'span'>;
+  /** 每一项里文件大小或错误信息的部件属性 */
+  propsMeta?: PartProps<'span'>;
+  /** 每一项上传中的进度条的部件属性 */
+  propsProgress?: Partial<ProgressProps>;
 }
 
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
@@ -126,6 +134,10 @@ export const Upload = _component(
     propsDrop,
     propsList,
     propsItem,
+    propsBody,
+    propsName,
+    propsMeta,
+    propsProgress,
     ...rest
   }: UploadProps) => {
     const lang = useLang();
@@ -213,17 +225,23 @@ export const Upload = _component(
               item.status === 'done' && uploadStyles.done,
             ]}
           />
-          <div {...stylex.attrs(uploadStyles.body)}>
-            <span {...stylex.attrs(uploadStyles.name)}>{fileName}</span>
+          <div {...mergeAttrs<'div'>({ sx: uploadStyles.body }, propsBody)}>
+            <span {...mergeAttrs<'span'>({ sx: uploadStyles.name }, propsName)}>{fileName}</span>
             {item.status === 'uploading' ? (
               <Progress
-                size="xs"
-                value={item.progress == null ? null : Math.round(item.progress * 100)}
-                aria-label={fileName}
-                sx={uploadStyles.progress}
+                {...mergePartProps<ProgressProps>(
+                  { size: 'xs', 'aria-label': fileName, sx: uploadStyles.progress },
+                  propsProgress,
+                  { value: item.progress == null ? null : Math.round(item.progress * 100) },
+                )}
               />
             ) : (
-              <span {...stylex.attrs(uploadStyles.meta, failed && uploadStyles.error)}>
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: [uploadStyles.meta, failed && uploadStyles.error] },
+                  propsMeta,
+                )}
+              >
                 {failed ? item.error : format.fileSize(item.file.size)}
                 {item.status === 'done' && <VisuallyHidden> {lang.uploadDone}</VisuallyHidden>}
               </span>

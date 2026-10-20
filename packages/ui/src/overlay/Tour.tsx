@@ -17,22 +17,22 @@
  * - 卡片：标题（dialog 的名称）、内容（描述）、步数、上一步 / 下一步（最后一步是“完成”）、跳过；
  * - open、current 可受控；点“完成”时调用 onFinish，跳过或 Esc 时只关闭。
  *
- * 部件：Root（dialog，整屏透明）、Spotlight（镂空）、Panel（卡片）、Title、Content、Footer。
+ * 部件：Root（dialog，整屏透明）、Spotlight（镂空）、Panel（卡片）、Title、Content、Footer、Progress（步数）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { autoUpdate } from '@floating-ui/dom';
 import { nextTick, onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
-import { H2 } from '../base/Heading';
-import { Text } from '../base/Text';
+import { H2, type HeadingProps } from '../base/Heading';
+import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
-import { Flex } from '../layout/Flex';
+import { Flex, type FlexProps } from '../layout/Flex';
 import { clamp } from '../utils/data/number';
 import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
 import { trackModal } from '../utils/dom/overlay';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 
 /** 引导的一步 */
 export interface TourStep {
@@ -65,6 +65,14 @@ export interface TourProps extends PartProps<
   propsSpotlight?: PartProps<'div'>;
   /** 卡片的部件属性 */
   propsPanel?: PartProps<'div'>;
+  /** 标题（dialog 的名称）的部件属性 */
+  propsTitle?: Partial<HeadingProps>;
+  /** 说明（dialog 的描述）的部件属性 */
+  propsContent?: PartProps<'div', 'id'>;
+  /** 底部一行（步数与按钮）的部件属性 */
+  propsFooter?: Partial<FlexProps>;
+  /** 步数（第几步 / 共几步）的部件属性 */
+  propsProgress?: Partial<TextProps>;
 }
 
 /** Tour 的样式：root、spotlight、dimmed、panel、title、content、footer、progress */
@@ -138,6 +146,10 @@ export const Tour = _component(
     onFinish,
     propsSpotlight,
     propsPanel,
+    propsTitle,
+    propsContent,
+    propsFooter,
+    propsProgress,
     ...rest
   }: TourProps) => {
     const lang = useLang();
@@ -280,16 +292,34 @@ export const Tour = _component(
                 { ref: _toRef(panel), tabindex: -1 },
               )}
             >
-              <H2 size="md" id={titleId} sx={tourStyles.title}>
+              <H2
+                {...mergePartProps<HeadingProps>({ size: 'md', sx: tourStyles.title }, propsTitle, {
+                  id: titleId,
+                })}
+              >
                 {currentStep.title}
               </H2>
               {currentStep.content != null && (
-                <div id={contentId} {...stylex.attrs(tourStyles.content)}>
+                <div
+                  {...mergeAttrs<'div'>({ sx: tourStyles.content }, propsContent, {
+                    id: contentId,
+                  })}
+                >
                   {currentStep.content}
                 </div>
               )}
-              <Flex align="center" gap="sm" wrap sx={tourStyles.footer}>
-                <Text size="sm" tone="muted" sx={tourStyles.progress}>
+              <Flex
+                {...mergePartProps<FlexProps>(
+                  { align: 'center', gap: 'sm', wrap: true, sx: tourStyles.footer },
+                  propsFooter,
+                )}
+              >
+                <Text
+                  {...mergePartProps<TextProps>(
+                    { size: 'sm', tone: 'muted', sx: tourStyles.progress },
+                    propsProgress,
+                  )}
+                >
                   {lang.tourProgress(current + 1, steps.length)}
                 </Text>
                 {!last() && (

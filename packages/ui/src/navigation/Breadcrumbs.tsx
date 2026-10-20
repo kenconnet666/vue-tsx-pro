@@ -41,6 +41,8 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   propsList?: Partial<FlexProps<'ol'>>;
   /** 每一项（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: BreadcrumbItem, index: number) => PartProps<'li'>);
+  /** 折叠处那一项（li，里面是折叠按钮与菜单）的部件属性 */
+  propsCollapsedItem?: PartProps<'li'>;
   /** 链接的部件属性 */
   propsLink?: Partial<LinkProps>;
   /** 每一项文字（图标加文字）的部件属性 */
@@ -74,6 +76,7 @@ export const Breadcrumbs = _component(
     maxItems,
     propsList,
     propsItem,
+    propsCollapsedItem,
     propsLink,
     propsLabel,
     propsCurrent,
@@ -113,7 +116,10 @@ export const Breadcrumbs = _component(
             {shown.map((entry, position) => {
               if (entry === 'collapsed') {
                 return (
-                  <li key="collapsed" {...stylex.attrs(breadcrumbsStyles.item)}>
+                  <li
+                    key="collapsed"
+                    {...mergeAttrs<'li'>({ sx: breadcrumbsStyles.item }, propsCollapsedItem)}
+                  >
                     <Menu
                       {...mergePartProps<MenuProps>(
                         {

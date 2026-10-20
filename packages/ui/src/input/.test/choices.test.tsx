@@ -119,6 +119,25 @@ describe('Switch', () => {
     );
     expect(contents).toEqual(['开', '关']);
   });
+
+  it('部件属性：轨道文字的外层与字号层分开；外层始终对读屏隐藏', () => {
+    const root = mount(() => (
+      <Switch
+        checkedContent="开"
+        uncheckedContent="关"
+        propsContent={{ class: 'content' }}
+        propsContentText={{ class: 'content-text' }}
+      >
+        自动保存
+      </Switch>
+    ));
+    const contents = [...root.querySelectorAll('.content')];
+    expect(contents.map((span) => span.getAttribute('aria-hidden'))).toEqual(['true', 'true']);
+    expect(contents.map((span) => span.querySelector('.content-text')!.textContent)).toEqual([
+      '开',
+      '关',
+    ]);
+  });
 });
 
 describe('色调', () => {

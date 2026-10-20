@@ -39,6 +39,26 @@ describe('Breadcrumbs', () => {
     const link = menu.querySelector<HTMLAnchorElement>('a[role="menuitem"]')!;
     expect([link.textContent, link.getAttribute('href')]).toEqual(['订单', '/orders']);
   });
+
+  it('折叠处那一项有自己的部件属性，propsItem 不作用于它', () => {
+    const root = mount(() => (
+      <Breadcrumbs
+        items={trail}
+        maxItems={3}
+        propsItem={{ class: 'item' }}
+        propsCollapsedItem={{ class: 'collapsed' }}
+      />
+    ));
+    const items = [...root.querySelectorAll('ol > li')];
+    expect(items.map((li) => li.className.includes('collapsed'))).toEqual([
+      false,
+      true,
+      false,
+      false,
+    ]);
+    expect(items[1]!.classList).not.toContain('item');
+    expect(items[1]!.querySelector('button')).not.toBeNull();
+  });
 });
 
 describe('Pagination', () => {
