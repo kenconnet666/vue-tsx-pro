@@ -19,7 +19,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { buttonBaseStyles } from '../base/button-core';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { VisuallyHidden } from '../base/VisuallyHidden';
+import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useFormat } from '../config/lang/format';
 import {
   monthGrid,
@@ -296,9 +296,9 @@ export const CalendarView = _component(
               role: 'gridcell',
               'aria-selected': state.selected,
               'aria-disabled': off || undefined,
+              'data-in-range': state.inRange || undefined,
             },
           )}
-          data-in-range={state.inRange || undefined}
         >
           <button
             {...mergeAttrs<'button'>(
@@ -331,17 +331,21 @@ export const CalendarView = _component(
                   if (!state.focused) calendar.focus(date);
                 },
                 onPointerenter: () => calendar.hover(date),
+                // 写在受管层而不是 JSX 上：元素上只有一处展开，不用再经 Vue 的 mergeProps（每页几百格）
+                'data-date': iso,
+                'data-focused': (state.focused && !state.outside) || undefined,
+                'data-selected': state.selected || undefined,
+                'data-today': state.today || undefined,
+                'data-outside': state.outside || undefined,
+                'data-unavailable': state.unavailable || undefined,
+                'data-disabled': off || undefined,
               },
             )}
-            data-date={iso}
-            data-focused={(state.focused && !state.outside) || undefined}
-            data-selected={state.selected || undefined}
-            data-today={state.today || undefined}
-            data-outside={state.outside || undefined}
-            data-unavailable={state.unavailable || undefined}
-            data-disabled={off || undefined}
           >
-            <VisuallyHidden>{state.today ? texts().calendarToday(label) : label}</VisuallyHidden>
+            {/* 每格一个：直接用样式，不多建几百个组件实例 */}
+            <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+              {state.today ? texts().calendarToday(label) : label}
+            </span>
             {kind === 'custom' ? content : <span aria-hidden="true">{content}</span>}
           </button>
         </td>

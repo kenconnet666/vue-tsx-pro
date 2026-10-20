@@ -2,7 +2,12 @@
  * 按当前语言格式化数字、金额与日期：`const format = useFormat()`，之后 `format.currency(19.9)`。
  * 格式化器按“语言 + 选项”缓存，重复调用不再新建。
  */
-import { CalendarDateTime, DateFormatter, type DateValue } from '@internationalized/date';
+import {
+  CalendarDateTime,
+  DateFormatter,
+  getLocalTimeZone,
+  type DateValue,
+} from '@internationalized/date';
 import type Decimal from 'decimal.js';
 import { parseIsoDate, parseIsoDateTime, parseIsoTime } from '../../utils/data/date';
 import { useLang } from '../context';
@@ -44,7 +49,7 @@ export function useFormat() {
       const parsed = typeof value === 'string' ? parseIsoValue(value) : value;
       if (parsed == null) return value as string;
       const date =
-        parsed instanceof Date ? parsed : parsed.toDate(lang.timeZone ?? browserTimeZone());
+        parsed instanceof Date ? parsed : parsed.toDate(lang.timeZone ?? getLocalTimeZone());
       return dateFormatter(lang, options).format(date);
     },
   };
@@ -90,8 +95,4 @@ function parseIsoValue(value: string): DateValue | null {
   const time = parseIsoTime(value);
   if (time) return new CalendarDateTime(2000, 1, 1, time.hour, time.minute, time.second);
   return parseIsoDateTime(value) ?? parseIsoDate(value);
-}
-
-function browserTimeZone() {
-  return new Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
