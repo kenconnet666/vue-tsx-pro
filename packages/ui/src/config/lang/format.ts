@@ -2,8 +2,9 @@
  * 按当前语言格式化数字、金额与日期：`const format = useFormat()`，之后 `format.currency(19.9)`。
  * 格式化器按“语言 + 选项”缓存，重复调用不再新建。
  */
-import { DateFormatter, type DateValue } from '@internationalized/date';
+import { CalendarDateTime, DateFormatter, type DateValue } from '@internationalized/date';
 import type Decimal from 'decimal.js';
+import { parseIsoDate, parseIsoDateTime, parseIsoTime } from '../../utils/data/date';
 import { useLang } from '../context';
 import type { Lang } from './lang';
 
@@ -32,12 +33,18 @@ export function useFormat() {
         maximumFractionDigits: exponent === 0 ? 0 : 1,
       }).format(bytes / 1000 ** exponent);
     },
-    /** 日期时间，带上语言的时区、日历与小时制；DateValue 按语言时区换算 */
+    /**
+     * 日期时间，带上语言的时区、日历与小时制；DateValue 按语言时区换算。
+     * 也接受日期组件的 ISO 值：'2026-10-20'、'2026-10-20T14:30'、'14:30'（只有时间时配 timeStyle），格式不对时原样返回
+     */
     date: (
-      value: Date | DateValue,
+      value: Date | DateValue | string,
       options: Intl.DateTimeFormatOptions = { dateStyle: 'medium' },
     ) => {
-      const date = value instanceof Date ? value : value.toDate(lang.timeZone ?? browserTimeZone());
+      const parsed = typeof value === 'string' ? parseIsoValue(value) : value;
+      if (parsed == null) return value as string;
+      const date =
+        parsed instanceof Date ? parsed : parsed.toDate(lang.timeZone ?? browserTimeZone());
       return dateFormatter(lang, options).format(date);
     },
   };
@@ -76,6 +83,13 @@ function dateFormatter(lang: Lang, options: Intl.DateTimeFormatOptions) {
 function toIntl(value: NumberInput): number | bigint | Intl.StringNumericLiteral {
   if (typeof value === 'object') return value.toString() as Intl.StringNumericLiteral;
   return typeof value === 'string' ? (value as Intl.StringNumericLiteral) : value;
+}
+
+/** 日期组件的 ISO 值 → DateValue：日期、日期时间，或只有时间（放在任意一天上） */
+function parseIsoValue(value: string): DateValue | null {
+  const time = parseIsoTime(value);
+  if (time) return new CalendarDateTime(2000, 1, 1, time.hour, time.minute, time.second);
+  return parseIsoDateTime(value) ?? parseIsoDate(value);
 }
 
 function browserTimeZone() {

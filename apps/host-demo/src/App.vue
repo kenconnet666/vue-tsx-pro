@@ -7,6 +7,8 @@
     <RouterLink to="/pilot">试点组件</RouterLink>
     |
     <RouterLink to="/base">基础组件</RouterLink>
+    |
+    <RouterLink to="/date">日期</RouterLink>
   </nav>
   <RouterView />
 </template>
