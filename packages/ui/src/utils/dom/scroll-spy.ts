@@ -58,7 +58,14 @@ export function useScrollSpy(read: () => ScrollSpyOptions): Readonly<Ref<string 
     listen(read().root);
     update();
   });
-  watch(() => read().root, listen);
+  // 滚动容器常常在挂载后才拿到（ref 回调）：换了容器要按新容器重新算，不能留着按窗口算的结果
+  watch(
+    () => read().root,
+    (root) => {
+      listen(root);
+      schedule();
+    },
+  );
   watch(() => read().ids, schedule, { flush: 'post' });
   window.addEventListener('resize', schedule);
   onScopeDispose(() => {
