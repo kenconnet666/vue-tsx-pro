@@ -2,7 +2,7 @@
  * 生成组件库的入口 packages/ui/src/index.ts：逐个模块读出导出的声明，按目录分组写成 export 语句。
  * 组件库的工具都对外导出（方便使用方定制），模块里写了 export 的就进入口，不再手写。
  *
- * - 跳过测试（.test/）与子路径入口（shiki、vue-router、tokens.stylex：它们在 package.json 的 exports 里单独暴露）；
+ * - 跳过测试（.test/）与子路径入口（shiki、vue-router、tokens.stylex、charts/：它们在 package.json 的 exports 里单独暴露）；
  * - 没有导出、只有 declare module 的模块（token-names.ts）写成副作用导入，产物的类型声明才带上它；
  * - 两个模块导出了同一个名字时报错并列出位置：改成全局唯一的名字（COMPONENTS.md §4）；
  * - 新目录要在 GROUPS 里登记标题。
@@ -26,6 +26,9 @@ const SUBPATH_ENTRIES = new Set([
   'config/vue-router.ts',
   'config/theme/tokens.stylex.ts',
 ]);
+
+/** 自带 index.ts 的子路径目录（如图表依赖可选的 Unovis）：整个目录不进主入口 */
+const SUBPATH_DIRS = new Set(['charts']);
 
 /** 目录 → 分组标题，也是入口里各组的顺序 */
 const GROUPS = [
@@ -55,7 +58,11 @@ const GROUPS = [
 function modules(dir = src) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) return entry.name === '.test' ? [] : modules(path);
+    if (entry.isDirectory()) {
+      const skip =
+        entry.name === '.test' || SUBPATH_DIRS.has(relative(src, path).split('\\').join('/'));
+      return skip ? [] : modules(path);
+    }
     return /\.tsx?$/.test(entry.name) && !entry.name.endsWith('.d.ts') ? [path] : [];
   });
 }

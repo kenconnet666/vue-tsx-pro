@@ -113,7 +113,7 @@ export const ColorField = _component(
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let input = _state.raw<HTMLInputElement | null>(null);
     // 正在输入的文字：写成颜色之前不写回 value
-    let draft = _state(value);
+    let draft = _state(_untrack(value));
     watch(
       () => value,
       (next) => (draft = next),
