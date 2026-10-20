@@ -187,12 +187,14 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `'calc(_md * 2)'`；只有运行时的值才 import 后写 `space.md`。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
 - 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染。不设断点：StyleX 的媒体查询不能引用变量，组件优先用容器查询。
-- 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）。
-- 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
+- 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）、`paper.ts`（纸张：米黄纸色、深棕墨色文字、墨蓝品牌色，覆盖颜色、阴影与字体，标题用衬线）。
+- 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
-- 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。唯一偏离：焦点环用 9 级而不是 Radix 建议的 7–8 级，因为亮色下后者对比度不到 3:1。
+- 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
+- 对比度：`pnpm themes:check`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把三套主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查依次跑三套主题。改颜色前后都跑一遍。
+- 代码高亮用专门的一组颜色（`codeKeyword`、`codeString`、`codeNumber`、`codeFunction`、`codeType`、`codeComment`、`codeTag`、`codeAttribute`，diff 的 `codeInserted`、`codeDeleted`），Shiki 适配器映射到它们；另有选中文字的 `selection`、高亮标记的 `highlight`、吸顶顶栏用的 `surfaceTranslucent`；字体加了 `serif` 与 `heading`（标题，默认同正文）。
 
 ### 6.3 语言 `lang`：地区、时间、文案平铺在一个对象里
 

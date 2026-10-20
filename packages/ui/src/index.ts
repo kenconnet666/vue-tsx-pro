@@ -658,6 +658,7 @@ export {
 // 主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
 export { lightTheme } from './config/theme/light';
+export { paperColors, paperFonts, paperShadows, paperTheme } from './config/theme/paper';
 export { usePrefersDark } from './config/theme/prefers-dark';
 export {
   defineTheme,

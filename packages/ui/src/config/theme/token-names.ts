@@ -94,7 +94,7 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _accent: unknown;
     /**
-     * 品牌色实色悬停。indigo 10：亮色 `#3358d4`，暗色 `#5472e4`
+     * 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色比实色更深一点 `#3758d4`（indigo 10 `#5472e4` 配白字只有 4.28:1）
      *
      * `colors.accentHover`
      */
@@ -137,7 +137,7 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _danger: unknown;
     /**
-     * 危险实色悬停。red 10：亮色 `#dc3e42`，暗色 `#ec5d5e`
+     * 危险实色悬停：比实色更深一点，白字才满足 4.5:1（red 10 只有 4.37:1）。亮色 `#b8272c`，暗色 `#a33b3e`
      *
      * `colors.dangerHover`
      */
@@ -149,7 +149,7 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _dangerContrast: unknown;
     /**
-     * 危险文字：错误提示。red 11：亮色 `#ce2c31`，暗色 `#ff9592`
+     * 危险文字：错误提示。亮色比 red 11 深一点 `#b8272c`（red 11 在 dangerSoftHover 上只有 4.07:1），暗色 red 11 `#ff9592`
      *
      * `colors.dangerText`
      */
@@ -254,6 +254,84 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      * `colors.overlay`
      */
     _overlay: unknown;
+    /**
+     * 选中文字的底色（::selection）。indigo 5：亮色 `#d2deff`，暗色 `#253974`
+     *
+     * `colors.selection`
+     */
+    _selection: unknown;
+    /**
+     * 高亮标记：搜索命中、`<mark>`。amber 4：亮色 `#ffee9c`，暗色 `#3f2700`
+     *
+     * `colors.highlight`
+     */
+    _highlight: unknown;
+    /**
+     * 半透明表面：吸顶的顶栏（配合背景模糊）。页面背景加 80% 不透明
+     *
+     * `colors.surfaceTranslucent`
+     */
+    _surfaceTranslucent: unknown;
+    /**
+     * 关键字。indigo 11：亮色 `#3a5bc7`，暗色 `#9eb1ff`
+     *
+     * `colors.codeKeyword`
+     */
+    _codeKeyword: unknown;
+    /**
+     * 字符串。亮色比 green 11 深一点 `#1c7a51`（在代码块背景上 green 11 只有 4.49:1），暗色 green 11 `#3dd68c`
+     *
+     * `colors.codeString`
+     */
+    _codeString: unknown;
+    /**
+     * 数字、常量。亮色比 orange 11 深一点 `#c24b00`（orange 11 只有 4.29:1），暗色 orange 11 `#ffa057`
+     *
+     * `colors.codeNumber`
+     */
+    _codeNumber: unknown;
+    /**
+     * 函数名。violet 11：亮色 `#6550b9`，暗色 `#baa7ff`
+     *
+     * `colors.codeFunction`
+     */
+    _codeFunction: unknown;
+    /**
+     * 类型、类名。cyan 11：亮色 `#107d98`，暗色 `#4ccce6`
+     *
+     * `colors.codeType`
+     */
+    _codeType: unknown;
+    /**
+     * 注释、标点。slate 11：亮色 `#60646c`，暗色 `#b0b4ba`
+     *
+     * `colors.codeComment`
+     */
+    _codeComment: unknown;
+    /**
+     * 标签名（HTML、JSX）。crimson 11：亮色 `#cb1d63`，暗色 `#ff92ad`
+     *
+     * `colors.codeTag`
+     */
+    _codeTag: unknown;
+    /**
+     * 属性名。brown 11：亮色 `#815e46`，暗色 `#dbb594`
+     *
+     * `colors.codeAttribute`
+     */
+    _codeAttribute: unknown;
+    /**
+     * diff 新增行的底色。green 3：亮色 `#e6f6eb`，暗色 `#132d21`
+     *
+     * `colors.codeInserted`
+     */
+    _codeInserted: unknown;
+    /**
+     * diff 删除行的底色。red 3：亮色 `#feebec`，暗色 `#3b1219`
+     *
+     * `colors.codeDeleted`
+     */
+    _codeDeleted: unknown;
   }
   /** 字体族 */
   interface FontsTokens {
@@ -269,6 +347,18 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      * `fonts.mono`
      */
     _mono: unknown;
+    /**
+     * 衬线字体：书卷感的标题、引文（纸张主题的标题用它）
+     *
+     * `fonts.serif`
+     */
+    _serif: unknown;
+    /**
+     * 标题（H1–H6）的字体：默认同正文，主题可以换成衬线
+     *
+     * `fonts.heading`
+     */
+    _heading: unknown;
   }
   /** 字号：xs–xl 用于界面文字（也是组件 size 档位对应的字号），xxl、xxxl 用于标题 */
   interface FontSizesTokens {

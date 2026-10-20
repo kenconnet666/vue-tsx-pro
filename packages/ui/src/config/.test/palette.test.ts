@@ -47,7 +47,42 @@ const steps: Record<string, [string, string]> = {
   inverseText: ['slate1', 'slateDark1'],
   focusRing: ['indigo9', 'indigoDark9'],
   overlay: ['blackA6', 'blackA8'],
+  selection: ['indigo5', 'indigoDark5'],
+  highlight: ['amber4', 'amberDark4'],
+  codeKeyword: ['indigo11', 'indigoDark11'],
+  codeString: ['green11', 'greenDark11'],
+  codeNumber: ['orange11', 'orangeDark11'],
+  codeFunction: ['violet11', 'violetDark11'],
+  codeType: ['cyan11', 'cyanDark11'],
+  codeComment: ['slate11', 'slateDark11'],
+  codeTag: ['crimson11', 'crimsonDark11'],
+  codeAttribute: ['brown11', 'brownDark11'],
+  codeInserted: ['green3', 'greenDark3'],
+  codeDeleted: ['red3', 'redDark3'],
 };
+
+/**
+ * 为满足对比度而偏离色阶的取值（scripts/themes/check.mjs 校验）：实色上的白字、悬停态比实色更深，
+ * 文字比 11 级深一点；半透明表面是页面背景加透明度
+ */
+const adjusted: [Record<string, string>, Record<string, string>] = [
+  {
+    accentContrast: '#ffffff',
+    dangerContrast: '#ffffff',
+    dangerHover: '#b8272c',
+    dangerText: '#b8272c',
+    codeString: '#1c7a51',
+    codeNumber: '#c24b00',
+    surfaceTranslucent: 'rgba(252, 252, 253, 0.8)',
+  },
+  {
+    accentContrast: '#ffffff',
+    dangerContrast: '#ffffff',
+    accentHover: '#3758d4',
+    dangerHover: '#a33b3e',
+    surfaceTranslucent: 'rgba(17, 17, 19, 0.8)',
+  },
+];
 
 /** slateDark4 → radix.slateDark.slate4（暗色色阶里的键不带 Dark） */
 function radixColor(step: string) {
@@ -70,13 +105,12 @@ describe('颜色 token', () => {
   const light = literals('tokens.stylex.ts', 'export const colors');
   const dark = literals('dark.ts', 'const darkColors');
 
-  it('亮色与暗色取值都与 Radix 色阶一致', () => {
+  it('亮色与暗色取值都与 Radix 色阶一致（为对比度调整过的单独列出）', () => {
     const expected = (index: 0 | 1) =>
       Object.fromEntries(
         Object.entries(steps).map(([token, pair]) => [token, radixColor(pair[index])]),
       );
-    const contrast = { accentContrast: '#ffffff', dangerContrast: '#ffffff' };
-    expect(light).toEqual({ ...expected(0), ...contrast });
-    expect(dark).toEqual({ ...expected(1), ...contrast });
+    expect(light).toEqual({ ...expected(0), ...adjusted[0] });
+    expect(dark).toEqual({ ...expected(1), ...adjusted[1] });
   });
 });

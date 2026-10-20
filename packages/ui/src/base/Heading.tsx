@@ -44,7 +44,8 @@ export interface HeadingProps extends PartProps<HeadingTag> {
 
 /** H1–H6 的样式：root、xxl、xxxl */
 export const headingStyles = stylex.create({
-  root: { margin: 0, lineHeight: '_tight', textWrap: 'balance' },
+  // 字体取 fonts.heading：默认同正文，纸张主题换成衬线
+  root: { margin: 0, fontFamily: '_heading', lineHeight: '_tight', textWrap: 'balance' },
   // 大字号的字形间距显得松，略收紧
   xxl: { letterSpacing: '_tight' },
   xxxl: { letterSpacing: '_tighter' },

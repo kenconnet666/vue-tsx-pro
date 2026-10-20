@@ -5,8 +5,8 @@
  *
  * - 正则引擎用 JavaScript 版（不加载 wasm），语法不完全支持的语言尽量高亮而不是报错
  * - 语言按需加载：第一次遇到某种语言时才下载它的语法；不认识的语言按纯文本显示
- * - 颜色用 Shiki 的 CSS 变量主题，默认值指向组件库的颜色 tokens：明暗切换、主题覆盖不需要重新高亮；
- *   使用方也可以用 --shiki-token-keyword 这类变量单独调整
+ * - 颜色用 Shiki 的 CSS 变量主题（另加类型、标签名、属性名三类），默认值指向组件库的代码高亮 tokens（colors.code*）：
+ *   切换主题、覆盖 tokens 都不需要重新高亮；使用方也可以用 --shiki-token-keyword 这类变量单独调整
  */
 import { createCssVariablesTheme, createHighlighterCore, type HighlighterCore } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
@@ -27,25 +27,48 @@ export interface ShikiHighlighterOptions {
 const THEME = 'vue-tsx-pro';
 
 // colors.x 在运行时是 var(--哈希) 字符串，作为 Shiki 变量的默认值：跟随当前主题
-const theme = createCssVariablesTheme({
+const base = createCssVariablesTheme({
   name: THEME,
   variableDefaults: {
     foreground: String(colors.text),
     background: 'transparent',
-    'token-comment': String(colors.textMuted),
-    'token-punctuation': String(colors.textMuted),
-    'token-keyword': String(colors.accentText),
-    'token-link': String(colors.accentText),
-    'token-string': String(colors.successText),
-    'token-string-expression': String(colors.successText),
-    'token-constant': String(colors.infoText),
-    'token-function': String(colors.warningText),
+    'token-comment': String(colors.codeComment),
+    'token-punctuation': String(colors.codeComment),
+    'token-keyword': String(colors.codeKeyword),
+    'token-link': String(colors.codeKeyword),
+    'token-string': String(colors.codeString),
+    'token-string-expression': String(colors.codeString),
+    'token-constant': String(colors.codeNumber),
+    'token-function': String(colors.codeFunction),
     'token-parameter': String(colors.text),
-    'token-inserted': String(colors.successText),
+    'token-inserted': String(colors.codeString),
     'token-deleted': String(colors.dangerText),
-    'token-changed': String(colors.warningText),
+    'token-changed': String(colors.codeNumber),
   },
 });
+
+/** Shiki 的 CSS 变量主题不区分类型、标签名、属性名：追加几条规则，同样可以用 --shiki-token-* 覆盖 */
+const extraTokenColors = [
+  {
+    scope: [
+      'entity.name.type',
+      'entity.name.class',
+      'support.type',
+      'support.class',
+      'entity.other.inherited-class',
+    ],
+    settings: { foreground: `var(--shiki-token-type, ${String(colors.codeType)})` },
+  },
+  {
+    scope: ['entity.name.tag', 'support.class.component'],
+    settings: { foreground: `var(--shiki-token-tag, ${String(colors.codeTag)})` },
+  },
+  {
+    scope: ['entity.other.attribute-name'],
+    settings: { foreground: `var(--shiki-token-attribute, ${String(colors.codeAttribute)})` },
+  },
+];
+const theme = { ...base, tokenColors: [...(base.tokenColors ?? []), ...extraTokenColors] };
 
 /** 生成高亮器；Shiki 本身在第一次高亮时才创建，同一个高亮器里的语言只加载一次 */
 export function createShikiHighlighter(options: ShikiHighlighterOptions = {}): Highlighter {

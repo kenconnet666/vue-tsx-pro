@@ -25,6 +25,7 @@ jobs:
       - run: pnpm css-docs:check
       - run: pnpm docs:check
       - run: pnpm exports:check
+      - run: pnpm themes:check
       - run: pnpm typecheck
 
   test:

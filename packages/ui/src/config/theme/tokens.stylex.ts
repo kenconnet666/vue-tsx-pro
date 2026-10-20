@@ -60,7 +60,7 @@ export const colors = stylex.defineVars({
 
   /** 品牌色实色：主按钮、选中的复选框。indigo 9：两套主题都是 `#3e63dd` */
   accent: '#3e63dd',
-  /** 品牌色实色悬停。indigo 10：亮色 `#3358d4`，暗色 `#5472e4` */
+  /** 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色比实色更深一点 `#3758d4`（indigo 10 `#5472e4` 配白字只有 4.28:1） */
   accentHover: '#3358d4',
   /** 品牌色实色上的文字与图标。Radix 规定 indigo 9 上用白字：`#ffffff` */
   accentContrast: '#ffffff',
@@ -80,12 +80,12 @@ export const colors = stylex.defineVars({
    * red 9 配白字只有 3.91:1，所以亮色用 red 11 `#ce2c31`（5.21:1），暗色用 red 8 `#b54548`（5.37:1）
    */
   danger: '#ce2c31',
-  /** 危险实色悬停。red 10：亮色 `#dc3e42`，暗色 `#ec5d5e` */
-  dangerHover: '#dc3e42',
+  /** 危险实色悬停：比实色更深一点，白字才满足 4.5:1（red 10 只有 4.37:1）。亮色 `#b8272c`，暗色 `#a33b3e` */
+  dangerHover: '#b8272c',
   /** 危险实色上的文字与图标：`#ffffff` */
   dangerContrast: '#ffffff',
-  /** 危险文字：错误提示。red 11：亮色 `#ce2c31`，暗色 `#ff9592` */
-  dangerText: '#ce2c31',
+  /** 危险文字：错误提示。亮色比 red 11 深一点 `#b8272c`（red 11 在 dangerSoftHover 上只有 4.07:1），暗色 red 11 `#ff9592` */
+  dangerText: '#b8272c',
   /** 危险浅底：错误提示条。red 3：亮色 `#feebec`，暗色 `#3b1219` */
   dangerSoft: '#feebec',
   /** 危险浅底悬停。red 4：亮色 `#ffdbdc`，暗色 `#500f1c` */
@@ -139,6 +139,33 @@ export const colors = stylex.defineVars({
   focusRing: '#3e63dd',
   /** 模态遮罩。亮色 blackA 6 `rgba(0, 0, 0, 0.4)`，暗色 blackA 8 `rgba(0, 0, 0, 0.6)` */
   overlay: 'rgba(0, 0, 0, 0.4)',
+  /** 选中文字的底色（::selection）。indigo 5：亮色 `#d2deff`，暗色 `#253974` */
+  selection: '#d2deff',
+  /** 高亮标记：搜索命中、`<mark>`。amber 4：亮色 `#ffee9c`，暗色 `#3f2700` */
+  highlight: '#ffee9c',
+  /** 半透明表面：吸顶的顶栏（配合背景模糊）。页面背景加 80% 不透明 */
+  surfaceTranslucent: 'rgba(252, 252, 253, 0.8)',
+  // ───────── 代码高亮：代码块背景（surfaceMuted）上都要满足 4.5:1 ─────────
+  /** 关键字。indigo 11：亮色 `#3a5bc7`，暗色 `#9eb1ff` */
+  codeKeyword: '#3a5bc7',
+  /** 字符串。亮色比 green 11 深一点 `#1c7a51`（在代码块背景上 green 11 只有 4.49:1），暗色 green 11 `#3dd68c` */
+  codeString: '#1c7a51',
+  /** 数字、常量。亮色比 orange 11 深一点 `#c24b00`（orange 11 只有 4.29:1），暗色 orange 11 `#ffa057` */
+  codeNumber: '#c24b00',
+  /** 函数名。violet 11：亮色 `#6550b9`，暗色 `#baa7ff` */
+  codeFunction: '#6550b9',
+  /** 类型、类名。cyan 11：亮色 `#107d98`，暗色 `#4ccce6` */
+  codeType: '#107d98',
+  /** 注释、标点。slate 11：亮色 `#60646c`，暗色 `#b0b4ba` */
+  codeComment: '#60646c',
+  /** 标签名（HTML、JSX）。crimson 11：亮色 `#cb1d63`，暗色 `#ff92ad` */
+  codeTag: '#cb1d63',
+  /** 属性名。brown 11：亮色 `#815e46`，暗色 `#dbb594` */
+  codeAttribute: '#815e46',
+  /** diff 新增行的底色。green 3：亮色 `#e6f6eb`，暗色 `#132d21` */
+  codeInserted: '#e6f6eb',
+  /** diff 删除行的底色。red 3：亮色 `#feebec`，暗色 `#3b1219` */
+  codeDeleted: '#feebec',
 });
 
 /** 字体族 */
@@ -147,6 +174,11 @@ export const fonts = stylex.defineVars({
   sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
   /** 等宽字体：代码、需要数字对齐的地方 */
   mono: 'ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace',
+  /** 衬线字体：书卷感的标题、引文（纸张主题的标题用它） */
+  serif: '"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, "SimSun", Georgia, serif',
+  /** 标题（H1–H6）的字体：默认同正文，主题可以换成衬线 */
+  heading:
+    'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
 });
 
 /** 字号：xs–xl 用于界面文字（也是组件 size 档位对应的字号），xxl、xxxl 用于标题 */

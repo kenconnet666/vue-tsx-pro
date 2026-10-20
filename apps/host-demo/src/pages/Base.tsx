@@ -74,6 +74,7 @@ import {
   Kbd,
   Marquee,
   lightTheme,
+  paperTheme,
   Menu,
   MenuCheckboxItem,
   MenuGroup,
@@ -257,7 +258,10 @@ const fruitOptions: ListboxOption[] = [
 
 /** /base 演示页：按分类演示组件库的基础组件，浏览器测试与 axe 检查也跑在这一页上 */
 export const Base = _component(() => {
-  let dark = _state(false);
+  // 亮色 → 暗色 → 纸张 循环切换（axe 检查依次跑三套主题）
+  const themes = [lightTheme, darkTheme, paperTheme];
+  const themeLabels = ['亮色', '暗色', '纸张'];
+  let themeIndex = _state(0);
   let listHandle: VirtualListHandle | undefined;
   let volume = _state(40);
   let priceRange = _state<[number, number]>([200, 600]);
@@ -375,11 +379,15 @@ export const Base = _component(() => {
   }
 
   return () => (
-    <Provider theme={dark ? darkTheme : lightTheme}>
+    <Provider theme={themes[themeIndex]!}>
       <main {...stylex.attrs(styles.page)}>
         <div {...stylex.attrs(styles.row)}>
-          <Button variant="outline" class="toggle-theme" onClick={() => (dark = !dark)}>
-            {dark ? '亮色' : '暗色'}
+          <Button
+            variant="outline"
+            class="toggle-theme"
+            onClick={() => (themeIndex = (themeIndex + 1) % themes.length)}
+          >
+            切换到{themeLabels[(themeIndex + 1) % themes.length]}
           </Button>
         </div>
 
@@ -1293,7 +1301,11 @@ export const Base = _component(() => {
             open={_bind(touring)}
             current={_bind(tourStep)}
             steps={[
-              { target: '.toggle-theme', title: '切换主题', content: '亮色与暗色随时切换' },
+              {
+                target: '.toggle-theme',
+                title: '切换主题',
+                content: '亮色、暗色、纸张三套主题依次切换',
+              },
               {
                 target: '.tree-demo',
                 title: '目录树',
