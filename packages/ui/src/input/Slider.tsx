@@ -18,6 +18,7 @@ import { useLang } from '../config/context';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
+import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { clamp, snapToStep } from '../utils/data/number';
 import { isRtl } from '../utils/dom/direction';
@@ -75,6 +76,8 @@ export interface SliderProps<V extends SliderValue = number> extends PartProps<
   disabled?: boolean;
   /** 字号档位，滑块与轨道随之缩放；不写时继承 */
   size?: TextSize;
+  /** 已选范围与滑块描边的色调（与 Button、Badge 等同一套），默认 accent */
+  tone?: StatusTone;
   /** 刻度：数字或带文字的 { value, label }；有文字时滑块下方（纵向时右侧）留出位置 */
   marks?: readonly (number | SliderMark)[];
   /** 读屏念的取值文字（aria-valuetext），如 `(v) => \`${v}%\``；不写时念数字 */
@@ -122,7 +125,7 @@ export const sliderStyles = stylex.create({
   },
   trackHorizontal: { height: 'calc(_space.xs * 1.5)' },
   trackVertical: { width: 'calc(_space.xs * 1.5)' },
-  range: { position: 'absolute', backgroundColor: '_accent' },
+  range: { position: 'absolute', backgroundColor: 'var(--tone-fill)' },
   rangeHorizontal: { insetBlock: 0 },
   rangeVertical: { insetInline: 0 },
   thumb: {
@@ -132,7 +135,7 @@ export const sliderStyles = stylex.create({
     height: 'calc(_space.lg + _space.xs)',
     borderWidth: '_sm',
     borderStyle: 'solid',
-    borderColor: '_accent',
+    borderColor: 'var(--tone-fill)',
     borderRadius: '_full',
     backgroundColor: '_surface',
     boxShadow: '_sm',
@@ -152,7 +155,7 @@ export const sliderStyles = stylex.create({
   },
   markHorizontal: { top: '50%', translate: { default: '-50% -50%', ':dir(rtl)': '50% -50%' } },
   markVertical: { left: '50%', translate: '-50% 50%' },
-  markActive: { backgroundColor: '_accentContrast' },
+  markActive: { backgroundColor: 'var(--tone-on-fill)' },
   markLabel: {
     position: 'absolute',
     fontSize: '_sm',
@@ -188,6 +191,7 @@ export const Slider = _component(
     orientation = 'horizontal',
     disabled,
     size,
+    tone = 'accent',
     marks,
     valueText,
     name,
@@ -370,6 +374,7 @@ export const Slider = _component(
                 vertical ? sliderStyles.vertical : sliderStyles.horizontal,
                 labelled &&
                   (vertical ? sliderStyles.labelledVertical : sliderStyles.labelledHorizontal),
+                toneFillStyles[tone],
                 size && fontSizeStyles[size],
               ],
             },

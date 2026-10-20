@@ -23,11 +23,13 @@ import { Icon, type IconProps } from '../base/Icon';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toggleSelection } from '../utils/data/selection';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import type { StatusTone } from '../utils/style/tone-styles';
+import type { TextSize } from '../utils/style/typography';
 import {
   choiceGroupStyles,
   choiceStyles,
-  useChoiceSize,
+  choiceRootSx,
+  useChoiceAppearance,
   type ChoiceOrientations,
 } from './choice-styles';
 
@@ -68,6 +70,8 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
   invalid?: boolean;
   /** 字号档位；不写时继承上下文字号 */
   size?: TextSize;
+  /** 选中时的色调（与 Button、Badge 等同一套），默认 accent；可以用 defaults.Choice 统一改 */
+  tone?: StatusTone;
   /** 外层 label 的部件属性 */
   propsRoot?: PartProps<'label'>;
   /** 叠放层的部件属性 */
@@ -83,7 +87,7 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
 /** Checkbox 的样式：box、indicator、hidden */
 export const checkboxStyles = stylex.create({
   box: { width: '1.125em', height: '1.125em', borderRadius: '_sm' },
-  indicator: { width: '0.875em', height: '0.875em', color: '_accentContrast' },
+  indicator: { width: '0.875em', height: '0.875em', color: 'var(--tone-on-fill)' },
   hidden: { visibility: 'hidden' },
 });
 
@@ -97,6 +101,7 @@ export const Checkbox = _component(
     required,
     invalid,
     size,
+    tone,
     id,
     propsRoot,
     propsControl,
@@ -106,7 +111,7 @@ export const Checkbox = _component(
     ...rest
   }: CheckboxProps) => {
     const group = CheckboxGroupContext.inject(null);
-    const resolvedSize = useChoiceSize(() => size);
+    const appearance = useChoiceAppearance(() => ({ size, tone }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
     let input = _state.raw<HTMLInputElement | null>(null);
     // 用户点击勾上时对勾描线；初次渲染、外部改值不播
@@ -133,16 +138,7 @@ export const Checkbox = _component(
       const marked = isChecked || indeterminate;
       return (
         <label
-          {...mergeAttrs<'label'>(
-            {
-              sx: [
-                choiceStyles.root,
-                resolvedSize() && fontSizeStyles[resolvedSize()!],
-                off && choiceStyles.disabled,
-              ],
-            },
-            propsRoot,
-          )}
+          {...mergeAttrs<'label'>({ sx: choiceRootSx(appearance(), off) }, propsRoot)}
           data-state={indeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
         >

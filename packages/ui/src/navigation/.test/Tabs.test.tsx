@@ -1,4 +1,5 @@
 // Tabs、Toolbar、Steps 的结构、键盘与无障碍属性；真实焦点移动见 apps/host-demo 的浏览器测试
+import { Star } from '@lucide/icons';
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
@@ -147,5 +148,12 @@ describe('Steps', () => {
     buttons[0]!.click();
     expect(onStepChange).toHaveBeenCalledWith(0);
     expect(mount(() => <Steps items={items} current={2} />).querySelector('button')).toBeNull();
+  });
+
+  it('步骤的 icon 代替序号；已完成的仍显示对勾', () => {
+    const withIcons = items.map((item) => ({ ...item, icon: Star }));
+    const steps = [...mount(() => <Steps items={withIcons} current={1} />).querySelectorAll('li')];
+    expect(steps.map((step) => step.querySelector('svg') != null)).toEqual([true, true, true]);
+    expect(steps[2]!.textContent).not.toContain('3');
   });
 });

@@ -18,11 +18,13 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import type { StatusTone } from '../utils/style/tone-styles';
+import type { TextSize } from '../utils/style/typography';
 import {
   choiceGroupStyles,
   choiceStyles,
-  useChoiceSize,
+  choiceRootSx,
+  useChoiceAppearance,
   type ChoiceOrientations,
 } from './choice-styles';
 
@@ -40,6 +42,8 @@ export interface RadioGroupState {
   readonly invalid: boolean;
   /** 字号档位；不写时继承 */
   readonly size: TextSize | undefined;
+  /** 选中时的色调 */
+  readonly tone: StatusTone;
   /** 选中一个值 */
   select(value: string): void;
 }
@@ -61,6 +65,8 @@ export interface RadioGroupProps extends PartProps<'div', 'role'> {
   invalid?: boolean;
   /** 字号档位；不写时继承上下文字号 */
   size?: TextSize;
+  /** 选中时的色调（与 Button、Badge 等同一套），默认 accent；可以用 defaults.Choice 统一改 */
+  tone?: StatusTone;
   /** 排列方向，默认 vertical */
   orientation?: keyof ChoiceOrientations;
   /** Radio */
@@ -76,6 +82,7 @@ export const RadioGroup = _component(
     required,
     invalid,
     size,
+    tone,
     orientation = 'vertical',
     id,
     children,
@@ -83,7 +90,7 @@ export const RadioGroup = _component(
   }: RadioGroupProps) => {
     const generatedName = useId();
     const control = useFieldControl(() => ({ id, disabled, required, invalid }));
-    const resolvedSize = useChoiceSize(() => size);
+    const appearance = useChoiceAppearance(() => ({ size, tone }));
     RadioGroupContext.provide({
       get value() {
         return value;
@@ -101,7 +108,10 @@ export const RadioGroup = _component(
         return control().invalid;
       },
       get size() {
-        return resolvedSize();
+        return appearance().size;
+      },
+      get tone() {
+        return appearance().tone;
       },
       select: (next) => (value = next),
     });
@@ -156,7 +166,7 @@ export const radioStyles = stylex.create({
     width: '0.45em',
     height: '0.45em',
     borderRadius: '_full',
-    backgroundColor: '_accentContrast',
+    backgroundColor: 'var(--tone-on-fill)',
     transform: 'scale(0)',
     transition: 'transform _durations.sm _easings.standard',
   },
@@ -181,16 +191,7 @@ export const Radio = _component(
       const off = disabled ?? group.disabled;
       return (
         <label
-          {...mergeAttrs<'label'>(
-            {
-              sx: [
-                choiceStyles.root,
-                group.size && fontSizeStyles[group.size],
-                off && choiceStyles.disabled,
-              ],
-            },
-            propsRoot,
-          )}
+          {...mergeAttrs<'label'>({ sx: choiceRootSx(group, off) }, propsRoot)}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
         >

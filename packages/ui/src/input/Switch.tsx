@@ -15,8 +15,9 @@ import { useFieldControl } from '../form/Field';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import { choiceStyles, useChoiceSize } from './choice-styles';
+import type { StatusTone } from '../utils/style/tone-styles';
+import type { TextSize } from '../utils/style/typography';
+import { choiceRootSx, choiceStyles, useChoiceAppearance } from './choice-styles';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
 export type SwitchManaged =
@@ -48,6 +49,8 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   uncheckedContent?: VNodeChild;
   /** 字号档位；不写时继承上下文字号 */
   size?: TextSize;
+  /** 打开时轨道的色调（与 Button、Badge 等同一套），默认 accent；可以用 defaults.Choice 统一改 */
+  tone?: StatusTone;
   /** 外层 label 的部件属性 */
   propsRoot?: PartProps<'label'>;
   /** 叠放层的部件属性 */
@@ -84,7 +87,7 @@ export const switchStyles = stylex.create({
     transition: 'margin-inline-start _durations.sm _easings.standard',
   },
   // 移到结束边：百分比相对整条轨道，轨道随文字加宽时同样贴边
-  thumbOn: { marginInlineStart: 'calc(100% - 1.0625em)', backgroundColor: '_accentContrast' },
+  thumbOn: { marginInlineStart: 'calc(100% - 1.0625em)', backgroundColor: 'var(--tone-on-fill)' },
   content: {
     gridArea: '1 / 1',
     justifySelf: 'stretch',
@@ -93,12 +96,16 @@ export const switchStyles = stylex.create({
     pointerEvents: 'none',
   },
   // 文字在滑块的另一侧
-  contentOn: { paddingInlineStart: '0.5em', paddingInlineEnd: '1.375em', color: '_accentContrast' },
+  contentOn: {
+    paddingInlineStart: '0.5em',
+    paddingInlineEnd: '1.375em',
+    color: 'var(--tone-on-fill)',
+  },
   contentOff: { paddingInlineStart: '1.375em', paddingInlineEnd: '0.5em', color: '_text' },
   contentHidden: { visibility: 'hidden' },
   // 字号缩在里层：外层的内边距按开关的字号算，给滑块留的位置才够
   contentText: { fontSize: '_xs', fontWeight: '_semibold', lineHeight: 1 },
-  spinner: { width: '0.75em', height: '0.75em', color: '_accent' },
+  spinner: { width: '0.75em', height: '0.75em', color: 'var(--tone-fill)' },
 });
 
 /** 开关：立即生效的开 / 关 */
@@ -109,6 +116,7 @@ export const Switch = _component(
     required,
     invalid,
     size,
+    tone,
     loading = false,
     checkedContent,
     uncheckedContent,
@@ -123,7 +131,7 @@ export const Switch = _component(
     ...rest
   }: SwitchProps) => {
     const control = useFieldControl(() => ({ id, invalid, required, disabled }));
-    const resolvedSize = useChoiceSize(() => size);
+    const appearance = useChoiceAppearance(() => ({ size, tone }));
     // 很快完成的切换不闪加载指示；点击拦截、aria-busy 按真实的 loading
     const spinner = useDelayedLoading(() => loading);
     return () => {
@@ -148,16 +156,7 @@ export const Switch = _component(
       );
       return (
         <label
-          {...mergeAttrs<'label'>(
-            {
-              sx: [
-                choiceStyles.root,
-                resolvedSize() && fontSizeStyles[resolvedSize()!],
-                state.disabled && choiceStyles.disabled,
-              ],
-            },
-            propsRoot,
-          )}
+          {...mergeAttrs<'label'>({ sx: choiceRootSx(appearance(), state.disabled) }, propsRoot)}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={state.disabled || undefined}
           data-loading={loading || undefined}

@@ -73,7 +73,13 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   ['text', 'highlight', TEXT, '高亮标记'],
   ['focusRing', 'background', UI, '焦点环'],
   ['focusRing', 'surface', UI, '焦点环'],
-  ['accent', 'surface', UI, '选中的勾选框、开关'],
+  // 选中的勾选框、开关、滑块与进度条的实底色（tone-styles.ts 的 toneFillStyles、Progress）：在表面与轨道上
+  ...['accent', 'inverseSurface', 'infoText', 'successText', 'warningText', 'dangerText'].flatMap(
+    (fg): ContrastPair[] => [
+      [fg, 'surface', UI, '选中的勾选框、开关'],
+      [fg, 'fill', UI, '滑块、进度条'],
+    ],
+  ),
   ...Array.from({ length: 8 }, (_, index) => `chart${index + 1}`).flatMap((fg): ContrastPair[] => [
     [fg, 'background', UI, '图表系列'],
     [fg, 'surface', UI, '图表系列'],

@@ -135,6 +135,9 @@ import { TreeDemo } from './TreeDemo';
 import { UploadDemo } from './UploadDemo';
 import { SortableDemo } from './SortableDemo';
 
+/** 六种色调：按钮、标记、勾选类控件、进度条、头像的演示共用 */
+const tones = ['neutral', 'accent', 'info', 'success', 'warning', 'danger'] as const;
+
 const sampleCode = `export const Counter = _component(() => {
   let count = _state(0); // 像普通变量一样读写
   return () => <button onClick={() => count++}>{count}</button>;
@@ -392,7 +395,7 @@ export const Base = _component(() => {
         </div>
 
         <Section title="按钮 Button · LinkButton · IconButton · CopyButton">
-          {(['neutral', 'accent', 'info', 'success', 'warning', 'danger'] as const).map((tone) => (
+          {tones.map((tone) => (
             <Flex key={tone} gap="sm" wrap align="center" class={`button-row-${tone}`}>
               {(['solid', 'soft', 'surface', 'outline', 'ghost', 'link'] as const).map(
                 (variant) => (
@@ -534,6 +537,17 @@ export const Base = _component(() => {
               { title: '完成' },
             ]}
           />
+          <Steps
+            class="steps-icons-demo"
+            aria-label="开通步骤"
+            size="sm"
+            current={1}
+            items={[
+              { title: '注册账号', icon: UserRound },
+              { title: '偏好设置', icon: Settings },
+              { title: '开始使用', icon: Star },
+            ]}
+          />
           <Flex gap="sm">
             <Button variant="soft" tone="neutral" disabled={step === 0} onClick={() => step--}>
               上一步
@@ -547,13 +561,11 @@ export const Base = _component(() => {
         <Section title="标记与提示 Badge · Tag · Alert">
           {(['solid', 'soft', 'surface', 'outline'] as const).map((variant) => (
             <Flex key={variant} gap="sm" wrap align="center" class={`badge-row-${variant}`}>
-              {(['neutral', 'accent', 'info', 'success', 'warning', 'danger'] as const).map(
-                (tone) => (
-                  <Badge key={tone} variant={variant} tone={tone}>
-                    {tone}
-                  </Badge>
-                ),
-              )}
+              {tones.map((tone) => (
+                <Badge key={tone} variant={variant} tone={tone}>
+                  {tone}
+                </Badge>
+              ))}
             </Flex>
           ))}
           <Flex gap="sm" wrap align="center" class="tag-demo" ref={_toRef(tagList)}>
@@ -805,6 +817,20 @@ export const Base = _component(() => {
                 <Checkbox class="agree-demo" checked={_bind(agreed)}>
                   我已阅读并同意服务条款
                 </Checkbox>
+                <Flex gap="sm" wrap class="choice-tones">
+                  {tones.map((tone) => (
+                    <Checkbox key={tone} tone={tone} checked>
+                      {tone}
+                    </Checkbox>
+                  ))}
+                </Flex>
+                <Flex gap="sm" wrap class="switch-tones">
+                  {tones.map((tone) => (
+                    <Switch key={tone} tone={tone} checked>
+                      {tone}
+                    </Switch>
+                  ))}
+                </Flex>
               </Flex>
             </li>
           </GridList>
@@ -966,6 +992,17 @@ export const Base = _component(() => {
           <Progress class="progress-demo" value={volume} aria-label="演示进度" />
           <Progress tone="success" value={100} aria-label="已完成" />
           <Progress class="progress-indeterminate" aria-label="正在加载" />
+          <Flex direction="column" gap="xs" class="progress-tones">
+            {tones.map((tone, index) => (
+              <Progress
+                key={tone}
+                tone={tone}
+                value={30 + index * 12}
+                aria-label={`${tone} 进度`}
+              />
+            ))}
+            <Progress radius="none" value={50} aria-label="直角进度条" />
+          </Flex>
           <Card
             class="card-demo"
             header={
@@ -1003,6 +1040,14 @@ export const Base = _component(() => {
             <Avatar name="张三" />
             <Avatar name="Grace Hopper" radius="md" />
             <Avatar />
+          </Flex>
+          <Flex gap="sm" align="center" class="avatar-tones">
+            {tones.map((tone) => (
+              <Avatar key={tone} name={tone} tone={tone} />
+            ))}
+            {tones.map((tone) => (
+              <Avatar key={`solid-${tone}`} name={tone} tone={tone} variant="solid" />
+            ))}
           </Flex>
           <Flex gap="lg" align="center">
             <AvatarGroup max={3} aria-label="协作者" class="avatar-group-demo">
@@ -1139,6 +1184,13 @@ export const Base = _component(() => {
             />
             <Text class="slider-value">{volume}%</Text>
           </Flex>
+          <Slider
+            class="slider-tone-demo"
+            tone="success"
+            value={_bind(volume)}
+            aria-label="音量（成功色）"
+            propsRoot={{ sx: styles.slider }}
+          />
           <Flex gap="md" align="center">
             <Slider
               class="slider-range-demo"

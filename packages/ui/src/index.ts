@@ -209,6 +209,7 @@ export {
   type AvatarOptions,
   type AvatarProps,
   type AvatarRadii,
+  type AvatarVariants,
 } from './display/Avatar';
 export {
   AvatarGroup,
@@ -320,11 +321,13 @@ export {
 } from './feedback/LoadingOverlay';
 export {
   Progress,
+  progressRadiusStyles,
   progressStyles,
   progressToneStyles,
   progressWidthStyles,
   type ProgressManaged,
   type ProgressProps,
+  type ProgressRadii,
 } from './feedback/Progress';
 export { Result, resultStyles, type ResultProps, type ResultStatuses } from './feedback/Result';
 export { Skeleton, skeletonStyles, type SkeletonProps } from './feedback/Skeleton';
@@ -622,8 +625,10 @@ export {
 } from './input/Upload';
 export {
   choiceGroupStyles,
+  choiceRootSx,
   choiceStyles,
-  useChoiceSize,
+  useChoiceAppearance,
+  type ChoiceAppearance,
   type ChoiceOptions,
   type ChoiceOrientations,
 } from './input/choice-styles';
@@ -869,6 +874,7 @@ export {
   statusToneBorderStyles,
   statusToneStyles,
   statusToneSx,
+  toneFillStyles,
   type StatusTone,
   type StatusTones,
   type StatusVariant,

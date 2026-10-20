@@ -12,6 +12,16 @@ import { clamp } from '../utils/data/number';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
+/** 进度条的圆角 */
+export interface ProgressRadii {
+  /** 直角 */
+  none: unknown;
+  /** 小圆角 */
+  sm: unknown;
+  /** 胶囊形（默认） */
+  full: unknown;
+}
+
 /** 角色与取值由组件管理 */
 export type ProgressManaged =
   'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow' | 'aria-valuetext';
@@ -26,6 +36,8 @@ export interface ProgressProps extends PartProps<'div', ProgressManaged> {
   tone?: StatusTone;
   /** 字号档位：进度条的粗细随之缩放；不写时继承上下文字号 */
   size?: TextSize;
+  /** 圆角，默认 full */
+  radius?: keyof ProgressRadii;
   /** 读屏念的取值文字，如 `(value, max) => \`已上传 ${value} / ${max} 个文件\``；默认是百分比 */
   valueText?: (value: number, max: number) => string;
   /** 进度（着色部分）的部件属性 */
@@ -44,7 +56,6 @@ export const progressStyles = stylex.create({
     overflow: 'hidden',
     width: '_full',
     height: 'calc(_space.xs * 1.5)',
-    borderRadius: '_full',
     backgroundColor: '_fill',
   },
   indicator: {
@@ -62,7 +73,14 @@ export const progressStyles = stylex.create({
   },
 });
 
-// 和轨道（fill）之间要有 3:1：中性色用次要文字色，状态色用各自的文字色
+/** Progress 的样式：none、sm、full */
+export const progressRadiusStyles = stylex.create({
+  none: { borderRadius: 0 },
+  sm: { borderRadius: '_sm' },
+  full: { borderRadius: '_full' },
+});
+
+// 和轨道（fill）之间要有 3:1：中性色用次要文字色，accent 以外的状态色用各自的文字色
 /** Progress 的样式：neutral、accent、info、success、warning、danger */
 export const progressToneStyles = stylex.create({
   neutral: { backgroundColor: '_textMuted' },
@@ -70,7 +88,7 @@ export const progressToneStyles = stylex.create({
   info: { backgroundColor: '_infoText' },
   success: { backgroundColor: '_successText' },
   warning: { backgroundColor: '_warningText' },
-  danger: { backgroundColor: '_danger' },
+  danger: { backgroundColor: '_dangerText' },
 });
 
 // 宽度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -86,6 +104,7 @@ export const Progress = _component(
     max = 100,
     tone = 'accent',
     size,
+    radius = 'full',
     valueText,
     propsIndicator,
     ...rest
@@ -96,15 +115,21 @@ export const Progress = _component(
       const percent = max > 0 ? (clamped / max) * 100 : 0;
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: [progressStyles.root, size && fontSizeStyles[size]] }, rest, {
-            role: 'progressbar',
-            'aria-valuemin': 0,
-            'aria-valuemax': max,
-            'aria-valuenow': determinate ? clamped : undefined,
-            'aria-valuetext': determinate
-              ? (valueText?.(clamped, max) ?? `${Math.round(percent)}%`)
-              : undefined,
-          })}
+          {...mergeAttrs<'div'>(
+            {
+              sx: [progressStyles.root, progressRadiusStyles[radius], size && fontSizeStyles[size]],
+            },
+            rest,
+            {
+              role: 'progressbar',
+              'aria-valuemin': 0,
+              'aria-valuemax': max,
+              'aria-valuenow': determinate ? clamped : undefined,
+              'aria-valuetext': determinate
+                ? (valueText?.(clamped, max) ?? `${Math.round(percent)}%`)
+                : undefined,
+            },
+          )}
           data-state={!determinate ? 'indeterminate' : clamped >= max ? 'complete' : 'loading'}
         >
           <div

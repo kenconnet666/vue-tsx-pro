@@ -1,6 +1,9 @@
 // Checkbox / CheckboxGroup、RadioGroup / Radio、Switch：原生 input 的状态、写回与 Field 关联
 import { describe, expect, it } from 'vitest';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick } from 'vue';
+import { Provider } from '../../config/Provider';
+import { toneFillStyles } from '../../utils/style/tone-styles';
 import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
 import { Checkbox, CheckboxGroup } from '../Checkbox';
@@ -115,5 +118,35 @@ describe('Switch', () => {
       (span) => span.textContent,
     );
     expect(contents).toEqual(['开', '关']);
+  });
+});
+
+describe('色调', () => {
+  const hasTone = (element: Element, tone: keyof typeof toneFillStyles) =>
+    stylex
+      .props(toneFillStyles[tone])
+      .className!.split(' ')
+      .every((name) => element.classList.contains(name));
+
+  it('tone 加在外层 label 上；不写时 accent，defaults.Choice 统一改，显式写的优先', () => {
+    const root = mount(() => (
+      <>
+        <Checkbox class="plain">a</Checkbox>
+        <Switch tone="success">b</Switch>
+        <RadioGroup tone="warning">
+          <Radio value="x">c</Radio>
+        </RadioGroup>
+        <Provider defaults={{ Choice: { tone: 'danger' } }}>
+          <Checkbox>d</Checkbox>
+          <Checkbox tone="info">e</Checkbox>
+        </Provider>
+      </>
+    ));
+    const [plain, toggle, radio, configured, explicit] = root.querySelectorAll('label');
+    expect(hasTone(plain!, 'accent')).toBe(true);
+    expect(hasTone(toggle!, 'success')).toBe(true);
+    expect(hasTone(radio!, 'warning')).toBe(true);
+    expect(hasTone(configured!, 'danger')).toBe(true);
+    expect(hasTone(explicit!, 'info')).toBe(true);
   });
 });

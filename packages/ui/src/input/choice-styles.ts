@@ -9,19 +9,38 @@
  * 组件只画外观。勾选状态的样式由组件按自己的状态加（StyleX 不能写兄弟选择器）。尺寸用 em。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { useDefaults } from '../config/defaults';
-import type { TextSize } from '../utils/style/typography';
+import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 勾选类控件的外观选项；可以用 createUi / Provider 的 defaults.Choice 统一改默认值 */
 export interface ChoiceOptions {
   /** 字号档位（方框、圆、开关随之缩放）；不写时继承上下文字号 */
   size?: TextSize;
+  /**
+   * 选中时的色调（与 Button、Badge 等同一套）
+   * @default 'accent'
+   */
+  tone?: StatusTone;
 }
 
-/** 勾选类控件的字号：显式写的 > defaults.Choice > 继承。在 setup 里调用，返回的函数在渲染时调用 */
-export function useChoiceSize(read: () => TextSize | undefined): () => TextSize | undefined {
-  const options = useDefaults('Choice', () => ({ size: read() }));
-  return () => options().size;
+/** 合并后的外观：tone 总有值，size 不写时继承字号 */
+export type ChoiceAppearance = Pick<ChoiceOptions, 'size'> & Required<Pick<ChoiceOptions, 'tone'>>;
+
+/** 勾选类控件的外观：显式写的 > defaults.Choice > 默认。在 setup 里调用，返回的函数在渲染时调用 */
+export function useChoiceAppearance(read: () => ChoiceOptions): () => ChoiceAppearance {
+  return useDefaults('Choice', read, { tone: 'accent' });
+}
+
+/** 外层 label 的样式：字号、色调（经 toneFillStyles 的变量传给方框、圆点、轨道）、不可用 */
+export function choiceRootSx({ size, tone }: ChoiceAppearance, disabled: boolean): StyleXStyles {
+  return [
+    choiceStyles.root,
+    toneFillStyles[tone],
+    size && fontSizeStyles[size],
+    disabled && choiceStyles.disabled,
+  ] as StyleXStyles;
 }
 
 /** 勾选类控件各部分的样式 */
@@ -63,8 +82,8 @@ export const choiceStyles = stylex.create({
     transition:
       'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard',
   },
-  /** 已勾选（或部分勾选）：实底品牌色 */
-  checked: { borderColor: '_accent', backgroundColor: '_accent' },
+  /** 已勾选（或部分勾选）：色调的实底色，见 choiceRootSx */
+  checked: { borderColor: 'var(--tone-fill)', backgroundColor: 'var(--tone-fill)' },
   invalid: { borderColor: '_danger', outlineColor: '_danger' },
   /** 标记（对勾、圆点、开关滑块）：叠在 input 上，点击穿透到 input */
   mark: { gridArea: '1 / 1', pointerEvents: 'none' },

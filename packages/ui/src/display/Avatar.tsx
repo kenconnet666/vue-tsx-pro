@@ -4,6 +4,7 @@
  *
  *   <Avatar src={user.avatar} name={user.name} />
  *   <Avatar name="张三" size="lg" radius="md" />
+ *   <Avatar name="李四" variant="solid" tone="success" />
  */
 import { User } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
@@ -12,6 +13,7 @@ import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { statusToneStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 头像的圆角 */
@@ -22,12 +24,24 @@ export interface AvatarRadii {
   md: unknown;
 }
 
+/** 后备内容（首字母、图标）的底色样式 */
+export interface AvatarVariants {
+  /** 浅色底（默认） */
+  soft: unknown;
+  /** 实底 */
+  solid: unknown;
+}
+
 /** 头像的外观选项；可以用 createUi / Provider 的 defaults.Avatar 统一改默认值 */
 export interface AvatarOptions {
   /** 字号档位，头像边长是它的 2.5 倍；不写时继承 */
   size?: TextSize;
   /** 圆角，默认 full */
   radius?: keyof AvatarRadii;
+  /** 后备内容的底色样式，默认 soft */
+  variant?: keyof AvatarVariants;
+  /** 后备内容的色调（与 Button、Badge 等同一套），默认 accent */
+  tone?: StatusTone;
 }
 
 /** 角色与读屏可见性由组件按 name 决定 */
@@ -62,8 +76,6 @@ export const avatarStyles = stylex.create({
     height: '2.5em',
     overflow: 'hidden',
     verticalAlign: 'middle',
-    backgroundColor: '_accentSoft',
-    color: '_accentText',
     userSelect: 'none',
   },
   full: { borderRadius: '_full' },
@@ -90,8 +102,23 @@ export function initials(name: string): string {
 
 /** 头像：图片 + 后备内容（首字母或图标） */
 export const Avatar = _component(
-  ({ src, name, fallback, size, radius, propsImage, propsFallback, ...rest }: AvatarProps) => {
-    const appearance = useDefaults('Avatar', () => ({ size, radius }), { radius: 'full' });
+  ({
+    src,
+    name,
+    fallback,
+    size,
+    radius,
+    variant,
+    tone,
+    propsImage,
+    propsFallback,
+    ...rest
+  }: AvatarProps) => {
+    const appearance = useDefaults('Avatar', () => ({ size, radius, variant, tone }), {
+      radius: 'full',
+      variant: 'soft',
+      tone: 'accent',
+    });
     const group = AvatarGroupContext.inject(null);
     // 图片状态：loading 加载中、loaded 已显示、error 失败（显示后备内容）
     let status = _state<'loading' | 'loaded' | 'error'>('loading');
@@ -102,13 +129,14 @@ export const Avatar = _component(
 
     return () => {
       const showFallback = !src || status !== 'loaded';
-      const { size: fontSize, radius: corner } = appearance();
+      const { size: fontSize, radius: corner, variant: fill, tone: color } = appearance();
       return (
         <span
           {...mergeAttrs<'span'>(
             {
               sx: [
                 avatarStyles.root,
+                statusToneStyles[fill][color],
                 avatarStyles[corner],
                 fontSize && fontSizeStyles[fontSize],
                 group && avatarStyles.grouped,

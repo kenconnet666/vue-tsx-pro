@@ -1,6 +1,8 @@
 // Card、Avatar
 import { describe, expect, it } from 'vitest';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick } from 'vue';
+import { statusToneStyles } from '../../utils/style/tone-styles';
 import { mount } from '../../utils/.test/mount';
 import { Avatar, initials } from '../Avatar';
 import { Card } from '../Card';
@@ -51,5 +53,18 @@ describe('Avatar', () => {
     expect(withImage.querySelector('img')).toBeNull();
     expect(withImage.textContent).toBe('AL');
     expect(withImage.dataset.state).toBe('error');
+  });
+
+  it('variant × tone 用状态色调的配色：默认 soft accent', () => {
+    const classes = (styles: Parameters<typeof stylex.props>[0]) =>
+      stylex.props(styles).className!.split(' ');
+    const plain = first(mount(() => <Avatar name="张三" />));
+    const solid = first(mount(() => <Avatar name="张三" variant="solid" tone="success" />));
+    expect(
+      classes(statusToneStyles.soft.accent).every((name) => plain.classList.contains(name)),
+    ).toBe(true);
+    expect(
+      classes(statusToneStyles.solid.success).every((name) => solid.classList.contains(name)),
+    ).toBe(true);
   });
 });

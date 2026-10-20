@@ -10,9 +10,10 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Icon } from '../base/Icon';
+import { Icon, type IconData } from '../base/Icon';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 
 /** 步骤条方向 */
@@ -29,6 +30,8 @@ export interface StepItem {
   title: VNodeChild;
   /** 说明（标题下面的小字） */
   description?: VNodeChild;
+  /** 代替序号的图标；已完成时仍显示对勾，出错时仍显示警示图标 */
+  icon?: IconData;
   /** 出错：显示警示图标与危险色 */
   error?: boolean;
   /** 不可点回（即使已完成） */
@@ -46,6 +49,8 @@ export interface StepsProps extends PartProps<'ol'> {
   current: number;
   /** 方向，默认 horizontal */
   orientation?: keyof StepsOrientations;
+  /** 字号档位：圆圈、文字随之缩放；不写时继承上下文字号 */
+  size?: TextSize;
   /** 给了就可以点击已完成的步骤回去（参数是序号） */
   onStepChange?: (index: number) => void;
   /** 每个步骤（li）的部件属性，可以按项计算 */
@@ -94,12 +99,13 @@ export const stepsStyles = stylex.create({
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderRadius: '_full',
-    fontSize: '_sm',
+    // 用 em 而不是 _sm（默认字号下 13 / 14 ≈ 0.93）：随 size 缩放
+    fontSize: '0.93em',
     fontWeight: '_semibold',
   },
   text: { display: 'grid', gap: '_xs', paddingTop: '0.3em', minWidth: 0 },
   title: { fontWeight: '_medium' },
-  description: { color: '_textMuted', fontSize: '_sm' },
+  description: { color: '_textMuted', fontSize: '0.93em' },
   // 步骤之间的连接线：横排在标题右侧延伸
   connector: {
     flexGrow: 1,
@@ -125,6 +131,7 @@ export const Steps = _component(
     items,
     current,
     orientation = 'horizontal',
+    size,
     onStepChange,
     propsItem,
     propsIndicator,
@@ -140,7 +147,11 @@ export const Steps = _component(
       return (
         <FlexOrderedList
           {...mergePartProps<FlexProps<'ol'>>(
-            { direction: vertical ? 'column' : 'row', gap: vertical ? 'lg' : 'sm' },
+            {
+              direction: vertical ? 'column' : 'row',
+              gap: vertical ? 'lg' : 'sm',
+              sx: size && fontSizeStyles[size],
+            },
             rest,
           )}
           data-orientation={orientation}
@@ -165,6 +176,8 @@ export const Steps = _component(
                   <Icon icon={Check} />
                 ) : state === 'error' ? (
                   <Icon icon={statusIcons.danger} />
+                ) : item.icon ? (
+                  <Icon icon={item.icon} />
                 ) : (
                   index + 1
                 )}

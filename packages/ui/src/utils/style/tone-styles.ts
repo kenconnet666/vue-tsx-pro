@@ -114,3 +114,18 @@ export const statusIcons: Readonly<Record<StatusTone, IconData>> = {
 export function statusToneSx(variant: StatusVariant, tone: StatusTone): StyleXStyles {
   return [statusToneBorderStyles.bordered, statusToneStyles[variant][tone]] as StyleXStyles;
 }
+
+/**
+ * 实底色调的颜色变量：选中的勾选框、单选框、开关与滑块的已选部分用 `var(--tone-fill)` 作底色、
+ * `var(--tone-on-fill)` 作其上的对勾、圆点、滑块色。组件根元素加 toneFillStyles[tone]，各部件引用变量：
+ * 部件的选中样式不随色调再分六份。
+ * 配色同 solid，只是 danger 也用文字色：暗色主题里 danger 在轨道（fill）上不到 3:1
+ */
+export const toneFillStyles = stylex.create({
+  neutral: { '--tone-fill': '_colors.inverseSurface', '--tone-on-fill': '_colors.inverseText' },
+  accent: { '--tone-fill': '_colors.accent', '--tone-on-fill': '_colors.accentContrast' },
+  info: { '--tone-fill': '_colors.infoText', '--tone-on-fill': '_colors.background' },
+  success: { '--tone-fill': '_colors.successText', '--tone-on-fill': '_colors.background' },
+  warning: { '--tone-fill': '_colors.warningText', '--tone-on-fill': '_colors.background' },
+  danger: { '--tone-fill': '_colors.dangerText', '--tone-on-fill': '_colors.background' },
+});
