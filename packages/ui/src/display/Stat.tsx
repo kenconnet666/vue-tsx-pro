@@ -14,11 +14,11 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Skeleton } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
 import { toneStyles } from '../utils/style/typography';
 import type { NumericValue } from '../utils/data/numeric';
-import { AnimatedNumber } from './AnimatedNumber';
+import { AnimatedNumber, type AnimatedNumberProps } from './AnimatedNumber';
 
 /** 忙碌由组件按 loading 管理 */
 export type StatManaged = 'aria-busy';
@@ -54,6 +54,18 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   propsLabel?: PartProps<'dt'>;
   /** 数值（dd）的部件属性 */
   propsValue?: PartProps<'dd'>;
+  /** 图标外层的部件属性 */
+  propsIcon?: PartProps<'span', 'aria-hidden'>;
+  /** 数字本身（AnimatedNumber 或字符串值的 span）的部件属性 */
+  propsNumber?: PartProps<'span', 'prefix'>;
+  /** 单位的部件属性 */
+  propsUnit?: PartProps<'span'>;
+  /** 变化（dd）的部件属性 */
+  propsChange?: PartProps<'dd'>;
+  /** 变化后面的说明的部件属性 */
+  propsChangeLabel?: PartProps<'span'>;
+  /** 补充说明（dd）的部件属性 */
+  propsDescription?: PartProps<'dd'>;
 }
 
 const CHANGE_FORMAT: Intl.NumberFormatOptions = {
@@ -126,6 +138,12 @@ export const Stat = _component(
     loading = false,
     propsLabel,
     propsValue,
+    propsIcon,
+    propsNumber,
+    propsUnit,
+    propsChange,
+    propsChangeLabel,
+    propsDescription,
     ...rest
   }: StatProps) => {
     // 骨架防闪烁；aria-busy 按真实的 loading
@@ -147,7 +165,9 @@ export const Stat = _component(
           <dt {...mergeAttrs<'dt'>({ sx: statStyles.label }, propsLabel)}>
             <span>{label}</span>
             {icon && (
-              <span {...stylex.attrs(statStyles.icon)} aria-hidden="true">
+              <span
+                {...mergeAttrs<'span'>({ sx: statStyles.icon }, propsIcon, { 'aria-hidden': true })}
+              >
                 <Icon icon={icon} />
               </span>
             )}
@@ -156,17 +176,26 @@ export const Stat = _component(
             {skeleton.value ? (
               <Skeleton sx={statStyles.numberSkeleton} />
             ) : typeof value !== 'string' ? (
-              <AnimatedNumber value={value} format={format} sx={statStyles.number} />
+              <AnimatedNumber
+                {...mergePartProps<AnimatedNumberProps>(
+                  { sx: statStyles.number, value },
+                  propsNumber,
+                  {
+                    value,
+                    format,
+                  },
+                )}
+              />
             ) : (
-              <span {...stylex.attrs(statStyles.number)}>{value}</span>
+              <span {...mergeAttrs<'span'>({ sx: statStyles.number }, propsNumber)}>{value}</span>
             )}
             {unit != null && !skeleton.value && (
-              <span {...stylex.attrs(statStyles.unit)}>{unit}</span>
+              <span {...mergeAttrs<'span'>({ sx: statStyles.unit }, propsUnit)}>{unit}</span>
             )}
           </dd>
           {change !== undefined && (
             <dd
-              {...stylex.attrs(statStyles.change, reveal)}
+              {...mergeAttrs<'dd'>({ sx: [statStyles.change, reveal] }, propsChange)}
               data-trend={skeleton.value ? undefined : direction}
             >
               {skeleton.value ? (
@@ -183,13 +212,19 @@ export const Stat = _component(
                     <AnimatedNumber value={change} format={changeFormat} />
                   </span>
                   {changeLabel != null && (
-                    <span {...stylex.attrs(statStyles.changeLabel)}>{changeLabel}</span>
+                    <span {...mergeAttrs<'span'>({ sx: statStyles.changeLabel }, propsChangeLabel)}>
+                      {changeLabel}
+                    </span>
                   )}
                 </>
               )}
             </dd>
           )}
-          {description != null && <dd {...stylex.attrs(statStyles.description)}>{description}</dd>}
+          {description != null && (
+            <dd {...mergeAttrs<'dd'>({ sx: statStyles.description }, propsDescription)}>
+              {description}
+            </dd>
+          )}
         </dl>
       );
     };

@@ -88,3 +88,30 @@ it('骨架换回数值时数值与变化量淡入；一开始就有数值时不�
     vi.useRealTimers();
   }
 });
+
+it('每个节点都有部件属性：图标、数字、单位、变化与说明、补充说明', () => {
+  const root = mount(() => (
+    <Stat
+      label="营收"
+      value={100}
+      unit="万元"
+      icon={ClipboardList}
+      change={0.1}
+      changeLabel="环比"
+      description="截至昨天"
+      propsIcon={{ class: 'icon' }}
+      propsNumber={{ class: 'number' }}
+      propsUnit={{ class: 'unit' }}
+      propsChange={{ class: 'change' }}
+      propsChangeLabel={{ class: 'change-label' }}
+      propsDescription={{ class: 'description' }}
+    />
+  ));
+  expect(root.querySelector('.icon')!.getAttribute('aria-hidden')).toBe('true');
+  // AnimatedNumber 里有给眼睛看与给读屏的两份文字
+  expect(root.querySelector('.number')!.textContent).toContain('100');
+  expect(root.querySelector('.unit')!.textContent).toBe('万元');
+  expect(root.querySelector('.change')!.tagName).toBe('DD');
+  expect(root.querySelector('.change-label')!.textContent).toBe('环比');
+  expect(root.querySelector('.description')!.textContent).toBe('截至昨天');
+});

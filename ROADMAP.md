@@ -73,7 +73,7 @@
 
 ## 7. 复用与整理（见 .claude/reports/reuse-audit.md）
 
-- [ ] 第 5 批：Stat 与图表补 propsXxx；XYChart 图例改用 ButtonBase；色块的棋盘格与描边统一用 swatchStyles
+- [x] 第 5 批：Stat 与图表补 propsXxx；XYChart 图例改用 ButtonBase（ChartFrame）；色块的棋盘格与描边统一用 swatchStyles
 - [ ] 目录整理：零散文件按职责收进文件夹；删除无人调用的代码与过时文件
 
 ## 8. 开发体验
