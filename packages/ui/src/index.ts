@@ -698,6 +698,14 @@ export {
   type CalendarViewOptions,
   type CalendarViewProps,
 } from './date/CalendarView';
+export {
+  Countdown,
+  countdownParts,
+  countdownStyles,
+  type CountdownParts,
+  type CountdownPrecisions,
+  type CountdownProps,
+} from './date/Countdown';
 export { DateField, type DateFieldProps } from './date/DateField';
 export { DatePicker, datePickerStyles, type DatePickerProps } from './date/DatePicker';
 export {
@@ -712,7 +720,15 @@ export {
   type DateSegmentGroupProps,
   type DateSegmentManaged,
 } from './date/DateSegmentGroup';
+export {
+  DateTime,
+  hasTimeOf,
+  machineDateTime,
+  type DateTimeInput,
+  type DateTimeProps,
+} from './date/DateTime';
 export { RangeCalendar, type RangeCalendarProps } from './date/RangeCalendar';
+export { RelativeTime, type RelativeTimeProps } from './date/RelativeTime';
 export {
   firstSegmentOf,
   SegmentedField,
@@ -738,6 +754,7 @@ export {
   type CalendarState,
   type CalendarStateOptions,
 } from './date/calendar-state';
+export { useNow } from './date/clock';
 export {
   toDateLimits,
   useDateLocale,
@@ -1024,7 +1041,7 @@ import './config/theme/token-names';
 
 // 语言与格式化
 export { enUS } from './config/lang/en-US';
-export { useFormat } from './config/lang/format';
+export { useFormat, type RelativeFormatOptions } from './config/lang/format';
 export { defineLang, type Directions, type HourCycles, type Lang } from './config/lang/lang';
 export { zhCN } from './config/lang/zh-CN';
 
@@ -1210,9 +1227,11 @@ export {
   presetRange,
   rangeDays,
   rangeHasUnavailable,
+  relativeUnit,
   shiftIsoDate,
   todayIso,
   toDayOfWeek,
+  toInstant,
   toIsoDate,
   toIsoDateTime,
   toIsoRange,

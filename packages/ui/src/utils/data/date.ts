@@ -418,6 +418,44 @@ export function presetIsoRange(
   return toIsoRange(presetRange(preset, today(timeZone), week));
 }
 
+// ───────── 时刻与相对时间 ─────────
+
+/** 带时区或 UTC 标记的 ISO 字符串（'2026-10-20T14:30:00Z'、'…+08:00'）：本身就是一个时刻 */
+const ABSOLUTE_ISO = /(?:[zZ]|[+-]\d\d:?\d\d)$/;
+
+/**
+ * 日期值 → 时刻（毫秒时间戳）：Date 与带时区的值照原样；不带时区的（'2026-10-20T14:30'、CalendarDateTime）
+ * 按 timeZone 的墙上时间算。格式不对时 NaN
+ */
+export function toInstant(value: Date | DateValue | string, timeZone = getLocalTimeZone()): number {
+  if (value instanceof Date) return value.getTime();
+  if (typeof value !== 'string') {
+    return ('timeZone' in value ? value.toDate() : value.toDate(timeZone)).getTime();
+  }
+  if (ABSOLUTE_ISO.test(value)) return Date.parse(value);
+  const parsed = parseIsoDateTime(value) ?? parseIsoDate(value);
+  return parsed ? parsed.toDate(timeZone).getTime() : Number.NaN;
+}
+
+/** 相对时间用的单位：多久以内用这个单位（秒），参考 moment.js 的取整阈值 */
+const RELATIVE_UNITS: readonly [Intl.RelativeTimeFormatUnit, number, number][] = [
+  // [单位, 一个单位多少秒, 小于多少秒时用它]
+  ['second', 1, 45],
+  ['minute', 60, 45 * 60],
+  ['hour', 3600, 22 * 3600],
+  ['day', 86_400, 26 * 86_400],
+  ['month', 30 * 86_400, 320 * 86_400],
+  ['year', 365 * 86_400, Infinity],
+];
+
+/** 相差的毫秒数 → 相对时间的数值与单位：`relativeUnit(-180_000)` → `{ value: -3, unit: 'minute' }` */
+export function relativeUnit(diff: number): { value: number; unit: Intl.RelativeTimeFormatUnit } {
+  const seconds = diff / 1000;
+  const [unit, size] = RELATIVE_UNITS.find(([, , below]) => Math.abs(seconds) < below)!;
+  // -0 换成 0：Intl 的 numeric: auto 才念“现在”
+  return { value: Math.round(seconds / size) || 0, unit };
+}
+
 // ───────── 内部实现 ─────────
 
 function tryParse<T>(value: string | null | undefined, parse: (text: string) => T): T | null {

@@ -53,7 +53,7 @@
 - [x] 第 2 层：DatePicker（granularity 覆盖 MonthPicker、YearPicker、DateTimePicker：选年、月，或选完日期接着输入时间）
 - [x] 第 2 层：TimePicker（按步长列出时间，“此刻”）
 - [x] 第 2 层：DateRangePicker（同一个外壳里两组分段、快捷区间夹到 min–max；与 DatePicker、TimePicker 共用 usePickerPopover）
-- [ ] 第 3 层：RelativeTime、DateTime、Countdown
+- [x] 第 3 层：RelativeTime、DateTime、Countdown（共用对齐整秒、页面隐藏时停下的 useNow；useFormat 加 relative）
 
 ## 5. 3D 与效果
 

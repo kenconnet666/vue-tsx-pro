@@ -9,7 +9,13 @@ import {
   type DateValue,
 } from '@internationalized/date';
 import type Decimal from 'decimal.js';
-import { parseIsoDate, parseIsoDateTime, parseIsoTime } from '../../utils/data/date';
+import {
+  parseIsoDate,
+  parseIsoDateTime,
+  parseIsoTime,
+  relativeUnit,
+  toInstant,
+} from '../../utils/data/date';
 import { useLang } from '../context';
 import type { Lang } from './lang';
 
@@ -52,7 +58,31 @@ export function useFormat() {
         parsed instanceof Date ? parsed : parsed.toDate(lang.timeZone ?? getLocalTimeZone());
       return dateFormatter(lang, options).format(date);
     },
+    /**
+     * 相对现在的时间，自动取合适的单位：`format.relative(date)` → “3 分钟前”“明天”“2 年后”。
+     * 值同 date；不带时区的 ISO 值按语言的时区算。now 默认此刻（组件里随时钟更新的传进来）
+     */
+    relative: (
+      value: Date | DateValue | string,
+      { now = Date.now(), ...options }: RelativeFormatOptions = {},
+    ) => {
+      const instant = toInstant(value, lang.timeZone ?? getLocalTimeZone());
+      if (Number.isNaN(instant)) return typeof value === 'string' ? value : '';
+      const { value: amount, unit } = relativeUnit(instant - now);
+      const key = `relative|${lang.code}|${JSON.stringify(options)}`;
+      const formatter = cached(
+        key,
+        () => new Intl.RelativeTimeFormat(lang.code, { numeric: 'auto', ...options }),
+      );
+      return formatter.format(amount, unit);
+    },
   };
+}
+
+/** format.relative 的选项 */
+export interface RelativeFormatOptions extends Intl.RelativeTimeFormatOptions {
+  /** 以哪个时刻为“现在”（毫秒时间戳），默认此刻 */
+  now?: number;
 }
 
 // ───────── 内部实现 ─────────
@@ -60,9 +90,11 @@ export function useFormat() {
 /** Intl 支持的文件大小单位（SI，1000 进位） */
 const FILE_SIZE_UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'] as const;
 
-const cache = new Map<string, Intl.NumberFormat | DateFormatter>();
+type Formatter = Intl.NumberFormat | Intl.RelativeTimeFormat | DateFormatter;
 
-function cached<T extends Intl.NumberFormat | DateFormatter>(key: string, create: () => T): T {
+const cache = new Map<string, Formatter>();
+
+function cached<T extends Formatter>(key: string, create: () => T): T {
   let formatter = cache.get(key) as T | undefined;
   if (!formatter) cache.set(key, (formatter = create()));
   return formatter;
