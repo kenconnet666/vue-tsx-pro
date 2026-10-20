@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node", "@vue-tsx-pro/tsx/runes"]
+    "types": ["node", "vite/client", "@vue-tsx-pro/tsx/runes"]
   },
-  "include": ["demos", ".vitepress/config.ts"]
+  "include": ["src", "build", "*.config.ts"]
 }

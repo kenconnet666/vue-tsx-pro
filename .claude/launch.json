@@ -4,8 +4,25 @@
     {
       "name": "host-demo",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@vue-tsx-pro/host-demo", "dev", "--port", "5173", "--strictPort"],
+      "runtimeArgs": [
+        "--filter",
+        "@vue-tsx-pro/host-demo",
+        "dev",
+        "--port",
+        "5173",
+        "--strictPort"
+      ],
       "port": 5173
+    },
+    {
+      "name": "docs",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@vue-tsx-pro/docs",
+        "dev"
+      ],
+      "port": 5174
     }
   ]
 }

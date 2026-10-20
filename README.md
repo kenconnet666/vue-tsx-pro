@@ -70,7 +70,7 @@ const styles = stylex.create({
 | ---------------- | -------------------------------- | ----------------------------------------------------------------------------- |
 | `packages/tsx`   | `@vue-tsx-pro/tsx`               | `_component()`（Svelte 式 props 解构）、符文编译器、Vite 预设、JSX 与符文类型 |
 | `packages/ui`    | `@vue-tsx-pro/ui`                | 组件库（StyleX）                                                              |
-| `apps/docs`      | `@vue-tsx-pro/docs`（私有）      | 文档站（VitePress 2）                                                         |
+| `apps/docs`      | `@vue-tsx-pro/docs`（私有）      | 文档站：用组件库自己写的 TSX 网站（Vite + vue-router），开发时热更新各包源码  |
 | `apps/host-demo` | `@vue-tsx-pro/host-demo`（私有） | 宿主示例：普通 Vue 3.5 项目里的 TSX 页面                                      |
 
 依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → ui + tsx`。
@@ -86,7 +86,7 @@ pnpm install
 pnpm build          # 依次构建 tsx、ui
 pnpm typecheck      # 各包类型检查
 pnpm test           # 先构建 tsx，再运行各包测试
-pnpm dev:docs       # 启动文档站
+pnpm dev:docs       # 启动文档站（http://localhost:5174，固定端口）
 pnpm build:docs     # 构建文档站静态页面
 pnpm build:host     # 构建宿主示例
 pnpm test:consumer  # 发布产物验证：pnpm pack 的包在独立应用里安装、构建、浏览器运行

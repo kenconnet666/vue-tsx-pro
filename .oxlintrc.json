@@ -10,10 +10,5 @@
       { "considerDefaultExhaustiveForUnions": true }
     ]
   },
-  "ignorePatterns": [
-    "**/dist/**",
-    "coverage/**",
-    "apps/docs/.vitepress/cache/**",
-    "tests/consumer/app/**"
-  ]
+  "ignorePatterns": ["**/dist/**", "coverage/**", "tests/consumer/app/**"]
 }

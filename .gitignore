@@ -6,8 +6,6 @@ coverage/
 test-results/
 **/.vitest/
 playwright-report/
-apps/docs/.vitepress/cache/
-apps/docs/.vitepress/dist/
 .idea
 vue-tsx-pro.iml
 .DS_Store

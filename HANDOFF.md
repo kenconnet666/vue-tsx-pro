@@ -55,7 +55,7 @@ pnpm exports:check   # 模块里加、改了导出后先 pnpm exports 重新生�
 单独跑某个浏览器的某个测试文件（几十秒，放后台）：
 
 ```bash
-pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --project "host-demo-browser (chromium)" test/navigation.browser.test.ts
+pnpm -C apps/host-demo exec vitest run --configLoader native --config vitest.browser.config.ts --project "host-demo-browser (chromium)" test/navigation.browser.test.ts
 ```
 
 ## 4. 架构速览
@@ -153,7 +153,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 | 现象                                                           | 原因与解决                                                                                                                                                                   |
 | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 改了编译器，测试结果没变                                       | 以前 Vite 配置从 `packages/tsx/dist` 加载预设；现在走源码（`nodeOptions` + `--configLoader native`），直接用 `vitest` 而不经 pnpm 脚本时要自己带上这两项 |
+| 改了编译器，测试结果没变                                       | 以前 Vite 配置从 `packages/tsx/dist` 加载预设；现在走源码（`nodeOptions` + `--configLoader native`），直接用 `vitest` 而不经 pnpm 脚本时要自己带上这两项                     |
 | 子组件显示旧内容                                               | 原来 `children` 经 computed 缓存，已改为不缓存的 `childrenProp`（编译器生成）                                                                                                |
 | 覆盖样式不生效（如 `borderColor`）                             | StyleX 里长属性总是优先于简写，要写同一个长属性（`borderBottomColor`）                                                                                                       |
 | `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉（`Features.DirSelector`）                                                                                              |
@@ -178,8 +178,9 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 按优先级：
 
 1. **M3 文档站**（已定方向）：不用 Markdown，用 TSX 与本组件库写的普通网站；代码卡片既显示代码也显示运行效果。
-   演示与测试按组件放进 `packages/ui/src/<分类>/<Name>/`（如 `base/Button/`），文件夹里只放演示与对应测试，测试借助演示来测，文档站直接用这些演示；组件源码仍是 `base/Button.tsx` 平铺。
-   文档站要用的组件已经补齐（§10.17）：用 AppShell 搭骨架，TableOfContents、CommandPalette、ThemeSwitcher、CodePreview、Pager、ColorSwatch 都现成；`apps/docs` 现在的 VitePress 冒烟页开始做时替换。
+   框架已搭好（COMPONENTS.md §10.18）：`apps/docs` 是 Vite + vue-router 的 TSX 网站，开发时热更新各包源码；
+   组件页、示例与示例测试在 `apps/docs/src/components/<分类>/<Name>/`（`docs.tsx`、`demo/`、`test/`），ui 包的组件源码保持平铺、只留行为单元测试。
+   已迁移 Button、Icon、Code；下一步按分类迁移其余组件的示例、文档页与浏览器测试（host-demo 的 Base.tsx 与组件行为的浏览器测试随之退役）。
 2. **日期**：Calendar、DateField、DatePicker（`@internationalized/date`）。
 3. **表格的进阶能力**（按需）：单元格编辑、多级表头、列与行的拖动排序、横向虚拟化。
 4. **M5 发布准备**：changesets、发 0.x。

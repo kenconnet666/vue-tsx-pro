@@ -45,7 +45,7 @@ packages/
                       排版方向、尺寸监听）、motion/（动画、过渡、布局动画）、data/（比较与匹配、选择、分页、数值、树）、virtual/（虚拟滚动）
     （每个目录下的 .test/ 放测试）
 apps/
-  docs/        文档站（规划中：TSX 与本组件库写的普通网站，现在只有 VitePress 冒烟页）
+  docs/        文档站：TSX 与本组件库写的网站（Vite + vue-router）；组件页、示例与示例测试在 src/components/<分类>/<Name>/
   host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面（/base 演示页、/pilot 集成验证页）
 scripts/
   css-docs/            StyleX 属性注释的数据与生成器
@@ -82,7 +82,7 @@ scripts/
 | **M0 骨架**     | workspace、catalog、lint / format、CI                                                                                                                                                                                                                                                                 | 完成   |
 | **M1 tsx 包**   | 符文与 props 编译、Vue 3.5 + 官方 JSX 插件底座、宿主示例、语言服务                                                                                                                                                                                                                                    | 完成   |
 | **M2 UI 基础**  | tokens 与明暗主题、Provider / createUi、语言与格式化、mergeProps、试点组件、浏览器测试链路                                                                                                                                                                                                            | 完成   |
-| **M3 文档站**   | 普通 TSX 网站（不用 Markdown）：写法指南、组件页（演示卡片 + props 表）、部署、E2E 冒烟；演示与测试按组件放进 `<分类>/<Name>/`                                                                                                                                                                        | 未开始 |
+| **M3 文档站**   | 普通 TSX 网站（不用 Markdown）：写法指南、组件页（演示卡片 + props 表）、部署、E2E 冒烟；示例、文档页与示例测试放进文档站的 `src/components/<分类>/<Name>/`（框架已搭好，逐类迁移中）                                                                                                                 | 进行中 |
 | **M4 正式组件** | 已完成：基础设施、文本、布局、折叠、代码块、虚拟滚动、拖动类、按钮家族、标记与反馈、导航、浮层与菜单、对话框与通知、输入与表单、选择类控件（Listbox / Select / Combobox）、表格（DataTable / TreeDataTable）、性能与基础设施整理、文档站要用的组件（COMPONENTS.md §10）；下一批：文档站，之后日期选择 | 进行中 |
 | **M5 发布准备** | 放宽 Vite peer 范围、changesets、发 `0.x`（发布产物验证已提前完成）                                                                                                                                                                                                                                   | 未开始 |
 
@@ -90,7 +90,7 @@ scripts/
 
 - **Babel 停在 7**：官方 JSX 插件与 StyleX 都基于 Babel 7；两者迁到 Babel 8 后一起升级（Babel 7 维护到 2027 年 6 月底）。
 - **StyleX 不 fork**：只 fork 类型声明（`@vue-tsx-pro/tsx/stylex`），运行时与编译器用官方的。
-- **文档站不用 Markdown**：用 TSX 与本组件库写普通网站（Vite + vue-router 自建，或只用 VitePress 的路由与静态生成）；`apps/docs` 现在的 VitePress 2 alpha 冒烟页开始做时替换。组件都能在 Node 里渲染成 HTML（试过演示页的服务端渲染），静态生成可行。
+- **文档站不用 Markdown**：用 TSX 与本组件库写普通网站（Vite + vue-router 自建，已替换原来的 VitePress 冒烟页）。组件都能在 Node 里渲染成 HTML（试过演示页的服务端渲染），静态生成可行。
 - **TypeScript 停在 6**：TS 7（Go 重写）移除了 `createLanguageService` 等 JS API，而语言服务依赖它们。
 - **pnpm 12** 不再读 `package.json` 的 `pnpm` 字段，工作区设置写在 `pnpm-workspace.yaml`。
 - 组件库依赖（定位、图标、日期、精确数字、焦点、校验接口）用成熟库，组件自己写，见 COMPONENTS.md §7。

@@ -2,23 +2,35 @@
   "name": "@vue-tsx-pro/docs",
   "version": "0.0.0",
   "private": true,
+  "description": "文档站：用 vue-tsx-pro 组件库自己写的 TSX 网站，开发时直接用各包源码（热更新）",
   "type": "module",
   "scripts": {
-    "dev": "vitepress dev",
-    "build": "vitepress build",
-    "preview": "vitepress preview",
-    "typecheck": "tsc -p ."
+    "dev": "vite --configLoader native",
+    "build": "vite build --configLoader native",
+    "preview": "vite preview --configLoader native",
+    "typecheck": "tsc -p .",
+    "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"
   },
   "dependencies": {
+    "@floating-ui/dom": "catalog:",
+    "@lucide/icons": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
     "@vue-tsx-pro/ui": "workspace:^",
+    "animejs": "catalog:",
+    "shiki": "catalog:",
+    "tabbable": "catalog:",
     "vue": "catalog:",
+    "vue-router": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@vitest/browser-playwright": "catalog:",
+    "axe-core": "catalog:",
+    "happy-dom": "catalog:",
+    "playwright": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitepress": "catalog:"
+    "vitest": "catalog:"
   }
 }
