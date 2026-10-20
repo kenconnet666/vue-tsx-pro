@@ -4,6 +4,8 @@ import { Calendar, defineLang, enUS, Flex, Grid, Provider, Small, todayIso } fro
 
 const german = defineLang(enUS, { code: 'de-DE' });
 const japanese = defineLang(enUS, { code: 'ja-JP' });
+// 从右往左排版：整个日历镜像，翻页箭头跟着翻转，数字按 Intl 写成阿拉伯-印度数字
+const arabic = defineLang(enUS, { code: 'ar-EG', direction: 'rtl' });
 
 export default _component(() => {
   const today = todayIso();
@@ -13,9 +15,10 @@ export default _component(() => {
     ['Deutsch：周一开始，显示周数', german, undefined],
     ['日本語：周日开始', japanese, undefined],
     ['简体中文，firstDayOfWeek={0}', undefined, 0],
+    ['阿拉伯语（从右往左）', arabic, undefined],
   ] as const;
   return () => (
-    <Grid minItemWidth="18rem" gap="xl">
+    <Grid minItemWidth="15rem" gap="xl">
       {cases.map(([label, lang, firstDayOfWeek]) => (
         <Flex key={label} direction="column" gap="xs">
           <Small tone="muted">{label}</Small>

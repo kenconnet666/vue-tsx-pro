@@ -57,7 +57,7 @@ export default _component(() => {
         <Switch checked={_bind(running)}>每 2 秒刷新</Switch>
         <Small tone="muted">数值滚动到新值，变化量与上一次比较</Small>
       </Flex>
-      <Grid minItemWidth="11em" gap="md">
+      <Grid minItemWidth="15em" gap="md">
         {metrics.map(({ label, icon, unit, history }) => {
           const value = history.at(-1)!;
           const previous = history.at(-2)!;

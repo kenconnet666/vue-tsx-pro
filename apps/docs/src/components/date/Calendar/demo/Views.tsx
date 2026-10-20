@@ -9,7 +9,7 @@ export default _component(() => {
   let entry = _state<string | null>(null);
 
   return () => (
-    <Grid minItemWidth="18rem" gap="xl">
+    <Grid minItemWidth="15rem" gap="xl">
       <Flex direction="column" gap="xs">
         <Small tone="muted">生日：点标题“1995年6月”切到月份、年份视图</Small>
         <Calendar value={_bind(birthday)} max="2026-12-31" aria-label="生日" />
