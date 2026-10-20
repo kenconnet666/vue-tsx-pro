@@ -20,7 +20,7 @@ export interface SkeletonTextProps extends PartProps<'div', 'aria-hidden'> {
    */
   lines?: number;
   /** 每一行（Skeleton）的部件属性 */
-  propsLine?: Partial<SkeletonProps>;
+  propsLine?: Omit<Partial<SkeletonProps>, 'loading' | 'children'>;
 }
 
 /** SkeletonText 的样式：root、last */
