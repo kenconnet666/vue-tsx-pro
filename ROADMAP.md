@@ -60,7 +60,7 @@
 - [x] 第 0 层（ThreeCanvas、useThree、主题色、画质、上下文名额）、第 1 层（ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、TiltCard、SpotlightCard、BorderBeam）
 - [x] 第 2 层：Confetti（trigger 驱动，只在飘的时候占画布；顶层显示，盖得住对话框）
 - [x] 第 2 层：Globe（Natural Earth 陆地位图的点阵、标注光圈、流动的弧线、拖动带惯性）
-- [ ] 第 2 层：ModelViewer
+- [x] 第 2 层：ModelViewer（glTF / GLB 或程序生成的对象、RoomEnvironment 环境光、拖动环绕与 Globe 共用 createOrbit）
 - [ ] 首页英雄区用上效果；统计看板示例加 Globe
 - [ ] 代码演练场支持 three 子路径
 

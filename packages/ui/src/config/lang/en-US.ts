@@ -115,6 +115,9 @@ export const enUS: Lang = {
     dayPeriod: 'AM',
   },
 
+  modelViewerLoading: 'Loading model',
+  modelViewerError: 'Couldn’t load the model',
+
   codeExpand: 'Show all',
   codeCollapse: 'Show less',
   codePreview: 'Preview',

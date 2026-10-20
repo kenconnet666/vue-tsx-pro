@@ -228,6 +228,13 @@ export interface Lang {
   /** 分段的占位文字 */
   readonly dateFieldPlaceholders: Readonly<Partial<Record<DateSegmentType, string>>>;
 
+  // ───────── 3D ─────────
+
+  /** 模型查看器加载中给读屏的提示，默认“正在加载模型” */
+  readonly modelViewerLoading: string;
+  /** 模型加载失败时显示，默认“模型加载失败” */
+  readonly modelViewerError: string;
+
   // ───────── 文档站一类页面的组件 ─────────
 
   /** 长代码折叠时展开的按钮，默认“展开全部” */

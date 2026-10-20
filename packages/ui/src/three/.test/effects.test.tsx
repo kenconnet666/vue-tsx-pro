@@ -1,6 +1,10 @@
-// 效果：外层结构（画布在底层、内容在上层）、降级、着色器背景的 uniform 与色板、粒子数、重建时机、彩纸的放与收尾、地球的图层
+// 效果：外层结构（画布在底层、内容在上层）、降级、着色器背景的 uniform 与色板、粒子数、重建时机、彩纸的放与收尾、地球的图层、模型的加载与出错
 import {
+  Box3,
+  BoxGeometry,
   InstancedMesh,
+  Mesh as MeshObject,
+  Sphere,
   LineSegments,
   Points,
   ShaderMaterial,
@@ -18,12 +22,14 @@ import { THEME_PALETTE_SIZE } from '../core/shaders';
 import { Confetti } from '../effects/Confetti';
 import { ParticleField } from '../effects/ParticleField';
 import { Globe, latLngToVector } from '../globe/Globe';
+import { ModelViewer } from '../model/ModelViewer';
 import { WaveGrid } from '../effects/WaveGrid';
 import { FakeRenderer, frame, resetFakeWebGL, setIntersecting } from './fake-webgl';
 
 vi.mock('three', async (importOriginal) => ({
   ...(await importOriginal<typeof import('three')>()),
   WebGLRenderer: (await import('./fake-webgl')).FakeRenderer,
+  PMREMGenerator: (await import('./fake-webgl')).FakePMREMGenerator,
 }));
 
 beforeEach(resetFakeWebGL);
@@ -38,6 +44,8 @@ async function render(node: () => VNodeChild) {
   const scene = FakeRenderer.instances.at(-1)?.scene;
   return { root, objects: (scene?.children ?? []) as Object3D[] };
 }
+
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 const SHADE = 'vec4 shade(vec2 uv) { return vec4(themePalette(uv.x), 1.0); }';
 
@@ -240,5 +248,33 @@ describe('Globe', () => {
   it('不要光晕时没有那一层', async () => {
     const { objects } = await render(() => <Globe glow={false} />);
     expect(objects).toHaveLength(1);
+  });
+});
+
+describe('ModelViewer', () => {
+  it('object：居中、缩放到外接球半径为 1，加载完成调用 onLoad；写了 alt 时是带名称的图像', async () => {
+    const loaded = vi.fn();
+    const box = new MeshObject(new BoxGeometry(4, 2, 2));
+    box.position.set(10, 0, 0);
+    const { root, objects } = await render(() => (
+      <ModelViewer object={box} alt="一个长方体" onLoad={loaded} />
+    ));
+    await flushPromises();
+    expect(loaded).toHaveBeenCalledWith(box);
+    const holder = objects.find((object) => object.children.includes(box))!;
+    const radius = new Box3().setFromObject(holder).getBoundingSphere(new Sphere()).radius;
+    expect(radius).toBeCloseTo(1);
+    const viewer = root.querySelector('[role="img"]')!;
+    expect(viewer.getAttribute('aria-label')).toBe('一个长方体');
+    expect(viewer.getAttribute('data-status')).toBe('loaded');
+  });
+
+  it('加载失败：显示出错的提示，调用 onError', async () => {
+    const failed = vi.fn();
+    const { root } = await render(() => <ModelViewer src="data:,not-a-model" onError={failed} />);
+    await vi.waitFor(() => expect(failed).toHaveBeenCalled());
+    await nextTick();
+    expect(root.textContent).toContain('模型加载失败');
+    expect(root.querySelector('[data-status]')!.getAttribute('aria-busy')).toBeNull();
   });
 });

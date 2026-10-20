@@ -4,9 +4,10 @@
 //   vi.mock('three', async (importOriginal) => ({
 //     ...(await importOriginal<typeof import('three')>()),
 //     WebGLRenderer: (await import('./fake-webgl')).FakeRenderer,
+//     PMREMGenerator: (await import('./fake-webgl')).FakePMREMGenerator,   // 用到环境光时
 //   }));
 //   beforeEach(resetFakeWebGL);
-import type { Scene, Camera } from 'three';
+import { Texture, type Camera, type Scene } from 'three';
 import { afterEach, vi } from 'vitest';
 import { setMaxThreeContexts } from '../core/quality';
 
@@ -46,6 +47,14 @@ export class FakeRenderer {
   getContext() {
     return { isContextLost: () => this.lost };
   }
+}
+
+/** 假的 PMREMGenerator：环境贴图要用渲染器预滤波，假渲染器做不了，给一张空纹理 */
+export class FakePMREMGenerator {
+  fromScene() {
+    return { texture: new Texture() };
+  }
+  dispose() {}
 }
 
 const observers = new Set<{ callback: IntersectionObserverCallback; target?: Element }>();

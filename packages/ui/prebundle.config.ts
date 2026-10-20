@@ -18,6 +18,8 @@ export const UI_DEPENDENCIES = [
   'shiki/langs',
   'tabbable',
   'three',
+  'three/addons/environments/RoomEnvironment.js',
+  'three/addons/loaders/GLTFLoader.js',
   'zod',
   'zod/v4/core',
 ];

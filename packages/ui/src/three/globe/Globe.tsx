@@ -28,6 +28,7 @@ import {
 } from 'three';
 import { colors } from '../../config/theme/tokens.stylex';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
+import { createOrbit } from '../core/orbit';
 import { LAND_BITS, LAND_HEIGHT, LAND_WIDTH } from './land';
 
 /** 地图上的一个点：纬度（北正南负）、经度（东正西负），单位度 */
@@ -102,8 +103,6 @@ const DEG = Math.PI / 180;
 /** 地球的轮廓占画面短边的比例：外面留给大气光晕 */
 const FIT = 0.8;
 const FOV = 40;
-/** 松手后惯性转动的最快速度（弧度 / 秒） */
-const MAX_SPIN = 3;
 
 /** 经纬度 → 球面上的点（半径 radius）：经度 0 朝向 +z（正对相机），北极朝 +y */
 export function latLngToVector(lat: number, lng: number, radius = 1, target = new Vector3()) {
@@ -281,29 +280,8 @@ export const Globe = _component(
     glow = true,
     ...rest
   }: GlobeProps) => {
-    // 拖动：指针事件在外层 div 上，转动的量交给场景在下一帧里用
-    const drag = { active: false, x: 0, y: 0, dx: 0, dy: 0 };
-    let dragging = _state(false);
-
-    function onPointerdown(event: PointerEvent) {
-      if (!draggable || event.button !== 0) return;
-      (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-      drag.active = true;
-      drag.x = event.clientX;
-      drag.y = event.clientY;
-      dragging = true;
-    }
-    function onPointermove(event: PointerEvent) {
-      if (!drag.active) return;
-      drag.dx += event.clientX - drag.x;
-      drag.dy += event.clientY - drag.y;
-      drag.x = event.clientX;
-      drag.y = event.clientY;
-    }
-    function onPointerup() {
-      drag.active = false;
-      dragging = false;
-    }
+    // 朝向：一开始正对 center；拖动左右改 yaw、上下改 pitch，松手后带惯性回到自转
+    const orbit = createOrbit({ yaw: -center.lng * DEG, pitch: center.lat * DEG });
 
     return () => (
       <EffectSurface
@@ -311,13 +289,10 @@ export const Globe = _component(
         sx={[
           globeStyles.root,
           draggable && globeStyles.draggable,
-          dragging && globeStyles.dragging,
+          orbit.dragging && globeStyles.dragging,
           rest.sx,
         ]}
-        onPointerdown={onPointerdown}
-        onPointermove={onPointermove}
-        onPointerup={onPointerup}
-        onPointercancel={onPointerup}
+        {...(draggable ? orbit.handlers : {})}
         sceneKey={`${density}|${glow}|${JSON.stringify(markers)}|${JSON.stringify(arcs)}`}
         setup={({ scene, quality, still, themeColors }) => {
           const camera = new PerspectiveCamera(FOV, 1, 0.1, 100);
@@ -460,11 +435,7 @@ export const Globe = _component(
             scene.add(atmosphere);
           }
 
-          // 朝向：正对 center，稍微从上往下看；自转与拖动改 yaw，拖动上下改 pitch（夹在 ±60° 内）
-          let yaw = -center.lng * DEG;
-          let pitch = center.lat * DEG;
-          let spin = 0;
-          const apply = () => globe.rotation.set(pitch, yaw, 0, 'XYZ');
+          const apply = () => globe.rotation.set(orbit.pitch, orbit.yaw, 0, 'XYZ');
           apply();
 
           return {
@@ -486,21 +457,7 @@ export const Globe = _component(
             frame: ({ time, delta }) => {
               uniforms.uTime.value = time;
               if (still) return;
-              if (drag.dx || drag.dy) {
-                const turn = drag.dx * 0.006;
-                yaw += turn;
-                pitch = Math.max(-1, Math.min(1, pitch + drag.dy * 0.006));
-                // 松手时的速度：几帧平滑一下，再封顶（一帧里拖了一大段时不至于疯转）
-                const speed = delta > 0 ? turn / delta : 0;
-                spin = Math.max(-MAX_SPIN, Math.min(MAX_SPIN, spin * 0.5 + speed * 0.5));
-                drag.dx = 0;
-                drag.dy = 0;
-              } else if (!drag.active) {
-                // 松手后的惯性慢慢回到自转
-                const target = rotationSpeed * DEG;
-                spin += (target - spin) * Math.min(1, delta * 1.5);
-                yaw += spin * delta;
-              }
+              orbit.step(delta, rotationSpeed * DEG);
               apply();
             },
           };

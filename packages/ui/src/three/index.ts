@@ -70,6 +70,13 @@ export {
   type GlobeProps,
 } from './globe/Globe';
 export {
+  ModelViewer,
+  modelViewerStyles,
+  type ModelViewerProps,
+  type ModelViewerStatuses,
+} from './model/ModelViewer';
+export { createOrbit, type Orbit, type OrbitOptions } from './core/orbit';
+export {
   WAVE_GRID_PALETTE,
   WaveGrid,
   type WaveGridProps,

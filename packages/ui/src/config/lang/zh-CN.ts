@@ -113,6 +113,9 @@ export const zhCN: Lang = {
     dayPeriod: '上午',
   },
 
+  modelViewerLoading: '正在加载模型',
+  modelViewerError: '模型加载失败',
+
   codeExpand: '展开全部',
   codeCollapse: '收起',
   codePreview: '预览',
