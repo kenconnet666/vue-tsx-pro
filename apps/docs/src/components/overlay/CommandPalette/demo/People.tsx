@@ -1,6 +1,5 @@
 import { AtSign } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { Avatar, Button, CommandPalette, Flex, Small, Text } from '@vue-tsx-pro/ui';
 
 interface Person {
@@ -18,8 +17,6 @@ const people: Person[] = [
   { id: 'wq', name: '王晴', email: 'wangqing@example.com', team: '市场' },
   { id: 'zhr', name: '赵浩然', email: 'haoran@example.com', team: '前端' },
 ];
-
-const styles = stylex.create({ body: { flexGrow: 1, minWidth: 0 } });
 
 export default _component(() => {
   let mentioned = _state<Person | undefined>();
@@ -43,7 +40,7 @@ export default _component(() => {
         renderOption={(person) => (
           <Flex align="center" gap="sm">
             <Avatar size="sm" name={person.name} />
-            <Flex direction="column" sx={styles.body}>
+            <Flex direction="column" grow>
               <Text>{person.name}</Text>
               <Small tone="muted">{person.email}</Small>
             </Flex>

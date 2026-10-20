@@ -68,10 +68,12 @@ export interface FlexOptions {
   gap?: Space;
   /** 行内 flex（inline-flex） */
   inline?: boolean;
+  /** 在父级的 flex 布局里占满剩余空间，并允许收缩到比内容窄（里面的文字才能截断）：头像旁边的正文、图标旁边的说明 */
+  grow?: boolean;
   children?: VNodeChild;
 }
 
-/** Flex 的样式：root、inline、row、column、row-reverse、column-reverse 等 */
+/** Flex 的样式：root、inline、row、column、row-reverse、column-reverse、wrap、grow 等 */
 export const flexStyles = stylex.create({
   root: { display: 'flex' },
   inline: { display: 'inline-flex' },
@@ -81,6 +83,7 @@ export const flexStyles = stylex.create({
   'column-reverse': { flexDirection: 'column-reverse' },
   wrap: { flexWrap: 'wrap' },
   wrapReverse: { flexWrap: 'wrap-reverse' },
+  grow: { flexGrow: 1, minWidth: 0 },
 });
 
 /** Flex 的样式：start、center、end、stretch、baseline */
@@ -122,6 +125,7 @@ export function createFlex<Tag extends LayoutTag>(
       wrap = false,
       gap,
       inline = false,
+      grow = false,
       children,
       ...rest
     }: FlexProps<LayoutTag>) =>
@@ -134,6 +138,7 @@ export function createFlex<Tag extends LayoutTag>(
           align && flexAlignStyles[align],
           justify && flexJustifyStyles[justify],
           gap && gapStyles[gap],
+          grow && flexStyles.grow,
           listRole(tag) && listStyles.reset,
         ];
         return <Tag {...mergeAttrs<LayoutTag>({ sx, role: listRole(tag) }, rest)}>{children}</Tag>;

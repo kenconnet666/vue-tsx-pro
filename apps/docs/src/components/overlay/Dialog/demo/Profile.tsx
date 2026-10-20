@@ -1,6 +1,5 @@
 import { Pencil } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Avatar,
   Button,
@@ -16,8 +15,6 @@ import {
 } from '@vue-tsx-pro/ui';
 
 const departments = ['设计中心', '研发部', '市场部', '财务部'];
-
-const styles = stylex.create({ body: { flexGrow: 1, minWidth: 0 } });
 
 export default _component(() => {
   let open = _state(false);
@@ -46,7 +43,7 @@ export default _component(() => {
     <Card>
       <Flex align="center" gap="md">
         <Avatar name={profile.name} />
-        <Flex direction="column" gap="xs" sx={styles.body}>
+        <Flex direction="column" gap="xs" grow>
           <Strong>{profile.name}</Strong>
           <Small tone="muted">
             {profile.department} · {profile.bio}

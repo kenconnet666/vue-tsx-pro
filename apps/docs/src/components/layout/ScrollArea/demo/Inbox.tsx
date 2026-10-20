@@ -22,7 +22,6 @@ const messages = Array.from({ length: 24 }, (_, index) => ({
 const styles = stylex.create({
   area: { height: '20rem' },
   item: { paddingBlock: '_sm', paddingInline: '_md' },
-  body: { flexGrow: 1, minWidth: 0 },
 });
 
 export default _component(() => () => (
@@ -33,7 +32,7 @@ export default _component(() => () => (
           <li key={message.id}>
             <Flex gap="md" align="center" sx={styles.item}>
               <Avatar size="sm" name={message.sender} />
-              <Flex direction="column" sx={styles.body}>
+              <Flex direction="column" grow>
                 <Flex justify="between" gap="sm">
                   <Strong>{message.sender}</Strong>
                   <Small tone="muted">{message.time}</Small>

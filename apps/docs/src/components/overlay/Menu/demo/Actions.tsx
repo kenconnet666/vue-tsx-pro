@@ -28,7 +28,6 @@ const folders = ['设计稿', '会议纪要', '归档 / 2025'];
 
 const styles = stylex.create({
   icon: { color: '_textMuted', fontSize: '1.5rem' },
-  body: { flexGrow: 1, minWidth: 0 },
 });
 
 export default _component(() => {
@@ -39,7 +38,7 @@ export default _component(() => {
       <Card padding="sm">
         <Flex align="center" gap="md">
           <Icon icon={FileText} sx={styles.icon} />
-          <Flex direction="column" sx={styles.body}>
+          <Flex direction="column" grow>
             <Strong>第三季度经营报告.docx</Strong>
             <Small tone="muted">周一航 · 昨天 18:20 修改 · 2.4 MB</Small>
           </Flex>
