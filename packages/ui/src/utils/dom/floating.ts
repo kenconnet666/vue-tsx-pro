@@ -248,14 +248,20 @@ export function anchorFloating(
   };
 }
 
+/** 关闭浮层时焦点还给谁：true 锚点，元素，或 false 不还 */
+export type RestoreFocus = boolean | HTMLElement | null;
+
 /** createAnchoredLayer 的返回值：一个原生 popover 浮层的打开与关闭 */
 export interface AnchoredLayer {
   /** 是否显示着（show 之后、hide 之前） */
   readonly visible: boolean;
   /** 显示 panel（showPopover）并贴着 anchor 定位；返回第一次定位完成、可以移入焦点的 Promise。已显示时不重复 */
   show(anchor: FloatingAnchor, panel: HTMLElement, options?: FloatingOptions): Promise<void>;
-  /** 停止定位并隐藏；restoreFocus（默认 true）时焦点还在浮层里或已丢失则还给锚点。未显示时什么也不做 */
-  hide(options?: { restoreFocus?: boolean }): void;
+  /**
+   * 停止定位并隐藏；焦点还在浮层里或已丢失时归还：restoreFocus 默认 true 还给锚点，给元素时还给它，false 不还。
+   * 未显示时什么也不做
+   */
+  hide(options?: { restoreFocus?: RestoreFocus }): void;
 }
 
 /**
@@ -283,7 +289,8 @@ export function createAnchoredLayer(): AnchoredLayer {
       current = undefined;
       anchored.stop();
       if (panel.matches(':popover-open')) panel.hidePopover();
-      if (restoreFocus && anchor instanceof HTMLElement) returnFocus(panel, anchor);
+      const target = restoreFocus === true ? anchor : restoreFocus;
+      if (target instanceof HTMLElement) returnFocus(panel, target);
     },
   };
 }
@@ -298,8 +305,11 @@ export interface AnchoredPopoverState {
   panel: HTMLElement | null;
   /** 定位选项 */
   floating?: FloatingOptions;
-  /** 关闭时把焦点还给锚点，默认 true；焦点一直在锚点上的组件（Select、Combobox）设 false */
-  restoreFocus?: boolean;
+  /**
+   * 关闭时焦点还给谁：默认 true 还给锚点；锚点是输入框外壳时给打开按钮（DatePicker）；
+   * 焦点一直在锚点上的组件（Select、Combobox）设 false
+   */
+  restoreFocus?: RestoreFocus;
 }
 
 /** useAnchoredPopover 的回调 */

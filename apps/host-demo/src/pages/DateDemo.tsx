@@ -1,8 +1,9 @@
-// /date 页：日期组件的演示（浏览器测试的对象）：日历、区间日历、日期与时间的分段输入
+// /date 页：日期组件的演示（浏览器测试的对象）：日历、区间日历、日期与时间的分段输入、日期选择器
 import { _component } from '@vue-tsx-pro/tsx';
 import {
   Calendar,
   DateField,
+  DatePicker,
   Field,
   Flex,
   RangeCalendar,
@@ -19,6 +20,8 @@ export const DateDemo = _component(() => {
   let stay = _state<DateRange<string> | null>(null);
   let birthday = _state<string | null>(null);
   let time = _state<string | null>('09:30');
+  let departure = _state<string | null>('2026-10-20');
+  let meeting = _state<string | null>('2026-10-20T14:30');
 
   return () => (
     <Flex direction="column" gap="lg">
@@ -46,6 +49,17 @@ export const DateDemo = _component(() => {
       </Flex>
       <Text class="field-summary">
         生日：{birthday ?? '未填'}；提醒：{time ?? '未填'}
+      </Text>
+      <Flex gap="lg" wrap>
+        <Field label="出发日期" class="date-picker-demo">
+          <DatePicker value={_bind(departure)} min="2026-10-05" />
+        </Field>
+        <Field label="会议开始" class="date-time-picker-demo">
+          <DatePicker granularity="minute" value={_bind(meeting)} />
+        </Field>
+      </Flex>
+      <Text class="picker-summary">
+        出发：{departure ?? '未选'}；会议：{meeting ?? '未选'}
       </Text>
     </Flex>
   );

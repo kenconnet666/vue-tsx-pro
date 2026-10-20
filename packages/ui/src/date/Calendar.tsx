@@ -9,7 +9,7 @@
  * 值是 ISO 日期字符串（'2026-10-20'，与原生 input type="date"、URL 参数、zod 的 z.iso.date() 一致），
  * 也可以是 @internationalized/date 的 DateValue；写回时保持传入的类型（CalendarDateTime 选了另一天，时间不变）。
  * 月份名、星期名、读屏念的完整日期都由 Intl 按当前语言生成，一周从哪天开始按语言（可用 firstDayOfWeek 覆盖）。
- * 选一个区间用 RangeCalendar；选月份、年份用 granularity="month" / "year"（MonthPicker、YearPicker 就是这样做的）。
+ * 选一个区间用 RangeCalendar；选月份、年份用 granularity="month" / "year"（DatePicker 的同名 granularity 就是这样做的）。
  *
  * 键盘：←→ 一天、↑↓ 一周，Page Up / Down 一个月、加 Shift 一年，Home / End 到这周两端，Enter / 空格选中。
  * 部件见 CalendarView。
@@ -29,7 +29,7 @@ import {
 } from './date-locale';
 
 /** Calendar 共有的属性；未声明的属性落到根元素上 */
-interface CalendarBaseProps<V extends DateInput>
+export interface CalendarBaseProps<V extends DateInput>
   extends Omit<CalendarViewProps, 'calendar'>, DateLimitProps {
   /** 并排显示几个月，默认 1 */
   visibleMonths?: number;

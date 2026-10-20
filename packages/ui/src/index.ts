@@ -685,6 +685,7 @@ export {
 // 日期：日历、分段输入、日期与时间选择
 export {
   Calendar,
+  type CalendarBaseProps,
   type CalendarProps,
   type MultipleCalendarProps,
   type SingleCalendarProps,
@@ -698,6 +699,7 @@ export {
   type CalendarViewProps,
 } from './date/CalendarView';
 export { DateField, type DateFieldProps } from './date/DateField';
+export { DatePicker, datePickerStyles, type DatePickerProps } from './date/DatePicker';
 export {
   DateSegmentGroup,
   dateSegmentStyles,
@@ -1100,6 +1102,7 @@ export {
   type FloatingOptions,
   type FloatingPlacement,
   type FloatingPlacements,
+  type RestoreFocus,
 } from './utils/dom/floating';
 export {
   focusAfterRemoval,

@@ -1,5 +1,6 @@
 // 日期组件在真实浏览器里：日历的键盘与焦点、区间的悬停预览、分段输入的真实键盘输入（beforeinput）、axe（演示页 /date）
 import axe from 'axe-core';
+import { afterTransitions } from '@vue-tsx-pro/ui';
 import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type App } from 'vue';
@@ -106,5 +107,42 @@ describe('DateField、TimeField', () => {
   it('axe-core 没有违规', async () => {
     await checkAxe($('.date-field-demo'));
     await checkAxe($('.time-field-demo'));
+  });
+});
+
+describe('DatePicker', () => {
+  const openPanel = () => document.querySelector<HTMLElement>('[role="dialog"]:popover-open');
+
+  it('按钮打开贴着输入框的日历，焦点落在已选那天；Enter 选中后关闭、写回、焦点回到按钮', async () => {
+    const button = $<HTMLButtonElement>('.date-picker-demo button[aria-haspopup="dialog"]');
+    await userEvent.click(button);
+    await expect.poll(() => openPanel()).not.toBeNull();
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect((document.activeElement as HTMLElement).dataset.date).toBe('2026-10-20');
+    const shell = button.parentElement!.getBoundingClientRect();
+    // 锚点是整个输入框外壳（不是按钮）：弹层贴着外壳的起始边，在它下方（空间不够时翻到上方）
+    const panel = openPanel()!.getBoundingClientRect();
+    expect(panel.top >= shell.bottom || panel.bottom <= shell.top).toBe(true);
+    expect(panel.left).toBeLessThan(shell.left + shell.width / 2);
+    // 等弹出的过渡结束：半透明时 axe 会算错对比度
+    await afterTransitions(openPanel()!);
+    await checkAxe(openPanel()!);
+    await userEvent.keyboard('{ArrowRight}{Enter}');
+    expect(openPanel()).toBeNull();
+    expect($('.picker-summary').textContent).toContain('出发：2026-10-21');
+    expect(document.activeElement).toBe(button);
+  });
+
+  it('分段里 Alt + ↓ 打开、Esc 关闭；带时间时选完日期保留时间，焦点去“时”那一段', async () => {
+    $('.date-time-picker-demo [data-type="day"]').focus();
+    await userEvent.keyboard('{Alt>}{ArrowDown}{/Alt}');
+    await expect.poll(() => openPanel()).not.toBeNull();
+    await userEvent.keyboard('{Escape}');
+    expect(openPanel()).toBeNull();
+    await userEvent.keyboard('{Alt>}{ArrowDown}{/Alt}');
+    await expect.poll(() => openPanel()).not.toBeNull();
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect($('.picker-summary').textContent).toContain('会议：2026-10-27T14:30');
+    expect((document.activeElement as HTMLElement).dataset.type).toBe('hour');
   });
 });

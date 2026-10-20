@@ -50,7 +50,8 @@
 
 - [x] 第 0 层（日期运算、日历状态、分段输入）、第 1 层（Calendar、RangeCalendar、DateField、TimeField）
 - [x] 文案搬进语言包；DateField 的 min / max 比较时间
-- [ ] 第 2 层：DatePicker、DateRangePicker（快捷区间）、TimePicker、DateTimePicker、MonthPicker、YearPicker（复用 Calendar 的 onPick、SegmentedField 的 suffix、presetIsoRange）
+- [x] 第 2 层：DatePicker（granularity 覆盖 MonthPicker、YearPicker、DateTimePicker：选年、月，或选完日期接着输入时间）
+- [ ] 第 2 层：DateRangePicker（快捷区间，复用 presetIsoRange）、TimePicker（按步长列出时间）
 - [ ] 第 3 层：RelativeTime、DateTime、Countdown
 
 ## 5. 3D 与效果
