@@ -27,7 +27,7 @@
 - **布局**：[x] Flex 与 Grid（FlexList、GridList、Container、Separator）· [x] ScrollArea（OverlayScrollbar、PageScrollbar）· [x] Prose（List、OrderedList）· [x] AppShell（整页示例：frames 目录 + Example 的 frame）
 - **展示**：[x] Card · [x] Accordion（AccordionItem、Collapsible、Collapse）· [x] Avatar（AvatarGroup、Indicator）· [x] AnimatedNumber（并入 Stat 页）· [x] Descriptions · [x] Timeline · [x] Tree · [x] VirtualList · [x] Marquee · [x] Sortable · [ ] ColorSwatch（并入 ColorField 页）
 - **反馈**：[x] Alert · [x] 加载与进度（Spinner、Progress、LoadingOverlay）· [x] Empty 与 Result · [x] Toast（Toaster）· [x] Skeleton（SkeletonText）
-- **浮层**：[ ] Dialog（AlertDialog、Drawer）· [ ] Popover（HoverCard、Tooltip）· [ ] Menu（全部菜单项、ContextMenu）· [ ] CommandPalette · [ ] Tour
+- **浮层**：[x] Dialog（AlertDialog、Drawer）· [x] Popover（HoverCard、Tooltip）· [x] Menu（全部菜单项、ContextMenu）· [x] CommandPalette · [x] Tour
 - **导航**：[ ] Tabs · [ ] Pagination（PageJump、PageSizeSelect、Pager）· [ ] Breadcrumbs 与 Steps · [ ] NavList（NavItem、NavGroup、NavSection、TableOfContents、SkipLink）· [ ] Toolbar
 - **输入**：[x] NumberField · [ ] TextField（Textarea、CharacterCount）· [ ] Checkbox、Radio 与 Switch · [ ] Select（Combobox、TagsInput、Listbox）· [ ] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
 - **日期**：CalendarView、DateSegmentGroup、SegmentedField 是内部部件，在 Calendar / DateField 页说明
