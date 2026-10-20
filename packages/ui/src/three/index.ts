@@ -36,3 +36,27 @@ export {
   type ThemeColorSources,
 } from './core/theme-colors';
 export { ThreeCanvas, threeCanvasStyles, type ThreeCanvasProps } from './core/ThreeCanvas';
+export {
+  EffectSurface,
+  effectSurfaceStyles,
+  type EffectProps,
+  type EffectSurfaceProps,
+} from './core/EffectSurface';
+export {
+  AURORA_PALETTE,
+  AuroraBackground,
+  type AuroraBackgroundProps,
+} from './background/AuroraBackground';
+export { MeshGradient, type MeshGradientProps } from './background/MeshGradient';
+export {
+  SHADER_PALETTE,
+  ShaderBackground,
+  type ShaderBackgroundProps,
+} from './background/ShaderBackground';
+export { PARTICLE_PALETTE, ParticleField, type ParticleFieldProps } from './effects/ParticleField';
+export {
+  WAVE_GRID_PALETTE,
+  WaveGrid,
+  type WaveGridProps,
+  type WaveGridVariants,
+} from './effects/WaveGrid';

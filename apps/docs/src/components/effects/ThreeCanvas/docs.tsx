@@ -38,8 +38,9 @@ export default _component(() => () => (
         个，超出时回收最久没出现在视口里的画布，它滚回来时重建。
       </Example>
       <Example id="pointer" title="指针跟随" demo={Pointer}>
-        <Code>usePointer</Code> 给出指针相对元素的位置（-1 到 1）与 <Code>strength</Code>
-        （指针离开时淡出），经过弹簧阻尼；监听整个窗口，效果在内容下面时也能跟随。
+        上下文里的 <Code>pointer</Code> 是指针相对画布的位置（-1 到 1）与 <Code>strength</Code>
+        （指针离开时淡出），经过弹簧阻尼；监听整个窗口，画布在内容下面时也能跟随。画布以外的元素用{' '}
+        <Code>usePointer(() =&gt; 元素)</Code>。
       </Example>
     </Examples>
     <ApiReference api={api} />

@@ -35,6 +35,11 @@ export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'
   quality?: ThreeQuality;
   /** 暂停动画，停在当前画面 */
   paused?: boolean;
+  /**
+   * 渲染分辨率相对像素比的倍数（0.1–1）：平滑的渐变、模糊的效果降低它能大幅省下 GPU 开销
+   * @default 1
+   */
+  resolution?: number;
   /** 没有 WebGL 时显示的内容，默认是主题色的柔和渐变 */
   fallback?: VNodeChild;
   /** canvas 的部件属性 */
@@ -72,6 +77,7 @@ export const ThreeCanvas = _component(
     setup,
     quality = 'auto',
     paused = false,
+    resolution = 1,
     fallback,
     propsCanvas,
     propsFallback,
@@ -83,6 +89,7 @@ export const ThreeCanvas = _component(
       setup: (context) => setup(context),
       quality: () => quality,
       paused: () => paused,
+      resolution: () => resolution,
     });
 
     return () => {

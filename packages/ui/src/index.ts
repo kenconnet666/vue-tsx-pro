@@ -793,6 +793,26 @@ export {
   type StickyOffsets,
 } from './table/columns';
 
+// 效果：倾斜卡片、聚光卡片、流光边框（3D 与 WebGL 效果在子路径 @vue-tsx-pro/ui/three）
+export {
+  BorderBeam,
+  borderBeamDynamicStyles,
+  borderBeamStyles,
+  type BorderBeamProps,
+} from './effects/BorderBeam';
+export {
+  SpotlightCard,
+  spotlightCardDynamicStyles,
+  spotlightCardStyles,
+  type SpotlightCardProps,
+} from './effects/SpotlightCard';
+export {
+  TiltCard,
+  tiltCardDynamicStyles,
+  tiltCardStyles,
+  type TiltCardProps,
+} from './effects/TiltCard';
+
 // 配置：Provider、createUi、组件默认值
 export {
   ConfigScope,

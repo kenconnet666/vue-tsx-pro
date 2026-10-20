@@ -1,7 +1,7 @@
 // 3D 底座：happy-dom 没有 WebGL，降级与无障碍直接测；生命周期（创建、循环、静止、回收、上下文丢失、释放）用假的渲染器测
 import { _component } from '@vue-tsx-pro/tsx';
 import { BufferGeometry, Color, Mesh, MeshBasicMaterial, Points, Texture } from 'three';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { disposeObject } from '../core/dispose';
@@ -9,92 +9,20 @@ import { activeThreeContexts, resolveThreeQuality, setMaxThreeContexts } from '.
 import { shaderChunks } from '../core/shaders';
 import { readThemeColor, useThemeColors } from '../core/theme-colors';
 import { ThreeCanvas } from '../core/ThreeCanvas';
-
-const fake = vi.hoisted(() => {
-  /** 假的 WebGLRenderer：记下尺寸、渲染次数与释放 */
-  class FakeRenderer {
-    static instances: FakeRenderer[] = [];
-    static fail = false;
-    renders = 0;
-    disposed = false;
-    lost = false;
-    pixelRatio = 1;
-    size = [0, 0];
-    params: { canvas: HTMLCanvasElement; antialias: boolean };
-    constructor(params: { canvas: HTMLCanvasElement; antialias: boolean }) {
-      this.params = params;
-      if (FakeRenderer.fail) throw new Error('Error creating WebGL context.');
-      FakeRenderer.instances.push(this);
-    }
-    setClearColor() {}
-    setPixelRatio(ratio: number) {
-      this.pixelRatio = ratio;
-    }
-    setSize(width: number, height: number) {
-      this.size = [width, height];
-    }
-    render() {
-      this.renders++;
-    }
-    dispose() {
-      this.disposed = true;
-    }
-    forceContextLoss() {
-      this.lost = true;
-    }
-    getContext() {
-      return { isContextLost: () => this.lost };
-    }
-  }
-  return { FakeRenderer };
-});
+import {
+  FakeRenderer,
+  frame,
+  intersectionObservers,
+  resetFakeWebGL,
+  setIntersecting,
+} from './fake-webgl';
 
 vi.mock('three', async (importOriginal) => ({
   ...(await importOriginal<typeof import('three')>()),
-  WebGLRenderer: fake.FakeRenderer,
+  WebGLRenderer: (await import('./fake-webgl')).FakeRenderer,
 }));
 
-const { FakeRenderer } = fake;
-
-/** 可控的 IntersectionObserver：测试里决定元素在不在视口 */
-const observers = new Set<{ callback: IntersectionObserverCallback; target?: Element }>();
-function setIntersecting(intersecting: boolean) {
-  for (const observer of observers) {
-    observer.callback(
-      [{ isIntersecting: intersecting, target: observer.target } as IntersectionObserverEntry],
-      {} as IntersectionObserver,
-    );
-  }
-}
-
-const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
-
-beforeEach(() => {
-  FakeRenderer.instances = [];
-  FakeRenderer.fail = false;
-  observers.clear();
-  vi.stubGlobal(
-    'IntersectionObserver',
-    class {
-      entry: { callback: IntersectionObserverCallback; target?: Element };
-      constructor(callback: IntersectionObserverCallback) {
-        this.entry = { callback };
-        observers.add(this.entry);
-      }
-      observe(target: Element) {
-        this.entry.target = target;
-      }
-      disconnect() {
-        observers.delete(this.entry);
-      }
-    },
-  );
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-  setMaxThreeContexts(8);
-});
+beforeEach(resetFakeWebGL);
 
 describe('降级与无障碍', () => {
   it('没有 WebGL：显示主题色渐变的降级层，data-state="fallback"', async () => {
@@ -260,7 +188,7 @@ describe('生命周期', () => {
       </>
     ));
     await nextTick();
-    const [a, b] = [...observers];
+    const [a, b] = intersectionObservers();
     const show = (observer: typeof a, intersecting: boolean) =>
       observer!.callback(
         [{ isIntersecting: intersecting } as IntersectionObserverEntry],
@@ -331,7 +259,7 @@ describe('工具', () => {
   });
 
   it('着色器片段：色板长度与噪声函数', () => {
-    expect(shaderChunks.themePalette).toContain('uniform vec3 uColors[6]');
+    expect(shaderChunks.themePalette).toContain('#define THEME_PALETTE_SIZE 6');
     expect(shaderChunks.simplexNoise).toContain('float snoise(vec3 v)');
   });
 });

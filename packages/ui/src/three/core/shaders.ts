@@ -84,15 +84,16 @@ float fbm(vec3 p) {
 }
 `;
 
-/** 主题色板 `vec3 themePalette(float t)`：t 从 0 到 1 依次经过 uColors 的各个颜色 */
+/** 主题色板 `vec3 themePalette(float t)`：t 从 0 到 1 依次经过 uColors 的各个颜色；uColors 的长度是 THEME_PALETTE_SIZE */
 const themePalette = /* glsl */ `
-uniform vec3 uColors[${THEME_PALETTE_SIZE}];
+#define THEME_PALETTE_SIZE ${THEME_PALETTE_SIZE}
+uniform vec3 uColors[THEME_PALETTE_SIZE];
 uniform int uColorCount;
 
 vec3 themePalette(float t) {
   float scaled = clamp(t, 0.0, 1.0) * float(max(uColorCount - 1, 1));
   vec3 color = uColors[0];
-  for (int i = 1; i < ${THEME_PALETTE_SIZE}; i++) {
+  for (int i = 1; i < THEME_PALETTE_SIZE; i++) {
     if (i >= uColorCount) break;
     color = mix(color, uColors[i], clamp(scaled - float(i - 1), 0.0, 1.0));
   }

@@ -19,6 +19,7 @@ import { readToken } from '../../config/theme/theme';
 import { durations } from '../../config/theme/tokens.stylex';
 import { useReducedMotion } from '../../utils/dom/media-query';
 import { disposeObject } from './dispose';
+import { usePointer, type PointerState } from './pointer';
 import {
   acquireContext,
   releaseContext,
@@ -57,6 +58,8 @@ export interface ThreeContext {
   readonly quality: ResolvedThreeQuality;
   /** 只画静止画面（减少动态效果）：指针跟随之类的交互也应停下 */
   readonly still: boolean;
+  /** 指针相对画布的位置（-1 到 1）与 strength（指针在画布上为 1，离开后淡出），弹簧阻尼，见 pointer.ts */
+  readonly pointer: PointerState;
   /** 请求重画一帧：循环停着（静止、暂停）时，数据变了用它刷新 */
   invalidate: () => void;
   /**
@@ -107,6 +110,8 @@ export interface ThreeOptions {
   quality?: () => ThreeQuality | undefined;
   /** 暂停循环（停在当前画面） */
   paused?: () => boolean | undefined;
+  /** 渲染分辨率相对像素比的倍数（0–1），平滑的渐变类效果用 0.5 能省下大半的填充开销；默认 1 */
+  resolution?: () => number | undefined;
 }
 
 /** useThree 的返回值 */
@@ -164,6 +169,7 @@ export function useThree(options: ThreeOptions): ThreeController {
   const config = useConfig();
   const reducedMotion = useReducedMotion();
   const status = shallowRef<ThreeStatus>('idle');
+  const pointer = usePointer(options.canvas);
   const generation = shallowRef(0);
   const themeStill = shallowRef(false);
   const pageVisible = shallowRef(
@@ -221,7 +227,9 @@ export function useThree(options: ThreeOptions): ThreeController {
     const size = context.size as ThreeSize;
     size.width = canvas.clientWidth;
     size.height = canvas.clientHeight;
-    size.pixelRatio = Math.min(globalThis.devicePixelRatio || 1, context.quality.pixelRatio);
+    size.pixelRatio =
+      Math.min(globalThis.devicePixelRatio || 1, context.quality.pixelRatio) *
+      Math.min(1, Math.max(0.1, options.resolution?.() ?? 1));
     renderer.setPixelRatio(size.pixelRatio);
     renderer.setSize(size.width, size.height, false);
     const camera = context.camera as Camera & Partial<PerspectiveCamera>;
@@ -247,6 +255,7 @@ export function useThree(options: ThreeOptions): ThreeController {
       canvas,
       size: { width: 0, height: 0, pixelRatio: 1 },
       quality,
+      pointer,
       get still() {
         return still();
       },
@@ -385,6 +394,11 @@ export function useThree(options: ThreeOptions): ThreeController {
       invalidate();
     },
     { immediate: true, flush: 'post' },
+  );
+
+  watch(
+    () => options.resolution?.(),
+    () => instance && resize(instance),
   );
 
   watch(
