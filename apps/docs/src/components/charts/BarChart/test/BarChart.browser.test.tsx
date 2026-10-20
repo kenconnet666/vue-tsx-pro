@@ -1,6 +1,7 @@
 // BarChart 在真实浏览器里：Unovis 画出柱子，悬停出提示框，图例隐藏系列，颜色与坐标轴跟随主题
 import { _component } from '@vue-tsx-pro/tsx';
 import { createUi, darkTheme } from '@vue-tsx-pro/ui';
+import { BarChart } from '@vue-tsx-pro/ui/charts';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, h, type App } from 'vue';
 import { mount } from '../../../../test/mount';
@@ -80,4 +81,32 @@ it('一页多张图没有重复的 id（Unovis 的高亮滤镜换成各自的 id
   await until(() => bars(root).length === 24);
   const ids = [...root.querySelectorAll('[id]')].map((element) => element.id);
   expect(new Set(ids).size).toBe(ids.length);
+});
+
+it('加载中之后再显示：绘图区换了元素，容器与坐标轴整套重建，柱子与刻度照常画出', async () => {
+  let loading = _state(false);
+  const rows = [
+    { name: 'A', value: 3 },
+    { name: 'B', value: 5 },
+  ];
+  const root = mount(
+    _component(() => () => (
+      <BarChart
+        aria-label="重建"
+        data={rows}
+        index="name"
+        series={[{ key: 'value', label: '数量' }]}
+        loading={loading}
+      />
+    )),
+  );
+  await until(() => bars(root).length === 2);
+  loading = true;
+  await until(() => bars(root).length === 0);
+  loading = false;
+  await until(() => bars(root).length === 2);
+  // 坐标轴是新容器里新建的：类目刻度照常显示
+  await until(() =>
+    [...root.querySelectorAll('svg text')].some((text) => text.textContent === 'B'),
+  );
 });

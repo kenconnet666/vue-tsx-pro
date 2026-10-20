@@ -6,6 +6,7 @@
  * 主入口不导入图表，没用到图表的应用不会打包 Unovis。
  */
 export { BarChart, type BarChartProps } from './BarChart';
+export { chartStyles, type ChartFrameParts, type ChartLegendItem } from './frame';
 export { LineChart, type LineChartProps, type LineCurves, type LineDots } from './LineChart';
 export {
   resolveSeries,
