@@ -22,7 +22,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { focusRingStyles } from '../utils/style/styles';
@@ -158,17 +158,15 @@ export const Tabs = _component(
 
     return () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>(
-            {
-              sx: [
-                tabsStyles.root,
-                orientation === 'vertical' && tabsStyles.vertical,
-                appearance().size && fontSizeStyles[appearance().size!],
-              ],
-            },
-            rest,
-          ),
+        {...mergeAttrs<'div'>(
+          {
+            sx: [
+              tabsStyles.root,
+              orientation === 'vertical' && tabsStyles.vertical,
+              appearance().size && fontSizeStyles[appearance().size!],
+            ],
+          },
+          rest,
         )}
         data-orientation={orientation}
       >
@@ -258,30 +256,26 @@ export const TabList = _component(
       const vertical = tabs.orientation === 'vertical';
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  tabListStyles.root,
-                  tabs.variant === 'line'
-                    ? [tabListStyles.line, vertical && tabListStyles.lineVertical]
-                    : [tabListStyles.soft, vertical && tabListStyles.softVertical],
-                ],
-              },
-              rest,
-              { ref: _toRef(list), role: 'tablist', 'aria-orientation': tabs.orientation },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                tabListStyles.root,
+                tabs.variant === 'line'
+                  ? [tabListStyles.line, vertical && tabListStyles.lineVertical]
+                  : [tabListStyles.soft, vertical && tabListStyles.softVertical],
+              ],
+            },
+            rest,
+            { ref: _toRef(list), role: 'tablist', 'aria-orientation': tabs.orientation },
           )}
         >
           {children}
           {tabs.variant === 'line' && (
             <span
-              {...elementProps(
-                mergeProps<'span'>(
-                  { sx: [tabListStyles.indicator, vertical && tabListStyles.indicatorVertical] },
-                  propsIndicator,
-                  { ref: _toRef(indicator), 'aria-hidden': true },
-                ),
+              {...mergeAttrs<'span'>(
+                { sx: [tabListStyles.indicator, vertical && tabListStyles.indicatorVertical] },
+                propsIndicator,
+                { ref: _toRef(indicator), 'aria-hidden': true },
               )}
             />
           )}
@@ -364,40 +358,38 @@ export const Tab = _component(({ value, disabled = false, children, ...rest }: T
     const vertical = tabs.orientation === 'vertical';
     return (
       <button
-        {...elementProps(
-          mergeProps<'button'>(
-            {
-              sx: [
-                tabStyles.root,
-                focusRingStyles.visible,
-                rippleHostStyles.host,
-                tabStyles.hover,
-                tabs.variant === 'line'
-                  ? [
-                      tabStyles.line,
-                      vertical && tabStyles.lineVertical,
-                      selected && tabStyles.lineActive,
-                    ]
-                  : [tabStyles.soft, selected && tabStyles.softActive],
-                disabled && tabStyles.disabled,
-              ],
-              type: 'button',
+        {...mergeAttrs<'button'>(
+          {
+            sx: [
+              tabStyles.root,
+              focusRingStyles.visible,
+              rippleHostStyles.host,
+              tabStyles.hover,
+              tabs.variant === 'line'
+                ? [
+                    tabStyles.line,
+                    vertical && tabStyles.lineVertical,
+                    selected && tabStyles.lineActive,
+                  ]
+                : [tabStyles.soft, selected && tabStyles.softActive],
+              disabled && tabStyles.disabled,
+            ],
+            type: 'button',
+          },
+          rest,
+          {
+            role: 'tab',
+            id: tabs.id('tab', value),
+            'aria-selected': selected,
+            'aria-controls': tabs.id('panel', value),
+            disabled,
+            // 使用方的 onClick / onFocus 先执行（mergeProps 的规则），onClick 里 preventDefault 可以拦下切换
+            onClick: () => tabs.select(value),
+            onFocus: () => {
+              if (tabs.activation === 'automatic') tabs.select(value);
             },
-            rest,
-            {
-              role: 'tab',
-              id: tabs.id('tab', value),
-              'aria-selected': selected,
-              'aria-controls': tabs.id('panel', value),
-              disabled,
-              // 使用方的 onClick / onFocus 先执行（mergeProps 的规则），onClick 里 preventDefault 可以拦下切换
-              onClick: () => tabs.select(value),
-              onFocus: () => {
-                if (tabs.activation === 'automatic') tabs.select(value);
-              },
-              ...rippleHandlers,
-            },
-          ),
+            ...rippleHandlers,
+          },
         )}
         data-state={selected ? 'active' : 'inactive'}
         data-disabled={disabled || undefined}
@@ -438,18 +430,15 @@ export const TabPanel = _component(({ value, children, ...rest }: TabPanelProps)
     const selected = tabs.value === value;
     return (
       <div
-        {...elementProps(
-          mergeProps<'div'>(
-            // 面板本身可聚焦：里面没有可聚焦元素时，键盘用户也能 Tab 到内容
-            { sx: [tabPanelStyles.root, focusRingStyles.visible], tabindex: 0 },
-            rest,
-            {
-              role: 'tabpanel',
-              id: tabs.id('panel', value),
-              'aria-labelledby': tabs.id('tab', value),
-              hidden: !selected,
-            },
-          ),
+        {...mergeAttrs<'div'>(
+          { sx: [tabPanelStyles.root, focusRingStyles.visible], tabindex: 0 },
+          rest,
+          {
+            role: 'tabpanel',
+            id: tabs.id('panel', value),
+            'aria-labelledby': tabs.id('tab', value),
+            hidden: !selected,
+          },
         )}
         data-state={selected ? 'active' : 'inactive'}
       >

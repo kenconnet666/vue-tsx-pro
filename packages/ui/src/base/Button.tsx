@@ -8,7 +8,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
   buttonSx,
@@ -68,12 +68,10 @@ export const Button = _component(
 
     return () => (
       <button
-        {...elementProps(
-          mergeProps<'button'>(
-            { sx: buttonSx(appearance(), { disabled, fullWidth }), type },
-            rest,
-            behavior(),
-          ),
+        {...mergeAttrs<'button'>(
+          { sx: buttonSx(appearance(), { disabled, fullWidth }), type },
+          rest,
+          behavior(),
         )}
       >
         {buttonContent(

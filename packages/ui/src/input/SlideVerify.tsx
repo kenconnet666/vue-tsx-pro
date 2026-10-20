@@ -21,7 +21,7 @@ import { useLang } from '../config/context';
 import type { JSAnimation } from 'animejs';
 import { useAnimate } from '../utils/motion/animation';
 import { startMove } from '../utils/dom/move';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { clamp, isRtl } from '../utils/data/layout';
 
@@ -297,64 +297,56 @@ export const SlideVerify = _component(
       const icon = status === 'success' ? Check : status === 'error' ? X : ChevronsRight;
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: slideVerifyStyles.root }, rest, {
-              sx: disabled && slideVerifyStyles.disabled,
-              ref: _toRef(root),
-              style: { '--slide-verify-position': String(position) },
-              'aria-busy': status === 'verifying' || undefined,
-            }),
-          )}
+          {...mergeAttrs<'div'>({ sx: slideVerifyStyles.root }, rest, {
+            sx: disabled && slideVerifyStyles.disabled,
+            ref: _toRef(root),
+            style: { '--slide-verify-position': String(position) },
+            'aria-busy': status === 'verifying' || undefined,
+          })}
           data-status={status}
         >
           <div
-            {...elementProps(
-              mergeProps<'div'>({ sx: slideVerifyStyles.fill }, propsFill, {
-                sx: [
-                  !dragging && !springing && slideVerifyStyles.settle,
-                  status === 'success' && slideVerifyStyles.success,
-                  status === 'error' && slideVerifyStyles.error,
-                ],
-              }),
-            )}
+            {...mergeAttrs<'div'>({ sx: slideVerifyStyles.fill }, propsFill, {
+              sx: [
+                !dragging && !springing && slideVerifyStyles.settle,
+                status === 'success' && slideVerifyStyles.success,
+                status === 'error' && slideVerifyStyles.error,
+              ],
+            })}
           />
           <span
-            {...elementProps(
-              mergeProps<'span'>({ sx: slideVerifyStyles.hint }, propsHint, {
-                'aria-hidden': true,
-              }),
-            )}
+            {...mergeAttrs<'span'>({ sx: slideVerifyStyles.hint }, propsHint, {
+              'aria-hidden': true,
+            })}
           >
             {position === 0 || status !== 'idle' ? text : null}
           </span>
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  // 焦点环在前：滑块自己的 outlineOffset（画在里面，外层会裁掉外面）覆盖它
-                  sx: [focusRingStyles.visible, slideVerifyStyles.handle],
-                  'aria-label': lang.slideVerifyHint,
-                },
-                propsHandle,
-                {
-                  sx: [
-                    !dragging && !springing && slideVerifyStyles.settle,
-                    locked && slideVerifyStyles.locked,
-                    status === 'success' && slideVerifyStyles.success,
-                    status === 'error' && slideVerifyStyles.error,
-                  ],
-                  ref: _toRef(handle),
-                  role: 'slider',
-                  tabindex: disabled ? undefined : 0,
-                  'aria-valuemin': 0,
-                  'aria-valuemax': 100,
-                  'aria-valuenow': Math.round(position * 100),
-                  'aria-valuetext': `${Math.round(position * 100)}%`,
-                  'aria-disabled': locked || undefined,
-                  onPointerdown: grab,
-                  onKeydown,
-                },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                // 焦点环在前：滑块自己的 outlineOffset（画在里面，外层会裁掉外面）覆盖它
+                sx: [focusRingStyles.visible, slideVerifyStyles.handle],
+                'aria-label': lang.slideVerifyHint,
+              },
+              propsHandle,
+              {
+                sx: [
+                  !dragging && !springing && slideVerifyStyles.settle,
+                  locked && slideVerifyStyles.locked,
+                  status === 'success' && slideVerifyStyles.success,
+                  status === 'error' && slideVerifyStyles.error,
+                ],
+                ref: _toRef(handle),
+                role: 'slider',
+                tabindex: disabled ? undefined : 0,
+                'aria-valuemin': 0,
+                'aria-valuemax': 100,
+                'aria-valuenow': Math.round(position * 100),
+                'aria-valuetext': `${Math.round(position * 100)}%`,
+                'aria-disabled': locked || undefined,
+                onPointerdown: grab,
+                onKeydown,
+              },
             )}
           >
             <Icon

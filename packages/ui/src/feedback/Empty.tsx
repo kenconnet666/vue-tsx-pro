@@ -13,7 +13,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
@@ -74,11 +74,7 @@ export const Empty = _component(
     ...rest
   }: EmptyProps) =>
     () => (
-      <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: [emptyStyles.root, size && fontSizeStyles[size]] }, rest),
-        )}
-      >
+      <div {...mergeAttrs<'div'>({ sx: [emptyStyles.root, size && fontSizeStyles[size]] }, rest)}>
         {icon !== false && (
           <Icon
             {...mergePartProps<IconProps>({ icon: icon ?? Inbox, sx: emptyStyles.icon }, propsIcon)}
@@ -96,9 +92,7 @@ export const Empty = _component(
         )}
         {children}
         {action != null && (
-          <div {...elementProps(mergeProps<'div'>({ sx: emptyStyles.action }, propsAction))}>
-            {action}
-          </div>
+          <div {...mergeAttrs<'div'>({ sx: emptyStyles.action }, propsAction)}>{action}</div>
         )}
       </div>
     ),

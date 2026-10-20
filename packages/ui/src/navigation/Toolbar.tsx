@@ -12,7 +12,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { gapStyles, type Space } from '../utils/style/styles';
 
@@ -64,18 +64,16 @@ export const Toolbar = _component(
 
     return () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>(
-            {
-              sx: [
-                toolbarStyles.root,
-                orientation === 'vertical' && toolbarStyles.vertical,
-                gapStyles[gap],
-              ],
-            },
-            rest,
-            { ref: _toRef(root), role: 'toolbar', 'aria-orientation': orientation },
-          ),
+        {...mergeAttrs<'div'>(
+          {
+            sx: [
+              toolbarStyles.root,
+              orientation === 'vertical' && toolbarStyles.vertical,
+              gapStyles[gap],
+            ],
+          },
+          rest,
+          { ref: _toRef(root), role: 'toolbar', 'aria-orientation': orientation },
         )}
         data-orientation={orientation}
       >

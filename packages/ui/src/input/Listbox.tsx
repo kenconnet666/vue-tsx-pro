@@ -29,7 +29,7 @@ import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { itemStyles } from '../utils/style/item-styles';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -237,38 +237,35 @@ export const ListboxView = _component(
       const own = typeof propsOption === 'function' ? propsOption(option.item, state) : propsOption;
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  itemStyles.row,
-                  state.active && itemStyles.highlighted,
-                  state.selected && itemStyles.selected,
-                  option.disabled && itemStyles.disabled,
-                ],
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                itemStyles.row,
+                state.active && itemStyles.highlighted,
+                state.selected && itemStyles.selected,
+                option.disabled && itemStyles.disabled,
+              ],
+            },
+            own,
+            {
+              id: `${id}-${index}`,
+              role: 'option',
+              'aria-selected': state.selected,
+              'aria-disabled': option.disabled || undefined,
+              'aria-setsize': list.options.length,
+              'aria-posinset': index + 1,
+              'aria-describedby': row.groupId,
+              // 焦点留在列表、触发按钮或输入框上
+              onPointerdown: (event: PointerEvent) => event.preventDefault(),
+              onPointermove: () => {
+                if (!option.disabled && list.active !== option.value) list.setActive(option.value);
               },
-              own,
-              {
-                id: `${id}-${index}`,
-                role: 'option',
-                'aria-selected': state.selected,
-                'aria-disabled': option.disabled || undefined,
-                'aria-setsize': list.options.length,
-                'aria-posinset': index + 1,
-                'aria-describedby': row.groupId,
-                // 焦点留在列表、触发按钮或输入框上
-                onPointerdown: (event: PointerEvent) => event.preventDefault(),
-                onPointermove: () => {
-                  if (!option.disabled && list.active !== option.value)
-                    list.setActive(option.value);
-                },
-                onClick: () => {
-                  if (option.disabled) return;
-                  list.select(option.value);
-                  onPick?.(option.value);
-                },
+              onClick: () => {
+                if (option.disabled) return;
+                list.select(option.value);
+                onPick?.(option.value);
               },
-            ),
+            },
           )}
           data-state={state.selected ? 'checked' : 'unchecked'}
           data-active={state.active || undefined}
@@ -365,24 +362,22 @@ export const ListboxView = _component(
 
     return () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>(
-            {
-              sx: [
-                listboxStyles.root,
-                scroller === undefined && listboxStyles.scroll,
-                focusRingStyles.visible,
-              ],
-            },
-            rest,
-            {
-              ref: _toRef(root),
-              id,
-              role: 'listbox',
-              'aria-multiselectable': multiple || undefined,
-              'aria-busy': loading || undefined,
-            },
-          ),
+        {...mergeAttrs<'div'>(
+          {
+            sx: [
+              listboxStyles.root,
+              scroller === undefined && listboxStyles.scroll,
+              focusRingStyles.visible,
+            ],
+          },
+          rest,
+          {
+            ref: _toRef(root),
+            id,
+            role: 'listbox',
+            'aria-multiselectable': multiple || undefined,
+            'aria-busy': loading || undefined,
+          },
         )}
       >
         {indicator.value && rows.length > 0 && (

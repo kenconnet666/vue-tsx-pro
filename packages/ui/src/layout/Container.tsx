@@ -8,7 +8,7 @@
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import type { LayoutTag, Space } from '../utils/style/styles';
 
 /** 容器最大宽度档位，对应主题 sizes 的容器宽度（rem，跟随浏览器字号），括号里是默认主题的值 */
@@ -76,7 +76,7 @@ export function createContainer<Tag extends LayoutTag>(
           containerSizeStyles[size],
           containerPaddingStyles[padding],
         ];
-        return <Tag {...elementProps(mergeProps<LayoutTag>({ sx }, rest))}>{children}</Tag>;
+        return <Tag {...mergeAttrs<LayoutTag>({ sx }, rest)}>{children}</Tag>;
       },
     { name },
   ) as unknown as TsxComponent<ContainerProps<Tag>>;

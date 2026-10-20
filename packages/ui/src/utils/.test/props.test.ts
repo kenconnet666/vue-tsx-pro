@@ -1,7 +1,10 @@
 // 部件 props 的合并规则
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
-import { elementProps, mergeProps } from '../props';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { elementProps, mergeAttrs, mergeProps } from '../props';
+
+const styles = stylex.create({ box: { display: 'flex' }, red: { color: 'red' } });
 
 describe('mergeProps', () => {
   it('普通属性：受管 > 使用方 > 默认', () => {
@@ -44,6 +47,23 @@ describe('mergeProps', () => {
     expect(order).toEqual(['user', 'defaults', 'managed']);
   });
 
+  it('只有默认层时原样返回，不复制', () => {
+    const defaults = { sx: 'a', id: 'x' };
+    expect(mergeProps(defaults)).toBe(defaults);
+    expect(mergeProps(defaults, {}, undefined)).toBe(defaults);
+  });
+
+  it('使用方显式传 undefined 的事件不会盖掉组件的', () => {
+    const own = vi.fn();
+    const merged = mergeProps({ onClick: own }, { onClick: undefined, title: 't' });
+    expect(merged.onClick).toBe(own);
+  });
+
+  it('只有一方给了事件时不包装', () => {
+    const user = vi.fn();
+    expect(mergeProps({ id: 'a' }, { onClick: user }).onClick).toBe(user);
+  });
+
   it('ref：各方都拿到元素', () => {
     const own = ref<unknown>();
     const callback = vi.fn();
@@ -59,5 +79,26 @@ describe('elementProps', () => {
     const props = elementProps({ sx: [null, false], class: 'host' });
     expect(props.class).toEqual(['host']);
     expect('sx' in props).toBe(false);
+  });
+});
+
+describe('mergeAttrs', () => {
+  it('合并三层后把 sx 换成 class', () => {
+    const attrs = mergeAttrs<'div'>(
+      { sx: styles.box, id: 'a' },
+      { class: 'user' },
+      { role: 'group' },
+    );
+    expect(attrs).toMatchObject({ id: 'a', role: 'group' });
+    // Vue 会展开嵌套的 class 数组
+    expect(attrs.class).toEqual([['user'], stylex.attrs(styles.box).class]);
+    expect('sx' in attrs).toBe(false);
+  });
+
+  it('单个样式的编译结果与 stylex.attrs 一致，数组照常合并', () => {
+    expect(mergeAttrs<'div'>({ sx: styles.box }).class).toBe(stylex.attrs(styles.box).class);
+    expect(mergeAttrs<'div'>({ sx: [styles.box, styles.red] }).class).toBe(
+      stylex.attrs(styles.box, styles.red).class,
+    );
   });
 });

@@ -11,7 +11,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { afterTransitions } from '../utils/style/transitions';
 
 /** 未声明的属性落到外层的 div 上；要分区语义时在外面包 section */
@@ -67,18 +67,16 @@ export const Collapse = _component(
 
     return () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: collapseStyles.root }, rest, {
-            sx: open && collapseStyles.open,
-            ref: _toRef(root),
-            hidden: collapsed && supportsUntilFound ? 'until-found' : undefined,
-            inert: collapsed && !supportsUntilFound ? true : undefined,
-            onBeforematch: () => (open = true),
-          }),
-        )}
+        {...mergeAttrs<'div'>({ sx: collapseStyles.root }, rest, {
+          sx: open && collapseStyles.open,
+          ref: _toRef(root),
+          hidden: collapsed && supportsUntilFound ? 'until-found' : undefined,
+          inert: collapsed && !supportsUntilFound ? true : undefined,
+          onBeforematch: () => (open = true),
+        })}
         data-state={open ? 'open' : 'closed'}
       >
-        <div {...elementProps(mergeProps<'div'>({ sx: collapseStyles.content }, propsContent))}>
+        <div {...mergeAttrs<'div'>({ sx: collapseStyles.content }, propsContent)}>
           {(!lazy || open || opened) && children}
         </div>
       </div>

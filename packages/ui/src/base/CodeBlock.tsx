@@ -12,7 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useConfig } from '../config/context';
 import { CopyButton, type CopyButtonProps } from './CopyButton';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 
 /** 未声明的属性落到 pre 上 */
@@ -95,23 +95,21 @@ export const CodeBlock = _component(
     });
 
     return () => {
-      const codeProps = elementProps(mergeProps<'code'>({ sx: codeBlockStyles.code }, propsCode));
+      const codeProps = mergeAttrs<'code'>({ sx: codeBlockStyles.code }, propsCode);
       return (
-        <div {...elementProps(mergeProps<'div'>({ sx: codeBlockStyles.wrapper }, propsRoot))}>
+        <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.wrapper }, propsRoot)}>
           <pre
-            {...elementProps(
-              mergeProps<'pre'>(
-                {
-                  sx: [
-                    codeBlockStyles.root,
-                    focusRingStyles.visible,
-                    copyable && codeBlockStyles.withCopy,
-                  ],
-                  tabindex: 0,
-                },
-                rest,
-                { sx: wrap && codeBlockStyles.wrap },
-              ),
+            {...mergeAttrs<'pre'>(
+              {
+                sx: [
+                  codeBlockStyles.root,
+                  focusRingStyles.visible,
+                  copyable && codeBlockStyles.withCopy,
+                ],
+                tabindex: 0,
+              },
+              rest,
+              { sx: wrap && codeBlockStyles.wrap },
             )}
             data-lang={lang}
           >

@@ -16,7 +16,7 @@ import { Icon, type IconData } from '../base/Icon';
 import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
 import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { listStyles } from '../utils/style/styles';
 
 /** 一级路径 */
@@ -93,23 +93,17 @@ export const Breadcrumbs = _component(
       // 每处各生成一个节点：同一个 VNode 不能放在多个位置
       const sep = () => (
         <span
-          {...elementProps(
-            mergeProps<'span'>({ sx: breadcrumbsStyles.separator }, propsSeparator, {
-              'aria-hidden': true,
-            }),
-          )}
+          {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.separator }, propsSeparator, {
+            'aria-hidden': true,
+          })}
         >
           {separator ?? <Icon icon={ChevronRight} flipInRtl />}
         </span>
       );
 
       return (
-        <nav {...elementProps(mergeProps<'nav'>({ 'aria-label': lang.breadcrumbs }, rest))}>
-          <ol
-            {...elementProps(
-              mergeProps<'ol'>({ sx: [listStyles.reset, breadcrumbsStyles.list] }, propsList),
-            )}
-          >
+        <nav {...mergeAttrs<'nav'>({ 'aria-label': lang.breadcrumbs }, rest)}>
+          <ol {...mergeAttrs<'ol'>({ sx: [listStyles.reset, breadcrumbsStyles.list] }, propsList)}>
             {shown.map((entry, position) => {
               if (entry === 'collapsed') {
                 return (
@@ -154,25 +148,18 @@ export const Breadcrumbs = _component(
               const index = items.indexOf(entry);
               const own = typeof propsItem === 'function' ? propsItem(entry, index) : propsItem;
               const label = (
-                <span
-                  {...elementProps(mergeProps<'span'>({ sx: breadcrumbsStyles.label }, propsLabel))}
-                >
+                <span {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.label }, propsLabel)}>
                   {entry.icon && <Icon icon={entry.icon} />}
                   {entry.label}
                 </span>
               );
               return (
-                <li
-                  key={index}
-                  {...elementProps(mergeProps<'li'>({ sx: breadcrumbsStyles.item }, own))}
-                >
+                <li key={index} {...mergeAttrs<'li'>({ sx: breadcrumbsStyles.item }, own)}>
                   {index === last ? (
                     <span
-                      {...elementProps(
-                        mergeProps<'span'>({ sx: breadcrumbsStyles.current }, propsCurrent, {
-                          'aria-current': 'page',
-                        }),
-                      )}
+                      {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.current }, propsCurrent, {
+                        'aria-current': 'page',
+                      })}
                     >
                       {label}
                     </span>

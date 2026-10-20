@@ -10,7 +10,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到占位的 span 上（加载完成后不渲染它，只渲染内容） */
 export interface SkeletonProps extends PartProps<'span', 'aria-hidden' | 'inert'> {
@@ -54,22 +54,18 @@ export const Skeleton = _component(
       const wrapping = children != null;
       return (
         <span
-          {...elementProps(
-            mergeProps<'span'>(
-              { sx: [skeletonStyles.root, wrapping && skeletonStyles.wrapping] },
-              rest,
-              {
-                'aria-hidden': true,
-                // 包着的内容（链接、按钮）不能被 Tab 聚焦
-                inert: wrapping || undefined,
-              },
-            ),
+          {...mergeAttrs<'span'>(
+            { sx: [skeletonStyles.root, wrapping && skeletonStyles.wrapping] },
+            rest,
+            {
+              'aria-hidden': true,
+              // 包着的内容（链接、按钮）不能被 Tab 聚焦
+              inert: wrapping || undefined,
+            },
           )}
         >
           {wrapping && (
-            <span
-              {...elementProps(mergeProps<'span'>({ sx: skeletonStyles.hidden }, propsContent))}
-            >
+            <span {...mergeAttrs<'span'>({ sx: skeletonStyles.hidden }, propsContent)}>
               {children}
             </span>
           )}

@@ -44,7 +44,7 @@ import { usePresence } from '../utils/motion/presence';
 import { startMove } from '../utils/dom/move';
 import { toElement, topModal } from '../utils/dom/overlay';
 import { focusAfterRemoval } from '../utils/dom/focus';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { Alert, type AlertProps } from './Alert';
 
@@ -473,25 +473,23 @@ export const ToastItem = _component(
       const toastProps = typeof propsToast === 'function' ? propsToast(toast) : propsToast;
       return (
         <li
-          {...elementProps(
-            mergeProps<'li'>(
-              {
-                sx: [
-                  toastStyles.item,
-                  fromTop ? toastStyles.itemFromTop : toastStyles.itemFromBottom,
-                  depth != null && stackSx(depth, fromTop),
-                  toast.closing && toastStyles.itemClosing,
-                ],
+          {...mergeAttrs<'li'>(
+            {
+              sx: [
+                toastStyles.item,
+                fromTop ? toastStyles.itemFromTop : toastStyles.itemFromBottom,
+                depth != null && stackSx(depth, fromTop),
+                toast.closing && toastStyles.itemClosing,
+              ],
+            },
+            itemProps,
+            {
+              ref: (element: unknown) => {
+                item = toElement(element);
+                presence.ref(element);
               },
-              itemProps,
-              {
-                ref: (element: unknown) => {
-                  item = toElement(element);
-                  presence.ref(element);
-                },
-                onPointerdown,
-              },
-            ),
+              onPointerdown,
+            },
           )}
           data-state={presence.state}
         >
@@ -516,15 +514,13 @@ export const ToastItem = _component(
             {progress && toast.countdown && (
               <span
                 key={toast.countdown.id}
-                {...elementProps(
-                  mergeProps<'span'>({ sx: toastStyles.countdown }, propsProgress, {
-                    sx: [
-                      toastCountdownStyles.duration(`${toast.countdown.duration}ms`),
-                      controller.paused && toastStyles.countdownPaused,
-                    ],
-                    'aria-hidden': true,
-                  }),
-                )}
+                {...mergeAttrs<'span'>({ sx: toastStyles.countdown }, propsProgress, {
+                  sx: [
+                    toastCountdownStyles.duration(`${toast.countdown.duration}ms`),
+                    controller.paused && toastStyles.countdownPaused,
+                  ],
+                  'aria-hidden': true,
+                })}
               />
             )}
           </Collapse>
@@ -618,37 +614,33 @@ export const Toaster = _component(
         <Teleport to={topModal() ?? 'body'}>
           <ConfigScope>
             <section
-              {...elementProps(
-                mergeProps<'section'>(
-                  {
-                    sx: [toastStyles.region, toastPlacementStyles[placement]],
-                    'aria-label': lang.toasterLabel,
-                  },
-                  rest,
-                  {
-                    ref: _toRef(region),
-                    popover: 'manual',
-                    tabindex: -1,
-                    onPointerenter: () => (hovering = true),
-                    onPointerleave: () => (hovering = false),
-                    onFocusin,
-                    onFocusout,
-                  },
-                ),
+              {...mergeAttrs<'section'>(
+                {
+                  sx: [toastStyles.region, toastPlacementStyles[placement]],
+                  'aria-label': lang.toasterLabel,
+                },
+                rest,
+                {
+                  ref: _toRef(region),
+                  popover: 'manual',
+                  tabindex: -1,
+                  onPointerenter: () => (hovering = true),
+                  onPointerleave: () => (hovering = false),
+                  onFocusin,
+                  onFocusout,
+                },
               )}
               data-placement={placement}
               data-expanded={stack ? String(!stacked) : undefined}
             >
               <ol
-                {...elementProps(
-                  mergeProps<'ol'>(
-                    { sx: [toastStyles.list, fromTop && toastStyles.listFromTop] },
-                    propsList,
-                    {
-                      ref: _toRef(list),
-                      'aria-live': 'polite',
-                    },
-                  ),
+                {...mergeAttrs<'ol'>(
+                  { sx: [toastStyles.list, fromTop && toastStyles.listFromTop] },
+                  propsList,
+                  {
+                    ref: _toRef(list),
+                    'aria-live': 'polite',
+                  },
                 )}
               >
                 {visible.map((toast, index) => (

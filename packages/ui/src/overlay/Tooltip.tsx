@@ -22,7 +22,7 @@ import {
 } from '../utils/dom/floating';
 import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
 import { toElement } from '../utils/dom/overlay';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
@@ -142,38 +142,34 @@ export const Tooltip = _component(
           ...hover.trigger,
         })}
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  floatingStyles.anchored,
-                  tooltipStyles.panel,
-                  transitions.fade,
-                  arrow && floatingStyles.withArrow,
-                ],
-              },
-              rest,
-              {
-                ref: _toRef(panel),
-                id,
-                popover: 'manual',
-                role: 'tooltip',
-                // 指针移到提示上不消失，离开提示后再隐藏
-                ...hover.panel,
-              },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                floatingStyles.anchored,
+                tooltipStyles.panel,
+                transitions.fade,
+                arrow && floatingStyles.withArrow,
+              ],
+            },
+            rest,
+            {
+              ref: _toRef(panel),
+              id,
+              popover: 'manual',
+              role: 'tooltip',
+              // 指针移到提示上不消失，离开提示后再隐藏
+              ...hover.panel,
+            },
           )}
           data-state={open && !disabled ? 'open' : 'closed'}
         >
           {children}
           {arrow && (
             <span
-              {...elementProps(
-                mergeProps<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
-                  ref: _toRef(arrowElement),
-                  'aria-hidden': true,
-                }),
-              )}
+              {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
+                ref: _toRef(arrowElement),
+                'aria-hidden': true,
+              })}
             />
           )}
         </div>

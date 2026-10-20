@@ -20,7 +20,7 @@ import {
 } from '../base/button-core';
 import type { IconData, IconProps } from '../base/Icon';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
@@ -166,37 +166,33 @@ export const ToggleGroup = _component(
       const field = control();
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  toggleGroupStyles.root,
-                  orientation === 'vertical' && toggleGroupStyles.vertical,
-                ],
-              },
-              rest,
-              {
-                ref: _toRef(root),
-                id: field.id,
-                role: 'group',
-                'aria-labelledby':
-                  rest['aria-labelledby'] ??
-                  (rest['aria-label'] == null ? field.labelledBy : undefined),
-                'aria-describedby': field.describedBy,
-              },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                toggleGroupStyles.root,
+                orientation === 'vertical' && toggleGroupStyles.vertical,
+              ],
+            },
+            rest,
+            {
+              ref: _toRef(root),
+              id: field.id,
+              role: 'group',
+              'aria-labelledby':
+                rest['aria-labelledby'] ??
+                (rest['aria-label'] == null ? field.labelledBy : undefined),
+              'aria-describedby': field.describedBy,
+            },
           )}
           data-orientation={orientation}
           data-disabled={field.disabled || undefined}
         >
           {selectionMode === 'single' && selected.length > 0 && (
             <span
-              {...elementProps(
-                mergeProps<'span'>({ sx: toggleGroupStyles.indicator }, propsIndicator, {
-                  ref: _toRef(indicator),
-                  'aria-hidden': true,
-                }),
-              )}
+              {...mergeAttrs<'span'>({ sx: toggleGroupStyles.indicator }, propsIndicator, {
+                ref: _toRef(indicator),
+                'aria-hidden': true,
+              })}
             />
           )}
           {children}
@@ -251,29 +247,27 @@ export const ToggleItem = _component(
       const base = appearance();
       return (
         <button
-          {...elementProps(
-            mergeProps<'button'>(
-              {
-                sx: buttonSx(
-                  {
-                    ...base,
-                    // 单选时选中底色由组的滑块画
-                    variant: pressed && !group.sliding ? 'surface' : 'ghost',
-                    tone: pressed ? 'accent' : 'neutral',
-                  },
-                  { disabled: off, square: children == null },
-                ),
-              },
-              rest,
-              {
-                type: 'button',
-                'aria-pressed': pressed,
-                disabled: off,
-                // 使用方的 onClick 先执行，preventDefault 可以拦下切换（mergeProps 的规则）
-                onClick: () => group.toggle(value),
-                ...rippleHandlers,
-              },
-            ),
+          {...mergeAttrs<'button'>(
+            {
+              sx: buttonSx(
+                {
+                  ...base,
+                  // 单选时选中底色由组的滑块画
+                  variant: pressed && !group.sliding ? 'surface' : 'ghost',
+                  tone: pressed ? 'accent' : 'neutral',
+                },
+                { disabled: off, square: children == null },
+              ),
+            },
+            rest,
+            {
+              type: 'button',
+              'aria-pressed': pressed,
+              disabled: off,
+              // 使用方的 onClick 先执行，preventDefault 可以拦下切换（mergeProps 的规则）
+              onClick: () => group.toggle(value),
+              ...rippleHandlers,
+            },
           )}
           data-state={pressed ? 'on' : 'off'}
           data-disabled={off || undefined}

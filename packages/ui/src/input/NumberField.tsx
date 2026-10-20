@@ -20,7 +20,7 @@ import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { useFieldControl } from './Field';
 import { snapToStep } from '../utils/data/layout';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 
 /** 值、角色与状态由组件管理 */
@@ -217,35 +217,33 @@ export const NumberField = _component(
         Number.isInteger(increment()) && (!Number.isFinite(low()) || Number.isInteger(low()));
       return (
         <div
-          {...elementProps(mergeProps<'div'>({ sx: controlSx(appearance(), state) }, propsRoot))}
+          {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot)}
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
           <input
-            {...elementProps(
-              mergeProps<'input'>({ sx: controlStyles.input }, rest, {
-                ref: _toRef(input),
-                id: state.id,
-                type: 'text',
-                role: 'spinbutton',
-                inputmode: integer && low() >= 0 ? 'numeric' : 'decimal',
-                autocomplete: rest.autocomplete ?? 'off',
-                value: shown,
-                disabled: state.disabled,
-                readonly: state.readonly,
-                required: state.required,
-                'aria-valuenow': value ?? undefined,
-                'aria-valuemin': Number.isFinite(low()) ? low() : undefined,
-                'aria-valuemax': Number.isFinite(high()) ? high() : undefined,
-                'aria-valuetext': value == null ? undefined : formatter.number(value, format),
-                'aria-invalid': state.invalid || undefined,
-                'aria-describedby': state.describedBy,
-                onFocus: () => (draft = plain(value)),
-                onInput: (event: Event) => (draft = (event.target as HTMLInputElement).value),
-                onBlur: commit,
-                onKeydown,
-              }),
-            )}
+            {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {
+              ref: _toRef(input),
+              id: state.id,
+              type: 'text',
+              role: 'spinbutton',
+              inputmode: integer && low() >= 0 ? 'numeric' : 'decimal',
+              autocomplete: rest.autocomplete ?? 'off',
+              value: shown,
+              disabled: state.disabled,
+              readonly: state.readonly,
+              required: state.required,
+              'aria-valuenow': value ?? undefined,
+              'aria-valuemin': Number.isFinite(low()) ? low() : undefined,
+              'aria-valuemax': Number.isFinite(high()) ? high() : undefined,
+              'aria-valuetext': value == null ? undefined : formatter.number(value, format),
+              'aria-invalid': state.invalid || undefined,
+              'aria-describedby': state.describedBy,
+              onFocus: () => (draft = plain(value)),
+              onInput: (event: Event) => (draft = (event.target as HTMLInputElement).value),
+              onBlur: commit,
+              onKeydown,
+            })}
           />
           {stepper && (
             <>

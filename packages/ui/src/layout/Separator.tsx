@@ -7,7 +7,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 角色与朝向由组件管理 */
 export type SeparatorManaged = 'role' | 'aria-orientation' | 'aria-hidden';
@@ -41,13 +41,11 @@ export const Separator = _component(
   ({ orientation = 'horizontal', decorative = true, ...rest }: SeparatorProps) =>
     () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: [separatorStyles.root, separatorStyles[orientation]] }, rest, {
-            role: decorative ? 'none' : 'separator',
-            'aria-orientation': !decorative && orientation === 'vertical' ? 'vertical' : undefined,
-            'aria-hidden': decorative ? 'true' : undefined,
-          }),
-        )}
+        {...mergeAttrs<'div'>({ sx: [separatorStyles.root, separatorStyles[orientation]] }, rest, {
+          role: decorative ? 'none' : 'separator',
+          'aria-orientation': !decorative && orientation === 'vertical' ? 'vertical' : undefined,
+          'aria-hidden': decorative ? 'true' : undefined,
+        })}
       />
     ),
 );

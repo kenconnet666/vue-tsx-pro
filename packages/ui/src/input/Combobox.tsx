@@ -24,7 +24,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { createMatcher } from '../utils/data/collation';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 import { fontSizeStyles } from '../utils/style/typography';
 import {
@@ -287,37 +287,33 @@ export const Combobox = _component(
       return (
         <>
           <div
-            {...elementProps(
-              mergeProps<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
-                ref: _toRef(shell),
-                onPointerdown: focusOnShell(() => input),
-              }),
-            )}
+            {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
+              ref: _toRef(shell),
+              onPointerdown: focusOnShell(() => input),
+            })}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={state.disabled || undefined}
           >
             {/* _bind 编译为 v-model：输入法组合期间不写回 */}
             <input
-              {...elementProps(
-                mergeProps<'input'>({ sx: controlStyles.input }, rest, {
-                  ref: _toRef(input),
-                  id: state.id,
-                  role: 'combobox',
-                  autocomplete: 'off',
-                  disabled: state.disabled,
-                  readonly: state.readonly,
-                  required: state.required,
-                  'aria-autocomplete': 'list',
-                  'aria-expanded': open,
-                  'aria-controls': listId,
-                  'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
-                  'aria-invalid': state.invalid || undefined,
-                  'aria-describedby': state.describedBy,
-                  onKeydown,
-                  onBlur: commit,
-                }),
-              )}
+              {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {
+                ref: _toRef(input),
+                id: state.id,
+                role: 'combobox',
+                autocomplete: 'off',
+                disabled: state.disabled,
+                readonly: state.readonly,
+                required: state.required,
+                'aria-autocomplete': 'list',
+                'aria-expanded': open,
+                'aria-controls': listId,
+                'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
+                'aria-invalid': state.invalid || undefined,
+                'aria-describedby': state.describedBy,
+                onKeydown,
+                onBlur: commit,
+              })}
               value={_bind(inputValue)}
             />
             {clearable && inputValue && editable && (
@@ -366,21 +362,19 @@ export const Combobox = _component(
             <FormValue name={name} value={value} />
           </div>
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    floatingStyles.anchored,
-                    floatingStyles.surface,
-                    comboboxStyles.popover,
-                    // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
-                    appearance().size && fontSizeStyles[appearance().size!],
-                    transitions.scale,
-                  ],
-                },
-                propsPopover,
-                { ref: _toRef(panel), popover: 'auto', onToggle },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  floatingStyles.surface,
+                  comboboxStyles.popover,
+                  // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
+                  appearance().size && fontSizeStyles[appearance().size!],
+                  transitions.scale,
+                ],
+              },
+              propsPopover,
+              { ref: _toRef(panel), popover: 'auto', onToggle },
             )}
           >
             <ListboxView

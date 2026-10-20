@@ -21,7 +21,7 @@ import { useLang } from '../config/context';
 import { createMatcher } from '../utils/data/collation';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { useLayoutAnimation } from '../utils/motion/layout';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 import { fontSizeStyles } from '../utils/style/typography';
 import {
@@ -289,12 +289,10 @@ export const TagsInput = _component(
       return (
         <>
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                { sx: [controlSx(appearance(), state), tagsInputStyles.root] },
-                propsRoot,
-                { ref: _toRef(shell), onPointerdown: focusOnShell(() => input) },
-              ),
+            {...mergeAttrs<'div'>(
+              { sx: [controlSx(appearance(), state), tagsInputStyles.root] },
+              propsRoot,
+              { ref: _toRef(shell), onPointerdown: focusOnShell(() => input) },
             )}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
@@ -315,26 +313,24 @@ export const TagsInput = _component(
               );
             })}
             <input
-              {...elementProps(
-                mergeProps<'input'>({ sx: [controlStyles.input, tagsInputStyles.input] }, rest, {
-                  ref: _toRef(input),
-                  id: state.id,
-                  role: suggestions() ? 'combobox' : undefined,
-                  autocomplete: 'off',
-                  disabled: state.disabled,
-                  readonly: state.readonly,
-                  'aria-autocomplete': suggestions() ? 'list' : undefined,
-                  'aria-expanded': suggestions() ? open : undefined,
-                  'aria-controls': suggestions() ? listId : undefined,
-                  'aria-activedescendant':
-                    open && suggestions() ? activeOptionId(list, listId) : undefined,
-                  'aria-invalid': state.invalid || undefined,
-                  'aria-describedby': state.describedBy,
-                  onKeydown,
-                  onPaste,
-                  onBlur: () => (open = false),
-                }),
-              )}
+              {...mergeAttrs<'input'>({ sx: [controlStyles.input, tagsInputStyles.input] }, rest, {
+                ref: _toRef(input),
+                id: state.id,
+                role: suggestions() ? 'combobox' : undefined,
+                autocomplete: 'off',
+                disabled: state.disabled,
+                readonly: state.readonly,
+                'aria-autocomplete': suggestions() ? 'list' : undefined,
+                'aria-expanded': suggestions() ? open : undefined,
+                'aria-controls': suggestions() ? listId : undefined,
+                'aria-activedescendant':
+                  open && suggestions() ? activeOptionId(list, listId) : undefined,
+                'aria-invalid': state.invalid || undefined,
+                'aria-describedby': state.describedBy,
+                onKeydown,
+                onPaste,
+                onBlur: () => (open = false),
+              })}
               value={_bind(inputValue)}
             />
             {clearable && value.length > 0 && editable && (
@@ -355,20 +351,18 @@ export const TagsInput = _component(
           </div>
           {suggestions() && (
             <div
-              {...elementProps(
-                mergeProps<'div'>(
-                  {
-                    sx: [
-                      floatingStyles.anchored,
-                      floatingStyles.surface,
-                      tagsInputStyles.popover,
-                      appearance().size && fontSizeStyles[appearance().size!],
-                      transitions.scale,
-                    ],
-                  },
-                  propsPopover,
-                  { ref: _toRef(panel), popover: 'auto', onToggle },
-                ),
+              {...mergeAttrs<'div'>(
+                {
+                  sx: [
+                    floatingStyles.anchored,
+                    floatingStyles.surface,
+                    tagsInputStyles.popover,
+                    appearance().size && fontSizeStyles[appearance().size!],
+                    transitions.scale,
+                  ],
+                },
+                propsPopover,
+                { ref: _toRef(panel), popover: 'auto', onToggle },
               )}
             >
               <ListboxView

@@ -18,7 +18,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { FormContext } from './Form';
 import type { FieldConstraints } from './form-constraints';
@@ -134,9 +134,7 @@ export const Label = _component(
   ({ required = false, disabled = false, propsRequired, children, ...rest }: LabelProps) =>
     () => (
       <label
-        {...elementProps(
-          mergeProps<'label'>({ sx: [labelStyles.root, disabled && labelStyles.disabled] }, rest),
-        )}
+        {...mergeAttrs<'label'>({ sx: [labelStyles.root, disabled && labelStyles.disabled] }, rest)}
         data-disabled={disabled || undefined}
       >
         {children}
@@ -253,7 +251,7 @@ export const Field = _component(
 
     return () => (
       <div
-        {...elementProps(mergeProps<'div'>({ sx: fieldStyles.root }, rest, { onFocusout }))}
+        {...mergeAttrs<'div'>({ sx: fieldStyles.root }, rest, { onFocusout })}
         data-invalid={(invalid ?? message() != null) || undefined}
         data-disabled={disabled || undefined}
       >

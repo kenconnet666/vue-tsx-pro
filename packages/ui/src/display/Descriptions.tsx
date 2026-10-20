@@ -17,7 +17,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 描述列表里的一项 */
@@ -138,28 +138,25 @@ export const Descriptions = _component(
   }: DescriptionsProps) =>
     () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: [descriptionsStyles.root, size && fontSizeStyles[size]] }, rest),
+        {...mergeAttrs<'div'>(
+          { sx: [descriptionsStyles.root, size && fontSizeStyles[size]] },
+          rest,
         )}
         data-layout={layout}
       >
         {title != null && (
-          <div {...elementProps(mergeProps<'div'>({ sx: descriptionsStyles.title }, propsTitle))}>
-            {title}
-          </div>
+          <div {...mergeAttrs<'div'>({ sx: descriptionsStyles.title }, propsTitle)}>{title}</div>
         )}
         <dl
-          {...elementProps(
-            mergeProps<'dl'>(
-              {
-                sx: [
-                  descriptionsStyles.list,
-                  descriptionsGridStyles.columns(columns),
-                  bordered && descriptionsStyles.listBordered,
-                ],
-              },
-              propsList,
-            ),
+          {...mergeAttrs<'dl'>(
+            {
+              sx: [
+                descriptionsStyles.list,
+                descriptionsGridStyles.columns(columns),
+                bordered && descriptionsStyles.listBordered,
+              ],
+            },
+            propsList,
           )}
         >
           {items.map((item, index) => {
@@ -168,48 +165,42 @@ export const Descriptions = _component(
             return (
               <div
                 key={item.key ?? (typeof item.label === 'string' ? item.label : index)}
-                {...elementProps(
-                  mergeProps<'div'>(
-                    {
-                      sx: [
-                        layout === 'vertical'
-                          ? descriptionsStyles.itemVertical
-                          : descriptionsStyles.itemHorizontal,
-                        bordered && descriptionsStyles.itemBordered,
-                        descriptionsStyles.item,
-                        span > 1 && descriptionsGridStyles.span(span),
-                      ],
-                    },
-                    own,
-                  ),
+                {...mergeAttrs<'div'>(
+                  {
+                    sx: [
+                      layout === 'vertical'
+                        ? descriptionsStyles.itemVertical
+                        : descriptionsStyles.itemHorizontal,
+                      bordered && descriptionsStyles.itemBordered,
+                      descriptionsStyles.item,
+                      span > 1 && descriptionsGridStyles.span(span),
+                    ],
+                  },
+                  own,
                 )}
               >
                 <dt
-                  {...elementProps(
-                    mergeProps<'dt'>(
-                      {
-                        sx: [
-                          descriptionsStyles.label,
-                          bordered && [
-                            descriptionsStyles.cellBordered,
-                            descriptionsStyles.labelBordered,
-                          ],
+                  {...mergeAttrs<'dt'>(
+                    {
+                      sx: [
+                        descriptionsStyles.label,
+                        bordered && [
+                          descriptionsStyles.cellBordered,
+                          descriptionsStyles.labelBordered,
                         ],
-                      },
-                      propsLabel,
-                    ),
+                      ],
+                    },
+                    propsLabel,
                   )}
                 >
                   {item.label}
                 </dt>
                 <dd
-                  {...elementProps(
-                    mergeProps<'dd'>(
-                      {
-                        sx: [descriptionsStyles.value, bordered && descriptionsStyles.cellBordered],
-                      },
-                      propsValue,
-                    ),
+                  {...mergeAttrs<'dd'>(
+                    {
+                      sx: [descriptionsStyles.value, bordered && descriptionsStyles.cellBordered],
+                    },
+                    propsValue,
                   )}
                 >
                   {item.value}

@@ -21,7 +21,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { useFieldControl } from './Field';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toggleSelection } from '../utils/data/selection';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import {
@@ -133,48 +133,44 @@ export const Checkbox = _component(
       const marked = isChecked || indeterminate;
       return (
         <label
-          {...elementProps(
-            mergeProps<'label'>(
-              {
-                sx: [
-                  choiceStyles.root,
-                  resolvedSize() && fontSizeStyles[resolvedSize()!],
-                  off && choiceStyles.disabled,
-                ],
-              },
-              propsRoot,
-            ),
+          {...mergeAttrs<'label'>(
+            {
+              sx: [
+                choiceStyles.root,
+                resolvedSize() && fontSizeStyles[resolvedSize()!],
+                off && choiceStyles.disabled,
+              ],
+            },
+            propsRoot,
           )}
           data-state={indeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
         >
-          <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.control }, propsControl))}>
+          <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
             <input
-              {...elementProps(
-                mergeProps<'input'>(
-                  {
-                    sx: [
-                      choiceStyles.input,
-                      checkboxStyles.box,
-                      marked && choiceStyles.checked,
-                      bad && choiceStyles.invalid,
-                    ],
-                  },
-                  rest,
-                  {
-                    ref: _toRef(input),
-                    type: 'checkbox',
-                    id: field?.id ?? id,
-                    name: rest.name ?? group?.name,
-                    value,
-                    checked: isChecked,
-                    disabled: off,
-                    required: required ?? field?.required,
-                    'aria-invalid': bad || undefined,
-                    'aria-describedby': field?.describedBy,
-                    onChange,
-                  },
-                ),
+              {...mergeAttrs<'input'>(
+                {
+                  sx: [
+                    choiceStyles.input,
+                    checkboxStyles.box,
+                    marked && choiceStyles.checked,
+                    bad && choiceStyles.invalid,
+                  ],
+                },
+                rest,
+                {
+                  ref: _toRef(input),
+                  type: 'checkbox',
+                  id: field?.id ?? id,
+                  name: rest.name ?? group?.name,
+                  value,
+                  checked: isChecked,
+                  disabled: off,
+                  required: required ?? field?.required,
+                  'aria-invalid': bad || undefined,
+                  'aria-describedby': field?.describedBy,
+                  onChange,
+                },
               )}
             />
             <Icon
@@ -194,9 +190,7 @@ export const Checkbox = _component(
             />
           </span>
           {children != null && (
-            <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.label }, propsLabel))}>
-              {children}
-            </span>
+            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
           )}
         </label>
       );
@@ -255,14 +249,12 @@ export const CheckboxGroup = _component(
       const state = control();
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
-              id: state.id,
-              role: 'group',
-              'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
-              'aria-describedby': state.describedBy,
-            }),
-          )}
+          {...mergeAttrs<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
+            id: state.id,
+            role: 'group',
+            'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
+            'aria-describedby': state.describedBy,
+          })}
           data-orientation={orientation}
           data-disabled={state.disabled || undefined}
         >

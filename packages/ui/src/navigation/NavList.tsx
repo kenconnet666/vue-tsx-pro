@@ -20,7 +20,7 @@ import { onBeforeUnmount, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
 import { useRouterLink } from '../utils/dom/link';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles, listStyles } from '../utils/style/styles';
@@ -63,10 +63,8 @@ export interface NavListProps extends PartProps<'nav'> {
 
 /** 侧边导航（nav > ul），里面放 NavItem 与 NavGroup */
 export const NavList = _component(({ propsList, children, ...rest }: NavListProps) => () => (
-  <nav {...elementProps(mergeProps<'nav'>({}, rest))}>
-    <ul
-      {...elementProps(mergeProps<'ul'>({ sx: [listStyles.reset, navListStyles.list] }, propsList))}
-    >
+  <nav {...mergeAttrs<'nav'>({}, rest)}>
+    <ul {...mergeAttrs<'ul'>({ sx: [listStyles.reset, navListStyles.list] }, propsList)}>
       {children}
     </ul>
   </nav>
@@ -132,38 +130,34 @@ export const NavItem = _component(
     }
 
     return () => (
-      <li {...elementProps(mergeProps<'li'>({}, propsItem))}>
+      <li {...mergeAttrs<'li'>({}, propsItem)}>
         <a
-          {...elementProps(
-            mergeProps<'a'>(
-              {
-                sx: [
-                  itemStyles.row,
-                  itemStyles.hoverable,
-                  navListStyles.row,
-                  focusRingStyles.visible,
-                  rippleHostStyles.host,
-                  current && [itemStyles.current, navListStyles.current],
-                  disabled && [itemStyles.disabled, navListStyles.disabled],
-                ],
-              },
-              rest,
-              {
-                href: disabled ? undefined : href,
-                'aria-current': current ? 'page' : undefined,
-                'aria-disabled': disabled || undefined,
-                // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转
-                onClick: router.onClick,
-                ...rippleHandlers,
-              },
-            ),
+          {...mergeAttrs<'a'>(
+            {
+              sx: [
+                itemStyles.row,
+                itemStyles.hoverable,
+                navListStyles.row,
+                focusRingStyles.visible,
+                rippleHostStyles.host,
+                current && [itemStyles.current, navListStyles.current],
+                disabled && [itemStyles.disabled, navListStyles.disabled],
+              ],
+            },
+            rest,
+            {
+              href: disabled ? undefined : href,
+              'aria-current': current ? 'page' : undefined,
+              'aria-disabled': disabled || undefined,
+              // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转
+              onClick: router.onClick,
+              ...rippleHandlers,
+            },
           )}
           data-state={current ? 'active' : 'inactive'}
         >
           {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
-          <span {...elementProps(mergeProps<'span'>({ sx: itemStyles.label }, propsLabel))}>
-            {children}
-          </span>
+          <span {...mergeAttrs<'span'>({ sx: itemStyles.label }, propsLabel)}>{children}</span>
           {end}
         </a>
       </li>
@@ -219,32 +213,28 @@ export const NavGroup = _component(
     });
 
     return () => (
-      <li {...elementProps(mergeProps<'li'>({}, rest))}>
+      <li {...mergeAttrs<'li'>({}, rest)}>
         <Collapsible
           {...mergePartProps<CollapsibleProps>(
             {
               trigger: (props) => (
                 <button
-                  {...elementProps(
-                    mergeProps<'button'>(
-                      {
-                        sx: [
-                          itemStyles.row,
-                          itemStyles.hoverable,
-                          navListStyles.row,
-                          focusRingStyles.visible,
-                        ],
-                        type: 'button',
-                      },
-                      propsTrigger,
-                      props,
-                    ),
+                  {...mergeAttrs<'button'>(
+                    {
+                      sx: [
+                        itemStyles.row,
+                        itemStyles.hoverable,
+                        navListStyles.row,
+                        focusRingStyles.visible,
+                      ],
+                      type: 'button',
+                    },
+                    propsTrigger,
+                    props,
                   )}
                 >
                   {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
-                  <span {...elementProps(mergeProps<'span'>({ sx: itemStyles.label }, propsLabel))}>
-                    {label}
-                  </span>
+                  <span {...mergeAttrs<'span'>({ sx: itemStyles.label }, propsLabel)}>{label}</span>
                   <Icon
                     icon={ChevronRight}
                     flipInRtl
@@ -258,11 +248,9 @@ export const NavGroup = _component(
           open={_bind(open)}
         >
           <ul
-            {...elementProps(
-              mergeProps<'ul'>(
-                { sx: [listStyles.reset, navListStyles.list, navListStyles.nested] },
-                propsList,
-              ),
+            {...mergeAttrs<'ul'>(
+              { sx: [listStyles.reset, navListStyles.list, navListStyles.nested] },
+              propsList,
             )}
           >
             {children}

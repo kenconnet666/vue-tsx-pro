@@ -76,7 +76,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 | 需要                                               | 用                                                                                                                                          |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 合并部件属性                                       | `mergeProps<'tag'>`（原生元素）、`mergePartProps<XxxProps>`（子组件）                                                                       |
+| 合并部件属性                                       | `mergeAttrs<'tag'>`（原生元素，直接展开到元素上）、`mergePartProps<XxxProps>`（子组件）；底层是 `mergeProps` + `elementProps`               |
 | 档位样式（间距、字号、色调、焦点环…）              | `utils/style/styles.ts`、`utils/style/typography.ts`、`utils/style/tone-styles.ts`                                                          |
 | 波纹                                               | `useRipple(() => ripple)`，返回值展开到受管层                                                                                               |
 | 按钮类的不可用、加载中、拦截点击                   | `useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick)`（`base/button-core.ts`）                   |
@@ -150,7 +150,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉（`Features.DirSelector`）                                                                                              |
 | `width: '_lg'` 变成 64rem                                      | 短写按属性找组，`width` 属于 sizes；间距写 `'_space.lg'`                                                                                                                     |
 | 构建报 TS2883（类型无法命名）                                  | 推导出的类型引用了没导出的类型：泛型组件需要的类型（如 `TsxNode`）要从入口导出；StyleX 的样式引用已是具名的 `CompiledStyles`                                                 |
-| StyleX 报 “Referenced constant is not defined”                 | 把导入的样式（如 `focusRingStyles`）直接传给 `stylex.attrs` 会触发编译期求值失败；经 `elementProps({ sx })` 传                                                               |
+| StyleX 报 “Referenced constant is not defined”                 | 把导入的样式（如 `focusRingStyles`）直接传给 `stylex.attrs` 会触发编译期求值失败；经 `mergeAttrs({ sx })` 或 `elementProps({ sx })` 传                                       |
 | axe 在暗色主题报对比度不足，背景是 #ffffff                     | 元素溢出到视口外，axe 取不到背景按白色算（亮色主题刚好蒙对）。演示页有“窄屏不横向溢出”的回归测试；容器里的滚动元素外层要 `minWidth: 0`                                       |
 | Firefox / WebKit 里 axe 测试超时                               | Firefox 里个别过渡永远停在 running；等动画结束要设上限，并跳过无限循环的动画（加载指示）                                                                                     |
 | WebKit 里“点击后应有过渡”偶发失败                              | WebKit 不一定在下一帧建好过渡，用 `expect.poll`                                                                                                                              |

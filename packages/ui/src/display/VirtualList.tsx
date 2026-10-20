@@ -16,7 +16,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
@@ -167,23 +167,21 @@ export const VirtualList = _component(
       const hasItems = items.length > 0;
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  virtualListStyles.root,
-                  isContainer && [virtualListStyles.container, focusRingStyles.visible],
-                ],
-              },
-              rest,
-              {
-                ref: _toRef(root),
-                role: hasItems ? 'list' : undefined,
-                'aria-busy': loading || undefined,
-                // 容器模式下可以用键盘滚动
-                tabindex: isContainer ? 0 : undefined,
-              },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                virtualListStyles.root,
+                isContainer && [virtualListStyles.container, focusRingStyles.visible],
+              ],
+            },
+            rest,
+            {
+              ref: _toRef(root),
+              role: hasItems ? 'list' : undefined,
+              'aria-busy': loading || undefined,
+              // 容器模式下可以用键盘滚动
+              tabindex: isContainer ? 0 : undefined,
+            },
           )}
         >
           {indicator.value && hasItems && (
@@ -193,15 +191,13 @@ export const VirtualList = _component(
           )}
           {hasItems ? (
             <div
-              {...elementProps(
-                mergeProps<'div'>({ sx: virtualListStyles.list }, propsList, {
-                  sx: horizontal
-                    ? virtualListSizeStyles.width(virtual.total)
-                    : virtualListSizeStyles.height(virtual.total),
-                  ref: _toRef(list),
-                  role: 'presentation',
-                }),
-              )}
+              {...mergeAttrs<'div'>({ sx: virtualListStyles.list }, propsList, {
+                sx: horizontal
+                  ? virtualListSizeStyles.width(virtual.total)
+                  : virtualListSizeStyles.height(virtual.total),
+                ref: _toRef(list),
+                role: 'presentation',
+              })}
             >
               {virtual.items.map((item) => {
                 const data = items[item.index]!;
@@ -210,27 +206,25 @@ export const VirtualList = _component(
                 return (
                   <div
                     key={item.key}
-                    {...elementProps(
-                      mergeProps<'div'>(
-                        {
-                          sx: [
-                            virtualListStyles.item,
-                            horizontal
-                              ? virtualListStyles.itemHorizontal
-                              : virtualListStyles.itemVertical,
-                          ],
-                        },
-                        own,
-                        {
-                          sx: horizontal
-                            ? virtualListSizeStyles.x(item.start)
-                            : virtualListSizeStyles.y(item.start),
-                          ref: virtual.measure,
-                          role: 'listitem',
-                          'aria-setsize': items.length,
-                          'aria-posinset': item.index + 1,
-                        },
-                      ),
+                    {...mergeAttrs<'div'>(
+                      {
+                        sx: [
+                          virtualListStyles.item,
+                          horizontal
+                            ? virtualListStyles.itemHorizontal
+                            : virtualListStyles.itemVertical,
+                        ],
+                      },
+                      own,
+                      {
+                        sx: horizontal
+                          ? virtualListSizeStyles.x(item.start)
+                          : virtualListSizeStyles.y(item.start),
+                        ref: virtual.measure,
+                        role: 'listitem',
+                        'aria-setsize': items.length,
+                        'aria-posinset': item.index + 1,
+                      },
                     )}
                     data-index={item.index}
                   >

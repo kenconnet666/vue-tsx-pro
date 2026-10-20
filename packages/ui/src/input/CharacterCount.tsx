@@ -8,7 +8,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到 span 上；id 给输入框的 aria-describedby 关联 */
 export interface CharacterCountProps extends PartProps<'span'> {
@@ -37,11 +37,9 @@ export const CharacterCount = _component(({ count, max, ...rest }: CharacterCoun
     const over = max != null && count > max;
     return (
       <span
-        {...elementProps(
-          mergeProps<'span'>(
-            { sx: [characterCountStyles.root, over && characterCountStyles.over] },
-            rest,
-          ),
+        {...mergeAttrs<'span'>(
+          { sx: [characterCountStyles.root, over && characterCountStyles.over] },
+          rest,
         )}
         data-over={over || undefined}
       >

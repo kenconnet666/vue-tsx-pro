@@ -22,7 +22,7 @@ import {
 } from '../utils/dom/floating';
 import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
 import { toElement } from '../utils/dom/overlay';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
@@ -133,40 +133,36 @@ export const HoverCard = _component(
           },
         })}
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  floatingStyles.anchored,
-                  floatingStyles.surface,
-                  hoverCardStyles.panel,
-                  transitions.scale,
-                  arrow && floatingStyles.withArrow,
-                ],
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                floatingStyles.anchored,
+                floatingStyles.surface,
+                hoverCardStyles.panel,
+                transitions.scale,
+                arrow && floatingStyles.withArrow,
+              ],
+            },
+            rest,
+            {
+              ref: _toRef(panel),
+              id,
+              popover: 'manual',
+              ...hover.panel,
+              onFocusout: (event: FocusEvent) => {
+                if (!inside(event.relatedTarget)) hover.closeNow();
               },
-              rest,
-              {
-                ref: _toRef(panel),
-                id,
-                popover: 'manual',
-                ...hover.panel,
-                onFocusout: (event: FocusEvent) => {
-                  if (!inside(event.relatedTarget)) hover.closeNow();
-                },
-              },
-            ),
+            },
           )}
           data-state={open && !disabled ? 'open' : 'closed'}
         >
           {children}
           {arrow && (
             <span
-              {...elementProps(
-                mergeProps<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
-                  ref: _toRef(arrowElement),
-                  'aria-hidden': true,
-                }),
-              )}
+              {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
+                ref: _toRef(arrowElement),
+                'aria-hidden': true,
+              })}
             />
           )}
         </div>

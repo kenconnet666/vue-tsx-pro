@@ -11,7 +11,7 @@
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import { nextTick, type VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import type { FormControllerBase } from './useForm';
 
 /** 表单控制器（Field 按 name 读取错误、报告失焦） */
@@ -45,14 +45,12 @@ export const Form = _component(({ controller, children, ...rest }: FormProps) =>
 
   return () => (
     <form
-      {...elementProps(
-        mergeProps<'form'>({}, rest, {
-          ref: _toRef(form),
-          novalidate: true,
-          onSubmit: (event: Event) => void onSubmit(event),
-          onReset,
-        }),
-      )}
+      {...mergeAttrs<'form'>({}, rest, {
+        ref: _toRef(form),
+        novalidate: true,
+        onSubmit: (event: Event) => void onSubmit(event),
+        onReset,
+      })}
       data-submitting={controller.submitting || undefined}
     >
       {children}

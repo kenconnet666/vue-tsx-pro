@@ -7,7 +7,7 @@
 import { LoaderCircle } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -39,9 +39,9 @@ export const spinnerStyles = stylex.create({
 /** 加载指示（span > 图标）：有 label 时是 role="status" */
 export const Spinner = _component(({ label, size, propsIcon, ...rest }: SpinnerProps) => () => (
   <span
-    {...elementProps(
-      mergeProps<'span'>({ sx: spinnerStyles.root }, rest, { role: label ? 'status' : undefined }),
-    )}
+    {...mergeAttrs<'span'>({ sx: spinnerStyles.root }, rest, {
+      role: label ? 'status' : undefined,
+    })}
   >
     <Icon
       {...mergePartProps<IconProps>(

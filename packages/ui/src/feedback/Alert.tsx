@@ -15,7 +15,7 @@ import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
 import { focusAfterRemoval } from '../utils/dom/focus';
 import { usePresence } from '../utils/motion/presence';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
@@ -138,18 +138,16 @@ export const Alert = _component(
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  alertStyles.root,
-                  statusToneSx(appearance().variant, tone),
-                  closing && alertStyles.closing,
-                ],
-              },
-              rest,
-              { ref: presence.ref, role: ROLES[live], 'aria-busy': loading || undefined },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                alertStyles.root,
+                statusToneSx(appearance().variant, tone),
+                closing && alertStyles.closing,
+              ],
+            },
+            rest,
+            { ref: presence.ref, role: ROLES[live], 'aria-busy': loading || undefined },
           )}
           data-tone={tone}
           data-state={presence.state}
@@ -163,26 +161,18 @@ export const Alert = _component(
               />
             )
           )}
-          <div {...elementProps(mergeProps<'div'>({ sx: alertStyles.body }, propsBody))}>
+          <div {...mergeAttrs<'div'>({ sx: alertStyles.body }, propsBody)}>
             {title != null && (
-              <div {...elementProps(mergeProps<'div'>({ sx: alertStyles.title }, propsTitle))}>
-                {title}
-              </div>
+              <div {...mergeAttrs<'div'>({ sx: alertStyles.title }, propsTitle)}>{title}</div>
             )}
             {children != null && (
-              <div
-                {...elementProps(
-                  mergeProps<'div'>({ sx: alertStyles.description }, propsDescription),
-                )}
-              >
+              <div {...mergeAttrs<'div'>({ sx: alertStyles.description }, propsDescription)}>
                 {children}
               </div>
             )}
           </div>
           {action != null && (
-            <div {...elementProps(mergeProps<'div'>({ sx: alertStyles.action }, propsAction))}>
-              {action}
-            </div>
+            <div {...mergeAttrs<'div'>({ sx: alertStyles.action }, propsAction)}>{action}</div>
           )}
           {onClose && (
             <CloseButton

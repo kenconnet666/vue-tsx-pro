@@ -15,7 +15,7 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { useFieldControl } from './Field';
 
 /** 文件是否符合 accept（`image/*`、`.pdf`、`application/json` 这样的逗号分隔列表）；accept 为空时都符合 */
@@ -174,37 +174,33 @@ export const FileDrop = _component(
       const field = control();
       return (
         <label
-          {...elementProps(
-            mergeProps<'label'>(
-              {
-                sx: [
-                  fileDropStyles.root,
-                  dragging && fileDropStyles.dragging,
-                  field.invalid && fileDropStyles.invalid,
-                  field.disabled && fileDropStyles.disabled,
-                ],
-              },
-              propsRoot,
-              dragHandlers,
-            ),
+          {...mergeAttrs<'label'>(
+            {
+              sx: [
+                fileDropStyles.root,
+                dragging && fileDropStyles.dragging,
+                field.invalid && fileDropStyles.invalid,
+                field.disabled && fileDropStyles.disabled,
+              ],
+            },
+            propsRoot,
+            dragHandlers,
           )}
           data-dragging={dragging || undefined}
           data-disabled={field.disabled || undefined}
         >
           <input
-            {...elementProps(
-              mergeProps<'input'>({ sx: visuallyHiddenStyles.hidden }, rest, {
-                type: 'file',
-                id: field.id,
-                accept,
-                multiple,
-                disabled: field.disabled,
-                required: field.required,
-                'aria-invalid': field.invalid || undefined,
-                'aria-describedby': field.describedBy,
-                onChange,
-              }),
-            )}
+            {...mergeAttrs<'input'>({ sx: visuallyHiddenStyles.hidden }, rest, {
+              type: 'file',
+              id: field.id,
+              accept,
+              multiple,
+              disabled: field.disabled,
+              required: field.required,
+              'aria-invalid': field.invalid || undefined,
+              'aria-describedby': field.describedBy,
+              onChange,
+            })}
           />
           {children ?? (
             <>
@@ -214,7 +210,7 @@ export const FileDrop = _component(
                   propsIcon,
                 )}
               />
-              <span {...elementProps(mergeProps<'span'>({ sx: fileDropStyles.hint }, propsHint))}>
+              <span {...mergeAttrs<'span'>({ sx: fileDropStyles.hint }, propsHint)}>
                 {lang.fileDrop}
               </span>
               {description != null && (

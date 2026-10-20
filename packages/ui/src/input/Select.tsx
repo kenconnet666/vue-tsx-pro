@@ -24,7 +24,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { transitions } from '../utils/style/transitions';
 import { fontSizeStyles } from '../utils/style/typography';
@@ -275,55 +275,49 @@ export const Select = _component(
       return (
         <>
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                { sx: [controlSx(appearance(), state), selectStyles.root] },
-                propsRoot,
-                {
-                  ref: _toRef(shell),
-                  // 点在外壳的空白处也打开：焦点交给触发按钮
-                  // 点在外壳空白处：焦点交给触发按钮并切换打开
-                  onPointerdown: off
-                    ? undefined
-                    : focusOnShell(
-                        () => trigger,
-                        () => (open = !open),
-                      ),
-                },
-              ),
+            {...mergeAttrs<'div'>(
+              { sx: [controlSx(appearance(), state), selectStyles.root] },
+              propsRoot,
+              {
+                ref: _toRef(shell),
+                // 点在外壳的空白处也打开：焦点交给触发按钮
+                // 点在外壳空白处：焦点交给触发按钮并切换打开
+                onPointerdown: off
+                  ? undefined
+                  : focusOnShell(
+                      () => trigger,
+                      () => (open = !open),
+                    ),
+              },
             )}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={off || undefined}
           >
             <button
-              {...elementProps(
-                mergeProps<'button'>({ sx: selectStyles.trigger }, rest, {
-                  ref: _toRef(trigger),
-                  id: state.id,
-                  type: 'button',
-                  role: 'combobox',
-                  disabled: off,
-                  'aria-haspopup': 'listbox',
-                  'aria-expanded': open,
-                  'aria-controls': listId,
-                  'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
-                  'aria-invalid': state.invalid || undefined,
-                  'aria-required': state.required || undefined,
-                  'aria-describedby': state.describedBy,
-                  onClick: () => {
-                    // Safari 点击按钮不会聚焦它：焦点要在触发按钮上，键盘与 aria-activedescendant 才有效
-                    trigger?.focus();
-                    if (open) open = false;
-                    else show();
-                  },
-                  onKeydown,
-                }),
-              )}
+              {...mergeAttrs<'button'>({ sx: selectStyles.trigger }, rest, {
+                ref: _toRef(trigger),
+                id: state.id,
+                type: 'button',
+                role: 'combobox',
+                disabled: off,
+                'aria-haspopup': 'listbox',
+                'aria-expanded': open,
+                'aria-controls': listId,
+                'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
+                'aria-invalid': state.invalid || undefined,
+                'aria-required': state.required || undefined,
+                'aria-describedby': state.describedBy,
+                onClick: () => {
+                  // Safari 点击按钮不会聚焦它：焦点要在触发按钮上，键盘与 aria-activedescendant 才有效
+                  trigger?.focus();
+                  if (open) open = false;
+                  else show();
+                },
+                onKeydown,
+              })}
             >
-              <span {...elementProps(mergeProps<'span'>({ sx: selectStyles.value }, propsValue))}>
-                {shown}
-              </span>
+              <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
             {clearable && values.length > 0 && !off && (
               <ClearButton
@@ -346,21 +340,19 @@ export const Select = _component(
             <FormValue name={name} value={values} />
           </div>
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    floatingStyles.anchored,
-                    floatingStyles.surface,
-                    selectStyles.popover,
-                    // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
-                    appearance().size && fontSizeStyles[appearance().size!],
-                    transitions.scale,
-                  ],
-                },
-                propsPopover,
-                { ref: _toRef(panel), popover: 'auto', onToggle },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  floatingStyles.surface,
+                  selectStyles.popover,
+                  // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
+                  appearance().size && fontSizeStyles[appearance().size!],
+                  transitions.scale,
+                ],
+              },
+              propsPopover,
+              { ref: _toRef(panel), popover: 'auto', onToggle },
             )}
           >
             <ListboxView

@@ -12,7 +12,7 @@ import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { NumberField, type NumberFieldProps } from '../input/NumberField';
 import { clamp } from '../utils/data/layout';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 div 上 */
@@ -63,16 +63,10 @@ export const PageJump = _component(
     );
 
     return () => (
-      <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: [pageJumpStyles.root, fontSizeStyles[size]] }, rest),
-        )}
-      >
+      <div {...mergeAttrs<'div'>({ sx: [pageJumpStyles.root, fontSizeStyles[size]] }, rest)}>
         {lang.pageJumpBefore && (
           <span
-            {...elementProps(
-              mergeProps<'span'>({ sx: pageJumpStyles.text, 'aria-hidden': true }, propsBefore),
-            )}
+            {...mergeAttrs<'span'>({ sx: pageJumpStyles.text, 'aria-hidden': true }, propsBefore)}
           >
             {lang.pageJumpBefore}
           </span>
@@ -92,9 +86,7 @@ export const PageJump = _component(
         />
         {lang.pageJumpAfter && (
           <span
-            {...elementProps(
-              mergeProps<'span'>({ sx: pageJumpStyles.text, 'aria-hidden': true }, propsAfter),
-            )}
+            {...mergeAttrs<'span'>({ sx: pageJumpStyles.text, 'aria-hidden': true }, propsAfter)}
           >
             {lang.pageJumpAfter}
           </span>

@@ -14,7 +14,7 @@ import type { VNodeChild } from 'vue';
 import { useFieldControl } from './Field';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { choiceStyles, useChoiceSize } from './choice-styles';
 
@@ -131,18 +131,16 @@ export const Switch = _component(
       const wide = checkedContent != null || uncheckedContent != null;
       const content = (on: boolean, child: VNodeChild) => (
         <span
-          {...elementProps(
-            mergeProps<'span'>(
-              {
-                sx: [
-                  switchStyles.content,
-                  on ? switchStyles.contentOn : switchStyles.contentOff,
-                  on !== checked && switchStyles.contentHidden,
-                ],
-              },
-              propsContent,
-              { 'aria-hidden': true },
-            ),
+          {...mergeAttrs<'span'>(
+            {
+              sx: [
+                switchStyles.content,
+                on ? switchStyles.contentOn : switchStyles.contentOff,
+                on !== checked && switchStyles.contentHidden,
+              ],
+            },
+            propsContent,
+            { 'aria-hidden': true },
           )}
         >
           <span {...stylex.attrs(switchStyles.contentText)}>{child}</span>
@@ -150,64 +148,58 @@ export const Switch = _component(
       );
       return (
         <label
-          {...elementProps(
-            mergeProps<'label'>(
-              {
-                sx: [
-                  choiceStyles.root,
-                  resolvedSize() && fontSizeStyles[resolvedSize()!],
-                  state.disabled && choiceStyles.disabled,
-                ],
-              },
-              propsRoot,
-            ),
+          {...mergeAttrs<'label'>(
+            {
+              sx: [
+                choiceStyles.root,
+                resolvedSize() && fontSizeStyles[resolvedSize()!],
+                state.disabled && choiceStyles.disabled,
+              ],
+            },
+            propsRoot,
           )}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={state.disabled || undefined}
           data-loading={loading || undefined}
         >
-          <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.control }, propsControl))}>
+          <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
             <input
-              {...elementProps(
-                mergeProps<'input'>(
-                  {
-                    sx: [
-                      choiceStyles.input,
-                      switchStyles.track,
-                      wide && switchStyles.trackWide,
-                      checked ? choiceStyles.checked : switchStyles.trackOff,
-                      state.invalid && choiceStyles.invalid,
-                    ],
+              {...mergeAttrs<'input'>(
+                {
+                  sx: [
+                    choiceStyles.input,
+                    switchStyles.track,
+                    wide && switchStyles.trackWide,
+                    checked ? choiceStyles.checked : switchStyles.trackOff,
+                    state.invalid && choiceStyles.invalid,
+                  ],
+                },
+                rest,
+                {
+                  type: 'checkbox',
+                  role: 'switch',
+                  id: state.id,
+                  checked,
+                  disabled: state.disabled,
+                  required: state.required,
+                  'aria-invalid': state.invalid || undefined,
+                  'aria-describedby': state.describedBy,
+                  'aria-busy': loading || undefined,
+                  // 切换中不接受新的切换：拦下 click，勾选状态就不变
+                  onClick: (event: MouseEvent) => {
+                    if (loading) event.preventDefault();
                   },
-                  rest,
-                  {
-                    type: 'checkbox',
-                    role: 'switch',
-                    id: state.id,
-                    checked,
-                    disabled: state.disabled,
-                    required: state.required,
-                    'aria-invalid': state.invalid || undefined,
-                    'aria-describedby': state.describedBy,
-                    'aria-busy': loading || undefined,
-                    // 切换中不接受新的切换：拦下 click，勾选状态就不变
-                    onClick: (event: MouseEvent) => {
-                      if (loading) event.preventDefault();
-                    },
-                    onChange: (event: Event) =>
-                      (checked = (event.target as HTMLInputElement).checked),
-                  },
-                ),
+                  onChange: (event: Event) =>
+                    (checked = (event.target as HTMLInputElement).checked),
+                },
               )}
             />
             {wide && content(true, checkedContent)}
             {wide && content(false, uncheckedContent)}
             <span
-              {...elementProps(
-                mergeProps<'span'>(
-                  { sx: [choiceStyles.mark, switchStyles.thumb, checked && switchStyles.thumbOn] },
-                  propsThumb,
-                ),
+              {...mergeAttrs<'span'>(
+                { sx: [choiceStyles.mark, switchStyles.thumb, checked && switchStyles.thumbOn] },
+                propsThumb,
               )}
             >
               {spinner.value && (
@@ -221,9 +213,7 @@ export const Switch = _component(
             </span>
           </span>
           {children != null && (
-            <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.label }, propsLabel))}>
-              {children}
-            </span>
+            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
           )}
         </label>
       );

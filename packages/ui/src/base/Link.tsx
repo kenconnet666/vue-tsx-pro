@@ -12,7 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { toneStyles, type Tone } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
@@ -73,22 +73,15 @@ export const Link = _component(
     const router = useRouterLink();
     return () => (
       <a
-        {...elementProps(
-          mergeProps<'a'>(
-            {
-              sx: [
-                linkStyles.root,
-                focusRingStyles.visible,
-                toneStyles[tone],
-                linkStyles[underline],
-              ],
-            },
-            rest,
-            external
-              ? { href, target: '_blank', rel: 'noopener noreferrer' }
-              : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
-                { href, onClick: router.onClick },
-          ),
+        {...mergeAttrs<'a'>(
+          {
+            sx: [linkStyles.root, focusRingStyles.visible, toneStyles[tone], linkStyles[underline]],
+          },
+          rest,
+          external
+            ? { href, target: '_blank', rel: 'noopener noreferrer' }
+            : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
+              { href, onClick: router.onClick },
         )}
       >
         {children}

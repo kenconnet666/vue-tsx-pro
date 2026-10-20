@@ -12,7 +12,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { nextTick, watch, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Menu, type MenuProps } from './Menu';
 
 /** 未声明的属性落到区域的 div 上 */
@@ -77,7 +77,7 @@ export const ContextMenu = _component(
 
     return () => (
       <div
-        {...elementProps(mergeProps<'div'>({}, rest, { onContextmenu }))}
+        {...mergeAttrs<'div'>({}, rest, { onContextmenu })}
         data-state={open ? 'open' : 'closed'}
       >
         {children}

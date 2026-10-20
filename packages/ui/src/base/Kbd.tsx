@@ -6,7 +6,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到 kbd 上 */
 export interface KbdProps extends PartProps<'kbd'> {
@@ -38,5 +38,5 @@ export const kbdStyles = stylex.create({
 
 /** 按键（kbd）：快捷键说明，组合键写成几个 Kbd */
 export const Kbd = _component(({ children, ...rest }: KbdProps) => () => (
-  <kbd {...elementProps(mergeProps<'kbd'>({ sx: kbdStyles.root }, rest))}>{children}</kbd>
+  <kbd {...mergeAttrs<'kbd'>({ sx: kbdStyles.root }, rest)}>{children}</kbd>
 ));

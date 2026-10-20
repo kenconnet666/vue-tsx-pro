@@ -7,7 +7,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/layout';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -104,30 +104,26 @@ export const Progress = _component(
       const percent = max > 0 ? (clamped / max) * 100 : 0;
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: [progressStyles.root, size && fontSizeStyles[size]] }, rest, {
-              role: 'progressbar',
-              'aria-valuemin': 0,
-              'aria-valuemax': max,
-              'aria-valuenow': determinate ? clamped : undefined,
-              'aria-valuetext': determinate
-                ? (valueText?.(clamped, max) ?? `${Math.round(percent)}%`)
-                : undefined,
-            }),
-          )}
+          {...mergeAttrs<'div'>({ sx: [progressStyles.root, size && fontSizeStyles[size]] }, rest, {
+            role: 'progressbar',
+            'aria-valuemin': 0,
+            'aria-valuemax': max,
+            'aria-valuenow': determinate ? clamped : undefined,
+            'aria-valuetext': determinate
+              ? (valueText?.(clamped, max) ?? `${Math.round(percent)}%`)
+              : undefined,
+          })}
           data-state={!determinate ? 'indeterminate' : clamped >= max ? 'complete' : 'loading'}
         >
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                { sx: [progressStyles.indicator, progressToneStyles[tone]] },
-                propsIndicator,
-                {
-                  sx: determinate
-                    ? progressWidthStyles.percent(`${percent}%`)
-                    : progressStyles.indeterminate,
-                },
-              ),
+            {...mergeAttrs<'div'>(
+              { sx: [progressStyles.indicator, progressToneStyles[tone]] },
+              propsIndicator,
+              {
+                sx: determinate
+                  ? progressWidthStyles.percent(`${percent}%`)
+                  : progressStyles.indeterminate,
+              },
             )}
           />
         </div>

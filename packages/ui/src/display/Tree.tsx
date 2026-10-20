@@ -43,7 +43,7 @@ import {
   type TreeAccessors,
 } from '../utils/data/tree';
 import { createTypeahead } from '../utils/dom/typeahead';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -344,41 +344,39 @@ export const Tree = _component(
       const marked = state.checked !== 'unchecked';
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  itemStyles.row,
-                  itemStyles.hoverable,
-                  treeStyles.item,
-                  focused && state.active && itemStyles.highlighted,
-                  state.selected && itemStyles.current,
-                  disabled && itemStyles.disabled,
-                ],
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                itemStyles.row,
+                itemStyles.hoverable,
+                treeStyles.item,
+                focused && state.active && itemStyles.highlighted,
+                state.selected && itemStyles.current,
+                disabled && itemStyles.disabled,
+              ],
+            },
+            own,
+            {
+              id: `${prefix()}-${position}`,
+              role: 'treeitem',
+              'aria-level': row.depth + 1,
+              'aria-setsize': row.setSize,
+              'aria-posinset': row.position,
+              'aria-expanded': row.expandable ? open : undefined,
+              'aria-selected': selectionMode ? state.selected : undefined,
+              'aria-checked': checkable ? ARIA_CHECKED[state.checked] : undefined,
+              'aria-disabled': disabled || undefined,
+              'aria-busy': loading || undefined,
+              // 焦点留在树上
+              onPointerdown: (event: PointerEvent) => event.preventDefault(),
+              onClick: () => {
+                active = row.key;
+                root?.focus({ preventScroll: true });
+                if (selectionMode) select(position);
+                else if (checkable) check(position);
+                else toggle(position);
               },
-              own,
-              {
-                id: `${prefix()}-${position}`,
-                role: 'treeitem',
-                'aria-level': row.depth + 1,
-                'aria-setsize': row.setSize,
-                'aria-posinset': row.position,
-                'aria-expanded': row.expandable ? open : undefined,
-                'aria-selected': selectionMode ? state.selected : undefined,
-                'aria-checked': checkable ? ARIA_CHECKED[state.checked] : undefined,
-                'aria-disabled': disabled || undefined,
-                'aria-busy': loading || undefined,
-                // 焦点留在树上
-                onPointerdown: (event: PointerEvent) => event.preventDefault(),
-                onClick: () => {
-                  active = row.key;
-                  root?.focus({ preventScroll: true });
-                  if (selectionMode) select(position);
-                  else if (checkable) check(position);
-                  else toggle(position);
-                },
-              },
-            ),
+            },
           )}
           data-state={state.selected ? 'selected' : undefined}
           data-active={state.active || undefined}
@@ -436,7 +434,7 @@ export const Tree = _component(
             </span>
           )}
           {icon && <Icon icon={icon} />}
-          <span {...elementProps(mergeProps<'span'>({ sx: itemStyles.label }, propsLabel))}>
+          <span {...mergeAttrs<'span'>({ sx: itemStyles.label }, propsLabel)}>
             {renderItem ? renderItem(row.node, state) : getLabel(row.node)}
           </span>
         </div>
@@ -447,19 +445,17 @@ export const Tree = _component(
       const position = activeRow();
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: [treeStyles.root, focusRingStyles.visible] }, rest, {
-              ref: _toRef(root),
-              id: prefix(),
-              role: 'tree',
-              tabindex: rows.length > 0 ? 0 : -1,
-              'aria-multiselectable': selectionMode === 'multiple' || undefined,
-              'aria-activedescendant': position >= 0 ? `${prefix()}-${position}` : undefined,
-              onFocus,
-              onBlur: () => (focused = false),
-              onKeydown,
-            }),
-          )}
+          {...mergeAttrs<'div'>({ sx: [treeStyles.root, focusRingStyles.visible] }, rest, {
+            ref: _toRef(root),
+            id: prefix(),
+            role: 'tree',
+            tabindex: rows.length > 0 ? 0 : -1,
+            'aria-multiselectable': selectionMode === 'multiple' || undefined,
+            'aria-activedescendant': position >= 0 ? `${prefix()}-${position}` : undefined,
+            onFocus,
+            onBlur: () => (focused = false),
+            onKeydown,
+          })}
         >
           <div
             ref={_toRef(sizer)}

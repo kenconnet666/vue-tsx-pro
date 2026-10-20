@@ -9,7 +9,7 @@
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   fontSizeStyles,
   fontWeightStyles,
@@ -87,7 +87,7 @@ export function createText<Tag extends TextTag>(
           truncate && textStyles.truncate,
           lineClamp != null && [textStyles.clamp, lineClampStyles.lines(lineClamp)],
         ];
-        return <Tag {...elementProps(mergeProps<TextTag>({ sx }, rest))}>{children}</Tag>;
+        return <Tag {...mergeAttrs<TextTag>({ sx }, rest)}>{children}</Tag>;
       },
     { name },
   ) as unknown as TsxComponent<TextProps<Tag>>;

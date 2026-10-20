@@ -10,7 +10,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useLang } from '../config/context';
 import { isRtl } from '../utils/data/layout';
 import { startMove } from '../utils/dom/move';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { COLUMN_MIN_WIDTH } from './columns';
 
 /** 分隔条的角色、可聚焦与取值由组件管理 */
@@ -86,18 +86,16 @@ export const ColumnResizer = _component(
 
     return () => (
       <span
-        {...elementProps(
-          mergeProps<'span'>({ sx: columnResizerStyles.handle }, rest, {
-            role: 'separator',
-            tabindex: 0,
-            'aria-orientation': 'vertical',
-            'aria-label': lang.tableResizeColumn(label),
-            'aria-valuenow': width,
-            'aria-valuemin': minWidth,
-            onPointerdown,
-            onKeydown,
-          }),
-        )}
+        {...mergeAttrs<'span'>({ sx: columnResizerStyles.handle }, rest, {
+          role: 'separator',
+          tabindex: 0,
+          'aria-orientation': 'vertical',
+          'aria-label': lang.tableResizeColumn(label),
+          'aria-valuenow': width,
+          'aria-valuemin': minWidth,
+          onPointerdown,
+          onKeydown,
+        })}
       />
     );
   },

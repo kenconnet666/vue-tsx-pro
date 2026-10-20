@@ -12,7 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { fontSizeStyles, toneStyles, type TextSize } from '../utils/style/typography';
 
@@ -99,9 +99,7 @@ export const Result = _component(
   }: ResultProps) =>
     () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: [resultStyles.root, size && fontSizeStyles[size]] }, rest),
-        )}
+        {...mergeAttrs<'div'>({ sx: [resultStyles.root, size && fontSizeStyles[size]] }, rest)}
         data-status={status}
       >
         {icon !== false && (
@@ -130,9 +128,7 @@ export const Result = _component(
         )}
         {children}
         {action != null && (
-          <div {...elementProps(mergeProps<'div'>({ sx: resultStyles.action }, propsAction))}>
-            {action}
-          </div>
+          <div {...mergeAttrs<'div'>({ sx: resultStyles.action }, propsAction)}>{action}</div>
         )}
       </div>
     ),

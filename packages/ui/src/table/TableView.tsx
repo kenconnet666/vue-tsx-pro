@@ -23,7 +23,7 @@ import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
@@ -329,33 +329,29 @@ export const TableView = _component(
       return (
         <th
           key={column.key}
-          {...elementProps(
-            mergeProps<'th'>(
-              {
-                sx: [
-                  tableStyles.headerCell,
-                  tableDensityStyles[density],
-                  tableStyles[column.align ?? 'start'],
-                  stickySx(column),
-                ],
-              },
-              own,
-              {
-                scope: 'col',
-                'aria-sort': column.sortable ? (sorted ?? 'none') : undefined,
-              },
-            ),
+          {...mergeAttrs<'th'>(
+            {
+              sx: [
+                tableStyles.headerCell,
+                tableDensityStyles[density],
+                tableStyles[column.align ?? 'start'],
+                stickySx(column),
+              ],
+            },
+            own,
+            {
+              scope: 'col',
+              'aria-sort': column.sortable ? (sorted ?? 'none') : undefined,
+            },
           )}
           data-sticky={column.sticky}
         >
           {column.sortable ? (
             <button
-              {...elementProps(
-                mergeProps<'button'>(
-                  { sx: [tableStyles.sortButton, focusRingStyles.visible] },
-                  propsSortButton,
-                  { type: 'button', onClick: () => onSortClick?.(column.key) },
-                ),
+              {...mergeAttrs<'button'>(
+                { sx: [tableStyles.sortButton, focusRingStyles.visible] },
+                propsSortButton,
+                { type: 'button', onClick: () => onSortClick?.(column.key) },
               )}
             >
               <span {...stylex.attrs(tableStyles.sortLabel)}>{column.header}</span>
@@ -396,22 +392,20 @@ export const TableView = _component(
       return (
         <tr
           key={row.key}
-          {...elementProps(
-            mergeProps<'tr'>(
-              {
-                sx: [
-                  variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row,
-                  striped && index % 2 === 1 && tableStyles.striped,
-                  selected && tableStyles.selected,
-                ],
-              },
-              own,
-              {
-                ref: measured ? virtual.measure : undefined,
-                'aria-rowindex': index + 2,
-                'aria-selected': selectionMode != null ? selected : undefined,
-              },
-            ),
+          {...mergeAttrs<'tr'>(
+            {
+              sx: [
+                variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row,
+                striped && index % 2 === 1 && tableStyles.striped,
+                selected && tableStyles.selected,
+              ],
+            },
+            own,
+            {
+              ref: measured ? virtual.measure : undefined,
+              'aria-rowindex': index + 2,
+              'aria-selected': selectionMode != null ? selected : undefined,
+            },
           )}
           data-index={index}
           data-state={selected ? 'selected' : undefined}
@@ -441,19 +435,17 @@ export const TableView = _component(
             return (
               <td
                 key={column.key}
-                {...elementProps(
-                  mergeProps<'td'>(
-                    {
-                      sx: [
-                        tableStyles.cell,
-                        tableDensityStyles[density],
-                        tableStyles[column.align ?? 'start'],
-                        column.wrap && tableStyles.wrap,
-                        stickySx(column),
-                      ],
-                    },
-                    cellProps,
-                  ),
+                {...mergeAttrs<'td'>(
+                  {
+                    sx: [
+                      tableStyles.cell,
+                      tableDensityStyles[density],
+                      tableStyles[column.align ?? 'start'],
+                      column.wrap && tableStyles.wrap,
+                      stickySx(column),
+                    ],
+                  },
+                  cellProps,
                 )}
               >
                 {position === 0 && leading ? (
@@ -490,21 +482,19 @@ export const TableView = _component(
           )}
         >
           <table
-            {...elementProps(
-              mergeProps<'table'>(
-                {
-                  sx: [
-                    tableStyles.table,
-                    tableStyles[density],
-                    tableDynamicStyles.minWidth(minWidth()),
-                  ],
-                },
-                rest,
-                {
-                  'aria-rowcount': rows.length + 1,
-                  'aria-busy': loading || undefined,
-                },
-              ),
+            {...mergeAttrs<'table'>(
+              {
+                sx: [
+                  tableStyles.table,
+                  tableStyles[density],
+                  tableDynamicStyles.minWidth(minWidth()),
+                ],
+              },
+              rest,
+              {
+                'aria-rowcount': rows.length + 1,
+                'aria-busy': loading || undefined,
+              },
             )}
           >
             <colgroup>

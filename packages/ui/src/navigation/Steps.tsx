@@ -10,7 +10,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles, listStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 
@@ -145,11 +145,9 @@ export const Steps = _component(
       const vertical = orientation === 'vertical';
       return (
         <ol
-          {...elementProps(
-            mergeProps<'ol'>(
-              { sx: [listStyles.reset, stepsStyles.root, vertical && stepsStyles.vertical] },
-              rest,
-            ),
+          {...mergeAttrs<'ol'>(
+            { sx: [listStyles.reset, stepsStyles.root, vertical && stepsStyles.vertical] },
+            rest,
           )}
           data-orientation={orientation}
         >
@@ -164,12 +162,10 @@ export const Steps = _component(
             const own = typeof propsItem === 'function' ? propsItem(item, index) : propsItem;
             const content = [
               <span
-                {...elementProps(
-                  mergeProps<'span'>({ sx: stepsStyles.indicator }, propsIndicator, {
-                    sx: stepsStateStyles[state],
-                    'aria-hidden': true,
-                  }),
-                )}
+                {...mergeAttrs<'span'>({ sx: stepsStyles.indicator }, propsIndicator, {
+                  sx: stepsStateStyles[state],
+                  'aria-hidden': true,
+                })}
               >
                 {state === 'complete' ? (
                   <Icon icon={Check} />
@@ -179,16 +175,12 @@ export const Steps = _component(
                   index + 1
                 )}
               </span>,
-              <span {...elementProps(mergeProps<'span'>({ sx: stepsStyles.text }, propsText))}>
-                <span {...elementProps(mergeProps<'span'>({ sx: stepsStyles.title }, propsTitle))}>
+              <span {...mergeAttrs<'span'>({ sx: stepsStyles.text }, propsText)}>
+                <span {...mergeAttrs<'span'>({ sx: stepsStyles.title }, propsTitle)}>
                   {item.title}
                 </span>
                 {item.description != null && (
-                  <span
-                    {...elementProps(
-                      mergeProps<'span'>({ sx: stepsStyles.description }, propsDescription),
-                    )}
-                  >
+                  <span {...mergeAttrs<'span'>({ sx: stepsStyles.description }, propsDescription)}>
                     {item.description}
                   </span>
                 )}
@@ -198,21 +190,17 @@ export const Steps = _component(
             return (
               <li
                 key={index}
-                {...elementProps(
-                  mergeProps<'li'>({ sx: stepsStyles.item }, own, {
-                    'aria-current': state === 'current' ? 'step' : undefined,
-                  }),
-                )}
+                {...mergeAttrs<'li'>({ sx: stepsStyles.item }, own, {
+                  'aria-current': state === 'current' ? 'step' : undefined,
+                })}
                 data-state={state}
               >
                 {clickable ? (
                   <button
-                    {...elementProps(
-                      mergeProps<'button'>(
-                        { sx: [stepsStyles.trigger, focusRingStyles.visible] },
-                        propsTrigger,
-                        { type: 'button', onClick: () => onStepChange(index) },
-                      ),
+                    {...mergeAttrs<'button'>(
+                      { sx: [stepsStyles.trigger, focusRingStyles.visible] },
+                      propsTrigger,
+                      { type: 'button', onClick: () => onStepChange(index) },
                     )}
                   >
                     {content}
@@ -222,12 +210,10 @@ export const Steps = _component(
                 )}
                 {!vertical && index < items.length - 1 && (
                   <span
-                    {...elementProps(
-                      mergeProps<'span'>({ sx: stepsStyles.connector }, propsConnector, {
-                        sx: index < current && stepsStyles.connectorDone,
-                        'aria-hidden': true,
-                      }),
-                    )}
+                    {...mergeAttrs<'span'>({ sx: stepsStyles.connector }, propsConnector, {
+                      sx: index < current && stepsStyles.connectorDone,
+                      'aria-hidden': true,
+                    })}
                   />
                 )}
               </li>

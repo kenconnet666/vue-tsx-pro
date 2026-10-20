@@ -17,7 +17,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from './Field';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import {
   choiceGroupStyles,
@@ -110,16 +110,14 @@ export const RadioGroup = _component(
       const state = control();
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
-              id: state.id,
-              role: 'radiogroup',
-              'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
-              'aria-describedby': state.describedBy,
-              'aria-invalid': state.invalid || undefined,
-              'aria-required': state.required || undefined,
-            }),
-          )}
+          {...mergeAttrs<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
+            id: state.id,
+            role: 'radiogroup',
+            'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
+            'aria-describedby': state.describedBy,
+            'aria-invalid': state.invalid || undefined,
+            'aria-required': state.required || undefined,
+          })}
           data-orientation={orientation}
           data-disabled={state.disabled || undefined}
         >
@@ -183,59 +181,51 @@ export const Radio = _component(
       const off = disabled ?? group.disabled;
       return (
         <label
-          {...elementProps(
-            mergeProps<'label'>(
-              {
-                sx: [
-                  choiceStyles.root,
-                  group.size && fontSizeStyles[group.size],
-                  off && choiceStyles.disabled,
-                ],
-              },
-              propsRoot,
-            ),
+          {...mergeAttrs<'label'>(
+            {
+              sx: [
+                choiceStyles.root,
+                group.size && fontSizeStyles[group.size],
+                off && choiceStyles.disabled,
+              ],
+            },
+            propsRoot,
           )}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
         >
-          <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.control }, propsControl))}>
+          <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
             <input
-              {...elementProps(
-                mergeProps<'input'>(
-                  {
-                    sx: [
-                      choiceStyles.input,
-                      radioStyles.circle,
-                      checked && choiceStyles.checked,
-                      group.invalid && choiceStyles.invalid,
-                    ],
-                  },
-                  rest,
-                  {
-                    type: 'radio',
-                    name: group.name,
-                    value,
-                    checked,
-                    disabled: off,
-                    required: group.required,
-                    onChange: () => group.select(value),
-                  },
-                ),
+              {...mergeAttrs<'input'>(
+                {
+                  sx: [
+                    choiceStyles.input,
+                    radioStyles.circle,
+                    checked && choiceStyles.checked,
+                    group.invalid && choiceStyles.invalid,
+                  ],
+                },
+                rest,
+                {
+                  type: 'radio',
+                  name: group.name,
+                  value,
+                  checked,
+                  disabled: off,
+                  required: group.required,
+                  onChange: () => group.select(value),
+                },
               )}
             />
             <span
-              {...elementProps(
-                mergeProps<'span'>(
-                  { sx: [choiceStyles.mark, radioStyles.dot, checked && radioStyles.dotChecked] },
-                  propsIndicator,
-                ),
+              {...mergeAttrs<'span'>(
+                { sx: [choiceStyles.mark, radioStyles.dot, checked && radioStyles.dotChecked] },
+                propsIndicator,
               )}
             />
           </span>
           {children != null && (
-            <span {...elementProps(mergeProps<'span'>({ sx: choiceStyles.label }, propsLabel))}>
-              {children}
-            </span>
+            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
           )}
         </label>
       );

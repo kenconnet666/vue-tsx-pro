@@ -11,7 +11,7 @@ import { Icon, type IconData, type IconProps } from './Icon';
 import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -315,11 +315,9 @@ export function buttonContent(
   return [
     h(
       'span',
-      elementProps(
-        mergeProps<'span'>({ sx: buttonStyles.content }, propsContent, {
-          sx: loading && buttonStyles.hidden,
-        }),
-      ),
+      mergeAttrs<'span'>({ sx: buttonStyles.content }, propsContent, {
+        sx: loading && buttonStyles.hidden,
+      }),
       [
         icon && h(Icon, mergeProps<IconProps>({ icon }, propsIcon) as IconProps),
         children,

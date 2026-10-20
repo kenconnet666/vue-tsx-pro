@@ -13,7 +13,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick, useId } from 'vue';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from './Field';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
 
 /** 值与状态由组件管理 */
@@ -103,38 +103,34 @@ export const Textarea = _component(
       const describedBy = [state.describedBy, showCount && countId].filter(Boolean).join(' ');
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: controlSx(appearance(), state, true) }, propsRoot),
-          )}
+          {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state, true) }, propsRoot)}
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
           <textarea
-            {...elementProps(
-              mergeProps<'textarea'>(
-                {
-                  sx: [
-                    controlStyles.input,
-                    textareaStyles.textarea,
-                    fixed && textareaStyles.fixed,
-                    textareaRowStyles.min(rows),
-                    maxRows != null && !fixed && textareaRowStyles.max(maxRows),
-                  ],
-                  minlength: state.constraints.minLength,
-                  maxlength: state.constraints.maxLength,
-                },
-                rest,
-                {
-                  ref: _toRef(textarea),
-                  id: state.id,
-                  rows,
-                  disabled: state.disabled,
-                  readonly: state.readonly,
-                  required: state.required,
-                  'aria-invalid': state.invalid || undefined,
-                  'aria-describedby': describedBy || undefined,
-                },
-              ),
+            {...mergeAttrs<'textarea'>(
+              {
+                sx: [
+                  controlStyles.input,
+                  textareaStyles.textarea,
+                  fixed && textareaStyles.fixed,
+                  textareaRowStyles.min(rows),
+                  maxRows != null && !fixed && textareaRowStyles.max(maxRows),
+                ],
+                minlength: state.constraints.minLength,
+                maxlength: state.constraints.maxLength,
+              },
+              rest,
+              {
+                ref: _toRef(textarea),
+                id: state.id,
+                rows,
+                disabled: state.disabled,
+                readonly: state.readonly,
+                required: state.required,
+                'aria-invalid': state.invalid || undefined,
+                'aria-describedby': describedBy || undefined,
+              },
             )}
             value={_bind(value)}
           />

@@ -10,7 +10,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
   buttonSx,
@@ -78,19 +78,17 @@ export const LinkButton = _component(
 
     return () => (
       <a
-        {...elementProps(
-          mergeProps<'a'>(
-            {
-              sx: buttonSx(appearance(), { disabled, fullWidth }),
-              ...(external && { target: '_blank', rel: 'noopener noreferrer' }),
-            },
-            rest,
-            {
-              ...behavior(),
-              href: disabled ? undefined : href,
-              role: disabled ? 'link' : undefined,
-            },
-          ),
+        {...mergeAttrs<'a'>(
+          {
+            sx: buttonSx(appearance(), { disabled, fullWidth }),
+            ...(external && { target: '_blank', rel: 'noopener noreferrer' }),
+          },
+          rest,
+          {
+            ...behavior(),
+            href: disabled ? undefined : href,
+            role: disabled ? 'link' : undefined,
+          },
         )}
       >
         {buttonContent(

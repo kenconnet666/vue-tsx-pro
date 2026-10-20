@@ -10,7 +10,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useLang } from '../config/context';
 import { useClipboard } from '../utils/dom/clipboard';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import {
   buttonContent,
   buttonSx,
@@ -86,15 +86,13 @@ export const CopyButton = _component(
 
     return () => (
       <button
-        {...elementProps(
-          mergeProps<'button'>(
-            {
-              sx: buttonSx(appearance(), { disabled, square: true }),
-              'aria-label': label ?? lang.copy,
-            },
-            rest,
-            { ...behavior(), type: 'button' },
-          ),
+        {...mergeAttrs<'button'>(
+          {
+            sx: buttonSx(appearance(), { disabled, square: true }),
+            'aria-label': label ?? lang.copy,
+          },
+          rest,
+          { ...behavior(), type: 'button' },
         )}
         data-state={clipboard.copied ? 'copied' : 'idle'}
       >

@@ -20,7 +20,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from './Field';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   controlStyles,
   controlSx,
@@ -137,11 +137,9 @@ export const TextField = _component(
       const describedBy = [state.describedBy, showCount && countId].filter(Boolean).join(' ');
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
-              onPointerdown: focusOnShell(() => input),
-            }),
-          )}
+          {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
+            onPointerdown: focusOnShell(() => input),
+          })}
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
@@ -149,38 +147,32 @@ export const TextField = _component(
             <Icon {...mergePartProps<IconProps>({ icon, sx: controlStyles.icon }, propsIcon)} />
           )}
           {prefix != null && (
-            <span {...elementProps(mergeProps<'span'>({ sx: controlStyles.affix }, propsPrefix))}>
-              {prefix}
-            </span>
+            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsPrefix)}>{prefix}</span>
           )}
           {/* _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回 */}
           <input
-            {...elementProps(
-              mergeProps<'input'>(
-                {
-                  sx: controlStyles.input,
-                  minlength: constraints.minLength,
-                  maxlength: constraints.maxLength,
-                },
-                rest,
-                {
-                  ref: _toRef(input),
-                  id: state.id,
-                  type: password && revealed ? 'text' : inputType,
-                  disabled: state.disabled,
-                  readonly: state.readonly,
-                  required: state.required,
-                  'aria-invalid': state.invalid || undefined,
-                  'aria-describedby': describedBy || undefined,
-                },
-              ),
+            {...mergeAttrs<'input'>(
+              {
+                sx: controlStyles.input,
+                minlength: constraints.minLength,
+                maxlength: constraints.maxLength,
+              },
+              rest,
+              {
+                ref: _toRef(input),
+                id: state.id,
+                type: password && revealed ? 'text' : inputType,
+                disabled: state.disabled,
+                readonly: state.readonly,
+                required: state.required,
+                'aria-invalid': state.invalid || undefined,
+                'aria-describedby': describedBy || undefined,
+              },
             )}
             value={_bind(value)}
           />
           {suffix != null && (
-            <span {...elementProps(mergeProps<'span'>({ sx: controlStyles.affix }, propsSuffix))}>
-              {suffix}
-            </span>
+            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsSuffix)}>{suffix}</span>
           )}
           {clearable && value && editable && (
             <ClearButton

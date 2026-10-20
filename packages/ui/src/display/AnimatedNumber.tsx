@@ -14,7 +14,7 @@ import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { useTween, type TweenOptions } from '../utils/motion/tween';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toneStyles, type Tone } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 span 上；原生的 prefix 属性（RDFa）让给前缀内容 */
@@ -102,27 +102,21 @@ export const AnimatedNumber = _component(
         : tone;
       return (
         <span
-          {...elementProps(
-            mergeProps<'span'>(
-              { sx: [animatedNumberStyles.root, color && toneStyles[color]] },
-              rest,
-              { ref: (element: unknown) => (root = element as HTMLElement | null) },
-            ),
+          {...mergeAttrs<'span'>(
+            { sx: [animatedNumberStyles.root, color && toneStyles[color]] },
+            rest,
+            { ref: (element: unknown) => (root = element as HTMLElement | null) },
           )}
           data-trend={trend ? direction : undefined}
         >
-          {prefix != null && (
-            <span {...elementProps(mergeProps<'span'>({}, propsPrefix))}>{prefix}</span>
-          )}
-          <span {...elementProps(mergeProps<'span'>({}, propsValue, { 'aria-hidden': true }))}>
+          {prefix != null && <span {...mergeAttrs<'span'>({}, propsPrefix)}>{prefix}</span>}
+          <span {...mergeAttrs<'span'>({}, propsValue, { 'aria-hidden': true })}>
             {text(shown)}
           </span>
           <VisuallyHidden {...mergePartProps<VisuallyHiddenProps>({}, propsLabel)}>
             {text(value)}
           </VisuallyHidden>
-          {suffix != null && (
-            <span {...elementProps(mergeProps<'span'>({}, propsSuffix))}>{suffix}</span>
-          )}
+          {suffix != null && <span {...mergeAttrs<'span'>({}, propsSuffix)}>{suffix}</span>}
         </span>
       );
     };

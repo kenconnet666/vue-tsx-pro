@@ -15,7 +15,7 @@ import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useLang } from '../config/context';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { usePresence } from '../utils/motion/presence';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 
 /** 忙碌由组件按 loading 管理 */
 export type LoadingOverlayManaged = 'aria-busy';
@@ -72,27 +72,23 @@ export const LoadingOverlay = _component(
 
     return () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: loadingOverlayStyles.root }, rest, {
-            'aria-busy': loading || undefined,
-          }),
-        )}
+        {...mergeAttrs<'div'>({ sx: loadingOverlayStyles.root }, rest, {
+          'aria-busy': loading || undefined,
+        })}
       >
         {children}
         {presence.mounted && (
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    loadingOverlayStyles.overlay,
-                    blur && loadingOverlayStyles.blur,
-                    presence.state === 'closed' && loadingOverlayStyles.closing,
-                  ],
-                },
-                propsOverlay,
-                { ref: presence.ref },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  loadingOverlayStyles.overlay,
+                  blur && loadingOverlayStyles.blur,
+                  presence.state === 'closed' && loadingOverlayStyles.closing,
+                ],
+              },
+              propsOverlay,
+              { ref: presence.ref },
             )}
             data-state={presence.state}
           >

@@ -17,7 +17,7 @@ import { Icon } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useSortable } from '../utils/dom/sortable';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 项的渲染状态 */
 export interface SortableItemState {
@@ -126,17 +126,12 @@ export const Sortable = _component(
     return () => (
       <>
         <ul
-          {...elementProps(
-            mergeProps<'ul'>(
-              {
-                sx: [
-                  sortableStyles.root,
-                  orientation === 'horizontal' && sortableStyles.horizontal,
-                ],
-              },
-              rest,
-              { ref: _toRef(root) },
-            ),
+          {...mergeAttrs<'ul'>(
+            {
+              sx: [sortableStyles.root, orientation === 'horizontal' && sortableStyles.horizontal],
+            },
+            rest,
+            { ref: _toRef(root) },
           )}
           data-orientation={orientation}
         >
@@ -147,29 +142,23 @@ export const Sortable = _component(
             return (
               <li
                 key={key}
-                {...elementProps(
-                  mergeProps<'li'>(
-                    { sx: [sortableStyles.item, state.active && sortableStyles.active] },
-                    own,
-                    sortable.itemProps(key),
-                  ),
+                {...mergeAttrs<'li'>(
+                  { sx: [sortableStyles.item, state.active && sortableStyles.active] },
+                  own,
+                  sortable.itemProps(key),
                 )}
               >
                 <button
-                  {...elementProps(
-                    mergeProps<'button'>({ sx: sortableStyles.handle }, propsHandle, {
-                      type: 'button',
-                      disabled,
-                      'aria-label': lang.sortableHandle(getLabel?.(item) ?? key),
-                      ...sortable.handleProps(key),
-                    }),
-                  )}
+                  {...mergeAttrs<'button'>({ sx: sortableStyles.handle }, propsHandle, {
+                    type: 'button',
+                    disabled,
+                    'aria-label': lang.sortableHandle(getLabel?.(item) ?? key),
+                    ...sortable.handleProps(key),
+                  })}
                 >
                   <Icon icon={GripVertical} />
                 </button>
-                <div
-                  {...elementProps(mergeProps<'div'>({ sx: sortableStyles.content }, propsContent))}
-                >
+                <div {...mergeAttrs<'div'>({ sx: sortableStyles.content }, propsContent)}>
                   {children?.(item, state)}
                 </div>
               </li>

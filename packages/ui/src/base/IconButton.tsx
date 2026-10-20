@@ -6,7 +6,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
   buttonSx,
@@ -64,12 +64,10 @@ export const IconButton = _component(
 
     return () => (
       <button
-        {...elementProps(
-          mergeProps<'button'>(
-            { sx: buttonSx(appearance(), { disabled, square: true }), type },
-            rest,
-            { ...behavior(), 'aria-label': label },
-          ),
+        {...mergeAttrs<'button'>(
+          { sx: buttonSx(appearance(), { disabled, square: true }), type },
+          rest,
+          { ...behavior(), 'aria-label': label },
         )}
       >
         {buttonContent({ icon, propsIcon }, { loading: spinner.value, propsSpinner })}

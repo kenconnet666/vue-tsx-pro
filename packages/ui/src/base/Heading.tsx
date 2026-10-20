@@ -11,7 +11,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   fontSizeStyles,
   fontWeightStyles,
@@ -73,7 +73,7 @@ export function createHeading(tag: HeadingTag, defaultSize: FontSize) {
           align && textAlignStyles[align],
           truncate && textStyles.truncate,
         ];
-        return <Tag {...elementProps(mergeProps<HeadingTag>({ sx }, rest))}>{children}</Tag>;
+        return <Tag {...mergeAttrs<HeadingTag>({ sx }, rest)}>{children}</Tag>;
       },
     { name: tag.toUpperCase() },
   );

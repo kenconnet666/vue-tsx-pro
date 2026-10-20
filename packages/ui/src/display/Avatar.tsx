@@ -11,7 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 头像的圆角 */
@@ -105,19 +105,17 @@ export const Avatar = _component(
       const { size: fontSize, radius: corner } = appearance();
       return (
         <span
-          {...elementProps(
-            mergeProps<'span'>(
-              {
-                sx: [
-                  avatarStyles.root,
-                  avatarStyles[corner],
-                  fontSize && fontSizeStyles[fontSize],
-                  group && avatarStyles.grouped,
-                ],
-              },
-              rest,
-              name ? { role: 'img', 'aria-label': name } : { 'aria-hidden': true },
-            ),
+          {...mergeAttrs<'span'>(
+            {
+              sx: [
+                avatarStyles.root,
+                avatarStyles[corner],
+                fontSize && fontSizeStyles[fontSize],
+                group && avatarStyles.grouped,
+              ],
+            },
+            rest,
+            name ? { role: 'img', 'aria-label': name } : { 'aria-hidden': true },
           )}
           data-state={src ? status : 'fallback'}
         >
@@ -125,26 +123,22 @@ export const Avatar = _component(
             <img
               key={src}
               alt=""
-              {...elementProps(
-                mergeProps<'img'>(
-                  { sx: [avatarStyles.image, status === 'loading' && avatarStyles.loading] },
-                  propsImage,
-                  {
-                    src,
-                    onLoad: () => (status = 'loaded'),
-                    onError: () => (status = 'error'),
-                  },
-                ),
+              {...mergeAttrs<'img'>(
+                { sx: [avatarStyles.image, status === 'loading' && avatarStyles.loading] },
+                propsImage,
+                {
+                  src,
+                  onLoad: () => (status = 'loaded'),
+                  onError: () => (status = 'error'),
+                },
               )}
             />
           )}
           {showFallback && (
             <span
-              {...elementProps(
-                mergeProps<'span'>({ sx: avatarStyles.fallback }, propsFallback, {
-                  'aria-hidden': true,
-                }),
-              )}
+              {...mergeAttrs<'span'>({ sx: avatarStyles.fallback }, propsFallback, {
+                'aria-hidden': true,
+              })}
             >
               {fallback ?? (name ? initials(name) : <Icon icon={User} />)}
             </span>

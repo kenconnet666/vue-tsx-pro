@@ -31,7 +31,7 @@ import { Flex } from '../layout/Flex';
 import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
 import { trackModal } from '../utils/dom/overlay';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 引导的一步 */
 export interface TourStep {
@@ -242,47 +242,41 @@ export const Tour = _component(
       const currentStep = step();
       return (
         <dialog
-          {...elementProps(
-            mergeProps<'dialog'>({ sx: tourStyles.root }, rest, {
-              ref: _toRef(dialog),
-              'aria-labelledby': titleId,
-              'aria-describedby': currentStep?.content != null ? contentId : undefined,
-              onClose,
-            }),
-          )}
+          {...mergeAttrs<'dialog'>({ sx: tourStyles.root }, rest, {
+            ref: _toRef(dialog),
+            'aria-labelledby': titleId,
+            'aria-describedby': currentStep?.content != null ? contentId : undefined,
+            onClose,
+          })}
           data-step={current}
         >
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    tourStyles.spotlight,
-                    rect
-                      ? tourDynamicStyles.rect(rect.left, rect.top, rect.width, rect.height)
-                      : tourStyles.dimmed,
-                  ],
-                },
-                propsSpotlight,
-                { 'aria-hidden': true },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  tourStyles.spotlight,
+                  rect
+                    ? tourDynamicStyles.rect(rect.left, rect.top, rect.width, rect.height)
+                    : tourStyles.dimmed,
+                ],
+              },
+              propsSpotlight,
+              { 'aria-hidden': true },
             )}
           />
           {currentStep && (
             <div
-              {...elementProps(
-                mergeProps<'div'>(
-                  {
-                    sx: [
-                      floatingStyles.anchored,
-                      floatingStyles.surface,
-                      tourStyles.panel,
-                      !rect && tourStyles.centered,
-                    ],
-                  },
-                  propsPanel,
-                  { ref: _toRef(panel), tabindex: -1 },
-                ),
+              {...mergeAttrs<'div'>(
+                {
+                  sx: [
+                    floatingStyles.anchored,
+                    floatingStyles.surface,
+                    tourStyles.panel,
+                    !rect && tourStyles.centered,
+                  ],
+                },
+                propsPanel,
+                { ref: _toRef(panel), tabindex: -1 },
               )}
             >
               <H2 size="md" id={titleId} sx={tourStyles.title}>

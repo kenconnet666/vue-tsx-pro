@@ -53,32 +53,49 @@ type PropsLayer<Target> = Partial<
 /**
  * 合并部件的三层属性：组件默认、使用方传入、组件受管，规则见文件开头。
  * 用类型参数写明属性落到哪里，三层的对象字面量才有补全、悬停说明与类型检查：
- *   mergeProps<'svg'>(默认, rest, 受管)、mergeProps<IconProps>({ sx: … }, propsIcon)
+ *   mergeProps<IconProps>({ sx: … }, propsIcon)；原生元素用 mergeAttrs<'svg'>(默认, rest, 受管)
+ *
+ * 渲染里每个部件每次都要合并，按最常见的情况走捷径：只有默认层时原样返回；
+ * 只有两层以上都给了同名事件时才包一层回调。
  */
 export function mergeProps<Target = Props>(
   defaults: PropsLayer<Target>,
-  user: PropsLayer<Target> = {},
-  managed: PropsLayer<Target> = {},
+  user?: PropsLayer<Target>,
+  managed?: PropsLayer<Target>,
 ): PropsLayer<Target> {
-  const layers = [defaults, user, managed] as Props[];
-  const [defaultLayer, userLayer, managedLayer] = layers as [Props, Props, Props];
-  const merged: Props = { ...defaults, ...user, ...managed };
+  const base = defaults as Props;
+  const own = hasKeys(user) ? (user as Props) : undefined;
+  const fixed = hasKeys(managed) ? (managed as Props) : undefined;
+  if (!own && !fixed) return defaults;
+  const merged: Props = { ...base, ...own, ...fixed };
 
   for (const key of ['sx', 'class', 'style']) {
-    const values = present(layers.map((layer) => layer[key]));
+    const values = present([base[key], own?.[key], fixed?.[key]]);
     if (values.length) merged[key] = values;
   }
 
-  const refs = present(layers.map((layer) => layer.ref as RefSetter | undefined));
+  const refs = present([base.ref, own?.ref, fixed?.ref] as (RefSetter | undefined)[]);
   if (refs.length > 1) {
     merged.ref = (element: unknown) => refs.forEach((ref) => setRef(ref, element));
   }
 
-  for (const key of new Set(layers.flatMap(Object.keys))) {
-    if (!/^on[A-Z]/.test(key)) continue;
-    const internal = [defaultLayer[key], managedLayer[key]];
-    const handler = mergeHandlers(userLayer[key] as Handler | undefined, internal);
-    if (handler) merged[key] = handler;
+  // 同名事件：使用方的与组件的（默认层、受管层）合并；只有组件两层都有时也要合并
+  if (own) {
+    for (const key in own) {
+      if (!isHandlerKey(key) || (base[key] == null && fixed?.[key] == null)) continue;
+      // 使用方传了 undefined（onClick={cond ? fn : undefined}）时也保留组件自己的
+      merged[key] =
+        mergeHandlers(own[key] as Handler | undefined, [base[key], fixed?.[key]]) ??
+        fixed?.[key] ??
+        base[key];
+    }
+  }
+  if (fixed) {
+    for (const key in fixed) {
+      if (!isHandlerKey(key) || base[key] == null || (own && key in own)) continue;
+      const handler = mergeHandlers(undefined, [base[key], fixed[key]]);
+      if (handler) merged[key] = handler;
+    }
   }
   return merged as PropsLayer<Target>;
 }
@@ -102,18 +119,57 @@ export function mergePartProps<P extends object>(
 }
 
 /**
+ * 原生元素部件的合并：mergeProps 的规则，再把 sx 换成 class 与 style（elementProps），结果直接展开到元素上：
+ *   <svg {...mergeAttrs<'svg'>({ sx: styles.icon }, rest, { 'aria-hidden': true })} />
+ */
+export function mergeAttrs<Tag extends keyof JSX.IntrinsicElements>(
+  defaults: PropsLayer<Tag>,
+  user?: PropsLayer<Tag>,
+  managed?: PropsLayer<Tag>,
+): Omit<PropsLayer<Tag>, 'sx' | 'children'> {
+  return elementProps(mergeProps<Tag>(defaults, user, managed));
+}
+
+/**
  * 原生元素部件：把 sx 换成 StyleX 生成的 class 与 style，再与已有的 class、style 合并。
  * 去掉 children：它是内容不是元素属性（组件的 ...rest 里带着它，转交给子组件时要用）。
  */
 export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'children'> {
   const { sx, children: _children, ...rest } = props as P & Props;
   if (sx == null) return rest as Omit<P, 'sx' | 'children'>;
-  const compiled = stylex.attrs(sx as StyleXStyles);
+  const compiled = compileSx(sx as StyleXStyles);
+  if (rest.class == null && rest.style == null) {
+    return { ...rest, ...compiled } as Omit<P, 'sx' | 'children'>;
+  }
   return {
     ...rest,
     class: present([rest.class, compiled.class]),
     style: present([compiled.style, rest.style]),
   } as Omit<P, 'sx' | 'children'>;
+}
+
+/**
+ * 编译好的样式是不变的常量：单个样式（不是数组）按对象缓存 stylex.attrs 的结果，
+ * 根元素、图标这类每次渲染都是同一个样式的部件不必重复合并
+ */
+const compiledCache = new WeakMap<object, ReturnType<typeof stylex.attrs>>();
+function compileSx(sx: StyleXStyles) {
+  if (Array.isArray(sx) || typeof sx !== 'object' || sx === null) return stylex.attrs(sx);
+  let compiled = compiledCache.get(sx);
+  if (!compiled) compiledCache.set(sx, (compiled = stylex.attrs(sx)));
+  return compiled;
+}
+
+/** onClick、onUpdate:value：on 后面跟大写字母 */
+function isHandlerKey(key: string) {
+  const third = key.charCodeAt(2);
+  return key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110 && third >= 65 && third <= 90;
+}
+
+function hasKeys(layer: object | undefined): boolean {
+  if (!layer) return false;
+  for (const _ in layer) return true;
+  return false;
 }
 
 /**

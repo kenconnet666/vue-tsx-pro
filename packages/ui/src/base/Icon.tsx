@@ -12,7 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { createDrawable, utils } from 'animejs';
 import { h, onMounted, watch, type VNode } from 'vue';
 import { useAnimate } from '../utils/motion/animation';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 图标数据：Lucide 的标准格式 */
@@ -74,31 +74,29 @@ export const Icon = _component(
       const labelled = rest['aria-label'] != null || rest['aria-labelledby'] != null;
       return (
         <svg
-          {...elementProps(
-            mergeProps<'svg'>(
-              {
-                sx: [
-                  iconStyles.icon,
-                  typeof size === 'string' && fontSizeStyles[size],
-                  flipInRtl && iconStyles.flip,
-                ],
+          {...mergeAttrs<'svg'>(
+            {
+              sx: [
+                iconStyles.icon,
+                typeof size === 'string' && fontSizeStyles[size],
+                flipInRtl && iconStyles.flip,
+              ],
+            },
+            rest,
+            {
+              style: {
+                fontSize: typeof size === 'number' ? `${size}px` : undefined,
+                strokeWidth,
               },
-              rest,
-              {
-                style: {
-                  fontSize: typeof size === 'number' ? `${size}px` : undefined,
-                  strokeWidth,
-                },
-                viewBox: viewBox(icon),
-                fill: 'none',
-                stroke: 'currentColor',
-                'stroke-linecap': 'round',
-                'stroke-linejoin': 'round',
-                role: labelled ? 'img' : undefined,
-                'aria-hidden': labelled ? undefined : 'true',
-                ref: _toRef(svg),
-              },
-            ),
+              viewBox: viewBox(icon),
+              fill: 'none',
+              stroke: 'currentColor',
+              'stroke-linecap': 'round',
+              'stroke-linejoin': 'round',
+              role: labelled ? 'img' : undefined,
+              'aria-hidden': labelled ? undefined : 'true',
+              ref: _toRef(svg),
+            },
           )}
         >
           {icon.node.map(renderIconNode)}

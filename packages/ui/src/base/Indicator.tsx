@@ -12,7 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { VisuallyHidden } from './VisuallyHidden';
 
@@ -126,23 +126,21 @@ export const Indicator = _component(
       const visible = dot || (count != null && (count > 0 || showZero));
       const text = count == null ? '' : count > max ? `${max}+` : String(count);
       return (
-        <span {...elementProps(mergeProps<'span'>({ sx: indicatorStyles.root }, rest))}>
+        <span {...mergeAttrs<'span'>({ sx: indicatorStyles.root }, rest)}>
           {children}
           {visible && (
             <span
-              {...elementProps(
-                mergeProps<'span'>(
-                  {
-                    sx: [
-                      indicatorStyles.badge,
-                      statusToneSx('solid', tone),
-                      dot ? indicatorStyles.dot : indicatorStyles.count,
-                      indicatorStyles[placement],
-                      overlap === 'circular' && indicatorStyles.circular,
-                    ],
-                  },
-                  propsBadge,
-                ),
+              {...mergeAttrs<'span'>(
+                {
+                  sx: [
+                    indicatorStyles.badge,
+                    statusToneSx('solid', tone),
+                    dot ? indicatorStyles.dot : indicatorStyles.count,
+                    indicatorStyles[placement],
+                    overlap === 'circular' && indicatorStyles.circular,
+                  ],
+                },
+                propsBadge,
               )}
               data-placement={placement}
             >

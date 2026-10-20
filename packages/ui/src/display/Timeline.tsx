@@ -18,7 +18,7 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { StatusTone } from '../utils/style/tone-styles';
 
@@ -143,9 +143,7 @@ export const Timeline = _component(
       ];
       return (
         <ol
-          {...elementProps(
-            mergeProps<'ol'>({ sx: [timelineStyles.root, size && fontSizeStyles[size]] }, rest),
-          )}
+          {...mergeAttrs<'ol'>({ sx: [timelineStyles.root, size && fontSizeStyles[size]] }, rest)}
           data-alternate={alternate || undefined}
         >
           {all.map((item, index) => {
@@ -165,18 +163,16 @@ export const Timeline = _component(
               <Spinner sx={[timelineStyles.pending, timelineToneStyles.accent]} />
             ) : (
               <span
-                {...elementProps(
-                  mergeProps<'span'>(
-                    {
-                      sx: [
-                        timelineStyles.marker,
-                        item.icon && timelineStyles.markerIcon,
-                        timelineToneStyles[item.tone ?? 'neutral'],
-                      ],
-                    },
-                    propsMarker,
-                    { 'aria-hidden': true },
-                  ),
+                {...mergeAttrs<'span'>(
+                  {
+                    sx: [
+                      timelineStyles.marker,
+                      item.icon && timelineStyles.markerIcon,
+                      timelineToneStyles[item.tone ?? 'neutral'],
+                    ],
+                  },
+                  propsMarker,
+                  { 'aria-hidden': true },
                 )}
               >
                 {item.icon && <Icon icon={item.icon} />}
@@ -185,11 +181,9 @@ export const Timeline = _component(
             return (
               <li
                 key={item.key ?? index}
-                {...elementProps(
-                  mergeProps<'li'>(
-                    { sx: [timelineStyles.item, alternate && timelineStyles.itemAlternate] },
-                    own,
-                  ),
+                {...mergeAttrs<'li'>(
+                  { sx: [timelineStyles.item, alternate && timelineStyles.itemAlternate] },
+                  own,
                 )}
                 data-state={item.pending ? 'pending' : undefined}
                 aria-busy={item.pending || undefined}
@@ -201,11 +195,9 @@ export const Timeline = _component(
                   {!last && <span {...stylex.attrs(timelineStyles.line)} />}
                 </div>
                 <div
-                  {...elementProps(
-                    mergeProps<'div'>(
-                      { sx: [timelineStyles.content, end && timelineStyles.contentEnd] },
-                      propsContent,
-                    ),
+                  {...mergeAttrs<'div'>(
+                    { sx: [timelineStyles.content, end && timelineStyles.contentEnd] },
+                    propsContent,
                   )}
                 >
                   <div {...stylex.attrs(timelineStyles.title)}>{item.title}</div>

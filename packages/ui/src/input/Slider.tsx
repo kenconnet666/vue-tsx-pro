@@ -16,7 +16,7 @@ import { useId, type VNodeChild } from 'vue';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { startMove } from '../utils/dom/move';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { clamp, isRtl, snapToStep } from '../utils/data/layout';
@@ -322,36 +322,34 @@ export const Slider = _component(
         return (
           <div
             key={index}
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    sliderStyles.thumb,
-                    focusRingStyles.visible,
-                    vertical ? sliderStyles.thumbVertical : sliderStyles.thumbHorizontal,
-                    position(percentOf(number)),
-                  ],
-                },
-                rest,
-                {
-                  ref: (element: unknown) => (thumbs[index] = element as HTMLElement | null),
-                  role: 'slider',
-                  id: index === 0 ? field.id : undefined,
-                  tabindex: field.disabled ? undefined : 0,
-                  'aria-valuemin': lower,
-                  'aria-valuemax': upper,
-                  'aria-valuenow': number,
-                  'aria-valuetext': valueText?.(number),
-                  'aria-orientation': orientation,
-                  'aria-disabled': field.disabled || undefined,
-                  'aria-label': part && ownLabel != null ? `${ownLabel} ${part}` : ownLabel,
-                  'aria-labelledby':
-                    part && labelledBy ? `${labelledBy} ${labelId}-${index}` : labelledBy,
-                  'aria-describedby': field.describedBy,
-                  'aria-invalid': field.invalid || undefined,
-                  onKeydown: (event: KeyboardEvent) => onKeydown(index, event),
-                },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  sliderStyles.thumb,
+                  focusRingStyles.visible,
+                  vertical ? sliderStyles.thumbVertical : sliderStyles.thumbHorizontal,
+                  position(percentOf(number)),
+                ],
+              },
+              rest,
+              {
+                ref: (element: unknown) => (thumbs[index] = element as HTMLElement | null),
+                role: 'slider',
+                id: index === 0 ? field.id : undefined,
+                tabindex: field.disabled ? undefined : 0,
+                'aria-valuemin': lower,
+                'aria-valuemax': upper,
+                'aria-valuenow': number,
+                'aria-valuetext': valueText?.(number),
+                'aria-orientation': orientation,
+                'aria-disabled': field.disabled || undefined,
+                'aria-label': part && ownLabel != null ? `${ownLabel} ${part}` : ownLabel,
+                'aria-labelledby':
+                  part && labelledBy ? `${labelledBy} ${labelId}-${index}` : labelledBy,
+                'aria-describedby': field.describedBy,
+                'aria-invalid': field.invalid || undefined,
+                onKeydown: (event: KeyboardEvent) => onKeydown(index, event),
+              },
             )}
             data-index={range ? index : undefined}
           >
@@ -364,58 +362,52 @@ export const Slider = _component(
 
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  sliderStyles.root,
-                  vertical ? sliderStyles.vertical : sliderStyles.horizontal,
-                  labelled &&
-                    (vertical ? sliderStyles.labelledVertical : sliderStyles.labelledHorizontal),
-                  size && fontSizeStyles[size],
-                ],
-              },
-              propsRoot,
-              { sx: field.disabled && sliderStyles.disabled, onPointerdown: grab },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                sliderStyles.root,
+                vertical ? sliderStyles.vertical : sliderStyles.horizontal,
+                labelled &&
+                  (vertical ? sliderStyles.labelledVertical : sliderStyles.labelledHorizontal),
+                size && fontSizeStyles[size],
+              ],
+            },
+            propsRoot,
+            { sx: field.disabled && sliderStyles.disabled, onPointerdown: grab },
           )}
           data-disabled={field.disabled || undefined}
           data-orientation={orientation}
           data-range={range || undefined}
         >
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    sliderStyles.track,
-                    vertical ? sliderStyles.trackVertical : sliderStyles.trackHorizontal,
-                  ],
-                },
-                propsTrack,
-                { ref: _toRef(track) },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  sliderStyles.track,
+                  vertical ? sliderStyles.trackVertical : sliderStyles.trackHorizontal,
+                ],
+              },
+              propsTrack,
+              { ref: _toRef(track) },
             )}
           >
             <div
-              {...elementProps(
-                mergeProps<'div'>(
-                  {
-                    sx: [
-                      sliderStyles.range,
-                      vertical ? sliderStyles.rangeVertical : sliderStyles.rangeHorizontal,
-                    ],
-                  },
-                  propsRange,
-                  {
-                    sx: [
-                      position(start),
-                      vertical
-                        ? sliderPositionStyles.height(`${end - start}%`)
-                        : sliderPositionStyles.width(`${end - start}%`),
-                    ],
-                  },
-                ),
+              {...mergeAttrs<'div'>(
+                {
+                  sx: [
+                    sliderStyles.range,
+                    vertical ? sliderStyles.rangeVertical : sliderStyles.rangeHorizontal,
+                  ],
+                },
+                propsRange,
+                {
+                  sx: [
+                    position(start),
+                    vertical
+                      ? sliderPositionStyles.height(`${end - start}%`)
+                      : sliderPositionStyles.width(`${end - start}%`),
+                  ],
+                },
               )}
             />
             {normalized.map((mark) => {
@@ -424,18 +416,16 @@ export const Slider = _component(
               return (
                 <span
                   key={mark.value}
-                  {...elementProps(
-                    mergeProps<'span'>(
-                      {
-                        sx: [
-                          sliderStyles.mark,
-                          vertical ? sliderStyles.markVertical : sliderStyles.markHorizontal,
-                          percent >= start && percent <= end && sliderStyles.markActive,
-                        ],
-                      },
-                      own,
-                      { sx: position(percent) },
-                    ),
+                  {...mergeAttrs<'span'>(
+                    {
+                      sx: [
+                        sliderStyles.mark,
+                        vertical ? sliderStyles.markVertical : sliderStyles.markHorizontal,
+                        percent >= start && percent <= end && sliderStyles.markActive,
+                      ],
+                    },
+                    own,
+                    { sx: position(percent) },
                   )}
                 />
               );
@@ -449,19 +439,15 @@ export const Slider = _component(
             return (
               <span
                 key={mark.value}
-                {...elementProps(
-                  mergeProps<'span'>(
-                    {
-                      sx: [
-                        sliderStyles.markLabel,
-                        vertical
-                          ? sliderStyles.markLabelVertical
-                          : sliderStyles.markLabelHorizontal,
-                      ],
-                    },
-                    own,
-                    { sx: position(percentOf(mark.value)), 'aria-hidden': true },
-                  ),
+                {...mergeAttrs<'span'>(
+                  {
+                    sx: [
+                      sliderStyles.markLabel,
+                      vertical ? sliderStyles.markLabelVertical : sliderStyles.markLabelHorizontal,
+                    ],
+                  },
+                  own,
+                  { sx: position(percentOf(mark.value)), 'aria-hidden': true },
                 )}
               >
                 {mark.label}

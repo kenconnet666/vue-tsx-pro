@@ -10,7 +10,7 @@
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   columnGapStyles,
   gapStyles,
@@ -147,11 +147,7 @@ export function createGrid<Tag extends LayoutTag>(
           flow && gridFlowStyles[flow],
           listRole(tag) && listStyles.reset,
         ];
-        return (
-          <Tag {...elementProps(mergeProps<LayoutTag>({ sx, role: listRole(tag) }, rest))}>
-            {children}
-          </Tag>
-        );
+        return <Tag {...mergeAttrs<LayoutTag>({ sx, role: listRole(tag) }, rest)}>{children}</Tag>;
       },
     { name },
   ) as unknown as TsxComponent<GridProps<Tag>>;

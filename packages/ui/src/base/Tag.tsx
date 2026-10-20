@@ -14,7 +14,7 @@ import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
 import { focusAfterRemoval } from '../utils/dom/focus';
 import { usePresence } from '../utils/motion/presence';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/data/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
@@ -86,19 +86,17 @@ export const Tag = _component(
       const label = removeLabel ?? (text ? `${lang.remove} ${text}` : lang.remove);
       return (
         <span
-          {...elementProps(
-            mergeProps<'span'>(
-              {
-                sx: [
-                  badgeSx(appearance()),
-                  tagStyles.root,
-                  onRemove && tagStyles.removable,
-                  removing && tagStyles.removing,
-                ],
-              },
-              rest,
-              { ref: presence.ref },
-            ),
+          {...mergeAttrs<'span'>(
+            {
+              sx: [
+                badgeSx(appearance()),
+                tagStyles.root,
+                onRemove && tagStyles.removable,
+                removing && tagStyles.removing,
+              ],
+            },
+            rest,
+            { ref: presence.ref },
           )}
           data-state={presence.state}
         >

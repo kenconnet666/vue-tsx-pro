@@ -20,7 +20,7 @@ import { Flex, type FlexProps } from '../layout/Flex';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { dismissOnBackdrop, lockScroll, trackModal } from '../utils/dom/overlay';
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
 /** 打开、关闭与无障碍关联由组件管理；原生的 title 属性（悬停提示）让给标题 */
@@ -153,15 +153,13 @@ export const ModalCore = _component(
 
     return () => (
       <dialog
-        {...elementProps(
-          mergeProps<'dialog'>({ sx: [modalStyles.panel, panelSx, transitions.backdrop] }, rest, {
-            ref: _toRef(dialog),
-            role,
-            'aria-labelledby': titleId,
-            'aria-describedby': description != null ? descriptionId : undefined,
-            onClose,
-          }),
-        )}
+        {...mergeAttrs<'dialog'>({ sx: [modalStyles.panel, panelSx, transitions.backdrop] }, rest, {
+          ref: _toRef(dialog),
+          role,
+          'aria-labelledby': titleId,
+          'aria-describedby': description != null ? descriptionId : undefined,
+          onClose,
+        })}
       >
         <Flex
           {...mergePartProps<FlexProps>(

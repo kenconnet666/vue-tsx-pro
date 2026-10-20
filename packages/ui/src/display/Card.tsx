@@ -9,7 +9,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import type { Space } from '../utils/style/styles';
 
 /** 卡片样式 */
@@ -115,27 +115,21 @@ export const Card = _component(
       const space = cardPaddingStyles[appearance().padding];
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [cardStyles.root, cardVariantStyles[appearance().variant]],
-              },
-              rest,
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [cardStyles.root, cardVariantStyles[appearance().variant]],
+            },
+            rest,
           )}
         >
           {header != null && (
-            <div
-              {...elementProps(mergeProps<'div'>({ sx: [cardStyles.header, space] }, propsHeader))}
-            >
+            <div {...mergeAttrs<'div'>({ sx: [cardStyles.header, space] }, propsHeader)}>
               {header}
             </div>
           )}
-          <div {...elementProps(mergeProps<'div'>({ sx: space }, propsBody))}>{children}</div>
+          <div {...mergeAttrs<'div'>({ sx: space }, propsBody)}>{children}</div>
           {footer != null && (
-            <div
-              {...elementProps(mergeProps<'div'>({ sx: [cardStyles.footer, space] }, propsFooter))}
-            >
+            <div {...mergeAttrs<'div'>({ sx: [cardStyles.footer, space] }, propsFooter)}>
               {footer}
             </div>
           )}

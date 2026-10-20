@@ -14,7 +14,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';
 import { paginationItems } from '../utils/data/pagination';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { listStyles } from '../utils/style/styles';
 import type { TextSize } from '../utils/style/typography';
 import { clamp } from '../utils/data/layout';
@@ -162,28 +162,20 @@ export const Pagination = _component(
 
     return () => (
       <nav
-        {...elementProps(
-          mergeProps<'nav'>({ sx: paginationStyles.root, 'aria-label': lang.pagination }, rest),
-        )}
+        {...mergeAttrs<'nav'>({ sx: paginationStyles.root, 'aria-label': lang.pagination }, rest)}
       >
-        <ul
-          {...elementProps(
-            mergeProps<'ul'>({ sx: [listStyles.reset, paginationStyles.list] }, propsList),
-          )}
-        >
-          <li {...elementProps(mergeProps<'li'>({}, propsItem))}>{stepButton(-1)}</li>
+        <ul {...mergeAttrs<'ul'>({ sx: [listStyles.reset, paginationStyles.list] }, propsList)}>
+          <li {...mergeAttrs<'li'>({}, propsItem)}>{stepButton(-1)}</li>
           {paginationItems({ page: current, pageCount: count, siblings, boundaries }).map(
             (item) => (
-              <li key={item} {...elementProps(mergeProps<'li'>({}, propsItem))}>
+              <li key={item} {...mergeAttrs<'li'>({}, propsItem)}>
                 {typeof item === 'number' ? (
                   pageButton(item)
                 ) : (
                   <span
-                    {...elementProps(
-                      mergeProps<'span'>({ sx: paginationStyles.ellipsis }, propsEllipsis, {
-                        'aria-hidden': true,
-                      }),
-                    )}
+                    {...mergeAttrs<'span'>({ sx: paginationStyles.ellipsis }, propsEllipsis, {
+                      'aria-hidden': true,
+                    })}
                   >
                     <Icon icon={Ellipsis} />
                   </span>
@@ -191,15 +183,13 @@ export const Pagination = _component(
               </li>
             ),
           )}
-          <li {...elementProps(mergeProps<'li'>({}, propsItem))}>{stepButton(1)}</li>
+          <li {...mergeAttrs<'li'>({}, propsItem)}>{stepButton(1)}</li>
         </ul>
         {showTotal && total != null && (
           <span
-            {...elementProps(
-              mergeProps<'span'>(
-                { sx: [paginationStyles.total, paginationStyles.tabular] },
-                propsTotal,
-              ),
+            {...mergeAttrs<'span'>(
+              { sx: [paginationStyles.total, paginationStyles.tabular] },
+              propsTotal,
             )}
           >
             {lang.paginationTotal(total)}

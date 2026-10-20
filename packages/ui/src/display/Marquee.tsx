@@ -16,7 +16,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, type VNodeChild } from 'vue';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { gapStyles, type Space, type StyleTable } from '../utils/style/styles';
 
 /** 滚动方向 */
@@ -158,20 +158,18 @@ export const Marquee = _component(
 
     const renderGroup = (copy: boolean) => (
       <div
-        {...elementProps(
-          mergeProps<'div'>(
-            {
-              sx: [
-                marqueeStyles.group,
-                vertical() && marqueeStyles.groupVertical,
-                gapStyles[gap],
-                // 每份后面留一个间距：两份之间与项之间一样宽
-                marqueeTrailStyles[vertical() ? 'block' : 'inline'][gap],
-              ],
-            },
-            propsGroup,
-            copy ? { 'aria-hidden': true, inert: true } : { ref: _toRef(group) },
-          ),
+        {...mergeAttrs<'div'>(
+          {
+            sx: [
+              marqueeStyles.group,
+              vertical() && marqueeStyles.groupVertical,
+              gapStyles[gap],
+              // 每份后面留一个间距：两份之间与项之间一样宽
+              marqueeTrailStyles[vertical() ? 'block' : 'inline'][gap],
+            ],
+          },
+          propsGroup,
+          copy ? { 'aria-hidden': true, inert: true } : { ref: _toRef(group) },
         )}
       >
         {children}
@@ -180,37 +178,33 @@ export const Marquee = _component(
 
     return () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>(
-            {
-              sx: [
-                marqueeStyles.root,
-                vertical() && marqueeStyles.vertical,
-                fade && (vertical() ? marqueeStyles.fadeVertical : marqueeStyles.fade),
-              ],
-              role: 'marquee',
-            },
-            rest,
-          ),
+        {...mergeAttrs<'div'>(
+          {
+            sx: [
+              marqueeStyles.root,
+              vertical() && marqueeStyles.vertical,
+              fade && (vertical() ? marqueeStyles.fadeVertical : marqueeStyles.fade),
+            ],
+            role: 'marquee',
+          },
+          rest,
         )}
         data-direction={direction}
         data-paused={paused || undefined}
       >
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  marqueeStyles.track,
-                  vertical() && marqueeStyles.trackVertical,
-                  (direction === 'right' || direction === 'down') && marqueeStyles.reverse,
-                  pauseOnHover && marqueeStyles.pausable,
-                  paused && marqueeStyles.paused,
-                  marqueeDynamicStyles.duration(Math.max(length, 1) / Math.max(speed, 1)),
-                ],
-              },
-              propsTrack,
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                marqueeStyles.track,
+                vertical() && marqueeStyles.trackVertical,
+                (direction === 'right' || direction === 'down') && marqueeStyles.reverse,
+                pauseOnHover && marqueeStyles.pausable,
+                paused && marqueeStyles.paused,
+                marqueeDynamicStyles.duration(Math.max(length, 1) / Math.max(speed, 1)),
+              ],
+            },
+            propsTrack,
           )}
         >
           {renderGroup(false)}

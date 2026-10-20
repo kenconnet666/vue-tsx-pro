@@ -14,7 +14,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { childNodes } from '../utils/data/text';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { AvatarGroupContext, avatarStyles } from './Avatar';
 
@@ -54,31 +54,27 @@ export const AvatarGroup = _component(
       const hidden = (total ?? avatars.length) - shown.length;
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              { sx: [avatarGroupStyles.root, size && fontSizeStyles[size]] },
-              rest,
-              { role: 'group' },
-            ),
+          {...mergeAttrs<'div'>(
+            { sx: [avatarGroupStyles.root, size && fontSizeStyles[size]] },
+            rest,
+            { role: 'group' },
           )}
         >
           {shown}
           {hidden > 0 && (
             <span
-              {...elementProps(
-                mergeProps<'span'>(
-                  {
-                    sx: [
-                      avatarStyles.root,
-                      avatarStyles.full,
-                      avatarStyles.grouped,
-                      avatarGroupStyles.more,
-                    ],
-                    'aria-label': lang.avatarMore(hidden),
-                  },
-                  propsMore,
-                  { role: 'img' },
-                ),
+              {...mergeAttrs<'span'>(
+                {
+                  sx: [
+                    avatarStyles.root,
+                    avatarStyles.full,
+                    avatarStyles.grouped,
+                    avatarGroupStyles.more,
+                  ],
+                  'aria-label': lang.avatarMore(hidden),
+                },
+                propsMore,
+                { role: 'img' },
               )}
             >
               <span aria-hidden="true" {...stylex.attrs(avatarGroupStyles.moreText)}>

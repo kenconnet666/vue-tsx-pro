@@ -26,7 +26,7 @@ import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { Progress } from '../feedback/Progress';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { FileDrop, type FileDropProps } from './FileDrop';
 
@@ -202,7 +202,7 @@ export const Upload = _component(
       return (
         <li
           key={item.id}
-          {...elementProps(mergeProps<'li'>({ sx: [itemStyles.row, uploadStyles.item] }, own))}
+          {...mergeAttrs<'li'>({ sx: [itemStyles.row, uploadStyles.item] }, own)}
           data-state={item.status}
         >
           <Icon
@@ -251,7 +251,7 @@ export const Upload = _component(
     }
 
     return () => (
-      <div {...elementProps(mergeProps<'div'>({ sx: uploadStyles.root }, rest))}>
+      <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest)}>
         <FileDrop
           {...mergePartProps<FileDropProps>(
             { accept, multiple, disabled, invalid, required, description },
@@ -275,10 +275,7 @@ export const Upload = _component(
         )}
         {value.length > 0 && (
           // 状态变化（失败、完成）由读屏播报
-          <ul
-            {...elementProps(mergeProps<'ul'>({ sx: uploadStyles.list }, propsList))}
-            aria-live="polite"
-          >
+          <ul {...mergeAttrs<'ul'>({ sx: uploadStyles.list }, propsList)} aria-live="polite">
             {value.map(renderItem)}
           </ul>
         )}

@@ -17,7 +17,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { h, useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { Collapse, type CollapseProps } from './Collapse';
@@ -152,12 +152,10 @@ export const Accordion = _component(
 
     return () => (
       <div
-        {...elementProps(
-          mergeProps<'div'>({ sx: [accordionStyles.root, size && fontSizeStyles[size]] }, rest, {
-            ref: _toRef(root),
-            onKeydown,
-          }),
-        )}
+        {...mergeAttrs<'div'>({ sx: [accordionStyles.root, size && fontSizeStyles[size]] }, rest, {
+          ref: _toRef(root),
+          onKeydown,
+        })}
         data-accordion=""
         data-disabled={disabled || undefined}
       >
@@ -220,25 +218,23 @@ export const AccordionItem = _component(
       const state = open ? 'open' : 'closed';
       const trigger = (
         <button
-          {...elementProps(
-            mergeProps<'button'>(
-              {
-                sx: [
-                  accordionStyles.trigger,
-                  focusRingStyles.visible,
-                  off && accordionStyles.triggerDisabled,
-                ],
-              },
-              propsTrigger,
-              {
-                type: 'button',
-                id: triggerId,
-                disabled: off,
-                'aria-expanded': open,
-                'aria-controls': contentId,
-                onClick: () => accordion.toggle(value),
-              },
-            ),
+          {...mergeAttrs<'button'>(
+            {
+              sx: [
+                accordionStyles.trigger,
+                focusRingStyles.visible,
+                off && accordionStyles.triggerDisabled,
+              ],
+            },
+            propsTrigger,
+            {
+              type: 'button',
+              id: triggerId,
+              disabled: off,
+              'aria-expanded': open,
+              'aria-controls': contentId,
+              onClick: () => accordion.toggle(value),
+            },
           )}
           data-accordion-trigger=""
           data-state={state}
@@ -257,14 +253,14 @@ export const AccordionItem = _component(
       );
       return (
         <div
-          {...elementProps(mergeProps<'div'>({ sx: accordionStyles.item }, rest))}
+          {...mergeAttrs<'div'>({ sx: accordionStyles.item }, rest)}
           data-state={state}
           data-disabled={off || undefined}
         >
           {/* 标签名随 headingLevel，用 h() 渲染 */}
           {h(
             `h${accordion.headingLevel}`,
-            elementProps(mergeProps<'h3'>({ sx: accordionStyles.heading }, propsHeading)),
+            mergeAttrs<'h3'>({ sx: accordionStyles.heading }, propsHeading),
             [trigger],
           )}
           <Collapse

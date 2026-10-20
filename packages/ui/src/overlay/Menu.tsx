@@ -39,7 +39,7 @@ import {
 import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
-import { elementProps, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
@@ -227,29 +227,27 @@ export const Menu = _component(
           'aria-controls': id,
         })}
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  floatingStyles.anchored,
-                  floatingStyles.surface,
-                  menuStyles.panel,
-                  size && fontSizeStyles[size],
-                  transitions.scale,
-                ],
-                // 右键菜单没有触发器：名称由使用方的 aria-label 给
-                'aria-labelledby': anchor ? triggerId : undefined,
-              },
-              rest,
-              {
-                ref: _toRef(panel),
-                id,
-                popover: 'auto',
-                role: 'menu',
-                onToggle,
-                onKeydown: onPanelKeydown,
-              },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                floatingStyles.anchored,
+                floatingStyles.surface,
+                menuStyles.panel,
+                size && fontSizeStyles[size],
+                transitions.scale,
+              ],
+              // 右键菜单没有触发器：名称由使用方的 aria-label 给
+              'aria-labelledby': anchor ? triggerId : undefined,
+            },
+            rest,
+            {
+              ref: _toRef(panel),
+              id,
+              popover: 'auto',
+              role: 'menu',
+              onToggle,
+              onKeydown: onPanelKeydown,
+            },
           )}
           data-state={open ? 'open' : 'closed'}
         >
@@ -303,9 +301,7 @@ export function menuItemContent(
       />
     ),
     icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />,
-    <span {...elementProps(mergeProps<'span'>({ sx: menuStyles.label }, propsLabel))}>
-      {children}
-    </span>,
+    <span {...mergeAttrs<'span'>({ sx: menuStyles.label }, propsLabel)}>{children}</span>,
     shortcut && (
       <Text
         {...mergePartProps<TextProps>(
@@ -383,19 +379,17 @@ export const MenuItem = _component(
     );
     return () => (
       <button
-        {...elementProps(
-          mergeProps<'button'>({ sx: menuItemSx(tone, disabled) }, rest, {
-            type: 'button',
-            role: 'menuitem',
-            disabled,
-            // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
-            onClick: () => {
-              onAction?.();
-              if (closeOnSelect) item.close();
-            },
-            ...item.ripple,
-          }),
-        )}
+        {...mergeAttrs<'button'>({ sx: menuItemSx(tone, disabled) }, rest, {
+          type: 'button',
+          role: 'menuitem',
+          disabled,
+          // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
+          onClick: () => {
+            onAction?.();
+            if (closeOnSelect) item.close();
+          },
+          ...item.ripple,
+        })}
         data-disabled={disabled || undefined}
       >
         {menuItemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
@@ -430,18 +424,16 @@ export const MenuLinkItem = _component(
     const router = useRouterLink();
     return () => (
       <a
-        {...elementProps(
-          mergeProps<'a'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-            role: 'menuitem',
-            href: disabled ? undefined : href,
-            'aria-disabled': disabled || undefined,
-            onClick: (event: MouseEvent) => {
-              router.onClick(event);
-              item.close();
-            },
-            ...item.ripple,
-          }),
-        )}
+        {...mergeAttrs<'a'>({ sx: menuItemSx('neutral', disabled) }, rest, {
+          role: 'menuitem',
+          href: disabled ? undefined : href,
+          'aria-disabled': disabled || undefined,
+          onClick: (event: MouseEvent) => {
+            router.onClick(event);
+            item.close();
+          },
+          ...item.ripple,
+        })}
         data-disabled={disabled || undefined}
       >
         {menuItemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
@@ -480,19 +472,17 @@ export const MenuCheckboxItem = _component(
     );
     return () => (
       <button
-        {...elementProps(
-          mergeProps<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-            type: 'button',
-            role: 'menuitemcheckbox',
-            disabled,
-            'aria-checked': checked,
-            onClick: () => {
-              checked = !checked;
-              if (closeOnSelect) item.close();
-            },
-            ...item.ripple,
-          }),
-        )}
+        {...mergeAttrs<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
+          type: 'button',
+          role: 'menuitemcheckbox',
+          disabled,
+          'aria-checked': checked,
+          onClick: () => {
+            checked = !checked;
+            if (closeOnSelect) item.close();
+          },
+          ...item.ripple,
+        })}
         data-disabled={disabled || undefined}
         data-state={checked ? 'checked' : 'unchecked'}
       >
@@ -521,12 +511,10 @@ function renderGroup(
 ): VNodeChild {
   return (
     <div
-      {...elementProps(
-        mergeProps<'div'>({}, rest, {
-          role: 'group',
-          'aria-labelledby': label != null ? labelId : undefined,
-        }),
-      )}
+      {...mergeAttrs<'div'>({}, rest, {
+        role: 'group',
+        'aria-labelledby': label != null ? labelId : undefined,
+      })}
     >
       {label != null && (
         <Text
@@ -605,19 +593,17 @@ export const MenuRadioItem = _component(
       const checked = group.value === value;
       return (
         <button
-          {...elementProps(
-            mergeProps<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-              type: 'button',
-              role: 'menuitemradio',
-              disabled,
-              'aria-checked': checked,
-              onClick: () => {
-                group.select(value);
-                if (closeOnSelect) item.close();
-              },
-              ...item.ripple,
-            }),
-          )}
+          {...mergeAttrs<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
+            type: 'button',
+            role: 'menuitemradio',
+            disabled,
+            'aria-checked': checked,
+            onClick: () => {
+              group.select(value);
+              if (closeOnSelect) item.close();
+            },
+            ...item.ripple,
+          })}
           data-disabled={disabled || undefined}
           data-state={checked ? 'checked' : 'unchecked'}
         >
@@ -806,26 +792,24 @@ export const MenuSub = _component(
     return () => (
       <>
         <button
-          {...elementProps(
-            mergeProps<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-              ref: _toRef(trigger),
-              id: triggerId,
-              type: 'button',
-              role: 'menuitem',
-              disabled,
-              'aria-haspopup': 'menu',
-              'aria-expanded': open,
-              'aria-controls': id,
-              onClick: openWithFocus,
-              onKeydown: (event: KeyboardEvent) => {
-                ripple.onKeydown(event);
-                onTriggerKeydown(event);
-              },
-              onPointerenter: onTriggerPointerenter,
-              onPointerleave: onTriggerPointerleave,
-              onPointerdown: ripple.onPointerdown,
-            }),
-          )}
+          {...mergeAttrs<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
+            ref: _toRef(trigger),
+            id: triggerId,
+            type: 'button',
+            role: 'menuitem',
+            disabled,
+            'aria-haspopup': 'menu',
+            'aria-expanded': open,
+            'aria-controls': id,
+            onClick: openWithFocus,
+            onKeydown: (event: KeyboardEvent) => {
+              ripple.onKeydown(event);
+              onTriggerKeydown(event);
+            },
+            onPointerenter: onTriggerPointerenter,
+            onPointerleave: onTriggerPointerleave,
+            onPointerdown: ripple.onPointerdown,
+          })}
           data-disabled={disabled || undefined}
           data-state={open ? 'open' : 'closed'}
         >
@@ -838,28 +822,26 @@ export const MenuSub = _component(
           />
         </button>
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  floatingStyles.anchored,
-                  floatingStyles.surface,
-                  menuStyles.panel,
-                  transitions.scale,
-                ],
-                'aria-labelledby': triggerId,
-              },
-              propsPanel,
-              {
-                ref: _toRef(panel),
-                id,
-                popover: 'auto',
-                role: 'menu',
-                onToggle,
-                onKeydown: onPanelKeydown,
-                onPointerenter: () => stopGrace?.(),
-              },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                floatingStyles.anchored,
+                floatingStyles.surface,
+                menuStyles.panel,
+                transitions.scale,
+              ],
+              'aria-labelledby': triggerId,
+            },
+            propsPanel,
+            {
+              ref: _toRef(panel),
+              id,
+              popover: 'auto',
+              role: 'menu',
+              onToggle,
+              onKeydown: onPanelKeydown,
+              onPointerenter: () => stopGrace?.(),
+            },
           )}
           data-state={open ? 'open' : 'closed'}
         >

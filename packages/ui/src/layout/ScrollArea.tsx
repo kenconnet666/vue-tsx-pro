@@ -12,7 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/dom/move';
-import { elementProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { isRtl } from '../utils/data/layout';
 
@@ -272,41 +272,37 @@ const Scrollbar = _component(
       const visible = overflowing && (type === 'always' || active);
       return (
         <div
-          {...elementProps(
-            mergeProps<'div'>(
-              {
-                sx: [
-                  scrollAreaBarStyles.track,
-                  scrollAreaBarStyles[axis],
-                  corner &&
-                    (axis === 'y' ? scrollAreaBarStyles.yCorner : scrollAreaBarStyles.xCorner),
-                ],
-              },
-              propsScrollbar,
-              {
-                sx: !visible && scrollAreaBarStyles.hidden,
-                ref: _toRef(track),
-                'aria-hidden': true,
-                onPointerdown: pageTo,
-                onWheel: forwardWheel,
-              },
-            ),
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                scrollAreaBarStyles.track,
+                scrollAreaBarStyles[axis],
+                corner &&
+                  (axis === 'y' ? scrollAreaBarStyles.yCorner : scrollAreaBarStyles.xCorner),
+              ],
+            },
+            propsScrollbar,
+            {
+              sx: !visible && scrollAreaBarStyles.hidden,
+              ref: _toRef(track),
+              'aria-hidden': true,
+              onPointerdown: pageTo,
+              onWheel: forwardWheel,
+            },
           )}
           data-axis={axis}
           data-state={visible ? 'visible' : 'hidden'}
         >
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                {
-                  sx: [
-                    scrollAreaBarStyles.thumb,
-                    axis === 'y' ? scrollAreaBarStyles.thumbY : scrollAreaBarStyles.thumbX,
-                  ],
-                },
-                propsThumb,
-                { ref: _toRef(thumb), onPointerdown: dragThumb },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  scrollAreaBarStyles.thumb,
+                  axis === 'y' ? scrollAreaBarStyles.thumbY : scrollAreaBarStyles.thumbX,
+                ],
+              },
+              propsThumb,
+              { ref: _toRef(thumb), onPointerdown: dragThumb },
             )}
           />
         </div>
@@ -349,33 +345,23 @@ export const ScrollArea = _component(
         />
       );
       return (
-        <div
-          {...elementProps(
-            mergeProps<'div'>({ sx: scrollAreaStyles.root }, rest, { ref: _toRef(root) }),
-          )}
-        >
+        <div {...mergeAttrs<'div'>({ sx: scrollAreaStyles.root }, rest, { ref: _toRef(root) })}>
           <div
-            {...elementProps(
-              mergeProps<'div'>(
-                // 焦点环在前：视口自己的 outlineOffset（画在里面）覆盖它
-                {
-                  sx: [focusRingStyles.visible, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
-                },
-                propsViewport,
-                // 可聚焦：键盘用户也能滚动（axe 的 scrollable-region-focusable）
-                { ref: _toRef(viewport), tabindex: 0 },
-              ),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [focusRingStyles.visible, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
+              },
+              propsViewport,
+              { ref: _toRef(viewport), tabindex: 0 },
             )}
           >
             <div
-              {...elementProps(
-                mergeProps<'div'>(
-                  { sx: axis !== 'y' && scrollAreaStyles.wideContent },
-                  propsContent,
-                  {
-                    ref: _toRef(content),
-                  },
-                ),
+              {...mergeAttrs<'div'>(
+                { sx: axis !== 'y' && scrollAreaStyles.wideContent },
+                propsContent,
+                {
+                  ref: _toRef(content),
+                },
               )}
             >
               {children}
