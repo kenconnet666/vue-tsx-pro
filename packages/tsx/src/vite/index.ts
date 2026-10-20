@@ -71,7 +71,7 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
         },
       }),
     );
-    plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp).map(skipImportPreload));
+    plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp).map(loadStylexModulesOnly));
   }
   // _component 与 defineComponent 一样参与热更新与 tree-shaking 标注
   plugins.push(vueJsx({ defineComponentName: ['defineComponent', '_component'] }));
@@ -128,17 +128,22 @@ export function workspaceSource(): Plugin {
 
 // ───────── 内部实现 ─────────
 
+/** 导入的 .stylex 模块（defineVars、defineConsts 只能写在这种文件里） */
+const STYLEX_MODULE_IMPORT = /\bfrom\s*['"]([^'"]+\.stylex(?:\.[cm]?[jt]sx?)?)['"]/g;
+
 /**
  * 绕过 @stylexjs/unplugin 0.19.1 的问题：监听模式（开发服务器）下它每编译完一个文件，就对文件里的每个导入
- * this.resolve + this.load，想从被导入模块的 meta.stylex 收集样式规则。Vite 下没有任何插件写 meta.stylex，
- * 这一步什么也收集不到，却让每个模块要等它的整棵导入树都编译完才返回：并行编译变成层层等待，
- * 文档站冷启动第一页多等十几秒。样式规则在每个文件自己编译时已经收集，这里让它以为不在监听模式
+ * this.resolve + this.load。每个模块要等它的整棵导入树都编译完才返回，并行编译变成层层等待，
+ * 文档站冷启动第一页多等十几秒。这里让它以为不在监听模式，改为编译前先加载导入的 .stylex 模块：
+ * 常量（如断点）的值在定义它的模块编译时才登记，引用方的规则先登记、这时正好收集 CSS 的话，
+ * 媒体查询会留成 var(--哈希)，LightningCSS 报 “Invalid empty selector”（浏览器测试里出现过）。
+ * .stylex 模块只导入 StyleX 本身，等它们不会形成层层等待
  */
-function skipImportPreload(plugin: Plugin): Plugin {
+function loadStylexModulesOnly(plugin: Plugin): Plugin {
   const hook = plugin.transform;
   if (!hook) return plugin;
   const handler = typeof hook === 'function' ? hook : hook.handler;
-  const transform = function (
+  const transform = async function (
     this: ThisParameterType<typeof handler>,
     ...args: Parameters<typeof handler>
   ) {
@@ -150,6 +155,11 @@ function skipImportPreload(plugin: Plugin): Plugin {
         return typeof value === 'function' ? value.bind(target) : value;
       },
     });
+    const [code, id] = args;
+    for (const [, source] of code.matchAll(STYLEX_MODULE_IMPORT)) {
+      const resolved = await this.resolve(source!, id);
+      if (resolved && !resolved.external) await this.load(resolved);
+    }
     return handler.apply(context, args);
   };
   return {

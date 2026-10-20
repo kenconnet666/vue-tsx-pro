@@ -4,16 +4,15 @@ import {
   extractCatalog,
   extractComponentApi,
   invalidateProgram,
+  warmProgram,
   type ApiRequest,
   type ApiResponse,
 } from './api.ts';
 
 parentPort!.on('message', (message: ApiRequest | 'invalidate' | 'warm') => {
-  if (message === 'invalidate') invalidateProgram();
-  if (typeof message === 'string') {
-    extractCatalog();
-    return;
-  }
+  // 只标记、只建程序：不顺手提取整个组件目录，页面要的单个接口不用排在它后面
+  if (message === 'invalidate') return invalidateProgram();
+  if (message === 'warm') return warmProgram();
   const { id, interfaceName } = message;
   let response: ApiResponse;
   try {

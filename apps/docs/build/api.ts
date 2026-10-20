@@ -34,6 +34,28 @@ export function invalidateProgram(): void {
   stale = true;
 }
 
+/** 提前建好程序与类型检查器（Worker 空闲时做），之后提取 API 不用等 */
+export function warmProgram(): void {
+  currentProgram().getTypeChecker();
+}
+
+// 解析过的文件按内容缓存：默认的编译器宿主每次重建都重新解析全部一千多个文件，改一个文件也要等几秒
+const parsed = new Map<string, ts.SourceFile>();
+
+function compilerHost(options: ts.CompilerOptions): ts.CompilerHost {
+  const host = ts.createCompilerHost(options);
+  const parse = host.getSourceFile.bind(host);
+  host.getSourceFile = (fileName, languageVersion, onError, shouldCreate) => {
+    const text = host.readFile(fileName);
+    const cached = parsed.get(fileName);
+    if (text !== undefined && cached?.text === text) return cached;
+    const file = parse(fileName, languageVersion, onError, shouldCreate);
+    if (file) parsed.set(fileName, file);
+    return file;
+  };
+  return host;
+}
+
 function currentProgram(): ts.Program {
   if (program && !stale) return program;
   const configPath = join(ui, 'tsconfig.json');
@@ -51,6 +73,7 @@ function currentProgram(): ts.Program {
   program = ts.createProgram({
     rootNames: ENTRIES.map((entry) => `${src}/${entry}`),
     options: config.options,
+    host: compilerHost(config.options),
     oldProgram: program,
   });
   stale = false;
@@ -234,6 +257,7 @@ export type ApiResponse = { id: number; code: string } | { id: number; error: st
 function apiWorker() {
   let worker: Worker | undefined;
   let nextId = 0;
+  let rebuild: ReturnType<typeof setTimeout> | undefined;
   const pending = new Map<
     number,
     { resolve: (code: string) => void; reject: (error: Error) => void }
@@ -266,10 +290,20 @@ function apiWorker() {
         pending.set(id, { resolve, reject });
         current().postMessage({ id, interfaceName } satisfies ApiRequest);
       }),
-    /** 源码变了：作废程序并马上在后台重建，下次读取不用等 */
-    invalidate: () => current().postMessage('invalidate'),
+    /** 源码变了：马上作废程序；连着保存几个文件时停下来半秒再在后台重建，不一次次重建 */
+    invalidate: () => {
+      current().postMessage('invalidate');
+      clearTimeout(rebuild);
+      rebuild = setTimeout(() => current().postMessage('warm'), 500);
+    },
     /** 提前建好程序 */
     warm: () => current().postMessage('warm'),
+    /** 服务器关闭：停掉 Worker，不留它在后台建程序 */
+    close: () => {
+      clearTimeout(rebuild);
+      void worker?.terminate();
+      worker = undefined;
+    },
   };
 }
 
@@ -296,6 +330,7 @@ export function componentApi(): Plugin {
       // Vitest 的服务器没有 httpServer：不预热、不监听，测试结束时没有 Worker 在跑
       if (!server.httpServer) return;
       worker.warm();
+      server.httpServer.once('close', worker.close);
       server.watcher.on('change', (file) => {
         if (!file.split('\\').join('/').startsWith(src)) return;
         worker.invalidate();
