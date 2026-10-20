@@ -9,6 +9,7 @@
  * 没用到 Decimal 的应用不会因此打包它。
  */
 import type Decimal from 'decimal.js';
+import { snapToStep } from './number';
 
 /** 组件接受的数值 */
 export type NumericValue = number | bigint | Decimal;
@@ -69,3 +70,88 @@ export function compareNumeric(a: NumericValue, b: NumericValue): number {
 
 /** 两个数值是否相等（1 与 1n、Decimal('1.0') 与 1 都算相等） */
 export const sameNumeric = (a: NumericValue, b: NumericValue) => compareNumeric(a, b) === 0;
+
+/** 数值写回成什么类型：number、bigint，或某个 Decimal 构造函数（使用方 Decimal.clone 配过精度的也行） */
+export type NumericKind = 'number' | 'bigint' | DecimalConstructor;
+
+/** 值的类型：Decimal 取它自己的构造函数 */
+export function numericKind(value: NumericValue): NumericKind {
+  if (typeof value === 'number') return 'number';
+  if (typeof value === 'bigint') return 'bigint';
+  return value.constructor as DecimalConstructor;
+}
+
+/** 十进制文本（'-12.5'）→ 整数，四舍五入（远离 0） */
+function roundedBigInt(text: string): bigint {
+  const [whole = '0', fraction = ''] = text.replace(/^[+-]/, '').split('.');
+  const negative = text.startsWith('-');
+  let result = BigInt(whole || '0');
+  if (Number(fraction[0] ?? 0) >= 5) result += 1n;
+  return negative ? -result : result;
+}
+
+/**
+ * 转成指定类型；value 也可以是十进制文本（'-12.5'，输入框解析出来的）。
+ * bigint 四舍五入到整数，Decimal 按十进制文本转（不经过浮点数）
+ */
+export function toNumericKind(value: NumericValue | string, kind: NumericKind): NumericValue {
+  const text = () => (typeof value === 'string' ? value : numericText(value));
+  if (kind === 'number') return typeof value === 'string' ? Number(value) : toNumber(value);
+  if (kind === 'bigint') return typeof value === 'bigint' ? value : roundedBigInt(text());
+  return isDecimal(value) && value.constructor === kind ? value : new kind(text());
+}
+
+/** 按 kind 精确相加：Decimal 用它的构造函数算，bigint 整数相加，number 浮点相加（再由 snapNumeric 去掉误差） */
+export function addNumeric(value: NumericValue, delta: NumericValue, kind: NumericKind) {
+  const left = toNumericKind(value, kind);
+  const right = toNumericKind(delta, kind);
+  if (typeof left === 'number') return left + (right as number);
+  if (typeof left === 'bigint') return left + (right as bigint);
+  return (left as Decimal).plus(right as Decimal);
+}
+
+/** value 的 times 倍（times 是整数，如 -1、10），按 kind 精确运算 */
+export function multiplyNumeric(value: NumericValue, times: number, kind: NumericKind) {
+  const typed = toNumericKind(value, kind);
+  if (typeof typed === 'number') return typed * times;
+  if (typeof typed === 'bigint') return typed * BigInt(times);
+  return (typed as Decimal).times(times);
+}
+
+/**
+ * 夹在 [min, max] 之间并对齐到 min + n × step（没有 min 时对齐到 0 + n × step），按 kind 精确运算：
+ * number 走 snapToStep（按小数位取整去掉浮点误差），bigint 的步长至少为 1，Decimal 用值自己的构造函数
+ */
+export function snapNumeric(
+  value: NumericValue,
+  step: NumericValue,
+  min: NumericValue | undefined,
+  max: NumericValue | undefined,
+  kind: NumericKind,
+): NumericValue {
+  if (kind === 'number') {
+    return snapToStep(
+      toNumber(value),
+      toNumber(step),
+      min == null ? -Infinity : toNumber(min),
+      max == null ? Infinity : toNumber(max),
+    );
+  }
+  const at = (item: NumericValue) => toNumericKind(item, kind);
+  let snapped: NumericValue;
+  if (kind === 'bigint') {
+    const size = (at(step) as bigint) > 0n ? (at(step) as bigint) : 1n;
+    const base = min == null ? 0n : (at(min) as bigint);
+    const offset = (at(value) as bigint) - base;
+    // 整数除法四舍五入（远离 0）
+    const half = offset < 0n ? -size : size;
+    snapped = base + ((2n * offset + half) / (2n * size)) * size;
+  } else {
+    const base = (min == null ? new kind(0) : at(min)) as Decimal;
+    const size = at(step) as Decimal;
+    snapped = base.plus((at(value) as Decimal).minus(base).div(size).round().times(size));
+  }
+  if (min != null && compareNumeric(snapped, min) < 0) snapped = at(min);
+  if (max != null && compareNumeric(snapped, max) > 0) snapped = at(max);
+  return snapped;
+}

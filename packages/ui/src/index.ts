@@ -567,6 +567,7 @@ export {
   type OptionRenderState,
 } from './input/Listbox';
 export {
+  normalizeNumber,
   NumberField,
   parseNumber,
   type NumberFieldManaged,
@@ -1171,12 +1172,18 @@ export {
 } from './utils/data/date';
 export { clamp, snapToStep } from './utils/data/number';
 export {
+  addNumeric,
   compareNumeric,
   isDecimal,
   isNumeric,
+  multiplyNumeric,
+  numericKind,
   numericText,
   sameNumeric,
+  snapNumeric,
   toNumber,
+  toNumericKind,
+  type NumericKind,
   type NumericValue,
 } from './utils/data/numeric';
 export {
