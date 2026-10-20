@@ -27,7 +27,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress } from '../feedback/Progress';
-import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
+import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { itemStyles } from '../utils/style/item-styles';
 import {
@@ -94,7 +94,7 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   /** 空状态的部件属性 */
   propsEmpty?: Partial<EmptyProps>;
   /** 加载中占位行的部件属性 */
-  propsSkeleton?: Omit<Partial<SkeletonProps>, 'loading' | 'children'>;
+  propsSkeleton?: SkeletonShapeProps;
 }
 
 /** 渲染用的一行：分组标题或选项 */

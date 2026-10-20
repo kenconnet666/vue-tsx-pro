@@ -12,7 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
-import { Skeleton, type SkeletonProps } from './Skeleton';
+import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from './Skeleton';
 
 /** 未声明的属性落到外层 div 上 */
 export interface SkeletonTextProps extends PartProps<'div', 'aria-hidden'> {
@@ -27,7 +27,7 @@ export interface SkeletonTextProps extends PartProps<'div', 'aria-hidden'> {
    */
   delay?: number;
   /** 每一行（Skeleton）的部件属性 */
-  propsLine?: Omit<Partial<SkeletonProps>, 'loading' | 'children'>;
+  propsLine?: SkeletonShapeProps;
 }
 
 /** SkeletonText 的样式：root、last */

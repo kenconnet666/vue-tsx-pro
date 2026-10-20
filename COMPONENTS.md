@@ -115,7 +115,7 @@
 - tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
   - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用，但没有补全；
-  - 条件值、回退数组、伪元素、动态样式里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
+  - 条件值、回退数组、伪元素、动态样式、覆盖变量（`[vars.x]: …`，只能写带组名的）里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
   - 值里也能夹 token，用于计算、多值、简写：`minHeight: 'max(_control, _minTarget)'`、`outlineOffset: 'calc(-1 * _xs)'`、`padding: '_sm _md'`，编译成模板字符串；短写同样按属性找组，表外属性（如 `transition`）写带组名的 `'opacity _durations.md _easings.standard'`。token 前后不能紧挨字母、数字、`-`、`.`，引号里的文字与 `url()` 不处理。值中间的 token 没有补全；
   - 注意短写按**属性**找组：`width`、`height` 属于 `sizes`，`'calc(_lg + _xs)'` 写在 `width` 里取的是 `sizes.lg`（64rem）而不是间距；尺寸里要用间距档位时写带组名的 `'calc(_space.lg + _space.xs)'`；
   - 只有动态样式的参数、运行时算出的值才需要 import token 变量；
@@ -283,7 +283,7 @@ interface Lang {
 | 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`） |
 | 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                              |
 | 图表     | `@unovis/ts`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/charts`（BarChart、LineChart，§10.21）；SVG，外观靠 `--vis-*` 变量接到 tokens，明暗切换不用重画          |
-| 3D       | `three`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式         |
+| 3D       | `three`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式     |
 | 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                     |
 | 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                           |
 | 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                 |
@@ -763,15 +763,15 @@ apps/docs/src/components/base/Button/
 
 子路径 `@vue-tsx-pro/ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的效果（TiltCard、SpotlightCard、BorderBeam）在主入口。
 
-| 项       | 做法                                                                                                                                                                                                       |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 项       | 做法                                                                                                                                                                                         |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 生命周期 | `three/core/renderer.ts` 的 `useThree`：第一次进入视口才建渲染器；共用一个动画帧循环；滚出视口、标签页隐藏、`paused` 时停；卸载、被回收时释放几何体、材质、纹理与渲染器并 `forceContextLoss` |
-| 静止     | 系统要求减少动态效果，或主题时长为 0（主题编辑器关掉动效）时只画一帧，尺寸、主题变化时重画                                                                                                                 |
-| 上下文   | 同时最多 8 个（`setMaxThreeContexts`）：满了回收最久没在视口里的，它回来时换一块新 canvas 重建（`generation` 作 key）；都在视口里时排队；上下文丢失三次后降级                                          |
-| 主题色   | `context.themeColors` / `useThemeColors`：探针元素让浏览器解析 token（color-mix、light-dark 都行），culori 转成 `THREE.Color`；换主题时按 lg 时长原地过渡，材质直接引用同一个对象                    |
-| 画质     | `quality`：auto / low / medium / high → 像素比上限、密度系数、抗锯齿；auto 看触屏、核数、内存、省流量                                                                                                     |
-| 降级     | 没有 WebGL 时显示主题色的柔和渐变（可换）；默认 `aria-hidden`，有 `aria-label` 时 `role="img"`；状态写在 `data-state`                                                                              |
-| 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                          |
+| 静止     | 系统要求减少动态效果，或主题时长为 0（主题编辑器关掉动效）时只画一帧，尺寸、主题变化时重画                                                                                                   |
+| 上下文   | 同时最多 8 个（`setMaxThreeContexts`）：满了回收最久没在视口里的，它回来时换一块新 canvas 重建（`generation` 作 key）；都在视口里时排队；上下文丢失三次后降级                                |
+| 主题色   | `context.themeColors` / `useThemeColors`：探针元素让浏览器解析 token（color-mix、light-dark 都行），culori 转成 `THREE.Color`；换主题时按 lg 时长原地过渡，材质直接引用同一个对象            |
+| 画质     | `quality`：auto / low / medium / high → 像素比上限、密度系数、抗锯齿；auto 看触屏、核数、内存、省流量                                                                                        |
+| 降级     | 没有 WebGL 时显示主题色的柔和渐变（可换）；默认 `aria-hidden`，有 `aria-label` 时 `role="img"`；状态写在 `data-state`                                                                        |
+| 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                 |
 
 ### 10.6 顺序
 

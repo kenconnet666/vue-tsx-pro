@@ -1,5 +1,7 @@
 // 组件测试的挂载工具：渲染到一个挂在 document 上的容器里，每个测试结束后自动卸载
 import { _component } from '@vue-tsx-pro/tsx';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { afterEach } from 'vitest';
 import { createApp, type App, type VNodeChild } from 'vue';
 
@@ -20,4 +22,12 @@ export function mount(node: () => VNodeChild): HTMLElement {
   app.mount(host);
   mounted.push({ app, host });
   return host;
+}
+
+/** element 是否带着 styles 的全部原子类（组件按状态加样式时用来断言） */
+export function hasStyles(element: Element, styles: StyleXStyles): boolean {
+  return stylex
+    .props(styles)
+    .className!.split(' ')
+    .every((name) => element.classList.contains(name));
 }

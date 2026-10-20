@@ -66,6 +66,17 @@ describe('改写', () => {
     expect(code).toContain("backgroundImage: 'url(_a.png)'");
   });
 
+  it('覆盖变量（计算键）的值里同样改写', async () => {
+    const code = await compile(`
+      const s = stylex.create({
+        a: { [vars.highlight]: 'color-mix(in oklab, _colors.text 9%, transparent)' },
+      });
+    `);
+    expect(code).toContain(
+      '[vars.highlight]: `color-mix(in oklab, ${_colors.text} 9%, transparent)`',
+    );
+  });
+
   it('具名导入的 create 也认；其他字符串、其他函数不动', async () => {
     const code = (await compileTokens(
       "import { create } from '@stylexjs/stylex';\nconst s = create({ a: { fontSize: '_xs' } }); const x = { fontSize: '_xs' }; f('_xs');",
@@ -101,6 +112,11 @@ describe('报错', () => {
     ['组不存在', `{ height: '_blurs.md' }`, /没有名为 blurs 的 token 组/],
     ['格式不对', `{ fontSize: '_x-s' }`, /不是主题 token 的写法/],
     ['值里夹着的 token 不存在', `{ padding: '_sm _huge' }`, /space 里没有 huge/],
+    [
+      '覆盖变量用短写：没有属性可查表',
+      `{ [vars.highlight]: '_text' }`,
+      /\[vars\.highlight\] 不在 token 对照表里.*'_colors\.text'/,
+    ],
   ];
   it.each(cases)('%s', async (_, styles, message) => {
     await expect(compile(`stylex.create({ a: ${styles} });`)).rejects.toThrow(message);

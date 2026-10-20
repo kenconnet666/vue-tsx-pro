@@ -1,7 +1,8 @@
 // Stat：dl 结构、数值格式、单位、变化量的方向与色调、加载骨架（滚动见 AnimatedNumber）
 import { ClipboardList } from '@lucide/icons';
-import { expect, it } from 'vitest';
-import { mount } from '../../utils/.test/mount';
+import { expect, it, vi } from 'vitest';
+import { shimmerStyles } from '../../utils/style/shimmer';
+import { hasStyles, mount } from '../../utils/.test/mount';
 import { Stat } from '../Stat';
 
 it('指标名是 dt、数值与单位是 dd；数字按语言格式化，图标对读屏隐藏', () => {
@@ -65,5 +66,25 @@ it('loading：指标名照常显示，数值与变化量换成对读屏隐藏的
   for (const dd of values) {
     expect(dd.textContent).toBe('');
     expect(dd.firstElementChild!.getAttribute('aria-hidden')).toBe('true');
+  }
+});
+
+it('骨架换回数值时数值与变化量淡入；一开始就有数值时不淡入', async () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+  try {
+    let loading = _state(false);
+    const dl = mount(() => (
+      <Stat label="营收" value={1200} change={0.1} loading={loading} />
+    )).firstElementChild!;
+    const values = () => [...dl.querySelectorAll('dd')];
+    expect(values().some((dd) => hasStyles(dd, shimmerStyles.reveal))).toBe(false);
+    loading = true;
+    await vi.advanceTimersByTimeAsync(200);
+    expect(values()[0]!.textContent).toBe('');
+    loading = false;
+    await vi.advanceTimersByTimeAsync(500);
+    expect(values().every((dd) => hasStyles(dd, shimmerStyles.reveal))).toBe(true);
+  } finally {
+    vi.useRealTimers();
   }
 });
