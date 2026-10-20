@@ -27,6 +27,7 @@
     "@vue-tsx-pro/tsx": "workspace:^",
     "@vue-tsx-pro/ui": "workspace:^",
     "animejs": "catalog:",
+    "decimal.js": "catalog:",
     "shiki": "catalog:",
     "tabbable": "catalog:",
     "three": "catalog:",

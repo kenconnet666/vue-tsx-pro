@@ -433,6 +433,9 @@ importers:
       animejs:
         specifier: 'catalog:'
         version: 4.5.0(@types/three@0.186.0)(three@0.186.1)
+      decimal.js:
+        specifier: 'catalog:'
+        version: 10.6.0
       shiki:
         specifier: 'catalog:'
         version: 4.5.0

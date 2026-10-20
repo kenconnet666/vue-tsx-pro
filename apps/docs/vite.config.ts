@@ -49,6 +49,8 @@ export default defineConfig({
     include: [
       // 组件库源码里的依赖：一开始就预构建，打开某页才发现新依赖会重新预构建并刷新页面
       ...uiPrebundle,
+      // 示例里用到的（组件库源码不在运行时导入它）
+      'decimal.js',
       // 代码演练场的 Worker 在浏览器里跑 Babel：这些 CommonJS 包要预构建成 ES 模块
       '@babel/core',
       '@babel/parser',
