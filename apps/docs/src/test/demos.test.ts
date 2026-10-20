@@ -20,6 +20,8 @@ it('找到了示例', () => {
 
 it.each(demos)('%s', (_path, demo) => {
   const host = mount(demo);
-  expect(host.textContent!.length + host.querySelectorAll('svg').length).toBeGreaterThan(0);
+  // 纯画面的示例（3D 场景）没有文字：画布、带名称的图像也算内容
+  const visuals = host.querySelectorAll('svg, canvas, [role="img"][aria-label]').length;
+  expect(host.textContent!.length + visuals).toBeGreaterThan(0);
   expect(messages).toEqual([]);
 });

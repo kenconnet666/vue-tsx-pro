@@ -58,7 +58,10 @@ export interface CalendarViewOptions {
   fixedWeeks?: boolean;
   /** 不可用：不能翻页、不能选 */
   disabled?: boolean;
-  /** 自定义日期格的内容（价格、标记点）：拿到日期（ISO）与这一格的状态；不写时是日期数字 */
+  /**
+   * 自定义日期格的内容（价格、标记点）：拿到日期（ISO）与这一格的状态；不写时是日期数字。
+   * 读屏先念完整日期再念这里的文字：日期数字这类重复的部分可以加 aria-hidden
+   */
   children?: (date: string, cell: CalendarCellState) => VNodeChild;
   /** 页脚：今天、清除这类按钮 */
   footer?: VNodeChild;
@@ -256,14 +259,20 @@ export const CalendarView = _component(
       return `${format.date(date, { year: 'numeric' })} – ${format.date(end, { year: 'numeric' })}`;
     };
 
-    /** 一格：td + 按钮；label 是读屏念的名称，content 是格子里显示的 */
+    /**
+     * 一格：td + 按钮；label 是读屏念的完整日期，content 是格子里显示的。
+     * 读屏名称来自按钮里的文字而不是 aria-label：自定义内容（如房价）跟在完整日期后面一起念，
+     * 名称总包含看得见的文字（中文日期里“20”不是单独的词，写成 aria-label 时对不上）；
+     * 默认内容只是日期数字，不重复念。kind 为 period 时是月份、年份格
+     */
     function cell(
       date: CalendarDate,
       month: CalendarDate | undefined,
       label: string,
       content: VNodeChild,
-      period = false,
+      kind: 'day' | 'custom' | 'period' = 'day',
     ) {
+      const period = kind === 'period';
       const state = calendar.cell(date, month);
       const iso = locale.toIso(date);
       const off = disabled || state.disabled;
@@ -311,8 +320,6 @@ export const CalendarView = _component(
               },
               resolve(propsCellButton, iso, state),
               {
-                // 每格的名称各不相同（完整日期），由组件管理：写成固定值会让每一格同名
-                'aria-label': state.today ? texts().calendarToday(label) : label,
                 type: 'button',
                 tabindex: state.focused && !state.outside ? 0 : -1,
                 'aria-disabled': off || undefined,
@@ -334,7 +341,8 @@ export const CalendarView = _component(
             data-unavailable={state.unavailable || undefined}
             data-disabled={off || undefined}
           >
-            {content}
+            <VisuallyHidden>{state.today ? texts().calendarToday(label) : label}</VisuallyHidden>
+            {kind === 'custom' ? content : <span aria-hidden="true">{content}</span>}
           </button>
         </td>
       );
@@ -419,6 +427,7 @@ export const CalendarView = _component(
                     children
                       ? children(locale.toIso(date), calendar.cell(date, month))
                       : locale.dayNumber(date),
+                    children ? 'custom' : 'day',
                   );
                 })}
               </tr>
@@ -447,7 +456,7 @@ export const CalendarView = _component(
                     month
                       ? format.date(date, { month: 'short' })
                       : format.date(date, { year: 'numeric' }),
-                    true,
+                    'period',
                   ),
                 )}
               </tr>

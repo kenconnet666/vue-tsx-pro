@@ -42,7 +42,8 @@ export default _component(() => () => (
       </Example>
       <Example id="prices" title="自定义格子" demo={Prices}>
         子节点是渲染函数，拿到日期与这一格的状态（选中、今天、不可选、在不在本月）：价格日历、标记点、农历都在这里放。
-        格子里的内容要与读屏名称一致，读屏念的仍是完整日期。
+        读屏先念完整日期，再念格子里的文字（房价也能听到）；重复的日期数字加{' '}
+        <Code>aria-hidden</Code> 不再念一遍。
       </Example>
       <Example id="multiple" title="多选" demo={Multiple}>
         <Code>selectionMode="multiple"</Code> 时值是数组，每天独立切换；<Code>showWeekNumbers</Code>{' '}

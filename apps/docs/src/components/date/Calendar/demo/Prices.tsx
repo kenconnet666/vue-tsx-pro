@@ -51,7 +51,8 @@ export default _component(() => {
             const off = cell.disabled || cell.outside;
             return (
               <Flex direction="column" align="center" sx={styles.day}>
-                <span>{Number(date.slice(8))}</span>
+                {/* 读屏已经念了完整日期，数字不重复念；价格照常念 */}
+                <span aria-hidden="true">{Number(date.slice(8))}</span>
                 {!off && (
                   <span
                     {...stylex.attrs(
