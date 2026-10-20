@@ -61,8 +61,8 @@
 - [x] 第 2 层：Confetti（trigger 驱动，只在飘的时候占画布；顶层显示，盖得住对话框）
 - [x] 第 2 层：Globe（Natural Earth 陆地位图的点阵、标注光圈、流动的弧线、拖动带惯性）
 - [x] 第 2 层：ModelViewer（glTF / GLB 或程序生成的对象、RoomEnvironment 环境光、拖动环绕与 Globe 共用 createOrbit）
-- [ ] 首页英雄区用上效果；统计看板示例加 Globe
-- [ ] 代码演练场支持 three 子路径
+- [x] 首页英雄区用上效果（异步加载的粒子星座）；统计看板示例加 Globe（供应商分布）
+- [x] 代码演练场支持 three 子路径（模块表按需加载 three 与 @vue-tsx-pro/ui/three）
 
 ## 6. 图表（@unovis/ts 包装，见 .claude/reports/unovis-api.md）
 

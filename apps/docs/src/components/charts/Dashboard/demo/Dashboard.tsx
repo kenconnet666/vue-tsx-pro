@@ -22,6 +22,7 @@ import {
   type StatusTone,
 } from '@vue-tsx-pro/ui';
 import { BarChart, LineChart } from '@vue-tsx-pro/ui/charts';
+import { Globe } from '@vue-tsx-pro/ui/three';
 
 type Status = 'draft' | 'done' | 'approved' | 'pending' | 'rejected';
 
@@ -164,10 +165,22 @@ const YEARS = [
   { value: '2025', label: '2025' },
 ];
 
+/** 主要供应商：零部件运到上海的总装线 */
+const ASSEMBLY = { city: '上海', lat: 31.23, lng: 121.47 };
+const SUPPLIERS = [
+  { city: '西安', part: '机身中段', lat: 34.34, lng: 108.94, share: 18 },
+  { city: '成都', part: '机头', lat: 30.57, lng: 104.07, share: 12 },
+  { city: '图卢兹', part: '航电系统', lat: 43.6, lng: 1.44, share: 15 },
+  { city: '辛辛那提', part: '发动机', lat: 39.1, lng: -84.51, share: 26 },
+  { city: '哈特福德', part: '起落架', lat: 41.76, lng: -72.68, share: 9 },
+  { city: '名古屋', part: '复合材料', lat: 35.18, lng: 136.91, share: 7 },
+];
+
 const styles = stylex.create({
   filters: { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '_md' },
   filter: { minWidth: '9em' },
   actions: { display: 'flex', gap: '_sm', marginInlineStart: 'auto' },
+  globe: { maxWidth: '22rem', marginInline: 'auto' },
 });
 
 /** 统计分析：筛选、关键指标、两张图与明细表；点“查询”才按筛选条件刷新 */
@@ -304,6 +317,42 @@ export default _component(() => {
             />
           </Card>
         </Grid>
+
+        <Card header={<H3 size="md">供应商分布</H3>}>
+          <Grid minItemWidth="18em" gap="lg" align="center">
+            <Globe
+              markers={[ASSEMBLY, ...SUPPLIERS].map(({ lat, lng }, index) => ({
+                lat,
+                lng,
+                size: index === 0 ? 1.5 : 1,
+              }))}
+              arcs={SUPPLIERS.map(({ lat, lng }) => ({
+                from: [lat, lng],
+                to: [ASSEMBLY.lat, ASSEMBLY.lng],
+              }))}
+              center={{ lat: 35, lng: 60 }}
+              sx={styles.globe}
+            />
+            <Table aria-label="主要供应商" density="compact">
+              <TableHead>
+                <TableRow>
+                  <TableHeaderCell>所在地</TableHeaderCell>
+                  <TableHeaderCell>部件</TableHeaderCell>
+                  <TableHeaderCell align="end">采购占比</TableHeaderCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {SUPPLIERS.map((supplier) => (
+                  <TableRow key={supplier.city}>
+                    <TableHeaderCell>{supplier.city}</TableHeaderCell>
+                    <TableCell>{supplier.part}</TableCell>
+                    <TableCell align="end">{supplier.share}%</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Grid>
+        </Card>
 
         <Card
           header={

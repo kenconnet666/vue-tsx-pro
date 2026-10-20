@@ -1,4 +1,4 @@
-/** 首页：一句话介绍、两个入口、几个特点，和一段能直接运行的代码 */
+/** 首页：一句话介绍（背后是粒子星座）、两个入口、几个特点，和一段能直接运行的代码 */
 import { ArrowRight, Palette, Sparkles, Zap } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -16,8 +16,13 @@ import {
   type IconData,
 } from '@vue-tsx-pro/ui';
 import Counter from './demo/Counter.tsx?demo';
-import { h } from 'vue';
+import { defineAsyncComponent, h } from 'vue';
 import { EditInPlayground } from '../site/EditInPlayground';
+
+// 标题后面的粒子星座：three 体积大，异步加载，加载完之前只有光晕，不挡首屏
+const Particles = defineAsyncComponent(() =>
+  import('@vue-tsx-pro/ui/three').then((module) => module.ParticleField),
+);
 
 const styles = stylex.create({
   // 标题后面一团很淡的品牌色光晕：亮色、暗色、纸张都取各自的浅品牌色
@@ -35,6 +40,13 @@ const styles = stylex.create({
       backgroundImage: 'radial-gradient(closest-side, _colors.accentSoft, transparent)',
       filter: 'blur(24px)',
     },
+  },
+  // 粒子铺满标题区、四周淡出，压在光晕下面
+  particles: {
+    position: 'absolute',
+    inset: 0,
+    zIndex: -2,
+    maskImage: 'radial-gradient(closest-side, black 55%, transparent)',
   },
   // 标题从正文色渐变到品牌色；不支持 background-clip: text 的浏览器退回正文色
   title: {
@@ -90,6 +102,7 @@ export default _component(() => () => (
   <Container size="lg" padding="none">
     <Flex direction="column" gap="xl">
       <Flex direction="column" gap="lg" align="center" sx={styles.hero}>
+        <Particles links count={70} linkDistance={140} speed={0.6} sx={styles.particles} />
         <H1 sx={styles.title}>更自然的 Vue TSX</H1>
         <Paragraph tone="muted" sx={styles.lead}>
           props 驱动的组件、下划线符文与 StyleX，加上一套按无障碍规范写的组件库。在已有的 Vue
