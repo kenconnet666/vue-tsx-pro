@@ -83,7 +83,8 @@ describe('Progress · Skeleton', () => {
     const box = overlay()!.getBoundingClientRect();
     const outer = area.getBoundingClientRect();
     expect([box.width, box.height]).toEqual([outer.width, outer.height]);
-    await expect.poll(overlay, { timeout: 4000 }).toBeNull();
+    // 加载 1.5 秒 + 遮罩至少显示的时长 + 离场过渡（最多 1.5 秒）：正常约 3.5 秒，CI 上 Windows 的 Firefox 更慢
+    await expect.poll(overlay, { timeout: 8000 }).toBeNull();
   });
 
   it('Indicator 的角标中心在按钮的右上角；AvatarGroup 的头像叠放、大小一致', () => {

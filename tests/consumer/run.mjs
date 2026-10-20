@@ -27,11 +27,22 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const work = mkdtempSync(join(tmpdir(), 'vue-tsx-pro-consumer-'));
 const app = join(work, 'app');
 
+/**
+ * 独立应用里的环境：仓库的 nodeOptions（pnpm-workspace.yaml）让 Node 按 @vue-tsx-pro/source 条件读各包源码，
+ * 使用方没有这个条件，装的包里也没有源码，在独立应用里要去掉，否则会去找不存在的 src/
+ */
+const consumerEnv = {
+  ...process.env,
+  NODE_OPTIONS: (process.env.NODE_OPTIONS ?? '')
+    .replace(/--conditions[= ]@vue-tsx-pro\/source/g, '')
+    .trim(),
+};
+
 /** 经过 shell 执行（Windows 上 pnpm、npm、npx 是 .cmd）；参数里有空格时加引号 */
 function run(command, args, cwd) {
   const line = [command, ...args.map((arg) => (/\s/.test(arg) ? `"${arg}"` : arg))].join(' ');
   console.log(`\n> ${line}`);
-  execSync(line, { cwd, stdio: 'inherit' });
+  execSync(line, { cwd, stdio: 'inherit', env: cwd === root ? process.env : consumerEnv });
 }
 
 /** 使用方要装的第三方依赖，版本与仓库 catalog 一致 */
