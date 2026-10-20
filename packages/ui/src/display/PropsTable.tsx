@@ -82,11 +82,13 @@ export interface PropsTableProps extends TableProps {
   caption?: VNodeChild;
 }
 
-/** PropsTable 的样式：name、nameCode、descriptionCell、type、muted、description、values、valueTerm、valueText */
+/** PropsTable 的样式：name、nameCode、head、descriptionCell、type、muted、description、values、valueTerm、valueText */
 export const propsTableStyles = stylex.create({
   name: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_xs' },
   // 属性名不断开：Code 默认可以在任意位置换行，表格会按它把名称列压到最窄
   nameCode: { whiteSpace: 'nowrap' },
+  // 表头都很短，中文会在任意字间断开（“默认 / 值”）
+  head: { whiteSpace: 'nowrap' },
   // 说明是最长的一列：至少留出一段可读的宽度，类型再长也不挤掉它
   descriptionCell: { minWidth: '18rem' },
   type: { color: '_codeType' },
@@ -113,10 +115,10 @@ export const PropsTable = _component(({ props, caption, ...rest }: PropsTablePro
       {caption != null && <TableCaption>{caption}</TableCaption>}
       <TableHead>
         <TableRow>
-          <TableHeaderCell>{lang.apiName}</TableHeaderCell>
-          <TableHeaderCell>{lang.apiType}</TableHeaderCell>
-          <TableHeaderCell>{lang.apiDefault}</TableHeaderCell>
-          <TableHeaderCell>{lang.apiDescription}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiName}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiType}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiDefault}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiDescription}</TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>
