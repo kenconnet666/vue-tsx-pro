@@ -9,19 +9,18 @@
  *
  * 卡片只是预览：里面的信息要在别处也能拿到（触屏没有悬停）。卡片里可以有链接、按钮：
  * 键盘聚焦触发器打开后按 Tab 进入卡片，焦点离开触发器与卡片时关闭；Esc 关闭。
- * 用 popover="manual" 渲染在顶层，不会关掉正打开的菜单或弹出框。
+ * 用 popover="manual" 渲染在顶层，不会关掉正打开的菜单或弹出框。开关、定位、Esc 见 useHoverLayer（与 Tooltip 共用）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
 import {
-  createAnchoredLayer,
   floatingStyles,
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/dom/floating';
-import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
-import { toElement } from '../utils/dom/overlay';
+import { createHoverGroup } from '../utils/dom/hover-intent';
+import { useHoverLayer } from '../utils/dom/hover-layer';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
@@ -89,53 +88,24 @@ export const HoverCard = _component(
     children,
     ...rest
   }: HoverCardProps) => {
-    const id = useId();
     const showContent = useLazyContent(
       () => open,
       () => lazy,
     );
-    let anchor = _state.raw<HTMLElement | null>(null);
-    let panel = _state.raw<HTMLElement | null>(null);
-    let arrowElement = _state.raw<HTMLElement | null>(null);
-    const layer = createAnchoredLayer();
-    const hover = useHoverIntent(
+    const layer = useHoverLayer(
       hoverCards,
-      () => ({ delay, closeDelay, disabled }),
+      () => ({ open, disabled, placement, offset, delay, closeDelay }),
       (next) => (open = next),
     );
-    const inside = (target: EventTarget | null) =>
-      target instanceof Node && (anchor?.contains(target) || panel?.contains(target));
-
-    // Esc 关闭；卡片在对话框里时只关卡片
-    function onKeydown(event: KeyboardEvent) {
-      if (event.key !== 'Escape' || !open) return;
-      event.preventDefault();
-      event.stopPropagation();
-      hover.closeNow();
-    }
-
-    _effect(() => {
-      if (!open || disabled) {
-        layer.hide({ restoreFocus: false });
-        hover.closed();
-        return;
-      }
-      if (!anchor || !panel) return;
-      hover.opened();
-      void layer.show(anchor, panel, { placement, offset, arrow: arrowElement });
-      document.addEventListener('keydown', onKeydown, true);
-      return () => document.removeEventListener('keydown', onKeydown, true);
-    });
-    onBeforeUnmount(() => layer.hide({ restoreFocus: false }));
 
     return () => (
       <>
         {trigger({
-          ref: (value) => (anchor = toElement(value)),
-          ...hover.trigger,
+          ref: layer.anchorRef,
+          ...layer.hover.trigger,
           // Tab 进卡片（下一个可聚焦元素）时不关
           onBlur: (event: FocusEvent) => {
-            if (!inside(event.relatedTarget)) hover.closeNow();
+            if (!layer.contains(event.relatedTarget)) layer.hover.closeNow();
           },
         })}
         <div
@@ -151,26 +121,19 @@ export const HoverCard = _component(
             },
             rest,
             {
-              ref: _toRef(panel),
-              id,
+              ref: layer.panelRef,
+              id: layer.id,
               popover: 'manual',
-              ...hover.panel,
+              ...layer.hover.panel,
               onFocusout: (event: FocusEvent) => {
-                if (!inside(event.relatedTarget)) hover.closeNow();
+                if (!layer.contains(event.relatedTarget)) layer.hover.closeNow();
               },
             },
           )}
           data-state={open && !disabled ? 'open' : 'closed'}
         >
           {showContent() && children}
-          {arrow && (
-            <span
-              {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
-                ref: _toRef(arrowElement),
-                'aria-hidden': true,
-              })}
-            />
-          )}
+          {arrow && <span {...layer.arrowProps(propsArrow)} />}
         </div>
       </>
     );

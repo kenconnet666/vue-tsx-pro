@@ -9,19 +9,18 @@
  * - 指针可以移到提示上而不消失（WCAG 1.4.13）；同一时间只显示一个；
  * - 提示是对触发器的补充说明（aria-describedby）：触发器自己要有名称，提示里不放可交互的内容。
  *
- * 用 popover="manual" 渲染在顶层：它不是 auto，不会关掉正打开的菜单或弹出框；Esc 由组件处理。
+ * 用 popover="manual" 渲染在顶层：它不是 auto，不会关掉正打开的菜单或弹出框。开关、定位、Esc 见 useHoverLayer（与 HoverCard 共用）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
 import {
-  createAnchoredLayer,
   floatingStyles,
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/dom/floating';
-import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
-import { toElement } from '../utils/dom/overlay';
+import { createHoverGroup } from '../utils/dom/hover-intent';
+import { useHoverLayer } from '../utils/dom/hover-layer';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
@@ -101,45 +100,18 @@ export const Tooltip = _component(
     children,
     ...rest
   }: TooltipProps) => {
-    const id = useId();
-    let anchor = _state.raw<HTMLElement | null>(null);
-    let panel = _state.raw<HTMLElement | null>(null);
-    let arrowElement = _state.raw<HTMLElement | null>(null);
-    const layer = createAnchoredLayer();
-    const hover = useHoverIntent(
+    const layer = useHoverLayer(
       tooltips,
-      () => ({ delay, closeDelay: CLOSE_DELAY, disabled }),
+      () => ({ open, disabled, placement, offset, delay, closeDelay: CLOSE_DELAY }),
       (next) => (open = next),
     );
-
-    // Esc 关闭提示；提示在对话框里时只关提示，不让同一次 Esc 关掉对话框
-    function onKeydown(event: KeyboardEvent) {
-      if (event.key !== 'Escape' || !open) return;
-      event.preventDefault();
-      event.stopPropagation();
-      hover.closeNow();
-    }
-
-    _effect(() => {
-      if (!open || disabled) {
-        layer.hide({ restoreFocus: false });
-        hover.closed();
-        return;
-      }
-      if (!anchor || !panel) return;
-      hover.opened();
-      void layer.show(anchor, panel, { placement, offset, arrow: arrowElement });
-      document.addEventListener('keydown', onKeydown, true);
-      return () => document.removeEventListener('keydown', onKeydown, true);
-    });
-    onBeforeUnmount(() => layer.hide({ restoreFocus: false }));
 
     return () => (
       <>
         {trigger({
-          ref: (value) => (anchor = toElement(value)),
-          'aria-describedby': id,
-          ...hover.trigger,
+          ref: layer.anchorRef,
+          'aria-describedby': layer.id,
+          ...layer.hover.trigger,
         })}
         <div
           {...mergeAttrs<'div'>(
@@ -153,25 +125,18 @@ export const Tooltip = _component(
             },
             rest,
             {
-              ref: _toRef(panel),
-              id,
+              ref: layer.panelRef,
+              id: layer.id,
               popover: 'manual',
               role: 'tooltip',
               // 指针移到提示上不消失，离开提示后再隐藏
-              ...hover.panel,
+              ...layer.hover.panel,
             },
           )}
           data-state={open && !disabled ? 'open' : 'closed'}
         >
           {children}
-          {arrow && (
-            <span
-              {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
-                ref: _toRef(arrowElement),
-                'aria-hidden': true,
-              })}
-            />
-          )}
+          {arrow && <span {...layer.arrowProps(propsArrow)} />}
         </div>
       </>
     );
