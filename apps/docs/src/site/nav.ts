@@ -32,6 +32,7 @@ const CATEGORIES: [string, string][] = [
   ['overlay', '浮层'],
   ['navigation', '导航'],
   ['input', '输入'],
+  ['date', '日期'],
   ['form', '表单'],
   ['table', '表格'],
   ['charts', '图表'],

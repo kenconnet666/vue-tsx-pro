@@ -168,9 +168,12 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
       parts
         .filter((part) => part.type === 'literal' || wanted.has(part.type as DateSegmentType))
         .map((part) => ({ type: part.type as DateSegment['type'], literal: part.value }))
-        // 首尾的分隔符没有意义（只留时间时 zh-CN 会剩一个空格）
+        // 首尾只有空白的分隔符没有意义；“2026年10月”结尾的“月”要留着
         .filter(
-          (part, index, all) => part.type !== 'literal' || (index > 0 && index < all.length - 1),
+          (part, index, all) =>
+            part.type !== 'literal' ||
+            part.literal.trim() !== '' ||
+            (index > 0 && index < all.length - 1),
         )
     );
   });
@@ -447,4 +450,77 @@ function sameFields(a: DateFieldValues | null, b: DateFieldValues | null): boole
   if (a == null || b == null) return a === b;
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof DateFieldValues>;
   return [...keys].every((key) => a[key] === b[key]);
+}
+
+// ───────── 值与 ISO 字符串 ─────────
+
+/** 日期类分段的粒度：DateField 精确到哪一段（到时、分、秒时是日期加时间） */
+export interface DateFieldGranularities {
+  /** 只有年：'2026' */
+  year: unknown;
+  /** 年月：'2026-10'（同原生 input type="month"） */
+  month: unknown;
+  /** 年月日（默认）：'2026-10-20' */
+  day: unknown;
+  /** 日期加时：'2026-10-20T14:00' */
+  hour: unknown;
+  /** 日期加时分：'2026-10-20T14:30'（同原生 input type="datetime-local"） */
+  minute: unknown;
+  /** 日期加时分秒：'2026-10-20T14:30:15' */
+  second: unknown;
+}
+
+/** 分段输入精确到哪一段 */
+export type DateFieldGranularity = keyof DateFieldGranularities;
+
+type ValueField = Exclude<DateSegmentType, 'dayPeriod'>;
+
+const ALL_FIELDS: readonly ValueField[] = ['year', 'month', 'day', 'hour', 'minute', 'second'];
+
+/** 日期分段：从年到 granularity；time 时只取时间的部分（TimeField） */
+export function segmentFields(granularity: DateFieldGranularity, time = false): ValueField[] {
+  const fields = ALL_FIELDS.slice(0, ALL_FIELDS.indexOf(granularity) + 1);
+  return time
+    ? fields.filter((field) => field === 'hour' || field === 'minute' || field === 'second')
+    : fields;
+}
+
+const pad = (value: number, width = 2) => String(value).padStart(width, '0');
+
+/** 各段的值 → ISO 字符串（按有哪些段：'2026'、'2026-10'、'2026-10-20'、'2026-10-20T14:30'、'14:30'） */
+export function fieldsToIso(values: DateFieldValues, fields: readonly ValueField[]): string {
+  const date = [
+    values.year != null && pad(values.year, 4),
+    fields.includes('month') && pad(values.month ?? 1),
+    fields.includes('day') && pad(values.day ?? 1),
+  ]
+    .filter((part) => part !== false)
+    .join('-');
+  if (!fields.includes('hour')) return date;
+  const time = [
+    pad(values.hour ?? 0),
+    pad(values.minute ?? 0),
+    fields.includes('second') && pad(values.second ?? 0),
+  ]
+    .filter((part) => part !== false)
+    .join(':');
+  return fields.includes('year') ? `${date}T${time}` : time;
+}
+
+/** ISO 字符串 → 各段的值；格式不对时 null。只取 fields 里有的段（'2026-10-20T14:30' 给 DateField 时只要日期） */
+export function isoToFields(
+  value: string | null | undefined,
+  fields: readonly ValueField[],
+): DateFieldValues | null {
+  if (!value) return null;
+  const match = /^(?:(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?)?(?:T?(\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(
+    value,
+  );
+  if (!match) return null;
+  const parsed: DateFieldValues = {};
+  ALL_FIELDS.forEach((field, index) => {
+    const text = match[index + 1];
+    if (fields.includes(field) && text != null) parsed[field] = Number(text);
+  });
+  return fields.every((field) => parsed[field] != null) ? parsed : null;
 }

@@ -126,6 +126,19 @@
 - 含动态样式函数的 `stylex.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
 - 标签名来自数据时 TSX 没有属性类型：要交互、要更新的用 Vue 的 `h()` 渲染；静态的（图标的 path、circle）拼成标记作 innerHTML（§2.6）。
 
+### 4.1 加载状态：小组件用自己的动效，容器占位才用骨架
+
+判断标准：**加载期间要不要替还没来的内容占位**。
+
+- **小型组件**（控件本身已经在，只是在等一个操作）保留自己的独立动效，不加骨架：按钮家族（含图标按钮、复制按钮、AlertDialog 的确认按钮）用波纹与 Spinner，Switch 的滑块里转圈，勾选、标签、输入框、分页、步骤用过渡；Alert、Toast 的 `loading` 把图标换成 Spinner（正文已在，只表示进行中）；LoadingOverlay 盖在已有内容上转圈；Tree 懒加载展开、Timeline 的进行中是行内状态，转圈；Upload 有进度条；Avatar 先显示首字母，比骨架信息多。
+- **容器占位**（内容还没有，要先勾出它将来的布局）用骨架：Card 正文（`loading`）、Stat 的数值与变化量、DataTable 的骨架行、VirtualList、Listbox（Select、Combobox、TagsInput 的选项列表）、图表绘图区、文章与段落、头像列表、表单整体加载。
+- 骨架统一用 Skeleton / SkeletonText 与 `utils/style/shimmer.ts`，不各写一份：
+  - 形状预设 `variant`：text、heading、circle、button、image；多行用 SkeletonText（最后一行短）。按真实布局拼，不要一整块灰。
+  - 扫光：光带从起始边扫到结束边，RTL 反向，减少动态效果时停（`animation-name: none`，静止的占位已经说明在加载）。多块骨架用 `delay`（`SHIMMER_STAGGER` 的整数倍）依次错开，像一道波从上往下推；表格、列表的骨架行按行号错开。
+  - 颜色：底色与光带都是半透明的正文色（`color-mix(… _colors.text 9%, transparent)`），叠在任何表面上都比表面深一档（暗色主题里浅一档），各主题不必单独调。
+  - 骨架换成内容（或反过来）时用 `shimmerStyles.reveal` 淡入，不硬切；只在切换的那一刻加样式，一开始就有内容时不播。
+- 读屏：骨架一律 `aria-hidden`（受管，不进部件属性的类型）；整块区域加载时 `aria-busy` 由组件管理。视觉上的骨架、进度条用 `useDelayedLoading` 防闪烁，`aria-busy` 与点击拦截按真实的 `loading` 立即生效。
+
 ## 5. 无障碍与交互
 
 - 每个组件按 WAI-ARIA Authoring Practices 的对应模式实现：角色、状态属性、键盘操作，文档里列出键盘映射。
@@ -472,7 +485,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - **base/**：Badge（只展示）、Tag（外观同 Badge，可带移除按钮，名称是“移除 + 标签文字”，取文字用 `utils/data/text.ts` 的 `plainText`）。
 - **feedback/**（Progress、Skeleton、Alert）与 **display/**（Card、Avatar）：
   - Progress：有值时完成比例，没值时不确定进度（循环动画不随 durations 变为 0，减少动态效果时变慢）；`valueText`；`data-state` 为 indeterminate / loading / complete。
-  - Skeleton：包着内容时与内容一样大（内容 `visibility: hidden`、整块 `inert` 与 `aria-hidden`），加载完布局不跳；闪烁在减少动态效果时关闭。
+  - Skeleton：包着内容时与内容一样大（内容 `visibility: hidden`、整块 `inert` 与 `aria-hidden`），加载完布局不跳；扫光与形状预设见 §4.1。
   - Alert：图标按色调自动选（Lucide），`live` 为 off / polite（status）/ assertive（alert），`action`、`onClose`。
   - Card：页头、正文、页脚，`variant` surface / outline / elevated / ghost，`padding`。
   - Avatar：图片加载完才显示，失败或没有图片时显示首字母（中文取最后一个字）或人像图标；有 `name` 时 `role="img"`，没有时是装饰性的。
