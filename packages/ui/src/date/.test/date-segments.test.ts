@@ -123,7 +123,7 @@ describe('输入', () => {
     const { state, value } = setup();
     state.setFocused('year');
     state.type('２０２６');
-    state.type('١٢');
+    state.type('\u0661\u0662'); // 阿拉伯-印度数字 12
     state.type('3');
     expect(value()).toEqual({ year: 2026, month: 12, day: 3 });
   });

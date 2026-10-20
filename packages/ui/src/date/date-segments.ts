@@ -115,8 +115,8 @@ const BIG_STEPS: Record<DateSegmentType, number> = {
 function normalizeDigits(text: string): string {
   return text
     .replace(/[０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
-    .replace(/[٠-٩]/g, (char) => String(char.charCodeAt(0) - 0x0660))
-    .replace(/[۰-۹]/g, (char) => String(char.charCodeAt(0) - 0x06f0));
+    .replace(/[\u0660-\u0669]/g, (char) => String(char.charCodeAt(0) - 0x0660))
+    .replace(/[\u06f0-\u06f9]/g, (char) => String(char.charCodeAt(0) - 0x06f0));
 }
 
 const daysInMonth = (year: number | undefined, month: number | undefined) =>
