@@ -17,3 +17,9 @@ declare module 'virtual:doc-pages' {
   const pages: import('./site/types').ComponentPageEntry[];
   export default pages;
 }
+
+/** 代码演练场在 Worker 里用的 Babel 插件，没有自带类型 */
+declare module '@babel/plugin-transform-typescript' {
+  const plugin: import('@babel/core').PluginItem;
+  export default plugin;
+}

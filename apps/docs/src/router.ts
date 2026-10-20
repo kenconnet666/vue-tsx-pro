@@ -10,6 +10,12 @@ export function createDocsRouter(
     history,
     routes: [
       { path: '/', component: () => import('./pages/Home'), meta: { title: '' } },
+      // 代码演练场试点：还不在侧栏里
+      {
+        path: '/playground',
+        component: () => import('./pages/Playground'),
+        meta: { title: '代码演练场（试点）' },
+      },
       ...allPages.map((page) => ({
         path: page.path,
         component: page.component,

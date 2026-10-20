@@ -167,6 +167,18 @@ catalogs:
     '@babel/core':
       specifier: 7.29.7
       version: 7.29.7
+    '@babel/parser':
+      specifier: 7.29.9
+      version: 7.29.9
+    '@babel/plugin-transform-typescript':
+      specifier: 7.29.9
+      version: 7.29.9
+    '@babel/traverse':
+      specifier: 7.29.10
+      version: 7.29.10
+    '@babel/types':
+      specifier: 7.29.8
+      version: 7.29.8
     '@floating-ui/dom':
       specifier: 1.8.0
       version: 1.8.0
@@ -185,6 +197,9 @@ catalogs:
     '@radix-ui/colors':
       specifier: 3.0.0
       version: 3.0.0
+    '@stylexjs/babel-plugin':
+      specifier: 0.19.1
+      version: 0.19.1
     '@stylexjs/stylex':
       specifier: 0.19.1
       version: 0.19.1
@@ -218,6 +233,9 @@ catalogs:
     '@vitest/browser-playwright':
       specifier: 5.0.5
       version: 5.0.5
+    '@vue/babel-plugin-jsx':
+      specifier: 2.0.1
+      version: 2.0.1
     animejs:
       specifier: 4.5.0
       version: 4.5.0
@@ -245,6 +263,9 @@ catalogs:
     oxlint-tsgolint:
       specifier: 7.0.2004
       version: 7.0.2004
+    pathe:
+      specifier: 2.0.3
+      version: 2.0.3
     pinia:
       specifier: 4.1.0
       version: 4.1.0
@@ -374,15 +395,45 @@ importers:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
+      '@babel/core':
+        specifier: 'catalog:'
+        version: 7.29.7
+      '@babel/parser':
+        specifier: 'catalog:'
+        version: 7.29.9
+      '@babel/plugin-transform-typescript':
+        specifier: 'catalog:'
+        version: 7.29.9(@babel/core@7.29.7)
+      '@babel/traverse':
+        specifier: 'catalog:'
+        version: 7.29.10
+      '@babel/types':
+        specifier: 'catalog:'
+        version: 7.29.8
+      '@stylexjs/babel-plugin':
+        specifier: 'catalog:'
+        version: 0.19.1
+      '@types/babel__core':
+        specifier: 'catalog:'
+        version: 7.20.5
+      '@types/babel__traverse':
+        specifier: 'catalog:'
+        version: 7.28.0
       '@vitest/browser-playwright':
         specifier: 'catalog:'
         version: 5.0.5(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
+      '@vue/babel-plugin-jsx':
+        specifier: 'catalog:'
+        version: 2.0.1(@babel/core@7.29.7)
       axe-core:
         specifier: 'catalog:'
         version: 4.14.0
       happy-dom:
         specifier: 'catalog:'
         version: 21.0.3
+      pathe:
+        specifier: 'catalog:'
+        version: 2.0.3
       playwright:
         specifier: 'catalog:'
         version: 1.64.1
