@@ -16,6 +16,9 @@ export default defineConfig({
   test: {
     name: 'host-demo-browser',
     include: ['test/**/*.browser.test.{ts,tsx}'],
+    // CI 的 4 核机器上三个浏览器并行，动画、懒加载这类时序断言偶尔超时（每次挂的都是不同的一条，本地都能过）；
+    // 同 Playwright 默认模板，CI 上失败的用例重跑，真的坏了重跑也过不了
+    retry: process.env.CI ? 2 : 0,
     browser: {
       enabled: true,
       headless: true,
