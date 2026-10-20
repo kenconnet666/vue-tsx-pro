@@ -57,6 +57,19 @@ const hasTime = (granularity: DateFieldGranularity) =>
 const fullDay = (iso: string) =>
   iso.length === 4 ? `${iso}-01-01` : iso.length === 7 ? `${iso}-01` : iso.slice(0, 10);
 
+/** ISO 日期时间统一到秒（'2026-10-20T14:30' → '2026-10-20T14:30:00'），去掉时区后缀：按字符串比较就是按时间先后 */
+const toSeconds = (iso: string) => (iso.length >= 19 ? iso.slice(0, 19) : `${iso.slice(0, 16)}:00`);
+
+/**
+ * 带时间的 min / max → 比较用的 ISO 日期时间；只给了日期（或不带时间的 granularity）时为 null，
+ * 那一整天都可选，只按日期比较
+ */
+function timeBound(limit: DateInput | undefined, granularity: DateFieldGranularity) {
+  if (limit == null || !hasTime(granularity)) return null;
+  if (typeof limit === 'string') return limit.includes('T') ? toSeconds(limit) : null;
+  return 'hour' in limit ? toSeconds(valueToIso(limit, granularity)) : null;
+}
+
 /** 值 → 分段输入用的 ISO 字符串（形式随 granularity） */
 function valueToIso(value: DateInput, granularity: DateFieldGranularity): string {
   if (typeof value === 'string') return value;
@@ -102,10 +115,15 @@ export const DateField = _component(
     const limits = _derived(toDateLimits(locale, { min, max, isDateUnavailable }));
     const unit = (): DateUnit =>
       granularity === 'year' || granularity === 'month' ? granularity : 'day';
-    // 只按日期部分比较
+    // 先按日期比较（含不可选的日期）；min / max 带时间时，同一天里再比时分秒
     const outOfRange = (iso: string) => {
       const date = locale.fromValue(fullDay(iso));
-      return date != null && isDateDisabled(date, limits, unit());
+      if (date == null) return false;
+      if (isDateDisabled(date, limits, unit())) return true;
+      const low = timeBound(min, granularity);
+      const high = timeBound(max, granularity);
+      const at = hasTime(granularity) ? toSeconds(iso) : '';
+      return (low != null && at < low) || (high != null && at > high);
     };
     const iso = _derived(value == null ? null : valueToIso(value, granularity));
     // 值清空后再填：仍按清空前的类型写回

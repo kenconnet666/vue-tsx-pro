@@ -111,6 +111,25 @@ describe('DateField', () => {
     expect(segment(root, 'day').getAttribute('aria-invalid')).toBe('true');
   });
 
+  it('min / max 带时间时同一天里比时分；只给日期时那一整天都可选', () => {
+    const shell = (props: { min?: string; max?: string }) =>
+      mount(() => (
+        <DateField
+          value="2026-10-20T08:30"
+          granularity="minute"
+          aria-label="开始时间"
+          propsRoot={{ class: 'shell' }}
+          {...props}
+        />
+      )).querySelector('.shell')!;
+    expect(shell({ min: '2026-10-20T09:00' }).hasAttribute('data-invalid')).toBe(true);
+    expect(shell({ max: '2026-10-20T08:30:00' }).hasAttribute('data-invalid')).toBe(false);
+    expect(shell({ max: '2026-10-20T08:00' }).hasAttribute('data-invalid')).toBe(true);
+    expect(shell({ min: '2026-10-20', max: '2026-10-20' }).hasAttribute('data-invalid')).toBe(
+      false,
+    );
+  });
+
   it('清空按钮、隐藏的表单值', async () => {
     let value = _state<string | null>('2026-10-20');
     const root = mount(() => (
