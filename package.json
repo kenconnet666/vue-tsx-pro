@@ -27,6 +27,7 @@
     "exports": "node scripts/exports/generate.mjs",
     "exports:check": "node scripts/exports/generate.mjs --check",
     "themes:check": "node scripts/themes/check.mjs",
+    "text:check": "node scripts/text/check.mjs",
     "lsp:setup": "node scripts/language-services/setup.mjs",
     "lsp:verify": "node scripts/language-services/verify.mjs"
   },

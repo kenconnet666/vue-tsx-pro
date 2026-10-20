@@ -26,6 +26,7 @@ jobs:
       - run: pnpm docs:check
       - run: pnpm exports:check
       - run: pnpm themes:check
+      - run: pnpm text:check
       - run: pnpm typecheck
 
   test:

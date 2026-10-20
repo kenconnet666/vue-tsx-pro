@@ -214,7 +214,7 @@ export default _component(() => {
       STATUS[project.status][0],
     ]);
     // 开头的 BOM 让 Excel 按 UTF-8 打开，中文不乱码
-    const csv = `﻿${[header, ...lines].map((line) => line.join(',')).join('\n')}`;
+    const csv = `\uFEFF${[header, ...lines].map((line) => line.join(',')).join('\n')}`;
     const link = document.createElement('a');
     link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
     link.download = '降本统计.csv';
