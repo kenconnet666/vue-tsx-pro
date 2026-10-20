@@ -25,11 +25,11 @@
 
 - **基础**：[x] Text（Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6；List 在 Prose 页）· [x] Button（ButtonGroup、LinkButton）· [x] IconButton（IconLinkButton、CloseButton、ClearButton、CopyButton）· [x] Badge（Tag）· [x] Code（CodeBlock、CodeGroup、CodePreview）· [ ] ButtonBase 与 VisuallyHidden（并入“无障碍与基础部件”）
 - **布局**：[x] Flex 与 Grid（FlexList、GridList、Container、Separator）· [x] ScrollArea（OverlayScrollbar、PageScrollbar）· [x] Prose（List、OrderedList）· [x] AppShell（整页示例：frames 目录 + Example 的 frame）
-- **展示**：[x] Card · [x] Accordion（AccordionItem、Collapsible、Collapse）· [x] Avatar（AvatarGroup、Indicator）· [x] AnimatedNumber（并入 Stat 页）· [x] Descriptions · [x] Timeline · [x] Tree · [x] VirtualList · [x] Marquee · [x] Sortable · [ ] ColorSwatch（并入 ColorField 页）
+- **展示**：[x] Card · [x] Accordion（AccordionItem、Collapsible、Collapse）· [x] Avatar（AvatarGroup、Indicator）· [x] AnimatedNumber（并入 Stat 页）· [x] Descriptions · [x] Timeline · [x] Tree · [x] VirtualList · [x] Marquee · [x] Sortable · [x] ColorSwatch（并入 ColorField 页）
 - **反馈**：[x] Alert · [x] 加载与进度（Spinner、Progress、LoadingOverlay）· [x] Empty 与 Result · [x] Toast（Toaster）· [x] Skeleton（SkeletonText）
 - **浮层**：[x] Dialog（AlertDialog、Drawer）· [x] Popover（HoverCard、Tooltip）· [x] Menu（全部菜单项、ContextMenu）· [x] CommandPalette · [x] Tour
 - **导航**：[x] Tabs · [x] Pagination（PageJump、PageSizeSelect、Pager）· [x] Breadcrumbs 与 Steps · [x] NavList（NavItem、NavGroup、NavSection、TableOfContents、SkipLink）· [x] Toolbar
-- **输入**：[x] NumberField · [x] TextField（Textarea、CharacterCount）· [x] Checkbox、Radio 与 Switch · [x] Select（Combobox、TagsInput、Listbox）· [x] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
+- **输入**：[x] NumberField · [x] TextField（Textarea、CharacterCount）· [x] Checkbox、Radio 与 Switch · [x] Select（Combobox、TagsInput、Listbox）· [x] Slider · [x] ToggleGroup · [x] ColorField（ColorSwatch）· [x] Upload（FileDrop）· [x] SlideVerify
 - **日期**：CalendarView、DateSegmentGroup、SegmentedField 是内部部件，在 Calendar / DateField 页说明
 - **表单**：[ ] Form（Field、Label、FormValue、useForm、decimalSchema、bigintSchema）
 - **表格**：[ ] Table（全部子部件）· [ ] DataTable（DataTableView、DataTableRow、ColumnResizer、TreeDataTable）
