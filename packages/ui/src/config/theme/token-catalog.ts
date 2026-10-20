@@ -190,6 +190,28 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         description: '成功边框。green 7：亮色 `#8eceaa`，暗色 `#28684a`',
       },
       {
+        name: 'success',
+        value: '#008751',
+        description:
+          '成功实色：成功按钮、实底徽标的底色，上面放 successContrast。亮色 `#008751`，暗色 green 9 `#30a46c`。 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 successText：实色不一定在表面上到 3:1',
+      },
+      {
+        name: 'successHover',
+        value: '#007143',
+        description:
+          '成功实色悬停：与 successContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#007143`，暗色 `#52af7d`',
+      },
+      {
+        name: 'successContrast',
+        value: '#ffffff',
+        description: '成功实色上的文字与图标。亮色 `#ffffff`，暗色 `#111113`',
+      },
+      {
+        name: 'successSoftHover',
+        value: '#d6f1df',
+        description: '成功浅底悬停。green 4：亮色 `#d6f1df`，暗色 `#113b29`',
+      },
+      {
         name: 'warningText',
         value: '#4f3422',
         description:
@@ -206,6 +228,28 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         description: '警告边框。amber 7：亮色 `#e9c162`，暗色 `#714f19`',
       },
       {
+        name: 'warning',
+        value: '#ffc53d',
+        description:
+          '警告实色：警告按钮、实底徽标的底色，上面放 warningContrast。亮色 `#ffc53d`，暗色 amber 9 `#ffc53d`。 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 warningText：实色不一定在表面上到 3:1',
+      },
+      {
+        name: 'warningHover',
+        value: '#ffcd5f',
+        description:
+          '警告实色悬停：与 warningContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#ffcd5f`，暗色 `#ffcd5f`',
+      },
+      {
+        name: 'warningContrast',
+        value: '#4f3422',
+        description: '警告实色上的文字与图标。亮色 `#4f3422`，暗色 `#111113`',
+      },
+      {
+        name: 'warningSoftHover',
+        value: '#ffee9c',
+        description: '警告浅底悬停。amber 4：亮色 `#ffee9c`，暗色 `#3f2700`',
+      },
+      {
         name: 'infoText',
         value: '#113264',
         description:
@@ -220,6 +264,28 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         name: 'infoBorder',
         value: '#8ec8f6',
         description: '信息边框。blue 7：亮色 `#8ec8f6`，暗色 `#205d9e`',
+      },
+      {
+        name: 'info',
+        value: '#0073e0',
+        description:
+          '信息实色：信息按钮、实底徽标的底色，上面放 infoContrast。亮色 `#0073e0`，暗色 blue 9 `#0090ff`。 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 infoText：实色不一定在表面上到 3:1',
+      },
+      {
+        name: 'infoHover',
+        value: '#0060bd',
+        description:
+          '信息实色悬停：与 infoContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#0060bd`，暗色 `#3d9fff`',
+      },
+      {
+        name: 'infoContrast',
+        value: '#ffffff',
+        description: '信息实色上的文字与图标。亮色 `#ffffff`，暗色 `#111113`',
+      },
+      {
+        name: 'infoSoftHover',
+        value: '#d5efff',
+        description: '信息浅底悬停。blue 4：亮色 `#d5efff`，暗色 `#003362`',
       },
       {
         name: 'inverseSurface',

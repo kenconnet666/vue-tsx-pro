@@ -56,6 +56,11 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
     [fg, 'background', TEXT, '提示文字'],
     [fg, 'surface', TEXT, '提示文字'],
   ]),
+  ...['success', 'warning', 'info'].flatMap((tone): ContrastPair[] => [
+    [`${tone}Contrast`, tone, TEXT, '状态实色（按钮、实底徽标）'],
+    [`${tone}Contrast`, `${tone}Hover`, TEXT, '状态实色悬停'],
+    [`${tone}Text`, `${tone}SoftHover`, TEXT, '状态浅底悬停'],
+  ]),
   ['inverseText', 'inverseSurface', TEXT, '反色表面'],
   ...[
     'codeKeyword',

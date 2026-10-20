@@ -28,6 +28,14 @@ const steps: Record<string, [string, string]> = {
   infoText: ['blue12', 'blueDark11'],
   infoSoft: ['blue3', 'blueDark3'],
   infoBorder: ['blue7', 'blueDark7'],
+  successSoftHover: ['green4', 'greenDark4'],
+  warningSoftHover: ['amber4', 'amberDark4'],
+  infoSoftHover: ['blue4', 'blueDark4'],
+  // 状态实色：9 级；亮色的绿、蓝配白字不到 4.5:1，加深后列在 adjusted 里
+  success: ['green9', 'greenDark9'],
+  warning: ['amber9', 'amberDark9'],
+  warningContrast: ['amber12', 'slateDark1'],
+  info: ['blue9', 'blueDark9'],
   overlay: ['blackA6', 'blackA8'],
   highlight: ['amber4', 'amberDark4'],
   codeString: ['green11', 'greenDark11'],
@@ -50,7 +58,7 @@ const steps: Record<string, [string, string]> = {
 
 /**
  * 为满足对比度而偏离色阶的取值（scripts/themes/check.mjs 校验）：危险色实色上的白字、悬停态比实色更深，
- * 文字比 11 级深一点
+ * 文字比 11 级深一点；状态实色的悬停与字色的对比度只升不降
  */
 const adjusted: [Record<string, string>, Record<string, string>] = [
   {
@@ -59,11 +67,24 @@ const adjusted: [Record<string, string>, Record<string, string>] = [
     dangerText: '#b8272c',
     codeString: '#1c7a51',
     codeNumber: '#c24b00',
+    success: '#008751',
+    successHover: '#007143',
+    successContrast: '#ffffff',
+    warningHover: '#ffcd5f',
+    info: '#0073e0',
+    infoHover: '#0060bd',
+    infoContrast: '#ffffff',
   },
   {
     dangerContrast: '#ffffff',
     accentHover: '#3758d4',
     dangerHover: '#a33b3e',
+    // 暗色的状态实色配深色字（页面背景色），悬停调亮
+    successContrast: '#111113',
+    successHover: '#52af7d',
+    warningHover: '#ffcd5f',
+    infoContrast: '#111113',
+    infoHover: '#3d9fff',
   },
 ];
 

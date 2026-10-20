@@ -102,6 +102,9 @@ export const stepsStyles = stylex.create({
     // 用 em 而不是 _sm（默认字号下 13 / 14 ≈ 0.93）：随 size 缩放
     fontSize: '0.93em',
     fontWeight: '_semibold',
+    // 走到下一步时圆圈换色、连接线变色都过渡，不是一下跳过去
+    transition:
+      'background-color _durations.md _easings.standard, border-color _durations.md _easings.standard, color _durations.md _easings.standard',
   },
   text: { display: 'grid', gap: '_xs', paddingTop: '0.3em', minWidth: 0 },
   title: { fontWeight: '_medium' },
@@ -113,6 +116,7 @@ export const stepsStyles = stylex.create({
     minWidth: '_space.lg',
     height: '_borderWidths.xs',
     backgroundColor: '_border',
+    transition: 'background-color _durations.md _easings.standard',
   },
   connectorDone: { backgroundColor: '_accent' },
 });

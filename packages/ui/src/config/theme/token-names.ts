@@ -192,6 +192,31 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _successBorder: unknown;
     /**
+     * 成功实色：成功按钮、实底徽标的底色，上面放 successContrast。亮色 `#008751`，暗色 green 9 `#30a46c`。
+     * 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 successText：实色不一定在表面上到 3:1
+     *
+     * `colors.success`
+     */
+    _success: unknown;
+    /**
+     * 成功实色悬停：与 successContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#007143`，暗色 `#52af7d`
+     *
+     * `colors.successHover`
+     */
+    _successHover: unknown;
+    /**
+     * 成功实色上的文字与图标。亮色 `#ffffff`，暗色 `#111113`
+     *
+     * `colors.successContrast`
+     */
+    _successContrast: unknown;
+    /**
+     * 成功浅底悬停。green 4：亮色 `#d6f1df`，暗色 `#113b29`
+     *
+     * `colors.successSoftHover`
+     */
+    _successSoftHover: unknown;
+    /**
      * 警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。
      * 亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5
      *
@@ -211,6 +236,31 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _warningBorder: unknown;
     /**
+     * 警告实色：警告按钮、实底徽标的底色，上面放 warningContrast。亮色 `#ffc53d`，暗色 amber 9 `#ffc53d`。
+     * 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 warningText：实色不一定在表面上到 3:1
+     *
+     * `colors.warning`
+     */
+    _warning: unknown;
+    /**
+     * 警告实色悬停：与 warningContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#ffcd5f`，暗色 `#ffcd5f`
+     *
+     * `colors.warningHover`
+     */
+    _warningHover: unknown;
+    /**
+     * 警告实色上的文字与图标。亮色 `#4f3422`，暗色 `#111113`
+     *
+     * `colors.warningContrast`
+     */
+    _warningContrast: unknown;
+    /**
+     * 警告浅底悬停。amber 4：亮色 `#ffee9c`，暗色 `#3f2700`
+     *
+     * `colors.warningSoftHover`
+     */
+    _warningSoftHover: unknown;
+    /**
      * 信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。
      * 亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1
      *
@@ -229,6 +279,31 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      * `colors.infoBorder`
      */
     _infoBorder: unknown;
+    /**
+     * 信息实色：信息按钮、实底徽标的底色，上面放 infoContrast。亮色 `#0073e0`，暗色 blue 9 `#0090ff`。
+     * 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 infoText：实色不一定在表面上到 3:1
+     *
+     * `colors.info`
+     */
+    _info: unknown;
+    /**
+     * 信息实色悬停：与 infoContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#0060bd`，暗色 `#3d9fff`
+     *
+     * `colors.infoHover`
+     */
+    _infoHover: unknown;
+    /**
+     * 信息实色上的文字与图标。亮色 `#ffffff`，暗色 `#111113`
+     *
+     * `colors.infoContrast`
+     */
+    _infoContrast: unknown;
+    /**
+     * 信息浅底悬停。blue 4：亮色 `#d5efff`，暗色 `#003362`
+     *
+     * `colors.infoSoftHover`
+     */
+    _infoSoftHover: unknown;
     /**
      * 反色表面。slate 12：亮色 `#1c2024`，暗色 `#edeef0`
      *

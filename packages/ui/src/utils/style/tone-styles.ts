@@ -1,7 +1,7 @@
 /**
  * 状态色调的样式表与默认图标：Badge、Tag、Alert、Toast 等“带颜色的标记与提示”共用；按钮家族、Progress 等也用这一套色调。
  * 外观 = variant（实底 / 浅色底 / 浅色底加描边 / 描边）× tone（六种色调）。
- * 实底用该色调的文字色作底色、页面背景色作字色：两套主题里都满足 4.5:1（success、warning、info 没有专门的实底色）。
+ * 实底用各色调的实色与其上的字色（accent / accentContrast、success / successContrast…），主题检查保证 4.5:1。
  */
 import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -45,9 +45,9 @@ export type StatusVariant = keyof StatusVariants;
 const solid = stylex.create({
   neutral: { color: '_inverseText', backgroundColor: '_inverseSurface' },
   accent: { color: '_accentContrast', backgroundColor: '_accent' },
-  info: { color: '_background', backgroundColor: '_infoText' },
-  success: { color: '_background', backgroundColor: '_successText' },
-  warning: { color: '_background', backgroundColor: '_warningText' },
+  info: { color: '_infoContrast', backgroundColor: '_info' },
+  success: { color: '_successContrast', backgroundColor: '_success' },
+  warning: { color: '_warningContrast', backgroundColor: '_warning' },
   danger: { color: '_dangerContrast', backgroundColor: '_danger' },
 });
 
@@ -119,7 +119,7 @@ export function statusToneSx(variant: StatusVariant, tone: StatusTone): StyleXSt
  * 实底色调的颜色变量：选中的勾选框、单选框、开关与滑块的已选部分用 `var(--tone-fill)` 作底色、
  * `var(--tone-on-fill)` 作其上的对勾、圆点、滑块色。组件根元素加 toneFillStyles[tone]，各部件引用变量：
  * 部件的选中样式不随色调再分六份。
- * 配色同 solid，只是 danger 也用文字色：暗色主题里 danger 在轨道（fill）上不到 3:1
+ * 状态色用文字色而不是实色：黄、绿的实色在表面上不到 3:1，图形要的是与周围的对比；danger 同理（暗色主题里在轨道上不到 3:1）
  */
 export const toneFillStyles = stylex.create({
   neutral: { '--tone-fill': '_colors.inverseSurface', '--tone-on-fill': '_colors.inverseText' },

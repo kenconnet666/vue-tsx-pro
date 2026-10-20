@@ -93,7 +93,7 @@ export const colors = stylex.defineVars({
   /** 危险边框：校验失败的输入框。red 7：亮色 `#f4a9aa`，暗色 `#8c333a` */
   dangerBorder: '#f4a9aa',
 
-  // ───────── 提示色：只用于提示条、徽标、图标，不做按钮 ─────────
+  // ───────── 状态色：成功、警告、信息（提示条、徽标、图标、按钮） ─────────
 
   /**
    * 成功文字与图标。亮色 green 12 `#193b2d`，暗色 green 11 `#3dd68c`。
@@ -105,6 +105,17 @@ export const colors = stylex.defineVars({
   /** 成功边框。green 7：亮色 `#8eceaa`，暗色 `#28684a` */
   successBorder: '#8eceaa',
   /**
+   * 成功实色：成功按钮、实底徽标的底色，上面放 successContrast。亮色 `#008751`，暗色 green 9 `#30a46c`。
+   * 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 successText：实色不一定在表面上到 3:1
+   */
+  success: '#008751',
+  /** 成功实色悬停：与 successContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#007143`，暗色 `#52af7d` */
+  successHover: '#007143',
+  /** 成功实色上的文字与图标。亮色 `#ffffff`，暗色 `#111113` */
+  successContrast: '#ffffff',
+  /** 成功浅底悬停。green 4：亮色 `#d6f1df`，暗色 `#113b29` */
+  successSoftHover: '#d6f1df',
+  /**
    * 警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。
    * 亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5
    */
@@ -114,6 +125,17 @@ export const colors = stylex.defineVars({
   /** 警告边框。amber 7：亮色 `#e9c162`，暗色 `#714f19` */
   warningBorder: '#e9c162',
   /**
+   * 警告实色：警告按钮、实底徽标的底色，上面放 warningContrast。亮色 `#ffc53d`，暗色 amber 9 `#ffc53d`。
+   * 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 warningText：实色不一定在表面上到 3:1
+   */
+  warning: '#ffc53d',
+  /** 警告实色悬停：与 warningContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#ffcd5f`，暗色 `#ffcd5f` */
+  warningHover: '#ffcd5f',
+  /** 警告实色上的文字与图标。亮色 `#4f3422`，暗色 `#111113` */
+  warningContrast: '#4f3422',
+  /** 警告浅底悬停。amber 4：亮色 `#ffee9c`，暗色 `#3f2700` */
+  warningSoftHover: '#ffee9c',
+  /**
    * 信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。
    * 亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1
    */
@@ -122,6 +144,17 @@ export const colors = stylex.defineVars({
   infoSoft: '#e6f4fe',
   /** 信息边框。blue 7：亮色 `#8ec8f6`，暗色 `#205d9e` */
   infoBorder: '#8ec8f6',
+  /**
+   * 信息实色：信息按钮、实底徽标的底色，上面放 infoContrast。亮色 `#0073e0`，暗色 blue 9 `#0090ff`。
+   * 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 infoText：实色不一定在表面上到 3:1
+   */
+  info: '#0073e0',
+  /** 信息实色悬停：与 infoContrast 的对比度只升不降（白字时加深，深色字时调亮）。亮色 `#0060bd`，暗色 `#3d9fff` */
+  infoHover: '#0060bd',
+  /** 信息实色上的文字与图标。亮色 `#ffffff`，暗色 `#111113` */
+  infoContrast: '#ffffff',
+  /** 信息浅底悬停。blue 4：亮色 `#d5efff`，暗色 `#003362` */
+  infoSoftHover: '#d5efff',
 
   // ───────── 反色：深色提示框、Toast 这类与页面明暗相反的表面 ─────────
 
