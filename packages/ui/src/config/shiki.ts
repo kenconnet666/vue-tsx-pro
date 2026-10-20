@@ -10,7 +10,6 @@
  */
 import { createCssVariablesTheme, createHighlighterCore, type HighlighterCore } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
-import { bundledLanguages } from 'shiki/langs';
 import type { LanguageInput } from 'shiki/types';
 import type { Highlighter } from './context';
 import { colors } from './theme/tokens.stylex';
@@ -18,8 +17,9 @@ import { colors } from './theme/tokens.stylex';
 /** createShikiHighlighter 的选项 */
 export interface ShikiHighlighterOptions {
   /**
-   * 可用的语言：语言名（含别名，如 ts）→ 加载语法的函数。默认是 Shiki 自带的全部语言，
-   * 构建时每种语言单独成块、用到才下载；只想打包少数几种时传 `{ ts: () => import('@shikijs/langs/typescript') }`
+   * 可用的语言：语言名（含别名，如 ts）→ 加载语法的函数。不传时用 Shiki 自带的全部语言（第一次高亮时才加载这张表），
+   * 构建时每种语言单独成块、用到才下载。只用几种语言时传上（Shiki 推荐的细粒度写法），开发服务器不用处理两百多种语法：
+   * `{ ts: () => import('@shikijs/langs/typescript'), tsx: () => import('@shikijs/langs/tsx') }`
    */
   languages?: Record<string, () => Promise<LanguageInput>>;
 }
@@ -72,16 +72,21 @@ const theme = { ...base, tokenColors: [...(base.tokenColors ?? []), ...extraToke
 
 /** 生成高亮器；Shiki 本身在第一次高亮时才创建，同一个高亮器里的语言只加载一次 */
 export function createShikiHighlighter(options: ShikiHighlighterOptions = {}): Highlighter {
-  const languages: Record<string, () => Promise<LanguageInput>> =
-    options.languages ?? bundledLanguages;
+  // 全部语言的表有两百多项、每项一个动态导入：传了 languages 的应用不加载它
+  type LanguageTable = Record<string, () => Promise<LanguageInput>>;
+  let languages: Promise<LanguageTable> | undefined;
+  const languageTable = (): Promise<LanguageTable> =>
+    (languages ??= options.languages
+      ? Promise.resolve(options.languages)
+      : import('shiki/langs').then((module): LanguageTable => module.bundledLanguages));
   let core: Promise<HighlighterCore> | undefined;
   const loading = new Map<string, Promise<boolean>>();
 
   /** 加载语言，返回能否高亮；不认识的语言返回 false */
-  const ensureLanguage = (highlighter: HighlighterCore, lang: string) => {
-    if (highlighter.getLoadedLanguages().includes(lang)) return Promise.resolve(true);
-    const load = languages[lang];
-    if (!load) return Promise.resolve(false);
+  const ensureLanguage = async (highlighter: HighlighterCore, lang: string) => {
+    if (highlighter.getLoadedLanguages().includes(lang)) return true;
+    const load = (await languageTable())[lang];
+    if (!load) return false;
     let pending = loading.get(lang);
     if (!pending) {
       pending = load().then(

@@ -47,6 +47,8 @@ catalog:
   three: 0.186.1
   '@types/three': 0.186.0
   shiki: 4.5.0
+  # Shiki 的单个语言（@shikijs/langs/tsx）：仓库里的应用只加载用到的几种，与 shiki 同版本
+  '@shikijs/langs': 4.5.0
   # 样式
   '@stylexjs/stylex': 0.19.1
   '@stylexjs/unplugin': 0.19.1

@@ -12,6 +12,16 @@ import { Pilot } from './pages/Pilot';
 import { Profile } from './pages/Profile';
 import { siteNameKey } from './site';
 
+/** 只加载演示里用到的语言（Shiki 的细粒度写法），不让开发服务器处理两百多种语法 */
+const highlighter = createShikiHighlighter({
+  languages: {
+    tsx: () => import('@shikijs/langs/tsx'),
+    ts: () => import('@shikijs/langs/typescript'),
+    json: () => import('@shikijs/langs/json'),
+    bash: () => import('@shikijs/langs/shellscript'),
+  },
+});
+
 /** 宿主应用的组装；测试传入内存路由历史 */
 export function createHostApp(history: RouterHistory = createWebHistory()) {
   const router = createRouter({
@@ -32,7 +42,7 @@ export function createHostApp(history: RouterHistory = createWebHistory()) {
     .use(createPinia())
     .use(router)
     // 应用级配置：所有 TSX 页面共享语言、代码高亮与路由适配；页面内还可以用 <Provider> 局部覆盖
-    .use(createUi({ highlighter: createShikiHighlighter(), router: vueRouterAdapter(router) }))
+    .use(createUi({ highlighter, router: vueRouterAdapter(router) }))
     .provide(siteNameKey, 'Host Demo');
   return { app, router };
 }

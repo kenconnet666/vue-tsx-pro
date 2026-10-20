@@ -9,9 +9,11 @@
  * 只列组件库里声明的 prop；继承来的原生属性与通用的 sx 不逐条列出。
  *
  * TypeScript 程序只建一次；组件库的源码变了，下次读取时增量重建（热更新时 API 表跟着变）。
+ * 建程序要几秒：Vite 插件把提取放在 Worker 线程里（api-worker.ts），开发服务器启动时就开始建，期间照常响应其他请求。
  */
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Worker } from 'node:worker_threads';
 import ts from 'typescript';
 import type { Plugin } from 'vite';
 import type { ApiProp, ApiPropKinds, ApiValue, ComponentApi } from '@vue-tsx-pro/ui';
@@ -21,8 +23,16 @@ const src = join(ui, 'src').split('\\').join('/');
 /** 部件属性的通用部分（sx）声明在这里：不逐条列出 */
 const PART_PROPS_FILE = `${src}/utils/props.ts`;
 
+/** 有组件的入口：主入口与子路径（图表在 @vue-tsx-pro/ui/charts） */
+const ENTRIES = ['index.ts', 'charts/index.ts', 'three/index.ts'];
+
 let program: ts.Program | undefined;
 let stale = true;
+
+/** 组件库源码变了：下次读取时增量重建程序 */
+export function invalidateProgram(): void {
+  stale = true;
+}
 
 function currentProgram(): ts.Program {
   if (program && !stale) return program;
@@ -37,8 +47,9 @@ function currentProgram(): ts.Program {
       },
     },
   )!;
+  // 只从入口出发：tsconfig 里的测试文件会把 vitest、playwright 的类型也拉进来，程序大一倍
   program = ts.createProgram({
-    rootNames: config.fileNames,
+    rootNames: ENTRIES.map((entry) => `${src}/${entry}`),
     options: config.options,
     oldProgram: program,
   });
@@ -48,9 +59,6 @@ function currentProgram(): ts.Program {
 
 const docOf = (symbol: ts.Symbol, checker: ts.TypeChecker) =>
   ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim();
-
-/** 有组件的入口：主入口与子路径（图表在 @vue-tsx-pro/ui/charts） */
-const ENTRIES = ['index.ts', 'charts/index.ts', 'three/index.ts'];
 
 /** 组件库入口（含子路径）导出的名字 → 符号 */
 function exportedSymbol(checker: ts.TypeChecker, name: string): ts.Symbol {
@@ -218,11 +226,59 @@ export function extractCatalog(): CatalogEntry[] {
 const PREFIX = 'virtual:api/';
 const CATALOG = 'virtual:api-catalog';
 
+/** 发给 api-worker.ts 的请求：接口名（`ButtonProps`）或整个目录；回复是模块代码 */
+export type ApiRequest = { id: number; interfaceName?: string };
+export type ApiResponse = { id: number; code: string } | { id: number; error: string };
+
+/** 在 Worker 线程里提取 API；Worker 第一次用到时才启动 */
+function apiWorker() {
+  let worker: Worker | undefined;
+  let nextId = 0;
+  const pending = new Map<
+    number,
+    { resolve: (code: string) => void; reject: (error: Error) => void }
+  >();
+
+  const current = () => {
+    if (worker) return worker;
+    worker = new Worker(new URL('./api-worker.ts', import.meta.url));
+    // 不拖住进程：构建、测试结束时直接退出
+    worker.unref();
+    worker.on('message', (response: ApiResponse) => {
+      const request = pending.get(response.id);
+      pending.delete(response.id);
+      if ('error' in response) request?.reject(new Error(response.error));
+      else request?.resolve(response.code);
+    });
+    worker.on('error', (error) => {
+      for (const request of pending.values()) request.reject(error);
+      pending.clear();
+      worker = undefined;
+    });
+    return worker;
+  };
+
+  return {
+    /** 接口的 API 数据（不传接口名时是组件目录），返回模块代码 */
+    load: (interfaceName?: string) =>
+      new Promise<string>((resolve, reject) => {
+        const id = nextId++;
+        pending.set(id, { resolve, reject });
+        current().postMessage({ id, interfaceName } satisfies ApiRequest);
+      }),
+    /** 源码变了：作废程序并马上在后台重建，下次读取不用等 */
+    invalidate: () => current().postMessage('invalidate'),
+    /** 提前建好程序 */
+    warm: () => current().postMessage('warm'),
+  };
+}
+
 /**
  * Vite 插件：`virtual:api/<接口名>` 导出那个接口的 API 数据，`virtual:api-catalog` 导出全部组件的目录（组件演练场用）；
  * 组件库源码变了重新生成
  */
 export function componentApi(): Plugin {
+  const worker = apiWorker();
   const loaded = new Set<string>();
   return {
     name: 'docs:component-api',
@@ -230,17 +286,19 @@ export function componentApi(): Plugin {
     load(id) {
       if (id === `\0${CATALOG}`) {
         loaded.add(id);
-        return `export default ${JSON.stringify(extractCatalog())};\n`;
+        return worker.load();
       }
       if (!id.startsWith(`\0${PREFIX}`)) return;
       loaded.add(id);
-      const api = extractComponentApi(id.slice(PREFIX.length + 1));
-      return `export default ${JSON.stringify(api)};\n`;
+      return worker.load(id.slice(PREFIX.length + 1));
     },
     configureServer(server) {
+      // Vitest 的服务器没有 httpServer：不预热、不监听，测试结束时没有 Worker 在跑
+      if (!server.httpServer) return;
+      worker.warm();
       server.watcher.on('change', (file) => {
         if (!file.split('\\').join('/').startsWith(src)) return;
-        stale = true;
+        worker.invalidate();
         for (const id of loaded) {
           const module = server.moduleGraph.getModuleById(id);
           if (module) server.moduleGraph.invalidateModule(module);
