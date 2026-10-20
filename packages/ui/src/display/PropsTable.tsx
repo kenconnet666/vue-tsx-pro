@@ -82,9 +82,11 @@ export interface PropsTableProps extends TableProps {
   caption?: VNodeChild;
 }
 
-/** PropsTable 的样式：name、descriptionCell、type、muted、description、values、valueTerm、valueText */
+/** PropsTable 的样式：name、nameCode、descriptionCell、type、muted、description、values、valueTerm、valueText */
 export const propsTableStyles = stylex.create({
   name: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_xs' },
+  // 属性名不断开：Code 默认可以在任意位置换行，表格会按它把名称列压到最窄
+  nameCode: { whiteSpace: 'nowrap' },
   // 说明是最长的一列：至少留出一段可读的宽度，类型再长也不挤掉它
   descriptionCell: { minWidth: '18rem' },
   type: { color: '_codeType' },
@@ -122,7 +124,7 @@ export const PropsTable = _component(({ props, caption, ...rest }: PropsTablePro
           <TableRow key={prop.name}>
             <TableCell>
               <span {...mergeAttrs<'span'>({ sx: propsTableStyles.name })}>
-                <Code>{prop.name}</Code>
+                <Code sx={propsTableStyles.nameCode}>{prop.name}</Code>
                 {prop.required && <Badge tone="warning">{lang.apiRequired}</Badge>}
                 {prop.bindable && <Badge tone="accent">{lang.apiBindable}</Badge>}
               </span>
