@@ -2,7 +2,7 @@
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 // 仓库内部的配置，不是组件库的公开接口：按相对路径引用
-import { uiPrebundle } from '../../packages/ui/prebundle.config.ts';
+import { uiPrebundle, uiPrebundleExclude } from '../../packages/ui/prebundle.config.ts';
 import { plugins } from './vite.config.ts';
 
 export default defineConfig({
@@ -11,6 +11,7 @@ export default defineConfig({
   // 三个浏览器并行时正在初始化的测试页会卡住（CI 冷启动时出现过）。组件库的依赖见 prebundle.config.ts
   optimizeDeps: {
     include: ['vue', 'vue-router', 'pinia', 'axe-core', '@stylexjs/stylex', 'zod', ...uiPrebundle],
+    exclude: uiPrebundleExclude,
   },
   test: {
     name: 'host-demo-browser',

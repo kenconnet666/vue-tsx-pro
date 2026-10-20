@@ -3,7 +3,7 @@ import { configDefaults, defineConfig, type Plugin } from 'vitest/config';
 import { vueTsxPro, workspaceSource } from '@vue-tsx-pro/tsx/vite';
 import { builtinThemeBootColors, themeBootScript } from '@vue-tsx-pro/ui/theme-boot';
 // 仓库内部的配置，不是组件库的公开接口：按相对路径引用
-import { uiPrebundle } from '../../packages/ui/prebundle.config.ts';
+import { uiPrebundle, uiPrebundleExclude } from '../../packages/ui/prebundle.config.ts';
 import { componentApi } from './build/api.ts';
 import { demoSource } from './build/demo.ts';
 import { docPages } from './build/pages.ts';
@@ -39,7 +39,12 @@ export const plugins = [
 export default defineConfig({
   plugins,
   // 固定端口：IDE 里启动、浏览器里打开的总是同一个地址；被占用时报错而不是换端口
-  server: { port: 5174, strictPort: true },
+  server: {
+    port: 5174,
+    strictPort: true,
+    // 启动时就编译入口引到的模块（整个组件库，几百个文件）：打开浏览器时不用再等
+    warmup: { clientFiles: ['./src/main.ts'] },
+  },
   optimizeDeps: {
     include: [
       // 组件库源码里的依赖：一开始就预构建，打开某页才发现新依赖会重新预构建并刷新页面
@@ -63,6 +68,7 @@ export default defineConfig({
       '@codemirror/view',
       '@lezer/highlight',
     ],
+    exclude: uiPrebundleExclude,
   },
   resolve: {
     // 代码演练场的 Worker 在浏览器里跑 Babel：它用到的几个 Node 模块换成浏览器版（src/playground/node-shims）

@@ -19,7 +19,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { buttonBaseStyles } from '../base/button-core';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { VisuallyHidden } from '../base/VisuallyHidden';
+import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useFormat } from '../config/lang/format';
 import {
   monthGrid,
@@ -58,35 +58,41 @@ export interface CalendarViewOptions {
   fixedWeeks?: boolean;
   /** 不可用：不能翻页、不能选 */
   disabled?: boolean;
-  /** 自定义日期格的内容（价格、标记点）：拿到日期（ISO）与这一格的状态；不写时是日期数字 */
+  /**
+   * 自定义日期格的内容（价格、标记点）：拿到日期（ISO）与这一格的状态；不写时是日期数字。
+   * 读屏先念完整日期再念这里的文字：日期数字这类重复的部分可以加 aria-hidden
+   */
   children?: (date: string, cell: CalendarCellState) => VNodeChild;
   /** 页脚：今天、清除这类按钮 */
   footer?: VNodeChild;
   /** 页头的部件属性 */
   propsHeader?: PartProps<'div'>;
   /** 上一页按钮的部件属性 */
-  propsPrevious?: Partial<IconButtonProps>;
+  propsPrevious?: Omit<Partial<IconButtonProps>, 'disabled' | 'onClick'>;
   /** 下一页按钮的部件属性 */
-  propsNext?: Partial<IconButtonProps>;
+  propsNext?: Omit<Partial<IconButtonProps>, 'disabled' | 'onClick'>;
   /** 标题按钮的部件属性 */
-  propsHeading?: PartProps<'button', 'type' | 'disabled'>;
+  propsHeading?: PartProps<'button', 'type' | 'aria-label'>;
   /** 并排月份那一层的部件属性 */
   propsMonths?: PartProps<'div'>;
   /** 每张网格（table）的部件属性 */
-  propsGrid?: PartProps<'table', 'role' | 'aria-multiselectable'>;
+  propsGrid?: PartProps<'table', 'role' | 'aria-label' | 'aria-multiselectable'>;
   /** 星期表头的部件属性 */
   propsWeekday?: PartProps<'th', 'scope'>;
   /** 周数的部件属性 */
-  propsWeekNumber?: PartProps<'th', 'scope'>;
+  propsWeekNumber?: PartProps<'th', 'scope' | 'aria-label'>;
   /** 每格（td）的部件属性 */
   propsCell?: CalendarItemProps<PartProps<'td', 'role' | 'aria-selected' | 'aria-disabled'>>;
   /** 每格里按钮的部件属性 */
   propsCellButton?: CalendarItemProps<
-    PartProps<'button', 'type' | 'tabindex' | 'disabled' | 'aria-disabled'>
+    PartProps<'button', 'type' | 'tabindex' | 'disabled' | 'aria-label' | 'aria-disabled'>
   >;
   /** 页脚的部件属性 */
   propsFooter?: PartProps<'div'>;
 }
+
+/** data-* 属性：部件属性的对象字面量不收 data-* 键，写成这样再展开进受管层 */
+const dataAttrs = (attrs: Record<`data-${string}`, string | boolean | undefined>) => attrs;
 
 /** 未声明的属性落到根元素上（aria-label 等） */
 export interface CalendarViewProps
@@ -256,14 +262,20 @@ export const CalendarView = _component(
       return `${format.date(date, { year: 'numeric' })} – ${format.date(end, { year: 'numeric' })}`;
     };
 
-    /** 一格：td + 按钮；label 是读屏念的名称，content 是格子里显示的 */
+    /**
+     * 一格：td + 按钮；label 是读屏念的完整日期，content 是格子里显示的。
+     * 读屏名称来自按钮里的文字而不是 aria-label：自定义内容（如房价）跟在完整日期后面一起念，
+     * 名称总包含看得见的文字（中文日期里“20”不是单独的词，写成 aria-label 时对不上）；
+     * 默认内容只是日期数字，不重复念。kind 为 period 时是月份、年份格
+     */
     function cell(
       date: CalendarDate,
       month: CalendarDate | undefined,
       label: string,
       content: VNodeChild,
-      period = false,
+      kind: 'day' | 'custom' | 'period' = 'day',
     ) {
+      const period = kind === 'period';
       const state = calendar.cell(date, month);
       const iso = locale.toIso(date);
       const off = disabled || state.disabled;
@@ -287,9 +299,9 @@ export const CalendarView = _component(
               role: 'gridcell',
               'aria-selected': state.selected,
               'aria-disabled': off || undefined,
+              ...dataAttrs({ 'data-in-range': state.inRange || undefined }),
             },
           )}
-          data-in-range={state.inRange || undefined}
         >
           <button
             {...mergeAttrs<'button'>(
@@ -307,7 +319,6 @@ export const CalendarView = _component(
                   marked && calendarStyles.selected,
                   off && calendarStyles.disabled,
                 ],
-                'aria-label': state.today ? texts().calendarToday(label) : label,
                 'aria-describedby': calendar.anchor ? hintId : undefined,
               },
               resolve(propsCellButton, iso, state),
@@ -323,17 +334,24 @@ export const CalendarView = _component(
                   if (!state.focused) calendar.focus(date);
                 },
                 onPointerenter: () => calendar.hover(date),
+                // 写在受管层而不是 JSX 上：元素上只有一处展开，不用再经 Vue 的 mergeProps（每页几百格）
+                ...dataAttrs({
+                  'data-date': iso,
+                  'data-focused': (state.focused && !state.outside) || undefined,
+                  'data-selected': state.selected || undefined,
+                  'data-today': state.today || undefined,
+                  'data-outside': state.outside || undefined,
+                  'data-unavailable': state.unavailable || undefined,
+                  'data-disabled': off || undefined,
+                }),
               },
             )}
-            data-date={iso}
-            data-focused={(state.focused && !state.outside) || undefined}
-            data-selected={state.selected || undefined}
-            data-today={state.today || undefined}
-            data-outside={state.outside || undefined}
-            data-unavailable={state.unavailable || undefined}
-            data-disabled={off || undefined}
           >
-            {content}
+            {/* 每格一个：直接用样式，不多建几百个组件实例 */}
+            <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+              {state.today ? texts().calendarToday(label) : label}
+            </span>
+            {kind === 'custom' ? content : <span aria-hidden="true">{content}</span>}
           </button>
         </td>
       );
@@ -343,10 +361,10 @@ export const CalendarView = _component(
       mergeAttrs<'table'>(
         {
           sx: [calendarStyles.grid, calendar.view !== 'day' && calendarStyles.periodGrid],
-          'aria-label': label,
         },
         propsGrid,
         {
+          'aria-label': label,
           role: 'grid',
           'aria-multiselectable': calendar.mode !== 'single' || undefined,
           onKeydown,
@@ -398,14 +416,10 @@ export const CalendarView = _component(
               <tr key={week[0]!.toString()}>
                 {showWeekNumbers && (
                   <th
-                    {...mergeAttrs<'th'>(
-                      {
-                        sx: calendarStyles.weekNumber,
-                        'aria-label': texts().calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
-                      },
-                      propsWeekNumber,
-                      { scope: 'row' },
-                    )}
+                    {...mergeAttrs<'th'>({ sx: calendarStyles.weekNumber }, propsWeekNumber, {
+                      'aria-label': texts().calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
+                      scope: 'row',
+                    })}
                   >
                     {weekOfYear(week[0]!, locale.week)}
                   </th>
@@ -422,6 +436,7 @@ export const CalendarView = _component(
                     children
                       ? children(locale.toIso(date), calendar.cell(date, month))
                       : locale.dayNumber(date),
+                    children ? 'custom' : 'day',
                   );
                 })}
               </tr>
@@ -450,7 +465,7 @@ export const CalendarView = _component(
                     month
                       ? format.date(date, { month: 'short' })
                       : format.date(date, { year: 'numeric' }),
-                    true,
+                    'period',
                   ),
                 )}
               </tr>
@@ -519,10 +534,16 @@ export const CalendarView = _component(
                               calendarStyles.heading,
                               focusRingStyles.visible,
                             ],
-                            'aria-label': `${coarser === 'month' ? t.calendarChooseMonth : t.calendarChooseYear}：${label}`,
                           },
                           propsHeading,
-                          { type: 'button', onClick: () => calendar.setView(coarser) },
+                          {
+                            'aria-label':
+                              coarser === 'month'
+                                ? t.calendarChooseMonth(label)
+                                : t.calendarChooseYear(label),
+                            type: 'button',
+                            onClick: () => calendar.setView(coarser),
+                          },
                         )}
                       >
                         {label}

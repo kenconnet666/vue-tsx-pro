@@ -3,16 +3,19 @@
  * Calendar、DateField、各种日期选择器共用，组件里不再各自拼这些。在 setup 里调用，返回的对象在渲染时读取即可随语言切换。
  *
  *   const locale = useDateLocale(() => ({ firstDayOfWeek }));
- *   locale.fromIso(value)   // '2026-10-20' → 当前日历系统里的 CalendarDate
+ *   locale.fromValue(value) // '2026-10-20' 或 CalendarDate → 当前日历系统里的 CalendarDate
  *   locale.dayNumber(date)  // '20'（zh-CN 的 Intl 会写成“20日”，这里只取数字）
  */
 import {
+  CalendarDate,
   DateFormatter,
   getLocalTimeZone,
+  GregorianCalendar,
   toCalendar,
+  toCalendarDate,
   today,
   type Calendar,
-  type CalendarDate,
+  type DateValue,
 } from '@internationalized/date';
 import { useLang } from '../config/context';
 import {
@@ -22,6 +25,20 @@ import {
   type DateLimits,
   type WeekOptions,
 } from '../utils/data/date';
+
+/**
+ * 日期组件接受的值：ISO 字符串（'2026-10-20'），或 @internationalized/date 的 DateValue
+ * （CalendarDate、CalendarDateTime、ZonedDateTime）。写回时保持传入的类型（见 writeDateLike）
+ */
+export type DateInput = string | DateValue;
+
+/** 值为空、推不出类型时写回哪一种 */
+export interface DateValueTypes {
+  /** ISO 字符串（默认）：与原生 input、URL 参数、zod 的 z.iso.date() 一致 */
+  iso: unknown;
+  /** @internationalized/date 的对象：日期是 CalendarDate，带时间时是 CalendarDateTime */
+  dateValue: unknown;
+}
 
 /** 组件上可以覆盖语言配置的地区选项 */
 export interface DateLocaleOverrides {
@@ -41,8 +58,8 @@ export interface DateLocale {
   readonly week: WeekOptions;
   /** 今天，按时区与日历系统 */
   today(): CalendarDate;
-  /** ISO 日期 → 显示用的日期（当前日历系统）；空值、格式不对时 null */
-  fromIso(value: string | null | undefined): CalendarDate | null;
+  /** 值（ISO 字符串或 DateValue）→ 显示用的日期（当前日历系统）；空值、格式不对时 null */
+  fromValue(value: DateInput | null | undefined): CalendarDate | null;
   /** 显示用的日期 → ISO 日期（公历） */
   toIso(date: CalendarDate): string;
   /** 日期格里的数字（按日历系统与语言的数字写法） */
@@ -69,8 +86,9 @@ export function useDateLocale(read: () => DateLocaleOverrides = () => ({})): Dat
     today() {
       return toCalendar(today(lang.timeZone ?? getLocalTimeZone()), calendar());
     },
-    fromIso(value) {
-      const date = parseIsoDate(value);
+    fromValue(value) {
+      if (value == null) return null;
+      const date = typeof value === 'string' ? parseIsoDate(value) : toCalendarDate(value);
       return date && toCalendar(date, calendar());
     },
     toIso: toIsoDate,
@@ -95,12 +113,12 @@ function dayFormatter(locale: string, calendar: string): DateFormatter {
   return formatter;
 }
 
-/** 组件上写的可选范围（ISO 字符串）与不可选的日期 */
+/** 组件上写的可选范围与不可选的日期 */
 export interface DateLimitProps {
-  /** 最早可选的日期（ISO，如 '2026-01-01'） */
-  min?: string;
-  /** 最晚可选的日期（ISO） */
-  max?: string;
+  /** 最早可选的日期（ISO 字符串如 '2026-01-01'，或 DateValue） */
+  min?: DateInput;
+  /** 最晚可选的日期（ISO 字符串或 DateValue） */
+  max?: DateInput;
   /**
    * 不可选的日期（已订满、节假日）：仍能用方向键经过，读屏念“不可用”，不能选。
    * 第二个参数是同一天的 CalendarDate，判断星期几等不用自己解析：`(_, day) => isWeekend(day, 'zh-CN')`
@@ -114,8 +132,31 @@ export function toDateLimits(
   { min, max, isDateUnavailable }: DateLimitProps,
 ): DateLimits {
   return {
-    min: locale.fromIso(min),
-    max: locale.fromIso(max),
+    min: locale.fromValue(min),
+    max: locale.fromValue(max),
     isUnavailable: isDateUnavailable && ((day) => isDateUnavailable(toIsoDate(day), day)),
   };
+}
+
+const GREGORIAN = new GregorianCalendar();
+
+/**
+ * 选到的日期写回成和 like 同一种类型：like 是字符串时写 ISO 日期；是 DateValue 时保留它的类型、日历系统、时间与时区，
+ * 只换年月日（CalendarDateTime 选了另一天，时间不变）。like 为空时按 valueType（默认 ISO 字符串）
+ */
+export function writeDateLike(
+  date: CalendarDate,
+  like: DateInput | null | undefined,
+  valueType: keyof DateValueTypes = 'iso',
+): DateInput {
+  if (typeof like === 'string' || (like == null && valueType === 'iso')) return toIsoDate(date);
+  if (like == null) return toCalendar(date, GREGORIAN);
+  const converted = toCalendar(date, like.calendar);
+  if (!('hour' in like)) return converted;
+  return like.set({
+    era: converted.era,
+    year: converted.year,
+    month: converted.month,
+    day: converted.day,
+  });
 }

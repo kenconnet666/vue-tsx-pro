@@ -568,6 +568,7 @@ export {
   type OptionRenderState,
 } from './input/Listbox';
 export {
+  normalizeNumber,
   NumberField,
   parseNumber,
   type NumberFieldManaged,
@@ -701,7 +702,12 @@ export {
   type SegmentedFieldOptions,
   type SegmentedFieldProps,
 } from './date/SegmentedField';
-export { TimeField, type TimeFieldGranularities, type TimeFieldProps } from './date/TimeField';
+export {
+  TimeField,
+  type TimeFieldGranularities,
+  type TimeFieldProps,
+  type TimeInput,
+} from './date/TimeField';
 export {
   handleCalendarKeydown,
   useCalendarState,
@@ -714,9 +720,12 @@ export {
 export {
   toDateLimits,
   useDateLocale,
+  writeDateLike,
+  type DateInput,
   type DateLimitProps,
   type DateLocale,
   type DateLocaleOverrides,
+  type DateValueTypes,
 } from './date/date-locale';
 export {
   fieldsToIso,
@@ -1164,12 +1173,18 @@ export {
 } from './utils/data/date';
 export { clamp, snapToStep } from './utils/data/number';
 export {
+  addNumeric,
   compareNumeric,
   isDecimal,
   isNumeric,
+  multiplyNumeric,
+  numericKind,
   numericText,
   sameNumeric,
+  snapNumeric,
   toNumber,
+  toNumericKind,
+  type NumericKind,
   type NumericValue,
 } from './utils/data/numeric';
 export {

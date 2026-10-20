@@ -2,7 +2,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { NumberField, parseNumber } from '../NumberField';
+import Decimal from 'decimal.js';
+import type { NumericValue } from '../../utils/data/numeric';
+import { NumberField, parseNumber, type NumberFieldProps } from '../NumberField';
 
 describe('parseNumber', () => {
   it.each([
@@ -92,5 +94,73 @@ describe('NumberField', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe('NumberField 的值类型', () => {
+  const mountField = (
+    initial: NumericValue | null,
+    props: Partial<Pick<NumberFieldProps, 'min' | 'max' | 'step' | 'valueType' | 'name'>> = {},
+  ) => {
+    let value = _state.raw<NumericValue | null>(initial);
+    const root = mount(() => <NumberField value={_bind(value)} aria-label="金额" {...props} />);
+    const input = root.querySelector('input')!;
+    const type = async (text: string) => {
+      input.dispatchEvent(new FocusEvent('focus'));
+      input.value = text;
+      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new FocusEvent('blur'));
+      await nextTick();
+    };
+    const key = async (name: string) => {
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
+      await nextTick();
+    };
+    return { root, input, type, key, value: () => value };
+  };
+
+  it('Decimal：加减与对齐步长精确运算，写回 Decimal', async () => {
+    const field = mountField(new Decimal('0.1'), { step: new Decimal('0.1') });
+    await field.key('ArrowUp');
+    await field.key('ArrowUp');
+    expect(field.value()).toBeInstanceOf(Decimal);
+    expect((field.value() as Decimal).toString()).toBe('0.3');
+    await field.type('12345678901234567.891');
+    expect((field.value() as Decimal).toFixed()).toBe('12345678901234567.9');
+  });
+
+  it('bigint：超过 Number 精度的大整数不丢位，步长至少为 1', async () => {
+    const field = mountField(9007199254740993n);
+    await field.key('ArrowUp');
+    expect(field.value()).toBe(9007199254740994n);
+    await field.type('123456789012345678901.6');
+    expect(field.value()).toBe(123456789012345678902n);
+    expect(field.input.getAttribute('aria-valuenow')).toBe(String(Number(123456789012345678902n)));
+  });
+
+  it('一开始为空时按 valueType 写回；min 可以是 Decimal', async () => {
+    const field = mountField(null, { valueType: Decimal, min: new Decimal('0.5') });
+    await field.key('ArrowUp');
+    expect(field.value()).toBeInstanceOf(Decimal);
+    expect((field.value() as Decimal).toString()).toBe('0.5');
+    const big = mountField(null, { valueType: 'bigint' });
+    await big.type('42');
+    expect(big.value()).toBe(42n);
+  });
+
+  it('表单提交十进制文本，不是显示的货币格式', async () => {
+    let value = _state.raw<NumericValue | null>(new Decimal('1234.5'));
+    const root = mount(() => (
+      <form>
+        <NumberField
+          value={_bind(value)}
+          name="price"
+          format={{ style: 'currency', currency: 'CNY' }}
+          aria-label="单价"
+        />
+      </form>
+    ));
+    expect(root.querySelector('input[role="spinbutton"]')!.hasAttribute('name')).toBe(false);
+    expect(new FormData(root.querySelector('form')!).get('price')).toBe('1234.5');
   });
 });

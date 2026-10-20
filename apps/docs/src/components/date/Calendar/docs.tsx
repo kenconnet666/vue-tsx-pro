@@ -27,8 +27,12 @@ export default _component(() => () => (
       <Example id="basic" title="基础用法" demo={Basic}>
         值是 ISO 日期字符串（<Code>'2026-10-20'</Code>），和原生日期输入框、URL 参数、zod 的{' '}
         <Code>z.iso.date()</Code> 一致；<Code>todayIso</Code>、<Code>shiftIsoDate</Code>、
-        <Code>daysBetween</Code> 直接在这种字符串上算，<Code>useFormat().date</Code> 也直接收它。
-        <Code>min</Code> 之前的日子不能选，翻页按钮到头不可用。
+        <Code>daysBetween</Code> 直接在这种字符串上算，<Code>useFormat().date</Code> 也直接收它。 用
+        @internationalized/date 的话，<Code>value</Code>、<Code>min</Code>、<Code>max</Code>{' '}
+        也可以传
+        CalendarDate、CalendarDateTime、ZonedDateTime，写回时保持同一种类型（时间、时区不丢），一开始为空时用{' '}
+        <Code>valueType="dateValue"</Code> 指定。<Code>min</Code>{' '}
+        之前的日子不能选，翻页按钮到头不可用。
       </Example>
       <Example id="unavailable" title="不可选的日期" demo={Unavailable}>
         <Code>isDateUnavailable</Code>{' '}
@@ -38,7 +42,8 @@ export default _component(() => () => (
       </Example>
       <Example id="prices" title="自定义格子" demo={Prices}>
         子节点是渲染函数，拿到日期与这一格的状态（选中、今天、不可选、在不在本月）：价格日历、标记点、农历都在这里放。
-        格子里的内容要与读屏名称一致，读屏念的仍是完整日期。
+        读屏先念完整日期，再念格子里的文字（房价也能听到）；重复的日期数字加{' '}
+        <Code>aria-hidden</Code> 不再念一遍。
       </Example>
       <Example id="multiple" title="多选" demo={Multiple}>
         <Code>selectionMode="multiple"</Code> 时值是数组，每天独立切换；<Code>showWeekNumbers</Code>{' '}

@@ -28,6 +28,9 @@ export type DateSegmentGroupManaged = 'role';
 /** 每段由组件管理的属性 */
 export type DateSegmentManaged =
   | 'role'
+  | 'id'
+  | 'aria-label'
+  | 'aria-labelledby'
   | 'tabindex'
   | 'contenteditable'
   | 'inputmode'
@@ -61,7 +64,7 @@ export interface DateSegmentGroupProps extends PartProps<'div', DateSegmentGroup
     | PartProps<'span', DateSegmentManaged>
     | ((segment: DateSegment) => PartProps<'span', DateSegmentManaged>);
   /** 分隔符的部件属性 */
-  propsLiteral?: PartProps<'span'>;
+  propsLiteral?: PartProps<'span', 'aria-hidden'>;
 }
 
 /** DateSegmentGroup 的样式：root、segment、placeholder、literal */
@@ -197,9 +200,6 @@ export const DateSegmentGroup = _component(
                       segment.placeholder && dateSegmentStyles.placeholder,
                       disabled && dateSegmentStyles.disabled,
                     ],
-                    id: segmentId,
-                    'aria-label': segment.label,
-                    'aria-labelledby': labelledBy ? `${labelledBy} ${segmentId}` : undefined,
                     'aria-describedby': describedBy,
                     spellcheck: false,
                     autocapitalize: 'off',
@@ -208,6 +208,10 @@ export const DateSegmentGroup = _component(
                   },
                   own,
                   {
+                    // 每段的名称各不相同（年、月、日），由组件管理
+                    id: segmentId,
+                    'aria-label': segment.label,
+                    'aria-labelledby': labelledBy ? `${labelledBy} ${segmentId}` : undefined,
                     ref: (element: unknown) => {
                       if (element instanceof HTMLElement) elements.set(type, element);
                     },

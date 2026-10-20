@@ -1,5 +1,5 @@
 /**
- * 源码文字检查：源码里不直接写不可见字符、双向控制符与从右往左的文字，要写就用 \uXXXX 转义。
+ * 源码文字检查：源码里不直接写不可见字符、控制字符、双向控制符与从右往左的文字，要写就用 \uXXXX 转义。
  * 它们在编辑器里看不见或会改变显示顺序（“Trojan Source”），代码看起来和实际执行的不一样，审代码时发现不了；
  * IDEA 也会对这类文件提示“双向文本”。
  *
@@ -44,6 +44,9 @@ const NAMED = new Map([
   [0x2069, '方向隔离结束'],
   [0xfeff, '字节顺序标记（BOM）'],
 ]);
+/** 控制字符（制表、换行、回车除外）：多半是脚本写文件时转义丢了，如正则里的 \b 成了退格符，代码看着对、实际不匹配 */
+const isControl = (code) =>
+  (code < 0x20 && code !== 0x09 && code !== 0x0a && code !== 0x0d) || code === 0x7f;
 const isRtl = (code) =>
   (code >= 0x0590 && code <= 0x08ff) ||
   (code >= 0xfb1d && code <= 0xfdff) ||
@@ -69,7 +72,9 @@ for (const file of files) {
   lines.forEach((line, index) => {
     for (const char of line) {
       const code = char.codePointAt(0);
-      const name = NAMED.get(code) ?? (isRtl(code) ? '从右往左的文字' : undefined);
+      const name =
+        NAMED.get(code) ??
+        (isControl(code) ? '控制字符' : isRtl(code) ? '从右往左的文字' : undefined);
       if (!name) continue;
       // 文件开头的 BOM 是编码标记，不在代码里
       if (code === 0xfeff && index === 0 && line.startsWith(char)) continue;
@@ -80,7 +85,9 @@ for (const file of files) {
 }
 
 if (problems.length) {
-  console.error(`源码里有不可见或双向字符（共 ${problems.length} 处），请改用 \\uXXXX 转义：`);
+  console.error(
+    `源码里有不可见、控制或双向字符（共 ${problems.length} 处），请改用 \\uXXXX 转义：`,
+  );
   console.error(problems.join('\n'));
   process.exitCode = 1;
 } else {

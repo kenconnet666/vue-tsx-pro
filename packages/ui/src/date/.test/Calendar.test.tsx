@@ -17,6 +17,12 @@ afterEach(() => vi.useRealTimers());
 
 const button = (root: HTMLElement, date: string) =>
   root.querySelector<HTMLButtonElement>(`[data-date="${date}"]`)!;
+/** 读屏念的名称：按钮里去掉 aria-hidden 部分的文字 */
+const nameOf = (element: HTMLElement) => {
+  const copy = element.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll('[aria-hidden="true"]').forEach((hidden) => hidden.remove());
+  return copy.textContent;
+};
 const key = async (root: HTMLElement, name: string, options: KeyboardEventInit = {}) => {
   const target = (document.activeElement as HTMLElement) ?? root.querySelector('[data-focused]');
   target.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, ...options }));
@@ -38,7 +44,7 @@ describe('Calendar', () => {
     const selected = button(root, '2026-10-20');
     expect(selected.closest('td')!.getAttribute('aria-selected')).toBe('true');
     expect(selected.tabIndex).toBe(0);
-    expect(selected.getAttribute('aria-label')).toBe('今天，2026年10月20日星期二');
+    expect(nameOf(selected)).toBe('今天，2026年10月20日星期二');
     expect(button(root, '2026-10-21').tabIndex).toBe(-1);
     // 补齐的上一个月的日期变淡，但能点
     expect(button(root, '2026-09-28').hasAttribute('data-outside')).toBe(true);
@@ -67,9 +73,7 @@ describe('Calendar', () => {
     expect(root.querySelector('thead th')!.textContent).toBe('S');
     expect(root.querySelector('thead th')!.getAttribute('title')).toBe('Sunday');
     expect(root.querySelector('[role="grid"]')!.getAttribute('aria-label')).toBe('October 2026');
-    expect(button(root, '2026-10-20').getAttribute('aria-label')).toBe(
-      'Today, Tuesday, October 20, 2026',
-    );
+    expect(nameOf(button(root, '2026-10-20'))).toBe('Today, Tuesday, October 20, 2026');
     const labels = [...root.querySelectorAll('button[aria-label]')].map((b) =>
       b.getAttribute('aria-label'),
     );
@@ -138,7 +142,8 @@ describe('Calendar', () => {
     ));
     const rowHeader = root.querySelector('tbody th')!;
     expect(rowHeader.getAttribute('aria-label')).toBe('第 40 周');
-    expect(button(root, '2026-10-20').textContent).toBe('✓20');
+    // 自定义内容跟在完整日期后面一起念
+    expect(nameOf(button(root, '2026-10-20'))).toBe('今天，2026年10月20日星期二✓20');
   });
 
   it('标题切到月份视图、再到年份视图；点年份、月份逐级回到日期', async () => {
@@ -149,7 +154,8 @@ describe('Calendar', () => {
     heading()!.click();
     await nextTick();
     expect(root.firstElementChild!.getAttribute('data-view')).toBe('month');
-    expect(button(root, '2026-03-01').textContent).toBe('3月');
+    expect(button(root, '2026-03-01').querySelector('[aria-hidden]')!.textContent).toBe('3月');
+    expect(nameOf(button(root, '2026-03-01'))).toBe('2026年3月');
     heading()!.click();
     await nextTick();
     expect(root.querySelector('[role="grid"]')!.getAttribute('aria-label')).toBe('2020年 – 2029年');

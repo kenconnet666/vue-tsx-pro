@@ -18,8 +18,18 @@ export const UI_DEPENDENCIES = [
   'shiki/langs',
   'tabbable',
   'three',
+  'zod',
   'zod/v4/core',
 ];
 
+/**
+ * shiki/langs（全部语言的表）不预构建，放进 optimizeDeps.exclude：仓库里的应用都给高亮器传了用到的几种语言，
+ * 用不到这张表。预构建它要把两百多种语法各打一块（二十多秒）；只从 include 去掉也不行，
+ * 高亮器里没执行的 import('shiki/langs') 照样被当成新依赖，打开第一页时重新预构建并刷新页面
+ */
+export const uiPrebundleExclude = ['shiki/langs'];
+
 /** 放进 optimizeDeps.include 的写法 */
-export const uiPrebundle = UI_DEPENDENCIES.map((dependency) => `@vue-tsx-pro/ui > ${dependency}`);
+export const uiPrebundle = UI_DEPENDENCIES.filter(
+  (dependency) => !uiPrebundleExclude.includes(dependency),
+).map((dependency) => `@vue-tsx-pro/ui > ${dependency}`);

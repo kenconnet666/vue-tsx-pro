@@ -23,10 +23,10 @@ export interface DateTexts {
   readonly calendarPreviousDecade: string;
   /** 年份视图“下一个十年”按钮，默认“下一个十年” */
   readonly calendarNextDecade: string;
-  /** 标题上切换到月份 / 年份视图的按钮说明，默认“选择月份”“选择年份” */
-  readonly calendarChooseMonth: string;
-  /** 见 calendarChooseMonth */
-  readonly calendarChooseYear: string;
+  /** 标题按钮（切到月份视图）的名称：`('2026年10月')` → “选择月份：2026年10月” */
+  readonly calendarChooseMonth: (current: string) => string;
+  /** 标题按钮（切到年份视图）的名称：`('2026年')` → “选择年份：2026年” */
+  readonly calendarChooseYear: (current: string) => string;
   /** 周数一列的表头，默认“周” */
   readonly calendarWeek: string;
   /** 周数给读屏的说明：`(43)` → “第 43 周” */
@@ -62,8 +62,8 @@ const zh: DateTexts = {
   calendarNextYear: '下一年',
   calendarPreviousDecade: '上一个十年',
   calendarNextDecade: '下一个十年',
-  calendarChooseMonth: '选择月份',
-  calendarChooseYear: '选择年份',
+  calendarChooseMonth: (current) => `选择月份：${current}`,
+  calendarChooseYear: (current) => `选择年份：${current}`,
   calendarWeek: '周',
   calendarWeekNumber: (week) => `第 ${week} 周`,
   calendarToday: (date) => `今天，${date}`,
@@ -103,8 +103,8 @@ const en: DateTexts = {
   calendarNextYear: 'Next year',
   calendarPreviousDecade: 'Previous decade',
   calendarNextDecade: 'Next decade',
-  calendarChooseMonth: 'Choose month',
-  calendarChooseYear: 'Choose year',
+  calendarChooseMonth: (current) => `Choose month: ${current}`,
+  calendarChooseYear: (current) => `Choose year: ${current}`,
   calendarWeek: 'Wk',
   calendarWeekNumber: (week) => `Week ${week}`,
   calendarToday: (date) => `Today, ${date}`,

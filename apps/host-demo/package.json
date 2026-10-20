@@ -15,6 +15,7 @@
     "@floating-ui/dom": "catalog:",
     "@lucide/icons": "catalog:",
     "pinia": "catalog:",
+    "@shikijs/langs": "catalog:",
     "shiki": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "tabbable": "catalog:",

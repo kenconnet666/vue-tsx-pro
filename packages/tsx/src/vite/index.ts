@@ -71,7 +71,7 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
         },
       }),
     );
-    plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp));
+    plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp).map(loadStylexModulesOnly));
   }
   // _component 与 defineComponent 一样参与热更新与 tree-shaking 标注
   plugins.push(vueJsx({ defineComponentName: ['defineComponent', '_component'] }));
@@ -116,6 +116,10 @@ export function workspaceSource(): Plugin {
     config() {
       return {
         resolve: { conditions: [condition, 'module', 'browser', 'development|production'] },
+        // 按源码读 tsx 包时，它运行时导入的 @stylexjs/stylex 不会被启动时的扫描发现（发布包则会随包预构建）：
+        // 爬取时才发现会丢掉已经做完的预构建、整体重来，冷启动多等二十秒。
+        // 写不带前缀的名字：爬取时记下的就是这个名字，写成“@vue-tsx-pro/tsx > …”会被当成另一个依赖，照样重来
+        optimizeDeps: { include: ['@stylexjs/stylex'] },
         ssr: { resolve: { conditions: [condition, 'module', 'node', 'development|production'] } },
       };
     },
@@ -123,6 +127,46 @@ export function workspaceSource(): Plugin {
 }
 
 // ───────── 内部实现 ─────────
+
+/** 导入的 .stylex 模块（defineVars、defineConsts 只能写在这种文件里） */
+const STYLEX_MODULE_IMPORT = /\bfrom\s*['"]([^'"]+\.stylex(?:\.[cm]?[jt]sx?)?)['"]/g;
+
+/**
+ * 绕过 @stylexjs/unplugin 0.19.1 的问题：监听模式（开发服务器）下它每编译完一个文件，就对文件里的每个导入
+ * this.resolve + this.load。每个模块要等它的整棵导入树都编译完才返回，并行编译变成层层等待，
+ * 文档站冷启动第一页多等十几秒。这里让它以为不在监听模式，改为编译前先加载导入的 .stylex 模块：
+ * 常量（如断点）的值在定义它的模块编译时才登记，引用方的规则先登记、这时正好收集 CSS 的话，
+ * 媒体查询会留成 var(--哈希)，LightningCSS 报 “Invalid empty selector”（浏览器测试里出现过）。
+ * .stylex 模块只导入 StyleX 本身，等它们不会形成层层等待
+ */
+function loadStylexModulesOnly(plugin: Plugin): Plugin {
+  const hook = plugin.transform;
+  if (!hook) return plugin;
+  const handler = typeof hook === 'function' ? hook : hook.handler;
+  const transform = async function (
+    this: ThisParameterType<typeof handler>,
+    ...args: Parameters<typeof handler>
+  ) {
+    const context = new Proxy(this, {
+      get(target, key) {
+        if (key === 'meta') return { ...target.meta, watchMode: false };
+        const value: unknown = Reflect.get(target, key, target);
+        // 上下文的方法可能用到私有字段：绑定回原对象
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
+    const [code, id] = args;
+    for (const [, source] of code.matchAll(STYLEX_MODULE_IMPORT)) {
+      const resolved = await this.resolve(source!, id);
+      if (resolved && !resolved.external) await this.load(resolved);
+    }
+    return handler.apply(context, args);
+  };
+  return {
+    ...plugin,
+    transform: typeof hook === 'function' ? transform : { ...hook, handler: transform },
+  };
+}
 
 /** unplugin 生成的 Vite 插件可能是单个插件，也可能是数组 */
 function toArray(plugin: unknown): Plugin[] {
