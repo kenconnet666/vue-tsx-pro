@@ -1041,7 +1041,7 @@ export const Base = _component(() => {
             <Avatar name="Grace Hopper" radius="md" />
             <Avatar />
           </Flex>
-          <Flex gap="sm" align="center" class="avatar-tones">
+          <Flex gap="sm" align="center" wrap class="avatar-tones">
             {tones.map((tone) => (
               <Avatar key={tone} name={tone} tone={tone} />
             ))}

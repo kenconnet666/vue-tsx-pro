@@ -166,7 +166,8 @@ describe('TagsInput', () => {
     expect(remove.getAttribute('aria-label')).toBe('移除 TypeScript');
     remove.focus();
     remove.click();
-    await expect.poll(tags).toEqual([]);
+    // 离场等子树里的动画结束，兜底 1.5 秒（afterTransitions）；慢的 CI 上会超过 poll 默认的 1 秒
+    await expect.poll(tags, { timeout: 3000 }).toEqual([]);
     expect(shell().contains(document.activeElement)).toBe(true);
   });
 });
