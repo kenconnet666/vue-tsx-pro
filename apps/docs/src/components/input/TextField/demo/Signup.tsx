@@ -24,9 +24,7 @@ export default _component(() => {
             label="密码"
             required
             description="至少 8 位，包含字母和数字"
-            error={
-              password && password.length < 8 ? `还差 ${8 - password.length} 位` : undefined
-            }
+            error={password && password.length < 8 ? `还差 ${8 - password.length} 位` : undefined}
           >
             <TextField value={_bind(password)} type="password" />
           </Field>

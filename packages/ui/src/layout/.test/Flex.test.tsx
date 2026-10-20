@@ -25,7 +25,12 @@ describe('Flex', () => {
   it('grow：在父级 flex 里占满剩余空间并允许收缩', () => {
     const grown = render(() => <Flex grow>a</Flex>);
     expect(hasStyles(grown, flexStyles.grow)).toBe(true);
-    expect(hasStyles(render(() => <Flex>a</Flex>), flexStyles.grow)).toBe(false);
+    expect(
+      hasStyles(
+        render(() => <Flex>a</Flex>),
+        flexStyles.grow,
+      ),
+    ).toBe(false);
   });
 
   it('FlexList 是 ul：去掉圆点并补上 role="list"（Safari 去掉圆点后会丢列表语义）', () => {
