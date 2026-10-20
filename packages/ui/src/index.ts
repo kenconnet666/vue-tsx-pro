@@ -514,10 +514,12 @@ export {
 } from './navigation/Tabs';
 export {
   Toolbar,
+  ToolbarContext,
   toolbarStyles,
   type ToolbarManaged,
   type ToolbarOrientations,
   type ToolbarProps,
+  type ToolbarState,
 } from './navigation/Toolbar';
 
 // 输入

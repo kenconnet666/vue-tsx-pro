@@ -23,6 +23,7 @@ import type { IconData, IconProps } from '../base/Icon';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
+import { ToolbarContext } from '../navigation/Toolbar';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { useFieldControl } from '../form/Field';
 import type { TextSize } from '../utils/style/typography';
@@ -124,8 +125,12 @@ export const ToggleGroup = _component(
     // 在 Field 里时：标签作为组的名称、关联说明与错误、沿用不可用
     const control = useFieldControl(() => ({ id, disabled }));
     let root = _state.raw<HTMLElement | null>(null);
+    // 在工具栏里时焦点交给工具栏：整栏一个 Tab 位置，方向键跨过组内外的按钮（WAI-ARIA Toolbar 模式）
+    const inToolbar = ToolbarContext.inject(null) != null;
     _effect(() =>
-      root ? rovingFocus(root, { items: 'button', orientation, loop: true }) : undefined,
+      root && !inToolbar
+        ? rovingFocus(root, { items: 'button', orientation, loop: true })
+        : undefined,
     );
     const selected = _derived<readonly string[]>(
       Array.isArray(value) ? value : value != null ? [value] : [],

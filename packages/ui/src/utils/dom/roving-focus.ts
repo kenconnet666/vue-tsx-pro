@@ -52,7 +52,8 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
   const typeahead = options.typeahead ? createTypeahead() : undefined;
   let current: HTMLElement | undefined;
 
-  // 嵌套的组（工具栏里的切换按钮组）各管各的：只取最近的组是自己的项
+  // 嵌套的组（自己也调用了 rovingFocus 的容器）各管各的：只取最近的组是自己的项。
+  // 工具栏里的 ToggleGroup 不调用，它的按钮归工具栏
   const all = () =>
     [...container.querySelectorAll<HTMLElement>(options.items)].filter(
       (item) => item.parentElement?.closest('[data-roving-focus]') === container,

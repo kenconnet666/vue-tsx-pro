@@ -5,6 +5,7 @@ import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Steps } from '../Steps';
 import { Tab, TabList, TabPanel, Tabs } from '../Tabs';
+import { ToggleGroup, ToggleItem } from '../../input/ToggleGroup';
 import { Toolbar } from '../Toolbar';
 
 const key = (element: Element, name: string) =>
@@ -123,6 +124,26 @@ describe('Toolbar', () => {
     bold!.focus();
     key(bold!, 'ArrowRight');
     expect(document.activeElement).toBe(italic);
+  });
+
+  it('里面的 ToggleGroup 不另占 Tab 进入点：方向键跨过组内外的按钮，进入点是第一项而不是按下的那个', async () => {
+    const root = mount(() => (
+      <Toolbar aria-label="格式">
+        <button>撤销</button>
+        <ToggleGroup value="center" aria-label="对齐">
+          <ToggleItem value="left">左</ToggleItem>
+          <ToggleItem value="center">中</ToggleItem>
+        </ToggleGroup>
+      </Toolbar>
+    ));
+    await nextTick();
+    const buttons = [...root.querySelectorAll('button')];
+    expect(buttons.map((button) => button.tabIndex)).toEqual([0, -1, -1]);
+    buttons[0]!.focus();
+    key(buttons[0]!, 'ArrowRight');
+    expect(document.activeElement).toBe(buttons[1]);
+    key(buttons[1]!, 'ArrowRight');
+    expect(document.activeElement).toBe(buttons[2]);
   });
 });
 

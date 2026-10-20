@@ -8,8 +8,9 @@
  *   </Toolbar>
  *
  * 里面的输入框不参与方向键移动（左右键要用来移动光标），用 Tab 进出。
+ * 里面的 ToggleGroup 不再自己管焦点，它的按钮和其他按钮一起用方向键移动（同 WAI-ARIA 的文字格式工具栏示例）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -49,6 +50,15 @@ export const toolbarStyles = stylex.create({
 /** 默认参与方向键移动的项：按钮、链接、自定义的 role="button" */
 const DEFAULT_ITEMS = 'button, a[href], [role="button"]';
 
+/** 工具栏交给里面的组件的状态 */
+export interface ToolbarState {
+  /** 方向 */
+  readonly orientation: keyof ToolbarOrientations;
+}
+
+/** 工具栏的上下文：里面自带漫游焦点的组件（ToggleGroup）据此把焦点交给工具栏统一管理 */
+export const ToolbarContext = createContext<ToolbarState>('Toolbar');
+
 /** 工具栏：一个 Tab 位置，组内方向键移动 */
 export const Toolbar = _component(
   ({
@@ -60,7 +70,17 @@ export const Toolbar = _component(
     ...rest
   }: ToolbarProps) => {
     let root = _state.raw<HTMLElement | null>(null);
-    _effect(() => (root ? rovingFocus(root, { items, orientation, loop }) : undefined));
+    // Tab 进入时落在上次聚焦的项，没有就是第一项：不跳到按下的切换按钮上（那是标签页的习惯）
+    _effect(() =>
+      root
+        ? rovingFocus(root, { items, orientation, loop, initial: (enabled) => enabled[0] })
+        : undefined,
+    );
+    ToolbarContext.provide({
+      get orientation() {
+        return orientation;
+      },
+    });
 
     return () => (
       <div
