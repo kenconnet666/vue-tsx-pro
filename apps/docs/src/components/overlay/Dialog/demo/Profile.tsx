@@ -24,7 +24,7 @@ export default _component(() => {
     department: '设计中心',
     bio: '做了八年交互设计，喜欢把复杂的事讲简单。',
   });
-  let draft = _state({ ...profile });
+  let draft = _state({ ..._untrack(profile) });
 
   const edit = () => {
     draft = { ...profile };

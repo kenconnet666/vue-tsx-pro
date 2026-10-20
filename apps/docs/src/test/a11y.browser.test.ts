@@ -4,8 +4,8 @@ import axe from 'axe-core';
 import { _component } from '@vue-tsx-pro/tsx';
 import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
 import { afterEach, expect, it } from 'vitest';
-import { createApp, h, type App, type Component } from 'vue';
-import { demos } from './demos';
+import { createApp, h, type App } from 'vue';
+import { demoLoaders, loadDemos } from './demos';
 
 let app: App | undefined;
 let host: HTMLElement | undefined;
@@ -48,8 +48,8 @@ async function violationsOf(tag: string, render: () => unknown, theme = lightThe
 }
 
 /** 示例按分类分组（components/<分类>/…）：每组一个测试，单个测试不会因示例变多而超时，出错时也知道在哪一类 */
-const categories = new Map<string, [string, Component][]>();
-for (const entry of demos) {
+const categories = new Map<string, typeof demoLoaders>();
+for (const entry of demoLoaders) {
   if (isFrame(entry[0])) continue;
   const category = entry[0].split('/')[1]!;
   categories.set(category, [...(categories.get(category) ?? []), entry]);
@@ -60,7 +60,10 @@ const cases = [lightTheme, darkTheme].flatMap((theme) =>
 
 it.each(cases)(
   '无障碍：%s 主题下 %s 分类的示例没有 axe 违规',
-  async (_name, _category, theme, items) => {
+  // 每组先加载这一类的示例模块（第一组还要等组件库）：CI 的 WebKit 超过了默认的 15 秒
+  { timeout: 60_000 },
+  async (_name, _category, theme, loaders) => {
+    const items = await loadDemos(loaders);
     expect(
       await violationsOf(
         'main',
@@ -71,9 +74,10 @@ it.each(cases)(
   },
 );
 
-it.each(demos.filter(([path]) => isFrame(path)))(
+it.each(demoLoaders.filter(([path]) => isFrame(path)))(
   '无障碍：整页示例 %s 没有 axe 违规',
-  async (_path, demo: Component) => {
+  async (_path, load) => {
+    const demo = await load();
     expect(await violationsOf('div', () => h(demo))).toEqual([]);
   },
 );

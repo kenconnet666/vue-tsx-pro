@@ -36,6 +36,43 @@ export const plugins = [
   themeBoot(),
 ];
 
+/** 预构建的依赖：开发服务器与浏览器测试共用（测试另加测试专用的几个） */
+export const optimizeDeps = {
+  include: [
+    // 组件库源码里的依赖：一开始就预构建，打开某页才发现新依赖会重新预构建并刷新页面
+    ...uiPrebundle,
+    // 示例里用到的（组件库源码不在运行时导入它）
+    'decimal.js',
+    // 代码高亮的几种语言（main.ts 按需导入）：第一次出现代码块时才发现的话，会重新预构建并刷新页面
+    '@shikijs/langs/css',
+    '@shikijs/langs/html',
+    '@shikijs/langs/javascript',
+    '@shikijs/langs/json',
+    '@shikijs/langs/shellscript',
+    '@shikijs/langs/tsx',
+    '@shikijs/langs/typescript',
+    // 代码演练场的 Worker 在浏览器里跑 Babel：这些 CommonJS 包要预构建成 ES 模块
+    '@babel/core',
+    '@babel/parser',
+    '@babel/traverse',
+    '@babel/types',
+    '@babel/plugin-transform-typescript',
+    '@vue/babel-plugin-jsx',
+    '@stylexjs/babel-plugin',
+    '@stylexjs/babel-plugin > postcss-value-parser',
+    // 演练场的编辑器：进入演练场才加载，预构建好免得那时才发现新依赖、重新预构建并刷新页面
+    '@codemirror/autocomplete',
+    '@codemirror/commands',
+    '@codemirror/lang-javascript',
+    '@codemirror/language',
+    '@codemirror/search',
+    '@codemirror/state',
+    '@codemirror/view',
+    '@lezer/highlight',
+  ],
+  exclude: uiPrebundleExclude,
+};
+
 export default defineConfig({
   plugins,
   // 固定端口：IDE 里启动、浏览器里打开的总是同一个地址；被占用时报错而不是换端口
@@ -45,33 +82,7 @@ export default defineConfig({
     // 启动时就编译入口引到的模块（整个组件库，几百个文件）：打开浏览器时不用再等
     warmup: { clientFiles: ['./src/main.ts'] },
   },
-  optimizeDeps: {
-    include: [
-      // 组件库源码里的依赖：一开始就预构建，打开某页才发现新依赖会重新预构建并刷新页面
-      ...uiPrebundle,
-      // 示例里用到的（组件库源码不在运行时导入它）
-      'decimal.js',
-      // 代码演练场的 Worker 在浏览器里跑 Babel：这些 CommonJS 包要预构建成 ES 模块
-      '@babel/core',
-      '@babel/parser',
-      '@babel/traverse',
-      '@babel/types',
-      '@babel/plugin-transform-typescript',
-      '@vue/babel-plugin-jsx',
-      '@stylexjs/babel-plugin',
-      '@stylexjs/babel-plugin > postcss-value-parser',
-      // 演练场的编辑器：进入演练场才加载，预构建好免得那时才发现新依赖、重新预构建并刷新页面
-      '@codemirror/autocomplete',
-      '@codemirror/commands',
-      '@codemirror/lang-javascript',
-      '@codemirror/language',
-      '@codemirror/search',
-      '@codemirror/state',
-      '@codemirror/view',
-      '@lezer/highlight',
-    ],
-    exclude: uiPrebundleExclude,
-  },
+  optimizeDeps,
   resolve: {
     // 代码演练场的 Worker 在浏览器里跑 Babel：它用到的几个 Node 模块换成浏览器版（src/playground/node-shims）
     alias: {

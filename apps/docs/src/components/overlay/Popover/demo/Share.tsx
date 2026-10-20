@@ -23,7 +23,7 @@ export default _component(() => {
   let filtering = _state(false);
   let comments = _state(true);
   let picked = _state<string[]>(['待付款', '备货中']);
-  let applied = _state<string[]>([...picked]);
+  let applied = _state<string[]>([..._untrack(picked)]);
   const link = 'https://example.com/s/q3-report';
 
   return () => (

@@ -1,7 +1,9 @@
 // 每个示例都能渲染出内容，渲染时没有 Vue 的警告与报错
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { demos } from './demos';
+import { loadDemos } from './demos';
 import { mount } from './mount';
+
+const demos = await loadDemos();
 
 const messages: string[] = [];
 beforeEach(() => {
