@@ -1,0 +1,16 @@
+import { _component } from '@vue-tsx-pro/tsx';
+import { Blockquote, Code, Em, Flex, Kbd, Mark, Paragraph, Small, Strong } from '@vue-tsx-pro/ui';
+
+export default _component(() => () => (
+  <Flex direction="column" gap="md">
+    <Paragraph>
+      在任意页面按 <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd> 打开搜索，输入 <Code>button</Code> 就能找到
+      <Mark>Button 按钮</Mark>与它的全部示例。<Strong>Strong</Strong> 表示重要，
+      <Em>Em</Em> 表示语气上的强调，<Small>Small 用于附注与版权信息</Small>。
+    </Paragraph>
+    <Blockquote cite="https://vuejs.org/guide/introduction">
+      <Paragraph>渐进式框架：可以只在页面的一小块里用它，也可以用它搭建完整的单页应用。</Paragraph>
+      <Small tone="muted">—— Vue 文档</Small>
+    </Blockquote>
+  </Flex>
+));
