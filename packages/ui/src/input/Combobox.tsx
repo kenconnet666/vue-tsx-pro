@@ -22,13 +22,10 @@ import { useId, watch, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
-import { toElement } from '../utils/dom/overlay';
-import { ScrollArea } from '../layout/ScrollArea';
+import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { ListPopover } from './ListPopover';
 import { createMatcher } from '../utils/data/collation';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
-import { fontSizeStyles } from '../utils/style/typography';
 import {
   controlStyles,
   controlSx,
@@ -39,12 +36,7 @@ import {
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import { disclosureStyles } from '../utils/style/transitions';
-import {
-  activeOptionId,
-  ListboxView,
-  type ListboxViewProps,
-  type OptionRenderState,
-} from './Listbox';
+import { activeOptionId, type ListboxViewProps, type OptionRenderState } from './Listbox';
 import {
   handleListKeydown,
   useListState,
@@ -119,7 +111,6 @@ export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapp
 
 /** Combobox 的样式：popover、chevronOpen、loading */
 export const comboboxStyles = stylex.create({
-  popover: { maxWidth: 'calc(100vw - 2em)' },
   chevronOpen: { rotate: '180deg' },
   loading: {
     display: 'flex',
@@ -172,8 +163,6 @@ export const Combobox = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    // 选项在弹出层里的 ScrollArea 中滚动：虚拟滚动的滚动容器是它的视口
-    let scroller = _state.raw<HTMLElement | null>(null);
 
     const optionOf = (item: T) => (toOption ? toOption(item) : (item as ListboxOption));
 
@@ -365,45 +354,18 @@ export const Combobox = _component(
             />
             <FormValue name={name} value={value} />
           </div>
-          <div
-            {...mergeAttrs<'div'>(
-              {
-                sx: [
-                  floatingStyles.anchored,
-                  floatingStyles.surface,
-                  floatingStyles.scrollPanel,
-                  comboboxStyles.popover,
-                  // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
-                  appearance().size && fontSizeStyles[appearance().size!],
-                  transitions.scale,
-                ],
-              },
-              propsPopover,
-              { ref: _toRef(panel), popover: 'auto', onToggle },
-            )}
-          >
-            <ScrollArea
-              focusable={false}
-              sx={floatingStyles.scrollArea}
-              propsViewport={{ ref: (element: unknown) => (scroller = toElement(element)) }}
-            >
-              <ListboxView
-                {...mergePartProps<ListboxViewProps<T>>(
-                  { list, id: listId, renderOption: children, empty },
-                  propsListbox,
-                  {
-                    id: listId,
-                    // 弹出层里的 ScrollArea 是滚动容器：选项虚拟滚动
-                    scroller,
-                    loading,
-                    'aria-labelledby': state.labelledBy,
-                    'aria-label': state.labelledBy ? undefined : rest['aria-label'],
-                    onPick: pick,
-                  },
-                )}
-              />
-            </ScrollArea>
-          </div>
+          <ListPopover
+            panelRef={_toRef(panel)}
+            onToggle={onToggle}
+            size={appearance().size}
+            labelledBy={state.labelledBy}
+            label={rest['aria-label']}
+            loading={loading}
+            onPick={pick}
+            listbox={{ list, id: listId, renderOption: children, empty }}
+            propsListbox={propsListbox}
+            propsPopover={propsPopover}
+          />
         </>
       );
     };

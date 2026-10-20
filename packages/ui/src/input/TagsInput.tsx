@@ -19,13 +19,10 @@ import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { createMatcher } from '../utils/data/collation';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
-import { toElement } from '../utils/dom/overlay';
-import { ScrollArea } from '../layout/ScrollArea';
+import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { ListPopover } from './ListPopover';
 import { useLayoutAnimation } from '../utils/motion/layout';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
-import { fontSizeStyles } from '../utils/style/typography';
 import {
   controlStyles,
   controlSx,
@@ -35,12 +32,7 @@ import {
 } from './control';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
-import {
-  activeOptionId,
-  ListboxView,
-  type ListboxViewProps,
-  type OptionRenderState,
-} from './Listbox';
+import { activeOptionId, type ListboxViewProps, type OptionRenderState } from './Listbox';
 import {
   handleListKeydown,
   useListState,
@@ -119,7 +111,6 @@ export const tagsInputStyles = stylex.create({
   root: { flexWrap: 'wrap', rowGap: '_xs', paddingBlock: '_xs' },
   // 输入框至少留出几个字的位置，放不下时换到下一行
   input: { flexBasis: '6em' },
-  popover: { maxWidth: 'calc(100vw - 2em)' },
 });
 
 /** 默认的分隔符：英文、中文的逗号与分号 */
@@ -163,8 +154,6 @@ export const TagsInput = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    // 选项在弹出层里的 ScrollArea 中滚动：虚拟滚动的滚动容器是它的视口
-    let scroller = _state.raw<HTMLElement | null>(null);
     // 标签增删时其余的平移补位
     const layout = useLayoutAnimation(() => shell, { children: '[data-tag]' });
 
@@ -354,46 +343,21 @@ export const TagsInput = _component(
             <FormValue name={name} value={value} />
           </div>
           {suggestions() && (
-            <div
-              {...mergeAttrs<'div'>(
-                {
-                  sx: [
-                    floatingStyles.anchored,
-                    floatingStyles.surface,
-                    floatingStyles.scrollPanel,
-                    tagsInputStyles.popover,
-                    appearance().size && fontSizeStyles[appearance().size!],
-                    transitions.scale,
-                  ],
-                },
-                propsPopover,
-                { ref: _toRef(panel), popover: 'auto', onToggle },
-              )}
-            >
-              <ScrollArea
-                focusable={false}
-                sx={floatingStyles.scrollArea}
-                propsViewport={{ ref: (element: unknown) => (scroller = toElement(element)) }}
-              >
-                <ListboxView
-                  {...mergePartProps<ListboxViewProps<T>>(
-                    { list, id: listId, multiple: true, renderOption: children },
-                    propsListbox,
-                    {
-                      id: listId,
-                      scroller,
-                      loading,
-                      'aria-labelledby': state.labelledBy,
-                      'aria-label': state.labelledBy ? undefined : rest['aria-label'],
-                      onPick: () => {
-                        inputValue = '';
-                        input?.focus();
-                      },
-                    },
-                  )}
-                />
-              </ScrollArea>
-            </div>
+            <ListPopover
+              panelRef={_toRef(panel)}
+              onToggle={onToggle}
+              size={appearance().size}
+              labelledBy={state.labelledBy}
+              label={rest['aria-label']}
+              loading={loading}
+              onPick={() => {
+                inputValue = '';
+                input?.focus();
+              }}
+              listbox={{ list, id: listId, multiple: true, renderOption: children }}
+              propsListbox={propsListbox}
+              propsPopover={propsPopover}
+            />
           )}
         </>
       );

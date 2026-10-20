@@ -543,6 +543,12 @@ export {
 } from './input/Combobox';
 export { FileDrop, fileDropStyles, matchesAccept, type FileDropProps } from './input/FileDrop';
 export {
+  ListPopover,
+  listPopoverStyles,
+  type ListPopoverManaged,
+  type ListPopoverProps,
+} from './input/ListPopover';
+export {
   activeOptionId,
   Listbox,
   listboxPositionStyles,
