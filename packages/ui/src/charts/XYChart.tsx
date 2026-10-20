@@ -31,7 +31,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import { resolveSeries, seriesValue, type ChartSeries, type ResolvedSeries } from './series';
 
 /** 柱状图、折线图共有的属性；未声明的属性落到外层 div（role="figure"）上，aria-label 是图表的名称 */
-export interface XYChartProps<T extends object> extends PartProps<'div', 'role'> {
+export interface XYChartProps<T extends object> extends PartProps<'div', 'role' | 'aria-busy'> {
   /** 数据：每一行是类目轴上的一项（一个月、一个项目） */
   data: readonly T[];
   /** 类目字段：类目轴的刻度、提示框的标题、数据表的第一列 */
@@ -64,7 +64,7 @@ export interface XYChartProps<T extends object> extends PartProps<'div', 'role'>
    */
   tooltip?: boolean;
   /**
-   * 加载中：绘图区显示骨架
+   * 加载中：绘图区显示扫光的骨架（柱状图是一排高低不一的柱），带 aria-busy
    * @default false
    */
   loading?: boolean;
@@ -98,9 +98,14 @@ export interface XYChartKind<T extends object> {
   horizontal?: boolean;
   /** 十字线上给每个系列画圆点（折线图）；柱状图不画 */
   crosshairDots?: boolean;
+  /** 加载中的骨架：bars 一排高低不一的柱（柱状图），block 一整块（默认） */
+  skeleton?: 'bars' | 'block';
   /** 绘图区四周的留白（px）：折线两端不贴着边缘 */
   padding?: { left?: number; right?: number; top?: number; bottom?: number };
 }
+
+/** 骨架柱的高度（百分比）：高低错落，看起来像一组数据 */
+const SKELETON_BARS = [55, 80, 40, 70, 90, 50, 65];
 
 /** XYChart 的样式：root、header、unit、legend、legendItem、swatch、plot、center、skeleton、tooltip… */
 export const xyChartStyles = stylex.create({
@@ -179,6 +184,17 @@ export const xyChartStyles = stylex.create({
   plotHeight: (height: string) => ({ height }),
   center: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' },
   skeleton: { display: 'block', width: '100%', height: '100%' },
+  skeletonBars: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'space-around',
+    gap: '_md',
+    height: '100%',
+  },
+  skeletonBarsHorizontal: { flexDirection: 'column', alignItems: 'flex-start' },
+  skeletonBar: { display: 'block', flexGrow: 1, flexBasis: 0, borderRadius: '_sm' },
+  skeletonBarSize: (percent: string) => ({ height: percent }),
+  skeletonBarSizeHorizontal: (percent: string) => ({ width: percent }),
   tooltip: { display: 'flex', flexDirection: 'column', gap: '_xs', fontSize: '_xs' },
   tooltipTitle: { fontWeight: '_semibold' },
   tooltipRow: { display: 'flex', alignItems: 'center', gap: '_sm' },
@@ -231,6 +247,35 @@ function uniqueHighlightFilter(element: HTMLElement, id: string) {
   if (!filter) return;
   filter.id = id;
   element.querySelector('svg')?.style.setProperty('--highlight-filter-id', `url(#${id})`);
+}
+
+/** 加载中绘图区的骨架：柱状图是一排高低不一的柱（横向时是条），其余是一整块 */
+function chartSkeleton({
+  skeleton = 'block',
+  horizontal = false,
+}: Pick<XYChartKind<object>, 'skeleton' | 'horizontal'>) {
+  if (skeleton === 'block') return <Skeleton sx={xyChartStyles.skeleton} />;
+  return (
+    <div
+      aria-hidden="true"
+      {...stylex.attrs(
+        xyChartStyles.skeletonBars,
+        horizontal && xyChartStyles.skeletonBarsHorizontal,
+      )}
+    >
+      {SKELETON_BARS.map((percent, position) => (
+        <Skeleton
+          key={position}
+          sx={[
+            xyChartStyles.skeletonBar,
+            horizontal
+              ? xyChartStyles.skeletonBarSizeHorizontal(`${percent}%`)
+              : xyChartStyles.skeletonBarSize(`${percent}%`),
+          ]}
+        />
+      ))}
+    </div>
+  );
 }
 
 /** 柱状图、折线图的公共实现（组件库内部用，见 BarChart、LineChart） */
@@ -384,7 +429,7 @@ export const XYChart = _component(
     return () => {
       const plotHeight = typeof height === 'number' ? `${height}px` : height;
       const body = loading ? (
-        <Skeleton sx={xyChartStyles.skeleton} />
+        chartSkeleton(kind)
       ) : data.length === 0 ? (
         <div {...stylex.attrs(xyChartStyles.center)}>
           {empty ?? <Empty size="sm" title={lang.chartEmpty} />}
@@ -395,7 +440,7 @@ export const XYChart = _component(
           {...mergeAttrs<'div'>(
             { sx: [xyChartStyles.root, !kind.crosshairDots && xyChartStyles.hideCrosshairLine] },
             rest,
-            { role: 'figure' },
+            { role: 'figure', 'aria-busy': loading || undefined },
           )}
         >
           {(unit || showLegend()) && (
@@ -437,12 +482,17 @@ export const XYChart = _component(
               )}
             </div>
           )}
+          {/* key 不同：两种状态不复用同一个 div，否则 Unovis 画进去的 svg 会留在骨架、空状态里 */}
           {body ? (
-            <div {...stylex.attrs(xyChartStyles.plot, xyChartStyles.plotHeight(plotHeight))}>
+            <div
+              key="state"
+              {...stylex.attrs(xyChartStyles.plot, xyChartStyles.plotHeight(plotHeight))}
+            >
               {body}
             </div>
           ) : (
             <div
+              key="plot"
               {...mergeAttrs<'div'>(
                 { sx: [xyChartStyles.plot, xyChartStyles.plotHeight(plotHeight)] },
                 propsPlot,

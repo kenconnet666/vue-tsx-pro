@@ -1,4 +1,4 @@
-// Stat：dl 结构、数值格式、单位、变化量的方向与色调（滚动见 AnimatedNumber）
+// Stat：dl 结构、数值格式、单位、变化量的方向与色调、加载骨架（滚动见 AnimatedNumber）
 import { ClipboardList } from '@lucide/icons';
 import { expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
@@ -52,4 +52,18 @@ it('变化量：默认百分比带符号；上升为成功色、下降为危险�
   const tone = (dd: Element) => dd.firstElementChild!.className;
   expect(tone(changes[1]!)).not.toBe(tone(changes[2]!));
   expect(tone(changes[0]!)).toBe(tone(changes[2]!));
+});
+
+it('loading：指标名照常显示，数值与变化量换成对读屏隐藏的骨架，dl 带 aria-busy', () => {
+  const dl = mount(() => (
+    <Stat label="营收" value={1200} unit="万元" change={0.1} loading />
+  )).firstElementChild!;
+  expect(dl.getAttribute('aria-busy')).toBe('true');
+  expect(dl.querySelector('dt')!.textContent).toBe('营收');
+  const values = dl.querySelectorAll('dd');
+  expect(values).toHaveLength(2);
+  for (const dd of values) {
+    expect(dd.textContent).toBe('');
+    expect(dd.firstElementChild!.getAttribute('aria-hidden')).toBe('true');
+  }
 });

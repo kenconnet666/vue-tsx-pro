@@ -1,10 +1,11 @@
-// Progress、Skeleton、Alert
+// Progress、Skeleton、SkeletonText、Alert
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Alert } from '../Alert';
 import { Progress } from '../Progress';
 import { Skeleton } from '../Skeleton';
+import { SkeletonText } from '../SkeletonText';
 
 const first = (root: Element) => root.firstElementChild as HTMLElement;
 
@@ -51,6 +52,35 @@ describe('Skeleton', () => {
     loading = false;
     await nextTick();
     expect(first(root).tagName).toBe('A');
+  });
+
+  it('形状预设各自给出大小，sx 可以覆盖；不包内容时也对读屏隐藏', () => {
+    const root = mount(() => (
+      <>
+        <Skeleton variant="circle" />
+        <Skeleton variant="text" />
+        <Skeleton />
+      </>
+    ));
+    const [circle, text, plain] = [...root.children] as HTMLElement[];
+    expect(circle!.className).not.toBe(text!.className);
+    expect(plain!.className).not.toBe(text!.className);
+    for (const el of [circle, text, plain]) expect(el!.getAttribute('aria-hidden')).toBe('true');
+  });
+});
+
+describe('SkeletonText', () => {
+  it('lines 行骨架，最后一行短一些；整块对读屏隐藏', () => {
+    const root = first(mount(() => <SkeletonText lines={4} />));
+    expect(root.getAttribute('aria-hidden')).toBe('true');
+    const lines = [...root.children];
+    expect(lines).toHaveLength(4);
+    expect(lines[0]!.className).toBe(lines[2]!.className);
+    expect(lines[3]!.className).not.toBe(lines[0]!.className);
+    // 只有一行时不缩短
+    expect(first(first(mount(() => <SkeletonText lines={1} />))).className).toBe(
+      lines[0]!.className,
+    );
   });
 });
 

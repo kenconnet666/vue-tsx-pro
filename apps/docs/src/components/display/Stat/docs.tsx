@@ -8,6 +8,7 @@ import { Example } from '../../../site/Example';
 import Basic from './demo/Basic.tsx?demo';
 import Change from './demo/Change.tsx?demo';
 import Live from './demo/Live.tsx?demo';
+import Loading from './demo/Loading.tsx?demo';
 
 export const meta = {
   title: 'Stat 统计数值',
@@ -28,6 +29,11 @@ export default _component(() => () => (
       </Example>
       <Example id="live" title="数值变化" demo={Live}>
         数值变化时从旧值滚动到新值（AnimatedNumber），读屏只读终值；减少动态效果时直接跳到新值。
+      </Example>
+      <Example id="loading" title="加载中" demo={Loading}>
+        <Code>loading</Code> 时数值与变化量换成骨架，一道光带从起始边扫过，指标名照常显示； Card 的{' '}
+        <Code>loading</Code> 把正文换成几行骨架。骨架对读屏隐藏，外层带 <Code>aria-busy</Code>
+        ；很快完成的加载不出现骨架，减少动态效果时不扫光。
       </Example>
     </Examples>
     <ApiReference api={api} />

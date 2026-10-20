@@ -222,6 +222,7 @@ export {
   cardPaddingStyles,
   cardStyles,
   cardVariantStyles,
+  type CardManaged,
   type CardOptions,
   type CardProps,
   type CardVariants,
@@ -277,7 +278,7 @@ export {
   type SortableItemState,
   type SortableProps,
 } from './display/Sortable';
-export { Stat, statStyles, type StatProps } from './display/Stat';
+export { Stat, statStyles, type StatManaged, type StatProps } from './display/Stat';
 export {
   Timeline,
   timelineStyles,
@@ -330,7 +331,14 @@ export {
   type ProgressRadii,
 } from './feedback/Progress';
 export { Result, resultStyles, type ResultProps, type ResultStatuses } from './feedback/Result';
-export { Skeleton, skeletonStyles, type SkeletonProps } from './feedback/Skeleton';
+export {
+  Skeleton,
+  skeletonStyles,
+  skeletonVariantStyles,
+  type SkeletonProps,
+  type SkeletonVariants,
+} from './feedback/Skeleton';
+export { SkeletonText, skeletonTextStyles, type SkeletonTextProps } from './feedback/SkeletonText';
 export {
   createToaster,
   toastCountdownStyles,
@@ -874,6 +882,7 @@ export {
 // 工具：档位、字号、色调、过渡等共用样式
 export { itemStyles } from './utils/style/item-styles';
 export { headingMarker } from './utils/style/markers.stylex';
+export { shimmerStyles } from './utils/style/shimmer';
 export {
   columnGapStyles,
   focusRingStyles,
@@ -927,7 +936,7 @@ export {
   type Tone,
   type Tones,
 } from './utils/style/typography';
-export { layoutVars } from './utils/style/vars.stylex';
+export { layoutVars, shimmerVars } from './utils/style/vars.stylex';
 
 // 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板
 export { useClipboard, type ClipboardOptions, type ClipboardState } from './utils/dom/clipboard';

@@ -6,6 +6,7 @@ import { nextTick, type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
 import { createHostApp } from '../src/app';
 import { toaster } from '../src/toaster';
+import { stopsAnimationWhenReduced } from './reduced-motion';
 
 let app: App;
 let root: HTMLElement;
@@ -66,6 +67,21 @@ describe('Badge · Tag · Alert', () => {
 });
 
 describe('Progress · Skeleton', () => {
+  it('骨架：各形状对读屏隐藏，光带在扫；减少动态效果时不扫', () => {
+    const shapes = [...root.querySelectorAll<HTMLElement>('.skeleton-shapes [aria-hidden="true"]')];
+    expect(shapes.length).toBeGreaterThanOrEqual(4);
+    const circle = shapes[0]!;
+    const { width, height } = circle.getBoundingClientRect();
+    expect(width).toBeGreaterThan(0);
+    expect(width).toBeCloseTo(height, 0);
+    expect(circle.getAnimations().some((animation) => 'animationName' in animation)).toBe(true);
+    expect(stopsAnimationWhenReduced(circle)).toBe(true);
+    // 加载中的卡片：正文是骨架，卡片带 aria-busy，读屏读不到骨架
+    const card = $('.card-loading-demo');
+    expect(card.getAttribute('aria-busy')).toBe('true');
+    expect(card.textContent).toBe('加载中的卡片');
+  });
+
   it('有值时着色部分的宽度是比例；不确定进度在动', () => {
     const bar = $('.progress-demo');
     const ratio =

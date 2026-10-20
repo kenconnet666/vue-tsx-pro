@@ -12,3 +12,9 @@ export const layoutVars = stylex.defineVars({
    */
   stickyOffset: '0px',
 });
+
+/** 骨架扫光（shimmer.ts）的变量 */
+export const shimmerVars = stylex.defineVars({
+  /** 扫过的那道光带的颜色：默认跟随字色；Skeleton 改成正文色的淡色 */
+  highlight: 'color-mix(in oklab, currentColor 12%, transparent)',
+});

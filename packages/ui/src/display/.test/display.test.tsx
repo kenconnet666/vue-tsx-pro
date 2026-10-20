@@ -22,6 +22,26 @@ describe('Card', () => {
     expect(full.querySelector('.h')).not.toBeNull();
     expect(first(mount(() => <Card>内容</Card>)).children).toHaveLength(1);
   });
+
+  it('loading：正文换成对读屏隐藏的骨架，页头照常显示，卡片带 aria-busy', async () => {
+    let loading = _state(true);
+    const card = first(
+      mount(() => (
+        <Card header="标题" loading={loading} propsSkeleton={{ lines: 4 }}>
+          内容
+        </Card>
+      )),
+    );
+    expect(card.getAttribute('aria-busy')).toBe('true');
+    const skeleton = card.children[1]!.firstElementChild!;
+    expect(skeleton.getAttribute('aria-hidden')).toBe('true');
+    expect(skeleton.children).toHaveLength(4);
+    expect(card.textContent).toBe('标题');
+    loading = false;
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    expect(card.hasAttribute('aria-busy')).toBe(false);
+    expect(card.textContent).toBe('标题内容');
+  });
 });
 
 describe('Avatar', () => {

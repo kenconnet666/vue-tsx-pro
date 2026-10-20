@@ -124,5 +124,24 @@ describe('BarChart、LineChart', () => {
     expect(empty!.textContent).toContain('暂无数据');
     expect(empty!.querySelector('table')).toBeNull();
     expect(loading!.textContent).not.toContain('暂无数据');
+    expect(loading!.getAttribute('aria-busy')).toBe('true');
+    expect(empty!.hasAttribute('aria-busy')).toBe(false);
+  });
+
+  it('加载中：柱状图的骨架是一排高低不一的柱，折线图是一整块，都对读屏隐藏', () => {
+    const root = mount(() => (
+      <>
+        <BarChart aria-label="柱" data={[] as Row[]} index="name" series={[...series]} loading />
+        <LineChart aria-label="线" data={[] as Row[]} index="name" series={[...series]} loading />
+      </>
+    ));
+    const [bar, line] = root.querySelectorAll<HTMLElement>('[role="figure"]');
+    const bars = bar!.querySelector('[aria-hidden="true"]')!;
+    expect(bars.children.length).toBeGreaterThan(3);
+    const heights = new Set([...bars.children].map((el) => el.getAttribute('style')));
+    expect(heights.size).toBeGreaterThan(1);
+    const block = line!.querySelectorAll('[aria-hidden="true"]');
+    expect(block).toHaveLength(1);
+    expect(block[0]!.children).toHaveLength(0);
   });
 });

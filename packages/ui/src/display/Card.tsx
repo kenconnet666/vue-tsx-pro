@@ -2,6 +2,7 @@
  * 卡片（div）：把一组相关内容放在一块表面上。可选的页头、页脚与正文之间有分隔线。
  *
  *   <Card header={<H3 size="md">订单 #1024</H3>} footer={<Button>查看</Button>}>…</Card>
+ *   <Card loading={loading} header={…}>…</Card>      正文加载中：换成几行扫光的骨架，卡片带 aria-busy
  *
  * 需要语义容器（article、section）时在外面包，或把语义标签放进 header 里的标题。
  */
@@ -9,6 +10,8 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
+import { SkeletonText, type SkeletonTextProps } from '../feedback/SkeletonText';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { Space } from '../utils/style/styles';
 
@@ -32,18 +35,28 @@ export interface CardOptions {
   padding?: Space;
 }
 
+/** 忙碌由组件按 loading 管理 */
+export type CardManaged = 'aria-busy';
+
 /** 未声明的属性落到外层 div 上 */
-export interface CardProps extends PartProps<'div'>, CardOptions {
+export interface CardProps extends PartProps<'div', CardManaged>, CardOptions {
   /** 页头：标题、操作；与正文之间有分隔线 */
   header?: VNodeChild;
   /** 页脚：按钮等操作；与正文之间有分隔线 */
   footer?: VNodeChild;
+  /**
+   * 正文加载中：正文换成几行扫光的骨架（页头、页脚照常显示），卡片带 aria-busy；很快完成时不闪
+   * @default false
+   */
+  loading?: boolean;
   /** 页头的部件属性 */
   propsHeader?: PartProps<'div'>;
   /** 正文的部件属性 */
   propsBody?: PartProps<'div'>;
   /** 页脚的部件属性 */
   propsFooter?: PartProps<'div'>;
+  /** 加载中的骨架（SkeletonText）的部件属性，如行数 `{ lines: 5 }` */
+  propsSkeleton?: Partial<SkeletonTextProps>;
   children?: VNodeChild;
 }
 
@@ -94,16 +107,18 @@ export const cardPaddingStyles = stylex.create({
   xl: { padding: '_xl' },
 });
 
-/** 卡片：表面 + 可选的页头与页脚 */
+/** 卡片：表面 + 可选的页头与页脚，正文可以显示加载骨架 */
 export const Card = _component(
   ({
     variant,
     padding,
     header,
     footer,
+    loading = false,
     propsHeader,
     propsBody,
     propsFooter,
+    propsSkeleton,
     children,
     ...rest
   }: CardProps) => {
@@ -111,6 +126,8 @@ export const Card = _component(
       variant: 'surface',
       padding: 'lg',
     });
+    // 骨架防闪烁；aria-busy 按真实的 loading
+    const skeleton = useDelayedLoading(() => loading);
     return () => {
       const space = cardPaddingStyles[appearance().padding];
       return (
@@ -120,6 +137,7 @@ export const Card = _component(
               sx: [cardStyles.root, cardVariantStyles[appearance().variant]],
             },
             rest,
+            { 'aria-busy': loading || undefined },
           )}
         >
           {header != null && (
@@ -127,7 +145,9 @@ export const Card = _component(
               {header}
             </div>
           )}
-          <div {...mergeAttrs<'div'>({ sx: space }, propsBody)}>{children}</div>
+          <div {...mergeAttrs<'div'>({ sx: space }, propsBody)}>
+            {skeleton.value ? <SkeletonText {...propsSkeleton} /> : children}
+          </div>
           {footer != null && (
             <div {...mergeAttrs<'div'>({ sx: [cardStyles.footer, space] }, propsFooter)}>
               {footer}

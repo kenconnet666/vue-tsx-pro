@@ -1,5 +1,6 @@
 /**
- * 加载中的旋转指示：Lucide 的 LoaderCircle 图标加旋转。默认跟随所在文字的大小与颜色，按钮的 loading 也用它。
+ * 加载中的旋转指示：Lucide 的 LoaderCircle 图标加旋转，默认跟随所在文字的大小与颜色。
+ * 表示“一个操作正在进行”（按钮家族、Alert、LoadingOverlay、Switch、Tree 展开）；内容还没来时的占位用 Skeleton。
  *
  *   <Spinner />                       装饰性：旁边已经有“加载中”之类的文字
  *   <Spinner label="正在加载订单" />   单独出现：role="status"，读屏会念出 label

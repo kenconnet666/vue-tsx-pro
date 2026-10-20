@@ -92,6 +92,7 @@ import {
   Paragraph,
   Progress,
   Skeleton,
+  SkeletonText,
   NavGroup,
   NavItem,
   NavList,
@@ -1024,6 +1025,17 @@ export const Base = _component(() => {
             <Skeleton loading={loadingProfile}>
               <Paragraph>第一位程序员，为分析机写出了第一个算法。</Paragraph>
             </Skeleton>
+          </Card>
+          <Flex gap="md" align="center" class="skeleton-shapes">
+            <Skeleton variant="circle" />
+            <Flex direction="column" gap="sm" style={{ flex: 1 }}>
+              <Skeleton variant="heading" />
+              <SkeletonText lines={2} />
+            </Flex>
+            <Skeleton variant="button" />
+          </Flex>
+          <Card class="card-loading-demo" header="加载中的卡片" loading={loadingProfile}>
+            <Paragraph>正文加载完成。</Paragraph>
           </Card>
           <LoadingOverlay class="overlay-demo" loading={refreshing} blur>
             <Card

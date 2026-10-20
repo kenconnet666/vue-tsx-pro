@@ -44,7 +44,8 @@ export default _component(() => () => (
         可以强制显示或隐藏。
       </Example>
       <Example id="states" title="加载与空状态" demo={States}>
-        <Code>loading</Code> 时绘图区显示骨架；没有数据时显示“暂无数据”，<Code>empty</Code>{' '}
+        <Code>loading</Code> 时绘图区显示一排高低不一的骨架柱并扫光（折线图是一整块），图表带{' '}
+        <Code>aria-busy</Code>；没有数据时显示“暂无数据”，<Code>empty</Code>{' '}
         可以换成自己的内容（如带操作按钮的 Empty）。
       </Example>
     </Examples>
