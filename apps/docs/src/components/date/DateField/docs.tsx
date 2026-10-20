@@ -23,7 +23,7 @@ export default _component(() => () => (
       <Example id="basic" title="基础用法" demo={Basic}>
         每段单独聚焦、单独输入：打一个数字后再打一个就会超出范围时直接跳到下一段（月份打{' '}
         <Kbd>3</Kbd> 就跳走，打 <Kbd>1</Kbd> 等第二位）；<Kbd>↑</Kbd> <Kbd>↓</Kbd> 加减，
-        <Kbd>Backspace</Kbd> 删一位，删空回到上一段。 所有段都填了才写回 ISO 日期，删掉一段写回{' '}
+        <Kbd>Backspace</Kbd> 删一位，删空回到上一段。所有段都填了才写回 ISO 日期，删掉一段写回{' '}
         <Code>null</Code>；超出 <Code>min</Code> / <Code>max</Code> 时外壳显示出错，写了{' '}
         <Code>name</Code> 时随表单提交。
       </Example>
@@ -34,7 +34,7 @@ export default _component(() => () => (
       </Example>
       <Example id="locales" title="段的顺序跟随语言" demo={Locales}>
         段的顺序、分隔符、12 / 24 小时制都取自 Intl；每段是 <Code>role="spinbutton"</Code>
-        ，读屏念“生日 年”“生日 月”，没填的段念“未填写”。 段可以编辑（<Code>
+        ，读屏念“生日 年”“生日 月”，没填的段念“未填写”。段可以编辑（<Code>
           contenteditable
         </Code> 加 <Code>inputmode="numeric"</Code>），手机上弹出数字键盘，输入法打的全角数字也认。
       </Example>

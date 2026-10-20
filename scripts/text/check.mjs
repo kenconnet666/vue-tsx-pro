@@ -3,7 +3,7 @@
  * - 源码里不直接写不可见字符、控制字符、双向控制符与从右往左的文字，要写就用 \uXXXX 转义。
  *   它们在编辑器里看不见或会改变显示顺序（“Trojan Source”），代码看起来和实际执行的不一样，审代码时发现不了；
  *   IDEA 也会对这类文件提示“双向文本”。
- * - TSX 里的中文文本不跨行：JSX 把文本中间的换行渲染成一个空格，中文之间就多出空格（“显示。 三个”）。
+ * - TSX 里的中文文本不跨行、中文标点后不加空格：JSX 把文本中间的换行渲染成一个空格，中文之间就多出空格。
  *   接成一行即可，Prettier 不会在没有空格的中文里断行；紧挨标签的换行会被 JSX 去掉，不受影响。
  *
  * 用法：pnpm text:check。检查 git 跟踪的文件，本地加上还没提交的新文件。
@@ -82,6 +82,9 @@ function cjkLineBreaks(lines) {
   return found;
 }
 
+/** 中文标点后多出的空格（“放。 读屏”）：多半是跨行的文本被接成一行时留下的 */
+const SPACE_AFTER_CJK_PUNCTUATION = /[、。，；：！？）] +[一-鿿（“]/;
+
 const problems = [];
 const breaks = [];
 for (const file of files) {
@@ -107,6 +110,9 @@ for (const file of files) {
   });
   if (file.endsWith('.tsx')) {
     for (const line of cjkLineBreaks(lines)) breaks.push(`${file}:${line}`);
+    lines.forEach((line, index) => {
+      if (SPACE_AFTER_CJK_PUNCTUATION.test(line)) breaks.push(`${file}:${index + 1}`);
+    });
   }
 }
 
@@ -119,7 +125,7 @@ if (problems.length) {
 }
 if (breaks.length) {
   console.error(
-    `TSX 里的中文文本跨行（共 ${breaks.length} 处），渲染时中文之间会多出空格，请接成一行：`,
+    `TSX 里的中文文本跨行或标点后有空格（共 ${breaks.length} 处），渲染时中文之间会多出空格：`,
   );
   console.error(breaks.join('\n'));
   process.exitCode = 1;

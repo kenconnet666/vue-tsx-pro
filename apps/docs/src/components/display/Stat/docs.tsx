@@ -24,7 +24,7 @@ export default _component(() => () => (
     <Examples>
       <Example id="basic" title="基础用法" demo={Basic}>
         Stat 只是内容，放进 Card、Grid 里组合。数字按当前语言格式化，<Code>format</Code>{' '}
-        控制小数位； 结构是 <Code>dl</Code>，读屏按“名称—数值”成对朗读，图标对读屏隐藏。
+        控制小数位；结构是 <Code>dl</Code>，读屏按“名称—数值”成对朗读，图标对读屏隐藏。
       </Example>
       <Example id="change" title="变化量" demo={Change}>
         <Code>change</Code>{' '}

@@ -177,7 +177,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         name: 'successText',
         value: '#193b2d',
         description:
-          '成功文字与图标。亮色 green 12 `#193b2d`，暗色 green 11 `#3dd68c`。 亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5',
+          '成功文字与图标。亮色 green 12 `#193b2d`，暗色 green 11 `#3dd68c`。亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5',
       },
       {
         name: 'successSoft',
@@ -193,7 +193,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         name: 'success',
         value: '#008751',
         description:
-          '成功实色：成功按钮、实底徽标的底色，上面放 successContrast。亮色 `#008751`，暗色 green 9 `#30a46c`。 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 successText：实色不一定在表面上到 3:1',
+          '成功实色：成功按钮、实底徽标的底色，上面放 successContrast。亮色 `#008751`，暗色 green 9 `#30a46c`。黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 successText：实色不一定在表面上到 3:1',
       },
       {
         name: 'successHover',
@@ -215,7 +215,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         name: 'warningText',
         value: '#4f3422',
         description:
-          '警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。 亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5',
+          '警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5',
       },
       {
         name: 'warningSoft',
@@ -231,7 +231,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         name: 'warning',
         value: '#ffc53d',
         description:
-          '警告实色：警告按钮、实底徽标的底色，上面放 warningContrast。亮色 `#ffc53d`，暗色 amber 9 `#ffc53d`。 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 warningText：实色不一定在表面上到 3:1',
+          '警告实色：警告按钮、实底徽标的底色，上面放 warningContrast。亮色 `#ffc53d`，暗色 amber 9 `#ffc53d`。黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 warningText：实色不一定在表面上到 3:1',
       },
       {
         name: 'warningHover',
@@ -253,7 +253,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         name: 'infoText',
         value: '#113264',
         description:
-          '信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。 亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1',
+          '信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1',
       },
       {
         name: 'infoSoft',
@@ -269,7 +269,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         name: 'info',
         value: '#0073e0',
         description:
-          '信息实色：信息按钮、实底徽标的底色，上面放 infoContrast。亮色 `#0073e0`，暗色 blue 9 `#0090ff`。 黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 infoText：实色不一定在表面上到 3:1',
+          '信息实色：信息按钮、实底徽标的底色，上面放 infoContrast。亮色 `#0073e0`，暗色 blue 9 `#0090ff`。黄、绿、蓝的 9 级很亮：配白字不到 4.5:1 时亮色加深到够，暗色改配深色字。图形（勾选框、进度条）的填充仍用 infoText：实色不一定在表面上到 3:1',
       },
       {
         name: 'infoHover',
@@ -435,7 +435,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         value:
           'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
         description:
-          '等宽字体：代码、需要数字对齐的地方。装了 Cascadia Code（Windows 11 自带）、JetBrains Mono 时优先用它们， 字形比 Consolas 清楚',
+          '等宽字体：代码、需要数字对齐的地方。装了 Cascadia Code（Windows 11 自带）、JetBrains Mono 时优先用它们，字形比 Consolas 清楚',
       },
       {
         name: 'serif',
@@ -624,7 +624,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
   {
     name: 'sizes',
     description:
-      '尺寸：宽、高、最小最大尺寸。控件规格用 em 随字号缩放； 容器宽度（Container 与页面内容的最大宽度）是页面级的，用 rem，跟随浏览器的字号设置',
+      '尺寸：宽、高、最小最大尺寸。控件规格用 em 随字号缩放；容器宽度（Container 与页面内容的最大宽度）是页面级的，用 rem，跟随浏览器的字号设置',
     tokens: [
       {
         name: 'control',

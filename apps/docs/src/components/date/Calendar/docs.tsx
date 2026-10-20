@@ -27,7 +27,7 @@ export default _component(() => () => (
       <Example id="basic" title="基础用法" demo={Basic}>
         值是 ISO 日期字符串（<Code>'2026-10-20'</Code>），和原生日期输入框、URL 参数、zod 的{' '}
         <Code>z.iso.date()</Code> 一致；<Code>todayIso</Code>、<Code>shiftIsoDate</Code>、
-        <Code>daysBetween</Code> 直接在这种字符串上算，<Code>useFormat().date</Code> 也直接收它。 用
+        <Code>daysBetween</Code> 直接在这种字符串上算，<Code>useFormat().date</Code> 也直接收它。用
         @internationalized/date 的话，<Code>value</Code>、<Code>min</Code>、<Code>max</Code>{' '}
         也可以传
         CalendarDate、CalendarDateTime、ZonedDateTime，写回时保持同一种类型（时间、时区不丢），一开始为空时用{' '}
@@ -36,7 +36,7 @@ export default _component(() => () => (
       </Example>
       <Example id="unavailable" title="不可选的日期" demo={Unavailable}>
         <Code>isDateUnavailable</Code>{' '}
-        标出约满、放假的日子：画删除线、不能选，但方向键仍能经过，读屏会念出来； 判断星期几用{' '}
+        标出约满、放假的日子：画删除线、不能选，但方向键仍能经过，读屏会念出来；判断星期几用{' '}
         <Code>isoDayOfWeek</Code>（按日期算，不受时区影响）。<Code>min</Code>、<Code>max</Code>{' '}
         之外的日期变淡，焦点也进不去。
       </Example>

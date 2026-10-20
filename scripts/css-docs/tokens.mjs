@@ -115,7 +115,13 @@ function docWith(doc, path) {
   ].join('\n');
 }
 
-/** 注释的正文：去掉开头结尾的注释符号与每行开头的星号，合成一段 */
+/** 中文字符与全角标点 */
+const CJK = /[　-〿一-鿿＀-￯]/;
+
+/**
+ * 注释的正文：去掉开头结尾的注释符号与每行开头的星号，合成一段。
+ * 行与行之间补一个空格，但两边都是中文时直接接上（中文之间不加空格）
+ */
 function docText(doc) {
   if (!doc) return '';
   return doc
@@ -124,7 +130,9 @@ function docText(doc) {
     .split('\n')
     .map((line) => line.replace(/^\s*\*\s?/, '').trim())
     .filter(Boolean)
-    .join(' ');
+    .reduce((text, line) =>
+      CJK.test(text.at(-1) ?? '') && CJK.test(line[0]) ? text + line : `${text} ${line}`,
+    );
 }
 
 export function tokenCatalogOutput(root) {

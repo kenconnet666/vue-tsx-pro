@@ -25,7 +25,7 @@ export default _component(() => () => (
       </Example>
       <Example id="hour-cycle" title="12 / 24 小时制" demo={HourCycle}>
         12 小时制时多一段上午 / 下午：打 <Kbd>a</Kbd>、<Kbd>p</Kbd> 或用 <Kbd>↑</Kbd> <Kbd>↓</Kbd>{' '}
-        切换； 改“时”时保留上午下午。语言配置的 <Code>hourCycle</Code>{' '}
+        切换；改“时”时保留上午下午。语言配置的 <Code>hourCycle</Code>{' '}
         统一指定，组件上的同名属性单独覆盖。
       </Example>
     </Examples>

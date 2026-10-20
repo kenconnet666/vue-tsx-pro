@@ -65,7 +65,7 @@ export default _component(() => () => (
       </Example>
       <Example id="links" title="链接按钮" demo={Links}>
         跳转到别的页面用 <Code>LinkButton</Code>（a 元素）而不是 Button
-        加点击跳转：能右键、在新标签页打开， 读屏念“链接”。外观同 Button，站内链接经 router
+        加点击跳转：能右键、在新标签页打开，读屏念“链接”。外观同 Button，站内链接经 router
         不刷新页面地跳转，<Code>external</Code> 在新窗口打开。
       </Example>
       <Example id="group" title="按钮组" demo={Group}>

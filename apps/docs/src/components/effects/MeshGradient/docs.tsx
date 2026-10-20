@@ -24,7 +24,7 @@ export default _component(() => () => (
         <Code>sx</Code> 或内容决定。
       </Example>
       <Example id="palettes" title="色板" demo={Palettes}>
-        <Code>palette</Code> 接受 2–6 个 token 或 CSS 颜色，默认是品牌色加图表色板的紫、粉、青。 用
+        <Code>palette</Code> 接受 2–6 个 token 或 CSS 颜色，默认是品牌色加图表色板的紫、粉、青。用
         token 时切换主题会原地过渡到新色，不重建场景。
       </Example>
       <Example id="controls" title="速度、扭曲与颗粒" demo={Controls}>
