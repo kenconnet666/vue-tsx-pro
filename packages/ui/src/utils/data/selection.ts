@@ -1,6 +1,6 @@
 /**
  * 选择模型：单选、多选怎样响应“点了一项”（纯函数），以及单选 / 多选组件共用的 props。
- * ToggleGroup、Listbox、Select、Combobox、CheckboxGroup、Table 的行选择都用它。
+ * ToggleGroup、Listbox、Select、Combobox、CheckboxGroup、DataTable 的行选择都用它。
  */
 
 /** 选择方式 */

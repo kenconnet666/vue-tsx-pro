@@ -20,7 +20,7 @@
  * - 懒加载：hasChildren 说有子节点、getChildren 还没有时，展开会调用 loadChildren（加载中显示加载指示）。
  * - 节点平铺渲染（虚拟滚动没法嵌套 role="group"），层级经 aria-level / aria-setsize / aria-posinset 告诉读屏。
  *
- * 展开状态与勾选联动见 utils/data/tree.ts（TreeTable 共用）。部件：Root（div，role="tree"）、Item（div，role="treeitem"）、
+ * 展开状态与勾选联动见 utils/data/tree.ts（TreeDataTable 共用）。部件：Root（div，role="tree"）、Item（div，role="treeitem"）、
  * Toggle（展开箭头）、Checkbox（勾选框，只是外观，状态在 treeitem 的 aria-checked 上）、Label。
  */
 import { Check, ChevronRight, Minus } from '@lucide/icons';

@@ -14,7 +14,7 @@
   - 浮层：Dialog / Drawer / AlertDialog（共用 Modal 内核，含命令式的 useConfirm）、Popover、Tooltip、HoverCard、Menu（复合，含链接 / 复选 / 单选项、子菜单）、ContextMenu、Tour
   - 导航：Toolbar、Tabs（复合）、Steps、Breadcrumbs、Pagination（配套 PageSizeSelect、PageJump）、NavList（复合）
   - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
-  - 表格：Table（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeTable（建在 Table 上，懒加载子项）
+  - 表格：DataTable（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeDataTable（建在 DataTable 上，懒加载子项）
   - 表单（form/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型；数组字段、dirty、单字段异步校验）
 - **性能、类型与基础设施**（§10.16）：编译器的渲染优化（稳定插槽、属性值缓存，RUNES §9）、表格行组件、浮层延迟渲染、Virtualizer 增量重排、Icon 用 innerHTML、`mergeAttrs`；`stylex.create` 不再标类型；表单拆到 `form/`、对话框一族在 `overlay/`。
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
@@ -91,7 +91,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 单选 / 多选                                              | `toggleSelection`                                                                                                                           |
 | 拖动                                                     | `startMove(pointerdownEvent, { onMove, onEnd })`                                                                                            |
 | 拖动排序（指针 + 键盘 + 读屏播报）                       | `useSortable({ items, getKey, onChange, container })`：`handleProps(key)`、`itemProps(key)`、`announcement`（`utils/dom/sortable.ts`）      |
-| 树：展开成行、勾选联动、懒加载                           | `flattenTree`、`indexTree` + `toggleChecked` / `checkStates`、`useTreeExpansion`（`utils/data/tree.ts`；Tree、TreeTable 用它）              |
+| 树：展开成行、勾选联动、懒加载                           | `flattenTree`、`indexTree` + `toggleChecked` / `checkStates`、`useTreeExpansion`（`utils/data/tree.ts`；Tree、TreeDataTable 用它）          |
 | 未保存离开的提醒                                         | `useLeaveConfirmation(() => form.dirty)`（`utils/dom/leave-confirmation.ts`）                                                               |
 | 进出场过渡、等过渡结束                                   | `utils/style/transitions.ts`（`transitions`、`afterTransitions`）                                                                           |
 | 关闭后等离场结束再卸载                                   | `usePresence(() => open, { onExited, exit })`：`mounted`、`state`、`ref`（`utils/motion/presence.ts`；Toast、Tag、Alert 用它）              |
@@ -162,7 +162,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | CI 的 `exports:check` 失败，或使用方导入不到新加的工具         | 入口由脚本生成：模块里加、改了导出后运行 `pnpm exports`；报重名时按 COMPONENTS §4 改成全局唯一的名字                                                                         |
 | 改了 tokens 后 CI 的 `css-docs:check` 失败                     | `token-names.ts` 由 `pnpm css-docs` 生成，改了 tokens 要重新生成                                                                                                             |
 | 宽的内容（表格）把 grid / flex 容器撑宽，页面横向溢出          | 网格项、弹性项的最小宽度默认等于内容宽度；表格外层用了 `contain: inline-size`，自己写的宽内容外层加 `minWidth: 0`                                                            |
-| 勾选一行，表格的所有可见行都重渲染                             | 传给 Table 的 `rowKey`、`columns` 每次渲染都新建（条件表达式、调用结果编译器不缓存）：在 setup 或模块里定义；直接写成箭头函数的会被编译器缓存                                |
+| 勾选一行，表格的所有可见行都重渲染                             | 传给 DataTable 的 `rowKey`、`columns` 每次渲染都新建（条件表达式、调用结果编译器不缓存）：在 setup 或模块里定义；直接写成箭头函数的会被编译器缓存                            |
 | 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找（findLast、includes）；用 computed 缓存集合或映射。演示页有“2 秒内挂载完”的测试，table / Listbox 的单元测试有全选、大量展开与已选的性能用例 |
 | WebKit 里点开下拉后方向键无效，焦点在 body 上                  | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件（Select 的触发按钮）在 click 里自己 `focus()`；`focusOrigin` 已经处理了归还焦点的情况                                      |
 | 组件事件名和原生事件冲突（如 `onSelect`）                      | 组件 props 继承了元素属性，自定义回调起不冲突的名字（`onStepChange`）或把原生的放进受管属性                                                                                  |
@@ -187,4 +187,4 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 - Drawer 离场是淡出（不是滑回），见 §10.11 的取舍。
 - Menu 没有子菜单；Combobox 只能单选（多选的 TagsInput 以后做）。
 - 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出（没法用 role="group" 包住各自定位的选项）。
-- 表格是 table 语义，不是 grid：没有单元格之间的方向键导航；TreeTable 的层级由缩进与展开按钮表达。
+- 表格是 table 语义，不是 grid：没有单元格之间的方向键导航；TreeDataTable 的层级由缩进与展开按钮表达。

@@ -1,6 +1,6 @@
 /**
  * 虚拟滚动的 Vue 接线：把 Virtualizer（virtualizer.ts，不依赖 Vue）接到组件上。
- * VirtualList、Table、TreeTable、ListboxView（Select、Combobox 的选项）共用。
+ * VirtualList、DataTable、TreeDataTable、ListboxView（Select、Combobox 的选项）共用。
  *
  *   const virtual = useVirtualizer(() => ({
  *     count: rows.length,

@@ -1,7 +1,7 @@
 /**
  * 列宽调整手柄：表头单元格结束边的一条细线（role="separator"），悬停、聚焦时显示。
  * 拖动（startMove）或聚焦后用 ← / →（WCAG 2.5.7 拖动的替代操作）调整，从右到左排版下方向自动镜像。
- * 宽度从所在单元格量起，所以要放在 th 里；TableView 的可调整列都用它。
+ * 宽度从所在单元格量起，所以要放在 th 里；DataTableView 的可调整列都用它。
  *
  *   <th>…<ColumnResizer label="金额" width={widths.amount} onWidthChange={(px) => …} /></th>
  */

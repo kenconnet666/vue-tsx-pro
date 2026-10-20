@@ -1,6 +1,6 @@
 /**
  * 树状数据的共用逻辑：按展开状态展开成一列行、勾选的父子联动（含半选）、展开时懒加载子项。
- * TreeTable（层级行）与 Tree（独立的树）共用；数据形状不限，由 getKey / getChildren 读取。
+ * TreeDataTable（层级行）与 Tree（独立的树）共用；数据形状不限，由 getKey / getChildren 读取。
  *
  *   const rows = flattenTree(roots, { getKey, getChildren }, new Set(expanded));
  *   const index = indexTree(roots, { getKey, getChildren });
@@ -43,7 +43,7 @@ export const isExpandable = <T>(node: T, { getChildren, hasChildren }: TreeAcces
 
 /**
  * 按展开状态深度优先展开成一列：只有展开了的节点的子节点出现在结果里。
- * order 改写每一层的顺序（TreeTable 按当前排序），不写时按数据顺序
+ * order 改写每一层的顺序（TreeDataTable 按当前排序），不写时按数据顺序
  */
 export function flattenTree<T>(
   roots: readonly T[],

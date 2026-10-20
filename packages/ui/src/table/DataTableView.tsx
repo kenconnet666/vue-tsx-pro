@@ -1,5 +1,5 @@
 /**
- * 表格的渲染层：Table、TreeTable 共用（同 Listbox 与 ListboxView 的分工）。只管画，状态（排序、选择、展开、列宽）由外层决定。
+ * 表格的渲染层：DataTable、TreeDataTable 共用（同 Listbox 与 ListboxView 的分工）。只管画，状态（排序、选择、展开、列宽）由外层决定。
  *
  * - 结构：原生 table（读屏按表格念：第几行第几列、列标题）+ table-layout: fixed + colgroup 定列宽，
  *   外层是 ScrollArea（两个方向滚动，视口可聚焦，键盘也能滚）。
@@ -36,11 +36,11 @@ import {
   tableMinWidth,
   type SortState,
   type StickyOffsets,
-  type TableColumn,
+  type DataTableColumn,
 } from './columns';
 
 /** 表格的密度（行高与字号） */
-export interface TableDensities {
+export interface DataTableDensities {
   /** 紧凑：数据很多、要一屏看更多行（字号也小一档） */
   compact: unknown;
   /** 标准（默认） */
@@ -50,43 +50,43 @@ export interface TableDensities {
 }
 
 /** 表格的样式 */
-export interface TableVariants {
+export interface DataTableVariants {
   /** 表面色、外框与圆角（默认） */
   surface: unknown;
   /** 没有外框，底色同页面：放在卡片、对话框里 */
   ghost: unknown;
 }
 
-/** 表格的外观选项；可以用 createUi / Provider 的 defaults.Table 统一改默认值（TreeTable 也用它） */
-export interface TableOptions {
+/** 表格的外观选项；可以用 createUi / Provider 的 defaults.DataTable 统一改默认值（TreeDataTable 也用它） */
+export interface DataTableOptions {
   /** 密度，默认 standard */
-  density?: keyof TableDensities;
+  density?: keyof DataTableDensities;
   /** 样式，默认 surface */
-  variant?: keyof TableVariants;
+  variant?: keyof DataTableVariants;
   /** 斑马纹：隔行浅色底 */
   striped?: boolean;
 }
 
-/** 要渲染的一行：Table 是平铺的行，TreeTable 是展开后的树（带层级） */
-export interface TableRowModel<T> {
+/** 要渲染的一行：DataTable 是平铺的行，TreeDataTable 是展开后的树（带层级） */
+export interface DataTableRowModel<T> {
   /** 行的 key（选择、展开、测量都按它） */
   key: string;
   /** 这一行的数据 */
   data: T;
-  /** 层级（TreeTable），从 0 开始 */
+  /** 层级（TreeDataTable），从 0 开始 */
   depth: number;
 }
 
 /** 行、单元格的部件属性：可以按行（与列）计算 */
 type RowPartProps<T> = PartProps<'tr'> | ((row: T, index: number) => PartProps<'tr'>);
-type CellPartProps<T> = PartProps<'td'> | ((row: T, column: TableColumn<T>) => PartProps<'td'>);
+type CellPartProps<T> = PartProps<'td'> | ((row: T, column: DataTableColumn<T>) => PartProps<'td'>);
 
-/** TableView 的属性；未声明的属性落到 table 上（aria-label 或 aria-labelledby 是表格的名称） */
-export interface TableViewProps<T> extends PartProps<'table', 'role'>, TableOptions {
+/** DataTableView 的属性；未声明的属性落到 table 上（aria-label 或 aria-labelledby 是表格的名称） */
+export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataTableOptions {
   /** 要渲染的行（已排序、已按展开状态展开） */
-  rows: readonly TableRowModel<T>[];
+  rows: readonly DataTableRowModel<T>[];
   /** 列 */
-  columns: readonly TableColumn<T>[];
+  columns: readonly DataTableColumn<T>[];
   /** 当前排序 */
   sort?: SortState | null;
   /** 点了可排序的列标题 */
@@ -109,8 +109,8 @@ export interface TableViewProps<T> extends PartProps<'table', 'role'>, TableOpti
   loading?: boolean;
   /** 没有数据时显示的内容；默认是 Empty（文案取语言包） */
   empty?: VNodeChild;
-  /** 第一个数据列的单元格内容前面加的东西（TreeTable 的缩进与展开按钮） */
-  leading?: (row: TableRowModel<T>, index: number) => VNodeChild;
+  /** 第一个数据列的单元格内容前面加的东西（TreeDataTable 的缩进与展开按钮） */
+  leading?: (row: DataTableRowModel<T>, index: number) => VNodeChild;
   /** 行的估计高度（px）；不写时按密度估计，渲染后以实际高度为准 */
   estimateRowHeight?: number;
   /** 可见行范围变化（不含 overscan）：接近末尾时加载更多 */
@@ -122,7 +122,7 @@ export interface TableViewProps<T> extends PartProps<'table', 'role'>, TableOpti
   /** 每个单元格（td）的部件属性，可以按行与列计算 */
   propsCell?: CellPartProps<T>;
   /** 每个列标题（th）的部件属性，可以按列计算 */
-  propsHeaderCell?: PartProps<'th'> | ((column: TableColumn<T>) => PartProps<'th'>);
+  propsHeaderCell?: PartProps<'th'> | ((column: DataTableColumn<T>) => PartProps<'th'>);
   /** 空状态的部件属性 */
   propsEmpty?: Partial<EmptyProps>;
   /** 加载中占位的部件属性 */
@@ -138,14 +138,14 @@ const SELECT_WIDTH = 44;
 /** 加载中显示几行骨架 */
 const SKELETON_ROWS = 6;
 /** 各密度下行高的估计（px） */
-const ROW_HEIGHT: Record<keyof TableDensities, number> = {
+const ROW_HEIGHT: Record<keyof DataTableDensities, number> = {
   compact: 36,
   standard: 44,
   comfortable: 52,
 };
 
-/** Table、TreeTable 的样式：root、surface、ghost、table、sm、md 等 */
-export const tableStyles = stylex.create({
+/** DataTable、TreeDataTable 的样式：root、surface、ghost、table、sm、md 等 */
+export const dataTableStyles = stylex.create({
   // contain: inline-size：宽表格不会把外层的 grid / flex 容器撑宽（它们的最小宽度默认等于内容宽度），
   // 宽度只由所在的容器决定，放不下的部分在表格里横向滚动
   root: { maxHeight: '32em', minWidth: 0, contain: 'inline-size' },
@@ -237,16 +237,16 @@ export const tableStyles = stylex.create({
   emptyCell: { padding: 0, whiteSpace: 'normal' },
 });
 
-/** Table、TreeTable 的样式：单元格按密度的上下内边距 */
-export const tableDensityStyles = stylex.create({
+/** DataTable、TreeDataTable 的样式：单元格按密度的上下内边距 */
+export const dataTableDensityStyles = stylex.create({
   compact: { paddingBlock: '_xs' },
   standard: { paddingBlock: '_sm' },
   comfortable: { paddingBlock: '_md' },
 });
 
 // 列宽、偏移、占位高度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
-/** Table、TreeTable 的样式：width、minWidth、height、start、end、percent */
-export const tableDynamicStyles = stylex.create({
+/** DataTable、TreeDataTable 的样式：width、minWidth、height、start、end、percent */
+export const dataTableDynamicStyles = stylex.create({
   width: (px: number) => ({ width: px }),
   minWidth: (px: number) => ({ minWidth: px }),
   height: (px: number) => ({ height: px }),
@@ -256,18 +256,18 @@ export const tableDynamicStyles = stylex.create({
 });
 
 /** 固定列单元格的样式：position: sticky 加上按列宽累加的偏移 */
-function stickyCellSx(column: TableColumn<never>, offsets: StickyOffsets) {
+function stickyCellSx(column: DataTableColumn<never>, offsets: StickyOffsets) {
   if (column.sticky === 'start')
-    return [tableStyles.sticky, tableDynamicStyles.start(offsets.start.get(column.key)!)];
+    return [dataTableStyles.sticky, dataTableDynamicStyles.start(offsets.start.get(column.key)!)];
   if (column.sticky === 'end')
-    return [tableStyles.sticky, tableDynamicStyles.end(offsets.end.get(column.key)!)];
+    return [dataTableStyles.sticky, dataTableDynamicStyles.end(offsets.end.get(column.key)!)];
   return null;
 }
 
-/** TableRow 的属性：一行要用到的全部数据；除了 row、index、selected，同一张表里各行都相同 */
-export interface TableRowProps<T> {
+/** DataTableRow 的属性：一行要用到的全部数据；除了 row、index、selected，同一张表里各行都相同 */
+export interface DataTableRowProps<T> {
   /** 这一行 */
-  row: TableRowModel<T>;
+  row: DataTableRowModel<T>;
   /** 在全部行里的序号 */
   index: number;
   /** 是否已选 */
@@ -275,17 +275,17 @@ export interface TableRowProps<T> {
   /** 选择方式；不写时没有勾选列 */
   selectionMode?: keyof SelectionModes;
   /** 列 */
-  columns: readonly TableColumn<T>[];
+  columns: readonly DataTableColumn<T>[];
   /** 密度 */
-  density: keyof TableDensities;
+  density: keyof DataTableDensities;
   /** 样式 */
-  variant: keyof TableVariants;
+  variant: keyof DataTableVariants;
   /** 斑马纹 */
   striped: boolean;
   /** 固定列的偏移 */
   offsets: StickyOffsets;
-  /** 第一个数据列前面加的东西（TreeTable 的缩进与展开按钮） */
-  leading?: (row: TableRowModel<T>, index: number) => VNodeChild;
+  /** 第一个数据列前面加的东西（TreeDataTable 的缩进与展开按钮） */
+  leading?: (row: DataTableRowModel<T>, index: number) => VNodeChild;
   /** 行的部件属性 */
   propsRow?: RowPartProps<T>;
   /** 单元格的部件属性 */
@@ -300,7 +300,7 @@ export interface TableRowProps<T> {
  * 表格的一行：单独成组件，props 没变的行在表格重新渲染时直接跳过——
  * 滚动只挂载新进入视口的行，勾选一行只更新这一行（原来每次都重建全部可见行与其中的勾选框）
  */
-export const TableRow = _component(
+export const DataTableRow = _component(
   <T,>({
     row,
     index,
@@ -316,16 +316,16 @@ export const TableRow = _component(
     propsCell,
     measure,
     onToggle,
-  }: TableRowProps<T>) => {
+  }: DataTableRowProps<T>) => {
     const lang = useLang();
     return () => (
       <tr
         {...mergeAttrs<'tr'>(
           {
             sx: [
-              variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row,
-              striped && index % 2 === 1 && tableStyles.striped,
-              selected && tableStyles.selected,
+              variant === 'ghost' ? dataTableStyles.rowGhost : dataTableStyles.row,
+              striped && index % 2 === 1 && dataTableStyles.striped,
+              selected && dataTableStyles.selected,
             ],
           },
           typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow,
@@ -341,10 +341,10 @@ export const TableRow = _component(
         {selectionMode && (
           <td
             {...stylex.attrs(
-              tableStyles.cell,
-              tableDensityStyles[density],
-              tableStyles.selectCell,
-              offsets.start.size > 0 && tableStyles.stickySelect,
+              dataTableStyles.cell,
+              dataTableDensityStyles[density],
+              dataTableStyles.selectCell,
+              offsets.start.size > 0 && dataTableStyles.stickySelect,
             )}
           >
             <Checkbox
@@ -364,10 +364,10 @@ export const TableRow = _component(
               {...mergeAttrs<'td'>(
                 {
                   sx: [
-                    tableStyles.cell,
-                    tableDensityStyles[density],
-                    tableStyles[column.align ?? 'start'],
-                    column.wrap && tableStyles.wrap,
+                    dataTableStyles.cell,
+                    dataTableDensityStyles[density],
+                    dataTableStyles[column.align ?? 'start'],
+                    column.wrap && dataTableStyles.wrap,
                     stickyCellSx(column, offsets),
                   ],
                 },
@@ -375,9 +375,9 @@ export const TableRow = _component(
               )}
             >
               {position === 0 && leading ? (
-                <div {...stylex.attrs(tableStyles.leading)}>
+                <div {...stylex.attrs(dataTableStyles.leading)}>
                   {leading(row, index)}
-                  <div {...stylex.attrs(tableStyles.content)}>{value}</div>
+                  <div {...stylex.attrs(dataTableStyles.content)}>{value}</div>
                 </div>
               ) : (
                 value
@@ -391,7 +391,7 @@ export const TableRow = _component(
 );
 
 /** 表格的渲染层：虚拟滚动的行、吸顶表头、固定列、排序、勾选、列宽调整、加载与空状态 */
-export const TableView = _component(
+export const DataTableView = _component(
   <T,>({
     rows,
     columns,
@@ -421,7 +421,7 @@ export const TableView = _component(
     propsSortButton,
     propsResizer,
     ...rest
-  }: TableViewProps<T>) => {
+  }: DataTableViewProps<T>) => {
     const lang = useLang();
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
@@ -446,13 +446,13 @@ export const TableView = _component(
     });
 
     /** 列的宽度：调整过的、列定义里的，或者没有（与其他没写宽度的列平分） */
-    const widthOf = (column: TableColumn<T>) => widths[column.key] ?? column.width;
+    const widthOf = (column: DataTableColumn<T>) => widths[column.key] ?? column.width;
 
     const leadingWidth = () => (selectionMode ? SELECT_WIDTH : 0);
     const offsets = _derived.by(() => stickyOffsets(columns, widthOf, leadingWidth()));
     const minWidth = () => tableMinWidth(columns, widthOf, leadingWidth());
 
-    function renderHeaderCell(column: TableColumn<T>) {
+    function renderHeaderCell(column: DataTableColumn<T>) {
       const own = typeof propsHeaderCell === 'function' ? propsHeaderCell(column) : propsHeaderCell;
       const sorted = sort?.key === column.key ? sort.direction : undefined;
       const label = plainText(column.header);
@@ -463,9 +463,9 @@ export const TableView = _component(
           {...mergeAttrs<'th'>(
             {
               sx: [
-                tableStyles.headerCell,
-                tableDensityStyles[density],
-                tableStyles[column.align ?? 'start'],
+                dataTableStyles.headerCell,
+                dataTableDensityStyles[density],
+                dataTableStyles[column.align ?? 'start'],
                 stickyCellSx(column, offsets),
               ],
             },
@@ -480,12 +480,12 @@ export const TableView = _component(
           {column.sortable ? (
             <button
               {...mergeAttrs<'button'>(
-                { sx: [tableStyles.sortButton, focusRingStyles.visible] },
+                { sx: [dataTableStyles.sortButton, focusRingStyles.visible] },
                 propsSortButton,
                 { type: 'button', onClick: () => onSortClick?.(column.key) },
               )}
             >
-              <span {...stylex.attrs(tableStyles.sortLabel)}>{column.header}</span>
+              <span {...stylex.attrs(dataTableStyles.sortLabel)}>{column.header}</span>
               <Icon
                 icon={
                   sorted === 'ascending'
@@ -494,7 +494,7 @@ export const TableView = _component(
                       ? ArrowDown
                       : ArrowUpDown
                 }
-                sx={[tableStyles.sortIcon, sorted && tableStyles.sortActive]}
+                sx={[dataTableStyles.sortIcon, sorted && dataTableStyles.sortActive]}
               />
             </button>
           ) : (
@@ -527,7 +527,10 @@ export const TableView = _component(
           {...mergePartProps<ScrollAreaProps>(
             {
               axis: 'both',
-              sx: [tableStyles.root, variant === 'ghost' ? tableStyles.ghost : tableStyles.surface],
+              sx: [
+                dataTableStyles.root,
+                variant === 'ghost' ? dataTableStyles.ghost : dataTableStyles.surface,
+              ],
             },
             propsRoot,
             { propsViewport: { ref: _toRef(viewport) } },
@@ -537,9 +540,9 @@ export const TableView = _component(
             {...mergeAttrs<'table'>(
               {
                 sx: [
-                  tableStyles.table,
-                  tableStyles[density],
-                  tableDynamicStyles.minWidth(minWidth()),
+                  dataTableStyles.table,
+                  dataTableStyles[density],
+                  dataTableDynamicStyles.minWidth(minWidth()),
                 ],
               },
               rest,
@@ -550,27 +553,29 @@ export const TableView = _component(
             )}
           >
             <colgroup>
-              {selectionMode && <col {...stylex.attrs(tableDynamicStyles.width(SELECT_WIDTH))} />}
+              {selectionMode && (
+                <col {...stylex.attrs(dataTableDynamicStyles.width(SELECT_WIDTH))} />
+              )}
               {columns.map((column) => {
                 const width = widthOf(column);
                 return (
                   <col
                     key={column.key}
-                    {...(width != null ? stylex.attrs(tableDynamicStyles.width(width)) : {})}
+                    {...(width != null ? stylex.attrs(dataTableDynamicStyles.width(width)) : {})}
                   />
                 );
               })}
             </colgroup>
-            <thead {...stylex.attrs(tableStyles.head)}>
+            <thead {...stylex.attrs(dataTableStyles.head)}>
               <tr aria-rowindex={1}>
                 {selectionMode && (
                   <th
                     scope="col"
                     {...stylex.attrs(
-                      tableStyles.headerCell,
-                      tableDensityStyles[density],
-                      tableStyles.selectCell,
-                      offsets.start.size > 0 && tableStyles.stickySelect,
+                      dataTableStyles.headerCell,
+                      dataTableDensityStyles[density],
+                      dataTableStyles.selectCell,
+                      offsets.start.size > 0 && dataTableStyles.stickySelect,
                     )}
                   >
                     {selectionMode === 'multiple' && (
@@ -588,8 +593,8 @@ export const TableView = _component(
               </tr>
               {indicator.value && rows.length > 0 && (
                 <tr aria-hidden="true">
-                  <td colspan={span} {...stylex.attrs(tableStyles.progressCell)}>
-                    <div {...stylex.attrs(tableStyles.progress)}>
+                  <td colspan={span} {...stylex.attrs(dataTableStyles.progressCell)}>
+                    <div {...stylex.attrs(dataTableStyles.progress)}>
                       <Progress size="xs" aria-label={lang.loading} />
                     </div>
                   </td>
@@ -603,22 +608,26 @@ export const TableView = _component(
                   <tr
                     key={`skeleton-${index}`}
                     aria-hidden="true"
-                    {...stylex.attrs(variant === 'ghost' ? tableStyles.rowGhost : tableStyles.row)}
+                    {...stylex.attrs(
+                      variant === 'ghost' ? dataTableStyles.rowGhost : dataTableStyles.row,
+                    )}
                   >
                     {selectionMode && (
-                      <td {...stylex.attrs(tableStyles.cell, tableDensityStyles[density])} />
+                      <td
+                        {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
+                      />
                     )}
                     {columns.map((column, position) => (
                       <td
                         key={column.key}
-                        {...stylex.attrs(tableStyles.cell, tableDensityStyles[density])}
+                        {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
                       >
                         <Skeleton
                           {...mergePartProps<SkeletonProps>(
                             {
                               sx: [
-                                tableStyles.skeleton,
-                                tableDynamicStyles.percent(
+                                dataTableStyles.skeleton,
+                                dataTableDynamicStyles.percent(
                                   `${90 - ((index + position) % 4) * 15}%`,
                                 ),
                               ],
@@ -632,7 +641,10 @@ export const TableView = _component(
                 ))}
               {rows.length === 0 && !loading && (
                 <tr>
-                  <td colspan={span} {...stylex.attrs(tableStyles.cell, tableStyles.emptyCell)}>
+                  <td
+                    colspan={span}
+                    {...stylex.attrs(dataTableStyles.cell, dataTableStyles.emptyCell)}
+                  >
                     {empty ?? (
                       <Empty
                         {...mergePartProps<EmptyProps>(
@@ -648,14 +660,14 @@ export const TableView = _component(
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
-                    {...stylex.attrs(tableStyles.spacer, tableDynamicStyles.height(top))}
+                    {...stylex.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(top))}
                   />
                 </tr>
               )}
               {items.map((item) => {
                 const row = rows[item.index]!;
                 return (
-                  <TableRow
+                  <DataTableRow
                     key={row.key}
                     row={row}
                     index={item.index}
@@ -678,7 +690,7 @@ export const TableView = _component(
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
-                    {...stylex.attrs(tableStyles.spacer, tableDynamicStyles.height(bottom))}
+                    {...stylex.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(bottom))}
                   />
                 </tr>
               )}
@@ -688,5 +700,5 @@ export const TableView = _component(
       );
     };
   },
-  { name: 'TableView' },
+  { name: 'DataTableView' },
 );

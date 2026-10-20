@@ -10,9 +10,9 @@ import {
   Listbox,
   Menu,
   MenuItem,
-  Table,
+  DataTable,
   type ListboxOption,
-  type TableColumn,
+  type DataTableColumn,
 } from '@vue-tsx-pro/ui';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, nextTick, type App, type Component } from 'vue';
@@ -78,7 +78,7 @@ it('父组件因为自己的状态重新渲染：Card > Flex > 按钮都不跟�
 
 it('表格勾选一行：只更新那一行', async () => {
   const rows = Array.from({ length: 1000 }, (_, i) => ({ id: `r${i}`, name: `客户 ${i}` }));
-  const columns: TableColumn<(typeof rows)[number]>[] = [
+  const columns: DataTableColumn<(typeof rows)[number]>[] = [
     { key: 'id', header: '编号', width: 100 },
     { key: 'name', header: '客户' },
   ];
@@ -86,7 +86,7 @@ it('表格勾选一行：只更新那一行', async () => {
     _component(() => {
       let selected = _state<string[]>([]);
       return () => (
-        <Table
+        <DataTable
           rows={rows}
           columns={columns}
           rowKey={(row) => row.id}
@@ -100,7 +100,7 @@ it('表格勾选一行：只更新那一行', async () => {
   const counted = await during(() =>
     root.querySelector<HTMLInputElement>('tbody input[type="checkbox"]')!.click(),
   );
-  expect(counted.get('TableRow')).toBe(1);
+  expect(counted.get('DataTableRow')).toBe(1);
 });
 
 it('Listbox 移动高亮：只重建前后两个选项', async () => {

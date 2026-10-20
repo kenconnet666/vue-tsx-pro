@@ -1,9 +1,9 @@
 /**
  * 树形表格：有层级的行（部门 → 小组 → 成员、文件夹 → 文件），第一列带缩进与展开按钮。
- * 建在 Table 上：列定义、排序、勾选、列宽、虚拟滚动、加载与空状态、外观都和 Table 一样；
+ * 建在 DataTable 上：列定义、排序、勾选、列宽、虚拟滚动、加载与空状态、外观都和 DataTable 一样；
  * 这里只做两件事：按展开状态把树展开成一列行（同级之间按 sort 排序），以及第一列前面的缩进与展开按钮。
  *
- *   <TreeTable
+ *   <TreeDataTable
  *     rows={departments}
  *     columns={columns}
  *     rowKey={(row) => row.id}
@@ -24,11 +24,11 @@ import { IconButton } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { flattenTree, useTreeExpansion, type TreeAccessors } from '../utils/data/tree';
 import { columnValue, sortRows, type SortState } from './columns';
-import { Table, type TableProps } from './Table';
-import type { TableRowModel } from './TableView';
+import { DataTable, type DataTableProps } from './DataTable';
+import type { DataTableRowModel } from './DataTableView';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
-export interface TreeTableProps<T> extends Omit<TableProps<T>, 'manualSort' | 'leading'> {
+export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSort' | 'leading'> {
   /** 第一层的行 */
   rows: readonly T[];
   /** 一行的子项；没有子项（叶子）或还没加载时返回 undefined / 空数组 */
@@ -43,8 +43,8 @@ export interface TreeTableProps<T> extends Omit<TableProps<T>, 'manualSort' | 'l
   indent?: number;
 }
 
-/** TreeTable 的样式：toggle、chevron、chevronOpen、placeholder */
-export const treeTableStyles = stylex.create({
+/** TreeDataTable 的样式：toggle、chevron、chevronOpen、placeholder */
+export const treeDataTableStyles = stylex.create({
   toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
   chevron: { transition: 'rotate _durations.sm _easings.standard' },
   chevronOpen: { rotate: '90deg' },
@@ -53,13 +53,13 @@ export const treeTableStyles = stylex.create({
 });
 
 // 缩进是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
-/** TreeTable 的样式：depth */
-export const treeTableIndentStyles = stylex.create({
+/** TreeDataTable 的样式：depth */
+export const treeDataTableIndentStyles = stylex.create({
   depth: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
 });
 
-/** 树形表格：按展开状态展开的层级行，复用 Table 的一切 */
-export const TreeTable = _component(
+/** 树形表格：按展开状态展开的层级行，复用 DataTable 的一切 */
+export const TreeDataTable = _component(
   <T,>({
     rows,
     columns,
@@ -73,7 +73,7 @@ export const TreeTable = _component(
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
     ...rest
-  }: TreeTableProps<T>) => {
+  }: TreeDataTableProps<T>) => {
     const lang = useLang();
     const accessors = (): TreeAccessors<T> => ({ getKey: rowKey, getChildren, hasChildren });
     const expansion = useTreeExpansion<T>({
@@ -90,11 +90,11 @@ export const TreeTable = _component(
       ),
     );
     const byKey = _derived.by(() => new Map(flat.map((item) => [item.key, item])));
-    // 交给 Table 的行与取 key 的函数要保持同一个引用：每次渲染都新建的话，Table 会重排全部行
+    // 交给 DataTable 的行与取 key 的函数要保持同一个引用：每次渲染都新建的话，DataTable 会重排全部行
     const nodes = _derived(flat.map((item) => item.node));
     const keyOf = (_: T, index: number) => flat[index]!.key;
 
-    function leading(model: TableRowModel<T>) {
+    function leading(model: DataTableRowModel<T>) {
       const item = byKey.get(model.key);
       const depth = item?.depth ?? 0;
       const first = columns[0] ? columnValue(columns[0], model.data) : undefined;
@@ -102,7 +102,7 @@ export const TreeTable = _component(
       const open = expansion.isExpanded(model.key);
       return (
         <>
-          {depth > 0 && <span {...stylex.attrs(treeTableIndentStyles.depth(depth * indent))} />}
+          {depth > 0 && <span {...stylex.attrs(treeDataTableIndentStyles.depth(depth * indent))} />}
           {item?.expandable ? (
             <IconButton
               icon={ChevronRight}
@@ -111,22 +111,22 @@ export const TreeTable = _component(
               loading={expansion.isLoading(model.key)}
               aria-label={lang.treeToggle(label)}
               aria-expanded={open}
-              sx={treeTableStyles.toggle}
+              sx={treeDataTableStyles.toggle}
               propsIcon={{
                 flipInRtl: true,
-                sx: [treeTableStyles.chevron, open && treeTableStyles.chevronOpen],
+                sx: [treeDataTableStyles.chevron, open && treeDataTableStyles.chevronOpen],
               }}
               onClick={() => void expansion.setOpen(model.data, model.key, !open)}
             />
           ) : (
-            <span {...stylex.attrs(treeTableStyles.placeholder)} />
+            <span {...stylex.attrs(treeDataTableStyles.placeholder)} />
           )}
         </>
       );
     }
 
     return () => (
-      <Table
+      <DataTable
         {...rest}
         rows={nodes}
         rowKey={keyOf}

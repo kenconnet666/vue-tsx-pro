@@ -18,7 +18,7 @@ import type { CardOptions } from '../display/Card';
 import type { ChoiceOptions } from '../input/choice-styles';
 import type { ControlOptions } from '../input/control';
 import type { TabsOptions } from '../navigation/Tabs';
-import type { TableOptions } from '../table/TableView';
+import type { DataTableOptions } from '../table/DataTableView';
 import type { ButtonOptions } from '../base/button-core';
 
 /** 可以配置默认值的组件与选项；新组件有外观档位时在这里登记 */
@@ -43,8 +43,8 @@ export interface ComponentDefaults {
   Input?: ControlOptions;
   /** 勾选类控件：Checkbox、RadioGroup、Switch 共用 */
   Choice?: ChoiceOptions;
-  /** 表格：Table、TreeTable 共用 */
-  Table?: TableOptions;
+  /** 表格：DataTable、TreeDataTable 共用 */
+  DataTable?: DataTableOptions;
 }
 
 /** 合并两层默认值：按组件逐个合并，内层写了的选项覆盖外层 */

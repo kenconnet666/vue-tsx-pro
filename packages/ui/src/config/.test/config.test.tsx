@@ -14,7 +14,7 @@ import {
   useDefaults,
   useFormat,
   useLang,
-  type TableOptions,
+  type DataTableOptions,
 } from '../..';
 import { colors } from '../theme/tokens.stylex';
 
@@ -101,8 +101,8 @@ describe('createUi', () => {
 });
 
 describe('useDefaults', () => {
-  const Probe = _component(({ density, variant, striped }: TableOptions) => {
-    const resolved = useDefaults('Table', () => ({ density, variant, striped }), {
+  const Probe = _component(({ density, variant, striped }: DataTableOptions) => {
+    const resolved = useDefaults('DataTable', () => ({ density, variant, striped }), {
       variant: 'surface',
     });
     return () => <i>{JSON.stringify(resolved())}</i>;
@@ -112,13 +112,14 @@ describe('useDefaults', () => {
     const el = mount(
       () => (
         <>
-          <Provider defaults={{ Table: { density: 'comfortable' } }}>
+          <Provider defaults={{ DataTable: { density: 'comfortable' } }}>
             <Probe variant="ghost" />
           </Provider>
           <Probe />
         </>
       ),
-      (app) => app.use(createUi({ defaults: { Table: { density: 'compact', striped: true } } })),
+      (app) =>
+        app.use(createUi({ defaults: { DataTable: { density: 'compact', striped: true } } })),
     );
     const [inner, outer] = [...el.querySelectorAll('i')].map((i) => JSON.parse(i.textContent!));
     expect(inner).toEqual({ density: 'comfortable', variant: 'ghost', striped: true });

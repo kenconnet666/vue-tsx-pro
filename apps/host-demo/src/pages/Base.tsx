@@ -814,7 +814,7 @@ export const Base = _component(() => {
           <FormDemo />
         </Section>
 
-        <Section title="表格 Table · TreeTable">
+        <Section title="表格 DataTable · TreeDataTable">
           <TableDemo />
         </Section>
 

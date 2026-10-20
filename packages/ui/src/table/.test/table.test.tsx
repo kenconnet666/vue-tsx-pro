@@ -1,10 +1,10 @@
-// 列定义与排序、Table、TreeTable：虚拟滚动的行、排序、勾选、展开、加载与空状态（真实滚动与列宽拖动见浏览器测试）
+// 列定义与排序、DataTable、TreeDataTable：虚拟滚动的行、排序、勾选、展开、加载与空状态（真实滚动与列宽拖动见浏览器测试）
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { nextSort, sortRows, type SortState, type TableColumn } from '../columns';
-import { Table } from '../Table';
-import { TreeTable } from '../TreeTable';
+import { nextSort, sortRows, type SortState, type DataTableColumn } from '../columns';
+import { DataTable } from '../DataTable';
+import { TreeDataTable } from '../TreeDataTable';
 
 // happy-dom 不排版：给滚动容器一个 400px 的视口（行是虚拟滚动的）
 const clientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')!;
@@ -27,7 +27,7 @@ const people: Person[] = [
   { id: 'b', name: '李四', age: null },
   { id: 'c', name: 'Ada', age: 25 },
 ];
-const columns: TableColumn<Person>[] = [
+const columns: DataTableColumn<Person>[] = [
   { key: 'name', header: '姓名', sortable: true },
   { key: 'age', header: '年龄', align: 'end', sortable: true },
 ];
@@ -51,11 +51,11 @@ describe('sortRows / nextSort', () => {
   });
 });
 
-describe('Table', () => {
+describe('DataTable', () => {
   it('原生 table 语义：列标题 scope、aria-sort、aria-rowcount / aria-rowindex；点表头排序', async () => {
     let sort = _state<SortState | null>(null);
     const root = mount(() => (
-      <Table
+      <DataTable
         rows={people}
         columns={columns}
         rowKey={(p) => p.id}
@@ -82,7 +82,7 @@ describe('Table', () => {
   it('多选：每行勾选框写回 selected，表头全选有部分选中状态', async () => {
     let picked = _state<string[]>(['a']);
     const root = mount(() => (
-      <Table
+      <DataTable
         rows={people}
         columns={columns}
         rowKey={(p) => p.id}
@@ -113,7 +113,7 @@ describe('Table', () => {
     }));
     let picked = _state<string[]>([]);
     const root = mount(() => (
-      <Table
+      <DataTable
         rows={many}
         columns={columns}
         rowKey={(p) => p.id}
@@ -141,9 +141,9 @@ describe('Table', () => {
     }));
     const root = mount(() => (
       <>
-        <Table rows={many} columns={columns} rowKey={(p) => p.id} aria-label="很多" />
-        <Table rows={[]} columns={columns} rowKey={(p) => p.id} loading aria-label="加载中" />
-        <Table rows={[]} columns={columns} rowKey={(p) => p.id} aria-label="空" />
+        <DataTable rows={many} columns={columns} rowKey={(p) => p.id} aria-label="很多" />
+        <DataTable rows={[]} columns={columns} rowKey={(p) => p.id} loading aria-label="加载中" />
+        <DataTable rows={[]} columns={columns} rowKey={(p) => p.id} aria-label="空" />
       </>
     ));
     await flush();
@@ -158,7 +158,7 @@ describe('Table', () => {
   });
 });
 
-describe('TreeTable', () => {
+describe('TreeDataTable', () => {
   const tree: Person[] = [
     {
       id: 'dept',
@@ -176,7 +176,7 @@ describe('TreeTable', () => {
     let open = _state<string[]>([]);
     const loaded: string[] = [];
     const root = mount(() => (
-      <TreeTable
+      <TreeDataTable
         rows={tree}
         columns={columns}
         rowKey={(p) => p.id}
@@ -217,7 +217,7 @@ describe('TreeTable', () => {
     const open = parents.map((p) => p.id);
     const start = performance.now();
     const root = mount(() => (
-      <TreeTable
+      <TreeDataTable
         rows={parents}
         columns={columns}
         rowKey={(p) => p.id}

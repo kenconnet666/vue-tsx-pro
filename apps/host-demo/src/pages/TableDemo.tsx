@@ -1,4 +1,4 @@
-// /base 页上的表格演示：Table（一万行、排序、勾选、固定列、列宽、搜索、列显示开关、刷新）与 TreeTable（懒加载）
+// /base 页上的表格演示：DataTable（一万行、排序、勾选、固定列、列宽、搜索、列显示开关、刷新）与 TreeDataTable（懒加载）
 import { Columns3, RefreshCw, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -9,13 +9,13 @@ import {
   Flex,
   Menu,
   MenuCheckboxItem,
-  Table,
+  DataTable,
   Text,
   TextField,
-  TreeTable,
+  TreeDataTable,
   useFormat,
   type SortState,
-  type TableColumn,
+  type DataTableColumn,
 } from '@vue-tsx-pro/ui';
 
 interface Order {
@@ -71,7 +71,7 @@ export const TableDemo = _component(() => {
   let refreshing = _state(false);
   let widths = _state<Record<string, number>>({});
 
-  const columns: TableColumn<Order>[] = [
+  const columns: DataTableColumn<Order>[] = [
     { key: 'id', header: '订单号', width: 120, sticky: 'start' },
     { key: 'customer', header: '客户', width: 160, sortable: true },
     { key: 'city', header: '城市', width: 100, sortable: true },
@@ -147,7 +147,7 @@ export const TableDemo = _component(() => {
     { id: 'mk', name: '市场部', members: 15, lazy: true },
   ]);
   let expanded = _state<string[]>(['rd']);
-  const unitColumns: TableColumn<Unit>[] = [
+  const unitColumns: DataTableColumn<Unit>[] = [
     { key: 'name', header: '部门', sortable: true },
     { key: 'members', header: '人数', width: 100, align: 'end', sortable: true },
   ];
@@ -222,7 +222,7 @@ export const TableDemo = _component(() => {
             共 {filtered.length} 条，已选 {picked.length} 条
           </Text>
         </Flex>
-        <Table
+        <DataTable
           rows={filtered}
           columns={shown}
           rowKey={(order) => order.id}
@@ -237,7 +237,7 @@ export const TableDemo = _component(() => {
           class="table-demo"
           propsRoot={{ sx: styles.table }}
         />
-        <TreeTable
+        <TreeDataTable
           rows={units}
           columns={unitColumns}
           rowKey={(unit) => unit.id}

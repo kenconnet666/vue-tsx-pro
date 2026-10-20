@@ -593,26 +593,26 @@ export {
   type ColumnResizerManaged,
   type ColumnResizerProps,
 } from './table/ColumnResizer';
-export { Table, type TableProps } from './table/Table';
+export { DataTable, type DataTableProps } from './table/DataTable';
 export {
-  tableDensityStyles,
-  tableDynamicStyles,
-  TableRow,
-  tableStyles,
-  TableView,
-  type TableDensities,
-  type TableOptions,
-  type TableRowModel,
-  type TableRowProps,
-  type TableVariants,
-  type TableViewProps,
-} from './table/TableView';
+  dataTableDensityStyles,
+  dataTableDynamicStyles,
+  DataTableRow,
+  dataTableStyles,
+  DataTableView,
+  type DataTableDensities,
+  type DataTableOptions,
+  type DataTableRowModel,
+  type DataTableRowProps,
+  type DataTableVariants,
+  type DataTableViewProps,
+} from './table/DataTableView';
 export {
-  TreeTable,
-  treeTableIndentStyles,
-  treeTableStyles,
-  type TreeTableProps,
-} from './table/TreeTable';
+  TreeDataTable,
+  treeDataTableIndentStyles,
+  treeDataTableStyles,
+  type TreeDataTableProps,
+} from './table/TreeDataTable';
 export {
   COLUMN_FLEX_MIN_WIDTH,
   COLUMN_MIN_WIDTH,
@@ -624,10 +624,10 @@ export {
   type ColumnAligns,
   type ColumnStickies,
   type ColumnWidthOf,
+  type DataTableColumn,
   type SortDirections,
   type SortState,
   type StickyOffsets,
-  type TableColumn,
 } from './table/columns';
 
 // 配置：Provider、createUi、组件默认值

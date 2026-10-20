@@ -1,4 +1,4 @@
-// Table、TreeTable 在真实浏览器里：虚拟滚动、吸顶表头、固定列、列宽调整、排序、勾选、加载、懒加载（演示页 /base）
+// DataTable、TreeDataTable 在真实浏览器里：虚拟滚动、吸顶表头、固定列、列宽调整、排序、勾选、加载、懒加载（演示页 /base）
 import axe from 'axe-core';
 import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -32,7 +32,7 @@ const bodyRows = () => [
 ];
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
 
-describe('Table', () => {
+describe('DataTable', () => {
   it('一万行只渲染看得见的几十行；滚到底能看到最后一行', async () => {
     await expect.poll(() => bodyRows().length).toBeGreaterThan(0);
     expect(bodyRows().length).toBeLessThan(80);
@@ -143,7 +143,7 @@ describe('Table', () => {
   });
 });
 
-describe('TreeTable', () => {
+describe('TreeDataTable', () => {
   const tree = () => $<HTMLTableElement>('table.tree-table-demo');
   const names = () =>
     [...tree().querySelectorAll('tbody tr[aria-rowindex] td:first-child')].map(

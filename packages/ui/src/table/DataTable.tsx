@@ -1,7 +1,7 @@
 /**
- * 数据表格：按列定义渲染一组行，始终虚拟滚动（十万行也只渲染看得见的几十行）。渲染层见 TableView。
+ * 数据表格：按列定义渲染一组行，始终虚拟滚动（十万行也只渲染看得见的几十行）。渲染层见 DataTableView。
  *
- *   <Table
+ *   <DataTable
  *     rows={orders}
  *     columns={columns}
  *     rowKey={(order) => order.id}
@@ -27,11 +27,11 @@ import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
 import { toggleSelection } from '../utils/data/selection';
 import { nextSort, sortRows, type SortState } from './columns';
-import { TableView, type TableRowModel, type TableViewProps } from './TableView';
+import { DataTableView, type DataTableRowModel, type DataTableViewProps } from './DataTableView';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
-export interface TableProps<T> extends Omit<
-  TableViewProps<T>,
+export interface DataTableProps<T> extends Omit<
+  DataTableViewProps<T>,
   | 'rows'
   | 'sort'
   | 'onSortClick'
@@ -56,7 +56,7 @@ export interface TableProps<T> extends Omit<
 }
 
 /** 数据表格：虚拟滚动、排序、勾选、列宽调整、加载与空状态 */
-export const Table = _component(
+export const DataTable = _component(
   <T,>({
     rows,
     rowKey,
@@ -70,15 +70,15 @@ export const Table = _component(
     variant,
     striped,
     ...rest
-  }: TableProps<T>) => {
+  }: DataTableProps<T>) => {
     const lang = useLang();
-    const appearance = useDefaults('Table', () => ({ density, variant, striped }), {
+    const appearance = useDefaults('DataTable', () => ({ density, variant, striped }), {
       density: 'standard',
       variant: 'surface',
       striped: false,
     });
 
-    const models = _derived.by<TableRowModel<T>[]>(() => {
+    const models = _derived.by<DataTableRowModel<T>[]>(() => {
       const ordered = manualSort ? rows : sortRows(rows, columns, sort, lang.code);
       return ordered.map((row, index) => ({ key: rowKey(row, index), data: row, depth: 0 }));
     });
@@ -101,15 +101,15 @@ export const Table = _component(
     }
 
     return () => (
-      <TableView
-        {...mergePartProps<TableViewProps<T>>(
+      <DataTableView
+        {...mergePartProps<DataTableViewProps<T>>(
           {
             rows: models,
             columns,
             widths: columnWidths,
             ...appearance(),
           },
-          rest as Partial<TableViewProps<T>>,
+          rest as Partial<DataTableViewProps<T>>,
           {
             rows: models,
             sort,
