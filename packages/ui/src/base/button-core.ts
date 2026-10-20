@@ -383,7 +383,8 @@ export function useButtonAppearance(
         attached: group?.orientation,
       };
     },
-    { variant: fallbackVariant, tone: fallbackTone, radius: 'md' },
+    // 组里的按钮外观要一致：不论有没有文字都按 Button 的默认色调（拆分按钮的两半同色）
+    { variant: fallbackVariant, tone: group ? 'accent' : fallbackTone, radius: 'md' },
   );
 }
 
