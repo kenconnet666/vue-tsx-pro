@@ -1,4 +1,4 @@
-// ThemeCustomizer：旋钮写回设置、“主题默认”清空、导出代码跟着设置变、恢复默认
+// ThemeCustomizer：旋钮写回设置、“主题默认”清空、导出代码跟着设置变、当前取值显示在旋钮旁、恢复默认
 import { expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
@@ -14,6 +14,9 @@ it('选品牌色、圆角写回设置；选“主题默认”清空；代码跟�
       (item) => item.getAttribute('aria-label') === label || item.textContent === label,
     )!;
   const code = () => root.querySelector('pre code')!.textContent!;
+  // 没改过时不能恢复默认；色块带名字，悬停显示色值
+  expect(button('恢复默认').disabled).toBe(true);
+  expect(button('crimson').title).toMatch(/^crimson #[0-9a-f]{6}$/);
 
   button('crimson').click();
   await nextTick();
@@ -25,6 +28,8 @@ it('选品牌色、圆角写回设置；选“主题默认”清空；代码跟�
   button('大').click();
   await nextTick();
   expect(settings.radius).toBe('large');
+  expect(root.textContent).toContain('crimson');
+  expect(button('恢复默认').disabled).toBe(false);
 
   root.querySelectorAll<HTMLButtonElement>('[aria-label="品牌色"] button')[0]!.click();
   await nextTick();

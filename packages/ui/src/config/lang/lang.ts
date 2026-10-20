@@ -268,14 +268,32 @@ export interface Lang {
   readonly customizeMotionSlow: string;
   /** ThemeCustomizer：对比度检查一组的标题，默认“对比度” */
   readonly customizeContrast: string;
-  /** 配色全部达到对比度要求时的提示 */
-  readonly customizeContrastOk: string;
+  /** 配色全部达到对比度要求时的提示；count 是检查了多少组颜色 */
+  readonly customizeContrastOk: (count: number) => string;
   /** 一处对比度不够：前景 / 背景 token、实际与要求的对比度 */
   readonly customizeContrastIssue: (pair: string, ratio: string, minimum: number) => string;
   /** ThemeCustomizer：导出代码一组的标题，默认“代码” */
   readonly customizeCode: string;
   /** ThemeCustomizer：恢复默认设置的按钮，默认“恢复默认” */
   readonly customizeReset: string;
+  /** ThemeCustomizer：把导出代码存成文件的按钮，默认“下载” */
+  readonly customizeDownload: string;
+  /** ThemeCustomizer：颜色分组的标题，默认“颜色” */
+  readonly customizeGroupColor: string;
+  /** ThemeCustomizer：颜色分组的说明 */
+  readonly customizeGroupColorHint: string;
+  /** ThemeCustomizer：形状与尺寸分组的标题，默认“形状与尺寸” */
+  readonly customizeGroupShape: string;
+  /** ThemeCustomizer：形状与尺寸分组的说明 */
+  readonly customizeGroupShapeHint: string;
+  /** ThemeCustomizer：字体与动效分组的标题，默认“字体与动效” */
+  readonly customizeGroupType: string;
+  /** ThemeCustomizer：字体与动效分组的说明 */
+  readonly customizeGroupTypeHint: string;
+  /** ThemeCustomizer：检查与导出分组的标题，默认“检查与导出” */
+  readonly customizeGroupExport: string;
+  /** ThemeCustomizer：检查与导出分组的说明 */
+  readonly customizeGroupExportHint: string;
   /** ColorField 色块（原生取色器）的名称，默认“选择颜色” */
   readonly colorPick: string;
   /** PropsTable 的列标题，默认“名称” */

@@ -121,10 +121,23 @@ export const enUS: Lang = {
   customizeMotionNormal: 'Normal',
   customizeMotionSlow: 'Slow',
   customizeContrast: 'Contrast',
-  customizeContrastOk: 'All text and UI parts meet WCAG AA',
+  customizeContrastOk: (count) => `All ${count} text and UI color pairs meet WCAG AA`,
   customizeContrastIssue: (pair, ratio, minimum) => `${pair}: ${ratio}, needs ${minimum}`,
   customizeCode: 'Code',
   customizeReset: 'Reset',
+  customizeDownload: 'Download',
+  customizeGroupColor: 'Color',
+  customizeGroupColorHint:
+    'Accent is used for buttons, links and selection; neutral sets the grays of backgrounds, text and borders',
+  customizeGroupShape: 'Shape and size',
+  customizeGroupShapeHint:
+    'Radius scales every component proportionally; scaling changes font size, spacing and control height together',
+  customizeGroupType: 'Type and motion',
+  customizeGroupTypeHint:
+    'Heading font and transition speed; transitions stay off when the system asks for reduced motion',
+  customizeGroupExport: 'Check and export',
+  customizeGroupExportHint:
+    'Contrast is checked as you change things; the code can be passed straight to createUi’s theme',
   colorPick: 'Pick a color',
   apiName: 'Name',
   apiType: 'Type',
