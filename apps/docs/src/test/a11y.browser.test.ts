@@ -29,7 +29,8 @@ async function settle() {
 
 it.each(Object.entries(builtinThemes))(
   '无障碍：%s 主题下所有示例没有 axe 违规',
-  { timeout: 60_000 },
+  // 第一套主题要先加载全部示例模块：示例越来越多，Windows 上的 WebKit 超过了一分钟
+  { timeout: 120_000 },
   async (_name, theme) => {
     host = document.createElement('main');
     document.body.append(host);
