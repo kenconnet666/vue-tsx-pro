@@ -144,6 +144,19 @@ describe('Listbox', () => {
     expect(options[0]!.textContent).toBe('张三#7✓');
   });
 
+  it('字符串列表：值与文字都是它，不用 toOption', async () => {
+    let picked = _state<string | undefined>();
+    const root = mount(() => (
+      <Listbox items={['设计', '研发']} value={_bind(picked)} aria-label="部门" />
+    ));
+    await nextTick();
+    const options = root.querySelectorAll<HTMLElement>('[role="option"]');
+    expect([...options].map((option) => option.textContent)).toEqual(['设计', '研发']);
+    options[1]!.click();
+    await nextTick();
+    expect(picked).toBe('研发');
+  });
+
   it('虚拟滚动：一千个选项只渲染看得见的一部分；loading 且没有选项时显示骨架行', async () => {
     const many = Array.from({ length: 1000 }, (_, index) => ({
       value: String(index),

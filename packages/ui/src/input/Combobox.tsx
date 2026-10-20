@@ -42,6 +42,7 @@ import {
   useListState,
   type ListboxOption,
   type OptionMapping,
+  toListboxOption,
 } from './list-state';
 
 /** 角色、展开状态、值与可用性由组件管理 */
@@ -62,7 +63,7 @@ export type ComboboxManaged =
 
 /** Combobox 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
 export interface ComboboxBaseProps<T> extends PartProps<'input', ComboboxManaged>, ControlOptions {
-  /** 数据：ListboxOption，或任意数据加 toOption */
+  /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 选中项的值：父级写 value={_bind(x)} */
   value?: string;
@@ -106,7 +107,7 @@ export interface ComboboxBaseProps<T> extends PartProps<'input', ComboboxManaged
   propsListbox?: Partial<ListboxViewProps<T>>;
 }
 
-/** 组合框的属性；items 不是 ListboxOption 时要给 toOption */
+/** 组合框的属性；items 不是 ListboxOption 或字符串时要给 toOption */
 export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapping<T>;
 
 /** Combobox 的样式：popover、chevronOpen、loading */
@@ -164,7 +165,7 @@ export const Combobox = _component(
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
 
-    const optionOf = (item: T) => (toOption ? toOption(item) : (item as ListboxOption));
+    const optionOf = (item: T) => toListboxOption(item, toOption);
 
     function matches(item: T, text: string) {
       if (!text) return true;

@@ -33,6 +33,7 @@ import {
   useListState,
   type ListboxOption,
   type OptionMapping,
+  toListboxOption,
 } from '../input/list-state';
 import { createMatcher } from '../utils/data/collation';
 import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
@@ -57,7 +58,7 @@ export interface CommandPaletteBaseProps<T> extends Omit<
 > {
   /** 是否打开：父级可以写 open={_bind(x)}；快捷键、触发按钮、选中、Esc 都会改它 */
   open?: boolean;
-  /** 数据 */
+  /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 执行了一项（回车或点击）：面板随即关闭 */
   onAction: (item: T) => void;
@@ -83,7 +84,7 @@ export interface CommandPaletteBaseProps<T> extends Omit<
   propsListbox?: Partial<ListboxViewProps<T>>;
 }
 
-/** 命令面板的属性；items 不是 ListboxOption 时要给 toOption */
+/** 命令面板的属性；items 不是 ListboxOption 或字符串时要给 toOption */
 export type CommandPaletteProps<T = ListboxOption> = CommandPaletteBaseProps<T> & OptionMapping<T>;
 
 /** CommandPalette 的样式：dialog、search、input、listbox、trigger、triggerText、triggerLabel */
@@ -138,7 +139,7 @@ export const CommandPalette = _component(
     const listId = useId();
     const appearance = useControlAppearance(() => ({}));
     let query = _state('');
-    const optionOf = (item: T) => (toOption ? toOption(item) : (item as ListboxOption));
+    const optionOf = (item: T) => toListboxOption(item, toOption);
 
     function matches(item: T, text: string) {
       if (filter) return filter(item, text);

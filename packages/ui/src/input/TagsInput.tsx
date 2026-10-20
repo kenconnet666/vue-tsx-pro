@@ -38,6 +38,7 @@ import {
   useListState,
   type ListboxOption,
   type OptionMapping,
+  toListboxOption,
 } from './list-state';
 
 /** 角色、展开状态与可用性由组件管理 */
@@ -60,7 +61,7 @@ export interface TagsInputBaseProps<T>
   extends PartProps<'input', TagsInputManaged>, ControlOptions {
   /** 已选的值：父级写 value={_bind(list)} */
   value?: string[];
-  /** 建议：ListboxOption，或任意数据加 toOption；不给时是纯自由输入 */
+  /** 建议：ListboxOption、字符串，或任意数据加 toOption；不给时是纯自由输入 */
   items?: readonly T[];
   /** 允许加入不在建议里的文字，默认 true */
   allowCustomValue?: boolean;
@@ -102,7 +103,7 @@ export interface TagsInputBaseProps<T>
   propsListbox?: Partial<ListboxViewProps<T>>;
 }
 
-/** 标签输入的属性；items 不是 ListboxOption 时要给 toOption */
+/** 标签输入的属性；items 不是 ListboxOption 或字符串时要给 toOption */
 export type TagsInputProps<T = ListboxOption> = TagsInputBaseProps<T> & OptionMapping<T>;
 
 /** TagsInput 的样式：root、input、popover */
@@ -157,7 +158,7 @@ export const TagsInput = _component(
     // 标签增删时其余的平移补位
     const layout = useLayoutAnimation(() => shell, { children: '[data-tag]' });
 
-    const optionOf = (item: T) => (toOption ? toOption(item) : (item as ListboxOption));
+    const optionOf = (item: T) => toListboxOption(item, toOption);
     const suggestions = () => items.length > 0;
     const labelOf = (tag: string) => {
       const item = items.find((candidate) => optionOf(candidate).value === tag);

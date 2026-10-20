@@ -50,6 +50,7 @@ import {
   type ListStateEntry,
   type ListState,
   type OptionMapping,
+  toListboxOption,
 } from './list-state';
 
 /** 选项的渲染状态：渲染函数据此画高亮、已选的样子 */
@@ -443,7 +444,7 @@ type ListboxBaseProps<T> = Omit<
 > & {
   /** 列表的 id；在 Field 里时默认用 Field 给的 */
   id?: string;
-  /** 数据：ListboxOption，或任意数据加 toOption */
+  /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 单选时至少保留一项：再点已选项不取消 */
   required?: boolean;
@@ -453,7 +454,7 @@ type ListboxBaseProps<T> = Omit<
   children?: (item: T, state: OptionRenderState) => VNodeChild;
 };
 
-/** 单选或多选；items 不是 ListboxOption 时要给 toOption */
+/** 单选或多选；items 不是 ListboxOption 或字符串时要给 toOption */
 export type ListboxProps<T = ListboxOption> = ListboxBaseProps<T> &
   SelectionProps &
   OptionMapping<T>;
@@ -475,7 +476,7 @@ export const Listbox = _component(
     const control = useFieldControl(() => ({ id, disabled }));
     const list = useListState({
       items: () => items,
-      toOption: (item) => (toOption ? toOption(item) : (item as ListboxOption)),
+      toOption: (item) => toListboxOption(item, toOption),
       selected: () => selectedValues(value),
       mode: () => selectionMode,
       required: () => required,

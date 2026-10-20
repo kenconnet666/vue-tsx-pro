@@ -39,15 +39,24 @@ export interface ListStateEntry<T> extends ListboxOption {
  * 后端数据直接传给 items，不用先 map 成 { value, label }：
  *   <Select items={users} toOption={(user) => ({ value: user.id, label: user.name })} />
  */
-export type OptionMapping<T> = [T] extends [ListboxOption]
+export type OptionMapping<T> = [T] extends [ListboxOption | string]
   ? {
-      /** 数据 → 选项（值、文字、不可用、分组…）；items 已经是 ListboxOption，可以不写 */
+      /** 数据 → 选项（值、文字、不可用、分组…）；items 是 ListboxOption 或字符串时可以不写 */
       toOption?: (item: T) => ListboxOption;
     }
   : {
       /** 数据 → 选项（值、文字、不可用、分组…） */
       toOption: (item: T) => ListboxOption;
     };
+
+/**
+ * 一项数据的选项：给了 toOption 用它；没给时数据本身是 ListboxOption，或是字符串（值与文字都是它，
+ * `items={['设计', '研发']}` 这样的简单列表不用先 map 成 { value, label }）
+ */
+export function toListboxOption<T>(item: T, toOption?: (item: T) => ListboxOption): ListboxOption {
+  if (toOption) return toOption(item);
+  return typeof item === 'string' ? { value: item, label: item } : (item as ListboxOption);
+}
 
 /**
  * useListState 的选项。按字段给读取函数（不是一个返回整个对象的 read）：
@@ -110,7 +119,7 @@ export function useListState<T>(config: ListStateOptions<T>): ListState<T> {
   const options = computed(() =>
     grouped(
       config.items().map((item): ListStateEntry<T> => {
-        const option = config.toOption ? config.toOption(item) : (item as ListboxOption);
+        const option = toListboxOption(item, config.toOption);
         return { ...option, item };
       }),
     ),

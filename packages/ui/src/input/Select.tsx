@@ -1,7 +1,7 @@
 /**
  * 下拉选择（WAI-ARIA 的 select-only combobox）：点触发框弹出选项列表，单选或多选。
  *
- *   <Field label="城市"><Select items={cities} value={_bind(city)} placeholder="选择城市" /></Field>
+ *   <Field label="城市"><Select items={['北京', '上海', '广州']} value={_bind(city)} placeholder="选择城市" /></Field>
  *   <Select items={tags} selectionMode="multiple" value={_bind(picked)} clearable aria-label="标签" />
  *   <Select items={users} toOption={(user) => ({ value: user.id, label: user.name })} value={_bind(id)} />
  *
@@ -44,6 +44,7 @@ import {
   useListState,
   type ListboxOption,
   type OptionMapping,
+  toListboxOption,
 } from './list-state';
 
 /** 角色、展开状态与可用性由组件管理 */
@@ -62,7 +63,7 @@ export type SelectManaged =
 
 /** 下拉选择共有的属性；未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, ControlOptions {
-  /** 数据：ListboxOption，或任意数据加 toOption */
+  /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
@@ -104,7 +105,7 @@ interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, Control
   propsListbox?: Partial<ListboxViewProps<T>>;
 }
 
-/** 单选或多选；items 不是 ListboxOption 时要给 toOption */
+/** 单选或多选；items 不是 ListboxOption 或字符串时要给 toOption */
 export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
 
 /** Select 的样式：root、trigger、value、placeholder、chevronOpen 等 */
@@ -176,7 +177,7 @@ export const Select = _component(
     const multiple = () => selectionMode === 'multiple';
     const list = useListState({
       items: () => items,
-      toOption: (item) => (toOption ? toOption(item) : (item as ListboxOption)),
+      toOption: (item) => toListboxOption(item, toOption),
       selected: () => selectedValues(value),
       mode: () => selectionMode,
       onChange: (next) => (value = multiple() ? [...next] : next[0]),
