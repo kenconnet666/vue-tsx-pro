@@ -19,6 +19,7 @@ import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { CopyButton, type CopyButtonProps } from '../base/CopyButton';
 import { useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { Card, type CardProps } from './Card';
 import { Collapse, type CollapseProps } from './Collapse';
 
@@ -46,8 +47,10 @@ export interface CodePreviewProps extends PartProps<'div'> {
   children?: VNodeChild;
   /** 外框（Card）的部件属性 */
   propsCard?: Partial<CardProps>;
-  /** 效果区的部件属性 */
+  /** 效果区的部件属性（外层，背景、最小高度写在这里） */
   propsPreview?: PartProps<'div'>;
+  /** 效果区里横向滚动的 ScrollArea 的部件属性 */
+  propsPreviewScroll?: Partial<ScrollAreaProps>;
   /** 工具栏的部件属性 */
   propsToolbar?: PartProps<'div'>;
   /** “显示代码”按钮的部件属性 */
@@ -62,14 +65,15 @@ export interface CodePreviewProps extends PartProps<'div'> {
 
 /** CodePreview 的样式：preview、center、footer、toolbar、code */
 export const codePreviewStyles = stylex.create({
-  preview: {
+  // 效果区：给了最小高度时，效果在里面上下居中
+  preview: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
+  // 效果的排布；宽内容（表格）在外面的 ScrollArea 里横向滚动，不撑宽卡片
+  layout: {
     display: 'flex',
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: '_md',
     padding: '_xl',
-    // 效果里的宽内容（表格）在这里横向滚动，不撑宽卡片
-    overflowX: 'auto',
   },
   center: { justifyContent: 'center' },
   // Card 的页脚默认是一行靠右的按钮：这里是工具栏加源码，上下排
@@ -94,6 +98,7 @@ export const CodePreview = _component(
     children,
     propsCard,
     propsPreview,
+    propsPreviewScroll,
     propsToolbar,
     propsToggle,
     propsCopy,
@@ -154,13 +159,20 @@ export const CodePreview = _component(
         }
       >
         <div
-          {...mergeAttrs<'div'>(
-            { sx: [codePreviewStyles.preview, align === 'center' && codePreviewStyles.center] },
-            propsPreview,
-            { role: 'group', 'aria-label': messages.codePreview },
-          )}
+          {...mergeAttrs<'div'>({ sx: codePreviewStyles.preview }, propsPreview, {
+            role: 'group',
+            'aria-label': messages.codePreview,
+          })}
         >
-          {children}
+          <ScrollArea {...mergePartProps<ScrollAreaProps>({ axis: 'x' }, propsPreviewScroll)}>
+            <div
+              {...mergeAttrs<'div'>({
+                sx: [codePreviewStyles.layout, align === 'center' && codePreviewStyles.center],
+              })}
+            >
+              {children}
+            </div>
+          </ScrollArea>
         </div>
       </Card>
     );

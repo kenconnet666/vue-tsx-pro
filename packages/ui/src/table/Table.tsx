@@ -12,13 +12,14 @@
  *   </Table>
  *
  * 外观（密度、样式、斑马纹）与 DataTable 相同，样式表也共用（dataTableStyles）；单元格默认可以换行，列宽按内容分配。
- * 表格比容器宽时在外层横向滚动，不撑宽页面。
+ * 表格比容器宽时在外层横向滚动（ScrollArea：浮层滚动条，不占高度），不撑宽页面。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   dataTableDensityStyles,
   dataTableStyles,
@@ -55,15 +56,15 @@ const standalone: TableState = { density: 'standard', variant: 'surface', stripe
 
 /** 未声明的属性落到 table 上；aria-label 或 TableCaption 是表格的名称 */
 export interface TableProps extends PartProps<'table'>, DataTableOptions {
-  /** 外层（横向滚动的容器）的部件属性 */
-  propsRoot?: PartProps<'div'>;
+  /** 外层（横向滚动的 ScrollArea）的部件属性 */
+  propsRoot?: Partial<ScrollAreaProps>;
   children?: VNodeChild;
 }
 
 /** 静态表格的样式：外层滚动容器、标题、列宽按内容、斑马纹（其余与 DataTable 共用 dataTableStyles） */
 export const tableStyles = stylex.create({
   // contain: inline-size：宽表格不撑宽外层的 grid / flex 容器，放不下的在这里横向滚动
-  root: { minWidth: 0, overflowX: 'auto', contain: 'inline-size' },
+  root: { minWidth: 0, contain: 'inline-size' },
   caption: {
     captionSide: 'top',
     paddingBlock: '_sm',
@@ -97,9 +98,10 @@ export const Table = _component(
       },
     });
     return () => (
-      <div
-        {...mergeAttrs<'div'>(
+      <ScrollArea
+        {...mergePartProps<ScrollAreaProps>(
           {
+            axis: 'x',
             sx: [
               tableStyles.root,
               appearance().variant === 'ghost' ? dataTableStyles.ghost : dataTableStyles.surface,
@@ -122,7 +124,7 @@ export const Table = _component(
         >
           {children}
         </table>
-      </div>
+      </ScrollArea>
     );
   },
 );

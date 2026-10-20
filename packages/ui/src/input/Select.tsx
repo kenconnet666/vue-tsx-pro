@@ -25,6 +25,8 @@ import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { toElement } from '../utils/dom/overlay';
+import { ScrollArea } from '../layout/ScrollArea';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { transitions } from '../utils/style/transitions';
@@ -141,7 +143,7 @@ export const selectStyles = stylex.create({
   // 是真正的文字（不是原生 placeholder），要满足 4.5:1：用 textMuted 而不是 textPlaceholder
   placeholder: { color: '_textMuted' },
   chevronOpen: { rotate: '180deg' },
-  popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
+  popover: { maxWidth: 'calc(100vw - 2em)' },
 });
 
 /** 下拉选择：触发框 + 弹出的选项列表 */
@@ -191,6 +193,8 @@ export const Select = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    // 选项在弹出层里的 ScrollArea 中滚动：虚拟滚动的滚动容器是它的视口
+    let scroller = _state.raw<HTMLElement | null>(null);
 
     function show(highlight: 'default' | 'last' = 'default') {
       list.activateDefault();
@@ -345,6 +349,7 @@ export const Select = _component(
                 sx: [
                   floatingStyles.anchored,
                   floatingStyles.surface,
+                  floatingStyles.scrollPanel,
                   selectStyles.popover,
                   // 弹层不是外壳的后代，不继承它的字号：按同一个 size 设置
                   appearance().size && fontSizeStyles[appearance().size!],
@@ -355,22 +360,28 @@ export const Select = _component(
               { ref: _toRef(panel), popover: 'auto', onToggle },
             )}
           >
-            <ListboxView
-              {...mergePartProps<ListboxViewProps<T>>(
-                { list, id: listId, empty, renderOption: children },
-                propsListbox,
-                {
-                  id: listId,
-                  // 弹出层是滚动容器：选项虚拟滚动
-                  scroller: panel,
-                  loading,
-                  multiple: multiple(),
-                  'aria-labelledby': state.labelledBy,
-                  'aria-label': state.labelledBy ? undefined : rest['aria-label'],
-                  onPick: picked,
-                },
-              )}
-            />
+            <ScrollArea
+              focusable={false}
+              sx={floatingStyles.scrollArea}
+              propsViewport={{ ref: (element: unknown) => (scroller = toElement(element)) }}
+            >
+              <ListboxView
+                {...mergePartProps<ListboxViewProps<T>>(
+                  { list, id: listId, empty, renderOption: children },
+                  propsListbox,
+                  {
+                    id: listId,
+                    // 弹出层里的 ScrollArea 是滚动容器：选项虚拟滚动
+                    scroller,
+                    loading,
+                    multiple: multiple(),
+                    'aria-labelledby': state.labelledBy,
+                    'aria-label': state.labelledBy ? undefined : rest['aria-label'],
+                    onPick: picked,
+                  },
+                )}
+              />
+            </ScrollArea>
           </div>
         </>
       );

@@ -29,7 +29,14 @@ import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { itemStyles } from '../utils/style/item-styles';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import {
+  elementProps,
+  mergeAttrs,
+  mergePartProps,
+  mergeProps,
+  type PartProps,
+} from '../utils/props';
+import { ScrollArea } from '../layout/ScrollArea';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -65,7 +72,7 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   id: string;
   /** 多选：aria-multiselectable */
   multiple?: boolean;
-  /** 滚动容器：Select、Combobox 的弹出层；不给时列表自己滚动（最高 20em，用 sx 改） */
+  /** 滚动容器：Select、Combobox 的弹出层；不给时列表自己滚动（ScrollArea 的浮层滚动条，最高 20em，用 sx 改） */
   scroller?: HTMLElement | null;
   /** 加载中：没有选项时显示骨架行，有选项时顶部显示进度条 */
   loading?: boolean;
@@ -386,34 +393,37 @@ export const ListboxView = _component(
       );
     }
 
-    return () => (
-      <div
-        {...mergeAttrs<'div'>(
-          {
-            sx: [
-              listboxStyles.root,
-              scroller === undefined && listboxStyles.scroll,
-              focusRingStyles.visible,
-            ],
-          },
-          rest,
-          {
-            ref: _toRef(root),
-            id,
-            role: 'listbox',
-            'aria-multiselectable': multiple || undefined,
-            'aria-busy': loading || undefined,
-          },
-        )}
-      >
-        {indicator.value && rows.length > 0 && (
+    return () => {
+      const own = scroller === undefined;
+      // 先不编译 sx：自己滚动时这些属性交给 ScrollArea 的视口，和视口自己的样式一次合并
+      const props = mergeProps<'div'>(
+        { sx: [listboxStyles.root, own && listboxStyles.scroll, focusRingStyles.visible] },
+        rest,
+        {
+          ref: _toRef(root),
+          id,
+          role: 'listbox',
+          'aria-multiselectable': multiple || undefined,
+          'aria-busy': loading || undefined,
+        },
+      );
+      const body = [
+        indicator.value && rows.length > 0 && (
           <div aria-hidden="true" {...stylex.attrs(listboxStyles.progress)}>
             <Progress size="xs" aria-label={lang.loading} />
           </div>
-        )}
-        {renderBody()}
-      </div>
-    );
+        ),
+        renderBody(),
+      ];
+      // 别处滚动（Select、Combobox 的弹出层）：只渲染列表本身
+      if (!own) return <div {...elementProps(props)}>{body}</div>;
+      // 自己滚动：列表元素就是 ScrollArea 的视口，焦点与 aria-activedescendant 仍在它上面，滚动条换成浮层的
+      return (
+        <ScrollArea focusable={false} propsViewport={props as PartProps<'div'>}>
+          {body}
+        </ScrollArea>
+      );
+    };
   },
   { name: 'ListboxView' },
 );

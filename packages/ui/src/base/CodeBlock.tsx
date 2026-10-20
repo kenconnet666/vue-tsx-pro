@@ -6,7 +6,7 @@
  *   <CodeBlock code={source} lang="ts" title="main.ts" lineNumbers highlightLines="2,4-5" maxLines={20} />
  *
  * - 高亮是异步的：先显示纯文本，结果到了再替换；等宽字体下两者排版相同，布局不跳动。
- * - 横向可滚动的代码块要能用键盘滚动，所以 pre 可聚焦（tabindex=0，带焦点环）。
+ * - 长行在 ScrollArea 里横向滚动：浮层滚动条不占高度；滚动区域可聚焦（带焦点环），键盘也能滚动。
  * - 复制按钮（CopyButton）在右上角，有标题时放在标题栏里；复制成功后经 aria-live 播报“已复制”。
  * - 行号、行高亮、新增与删除的行：按行渲染（高亮结果按 <br> 拆行；代码里的 < 都已转义，拆分是安全的）；
  *   都不用时整段写进 innerHTML，不为每行建节点。行号不可选中，复制的是 code 本身。
@@ -18,8 +18,8 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useConfig, useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
 import { disclosureStyles } from '../utils/style/transitions';
+import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
 import { CopyButton, type CopyButtonProps } from './CopyButton';
 import { Icon } from './Icon';
@@ -57,6 +57,8 @@ export interface CodeBlockProps extends PartProps<'pre', 'title'> {
   propsHeader?: PartProps<'div'>;
   /** 复制按钮的部件属性 */
   propsCopy?: Partial<CopyButtonProps>;
+  /** 横向滚动区域（ScrollArea）的部件属性 */
+  propsScroll?: Partial<ScrollAreaProps>;
   /** 展开、收起长代码的按钮的部件属性 */
   propsExpand?: Partial<ButtonBaseProps>;
 }
@@ -117,7 +119,6 @@ export const codeBlockStyles = stylex.create({
     margin: 0,
     paddingBlock: '_md',
     paddingInline: '_lg',
-    overflowX: 'auto',
     color: '_text',
     fontFamily: '_mono',
     // 代码字体的连字（=> 显示成 ⇒）会让照着抄的人看错，一律关掉
@@ -190,6 +191,7 @@ export const CodeBlock = _component(
     propsRoot,
     propsHeader,
     propsCopy,
+    propsScroll,
     propsExpand,
     ...rest
   }: CodeBlockProps) => {
@@ -276,37 +278,37 @@ export const CodeBlock = _component(
             </div>
           )}
           <div {...stylex.attrs(codeBlockStyles.body)}>
-            <pre
-              {...mergeAttrs<'pre'>(
-                {
-                  sx: [
-                    codeBlockStyles.root,
-                    focusRingStyles.visible,
-                    copyable && title == null && codeBlockStyles.withCopy,
-                  ],
-                  tabindex: 0,
-                },
-                rest,
-                {
-                  sx: [
-                    wrap && codeBlockStyles.wrap,
-                    collapsed && [
-                      codeBlockStyles.collapsed,
-                      codeBlockDynamicStyles.maxLines(maxLines!),
+            <ScrollArea axis="x" {...mergePartProps<ScrollAreaProps>({}, propsScroll)}>
+              <pre
+                {...mergeAttrs<'pre'>(
+                  {
+                    sx: [
+                      codeBlockStyles.root,
+                      copyable && title == null && codeBlockStyles.withCopy,
                     ],
-                  ],
-                },
-              )}
-              data-lang={lang}
-            >
-              {byLine ? (
-                <code {...codeProps}>{renderLines()}</code>
-              ) : html == null ? (
-                <code {...codeProps}>{code}</code>
-              ) : (
-                <code {...codeProps} innerHTML={html} />
-              )}
-            </pre>
+                  },
+                  rest,
+                  {
+                    sx: [
+                      wrap && codeBlockStyles.wrap,
+                      collapsed && [
+                        codeBlockStyles.collapsed,
+                        codeBlockDynamicStyles.maxLines(maxLines!),
+                      ],
+                    ],
+                  },
+                )}
+                data-lang={lang}
+              >
+                {byLine ? (
+                  <code {...codeProps}>{renderLines()}</code>
+                ) : html == null ? (
+                  <code {...codeProps}>{code}</code>
+                ) : (
+                  <code {...codeProps} innerHTML={html} />
+                )}
+              </pre>
+            </ScrollArea>
             {copyable && title == null && copyButton(false)}
           </div>
           {collapsible && (

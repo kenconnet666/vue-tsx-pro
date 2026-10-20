@@ -7,6 +7,10 @@
  *   <ScrollArea axis="both" type="always">…</ScrollArea>
  *
  * 滚动条对读屏隐藏（滚动由视口本身承担）；视口可聚焦，键盘照常滚动。
+ * 滚动条本身是 OverlayScrollbar：整页的浮层滚动条（PageScrollbar）也用它。
+ *
+ * 要在外面拿到真正滚动的元素（虚拟滚动、自己控制滚动）时用 propsViewport 的 ref：
+ *   <ScrollArea propsViewport={{ ref: (element) => (scroller = toElement(element)) }}>…</ScrollArea>
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -45,8 +49,13 @@ export interface ScrollAreaProps extends PartProps<'div'> {
   type?: keyof ScrollbarTypes;
   /** 停止滚动、指针离开后多久淡出（毫秒），默认 600 */
   hideDelay?: number;
+  /**
+   * 视口可以用 Tab 聚焦（键盘滚动），默认 true。视口本身另有角色并自己管焦点（列表框、菜单），
+   * 或焦点在别处、由那里控制滚动（命令面板的输入框）时关掉，tabindex 由使用方经 propsViewport 给
+   */
+  focusable?: boolean;
   /** 视口（真正滚动的元素）的部件属性；ref 拿到它可以自己控制滚动 */
-  propsViewport?: PartProps<'div', 'tabindex'>;
+  propsViewport?: PartProps<'div'>;
   /** 内容层（视口里包着 children 的 div）的部件属性 */
   propsContent?: PartProps<'div'>;
   /** 滚动条轨道的部件属性，两个方向都用它（data-axis 区分 x、y） */
@@ -79,7 +88,7 @@ export const scrollAreaStyles = stylex.create({
   wideContent: { display: 'table', minWidth: '_full' },
 });
 
-/** ScrollArea 的样式：track、hidden、y、x、yCorner、xCorner 等 */
+/** OverlayScrollbar 的样式：track、hidden、y、x、yCorner、xCorner、thumb 等 */
 export const scrollAreaBarStyles = stylex.create({
   track: {
     position: 'absolute',
@@ -90,6 +99,10 @@ export const scrollAreaBarStyles = stylex.create({
     transition: 'opacity _durations.md _easings.standard',
   },
   hidden: { opacity: 0, pointerEvents: 'none' },
+  // 整页的滚动条：隐藏时仍接收指针，指针移到窗口边缘就显示出来
+  hiddenReveal: { opacity: 0 },
+  // 整页的滚动条固定在视口一侧，盖在粘性顶栏之上
+  fixed: { position: 'fixed', zIndex: 20 },
   // 粗细：0.5em 的滑块加两侧各 2px 的留白
   y: {
     insetBlock: 0,
@@ -118,29 +131,47 @@ export const scrollAreaBarStyles = stylex.create({
   thumbX: { insetInlineStart: 0, insetBlock: '_borderWidths.sm' },
 });
 
-/** 内部组件：一个方向的滚动条。单独一个组件，滚动、悬停只让它自己重新渲染，不牵动内容 */
-const Scrollbar = _component(
+/** OverlayScrollbar 的属性 */
+export interface OverlayScrollbarProps {
+  /** 方向 */
+  axis: 'x' | 'y';
+  /** 真正滚动的元素；整页滚动时是 document.scrollingElement（滚动事件在 window 上） */
+  viewport: HTMLElement | null;
+  /** 内容：它的尺寸变化时重新计算滑块 */
+  content: HTMLElement | null;
+  /** 指针进入它时显示滚动条（type 为 hover 时）；不给时只看指针是否在滚动条上 */
+  hoverTarget?: HTMLElement | null;
+  /** 什么时候显示，默认 hover */
+  type?: keyof ScrollbarTypes;
+  /** 停止滚动、指针离开后多久淡出（毫秒），默认 600 */
+  hideDelay?: number;
+  /** 两个方向都有滚动条：让出右下角 */
+  corner?: boolean;
+  /** 固定在视口一侧（整页的滚动条）：隐藏时仍接收指针，移到窗口边缘就显示 */
+  fixed?: boolean;
+  /** 轨道的部件属性 */
+  propsScrollbar?: PartProps<'div', 'aria-hidden'>;
+  /** 滑块的部件属性 */
+  propsThumb?: PartProps<'div'>;
+}
+
+/**
+ * 一个方向的浮层滚动条：轨道与滑块，滚动、悬停时出现，停下后淡出；拖动滑块、点击轨道翻页、滚轮转交给视口。
+ * ScrollArea 与 PageScrollbar 都用它。单独一个组件，滚动、悬停只让它自己重新渲染，不牵动内容
+ */
+export const OverlayScrollbar = _component(
   ({
     axis,
-    root,
     viewport,
     content,
-    type,
-    hideDelay,
-    corner,
+    hoverTarget,
+    type = 'hover',
+    hideDelay = 600,
+    corner = false,
+    fixed = false,
     propsScrollbar,
     propsThumb,
-  }: {
-    axis: 'x' | 'y';
-    root: HTMLElement | null;
-    viewport: HTMLElement | null;
-    content: HTMLElement | null;
-    type: keyof ScrollbarTypes;
-    hideDelay: number;
-    corner: boolean;
-    propsScrollbar?: PartProps<'div', 'aria-hidden'>;
-    propsThumb?: PartProps<'div'>;
-  }) => {
+  }: OverlayScrollbarProps) => {
     let track = _state.raw<HTMLElement | null>(null);
     let thumb = _state.raw<HTMLElement | null>(null);
     let overflowing = _state(false);
@@ -180,6 +211,9 @@ const Scrollbar = _component(
       }
     }
 
+    // 整页的滚动条（fixed）不论 type，指针移到它上面都显示
+    const revealsOnHover = () => type === 'hover' || fixed;
+
     function show() {
       active = true;
       scheduleHide();
@@ -187,13 +221,16 @@ const Scrollbar = _component(
     function scheduleHide() {
       clearTimeout(hideTimer);
       hideTimer = setTimeout(() => {
-        if (!dragging && !(type === 'hover' && hovering)) active = false;
+        if (!dragging && !(revealsOnHover() && hovering)) active = false;
       }, hideDelay);
     }
 
     _effect(() => {
-      if (!root || !viewport || !content) return;
+      if (!viewport || !content) return;
       const element = viewport;
+      // 整页滚动时滚动事件发在 window 上；窗口高度变了（不改变内容尺寸）也要重算
+      const scroller = element === document.scrollingElement ? window : element;
+      const hover = hoverTarget ?? track;
       sync();
       const onScroll = () => {
         sync();
@@ -201,19 +238,21 @@ const Scrollbar = _component(
       };
       const onEnter = () => {
         hovering = true;
-        if (type === 'hover') show();
+        if (revealsOnHover()) show();
       };
       const onLeave = () => {
         hovering = false;
         scheduleHide();
       };
-      element.addEventListener('scroll', onScroll, { passive: true });
-      root.addEventListener('pointerenter', onEnter);
-      root.addEventListener('pointerleave', onLeave);
+      scroller.addEventListener('scroll', onScroll, { passive: true });
+      if (scroller === window) window.addEventListener('resize', sync);
+      hover?.addEventListener('pointerenter', onEnter);
+      hover?.addEventListener('pointerleave', onLeave);
       return () => {
-        element.removeEventListener('scroll', onScroll);
-        root.removeEventListener('pointerenter', onEnter);
-        root.removeEventListener('pointerleave', onLeave);
+        scroller.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', sync);
+        hover?.removeEventListener('pointerenter', onEnter);
+        hover?.removeEventListener('pointerleave', onLeave);
         clearTimeout(hideTimer);
       };
     });
@@ -275,13 +314,15 @@ const Scrollbar = _component(
               sx: [
                 scrollAreaBarStyles.track,
                 scrollAreaBarStyles[axis],
+                fixed && scrollAreaBarStyles.fixed,
                 corner &&
                   (axis === 'y' ? scrollAreaBarStyles.yCorner : scrollAreaBarStyles.xCorner),
               ],
             },
             propsScrollbar,
             {
-              sx: !visible && scrollAreaBarStyles.hidden,
+              sx:
+                !visible && (fixed ? scrollAreaBarStyles.hiddenReveal : scrollAreaBarStyles.hidden),
               ref: _toRef(track),
               'aria-hidden': true,
               onPointerdown: pageTo,
@@ -307,7 +348,7 @@ const Scrollbar = _component(
       );
     };
   },
-  { name: 'Scrollbar' },
+  { name: 'OverlayScrollbar' },
 );
 
 /** 滚动区域：原生滚动 + 半透明的浮层滚动条，出现与消失都不占位 */
@@ -316,6 +357,7 @@ export const ScrollArea = _component(
     axis = 'y',
     type = 'hover',
     hideDelay = 600,
+    focusable = true,
     propsViewport,
     propsContent,
     propsScrollbar,
@@ -330,9 +372,9 @@ export const ScrollArea = _component(
     return () => {
       const both = axis === 'both';
       const bar = (barAxis: 'x' | 'y') => (
-        <Scrollbar
+        <OverlayScrollbar
           axis={barAxis}
-          root={root}
+          hoverTarget={root}
           viewport={viewport}
           content={content}
           type={type}
@@ -350,7 +392,7 @@ export const ScrollArea = _component(
                 sx: [focusRingStyles.visible, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
               },
               propsViewport,
-              { ref: _toRef(viewport), tabindex: 0 },
+              { ref: _toRef(viewport), ...(focusable && { tabindex: 0 }) },
             )}
           >
             <div

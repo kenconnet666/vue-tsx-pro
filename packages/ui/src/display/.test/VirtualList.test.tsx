@@ -136,7 +136,9 @@ describe('VirtualList：加载中', () => {
       </>
     ));
     await nextTick();
-    const [blank, refreshing] = [...root.children] as HTMLElement[];
+    // 容器模式下列表元素是 ScrollArea 的视口，外面还有一层
+    const blank = root.querySelector<HTMLElement>('[aria-label="空"]');
+    const refreshing = root.querySelector<HTMLElement>('[aria-label="刷新中"]');
     expect(blank!.getAttribute('aria-busy')).toBe('true');
     expect(blank!.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0);
     expect(refreshing!.querySelector('[role="progressbar"]')).not.toBeNull();

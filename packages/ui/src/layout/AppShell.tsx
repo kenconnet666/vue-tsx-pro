@@ -13,7 +13,8 @@
  * - 64rem 以上显示左侧栏；更窄时收进从起始边滑出的 Drawer，顶栏最前面出现打开它的按钮。
  *   抽屉里点了链接（换页）、或窗口变宽时自动关闭。
  * - 80rem 以上显示右侧栏；更窄时不显示（目录这类辅助内容）。
- * 两侧栏粘在顶栏下面，内容多时各自滚动。顶栏半透明，滚动的正文从下面透出（backdrop-filter）。
+ * 两侧栏粘在顶栏下面，内容多时各自滚动（ScrollArea）。顶栏半透明，滚动的正文从下面透出（backdrop-filter）。
+ * 整页与两侧栏都是浮层滚动条（PageScrollbar、ScrollArea）：不占宽度，滚动时出现。
  *
  * 自带 SkipLink（跳到正文）；顶栏的高度经 layoutVars.stickyOffset 交给里面的标题，锚点跳转后不被顶栏挡住。
  */
@@ -25,6 +26,8 @@ import { useId, watch, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { SkipLink } from '../navigation/SkipLink';
+import { PageScrollbar } from './PageScrollbar';
+import { ScrollArea } from './ScrollArea';
 import { Drawer, type DrawerProps } from '../overlay/Drawer';
 import { useMediaQuery } from '../utils/dom/media-query';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -49,6 +52,8 @@ export interface AppShellProps extends PartProps<'div'> {
   sidebarOpen?: boolean;
   /** 页面最前面的“跳到正文”链接，默认 true */
   skipLink?: boolean;
+  /** 整页用浮层滚动条（PageScrollbar：不占宽度，滚动时出现），默认 true */
+  pageScrollbar?: boolean;
   /** 顶栏（header）的部件属性 */
   propsHeader?: PartProps<'header'>;
   /** 左侧栏（div）的部件属性 */
@@ -117,18 +122,19 @@ export const appShellStyles = stylex.create({
     top: layoutVars.stickyOffset,
     boxSizing: 'border-box',
     height: `calc(100dvh - ${layoutVars.stickyOffset})`,
-    overflowY: 'auto',
-    overscrollBehavior: 'contain',
-    paddingBlock: '_xl',
   },
+  // 侧栏里的滚动区域：浮层滚动条，滚到头不带动页面；内边距放在内容层上，滚动条贴着侧栏边缘
+  railScroll: { height: '_full' },
+  railViewport: { overscrollBehavior: 'contain' },
   sidebar: {
     display: { default: 'none', [WIDE]: 'block' },
-    paddingInline: '_md',
     borderInlineEndWidth: '_xs',
     borderInlineEndStyle: 'solid',
     borderInlineEndColor: '_border',
   },
-  aside: { display: { default: 'none', [WIDER]: 'block' }, paddingInline: '_lg' },
+  sidebarContent: { paddingBlock: '_xl', paddingInline: '_md' },
+  aside: { display: { default: 'none', [WIDER]: 'block' } },
+  asideContent: { paddingBlock: '_xl', paddingInline: '_lg' },
   // 正文由 SkipLink 聚焦（tabindex=-1）：不显示焦点框
   main: { minWidth: 0, paddingBlock: '_xl', paddingInline: '_xl', outlineStyle: 'none' },
 });
@@ -141,6 +147,7 @@ export const AppShell = _component(
     aside,
     sidebarOpen = _bindable(false),
     skipLink = true,
+    pageScrollbar = true,
     propsHeader,
     propsSidebar,
     propsMain,
@@ -170,6 +177,7 @@ export const AppShell = _component(
         )}
       >
         {skipLink && <SkipLink href={`#${mainId}`} />}
+        {pageScrollbar && <PageScrollbar />}
         <header {...mergeAttrs<'header'>({ sx: appShellStyles.header }, propsHeader)}>
           {sidebar != null && (
             <IconButton
@@ -205,7 +213,13 @@ export const AppShell = _component(
                 propsSidebar,
               )}
             >
-              {sidebar}
+              <ScrollArea
+                sx={appShellStyles.railScroll}
+                propsViewport={{ sx: appShellStyles.railViewport }}
+                propsContent={{ sx: appShellStyles.sidebarContent }}
+              >
+                {sidebar}
+              </ScrollArea>
             </div>
           )}
           <main
@@ -223,7 +237,13 @@ export const AppShell = _component(
                 propsAside,
               )}
             >
-              {aside}
+              <ScrollArea
+                sx={appShellStyles.railScroll}
+                propsViewport={{ sx: appShellStyles.railViewport }}
+                propsContent={{ sx: appShellStyles.asideContent }}
+              >
+                {aside}
+              </ScrollArea>
             </aside>
           )}
         </div>

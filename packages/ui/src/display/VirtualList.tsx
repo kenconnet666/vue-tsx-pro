@@ -16,7 +16,14 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import {
+  elementProps,
+  mergeAttrs,
+  mergePartProps,
+  mergeProps,
+  type PartProps,
+} from '../utils/props';
+import { ScrollArea } from '../layout/ScrollArea';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
@@ -85,7 +92,8 @@ const SKELETON_ROWS = 5;
 export const virtualListStyles = stylex.create({
   // 自己调整滚动位置（见 virtualizer.ts），不要浏览器再按锚点调整一次
   root: { overflowAnchor: 'none' },
-  container: { overflow: 'auto', overscrollBehavior: 'contain' },
+  // 容器模式：列表元素是 ScrollArea 的视口（浮层滚动条）
+  container: { overscrollBehavior: 'contain' },
   list: { position: 'relative', overflowAnchor: 'none' },
   item: { position: 'absolute', top: 0, left: 0, overflowAnchor: 'none' },
   itemVertical: { width: '_full' },
@@ -165,25 +173,24 @@ export const VirtualList = _component(
     return () => {
       const isContainer = scroll === 'container';
       const hasItems = items.length > 0;
-      return (
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [
-                virtualListStyles.root,
-                isContainer && [virtualListStyles.container, focusRingStyles.visible],
-              ],
-            },
-            rest,
-            {
-              ref: _toRef(root),
-              role: hasItems ? 'list' : undefined,
-              'aria-busy': loading || undefined,
-              // 容器模式下可以用键盘滚动
-              tabindex: isContainer ? 0 : undefined,
-            },
-          )}
-        >
+      const props = mergeProps<'div'>(
+        {
+          sx: [
+            virtualListStyles.root,
+            isContainer && [virtualListStyles.container, focusRingStyles.visible],
+          ],
+        },
+        rest,
+        {
+          ref: _toRef(root),
+          role: hasItems ? 'list' : undefined,
+          'aria-busy': loading || undefined,
+          // 容器模式下可以用键盘滚动
+          tabindex: isContainer ? 0 : undefined,
+        },
+      );
+      const content = (
+        <>
           {indicator.value && hasItems && (
             <div aria-hidden="true" {...stylex.attrs(virtualListStyles.progress)}>
               <Progress size="xs" aria-label={lang.loading} />
@@ -255,7 +262,19 @@ export const VirtualList = _component(
           ) : (
             empty
           )}
-        </div>
+        </>
+      );
+      // 容器模式：列表元素就是 ScrollArea 的视口，滚动条是浮层的；跟着页面滚动时就是普通的 div
+      return isContainer ? (
+        <ScrollArea
+          axis={horizontal ? 'x' : 'y'}
+          focusable={false}
+          propsViewport={props as PartProps<'div'>}
+        >
+          {content}
+        </ScrollArea>
+      ) : (
+        <div {...elementProps(props)}>{content}</div>
       );
     };
   },

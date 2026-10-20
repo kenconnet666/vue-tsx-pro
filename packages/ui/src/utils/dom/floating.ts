@@ -149,6 +149,19 @@ export const floatingStyles = stylex.create({
   },
   /** 有箭头的浮层：原生 popover 默认 overflow: auto 会把伸出去的箭头裁掉 */
   withArrow: { overflow: 'visible' },
+  /**
+   * 内容会滚动的浮层（选项列表、菜单）：打开时是竖向 flex、裁掉溢出，里面放 ScrollArea（scrollArea）撑满，
+   * 滚动条是浮层的；关闭时仍由浏览器隐藏（只在 :popover-open 时改 display）
+   */
+  scrollPanel: {
+    display: { default: null, ':popover-open': 'flex' },
+    flexDirection: 'column',
+    overflow: 'hidden',
+    // 去掉原生 popover 默认的 0.25em 内边距：滚动条贴着浮层边缘，内边距由里面的内容层给
+    padding: 0,
+  },
+  /** scrollPanel 里的 ScrollArea：占满剩下的高度（最大高度由 anchorFloating 的 fitHeight 写在浮层上） */
+  scrollArea: { flexGrow: 1, minHeight: 0 },
 });
 
 /** 与视口边缘至少留出的距离（px） */

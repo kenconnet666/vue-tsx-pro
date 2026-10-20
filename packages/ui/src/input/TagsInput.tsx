@@ -20,6 +20,8 @@ import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { createMatcher } from '../utils/data/collation';
 import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { toElement } from '../utils/dom/overlay';
+import { ScrollArea } from '../layout/ScrollArea';
 import { useLayoutAnimation } from '../utils/motion/layout';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
@@ -117,7 +119,7 @@ export const tagsInputStyles = stylex.create({
   root: { flexWrap: 'wrap', rowGap: '_xs', paddingBlock: '_xs' },
   // 输入框至少留出几个字的位置，放不下时换到下一行
   input: { flexBasis: '6em' },
-  popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
+  popover: { maxWidth: 'calc(100vw - 2em)' },
 });
 
 /** 默认的分隔符：英文、中文的逗号与分号 */
@@ -161,6 +163,8 @@ export const TagsInput = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    // 选项在弹出层里的 ScrollArea 中滚动：虚拟滚动的滚动容器是它的视口
+    let scroller = _state.raw<HTMLElement | null>(null);
     // 标签增删时其余的平移补位
     const layout = useLayoutAnimation(() => shell, { children: '[data-tag]' });
 
@@ -356,6 +360,7 @@ export const TagsInput = _component(
                   sx: [
                     floatingStyles.anchored,
                     floatingStyles.surface,
+                    floatingStyles.scrollPanel,
                     tagsInputStyles.popover,
                     appearance().size && fontSizeStyles[appearance().size!],
                     transitions.scale,
@@ -365,23 +370,29 @@ export const TagsInput = _component(
                 { ref: _toRef(panel), popover: 'auto', onToggle },
               )}
             >
-              <ListboxView
-                {...mergePartProps<ListboxViewProps<T>>(
-                  { list, id: listId, multiple: true, renderOption: children },
-                  propsListbox,
-                  {
-                    id: listId,
-                    scroller: panel,
-                    loading,
-                    'aria-labelledby': state.labelledBy,
-                    'aria-label': state.labelledBy ? undefined : rest['aria-label'],
-                    onPick: () => {
-                      inputValue = '';
-                      input?.focus();
+              <ScrollArea
+                focusable={false}
+                sx={floatingStyles.scrollArea}
+                propsViewport={{ ref: (element: unknown) => (scroller = toElement(element)) }}
+              >
+                <ListboxView
+                  {...mergePartProps<ListboxViewProps<T>>(
+                    { list, id: listId, multiple: true, renderOption: children },
+                    propsListbox,
+                    {
+                      id: listId,
+                      scroller,
+                      loading,
+                      'aria-labelledby': state.labelledBy,
+                      'aria-label': state.labelledBy ? undefined : rest['aria-label'],
+                      onPick: () => {
+                        inputValue = '';
+                        input?.focus();
+                      },
                     },
-                  },
-                )}
-              />
+                  )}
+                />
+              </ScrollArea>
             </div>
           )}
         </>

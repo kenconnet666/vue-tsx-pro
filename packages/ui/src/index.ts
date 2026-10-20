@@ -153,11 +153,18 @@ export {
   type GridOptions,
   type GridProps,
 } from './layout/Grid';
+export {
+  PageScrollbar,
+  pageScrollbarStyles,
+  type PageScrollbarProps,
+} from './layout/PageScrollbar';
 export { Prose, proseStyles, type ProseProps } from './layout/Prose';
 export {
+  OverlayScrollbar,
   ScrollArea,
   scrollAreaBarStyles,
   scrollAreaStyles,
+  type OverlayScrollbarProps,
   type ScrollAreaAxes,
   type ScrollAreaProps,
   type ScrollbarTypes,

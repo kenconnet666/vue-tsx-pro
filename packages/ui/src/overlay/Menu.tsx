@@ -38,6 +38,7 @@ import {
   type FloatingPlacement,
 } from '../utils/dom/floating';
 import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
+import { ScrollArea } from '../layout/ScrollArea';
 import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
@@ -125,15 +126,15 @@ function menuItemsOf(panel: HTMLElement | null): HTMLElement[] {
   );
 }
 
-/** Menu 的样式：panel、label、indicator、hidden、shortcut、groupLabel */
+/** Menu 的样式：panel、content、label、indicator、hidden、shortcut、groupLabel */
 export const menuStyles = stylex.create({
+  // 菜单项多时在 ScrollArea 里滚动（浮层滚动条）；内边距放在内容层上，滚动条贴着菜单边缘
   panel: {
     minWidth: '12em',
     maxWidth: 'calc(100vw - 2em)',
-    padding: '_xs',
-    overflowY: 'auto',
     lineHeight: '_normal',
   },
+  content: { padding: '_xs' },
   label: { flexGrow: 1, minWidth: 0 },
   // 复选、单选的标记占一列，有没有勾都对齐
   indicator: { flexShrink: 0, width: '1em' },
@@ -245,6 +246,7 @@ export const Menu = _component(
               sx: [
                 floatingStyles.anchored,
                 floatingStyles.surface,
+                floatingStyles.scrollPanel,
                 menuStyles.panel,
                 size && fontSizeStyles[size],
                 transitions.scale,
@@ -264,7 +266,13 @@ export const Menu = _component(
           )}
           data-state={open ? 'open' : 'closed'}
         >
-          {(showContent() || hasShortcut(children)) && children}
+          <ScrollArea
+            focusable={false}
+            sx={floatingStyles.scrollArea}
+            propsContent={{ sx: menuStyles.content }}
+          >
+            {(showContent() || hasShortcut(children)) && children}
+          </ScrollArea>
         </div>
       </>
     );
@@ -841,6 +849,7 @@ export const MenuSub = _component(
               sx: [
                 floatingStyles.anchored,
                 floatingStyles.surface,
+                floatingStyles.scrollPanel,
                 menuStyles.panel,
                 transitions.scale,
               ],
@@ -859,7 +868,13 @@ export const MenuSub = _component(
           )}
           data-state={open ? 'open' : 'closed'}
         >
-          {children}
+          <ScrollArea
+            focusable={false}
+            sx={floatingStyles.scrollArea}
+            propsContent={{ sx: menuStyles.content }}
+          >
+            {children}
+          </ScrollArea>
         </div>
       </>
     );

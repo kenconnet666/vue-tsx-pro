@@ -43,7 +43,8 @@ import {
   type TreeAccessors,
 } from '../utils/data/tree';
 import { createTypeahead } from '../utils/dom/typeahead';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
+import { ScrollArea } from '../layout/ScrollArea';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -107,9 +108,9 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
 
 /** Tree 的样式：root、sizer、row、item、toggle、checkbox、label 等 */
 export const treeStyles = stylex.create({
+  // 树元素就是 ScrollArea 的视口（浮层滚动条）；焦点与 aria-activedescendant 在它上面
   root: {
     position: 'relative',
-    overflowY: 'auto',
     overscrollBehavior: 'contain',
     padding: '_xs',
     outlineStyle: 'none',
@@ -444,18 +445,21 @@ export const Tree = _component(
     return () => {
       const position = activeRow();
       return (
-        <div
-          {...mergeAttrs<'div'>({ sx: [treeStyles.root, focusRingStyles.visible] }, rest, {
-            ref: _toRef(root),
-            id: prefix(),
-            role: 'tree',
-            tabindex: rows.length > 0 ? 0 : -1,
-            'aria-multiselectable': selectionMode === 'multiple' || undefined,
-            'aria-activedescendant': position >= 0 ? `${prefix()}-${position}` : undefined,
-            onFocus,
-            onBlur: () => (focused = false),
-            onKeydown,
-          })}
+        <ScrollArea
+          focusable={false}
+          propsViewport={
+            mergeProps<'div'>({ sx: [treeStyles.root, focusRingStyles.visible] }, rest, {
+              ref: _toRef(root),
+              id: prefix(),
+              role: 'tree',
+              tabindex: rows.length > 0 ? 0 : -1,
+              'aria-multiselectable': selectionMode === 'multiple' || undefined,
+              'aria-activedescendant': position >= 0 ? `${prefix()}-${position}` : undefined,
+              onFocus,
+              onBlur: () => (focused = false),
+              onKeydown,
+            }) as PartProps<'div'>
+          }
         >
           <div
             ref={_toRef(sizer)}
@@ -474,7 +478,7 @@ export const Tree = _component(
               </div>
             ))}
           </div>
-        </div>
+        </ScrollArea>
       );
     };
   },

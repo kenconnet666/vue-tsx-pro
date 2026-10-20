@@ -188,3 +188,47 @@ it('色块：token 的取值按当前主题读出，换主题时跟着变', asyn
   await expect.poll(value).not.toBe(light);
   expect(value()).toMatch(/^#/);
 });
+
+it('整页浮层滚动条：隐藏原生滚动条，滚动时出现、滑块跟着位置走，拖动能滚动页面；卸载后恢复', async () => {
+  await page.viewport(1280, 800);
+  render(docsPage(() => []));
+  const html = document.documentElement;
+  expect(getComputedStyle(html).scrollbarWidth).toBe('none');
+  const track = () =>
+    [...document.body.querySelectorAll<HTMLElement>('[data-axis="y"]')].find(
+      (element) => getComputedStyle(element).position === 'fixed',
+    )!;
+  const thumb = () => track().firstElementChild as HTMLElement;
+  expect(track().getAttribute('aria-hidden')).toBe('true');
+  expect(track().dataset.state).toBe('hidden');
+
+  window.scrollTo(0, html.scrollHeight / 2);
+  await expect.poll(() => track().dataset.state).toBe('visible');
+  await expect
+    .poll(() => new DOMMatrix(getComputedStyle(thumb()).transform).m42)
+    .toBeGreaterThan(0);
+
+  // 拖动滑块往回拉：页面跟着往上滚（移动事件发在滑块上：startMove 用指针捕获，跟着它走）
+  const before = html.scrollTop;
+  const box = thumb().getBoundingClientRect();
+  const x = box.left + box.width / 2;
+  const y = box.top + box.height / 2;
+  const init = (clientY: number) => ({
+    clientX: x,
+    clientY,
+    pointerId: 1,
+    pointerType: 'mouse',
+    button: 0,
+    buttons: 1,
+    bubbles: true,
+    cancelable: true,
+  });
+  thumb().dispatchEvent(new PointerEvent('pointerdown', init(y)));
+  thumb().dispatchEvent(new PointerEvent('pointermove', init(y - 100)));
+  thumb().dispatchEvent(new PointerEvent('pointerup', init(y - 100)));
+  await expect.poll(() => html.scrollTop).toBeLessThan(before);
+
+  app!.unmount();
+  app = undefined;
+  expect(getComputedStyle(html).scrollbarWidth).not.toBe('none');
+});

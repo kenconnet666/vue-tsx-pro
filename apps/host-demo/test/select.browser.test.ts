@@ -26,7 +26,9 @@ afterEach(() => {
 const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
   root.querySelector<T>(selector)!;
 const popoverOf = (control: Element) =>
-  document.getElementById(control.getAttribute('aria-controls')!)!.parentElement!;
+  document
+    .getElementById(control.getAttribute('aria-controls')!)!
+    .closest<HTMLElement>('[popover]')!;
 const activeText = (control: Element) =>
   document.getElementById(control.getAttribute('aria-activedescendant') ?? '')?.textContent;
 

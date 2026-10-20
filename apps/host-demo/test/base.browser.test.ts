@@ -270,11 +270,14 @@ describe('代码块：CodeBlock + Shiki', () => {
     expect(code().querySelectorAll('br')).toHaveLength(3);
   });
 
-  it('没给语言时是纯文本；pre 可以用键盘聚焦（横向滚动）并显示焦点环', async () => {
+  it('没给语言时是纯文本；外面的滚动区域可以用键盘聚焦（横向滚动）并显示焦点环', async () => {
     const pre = $('.codeblock-plain');
     expect(pre.querySelector('span')).toBeNull();
-    pre.focus();
-    expect(document.activeElement).toBe(pre);
+    // 长行在 ScrollArea 里横向滚动：可聚焦的是它的视口
+    const viewport = pre.closest<HTMLElement>('[tabindex="0"]')!;
+    viewport.focus();
+    expect(document.activeElement).toBe(viewport);
+    expect(getComputedStyle(viewport).overflowX).toBe('auto');
   });
 });
 
