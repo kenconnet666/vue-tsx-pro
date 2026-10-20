@@ -27,8 +27,12 @@ export default _component(() => () => (
       <Example id="basic" title="基础用法" demo={Basic}>
         值是 ISO 日期字符串（<Code>'2026-10-20'</Code>），和原生日期输入框、URL 参数、zod 的{' '}
         <Code>z.iso.date()</Code> 一致；<Code>todayIso</Code>、<Code>shiftIsoDate</Code>、
-        <Code>daysBetween</Code> 直接在这种字符串上算，<Code>useFormat().date</Code> 也直接收它。
-        <Code>min</Code> 之前的日子不能选，翻页按钮到头不可用。
+        <Code>daysBetween</Code> 直接在这种字符串上算，<Code>useFormat().date</Code> 也直接收它。 用
+        @internationalized/date 的话，<Code>value</Code>、<Code>min</Code>、<Code>max</Code>{' '}
+        也可以传
+        CalendarDate、CalendarDateTime、ZonedDateTime，写回时保持同一种类型（时间、时区不丢），一开始为空时用{' '}
+        <Code>valueType="dateValue"</Code> 指定。<Code>min</Code>{' '}
+        之前的日子不能选，翻页按钮到头不可用。
       </Example>
       <Example id="unavailable" title="不可选的日期" demo={Unavailable}>
         <Code>isDateUnavailable</Code>{' '}

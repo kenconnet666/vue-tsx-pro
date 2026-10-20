@@ -65,7 +65,7 @@ export interface SegmentedFieldOptions
   /** 前置图标的部件属性 */
   propsIcon?: Partial<IconProps>;
   /** 清空按钮的部件属性 */
-  propsClear?: Partial<PresetIconButtonProps>;
+  propsClear?: Omit<Partial<PresetIconButtonProps>, 'onClick'>;
 }
 
 /** 未声明的属性落到这组分段上 */

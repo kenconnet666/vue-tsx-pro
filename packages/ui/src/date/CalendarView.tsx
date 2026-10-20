@@ -65,24 +65,24 @@ export interface CalendarViewOptions {
   /** 页头的部件属性 */
   propsHeader?: PartProps<'div'>;
   /** 上一页按钮的部件属性 */
-  propsPrevious?: Partial<IconButtonProps>;
+  propsPrevious?: Omit<Partial<IconButtonProps>, 'disabled' | 'onClick'>;
   /** 下一页按钮的部件属性 */
-  propsNext?: Partial<IconButtonProps>;
+  propsNext?: Omit<Partial<IconButtonProps>, 'disabled' | 'onClick'>;
   /** 标题按钮的部件属性 */
-  propsHeading?: PartProps<'button', 'type' | 'disabled'>;
+  propsHeading?: PartProps<'button', 'type' | 'aria-label'>;
   /** 并排月份那一层的部件属性 */
   propsMonths?: PartProps<'div'>;
   /** 每张网格（table）的部件属性 */
-  propsGrid?: PartProps<'table', 'role' | 'aria-multiselectable'>;
+  propsGrid?: PartProps<'table', 'role' | 'aria-label' | 'aria-multiselectable'>;
   /** 星期表头的部件属性 */
   propsWeekday?: PartProps<'th', 'scope'>;
   /** 周数的部件属性 */
-  propsWeekNumber?: PartProps<'th', 'scope'>;
+  propsWeekNumber?: PartProps<'th', 'scope' | 'aria-label'>;
   /** 每格（td）的部件属性 */
   propsCell?: CalendarItemProps<PartProps<'td', 'role' | 'aria-selected' | 'aria-disabled'>>;
   /** 每格里按钮的部件属性 */
   propsCellButton?: CalendarItemProps<
-    PartProps<'button', 'type' | 'tabindex' | 'disabled' | 'aria-disabled'>
+    PartProps<'button', 'type' | 'tabindex' | 'disabled' | 'aria-label' | 'aria-disabled'>
   >;
   /** 页脚的部件属性 */
   propsFooter?: PartProps<'div'>;
@@ -307,11 +307,12 @@ export const CalendarView = _component(
                   marked && calendarStyles.selected,
                   off && calendarStyles.disabled,
                 ],
-                'aria-label': state.today ? texts().calendarToday(label) : label,
                 'aria-describedby': calendar.anchor ? hintId : undefined,
               },
               resolve(propsCellButton, iso, state),
               {
+                // 每格的名称各不相同（完整日期），由组件管理：写成固定值会让每一格同名
+                'aria-label': state.today ? texts().calendarToday(label) : label,
                 type: 'button',
                 tabindex: state.focused && !state.outside ? 0 : -1,
                 'aria-disabled': off || undefined,
@@ -343,10 +344,10 @@ export const CalendarView = _component(
       mergeAttrs<'table'>(
         {
           sx: [calendarStyles.grid, calendar.view !== 'day' && calendarStyles.periodGrid],
-          'aria-label': label,
         },
         propsGrid,
         {
+          'aria-label': label,
           role: 'grid',
           'aria-multiselectable': calendar.mode !== 'single' || undefined,
           onKeydown,
@@ -398,14 +399,10 @@ export const CalendarView = _component(
               <tr key={week[0]!.toString()}>
                 {showWeekNumbers && (
                   <th
-                    {...mergeAttrs<'th'>(
-                      {
-                        sx: calendarStyles.weekNumber,
-                        'aria-label': texts().calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
-                      },
-                      propsWeekNumber,
-                      { scope: 'row' },
-                    )}
+                    {...mergeAttrs<'th'>({ sx: calendarStyles.weekNumber }, propsWeekNumber, {
+                      'aria-label': texts().calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
+                      scope: 'row',
+                    })}
                   >
                     {weekOfYear(week[0]!, locale.week)}
                   </th>
@@ -519,10 +516,16 @@ export const CalendarView = _component(
                               calendarStyles.heading,
                               focusRingStyles.visible,
                             ],
-                            'aria-label': `${coarser === 'month' ? t.calendarChooseMonth : t.calendarChooseYear}：${label}`,
                           },
                           propsHeading,
-                          { type: 'button', onClick: () => calendar.setView(coarser) },
+                          {
+                            'aria-label':
+                              coarser === 'month'
+                                ? t.calendarChooseMonth(label)
+                                : t.calendarChooseYear(label),
+                            type: 'button',
+                            onClick: () => calendar.setView(coarser),
+                          },
                         )}
                       >
                         {label}

@@ -700,7 +700,12 @@ export {
   type SegmentedFieldOptions,
   type SegmentedFieldProps,
 } from './date/SegmentedField';
-export { TimeField, type TimeFieldGranularities, type TimeFieldProps } from './date/TimeField';
+export {
+  TimeField,
+  type TimeFieldGranularities,
+  type TimeFieldProps,
+  type TimeInput,
+} from './date/TimeField';
 export {
   handleCalendarKeydown,
   useCalendarState,
@@ -713,9 +718,12 @@ export {
 export {
   toDateLimits,
   useDateLocale,
+  writeDateLike,
+  type DateInput,
   type DateLimitProps,
   type DateLocale,
   type DateLocaleOverrides,
+  type DateValueTypes,
 } from './date/date-locale';
 export {
   fieldsToIso,
