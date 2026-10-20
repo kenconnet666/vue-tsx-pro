@@ -1,9 +1,10 @@
-// 效果：外层结构（画布在底层、内容在上层）、降级、着色器背景的 uniform 与色板、粒子数、重建时机、彩纸的放与收尾
+// 效果：外层结构（画布在底层、内容在上层）、降级、着色器背景的 uniform 与色板、粒子数、重建时机、彩纸的放与收尾、地球的图层
 import {
   InstancedMesh,
   LineSegments,
   Points,
   ShaderMaterial,
+  Vector3,
   type Mesh,
   type Object3D,
 } from 'three';
@@ -16,6 +17,7 @@ import { ShaderBackground } from '../background/ShaderBackground';
 import { THEME_PALETTE_SIZE } from '../core/shaders';
 import { Confetti } from '../effects/Confetti';
 import { ParticleField } from '../effects/ParticleField';
+import { Globe, latLngToVector } from '../globe/Globe';
 import { WaveGrid } from '../effects/WaveGrid';
 import { FakeRenderer, frame, resetFakeWebGL, setIntersecting } from './fake-webgl';
 
@@ -204,5 +206,39 @@ describe('Confetti', () => {
     await nextTick();
     expect(done).toHaveBeenCalledTimes(1);
     expect(root.querySelector('[data-state]')).toBeNull();
+  });
+});
+
+describe('Globe', () => {
+  it('经纬度换成球面上的点：经度 0 朝向相机，北极朝上', () => {
+    const point = latLngToVector(0, 0);
+    expect([point.x, point.y, point.z].map((value) => Math.round(value * 1000) / 1000)).toEqual([
+      0, 0, 1,
+    ]);
+    expect(latLngToVector(90, 0).y).toBeCloseTo(1);
+    expect(latLngToVector(0, 90).x).toBeCloseTo(1);
+  });
+
+  it('陆地画成点，标注与弧线各一层，外加大气光晕；点只落在陆地上', async () => {
+    const { objects } = await render(() => (
+      <Globe
+        markers={[{ lat: 31.23, lng: 121.47 }]}
+        arcs={[{ from: [31.23, 121.47], to: [37.77, -122.42] }]}
+      />
+    ));
+    const [globe, glow] = objects;
+    const layers = globe!.children;
+    const land = layers[0] as Points;
+    expect(land.geometry.attributes.position!.count).toBeGreaterThan(3000);
+    expect(layers.some((layer) => layer instanceof LineSegments)).toBe(true);
+    expect(glow).toBeDefined();
+    // 陆地点都离球心一个半径
+    const first = new Vector3().fromBufferAttribute(land.geometry.attributes.position!, 0);
+    expect(first.length()).toBeCloseTo(1);
+  });
+
+  it('不要光晕时没有那一层', async () => {
+    const { objects } = await render(() => <Globe glow={false} />);
+    expect(objects).toHaveLength(1);
   });
 });

@@ -61,6 +61,15 @@ export {
 } from './effects/Confetti';
 export { PARTICLE_PALETTE, ParticleField, type ParticleFieldProps } from './effects/ParticleField';
 export {
+  Globe,
+  globeStyles,
+  latLngToVector,
+  type GeoPoint,
+  type GlobeArc,
+  type GlobeMarker,
+  type GlobeProps,
+} from './globe/Globe';
+export {
   WAVE_GRID_PALETTE,
   WaveGrid,
   type WaveGridProps,
