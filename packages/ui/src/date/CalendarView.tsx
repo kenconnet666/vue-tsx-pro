@@ -91,6 +91,9 @@ export interface CalendarViewOptions {
   propsFooter?: PartProps<'div'>;
 }
 
+/** data-* 属性：部件属性的对象字面量不收 data-* 键，写成这样再展开进受管层 */
+const dataAttrs = (attrs: Record<`data-${string}`, string | boolean | undefined>) => attrs;
+
 /** 未声明的属性落到根元素上（aria-label 等） */
 export interface CalendarViewProps
   extends PartProps<'div', CalendarViewManaged>, CalendarViewOptions {
@@ -296,7 +299,7 @@ export const CalendarView = _component(
               role: 'gridcell',
               'aria-selected': state.selected,
               'aria-disabled': off || undefined,
-              'data-in-range': state.inRange || undefined,
+              ...dataAttrs({ 'data-in-range': state.inRange || undefined }),
             },
           )}
         >
@@ -332,13 +335,15 @@ export const CalendarView = _component(
                 },
                 onPointerenter: () => calendar.hover(date),
                 // 写在受管层而不是 JSX 上：元素上只有一处展开，不用再经 Vue 的 mergeProps（每页几百格）
-                'data-date': iso,
-                'data-focused': (state.focused && !state.outside) || undefined,
-                'data-selected': state.selected || undefined,
-                'data-today': state.today || undefined,
-                'data-outside': state.outside || undefined,
-                'data-unavailable': state.unavailable || undefined,
-                'data-disabled': off || undefined,
+                ...dataAttrs({
+                  'data-date': iso,
+                  'data-focused': (state.focused && !state.outside) || undefined,
+                  'data-selected': state.selected || undefined,
+                  'data-today': state.today || undefined,
+                  'data-outside': state.outside || undefined,
+                  'data-unavailable': state.unavailable || undefined,
+                  'data-disabled': off || undefined,
+                }),
               },
             )}
           >
