@@ -29,7 +29,7 @@
 - **反馈**：[x] Alert · [x] 加载与进度（Spinner、Progress、LoadingOverlay）· [x] Empty 与 Result · [x] Toast（Toaster）· [x] Skeleton（SkeletonText）
 - **浮层**：[x] Dialog（AlertDialog、Drawer）· [x] Popover（HoverCard、Tooltip）· [x] Menu（全部菜单项、ContextMenu）· [x] CommandPalette · [x] Tour
 - **导航**：[x] Tabs · [x] Pagination（PageJump、PageSizeSelect、Pager）· [x] Breadcrumbs 与 Steps · [x] NavList（NavItem、NavGroup、NavSection、TableOfContents、SkipLink）· [x] Toolbar
-- **输入**：[x] NumberField · [x] TextField（Textarea、CharacterCount）· [x] Checkbox、Radio 与 Switch · [x] Select（Combobox、TagsInput、Listbox）· [ ] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
+- **输入**：[x] NumberField · [x] TextField（Textarea、CharacterCount）· [x] Checkbox、Radio 与 Switch · [x] Select（Combobox、TagsInput、Listbox）· [x] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
 - **日期**：CalendarView、DateSegmentGroup、SegmentedField 是内部部件，在 Calendar / DateField 页说明
 - **表单**：[ ] Form（Field、Label、FormValue、useForm、decimalSchema、bigintSchema）
 - **表格**：[ ] Table（全部子部件）· [ ] DataTable（DataTableView、DataTableRow、ColumnResizer、TreeDataTable）
@@ -42,7 +42,7 @@
 - [x] NumericValue 基础（numeric.ts）、表单提交十进制文本（FormValue）、zod 的 decimalSchema / bigintSchema
 - [x] NumberField（valueType、精确运算）、AnimatedNumber、Stat、Progress
 - [x] 日期组件接受 ISO 字符串与 DateValue，写回保持类型
-- [ ] Slider：value、min、max、step 接受 NumericValue
+- [x] Slider：不接 NumericValue（拖出来的值用 number 足够，snapToStep 已处理浮点误差；精确小数、超大整数的输入用 NumberField）
 - [ ] DataTable：单元格按值类型格式化与排序（collation 已支持）
 - [ ] 图表：系列的值接受 NumericValue
 
