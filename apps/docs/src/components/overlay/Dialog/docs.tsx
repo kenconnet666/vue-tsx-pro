@@ -30,8 +30,7 @@ export default _component(() => () => (
         <Code>open</Code> 双向绑定；<Code>title</Code> 与 <Code>description</Code>{' '}
         是对话框的无障碍名称与描述，
         <Code>footer</Code> 里的按钮靠结束边排。打开时焦点落在 autofocus
-        的元素上（没有就是第一个可聚焦的），关闭后回到打开它的按钮。
-        Esc、点遮罩、右上角的关闭按钮都能关。
+        的元素上（没有就是第一个可聚焦的），关闭后回到打开它的按钮。Esc、点遮罩、右上角的关闭按钮都能关。
       </Example>
       <Example id="alert-dialog" title="确认操作" demo={Confirm}>
         AlertDialog 用于不可撤销的操作：role="alertdialog"，焦点先落在取消上，点遮罩不关闭。

@@ -45,8 +45,9 @@ export default _component(() => () => (
         <Code>info</Code>、<Code>success</Code>、<Code>warning</Code> 用于和提示信息呼应的操作。
       </Example>
       <Example id="sizes" title="尺寸" demo={Sizes}>
-        <Code>size</Code> 对应主题的字号档位，内边距、图标随之按比例缩放；不写时继承所在文字的字号。
-        IconButton 同样适用。
+        <Code>size</Code>{' '}
+        对应主题的字号档位，内边距、图标随之按比例缩放；不写时继承所在文字的字号。IconButton
+        同样适用。
       </Example>
       <Example id="radius" title="圆角" demo={Radius}>
         <Code>radius</Code> 从直角到胶囊形；图标按钮写 <Code>full</Code> 是圆形。整个应用统一改用{' '}

@@ -67,8 +67,12 @@ const files = execFileSync(
 /** 中文字符与全角标点 */
 const CJK = /[　-〿一-鿿＀-￯“”]/;
 
+/** 中文标点：其后换行接着文字（“date、↵dateTime”）也会渲染出空格 */
+const CJK_PUNCTUATION = /[、。，；：！？）]/;
+
 /**
- * TSX 里跨行的中文文本：上一行以中文结尾、下一行以中文开头，且两行都不是标签、表达式、注释或字符串的边界。
+ * TSX 里跨行的中文文本：上一行以中文结尾、下一行以中文开头，或上一行以中文标点结尾、下一行接着文字
+ * （不是标签与表达式：JSX 去掉文字与标签之间带换行的空白），且上一行不是注释。
  * 只是启发式：多行字符串、模板里也可能命中，那里同样会多出换行，一并改成一行
  */
 function cjkLineBreaks(lines) {
@@ -77,7 +81,9 @@ function cjkLineBreaks(lines) {
     const before = lines[index - 1].trimEnd();
     const after = lines[index].trimStart();
     if (!before || !after || /^\s*(\/\/|\/?\*)/.test(lines[index - 1])) continue;
-    if (!CJK.test(before.at(-1)) || !CJK.test(after[0])) continue;
+    const last = before.at(-1);
+    const textAfterPunctuation = CJK_PUNCTUATION.test(last) && /^[^<{}()/*]/.test(after);
+    if (!(CJK.test(last) && CJK.test(after[0])) && !textAfterPunctuation) continue;
     found.push(index + 1);
   }
   return found;
