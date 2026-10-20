@@ -87,6 +87,7 @@ export default defineConfig({
   test: {
     name: 'docs',
     environment: 'happy-dom',
+    setupFiles: ['./src/test/setup.ts'],
     // 真实浏览器里的测试见 vitest.browser.config.ts
     exclude: [...configDefaults.exclude, '**/*.browser.test.{ts,tsx}'],
   },

@@ -51,6 +51,15 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium firefox webkit
       - run: pnpm test:browser
+      # 偶发失败只在 CI 上出现时，靠失败截图判断是谁挡住了点击、停在了哪一步
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: failure-screenshots-${{ matrix.os }}
+          path: '**/.vitest/attachments/failure-screenshots/'
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
 
   build:
     strategy:
