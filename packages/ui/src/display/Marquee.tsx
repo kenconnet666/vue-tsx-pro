@@ -15,7 +15,8 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
+import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { gapStyles, type Space, type StyleTable } from '../utils/style/styles';
 
@@ -144,17 +145,12 @@ export const Marquee = _component(
     let length = _state(0);
     const vertical = () => direction === 'up' || direction === 'down';
 
-    let observer: ResizeObserver | undefined;
-    _effect(() => {
-      observer?.disconnect();
-      if (!group || typeof ResizeObserver === 'undefined') return;
-      const element = group;
-      observer = new ResizeObserver(() => {
-        length = vertical() ? element.offsetHeight : element.offsetWidth;
-      });
-      observer.observe(element);
-    });
-    onBeforeUnmount(() => observer?.disconnect());
+    useResizeObserver(
+      () => group,
+      () => {
+        if (group) length = vertical() ? group.offsetHeight : group.offsetWidth;
+      },
+    );
 
     const renderGroup = (copy: boolean) => (
       <div

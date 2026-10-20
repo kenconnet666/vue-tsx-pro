@@ -20,7 +20,7 @@
 import { set } from 'animejs';
 import { nextTick, onBeforeUnmount, shallowRef, useId } from 'vue';
 import { useLang } from '../../config/context';
-import { isRtl } from '../data/layout';
+import { isRtl } from './direction';
 import { useAnimate } from '../motion/animation';
 import { useLayoutAnimation } from '../motion/layout';
 import { startMove } from './move';

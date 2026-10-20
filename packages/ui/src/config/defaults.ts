@@ -7,6 +7,7 @@
  *
  * 只收外观类的选项（样式、尺寸、色调）；行为类的（disabled、loading）每处单独决定。
  */
+import { computed } from 'vue';
 import { useConfig } from './context';
 import type { BadgeOptions } from '../base/badge-styles';
 import type { AlertOptions } from '../feedback/Alert';
@@ -79,12 +80,14 @@ export function useDefaults<
   const Fallback extends { [K in keyof Own]?: Exclude<Own[K], undefined> } = {},
 >(name: Name, read: () => Own, fallback?: Fallback): () => ResolvedDefaults<Own, Fallback> {
   const config = useConfig();
-  return () => {
+  // 缓存合并结果：prop 或配置变了才重新合并，渲染里多次读取都是同一个对象
+  const resolved = computed(() => {
     const own = read() as Record<string, unknown>;
     const provided = (config.defaults[name] ?? {}) as Record<string, unknown>;
     const defaults = (fallback ?? {}) as Record<string, unknown>;
-    const resolved: Record<string, unknown> = {};
-    for (const key of Object.keys(own)) resolved[key] = own[key] ?? provided[key] ?? defaults[key];
-    return resolved as ResolvedDefaults<Own, Fallback>;
-  };
+    const merged: Record<string, unknown> = {};
+    for (const key of Object.keys(own)) merged[key] = own[key] ?? provided[key] ?? defaults[key];
+    return merged as ResolvedDefaults<Own, Fallback>;
+  });
+  return () => resolved.value;
 }

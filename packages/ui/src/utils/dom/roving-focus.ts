@@ -7,7 +7,8 @@
  *
  *   _effect(() => (list ? rovingFocus(list, { items: '[role="tab"]', orientation: 'horizontal' }) : undefined));
  */
-import { clamp, isRtl } from '../data/layout';
+import { clamp } from '../data/number';
+import { isRtl } from './direction';
 import { createTypeahead } from './typeahead';
 
 /** 方向键的方向 */

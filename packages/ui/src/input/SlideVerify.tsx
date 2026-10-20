@@ -23,7 +23,8 @@ import { useAnimate } from '../utils/motion/animation';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
-import { clamp, isRtl } from '../utils/data/layout';
+import { clamp } from '../utils/data/number';
+import { isRtl } from '../utils/dom/direction';
 
 /** 验证状态，由应用控制 */
 export interface SlideVerifyStatuses {

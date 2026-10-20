@@ -17,7 +17,7 @@ import { paginationItems } from '../utils/data/pagination';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { listStyles } from '../utils/style/styles';
 import type { TextSize } from '../utils/style/typography';
-import { clamp } from '../utils/data/layout';
+import { clamp } from '../utils/data/number';
 
 /** 未声明的属性落到 nav 上；aria-label 默认取语言包（分页） */
 export interface PaginationProps extends PartProps<'nav'> {

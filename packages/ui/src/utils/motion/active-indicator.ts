@@ -10,7 +10,8 @@
  * 指示条按当前项的 offsetLeft / offsetTop 定位，容器要是它的定位容器（position: relative）。
  */
 import { utils, type AnimationParams } from 'animejs';
-import { onMounted, watch } from 'vue';
+import { onMounted, onScopeDispose, watch } from 'vue';
+import { useResizeObserver } from '../dom/resize';
 import { useAnimate } from './animation';
 
 /** 指示条沿哪个方向跟随 */
@@ -72,21 +73,13 @@ export function useActiveIndicator(read: () => ActiveIndicatorOptions): void {
     { flush: 'post' },
   );
   // 各项的位置会随字体加载、容器变宽而变：下一帧直接对齐（不在 ResizeObserver 回调里同步改样式）
-  watch(
+  let frame = 0;
+  useResizeObserver(
     () => read().container,
-    (container, _, onCleanup) => {
-      if (!container) return;
-      let frame = 0;
-      const observer = new ResizeObserver(() => {
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => place(false));
-      });
-      observer.observe(container);
-      onCleanup(() => {
-        cancelAnimationFrame(frame);
-        observer.disconnect();
-      });
+    () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => place(false));
     },
-    { immediate: true },
   );
+  onScopeDispose(() => cancelAnimationFrame(frame));
 }

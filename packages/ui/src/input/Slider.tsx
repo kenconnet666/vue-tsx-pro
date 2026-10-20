@@ -19,7 +19,8 @@ import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import { clamp, isRtl, snapToStep } from '../utils/data/layout';
+import { clamp, snapToStep } from '../utils/data/number';
+import { isRtl } from '../utils/dom/direction';
 import { useFieldControl } from './Field';
 import { FormValue } from './FormValue';
 

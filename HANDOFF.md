@@ -116,7 +116,8 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | 按语言匹配、比较文字                               | `createMatcher`、`createComparer`（`utils/data/collation.ts`）                                                                              |
 | 浮层的 open 同步                                   | `useAnchoredPopover(read, { close, shown })`（`utils/dom/floating.ts`）                                                                     |
 | 焦点进出、移除后的焦点                             | `utils/dom/focus.ts`                                                                                                                        |
-| 夹取值、对齐步长、判断从右到左                     | `clamp`、`snapToStep`、`isRtl`（`utils/data/layout.ts`）                                                                                    |
+| 夹取值、对齐步长                                   | `clamp`、`snapToStep`（`utils/data/number.ts`）；判断从右到左用 `isRtl`（`utils/dom/direction.ts`）                                         |
+| 元素大小变化                                       | `useResizeObserver(() => [a, b], onResize)`：目标换了自动重新观察，卸载时断开（`utils/dom/resize.ts`）                                      |
 
 ## 5. 硬性约定（用户的长期要求）
 

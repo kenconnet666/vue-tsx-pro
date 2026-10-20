@@ -735,6 +735,7 @@ export {
 
 // 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板
 export { useClipboard, type ClipboardOptions, type ClipboardState } from './utils/dom/clipboard';
+export { isRtl } from './utils/dom/direction';
 export {
   anchorFloating,
   createAnchoredLayer,
@@ -783,6 +784,7 @@ export {
   topModal,
   trackModal,
 } from './utils/dom/overlay';
+export { useResizeObserver } from './utils/dom/resize';
 export {
   rippleHostStyles,
   ripplePlacementStyles,
@@ -801,7 +803,7 @@ export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
 // 工具：比较与匹配、选择、分页、文字、数值
 export { createComparer, createMatcher, type SortValue } from './utils/data/collation';
-export { clamp, isRtl, snapToStep } from './utils/data/layout';
+export { clamp, snapToStep } from './utils/data/number';
 export {
   paginationItems,
   type PaginationEllipsis,

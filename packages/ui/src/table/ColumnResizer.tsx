@@ -8,7 +8,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useLang } from '../config/context';
-import { isRtl } from '../utils/data/layout';
+import { isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { COLUMN_MIN_WIDTH } from './columns';

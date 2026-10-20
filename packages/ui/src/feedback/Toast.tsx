@@ -43,6 +43,7 @@ import { useLayoutAnimation } from '../utils/motion/layout';
 import { usePresence } from '../utils/motion/presence';
 import { startMove } from '../utils/dom/move';
 import { toElement, topModal } from '../utils/dom/overlay';
+import { useHotkeys, type HotkeyMap } from '../utils/dom/hotkeys';
 import { focusAfterRemoval } from '../utils/dom/focus';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -576,20 +577,18 @@ export const Toaster = _component(
     watch(topModal, () => void nextTick(reopen));
 
     const onVisibility = () => (hidden = document.hidden);
-    // F8 跳到通知区域（同 Radix Toast）
-    const onKeydown = (event: KeyboardEvent) => {
-      if (event.key !== 'F8' || !region || !controller.toasts.length) return;
-      event.preventDefault();
-      region.focus();
-    };
+    // F8 跳到通知区域（同 Radix Toast）；输入框里也能用
+    const noHotkeys: HotkeyMap = {};
+    useHotkeys(
+      () => (region && controller.toasts.length ? { F8: () => region?.focus() } : noHotkeys),
+      { inInputs: true },
+    );
     onMounted(() => {
       reopen();
       document.addEventListener('visibilitychange', onVisibility);
-      document.addEventListener('keydown', onKeydown);
     });
     onBeforeUnmount(() => {
       document.removeEventListener('visibilitychange', onVisibility);
-      document.removeEventListener('keydown', onKeydown);
       controller.resume();
     });
 

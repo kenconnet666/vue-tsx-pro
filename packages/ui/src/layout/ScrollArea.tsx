@@ -14,7 +14,8 @@ import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
-import { isRtl } from '../utils/data/layout';
+import { isRtl } from '../utils/dom/direction';
+import { useResizeObserver } from '../utils/dom/resize';
 
 /** 哪个方向可以滚动 */
 export interface ScrollAreaAxes {
@@ -209,17 +210,14 @@ const Scrollbar = _component(
       element.addEventListener('scroll', onScroll, { passive: true });
       root.addEventListener('pointerenter', onEnter);
       root.addEventListener('pointerleave', onLeave);
-      const observer = new ResizeObserver(() => sync());
-      observer.observe(element);
-      observer.observe(content);
       return () => {
         element.removeEventListener('scroll', onScroll);
         root.removeEventListener('pointerenter', onEnter);
         root.removeEventListener('pointerleave', onLeave);
-        observer.disconnect();
         clearTimeout(hideTimer);
       };
     });
+    useResizeObserver(() => [viewport, content], sync);
 
     /** 拖动滑块：位移按“可滚动距离 / 滑块可移动距离”换算成滚动距离 */
     function dragThumb(event: PointerEvent) {

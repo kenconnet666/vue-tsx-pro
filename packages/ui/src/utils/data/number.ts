@@ -1,5 +1,5 @@
 /**
- * 布局与取值计算里反复用到的小工具：取值夹在范围内、对齐到步长、判断排版方向。
+ * 数值的小工具：取值夹在范围内、对齐到步长（滑块、数字输入、分页、虚拟滚动共用）。
  */
 
 /** 把 value 夹在 [min, max] 之间 */
@@ -19,9 +19,4 @@ export function snapToStep(value: number, step: number, min = -Infinity, max = I
   const stepped = base + Math.round((value - base) / step) * step;
   const places = Math.max(decimals(step), Number.isFinite(min) ? decimals(min) : 0);
   return Number(clamp(stepped, min, max).toFixed(places));
-}
-
-/** 元素是否处在从右到左排版里（按计算后的 direction，跟随 dir 属性与 CSS） */
-export function isRtl(element: Element): boolean {
-  return getComputedStyle(element).direction === 'rtl';
 }

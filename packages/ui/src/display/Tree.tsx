@@ -31,7 +31,7 @@ import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
 import { checkboxStyles } from '../input/Checkbox';
 import { choiceStyles } from '../input/choice-styles';
-import { isRtl } from '../utils/data/layout';
+import { isRtl } from '../utils/dom/direction';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import {
   checkStates,

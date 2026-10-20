@@ -11,7 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { NumberField, type NumberFieldProps } from '../input/NumberField';
-import { clamp } from '../utils/data/layout';
+import { clamp } from '../utils/data/number';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 

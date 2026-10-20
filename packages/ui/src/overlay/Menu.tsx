@@ -44,7 +44,7 @@ import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
-import { isRtl } from '../utils/data/layout';
+import { isRtl } from '../utils/dom/direction';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { transitions } from '../utils/style/transitions';
 
