@@ -29,7 +29,7 @@
 - **反馈**：[x] Alert · [x] 加载与进度（Spinner、Progress、LoadingOverlay）· [x] Empty 与 Result · [x] Toast（Toaster）· [x] Skeleton（SkeletonText）
 - **浮层**：[x] Dialog（AlertDialog、Drawer）· [x] Popover（HoverCard、Tooltip）· [x] Menu（全部菜单项、ContextMenu）· [x] CommandPalette · [x] Tour
 - **导航**：[x] Tabs · [x] Pagination（PageJump、PageSizeSelect、Pager）· [x] Breadcrumbs 与 Steps · [x] NavList（NavItem、NavGroup、NavSection、TableOfContents、SkipLink）· [x] Toolbar
-- **输入**：[x] NumberField · [ ] TextField（Textarea、CharacterCount）· [ ] Checkbox、Radio 与 Switch · [ ] Select（Combobox、TagsInput、Listbox）· [ ] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
+- **输入**：[x] NumberField · [x] TextField（Textarea、CharacterCount）· [x] Checkbox、Radio 与 Switch · [x] Select（Combobox、TagsInput、Listbox）· [ ] Slider · [ ] ToggleGroup · [ ] ColorField（ColorSwatch）· [ ] Upload（FileDrop）· [ ] SlideVerify
 - **日期**：CalendarView、DateSegmentGroup、SegmentedField 是内部部件，在 Calendar / DateField 页说明
 - **表单**：[ ] Form（Field、Label、FormValue、useForm、decimalSchema、bigintSchema）
 - **表格**：[ ] Table（全部子部件）· [ ] DataTable（DataTableView、DataTableRow、ColumnResizer、TreeDataTable）
