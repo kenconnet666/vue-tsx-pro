@@ -19,7 +19,7 @@ import {
   useButtonBehavior,
   type ButtonOptions,
 } from '../base/button-core';
-import type { IconData, IconProps } from '../base/Icon/Icon';
+import type { IconData, IconProps } from '../base/Icon';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';

@@ -1,6 +1,6 @@
 /**
  * 主题颜色的对比度检查（WCAG 2.2 AA）：亮色（tokens.stylex.ts 的默认值）、暗色（dark.ts）、纸张（paper.ts）
- * 三套主题逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环。
+ * 三套主题逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
  *
  * 用法：node scripts/themes/check.mjs（CI 的静态检查里跑；改颜色前后都跑一遍）
  *
@@ -174,6 +174,19 @@ for (const [name, theme] of Object.entries(themes)) {
         `${name}：${label} ${fg}（${theme[fg]}）在 ${bg}（${theme[bg]}）上 ${ratio.toFixed(2)}，要求 ${min}`,
       );
     }
+  }
+}
+
+// 防闪烁脚本用的底色、文字色要与主题文件一致（boot.ts 不能依赖 StyleX，只好抄一份）
+const { builtinThemeBootColors } = await import('../../packages/ui/src/config/theme/boot.ts');
+const bootNames = { light: '亮色', dark: '暗色', paper: '纸张' };
+for (const [key, colors] of Object.entries(builtinThemeBootColors)) {
+  const theme = themes[bootNames[key]];
+  for (const token of ['background', 'text']) {
+    if (colors[token] !== theme[token])
+      failures.push(
+        `boot.ts 的 ${key}.${token}（${colors[token]}）与主题文件（${theme[token]}）不一致`,
+      );
   }
 }
 

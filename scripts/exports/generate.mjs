@@ -2,7 +2,7 @@
  * 生成组件库的入口 packages/ui/src/index.ts：逐个模块读出导出的声明，按目录分组写成 export 语句。
  * 组件库的工具都对外导出（方便使用方定制），模块里写了 export 的就进入口，不再手写。
  *
- * - 跳过组件文件夹里的演示（demo/）、测试（test/、.test/）与文档页（docs.tsx），以及子路径入口（shiki、vue-router、tokens.stylex：它们在 package.json 的 exports 里单独暴露）；
+ * - 跳过测试（.test/）与子路径入口（shiki、vue-router、tokens.stylex：它们在 package.json 的 exports 里单独暴露）；
  * - 没有导出、只有 declare module 的模块（token-names.ts）写成副作用导入，产物的类型声明才带上它；
  * - 两个模块导出了同一个名字时报错并列出位置：改成全局唯一的名字（COMPONENTS.md §4）；
  * - 新目录要在 GROUPS 里登记标题。
@@ -52,24 +52,12 @@ const GROUPS = [
   ['utils/motion', '工具：JS 动画与动效'],
 ];
 
-/** 不属于组件库代码的目录与文件：演示、测试、文档页 */
-const SKIPPED_DIRS = new Set(['.test', 'test', 'demo']);
-const SKIPPED_FILES = new Set(['docs.tsx']);
-
 function modules(dir = src) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) return SKIPPED_DIRS.has(entry.name) ? [] : modules(path);
-    if (SKIPPED_FILES.has(entry.name)) return [];
+    if (entry.isDirectory()) return entry.name === '.test' ? [] : modules(path);
     return /\.tsx?$/.test(entry.name) && !entry.name.endsWith('.d.ts') ? [path] : [];
   });
-}
-
-/** 模块属于哪个分组：组件文件夹（base/Button/，首字母大写）归到它的分类 */
-function groupOf(path) {
-  const dirs = path.split('/').slice(0, -1);
-  if (dirs.length && /^[A-Z]/.test(dirs.at(-1))) dirs.pop();
-  return dirs.length ? dirs.join('/') : '.';
 }
 
 const isExported = (node) => node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
@@ -113,7 +101,7 @@ function generate() {
   for (const file of modules().sort()) {
     const path = relative(src, file).split('\\').join('/');
     if (path === 'index.ts' || SUBPATH_ENTRIES.has(path)) continue;
-    const dir = groupOf(path);
+    const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '.';
     if (!groups.has(dir))
       throw new Error(
         `${path}：目录 ${dir} 没有在 scripts/exports/generate.mjs 的 GROUPS 里登记标题`,

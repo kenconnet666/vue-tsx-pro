@@ -3,14 +3,15 @@
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
 export { Badge, type BadgeProps } from './base/Badge';
 export { Blockquote, blockquoteStyles, type BlockquoteProps } from './base/Blockquote';
+export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
 export { ButtonBase, type ButtonBaseManaged, type ButtonBaseProps } from './base/ButtonBase';
-export { Button, type ButtonManaged, type ButtonProps } from './base/Button/Button';
 export {
   ClearButton,
   CloseButton,
   createPresetIconButton,
   type PresetIconButtonProps,
 } from './base/CloseButton';
+export { Code, codeStyles, type CodeProps } from './base/Code';
 export {
   CodeBlock,
   codeBlockDynamicStyles,
@@ -19,7 +20,6 @@ export {
   type CodeBlockProps,
   type LineSpec,
 } from './base/CodeBlock';
-export { Code, codeStyles, type CodeProps } from './base/Code/Code';
 export {
   CopyButton,
   copyButtonStyles,
@@ -38,7 +38,6 @@ export {
   type HeadingProps,
   type HeadingTag,
 } from './base/Heading';
-export { IconButton, type IconButtonManaged, type IconButtonProps } from './base/IconButton';
 export {
   Icon,
   iconMarkup,
@@ -47,7 +46,13 @@ export {
   type IconManaged,
   type IconNode,
   type IconProps,
-} from './base/Icon/Icon';
+} from './base/Icon';
+export { IconButton, type IconButtonManaged, type IconButtonProps } from './base/IconButton';
+export {
+  IconLinkButton,
+  type IconLinkButtonManaged,
+  type IconLinkButtonProps,
+} from './base/IconLinkButton';
 export {
   Indicator,
   indicatorStyles,
@@ -729,14 +734,18 @@ export {
 } from './config/defaults';
 
 // 主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
+export {
+  builtinThemeBootColors,
+  DEFAULT_THEME_STORAGE_KEY,
+  SYSTEM_THEME,
+  themeBootScript,
+  type ThemeBootColors,
+} from './config/theme/boot';
 export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
 export { lightTheme } from './config/theme/light';
 export { paperColors, paperFonts, paperShadows, paperTheme } from './config/theme/paper';
 export {
   createThemePreference,
-  SYSTEM_THEME,
-  themeBootScript,
-  type ThemeBootColors,
   type ThemePreference,
   type ThemePreferenceOptions,
 } from './config/theme/preference';

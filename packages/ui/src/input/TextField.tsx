@@ -15,7 +15,7 @@ import { Eye, EyeOff } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { useId, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
-import { Icon, type IconData, type IconProps } from '../base/Icon/Icon';
+import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';

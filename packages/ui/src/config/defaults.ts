@@ -23,7 +23,7 @@ import type { ButtonOptions } from '../base/button-core';
 
 /** 可以配置默认值的组件与选项；新组件有外观档位时在这里登记 */
 export interface ComponentDefaults {
-  /** Button、LinkButton、IconButton 共用 */
+  /** Button、LinkButton、IconButton、IconLinkButton 共用 */
   Button?: Partial<Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>>;
   /** Badge、Tag 共用 */
   Badge?: BadgeOptions;

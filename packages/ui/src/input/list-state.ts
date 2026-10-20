@@ -8,7 +8,7 @@
  *   if (handleListKeydown(list, event, { space: true, typeahead: true })) event.preventDefault();
  */
 import { computed, ref } from 'vue';
-import type { IconData } from '../base/Icon/Icon';
+import type { IconData } from '../base/Icon';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import { createTypeahead } from '../utils/dom/typeahead';
 

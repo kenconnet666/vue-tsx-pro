@@ -16,7 +16,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { Icon, type IconData } from '../base/Icon/Icon';
+import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';

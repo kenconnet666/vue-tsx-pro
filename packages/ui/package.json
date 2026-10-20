@@ -21,6 +21,11 @@
       "types": "./dist/config/vue-router.d.ts",
       "default": "./dist/config/vue-router.js"
     },
+    "./theme-boot": {
+      "@vue-tsx-pro/source": "./src/config/theme/boot.ts",
+      "types": "./dist/config/theme/boot.d.ts",
+      "default": "./dist/config/theme/boot.js"
+    },
     "./tokens.stylex": {
       "@vue-tsx-pro/source": "./src/config/theme/tokens.stylex.ts",
       "types": "./dist/config/theme/tokens.stylex.d.ts",
@@ -32,9 +37,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json",
+    "build": "vite build --configLoader native && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p .",
-    "test": "vitest run"
+    "test": "vitest run --configLoader native"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:",

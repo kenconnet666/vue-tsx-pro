@@ -9,7 +9,7 @@ import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { badgeSx, type BadgeOptions } from './badge-styles';
-import { Icon, type IconData, type IconProps } from './Icon/Icon';
+import { Icon, type IconData, type IconProps } from './Icon';
 
 /** 未声明的属性落到 span 上 */
 export interface BadgeProps extends PartProps<'span'>, BadgeOptions {

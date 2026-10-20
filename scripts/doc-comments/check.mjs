@@ -13,23 +13,15 @@ import { execFileSync } from 'node:child_process';
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const ts = createRequire(join(root, 'packages/tsx/package.json'))('typescript');
 
-/** 检查范围：已发布的两个包，以及宿主示例的试点组件 */
+/** 检查范围：已发布的两个包 */
 const INCLUDE = [
   'packages/tsx/src/**/*.ts',
   'packages/tsx/types/*.d.ts',
   'packages/ui/src/**/*.ts',
   'packages/ui/src/**/*.tsx',
-  'apps/host-demo/src/pilot/*.tsx',
 ];
-/** 生成的文件（注释由生成器负责）、测试、演示（给读者看的示例代码）与文档页 */
-const EXCLUDE = [
-  /\/\.test\//,
-  /\/test\//,
-  /\/demo\//,
-  /\/docs\.tsx$/,
-  /stylex\/styles\.ts$/,
-  /token-names\.ts$/,
-];
+/** 生成的文件（注释由生成器负责）与测试 */
+const EXCLUDE = [/\/\.test\//, /\/test\//, /stylex\/styles\.ts$/, /token-names\.ts$/];
 
 const files = execFileSync('git', ['ls-files', ...INCLUDE], { cwd: root, encoding: 'utf8' })
   .split('\n')

@@ -28,7 +28,7 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import type { ButtonTones } from '../base/button-core';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Icon, type IconData, type IconProps } from '../base/Icon/Icon';
+import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import {
   floatingStyles,

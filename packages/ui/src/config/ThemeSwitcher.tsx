@@ -10,12 +10,13 @@
 import { Monitor, Moon, Palette, ScrollText, Sun } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import type { IconData } from '../base/Icon/Icon';
+import type { IconData } from '../base/Icon';
 import { Menu, MenuRadioGroup, MenuRadioItem, type MenuProps } from '../overlay/Menu';
 import { toElement } from '../utils/dom/overlay';
 import { mergePartProps } from '../utils/props';
 import { useLang } from './context';
-import { SYSTEM_THEME, type ThemePreference } from './theme/preference';
+import { SYSTEM_THEME } from './theme/boot';
+import type { ThemePreference } from './theme/preference';
 
 /** 未声明的属性落到菜单（role="menu" 的 div）上 */
 export interface ThemeSwitcherProps<Name extends string> extends Omit<

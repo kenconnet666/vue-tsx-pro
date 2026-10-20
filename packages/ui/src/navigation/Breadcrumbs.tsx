@@ -12,7 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { Icon, type IconData } from '../base/Icon/Icon';
+import { Icon, type IconData } from '../base/Icon';
 import { Link, type LinkProps } from '../base/Link';
 import { useLang } from '../config/context';
 import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';

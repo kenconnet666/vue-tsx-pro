@@ -11,9 +11,9 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { createDrawable, utils } from 'animejs';
 import { onMounted, watch } from 'vue';
-import { useAnimate } from '../../utils/motion/animation';
-import { mergeAttrs, type PartProps } from '../../utils/props';
-import { fontSizeStyles, type TextSize } from '../../utils/style/typography';
+import { useAnimate } from '../utils/motion/animation';
+import { mergeAttrs, type PartProps } from '../utils/props';
+import { fontSizeStyles, toneStyles, type TextSize, type Tone } from '../utils/style/typography';
 
 /** 图标数据：Lucide 的标准格式 */
 export type IconData = LucideIconData;
@@ -35,6 +35,8 @@ export interface IconProps extends PartProps<'svg', IconManaged> {
   icon: IconData;
   /** 不写时为 1em，跟随所在文字；档位对应主题字号，数字为像素 */
   size?: TextSize | number;
+  /** 色调（状态图标：成功、警告…）；不写时跟随文字颜色 */
+  tone?: Tone;
   /** 线宽（24 格画布上的单位），默认取主题的 strokeWidths.md */
   strokeWidth?: number;
   /** 从右到左排版时水平翻转：箭头、chevron 这类有方向的图标 */
@@ -62,7 +64,7 @@ export const iconStyles = stylex.create({
 
 /** 图标（svg）：渲染 Lucide 格式的图标数据；不传 aria-label 时是装饰性的，对读屏隐藏 */
 export const Icon = _component(
-  ({ icon, size, strokeWidth, flipInRtl = false, draw, ...rest }: IconProps) => {
+  ({ icon, size, tone, strokeWidth, flipInRtl = false, draw, ...rest }: IconProps) => {
     let svg = _state.raw<SVGSVGElement | null>(null);
     // 大多数图标不描线：不给 draw 时不建监听与动画
     if (_untrack(draw) !== undefined)
@@ -79,6 +81,7 @@ export const Icon = _component(
               sx: [
                 iconStyles.icon,
                 typeof size === 'string' && fontSizeStyles[size],
+                tone && toneStyles[tone],
                 flipInRtl && iconStyles.flip,
               ],
             },

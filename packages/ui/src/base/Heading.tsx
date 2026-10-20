@@ -20,7 +20,7 @@ import { space } from '../config/theme/tokens.stylex';
 import { headingMarker } from '../utils/style/markers.stylex';
 import { layoutVars } from '../utils/style/vars.stylex';
 import { focusRingStyles } from '../utils/style/styles';
-import { Icon } from './Icon/Icon';
+import { Icon } from './Icon';
 import {
   fontSizeStyles,
   fontWeightStyles,

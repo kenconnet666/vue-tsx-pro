@@ -15,7 +15,12 @@ export default defineConfig({
   build: {
     // 子路径各是一个入口；可选依赖（shiki）只在它的子路径里导入
     lib: {
-      entry: ['src/index.ts', 'src/config/shiki.ts', 'src/config/vue-router.ts'],
+      entry: [
+        'src/index.ts',
+        'src/config/shiki.ts',
+        'src/config/vue-router.ts',
+        'src/config/theme/boot.ts',
+      ],
       formats: ['es'],
     },
     rollupOptions: {

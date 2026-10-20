@@ -27,7 +27,7 @@ import { Check, ChevronRight, Minus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
-import { Icon, type IconData } from '../base/Icon/Icon';
+import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
 import { checkboxStyles } from '../input/Checkbox';
 import { choiceStyles } from '../input/choice-styles';

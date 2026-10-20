@@ -21,7 +21,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { getCurrentInstance, h, render, type VNodeChild } from 'vue';
-import { Button, type ButtonProps } from '../base/Button/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import type { ButtonTones } from '../base/button-core';
 import { ConfigContext, useConfig, useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';

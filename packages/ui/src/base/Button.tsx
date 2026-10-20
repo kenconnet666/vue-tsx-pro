@@ -7,8 +7,8 @@
  *   <Button type="submit" loading={saving}>提交</Button>
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import { useDelayedLoading } from '../../utils/motion/delayed-loading';
-import { mergeAttrs, type PartProps } from '../../utils/props';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
+import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
   buttonSx,
@@ -16,7 +16,7 @@ import {
   useButtonBehavior,
   type ButtonContentOptions,
   type ButtonOptions,
-} from '../button-core';
+} from './button-core';
 
 /** 不可用、忙碌由组件按 disabled、loading 管理 */
 export type ButtonManaged = 'disabled' | 'aria-disabled' | 'aria-busy';

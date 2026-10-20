@@ -16,7 +16,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { h, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Icon, type IconProps } from '../base/Icon/Icon';
+import { Icon, type IconProps } from '../base/Icon';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';

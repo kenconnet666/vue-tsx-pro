@@ -15,7 +15,7 @@ import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { toneStyles, type Tone } from '../utils/style/typography';
-import { Icon, type IconProps } from './Icon/Icon';
+import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
 
 /** 链接的下划线 */

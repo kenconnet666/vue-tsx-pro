@@ -5,7 +5,8 @@ import { createUi } from '../createUi';
 import { darkTheme } from '../theme/dark';
 import { lightTheme } from '../theme/light';
 import { paperTheme } from '../theme/paper';
-import { createThemePreference, themeBootScript } from '../theme/preference';
+import { themeBootScript } from '../theme/boot';
+import { createThemePreference } from '../theme/preference';
 
 const themes = { light: lightTheme, dark: darkTheme, paper: paperTheme };
 const KEY = 'test-theme';

@@ -20,7 +20,7 @@ import { CircleAlert, CircleCheck, File as FileIcon, RotateCw, X } from '@lucide
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount } from 'vue';
-import { Icon } from '../base/Icon/Icon';
+import { Icon } from '../base/Icon';
 import { IconButton } from '../base/IconButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';

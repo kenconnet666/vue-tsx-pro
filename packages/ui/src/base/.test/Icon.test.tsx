@@ -1,7 +1,7 @@
 import { Check } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import type { VNodeChild } from 'vue';
-import { mount } from '../../../utils/.test/mount';
+import { mount } from '../../utils/.test/mount';
 import { Icon, iconMarkup, type IconData } from '../Icon';
 
 const render = (node: () => VNodeChild) => mount(node).querySelector('svg')!;
