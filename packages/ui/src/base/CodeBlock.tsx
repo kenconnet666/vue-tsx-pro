@@ -120,6 +120,8 @@ export const codeBlockStyles = stylex.create({
     overflowX: 'auto',
     color: '_text',
     fontFamily: '_mono',
+    // 代码字体的连字（=> 显示成 ⇒）会让照着抄的人看错，一律关掉
+    fontVariantLigatures: 'none',
     // 相对周围文字略小：等宽字体的字面显得大；是比例不是字号档位
     fontSize: '0.9em',
     lineHeight: '_normal',

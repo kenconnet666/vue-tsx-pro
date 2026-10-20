@@ -336,13 +336,15 @@ declare module '@vue-tsx-pro/tsx/stylex' {
   /** 字体族 */
   interface FontsTokens {
     /**
-     * 正文字体
+     * 正文字体：西文用系统界面字体；中文在 Windows 上优先“微软雅黑 UI”（界面字号下字距更紧凑），
+     * Linux 上是思源黑体（Noto / Source Han Sans）
      *
      * `fonts.sans`
      */
     _sans: unknown;
     /**
-     * 等宽字体：代码、需要数字对齐的地方
+     * 等宽字体：代码、需要数字对齐的地方。装了 Cascadia Code（Windows 11 自带）、JetBrains Mono 时优先用它们，
+     * 字形比 Consolas 清楚
      *
      * `fonts.mono`
      */

@@ -72,7 +72,15 @@ export const appShellOffset = stylex.createTheme(layoutVars, { stickyOffset: HEA
 
 /** AppShell 的样式：root、header、menuButton、body、sidebar、main、aside 等 */
 export const appShellStyles = stylex.create({
-  root: { display: 'flex', flexDirection: 'column', minHeight: '100dvh' },
+  // 整页的界面基准文字（同 Provider）：没有 Provider 时页面是浏览器默认的 16px，与组件的 md 档位对不上
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100dvh',
+    color: '_text',
+    fontSize: '_md',
+    lineHeight: '_normal',
+  },
   header: {
     position: 'sticky',
     top: 0,

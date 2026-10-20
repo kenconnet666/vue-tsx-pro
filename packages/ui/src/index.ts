@@ -434,11 +434,13 @@ export {
   NavItem,
   NavList,
   navListStyles,
+  NavSection,
   type NavGroupProps,
   type NavGroupState,
   type NavItemManaged,
   type NavItemProps,
   type NavListProps,
+  type NavSectionProps,
 } from './navigation/NavList';
 export { PageJump, pageJumpStyles, type PageJumpProps } from './navigation/PageJump';
 export { PageSizeSelect, type PageSizeSelectProps } from './navigation/PageSizeSelect';

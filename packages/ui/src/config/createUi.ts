@@ -46,6 +46,9 @@ export const documentStyles = stylex.create({
     color: '_text',
     fontFamily: '_sans',
     lineHeight: '_normal',
+    // macOS 上用灰度抗锯齿，深色底上的浅色文字不发虚；其他系统忽略
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale',
   },
 });
 

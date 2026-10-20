@@ -1,5 +1,6 @@
 /**
- * 侧边导航，复合组件：NavList（nav > ul）> NavItem（链接）/ NavGroup（可展开的一组，里面再放 NavItem）。
+ * 侧边导航，复合组件：NavList（nav > ul）> NavItem（链接）/ NavGroup（可展开的一组）/ NavSection（带小标题的一组，
+ * 不能收起：文档站这类链接多、按主题分组的侧栏），里面再放 NavItem。
  * 当前页按路由适配的 isActive 判断（也可以用 active 指定），带 aria-current="page" 与高亮；
  * 含当前页的分组自动展开。分组用 Collapsible（触发器带 aria-expanded / aria-controls）。
  *
@@ -16,7 +17,7 @@
 import { ChevronRight } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, watch, type VNodeChild } from 'vue';
+import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
@@ -36,7 +37,7 @@ export interface NavGroupState {
 /** NavGroup 的上下文：组内的项据此缩进；不在组内时为 null */
 export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 
-/** NavList 的样式：list、nested、row、current、disabled、chevron 等 */
+/** NavList 的样式：nested、row、current、disabled、chevron、section、sectionLabel 等 */
 export const navListStyles = stylex.create({
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
   // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
@@ -51,6 +52,17 @@ export const navListStyles = stylex.create({
   disabled: { pointerEvents: 'none' },
   chevron: { transition: 'transform _durations.md _easings.standard' },
   chevronOpen: { transform: 'rotate(90deg)' },
+  // 小节之间留出间隔，第一节贴着顶部
+  section: { marginBlockStart: { default: '_lg', ':first-child': 0 } },
+  sectionLabel: {
+    display: 'block',
+    paddingBlock: '_xs',
+    paddingInline: '_md',
+    color: '_text',
+    fontSize: '_sm',
+    fontWeight: '_semibold',
+    letterSpacing: '_wide',
+  },
 });
 
 // ─────────────── NavList ───────────────
@@ -249,6 +261,43 @@ export const NavGroup = _component(
             {children}
           </FlexList>
         </Collapsible>
+      </li>
+    );
+  },
+);
+
+// ─────────────── NavSection ───────────────
+
+/** 未声明的属性落到外层 li 上 */
+export interface NavSectionProps extends PartProps<'li'> {
+  /** 小节标题，同时是这组链接的无障碍名称 */
+  label: VNodeChild;
+  /** 标题的部件属性 */
+  propsLabel?: PartProps<'span'>;
+  /** 里面的列表（ul）的部件属性 */
+  propsList?: Partial<FlexProps<'ul'>>;
+  /** 小节里的 NavItem */
+  children?: VNodeChild;
+}
+
+/** 带小标题的一组导航链接（li > 标题 + ul）：一直展开，不能收起；要收起用 NavGroup */
+export const NavSection = _component(
+  ({ label, propsLabel, propsList, children, ...rest }: NavSectionProps) => {
+    const labelId = useId();
+    return () => (
+      <li {...mergeAttrs<'li'>({ sx: navListStyles.section }, rest)}>
+        <span
+          {...mergeAttrs<'span'>({ sx: navListStyles.sectionLabel }, propsLabel, { id: labelId })}
+        >
+          {label}
+        </span>
+        <FlexList
+          {...mergePartProps<FlexProps<'ul'>>({ direction: 'column', gap: 'xs' }, propsList, {
+            'aria-labelledby': labelId,
+          })}
+        >
+          {children}
+        </FlexList>
       </li>
     );
   },

@@ -170,15 +170,21 @@ export const colors = stylex.defineVars({
 
 /** 字体族 */
 export const fonts = stylex.defineVars({
-  /** 正文字体 */
-  sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
-  /** 等宽字体：代码、需要数字对齐的地方 */
-  mono: 'ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace',
+  /**
+   * 正文字体：西文用系统界面字体；中文在 Windows 上优先“微软雅黑 UI”（界面字号下字距更紧凑），
+   * Linux 上是思源黑体（Noto / Source Han Sans）
+   */
+  sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
+  /**
+   * 等宽字体：代码、需要数字对齐的地方。装了 Cascadia Code（Windows 11 自带）、JetBrains Mono 时优先用它们，
+   * 字形比 Consolas 清楚
+   */
+  mono: 'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
   /** 衬线字体：书卷感的标题、引文（纸张主题的标题用它） */
   serif: '"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, "SimSun", Georgia, serif',
   /** 标题（H1–H6）的字体：默认同正文，主题可以换成衬线 */
   heading:
-    'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
+    'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
 });
 
 /** 字号：xs–xl 用于界面文字（也是组件 size 档位对应的字号），xxl、xxxl 用于标题 */

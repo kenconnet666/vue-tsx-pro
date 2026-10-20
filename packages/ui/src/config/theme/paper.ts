@@ -76,10 +76,10 @@ export const paperShadows = stylex.createTheme(shadows, {
   xl: '0 12px 60px rgba(80, 60, 30, 0.16), 0 16px 36px -20px rgba(80, 60, 30, 0.24)',
 });
 
-/** 纸张主题的字体：标题用衬线，正文仍是无衬线（屏幕上长文更好读） */
+/** 纸张主题的字体：标题用衬线，正文仍是无衬线（屏幕上长文更好读）；StyleX 的 createTheme 要给全每个变量，正文与等宽与默认相同 */
 export const paperFonts = stylex.createTheme(fonts, {
-  sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
-  mono: 'ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace',
+  sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
+  mono: 'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
   serif: '"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, "SimSun", Georgia, serif',
   heading: '"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, "SimSun", Georgia, serif',
 });

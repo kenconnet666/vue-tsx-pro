@@ -5,7 +5,7 @@ import { nextTick } from 'vue';
 import { Provider } from '../../config/Provider';
 import { mount } from '../../utils/.test/mount';
 import { Breadcrumbs } from '../Breadcrumbs';
-import { NavGroup, NavItem, NavList } from '../NavList';
+import { NavGroup, NavItem, NavList, NavSection } from '../NavList';
 import { Pagination } from '../Pagination';
 
 const trail = [
@@ -121,6 +121,20 @@ describe('NavList', () => {
     expect(opened.root.querySelector('button[aria-expanded]')!.getAttribute('aria-expanded')).toBe(
       'true',
     );
+  });
+  it('NavSection：带小标题的一组，一直展开；标题是列表的名称', () => {
+    const root = mount(() => (
+      <NavList aria-label="文档">
+        <NavSection label="指南">
+          <NavItem href="/start">快速开始</NavItem>
+        </NavSection>
+      </NavList>
+    ));
+    const list = root.querySelector('nav > ul > li > ul')!;
+    const label = document.getElementById(list.getAttribute('aria-labelledby')!)!;
+    expect(label.textContent).toBe('指南');
+    expect(list.querySelector('a')!.textContent).toBe('快速开始');
+    expect(root.querySelector('button[aria-expanded]')).toBeNull();
   });
 });
 
