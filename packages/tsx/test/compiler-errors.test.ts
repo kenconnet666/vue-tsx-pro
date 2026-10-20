@@ -74,6 +74,16 @@ const cases: [string, string, RegExp][] = [
     /只能绑定 value 或 checked/,
   ],
   [
+    '_bind(get, set) 的参数不是函数',
+    'let n = _state(1); <X v={_bind(n, (v) => {})} />',
+    /两个参数都是函数/,
+  ],
+  [
+    '_bind(get, set) 用在原生元素上',
+    'let n = _state(""); <input value={_bind(() => n, (v) => {})} />',
+    /原生元素不支持 _bind\(get, set\)/,
+  ],
+  [
     '_bind 修饰符用在组件上',
     'let n = _state(""); <X v={_bind.trim(n)} />',
     /修饰符只用于原生输入元素/,

@@ -42,6 +42,10 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
   ) {
     throw fail(call, '_bind(x) 只能写在 JSX 属性的值里，例如 <Switch checked={_bind(on)} />');
   }
+  if (call.node.arguments.length === 2) {
+    rewriteFunctionBind(call, attribute);
+    return;
+  }
   const [target, ...extra] = call.node.arguments;
   if (!t.isMemberExpression(target) || extra.length) {
     throw fail(
@@ -73,4 +77,46 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
     );
   }
   call.replaceWith(target);
+}
+
+/**
+ * 函数绑定 属性={_bind(get, set)}（同 Svelte 5）：值是 get 的结果，写回交给 set：
+ *   <Select value={_bind(() => status, (next) => switchTo(next))} />
+ *   → <Select value={status.value} onUpdate:value={(next) => switchTo(next)} />
+ * 原生输入元素走 v-model 指令，不支持。
+ */
+function rewriteFunctionBind(
+  call: NodePath<t.CallExpression>,
+  attribute: NodePath<t.JSXAttribute>,
+) {
+  const [get, set] = call.node.arguments;
+  if (!isFunction(get) || !isFunction(set) || get.params.length) {
+    throw fail(
+      call,
+      '_bind(get, set) 的两个参数都是函数，get 不带参数，例如 _bind(() => status, (next) => switchTo(next))',
+    );
+  }
+  const tag = (attribute.parent as t.JSXOpeningElement).name;
+  if (t.isJSXIdentifier(tag) && /^[a-z]/.test(tag.name)) {
+    throw fail(call, '原生元素不支持 _bind(get, set)：请写 value={…} 与 onInput={…}');
+  }
+  const prop = (attribute.node.name as t.JSXIdentifier).name;
+  attribute.insertAfter(
+    t.jsxAttribute(
+      t.jsxNamespacedName(t.jsxIdentifier('onUpdate'), t.jsxIdentifier(prop)),
+      t.jsxExpressionContainer(set),
+    ),
+  );
+  // 箭头函数直接返回表达式时取出表达式本身（渲染时读到的响应式变量照常被追踪），否则调用它
+  call.replaceWith(
+    t.isArrowFunctionExpression(get) && t.isExpression(get.body)
+      ? get.body
+      : t.callExpression(get, []),
+  );
+}
+
+function isFunction(
+  node: t.Node | undefined,
+): node is t.ArrowFunctionExpression | t.FunctionExpression {
+  return t.isArrowFunctionExpression(node) || t.isFunctionExpression(node);
 }

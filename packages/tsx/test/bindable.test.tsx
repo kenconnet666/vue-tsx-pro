@@ -54,6 +54,27 @@ it('受控：写入后同步读取先拿到新值', () => {
   expect(seen).toEqual([true]);
 });
 
+it('函数绑定 _bind(get, set)：值取 get，写回交给 set（可以顺带做别的事）', async () => {
+  let count = _state(1);
+  let writes = _state(0);
+  const el = mount(() => (
+    <Counter
+      value={_bind(
+        () => count * 10,
+        (next) => {
+          count = next / 10;
+          writes++;
+        },
+      )}
+    />
+  ));
+  const button = el.querySelector('button')!;
+  expect(button.textContent).toBe('10');
+  button.click();
+  await nextTick();
+  expect([count, writes, button.textContent]).toEqual([1.1, 1, '11']);
+});
+
 it('受控：父级值为 undefined 时使用默认值', () => {
   const value = ref<number | undefined>(undefined);
   const el = mount(() => <Counter value={_bind(value.value)} />);

@@ -12,6 +12,11 @@ type UnwrapRefs<T> = { [K in keyof T]: T[K] extends Ref<infer V> ? V : never };
 /** _bind 与它的修饰符（可以连写：_bind.lazy.trim）；类型上就是传入的值本身 */
 interface Bind {
   <T>(target: T): T;
+  /**
+   * 函数绑定（同 Svelte 5 的 bind:x={get, set}）：写回时要做别的事、或值要换算时用，
+   * `value={_bind(() => status, (next) => switchTo(next))}`；只用于组件
+   */
+  <T>(get: () => T, set: (value: T) => void): T;
   /** 去掉首尾空白（原生输入元素） */
   readonly trim: Bind;
   /** 转成数字（原生输入元素） */
