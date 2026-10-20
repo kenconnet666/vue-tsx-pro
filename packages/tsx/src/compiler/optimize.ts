@@ -20,7 +20,9 @@ import { isComponentSetup, prependToBody } from './ast.ts';
 import type { RuntimeImports } from './imports.ts';
 import type { TrackedInfo } from './runes.ts';
 
+/** 渲染优化要用到的前几步结果 */
 export interface OptimizeContext {
+  /** 生成运行时函数（forwardChildren、childrenStable）的导入 */
   imports: RuntimeImports;
   /** 符文与 props 的绑定（第 2 步解析出的） */
   tracked: Map<Binding, TrackedInfo>;
@@ -44,6 +46,7 @@ type Kind =
 /** 子节点不能当插槽对象传的内置组件 */
 const VUE_BUILTINS = new Set(['Teleport', 'KeepAlive', 'Suspense']);
 
+/** 第 6 步的入口：稳定插槽与属性值缓存，改动直接写在 AST 上（规则见文件开头） */
 export function optimizeRender(program: NodePath<t.Program>, context: OptimizeContext) {
   const caches = new Map<NodePath<t.Function>, { id: t.Identifier; size: number }>();
 
