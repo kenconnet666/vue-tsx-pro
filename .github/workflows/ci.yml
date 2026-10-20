@@ -20,13 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm css-docs:check
-      - run: pnpm docs:check
-      - run: pnpm exports:check
-      - run: pnpm themes:check
-      - run: pnpm text:check
+      # 与本地推送前跑的是同一个脚本
+      - run: pnpm check
       - run: pnpm typecheck
 
   test:

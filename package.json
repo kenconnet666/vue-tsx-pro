@@ -18,6 +18,7 @@
     "test": "vitest run --configLoader native",
     "test:browser": "pnpm --filter \"./apps/**\" test:browser",
     "test:consumer": "node tests/consumer/run.mjs",
+    "check": "pnpm lint && pnpm format:check && pnpm css-docs:check && pnpm docs:check && pnpm exports:check && pnpm themes:check && pnpm text:check",
     "lint": "oxlint . --deny-warnings",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
