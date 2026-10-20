@@ -38,6 +38,7 @@ import {
 } from 'vue';
 import { EditInPlayground } from '../../site/EditInPlayground';
 import { IconGallery, iconByName } from '../../site/IconGallery';
+import { canvasStyles } from '../../site/canvas';
 import { CATEGORY_LABELS } from '../../site/nav';
 import { componentCode } from './code';
 import { controlOf, parseDefault, type Control } from './controls';
@@ -53,7 +54,7 @@ const styles = stylex.create({
       '@media (min-width: 60rem)': 'minmax(0, 1fr) 20rem',
     },
   },
-  // 效果区：同文档示例的点阵画布
+  // 效果区：点阵画布（canvasStyles）加边框
   canvas: {
     display: 'grid',
     placeItems: 'center',
@@ -63,12 +64,6 @@ const styles = stylex.create({
     borderStyle: 'solid',
     borderColor: '_border',
     borderRadius: '_lg',
-    backgroundColor: '_surface',
-    backgroundImage: 'radial-gradient(_colors.border 1px, transparent 1px)',
-    backgroundSize: '18px 18px',
-    backgroundPosition: '-9px -9px',
-    fontSize: '_md',
-    lineHeight: '_normal',
   },
   // 块级组件（网格、卡片、步骤条）占满画布宽度，行内组件（按钮、标记）居中：渲染后按根元素的 display 决定。
   // 画布本身是块级：放在 flex 里时子元素的 display 会被改成块级，就量不出来了
@@ -76,7 +71,7 @@ const styles = stylex.create({
   stageInline: { textAlign: 'center' },
   picker: { flexGrow: 1, minWidth: 0 },
   iconTrigger: { flexGrow: 1, justifyContent: 'flex-start' },
-  iconPanel: { width: 'min(24rem, 80vw)' },
+  iconPanel: { width: 'min(32rem, 85vw)' },
   label: { fontFamily: '_mono', fontSize: '_sm', fontWeight: '_medium' },
 });
 
@@ -361,7 +356,7 @@ export const PropsPlayground = _component(
           {entry.description && <Paragraph tone="muted">{entry.description}</Paragraph>}
           <div {...stylex.attrs(styles.layout)}>
             <Flex direction="column" gap="md">
-              <div {...stylex.attrs(styles.canvas)}>
+              <div {...stylex.attrs(canvasStyles.canvas, styles.canvas)}>
                 <div
                   ref={_toRef(stage)}
                   {...stylex.attrs(styles.stage, inline && styles.stageInline)}

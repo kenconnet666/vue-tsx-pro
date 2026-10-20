@@ -8,21 +8,13 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { CodePreview, createFlex, H2, Paragraph, type CodePreviewAligns } from '@vue-tsx-pro/ui';
 import { h, type VNodeChild } from 'vue';
+import { canvasStyles } from './canvas';
 import { EditInPlayground } from './EditInPlayground';
 import { ExamplesContext } from './Examples';
 import type { Demo } from './types';
 
 const styles = stylex.create({
-  // 效果区是一块“画布”：淡淡的点阵与页面区分开；字号、行高改回界面默认值，示例显示的就是组件的默认大小
-  canvas: {
-    minHeight: '7rem',
-    fontSize: '_md',
-    lineHeight: '_normal',
-    backgroundColor: '_surface',
-    backgroundImage: 'radial-gradient(_colors.border 1px, transparent 1px)',
-    backgroundSize: '18px 18px',
-    backgroundPosition: '-9px -9px',
-  },
+  canvas: { minHeight: '7rem' },
   description: { color: '_textMuted' },
   // 多列里：整个小节留在同一列；上下两个示例之间比左右两列之间留得更开，一眼看出哪段说明属于哪张卡片
   inColumns: { breakInside: 'avoid', paddingBlockEnd: '3rem' },
@@ -58,7 +50,7 @@ export const Example = _component(({ id, title, demo, align, children }: Example
         code={demo.source}
         align={align}
         actions={<EditInPlayground code={demo.source} />}
-        propsPreview={{ sx: styles.canvas }}
+        propsPreview={{ sx: [canvasStyles.canvas, styles.canvas] }}
       >
         {h(demo.component)}
       </CodePreview>
