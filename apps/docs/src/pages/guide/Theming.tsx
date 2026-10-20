@@ -50,7 +50,8 @@ const styles = stylex.create({
   },
   preview: {
     position: { default: 'static', '@media (min-width: 72rem)': 'sticky' },
-    top: 'calc(3.5rem + 1.5rem)',
+    // 顶栏高度（AppShell 的 HEADER_HEIGHT）+ 间距
+    top: 'calc(3rem + 1.5rem)',
     // 样板间是界面，不是长文：字号与行高回到组件的默认值
     fontSize: '_md',
     lineHeight: '_normal',

@@ -34,7 +34,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { layoutVars } from '../utils/style/vars.stylex';
 
 /** 顶栏高度：也是两侧栏粘住的位置、标题跳转时让开的距离 */
-const HEADER_HEIGHT = '3.5rem';
+const HEADER_HEIGHT = '3rem';
 // 与 sizes.lg / sizes.xl 相同（媒体查询里不能用 CSS 变量）
 const WIDE_QUERY = '(min-width: 64rem)';
 const WIDE = '@media (min-width: 64rem)';

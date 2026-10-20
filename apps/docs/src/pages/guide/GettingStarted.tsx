@@ -1,8 +1,10 @@
 /** 指南：在已有的 Vue 项目里装上 vue-tsx-pro，写第一个 TSX 页面 */
 import { _component } from '@vue-tsx-pro/tsx';
-import { Alert, Code, CodeBlock, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
+import { Alert, Code, CodeBlock, CodePreview, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
+import { h } from 'vue';
 import Counter from '../demo/Counter.tsx?demo';
 import { DocPage } from '../../site/DocPage';
+import { EditInPlayground } from '../../site/EditInPlayground';
 
 const meta = {
   title: '快速开始',
@@ -74,7 +76,14 @@ export default _component(() => () => (
         <Code>_state</Code> 声明的变量像普通变量一样读写，界面跟着变；<Code>_derived</Code>{' '}
         是由它算出来的值。
       </Paragraph>
-      <CodeBlock title="Counter.tsx" code={Counter.source} lang="tsx" />
+      <CodePreview
+        code={Counter.source}
+        showCode
+        align="center"
+        actions={<EditInPlayground code={Counter.source} />}
+      >
+        {h(Counter.component)}
+      </CodePreview>
     </Flex>
   </DocPage>
 ));

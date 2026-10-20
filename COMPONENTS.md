@@ -660,7 +660,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 **设计取舍**：
 
 - 文档站专用的组件都按通用组件设计：数据由使用方给（CommandPalette 的 `items` 与 `onAction`、TableOfContents 的 `items`），不绑定路由、搜索索引或页面结构。
-- AppShell 的响应式用写死的媒体查询（40/64/80rem，与容器宽度档位一致），不加断点 token（§6.2）；顶栏高度固定 3.5rem，经 `layoutVars.stickyOffset` 交给里面的标题与侧栏。
+- AppShell 的响应式用写死的媒体查询（40/64/80rem，与容器宽度档位一致），不加断点 token（§6.2）；顶栏高度固定 3rem，经 `layoutVars.stickyOffset` 交给里面的标题与侧栏。
 - 本页目录的阅读线取标题自己的 `scroll-margin-top`：点目录跳过去后，高亮的正好是跳到的那一节；滚到底时高亮视口里的最后一节。
 - 命令面板的焦点一直在输入框上（aria-activedescendant 指向高亮项），与 Combobox 相同；面板不记选择，选中就是执行，所以回调叫 `onAction`（与 MenuItem 一致，也避开原生 select 事件）。
 
