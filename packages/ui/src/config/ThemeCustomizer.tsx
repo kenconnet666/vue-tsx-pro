@@ -24,6 +24,7 @@ import { downloadFile } from '../utils/dom/download';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { useLang } from './context';
+import { useFormat } from './lang/format';
 import { builtinThemes } from './theme/builtin';
 import { CONTRAST_PAIRS, checkContrast, type ContrastIssue } from './theme/contrast';
 import {
@@ -155,6 +156,7 @@ export const ThemeCustomizer = _component(
     ...rest
   }: ThemeCustomizerProps) => {
     const lang = useLang();
+    const format = useFormat();
     let issues = _state.raw<ContrastIssue[]>([]);
 
     /** 改一个旋钮：空值表示沿用主题本来的取值 */
@@ -285,7 +287,7 @@ export const ThemeCustomizer = _component(
       const scaling = settings.scaling ?? 1;
       const font = settings.font ?? 'sans';
       const motion = settings.motion ?? 'normal';
-      const percent = (factor: number) => `${Math.round(factor * 100)}%`;
+      const percent = (factor: number) => format.number(factor, { style: 'percent' });
       const labelOf = <Key extends string>(list: [Key, string][], key: Key) =>
         list.find(([value]) => value === key)?.[1];
       const code = themeSettingsCode(
@@ -397,7 +399,10 @@ export const ThemeCustomizer = _component(
                     <span key={`${issue.foreground}-${issue.background}`}>
                       {lang.customizeContrastIssue(
                         `${issue.foreground} / ${issue.background}`,
-                        issue.ratio.toFixed(2),
+                        format.number(issue.ratio, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }),
                         issue.minimum,
                       )}
                     </span>
