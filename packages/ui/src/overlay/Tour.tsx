@@ -17,13 +17,14 @@
  * - 卡片：标题（dialog 的名称）、内容（描述）、步数、上一步 / 下一步（最后一步是“完成”）、跳过；
  * - open、current 可受控；点“完成”时调用 onFinish，跳过或 Esc 时只关闭。
  *
- * 部件：Root（dialog，整屏透明）、Spotlight（镂空）、Panel（卡片）、Title、Content、Footer、Progress（步数）。
+ * 部件：Root（dialog，整屏透明）、Spotlight（镂空）、Panel（卡片）、Title、Content、Footer、Progress（步数）、
+ * Skip（跳过）、Previous（上一步）、Next（下一步 / 完成）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { autoUpdate } from '@floating-ui/dom';
 import { nextTick, onBeforeUnmount, useId, type VNodeChild } from 'vue';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import { H2, type HeadingProps } from '../base/Heading';
 import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
@@ -73,6 +74,12 @@ export interface TourProps extends PartProps<
   propsFooter?: Partial<FlexProps>;
   /** 步数（第几步 / 共几步）的部件属性 */
   propsProgress?: Partial<TextProps>;
+  /** 跳过按钮的部件属性；点击与不可用由组件管理 */
+  propsSkip?: Partial<ButtonProps>;
+  /** 上一步按钮的部件属性；点击与不可用由组件管理 */
+  propsPrevious?: Partial<ButtonProps>;
+  /** 下一步（最后一步是完成）按钮的部件属性；点击与不可用由组件管理 */
+  propsNext?: Partial<ButtonProps>;
 }
 
 /** Tour 的样式：root、spotlight、dimmed、panel、title、content、footer、progress */
@@ -150,6 +157,9 @@ export const Tour = _component(
     propsContent,
     propsFooter,
     propsProgress,
+    propsSkip,
+    propsPrevious,
+    propsNext,
     ...rest
   }: TourProps) => {
     const lang = useLang();
@@ -323,16 +333,33 @@ export const Tour = _component(
                   {lang.tourProgress(current + 1, steps.length)}
                 </Text>
                 {!last() && (
-                  <Button variant="ghost" tone="neutral" size="sm" onClick={close}>
+                  <Button
+                    {...mergePartProps<ButtonProps>(
+                      { variant: 'ghost', tone: 'neutral', size: 'sm' },
+                      propsSkip,
+                      { disabled: false, onClick: close },
+                    )}
+                  >
                     {lang.tourSkip}
                   </Button>
                 )}
                 {current > 0 && (
-                  <Button variant="outline" size="sm" onClick={() => current--}>
+                  <Button
+                    {...mergePartProps<ButtonProps>(
+                      { variant: 'outline', size: 'sm' },
+                      propsPrevious,
+                      { disabled: false, onClick: () => current-- },
+                    )}
+                  >
                     {lang.tourPrevious}
                   </Button>
                 )}
-                <Button size="sm" onClick={next}>
+                <Button
+                  {...mergePartProps<ButtonProps>({ size: 'sm' }, propsNext, {
+                    disabled: false,
+                    onClick: next,
+                  })}
+                >
                   {last() ? lang.tourFinish : lang.tourNext}
                 </Button>
               </Flex>

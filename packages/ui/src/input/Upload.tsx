@@ -14,14 +14,15 @@
  * - 超过 maxSize、不在 accept 里的文件也列出来，带错误、不上传；单选（不写 multiple）时新文件替换旧的；
  * - 在 Field 里时关联标签与错误；写了 name 时有一个隐藏的 file input 带着全部文件，原生提交（FormData）也拿得到。
  *
- * 部件：Root（div）、Drop（FileDrop）、List（ul）、Item（li）、Body（文件名与下一行）、Name、Meta（大小或错误）、Progress。
+ * 部件：Root（div）、Drop（FileDrop）、List（ul）、Item（li）、Icon（文件图标）、Body（文件名与下一行）、Name、Meta（大小或错误）、
+ * Progress、Retry（重试按钮）、Remove（移除按钮）。
  */
 import { CircleAlert, CircleCheck, File as FileIcon, RotateCw, X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount } from 'vue';
-import { Icon } from '../base/Icon';
-import { IconButton } from '../base/IconButton';
+import { Icon, type IconProps } from '../base/Icon';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
@@ -85,6 +86,8 @@ export interface UploadProps extends PartProps<'div'> {
   propsList?: Partial<GridProps<'ul'>>;
   /** 每一项的部件属性，可以按文件计算 */
   propsItem?: PartProps<'li'> | ((file: UploadFile) => PartProps<'li'>);
+  /** 每一项的文件图标（按状态是文件、对勾或警告）的部件属性 */
+  propsIcon?: Partial<IconProps>;
   /** 每一项里文件名与下一行（大小、错误或进度）的外层的部件属性 */
   propsBody?: PartProps<'div'>;
   /** 每一项里文件名的部件属性 */
@@ -93,6 +96,10 @@ export interface UploadProps extends PartProps<'div'> {
   propsMeta?: PartProps<'span'>;
   /** 每一项上传中的进度条的部件属性 */
   propsProgress?: Partial<ProgressProps>;
+  /** 每一项失败后的重试按钮的部件属性；名称默认取语言包，点击由组件管理 */
+  propsRetry?: Partial<IconButtonProps>;
+  /** 每一项的移除按钮的部件属性；名称默认取语言包，点击与不可用由组件管理 */
+  propsRemove?: Partial<IconButtonProps>;
 }
 
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
@@ -134,10 +141,13 @@ export const Upload = _component(
     propsDrop,
     propsList,
     propsItem,
+    propsIcon,
     propsBody,
     propsName,
     propsMeta,
     propsProgress,
+    propsRetry,
+    propsRemove,
     ...rest
   }: UploadProps) => {
     const lang = useLang();
@@ -218,12 +228,17 @@ export const Upload = _component(
           data-state={item.status}
         >
           <Icon
-            icon={failed ? CircleAlert : item.status === 'done' ? CircleCheck : FileIcon}
-            sx={[
-              uploadStyles.icon,
-              failed && uploadStyles.error,
-              item.status === 'done' && uploadStyles.done,
-            ]}
+            {...mergePartProps<IconProps>(
+              {
+                icon: failed ? CircleAlert : item.status === 'done' ? CircleCheck : FileIcon,
+                sx: [
+                  uploadStyles.icon,
+                  failed && uploadStyles.error,
+                  item.status === 'done' && uploadStyles.done,
+                ],
+              },
+              propsIcon,
+            )}
           />
           <div {...mergeAttrs<'div'>({ sx: uploadStyles.body }, propsBody)}>
             <span {...mergeAttrs<'span'>({ sx: uploadStyles.name }, propsName)}>{fileName}</span>
@@ -249,20 +264,29 @@ export const Upload = _component(
           </div>
           {failed && upload && !item.rejected && (
             <IconButton
-              icon={RotateCw}
-              variant="ghost"
-              size="sm"
-              aria-label={lang.uploadRetry(fileName)}
-              onClick={() => void start(item)}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: RotateCw,
+                  variant: 'ghost',
+                  size: 'sm',
+                  'aria-label': lang.uploadRetry(fileName),
+                },
+                propsRetry,
+                { onClick: () => void start(item) },
+              )}
             />
           )}
           <IconButton
-            icon={X}
-            variant="ghost"
-            size="sm"
-            aria-label={lang.uploadRemove(fileName)}
-            disabled={disabled}
-            onClick={() => remove(item.id)}
+            {...mergePartProps<IconButtonProps>(
+              {
+                icon: X,
+                variant: 'ghost',
+                size: 'sm',
+                'aria-label': lang.uploadRemove(fileName),
+              },
+              propsRemove,
+              { disabled, onClick: () => remove(item.id) },
+            )}
           />
         </li>
       );

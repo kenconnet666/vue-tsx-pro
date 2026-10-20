@@ -352,7 +352,8 @@ export const breakpoints = stylex.defineConsts({
   lg: '@media (min-width: 64rem)',
   /** 80rem（1280px）以上：宽屏，右侧栏也显示 */
   xl: '@media (min-width: 80rem)',
-});
+  // 字面量类型：StyleX 的类型要求 @media 键是具体的字符串
+} as const);
 
 /** 圆角：em，随组件字号缩放；整体改成直角或更圆时覆盖这一组 */
 export const radii = stylex.defineVars({

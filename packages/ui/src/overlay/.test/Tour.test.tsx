@@ -1,5 +1,6 @@
 // Tour：卡片里各部件的属性透传与无障碍关联（遮罩、定位、焦点见浏览器测试）
 import { describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Tour } from '../Tour';
 
@@ -27,5 +28,29 @@ describe('Tour', () => {
     expect(content.textContent).toBe('按名称或编号查找订单');
     expect(dialog.getAttribute('aria-describedby')).toBe(content.id);
     expect(dialog.querySelector('.footer .progress')!.textContent).toContain('1');
+  });
+
+  it('部件属性：跳过、上一步、下一步；点击与不可用由组件管理', async () => {
+    let step = _state(0);
+    const root = mount(() => (
+      <Tour
+        steps={steps}
+        current={_bind(step)}
+        propsSkip={{ class: 'skip', variant: 'outline' }}
+        propsPrevious={{ class: 'previous' }}
+        propsNext={{ class: 'next', disabled: true }}
+      />
+    ));
+    expect(root.querySelector('button.skip')!.textContent).toBe('跳过');
+    expect(root.querySelector('button.previous')).toBeNull();
+    const next = root.querySelector<HTMLButtonElement>('button.next')!;
+    expect(next.disabled).toBe(false);
+    next.click();
+    await nextTick();
+    expect(step).toBe(1);
+    expect(root.querySelector('button.skip')).toBeNull();
+    root.querySelector<HTMLButtonElement>('button.previous')!.click();
+    await nextTick();
+    expect(step).toBe(0);
   });
 });

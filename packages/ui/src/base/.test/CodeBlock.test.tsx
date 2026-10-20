@@ -155,4 +155,17 @@ describe('CodeBlock 的行与折叠', () => {
     expect(numbers.map((span) => span.textContent)).toEqual(['1', '2', '3', '4']);
     expect(numbers.every((span) => span.getAttribute('aria-hidden') === 'true')).toBe(true);
   });
+
+  it('部件属性：展开按钮里的箭头图标；展开后的翻转仍由组件加上', async () => {
+    const root = mount(() => (
+      <CodeBlock code={source} maxLines={2} propsExpandIcon={{ class: 'chevron' }} />
+    ));
+    const toggle = root.querySelector<HTMLButtonElement>('button[aria-expanded]')!;
+    const icon = toggle.querySelector('svg.chevron')!;
+    const closed = icon.getAttribute('class');
+    toggle.click();
+    await nextTick();
+    expect(icon.classList).toContain('chevron');
+    expect(icon.getAttribute('class')).not.toBe(closed);
+  });
 });

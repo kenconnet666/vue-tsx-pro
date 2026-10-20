@@ -22,7 +22,7 @@ import { disclosureStyles } from '../utils/style/transitions';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
 import { CopyButton, type CopyButtonProps } from './CopyButton';
-import { Icon } from './Icon';
+import { Icon, type IconProps } from './Icon';
 
 /** 行号的写法：`'1,3-5'` 或 `[1, 3, 4, 5]`（从 1 开始） */
 export type LineSpec = string | readonly number[];
@@ -69,6 +69,8 @@ export interface CodeBlockProps extends PartProps<'pre', 'title'> {
   propsScroll?: Partial<ScrollAreaProps>;
   /** 展开、收起长代码的按钮的部件属性 */
   propsExpand?: Partial<ButtonBaseProps>;
+  /** 展开按钮里箭头图标的部件属性；展开后的翻转由组件管理 */
+  propsExpandIcon?: Partial<IconProps>;
 }
 
 /** `'1,3-5'` → Set{1, 3, 4, 5}；数组原样收进集合 */
@@ -205,6 +207,7 @@ export const CodeBlock = _component(
     propsCopy,
     propsScroll,
     propsExpand,
+    propsExpandIcon,
     ...rest
   }: CodeBlockProps) => {
     const config = useConfig();
@@ -343,8 +346,11 @@ export const CodeBlock = _component(
             >
               {expanded ? labels.codeCollapse : labels.codeExpand}
               <Icon
-                icon={ChevronDown}
-                sx={[disclosureStyles.icon, expanded && codeBlockStyles.expandOpen]}
+                {...mergePartProps<IconProps>(
+                  { icon: ChevronDown, sx: disclosureStyles.icon },
+                  propsExpandIcon,
+                  { sx: expanded && codeBlockStyles.expandOpen },
+                )}
               />
             </ButtonBase>
           )}

@@ -197,6 +197,32 @@ describe('DataTable', () => {
     const empty = blank!.querySelector('td.empty')!;
     expect([empty.getAttribute('colspan'), empty.textContent]).toEqual(['2', '暂无数据']);
   });
+
+  it('部件属性：表头那一行、勾选框；aria-rowindex、勾选状态与切换由组件管理', async () => {
+    let picked = _state<string[]>([]);
+    const root = mount(() => (
+      <DataTable
+        rows={people}
+        columns={columns}
+        rowKey={(p) => p.id}
+        selectionMode="multiple"
+        selected={_bind(picked)}
+        propsHeadRow={{ class: 'head-row', ...({ 'aria-rowindex': 9 } as object) }}
+        propsSelectCheckbox={{ class: 'box', checked: true, 'aria-label': '勾选' }}
+        aria-label="人员"
+      />
+    ));
+    await flush();
+    const headRow = root.querySelector('thead tr.head-row')!;
+    expect(headRow.getAttribute('aria-rowindex')).toBe('1');
+    const boxes = [...root.querySelectorAll<HTMLInputElement>('input.box[type=checkbox]')];
+    expect(boxes).toHaveLength(4);
+    expect(boxes.every((box) => box.getAttribute('aria-label') === '勾选')).toBe(true);
+    expect(boxes.some((box) => box.checked)).toBe(false);
+    boxes[1]!.click();
+    await flush();
+    expect(picked).toEqual(['a']);
+  });
 });
 
 describe('TreeDataTable', () => {

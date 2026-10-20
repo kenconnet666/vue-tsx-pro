@@ -142,4 +142,29 @@ describe('Upload', () => {
     const progress = root.querySelector('.progress[role="progressbar"]')!;
     expect(progress.getAttribute('aria-valuenow')).toBe('50');
   });
+
+  it('部件属性：文件图标、重试、移除；名称可以改，点击与不可用由组件管理', async () => {
+    let list = _state<UploadFile[]>([
+      { id: 'a', file: file('a.txt'), status: 'error', error: '网络错误' },
+    ]);
+    const upload = vi.fn<UploadHandler>(() => new Promise(() => {}));
+    const root = mount(() => (
+      <Upload
+        value={_bind(list)}
+        upload={upload}
+        disabled
+        propsIcon={{ class: 'icon' }}
+        propsRetry={{ class: 'retry', 'aria-label': '再试一次' }}
+        propsRemove={{ class: 'remove', disabled: false }}
+      />
+    ));
+    expect(root.querySelector('li svg.icon')).not.toBeNull();
+    expect(root.querySelector<HTMLButtonElement>('button.remove')!.disabled).toBe(true);
+    const retry = root.querySelector<HTMLButtonElement>('button.retry')!;
+    expect(retry.getAttribute('aria-label')).toBe('再试一次');
+    retry.click();
+    await flush();
+    expect(upload).toHaveBeenCalledTimes(1);
+    expect(list[0]!.status).toBe('uploading');
+  });
 });

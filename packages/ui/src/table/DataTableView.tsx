@@ -22,7 +22,7 @@ import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
-import { Checkbox } from '../input/Checkbox';
+import { Checkbox, type CheckboxProps } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { SelectionModes } from '../utils/data/selection';
@@ -135,10 +135,14 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsSortLabel?: PartProps<'span'>;
   /** 表头（thead，吸顶）的部件属性 */
   propsHead?: PartProps<'thead'>;
+  /** 表头那一行（tr）的部件属性 */
+  propsHeadRow?: PartProps<'tr', 'aria-rowindex'>;
   /** 表头勾选列（th，多选时里面是全选框）的部件属性 */
   propsSelectHeaderCell?: PartProps<'th', 'scope'>;
   /** 每行勾选列（td）的部件属性 */
   propsSelectCell?: PartProps<'td'>;
+  /** 勾选列里的勾选框（每行的与表头的全选）的部件属性；勾选状态与切换由组件管理 */
+  propsSelectCheckbox?: Partial<CheckboxProps>;
   /** 第一个数据列里 leading 与内容的外层（有 leading 时才有）的部件属性 */
   propsLeading?: PartProps<'div'>;
   /** 第一个数据列里内容的包装（有 leading 时才有）的部件属性 */
@@ -302,6 +306,8 @@ export interface DataTableRowProps<T> {
   propsCell?: CellPartProps<T>;
   /** 勾选列单元格的部件属性 */
   propsSelectCell?: PartProps<'td'>;
+  /** 勾选框的部件属性 */
+  propsSelectCheckbox?: Partial<CheckboxProps>;
   /** leading 与内容外层的部件属性 */
   propsLeading?: PartProps<'div'>;
   /** 内容包装的部件属性 */
@@ -331,6 +337,7 @@ export const DataTableRow = _component(
     propsRow,
     propsCell,
     propsSelectCell,
+    propsSelectCheckbox,
     propsLeading,
     propsContent,
     measure,
@@ -372,9 +379,15 @@ export const DataTableRow = _component(
             )}
           >
             <Checkbox
-              checked={selected}
-              aria-label={lang.tableSelectRow(index + 1)}
-              onChange={() => onToggle?.(row.key)}
+              {...mergePartProps<CheckboxProps>(
+                { 'aria-label': lang.tableSelectRow(index + 1) },
+                propsSelectCheckbox,
+                {
+                  checked: selected,
+                  indeterminate: false,
+                  onChange: () => onToggle?.(row.key),
+                },
+              )}
             />
           </td>
         )}
@@ -448,8 +461,10 @@ export const DataTableView = _component(
     propsResizer,
     propsSortLabel,
     propsHead,
+    propsHeadRow,
     propsSelectHeaderCell,
     propsSelectCell,
+    propsSelectCheckbox,
     propsLeading,
     propsContent,
     propsProgress,
@@ -603,7 +618,7 @@ export const DataTableView = _component(
               })}
             </colgroup>
             <thead {...mergeAttrs<'thead'>({ sx: dataTableStyles.head }, propsHead)}>
-              <tr aria-rowindex={1}>
+              <tr {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
                 {selectionMode && (
                   <th
                     {...mergeAttrs<'th'>(
@@ -621,11 +636,16 @@ export const DataTableView = _component(
                   >
                     {selectionMode === 'multiple' && (
                       <Checkbox
-                        checked={allSelected}
-                        indeterminate={someSelected}
-                        disabled={rows.length === 0}
-                        aria-label={lang.tableSelectAll}
-                        onChange={() => onToggleAll?.()}
+                        {...mergePartProps<CheckboxProps>(
+                          { 'aria-label': lang.tableSelectAll },
+                          propsSelectCheckbox,
+                          {
+                            checked: allSelected,
+                            indeterminate: someSelected,
+                            disabled: rows.length === 0,
+                            onChange: () => onToggleAll?.(),
+                          },
+                        )}
                       />
                     )}
                   </th>
@@ -731,6 +751,7 @@ export const DataTableView = _component(
                     propsRow={propsRow}
                     propsCell={propsCell}
                     propsSelectCell={propsSelectCell}
+                    propsSelectCheckbox={propsSelectCheckbox}
                     propsLeading={propsLeading}
                     propsContent={propsContent}
                     measure={virtual.measure}
