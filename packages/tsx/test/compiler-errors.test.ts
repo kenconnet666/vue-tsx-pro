@@ -76,7 +76,7 @@ const cases: [string, string, RegExp][] = [
   [
     '_bind(get, set) 的参数不是函数',
     'let n = _state(1); <X v={_bind(n, (v) => {})} />',
-    /两个参数都是函数/,
+    /get 是不带参数的函数/,
   ],
   [
     '_bind(get, set) 用在原生元素上',

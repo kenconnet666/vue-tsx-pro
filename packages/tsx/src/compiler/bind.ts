@@ -90,10 +90,11 @@ function rewriteFunctionBind(
   attribute: NodePath<t.JSXAttribute>,
 ) {
   const [get, set] = call.node.arguments;
-  if (!isFunction(get) || !isFunction(set) || get.params.length) {
+  // get 要写成函数字面量：_bind(n, …) 多半是把普通绑定写错了。set 可以是函数名（_bind(() => on, toggle)）
+  if (!isFunction(get) || get.params.length || !t.isExpression(set)) {
     throw fail(
       call,
-      '_bind(get, set) 的两个参数都是函数，get 不带参数，例如 _bind(() => status, (next) => switchTo(next))',
+      '_bind(get, set)：get 是不带参数的函数，set 是写回的函数，例如 _bind(() => status, (next) => switchTo(next))',
     );
   }
   const tag = (attribute.parent as t.JSXOpeningElement).name;
