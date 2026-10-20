@@ -342,6 +342,11 @@ export const sizes = stylex.defineVars({
  * 媒体查询里不能用 CSS 变量，所以是编译期常量：
  *
  *   gridTemplateColumns: { default: 'minmax(0, 1fr)', [breakpoints.lg]: 'minmax(0, 1fr) 20rem' }
+ *
+ * 同一个属性上写了几个断点时，除最后一档外都用 xxOnly（只在这一档）：常量写的媒体查询，StyleX 不按宽度排序
+ * （defineConsts 不支持 enableMediaQueryOrder），重叠的区间谁生效取决于规则的先后，可能是窄的那档盖住宽的：
+ *
+ *   gridTemplateColumns: { default: null, [breakpoints.lgOnly]: '16rem 1fr', [breakpoints.xl]: '16rem 1fr 14rem' }
  */
 export const breakpoints = stylex.defineConsts({
   /** 40rem（640px）以上：大屏手机横屏、小平板 */
@@ -352,6 +357,12 @@ export const breakpoints = stylex.defineConsts({
   lg: '@media (min-width: 64rem)',
   /** 80rem（1280px）以上：宽屏，右侧栏也显示 */
   xl: '@media (min-width: 80rem)',
+  /** 40rem 到 48rem 之间：同一属性写了几个断点时用，避免区间重叠 */
+  smOnly: '@media (min-width: 40rem) and (max-width: 47.99rem)',
+  /** 48rem 到 64rem 之间 */
+  mdOnly: '@media (min-width: 48rem) and (max-width: 63.99rem)',
+  /** 64rem 到 80rem 之间 */
+  lgOnly: '@media (min-width: 64rem) and (max-width: 79.99rem)',
   // 字面量类型：StyleX 的类型要求 @media 键是具体的字符串
 } as const);
 

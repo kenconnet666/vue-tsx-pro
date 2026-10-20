@@ -186,7 +186,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 - 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `'calc(_md * 2)'`；只有运行时的值才 import 后写 `space.md`。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
-- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只有 AppShell 的粘性顶栏（10）与 SkipLink（100）写了层级。断点是编译期常量 `breakpoints`（`tokens.stylex.ts` 的 `defineConsts`，`sm` / `md` / `lg` / `xl` 与 `sizes` 的容器宽度一致：40/48/64/80rem）：媒体查询不能用 CSS 变量，常量在编译时内联，样式里写 `[breakpoints.lg]: …`，运行时去掉 `@media ` 前缀交给 `useMediaQuery`。组件仍优先用容器查询；断点只给整页骨架（AppShell）、命令面板的触发器与页面级布局，不再各写各的数值。
+- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只有 AppShell 的粘性顶栏（10）与 SkipLink（100）写了层级。断点是编译期常量 `breakpoints`（`tokens.stylex.ts` 的 `defineConsts`，`sm` / `md` / `lg` / `xl` 与 `sizes` 的容器宽度一致：40/48/64/80rem）：媒体查询不能用 CSS 变量，常量在编译时内联，样式里写 `[breakpoints.lg]: …`，运行时去掉 `@media ` 前缀交给 `useMediaQuery`。同一个属性写几个断点时，除最后一档外用不重叠的 `smOnly` / `mdOnly` / `lgOnly`：常量写的媒体查询 StyleX 不按宽度排序（`defineConsts` 不支持 `enableMediaQueryOrder`），重叠时可能窄的那档盖住宽的。组件仍优先用容器查询；断点只给整页骨架（AppShell）、命令面板的触发器与页面级布局，不再各写各的数值。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）、`paper.ts`（纸张：米黄纸色、深棕墨色文字、墨蓝品牌色，覆盖颜色、阴影与字体，标题用衬线）。
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
@@ -283,7 +283,7 @@ interface Lang {
 | 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`） |
 | 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                              |
 | 图表     | `@unovis/ts`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/charts`（BarChart、LineChart，§10.21）；SVG，外观靠 `--vis-*` 变量接到 tokens，明暗切换不用重画          |
-| 3D       | `three`（可选 peer）                | 3D 展示；实例放普通变量或 `_state.raw`，不进深层响应式                                                                           |
+| 3D       | `three`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式         |
 | 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                     |
 | 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                           |
 | 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                 |
@@ -758,6 +758,20 @@ apps/docs/src/components/base/Button/
 **Unovis 的坑**：每个 XYContainer 都插一个 id 固定为 `saturate` 的滤镜，一页多张图时 id 重复，创建后改成各自的 id（`useId`）；GroupedBar 默认给空值画 2px 的最小高度，设为 0；happy-dom 没有 SVG 的 `transform.baseVal.consolidate`，时长为 0 时不走 d3 的过渡，单元测试不受影响；绘制在动画帧里，页面在后台（标签页隐藏）时暂停，回到前台才画。
 
 **第二期**：面积图、环形图、堆叠与分组混合、双数值轴、框选缩放、Stat 里的迷你折线、用键盘逐点浏览。
+
+### 10.22 3D 与视觉效果（进行中）
+
+子路径 `@vue-tsx-pro/ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的效果（TiltCard、SpotlightCard、BorderBeam）在主入口。
+
+| 项       | 做法                                                                                                                                                                                                       |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 生命周期 | `three/core/renderer.ts` 的 `useThree`：第一次进入视口才建渲染器；共用一个动画帧循环；滚出视口、标签页隐藏、`paused` 时停；卸载、被回收时释放几何体、材质、纹理与渲染器并 `forceContextLoss` |
+| 静止     | 系统要求减少动态效果，或主题时长为 0（主题编辑器关掉动效）时只画一帧，尺寸、主题变化时重画                                                                                                                 |
+| 上下文   | 同时最多 8 个（`setMaxThreeContexts`）：满了回收最久没在视口里的，它回来时换一块新 canvas 重建（`generation` 作 key）；都在视口里时排队；上下文丢失三次后降级                                          |
+| 主题色   | `context.themeColors` / `useThemeColors`：探针元素让浏览器解析 token（color-mix、light-dark 都行），culori 转成 `THREE.Color`；换主题时按 lg 时长原地过渡，材质直接引用同一个对象                    |
+| 画质     | `quality`：auto / low / medium / high → 像素比上限、密度系数、抗锯齿；auto 看触屏、核数、内存、省流量                                                                                                     |
+| 降级     | 没有 WebGL 时显示主题色的柔和渐变（可换）；默认 `aria-hidden`，有 `aria-label` 时 `role="img"`；状态写在 `data-state`                                                                              |
+| 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                          |
 
 ### 10.6 顺序
 

@@ -108,10 +108,11 @@ export const appShellStyles = stylex.create({
   body: { display: 'grid', flexGrow: 1, gridTemplateColumns: 'minmax(0, 1fr)' },
   withSidebar: { gridTemplateColumns: { default: null, [breakpoints.lg]: '16rem minmax(0, 1fr)' } },
   withAside: { gridTemplateColumns: { default: null, [breakpoints.xl]: 'minmax(0, 1fr) 14rem' } },
+  // 一个属性上两个断点：窄的一档用 lgOnly，不和 xl 重叠（见 breakpoints 的说明）
   withBoth: {
     gridTemplateColumns: {
       default: null,
-      [breakpoints.lg]: '16rem minmax(0, 1fr)',
+      [breakpoints.lgOnly]: '16rem minmax(0, 1fr)',
       [breakpoints.xl]: '16rem minmax(0, 1fr) 14rem',
     },
   },
