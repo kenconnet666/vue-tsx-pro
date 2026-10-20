@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   CodeBlock,
+  downloadFile,
   Flex,
   Icon,
   Small,
@@ -41,14 +42,6 @@ const styles = stylex.create({
     color: '_text',
   },
 });
-
-/** 存成文件：SVG 下载 */
-function download(name: string, svg: string) {
-  const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-  const link = Object.assign(document.createElement('a'), { href: url, download: `${name}.svg` });
-  link.click();
-  URL.revokeObjectURL(url);
-}
 
 export const IconLibrary = _component(() => {
   let selected = _state('Rocket');
@@ -102,7 +95,7 @@ export const IconLibrary = _component(() => {
                 tone="neutral"
                 size="sm"
                 icon={Download}
-                onClick={() => download(item.slug, svg)}
+                onClick={() => downloadFile(`${item.slug}.svg`, svg, 'image/svg+xml')}
               >
                 下载 SVG
               </Button>

@@ -15,6 +15,7 @@ import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
 import { parseColor, toHex } from '../utils/data/color';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { swatchStyles } from '../utils/style/swatch-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import {
   controlStyles,
@@ -51,11 +52,13 @@ export interface ColorFieldProps extends PartProps<'input', ColorFieldManaged>, 
   propsRoot?: PartProps<'div'>;
   /** 色块（包着原生取色器的 label）的部件属性 */
   propsSwatch?: PartProps<'label'>;
+  /** 原生取色器（透明地盖在色块上）的部件属性；类型、取值、可用性与无障碍名称由组件管理 */
+  propsPicker?: PartProps<'input', 'type' | 'value' | 'disabled' | 'aria-label' | 'onInput'>;
 }
 
-/** ColorField 的样式：swatch、picker、input */
+/** ColorField 的样式：swatch、fill、picker、input */
 export const colorFieldStyles = stylex.create({
-  // 色块：棋盘格垫底，半透明的颜色看得出来
+  // 色块：棋盘格垫底（swatchStyles），颜色铺在上面一层
   swatch: {
     position: 'relative',
     flexShrink: 0,
@@ -63,10 +66,9 @@ export const colorFieldStyles = stylex.create({
     height: '1.25em',
     borderRadius: '_sm',
     overflow: 'hidden',
-    backgroundImage: 'repeating-conic-gradient(_colors.fill 0 25%, _colors.surface 0 50%)',
-    backgroundSize: '0.5em 0.5em',
     cursor: 'pointer',
   },
+  fill: { position: 'absolute', inset: 0 },
   // 原生取色器盖满色块、完全透明：点色块就是点它，键盘也能聚焦它
   picker: {
     position: 'absolute',
@@ -86,10 +88,7 @@ export const colorFieldStyles = stylex.create({
 // 颜色是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** ColorField 的动态样式：色块里的颜色 */
 export const colorFieldDynamicStyles = stylex.create({
-  // 内阴影铺满色块画出颜色（叠在棋盘格上，半透明看得出来），最上面一层是描边
-  fill: (color: string) => ({
-    boxShadow: `inset 0 0 0 1px rgb(0 0 0 / 0.15), inset 0 0 0 2em ${color}`,
-  }),
+  fill: (color: string) => ({ backgroundColor: color }),
 });
 
 /** 颜色输入（色块 + 文字输入）：值是 #hex */
@@ -106,6 +105,7 @@ export const ColorField = _component(
     id,
     propsRoot,
     propsSwatch,
+    propsPicker,
     ...rest
   }: ColorFieldProps) => {
     const lang = useLang();
@@ -144,17 +144,29 @@ export const ColorField = _component(
         >
           <label
             {...mergeAttrs<'label'>(
-              { sx: [colorFieldStyles.swatch, colorFieldDynamicStyles.fill(value)] },
+              { sx: [swatchStyles.checkerboard, colorFieldStyles.swatch] },
               propsSwatch,
             )}
           >
+            <span
+              {...stylex.attrs(
+                colorFieldStyles.fill,
+                swatchStyles.ring,
+                colorFieldDynamicStyles.fill(value),
+              )}
+            />
             <input
-              {...mergeAttrs<'input'>({ sx: [colorFieldStyles.picker, focusRingStyles.visible] })}
-              type="color"
-              value={opaque}
-              disabled={!editable}
-              aria-label={lang.colorPick}
-              onInput={(event: Event) => (value = (event.target as HTMLInputElement).value)}
+              {...mergeAttrs<'input'>(
+                { sx: [colorFieldStyles.picker, focusRingStyles.visible] },
+                propsPicker,
+                {
+                  type: 'color',
+                  value: opaque,
+                  disabled: !editable,
+                  'aria-label': lang.colorPick,
+                  onInput: (event: Event) => (value = (event.target as HTMLInputElement).value),
+                },
+              )}
             />
           </label>
           <input

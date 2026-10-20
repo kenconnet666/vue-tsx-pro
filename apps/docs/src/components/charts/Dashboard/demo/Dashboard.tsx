@@ -17,6 +17,7 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
+  downloadFile,
   useFormat,
   type StatusTone,
 } from '@vue-tsx-pro/ui';
@@ -215,11 +216,7 @@ export default _component(() => {
     ]);
     // 开头的 BOM 让 Excel 按 UTF-8 打开，中文不乱码
     const csv = `\uFEFF${[header, ...lines].map((line) => line.join(',')).join('\n')}`;
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    link.download = '降本统计.csv';
-    link.click();
-    URL.revokeObjectURL(link.href);
+    downloadFile('降本统计.csv', csv, 'text/csv');
   }
 
   return () => {

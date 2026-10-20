@@ -13,6 +13,7 @@ import { onMounted, watch, type VNodeChild } from 'vue';
 import { useConfig } from '../config/context';
 import { readToken } from '../config/theme/theme';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { swatchStyles } from '../utils/style/swatch-styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ColorSwatchProps extends PartProps<'div'> {
@@ -29,16 +30,15 @@ export interface ColorSwatchProps extends PartProps<'div'> {
 /** ColorSwatch 的样式：root、swatch、fill、label、value */
 export const colorSwatchStyles = stylex.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
-  // 棋盘格垫底，透明色看得出来；内阴影描出与页面同色的色块边界
+  // 棋盘格垫底、内描边画出边界（swatchStyles）；大色块的格子放大一倍
   swatch: {
     position: 'relative',
     height: '3rem',
     borderRadius: '_md',
     overflow: 'hidden',
-    backgroundImage: 'repeating-conic-gradient(_colors.fill 0 25%, _colors.surface 0 50%)',
     backgroundSize: '1rem 1rem',
   },
-  fill: { position: 'absolute', inset: 0, boxShadow: 'inset 0 0 0 1px rgb(0 0 0 / 0.1)' },
+  fill: { position: 'absolute', inset: 0 },
   label: { color: '_text', fontSize: '_sm', fontWeight: '_medium' },
   value: { color: '_textMuted', fontFamily: '_mono', fontSize: '_xs' },
 });
@@ -70,14 +70,22 @@ export const ColorSwatch = _component(
       return (
         <div {...mergeAttrs<'div'>({ sx: colorSwatchStyles.root }, rest)}>
           <div
-            {...mergeAttrs<'div'>({ sx: colorSwatchStyles.swatch }, propsSwatch, {
-              ref: _toRef(swatch),
-              'aria-hidden': true,
-            })}
+            {...mergeAttrs<'div'>(
+              { sx: [swatchStyles.checkerboard, colorSwatchStyles.swatch] },
+              propsSwatch,
+              {
+                ref: _toRef(swatch),
+                'aria-hidden': true,
+              },
+            )}
           >
             <div
               {...mergeAttrs<'div'>({
-                sx: [colorSwatchStyles.fill, colorSwatchDynamicStyles.fill(String(color))],
+                sx: [
+                  colorSwatchStyles.fill,
+                  swatchStyles.ring,
+                  colorSwatchDynamicStyles.fill(String(color)),
+                ],
               })}
             />
           </div>
