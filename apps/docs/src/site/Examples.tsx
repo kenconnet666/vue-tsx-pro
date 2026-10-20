@@ -38,16 +38,16 @@ export const Examples = _component(({ children }: { children?: VNodeChild }) => 
   // 右列从第几个示例开始；null 表示还没量过，先按个数对半分
   let split = _state.raw<number | null>(null);
 
+  function fit(width: number) {
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const next = width >= (COLUMN_WIDTH * 2 + COLUMN_GAP) * rem ? 2 : 1;
+    if (next === columns) return;
+    columns = next;
+    split = null;
+  }
   useResizeObserver(
     () => root,
-    ([entry]) => {
-      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-      const width = entry?.contentRect.width ?? 0;
-      const next = width >= (COLUMN_WIDTH * 2 + COLUMN_GAP) * rem ? 2 : 1;
-      if (next === columns) return;
-      columns = next;
-      split = null;
-    },
+    ([entry]) => fit(entry?.contentRect.width ?? 0),
   );
 
   /** 量出各示例的高度，找两列高度最接近的分界点 */
@@ -67,7 +67,11 @@ export const Examples = _component(({ children }: { children?: VNodeChild }) => 
     }
     split = best;
   }
-  onMounted(place);
+  // 挂载时（浏览器绘制之前）就定下列数并分好列：第一帧就是最终布局，不先闪一列，锚点也不会被挤走
+  onMounted(() => {
+    if (root) fit(root.clientWidth);
+    place();
+  });
   onUpdated(place);
 
   return () => {
