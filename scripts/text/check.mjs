@@ -7,8 +7,9 @@
  *   接成一行即可，Prettier 不会在没有空格的中文里断行；紧挨标签的换行会被 JSX 去掉，不受影响。
  *
  * 用法：pnpm text:check。检查 git 跟踪的文件，本地加上还没提交的新文件。
+ * pnpm text:check --fix 自动修正 TSX 里中文跨行与标点后的空格（改完再跑一遍 Prettier）。
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -84,6 +85,9 @@ function cjkLineBreaks(lines) {
 
 /** 中文标点后多出的空格（“放。 读屏”）：多半是跨行的文本被接成一行时留下的 */
 const SPACE_AFTER_CJK_PUNCTUATION = /[、。，；：！？）] +[一-鿿（“]/;
+/** --fix 用：留下标点，去掉空格 */
+const SPACE_AFTER_CJK_PUNCTUATION_GLOBAL = /([、。，；：！？）]) +(?=[一-鿿（“])/g;
+const FIX = process.argv.includes('--fix');
 
 const problems = [];
 const breaks = [];
@@ -108,6 +112,21 @@ for (const file of files) {
       problems.push(`${file}:${index + 1}  ${name}，改写成 ${escaped}`);
     }
   });
+  if (file.endsWith('.tsx') && FIX) {
+    // 从后往前接行（行号不会错位），再去掉标点后的空格
+    for (const line of cjkLineBreaks(lines).reverse()) {
+      lines[line - 2] = lines[line - 2].trimEnd() + lines[line - 1].trimStart();
+      lines.splice(line - 1, 1);
+    }
+    const fixed = lines
+      .map((line) => line.replace(SPACE_AFTER_CJK_PUNCTUATION_GLOBAL, '$1'))
+      .join('\n');
+    if (fixed !== text) {
+      writeFileSync(join(root, file), fixed);
+      console.log(`已修正：${file}`);
+    }
+    lines.splice(0, lines.length, ...fixed.split('\n'));
+  }
   if (file.endsWith('.tsx')) {
     for (const line of cjkLineBreaks(lines)) breaks.push(`${file}:${line}`);
     lines.forEach((line, index) => {
