@@ -50,7 +50,7 @@ const docOf = (symbol: ts.Symbol, checker: ts.TypeChecker) =>
   ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim();
 
 /** 有组件的入口：主入口与子路径（图表在 @vue-tsx-pro/ui/charts） */
-const ENTRIES = ['index.ts', 'charts/index.ts'];
+const ENTRIES = ['index.ts', 'charts/index.ts', 'three/index.ts'];
 
 /** 组件库入口（含子路径）导出的名字 → 符号 */
 function exportedSymbol(checker: ts.TypeChecker, name: string): ts.Symbol {

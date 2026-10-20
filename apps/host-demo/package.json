@@ -18,6 +18,7 @@
     "shiki": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "tabbable": "catalog:",
+    "three": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
@@ -30,6 +31,7 @@
     "axe-core": "catalog:",
     "happy-dom": "catalog:",
     "playwright": "catalog:",
+    "@types/three": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

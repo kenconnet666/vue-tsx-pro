@@ -1,0 +1,38 @@
+/**
+ * 3D 与 WebGL 效果（子路径 `@vue-tsx-pro/ui/three`；three 是可选的 peer 依赖，用到才安装）：
+ *
+ *   import { ThreeCanvas, useThemeColors } from '@vue-tsx-pro/ui/three';
+ *
+ * 主入口不导入 three，没用到 3D 的应用不会打包它。不依赖 three 的效果（TiltCard、SpotlightCard、BorderBeam）在主入口。
+ */
+export { disposeMaterial, disposeObject } from './core/dispose';
+export { usePointer, type PointerOptions, type PointerState } from './core/pointer';
+export {
+  activeThreeContexts,
+  resolveThreeQuality,
+  setMaxThreeContexts,
+  type ResolvedThreeQuality,
+  type ThreeQualities,
+  type ThreeQuality,
+} from './core/quality';
+export {
+  useThree,
+  type ThreeContext,
+  type ThreeController,
+  type ThreeFrame,
+  type ThreeOptions,
+  type ThreeSceneHandle,
+  type ThreeSize,
+  type ThreeStatus,
+} from './core/renderer';
+export { shaderChunks, THEME_PALETTE_SIZE } from './core/shaders';
+export {
+  createThemeColorSet,
+  readThemeColor,
+  useThemeColors,
+  type ThemeColorOptions,
+  type ThemeColors,
+  type ThemeColorSet,
+  type ThemeColorSources,
+} from './core/theme-colors';
+export { ThreeCanvas, threeCanvasStyles, type ThreeCanvasProps } from './core/ThreeCanvas';

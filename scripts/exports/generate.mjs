@@ -28,7 +28,7 @@ const SUBPATH_ENTRIES = new Set([
 ]);
 
 /** 自带 index.ts 的子路径目录（如图表依赖可选的 Unovis）：整个目录不进主入口 */
-const SUBPATH_DIRS = new Set(['charts']);
+const SUBPATH_DIRS = new Set(['charts', 'three']);
 
 /** 目录 → 分组标题，也是入口里各组的顺序 */
 const GROUPS = [

@@ -17,6 +17,7 @@ export const UI_DEPENDENCIES = [
   'shiki/engine/javascript',
   'shiki/langs',
   'tabbable',
+  'three',
   'zod/v4/core',
 ];
 

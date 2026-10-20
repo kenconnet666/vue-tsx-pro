@@ -28,6 +28,7 @@
     "animejs": "catalog:",
     "shiki": "catalog:",
     "tabbable": "catalog:",
+    "three": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:",
     "zod": "catalog:"
@@ -47,6 +48,7 @@
     "happy-dom": "catalog:",
     "pathe": "catalog:",
     "playwright": "catalog:",
+    "@types/three": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

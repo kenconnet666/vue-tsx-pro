@@ -11,18 +11,29 @@ import type { Component } from 'vue';
 import type { TokenGroups } from './compile';
 import type { CompileRequest, CompileResponse } from './compile.worker';
 
-/** 用户代码能导入的模块 */
-async function moduleTable(): Promise<Record<string, unknown>> {
-  return {
+/** 体积大的模块：代码里用到时才加载（图标很多；图表、3D 带着 Unovis、three） */
+const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
+  '@lucide/icons': () => import('@lucide/icons'),
+  '@vue-tsx-pro/ui/charts': () => import('@vue-tsx-pro/ui/charts'),
+  '@vue-tsx-pro/ui/three': () => import('@vue-tsx-pro/ui/three'),
+  three: () => import('three'),
+};
+
+/** 用户代码能导入的模块；编译结果按 `__modules["名字"]` 取 */
+async function moduleTable(code: string): Promise<Record<string, unknown>> {
+  const table: Record<string, unknown> = {
     vue,
     '@vue-tsx-pro/tsx': tsx,
     '@vue-tsx-pro/tsx/stylex': stylex,
     '@stylexjs/stylex': stylex,
     '@vue-tsx-pro/ui': ui,
     '@vue-tsx-pro/ui/tokens.stylex': tokens,
-    // 图标很多：用到时才加载
-    '@lucide/icons': await import('@lucide/icons'),
   };
+  const used = Object.entries(LAZY_MODULES).filter(
+    ([name]) => code.includes(JSON.stringify(name)) || code.includes(`'${name}'`),
+  );
+  for (const [name, load] of used) table[name] = await load();
+  return table;
 }
 
 /** 各组 token 名（defineVars 的结果里还带着 __ 开头的内部字段，去掉） */
@@ -65,7 +76,7 @@ export function applyStyles(css: string) {
 export async function evaluate(code: string): Promise<Component> {
   const exports: { default?: Component } = {};
   // oxlint-disable-next-line no-implied-eval -- 演练场就是要执行用户自己在页面上写的代码，只在用户自己的浏览器里执行
-  new Function('__modules', '__exports', code)(await moduleTable(), exports);
+  new Function('__modules', '__exports', code)(await moduleTable(code), exports);
   if (!exports.default) throw new Error('代码要 export default 一个组件');
   return exports.default;
 }
