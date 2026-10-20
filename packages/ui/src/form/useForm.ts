@@ -233,6 +233,22 @@ interface FieldRun {
 }
 
 /**
+ * 复制表单的值：普通对象与数组逐层复制（各份互不影响），其余值原样保留。
+ * 不用 structuredClone：Decimal、@internationalized/date 的日期这些带方法的值克隆不了（会抛错），
+ * 它们本身不可变，共用同一个实例没有问题
+ */
+function cloneValue<T>(value: T): T {
+  const raw = toRaw(value);
+  if (Array.isArray(raw)) return raw.map(cloneValue) as T;
+  if (raw === null || typeof raw !== 'object') return raw;
+  const prototype = Object.getPrototypeOf(raw);
+  if (prototype !== Object.prototype && prototype !== null) return raw;
+  return Object.fromEntries(
+    Object.entries(raw).map(([key, item]) => [key, cloneValue(item)]),
+  ) as T;
+}
+
+/**
  * 创建表单控制器（组件 setup 里或模块顶层都可以）。
  * 有 schema 时值的类型取自 schema（initial 要符合它的输入类型），onSubmit 拿到解析后的输出
  */
@@ -244,7 +260,7 @@ export function useForm<Values extends object, Output = Values>(
     string,
     FieldValidator<unknown, Values>,
   ][];
-  const values = reactive(structuredClone(options.initial)) as Values;
+  const values = reactive(cloneValue(options.initial)) as Values;
   const state = shallowReactive({
     errors: {} as FormErrors,
     // 单字段校验的结果，与 errors 分开存：整份校验不会冲掉还在路上的单字段结果
@@ -254,7 +270,7 @@ export function useForm<Values extends object, Output = Values>(
     submitting: false,
     submitCount: 0,
     // dirty 的比较基准：初始值，或上次 reset 的值
-    baseline: structuredClone(options.initial),
+    baseline: cloneValue(options.initial),
   });
   // 异步校验可能乱序返回：只采用最后一次的结果
   let run = 0;
@@ -284,7 +300,7 @@ export function useForm<Values extends object, Output = Values>(
     const entry = fieldRuns.get(path) ?? {};
     fieldRuns.set(path, entry);
     clearTimeout(entry.timer);
-    const value = structuredClone(toRaw(readPath(values, path)));
+    const value = cloneValue(readPath(values, path));
     if (entry.running && sameValue(entry.running.value, value)) return entry.running.done;
     if (!entry.running && 'checked' in entry && sameValue(entry.checked, value)) {
       return Promise.resolve();
@@ -463,9 +479,9 @@ export function useForm<Values extends object, Output = Values>(
     },
     reset(next = options.initial) {
       run++;
-      const snapshot = structuredClone(toRaw(next));
+      const snapshot = cloneValue(next);
       cancelFieldRuns();
-      Object.assign(values, structuredClone(snapshot));
+      Object.assign(values, cloneValue(snapshot));
       arrayKeys.clear();
       state.baseline = snapshot;
       state.errors = {};
