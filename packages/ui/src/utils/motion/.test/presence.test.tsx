@@ -1,9 +1,9 @@
-// usePresence：关闭后保持挂载等离场结束；离场中又打开就不卸载
+// usePresence：关闭后保持挂载等离场结束；离场中又打开就不卸载。useLazyContent：第一次打开前不渲染
 import { _component } from '@vue-tsx-pro/tsx';
 import { nextTick, shallowRef } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { mount } from '../../.test/mount';
-import { usePresence, type PresenceOptions } from '../presence';
+import { useLazyContent, usePresence, type PresenceOptions } from '../presence';
 
 function setup(options: PresenceOptions = {}) {
   const open = shallowRef(true);
@@ -58,5 +58,27 @@ describe('usePresence', () => {
     await new Promise((resolve) => setTimeout(resolve));
     expect(panel()?.dataset.state).toBe('open');
     expect(onExited).not.toHaveBeenCalled();
+  });
+});
+
+describe('useLazyContent', () => {
+  it('lazy 时第一次打开前不渲染，打开过后一直保留；不 lazy 时总是渲染', () => {
+    let open = false;
+    let lazy = true;
+    const show = useLazyContent(
+      () => open,
+      () => lazy,
+    );
+    expect(show()).toBe(false);
+    open = true;
+    expect(show()).toBe(true);
+    open = false;
+    expect(show()).toBe(true);
+
+    const eager = useLazyContent(
+      () => false,
+      () => (lazy = false),
+    );
+    expect(eager()).toBe(true);
   });
 });

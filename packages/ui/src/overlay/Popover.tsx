@@ -18,6 +18,7 @@ import {
 } from '../utils/dom/floating';
 import { toElement } from '../utils/dom/overlay';
 import { focusFirst } from '../utils/dom/focus';
+import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps, type TriggerProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
@@ -33,7 +34,10 @@ export interface PopoverTriggerProps extends TriggerProps {
 
 /** 未声明的属性落到弹出层的 div 上 */
 export interface PopoverProps
-  extends PartProps<'div', 'id' | 'popover' | 'role'>, Pick<FloatingOptions, 'offset'> {
+  extends
+    PartProps<'div', 'id' | 'popover' | 'role'>,
+    Pick<FloatingOptions, 'offset'>,
+    LazyContentOptions {
   /** 是否打开：父级写 open={_bind(x)}；Esc 与点击外部会关闭并写回 */
   open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
@@ -61,10 +65,15 @@ export const Popover = _component(
     arrow = false,
     trigger,
     propsArrow,
+    lazy = true,
     children,
     ...rest
   }: PopoverProps) => {
     const id = useId();
+    const showContent = useLazyContent(
+      () => open,
+      () => lazy,
+    );
     const triggerId = `${id}-trigger`;
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
@@ -102,7 +111,7 @@ export const Popover = _component(
           )}
           data-state={open ? 'open' : 'closed'}
         >
-          {children}
+          {showContent() && children}
           {arrow && (
             <span
               {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {

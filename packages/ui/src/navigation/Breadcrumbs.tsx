@@ -111,6 +111,8 @@ export const Breadcrumbs = _component(
                     <Menu
                       {...mergePartProps<MenuProps>(
                         {
+                          // 被折叠的各级链接一直在 DOM 里：页内搜索、爬虫找得到；一页只有一个，不必延迟
+                          lazy: false,
                           trigger: (props) => (
                             <IconButton
                               {...mergePartProps<IconButtonProps>(

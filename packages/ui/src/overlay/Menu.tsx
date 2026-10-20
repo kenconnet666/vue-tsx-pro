@@ -39,6 +39,8 @@ import {
 import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
+import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
+import { childNodes } from '../utils/data/text';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
@@ -90,7 +92,10 @@ export interface MenuTriggerProps {
 
 /** 未声明的属性落到菜单（role="menu" 的 div）上 */
 export interface MenuProps
-  extends PartProps<'div', 'id' | 'popover' | 'role'>, Pick<FloatingOptions, 'offset'> {
+  extends
+    PartProps<'div', 'id' | 'popover' | 'role'>,
+    Pick<FloatingOptions, 'offset'>,
+    LazyContentOptions {
   /** 是否打开：父级可以写 open={_bind(x)}；Esc、点击外部、执行菜单项都会关闭并写回 */
   open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
@@ -151,10 +156,16 @@ export const Menu = _component(
     ripple,
     trigger,
     point,
+    lazy = true,
     children,
     ...rest
   }: MenuProps) => {
     const id = useId();
+    // 菜单项的快捷键在菜单没打开时也要能用：有快捷键的菜单照常渲染菜单项
+    const showContent = useLazyContent(
+      () => open,
+      () => lazy,
+    );
     const triggerId = `${id}-trigger`;
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
@@ -168,6 +179,7 @@ export const Menu = _component(
       get ripple() {
         return ripple;
       },
+
       close: () => (open = false),
     });
 
@@ -251,7 +263,7 @@ export const Menu = _component(
           )}
           data-state={open ? 'open' : 'closed'}
         >
-          {children}
+          {(showContent() || hasShortcut(children)) && children}
         </div>
       </>
     );
@@ -692,6 +704,7 @@ export const MenuSub = _component(
       get ripple() {
         return parent.ripple;
       },
+
       close: () => {
         open = false;
         parent.close();
@@ -851,3 +864,17 @@ export const MenuSub = _component(
     );
   },
 );
+
+/**
+ * 内容里有没有带快捷键的菜单项（含分组、子菜单里的）：只生成虚拟节点、不挂载。
+ * 快捷键由菜单项注册，延迟渲染时菜单没打开就没有注册，所以这样的菜单不延迟
+ */
+function hasShortcut(content: VNodeChild): boolean {
+  return childNodes(content).some((node) => {
+    if ((node.props as { shortcut?: unknown } | null)?.shortcut != null) return true;
+    const slot = (node.children as { default?: (...args: never[]) => VNodeChild } | null)?.default;
+    return typeof node.type === 'object' && typeof slot === 'function' && slot.length === 0
+      ? hasShortcut(slot())
+      : false;
+  });
+}

@@ -22,6 +22,7 @@ import {
 } from '../utils/dom/floating';
 import { createHoverGroup, useHoverIntent } from '../utils/dom/hover-intent';
 import { toElement } from '../utils/dom/overlay';
+import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
@@ -43,7 +44,7 @@ export interface HoverCardTriggerProps {
 
 /** 未声明的属性落到卡片的 div 上 */
 export interface HoverCardProps
-  extends PartProps<'div', 'id' | 'popover'>, Pick<FloatingOptions, 'offset'> {
+  extends PartProps<'div', 'id' | 'popover'>, Pick<FloatingOptions, 'offset'>, LazyContentOptions {
   /** 是否打开：父级可以写 open={_bind(x)} 控制或得知 */
   open?: boolean;
   /** 弹出位置，默认 bottom；空间不够时自动翻转 */
@@ -84,10 +85,15 @@ export const HoverCard = _component(
     arrow = false,
     trigger,
     propsArrow,
+    lazy = true,
     children,
     ...rest
   }: HoverCardProps) => {
     const id = useId();
+    const showContent = useLazyContent(
+      () => open,
+      () => lazy,
+    );
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
     let arrowElement = _state.raw<HTMLElement | null>(null);
@@ -156,7 +162,7 @@ export const HoverCard = _component(
           )}
           data-state={open && !disabled ? 'open' : 'closed'}
         >
-          {children}
+          {showContent() && children}
           {arrow && (
             <span
               {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {

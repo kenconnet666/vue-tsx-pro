@@ -22,6 +22,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
+import { useLazyContent } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
@@ -421,10 +422,10 @@ export const tabPanelStyles = stylex.create({
 export const TabPanel = _component(({ value, children, ...rest }: TabPanelProps) => {
   const tabs = TabsContext.inject();
   // 显示过：lazy 时从这以后一直渲染内容
-  let visited = _state(false);
-  _effect.pre(() => {
-    if (tabs.value === value) visited = true;
-  });
+  const showContent = useLazyContent(
+    () => tabs.value === value,
+    () => tabs.lazy,
+  );
 
   return () => {
     const selected = tabs.value === value;
@@ -442,7 +443,7 @@ export const TabPanel = _component(({ value, children, ...rest }: TabPanelProps)
         )}
         data-state={selected ? 'active' : 'inactive'}
       >
-        {(!tabs.lazy || selected || visited) && children}
+        {showContent() && children}
       </div>
     );
   };

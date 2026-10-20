@@ -11,6 +11,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { useLazyContent } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { afterTransitions } from '../utils/style/transitions';
 
@@ -49,13 +50,14 @@ export const Collapse = _component(
     let root = _state.raw<HTMLElement | null>(null);
     // 完全收起（过渡已结束）：这时才隐藏内容，收起的过程中内容仍要可见
     let collapsed = _state(_untrack(!open));
-    // 展开过：lazy 时从这以后一直渲染内容
-    let opened = _state(false);
+    const showContent = useLazyContent(
+      () => open,
+      () => lazy,
+    );
 
     _effect(() => {
       if (open) {
         collapsed = false;
-        opened = true;
         return;
       }
       let cancelled = false;
@@ -77,7 +79,7 @@ export const Collapse = _component(
         data-state={open ? 'open' : 'closed'}
       >
         <div {...mergeAttrs<'div'>({ sx: collapseStyles.content }, propsContent)}>
-          {(!lazy || open || opened) && children}
+          {showContent() && children}
         </div>
       </div>
     );

@@ -880,7 +880,13 @@ export {
   type LayoutAnimation,
   type LayoutAnimationOptions,
 } from './utils/motion/layout';
-export { usePresence, type Presence, type PresenceOptions } from './utils/motion/presence';
+export {
+  useLazyContent,
+  usePresence,
+  type LazyContentOptions,
+  type Presence,
+  type PresenceOptions,
+} from './utils/motion/presence';
 export { useReducedMotion } from './utils/motion/reduced-motion';
 export {
   useSpring,

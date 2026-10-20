@@ -20,6 +20,7 @@ import { Flex, type FlexProps } from '../layout/Flex';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { dismissOnBackdrop, lockScroll, trackModal } from '../utils/dom/overlay';
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
+import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
@@ -28,7 +29,7 @@ export type ModalManaged =
   'open' | 'role' | 'title' | 'aria-labelledby' | 'aria-describedby' | 'aria-modal';
 
 /** Dialog、Drawer、AlertDialog 共有的 props；未声明的属性落到 dialog 上 */
-export interface ModalProps extends PartProps<'dialog', ModalManaged> {
+export interface ModalProps extends PartProps<'dialog', ModalManaged>, LazyContentOptions {
   /** 是否打开：父级写 open={_bind(x)}；Esc、点击遮罩、关闭按钮都会关闭并写回 */
   open?: boolean;
   /** 标题，同时是对话框的无障碍名称 */
@@ -110,10 +111,15 @@ export const ModalCore = _component(
     propsClose,
     propsBody,
     propsFooter,
+    lazy = true,
     children,
     ...rest
   }: ModalCoreProps) => {
     const id = useId();
+    const showContent = useLazyContent(
+      () => open,
+      () => lazy,
+    );
     const titleId = `${id}-title`;
     const descriptionId = `${id}-description`;
     let dialog = _state.raw<HTMLDialogElement | null>(null);
@@ -197,7 +203,7 @@ export const ModalCore = _component(
             propsBody,
           )}
         >
-          {children}
+          {showContent() && children}
         </ScrollArea>
         {footer != null && (
           <Flex
