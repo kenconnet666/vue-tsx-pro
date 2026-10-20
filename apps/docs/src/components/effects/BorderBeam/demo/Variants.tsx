@@ -10,7 +10,7 @@ const styles = stylex.create({
 });
 
 export default _component(() => () => (
-  <Grid minItemWidth="13rem" gap="md">
+  <Grid minItemWidth="10rem" gap="md">
     <Card sx={styles.card}>
       <Text size="sm" sx={styles.caption}>
         两条错开、逆向

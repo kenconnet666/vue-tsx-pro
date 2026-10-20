@@ -54,7 +54,7 @@ export default _component(() => {
           <Switch checked={_bind(disabled)}>禁用</Switch>
         </Flex>
       </Grid>
-      <Grid minItemWidth="14rem" gap="lg">
+      <Grid minItemWidth="10rem" gap="lg">
         {['极光', '星云', '潮汐'].map((title) => (
           <TiltCard key={title} maxTilt={maxTilt} scale={scale} glare={glare} disabled={disabled}>
             <Card padding="none">

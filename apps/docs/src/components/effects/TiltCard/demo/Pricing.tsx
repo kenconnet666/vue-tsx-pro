@@ -22,7 +22,7 @@ const styles = stylex.create({
 });
 
 export default _component(() => () => (
-  <Grid minItemWidth="13rem" gap="lg">
+  <Grid minItemWidth="10rem" gap="lg">
     {PLANS.map((plan) => (
       <TiltCard key={plan.name} maxTilt={plan.featured ? 12 : 8}>
         <Card variant={plan.featured ? 'elevated' : 'surface'} sx={styles.card}>

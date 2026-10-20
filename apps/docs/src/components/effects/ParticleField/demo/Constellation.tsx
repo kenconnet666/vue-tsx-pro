@@ -19,7 +19,7 @@ const styles = stylex.create({
 
 export default _component(() => () => (
   <ParticleField links sx={styles.field}>
-    <Grid minItemWidth="12rem" gap="md">
+    <Grid minItemWidth="10rem" gap="md">
       {FEATURES.map((feature) => (
         <Card key={feature.title} sx={styles.card}>
           <Flex direction="column" gap="sm">
