@@ -12,6 +12,16 @@ declare module 'virtual:api/*' {
   export default api;
 }
 
+/** 全部组件的目录：组件名、分类与 API 数据（build/api.ts，组件演练场用） */
+declare module 'virtual:api-catalog' {
+  const catalog: {
+    name: string;
+    category: string;
+    api: import('@vue-tsx-pro/ui').ComponentApi;
+  }[];
+  export default catalog;
+}
+
 /** 组件文档页的清单（build/pages.ts） */
 declare module 'virtual:doc-pages' {
   const pages: import('./site/types').ComponentPageEntry[];

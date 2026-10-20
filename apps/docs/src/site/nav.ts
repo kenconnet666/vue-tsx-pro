@@ -38,8 +38,11 @@ const CATEGORIES: [string, string][] = [
   ['config', '配置'],
 ];
 
+/** 分类目录名 → 组名 */
+export const CATEGORY_LABELS: Readonly<Record<string, string>> = Object.fromEntries(CATEGORIES);
+
 /** Button → button，IconButton → icon-button */
-const kebab = (name: string) => name.replace(/(?<=[a-z0-9])([A-Z])/g, '-$1').toLowerCase();
+export const kebab = (name: string) => name.replace(/(?<=[a-z0-9])([A-Z])/g, '-$1').toLowerCase();
 
 const guide: NavSection = {
   label: '指南',

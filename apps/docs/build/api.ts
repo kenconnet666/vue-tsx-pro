@@ -181,15 +181,57 @@ export function extractComponentApi(interfaceName: string): ComponentApi {
   };
 }
 
-const PREFIX = 'virtual:api/';
+/** 组件目录里的一项：组件名、所在分类（源码目录）与 API 数据 */
+export interface CatalogEntry {
+  name: string;
+  category: string;
+  api: ComponentApi;
+}
 
-/** Vite 插件：`virtual:api/<接口名>` 导出那个接口的 API 数据；组件库源码变了重新生成 */
+/** 主入口导出的组件：同时导出了值 Xxx 与接口 XxxProps 的都算，按组件名排序 */
+export function extractCatalog(): CatalogEntry[] {
+  const checker = currentProgram().getTypeChecker();
+  const file = currentProgram().getSourceFile(`${src}/index.ts`)!;
+  const names = new Set(
+    checker.getExportsOfModule(checker.getSymbolAtLocation(file)!).map((symbol) => symbol.name),
+  );
+  const entries: CatalogEntry[] = [];
+  for (const name of [...names].sort()) {
+    const component = name.replace(/Props$/, '');
+    if (component === name || !/^[A-Z]/.test(component) || !names.has(component)) continue;
+    const symbol = exportedSymbol(checker, component);
+    const path = symbol.declarations?.[0]?.getSourceFile().fileName.split('\\').join('/');
+    if (!path?.startsWith(src)) continue;
+    const api = extractComponentApi(name);
+    // 演练场只调属性与内容：部件属性、事件不进目录，数据小一半
+    const props = api.props.filter((prop) => prop.kind === 'prop' || prop.kind === 'content');
+    entries.push({
+      name: component,
+      category: path.slice(src.length + 1).split('/')[0]!,
+      // 说明取组件自己的注释（“按钮（button）：样式、色调…”），没有时才用接口的
+      api: { ...api, description: docOf(symbol, checker) || api.description, props },
+    });
+  }
+  return entries;
+}
+
+const PREFIX = 'virtual:api/';
+const CATALOG = 'virtual:api-catalog';
+
+/**
+ * Vite 插件：`virtual:api/<接口名>` 导出那个接口的 API 数据，`virtual:api-catalog` 导出全部组件的目录（组件演练场用）；
+ * 组件库源码变了重新生成
+ */
 export function componentApi(): Plugin {
   const loaded = new Set<string>();
   return {
     name: 'docs:component-api',
-    resolveId: (id) => (id.startsWith(PREFIX) ? `\0${id}` : undefined),
+    resolveId: (id) => (id.startsWith(PREFIX) || id === CATALOG ? `\0${id}` : undefined),
     load(id) {
+      if (id === `\0${CATALOG}`) {
+        loaded.add(id);
+        return `export default ${JSON.stringify(extractCatalog())};\n`;
+      }
       if (!id.startsWith(`\0${PREFIX}`)) return;
       loaded.add(id);
       const api = extractComponentApi(id.slice(PREFIX.length + 1));

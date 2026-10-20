@@ -1,5 +1,5 @@
 /**
- * 文档站的外壳：AppShell 的顶栏（站点名、搜索、主题切换、仓库链接）、左侧的站点导航、右侧的本页目录，
+ * 文档站的外壳：AppShell 的顶栏（站点名、搜索、组件演练场、主题切换、仓库链接）、左侧的站点导航、右侧的本页目录，
  * 正文是当前路由的页面，末尾是上一篇 / 下一篇。
  */
 import { Box } from '@lucide/icons';
@@ -24,6 +24,7 @@ import { nextTick, watch } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { allPages, sectionOf, sections } from './site/nav';
+import { PropsPlaygroundButton } from './site/PropsPlaygroundButton';
 import { preference } from './site/theme';
 
 const pageEnter = stylex.keyframes({
@@ -105,6 +106,7 @@ export const App = _component(() => {
               vue-tsx-pro
             </RouterLink>
             <CommandPalette items={searchItems} onAction={(item) => void router.push(item.value)} />
+            <PropsPlaygroundButton />
             <ThemeSwitcher preference={preference} />
             <IconLinkButton href={REPOSITORY} external icon={GithubIcon} aria-label="GitHub 仓库" />
           </>
