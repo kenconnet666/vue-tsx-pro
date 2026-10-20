@@ -297,7 +297,6 @@ function apiWorker() {
   const current = () => {
     if (worker) return worker;
     worker = new Worker(new URL('./api-worker.ts', import.meta.url));
-    // 不拖住进程：构建、测试结束时直接退出
     worker.unref();
     worker.on('message', (response: ApiResponse) => {
       const request = pending.get(response.id);
@@ -329,7 +328,7 @@ function apiWorker() {
     },
     /** 提前建好程序 */
     warm: () => current().postMessage('warm'),
-    /** 服务器关闭：停掉 Worker，不留它在后台建程序 */
+    /** 构建结束、服务器关闭：停掉 Worker，不留它在后台建程序 */
     close: () => {
       clearTimeout(rebuild);
       void worker?.terminate();
@@ -357,11 +356,13 @@ export function componentApi(): Plugin {
       loaded.add(id);
       return worker.load(id.slice(PREFIX.length + 1));
     },
+    // 构建结束、开发服务器与测试的服务器关闭时都会调用：停掉 Worker。
+    // 只 unref 不够：Worker 的消息端口仍会拖住进程，构建、测试结束后不退出
+    closeBundle: () => worker.close(),
     configureServer(server) {
-      // Vitest 的服务器没有 httpServer：不预热、不监听，测试结束时没有 Worker 在跑
+      // Vitest 的服务器没有 httpServer：不预热、不监听文件
       if (!server.httpServer) return;
       worker.warm();
-      server.httpServer.once('close', worker.close);
       server.watcher.on('change', (file) => {
         if (!file.split('\\').join('/').startsWith(src)) return;
         worker.invalidate();

@@ -1,7 +1,8 @@
-// 所有示例一起放在页面上，每套内置主题下 axe-core 都没有违规；整页示例（frames）各自单独检查
+// 示例按分类放在页面上，亮、暗两套主题下 axe-core 都没有违规；整页示例（frames）各自单独检查。
+// 其余内置主题的对比度由 themes:check 逐对 token 静态检查，不在浏览器里把全部示例再挂一遍（WebKit 上一套主题就要三分多钟）
 import axe from 'axe-core';
 import { _component } from '@vue-tsx-pro/tsx';
-import { builtinThemes, createUi, lightTheme } from '@vue-tsx-pro/ui';
+import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, h, type App, type Component } from 'vue';
 import { demos } from './demos';
@@ -46,16 +47,24 @@ async function violationsOf(tag: string, render: () => unknown, theme = lightThe
   );
 }
 
-it.each(Object.entries(builtinThemes))(
-  '无障碍：%s 主题下所有示例没有 axe 违规',
-  // 第一套主题要先加载全部示例模块：示例越来越多，Windows 上的 WebKit 超过了一分钟
-  { timeout: 120_000 },
-  async (_name, theme) => {
-    const inline = demos.filter(([path]) => !isFrame(path));
+/** 示例按分类分组（components/<分类>/…）：每组一个测试，单个测试不会因示例变多而超时，出错时也知道在哪一类 */
+const categories = new Map<string, [string, Component][]>();
+for (const entry of demos) {
+  if (isFrame(entry[0])) continue;
+  const category = entry[0].split('/')[1]!;
+  categories.set(category, [...(categories.get(category) ?? []), entry]);
+}
+const cases = [lightTheme, darkTheme].flatMap((theme) =>
+  [...categories].map(([category, items]) => [theme.name, category, theme, items] as const),
+);
+
+it.each(cases)(
+  '无障碍：%s 主题下 %s 分类的示例没有 axe 违规',
+  async (_name, _category, theme, items) => {
     expect(
       await violationsOf(
         'main',
-        () => inline.map(([path, demo]) => h('section', { key: path }, [h(demo)])),
+        () => items.map(([path, demo]) => h('section', { key: path }, [h(demo)])),
         theme,
       ),
     ).toEqual([]);

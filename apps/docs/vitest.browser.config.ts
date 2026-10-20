@@ -1,4 +1,4 @@
-// 真实浏览器（Playwright 的 Chromium、Firefox、WebKit）里的测试：示例的布局、焦点、动画与三套主题的无障碍检查
+// 真实浏览器（Playwright 的 Chromium、Firefox、WebKit）里的测试：示例的布局、焦点、动画与亮暗两套主题的无障碍检查
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 // 仓库内部的配置，不是组件库的公开接口：按相对路径引用
