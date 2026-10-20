@@ -6,7 +6,7 @@
  *   export const meta = { title: 'Button 按钮', description: '触发一个操作', order: 1 };
  *   export default _component(() => () => <DocPage …>…</DocPage>);
  *
- * 新增、删除文档页时整页刷新；改了 meta 时清单跟着更新。
+ * 新增、删除文档页时整页刷新；改了某页的 meta（标题、简介、排序）时也重新生成清单并刷新，只改正文时照常热更新。
  */
 import { globSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -16,6 +16,9 @@ import type { Plugin, ViteDevServer } from 'vite';
 const ID = 'virtual:doc-pages';
 const RESOLVED = `\0${ID}`;
 const PATTERN = 'src/components/*/*/docs.tsx';
+
+/** 路径统一成正斜杠：监听事件与 glob 给出的写法不同 */
+const normalize = (file: string) => file.split('\\').join('/');
 
 /** meta 里允许的字段：只读字符串与数字字面量 */
 function readMeta(file: string): Record<string, string | number> {
@@ -44,14 +47,25 @@ function readMeta(file: string): Record<string, string | number> {
 
 export function docPages(): Plugin {
   let root = process.cwd();
+  // 上次生成清单时各页的 meta：改动时比较，只有 meta 变了才需要重新生成
+  const metas = new Map<string, string>();
   const isPage = (file: string) =>
     relative(root, file)
       .split('\\')
       .join('/')
       .match(/^src\/components\/[^/]+\/[^/]+\/docs\.tsx$/);
 
-  function reloadOnChange(server: ViteDevServer, file: string) {
+  function reloadOnChange(server: ViteDevServer, file: string, event: 'add' | 'unlink' | 'change') {
     if (!isPage(file)) return;
+    if (event === 'change') {
+      let meta: string;
+      try {
+        meta = JSON.stringify(readMeta(file));
+      } catch {
+        return; // 正在编辑、meta 暂时不完整：等写完再说
+      }
+      if (metas.get(normalize(file)) === meta) return;
+    }
     const module = server.moduleGraph.getModuleById(RESOLVED);
     if (module) server.moduleGraph.invalidateModule(module);
     server.ws.send({ type: 'full-reload' });
@@ -70,16 +84,17 @@ export function docPages(): Plugin {
         .sort()
         .map((path) => {
           const file = join(root, path);
-          this.addWatchFile(file);
           const [, , category, name] = path.split('/');
           const meta = readMeta(file);
+          metas.set(normalize(file), JSON.stringify(meta));
           return `{ category: ${JSON.stringify(category)}, name: ${JSON.stringify(name)}, meta: ${JSON.stringify(meta)}, load: () => import(${JSON.stringify(`/${path}`)}) }`;
         });
       return `export default [\n  ${entries.join(',\n  ')}\n];\n`;
     },
     configureServer(server) {
-      server.watcher.on('add', (file) => reloadOnChange(server, file));
-      server.watcher.on('unlink', (file) => reloadOnChange(server, file));
+      server.watcher.on('add', (file) => reloadOnChange(server, file, 'add'));
+      server.watcher.on('unlink', (file) => reloadOnChange(server, file, 'unlink'));
+      server.watcher.on('change', (file) => reloadOnChange(server, file, 'change'));
     },
   };
 }
