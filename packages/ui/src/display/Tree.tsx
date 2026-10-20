@@ -423,6 +423,7 @@ export const Tree = _component(
               <span
                 {...stylex.attrs(
                   choiceStyles.input,
+                  focusRingStyles.tight,
                   checkboxStyles.box,
                   marked && choiceStyles.checked,
                 )}

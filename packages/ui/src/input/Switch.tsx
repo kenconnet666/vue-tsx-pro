@@ -15,6 +15,7 @@ import { useFieldControl } from '../form/Field';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
 import { choiceRootSx, choiceStyles, useChoiceAppearance } from './choice-styles';
@@ -167,6 +168,7 @@ export const Switch = _component(
                 {
                   sx: [
                     choiceStyles.input,
+                    focusRingStyles.tight,
                     switchStyles.track,
                     wide && switchStyles.trackWide,
                     checked ? choiceStyles.checked : switchStyles.trackOff,

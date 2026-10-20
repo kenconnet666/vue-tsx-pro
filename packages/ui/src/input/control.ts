@@ -7,6 +7,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { ButtonRadii } from '../base/button-core';
 import { useDefaults } from '../config/defaults';
+import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 输入框的样式 */
@@ -55,11 +56,6 @@ export const controlShellStyles = stylex.create({
     color: '_text',
     lineHeight: '_normal',
     cursor: 'text',
-    outlineStyle: { default: 'none', ':focus-within': 'solid' },
-    outlineWidth: '_sm',
-    outlineColor: '_focusRing',
-    // 压住边框
-    outlineOffset: 'calc(-1 * _xs)',
     transition: 'border-color _durations.sm _easings.standard',
   },
   soft: {
@@ -138,6 +134,7 @@ export function controlSx(
 ): StyleXStyles {
   return [
     controlShellStyles.root,
+    focusRingStyles.within,
     variant === 'soft' && controlShellStyles.soft,
     controlRadiusStyles[radius],
     size && fontSizeStyles[size],

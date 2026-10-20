@@ -17,6 +17,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { clamp } from '../utils/data/number';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -161,7 +162,7 @@ export const Descriptions = _component(
         >
           {items.map((item, index) => {
             const own = typeof propsItem === 'function' ? propsItem(item, index) : propsItem;
-            const span = Math.min(Math.max(1, item.span ?? 1), columns);
+            const span = clamp(item.span ?? 1, 1, columns);
             return (
               <div
                 key={item.key ?? (typeof item.label === 'string' ? item.label : index)}

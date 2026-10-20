@@ -16,6 +16,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { focusRingStyles } from '../utils/style/styles';
 import { useFieldControl } from '../form/Field';
 
 /** 文件是否符合 accept（`image/*`、`.pdf`、`application/json` 这样的逗号分隔列表）；accept 为空时都符合 */
@@ -87,11 +88,6 @@ export const fileDropStyles = stylex.create({
     cursor: 'pointer',
     transition:
       'border-color _durations.sm _easings.standard, background-color _durations.sm _easings.standard',
-    // 原生 input 视觉上隐藏，焦点环画在整个区域上
-    outlineStyle: { default: 'none', ':has(:focus-visible)': 'solid' },
-    outlineWidth: '_sm',
-    outlineColor: '_focusRing',
-    outlineOffset: '_borderWidths.sm',
   },
   dragging: { borderColor: '_accent', backgroundColor: '_accentSoft' },
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },
@@ -178,6 +174,8 @@ export const FileDrop = _component(
             {
               sx: [
                 fileDropStyles.root,
+                // 原生 input 视觉上隐藏，焦点环画在整个区域上
+                focusRingStyles.hasVisible,
                 dragging && fileDropStyles.dragging,
                 field.invalid && fileDropStyles.invalid,
                 field.disabled && fileDropStyles.disabled,

@@ -83,13 +83,37 @@ export const columnGapStyles = stylex.create({
   xl: { columnGap: '_xl' },
 });
 
-/** 键盘聚焦时的焦点环（:focus-visible）：Link、Button 等可交互元素共用，外观一致 */
+/**
+ * 焦点环：宽度、颜色全站一致，只有触发的伪类与偏移不同。
+ * - visible：键盘聚焦本元素（Link、Button 等），环离开元素一点；
+ * - tight：同上但贴着边框（勾选框、单选、开关这类小控件，环离远了显得松）；
+ * - hasVisible：里面的元素键盘聚焦时画在整块上（FileDrop：原生 input 视觉上隐藏）；
+ * - within：里面的元素聚焦（含鼠标）时画在外壳上，往里收压住边框（输入框外壳）
+ */
 export const focusRingStyles = stylex.create({
   visible: {
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
     outlineWidth: '_sm',
     outlineColor: '_focusRing',
     outlineOffset: '_sm',
+  },
+  tight: {
+    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    outlineOffset: '_borderWidths.sm',
+  },
+  hasVisible: {
+    outlineStyle: { default: 'none', ':has(:focus-visible)': 'solid' },
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    outlineOffset: '_borderWidths.sm',
+  },
+  within: {
+    outlineStyle: { default: 'none', ':focus-within': 'solid' },
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    outlineOffset: 'calc(-1 * _xs)',
   },
 });
 

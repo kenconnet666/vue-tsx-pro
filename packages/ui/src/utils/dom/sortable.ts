@@ -20,6 +20,7 @@
 import { set } from 'animejs';
 import { nextTick, onBeforeUnmount, shallowRef, useId } from 'vue';
 import { useLang } from '../../config/context';
+import { clamp } from '../data/number';
 import { isRtl } from './direction';
 import { useAnimate } from '../motion/animation';
 import { useLayoutAnimation } from '../motion/layout';
@@ -106,7 +107,7 @@ export function useSortable<T>(options: SortableOptions<T>): SortableState {
   async function moveTo(key: string, to: number): Promise<void> {
     const list = [...options.items()];
     const from = indexOf(key);
-    const target = Math.min(Math.max(to, 0), list.length - 1);
+    const target = clamp(to, 0, list.length - 1);
     if (from < 0 || from === target) return;
     const [item] = list.splice(from, 1);
     list.splice(target, 0, item!);

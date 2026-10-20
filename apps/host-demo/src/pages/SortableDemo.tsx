@@ -1,7 +1,7 @@
 // /base 页上的拖动排序演示：竖排的待办（可以拖到滚动区域外，自动滚动）与横排的标签
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Flex, Sortable, Text } from '@vue-tsx-pro/ui';
+import { Flex, ScrollArea, Sortable, Text } from '@vue-tsx-pro/ui';
 
 interface Task {
   id: string;
@@ -9,7 +9,8 @@ interface Task {
 }
 
 const styles = stylex.create({
-  tasks: { width: '20rem', maxWidth: '100%', maxHeight: '14rem', overflowY: 'auto' },
+  // 滚动交给 ScrollArea（浮层滚动条，和整页一致）；拖到边缘时 Sortable 找到它的视口自动滚动
+  tasks: { width: '20rem', maxWidth: '100%', maxHeight: '14rem' },
 });
 
 export const SortableDemo = _component(() => {
@@ -28,16 +29,17 @@ export const SortableDemo = _component(() => {
 
   return () => (
     <Flex direction="column" gap="md">
-      <Sortable
-        class="sortable-demo"
-        items={_bind(tasks)}
-        getKey={(task) => task.id}
-        getLabel={(task) => task.title}
-        aria-label="待办"
-        sx={styles.tasks}
-      >
-        {(task) => <Text>{task.title}</Text>}
-      </Sortable>
+      <ScrollArea sx={styles.tasks}>
+        <Sortable
+          class="sortable-demo"
+          items={_bind(tasks)}
+          getKey={(task) => task.id}
+          getLabel={(task) => task.title}
+          aria-label="待办"
+        >
+          {(task) => <Text>{task.title}</Text>}
+        </Sortable>
+      </ScrollArea>
       <Text tone="muted" size="sm" class="sortable-order">
         顺序：{tasks.map((task) => task.title).join(' → ')}
       </Text>

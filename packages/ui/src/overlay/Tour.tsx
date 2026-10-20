@@ -28,6 +28,7 @@ import { H2 } from '../base/Heading';
 import { Text } from '../base/Text';
 import { useLang } from '../config/context';
 import { Flex } from '../layout/Flex';
+import { clamp } from '../utils/data/number';
 import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
 import { trackModal } from '../utils/dom/overlay';
@@ -150,7 +151,7 @@ export const Tour = _component(
     let release: (() => void) | undefined;
     let stopFollow: (() => void) | undefined;
 
-    const step = () => steps[Math.min(Math.max(current, 0), steps.length - 1)];
+    const step = () => steps[clamp(current, 0, steps.length - 1)];
     const last = () => current >= steps.length - 1;
 
     function show() {

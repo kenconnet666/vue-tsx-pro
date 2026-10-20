@@ -64,7 +64,7 @@ export const choiceStyles = stylex.create({
     flexShrink: 0,
     minHeight: '1.5em',
   },
-  /** 原生 input：去掉浏览器外观，由各组件给出形状 */
+  /** 原生 input：去掉浏览器外观，由各组件给出形状；焦点环用 focusRingStyles.tight（排在它后面） */
   input: {
     gridArea: '1 / 1',
     appearance: 'none',
@@ -75,10 +75,6 @@ export const choiceStyles = stylex.create({
     borderColor: '_borderStrong',
     backgroundColor: '_surface',
     cursor: 'inherit',
-    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
-    outlineWidth: '_sm',
-    outlineColor: '_focusRing',
-    outlineOffset: '_borderWidths.sm',
     transition:
       'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard',
   },

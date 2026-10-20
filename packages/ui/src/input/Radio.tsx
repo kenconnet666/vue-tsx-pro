@@ -18,6 +18,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
 import {
@@ -201,6 +202,7 @@ export const Radio = _component(
                 {
                   sx: [
                     choiceStyles.input,
+                    focusRingStyles.tight,
                     radioStyles.circle,
                     checked && choiceStyles.checked,
                     group.invalid && choiceStyles.invalid,
