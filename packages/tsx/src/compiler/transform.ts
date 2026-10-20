@@ -16,6 +16,7 @@ import {
 import { rejectDirective, rewriteBind } from './bind.ts';
 import { fail, warning, type RunesWarning } from './errors.ts';
 import { RuntimeImports } from './imports.ts';
+import { optimizeRender } from './optimize.ts';
 import { declareProps } from './props.ts';
 import { RUNE_GLOBALS, runeOf, type Rune, type TrackedInfo } from './runes.ts';
 
@@ -27,13 +28,17 @@ export class RunesTransform {
   /** 第 1 步记录下的声明节点，第 2 步再换成作用域里的 Binding */
   private pending = new Map<t.VariableDeclarator, TrackedInfo>();
   private tracked = new Map<Binding, TrackedInfo>();
+  private pendingRest = new Set<t.VariableDeclarator>();
+  private rest = new Set<Binding>();
   private program: NodePath<t.Program>;
   private readonly filename: string | undefined;
   private readonly imports: RuntimeImports;
+  private readonly optimize: boolean;
 
-  constructor(program: NodePath<t.Program>, filename: string | undefined) {
+  constructor(program: NodePath<t.Program>, filename: string | undefined, optimize = true) {
     this.program = program;
     this.filename = filename;
+    this.optimize = optimize;
     this.imports = new RuntimeImports(program);
   }
 
@@ -45,6 +50,14 @@ export class RunesTransform {
     this.rewriteAccesses(); //    3. 读写 → .value
     this.rewriteCalls(); //       4. _bind → v-model，_state.snapshot / _effect → 运行时函数
     this.reportMisuse(); //       5. 残留的符文都是误用
+    if (this.optimize) {
+      //                            6. 稳定插槽与缓存（optimize.ts）
+      optimizeRender(this.program, {
+        imports: this.imports,
+        tracked: this.tracked,
+        rest: this.rest,
+      });
+    }
     this.imports.insert();
   }
 
@@ -58,6 +71,7 @@ export class RunesTransform {
           imports: this.imports,
           filename: this.filename,
           track: (declarator, info) => this.pending.set(declarator, info),
+          trackRest: (declarator) => this.pendingRest.add(declarator),
         });
       },
       JSXAttribute: (path) => rejectDirective(path),
@@ -212,6 +226,9 @@ export class RunesTransform {
   private resolveBindings() {
     this.program.traverse({
       VariableDeclarator: (path) => {
+        if (this.pendingRest.has(path.node) && t.isIdentifier(path.node.id)) {
+          this.rest.add(path.scope.getBinding(path.node.id.name)!);
+        }
         const info = this.pending.get(path.node);
         if (!info) return;
         for (const name of Object.keys(path.getBindingIdentifiers())) {

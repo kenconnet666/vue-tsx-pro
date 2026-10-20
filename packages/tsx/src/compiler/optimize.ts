@@ -1,0 +1,293 @@
+/**
+ * 第 6 步：渲染优化。JSX 交给 vue-jsx 后没有模板编译器的那几项优化，父组件一重新渲染，
+ * 子组件就跟着重新渲染（插槽每次都是新的、没有 $stable；内联函数每次都是新的，props 比较时总算“变了”）。
+ * 这里在不改变语义的前提下补上两项：
+ *
+ *   1. 稳定插槽：组件的子节点只用到“不会随这次渲染变”的变量时，插槽标 $stable，
+ *      父组件因为别的状态重新渲染时，子组件不再跟着重做（内容里读到的响应式数据由子组件自己追踪）。
+ *        <Box><Btn label="保存" /></Box>
+ *        → <Box>{{ default: () => [<Btn label="保存" />], $stable: true }}</Box>
+ *   2. 缓存：JSX 属性里的函数与常量数组、对象，只用到“不会随这次渲染变”的变量时，每个实例只创建一次。
+ *        onPress={() => n++}  →  onPress={_cache[0] || (_cache[0] = () => n.value++)}
+ *
+ * “这次渲染才有的值”（渲染函数里的变量、map 回调的参数）一旦用到就不优化，保持 vue-jsx 原来的输出。
+ * 稳定插槽还要求内容不读非响应式的可变数据（普通 let、...rest、字面量初始化的 const）：
+ * 这类数据变了不会通知任何组件，以前靠父组件碰巧重新渲染才刷新。
+ */
+import { types as t, type NodePath } from '@babel/core';
+import type { Binding } from '@babel/traverse';
+import { isComponentSetup, prependToBody } from './ast.ts';
+import type { RuntimeImports } from './imports.ts';
+import type { TrackedInfo } from './runes.ts';
+
+export interface OptimizeContext {
+  imports: RuntimeImports;
+  /** 符文与 props 的绑定（第 2 步解析出的） */
+  tracked: Map<Binding, TrackedInfo>;
+  /** ...rest 解构出的绑定：Vue 的 attrs，不是响应式的 */
+  rest: Set<Binding>;
+}
+
+/** 一个变量对优化意味着什么 */
+type Kind =
+  /** 模块或组件 setup 里不会变的值：导入、函数、组合式函数的结果 */
+  | 'constant'
+  /** 符文与 props：读的是 .value，值会变，但读取会被追踪 */
+  | 'reactive'
+  /** 组件的 children：内容来自上层，稳不稳定要看上层（运行时判断） */
+  | 'children'
+  /** 会变、又不会通知任何组件的值：普通 let、...rest、字面量初始化的 const */
+  | 'mutable'
+  /** 这次渲染（或某次回调）才有的值：渲染函数里的变量、回调参数 */
+  | 'local';
+
+/** 子节点不能当插槽对象传的内置组件 */
+const VUE_BUILTINS = new Set(['Teleport', 'KeepAlive', 'Suspense']);
+
+export function optimizeRender(program: NodePath<t.Program>, context: OptimizeContext) {
+  const caches = new Map<NodePath<t.Function>, { id: t.Identifier; size: number }>();
+
+  /** setup 里的缓存数组：用到时才声明 */
+  const cacheSlot = (setup: NodePath<t.Function>, value: t.Expression) => {
+    let cache = caches.get(setup);
+    if (!cache) {
+      cache = { id: setup.scope.generateUidIdentifier('cache'), size: 0 };
+      caches.set(setup, cache);
+    }
+    const slot = t.memberExpression(
+      t.identifier(cache.id.name),
+      t.numericLiteral(cache.size++),
+      true,
+    );
+    // _cache[i] || (_cache[i] = value)：第一次渲染用到时创建
+    return t.logicalExpression('||', slot, t.assignmentExpression('=', t.cloneNode(slot), value));
+  };
+
+  program.traverse({
+    JSXAttribute(path) {
+      cacheAttributeValue(path, context, cacheSlot);
+    },
+    JSXElement: {
+      exit(path) {
+        stabilizeChildren(path, context);
+      },
+    },
+  });
+
+  for (const [setup, cache] of caches) {
+    const declaration = t.variableDeclaration('const', [
+      t.variableDeclarator(t.identifier(cache.id.name), t.arrayExpression([])),
+    ]);
+    prependToBody(setup, [declaration]);
+  }
+}
+
+type CacheSlot = (setup: NodePath<t.Function>, value: t.Expression) => t.Expression;
+
+// ───────────────────────── 缓存属性值 ─────────────────────────
+
+/** attr={() => …}、attr={[a, b]}、attr={{ … }}：只用到实例内不变的值时，每个实例只创建一次 */
+function cacheAttributeValue(
+  attribute: NodePath<t.JSXAttribute>,
+  context: OptimizeContext,
+  cacheSlot: CacheSlot,
+) {
+  const container = attribute.get('value');
+  if (!container.isJSXExpressionContainer()) return;
+  const value = container.get('expression');
+  const isFunction = value.isArrowFunctionExpression() || value.isFunctionExpression();
+  if (!isFunction && !value.isArrayExpression() && !value.isObjectExpression()) return;
+  const setup = enclosingSetup(attribute);
+  if (!setup) return;
+  if (!isCacheable(value as NodePath<t.Expression>, setup, context)) return;
+  // 不跳过：函数里的 JSX（trigger={(props) => <Button …>}）接着优化
+  value.replaceWith(cacheSlot(setup, value.node as t.Expression));
+}
+
+/**
+ * 函数：闭包读的都是活的绑定，只要不用到这次渲染才有的变量就能缓存。
+ * 数组、对象：直接读到的值（不在函数里的）必须是不会变的常量；符文的值会变，不能缓存
+ */
+function isCacheable(
+  value: NodePath<t.Expression>,
+  setup: NodePath<t.Function>,
+  context: OptimizeContext,
+) {
+  let cacheable = true;
+  forEachReference(value, setup, context, (kind, insideFunction) => {
+    if (kind === 'local') cacheable = false;
+    else if (!insideFunction && kind !== 'constant') cacheable = false;
+  });
+  // 数组、对象里直接的调用、new、自增等每次可能得到不同的值
+  if (cacheable && !value.isFunction()) {
+    value.traverse({
+      Function(inner) {
+        inner.skip();
+      },
+      'CallExpression|NewExpression|TaggedTemplateExpression|UpdateExpression|AssignmentExpression|AwaitExpression|YieldExpression'() {
+        cacheable = false;
+      },
+    });
+  }
+  return cacheable;
+}
+
+// ───────────────────────── 稳定插槽 ─────────────────────────
+
+/** 组件元素的子节点改成显式的插槽对象，按用到的变量标 $stable */
+function stabilizeChildren(element: NodePath<t.JSXElement>, context: OptimizeContext) {
+  if (!isComponentElement(element)) return;
+  if (element.node.children.some((child) => t.isJSXSpreadChild(child))) return;
+  const children = t.react.buildChildren(element.node) as t.Expression[];
+  if (!children.length) return;
+  // 已经是插槽对象（作者自己写的，或之前生成的）
+  if (children.length === 1 && t.isObjectExpression(children[0])) return;
+
+  const setup = enclosingSetup(element);
+  const childPaths = element.get('children');
+  let dynamic = false;
+  let usesChildren = false;
+  for (const child of childPaths) {
+    if (child.isJSXText()) continue;
+    forEachReference(child, setup, context, (kind) => {
+      if (kind === 'local' || kind === 'mutable') dynamic = true;
+      if (kind === 'children') usesChildren = true;
+    });
+  }
+  // 用到了这次渲染才有的值：保持 vue-jsx 原来的输出
+  if (dynamic) return;
+
+  const only = children.length === 1 ? children[0]! : undefined;
+  let slots: t.Expression;
+  if (only && isChildrenRead(only, element, context)) {
+    // <X>{children}</X>：原样转交，稳不稳定跟着上层（运行时判断），带参数的渲染函数原样交出
+    if (!setup) return;
+    slots = context.imports.runtime('forwardChildren', [propsOf(setup)]);
+  } else {
+    const content =
+      only && (t.isArrowFunctionExpression(only) || t.isFunctionExpression(only))
+        ? only // 函数子节点：带参数的是渲染函数，由子组件调用
+        : t.arrowFunctionExpression([], t.arrayExpression(children));
+    const stable = usesChildren
+      ? context.imports.runtime('childrenStable', [])
+      : t.booleanLiteral(true);
+    // 必须是对象字面量：vue-jsx 只把字面量（与调用的结果）当插槽对象，别的表达式会被当成内容再包一层
+    slots = t.objectExpression([
+      t.objectProperty(t.identifier('default'), content),
+      t.objectProperty(t.identifier('$stable'), stable),
+    ]);
+  }
+  element.node.children = [t.jsxExpressionContainer(slots)];
+}
+
+/** 大写开头或 a.B 形式的标签；Vue 的 Teleport、KeepAlive、Suspense 子节点不是插槽 */
+function isComponentElement(element: NodePath<t.JSXElement>) {
+  const name = element.node.openingElement.name;
+  if (t.isJSXMemberExpression(name)) return true;
+  if (!t.isJSXIdentifier(name) || !/^[A-Z]/.test(name.name)) return false;
+  const binding = element.scope.getBinding(name.name);
+  const specifier = binding?.path;
+  if (
+    specifier?.isImportSpecifier() &&
+    (specifier.parent as t.ImportDeclaration).source.value === 'vue' &&
+    t.isIdentifier(specifier.node.imported) &&
+    VUE_BUILTINS.has(specifier.node.imported.name)
+  ) {
+    return false;
+  }
+  return !VUE_BUILTINS.has(name.name);
+}
+
+/** 子节点就是 children（第 3 步已改写成 unref(children)） */
+function isChildrenRead(node: t.Expression, element: NodePath, context: OptimizeContext) {
+  const read = t.isCallExpression(node) && node.arguments.length === 1 ? node.arguments[0] : node;
+  if (!t.isIdentifier(read)) return false;
+  const binding = element.scope.getBinding(read.name);
+  return !!binding && !!context.tracked.get(binding)?.childrenOf;
+}
+
+/** setup 的第一个参数（第 1 步生成的 __props） */
+function propsOf(setup: NodePath<t.Function>) {
+  const first = setup.node.params[0];
+  return t.isIdentifier(first) ? t.identifier(first.name) : t.objectExpression([]);
+}
+
+// ───────────────────────── 变量分析 ─────────────────────────
+
+/** 所在的组件 setup（_component 的参数函数）；不在组件里时为 null */
+function enclosingSetup(path: NodePath): NodePath<t.Function> | null {
+  for (let fn = path.getFunctionParent(); fn; fn = fn.parentPath?.getFunctionParent() ?? null) {
+    if (isComponentSetup(fn)) return fn;
+  }
+  return null;
+}
+
+/** 表达式用到的外部变量逐个回调：变量的性质，以及引用是否在表达式里的函数中 */
+function forEachReference(
+  expression: NodePath,
+  setup: NodePath<t.Function> | null,
+  context: OptimizeContext,
+  visit: (kind: Kind, insideFunction: boolean) => void,
+) {
+  const check = (reference: NodePath, name: string) => {
+    const binding = reference.scope.getBinding(name);
+    // 全局变量（Math、window）
+    if (!binding) return;
+    // 表达式自己里面声明的（回调参数、局部变量）
+    if (isWithin(binding.scope.path, expression)) return;
+    visit(kindOf(binding, setup, context), isInsideFunction(reference, expression));
+  };
+  if (expression.isIdentifier()) check(expression, expression.node.name);
+  if (expression.isThisExpression()) visit('local', false);
+  expression.traverse({
+    Identifier(reference) {
+      if (reference.isReferencedIdentifier()) check(reference, reference.node.name);
+    },
+    JSXIdentifier(reference) {
+      if (reference.isReferencedIdentifier()) check(reference, reference.node.name);
+    },
+    ThisExpression(reference) {
+      visit('local', isInsideFunction(reference, expression));
+    },
+  });
+}
+
+function kindOf(
+  binding: Binding,
+  setup: NodePath<t.Function> | null,
+  context: OptimizeContext,
+): Kind {
+  const tracked = context.tracked.get(binding);
+  if (tracked) return tracked.childrenOf ? 'children' : 'reactive';
+  if (context.rest.has(binding)) return 'mutable';
+  const owner = binding.scope.getFunctionParent()?.path ?? null;
+  // 模块顶层，或组件外层的函数（工厂函数的参数与局部变量，对组件来说是固定的）
+  const outside = owner === null || (setup !== null && isWithin(setup, owner) && owner !== setup);
+  if (outside) return binding.constant ? 'constant' : 'mutable';
+  if (owner !== setup) return 'local';
+  // 组件 setup 里。第一个参数是 props（第 1 步生成的 __props）：只出现在转交 children 的生成代码里
+  if (binding.kind === 'param')
+    return binding.path.node === setup?.node.params[0] ? 'children' : 'mutable';
+  if (!binding.constant) return 'mutable';
+  if (binding.kind === 'hoisted' || binding.kind === 'module') return 'constant';
+  const declarator = binding.path;
+  const init = declarator.isVariableDeclarator() ? declarator.node.init : null;
+  // 字面量建的对象、数组可能被直接改（push、赋属性），改了不会通知谁
+  if (t.isObjectExpression(init) || t.isArrayExpression(init) || t.isNewExpression(init)) {
+    return 'mutable';
+  }
+  return 'constant';
+}
+
+/** inner 是否就是 outer 或在它里面 */
+function isWithin(inner: NodePath, outer: NodePath) {
+  return inner === outer || inner.isDescendant(outer);
+}
+
+/** 引用是否在表达式里的某个函数中（调用时才读取） */
+function isInsideFunction(reference: NodePath, expression: NodePath) {
+  for (let path = reference.parentPath; path && path !== expression; path = path.parentPath) {
+    if (path.isFunction()) return true;
+  }
+  return expression.isFunction() && reference !== expression;
+}

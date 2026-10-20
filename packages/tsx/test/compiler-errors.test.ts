@@ -123,12 +123,15 @@ describe('误用在编译期报错', () => {
       '  return () => <Box>{children}</Box>;',
       '})',
     ].join('\n');
-    const out = (await compileRunes(code))!.code;
-    expect(out).toContain('children.value != null');
-    expect(out).toContain('<Box>{_vue_unref(children)}</Box>');
+    const plain = (await compileRunes(code, 'input.tsx', { optimize: false }))!.code;
+    expect(plain).toContain('children.value != null');
+    expect(plain).toContain('<Box>{_vue_unref(children)}</Box>');
+    // 渲染优化打开时：原样转交，稳不稳定跟着上层（运行时判断）
+    const optimized = (await compileRunes(code))!.code;
+    expect(optimized).toContain('<Box>{_vtp_forwardChildren(_props)}</Box>');
   });
 
-  it('_bind 编译为 v-model：组件带参数名，原生元素带修饰符', async () => {
+  it('_bind：组件写出值与 onUpdate 回调，原生元素编译为带修饰符的 v-model', async () => {
     const code = [
       'let on = _state(false); let name = _state(""); const form = _state({ age: 1 });',
       '<>',
@@ -137,8 +140,10 @@ describe('误用在编译期报错', () => {
       '  <input type="number" value={_bind.number(form.age)} />',
       '</>',
     ].join('\n');
-    const out = (await compileRunes(code))!.code;
-    expect(out).toContain('<Switch v-model:checked={on.value} />');
+    const out = (await compileRunes(code, 'input.tsx', { optimize: false }))!.code;
+    expect(out).toContain(
+      '<Switch checked={on.value} onUpdate:checked={$event => on.value = $event} />',
+    );
     expect(out).toContain('<input v-model_lazy_trim={name.value} />');
     expect(out).toContain('<input type="number" v-model_number={form.value.age} />');
   });
@@ -161,9 +166,9 @@ describe('误用在编译期报错', () => {
   it('普通 prop 可以写入（组件本地覆盖），_bind 也可以绑定它', async () => {
     const code =
       '_component(({ v = 1 }: any) => { const reset = () => (v = 1); return () => <X v={_bind(v)} onReset={reset} /> })';
-    const out = (await compileRunes(code))!.code;
+    const out = (await compileRunes(code, 'input.tsx', { optimize: false }))!.code;
     expect(out).toContain('v.value = 1');
-    expect(out).toContain('v-model:v={v.value}');
+    expect(out).toContain('v={v.value} onUpdate:v={$event => v.value = $event}');
   });
 
   it('watch 的监听源写成 getter 或 _toRef(x)', async () => {

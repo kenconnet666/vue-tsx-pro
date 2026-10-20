@@ -152,7 +152,24 @@ const form = useForm({ name: '' });
 
 被同名本地变量遮蔽的 `_state` 等不当作符文。
 
-## 9. 与 Svelte 5 对照
+## 9. 渲染优化
+
+JSX 交给 vue-jsx 后，没有模板编译器的那几项优化：父组件一重新渲染，带内容的子组件就跟着重做（插槽每次都是新的），收到内联函数的子组件也跟着重做（props 比较时总算“变了”）。编译器在最后一步补上两项，写法不变（`compiler/optimize.ts`）：
+
+| 优化     | 条件                                                     | 效果                                                                                    |
+| -------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| 稳定插槽 | 组件的子节点没用到“这次渲染才有的值”与非响应式的可变数据 | 插槽标 `$stable`，父组件因为别的状态重新渲染时，子组件不跟着重做                        |
+| 缓存     | JSX 属性里的函数、常量数组与对象没用到“这次渲染才有的值” | 每个实例只创建一次（`_cache[i] \|\| (_cache[i] = …)`），子组件的 props 不再每次都“变了” |
+
+- **“这次渲染才有的值”**：渲染函数里声明的变量、`map` 等回调的参数。用到它们的内容与函数保持原样，不会因优化而出错。
+- **非响应式的可变数据**：会被重新赋值的普通 `let`、`...rest`（Vue 的 attrs）、用对象或数组字面量初始化的 `const`。它们变了不会通知任何组件，以前靠父组件碰巧重新渲染才刷新，用到它们的内容不标稳定。
+- **界面要读响应式数据**：显示在界面上的值请用 `_state` / `_derived` / props；读别处可变数据的函数（例如 setup 里的函数读一个普通对象）在内容里调用时，数据变了不会刷新。
+- 原样转交 `<X>{children}</X>` 时，稳不稳定跟着上层：上层的内容每次都变，交出去的也每次都变（运行时判断）。
+- 组件上的 `_bind(x)` 直接写出值与 `onUpdate:x` 回调，回调同样被缓存；原生输入框仍走 v-model 指令。
+- 实测：父组件计数加一、下面有 Card > Flex > 200 个按钮，5.2ms / 203 个组件更新 → 0.1ms / 1 个；打开 30 项的菜单 32 个组件更新 → 2 个。
+- 怀疑哪里因此没更新时，`vueTsxPro({ optimize: false })` 对比。
+
+## 10. 与 Svelte 5 对照
 
 | Svelte 5                                       | 本方案                                      | 说明                                          |
 | ---------------------------------------------- | ------------------------------------------- | --------------------------------------------- |
@@ -162,13 +179,13 @@ const form = useForm({ name: '' });
 | `$effect` / `$effect.pre` / `$effect.root`     | `_effect` / `_effect.pre` / `_effect.root`  | 一致；底层是 watchEffect 与 effectScope       |
 | `untrack(fn)`                                  | `_untrack(x)`                               | 写成表达式；用 Vue 公开的 ReactiveEffect 实现 |
 | `$props()` 解构、普通 prop 可覆盖              | `_component` 参数解构                       | 我们的默认值可以引用前面的 prop               |
-| `$bindable` + `bind:x`                         | `_bindable` + `_bind(x)`                    | 编译为 v-model                                |
+| `$bindable` + `bind:x`                         | `_bindable` + `_bind(x)`                    | 编译为 v-model 协议                           |
 | `$props.id()` / `$inspect`                     | Vue 的 `useId()` / Devtools                 | 不另造                                        |
 | 类字段 `done = $state(false)`                  | 暂不支持                                    | 写正式组件用到时再加                          |
 | `bind:value={get, set}`                        | 暂不支持                                    | 用到时再加 `_bind(get, set)`                  |
 
-## 10. 代价与限制
+## 11. 代价与限制
 
 - **看不出哪里被追踪**：去掉 `.value` 后，读代码时分不清普通变量和响应式变量。缓解：声明处必须写符文；编辑器悬停可见类型。这是 Vue 当年放弃 Reactivity Transform 的主要理由，Svelte 5 接受了同样的代价。
 - **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。编译器生成的导入别名是 `_vue_ref`、`_vtp_prop` 这类名字，不会冲突。
-- 实现见 `packages/tsx/src/compiler`（编译）与 `packages/tsx/src/runtime`（`prop`、`bindable`、`overridable`、`snapshot`、`effect`）。
+- 实现见 `packages/tsx/src/compiler`（编译，渲染优化在 `optimize.ts`）与 `packages/tsx/src/runtime`（`prop`、`bindable`、`overridable`、`snapshot`、`effect`、`forwardChildren`）。

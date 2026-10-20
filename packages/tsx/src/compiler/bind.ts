@@ -26,10 +26,11 @@ export function rejectDirective(attribute: NodePath<t.JSXAttribute>) {
 }
 
 /**
- * 属性={_bind(x)} → Vue 的 v-model（此时 x 已改写为 x.value）：
- *   <Switch checked={_bind(on)} />      → <Switch v-model:checked={on.value} />
+ * 属性={_bind(x)} → Vue 的 v-model 协议（此时 x 已改写为 x.value）：
+ *   <Switch checked={_bind(on)} />      → <Switch checked={on.value} onUpdate:checked={($event) => (on.value = $event)} />
  *   <input value={_bind.trim(name)} />  → <input v-model_trim={name.value} />
- * 属性名就是 prop 本身，补全、跳转、重命名都由 TypeScript 原生支持。
+ * 组件直接写出值与更新回调（同 vue-jsx 对 v-model:x 的输出），回调就能被渲染优化缓存；
+ * 原生输入框仍交给 vue-jsx 的 v-model 指令。属性名就是 prop 本身，补全、跳转、重命名都由 TypeScript 原生支持。
  */
 export function rewriteBind(call: NodePath<t.CallExpression>) {
   const container = call.parentPath;
@@ -59,7 +60,17 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
     attribute.node.name = t.jsxIdentifier(['v-model', ...modifiers].join('_'));
   } else {
     if (modifiers.length) throw fail(call, '_bind 的修饰符只用于原生输入元素');
-    attribute.node.name = t.jsxNamespacedName(t.jsxIdentifier('v-model'), t.jsxIdentifier(prop));
+    const event = t.identifier('$event');
+    const update = t.arrowFunctionExpression(
+      [event],
+      t.assignmentExpression('=', t.cloneNode(target), t.identifier('$event')),
+    );
+    attribute.insertAfter(
+      t.jsxAttribute(
+        t.jsxNamespacedName(t.jsxIdentifier('onUpdate'), t.jsxIdentifier(prop)),
+        t.jsxExpressionContainer(update),
+      ),
+    );
   }
   call.replaceWith(target);
 }

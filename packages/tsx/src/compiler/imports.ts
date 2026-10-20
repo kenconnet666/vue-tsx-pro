@@ -14,7 +14,9 @@ type RuntimeHelper =
   | 'snapshot'
   | 'untrack'
   | 'effect'
-  | 'effectRoot';
+  | 'effectRoot'
+  | 'forwardChildren'
+  | 'childrenStable';
 
 /** 编译时用到的 Vue 与本包运行时函数：按需生成带前缀的本地名，最后统一插入 import */
 export class RuntimeImports {

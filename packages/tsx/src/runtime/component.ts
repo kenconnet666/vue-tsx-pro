@@ -112,3 +112,30 @@ function readChildren(ctx: SetupContext, instance: ComponentInternalInstance) {
   if (typeof raw === 'function' && raw.length > 0) return raw;
   return ctx.slots.default?.() ?? ctx.attrs.children;
 }
+
+/** 交给子组件的插槽对象；$stable 告诉 Vue 父组件重新渲染时不必为了插槽更新子组件 */
+type ForwardedSlots = { default: unknown; $stable: boolean };
+
+/**
+ * 本组件收到的内容是否稳定（编译器生成的调用）：没有内容，或上层的插槽标了 $stable。
+ * 内容经 children 属性传来时不算（attrs 不是响应式的）
+ */
+export function childrenStable(): boolean {
+  const instance = getCurrentInstance();
+  if (!instance || 'children' in instance.attrs) return false;
+  const received = instance.vnode.children as { $stable?: boolean } | null;
+  return received == null || received.$stable === true;
+}
+
+/**
+ * 原样转交内容 <X>{children}</X>（编译器生成的调用）：稳不稳定跟着本组件收到的，
+ * 上层的内容每次都变，交出去的也每次都变；带参数的渲染函数原样交出，由 X 调用。
+ */
+export function forwardChildren(props: { children?: unknown }): ForwardedSlots {
+  const instance = getCurrentInstance()!;
+  const raw = (instance.vnode.children as Record<string, unknown> | null)?.default;
+  const $stable = childrenStable();
+  if (typeof raw === 'function' && raw.length > 0) return { default: raw, $stable };
+  // 读取时才执行上层的插槽：内容里的响应式读取归 X 追踪
+  return { default: () => [props.children], $stable };
+}

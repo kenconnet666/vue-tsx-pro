@@ -10,6 +10,8 @@ interface PropsContext {
   filename: string | undefined;
   /** 登记解构出的变量，之后统一把读写改写成 .value */
   track: (declarator: t.VariableDeclarator, info: TrackedInfo) => void;
+  /** 登记 ...rest：渲染优化要知道它是不会通知更新的 attrs */
+  trackRest: (declarator: t.VariableDeclarator) => void;
 }
 
 /**
@@ -52,7 +54,9 @@ export function declareProps(setup: NodePath<t.Function>, context: PropsContext)
         if (!t.isIdentifier(local)) throw fail(property, '...rest 需要是一个变量名');
         const withChildren = t.booleanLiteral(!destructuresChildren(pattern.node));
         const init = context.imports.runtime('restProps', [propsId, ctxId, withChildren]);
-        declarations.push(t.variableDeclaration('const', [t.variableDeclarator(local, init)]));
+        const declarator = t.variableDeclarator(local, init);
+        context.trackRest(declarator);
+        declarations.push(t.variableDeclaration('const', [declarator]));
         continue;
       }
 

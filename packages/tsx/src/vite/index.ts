@@ -35,13 +35,19 @@ export interface VueTsxProOptions {
    * 与 stylex 选项无关：组件库构建不编译 StyleX，token 写法照样要改写。
    */
   tokens?: string | false;
+  /**
+   * 渲染优化，默认 true：组件子节点的插槽标 $stable、JSX 属性里的函数与常量每个实例只建一次，
+   * 父组件因为别的状态重新渲染时子组件不再跟着重做（见 RUNES.md）。界面要读响应式数据；
+   * 怀疑哪里因此没更新时，传 false 对比
+   */
+  optimize?: boolean;
 }
 
 /**
  * Vite 预设：`plugins: [vueTsxPro()]`。组件库构建写 `vueTsxPro({ stylex: false })`，由使用方统一编译 StyleX。
  */
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
-  const plugins: Plugin[] = [runes()];
+  const plugins: Plugin[] = [runes(options.optimize ?? true)];
   const tokens = options.tokens ?? '@vue-tsx-pro/ui/tokens.stylex';
   if (tokens !== false) plugins.push(themeTokens(tokens));
   if (options.stylex !== false) {
@@ -80,18 +86,18 @@ interface VitestHooks {
 }
 
 /** 符文与 props 编译 */
-function runes(): Plugin & VitestHooks {
+function runes(optimize: boolean): Plugin & VitestHooks {
   return {
     name: 'vue-tsx-pro:runes',
     enforce: 'pre',
     // 编译器变了，Vitest 缓存的旧编译结果要作废（见 cache-key.ts）
     configureVitest({ defineCacheKeyGenerator }) {
-      defineCacheKeyGenerator?.(compilerCacheKey);
+      defineCacheKeyGenerator?.(() => `${compilerCacheKey()}${optimize ? '' : ':plain'}`);
     },
     async transform(code, id) {
       const file = id.split('?')[0]!;
       if (!/\.[cm]?[jt]sx?$/.test(file) || file.includes('/node_modules/')) return;
-      const result = await compileRunes(code, file);
+      const result = await compileRunes(code, file, { optimize });
       if (!result) return;
       for (const warning of result.warnings) this.warn(warning.frame);
       return { code: result.code, map: result.map };
