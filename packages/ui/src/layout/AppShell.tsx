@@ -122,7 +122,7 @@ export const appShellStyles = stylex.create({
   },
   aside: { display: { default: 'none', [WIDER]: 'block' }, paddingInline: '_lg' },
   // 正文由 SkipLink 聚焦（tabindex=-1）：不显示焦点框
-  main: { minWidth: 0, paddingBlock: '_xl', paddingInline: '_lg', outlineStyle: 'none' },
+  main: { minWidth: 0, paddingBlock: '_xl', paddingInline: '_xl', outlineStyle: 'none' },
 });
 
 /** 应用外壳：粘性顶栏、左侧栏、正文、右侧栏；窄屏时左侧栏收进抽屉 */

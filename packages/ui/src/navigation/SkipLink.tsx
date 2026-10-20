@@ -40,8 +40,11 @@ export const skipLinkStyles = stylex.create({
     color: '_accentText',
     fontWeight: '_medium',
     textDecoration: 'none',
+    // 移出视口之外再透明：阴影不会从顶边漏出来
+    opacity: { default: 0, ':focus': 1 },
     translate: { default: '0 calc(-100% - 1em)', ':focus': 'none' },
-    transition: 'translate _durations.sm _easings.standard',
+    transition:
+      'translate _durations.sm _easings.standard, opacity _durations.sm _easings.standard',
   },
 });
 

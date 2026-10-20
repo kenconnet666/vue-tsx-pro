@@ -211,8 +211,20 @@ export {
   type CodeGroupItem,
   type CodeGroupProps,
 } from './display/CodeGroup';
+export {
+  CodePreview,
+  codePreviewStyles,
+  type CodePreviewAligns,
+  type CodePreviewProps,
+} from './display/CodePreview';
 export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
+export {
+  ColorSwatch,
+  colorSwatchDynamicStyles,
+  colorSwatchStyles,
+  type ColorSwatchProps,
+} from './display/ColorSwatch';
 export {
   Descriptions,
   descriptionsGridStyles,
@@ -416,6 +428,7 @@ export {
 } from './navigation/NavList';
 export { PageJump, pageJumpStyles, type PageJumpProps } from './navigation/PageJump';
 export { PageSizeSelect, type PageSizeSelectProps } from './navigation/PageSizeSelect';
+export { Pager, pagerStyles, type PagerLink, type PagerProps } from './navigation/Pager';
 export { Pagination, paginationStyles, type PaginationProps } from './navigation/Pagination';
 export { SkipLink, skipLinkStyles, type SkipLinkProps } from './navigation/SkipLink';
 export {

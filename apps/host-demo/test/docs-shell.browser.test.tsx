@@ -1,7 +1,8 @@
-// 文档站外壳在真实浏览器里：AppShell 的响应式与抽屉、SkipLink、本页目录的滚动高亮、命令面板、主题切换
+// 文档站外壳在真实浏览器里：AppShell 的响应式与抽屉、SkipLink、本页目录的滚动高亮、命令面板、主题切换、色块
 import { _component } from '@vue-tsx-pro/tsx';
 import {
   AppShell,
+  ColorSwatch,
   CommandPalette,
   H2,
   NavItem,
@@ -17,6 +18,7 @@ import {
   paperTheme,
   type HeadingEntry,
 } from '@vue-tsx-pro/ui';
+import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 import { page, userEvent } from 'vitest/browser';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, nextTick, type App, type VNodeChild } from 'vue';
@@ -166,4 +168,23 @@ it('主题切换：菜单列出跟随系统与各主题，选中后切换并记�
   expect(items()[1]!.getAttribute('aria-checked')).toBe('true');
   await userEvent.click(items()[3]!);
   await expect.poll(() => preference.name).toBe('paper');
+});
+
+it('色块：token 的取值按当前主题读出，换主题时跟着变', async () => {
+  const preference = createThemePreference({
+    themes: { light: lightTheme, dark: darkTheme },
+    storageKey: false,
+    fallback: 'light',
+  });
+  root = document.createElement('div');
+  document.body.append(root);
+  app = createApp(_component(() => () => <ColorSwatch color={colors.text} label="text" />));
+  app.use(createUi({ theme: () => preference.theme }));
+  app.mount(root);
+  const value = () => root.querySelectorAll('span')[1]?.textContent;
+  await expect.poll(value).toMatch(/^#/);
+  const light = value();
+  await preference.set('dark');
+  await expect.poll(value).not.toBe(light);
+  expect(value()).toMatch(/^#/);
 });

@@ -92,6 +92,7 @@ export const enUS: Lang = {
   themeLight: 'Light',
   themeDark: 'Dark',
   themePaper: 'Paper',
+  pagerLabel: 'Pagination',
   pagerPrevious: 'Previous',
   pagerNext: 'Next',
 };

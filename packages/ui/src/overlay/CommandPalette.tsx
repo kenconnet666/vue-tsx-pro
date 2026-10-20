@@ -39,6 +39,8 @@ import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Dialog, type DialogProps } from './Dialog';
 
+const WIDE = '@media (min-width: 40rem)';
+
 /** 交给触发器的属性：展开到按钮上 */
 export interface CommandPaletteTriggerProps {
   /** 打开面板 */
@@ -85,7 +87,7 @@ export interface CommandPaletteBaseProps<T> extends Omit<
 /** 命令面板的属性；items 不是 ListboxOption 时要给 toOption */
 export type CommandPaletteProps<T = ListboxOption> = CommandPaletteBaseProps<T> & OptionMapping<T>;
 
-/** CommandPalette 的样式：dialog、search、input、listbox、trigger、triggerLabel */
+/** CommandPalette 的样式：dialog、search、input、listbox、trigger、triggerText、triggerLabel */
 export const commandPaletteStyles = stylex.create({
   // 停在视口上部而不是正中：结果变多变少时输入框不跳
   dialog: { marginBlockStart: '12dvh' },
@@ -103,7 +105,14 @@ export const commandPaletteStyles = stylex.create({
   input: { paddingBlock: '_sm' },
   listbox: { maxHeight: 'min(24rem, 50dvh)' },
   body: { padding: 0 },
-  trigger: { gap: '_sm', minWidth: '12rem', color: '_textMuted', cursor: 'pointer' },
+  // 窄屏（40rem 以下，sizes.sm）只留放大镜图标，不挤占顶栏
+  trigger: {
+    gap: '_sm',
+    minWidth: { default: null, [WIDE]: '12rem' },
+    color: '_textMuted',
+    cursor: 'pointer',
+  },
+  triggerText: { display: { default: 'none', [WIDE]: 'initial' } },
   triggerLabel: { flexGrow: 1, textAlign: 'start' },
 });
 
@@ -195,8 +204,14 @@ export const CommandPalette = _component(
           )}
         >
           <Icon icon={Search} sx={controlStyles.icon} />
-          <span {...mergeAttrs<'span'>({ sx: commandPaletteStyles.triggerLabel })}>{text}</span>
-          {hotkey && <Kbd>{formatHotkey(hotkey)}</Kbd>}
+          <span
+            {...mergeAttrs<'span'>({
+              sx: [commandPaletteStyles.triggerText, commandPaletteStyles.triggerLabel],
+            })}
+          >
+            {text}
+          </span>
+          {hotkey && <Kbd sx={commandPaletteStyles.triggerText}>{formatHotkey(hotkey)}</Kbd>}
         </ButtonBase>
       );
     }

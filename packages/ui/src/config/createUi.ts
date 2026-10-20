@@ -32,7 +32,7 @@ export interface UiOptions {
   /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
   ripple?: boolean;
   /**
-   * 页面根元素也用主题的背景色与文字色，默认 false。整页都由组件库主题管理的站点（如文档站）打开：
+   * 页面根元素也用主题的背景色、文字色与字体，默认 false。整页都由组件库主题管理的站点（如文档站）打开：
    * 页面边缘、回弹滚动露出的地方不再是浏览器的默认色；配合 themeBootScript 时接手它写的行内颜色
    */
   paintDocument?: boolean;
@@ -40,7 +40,13 @@ export interface UiOptions {
 
 /** paintDocument 时页面根元素的样式 */
 export const documentStyles = stylex.create({
-  page: { backgroundColor: '_background', color: '_text' },
+  // 字号不设：根元素的字号是 rem 的基准，留给浏览器（用户的字号设置）
+  page: {
+    backgroundColor: '_background',
+    color: '_text',
+    fontFamily: '_sans',
+    lineHeight: '_normal',
+  },
 });
 
 /**

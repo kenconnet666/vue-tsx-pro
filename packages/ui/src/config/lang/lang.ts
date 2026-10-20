@@ -210,6 +210,8 @@ export interface Lang {
   readonly themeDark: string;
   /** 主题：纸张，默认“纸张” */
   readonly themePaper: string;
+  /** 翻页导航（上一篇、下一篇）的名称，默认“翻页” */
+  readonly pagerLabel: string;
   /** 上一篇（翻页导航），默认“上一篇” */
   readonly pagerPrevious: string;
   /** 下一篇（翻页导航），默认“下一篇” */

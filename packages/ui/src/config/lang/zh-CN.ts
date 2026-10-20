@@ -90,6 +90,7 @@ export const zhCN: Lang = {
   themeLight: '亮色',
   themeDark: '暗色',
   themePaper: '纸张',
+  pagerLabel: '翻页',
   pagerPrevious: '上一篇',
   pagerNext: '下一篇',
 };
