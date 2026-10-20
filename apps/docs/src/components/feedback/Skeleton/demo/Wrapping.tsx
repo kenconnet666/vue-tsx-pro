@@ -1,5 +1,14 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Card, Flex, Paragraph, Skeleton, Switch, Text } from '@vue-tsx-pro/ui';
+import {
+  Avatar,
+  Card,
+  Flex,
+  Paragraph,
+  SHIMMER_STAGGER,
+  Skeleton,
+  Switch,
+  Text,
+} from '@vue-tsx-pro/ui';
 
 export default _component(() => {
   let loading = _state(true);
@@ -15,7 +24,7 @@ export default _component(() => {
             <Skeleton loading={loading}>
               <Text weight="semibold">Ada Lovelace</Text>
             </Skeleton>
-            <Skeleton loading={loading} delay={120}>
+            <Skeleton loading={loading} delay={SHIMMER_STAGGER}>
               <Text size="sm" tone="muted">
                 分析机程序员 · 伦敦
               </Text>
@@ -23,7 +32,7 @@ export default _component(() => {
           </Flex>
         </Flex>
         <div style={{ marginBlockStart: '1em' }}>
-          <Skeleton loading={loading} delay={240}>
+          <Skeleton loading={loading} delay={2 * SHIMMER_STAGGER}>
             <Paragraph>
               为巴贝奇的分析机写下了计算伯努利数的算法，被认为是世界上第一段程序。
             </Paragraph>

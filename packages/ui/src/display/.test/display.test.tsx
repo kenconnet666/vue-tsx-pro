@@ -1,9 +1,9 @@
 // Card、Avatar
-import { describe, expect, it } from 'vitest';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
+import { shimmerStyles } from '../../utils/style/shimmer';
 import { statusToneStyles } from '../../utils/style/tone-styles';
-import { mount } from '../../utils/.test/mount';
+import { hasStyles, mount } from '../../utils/.test/mount';
 import { Avatar, initials } from '../Avatar';
 import { Card } from '../Card';
 
@@ -42,6 +42,25 @@ describe('Card', () => {
     expect(card.hasAttribute('aria-busy')).toBe(false);
     expect(card.textContent).toBe('标题内容');
   });
+
+  it('骨架换回正文时正文淡入；一开始就有正文时不淡入', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      let loading = _state(false);
+      const card = first(mount(() => <Card loading={loading}>内容</Card>));
+      const body = () => card.firstElementChild!;
+      expect(hasStyles(body(), shimmerStyles.reveal)).toBe(false);
+      loading = true;
+      await vi.advanceTimersByTimeAsync(200);
+      expect(body().textContent).toBe('');
+      loading = false;
+      await vi.advanceTimersByTimeAsync(500);
+      expect(body().textContent).toBe('内容');
+      expect(hasStyles(body(), shimmerStyles.reveal)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe('Avatar', () => {
@@ -76,11 +95,9 @@ describe('Avatar', () => {
   });
 
   it('variant × tone 用状态色调的配色：默认 soft accent', () => {
-    const hasAll = (element: Element, className: string | undefined) =>
-      className!.split(' ').every((name) => element.classList.contains(name));
     const plain = first(mount(() => <Avatar name="张三" />));
     const solid = first(mount(() => <Avatar name="张三" variant="solid" tone="success" />));
-    expect(hasAll(plain, stylex.props(statusToneStyles.soft.accent).className)).toBe(true);
-    expect(hasAll(solid, stylex.props(statusToneStyles.solid.success).className)).toBe(true);
+    expect(hasStyles(plain, statusToneStyles.soft.accent)).toBe(true);
+    expect(hasStyles(solid, statusToneStyles.solid.success)).toBe(true);
   });
 });

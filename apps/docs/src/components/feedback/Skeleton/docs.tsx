@@ -25,12 +25,13 @@ export default _component(() => () => (
       </Example>
       <Example id="wrapping" title="包着内容" demo={Wrapping}>
         包着真实内容时，内容照常排版但看不见，占位正好是内容的大小，加载完换成内容时布局不跳。
-        <Code>delay</Code> 让几块骨架依次扫过，连成一道波。
+        <Code>delay</Code> 让几块骨架依次扫过，连成一道波；间隔用 <Code>SHIMMER_STAGGER</Code>{' '}
+        的倍数，与列表、表格的骨架行节奏一致。
       </Example>
       <Example id="layouts" title="常见布局" demo={Layouts}>
         按真实布局拼骨架：文章（配图、标题、段落）、消息列表（头像加两行文字）、看板、表单。Card、Stat
-        自带 <Code>loading</Code>；自己拼的骨架换成内容时用 <Code>shimmerStyles.reveal</Code>{' '}
-        淡入，不要硬切。
+        自带 <Code>loading</Code>；自己拼的骨架换成内容时给内容加 <Code>shimmerStyles.reveal</Code>{' '}
+        淡入，不要硬切，并在整块区域上加 <Code>aria-busy</Code>。
       </Example>
       <Example id="table" title="表格" demo={Table}>
         DataTable

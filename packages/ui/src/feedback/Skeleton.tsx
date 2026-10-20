@@ -5,7 +5,7 @@
  *
  *   <Skeleton loading={loading}><Text>{user.name}</Text></Skeleton>
  *   <Skeleton variant="circle" />
- *   <Skeleton variant="heading" delay={120} />      几块骨架依次扫过
+ *   <Skeleton variant="heading" delay={SHIMMER_STAGGER} />      几块骨架依次扫过
  *   <Skeleton sx={styles.cover} />
  *
  * 占位对读屏隐藏；整块区域在加载时在外层加 aria-busy。减少动态效果时不扫光。
@@ -46,6 +46,12 @@ export interface SkeletonProps extends PartProps<'span', 'aria-hidden' | 'inert'
   propsContent?: PartProps<'span'>;
   children?: VNodeChild;
 }
+
+/** 不包内容的骨架（SkeletonText 的各行、列表与表格的骨架行）的部件属性：加载与内容由组件管 */
+export type SkeletonShapeProps = Omit<
+  Partial<SkeletonProps>,
+  'loading' | 'children' | 'propsContent'
+>;
 
 /** Skeleton 的样式：root、wrapping、hidden */
 export const skeletonStyles = stylex.create({

@@ -21,7 +21,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress, type ProgressProps } from '../feedback/Progress';
-import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
+import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { Checkbox, type CheckboxProps } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
@@ -127,7 +127,7 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   /** 空状态的部件属性 */
   propsEmpty?: Partial<EmptyProps>;
   /** 加载中占位的部件属性 */
-  propsSkeleton?: Omit<Partial<SkeletonProps>, 'loading' | 'children'>;
+  propsSkeleton?: SkeletonShapeProps;
   /** 可排序列标题里的排序按钮的部件属性 */
   propsSortButton?: Partial<ButtonBaseProps>;
   /** 列宽调整手柄的部件属性 */

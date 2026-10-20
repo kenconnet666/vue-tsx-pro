@@ -138,12 +138,22 @@ class TokenRewriter {
     return true;
   }
 
-  /** 一组样式：键是 CSS 属性，或嵌套样式的伪元素（'::before'）、伪类与 @ 规则 */
+  /**
+   * 一组样式：键是 CSS 属性，或嵌套样式的伪元素（'::before'）、伪类与 @ 规则，或覆盖变量的 `[vars.x]`。
+   * 变量没有属性名可查对照表，只认带组名的写法（短写在 resolve 里报错）；不改写的话 token 原样进了 CSS，
+   * 变量值无效，用到它的声明整条失效且没有任何提示
+   */
   private rewriteStyles(styles: NodePath<t.ObjectExpression>) {
     for (const entry of styles.get('properties')) {
-      if (!entry.isObjectProperty() || entry.node.computed) continue;
+      if (!entry.isObjectProperty()) continue;
       const key = entry.node.key;
-      const name = t.isIdentifier(key) ? key.name : t.isStringLiteral(key) ? key.value : null;
+      const name = entry.node.computed
+        ? `[${entry.get('key').getSource()}]`
+        : t.isIdentifier(key)
+          ? key.name
+          : t.isStringLiteral(key)
+            ? key.value
+            : null;
       if (name == null) continue;
       const value = entry.get('value');
       if (/^[:@]/.test(name)) {

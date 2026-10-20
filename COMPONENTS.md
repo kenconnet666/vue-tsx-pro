@@ -115,7 +115,7 @@
 - tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
   - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用，但没有补全；
-  - 条件值、回退数组、伪元素、动态样式里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
+  - 条件值、回退数组、伪元素、动态样式、覆盖变量（`[vars.x]: …`，只能写带组名的）里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
   - 值里也能夹 token，用于计算、多值、简写：`minHeight: 'max(_control, _minTarget)'`、`outlineOffset: 'calc(-1 * _xs)'`、`padding: '_sm _md'`，编译成模板字符串；短写同样按属性找组，表外属性（如 `transition`）写带组名的 `'opacity _durations.md _easings.standard'`。token 前后不能紧挨字母、数字、`-`、`.`，引号里的文字与 `url()` 不处理。值中间的 token 没有补全；
   - 注意短写按**属性**找组：`width`、`height` 属于 `sizes`，`'calc(_lg + _xs)'` 写在 `width` 里取的是 `sizes.lg`（64rem）而不是间距；尺寸里要用间距档位时写带组名的 `'calc(_space.lg + _space.xs)'`；
   - 只有动态样式的参数、运行时算出的值才需要 import token 变量；

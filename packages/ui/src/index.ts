@@ -336,6 +336,7 @@ export {
   skeletonStyles,
   skeletonVariantStyles,
   type SkeletonProps,
+  type SkeletonShapeProps,
   type SkeletonVariants,
 } from './feedback/Skeleton';
 export { SkeletonText, skeletonTextStyles, type SkeletonTextProps } from './feedback/SkeletonText';

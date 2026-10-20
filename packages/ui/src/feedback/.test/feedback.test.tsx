@@ -68,6 +68,20 @@ describe('Skeleton', () => {
     expect(plain!.className).not.toBe(text!.className);
     for (const el of [circle, text, plain]) expect(el!.getAttribute('aria-hidden')).toBe('true');
   });
+
+  it('delay 为 0 或不写时不加延迟样式', () => {
+    const root = mount(() => (
+      <>
+        <Skeleton />
+        <Skeleton delay={0} />
+        <Skeleton delay={SHIMMER_STAGGER} />
+      </>
+    ));
+    const [plain, zero, delayed] = [...root.children] as HTMLElement[];
+    expect(zero!.className).toBe(plain!.className);
+    expect(zero!.hasAttribute('style')).toBe(false);
+    expect(delayed!.getAttribute('style')).toContain(`${SHIMMER_STAGGER}ms`);
+  });
 });
 
 describe('SkeletonText', () => {
