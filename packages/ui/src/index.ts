@@ -662,6 +662,7 @@ export {
 } from './input/control';
 export {
   handleListKeydown,
+  toListboxOption,
   useListState,
   type ListboxOption,
   type ListKeydownOptions,
