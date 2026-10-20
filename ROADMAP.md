@@ -58,7 +58,8 @@
 ## 5. 3D 与效果
 
 - [x] 第 0 层（ThreeCanvas、useThree、主题色、画质、上下文名额）、第 1 层（ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、TiltCard、SpotlightCard、BorderBeam）
-- [ ] 第 2 层：Globe、ModelViewer、Confetti
+- [x] 第 2 层：Confetti（trigger 驱动，只在飘的时候占画布；顶层显示，盖得住对话框）
+- [ ] 第 2 层：Globe、ModelViewer
 - [ ] 首页英雄区用上效果；统计看板示例加 Globe
 - [ ] 代码演练场支持 three 子路径
 

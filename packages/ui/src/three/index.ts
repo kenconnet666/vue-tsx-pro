@@ -52,6 +52,13 @@ export {
   ShaderBackground,
   type ShaderBackgroundProps,
 } from './background/ShaderBackground';
+export {
+  CONFETTI_PALETTE,
+  Confetti,
+  confettiStyles,
+  type ConfettiOrigin,
+  type ConfettiProps,
+} from './effects/Confetti';
 export { PARTICLE_PALETTE, ParticleField, type ParticleFieldProps } from './effects/ParticleField';
 export {
   WAVE_GRID_PALETTE,

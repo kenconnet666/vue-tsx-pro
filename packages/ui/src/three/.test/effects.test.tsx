@@ -1,12 +1,20 @@
-// 效果：外层结构（画布在底层、内容在上层）、降级、着色器背景的 uniform 与色板、粒子数、重建时机
-import { LineSegments, Points, ShaderMaterial, type Mesh, type Object3D } from 'three';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+// 效果：外层结构（画布在底层、内容在上层）、降级、着色器背景的 uniform 与色板、粒子数、重建时机、彩纸的放与收尾
+import {
+  InstancedMesh,
+  LineSegments,
+  Points,
+  ShaderMaterial,
+  type Mesh,
+  type Object3D,
+} from 'three';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, shallowRef, type VNodeChild } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { AuroraBackground } from '../background/AuroraBackground';
 import { MeshGradient } from '../background/MeshGradient';
 import { ShaderBackground } from '../background/ShaderBackground';
 import { THEME_PALETTE_SIZE } from '../core/shaders';
+import { Confetti } from '../effects/Confetti';
 import { ParticleField } from '../effects/ParticleField';
 import { WaveGrid } from '../effects/WaveGrid';
 import { FakeRenderer, frame, resetFakeWebGL, setIntersecting } from './fake-webgl';
@@ -143,5 +151,58 @@ describe('ParticleField、WaveGrid', () => {
     expect(grid.objects[0]).toBeInstanceOf(LineSegments);
     const dots = await render(() => <WaveGrid variant="dots" />);
     expect(dots.objects[0]).toBeInstanceOf(Points);
+  });
+});
+
+describe('Confetti', () => {
+  // happy-dom 不排版：给画布一个尺寸，彩纸才放得出去
+  const sizes = (['clientWidth', 'clientHeight'] as const).map(
+    (key) => [key, Object.getOwnPropertyDescriptor(HTMLElement.prototype, key)!] as const,
+  );
+  beforeEach(() => {
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      get: () => 400,
+      configurable: true,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      get: () => 300,
+      configurable: true,
+    });
+  });
+  afterEach(() => {
+    for (const [key, descriptor] of sizes)
+      Object.defineProperty(HTMLElement.prototype, key, descriptor);
+  });
+
+  it('挂载时不放；trigger 变了才有画布，彩纸按数量放出', async () => {
+    let fired = _state(0);
+    const root = mount(() => <Confetti trigger={fired} count={40} fullscreen={false} />);
+    await nextTick();
+    expect(root.querySelector('canvas')).toBeNull();
+    fired++;
+    await nextTick();
+    setIntersecting(true);
+    await nextTick();
+    await frame();
+    await frame();
+    const mesh = FakeRenderer.instances.at(-1)!.scene!.children[0] as InstancedMesh;
+    expect(mesh).toBeInstanceOf(InstancedMesh);
+    expect(mesh.count).toBe(40);
+  });
+
+  it('没有 WebGL 时不画降级的渐变，直接收尾、卸载并调用 onDone', async () => {
+    FakeRenderer.fail = true;
+    const done = vi.fn();
+    let fired = _state(0);
+    const root = mount(() => <Confetti trigger={fired} fullscreen={false} onDone={done} />);
+    fired++;
+    await nextTick();
+    setIntersecting(true);
+    await nextTick();
+    await nextTick();
+    await Promise.resolve();
+    await nextTick();
+    expect(done).toHaveBeenCalledTimes(1);
+    expect(root.querySelector('[data-state]')).toBeNull();
   });
 });

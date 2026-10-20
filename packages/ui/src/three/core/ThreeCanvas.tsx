@@ -19,10 +19,10 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { VNodeChild } from 'vue';
+import { watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../../utils/props';
 import type { ThreeQuality } from './quality';
-import { useThree, type ThreeContext, type ThreeSceneHandle } from './renderer';
+import { useThree, type ThreeContext, type ThreeSceneHandle, type ThreeStatus } from './renderer';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'> {
@@ -42,6 +42,8 @@ export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'
   resolution?: number;
   /** 没有 WebGL 时显示的内容，默认是主题色的柔和渐变 */
   fallback?: VNodeChild;
+  /** 渲染状态变化时调用（同根元素的 data-state）：比如降级时改放一张静态图，或一次性的效果直接收尾 */
+  onStatusChange?: (status: ThreeStatus) => void;
   /** canvas 的部件属性 */
   propsCanvas?: PartProps<'canvas', 'aria-hidden'>;
   /** 降级内容外层的部件属性 */
@@ -79,6 +81,7 @@ export const ThreeCanvas = _component(
     paused = false,
     resolution = 1,
     fallback,
+    onStatusChange,
     propsCanvas,
     propsFallback,
     ...rest
@@ -91,6 +94,10 @@ export const ThreeCanvas = _component(
       paused: () => paused,
       resolution: () => resolution,
     });
+    watch(
+      () => three.status,
+      (status) => onStatusChange?.(status),
+    );
 
     return () => {
       const labelled = rest['aria-label'] != null || rest['aria-labelledby'] != null;
