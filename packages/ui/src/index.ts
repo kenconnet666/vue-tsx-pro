@@ -645,6 +645,7 @@ export {
   choiceGroupStyles,
   choiceRootSx,
   choiceStyles,
+  syncChecked,
   useChoiceAppearance,
   type ChoiceAppearance,
   type ChoiceOptions,
