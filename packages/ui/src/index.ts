@@ -803,6 +803,7 @@ export {
 } from './config/Provider';
 export {
   ThemeCustomizer,
+  themeCustomizerCornerStyles,
   themeCustomizerDynamicStyles,
   themeCustomizerStyles,
   type ThemeCustomizerProps,
@@ -929,7 +930,7 @@ export {
 // 工具：档位、字号、色调、过渡等共用样式
 export { itemStyles } from './utils/style/item-styles';
 export { headingMarker } from './utils/style/markers.stylex';
-export { shimmerStyles } from './utils/style/shimmer';
+export { SHIMMER_STAGGER, shimmerStyles } from './utils/style/shimmer';
 export {
   columnGapStyles,
   focusRingStyles,
