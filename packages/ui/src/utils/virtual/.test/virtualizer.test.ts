@@ -141,6 +141,19 @@ describe('Virtualizer', () => {
     expect(element.scrollTop).toBe(1050);
   });
 
+  it('一批测量只通知一次，位置表从变化处往后补算', async () => {
+    const { virtualizer, onChange } = create();
+    onChange.mockClear();
+    for (let index = 0; index < 5; index++) virtualizer.measureElement(itemElement(index, 30));
+    expect(onChange).not.toHaveBeenCalled();
+    await Promise.resolve();
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const items = virtualizer.getMeasurements();
+    expect(items[4]).toMatchObject({ start: 120, size: 30, end: 150 });
+    expect(items[5]!.start).toBe(150);
+    expect(virtualizer.getTotalSize()).toBe(20000 + 5 * 10);
+  });
+
   it('大小为 0（还没排版）的测量值不采用', () => {
     const { virtualizer } = create();
     virtualizer.measureElement(itemElement(0, 0));

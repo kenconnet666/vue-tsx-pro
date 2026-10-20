@@ -143,7 +143,11 @@ export class Virtualizer {
   private options: VirtualizerOptions;
   /** key → 测量到的大小 */
   private readonly sizes = new Map<PropertyKey, number>();
+  /** 位置表；前 valid 项是准的，之后的在下次读取时从第 valid 项往后重排 */
   private measurements: VirtualItem[] | null = null;
+  private valid = 0;
+  /** 同一轮里的多次测量只通知一次 */
+  private updateQueued = false;
   /** 每测到一次新的大小加一：scrollToIndex 据此判断位置是否已经稳定 */
   private sizeVersion = 0;
   /** 滚动位置，相对列表开头 */
@@ -163,6 +167,7 @@ export class Virtualizer {
   setOptions(options: VirtualizerOptions): void {
     this.options = options;
     this.measurements = null;
+    this.valid = 0;
     this.update(true);
   }
 
@@ -210,12 +215,32 @@ export class Virtualizer {
 
   /** 每项的位置表 */
   getMeasurements(): readonly VirtualItem[] {
-    const { count, estimateSize, getItemKey = (index) => index } = this.options;
-    return (this.measurements ??= computeMeasurements(
-      count,
-      (index, key) => this.sizes.get(key) ?? estimateSize(index),
-      getItemKey,
-    ));
+    return this.measureUpTo(this.options.count - 1);
+  }
+
+  /**
+   * 位置表补算到第 index 项为止：只从第一个变了大小的项往后重排，不是每次测量都重建整张表
+   * （一万行时每次重建要几毫秒，滚动时每帧都有新的项被测量）
+   */
+  private measureUpTo(index: number): VirtualItem[] {
+    const { count, estimateSize, getItemKey = (i) => i } = this.options;
+    const sizeOf = (i: number, key: PropertyKey) => this.sizes.get(key) ?? estimateSize(i);
+    if (!this.measurements || this.measurements.length !== count) {
+      this.measurements = computeMeasurements(count, sizeOf, getItemKey);
+      this.valid = count;
+      return this.measurements;
+    }
+    const items = this.measurements;
+    const end = Math.min(index, count - 1);
+    let start = this.valid > 0 ? items[this.valid - 1]!.end : 0;
+    for (let i = this.valid; i <= end; i++) {
+      const key = getItemKey(i);
+      const size = sizeOf(i, key);
+      items[i] = { index: i, key, start, size, end: start + size };
+      start += size;
+    }
+    this.valid = Math.max(this.valid, end + 1);
+    return items;
   }
 
   /** 列表的总大小（px）：撑开滚动区域 */
@@ -312,14 +337,21 @@ export class Virtualizer {
   private resizeItem(element: Element, size: number) {
     // 0 是还没排版（display: none、刚离开文档），保留原来的值
     if (!size || !element.isConnected) return;
-    const item = this.getMeasurements()[Number(element.getAttribute('data-index'))];
+    const index = Number(element.getAttribute('data-index'));
+    const item = this.measureUpTo(index)[index];
     if (!item || item.size === size) return;
     // 可视区上方的项变大或变小：同步调整滚动位置，可见内容不跳
     if (item.start < this.offset) this.scrollBy(size - item.size);
     this.sizes.set(item.key, size);
     this.sizeVersion++;
-    this.measurements = null;
-    this.update(true);
+    this.valid = Math.min(this.valid, index);
+    // 渲染时一批新项依次测量：合并成一次通知，等这一批量完再重新算范围
+    if (this.updateQueued) return;
+    this.updateQueued = true;
+    queueMicrotask(() => {
+      this.updateQueued = false;
+      this.update(true);
+    });
   }
 
   private borderBoxSize(entry: ResizeObserverEntry) {
