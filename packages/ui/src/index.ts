@@ -671,6 +671,37 @@ export {
 
 // 日期：日历、分段输入、日期与时间选择
 export {
+  Calendar,
+  type CalendarProps,
+  type MultipleCalendarProps,
+  type SingleCalendarProps,
+} from './date/Calendar';
+export {
+  calendarStyles,
+  CalendarView,
+  type CalendarItemProps,
+  type CalendarViewManaged,
+  type CalendarViewOptions,
+  type CalendarViewProps,
+} from './date/CalendarView';
+export { DateField, type DateFieldProps } from './date/DateField';
+export {
+  DateSegmentGroup,
+  dateSegmentStyles,
+  type DateSegmentGroupManaged,
+  type DateSegmentGroupProps,
+  type DateSegmentManaged,
+} from './date/DateSegmentGroup';
+export { RangeCalendar, type RangeCalendarProps } from './date/RangeCalendar';
+export {
+  SegmentedField,
+  segmentedFieldStyles,
+  type SegmentedFieldManaged,
+  type SegmentedFieldOptions,
+  type SegmentedFieldProps,
+} from './date/SegmentedField';
+export { TimeField, type TimeFieldGranularities, type TimeFieldProps } from './date/TimeField';
+export {
   handleCalendarKeydown,
   useCalendarState,
   type CalendarCellState,
@@ -680,8 +711,20 @@ export {
   type CalendarStateOptions,
 } from './date/calendar-state';
 export {
+  toDateLimits,
+  useDateLocale,
+  type DateLimitProps,
+  type DateLocale,
+  type DateLocaleOverrides,
+} from './date/date-locale';
+export {
+  fieldsToIso,
   handleSegmentKeydown,
+  isoToFields,
+  segmentFields,
   useDateSegments,
+  type DateFieldGranularities,
+  type DateFieldGranularity,
   type DateFieldValues,
   type DateSegment,
   type DateSegmentsOptions,
@@ -1079,8 +1122,10 @@ export {
   clampDate,
   compareDates,
   dayOfWeekIndex,
+  daysBetween,
   isDateDisabled,
   isInRange,
+  isoDayOfWeek,
   isOutOfRange,
   isOutsideDecade,
   isSameDate,
@@ -1091,9 +1136,12 @@ export {
   parseIsoDateTime,
   parseIsoRange,
   parseIsoTime,
+  presetIsoRange,
   presetRange,
   rangeDays,
   rangeHasUnavailable,
+  shiftIsoDate,
+  todayIso,
   toDayOfWeek,
   toIsoDate,
   toIsoDateTime,

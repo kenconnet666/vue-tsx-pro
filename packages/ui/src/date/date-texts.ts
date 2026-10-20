@@ -31,8 +31,8 @@ export interface DateTexts {
   readonly calendarWeek: string;
   /** 周数给读屏的说明：`(43)` → “第 43 周” */
   readonly calendarWeekNumber: (week: number) => string;
-  /** 今天的标记（读屏念在日期前面），默认“今天” */
-  readonly calendarToday: string;
+  /** 今天那一格的读屏名称：`('2026年10月20日星期二')` → “今天，2026年10月20日星期二” */
+  readonly calendarToday: (date: string) => string;
   /** 区间选了开始、等着选结束时给读屏的提示，默认“请选择结束日期” */
   readonly calendarPickEnd: string;
   /** 日期选择器打开日历的按钮，默认“选择日期” */
@@ -49,6 +49,8 @@ export interface DateTexts {
   readonly dateRangePreset: Readonly<Record<DateRangePreset, string>>;
   /** 选“现在”的按钮（时间、日期时间选择器），默认“此刻” */
   readonly timePickerNow: string;
+  /** 还没填的段给读屏的取值，默认“未填写” */
+  readonly dateFieldEmpty: string;
   /** 分段的占位文字 */
   readonly dateFieldPlaceholders: Readonly<Partial<Record<DateSegmentType, string>>>;
 }
@@ -64,7 +66,7 @@ const zh: DateTexts = {
   calendarChooseYear: '选择年份',
   calendarWeek: '周',
   calendarWeekNumber: (week) => `第 ${week} 周`,
-  calendarToday: '今天',
+  calendarToday: (date) => `今天，${date}`,
   calendarPickEnd: '请选择结束日期',
   datePickerOpen: '选择日期',
   timePickerOpen: '选择时间',
@@ -82,6 +84,7 @@ const zh: DateTexts = {
     thisYear: '今年',
   },
   timePickerNow: '此刻',
+  dateFieldEmpty: '未填写',
   dateFieldPlaceholders: {
     year: '年',
     month: '月',
@@ -104,7 +107,7 @@ const en: DateTexts = {
   calendarChooseYear: 'Choose year',
   calendarWeek: 'Wk',
   calendarWeekNumber: (week) => `Week ${week}`,
-  calendarToday: 'Today',
+  calendarToday: (date) => `Today, ${date}`,
   calendarPickEnd: 'Select an end date',
   datePickerOpen: 'Choose date',
   timePickerOpen: 'Choose time',
@@ -122,6 +125,7 @@ const en: DateTexts = {
     thisYear: 'This year',
   },
   timePickerNow: 'Now',
+  dateFieldEmpty: 'Empty',
   dateFieldPlaceholders: {
     year: 'yyyy',
     month: 'mm',

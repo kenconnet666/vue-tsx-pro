@@ -15,6 +15,7 @@ import {
   DateFormatter,
   endOfMonth,
   getDayOfWeek,
+  getLocalTimeZone,
   GregorianCalendar,
   parseDate,
   parseDateTime,
@@ -23,8 +24,10 @@ import {
   startOfWeek,
   Time,
   toCalendar,
+  today,
   type Calendar,
   type CalendarIdentifier,
+  type DateDuration,
   type DateValue,
   type DayOfWeek,
 } from '@internationalized/date';
@@ -62,6 +65,36 @@ export function toIsoTime(time: Time, withSeconds = false): string {
 export function toIsoDateTime(value: CalendarDateTime, withSeconds = false): string {
   const gregorian = toCalendar(value, GREGORIAN);
   return `${toIsoDate(gregorian)}T${toIsoTime(new Time(gregorian.hour, gregorian.minute, gregorian.second), withSeconds)}`;
+}
+
+/** 今天的 ISO 日期，按时区（不写时取浏览器的）：`todayIso()` → '2026-10-20' */
+export function todayIso(timeZone = getLocalTimeZone()): string {
+  return today(timeZone).toString();
+}
+
+/** ISO 日期加减（月末自动夹到下个月的最后一天）：`shiftIsoDate('2026-01-31', { months: 1 })` → '2026-02-28' */
+export function shiftIsoDate(value: string, duration: DateDuration): string {
+  const date = parseIsoDate(value);
+  if (!date) throw new RangeError(`不是 ISO 日期：${value}`);
+  return date.add(duration).toString();
+}
+
+/** 从 a 到 b 相隔几天（b 在后为正）：`daysBetween('2026-10-20', '2026-10-23')` → 3 */
+export function daysBetween(a: string, b: string): number {
+  const start = parseIsoDate(a);
+  const end = parseIsoDate(b);
+  if (!start || !end) throw new RangeError(`不是 ISO 日期：${start ? b : a}`);
+  return end.compare(start);
+}
+
+/**
+ * ISO 日期是星期几：0 周日 … 6 周六（同 Date#getDay）。直接按日期算，不受时区影响；
+ * `new Date('2026-10-20').getDay()` 在 UTC 以西的时区会算成前一天
+ */
+export function isoDayOfWeek(value: string): number {
+  const date = parseIsoDate(value);
+  if (!date) throw new RangeError(`不是 ISO 日期：${value}`);
+  return getDayOfWeek(date, 'en-US');
 }
 
 // ───────── 日历系统与周 ─────────
@@ -374,6 +407,15 @@ export function presetRange(
     case 'thisYear':
       return { start: today.set({ month: 1, day: 1 }), end: today.set({ month: 12, day: 31 }) };
   }
+}
+
+/** 快捷区间的 ISO 值，按今天（时区，不写时取浏览器的）与一周的排法：`presetIsoRange('last7Days', { locale: 'zh-CN' })` */
+export function presetIsoRange(
+  preset: DateRangePreset,
+  week: WeekOptions,
+  timeZone = getLocalTimeZone(),
+): DateRange<string> {
+  return toIsoRange(presetRange(preset, today(timeZone), week));
 }
 
 // ───────── 内部实现 ─────────
