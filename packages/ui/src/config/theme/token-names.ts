@@ -22,7 +22,8 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _surfaceMuted: unknown;
     /**
-     * 浮层（弹出框、菜单、对话框）表面。亮色 slate 1 `#fcfcfd`（靠阴影区分），暗色 slate 3 `#212225`
+     * 浮层（弹出框、菜单、对话框）表面，靠描边与阴影区分层级。亮色 slate 1 `#fcfcfd`，暗色 slate 2 `#18191b`
+     * （不取第 3 级：那是 fill，浮层里的填充会看不见）
      *
      * `colors.surfaceRaised`
      */
