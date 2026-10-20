@@ -26,9 +26,16 @@ import {
 import { Empty } from '../feedback/Empty';
 import { Skeleton } from '../feedback/Skeleton';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import type { NumericValue } from '../utils/data/numeric';
 import { themeTransition } from '../utils/motion/animation';
 import { focusRingStyles } from '../utils/style/styles';
-import { resolveSeries, seriesValue, type ChartSeries, type ResolvedSeries } from './series';
+import {
+  resolveSeries,
+  seriesNumber,
+  seriesValue,
+  type ChartSeries,
+  type ResolvedSeries,
+} from './series';
 
 /** 柱状图、折线图共有的属性；未声明的属性落到外层 div（role="figure"）上，aria-label 是图表的名称 */
 export interface XYChartProps<T extends object> extends PartProps<'div', 'role' | 'aria-busy'> {
@@ -312,7 +319,7 @@ export const XYChart = _component(
         : indexFormat
           ? indexFormat(row[index], row)
           : String(row[index] ?? '');
-    const valueText = (value: number | undefined) =>
+    const valueText = (value: NumericValue | undefined) =>
       value === undefined ? '—' : `${format.number(value, valueFormat)}${unit ? ` ${unit}` : ''}`;
 
     function toggle(key: string) {
@@ -360,7 +367,7 @@ export const XYChart = _component(
     _effect(() => {
       const rows = [...data];
       const shown = visible;
-      const values = rows.flatMap((row) => shown.map((item) => seriesValue(row, item.key) ?? 0));
+      const values = rows.flatMap((row) => shown.map((item) => seriesNumber(row, item.key) ?? 0));
       const domain: [number | undefined, number | undefined] = [
         valueDomain?.[0] ?? Math.min(0, ...values),
         valueDomain?.[1],
@@ -368,7 +375,7 @@ export const XYChart = _component(
       const context: XYChartContext<T> = {
         series: shown,
         x: (_row, position) => position,
-        y: (item) => (row) => seriesValue(row, item.key),
+        y: (item) => (row) => seriesNumber(row, item.key),
         instance,
       };
       const components = kind.components(context);

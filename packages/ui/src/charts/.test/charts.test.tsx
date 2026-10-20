@@ -1,11 +1,12 @@
 // 图表：系列配色、图例、读屏的数据表、空与加载状态（绘图本身见文档站的浏览器测试）
+import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
 import { colors } from '../../config/theme/tokens.stylex';
 import { mount } from '../../utils/.test/mount';
 import { BarChart } from '../BarChart';
 import { LineChart } from '../LineChart';
-import { resolveSeries, seriesValue } from '../series';
+import { resolveSeries, seriesNumber, seriesValue } from '../series';
 
 interface Row {
   name: string;
@@ -41,6 +42,35 @@ describe('系列', () => {
   it('空值与非数字取不到值（不画、不当成 0）', () => {
     expect(seriesValue(rows[0]!, 'actual')).toBe(438.4);
     expect(seriesValue(rows[1]!, 'actual')).toBeUndefined();
+    expect(seriesNumber({ v: Number.NaN }, 'v')).toBeUndefined();
+    expect(seriesNumber({ v: new Decimal(Number.NaN) }, 'v')).toBeUndefined();
+  });
+
+  it('值可以是 bigint、Decimal：画图转成 number，数据表按原值格式化、不丢精度', () => {
+    const ledger = [
+      {
+        month: '9 月',
+        revenue: new Decimal('12345678901234567.89'),
+        orders: 9_007_199_254_740_993n,
+      },
+    ];
+    expect(seriesNumber(ledger[0]!, 'revenue')).toBe(12345678901234568);
+    expect(seriesValue(ledger[0]!, 'orders')).toBe(9_007_199_254_740_993n);
+    const root = mount(() => (
+      <BarChart
+        aria-label="营收"
+        data={ledger}
+        index="month"
+        series={[
+          { key: 'revenue', label: '营收' },
+          { key: 'orders', label: '订单' },
+        ]}
+      />
+    ));
+    expect([...root.querySelectorAll('tbody td')].map((td) => td.textContent)).toEqual([
+      '12,345,678,901,234,567.89',
+      '9,007,199,254,740,993',
+    ]);
   });
 });
 

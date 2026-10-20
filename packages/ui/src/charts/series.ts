@@ -1,8 +1,10 @@
 /**
  * 图表的系列与颜色：每个系列是数据行里的一个数值字段，颜色默认按顺序取主题的图表色板（colors.chart1–chart8）。
  * 颜色是 CSS 变量，切换主题、主题编辑器改品牌色都不用重画。
+ * 值可以是 number、bigint 或 Decimal：画图时转成 number，提示框与数据表按原值格式化，不丢精度。
  */
 import { colors } from '../config/theme/tokens.stylex';
+import { isDecimal, isNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 
 /** 图表色板里的一个颜色：第几个系列色 */
 export type ChartPaletteColor =
@@ -11,9 +13,9 @@ export type ChartPaletteColor =
 /** 系列颜色：色板里的一个（`'chart3'`），或任意 CSS 颜色（`'#e5484d'`、`colors.danger`） */
 export type ChartColor = ChartPaletteColor | (string & {});
 
-/** 数据行里取值是数字的字段 */
+/** 数据行里取值是数字（number、bigint、Decimal）的字段 */
 export type NumericKey<T> = {
-  [K in keyof T]-?: T[K] extends number | null | undefined ? K : never;
+  [K in keyof T]-?: T[K] extends NumericValue | null | undefined ? K : never;
 }[keyof T] &
   string;
 
@@ -57,8 +59,16 @@ export function resolveSeries<T>(series: readonly ChartSeries<T>[]): ResolvedSer
   });
 }
 
-/** 数据行里一个系列的值；空值（null、undefined、非数字）返回 undefined */
-export function seriesValue<T>(row: T, key: NumericKey<T>): number | undefined {
-  const value = row[key];
-  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+/** 数据行里一个系列的原值：提示框、数据表按它格式化；空值、非数字、NaN 与无穷返回 undefined */
+export function seriesValue<T>(row: T, key: NumericKey<T>): NumericValue | undefined {
+  const value: unknown = row[key];
+  if (!isNumeric(value)) return undefined;
+  if (typeof value === 'number' && !Number.isFinite(value)) return undefined;
+  return isDecimal(value) && !value.isFinite() ? undefined : value;
+}
+
+/** 画图用的坐标：原值转成 number（Decimal、bigint 的精度对坐标足够） */
+export function seriesNumber<T>(row: T, key: NumericKey<T>): number | undefined {
+  const value = seriesValue(row, key);
+  return value === undefined ? undefined : toNumber(value);
 }

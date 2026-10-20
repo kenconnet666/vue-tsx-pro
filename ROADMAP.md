@@ -44,7 +44,7 @@
 - [x] 日期组件接受 ISO 字符串与 DateValue，写回保持类型
 - [x] Slider：不接 NumericValue（拖出来的值用 number 足够，snapToStep 已处理浮点误差；精确小数、超大整数的输入用 NumberField）
 - [x] DataTable：列的 type（number、currency、percent、fileSize、date、dateTime）按语言格式化并决定对齐，不写时按值推断；排序按值类型比较（collation）
-- [ ] 图表：系列的值接受 NumericValue
+- [x] 图表：系列的值接受 NumericValue（画图转 number，提示框与数据表按原值格式化）
 
 ## 4. 日期组件
 
