@@ -17,7 +17,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { colors } from '../config/theme/tokens.stylex';
 import { useReducedMotion } from '../utils/dom/media-query';
-import { useSpring } from '../utils/motion/tween';
+import { usePointer } from '../utils/motion/pointer';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到外层 div 上 */
@@ -87,61 +87,51 @@ export const TiltCard = _component(
     ...rest
   }: TiltCardProps) => {
     const reducedMotion = useReducedMotion();
-    // 指针在卡片上的位置（0–1）与是否悬停
-    let pointer = _state({ x: 0.5, y: 0.5, hover: false });
-    const tilting = () => pointer.hover && !disabled && !reducedMotion.value;
-    const spring = { bounce: 0.3, duration: 'lg' } as const;
-    const rotateX = useSpring(() => (tilting() ? (0.5 - pointer.y) * 2 * maxTilt : 0), spring);
-    const rotateY = useSpring(() => (tilting() ? (pointer.x - 0.5) * 2 * maxTilt : 0), spring);
-    const zoom = useSpring(() => (tilting() ? scale : 1), spring);
-    const shine = useSpring(() => (pointer.hover && glare && !disabled ? 1 : 0), {
-      duration: 'md',
-    });
+    let root = _state.raw<HTMLElement | null>(null);
+    // 阻尼后的指针位置（-1 到 1，向上为正）；离开时位置不动、strength 淡出，卡片随之慢慢放平
+    const pointer = usePointer(() => root, { bounce: 0.3, duration: 'lg' });
 
-    function onPointerMove(event: PointerEvent) {
-      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-      pointer = {
-        x: (event.clientX - rect.left) / rect.width,
-        y: (event.clientY - rect.top) / rect.height,
-        hover: true,
-      };
-    }
-
-    return () => (
-      <div
-        {...mergeAttrs<'div'>(
-          {
-            sx: [
-              tiltCardStyles.root,
-              tiltCardDynamicStyles.transform(rotateX.current, rotateY.current, zoom.current),
-            ],
-            onPointermove: onPointerMove,
-            onPointerleave: () => (pointer = { ...pointer, hover: false }),
-          },
-          rest,
-        )}
-        data-disabled={disabled || undefined}
-      >
-        {children}
-        {glare && (
-          <span
-            {...mergeAttrs<'span'>(
-              {
-                sx: [
-                  tiltCardStyles.glare,
-                  tiltCardDynamicStyles.glarePosition(
-                    pointer.x * 100,
-                    pointer.y * 100,
-                    shine.current,
-                  ),
-                ],
-              },
-              propsGlare,
-              { 'aria-hidden': true },
-            )}
-          />
-        )}
-      </div>
-    );
+    return () => {
+      const tilt = disabled || reducedMotion.value ? 0 : pointer.strength;
+      return (
+        <div
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                tiltCardStyles.root,
+                tiltCardDynamicStyles.transform(
+                  pointer.y * maxTilt * tilt,
+                  pointer.x * maxTilt * tilt,
+                  1 + (scale - 1) * tilt,
+                ),
+              ],
+            },
+            rest,
+            { ref: _toRef(root) },
+          )}
+          data-disabled={disabled || undefined}
+        >
+          {children}
+          {glare && (
+            <span
+              {...mergeAttrs<'span'>(
+                {
+                  sx: [
+                    tiltCardStyles.glare,
+                    tiltCardDynamicStyles.glarePosition(
+                      (pointer.x + 1) * 50,
+                      (1 - pointer.y) * 50,
+                      disabled ? 0 : pointer.strength,
+                    ),
+                  ],
+                },
+                propsGlare,
+                { 'aria-hidden': true },
+              )}
+            />
+          )}
+        </div>
+      );
+    };
   },
 );

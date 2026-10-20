@@ -6,7 +6,6 @@
  * 主入口不导入 three，没用到 3D 的应用不会打包它。不依赖 three 的效果（TiltCard、SpotlightCard、BorderBeam）在主入口。
  */
 export { disposeMaterial, disposeObject } from './core/dispose';
-export { usePointer, type PointerOptions, type PointerState } from './core/pointer';
 export {
   activeThreeContexts,
   resolveThreeQuality,

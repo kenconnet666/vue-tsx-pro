@@ -33,7 +33,8 @@ describe('TiltCard', () => {
     movePointer(tilt, 200, 50);
     await nextTick();
     expect(tilt.getAttribute('style')).toContain('rotateY(10deg)');
-    tilt.dispatchEvent(new PointerEvent('pointerleave'));
+    // 指针移出卡片（监听的是整个窗口）
+    movePointer(tilt, 500, 500);
     await nextTick();
     expect(tilt.getAttribute('style')).toContain('rotateY(0deg)');
   });
@@ -68,9 +69,10 @@ describe('SpotlightCard', () => {
     for (const layer of layers) expect(layer.getAttribute('aria-hidden')).toBe('true');
     movePointer(spot, 40, 30);
     await nextTick();
-    expect(layers[0]!.getAttribute('style')).toContain('40px 30px');
+    // 位置是百分比：40 / 200、30 / 100
+    expect(layers[0]!.getAttribute('style')).toContain('20% 30%');
     expect(layers[0]!.getAttribute('style')).toMatch(/opacity: ?1/);
-    spot.dispatchEvent(new PointerEvent('pointerleave'));
+    movePointer(spot, 500, 500);
     await nextTick();
     expect(layers[0]!.getAttribute('style')).toMatch(/opacity: ?0/);
   });

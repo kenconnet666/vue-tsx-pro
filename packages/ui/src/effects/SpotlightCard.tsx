@@ -16,7 +16,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { colors } from '../config/theme/tokens.stylex';
-import { useSpring } from '../utils/motion/tween';
+import { usePointer } from '../utils/motion/pointer';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到外层 div 上 */
@@ -60,11 +60,11 @@ export const spotlightCardStyles = stylex.create({
 });
 
 // 光的位置每帧变化，用动态样式；单独一个 create，见 COMPONENTS.md §4
-/** SpotlightCard 的样式：light（光斑的位置、大小、颜色、强度） */
+/** SpotlightCard 的样式：light（光斑的位置（百分比）、大小、颜色、强度） */
 export const spotlightCardDynamicStyles = stylex.create({
   light: (x: number, y: number, size: string, color: string, strength: number) => ({
     opacity: strength,
-    backgroundImage: `radial-gradient(${size} circle at ${x}px ${y}px, ${color}, transparent 70%)`,
+    backgroundImage: `radial-gradient(${size} circle at ${x}% ${y}%, ${color}, transparent 70%)`,
   }),
 });
 
@@ -79,44 +79,24 @@ export const SpotlightCard = _component(
     children,
     ...rest
   }: SpotlightCardProps) => {
-    let pointer = _state({ x: 0, y: 0, hover: false });
-    const spring = { duration: 'sm' } as const;
-    const x = useSpring(() => pointer.x, spring);
-    const y = useSpring(() => pointer.y, spring);
-    const strength = useSpring(() => (pointer.hover ? 1 : 0), { duration: 'md' });
-
-    function onPointerMove(event: PointerEvent) {
-      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-      pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top, hover: true };
-    }
+    let root = _state.raw<HTMLElement | null>(null);
+    // 阻尼后的指针位置（-1 到 1，向上为正）；离开时光停在原处淡出
+    const pointer = usePointer(() => root, { duration: 'sm' });
 
     return () => {
       const soft = `color-mix(in oklab, ${color} 16%, transparent)`;
       const strong = `color-mix(in oklab, ${color} 85%, transparent)`;
+      const x = (pointer.x + 1) * 50;
+      const y = (1 - pointer.y) * 50;
       return (
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: spotlightCardStyles.root,
-              onPointermove: onPointerMove,
-              onPointerleave: () => (pointer = { ...pointer, hover: false }),
-            },
-            rest,
-          )}
-        >
+        <div {...mergeAttrs<'div'>({ sx: spotlightCardStyles.root }, rest, { ref: _toRef(root) })}>
           {children}
           <span
             {...mergeAttrs<'span'>(
               {
                 sx: [
                   spotlightCardStyles.layer,
-                  spotlightCardDynamicStyles.light(
-                    x.current,
-                    y.current,
-                    size,
-                    soft,
-                    strength.current,
-                  ),
+                  spotlightCardDynamicStyles.light(x, y, size, soft, pointer.strength),
                 ],
               },
               propsSpotlight,
@@ -131,11 +111,11 @@ export const SpotlightCard = _component(
                     spotlightCardStyles.layer,
                     spotlightCardStyles.border,
                     spotlightCardDynamicStyles.light(
-                      x.current,
-                      y.current,
+                      x,
+                      y,
                       `calc(${size} * 0.6)`,
                       strong,
-                      strength.current,
+                      pointer.strength,
                     ),
                   ],
                 },

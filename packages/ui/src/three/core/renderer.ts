@@ -19,7 +19,7 @@ import { readToken } from '../../config/theme/theme';
 import { durations } from '../../config/theme/tokens.stylex';
 import { useReducedMotion } from '../../utils/dom/media-query';
 import { disposeObject } from './dispose';
-import { usePointer, type PointerState } from './pointer';
+import { usePointer, type PointerState } from '../../utils/motion/pointer';
 import {
   acquireContext,
   releaseContext,
