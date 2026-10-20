@@ -31,8 +31,8 @@
 - **导航**：[x] Tabs · [x] Pagination（PageJump、PageSizeSelect、Pager）· [x] Breadcrumbs 与 Steps · [x] NavList（NavItem、NavGroup、NavSection、TableOfContents、SkipLink）· [x] Toolbar
 - **输入**：[x] NumberField · [x] TextField（Textarea、CharacterCount）· [x] Checkbox、Radio 与 Switch · [x] Select（Combobox、TagsInput、Listbox）· [x] Slider · [x] ToggleGroup · [x] ColorField（ColorSwatch）· [x] Upload（FileDrop）· [x] SlideVerify
 - **日期**：CalendarView、DateSegmentGroup、SegmentedField 是内部部件，在 Calendar / DateField 页说明
-- **表单**：[ ] Form（Field、Label、FormValue、useForm、decimalSchema、bigintSchema）
-- **表格**：[ ] Table（全部子部件）· [ ] DataTable（DataTableView、DataTableRow、ColumnResizer、TreeDataTable）
+- **表单**：[x] Form（Field、Label、FormValue、useForm、decimalSchema、bigintSchema）
+- **表格**：[x] Table（全部子部件）· [x] DataTable（DataTableView、DataTableRow、ColumnResizer、TreeDataTable）
 - **图表**：XYChart 并入图表总览
 - **配置**：[ ] Provider（ConfigScope、createUi、defaults、语言包、useFormat）· [ ] ThemeSwitcher、ThemeCustomizer、ThemeThumbnail（并入主题定制指南）
 - **3D**：EffectSurface 并入 ShaderBackground 页
