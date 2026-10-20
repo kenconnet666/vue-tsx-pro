@@ -16,6 +16,7 @@
   - 输入：TextField、Textarea、NumberField、Checkbox / CheckboxGroup、RadioGroup / Radio、Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify（拖动验证）、ToggleGroup（复合）
   - 表格：Table（始终虚拟滚动；排序、勾选、固定列、吸顶表头、列宽调整、骨架与进度加载）、TreeTable（建在 Table 上，懒加载子项）
   - 表单（form/）：Field、Label、Form、useForm（zod 校验，schema 推出字段约束，`form.Field` 的 name 带类型；数组字段、dirty、单字段异步校验）
+- **性能、类型与基础设施**（§10.16）：编译器的渲染优化（稳定插槽、属性值缓存，RUNES §9）、表格行组件、浮层延迟渲染、Virtualizer 增量重排、Icon 用 innerHTML、`mergeAttrs`；`stylex.create` 不再标类型；表单拆到 `form/`、对话框一族在 `overlay/`。
 - **试点组件**已全部转正，`apps/host-demo/src/pilot` 已删除；`/pilot` 页面与它的测试改用正式组件。
 - **CI**：GitHub Actions 五个并行任务全绿，包括三种浏览器、Ubuntu 与 Windows、发布产物验证。看最新状态：`gh run list --limit 3`。
 
@@ -161,6 +162,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 | CI 的 `exports:check` 失败，或使用方导入不到新加的工具         | 入口由脚本生成：模块里加、改了导出后运行 `pnpm exports`；报重名时按 COMPONENTS §4 改成全局唯一的名字                                                                         |
 | 改了 tokens 后 CI 的 `css-docs:check` 失败                     | `token-names.ts` 由 `pnpm css-docs` 生成，改了 tokens 要重新生成                                                                                                             |
 | 宽的内容（表格）把 grid / flex 容器撑宽，页面横向溢出          | 网格项、弹性项的最小宽度默认等于内容宽度；表格外层用了 `contain: inline-size`，自己写的宽内容外层加 `minWidth: 0`                                                            |
+| 勾选一行，表格的所有可见行都重渲染                             | 传给 Table 的 `rowKey`、`columns` 每次渲染都新建（条件表达式、调用结果编译器不缓存）：在 setup 或模块里定义；直接写成箭头函数的会被编译器缓存                                |
 | 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找（findLast、includes）；用 computed 缓存集合或映射。演示页有“2 秒内挂载完”的测试，table / Listbox 的单元测试有全选、大量展开与已选的性能用例 |
 | WebKit 里点开下拉后方向键无效，焦点在 body 上                  | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件（Select 的触发按钮）在 click 里自己 `focus()`；`focusOrigin` 已经处理了归还焦点的情况                                      |
 | 组件事件名和原生事件冲突（如 `onSelect`）                      | 组件 props 继承了元素属性，自定义回调起不冲突的名字（`onStepChange`）或把原生的放进受管属性                                                                                  |
@@ -169,9 +171,11 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 按优先级：
 
-1. **日期**：Calendar、DateField、DatePicker（`@internationalized/date`）。
-2. **表格的进阶能力**（按需）：单元格编辑、多级表头、列与行的拖动排序、横向虚拟化。
-3. **M3 文档站**：组件页演示 + props 表（从 TS 类型生成）。
+1. **M3 文档站**（已定方向）：不用 Markdown，用 TSX 与本组件库写的普通网站；代码卡片既显示代码也显示运行效果。
+   演示与测试按组件放进 `packages/ui/src/<分类>/<Name>/`（如 `base/Button/`），文件夹里只放演示与对应测试，测试借助演示来测，文档站直接用这些演示；组件源码仍是 `base/Button.tsx` 平铺。
+   先补文档站要用的组件（页面骨架、页内目录、命令面板、静态表格、排版、CodeBlock 增强、明暗切换），再逐类审查美化已有组件。
+2. **日期**：Calendar、DateField、DatePicker（`@internationalized/date`）。
+3. **表格的进阶能力**（按需）：单元格编辑、多级表头、列与行的拖动排序、横向虚拟化。
 4. **M5 发布准备**：changesets、发 0.x。
 
 ## 9. 已知局限
