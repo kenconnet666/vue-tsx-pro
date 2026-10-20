@@ -3,9 +3,36 @@
 import axe from 'axe-core';
 import { _component } from '@vue-tsx-pro/tsx';
 import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
-import { afterEach, expect, it } from 'vitest';
-import { createApp, h, type App } from 'vue';
+import { afterEach, beforeAll, expect, it } from 'vitest';
+import { createApp, h, type App, type Component } from 'vue';
 import { demoLoaders, loadDemos } from './demos';
+
+/**
+ * 开发模式下 StyleX 的样式随模块编译异步注入：样式表的规则数一段时间不再变化，才算到齐。
+ * 没到齐就挂载会缺样式，比如虚拟列表的滚动容器没有高度，一万行全部渲染，页面卡死
+ */
+async function stylesSettled() {
+  const ruleCount = () =>
+    [...document.styleSheets].reduce((total, sheet) => {
+      try {
+        return total + sheet.cssRules.length;
+      } catch {
+        return total;
+      }
+    }, 0);
+  let last = -1;
+  for (let round = 0; round < 50 && ruleCount() !== last; round++) {
+    last = ruleCount();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+}
+
+/** 全部示例先加载、等样式到齐，再按分类挂载 */
+const loaded = new Map<string, Component>();
+beforeAll(async () => {
+  for (const [path, demo] of await loadDemos()) loaded.set(path, demo);
+  await stylesSettled();
+}, 120_000);
 
 let app: App | undefined;
 let host: HTMLElement | undefined;
@@ -48,11 +75,11 @@ async function violationsOf(tag: string, render: () => unknown, theme = lightThe
 }
 
 /** 示例按分类分组（components/<分类>/…）：每组一个测试，单个测试不会因示例变多而超时，出错时也知道在哪一类 */
-const categories = new Map<string, typeof demoLoaders>();
-for (const entry of demoLoaders) {
-  if (isFrame(entry[0])) continue;
-  const category = entry[0].split('/')[1]!;
-  categories.set(category, [...(categories.get(category) ?? []), entry]);
+const paths = demoLoaders.map(([path]) => path);
+const categories = new Map<string, string[]>();
+for (const path of paths.filter((item) => !isFrame(item))) {
+  const category = path.split('/')[1]!;
+  categories.set(category, [...(categories.get(category) ?? []), path]);
 }
 const cases = [lightTheme, darkTheme].flatMap((theme) =>
   [...categories].map(([category, items]) => [theme.name, category, theme, items] as const),
@@ -60,24 +87,17 @@ const cases = [lightTheme, darkTheme].flatMap((theme) =>
 
 it.each(cases)(
   '无障碍：%s 主题下 %s 分类的示例没有 axe 违规',
-  // 每组先加载这一类的示例模块（第一组还要等组件库）：CI 的 WebKit 超过了默认的 15 秒
-  { timeout: 60_000 },
-  async (_name, _category, theme, loaders) => {
-    const items = await loadDemos(loaders);
+  async (_name, _category, theme, items) => {
     expect(
       await violationsOf(
         'main',
-        () => items.map(([path, demo]) => h('section', { key: path }, [h(demo)])),
+        () => items.map((path) => h('section', { key: path }, [h(loaded.get(path)!)])),
         theme,
       ),
     ).toEqual([]);
   },
 );
 
-it.each(demoLoaders.filter(([path]) => isFrame(path)))(
-  '无障碍：整页示例 %s 没有 axe 违规',
-  async (_path, load) => {
-    const demo = await load();
-    expect(await violationsOf('div', () => h(demo))).toEqual([]);
-  },
-);
+it.each(paths.filter(isFrame))('无障碍：整页示例 %s 没有 axe 违规', async (path) => {
+  expect(await violationsOf('div', () => h(loaded.get(path)!))).toEqual([]);
+});
