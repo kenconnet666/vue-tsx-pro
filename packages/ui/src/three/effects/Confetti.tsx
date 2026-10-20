@@ -43,7 +43,9 @@ export const CONFETTI_PALETTE: readonly string[] = [
 
 /** 喷出的位置：相对区域的比例，x 从左到右、y 从上到下（0–1） */
 export interface ConfettiOrigin {
+  /** 从左（0）到右（1） */
   x: number;
+  /** 从上（0）到下（1） */
   y: number;
 }
 
