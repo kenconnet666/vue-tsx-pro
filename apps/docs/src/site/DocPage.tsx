@@ -14,8 +14,11 @@ import type { VNodeChild } from 'vue';
 import type { PageMeta } from './types';
 
 const styles = stylex.create({
+  // 长文阅读：比界面文字（14px）大一号、行距宽松；间距以 em 计，随之放大。示例的效果区会改回界面字号
+  article: { gap: '3rem', fontSize: '15px', lineHeight: '_relaxed' },
+  header: { gap: '_lg' },
   // 简介保持适合阅读的行宽，宽版面时也不拉满
-  lead: { maxWidth: '48rem' },
+  lead: { maxWidth: '48rem', lineHeight: '_relaxed' },
 });
 
 /** 页面正文是一篇文章（article） */
@@ -37,8 +40,8 @@ export const DocPage = _component(
   ({ meta, imports, wide = false, children }: DocPageProps) =>
     () => (
       <Container size={wide ? 'xl' : 'md'} padding="none">
-        <Article direction="column" gap="xl">
-          <Flex direction="column" gap="md">
+        <Article direction="column" sx={styles.article}>
+          <Flex direction="column" sx={styles.header}>
             <H1>{meta.title}</H1>
             <Paragraph size="lg" tone="muted" sx={styles.lead}>
               {meta.description}

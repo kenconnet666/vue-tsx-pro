@@ -10,9 +10,9 @@ import {
   Container,
   Icon,
   IconLinkButton,
-  NavGroup,
   NavItem,
   NavList,
+  NavSection,
   Pager,
   TableOfContents,
   ThemeSwitcher,
@@ -25,6 +25,11 @@ import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { allPages, sectionOf, sections } from './site/nav';
 import { preference } from './site/theme';
+
+const pageEnter = stylex.keyframes({
+  from: { opacity: 0, transform: 'translateY(6px)' },
+  to: { opacity: 1, transform: 'none' },
+});
 
 const styles = stylex.create({
   brand: {
@@ -40,6 +45,14 @@ const styles = stylex.create({
   },
   brandMark: { color: '_accentText' },
   page: { display: 'flex', flexDirection: 'column', gap: '_xl' },
+  // 换页时新页面轻轻浮上来；时长取主题 token，“减少动态效果”时为 0
+  enter: {
+    animationName: pageEnter,
+    animationDuration: '_durations.md',
+    animationTimingFunction: '_easings.enter',
+  },
+  // 标题离顶栏远一点，页底留出空白，不贴着窗口下沿
+  main: { paddingBlockStart: '2.5rem', paddingBlockEnd: '4rem' },
   pager: { marginBlockStart: '_xl' },
 });
 
@@ -99,20 +112,24 @@ export const App = _component(() => {
         sidebar={
           <NavList aria-label="文档">
             {sections.map((section) => (
-              <NavGroup key={section.label} label={section.label} open>
+              <NavSection key={section.label} label={section.label}>
                 {section.pages.map((page) => (
                   <NavItem key={page.path} href={page.path}>
                     {page.title}
                   </NavItem>
                 ))}
-              </NavGroup>
+              </NavSection>
             ))}
           </NavList>
         }
         aside={!isHome && headings.length > 0 && <TableOfContents items={headings} />}
+        propsMain={{ sx: styles.main }}
       >
         <div ref={_toRef(content)} {...stylex.attrs(styles.page)}>
-          <RouterView />
+          {/* 按路由换 key：每次换页重新播放进场动画 */}
+          <div key={route.path} {...stylex.attrs(styles.enter)}>
+            <RouterView />
+          </div>
           {!isHome && (
             <Container size={route.path.startsWith('/components/') ? 'xl' : 'md'} padding="none">
               <Pager {...neighbors()} sx={styles.pager} />

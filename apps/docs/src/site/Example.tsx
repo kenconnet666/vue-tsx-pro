@@ -5,9 +5,24 @@
  *   <Example id="variants" title="样式" demo={Variants}>六种样式对应不同的强调程度…</Example>
  */
 import { _component } from '@vue-tsx-pro/tsx';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { CodePreview, createFlex, H2, Paragraph, type CodePreviewAligns } from '@vue-tsx-pro/ui';
 import { h, type VNodeChild } from 'vue';
 import type { Demo } from './types';
+
+const styles = stylex.create({
+  // 效果区是一块“画布”：淡淡的点阵与页面区分开；字号、行高改回界面默认值，示例显示的就是组件的默认大小
+  canvas: {
+    minHeight: '7rem',
+    fontSize: '_md',
+    lineHeight: '_normal',
+    backgroundColor: '_surface',
+    backgroundImage: 'radial-gradient(_colors.border 1px, transparent 1px)',
+    backgroundSize: '18px 18px',
+    backgroundPosition: '-9px -9px',
+  },
+  description: { color: '_textMuted' },
+});
 
 /** 每个示例是一个小节（section） */
 const Section = createFlex('section', 'ExampleSection');
@@ -32,8 +47,8 @@ export const Example = _component(({ id, title, demo, align, children }: Example
     <H2 id={id} size="xl" anchor>
       {title}
     </H2>
-    {children != null && <Paragraph>{children}</Paragraph>}
-    <CodePreview code={demo.source} align={align}>
+    {children != null && <Paragraph sx={styles.description}>{children}</Paragraph>}
+    <CodePreview code={demo.source} align={align} propsPreview={{ sx: styles.canvas }}>
       {h(demo.component)}
     </CodePreview>
   </Section>

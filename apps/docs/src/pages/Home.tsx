@@ -19,10 +19,52 @@ import Counter from './demo/Counter.tsx?demo';
 import { h } from 'vue';
 
 const styles = stylex.create({
-  hero: { paddingBlock: '_xl', textAlign: 'center' },
-  title: { fontSize: 'clamp(2rem, 5vw, 3.25rem)' },
-  lead: { maxWidth: '36rem', marginInline: 'auto' },
-  feature: { color: '_accentText' },
+  // 标题后面一团很淡的品牌色光晕：亮色、暗色、纸张都取各自的浅品牌色
+  hero: {
+    position: 'relative',
+    isolation: 'isolate',
+    paddingBlock: '3rem',
+    textAlign: 'center',
+    '::before': {
+      content: '""',
+      position: 'absolute',
+      zIndex: -1,
+      insetInline: '10%',
+      insetBlock: 0,
+      backgroundImage: 'radial-gradient(closest-side, _colors.accentSoft, transparent)',
+      filter: 'blur(24px)',
+    },
+  },
+  // 标题从正文色渐变到品牌色；不支持 background-clip: text 的浏览器退回正文色
+  title: {
+    fontSize: 'clamp(2.25rem, 5vw, 3.5rem)',
+    letterSpacing: '_tighter',
+    backgroundImage: 'linear-gradient(120deg, _colors.text 30%, _colors.accentText)',
+    backgroundClip: 'text',
+    color: 'transparent',
+  },
+  lead: { maxWidth: '36rem', marginInline: 'auto', fontSize: '_lg', lineHeight: '_relaxed' },
+  // 特点卡片：悬停时轻轻浮起
+  feature: {
+    height: '_full',
+    transition:
+      'transform _durations.md _easings.standard, box-shadow _durations.md _easings.standard, border-color _durations.md _easings.standard',
+    transform: { default: 'none', ':hover': 'translateY(-2px)' },
+    boxShadow: { default: 'none', ':hover': '_md' },
+    borderColor: { default: null, ':hover': '_borderStrong' },
+  },
+  // 图标放在浅品牌色的圆角方块里
+  featureIcon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    width: '2.5rem',
+    height: '2.5rem',
+    borderRadius: '_lg',
+    backgroundColor: '_accentSoft',
+    color: '_accentText',
+  },
 });
 
 const features: { icon: IconData; title: string; text: string }[] = [
@@ -48,7 +90,7 @@ export default _component(() => () => (
     <Flex direction="column" gap="xl">
       <Flex direction="column" gap="lg" align="center" sx={styles.hero}>
         <H1 sx={styles.title}>更自然的 Vue TSX</H1>
-        <Paragraph size="lg" tone="muted" sx={styles.lead}>
+        <Paragraph tone="muted" sx={styles.lead}>
           props 驱动的组件、下划线符文与 StyleX，加上一套按无障碍规范写的组件库。在已有的 Vue
           项目里直接用。
         </Paragraph>
@@ -63,9 +105,11 @@ export default _component(() => () => (
       </Flex>
       <Grid minItemWidth="16rem" gap="md">
         {features.map((feature) => (
-          <Card key={feature.title} variant="outline">
+          <Card key={feature.title} variant="outline" sx={styles.feature}>
             <Flex direction="column" gap="sm">
-              <Icon icon={feature.icon} size="xl" sx={styles.feature} />
+              <span {...stylex.attrs(styles.featureIcon)}>
+                <Icon icon={feature.icon} size="xl" />
+              </span>
               <H2 size="lg">{feature.title}</H2>
               <Paragraph tone="muted">{feature.text}</Paragraph>
             </Flex>
