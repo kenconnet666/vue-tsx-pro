@@ -63,10 +63,10 @@ export const StartingPoint = _component(() => {
         </Text>
       </div>
       <ToggleGroup
-        value={preference.name}
-        {...{
-          'onUpdate:value': (next: BuiltinThemeName) => void preference.set(next),
-        }}
+        value={_bind(
+          () => preference.name,
+          (next) => void preference.set(next),
+        )}
         required
         size="sm"
         aria-label="起点主题"

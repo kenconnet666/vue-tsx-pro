@@ -54,14 +54,7 @@ export default _component(() => () => (
       <ScrollArea sx={styles.controls} propsViewport={{ 'aria-label': '主题调整' }}>
         <div {...stylex.attrs(styles.controlsInner)}>
           <StartingPoint />
-          <ThemeCustomizer
-            settings={themeSettings.value}
-            {...{
-              'onUpdate:settings': (next: typeof themeSettings.value) =>
-                (themeSettings.value = next),
-            }}
-            base={preference.theme}
-          />
+          <ThemeCustomizer settings={_bind(themeSettings.value)} base={preference.theme} />
         </div>
       </ScrollArea>
       <div {...stylex.attrs(styles.preview)}>

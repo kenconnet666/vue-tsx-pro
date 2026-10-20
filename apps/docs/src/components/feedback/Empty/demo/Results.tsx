@@ -31,13 +31,13 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <ToggleGroup
-          value={status}
-          {...{
-            'onUpdate:value': (next: Status) => {
+          value={_bind(
+            () => status,
+            (next) => {
               status = next;
               round++;
             },
-          }}
+          )}
           required
           size="sm"
           aria-label="结果状态"
