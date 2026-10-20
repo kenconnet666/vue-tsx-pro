@@ -7,6 +7,7 @@
  */
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
+import type { AccentScale, NeutralScale } from '../theme/palette';
 
 /** 文字方向 */
 export interface Directions {
@@ -289,6 +290,8 @@ export interface Lang {
   readonly customizeNeutral: string;
   /** ThemeCustomizer：沿用主题本来的颜色，默认“主题默认” */
   readonly customizeDefault: string;
+  /** 品牌色、中性色色阶的名字（主题编辑器的色块），如 indigo → “靛蓝” */
+  readonly customizeColorNames: Readonly<Record<AccentScale | NeutralScale, string>>;
   /** ThemeCustomizer：圆角一组的标题，默认“圆角” */
   readonly customizeRadius: string;
   /** ThemeCustomizer：圆角选项，默认“直角” */

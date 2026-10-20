@@ -22,6 +22,7 @@ import { ToggleGroup, ToggleItem } from '../input/ToggleGroup';
 import { Flex } from '../layout/Flex';
 import { downloadFile } from '../utils/dom/download';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { VisuallyHidden } from '../base/VisuallyHidden';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { useLang } from './context';
 import { useFormat } from './lang/format';
@@ -34,7 +35,13 @@ import {
   type RadiusPresets,
   type ThemeSettings,
 } from './theme/customize';
-import { ACCENT_SCALES, NEUTRAL_SCALES, scaleSwatch } from './theme/palette';
+import {
+  ACCENT_SCALES,
+  NEUTRAL_SCALES,
+  scaleSwatch,
+  type AccentScale,
+  type NeutralScale,
+} from './theme/palette';
 import { readToken, type Theme } from './theme/theme';
 import { colors } from './theme/tokens.stylex';
 
@@ -84,6 +91,10 @@ export const themeCustomizerStyles = stylex.create({
     gridTemplateColumns: 'repeat(auto-fill, minmax(6.5em, 1fr))',
   },
   option: { justifyContent: 'flex-start', minWidth: 0 },
+  // 色板：只放色块，排成紧凑的网格；名字在悬停提示与读屏文字里，选中的名字与色值写在旋钮标题旁
+  swatches: { gridTemplateColumns: 'repeat(auto-fill, minmax(2em, 1fr))' },
+  swatchOption: { justifyContent: 'center', paddingInline: 0 },
+  swatchLarge: { width: '1.25em', height: '1.25em' },
   optionContent: { display: 'flex', alignItems: 'center', gap: '_sm', minWidth: 0 },
   optionLabel: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   swatch: { flexShrink: 0, width: '1em', height: '1em', borderRadius: '_full' },
@@ -141,6 +152,9 @@ interface Option {
   label: VNodeChild;
   title?: string;
 }
+
+/** 选项的排法：list 是示意加名字，swatches 只放色块 */
+type OptionLayout = 'list' | 'swatches';
 
 /** 主题编辑器：分组的旋钮、对比度检查与导出代码 */
 export const ThemeCustomizer = _component(
@@ -201,6 +215,7 @@ export const ThemeCustomizer = _component(
       options: readonly Option[],
       value: string,
       onChange: (next: string) => void,
+      layout: OptionLayout = 'list',
     ) => (
       <div {...stylex.attrs(themeCustomizerStyles.field)}>
         <div {...stylex.attrs(themeCustomizerStyles.fieldHeader)}>
@@ -217,51 +232,76 @@ export const ThemeCustomizer = _component(
           required
           size="sm"
           aria-label={label}
-          sx={themeCustomizerStyles.options}
+          sx={[
+            themeCustomizerStyles.options,
+            layout === 'swatches' && themeCustomizerStyles.swatches,
+          ]}
         >
           {options.map((option) => (
             <ToggleItem
               key={option.value}
               value={option.value}
               title={option.title}
-              sx={themeCustomizerStyles.option}
+              sx={[
+                themeCustomizerStyles.option,
+                layout === 'swatches' && themeCustomizerStyles.swatchOption,
+              ]}
             >
-              <span {...stylex.attrs(themeCustomizerStyles.optionContent)}>
-                {option.preview}
-                <span {...stylex.attrs(themeCustomizerStyles.optionLabel)}>{option.label}</span>
-              </span>
+              {layout === 'swatches' ? (
+                <>
+                  {option.preview}
+                  <VisuallyHidden>{option.label}</VisuallyHidden>
+                </>
+              ) : (
+                <span {...stylex.attrs(themeCustomizerStyles.optionContent)}>
+                  {option.preview}
+                  <span {...stylex.attrs(themeCustomizerStyles.optionLabel)}>{option.label}</span>
+                </span>
+              )}
             </ToggleItem>
           ))}
         </ToggleGroup>
       </div>
     );
 
-    /** 色阶选项：第一项是“主题默认”，其余是色块与色阶名，悬停显示色值 */
-    const scaleOptions = (scales: readonly string[]): Option[] => [
+    /** 色阶在当前语言下的名字与色值：“靛蓝 #3e63dd”；没选（主题默认）时是“主题默认” */
+    const scaleText = (scale: AccentScale | NeutralScale | undefined) =>
+      scale
+        ? `${lang.customizeColorNames[scale]} ${scaleSwatch(scale as never, base.colorScheme)}`
+        : lang.customizeDefault;
+
+    /** 色阶选项：第一项是“主题默认”，其余是色块；名字与色值在悬停提示与读屏文字里 */
+    const scaleOptions = (scales: readonly (AccentScale | NeutralScale)[]): Option[] => [
       {
         value: '',
         preview: (
           <span
-            {...stylex.attrs(themeCustomizerStyles.swatch, themeCustomizerStyles.swatchDefault)}
+            {...stylex.attrs(
+              themeCustomizerStyles.swatch,
+              themeCustomizerStyles.swatchLarge,
+              themeCustomizerStyles.swatchDefault,
+            )}
           />
         ),
         label: lang.customizeDefault,
+        title: lang.customizeDefault,
       },
       ...scales.map((scale) => {
         const color = scaleSwatch(scale as never, base.colorScheme);
         return {
           value: scale,
-          title: `${scale} ${color}`,
+          title: `${lang.customizeColorNames[scale]}（${scale}）${color}`,
           preview: (
             <span
               {...stylex.attrs(
                 themeCustomizerStyles.swatch,
+                themeCustomizerStyles.swatchLarge,
                 swatchStyles.ring,
                 themeCustomizerDynamicStyles.fill(color),
               )}
             />
           ),
-          label: scale,
+          label: lang.customizeColorNames[scale],
         };
       }),
     ];
@@ -303,17 +343,19 @@ export const ThemeCustomizer = _component(
           {group(lang.customizeGroupColor, lang.customizeGroupColorHint, [
             field(
               lang.customizeAccent,
-              settings.accent ?? lang.customizeDefault,
+              scaleText(settings.accent),
               scaleOptions(ACCENT_SCALES),
               settings.accent ?? '',
               (next) => set('accent', next as ThemeSettings['accent'] | ''),
+              'swatches',
             ),
             field(
               lang.customizeNeutral,
-              settings.neutral ?? lang.customizeDefault,
+              scaleText(settings.neutral),
               scaleOptions(NEUTRAL_SCALES),
               settings.neutral ?? '',
               (next) => set('neutral', next as ThemeSettings['neutral'] | ''),
+              'swatches',
             ),
           ])}
           {group(lang.customizeGroupShape, lang.customizeGroupShapeHint, [

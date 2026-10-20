@@ -14,11 +14,11 @@ it('选品牌色、圆角写回设置；选“主题默认”清空；代码跟�
       (item) => item.getAttribute('aria-label') === label || item.textContent === label,
     )!;
   const code = () => root.querySelector('pre code')!.textContent!;
-  // 没改过时不能恢复默认；色块带名字，悬停显示色值
+  // 没改过时不能恢复默认；色块只有颜色，名字在读屏文字里，悬停显示名字、色阶与色值
   expect(button('恢复默认').disabled).toBe(true);
-  expect(button('crimson').title).toMatch(/^crimson #[0-9a-f]{6}$/);
+  expect(button('绯红').title).toMatch(/^绯红（crimson）#[0-9a-f]{6}$/);
 
-  button('crimson').click();
+  button('绯红').click();
   await nextTick();
   expect(settings).toEqual({ accent: 'crimson' });
   await nextTick();
@@ -28,7 +28,8 @@ it('选品牌色、圆角写回设置；选“主题默认”清空；代码跟�
   button('大').click();
   await nextTick();
   expect(settings.radius).toBe('large');
-  expect(root.textContent).toContain('crimson');
+  // 旋钮标题旁显示选中的名字与色值
+  expect(root.textContent).toMatch(/绯红 #[0-9a-f]{6}/);
   expect(button('恢复默认').disabled).toBe(false);
 
   root.querySelectorAll<HTMLButtonElement>('[aria-label="品牌色"] button')[0]!.click();
