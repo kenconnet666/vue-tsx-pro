@@ -74,7 +74,13 @@ const theme = EditorView.theme({
   },
   // 外框（CodeEditor）画焦点环
   '&.cm-focused': { outline: 'none' },
-  '.cm-scroller': { fontFamily: c(fonts.mono), lineHeight: '1.6' },
+  '.cm-scroller': {
+    fontFamily: c(fonts.mono),
+    lineHeight: '1.6',
+    // CodeMirror 自己管滚动，套不了 ScrollArea：原生滚动条改细，滑块取浮层滚动条（scrollAreaBarStyles.thumb）的颜色，外观一致
+    scrollbarWidth: 'thin',
+    scrollbarColor: `color-mix(in srgb, ${c(colors.textMuted)} 50%, transparent) transparent`,
+  },
   '.cm-content': { caretColor: c(colors.text), paddingBlock: '12px' },
   '.cm-cursor, .cm-dropCursor': { borderLeftColor: c(colors.text) },
   '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection':

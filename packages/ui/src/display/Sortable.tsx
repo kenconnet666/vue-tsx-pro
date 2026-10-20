@@ -6,6 +6,7 @@
  *   </Sortable>
  *
  * 拖动、键盘、读屏播报、自动滚动、布局动画见 useSortable（utils/dom/sortable.ts）。
+ * 列表自己不滚动：项多时在外面包 ScrollArea（横排写 axis="x"），拖到边缘时自动滚动会找到它的视口，滚动条与整站一致。
  * 把手是按钮：名称“移动 项名”，操作说明经 aria-describedby 关联，拿起时 aria-pressed。
  * 部件：Root（ul）、Item（li）、Handle（button）、Content（div）。
  */
@@ -52,10 +53,9 @@ export interface SortableProps<T> extends PartProps<'ul'> {
   propsContent?: PartProps<'div'>;
 }
 
-/** Sortable 的样式：root、horizontal、item、active、handle、content */
+/** Sortable 的样式：item、active、handle、content */
 export const sortableStyles = stylex.create({
-  // 方向、间距、去掉圆点由 FlexList 给；横排时可以横向滚动
-  horizontal: { overflowX: 'auto' },
+  // 方向、间距、去掉圆点由 FlexList 给
   item: {
     position: 'relative',
     display: 'flex',
@@ -122,7 +122,6 @@ export const Sortable = _component(
             {
               direction: orientation === 'horizontal' ? 'row' : 'column',
               gap: 'xs',
-              sx: orientation === 'horizontal' && sortableStyles.horizontal,
             },
             rest,
             { ref: (value: unknown) => (root = toElement(value)) },
