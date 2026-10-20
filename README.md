@@ -129,7 +129,7 @@ pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
 
 - **版本**：共享依赖的精确版本集中在 `pnpm-workspace.yaml` 的 `catalog`，各包写 `"catalog:"`。升级只改这一处。
 - **源码条件**：各包 `exports` 带有 `@vue-tsx-pro/source` 条件。仓库内的 TypeScript（`customConditions`）和 Vite（`workspaceSource()`）据此直接读取源码，不必先构建；发布包的使用方不受影响。
-- **Vite 配置文件**从构建产物加载 `@vue-tsx-pro/tsx/vite`，所以首次 `test` 或 `dev:docs` 之前要先 `pnpm build:tsx`（这两个脚本已自动执行）。
+- **仓库内不用先构建**：`pnpm-workspace.yaml` 的 `nodeOptions` 让 Node 按 `@vue-tsx-pro/source` 条件解析各包源码，脚本里的 Vite / Vitest 都用 `--configLoader native` 加载配置，编译器、预设与组件都直接用源码（文档站开发时热更新）。改了编译器或 Vite 预设要重启开发服务器。
 - **符文类型**：配置 `jsxImportSource: "@vue-tsx-pro/tsx"` 后即可直接使用 `_state` 等；只有 `.ts` 文件的包再在 `types` 里加 `"@vue-tsx-pro/tsx/runes"`。
 - **组件库构建**：编译 TSX 与符文，保留 `stylex.create`，由使用方应用的 StyleX 插件统一编译。
 

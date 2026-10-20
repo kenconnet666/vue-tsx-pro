@@ -44,7 +44,6 @@ catalog:
   '@vitest/browser-playwright': 5.0.5
   axe-core: 4.14.0
   tsdown: 0.23.1
-  vitepress: 2.0.0-alpha.20
   # 语言与工具
   '@modelcontextprotocol/sdk': 1.32.1
   # CSS 注释数据（scripts/css-docs）：事实字段来源
@@ -62,3 +61,8 @@ catalog:
 
 minimumReleaseAgeExclude:
   - '@lucide/icons@1.59.0'
+
+# 仓库内的 Node 进程（Vite / Vitest 配置、脚本）直接解析各包源码，不用先构建：
+# 改了 tsx 的编译器或 ui 的组件立刻生效。配置文件要用 --configLoader native 加载（Node 自己去掉类型），
+# 默认的打包加载会绕过这个条件、去读 dist
+nodeOptions: '--conditions=@vue-tsx-pro/source'

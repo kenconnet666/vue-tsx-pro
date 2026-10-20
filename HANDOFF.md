@@ -38,7 +38,6 @@
 
 ```bash
 pnpm install
-pnpm build:tsx    # Vite 配置从产物加载 tsx 的预设：改了编译器或预设后要重新构建，否则测试用的还是旧编译器
 pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium firefox webkit   # 首次跑浏览器测试前
 ```
 
@@ -154,7 +153,7 @@ pnpm -C apps/host-demo exec vitest run --config vitest.browser.config.ts --proje
 
 | 现象                                                           | 原因与解决                                                                                                                                                                   |
 | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 改了编译器，测试结果没变                                       | Vite 配置从 `packages/tsx/dist` 加载预设：先 `pnpm build:tsx`                                                                                                                |
+| 改了编译器，测试结果没变                                       | 以前 Vite 配置从 `packages/tsx/dist` 加载预设；现在走源码（`nodeOptions` + `--configLoader native`），直接用 `vitest` 而不经 pnpm 脚本时要自己带上这两项 |
 | 子组件显示旧内容                                               | 原来 `children` 经 computed 缓存，已改为不缓存的 `childrenProp`（编译器生成）                                                                                                |
 | 覆盖样式不生效（如 `borderColor`）                             | StyleX 里长属性总是优先于简写，要写同一个长属性（`borderBottomColor`）                                                                                                       |
 | `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉（`Features.DirSelector`）                                                                                              |

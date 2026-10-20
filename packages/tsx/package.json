@@ -41,7 +41,7 @@
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc -p .",
-    "test": "vitest run"
+    "test": "vitest run --configLoader native"
   },
   "dependencies": {
     "@babel/core": "catalog:",

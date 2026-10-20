@@ -5,10 +5,10 @@
   "description": "宿主示例：普通 Vue 3.5 项目（SFC + vue-router + pinia）里的一个 TSX 页面",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --configLoader native",
+    "build": "vite build --configLoader native",
     "typecheck": "tsc -p .",
-    "test:browser": "vitest run --config vitest.browser.config.ts"
+    "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"
   },
   "dependencies": {
     "animejs": "catalog:",
