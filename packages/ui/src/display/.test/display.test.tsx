@@ -76,15 +76,11 @@ describe('Avatar', () => {
   });
 
   it('variant × tone 用状态色调的配色：默认 soft accent', () => {
-    const classes = (styles: Parameters<typeof stylex.props>[0]) =>
-      stylex.props(styles).className!.split(' ');
+    const hasAll = (element: Element, className: string | undefined) =>
+      className!.split(' ').every((name) => element.classList.contains(name));
     const plain = first(mount(() => <Avatar name="张三" />));
     const solid = first(mount(() => <Avatar name="张三" variant="solid" tone="success" />));
-    expect(
-      classes(statusToneStyles.soft.accent).every((name) => plain.classList.contains(name)),
-    ).toBe(true);
-    expect(
-      classes(statusToneStyles.solid.success).every((name) => solid.classList.contains(name)),
-    ).toBe(true);
+    expect(hasAll(plain, stylex.props(statusToneStyles.soft.accent).className)).toBe(true);
+    expect(hasAll(solid, stylex.props(statusToneStyles.solid.success).className)).toBe(true);
   });
 });
