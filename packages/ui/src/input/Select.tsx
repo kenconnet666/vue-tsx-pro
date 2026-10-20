@@ -62,7 +62,7 @@ export type SelectManaged =
   | 'aria-describedby';
 
 /** 下拉选择共有的属性；未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
-interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, ControlOptions {
+export interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, ControlOptions {
   /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */

@@ -438,10 +438,10 @@ export function activeOptionId<T>(list: ListState<T>, id: string): string | unde
 }
 
 /** 列表框共有的属性；未声明的属性落到 role="listbox" 的 div 上 */
-type ListboxBaseProps<T> = Omit<
+export interface ListboxBaseProps<T> extends Omit<
   ListboxViewProps<T>,
   'list' | 'id' | 'multiple' | 'renderOption' | 'onPick'
-> & {
+> {
   /** 列表的 id；在 Field 里时默认用 Field 给的 */
   id?: string;
   /** 数据：ListboxOption、字符串，或任意数据加 toOption */
@@ -452,7 +452,7 @@ type ListboxBaseProps<T> = Omit<
   disabled?: boolean;
   /** 自定义选项内容：`{(item, { selected, active }) => …}`，拿到 items 里的原始数据 */
   children?: (item: T, state: OptionRenderState) => VNodeChild;
-};
+}
 
 /** 单选或多选；items 不是 ListboxOption 或字符串时要给 toOption */
 export type ListboxProps<T = ListboxOption> = ListboxBaseProps<T> &

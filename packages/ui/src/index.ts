@@ -565,6 +565,7 @@ export {
   listboxPositionStyles,
   listboxStyles,
   ListboxView,
+  type ListboxBaseProps,
   type ListboxProps,
   type ListboxViewProps,
   type OptionRenderState,
@@ -586,7 +587,13 @@ export {
   type RadioManaged,
   type RadioProps,
 } from './input/Radio';
-export { Select, selectStyles, type SelectManaged, type SelectProps } from './input/Select';
+export {
+  Select,
+  selectStyles,
+  type SelectBaseProps,
+  type SelectManaged,
+  type SelectProps,
+} from './input/Select';
 export {
   SlideVerify,
   slideVerifyStyles,
