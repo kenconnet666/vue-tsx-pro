@@ -119,7 +119,7 @@ describe('Upload', () => {
     expect(upload).toHaveBeenCalledTimes(1);
   });
 
-  it('部件属性：每一项的 body、文件名、大小或错误、进度条；进度值由组件决定', () => {
+  it('部件属性：每一项的 body、文件名、大小或错误、进度条；进度与名称由组件决定', () => {
     const items: UploadFile[] = [
       { id: 'a', file: file('a.txt'), status: 'uploading', progress: 0.5 },
       { id: 'b', file: file('b.txt'), status: 'error', error: '网络错误' },
@@ -130,7 +130,7 @@ describe('Upload', () => {
         propsBody={{ class: 'body' }}
         propsName={{ class: 'name' }}
         propsMeta={{ class: 'meta' }}
-        propsProgress={{ class: 'progress', value: 10 }}
+        propsProgress={{ class: 'progress', size: 'sm' }}
       />
     ));
     expect(root.querySelectorAll('li .body')).toHaveLength(2);
@@ -141,9 +141,10 @@ describe('Upload', () => {
     expect(root.querySelector('.meta')!.textContent).toBe('网络错误');
     const progress = root.querySelector('.progress[role="progressbar"]')!;
     expect(progress.getAttribute('aria-valuenow')).toBe('50');
+    expect(progress.getAttribute('aria-label')).toBe('a.txt');
   });
 
-  it('部件属性：文件图标、重试、移除；名称可以改，点击与不可用由组件管理', async () => {
+  it('部件属性：文件图标、重试、移除；每项的名称、点击与不可用由组件管理', async () => {
     let list = _state<UploadFile[]>([
       { id: 'a', file: file('a.txt'), status: 'error', error: '网络错误' },
     ]);
@@ -154,14 +155,15 @@ describe('Upload', () => {
         upload={upload}
         disabled
         propsIcon={{ class: 'icon' }}
-        propsRetry={{ class: 'retry', 'aria-label': '再试一次' }}
-        propsRemove={{ class: 'remove', disabled: false }}
+        propsRetry={{ class: 'retry', variant: 'soft' }}
+        propsRemove={{ class: 'remove' }}
       />
     ));
     expect(root.querySelector('li svg.icon')).not.toBeNull();
     expect(root.querySelector<HTMLButtonElement>('button.remove')!.disabled).toBe(true);
     const retry = root.querySelector<HTMLButtonElement>('button.retry')!;
-    expect(retry.getAttribute('aria-label')).toBe('再试一次');
+    // 名称带文件名：列表里每一项的按钮读屏能区分
+    expect(retry.getAttribute('aria-label')).toBe('重新上传 a.txt');
     retry.click();
     await flush();
     expect(upload).toHaveBeenCalledTimes(1);

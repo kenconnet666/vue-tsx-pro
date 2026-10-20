@@ -94,12 +94,15 @@ export interface UploadProps extends PartProps<'div'> {
   propsName?: PartProps<'span'>;
   /** 每一项里文件大小或错误信息的部件属性 */
   propsMeta?: PartProps<'span'>;
-  /** 每一项上传中的进度条的部件属性 */
-  propsProgress?: Partial<ProgressProps>;
-  /** 每一项失败后的重试按钮的部件属性；名称默认取语言包，点击由组件管理 */
-  propsRetry?: Partial<IconButtonProps>;
-  /** 每一项的移除按钮的部件属性；名称默认取语言包，点击与不可用由组件管理 */
-  propsRemove?: Partial<IconButtonProps>;
+  /** 每一项上传中的进度条的部件属性；进度与名称（文件名）由组件管理 */
+  propsProgress?: Omit<Partial<ProgressProps>, 'value' | 'aria-label'>;
+  /**
+   * 每一项失败后的重试按钮的部件属性。名称（重新上传 文件名）每项不同，由组件按语言包生成，
+   * 改文案请改语言包的 uploadRetry；点击由组件管理
+   */
+  propsRetry?: Omit<Partial<IconButtonProps>, 'aria-label' | 'onClick'>;
+  /** 每一项的移除按钮的部件属性；名称（语言包的 uploadRemove）、点击与不可用由组件管理 */
+  propsRemove?: Omit<Partial<IconButtonProps>, 'aria-label' | 'onClick' | 'disabled'>;
 }
 
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
@@ -245,9 +248,12 @@ export const Upload = _component(
             {item.status === 'uploading' ? (
               <Progress
                 {...mergePartProps<ProgressProps>(
-                  { size: 'xs', 'aria-label': fileName, sx: uploadStyles.progress },
+                  { size: 'xs', sx: uploadStyles.progress },
                   propsProgress,
-                  { value: item.progress == null ? null : Math.round(item.progress * 100) },
+                  {
+                    value: item.progress == null ? null : Math.round(item.progress * 100),
+                    'aria-label': fileName,
+                  },
                 )}
               />
             ) : (
@@ -269,6 +275,7 @@ export const Upload = _component(
                   icon: RotateCw,
                   variant: 'ghost',
                   size: 'sm',
+                  // 名称带文件名、每项不同：类型里不让使用方覆盖（同一个值会让各项的按钮同名）
                   'aria-label': lang.uploadRetry(fileName),
                 },
                 propsRetry,

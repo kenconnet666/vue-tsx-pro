@@ -30,21 +30,25 @@ describe('Tour', () => {
     expect(dialog.querySelector('.footer .progress')!.textContent).toContain('1');
   });
 
-  it('部件属性：跳过、上一步、下一步；点击与不可用由组件管理', async () => {
+  it('部件属性：跳过、上一步、下一步；点击由组件管理，下一步可以先不可用', async () => {
     let step = _state(0);
+    let ready = _state(false);
     const root = mount(() => (
       <Tour
         steps={steps}
         current={_bind(step)}
         propsSkip={{ class: 'skip', variant: 'outline' }}
         propsPrevious={{ class: 'previous' }}
-        propsNext={{ class: 'next', disabled: true }}
+        // 完成某个操作后才能继续
+        propsNext={{ class: 'next', disabled: !ready }}
       />
     ));
     expect(root.querySelector('button.skip')!.textContent).toBe('跳过');
     expect(root.querySelector('button.previous')).toBeNull();
     const next = root.querySelector<HTMLButtonElement>('button.next')!;
-    expect(next.disabled).toBe(false);
+    expect(next.disabled).toBe(true);
+    ready = true;
+    await nextTick();
     next.click();
     await nextTick();
     expect(step).toBe(1);

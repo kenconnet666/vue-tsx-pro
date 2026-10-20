@@ -105,10 +105,10 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
     PartProps<'div', 'role' | 'id'> | ((node: T, state: TreeItemRenderState) => PartProps<'div'>);
   /** 每一行（虚拟滚动定位的容器，包着 treeitem）的部件属性 */
   propsRow?: PartProps<'div', 'role'>;
-  /** 展开箭头的部件属性 */
-  propsToggle?: PartProps<'span'>;
-  /** 勾选框的部件属性 */
-  propsCheckbox?: PartProps<'span'>;
+  /** 展开箭头的部件属性（只是外观，键盘与读屏走 treeitem） */
+  propsToggle?: PartProps<'span', 'aria-hidden'>;
+  /** 勾选框的部件属性（只是外观，状态在 treeitem 的 aria-checked 上） */
+  propsCheckbox?: PartProps<'span', 'aria-hidden'>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
 }

@@ -26,10 +26,10 @@ import type { IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { flattenTree, useTreeExpansion, type TreeAccessors } from '../utils/data/tree';
+import { mergePartProps, mergeProps } from '../utils/props';
 import { columnValue, sortRows, type SortState } from './columns';
 import { DataTable, type DataTableProps } from './DataTable';
 import type { DataTableRowModel } from './DataTableView';
-import { mergePartProps, mergeProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
@@ -46,8 +46,8 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSo
   expanded?: string[];
   /** 每一层缩进多少（em），默认 1.25 */
   indent?: number;
-  /** 展开按钮的部件属性 */
-  propsToggle?: Partial<IconButtonProps>;
+  /** 展开按钮的部件属性；加载中、展开状态与点击由组件管理 */
+  propsToggle?: Omit<Partial<IconButtonProps>, 'loading' | 'aria-expanded' | 'onClick'>;
 }
 
 /** TreeDataTable 的样式：toggle、chevronOpen、placeholder */

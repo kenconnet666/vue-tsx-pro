@@ -669,6 +669,28 @@ export {
   type OptionMapping,
 } from './input/list-state';
 
+// 日期：日历、分段输入、日期与时间选择
+export {
+  handleCalendarKeydown,
+  useCalendarState,
+  type CalendarCellState,
+  type CalendarSelectionMode,
+  type CalendarSelectionModes,
+  type CalendarState,
+  type CalendarStateOptions,
+} from './date/calendar-state';
+export {
+  handleSegmentKeydown,
+  useDateSegments,
+  type DateFieldValues,
+  type DateSegment,
+  type DateSegmentsOptions,
+  type DateSegmentsState,
+  type DateSegmentType,
+  type DateSegmentTypes,
+} from './date/date-segments';
+export { useDateTexts, type DateTexts } from './date/date-texts';
+
 // 表单：字段、校验
 export {
   Field,
@@ -1014,7 +1036,7 @@ export {
 export { useSortable, type SortableOptions, type SortableState } from './utils/dom/sortable';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
-// 工具：比较与匹配、选择、分页、文字、数值
+// 工具：比较与匹配、选择、分页、文字、数值、日期
 export { createComparer, createMatcher, type SortValue } from './utils/data/collation';
 export {
   CONTRAST_AA,
@@ -1024,6 +1046,45 @@ export {
   toHex,
   withAlpha,
 } from './utils/data/color';
+export {
+  calendarOf,
+  clampDate,
+  compareDates,
+  dayOfWeekIndex,
+  isDateDisabled,
+  isInRange,
+  isOutOfRange,
+  isOutsideDecade,
+  isSameDate,
+  monthGrid,
+  monthsOfYear,
+  orderedRange,
+  parseIsoDate,
+  parseIsoDateTime,
+  parseIsoRange,
+  parseIsoTime,
+  presetRange,
+  rangeDays,
+  rangeHasUnavailable,
+  toDayOfWeek,
+  toIsoDate,
+  toIsoDateTime,
+  toIsoRange,
+  toIsoTime,
+  truncateDate,
+  weekdayNames,
+  weekOfYear,
+  yearsOfDecade,
+  type DateLimits,
+  type DateRange,
+  type DateRangePreset,
+  type DateRangePresets,
+  type DateUnit,
+  type DateUnits,
+  type MonthGridOptions,
+  type WeekdayFormats,
+  type WeekOptions,
+} from './utils/data/date';
 export { clamp, snapToStep } from './utils/data/number';
 export {
   paginationItems,

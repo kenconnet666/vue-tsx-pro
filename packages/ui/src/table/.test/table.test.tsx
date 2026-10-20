@@ -198,7 +198,7 @@ describe('DataTable', () => {
     expect([empty.getAttribute('colspan'), empty.textContent]).toEqual(['2', '暂无数据']);
   });
 
-  it('部件属性：表头那一行、勾选框；aria-rowindex、勾选状态与切换由组件管理', async () => {
+  it('部件属性：表头那一行、全选框、每行的勾选框；aria-rowindex、勾选状态、切换与每行的名称由组件管理', async () => {
     let picked = _state<string[]>([]);
     const root = mount(() => (
       <DataTable
@@ -208,18 +208,21 @@ describe('DataTable', () => {
         selectionMode="multiple"
         selected={_bind(picked)}
         propsHeadRow={{ class: 'head-row', ...({ 'aria-rowindex': 9 } as object) }}
-        propsSelectCheckbox={{ class: 'box', checked: true, 'aria-label': '勾选' }}
+        propsSelectAll={{ class: 'all', 'aria-label': '全选人员' }}
+        propsSelectCheckbox={{ class: 'box', ...({ checked: true } as object) }}
         aria-label="人员"
       />
     ));
     await flush();
     const headRow = root.querySelector('thead tr.head-row')!;
     expect(headRow.getAttribute('aria-rowindex')).toBe('1');
-    const boxes = [...root.querySelectorAll<HTMLInputElement>('input.box[type=checkbox]')];
-    expect(boxes).toHaveLength(4);
-    expect(boxes.every((box) => box.getAttribute('aria-label') === '勾选')).toBe(true);
+    expect(root.querySelector('thead input.all')!.getAttribute('aria-label')).toBe('全选人员');
+    const boxes = [...root.querySelectorAll<HTMLInputElement>('tbody input.box[type=checkbox]')];
+    expect(boxes).toHaveLength(3);
+    // 每行的名称不同，读屏能区分
+    expect(new Set(boxes.map((box) => box.getAttribute('aria-label'))).size).toBe(3);
     expect(boxes.some((box) => box.checked)).toBe(false);
-    boxes[1]!.click();
+    boxes[0]!.click();
     await flush();
     expect(picked).toEqual(['a']);
   });
@@ -284,7 +287,8 @@ describe('TreeDataTable', () => {
         expanded={_bind(open)}
         propsToggle={{
           class: 'toggle',
-          'aria-expanded': false,
+          // 类型里已经去掉了受管属性：模拟 JS 使用方强行传入
+          ...({ 'aria-expanded': false } as object),
           propsIcon: { class: 'chevron' },
         }}
         aria-label="组织"

@@ -141,8 +141,10 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsSelectHeaderCell?: PartProps<'th', 'scope'>;
   /** 每行勾选列（td）的部件属性 */
   propsSelectCell?: PartProps<'td'>;
-  /** 勾选列里的勾选框（每行的与表头的全选）的部件属性；勾选状态与切换由组件管理 */
-  propsSelectCheckbox?: Partial<CheckboxProps>;
+  /** 表头的全选框（多选时）的部件属性；勾选状态、不可用与切换由组件管理 */
+  propsSelectAll?: Omit<Partial<CheckboxProps>, SelectCheckboxManaged | 'disabled'>;
+  /** 每一行的勾选框的部件属性；勾选状态、切换与名称（选择第 N 行，每行不同）由组件管理 */
+  propsSelectCheckbox?: Omit<Partial<CheckboxProps>, SelectCheckboxManaged | 'aria-label'>;
   /** 第一个数据列里 leading 与内容的外层（有 leading 时才有）的部件属性 */
   propsLeading?: PartProps<'div'>;
   /** 第一个数据列里内容的包装（有 leading 时才有）的部件属性 */
@@ -152,6 +154,9 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   /** 空状态所在的单元格（td，跨全部列）的部件属性 */
   propsEmptyCell?: PartProps<'td', 'colspan'>;
 }
+
+/** 勾选列里的勾选框由表格管理的属性 */
+type SelectCheckboxManaged = 'checked' | 'indeterminate' | 'onChange';
 
 /** 勾选列的宽度（px） */
 const SELECT_WIDTH = 44;
@@ -307,7 +312,7 @@ export interface DataTableRowProps<T> {
   /** 勾选列单元格的部件属性 */
   propsSelectCell?: PartProps<'td'>;
   /** 勾选框的部件属性 */
-  propsSelectCheckbox?: Partial<CheckboxProps>;
+  propsSelectCheckbox?: DataTableViewProps<T>['propsSelectCheckbox'];
   /** leading 与内容外层的部件属性 */
   propsLeading?: PartProps<'div'>;
   /** 内容包装的部件属性 */
@@ -380,13 +385,10 @@ export const DataTableRow = _component(
           >
             <Checkbox
               {...mergePartProps<CheckboxProps>(
+                // 名称每行不同（选择第 N 行）：类型里不让使用方覆盖
                 { 'aria-label': lang.tableSelectRow(index + 1) },
                 propsSelectCheckbox,
-                {
-                  checked: selected,
-                  indeterminate: false,
-                  onChange: () => onToggle?.(row.key),
-                },
+                { checked: selected, indeterminate: false, onChange: () => onToggle?.(row.key) },
               )}
             />
           </td>
@@ -464,6 +466,7 @@ export const DataTableView = _component(
     propsHeadRow,
     propsSelectHeaderCell,
     propsSelectCell,
+    propsSelectAll,
     propsSelectCheckbox,
     propsLeading,
     propsContent,
@@ -638,7 +641,7 @@ export const DataTableView = _component(
                       <Checkbox
                         {...mergePartProps<CheckboxProps>(
                           { 'aria-label': lang.tableSelectAll },
-                          propsSelectCheckbox,
+                          propsSelectAll,
                           {
                             checked: allSelected,
                             indeterminate: someSelected,

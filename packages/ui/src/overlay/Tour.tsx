@@ -67,19 +67,19 @@ export interface TourProps extends PartProps<
   /** 卡片的部件属性 */
   propsPanel?: PartProps<'div'>;
   /** 标题（dialog 的名称）的部件属性 */
-  propsTitle?: Partial<HeadingProps>;
+  propsTitle?: Omit<Partial<HeadingProps>, 'id'>;
   /** 说明（dialog 的描述）的部件属性 */
   propsContent?: PartProps<'div', 'id'>;
   /** 底部一行（步数与按钮）的部件属性 */
   propsFooter?: Partial<FlexProps>;
   /** 步数（第几步 / 共几步）的部件属性 */
   propsProgress?: Partial<TextProps>;
-  /** 跳过按钮的部件属性；点击与不可用由组件管理 */
-  propsSkip?: Partial<ButtonProps>;
-  /** 上一步按钮的部件属性；点击与不可用由组件管理 */
-  propsPrevious?: Partial<ButtonProps>;
-  /** 下一步（最后一步是完成）按钮的部件属性；点击与不可用由组件管理 */
-  propsNext?: Partial<ButtonProps>;
+  /** 跳过按钮的部件属性；点击由组件管理 */
+  propsSkip?: Omit<Partial<ButtonProps>, 'onClick'>;
+  /** 上一步按钮的部件属性；点击由组件管理 */
+  propsPrevious?: Omit<Partial<ButtonProps>, 'onClick'>;
+  /** 下一步（最后一步是完成）按钮的部件属性；点击由组件管理，可以设 disabled（完成某个操作后才能继续） */
+  propsNext?: Omit<Partial<ButtonProps>, 'onClick'>;
 }
 
 /** Tour 的样式：root、spotlight、dimmed、panel、title、content、footer、progress */
@@ -337,7 +337,7 @@ export const Tour = _component(
                     {...mergePartProps<ButtonProps>(
                       { variant: 'ghost', tone: 'neutral', size: 'sm' },
                       propsSkip,
-                      { disabled: false, onClick: close },
+                      { onClick: close },
                     )}
                   >
                     {lang.tourSkip}
@@ -348,17 +348,14 @@ export const Tour = _component(
                     {...mergePartProps<ButtonProps>(
                       { variant: 'outline', size: 'sm' },
                       propsPrevious,
-                      { disabled: false, onClick: () => current-- },
+                      { onClick: () => current-- },
                     )}
                   >
                     {lang.tourPrevious}
                   </Button>
                 )}
                 <Button
-                  {...mergePartProps<ButtonProps>({ size: 'sm' }, propsNext, {
-                    disabled: false,
-                    onClick: next,
-                  })}
+                  {...mergePartProps<ButtonProps>({ size: 'sm' }, propsNext, { onClick: next })}
                 >
                   {last() ? lang.tourFinish : lang.tourNext}
                 </Button>
