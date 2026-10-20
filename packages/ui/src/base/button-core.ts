@@ -160,10 +160,8 @@ export const buttonRadiusStyles = stylex.create({
   full: { borderRadius: '_full' },
 });
 
-// 每种样式按色调各一组。中性色没有专门的实底色，用反色表面；
-// info、success、warning 也没有实底色，同 tone-styles.ts：用文字色作底色、页面背景色作字色（对比度即“提示文字”那一组）。
-// 实底悬停时混入黑色加深（accent、danger）或混向正文色（info、success、warning），而不是用 accentHover / dangerHover：
-// 三套主题里字色的对比度都只升不降
+// 每种样式按色调各一组。中性色没有专门的实底色，用反色表面。
+// 实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1（品牌色配深色字的主题也成立，混黑加深则不一定）
 const solid = stylex.create({
   neutral: {
     color: '_inverseText',
@@ -174,42 +172,26 @@ const solid = stylex.create({
   },
   accent: {
     color: '_accentContrast',
-    backgroundColor: {
-      default: '_accent',
-      ':hover': 'color-mix(in oklab, _colors.accent 85%, black)',
-    },
+    backgroundColor: { default: '_accent', ':hover': '_accentHover' },
   },
   info: {
-    color: '_background',
-    backgroundColor: {
-      default: '_infoText',
-      ':hover': 'color-mix(in oklab, _colors.infoText 85%, _colors.text)',
-    },
+    color: '_infoContrast',
+    backgroundColor: { default: '_info', ':hover': '_infoHover' },
   },
   success: {
-    color: '_background',
-    backgroundColor: {
-      default: '_successText',
-      ':hover': 'color-mix(in oklab, _colors.successText 85%, _colors.text)',
-    },
+    color: '_successContrast',
+    backgroundColor: { default: '_success', ':hover': '_successHover' },
   },
   warning: {
-    color: '_background',
-    backgroundColor: {
-      default: '_warningText',
-      ':hover': 'color-mix(in oklab, _colors.warningText 85%, _colors.text)',
-    },
+    color: '_warningContrast',
+    backgroundColor: { default: '_warning', ':hover': '_warningHover' },
   },
   danger: {
     color: '_dangerContrast',
-    backgroundColor: {
-      default: '_danger',
-      ':hover': 'color-mix(in oklab, _colors.danger 85%, black)',
-    },
+    backgroundColor: { default: '_danger', ':hover': '_dangerHover' },
   },
 });
 
-// info、success、warning 没有 SoftHover：浅色底混入四分之一的描边色。三套主题里文字对比度都还在 5.9 以上
 const soft = stylex.create({
   neutral: {
     color: '_text',
@@ -221,24 +203,15 @@ const soft = stylex.create({
   },
   info: {
     color: '_infoText',
-    backgroundColor: {
-      default: '_infoSoft',
-      ':hover': 'color-mix(in oklab, _colors.infoSoft 75%, _colors.infoBorder)',
-    },
+    backgroundColor: { default: '_infoSoft', ':hover': '_infoSoftHover' },
   },
   success: {
     color: '_successText',
-    backgroundColor: {
-      default: '_successSoft',
-      ':hover': 'color-mix(in oklab, _colors.successSoft 75%, _colors.successBorder)',
-    },
+    backgroundColor: { default: '_successSoft', ':hover': '_successSoftHover' },
   },
   warning: {
     color: '_warningText',
-    backgroundColor: {
-      default: '_warningSoft',
-      ':hover': 'color-mix(in oklab, _colors.warningSoft 75%, _colors.warningBorder)',
-    },
+    backgroundColor: { default: '_warningSoft', ':hover': '_warningSoftHover' },
   },
   danger: {
     color: '_dangerText',
@@ -260,26 +233,17 @@ const surface = stylex.create({
   info: {
     color: '_infoText',
     borderColor: '_infoBorder',
-    backgroundColor: {
-      default: '_infoSoft',
-      ':hover': 'color-mix(in oklab, _colors.infoSoft 75%, _colors.infoBorder)',
-    },
+    backgroundColor: { default: '_infoSoft', ':hover': '_infoSoftHover' },
   },
   success: {
     color: '_successText',
     borderColor: '_successBorder',
-    backgroundColor: {
-      default: '_successSoft',
-      ':hover': 'color-mix(in oklab, _colors.successSoft 75%, _colors.successBorder)',
-    },
+    backgroundColor: { default: '_successSoft', ':hover': '_successSoftHover' },
   },
   warning: {
     color: '_warningText',
     borderColor: '_warningBorder',
-    backgroundColor: {
-      default: '_warningSoft',
-      ':hover': 'color-mix(in oklab, _colors.warningSoft 75%, _colors.warningBorder)',
-    },
+    backgroundColor: { default: '_warningSoft', ':hover': '_warningSoftHover' },
   },
   danger: {
     color: '_dangerText',
