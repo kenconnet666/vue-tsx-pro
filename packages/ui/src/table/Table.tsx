@@ -61,7 +61,7 @@ export interface TableProps extends PartProps<'table'>, DataTableOptions {
   children?: VNodeChild;
 }
 
-/** 静态表格的样式：外层滚动容器、标题、列宽按内容、斑马纹（其余与 DataTable 共用 dataTableStyles） */
+/** 静态表格的样式：外层滚动容器、标题、列宽按内容、斑马纹、行标题、表尾（其余与 DataTable 共用 dataTableStyles） */
 export const tableStyles = stylex.create({
   // contain: inline-size：宽表格不撑宽外层的 grid / flex 容器，放不下的在这里横向滚动
   root: { minWidth: 0, contain: 'inline-size' },
@@ -76,7 +76,23 @@ export const tableStyles = stylex.create({
   // 列宽按内容分配：DataTable 为虚拟滚动与列宽拖动用固定布局，静态表格不需要
   layout: { tableLayout: 'auto' },
   stripedRow: { backgroundColor: { default: null, ':nth-child(even)': '_fill' } },
+  // 表体、表尾里的行标题（scope=row）：和普通单元格一样的底色与字号，只是字重高一点
+  rowHeader: { fontWeight: '_medium', textAlign: 'start' },
+  // 表尾（合计行）：上面一条分隔线，文字加粗，th 与 td 一致
+  footCell: {
+    fontWeight: '_semibold',
+    borderTopWidth: '_xs',
+    borderTopStyle: 'solid',
+    borderTopColor: '_border',
+    borderBottomWidth: 0,
+  },
 });
+
+/** 单元格所在的区域：表头的 th 是列标题，表体与表尾的 th 是行标题 */
+export type TableSection = 'head' | 'body' | 'foot';
+
+/** 单元格所在区域的上下文：TableHead、TableBody、TableFoot 提供 */
+export const TableSectionContext = createContext<TableSection>('TableSection');
 
 /** 静态表格（table）：外层可横向滚动；外观经上下文交给行与单元格 */
 export const Table = _component(
@@ -139,20 +155,26 @@ export const TableCaption = _component(
 
 /** 表头（thead） */
 export const TableHead = _component(
-  ({ children, ...rest }: PartProps<'thead'> & { children?: VNodeChild }) =>
-    () => <thead {...mergeAttrs<'thead'>({}, rest)}>{children}</thead>,
+  ({ children, ...rest }: PartProps<'thead'> & { children?: VNodeChild }) => {
+    TableSectionContext.provide('head');
+    return () => <thead {...mergeAttrs<'thead'>({}, rest)}>{children}</thead>;
+  },
 );
 
 /** 表体（tbody） */
 export const TableBody = _component(
-  ({ children, ...rest }: PartProps<'tbody'> & { children?: VNodeChild }) =>
-    () => <tbody {...mergeAttrs<'tbody'>({}, rest)}>{children}</tbody>,
+  ({ children, ...rest }: PartProps<'tbody'> & { children?: VNodeChild }) => {
+    TableSectionContext.provide('body');
+    return () => <tbody {...mergeAttrs<'tbody'>({}, rest)}>{children}</tbody>;
+  },
 );
 
 /** 表尾（tfoot）：合计行 */
 export const TableFoot = _component(
-  ({ children, ...rest }: PartProps<'tfoot'> & { children?: VNodeChild }) =>
-    () => <tfoot {...mergeAttrs<'tfoot'>({}, rest)}>{children}</tfoot>,
+  ({ children, ...rest }: PartProps<'tfoot'> & { children?: VNodeChild }) => {
+    TableSectionContext.provide('foot');
+    return () => <tfoot {...mergeAttrs<'tfoot'>({}, rest)}>{children}</tfoot>;
+  },
 );
 
 /** 行（tr）：底色随表格的样式，斑马纹时隔行浅色底 */
@@ -199,12 +221,16 @@ export interface TableCellProps extends PartProps<'td', 'align'>, TableCellOptio
 export const TableHeaderCell = _component(
   ({ align = 'start', nowrap = false, scope = 'col', children, ...rest }: TableHeaderCellProps) => {
     const table = TableContext.inject(standalone);
+    const section = TableSectionContext.inject('head');
     return () => (
       <th
         {...mergeAttrs<'th'>(
           {
             sx: [
-              dataTableStyles.headerCell,
+              section === 'head'
+                ? dataTableStyles.headerCell
+                : [dataTableStyles.cell, tableStyles.rowHeader],
+              section === 'foot' && tableStyles.footCell,
               dataTableDensityStyles[table.density],
               dataTableStyles[align],
               !nowrap && dataTableStyles.wrap,
@@ -224,12 +250,14 @@ export const TableHeaderCell = _component(
 export const TableCell = _component(
   ({ align = 'start', nowrap = false, children, ...rest }: TableCellProps) => {
     const table = TableContext.inject(standalone);
+    const section = TableSectionContext.inject('body');
     return () => (
       <td
         {...mergeAttrs<'td'>(
           {
             sx: [
               dataTableStyles.cell,
+              section === 'foot' && tableStyles.footCell,
               dataTableDensityStyles[table.density],
               dataTableStyles[align],
               !nowrap && dataTableStyles.wrap,

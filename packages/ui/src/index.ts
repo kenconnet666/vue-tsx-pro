@@ -826,11 +826,13 @@ export {
   TableHead,
   TableHeaderCell,
   TableRow,
+  TableSectionContext,
   tableStyles,
   type TableAligns,
   type TableCellProps,
   type TableHeaderCellProps,
   type TableProps,
+  type TableSection,
   type TableState,
 } from './table/Table';
 export {
