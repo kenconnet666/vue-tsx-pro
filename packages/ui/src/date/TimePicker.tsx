@@ -14,35 +14,25 @@ import { Clock } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { now, Time } from '@internationalized/date';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
-import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { useFieldControl } from '../form/Field';
-import { controlStyles } from '../input/control';
 import { Listbox, type ListboxProps } from '../input/Listbox';
 import type { ListboxOption } from '../input/list-state';
 import { parseIsoTime, toIsoTime } from '../utils/data/date';
-import { toElement } from '../utils/dom/overlay';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
+import { mergePartProps, type PartProps } from '../utils/props';
 import { useDateLocale } from './date-locale';
+import { usePickerPopover, type PickerPopoverParts } from './picker-popover';
 import { TimeField, type TimeFieldProps, type TimeInput } from './TimeField';
 
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
-export interface TimePickerProps<V extends TimeInput = string> extends TimeFieldProps<V> {
+export interface TimePickerProps<V extends TimeInput = string>
+  extends TimeFieldProps<V>, PickerPopoverParts {
   /** 列表是否打开：父级可写 open={_bind(x)} */
   open?: boolean;
   /** 列表里相邻两项相隔几分钟，默认 30 */
   step?: number;
-  /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
-  placement?: FloatingPlacement;
-  /** 打开按钮的部件属性 */
-  propsButton?: Omit<Partial<IconButtonProps>, 'onClick' | 'aria-expanded' | 'aria-controls'>;
-  /** 弹层的部件属性 */
-  propsPopover?: PartProps<'div', 'id' | 'popover' | 'role'>;
   /** 时间列表的部件属性 */
   propsList?: Omit<Partial<ListboxProps>, 'items' | 'value' | 'onPick'>;
   /** “此刻”按钮的部件属性 */
@@ -70,7 +60,7 @@ export const TimePicker = _component(
     min,
     max,
     hourCycle,
-    placement = 'bottom-start',
+    placement,
     id,
     disabled,
     readonly,
@@ -87,25 +77,18 @@ export const TimePicker = _component(
     const lang = useLang();
     const format = useFormat();
     const locale = useDateLocale();
-    const popoverId = useId();
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
-    const editable = () => !control().disabled && !control().readonly;
-    let shell = _state.raw<HTMLElement | null>(null);
-    let panel = _state.raw<HTMLElement | null>(null);
-    let button = _state.raw<HTMLElement | null>(null);
-
-    const { onToggle } = useAnchoredPopover(
+    const picker = usePickerPopover(
       () => ({
         open,
-        anchor: shell,
-        panel,
-        floating: { placement, matchWidth: true },
-        // 锚点是输入框外壳（不可聚焦）：关闭时焦点还给打开按钮
-        restoreFocus: button,
+        placement,
+        matchWidth: true,
+        editable: !control().disabled && !control().readonly,
+        label: lang.timePickerOpen,
       }),
       {
-        close: () => (open = false),
-        shown: (element) => element.querySelector<HTMLElement>('[role="listbox"]')?.focus(),
+        toggle: (next) => (open = next),
+        shown: (panel) => panel.querySelector<HTMLElement>('[role="listbox"]')?.focus(),
       },
     );
 
@@ -134,25 +117,12 @@ export const TimePicker = _component(
     function write(time: Time) {
       const asTime = (value != null && typeof value !== 'string') || valueType === 'dateValue';
       value = (asTime ? time : toIsoTime(time, granularity === 'second')) as V;
-    }
-
-    function pick(iso: string) {
-      write(parseIsoTime(iso)!);
       open = false;
     }
 
     function pickNow() {
       const current = now(locale.timeZone);
       write(new Time(current.hour, current.minute));
-      open = false;
-    }
-
-    function keydown(event: KeyboardEvent & { currentTarget: HTMLDivElement }) {
-      onKeydown?.(event);
-      if (event.altKey && event.key === 'ArrowDown' && editable()) {
-        event.preventDefault();
-        open = true;
-      }
     }
 
     return () => (
@@ -171,63 +141,27 @@ export const TimePicker = _component(
           readonly={readonly}
           invalid={invalid}
           required={required}
-          onKeydown={keydown}
-          propsRoot={mergePartProps<PartProps<'div'>>({}, propsRoot, {
-            ref: (element: unknown) => (shell = toElement(element)),
-          })}
-          suffix={
-            <IconButton
-              {...mergePartProps<IconButtonProps>(
-                {
-                  sx: controlStyles.button,
-                  radius: 'full',
-                  icon: Clock,
-                  'aria-label': lang.timePickerOpen,
-                },
-                propsButton,
-                {
-                  ref: (element: unknown) => (button = toElement(element)),
-                  disabled: !editable(),
-                  'aria-haspopup': 'dialog',
-                  'aria-expanded': open,
-                  'aria-controls': popoverId,
-                  onClick: () => (open = !open),
-                },
-              )}
-            />
-          }
+          onKeydown={(event) => {
+            onKeydown?.(event);
+            picker.onKeydown(event);
+          }}
+          propsRoot={mergePartProps<PartProps<'div'>>({}, propsRoot, { ref: picker.anchorRef })}
+          suffix={picker.button(Clock, propsButton)}
         />
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [
-                floatingStyles.anchored,
-                floatingStyles.surface,
-                timePickerStyles.popover,
-                transitions.scale,
-              ],
-              'aria-label': lang.timePickerOpen,
-            },
-            propsPopover,
-            { ref: _toRef(panel), id: popoverId, popover: 'auto', role: 'dialog', onToggle },
-          )}
-          data-state={open ? 'open' : 'closed'}
-        >
-          {open && [
+        {picker.panel(
+          timePickerStyles.popover,
+          propsPopover,
+          open && [
             <Listbox
               {...mergePartProps<ListboxProps>(
-                {
-                  sx: timePickerStyles.list,
-                  'aria-label': lang.timePickerOpen,
-                  items: options,
-                },
+                { sx: timePickerStyles.list, 'aria-label': lang.timePickerOpen, items: options },
                 propsList,
                 // 在 Field 里时 Listbox 默认取 Field 的控件 id：那是输入框的，列表要自己的 id
                 {
-                  id: `${popoverId}-list`,
+                  id: `${picker.id}-list`,
                   items: options,
                   value: selected,
-                  onPick: pick,
+                  onPick: (iso) => write(parseIsoTime(iso)!),
                   required: true,
                 },
               )}
@@ -241,8 +175,8 @@ export const TimePicker = _component(
             >
               {lang.timePickerNow}
             </Button>,
-          ]}
-        </div>
+          ],
+        )}
       </>
     );
   },

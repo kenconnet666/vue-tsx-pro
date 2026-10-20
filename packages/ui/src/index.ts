@@ -756,6 +756,13 @@ export {
   type DateSegmentType,
   type DateSegmentTypes,
 } from './date/date-segments';
+export {
+  focusCalendar,
+  usePickerPopover,
+  type PickerPopoverEvents,
+  type PickerPopoverParts,
+  type PickerPopoverState,
+} from './date/picker-popover';
 
 // 表单：字段、校验
 export {

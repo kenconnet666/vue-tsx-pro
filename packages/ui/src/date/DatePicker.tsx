@@ -16,34 +16,23 @@ import { CalendarDays } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { toCalendarDateTime } from '@internationalized/date';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId } from 'vue';
-import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
-import { controlStyles } from '../input/control';
 import type { DateUnit } from '../utils/data/date';
-import { toElement } from '../utils/dom/overlay';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
-import { focusFirst } from '../utils/dom/focus';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
+import { mergePartProps, type PartProps } from '../utils/props';
 import { Calendar, type CalendarBaseProps } from './Calendar';
 import { DateField, type DateFieldProps } from './DateField';
 import type { DateInput } from './date-locale';
 import type { DateFieldGranularity } from './date-segments';
+import { focusCalendar, usePickerPopover, type PickerPopoverParts } from './picker-popover';
 
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
-export interface DatePickerProps<V extends DateInput = string> extends DateFieldProps<V> {
+export interface DatePickerProps<V extends DateInput = string>
+  extends DateFieldProps<V>, PickerPopoverParts {
   /** 弹层是否打开：父级可写 open={_bind(x)} */
   open?: boolean;
-  /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
-  placement?: FloatingPlacement;
   /** 日历并排显示几个月，默认 1 */
   visibleMonths?: number;
-  /** 打开按钮的部件属性 */
-  propsButton?: Omit<Partial<IconButtonProps>, 'onClick' | 'aria-expanded' | 'aria-controls'>;
-  /** 弹层的部件属性 */
-  propsPopover?: PartProps<'div', 'id' | 'popover' | 'role'>;
   /** 日历的部件属性（值、范围、粒度由选择器给出） */
   propsCalendar?: Omit<
     Partial<CalendarBaseProps<V>>,
@@ -72,7 +61,7 @@ export const DatePicker = _component(
     min,
     max,
     isDateUnavailable,
-    placement = 'bottom-start',
+    placement,
     visibleMonths = 1,
     id,
     disabled,
@@ -87,31 +76,16 @@ export const DatePicker = _component(
     ...rest
   }: DatePickerProps<V>) => {
     const lang = useLang();
-    const popoverId = useId();
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     const hasTime = () => TIME_GRANULARITIES.has(granularity);
-    let shell = _state.raw<HTMLElement | null>(null);
-    let panel = _state.raw<HTMLElement | null>(null);
-    let button = _state.raw<HTMLElement | null>(null);
-
-    const { onToggle } = useAnchoredPopover(
+    const picker = usePickerPopover(
       () => ({
         open,
-        anchor: shell,
-        panel,
-        floating: { placement },
-        // 锚点是输入框外壳（不可聚焦）：关闭时焦点还给打开按钮
-        restoreFocus: button,
+        placement,
+        editable: !control().disabled && !control().readonly,
+        label: lang.datePickerOpen,
       }),
-      {
-        close: () => (open = false),
-        // 焦点进日历里当前的那一格（不是“上个月”按钮）
-        shown: (element) => {
-          const cell = element.querySelector<HTMLElement>('[role="grid"] [tabindex="0"]');
-          if (cell) cell.focus();
-          else focusFirst(element);
-        },
-      },
+      { toggle: (next) => (open = next), shown: focusCalendar },
     );
 
     // 字符串值按 granularity 的形式（'2026'、'2026-10'、'2026-10-20T14:30'）：日历只认完整的日期
@@ -141,18 +115,8 @@ export const DatePicker = _component(
     function picked() {
       open = false;
       // 带时间时接着输入时间：焦点去“时”那一段（关闭后的归还焦点只在焦点丢失时生效，不会抢回去）
-      if (hasTime()) shell?.querySelector<HTMLElement>('[data-type="hour"]')?.focus();
+      if (hasTime()) picker.anchor?.querySelector<HTMLElement>('[data-type="hour"]')?.focus();
     }
-
-    function keydown(event: KeyboardEvent & { currentTarget: HTMLDivElement }) {
-      onKeydown?.(event);
-      if (event.altKey && event.key === 'ArrowDown' && editable()) {
-        event.preventDefault();
-        open = true;
-      }
-    }
-
-    const editable = () => !control().disabled && !control().readonly;
 
     return () => (
       <>
@@ -170,49 +134,17 @@ export const DatePicker = _component(
           readonly={readonly}
           invalid={invalid}
           required={required}
-          onKeydown={keydown}
-          propsRoot={mergePartProps<PartProps<'div'>>({}, propsRoot, {
-            ref: (element: unknown) => (shell = toElement(element)),
-          })}
-          suffix={
-            <IconButton
-              {...mergePartProps<IconButtonProps>(
-                {
-                  sx: controlStyles.button,
-                  radius: 'full',
-                  icon: CalendarDays,
-                  'aria-label': lang.datePickerOpen,
-                },
-                propsButton,
-                {
-                  ref: (element: unknown) => (button = toElement(element)),
-                  disabled: !editable(),
-                  'aria-haspopup': 'dialog',
-                  'aria-expanded': open,
-                  'aria-controls': popoverId,
-                  onClick: () => (open = !open),
-                },
-              )}
-            />
-          }
+          onKeydown={(event) => {
+            onKeydown?.(event);
+            picker.onKeydown(event);
+          }}
+          propsRoot={mergePartProps<PartProps<'div'>>({}, propsRoot, { ref: picker.anchorRef })}
+          suffix={picker.button(CalendarDays, propsButton)}
         />
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [
-                floatingStyles.anchored,
-                floatingStyles.surface,
-                datePickerStyles.popover,
-                transitions.scale,
-              ],
-              'aria-label': lang.datePickerOpen,
-            },
-            propsPopover,
-            { ref: _toRef(panel), id: popoverId, popover: 'auto', role: 'dialog', onToggle },
-          )}
-          data-state={open ? 'open' : 'closed'}
-        >
-          {open && (
+        {picker.panel(
+          datePickerStyles.popover,
+          propsPopover,
+          open && (
             <Calendar<V>
               {...propsCalendar}
               {...{ 'onUpdate:value': pickDay }}
@@ -225,8 +157,8 @@ export const DatePicker = _component(
               visibleMonths={visibleMonths}
               onPick={picked}
             />
-          )}
-        </div>
+          ),
+        )}
       </>
     );
   },
