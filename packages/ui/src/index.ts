@@ -844,13 +844,17 @@ export {
 export {
   COLUMN_FLEX_MIN_WIDTH,
   COLUMN_MIN_WIDTH,
+  columnAlign,
+  columnType,
   columnValue,
+  formatCell,
   nextSort,
   sortRows,
   stickyOffsets,
   tableMinWidth,
   type ColumnAligns,
   type ColumnStickies,
+  type ColumnTypes,
   type ColumnWidthOf,
   type DataTableColumn,
   type SortDirections,
@@ -1156,7 +1160,7 @@ export { useSortable, type SortableOptions, type SortableState } from './utils/d
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
 // 工具：比较与匹配、选择、分页、文字、数值、日期
-export { createComparer, createMatcher, type SortValue } from './utils/data/collation';
+export { createComparer, createMatcher, isDateValue, type SortValue } from './utils/data/collation';
 export {
   CONTRAST_AA,
   contrastRatio,

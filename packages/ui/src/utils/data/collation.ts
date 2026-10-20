@@ -39,7 +39,7 @@ export type SortValue =
   string | number | bigint | Decimal | boolean | Date | DateValue | null | undefined;
 
 /** @internationalized/date 的日期值（CalendarDate、CalendarDateTime、ZonedDateTime）：不在运行时导入，按形状识别 */
-const isDateValue = (value: unknown): value is DateValue =>
+export const isDateValue = (value: unknown): value is DateValue =>
   typeof value === 'object' &&
   value !== null &&
   'calendar' in value &&

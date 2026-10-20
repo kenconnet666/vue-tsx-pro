@@ -30,12 +30,6 @@ const org: Unit[] = [
   { id: 'ds', name: '设计中心', lead: '周一航', headcount: 9, budget: 650_000 },
 ];
 
-const money = new Intl.NumberFormat('zh-CN', {
-  style: 'currency',
-  currency: 'CNY',
-  maximumFractionDigits: 0,
-});
-
 const columns: DataTableColumn<Unit>[] = [
   { key: 'name', header: '部门', width: 200, sortable: true },
   {
@@ -49,15 +43,9 @@ const columns: DataTableColumn<Unit>[] = [
       </Flex>
     ),
   },
-  { key: 'headcount', header: '人数', width: 80, align: 'end', sortable: true },
-  {
-    key: 'budget',
-    header: '年度预算',
-    width: 130,
-    align: 'end',
-    sortable: true,
-    cell: (unit) => money.format(unit.budget),
-  },
+  // 数字列：按第一个值推断成 number，靠右对齐；金额写 type: 'currency' 用语言的币种
+  { key: 'headcount', header: '人数', width: 80, sortable: true },
+  { key: 'budget', header: '年度预算', width: 150, type: 'currency', sortable: true },
 ];
 
 const styles = stylex.create({ table: { maxHeight: '20rem' } });

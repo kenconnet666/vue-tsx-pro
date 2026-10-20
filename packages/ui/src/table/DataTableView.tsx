@@ -19,6 +19,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
+import { useFormat } from '../config/lang/format';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
@@ -32,9 +33,13 @@ import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VisibleRange } from '../utils/virtual/virtualizer';
 import { ColumnResizer, type ColumnResizerProps } from './ColumnResizer';
 import {
+  columnAlign,
+  columnType,
   columnValue,
+  formatCell,
   stickyOffsets,
   tableMinWidth,
+  type ColumnTypes,
   type SortState,
   type StickyOffsets,
   type DataTableColumn,
@@ -476,6 +481,7 @@ export const DataTableView = _component(
     ...rest
   }: DataTableViewProps<T>) => {
     const lang = useLang();
+    const format = useFormat();
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
@@ -498,12 +504,38 @@ export const DataTableView = _component(
       };
     });
 
+    // 每列的值类型（没写 type 时看第一个非空值）拼成字符串：类型没变时 shown 保持同一个引用，行组件不必重渲
+    const types = _derived(
+      columns
+        .map((column) =>
+          columnType(
+            column,
+            (function* () {
+              for (const row of rows) yield row.data;
+            })(),
+          ),
+        )
+        .join('|'),
+    );
+    /** 补上默认对齐与格式化的列：没写 align、cell 的列按值类型来 */
+    const shown = _derived.by(() => {
+      const list = types.split('|') as (keyof ColumnTypes)[];
+      return columns.map((column, position): DataTableColumn<T> => {
+        const type = list[position]!;
+        return {
+          ...column,
+          align: column.align ?? columnAlign(type),
+          cell: column.cell ?? ((row) => formatCell(columnValue(column, row), type, format)),
+        };
+      });
+    });
+
     /** 列的宽度：调整过的、列定义里的，或者没有（与其他没写宽度的列平分） */
     const widthOf = (column: DataTableColumn<T>) => widths[column.key] ?? column.width;
 
     const leadingWidth = () => (selectionMode ? SELECT_WIDTH : 0);
-    const offsets = _derived.by(() => stickyOffsets(columns, widthOf, leadingWidth()));
-    const minWidth = () => tableMinWidth(columns, widthOf, leadingWidth());
+    const offsets = _derived.by(() => stickyOffsets(shown, widthOf, leadingWidth()));
+    const minWidth = () => tableMinWidth(shown, widthOf, leadingWidth());
 
     function renderHeaderCell(column: DataTableColumn<T>) {
       const own = typeof propsHeaderCell === 'function' ? propsHeaderCell(column) : propsHeaderCell;
@@ -611,7 +643,7 @@ export const DataTableView = _component(
               {selectionMode && (
                 <col {...stylex.attrs(dataTableDynamicStyles.width(SELECT_WIDTH))} />
               )}
-              {columns.map((column) => {
+              {shown.map((column) => {
                 const width = widthOf(column);
                 return (
                   <col
@@ -654,7 +686,7 @@ export const DataTableView = _component(
                     )}
                   </th>
                 )}
-                {columns.map(renderHeaderCell)}
+                {shown.map(renderHeaderCell)}
               </tr>
               {indicator.value && rows.length > 0 && (
                 <tr aria-hidden="true">
@@ -687,7 +719,7 @@ export const DataTableView = _component(
                         {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
                       />
                     )}
-                    {columns.map((column, position) => (
+                    {shown.map((column, position) => (
                       <td
                         key={column.key}
                         {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
@@ -748,7 +780,7 @@ export const DataTableView = _component(
                     index={item.index}
                     selected={selectionMode != null && selectedSet.has(row.key)}
                     selectionMode={selectionMode}
-                    columns={columns}
+                    columns={shown}
                     density={density}
                     variant={variant}
                     striped={striped}

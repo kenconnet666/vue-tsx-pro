@@ -20,7 +20,10 @@ export const meta = {
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { DataTable, TreeDataTable } from '@vue-tsx-pro/ui';">
     <Example id="orders" title="一万条订单" demo={Orders}>
-      列定义里 <Code>cell</Code> 渲染单元格、<Code>value</Code>{' '}
+      列定义里 <Code>type</Code>{' '}
+      决定默认的格式与对齐（number、currency、percent、fileSize、date、dateTime，跟随语言；不写时按第一个值推断，数字靠右），
+      <Code>cell</Code> 自定义单元格，
+      <Code>value</Code>{' '}
       给排序用的值；点可排序的列标题在升序、降序、不排之间切换（本地按数字、日期、按语言的文字排，
       <Code>manualSort</Code> 时交给服务端）。<Code>selectionMode="multiple"</Code> 多一列勾选框；
       <Code>sticky</Code> 的列横向滚动时固定在两侧；<Code>resizable</Code>{' '}

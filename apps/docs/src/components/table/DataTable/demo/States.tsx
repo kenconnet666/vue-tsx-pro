@@ -22,7 +22,7 @@ const sample: Log[] = Array.from({ length: 6 }, (_, index) => ({
 }));
 
 const columns: DataTableColumn<Log>[] = [
-  { key: 'id', header: '#', width: 56, align: 'end' },
+  { key: 'id', header: '#', width: 56 },
   { key: 'level', header: '级别', width: 90 },
   { key: 'message', header: '内容', width: 260, wrap: true },
 ];

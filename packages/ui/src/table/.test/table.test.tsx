@@ -1,9 +1,12 @@
 // 列定义与排序、DataTable、TreeDataTable：虚拟滚动的行、排序、勾选、展开、加载与空状态（真实滚动与列宽拖动见浏览器测试）
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
-import { mount } from '../../utils/.test/mount';
-import { nextSort, sortRows, type SortState, type DataTableColumn } from '../columns';
+import { CalendarDate } from '@internationalized/date';
+import Decimal from 'decimal.js';
+import { hasStyles, mount } from '../../utils/.test/mount';
+import { columnType, nextSort, sortRows, type SortState, type DataTableColumn } from '../columns';
 import { DataTable } from '../DataTable';
+import { dataTableStyles } from '../DataTableView';
 import { TreeDataTable } from '../TreeDataTable';
 
 // happy-dom 不排版：给滚动容器一个 400px 的视口（行是虚拟滚动的）
@@ -48,6 +51,77 @@ describe('sortRows / nextSort', () => {
     expect(nextSort({ key: 'name', direction: 'ascending' }, 'name')!.direction).toBe('descending');
     expect(nextSort({ key: 'name', direction: 'descending' }, 'name')).toBeNull();
     expect(nextSort({ key: 'name', direction: 'descending' }, 'age')!.key).toBe('age');
+  });
+});
+
+describe('列的值类型', () => {
+  it('没写 type 时看第一个非空值：数字类 → number，日期 → date，ISO 字符串与其余 → text', () => {
+    const typeOf = (...values: unknown[]) =>
+      columnType<{ v: unknown }>({ key: 'v', header: '' }, values.map((v) => ({ v })) as never);
+    expect(typeOf(null, 3)).toBe('number');
+    expect(typeOf(new Decimal('1.5'))).toBe('number');
+    expect(typeOf(10n)).toBe('number');
+    expect(typeOf(new Date())).toBe('date');
+    expect(typeOf(new CalendarDate(2026, 10, 21))).toBe('date');
+    expect(typeOf('2026-10-21')).toBe('text');
+    expect(typeOf()).toBe('text');
+  });
+
+  it('没写 cell 时按类型与语言格式化；数字类默认靠结束边，写了 align、cell 的不动', async () => {
+    interface Line {
+      id: string;
+      count: number;
+      price: string;
+      ratio: Decimal;
+      size: number;
+      day: string;
+      at: Date;
+      note: string;
+    }
+    const lines: Line[] = [
+      {
+        id: 'a',
+        count: 12345,
+        price: '19999.9',
+        ratio: new Decimal('0.125'),
+        size: 1_234_567,
+        day: '2026-10-21',
+        at: new Date(2026, 9, 21, 14, 30),
+        note: '加急',
+      },
+    ];
+    const root = mount(() => (
+      <DataTable
+        aria-label="明细"
+        rows={lines}
+        rowKey={(line) => line.id}
+        columns={[
+          { key: 'count', header: '数量' },
+          { key: 'price', header: '金额', type: 'currency' },
+          { key: 'ratio', header: '占比', type: 'percent' },
+          { key: 'size', header: '大小', type: 'fileSize', align: 'center' },
+          { key: 'day', header: '日期', type: 'date' },
+          { key: 'at', header: '时间', type: 'dateTime' },
+          { key: 'note', header: '备注', cell: (line) => `[${line.note}]` },
+        ]}
+      />
+    ));
+    await flush();
+    const cells = [...root.querySelectorAll('tbody tr[aria-rowindex] td')];
+    expect(cells.map((td) => td.textContent)).toEqual([
+      '12,345',
+      '¥19,999.90',
+      '12.5%',
+      '1.2 MB',
+      '2026年10月21日',
+      '2026年10月21日 14:30',
+      '[加急]',
+    ]);
+    const headers = [...root.querySelectorAll('thead th')];
+    expect(hasStyles(headers[0]!, dataTableStyles.end)).toBe(true);
+    expect(hasStyles(cells[1]!, dataTableStyles.end)).toBe(true);
+    expect(hasStyles(cells[3]!, dataTableStyles.center)).toBe(true);
+    expect(hasStyles(cells[4]!, dataTableStyles.start)).toBe(true);
   });
 });
 

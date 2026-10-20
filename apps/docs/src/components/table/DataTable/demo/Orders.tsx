@@ -46,21 +46,12 @@ const orders: Order[] = Array.from({ length: 10_000 }, (_, index) => ({
   placedAt: new Date(LATEST - index * 37 * 60_000),
 }));
 
-const money = new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' });
-const time = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'short', timeStyle: 'short' });
-
 const columns: DataTableColumn<Order>[] = [
   { key: 'id', header: '订单号', width: 120, sortable: true, sticky: 'start' },
   { key: 'customer', header: '客户', width: 110, sortable: true },
   { key: 'city', header: '城市', width: 90 },
-  {
-    key: 'amount',
-    header: '金额',
-    width: 130,
-    align: 'end',
-    sortable: true,
-    cell: (order) => money.format(order.amount),
-  },
+  // 不写 cell：按 type 与当前语言格式化（金额用语言的币种，数字类靠右）
+  { key: 'amount', header: '金额', width: 130, type: 'currency', sortable: true },
   {
     key: 'status',
     header: '状态',
@@ -69,13 +60,7 @@ const columns: DataTableColumn<Order>[] = [
     sortable: true,
     cell: (order) => <Badge tone={order.status[0]}>{order.status[1]}</Badge>,
   },
-  {
-    key: 'placedAt',
-    header: '下单时间',
-    width: 160,
-    sortable: true,
-    cell: (order) => time.format(order.placedAt),
-  },
+  { key: 'placedAt', header: '下单时间', width: 180, type: 'dateTime', sortable: true },
   {
     key: 'actions',
     header: '操作',

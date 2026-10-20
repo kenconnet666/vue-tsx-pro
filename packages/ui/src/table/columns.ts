@@ -4,11 +4,13 @@
  *   const columns: DataTableColumn<Order>[] = [
  *     { key: 'id', header: '订单号', width: 120, sticky: 'start' },
  *     { key: 'customer', header: '客户', sortable: true },
- *     { key: 'amount', header: '金额', align: 'end', sortable: true, cell: (order) => format.currency(order.amount) },
+ *     { key: 'amount', header: '金额', type: 'currency', sortable: true },
  *   ];
  */
 import type { VNodeChild } from 'vue';
-import { createComparer, type SortValue } from '../utils/data/collation';
+import type { useFormat } from '../config/lang/format';
+import { createComparer, isDateValue, type SortValue } from '../utils/data/collation';
+import { isNumeric } from '../utils/data/numeric';
 
 /** 单元格内容的对齐 */
 export interface ColumnAligns {
@@ -18,6 +20,24 @@ export interface ColumnAligns {
   center: unknown;
   /** 结束边：数字、金额，方便对比位数 */
   end: unknown;
+}
+
+/** 列的值类型：不写 cell 时按它格式化（跟随语言），数字类默认靠结束边对齐 */
+export interface ColumnTypes {
+  /** 文字：原样显示 */
+  text: unknown;
+  /** 数字：按语言分组，1234.5 → 1,234.5 */
+  number: unknown;
+  /** 金额，语言的币种：19.9 → ¥19.90 */
+  currency: unknown;
+  /** 百分比：0.125 → 12.5% */
+  percent: unknown;
+  /** 文件大小（字节）：1234567 → 1.2 MB */
+  fileSize: unknown;
+  /** 日期：Date、DateValue 或 ISO 字符串 */
+  date: unknown;
+  /** 日期与时间 */
+  dateTime: unknown;
 }
 
 /** 固定在哪一侧（横向滚动时不动） */
@@ -34,15 +54,17 @@ export interface DataTableColumn<T> {
   key: string;
   /** 表头内容 */
   header: VNodeChild;
-  /** 单元格内容；不写时显示 value 的文字 */
+  /** 单元格内容；不写时按 type 格式化 value */
   cell?: (row: T, index: number) => VNodeChild;
+  /** 值的类型：决定默认的格式与对齐；不写时按第一个非空值推断（数字 → number，日期 → date，其余 text） */
+  type?: keyof ColumnTypes;
   /** 排序用的值；不写时取 row[key] */
   value?: (row: T) => SortValue;
   /** 宽度（px）；不写时与其他没写宽度的列平分剩余宽度。固定列一定要写（偏移量按它算） */
   width?: number;
   /** 拖动调整宽度时的最小宽度（px），默认 COLUMN_MIN_WIDTH（64） */
   minWidth?: number;
-  /** 对齐，默认 start */
+  /** 对齐；默认数字类（number、currency、percent、fileSize）靠 end，其余 start */
   align?: keyof ColumnAligns;
   /** 可以点表头排序 */
   sortable?: boolean;
@@ -129,6 +151,48 @@ export function tableMinWidth<T>(
 export function columnValue<T>(column: DataTableColumn<T>, row: T): SortValue {
   if (column.value) return column.value(row);
   return (row as Record<string, SortValue>)[column.key];
+}
+
+const NUMERIC_TYPES = new Set<keyof ColumnTypes>(['number', 'currency', 'percent', 'fileSize']);
+
+/** 列的值类型：写了 type 用它，否则看第一个非空值（ISO 字符串不猜，算文字） */
+export function columnType<T>(column: DataTableColumn<T>, rows: Iterable<T>): keyof ColumnTypes {
+  if (column.type) return column.type;
+  for (const row of rows) {
+    const value = columnValue(column, row);
+    if (value == null) continue;
+    if (isNumeric(value)) return 'number';
+    return value instanceof Date || isDateValue(value) ? 'date' : 'text';
+  }
+  return 'text';
+}
+
+/** 列的对齐：写了 align 用它，数字类靠结束边方便对比位数 */
+export function columnAlign(type: keyof ColumnTypes): keyof ColumnAligns {
+  return NUMERIC_TYPES.has(type) ? 'end' : 'start';
+}
+
+/** 没写 cell 时单元格的文字：按值类型与当前语言格式化；值与类型对不上（数字列里的文字）时原样显示 */
+export function formatCell(
+  value: SortValue,
+  type: keyof ColumnTypes,
+  format: ReturnType<typeof useFormat>,
+): string {
+  if (value == null) return '';
+  // 接口常把金额给成十进制字符串（'19.90'）：能读成数字的字符串也按数字格式化，且不经过浮点
+  const numeric =
+    isNumeric(value) ||
+    (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)));
+  if (numeric && type === 'number') return format.number(value);
+  if (numeric && type === 'currency') return format.currency(value);
+  if (numeric && type === 'percent')
+    return format.number(value, { style: 'percent', maximumFractionDigits: 1 });
+  if (typeof value === 'number' && type === 'fileSize') return format.fileSize(value);
+  const date = value instanceof Date || isDateValue(value) || typeof value === 'string';
+  if (date && type === 'date') return format.date(value);
+  if (date && type === 'dateTime')
+    return format.date(value, { dateStyle: 'medium', timeStyle: 'short' });
+  return String(value);
 }
 
 /** 点表头时的下一个排序：没排 → 升序 → 降序 → 不排 */
