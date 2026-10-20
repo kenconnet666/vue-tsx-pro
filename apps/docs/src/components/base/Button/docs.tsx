@@ -34,8 +34,9 @@ export default _component(() => () => (
         像文字链接，放在句子中间。
       </Example>
       <Example id="tones" title="色调" demo={Tones}>
-        三种色调与六种样式任意组合：<Code>neutral</Code> 用于不需要强调的操作（如“取消”），
-        <Code>danger</Code> 用于删除这类破坏性操作。
+        六种色调与六种样式任意组合，和 Badge、Alert 等是同一套色调：<Code>neutral</Code>{' '}
+        用于不需要强调的操作（如“取消”），<Code>danger</Code> 用于删除这类破坏性操作，
+        <Code>info</Code>、<Code>success</Code>、<Code>warning</Code> 用于和提示信息呼应的操作。
       </Example>
       <Example id="sizes" title="尺寸" demo={Sizes}>
         <Code>size</Code> 对应主题的字号档位，内边距、图标随之按比例缩放；不写时继承所在文字的字号。

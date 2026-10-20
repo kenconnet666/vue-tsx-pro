@@ -14,6 +14,7 @@ import { useDefaults } from '../config/defaults';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import type { StatusTone } from '../utils/style/tone-styles';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -31,16 +32,6 @@ export interface ButtonVariants {
   ghost: unknown;
   /** 看起来像链接（无底、无内边距、悬停下划线）：文字中间的操作 */
   link: unknown;
-}
-
-/** 按钮色调 */
-export interface ButtonTones {
-  /** 品牌色（默认） */
-  accent: unknown;
-  /** 中性色：不需要强调的操作，如“取消” */
-  neutral: unknown;
-  /** 危险：删除等破坏性操作 */
-  danger: unknown;
 }
 
 /** 按钮圆角 */
@@ -63,10 +54,10 @@ export interface ButtonOptions {
    */
   variant?: keyof ButtonVariants;
   /**
-   * 色调
+   * 色调：与 Badge、Alert 等同一套
    * @default 'accent'
    */
-  tone?: keyof ButtonTones;
+  tone?: StatusTone;
   /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
   size?: TextSize;
   /**
@@ -169,9 +160,18 @@ export const buttonRadiusStyles = stylex.create({
   full: { borderRadius: '_full' },
 });
 
-// 每种样式按色调各一组；中性色没有专门的实底色，用反色表面。
-// 实底悬停时混入黑色加深，而不是用 accentHover / dangerHover：两套主题里白字的对比度都只升不降
+// 每种样式按色调各一组。中性色没有专门的实底色，用反色表面；
+// info、success、warning 也没有实底色，同 tone-styles.ts：用文字色作底色、页面背景色作字色（对比度即“提示文字”那一组）。
+// 实底悬停时混入黑色加深（accent、danger）或混向正文色（info、success、warning），而不是用 accentHover / dangerHover：
+// 三套主题里字色的对比度都只升不降
 const solid = stylex.create({
+  neutral: {
+    color: '_inverseText',
+    backgroundColor: {
+      default: '_inverseSurface',
+      ':hover': 'color-mix(in oklab, _colors.inverseSurface 85%, _colors.background)',
+    },
+  },
   accent: {
     color: '_accentContrast',
     backgroundColor: {
@@ -179,11 +179,25 @@ const solid = stylex.create({
       ':hover': 'color-mix(in oklab, _colors.accent 85%, black)',
     },
   },
-  neutral: {
-    color: '_inverseText',
+  info: {
+    color: '_background',
     backgroundColor: {
-      default: '_inverseSurface',
-      ':hover': 'color-mix(in oklab, _colors.inverseSurface 85%, _colors.background)',
+      default: '_infoText',
+      ':hover': 'color-mix(in oklab, _colors.infoText 85%, _colors.text)',
+    },
+  },
+  success: {
+    color: '_background',
+    backgroundColor: {
+      default: '_successText',
+      ':hover': 'color-mix(in oklab, _colors.successText 85%, _colors.text)',
+    },
+  },
+  warning: {
+    color: '_background',
+    backgroundColor: {
+      default: '_warningText',
+      ':hover': 'color-mix(in oklab, _colors.warningText 85%, _colors.text)',
     },
   },
   danger: {
@@ -195,14 +209,36 @@ const solid = stylex.create({
   },
 });
 
+// info、success、warning 没有 SoftHover：浅色底混入四分之一的描边色。三套主题里文字对比度都还在 5.9 以上
 const soft = stylex.create({
+  neutral: {
+    color: '_text',
+    backgroundColor: { default: '_fill', ':hover': '_fillHover' },
+  },
   accent: {
     color: '_accentText',
     backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
   },
-  neutral: {
-    color: '_text',
-    backgroundColor: { default: '_fill', ':hover': '_fillHover' },
+  info: {
+    color: '_infoText',
+    backgroundColor: {
+      default: '_infoSoft',
+      ':hover': 'color-mix(in oklab, _colors.infoSoft 75%, _colors.infoBorder)',
+    },
+  },
+  success: {
+    color: '_successText',
+    backgroundColor: {
+      default: '_successSoft',
+      ':hover': 'color-mix(in oklab, _colors.successSoft 75%, _colors.successBorder)',
+    },
+  },
+  warning: {
+    color: '_warningText',
+    backgroundColor: {
+      default: '_warningSoft',
+      ':hover': 'color-mix(in oklab, _colors.warningSoft 75%, _colors.warningBorder)',
+    },
   },
   danger: {
     color: '_dangerText',
@@ -211,15 +247,39 @@ const soft = stylex.create({
 });
 
 const surface = stylex.create({
+  neutral: {
+    color: '_text',
+    borderColor: '_border',
+    backgroundColor: { default: '_surface', ':hover': '_fillHover' },
+  },
   accent: {
     color: '_accentText',
     borderColor: '_accentBorder',
     backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
   },
-  neutral: {
-    color: '_text',
-    borderColor: '_border',
-    backgroundColor: { default: '_surface', ':hover': '_fillHover' },
+  info: {
+    color: '_infoText',
+    borderColor: '_infoBorder',
+    backgroundColor: {
+      default: '_infoSoft',
+      ':hover': 'color-mix(in oklab, _colors.infoSoft 75%, _colors.infoBorder)',
+    },
+  },
+  success: {
+    color: '_successText',
+    borderColor: '_successBorder',
+    backgroundColor: {
+      default: '_successSoft',
+      ':hover': 'color-mix(in oklab, _colors.successSoft 75%, _colors.successBorder)',
+    },
+  },
+  warning: {
+    color: '_warningText',
+    borderColor: '_warningBorder',
+    backgroundColor: {
+      default: '_warningSoft',
+      ':hover': 'color-mix(in oklab, _colors.warningSoft 75%, _colors.warningBorder)',
+    },
   },
   danger: {
     color: '_dangerText',
@@ -229,15 +289,30 @@ const surface = stylex.create({
 });
 
 const outline = stylex.create({
+  neutral: {
+    color: '_text',
+    borderColor: '_border',
+    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+  },
   accent: {
     color: '_accentText',
     borderColor: '_accentBorder',
     backgroundColor: { default: 'transparent', ':hover': '_accentSoft' },
   },
-  neutral: {
-    color: '_text',
-    borderColor: '_border',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+  info: {
+    color: '_infoText',
+    borderColor: '_infoBorder',
+    backgroundColor: { default: 'transparent', ':hover': '_infoSoft' },
+  },
+  success: {
+    color: '_successText',
+    borderColor: '_successBorder',
+    backgroundColor: { default: 'transparent', ':hover': '_successSoft' },
+  },
+  warning: {
+    color: '_warningText',
+    borderColor: '_warningBorder',
+    backgroundColor: { default: 'transparent', ':hover': '_warningSoft' },
   },
   danger: {
     color: '_dangerText',
@@ -247,13 +322,25 @@ const outline = stylex.create({
 });
 
 const ghost = stylex.create({
+  neutral: {
+    color: '_text',
+    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+  },
   accent: {
     color: '_accentText',
     backgroundColor: { default: 'transparent', ':hover': '_accentSoft' },
   },
-  neutral: {
-    color: '_text',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+  info: {
+    color: '_infoText',
+    backgroundColor: { default: 'transparent', ':hover': '_infoSoft' },
+  },
+  success: {
+    color: '_successText',
+    backgroundColor: { default: 'transparent', ':hover': '_successSoft' },
+  },
+  warning: {
+    color: '_warningText',
+    backgroundColor: { default: 'transparent', ':hover': '_warningSoft' },
   },
   danger: {
     color: '_dangerText',
@@ -262,8 +349,11 @@ const ghost = stylex.create({
 });
 
 const link = stylex.create({
-  accent: { color: '_accentText' },
   neutral: { color: '_text' },
+  accent: { color: '_accentText' },
+  info: { color: '_infoText' },
+  success: { color: '_successText' },
+  warning: { color: '_warningText' },
   danger: { color: '_dangerText' },
 });
 
@@ -279,9 +369,7 @@ export const buttonLinkStyles = stylex.create({
 });
 
 /** 样式 × 色调 → 样式表：buttonVariantStyles[variant][tone] */
-export const buttonVariantStyles: Readonly<
-  Record<keyof ButtonVariants, StyleTable<keyof ButtonTones>>
-> = {
+export const buttonVariantStyles: Readonly<Record<keyof ButtonVariants, StyleTable<StatusTone>>> = {
   solid,
   soft,
   surface,

@@ -9,19 +9,8 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/number';
+import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-
-/** 进度条的色调 */
-export interface ProgressTones {
-  /** 品牌色（默认） */
-  accent: unknown;
-  /** 成功 */
-  success: unknown;
-  /** 警告 */
-  warning: unknown;
-  /** 危险 */
-  danger: unknown;
-}
 
 /** 角色与取值由组件管理 */
 export type ProgressManaged =
@@ -33,8 +22,8 @@ export interface ProgressProps extends PartProps<'div', ProgressManaged> {
   value?: number | null;
   /** 最大值，默认 100 */
   max?: number;
-  /** 色调，默认 accent */
-  tone?: keyof ProgressTones;
+  /** 色调（与 Badge、Alert 等同一套），默认 accent */
+  tone?: StatusTone;
   /** 字号档位：进度条的粗细随之缩放；不写时继承上下文字号 */
   size?: TextSize;
   /** 读屏念的取值文字，如 `(value, max) => \`已上传 ${value} / ${max} 个文件\``；默认是百分比 */
@@ -73,9 +62,12 @@ export const progressStyles = stylex.create({
   },
 });
 
-/** Progress 的样式：accent、success、warning、danger */
+// 和轨道（fill）之间要有 3:1：中性色用次要文字色，状态色用各自的文字色
+/** Progress 的样式：neutral、accent、info、success、warning、danger */
 export const progressToneStyles = stylex.create({
+  neutral: { backgroundColor: '_textMuted' },
   accent: { backgroundColor: '_accent' },
+  info: { backgroundColor: '_infoText' },
   success: { backgroundColor: '_successText' },
   warning: { backgroundColor: '_warningText' },
   danger: { backgroundColor: '_danger' },

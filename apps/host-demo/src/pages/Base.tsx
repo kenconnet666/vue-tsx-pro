@@ -392,7 +392,7 @@ export const Base = _component(() => {
         </div>
 
         <Section title="按钮 Button · LinkButton · IconButton · CopyButton">
-          {(['accent', 'neutral', 'danger'] as const).map((tone) => (
+          {(['neutral', 'accent', 'info', 'success', 'warning', 'danger'] as const).map((tone) => (
             <Flex key={tone} gap="sm" wrap align="center" class={`button-row-${tone}`}>
               {(['solid', 'soft', 'surface', 'outline', 'ghost', 'link'] as const).map(
                 (variant) => (

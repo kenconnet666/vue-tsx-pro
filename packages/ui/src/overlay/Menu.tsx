@@ -26,7 +26,6 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
-import type { ButtonTones } from '../base/button-core';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
@@ -344,8 +343,11 @@ function useItemShortcut(read: () => { shortcut?: string; disabled: boolean }, r
   });
 }
 
+/** 菜单项的色调：菜单里只区分普通操作与破坏性操作，其余状态色会让一列选项显得像警报 */
+export type MenuItemTone = 'neutral' | 'danger';
+
 /** 菜单项的外观：幽灵按钮，内容靠起始边排列 */
-export function menuItemSx(tone: keyof ButtonTones, disabled: boolean): StyleXStyles {
+export function menuItemSx(tone: MenuItemTone, disabled: boolean): StyleXStyles {
   return [
     itemStyles.row,
     tone === 'danger' ? itemStyles.danger : itemStyles.hoverable,
@@ -373,7 +375,7 @@ export interface MenuButtonItemProps
 /** 未声明的属性落到 button（role="menuitem"）上 */
 export interface MenuItemProps extends MenuButtonItemProps {
   /** 色调：删除等破坏性操作用 danger，默认 neutral */
-  tone?: Extract<keyof ButtonTones, 'neutral' | 'danger'>;
+  tone?: MenuItemTone;
   /** 执行（点击、Enter、空格）时调用；默认随后关闭菜单 */
   onAction?: () => void;
 }

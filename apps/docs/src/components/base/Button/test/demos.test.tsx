@@ -24,9 +24,9 @@ it('Variants：六种样式各不相同', () => {
   expect(new Set(buttons.map((button) => button.className)).size).toBe(6);
 });
 
-it('Tones：三种色调 × 六种样式', () => {
+it('Tones：六种色调 × 六种样式', () => {
   const buttons = mount(Tones).querySelectorAll('button');
-  expect(buttons).toHaveLength(18);
+  expect(buttons).toHaveLength(36);
 });
 
 it('Loading：点击后加载中（aria-busy），完成后恢复', async () => {

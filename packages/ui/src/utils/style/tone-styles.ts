@@ -1,5 +1,5 @@
 /**
- * 状态色调的样式表与默认图标：Badge、Tag、Alert、Toast 等“带颜色的标记与提示”共用。
+ * 状态色调的样式表与默认图标：Badge、Tag、Alert、Toast 等“带颜色的标记与提示”共用；按钮家族、Progress 等也用这一套色调。
  * 外观 = variant（实底 / 浅色底 / 浅色底加描边 / 描边）× tone（六种色调）。
  * 实底用该色调的文字色作底色、页面背景色作字色：两套主题里都满足 4.5:1（success、warning、info 没有专门的实底色）。
  */
@@ -11,9 +11,9 @@ import type { StyleTable } from './styles';
 
 /** 状态色调 */
 export interface StatusTones {
-  /** 中性：普通的标签、计数 */
+  /** 中性：普通的标签、计数，不需要强调的操作（如“取消”） */
   neutral: unknown;
-  /** 品牌色：新功能、选中 */
+  /** 品牌色：新功能、选中、主要操作 */
   accent: unknown;
   /** 信息：提示、说明 */
   info: unknown;
@@ -21,7 +21,7 @@ export interface StatusTones {
   success: unknown;
   /** 警告：需要注意、即将过期 */
   warning: unknown;
-  /** 危险：错误、失败、删除 */
+  /** 危险：错误、失败、删除等破坏性操作 */
   danger: unknown;
 }
 

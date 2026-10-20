@@ -22,9 +22,9 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { getCurrentInstance, h, render, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
-import type { ButtonTones } from '../base/button-core';
 import { ConfigContext, useConfig, useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
+import type { StatusTone } from '../utils/style/tone-styles';
 import { afterTransitions } from '../utils/style/transitions';
 import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
@@ -34,7 +34,7 @@ import { ModalCore, type ModalCoreProps } from './Modal';
 /** 未声明的属性落到 dialog 上 */
 export interface AlertDialogProps extends Omit<DialogProps, 'footer' | 'closable' | 'dismissible'> {
   /** 确认按钮的色调，默认 accent；删除等破坏性操作用 danger */
-  tone?: keyof ButtonTones;
+  tone?: StatusTone;
   /** 确认按钮的文字，默认取语言包（确定） */
   confirmText?: VNodeChild;
   /** 取消按钮的文字，默认取语言包（取消） */

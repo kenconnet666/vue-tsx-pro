@@ -118,7 +118,6 @@ export {
   type ButtonGroupState,
   type ButtonOptions,
   type ButtonRadii,
-  type ButtonTones,
   type ButtonVariants,
 } from './base/button-core';
 
@@ -326,7 +325,6 @@ export {
   progressWidthStyles,
   type ProgressManaged,
   type ProgressProps,
-  type ProgressTones,
 } from './feedback/Progress';
 export { Result, resultStyles, type ResultProps, type ResultStatuses } from './feedback/Result';
 export { Skeleton, skeletonStyles, type SkeletonProps } from './feedback/Skeleton';
@@ -408,6 +406,7 @@ export {
   type MenuItemContentProps,
   type MenuItemMark,
   type MenuItemProps,
+  type MenuItemTone,
   type MenuLinkItemProps,
   type MenuProps,
   type MenuRadioGroupProps,
