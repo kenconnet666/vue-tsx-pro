@@ -721,6 +721,7 @@ export {
   type TimeFieldProps,
   type TimeInput,
 } from './date/TimeField';
+export { TimePicker, timePickerStyles, type TimePickerProps } from './date/TimePicker';
 export {
   handleCalendarKeydown,
   useCalendarState,

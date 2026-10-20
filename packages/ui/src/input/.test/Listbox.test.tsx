@@ -157,6 +157,26 @@ describe('Listbox', () => {
     expect(picked).toBe('研发');
   });
 
+  it('onPick：点击与 Enter 都会调用，再选已选的那项也会（弹层里的列表据此关闭）', async () => {
+    const picks: string[] = [];
+    const root = mount(() => (
+      <Listbox
+        items={['09:00', '09:30']}
+        value="09:00"
+        required
+        onPick={(value) => picks.push(value)}
+        aria-label="时间"
+      />
+    ));
+    await nextTick();
+    root.querySelectorAll<HTMLElement>('[role="option"]')[0]!.click();
+    const list = root.querySelector<HTMLElement>('[role="listbox"]')!;
+    list.dispatchEvent(new FocusEvent('focus'));
+    list.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    list.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    expect(picks).toEqual(['09:00', '09:30']);
+  });
+
   it('虚拟滚动：一千个选项只渲染看得见的一部分；loading 且没有选项时显示骨架行', async () => {
     const many = Array.from({ length: 1000 }, (_, index) => ({
       value: String(index),

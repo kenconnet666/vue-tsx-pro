@@ -11,7 +11,7 @@ import Granularity from './demo/Granularity.tsx?demo';
 export const meta = {
   title: 'DatePicker 日期选择器',
   description: '输入框加弹出的日历：可以直接键入，也可以点选；也用来选年份、月份，或日期加时间。',
-  order: 4,
+  order: 5,
 };
 
 export default _component(() => () => (

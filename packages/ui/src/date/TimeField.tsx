@@ -1,6 +1,6 @@
 /**
  * 时间输入框：分段输入时、分（可选秒），12 / 24 小时制跟随语言（zh-CN 24 小时，en-US 12 小时加 AM / PM），也可以用 hourCycle 指定。
- * 参考 React Aria TimeField、原生 input type="time"。要弹出时、分列表用 TimePicker。
+ * 参考 React Aria TimeField、原生 input type="time"。要从按步长列出的时间里点选用 TimePicker。
  *
  *   <Field label="提醒时间"><TimeField value={_bind(time)} /></Field>
  *   <TimeField granularity="second" hourCycle="h12" value={_bind(at)} aria-label="打卡时间" />

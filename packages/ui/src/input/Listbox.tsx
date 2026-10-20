@@ -84,7 +84,7 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   renderOption?: (item: T, state: OptionRenderState) => VNodeChild;
   /** 没有选项时显示的内容；默认是 Empty（文案取语言包） */
   empty?: VNodeChild;
-  /** 点选了一项（Select 据此关闭） */
+  /** 点选了一项（点击或 Enter，再选已选的那项也会调用）：Select、弹层里的列表据此关闭 */
   onPick?: (value: string) => void;
   /** 选项的部件属性 */
   propsOption?: OptionProps<T>;
@@ -440,7 +440,7 @@ export function activeOptionId<T>(list: ListState<T>, id: string): string | unde
 /** 列表框共有的属性；未声明的属性落到 role="listbox" 的 div 上 */
 export interface ListboxBaseProps<T> extends Omit<
   ListboxViewProps<T>,
-  'list' | 'id' | 'multiple' | 'renderOption' | 'onPick'
+  'list' | 'id' | 'multiple' | 'renderOption'
 > {
   /** 列表的 id；在 Field 里时默认用 Field 给的 */
   id?: string;
@@ -470,6 +470,7 @@ export const Listbox = _component(
     disabled,
     id,
     children,
+    onPick,
     ...rest
   }: ListboxProps<T>) => {
     const generatedId = useId();
@@ -485,7 +486,9 @@ export const Listbox = _component(
 
     function onKeydown(event: KeyboardEvent) {
       if (control().disabled) return;
-      if (handleListKeydown(list, event, { space: true, typeahead: true })) event.preventDefault();
+      if (handleListKeydown(list, event, { space: true, typeahead: true }, onPick)) {
+        event.preventDefault();
+      }
     }
 
     return () => {
@@ -494,7 +497,13 @@ export const Listbox = _component(
       return (
         <ListboxView
           {...mergePartProps<ListboxViewProps<T>>(
-            { list, id: prefix, multiple: selectionMode === 'multiple', renderOption: children },
+            {
+              list,
+              id: prefix,
+              multiple: selectionMode === 'multiple',
+              renderOption: children,
+              onPick,
+            },
             rest as Partial<ListboxViewProps<T>>,
             {
               id: prefix,

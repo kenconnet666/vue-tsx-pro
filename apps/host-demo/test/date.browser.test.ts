@@ -146,3 +146,25 @@ describe('DatePicker', () => {
     expect((document.activeElement as HTMLElement).dataset.type).toBe('hour');
   });
 });
+
+describe('TimePicker', () => {
+  const openPanel = () => document.querySelector<HTMLElement>('[role="dialog"]:popover-open');
+
+  it('打开时焦点在列表上、高亮当前的值；↓ Enter 选中后关闭、写回、焦点回到按钮；id 不与输入框重复', async () => {
+    const button = $<HTMLButtonElement>('.time-picker-demo button[aria-haspopup="dialog"]');
+    await userEvent.click(button);
+    await expect.poll(() => openPanel()).not.toBeNull();
+    const list = openPanel()!.querySelector<HTMLElement>('[role="listbox"]')!;
+    expect(document.activeElement).toBe(list);
+    expect(document.getElementById(list.getAttribute('aria-activedescendant')!)!.textContent).toBe(
+      '10:30',
+    );
+    expect(document.querySelectorAll(`[id="${list.id}"]`)).toHaveLength(1);
+    await afterTransitions(openPanel()!);
+    await checkAxe(openPanel()!);
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect(openPanel()).toBeNull();
+    expect($('.picker-summary').textContent).toContain('闹钟：11:00');
+    expect(document.activeElement).toBe(button);
+  });
+});
