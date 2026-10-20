@@ -23,9 +23,13 @@ import type { DateTimeInput } from './DateTime';
 export interface CountdownParts {
   /** 剩余的毫秒数，到点后是 0 */
   total: number;
+  /** 整天数 */
   days: number;
+  /** 不满一天的小时（0–23） */
   hours: number;
+  /** 不满一小时的分钟（0–59） */
   minutes: number;
+  /** 不满一分钟的秒（0–59）；精度为 minute 时总是 0 */
   seconds: number;
   /** 已经到点 */
   ended: boolean;
