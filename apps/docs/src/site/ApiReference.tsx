@@ -41,7 +41,7 @@ export const ApiReference = _component(({ api }: ApiReferenceProps) => () => {
         <Flex key={item.name} direction="column" gap="md">
           {apis.length > 1 && (
             <H3 id={`api-${item.name}`} size="lg" anchor>
-              {item.name.replace(/(Base)?Props$/, '')}
+              {item.component}
             </H3>
           )}
           {item.description && <Paragraph tone="muted">{item.description}</Paragraph>}

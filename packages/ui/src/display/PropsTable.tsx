@@ -68,6 +68,8 @@ export interface ApiProp {
 export interface ComponentApi {
   /** Props 接口的名字 */
   name: string;
+  /** 组件名：ButtonProps → Button；泛型组件的 SelectBaseProps → Select */
+  component: string;
   /** 接口的说明（如“未声明的属性落到 button 上”） */
   description: string;
   /** 各个 prop */

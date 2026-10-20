@@ -187,14 +187,29 @@ function kindOf(name: string): keyof ApiPropKinds {
   return 'prop';
 }
 
-/** 一个 Props 接口的 API 数据；组件名是接口名去掉 Props（泛型组件的 XxxBaseProps 去掉 BaseProps） */
+/**
+ * Props 接口对应的组件：接口名去掉 Props（ButtonBaseProps → ButtonBase）；
+ * 没有这个导出时是泛型组件的 XxxBaseProps，再去掉 Base（SelectBaseProps → Select）
+ */
+function componentOf(checker: ts.TypeChecker, interfaceName: string): string {
+  const component = interfaceName.replace(/Props$/, '');
+  try {
+    exportedSymbol(checker, component);
+    return component;
+  } catch {
+    return component.replace(/Base$/, '');
+  }
+}
+
+/** 一个 Props 接口的 API 数据，默认值从对应组件的参数里读 */
 export function extractComponentApi(interfaceName: string): ComponentApi {
   const checker = currentProgram().getTypeChecker();
   const symbol = exportedSymbol(checker, interfaceName);
   const declaration = symbol.declarations?.[0];
   if (!declaration) throw new Error(`找不到 ${interfaceName} 的声明`);
   const type = checker.getDeclaredTypeOfSymbol(symbol);
-  const defaults = implementationDefaults(checker, interfaceName.replace(/(Base)?Props$/, ''));
+  const component = componentOf(checker, interfaceName);
+  const defaults = implementationDefaults(checker, component);
 
   const props: ApiProp[] = [];
   for (const property of checker.getPropertiesOfType(type)) {
@@ -222,6 +237,7 @@ export function extractComponentApi(interfaceName: string): ComponentApi {
   }
   return {
     name: interfaceName,
+    component,
     description: docOf(symbol, checker),
     props,
   };

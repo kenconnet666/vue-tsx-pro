@@ -8,3 +8,15 @@ if (typeof HTMLElement !== 'undefined' && !('showPopover' in HTMLElement.prototy
     togglePopover: () => false,
   });
 }
+
+// happy-dom 不加载 StyleX 的样式表，主题变量（--x…）读出来是空串，readToken 会按约定抛错。
+// 读取 token 的示例（ColorSwatch 列主题色）在这里只需渲染得出来：空值换成占位的 0s（时长能解析，颜色只是显示）
+if (typeof CSSStyleDeclaration !== 'undefined') {
+  const { prototype } = CSSStyleDeclaration;
+  const descriptor = Object.getOwnPropertyDescriptor(prototype, 'getPropertyValue')!;
+  const getPropertyValue = descriptor.value as (this: CSSStyleDeclaration, name: string) => string;
+  prototype.getPropertyValue = function (name: string) {
+    const value = getPropertyValue.call(this, name);
+    return value === '' && name.startsWith('--x') ? '0s' : value;
+  };
+}

@@ -26,7 +26,14 @@ describe('extractComponentApi', () => {
 
   it('泛型组件的 XxxBaseProps：默认值从组件 Xxx 的参数里读', () => {
     const palette = extractComponentApi('CommandPaletteBaseProps');
+    expect(palette.component).toBe('CommandPalette');
     expect(palette.props.find((item) => item.name === 'hotkey')!.default).toBe("'Mod+K'");
+  });
+
+  it('组件本身叫 XxxBase 时不去掉 Base', () => {
+    const base = extractComponentApi('ButtonBaseProps');
+    expect(base.component).toBe('ButtonBase');
+    expect(base.props.find((item) => item.name === 'type')!.default).toBe("'button'");
   });
 
   it('档位类型展开成可选值，带每个值的注释', () => {
