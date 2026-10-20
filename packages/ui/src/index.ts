@@ -647,7 +647,7 @@ export {
   type UiConfig,
   type UiRouter,
 } from './config/context';
-export { createUi, type UiOptions } from './config/createUi';
+export { createUi, documentStyles, type UiOptions } from './config/createUi';
 export {
   mergeDefaults,
   useDefaults,
@@ -659,6 +659,14 @@ export {
 export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
 export { lightTheme } from './config/theme/light';
 export { paperColors, paperFonts, paperShadows, paperTheme } from './config/theme/paper';
+export {
+  createThemePreference,
+  SYSTEM_THEME,
+  themeBootScript,
+  type ThemeBootColors,
+  type ThemePreference,
+  type ThemePreferenceOptions,
+} from './config/theme/preference';
 export { usePrefersDark } from './config/theme/prefers-dark';
 export {
   defineTheme,
@@ -889,6 +897,7 @@ export {
   type PresenceOptions,
 } from './utils/motion/presence';
 export { useReducedMotion } from './utils/motion/reduced-motion';
+export { revealTransition, type RevealOrigin } from './utils/motion/reveal';
 export {
   useSpring,
   useTween,

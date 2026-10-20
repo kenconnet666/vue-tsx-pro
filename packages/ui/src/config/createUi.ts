@@ -31,7 +31,17 @@ export interface UiOptions {
   router?: UiRouter;
   /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
   ripple?: boolean;
+  /**
+   * 页面根元素也用主题的背景色与文字色，默认 false。整页都由组件库主题管理的站点（如文档站）打开：
+   * 页面边缘、回弹滚动露出的地方不再是浏览器的默认色；配合 themeBootScript 时接手它写的行内颜色
+   */
+  paintDocument?: boolean;
 }
+
+/** paintDocument 时页面根元素的样式 */
+export const documentStyles = stylex.create({
+  page: { backgroundColor: '_background', color: '_text' },
+});
 
 /**
  * 应用级配置的 Vue 插件：`app.use(createUi({ theme: { light: lightTheme, dark: darkTheme } }))`。
@@ -62,7 +72,13 @@ export function createUi(options: UiOptions = {}): Plugin {
         });
         // 应用级没有容器元素，主题变量挂在页面根元素上；变量名经过 StyleX 哈希，不会与宿主冲突
         if (options.theme && typeof document !== 'undefined') {
-          watchEffect((onCleanup) => onCleanup(applyTheme(document.documentElement, theme.value)));
+          const root = document.documentElement;
+          // themeBootScript 在应用加载前写的行内颜色：交给主题的 class
+          if (options.paintDocument) root.style.removeProperty('background-color');
+          if (options.paintDocument) root.style.removeProperty('color');
+          watchEffect((onCleanup) =>
+            onCleanup(applyTheme(root, theme.value, options.paintDocument ?? false)),
+          );
         }
       });
     },
@@ -70,10 +86,10 @@ export function createUi(options: UiOptions = {}): Plugin {
 }
 
 /** 把主题的 class、CSS 变量与 data-theme 写到元素上，返回撤销函数 */
-function applyTheme(element: HTMLElement, theme: Theme) {
+function applyTheme(element: HTMLElement, theme: Theme, paint: boolean) {
   const classes =
     stylex
-      .attrs(...theme.styles)
+      .attrs(...theme.styles, paint && documentStyles.page)
       .class?.split(' ')
       .filter(Boolean) ?? [];
   const variables = themeVariables(theme);
