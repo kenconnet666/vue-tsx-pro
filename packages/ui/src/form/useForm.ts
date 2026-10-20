@@ -243,9 +243,7 @@ function cloneValue<T>(value: T): T {
   if (raw === null || typeof raw !== 'object') return raw;
   const prototype = Object.getPrototypeOf(raw);
   if (prototype !== Object.prototype && prototype !== null) return raw;
-  return Object.fromEntries(
-    Object.entries(raw).map(([key, item]) => [key, cloneValue(item)]),
-  ) as T;
+  return Object.fromEntries(Object.entries(raw).map(([key, item]) => [key, cloneValue(item)])) as T;
 }
 
 /**
