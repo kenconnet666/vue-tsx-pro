@@ -62,6 +62,14 @@ export const darkColors = stylex.createTheme(colors, {
   codeAttribute: '#dbb594',
   codeInserted: '#132d21',
   codeDeleted: '#3b1219',
+  chart1: '#3e63dd',
+  chart2: '#12a594',
+  chart3: '#f76b15',
+  chart4: '#e93d82',
+  chart5: '#6e56cf',
+  chart6: '#00a2c7',
+  chart7: '#46a758',
+  chart8: '#ffc53d',
 });
 
 // Radix Themes 的暗色阴影：深色背景上阴影要更重才看得出层次

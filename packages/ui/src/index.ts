@@ -268,6 +268,7 @@ export {
   type SortableItemState,
   type SortableProps,
 } from './display/Sortable';
+export { Stat, statStyles, type StatProps } from './display/Stat';
 export {
   Timeline,
   timelineStyles,

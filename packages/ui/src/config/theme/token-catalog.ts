@@ -310,6 +310,47 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         value: '#feebec',
         description: 'diff 删除行的底色。red 3：亮色 `#feebec`，暗色 `#3b1219`',
       },
+      {
+        name: 'chart1',
+        value: '#3e63dd',
+        description: '第 1 个系列：跟随品牌色。indigo 9：两套主题都是 `#3e63dd`',
+      },
+      {
+        name: 'chart2',
+        value: '#0d9b8a',
+        description: '第 2 个系列。teal：亮色 10 级 `#0d9b8a`，暗色 9 级 `#12a594`',
+      },
+      {
+        name: 'chart3',
+        value: '#ef5f00',
+        description: '第 3 个系列。orange：亮色 10 级 `#ef5f00`，暗色 9 级 `#f76b15`',
+      },
+      {
+        name: 'chart4',
+        value: '#e93d82',
+        description: '第 4 个系列。crimson 9：两套主题都是 `#e93d82`',
+      },
+      {
+        name: 'chart5',
+        value: '#6e56cf',
+        description: '第 5 个系列。violet 9：两套主题都是 `#6e56cf`',
+      },
+      {
+        name: 'chart6',
+        value: '#0797b9',
+        description: '第 6 个系列。cyan：亮色 10 级 `#0797b9`，暗色 9 级 `#00a2c7`',
+      },
+      {
+        name: 'chart7',
+        value: '#3e9b4f',
+        description: '第 7 个系列。grass：亮色 10 级 `#3e9b4f`，暗色 9 级 `#46a758`',
+      },
+      {
+        name: 'chart8',
+        value: '#ab6400',
+        description:
+          '第 8 个系列。amber：亮色 11 级 `#ab6400`（9、10 级在浅色背景上不到 2:1），暗色 9 级 `#ffc53d`',
+      },
     ],
   },
   {

@@ -34,6 +34,8 @@ export const enUS: Lang = {
   tableSelectRow: (row) => `Select row ${row}`,
   tableResizeColumn: (column) => `Resize column “${column}”`,
   tableEmpty: 'No data',
+  chartEmpty: 'No data',
+  chartCategory: 'Category',
   treeToggle: (row) => `Children of ${row}`,
   fileDrop: 'Click or drop files here',
   fileTooLarge: (max) => `File must be at most ${max}`,

@@ -74,6 +74,10 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   ['focusRing', 'background', UI, '焦点环'],
   ['focusRing', 'surface', UI, '焦点环'],
   ['accent', 'surface', UI, '选中的勾选框、开关'],
+  ...Array.from({ length: 8 }, (_, index) => `chart${index + 1}`).flatMap((fg): ContrastPair[] => [
+    [fg, 'background', UI, '图表系列'],
+    [fg, 'surface', UI, '图表系列'],
+  ]),
 ];
 
 /** 一处对比度不够的组合 */

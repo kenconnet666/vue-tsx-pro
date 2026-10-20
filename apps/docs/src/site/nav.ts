@@ -34,6 +34,7 @@ const CATEGORIES: [string, string][] = [
   ['input', '输入'],
   ['form', '表单'],
   ['table', '表格'],
+  ['charts', '图表'],
   ['config', '配置'],
 ];
 

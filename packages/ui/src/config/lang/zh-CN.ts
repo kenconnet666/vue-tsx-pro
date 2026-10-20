@@ -33,6 +33,8 @@ export const zhCN: Lang = {
   tableSelectRow: (row) => `选择第 ${row} 行`,
   tableResizeColumn: (column) => `调整“${column}”的列宽`,
   tableEmpty: '暂无数据',
+  chartEmpty: '暂无数据',
+  chartCategory: '类目',
   treeToggle: (row) => `${row} 的子项`,
   fileDrop: '点击或拖放文件到这里',
   fileTooLarge: (max) => `文件不能超过 ${max}`,

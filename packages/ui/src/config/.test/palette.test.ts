@@ -38,6 +38,14 @@ const steps: Record<string, [string, string]> = {
   codeAttribute: ['brown11', 'brownDark11'],
   codeInserted: ['green3', 'greenDark3'],
   codeDeleted: ['red3', 'redDark3'],
+  // 图表系列（chart1 跟随品牌色）：取能在背景上到 3:1 的最浅一级，见 tokens.stylex.ts
+  chart2: ['teal10', 'tealDark9'],
+  chart3: ['orange10', 'orangeDark9'],
+  chart4: ['crimson9', 'crimsonDark9'],
+  chart5: ['violet9', 'violetDark9'],
+  chart6: ['cyan10', 'cyanDark9'],
+  chart7: ['grass10', 'grassDark9'],
+  chart8: ['amber11', 'amberDark9'],
 };
 
 /**

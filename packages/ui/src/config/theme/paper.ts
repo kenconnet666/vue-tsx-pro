@@ -64,6 +64,15 @@ export const paperColors = stylex.createTheme(colors, {
   codeAttribute: '#764f14',
   codeInserted: '#e3e6c6',
   codeDeleted: '#f3dccb',
+  // 图表系列：纸色上取能到 3:1 的一级，偏冷的几种取 11 级
+  chart1: '#2f4b8f',
+  chart2: '#008573',
+  chart3: '#cc4e00',
+  chart4: '#e93d82',
+  chart5: '#6e56cf',
+  chart6: '#107d98',
+  chart7: '#3e9b4f',
+  chart8: '#ab6400',
 });
 
 /** 纸张主题的阴影：暖棕色，比亮色更轻，像纸放在桌面上 */

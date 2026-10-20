@@ -93,6 +93,10 @@ export interface Lang {
   readonly tableResizeColumn: (column: string) => string;
   /** 表格没有数据时的提示，默认“暂无数据” */
   readonly tableEmpty: string;
+  /** 图表没有数据时的提示，默认“暂无数据” */
+  readonly chartEmpty: string;
+  /** 图表的数据表（给读屏）里类目那一列的表头，默认“类目” */
+  readonly chartCategory: string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
   /** 选择文件区域的提示，默认“点击或拖放文件到这里” */

@@ -10,6 +10,7 @@ export const UI_DEPENDENCIES = [
   '@internationalized/date',
   '@lucide/icons',
   '@radix-ui/colors',
+  '@unovis/ts',
   'animejs',
   'culori/fn',
   'shiki/core',

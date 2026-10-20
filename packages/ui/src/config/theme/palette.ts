@@ -134,6 +134,8 @@ export const ACCENT_STEPS = {
   focusRing: [9, 9],
   selection: [5, 5],
   codeKeyword: [11, 11],
+  // 图表的第一个系列跟随品牌色
+  chart1: [9, 9],
 } as const satisfies Record<string, [number, number]>;
 
 /** 中性色 token → [亮色取第几级, 暗色取第几级]（1–2 背景，3–5 填充，6–8 边框，11–12 文字） */

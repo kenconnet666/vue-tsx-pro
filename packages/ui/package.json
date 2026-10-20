@@ -16,6 +16,11 @@
       "types": "./dist/config/shiki.d.ts",
       "default": "./dist/config/shiki.js"
     },
+    "./charts": {
+      "@vue-tsx-pro/source": "./src/charts/index.ts",
+      "types": "./dist/charts/index.d.ts",
+      "default": "./dist/charts/index.js"
+    },
     "./vue-router": {
       "@vue-tsx-pro/source": "./src/config/vue-router.ts",
       "types": "./dist/config/vue-router.d.ts",
