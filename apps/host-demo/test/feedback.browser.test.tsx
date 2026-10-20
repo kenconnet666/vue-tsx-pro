@@ -280,7 +280,8 @@ describe('Toast', () => {
     const [first, second] = items();
     close(first!).focus();
     close(first!).click();
-    await expect.poll(() => region().querySelectorAll('li').length).toBe(1);
+    // 离场动画结束才移除：CI 上 Windows 的 Firefox 偶尔超过默认的 1 秒
+    await expect.poll(() => region().querySelectorAll('li').length, { timeout: 3000 }).toBe(1);
     expect(document.activeElement).toBe(close(second!));
   });
 
