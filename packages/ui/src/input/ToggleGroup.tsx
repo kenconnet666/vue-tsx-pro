@@ -16,12 +16,12 @@ import {
   buttonContent,
   buttonSx,
   useButtonAppearance,
+  useButtonBehavior,
   type ButtonOptions,
 } from '../base/button-core';
 import type { IconData, IconProps } from '../base/Icon';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { useFieldControl } from '../form/Field';
@@ -234,7 +234,11 @@ export const ToggleItem = _component(
     ...rest
   }: ToggleItemProps) => {
     const group = ToggleGroupContext.inject();
-    const rippleHandlers = useRipple(() => group.ripple);
+    // 与 Button 同一套行为：不可用、拦截点击、波纹、状态 data 属性
+    const behavior = useButtonBehavior(
+      () => ({ disabled: disabled || group.disabled, loading: false, ripple: group.ripple }),
+      () => () => group.toggle(value),
+    );
     // 选中的是浅色底，其余是幽灵按钮；尺寸跟随组
     const appearance = useButtonAppearance(
       () => ({ variant: undefined, tone: 'neutral', size: group.size, radius: radius ?? 'sm' }),
@@ -263,14 +267,11 @@ export const ToggleItem = _component(
             {
               type: 'button',
               'aria-pressed': pressed,
-              disabled: off,
               // 使用方的 onClick 先执行，preventDefault 可以拦下切换（mergeProps 的规则）
-              onClick: () => group.toggle(value),
-              ...rippleHandlers,
+              ...behavior(),
             },
           )}
           data-state={pressed ? 'on' : 'off'}
-          data-disabled={off || undefined}
         >
           {buttonContent({ icon, propsIcon, propsContent, children }, { loading: false })}
         </button>

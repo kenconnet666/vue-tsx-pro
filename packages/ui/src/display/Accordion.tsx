@@ -15,10 +15,11 @@ import { ChevronDown } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { h, useId, type VNodeChild } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
 import { toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { disclosureStyles } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { Collapse, type CollapseProps } from './Collapse';
 
@@ -63,33 +64,24 @@ export const accordionStyles = stylex.create({
     borderBottomColor: '_borderMuted',
   },
   heading: { margin: 0, fontSize: 'inherit', fontWeight: 'inherit' },
+  // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
   trigger: {
-    boxSizing: 'border-box',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: '_md',
     width: '_full',
     minHeight: '_minTarget',
-    margin: 0,
     paddingBlock: '_md',
     paddingInline: '_sm',
-    borderWidth: 0,
     borderRadius: '_sm',
     backgroundColor: { default: 'transparent', ':hover': '_fill' },
     color: '_text',
-    font: 'inherit',
     fontWeight: '_semibold',
     textAlign: 'start',
-    cursor: 'pointer',
-    transition: 'background-color _durations.sm _easings.standard',
   },
-  triggerDisabled: { opacity: '_disabled', cursor: 'not-allowed' },
-  chevron: {
-    flexShrink: 0,
-    color: '_textMuted',
-    transition: 'rotate _durations.md _easings.standard',
-  },
+  triggerDisabled: { opacity: '_disabled' },
+  chevron: { flexShrink: 0, color: '_textMuted' },
   chevronOpen: { rotate: '180deg' },
   content: { paddingInline: '_sm', paddingBlockEnd: '_md', color: '_text' },
 });
@@ -176,7 +168,7 @@ export interface AccordionItemProps extends PartProps<'div', 'title'> {
   /** 标题（h2–h6）的部件属性 */
   propsHeading?: PartProps<'h3'>;
   /** 标题按钮的部件属性 */
-  propsTrigger?: PartProps<'button', 'aria-expanded' | 'aria-controls' | 'type'>;
+  propsTrigger?: Omit<Partial<ButtonBaseProps>, 'aria-expanded' | 'aria-controls'>;
   /** 展开箭头的部件属性 */
   propsChevron?: Partial<IconProps>;
   /** 内容区（Collapse，role="region"）的部件属性 */
@@ -217,18 +209,11 @@ export const AccordionItem = _component(
       const off = disabled || accordion.disabled;
       const state = open ? 'open' : 'closed';
       const trigger = (
-        <button
-          {...mergeAttrs<'button'>(
-            {
-              sx: [
-                accordionStyles.trigger,
-                focusRingStyles.visible,
-                off && accordionStyles.triggerDisabled,
-              ],
-            },
+        <ButtonBase
+          {...mergePartProps<ButtonBaseProps>(
+            { sx: [accordionStyles.trigger, off && accordionStyles.triggerDisabled] },
             propsTrigger,
             {
-              type: 'button',
               id: triggerId,
               disabled: off,
               'aria-expanded': open,
@@ -244,12 +229,16 @@ export const AccordionItem = _component(
             {...mergePartProps<IconProps>(
               {
                 icon: ChevronDown,
-                sx: [accordionStyles.chevron, open && accordionStyles.chevronOpen],
+                sx: [
+                  accordionStyles.chevron,
+                  disclosureStyles.icon,
+                  open && accordionStyles.chevronOpen,
+                ],
               },
               propsChevron,
             )}
           />
-        </button>
+        </ButtonBase>
       );
       return (
         <div

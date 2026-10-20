@@ -26,6 +26,7 @@ import { flattenTree, useTreeExpansion, type TreeAccessors } from '../utils/data
 import { columnValue, sortRows, type SortState } from './columns';
 import { DataTable, type DataTableProps } from './DataTable';
 import type { DataTableRowModel } from './DataTableView';
+import { disclosureStyles } from '../utils/style/transitions';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
 export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSort' | 'leading'> {
@@ -43,10 +44,9 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSo
   indent?: number;
 }
 
-/** TreeDataTable 的样式：toggle、chevron、chevronOpen、placeholder */
+/** TreeDataTable 的样式：toggle、chevronOpen、placeholder */
 export const treeDataTableStyles = stylex.create({
   toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
-  chevron: { transition: 'rotate _durations.sm _easings.standard' },
   chevronOpen: { rotate: '90deg' },
   // 叶子没有按钮，用同样宽的占位让文字对齐
   placeholder: { flexShrink: 0, width: '1.5em' },
@@ -114,7 +114,7 @@ export const TreeDataTable = _component(
               sx={treeDataTableStyles.toggle}
               propsIcon={{
                 flipInRtl: true,
-                sx: [treeDataTableStyles.chevron, open && treeDataTableStyles.chevronOpen],
+                sx: [disclosureStyles.icon, open && treeDataTableStyles.chevronOpen],
               }}
               onClick={() => void expansion.setOpen(model.data, model.key, !open)}
             />

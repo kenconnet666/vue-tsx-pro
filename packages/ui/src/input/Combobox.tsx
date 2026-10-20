@@ -36,6 +36,7 @@ import {
 } from './control';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
+import { disclosureStyles } from '../utils/style/transitions';
 import {
   activeOptionId,
   ListboxView,
@@ -114,10 +115,9 @@ export interface ComboboxBaseProps<T> extends PartProps<'input', ComboboxManaged
 /** 组合框的属性；items 不是 ListboxOption 时要给 toOption */
 export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapping<T>;
 
-/** Combobox 的样式：popover、chevron、chevronOpen、loading */
+/** Combobox 的样式：popover、chevronOpen、loading */
 export const comboboxStyles = stylex.create({
   popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
-  chevron: { transition: 'rotate _durations.sm _easings.standard' },
   chevronOpen: { rotate: '180deg' },
   loading: {
     display: 'flex',
@@ -336,7 +336,7 @@ export const Combobox = _component(
                 {
                   sx: [
                     controlStyles.button,
-                    comboboxStyles.chevron,
+                    disclosureStyles.icon,
                     open && comboboxStyles.chevronOpen,
                   ],
                   radius: 'full',

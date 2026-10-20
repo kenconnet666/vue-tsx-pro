@@ -17,6 +17,7 @@ import { ChevronRight } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, watch, type VNodeChild } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
 import { useRouterLink } from '../utils/dom/link';
@@ -176,7 +177,7 @@ export interface NavGroupProps extends PartProps<'li'> {
   /** 是否展开：父级写 open={_bind(x)}；含当前页时自动展开 */
   open?: boolean;
   /** 标题按钮的部件属性 */
-  propsTrigger?: PartProps<'button', 'aria-expanded' | 'aria-controls'>;
+  propsTrigger?: Omit<Partial<ButtonBaseProps>, 'aria-expanded' | 'aria-controls'>;
   /** 展开区（Collapsible）的部件属性 */
   propsContent?: Partial<CollapsibleProps>;
   /** 里面的列表（ul）的部件属性 */
@@ -218,17 +219,9 @@ export const NavGroup = _component(
           {...mergePartProps<CollapsibleProps>(
             {
               trigger: (props) => (
-                <button
-                  {...mergeAttrs<'button'>(
-                    {
-                      sx: [
-                        itemStyles.row,
-                        itemStyles.hoverable,
-                        navListStyles.row,
-                        focusRingStyles.visible,
-                      ],
-                      type: 'button',
-                    },
+                <ButtonBase
+                  {...mergePartProps<ButtonBaseProps>(
+                    { sx: [itemStyles.row, itemStyles.hoverable, navListStyles.row] },
                     propsTrigger,
                     props,
                   )}
@@ -240,7 +233,7 @@ export const NavGroup = _component(
                     flipInRtl
                     sx={[navListStyles.chevron, open && navListStyles.chevronOpen]}
                   />
-                </button>
+                </ButtonBase>
               ),
             },
             propsContent,

@@ -17,6 +17,7 @@ import { focusAfterRemoval } from '../utils/dom/focus';
 import { usePresence } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
+import { presenceStyles } from '../utils/style/transitions';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {
@@ -80,10 +81,10 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
   children?: VNodeChild;
 }
 
-/** Alert 的样式：root、icon、body、title、description、action、close、closing */
+/** Alert 的样式：root、icon、body、title、description、action、close */
 export const alertStyles = stylex.create({
+  // 进场与离场的淡入淡出用 presenceStyles
   root: {
-    transition: 'opacity _durations.sm _easings.enter',
     boxSizing: 'border-box',
     display: 'flex',
     alignItems: 'flex-start',
@@ -99,7 +100,6 @@ export const alertStyles = stylex.create({
   description: { color: '_text' },
   action: { flexShrink: 0, alignSelf: 'center' },
   close: { flexShrink: 0, marginBlock: 'calc(-1 * _space.xs)', color: 'inherit' },
-  closing: { opacity: 0, transition: 'opacity _durations.sm _easings.exit' },
 });
 
 const ROLES = { off: undefined, polite: 'status', assertive: 'alert' } as const;
@@ -142,8 +142,9 @@ export const Alert = _component(
             {
               sx: [
                 alertStyles.root,
+                presenceStyles.fade,
                 statusToneSx(appearance().variant, tone),
-                closing && alertStyles.closing,
+                closing && presenceStyles.leaving,
               ],
             },
             rest,

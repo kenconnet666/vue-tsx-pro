@@ -15,6 +15,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
@@ -24,7 +25,6 @@ import { Skeleton, type SkeletonProps } from '../feedback/Skeleton';
 import { Checkbox } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
 import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -128,7 +128,7 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   /** 加载中占位的部件属性 */
   propsSkeleton?: Partial<SkeletonProps>;
   /** 可排序列标题里的排序按钮的部件属性 */
-  propsSortButton?: PartProps<'button', 'type'>;
+  propsSortButton?: Partial<ButtonBaseProps>;
   /** 列宽调整手柄的部件属性 */
   propsResizer?: Partial<ColumnResizerProps>;
 }
@@ -211,19 +211,13 @@ export const dataTableStyles = stylex.create({
   // 有起始边的固定列时，勾选列也固定在最前面
   stickySelect: { position: 'sticky', zIndex: 1, insetInlineStart: 0 },
   selectCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
+  // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
   sortButton: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '_xs',
     maxWidth: '_full',
-    margin: 0,
-    padding: 0,
-    borderWidth: 0,
-    backgroundColor: 'transparent',
     color: { default: 'inherit', ':hover': '_text' },
-    font: 'inherit',
-    textAlign: 'inherit',
-    cursor: 'pointer',
   },
   sortLabel: { overflow: 'hidden', textOverflow: 'ellipsis' },
   sortIcon: { flexShrink: 0 },
@@ -478,11 +472,11 @@ export const DataTableView = _component(
           data-sticky={column.sticky}
         >
           {column.sortable ? (
-            <button
-              {...mergeAttrs<'button'>(
-                { sx: [dataTableStyles.sortButton, focusRingStyles.visible] },
+            <ButtonBase
+              {...mergePartProps<ButtonBaseProps>(
+                { sx: dataTableStyles.sortButton },
                 propsSortButton,
-                { type: 'button', onClick: () => onSortClick?.(column.key) },
+                { onClick: () => onSortClick?.(column.key) },
               )}
             >
               <span {...stylex.attrs(dataTableStyles.sortLabel)}>{column.header}</span>
@@ -496,7 +490,7 @@ export const DataTableView = _component(
                 }
                 sx={[dataTableStyles.sortIcon, sorted && dataTableStyles.sortActive]}
               />
-            </button>
+            </ButtonBase>
           ) : (
             column.header
           )}

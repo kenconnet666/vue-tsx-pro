@@ -13,6 +13,7 @@ import { useDefaults } from '../config/defaults';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 按钮样式 */
@@ -88,34 +89,46 @@ export interface ButtonContentOptions {
   children?: VNodeChild;
 }
 
-/** 按钮家族 的样式：root、square、fullWidth、disabled、content、hidden 等 */
-export const buttonStyles = stylex.create({
+/** 按钮的基础样式：去掉默认外观，继承文字样式，指针与触摸的反馈；Button 家族也用它 */
+export const buttonBaseStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
+    margin: 0,
+    padding: 0,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    color: 'inherit',
+    fontFamily: 'inherit',
+    fontSize: 'inherit',
+    lineHeight: 'inherit',
+    textAlign: 'inherit',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    userSelect: 'none',
+    // 触摸时不等双击缩放的判定，点击立即响应
+    touchAction: 'manipulation',
+    WebkitTapHighlightColor: 'transparent',
+  },
+  disabled: { cursor: 'not-allowed' },
+});
+
+/** 按钮家族 的样式：root、square、fullWidth、disabled、content、hidden 等 */
+export const buttonStyles = stylex.create({
+  // 去掉默认外观、指针与触摸反馈、颜色过渡来自 buttonBaseStyles 与 interactionTransitions（buttonSx 里排在前面）
+  root: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '_sm',
     minHeight: 'max(_sizes.control, _sizes.minTarget)',
-    margin: 0,
     paddingBlock: '_xs',
     paddingInline: '_lg',
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: 'transparent',
-    backgroundColor: 'transparent',
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
     fontWeight: '_semibold',
     lineHeight: '_tight',
-    textDecoration: 'none',
     whiteSpace: 'nowrap',
-    cursor: 'pointer',
-    userSelect: 'none',
-    // 触摸时不等双击缩放的判定，点击立即响应
-    touchAction: 'manipulation',
-    transition:
-      'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard, color _durations.sm _easings.standard',
   },
   // 图标按钮：宽高相等
   square: {
@@ -287,6 +300,8 @@ export function buttonSx(
   state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
 ): StyleXStyles {
   return [
+    buttonBaseStyles.root,
+    interactionTransitions.colors,
     buttonStyles.root,
     focusRingStyles.visible,
     rippleHostStyles.host,

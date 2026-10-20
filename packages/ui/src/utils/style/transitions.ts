@@ -10,7 +10,6 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 
-// 写明类型：导出的 stylex.create 结果若靠推导，类型声明里会引用 StyleX 内部无法命名的类型
 /** 顶层元素的进出场过渡：fade 淡入淡出、scale 缩放加淡入、backdrop 模态遮罩的淡入 */
 export const transitions = stylex.create({
   /** 淡入淡出 */
@@ -65,6 +64,32 @@ export const transitions = stylex.create({
       },
     },
   },
+});
+
+/** 交互状态的过渡：悬停、按下、选中、聚焦时颜色与阴影的变化（按钮、列表项、标签、输入框外壳共用） */
+export const interactionTransitions = stylex.create({
+  /** 背景色、边框色、文字色、阴影在 durations.sm 内过渡 */
+  colors: {
+    transition:
+      'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard, color _durations.sm _easings.standard, box-shadow _durations.sm _easings.standard',
+  },
+});
+
+/** 展开指示（chevron）的旋转过渡；旋转角度由各组件给（右指向下 90°，下指向上 180°） */
+export const disclosureStyles = stylex.create({
+  /** 旋转在 durations.sm 内过渡 */
+  icon: { transition: 'rotate _durations.sm _easings.standard' },
+});
+
+/**
+ * 配合 usePresence 的淡入淡出：进场用 enter 缓动，离场（presence.state 为 closed）淡出到 0 用 exit 缓动。
+ *   sx: [styles.root, presenceStyles.fade, presence.state === 'closed' && presenceStyles.leaving]
+ */
+export const presenceStyles = stylex.create({
+  /** 进场 */
+  fade: { transition: 'opacity _durations.sm _easings.enter' },
+  /** 离场：淡出 */
+  leaving: { opacity: 0, transition: 'opacity _durations.sm _easings.exit' },
 });
 
 /**

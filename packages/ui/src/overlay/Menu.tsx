@@ -27,6 +27,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import type { ButtonTones } from '../base/button-core';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import {
@@ -346,10 +347,10 @@ export function menuItemSx(tone: keyof ButtonTones, disabled: boolean): StyleXSt
   ] as StyleXStyles;
 }
 
-/** 菜单项共用的：按下的波纹、执行后关闭菜单 */
+/** 菜单项共用的：所在的菜单、按下的波纹（链接项用；按钮项由 ButtonBase 给出）、执行后关闭菜单 */
 export function useMenuItem() {
   const menu = MenuContext.inject();
-  return { ripple: useRipple(() => menu.ripple), close: () => menu.close() };
+  return { menu, ripple: useRipple(() => menu.ripple), close: () => menu.close() };
 }
 
 /** 按钮类菜单项共有的属性；未声明的属性落到 button 上 */
@@ -390,22 +391,23 @@ export const MenuItem = _component(
       () => onAction?.(),
     );
     return () => (
-      <button
-        {...mergeAttrs<'button'>({ sx: menuItemSx(tone, disabled) }, rest, {
-          type: 'button',
-          role: 'menuitem',
-          disabled,
-          // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
-          onClick: () => {
-            onAction?.();
-            if (closeOnSelect) item.close();
+      <ButtonBase
+        {...mergePartProps<ButtonBaseProps>(
+          { sx: menuItemSx(tone, disabled), ripple: item.menu.ripple },
+          rest as Partial<ButtonBaseProps>,
+          {
+            role: 'menuitem',
+            disabled,
+            // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
+            onClick: () => {
+              onAction?.();
+              if (closeOnSelect) item.close();
+            },
           },
-          ...item.ripple,
-        })}
-        data-disabled={disabled || undefined}
+        )}
       >
         {menuItemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
-      </button>
+      </ButtonBase>
     );
   },
 );
@@ -483,26 +485,27 @@ export const MenuCheckboxItem = _component(
       () => (checked = !checked),
     );
     return () => (
-      <button
-        {...mergeAttrs<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-          type: 'button',
-          role: 'menuitemcheckbox',
-          disabled,
-          'aria-checked': checked,
-          onClick: () => {
-            checked = !checked;
-            if (closeOnSelect) item.close();
+      <ButtonBase
+        {...mergePartProps<ButtonBaseProps>(
+          { sx: menuItemSx('neutral', disabled), ripple: item.menu.ripple },
+          rest as Partial<ButtonBaseProps>,
+          {
+            role: 'menuitemcheckbox',
+            disabled,
+            'aria-checked': checked,
+            onClick: () => {
+              checked = !checked;
+              if (closeOnSelect) item.close();
+            },
           },
-          ...item.ripple,
-        })}
-        data-disabled={disabled || undefined}
+        )}
         data-state={checked ? 'checked' : 'unchecked'}
       >
         {menuItemContent(
           { icon, shortcut, propsIcon, propsLabel, propsShortcut, children },
           { icon: Check, checked, props: propsIndicator },
         )}
-      </button>
+      </ButtonBase>
     );
   },
 );
@@ -604,26 +607,27 @@ export const MenuRadioItem = _component(
     return () => {
       const checked = group.value === value;
       return (
-        <button
-          {...mergeAttrs<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-            type: 'button',
-            role: 'menuitemradio',
-            disabled,
-            'aria-checked': checked,
-            onClick: () => {
-              group.select(value);
-              if (closeOnSelect) item.close();
+        <ButtonBase
+          {...mergePartProps<ButtonBaseProps>(
+            { sx: menuItemSx('neutral', disabled), ripple: item.menu.ripple },
+            rest as Partial<ButtonBaseProps>,
+            {
+              role: 'menuitemradio',
+              disabled,
+              'aria-checked': checked,
+              onClick: () => {
+                group.select(value);
+                if (closeOnSelect) item.close();
+              },
             },
-            ...item.ripple,
-          })}
-          data-disabled={disabled || undefined}
+          )}
           data-state={checked ? 'checked' : 'unchecked'}
         >
           {menuItemContent(
             { icon, shortcut, propsIcon, propsLabel, propsShortcut, children },
             { icon: Dot, checked, props: propsIndicator },
           )}
-        </button>
+        </ButtonBase>
       );
     };
   },
@@ -691,7 +695,6 @@ export const MenuSub = _component(
     ...rest
   }: MenuSubProps) => {
     const parent = MenuContext.inject();
-    const ripple = useRipple(() => parent.ripple);
     const id = useId();
     const triggerId = `${id}-trigger`;
     let trigger = _state.raw<HTMLElement | null>(null);
@@ -804,26 +807,24 @@ export const MenuSub = _component(
 
     return () => (
       <>
-        <button
-          {...mergeAttrs<'button'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-            ref: _toRef(trigger),
-            id: triggerId,
-            type: 'button',
-            role: 'menuitem',
-            disabled,
-            'aria-haspopup': 'menu',
-            'aria-expanded': open,
-            'aria-controls': id,
-            onClick: openWithFocus,
-            onKeydown: (event: KeyboardEvent) => {
-              ripple.onKeydown(event);
-              onTriggerKeydown(event);
+        <ButtonBase
+          {...mergePartProps<ButtonBaseProps>(
+            { sx: menuItemSx('neutral', disabled), ripple: parent.ripple },
+            rest as Partial<ButtonBaseProps>,
+            {
+              ref: (value: unknown) => (trigger = toElement(value)),
+              id: triggerId,
+              role: 'menuitem',
+              disabled,
+              'aria-haspopup': 'menu',
+              'aria-expanded': open,
+              'aria-controls': id,
+              onClick: openWithFocus,
+              onKeydown: onTriggerKeydown,
+              onPointerenter: onTriggerPointerenter,
+              onPointerleave: onTriggerPointerleave,
             },
-            onPointerenter: onTriggerPointerenter,
-            onPointerleave: onTriggerPointerleave,
-            onPointerdown: ripple.onPointerdown,
-          })}
-          data-disabled={disabled || undefined}
+          )}
           data-state={open ? 'open' : 'closed'}
         >
           {menuItemContent({ icon, propsIcon, propsLabel, children: label })}
@@ -833,7 +834,7 @@ export const MenuSub = _component(
               propsChevron,
             )}
           />
-        </button>
+        </ButtonBase>
         <div
           {...mergeAttrs<'div'>(
             {

@@ -16,6 +16,7 @@ import { useLang } from '../config/context';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { usePresence } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { presenceStyles } from '../utils/style/transitions';
 
 /** 忙碌由组件按 loading 管理 */
 export type LoadingOverlayManaged = 'aria-busy';
@@ -35,7 +36,7 @@ export interface LoadingOverlayProps extends PartProps<'div', LoadingOverlayMana
   children?: VNodeChild;
 }
 
-/** LoadingOverlay 的样式：root、overlay、blur、closing、spinner */
+/** LoadingOverlay 的样式：root、overlay、blur、spinner */
 export const loadingOverlayStyles = stylex.create({
   // 遮罩按外层定位
   root: { position: 'relative' },
@@ -51,7 +52,6 @@ export const loadingOverlayStyles = stylex.create({
     transition: 'opacity _durations.md _easings.enter',
   },
   blur: { backdropFilter: 'blur(2px)' },
-  closing: { opacity: 0, transition: 'opacity _durations.sm _easings.exit' },
   spinner: { fontSize: '_xl', color: '_accent' },
 });
 
@@ -84,7 +84,7 @@ export const LoadingOverlay = _component(
                 sx: [
                   loadingOverlayStyles.overlay,
                   blur && loadingOverlayStyles.blur,
-                  presence.state === 'closed' && loadingOverlayStyles.closing,
+                  presence.state === 'closed' && presenceStyles.leaving,
                 ],
               },
               propsOverlay,

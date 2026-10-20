@@ -114,7 +114,6 @@ const ARROW_EDGE: Record<Side, Side> = {
 /** 箭头（画了右、下两条边的方块）转多少度才朝向锚点 */
 const ARROW_ROTATION: Record<Side, number> = { top: 45, right: 135, bottom: 225, left: -45 };
 
-// 写明类型：导出的 stylex.create 结果若靠推导，类型声明里会引用 StyleX 内部无法命名的类型
 /** 锚定浮层的基础样式：定位与表面 */
 export const floatingStyles = stylex.create({
   /** 原生 popover 默认居中显示、带外边距，改为由 anchorFloating 写入的 left / top 定位 */

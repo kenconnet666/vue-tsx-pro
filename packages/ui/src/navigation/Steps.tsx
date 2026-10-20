@@ -9,9 +9,10 @@ import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
-import { mergeAttrs, type PartProps } from '../utils/props';
-import { focusRingStyles, listStyles } from '../utils/style/styles';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { listStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 
 /** 步骤条方向 */
@@ -52,7 +53,7 @@ export interface StepsProps extends PartProps<'ol'> {
   /** 序号圆圈的部件属性 */
   propsIndicator?: PartProps<'span'>;
   /** 可点回的步骤外层按钮的部件属性 */
-  propsTrigger?: PartProps<'button', 'type'>;
+  propsTrigger?: Partial<ButtonBaseProps>;
   /** 文字区（标题与说明的容器）的部件属性 */
   propsText?: PartProps<'span'>;
   /** 标题的部件属性 */
@@ -76,18 +77,13 @@ export const stepsStyles = stylex.create({
     minWidth: 0,
   },
   // 可点回的步骤：整块是按钮
+  // 去掉按钮默认外观、焦点环、波纹由 ButtonBase 给出
   trigger: {
     display: 'flex',
     alignItems: 'flex-start',
     gap: '_sm',
-    padding: 0,
-    borderWidth: 0,
     borderRadius: '_sm',
-    backgroundColor: 'transparent',
-    color: 'inherit',
-    font: 'inherit',
     textAlign: 'start',
-    cursor: 'pointer',
   },
   indicator: {
     boxSizing: 'border-box',
@@ -196,15 +192,13 @@ export const Steps = _component(
                 data-state={state}
               >
                 {clickable ? (
-                  <button
-                    {...mergeAttrs<'button'>(
-                      { sx: [stepsStyles.trigger, focusRingStyles.visible] },
-                      propsTrigger,
-                      { type: 'button', onClick: () => onStepChange(index) },
-                    )}
+                  <ButtonBase
+                    {...mergePartProps<ButtonBaseProps>({ sx: stepsStyles.trigger }, propsTrigger, {
+                      onClick: () => onStepChange(index),
+                    })}
                   >
                     {content}
-                  </button>
+                  </ButtonBase>
                 ) : (
                   content
                 )}

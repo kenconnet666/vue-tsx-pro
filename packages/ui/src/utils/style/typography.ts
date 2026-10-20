@@ -3,7 +3,6 @@
  * 档位与主题 tokens 同名（COMPONENTS.md §6.2）。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-// 导出的样式表写明类型：靠推导时，类型声明里会引用 StyleX 内部无法命名的类型
 // 取值类型写成带注释接口的 keyof：补全与悬停能看到每个取值的效果（见 styles.ts）
 
 /** 界面文字的字号档位，对应主题的 fontSizes；组件的 size 档位也用它，括号里是默认主题的值 */

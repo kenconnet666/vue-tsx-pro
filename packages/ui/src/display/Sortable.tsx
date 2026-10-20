@@ -13,11 +13,12 @@ import { GripVertical } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useSortable } from '../utils/dom/sortable';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 
 /** 项的渲染状态 */
 export interface SortableItemState {
@@ -44,7 +45,7 @@ export interface SortableProps<T> extends PartProps<'ul'> {
   /** 每一项（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: T, state: SortableItemState) => PartProps<'li'>);
   /** 把手的部件属性 */
-  propsHandle?: PartProps<'button'>;
+  propsHandle?: Partial<ButtonBaseProps>;
   /** 内容的部件属性 */
   propsContent?: PartProps<'div'>;
 }
@@ -76,23 +77,19 @@ export const sortableStyles = stylex.create({
   },
   // 拿起时浮起来：阴影与品牌色边框，盖在其他项上面
   active: { zIndex: 1, borderColor: '_accent', boxShadow: '_md' },
+  // 去掉按钮默认外观、焦点环由 ButtonBase 给出
   handle: {
     display: 'grid',
     placeItems: 'center',
     flexShrink: 0,
     width: 'max(1.75em, _sizes.minTarget)',
     height: 'max(1.75em, _sizes.minTarget)',
-    padding: 0,
-    borderWidth: 0,
     borderRadius: '_sm',
     backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
     color: '_textMuted',
     cursor: { default: 'grab', ':active': 'grabbing' },
     // 触摸拖动时不滚动页面
     touchAction: 'none',
-    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
-    outlineWidth: '_sm',
-    outlineColor: '_focusRing',
   },
   content: { flexGrow: 1, minWidth: 0 },
 });
@@ -148,16 +145,20 @@ export const Sortable = _component(
                   sortable.itemProps(key),
                 )}
               >
-                <button
-                  {...mergeAttrs<'button'>({ sx: sortableStyles.handle }, propsHandle, {
-                    type: 'button',
-                    disabled,
-                    'aria-label': lang.sortableHandle(getLabel?.(item) ?? key),
-                    ...sortable.handleProps(key),
-                  })}
+                <ButtonBase
+                  {...mergePartProps<ButtonBaseProps>(
+                    // 拖动的把手不出波纹
+                    { sx: sortableStyles.handle, ripple: false },
+                    propsHandle,
+                    {
+                      disabled,
+                      'aria-label': lang.sortableHandle(getLabel?.(item) ?? key),
+                      ...sortable.handleProps(key),
+                    },
+                  )}
                 >
                   <Icon icon={GripVertical} />
-                </button>
+                </ButtonBase>
                 <div {...mergeAttrs<'div'>({ sx: sortableStyles.content }, propsContent)}>
                   {children?.(item, state)}
                 </div>

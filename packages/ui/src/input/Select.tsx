@@ -20,6 +20,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
@@ -37,6 +38,7 @@ import {
 } from './control';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
+import { disclosureStyles } from '../utils/style/transitions';
 import {
   activeOptionId,
   ListboxView,
@@ -111,21 +113,16 @@ interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, Control
 /** 单选或多选；items 不是 ListboxOption 时要给 toOption */
 export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
 
-/** Select 的样式：root、trigger、value、placeholder、chevron、chevronOpen 等 */
+/** Select 的样式：root、trigger、value、placeholder、chevronOpen 等 */
 export const selectStyles = stylex.create({
   root: { cursor: 'pointer' },
+  // 去掉按钮默认外观用 buttonBaseStyles；像输入框一样没有自己的焦点环与波纹（焦点环画在外壳上）
   trigger: {
     display: 'flex',
     alignItems: 'center',
     flexGrow: 1,
     minWidth: 0,
     alignSelf: 'stretch',
-    margin: 0,
-    padding: 0,
-    borderWidth: 0,
-    backgroundColor: 'transparent',
-    color: 'inherit',
-    font: 'inherit',
     textAlign: 'start',
     cursor: 'inherit',
     outlineStyle: 'none',
@@ -143,7 +140,6 @@ export const selectStyles = stylex.create({
   },
   // 是真正的文字（不是原生 placeholder），要满足 4.5:1：用 textMuted 而不是 textPlaceholder
   placeholder: { color: '_textMuted' },
-  chevron: { transition: 'rotate _durations.sm _easings.standard' },
   chevronOpen: { rotate: '180deg' },
   popover: { maxWidth: 'calc(100vw - 2em)', overflowY: 'auto' },
 });
@@ -295,27 +291,31 @@ export const Select = _component(
             data-disabled={off || undefined}
           >
             <button
-              {...mergeAttrs<'button'>({ sx: selectStyles.trigger }, rest, {
-                ref: _toRef(trigger),
-                id: state.id,
-                type: 'button',
-                role: 'combobox',
-                disabled: off,
-                'aria-haspopup': 'listbox',
-                'aria-expanded': open,
-                'aria-controls': listId,
-                'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
-                'aria-invalid': state.invalid || undefined,
-                'aria-required': state.required || undefined,
-                'aria-describedby': state.describedBy,
-                onClick: () => {
-                  // Safari 点击按钮不会聚焦它：焦点要在触发按钮上，键盘与 aria-activedescendant 才有效
-                  trigger?.focus();
-                  if (open) open = false;
-                  else show();
+              {...mergeAttrs<'button'>(
+                { sx: [buttonBaseStyles.root, selectStyles.trigger] },
+                rest,
+                {
+                  ref: _toRef(trigger),
+                  id: state.id,
+                  type: 'button',
+                  role: 'combobox',
+                  disabled: off,
+                  'aria-haspopup': 'listbox',
+                  'aria-expanded': open,
+                  'aria-controls': listId,
+                  'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
+                  'aria-invalid': state.invalid || undefined,
+                  'aria-required': state.required || undefined,
+                  'aria-describedby': state.describedBy,
+                  onClick: () => {
+                    // Safari 点击按钮不会聚焦它：焦点要在触发按钮上，键盘与 aria-activedescendant 才有效
+                    trigger?.focus();
+                    if (open) open = false;
+                    else show();
+                  },
+                  onKeydown,
                 },
-                onKeydown,
-              })}
+              )}
             >
               <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
@@ -332,7 +332,7 @@ export const Select = _component(
               {...mergePartProps<IconProps>(
                 {
                   icon: ChevronDown,
-                  sx: [controlStyles.icon, selectStyles.chevron, open && selectStyles.chevronOpen],
+                  sx: [controlStyles.icon, disclosureStyles.icon, open && selectStyles.chevronOpen],
                 },
                 propsChevron,
               )}

@@ -48,6 +48,7 @@ import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
+import { disclosureStyles } from '../utils/style/transitions';
 
 /** 节点的渲染状态 */
 export interface TreeItemRenderState {
@@ -104,7 +105,7 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   propsLabel?: PartProps<'span'>;
 }
 
-/** Tree 的样式：root、sizer、row、item、toggle、chevron、checkbox、label 等 */
+/** Tree 的样式：root、sizer、row、item、toggle、checkbox、label 等 */
 export const treeStyles = stylex.create({
   root: {
     position: 'relative',
@@ -124,7 +125,6 @@ export const treeStyles = stylex.create({
     height: '1.5em',
     color: '_textMuted',
   },
-  chevron: { transition: 'rotate _durations.sm _easings.standard' },
   chevronOpen: { rotate: '90deg' },
   checkbox: { marginInlineEnd: '_xs' },
   checkMark: { width: '0.875em', height: '0.875em', color: '_accentContrast' },
@@ -403,7 +403,7 @@ export const Tree = _component(
                 <Icon
                   icon={ChevronRight}
                   flipInRtl
-                  sx={[treeStyles.chevron, open && treeStyles.chevronOpen]}
+                  sx={[disclosureStyles.icon, open && treeStyles.chevronOpen]}
                 />
               )
             )}

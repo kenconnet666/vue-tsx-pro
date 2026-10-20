@@ -20,11 +20,11 @@
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { useDefaults } from '../config/defaults';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { useLazyContent } from '../utils/motion/presence';
-import { mergeAttrs, type PartProps } from '../utils/props';
-import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -303,25 +303,17 @@ export interface TabProps extends PartProps<'button', TabManaged> {
 
 /** Tabs 的样式：root、hover、line、lineVertical、lineActive、soft 等 */
 export const tabStyles = stylex.create({
+  // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
   root: {
-    boxSizing: 'border-box',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '_sm',
     minHeight: 'max(_sizes.control, _sizes.minTarget)',
     paddingInline: '_md',
-    margin: 0,
-    borderWidth: 0,
-    backgroundColor: 'transparent',
     color: '_textMuted',
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
     fontWeight: '_medium',
     whiteSpace: 'nowrap',
-    cursor: 'pointer',
-    transition:
-      'color _durations.sm _easings.standard, background-color _durations.sm _easings.standard',
   },
   hover: { color: { default: null, ':hover': '_text' } },
   // 下划线：当前标签的底边（竖排时是结束边）一条 2px 的品牌色线，压在列表的分隔线上
@@ -345,26 +337,23 @@ export const tabStyles = stylex.create({
   lineActive: { color: '_text' },
   soft: { borderRadius: '_sm' },
   softActive: { color: '_text', backgroundColor: '_surface', boxShadow: '_xs' },
-  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  disabled: { opacity: '_disabled' },
 });
 
 /** 标签（role="tab" 的 button） */
 export const Tab = _component(({ value, disabled = false, children, ...rest }: TabProps) => {
   const tabs = TabsContext.inject();
   onBeforeUnmount(tabs.register(_untrack(value)));
-  const rippleHandlers = useRipple(() => tabs.ripple);
 
   return () => {
     const selected = tabs.value === value;
     const vertical = tabs.orientation === 'vertical';
     return (
-      <button
-        {...mergeAttrs<'button'>(
+      <ButtonBase
+        {...mergePartProps<ButtonBaseProps>(
           {
             sx: [
               tabStyles.root,
-              focusRingStyles.visible,
-              rippleHostStyles.host,
               tabStyles.hover,
               tabs.variant === 'line'
                 ? [
@@ -375,9 +364,9 @@ export const Tab = _component(({ value, disabled = false, children, ...rest }: T
                 : [tabStyles.soft, selected && tabStyles.softActive],
               disabled && tabStyles.disabled,
             ],
-            type: 'button',
+            ripple: tabs.ripple,
           },
-          rest,
+          rest as Partial<ButtonBaseProps>,
           {
             role: 'tab',
             id: tabs.id('tab', value),
@@ -389,14 +378,12 @@ export const Tab = _component(({ value, disabled = false, children, ...rest }: T
             onFocus: () => {
               if (tabs.activation === 'automatic') tabs.select(value);
             },
-            ...rippleHandlers,
           },
         )}
         data-state={selected ? 'active' : 'inactive'}
-        data-disabled={disabled || undefined}
       >
         {children}
-      </button>
+      </ButtonBase>
     );
   };
 });

@@ -3,6 +3,7 @@
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
 export { Badge, type BadgeProps } from './base/Badge';
 export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
+export { ButtonBase, type ButtonBaseManaged, type ButtonBaseProps } from './base/ButtonBase';
 export {
   ClearButton,
   CloseButton,
@@ -70,6 +71,7 @@ export {
 } from './base/VisuallyHidden';
 export { badgeStyles, badgeSx, type BadgeOptions, type BadgeRadii } from './base/badge-styles';
 export {
+  buttonBaseStyles,
   buttonContent,
   buttonLinkStyles,
   buttonRadiusStyles,
@@ -724,7 +726,13 @@ export {
   type StatusVariant,
   type StatusVariants,
 } from './utils/style/tone-styles';
-export { afterTransitions, transitions } from './utils/style/transitions';
+export {
+  afterTransitions,
+  disclosureStyles,
+  interactionTransitions,
+  presenceStyles,
+  transitions,
+} from './utils/style/transitions';
 export {
   fontSizeStyles,
   fontWeightStyles,
