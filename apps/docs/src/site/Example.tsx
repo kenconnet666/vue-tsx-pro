@@ -9,6 +9,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { CodePreview, createFlex, H2, Paragraph, type CodePreviewAligns } from '@vue-tsx-pro/ui';
 import { h, type VNodeChild } from 'vue';
 import { EditInPlayground } from './EditInPlayground';
+import { ExamplesContext } from './Examples';
 import type { Demo } from './types';
 
 const styles = stylex.create({
@@ -23,6 +24,8 @@ const styles = stylex.create({
     backgroundPosition: '-9px -9px',
   },
   description: { color: '_textMuted' },
+  // 多列里：整个小节留在同一列；上下两个示例之间比左右两列之间留得更开，一眼看出哪段说明属于哪张卡片
+  inColumns: { breakInside: 'avoid', paddingBlockEnd: '3rem' },
 });
 
 /** 每个示例是一个小节（section） */
@@ -43,19 +46,22 @@ export interface ExampleProps {
 }
 
 /** 示例小节：标题、说明、示例卡片 */
-export const Example = _component(({ id, title, demo, align, children }: ExampleProps) => () => (
-  <Section direction="column" gap="md">
-    <H2 id={id} size="xl" anchor>
-      {title}
-    </H2>
-    {children != null && <Paragraph sx={styles.description}>{children}</Paragraph>}
-    <CodePreview
-      code={demo.source}
-      align={align}
-      actions={<EditInPlayground code={demo.source} />}
-      propsPreview={{ sx: styles.canvas }}
-    >
-      {h(demo.component)}
-    </CodePreview>
-  </Section>
-));
+export const Example = _component(({ id, title, demo, align, children }: ExampleProps) => {
+  const inColumns = ExamplesContext.inject(null) !== null;
+  return () => (
+    <Section direction="column" gap="md" sx={inColumns && styles.inColumns}>
+      <H2 id={id} size="xl" anchor>
+        {title}
+      </H2>
+      {children != null && <Paragraph sx={styles.description}>{children}</Paragraph>}
+      <CodePreview
+        code={demo.source}
+        align={align}
+        actions={<EditInPlayground code={demo.source} />}
+        propsPreview={{ sx: styles.canvas }}
+      >
+        {h(demo.component)}
+      </CodePreview>
+    </Section>
+  );
+});

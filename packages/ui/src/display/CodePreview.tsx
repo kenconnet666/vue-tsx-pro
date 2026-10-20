@@ -26,7 +26,7 @@ import { Collapse, type CollapseProps } from './Collapse';
 
 /** 效果区的排列 */
 export interface CodePreviewAligns {
-  /** 从起始边排起（默认）：表单、长内容 */
+  /** 从起始边排起、占满宽度（默认）：表单、卡片、长内容 */
   start: unknown;
   /** 居中：单个按钮、图标这类小东西 */
   center: unknown;
@@ -70,15 +70,15 @@ export interface CodePreviewProps extends PartProps<'div'> {
 export const codePreviewStyles = stylex.create({
   // 效果区：给了最小高度时，效果在里面上下居中
   preview: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
-  // 效果的排布；宽内容（表格）在外面的 ScrollArea 里横向滚动，不撑宽卡片
+  // 效果的排布：靠起始边时示例占满宽度（里面的网格、卡片按整块宽度排），居中时按内容宽度居中；
+  // 宽内容（表格）在外面的 ScrollArea 里横向滚动，不撑宽卡片
   layout: {
-    display: 'flex',
-    flexWrap: 'wrap',
+    display: 'grid',
     alignItems: 'center',
     gap: '_md',
     padding: '_xl',
   },
-  center: { justifyContent: 'center' },
+  center: { justifyItems: 'center' },
   // Card 的页脚默认是一行靠右的按钮：这里是工具栏加源码，上下排
   footer: { display: 'block', padding: 0 },
   toolbar: { display: 'flex', justifyContent: 'flex-end', gap: '_xs', padding: '_xs' },

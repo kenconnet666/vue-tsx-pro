@@ -1,7 +1,7 @@
 // 标记、提示、进度、占位在真实浏览器里（演示页 /base；颜色对比度由 base 的 axe 检查覆盖）
 import axe from 'axe-core';
 import { userEvent } from 'vitest/browser';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
 import { createHostApp } from '../src/app';
@@ -75,16 +75,36 @@ describe('Progress · Skeleton', () => {
   });
 
   it('LoadingOverlay：刷新时遮罩盖住整个区域并淡入，结束后移除', async () => {
-    const area = $('.overlay-demo');
-    $('.overlay-trigger').click();
-    await expect.poll(() => area.getAttribute('aria-busy')).toBe('true');
-    const overlay = () => area.querySelector<HTMLElement>('[data-state]');
-    await expect.poll(overlay).not.toBeNull();
-    const box = overlay()!.getBoundingClientRect();
-    const outer = area.getBoundingClientRect();
-    expect([box.width, box.height]).toEqual([outer.width, outer.height]);
-    // 加载 1.5 秒 + 遮罩至少显示的时长 + 离场过渡（最多 1.5 秒）：正常约 3.5 秒，CI 上 Windows 的 Firefox 更慢
-    await expect.poll(overlay, { timeout: 8000 }).toBeNull();
+    // 遮罩的去留是一串前后相接的计时器（演示加载 1.5 秒 → 至少显示 0.5 秒 → 离场过渡）：
+    // 用真实时间时，页面被别的浏览器实例抢占一阵后，poll 的期限先到、后面的计时器还没轮上（CI 上 Windows 的 Firefox）。
+    // 由测试推进计时器；只有离场的 CSS 过渡走真实时间。poll 自己用的是 Vitest 保存的真计时器
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+    try {
+      const area = $('.overlay-demo');
+      const overlay = () => area.querySelector<HTMLElement>('[data-state]');
+      $('.overlay-trigger').click();
+      await nextTick();
+      expect(area.getAttribute('aria-busy')).toBe('true');
+      // 很快完成的加载不出现遮罩：延迟 200ms 才盖上
+      await vi.advanceTimersByTimeAsync(199);
+      expect(overlay()).toBeNull();
+      await vi.advanceTimersByTimeAsync(1);
+      expect(overlay()?.dataset.state).toBe('open');
+      const box = overlay()!.getBoundingClientRect();
+      const outer = area.getBoundingClientRect();
+      expect([box.width, box.height]).toEqual([outer.width, outer.height]);
+      // 加载结束：忙碌立即解除，遮罩已显示超过最短时长，随即离场
+      await vi.advanceTimersByTimeAsync(1300);
+      expect(area.hasAttribute('aria-busy')).toBe(false);
+      // 延迟为 0 的计时器在推进中按 1ms 算（fake-timers）
+      await vi.advanceTimersByTimeAsync(1);
+      await nextTick();
+      // 正在淡出（closed），或没有进行中的过渡、已经移除
+      expect(overlay()?.dataset.state).not.toBe('open');
+      await expect.poll(overlay).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('Indicator 的角标中心在按钮的右上角；AvatarGroup 的头像叠放、大小一致', () => {

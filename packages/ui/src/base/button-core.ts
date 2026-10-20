@@ -5,6 +5,7 @@
  * 外观 = variant（样式）× tone（色调）× size（字号档位，内部尺寸随之按 em 缩放）× radius（圆角）。
  */
 import { h, type VNodeChild } from 'vue';
+import { createContext } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { Icon, type IconData, type IconProps } from './Icon';
@@ -289,24 +290,75 @@ export const buttonVariantStyles: Readonly<
   link,
 };
 
-/** 合并后的外观：每一项都有值（size 不写时继承字号） */
+/** 按钮组的排列方向 */
+export type ButtonGroupOrientation = 'horizontal' | 'vertical';
+
+/** ButtonGroup 交给组里按钮的状态：统一的外观与排列方向 */
+export interface ButtonGroupState {
+  /** 组上写的外观，组里的按钮没写的项用它 */
+  readonly appearance: Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>;
+  /** 排列方向：决定去掉哪一侧的圆角 */
+  readonly orientation: ButtonGroupOrientation;
+}
+
+/** 按钮组的上下文：组里的按钮家族据此相连、共用外观 */
+export const ButtonGroupContext = createContext<ButtonGroupState>('ButtonGroup');
+
+/** 合并后的外观：每一项都有值（size 不写时继承字号）；在 ButtonGroup 里时带上相连的方向 */
 export type ButtonAppearance = Required<Pick<ButtonOptions, 'variant' | 'tone' | 'radius'>> &
-  Pick<ButtonOptions, 'size'>;
+  Pick<ButtonOptions, 'size'> & { attached?: ButtonGroupOrientation };
 
 /**
- * 按钮的外观：显式写的 prop > createUi / Provider 的 defaults.Button > 组件自己的默认样式。
+ * 按钮的外观：显式写的 prop > 所在 ButtonGroup 写的 > createUi / Provider 的 defaults.Button > 组件自己的默认样式。
  * 在 setup 里调用，返回的函数在渲染时调用（读到最新的 prop 与配置）
  */
 export function useButtonAppearance(
   read: () => Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>,
   fallbackVariant: keyof ButtonVariants,
 ): () => ButtonAppearance {
-  return useDefaults('Button', read, { variant: fallbackVariant, tone: 'accent', radius: 'md' });
+  const group = ButtonGroupContext.inject(null);
+  return useDefaults(
+    'Button',
+    () => {
+      const { variant, tone, size, radius } = read();
+      const shared = group?.appearance;
+      return {
+        variant: variant ?? shared?.variant,
+        tone: tone ?? shared?.tone,
+        size: size ?? shared?.size,
+        radius: radius ?? shared?.radius,
+        attached: group?.orientation,
+      };
+    },
+    { variant: fallbackVariant, tone: 'accent', radius: 'md' },
+  );
 }
+
+// 组里相连的按钮：去掉相邻一侧的圆角，边框叠在一起（不显得加粗）；悬停、聚焦的那个浮到上面，边框与焦点环不被邻居盖住
+const attachedStyles = stylex.create({
+  horizontal: {
+    position: 'relative',
+    zIndex: { default: null, ':hover': 1, ':focus-visible': 2 },
+    marginInlineStart: { default: 'calc(-1 * _borderWidths.xs)', ':first-child': 0 },
+    borderStartStartRadius: { default: 0, ':first-child': null },
+    borderEndStartRadius: { default: 0, ':first-child': null },
+    borderStartEndRadius: { default: 0, ':last-child': null },
+    borderEndEndRadius: { default: 0, ':last-child': null },
+  },
+  vertical: {
+    position: 'relative',
+    zIndex: { default: null, ':hover': 1, ':focus-visible': 2 },
+    marginBlockStart: { default: 'calc(-1 * _borderWidths.xs)', ':first-child': 0 },
+    borderStartStartRadius: { default: 0, ':first-child': null },
+    borderStartEndRadius: { default: 0, ':first-child': null },
+    borderEndStartRadius: { default: 0, ':last-child': null },
+    borderEndEndRadius: { default: 0, ':last-child': null },
+  },
+});
 
 /** 外观（已合并默认值）与状态 → 按钮根元素的样式 */
 export function buttonSx(
-  { variant, tone, size, radius }: ButtonAppearance,
+  { variant, tone, size, radius, attached }: ButtonAppearance,
   state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
 ): StyleXStyles {
   return [
@@ -318,6 +370,7 @@ export function buttonSx(
     buttonVariantStyles[variant][tone],
     variant === 'link' && buttonLinkStyles.root,
     buttonRadiusStyles[radius],
+    attached && attachedStyles[attached],
     size && fontSizeStyles[size],
     state.square && buttonStyles.square,
     state.fullWidth && buttonStyles.fullWidth,

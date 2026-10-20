@@ -7,7 +7,7 @@
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。
 - **ui 包**：已完成的组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10.1–§10.17：
-  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6，标题可带锚点链接）、List / OrderedList / ListItem、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制、行号、行高亮、diff、长代码折叠）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton）、Badge、Indicator（角标）、Tag
+  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6，标题可带锚点链接）、List / OrderedList / ListItem、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制、行号、行高亮、diff、长代码折叠）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton、ButtonGroup 相连的按钮组）、Badge、Indicator（角标）、Tag
   - 布局：Flex / FlexList / FlexOrderedList、Grid / GridList、Container（含 create\* 工厂）、Separator、ScrollArea 与 PageScrollbar（浮层滚动条）、Prose（长文容器）、AppShell（顶栏 + 两侧栏的整页骨架）
   - 展示：Collapse、Collapsible、Accordion、VirtualList（虚拟滚动，带加载状态）、Card、Avatar / AvatarGroup、AnimatedNumber、Descriptions、Timeline、Tree、Sortable、Marquee、CodeGroup、CodePreview（代码示例卡片）、ColorSwatch、PropsTable（API 表格）
   - 反馈：Progress、Skeleton、Alert、Empty、Toast（createToaster + Toaster，可滑动关闭、可堆叠）、LoadingOverlay、Result

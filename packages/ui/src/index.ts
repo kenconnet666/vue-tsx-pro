@@ -6,6 +6,12 @@ export { Blockquote, blockquoteStyles, type BlockquoteProps } from './base/Block
 export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
 export { ButtonBase, type ButtonBaseManaged, type ButtonBaseProps } from './base/ButtonBase';
 export {
+  ButtonGroup,
+  buttonGroupStyles,
+  type ButtonGroupManaged,
+  type ButtonGroupProps,
+} from './base/ButtonGroup';
+export {
   ClearButton,
   CloseButton,
   createPresetIconButton,
@@ -96,6 +102,7 @@ export { badgeStyles, badgeSx, type BadgeOptions, type BadgeRadii } from './base
 export {
   buttonBaseStyles,
   buttonContent,
+  ButtonGroupContext,
   buttonLinkStyles,
   buttonRadiusStyles,
   buttonStyles,
@@ -107,6 +114,8 @@ export {
   type ButtonBehaviorProps,
   type ButtonBehaviorState,
   type ButtonContentOptions,
+  type ButtonGroupOrientation,
+  type ButtonGroupState,
   type ButtonOptions,
   type ButtonRadii,
   type ButtonTones,
