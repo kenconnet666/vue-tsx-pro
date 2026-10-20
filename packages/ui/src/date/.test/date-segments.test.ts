@@ -23,6 +23,7 @@ function setup({
 } = {}) {
   const current = shallowRef<DateFieldValues | null>(value);
   const changes: (DateFieldValues | null)[] = [];
+  const exits: number[] = [];
   const state = useDateSegments({
     fields: () => fields,
     locale: () => locale,
@@ -34,11 +35,12 @@ function setup({
     },
     placeholderValue: () => ({ year: 2026, month: 10, day: 20, hour: 14, minute: 30, second: 0 }),
     placeholders: () => ({ year: '年', month: '月', day: '日' }),
+    onExit: (direction) => exits.push(direction),
   });
   const press = (key: string, rtl = false) =>
     handleSegmentKeydown(state, new KeyboardEvent('keydown', { key }), rtl);
   const texts = () => state.segments.map((segment) => segment.text).join('');
-  return { state, press, texts, value: () => current.value, changes };
+  return { state, press, texts, value: () => current.value, changes, exits };
 }
 
 describe('段的顺序与显示', () => {
@@ -91,6 +93,23 @@ describe('段的顺序与显示', () => {
 });
 
 describe('输入', () => {
+  it('焦点要越过两端时调用 onExit：最后一段输入满了；第一段删空后再删。日打 1 还在等第二位，不算', () => {
+    const { state, press, exits } = setup();
+    state.setFocused('year');
+    state.type('2026111');
+    expect(exits).toEqual([]);
+    state.type('0');
+    expect(exits).toEqual([1]);
+    state.setFocused('year');
+    press('Backspace');
+    press('Backspace');
+    press('Backspace');
+    press('Backspace');
+    expect(exits).toEqual([1]);
+    press('Backspace');
+    expect(exits).toEqual([1, -1]);
+  });
+
   it('逐段输入：年满 4 位跳段；月打 1 等第二位、打 3 直接跳；填全才写回', () => {
     const { state, value, changes } = setup();
     state.setFocused('year');

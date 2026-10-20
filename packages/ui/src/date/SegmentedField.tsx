@@ -77,6 +77,51 @@ export interface SegmentedFieldProps extends SegmentedFieldOptions {
   outOfRange?: (value: string) => boolean;
 }
 
+/**
+ * 一组分段的状态，按当前语言（段的顺序、小时制、占位文字，没填时占位的是此刻）；值是 ISO 字符串，填全了才写回。
+ * SegmentedField 与 DateRangePicker 的开始、结束两组分段用它。在组件 setup 里调用
+ */
+export function useFieldSegments(
+  read: () => {
+    fields: readonly Exclude<DateSegmentType, 'dayPeriod'>[];
+    value: string | null;
+    hourCycle?: keyof HourCycles;
+    readonly: boolean;
+  },
+  onChange: (value: string | null) => void,
+  onExit?: (direction: 1 | -1) => void,
+) {
+  const lang = useLang();
+  const locale = useDateLocale();
+  return useDateSegments({
+    fields: () => read().fields,
+    locale: () => lang.code,
+    hourCycle: () => read().hourCycle ?? lang.hourCycle,
+    value: () => isoToFields(read().value, read().fields),
+    onChange: (next) => onChange(next ? fieldsToIso(next, read().fields) : null),
+    placeholderValue: () => {
+      const current = now(locale.timeZone);
+      return {
+        year: current.year,
+        month: current.month,
+        day: current.day,
+        hour: current.hour,
+        minute: current.minute,
+        second: 0,
+      };
+    },
+    placeholders: () => lang.dateFieldPlaceholders,
+    readonly: () => read().readonly,
+    onExit,
+  });
+}
+
+/** 一组分段里第一个没填的段（都填了时第一段）：点外壳空白处、清空后焦点去这里 */
+export const firstSegmentOf = (group: Element | null | undefined) =>
+  group?.querySelector<HTMLElement>('[role="spinbutton"][data-placeholder]') ??
+  group?.querySelector<HTMLElement>('[role="spinbutton"]') ??
+  null;
+
 /** SegmentedField 的样式：input */
 export const segmentedFieldStyles = stylex.create({
   // 分段占满剩下的宽度：清空按钮、尾部内容贴着外壳的结束边
@@ -109,38 +154,20 @@ export const SegmentedField = _component(
     propsLiteral,
     ...rest
   }: SegmentedFieldProps) => {
-    const lang = useLang();
-    const locale = useDateLocale();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let group = _state.raw<HTMLElement | null>(null);
 
-    const segments = useDateSegments({
-      fields: () => fields,
-      locale: () => lang.code,
-      hourCycle: () => hourCycle ?? lang.hourCycle,
-      value: () => isoToFields(value, fields),
-      onChange: (next) => (value = next ? fieldsToIso(next, fields) : null),
-      placeholderValue: () => {
-        const current = now(locale.timeZone);
-        return {
-          year: current.year,
-          month: current.month,
-          day: current.day,
-          hour: current.hour,
-          minute: current.minute,
-          second: 0,
-        };
-      },
-      placeholders: () => lang.dateFieldPlaceholders,
-      readonly: () => control().disabled || control().readonly,
-    });
-
-    /** 第一个没填的段（都填了时第一段）：点外壳空白处、清空后焦点去这里 */
-    const firstSegment = () =>
-      group?.querySelector<HTMLElement>('[role="spinbutton"][data-placeholder]') ??
-      group?.querySelector<HTMLElement>('[role="spinbutton"]') ??
-      null;
+    const segments = useFieldSegments(
+      () => ({
+        fields,
+        value,
+        hourCycle,
+        readonly: control().disabled || control().readonly,
+      }),
+      (next) => (value = next),
+    );
+    const firstSegment = () => firstSegmentOf(group);
 
     function clear() {
       segments.clear();

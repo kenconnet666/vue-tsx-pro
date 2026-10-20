@@ -72,6 +72,8 @@ export interface DateSegmentsOptions {
   placeholders: () => Partial<Record<DateSegmentType, string>>;
   /** 只读或不可用：不响应输入 */
   readonly?: () => boolean;
+  /** 焦点要越过这组的两端时（最后一段输入满了；第一段删空后再删）：DateRangePicker 把焦点交给另一组 */
+  onExit?: (direction: 1 | -1) => void;
 }
 
 /** 分段输入的状态与操作 */
@@ -398,6 +400,7 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
       const index = list.findIndex((segment) => segment.type === current());
       const next = list[index + direction];
       if (next) state.setFocused(next.type as DateSegmentType);
+      else config.onExit?.(direction);
     },
   };
   return state;

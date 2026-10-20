@@ -4,6 +4,7 @@ import {
   Calendar,
   DateField,
   DatePicker,
+  DateRangePicker,
   Field,
   Flex,
   RangeCalendar,
@@ -24,6 +25,7 @@ export const DateDemo = _component(() => {
   let departure = _state<string | null>('2026-10-20');
   let meeting = _state<string | null>('2026-10-20T14:30');
   let alarm = _state<string | null>('10:30');
+  let period = _state<DateRange<string> | null>(null);
 
   return () => (
     <Flex direction="column" gap="lg">
@@ -62,9 +64,17 @@ export const DateDemo = _component(() => {
         <Field label="闹钟" class="time-picker-demo">
           <TimePicker value={_bind(alarm)} min="09:00" max="18:00" />
         </Field>
+        <Field label="统计区间" class="range-picker-demo">
+          <DateRangePicker
+            value={_bind(period)}
+            max="2026-10-21"
+            presets={['last7Days', 'thisMonth']}
+          />
+        </Field>
       </Flex>
       <Text class="picker-summary">
-        出发：{departure ?? '未选'}；会议：{meeting ?? '未选'}；闹钟：{alarm ?? '未选'}
+        出发：{departure ?? '未选'}；会议：{meeting ?? '未选'}；闹钟：{alarm ?? '未选'}；区间：
+        {period ? period.start + ' 至 ' + period.end : '未选'}
       </Text>
     </Flex>
   );

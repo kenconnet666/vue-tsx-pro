@@ -701,6 +701,11 @@ export {
 export { DateField, type DateFieldProps } from './date/DateField';
 export { DatePicker, datePickerStyles, type DatePickerProps } from './date/DatePicker';
 export {
+  DateRangePicker,
+  dateRangePickerStyles,
+  type DateRangePickerProps,
+} from './date/DateRangePicker';
+export {
   DateSegmentGroup,
   dateSegmentStyles,
   type DateSegmentGroupManaged,
@@ -709,8 +714,10 @@ export {
 } from './date/DateSegmentGroup';
 export { RangeCalendar, type RangeCalendarProps } from './date/RangeCalendar';
 export {
+  firstSegmentOf,
   SegmentedField,
   segmentedFieldStyles,
+  useFieldSegments,
   type SegmentedFieldManaged,
   type SegmentedFieldOptions,
   type SegmentedFieldProps,

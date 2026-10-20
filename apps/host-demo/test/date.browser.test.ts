@@ -168,3 +168,54 @@ describe('TimePicker', () => {
     expect(document.activeElement).toBe(button);
   });
 });
+
+describe('DateRangePicker', () => {
+  const openPanel = () => document.querySelector<HTMLElement>('[role="dialog"]:popover-open');
+  const groups = () =>
+    root.querySelectorAll<HTMLElement>('.range-picker-demo [role="group"] [role="group"]');
+
+  it('开始那组填全后焦点进结束那组；两端填好才写回，结束早于开始时出错；删掉一端写回 null、另一端留着', async () => {
+    const shell = $('.range-picker-demo [role="group"]');
+    await userEvent.click(groups()[0]!.querySelector('[data-type="year"]')!);
+    await userEvent.keyboard('20261010');
+    expect(document.activeElement).toBe(groups()[1]!.querySelector('[data-type="year"]'));
+    expect($('.picker-summary').textContent).toContain('区间：未选');
+    await userEvent.keyboard('20261005');
+    expect($('.picker-summary').textContent).toContain('区间：2026-10-10 至 2026-10-05');
+    expect(shell.dataset.invalid).toBe('true');
+    await userEvent.keyboard('{Backspace}{Backspace}{Backspace}');
+    expect($('.picker-summary').textContent).toContain('区间：未选');
+    expect(groups()[0]!.textContent).toBe('2026/10/10');
+    // 两组的名称：字段的标签加“开始日期”“结束日期”
+    const names = [...groups()].map((group) =>
+      group
+        .getAttribute('aria-labelledby')!
+        .split(' ')
+        .map((id) => document.getElementById(id)!.textContent)
+        .join(' '),
+    );
+    expect(names).toEqual(['统计区间 开始日期', '统计区间 结束日期']);
+    await checkAxe($('.range-picker-demo'));
+  });
+
+  it('快捷区间夹到 max 之内，选了就关闭；日历里点开始、再点结束', async () => {
+    const button = $<HTMLButtonElement>('.range-picker-demo button[aria-haspopup="dialog"]');
+    await userEvent.click(button);
+    await expect.poll(() => openPanel()).not.toBeNull();
+    await afterTransitions(openPanel()!);
+    await checkAxe(openPanel()!);
+    const thisMonth = [...openPanel()!.querySelectorAll('button')].find(
+      (item) => item.textContent === '本月',
+    )!;
+    await userEvent.click(thisMonth);
+    expect(openPanel()).toBeNull();
+    expect($('.picker-summary').textContent).toContain('区间：2026-10-01 至 2026-10-21');
+    expect(document.activeElement).toBe(button);
+    await userEvent.click(button);
+    await expect.poll(() => openPanel()).not.toBeNull();
+    await userEvent.click(openPanel()!.querySelector('[data-date="2026-10-12"]')!);
+    await userEvent.click(openPanel()!.querySelector('[data-date="2026-10-14"]')!);
+    expect(openPanel()).toBeNull();
+    expect($('.picker-summary').textContent).toContain('区间：2026-10-12 至 2026-10-14');
+  });
+});

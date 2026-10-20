@@ -1,0 +1,27 @@
+import { _component } from '@vue-tsx-pro/tsx';
+import { Code, Kbd } from '@vue-tsx-pro/ui';
+import api from 'virtual:api/DateRangePickerProps';
+import { ApiReference } from '../../../site/ApiReference';
+import { DocPage } from '../../../site/DocPage';
+import { Example } from '../../../site/Example';
+import Report from './demo/Report.tsx?demo';
+
+export const meta = {
+  title: 'DateRangePicker 区间选择器',
+  description:
+    '一个输入框里填开始与结束，按钮弹出区间日历与快捷区间：报表的统计区间、酒店的入住与离店。',
+  order: 6,
+};
+
+export default _component(() => () => (
+  <DocPage wide meta={meta} imports="import { DateRangePicker } from '@vue-tsx-pro/ui';">
+    <Example id="report" title="基础用法" demo={Report}>
+      两组分段共用一个外壳，读屏先念字段名，再念“开始日期”或“结束日期”；开始那组刚填全时焦点自动进结束那组，两端都填好才写回{' '}
+      <Code>{'{ start, end }'}</Code>
+      。按钮或 <Kbd>Alt</Kbd> + <Kbd>↓</Kbd> 弹出区间日历（默认并排两个月），<Code>presets</Code>{' '}
+      列在日历旁边（按今天与语言的一周第一天算，文字取语言包）。结束早于开始、超出范围时外壳显示出错；
+      <Code>startName</Code>、<Code>endName</Code> 随表单提交两端的 ISO 日期。
+    </Example>
+    <ApiReference api={api} />
+  </DocPage>
+));

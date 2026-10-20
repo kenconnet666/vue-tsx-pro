@@ -13,13 +13,8 @@ import {
   type DateRangePreset,
 } from '@vue-tsx-pro/ui';
 
-const PRESETS: [DateRangePreset, string][] = [
-  ['today', '今天'],
-  ['last7Days', '最近 7 天'],
-  ['last30Days', '最近 30 天'],
-  ['thisMonth', '本月'],
-  ['lastMonth', '上月'],
-];
+// 快捷区间的名字取语言包（lang.dateRangePreset）；输入框加弹层的写法见 DateRangePicker 的 presets
+const PRESETS: DateRangePreset[] = ['today', 'last7Days', 'last30Days', 'thisMonth', 'lastMonth'];
 
 export default _component(() => {
   const format = useFormat();
@@ -35,7 +30,7 @@ export default _component(() => {
         visibleMonths={2}
         max={today}
         aria-label="统计区间"
-        footer={PRESETS.map(([name, label]) => {
+        footer={PRESETS.map((name) => {
           const value = preset(name);
           const active = range?.start === value.start && range?.end === value.end;
           return (
@@ -46,7 +41,7 @@ export default _component(() => {
               tone="neutral"
               onClick={() => (range = value)}
             >
-              {label}
+              {lang.dateRangePreset[name]}
             </Button>
           );
         })}

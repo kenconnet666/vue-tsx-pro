@@ -78,7 +78,7 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
       return anchor;
     },
     /** 分段上的 keydown：Alt + ↓ 打开 */
-    onKeydown(event: KeyboardEvent) {
+    onKeydown: (event: KeyboardEvent) => {
       if (!event.altKey || event.key !== 'ArrowDown' || !read().editable) return;
       event.preventDefault();
       events.toggle(true);

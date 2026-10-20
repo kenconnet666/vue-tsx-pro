@@ -9,7 +9,7 @@ import Meeting from './demo/Meeting.tsx?demo';
 export const meta = {
   title: 'TimePicker 时间选择器',
   description: '输入框加按步长列出的时间：常用的整点、半点点一下，其余的直接键入。',
-  order: 6,
+  order: 7,
 };
 
 export default _component(() => () => (
