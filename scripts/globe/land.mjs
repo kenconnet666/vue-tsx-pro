@@ -48,7 +48,9 @@ const source = `/**
  * 由 scripts/globe/land.mjs 从 Natural Earth 1:110m 的世界地图生成（公有领域数据），不要手改。
  */
 export const LAND_WIDTH = ${WIDTH};
+/** 位图的行数（纬度方向，每行 1°） */
 export const LAND_HEIGHT = ${HEIGHT};
+/** 位图本身：每字节 8 格，低位在前，base64 编码 */
 export const LAND_BITS = '${base64}';
 `;
 writeFileSync(join(root, 'packages/ui/src/three/globe/land.ts'), source);
