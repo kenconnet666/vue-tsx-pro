@@ -360,14 +360,19 @@ export const buttonVariantStyles: Readonly<Record<keyof ButtonVariants, StyleTab
 };
 
 /** 按钮组的排列方向 */
-export type ButtonGroupOrientation = 'horizontal' | 'vertical';
+export interface ButtonGroupOrientations {
+  /** 横排（默认） */
+  horizontal: unknown;
+  /** 竖排 */
+  vertical: unknown;
+}
 
 /** ButtonGroup 交给组里按钮的状态：统一的外观与排列方向 */
 export interface ButtonGroupState {
   /** 组上写的外观，组里的按钮没写的项用它 */
   readonly appearance: Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>;
   /** 排列方向：决定去掉哪一侧的圆角 */
-  readonly orientation: ButtonGroupOrientation;
+  readonly orientation: keyof ButtonGroupOrientations;
 }
 
 /** 按钮组的上下文：组里的按钮家族据此相连、共用外观 */
@@ -375,7 +380,7 @@ export const ButtonGroupContext = createContext<ButtonGroupState>('ButtonGroup')
 
 /** 合并后的外观：每一项都有值（size 不写时继承字号）；在 ButtonGroup 里时带上相连的方向 */
 export type ButtonAppearance = Required<Pick<ButtonOptions, 'variant' | 'tone' | 'radius'>> &
-  Pick<ButtonOptions, 'size'> & { attached?: ButtonGroupOrientation };
+  Pick<ButtonOptions, 'size'> & { attached?: keyof ButtonGroupOrientations };
 
 /**
  * 按钮的外观：显式写的 prop > 所在 ButtonGroup 写的 > createUi / Provider 的 defaults.Button > 组件自己的默认样式。

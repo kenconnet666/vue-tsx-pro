@@ -58,6 +58,14 @@ const OVERLAY_MAX_WIDTH = 480;
 // 运行时判断侧栏是否常驻（useMediaQuery 要的是不带 @media 的查询）
 const WIDE_QUERY = breakpoints.lg.replace('@media ', '');
 
+/** 左侧栏的形式 */
+export interface AppShellSidebarModes {
+  /** 宽屏时占一列、窄屏时收进抽屉（默认） */
+  docked: unknown;
+  /** 各宽度都是盖在页面上面的抽屉，不占正文的位置，可以收起、拖动宽度 */
+  overlay: unknown;
+}
+
 /** 未声明的属性落到外层 div 上 */
 export interface AppShellProps extends PartProps<'div'> {
   /** 顶栏起始边的品牌（标志与产品名）：有侧栏时这一格与侧栏同宽，侧栏的竖线延伸到顶 */
@@ -68,11 +76,8 @@ export interface AppShellProps extends PartProps<'div'> {
   sidebar?: VNodeChild;
   /** 右侧栏：本页目录等辅助内容；较窄时不显示 */
   aside?: VNodeChild;
-  /**
-   * 左侧栏的形式：docked（默认）宽屏时占一列、窄屏时收进抽屉；
-   * overlay 各宽度都是盖在页面上面的抽屉，不占正文的位置，可以收起、拖动宽度
-   */
-  sidebarMode?: 'docked' | 'overlay';
+  /** 左侧栏的形式，默认 docked */
+  sidebarMode?: keyof AppShellSidebarModes;
   /** 侧栏抽屉是否打开（docked 时只在窄屏有抽屉）：父级可以写 sidebarOpen={_bind(x)} */
   sidebarOpen?: boolean;
   /** overlay 抽屉的宽度（px），默认 256，范围 16–480（窄到几乎只剩滚动条）：父级写 sidebarWidth={_bind(x)} 记住拖动后的宽度 */

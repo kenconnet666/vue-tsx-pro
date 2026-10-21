@@ -121,7 +121,7 @@ export {
   type ButtonBehaviorProps,
   type ButtonBehaviorState,
   type ButtonContentOptions,
-  type ButtonGroupOrientation,
+  type ButtonGroupOrientations,
   type ButtonGroupState,
   type ButtonOptions,
   type ButtonVariants,
@@ -135,6 +135,7 @@ export {
   appShellOffset,
   appShellStyles,
   type AppShellProps,
+  type AppShellSidebarModes,
 } from './layout/AppShell';
 export {
   Container,
@@ -897,6 +898,7 @@ export {
   type FormControllerBase,
   type FormErrors,
   type FormOptions,
+  type FormValidateTimings,
   type PathValue,
 } from './form/useForm';
 
@@ -1178,6 +1180,7 @@ export { useClipboard, type ClipboardOptions, type ClipboardState } from './util
 export { isRtl } from './utils/dom/direction';
 export { downloadFile } from './utils/dom/download';
 export {
+  anchoredPanelSx,
   anchorFloating,
   createAnchoredLayer,
   floatingStyles,
@@ -1255,7 +1258,12 @@ export {
   type HeadingEntry,
   type ScrollSpyOptions,
 } from './utils/dom/scroll-spy';
-export { useSortable, type SortableOptions, type SortableState } from './utils/dom/sortable';
+export {
+  useSortable,
+  type SortableOptions,
+  type SortableOrientations,
+  type SortableState,
+} from './utils/dom/sortable';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
 // 工具：比较与匹配、选择、分页、文字、数值、日期

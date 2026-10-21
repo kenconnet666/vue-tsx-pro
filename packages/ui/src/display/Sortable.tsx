@@ -18,7 +18,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { useSortable } from '../utils/dom/sortable';
+import { useSortable, type SortableOrientations } from '../utils/dom/sortable';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { FlexList, type FlexProps } from '../layout/Flex';
 import { toElement } from '../utils/dom/overlay';
@@ -40,7 +40,7 @@ export interface SortableProps<T> extends PartProps<'ul'> {
   /** 项的名称：把手的名称与读屏播报用它；默认是 key */
   getLabel?: (item: T) => string;
   /** 排列方向，默认 vertical */
-  orientation?: 'vertical' | 'horizontal';
+  orientation?: keyof SortableOrientations;
   /** 不可用：不能拖动 */
   disabled?: boolean;
   /** 每项的内容 */

@@ -30,6 +30,14 @@ import {
   type ResolvedSeries,
 } from './series';
 
+/** 加载中的骨架 */
+export interface ChartSkeletons {
+  /** 一排高低不一的柱（柱状图） */
+  bars: unknown;
+  /** 一整块（默认） */
+  block: unknown;
+}
+
 /** 直角坐标图表共有的属性；未声明的属性落到外层 div（role="figure"）上，aria-label 是图表的名称 */
 export interface XYChartProps<T extends object>
   extends PartProps<'div', 'role' | 'aria-busy'>, ChartFrameParts {
@@ -98,8 +106,8 @@ export interface XYChartKind<T extends object> {
   horizontal?: boolean;
   /** 十字线上给每个系列画圆点（折线图、面积图）；柱状图不画 */
   crosshairDots?: boolean;
-  /** 加载中的骨架：bars 一排高低不一的柱（柱状图），block 一整块（默认） */
-  skeleton?: 'bars' | 'block';
+  /** 加载中的骨架，默认 block */
+  skeleton?: keyof ChartSkeletons;
   /** 绘图区四周的留白（px）：折线两端不贴着边缘 */
   padding?: { left?: number; right?: number; top?: number; bottom?: number };
   /** 数值范围按堆叠后的总和算（堆叠的柱子、面积） */

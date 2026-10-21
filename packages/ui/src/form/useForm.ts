@@ -110,6 +110,16 @@ export interface FieldArray<Item> {
   move(from: number, to: number): void;
 }
 
+/** 什么时候开始校验；提交过一次之后总是随输入更新 */
+export interface FormValidateTimings {
+  /** 失焦后（默认） */
+  blur: unknown;
+  /** 输入时 */
+  change: unknown;
+  /** 只在提交时 */
+  submit: unknown;
+}
+
 /** useForm 的选项；Values 是表单里的值（有 schema 时是它的输入类型），Output 是校验通过后交给 onSubmit 的值 */
 export interface FormOptions<Values extends object, Output = Values> {
   /** 初始值；reset() 回到它 */
@@ -123,8 +133,8 @@ export interface FormOptions<Values extends object, Output = Values> {
    * NoInfer：Values 只从 initial 与 schema 推出，validate 的参数类型才能跟着推出来
    */
   fields?: NoInfer<{ [P in FieldPath<Values>]?: FieldValidator<PathValue<Values, P>, Values> }>;
-  /** 什么时候开始校验：blur（默认，失焦后）、change（输入时）、submit（只在提交时）；提交过一次之后总是随输入更新 */
-  validateOn?: 'blur' | 'change' | 'submit';
+  /** 什么时候开始校验，默认 blur；提交过一次之后总是随输入更新 */
+  validateOn?: keyof FormValidateTimings;
   /** 校验通过后调用，拿到 schema 解析后的值（转换、默认值、coerce 都已生效）；返回 Promise 时 submitting 一直为 true 直到完成 */
   onSubmit?: (values: Output) => unknown;
 }

@@ -15,7 +15,11 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { ButtonGroupContext, type ButtonGroupOrientation, type ButtonOptions } from './button-core';
+import {
+  ButtonGroupContext,
+  type ButtonGroupOrientations,
+  type ButtonOptions,
+} from './button-core';
 
 /** 角色由组件管理 */
 export type ButtonGroupManaged = 'role';
@@ -29,7 +33,7 @@ export interface ButtonGroupProps
    * 排列方向
    * @default 'horizontal'
    */
-  orientation?: ButtonGroupOrientation;
+  orientation?: keyof ButtonGroupOrientations;
   /** 按钮 */
   children?: VNodeChild;
 }

@@ -49,7 +49,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] NumberRangeField 补 size、variant、radius（两端共用）。决定保留：表单 name 跟着值的形状——NumberRangeField 的值是
       `[起, 止]`，name 也是二元组；DateRangePicker 的值是 `{ start, end }`，name 是 `startName` / `endName`（同 React Aria）
 - [x] 间距：List 的 `spacing` 改成 `gap`（全档）；Flex 加 rowGap / columnGap；Heading 加 wrap / lineClamp
-- [ ] 枚举类取值改成带注释接口的 `keyof`（AppShell 的 sidebarMode、ButtonGroup 的方向、Flex 的 wrap、PageHeader 的标题级别）
+- [x] 枚举类取值改成带注释接口的 `keyof`：AppShell 的 sidebarMode、ButtonGroup / BarChart / Sortable 的方向、图表的骨架、
+      useForm 的 validateOn。决定保留：Flex 的 `wrap`（`true` 的简写更常用）、标题级别 1–6（数字本身就清楚）、镜像原生属性的 `type`、`scope`
 - [ ] ComponentDefaults 补上 Progress、Indicator、Link、Spinner、Empty、Result
 - [x] PageSizeSelect 的 `onUpdate` 改名 `onSizeChange`（回调统一叫 onXxxChange）。决定保留 Drawer 的 `side`（四条边，
       与浮层的定位 placement 不是一回事）；Steps 的 current 可绑定并入 §4 M3 的 Steps 升级

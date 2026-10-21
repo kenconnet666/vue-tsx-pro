@@ -6,7 +6,7 @@
  * 主入口不导入图表，没用到图表的应用不会打包 Unovis。
  */
 export { AreaChart, type AreaChartProps } from './AreaChart';
-export { BarChart, type BarChartProps } from './BarChart';
+export { BarChart, type BarChartOrientations, type BarChartProps } from './BarChart';
 export { ChordChart, chordChartStyles, type ChordChartProps } from './ChordChart';
 export { DonutChart, donutChartStyles, type DonutChartProps } from './DonutChart';
 export { type FlowLink, type FlowNode } from './flow';
@@ -34,4 +34,4 @@ export {
   type NumericKey,
   type ResolvedSeries,
 } from './series';
-export { xyChartStyles, type XYChartProps } from './XYChart';
+export { xyChartStyles, type ChartSkeletons, type XYChartProps } from './XYChart';

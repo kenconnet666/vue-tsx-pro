@@ -26,6 +26,14 @@ import { useAnimate } from '../motion/animation';
 import { useLayoutAnimation } from '../motion/layout';
 import { startMove } from './move';
 
+/** 排列方向：决定按哪个轴拖动、方向键用上下还是左右 */
+export interface SortableOrientations {
+  /** 竖排（默认） */
+  vertical: unknown;
+  /** 横排 */
+  horizontal: unknown;
+}
+
 /** useSortable 的选项 */
 export interface SortableOptions<T> {
   /** 当前的各项 */
@@ -39,7 +47,7 @@ export interface SortableOptions<T> {
   /** 各项所在的容器（元素或组件实例）：布局动画、自动滚动在它里面进行 */
   container: () => unknown;
   /** 排列方向，默认 vertical */
-  orientation?: () => 'vertical' | 'horizontal';
+  orientation?: () => keyof SortableOrientations;
   /** 不可用 */
   disabled?: () => boolean;
 }

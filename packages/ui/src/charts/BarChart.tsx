@@ -15,12 +15,20 @@ import { GroupedBar, StackedBar } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
+/** 柱子的方向 */
+export interface BarChartOrientations {
+  /** 竖向的柱子（默认） */
+  vertical: unknown;
+  /** 横向的条：类目名较长、类目较多时 */
+  horizontal: unknown;
+}
+
 /** 未声明的属性落到外层 div（role="figure"）上；aria-label 是图表的名称 */
 export interface BarChartProps<T extends object> extends XYChartProps<T> {
   /** 堆叠：同一类目的系列叠成一根柱子；默认并排 */
   stacked?: boolean;
-  /** 方向：vertical 竖向的柱子（默认），horizontal 横向的条（类目名较长、类目较多时） */
-  orientation?: 'vertical' | 'horizontal';
+  /** 方向，默认 vertical */
+  orientation?: keyof BarChartOrientations;
   /** 柱子末端的圆角（px），默认 4 */
   radius?: number;
 }
