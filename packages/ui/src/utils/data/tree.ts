@@ -174,6 +174,8 @@ export interface TreeExpansionOptions<T> {
   getChildren: (node: T) => readonly T[] | undefined;
   /** 展开一个还没有子节点的节点时调用：取回子节点并放进数据里；返回 Promise 时显示加载中 */
   loadChildren?: (node: T) => Promise<unknown> | void;
+  /** 子节点加载失败：节点收回去，可以再展开重试；不写时在控制台报错 */
+  onLoadError?: (error: unknown, node: T) => void;
 }
 
 /** useTreeExpansion 的返回值 */
@@ -192,19 +194,29 @@ export function useTreeExpansion<T>({
   setExpanded,
   getChildren,
   loadChildren,
+  onLoadError,
 }: TreeExpansionOptions<T>): TreeExpansion<T> {
   const loading = shallowRef<ReadonlySet<string>>(new Set());
   const isExpanded = (key: string) => expanded().includes(key);
 
+  const collapse = (key: string) => setExpanded(expanded().filter((item) => item !== key));
+
   async function setOpen(node: T, key: string, open: boolean) {
     if (isExpanded(key) === open) return;
-    setExpanded(open ? [...expanded(), key] : expanded().filter((item) => item !== key));
-    if (!open || !loadChildren || (getChildren(node)?.length ?? 0) > 0) return;
+    if (!open) return collapse(key);
+    setExpanded([...expanded(), key]);
+    // 正在加载（收起后又展开）：等那一次，不重复请求
+    if (!loadChildren || loading.value.has(key) || (getChildren(node)?.length ?? 0) > 0) return;
     const pending = loadChildren(node);
     if (!(pending instanceof Promise)) return;
     loading.value = new Set([...loading.value, key]);
     try {
       await pending;
+    } catch (error) {
+      // 失败时收回去：留着展开却没有子节点，看起来像是本来就没有；再展开会重试
+      collapse(key);
+      if (onLoadError) onLoadError(error, node);
+      else console.error('树的子节点加载失败', error);
     } finally {
       const next = new Set(loading.value);
       next.delete(key);

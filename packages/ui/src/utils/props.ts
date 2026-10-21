@@ -12,7 +12,7 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { IntrinsicProps, JSX } from '@vue-tsx-pro/tsx/jsx-runtime';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import type { Ref } from 'vue';
+import type { Ref, VNodeChild } from 'vue';
 
 /**
  * 原生元素部件的 props：该元素的属性加上 sx；去掉组件管理的属性与 children（内容走组件自己的 prop）。
@@ -215,4 +215,12 @@ function present3(a: unknown, b: unknown, c?: unknown): unknown[] | undefined {
   }
   if (b == null) return c == null ? [a] : [a, c];
   return c == null ? [a, b] : [a, b, c];
+}
+
+/**
+ * 内容（插槽、标题、说明、错误这类 VNodeChild）有没有东西：null、undefined、空字符串与布尔都算没有。
+ * 使用方常写 `error={cond && '…'}`、`aside={wide && <Panel />}`，条件不成立时是 false，不该渲染出空的外层
+ */
+export function hasContent(node: VNodeChild): boolean {
+  return node != null && typeof node !== 'boolean' && node !== '';
 }

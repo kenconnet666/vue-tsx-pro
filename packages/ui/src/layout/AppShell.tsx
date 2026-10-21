@@ -42,7 +42,7 @@ import { ScrollArea } from './ScrollArea';
 import { Drawer, type DrawerProps } from '../overlay/Drawer';
 import { useMediaQuery } from '../utils/dom/media-query';
 import { toElement } from '../utils/dom/overlay';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { breakpoints } from '../config/theme/tokens.stylex';
 import { layoutVars } from '../utils/style/vars.stylex';
 
@@ -240,9 +240,6 @@ export const appShellDynamicStyles = stylex.create({
   brandWidth: (px: number) => ({ width: { default: null, [breakpoints.lg]: px } }),
 });
 
-/** 插槽有没有内容：使用方常写 cond && <…/>，false、true 同没写 */
-const filled = (slot: VNodeChild) => slot != null && typeof slot !== 'boolean';
-
 /** 应用外壳：粘性顶栏、左侧栏、正文、右侧栏；窄屏时左侧栏收进抽屉 */
 export const AppShell = _component(
   ({
@@ -272,7 +269,7 @@ export const AppShell = _component(
     const mainId = `${id}-main`;
     const sidebarId = `${id}-sidebar`;
     const overlay = () => sidebarMode === 'overlay';
-    const docked = () => filled(sidebar) && !overlay();
+    const docked = () => hasContent(sidebar) && !overlay();
     const wide = useMediaQuery(WIDE_QUERY);
     // docked：变宽后侧栏已经显示出来，抽屉没必要再开着
     watch(wide, (isWide) => {
@@ -333,13 +330,13 @@ export const AppShell = _component(
             {
               sx: [
                 appShellStyles.header,
-                filled(brand) && filled(sidebar) && appShellStyles.headerWithBrand,
+                hasContent(brand) && hasContent(sidebar) && appShellStyles.headerWithBrand,
               ],
             },
             propsHeader,
           )}
         >
-          {filled(sidebar) && !overlay() && (
+          {hasContent(sidebar) && !overlay() && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
@@ -352,13 +349,13 @@ export const AppShell = _component(
               )}
             />
           )}
-          {filled(brand) && (
+          {hasContent(brand) && (
             <div
               {...mergeAttrs<'div'>(
                 {
                   sx: [
                     appShellStyles.brand,
-                    filled(sidebar) &&
+                    hasContent(sidebar) &&
                       (overlay()
                         ? [
                             appShellStyles.brandOverlay,
@@ -371,21 +368,21 @@ export const AppShell = _component(
               )}
             >
               {brand}
-              {filled(sidebar) && overlay() && sidebarToggle()}
+              {hasContent(sidebar) && overlay() && sidebarToggle()}
             </div>
           )}
-          {!filled(brand) && filled(sidebar) && overlay() && sidebarToggle()}
+          {!hasContent(brand) && hasContent(sidebar) && overlay() && sidebarToggle()}
           <div {...mergeAttrs<'div'>({ sx: appShellStyles.headerContent })}>{header}</div>
         </header>
         <div
           {...mergeAttrs<'div'>({
             sx: [
               appShellStyles.body,
-              docked() && filled(aside)
+              docked() && hasContent(aside)
                 ? appShellStyles.withBoth
                 : docked()
                   ? appShellStyles.withSidebar
-                  : filled(aside) && appShellStyles.withAside,
+                  : hasContent(aside) && appShellStyles.withAside,
             ],
           })}
         >
@@ -413,7 +410,7 @@ export const AppShell = _component(
           >
             {children}
           </main>
-          {filled(aside) && (
+          {hasContent(aside) && (
             <aside
               {...mergeAttrs<'aside'>(
                 { sx: [appShellStyles.rail, appShellStyles.aside] },
@@ -430,7 +427,7 @@ export const AppShell = _component(
             </aside>
           )}
         </div>
-        {filled(sidebar) && overlay() && (
+        {hasContent(sidebar) && overlay() && (
           <div
             {...mergeAttrs<'div'>(
               {

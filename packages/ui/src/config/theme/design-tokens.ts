@@ -23,7 +23,9 @@ import { tokenCatalog } from './token-catalog';
 export interface DesignToken {
   /** DTCG 类型：color、dimension、number、duration、fontFamily、shadow、cubicBezier */
   readonly $type: string;
+  /** 取值：结构按类型（颜色是 colorSpace、components、alpha、hex，长度是 value 与 unit） */
   readonly $value: unknown;
+  /** 说明，取自 token 目录 */
   readonly $description?: string;
 }
 

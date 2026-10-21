@@ -4,7 +4,7 @@ import { mount } from '../../utils/.test/mount';
 import { ScrollArea } from '../ScrollArea';
 
 describe('ScrollArea', () => {
-  it('视口可聚焦、带上 propsViewport；属性落到外层；纵向时只有一条滚动条且对读屏隐藏', () => {
+  it('视口带上 propsViewport；属性落到外层；纵向时只有一条滚动条且对读屏隐藏', () => {
     const root = mount(() => (
       <ScrollArea data-x="1" propsViewport={{ 'aria-label': '列表' }}>
         内容
@@ -12,7 +12,8 @@ describe('ScrollArea', () => {
     )).firstElementChild as HTMLElement;
     expect(root.dataset.x).toBe('1');
     const viewport = root.firstElementChild!;
-    expect(viewport.getAttribute('tabindex')).toBe('0');
+    // 内容没有超出时视口不进 Tab 顺序（超出时可聚焦，见浏览器测试）
+    expect(viewport.hasAttribute('tabindex')).toBe(false);
     expect(viewport.getAttribute('aria-label')).toBe('列表');
     expect(viewport.textContent).toBe('内容');
     const bars = root.querySelectorAll('[aria-hidden="true"][data-axis]');

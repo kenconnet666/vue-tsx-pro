@@ -49,8 +49,8 @@ export interface CopyButtonProps
   tone?: ButtonOptions['tone'];
   /** 不可用 */
   disabled?: boolean;
-  /** 复制完成后调用，参数是是否成功（不安全的上下文、用户拒绝权限、异步取值出错时失败） */
-  onCopied?: (success: boolean) => void;
+  /** 复制完成后调用：是否成功，失败时还有原因（不安全的上下文、用户拒绝权限、取值出错） */
+  onCopied?: (success: boolean, error?: unknown) => void;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
   /** 读屏播报区（按钮里的隐藏文字，复制后念“已复制”）的部件属性 */
@@ -100,17 +100,23 @@ export const CopyButton = _component(
       () => () => void copy(),
     );
 
+    // 点击处理里不等它：取值出错也在这里收住，经 onCopied 告诉使用方，不留下没人处理的 rejection
     async function copy() {
-      const text = typeof value === 'function' ? value() : value;
       let success = false;
-      pending = typeof text !== 'string';
+      let error: unknown;
       try {
+        const text = typeof value === 'function' ? value() : value;
+        pending = typeof text !== 'string';
         // 字符串在点击当下就写入（不先 await），Safari 才认
         success = await clipboard.copy(typeof text === 'string' ? text : await text);
+        error = clipboard.error;
+      } catch (reason) {
+        error = reason;
       } finally {
         pending = false;
-        onCopied?.(success);
       }
+      if (success) onCopied?.(true);
+      else onCopied?.(false, error);
     }
 
     return () => (

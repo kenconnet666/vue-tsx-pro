@@ -6,7 +6,7 @@
  *   <ScrollArea sx={styles.panel}>…</ScrollArea>            高度（或最大高度）由使用方给
  *   <ScrollArea axis="both" type="always">…</ScrollArea>
  *
- * 滚动条对读屏隐藏（滚动由视口本身承担）；视口可聚焦，键盘照常滚动。
+ * 滚动条对读屏隐藏（滚动由视口本身承担）；内容超出时视口可聚焦，键盘照常滚动。
  * 滚动条本身是 OverlayScrollbar：整页的浮层滚动条（PageScrollbar）也用它。
  *
  * 要在外面拿到真正滚动的元素（虚拟滚动、自己控制滚动）时用 propsViewport 的 ref：
@@ -51,7 +51,7 @@ export interface ScrollAreaProps extends PartProps<'div'> {
   /** 停止滚动、指针离开后多久淡出（毫秒），默认 600 */
   hideDelay?: number;
   /**
-   * 视口可以用 Tab 聚焦（键盘滚动），默认 true。视口本身另有角色并自己管焦点（列表框、菜单），
+   * 内容超出时视口可以用 Tab 聚焦（键盘滚动），默认 true。视口本身另有角色并自己管焦点（列表框、菜单），
    * 或焦点在别处、由那里控制滚动（命令面板的输入框）时关掉，tabindex 由使用方经 propsViewport 给
    */
   focusable?: boolean;
@@ -154,6 +154,8 @@ export interface OverlayScrollbarProps {
   propsScrollbar?: PartProps<'div', 'aria-hidden'>;
   /** 滑块的部件属性 */
   propsThumb?: PartProps<'div'>;
+  /** 内容是否超出视口（这个方向能不能滚动）变化时调用 */
+  onOverflowChange?: (overflowing: boolean) => void;
 }
 
 /**
@@ -172,6 +174,7 @@ export const OverlayScrollbar = _component(
     fixed = false,
     propsScrollbar,
     propsThumb,
+    onOverflowChange,
   }: OverlayScrollbarProps) => {
     let track = _state.raw<HTMLElement | null>(null);
     let thumb = _state.raw<HTMLElement | null>(null);
@@ -208,7 +211,11 @@ export const OverlayScrollbar = _component(
       const offset = size > view ? (position / (size - view)) * (trackSize - length) : 0;
       const direction = sign();
       return () => {
-        overflowing = size > view + 1;
+        const next = size > view + 1;
+        if (next !== overflowing) {
+          overflowing = next;
+          onOverflowChange?.(next);
+        }
         if (axis === 'y') {
           element.style.height = `${length}px`;
           element.style.transform = `translateY(${offset}px)`;
@@ -382,6 +389,8 @@ export const ScrollArea = _component(
     let root = _state.raw<HTMLElement | null>(null);
     let viewport = _state.raw<HTMLElement | null>(null);
     let content = _state.raw<HTMLElement | null>(null);
+    // 哪个方向的内容超出了视口：能滚动时视口才进 Tab 顺序，没超出的侧栏、代码块不多一个空的 Tab 位
+    let overflowing = _state({ x: false, y: false });
 
     return () => {
       const both = axis === 'both';
@@ -396,6 +405,7 @@ export const ScrollArea = _component(
           corner={both}
           propsScrollbar={propsScrollbar}
           propsThumb={propsThumb}
+          onOverflowChange={(value) => (overflowing = { ...overflowing, [barAxis]: value })}
         />
       );
       return (
@@ -406,7 +416,10 @@ export const ScrollArea = _component(
                 sx: [focusRingStyles.visible, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
               },
               propsViewport,
-              { ref: _toRef(viewport), ...(focusable && { tabindex: 0 }) },
+              {
+                ref: _toRef(viewport),
+                ...(focusable && (overflowing.x || overflowing.y) && { tabindex: 0 }),
+              },
             )}
           >
             <div

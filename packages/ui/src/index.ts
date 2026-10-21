@@ -1109,6 +1109,7 @@ export { zhCN } from './config/lang/zh-CN';
 export {
   dataAttrs,
   elementProps,
+  hasContent,
   mergeAttrs,
   mergePartProps,
   mergeProps,
@@ -1198,6 +1199,7 @@ export {
 } from './utils/dom/floating';
 export {
   focusAfterRemoval,
+  focusControl,
   focusFirst,
   focusOrigin,
   returnFocus,
@@ -1207,6 +1209,7 @@ export {
   ariaKeyShortcut,
   formatHotkey,
   isApplePlatform,
+  isComposingKey,
   isEditable,
   matchesHotkey,
   parseHotkey,

@@ -42,6 +42,8 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSo
   hasChildren?: (row: T) => boolean;
   /** 展开一个还没有子项的行时调用：取回子项并放进数据里；返回 Promise 时按钮显示加载中 */
   loadChildren?: (row: T) => Promise<unknown> | void;
+  /** 子项加载失败（loadChildren 的 Promise 被拒绝）：这一行收回去，再展开会重试；不写时在控制台报错 */
+  onLoadError?: (error: unknown, row: T) => void;
   /** 展开的行的 key：父级写 expanded={_bind(keys)} */
   expanded?: string[];
   /** 每一层缩进多少（em），默认 1.25 */
@@ -73,6 +75,7 @@ export const TreeDataTable = _component(
     getChildren,
     hasChildren,
     loadChildren,
+    onLoadError,
     expanded = _bindable<string[]>([]),
     indent = 1.25,
     propsToggle,
@@ -88,6 +91,8 @@ export const TreeDataTable = _component(
       setExpanded: (keys) => (expanded = keys),
       getChildren: (row) => getChildren(row),
       loadChildren: (row) => loadChildren?.(row),
+      // 没给 onLoadError 时交给 useTreeExpansion 在控制台报错
+      onLoadError: _untrack(onLoadError) && ((error, row) => onLoadError?.(error, row)),
     });
 
     /** 按展开状态深度优先展开成一列；同级之间按当前排序 */

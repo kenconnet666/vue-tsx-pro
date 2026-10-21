@@ -224,7 +224,7 @@ export const SegmentedField = _component(
             />
           )}
           {suffix}
-          <FormValue name={name} value={value} />
+          <FormValue name={name} value={value} disabled={state.disabled} />
         </div>
       );
     };

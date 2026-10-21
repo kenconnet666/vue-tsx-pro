@@ -483,7 +483,7 @@ export const Slider = _component(
               </span>
             );
           })}
-          <FormValue name={name} value={range ? shown : shown[0]} />
+          <FormValue name={name} value={range ? shown : shown[0]} disabled={control().disabled} />
         </div>
       );
     };

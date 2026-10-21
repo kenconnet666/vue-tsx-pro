@@ -7,7 +7,7 @@
  *
  * 内置的值类型都按规范文本提交（formValueText）：数字（number、bigint、Decimal）是不带分组、不用科学计数法的十进制；
  * 原生 Date 是 ISO 时间（UTC），@internationalized/date 的日期值是它自己的 ISO 文本（2026-10-20、2026-10-20T14:30:00）。
- * 没有 name、或值为 null / undefined 时不渲染。
+ * 没有 name、值为 null / undefined、或控件不可用（disabled，同原生的不可用控件不随表单提交）时不渲染。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import type { DateValue } from '@internationalized/date';
@@ -22,6 +22,8 @@ export interface FormValueProps {
   name?: string;
   /** 值；数组时每个值一个 input */
   value?: FormValueItem | readonly FormValueItem[] | null;
+  /** 控件不可用：同原生的不可用控件，不随表单提交 */
+  disabled?: boolean;
 }
 
 /** 值 → 提交的文本：数字是十进制，日期是 ISO */
@@ -35,8 +37,8 @@ export function formValueText(value: FormValueItem): string {
 }
 
 /** 隐藏的表单值（input type="hidden"） */
-export const FormValue = _component(({ name, value }: FormValueProps) => () => {
-  if (name == null || value == null) return null;
+export const FormValue = _component(({ name, value, disabled = false }: FormValueProps) => () => {
+  if (name == null || value == null || disabled) return null;
   const texts = (Array.isArray(value) ? value : [value]).map((item) => formValueText(item));
   // 同一个值可能出现两次（数组里重复的项）：key 带上下标
   return texts.map((text, index) => (

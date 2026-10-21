@@ -70,9 +70,80 @@ describe('useForm', () => {
     expect(form.values.email).toBe('ada@example.com');
     expect(form.errors).toEqual({});
   });
+
+  it('不属于字段的错误（refine 没写 path）是 formError：提交过之后才有，提交不通过', async () => {
+    const form = useForm({
+      initial: { start: 5, end: 3 },
+      schema: z
+        .object({ start: z.number(), end: z.number() })
+        .refine((value) => value.start <= value.end, '开始不能晚于结束'),
+    });
+    expect(await form.validate()).toBe(false);
+    expect(form.formError).toBeUndefined();
+    expect(await form.submit()).toBe(false);
+    expect(form.formError).toBe('开始不能晚于结束');
+    form.values.end = 9;
+    await flush();
+    expect(form.formError).toBeUndefined();
+  });
+
+  it('setError 给的错误：校验不会冲掉，这个字段的值改了就消失；提交时也算不通过', async () => {
+    const onSubmit = vi.fn();
+    const form = useForm({
+      initial: { email: 'ada@example.com', profile: { name: 'Ada' } },
+      schema,
+      onSubmit,
+    });
+    form.setError('email', '邮箱已注册');
+    form.blur('profile.name');
+    await flush();
+    expect(form.errors.email).toBe('邮箱已注册');
+    expect(await form.submit()).toBe(false);
+    expect(form.visibleError('email')).toBe('邮箱已注册');
+    form.values.email = 'grace@example.com';
+    await flush();
+    expect(form.visibleError('email')).toBeUndefined();
+    expect(await form.submit()).toBe(true);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('失焦过的字段随输入更新：改对了错误立刻消失，不用再失焦一次', async () => {
+    const form = useForm({ initial: { email: 'x', profile: { name: 'Ada' } }, schema });
+    form.blur('email');
+    await flush();
+    expect(form.visibleError('email')).toBe('邮箱格式不对');
+    form.values.email = 'ada@example.com';
+    await flush();
+    expect(form.visibleError('email')).toBeUndefined();
+  });
+
+  it('提交进行中再次提交（连按回车）：拿到同一个结果，onSubmit 只调用一次', async () => {
+    const onSubmit = vi.fn();
+    const form = useForm({
+      initial: { email: 'ada@example.com', profile: { name: 'Ada' } },
+      schema,
+      onSubmit,
+    });
+    const [first, second] = [form.submit(), form.submit()];
+    expect(await first).toBe(true);
+    expect(await second).toBe(true);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('Form + Field', () => {
+  it('Field 的 error、说明、标签写成 cond && … 条件不成立时（false、空字符串）当作没写', () => {
+    const root = mount(() => (
+      <Field label="" description={false} error={false}>
+        <TextField />
+      </Field>
+    ));
+    const input = root.querySelector('input')!;
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+    expect(input.hasAttribute('aria-describedby')).toBe(false);
+    expect(root.querySelector('label')).toBeNull();
+  });
+
   it('Field 按 name 显示表单的错误；提交不通过时焦点移到第一个出错的控件', async () => {
     const form = useForm({ initial: { email: '', profile: { name: '' } }, schema });
     const root = mount(() => (
@@ -93,7 +164,7 @@ describe('Form + Field', () => {
     expect(root.textContent).toContain('邮箱格式不对');
     expect(root.textContent).toContain('请填写名字');
     expect(email!.getAttribute('aria-invalid')).toBe('true');
-    expect(document.activeElement).toBe(email);
+    await vi.waitFor(() => expect(document.activeElement).toBe(email));
   });
 
   it('焦点离开字段时报告失焦，显示这个字段的错误；form.Field 就是 Field（name 带类型）', async () => {

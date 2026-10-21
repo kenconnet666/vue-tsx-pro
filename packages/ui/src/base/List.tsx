@@ -95,6 +95,8 @@ export interface ListItemProps extends PartProps<'li'> {
   icon?: IconData;
   /** 图标的部件属性，与 List 的 propsIcon 合并 */
   propsIcon?: Partial<IconProps>;
+  /** 带图标时包着文字的内容层（div）的部件属性 */
+  propsContent?: PartProps<'div'>;
   children?: VNodeChild;
 }
 
@@ -120,6 +122,8 @@ export const List = _component(
         {...mergeAttrs<'ul'>(
           {
             sx: [...listSx(spacing, size), icon ? listStylesProse.iconic : listStylesProse.bullet],
+            // 去掉圆点后 Safari 不再把它当列表念（见 listStyles）
+            role: icon ? 'list' : undefined,
           },
           rest,
         )}
@@ -144,24 +148,28 @@ export const OrderedList = _component(
 );
 
 /** 列表项（li）：在带图标的 List 里，图标在前、文字在后 */
-export const ListItem = _component(({ icon, propsIcon, children, ...rest }: ListItemProps) => {
-  const list: ListMarkerState = ListContext.inject({});
-  return () => {
-    const shown = icon ?? list.icon;
-    if (!shown) {
-      return <li {...mergeAttrs<'li'>({ sx: listStylesProse.item }, rest)}>{children}</li>;
-    }
-    return (
-      <li {...mergeAttrs<'li'>({ sx: listStylesProse.iconItem }, rest)}>
-        <Icon
-          {...mergePartProps<IconProps>(
-            { icon: shown, sx: listStylesProse.icon },
-            list.propsIcon,
-            propsIcon,
-          )}
-        />
-        <div {...stylex.attrs(listStylesProse.content)}>{children}</div>
-      </li>
-    );
-  };
-});
+export const ListItem = _component(
+  ({ icon, propsIcon, propsContent, children, ...rest }: ListItemProps) => {
+    const list: ListMarkerState = ListContext.inject({});
+    return () => {
+      const shown = icon ?? list.icon;
+      if (!shown) {
+        return <li {...mergeAttrs<'li'>({ sx: listStylesProse.item }, rest)}>{children}</li>;
+      }
+      return (
+        <li {...mergeAttrs<'li'>({ sx: listStylesProse.iconItem }, rest)}>
+          <Icon
+            {...mergePartProps<IconProps>(
+              { icon: shown, sx: listStylesProse.icon },
+              list.propsIcon,
+              propsIcon,
+            )}
+          />
+          <div {...mergeAttrs<'div'>({ sx: listStylesProse.content }, propsContent)}>
+            {children}
+          </div>
+        </li>
+      );
+    };
+  },
+);

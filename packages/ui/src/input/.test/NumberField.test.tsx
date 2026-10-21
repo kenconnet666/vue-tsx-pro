@@ -74,6 +74,28 @@ describe('NumberField', () => {
     expect(field.value()).toBe(0.9);
   });
 
+  it('只是聚焦再离开不改值：不对齐步长、不夹到范围，表单不会变脏', async () => {
+    let value = _state<number | null>(12.345);
+    const root = mount(() => (
+      <NumberField value={_bind(value)} step={0.01} max={10} aria-label="单价" />
+    ));
+    const input = root.querySelector('input')!;
+    input.dispatchEvent(new FocusEvent('focus'));
+    input.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    expect(value).toBe(12.345);
+  });
+
+  it('编辑中按 Home / End：输入框的文字跟着换，失焦后仍是两端的值', async () => {
+    const field = setup({ min: 0, max: 10 });
+    field.input.dispatchEvent(new FocusEvent('focus'));
+    await field.key('End');
+    expect(field.input.value).toBe('10');
+    field.input.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    expect(field.value()).toBe(10);
+  });
+
   it('按住增加按钮：先走一步，400ms 后每 60ms 一步，松开就停', async () => {
     vi.useFakeTimers();
     try {

@@ -1,5 +1,5 @@
 // Tree：treeitem 的层级属性、方向键展开 / 收起 / 进出子节点、选中、勾选联动、懒加载、部件属性
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Tree } from '../Tree';
@@ -172,6 +172,31 @@ describe('Tree', () => {
     resolve();
     await flush();
     expect(items(root)[0]!.hasAttribute('aria-busy')).toBe(false);
+  });
+
+  it('懒加载失败：节点收回去，onLoadError 拿到原因；再展开会重试', async () => {
+    const failed = new Error('offline');
+    const loadChildren = vi.fn(() => Promise.reject(failed));
+    const onLoadError = vi.fn();
+    const root = mount(() => (
+      <Tree
+        items={[{ id: 'remote', name: 'remote', lazy: true }] as Node[]}
+        getKey={(node) => node.id}
+        getLabel={(node) => node.name}
+        getChildren={(node) => node.children}
+        hasChildren={(node) => node.lazy ?? false}
+        loadChildren={loadChildren}
+        onLoadError={onLoadError}
+        aria-label="远程"
+      />
+    ));
+    await flush();
+    items(root)[0]!.click();
+    await vi.waitFor(() => expect(onLoadError).toHaveBeenCalledWith(failed, expect.anything()));
+    await flush();
+    expect(items(root)[0]!.getAttribute('aria-expanded')).toBe('false');
+    items(root)[0]!.click();
+    await vi.waitFor(() => expect(loadChildren).toHaveBeenCalledTimes(2));
   });
 
   it('propsRow、propsToggle、propsCheckbox 落到各自的节点上；点击仍按组件的处理', async () => {

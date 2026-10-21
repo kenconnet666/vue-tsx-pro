@@ -80,6 +80,8 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   hasChildren?: (node: T) => boolean;
   /** 展开一个还没有子节点的节点时调用：取回子节点并放进数据里；返回 Promise 时显示加载中 */
   loadChildren?: (node: T) => Promise<unknown> | void;
+  /** 子节点加载失败（loadChildren 的 Promise 被拒绝）：节点收回去，再展开会重试；不写时在控制台报错 */
+  onLoadError?: (error: unknown, node: T) => void;
   /** 节点不可用：可以经过、展开，不能选中、勾选 */
   isDisabled?: (node: T) => boolean;
   /** 文字前的图标，可以按展开状态换（文件夹开 / 合） */
@@ -164,6 +166,7 @@ export const Tree = _component(
     getChildren,
     hasChildren,
     loadChildren,
+    onLoadError,
     isDisabled,
     getIcon,
     expanded = _bindable<string[]>([]),
@@ -202,6 +205,8 @@ export const Tree = _component(
       setExpanded: (keys) => (expanded = keys),
       getChildren: (node) => getChildren(node),
       loadChildren: (node) => loadChildren?.(node),
+      // 没给 onLoadError 时交给 useTreeExpansion 在控制台报错
+      onLoadError: _untrack(onLoadError) && ((error, node) => onLoadError?.(error, node)),
     });
 
     const rows = _derived.by(() => flattenTree(items, accessors(), new Set(expanded)));

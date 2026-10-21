@@ -13,7 +13,8 @@
  *     <Button type="submit" loading={form.submitting}>登录</Button>
  *   </Form>
  *
- * 何时显示错误（“迟一点批评、早一点肯定”）：字段失焦后才显示它的错误；提交过一次之后，所有字段随输入实时更新。
+ * 何时显示错误（“迟一点批评、早一点肯定”）：字段失焦后才显示它的错误，之后它随输入实时更新；提交过一次之后，所有字段随输入实时更新。
+ * 不属于哪个字段的错误（对象级 refine 没写 path、validate 返回的 '' 键、setError('', …)）是整份表单的错误，见 formError。
  * 字段的值经 v-model 写回，中文输入法组合输入期间不写回，所以组合中途不会触发校验。
  *
  * schema 还决定字段的约束（form-constraints.ts）：标签的必填标记、输入框的 maxlength、NumberField 的 min / max
@@ -130,8 +131,10 @@ export interface FormOptions<Values extends object, Output = Values> {
 
 /** 控制器里与值的类型无关的部分：Form、Field 只用到它，任何 FormController 都能交给 <Form controller> */
 export interface FormControllerBase {
-  /** 所有字段当前的校验错误（含还没显示的） */
+  /** 所有字段当前的校验错误（含还没显示的）；整份表单的错误在 '' 键上 */
   readonly errors: Readonly<FormErrors>;
+  /** 整份表单的错误（不属于哪个字段），提交过之后才有；放在提交按钮旁或表单顶上 */
+  readonly formError: string | undefined;
   /** 正在执行 onSubmit */
   readonly submitting: boolean;
   /** 提交过几次（不论成功与否） */
@@ -166,8 +169,11 @@ export interface FormController<Values extends object> extends FormControllerBas
   array<P extends ArrayPath<Values>>(
     path: P,
   ): FieldArray<NonNullable<PathValue<Values, P>> extends readonly (infer Item)[] ? Item : never>;
-  /** 设置某个字段的错误（如服务端返回的“邮箱已注册”），undefined 清除；下次校验时被覆盖 */
-  setError(path: FieldPath<Values>, message: string | undefined): void;
+  /**
+   * 设置某个字段的错误（如服务端返回的“邮箱已注册”），undefined 清除；'' 是整份表单的错误。
+   * 校验不会冲掉它，这个字段（整份表单的错误是任一字段）的值改了之后自动消失
+   */
+  setError(path: FieldPath<Values> | '', message: string | undefined): void;
   /**
    * 就是 Field 组件，只是 name 的类型收窄为这份值的字段路径，写错字段名时类型检查报错：
    * `<form.Field name="email" label="邮箱">…</form.Field>`（参考 TanStack Form 的 form.Field）
@@ -263,6 +269,8 @@ export function useForm<Values extends object, Output = Values>(
     errors: {} as FormErrors,
     // 单字段校验的结果，与 errors 分开存：整份校验不会冲掉还在路上的单字段结果
     fieldErrors: {} as FormErrors,
+    // setError 给的错误与当时的值：值一改就不再算
+    externalErrors: {} as Record<string, { message: string; value: unknown }>,
     touched: new Set<string>(),
     pending: new Set<string>(),
     submitting: false,
@@ -272,6 +280,8 @@ export function useForm<Values extends object, Output = Values>(
   });
   // 异步校验可能乱序返回：只采用最后一次的结果
   let run = 0;
+  // 正在进行的提交：校验、onSubmit 期间再次提交（连按回车）拿到同一个结果，不重复调用 onSubmit
+  let submission: Promise<boolean> | undefined;
   // 最近一次通过校验时 schema 解析出的值，交给 onSubmit
   let parsed: Output | undefined;
   const constraints = createConstraints(schema);
@@ -312,6 +322,9 @@ export function useForm<Values extends object, Output = Values>(
         if (controller.signal.aborted) return;
         entry.checked = value;
         state.fieldErrors = { ...state.fieldErrors, [path]: message };
+      } catch (error) {
+        // 校验本身失败（接口出错）：当作没有结论，不挡提交（服务端还会再校验），但要报出来
+        if (!controller.signal.aborted) console.error(`useForm：字段 ${path} 的校验出错`, error);
       } finally {
         if (entry.running?.controller === controller) {
           entry.running = undefined;
@@ -333,8 +346,11 @@ export function useForm<Values extends object, Output = Values>(
     state.fieldErrors = {};
   }
 
-  /** 校验整份值：schema 与 validate 的错误（errors）；单字段校验一起跑完，结果在 state.fieldErrors */
-  async function collect(): Promise<{ errors: FormErrors; output: Output }> {
+  /**
+   * 校验整份值：schema 与 validate 的错误（errors）。full 时单字段校验也立刻跑完（提交、显式调用 validate），
+   * 结果在 state.fieldErrors；失焦、输入时只算 schema 与 validate，单字段校验照旧防抖、只在它自己的值变了时跑
+   */
+  async function collect(full: boolean): Promise<{ errors: FormErrors; output: Output }> {
     const errors: FormErrors = {};
     let output = values as unknown as Output;
     if (schema) {
@@ -350,19 +366,42 @@ export function useForm<Values extends object, Output = Values>(
       }
     }
     // 单字段校验：不等防抖，立刻跑完（值没变的直接用上次结果）
-    await Promise.all(fieldValidators.map(([path, validator]) => runField(path, validator)));
+    if (full) {
+      await Promise.all(fieldValidators.map(([path, validator]) => runField(path, validator)));
+    }
     return { errors, output };
   }
 
-  const hasFieldErrors = () => Object.values(state.fieldErrors).some(Boolean);
+  /** setError 给的错误，值改过就不算了；'' 是整份表单的错误，任一字段改了都不算 */
+  function externalError(path: string): string | undefined {
+    const entry = state.externalErrors[path];
+    if (!entry) return undefined;
+    const current = path === '' ? values : readPath(values, path);
+    return sameValue(current, entry.value) ? entry.message : undefined;
+  }
 
-  /** schema 与 validate 的错误优先，再补上单字段校验的 */
+  /** schema 与 validate 的错误优先，再补上 setError 与单字段校验的 */
   function mergedErrors(): FormErrors {
     const merged = { ...state.errors };
+    for (const path of Object.keys(state.externalErrors)) {
+      const message = externalError(path);
+      if (message) merged[path] ??= message;
+    }
     for (const [path, message] of Object.entries(state.fieldErrors)) {
       if (message) merged[path] ??= message;
     }
     return merged;
+  }
+
+  /** 校验并记下结果（只采用最后一次）；返回是否通过：算出的、setError 给的、单字段校验的都没有错误 */
+  async function check(full: boolean): Promise<boolean> {
+    const current = ++run;
+    const { errors, output } = await collect(full);
+    if (current === run) {
+      state.errors = errors;
+      parsed = output;
+    }
+    return Object.keys(errors).length === 0 && Object.keys(mergedErrors()).length === 0;
   }
 
   /** 数组字段的下标变了：错误、失焦记录、单字段校验的结果跟着移 */
@@ -376,6 +415,12 @@ export function useForm<Values extends object, Output = Values>(
       ) as FormErrors;
     state.errors = remap(state.errors);
     state.fieldErrors = remap(state.fieldErrors);
+    state.externalErrors = Object.fromEntries(
+      Object.entries(state.externalErrors).flatMap(([key, entry]) => {
+        const next = shiftIndices(key, prefix, map);
+        return next === undefined ? [] : [[next, entry]];
+      }),
+    );
     state.touched = new Set(
       [...state.touched].flatMap((key) => shiftIndices(key, prefix, map) ?? []),
     );
@@ -433,6 +478,10 @@ export function useForm<Values extends object, Output = Values>(
     get errors() {
       return mergedErrors();
     },
+    get formError() {
+      if (state.submitCount === 0) return undefined;
+      return state.errors[''] ?? externalError('');
+    },
     get submitting() {
       return state.submitting;
     },
@@ -447,33 +496,28 @@ export function useForm<Values extends object, Output = Values>(
     },
     visibleError(path) {
       if (state.submitCount === 0 && !state.touched.has(path)) return undefined;
-      return state.errors[path] ?? state.fieldErrors[path];
+      return state.errors[path] ?? externalError(path) ?? state.fieldErrors[path];
     },
     blur(path) {
       if (state.touched.has(path)) return;
       state.touched = new Set(state.touched).add(path);
-      if (validateOn !== 'submit') void controller.validate();
+      if (validateOn !== 'submit') void check(false);
     },
-    async validate() {
-      const current = ++run;
-      const { errors, output } = await collect();
-      const valid = Object.keys(errors).length === 0 && !hasFieldErrors();
-      if (current !== run) return valid;
-      state.errors = errors;
-      parsed = output;
-      return valid;
-    },
-    async submit() {
-      state.submitCount++;
-      const valid = await controller.validate();
-      if (!valid || !onSubmit) return valid;
-      state.submitting = true;
-      try {
-        await onSubmit(parsed as Output);
-      } finally {
-        state.submitting = false;
-      }
-      return true;
+    validate: () => check(true),
+    submit() {
+      submission ??= (async () => {
+        state.submitCount++;
+        const valid = await check(true);
+        if (!valid || !onSubmit) return valid;
+        state.submitting = true;
+        try {
+          await onSubmit(parsed as Output);
+        } finally {
+          state.submitting = false;
+        }
+        return true;
+      })().finally(() => (submission = undefined));
+      return submission;
     },
     reset(next = options.initial) {
       run++;
@@ -483,6 +527,7 @@ export function useForm<Values extends object, Output = Values>(
       arrayKeys.clear();
       state.baseline = snapshot;
       state.errors = {};
+      state.externalErrors = {};
       state.touched = new Set();
       state.submitCount = 0;
     },
@@ -493,17 +538,24 @@ export function useForm<Values extends object, Output = Values>(
       return fieldArray(path) as never;
     },
     setError(path, message) {
-      state.errors = { ...state.errors, [path]: message };
+      const { [path]: _previous, ...rest } = state.externalErrors;
+      const value = path === '' ? values : readPath(values, path);
+      state.externalErrors =
+        message === undefined ? rest : { ...rest, [path]: { message, value: cloneValue(value) } };
     },
     constraints,
     Field,
   };
 
-  // 输入时：change 模式一开始就校验；其他模式在提交过之后才随输入更新
+  // 输入时：change 模式一开始就校验；blur 模式在有字段失焦过之后（只显示失焦过的字段）；提交过之后总是
   watch(
     () => values,
     () => {
-      if (validateOn === 'change' || state.submitCount > 0) void controller.validate();
+      const live =
+        validateOn === 'change' ||
+        state.submitCount > 0 ||
+        (validateOn === 'blur' && state.touched.size > 0);
+      if (live) void check(false);
     },
     { deep: true },
   );

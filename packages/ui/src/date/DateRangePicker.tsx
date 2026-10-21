@@ -335,8 +335,8 @@ export const DateRangePicker = _component(
               />
             )}
             {picker.button(CalendarRange, propsButton)}
-            <FormValue name={startName} value={start} />
-            <FormValue name={endName} value={end} />
+            <FormValue name={startName} value={start} disabled={state.disabled} />
+            <FormValue name={endName} value={end} disabled={state.disabled} />
           </div>
           {picker.panel(
             dateRangePickerStyles.popover,

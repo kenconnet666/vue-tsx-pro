@@ -32,15 +32,25 @@ it('复制后 data-state="copied"、播报“已复制”，timeout 后复原', 
   expect(button.querySelector('[aria-live="polite"]')!.textContent).toBe('');
 });
 
-it('aria-label 可以改；复制失败时回调拿到 false', async () => {
-  writeText.mockRejectedValue(new Error('denied'));
+it('aria-label 可以改；复制失败时回调拿到 false 与原因', async () => {
+  const denied = new Error('denied');
+  writeText.mockRejectedValue(denied);
   const onCopied = vi.fn();
   const root = mount(() => <CopyButton value="x" aria-label="复制链接" onCopied={onCopied} />);
   const button = root.querySelector('button')!;
   expect(button.getAttribute('aria-label')).toBe('复制链接');
   button.click();
-  await vi.waitFor(() => expect(onCopied).toHaveBeenCalledWith(false));
+  await vi.waitFor(() => expect(onCopied).toHaveBeenCalledWith(false, denied));
   expect(button.dataset.state).toBe('idle');
+});
+
+it('异步取值出错：回调拿到 false 与原因，不留下没人处理的 rejection', async () => {
+  const failed = new Error('offline');
+  const onCopied = vi.fn();
+  const root = mount(() => <CopyButton value={() => Promise.reject(failed)} onCopied={onCopied} />);
+  root.querySelector('button')!.click();
+  await vi.waitFor(() => expect(onCopied).toHaveBeenCalledWith(false, failed));
+  expect(root.querySelector('button')!.getAttribute('aria-busy')).toBeNull();
 });
 
 it('异步取值：等待时转圈（aria-busy），重复点击不再取值', async () => {

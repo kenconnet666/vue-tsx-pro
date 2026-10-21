@@ -22,6 +22,7 @@ import { useId, watch, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
+import { isComposingKey } from '../utils/dom/hotkeys';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { ListPopover } from './ListPopover';
 import { createMatcher } from '../utils/data/collation';
@@ -207,15 +208,17 @@ export const Combobox = _component(
           return;
         }
         query = text;
-        if (!control().readonly) open = true;
+        // 只在输入框聚焦时打开：父级把 inputValue 改掉（重置成空）不该弹出列表
+        if (!control().readonly && document.activeElement === input) open = true;
         list.move('first');
       },
     );
 
-    // 父级改了 value：输入框跟着显示它的文字
+    // 父级改了 value，或选项后到（编辑页先拿到值、再拿到选项）：输入框跟着显示它的文字；用户正在输入时不打断
     watch(
-      () => value,
+      () => [value, selectedLabel()],
       () => {
+        if (query) return;
         if (!allowCustomValue || value != null) setText(selectedLabel());
       },
       { immediate: true },
@@ -248,7 +251,7 @@ export const Combobox = _component(
 
     function onKeydown(event: KeyboardEvent) {
       const state = control();
-      if (state.disabled || state.readonly) return;
+      if (state.disabled || state.readonly || isComposingKey(event)) return;
       if (event.key === 'Escape') {
         // 打开时交给原生 popover 关闭；关闭时清空
         if (!open && inputValue) {
@@ -359,7 +362,7 @@ export const Combobox = _component(
                 },
               )}
             />
-            <FormValue name={name} value={value} />
+            <FormValue name={name} value={value} disabled={state.disabled} />
           </div>
           <ListPopover
             panelRef={_toRef(panel)}

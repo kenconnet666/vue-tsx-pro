@@ -9,6 +9,7 @@
  */
 import { computed, ref } from 'vue';
 import type { IconData } from '../base/Icon';
+import { isComposingKey } from '../utils/dom/hotkeys';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import { createTypeahead } from '../utils/dom/typeahead';
 
@@ -251,7 +252,7 @@ export function handleListKeydown<T>(
   { space = false, typeahead = false, homeEnd = true }: ListKeydownOptions = {},
   onSelect?: (value: string) => void,
 ): boolean {
-  if (event.altKey || event.ctrlKey || event.metaKey) return false;
+  if (event.altKey || event.ctrlKey || event.metaKey || isComposingKey(event)) return false;
   const moves: Record<string, number | 'first' | 'last'> = {
     ArrowDown: 1,
     ArrowUp: -1,

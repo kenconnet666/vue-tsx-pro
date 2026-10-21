@@ -19,6 +19,7 @@ import { useId, watch, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
+import { isComposingKey } from '../utils/dom/hotkeys';
 import { createMatcher } from '../utils/data/collation';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { ListPopover } from './ListPopover';
@@ -243,7 +244,7 @@ export const TagsInput = _component(
 
     function onKeydown(event: KeyboardEvent) {
       const state = control();
-      if (state.disabled || state.readonly || event.isComposing) return;
+      if (state.disabled || state.readonly || isComposingKey(event)) return;
       if (event.key === 'Backspace' && !inputValue && value.length) {
         event.preventDefault();
         remove(value.at(-1)!);
@@ -358,7 +359,7 @@ export const TagsInput = _component(
                 )}
               />
             )}
-            <FormValue name={name} value={value} />
+            <FormValue name={name} value={value} disabled={state.disabled} />
           </div>
           {suggestions() && (
             <ListPopover

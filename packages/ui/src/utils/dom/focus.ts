@@ -12,6 +12,15 @@ export function focusFirst(container: HTMLElement): void {
   target.focus();
 }
 
+/**
+ * 聚焦一个控件：它本身不能聚焦时（RadioGroup 的 radiogroup、一组分段输入的容器）聚焦里面第一个能聚焦的。
+ * 表单提交不通过时把焦点移到出错的控件上用它
+ */
+export function focusControl(element: HTMLElement): void {
+  element.focus();
+  if (document.activeElement !== element) tabbable(element)[0]?.focus();
+}
+
 const FOCUSABLE = 'button, a[href], input, select, textarea, summary, [tabindex]';
 
 /** Safari 点击按钮不会聚焦它：记下最近一次按下的可聚焦元素，作为焦点来源的备选 */

@@ -129,6 +129,14 @@ export function ariaKeyShortcut(combo: string): string {
   return [...modifiersOf(hotkey).map((name) => names[name]), keyName(hotkey.key)].join('+');
 }
 
+/**
+ * 这次按键属于输入法的组合输入（拼音选词时的回车、方向键、空格）：快捷键与列表的键盘操作都不该处理它。
+ * Chrome、Firefox 组合中是 isComposing；Safari 先派发 compositionend、再派发确认用的 keydown，只能看 keyCode 229
+ */
+export function isComposingKey(event: KeyboardEvent): boolean {
+  return event.isComposing || event.keyCode === 229;
+}
+
 /** 事件目标是不是可编辑的元素（输入框、文本域、下拉、contenteditable）：方向键、字母键这时留给它 */
 export function isEditable(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -139,7 +147,7 @@ export function isEditable(target: EventTarget | null): boolean {
 export function useHotkeys(read: () => HotkeyMap, { inInputs = false }: HotkeyOptions = {}): void {
   if (typeof document === 'undefined') return;
   const onKeydown = (event: KeyboardEvent) => {
-    if (event.isComposing || event.defaultPrevented) return;
+    if (isComposingKey(event) || event.defaultPrevented) return;
     if (!inInputs && isEditable(event.target)) return;
     for (const [combo, handler] of Object.entries(read())) {
       if (!matchesHotkey(event, combo)) continue;

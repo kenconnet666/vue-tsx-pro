@@ -434,10 +434,10 @@ export const ToastItem = _component(
     }
 
     // 横向滑动关闭：拖动中直接写元素的样式（不触发渲染）。松开时过了阈值就沿滑动方向滑出再关闭，
-    // 不够就用弹簧弹回（Anime.js，时长取主题；减少动态效果时立即到位）
+    // 不够就用弹簧弹回（Anime.js，时长取主题；减少动态效果时立即到位）。不能关闭的通知（promise 的加载中）不跟手
     function onPointerdown(event: PointerEvent) {
       const element = item;
-      if (!element || toast.closing) return;
+      if (!element || toast.closing || toast.closable === false) return;
       if ((event.target as Element).closest('button, a, input, textarea, select')) return;
       const width = element.getBoundingClientRect().width;
       startMove(event, {

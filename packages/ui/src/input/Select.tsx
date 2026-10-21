@@ -213,6 +213,8 @@ export const Select = _component(
       selected: () => selectedValues(value),
       mode: () => selectionMode,
       onChange: (next) => (value = multiple() ? [...next] : next[0]),
+      // 单选时再点已选的一项不取消（同原生 select）；要清空用清除按钮
+      required: () => !multiple(),
     });
     // 已选项的文字取自全部 items（过滤掉的、远程搜索换掉的也在）
     const selectedOptions = useSelectedOptions({ items: () => items, toOption: optionOf });
@@ -227,16 +229,19 @@ export const Select = _component(
       open = true;
     }
 
-    // 输入搜索词：高亮第一个匹配的
+    // 输入搜索词：高亮第一个匹配的。打开时清空搜索词不算：那时高亮的是已选项
     watch(
       () => query,
-      () => list.move('first'),
+      (text) => text && list.move('first'),
     );
 
     // 选中一项：单选时关闭
     function picked() {
       if (!multiple()) open = false;
     }
+
+    /** Ctrl / Cmd / Alt 组合键是浏览器的（刷新、复制、查找），不做按字母跳转 */
+    const hasModifier = (event: KeyboardEvent) => event.altKey || event.ctrlKey || event.metaKey;
 
     function onKeydown(event: KeyboardEvent) {
       if (control().disabled || control().readonly) return;
@@ -247,7 +252,7 @@ export const Select = _component(
         } else if (event.key === 'ArrowUp') {
           event.preventDefault();
           show('last');
-        } else if (!multiple() && list.typeahead(event.key)) {
+        } else if (!multiple() && !hasModifier(event) && list.typeahead(event.key)) {
           // 同原生 select：关闭时按字母直接选中
           event.preventDefault();
           if (list.active !== undefined && !list.isSelected(list.active)) list.select(list.active);
@@ -396,7 +401,7 @@ export const Select = _component(
                 propsChevron,
               )}
             />
-            <FormValue name={name} value={values} />
+            <FormValue name={name} value={values} disabled={state.disabled} />
           </div>
           <ListPopover
             panelRef={_toRef(panel)}

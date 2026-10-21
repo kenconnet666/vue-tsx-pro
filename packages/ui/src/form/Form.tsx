@@ -13,6 +13,7 @@
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import { nextTick, type VNodeChild } from 'vue';
+import { focusControl } from '../utils/dom/focus';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { provideFieldLayout, type FieldLayout } from './field-layout';
 import type { FormControllerBase } from './useForm';
@@ -49,7 +50,9 @@ export const Form = _component(
       if (await controller.submit()) return;
       // 等错误渲染出来（aria-invalid 写到控件上）再移焦点
       await nextTick();
-      form?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      const invalid = form?.querySelector<HTMLElement>('[aria-invalid="true"]');
+      // 出错的可能是一组控件（RadioGroup 的 radiogroup 本身不能聚焦）：聚焦它里面第一个能聚焦的
+      if (invalid) focusControl(invalid);
     }
 
     function onReset(event: Event) {

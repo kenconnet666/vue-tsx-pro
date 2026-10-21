@@ -532,9 +532,8 @@ describe('DataTable 的 handle', () => {
     ));
     await flush();
     expect(table).toBeDefined();
-    const viewport = root
-      .querySelector('table')!
-      .parentElement!.closest<HTMLElement>('[data-viewport], [tabindex]')!;
+    // ScrollArea 的视口 > 内容层 > table（视口只在内容超出时才可聚焦，不能按 tabindex 找）
+    const viewport = root.querySelector('table')!.parentElement!.parentElement!;
     expect(table!.scrollToRow('nobody')).toBe(false);
     expect(viewport.scrollTop).toBe(0);
     expect(table!.scrollToRow('500', { align: 'start' })).toBe(true);

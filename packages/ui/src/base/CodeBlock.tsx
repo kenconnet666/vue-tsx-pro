@@ -137,6 +137,8 @@ export const codeBlockStyles = stylex.create({
     paddingInline: '_lg',
     color: '_text',
     fontFamily: '_mono',
+    // 代码总是从左到右排：从右到左的页面里也不跟着镜像
+    direction: 'ltr',
     // 代码字体的连字（=> 显示成 ⇒）会让照着抄的人看错，一律关掉
     fontVariantLigatures: 'none',
     // 相对周围文字略小：等宽字体的字面显得大；是比例不是字号档位
@@ -183,6 +185,13 @@ export const codeBlockStyles = stylex.create({
   },
   expandOpen: { rotate: '180deg' },
 });
+
+/** 按行拆开；结尾的换行不算新的一行（文件末尾通常有一个），不然行号会多出一行空的 */
+function splitLines(text: string, separator: string): string[] {
+  const lines = text.split(separator);
+  if (lines.length > 1 && lines.at(-1) === '') lines.pop();
+  return lines;
+}
 
 // 折叠后的高度按行数算，是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** CodeBlock 的动态样式：折叠后的最大高度 */
@@ -242,14 +251,14 @@ export const CodeBlock = _component(
       added: parseLineSpec(addedLines),
       removed: parseLineSpec(removedLines),
     }));
-    const lineCount = _derived(code.split('\n').length);
+    const lineCount = _derived(splitLines(code, '\n').length);
     const byLine = _derived(
       lineNumbers || marks.highlighted.size + marks.added.size + marks.removed.size > 0,
     );
 
     /** 按行渲染：高亮结果按 <br> 拆，纯文本按换行拆 */
     function renderLines() {
-      const lines = html == null ? code.split('\n') : html.split('<br>');
+      const lines = html == null ? splitLines(code, '\n') : splitLines(html, '<br>');
       return lines.map((line, index) => {
         const number = index + 1;
         return (

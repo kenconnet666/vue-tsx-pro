@@ -67,7 +67,7 @@ describe('Slider', () => {
     expect(value).toBe(70);
   });
 
-  it('不可用：不能聚焦，键盘与指针都不改值；给了 name 就带隐藏 input', () => {
+  it('不可用：不能聚焦，键盘与指针都不改值；同原生的不可用控件，不随表单提交', () => {
     let value = _state(20);
     const root = mount(() => <Slider value={_bind(value)} disabled name="volume" aria-label="x" />);
     const thumb = thumbOf(root);
@@ -75,7 +75,7 @@ describe('Slider', () => {
     expect(thumb.getAttribute('aria-disabled')).toBe('true');
     key(thumb, 'ArrowRight');
     expect(value).toBe(20);
-    expect(root.querySelector<HTMLInputElement>('input[name="volume"]')!.value).toBe('20');
+    expect(root.querySelector('input[name="volume"]')).toBeNull();
   });
 });
 

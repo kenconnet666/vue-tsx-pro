@@ -15,7 +15,7 @@ import type { Ref, VNodeChild } from 'vue';
 import { ScrollArea } from '../layout/ScrollArea';
 import { floatingStyles } from '../utils/dom/floating';
 import { toElement } from '../utils/dom/overlay';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { ListboxView, type ListboxViewProps } from './Listbox';
@@ -95,9 +95,7 @@ export const ListPopover = _component(
         )}
       >
         {/* 使用方常写 cond && <…/>：false 同 undefined，不渲染带分隔线的空头部 */}
-        {header != null && typeof header !== 'boolean' && (
-          <div {...stylex.attrs(listPopoverStyles.header)}>{header}</div>
-        )}
+        {hasContent(header) && <div {...stylex.attrs(listPopoverStyles.header)}>{header}</div>}
         <ScrollArea
           focusable={false}
           sx={floatingStyles.scrollArea}

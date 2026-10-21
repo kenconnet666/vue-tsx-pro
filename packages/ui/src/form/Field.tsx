@@ -22,7 +22,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import {
   FieldLayoutContext,
@@ -267,8 +267,10 @@ export const Field = _component(
     };
     const form = FormContext.inject(null);
     const layout = FieldLayoutContext.inject(null);
-    const message = () => error ?? (name != null ? form?.visibleError(name) : undefined);
-    const showError = () => message() != null && invalid !== false;
+    // error={cond && '…'} 条件不成立时是 false：当作没写，用表单的错误
+    const message = () =>
+      hasContent(error) ? error : name != null ? form?.visibleError(name) : undefined;
+    const showError = () => hasContent(message()) && invalid !== false;
     const constraints = () => (name != null && form ? form.constraints(name) : NO_CONSTRAINTS);
     const isRequired = () => required ?? constraints().required ?? false;
     const isDisabled = () => disabled ?? layout?.disabled ?? false;
@@ -277,14 +279,14 @@ export const Field = _component(
     FieldContext.provide({
       controlId: ids.control,
       get labelId() {
-        return label != null ? ids.label : undefined;
+        return hasContent(label) ? ids.label : undefined;
       },
       get describedBy() {
-        const parts = [description != null && ids.description, showError() && ids.error];
+        const parts = [hasContent(description) && ids.description, showError() && ids.error];
         return parts.filter(Boolean).join(' ') || undefined;
       },
       get invalid() {
-        return invalid ?? message() != null;
+        return invalid ?? hasContent(message());
       },
       get required() {
         return isRequired();
@@ -313,7 +315,7 @@ export const Field = _component(
       const width = labelWidth ?? layout?.labelWidth ?? DEFAULT_LABEL_WIDTH;
       const align = labelAlign ?? layout?.labelAlign ?? 'end';
       const hints = [
-        description != null && (
+        hasContent(description) && (
           <Text
             {...mergePartProps<TextProps>(
               { tone: 'muted', sx: fieldStyles.hint },
@@ -357,7 +359,7 @@ export const Field = _component(
           data-disabled={isDisabled() || undefined}
           data-label-placement={placement}
         >
-          {label != null && (
+          {hasContent(label) && (
             <Label
               {...mergePartProps<LabelProps>(
                 {

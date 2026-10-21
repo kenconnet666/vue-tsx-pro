@@ -226,9 +226,17 @@ export const NumberField = _component(
             scale: format?.scale,
           });
 
-    /** 解析并写回（解析不了时恢复原值） */
+    /**
+     * 解析并写回（解析不了时恢复原值）。文字没改过、或只读与不可用时不写：只是聚焦再离开，
+     * 不该把值按步长取整、夹到范围里，把表单弄脏
+     */
     function commit() {
       if (draft == null) return;
+      const state = control();
+      if (draft === plain(value) || state.disabled || state.readonly) {
+        draft = null;
+        return;
+      }
       const parsed = normalizeNumber(draft, lang.code);
       if (parsed === null) value = null;
       else if (parsed !== undefined) value = snap(toNumericKind(unscaled(parsed), kind()));
@@ -241,7 +249,12 @@ export const NumberField = _component(
       const current =
         draft != null ? (typed == null ? null : toNumericKind(unscaled(typed), kind())) : value;
       const offset = multiplyNumeric(delta, times, kind());
-      value = snap(current == null ? (low() ?? 0) : addNumeric(current, offset, kind()));
+      setValue(snap(current == null ? (low() ?? 0) : addNumeric(current, offset, kind())));
+    }
+
+    /** 键盘改值：编辑中的文字跟着换，失焦时才不会被旧文字写回去 */
+    function setValue(next: NumericValue) {
+      value = next;
       if (draft != null) draft = plain(value);
     }
 
@@ -255,8 +268,8 @@ export const NumberField = _component(
         ArrowDown: () => stepBy(increment(), -1),
         PageUp: () => (bigStep == null ? stepBy(increment(), 10) : stepBy(bigStep, 1)),
         PageDown: () => (bigStep == null ? stepBy(increment(), -10) : stepBy(bigStep, -1)),
-        Home: lowest == null ? undefined : () => (value = toNumericKind(lowest, kind())),
-        End: highest == null ? undefined : () => (value = toNumericKind(highest, kind())),
+        Home: lowest == null ? undefined : () => setValue(toNumericKind(lowest, kind())),
+        End: highest == null ? undefined : () => setValue(toNumericKind(highest, kind())),
         Enter: commit,
       };
       const action = actions[event.key];
@@ -386,7 +399,7 @@ export const NumberField = _component(
               />
             </>
           )}
-          <FormValue name={name} value={value} />
+          <FormValue name={name} value={value} disabled={state.disabled} />
         </div>
       );
     };

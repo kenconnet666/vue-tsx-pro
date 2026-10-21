@@ -2,7 +2,7 @@
  * 表格的渲染层：DataTable、TreeDataTable 共用（同 Listbox 与 ListboxView 的分工）。只管画，状态（排序、选择、展开、列宽）由外层决定。
  *
  * - 结构：原生 table（读屏按表格念：第几行第几列、列标题）+ table-layout: fixed + colgroup 定列宽，
- *   外层是 ScrollArea（两个方向滚动，视口可聚焦，键盘也能滚）。
+ *   外层是 ScrollArea（两个方向滚动，内容超出时视口可聚焦，键盘也能滚）。
  * - 虚拟滚动（useVirtualizer）：只渲染看得见的行，上下各一行占位撑出滚动高度（各列仍在同一张表里对齐）；
  *   行带 aria-rowindex，表格带 aria-rowcount，读屏知道总行数与当前位置。
  * - 分组表头（columnGroups）：相邻的几列上方共用一个标题，表头两行（th scope="colgroup"），没分组的列跨两行。

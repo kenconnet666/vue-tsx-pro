@@ -396,7 +396,7 @@ export const TreeSelect = _component(
                 propsChevron,
               )}
             />
-            <FormValue name={name} value={values()} />
+            <FormValue name={name} value={values()} disabled={state.disabled} />
           </div>
           <div
             {...mergeAttrs<'div'>(
@@ -455,7 +455,8 @@ export const TreeSelect = _component(
                   selectionMode="single"
                   selected={_bind(
                     () => [...values()],
-                    (next: string[]) => (value = next[0]),
+                    // 再点已选的一项：不取消（同 Select 的单选），只是收起；要清空用清除按钮
+                    (next: string[]) => (next.length ? (value = next[0]) : (open = false)),
                   )}
                   expanded={_bind(
                     () => shownExpanded(),

@@ -15,11 +15,11 @@ const settle = async () => {
 const fake: Highlighter = async (code, lang) => `<span class="hl-${lang}">${code}</span>`;
 
 describe('CodeBlock', () => {
-  it('没有高亮器时显示纯文本：pre > code，外面的滚动区域可聚焦，属性落到 pre 上', async () => {
+  it('没有高亮器时显示纯文本：pre > code，外面是横向的滚动区域，属性落到 pre 上', async () => {
     const root = mount(() => <CodeBlock code="<b>x</b>" lang="html" data-x="1" />);
     await settle();
-    // 长行在 ScrollArea 里横向滚动：可聚焦的是滚动区域（键盘能滚动），不是 pre
-    expect(pre(root).closest('[tabindex="0"]')).not.toBeNull();
+    // 长行在 ScrollArea 里横向滚动（超出时视口可聚焦，见浏览器测试），pre 本身不进 Tab 顺序
+    expect(pre(root).hasAttribute('tabindex')).toBe(false);
     expect(pre(root).dataset.x).toBe('1');
     expect(pre(root).dataset.lang).toBe('html');
     // 文本原样显示，不当成 HTML
@@ -135,6 +135,11 @@ describe('CodeBlock 的行与折叠', () => {
       'added',
       'removed',
     ]);
+  });
+
+  it('结尾的换行不多出一行空的行号', () => {
+    const root = mount(() => <CodeBlock code={`${source}\n`} lineNumbers copyable={false} />);
+    expect(pre(root).querySelectorAll('code > span')).toHaveLength(4);
   });
 
   it('有标题时复制按钮在标题栏里；超过 maxLines 时折叠，按钮展开与收起', async () => {
