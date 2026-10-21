@@ -120,6 +120,19 @@ DataTable 页的 h1；再在 Button 页上依次改组件、样式模块、工�
 （Unovis 用到），把 @unovis、@emotion 交给 Vite 内联后全部通过：**37 s → 10 s**。文档站的测试不换：时间主要在编译
 （53%），建环境只占 8%，而且 VM 上下文里没有 CompressionStream 等全局，有 11 个用例过不了。
 
+## 文档站：示例卡片只展示（2026-10-21 晚，af367e4）
+
+示例卡片不能编辑，只有右上角的“编辑”打开演练场才能改代码，所以卡片用不着一进页面就带着源码：
+
+| 做法 | 效果 |
+| --- | --- |
+| `?demo` 模块导出 `{ component, source, path }`，`source` 是 `() => import('…?raw')`：源码各自成块，卡片显示时不加载 | Button 页的块 gzip **9.8 → 5.2 KB**；源码多的页面（DataTable、Calendar）省得更多 |
+| CodePreview 的 `code` 可以是返回 Promise 的函数：指针移到工具栏上、工具栏得到焦点时先取（`prepare`），展开源码、复制时再等它；CopyButton 的 `value` 同样可以是异步函数 | 点“显示代码”时源码多半已经到了，展开不等；复制照常 |
+| 演练场的地址（源码压缩进 URL）在悬停、聚焦“编辑”时才生成 | 渲染卡片不再压缩源码 |
+
+开发时有一处要注意：Vitest 的 fsModuleCache 不能缓存含 `import.meta.glob` 的模块（新加的示例不会被发现），
+`configureVitest` 的缓存键对这类模块返回 false。
+
 ## 结论
 
 | 问题                    | 做法                                                                                                         | 效果（实测或估算）                                                           |

@@ -36,6 +36,10 @@
 - **图表**：XYChart 并入图表总览
 - **配置**：[x] Provider（ConfigScope、createUi、defaults、语言包、useFormat）· [x] ThemeSwitcher、ThemeCustomizer、ThemeThumbnail（并入主题定制指南）
 - **3D**：EffectSurface 并入 ShaderBackground 页
+- [x] **第二轮补齐**（2026-10-21）：所有页面的示例覆盖 API 里有意义的属性（`pnpm docs:coverage` 列出缺口，剩下的是
+      children、open、placement、lazy 这类透传属性）；补示例时发现的 API 缺口一并补上：Menu 项的说明、
+      CommandPalette 远程搜索、Tour 封面与方向键、Progress 标签、Alert 尺寸、Toast 的 Esc、输入框图标（controlIcon）、
+      Select 只读、List 图标、散点图横轴标题、3D 效果的 `quality="off"`、CopyButton 异步取值、TagsInput 异步建议
 
 ## 3. 内置值类型（Decimal、bigint、日期）
 
@@ -97,3 +101,5 @@
       模块 102 → 26 个（剩下的是启动时用掉的配置）；开发时不悬停预取（重启后进 DataTable 11 s → 0.5 s）
 - [x] `pnpm typecheck` 各包并行、增量：8.5–9.3 s → 之后每次 2.4–2.8 s
 - [x] 组件库测试用 vmForks 池（每个 Worker 只建一次 happy-dom）：106 个文件 37 s → 10 s
+- [x] 文档站示例卡片只展示：源码与演练场地址按需加载（Button 页的块 gzip 9.8 → 5.2 KB）
+- [x] 文档工具进仓库：`pnpm docs:shot`（示例截图，各主题）、`pnpm docs:coverage`（示例没用到的属性）
