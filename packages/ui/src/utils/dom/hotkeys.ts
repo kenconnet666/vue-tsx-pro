@@ -129,7 +129,8 @@ export function ariaKeyShortcut(combo: string): string {
   return [...modifiersOf(hotkey).map((name) => names[name]), keyName(hotkey.key)].join('+');
 }
 
-function isEditable(target: EventTarget | null) {
+/** 事件目标是不是可编辑的元素（输入框、文本域、下拉、contenteditable）：方向键、字母键这时留给它 */
+export function isEditable(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   return target.isContentEditable || /^(input|textarea|select)$/i.test(target.tagName);
 }

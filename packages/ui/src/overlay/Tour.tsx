@@ -14,11 +14,12 @@
  * - 模态：背景 inert、Esc 关闭、焦点在卡片里循环，关闭后焦点回到打开前的位置（同 Dialog，见 Modal.tsx）；
  * - 目标：选择器、元素或返回元素的函数；切换步骤时滚动到视口中间，滚动、缩放、目标大小变化时镂空与卡片跟着动；
  *   找不到目标时卡片居中、整页遮罩；
- * - 卡片：标题（dialog 的名称）、内容（描述）、步数、上一步 / 下一步（最后一步是“完成”）、跳过；
+ * - 卡片：封面（可选的插图）、标题（dialog 的名称）、内容（描述）、步数、上一步 / 下一步（最后一步是“完成”）、跳过；
+ * - 键盘：→ / ← 下一步 / 上一步（从右到左排版时反过来；焦点在输入框里时不处理），Esc 关闭；
  * - open、current 可受控；点“完成”时调用 onFinish，跳过或 Esc 时只关闭。
  *
- * 部件：Root（dialog，整屏透明）、Spotlight（镂空）、Panel（卡片）、Title、Content、Footer、Progress（步数）、
- * Skip（跳过）、Previous（上一步）、Next（下一步 / 完成）。
+ * 部件：Root（dialog，整屏透明）、Spotlight（镂空）、Panel（卡片）、Cover（封面）、Title、Content、Footer、
+ * Progress（步数）、Skip（跳过）、Previous（上一步）、Next（下一步 / 完成）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -30,6 +31,8 @@ import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
 import { Flex, type FlexProps } from '../layout/Flex';
 import { clamp } from '../utils/data/number';
+import { isRtl } from '../utils/dom/direction';
+import { isEditable } from '../utils/dom/hotkeys';
 import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
 import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
 import { trackModal } from '../utils/dom/overlay';
@@ -43,6 +46,8 @@ export interface TourStep {
   title: VNodeChild;
   /** 说明 */
   content?: VNodeChild;
+  /** 标题上方的封面：插图、截图、短视频 */
+  cover?: VNodeChild;
   /** 卡片在目标的哪一侧，默认 bottom；空间不够时翻转 */
   placement?: FloatingPlacement;
 }
@@ -66,6 +71,8 @@ export interface TourProps extends PartProps<
   propsSpotlight?: PartProps<'div'>;
   /** 卡片的部件属性 */
   propsPanel?: PartProps<'div'>;
+  /** 封面的部件属性 */
+  propsCover?: PartProps<'div'>;
   /** 标题（dialog 的名称）的部件属性 */
   propsTitle?: Omit<Partial<HeadingProps>, 'id'>;
   /** 说明（dialog 的描述）的部件属性 */
@@ -82,7 +89,7 @@ export interface TourProps extends PartProps<
   propsNext?: Omit<Partial<ButtonProps>, 'onClick'>;
 }
 
-/** Tour 的样式：root、spotlight、dimmed、panel、title、content、footer、progress */
+/** Tour 的样式：root、spotlight、dimmed、panel、cover、title、content、footer、progress */
 export const tourStyles = stylex.create({
   // 整屏透明的 dialog：遮罩由镂空的阴影画，原生 ::backdrop 不用
   root: {
@@ -118,6 +125,16 @@ export const tourStyles = stylex.create({
     lineHeight: '_normal',
   },
   centered: { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' },
+  // 封面贴着卡片的上、左、右边（盖住内边距），圆角随卡片
+  cover: {
+    display: 'grid',
+    overflow: 'hidden',
+    marginBlockStart: 'calc(-1 * _space.lg)',
+    marginInline: 'calc(-1 * _space.lg)',
+    marginBlockEnd: '_xs',
+    borderStartStartRadius: 'inherit',
+    borderStartEndRadius: 'inherit',
+  },
   title: { margin: 0 },
   content: { color: '_textMuted' },
   footer: { marginBlockStart: '_xs' },
@@ -153,6 +170,7 @@ export const Tour = _component(
     onFinish,
     propsSpotlight,
     propsPanel,
+    propsCover,
     propsTitle,
     propsContent,
     propsFooter,
@@ -247,6 +265,18 @@ export const Tour = _component(
       onFinish?.();
     }
 
+    /** → / ← 切换步骤（从右到左排版时反过来）；焦点在可编辑的元素里时留给它，下一步按钮不可用时不前进 */
+    function onKeydown(event: KeyboardEvent) {
+      if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (isEditable(event.target)) return;
+      const forward = (event.key === 'ArrowRight') !== (panel !== null && isRtl(panel));
+      if (forward && !propsNext?.disabled) next();
+      else if (!forward && current > 0) current--;
+      else return;
+      event.preventDefault();
+    }
+
     _effect(() => {
       if (open) show();
       else if (dialog?.open) dialog.close();
@@ -270,6 +300,7 @@ export const Tour = _component(
             'aria-labelledby': titleId,
             'aria-describedby': currentStep?.content != null ? contentId : undefined,
             onClose,
+            onKeydown,
           })}
           data-step={current}
         >
@@ -302,6 +333,11 @@ export const Tour = _component(
                 { ref: _toRef(panel), tabindex: -1 },
               )}
             >
+              {currentStep.cover != null && (
+                <div {...mergeAttrs<'div'>({ sx: tourStyles.cover }, propsCover)}>
+                  {currentStep.cover}
+                </div>
+              )}
               <H2
                 {...mergePartProps<HeadingProps>({ size: 'md', sx: tourStyles.title }, propsTitle, {
                   id: titleId,

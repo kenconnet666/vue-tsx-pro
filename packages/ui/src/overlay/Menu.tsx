@@ -135,6 +135,9 @@ export const menuStyles = stylex.create({
   },
   content: { padding: '_xs' },
   label: { flexGrow: 1, minWidth: 0 },
+  // 有说明时文字与说明上下排，作为一个整体占满剩余宽度
+  text: { display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 },
+  description: { display: 'block' },
   // 复选、单选的标记占一列，有没有勾都对齐
   indicator: { flexShrink: 0, width: '1em' },
   hidden: { visibility: 'hidden' },
@@ -294,6 +297,10 @@ export interface MenuItemContentProps {
   propsLabel?: PartProps<'span'>;
   /** 快捷键提示的部件属性 */
   propsShortcut?: Partial<TextProps>;
+  /** 文字下方的说明（第二行，弱化）：读屏把它当作这一项的描述（aria-describedby），不算进名称 */
+  description?: VNodeChild;
+  /** 说明的部件属性 */
+  propsDescription?: Partial<TextProps>;
   children?: VNodeChild;
 }
 
@@ -307,10 +314,39 @@ export interface MenuItemMark {
   props?: Partial<IconProps>;
 }
 
-/** 菜单项的内容：标记 + 图标 + 文字 + 快捷键 */
+/** 有说明的菜单项：文字与说明各自的 id（名称只取文字，说明作为描述） */
+export interface MenuItemContentIds {
+  label: string;
+  description: string;
+}
+
+/** 菜单项文字与说明的 id；在菜单项的 setup 里调用 */
+export function useMenuItemContentIds(): MenuItemContentIds {
+  const id = useId();
+  return { label: `${id}-label`, description: `${id}-description` };
+}
+
+/** 有说明时菜单项的名称只取文字、说明作为描述；没有说明时名称就是全部内容 */
+export function menuItemDescribedBy(description: VNodeChild | undefined, ids: MenuItemContentIds) {
+  return description == null
+    ? {}
+    : { 'aria-labelledby': ids.label, 'aria-describedby': ids.description };
+}
+
+/** 菜单项的内容：标记 + 图标 + 文字（与说明）+ 快捷键 */
 export function menuItemContent(
-  { icon, shortcut, propsIcon, propsLabel, propsShortcut, children }: MenuItemContentProps,
+  {
+    icon,
+    shortcut,
+    description,
+    propsIcon,
+    propsLabel,
+    propsShortcut,
+    propsDescription,
+    children,
+  }: MenuItemContentProps,
   mark?: MenuItemMark,
+  ids?: MenuItemContentIds,
 ): VNodeChild {
   return [
     mark && (
@@ -322,7 +358,21 @@ export function menuItemContent(
       />
     ),
     icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />,
-    <span {...mergeAttrs<'span'>({ sx: menuStyles.label }, propsLabel)}>{children}</span>,
+    description == null ? (
+      <span {...mergeAttrs<'span'>({ sx: menuStyles.label }, propsLabel)}>{children}</span>
+    ) : (
+      <span {...stylex.attrs(menuStyles.text)}>
+        <span {...mergeAttrs<'span'>({ id: ids?.label }, propsLabel)}>{children}</span>
+        <Text
+          {...mergePartProps<TextProps>(
+            { tone: 'muted', size: 'sm', id: ids?.description, sx: menuStyles.description },
+            propsDescription,
+          )}
+        >
+          {description}
+        </Text>
+      </span>
+    ),
     shortcut && (
       <Text
         {...mergePartProps<TextProps>(
@@ -395,13 +445,16 @@ export const MenuItem = _component(
     onAction,
     icon,
     shortcut,
+    description,
     propsIcon,
     propsLabel,
     propsShortcut,
+    propsDescription,
     children,
     ...rest
   }: MenuItemProps) => {
     const item = useMenuItem();
+    const ids = useMenuItemContentIds();
     useItemShortcut(
       () => ({ shortcut, disabled }),
       () => onAction?.(),
@@ -415,6 +468,7 @@ export const MenuItem = _component(
             role: 'menuitem',
             disabled,
             'aria-keyshortcuts': keyShortcuts(shortcut),
+            ...menuItemDescribedBy(description, ids),
             // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
             onClick: () => {
               onAction?.();
@@ -423,7 +477,20 @@ export const MenuItem = _component(
           },
         )}
       >
-        {menuItemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
+        {menuItemContent(
+          {
+            icon,
+            shortcut,
+            description,
+            propsIcon,
+            propsLabel,
+            propsShortcut,
+            propsDescription,
+            children,
+          },
+          undefined,
+          ids,
+        )}
       </ButtonBase>
     );
   },
@@ -445,13 +512,16 @@ export const MenuLinkItem = _component(
     disabled = false,
     icon,
     shortcut,
+    description,
     propsIcon,
     propsLabel,
     propsShortcut,
+    propsDescription,
     children,
     ...rest
   }: MenuLinkItemProps) => {
     const item = useMenuItem();
+    const ids = useMenuItemContentIds();
     const router = useRouterLink();
     return () => (
       <a
@@ -460,6 +530,7 @@ export const MenuLinkItem = _component(
           href: disabled ? undefined : href,
           'aria-keyshortcuts': keyShortcuts(shortcut),
           'aria-disabled': disabled || undefined,
+          ...menuItemDescribedBy(description, ids),
           onClick: (event: MouseEvent) => {
             router.onClick(event);
             item.close();
@@ -468,7 +539,20 @@ export const MenuLinkItem = _component(
         })}
         data-disabled={disabled || undefined}
       >
-        {menuItemContent({ icon, shortcut, propsIcon, propsLabel, propsShortcut, children })}
+        {menuItemContent(
+          {
+            icon,
+            shortcut,
+            description,
+            propsIcon,
+            propsLabel,
+            propsShortcut,
+            propsDescription,
+            children,
+          },
+          undefined,
+          ids,
+        )}
       </a>
     );
   },
@@ -491,13 +575,16 @@ export const MenuCheckboxItem = _component(
     propsIndicator,
     icon,
     shortcut,
+    description,
     propsIcon,
     propsLabel,
     propsShortcut,
+    propsDescription,
     children,
     ...rest
   }: MenuCheckboxItemProps) => {
     const item = useMenuItem();
+    const ids = useMenuItemContentIds();
     useItemShortcut(
       () => ({ shortcut, disabled }),
       () => (checked = !checked),
@@ -512,6 +599,7 @@ export const MenuCheckboxItem = _component(
             disabled,
             'aria-keyshortcuts': keyShortcuts(shortcut),
             'aria-checked': checked,
+            ...menuItemDescribedBy(description, ids),
             onClick: () => {
               checked = !checked;
               if (closeOnSelect) item.close();
@@ -521,8 +609,18 @@ export const MenuCheckboxItem = _component(
         data-state={checked ? 'checked' : 'unchecked'}
       >
         {menuItemContent(
-          { icon, shortcut, propsIcon, propsLabel, propsShortcut, children },
+          {
+            icon,
+            shortcut,
+            description,
+            propsIcon,
+            propsLabel,
+            propsShortcut,
+            propsDescription,
+            children,
+          },
           { icon: Check, checked, props: propsIndicator },
+          ids,
         )}
       </ButtonBase>
     );
@@ -615,13 +713,16 @@ export const MenuRadioItem = _component(
     propsIndicator,
     icon,
     shortcut,
+    description,
     propsIcon,
     propsLabel,
     propsShortcut,
+    propsDescription,
     children,
     ...rest
   }: MenuRadioItemProps) => {
     const item = useMenuItem();
+    const ids = useMenuItemContentIds();
     const group = MenuRadioGroupContext.inject();
     useItemShortcut(
       () => ({ shortcut, disabled }),
@@ -639,6 +740,7 @@ export const MenuRadioItem = _component(
               disabled,
               'aria-keyshortcuts': keyShortcuts(shortcut),
               'aria-checked': checked,
+              ...menuItemDescribedBy(description, ids),
               onClick: () => {
                 group.select(value);
                 if (closeOnSelect) item.close();
@@ -648,8 +750,18 @@ export const MenuRadioItem = _component(
           data-state={checked ? 'checked' : 'unchecked'}
         >
           {menuItemContent(
-            { icon, shortcut, propsIcon, propsLabel, propsShortcut, children },
+            {
+              icon,
+              shortcut,
+              description,
+              propsIcon,
+              propsLabel,
+              propsShortcut,
+              propsDescription,
+              children,
+            },
             { icon: Dot, checked, props: propsIndicator },
+            ids,
           )}
         </ButtonBase>
       );

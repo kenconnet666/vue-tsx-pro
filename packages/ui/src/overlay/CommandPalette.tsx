@@ -11,6 +11,7 @@
  * 结构是 Dialog（模态、焦点循环、Esc 关闭）里放一个 combobox 输入框与 ListboxView：
  * 焦点一直在输入框上，↑↓ / Page Up / Page Down 移动高亮（aria-activedescendant），Enter 选中；
  * 数据层与 Select、Combobox 相同（useListState），选项多时虚拟滚动。
+ * 远程搜索与 Combobox 一样：inputValue={_bind(keyword)} 拿到输入，filter={false} 不再本地过滤，取数据时给 loading。
  */
 import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -62,8 +63,12 @@ export interface CommandPaletteBaseProps<T> extends Omit<
   items: readonly T[];
   /** 执行了一项（回车或点击）：面板随即关闭 */
   onAction: (item: T) => void;
-  /** 过滤：默认按选项文字与说明匹配（忽略大小写与重音） */
-  filter?: (item: T, query: string) => boolean;
+  /** 输入框里的文字：父级可以写 inputValue={_bind(x)}（远程搜索时据此取数据）；每次打开清空 */
+  inputValue?: string;
+  /** 过滤：默认按选项文字与说明匹配（忽略大小写与重音）；函数自定义；false 不过滤（远程搜索，items 就是结果） */
+  filter?: false | ((item: T, query: string) => boolean);
+  /** 正在取结果（远程搜索）：没有结果时列表里是骨架行，已有结果时顶部显示进度条 */
+  loading?: boolean;
   /** 打开面板的快捷键，默认 'Mod+K'；false 不注册 */
   hotkey?: string | false;
   /** 输入框的占位文字，默认取语言包（搜索文档） */
@@ -130,10 +135,12 @@ export const commandPaletteStyles = stylex.create({
 export const CommandPalette = _component(
   <T,>({
     open = _bindable(false),
+    inputValue = _bindable(''),
     items,
     toOption,
     onAction,
     filter,
+    loading = false,
     hotkey = 'Mod+K',
     placeholder,
     label,
@@ -148,10 +155,10 @@ export const CommandPalette = _component(
     const lang = useLang();
     const listId = useId();
     const appearance = useControlAppearance(() => ({}));
-    let query = _state('');
     const optionOf = (item: T) => toListboxOption(item, toOption);
 
     function matches(item: T, text: string) {
+      if (filter === false) return true;
       if (filter) return filter(item, text);
       const match = createMatcher(lang.code);
       const option = optionOf(item);
@@ -159,7 +166,7 @@ export const CommandPalette = _component(
     }
 
     const list = useListState({
-      items: () => (query ? items.filter((item) => matches(item, query)) : items),
+      items: () => (inputValue ? items.filter((item) => matches(item, inputValue)) : items),
       toOption: optionOf,
       // 面板不记选择：选中就是执行
       selected: () => [],
@@ -171,10 +178,13 @@ export const CommandPalette = _component(
     watch(
       () => open,
       (isOpen) => {
-        if (isOpen) query = '';
+        if (isOpen) inputValue = '';
       },
     );
-    watch([() => query, () => open], () => list.move('first'), { flush: 'post' });
+    // 远程搜索时结果晚到：结果变了也高亮第一个
+    watch([() => inputValue, () => open, () => list.options.length], () => list.move('first'), {
+      flush: 'post',
+    });
 
     useHotkeys(() => (hotkey ? { [hotkey]: () => (open = !open) } : {}), { inInputs: true });
 
@@ -265,7 +275,7 @@ export const CommandPalette = _component(
                   onKeydown,
                 },
               )}
-              value={_bind(query)}
+              value={_bind(inputValue)}
             />
           </div>
           <ListboxView
@@ -276,6 +286,7 @@ export const CommandPalette = _component(
                 id: listId,
                 renderOption,
                 empty,
+                loading,
                 propsEmpty: { description: lang.searchEmpty },
               },
               propsListbox,

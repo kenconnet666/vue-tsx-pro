@@ -57,4 +57,35 @@ describe('Tour', () => {
     await nextTick();
     expect(step).toBe(0);
   });
+
+  it('封面在标题之前；→ / ← 切换步骤，焦点在输入框里时不处理', async () => {
+    let step = _state(0);
+    const root = mount(() => (
+      <Tour
+        steps={[{ ...steps[0]!, cover: <img alt="" src="cover.png" /> }, steps[1]!]}
+        current={_bind(step)}
+        propsCover={{ class: 'cover' }}
+      />
+    ));
+    const dialog = root.querySelector('dialog')!;
+    const cover = dialog.querySelector('.cover')!;
+    expect(cover.querySelector('img')).not.toBeNull();
+    expect(cover.nextElementSibling!.tagName).toBe('H2');
+
+    const press = (key: string, target: EventTarget = dialog) =>
+      target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    press('ArrowRight');
+    await nextTick();
+    expect(step).toBe(1);
+    expect(dialog.querySelector('.cover')).toBeNull();
+    press('ArrowLeft');
+    await nextTick();
+    expect(step).toBe(0);
+
+    const input = document.createElement('input');
+    dialog.append(input);
+    press('ArrowRight', input);
+    await nextTick();
+    expect(step).toBe(0);
+  });
 });
