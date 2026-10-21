@@ -11,14 +11,8 @@
  */
 import { _component, createContext } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import {
-  CodePreview,
-  createFlex,
-  dataAttrs,
-  H2,
-  Paragraph,
-  type CodePreviewAligns,
-} from '@vue-tsx-pro/ui';
+import { createFlex, dataAttrs, H2, Paragraph } from '@vue-tsx-pro/ui';
+import { CodePreview, type CodePreviewAligns } from '@vue-tsx-pro/ui/docs-kit';
 import { h, onBeforeUnmount, onMounted, type VNodeChild } from 'vue';
 import { framePath } from '../router';
 import { canvasStyles } from './canvas';

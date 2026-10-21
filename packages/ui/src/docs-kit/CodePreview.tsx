@@ -20,11 +20,12 @@ import { useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { CopyButton, type CopyButtonProps } from '../base/CopyButton';
-import { useLang } from '../config/context';
+import { useMessages } from '../config/lang/messages';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
-import { Card, type CardProps } from './Card';
-import { Collapse, type CollapseProps } from './Collapse';
+import { Card, type CardProps } from '../display/Card';
+import { Collapse, type CollapseProps } from '../display/Collapse';
+import { docsKitMessages } from './messages';
 
 /** 效果区的排列 */
 export interface CodePreviewAligns {
@@ -112,7 +113,7 @@ export const CodePreview = _component(
     propsCode,
     ...rest
   }: CodePreviewProps) => {
-    const messages = useLang();
+    const messages = useMessages('docsKit', docsKitMessages);
     const codeId = useId();
     // 收起的源码先按纯文本渲染（页内搜索照样找得到）：要显示时才高亮。指针移到、焦点落到“显示代码”上就开始，
     // 点下去时多半已经高亮好了。一页十来个示例，打开页面时不必一次高亮全部
@@ -171,7 +172,7 @@ export const CodePreview = _component(
                   },
                 )}
               >
-                {showCode ? messages.codeHide : messages.codeShow}
+                {showCode ? messages.hideCode : messages.showCode}
               </Button>
               <CopyButton
                 {...mergePartProps<CopyButtonProps>(
@@ -209,7 +210,7 @@ export const CodePreview = _component(
         <div
           {...mergeAttrs<'div'>({ sx: codePreviewStyles.preview }, propsPreview, {
             role: 'group',
-            'aria-label': messages.codePreview,
+            'aria-label': messages.preview,
           })}
         >
           <ScrollArea {...mergePartProps<ScrollAreaProps>({ axis: 'x' }, propsPreviewScroll)}>

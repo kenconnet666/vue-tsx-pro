@@ -6,15 +6,8 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import {
-  Flex,
-  H2,
-  H3,
-  Paragraph,
-  PropsTable,
-  type ApiPropKinds,
-  type ComponentApi,
-} from '@vue-tsx-pro/ui';
+import { Flex, H2, H3, Paragraph } from '@vue-tsx-pro/ui';
+import { PropsTable, type ApiPropKinds, type ComponentApi } from '@vue-tsx-pro/ui/docs-kit';
 import { onBeforeUnmount, onMounted } from 'vue';
 import { afterFirstPaint, whenIdle } from './idle';
 

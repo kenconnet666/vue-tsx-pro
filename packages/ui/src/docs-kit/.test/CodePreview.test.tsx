@@ -1,10 +1,9 @@
-// 文档展示：代码示例卡片 CodePreview、色块 ColorSwatch
+// 代码示例卡片 CodePreview
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { Provider } from '../../config/Provider';
 import { mount } from '../../utils/.test/mount';
 import { CodePreview } from '../CodePreview';
-import { ColorSwatch } from '../ColorSwatch';
 
 describe('CodePreview', () => {
   it('效果区是一组；源码默认收起，按钮切换并带 aria-expanded / aria-controls', async () => {
@@ -77,22 +76,5 @@ describe('CodePreview', () => {
     const toolbar = root.querySelector('a')!.parentElement!;
     expect(toolbar.firstElementChild!.textContent).toBe('编辑');
     expect(toolbar.querySelector('button[aria-controls]')).not.toBeNull();
-  });
-});
-
-describe('ColorSwatch', () => {
-  it('显示名称与取值：普通颜色显示它本身，value 可以改写，false 不显示', () => {
-    const root = mount(() => (
-      <>
-        <ColorSwatch color="#3e63dd" label="品牌色" />
-        <ColorSwatch color="rgb(0 0 0 / 0.5)" label="遮罩" value="50% 黑" />
-        <ColorSwatch color="red" value={false} />
-      </>
-    ));
-    const texts = [...root.children].map((swatch) =>
-      [...swatch.querySelectorAll('span')].map((span) => span.textContent),
-    );
-    expect(texts).toEqual([['品牌色', '#3e63dd'], ['遮罩', '50% 黑'], []]);
-    expect(root.querySelector('[aria-hidden="true"]')).not.toBeNull();
   });
 });

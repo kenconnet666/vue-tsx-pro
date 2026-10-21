@@ -268,18 +268,6 @@ export {
   type CardProps,
   type CardVariants,
 } from './display/Card';
-export {
-  CodeGroup,
-  codeGroupStyles,
-  type CodeGroupItem,
-  type CodeGroupProps,
-} from './display/CodeGroup';
-export {
-  CodePreview,
-  codePreviewStyles,
-  type CodePreviewAligns,
-  type CodePreviewProps,
-} from './display/CodePreview';
 export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 export {
@@ -304,15 +292,6 @@ export {
   type MarqueeDirections,
   type MarqueeProps,
 } from './display/Marquee';
-export {
-  PropsTable,
-  propsTableStyles,
-  type ApiProp,
-  type ApiPropKinds,
-  type ApiValue,
-  type ComponentApi,
-  type PropsTableProps,
-} from './display/PropsTable';
 export {
   Sortable,
   sortableStyles,
@@ -1050,6 +1029,10 @@ export {
   type ComponentDefaults,
   type ResolvedDefaults,
 } from './config/defaults';
+export {
+  themeCustomizerMessages,
+  type ThemeCustomizerMessages,
+} from './config/theme-customizer-messages';
 
 // 主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export {
@@ -1112,7 +1095,14 @@ import './config/theme/token-names';
 // 语言与格式化
 export { enUS } from './config/lang/en-US';
 export { useFormat, type NumericFormat, type RelativeFormatOptions } from './config/lang/format';
-export { defineLang, type Directions, type HourCycles, type Lang } from './config/lang/lang';
+export {
+  defineLang,
+  type Directions,
+  type HourCycles,
+  type Lang,
+  type LangMessages,
+} from './config/lang/lang';
+export { useMessages, type MessageTable } from './config/lang/messages';
 export { zhCN } from './config/lang/zh-CN';
 
 // 工具：部件属性的合并

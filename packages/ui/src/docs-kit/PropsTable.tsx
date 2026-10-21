@@ -4,14 +4,14 @@
  *
  *   <PropsTable props={api.props.filter((prop) => prop.kind === 'prop')} />
  *
- * 必填的 prop 名称旁标“必填”，能 `_bind` 双向绑定的标“可绑定”（文案取语言包）。外层是静态表格 Table，窄屏时横向滚动。
+ * 必填的 prop 名称旁标“必填”，能 `_bind` 双向绑定的标“可绑定”（文案见 messages.ts）。外层是静态表格 Table，窄屏时横向滚动。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { Code } from '../base/Code';
-import { useLang } from '../config/context';
+import { useMessages } from '../config/lang/messages';
 import { mergeAttrs, mergePartProps } from '../utils/props';
 import {
   Table,
@@ -23,6 +23,7 @@ import {
   TableRow,
   type TableProps,
 } from '../table/Table';
+import { docsKitMessages } from './messages';
 
 /** prop 的种类：文档里分开列出 */
 export interface ApiPropKinds {
@@ -111,16 +112,16 @@ export const propsTableStyles = stylex.create({
 
 /** 组件 API 的表格：名称、类型、默认值、说明与可选值 */
 export const PropsTable = _component(({ props, caption, ...rest }: PropsTableProps) => {
-  const lang = useLang();
+  const messages = useMessages('docsKit', docsKitMessages);
   return () => (
     <Table {...mergePartProps<TableProps>({ density: 'compact' }, rest)}>
       {caption != null && <TableCaption>{caption}</TableCaption>}
       <TableHead>
         <TableRow>
-          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiName}</TableHeaderCell>
-          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiType}</TableHeaderCell>
-          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiDefault}</TableHeaderCell>
-          <TableHeaderCell sx={propsTableStyles.head}>{lang.apiDescription}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{messages.name}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{messages.type}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{messages.defaultValue}</TableHeaderCell>
+          <TableHeaderCell sx={propsTableStyles.head}>{messages.description}</TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -129,8 +130,8 @@ export const PropsTable = _component(({ props, caption, ...rest }: PropsTablePro
             <TableCell>
               <span {...mergeAttrs<'span'>({ sx: propsTableStyles.name })}>
                 <Code sx={propsTableStyles.nameCode}>{prop.name}</Code>
-                {prop.required && <Badge tone="warning">{lang.apiRequired}</Badge>}
-                {prop.bindable && <Badge tone="accent">{lang.apiBindable}</Badge>}
+                {prop.required && <Badge tone="warning">{messages.required}</Badge>}
+                {prop.bindable && <Badge tone="accent">{messages.bindable}</Badge>}
               </span>
             </TableCell>
             <TableCell>

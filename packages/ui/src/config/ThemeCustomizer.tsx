@@ -24,8 +24,9 @@ import { downloadFile } from '../utils/dom/download';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { swatchStyles } from '../utils/style/swatch-styles';
-import { useLang } from './context';
 import { useFormat } from './lang/format';
+import { useMessages } from './lang/messages';
+import { themeCustomizerMessages } from './theme-customizer-messages';
 import { builtinThemes } from './theme/builtin';
 import { CONTRAST_PAIRS, checkContrast, type ContrastIssue } from './theme/contrast';
 import {
@@ -173,7 +174,7 @@ export const ThemeCustomizer = _component(
     propsReset,
     ...rest
   }: ThemeCustomizerProps) => {
-    const lang = useLang();
+    const messages = useMessages('themeCustomizer', themeCustomizerMessages);
     const format = useFormat();
     let issues = _state.raw<ContrastIssue[]>([]);
 
@@ -278,8 +279,8 @@ export const ThemeCustomizer = _component(
     /** 色阶在当前语言下的名字与色值：“靛蓝 #3e63dd”；没选（主题默认）时是“主题默认” */
     const scaleText = (scale: AccentScale | NeutralScale | undefined) =>
       scale
-        ? `${lang.customizeColorNames[scale]} ${scaleSwatch(scale as never, base.colorScheme)}`
-        : lang.customizeDefault;
+        ? `${messages.colorNames[scale]} ${scaleSwatch(scale as never, base.colorScheme)}`
+        : messages.themeDefault;
 
     /** 色阶选项：第一项是“主题默认”，其余是色块；名字与色值在悬停提示与读屏文字里 */
     const scaleOptions = (scales: readonly (AccentScale | NeutralScale)[]): Option[] => [
@@ -294,14 +295,14 @@ export const ThemeCustomizer = _component(
             )}
           />
         ),
-        label: lang.customizeDefault,
-        title: lang.customizeDefault,
+        label: messages.themeDefault,
+        title: messages.themeDefault,
       },
       ...scales.map((scale) => {
         const color = scaleSwatch(scale as never, base.colorScheme);
         return {
           value: scale,
-          title: `${lang.customizeColorNames[scale]}（${scale}）${color}`,
+          title: `${messages.colorNames[scale]}（${scale}）${color}`,
           preview: (
             <span
               {...stylex.attrs(
@@ -312,27 +313,27 @@ export const ThemeCustomizer = _component(
               )}
             />
           ),
-          label: lang.customizeColorNames[scale],
+          label: messages.colorNames[scale],
         };
       }),
     ];
 
     return () => {
       const radii: [keyof RadiusPresets, string][] = [
-        ['none', lang.customizeRadiusNone],
-        ['small', lang.customizeRadiusSmall],
-        ['medium', lang.customizeRadiusMedium],
-        ['large', lang.customizeRadiusLarge],
+        ['none', messages.radiusNone],
+        ['small', messages.radiusSmall],
+        ['medium', messages.radiusMedium],
+        ['large', messages.radiusLarge],
       ];
       const fonts: [keyof FontPresets, string][] = [
-        ['sans', lang.customizeFontSans],
-        ['serifHeadings', lang.customizeFontSerifHeadings],
+        ['sans', messages.fontSans],
+        ['serifHeadings', messages.fontSerifHeadings],
       ];
       const motions: [keyof MotionPresets, string][] = [
-        ['none', lang.customizeMotionNone],
-        ['fast', lang.customizeMotionFast],
-        ['normal', lang.customizeMotionNormal],
-        ['slow', lang.customizeMotionSlow],
+        ['none', messages.motionNone],
+        ['fast', messages.motionFast],
+        ['normal', messages.motionNormal],
+        ['slow', messages.motionSlow],
       ];
       const radius = settings.radius ?? 'medium';
       const scaling = settings.scaling ?? 1;
@@ -351,9 +352,9 @@ export const ThemeCustomizer = _component(
 
       return (
         <div {...mergeAttrs<'div'>({ sx: themeCustomizerStyles.root }, rest)}>
-          {group(lang.customizeGroupColor, lang.customizeGroupColorHint, [
+          {group(messages.groupColor, messages.groupColorHint, [
             field(
-              lang.customizeAccent,
+              messages.accent,
               scaleText(settings.accent),
               scaleOptions(ACCENT_SCALES),
               settings.accent ?? '',
@@ -361,7 +362,7 @@ export const ThemeCustomizer = _component(
               'swatches',
             ),
             field(
-              lang.customizeNeutral,
+              messages.neutral,
               scaleText(settings.neutral),
               scaleOptions(NEUTRAL_SCALES),
               settings.neutral ?? '',
@@ -369,9 +370,9 @@ export const ThemeCustomizer = _component(
               'swatches',
             ),
           ])}
-          {group(lang.customizeGroupShape, lang.customizeGroupShapeHint, [
+          {group(messages.groupShape, messages.groupShapeHint, [
             field(
-              lang.customizeRadius,
+              messages.radius,
               labelOf(radii, radius),
               radii.map(([value, label]) => ({
                 value,
@@ -389,7 +390,7 @@ export const ThemeCustomizer = _component(
               (next) => set('radius', next as keyof RadiusPresets),
             ),
             field(
-              lang.customizeScaling,
+              messages.scaling,
               percent(scaling),
               SCALINGS.map((factor) => ({
                 value: String(factor),
@@ -409,9 +410,9 @@ export const ThemeCustomizer = _component(
               (next) => set('scaling', Number(next)),
             ),
           ])}
-          {group(lang.customizeGroupType, lang.customizeGroupTypeHint, [
+          {group(messages.groupType, messages.groupTypeHint, [
             field(
-              lang.customizeFont,
+              messages.font,
               labelOf(fonts, font),
               fonts.map(([value, label]) => ({
                 value,
@@ -431,26 +432,26 @@ export const ThemeCustomizer = _component(
               (next) => set('font', next as keyof FontPresets),
             ),
             field(
-              lang.customizeMotion,
+              messages.motion,
               labelOf(motions, motion),
               motions.map(([value, label]) => ({ value, label })),
               motion,
               (next) => set('motion', next as keyof MotionPresets),
             ),
           ])}
-          {group(lang.customizeGroupExport, lang.customizeGroupExportHint, [
+          {group(messages.groupExport, messages.groupExportHint, [
             <Alert
-              {...mergePartProps<AlertProps>({ title: lang.customizeContrast }, propsContrast, {
+              {...mergePartProps<AlertProps>({ title: messages.contrast }, propsContrast, {
                 tone: issues.length === 0 ? 'success' : 'warning',
               })}
             >
               {issues.length === 0 ? (
-                lang.customizeContrastOk(CONTRAST_PAIRS.length)
+                messages.contrastOk(CONTRAST_PAIRS.length)
               ) : (
                 <Flex direction="column" gap="xs">
                   {issues.map((issue) => (
                     <span key={`${issue.foreground}-${issue.background}`}>
-                      {lang.customizeContrastIssue(
+                      {messages.contrastIssue(
                         `${issue.foreground} / ${issue.background}`,
                         format.number(issue.ratio, {
                           minimumFractionDigits: 2,
@@ -465,7 +466,7 @@ export const ThemeCustomizer = _component(
             </Alert>,
             <CodeBlock
               {...mergePartProps<CodeBlockProps>(
-                { title: lang.customizeCode, code, lang: 'ts' },
+                { title: messages.code, code, lang: 'ts' },
                 propsCode,
               )}
             />,
@@ -477,7 +478,7 @@ export const ThemeCustomizer = _component(
                   { onClick: () => downloadFile('theme.ts', code, 'text/typescript') },
                 )}
               >
-                {lang.customizeDownload}
+                {messages.download}
               </Button>
               <Button
                 {...mergePartProps<ButtonProps>(
@@ -486,7 +487,7 @@ export const ThemeCustomizer = _component(
                   { onClick: () => downloadTokens(customized) },
                 )}
               >
-                {lang.customizeDownloadTokens}
+                {messages.downloadTokens}
               </Button>
               <Button
                 {...mergePartProps<ButtonProps>(
@@ -495,7 +496,7 @@ export const ThemeCustomizer = _component(
                   { onClick: () => (settings = {}) },
                 )}
               >
-                {lang.customizeReset}
+                {messages.reset}
               </Button>
             </Flex>,
           ])}

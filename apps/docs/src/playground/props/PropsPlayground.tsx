@@ -25,8 +25,8 @@ import {
   TextField,
   ToggleGroup,
   ToggleItem,
-  type ApiProp,
 } from '@vue-tsx-pro/ui';
+import { type ApiProp } from '@vue-tsx-pro/ui/docs-kit';
 import catalog from 'virtual:api-catalog';
 import {
   h,

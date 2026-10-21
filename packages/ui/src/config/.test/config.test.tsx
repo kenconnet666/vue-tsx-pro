@@ -7,6 +7,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import {
   createUi,
   darkTheme,
+  defineLang,
   defineTheme,
   Empty,
   enUS,
@@ -19,8 +20,12 @@ import {
   useDefaults,
   useFormat,
   useLang,
+  useMessages,
   type DataTableOptions,
+  type LangMessages,
+  type MessageTable,
 } from '../..';
+import { docsKitMessages } from '../../docs-kit';
 import { colors } from '../theme/tokens.stylex';
 
 const apps: App[] = [];
@@ -249,6 +254,56 @@ describe('useLang', () => {
     mount(() => <Spread />);
     expect(keys).toContain('confirm');
     expect(keys).toContain('paginationTotal');
+  });
+});
+
+describe('useMessages', () => {
+  const table: MessageTable<LangMessages['docsKit']> = {
+    'zh-CN': { ...docsKitMessages['zh-CN'], name: '名称' },
+    'en-US': { ...docsKitMessages['en-US'], name: 'Name' },
+  };
+  const Name = _component(() => {
+    const messages = useMessages('docsKit', table);
+    return () => <i>{messages.name}</i>;
+  });
+
+  it('按语言代码取；没有这种语言时先找同一语种，再用英文', () => {
+    const el = mount(() => (
+      <>
+        <Name />
+        <Provider lang={enUS}>
+          <Name />
+        </Provider>
+        <Provider lang={{ code: 'zh-TW' }}>
+          <Name />
+        </Provider>
+        <Provider lang={{ code: 'ja-JP' }}>
+          <Name />
+        </Provider>
+      </>
+    ));
+    expect([...el.querySelectorAll('i')].map((i) => i.textContent)).toEqual([
+      '名称',
+      'Name',
+      '名称',
+      'Name',
+    ]);
+  });
+
+  it('Lang.messages 覆盖表里的字段；嵌套的 Provider 按组件合并', () => {
+    const el = mount(() => (
+      <Provider lang={{ code: 'ja-JP', messages: { docsKit: { name: '名前' } } }}>
+        <Provider lang={{ messages: { docsKit: { type: '型' } } }}>
+          <Name />
+        </Provider>
+      </Provider>
+    ));
+    expect(el.textContent).toBe('名前');
+    expect(
+      defineLang(defineLang(enUS, { messages: { docsKit: { name: 'a' } } }), {
+        messages: { docsKit: { type: 'b' } },
+      }).messages?.docsKit,
+    ).toEqual({ name: 'a', type: 'b' });
   });
 });
 

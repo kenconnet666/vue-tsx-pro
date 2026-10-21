@@ -21,6 +21,11 @@
       "types": "./dist/charts/index.d.ts",
       "default": "./dist/charts/index.js"
     },
+    "./docs-kit": {
+      "@vue-tsx-pro/source": "./src/docs-kit/index.ts",
+      "types": "./dist/docs-kit/index.d.ts",
+      "default": "./dist/docs-kit/index.js"
+    },
     "./three": {
       "@vue-tsx-pro/source": "./src/three/index.ts",
       "types": "./dist/three/index.d.ts",

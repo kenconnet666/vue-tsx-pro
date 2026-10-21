@@ -237,7 +237,7 @@ interface Lang {
   /** 金额组件的默认币种，如 'CNY' */
   currency?: string;
 
-  // 文案：平铺，没有 messages 对象
+  // 通用组件的文案：平铺
   /** 确认按钮，默认“确定” */
   confirm: string;
   cancel: string;
@@ -247,13 +247,17 @@ interface Lang {
   selectEmpty: string;
   selectPlaceholder: string;
   paginationTotal: (total: number) => string;
-  formRequired: (label: string) => string;
+  formRequired: string;
+
+  // 页面级组件自带的文案只在这里改写或补语言（见下）
+  messages?: { themeCustomizer?: Partial<…>; docsKit?: Partial<…> };
 }
 ```
 
 - **命名**：通用文案不加前缀（`confirm`、`cancel`）；组件文案用组件名作前缀（`selectEmpty`、`datePickerToday`），键入 `lang.select` 即可筛出；同一接口内重名由 TypeScript 直接报错。需要插值的文案写成函数。
 - **注释**：每个键都写 JSDoc（用途 + 中文默认值）；`lang.xxx` 是属性访问，悬停能正常显示。
-- **合并**：扁平结构只需浅合并：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })`；嵌套的 Provider 同样按字段浅合并。
+- **合并**：扁平结构只需浅合并：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })`；嵌套的 Provider 同样按字段浅合并，`messages` 按组件再合并一层。
+- **核心与页面级组件**：`Lang` 只放业务界面里随处会用到的组件的文案，新增一种语言只翻它。主题编辑器（ThemeCustomizer）与文档站组件（`@vue-tsx-pro/ui/docs-kit`）各带一张中英文的文案表，用 `useMessages(名字, 表)` 按当前语言取：先找同一代码，再找同一语种（zh-TW 用 zh-CN 的），都没有用英文（同 React Aria 各包自带文案）。要改写或补一种语言写在 `lang.messages` 里，如 `{ messages: { docsKit: { name: '名前' } } }`。
 - **预设**：`zhCN`、`enUS` 从主入口导出；包是纯 ESM 且 `sideEffects: false`，没用到的语言会被摇树去掉，不再单独开入口。
 - **格式化**：`useFormat()` 从当前 `lang` 派生：数字与金额（`Intl.NumberFormat`，精确运算用 decimal.js）、日期时间（`@internationalized/date` 的 `DateFormatter`，带上时区与日历），格式化器按语言缓存。一周第一天、小时制等地区惯例由 `@internationalized/date` 提供。
 

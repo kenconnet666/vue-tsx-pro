@@ -4,11 +4,15 @@
  *
  * 命名：通用文案不加前缀；组件文案用组件名作前缀（selectEmpty），键入 lang.select 即可筛出。
  * 需要插值的文案写成函数。
+ *
+ * 页面级的组件（主题编辑器、文档站组件）自带各语言的文案（messages.ts），不在这里逐条列出：
+ * 新增一种语言只翻这里的字段，它们没有这种语言时显示英文。
  */
 import type { $ZodErrorMap } from 'zod/v4/core';
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
-import type { AccentScale, NeutralScale } from '../theme/palette';
+import type { DocsKitMessages } from '../../docs-kit/messages';
+import type { ThemeCustomizerMessages } from '../theme-customizer-messages';
 
 /** 文字方向 */
 export interface Directions {
@@ -284,18 +288,12 @@ export interface Lang {
   /** 模型加载失败时显示，默认“模型加载失败” */
   readonly modelViewerError: string;
 
-  // ───────── 文档站一类页面的组件 ─────────
+  // ───────── 内容页与应用外壳：代码块、标题锚点、目录、导航、搜索、主题切换、取色、翻页 ─────────
 
   /** 长代码折叠时展开的按钮，默认“展开全部” */
   readonly codeExpand: string;
   /** 展开后收起长代码的按钮，默认“收起” */
   readonly codeCollapse: string;
-  /** 代码示例的预览区域名称，默认“预览” */
-  readonly codePreview: string;
-  /** 代码示例里显示源码的按钮，默认“显示代码” */
-  readonly codeShow: string;
-  /** 代码示例里收起源码的按钮，默认“隐藏代码” */
-  readonly codeHide: string;
   /** 标题旁的锚点链接名称，默认“链接到本节” */
   readonly headingAnchor: string;
   /** 跳到正文的链接，默认“跳到正文” */
@@ -344,95 +342,39 @@ export interface Lang {
   readonly themeCyberpunk: string;
   /** 主题：咖啡，默认“咖啡” */
   readonly themeCoffee: string;
-  /** ThemeCustomizer：品牌色一组的标题，默认“品牌色” */
-  readonly customizeAccent: string;
-  /** ThemeCustomizer：中性色一组的标题，默认“中性色” */
-  readonly customizeNeutral: string;
-  /** ThemeCustomizer：沿用主题本来的颜色，默认“主题默认” */
-  readonly customizeDefault: string;
-  /** 品牌色、中性色色阶的名字（主题编辑器的色块），如 indigo → “靛蓝” */
-  readonly customizeColorNames: Readonly<Record<AccentScale | NeutralScale, string>>;
-  /** ThemeCustomizer：圆角一组的标题，默认“圆角” */
-  readonly customizeRadius: string;
-  /** ThemeCustomizer：圆角选项，默认“直角” */
-  readonly customizeRadiusNone: string;
-  /** ThemeCustomizer：圆角选项，默认“小” */
-  readonly customizeRadiusSmall: string;
-  /** ThemeCustomizer：圆角选项，默认“中” */
-  readonly customizeRadiusMedium: string;
-  /** ThemeCustomizer：圆角选项，默认“大” */
-  readonly customizeRadiusLarge: string;
-  /** ThemeCustomizer：缩放一组的标题，默认“缩放” */
-  readonly customizeScaling: string;
-  /** ThemeCustomizer：字体一组的标题，默认“字体” */
-  readonly customizeFont: string;
-  /** ThemeCustomizer：字体选项，默认“无衬线” */
-  readonly customizeFontSans: string;
-  /** ThemeCustomizer：字体选项，默认“衬线标题” */
-  readonly customizeFontSerifHeadings: string;
-  /** ThemeCustomizer：动效一组的标题，默认“动效” */
-  readonly customizeMotion: string;
-  /** ThemeCustomizer：动效选项，默认“关闭” */
-  readonly customizeMotionNone: string;
-  /** ThemeCustomizer：动效选项，默认“快” */
-  readonly customizeMotionFast: string;
-  /** ThemeCustomizer：动效选项，默认“正常” */
-  readonly customizeMotionNormal: string;
-  /** ThemeCustomizer：动效选项，默认“慢” */
-  readonly customizeMotionSlow: string;
-  /** ThemeCustomizer：对比度检查一组的标题，默认“对比度” */
-  readonly customizeContrast: string;
-  /** 配色全部达到对比度要求时的提示；count 是检查了多少组颜色 */
-  readonly customizeContrastOk: (count: number) => string;
-  /** 一处对比度不够：前景 / 背景 token、实际与要求的对比度 */
-  readonly customizeContrastIssue: (pair: string, ratio: string, minimum: number) => string;
-  /** ThemeCustomizer：导出代码一组的标题，默认“代码” */
-  readonly customizeCode: string;
-  /** ThemeCustomizer：恢复默认设置的按钮，默认“恢复默认” */
-  readonly customizeReset: string;
-  /** ThemeCustomizer：把导出代码存成文件的按钮，默认“下载” */
-  readonly customizeDownload: string;
-  /** ThemeCustomizer：把当前主题存成设计令牌（Figma 变量能导入的 JSON）的按钮，默认“下载 Figma 变量” */
-  readonly customizeDownloadTokens: string;
-  /** ThemeCustomizer：颜色分组的标题，默认“颜色” */
-  readonly customizeGroupColor: string;
-  /** ThemeCustomizer：颜色分组的说明 */
-  readonly customizeGroupColorHint: string;
-  /** ThemeCustomizer：形状与尺寸分组的标题，默认“形状与尺寸” */
-  readonly customizeGroupShape: string;
-  /** ThemeCustomizer：形状与尺寸分组的说明 */
-  readonly customizeGroupShapeHint: string;
-  /** ThemeCustomizer：字体与动效分组的标题，默认“字体与动效” */
-  readonly customizeGroupType: string;
-  /** ThemeCustomizer：字体与动效分组的说明 */
-  readonly customizeGroupTypeHint: string;
-  /** ThemeCustomizer：检查与导出分组的标题，默认“检查与导出” */
-  readonly customizeGroupExport: string;
-  /** ThemeCustomizer：检查与导出分组的说明 */
-  readonly customizeGroupExportHint: string;
   /** ColorField 色块（原生取色器）的名称，默认“选择颜色” */
   readonly colorPick: string;
-  /** PropsTable 的列标题，默认“名称” */
-  readonly apiName: string;
-  /** PropsTable 的列标题，默认“类型” */
-  readonly apiType: string;
-  /** PropsTable 的列标题，默认“默认值” */
-  readonly apiDefault: string;
-  /** PropsTable 的列标题，默认“说明” */
-  readonly apiDescription: string;
-  /** PropsTable 里必填的 prop 的标记，默认“必填” */
-  readonly apiRequired: string;
-  /** PropsTable 里能 _bind 双向绑定的 prop 的标记，默认“可绑定” */
-  readonly apiBindable: string;
   /** 翻页导航（上一篇、下一篇）的名称，默认“翻页” */
   readonly pagerLabel: string;
   /** 上一篇（翻页导航），默认“上一篇” */
   readonly pagerPrevious: string;
   /** 下一篇（翻页导航），默认“下一篇” */
   readonly pagerNext: string;
+
+  // ───────── 页面级组件自带的文案 ─────────
+
+  /**
+   * 改写或补上页面级组件的文案，按组件只写要改的字段：
+   * `{ messages: { docsKit: { name: '名前' } } }`。没写的取组件自带的表（同语种、再英文，见 messages.ts）
+   */
+  readonly messages?: { readonly [K in keyof LangMessages]?: Partial<LangMessages[K]> };
+}
+
+/** 自带文案的页面级组件：名字 → 它的文案 */
+export interface LangMessages {
+  /** 主题编辑器 ThemeCustomizer */
+  readonly themeCustomizer: ThemeCustomizerMessages;
+  /** 文档站组件 CodePreview、PropsTable（@vue-tsx-pro/ui/docs-kit） */
+  readonly docsKit: DocsKitMessages;
 }
 
 /** 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })` */
 export function defineLang(base: Lang, overrides: Partial<Lang>): Lang {
-  return { ...base, ...overrides };
+  if (!base.messages || !overrides.messages) return { ...base, ...overrides };
+  // 页面级组件的文案按组件合并：两边各改了同一个组件的不同字段时都保留
+  const messages: Record<string, object | undefined> = { ...base.messages };
+  for (const [name, fields] of Object.entries(overrides.messages)) {
+    messages[name] = { ...messages[name], ...fields };
+  }
+  return { ...base, ...overrides, messages };
 }

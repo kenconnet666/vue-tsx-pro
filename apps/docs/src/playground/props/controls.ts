@@ -3,7 +3,7 @@
  * 档位（keyof X、字面量联合）→ 分段按钮或下拉；boolean → 开关；string、number → 输入框；IconData → 图标库（IconGallery）。
  * 函数、数组、对象等复杂类型不给控件，需要时由预设（presets.tsx）固定传入。
  */
-import type { ApiProp } from '@vue-tsx-pro/ui';
+import type { ApiProp } from '@vue-tsx-pro/ui/docs-kit';
 
 /** 一个属性的控件 */
 export type Control =

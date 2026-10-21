@@ -19,7 +19,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
   Card,
-  CodePreview,
   Container,
   Flex,
   Grid,
@@ -34,6 +33,7 @@ import {
   Text,
   type IconData,
 } from '@vue-tsx-pro/ui';
+import { CodePreview } from '@vue-tsx-pro/ui/docs-kit';
 import Counter from './demo/Counter.tsx?demo';
 import { defineAsyncComponent, h } from 'vue';
 import { PLAYGROUND_PATH } from '../playground/share';

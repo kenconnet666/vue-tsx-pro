@@ -1,6 +1,7 @@
 /** 指南：在已有的 Vue 项目里装上 vue-tsx-pro，写第一个 TSX 页面 */
 import { _component } from '@vue-tsx-pro/tsx';
-import { Alert, Code, CodeBlock, CodePreview, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
+import { Alert, Code, CodeBlock, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
+import { CodePreview } from '@vue-tsx-pro/ui/docs-kit';
 import { h } from 'vue';
 import Counter from '../demo/Counter.tsx?demo';
 import { DocPage } from '../../site/DocPage';

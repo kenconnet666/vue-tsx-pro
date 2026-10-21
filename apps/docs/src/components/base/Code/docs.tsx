@@ -26,7 +26,9 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Code, CodeBlock, CodeGroup, CodePreview } from '@vue-tsx-pro/ui';"
+    imports={
+      "import { Code, CodeBlock } from '@vue-tsx-pro/ui';\nimport { CodeGroup, CodePreview } from '@vue-tsx-pro/ui/docs-kit';"
+    }
   >
     <Examples>
       <ExampleColumn>

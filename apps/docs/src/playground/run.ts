@@ -17,6 +17,7 @@ const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@vue-tsx-pro/ui/charts': () => import('@vue-tsx-pro/ui/charts'),
   '@vue-tsx-pro/ui/theme-customize': () => import('@vue-tsx-pro/ui/theme-customize'),
   '@vue-tsx-pro/ui/three': () => import('@vue-tsx-pro/ui/three'),
+  '@vue-tsx-pro/ui/docs-kit': () => import('@vue-tsx-pro/ui/docs-kit'),
   three: () => import('three'),
 };
 

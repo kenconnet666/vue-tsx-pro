@@ -1,6 +1,6 @@
 // 给自己的组件手写 API 数据：名称、种类、类型、必填、默认值、可绑定、说明，档位类的列出每个可选值
 import { _component } from '@vue-tsx-pro/tsx';
-import { PropsTable, type ApiProp } from '@vue-tsx-pro/ui';
+import { PropsTable, type ApiProp } from '@vue-tsx-pro/ui/docs-kit';
 
 const props: ApiProp[] = [
   {

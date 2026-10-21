@@ -20,6 +20,7 @@ export default defineConfig({
         'src/config/shiki.ts',
         'src/charts/index.ts',
         'src/three/index.ts',
+        'src/docs-kit/index.ts',
         'src/config/vue-router.ts',
         'src/config/theme/boot.ts',
         'src/config/theme-customize.ts',

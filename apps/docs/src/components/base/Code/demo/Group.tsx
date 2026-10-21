@@ -1,5 +1,6 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { CodeGroup, Flex } from '@vue-tsx-pro/ui';
+import { Flex } from '@vue-tsx-pro/ui';
+import { CodeGroup } from '@vue-tsx-pro/ui/docs-kit';
 
 export default _component(() => {
   // 两组绑同一个变量：在一组里选了包管理器，另一组跟着切换

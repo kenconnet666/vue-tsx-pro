@@ -77,8 +77,10 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 3D：一列颜色变成主题色的写法（四处）收成 setup 上下文的 `themeColorList`；Globe 改 landColor、markerColor 不生效（不在 sceneKey 里）。
       决定保留：Unovis 容器的生命周期两份对应两种容器（XYContainer 给直角坐标图、SingleContainer 给其余），各自已被同类图表共用；
       四类图表的公共属性说明里带着各自的默认高度、骨架形状与格式的用处，不合成 `ChartCommonProps`
-- [ ] Lang 拆成核心与扩展（文档站、主题编辑器、PropsTable 的键不必每种语言都翻）
-- [ ] 文档站用的组件（CodePreview、PropsTable、CodeGroup、TableOfContents、Pager）挪到单独的入口
+- [x] Lang 只留通用组件的文案；主题编辑器与文档站组件各带中英文的文案表，`useMessages` 按语言代码取、退到同语种再退到英文
+      （同 React Aria），改写或补语言写在 `lang.messages`，`defineLang` 按组件合并
+- [x] CodePreview、PropsTable、CodeGroup 挪到子路径 `@vue-tsx-pro/ui/docs-kit`。决定保留在主入口：CodeBlock、
+      TableOfContents、Pager（帮助中心、文章页也用）；顺手把 SelectionBar 里有意只取初始值的读取写成 `_untrack`
 - [ ] 脚本：`scripts/lib`（TypeScript 解析、仓库根目录、createRequire）；没登记的脚本登记或删掉；清理旧 worktree
 
 ### 1.3 行为与无障碍

@@ -19,15 +19,15 @@ import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 import ts from 'typescript';
 import type { Plugin } from 'vite';
-import type { ApiProp, ApiPropKinds, ApiValue, ComponentApi } from '@vue-tsx-pro/ui';
+import type { ApiProp, ApiPropKinds, ApiValue, ComponentApi } from '@vue-tsx-pro/ui/docs-kit';
 
 const ui = resolve(dirname(fileURLToPath(import.meta.url)), '../../../packages/ui');
 const src = join(ui, 'src').split('\\').join('/');
 /** 部件属性的通用部分（sx）声明在这里：不逐条列出 */
 const PART_PROPS_FILE = `${src}/utils/props.ts`;
 
-/** 有组件的入口：主入口与子路径（图表在 @vue-tsx-pro/ui/charts） */
-const ENTRIES = ['index.ts', 'charts/index.ts', 'three/index.ts'];
+/** 有组件的入口：主入口与子路径（图表、3D、文档站组件） */
+const ENTRIES = ['index.ts', 'charts/index.ts', 'three/index.ts', 'docs-kit/index.ts'];
 
 let program: ts.Program | undefined;
 let stale = true;

@@ -1,6 +1,7 @@
 import { Minus, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { AnimatedNumber, CodePreview, Flex, IconButton, Small } from '@vue-tsx-pro/ui';
+import { AnimatedNumber, Flex, IconButton, Small } from '@vue-tsx-pro/ui';
+import { CodePreview } from '@vue-tsx-pro/ui/docs-kit';
 
 // 示例卡片：效果与源码由使用方各自给出；文档站用 Vite 的 ?raw 导入同一个文件，两者永远一致
 const source = `let count = _state(0);
