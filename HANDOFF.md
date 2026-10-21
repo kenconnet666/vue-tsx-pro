@@ -2,7 +2,7 @@
 
 给接手这个仓库的人（或下一个会话、换了电脑的自己）：读完这一页就能接着做。细节以各自的规范文档为准，这里只讲现状、地图、做事方式和踩过的坑。路线图与勾选状态在 [ROADMAP.md](ROADMAP.md)。
 
-## 1. 现状（2026-10-21）
+## 1. 现状（2026-10-22）
 
 - **分支**：只有 `master`，已推送到 origin，工作区干净。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
@@ -21,7 +21,7 @@
   - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart
   - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer；不依赖 three 的 TiltCard、SpotlightCard、BorderBeam 在主入口
 - **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher` 切换，`ThemeCustomizer` 定制（子路径 `@vue-tsx-pro/ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
-- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。所有页面的示例在 2026-10-21 补齐过一轮（见第 8 节）。
+- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；“案例”分组是联合降本管理的整页示例（虚构数据）。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
 - **CI**：GitHub Actions 五个并行任务：check（静态检查）、test（Ubuntu 与 Windows）、browser（三种浏览器的浏览器测试与文档站的 axe）、build、consumer（发布产物验证）。
 
@@ -34,7 +34,7 @@
 | [ROADMAP.md](ROADMAP.md)                  | 当前的全部目标与执行顺序，做完一块勾一块                                                        |
 | [RUNES.md](RUNES.md)                      | 符文规范：`_state`、`_derived`、`_effect`、props、`_bindable` / `_bind`、`_untrack` 等          |
 | [COMPONENTS.md](COMPONENTS.md)            | 组件库规范：API 约定、部件与透传、样式与 token、依赖与待办、每批组件的设计与取舍（§10）         |
-| `.claude/reports/`                        | 调研报告：构建与加载性能（实测数据）、复用审计、Unovis 的 API 清单                              |
+| `.claude/reports/`                        | 调研报告：全站审查（2026-10-22，标出已修与待办）、构建与加载性能、Unovis 的 API 清单            |
 | `packages/ui/src/index.ts`                | 组件库的全部导出，按目录分组；由 `pnpm exports` 生成，不要手改                                  |
 | `apps/docs/src/components/<分类>/<Name>/` | 文档页 `docs.tsx`、示例 `demo/`（整页示例在 `frames/`）；站点自己的组件在 `apps/docs/src/site/` |
 
@@ -120,6 +120,13 @@ pnpm docs:coverage input/                                            # 各页 AP
 | 浮层滚动条                                                     | 局部区域 `ScrollArea`（视口自己管焦点时 `focusable={false}`）；整页 `PageScrollbar`；会滚动的弹出层 `floatingStyles.scrollPanel`                                    |
 | 颜色解析、对比度、主题定制                                     | `utils/data/color.ts`（culori）；`customizeTheme`、`checkContrast`、`tokenCatalog`（`@vue-tsx-pro/ui/theme-customize`）                                             |
 | 元素大小变化                                                   | `useResizeObserver(() => [a, b], onResize)`（`utils/dom/resize.ts`）                                                                                                |
+| 内容（插槽、标题、说明、错误）有没有东西                       | `hasContent(node)`：null、undefined、空字符串与布尔（`cond && …` 不成立时的 false）都算没有（`utils/props.ts`）                                                     |
+| 聚焦一个控件（它本身不能聚焦时聚焦里面第一个能聚焦的）         | `focusControl(element)`（`utils/dom/focus.ts`）：表单提交不通过时用                                                                                                 |
+| 输入法组合中的按键                                             | `isComposingKey(event)`（`utils/dom/hotkeys.ts`）：列表键盘操作、快捷键、TagsInput 都先排除它                                                                       |
+| 命令式创建的元素写上样式                                       | `applyStyleAttrs(element, stylex.attrs(…))`（`utils/props.ts`）；`stylex.attrs` 的 style 是对象，不是字符串                                                         |
+| 能读成数字的文字（接口给的 '19.90'）                           | `isNumericText(value)`（`utils/data/numeric.ts`）：DataTable 的格式化、合计、数字列的排序用它                                                                       |
+| 站内链接的地址与点击                                           | `useRouterLink()`：`href(href)` 渲染路由解析后的真实地址（带 base、hash 模式的 #），`onClick(event, href)` 把原文交给路由                                           |
+| 主题导出为设计令牌（Figma 变量）                               | `themeDesignTokens(theme)`、`elementDesignTokens(element)`（`@vue-tsx-pro/ui/theme-customize`）：DTCG JSON                                                          |
 | 图表的外层结构（图例、空与加载、读屏数据表）                   | `ChartFrame`（`charts/frame.tsx`）；直角坐标图 `XYChart`，单容器图 `useSingleChart`（`charts/single.tsx`）                                                          |
 | 3D 场景、画质、降级                                            | `ThreeCanvas` / `useThree`（`three/core/`）；效果的外层 `EffectSurface`；`quality="off"` 不创建 WebGL、显示 fallback                                                |
 
@@ -194,21 +201,16 @@ pnpm docs:coverage input/                                            # 各页 AP
 
 ## 8. 下一步
 
-按优先级（详见 ROADMAP）：
+按 [ROADMAP.md](ROADMAP.md) 的顺序：§1 审查整改（先做 §1.1 的 API 统一，它改公共契约，越早越好）→ §2 基础设施（请求层与
+`useTableQuery` 优先）→ §3 组件补齐 → §4 降本案例的 M3、M4 → §5 图表 → §6 质量与发布。审查的细节在
+`.claude/reports/audit-2026-10-22.md`。
 
-1. **图表 P2 后半**：TimelineChart（Unovis Timeline，放在 XYContainer 里）、GraphChart（Unovis Graph，布局按需懒加载）。照 SankeyChart / ChordChart 的结构：数据类型、`useSingleChart` 或 XYChart、`ChartFrame`；`--vis-*` 变量映射到 tokens；Unovis 的选项先查 `.claude/reports/unovis-api.md` 和 `node_modules/.pnpm/@unovis+ts@1.7.1/node_modules/@unovis/ts/components/<name>/config.d.ts`；导出加到 `charts/index.ts`，测试加到 `charts/.test/charts.test.tsx`，文档页放 `apps/docs/src/components/charts/<Name>/`。
-2. **图表 P3**：TopoJSON 地图、LeafletMap、BulletLegend 等。
-3. **目录整理**（ROADMAP §7）：零散文件按职责收进文件夹，删掉无人调用的代码（见 `.claude/reports/reuse-audit.md`）。整理与功能改动分开提交；跨目录的移动先给方案。
-4. **文档示例的剩余缺口**：`pnpm docs:coverage` 列出的多是 children、open、placement、lazy、ripple 这类透传属性，不必逐个演示；各输入框的 `invalid` 统一在 Form 页“字段的状态”里讲。新组件的页面照现有的做：示例饱满、贴近真实场景、键盘一节、API 表。
-5. **表格的进阶能力**（按需）：单元格编辑、多级表头、列与行的拖动排序、横向虚拟化。
-6. **M5 发布准备**：changesets、发 0.x。
+做图表时照 SankeyChart / ChordChart 的结构：数据类型、`useSingleChart` 或 XYChart、`ChartFrame`；`--vis-*` 变量映射到 tokens；
+Unovis 的选项先查 `.claude/reports/unovis-api.md` 和 `node_modules/.pnpm/@unovis+ts@1.7.1/node_modules/@unovis/ts/components/<name>/config.d.ts`；
+导出加到 `charts/index.ts`，测试加到 `charts/.test/charts.test.tsx`，文档页放 `apps/docs/src/components/charts/<Name>/`。
+
+新组件的页面照现有的做：示例饱满、贴近真实场景、键盘一节、API 表；`pnpm docs:coverage` 列出示例没用到的属性。
 
 ## 9. 已知局限
 
-- VirtualList 还不支持从右到左排版下的横向滚动（`scrollLeft` 为负）。
-- Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动。
-- Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色），这是有意的取舍。
-- Toaster 只显示最新的 `max` 条，更早的照样计时，可能没露面就到时了。
-- Combobox 只能单选。
-- 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出。
-- 表格是 table 语义，不是 grid：没有单元格之间的方向键导航。
+有意的取舍见 [ROADMAP.md](ROADMAP.md) §7；其余的缺口都排进了 ROADMAP 的各节。
