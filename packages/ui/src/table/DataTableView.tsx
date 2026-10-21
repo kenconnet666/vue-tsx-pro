@@ -894,15 +894,14 @@ export const DataTableView = _component(
         )
         .join('|'),
     );
-    /** 一个值的显示：空值显示 empty（默认 —），状态显示成 StatusBadge，其余按类型与 format 格式化 */
+    /** 一个值的显示：空值显示 empty（默认 —），状态显示成 StatusBadge（外观跟随 defaults.Badge），其余按类型与 format 格式化 */
     const display = (
       column: DataTableColumn<T>,
       type: keyof ColumnTypes,
       value: ReturnType<typeof columnValue>,
     ): VNodeChild => {
       if (value == null || value === '') return column.empty ?? lang.emptyValue;
-      if (column.statuses)
-        return <StatusBadge statuses={column.statuses} value={String(value)} radius="full" />;
+      if (column.statuses) return <StatusBadge statuses={column.statuses} value={String(value)} />;
       return formatCell(value, type, format, column.format);
     };
 

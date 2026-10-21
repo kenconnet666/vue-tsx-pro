@@ -3,11 +3,23 @@ import { nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { Provider } from '../../config/Provider';
 import { createStatusMap } from '../../utils/data/status';
-import { mount } from '../../utils/.test/mount';
+import { hasStyles, mount } from '../../utils/.test/mount';
 import { Badge, StatusBadge } from '../Badge';
+import { badgeStyles } from '../badge-styles';
 import { Tag } from '../Tag';
 
 describe('Badge', () => {
+  it('radius 有直角（none）：表格里的状态与表格的直线对齐；Provider 的 defaults.Badge 可以统一改', () => {
+    const square = mount(() => <Badge radius="none">待启动</Badge>).firstElementChild!;
+    expect(hasStyles(square, badgeStyles.none)).toBe(true);
+    const fromDefaults = mount(() => (
+      <Provider defaults={{ Badge: { radius: 'none' } }}>
+        <Badge>验证中</Badge>
+      </Provider>
+    )).querySelector('span')!;
+    expect(hasStyles(fromDefaults, badgeStyles.none)).toBe(true);
+  });
+
   it('span，属性落到元素上，可带图标；色调与样式各自换样式', () => {
     const root = mount(() => (
       <>

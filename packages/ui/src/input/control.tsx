@@ -98,9 +98,14 @@ export const controlRadiusStyles = stylex.create({
 /** 外壳里的各部分：原生输入元素、前后图标、前后缀文字、框里的小按钮（清除、显示密码、步进） */
 export const controlStyles = stylex.create({
   /** 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳 */
+  // 参与基线对齐、高度撑满外壳：外壳（flex）的基线取输入框文字的基线，而不是排在前面的图标的底边，
+  // 左标签（按基线对齐）才与输入的文字在同一条线上；原生输入框自己把文字竖直居中
   input: {
+    alignSelf: 'baseline',
+    boxSizing: 'border-box',
     flexGrow: 1,
     minWidth: 0,
+    minHeight: 'calc(max(_sizes.control, _sizes.minTarget) - 2 * _borderWidths.xs)',
     margin: 0,
     paddingBlock: '_xs',
     paddingInline: 0,

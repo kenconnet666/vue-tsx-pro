@@ -9,6 +9,8 @@ import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 标记的圆角 */
 export interface BadgeRadii {
+  /** 直角：表格、密集列表里的状态，与表格的直线对齐 */
+  none: unknown;
   /** 小圆角（默认） */
   sm: unknown;
   /** 胶囊形 */
@@ -27,7 +29,7 @@ export interface BadgeOptions {
   radius?: keyof BadgeRadii;
 }
 
-/** Badge、Tag 的样式：root、sm、full */
+/** Badge、Tag 的样式：root、none、sm、full */
 export const badgeStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
@@ -42,6 +44,7 @@ export const badgeStyles = stylex.create({
     whiteSpace: 'nowrap',
     verticalAlign: 'middle',
   },
+  none: { borderRadius: 0 },
   sm: { borderRadius: '_sm' },
   full: { borderRadius: '_full' },
 });
