@@ -34,9 +34,9 @@ const styles = stylex.create({
   },
 });
 
-// 高矮不一，才看得出 align 的差别
+// 高矮不一，才看得出 align 的差别；宽度差别小一点，两列排版时一行也放得下五个（不换行时不撑出卡片）
 const boxes = stylex.create({
-  size: (height: number) => ({ height: `${height}rem`, paddingInline: `${height / 2}rem` }),
+  size: (height: number) => ({ height: `${height}rem`, paddingInline: `${height / 4}rem` }),
 });
 const heights = [2, 3.5, 2.5, 4, 3];
 
