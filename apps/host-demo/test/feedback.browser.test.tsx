@@ -74,10 +74,14 @@ describe('Progress · Skeleton', () => {
     const { width, height } = circle.getBoundingClientRect();
     expect(width).toBeGreaterThan(0);
     expect(width).toBeCloseTo(height, 0);
-    expect(circle.getAnimations().some((animation) => 'animationName' in animation)).toBe(true);
+    // 光带画在 ::after 上、用 transform 平移（合成器能跑，不必每帧重绘）
+    const sweep = circle
+      .getAnimations({ subtree: true })
+      .find((animation) => (animation.effect as KeyframeEffect).pseudoElement === '::after');
+    expect(sweep).toBeDefined();
     // 光带真的画出来了：变量值无效时渐变整条失效、动画照跑，只看动画发现不了
-    expect(getComputedStyle(circle).backgroundImage).toContain('gradient');
-    expect(stopsAnimationWhenReduced(circle)).toBe(true);
+    expect(getComputedStyle(circle, '::after').backgroundImage).toContain('gradient');
+    expect(stopsAnimationWhenReduced(circle, '::after')).toBe(true);
     // 加载中的卡片：正文是骨架，卡片带 aria-busy，读屏读不到骨架
     const card = $('.card-loading-demo');
     expect(card.getAttribute('aria-busy')).toBe('true');

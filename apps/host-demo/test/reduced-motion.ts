@@ -25,11 +25,13 @@ function sheetRules(sheet: CSSStyleSheet): CSSRuleList | [] {
   }
 }
 
-/** 减少动态效果时，element 的 animation-name 是否被设成 none */
-export function stopsAnimationWhenReduced(element: Element): boolean {
+/** 减少动态效果时，element（或它的伪元素 pseudo，如 '::after'）的 animation-name 是否被设成 none */
+export function stopsAnimationWhenReduced(element: Element, pseudo = ''): boolean {
   for (const sheet of document.styleSheets) {
     for (const rule of rulesUnder(sheetRules(sheet) as CSSRuleList, false)) {
-      if (rule.style.animationName === 'none' && element.matches(rule.selectorText)) return true;
+      if (rule.style.animationName !== 'none' || !rule.selectorText.endsWith(pseudo)) continue;
+      if (element.matches(rule.selectorText.slice(0, rule.selectorText.length - pseudo.length)))
+        return true;
     }
   }
   return false;
