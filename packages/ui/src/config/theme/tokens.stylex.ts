@@ -181,17 +181,17 @@ export const colors = stylex.defineVars({
   highlight: '#ffee9c',
   /** 半透明表面：吸顶的顶栏（配合背景模糊）。页面背景加 80% 不透明 */
   surfaceTranslucent: 'rgba(252, 252, 253, 0.8)',
-  // ───────── 代码高亮：代码块背景（surfaceMuted）上都要满足 4.5:1 ─────────
+  // ───────── 代码高亮：代码块（surfaceMuted）、行内代码与高亮行（fill）、diff 的增删行上都要满足 4.5:1 ─────────
   /** 关键字。indigo 11：亮色 `#3a5bc7`，暗色 `#9eb1ff` */
   codeKeyword: '#3a5bc7',
   /** 字符串。亮色比 green 11 深一点 `#1c7a51`（在代码块背景上 green 11 只有 4.49:1），暗色 green 11 `#3dd68c` */
   codeString: '#1c7a51',
-  /** 数字、常量。亮色比 orange 11 深一点 `#c24b00`（orange 11 只有 4.29:1），暗色 orange 11 `#ffa057` */
-  codeNumber: '#c24b00',
+  /** 数字、常量。亮色比 orange 11 深一点 `#bb4500`（orange 11 在代码块背景上只有 4.29:1），暗色 orange 11 `#ffa057` */
+  codeNumber: '#bb4500',
   /** 函数名。violet 11：亮色 `#6550b9`，暗色 `#baa7ff` */
   codeFunction: '#6550b9',
-  /** 类型、类名。cyan 11：亮色 `#107d98`，暗色 `#4ccce6` */
-  codeType: '#107d98',
+  /** 类型、类名。亮色比 cyan 11 深一点 `#007590`（cyan 11 在行内代码的底色上只有 4.19:1），暗色 cyan 11 `#4ccce6` */
+  codeType: '#007590',
   /** 注释、标点。slate 11：亮色 `#60646c`，暗色 `#b0b4ba` */
   codeComment: '#60646c',
   /** 标签名（HTML、JSX）。crimson 11：亮色 `#cb1d63`，暗色 `#ff92ad` */

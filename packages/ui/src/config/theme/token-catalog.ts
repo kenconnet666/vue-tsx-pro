@@ -337,9 +337,9 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       },
       {
         name: 'codeNumber',
-        value: '#c24b00',
+        value: '#bb4500',
         description:
-          '数字、常量。亮色比 orange 11 深一点 `#c24b00`（orange 11 只有 4.29:1），暗色 orange 11 `#ffa057`',
+          '数字、常量。亮色比 orange 11 深一点 `#bb4500`（orange 11 在代码块背景上只有 4.29:1），暗色 orange 11 `#ffa057`',
       },
       {
         name: 'codeFunction',
@@ -348,8 +348,9 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       },
       {
         name: 'codeType',
-        value: '#107d98',
-        description: '类型、类名。cyan 11：亮色 `#107d98`，暗色 `#4ccce6`',
+        value: '#007590',
+        description:
+          '类型、类名。亮色比 cyan 11 深一点 `#007590`（cyan 11 在行内代码的底色上只有 4.19:1），暗色 cyan 11 `#4ccce6`',
       },
       {
         name: 'codeComment',

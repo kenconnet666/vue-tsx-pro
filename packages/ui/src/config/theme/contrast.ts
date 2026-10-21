@@ -62,6 +62,7 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
     [`${tone}Text`, `${tone}SoftHover`, TEXT, '状态浅底悬停'],
   ]),
   ['inverseText', 'inverseSurface', TEXT, '反色表面'],
+  // 代码块（surfaceMuted）、行内代码与高亮行（fill）、diff 的增删行上都有高亮的代码
   ...[
     'codeKeyword',
     'codeString',
@@ -71,7 +72,14 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
     'codeComment',
     'codeTag',
     'codeAttribute',
-  ].map((fg): ContrastPair => [fg, 'surfaceMuted', TEXT, '代码高亮']),
+  ].flatMap((fg) =>
+    ['surfaceMuted', 'fill', 'codeInserted', 'codeDeleted'].map((bg): ContrastPair => [
+      fg,
+      bg,
+      TEXT,
+      '代码高亮',
+    ]),
+  ),
   ['text', 'codeInserted', TEXT, 'diff 新增行'],
   ['text', 'codeDeleted', TEXT, 'diff 删除行'],
   ['text', 'selection', TEXT, '选中的文字'],

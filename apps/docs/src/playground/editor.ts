@@ -86,8 +86,9 @@ const theme = EditorView.theme({
   '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection':
     { backgroundColor: c(colors.selection) },
   '.cm-activeLine': { backgroundColor: c(colors.surfaceMuted) },
+  // 行号与 CodeBlock 的同色：textPlaceholder 在编辑器底色上不到 4.5:1
   '.cm-gutters': {
-    color: c(colors.textPlaceholder),
+    color: c(colors.codeComment),
     backgroundColor: c(colors.surface),
     border: 'none',
   },

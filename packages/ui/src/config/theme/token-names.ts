@@ -361,7 +361,7 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _codeString: unknown;
     /**
-     * 数字、常量。亮色比 orange 11 深一点 `#c24b00`（orange 11 只有 4.29:1），暗色 orange 11 `#ffa057`
+     * 数字、常量。亮色比 orange 11 深一点 `#bb4500`（orange 11 在代码块背景上只有 4.29:1），暗色 orange 11 `#ffa057`
      *
      * `colors.codeNumber`
      */
@@ -373,7 +373,7 @@ declare module '@vue-tsx-pro/tsx/stylex' {
      */
     _codeFunction: unknown;
     /**
-     * 类型、类名。cyan 11：亮色 `#107d98`，暗色 `#4ccce6`
+     * 类型、类名。亮色比 cyan 11 深一点 `#007590`（cyan 11 在行内代码的底色上只有 4.19:1），暗色 cyan 11 `#4ccce6`
      *
      * `colors.codeType`
      */
