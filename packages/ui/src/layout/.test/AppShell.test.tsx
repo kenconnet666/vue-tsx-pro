@@ -84,3 +84,23 @@ describe('AppShell', () => {
     expect(width).toBe(256);
   });
 });
+
+it('部件属性：header 内容格、主体、侧栏与右栏的滚动区域', () => {
+  const root = mount(() => (
+    <AppShell
+      header={<span>页签</span>}
+      sidebar={<nav />}
+      aside={<span>目录</span>}
+      propsHeaderContent={{ class: 'header-content' }}
+      propsBody={{ class: 'body' }}
+      propsSidebarScroll={{ class: 'sidebar-scroll' }}
+      propsAsideScroll={{ class: 'aside-scroll' }}
+    >
+      正文
+    </AppShell>
+  ));
+  expect(root.querySelector('.header-content')!.textContent).toBe('页签');
+  expect(root.querySelector('.body > main')).not.toBeNull();
+  expect(root.querySelector('.sidebar-scroll nav')).not.toBeNull();
+  expect(root.querySelector('.aside-scroll')!.textContent).toContain('目录');
+});

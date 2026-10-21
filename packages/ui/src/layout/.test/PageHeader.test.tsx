@@ -37,3 +37,20 @@ describe('PageHeader', () => {
     expect(button.querySelector('h2')!.textContent).toBe('详情');
   });
 });
+
+it('部件属性：标题块、标题文字、标题一行', () => {
+  const root = mount(() => (
+    <PageHeader
+      title="降本任务"
+      description="说明"
+      back={() => {}}
+      propsTitleBlock={{ class: 'block' }}
+      propsTitleText={{ class: 'text' }}
+      propsTitleLine={{ class: 'line' }}
+    />
+  ));
+  const block = root.querySelector('.block')!;
+  expect(block.querySelector('button')).not.toBeNull();
+  expect(block.querySelector('.text > .line h1')!.textContent).toBe('降本任务');
+  expect(root.querySelector('.text')!.textContent).toContain('说明');
+});

@@ -29,3 +29,13 @@ it('0 默认不显示，showZero 时显示；dot 只显示小圆点，说明可�
   expect(dot.textContent).toBe('在线');
   expect(dot.getAttribute('data-placement')).toBe('bottom-end');
 });
+
+it('部件属性：计数文字，始终对读屏隐藏', () => {
+  const root = mount(() => (
+    <Indicator count={5} propsCount={{ class: 'count' }}>
+      <span>消息</span>
+    </Indicator>
+  ));
+  const count = root.querySelector('.count')!;
+  expect([count.textContent, count.getAttribute('aria-hidden')]).toEqual(['5', 'true']);
+});

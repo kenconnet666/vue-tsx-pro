@@ -6,7 +6,7 @@
  *   <Indicator dot tone="success" placement="bottom-end" overlap="circular" label="在线"><Avatar name="张三" /></Indicator>
  *
  * 读屏：角标里的数字对读屏隐藏，另有一句完整的说明（label，默认取语言包的“N 条新消息”“有新消息”），念在被标记的元素之后。
- * count 为 0（且没有 showZero）、也没有 dot 时不显示角标。部件：Root（外层 span）、Badge（角标）。
+ * count 为 0（且没有 showZero）、也没有 dot 时不显示角标。部件：Root（外层 span）、Badge（角标）、Count（计数文字）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -61,6 +61,8 @@ export interface IndicatorProps extends PartProps<'span'>, IndicatorOptions {
   label?: string;
   /** 角标的部件属性 */
   propsBadge?: PartProps<'span'>;
+  /** 角标里计数文字的部件属性（读屏念的是 label，计数文字对读屏隐藏） */
+  propsCount?: PartProps<'span', 'aria-hidden'>;
   /** 被标记的元素 */
   children?: VNodeChild;
 }
@@ -125,6 +127,7 @@ export const Indicator = _component(
     overlap = 'rectangular',
     label,
     propsBadge,
+    propsCount,
     children,
     ...rest
   }: IndicatorProps) => {
@@ -152,7 +155,9 @@ export const Indicator = _component(
               )}
               data-placement={placement}
             >
-              {!dot && <span aria-hidden="true">{text}</span>}
+              {!dot && (
+                <span {...mergeAttrs<'span'>({}, propsCount, { 'aria-hidden': true })}>{text}</span>
+              )}
               <VisuallyHidden>
                 {label ?? (dot ? lang.indicatorDot : lang.indicatorCount(count ?? 0))}
               </VisuallyHidden>

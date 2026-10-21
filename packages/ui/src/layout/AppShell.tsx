@@ -38,7 +38,7 @@ import { useLang } from '../config/context';
 import { SkipLink } from '../navigation/SkipLink';
 import { PageScrollbar } from './PageScrollbar';
 import { ResizeHandle, type ResizeHandleProps } from './ResizeHandle';
-import { ScrollArea } from './ScrollArea';
+import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
 import { Drawer, type DrawerProps } from '../overlay/Drawer';
 import { useMediaQuery } from '../utils/dom/media-query';
 import { toElement } from '../utils/dom/overlay';
@@ -90,12 +90,20 @@ export interface AppShellProps extends PartProps<'div'> {
   propsHeader?: PartProps<'header'>;
   /** 品牌格（div）的部件属性 */
   propsBrand?: PartProps<'div'>;
+  /** 顶栏里 header 内容那一格（div）的部件属性 */
+  propsHeaderContent?: PartProps<'div'>;
+  /** 顶栏下面的主体（侧栏、正文、右栏的栅格）的部件属性 */
+  propsBody?: PartProps<'div'>;
   /** 左侧栏（div）的部件属性 */
   propsSidebar?: PartProps<'div'>;
+  /** 左侧栏里的滚动区域的部件属性（docked 的侧栏与 overlay 的抽屉共用） */
+  propsSidebarScroll?: Partial<ScrollAreaProps>;
   /** 正文（main）的部件属性 */
   propsMain?: PartProps<'main'>;
   /** 右侧栏（aside）的部件属性 */
   propsAside?: PartProps<'aside'>;
+  /** 右侧栏里的滚动区域的部件属性 */
+  propsAsideScroll?: Partial<ScrollAreaProps>;
   /** docked 时窄屏打开侧栏的按钮的部件属性 */
   propsMenuButton?: Partial<IconButtonProps>;
   /** overlay 时品牌格里开关抽屉的“菜单”按钮的部件属性 */
@@ -266,6 +274,10 @@ export const AppShell = _component(
     propsSidebarToggle,
     propsResizeHandle,
     propsDrawer,
+    propsHeaderContent,
+    propsBody,
+    propsSidebarScroll,
+    propsAsideScroll,
     children,
     ...rest
   }: AppShellProps) => {
@@ -377,19 +389,24 @@ export const AppShell = _component(
             </div>
           )}
           {!hasContent(brand) && hasContent(sidebar) && overlay() && sidebarToggle()}
-          <div {...mergeAttrs<'div'>({ sx: appShellStyles.headerContent })}>{header}</div>
+          <div {...mergeAttrs<'div'>({ sx: appShellStyles.headerContent }, propsHeaderContent)}>
+            {header}
+          </div>
         </header>
         <div
-          {...mergeAttrs<'div'>({
-            sx: [
-              appShellStyles.body,
-              docked() && hasContent(aside)
-                ? appShellStyles.withBoth
-                : docked()
-                  ? appShellStyles.withSidebar
-                  : hasContent(aside) && appShellStyles.withAside,
-            ],
-          })}
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                appShellStyles.body,
+                docked() && hasContent(aside)
+                  ? appShellStyles.withBoth
+                  : docked()
+                    ? appShellStyles.withSidebar
+                    : hasContent(aside) && appShellStyles.withAside,
+              ],
+            },
+            propsBody,
+          )}
         >
           {docked() && (
             <div
@@ -399,9 +416,14 @@ export const AppShell = _component(
               )}
             >
               <ScrollArea
-                sx={appShellStyles.railScroll}
-                propsViewport={{ sx: appShellStyles.railViewport }}
-                propsContent={{ sx: appShellStyles.sidebarContent }}
+                {...mergePartProps<ScrollAreaProps>(
+                  {
+                    sx: appShellStyles.railScroll,
+                    propsViewport: { sx: appShellStyles.railViewport },
+                    propsContent: { sx: appShellStyles.sidebarContent },
+                  },
+                  propsSidebarScroll,
+                )}
               >
                 {sidebar}
               </ScrollArea>
@@ -423,9 +445,14 @@ export const AppShell = _component(
               )}
             >
               <ScrollArea
-                sx={appShellStyles.railScroll}
-                propsViewport={{ sx: appShellStyles.railViewport }}
-                propsContent={{ sx: appShellStyles.asideContent }}
+                {...mergePartProps<ScrollAreaProps>(
+                  {
+                    sx: appShellStyles.railScroll,
+                    propsViewport: { sx: appShellStyles.railViewport },
+                    propsContent: { sx: appShellStyles.asideContent },
+                  },
+                  propsAsideScroll,
+                )}
               >
                 {aside}
               </ScrollArea>
@@ -452,9 +479,14 @@ export const AppShell = _component(
             )}
           >
             <ScrollArea
-              sx={appShellStyles.overlayScroll}
-              propsViewport={{ sx: appShellStyles.railViewport }}
-              propsContent={{ sx: appShellStyles.sidebarContent }}
+              {...mergePartProps<ScrollAreaProps>(
+                {
+                  sx: appShellStyles.overlayScroll,
+                  propsViewport: { sx: appShellStyles.railViewport },
+                  propsContent: { sx: appShellStyles.sidebarContent },
+                },
+                propsSidebarScroll,
+              )}
             >
               {sidebar}
             </ScrollArea>

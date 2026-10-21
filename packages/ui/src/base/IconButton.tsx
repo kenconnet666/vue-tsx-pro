@@ -41,6 +41,8 @@ export interface IconButtonProps extends PartProps<'button', IconButtonManaged>,
    * @default 'neutral'
    */
   tone?: ButtonOptions['tone'];
+  /** 内容层（包着图标的 span）的部件属性 */
+  propsContent?: PartProps<'span'>;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
 }
@@ -59,6 +61,7 @@ export const IconButton = _component(
     disabled = false,
     focusableWhenDisabled = false,
     type = 'button',
+    propsContent,
     propsIcon,
     propsSpinner,
     onClick,
@@ -85,7 +88,7 @@ export const IconButton = _component(
           { ...behavior(), 'aria-label': label },
         )}
       >
-        {buttonContent({ icon, propsIcon }, { loading: spinner.value, propsSpinner })}
+        {buttonContent({ icon, propsContent, propsIcon }, { loading: spinner.value, propsSpinner })}
       </button>
     );
   },

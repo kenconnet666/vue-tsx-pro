@@ -53,6 +53,12 @@ export interface PageHeaderProps extends PartProps<'div', PageHeaderManaged> {
   propsBreadcrumbs?: Partial<BreadcrumbsProps>;
   /** 标题行的部件属性 */
   propsRow?: PartProps<'div'>;
+  /** 标题块（返回箭头与标题文字）的部件属性 */
+  propsTitleBlock?: PartProps<'div'>;
+  /** 标题文字（标题一行与说明）的部件属性 */
+  propsTitleText?: PartProps<'div'>;
+  /** 标题一行（标题与旁边的内容）的部件属性 */
+  propsTitleLine?: PartProps<'div'>;
   /** 返回按钮的部件属性（链接或按钮） */
   propsBack?: Partial<IconLinkButtonProps> & Partial<IconButtonProps>;
   /** 标题的部件属性 */
@@ -124,6 +130,9 @@ export const PageHeader = _component(
     headingLevel = 1,
     propsBreadcrumbs,
     propsRow,
+    propsTitleBlock,
+    propsTitleText,
+    propsTitleLine,
     propsBack,
     propsHeading,
     propsMeta,
@@ -174,10 +183,10 @@ export const PageHeader = _component(
             />
           )}
           <div {...mergeAttrs<'div'>({ sx: pageHeaderStyles.row }, propsRow)}>
-            <div {...stylex.attrs(pageHeaderStyles.titleBlock)}>
+            <div {...mergeAttrs<'div'>({ sx: pageHeaderStyles.titleBlock }, propsTitleBlock)}>
               {backButton}
-              <div {...stylex.attrs(pageHeaderStyles.titleText)}>
-                <div {...stylex.attrs(pageHeaderStyles.titleLine)}>
+              <div {...mergeAttrs<'div'>({ sx: pageHeaderStyles.titleText }, propsTitleText)}>
+                <div {...mergeAttrs<'div'>({ sx: pageHeaderStyles.titleLine }, propsTitleLine)}>
                   <Heading {...mergePartProps<HeadingProps>({ size: 'xxl' }, propsHeading)}>
                     {title}
                   </Heading>

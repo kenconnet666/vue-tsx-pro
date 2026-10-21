@@ -54,6 +54,8 @@ export interface ProgressProps extends PartProps<'div', ProgressManaged>, Progre
   propsIndicator?: PartProps<'div'>;
   /** 外层（标签行与进度条）的部件属性；只在有标签行时渲染 */
   propsRoot?: PartProps<'div'>;
+  /** 标签行（标签与数值文字）的部件属性 */
+  propsHeader?: PartProps<'div'>;
   /** 标签的部件属性 */
   propsLabel?: Partial<TextProps>;
   /** 数值文字的部件属性 */
@@ -142,6 +144,7 @@ export const Progress = _component(
     valueLabel,
     propsIndicator,
     propsRoot,
+    propsHeader,
     propsLabel,
     propsValueLabel,
     ...rest
@@ -222,7 +225,12 @@ export const Progress = _component(
             propsRoot,
           )}
         >
-          <div {...stylex.attrs(progressStyles.header, relativeFontSizeStyles.sm)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: [progressStyles.header, relativeFontSizeStyles.sm] },
+              propsHeader,
+            )}
+          >
             {label != null && (
               <Text {...mergePartProps<TextProps>({}, propsLabel, { id: labelId })}>{label}</Text>
             )}

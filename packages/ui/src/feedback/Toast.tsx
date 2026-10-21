@@ -38,7 +38,7 @@ import {
 import type { IconData } from '../base/Icon';
 import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
-import { Collapse } from '../display/Collapse';
+import { Collapse, type CollapseProps } from '../display/Collapse';
 import { useAnimate } from '../utils/motion/animation';
 import { useLayoutAnimation } from '../utils/motion/layout';
 import { usePresence } from '../utils/motion/presence';
@@ -272,6 +272,8 @@ export interface ToasterProps extends PartProps<'section', 'popover' | 'tabindex
   propsToast?: Partial<AlertProps> | ((toast: ToastRecord) => Partial<AlertProps>);
   /** 剩余时间条的部件属性 */
   propsProgress?: PartProps<'span'>;
+  /** 每一项里收起高度的 Collapse 的部件属性（离场时它收起，下面的通知补上来） */
+  propsCollapse?: Partial<CollapseProps>;
 }
 
 const countdown = stylex.keyframes({
@@ -382,6 +384,8 @@ export interface ToastItemProps {
   progress: boolean;
   /** 剩余时间条的部件属性 */
   propsProgress: ToasterProps['propsProgress'];
+  /** 收起高度的 Collapse 的部件属性 */
+  propsCollapse: ToasterProps['propsCollapse'];
 }
 
 /** 滑动超过宽度的这个比例就关闭 */
@@ -413,6 +417,7 @@ export const ToastItem = _component(
     propsItem,
     propsToast,
     propsProgress,
+    propsCollapse,
   }: ToastItemProps) => {
     let item: HTMLElement | null = null;
     const animate = useAnimate();
@@ -497,7 +502,13 @@ export const ToastItem = _component(
           )}
           data-state={presence.state}
         >
-          <Collapse open={!toast.closing} propsContent={{ sx: toastStyles.gap }}>
+          <Collapse
+            {...mergePartProps<CollapseProps>(
+              { propsContent: { sx: toastStyles.gap } },
+              propsCollapse,
+            )}
+            open={!toast.closing}
+          >
             <Alert
               {...mergePartProps<AlertProps>(
                 {
@@ -546,6 +557,7 @@ export const Toaster = _component(
     propsItem,
     propsToast,
     propsProgress,
+    propsCollapse,
     ...rest
   }: ToasterProps) => {
     const lang = useLang();
@@ -650,6 +662,7 @@ export const Toaster = _component(
                     propsToast={propsToast}
                     progress={progress}
                     propsProgress={propsProgress}
+                    propsCollapse={propsCollapse}
                   />
                 ))}
               </FlexOrderedList>

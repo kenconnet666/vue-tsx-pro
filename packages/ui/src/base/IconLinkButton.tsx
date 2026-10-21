@@ -43,6 +43,8 @@ export interface IconLinkButtonProps
    * @default 'neutral'
    */
   tone?: ButtonOptions['tone'];
+  /** 内容层（包着图标的 span）的部件属性 */
+  propsContent?: PartProps<'span'>;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
 }
@@ -60,6 +62,7 @@ export const IconLinkButton = _component(
     size,
     radius,
     ripple,
+    propsContent,
     propsIcon,
     onClick,
     ...rest
@@ -96,7 +99,7 @@ export const IconLinkButton = _component(
           },
         )}
       >
-        {buttonContent({ icon, propsIcon }, { loading: false })}
+        {buttonContent({ icon, propsContent, propsIcon }, { loading: false })}
       </a>
     );
   },
