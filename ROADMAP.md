@@ -72,7 +72,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       决定保留两种返回：单个值返回 `Readonly<Ref>`（useMediaQuery、useNow、usePageVisible，同 VueUse），状态加方法返回带 getter 的控制器（RUNES §7）
 - [x] 内置主题的登记：themes:check 从 builtin.ts 读出主题文件（不再另抄一份表）；boot.ts 的底色、ThemeSwitcher 的图标、
       语言包的名字都按 `BuiltinThemeName` 写成完整的表，加主题时漏了类型检查会报错。底色仍在 boot.ts 抄一份：它要在 Node 里跑、不能带 StyleX
-- [ ] 静态 Table 的样式移到 table-styles.ts（不再连带打包 DataTable）；Menu 三种菜单项与 MenuSub 的重复
+- [x] 静态 Table 与 DataTable 共用的外观移到 table-styles.ts（Table 不再连带打包 DataTable 的视图）；MenuItem、MenuCheckboxItem、
+      MenuRadioItem 共用 `useButtonItem`。MenuSub 的触发项要管子菜单的打开与安全三角，与它们不同，不合并
 - [ ] 图表：`useUnovisContainer`、`ChartCommonProps`、骨架样式、`toggle`；3D 的 `themeColors.list`
 - [ ] Lang 拆成核心与扩展（文档站、主题编辑器、PropsTable 的键不必每种语言都翻）
 - [ ] 文档站用的组件（CodePreview、PropsTable、CodeGroup、TableOfContents、Pager）挪到单独的入口
