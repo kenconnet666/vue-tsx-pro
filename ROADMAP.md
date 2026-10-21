@@ -154,8 +154,10 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       `createHttpClient` 是原生 fetch 的薄封装（baseURL、query、JSON 体、超时与取消、`HttpError`、onRequest / onResponse 拆包）；
       `useRequest` 只采用最后一次、取消上一次、参数防抖与去重、保留旧数据、mutate；“请求与数据”指南连着内存里的假接口演示。
       `sameValue`（结构相等）从 useForm 挪到 utils/data/equality.ts 共用
-- [ ] 列表查询 `useTableQuery`：页码、条数、排序、筛选、总数、加载与出错一起管，联动 DataTable + Pagination + FilterBar；
-      可选同步到 URL 的 query
+- [x] 列表查询 `useTableQuery`：页码、条数、排序、已应用的条件、总数、加载与出错一起管（建在 useRequest 上）；page、pageSize、sort
+      直接 _bind 到 Pagination、PageSizeSelect、DataTable；换排序、条数、条件、params 回到第一页且只请求一次，当前页空了退到最后一页；
+      降本台账改用它（删掉手写的请求编号与侦听）
+- [ ] 路由适配读写 query（UiRouter 加 query 的读与替换，vueRouterAdapter 实现）：useTableQuery、查询栏的条件可选同步到地址
 - [ ] 远程选项：Select / TreeSelect 的搜索词交出来（`onSearch`），Combobox / TreeSelect 的 `load`；Upload 走同一个客户端
 - [ ] 工作日与时限：节假日日历走 Provider，`useDeadline` 给出截止日、剩余与逾期天数、状态；`workdaysBetween`、`addWorkdays`
 - [ ] 字段差异 `diffFields`：两份记录按字段比较，得出是否变化与数值差

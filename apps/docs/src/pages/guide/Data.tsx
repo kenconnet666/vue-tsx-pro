@@ -19,6 +19,7 @@ import { h } from 'vue';
 import { DocPage } from '../../site/DocPage';
 import { demoHttp } from './data/fake-api';
 import SupplierSearch from './data/SupplierSearch.tsx?demo';
+import SupplierTable from './data/SupplierTable.tsx?demo';
 
 const meta = {
   title: 'Data 请求与数据',
@@ -122,8 +123,25 @@ export default _component(() => () => (
         下面的演示连着内存里的假接口（300–800 ms
         的随机延迟）：快速输入只发最后一次，翻页立即请求，“模拟一次失败”让下一次请求返回业务错误。
       </Paragraph>
-      <CodePreview code={SupplierSearch.source} showCode>
+      <CodePreview code={SupplierSearch.source}>
         {h(Provider, { http: demoHttp }, () => h(SupplierSearch.component))}
+      </CodePreview>
+    </Flex>
+    <Flex direction="column" gap="md">
+      <H2 id="table-query" size="xl" anchor>
+        服务端分页：useTableQuery
+      </H2>
+      <Paragraph>
+        列表页的页码、每页条数、排序、已应用的筛选条件、总数、加载与出错交给{' '}
+        <Code>useTableQuery</Code>
+        （建在 useRequest 上）。<Code>page</Code>、<Code>pageSize</Code>、<Code>sort</Code> 直接{' '}
+        <Code>_bind</Code> 到 Pagination、PageSizeSelect、DataTable（加 <Code>manualSort</Code>
+        ，排序交给服务端）；查询栏点“查询”时调用 <Code>search(条件)</Code>
+        。换排序、条数、条件或 <Code>params</Code>
+        （当前页签这类）回到第一页，只请求一次；删掉数据后当前页空了，自动退到最后一页。
+      </Paragraph>
+      <CodePreview code={SupplierTable.source}>
+        {h(Provider, { http: demoHttp }, () => h(SupplierTable.component))}
       </CodePreview>
     </Flex>
     <Flex direction="column" gap="md">

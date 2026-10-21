@@ -61,6 +61,7 @@ import {
   type DataTableColumnGroup,
   daysBetween,
   type SortState,
+  useTableQuery,
 } from '@vue-tsx-pro/ui';
 import { space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
@@ -381,16 +382,10 @@ export const LedgerPage = _component(
       basis: route().basis ?? null,
     });
     let query = _state(fromLink());
-    let applied = _state(fromLink());
     let tab = _state(route().view ?? 'all');
-    let sort = _state<SortState | null>({ key: 'overdue', direction: 'descending' });
-    let page = _state(1);
-    let size = _state(20);
     let selected = _state<string[]>([]);
     let hidden = _state<string[]>([]);
     let expanded = _state<string[]>([]);
-    let loading = _state(true);
-    let result = _state.raw<Page>({ rows: [], total: 0, counts: {} });
 
     /** 金额：单位在分组表头里，格子里只写数；没有值时显示 empty */
     const money = (value: Decimal | null, empty: string) =>
@@ -607,54 +602,51 @@ export const LedgerPage = _component(
       },
     ];
 
-    // 只采用最后一次请求的结果：翻页、换条件很快时，先发的请求晚到也不会覆盖
-    let latest = 0;
-    async function load() {
-      const ticket = ++latest;
-      loading = true;
-      const own = taskStore.value.filter((task) => task.kind === kind);
-      const next = await fetchTasks(own, applied, tab, sort, page, size, columns);
-      if (ticket !== latest) return;
-      result = next;
-      loading = false;
-    }
+    // 服务端分页：翻页立即请求，换页签、排序、条数回到第一页；只采用最后一次请求的结果
+    const tasks = useTableQuery(
+      ({ page, pageSize, sort, filters, params: view }) =>
+        fetchTasks(
+          taskStore.value.filter((task) => task.kind === kind),
+          filters,
+          view,
+          sort,
+          page,
+          pageSize,
+          columns,
+        ),
+      {
+        filters: fromLink(),
+        pageSize: 20,
+        sort: { key: 'overdue', direction: 'descending' },
+        params: () => tab,
+      },
+    );
+    // 数据变了（删除、撤销删除）：按当前条件重新请求，留在当前页
     watch(
-      () => [taskStore.value, applied, tab, sort, page, size],
-      () => void load(),
-      { immediate: true },
+      () => taskStore.value,
+      () => void tasks.refresh(),
     );
 
-    function search() {
-      applied = { ...query };
-      page = 1;
-    }
+    const search = () => tasks.search({ ...query });
     function reset() {
       query = blank();
       search();
     }
 
     return () => {
-      const first = result.total ? (page - 1) * size + 1 : 0;
+      const first = tasks.total ? (tasks.page - 1) * tasks.pageSize + 1 : 0;
       const bar = filters(query);
       return (
         <CaseShell
           current={kind}
           nav={
-            <Tabs
-              value={_bind(
-                () => tab,
-                (next: string) => {
-                  tab = next;
-                  page = 1;
-                },
-              )}
-            >
+            <Tabs value={_bind(tab)}>
               <TabList aria-label="项目视图">
                 {tabs.map((item) => (
                   <Tab key={item.value} value={item.value}>
                     {item.label}
                     <Badge radius="full" tone={tab === item.value ? 'accent' : 'neutral'}>
-                      {result.counts[item.value] ?? '…'}
+                      {tasks.data?.counts[item.value] ?? '…'}
                     </Badge>
                   </Tab>
                 ))}
@@ -668,7 +660,7 @@ export const LedgerPage = _component(
                       tone={item.tone}
                       variant={tab === item.value ? 'solid' : 'soft'}
                     >
-                      {result.counts[item.value] ?? '…'}
+                      {tasks.data?.counts[item.value] ?? '…'}
                     </Badge>
                   </Tab>
                 ))}
@@ -680,7 +672,7 @@ export const LedgerPage = _component(
             <FilterBar
               onSearch={search}
               onReset={reset}
-              loading={loading}
+              loading={tasks.loading}
               moreActive={bar.moreActive}
               actions={
                 <LinkButton href={casePath(editor)} icon={Plus} variant="soft">
@@ -710,33 +702,33 @@ export const LedgerPage = _component(
                 </Button>
               </SelectionBar>
               <DataTable
-                rows={result.rows}
+                rows={tasks.rows}
                 columns={columns}
                 columnGroups={groups}
                 getKey={(task) => task.code}
-                sort={_bind(sort)}
+                sort={_bind(tasks.sort)}
                 manualSort
                 selectionMode="multiple"
                 selected={_bind(selected)}
                 hiddenColumns={hidden}
                 renderDetail={(task) => detail(task, detailExtra?.(task))}
                 expandedRows={_bind(expanded)}
-                loading={loading}
+                loading={tasks.loading}
                 aria-label={kind === 'unit' ? '单机降本台账' : '降 DMC 台账'}
                 propsRoot={{ sx: styles.table }}
               />
               <Flex align="center" justify="between" gap="md" wrap>
                 <Small tone="muted">
-                  第 {first}–{Math.min(page * size, result.total)} 条 · 勾选跨页保留
+                  第 {first}–{Math.min(tasks.page * tasks.pageSize, tasks.total)} 条 · 勾选跨页保留
                 </Small>
                 <Flex align="center" gap="md" wrap>
                   <Pagination
                     aria-label="台账分页"
-                    page={_bind(page)}
-                    total={result.total}
-                    pageSize={size}
+                    page={_bind(tasks.page)}
+                    total={tasks.total}
+                    pageSize={tasks.pageSize}
                   />
-                  <PageSizeSelect value={_bind(size)} onSizeChange={() => (page = 1)} />
+                  <PageSizeSelect value={_bind(tasks.pageSize)} />
                 </Flex>
               </Flex>
             </div>

@@ -1,7 +1,7 @@
 /**
  * “请求与数据”指南的假接口：内存里的供应商（虚构），经一个假的 fetch 交给 createHttpClient。
  * 回应带 300–800 ms 的随机延迟、遵守取消，数据包在 { code, data, message } 里，与常见后端一致；
- * failNext 让下一次请求返回业务错误，演示出错与重试。
+ * failure.next 让下一次请求返回业务错误，演示出错与重试。
  */
 import { createHttpClient, HttpError } from '@vue-tsx-pro/ui';
 
@@ -44,7 +44,7 @@ interface Envelope<T> {
 const respond = <T>(body: Envelope<T>) =>
   new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } });
 
-/** 假的 fetch：GET /api/suppliers?keyword=&page=&pageSize= */
+/** 假的 fetch：GET /api/suppliers?keyword=&page=&pageSize=&sort=&order= */
 async function fakeFetch(input: RequestInfo | URL): Promise<Response> {
   const request = input as Request;
   await new Promise<void>((resolve, reject) => {
@@ -66,6 +66,10 @@ async function fakeFetch(input: RequestInfo | URL): Promise<Response> {
   const matched = suppliers.filter(
     (item) => !keyword || item.name.includes(keyword) || item.city.includes(keyword),
   );
+  // 排序：sort 是字段名，order 是 ascending / descending
+  const sort = url.searchParams.get('sort') as keyof Supplier | null;
+  const order = url.searchParams.get('order') === 'descending' ? -1 : 1;
+  if (sort) matched.sort((a, b) => a[sort].localeCompare(b[sort], 'zh-CN') * order);
   const rows = matched.slice((page - 1) * pageSize, page * pageSize);
   return respond({ code: 0, data: { rows, total: matched.length }, message: '' });
 }
