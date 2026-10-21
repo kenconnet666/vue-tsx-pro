@@ -10,7 +10,10 @@
  *
  * TypeScript 程序只建一次；组件库的源码变了，下次读取时增量重建（热更新时 API 表跟着变）。
  * 建程序要几秒：Vite 插件把提取放在 Worker 线程里（api-worker.ts），开发服务器启动时就开始建，期间照常响应其他请求。
+ * 提取结果按源码哈希存在磁盘上（apiCache），源码没变时重启、再次构建都直接读，不建程序。
  */
+import { createHash } from 'node:crypto';
+import { existsSync, globSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
@@ -338,23 +341,83 @@ function apiWorker() {
 }
 
 /**
+ * 提取结果存在 cacheDir/docs-api/<源码哈希> 下：重启开发服务器、再次构建时直接读，不用等 Worker 建几秒的
+ * TypeScript 程序。哈希取组件库与 tsx 包的源码、本文件与 TypeScript 的版本，源码一改就换目录，旧目录删掉
+ */
+function apiCache(cacheDir: string) {
+  const root = join(cacheDir, 'docs-api');
+  let dir: string | undefined;
+  const current = () => (dir ??= join(root, sourceHash()));
+  const file = (name: string) => join(current(), `${name}.js`);
+  return {
+    /** 当前源码已经有缓存（不必预热 Worker） */
+    has: () => existsSync(current()),
+    read(name: string) {
+      try {
+        return readFileSync(file(name), 'utf8');
+      } catch {
+        return undefined;
+      }
+    },
+    write(name: string, code: string) {
+      try {
+        if (!existsSync(current())) {
+          rmSync(root, { recursive: true, force: true });
+          mkdirSync(current(), { recursive: true });
+        }
+        writeFileSync(file(name), code);
+      } catch {
+        // 写不了就下次重新提取
+      }
+    },
+    /** 源码变了：下次读写时重新算哈希 */
+    invalidate: () => (dir = undefined),
+  };
+}
+
+function sourceHash() {
+  const hash = createHash('sha1')
+    .update(ts.version)
+    .update(readFileSync(fileURLToPath(import.meta.url)));
+  const tsx = join(ui, '../tsx');
+  const files = [
+    ...globSync('src/**/*.{ts,tsx}', { cwd: ui }).map((path) => join(ui, path)),
+    ...globSync('{src,types}/**/*.ts', { cwd: tsx }).map((path) => join(tsx, path)),
+  ].sort();
+  for (const path of files) hash.update(path).update(readFileSync(path));
+  return hash.digest('hex').slice(0, 16);
+}
+
+/**
  * Vite 插件：`virtual:api/<接口名>` 导出那个接口的 API 数据，`virtual:api-catalog` 导出全部组件的目录（组件演练场用）；
  * 组件库源码变了重新生成
  */
 export function componentApi(): Plugin {
   const worker = apiWorker();
   const loaded = new Set<string>();
+  let cache: ReturnType<typeof apiCache> | undefined;
+  const load = async (name: string, interfaceName?: string) => {
+    const cached = cache?.read(name);
+    if (cached !== undefined) return cached;
+    const code = await worker.load(interfaceName);
+    cache?.write(name, code);
+    return code;
+  };
   return {
     name: 'docs:component-api',
+    configResolved(config) {
+      cache = apiCache(config.cacheDir);
+    },
     resolveId: (id) => (id.startsWith(PREFIX) || id === CATALOG ? `\0${id}` : undefined),
     load(id) {
       if (id === `\0${CATALOG}`) {
         loaded.add(id);
-        return worker.load();
+        return load('catalog');
       }
       if (!id.startsWith(`\0${PREFIX}`)) return;
       loaded.add(id);
-      return worker.load(id.slice(PREFIX.length + 1));
+      const interfaceName = id.slice(PREFIX.length + 1);
+      return load(interfaceName, interfaceName);
     },
     // 构建结束、开发服务器与测试的服务器关闭时都会调用：停掉 Worker。
     // 只 unref 不够：Worker 的消息端口仍会拖住进程，构建、测试结束后不退出
@@ -362,13 +425,15 @@ export function componentApi(): Plugin {
     configureServer(server) {
       // Vitest 的服务器没有 httpServer：不预热、不监听文件
       if (!server.httpServer) return;
-      worker.warm();
+      // 当前源码已有缓存时不必预热：页面直接读缓存，源码改了才需要程序
+      if (!cache?.has()) worker.warm();
       // 组件库源码在 docs 根目录之外：Vite 只监听页面加载过的文件，没打开过的入口（three/index.ts）改了收不到，
       // API 数据就一直是旧的。整个源码目录都监听上
       server.watcher.add(src);
       server.watcher.on('change', (file) => {
         if (!file.split('\\').join('/').startsWith(src)) return;
         worker.invalidate();
+        cache?.invalidate();
         for (const id of loaded) {
           const module = server.moduleGraph.getModuleById(id);
           if (module) server.moduleGraph.invalidateModule(module);

@@ -13,6 +13,8 @@ export default defineConfig({
   optimizeDeps: { include: uiPrebundle, exclude: uiPrebundleExclude },
   // 启动时就编译入口引到的模块：打开浏览器时不用再等
   server: { warmup: { clientFiles: ['./src/main.ts'] } },
+  // 桶文件（组件库入口、@lucide/icons）只编译真正用到的再导出模块，产物不变
+  build: { rolldownOptions: { experimental: { lazyBarrel: true } } },
   test: {
     name: 'host-demo',
     environment: 'happy-dom',

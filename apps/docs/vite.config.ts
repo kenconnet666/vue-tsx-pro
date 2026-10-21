@@ -95,7 +95,11 @@ export default defineConfig({
     ],
   },
   // Shiki 的每种语言语法单独成块、用到才下载（emacs-lisp、cpp 这类大语法不会被页面加载），不必为它们报警
-  build: { chunkSizeWarningLimit: 1000 },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    // 桶文件（组件库入口、@lucide/icons）只编译真正用到的再导出模块：构建时少编译约四分之一的模块，产物不变
+    rolldownOptions: { experimental: { lazyBarrel: true } },
+  },
   test: {
     name: 'docs',
     environment: 'happy-dom',
