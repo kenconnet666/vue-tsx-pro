@@ -222,6 +222,7 @@ export const enUS: Lang = {
   customizeCode: 'Code',
   customizeReset: 'Reset',
   customizeDownload: 'Download',
+  customizeDownloadTokens: 'Download Figma variables',
   customizeGroupColor: 'Color',
   customizeGroupColorHint:
     'Accent is used for buttons, links and selection; neutral sets the grays of backgrounds, text and borders',
@@ -233,7 +234,7 @@ export const enUS: Lang = {
     'Heading font and transition speed; transitions stay off when the system asks for reduced motion',
   customizeGroupExport: 'Check and export',
   customizeGroupExportHint:
-    'Contrast is checked as you change things; the code can be passed straight to createUi’s theme',
+    'Contrast is checked as you change things; the code can be passed straight to createUi’s theme, and the Figma variables are DTCG JSON you import in Figma’s variables panel',
   colorPick: 'Pick a color',
   apiName: 'Name',
   apiType: 'Type',

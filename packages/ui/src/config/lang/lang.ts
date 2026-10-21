@@ -381,6 +381,8 @@ export interface Lang {
   readonly customizeReset: string;
   /** ThemeCustomizer：把导出代码存成文件的按钮，默认“下载” */
   readonly customizeDownload: string;
+  /** ThemeCustomizer：把当前主题存成设计令牌（Figma 变量能导入的 JSON）的按钮，默认“下载 Figma 变量” */
+  readonly customizeDownloadTokens: string;
   /** ThemeCustomizer：颜色分组的标题，默认“颜色” */
   readonly customizeGroupColor: string;
   /** ThemeCustomizer：颜色分组的说明 */

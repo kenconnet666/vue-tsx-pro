@@ -220,6 +220,7 @@ export const zhCN: Lang = {
   customizeCode: '代码',
   customizeReset: '恢复默认',
   customizeDownload: '下载',
+  customizeDownloadTokens: '下载 Figma 变量',
   customizeGroupColor: '颜色',
   customizeGroupColorHint: '品牌色用在按钮、链接与选中态；中性色决定背景、文字与边框的灰度',
   customizeGroupShape: '形状与尺寸',
@@ -227,7 +228,8 @@ export const zhCN: Lang = {
   customizeGroupType: '字体与动效',
   customizeGroupTypeHint: '标题的字体与过渡的快慢；系统开了“减少动态效果”时始终不播放',
   customizeGroupExport: '检查与导出',
-  customizeGroupExportHint: '改动时实时检查对比度；代码可以直接交给 createUi 的 theme',
+  customizeGroupExportHint:
+    '改动时实时检查对比度；代码可以直接交给 createUi 的 theme，Figma 变量是 DTCG 格式的 JSON，在 Figma 的变量面板里导入',
   colorPick: '选择颜色',
   apiName: '名称',
   apiType: '类型',

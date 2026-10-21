@@ -1090,6 +1090,7 @@ export {
   resolveTheme,
   themeAttrs,
   themeVariables,
+  tokenGroups,
   type ColorSchemes,
   type GroupTheme,
   type Theme,

@@ -22,7 +22,8 @@ import {
   strokeWidths,
 } from './tokens.stylex';
 
-const groups = {
+/** 主题 tokens 的各组：组名 → 编译后的变量（运行时是 `var(--x1abc)`） */
+export const tokenGroups = {
   colors,
   fonts,
   fontSizes,
@@ -39,7 +40,7 @@ const groups = {
   durations,
   easings,
 };
-type Groups = typeof groups;
+type Groups = typeof tokenGroups;
 
 /** 某一组 tokens 的编译期主题（createTheme 的结果） */
 export type GroupTheme = { [Group in keyof Groups]: CompiledTheme<Groups[Group]> }[keyof Groups];
@@ -108,7 +109,7 @@ export function themeAttrs(theme: Theme) {
 export function themeVariables(theme: Theme): Record<string, string> {
   const variables: Record<string, string> = { 'color-scheme': theme.colorScheme };
   for (const [group, values] of Object.entries(theme.overrides)) {
-    const tokens = groups[group as keyof Groups] as unknown as Record<string, string>;
+    const tokens = tokenGroups[group as keyof Groups] as unknown as Record<string, string>;
     for (const [token, value] of Object.entries(values ?? {})) {
       variables[variableName(tokens[token]!)] = value as string;
     }

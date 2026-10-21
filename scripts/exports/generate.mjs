@@ -33,6 +33,7 @@ const SUBPATH_ENTRIES = new Set([
 const SUBPATH_MODULES = new Set([
   'config/theme/contrast.ts',
   'config/theme/customize.ts',
+  'config/theme/design-tokens.ts',
   'config/theme/palette.ts',
   'config/theme/token-catalog.ts',
 ]);
