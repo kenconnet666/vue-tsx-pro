@@ -277,6 +277,26 @@ describe('Virtualizer', () => {
     expect(virtualizer.getVisibleRange()).toEqual({ startIndex: 0, endIndex: 4 });
   });
 
+  it('scrollPaddingStart / End：被吸顶、吸底的内容遮住的部分不算可见，对齐时避开', () => {
+    // 像表格：列表上方 30px 的表头吸顶，下方 20px 的合计行吸底
+    const { element, virtualizer } = create({
+      scrollMargin: () => 30,
+      scrollPaddingStart: () => 30,
+      scrollPaddingEnd: () => 20,
+    });
+    virtualizer.scrollToIndex(0, { align: 'start' });
+    expect(element.scrollTop).toBe(0);
+    virtualizer.scrollToIndex(100, { align: 'start' });
+    expect(element.scrollTop).toBe(2000);
+    // 第 99 项在表头下面：不算可见，往回滚到表头之下
+    virtualizer.scrollToIndex(99);
+    expect(element.scrollTop).toBe(1980);
+    virtualizer.scrollToIndex(100, { align: 'end' });
+    expect(element.scrollTop).toBe(2020 - 100 + 20 + 30);
+    virtualizer.scrollToIndex(100, { align: 'center' });
+    expect(element.scrollTop).toBe(2010 - (100 + 30 - 20) / 2 + 30);
+  });
+
   it('rangeExtractor 可以加上固定渲染的项（吸顶行的扩展点）', () => {
     const { element, virtualizer } = create({
       rangeExtractor: (range) => [0, ...defaultRangeExtractor(range).filter((i) => i !== 0)],

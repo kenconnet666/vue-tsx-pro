@@ -913,6 +913,7 @@ export {
   DataTableView,
   type DataTableDensities,
   type DataTableDetailRowProps,
+  type DataTableHandle,
   type DataTableOptions,
   type DataTableRowModel,
   type DataTableRowProps,

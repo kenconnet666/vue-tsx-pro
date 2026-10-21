@@ -76,6 +76,10 @@ export interface VirtualizerOptions {
   horizontal?: boolean;
   /** 列表开头距滚动内容开头的距离（px），如列表上方还有其他内容；函数在每次滚动时读取，默认 0 */
   scrollMargin?: () => number;
+  /** 视口开头被吸顶的内容（表头）遮住的部分（px）：scrollToIndex 对齐时避开，被遮住的项不算可见；函数在滚动时读取 */
+  scrollPaddingStart?: () => number;
+  /** 视口末尾被吸底的内容（合计行）遮住的部分（px）；吸底的内容要在列表之后的正常流里 */
+  scrollPaddingEnd?: () => number;
   /** 改写要渲染哪些项（序号升序）：吸顶行、固定行在这里加上，默认是可见范围加 overscan */
   rangeExtractor?: (range: ExtractorRange) => number[];
   /** 渲染范围或总大小变了：重新渲染 */
@@ -345,14 +349,17 @@ export class Virtualizer {
     const item = this.getMeasurements()[clamp(index, 0, this.options.count - 1)];
     if (!item) return null;
     const { offset, viewport } = this;
+    const before = this.options.scrollPaddingStart?.() ?? 0;
+    const after = this.options.scrollPaddingEnd?.() ?? 0;
     let target: number;
     if (align === 'auto') {
-      if (item.start >= offset && item.end <= offset + viewport) return null;
-      target = item.start < offset ? item.start : item.end - viewport;
-    } else if (align === 'start') target = item.start;
-    else if (align === 'end') target = item.end - viewport;
-    else target = item.start + item.size / 2 - viewport / 2;
-    return clamp(target, 0, Math.max(0, this.getTotalSize() - viewport));
+      if (item.start >= offset + before && item.end <= offset + viewport - after) return null;
+      target = item.start < offset + before ? item.start - before : item.end - viewport + after;
+    } else if (align === 'start') target = item.start - before;
+    else if (align === 'end') target = item.end - viewport + after;
+    else target = item.start + item.size / 2 - (viewport + before - after) / 2;
+    // 开头可以负到 -before：第一项对齐开头时回到最顶上，表头下面就是它
+    return clamp(target, -before, Math.max(0, this.getTotalSize() - viewport + after));
   }
 
   private resizeItem(element: Element, size: number) {

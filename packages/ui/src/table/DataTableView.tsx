@@ -17,7 +17,7 @@
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId, type VNodeChild } from 'vue';
+import { useId, watch, type VNodeChild } from 'vue';
 import { StatusBadge } from '../base/Badge';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
@@ -37,7 +37,7 @@ import { disclosureStyles } from '../utils/style/transitions';
 import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
-import type { VisibleRange } from '../utils/virtual/virtualizer';
+import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
 import { ColumnResizer, type ColumnResizerProps } from './ColumnResizer';
 import {
   columnAlign,
@@ -149,6 +149,8 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   onToggleDetail?: (key: string) => void;
   /** 可见行范围变化（不含 overscan）：接近末尾时加载更多 */
   onRangeChange?: (range: VisibleRange) => void;
+  /** 挂载后拿到滚动到某一行的方法：`handle={(api) => (table = api)}` */
+  handle?: (api: DataTableHandle) => void;
   /** 外层滚动区域（决定表格的高度）的部件属性；高度用 sx 给，默认最高 32em */
   propsRoot?: Partial<ScrollAreaProps>;
   /** 每一行（tr）的部件属性，可以按行计算 */
@@ -203,6 +205,15 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsFoot?: PartProps<'tfoot'>;
   /** 合计行每个单元格的部件属性，可以按列计算 */
   propsSummaryCell?: PartProps<'td'> | ((column: DataTableColumn<T>) => PartProps<'td'>);
+}
+
+/** DataTable、TreeDataTable 的 handle 拿到的方法 */
+export interface DataTableHandle {
+  /**
+   * 滚动到 key 这一行：还没渲染（虚拟滚动）的行也行，停在吸顶表头之下、吸底合计行之上；
+   * align 默认 auto（已经完整可见就不动）。树形表格里只能滚到已展开的行。找不到这一行时返回 false
+   */
+  scrollToRow: (key: string, options?: VirtualScrollOptions) => boolean;
 }
 
 /** 行的色调：整行浅色底 */
@@ -752,6 +763,7 @@ export const DataTableView = _component(
     striped = false,
     estimateRowHeight,
     onRangeChange,
+    handle,
     rowTone,
     isRowSelectable,
     hiddenColumns,
@@ -811,6 +823,8 @@ export const DataTableView = _component(
     );
     let viewport = _state.raw<HTMLElement | null>(null);
     let body = _state.raw<HTMLElement | null>(null);
+    let head = _state.raw<HTMLElement | null>(null);
+    let foot = _state.raw<HTMLElement | null>(null);
 
     const detailIdPrefix = useId();
     const detailId = (index: number) => `${detailIdPrefix}-detail-${index}`;
@@ -845,8 +859,30 @@ export const DataTableView = _component(
         },
         overscan: 8,
         onRangeChange,
+        // 表头吸顶、合计行吸底：滚动到某一行时停在它们之间，不被挡住
+        scrollPaddingStart: () => head?.offsetHeight ?? 0,
+        scrollPaddingEnd: () => foot?.offsetHeight ?? 0,
       };
     });
+
+    // 挂载之后才交出 handle：使用方在回调里立即滚动（打开页面就定位到某一行）也能生效
+    const api: DataTableHandle = {
+      scrollToRow(key, options) {
+        const position = entries
+          ? entries.findIndex((entry) => !entry.detail && entry.row.key === key)
+          : rows.findIndex((row) => row.key === key);
+        if (position < 0) return false;
+        virtual.scrollToIndex(position, options);
+        return true;
+      },
+    };
+    watch(
+      () => viewport,
+      (element) => {
+        if (element) handle?.(api);
+      },
+      { flush: 'post' },
+    );
 
     // 每列的值类型（没写 type 时看第一个非空值）拼成字符串：类型没变时 shown 保持同一个引用，行组件不必重渲
     const types = _derived(
@@ -1109,7 +1145,11 @@ export const DataTableView = _component(
                 );
               })}
             </colgroup>
-            <thead {...mergeAttrs<'thead'>({ sx: dataTableStyles.head }, propsHead)}>
+            <thead
+              {...mergeAttrs<'thead'>({ sx: dataTableStyles.head }, propsHead, {
+                ref: _toRef(head),
+              })}
+            >
               {renderHeaderRows(
                 selectionMode && (
                   <th
@@ -1311,7 +1351,11 @@ export const DataTableView = _component(
               )}
             </tbody>
             {hasSummary && rows.length > 0 && (
-              <tfoot {...mergeAttrs<'tfoot'>({ sx: dataTableStyles.foot }, propsFoot)}>
+              <tfoot
+                {...mergeAttrs<'tfoot'>({ sx: dataTableStyles.foot }, propsFoot, {
+                  ref: _toRef(foot),
+                })}
+              >
                 <tr aria-rowindex={bodyRowCount() + headerRows + 1}>
                   {selectionMode && (
                     <td

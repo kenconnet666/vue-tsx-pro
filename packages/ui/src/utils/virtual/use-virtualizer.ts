@@ -43,6 +43,10 @@ export interface UseVirtualizerOptions {
   horizontal?: boolean;
   /** 改写要渲染哪些项：始终渲染高亮项、吸顶行 */
   rangeExtractor?: (range: ExtractorRange) => number[];
+  /** 视口开头被吸顶的内容遮住的部分（px），滚动时读取：滚动到某项时避开 */
+  scrollPaddingStart?: () => number;
+  /** 视口末尾被吸底的内容遮住的部分（px），滚动时读取 */
+  scrollPaddingEnd?: () => number;
   /** 可见范围（不含 overscan）变化：接近末尾时加载更多 */
   onRangeChange?: (range: VisibleRange) => void;
 }
@@ -82,6 +86,8 @@ export function useVirtualizer(read: () => UseVirtualizerOptions): VirtualView {
       estimateSize: options.estimateSize,
       getItemKey: options.getItemKey,
       rangeExtractor: options.rangeExtractor,
+      scrollPaddingStart: () => current.scrollPaddingStart?.() ?? 0,
+      scrollPaddingEnd: () => current.scrollPaddingEnd?.() ?? 0,
       getScrollElement: () => current.scrollElement,
       scrollMargin: () => {
         const { list, scrollElement, horizontal } = current;

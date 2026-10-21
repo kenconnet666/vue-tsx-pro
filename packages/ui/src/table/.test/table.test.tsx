@@ -15,7 +15,7 @@ import {
   type DataTableColumn,
 } from '../columns';
 import { DataTable } from '../DataTable';
-import { dataTableStyles } from '../DataTableView';
+import { dataTableStyles, type DataTableHandle } from '../DataTableView';
 import { TreeDataTable } from '../TreeDataTable';
 
 // happy-dom 不排版：给滚动容器一个 400px 的视口（行是虚拟滚动的）
@@ -481,6 +481,35 @@ describe('DataTable 的详情行', () => {
     expanded = [];
     await flush();
     expect(root.querySelector('.detail')).toBeNull();
+  });
+});
+
+describe('DataTable 的 handle', () => {
+  it('挂载后交出 scrollToRow：没渲染的行也能滚到；找不到的 key 返回 false、不滚动', async () => {
+    const many = Array.from({ length: 1000 }, (_, index) => ({
+      id: String(index),
+      name: `第 ${index} 人`,
+      age: index,
+    }));
+    let table: DataTableHandle | undefined;
+    const root = mount(() => (
+      <DataTable
+        aria-label="人员"
+        rows={many}
+        rowKey={(person) => person.id}
+        columns={columns}
+        handle={(api) => (table = api)}
+      />
+    ));
+    await flush();
+    expect(table).toBeDefined();
+    const viewport = root
+      .querySelector('table')!
+      .parentElement!.closest<HTMLElement>('[data-viewport], [tabindex]')!;
+    expect(table!.scrollToRow('nobody')).toBe(false);
+    expect(viewport.scrollTop).toBe(0);
+    expect(table!.scrollToRow('500', { align: 'start' })).toBe(true);
+    expect(viewport.scrollTop).toBeGreaterThan(400);
   });
 });
 

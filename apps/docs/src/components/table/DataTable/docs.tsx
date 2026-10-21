@@ -11,6 +11,7 @@ import Changes from './demo/Changes.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Infinite from './demo/Infinite.tsx?demo';
 import Ledger from './demo/Ledger.tsx?demo';
+import Locate from './demo/Locate.tsx?demo';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
 import Proposals from './demo/Proposals.tsx?demo';
@@ -57,6 +58,12 @@ export default _component(() => () => (
       指向详情），展开的行下面多一行跨全部列的详情，虚拟滚动按真实高度测量；<Code>hasDetail</Code>{' '}
       决定哪些行能展开，<Code>expandedRows</Code>{' '}
       可以双向绑定。详情横向滚动时贴着可见区域的起始边，宽度不超过可见区域。
+    </Example>
+    <Example id="locate" title="定位到行" demo={Locate}>
+      <Code>handle</Code> 在挂载后交出 <Code>scrollToRow(key, options)</Code>
+      ：虚拟滚动里还没渲染的行也能滚到，停在吸顶表头之下、吸底合计行之上（<Code>align</Code> 同
+      VirtualList，默认已完整可见就不动）；找不到这一行时返回 false。滚到之后用 <Code>rowTone</Code>{' '}
+      闪一下，方便从通知、搜索结果跳过来时找到它。
     </Example>
     <Examples>
       <ExampleColumn>

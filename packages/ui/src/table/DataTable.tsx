@@ -18,6 +18,7 @@
  *   manualSort 时只写回 sort，由调用方向服务端要排好序的数据。
  * - 选择：selectionMode 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
  * - 列宽：resizable 时可以拖动或用键盘调整，columnWidths 记录调整后的宽度（可以双向绑定，保存到本地设置里）。
+ * - 定位：handle 拿到 scrollToRow(key)，滚到那一行（停在吸顶表头之下）。
  * - 加载：loading 时没有数据显示骨架行，已有数据显示进度条；接近末尾加载更多用 onRangeChange。
  * - 详情行：renderDetail 给出一行的详情，多一列展开按钮；expandedRows 是展开了的行（可以双向绑定），hasDetail 决定哪些行有。
  * - 分组表头：columnGroups 写组标题与组里各列的 key，相邻的列上方共用一个标题。
