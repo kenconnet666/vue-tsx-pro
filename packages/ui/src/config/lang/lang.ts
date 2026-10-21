@@ -108,6 +108,8 @@ export interface Lang {
   readonly comboboxToggle: string;
   /** 表格表头“全选”勾选框的名称，默认“全选” */
   readonly tableSelectAll: string;
+  /** DataTable：单选时勾选列的标题（只给读屏），默认“选择” */
+  readonly tableSelectColumn: string;
   /** 表格每行勾选框的名称，默认“选择第 n 行” */
   readonly tableSelectRow: (row: number) => string;
   /** 表格列宽调整手柄的名称，默认“调整“列名”的列宽” */
@@ -210,8 +212,6 @@ export interface Lang {
   readonly breadcrumbs: string;
   /** 面包屑折叠按钮（打开被折叠各级的菜单）的名称，默认“显示被折叠的路径” */
   readonly breadcrumbsExpand: string;
-  /** 表单必填校验的提示，默认“请填写{label}” */
-  readonly formRequired: (label: string) => string;
   /** 拖动验证的提示，同时是滑块的无障碍名称，默认“拖动滑块完成验证” */
   readonly slideVerifyHint: string;
   /** 拖动验证：等待服务端判定，默认“验证中…” */

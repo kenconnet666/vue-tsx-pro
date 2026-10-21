@@ -28,7 +28,16 @@ function sharedObserver() {
         else byHandler.set(handler, [entry]);
       }
     }
-    for (const [handler, list] of byHandler) handler(list);
+    // 一个回调出错不挡别的：报出来（下一个微任务里抛出），其余照常收到通知
+    for (const [handler, list] of byHandler) {
+      try {
+        handler(list);
+      } catch (error) {
+        queueMicrotask(() => {
+          throw error;
+        });
+      }
+    }
   });
   return shared;
 }

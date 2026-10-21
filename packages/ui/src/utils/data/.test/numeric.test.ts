@@ -47,6 +47,10 @@ describe('numeric', () => {
     expect(numericText(12345678901234567890n)).toBe('12345678901234567890');
     expect(numericText(1e21)).toBe('1000000000000000000000');
     expect(numericText(0.5)).toBe('0.5');
+    // 1e-6 以下 String() 也是科学计数法
+    expect(numericText(1e-7)).toBe('0.0000001');
+    expect(numericText(-2.5e-7)).toBe('-0.00000025');
+    expect(numericText(0)).toBe('0');
     expect([toNumber(new Decimal('19.9')), toNumber(10n), toNumber(1.5)]).toEqual([19.9, 10, 1.5]);
   });
 

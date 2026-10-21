@@ -275,7 +275,8 @@ describe('代码块：CodeBlock + Shiki', () => {
   it('没给语言时是纯文本；外面的滚动区域可以用键盘聚焦（横向滚动）并显示焦点环', async () => {
     const pre = $('.codeblock-plain');
     expect(pre.querySelector('span')).toBeNull();
-    // 长行在 ScrollArea 里横向滚动：可聚焦的是它的视口
+    // 长行在 ScrollArea 里横向滚动：可聚焦的是它的视口（量出内容超出之后才进 Tab 顺序）
+    await expect.poll(() => pre.closest('[tabindex="0"]')).toBeTruthy();
     const viewport = pre.closest<HTMLElement>('[tabindex="0"]')!;
     viewport.focus();
     expect(document.activeElement).toBe(viewport);

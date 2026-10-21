@@ -1129,7 +1129,13 @@ export const Base = _component(() => {
 
         <Section title="代码块 CodeBlock（Shiki 高亮）">
           <CodeBlock class="codeblock-demo" lang="tsx" code={sampleCode} />
-          <CodeBlock class="codeblock-plain" code="pnpm add @vue-tsx-pro/ui shiki" />
+          {/* 窄的容器里放一行长命令：横向溢出，外面的滚动区域可以用键盘聚焦 */}
+          <div style={{ maxWidth: '16rem' }}>
+            <CodeBlock
+              class="codeblock-plain"
+              code="pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @stylexjs/stylex @lucide/icons zod shiki"
+            />
+          </div>
         </Section>
 
         <Section title="布局 Flex · GridList · Container · Separator">

@@ -17,7 +17,7 @@ import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
 
-/** 应用级配置；都可以传 ref 或 getter，运行时切换 */
+/** 应用级配置；theme 与 lang 可以传 ref 或 getter，运行时切换，其余在安装时确定 */
 export interface UiOptions {
   /** 主题；不写时用亮色主题，也不改动页面根元素 */
   theme?: MaybeRefOrGetter<ThemeInput>;
@@ -82,6 +82,17 @@ export function createUi(options: UiOptions = {}): Plugin {
           router: options.router,
           ripple: options.ripple ?? true,
         });
+        // 应用级的语言也写在页面根元素上（Provider 写在自己的元素上）：读屏按 lang 选发音，
+        // 从右到左的语言靠 dir 镜像排版与滚动条；没传 lang 时不动，宿主自己管
+        if (options.lang && typeof document !== 'undefined') {
+          const root = document.documentElement;
+          const previous = { lang: root.lang, dir: root.dir };
+          watchEffect(() => {
+            root.lang = lang.value.code;
+            root.dir = lang.value.direction;
+          });
+          app.onUnmount(() => Object.assign(root, previous));
+        }
         // 应用级没有容器元素，主题变量挂在页面根元素上；变量名经过 StyleX 哈希，不会与宿主冲突
         if (options.theme && typeof document !== 'undefined') {
           const root = document.documentElement;

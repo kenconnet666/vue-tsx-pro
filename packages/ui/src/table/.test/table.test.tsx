@@ -57,6 +57,19 @@ describe('sortRows / nextSort', () => {
     expect(people.map((p) => p.id)).toEqual(['a', 'b', 'c']);
   });
 
+  it('数字类的列里十进制字符串按数值排（按文字比较时 2.5 会排在 2.10 前面）；文字列照常按文字', () => {
+    const amounts = [{ v: '2.5' }, { v: '2.10' }, { v: '-5' }, { v: '-10' }];
+    const sorted = (column: DataTableColumn<{ v: string }>) =>
+      sortRows(amounts, [column], { key: 'v', direction: 'ascending' }, 'zh-CN').map((r) => r.v);
+    expect(sorted({ key: 'v', header: '金额', type: 'number' })).toEqual([
+      '-10',
+      '-5',
+      '2.10',
+      '2.5',
+    ]);
+    expect(sorted({ key: 'v', header: '版本' })).not.toEqual(['-10', '-5', '2.10', '2.5']);
+  });
+
   it('点表头：不排 → 升序 → 降序 → 不排；换一列从升序开始', () => {
     expect(nextSort(null, 'name')).toEqual({ key: 'name', direction: 'ascending' });
     expect(nextSort({ key: 'name', direction: 'ascending' }, 'name')!.direction).toBe('descending');

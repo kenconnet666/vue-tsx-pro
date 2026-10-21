@@ -7,8 +7,12 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-/** 小数位数：0.1 → 1 */
-const decimals = (value: number) => (String(value).split('.')[1] ?? '').length;
+/** 小数位数：0.1 → 1，1e-7 → 7（String(1e-7) 是科学计数法，不能按小数点拆） */
+function decimals(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  const [mantissa = '', exponent = '0'] = value.toExponential().split('e');
+  return Math.max(0, (mantissa.split('.')[1] ?? '').length - Number(exponent));
+}
 
 /**
  * 夹在 [min, max] 之间并对齐到 min + n × step（没有 min 时对齐到 0 + n × step）；

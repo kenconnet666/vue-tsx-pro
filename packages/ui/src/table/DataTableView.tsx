@@ -23,7 +23,7 @@ import { StatusBadge } from '../base/Badge';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { visuallyHiddenStyles } from '../base/VisuallyHidden';
+import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
@@ -842,7 +842,10 @@ export const DataTableView = _component(
       const list: BodyEntry<T>[] = [];
       rows.forEach((row, index) => {
         list.push({ row, index, detail: false });
-        if (expandedSet.has(row.key)) list.push({ row, index, detail: true });
+        // 展开记录里可能留着已经没有详情的行（数据变了）：只给还有详情的行出详情
+        if (expandedSet.has(row.key) && (hasDetail?.(row.data) ?? true)) {
+          list.push({ row, index, detail: true });
+        }
       });
       return list;
     });
@@ -934,17 +937,22 @@ export const DataTableView = _component(
     );
     const headerRows = _derived(layout?.some((cell) => cell.kind === 'group') ? 2 : 1);
 
+    // 合计只随数据与列变：放在派生值里，滚动时（虚拟列表每换一次可见范围都重新渲染）不再逐行重算
+    const rowData = _derived.by(() => rows.map((row) => row.data));
+    const sums = _derived.by(() =>
+      hasSummary
+        ? shown.map((column) => (column.summary === 'sum' ? sumColumn(column, rowData) : null))
+        : [],
+    );
+
     /** 合计行里一列的内容 */
     function summaryOf(column: DataTableColumn<T>, position: number): VNodeChild {
       if (column.summary === 'sum') {
         const type = (types.split('|')[position] ?? 'number') as keyof ColumnTypes;
-        const total = sumColumn(
-          column,
-          rows.map((row) => row.data),
-        );
+        const total = sums[position];
         return total == null ? (column.empty ?? lang.emptyValue) : display(column, type, total);
       }
-      if (column.summary) return column.summary(rows.map((row) => row.data));
+      if (column.summary) return column.summary(rowData);
       return position === 0 ? (summaryLabel ?? lang.tableSummary) : null;
     }
 
@@ -1129,7 +1137,9 @@ export const DataTableView = _component(
               },
               rest,
               {
-                'aria-rowcount': bodyRowCount() + headerRows + (hasSummary ? 1 : 0),
+                // 合计行只在有数据时渲染（见 tfoot），没渲染时不算进总行数
+                'aria-rowcount':
+                  bodyRowCount() + headerRows + (hasSummary && rows.length > 0 ? 1 : 0),
                 'aria-busy': loading || undefined,
               },
             )}
@@ -1172,6 +1182,10 @@ export const DataTableView = _component(
                       { scope: 'col', rowspan: headerRows > 1 ? headerRows : undefined },
                     )}
                   >
+                    {selectionMode === 'single' && (
+                      // 单选没有全选：这一列的标题只给读屏
+                      <VisuallyHidden>{lang.tableSelectColumn}</VisuallyHidden>
+                    )}
                     {selectionMode === 'multiple' && (
                       <Checkbox
                         {...mergePartProps<CheckboxProps>(

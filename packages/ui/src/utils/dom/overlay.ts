@@ -65,15 +65,22 @@ let restore: (() => void) | undefined;
 
 /**
  * 锁定页面滚动（打开模态时）。可以叠加：最后一个解锁时才恢复。
- * 去掉滚动条后用等宽的右侧内边距补上，页面内容不会左右跳动。返回解锁函数，重复调用无副作用。
+ * 去掉滚动条后在结束边（滚动条那一侧，从右到左时在左边）补上等宽的内边距，加在原有的内边距上，
+ * 页面内容不会左右跳动。返回解锁函数，重复调用无副作用。
  */
 export function lockScroll(): () => void {
   if (locks++ === 0) {
     const root = document.documentElement;
     const scrollbar = window.innerWidth - root.clientWidth;
-    const previous = { overflow: root.style.overflow, paddingRight: root.style.paddingRight };
+    const previous = {
+      overflow: root.style.overflow,
+      paddingInlineEnd: root.style.paddingInlineEnd,
+    };
+    if (scrollbar > 0) {
+      const padding = getComputedStyle(root).paddingInlineEnd || '0px';
+      root.style.paddingInlineEnd = `calc(${padding} + ${scrollbar}px)`;
+    }
     root.style.overflow = 'hidden';
-    if (scrollbar > 0) root.style.paddingRight = `${scrollbar}px`;
     restore = () => Object.assign(root.style, previous);
   }
   let released = false;

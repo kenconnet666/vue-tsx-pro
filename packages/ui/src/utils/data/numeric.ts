@@ -23,6 +23,11 @@ export function isDecimal(value: unknown): value is Decimal {
   return typeof constructor?.isDecimal === 'function' && constructor.isDecimal(value);
 }
 
+/** 能读成数字的文字：接口常把金额给成十进制字符串（'19.90'）；空白、Infinity、不是数字的都不算 */
+export function isNumericText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value));
+}
+
 /** 是不是组件接受的数值（NaN 也算 number，由使用方决定怎么处理） */
 export function isNumeric(value: unknown): value is NumericValue {
   return typeof value === 'number' || typeof value === 'bigint' || isDecimal(value);
@@ -40,8 +45,9 @@ export function numericText(value: NumericValue): string {
   if (typeof value === 'bigint') return value.toString();
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) return String(value);
-    // 1e21 以上 String() 会写成科学计数法；toLocaleString 不带分组时给出完整的十进制
-    return Math.abs(value) < 1e21
+    // 1e21 以上、1e-6 以下 String() 会写成科学计数法；toLocaleString 不带分组时给出完整的十进制
+    const plain = value === 0 || (Math.abs(value) < 1e21 && Math.abs(value) >= 1e-6);
+    return plain
       ? String(value)
       : value.toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 20 });
   }

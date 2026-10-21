@@ -14,6 +14,7 @@ import {
   addNumeric,
   isDecimal,
   isNumeric,
+  isNumericText,
   numericKind,
   type NumericKind,
   type NumericValue,
@@ -250,9 +251,7 @@ export function formatCell(
 ): string {
   if (value == null) return '';
   // 接口常把金额给成十进制字符串（'19.90'）：能读成数字的字符串也按数字格式化，且不经过浮点
-  const numeric =
-    isNumeric(value) ||
-    (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)));
+  const numeric = isNumeric(value) || isNumericText(value);
   if (numeric && type === 'number') return format.number(value, options);
   if (numeric && type === 'currency')
     return format.number(value, { style: 'currency', ...options });
@@ -275,11 +274,7 @@ export function sumColumn<T>(column: DataTableColumn<T>, rows: Iterable<T>): Num
   let kind: NumericKind | undefined;
   for (const row of rows) {
     const value = columnValue(column, row);
-    const numeric = isNumeric(value)
-      ? value
-      : typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))
-        ? Number(value)
-        : null;
+    const numeric = isNumeric(value) ? value : isNumericText(value) ? Number(value) : null;
     if (numeric == null) continue;
     values.push(numeric);
     // 有 Decimal 就按 Decimal；否则全是 bigint 才按 bigint
@@ -311,8 +306,11 @@ export function sortRows<T>(
   if (!sort || !column) return rows;
   const compare = createComparer(locale);
   const factor = sort.direction === 'ascending' ? 1 : -1;
+  // 数字类的列里，十进制字符串（'2.5'、'2.10'）按数值排：按文字比较时 '2.5' 会排在 '2.10' 前面
+  const numeric = NUMERIC_TYPES.has(columnType(column, rows));
+  const sortable = (value: SortValue) => (numeric && isNumericText(value) ? Number(value) : value);
   return rows
-    .map((row, index) => ({ row, index, value: columnValue(column, row) }))
+    .map((row, index) => ({ row, index, value: sortable(columnValue(column, row)) }))
     .sort((a, b) => {
       // 空值不随方向翻转，总在最后
       if (a.value == null || b.value == null) return compare(a.value, b.value) || a.index - b.index;
