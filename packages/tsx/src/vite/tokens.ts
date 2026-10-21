@@ -7,12 +7,11 @@
  *   - 其他包（使用方应用）→ 原样写选项里的包名，如 '@vue-tsx-pro/ui/tokens.stylex'
  */
 import { existsSync, readFileSync, statSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { parseSync, types as t } from '@babel/core';
 import type { Plugin } from 'vite';
 import { compileTokens, type TokenModule } from '../compiler/index.ts';
-import { packageRoot, resolveFromExports } from './stylex-resolution.ts';
+import { packageRoot, requireFrom, resolveFromExports } from './stylex-resolution.ts';
 
 /** token 字符串写法的 Vite 插件；specifier 是 token 模块的包名或相对项目根目录的路径 */
 export function themeTokens(specifier: string): Plugin {
@@ -57,7 +56,7 @@ function resolvePackage(specifier: string, importer: string) {
   const source = resolveFromExports(specifier, importer);
   if (source && existsSync(source)) return source;
   try {
-    return createRequire(importer).resolve(specifier);
+    return requireFrom(importer).resolve(specifier);
   } catch {
     return undefined;
   }

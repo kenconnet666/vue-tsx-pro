@@ -24,13 +24,19 @@ export function stylexModuleResolution() {
   };
 }
 
+/**
+ * 从某个文件出发按 Node 规则解析。Vite 给的路径是正斜杠，Windows 上 Node 从这种路径找不到所在的包，
+ * 包按名字引用自己（组件库源码导入 '@vue-tsx-pro/ui/tokens.stylex'）就会失败；先规范成本机的分隔符
+ */
+export const requireFrom = (file: string) => createRequire(resolve(file));
+
 function filePathResolver(importPath: string, sourceFilePath: string): string | undefined {
   if (importPath.startsWith('.')) {
     const base = resolve(dirname(sourceFilePath), importPath);
     return EXTENSIONS.map((extension) => base + extension).find(existsSync);
   }
   try {
-    return createRequire(sourceFilePath).resolve(importPath);
+    return requireFrom(sourceFilePath).resolve(importPath);
   } catch {
     // 产物还没构建时按 exports 里的源码条件找到源文件；规范名相同，找哪个都行
     return resolveFromExports(importPath, sourceFilePath);
@@ -43,7 +49,7 @@ export function resolveFromExports(importPath: string, sourceFilePath: string): 
   const name = importPath.startsWith('@') ? segments.slice(0, 2).join('/') : segments[0]!;
   const subpath = `.${importPath.slice(name.length)}`;
   try {
-    const manifest = createRequire(sourceFilePath).resolve(`${name}/package.json`);
+    const manifest = requireFrom(sourceFilePath).resolve(`${name}/package.json`);
     const target = (JSON.parse(readFileSync(manifest, 'utf8')) as Manifest).exports?.[subpath];
     const file =
       typeof target === 'string' ? target : (target?.[SOURCE_CONDITION] ?? target?.default);
