@@ -3,7 +3,7 @@ import { Code, Kbd } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/RangeCalendarProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
 import Hotel from './demo/Hotel.tsx?demo';
 import Leave from './demo/Leave.tsx?demo';
@@ -18,21 +18,25 @@ export const meta = {
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { RangeCalendar } from '@vue-tsx-pro/ui';">
     <Examples>
-      <Example id="hotel" title="入住与离店" demo={Hotel}>
-        值是 <Code>{'{ start, end }'}</Code>（ISO
-        日期，两端都含），反着点也会排好序。默认区间里不能夹着不可选的日子：点了入住之后，越过订满那晚的一侧都变成不可选，悬停预览也停在边界；选到一半按{' '}
-        <Kbd>Esc</Kbd> 取消。
-      </Example>
-      <Example id="leave" title="跨过不可选的日子" demo={Leave}>
-        <Code>allowsUnavailableInRange</Code>{' '}
-        允许区间跨过不可选的日子：周末不能作为请假的开始或结束，但可以被夹在中间。
-      </Example>
-      <Example id="presets" title="页脚的快捷区间" demo={Report}>
-        <Code>footer</Code> 放在网格下面；<Code>presetIsoRange</Code>{' '}
-        按今天与语言的一周第一天算出“最近 7
-        天”“本月”。外面改了值、新区间不在这一页时，日历自动翻过去。要输入框加弹出日历与快捷选项用
-        DateRangePicker。
-      </Example>
+      <ExampleColumn>
+        <Example id="hotel" title="入住与离店" demo={Hotel}>
+          值是 <Code>{'{ start, end }'}</Code>（ISO
+          日期，两端都含），反着点也会排好序。默认区间里不能夹着不可选的日子：点了入住之后，越过订满那晚的一侧都变成不可选，悬停预览也停在边界；选到一半按{' '}
+          <Kbd>Esc</Kbd> 取消。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="leave" title="跨过不可选的日子" demo={Leave}>
+          <Code>allowsUnavailableInRange</Code>{' '}
+          允许区间跨过不可选的日子：周末不能作为请假的开始或结束，但可以被夹在中间。
+        </Example>
+        <Example id="presets" title="页脚的快捷区间" demo={Report}>
+          <Code>footer</Code> 放在网格下面；<Code>presetIsoRange</Code>{' '}
+          按今天与语言的一周第一天算出“最近 7
+          天”“本月”。外面改了值、新区间不在这一页时，日历自动翻过去。要输入框加弹出日历与快捷选项用
+          DateRangePicker。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={api} />
   </DocPage>

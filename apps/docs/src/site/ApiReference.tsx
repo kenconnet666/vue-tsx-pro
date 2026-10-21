@@ -16,6 +16,7 @@ import {
   type ComponentApi,
 } from '@vue-tsx-pro/ui';
 import { onBeforeUnmount, onMounted } from 'vue';
+import { afterFirstPaint, whenIdle } from './idle';
 
 /** 各种类的小节标题与顺序 */
 const KINDS: [keyof ApiPropKinds, string][] = [
@@ -35,16 +36,6 @@ const styles = stylex.create({
 export interface ApiReferenceProps {
   /** 一个或几个组件的 API 数据（复合组件各部分依次列出） */
   api: ComponentApi | ComponentApi[];
-}
-
-/** 浏览器空闲时执行；没有 requestIdleCallback 的（Safari）退到下一个任务。返回取消函数 */
-function whenIdle(run: () => void): () => void {
-  if (typeof requestIdleCallback === 'function') {
-    const handle = requestIdleCallback(run, { timeout: 500 });
-    return () => cancelIdleCallback(handle);
-  }
-  const handle = setTimeout(run);
-  return () => clearTimeout(handle);
 }
 
 /** 一个组件的 API 按种类分成的几张表 */
@@ -68,8 +59,7 @@ export const ApiReference = _component(({ api }: ApiReferenceProps) => {
       shown++;
       if (shown < total) cancel = whenIdle(next);
     };
-    const frame = requestAnimationFrame(() => (cancel = whenIdle(next)));
-    cancel = () => cancelAnimationFrame(frame);
+    cancel = afterFirstPaint(next);
   });
   onBeforeUnmount(() => cancel());
 

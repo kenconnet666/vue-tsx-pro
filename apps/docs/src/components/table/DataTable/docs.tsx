@@ -8,7 +8,7 @@ import { Example } from '../../../site/Example';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
 import States from './demo/States.tsx?demo';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 
 export const meta = {
   title: 'DataTable 数据表格',
@@ -32,16 +32,20 @@ export default _component(() => () => (
       双向绑定可以存到本地设置里。工具栏（搜索、批量操作、分页）用现有组件组合，不内置。
     </Example>
     <Examples>
-      <Example id="tree" title="组织架构" demo={Org}>
-        TreeDataTable 建在 DataTable
-        上，列定义、排序、勾选都一样；第一列带缩进与展开按钮，同级之间按排序排。
-        <Code>loadChildren</Code> 懒加载：展开时取回子项放进数据，期间按钮显示加载中。
-      </Example>
-      <Example id="states" title="加载、空状态与外观" demo={States}>
-        <Code>loading</Code> 且没有数据时显示骨架行，已有数据（刷新）时表头下方一条进度条，表格带
-        aria-busy；没有数据显示 <Code>empty</Code>。<Code>density</Code>、<Code>variant</Code>、
-        <Code>striped</Code> 与静态表格相同。
-      </Example>
+      <ExampleColumn>
+        <Example id="tree" title="组织架构" demo={Org}>
+          TreeDataTable 建在 DataTable
+          上，列定义、排序、勾选都一样；第一列带缩进与展开按钮，同级之间按排序排。
+          <Code>loadChildren</Code> 懒加载：展开时取回子项放进数据，期间按钮显示加载中。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="states" title="加载、空状态与外观" demo={States}>
+          <Code>loading</Code> 且没有数据时显示骨架行，已有数据（刷新）时表头下方一条进度条，表格带
+          aria-busy；没有数据显示 <Code>empty</Code>。<Code>density</Code>、<Code>variant</Code>、
+          <Code>striped</Code> 与静态表格相同。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={[api, treeApi]} />
   </DocPage>

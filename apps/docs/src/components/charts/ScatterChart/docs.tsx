@@ -4,7 +4,7 @@ import api from 'virtual:api/ScatterChartProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Bubbles from './demo/Bubbles.tsx?demo';
 import Cities from './demo/Cities.tsx?demo';
 
@@ -18,15 +18,19 @@ export const meta = {
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { ScatterChart } from '@vue-tsx-pro/ui/charts';">
     <Examples>
-      <Example id="cities" title="基础用法" demo={Cities}>
-        <Code>x</Code> 是横轴的数值字段，<Code>series</Code> 的每一项是纵轴的一个字段；纵轴不强制从
-        0 起。悬停一个点，提示框列出这一行的名称（
-        <Code>index</Code>）、横轴与各系列的值。
-      </Example>
-      <Example id="bubbles" title="气泡图" demo={Bubbles}>
-        <Code>size</Code> 给成字段时，点的大小在 6–32px
-        之间随它缩放；几个系列各用一个颜色，某一行在某个系列上没有值就不画那个点。
-      </Example>
+      <ExampleColumn>
+        <Example id="cities" title="基础用法" demo={Cities}>
+          <Code>x</Code> 是横轴的数值字段，<Code>series</Code>{' '}
+          的每一项是纵轴的一个字段；纵轴不强制从 0 起。悬停一个点，提示框列出这一行的名称（
+          <Code>index</Code>）、横轴与各系列的值。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="bubbles" title="气泡图" demo={Bubbles}>
+          <Code>size</Code> 给成字段时，点的大小在 6–32px
+          之间随它缩放；几个系列各用一个颜色，某一行在某个系列上没有值就不画那个点。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={api} />
   </DocPage>

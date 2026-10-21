@@ -4,7 +4,7 @@ import api from 'virtual:api/DatePickerProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Booking from './demo/Booking.tsx?demo';
 import Granularity from './demo/Granularity.tsx?demo';
 
@@ -17,16 +17,20 @@ export const meta = {
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { DatePicker } from '@vue-tsx-pro/ui';">
     <Examples>
-      <Example id="booking" title="基础用法" demo={Booking}>
-        输入框就是 DateField，分段键入；按钮或 <Kbd>Alt</Kbd> + <Kbd>↓</Kbd>{' '}
-        弹出日历，焦点落在已选（或今天）那一格，点选后关闭、焦点回到按钮。<Code>min</Code>、
-        <Code>max</Code>、<Code>isDateUnavailable</Code> 同时作用于输入框与日历。
-      </Example>
-      <Example id="granularity" title="年份、月份与时间" demo={Granularity}>
-        <Code>granularity</Code> 是 <Code>year</Code>、<Code>month</Code> 时弹出年份、月份的选择（即
-        YearPicker、MonthPicker）；到 <Code>minute</Code> 时选完日期焦点落到“时”那一段接着输入（即
-        DateTimePicker），没有时间时先补 00:00。
-      </Example>
+      <ExampleColumn>
+        <Example id="booking" title="基础用法" demo={Booking}>
+          输入框就是 DateField，分段键入；按钮或 <Kbd>Alt</Kbd> + <Kbd>↓</Kbd>{' '}
+          弹出日历，焦点落在已选（或今天）那一格，点选后关闭、焦点回到按钮。<Code>min</Code>、
+          <Code>max</Code>、<Code>isDateUnavailable</Code> 同时作用于输入框与日历。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="granularity" title="年份、月份与时间" demo={Granularity}>
+          <Code>granularity</Code> 是 <Code>year</Code>、<Code>month</Code>{' '}
+          时弹出年份、月份的选择（即 YearPicker、MonthPicker）；到 <Code>minute</Code>{' '}
+          时选完日期焦点落到“时”那一段接着输入（即 DateTimePicker），没有时间时先补 00:00。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={api} />
   </DocPage>

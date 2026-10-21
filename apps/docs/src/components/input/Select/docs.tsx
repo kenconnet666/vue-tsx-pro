@@ -7,7 +7,7 @@ import tagsApi from 'virtual:api/TagsInputBaseProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Assign from './demo/Assign.tsx?demo';
 import Cities from './demo/Cities.tsx?demo';
 import Columns from './demo/Columns.tsx?demo';
@@ -27,25 +27,30 @@ export default _component(() => () => (
     imports="import { Combobox, Listbox, Select, TagsInput } from '@vue-tsx-pro/ui';"
   >
     <Examples>
-      <Example id="select" title="Select" demo={Assign}>
-        <Code>items</Code>{' '}
-        可以是字符串、ListboxOption（值、文字、图标、说明、分组、不可用），或任意数据加{' '}
-        <Code>toOption</Code>；子节点是渲染函数时自定义选项内容，拿到的是原始数据。
-        <Code>selectionMode="multiple"</Code> 多选。键盘同原生 select：按字母选中以它开头的项。
-      </Example>
-      <Example id="combobox" title="Combobox" demo={Cities}>
-        默认本地过滤（忽略大小写与重音），中文输入法组合期间不拿拼音去过滤。远程搜索写{' '}
-        <Code>filter={'{false}'}</Code>，监听 <Code>inputValue</Code> 换 <Code>items</Code>，配合{' '}
-        <Code>loading</Code>；只用最后一次输入的结果。
-      </Example>
-      <Example id="tags" title="TagsInput" demo={Tags}>
-        回车、逗号或分号加一个标签，粘贴时自动拆开，重复的不加；输入框空着时退格删掉最后一个。给了{' '}
-        <Code>items</Code> 就有建议列表；<Code>allowCustomValue={'{false}'}</Code> 只能从建议里选，
-        <Code>max</Code> 限制个数。
-      </Example>
-      <Example id="listbox" title="Listbox" demo={Columns}>
-        平铺的列表框，适合常驻在页面上的选择（表格显示哪些列、穿梭框的一侧）。一千个选项也只渲染看得见的几十个；焦点在列表上，按字母跳转。
-      </Example>
+      <ExampleColumn>
+        <Example id="select" title="Select" demo={Assign}>
+          <Code>items</Code>{' '}
+          可以是字符串、ListboxOption（值、文字、图标、说明、分组、不可用），或任意数据加{' '}
+          <Code>toOption</Code>；子节点是渲染函数时自定义选项内容，拿到的是原始数据。
+          <Code>selectionMode="multiple"</Code> 多选。键盘同原生 select：按字母选中以它开头的项。
+        </Example>
+        <Example id="combobox" title="Combobox" demo={Cities}>
+          默认本地过滤（忽略大小写与重音），中文输入法组合期间不拿拼音去过滤。远程搜索写{' '}
+          <Code>filter={'{false}'}</Code>，监听 <Code>inputValue</Code> 换 <Code>items</Code>，配合{' '}
+          <Code>loading</Code>；只用最后一次输入的结果。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="tags" title="TagsInput" demo={Tags}>
+          回车、逗号或分号加一个标签，粘贴时自动拆开，重复的不加；输入框空着时退格删掉最后一个。给了{' '}
+          <Code>items</Code> 就有建议列表；<Code>allowCustomValue={'{false}'}</Code>{' '}
+          只能从建议里选，
+          <Code>max</Code> 限制个数。
+        </Example>
+        <Example id="listbox" title="Listbox" demo={Columns}>
+          平铺的列表框，适合常驻在页面上的选择（表格显示哪些列、穿梭框的一侧）。一千个选项也只渲染看得见的几十个；焦点在列表上，按字母跳转。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={[api, comboboxApi, tagsApi, listboxApi]} />
   </DocPage>

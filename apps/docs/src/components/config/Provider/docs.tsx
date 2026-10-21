@@ -5,7 +5,7 @@ import api from 'virtual:api/ProviderProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Locales from './demo/Locales.tsx?demo';
 import Rtl from './demo/Rtl.tsx?demo';
 import Scoped from './demo/Scoped.tsx?demo';
@@ -42,16 +42,20 @@ export default _component(() => () => (
       组件自己的默认值；只收外观类的选项（样式、尺寸、色调）。
     </Example>
     <Examples>
-      <Example id="locales" title="语言包与 useFormat" demo={Locales}>
-        语言包里是组件的全部文字与格式习惯（币种、一周从哪天开始、时区）；
-        <Code>defineLang(zhCN, {'{…}'})</Code> 改其中几项。<Code>useFormat()</Code>{' '}
-        按当前语言格式化，字符串与 Decimal 按十进制原样格式化，金额不丢精度。
-      </Example>
-      <Example id="rtl" title="从右到左" demo={Rtl}>
-        语言包的 <Code>direction</Code> 是 rtl 时，Provider 写上
-        dir="rtl"：组件都用逻辑属性，布局、箭头与方向键自动镜像。传送到 body
-        的内容（Toaster、浮层）用 <Code>ConfigScope</Code> 重新带上主题、语言与方向。
-      </Example>
+      <ExampleColumn>
+        <Example id="locales" title="语言包与 useFormat" demo={Locales}>
+          语言包里是组件的全部文字与格式习惯（币种、一周从哪天开始、时区）；
+          <Code>defineLang(zhCN, {'{…}'})</Code> 改其中几项。<Code>useFormat()</Code>{' '}
+          按当前语言格式化，字符串与 Decimal 按十进制原样格式化，金额不丢精度。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="rtl" title="从右到左" demo={Rtl}>
+          语言包的 <Code>direction</Code> 是 rtl 时，Provider 写上
+          dir="rtl"：组件都用逻辑属性，布局、箭头与方向键自动镜像。传送到 body
+          的内容（Toaster、浮层）用 <Code>ConfigScope</Code> 重新带上主题、语言与方向。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={[api, scopeApi]} />
   </DocPage>

@@ -3,7 +3,7 @@ import { Code, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/IconProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
 import Basic from './demo/Basic.tsx?demo';
 import Custom from './demo/Custom.tsx?demo';
@@ -27,31 +27,35 @@ export default _component(() => () => (
     imports={"import { Icon } from '@vue-tsx-pro/ui';\nimport { Search } from '@lucide/icons';"}
   >
     <Examples>
-      <Example id="basic" title="基础用法" demo={Basic}>
-        从 <Code>@lucide/icons</Code> 按名导入图标数据交给 <Code>icon</Code>
-        ；只打包用到的图标。全部图标见页面下方的图标库。
-      </Example>
-      <Example id="sizes" title="尺寸与线宽" demo={Sizes}>
-        不写 <Code>size</Code> 时是 1em，跟随所在文字；档位对应主题字号，数字是像素。
-        <Code>strokeWidth</Code> 调线宽，大图标用细一点的线更精致。
-      </Example>
-      <Example id="tones" title="色调" demo={Tones}>
-        不写 <Code>tone</Code> 时跟随文字颜色；状态图标用 <Code>success</Code>、<Code>warning</Code>
-        、<Code>danger</Code> 等色调，和提示条、标记的颜色一致。
-      </Example>
-      <Example id="with-text" title="与文字、按钮搭配" demo={WithText}>
-        图标与文字基线对齐，不撑高行距；按钮、标记、链接里的图标由组件排好间距。
-      </Example>
-      <Example id="accessibility" title="装饰与含义" demo={Labelled}>
-        旁边已有文字时图标只是装饰，默认对读屏隐藏；单独出现、表达含义的图标要给{' '}
-        <Code>aria-label</Code>。
-      </Example>
-      <Example id="draw" title="描线动画" demo={Draw}>
-        <Code>draw</Code> 由 false 变为 true 时一笔画出；开启“减少动态效果”时直接画好。
-      </Example>
-      <Example id="custom" title="自定义图标" demo={Custom}>
-        按 Lucide 的格式写节点即可，画布默认 24 格。
-      </Example>
+      <ExampleColumn>
+        <Example id="basic" title="基础用法" demo={Basic}>
+          从 <Code>@lucide/icons</Code> 按名导入图标数据交给 <Code>icon</Code>
+          ；只打包用到的图标。全部图标见页面下方的图标库。
+        </Example>
+        <Example id="sizes" title="尺寸与线宽" demo={Sizes}>
+          不写 <Code>size</Code> 时是 1em，跟随所在文字；档位对应主题字号，数字是像素。
+          <Code>strokeWidth</Code> 调线宽，大图标用细一点的线更精致。
+        </Example>
+        <Example id="tones" title="色调" demo={Tones}>
+          不写 <Code>tone</Code> 时跟随文字颜色；状态图标用 <Code>success</Code>、
+          <Code>warning</Code>、<Code>danger</Code> 等色调，和提示条、标记的颜色一致。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="with-text" title="与文字、按钮搭配" demo={WithText}>
+          图标与文字基线对齐，不撑高行距；按钮、标记、链接里的图标由组件排好间距。
+        </Example>
+        <Example id="accessibility" title="装饰与含义" demo={Labelled}>
+          旁边已有文字时图标只是装饰，默认对读屏隐藏；单独出现、表达含义的图标要给{' '}
+          <Code>aria-label</Code>。
+        </Example>
+        <Example id="draw" title="描线动画" demo={Draw}>
+          <Code>draw</Code> 由 false 变为 true 时一笔画出；开启“减少动态效果”时直接画好。
+        </Example>
+        <Example id="custom" title="自定义图标" demo={Custom}>
+          按 Lucide 的格式写节点即可，画布默认 24 格。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <Flex direction="column" gap="md">
       <H2 id="library" size="xl" anchor>

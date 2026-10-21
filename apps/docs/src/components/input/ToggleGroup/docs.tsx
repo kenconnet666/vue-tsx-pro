@@ -5,7 +5,7 @@ import itemApi from 'virtual:api/ToggleItemProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Format from './demo/Format.tsx?demo';
 import Vertical from './demo/Vertical.tsx?demo';
 import Views from './demo/Views.tsx?demo';
@@ -20,20 +20,24 @@ export const meta = {
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';">
     <Examples>
-      <Example id="segmented" title="视图切换" demo={Views}>
-        单选时 <Code>value</Code> 是字符串；<Code>required</Code> 时至少保留一项（分段控件）。
-        <Code>icon</Code>{' '}
-        放在文字前；选中项的底色是一个指示条，切换时滑过去，减少动态效果时直接到位。
-      </Example>
-      <Example id="multiple" title="多选的字形" demo={Format}>
-        <Code>selectionMode="multiple"</Code> 时 <Code>value</Code>{' '}
-        是数组，每一项各自开关（aria-pressed）。只有图标的项要写 <Code>aria-label</Code>。放进
-        Toolbar 时焦点交给工具栏统一管理。
-      </Example>
-      <Example id="vertical" title="竖排与不可用" demo={Vertical}>
-        <Code>orientation="vertical"</Code> 竖排，键盘改用 ↑↓。放进 Field 时以标签为名称，沿用 Field
-        的不可用；单项可以单独不可用。
-      </Example>
+      <ExampleColumn>
+        <Example id="segmented" title="视图切换" demo={Views}>
+          单选时 <Code>value</Code> 是字符串；<Code>required</Code> 时至少保留一项（分段控件）。
+          <Code>icon</Code>{' '}
+          放在文字前；选中项的底色是一个指示条，切换时滑过去，减少动态效果时直接到位。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="multiple" title="多选的字形" demo={Format}>
+          <Code>selectionMode="multiple"</Code> 时 <Code>value</Code>{' '}
+          是数组，每一项各自开关（aria-pressed）。只有图标的项要写 <Code>aria-label</Code>。放进
+          Toolbar 时焦点交给工具栏统一管理。
+        </Example>
+        <Example id="vertical" title="竖排与不可用" demo={Vertical}>
+          <Code>orientation="vertical"</Code> 竖排，键盘改用 ↑↓。放进 Field 时以标签为名称，沿用
+          Field 的不可用；单项可以单独不可用。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={[api, itemApi]} />
   </DocPage>

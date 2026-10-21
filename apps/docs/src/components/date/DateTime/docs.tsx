@@ -6,7 +6,7 @@ import relativeApi from 'virtual:api/RelativeTimeProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Activity from './demo/Activity.tsx?demo';
 import Countdowns from './demo/Countdowns.tsx?demo';
 import Formats from './demo/Formats.tsx?demo';
@@ -25,17 +25,21 @@ export default _component(() => () => (
     imports="import { Countdown, DateTime, RelativeTime } from '@vue-tsx-pro/ui';"
   >
     <Examples>
-      <Example id="activity" title="相对时间" demo={Activity}>
-        <Code>RelativeTime</Code> 按相差多久自动取单位，措辞是“昨天”而不是“1
-        天前”，随时间更新（秒级每秒，分钟级每 10 秒，更远的更慢，页面隐藏时停下）。
-        <Code>threshold</Code> 以外直接写日期；悬停看完整的日期时间。
-      </Example>
-      <Example id="countdowns" title="倒计时" demo={Countdowns}>
-        <Code>Countdown</Code>{' '}
-        默认显示“时:分:秒”，超过一天时前面加天数；渲染函数拿到拆好的天、时、分、秒，可以排成任意样子。
-        <Code>role="timer"</Code> 默认不播报，到点时 <Code>onEnd</Code>{' '}
-        调用一次（发送验证码后恢复按钮）。几个计时器对齐到整秒一起跳。
-      </Example>
+      <ExampleColumn>
+        <Example id="activity" title="相对时间" demo={Activity}>
+          <Code>RelativeTime</Code> 按相差多久自动取单位，措辞是“昨天”而不是“1
+          天前”，随时间更新（秒级每秒，分钟级每 10 秒，更远的更慢，页面隐藏时停下）。
+          <Code>threshold</Code> 以外直接写日期；悬停看完整的日期时间。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="countdowns" title="倒计时" demo={Countdowns}>
+          <Code>Countdown</Code>{' '}
+          默认显示“时:分:秒”，超过一天时前面加天数；渲染函数拿到拆好的天、时、分、秒，可以排成任意样子。
+          <Code>role="timer"</Code> 默认不播报，到点时 <Code>onEnd</Code>{' '}
+          调用一次（发送验证码后恢复按钮）。几个计时器对齐到整秒一起跳。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <Example id="formats" title="日期时间的写法" demo={Formats}>
       <Code>DateTime</Code> 渲染 time 元素，datetime

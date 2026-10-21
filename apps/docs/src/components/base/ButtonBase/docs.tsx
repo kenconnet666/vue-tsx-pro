@@ -5,7 +5,7 @@ import hiddenApi from 'virtual:api/VisuallyHiddenProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Hidden from './demo/Hidden.tsx?demo';
 import Plans from './demo/Plans.tsx?demo';
 import States from './demo/States.tsx?demo';
@@ -35,17 +35,21 @@ export default _component(() => () => (
       与名称。要按钮外观时用 Button。
     </Example>
     <Examples>
-      <Example id="states" title="不可用与加载中" demo={States}>
-        <Code>disabled</Code> 写原生 disabled，Tab 跳过；加上 <Code>focusableWhenDisabled</Code>{' '}
-        改用 aria-disabled，焦点仍能停留（菜单、工具栏里不希望焦点跳过它）。
-        <Code>loading</Code> 时点击无效、带 aria-busy。三种状态都写 data
-        属性（data-disabled、data-loading），外观由使用方按需给。
-      </Example>
-      <Example id="hidden" title="只给读屏器看的文字" demo={Hidden}>
-        <Code>VisuallyHidden</Code> 视觉上不占位，读屏照常朗读（不用 display:
-        none，那样读屏也读不到）。用来补上图形、数字、缩写背后的意思；Link 的 <Code>external</Code>{' '}
-        已经内置“在新窗口打开”。右列是按 DOM 粗略算出的朗读文字。
-      </Example>
+      <ExampleColumn>
+        <Example id="states" title="不可用与加载中" demo={States}>
+          <Code>disabled</Code> 写原生 disabled，Tab 跳过；加上 <Code>focusableWhenDisabled</Code>{' '}
+          改用 aria-disabled，焦点仍能停留（菜单、工具栏里不希望焦点跳过它）。
+          <Code>loading</Code> 时点击无效、带 aria-busy。三种状态都写 data
+          属性（data-disabled、data-loading），外观由使用方按需给。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="hidden" title="只给读屏器看的文字" demo={Hidden}>
+          <Code>VisuallyHidden</Code> 视觉上不占位，读屏照常朗读（不用 display:
+          none，那样读屏也读不到）。用来补上图形、数字、缩写背后的意思；Link 的{' '}
+          <Code>external</Code> 已经内置“在新窗口打开”。右列是按 DOM 粗略算出的朗读文字。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <CodeBlock code={shared} lang="tsx" title="同一套样式与行为" />
     <ApiReference api={[api, hiddenApi]} />

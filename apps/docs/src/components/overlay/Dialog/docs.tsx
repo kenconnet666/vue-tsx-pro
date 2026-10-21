@@ -6,7 +6,7 @@ import drawerApi from 'virtual:api/DrawerProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Confirm from './demo/Confirm.tsx?demo';
 import Drawers from './demo/Drawers.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
@@ -26,26 +26,30 @@ export default _component(() => () => (
     imports="import { AlertDialog, Dialog, Drawer, useConfirm } from '@vue-tsx-pro/ui';"
   >
     <Examples>
-      <Example id="dialog" title="编辑表单" demo={Profile}>
-        <Code>open</Code> 双向绑定；<Code>title</Code> 与 <Code>description</Code>{' '}
-        是对话框的无障碍名称与描述，
-        <Code>footer</Code> 里的按钮靠结束边排。打开时焦点落在 autofocus
-        的元素上（没有就是第一个可聚焦的），关闭后回到打开它的按钮。Esc、点遮罩、右上角的关闭按钮都能关。
-      </Example>
-      <Example id="alert-dialog" title="确认操作" demo={Confirm}>
-        AlertDialog 用于不可撤销的操作：role="alertdialog"，焦点先落在取消上，点遮罩不关闭。
-        <Code>onConfirm</Code> 返回 Promise 时确认按钮显示加载中，完成才关。不想维护 open 状态时用{' '}
-        <Code>useConfirm()</Code>，await 得到 true / false。
-      </Example>
-      <Example id="long-content" title="宽度与长内容" demo={Terms}>
-        <Code>size</Code> 与 Container 同档（xs–xl），另有 full
-        占满视口。内容长时只滚正文（ScrollArea），标题与页脚一直看得见。
-      </Example>
-      <Example id="drawer" title="抽屉" demo={Drawers}>
-        Drawer 与 Dialog 共用同一个内核，只是从一侧滑入：<Code>side</Code> 取
-        start、end、top、bottom，
-        <Code>size</Code> 控制宽度。筛选、详情、移动端导航都适合放在抽屉里。
-      </Example>
+      <ExampleColumn>
+        <Example id="dialog" title="编辑表单" demo={Profile}>
+          <Code>open</Code> 双向绑定；<Code>title</Code> 与 <Code>description</Code>{' '}
+          是对话框的无障碍名称与描述，
+          <Code>footer</Code> 里的按钮靠结束边排。打开时焦点落在 autofocus
+          的元素上（没有就是第一个可聚焦的），关闭后回到打开它的按钮。Esc、点遮罩、右上角的关闭按钮都能关。
+        </Example>
+        <Example id="alert-dialog" title="确认操作" demo={Confirm}>
+          AlertDialog 用于不可撤销的操作：role="alertdialog"，焦点先落在取消上，点遮罩不关闭。
+          <Code>onConfirm</Code> 返回 Promise 时确认按钮显示加载中，完成才关。不想维护 open 状态时用{' '}
+          <Code>useConfirm()</Code>，await 得到 true / false。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example id="long-content" title="宽度与长内容" demo={Terms}>
+          <Code>size</Code> 与 Container 同档（xs–xl），另有 full
+          占满视口。内容长时只滚正文（ScrollArea），标题与页脚一直看得见。
+        </Example>
+        <Example id="drawer" title="抽屉" demo={Drawers}>
+          Drawer 与 Dialog 共用同一个内核，只是从一侧滑入：<Code>side</Code> 取
+          start、end、top、bottom，
+          <Code>size</Code> 控制宽度。筛选、详情、移动端导航都适合放在抽屉里。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <ApiReference api={[api, alertDialogApi, drawerApi]} />
   </DocPage>
