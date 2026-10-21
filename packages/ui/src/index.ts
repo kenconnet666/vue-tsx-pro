@@ -1229,9 +1229,11 @@ export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
   dismissOnBackdrop,
   lockScroll,
+  openModalDialog,
   toElement,
   topModal,
   trackModal,
+  type ModalDialogOptions,
 } from './utils/dom/overlay';
 export { useResizeObserver } from './utils/dom/resize';
 export {

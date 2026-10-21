@@ -18,8 +18,7 @@ import { H2, type HeadingProps } from '../base/Heading';
 import { Paragraph, type TextProps } from '../base/Text';
 import { Flex, type FlexProps } from '../layout/Flex';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
-import { dismissOnBackdrop, lockScroll, trackModal } from '../utils/dom/overlay';
-import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
+import { openModalDialog } from '../utils/dom/overlay';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
@@ -127,19 +126,7 @@ export const ModalCore = _component(
 
     function show() {
       if (!dialog || dialog.open) return;
-      const opener = focusOrigin();
-      dialog.showModal();
-      const target = dialog;
-      const cleanups = [
-        trackModal(target),
-        lockScroll(),
-        trapFocus(target),
-        dismissible ? dismissOnBackdrop(target, () => target.close()) : undefined,
-      ];
-      release = () => {
-        for (const cleanup of cleanups) cleanup?.();
-        returnFocus(target, opener);
-      };
+      release = openModalDialog(dialog, { dismissOnBackdrop: dismissible });
     }
 
     // 不论以什么方式关闭（Esc、遮罩、关闭按钮、open 改为 false），都会触发原生 close 事件；

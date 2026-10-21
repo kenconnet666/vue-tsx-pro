@@ -34,8 +34,7 @@ import { clamp } from '../utils/data/number';
 import { isRtl } from '../utils/dom/direction';
 import { isEditable } from '../utils/dom/hotkeys';
 import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
-import { focusOrigin, returnFocus, trapFocus } from '../utils/dom/focus';
-import { trackModal } from '../utils/dom/overlay';
+import { openModalDialog } from '../utils/dom/overlay';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 
 /** 引导的一步 */
@@ -194,16 +193,10 @@ export const Tour = _component(
     const step = () => steps[clamp(current, 0, steps.length - 1)];
     const last = () => current >= steps.length - 1;
 
+    // 与对话框同一套模态行为（含锁定页面滚动：引导期间页面不跟着滚，目标由引导自己滚进视口）
     function show() {
       if (!dialog || dialog.open) return;
-      const opener = focusOrigin();
-      dialog.showModal();
-      const target = dialog;
-      const cleanups = [trackModal(target), trapFocus(target)];
-      release = () => {
-        for (const cleanup of cleanups) cleanup();
-        returnFocus(target, opener);
-      };
+      release = openModalDialog(dialog);
     }
 
     /** 跟随这一步的目标：滚到视口中间，之后镂空与卡片随滚动、缩放、大小变化更新 */

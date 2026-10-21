@@ -5,6 +5,7 @@
  * 焦点的进出与循环见 focus.ts。
  */
 import { shallowReactive } from 'vue';
+import { focusOrigin, returnFocus, trapFocus } from './focus';
 
 /** ref 落在组件上拿到的是组件实例，取它的根元素；本来就是元素时原样返回 */
 export function toElement(value: unknown): HTMLElement | null {
@@ -58,6 +59,37 @@ export function trackModal(dialog: HTMLDialogElement): () => void {
 /** 最上层的模态 dialog；没有时为 undefined。在渲染或 computed 里读取会跟着变化 */
 export function topModal(): HTMLDialogElement | undefined {
   return modals.at(-1);
+}
+
+/** openModalDialog 的选项 */
+export interface ModalDialogOptions {
+  /** 锁定页面滚动，默认 true */
+  lockScroll?: boolean;
+  /** 点遮罩（对话框外面）关闭，默认 false */
+  dismissOnBackdrop?: boolean;
+}
+
+/**
+ * 以模态方式打开原生 dialog，接上全部的模态行为：记下焦点来源、showModal、登记为最上层的模态（topModal）、
+ * 锁定页面滚动、焦点陷阱，可选点遮罩关闭。返回释放函数：dialog 关闭时调用，撤销以上并把焦点还给来源。
+ * ModalCore（Dialog、Drawer、AlertDialog、CommandPalette）与 Tour 共用
+ */
+export function openModalDialog(
+  dialog: HTMLDialogElement,
+  { lockScroll: lock = true, dismissOnBackdrop: dismiss = false }: ModalDialogOptions = {},
+): () => void {
+  const opener = focusOrigin();
+  dialog.showModal();
+  const cleanups = [
+    trackModal(dialog),
+    lock ? lockScroll() : undefined,
+    trapFocus(dialog),
+    dismiss ? dismissOnBackdrop(dialog, () => dialog.close()) : undefined,
+  ];
+  return () => {
+    for (const cleanup of cleanups) cleanup?.();
+    returnFocus(dialog, opener);
+  };
 }
 
 let locks = 0;
