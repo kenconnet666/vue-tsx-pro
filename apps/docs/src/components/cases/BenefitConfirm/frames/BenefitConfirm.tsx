@@ -31,18 +31,17 @@ import Decimal from 'decimal.js';
 import {
   advanceTask,
   CONFIRM_WORKDAYS,
+  confirmWorkdaysLeft,
   confirmReturns,
   latestEstimate,
   reached,
   returnTask,
   saveTask,
   taskStore,
-  TODAY,
-  workdaysBetween,
   type CostTask,
 } from '../../data';
 import { ledgerColumns } from '../../ledger';
-import { CaseShell, casePath } from '../../shell';
+import { CaseShell, casePath, useCaseQuery } from '../../shell';
 
 const tabs = [
   { value: 'awaiting', label: '待认定' },
@@ -60,11 +59,6 @@ const verifiedOn = (task: CostTask) =>
   task.milestones.find((item) => item.label === '验证完成')?.done ?? null;
 const confirmedOn = (task: CostTask) =>
   task.milestones.find((item) => item.label === '收益确认')?.done ?? null;
-/** 认定还剩几个工作日（负数是超期） */
-const workdaysLeft = (task: CostTask) => {
-  const verified = verifiedOn(task);
-  return verified == null ? null : CONFIRM_WORKDAYS - workdaysBetween(verified, TODAY);
-};
 /** 协商轮次：成本团队与产品团队就测算来回了几轮（虚构：按编号定） */
 const rounds = (task: CostTask) => 1 + (Number(task.code.split('-').at(-1)) % 3);
 
@@ -95,8 +89,10 @@ export default _component(() => {
   const format = useFormat();
   const confirm = useConfirm();
   const toaster = createToaster();
-  let tab = _state<string>('awaiting');
-  let kind = _state<'unit' | 'dmc'>('unit');
+  // 从统计看板跳过来时带着单位与页签
+  const route = useCaseQuery();
+  let tab = _state<string>(route().tab ?? 'awaiting');
+  let kind = _state<'unit' | 'dmc'>(route().kind === 'dmc' ? 'dmc' : 'unit');
   let keyword = _state('');
   let returning = _state.raw<CostTask | null>(null);
   let reason = _state('');
@@ -174,7 +170,8 @@ export default _component(() => {
     {
       key: 'name',
       header: '项目名称',
-      minWidth: 200,
+      // 写宽度：更宽时多出来的按比例摊给各列，不只撑大名称
+      width: 240,
       sortable: true,
       value: (row) => row.task.name,
     },
@@ -241,9 +238,9 @@ export default _component(() => {
             width: 110,
             align: 'end',
             sortable: true,
-            value: (row: Row) => workdaysLeft(row.task),
+            value: (row: Row) => confirmWorkdaysLeft(row.task),
             cell: (row: Row) => {
-              const left = workdaysLeft(row.task);
+              const left = confirmWorkdaysLeft(row.task);
               return left == null ? (
                 <Small tone="muted">—</Small>
               ) : left < 0 ? (
@@ -273,7 +270,7 @@ export default _component(() => {
           {
             key: 'reason',
             header: '退回原因',
-            minWidth: 220,
+            width: 280,
             value: (row: Row) => row.returned?.reason,
           } satisfies DataTableColumn<Row>,
           {

@@ -21,9 +21,17 @@ import {
   type DataTableColumnGroup,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
-import { amountBases, channels, labelOf, opportunities, taskStore, teams } from '../../data';
+import {
+  amountBases,
+  channels,
+  labelOf,
+  ledgerAmount,
+  opportunities,
+  taskStore,
+  teams,
+} from '../../data';
 import { shortTeam } from '../../ledger';
-import { CaseShell, casePath } from '../../shell';
+import { CaseShell, casePath, useCaseQuery } from '../../shell';
 
 /** 一本账的一行：任务池里的任务，或渠道里的机会 */
 interface Row {
@@ -67,8 +75,10 @@ const styles = stylex.create({
 });
 
 export default _component(() => {
-  let kind = _state<'unit' | 'dmc'>('unit');
-  let basis = _state('hard');
+  // 从统计看板跳过来时带着单位与金额口径
+  const route = useCaseQuery();
+  let kind = _state<'unit' | 'dmc'>(route().kind === 'dmc' ? 'dmc' : 'unit');
+  let basis = _state(route().basis ?? 'hard');
   let keyword = _state('');
   let team = _state('');
 
@@ -82,13 +92,7 @@ export default _component(() => {
         team: task.team,
         source: labelOf(channels, task.channel),
         state: task.valueState as Row['state'],
-        // 预测值用认定前的预期（认定了用 A）；承诺、实现按商务金额 B，没有 B 时按 A
-        amount:
-          task.valueState === 'unpriced'
-            ? null
-            : task.valueState === 'forecast'
-              ? (task.a ?? task.expected)
-              : (task.b ?? task.a ?? task.expected),
+        amount: ledgerAmount(task),
         inPool: true,
       }));
     const channel: Row[] = opportunities
@@ -127,7 +131,8 @@ export default _component(() => {
             <span {...stylex.attrs(styles.code)}>{row.code}</span>
           ),
       },
-      { key: 'name', header: '项目名称', minWidth: 200, sortable: true },
+      // 写宽度：更宽时多出来的按比例摊给各列，不只撑大名称
+      { key: 'name', header: '项目名称', width: 240, sortable: true },
       { key: 'source', header: '来源', width: 150 },
       {
         key: 'team',

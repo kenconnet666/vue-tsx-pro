@@ -718,6 +718,22 @@ export function workdaysBetween(from: string, to: string): number {
 /** 收益认定的时限：验证完成后 10 个工作日内认定 */
 export const CONFIRM_WORKDAYS = 10;
 
+/** 待认定的项目离认定时限还有几个工作日（负数是超期）；还没验证完成时为 null */
+export function confirmWorkdaysLeft(task: CostTask): number | null {
+  const verified = task.milestones.find((item) => item.label === '验证完成')?.done;
+  return verified == null ? null : CONFIRM_WORKDAYS - workdaysBetween(verified, TODAY);
+}
+
+/**
+ * 一本账上挂的金额：预测值用测算 A（认定前用预期收益），承诺、实现用商务 B（还没谈定用 A）；挂账待定没有金额。
+ * 一本账、统计看板都按它算，两处的数一致
+ */
+export function ledgerAmount(task: CostTask): Decimal | null {
+  if (task.valueState === 'unpriced') return null;
+  if (task.valueState === 'forecast') return task.a ?? task.expected;
+  return task.b ?? task.a ?? task.expected;
+}
+
 /** 收益认定的退回记录：退回后任务回到“验证中”，在收益认定的“退回”页签里看原因 */
 export interface ConfirmReturn {
   code: string;

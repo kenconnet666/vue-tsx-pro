@@ -92,8 +92,8 @@ const tabs = [{ value: 'all', label: '全部', statuses: null }, ...statusGroups
 
 const daysToDue = (task: CostTask) => daysBetween(TODAY, task.due);
 
-/** 关注：跨状态的快捷筛选，PEMO 每天要看的几类 */
-const focuses = [
+/** 关注：跨状态的快捷筛选，PEMO 每天要看的几类（统计看板的“需要处理”也用） */
+export const focuses = [
   {
     value: 'overdue',
     label: '超时',
@@ -485,8 +485,8 @@ export const LedgerPage = _component(
           </Link>
         ),
       },
-      // 不写宽度：占满其他列剩下的宽度；窄屏时至少 200，再窄就横向滚动
-      { key: 'name', header: '项目名称', sortable: true, minWidth: 200 },
+      // 每列都写宽度：放不下时横向滚动；更宽时多出来的按各列宽度的比例分摊，不会只撑大名称一列
+      { key: 'name', header: '项目名称', sortable: true, width: 220 },
       ...middle,
       {
         key: 'target',
@@ -522,7 +522,7 @@ export const LedgerPage = _component(
       {
         key: 'milestones',
         header: '里程碑',
-        width: 72,
+        width: 68,
         cell: (task) =>
           progressDots(
             task.milestones.map((item) => ({ label: item.label, done: item.done != null })),
@@ -532,7 +532,7 @@ export const LedgerPage = _component(
       {
         key: 'overdue',
         header: '超时',
-        width: 68,
+        width: 64,
         sortable: true,
         align: 'end',
         // 按紧迫程度排：超时越久越前，没到期的离到期越近越前，已结束的在最后
@@ -866,6 +866,6 @@ export const ledgerColumns = {
     width: 72,
     value: (task: CostTask) => personName(task.contact),
   },
-  org: { key: 'org', header: '提出单位', width: 112 },
+  org: { key: 'org', header: '提出单位', width: 106 },
   form: { key: 'form', header: '完成形式', width: 88 },
 } satisfies Record<string, DataTableColumn<CostTask>>;
