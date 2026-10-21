@@ -1,11 +1,12 @@
 /**
- * `?demo` 导入：一行同时拿到示例组件与它的源码，源码原样显示在示例卡片里。
+ * `?demo` 导入：一行同时拿到示例组件与加载它源码的函数，源码原样显示在示例卡片里。
  *
- *   import Basic from './demo/Basic.tsx?demo';   // { component, source, path }
+ *   import Basic from './demo/Basic.tsx?demo';   // { component, source: () => Promise<string>, path }
  *
- * 生成的是一个虚拟模块：导入真正的示例文件拿组件，读出文件文本作源码。示例文件改动时两者一起热更新。
+ * 生成的是一个虚拟模块：导入真正的示例文件拿组件；源码是同一个文件的 ?raw，按需动态导入——
+ * 卡片只展示、不在原地编辑，源码只有“显示代码”“复制”“编辑”时才用到，不必打进页面的块
+ * （两百多个示例共 400 多 KB 文本）。示例文件改动时组件与源码一起热更新。
  */
-import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
@@ -28,12 +29,17 @@ export function demoSource(): Plugin {
     load(id) {
       if (!id.startsWith(PREFIX)) return;
       const file = id.slice(PREFIX.length);
-      this.addWatchFile(file);
-      const source = readFileSync(file, 'utf8').trimEnd();
       const path = relative(COMPONENTS, file)
-        .replaceAll('\\', '/')
+        .split('\\')
+        .join('/')
         .replace(/\.tsx$/, '');
-      return `import component from ${JSON.stringify(file)};\nexport default { component, source: ${JSON.stringify(source)}, path: ${JSON.stringify(path)} };\n`;
+      const raw = JSON.stringify(`${file}?raw`);
+      return [
+        `import component from ${JSON.stringify(file)};`,
+        `const source = () => import(${raw}).then((module) => module.default.trimEnd());`,
+        `export default { component, source, path: ${JSON.stringify(path)} };`,
+        '',
+      ].join('\n');
     },
   };
 }

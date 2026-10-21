@@ -8,13 +8,15 @@
  *
  * 效果与源码由使用方各自给出（组件本身不执行代码）：示例组件照常 import，源码用 Vite 的 ?raw 导入同一个文件，
  * 两者永远一致。源码默认收起，“显示代码”按钮带 aria-expanded / aria-controls；复制按钮一直在工具栏上。
+ * 示例多的页面可以按需加载源码：`code={() => import('./Basic.tsx?raw').then((m) => m.default)}`，
+ * 指针移到、焦点进入工具栏或展开时才取，源码不进页面的块。
  * actions 往工具栏最前面加按钮，例如文档站的“在演练场里编辑”。
  * 外框是 Card（outline），源码是 CodeBlock，收起展开用 Collapse（高度过渡，收起后页内搜索仍能找到）。
  */
 import { Code as CodeIcon } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId, type VNodeChild } from 'vue';
+import { useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { CopyButton, type CopyButtonProps } from '../base/CopyButton';
@@ -34,8 +36,8 @@ export interface CodePreviewAligns {
 
 /** 未声明的属性落到外框（Card 的 div）上 */
 export interface CodePreviewProps extends PartProps<'div'> {
-  /** 源码 */
-  code: string;
+  /** 源码；或按需加载的函数：指针移到、焦点进入工具栏、展开或复制时才调用（只调用一次） */
+  code: string | (() => Promise<string>);
   /** 源码的语言，默认 tsx */
   lang?: string;
   /** 是否显示源码：父级可以写 showCode={_bind(x)}；默认收起 */
@@ -115,7 +117,32 @@ export const CodePreview = _component(
     // 收起的源码先按纯文本渲染（页内搜索照样找得到）：要显示时才高亮。指针移到、焦点落到“显示代码”上就开始，
     // 点下去时多半已经高亮好了。一页十来个示例，打开页面时不必一次高亮全部
     let wanted = _state(false);
-    const prepare = () => (wanted = true);
+    // 按需加载的源码：同一个加载函数只取一次；换了加载函数（示例热更新）就重新取
+    let loaded = _state<string | null>(null);
+    let loadedFrom: unknown;
+    let pending: Promise<string> | undefined;
+    const source = () => (typeof code === 'string' ? code : loadedFrom === code ? loaded : null);
+    function load(): string | Promise<string> {
+      if (typeof code === 'string') return code;
+      if (loadedFrom === code) return loaded ?? pending!;
+      const from = code;
+      loadedFrom = from;
+      loaded = null;
+      pending = from().then((text) => {
+        if (loadedFrom === from) loaded = text;
+        return text;
+      });
+      return pending;
+    }
+    const prepare = () => {
+      wanted = true;
+      void load();
+    };
+    watch(
+      () => showCode,
+      (shown) => shown && void load(),
+      { immediate: true },
+    );
     return () => (
       <Card
         {...mergePartProps<CardProps>(
@@ -125,7 +152,13 @@ export const CodePreview = _component(
         )}
         footer={
           <>
-            <div {...mergeAttrs<'div'>({ sx: codePreviewStyles.toolbar }, propsToolbar)}>
+            <div
+              {...mergeAttrs<'div'>({ sx: codePreviewStyles.toolbar }, propsToolbar, {
+                // 工具栏上的意图（要看、要复制、要编辑）：开始加载与高亮，点下去时多半已经好了
+                onPointerenter: prepare,
+                onFocusin: prepare,
+              })}
+            >
               {actions}
               <Button
                 {...mergePartProps<ButtonProps>(
@@ -135,8 +168,6 @@ export const CodePreview = _component(
                     'aria-expanded': showCode,
                     'aria-controls': codeId,
                     onClick: () => (showCode = !showCode),
-                    onPointerenter: prepare,
-                    onFocus: prepare,
                   },
                 )}
               >
@@ -144,7 +175,12 @@ export const CodePreview = _component(
               </Button>
               <CopyButton
                 {...mergePartProps<CopyButtonProps>(
-                  { variant: 'ghost', tone: 'neutral', size: 'sm', value: code },
+                  {
+                    variant: 'ghost',
+                    tone: 'neutral',
+                    size: 'sm',
+                    value: () => source() ?? load(),
+                  },
                   propsCopy,
                 )}
               />
@@ -156,7 +192,7 @@ export const CodePreview = _component(
               <CodeBlock
                 {...mergePartProps<CodeBlockProps>(
                   {
-                    code,
+                    code: source() ?? '',
                     lang,
                     highlight: showCode || wanted,
                     maxLines,

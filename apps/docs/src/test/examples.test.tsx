@@ -8,7 +8,7 @@ import { mount } from './mount';
 
 const demo = (name: string): Demo => ({
   component: _component(() => () => <p class="demo">{name}</p>),
-  source: `<p>${name}</p>`,
+  source: () => Promise.resolve(`<p>${name}</p>`),
   path: `test/${name}`,
 });
 

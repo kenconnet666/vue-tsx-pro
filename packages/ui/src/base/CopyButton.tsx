@@ -4,6 +4,7 @@
  *
  *   <CopyButton value={apiKey} />
  *   <CopyButton value={() => editor.getText()} aria-label="复制全文" />
+ *   <CopyButton value={() => fetchSnippet(id)} />   点击时才取（返回 Promise）
  */
 import { Check, Copy } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -27,8 +28,11 @@ export type CopyButtonManaged = 'disabled' | 'aria-disabled' | 'aria-busy' | 'va
 /** 未声明的属性落到 button 上 */
 export interface CopyButtonProps
   extends PartProps<'button', CopyButtonManaged>, Omit<ButtonOptions, 'loading' | 'propsSpinner'> {
-  /** 要复制的文字；给函数时点击时才取值 */
-  value: string | (() => string);
+  /**
+   * 要复制的文字；给函数时点击时才取值，可以返回 Promise（内容按需加载）。
+   * 返回字符串时同步写入剪贴板；Safari 只认点击当下的写入，异步内容最好提前加载好
+   */
+  value: string | (() => string | Promise<string>);
   /** 按钮的无障碍名称，默认取语言包（复制） */
   'aria-label'?: string;
   /** 对勾保持多久（毫秒）后复原，默认 2000 */
@@ -95,7 +99,8 @@ export const CopyButton = _component(
     );
 
     async function copy() {
-      const success = await clipboard.copy(typeof value === 'function' ? value() : value);
+      const text = typeof value === 'function' ? value() : value;
+      const success = await clipboard.copy(typeof text === 'string' ? text : await text);
       onCopied?.(success);
     }
 

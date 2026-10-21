@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-/** `import Basic from './demo/Basic.tsx?demo'`：示例组件与它的源码（build/demo.ts） */
+/** `import Basic from './demo/Basic.tsx?demo'`：示例组件与按需加载源码的函数（build/demo.ts） */
 declare module '*?demo' {
   const demo: import('./site/types').Demo;
   export default demo;
