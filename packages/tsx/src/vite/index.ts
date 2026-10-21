@@ -103,7 +103,9 @@ type StylexBabel = Partial<StylexBabelOptions>;
 /** Vitest 的插件钩子：只用到其中注册缓存键的部分，不依赖 vitest 的类型 */
 interface VitestHooks {
   configureVitest?: (context: {
-    defineCacheKeyGenerator?: (generator: () => string) => void;
+    defineCacheKeyGenerator?: (
+      generator: (module: { sourceCode: string }) => string | false,
+    ) => void;
   }) => void;
 }
 
@@ -129,9 +131,14 @@ function compiler(
   return {
     name: 'vue-tsx-pro',
     enforce: 'pre',
-    // 编译器变了，Vitest 缓存的旧编译结果要作废（见 cache-key.ts）
+    // 编译器变了，Vitest 缓存的旧编译结果要作废（见 cache-key.ts）。
+    // import.meta.glob 展开成哪些文件取决于磁盘，按源码内容缓存会漏掉新加的文件（新示例不进通用测试），这类模块不缓存
     configureVitest({ defineCacheKeyGenerator }) {
-      defineCacheKeyGenerator?.(() => `${compilerCacheKey()}${optimize ? '' : ':plain'}`);
+      defineCacheKeyGenerator?.(({ sourceCode }) =>
+        sourceCode.includes('import.meta.glob')
+          ? false
+          : `${compilerCacheKey()}${optimize ? '' : ':plain'}`,
+      );
     },
     config(user) {
       const flag = (name: string, fallback: boolean): unknown => {
