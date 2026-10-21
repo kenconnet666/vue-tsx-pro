@@ -2,6 +2,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import containerApi from 'virtual:api/ContainerProps';
 import flexApi from 'virtual:api/FlexProps';
+import gridItemApi from 'virtual:api/GridItemProps';
 import gridApi from 'virtual:api/GridProps';
 import separatorApi from 'virtual:api/SeparatorProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -11,6 +12,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import AutoGrid from './demo/AutoGrid.tsx?demo';
 import Containers from './demo/Containers.tsx?demo';
 import Dashboard from './demo/Dashboard.tsx?demo';
+import LabelledSeparators from './demo/LabelledSeparators.tsx?demo';
 import Playground from './demo/Playground.tsx?demo';
 import Separators from './demo/Separators.tsx?demo';
 import Grow from './demo/Grow.tsx?demo';
@@ -26,7 +28,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Container, Flex, FlexList, Grid, GridList, Separator } from '@vue-tsx-pro/ui';"
+    imports="import { Container, Flex, FlexList, Grid, GridItem, GridList, Separator } from '@vue-tsx-pro/ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -39,11 +41,17 @@ export default _component(() => () => (
           给每项的最小宽度，容器多宽就放几列，不需要断点；项目少于放得下的列数时各项拉宽占满（auto-fit）。这里用
           GridList：渲染为 ul，子元素用 li，读屏念“列表，6 项”。
         </Example>
+        <Example id="labelled-separator" title="带文字的分隔线" demo={LabelledSeparators}>
+          Separator 里写文字：默认居中，两边各一段线；<Code>labelAlign="start"</Code>{' '}
+          文字在前、线在后，像一节的小标题。文字照常给读屏，两段线对读屏隐藏；
+          <Code>decorative={'{false}'}</Code> 时整条是 role="separator"，以文字为名称。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="dashboard" title="固定列数与跨格" demo={Dashboard}>
-          <Code>columns</Code> 固定等宽列；跨几列、几行用 <Code>sx</Code> 写 gridColumn / gridRow。
-          <Code>flow="row dense"</Code> 回填前面留下的空位。
+          <Code>columns</Code> 固定等宽列；<Code>GridItem</Code> 的 <Code>span</Code>、
+          <Code>rowSpan</Code> 跨几列、几行，<Code>span="full"</Code> 占满一整行（GridList 里用
+          GridListItem）。<Code>flow="row dense"</Code> 回填前面留下的空位。
         </Example>
         <Example id="separator" title="分隔线与列表" demo={Separators}>
           Separator 默认是装饰性的、对读屏隐藏；分隔两组不同内容、需要读屏感知时写{' '}
@@ -63,6 +71,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[flexApi, gridApi, containerApi, separatorApi]} />
+    <ApiReference api={[flexApi, gridApi, gridItemApi, containerApi, separatorApi]} />
   </DocPage>
 ));

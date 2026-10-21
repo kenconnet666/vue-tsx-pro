@@ -3,6 +3,7 @@
  *
  *   <Grid columns={3} gap="md">…</Grid>                 固定列数，等宽
  *   <Grid minItemWidth="14em" gap="md">…</Grid>         按宽度自动换列：容器多宽就放几列，不需要断点
+ *   <GridItem span={2}>…</GridItem>                     跨两列；span="full" 占满一整行
  *
  * 响应式不引入断点：minItemWidth 覆盖最常见的自动换列，其余用 sx 加容器查询。
  * 一个元素一个组件（COMPONENTS.md §1）：Grid 是 div，GridList 是 ul；其他语义容器用 createGrid 生成。
@@ -160,3 +161,58 @@ export function createGrid<Tag extends LayoutTag>(
 export const Grid = createGrid('div', 'Grid');
 /** grid 布局的列表（ul）：卡片列表等，去掉圆点与缩进，保留列表语义；子元素用 li */
 export const GridList = createGrid('ul', 'GridList');
+
+/** 网格里一项的跨度，GridItem、GridListItem 共用 */
+export interface GridItemOptions {
+  /**
+   * 跨几列；`'full'` 占满一整行（从第一列到最后一列）。按宽度自动换列的网格（minItemWidth、FormSection）
+   * 列数会变，跨多列时用 `'full'` 最稳：数字大于当前列数时会撑出多余的列
+   */
+  span?: number | 'full';
+  /** 跨几行 */
+  rowSpan?: number;
+  children?: VNodeChild;
+}
+
+/** 网格项的标签 */
+export type GridItemTag = 'div' | 'li';
+
+/** 未声明的属性落到元素上：GridItem 为 div，GridListItem 为 li */
+export type GridItemProps<Tag extends GridItemTag = 'div'> = PartProps<Tag> & GridItemOptions;
+
+/** GridItem 的样式：full */
+export const gridItemStyles = stylex.create({
+  full: { gridColumn: '1 / -1' },
+});
+
+/** GridItem 的样式：span、rowSpan */
+export const gridItemDynamicStyles = stylex.create({
+  span: (count: number) => ({ gridColumn: `span ${count} / span ${count}` }),
+  rowSpan: (count: number) => ({ gridRow: `span ${count} / span ${count}` }),
+});
+
+/** 生成网格项组件：跨列、跨行 */
+export function createGridItem<Tag extends GridItemTag>(
+  tag: Tag,
+  name: string,
+): TsxComponent<GridItemProps<Tag>> {
+  return _component(
+    ({ span, rowSpan, children, ...rest }: GridItemProps<GridItemTag>) =>
+      () => {
+        const Tag = tag as GridItemTag;
+        const sx = [
+          span === 'full'
+            ? gridItemStyles.full
+            : span != null && span > 1 && gridItemDynamicStyles.span(span),
+          rowSpan != null && rowSpan > 1 && gridItemDynamicStyles.rowSpan(rowSpan),
+        ];
+        return <Tag {...mergeAttrs<GridItemTag>({ sx }, rest)}>{children}</Tag>;
+      },
+    { name },
+  ) as unknown as TsxComponent<GridItemProps<Tag>>;
+}
+
+/** 网格里的一项（div）：跨列、跨行 */
+export const GridItem = createGridItem('div', 'GridItem');
+/** GridList 里的一项（li）：跨列、跨行 */
+export const GridListItem = createGridItem('li', 'GridListItem');

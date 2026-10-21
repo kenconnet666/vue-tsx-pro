@@ -126,6 +126,7 @@ export {
 } from './base/button-core';
 
 // 布局
+export { ActionBar, actionBarStyles, type ActionBarProps } from './layout/ActionBar';
 export { AppShell, appShellOffset, appShellStyles, type AppShellProps } from './layout/AppShell';
 export {
   Container,
@@ -153,15 +154,23 @@ export {
 } from './layout/Flex';
 export {
   createGrid,
+  createGridItem,
   Grid,
   gridAlignStyles,
   gridDynamicStyles,
   gridFlowStyles,
+  GridItem,
+  gridItemDynamicStyles,
+  gridItemStyles,
   gridJustifyStyles,
   GridList,
+  GridListItem,
   gridStyles,
   type GridAligns,
   type GridFlows,
+  type GridItemOptions,
+  type GridItemProps,
+  type GridItemTag,
   type GridOptions,
   type GridProps,
 } from './layout/Grid';
@@ -184,6 +193,7 @@ export {
 export {
   Separator,
   separatorStyles,
+  type SeparatorLabelAligns,
   type SeparatorManaged,
   type SeparatorOrientations,
   type SeparatorProps,
@@ -814,6 +824,13 @@ export {
   type LabelProps,
 } from './form/Field';
 export { Form, FormContext, type FormProps } from './form/Form';
+export {
+  FormSection,
+  formSectionColumnStyles,
+  formSectionStyles,
+  type FormSectionManaged,
+  type FormSectionProps,
+} from './form/FormSection';
 export {
   FormValue,
   formValueText,

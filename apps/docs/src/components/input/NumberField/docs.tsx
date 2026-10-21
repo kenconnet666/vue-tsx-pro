@@ -10,6 +10,7 @@ import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Precise from './demo/Precise.tsx?demo';
 import Submit from './demo/Submit.tsx?demo';
+import Units from './demo/Units.tsx?demo';
 
 export const meta = {
   title: 'NumberField 数字输入框',
@@ -30,6 +31,12 @@ export default _component(() => () => (
           值可以是 decimal.js 的 <Code>Decimal</Code> 或 <Code>bigint</Code>
           ，写回时保持传入的类型，加减与对齐步长都精确运算，不经过浮点数。一开始为空时用{' '}
           <Code>valueType</Code>（<Code>'bigint'</Code> 或 Decimal 构造函数）指定写回的类型。
+        </Example>
+        <Example id="units" title="单位与缩放" demo={Units}>
+          <Code>suffix</Code>、<Code>prefix</Code> 把单位放进输入框。值以元保存、按万元输入时写{' '}
+          <Code>{'format={{ scale: 10_000 }}'}</Code>：显示与编辑都是万元，写回时按十进制移位回元；
+          <Code>min</Code>、<Code>max</Code>、<Code>step</Code>{' '}
+          仍按值本身的单位。只读时不显示加减按钮。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

@@ -163,4 +163,31 @@ describe('NumberField 的值类型', () => {
     expect(root.querySelector('input[role="spinbutton"]')!.hasAttribute('name')).toBe(false);
     expect(new FormData(root.querySelector('form')!).get('price')).toBe('1234.5');
   });
+
+  it('format.scale：值是元，按万元显示与输入，写回时精确移位；单位在输入框里', async () => {
+    let value = _state.raw<NumericValue | null>(new Decimal('155353.2'));
+    const root = mount(() => (
+      <NumberField
+        value={_bind(value)}
+        format={{ scale: 10_000, maximumFractionDigits: 2 }}
+        suffix="万元"
+        step={100}
+        aria-label="单机降本"
+      />
+    ));
+    const input = root.querySelector('input')!;
+    expect(input.value).toBe('15.54');
+    expect(root.textContent).toContain('万元');
+    // 编辑时显示完整的值（不取舍小数位），输入的是万元
+    input.dispatchEvent(new FocusEvent('focus'));
+    await nextTick();
+    expect(input.value).toBe('15.53532');
+    input.value = '12.345678';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    // 步长 100 元：123456.78 元对齐到 123500
+    expect((value as Decimal).toFixed()).toBe('123500');
+    expect(input.value).toBe('12.35');
+  });
 });

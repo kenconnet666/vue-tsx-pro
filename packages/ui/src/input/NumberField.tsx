@@ -4,23 +4,26 @@
  *   <Field label="数量"><NumberField value={_bind(count)} min={1} max={99} /></Field>
  *   <NumberField value={_bind(price)} step={0.01} format={{ style: 'currency', currency: 'CNY' }} aria-label="单价" />
  *   <NumberField value={_bind(amount)} valueType={Decimal} step={new Decimal('0.01')} />   // 金额：Decimal 精确运算
+ *   <NumberField value={_bind(yuan)} format={{ scale: 10_000, maximumFractionDigits: 2 }} suffix="万元" />  // 值是元，按万元输入
  *
  * - 值可以是 number、bigint 或 decimal.js 的 Decimal，写回时保持传入的类型（一开始为空时按 valueType）；
  *   bigint 与 Decimal 的加减、对齐步长都精确运算，不经过浮点数。表单提交的是十进制文本（FormValue），不是显示的格式。
  * - 输入时是普通文本；失焦或回车时解析、夹到 min–max、对齐到 step 后写回（snapToStep，没有浮点误差），解析不了时恢复原值；
- *   清空后写回 null。没在编辑时按 format（Intl.NumberFormat 的选项）与当前语言显示，编辑时去掉千分位。
+ *   清空后写回 null。没在编辑时按 format（NumericFormat）与当前语言显示，编辑时去掉千分位。
+ *   format 写了 scale（10 的整数次幂）时，显示与编辑都按缩放后的单位（值是元、输入的是万元），写回时精确移位回去；
+ *   min、max、step 仍按值本身的单位。单位文字用 prefix、suffix，放在输入框里、文字的前后。
  * - 认当前语言的小数点与千分位，也认中文输入法打出的全角数字和全角句点。
  * - ↑ / ↓ 加减 step，Page Up / Page Down 加减 bigStep，Home / End 到 min / max；按钮不在 Tab 顺序里（键盘用方向键），
  *   按住按钮连续加减（先停 400ms，之后每 60ms 一步，同 React Aria）。
  *
- * 未声明的属性落到 input（主元素）上，外壳用 propsRoot。部件：Root、Input、Decrement、Increment（IconButton）。
+ * 未声明的属性落到 input（主元素）上，外壳用 propsRoot。部件：Root、Prefix、Input、Suffix、Decrement、Increment（IconButton）。
  */
 import { Minus, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
-import { useFormat } from '../config/lang/format';
+import { useFormat, type NumericFormat } from '../config/lang/format';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
@@ -28,6 +31,7 @@ import {
   compareNumeric,
   multiplyNumeric,
   numericKind,
+  shiftDecimal,
   snapNumeric,
   toNumber,
   toNumericKind,
@@ -55,6 +59,7 @@ export type NumberFieldManaged =
   | 'max'
   | 'step'
   | 'size'
+  | 'prefix'
   | 'disabled'
   | 'readonly'
   | 'required'
@@ -85,8 +90,15 @@ export interface NumberFieldProps
   bigStep?: NumericValue;
   /** 表单字段名：提交的是十进制文本（不带千分位与货币符号），不是输入框里显示的格式 */
   name?: string;
-  /** 显示格式（Intl.NumberFormat 的选项），如 `{ style: 'currency', currency: 'CNY' }` */
-  format?: Intl.NumberFormatOptions;
+  /**
+   * 显示格式，如 `{ style: 'currency', currency: 'CNY' }`；写了 scale 时按缩放后的单位显示与输入：
+   * 值是元、按万元输入写 `{ scale: 10_000, maximumFractionDigits: 2 }` 并配 `suffix="万元"`
+   */
+  format?: NumericFormat;
+  /** 输入框里文字前的内容（币种符号、图标） */
+  prefix?: VNodeChild;
+  /** 输入框里文字后的内容：单位，如“万元”“美元/FH” */
+  suffix?: VNodeChild;
   /** 显示减少 / 增加按钮，默认 true；只读时不显示 */
   stepper?: boolean;
   /** 不可用 */
@@ -99,6 +111,10 @@ export interface NumberFieldProps
   invalid?: boolean;
   /** 外壳的部件属性 */
   propsRoot?: PartProps<'div'>;
+  /** 前缀的部件属性 */
+  propsPrefix?: PartProps<'span'>;
+  /** 后缀（单位）的部件属性 */
+  propsSuffix?: PartProps<'span'>;
   /** 减少按钮的部件属性 */
   propsDecrement?: Partial<IconButtonProps>;
   /** 增加按钮的部件属性 */
@@ -154,6 +170,8 @@ export const NumberField = _component(
     step,
     bigStep,
     format,
+    prefix,
+    suffix,
     name,
     stepper = true,
     variant,
@@ -165,6 +183,8 @@ export const NumberField = _component(
     invalid,
     id,
     propsRoot,
+    propsPrefix,
+    propsSuffix,
     icon,
     propsIcon,
     propsDecrement,
@@ -190,22 +210,33 @@ export const NumberField = _component(
     };
 
     const snap = (next: NumericValue) => snapNumeric(next, increment(), low(), high(), kind());
+    /** 缩放的位数：scale 为 10_000 时是 4（输入的数小数点右移 4 位才是值） */
+    const places = () => (format?.scale ? Math.round(Math.log10(format.scale)) : 0);
+    /** 输入框里的十进制文本 → 值的十进制文本 */
+    const unscaled = (text: string) => (places() ? shiftDecimal(text, -places()) : text);
     const plain = (next: NumericValue | null) =>
-      next == null ? '' : formatter.number(next, { useGrouping: false, maximumFractionDigits: 20 });
+      next == null
+        ? ''
+        : formatter.number(next, {
+            useGrouping: false,
+            maximumFractionDigits: 20,
+            scale: format?.scale,
+          });
 
     /** 解析并写回（解析不了时恢复原值） */
     function commit() {
       if (draft == null) return;
       const parsed = normalizeNumber(draft, lang.code);
       if (parsed === null) value = null;
-      else if (parsed !== undefined) value = snap(toNumericKind(parsed, kind()));
+      else if (parsed !== undefined) value = snap(toNumericKind(unscaled(parsed), kind()));
       draft = null;
     }
 
     /** 从当前值（编辑中则先解析）加减 delta 的 times 倍；没有值时从 min（或 0）开始 */
     function stepBy(delta: NumericValue, times: number) {
       const typed = draft != null ? normalizeNumber(draft, lang.code) : null;
-      const current = draft != null ? (typed == null ? null : toNumericKind(typed, kind())) : value;
+      const current =
+        draft != null ? (typed == null ? null : toNumericKind(unscaled(typed), kind())) : value;
       const offset = multiplyNumeric(delta, times, kind());
       value = snap(current == null ? (low() ?? 0) : addNumeric(current, offset, kind()));
       if (draft != null) draft = plain(value);
@@ -286,6 +317,9 @@ export const NumberField = _component(
           data-disabled={state.disabled || undefined}
         >
           {controlIcon(icon, propsIcon)}
+          {prefix != null && (
+            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsPrefix)}>{prefix}</span>
+          )}
           <input
             {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {
               ref: _toRef(input),
@@ -311,6 +345,9 @@ export const NumberField = _component(
               onKeydown,
             })}
           />
+          {suffix != null && (
+            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsSuffix)}>{suffix}</span>
+          )}
           {stepper && !state.readonly && (
             <>
               <IconButton

@@ -1,7 +1,7 @@
 // 实际列数、自动换列见 apps/host-demo/test/base.browser.test.ts
 import { describe, expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
-import { createGrid, Grid, GridList } from '../Grid';
+import { createGrid, Grid, GridItem, GridList, GridListItem } from '../Grid';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
 
@@ -31,5 +31,30 @@ describe('Grid', () => {
     const el = render(() => <Gallery aria-label="图库">a</Gallery>);
     expect(el.tagName).toBe('SECTION');
     expect(el.hasAttribute('role')).toBe(false);
+  });
+
+  it('GridItem 跨列、跨行：数字写成 span，full 占满一整行；GridListItem 是 li', () => {
+    const grid = render(() => (
+      <Grid columns={4}>
+        <GridItem span={2} rowSpan={3}>
+          a
+        </GridItem>
+        <GridItem span="full">b</GridItem>
+        <GridItem span={1}>c</GridItem>
+      </Grid>
+    ));
+    const [wide, full, single] = [...grid.children] as HTMLElement[];
+    expect(wide!.getAttribute('style')).toContain('span 2 / span 2');
+    expect(wide!.getAttribute('style')).toContain('span 3 / span 3');
+    expect(full!.className).not.toBe('');
+    expect(full!.hasAttribute('style')).toBe(false);
+    // 跨一列等于不跨：不写多余的样式
+    expect(single!.hasAttribute('style')).toBe(false);
+    const list = render(() => (
+      <GridList columns={2}>
+        <GridListItem span="full">a</GridListItem>
+      </GridList>
+    ));
+    expect(list.firstElementChild!.tagName).toBe('LI');
   });
 });

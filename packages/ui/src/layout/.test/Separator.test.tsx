@@ -19,4 +19,20 @@ describe('Separator', () => {
     expect(vertical.getAttribute('aria-orientation')).toBe('vertical');
     expect(vertical.hasAttribute('aria-hidden')).toBe(false);
   });
+
+  it('带文字：文字给读屏、两段线隐藏；labelAlign 决定线在哪边；有语义时以文字为名称', () => {
+    const center = render(() => <Separator>或者</Separator>);
+    expect(center.hasAttribute('aria-hidden')).toBe(false);
+    expect(center.textContent).toBe('或者');
+    expect(center.querySelectorAll('[aria-hidden="true"]')).toHaveLength(2);
+    const start = render(() => (
+      <Separator labelAlign="start" decorative={false}>
+        更改后
+      </Separator>
+    ));
+    expect(start.children).toHaveLength(2);
+    expect(start.firstElementChild!.textContent).toBe('更改后');
+    expect(start.getAttribute('role')).toBe('separator');
+    expect(start.getAttribute('aria-labelledby')).toBe(start.firstElementChild!.id);
+  });
 });
