@@ -32,7 +32,10 @@ export function vueRouterAdapter(
     navigate: (href) => void router.push(href),
     isActive(href) {
       // resolve 处理 base 与相对路径；读 currentRoute 是响应式的，导航组件在渲染时调用即可跟随路由
-      const target = router.resolve(href).path;
+      const resolved = router.resolve(href);
+      // 带锚点的链接（#tasks、/guide#install）指向页内的一节：路径相同、锚点也相同才算当前
+      if (resolved.hash && resolved.hash !== router.currentRoute.value.hash) return false;
+      const target = resolved.path;
       const current = router.currentRoute.value.path;
       if (current === target) return true;
       return match === 'prefix' && current.startsWith(target.endsWith('/') ? target : `${target}/`);

@@ -23,6 +23,16 @@ describe('vueRouterAdapter', () => {
     expect(prefix.isActive!('/order')).toBe(false);
   });
 
+  it('isActive：带锚点的链接指向页内的一节，锚点也相同才算当前', async () => {
+    const router = makeRouter();
+    await router.push('/orders/42#items');
+    const adapter = vueRouterAdapter(router);
+    expect(adapter.isActive!('#items')).toBe(true);
+    expect(adapter.isActive!('#notes')).toBe(false);
+    expect(adapter.isActive!('/orders/42#notes')).toBe(false);
+    expect(adapter.isActive!('/orders/42')).toBe(true);
+  });
+
   it('LinkButton 的站内点击走 router.push，不刷新页面', async () => {
     const router = makeRouter();
     await router.push('/');
