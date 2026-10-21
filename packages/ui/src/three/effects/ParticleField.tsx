@@ -22,6 +22,7 @@ import {
   type Color,
 } from 'three';
 import { colors } from '../../config/theme/tokens.stylex';
+import { clamp } from '../../utils/data/number';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { THEME_PALETTE_SIZE } from '../core/shaders';
 
@@ -220,7 +221,7 @@ export const ParticleField = _component(
             head.fill(-1, 0, columns * rows);
             // 漂出边界的粒子归到最近的格子
             const cellOf = (value: number, count: number) =>
-              Math.min(count - 1, Math.max(0, Math.floor(value / cell)));
+              clamp(Math.floor(value / cell), 0, count - 1);
             for (let index = 0; index < active; index++) {
               const key =
                 cellOf(position[index * 3 + 1]!, rows) * columns +
@@ -276,7 +277,7 @@ export const ParticleField = _component(
               const perParticle = links ? 9000 : 2600;
               const wanted =
                 count ?? Math.round(((next.width * next.height) / perParticle) * quality.density);
-              const target = Math.max(0, Math.min(max, wanted));
+              const target = clamp(wanted, 0, max);
               // 新增的粒子撒在整个区域；已有的粒子落在区域外时重新撒
               for (let index = 0; index < target; index++) {
                 const outside =

@@ -24,7 +24,7 @@ import { startMove } from '../utils/dom/move';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { clamp } from '../utils/data/number';
-import { isRtl } from '../utils/dom/direction';
+import { inlineArrows, isRtl } from '../utils/dom/direction';
 
 /** 验证状态，由应用控制 */
 export interface SlideVerifyStatuses {
@@ -257,8 +257,7 @@ export const SlideVerify = _component(
 
     function onKeydown(event: KeyboardEvent) {
       if (!interactive()) return;
-      const forward = rtl() ? 'ArrowLeft' : 'ArrowRight';
-      const backward = rtl() ? 'ArrowRight' : 'ArrowLeft';
+      const { forward, backward } = inlineArrows(rtl());
       const moves: Record<string, () => number> = {
         [forward]: () => toRange(position + KEY_STEP),
         [backward]: () => toRange(position - KEY_STEP),

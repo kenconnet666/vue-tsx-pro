@@ -32,7 +32,7 @@ import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
 import { checkboxStyles } from '../input/Checkbox';
 import { choiceStyles } from '../input/choice-styles';
-import { isRtl } from '../utils/dom/direction';
+import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import {
   checkStates,
@@ -291,9 +291,7 @@ export const Tree = _component(
       const position = Math.max(activeRow(), 0);
       const row = rows[position]!;
       const open = row.expandable && expansion.isExpanded(row.key);
-      const rtl = !!root && isRtl(root);
-      const forward = rtl ? 'ArrowLeft' : 'ArrowRight';
-      const backward = rtl ? 'ArrowRight' : 'ArrowLeft';
+      const { forward, backward } = inlineArrows(!!root && isRtl(root));
       const go = (target: number) => (active = rows[target]?.key ?? active);
       switch (event.key) {
         case 'ArrowDown':

@@ -21,7 +21,7 @@ import { set } from 'animejs';
 import { nextTick, onBeforeUnmount, shallowRef, useId } from 'vue';
 import { useLang } from '../../config/context';
 import { clamp } from '../data/number';
-import { isRtl } from './direction';
+import { inlineArrows, isRtl } from './direction';
 import { useAnimate } from '../motion/animation';
 import { useLayoutAnimation } from '../motion/layout';
 import { startMove } from './move';
@@ -168,9 +168,9 @@ export function useSortable<T>(options: SortableOptions<T>): SortableState {
       cancel(key);
       return;
     }
-    const rtl = horizontal() && isRtl(event.currentTarget as Element);
+    const arrows = inlineArrows(horizontal() && isRtl(event.currentTarget as Element));
     const steps: Record<string, number | 'first' | 'last'> = horizontal()
-      ? { [rtl ? 'ArrowLeft' : 'ArrowRight']: 1, [rtl ? 'ArrowRight' : 'ArrowLeft']: -1 }
+      ? { [arrows.forward]: 1, [arrows.backward]: -1 }
       : { ArrowDown: 1, ArrowUp: -1 };
     steps.Home = 'first';
     steps.End = 'last';

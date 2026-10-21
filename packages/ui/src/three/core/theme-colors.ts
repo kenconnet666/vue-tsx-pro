@@ -33,6 +33,7 @@ import {
 import { Color, SRGBColorSpace } from 'three';
 import { onBeforeUnmount, watch } from 'vue';
 import { useConfig } from '../../config/context';
+import { clamp } from '../../utils/data/number';
 import { themeTransitionOrInstant } from '../../utils/motion/animation';
 
 // 浏览器给出的计算值可能是 rgb()、color(srgb …)、color(display-p3 …)、oklch()、lab() 等
@@ -67,8 +68,8 @@ export function readThemeColor(scope: Element, value: string, target: Color): bo
   const parsed = computed ? parse(computed) : undefined;
   const rgb = parsed && toRgb(parsed);
   if (!rgb) return false;
-  const clamp = (channel: number) => Math.min(1, Math.max(0, channel || 0));
-  target.setRGB(clamp(rgb.r), clamp(rgb.g), clamp(rgb.b), SRGBColorSpace);
+  const unit = (channel: number) => clamp(channel || 0, 0, 1);
+  target.setRGB(unit(rgb.r), unit(rgb.g), unit(rgb.b), SRGBColorSpace);
   return true;
 }
 

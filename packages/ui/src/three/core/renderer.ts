@@ -18,7 +18,9 @@ import { useConfig } from '../../config/context';
 import { readToken } from '../../config/theme/theme';
 import { durations } from '../../config/theme/tokens.stylex';
 import { useReducedMotion } from '../../utils/dom/media-query';
+import { usePageVisible } from '../../utils/dom/page-visibility';
 import { disposeObject } from './dispose';
+import { clamp } from '../../utils/data/number';
 import { usePointer, type PointerState } from '../../utils/motion/pointer';
 import {
   acquireContext,
@@ -177,9 +179,7 @@ export function useThree(options: ThreeOptions): ThreeController {
   const pointer = usePointer(options.canvas);
   const generation = shallowRef(0);
   const themeStill = shallowRef(false);
-  const pageVisible = shallowRef(
-    typeof document === 'undefined' || document.visibilityState !== 'hidden',
-  );
+  const pageVisible = usePageVisible();
   const visible = shallowRef(false);
 
   let instance: Instance | undefined;
@@ -236,7 +236,7 @@ export function useThree(options: ThreeOptions): ThreeController {
     size.height = canvas.clientHeight;
     size.pixelRatio =
       Math.min(globalThis.devicePixelRatio || 1, context.quality.pixelRatio) *
-      Math.min(1, Math.max(0.1, options.resolution?.() ?? 1));
+      clamp(options.resolution?.() ?? 1, 0.1, 1);
     renderer.setPixelRatio(size.pixelRatio);
     renderer.setSize(size.width, size.height, false);
     const camera = context.camera as Camera & Partial<PerspectiveCamera>;
@@ -431,12 +431,6 @@ export function useThree(options: ThreeOptions): ThreeController {
       }
     },
   );
-
-  if (typeof document !== 'undefined') {
-    const onVisibility = () => (pageVisible.value = document.visibilityState !== 'hidden');
-    document.addEventListener('visibilitychange', onVisibility);
-    onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisibility));
-  }
 
   onBeforeUnmount(() => {
     unmounted = true;

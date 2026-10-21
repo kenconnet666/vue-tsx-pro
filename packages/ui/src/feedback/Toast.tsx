@@ -46,6 +46,7 @@ import { startMove } from '../utils/dom/move';
 import { toElement, topModal } from '../utils/dom/overlay';
 import { useHotkeys, type HotkeyMap } from '../utils/dom/hotkeys';
 import { focusAfterRemoval } from '../utils/dom/focus';
+import { usePageVisible } from '../utils/dom/page-visibility';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { Alert, type AlertProps } from './Alert';
@@ -551,7 +552,7 @@ export const Toaster = _component(
     let region = _state.raw<HTMLElement | null>(null);
     let hovering = _state(false);
     let focused = _state(false);
-    let hidden = _state(typeof document !== 'undefined' && document.hidden);
+    const pageVisible = usePageVisible();
     // 叠放时悬停或聚焦就展开；展开、收起时各项从旧位置平移过去
     let list = _state.raw<HTMLElement | null>(null);
     let expanded = _state(false);
@@ -567,7 +568,7 @@ export const Toaster = _component(
     let outsideFocus: HTMLElement | null = null;
 
     _effect(() => {
-      if (hovering || focused || hidden) controller.pause();
+      if (hovering || focused || !pageVisible.value) controller.pause();
       else controller.resume();
     });
 
@@ -577,21 +578,14 @@ export const Toaster = _component(
     };
     watch(topModal, () => void nextTick(reopen));
 
-    const onVisibility = () => (hidden = document.hidden);
     // F8 跳到通知区域（同 Radix Toast）；输入框里也能用
     const noHotkeys: HotkeyMap = {};
     useHotkeys(
       () => (region && controller.toasts.length ? { F8: () => region?.focus() } : noHotkeys),
       { inInputs: true },
     );
-    onMounted(() => {
-      reopen();
-      document.addEventListener('visibilitychange', onVisibility);
-    });
-    onBeforeUnmount(() => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      controller.resume();
-    });
+    onMounted(reopen);
+    onBeforeUnmount(() => controller.resume());
 
     function onFocusin(event: FocusEvent) {
       focused = true;

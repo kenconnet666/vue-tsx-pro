@@ -42,12 +42,12 @@ import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { childNodes } from '../utils/data/text';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps, type TriggerProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { rovingFocus } from '../utils/dom/roving-focus';
-import { isRtl } from '../utils/dom/direction';
+import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { transitions } from '../utils/style/transitions';
 
@@ -74,21 +74,15 @@ export interface MenuRadioGroupState {
 export const MenuRadioGroupContext = createContext<MenuRadioGroupState>('MenuRadioGroup');
 
 /** 交给触发器的属性：展开到按钮上（`{...props}`） */
-export interface MenuTriggerProps {
+export interface MenuTriggerProps extends TriggerProps {
   /** 菜单以触发器的文字作为名称（aria-labelledby） */
   id: string;
   /** 取得触发器元素：定位的参照、关闭后焦点回到这里 */
   ref: (element: unknown) => void;
-  /** 切换打开与关闭 */
-  onClick: () => void;
   /** ↓ / ↑ 打开并聚焦第一项 / 最后一项 */
   onKeydown: (event: KeyboardEvent) => void;
   /** 告诉读屏这个按钮会打开菜单 */
   'aria-haspopup': 'menu';
-  /** 菜单是否打开 */
-  'aria-expanded': boolean;
-  /** 菜单的 id */
-  'aria-controls': string;
 }
 
 /** 未声明的属性落到菜单（role="menu" 的 div）上 */
@@ -895,14 +889,14 @@ export const MenuSub = _component(
     }
 
     function onTriggerKeydown(event: KeyboardEvent) {
-      if (event.key !== (rtl() ? 'ArrowLeft' : 'ArrowRight')) return;
+      if (event.key !== inlineArrows(rtl()).forward) return;
       event.preventDefault();
       openWithFocus();
     }
 
     function onPanelKeydown(event: KeyboardEvent) {
       // Esc 只关最上层的子菜单，不冒泡到父菜单
-      if (event.key !== 'Escape' && event.key !== (rtl() ? 'ArrowRight' : 'ArrowLeft')) return;
+      if (event.key !== 'Escape' && event.key !== inlineArrows(rtl()).backward) return;
       event.preventDefault();
       event.stopPropagation();
       open = false;

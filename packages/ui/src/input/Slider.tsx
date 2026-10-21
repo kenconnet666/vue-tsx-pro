@@ -21,7 +21,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { clamp, snapToStep } from '../utils/data/number';
-import { isRtl } from '../utils/dom/direction';
+import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 
@@ -292,8 +292,7 @@ export const Slider = _component(
       const current = values()[index]!;
       const big = bigStep ?? Math.max(step, (max - min) / 10);
       // 从右到左排版时，横向的左右键反过来（右边是起点）
-      const forward = rtl() ? 'ArrowLeft' : 'ArrowRight';
-      const backward = rtl() ? 'ArrowRight' : 'ArrowLeft';
+      const { forward, backward } = inlineArrows(rtl());
       const [lower, upper] = bounds(index);
       const next: Record<string, number> = {
         [forward]: current + step,

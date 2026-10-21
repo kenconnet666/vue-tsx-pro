@@ -27,6 +27,7 @@ import {
   type Color,
 } from 'three';
 import { colors } from '../../config/theme/tokens.stylex';
+import { clamp } from '../../utils/data/number';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { createOrbit } from '../core/orbit';
 import { LAND_BITS, LAND_HEIGHT, LAND_WIDTH } from './land';
@@ -120,7 +121,7 @@ const landBits = (() => {
   let bytes: Uint8Array | undefined;
   return (lat: number, lng: number) => {
     bytes ??= Uint8Array.from(atob(LAND_BITS), (char) => char.charCodeAt(0));
-    const row = Math.min(LAND_HEIGHT - 1, Math.max(0, Math.floor(90 - lat)));
+    const row = clamp(Math.floor(90 - lat), 0, LAND_HEIGHT - 1);
     const column = (((Math.floor(lng + 180) % LAND_WIDTH) + LAND_WIDTH) % LAND_WIDTH) | 0;
     const index = row * LAND_WIDTH + column;
     return (bytes[index >> 3]! & (1 << (index & 7))) !== 0;

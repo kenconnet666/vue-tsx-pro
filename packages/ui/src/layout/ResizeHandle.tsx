@@ -8,7 +8,8 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { isRtl } from '../utils/dom/direction';
+import { clamp } from '../utils/data/number';
+import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
@@ -63,7 +64,7 @@ export const ResizeHandle = _component(
     ...rest
   }: ResizeHandleProps) => {
     const parentOf = (event: Event) => (event.currentTarget as HTMLElement).parentElement!;
-    const clamp = (px: number) => Math.round(Math.min(maxWidth, Math.max(minWidth, px)));
+    const fit = (px: number) => Math.round(clamp(px, minWidth, maxWidth));
 
     function onPointerdown(event: PointerEvent) {
       const parent = parentOf(event);
@@ -71,18 +72,17 @@ export const ResizeHandle = _component(
       const rtl = isRtl(parent);
       event.preventDefault();
       startMove(event, {
-        onMove: ({ deltaX }) => onWidthChange(clamp(from + (rtl ? -deltaX : deltaX))),
+        onMove: ({ deltaX }) => onWidthChange(fit(from + (rtl ? -deltaX : deltaX))),
       });
     }
 
     function onKeydown(event: KeyboardEvent) {
       const parent = parentOf(event);
-      const forward = isRtl(parent) ? 'ArrowLeft' : 'ArrowRight';
-      const backward = isRtl(parent) ? 'ArrowRight' : 'ArrowLeft';
+      const { forward, backward } = inlineArrows(isRtl(parent));
       const delta = event.key === forward ? step : event.key === backward ? -step : 0;
       if (!delta) return;
       event.preventDefault();
-      onWidthChange(clamp((width ?? parent.getBoundingClientRect().width) + delta));
+      onWidthChange(fit((width ?? parent.getBoundingClientRect().width) + delta));
     }
 
     return () => (
@@ -96,7 +96,7 @@ export const ResizeHandle = _component(
           'aria-valuemax': Number.isFinite(maxWidth) ? maxWidth : undefined,
           onPointerdown,
           onKeydown,
-          onDblclick: defaultWidth == null ? undefined : () => onWidthChange(clamp(defaultWidth)),
+          onDblclick: defaultWidth == null ? undefined : () => onWidthChange(fit(defaultWidth)),
         })}
       />
     );

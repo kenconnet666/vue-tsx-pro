@@ -12,6 +12,7 @@ import { useLang } from '../config/context';
 import { announce } from '../utils/dom/announcer';
 import type { IconData } from '../base/Icon';
 import { isComposingKey } from '../utils/dom/hotkeys';
+import { clamp } from '../utils/data/number';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import { createTypeahead } from '../utils/dom/typeahead';
 
@@ -200,7 +201,7 @@ export function useListState<T>(config: ListStateOptions<T>): ListState<T> {
       if (step === 'first') next = 0;
       else if (step === 'last') next = usable.length - 1;
       else if (index < 0) next = step > 0 ? 0 : usable.length - 1;
-      else next = Math.min(usable.length - 1, Math.max(0, index + step));
+      else next = clamp(index + step, 0, usable.length - 1);
       active.value = usable[next]!.value;
     },
     select(value) {

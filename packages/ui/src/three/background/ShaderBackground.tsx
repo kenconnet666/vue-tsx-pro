@@ -24,6 +24,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Color, Mesh, PlaneGeometry, ShaderMaterial, Vector2, Vector3, type IUniform } from 'three';
 import { useConfig } from '../../config/context';
 import { colors } from '../../config/theme/tokens.stylex';
+import { clamp } from '../../utils/data/number';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { shaderChunks, THEME_PALETTE_SIZE } from '../core/shaders';
 
@@ -115,7 +116,7 @@ export const ShaderBackground = _component(
             uDark: { value: 0 },
             uBackground: { value: themed.background },
             uColors: { value: list },
-            uColorCount: { value: Math.max(1, Math.min(palette.length, THEME_PALETTE_SIZE)) },
+            uColorCount: { value: clamp(palette.length, 1, THEME_PALETTE_SIZE) },
           };
           const material = new ShaderMaterial({
             vertexShader,

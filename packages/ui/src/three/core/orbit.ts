@@ -7,6 +7,7 @@
  *   frame: ({ delta }) => { orbit.step(delta, speed); camera… orbit.yaw / orbit.pitch }
  */
 import { shallowRef } from 'vue';
+import { clamp } from '../../utils/data/number';
 
 /** 松手后惯性转动的最快速度（弧度 / 秒） */
 const MAX_SPIN = 3;
@@ -49,7 +50,7 @@ export function createOrbit({ yaw, pitch, pitchLimit = 1 }: OrbitOptions): Orbit
   const dragging = shallowRef(false);
   const pointer = { x: 0, y: 0, dx: 0, dy: 0 };
   let velocity = 0;
-  const clampPitch = (value: number) => Math.max(-pitchLimit, Math.min(pitchLimit, value));
+  const clampPitch = (value: number) => clamp(value, -pitchLimit, pitchLimit);
 
   const up = () => {
     dragging.value = false;
@@ -93,7 +94,7 @@ export function createOrbit({ yaw, pitch, pitchLimit = 1 }: OrbitOptions): Orbit
         pitch = clampPitch(pitch + pointer.dy * PER_PIXEL);
         // 松手时的速度：几帧平滑一下，再封顶（一帧里拖了一大段时不至于疯转）
         const speed = delta > 0 ? turn / delta : 0;
-        velocity = Math.max(-MAX_SPIN, Math.min(MAX_SPIN, velocity * 0.5 + speed * 0.5));
+        velocity = clamp(velocity * 0.5 + speed * 0.5, -MAX_SPIN, MAX_SPIN);
         pointer.dx = 0;
         pointer.dy = 0;
         return true;

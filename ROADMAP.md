@@ -63,7 +63,9 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [ ] 关闭与离场：Tag、Alert、Toast 共用 `useDismissible`；外链处理（target、rel、图标、读屏提示）抽进 `utils/dom/link.ts`
 - [ ] 输入：清除按钮 `controlClear()`；分组控件的 aria-labelledby 兜底；ISO 补全日期与 `toTime` 各合成一份
 - [ ] 数字：按语言解析数字移出 NumberField（`utils/data/number-parse.ts`，按语言缓存）；Intl 缓存合成 `cachedIntl`
-- [ ] 工具：`clamp` 手写的八处、`toArray` 五处、`visibilitychange` 三处、`TriggerProps` 四处、方向键 × RTL 映射
+- [x] 工具：手写的 clamp 十处改用 `clamp`；`visibilitychange` 三处改用 `usePageVisible`；方向键 × RTL 七处改用 `inlineArrows`；
+      MenuTriggerProps 继承 TriggerProps。决定保留：toArray 剩三处、语义各不相同（null 算不算一项、要不要复制）；
+      Tooltip 与 HoverCard 的触发器属性只有两处（并入 §1.3 的触发器写法）
 - [ ] 生命周期一律 `onScopeDispose`；一部分钩子返回 Ref、一部分返回 getter 对象，统一成 getter（RUNES §7）
 - [ ] 内置主题的元数据（名字、图标、防闪烁底色）集中到 builtin.ts，其余从它派生
 - [ ] 静态 Table 的样式移到 table-styles.ts（不再连带打包 DataTable）；Menu 三种菜单项与 MenuSub 的重复
@@ -119,7 +121,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [ ] 通知控制器 `createNotifications()`（与 `createToaster` 同一模式），NotificationCenter 用它
 - [ ] 持久化状态 `usePersistentState`：列宽、密度、每页条数、侧栏、筛选条件（文档站的 sidebar.ts、theme.ts 改用它）
 - [ ] 导出 CSV：从列定义生成（BOM、转义、列的 value 与格式）；`downloadFile` 的 BOM 说明改对
-- [ ] 通用钩子：`useEventListener`、`useDebounce`、`useIntersectionObserver`、`useDocumentVisibility`
+- [ ] 通用钩子：`useEventListener`、`useDebounce`、`useIntersectionObserver`（页面可见性已有 `usePageVisible`）
 - [ ] 快捷键：作用域、序列键（`g i`）、预解析；离开确认接上路由守卫与 `form.dirty`
 - [x] zod 的报错跟随语言包：useForm 按语言包给 zod 传错误文案，空值是 `lang.formRequired`，其余是 `lang.formIssues`（zod 自带的语言包）；
       createContext 在 setup 之外读取时直接用 fallback
