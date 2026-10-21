@@ -81,7 +81,9 @@
 
 - [x] 开发服务器冷启动、热更新、换页提速（StyleX 加载、API Worker、shiki 语言表、预热）
 - [x] 评估合并编译、Babel 8、Rust 版 StyleX、TypeScript 7 与运行时优化：数据与结论见报告
-- [ ] P0：typecheck 与 CI 改用 TypeScript 7（别名包；用 JS API 的脚本、语言服务、IDE 留在 TS 6）；构建开 lazyBarrel
-- [ ] P1：合并编译（一次解析、两遍遍历、一次生成），同时升级 Babel 8 与 jsx 3.0，替换 @vitejs/plugin-vue-jsx 与 @stylexjs/unplugin；StyleX 开发 CSS 按规则版本缓存
-- [ ] P2：持久化转换缓存；API Worker 的结果落盘；查清首屏的整套图标块
-- [ ] P3：prop 访问器按读写选实现；找组件实例化的热点
+- [x] P0：typecheck、CI 与组件库的声明生成改用 TypeScript 7（别名包 typescript7；用 JS API 的脚本、语言服务、IDE 留在 TS 6）；构建开 lazyBarrel
+- [x] P1：合并编译（compiler/compile.ts：一次解析、两遍遍历、一次生成），升级 Babel 8 与 jsx 3.0，换掉 @vitejs/plugin-vue-jsx 与 @stylexjs/unplugin；StyleX 的 CSS 自己合成（开发时按版本推送，构建时输出并在 HTML 里引用——修好了生产构建没有样式）
+- [x] P2：开发服务器的磁盘编译缓存（重启后首页 12 秒 → 4 秒）；API Worker 的结果落盘
+- [ ] P2：首屏的整套图标块（173 KB gzip）：@lucide/icons 主桶文件以命名空间再导出全部图标（icons/index.mjs），图库与演练场对它做命名空间使用；要让首页的依赖图里不出现这两个桶文件再验证分块
+- [x] P3：没写过的 prop 用只读访问器 readonlyProp（实例化快约两成）
+- [ ] P3：用浏览器性能面板找组件实例化的其他热点（Button 的组合式函数等）
