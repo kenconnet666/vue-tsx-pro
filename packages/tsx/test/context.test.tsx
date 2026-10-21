@@ -58,6 +58,12 @@ it('父组件提供、子组件读取，状态随父组件更新', async () => {
   expect(flags()).toEqual(['false', 'true']);
 });
 
+// 放在挂载抛错的用例之前：挂载中途抛出时 Vue 来不及复位当前实例
+it('setup 之外读取：有 fallback 时返回它（不经过 Vue 的 inject 警告），没有时报错说明', () => {
+  expect(TabsContext.inject('outside')).toBe('outside');
+  expect(() => TabsContext.inject()).toThrow('Tabs 的上下文只能在组件的 setup 里读取');
+});
+
 it('不在父组件内：inject() 报错说明，inject(fallback) 返回给定值', () => {
   expect(() => mount(() => <Tab name="a" />)).toThrow('Tabs 的子组件需要放在 <Tabs> 之内使用');
   expect(mount(() => <OptionalTab />).textContent).toBe('outside');

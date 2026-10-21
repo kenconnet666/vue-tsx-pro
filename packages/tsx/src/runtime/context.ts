@@ -7,7 +7,7 @@
  *   const form = FormContext.inject(null); // 可选：不在父组件内时返回给定的值
  *   app.provide(TabsContext.key, state);   // 应用级提供（Vue 插件里）
  */
-import { inject, provide, type InjectionKey } from 'vue';
+import { hasInjectionContext, inject, provide, type InjectionKey } from 'vue';
 
 const MISSING = Symbol('missing');
 
@@ -19,7 +19,7 @@ export interface Context<T> {
   provide(value: T): void;
   /** 读取最近的祖先提供的值；没有时报错，说明要放在哪个组件之内 */
   inject(): T;
-  /** 读取最近的祖先提供的值；没有时返回 fallback */
+  /** 读取最近的祖先提供的值；没有时（包括在 setup 之外调用）返回 fallback */
   inject<F>(fallback: F): T | F;
 }
 
@@ -30,6 +30,11 @@ export function createContext<T>(name: string): Context<T> {
     key,
     provide: (value) => provide(key, value),
     inject(...fallback: unknown[]) {
+      // setup 之外 Vue 的 inject 只警告、返回 undefined（不是默认值）：有 fallback 时直接用它
+      if (!hasInjectionContext()) {
+        if (fallback.length) return fallback[0];
+        throw new Error(`${name} 的上下文只能在组件的 setup 里读取`);
+      }
       const value = inject(key, MISSING as T);
       if (value !== MISSING) return value;
       if (fallback.length) return fallback[0];
