@@ -9,6 +9,7 @@ import {
   Code2,
   Palette,
   Plane,
+  Shapes,
   Sparkles,
   SwatchBook,
   Zap,
@@ -35,6 +36,7 @@ import {
 } from '@vue-tsx-pro/ui';
 import Counter from './demo/Counter.tsx?demo';
 import { defineAsyncComponent, h } from 'vue';
+import { PLAYGROUND_PATH } from '../playground/share';
 import { EditInPlayground } from '../site/EditInPlayground';
 import { sections, type NavPage } from '../site/nav';
 
@@ -136,7 +138,12 @@ function splitTitle(title: string): { name: string; label: string } {
     : { name: title.slice(0, space), label: title.slice(space + 1) };
 }
 
-const guideIcons: IconData[] = [BookOpen, SwatchBook, Code2];
+/** 指南页的图标，按地址对应；没写的用 BookOpen */
+const guideIcons: Record<string, IconData> = {
+  '/guide/theming': SwatchBook,
+  '/guide/design-resources': Shapes,
+  [PLAYGROUND_PATH]: Code2,
+};
 const guide = sections.find((section) => section.label === '指南')?.pages ?? [];
 const cases = sections.find((section) => section.label === '案例')?.pages ?? [];
 const components = sections.filter(
@@ -208,7 +215,7 @@ export default _component(() => () => (
           从这里开始
         </H2>
         <Grid minItemWidth="18rem" gap="md">
-          {guide.map((page, index) => entry(page, guideIcons[index] ?? BookOpen))}
+          {guide.map((page) => entry(page, guideIcons[page.path] ?? BookOpen))}
         </Grid>
       </section>
 

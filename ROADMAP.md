@@ -156,8 +156,9 @@
       案例：任务卡详情、工作台与收件箱
 - [ ] M4 测算与看板：字段差异、FieldCompare、WaterfallChart、FunnelChart、PivotTable、Stat 目标与下钻、Progress 目标刻度、
       XYChart 目标线与点击；案例：测算对比与协商、一本账、储备库
-- [ ] M5 设计资源：tokens 导出为 Figma 变量（每套主题一个模式）、组件导出为 Figma 组件集；“设计资源”指南
-- [ ] M6 用新的设计资源重做降本的 Figma 界面
+- [x] M5 设计资源：主题导出为设计令牌（`themeDesignTokens`，DTCG JSON，Figma 变量面板原生导入，一套主题一个文件 = 一个模式；
+      主题编辑器的“下载 Figma 变量”导出调过的主题）；Figma 文件里的变量、文字样式、阴影、40 个图标与常用组件；“设计资源”指南
+- [ ] M6 用新的设计资源重做降本的 Figma 界面：Figma MCP 免费版的月度额度用完了，额度恢复后接着画；在那之前整页示例就是蓝本
 
 **文档站**：新组件各一页，增强的组件补示例；新增“页面模式”分组（列表页、详情页、长表单、流程与审批、看板、数据看板）与
 “案例：降本管理”。顺带的增强：Tree 搜索与取消联动、Checkbox / Radio 卡片外观、DateRangePicker 月与年区间、AppShell 侧栏收起、

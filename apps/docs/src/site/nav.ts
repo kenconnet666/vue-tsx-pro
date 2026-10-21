@@ -63,6 +63,12 @@ const guide: NavSection = {
       component: () => import('../pages/guide/Theming'),
     },
     {
+      path: '/guide/design-resources',
+      title: 'Design Resources 设计资源',
+      description: '每套主题导出成 Figma 变量（DTCG JSON），Figma 设计文件、图标与整页示例',
+      component: () => import('../pages/guide/DesignResources'),
+    },
+    {
       path: PLAYGROUND_PATH,
       title: 'Playground 代码演练场',
       description: '在浏览器里改代码、立即看效果，复制链接分享；示例卡片上的“编辑”把示例带进来',
