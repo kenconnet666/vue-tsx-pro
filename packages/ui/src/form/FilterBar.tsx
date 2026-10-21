@@ -7,7 +7,7 @@
  *   </FilterBar>
  *
  * 条件排成栅格：每格不窄于 minFieldWidth，容器多宽就放几格；按钮在最后一行的最后一格，靠结束边。
- * 默认标签在起始边（field-layout，宽度 labelWidth）。在输入框里按回车就是查询（原生表单提交）。
+ * 默认标签在起始边、宽度随文字（labelWidth 为 auto：控件紧跟着标签，不留空白；要几行对齐时写固定宽度）。在输入框里按回车就是查询（原生表单提交）。
  * more 收起时不渲染；moreActive 是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。
  *
  * 部件：Root（form）、Field 们、More（收起的条件，display: contents）、Actions（div）、Search、Reset（Button）、
@@ -42,7 +42,7 @@ export interface FilterBarProps
   expanded?: boolean;
   /** 收起的条件里已经填了几项：大于 0 时显示在“展开”旁边 */
   moreActive?: number;
-  /** 每个条件的最小宽度（CSS 长度），默认 `'20em'` */
+  /** 每个条件的最小宽度（CSS 长度），默认 `'16em'` */
   minFieldWidth?: string;
   /** 结束边额外的按钮：放在“重置”前面（如“导出筛选结果”） */
   actions?: VNodeChild;
@@ -99,10 +99,10 @@ export const FilterBar = _component(
     more,
     expanded = _bindable(false),
     moreActive = 0,
-    minFieldWidth = '20em',
+    minFieldWidth = '16em',
     actions,
     labelPlacement = 'start',
-    labelWidth = '6em',
+    labelWidth = 'auto',
     propsActions,
     propsSearch,
     propsReset,

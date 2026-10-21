@@ -159,6 +159,16 @@ describe('DateField', () => {
     expect(text(root)).toBe('2026年10月');
   });
 
+  it('zh-CN 空的年、年月：后面已经跟着“年”“月”时占位是横线，不显示成“年年”', () => {
+    const year = mount(() => <DateField granularity="year" aria-label="完成年度" />);
+    expect(text(year)).toBe('––年');
+    const month = mount(() => <DateField granularity="month" aria-label="账期" />);
+    expect(text(month)).toBe('––年––月');
+    // 年/月/日 之间是斜杠：仍用单位字作占位
+    const day = mount(() => <DateField aria-label="日期" />);
+    expect(text(day)).toBe('年/月/日');
+  });
+
   it('不可用：段不能聚焦、不可编辑；整组 aria-disabled（标签的 for 指向这一组）', () => {
     const root = mount(() => <DateField disabled aria-label="日期" />);
     expect(

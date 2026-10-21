@@ -241,16 +241,26 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
     return digits.value[width].format(value);
   }
 
+  /**
+   * 空段的占位：语言包里的单位字（年、月、日）；后面紧跟的文字已经是这个单位时（中文的“2026年”）改用横线，
+   * 显示成“––年”，否则会是“年年”
+   */
+  function placeholderOf(type: DateSegmentType, next: string | undefined): string {
+    const unit = config.placeholders()[type];
+    return !unit || next?.trimStart().startsWith(unit) ? '––' : unit;
+  }
+
   const segments = computed((): DateSegment[] =>
-    layout.value.map(({ type, literal }) => {
+    layout.value.map(({ type, literal }, index) => {
       if (type === 'literal')
         return { type, text: literal, placeholder: false, value: null, min: 0, max: 0, label: '' };
       const value = shown(type);
       const [min, max] = range(type);
       const filled = text(type, value);
+      const following = layout.value[index + 1];
       return {
         type,
-        text: filled || (config.placeholders()[type] ?? '––'),
+        text: filled || placeholderOf(type, following?.literal),
         placeholder: !filled,
         value,
         min,

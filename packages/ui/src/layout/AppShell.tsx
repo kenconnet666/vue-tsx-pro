@@ -2,7 +2,8 @@
  * 应用外壳：粘性顶栏、左侧栏（导航）、正文、右侧栏（本页目录），文档站与后台的整页骨架。
  *
  *   <AppShell
- *     header={<><Logo /><CommandPalette … /><ThemeSwitcher preference={preference} /></>}
+ *     brand={<Logo />}
+ *     header={<><CommandPalette … /><ThemeSwitcher preference={preference} /></>}
  *     sidebar={<NavList aria-label="文档">…</NavList>}
  *     aside={<TableOfContents items={headings} />}
  *   >
@@ -15,6 +16,9 @@
  * - 80rem 以上显示右侧栏；更窄时不显示（目录这类辅助内容）。
  * 两侧栏粘在顶栏下面，内容多时各自滚动（ScrollArea）。顶栏半透明，滚动的正文从下面透出（backdrop-filter）。
  * 整页与两侧栏都是浮层滚动条（PageScrollbar、ScrollArea）：不占宽度，滚动时出现。
+ *
+ * 写了 brand 时，侧栏常驻的宽度下品牌这一格与侧栏同宽，侧栏的竖线一直延伸到顶栏顶端，
+ * header 的内容从竖线之后开始、与正文的起始边对齐（本页的页签放在这里）。
  *
  * 自带 SkipLink（跳到正文）；顶栏的高度经 layoutVars.stickyOffset 交给里面的标题，锚点跳转后不被顶栏挡住。
  */
@@ -36,12 +40,16 @@ import { layoutVars } from '../utils/style/vars.stylex';
 
 /** 顶栏高度：也是两侧栏粘住的位置、标题跳转时让开的距离 */
 const HEADER_HEIGHT = '3rem';
+/** 左侧栏的宽度：顶栏的品牌格与它同宽 */
+const SIDEBAR_WIDTH = '16rem';
 // 运行时判断侧栏是否常驻（useMediaQuery 要的是不带 @media 的查询）
 const WIDE_QUERY = breakpoints.lg.replace('@media ', '');
 
 /** 未声明的属性落到外层 div 上 */
 export interface AppShellProps extends PartProps<'div'> {
-  /** 顶栏的内容：标志、搜索、主题切换… */
+  /** 顶栏起始边的品牌（标志与产品名）：有侧栏时这一格与侧栏同宽，侧栏的竖线延伸到顶 */
+  brand?: VNodeChild;
+  /** 顶栏的内容：搜索、本页的页签、主题切换…（没写 brand 时标志也放这里） */
   header?: VNodeChild;
   /** 左侧栏：站点导航；窄屏时收进抽屉 */
   sidebar?: VNodeChild;
@@ -55,6 +63,8 @@ export interface AppShellProps extends PartProps<'div'> {
   pageScrollbar?: boolean;
   /** 顶栏（header）的部件属性 */
   propsHeader?: PartProps<'header'>;
+  /** 品牌格（div）的部件属性 */
+  propsBrand?: PartProps<'div'>;
   /** 左侧栏（div）的部件属性 */
   propsSidebar?: PartProps<'div'>;
   /** 正文（main）的部件属性 */
@@ -104,16 +114,34 @@ export const appShellStyles = stylex.create({
     backdropFilter: 'blur(12px) saturate(1.5)',
   },
   menuButton: { display: { default: 'inline-flex', [breakpoints.lg]: 'none' }, flexShrink: 0 },
+  // 有品牌格与侧栏：宽屏时品牌格贴着起始边；品牌格与内容之间隔开正文的内边距，内容与正文的起始边对齐
+  headerWithBrand: {
+    paddingInlineStart: { default: null, [breakpoints.lg]: 0 },
+    columnGap: { default: null, [breakpoints.lg]: '_xl' },
+  },
+  brand: { display: 'flex', alignItems: 'center', gap: '_sm', flexShrink: 0, minWidth: 0 },
+  // 宽屏时与侧栏同宽，结束边的竖线与侧栏的竖线接上
+  brandRail: {
+    alignSelf: { default: null, [breakpoints.lg]: 'stretch' },
+    boxSizing: 'border-box',
+    width: { default: null, [breakpoints.lg]: SIDEBAR_WIDTH },
+    paddingInline: { default: null, [breakpoints.lg]: '_lg' },
+    borderInlineEndWidth: { default: null, [breakpoints.lg]: '_xs' },
+    borderInlineEndStyle: { default: null, [breakpoints.lg]: 'solid' },
+    borderInlineEndColor: { default: null, [breakpoints.lg]: '_border' },
+  },
   headerContent: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
   body: { display: 'grid', flexGrow: 1, gridTemplateColumns: 'minmax(0, 1fr)' },
-  withSidebar: { gridTemplateColumns: { default: null, [breakpoints.lg]: '16rem minmax(0, 1fr)' } },
+  withSidebar: {
+    gridTemplateColumns: { default: null, [breakpoints.lg]: `${SIDEBAR_WIDTH} minmax(0, 1fr)` },
+  },
   withAside: { gridTemplateColumns: { default: null, [breakpoints.xl]: 'minmax(0, 1fr) 14rem' } },
   // 一个属性上两个断点：窄的一档用 lgOnly，不和 xl 重叠（见 breakpoints 的说明）
   withBoth: {
     gridTemplateColumns: {
       default: null,
-      [breakpoints.lgOnly]: '16rem minmax(0, 1fr)',
-      [breakpoints.xl]: '16rem minmax(0, 1fr) 14rem',
+      [breakpoints.lgOnly]: `${SIDEBAR_WIDTH} minmax(0, 1fr)`,
+      [breakpoints.xl]: `${SIDEBAR_WIDTH} minmax(0, 1fr) 14rem`,
     },
   },
   // 两侧栏：粘在顶栏下面、占满剩下的视口高度，内容多时各自滚动，滚到头不带动页面
@@ -142,6 +170,7 @@ export const appShellStyles = stylex.create({
 /** 应用外壳：粘性顶栏、左侧栏、正文、右侧栏；窄屏时左侧栏收进抽屉 */
 export const AppShell = _component(
   ({
+    brand,
     header,
     sidebar,
     aside,
@@ -149,6 +178,7 @@ export const AppShell = _component(
     skipLink = true,
     pageScrollbar = true,
     propsHeader,
+    propsBrand,
     propsSidebar,
     propsMain,
     propsAside,
@@ -178,7 +208,17 @@ export const AppShell = _component(
       >
         {skipLink && <SkipLink href={`#${mainId}`} />}
         {pageScrollbar && <PageScrollbar />}
-        <header {...mergeAttrs<'header'>({ sx: appShellStyles.header }, propsHeader)}>
+        <header
+          {...mergeAttrs<'header'>(
+            {
+              sx: [
+                appShellStyles.header,
+                brand != null && sidebar != null && appShellStyles.headerWithBrand,
+              ],
+            },
+            propsHeader,
+          )}
+        >
           {sidebar != null && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
@@ -191,6 +231,18 @@ export const AppShell = _component(
                 { 'aria-expanded': sidebarOpen, onClick: () => (sidebarOpen = true) },
               )}
             />
+          )}
+          {brand != null && (
+            <div
+              {...mergeAttrs<'div'>(
+                {
+                  sx: [appShellStyles.brand, sidebar != null && appShellStyles.brandRail],
+                },
+                propsBrand,
+              )}
+            >
+              {brand}
+            </div>
           )}
           <div {...mergeAttrs<'div'>({ sx: appShellStyles.headerContent })}>{header}</div>
         </header>

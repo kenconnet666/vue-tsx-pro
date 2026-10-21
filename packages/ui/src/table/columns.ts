@@ -217,9 +217,13 @@ export function columnValue<T>(column: DataTableColumn<T>, row: T): SortValue {
 
 const NUMERIC_TYPES = new Set<keyof ColumnTypes>(['number', 'currency', 'percent', 'fileSize']);
 
-/** 列的值类型：写了 type 用它，否则看第一个非空值（ISO 字符串不猜，算文字） */
+/**
+ * 列的值类型：写了 type 用它；写了数字格式（format）、或合计是 'sum' 的是数字列（这一页全是空值时也靠结束边对齐）；
+ * 否则看第一个非空值（ISO 字符串不猜，算文字）
+ */
 export function columnType<T>(column: DataTableColumn<T>, rows: Iterable<T>): keyof ColumnTypes {
   if (column.type) return column.type;
+  if (column.format || column.summary === 'sum') return 'number';
   for (const row of rows) {
     const value = columnValue(column, row);
     if (value == null) continue;

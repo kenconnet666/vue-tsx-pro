@@ -64,6 +64,15 @@ describe('sortRows / nextSort', () => {
 });
 
 describe('列的值类型', () => {
+  it('写了数字格式或合计是 sum 的列是数字列：这一页全是空值时也是', () => {
+    const empty = [{ v: null }, { v: null }];
+    expect(columnType({ key: 'v', header: 'v', format: { maximumFractionDigits: 2 } }, empty)).toBe(
+      'number',
+    );
+    expect(columnType({ key: 'v', header: 'v', summary: 'sum' }, empty)).toBe('number');
+    expect(columnType({ key: 'v', header: 'v' }, empty)).toBe('text');
+  });
+
   it('没写 type 时看第一个非空值：数字类 → number，日期 → date，ISO 字符串与其余 → text', () => {
     const typeOf = (...values: unknown[]) =>
       columnType<{ v: unknown }>({ key: 'v', header: '' }, values.map((v) => ({ v })) as never);

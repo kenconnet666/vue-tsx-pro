@@ -27,6 +27,34 @@ it('指标名是 dt、数值与单位是 dd；数字按语言格式化，图标�
   expect(root.querySelector('dt [aria-hidden="true"] svg')).not.toBeNull();
 });
 
+it('图标在指标名前；children 是数值下面的补充内容，footer 是底栏，都是 dd', () => {
+  const root = mount(() => (
+    <Stat
+      label="测算降本"
+      value={81}
+      unit="万元"
+      icon={ClipboardList}
+      footer={
+        <>
+          <span>年度目标 100 万元</span>
+          <span>完成 81%</span>
+        </>
+      }
+    >
+      <progress value={81} max={100} />
+    </Stat>
+  ));
+  const label = root.querySelector('dt')!;
+  expect(label.firstElementChild!.getAttribute('aria-hidden')).toBe('true');
+  const items = [...root.querySelector('dl')!.children];
+  expect(items.map((child) => child.tagName)).toEqual(['DT', 'DD', 'DD', 'DD']);
+  expect(items[2]!.querySelector('progress')).not.toBeNull();
+  expect([...items[3]!.children].map((child) => child.textContent)).toEqual([
+    '年度目标 100 万元',
+    '完成 81%',
+  ]);
+});
+
 it('字符串值原样显示', () => {
   const root = mount(() => <Stat label="状态" value="—" />);
   expect(root.querySelector('dd')!.textContent).toBe('—');

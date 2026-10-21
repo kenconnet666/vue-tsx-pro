@@ -32,8 +32,9 @@ export interface UiOptions {
   /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
   ripple?: boolean;
   /**
-   * 页面根元素也用主题的背景色、文字色与字体，默认 false。整页都由组件库主题管理的站点（如文档站）打开：
-   * 页面边缘、回弹滚动露出的地方不再是浏览器的默认色；配合 themeBootScript 时接手它写的行内颜色
+   * 页面根元素也用主题的背景色、文字色与字体，并去掉 body 的默认外边距，默认 false。
+   * 整页都由组件库主题管理的站点（如文档站）打开：页面边缘、回弹滚动露出的地方不再是浏览器的默认色，
+   * AppShell 贴满窗口、四周不留 8px 的白边；配合 themeBootScript 时接手它写的行内颜色
    */
   paintDocument?: boolean;
 }
@@ -50,6 +51,8 @@ export const documentStyles = stylex.create({
     WebkitFontSmoothing: 'antialiased',
     MozOsxFontSmoothing: 'grayscale',
   },
+  // 浏览器给 body 的 8px 外边距：整页的外壳（AppShell）要贴满窗口
+  body: { margin: 0 },
 });
 
 /**
@@ -88,6 +91,12 @@ export function createUi(options: UiOptions = {}): Plugin {
           watchEffect((onCleanup) =>
             onCleanup(applyTheme(root, theme.value, options.paintDocument ?? false)),
           );
+          if (options.paintDocument && document.body) {
+            const body = document.body;
+            const classes = stylex.attrs(documentStyles.body).class?.split(' ') ?? [];
+            body.classList.add(...classes);
+            app.onUnmount(() => body.classList.remove(...classes));
+          }
         }
       });
     },

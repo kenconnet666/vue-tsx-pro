@@ -3,6 +3,13 @@
  * 外观只是内容，放进 Card、Grid 里组合：
  *
  *   <Card><Stat label="实际降本金额" value={910.36} unit="万元" icon={Wallet} change={0.123} changeLabel="较上月" /></Card>
+ *   <Stat label="测算降本" value={a} format={wan} unit="万元" footer={<><span>年度目标 2,000 万元</span><span>完成 81%</span></>}>
+ *     <Progress value={81} size="xs" aria-label="年度目标完成度" />
+ *   </Stat>
+ *
+ * 排版（参考 Ant Design Pro 的 ChartCard）：第一行是图标与指标名、结束边是变化量；第二行是数值；
+ * children 是数值下面占满整宽的补充内容（进度条、迷你图）；footer 是底栏，上方一条分隔线，放两项时分别靠两端。
+ * 卡片再宽，内容也铺满整行，不在中间留一大块空白。
  *
  * 数值变化时滚动过渡（AnimatedNumber），读屏只读终值；变化量按正负着色并带箭头，
  * 成本、耗时这类“越低越好”的指标写 invertChange。加载中（loading）数值与变化量换成扫光的骨架，指标名照常显示。
@@ -37,7 +44,7 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   format?: NumericFormat;
   /** 单位，跟在数值后面、字号小一档 */
   unit?: VNodeChild;
-  /** 右上角的图标（装饰，对读屏隐藏） */
+  /** 指标名前面的图标（装饰，对读屏隐藏） */
   icon?: IconData;
   /** 变化量（环比、同比）：正数向上、负数向下；默认按百分比显示（0.12 → +12%） */
   change?: number;
@@ -47,8 +54,12 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   changeLabel?: VNodeChild;
   /** 下降是好事（成本、耗时、故障数）：下降显示成功色、上升显示危险色 */
   invertChange?: boolean;
-  /** 底部的补充说明 */
+  /** 数值下面的补充说明（一行小字） */
   description?: VNodeChild;
+  /** 底栏：上方一条分隔线；放两项时分别靠两端，如“年度目标 2,000 万元”与“完成 81%” */
+  footer?: VNodeChild;
+  /** 数值下面占满整宽的补充内容：进度条、迷你图 */
+  children?: VNodeChild;
   /**
    * 加载中：数值与变化量换成扫光的骨架，带 aria-busy；很快完成时不闪
    * @default false
@@ -70,6 +81,10 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   propsChangeLabel?: PartProps<'span'>;
   /** 补充说明（dd）的部件属性 */
   propsDescription?: PartProps<'dd'>;
+  /** 补充内容（dd，children 的外层）的部件属性 */
+  propsBody?: PartProps<'dd'>;
+  /** 底栏（dd）的部件属性 */
+  propsFooter?: PartProps<'dd'>;
 }
 
 const CHANGE_FORMAT: NumericFormat = {
@@ -78,15 +93,26 @@ const CHANGE_FORMAT: NumericFormat = {
   signDisplay: 'exceptZero',
 };
 
-/** Stat 的样式：root、label、icon、value、number、unit、change、description、skeleton… */
+/** Stat 的样式：root、label、icon、value、number、unit、change、description、body、footer、skeleton… */
 export const statStyles = stylex.create({
-  root: { display: 'flex', flexDirection: 'column', gap: '_xs', margin: 0, minWidth: 0 },
-  // dt 里放指标名与图标：dl 的子元素只能是 dt、dd
+  // 两列：第一行是指标名与变化量（结束边），其余各行占满整行
+  root: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr) auto',
+    alignItems: 'center',
+    columnGap: '_sm',
+    rowGap: '_xs',
+    margin: 0,
+    minWidth: 0,
+  },
+  // dt 里放图标与指标名：dl 的子元素只能是 dt、dd
   label: {
+    gridRow: '1',
+    gridColumn: '1',
     display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: '_sm',
+    minWidth: 0,
     margin: 0,
     color: '_textMuted',
     fontSize: '_sm',
@@ -96,14 +122,14 @@ export const statStyles = stylex.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    width: '2em',
-    height: '2em',
+    width: '1.75em',
+    height: '1.75em',
     borderRadius: '_md',
     backgroundColor: '_accentSoft',
     color: '_accentText',
-    fontSize: '_sm',
   },
   value: {
+    gridColumn: '1 / -1',
     display: 'flex',
     alignItems: 'baseline',
     flexWrap: 'wrap',
@@ -118,9 +144,38 @@ export const statStyles = stylex.create({
     fontVariantNumeric: 'tabular-nums',
   },
   unit: { color: '_textMuted', fontSize: '_xs' },
-  change: { display: 'flex', alignItems: 'center', gap: '_xs', fontSize: '_xs', margin: 0 },
+  // 变化量在指标名那一行的结束边
+  change: {
+    gridRow: '1',
+    gridColumn: '2',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '_xs',
+    fontSize: '_xs',
+    margin: 0,
+    whiteSpace: 'nowrap',
+  },
   changeLabel: { color: '_textMuted' },
-  description: { color: '_textMuted', fontSize: '_xs', margin: 0 },
+  description: { gridColumn: '1 / -1', color: '_textMuted', fontSize: '_xs', margin: 0 },
+  body: { gridColumn: '1 / -1', margin: 0, minWidth: 0 },
+  // 底栏：两项时分别靠两端，多了换行
+  footer: {
+    gridColumn: '1 / -1',
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    columnGap: '_md',
+    rowGap: '_xs',
+    margin: 0,
+    marginBlockStart: '_xs',
+    paddingBlockStart: '_sm',
+    borderBlockStartWidth: '_xs',
+    borderBlockStartStyle: 'solid',
+    borderBlockStartColor: '_borderMuted',
+    color: '_textMuted',
+    fontSize: '_xs',
+  },
   // 骨架与数值、变化量同高：加载完换成内容时不跳
   numberSkeleton: { fontSize: '_xxl', width: '4em', height: '1.25em' },
   changeSkeleton: { width: '6em', height: '1.5em' },
@@ -139,6 +194,8 @@ export const Stat = _component(
     changeLabel,
     invertChange = false,
     description,
+    footer,
+    children,
     loading = false,
     propsLabel,
     propsValue,
@@ -148,6 +205,8 @@ export const Stat = _component(
     propsChange,
     propsChangeLabel,
     propsDescription,
+    propsBody,
+    propsFooter,
     ...rest
   }: StatProps) => {
     // 骨架防闪烁；aria-busy 按真实的 loading
@@ -167,7 +226,6 @@ export const Stat = _component(
           })}
         >
           <dt {...mergeAttrs<'dt'>({ sx: statStyles.label }, propsLabel)}>
-            <span>{label}</span>
             {icon && (
               <span
                 {...mergeAttrs<'span'>({ sx: statStyles.icon }, propsIcon, { 'aria-hidden': true })}
@@ -175,6 +233,7 @@ export const Stat = _component(
                 <Icon icon={icon} />
               </span>
             )}
+            <span>{label}</span>
           </dt>
           <dd {...mergeAttrs<'dd'>({ sx: [statStyles.value, reveal] }, propsValue)}>
             {skeleton.value ? (
@@ -228,6 +287,12 @@ export const Stat = _component(
             <dd {...mergeAttrs<'dd'>({ sx: statStyles.description }, propsDescription)}>
               {description}
             </dd>
+          )}
+          {children != null && (
+            <dd {...mergeAttrs<'dd'>({ sx: statStyles.body }, propsBody)}>{children}</dd>
+          )}
+          {footer != null && (
+            <dd {...mergeAttrs<'dd'>({ sx: statStyles.footer }, propsFooter)}>{footer}</dd>
           )}
         </dl>
       );

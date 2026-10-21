@@ -17,8 +17,8 @@ export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { FilterBar } from '@vue-tsx-pro/ui';">
     <Example id="tasks" title="降本任务的查询" demo={Tasks}>
       条件是 Field，排成栅格：每格不窄于 <Code>minFieldWidth</Code>（默认
-      20em），容器多宽就放几格，按钮在最后一行的最后一格靠结束边；标签默认在起始边（
-      <Code>labelWidth</Code> 默认 6em）。
+      16em），容器多宽就放几格，按钮在最后一行的最后一格靠结束边；标签默认在起始边、宽度随文字（
+      <Code>labelWidth</Code> 默认 auto，控件紧跟着标签；条件多、要几行对齐时写固定宽度）。
       <Code>more</Code> 是不常用的条件，默认收起；<Code>moreActive</Code>{' '}
       是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。外层是{' '}
       <Code>role="search"</Code> 的表单：在输入框里按回车就是 <Code>onSearch</Code>，

@@ -335,13 +335,10 @@ export const dataTableStyles = stylex.create({
   stickySelect: { position: 'sticky', zIndex: 1, insetInlineStart: 0 },
   selectCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
   chevronOpen: { rotate: '90deg' },
-  // 展开按钮 24px（最小点击区域），上下的负外边距抵掉多出行高的部分：有按钮的行与没有的一样高
-  detailToggle: {
-    width: '1.5rem',
-    height: '1.5rem',
-    minHeight: '1.5rem',
-    marginBlock: '-0.1875rem',
-  },
+  // 单元格里 24px 的控件（勾选框、展开按钮、xs 的图标按钮）：上下的负外边距抵掉比一行文字高出的部分，
+  // 有控件的行与纯文字的行一样高，点击区域仍是 24px。操作列放文字按钮时用 variant="link"
+  cellControl: { marginBlock: '-0.1875rem' },
+  detailToggle: { width: '1.5rem', height: '1.5rem', minHeight: '1.5rem' },
   // 详情行：浅底、可以换行；内边距放在内容上，内容贴着视口起始边、宽度不超过视口
   detailCell: { paddingBlock: 0, paddingInline: 0, whiteSpace: 'normal', backgroundColor: '_fill' },
   detailContent: {
@@ -577,7 +574,7 @@ export const DataTableRow = _component(
             <Checkbox
               {...mergePartProps<CheckboxProps>(
                 // 名称每行不同（选择第 N 行）：类型里不让使用方覆盖
-                { 'aria-label': lang.tableSelectRow(index + 1) },
+                { 'aria-label': lang.tableSelectRow(index + 1), sx: dataTableStyles.cellControl },
                 propsSelectCheckbox,
                 {
                   checked: selected,
@@ -610,7 +607,7 @@ export const DataTableRow = _component(
                     icon: ChevronRight,
                     size: 'sm',
                     radius: 'full',
-                    sx: dataTableStyles.detailToggle,
+                    sx: [dataTableStyles.detailToggle, dataTableStyles.cellControl],
                     'aria-label': lang.tableRowDetails(rowLabel(columns, row)),
                   },
                   propsDetailToggle,
@@ -1169,7 +1166,7 @@ export const DataTableView = _component(
                     {selectionMode === 'multiple' && (
                       <Checkbox
                         {...mergePartProps<CheckboxProps>(
-                          { 'aria-label': lang.tableSelectAll },
+                          { 'aria-label': lang.tableSelectAll, sx: dataTableStyles.cellControl },
                           propsSelectAll,
                           {
                             checked: allSelected,
