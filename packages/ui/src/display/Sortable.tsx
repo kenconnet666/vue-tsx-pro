@@ -21,7 +21,7 @@ import { useLang } from '../config/context';
 import { useSortable, type SortableOrientations } from '../utils/dom/sortable';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { FlexList, type FlexProps } from '../layout/Flex';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 
 /** 项的渲染状态 */
 export interface SortableItemState {

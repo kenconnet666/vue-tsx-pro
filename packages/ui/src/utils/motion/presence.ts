@@ -8,7 +8,7 @@
  * 离场中又打开了就停在打开状态，不卸载、不调用 onExited。元素自己决定是否卸载时（Toast、Tag）只用 state 与 onExited。
  */
 import { computed, nextTick, onScopeDispose, shallowRef, watch } from 'vue';
-import { toElement } from '../dom/overlay';
+import { toElement } from '../dom/element';
 import { afterTransitions } from '../style/transitions';
 
 /** usePresence 的返回值 */

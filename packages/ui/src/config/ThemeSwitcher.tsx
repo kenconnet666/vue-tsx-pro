@@ -27,7 +27,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import type { IconData } from '../base/Icon';
 import { Menu, MenuRadioGroup, MenuRadioItem, type MenuProps } from '../overlay/Menu';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { mergePartProps } from '../utils/props';
 import { useLang } from './context';
 import { SYSTEM_THEME } from './theme/boot';

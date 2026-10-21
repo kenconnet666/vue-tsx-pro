@@ -9,7 +9,7 @@
  */
 import { createLayout, type AutoLayout } from 'animejs';
 import { nextTick, onScopeDispose } from 'vue';
-import { toElement } from '../dom/overlay';
+import { toElement } from '../dom/element';
 import { themeTransitionOrInstant, type ThemeTransitionOptions } from './animation';
 
 /** useLayoutAnimation 的选项 */

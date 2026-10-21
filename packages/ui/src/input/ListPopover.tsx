@@ -14,7 +14,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { Ref, VNodeChild } from 'vue';
 import { ScrollArea } from '../layout/ScrollArea';
 import { anchoredPanelSx, floatingStyles } from '../utils/dom/floating';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
 import { ListboxView, type ListboxViewProps } from './Listbox';

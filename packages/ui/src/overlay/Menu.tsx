@@ -39,7 +39,7 @@ import {
 import { ariaKeyShortcut, formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { ScrollArea } from '../layout/ScrollArea';
 import { useRouterLink } from '../utils/dom/link';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { childNodes } from '../utils/data/text';
 import {

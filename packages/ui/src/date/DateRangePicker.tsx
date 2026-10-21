@@ -38,7 +38,7 @@ import {
   type DateRange,
   type DateRangePreset,
 } from '../utils/data/date';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { defaultLabelledBy, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   toDateLimits,

@@ -7,13 +7,6 @@
 import { shallowReactive } from 'vue';
 import { focusOrigin, returnFocus, trapFocus } from './focus';
 
-/** ref 落在组件上拿到的是组件实例，取它的根元素；本来就是元素时原样返回 */
-export function toElement(value: unknown): HTMLElement | null {
-  if (value instanceof HTMLElement) return value;
-  const root = (value as { $el?: unknown } | null)?.$el;
-  return root instanceof HTMLElement ? root : null;
-}
-
 /**
  * 点击模态 dialog 的遮罩时调用 onDismiss。不能只看 event.target === dialog：
  * dialog 自己的内边距、以及在内容里按下再拖到遮罩上松开（选中文字）时，click 的目标也是 dialog。

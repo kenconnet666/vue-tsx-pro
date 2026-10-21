@@ -26,7 +26,7 @@ import {
 } from 'three';
 import { watch } from 'vue';
 import { colors } from '../../config/theme/tokens.stylex';
-import { toElement } from '../../utils/dom/overlay';
+import { toElement } from '../../utils/dom/element';
 import { mergePartProps } from '../../utils/props';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import type { ThreeCanvasProps } from '../core/ThreeCanvas';

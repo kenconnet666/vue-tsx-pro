@@ -27,7 +27,7 @@ import {
   type ControlIconOptions,
   type ControlOptions,
 } from '../input/control';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { useDateLocale } from './date-locale';
 import { fieldsToIso, isoToFields, useDateSegments, type DateSegmentType } from './date-segments';

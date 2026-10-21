@@ -17,7 +17,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { controlStyles } from '../input/control';
 import { anchoredPanelSx, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { focusFirst } from '../utils/dom/focus';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
 

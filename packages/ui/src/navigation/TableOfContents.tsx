@@ -13,7 +13,7 @@ import { useId, type VNodeChild } from 'vue';
 import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
 import { FlexList, type FlexProps } from '../layout/Flex';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { useScrollSpy, type HeadingEntry } from '../utils/dom/scroll-spy';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';

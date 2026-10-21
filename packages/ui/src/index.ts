@@ -1186,6 +1186,7 @@ export { announce, type Politeness, type Politenesses } from './utils/dom/announ
 export { useClipboard, type ClipboardOptions, type ClipboardState } from './utils/dom/clipboard';
 export { inlineArrows, isRtl, type InlineArrows } from './utils/dom/direction';
 export { downloadFile } from './utils/dom/download';
+export { toElement } from './utils/dom/element';
 export {
   anchoredPanelSx,
   anchorFloating,
@@ -1245,7 +1246,6 @@ export {
   dismissOnBackdrop,
   lockScroll,
   openModalDialog,
-  toElement,
   topModal,
   trackModal,
   type ModalDialogOptions,

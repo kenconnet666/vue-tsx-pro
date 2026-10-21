@@ -41,7 +41,7 @@ import { ResizeHandle, type ResizeHandleProps } from './ResizeHandle';
 import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
 import { Drawer, type DrawerProps } from '../overlay/Drawer';
 import { useMediaQuery } from '../utils/dom/media-query';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { breakpoints } from '../config/theme/tokens.stylex';
 import { layoutVars } from '../utils/style/vars.stylex';

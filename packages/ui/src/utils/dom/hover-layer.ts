@@ -15,7 +15,7 @@ import { onScopeDispose, shallowRef, useId, watchEffect } from 'vue';
 import { mergeAttrs, type PartProps } from '../props';
 import { createAnchoredLayer, floatingStyles, type FloatingPlacement } from './floating';
 import { useHoverIntent, type HoverGroup, type HoverIntent } from './hover-intent';
-import { toElement } from './overlay';
+import { toElement } from './element';
 
 /** useHoverLayer 每次读取的选项 */
 export interface HoverLayerOptions {

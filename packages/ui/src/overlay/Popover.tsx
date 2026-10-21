@@ -16,7 +16,7 @@ import {
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/dom/floating';
-import { toElement } from '../utils/dom/overlay';
+import { toElement } from '../utils/dom/element';
 import { focusFirst } from '../utils/dom/focus';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { defaultLabelledBy, mergeAttrs, type PartProps, type TriggerProps } from '../utils/props';
