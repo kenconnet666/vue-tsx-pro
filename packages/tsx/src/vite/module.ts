@@ -88,9 +88,9 @@ export async function compileModule(
   if (!result) return null;
   let output = result.code;
   if (jsx && (setup.hmr || ssr)) {
-    const components = exportedComponents(result.ast, id);
+    const { components, otherExports } = exportedComponents(result.ast, id);
     if (components.length && setup.hmr && !ssr && !/\?vue&type=script/.test(id)) {
-      output += hmrCode(components);
+      output += hmrCode(components, otherExports);
     }
     if (components.length && ssr) output += ssrCode(components, id, setup.root);
   }

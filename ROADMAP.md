@@ -117,7 +117,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       `_derived` 里修改状态、`_untrack(() => x)` 报错
 - [x] `snapshot` 复制 Map、Set、类型化数组与 ArrayBuffer；解构的 `_derived` 只解构一次（默认值不再按变量各执行一次）；
       `_bindable` 的受控判断不再每次读取都做连字符转换。决定保留：`_bindable` 的默认值只在创建时求值（它是组件自己的状态），RUNES §5 写清
-- [ ] 热更新：非组件的导出变了时 invalidate；工厂函数做的组件也能热更新
+- [x] 热更新：模块还导出了组件以外的值时，接住更新后 invalidate，导入方重新执行拿到新值；工厂函数做的组件（大写开头、由调用得到）
+      运行时确认是组件才登记、才热替换（同 React Refresh 的判断），不是组件时也按组件以外的值处理
 - [ ] 编译缓存的键只算 token-map；StyleX 路径解析缓存 package.json；重复的语言判断与 StyleX 来源名
 
 ### 1.5 文档与案例
