@@ -8,7 +8,7 @@
  * 被 Vue 移除的元素直接消失：离场动画交给 usePresence，这里只管其余元素的位移。
  */
 import { createLayout, type AutoLayout } from 'animejs';
-import { nextTick, onBeforeUnmount } from 'vue';
+import { nextTick, onScopeDispose } from 'vue';
 import { toElement } from '../dom/overlay';
 import { themeTransitionOrInstant, type ThemeTransitionOptions } from './animation';
 
@@ -34,7 +34,7 @@ export function useLayoutAnimation(
   { children, duration, ease }: LayoutAnimationOptions = {},
 ): LayoutAnimation {
   let layout: AutoLayout | undefined;
-  onBeforeUnmount(() => layout?.revert());
+  onScopeDispose(() => layout?.revert());
 
   return {
     async change(mutate) {

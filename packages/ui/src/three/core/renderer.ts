@@ -13,7 +13,7 @@
  *   不等浏览器回收；上下文连续丢失三次后改显示降级内容。
  */
 import { PerspectiveCamera, Scene, WebGLRenderer, type Camera } from 'three';
-import { onBeforeUnmount, shallowRef, watch } from 'vue';
+import { onScopeDispose, shallowRef, watch } from 'vue';
 import { useConfig } from '../../config/context';
 import { readToken } from '../../config/theme/theme';
 import { durations } from '../../config/theme/tokens.stylex';
@@ -432,7 +432,7 @@ export function useThree(options: ThreeOptions): ThreeController {
     },
   );
 
-  onBeforeUnmount(() => {
+  onScopeDispose(() => {
     unmounted = true;
     teardown();
     releaseContext(holder);

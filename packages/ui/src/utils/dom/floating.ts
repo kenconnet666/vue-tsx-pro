@@ -25,7 +25,7 @@ import {
   type VirtualElement,
 } from '@floating-ui/dom';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount, watchPostEffect } from 'vue';
+import { onScopeDispose, watchPostEffect } from 'vue';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { transitions } from '../style/transitions';
 import { fontSizeStyles, type TextSize } from '../style/typography';
@@ -364,7 +364,7 @@ export function useAnchoredPopover(
     const ready = layer.show(anchor, panel, floating);
     if (opening && events.shown) void ready.then(() => events.shown!(panel));
   });
-  onBeforeUnmount(() => layer.hide({ restoreFocus: read().restoreFocus ?? true }));
+  onScopeDispose(() => layer.hide({ restoreFocus: read().restoreFocus ?? true }));
 
   return {
     onToggle(event) {

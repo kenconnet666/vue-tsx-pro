@@ -18,7 +18,7 @@
  * - 减少动态效果时布局动画与滑回都直接到位。
  */
 import { set } from 'animejs';
-import { nextTick, onBeforeUnmount, shallowRef, useId } from 'vue';
+import { nextTick, onScopeDispose, shallowRef, useId } from 'vue';
 import { useLang } from '../../config/context';
 import { clamp } from '../data/number';
 import { inlineArrows, isRtl } from './direction';
@@ -95,7 +95,7 @@ export function useSortable<T>(options: SortableOptions<T>): SortableState {
     children: '[data-sortable-item]:not([data-dragging])',
     duration: 'sm',
   });
-  onBeforeUnmount(() => {
+  onScopeDispose(() => {
     stopMove?.();
     cancelAnimationFrame(scrollFrame);
   });

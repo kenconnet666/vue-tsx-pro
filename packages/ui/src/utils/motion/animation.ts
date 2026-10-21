@@ -19,7 +19,7 @@ import {
   type EasingParam,
   type JSAnimation,
 } from 'animejs';
-import { onBeforeUnmount } from 'vue';
+import { onScopeDispose } from 'vue';
 import { readToken } from '../../config/theme/theme';
 import { durations, easings } from '../../config/theme/tokens.stylex';
 
@@ -110,7 +110,7 @@ export function themeTransitionOrInstant(
  */
 export function useAnimate(): ThemeAnimate {
   const running = new Set<JSAnimation>();
-  onBeforeUnmount(() => {
+  onScopeDispose(() => {
     for (const animation of running) void animation.cancel();
     running.clear();
   });

@@ -15,7 +15,7 @@
  * read 在 watch 里读取：其中读到的响应式数据（行数、key）变化时重新同步；
  * 选项里的函数（estimateSize、onRangeChange）不在这时调用，它们读到的数据不会变成依赖。
  */
-import { onBeforeUnmount, shallowRef, watch } from 'vue';
+import { onScopeDispose, shallowRef, watch } from 'vue';
 import {
   isWindow,
   Virtualizer,
@@ -134,7 +134,7 @@ export function useVirtualizer(read: () => UseVirtualizerOptions): VirtualView {
     },
     { immediate: true, flush: 'post' },
   );
-  onBeforeUnmount(() => unmount?.());
+  onScopeDispose(() => unmount?.());
 
   return {
     get items() {

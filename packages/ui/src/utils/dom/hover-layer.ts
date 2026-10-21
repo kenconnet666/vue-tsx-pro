@@ -11,7 +11,7 @@
  *
  * 面板用 popover="manual"：不是 auto，不会关掉正打开的菜单或弹出框；manual 没有原生的 Esc，所以这里处理。
  */
-import { onBeforeUnmount, shallowRef, useId, watchEffect } from 'vue';
+import { onScopeDispose, shallowRef, useId, watchEffect } from 'vue';
 import { mergeAttrs, type PartProps } from '../props';
 import { createAnchoredLayer, floatingStyles, type FloatingPlacement } from './floating';
 import { useHoverIntent, type HoverGroup, type HoverIntent } from './hover-intent';
@@ -93,7 +93,7 @@ export function useHoverLayer(
     },
     { flush: 'post' },
   );
-  onBeforeUnmount(() => layer.hide({ restoreFocus: false }));
+  onScopeDispose(() => layer.hide({ restoreFocus: false }));
 
   return {
     id,

@@ -8,7 +8,7 @@
  *   trigger({ ...hover.trigger }) / <div {...hover.panel}>
  *   hover.opened() / hover.closed()                   // 浮层真的显示、隐藏时告诉组（关掉同组的另一个、记下关闭时间）
  */
-import { onBeforeUnmount } from 'vue';
+import { onScopeDispose } from 'vue';
 
 /** 一组悬停浮层共用的状态：正在显示的那个与上次关闭的时间 */
 export interface HoverGroup {
@@ -77,7 +77,7 @@ export function useHoverIntent(
   const closeSoon = () => schedule(false, read().closeDelay);
   const closeNow = () => schedule(false, 0);
 
-  onBeforeUnmount(() => {
+  onScopeDispose(() => {
     clearTimeout(timer);
     if (group.shown === self) group.shown = undefined;
   });

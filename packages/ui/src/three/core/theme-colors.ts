@@ -31,7 +31,7 @@ import {
   useMode,
 } from 'culori/fn';
 import { Color, SRGBColorSpace } from 'three';
-import { onBeforeUnmount, watch } from 'vue';
+import { onScopeDispose, watch } from 'vue';
 import { useConfig } from '../../config/context';
 import { clamp } from '../../utils/data/number';
 import { themeTransitionOrInstant } from '../../utils/motion/animation';
@@ -144,6 +144,6 @@ export function useThemeColors<Sources extends ThemeColorSources>(
     },
     { immediate: true, flush: 'post' },
   );
-  onBeforeUnmount(() => set.stop());
+  onScopeDispose(() => set.stop());
   return set.colors;
 }

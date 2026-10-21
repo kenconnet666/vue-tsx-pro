@@ -68,7 +68,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 工具：手写的 clamp 十处改用 `clamp`；`visibilitychange` 三处改用 `usePageVisible`；方向键 × RTL 七处改用 `inlineArrows`；
       MenuTriggerProps 继承 TriggerProps。决定保留：toArray 剩三处、语义各不相同（null 算不算一项、要不要复制）；
       Tooltip 与 HoverCard 的触发器属性只有两处（并入 §1.3 的触发器写法）
-- [ ] 生命周期一律 `onScopeDispose`；一部分钩子返回 Ref、一部分返回 getter 对象，统一成 getter（RUNES §7）
+- [x] 组合式函数的清理一律 `onScopeDispose`（九处 onBeforeUnmount：effectScope 里也能用，组件里同样在移除 DOM 之前执行）。
+      决定保留两种返回：单个值返回 `Readonly<Ref>`（useMediaQuery、useNow、usePageVisible，同 VueUse），状态加方法返回带 getter 的控制器（RUNES §7）
 - [ ] 内置主题的元数据（名字、图标、防闪烁底色）集中到 builtin.ts，其余从它派生
 - [ ] 静态 Table 的样式移到 table-styles.ts（不再连带打包 DataTable）；Menu 三种菜单项与 MenuSub 的重复
 - [ ] 图表：`useUnovisContainer`、`ChartCommonProps`、骨架样式、`toggle`；3D 的 `themeColors.list`
