@@ -40,6 +40,14 @@ describe('Select', () => {
     expect(own!.textContent).toBe('上海');
   });
 
+  it('单选的值是空字符串时算没有选中：显示占位文字，没有清空按钮', () => {
+    const root = mount(() => (
+      <Select items={cities} value="" placeholder="全部" clearable aria-label="城市" />
+    ));
+    expect(root.querySelector('button[role="combobox"]')!.textContent).toBe('全部');
+    expect(root.querySelector('button[aria-label="清空"]')).toBeNull();
+  });
+
   it('前置图标在触发按钮之前，propsIcon 透传', () => {
     const root = mount(() => (
       <Select items={cities} icon={Globe} propsIcon={{ class: 'lead' }} aria-label="城市" />
