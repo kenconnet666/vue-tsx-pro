@@ -74,6 +74,7 @@ export class RunesTransform {
     this.declareRunes(); //       1. 符文与 props 解构 → Vue API
     this.program.scope.crawl(); //   改写后重建作用域
     this.resolveBindings(); //    2. 声明节点 → 作用域里的绑定
+    this.narrowReadonlyProps(); //   没被写过的 prop 用只读访问器
     this.rewriteAccesses(); //    3. 读写 → .value
     this.rewriteCalls(); //       4. _bind → v-model，_state.snapshot / _effect → 运行时函数
     this.reportMisuse(); //       5. 残留的符文都是误用
@@ -275,6 +276,23 @@ export class RunesTransform {
         }
       },
     });
+  }
+
+  /**
+   * 组件里没赋值过、也没交给 _toRef / _bind（拿到 Ref 的一方可能写入）的普通 prop，
+   * 换成只读访问器 readonlyProp：不建可覆盖所需的 computed、customRef 与 watch（runtime/props.ts）
+   */
+  private narrowReadonlyProps() {
+    for (const [binding, info] of this.tracked) {
+      if (info.source !== 'prop' || info.childrenOf || binding.constantViolations.length) continue;
+      const escapes = binding.referencePaths.some((reference) => {
+        const parent = reference.parentPath;
+        const rune = parent?.isCallExpression() ? runeOf(parent) : null;
+        return rune === '_toRef' || rune === '_bind';
+      });
+      const init = (binding.path.node as t.VariableDeclarator).init;
+      if (!escapes && t.isCallExpression(init)) this.imports.retarget(init, 'prop', 'readonlyProp');
+    }
   }
 
   // ───────────────────────── 3. 读写 ─────────────────────────

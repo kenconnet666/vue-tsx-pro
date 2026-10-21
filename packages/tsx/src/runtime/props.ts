@@ -1,10 +1,10 @@
 /**
- * prop 访问器：编译器把 _component 的参数解构换成对这两个函数的调用。
+ * prop 访问器：编译器把 _component 的参数解构换成对这几个函数的调用。
  * 作者不直接使用它们；思路来自 Svelte 5 的 $.prop。
  *
- * 两者返回的都是真正的 Vue Ref（读写改写为 .value），因此 _toRef(size) 可以交给 watch 等 Vue API。
+ * 返回的都是真正的 Vue Ref（读写改写为 .value），因此 _toRef(size) 可以交给 watch 等 Vue API。
  */
-import { computed, customRef, getCurrentInstance, nextTick, watch, type Ref } from 'vue';
+import { computed, customRef, getCurrentInstance, nextTick, toRef, watch, type Ref } from 'vue';
 import { overridable } from './state';
 
 type Props = Record<string, unknown>;
@@ -19,13 +19,30 @@ type Emit = (event: string, ...args: unknown[]) => void;
  *   - 引用了其他 prop 的默认值（icon = pick(size)）会随那个 prop 更新
  */
 export function prop<T>(props: Props, key: string, fallback?: () => T): Ref<T> {
+  return overridable(propReader(props, key, fallback));
+}
+
+/**
+ * 组件里从没写入过的普通 prop（编译器确定时生成，大多数 prop 是这样）：只读的 getter ref，
+ * 不像 prop 那样每个实例再建 computed、customRef 与同步 watch，创建快十倍。
+ * 默认值的处理与 prop 相同；有默认值时在 setup 里先读一次（prop 的 watch 也是这时求值），
+ * 默认值里调用的组合式函数（useId() 等）才拿得到组件实例
+ */
+export function readonlyProp<T>(props: Props, key: string, fallback?: () => T): Ref<T> {
+  const read = propReader(props, key, fallback);
+  if (fallback) read();
+  return toRef(read) as Ref<T>;
+}
+
+/** 父级传了值就用父级的，否则用默认值（第一次用到时求值，computed 缓存） */
+function propReader<T>(props: Props, key: string, fallback: (() => T) | undefined) {
   let fallbackValue: Readonly<Ref<T>> | undefined;
-  return overridable(() => {
+  return () => {
     const value = props[key];
     if (value !== undefined || !fallback) return value as T;
     fallbackValue ??= computed(fallback);
     return fallbackValue.value;
-  });
+  };
 }
 
 /**

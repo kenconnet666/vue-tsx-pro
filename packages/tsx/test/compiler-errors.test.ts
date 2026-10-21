@@ -113,11 +113,25 @@ describe('误用在编译期报错', () => {
       '  () => [size, icon, index, label, items])',
     ].join('\n');
     const out = (await compileRunes(code))!.code;
-    // 默认值变成惰性函数，引用的前一个 prop 已改写为 .value
-    expect(out).toContain('_vtp_prop(_props, "icon", () => pick(size.value))');
-    expect(out).toContain('_vtp_prop(_props, "index", () => -1)');
+    // 默认值变成惰性函数，引用的前一个 prop 已改写为 .value；都没被写过，用只读访问器
+    expect(out).toContain('_vtp_readonlyProp(_props, "icon", () => pick(size.value))');
+    expect(out).toContain('_vtp_readonlyProp(_props, "index", () => -1)');
+    expect(out).not.toContain('_vtp_prop');
     // 自动补上组件的 props 声明
     expect(out).toMatch(/props: \["size", "icon", "index", "label", "items"\]/);
+  });
+
+  it('被写过、或交给 _toRef / _bind 的 prop 仍用可覆盖的 prop 访问器', async () => {
+    const code = [
+      '_component(({ a = 1, b = 2, c = 3, d = 4 }: any) => {',
+      '  const bump = () => a++;',
+      '  useThing(_toRef(b));',
+      '  return () => [<Input value={_bind(c)} />, d, bump];',
+      '})',
+    ].join('\n');
+    const out = (await compileRunes(code))!.code;
+    for (const name of ['a', 'b', 'c']) expect(out).toContain(`_vtp_prop(_props, "${name}"`);
+    expect(out).toContain('_vtp_readonlyProp(_props, "d"');
   });
 
   it('setup 函数体与 setup 内的普通回调可以声明符文', async () => {

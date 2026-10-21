@@ -7,6 +7,7 @@ const RUNTIME_MODULE = '@vue-tsx-pro/tsx';
 type VueHelper = 'ref' | 'shallowRef' | 'reactive' | 'computed' | 'unref';
 type RuntimeHelper =
   | 'prop'
+  | 'readonlyProp'
   | 'childrenProp'
   | 'bindable'
   | 'restProps'
@@ -20,8 +21,11 @@ type RuntimeHelper =
 
 /** 编译时用到的 Vue 与本包运行时函数：按需生成带前缀的本地名，最后统一插入 import */
 export class RuntimeImports {
-  /** `模块:名称` → 导入项 */
-  private entries = new Map<string, { module: string; name: string; local: t.Identifier }>();
+  /** `模块:名称` → 导入项；uses 是生成的调用数，换成别的函数后为 0 的不导入 */
+  private entries = new Map<
+    string,
+    { module: string; name: string; local: t.Identifier; uses: number }
+  >();
 
   private program: NodePath<t.Program>;
 
@@ -39,10 +43,17 @@ export class RuntimeImports {
     return this.call(RUNTIME_MODULE, name, args);
   }
 
+  /** 把 runtime() 生成的调用换成另一个运行时函数（参数不变） */
+  retarget(call: t.CallExpression, from: RuntimeHelper, to: RuntimeHelper) {
+    this.entries.get(`${RUNTIME_MODULE}:${from}`)!.uses--;
+    call.callee = this.runtime(to, []).callee;
+  }
+
   /** 把用到的导入按模块插到文件开头；所有改写完成后调用一次 */
   insert() {
     const byModule = new Map<string, t.ImportSpecifier[]>();
-    for (const { module, name, local } of this.entries.values()) {
+    for (const { module, name, local, uses } of this.entries.values()) {
+      if (!uses) continue;
       const specifiers = byModule.get(module) ?? [];
       specifiers.push(t.importSpecifier(t.identifier(local.name), t.identifier(name)));
       byModule.set(module, specifiers);
@@ -65,9 +76,11 @@ export class RuntimeImports {
         module,
         name,
         local: this.program.scope.generateUidIdentifier(`${prefix}_${name}`),
+        uses: 0,
       };
       this.entries.set(id, entry);
     }
+    entry.uses++;
     return t.callExpression(t.identifier(entry.local.name), args);
   }
 }
