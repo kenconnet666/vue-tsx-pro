@@ -168,7 +168,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       字段与顺序由 keys 决定，FieldCompare 之后用它
 - [ ] 跨容器拖动：`useSortable` 加分组
 - [ ] 通知控制器 `createNotifications()`（与 `createToaster` 同一模式），NotificationCenter 用它
-- [ ] 持久化状态 `usePersistentState`：列宽、密度、每页条数、侧栏、筛选条件（文档站的 sidebar.ts、theme.ts 改用它）
+- [x] 持久化状态 `usePersistentState`（参考 VueUse useStorage）：JSON、类型不对用默认值、对象按字段合并、存不了只在这次有效、
+      别的标签页改了跟着变；文档站的侧栏与主题设置改用它（删掉 site/sidebar.ts），台账记住隐藏的列
 - [ ] 导出 CSV：从列定义生成（BOM、转义、列的 value 与格式）；`downloadFile` 的 BOM 说明改对
 - [ ] 通用钩子：`useEventListener`、`useDebounce`、`useIntersectionObserver`（页面可见性已有 `usePageVisible`）
 - [ ] 快捷键：作用域、序列键（`g i`）、预解析；离开确认接上路由守卫与 `form.dirty`

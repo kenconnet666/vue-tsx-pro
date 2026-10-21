@@ -17,6 +17,7 @@ import {
   TableOfContents,
   ThemeSwitcher,
   collectHeadings,
+  usePersistentState,
   type HeadingEntry,
 } from '@vue-tsx-pro/ui';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -25,7 +26,6 @@ import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { allPages, sectionOf, sections } from './site/nav';
 import { PropsPlaygroundButton } from './site/PropsPlaygroundButton';
-import { sidebarPreference } from './site/sidebar';
 import { isFrame } from './router';
 import { preference } from './site/theme';
 
@@ -61,7 +61,7 @@ const styles = stylex.create({
 });
 
 // 站点导航是盖在页面上的抽屉：默认收起，不挡正文（首页就是导航）；开关与拖动后的宽度各人记住
-const sidebar = sidebarPreference('docs.sidebar', { open: false, width: 256 });
+const sidebar = usePersistentState('docs.sidebar', { open: false, width: 256 });
 
 /** 搜索面板的选项：每个页面一项，按侧栏分组 */
 const searchItems = allPages.map((page) => ({
@@ -135,8 +135,8 @@ export const App = _component(() => {
     return (
       <AppShell
         sidebarMode="overlay"
-        sidebarOpen={_bind(sidebar.open)}
-        sidebarWidth={_bind(sidebar.width)}
+        sidebarOpen={_bind(sidebar.value.open)}
+        sidebarWidth={_bind(sidebar.value.width)}
         brand={
           <RouterLink to="/" {...stylex.attrs(styles.brand)}>
             <Icon icon={Box} sx={styles.brandMark} />

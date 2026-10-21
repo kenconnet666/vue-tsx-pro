@@ -38,12 +38,12 @@ import {
   StatusBadge,
   Text,
   ThemeSwitcher,
+  usePersistentState,
   type ComponentDefaults,
   type IconData,
 } from '@vue-tsx-pro/ui';
 import { inject, type VNodeChild } from 'vue';
 import { routeLocationKey, routerKey } from 'vue-router';
-import { sidebarPreference } from '../../site/sidebar';
 import { preference } from '../../site/theme';
 import { inbox, myTasks, taskStatuses, TODAY } from './data';
 
@@ -274,7 +274,7 @@ const Tray = _component(
 );
 
 // 侧栏是盖在页面上的抽屉：默认收起，表格不被挡住；开关与拖动后的宽度各人记住
-const sidebar = sidebarPreference('cases.sidebar', { open: false, width: 256 });
+const sidebar = usePersistentState('cases.sidebar', { open: false, width: 256 });
 
 /** 降本管理的页面外壳 */
 export const CaseShell = _component(
@@ -292,8 +292,8 @@ export const CaseShell = _component(
       <Provider defaults={caseDefaults}>
         <AppShell
           sidebarMode="overlay"
-          sidebarOpen={_bind(sidebar.open)}
-          sidebarWidth={_bind(sidebar.width)}
+          sidebarOpen={_bind(sidebar.value.open)}
+          sidebarWidth={_bind(sidebar.value.width)}
           propsMain={{ sx: styles.main }}
           brand={
             <a href={casePath('CostDashboard')} {...stylex.attrs(styles.brand)}>

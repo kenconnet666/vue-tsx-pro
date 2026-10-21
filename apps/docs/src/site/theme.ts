@@ -5,26 +5,17 @@
 import {
   builtinThemes,
   createThemePreference,
+  usePersistentState,
   useReducedMotion,
   type Theme,
 } from '@vue-tsx-pro/ui';
 import type { customizeTheme, ThemeSettings } from '@vue-tsx-pro/ui/theme-customize';
-import { effectScope, ref, shallowRef, watch } from 'vue';
+import { effectScope, shallowRef, watch } from 'vue';
 
 export const preference = createThemePreference({ themes: builtinThemes });
 
-const SETTINGS_KEY = 'vue-tsx-pro-theme-settings';
-
-function readSettings(): ThemeSettings {
-  try {
-    return JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') as ThemeSettings;
-  } catch {
-    return {};
-  }
-}
-
 /** 主题编辑器的设置：改动立即生效，并记下来 */
-export const themeSettings = ref<ThemeSettings>(readSettings());
+export const themeSettings = usePersistentState<ThemeSettings>('vue-tsx-pro-theme-settings', {});
 
 // 套用设置要用颜色库与 Radix 色板：访客改过设置才加载，没改过的首屏不带它们
 const customize = shallowRef<typeof customizeTheme>();
@@ -41,17 +32,6 @@ const customized = () => Object.values(themeSettings.value).some((value) => valu
 
 // 跟随系统的监听不属于哪个组件，放在自己的作用域里
 const reducedMotion = effectScope(true).run(() => {
-  watch(
-    themeSettings,
-    (settings) => {
-      try {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-      } catch {
-        // 隐私模式、禁用存储：不记
-      }
-    },
-    { deep: true },
-  );
   watch(customized, (yes) => {
     if (yes) void loadCustomize();
   });

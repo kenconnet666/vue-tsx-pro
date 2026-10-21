@@ -61,6 +61,7 @@ import {
   type DataTableColumnGroup,
   daysBetween,
   type SortState,
+  usePersistentState,
   useTableQuery,
 } from '@vue-tsx-pro/ui';
 import { space } from '@vue-tsx-pro/ui/tokens.stylex';
@@ -384,7 +385,10 @@ export const LedgerPage = _component(
     let query = _state(fromLink());
     let tab = _state(route().view ?? 'all');
     let selected = _state<string[]>([]);
-    let hidden = _state<string[]>([]);
+    // 隐藏了哪些列：各人记住，两本台账分开记
+    let hidden = _fromRef(
+      usePersistentState(`cases.${_untrack(kind)}.hiddenColumns`, [] as string[]),
+    );
     let expanded = _state<string[]>([]);
 
     /** 金额：单位在分组表头里，格子里只写数；没有值时显示 empty */
