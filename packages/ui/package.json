@@ -47,8 +47,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build --configLoader native && tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p .",
+    "build": "vite build --configLoader native && node ../../node_modules/typescript7/bin/tsc -p tsconfig.build.json",
+    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p .",
     "test": "vitest run --configLoader native"
   },
   "dependencies": {

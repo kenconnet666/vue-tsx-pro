@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --configLoader native",
     "build": "vite build --configLoader native",
-    "typecheck": "tsc -p .",
+    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p .",
     "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"
   },
   "dependencies": {

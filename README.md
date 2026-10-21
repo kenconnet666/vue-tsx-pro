@@ -84,7 +84,7 @@ const styles = stylex.create({
 ```bash
 pnpm install
 pnpm build          # 依次构建 tsx、ui
-pnpm typecheck      # 各包类型检查
+pnpm typecheck      # 各包类型检查（TypeScript 7，全部约 15 秒）
 pnpm test           # 先构建 tsx，再运行各包测试
 pnpm dev:docs       # 启动文档站（http://localhost:5174，固定端口）
 pnpm build:docs     # 构建文档站静态页面
@@ -99,7 +99,7 @@ pnpm format         # prettier
 
 ## 语言服务（MCP）
 
-项目级 MCP 服务器 `vue_tsx_pro_lsp` 把 TSX 语言服务提供给 Claude Code 与 Codex。它直接使用仓库固定的 TypeScript，结果与 `pnpm typecheck` 一致；诊断还会附带符文编译器的误用报错。只处理 `.ts`/`.tsx`，不涉及 Vue SFC。
+项目级 MCP 服务器 `vue_tsx_pro_lsp` 把 TSX 语言服务提供给 Claude Code 与 Codex。它直接使用仓库固定的 TypeScript 6（有 JS API；`pnpm typecheck` 用的 TypeScript 7 没有，两者结果一致）；诊断还会附带符文编译器的误用报错。只处理 `.ts`/`.tsx`，不涉及 Vue SFC。
 
 | 工具          | 作用                                                     |
 | ------------- | -------------------------------------------------------- |

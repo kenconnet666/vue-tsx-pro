@@ -46,7 +46,7 @@ pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium firefox we
 ```bash
 pnpm -C packages/ui typecheck
 pnpm -C packages/ui exec vitest run src/navigation          # 只跑相关目录
-pnpm -C apps/host-demo exec tsc -p . --noEmit
+pnpm -C apps/host-demo typecheck                             # 各包的 typecheck 都用 TypeScript 7，几秒
 pnpm docs:check      # 导出的声明都要有 JSDoc（只检查已被 git 跟踪的文件：新文件先 git add）
 pnpm css-docs:check  # 改了 tokens 或 StyleX 属性数据后先 pnpm css-docs 重新生成
 pnpm exports:check   # 模块里加、改了导出后先 pnpm exports 重新生成入口
