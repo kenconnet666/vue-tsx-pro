@@ -1,4 +1,5 @@
-// 限时抢购：自定义成一格一格的数字；待支付的订单：默认的“时:分:秒”；验证码：60 秒后才能重发，到点时 onEnd 恢复按钮
+// 限时抢购：自定义成一格一格的数字；待支付的订单：默认的“时:分:秒”；优惠券：precision="minute" 精确到分、每分钟更新；
+// 验证码：60 秒后才能重发，到点时 onEnd 恢复按钮
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
@@ -34,6 +35,7 @@ export default _component(() => {
   // 演示数据：抢购在页面打开的 27 小时后开始，订单 15 分钟内不付就取消
   const saleStartsAt = new Date(Date.now() + (27 * 60 + 15) * 60_000);
   const orderExpiresAt = new Date(Date.now() + 15 * 60_000);
+  const couponExpiresAt = new Date(Date.now() + ((2 * 24 + 3) * 60 + 15) * 60_000);
   let resendAt = _state<Date | null>(null);
   const send = () => (resendAt = new Date(Date.now() + 60_000));
 
@@ -65,6 +67,14 @@ export default _component(() => {
             </Text>
             <Button size="sm">去支付</Button>
           </Flex>
+        </Flex>
+      </Card>
+      <Card padding="md">
+        <Flex direction="column" gap="sm">
+          <Small tone="muted">满 200 减 30 优惠券</Small>
+          <Text>
+            <Countdown to={couponExpiresAt} precision="minute" /> 后过期
+          </Text>
         </Flex>
       </Card>
       <Card padding="md">

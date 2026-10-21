@@ -29,7 +29,8 @@ export default _component(() => () => (
         <Example id="activity" title="相对时间" demo={Activity}>
           <Code>RelativeTime</Code> 按相差多久自动取单位，措辞是“昨天”而不是“1
           天前”，随时间更新（秒级每秒，分钟级每 10 秒，更远的更慢，页面隐藏时停下）。
-          <Code>threshold</Code> 以外直接写日期；悬停看完整的日期时间。
+          <Code>threshold</Code> 以外直接写日期；悬停看完整的日期时间。<Code>format</Code> 是详略：
+          <Code>long</Code>（默认）、<Code>short</Code>、<Code>narrow</Code>。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -37,7 +38,8 @@ export default _component(() => () => (
           <Code>Countdown</Code>{' '}
           默认显示“时:分:秒”，超过一天时前面加天数；渲染函数拿到拆好的天、时、分、秒，可以排成任意样子。
           <Code>role="timer"</Code> 默认不播报，到点时 <Code>onEnd</Code>{' '}
-          调用一次（发送验证码后恢复按钮）。几个计时器对齐到整秒一起跳。
+          调用一次（发送验证码后恢复按钮）。几个计时器对齐到整秒一起跳；
+          <Code>precision="minute"</Code> 只到分、每分钟更新一次，适合以天计的期限。
         </Example>
       </ExampleColumn>
     </Examples>

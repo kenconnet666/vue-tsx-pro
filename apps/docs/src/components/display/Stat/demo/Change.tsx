@@ -20,5 +20,16 @@ export default _component(() => () => (
         description="越低越好：下降显示为改善"
       />
     </Card>
+    <Card>
+      {/* 变化量是绝对数而不是比例：changeFormat 换成带符号的整数 */}
+      <Stat
+        label="新增会员"
+        value={342}
+        unit="人"
+        change={58}
+        changeFormat={{ signDisplay: 'exceptZero' }}
+        changeLabel="较昨日"
+      />
+    </Card>
   </Grid>
 ));

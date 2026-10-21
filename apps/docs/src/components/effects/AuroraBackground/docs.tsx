@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Controls from './demo/Controls.tsx?demo';
 import Night from './demo/Night.tsx?demo';
+import Welcome from './demo/Welcome.tsx?demo';
 
 export const meta = {
   title: 'AuroraBackground 极光',
@@ -23,6 +24,12 @@ export default _component(() => () => (
           包在 <Code>Provider</Code>{' '}
           里用暗色主题，光幕叠在主题的底色上；子元素是叠在上面的内容。暗色主题里光更亮（着色器里有{' '}
           <Code>uDark</Code>），亮色主题里收敛成雾，不抢文字。
+        </Example>
+        <Example id="welcome" title="叠加内容与关闭特效" demo={Welcome}>
+          卡片是子元素，叠在光幕上面。<Code>interactive</Code> 关掉时光幕不随指针偏移，
+          <Code>paused</Code> 停在当前画面；用户在设置里关掉动态背景时给 <Code>quality="off"</Code>
+          ：不创建 WebGL，显示 <Code>fallback</Code>
+          （这里是一抹静态渐变，不写时是主题色的柔和渐变）。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

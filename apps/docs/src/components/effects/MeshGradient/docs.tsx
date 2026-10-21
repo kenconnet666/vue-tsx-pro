@@ -8,6 +8,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Controls from './demo/Controls.tsx?demo';
 import Hero from './demo/Hero.tsx?demo';
 import Palettes from './demo/Palettes.tsx?demo';
+import Performance from './demo/Performance.tsx?demo';
 
 export const meta = {
   title: 'MeshGradient 网格渐变',
@@ -23,6 +24,11 @@ export default _component(() => () => (
         <Example id="hero" title="标题区" demo={Hero}>
           子元素叠在渐变上面，照常排版与交互；画布在底层，不接收指针，指针跟随监听的是整个窗口。画面不透明，文字放在半透明的面板上保证对比度。尺寸由{' '}
           <Code>sx</Code> 或内容决定。
+        </Example>
+        <Example id="performance" title="画质、分辨率与降级" demo={Performance}>
+          渲染分辨率默认 <Code>0.5</Code>：平滑的渐变降到一半看不出差别，填充开销省下四分之三。
+          <Code>quality="off"</Code> 不创建 WebGL，显示 <Code>fallback</Code>（没有 WebGL
+          时也是它）；<Code>interactive</Code> 关掉指针跟随。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

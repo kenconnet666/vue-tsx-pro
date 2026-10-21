@@ -16,6 +16,7 @@ import Loading from './demo/Loading.tsx?demo';
 import Radius from './demo/Radius.tsx?demo';
 import Sizes from './demo/Sizes.tsx?demo';
 import Tones from './demo/Tones.tsx?demo';
+import Types from './demo/Types.tsx?demo';
 import Variants from './demo/Variants.tsx?demo';
 import WithIcon from './demo/WithIcon.tsx?demo';
 
@@ -81,6 +82,12 @@ export default _component(() => () => (
           <Code>disabled</Code> 是原生的不可用，按钮不能聚焦；需要说明原因时加{' '}
           <Code>focusableWhenDisabled</Code>
           ，按钮仍能聚焦，悬停或聚焦时提示照常显示。
+        </Example>
+        <Example id="types" title="表单里的按钮与波纹" demo={Types}>
+          <Code>type</Code> 默认是 <Code>button</Code>，放在表单里也不会误提交；
+          <Code>submit</Code> 提交所在的表单，<Code>reset</Code> 触发表单的 reset 事件。
+          <Code>ripple={'{false}'}</Code> 关掉单个按钮的点击波纹，全局默认由 <Code>createUi</Code>{' '}
+          的 <Code>ripple</Code> 决定。
         </Example>
       </ExampleColumn>
     </Examples>

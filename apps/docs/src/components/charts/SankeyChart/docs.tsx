@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Budget from './demo/Budget.tsx?demo';
 import Funnel from './demo/Funnel.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 
 export const meta = {
   title: 'SankeyChart 桑基图',
@@ -29,6 +30,10 @@ export default _component(() => () => (
         <Example id="budget" title="预算分配" demo={Budget}>
           数值可以是 Decimal、bigint，<Code>valueFormat</Code>{' '}
           同时作用于节点旁的总量、提示框与读屏的数据表；<Code>align</Code> 决定节点靠哪一侧排。
+        </Example>
+        <Example id="options" title="状态" demo={Options}>
+          <Code>tooltip</Code> 可以关掉。加载中（<Code>loading</Code>）显示骨架，没有数据时显示{' '}
+          <Code>empty</Code>（默认“暂无数据”）。
         </Example>
       </ExampleColumn>
     </Examples>

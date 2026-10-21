@@ -6,6 +6,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Celebrate from './demo/Celebrate.tsx?demo';
 import Controls from './demo/Controls.tsx?demo';
+import Palette from './demo/Palette.tsx?demo';
 
 export const meta = {
   title: 'Confetti 彩纸',
@@ -26,6 +27,11 @@ export default _component(() => () => (
       <Code>fullscreen={'{false}'}</Code> 时铺满最近的定位父元素。<Code>angle</Code>{' '}
       是喷出的方向（90 是正上方），<Code>spread</Code>{' '}
       是散开的角度；初速度按区域大小算，小区域里不会冲出去。
+    </Example>
+    <Example id="palette" title="色板与收尾" demo={Palette}>
+      <Code>palette</Code> 换颜色，下一次放时生效；<Code>onDone</Code>{' '}
+      在这几批都落完、画布卸载后调用。用户关掉动态特效时给 <Code>quality="off"</Code>
+      ：不放，直接调用 onDone（减少动态效果、没有 WebGL 时也一样），流程照常往下走。
     </Example>
     <ApiReference api={api} />
   </DocPage>

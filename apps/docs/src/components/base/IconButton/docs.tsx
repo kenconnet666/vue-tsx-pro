@@ -9,6 +9,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Links from './demo/Links.tsx?demo';
 import Presets from './demo/Presets.tsx?demo';
+import States from './demo/States.tsx?demo';
 import Toolbar from './demo/Toolbar.tsx?demo';
 
 export const meta = {
@@ -30,6 +31,12 @@ export default _component(() => () => (
           宽高相等，默认 ghost 样式、中性色（一排图标不会满屏品牌色）；外观选项同
           Button。没有文字，类型上必须给 <Code>aria-label</Code>
           ，读屏才知道它是做什么的。
+        </Example>
+        <Example id="states" title="加载、不可用与异步复制" demo={States}>
+          <Code>loading</Code> 时图标换成转圈、点击无效；<Code>focusableWhenDisabled</Code>{' '}
+          让不可用的按钮仍能聚焦，配 Tooltip 说明为什么不能点。<Code>CopyButton</Code> 的{' '}
+          <Code>value</Code> 可以是返回 Promise 的函数（点击时才生成，等待时转圈），
+          <Code>timeout</Code> 是对勾停留的毫秒数，<Code>onCopied</Code> 拿到是否成功。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

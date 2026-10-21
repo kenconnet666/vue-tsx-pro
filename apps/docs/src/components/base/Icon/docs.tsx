@@ -7,6 +7,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
 import Basic from './demo/Basic.tsx?demo';
 import Custom from './demo/Custom.tsx?demo';
+import Direction from './demo/Direction.tsx?demo';
 import Draw from './demo/Draw.tsx?demo';
 import Labelled from './demo/Labelled.tsx?demo';
 import Sizes from './demo/Sizes.tsx?demo';
@@ -44,6 +45,10 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="with-text" title="与文字、按钮搭配" demo={WithText}>
           图标与文字基线对齐，不撑高行距；按钮、标记、链接里的图标由组件排好间距。
+        </Example>
+        <Example id="direction" title="从右到左" demo={Direction}>
+          <Code>flipInRtl</Code> 让图标在从右到左的排版里水平翻转（按所在元素的 <Code>dir</Code>{' '}
+          判断）：箭头、chevron、“返回”这类有方向的图标要翻，时钟、勾号不翻。
         </Example>
         <Example id="accessibility" title="装饰与含义" demo={Labelled}>
           旁边已有文字时图标只是装饰，默认对读屏隐藏；单独出现、表达含义的图标要给{' '}

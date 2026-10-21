@@ -1,7 +1,17 @@
-// 动态列表：发生时间写相对时间，随时间自动更新，悬停看完整的日期；一周以前的直接写日期
+// 动态列表：发生时间写相对时间，随时间自动更新，悬停看完整的日期；一周以前的直接写日期。
+// format 是详略：long “3 分钟前”、short、narrow（窄栏、移动端）
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Avatar, Card, Flex, RelativeTime, Small, Text } from '@vue-tsx-pro/ui';
+import {
+  Avatar,
+  Card,
+  Flex,
+  RelativeTime,
+  Small,
+  Text,
+  ToggleGroup,
+  ToggleItem,
+} from '@vue-tsx-pro/ui';
 
 const styles = stylex.create({
   list: { display: 'flex', flexDirection: 'column', gap: '_md', margin: 0, padding: 0 },
@@ -20,23 +30,31 @@ export default _component(() => {
     { who: '许悠', what: '创建了里程碑“v2.0”', at: new Date(opened - 26 * 60 * MINUTE) },
     { who: '王晴', what: '上传了设计稿', at: new Date(opened - 12 * 24 * 60 * MINUTE) },
   ];
+  let format = _state<Intl.RelativeTimeFormatStyle>('long');
   return () => (
-    <Card padding="md">
-      <ul {...stylex.attrs(styles.list)}>
-        {events.map((event) => (
-          <li key={event.who} {...stylex.attrs(styles.item)}>
-            <Avatar size="sm" name={event.who} />
-            <Flex direction="column">
-              <Text>
-                <Text weight="medium">{event.who}</Text> {event.what}
-              </Text>
-              <Small tone="muted">
-                <RelativeTime value={event.at} threshold={{ days: 7 }} />
-              </Small>
-            </Flex>
-          </li>
-        ))}
-      </ul>
-    </Card>
+    <Flex direction="column" gap="md">
+      <ToggleGroup value={_bind(format)} required aria-label="详略" size="sm">
+        <ToggleItem value="long">long</ToggleItem>
+        <ToggleItem value="short">short</ToggleItem>
+        <ToggleItem value="narrow">narrow</ToggleItem>
+      </ToggleGroup>
+      <Card padding="md">
+        <ul {...stylex.attrs(styles.list)}>
+          {events.map((event) => (
+            <li key={event.who} {...stylex.attrs(styles.item)}>
+              <Avatar size="sm" name={event.who} />
+              <Flex direction="column">
+                <Text>
+                  <Text weight="medium">{event.who}</Text> {event.what}
+                </Text>
+                <Small tone="muted">
+                  <RelativeTime value={event.at} format={format} threshold={{ days: 7 }} />
+                </Small>
+              </Flex>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </Flex>
   );
 });

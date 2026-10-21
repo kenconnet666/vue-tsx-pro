@@ -1,7 +1,19 @@
+// 画质档位（off 不创建 WebGL，显示 fallback）、渲染分辨率与暂停；onStatusChange 报告渲染状态
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Badge, Card, Flex, Switch, Text, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { ThreeCanvas, type ThreeQuality } from '@vue-tsx-pro/ui/three';
+import {
+  Badge,
+  Card,
+  Field,
+  Flex,
+  Grid,
+  Slider,
+  Small,
+  Switch,
+  ToggleGroup,
+  ToggleItem,
+} from '@vue-tsx-pro/ui';
+import { ThreeCanvas, type ThreeQuality, type ThreeStatus } from '@vue-tsx-pro/ui/three';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 import { AdditiveBlending, BufferAttribute, BufferGeometry, Points, PointsMaterial } from 'three';
 
@@ -10,11 +22,18 @@ const QUALITIES: { value: ThreeQuality; label: string }[] = [
   { value: 'low', label: '低' },
   { value: 'medium', label: '中' },
   { value: 'high', label: '高' },
+  { value: 'off', label: '关' },
 ];
 
 const styles = stylex.create({
   stage: { height: '18rem' },
-  stats: { color: '_textMuted' },
+  fallback: {
+    display: 'grid',
+    placeItems: 'center',
+    height: '100%',
+    color: '_textMuted',
+    backgroundImage: 'radial-gradient(circle, _colors.accentSoft, transparent 65%)',
+  },
 });
 
 /** 斐波那契球面上均匀分布的点，带一点起伏 */
@@ -36,31 +55,49 @@ function spherePoints(count: number) {
 
 export default _component(() => {
   let quality = _state<ThreeQuality>('auto');
+  let resolution = _state(1);
   let paused = _state(false);
+  let status = _state<ThreeStatus>('idle');
   let info = _state({ level: '', count: 0, pixelRatio: 1 });
   return () => (
     <Flex direction="column" gap="md">
-      <Flex gap="lg" align="center" wrap>
-        <ToggleGroup value={_bind(quality)} required aria-label="画质">
-          {QUALITIES.map((item) => (
-            <ToggleItem key={item.value} value={item.value}>
-              {item.label}
-            </ToggleItem>
-          ))}
-        </ToggleGroup>
+      <Grid minItemWidth="14rem" gap="lg" align="end">
+        <Field label="画质">
+          <ToggleGroup value={_bind(quality)} required>
+            {QUALITIES.map((item) => (
+              <ToggleItem key={item.value} value={item.value}>
+                {item.label}
+              </ToggleItem>
+            ))}
+          </ToggleGroup>
+        </Field>
+        <Field label="渲染分辨率">
+          <Slider
+            value={_bind(resolution)}
+            min={0.25}
+            max={1}
+            step={0.05}
+            valueText={(value) => `${Math.round(value * 100)}%`}
+          />
+        </Field>
         <Switch checked={_bind(paused)}>暂停</Switch>
-        <Flex gap="sm" align="center" sx={styles.stats}>
-          <Badge>{info.level}</Badge>
-          <Text size="sm">
-            {info.count} 个粒子 · 像素比 {info.pixelRatio}
-          </Text>
-        </Flex>
+      </Grid>
+      <Flex gap="sm" align="center">
+        <Badge tone={status === 'fallback' ? 'warning' : 'neutral'}>{status}</Badge>
+        <Small tone="muted">
+          {status === 'fallback'
+            ? '没有渲染器，显示降级内容'
+            : `${info.level} · ${info.count} 个粒子 · 像素比 ${info.pixelRatio.toFixed(2)}`}
+        </Small>
       </Flex>
       <Card padding="none">
         <ThreeCanvas
           sx={styles.stage}
           quality={quality}
+          resolution={resolution}
           paused={paused}
+          onStatusChange={(next) => (status = next)}
+          fallback={<div {...stylex.attrs(styles.fallback)}>特效已关闭</div>}
           setup={({ scene, quality: resolved, size, themeColors }) => {
             const count = Math.round(12000 * resolved.density);
             const geometry = new BufferGeometry();

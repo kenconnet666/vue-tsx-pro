@@ -10,6 +10,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Native from './demo/Native.tsx?demo';
 import Quote from './demo/Quote.tsx?demo';
 import Signup from './demo/Signup.tsx?demo';
+import States from './demo/States.tsx?demo';
 
 export const meta = {
   title: 'Form 表单',
@@ -31,6 +32,12 @@ export default _component(() => () => (
           的范围都从 schema 推出来。
           <Code>fields.username.validate</Code> 是单字段的异步校验：防抖、只采用最后一次的结果，
           <Code>form.validating</Code> 显示校验中。
+        </Example>
+        <Example id="states" title="字段的状态" demo={States}>
+          写在 <Code>Field</Code> 上的状态交给里面的控件（控件上显式写的优先）：
+          <Code>required</Code> 在标签后加星号、控件带 aria-required；<Code>readonly</Code>、
+          <Code>disabled</Code> 同步给控件。给了 <Code>error</Code> 就算出错，控件标红并经
+          aria-describedby 关联错误信息；只写 <Code>invalid</Code> 时只标红。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

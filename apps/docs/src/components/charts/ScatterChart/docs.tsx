@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Bubbles from './demo/Bubbles.tsx?demo';
 import Cities from './demo/Cities.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 
 export const meta = {
   title: 'ScatterChart 散点图',
@@ -29,6 +30,13 @@ export default _component(() => () => (
         <Example id="bubbles" title="气泡图" demo={Bubbles}>
           <Code>size</Code> 给成字段时，点的大小在 6–32px
           之间随它缩放；几个系列各用一个颜色，某一行在某个系列上没有值就不画那个点。
+        </Example>
+        <Example id="options" title="坐标、单位与状态" demo={Options}>
+          <Code>xLabel</Code> 显示在横轴下方，<Code>unit</Code>{' '}
+          显示在数值轴上方、提示框里跟在数值后面；<Code>valueDomain</Code> 固定数值轴的范围，
+          <Code>indexFormat</Code> 改提示框的标题。图例、网格线、提示框都能关。加载中（
+          <Code>loading</Code>
+          ）显示骨架，没有数据时显示 <Code>empty</Code>（默认“暂无数据”）。
         </Example>
       </ExampleColumn>
     </Examples>

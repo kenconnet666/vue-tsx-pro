@@ -5,6 +5,7 @@ import treeApi from 'virtual:api/TreeDataTableProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
 import States from './demo/States.tsx?demo';
@@ -47,6 +48,18 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Enter / Space', '在可排序的列标题上：切换升序、降序、不排'],
+        ['Space', '在勾选框上：勾选这一行；表头的勾选框全选或全不选'],
+        ['← / →', '在列宽的拖动把手上：调窄 / 调宽这一列（从右到左排版时反过来）'],
+        ['↓ / ↑ / PageDown / PageUp', '表格区域聚焦时：纵向滚动（横向用 ← / →）'],
+        ['Enter / Space', '在树形表格的展开按钮上：展开或收起这一行'],
+      ]}
+    >
+      列标题、勾选框、展开按钮都是原生控件，按 Tab
+      顺序经过；行本身不可聚焦，单元格里的链接、按钮照常可用。
+    </KeyboardReference>
     <ApiReference api={[api, treeApi]} />
   </DocPage>
 ));

@@ -9,6 +9,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Locales from './demo/Locales.tsx?demo';
 import Rtl from './demo/Rtl.tsx?demo';
 import Scoped from './demo/Scoped.tsx?demo';
+import Services from './demo/Services.tsx?demo';
 
 export const meta = {
   title: 'Provider 配置',
@@ -54,6 +55,12 @@ export default _component(() => () => (
           语言包的 <Code>direction</Code> 是 rtl 时，Provider 写上
           dir="rtl"：组件都用逻辑属性，布局、箭头与方向键自动镜像。传送到 body
           的内容（Toaster、浮层）用 <Code>ConfigScope</Code> 重新带上主题、语言与方向。
+        </Example>
+        <Example id="services" title="高亮器与波纹" demo={Services}>
+          <Code>highlighter</Code> 是代码 + 语言 → 只含 span 与 br 的
+          HTML（文字由它转义），CodeBlock
+          经它高亮；这里换成一个只认日志级别的小高亮器，站点其余地方仍用 Shiki。
+          <Code>ripple</Code> 是点击波纹的开关，只影响这一层里的组件。
         </Example>
       </ExampleColumn>
     </Examples>

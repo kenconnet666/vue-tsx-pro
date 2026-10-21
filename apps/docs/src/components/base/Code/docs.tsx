@@ -12,6 +12,7 @@ import Basic from './demo/Basic.tsx?demo';
 import Block from './demo/Block.tsx?demo';
 import Diff from './demo/Diff.tsx?demo';
 import Group from './demo/Group.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 import Preview from './demo/Preview.tsx?demo';
 
 export const meta = {
@@ -38,6 +39,11 @@ export default _component(() => () => (
           注入（组件本身不依赖 Shiki），先显示纯文本、高亮结果到了再替换，布局不跳；
           <Code>lineNumbers</Code> 行号，<Code>highlightLines</Code> 高亮行，复制按钮在标题栏里。
         </Example>
+        <Example id="options" title="换行、复制与延后高亮" demo={Options}>
+          长行默认在浮层滚动条里横向滚动，<Code>wrap</Code> 改成自动换行；
+          <Code>copyable={'{false}'}</Code> 去掉复制按钮。<Code>highlight={'{false}'}</Code>{' '}
+          时按纯文本显示，改回 true 才交给高亮器：收起的、还没滚到的代码可以等要显示时再高亮。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="diff" title="增删与折叠" demo={Diff}>
@@ -51,7 +57,9 @@ export default _component(() => () => (
         <Example id="preview" title="示例卡片" demo={Preview}>
           <Code>CodePreview</Code>{' '}
           上面是运行中的效果、下面是源码（默认收起，可复制），文档站的每个示例都是一张；
-          <Code>actions</Code> 往工具栏最前面加按钮。
+          <Code>showCode</Code> 可以双向绑定源码的展开状态，<Code>actions</Code>{' '}
+          往工具栏最前面加按钮。<Code>code</Code> 也可以是返回 Promise
+          的函数：源码在指针移到工具栏上、或展开时才加载。
         </Example>
       </ExampleColumn>
     </Examples>

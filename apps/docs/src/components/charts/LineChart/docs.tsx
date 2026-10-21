@@ -9,6 +9,7 @@ import Basic from './demo/Basic.tsx?demo';
 import Curves from './demo/Curves.tsx?demo';
 import Gaps from './demo/Gaps.tsx?demo';
 import Palette from './demo/Palette.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 
 export const meta = {
   title: 'LineChart 折线图',
@@ -39,6 +40,12 @@ export default _component(() => () => (
         <Example id="palette" title="多个系列" demo={Palette}>
           系列按顺序取图表色板的 8 种颜色，各色在亮色、暗色、纸张主题的背景上都满足 3:1
           的图形对比度。
+        </Example>
+        <Example id="options" title="线宽、图例与状态" demo={Options}>
+          <Code>lineWidth</Code> 是线宽（像素）；<Code>legend</Code>{' '}
+          默认多于一个系列时显示，点图例隐藏、恢复系列；
+          <Code>grid</Code>、<Code>tooltip</Code> 可以关掉。加载中（<Code>loading</Code>
+          ）显示骨架，没有数据时显示 <Code>empty</Code>（默认“暂无数据”）。
         </Example>
       </ExampleColumn>
     </Examples>

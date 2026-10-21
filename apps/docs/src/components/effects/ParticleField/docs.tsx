@@ -8,6 +8,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Constellation from './demo/Constellation.tsx?demo';
 import Controls from './demo/Controls.tsx?demo';
 import Layered from './demo/Layered.tsx?demo';
+import Performance from './demo/Performance.tsx?demo';
 
 export const meta = {
   title: 'ParticleField 粒子场',
@@ -34,6 +35,12 @@ export default _component(() => () => (
           不写 <Code>count</Code>{' '}
           时按面积与画质档位决定粒子数（连线时更稀疏），尺寸变化时增减。属性都实时生效；
           <Code>links</Code> 与 <Code>palette</Code> 变了会重建场景。
+          <Code>repelRadius</Code> 是指针排开粒子的半径（px）。
+        </Example>
+        <Example id="performance" title="画质、分辨率与降级" demo={Performance}>
+          这里没写 <Code>count</Code>：低画质的粒子数不到高画质的一半。<Code>resolution</Code>{' '}
+          降低渲染分辨率，<Code>paused</Code> 停在当前画面；<Code>quality="off"</Code> 不创建
+          WebGL，显示 <Code>fallback</Code>（这里是两层 CSS 圆点）。
         </Example>
       </ExampleColumn>
     </Examples>

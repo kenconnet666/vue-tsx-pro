@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Flex, Small, Sortable, Text, type StatusTone } from '@vue-tsx-pro/ui';
+import { Badge, Flex, Small, Sortable, Switch, Text, type StatusTone } from '@vue-tsx-pro/ui';
 
 interface Task {
   id: string;
@@ -19,12 +19,15 @@ export default _component(() => {
     { id: 'docs', title: '补充接口文档', priority: low },
     { id: 'weekly', title: '写周报', priority: low },
   ]);
+  let locked = _state(false);
   return () => (
     <Flex direction="column" gap="md">
+      <Switch checked={_bind(locked)}>锁定顺序</Switch>
       <Sortable
         items={_bind(tasks)}
         getKey={(task) => task.id}
         getLabel={(task) => task.title}
+        disabled={locked}
         aria-label="今日待办"
       >
         {(task) => (

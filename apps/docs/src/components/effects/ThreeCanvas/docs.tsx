@@ -34,10 +34,14 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
-        <Example id="quality" title="画质与暂停" demo={Quality}>
+        <Example id="quality" title="画质、分辨率与降级" demo={Quality}>
           <Code>quality</Code> 决定像素比上限、密度系数（这里按它决定粒子数）与抗锯齿；
-          <Code>auto</Code> 按设备选择（触屏、核数、内存、省流量）。<Code>paused</Code>{' '}
-          停在当前画面。页面上同时保持的 WebGL 上下文默认最多 8
+          <Code>auto</Code> 按设备选择（触屏、核数、内存、省流量）；<Code>off</Code> 不创建
+          WebGL，直接显示 <Code>fallback</Code>（用户在设置里关掉特效、省电模式），没有 WebGL
+          时也显示它。<Code>resolution</Code>{' '}
+          按比例降低渲染分辨率，模糊、平滑的画面降到一半几乎看不出差别。
+          <Code>paused</Code> 停在当前画面，<Code>onStatusChange</Code>{' '}
+          报告渲染状态。页面上同时保持的 WebGL 上下文默认最多 8
           个，超出时回收最久没出现在视口里的画布，它滚回来时重建。
         </Example>
         <Example id="pointer" title="指针跟随" demo={Pointer}>

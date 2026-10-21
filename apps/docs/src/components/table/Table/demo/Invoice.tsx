@@ -27,6 +27,7 @@ const money = (value: number) =>
 export default _component(() => {
   let density = _state<'compact' | 'standard' | 'comfortable'>('standard');
   let striped = _state(true);
+  let ghost = _state(false);
   return () => {
     const total = lines.reduce((sum, [, quantity, price]) => sum + quantity * price, 0);
     return (
@@ -40,8 +41,16 @@ export default _component(() => {
           <Switch checked={_bind(striped)} size="sm">
             斑马纹
           </Switch>
+          <Switch checked={_bind(ghost)} size="sm">
+            无外框（ghost）
+          </Switch>
         </Flex>
-        <Table density={density} striped={striped} aria-label="报价明细">
+        <Table
+          density={density}
+          striped={striped}
+          variant={ghost ? 'ghost' : 'surface'}
+          aria-label="报价明细"
+        >
           <TableHead>
             <TableRow>
               <TableHeaderCell>项目</TableHeaderCell>

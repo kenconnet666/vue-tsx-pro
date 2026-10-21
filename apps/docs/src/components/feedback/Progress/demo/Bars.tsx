@@ -29,6 +29,8 @@ export default _component(() => () => (
         />
       ))}
       <Progress value={64} label="资料完善度" />
+      {/* 只要标签、不要右侧的数值：showValueLabel={false} */}
+      <Progress value={3} max={5} label="新手任务" showValueLabel={false} tone="success" />
     </Flex>
   </Card>
 ));

@@ -30,7 +30,8 @@ export default _component(() => () => (
         <Example id="change" title="变化量" demo={Change}>
           <Code>change</Code>{' '}
           默认按百分比显示，上升为成功色、下降为危险色；成本、耗时这类越低越好的指标写{' '}
-          <Code>invertChange</Code>。
+          <Code>invertChange</Code>。变化量是绝对数时用 <Code>changeFormat</Code>{' '}
+          换格式（Intl.NumberFormat 的选项）。
         </Example>
         <Example id="live" title="数值变化" demo={Live}>
           数值变化时从旧值滚动到新值（AnimatedNumber），读屏只读终值；减少动态效果时直接跳到新值。下方的迷你趋势是示例自己拼的最近
@@ -42,7 +43,8 @@ export default _component(() => () => (
           值变化时从旧值滚到新值，等宽数字不抖动。<Code>format</Code> 是 Intl.NumberFormat
           的选项；值可以是 number、bigint 或
           Decimal，中间帧按浮点数算，停下时按原值格式化，不丢精度。
-          <Code>trend</Code> 按正负着色。
+          <Code>trend</Code> 按正负着色；<Code>prefix</Code>、<Code>suffix</Code>{' '}
+          放在数字前后（图标、单位）。
         </Example>
         <Example id="loading" title="加载中" demo={Loading}>
           <Code>loading</Code> 时数值与变化量换成骨架，一道光带从起始边扫过，指标名照常显示； Card

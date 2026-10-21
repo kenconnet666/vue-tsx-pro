@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Objects from './demo/Objects.tsx?demo';
+import Angles from './demo/Angles.tsx?demo';
 import Product from './demo/Product.tsx?demo';
 
 export const meta = {
@@ -28,6 +29,13 @@ export default _component(() => () => (
       的环境光，金属、清漆、透光的材质都能正确地反光，
       <Code>exposure</Code> 调整体亮度；加载失败时显示语言包里的提示，<Code>onError</Code>{' '}
       拿到原因。
+    </Example>
+    <Example id="angles" title="多角度展示" demo={Angles}>
+      <Code>orbit</Code> 是一开始的角度（<Code>yaw</Code> 绕竖轴、<Code>pitch</Code>{' '}
+      从上往下看为正，单位度）；<Code>controls={'{false}'}</Code>{' '}
+      关掉拖动与方向键，整块不可聚焦。缩略图用 <Code>quality="low"</Code> 与较低的{' '}
+      <Code>resolution</Code>；<Code>paused</Code> 停住自转，没有 WebGL 时显示 <Code>fallback</Code>
+      。
     </Example>
     <ApiReference api={api} />
   </DocPage>

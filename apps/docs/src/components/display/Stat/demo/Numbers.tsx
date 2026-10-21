@@ -1,6 +1,6 @@
-import { RefreshCw } from '@lucide/icons';
+import { RefreshCw, Star } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { AnimatedNumber, Button, Descriptions, Flex } from '@vue-tsx-pro/ui';
+import { AnimatedNumber, Button, Descriptions, Flex, Icon } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 
 const random = (min: number, max: number) => min + Math.random() * (max - min);
@@ -46,6 +46,7 @@ export default _component(() => {
               <AnimatedNumber
                 value={rating}
                 format={{ minimumFractionDigits: 1 }}
+                prefix={<Icon icon={Star} tone="warning" />}
                 suffix=" / 5"
                 duration="xl"
               />

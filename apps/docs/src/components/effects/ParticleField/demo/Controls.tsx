@@ -16,6 +16,7 @@ export default _component(() => {
   let speed = _state(1);
   let links = _state(true);
   let interactive = _state(true);
+  let repelRadius = _state(140);
   return () => (
     <Flex direction="column" gap="md">
       <Grid minItemWidth="14rem" gap="md">
@@ -71,6 +72,20 @@ export default _component(() => {
             propsRoot={{ sx: styles.slider }}
           />
         </Flex>
+        <Flex gap="sm" align="center">
+          <Text size="sm" sx={styles.label}>
+            排开半径
+          </Text>
+          <Slider
+            value={_bind(repelRadius)}
+            min={40}
+            max={300}
+            step={10}
+            disabled={!interactive}
+            aria-label="排开半径"
+            propsRoot={{ sx: styles.slider }}
+          />
+        </Flex>
         <Flex gap="lg" align="center">
           <Switch checked={_bind(links)}>连线</Switch>
           <Switch checked={_bind(interactive)}>指针排开</Switch>
@@ -85,6 +100,7 @@ export default _component(() => {
           linkDistance={linkDistance}
           speed={speed}
           interactive={interactive}
+          repelRadius={repelRadius}
         />
       </Card>
     </Flex>

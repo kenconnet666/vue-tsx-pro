@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import pageScrollbarApi from 'virtual:api/PageScrollbarProps';
+import overlayApi from 'virtual:api/OverlayScrollbarProps';
 import api from 'virtual:api/ScrollAreaProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -42,6 +43,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, pageScrollbarApi]} />
+    <ApiReference api={[api, pageScrollbarApi, overlayApi]} />
   </DocPage>
 ));

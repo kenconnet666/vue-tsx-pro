@@ -9,6 +9,7 @@ import Basic from './demo/Basic.tsx?demo';
 import Colors from './demo/Colors.tsx?demo';
 import Horizontal from './demo/Horizontal.tsx?demo';
 import Legend from './demo/Legend.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 import Stacked from './demo/Stacked.tsx?demo';
 import States from './demo/States.tsx?demo';
 
@@ -34,6 +35,12 @@ export default _component(() => () => (
         </Example>
         <Example id="horizontal" title="横向" demo={Horizontal}>
           类目名较长或类目较多时用 <Code>orientation="horizontal"</Code>，名称不用折行或倾斜。
+        </Example>
+        <Example id="options" title="圆角、格式与坐标" demo={Options}>
+          <Code>radius</Code> 是柱子末端的圆角（px）；<Code>indexFormat</Code>{' '}
+          把类目换成显示文字（第二个参数是整行数据），<Code>valueFormat</Code>{' '}
+          是数值格式（这里是百分比）；<Code>valueDomain</Code> 固定数值轴的范围，柱子不必从 0
+          起时用。<Code>grid</Code>、<Code>tooltip</Code> 可以关掉。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

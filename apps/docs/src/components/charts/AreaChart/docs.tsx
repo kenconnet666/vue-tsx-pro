@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Stacked from './demo/Stacked.tsx?demo';
 import Traffic from './demo/Traffic.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 
 export const meta = {
   title: 'AreaChart 面积图',
@@ -28,6 +29,13 @@ export default _component(() => () => (
         <Example id="stacked" title="堆叠" demo={Stacked}>
           <Code>stacked</Code>{' '}
           时依次叠起，最上面是总额；数值轴按叠起来的总和取范围。点图例隐藏一个系列，其余的重新叠起。
+        </Example>
+        <Example id="options" title="格式、坐标轴与状态" demo={Options}>
+          <Code>indexFormat</Code> 把类目换成显示文字（第二个参数是整行数据），
+          <Code>valueFormat</Code> 是数值格式（这里是百分比），<Code>valueDomain</Code>{' '}
+          固定数值轴的范围；<Code>grid</Code>、<Code>tooltip</Code> 可以关掉。加载中（
+          <Code>loading</Code>）显示骨架，没有数据时显示 <Code>empty</Code>（默认“暂无数据”）。
+          <Code>hiddenSeries</Code> 双向绑定图例里隐藏的系列。
         </Example>
       </ExampleColumn>
     </Examples>

@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Budget from './demo/Budget.tsx?demo';
 import Sources from './demo/Sources.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 
 export const meta = {
   title: 'DonutChart 环形图',
@@ -30,6 +31,11 @@ export default _component(() => () => (
           <Code>arcWidth={'{0}'}</Code> 画成饼图，<Code>centerLabel={'{false}'}</Code>{' '}
           不写中间的字。数值可以是 Decimal、bigint，提示框与读屏的数据表按原值显示；
           <Code>itemColor</Code> 按行给颜色，不写的按顺序取色板。
+        </Example>
+        <Example id="options" title="图例与状态" demo={Options}>
+          <Code>hiddenItems</Code> 双向绑定图例里隐藏的块，占比按剩下的重算；<Code>height</Code>{' '}
+          是高度。加载中（<Code>loading</Code>）显示骨架，没有数据时显示 <Code>empty</Code>
+          （默认“暂无数据”）。
         </Example>
       </ExampleColumn>
     </Examples>

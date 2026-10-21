@@ -40,7 +40,8 @@ export default _component(() => () => (
           。
         </Example>
         <Example id="indicator" title="角标" demo={Indicators}>
-          <Code>Indicator</Code> 包住要标记的元素：计数超过 <Code>max</Code> 显示“99+”，0 时不显示；
+          <Code>Indicator</Code> 包住要标记的元素：计数超过 <Code>max</Code> 显示“99+”，0 时不显示（
+          <Code>showZero</Code> 时显示 0）；
           <Code>dot</Code> 是小圆点。数字对读屏隐藏，另有一句完整的 <Code>label</Code>。
         </Example>
       </ExampleColumn>

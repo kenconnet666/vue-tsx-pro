@@ -21,8 +21,8 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="partners" title="合作伙伴与标签墙" demo={Partners}>
           内容复制一份接在后面，平移一份的长度时正好与开头重合。<Code>speed</Code>{' '}
-          是每秒多少像素，内容多少都一样快；<Code>fade</Code>{' '}
-          两端渐隐；指针悬停、焦点在里面时暂停。复制的那份对读屏隐藏，读屏只念一遍。
+          是每秒多少像素，内容多少都一样快；<Code>fade</Code> 两端渐隐；指针悬停、焦点在里面时暂停（
+          <Code>pauseOnHover</Code> 默认开）。复制的那份对读屏隐藏，读屏只念一遍。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

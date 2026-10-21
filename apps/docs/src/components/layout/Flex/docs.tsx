@@ -13,6 +13,7 @@ import Containers from './demo/Containers.tsx?demo';
 import Dashboard from './demo/Dashboard.tsx?demo';
 import Playground from './demo/Playground.tsx?demo';
 import Separators from './demo/Separators.tsx?demo';
+import Grow from './demo/Grow.tsx?demo';
 
 export const meta = {
   title: 'Flex 与 Grid',
@@ -53,6 +54,12 @@ export default _component(() => () => (
           限制最大宽度并水平居中：xs 30rem（登录）、sm 40rem（表单、设置）、md 48rem（文章）、lg
           64rem（默认）、xl 80rem（仪表盘）。<Code>createContainer('main', 'Page')</Code>{' '}
           生成其他语义标签的容器。
+        </Example>
+        <Example id="grow" title="伸展、行内与行列间距" demo={Grow}>
+          <Code>grow</Code> 让 Flex 在父级的 flex
+          里占满剩余空间，并且可以收缩到比内容窄——头像旁边的长标题才能截断；
+          <Code>inline</Code> 是行内的 flex，放在一段文字中间。Grid 的 <Code>rowGap</Code>、
+          <Code>columnGap</Code> 分别覆盖 <Code>gap</Code>。
         </Example>
       </ExampleColumn>
     </Examples>

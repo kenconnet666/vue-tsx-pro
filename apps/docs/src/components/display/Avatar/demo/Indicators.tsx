@@ -1,4 +1,4 @@
-import { Bell, Inbox, MessageCircle } from '@lucide/icons';
+import { Bell, Inbox, ListTodo, MessageCircle } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { Avatar, Button, Flex, IconButton, Indicator, Text } from '@vue-tsx-pro/ui';
 import { members } from './photos';
@@ -13,6 +13,9 @@ export default _component(() => {
         </Indicator>
         <Indicator count={120} max={99} tone="accent">
           <IconButton icon={Inbox} variant="surface" aria-label="收件箱" />
+        </Indicator>
+        <Indicator count={0} showZero tone="neutral">
+          <IconButton icon={ListTodo} variant="surface" aria-label="待办" />
         </Indicator>
         <Indicator dot tone="warning" label="有新回复">
           <IconButton icon={MessageCircle} variant="surface" aria-label="评论" />

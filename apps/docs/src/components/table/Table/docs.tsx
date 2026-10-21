@@ -33,9 +33,9 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="invoice" title="报价明细" demo={Invoice}>
-          <Code>density</Code> 三档行高、<Code>striped</Code> 斑马纹，外观与 DataTable 相同；数字列{' '}
-          <Code>align="end"</Code> 右对齐、<Code>nowrap</Code> 不换行；合计放在{' '}
-          <Code>TableFoot</Code>。
+          <Code>density</Code> 三档行高、<Code>striped</Code> 斑马纹，<Code>variant="ghost"</Code>{' '}
+          去掉外框（放在卡片、对话框里），外观与 DataTable 相同；数字列 <Code>align="end"</Code>{' '}
+          右对齐、<Code>nowrap</Code> 不换行；合计放在 <Code>TableFoot</Code>。
         </Example>
       </ExampleColumn>
     </Examples>

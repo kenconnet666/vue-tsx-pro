@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Migration from './demo/Migration.tsx?demo';
 import Teams from './demo/Teams.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 
 export const meta = {
   title: 'ChordChart 弦图',
@@ -28,6 +29,10 @@ export default _component(() => () => (
         <Example id="migration" title="隐藏节点" demo={Migration}>
           点图例隐藏一个节点，连同它的弦；<Code>hiddenNodes</Code> 存隐藏的 id，可以用{' '}
           <Code>_bind</Code> 双向绑定。往返两个方向的流向各画一根弦。
+        </Example>
+        <Example id="options" title="图例与状态" demo={Options}>
+          <Code>legend</Code>、<Code>tooltip</Code> 可以关掉。加载中（<Code>loading</Code>
+          ）显示骨架，没有数据时显示 <Code>empty</Code>（默认“暂无数据”）。
         </Example>
       </ExampleColumn>
     </Examples>
