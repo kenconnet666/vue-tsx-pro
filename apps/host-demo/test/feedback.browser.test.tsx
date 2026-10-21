@@ -273,6 +273,16 @@ describe('Toast', () => {
     await expect.poll(() => region().querySelectorAll('li').length, { timeout: 3000 }).toBe(0);
   });
 
+  it('重要的通知打断播报（aria-live="assertive"），其余随列表礼貌地念', async () => {
+    const plain = toaster.show({ title: '已保存' });
+    const urgent = toaster.show({ tone: 'danger', title: '保存失败', important: true });
+    await expect.poll(() => items().length).toBe(2);
+    expect(items().map((item) => item.getAttribute('aria-live'))).toEqual([null, 'assertive']);
+    toaster.dismiss(plain);
+    toaster.dismiss(urgent);
+    await expect.poll(() => region().querySelectorAll('li').length, { timeout: 3000 }).toBe(0);
+  });
+
   it('stack：叠成一摞只露出最新的一条，悬停时展开、离开后收起', async () => {
     $<HTMLInputElement>('.toast-stack').click();
     await expect.poll(() => region().dataset.expanded).toBe('false');

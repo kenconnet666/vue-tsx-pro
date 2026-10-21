@@ -55,6 +55,21 @@ describe('createToaster', () => {
     expect(record().countdown).toBeNull();
   });
 
+  it('setLimit：只给显示出来的（最新的几条）计时；前面的移除后，没轮到的才开始', () => {
+    const toaster = createToaster({ duration: 1000 });
+    toaster.setLimit(1);
+    const older = toaster.show({ title: '旧' });
+    const newer = toaster.show({ title: '新' });
+    vi.advanceTimersByTime(1000);
+    // 旧的被挤到显示的条数之外：停在原处，没有看到就不该消失
+    expect([closing(toaster, older), closing(toaster, newer)]).toEqual([false, true]);
+    toaster.remove(newer);
+    vi.advanceTimersByTime(999);
+    expect(closing(toaster, older)).toBe(false);
+    vi.advanceTimersByTime(1);
+    expect(closing(toaster, older)).toBe(true);
+  });
+
   it('暂停期间新加的通知也等继续后才开始计时', () => {
     const toaster = createToaster({ duration: 1000 });
     toaster.pause();

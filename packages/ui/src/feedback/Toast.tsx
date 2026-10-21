@@ -70,6 +70,8 @@ export interface ToastOptions {
   closable?: boolean;
   /** 显示多久（毫秒）后自动消失；Infinity 不自动消失；不写时用 createToaster 的默认值 */
   duration?: number;
+  /** 重要：读屏立即打断播报（aria-live="assertive"），用于出错、需要马上处理的通知；默认按礼貌的顺序念 */
+  important?: boolean;
 }
 
 /** 列表里的一条通知 */
@@ -121,6 +123,8 @@ export interface ToasterController {
   resume(): void;
   /** 从列表里移除（Toaster 在离场过渡结束后调用；直接调用则没有离场动画） */
   remove(id: string): void;
+  /** 最多显示几条（Toaster 的 max）：只给显示出来的通知计时，没轮到的等它出现再开始 */
+  setLimit(limit: number): void;
 }
 
 /** 控制器内部可写的通知记录 */
@@ -143,12 +147,31 @@ export function createToaster({
   const timers = new Map<string, Timer>();
   const state = shallowReactive({ paused: false });
   let countdowns = 0;
+  let limit = Infinity;
 
   const find = (id: string) => toasts.find((toast) => toast.id === id);
 
   function start(id: string, timer: Timer) {
     timer.startedAt = Date.now();
     timer.handle = setTimeout(() => controller.dismiss(id), timer.remaining);
+  }
+
+  function stop(timer: Timer) {
+    if (timer.handle === undefined) return;
+    clearTimeout(timer.handle);
+    timer.handle = undefined;
+    timer.remaining -= Date.now() - timer.startedAt;
+  }
+
+  /** 计时与显示对齐：显示出来的（最新的 limit 条）在走，其余停着；暂停时都停 */
+  function sync() {
+    const shown = new Set(toasts.slice(-limit).map((toast) => toast.id));
+    for (const [id, timer] of timers) {
+      const running = timer.handle !== undefined;
+      if (!state.paused && shown.has(id)) {
+        if (!running) start(id, timer);
+      } else if (running) stop(timer);
+    }
   }
 
   function schedule(toast: MutableToast) {
@@ -159,7 +182,7 @@ export function createToaster({
     if (!toast.countdown) return;
     const timer: Timer = { remaining: duration, startedAt: 0 };
     timers.set(toast.id, timer);
-    if (!state.paused) start(toast.id, timer);
+    sync();
   }
 
   const resolve = <T,>(message: ToastMessage<T>, value: T) =>
@@ -215,22 +238,24 @@ export function createToaster({
     pause() {
       if (state.paused) return;
       state.paused = true;
-      for (const timer of timers.values()) {
-        clearTimeout(timer.handle);
-        timer.handle = undefined;
-        timer.remaining -= Date.now() - timer.startedAt;
-      }
+      sync();
     },
     resume() {
       if (!state.paused) return;
       state.paused = false;
-      for (const [id, timer] of timers) start(id, timer);
+      sync();
     },
     remove(id) {
       const index = toasts.findIndex((toast) => toast.id === id);
       if (index >= 0) toasts.splice(index, 1);
       clearTimeout(timers.get(id)?.handle);
       timers.delete(id);
+      // 腾出一个位置：下一条没轮到的通知出现，开始计时
+      sync();
+    },
+    setLimit(next) {
+      limit = next;
+      sync();
     },
   };
   return controller;
@@ -492,6 +517,9 @@ export const ToastItem = _component(
             },
             itemProps,
             {
+              // 重要的通知打断播报（同 Sonner）；其余随列表的 aria-live="polite"
+              'aria-live': toast.important ? 'assertive' : undefined,
+              'aria-atomic': toast.important || undefined,
               ref: (element: unknown) => {
                 item = toElement(element);
                 presence.ref(element);
@@ -597,7 +625,16 @@ export const Toaster = _component(
       { inInputs: true },
     );
     onMounted(reopen);
-    onBeforeUnmount(() => controller.resume());
+    // 只给显示出来的通知计时：告诉控制器最多显示几条
+    watch(
+      () => max,
+      (limit) => controller.setLimit(limit),
+      { immediate: true },
+    );
+    onBeforeUnmount(() => {
+      controller.setLimit(Infinity);
+      controller.resume();
+    });
 
     function onFocusin(event: FocusEvent) {
       focused = true;

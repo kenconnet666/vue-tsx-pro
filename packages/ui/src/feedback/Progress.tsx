@@ -67,6 +67,12 @@ const slide = stylex.keyframes({
   to: { transform: 'translateX(250%)' },
 });
 
+// 从右到左排版：色块在起始边（右边），从右往左扫
+const slideRtl = stylex.keyframes({
+  from: { transform: 'translateX(100%)' },
+  to: { transform: 'translateX(-250%)' },
+});
+
 /** Progress 的样式：shell、header、valueLabel、root、indicator、indeterminate */
 export const progressStyles = stylex.create({
   // 有标签行时的外层：标签行在上、进度条在下
@@ -91,10 +97,10 @@ export const progressStyles = stylex.create({
     forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
     transition: 'width _durations.md _easings.standard',
   },
-  // 不确定进度：一段 40% 宽的色块从左到右循环；它本身就是信息，不随 durations 变为 0，减少动态效果时变慢
+  // 不确定进度：一段 40% 宽的色块从起始边到结束边循环；它本身就是信息，不随 durations 变为 0，减少动态效果时变慢
   indeterminate: {
     width: '40%',
-    animationName: slide,
+    animationName: { default: slide, ':dir(rtl)': slideRtl },
     animationDuration: { default: '1.4s', '@media (prefers-reduced-motion: reduce)': '3s' },
     animationTimingFunction: '_easings.standard',
     animationIterationCount: 'infinite',
