@@ -81,6 +81,10 @@ export interface TabsState {
   id(part: 'tab' | 'panel', value: string): string;
   /** 登记标签（按渲染顺序），没有选中值时选第一个；返回注销函数 */
   register(value: string): () => void;
+  /** 登记面板；返回注销函数 */
+  registerPanel(value: string): () => void;
+  /** 这个标签有没有对应的面板：只当导航用的标签（没有 TabPanel）不写 aria-controls */
+  hasPanel(value: string): boolean;
 }
 
 /** Tabs 的上下文：自定义的标签或面板可以 inject 它 */
@@ -128,6 +132,7 @@ export const Tabs = _component(
     const appearance = useDefaults('Tabs', () => ({ variant, size }), { variant: 'line' });
     const baseId = useId();
     let registered = _state.raw<string[]>([]);
+    let panels = _state.raw<string[]>([]);
     const current = _derived(value ?? registered[0]);
 
     TabsContext.provide({
@@ -155,6 +160,11 @@ export const Tabs = _component(
         registered = [...registered, tab];
         return () => (registered = registered.filter((item) => item !== tab));
       },
+      registerPanel(tab) {
+        panels = [...panels, tab];
+        return () => (panels = panels.filter((item) => item !== tab));
+      },
+      hasPanel: (tab) => panels.includes(tab),
     });
 
     return () => (
@@ -371,7 +381,7 @@ export const Tab = _component(({ value, disabled = false, children, ...rest }: T
             role: 'tab',
             id: tabs.id('tab', value),
             'aria-selected': selected,
-            'aria-controls': tabs.id('panel', value),
+            'aria-controls': tabs.hasPanel(value) ? tabs.id('panel', value) : undefined,
             disabled,
             // 使用方的 onClick / onFocus 先执行（mergeProps 的规则），onClick 里 preventDefault 可以拦下切换
             onClick: () => tabs.select(value),
@@ -408,6 +418,7 @@ export const tabPanelStyles = stylex.create({
 /** 标签面板（role="tabpanel"）：只显示当前标签的那一个 */
 export const TabPanel = _component(({ value, children, ...rest }: TabPanelProps) => {
   const tabs = TabsContext.inject();
+  onBeforeUnmount(tabs.registerPanel(_untrack(value)));
   // 显示过：lazy 时从这以后一直渲染内容
   const showContent = useLazyContent(
     () => tabs.value === value,

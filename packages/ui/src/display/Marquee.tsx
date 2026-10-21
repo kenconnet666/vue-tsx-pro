@@ -8,7 +8,7 @@
  *
  * - 方向 left / right / up / down；speed 是每秒多少 px（按一份内容的长度换算成动画时长，内容变化时重新量）；
  * - 指针悬停、焦点在里面时暂停（pauseOnHover）；paused 由外部控制（WCAG 2.2.2：给用户一个暂停按钮）；
- * - 减少动态效果时不滚动，内容可以手动滚动查看；
+ * - 减少动态效果时不滚动，内容可以手动滚动查看（容器可以聚焦，键盘也能滚）；
  * - role="marquee"（ARIA 的跑马灯角色，用 aria-label 命名）；复制的那份对读屏隐藏且不可聚焦（inert），读屏只念一遍。
  *
  * 部件：Root（div）、Track（div，做动画的那一层）、Group（div，一份内容）。
@@ -16,9 +16,10 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { useReducedMotion } from '../utils/dom/media-query';
 import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { gapStyles, type Space, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles, gapStyles, type Space, type StyleTable } from '../utils/style/styles';
 
 /** 滚动方向 */
 export interface MarqueeDirections {
@@ -98,6 +99,8 @@ export const marqueeStyles = stylex.create({
   paused: { animationPlayState: 'paused' },
   group: { display: 'flex', flexShrink: 0, alignItems: 'center' },
   groupVertical: { flexDirection: 'column' },
+  // 不滚动时用不着复制的那份
+  copy: { display: { default: null, '@media (prefers-reduced-motion: reduce)': 'none' } },
 });
 
 /** Marquee 的样式：每份内容后面的间距（横排时在行尾、竖排时在下方），与项之间的 gap 一样宽 */
@@ -143,6 +146,8 @@ export const Marquee = _component(
     let group = _state.raw<HTMLElement | null>(null);
     // 一份内容（含间距）的长度：换算动画时长
     let length = _state(0);
+    // 减少动态效果时变成手动滚动的区域：键盘要能聚焦它才能滚动
+    const reducedMotion = useReducedMotion();
     const vertical = () => direction === 'up' || direction === 'down';
 
     useResizeObserver(
@@ -162,6 +167,7 @@ export const Marquee = _component(
               gapStyles[gap],
               // 每份后面留一个间距：两份之间与项之间一样宽
               marqueeTrailStyles[vertical() ? 'block' : 'inline'][gap],
+              copy && marqueeStyles.copy,
             ],
           },
           propsGroup,
@@ -180,8 +186,10 @@ export const Marquee = _component(
               marqueeStyles.root,
               vertical() && marqueeStyles.vertical,
               fade && (vertical() ? marqueeStyles.fadeVertical : marqueeStyles.fade),
+              reducedMotion.value && focusRingStyles.visible,
             ],
             role: 'marquee',
+            tabindex: reducedMotion.value ? 0 : undefined,
           },
           rest,
         )}

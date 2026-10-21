@@ -23,7 +23,8 @@ export default _component(() => {
   let compact = _state(false);
   return () => (
     <Flex direction="column" gap="sm">
-      <Accordion selectionMode="multiple" value={_bind(open)} headingLevel={4} aria-label="设置">
+      {/* 文档里示例的标题是 h2，各项标题接着用 h3 */}
+      <Accordion selectionMode="multiple" value={_bind(open)} headingLevel={3} aria-label="设置">
         <AccordionItem value="notify" title={title(Bell, '通知', 2)}>
           <Flex direction="column" gap="sm">
             <Switch checked={_bind(email)}>邮件通知</Switch>

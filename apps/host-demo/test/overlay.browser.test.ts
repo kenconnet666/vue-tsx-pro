@@ -204,6 +204,11 @@ describe('Menu', () => {
     );
     expect(['Ctrl+D', '⌘D']).toContain(shortcut!.textContent);
     const mac = shortcut!.textContent === '⌘D';
+    // 快捷键交给读屏的是菜单项的 aria-keyshortcuts，显示的文字不算进名称
+    expect(shortcut!.closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(shortcut!.closest('[role="menuitem"]')!.getAttribute('aria-keyshortcuts')).toBe(
+      mac ? 'Meta+D' : 'Control+D',
+    );
     await userEvent.keyboard(mac ? '{Meta>}d{/Meta}' : '{Control>}d{/Control}');
     expect(result()).toContain('执行了：复制');
   });

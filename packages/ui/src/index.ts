@@ -1116,6 +1116,7 @@ export {
   trapFocus,
 } from './utils/dom/focus';
 export {
+  ariaKeyShortcut,
   formatHotkey,
   isApplePlatform,
   matchesHotkey,

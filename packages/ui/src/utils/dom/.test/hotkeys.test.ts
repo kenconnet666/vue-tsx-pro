@@ -1,7 +1,7 @@
 // useHotkeys：Mod 按平台取 ⌘ / Ctrl；没写的修饰键不能按下；输入框里默认不触发；卸载后注销
 import { effectScope } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatHotkey, matchesHotkey, useHotkeys } from '../hotkeys';
+import { ariaKeyShortcut, formatHotkey, matchesHotkey, useHotkeys } from '../hotkeys';
 
 const press = (key: string, init: KeyboardEventInit = {}, target: EventTarget = document.body) => {
   const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
@@ -63,6 +63,18 @@ it('formatHotkey：macOS 用符号，其他系统用文字', () => {
   onPlatform('Win32');
   expect(formatHotkey('Mod+Shift+K')).toBe('Ctrl+Shift+K');
   expect(formatHotkey('Escape')).toBe('Escape');
+  // 方向键显示成箭头，多词的键名不是只大写首字母（PageDown 而不是 Pagedown）
+  expect(formatHotkey('Alt+Up')).toBe('Alt+↑');
+  expect(formatHotkey('PageDown')).toBe('PageDown');
+});
+
+it('ariaKeyShortcut：aria-keyshortcuts 的写法，Mod 按平台换成 Meta 或 Control', () => {
+  onPlatform('MacIntel');
+  expect(ariaKeyShortcut('Mod+K')).toBe('Meta+K');
+  onPlatform('Win32');
+  expect(ariaKeyShortcut('Mod+Shift+K')).toBe('Control+Shift+K');
+  expect(ariaKeyShortcut('Alt+ArrowUp')).toBe('Alt+ArrowUp');
+  expect(ariaKeyShortcut('Space')).toBe('Space');
 });
 
 describe('useHotkeys', () => {

@@ -36,7 +36,7 @@ import {
   type FloatingOptions,
   type FloatingPlacement,
 } from '../utils/dom/floating';
-import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
+import { ariaKeyShortcut, formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { ScrollArea } from '../layout/ScrollArea';
 import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
@@ -284,7 +284,8 @@ export interface MenuItemContentProps {
   icon?: IconData;
   /**
    * 快捷键：`'Mod+D'`（Mod 在 macOS 上是 ⌘，其他系统是 Ctrl，写法见 useHotkeys）。右侧显示成当前系统的写法；
-   * MenuItem、MenuCheckboxItem 在菜单挂载期间注册它（菜单不必打开），按下时执行这一项
+   * MenuItem、MenuCheckboxItem、MenuRadioItem 在菜单挂载期间注册它（菜单不必打开），按下时执行这一项；
+   * 读屏从菜单项的 aria-keyshortcuts 得知快捷键
    */
   shortcut?: string;
   /** 图标的部件属性 */
@@ -327,6 +328,7 @@ export function menuItemContent(
         {...mergePartProps<TextProps>(
           { tone: 'muted', size: 'sm', sx: menuStyles.shortcut },
           propsShortcut,
+          { 'aria-hidden': true },
         )}
       >
         {formatHotkey(shortcut)}
@@ -334,6 +336,10 @@ export function menuItemContent(
     ),
   ];
 }
+
+/** 快捷键交给读屏（aria-keyshortcuts）：右侧显示的快捷键文字对读屏隐藏，不重复念 */
+const keyShortcuts = (shortcut: string | undefined) =>
+  shortcut ? ariaKeyShortcut(shortcut) : undefined;
 
 /** 菜单项的快捷键：不可用时不触发；按下时和点击这一项一样执行（不关心菜单是否打开） */
 function useItemShortcut(read: () => { shortcut?: string; disabled: boolean }, run: () => void) {
@@ -408,6 +414,7 @@ export const MenuItem = _component(
           {
             role: 'menuitem',
             disabled,
+            'aria-keyshortcuts': keyShortcuts(shortcut),
             // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
             onClick: () => {
               onAction?.();
@@ -451,6 +458,7 @@ export const MenuLinkItem = _component(
         {...mergeAttrs<'a'>({ sx: menuItemSx('neutral', disabled) }, rest, {
           role: 'menuitem',
           href: disabled ? undefined : href,
+          'aria-keyshortcuts': keyShortcuts(shortcut),
           'aria-disabled': disabled || undefined,
           onClick: (event: MouseEvent) => {
             router.onClick(event);
@@ -502,6 +510,7 @@ export const MenuCheckboxItem = _component(
           {
             role: 'menuitemcheckbox',
             disabled,
+            'aria-keyshortcuts': keyShortcuts(shortcut),
             'aria-checked': checked,
             onClick: () => {
               checked = !checked;
@@ -614,6 +623,10 @@ export const MenuRadioItem = _component(
   }: MenuRadioItemProps) => {
     const item = useMenuItem();
     const group = MenuRadioGroupContext.inject();
+    useItemShortcut(
+      () => ({ shortcut, disabled }),
+      () => group.select(value),
+    );
     return () => {
       const checked = group.value === value;
       return (
@@ -624,6 +637,7 @@ export const MenuRadioItem = _component(
             {
               role: 'menuitemradio',
               disabled,
+              'aria-keyshortcuts': keyShortcuts(shortcut),
               'aria-checked': checked,
               onClick: () => {
                 group.select(value);

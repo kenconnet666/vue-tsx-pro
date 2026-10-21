@@ -48,6 +48,20 @@ describe('Tabs', () => {
     expect(tabs().map((tab) => tab.getAttribute('tabindex'))).toEqual(['0', '-1', '-1']);
   });
 
+  it('只当导航用（没有 TabPanel）时标签不写 aria-controls：不能指向不存在的元素', async () => {
+    const root = mount(() => (
+      <Tabs>
+        <TabList aria-label="分区">
+          <Tab value="overview">概览</Tab>
+          <Tab value="members">成员</Tab>
+        </TabList>
+      </Tabs>
+    ));
+    await nextTick();
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    expect(tabs.map((tab) => tab.hasAttribute('aria-controls'))).toEqual([false, false]);
+  });
+
   it('点击切换并写回；不可用的标签点不了', async () => {
     const { tabs, panels, value } = renderTabs();
     await nextTick();

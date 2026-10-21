@@ -36,7 +36,7 @@ import {
   toListboxOption,
 } from '../input/list-state';
 import { createMatcher } from '../utils/data/collation';
-import { formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
+import { ariaKeyShortcut, formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { breakpoints } from '../config/theme/tokens.stylex';
 import { Dialog, type DialogProps } from './Dialog';
@@ -113,7 +113,17 @@ export const commandPaletteStyles = stylex.create({
     cursor: 'pointer',
   },
   triggerText: { display: { default: 'none', [breakpoints.sm]: 'initial' } },
-  triggerLabel: { flexGrow: 1, textAlign: 'start' },
+  // 按钮的名称来自这段文字（与看得见的一致，WCAG 2.5.3）：窄屏只留图标时视觉上隐藏，读屏仍念得到
+  triggerLabel: {
+    flexGrow: 1,
+    textAlign: 'start',
+    whiteSpace: 'nowrap',
+    position: { default: 'absolute', [breakpoints.sm]: 'static' },
+    width: { default: 1, [breakpoints.sm]: 'auto' },
+    height: { default: 1, [breakpoints.sm]: 'auto' },
+    overflow: { default: 'hidden', [breakpoints.sm]: 'visible' },
+    clipPath: { default: 'inset(50%)', [breakpoints.sm]: 'none' },
+  },
 });
 
 /** 命令面板：快捷键打开的搜索对话框 */
@@ -197,21 +207,20 @@ export const CommandPalette = _component(
                 controlSx(appearance(), { invalid: false, disabled: false, readonly: false }),
                 commandPaletteStyles.trigger,
               ],
-              'aria-label': label ?? lang.searchLabel,
+              // 快捷键由 aria-keyshortcuts 告诉读屏，显示它的 Kbd 不算进名称
+              'aria-keyshortcuts': hotkey ? ariaKeyShortcut(hotkey) : undefined,
             },
             propsTrigger,
             triggerProps(),
           )}
         >
           <Icon icon={Search} sx={controlStyles.icon} />
-          <span
-            {...mergeAttrs<'span'>({
-              sx: [commandPaletteStyles.triggerText, commandPaletteStyles.triggerLabel],
-            })}
-          >
-            {text}
-          </span>
-          {hotkey && <Kbd sx={commandPaletteStyles.triggerText}>{formatHotkey(hotkey)}</Kbd>}
+          <span {...mergeAttrs<'span'>({ sx: commandPaletteStyles.triggerLabel })}>{text}</span>
+          {hotkey && (
+            <Kbd sx={commandPaletteStyles.triggerText} aria-hidden="true">
+              {formatHotkey(hotkey)}
+            </Kbd>
+          )}
         </ButtonBase>
       );
     }

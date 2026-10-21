@@ -15,6 +15,7 @@ export default _component(() => () => (
     <Flex direction="column" gap="xs">
       <Small tone="muted">Pager：文章末尾的上一篇 / 下一篇</Small>
       <Pager
+        aria-label="文章翻页"
         previous={{ href: '/components/tabs', label: 'Tabs 标签页' }}
         next={{ href: '/components/breadcrumbs', label: 'Breadcrumbs 面包屑' }}
       />

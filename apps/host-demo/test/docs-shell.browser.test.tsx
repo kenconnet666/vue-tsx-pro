@@ -153,8 +153,12 @@ it('命令面板：快捷键打开，输入过滤，↓ 与 Enter 执行并关�
   expect(actions).toEqual(['badge']);
   await expect.poll(() => dialog().open).toBe(false);
 
-  // 触发按钮也能打开；再打开时输入框是空的
-  await userEvent.click(root.querySelector('button[aria-haspopup="dialog"]')!);
+  // 触发按钮也能打开；再打开时输入框是空的。按钮的名称就是看得见的文字（WCAG 2.5.3）
+  const trigger = root.querySelector<HTMLElement>('button[aria-haspopup="dialog"]')!;
+  expect(trigger.hasAttribute('aria-label')).toBe(false);
+  expect(trigger.textContent).toContain('搜索文档');
+  expect(trigger.querySelector('kbd')!.getAttribute('aria-hidden')).toBe('true');
+  await userEvent.click(trigger);
   await expect.poll(() => dialog().open).toBe(true);
   expect(dialog().querySelector('input')!.value).toBe('');
 });

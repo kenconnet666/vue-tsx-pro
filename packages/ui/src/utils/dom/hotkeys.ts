@@ -80,23 +80,53 @@ export function matchesHotkey(event: KeyboardEvent, combo: string | Hotkey): boo
   return key === hotkey.key || (letter && event.code === `Key${hotkey.key.toUpperCase()}`);
 }
 
-const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+// 小写的键名 → KeyboardEvent.key 的写法（多个单词的每个词首字母大写）
+const KEY_NAMES: Record<string, string> = {
+  ' ': 'Space',
+  arrowup: 'ArrowUp',
+  arrowdown: 'ArrowDown',
+  arrowleft: 'ArrowLeft',
+  arrowright: 'ArrowRight',
+  pageup: 'PageUp',
+  pagedown: 'PageDown',
+};
+const keyName = (key: string) =>
+  KEY_NAMES[key] ??
+  (key.length === 1 ? key.toUpperCase() : key.charAt(0).toUpperCase() + key.slice(1));
+const modifiersOf = (hotkey: Hotkey) =>
+  (['ctrl', 'alt', 'shift', 'meta'] as const).filter((name) => hotkey[name]);
 
 const SYMBOLS: Record<string, string> = { ctrl: '⌃', alt: '⌥', shift: '⇧', meta: '⌘' };
+const ARROWS: Record<string, string> = {
+  ArrowUp: '↑',
+  ArrowDown: '↓',
+  ArrowLeft: '←',
+  ArrowRight: '→',
+};
 
-/** 快捷键的显示文字：macOS 上用符号（⌘⇧K），其他系统用 Ctrl+Shift+K */
+/** 快捷键的显示文字：macOS 上用符号（⌘⇧K），其他系统用 Ctrl+Shift+K；方向键显示成箭头 */
 export function formatHotkey(combo: string): string {
   const hotkey = parseHotkey(combo);
-  const key =
-    hotkey.key === ' '
-      ? 'Space'
-      : hotkey.key.length === 1
-        ? hotkey.key.toUpperCase()
-        : capitalize(hotkey.key);
-  const modifiers = (['ctrl', 'alt', 'shift', 'meta'] as const).filter((name) => hotkey[name]);
-  if (isApplePlatform()) return modifiers.map((name) => SYMBOLS[name]).join('') + key;
+  const key = keyName(hotkey.key);
+  const shown = ARROWS[key] ?? key;
+  if (isApplePlatform())
+    return (
+      modifiersOf(hotkey)
+        .map((name) => SYMBOLS[name])
+        .join('') + shown
+    );
   const names = { ctrl: 'Ctrl', alt: 'Alt', shift: 'Shift', meta: 'Win' };
-  return [...modifiers.map((name) => names[name]), key].join('+');
+  return [...modifiersOf(hotkey).map((name) => names[name]), shown].join('+');
+}
+
+/**
+ * 快捷键的 aria-keyshortcuts 写法（读屏念出来）：'Mod+K' → 'Control+K'，macOS 上 'Meta+K'。
+ * 显示快捷键的 Kbd 对读屏隐藏、改由这个属性提供时，按钮的名称与看得见的文字才对得上
+ */
+export function ariaKeyShortcut(combo: string): string {
+  const hotkey = parseHotkey(combo);
+  const names = { ctrl: 'Control', alt: 'Alt', shift: 'Shift', meta: 'Meta' };
+  return [...modifiersOf(hotkey).map((name) => names[name]), keyName(hotkey.key)].join('+');
 }
 
 function isEditable(target: EventTarget | null) {
