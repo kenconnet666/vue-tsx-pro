@@ -45,7 +45,7 @@ import { BarChart, DonutChart } from '@vue-tsx-pro/ui/charts';
 import Decimal from 'decimal.js';
 import {
   amountBases,
-  confirmWorkdaysLeft,
+  confirmDeadline,
   costKinds,
   gapReasons,
   ledgerAmount,
@@ -188,7 +188,7 @@ export default _component(() => {
       {
         label: '认定超期',
         icon: Hourglass,
-        count: awaiting.filter((task) => (confirmWorkdaysLeft(task) ?? 0) < 0).length,
+        count: awaiting.filter((task) => confirmDeadline(task)?.state === 'overdue').length,
         urgent: true,
         page: 'BenefitConfirm',
         query: { kind, tab: 'awaiting' },

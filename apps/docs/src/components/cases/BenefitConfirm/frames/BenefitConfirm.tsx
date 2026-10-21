@@ -33,7 +33,7 @@ import Decimal from 'decimal.js';
 import {
   advanceTask,
   CONFIRM_WORKDAYS,
-  confirmWorkdaysLeft,
+  confirmDeadline,
   confirmReturns,
   costKinds,
   latestEstimate,
@@ -236,17 +236,19 @@ export default _component(() => {
             width: 110,
             align: 'end',
             sortable: true,
-            value: (row: Row) => confirmWorkdaysLeft(row.task),
+            value: (row: Row) => confirmDeadline(row.task)?.remaining,
             cell: (row: Row) => {
-              const left = confirmWorkdaysLeft(row.task);
-              return left == null ? (
-                <Small tone="muted">—</Small>
-              ) : left < 0 ? (
-                <span {...stylex.attrs(styles.overdue)}>超 {-left} 天</span>
-              ) : left === 0 ? (
+              const deadline = confirmDeadline(row.task);
+              if (!deadline) return <Small tone="muted">—</Small>;
+              const { remaining, state } = deadline;
+              return state === 'overdue' ? (
+                <span {...stylex.attrs(styles.overdue)}>
+                  {remaining < 0 ? `超 ${-remaining} 天` : '已超期'}
+                </span>
+              ) : state === 'due' ? (
                 <Small tone="warning">今天到期</Small>
               ) : (
-                <Small tone={left <= 3 ? 'warning' : undefined}>{left} 天</Small>
+                <Small tone={state === 'soon' ? 'warning' : undefined}>{remaining} 天</Small>
               );
             },
           } satisfies DataTableColumn<Row>,

@@ -1,6 +1,12 @@
 // 降本管理案例共用的虚构数据：主数据（人员、团队、型号、工作包、供应商）与一批任务卡。字段、状态与口径按《需求定义方案》
 // 的任务卡与一本账；名称都是虚构的。按序号确定地生成（不用随机数），每次打开都一样，截图与测试才稳定
-import { createStatusMap, daysBetween, shiftIsoDate } from '@vue-tsx-pro/ui';
+import {
+  createStatusMap,
+  daysBetween,
+  deadlineOf,
+  shiftIsoDate,
+  type Deadline,
+} from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import { shallowRef } from 'vue';
 
@@ -711,25 +717,15 @@ export function advanceTask(task: CostTask, next: string): CostTask {
 /** 待认定的项目最新一版测算（V2）的金额：认定时锁定为 A */
 export const latestEstimate = (task: CostTask) => task.expected.times(0.97).toDecimalPlaces(2);
 
-/** from 到 to 之间还有几个工作日（不含 from，含 to；to 在 from 之前时为负数）；不算法定节假日 */
-export function workdaysBetween(from: string, to: string): number {
-  const sign = to >= from ? 1 : -1;
-  let count = 0;
-  for (let day = from; day !== to;) {
-    day = shiftIsoDate(day, { days: sign });
-    const weekday = new Date(`${day}T00:00:00Z`).getUTCDay();
-    if (weekday !== 0 && weekday !== 6) count += sign;
-  }
-  return count;
-}
-
 /** 收益认定的时限：验证完成后 10 个工作日内认定 */
 export const CONFIRM_WORKDAYS = 10;
 
-/** 待认定的项目离认定时限还有几个工作日（负数是超期）；还没验证完成时为 null */
-export function confirmWorkdaysLeft(task: CostTask): number | null {
+/** 待认定的项目的认定时限（截止日、剩余工作日、状态；3 个工作日内算快到期）；还没验证完成时为 null */
+export function confirmDeadline(task: CostTask): Deadline | null {
   const verified = task.milestones.find((item) => item.label === '验证完成')?.done;
-  return verified == null ? null : CONFIRM_WORKDAYS - workdaysBetween(verified, TODAY);
+  return verified == null
+    ? null
+    : deadlineOf({ start: verified, workdays: CONFIRM_WORKDAYS, today: TODAY, soon: 3 });
 }
 
 /**
