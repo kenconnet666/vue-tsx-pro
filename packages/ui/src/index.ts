@@ -1285,6 +1285,7 @@ export {
   type SortableOrientations,
   type SortableState,
 } from './utils/dom/sortable';
+export { usePersistentState, type PersistentStateOptions } from './utils/dom/storage';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
 // 工具：比较与匹配、相等、选择、分页、文字、数值、日期
