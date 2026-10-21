@@ -2,8 +2,8 @@
  * 按钮组（div，role="group"）：几个相关的按钮连成一条，共用外观。分段操作、拆分按钮、翻页、对齐方式这类工具栏。
  *
  *   <ButtonGroup variant="outline" tone="neutral" aria-label="文字对齐">
- *     <IconButton icon={AlignLeft} label="左对齐" />
- *     <IconButton icon={AlignCenter} label="居中" />
+ *     <IconButton icon={AlignLeft} aria-label="左对齐" />
+ *     <IconButton icon={AlignCenter} aria-label="居中" />
  *   </ButtonGroup>
  *
  * 组里的按钮家族（Button、LinkButton、IconButton…）经 ButtonGroupContext 得知自己在组里：去掉相邻一侧的圆角、边框叠在一起；

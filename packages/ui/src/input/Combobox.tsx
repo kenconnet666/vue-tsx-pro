@@ -115,16 +115,9 @@ export interface ComboboxBaseProps<T>
 /** 组合框的属性；items 不是 ListboxOption 或字符串时要给 toOption */
 export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapping<T>;
 
-/** Combobox 的样式：popover、chevronOpen、loading */
+/** Combobox 的样式：chevronOpen */
 export const comboboxStyles = stylex.create({
   chevronOpen: { rotate: '180deg' },
-  loading: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_sm',
-    padding: '_sm',
-    color: '_textMuted',
-  },
 });
 
 /** 组合框：输入框 + 过滤后的选项列表 */

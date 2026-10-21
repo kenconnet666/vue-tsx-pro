@@ -1,6 +1,6 @@
 /**
  * 主题颜色要满足的对比度（WCAG 2.2 AA）：哪些文字放在哪些底色上、各要多少。
- * pnpm themes:check 按它检查内置的三套主题；主题编辑器按它实时提示改出来的配色。
+ * pnpm themes:check 按它检查全部内置主题；主题编辑器按它实时提示改出来的配色。
  */
 import { CONTRAST_AA, contrastRatio } from '../../utils/data/color';
 

@@ -1,6 +1,6 @@
 /**
  * 漫游焦点（WAI-ARIA 的 roving tabindex）：一组项里只有一个能用 Tab 进入（tabindex=0），其余为 -1；
- * 组内用方向键移动，Home / End 到两端。Tabs、Toolbar、Pagination、Steps 共用（参考 Radix 的 RovingFocusGroup）。
+ * 组内用方向键移动，Home / End 到两端。Tabs、Toolbar、Menu、ToggleGroup 共用（参考 Radix 的 RovingFocusGroup）。
  *
  * 直接管理容器里各项的 tabindex（组件渲染时不要再写 tabindex），所以项可以是任意可聚焦元素：
  * 工具栏里的按钮、标签页、链接都行。项增删、选中项变化时自动重新计算。

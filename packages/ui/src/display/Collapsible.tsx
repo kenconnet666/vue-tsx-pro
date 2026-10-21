@@ -1,5 +1,5 @@
 /**
- * 可展开收起的区域：触发器 + Collapse（WAI-ARIA 的 Disclosure 模式）。以后的 Accordion 建在它上面。
+ * 可展开收起的区域：触发器 + Collapse（WAI-ARIA 的 Disclosure 模式）。Accordion 的每一项也建在 Collapse 上。
  *
  *   <Collapsible trigger={(props) => <Button {...props}>高级选项</Button>}>…</Collapsible>
  *

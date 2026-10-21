@@ -1,7 +1,7 @@
 /**
  * 类型搜索（WAI-ARIA 的 type-ahead）：在菜单、列表里直接按字母，焦点跳到以它开头的项。
  * 连续输入拼成一个词（“ex” 跳到 Export）；间隔超过 timeout 后重新开始；反复按同一个字母在以它开头的项之间轮换。
- * 菜单经 rovingFocus 的 typeahead 选项使用，以后的 Listbox / Select 用同一个匹配规则。
+ * 菜单经 rovingFocus 的 typeahead 选项使用，Listbox、Select 经 useListState 用同一个匹配规则。
  */
 
 /** createTypeahead 返回的搜索器 */

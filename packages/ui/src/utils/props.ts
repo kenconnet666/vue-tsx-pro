@@ -24,7 +24,7 @@ export type PartProps<
 > = Omit<IntrinsicProps<Tag>, Managed | 'children'> & { sx?: StyleXStyles };
 
 /**
- * 展开收起类组件（Collapsible、Popover、以后的菜单）交给触发器的属性：展开到任意可聚焦元素上，
+ * 展开收起类组件（Collapsible、Popover）交给触发器的属性：展开到任意可聚焦元素上，
  * 形如 `trigger={(props) => <Button {...props}>更多</Button>}`。弹层另外加上 id、ref、aria-haspopup。
  */
 export interface TriggerProps {

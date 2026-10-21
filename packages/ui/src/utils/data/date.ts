@@ -150,11 +150,6 @@ export function monthGrid(
   return weeks;
 }
 
-/** 星期在一周里的位置（0 起），按语言与一周第一天 */
-export function dayOfWeekIndex(date: DateValue, { locale, firstDayOfWeek }: WeekOptions): number {
-  return getDayOfWeek(date, locale, toDayOfWeek(firstDayOfWeek));
-}
-
 /** 星期名的长短 */
 export interface WeekdayFormats {
   /** 最短：一、二 / S、M */

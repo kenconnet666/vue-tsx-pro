@@ -1,5 +1,5 @@
 /**
- * 虚拟滚动的核心：只渲染可见范围内的项（COMPONENTS.md §10.7）。不依赖 Vue，VirtualList、以后的表格都建在它上面。
+ * 虚拟滚动的核心：只渲染可见范围内的项（COMPONENTS.md §10.7）。不依赖 Vue，VirtualList、DataTable 都建在它上面。
  * 算法参考 @tanstack/virtual-core：先按估计大小排出位置表，渲染后测量真实大小并按 key 缓存；
  * 可见范围用二分查找；可视区上方的项大小变化时同步调整滚动位置，可见内容不跳。
  *

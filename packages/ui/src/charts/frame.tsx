@@ -1,5 +1,5 @@
 /**
- * 各种图表共用的外层结构（XYChart、DonutChart）：外层 figure、单位与图例、绘图区（加载中的骨架、空状态、Unovis 画布）、
+ * 各种图表共用的外层结构（XYChart、DonutChart、SankeyChart、ChordChart）：外层 figure、单位与图例、绘图区（加载中的骨架、空状态、Unovis 画布）、
  * 给读屏的数据表；还有提示框的内容、Unovis 实例表与主题变量。
  *
  *   <ChartFrame unit="万元" legend={items} hiddenKeys={hidden} onLegendToggle={toggle} loading={loading}

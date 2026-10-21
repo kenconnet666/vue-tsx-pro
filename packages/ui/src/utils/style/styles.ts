@@ -11,23 +11,6 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
  * 补全列表与悬停取值时能看到每个取值的效果（WebStorm 把字符串字面量解析到 keyof 的键上）。
  */
 
-/** 五档尺寸的含义；具体对应什么由用到它的 prop 决定（字号见 TextSizes，间距见 SpaceScale） */
-export interface SizeScale {
-  /** 最小档 */
-  xs: unknown;
-  /** 小 */
-  sm: unknown;
-  /** 中：基准档 */
-  md: unknown;
-  /** 大 */
-  lg: unknown;
-  /** 最大档 */
-  xl: unknown;
-}
-
-/** 五档：字号、间距、圆角、阴影等都按它分档 */
-export type Size = keyof SizeScale;
-
 /** 间距档位，对应主题的 space（em，随字号缩放），括号里是默认主题的值 */
 export interface SpaceScale {
   /** 无间距（0） */

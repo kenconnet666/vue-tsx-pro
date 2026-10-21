@@ -5,7 +5,7 @@
  * 默认开启，createUi / Provider 的 ripple 全局开关，组件的 ripple prop 单独覆盖（见 useRipple）。
  *
  *   const ripple = useRipple(() => props.ripple)
- *   mergeProps<'button'>(默认, rest, { ...ripple })
+ *   mergeAttrs<'button'>(默认, rest, { ...ripple })
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useConfig } from '../../config/context';

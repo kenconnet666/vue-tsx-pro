@@ -497,7 +497,7 @@ export interface ButtonBehaviorProps<E extends MouseEvent = MouseEvent> extends 
  * 被拦下的点击会 preventDefault：不触发使用方的 onClick，也不提交表单、不跟随链接。
  *
  *   const behavior = useButtonBehavior(() => ({ disabled, loading, focusableWhenDisabled, ripple }), () => onClick);
- *   mergeProps<'button'>(默认, rest, behavior())
+ *   mergeAttrs<'button'>(默认, rest, behavior())
  */
 export function useButtonBehavior<E extends MouseEvent>(
   read: () => ButtonBehaviorState,
