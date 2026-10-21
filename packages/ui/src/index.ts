@@ -1,7 +1,13 @@
 // 由 pnpm exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成
 
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
-export { Badge, type BadgeProps } from './base/Badge';
+export {
+  Badge,
+  badgeDotStyles,
+  StatusBadge,
+  type BadgeProps,
+  type StatusBadgeProps,
+} from './base/Badge';
 export { Blockquote, blockquoteStyles, type BlockquoteProps } from './base/Blockquote';
 export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
 export { ButtonBase, type ButtonBaseManaged, type ButtonBaseProps } from './base/ButtonBase';
@@ -1291,6 +1297,7 @@ export {
   type SelectionProps,
   type SingleSelectionProps,
 } from './utils/data/selection';
+export { createStatusMap, type StatusDefinition, type StatusMap } from './utils/data/status';
 export { childNodes, plainText } from './utils/data/text';
 export {
   checkStates,

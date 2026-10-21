@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/BadgeProps';
+import statusBadgeApi from 'virtual:api/StatusBadgeProps';
 import tagApi from 'virtual:api/TagProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -9,6 +10,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import InContext from './demo/InContext.tsx?demo';
 import Matrix from './demo/Matrix.tsx?demo';
 import Shapes from './demo/Shapes.tsx?demo';
+import Statuses from './demo/Statuses.tsx?demo';
 import TagBasic from './demo/TagBasic.tsx?demo';
 import TagRemovable from './demo/TagRemovable.tsx?demo';
 
@@ -20,7 +22,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Badge, Tag } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { Badge, createStatusMap, StatusBadge, Tag } from '@vue-tsx-pro/ui';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="matrix" title="样式与色调" demo={Matrix}>
@@ -36,6 +42,14 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="in-context" title="表格里的状态" demo={InContext}>
           状态列用胶囊形的 soft 标记：颜色区分状态，文字说明状态，不只靠颜色。
+          <Code>StatusBadge</Code> 的名字与色调取自状态映射，文字前一个同色的圆点（Badge 的{' '}
+          <Code>dot</Code>）。
+        </Example>
+        <Example id="statuses" title="状态映射" demo={Statuses}>
+          <Code>createStatusMap</Code>{' '}
+          把每种状态的名字、色调、图标与说明写在一处，定义的顺序就是阶段的顺序（<Code>order</Code>
+          ）；<Code>options()</Code>{' '}
+          给筛选的下拉选项。接口多给了不认识的状态时显示成中性色、名字就是 key，不报错。
         </Example>
         <Example id="tag" title="Tag 标签" demo={TagBasic}>
           <Code>Tag</Code> 的外观选项与 Badge 相同，<Code>defaults.Badge</Code>{' '}
@@ -47,6 +61,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, tagApi]} />
+    <ApiReference api={[api, statusBadgeApi, tagApi]} />
   </DocPage>
 ));

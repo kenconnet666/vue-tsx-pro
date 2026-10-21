@@ -2,8 +2,9 @@ import { Star } from '@lucide/icons';
 import { nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { Provider } from '../../config/Provider';
+import { createStatusMap } from '../../utils/data/status';
 import { mount } from '../../utils/.test/mount';
-import { Badge } from '../Badge';
+import { Badge, StatusBadge } from '../Badge';
 import { Tag } from '../Tag';
 
 describe('Badge', () => {
@@ -35,6 +36,41 @@ describe('Badge', () => {
     ));
     const strip = (el: Element, own: string) => el.className.replace(own, '');
     expect(strip(root.querySelector('.a')!, 'a')).not.toBe(strip(root.querySelector('.b')!, 'b'));
+  });
+
+  it('dot：文字前一个对读屏隐藏的圆点；有图标时不画圆点', () => {
+    const root = mount(() => (
+      <>
+        <Badge dot>待审核</Badge>
+        <Badge dot icon={Star}>
+          推荐
+        </Badge>
+      </>
+    ));
+    const [dotted, iconed] = root.querySelectorAll(':scope > span');
+    expect(dotted!.querySelector('span[aria-hidden="true"]')).not.toBeNull();
+    expect(iconed!.querySelector('span[aria-hidden="true"]')).toBeNull();
+    expect(iconed!.querySelector('svg')).not.toBeNull();
+  });
+
+  it('StatusBadge：名字与色调取自状态映射，不认识的状态显示 key', () => {
+    const statuses = createStatusMap({
+      draft: { label: '草稿', tone: 'neutral' },
+      approved: { label: '已通过', tone: 'success' },
+    });
+    const root = mount(() => (
+      <>
+        <StatusBadge statuses={statuses} value="draft" />
+        <StatusBadge statuses={statuses} value="approved" />
+        <StatusBadge statuses={statuses} value="archived" />
+      </>
+    ));
+    const [draft, approved, unknown] = root.querySelectorAll<HTMLElement>('[data-status]');
+    expect(draft!.textContent).toBe('草稿');
+    expect(approved!.textContent).toBe('已通过');
+    expect(draft!.className).not.toBe(approved!.className);
+    expect(unknown!.textContent).toBe('archived');
+    expect(unknown!.className).toBe(draft!.className);
   });
 });
 

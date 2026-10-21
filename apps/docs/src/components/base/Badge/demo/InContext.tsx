@@ -1,7 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import {
-  Badge,
   Card,
+  createStatusMap,
+  StatusBadge,
   Strong,
   Table,
   TableBody,
@@ -10,16 +11,24 @@ import {
   TableHeaderCell,
   TableRow,
   Text,
-  type StatusTone,
 } from '@vue-tsx-pro/ui';
 
-const orders: { id: string; customer: string; amount: string; status: [StatusTone, string] }[] = [
-  { id: '#10234', customer: '林小满', amount: '¥1,280.00', status: ['success', '已发货'] },
-  { id: '#10233', customer: '周一航', amount: '¥459.00', status: ['info', '备货中'] },
-  { id: '#10232', customer: '陈默', amount: '¥2,099.00', status: ['warning', '待付款'] },
-  { id: '#10231', customer: '吴悠', amount: '¥89.00', status: ['danger', '已退款'] },
-  { id: '#10230', customer: '赵晴', amount: '¥320.00', status: ['neutral', '已取消'] },
-];
+// 状态写在一处：表格、筛选、详情里都是同一个名字与颜色
+const orderStatuses = createStatusMap({
+  pending: { label: '待付款', tone: 'warning' },
+  packing: { label: '备货中', tone: 'info' },
+  shipped: { label: '已发货', tone: 'success' },
+  refunded: { label: '已退款', tone: 'danger' },
+  cancelled: { label: '已取消', tone: 'neutral' },
+});
+
+const orders = [
+  { id: '#10234', customer: '林小满', amount: '¥1,280.00', status: 'shipped' },
+  { id: '#10233', customer: '周一航', amount: '¥459.00', status: 'packing' },
+  { id: '#10232', customer: '陈默', amount: '¥2,099.00', status: 'pending' },
+  { id: '#10231', customer: '吴悠', amount: '¥89.00', status: 'refunded' },
+  { id: '#10230', customer: '赵晴', amount: '¥320.00', status: 'cancelled' },
+] as const;
 
 export default _component(() => () => (
   <Card padding="none">
@@ -43,9 +52,7 @@ export default _component(() => () => (
               <Text tone="muted">{order.amount}</Text>
             </TableCell>
             <TableCell>
-              <Badge tone={order.status[0]} radius="full">
-                {order.status[1]}
-              </Badge>
+              <StatusBadge statuses={orderStatuses} value={order.status} radius="full" />
             </TableCell>
           </TableRow>
         ))}
