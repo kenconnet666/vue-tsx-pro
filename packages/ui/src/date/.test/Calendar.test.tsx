@@ -108,6 +108,15 @@ describe('Calendar', () => {
     expect(value).toBeNull();
   });
 
+  it('min / max 写成日期时间时按它的日期禁用（日历按天比较）', () => {
+    const root = mount(() => (
+      <Calendar defaultFocused="2026-10-15" min="2026-10-10T14:00" max="2026-10-25T09:30:00" />
+    ));
+    expect(button(root, '2026-10-09').getAttribute('aria-disabled')).toBe('true');
+    expect(button(root, '2026-10-10').hasAttribute('aria-disabled')).toBe(false);
+    expect(button(root, '2026-10-26').getAttribute('aria-disabled')).toBe('true');
+  });
+
   it('多选：每天独立切换；网格 aria-multiselectable', async () => {
     let value = _state<string[]>([]);
     const root = mount(() => (

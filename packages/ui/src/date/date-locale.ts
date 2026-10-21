@@ -88,7 +88,9 @@ export function useDateLocale(read: () => DateLocaleOverrides = () => ({})): Dat
     },
     fromValue(value) {
       if (value == null) return null;
-      const date = typeof value === 'string' ? parseIsoDate(value) : toCalendarDate(value);
+      // 字符串取日期部分：min / max 常写成日期时间（'2026-10-20T14:00'），日历按天比较
+      const date =
+        typeof value === 'string' ? parseIsoDate(value.slice(0, 10)) : toCalendarDate(value);
       return date && toCalendar(date, calendar());
     },
     toIso: toIsoDate,

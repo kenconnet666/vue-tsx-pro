@@ -19,7 +19,7 @@
 import { Asterisk } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId, type VNodeChild } from 'vue';
+import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -95,6 +95,15 @@ export interface FieldControl {
   readonly: boolean;
   /** 从表单 schema 推出的约束；不在 Field 里、或推不出时为空对象。控件上显式写的属性优先 */
   constraints: FieldConstraints;
+}
+
+/**
+ * 所在的表单重置时（form.reset()、type="reset" 的按钮）调用：控件丢掉自己还没写回的输入（日期分段打了一半）。
+ * 值本身由表单改回去；只是半截输入时值一直是 null，重置前后没有变化，控件不知道要清。在 setup 里调用
+ */
+export function useFormReset(onReset: () => void): void {
+  const form = FormContext.inject(null);
+  if (form) watch(() => form.resetCount, onReset);
 }
 
 /**

@@ -145,8 +145,11 @@ export const DateSegmentGroup = _component(
     }
 
     function onKeydown(event: KeyboardEvent) {
+      // Enter 同原生的输入框：写回打了一半的年份，再提交所在的表单（查询栏、对话框里的表单）
       if (event.key === 'Enter') {
         event.preventDefault();
+        segments.commit();
+        root?.closest('form')?.requestSubmit();
         return;
       }
       if (!root || disabled) return;

@@ -221,3 +221,29 @@ describe('键盘', () => {
     expect(texts()).toBe('年/月/日');
   });
 });
+
+describe('年份与重置', () => {
+  it('年份打满四位才写回；没打满时离开这一段（或 commit）再写回', () => {
+    const { state, changes } = setup({ value: { year: 2025, month: 10, day: 20 } });
+    state.setFocused('year');
+    state.type('202');
+    // 逐位打的 2、20、202 都不写回
+    expect(changes).toEqual([]);
+    state.type('6');
+    expect(changes).toEqual([{ year: 2026, month: 10, day: 20 }]);
+    state.setFocused('year');
+    state.type('19');
+    state.setFocused(null);
+    expect(changes.at(-1)).toEqual({ year: 19, month: 10, day: 20 });
+  });
+
+  it('reset 丢掉打了一半的段，回到当前的值', () => {
+    const { state, texts, changes } = setup();
+    state.setFocused('year');
+    state.type('2026');
+    state.type('1');
+    expect(state.partial).toBe(true);
+    state.reset();
+    expect([state.partial, texts(), changes]).toEqual([false, '年/月/日', []]);
+  });
+});

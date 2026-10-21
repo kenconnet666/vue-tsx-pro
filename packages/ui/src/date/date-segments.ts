@@ -98,6 +98,10 @@ export interface DateSegmentsState {
   backspace(): void;
   /** 清空所有段 */
   clear(): void;
+  /** 丢掉还没写回的输入（打了一半的段），回到当前的值：表单重置时 */
+  reset(): void;
+  /** 写回还没写回的年份（没打满四位时先不写回）：离开这一段、按 Enter 提交时 */
+  commit(): void;
   /** 焦点移到相邻的段 */
   moveFocus(direction: 1 | -1): void;
 }
@@ -130,6 +134,8 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
   const draft = ref<DateFieldValues>({ ...config.value() });
   // 当前段已经打了的数字（还可能接着打第二位）
   const buffer = ref('');
+  // 年份没打满四位：草稿里有了，先不写回（逐位打 2、0、2、6 时不写出 0002、0020、0202）
+  let pendingYear = false;
   const focusedSegment = shallowRef<DateSegmentType | null>(null);
 
   // 外部的值变了（父级改了、清空了）时以它为准；自己写回的值也会回到这里，结果相同
@@ -271,8 +277,8 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
   );
   const editable = computed(() => segments.value.filter((segment) => segment.type !== 'literal'));
 
-  /** 写一段的值（显示值：12 小时制的时是 1–12）；写完检查是否填全 */
-  function write(type: DateSegmentType, value: number | null) {
+  /** 写一段的值（显示值：12 小时制的时是 1–12）；写完检查是否填全，emit 为 false 时只改草稿 */
+  function write(type: DateSegmentType, value: number | null, emit = true) {
     const next = { ...draft.value };
     if (type === 'dayPeriod') {
       if (next.hour == null || value == null) return;
@@ -284,8 +290,16 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
     else next[type] = value;
     const wasComplete = complete.value;
     draft.value = next;
+    pendingYear = !emit;
+    if (!emit) return;
     if (complete.value) config.onChange(constrained(next));
     else if (wasComplete) config.onChange(null);
+  }
+
+  function commit() {
+    if (!pendingYear) return;
+    pendingYear = false;
+    if (complete.value) config.onChange(constrained(draft.value));
   }
 
   // 日超过了这个月的天数（先填了 31 再把月改成 2 月）：写回时取这个月的最后一天
@@ -310,7 +324,10 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
       return !complete.value && config.fields().some((field) => draft.value[field] != null);
     },
     setFocused(type) {
-      if (type !== focusedSegment.value) buffer.value = '';
+      if (type !== focusedSegment.value) {
+        commit();
+        buffer.value = '';
+      }
       focusedSegment.value = type;
     },
     type(input) {
@@ -334,8 +351,8 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
         if (Number(next) > max) next = char;
         buffer.value = next;
         const number = Number(next);
-        // 0 还不是合法值（月、日、12 小时制的时）：先记着，等下一位
-        if (number >= min) write(segment, number);
+        // 0 还不是合法值（月、日、12 小时制的时）：先记着，等下一位；年份打满四位才写回
+        if (number >= min) write(segment, number, segment !== 'year' || next.length >= 4);
         const maxDigits = String(max).length;
         if (next.length >= maxDigits || number * 10 > max) {
           buffer.value = '';
@@ -401,10 +418,17 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
     },
     clear() {
       buffer.value = '';
+      pendingYear = false;
       const wasComplete = complete.value;
       draft.value = {};
       if (wasComplete) config.onChange(null);
     },
+    reset() {
+      buffer.value = '';
+      pendingYear = false;
+      draft.value = { ...config.value() };
+    },
+    commit,
     moveFocus(direction) {
       const list = editable.value;
       const index = list.findIndex((segment) => segment.type === current());

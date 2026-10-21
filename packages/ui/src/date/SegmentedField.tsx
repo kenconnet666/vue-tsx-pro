@@ -16,7 +16,7 @@ import type { VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { useLang } from '../config/context';
 import type { HourCycles } from '../config/lang/lang';
-import { useFieldControl } from '../form/Field';
+import { useFieldControl, useFormReset } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
   controlClear,
@@ -91,7 +91,7 @@ export function useFieldSegments(
 ) {
   const lang = useLang();
   const locale = useDateLocale();
-  return useDateSegments({
+  const segments = useDateSegments({
     fields: () => read().fields,
     locale: () => lang.code,
     hourCycle: () => read().hourCycle ?? lang.hourCycle,
@@ -112,6 +112,8 @@ export function useFieldSegments(
     readonly: () => read().readonly,
     onExit,
   });
+  useFormReset(() => segments.reset());
+  return segments;
 }
 
 /** 一组分段里第一个没填的段（都填了时第一段）：点外壳空白处、清空后焦点去这里 */

@@ -150,6 +150,8 @@ export interface FormControllerBase {
   readonly submitting: boolean;
   /** 提交过几次（不论成功与否） */
   readonly submitCount: number;
+  /** 重置过几次：控件据此丢掉自己还没写回的输入（useFormReset） */
+  readonly resetCount: number;
   /** 值与初始值（或上次 reset 的值）不同 */
   readonly dirty: boolean;
   /** 字段（不写时为任一字段）的单字段校验正在进行 */
@@ -302,6 +304,7 @@ export function useForm<Values extends object, Output = Values>(
     pending: new Set<string>(),
     submitting: false,
     submitCount: 0,
+    resetCount: 0,
     // dirty 的比较基准：初始值，或上次 reset 的值
     baseline: cloneValue(options.initial),
   });
@@ -512,6 +515,9 @@ export function useForm<Values extends object, Output = Values>(
     get submitting() {
       return state.submitting;
     },
+    get resetCount() {
+      return state.resetCount;
+    },
     get submitCount() {
       return state.submitCount;
     },
@@ -557,6 +563,7 @@ export function useForm<Values extends object, Output = Values>(
       state.externalErrors = {};
       state.touched = new Set();
       state.submitCount = 0;
+      state.resetCount++;
     },
     isDirty(path) {
       return !sameValue(readPath(values, path), readPath(state.baseline, path));

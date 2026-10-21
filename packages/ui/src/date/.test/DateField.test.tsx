@@ -1,9 +1,11 @@
 // DateField、TimeField：段的顺序与读屏属性、逐段输入与自动跳段（焦点跟过去）、填全才写回、超出范围显示出错、清空、表单值、中英文
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { Provider } from '../../config/Provider';
 import { enUS } from '../../config/lang/en-US';
 import { Field } from '../../form/Field';
+import { Form } from '../../form/Form';
+import { useForm } from '../../form/useForm';
 import { mount } from '../../utils/.test/mount';
 import { DateField } from '../DateField';
 import { TimeField } from '../TimeField';
@@ -213,5 +215,33 @@ describe('TimeField', () => {
     ));
     expect(text(root)).toBe('18:30:05');
     expect(root.querySelector('.shell')!.hasAttribute('data-invalid')).toBe(true);
+  });
+  it('在表单里：打了一半时表单重置，各段清空；Enter 写回并提交表单', async () => {
+    const form = useForm({ initial: { due: null as string | null } });
+    const submitted: unknown[] = [];
+    const root = mount(() => (
+      <Form controller={form} onSubmit={(event: Event) => submitted.push(event)}>
+        <form.Field name="due" label="截止">
+          <DateField value={_bind(form.values.due)} />
+        </form.Field>
+      </Form>
+    ));
+    segment(root, 'year').focus();
+    await type('2026');
+    expect(text(root)).toBe('2026/月/日');
+    form.reset();
+    await nextTick();
+    await nextTick();
+    expect(text(root)).toBe('年/月/日');
+
+    const onSubmit = vi.fn();
+    const plain = mount(() => (
+      <form onSubmit={(event: Event) => (event.preventDefault(), onSubmit())}>
+        <DateField value="2026-10-20" aria-label="日期" />
+      </form>
+    ));
+    segment(plain, 'day').focus();
+    await press('Enter');
+    expect(onSubmit).toHaveBeenCalledOnce();
   });
 });

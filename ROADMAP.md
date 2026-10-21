@@ -99,7 +99,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       竖排有连接线；已完成、未开始、出错有读屏文字（`lang.stepState`）
 - [x] Tree：loading（骨架行、aria-busy）与 empty、checkStrictly；TreeDataTable 多选默认父子联动（父行半选，DataTableView 加 `partialKeys`）、
       checkStrictly 与 manualSort
-- [ ] 日期：字符串的 min / max 带时间时日历也禁用；分段输入重置时清掉半截；年份输完再写回；Enter 提交表单
+- [x] 日期：字符串的 min / max 带时间时日历按日期部分禁用；表单重置时分段丢掉半截输入（新增 `resetCount`、`useFormReset`）；
+      年份打满四位或离开这一段才写回；分段里按 Enter 写回并提交所在的表单
 - [ ] TagsInput 失焦时保留文字（acceptOnBlur）；Upload / FileDrop 读 Field 的只读与不可用；Label 点击聚焦组控件
 - [ ] Toast：只给显示出来的计时；important（role="alert"）；Progress 的不确定动画跟随从右到左
 - [ ] reveal.ts 的转场样式只在转场期间生效；主题定制的圆角档位按主题自己的取值缩放
