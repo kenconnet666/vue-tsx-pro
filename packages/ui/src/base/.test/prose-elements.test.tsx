@@ -1,4 +1,5 @@
 // 正文排版：列表、引用、高亮标记、长文容器、标题的锚点链接
+import { Check, X } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
 import { Prose } from '../../layout/Prose';
@@ -46,5 +47,24 @@ describe('正文排版', () => {
       '链接到本节',
     ]);
     expect(withoutId!.querySelector('a')).toBeNull();
+  });
+
+  it('List 的 icon 代替圆点，ListItem 逐项覆盖；有序列表里不沿用外层的图标', () => {
+    const root = mount(() => (
+      <List icon={Check} propsIcon={{ class: 'mark' }}>
+        <ListItem>包含</ListItem>
+        <ListItem icon={X} propsIcon={{ class: 'off' }}>
+          不包含
+          <OrderedList>
+            <ListItem>第一步</ListItem>
+          </OrderedList>
+        </ListItem>
+      </List>
+    ));
+    const [included, excluded] = [...root.querySelectorAll('ul > li')];
+    expect(included!.querySelector('.mark')).not.toBeNull();
+    // 逐项的部件属性与列表的合并
+    expect(excluded!.querySelector(':scope > .mark.off')).not.toBeNull();
+    expect(root.querySelector('ol > li')!.querySelector('svg, .mark')).toBeNull();
   });
 });
