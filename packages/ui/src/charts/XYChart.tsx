@@ -265,14 +265,11 @@ export const XYChart = _component(
         valueDomain?.[0] ?? (kind.zeroBaseline === false ? undefined : Math.min(0, ...values)),
         valueDomain?.[1],
       ];
-      const components = kind.components({
-        series: shown,
-        x: kind.continuousX
-          ? (row) => kind.continuousX!.value(row) ?? Number.NaN
-          : (_row, position) => position,
-        y: (item) => (row) => seriesNumber(row, item.key),
-        instance: instances.get,
-      });
+      const x = kind.continuousX
+        ? (row: T) => kind.continuousX!.value(row) ?? Number.NaN
+        : (_row: T, position: number) => position;
+      const y = (item: (typeof shown)[number]) => (row: T) => seriesNumber(row, item.key);
+      const components = kind.components({ series: shown, x, y, instance: instances.get });
       const xAxis = instances.get('xAxis', () => new Axis<T>({ type: 'x' }));
       const yAxis = instances.get('yAxis', () => new Axis<T>({ type: 'y' }));
       const crosshair = instances.get('crosshair', () => new Crosshair<T>());
@@ -303,6 +300,9 @@ export const XYChart = _component(
         tickPadding: 8,
       });
       crosshair.setConfig({
+        // 访问器直接给：容器还没按尺寸渲染过时不会把组件的访问器转交十字线，Unovis 会报 “Y accessors have not been configured”
+        x,
+        ...(kind.stacked ? { yStacked: shown.map(y) } : { y: shown.map(y) }),
         template: (row: T) => renderTooltip(row),
         color: (_row: T, position: number) => shown[position]?.color ?? 'transparent',
         getCircles: kind.crosshairDots ? undefined : () => [],
