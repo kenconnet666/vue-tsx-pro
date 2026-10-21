@@ -15,20 +15,14 @@ import type { Options as StylexBabelOptions } from '@stylexjs/babel-plugin';
 import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { Features } from 'lightningcss';
 import type { Plugin, Rollup } from 'vite';
-import { compile } from '../compiler/index.ts';
+import { availableParallelism } from 'node:os';
 import { needsTokens } from '../compiler/tokens.ts';
 import { CompileCache } from './cache.ts';
 import { compilerCacheKey } from './cache-key.ts';
-import {
-  componentMarkers,
-  exportedComponents,
-  hmrCode,
-  SSR_REGISTER_CODE,
-  SSR_REGISTER_ID,
-  ssrCode,
-} from './hmr.ts';
+import { SSR_REGISTER_CODE, SSR_REGISTER_ID } from './hmr.ts';
+import { compileModule, type CompilerSetup, type ModuleRequest } from './module.ts';
+import { CompilePool } from './pool.ts';
 import { stylexCss, StylexRules, type StylexCssOptions } from './stylex.ts';
-import { stylexModuleResolution } from './stylex-resolution.ts';
 import { tokenModule } from './tokens.ts';
 
 /** 本包的 StyleX 入口：运行时同 @stylexjs/stylex，类型带中文注释（见 src/stylex） */
@@ -63,6 +57,11 @@ export interface VueTsxProOptions {
    * 构建与 Vitest 不用它（Vitest 有自己的模块缓存）
    */
   cache?: boolean;
+  /**
+   * 在工作线程里并行编译（构建与开发服务器；Vitest 本来就是多进程，不用），默认 true。
+   * 选项里有函数（如自定义的 StyleX 模块解析）时不能复制到线程，自动在主线程编译
+   */
+  parallel?: boolean;
 }
 
 /**
@@ -83,9 +82,8 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
       exclude: (lightningcssOptions?.exclude ?? 0) | Features.DirSelector,
     },
   });
+  // 没给 unstable_moduleResolution 时用 stylex-resolution.ts 的：源码与产物编译出相同的变量名（见 module.ts）
   const stylex: StylexBabel = {
-    // 源码与产物编译出相同的变量名（见 stylex-resolution.ts）
-    unstable_moduleResolution: stylexModuleResolution(),
     // 与 @stylexjs/unplugin 一致：开发服务器里带可读的类名与来源
     dev: process.env.NODE_ENV === 'development' || process.env.BABEL_ENV === 'development',
     // 打包工具会去掉只被 StyleX 用过的导入，留一个副作用导入保住 .stylex 模块
@@ -120,9 +118,11 @@ function compiler(
 ): Plugin & VitestHooks {
   const optimize = options.optimize ?? true;
   const tokens = options.tokens ?? '@vue-tsx-pro/ui/tokens.stylex';
-  let root = process.cwd();
-  let hmr = false;
+  let setup: CompilerSetup;
   let cache: CompileCache | undefined;
+  let pool: CompilePool | undefined;
+  const run = (request: ModuleRequest) =>
+    pool ? pool.run(request) : compileModule(request, setup);
   return {
     name: 'vue-tsx-pro',
     enforce: 'pre',
@@ -156,8 +156,8 @@ function compiler(
       };
     },
     configResolved(config) {
-      root = config.root;
-      hmr = config.command === 'serve' && !config.isProduction;
+      const hmr = config.command === 'serve' && !config.isProduction;
+      setup = { optimize, tokens, root: config.root, stylex: stylex?.babel, jsx: options.jsx, hmr };
       if ((options.cache ?? true) && config.command === 'serve' && !process.env.VITEST) {
         const { stylex: _, ...rest } = options;
         cache = new CompileCache(
@@ -165,6 +165,13 @@ function compiler(
           JSON.stringify([rest, stylex?.babel, hmr, process.env.NODE_ENV]),
         );
       }
+      if ((options.parallel ?? true) && !process.env.VITEST && cloneable(setup)) {
+        pool = new CompilePool(setup, Math.max(1, Math.min(availableParallelism() - 1, 6)));
+      }
+    },
+    // 构建结束、服务器关闭时停掉编译线程
+    closeBundle() {
+      pool?.close();
     },
     resolveId: (id) => (id === SSR_REGISTER_ID ? id : undefined),
     load: (id) => (id === SSR_REGISTER_ID ? SSR_REGISTER_CODE : undefined),
@@ -179,12 +186,11 @@ function compiler(
         const lang = (/(?:^|&)lang\.([jt]sx?)(?:&|$)/.exec(query)?.[1] ??
           /\.[cm]?([jt]sx?)$/.exec(file)?.[1]) as 'ts' | 'tsx' | 'js' | 'jsx' | undefined;
         if (!lang) return;
-        const jsx = lang === 'tsx' || lang === 'jsx';
         const ssr = transformOptions?.ssr === true;
         const dependencies = stylex ? await loadStylexModules(this, code, id) : [];
         const tokenFile =
           own && tokens !== false && needsTokens(code)
-            ? tokenModule(tokens, file, root)?.file
+            ? tokenModule(tokens, file, setup.root)?.file
             : undefined;
         if (tokenFile) {
           this.addWatchFile(tokenFile);
@@ -199,40 +205,25 @@ function compiler(
           return { code: cached.code, map: cached.map as never };
         }
 
-        const result = await compile(code, {
-          filename: file,
-          lang,
-          runes: own,
-          optimize,
-          tokens: own && tokens !== false ? () => tokenModule(tokens, file, root) : undefined,
-          stylex: stylex?.babel,
-          jsx: options.jsx,
-          plugins: jsx ? [() => componentMarkers(hmr || ssr)] : undefined,
-        });
+        const result = await run({ code, id, file, lang, own, ssr });
         stylex?.rules.set(id, result?.stylex ?? []);
         if (!result) return;
-        for (const warning of result.warnings) this.warn(warning.frame);
-
-        let output = result.code;
-        if (jsx && (hmr || ssr)) {
-          const components = exportedComponents(result.ast, id);
-          if (components.length && hmr && !ssr && !/\?vue&type=script/.test(id)) {
-            output += hmrCode(components);
-          }
-          if (components.length && ssr) output += ssrCode(components, id, root);
-        }
-        if (key) {
-          cache!.write(ssr ? `${id}\0ssr` : id, key, {
-            code: output,
-            map: result.map,
-            stylex: result.stylex,
-            warnings: result.warnings.map((warning) => warning.frame),
-          });
-        }
-        return { code: output, map: result.map as never };
+        for (const warning of result.warnings) this.warn(warning);
+        if (key) cache!.write(ssr ? `${id}\0ssr` : id, key, result);
+        return { code: result.code, map: result.map as never };
       },
     },
   };
+}
+
+/** 设置能不能复制到编译线程（含函数的选项不能） */
+function cloneable(value: unknown) {
+  try {
+    structuredClone(value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
