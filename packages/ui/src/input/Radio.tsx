@@ -34,7 +34,7 @@ import {
 /** RadioGroup 交给组内 Radio 的状态 */
 export interface RadioGroupState {
   /** 选中的值 */
-  readonly value: string | undefined;
+  readonly value: string | null;
   /** 原生单选框的 name：同组共用，方向键在组内移动 */
   readonly name: string;
   /** 整组不可用 */
@@ -58,8 +58,8 @@ export const RadioGroupContext = createContext<RadioGroupState>('RadioGroup');
 
 /** 未声明的属性落到 div（role="radiogroup"）上 */
 export interface RadioGroupProps extends PartProps<'div', 'role'> {
-  /** 选中项的值：父级写 value={_bind(x)} */
-  value?: string;
+  /** 选中项的值：父级写 value={_bind(x)}；没有选中时是 null */
+  value?: string | null;
   /** 表单提交时的 name；不写时自动生成（同组的 radio 要共用一个 name 才互斥） */
   name?: string;
   /** 整组不可用 */
@@ -83,7 +83,7 @@ export interface RadioGroupProps extends PartProps<'div', 'role'> {
 /** 单选组：value 是选中项的值 */
 export const RadioGroup = _component(
   ({
-    value = _bindable<string | undefined>(undefined),
+    value = _bindable<string | null>(null),
     name,
     disabled,
     readonly,

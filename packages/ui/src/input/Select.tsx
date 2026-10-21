@@ -166,7 +166,7 @@ export const Select = _component(
     items,
     toOption,
     selectionMode = 'single',
-    value = _bindable<string | string[] | undefined>(undefined),
+    value = _bindable<string | string[] | null>(null),
     open = _bindable(false),
     placeholder,
     placement = 'bottom-start',
@@ -213,7 +213,7 @@ export const Select = _component(
       toOption: optionOf,
       selected: () => selectedValues(value),
       mode: () => selectionMode,
-      onChange: (next) => (value = multiple() ? [...next] : next[0]),
+      onChange: (next) => (value = multiple() ? [...next] : (next[0] ?? null)),
       // 单选时再点已选的一项不取消（同原生 select）；要清空用清除按钮
       required: () => !multiple(),
     });
@@ -281,7 +281,7 @@ export const Select = _component(
     }
 
     function clear() {
-      value = multiple() ? [] : undefined;
+      value = multiple() ? [] : null;
       trigger?.focus();
     }
 

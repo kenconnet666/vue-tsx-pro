@@ -12,7 +12,7 @@ const cities = ['北京', '上海', '广州', '深圳', '杭州'];
 
 export default _component(() => {
   let language = _state('zh-CN');
-  let city = _state<string | undefined>();
+  let city = _state<string | null>(null);
   return () => (
     <Grid minItemWidth="14rem" gap="lg">
       <Field label="界面语言">

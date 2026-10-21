@@ -9,7 +9,7 @@ const options = [
 
 export default _component(() => {
   let shipping = _state('express');
-  let invoice = _state<string | undefined>();
+  let invoice = _state<string | null>(null);
   return () => (
     <Flex direction="column" gap="lg">
       <Field label="配送方式">

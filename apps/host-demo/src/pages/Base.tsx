@@ -316,13 +316,13 @@ export const Base = _component(() => {
   }
   let agreed = _state(false);
   let channels = _state<string[]>(['email']);
-  let shipping = _state<string | undefined>('express');
+  let shipping = _state<string | null>('express');
   let notify = _state(true);
-  let city = _state<string | undefined>(undefined);
+  let city = _state<string | null>(null);
   let pickedCities = _state<string[]>(['sh']);
-  let language = _state<string | undefined>(undefined);
-  let fruit = _state<string | undefined>('banana');
-  let serial = _state<string | undefined>(undefined);
+  let language = _state<string | null>(null);
+  let fruit = _state<string | null>('banana');
+  let serial = _state<string | null>(null);
   let menuAction = _state('');
   let showGrid = _state(true);
   let sortBy = _state('name');
@@ -352,8 +352,8 @@ export const Base = _component(() => {
   let page = _state(3);
   let pageSize = _state(20);
   let skills = _state<string[]>(['typescript']);
-  let faq = _state<string | undefined>('ship');
-  let view = _state<string | undefined>('list');
+  let faq = _state<string | null>('ship');
+  let view = _state<string | null>('list');
   let marks = _state<string[]>(['bold']);
 
   function save() {

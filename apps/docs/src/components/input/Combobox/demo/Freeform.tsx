@@ -6,7 +6,7 @@ import { Code, Combobox, Field, Grid } from '@vue-tsx-pro/ui';
 const titles = ['产品经理', '交互设计师', '视觉设计师', '前端工程师', '后端工程师', '测试工程师'];
 
 export default _component(() => {
-  let title = _state<string | undefined>();
+  let title = _state<string | null>(null);
   let typed = _state('');
   return () => (
     <Grid minItemWidth="15rem" gap="lg">
@@ -19,7 +19,7 @@ export default _component(() => {
             </>
           ) : (
             <>
-              自由输入：<Code>{typed || '（空）'}</Code>，value 为 undefined
+              自由输入：<Code>{typed || '（空）'}</Code>，value 为 null
             </>
           )
         }

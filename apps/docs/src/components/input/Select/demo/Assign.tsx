@@ -36,7 +36,7 @@ const labels = ['紧急', '前端', '后端', '设计', '文档', '性能', '无
 
 export default _component(() => {
   let type = _state('bug');
-  let assignee = _state<string | undefined>('lxm');
+  let assignee = _state<string | null>('lxm');
   let tags = _state<string[]>(['前端', '无障碍']);
   return () => (
     <Flex direction="column" gap="md">

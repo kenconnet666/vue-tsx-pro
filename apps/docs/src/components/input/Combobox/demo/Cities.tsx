@@ -52,11 +52,11 @@ const search = (keyword: string) =>
   );
 
 export default _component(() => {
-  let city = _state<string | undefined>();
+  let city = _state<string | null>(null);
   let keyword = _state('');
   let results = _state<string[]>([]);
   let searching = _state(false);
-  let user = _state<string | undefined>();
+  let user = _state<string | null>(null);
 
   let latest = 0;
   const onKeyword = async (next: string) => {

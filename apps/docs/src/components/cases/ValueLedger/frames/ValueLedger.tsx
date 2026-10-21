@@ -80,7 +80,7 @@ export default _component(() => {
   let kind = _state<'unit' | 'dmc'>(route().kind === 'dmc' ? 'dmc' : 'unit');
   let basis = _state(route().basis ?? 'hard');
   let keyword = _state('');
-  let team = _state('');
+  let team = _state<string | null>(null);
 
   /** 当前单位、口径与条件下的行：任务按收益状态上账，机会单独一栏 */
   function rowsOf(view: 'unit' | 'dmc'): Row[] {

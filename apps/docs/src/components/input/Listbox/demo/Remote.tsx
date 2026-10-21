@@ -29,7 +29,7 @@ export default _component(() => {
   let query = _state('');
   let loading = _state(false);
   let results = _state<ListboxOption[]>(people);
-  let picked = _state<string | undefined>();
+  let picked = _state<string | null>(null);
   let lastPick = _state('');
   let timer: ReturnType<typeof setTimeout> | undefined;
 

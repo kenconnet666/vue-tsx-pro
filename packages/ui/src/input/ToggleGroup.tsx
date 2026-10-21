@@ -24,7 +24,7 @@ import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { ToolbarContext } from '../navigation/Toolbar';
-import { toggleSelection, type SelectionProps } from '../utils/data/selection';
+import { selectedValues, toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { useFieldControl } from '../form/Field';
 import type { TextSize } from '../utils/style/typography';
 
@@ -119,7 +119,7 @@ export const toggleGroupStyles = stylex.create({
 export const ToggleGroup = _component(
   ({
     selectionMode = 'single',
-    value = _bindable<string | string[] | undefined>(undefined),
+    value = _bindable<string | string[] | null>(null),
     required,
     disabled,
     readonly,
@@ -141,9 +141,7 @@ export const ToggleGroup = _component(
         ? rovingFocus(root, { items: 'button', orientation, loop: true })
         : undefined,
     );
-    const selected = _derived<readonly string[]>(
-      Array.isArray(value) ? value : value != null ? [value] : [],
-    );
+    const selected = _derived(selectedValues(value));
     let indicator = _state.raw<HTMLElement | null>(null);
     useActiveIndicator(() => ({
       container: root,
@@ -179,7 +177,7 @@ export const ToggleGroup = _component(
           required: control().required,
         });
         if (next === selected) return;
-        value = selectionMode === 'multiple' ? [...next] : next[0];
+        value = selectionMode === 'multiple' ? [...next] : (next[0] ?? null);
       },
     });
 

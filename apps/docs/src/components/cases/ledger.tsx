@@ -115,37 +115,37 @@ export const focuses = [
   },
 ] as const;
 
-/** 台账的查询条件：两种台账的并集，各页的查询栏只放自己的那几项 */
+/** 台账的查询条件：两种台账的并集，各页的查询栏只放自己的那几项；没选的是 null（选择、日期控件清空后的值） */
 export interface LedgerQuery {
   keyword: string;
-  category: string;
-  team: string;
-  year: string;
-  contact: string;
-  org: string;
-  form: string;
-  install: string;
-  supplier: string;
-  funding: string;
-  valueState: string;
-  needSb: string;
-  basis: string;
+  category: string | null;
+  team: string | null;
+  year: string | null;
+  contact: string | null;
+  org: string | null;
+  form: string | null;
+  install: string | null;
+  supplier: string | null;
+  funding: string | null;
+  valueState: string | null;
+  needSb: string | null;
+  basis: string | null;
 }
 
 const blank = (): LedgerQuery => ({
   keyword: '',
-  category: '',
-  team: '',
-  year: '',
-  contact: '',
-  org: '',
-  form: '',
-  install: '',
-  supplier: '',
-  funding: '',
-  valueState: '',
-  needSb: '',
-  basis: '',
+  category: null,
+  team: null,
+  year: null,
+  contact: null,
+  org: null,
+  form: null,
+  install: null,
+  supplier: null,
+  funding: null,
+  valueState: null,
+  needSb: null,
+  basis: null,
 });
 
 /** 关键字查编码、名称与件号 */
@@ -385,8 +385,8 @@ export const LedgerPage = _component(
     const route = useCaseQuery();
     const fromLink = (): LedgerQuery => ({
       ...blank(),
-      valueState: route().valueState ?? '',
-      basis: route().basis ?? '',
+      valueState: route().valueState ?? null,
+      basis: route().basis ?? null,
     });
     let query = _state(fromLink());
     let applied = _state(fromLink());
@@ -840,9 +840,9 @@ export const filterFields = {
   ),
 };
 
-/** 收起的条件里填了几项 */
+/** 收起的条件里填了几项（空字符串与 null 都算没填） */
 export const countActive = (query: LedgerQuery, keys: readonly (keyof LedgerQuery)[]) =>
-  keys.filter((key) => query[key] !== '').length;
+  keys.filter((key) => query[key]).length;
 
 /** 共用的列：责任一级团队（简称，悬停看全称）、联络人、完成形式、提出单位 */
 export const ledgerColumns = {

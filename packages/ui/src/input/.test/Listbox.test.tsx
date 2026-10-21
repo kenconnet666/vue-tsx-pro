@@ -73,7 +73,7 @@ describe('useListState', () => {
 
 describe('Listbox', () => {
   it('role="listbox"，组名经 aria-describedby 交给组里的选项；获得焦点后高亮已选项，方向键移动、Enter 选中', async () => {
-    let value = _state<string | undefined>('cherry');
+    let value = _state<string | null>('cherry');
     const root = mount(() => <Listbox items={fruits} value={_bind(value)} aria-label="水果" />);
     await nextTick();
     const listbox = root.querySelector<HTMLElement>('[role="listbox"]')!;
@@ -123,7 +123,7 @@ describe('Listbox', () => {
       { id: 7, name: '张三', active: true },
       { id: 9, name: '李四', active: false },
     ];
-    let picked = _state<string | undefined>();
+    let picked = _state<string | null>(null);
     const root = mount(() => (
       <Listbox
         items={users}
@@ -145,7 +145,7 @@ describe('Listbox', () => {
   });
 
   it('字符串列表：值与文字都是它，不用 toOption', async () => {
-    let picked = _state<string | undefined>();
+    let picked = _state<string | null>(null);
     const root = mount(() => (
       <Listbox items={['设计', '研发']} value={_bind(picked)} aria-label="部门" />
     ));

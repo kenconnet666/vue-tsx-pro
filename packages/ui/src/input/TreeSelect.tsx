@@ -73,8 +73,8 @@ export interface TreeSelectProps<T>
   isDisabled?: (node: T) => boolean;
   /** 单选（默认）或多选（勾选，父子联动） */
   selectionMode?: keyof SelectionModes;
-  /** 单选时是选中节点的 key，多选时是勾上的全部 key：父级写 value={_bind(x)} */
-  value?: string | string[];
+  /** 单选时是选中节点的 key（没有时 null），多选时是勾上的全部 key：父级写 value={_bind(x)} */
+  value?: string | string[] | null;
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
   /** 是否打开：父级可以写 open={_bind(x)} */
@@ -132,7 +132,7 @@ export const TreeSelect = _component(
     loadChildren,
     isDisabled,
     selectionMode = 'single',
-    value = _bindable<string | string[] | undefined>(undefined),
+    value = _bindable<string | string[] | null>(null),
     open = _bindable(false),
     placeholder,
     placement = 'bottom-start',
@@ -236,7 +236,7 @@ export const TreeSelect = _component(
     }
 
     function clear() {
-      value = multiple() ? [] : undefined;
+      value = multiple() ? [] : null;
       trigger?.focus();
     }
 

@@ -17,7 +17,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { h, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
-import { toggleSelection, type SelectionProps } from '../utils/data/selection';
+import { selectedValues, toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -90,7 +90,7 @@ export const accordionStyles = stylex.create({
 export const Accordion = _component(
   ({
     selectionMode = 'single',
-    value = _bindable<string | string[] | undefined>(undefined),
+    value = _bindable<string | string[] | null>(null),
     collapsible = true,
     headingLevel = 3,
     disabled = false,
@@ -99,9 +99,7 @@ export const Accordion = _component(
     ...rest
   }: AccordionProps) => {
     let root = _state.raw<HTMLElement | null>(null);
-    const expanded = _derived<readonly string[]>(
-      Array.isArray(value) ? value : value != null ? [value] : [],
-    );
+    const expanded = _derived(selectedValues(value));
 
     AccordionContext.provide({
       get expanded() {
@@ -119,7 +117,7 @@ export const Accordion = _component(
           required: !collapsible,
         });
         if (next === expanded) return;
-        value = selectionMode === 'multiple' ? [...next] : next[0];
+        value = selectionMode === 'multiple' ? [...next] : (next[0] ?? null);
       },
     });
 

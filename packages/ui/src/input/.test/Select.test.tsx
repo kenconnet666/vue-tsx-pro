@@ -48,6 +48,28 @@ describe('Select', () => {
     expect(root.querySelector('button[aria-label="清空"]')).toBeNull();
   });
 
+  it('清空：单选写回 null（同日期、数字控件的空值），多选写回空数组', async () => {
+    let city = _state<string | null>('上海');
+    let cityList = _state(['北京', '广州']);
+    const root = mount(() => (
+      <>
+        <Select items={cities} value={_bind(city)} clearable aria-label="城市" />
+        <Select
+          items={cities}
+          selectionMode="multiple"
+          value={_bind(cityList)}
+          clearable
+          aria-label="途经"
+        />
+      </>
+    ));
+    for (const clear of root.querySelectorAll<HTMLButtonElement>('button[aria-label="清空"]')) {
+      clear.click();
+    }
+    await nextTick();
+    expect([city, cityList]).toEqual([null, []]);
+  });
+
   it('不可搜索时弹层没有头部（不留空的分隔线）；可搜索时头部是搜索框', () => {
     const root = mount(() => (
       <>

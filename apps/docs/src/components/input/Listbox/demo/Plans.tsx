@@ -36,7 +36,7 @@ const plans: ListboxOption[] = [
 ];
 
 export default _component(() => {
-  let plan = _state<string | undefined>('pro');
+  let plan = _state<string | null>('pro');
   return () => (
     <Flex direction="column" gap="sm">
       <Field label="套餐" required>

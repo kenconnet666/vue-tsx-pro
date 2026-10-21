@@ -44,7 +44,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 项的形状：都可以带 `key`（Steps、Breadcrumbs 补上）；取 key 的函数统一叫 `getKey`（DataTable 的 rowKey、VirtualList 的 itemKey）。
       决定保留：标题与说明成对的项（Steps、Timeline、AccordionItem）叫 `title`，“名称：值”的项（Breadcrumbs、Descriptions）叫 `label`
 - [x] Listbox、ToggleGroup 的 `required`（必须有选中项）跟随 Field 的必填：在必填字段里最后一项不能取消，Listbox 带 aria-required；名字不改
-- [ ] 空值约定：可清空的单值控件清空后都写 `null`；文档写清与 zod 的 `nullable()` / `optional()` 的对应
+- [x] 空值约定：单值的选择控件（Select、Combobox、TreeSelect、Listbox、ToggleGroup、RadioGroup、Accordion）没有值时也是 `null`，
+      同数字、日期控件；文本框是 `''`。COMPONENTS.md §1 与 Form 文档写清与 `.nullable()` 的对应
 - [ ] 区间控件的字段名统一成 `name: [start, end]`；NumberRangeField 补 size、variant、radius
 - [x] 间距：List 的 `spacing` 改成 `gap`（全档）；Flex 加 rowGap / columnGap；Heading 加 wrap / lineClamp
 - [ ] 枚举类取值改成带注释接口的 `keyof`（AppShell 的 sidebarMode、ButtonGroup 的方向、Flex 的 wrap、PageHeader 的标题级别）

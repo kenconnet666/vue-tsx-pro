@@ -21,7 +21,7 @@ describe('toggleSelection', () => {
 
 describe('ToggleGroup', () => {
   it('单选：role="group"，aria-pressed 表示选中，点击写回；required 时不能取消', async () => {
-    let view = _state<string | undefined>('list');
+    let view = _state<string | null>('list');
     const root = mount(() => (
       <ToggleGroup value={_bind(view)} required aria-label="视图">
         <ToggleItem value="list">列表</ToggleItem>
@@ -47,8 +47,8 @@ describe('ToggleGroup', () => {
   });
 
   it('在必填的 Field 里默认是 required：最后一项不能取消；不在 Field 里时可以取消', async () => {
-    let inField = _state<string | undefined>('list');
-    let alone = _state<string | undefined>('list');
+    let inField = _state<string | null>('list');
+    let alone = _state<string | null>('list');
     const root = mount(() => (
       <>
         <Field label="视图" required>
@@ -65,7 +65,7 @@ describe('ToggleGroup', () => {
     const [kept, toggled] = root.querySelectorAll('button');
     kept!.click();
     toggled!.click();
-    expect([inField, alone]).toEqual(['list', undefined]);
+    expect([inField, alone]).toEqual(['list', null]);
   });
 
   it('多选：每项独立切换；整组不可用时都不能点', async () => {

@@ -111,7 +111,7 @@ it('Listbox 移动高亮：只重建前后两个选项', async () => {
   }));
   mount(
     _component(() => {
-      let value = _state<string | undefined>(undefined);
+      let value = _state<string | null>(null);
       return () => <Listbox items={options} value={_bind(value)} aria-label="选项" />;
     }),
   );

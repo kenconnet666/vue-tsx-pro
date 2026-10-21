@@ -15,8 +15,8 @@ export interface SelectionModes {
 export interface SingleSelectionProps {
   /** 选择方式，默认 single */
   selectionMode?: Extract<keyof SelectionModes, 'single'>;
-  /** 选中项：父级写 value={_bind(x)} */
-  value?: string;
+  /** 选中项：父级写 value={_bind(x)}；没有选中时是 null */
+  value?: string | null;
 }
 
 /** 多选：value 是选中项的值的数组 */
@@ -42,8 +42,9 @@ export interface SelectionOptions {
  * 单选的值或多选的值数组 → 已选值的数组（单选、多选共用一套渲染与列表状态时）。
  * 单选的空字符串算没有选中：表单的初始值常写 ''（同原生 select 的占位项），这时显示占位文字、不出清除按钮
  */
-export const selectedValues = (value: string | readonly string[] | undefined): readonly string[] =>
-  typeof value === 'string' ? (value === '' ? [] : [value]) : (value ?? []);
+export const selectedValues = (
+  value: string | readonly string[] | null | undefined,
+): readonly string[] => (typeof value === 'string' ? (value === '' ? [] : [value]) : (value ?? []));
 
 /** 点了 key 之后的选择；没有变化时返回原数组 */
 export function toggleSelection<Key>(

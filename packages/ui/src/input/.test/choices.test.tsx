@@ -64,7 +64,7 @@ describe('Checkbox', () => {
 
 describe('RadioGroup', () => {
   it('同组的 radio 共用自动生成的 name；选中写回；整组不可用', async () => {
-    let shipping = _state<string | undefined>('express');
+    let shipping = _state<string | null>('express');
     let off = _state(false);
     const root = mount(() => (
       <RadioGroup value={_bind(shipping)} disabled={off} aria-label="配送">

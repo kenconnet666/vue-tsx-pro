@@ -469,7 +469,7 @@ export const Listbox = _component(
     items,
     toOption,
     selectionMode = 'single',
-    value = _bindable<string | string[] | undefined>(undefined),
+    value = _bindable<string | string[] | null>(null),
     required,
     disabled,
     id,
@@ -485,7 +485,7 @@ export const Listbox = _component(
       selected: () => selectedValues(value),
       mode: () => selectionMode,
       required: () => control().required,
-      onChange: (next) => (value = selectionMode === 'multiple' ? [...next] : next[0]),
+      onChange: (next) => (value = selectionMode === 'multiple' ? [...next] : (next[0] ?? null)),
     });
 
     function onKeydown(event: KeyboardEvent) {

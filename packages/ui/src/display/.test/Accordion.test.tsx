@@ -26,7 +26,7 @@ describe('Accordion', () => {
   });
 
   it('单开：点另一项时前一项收起；collapsible 为 false 时最后一项不能收起', async () => {
-    let open = _state<string | undefined>('a');
+    let open = _state<string | null>('a');
     const root = mount(() => (
       <Accordion value={_bind(open)} collapsible={false}>
         <AccordionItem value="a" title="A">
@@ -95,7 +95,7 @@ describe('Accordion', () => {
   });
 
   it('页内搜索命中收起的内容（beforematch）时展开并写回', async () => {
-    let open = _state<string | undefined>(undefined);
+    let open = _state<string | null>(null);
     const root = mount(() => (
       <Accordion value={_bind(open)}>
         <AccordionItem value="a" title="A">

@@ -32,7 +32,10 @@ export default _component(() => () => (
           错误“迟一点批评、早一点肯定”：字段失焦后才显示，提交过一次之后随输入实时更新；提交时没通过就把焦点移到第一个出错的控件。必填标记、maxlength、NumberField
           的范围都从 schema 推出来。
           <Code>fields.username.validate</Code> 是单字段的异步校验：防抖、只采用最后一次的结果，
-          <Code>form.validating</Code> 显示校验中。
+          <Code>form.validating</Code>{' '}
+          显示校验中。空值的约定：文本框清空是空字符串；选择、数字、日期控件没有值时是{' '}
+          <Code>null</Code>，选填的字段在 schema 里写 <Code>.nullable()</Code>
+          （字段约束据此不标必填）。
         </Example>
         <Example id="layout" title="标签在左侧、整组只读" demo={Layout}>
           <Code>labelPlacement="start"</Code> 把标签放到控件的起始边：标签一列（

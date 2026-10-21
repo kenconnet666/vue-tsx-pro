@@ -71,15 +71,15 @@ export interface ComboboxBaseProps<T>
   extends PartProps<'input', ComboboxManaged>, ControlOptions, ControlIconOptions {
   /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
-  /** 选中项的值：父级写 value={_bind(x)} */
-  value?: string;
+  /** 选中项的值：父级写 value={_bind(x)}；没有选中时是 null */
+  value?: string | null;
   /** 输入框里的文字：父级可以写 inputValue={_bind(x)}（异步搜索时据此取数据） */
   inputValue?: string;
   /** 是否打开：父级可以写 open={_bind(x)} */
   open?: boolean;
   /** 过滤：默认按显示文字包含输入（忽略大小写与重音）；函数自定义；false 不过滤（异步搜索） */
   filter?: false | ((item: T, query: string) => boolean);
-  /** 允许输入不在选项里的文字：失焦时保留，value 为 undefined */
+  /** 允许输入不在选项里的文字：失焦时保留，value 为 null */
   allowCustomValue?: boolean;
   /** 正在取选项（异步搜索）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
   loading?: boolean;
@@ -126,7 +126,7 @@ export const Combobox = _component(
   <T,>({
     items,
     toOption,
-    value = _bindable<string | undefined>(undefined),
+    value = _bindable<string | null>(null),
     inputValue = _bindable(''),
     open = _bindable(false),
     filter,
@@ -180,7 +180,7 @@ export const Combobox = _component(
       mode: () => 'single',
       // 再选已选的项不取消
       required: () => true,
-      onChange: (next) => (value = next[0]),
+      onChange: (next) => (value = next[0] ?? null),
     });
 
     // 已选项的文字：远程搜索换了 items 之后，仍按之前见过的文字显示
@@ -237,10 +237,10 @@ export const Combobox = _component(
     function commit() {
       open = false;
       if (allowCustomValue) {
-        if (inputValue !== selectedLabel()) value = undefined;
+        if (inputValue !== selectedLabel()) value = null;
         return;
       }
-      if (!inputValue) value = undefined;
+      if (!inputValue) value = null;
       else setText(selectedLabel());
       query = '';
     }
@@ -253,7 +253,7 @@ export const Combobox = _component(
         if (!open && inputValue) {
           event.preventDefault();
           setText('');
-          value = undefined;
+          value = null;
         }
         return;
       }
@@ -323,7 +323,7 @@ export const Combobox = _component(
                   {
                     onClick: () => {
                       setText('');
-                      value = undefined;
+                      value = null;
                       input?.focus();
                     },
                   },
