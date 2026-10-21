@@ -39,15 +39,18 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 色调：文字类的 `tone` 改用状态色调的六档再加文字专用的 `muted`（`default` → `neutral`）；Result 的 `status` 改成 `tone`
 - [x] 圆角：统一一个 `Radius`（none、xs–xl、full，对应 tokens，`radiusStyles`），各组件给默认值；Alert、Card、SpotlightCard、TiltCard、BorderBeam 补上
 - [x] 时长一律毫秒（BorderBeam 的 duration、delay）；BorderBeam 的光带长度改叫 `length`（`size` 只表示字号档位；SpotlightCard 的光斑半径仍叫 size，排在下一批）
-- [ ] 内容属性：Alert 加 `description`（children 是额外内容，同 Empty、Result）；`label` 只表示可见的标签，读屏文字一律 `aria-label`
-- [ ] 项的形状：标题统一叫 `label`（Steps、Timeline、AccordionItem 的 title），都可以带 `key`；取 key 的函数统一叫 `getKey`
-- [ ] “至少保留一项”从 `required` 改名 `disallowEmptySelection`（Listbox、ToggleGroup），`required` 只表示表单必填
+- [x] 内容属性：Alert 加 `description`（两个都给时 children 是说明下面的额外内容，同 Empty、Result）。
+      决定保留：Spinner、LoadingOverlay 的 `label` 是读屏文字、Progress 的 `label` 是可见标题（各自文档写清，成熟组件库也这样分）
+- [ ] 项的形状：都可以带 `key`（Steps、Breadcrumbs 补上）；取 key 的函数统一叫 `getKey`（DataTable 的 rowKey、VirtualList 的 itemKey）。
+      决定保留：标题与说明成对的项（Steps、Timeline、AccordionItem）叫 `title`，“名称：值”的项（Breadcrumbs、Descriptions）叫 `label`
+- [x] Listbox、ToggleGroup 的 `required`（必须有选中项）跟随 Field 的必填：在必填字段里最后一项不能取消，Listbox 带 aria-required；名字不改
 - [ ] 空值约定：可清空的单值控件清空后都写 `null`；文档写清与 zod 的 `nullable()` / `optional()` 的对应
 - [ ] 区间控件的字段名统一成 `name: [start, end]`；NumberRangeField 补 size、variant、radius
-- [ ] 间距：List 的 `spacing` 改成 `gap`（全档）；Flex 加 rowGap / columnGap；Heading 加 wrap / lineClamp
+- [x] 间距：List 的 `spacing` 改成 `gap`（全档）；Flex 加 rowGap / columnGap；Heading 加 wrap / lineClamp
 - [ ] 枚举类取值改成带注释接口的 `keyof`（AppShell 的 sidebarMode、ButtonGroup 的方向、Flex 的 wrap、PageHeader 的标题级别）
 - [ ] ComponentDefaults 补上 Progress、Indicator、Link、Spinner、Empty、Result
-- [ ] Steps 的 current 可以 `_bind`；Drawer 的 `side` 改 `placement`；PageSizeSelect 的 onUpdate 改成可绑定的 value
+- [x] PageSizeSelect 的 `onUpdate` 改名 `onSizeChange`（回调统一叫 onXxxChange）。决定保留 Drawer 的 `side`（四条边，
+      与浮层的定位 placement 不是一回事）；Steps 的 current 可绑定并入 §4 M3 的 Steps 升级
 
 ### 1.2 复用与整理
 

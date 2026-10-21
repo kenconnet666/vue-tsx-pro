@@ -79,13 +79,11 @@ export {
   List,
   ListContext,
   ListItem,
-  listSpacingStyles,
   listStylesProse,
   OrderedList,
   type ListItemProps,
   type ListMarkerState,
   type ListProps,
-  type ListSpacings,
   type OrderedListProps,
 } from './base/List';
 export { Mark, markStyles, type MarkProps } from './base/Mark';

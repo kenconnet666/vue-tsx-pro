@@ -30,7 +30,7 @@ export default _component(() => () => (
         <Example id="full" title="表格下方的分页" demo={Full}>
           给了 <Code>total</Code> 与 <Code>pageSize</Code> 就自动算页数，也可以直接给{' '}
           <Code>pageCount</Code>。<Code>showTotal</Code> 显示总条数；每页条数变了时，在
-          PageSizeSelect 的 <Code>onUpdate</Code> 里回到第 1 页。三个组件各自独立，按需组合。
+          PageSizeSelect 的 <Code>onSizeChange</Code> 里回到第 1 页。三个组件各自独立，按需组合。
         </Example>
         <Example id="variants" title="页码的数量" demo={Variants}>
           按钮数固定：翻页时省略号换位置，按钮不跳动、不会让指针下的按钮变成别的页码。当前页带

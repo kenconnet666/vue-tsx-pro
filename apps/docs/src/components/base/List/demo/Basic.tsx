@@ -26,7 +26,7 @@ export default _component(() => () => (
         <Strong>createUi</Strong> 选好主题与语言
       </ListItem>
     </OrderedList>
-    <OrderedList start={4} spacing="sm">
+    <OrderedList start={4} gap="sm">
       <ListItem>写第一个页面（接着上一列，从 4 开始）</ListItem>
       <ListItem>跑起开发服务器，改代码立即看到效果</ListItem>
     </OrderedList>

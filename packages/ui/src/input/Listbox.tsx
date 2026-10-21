@@ -450,7 +450,7 @@ export interface ListboxBaseProps<T> extends Omit<
   id?: string;
   /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
-  /** 单选时至少保留一项：再点已选项不取消 */
+  /** 必须有选中项：单选时再点已选项不取消；在必填的 Field 里默认开启 */
   required?: boolean;
   /** 不可用 */
   disabled?: boolean;
@@ -470,7 +470,7 @@ export const Listbox = _component(
     toOption,
     selectionMode = 'single',
     value = _bindable<string | string[] | undefined>(undefined),
-    required = false,
+    required,
     disabled,
     id,
     children,
@@ -478,13 +478,13 @@ export const Listbox = _component(
     ...rest
   }: ListboxProps<T>) => {
     const generatedId = useId();
-    const control = useFieldControl(() => ({ id, disabled }));
+    const control = useFieldControl(() => ({ id, disabled, required }));
     const list = useListState({
       items: () => items,
       toOption: (item) => toListboxOption(item, toOption),
       selected: () => selectedValues(value),
       mode: () => selectionMode,
-      required: () => required,
+      required: () => control().required,
       onChange: (next) => (value = selectionMode === 'multiple' ? [...next] : next[0]),
     });
 
@@ -515,6 +515,7 @@ export const Listbox = _component(
               'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
               'aria-describedby': state.describedBy,
               'aria-disabled': state.disabled || undefined,
+              'aria-required': state.required || undefined,
               'aria-activedescendant': activeOptionId(list, prefix),
               onFocus: () => {
                 if (list.active === undefined) list.activateDefault();

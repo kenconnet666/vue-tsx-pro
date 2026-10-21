@@ -19,7 +19,7 @@ export default _component(() => {
             pageSize={size}
             showTotal
           />
-          <PageSizeSelect value={_bind(size)} onUpdate={() => (page = 1)} />
+          <PageSizeSelect value={_bind(size)} onSizeChange={() => (page = 1)} />
           <PageJump page={_bind(page)} pageCount={pageCount} />
         </Flex>
         <Small tone="muted">

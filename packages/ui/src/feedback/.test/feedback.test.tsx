@@ -193,6 +193,25 @@ describe('Alert', () => {
     expect(polite!.getAttribute('role')).toBe('status');
   });
 
+  it('说明写在 description 或 children 上；两个都给时 children 是说明下面的额外内容', () => {
+    const root = mount(() => (
+      <>
+        <Alert
+          description="成功 120 条"
+          propsDescription={{ class: 'd' }}
+          propsContent={{ class: 'c' }}
+        >
+          <a href="#log">查看失败原因</a>
+        </Alert>
+        <Alert propsDescription={{ class: 'd' }}>只有 children</Alert>
+      </>
+    ));
+    const [both, only] = root.children as unknown as HTMLElement[];
+    expect(both!.querySelector('.d')!.textContent).toBe('成功 120 条');
+    expect(both!.querySelector('.c a')!.textContent).toBe('查看失败原因');
+    expect(only!.querySelector('.d')!.textContent).toBe('只有 children');
+  });
+
   it('给了 onClose 才有关闭按钮；离场结束后才调用', async () => {
     const onClose = vi.fn();
     const root = mount(() => <Alert onClose={onClose}>x</Alert>);

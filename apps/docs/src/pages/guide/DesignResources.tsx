@@ -126,7 +126,7 @@ export default _component(() => {
         <H2 id="import" size="xl" anchor>
           导入 Figma
         </H2>
-        <OrderedList spacing="sm">
+        <OrderedList gap="sm">
           <ListItem>下载要用的主题，一个文件就是一个模式（亮色、暗色……）。</ListItem>
           <ListItem>
             在 Figma
@@ -168,7 +168,7 @@ export default _component(() => {
           组件库在 Figma 里的对应物：变量绑在组件的颜色、间距与圆角上，组件的属性与代码里的 props
           同名。打开需要文件的访问权限。
         </Paragraph>
-        <List spacing="sm">
+        <List gap="sm">
           <ListItem>
             变量：亮色主题的 74 个颜色、25
             个尺寸；暗色的颜色在单独的集合里（免费版一个集合只有一个模式）。
@@ -216,7 +216,7 @@ export default _component(() => {
           <Paragraph>
             按需求文档与降本项目信息表做的联合降本管理：抽屉导航、统计看板、台账、详情、长表单与审批，都用组件库搭出来，数据是虚构的。
           </Paragraph>
-          <List spacing="sm">
+          <List gap="sm">
             {cases.map((page) => (
               <ListItem key={page.path}>
                 <Link href={page.path}>{page.title}</Link>

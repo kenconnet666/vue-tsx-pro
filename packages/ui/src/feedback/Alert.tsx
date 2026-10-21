@@ -3,6 +3,9 @@
  *
  *   <Alert tone="warning" title="即将过期">你的订阅将在 3 天后到期。</Alert>
  *   <Alert tone="danger" live="assertive" onClose={dismiss}>保存失败，请重试</Alert>
+ *   <Alert tone="info" title="导入完成" description="成功 120 条，失败 3 条。"><Link href="#log">查看失败原因</Link></Alert>
+ *
+ * 说明写在 description 或 children 上（同 Empty、Result 的 description）；两个都给时 children 是说明下面的额外内容。
  *
  * 页面加载时就在的提示不需要读屏打断；操作后才出现的用 live 让读屏播报。
  */
@@ -15,7 +18,7 @@ import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
 import { focusAfterRemoval } from '../utils/dom/focus';
 import { usePresence } from '../utils/motion/presence';
-import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -60,6 +63,8 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
   size?: TextSize;
   /** 标题（加粗的第一行） */
   title?: VNodeChild;
+  /** 说明（标题下面的正文）；不写时 children 就是说明 */
+  description?: VNodeChild;
   /** 图标；不写时按色调选，false 不显示 */
   icon?: IconData | false;
   /** 进行中（如“正在上传”）：图标换成加载指示，带 aria-busy */
@@ -78,8 +83,10 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
   propsBody?: PartProps<'div'>;
   /** 标题的部件属性 */
   propsTitle?: PartProps<'div'>;
-  /** 正文（标题下面的内容）的部件属性 */
+  /** 说明（标题下面的正文）的部件属性 */
   propsDescription?: PartProps<'div'>;
+  /** 额外内容（同时给了 description 与 children 时的 children）的部件属性 */
+  propsContent?: PartProps<'div'>;
   /** 操作区的部件属性 */
   propsAction?: PartProps<'div'>;
   /** 关闭按钮的部件属性 */
@@ -87,7 +94,7 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
   children?: VNodeChild;
 }
 
-/** Alert 的样式：root、icon、body、title、description、action、close */
+/** Alert 的样式：root、icon、body、title、description、content、action、close */
 export const alertStyles = stylex.create({
   // 进场与离场的淡入淡出用 presenceStyles
   root: {
@@ -103,6 +110,7 @@ export const alertStyles = stylex.create({
   body: { flexGrow: 1, minWidth: 0, display: 'grid', gap: '_xs' },
   title: { fontWeight: '_semibold' },
   description: { color: '_text' },
+  content: { minWidth: 0 },
   action: { flexShrink: 0, alignSelf: 'center' },
   close: { flexShrink: 0, marginBlock: 'calc(-1 * _space.xs)', color: 'inherit' },
 });
@@ -117,6 +125,7 @@ export const Alert = _component(
     tone = 'info',
     size,
     title,
+    description,
     icon,
     loading = false,
     live = 'off',
@@ -127,6 +136,7 @@ export const Alert = _component(
     propsBody,
     propsTitle,
     propsDescription,
+    propsContent,
     propsAction,
     propsClose,
     children,
@@ -146,6 +156,9 @@ export const Alert = _component(
     });
     return () => {
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
+      // 说明取 description，没有时取 children；两个都有时 children 放在说明下面
+      const extra = hasContent(description) && hasContent(children);
+      const text = hasContent(description) ? description : children;
       return (
         <div
           {...mergeAttrs<'div'>(
@@ -175,11 +188,16 @@ export const Alert = _component(
             )
           )}
           <div {...mergeAttrs<'div'>({ sx: alertStyles.body }, propsBody)}>
-            {title != null && (
+            {hasContent(title) && (
               <div {...mergeAttrs<'div'>({ sx: alertStyles.title }, propsTitle)}>{title}</div>
             )}
-            {children != null && (
+            {hasContent(text) && (
               <div {...mergeAttrs<'div'>({ sx: alertStyles.description }, propsDescription)}>
+                {text}
+              </div>
+            )}
+            {extra && (
+              <div {...mergeAttrs<'div'>({ sx: alertStyles.content }, propsContent)}>
                 {children}
               </div>
             )}

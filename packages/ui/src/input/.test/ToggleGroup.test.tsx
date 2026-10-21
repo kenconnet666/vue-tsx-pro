@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { toggleSelection } from '../../utils/data/selection';
+import { Field } from '../../form/Field';
 import { ToggleGroup, ToggleItem } from '../ToggleGroup';
 
 describe('toggleSelection', () => {
@@ -43,6 +44,28 @@ describe('ToggleGroup', () => {
     expect(grid!.dataset.state).toBe('on');
     // 整组一个 Tab 进入点：当前选中项
     expect([list!.tabIndex, grid!.tabIndex]).toEqual([-1, 0]);
+  });
+
+  it('在必填的 Field 里默认是 required：最后一项不能取消；不在 Field 里时可以取消', async () => {
+    let inField = _state<string | undefined>('list');
+    let alone = _state<string | undefined>('list');
+    const root = mount(() => (
+      <>
+        <Field label="视图" required>
+          <ToggleGroup value={_bind(inField)}>
+            <ToggleItem value="list">列表</ToggleItem>
+          </ToggleGroup>
+        </Field>
+        <ToggleGroup value={_bind(alone)} aria-label="单独">
+          <ToggleItem value="list">列表</ToggleItem>
+        </ToggleGroup>
+      </>
+    ));
+    await nextTick();
+    const [kept, toggled] = root.querySelectorAll('button');
+    kept!.click();
+    toggled!.click();
+    expect([inField, alone]).toEqual(['list', undefined]);
   });
 
   it('多选：每项独立切换；整组不可用时都不能点', async () => {

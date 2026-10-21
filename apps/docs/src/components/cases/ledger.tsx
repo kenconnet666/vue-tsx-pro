@@ -743,7 +743,7 @@ export const LedgerPage = _component(
                     total={result.total}
                     pageSize={size}
                   />
-                  <PageSizeSelect value={_bind(size)} onUpdate={() => (page = 1)} />
+                  <PageSizeSelect value={_bind(size)} onSizeChange={() => (page = 1)} />
                 </Flex>
               </Flex>
             </div>

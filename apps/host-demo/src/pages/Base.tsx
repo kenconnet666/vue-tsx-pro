@@ -496,7 +496,7 @@ export const Base = _component(() => {
             <PageSizeSelect
               class="page-size-demo"
               value={_bind(pageSize)}
-              onUpdate={() => (page = 1)}
+              onSizeChange={() => (page = 1)}
             />
             <PageJump
               class="page-jump-demo"

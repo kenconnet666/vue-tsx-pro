@@ -3,7 +3,7 @@
  *
  *   <Flex gap="md" align="center">
  *     <Pagination page={_bind(page)} total={total} pageSize={size} />
- *     <PageSizeSelect value={_bind(size)} onUpdate={() => (page = 1)} />
+ *     <PageSizeSelect value={_bind(size)} onSizeChange={() => (page = 1)} />
  *   </Flex>
  *
  * 基于 Select：未声明的属性落到 Select 上（外壳用 propsRoot 等 Select 的部件），名称默认取语言包（每页条数）。
@@ -21,14 +21,14 @@ type SingleSelectProps = Extract<SelectProps, SingleSelectionProps>;
 /** 未声明的属性落到 Select 上 */
 export interface PageSizeSelectProps extends Omit<
   Partial<SelectProps>,
-  'value' | 'items' | 'selectionMode' | 'onUpdate'
+  'value' | 'items' | 'selectionMode'
 > {
   /** 每页条数：父级写 value={_bind(size)} */
   value?: number;
   /** 可选的条数，默认 [10, 20, 50, 100] */
   options?: readonly number[];
   /** 用户换了条数后调用（通常把页码回到第 1 页） */
-  onUpdate?: (size: number) => void;
+  onSizeChange?: (size: number) => void;
 }
 
 /** 每页条数选择（Select） */
@@ -36,7 +36,7 @@ export const PageSizeSelect = _component(
   ({
     value = _bindable(10),
     options = [10, 20, 50, 100],
-    onUpdate,
+    onSizeChange,
     ...rest
   }: PageSizeSelectProps) => {
     const lang = useLang();
@@ -52,7 +52,7 @@ export const PageSizeSelect = _component(
         const size = Number(next);
         if (size === value) return;
         value = size;
-        onUpdate?.(size);
+        onSizeChange?.(size);
       },
     );
 

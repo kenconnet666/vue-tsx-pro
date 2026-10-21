@@ -10,7 +10,15 @@ import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { gapStyles, listRole, listStyles, type LayoutTag, type Space } from '../utils/style/styles';
+import {
+  columnGapStyles,
+  gapStyles,
+  listRole,
+  listStyles,
+  rowGapStyles,
+  type LayoutTag,
+  type Space,
+} from '../utils/style/styles';
 
 /** 主轴方向（flex-direction） */
 export interface FlexDirections {
@@ -66,6 +74,10 @@ export interface FlexOptions {
   wrap?: boolean | 'reverse';
   /** 间距档位，对应主题的 space */
   gap?: Space;
+  /** 换行时行与行之间的间距，盖过 gap（同 Grid） */
+  rowGap?: Space;
+  /** 同一行里项与项之间的间距，盖过 gap（同 Grid） */
+  columnGap?: Space;
   /** 行内 flex（inline-flex） */
   inline?: boolean;
   /** 在父级的 flex 布局里占满剩余空间，并允许收缩到比内容窄（里面的文字才能截断）：头像旁边的正文、图标旁边的说明 */
@@ -124,6 +136,8 @@ export function createFlex<Tag extends LayoutTag>(
       justify,
       wrap = false,
       gap,
+      rowGap,
+      columnGap,
       inline = false,
       grow = false,
       children,
@@ -138,6 +152,8 @@ export function createFlex<Tag extends LayoutTag>(
           align && flexAlignStyles[align],
           justify && flexJustifyStyles[justify],
           gap && gapStyles[gap],
+          rowGap && rowGapStyles[rowGap],
+          columnGap && columnGapStyles[columnGap],
           grow && flexStyles.grow,
           listRole(tag) && listStyles.reset,
         ];

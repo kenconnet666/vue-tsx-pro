@@ -24,12 +24,15 @@ import { Icon } from './Icon';
 import {
   fontSizeStyles,
   fontWeightStyles,
+  lineClampStyles,
   textAlignStyles,
   textStyles,
+  textWrapStyles,
   toneStyles,
   type FontSize,
   type FontWeight,
   type TextAlign,
+  type TextWrap,
   type Tone,
 } from '../utils/style/typography';
 
@@ -48,6 +51,10 @@ export interface HeadingProps extends PartProps<HeadingTag> {
   align?: TextAlign;
   /** 单行省略 */
   truncate?: boolean;
+  /** 最多显示几行，超出的省略（同 Text） */
+  lineClamp?: number;
+  /** 换行方式，默认 balance（各行长度均衡）；同 Text 的 wrap */
+  wrap?: TextWrap;
   /** 有 id 时在末尾放一个指向本节的锚点链接（#），悬停或聚焦时显示：文档里方便复制本节的链接 */
   anchor?: boolean;
   /** 锚点链接的部件属性 */
@@ -95,6 +102,8 @@ export function createHeading(tag: HeadingTag, defaultSize: FontSize) {
       tone,
       align,
       truncate = false,
+      lineClamp,
+      wrap,
       anchor = false,
       propsAnchor,
       children,
@@ -111,6 +120,8 @@ export function createHeading(tag: HeadingTag, defaultSize: FontSize) {
           tone && toneStyles[tone],
           align && textAlignStyles[align],
           truncate && textStyles.truncate,
+          lineClamp != null && [textStyles.clamp, lineClampStyles.lines(lineClamp)],
+          wrap && textWrapStyles[wrap],
           // 标记不是样式，类型上不在 StyleXStyles 里；StyleX 把它当作一个 class 合并
           anchor && (headingMarker as unknown as StyleXStyles),
         ];

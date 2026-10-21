@@ -17,20 +17,9 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { gapStyles, type Space } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { Icon, type IconData, type IconProps } from './Icon';
-
-/** 列表项之间的间距 */
-export interface ListSpacings {
-  /** 没有间距 */
-  none: unknown;
-  /** 小（默认） */
-  xs: unknown;
-  /** 中 */
-  sm: unknown;
-  /** 大：每项是一段话时 */
-  md: unknown;
-}
 
 /** 正文列表的样式：缩进与项目之间的间距；嵌套的列表紧贴上一项；有图标时不要圆点、不缩进 */
 export const listStylesProse = stylex.create({
@@ -50,20 +39,12 @@ export const listStylesProse = stylex.create({
   content: { minWidth: 0 },
 });
 
-/** List 的样式：间距 none、xs、sm、md */
-export const listSpacingStyles = stylex.create({
-  none: { rowGap: 0 },
-  xs: { rowGap: '_xs' },
-  sm: { rowGap: '_sm' },
-  md: { rowGap: '_md' },
-});
-
 /** 列表共有的外观 */
 interface ListOptions {
   /** 字号档位；不写时继承上下文字号 */
   size?: TextSize;
-  /** 项与项之间的间距，默认 xs */
-  spacing?: keyof ListSpacings;
+  /** 项与项之间的间距档位（与 Flex、Grid 的 gap 同一套），默认 xs；每项是一段话时用 md */
+  gap?: Space;
   children?: VNodeChild;
 }
 
@@ -100,15 +81,15 @@ export interface ListItemProps extends PartProps<'li'> {
   children?: VNodeChild;
 }
 
-const listSx = (spacing: keyof ListSpacings, size: TextSize | undefined) => [
+const listSx = (gap: Space, size: TextSize | undefined) => [
   listStylesProse.root,
-  listSpacingStyles[spacing],
+  gapStyles[gap],
   size && fontSizeStyles[size],
 ];
 
 /** 无序列表（ul）：圆点，或 icon 代替圆点 */
 export const List = _component(
-  ({ icon, propsIcon, size, spacing = 'xs', children, ...rest }: ListProps) => {
+  ({ icon, propsIcon, size, gap = 'xs', children, ...rest }: ListProps) => {
     ListContext.provide({
       get icon() {
         return icon;
@@ -121,7 +102,7 @@ export const List = _component(
       <ul
         {...mergeAttrs<'ul'>(
           {
-            sx: [...listSx(spacing, size), icon ? listStylesProse.iconic : listStylesProse.bullet],
+            sx: [...listSx(gap, size), icon ? listStylesProse.iconic : listStylesProse.bullet],
             // 去掉圆点后 Safari 不再把它当列表念（见 listStyles）
             role: icon ? 'list' : undefined,
           },
@@ -136,11 +117,11 @@ export const List = _component(
 
 /** 有序列表（ol）：编号；start、reversed 等原生属性照常可用 */
 export const OrderedList = _component(
-  ({ size, spacing = 'xs', children, ...rest }: OrderedListProps) => {
+  ({ size, gap = 'xs', children, ...rest }: OrderedListProps) => {
     // 里面的项不沿用外层 List 的图标
     ListContext.provide({});
     return () => (
-      <ol {...mergeAttrs<'ol'>({ sx: [...listSx(spacing, size), listStylesProse.number] }, rest)}>
+      <ol {...mergeAttrs<'ol'>({ sx: [...listSx(gap, size), listStylesProse.number] }, rest)}>
         {children}
       </ol>
     );

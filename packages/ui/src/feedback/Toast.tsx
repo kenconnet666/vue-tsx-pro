@@ -505,15 +505,14 @@ export const ToastItem = _component(
                   icon: toast.icon,
                   loading: toast.loading,
                   title: toast.title,
+                  description: toast.description,
                   action: toast.action,
                   sx: toastStyles.toast,
                 },
                 toastProps,
                 { onClose: toast.closable === false ? undefined : close },
               )}
-            >
-              {toast.description}
-            </Alert>
+            />
             {progress && toast.countdown && (
               <span
                 key={toast.countdown.id}

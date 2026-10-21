@@ -37,7 +37,7 @@ export default _component(() => () => (
               {price}
             </Text>
           </Flex>
-          <List icon={Check} propsIcon={{ tone: 'success' }} spacing="sm" size="sm">
+          <List icon={Check} propsIcon={{ tone: 'success' }} gap="sm" size="sm">
             {features.map(([feature, included]) => (
               <ListItem
                 key={feature}

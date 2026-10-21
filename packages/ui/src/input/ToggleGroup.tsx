@@ -62,7 +62,7 @@ export type ToggleGroupManaged = 'role';
 
 /** 两种选择方式共有的选项；未声明的属性落到 role="group" 的 div 上，aria-label 是这组的名称 */
 interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
-  /** 至少保留一项选中（分段控件通常要求） */
+  /** 必须有选中项：最后一项不能取消（分段控件通常要求）；在必填的 Field 里默认开启 */
   required?: boolean;
   /** 整组不可用 */
   disabled?: boolean;
@@ -120,7 +120,7 @@ export const ToggleGroup = _component(
   ({
     selectionMode = 'single',
     value = _bindable<string | string[] | undefined>(undefined),
-    required = false,
+    required,
     disabled,
     readonly,
     orientation = 'horizontal',
@@ -132,7 +132,7 @@ export const ToggleGroup = _component(
     ...rest
   }: ToggleGroupProps) => {
     // 在 Field 里时：标签作为组的名称、关联说明与错误、沿用不可用与只读
-    const control = useFieldControl(() => ({ id, disabled, readonly }));
+    const control = useFieldControl(() => ({ id, disabled, readonly, required }));
     let root = _state.raw<HTMLElement | null>(null);
     // 在工具栏里时焦点交给工具栏：整栏一个 Tab 位置，方向键跨过组内外的按钮（WAI-ARIA Toolbar 模式）
     const inToolbar = ToolbarContext.inject(null) != null;
@@ -174,7 +174,10 @@ export const ToggleGroup = _component(
       },
       toggle(item) {
         if (control().readonly) return;
-        const next = toggleSelection(selected, item, { mode: selectionMode, required });
+        const next = toggleSelection(selected, item, {
+          mode: selectionMode,
+          required: control().required,
+        });
         if (next === selected) return;
         value = selectionMode === 'multiple' ? [...next] : next[0];
       },
