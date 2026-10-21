@@ -18,6 +18,7 @@ import { usePresence } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
+import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {
@@ -52,6 +53,8 @@ export type AlertManaged = 'role' | 'title' | 'aria-busy';
 export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions {
   /** 色调，默认 info */
   tone?: StatusTone;
+  /** 字号档位：图标、内边距随之缩放；不写时继承上下文字号 */
+  size?: TextSize;
   /** 标题（加粗的第一行） */
   title?: VNodeChild;
   /** 图标；不写时按色调选，false 不显示 */
@@ -109,6 +112,7 @@ export const Alert = _component(
   ({
     variant,
     tone = 'info',
+    size,
     title,
     icon,
     loading = false,
@@ -144,6 +148,7 @@ export const Alert = _component(
                 alertStyles.root,
                 presenceStyles.fade,
                 statusToneSx(appearance().variant, tone),
+                size && fontSizeStyles[size],
                 closing && presenceStyles.leaving,
               ],
             },

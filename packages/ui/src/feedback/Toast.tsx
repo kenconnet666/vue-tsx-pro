@@ -14,7 +14,8 @@
  *
  * - 每条通知就是 Alert（surface 外观加阴影），图标、标题、正文、操作、关闭按钮都复用它；加载中用 Alert 的 loading。
  * - 计时：默认 5 秒；指针在区域上、焦点在区域里、页面切到后台时暂停；加载中的、duration 为 Infinity 的不自动消失。
- * - 无障碍：区域是带名称的 landmark（section），F8 跳到通知区域；列表 aria-live="polite"，新通知被读屏念出。
+ * - 无障碍：区域是带名称的 landmark（section），F8 跳到通知区域，焦点在一条通知里时 Esc 关闭它；
+ *   列表 aria-live="polite"，新通知被读屏念出。
  *   关闭一条后焦点交给相邻的通知，没有时回到进入通知区域之前的位置。
  * - 区域传送到 body（或最上层的模态里），用 ConfigScope 带上当前的主题与语言。
  * - 顶层：区域是 popover="manual"，显示在页面之上；模态打开时外面的元素都是 inert 的（顶层也不例外），
@@ -424,6 +425,14 @@ export const ToastItem = _component(
       controller.dismiss(toast.id);
     }
 
+    // 焦点在通知里（操作、关闭按钮）时 Esc 关闭它（同 Radix Toast）；不能关闭的通知不处理
+    function onKeydown(event: KeyboardEvent) {
+      if (event.key !== 'Escape' || toast.closable === false || toast.closing) return;
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+    }
+
     // 横向滑动关闭：拖动中直接写元素的样式（不触发渲染）。松开时过了阈值就沿滑动方向滑出再关闭，
     // 不够就用弹簧弹回（Anime.js，时长取主题；减少动态效果时立即到位）
     function onPointerdown(event: PointerEvent) {
@@ -482,6 +491,7 @@ export const ToastItem = _component(
                 presence.ref(element);
               },
               onPointerdown,
+              onKeydown,
             },
           )}
           data-state={presence.state}

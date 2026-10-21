@@ -328,6 +328,26 @@ describe('Toast', () => {
     expect(document.activeElement).toBe(close(second!));
   });
 
+  it('焦点在通知里时 Esc 关闭它，焦点交给相邻的通知；不能关闭的通知不处理', async () => {
+    toaster.show({
+      title: '网络已断开',
+      duration: Infinity,
+      closable: false,
+      action: <button class="retry">重试</button>,
+    });
+    toaster.show({ title: '已保存', duration: Infinity });
+    await expect.poll(() => items().length).toBe(2);
+    const retry = region().querySelector<HTMLElement>('button.retry')!;
+    retry.focus();
+    await userEvent.keyboard('{Escape}');
+    expect(items()).toHaveLength(2);
+    const close = items()[1]!.querySelector<HTMLElement>('button[aria-label="关闭"]')!;
+    close.focus();
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => region().querySelectorAll('li').length, { timeout: 3000 }).toBe(1);
+    expect(document.activeElement).toBe(retry);
+  });
+
   it('promise：加载中显示加载指示，完成后换成结果', async () => {
     await userEvent.click($('.toast-promise'));
     await expect.poll(() => items()[0]?.querySelector('[aria-busy="true"]')).not.toBeNull();

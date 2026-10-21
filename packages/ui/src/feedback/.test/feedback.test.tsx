@@ -64,6 +64,41 @@ describe('Progress', () => {
     expect(money.getAttribute('aria-valuenow')).toBe('100');
     expect(money.getAttribute('aria-valuetext')).toBe('100%');
   });
+
+  it('label：上方的标签是名称，右侧默认显示百分比；valueLabel 换文字，showValueLabel 可以关掉', () => {
+    const root = first(
+      mount(() => (
+        <Progress
+          value={38}
+          max={50}
+          label="存储空间"
+          valueLabel="38 / 50 GB"
+          propsRoot={{ class: 'shell' }}
+        />
+      )),
+    );
+    expect(root.classList.contains('shell')).toBe(true);
+    const bar = root.querySelector<HTMLElement>('[role="progressbar"]')!;
+    expect(document.getElementById(bar.getAttribute('aria-labelledby')!)!.textContent).toBe(
+      '存储空间',
+    );
+    const value = root.querySelector('[aria-hidden="true"]')!;
+    expect(value.textContent).toBe('38 / 50 GB');
+    // 读屏念的仍是 aria-valuetext
+    expect(bar.getAttribute('aria-valuetext')).toBe('76%');
+
+    const percent = first(mount(() => <Progress value={64} label="资料完善度" />));
+    expect(percent.textContent).toContain('64%');
+    const hidden = first(
+      mount(() => <Progress value={64} label="完善度" showValueLabel={false} />),
+    );
+    expect(hidden.textContent).toBe('完善度');
+    // 不确定进度没有数值；没有 label 时进度条就是根元素
+    expect(first(mount(() => <Progress label="加载" />)).textContent).toBe('加载');
+    expect(first(mount(() => <Progress value={1} aria-label="x" />)).getAttribute('role')).toBe(
+      'progressbar',
+    );
+  });
 });
 
 describe('Skeleton', () => {
