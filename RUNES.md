@@ -71,7 +71,7 @@ _effect(() => {
 - **时机**：挂载后、每次 DOM 更新后执行（同 Svelte 的 `$effect`）；`_effect.pre` 在 DOM 更新前执行，用于自动滚动前的测量之类。
 - **嵌套**：`_effect` 里创建的 `_effect` 属于外层这一次执行，外层重跑时一起销毁。
 - **位置**：写在组件函数体、组件里调用的组合式函数、或另一个 `_effect` 里；不在任何作用域里调用会报错，这时用 `_effect.root` 手动管理。写在渲染函数里编译报错。
-- **只监听指定的值**用 Vue 的 `watch`，监听源写成 getter：`watch(() => count, cb)`。直接写 `watch(count, cb)` 传进去的是当前值，编译报错。Vue 没有公开的 `untrack`，所以不提供 Svelte 的 `untrack`。
+- **只监听指定的值**用 Vue 的 `watch`，监听源写成 getter：`watch(() => count, cb)`。直接写 `watch(count, cb)` 传进去的是当前值，编译报错。副作用里读某个值又不想让它成为依赖时写 `_untrack(x)`（同 Svelte 的 `untrack`）。
 - 派生值用 `_derived`，不要用副作用去同步状态。
 
 ## 5. 组件 props
@@ -148,6 +148,8 @@ const form = useForm({ name: '' });
 - `_bindable` 写在组件参数解构以外；`_bind` 写在 JSX 属性以外、或绑定只读的值
 - `watch(x, cb)` 直接传响应式变量（对象会悄悄监听旧对象）
 - 组件函数体里直接读 `children`
+- `_derived` 里修改状态（派生值要是纯计算）；`_untrack(() => x)`（参数直接写变量）
+- token 写法写在 `stylex.create` 之外、或写进模板字符串（以前会静默留下 `'_lg'` 字符串）
 - Vue 指令 `v-model`、`v-show`、`v-html` 等，给出 TSX 写法
 
 **警告**：组件函数体里直接读 prop 或状态，只拿到当前值、之后不会更新。有意只要初始值时写 `_untrack(x)`。
@@ -184,10 +186,10 @@ JSX 交给 vue-jsx 后，没有模板编译器的那几项优化：父组件一�
 | `$bindable` + `bind:x`                         | `_bindable` + `_bind(x)`                    | 编译为 v-model 协议                           |
 | `$props.id()` / `$inspect`                     | Vue 的 `useId()` / Devtools                 | 不另造                                        |
 | 类字段 `done = $state(false)`                  | 暂不支持                                    | 写正式组件用到时再加                          |
-| `bind:value={get, set}`                        | 暂不支持                                    | 用到时再加 `_bind(get, set)`                  |
+| `bind:value={get, set}`                        | `_bind(() => x, (next) => …)`               | 只用于组件，见 §6 函数绑定                    |
 
 ## 11. 代价与限制
 
 - **看不出哪里被追踪**：去掉 `.value` 后，读代码时分不清普通变量和响应式变量。缓解：声明处必须写符文；编辑器悬停可见类型。这是 Vue 当年放弃 Reactivity Transform 的主要理由，Svelte 5 接受了同样的代价。
 - **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。编译器生成的导入别名是 `_vue_ref`、`_vtp_prop` 这类名字，不会冲突。
-- 实现见 `packages/tsx/src/compiler`（编译，渲染优化在 `optimize.ts`）与 `packages/tsx/src/runtime`（`prop`、`readonlyProp`、`bindable`、`overridable`、`snapshot`、`effect`、`forwardChildren`）。
+- 实现见 `packages/tsx/src/compiler`（编译，渲染优化在 `optimize.ts`）与 `packages/tsx/src/runtime`（props.ts：`prop`、`readonlyProp`、`childrenProp`、`bindable`；component.ts：`restProps`、`childrenStable`、`forwardChildren`；state.ts：`overridable`、`snapshot`、`untrack`；effect.ts：`effect`、`effectRoot`；context.ts：`createContext`）。

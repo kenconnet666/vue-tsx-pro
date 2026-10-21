@@ -273,7 +273,7 @@ interface Lang {
 
 ## 7. 现状、依赖与待办
 
-**目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`（base、layout、display…），共用工具在 `utils/`，配置在 `config/`；测试集中在各目录下的 `.test/`（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
+**目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`（base、layout、display…；子路径入口 charts、three、docs-kit 各是一个目录，带自己的 index.ts），共用工具在 `utils/`，配置在 `config/`；测试集中在各目录下的 `.test/`（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
 **已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
@@ -308,7 +308,7 @@ interface Lang {
 | 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                                   |
 | 色板     | `@radix-ui/colors`                  | 主题定制按色阶换品牌色、中性色（palette.ts，子路径 theme-customize）；测试里也用它校验 tokens 取值                                                 |
 | 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                                               |
-| 拖拽排序 | 自己实现                            | 需要时参考成熟实现（如 Atlassian Pragmatic drag and drop、dnd-kit 的算法）                                                                         |
+| 拖拽排序 | 自己实现                            | `utils/dom/sortable`（Sortable、DataTable 的行拖动）；键盘拿起放下与读屏播报参考 dnd-kit                                                           |
 | 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                                          |
 
 **待办**都在 [ROADMAP.md](ROADMAP.md)。双指缩放、旋转等手势等图片预览组件出现时在 `utils/dom/move.ts` 旁边加。
@@ -405,7 +405,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 ### 10.3 取舍依据
 
 - `Collapsible` 不用原生 `<details>`：`<summary>` 必须是第一个子元素，触发器不能放在别处；动画要 `::details-content`（2025 年起才各浏览器可用）。
-- 进场、离场动画用 CSS（`@starting-style`、`allow-discrete`，2024 年起三大浏览器都支持），不依赖 Vue 的 `<Transition>`；列表增删这类需要 JS 协调的动画以后再加。
+- 进场、离场动画用 CSS（`@starting-style`、`allow-discrete`，2024 年起三大浏览器都支持），不依赖 Vue 的 `<Transition>`；列表增删时其余项的位移用 `useLayoutAnimation`（FLIP，Anime.js 的 createLayout；Tag、TagsInput、Toast 在用），离场交给 `usePresence`。
 - 不用 `text-box` 裁掉文字的上下行距（Firefox 不支持）；多行截断用带 `-webkit-` 前缀的 `line-clamp`（标准写法尚无浏览器支持）。
 
 ### 10.4 代码高亮：Shiki 作为可选依赖（已完成）
@@ -682,7 +682,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 **行为变化**：`paintDocument` 时页面根元素的字体与行高也由主题决定；`usePrefersDark`、`useReducedMotion` 的导出名不变，模块路径改为 `utils/dom/media-query.ts`。
 
-### 10.18 文档站的框架（已完成，组件逐类迁移中）
+### 10.18 文档站的框架（已完成）
 
 **分工**：ui 包只放组件源码（平铺，如 `base/Button.tsx`）与行为单元测试（分类的 `.test/`）；示例、文档页、基于示例的测试与真实浏览器测试都在文档站 `apps/docs/src/components/<分类>/<Name>/`：
 
@@ -703,7 +703,7 @@ apps/docs/src/components/base/Button/
 
 **写注释就是写文档**：API 表直接来自 JSDoc，prop、档位接口的每个键都要有注释；默认值来自 `useDefaults` 或共用选项、不在参数解构里的，写 `@default` 标签（共用选项的默认值因组件而异时，在组件自己的 Props 里重新声明并写 `@default`，如 IconButton 的 `variant`）。
 
-**顺手的组件库改动**：`PropsTable`（API 表格，数据类型 `ComponentApi`、`ApiProp`、`ApiValue`）、`IconLinkButton`（只有图标的链接）、Icon 的 `tone`、`@vue-tsx-pro/ui/theme-boot`（Node 可用的防闪烁脚本与内置主题底色）、静态 Table 的列宽按内容分配（`table-layout: auto`）、`scripts/structure/move.mjs`（移动文件并改写导入）。
+**顺手的组件库改动**：`PropsTable`（API 表格，数据类型 `ComponentApi`、`ApiProp`、`ApiValue`；后来与 CodePreview、CodeGroup 一起挪到子路径 `@vue-tsx-pro/ui/docs-kit`）、`IconLinkButton`（只有图标的链接）、Icon 的 `tone`、`@vue-tsx-pro/ui/theme-boot`（Node 可用的防闪烁脚本与内置主题底色）、静态 Table 的列宽按内容分配（`table-layout: auto`）、`scripts/structure/move.mjs`（移动文件并改写导入）。
 
 ### 10.19 浮层滚动条铺开与主题编辑器（已完成）
 
@@ -739,7 +739,7 @@ apps/docs/src/components/base/Button/
 
 | 环节      | 做法                                                                                                                                                                                                                                                                               |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 编译      | `compile.ts`：与 Vite 预设同一套 Babel 插件——token 字符串写法（`compileTokens`）→ 去类型 → 符文 → StyleX → Vue JSX，最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                                                              |
+| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 字符串写法、StyleX、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                                 |
 | 样式      | StyleX 的规则从 metadata 取出转成 CSS，主线程写进一个 `<style data-playground>`；模块解析与站点构建用同一个规范名（`@vue-tsx-pro/ui:config/theme/tokens.stylex`），`'_md'` 与 `colors.accent` 编译出组件库的同一个 CSS 变量                                                        |
 | 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、stylex、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                                   |
 | Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）、StyleX 浏览器版要的 `@babel/standalone`（转交 parser/traverse/types）；依赖预构建见 vite.config.ts                                                           |
@@ -757,39 +757,40 @@ apps/docs/src/components/base/Button/
 
 **以后再定**：类型检查与补全（在 Worker 里跑 TypeScript，再多约 3 MB）；编辑器若别处也要用，再收进组件库（CodeMirror 作可选 peer 依赖，同 Shiki）。
 
-### 10.21 图表与统计数值（已完成第一批）
+### 10.21 图表与统计数值（已完成）
 
 子路径 `@vue-tsx-pro/ui/charts` 封装 `@unovis/ts`（可选 peer），主入口不导入：没用到图表的应用不打包 Unovis。柱状 + 折线按需打包约 77 KB（gzip，含 d3 与 emotion）。
 
-| 项         | 做法                                                                                                                                                                                                              |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 公共部分   | `charts/XYChart.tsx`（内部）：图例（按钮，`aria-pressed`，隐藏的系列可 `_bind`）、单位、绘图区、十字线与提示框（内容用 Vue 渲染进 Unovis 的提示框）、空与加载状态、给读屏的数据表；各种图只给出要画的 Unovis 组件 |
-| 生命周期   | Unovis 组件实例只建一次（`instance(key, create)`），数据与属性变化时 `setConfig` + `container.update`，卸载时 `destroy`，更新才有过渡动画                                                                         |
-| 外观       | 根元素上把 `--vis-*` 变量（坐标轴、网格、十字线、提示框、字体）指到 tokens；系列颜色是 CSS 变量；动画时长取 `durations.lg`（`themeTransition` 解析，减少动态效果时为 0）                                          |
-| 色板       | 新 tokens `colors.chart1–chart8`：Radix 各色阶里能在背景上到 3:1（WCAG 图形对比度）的最浅一级；`chart1` 跟随品牌色（palette 的 ACCENT_STEPS），亮、暗、纸张三套主题都进 `themes:check`                            |
-| 组件       | `BarChart`（分组 / 堆叠、竖向 / 横向、圆角）、`LineChart`（直线 / 平滑 / 阶梯、实心或空心数据点、空值断开）；`series` 的 `key` 只接受数值字段（`NumericKey<T>`）                                                  |
-| Stat       | 主入口的 `Stat`（`display/Stat.tsx`）：`dl` 结构的指标名、数值（AnimatedNumber）、单位、图标、变化量（`invertChange` 用于越低越好）                                                                               |
-| 文档站     | “图表”分类：统计看板示例（筛选、指标卡、两张图、明细表、导出 CSV）、BarChart、LineChart；Stat 在“展示”                                                                                                            |
-| 顺带的基础 | StyleX 类型支持自定义属性（`'--x': …`，scripts/css-docs 生成）；API 表能读子路径导出的类型；`prebundle.config.ts` 加上 `@unovis/ts`                                                                               |
+| 项         | 做法                                                                                                                                                                                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 公共部分   | `charts/XYChart.tsx`（内部）：图例（按钮，`aria-pressed`，隐藏的系列可 `_bind`）、单位、绘图区、十字线与提示框（内容用 Vue 渲染进 Unovis 的提示框）、空与加载状态、给读屏的数据表；各种图只给出要画的 Unovis 组件                                 |
+| 生命周期   | Unovis 组件实例只建一次（`instance(key, create)`），数据与属性变化时 `setConfig` + `container.update`，卸载时 `destroy`，更新才有过渡动画                                                                                                         |
+| 外观       | 根元素上把 `--vis-*` 变量（坐标轴、网格、十字线、提示框、字体）指到 tokens；系列颜色是 CSS 变量；动画时长取 `durations.lg`（`themeTransition` 解析，减少动态效果时为 0）                                                                          |
+| 色板       | 新 tokens `colors.chart1–chart8`：Radix 各色阶里能在背景上到 3:1（WCAG 图形对比度）的最浅一级；`chart1` 跟随品牌色（palette 的 ACCENT_STEPS），亮、暗、纸张三套主题都进 `themes:check`                                                            |
+| 组件       | `BarChart`（分组 / 堆叠、竖向 / 横向、圆角）、`LineChart`（直线 / 平滑 / 阶梯、实心或空心数据点、空值断开）、`AreaChart`、`ScatterChart`；单容器的 `DonutChart`、`SankeyChart`、`ChordChart`；`series` 的 `key` 只接受数值字段（`NumericKey<T>`） |
+| Stat       | 主入口的 `Stat`（`display/Stat.tsx`）：`dl` 结构的指标名、数值（AnimatedNumber）、单位、图标、变化量（`invertChange` 用于越低越好）                                                                                                               |
+| 文档站     | “图表”分类：统计看板示例（筛选、指标卡、两张图、明细表、导出 CSV）、BarChart、LineChart；Stat 在“展示”                                                                                                                                            |
+| 顺带的基础 | StyleX 类型支持自定义属性（`'--x': …`，scripts/css-docs 生成）；API 表能读子路径导出的类型；`prebundle.config.ts` 加上 `@unovis/ts`                                                                                                               |
 
 **Unovis 的坑**：每个 XYContainer 都插一个 id 固定为 `saturate` 的滤镜，一页多张图时 id 重复，创建后改成各自的 id（`useId`）；GroupedBar 默认给空值画 2px 的最小高度，设为 0；happy-dom 没有 SVG 的 `transform.baseVal.consolidate`，时长为 0 时不走 d3 的过渡，单元测试不受影响；绘制在动画帧里，页面在后台（标签页隐藏）时暂停，回到前台才画。
 
-**第二期**：面积图、环形图、堆叠与分组混合、双数值轴、框选缩放、Stat 里的迷你折线、用键盘逐点浏览。
+**之后**：点击下钻、目标线、组合图、新图表与键盘逐点浏览见 ROADMAP.md §5。
 
-### 10.22 3D 与视觉效果（进行中）
+### 10.22 3D 与视觉效果（已完成）
 
 子路径 `@vue-tsx-pro/ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的效果（TiltCard、SpotlightCard、BorderBeam）在主入口。
 
-| 项       | 做法                                                                                                                                                                                         |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 生命周期 | `three/core/renderer.ts` 的 `useThree`：第一次进入视口才建渲染器；共用一个动画帧循环；滚出视口、标签页隐藏、`paused` 时停；卸载、被回收时释放几何体、材质、纹理与渲染器并 `forceContextLoss` |
-| 静止     | 系统要求减少动态效果，或主题时长为 0（主题编辑器关掉动效）时只画一帧，尺寸、主题变化时重画                                                                                                   |
-| 上下文   | 同时最多 8 个（`setMaxThreeContexts`）：满了回收最久没在视口里的，它回来时换一块新 canvas 重建（`generation` 作 key）；都在视口里时排队；上下文丢失三次后降级                                |
-| 主题色   | `context.themeColors` / `useThemeColors`：探针元素让浏览器解析 token（color-mix、light-dark 都行），culori 转成 `THREE.Color`；换主题时按 lg 时长原地过渡，材质直接引用同一个对象            |
-| 画质     | `quality`：auto / low / medium / high → 像素比上限、密度系数、抗锯齿；auto 看触屏、核数、内存、省流量                                                                                        |
-| 降级     | 没有 WebGL 时显示主题色的柔和渐变（可换）；默认 `aria-hidden`，有 `aria-label` 时 `role="img"`；状态写在 `data-state`                                                                        |
-| 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                 |
+| 项       | 做法                                                                                                                                                                                                            |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 生命周期 | `three/core/renderer.ts` 的 `useThree`：第一次进入视口才建渲染器；共用一个动画帧循环；滚出视口、标签页隐藏、`paused` 时停；卸载、被回收时释放几何体、材质、纹理与渲染器并 `forceContextLoss`                    |
+| 静止     | 系统要求减少动态效果，或主题时长为 0（主题编辑器关掉动效）时只画一帧，尺寸、主题变化时重画                                                                                                                      |
+| 上下文   | 同时最多 8 个（`setMaxThreeContexts`）：满了回收最久没在视口里的，它回来时换一块新 canvas 重建（`generation` 作 key）；都在视口里时排队；上下文丢失三次后降级                                                   |
+| 主题色   | `context.themeColors` / `useThemeColors`：探针元素让浏览器解析 token（color-mix、light-dark 都行），culori 转成 `THREE.Color`；换主题时按 lg 时长原地过渡，材质直接引用同一个对象                               |
+| 画质     | `quality`：auto / low / medium / high → 像素比上限、密度系数、抗锯齿；auto 看触屏、核数、内存、省流量                                                                                                           |
+| 降级     | 没有 WebGL 时显示主题色的柔和渐变（可换）；默认 `aria-hidden`，有 `aria-label` 时 `role="img"`；状态写在 `data-state`                                                                                           |
+| 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                                    |
+| 组件     | 画布 `ThreeCanvas`、`EffectSurface`；背景 `AuroraBackground`、`MeshGradient`、`ShaderBackground`；效果 `ParticleField`、`WaveGrid`、`Confetti`；`Globe`（陆地位图由 `pnpm gen:globe-land` 生成）；`ModelViewer` |
 
 ### 10.6 顺序
 
-基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16）→ 文档站的准备（10.17）→ 文档站的框架（10.18）→ 浮层滚动条铺开与主题编辑器（10.19）→ 代码演练场（10.20）→ 图表与统计数值（10.21），均已完成，每步单独提交。下一批：按分类迁移其余组件的示例、文档页与浏览器测试到文档站，之后是日期选择。正式组件按 §8 验收。
+基础设施 → 主题变量的字符串写法（10.5）→ 折叠与过渡 → 布局 → 文本（含“一个元素一个组件”的拆分）→ 代码块与 Shiki（10.4）→ 虚拟滚动（10.7）→ 拖动与浮层滚动条（10.8）→ 按钮家族与交互基础设施（10.9）→ 标记、反馈与导航（10.10）→ 浮层、反馈、输入与表单（10.11）→ 选择类控件与已有组件的完善（10.12）→ 审核整理、虚拟化与表格（10.13）→ 导出、默认值、选择模型、zod 与动画（10.14）→ 动效、反馈与交互组件（10.15）→ 性能、类型与基础设施整理（10.16）→ 文档站的准备（10.17）→ 文档站的框架（10.18）→ 浮层滚动条铺开与主题编辑器（10.19）→ 代码演练场（10.20）→ 图表与统计数值（10.21）→ 3D 与视觉效果（10.22），均已完成，每步单独提交。之后的计划见 ROADMAP.md；正式组件按 §8 验收。

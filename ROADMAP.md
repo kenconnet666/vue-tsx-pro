@@ -128,7 +128,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ### 1.5 文档与案例
 
-- [ ] 过时文档：COMPONENTS.md（图表清单、§7 待办、§10 里的旧说法）、RUNES.md（untrack、`_bind(get, set)`、运行时清单）
+- [x] 过时文档：COMPONENTS.md（目录与子路径、拖拽排序、图表与 3D 清单、演练场的编译、§10 各节的状态与“以后再加”）、
+      RUNES.md（`_untrack`、函数绑定、运行时清单、编译期报错补上 `_derived` 与 token 写法）
 - [ ] 缺文档页或 API 表的导出（EffectSurface、ListPopover、CalendarView、DataTableView…）；示例缺的属性（TreeSelect、DateRangePicker…）
 - [ ] 案例：`addDays`、`daysBetween` 换成组件库的；单位与格式的映射合成一份；两个编辑页共用 schema；DmcEditor 用 `form.array`；
       铺满视口的高度用 `layoutVars`；看板的栅格用 Grid；图表示例里的真实机型名换成虚构的
