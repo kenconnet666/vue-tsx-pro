@@ -57,8 +57,8 @@ export default _component(() => () => (
         <Example id="range" title="数值区间" demo={Range}>
           <Code>NumberRangeField</Code> 是两个数字框，值是 <Code>[起, 止]</Code>，任一端可以为{' '}
           <Code>null</Code>（不限）；两端都填了、起比止大时自动对调。<Code>min</Code>、
-          <Code>format</Code>、<Code>suffix</Code> 这些两端共用；在 Field
-          里时组以标签为名称，两个框各自念“最小值”“最大值”。
+          <Code>format</Code>、<Code>suffix</Code> 与外观（<Code>variant</Code>、<Code>size</Code>、
+          <Code>radius</Code>）两端共用；在 Field 里时组以标签为名称，两个框各自念“最小值”“最大值”。
         </Example>
       </ExampleColumn>
     </Examples>

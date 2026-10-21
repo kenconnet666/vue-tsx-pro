@@ -6,7 +6,7 @@
  *   </Field>
  *
  * value 是 [起, 止]，任一端可以为空（null，“10 万元以上”）。两端都填了、起比止大时自动对调，不用报错。
- * min、max、step、format、prefix、suffix、valueType 两端共用，同 NumberField。
+ * min、max、step、format、prefix、suffix、valueType 与外观（variant、size、radius）两端共用，同 NumberField。
  * 在 Field 里时：标签点了聚焦第一个框，组以标签为名称、关联说明与错误；两个框各自念“最小值”“最大值”。
  * 写了 name（[起的名字, 止的名字]）时两端各用一个隐藏的 input 随表单提交。
  *
@@ -20,6 +20,8 @@ import type { NumericFormat } from '../config/lang/format';
 import { useFieldControl } from '../form/Field';
 import { compareNumeric, type NumericKind, type NumericValue } from '../utils/data/numeric';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { fontSizeStyles } from '../utils/style/typography';
+import type { ControlOptions } from './control';
 import { NumberField, type NumberFieldProps } from './NumberField';
 
 /** 区间的值：[起, 止]，空着的一端是 null */
@@ -29,7 +31,8 @@ export type NumberRange = readonly [NumericValue | null, NumericValue | null];
 export type NumberRangeFieldManaged = 'role' | 'placeholder' | 'prefix';
 
 /** 未声明的属性落到外层 div 上 */
-export interface NumberRangeFieldProps extends PartProps<'div', NumberRangeFieldManaged> {
+export interface NumberRangeFieldProps
+  extends PartProps<'div', NumberRangeFieldManaged>, ControlOptions {
   /** [起, 止]：父级写 value={_bind(range)}；任一端可以为 null */
   value?: NumberRange;
   /** 两端共同的最小值 */
@@ -89,6 +92,9 @@ export const NumberRangeField = _component(
     placeholder,
     separator = '–',
     name,
+    variant,
+    size,
+    radius,
     disabled,
     readonly,
     required,
@@ -120,6 +126,9 @@ export const NumberRangeField = _component(
         valueType,
         prefix,
         suffix,
+        variant,
+        size,
+        radius,
         disabled: state.disabled,
         readonly: state.readonly,
         invalid: state.invalid,
@@ -128,11 +137,16 @@ export const NumberRangeField = _component(
       };
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: numberRangeFieldStyles.root }, rest, {
-            role: 'group',
-            'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
-            'aria-describedby': state.describedBy,
-          })}
+          {...mergeAttrs<'div'>(
+            // 分隔符跟两个框一样大
+            { sx: [numberRangeFieldStyles.root, size && fontSizeStyles[size]] },
+            rest,
+            {
+              role: 'group',
+              'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
+              'aria-describedby': state.describedBy,
+            },
+          )}
           data-disabled={state.disabled || undefined}
           data-invalid={state.invalid || undefined}
         >

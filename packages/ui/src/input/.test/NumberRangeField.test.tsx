@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
+import { NumberField } from '../NumberField';
 import { NumberRangeField, type NumberRange } from '../NumberRangeField';
 
 const type = async (input: HTMLInputElement, text: string) => {
@@ -42,5 +43,19 @@ describe('NumberRangeField', () => {
       '最大值',
     ]);
     expect(end!.id).not.toBe(start!.id);
+  });
+
+  it('外观（variant、size、radius）交给两个框：外壳的样式与单独的 NumberField 一样', () => {
+    const root = mount(() => (
+      <>
+        <NumberRangeField variant="soft" size="lg" radius="full" aria-label="单价" />
+        <NumberField variant="soft" size="lg" radius="full" aria-label="对照" />
+      </>
+    ));
+    const shells = [...root.querySelectorAll('input')].map((input) =>
+      input.parentElement!.className.split(' '),
+    );
+    const alone = shells.pop()!;
+    for (const shell of shells) expect(shell).toEqual(expect.arrayContaining(alone));
   });
 });
