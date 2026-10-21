@@ -26,6 +26,9 @@ import {
 } from '@floating-ui/dom';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, watchPostEffect } from 'vue';
+import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import { transitions } from '../style/transitions';
+import { fontSizeStyles, type TextSize } from '../style/typography';
 import { returnFocus } from './focus';
 
 /** 弹出位置：主方向 + 对齐方式（start 对齐锚点的起始边，end 对齐结束边）；空间不够时自动翻转 */
@@ -113,6 +116,19 @@ const ARROW_EDGE: Record<Side, Side> = {
 };
 /** 箭头（画了右、下两条边的方块）转多少度才朝向锚点 */
 const ARROW_ROTATION: Record<Side, number> = { top: 45, right: 135, bottom: 225, left: -45 };
+
+/**
+ * 弹出面板（选项列表、树、日期面板）共用的样式：锚定定位、浮起的表面、缩放进出场；
+ * 面板渲染在顶层，不是输入框外壳的后代、不继承它的字号：按控件的 size 设置。ListPopover、TreeSelect、日期选择器用它
+ */
+export function anchoredPanelSx(size?: TextSize): StyleXStyles {
+  return [
+    floatingStyles.anchored,
+    floatingStyles.surface,
+    size && fontSizeStyles[size],
+    transitions.scale,
+  ] as StyleXStyles;
+}
 
 /** 锚定浮层的基础样式：定位与表面 */
 export const floatingStyles = stylex.create({

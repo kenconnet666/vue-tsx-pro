@@ -33,10 +33,14 @@ import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import { createMatcher } from '../utils/data/collation';
 import { selectedValues, type SelectionModes } from '../utils/data/selection';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import {
+  anchoredPanelSx,
+  floatingStyles,
+  useAnchoredPopover,
+  type FloatingPlacement,
+} from '../utils/dom/floating';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { disclosureStyles, transitions } from '../utils/style/transitions';
-import { fontSizeStyles } from '../utils/style/typography';
+import { disclosureStyles } from '../utils/style/transitions';
 import {
   controlIcon,
   controlStyles,
@@ -402,13 +406,10 @@ export const TreeSelect = _component(
             {...mergeAttrs<'div'>(
               {
                 sx: [
-                  floatingStyles.anchored,
-                  floatingStyles.surface,
+                  anchoredPanelSx(appearance().size),
                   floatingStyles.scrollPanel,
                   listPopoverStyles.panel,
                   treeSelectStyles.panel,
-                  appearance().size && fontSizeStyles[appearance().size!],
-                  transitions.scale,
                 ],
               },
               propsPopover,

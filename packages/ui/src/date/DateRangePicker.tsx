@@ -170,7 +170,13 @@ export const DateRangePicker = _component(
     let endGroup = _state.raw<HTMLElement | null>(null);
 
     const picker = usePickerPopover(
-      () => ({ open, placement, editable: editable(), label: lang.datePickerOpen }),
+      () => ({
+        open,
+        placement,
+        editable: editable(),
+        label: lang.datePickerOpen,
+        size: appearance().size,
+      }),
       { toggle: (next) => (open = next), shown: focusCalendar },
     );
 

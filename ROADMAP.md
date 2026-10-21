@@ -55,7 +55,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 ### 1.2 复用与整理
 
 - [x] 浮层：Tour 与 ModalCore 共用打开流程 `openModalDialog`（utils/dom/overlay.ts），Tour 补上锁定页面滚动
-- [ ] 选择类：TreeSelect 复用 Select 的触发框（抽 `SelectTrigger`）；日期面板、TreeSelect、ListPopover 共用 `AnchoredPanel`（日期面板跟着 size）
+- [x] 选择类：日期面板、TreeSelect、ListPopover 共用 `anchoredPanelSx(size)`（定位、表面、字号、进出场），日期面板跟着 size。`SelectTrigger` 只有 Select 与 TreeSelect 两处，按三次再抽的约定暂不抽
 - [ ] 关闭与离场：Tag、Alert、Toast 共用 `useDismissible`；外链处理（target、rel、图标、读屏提示）抽进 `utils/dom/link.ts`
 - [ ] 输入：清除按钮 `controlClear()`；分组控件的 aria-labelledby 兜底；ISO 补全日期与 `toTime` 各合成一份
 - [ ] 数字：按语言解析数字移出 NumberField（`utils/data/number-parse.ts`，按语言缓存）；Intl 缓存合成 `cachedIntl`

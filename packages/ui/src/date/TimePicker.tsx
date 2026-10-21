@@ -88,6 +88,7 @@ export const TimePicker = _component(
         matchWidth: true,
         editable: !control().disabled && !control().readonly,
         label: lang.timePickerOpen,
+        size: rest.size,
       }),
       {
         toggle: (next) => (open = next),

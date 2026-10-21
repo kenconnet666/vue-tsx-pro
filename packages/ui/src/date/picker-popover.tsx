@@ -15,11 +15,11 @@ import type * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { IconData } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { controlStyles } from '../input/control';
-import { floatingStyles, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { anchoredPanelSx, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { focusFirst } from '../utils/dom/focus';
 import { toElement } from '../utils/dom/overlay';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
+import type { TextSize } from '../utils/style/typography';
 
 /** 选择器上的打开按钮与弹层的部件属性 */
 export interface PickerPopoverParts {
@@ -43,6 +43,8 @@ export interface PickerPopoverState {
   placement?: FloatingPlacement;
   /** 弹层与输入框同宽（时间列表） */
   matchWidth?: boolean;
+  /** 控件的字号档位：弹层渲染在顶层、不继承输入框的字号，按它设置 */
+  size?: TextSize;
 }
 
 /** usePickerPopover 的回调 */
@@ -105,12 +107,12 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
     },
     /** 弹层：内容只在打开时渲染（由调用方按 open 给） */
     panel(sx: stylex.StyleXStyles, user: PickerPopoverParts['propsPopover'], children: VNodeChild) {
-      const { open, label } = read();
+      const { open, label, size } = read();
       return (
         <div
           {...mergeAttrs<'div'>(
             {
-              sx: [floatingStyles.anchored, floatingStyles.surface, sx, transitions.scale],
+              sx: [anchoredPanelSx(size), sx],
               'aria-label': label,
             },
             user,

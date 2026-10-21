@@ -87,6 +87,7 @@ export const DatePicker = _component(
         placement,
         editable: !control().disabled && !control().readonly,
         label: lang.datePickerOpen,
+        size: rest.size,
       }),
       { toggle: (next) => (open = next), shown: focusCalendar },
     );

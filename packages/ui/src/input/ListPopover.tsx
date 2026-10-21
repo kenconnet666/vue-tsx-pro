@@ -13,11 +13,10 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { Ref, VNodeChild } from 'vue';
 import { ScrollArea } from '../layout/ScrollArea';
-import { floatingStyles } from '../utils/dom/floating';
+import { anchoredPanelSx, floatingStyles } from '../utils/dom/floating';
 import { toElement } from '../utils/dom/overlay';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import type { TextSize } from '../utils/style/typography';
 import { ListboxView, type ListboxViewProps } from './Listbox';
 
 /** 弹层的属性由组件管理 */
@@ -81,14 +80,7 @@ export const ListPopover = _component(
       <div
         {...mergeAttrs<'div'>(
           {
-            sx: [
-              floatingStyles.anchored,
-              floatingStyles.surface,
-              floatingStyles.scrollPanel,
-              listPopoverStyles.panel,
-              size && fontSizeStyles[size],
-              transitions.scale,
-            ],
+            sx: [anchoredPanelSx(size), floatingStyles.scrollPanel, listPopoverStyles.panel],
           },
           propsPopover,
           { ref: panelRef, popover: 'auto', onToggle },
