@@ -10,7 +10,7 @@ import type { VNodeChild } from 'vue';
 import type { ButtonRadii } from '../base/button-core';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
-import { mergePartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -131,6 +131,22 @@ export function controlIcon(icon: IconData | undefined, props?: Partial<IconProp
   return icon ? (
     <Icon {...mergePartProps<IconProps>({ icon, sx: controlStyles.icon }, props)} />
   ) : null;
+}
+
+/**
+ * 外壳里的前缀、后缀文字（币种、单位）：用指向输入框的 label，读屏把单位念进名称（“单机降本目标 万元”），
+ * 不可用时也算作不可用控件的文字（不要求对比度）；没有内容时不渲染
+ */
+export function controlAffix(
+  content: VNodeChild,
+  inputId: string,
+  props?: PartProps<'label'>,
+): VNodeChild {
+  return content == null ? null : (
+    <label {...mergeAttrs<'label'>({ sx: controlStyles.affix }, props, { for: inputId })}>
+      {content}
+    </label>
+  );
 }
 
 /** 合并后的外观（默认值已填上） */

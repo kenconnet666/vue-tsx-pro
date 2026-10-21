@@ -54,8 +54,8 @@ export interface FieldState {
   readonly constraints: FieldConstraints;
 }
 
-/** Field 的上下文：自定义控件用 useFieldControl 接入，一般不直接读它 */
-export const FieldContext = createContext<FieldState>('Field');
+/** Field 的上下文：自定义控件用 useFieldControl 接入，一般不直接读它；null 表示子树不属于任何 Field */
+export const FieldContext = createContext<FieldState | null>('Field');
 
 /** 控件自己的状态（不写时取 Field 的） */
 export interface FieldControlOptions {
@@ -93,10 +93,13 @@ export interface FieldControl {
 
 /**
  * 控件读取所在 Field 的信息（在 setup 里调用，返回的函数在渲染时调用）：
- * 控件上显式写的状态优先；不在 Field 里时用控件自己的，不可用与只读再看所在的 Form、FormSection
+ * 控件上显式写的状态优先；不在 Field 里时用控件自己的，不可用与只读再看所在的 Form、FormSection。
+ * 控件里再嵌的控件（Select 的搜索框、区间的两个框、时间面板的列表）不是 Field 的控件，
+ * 拿到 Field 的 id、说明与必填会重复 id、让表单提交被空的搜索框拦住：调用后子树与 Field 隔开
  */
 export function useFieldControl(read: () => FieldControlOptions): () => FieldControl {
   const field = FieldContext.inject(null);
+  FieldContext.provide(null);
   const layout = field ? null : FieldLayoutContext.inject(null);
   return () => {
     const own = read();

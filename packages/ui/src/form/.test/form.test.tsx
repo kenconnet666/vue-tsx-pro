@@ -4,6 +4,7 @@ import { nextTick } from 'vue';
 import * as z from 'zod';
 import { Checkbox } from '../../input/Checkbox';
 import { NumberField } from '../../input/NumberField';
+import { NumberRangeField } from '../../input/NumberRangeField';
 import { TextField } from '../../input/TextField';
 import { mount } from '../../utils/.test/mount';
 import { Field } from '../Field';
@@ -155,6 +156,21 @@ describe('Form + Field', () => {
       count: 1,
       age: 20,
     });
+  });
+
+  it('控件里再嵌的控件不接 Field：区间的第二个框没有 Field 的 id、说明与必填', () => {
+    const root = mount(() => (
+      <Field label="预算" description="单位：万元" required>
+        <NumberRangeField />
+      </Field>
+    ));
+    const [start, end] = root.querySelectorAll('input');
+    const label = root.querySelector('label')!;
+    expect(start!.id).toBe(label.htmlFor);
+    expect(start!.required).toBe(true);
+    expect(end!.id).not.toBe(start!.id);
+    expect([end!.required, end!.hasAttribute('aria-describedby')]).toEqual([false, false]);
+    expect(root.querySelector('[role="group"]')!.getAttribute('aria-describedby')).toBeTruthy();
   });
 });
 

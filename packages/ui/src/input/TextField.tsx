@@ -25,6 +25,7 @@ import {
   controlStyles,
   controlSx,
   focusOnShell,
+  controlAffix,
   controlIcon,
   useControlAppearance,
   type ControlIconOptions,
@@ -72,10 +73,10 @@ export interface TextFieldProps
   propsRoot?: PartProps<'div'>;
   /** 后置图标的部件属性 */
   propsIconEnd?: Partial<IconProps>;
-  /** 前缀文字的部件属性 */
-  propsPrefix?: PartProps<'span'>;
-  /** 后缀文字的部件属性 */
-  propsSuffix?: PartProps<'span'>;
+  /** 前缀文字的部件属性（指向输入框的 label） */
+  propsPrefix?: PartProps<'label'>;
+  /** 后缀文字的部件属性（指向输入框的 label） */
+  propsSuffix?: PartProps<'label'>;
   /** 字数计数的部件属性 */
   propsCount?: Partial<CharacterCountProps>;
   /** 清空按钮的部件属性 */
@@ -119,6 +120,8 @@ export const TextField = _component(
     let input = _state.raw<HTMLInputElement | null>(null);
     let revealed = _state(false);
     const countId = useId();
+    // 前后缀的 label 要指向输入框：不在 Field 里、也没写 id 时用自己生成的
+    const ownId = useId();
 
     function clear() {
       value = '';
@@ -134,6 +137,7 @@ export const TextField = _component(
       const password = inputType === 'password';
       const limit = rest.maxlength ?? constraints.maxLength;
       const describedBy = [state.describedBy, showCount && countId].filter(Boolean).join(' ');
+      const inputId = state.id ?? ownId;
       return (
         <div
           {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
@@ -143,9 +147,7 @@ export const TextField = _component(
           data-disabled={state.disabled || undefined}
         >
           {controlIcon(icon, propsIcon)}
-          {prefix != null && (
-            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsPrefix)}>{prefix}</span>
-          )}
+          {controlAffix(prefix, inputId, propsPrefix)}
           {/* _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回 */}
           <input
             {...mergeAttrs<'input'>(
@@ -157,7 +159,7 @@ export const TextField = _component(
               rest,
               {
                 ref: _toRef(input),
-                id: state.id,
+                id: inputId,
                 type: password && revealed ? 'text' : inputType,
                 disabled: state.disabled,
                 readonly: state.readonly,
@@ -168,9 +170,7 @@ export const TextField = _component(
             )}
             value={_bind(value)}
           />
-          {suffix != null && (
-            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsSuffix)}>{suffix}</span>
-          )}
+          {controlAffix(suffix, inputId, propsSuffix)}
           {clearable && value && editable && (
             <ClearButton
               {...mergePartProps<PresetIconButtonProps>(

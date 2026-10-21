@@ -20,7 +20,7 @@
  */
 import { Minus, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { onBeforeUnmount, type VNodeChild } from 'vue';
+import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -40,6 +40,7 @@ import {
 } from '../utils/data/numeric';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
+  controlAffix,
   controlIcon,
   controlStyles,
   controlSx,
@@ -111,10 +112,10 @@ export interface NumberFieldProps
   invalid?: boolean;
   /** 外壳的部件属性 */
   propsRoot?: PartProps<'div'>;
-  /** 前缀的部件属性 */
-  propsPrefix?: PartProps<'span'>;
-  /** 后缀（单位）的部件属性 */
-  propsSuffix?: PartProps<'span'>;
+  /** 前缀的部件属性（指向输入框的 label） */
+  propsPrefix?: PartProps<'label'>;
+  /** 后缀（单位）的部件属性（指向输入框的 label） */
+  propsSuffix?: PartProps<'label'>;
   /** 减少按钮的部件属性 */
   propsDecrement?: Partial<IconButtonProps>;
   /** 增加按钮的部件属性 */
@@ -195,6 +196,8 @@ export const NumberField = _component(
     const formatter = useFormat();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    // 前后缀的 label 要指向输入框：不在 Field 里、也没写 id 时用自己生成的
+    const ownId = useId();
     // 范围与步长：显式写的 > 表单 schema 推出的（z.number().int().min(0)）> 不限、1
     const low = (): NumericValue | undefined => min ?? control().constraints.min;
     const high = (): NumericValue | undefined => max ?? control().constraints.max;
@@ -303,6 +306,7 @@ export const NumberField = _component(
 
     return () => {
       const state = control();
+      const inputId = state.id ?? ownId;
       const editable = !state.disabled && !state.readonly;
       const shown = draft ?? (value == null ? '' : formatter.number(value, format));
       const lowest = low();
@@ -317,13 +321,11 @@ export const NumberField = _component(
           data-disabled={state.disabled || undefined}
         >
           {controlIcon(icon, propsIcon)}
-          {prefix != null && (
-            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsPrefix)}>{prefix}</span>
-          )}
+          {controlAffix(prefix, inputId, propsPrefix)}
           <input
             {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {
               ref: _toRef(input),
-              id: state.id,
+              id: inputId,
               type: 'text',
               role: 'spinbutton',
               inputmode:
@@ -345,9 +347,7 @@ export const NumberField = _component(
               onKeydown,
             })}
           />
-          {suffix != null && (
-            <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsSuffix)}>{suffix}</span>
-          )}
+          {controlAffix(suffix, inputId, propsSuffix)}
           {stepper && !state.readonly && (
             <>
               <IconButton

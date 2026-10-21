@@ -31,6 +31,8 @@ export default _component(() => {
         { label: '降本任务', href: '#' },
         { label: 'DJ-2026-FC-1' },
       ]}
+      // 本页还有列表页头的面包屑：同一页上的导航区名称要不同
+      propsBreadcrumbs={{ 'aria-label': '任务详情位置' }}
       back={() => backed++}
       title="机型 A 平尾翼根整流罩设计优化"
       meta={

@@ -212,7 +212,7 @@ export default _component(() => {
 
             <Form controller={form} labelPlacement="start" labelWidth="7.5em">
               <Flex direction="column" gap="xl">
-                <FormSection id="basic" title="项目基本信息" columns={2}>
+                <FormSection headingLevel={2} id="basic" title="项目基本信息" columns={2}>
                   <GridItem span="full">
                     <form.Field name="name" label="项目名称">
                       <TextField value={_bind(form.values.name)} showCount />
@@ -252,6 +252,7 @@ export default _component(() => {
 
                 <FormSection
                   id="saving"
+                  headingLevel={2}
                   title="降本信息"
                   description="降本类型可以都选；选了哪种，就要填对应的预期收益"
                   columns={2}
@@ -307,7 +308,7 @@ export default _component(() => {
                   </GridItem>
                 </FormSection>
 
-                <FormSection id="tech" title="技术及供应商信息" columns={2}>
+                <FormSection headingLevel={2} id="tech" title="技术及供应商信息" columns={2}>
                   <form.Field name="model" label="数模编号 + 版本">
                     <TextField
                       value={_bind(form.values.model)}
@@ -324,7 +325,7 @@ export default _component(() => {
                   </form.Field>
                 </FormSection>
 
-                <FormSection id="plan" title="计划及实施信息" columns={2}>
+                <FormSection headingLevel={2} id="plan" title="计划及实施信息" columns={2}>
                   <form.Field name="year" label="完成年度">
                     <DatePicker granularity="year" value={_bind(form.values.year)} />
                   </form.Field>
@@ -342,7 +343,13 @@ export default _component(() => {
                   </form.Field>
                 </FormSection>
 
-                <FormSection id="funding" title="经费及项目依据" columns={2} collapsible>
+                <FormSection
+                  headingLevel={2}
+                  id="funding"
+                  title="经费及项目依据"
+                  columns={2}
+                  collapsible
+                >
                   <GridItem span="full">
                     <form.Field name="funding" label="经费来源" description="可多选">
                       <CheckboxGroup value={_bind(form.values.funding)} orientation="horizontal">

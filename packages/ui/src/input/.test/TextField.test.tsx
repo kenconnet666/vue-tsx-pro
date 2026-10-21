@@ -80,7 +80,7 @@ describe('Field', () => {
 });
 
 describe('前后缀与字数计数', () => {
-  it('TextField：前后缀是部件，不算在值里', () => {
+  it('TextField：前后缀是部件，不算在值里；是指向输入框的 label，在 Field 里念进名称', () => {
     const root = mount(() => (
       <TextField
         value="example"
@@ -92,7 +92,17 @@ describe('前后缀与字数计数', () => {
     ));
     expect(root.querySelector('.pre')!.textContent).toBe('https://');
     expect(root.textContent).toBe('https://.com');
-    expect(root.querySelector('input')!.value).toBe('example');
+    const input = root.querySelector('input')!;
+    expect(input.value).toBe('example');
+    expect([...input.labels!].map((label) => label.textContent)).toEqual(['https://', '.com']);
+
+    const inField = mount(() => (
+      <Field label="金额">
+        <TextField suffix="万元" />
+      </Field>
+    ));
+    const amount = inField.querySelector('input')!;
+    expect([...amount.labels!].map((label) => label.textContent)).toEqual(['金额', '万元']);
   });
 
   it('showCount：上限取 maxlength，读屏经 aria-describedby 念出；超出时标记 data-over', async () => {

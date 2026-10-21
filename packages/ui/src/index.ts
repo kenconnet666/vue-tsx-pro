@@ -697,6 +697,7 @@ export {
   type ChoiceOrientations,
 } from './input/choice-styles';
 export {
+  controlAffix,
   controlIcon,
   controlRadiusStyles,
   controlShellStyles,
