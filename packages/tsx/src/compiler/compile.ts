@@ -25,6 +25,7 @@ import stylexBabelPlugin, {
   type Rule,
 } from '@stylexjs/babel-plugin';
 import vueJsx, { type VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
+import { languageOf, parserPlugins, STYLEX_SOURCES, type Language } from './ast.ts';
 import type { RunesWarning } from './errors.ts';
 import { needsTokens, tokensBabelPlugin, type TokenModuleLoader } from './tokens.ts';
 import { needsRunes, runesBabelPlugin } from './transform.ts';
@@ -38,9 +39,6 @@ export type SourceMap = NonNullable<FileResult['map']>;
 /** 去掉类型的插件（@babel/plugin-transform-typescript）的选项 */
 type TypeScriptOptions = Parameters<typeof typescript>[1];
 
-/** 文件的语言：.tsx、.jsx 才编译 JSX，.tsx 才在这里去掉类型（.ts 的类型由打包工具去掉） */
-type Language = 'ts' | 'tsx' | 'js' | 'jsx';
-
 /** compile 的选项；没开的步骤不做 */
 export interface CompileOptions {
   /** 文件路径（不带查询参数）：报错、source map 与 StyleX 的模块解析都用它 */
@@ -53,7 +51,10 @@ export interface CompileOptions {
   optimize?: boolean;
   /** token 字符串写法从哪里取 token；不传时不改写 */
   tokens?: TokenModuleLoader;
-  /** StyleX 插件的选项；不传时保留 stylex.create 原样（组件库构建，由使用方统一编译） */
+  /**
+   * StyleX 插件的选项；不传时保留 stylex.create 原样（组件库构建，由使用方统一编译）。
+   * importSources 总是认 @stylexjs/stylex 与 @vue-tsx-pro/tsx/stylex，这里给的加在后面
+   */
   stylex?: Partial<StylexOptions>;
   /** Vue JSX 插件的选项 */
   jsx?: VueJSXPluginOptions;
@@ -87,16 +88,20 @@ export async function compile(
   code: string,
   options: CompileOptions,
 ): Promise<CompileResult | null> {
-  const lang = options.lang ?? languageOf(options.filename);
+  const lang = options.lang ?? languageOf(options.filename) ?? 'js';
   const first: PluginItem[] = [];
   if (options.runes !== false && needsRunes(code)) {
     first.push([runesBabelPlugin, { optimize: options.optimize ?? true }]);
   }
   const tokens = options.tokens;
   if (tokens && needsTokens(code)) first.push(() => tokensBabelPlugin(tokens));
-  if (options.stylex && importsStylex(code, options.stylex.importSources)) {
-    // 官方插件的类型按 Babel 7 声明，运行时与 Babel 8 兼容
-    first.push(stylexBabelPlugin.withOptions(options.stylex) as unknown as PluginItem);
+  if (options.stylex) {
+    const importSources = [...STYLEX_SOURCES, ...(options.stylex.importSources ?? [])];
+    if (importsStylex(code, importSources)) {
+      // 官方插件的类型按 Babel 7 声明，运行时与 Babel 8 兼容
+      const plugin = stylexBabelPlugin.withOptions({ ...options.stylex, importSources });
+      first.push(plugin as unknown as PluginItem);
+    }
   }
   const second: PluginItem[] = [];
   if (lang === 'tsx' || lang === 'jsx') {
@@ -110,8 +115,7 @@ export async function compile(
   const shared = { filename: options.filename, babelrc: false, configFile: false } as const;
   let ast: t.File | null = await parseAsync(code, {
     ...shared,
-    // .ts 不能开 JSX：<T>value 类型断言、<T>(x) => x 泛型箭头函数会被当作 JSX
-    parserOpts: { plugins: lang === 'ts' ? ['typescript'] : ['jsx', 'typescript'] },
+    parserOpts: { plugins: parserPlugins(lang) },
   });
   const metadata: { runesWarnings?: RunesWarning[]; stylex?: StylexRule[] } = {};
   for (const [index, plugins] of passes.entries()) {
@@ -153,20 +157,8 @@ function rescope(): PluginObject {
   };
 }
 
-function languageOf(filename: string): Language {
-  if (/\.[cm]?ts$/.test(filename)) return 'ts';
-  if (filename.endsWith('.tsx')) return 'tsx';
-  return filename.endsWith('.jsx') ? 'jsx' : 'js';
-}
-
-/** StyleX 插件默认认的导入来源 */
-const DEFAULT_STYLEX_SOURCES = ['@stylexjs/stylex', 'stylex'];
-
 /** 文件里有没有从 StyleX 入口导入（静态、动态导入或 require），没有就不必交给 StyleX 插件 */
-function importsStylex(
-  code: string,
-  sources: StylexOptions['importSources'] = DEFAULT_STYLEX_SOURCES,
-) {
+function importsStylex(code: string, sources: NonNullable<StylexOptions['importSources']>) {
   return sources.some((source) => {
     const name = (typeof source === 'string' ? source : source.from).replace(
       /[.*+?^${}()|[\]\\]/g,

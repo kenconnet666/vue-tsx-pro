@@ -16,6 +16,7 @@ import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { Features } from 'lightningcss';
 import { normalizePath, type Plugin, type Rollup } from 'vite';
 import { availableParallelism } from 'node:os';
+import { languageOf } from '../compiler/ast.ts';
 import { needsTokens } from '../compiler/tokens.ts';
 import { CompileCache } from './cache.ts';
 import { compilerCacheKey } from './cache-key.ts';
@@ -27,10 +28,10 @@ import { tokenModule } from './tokens.ts';
 
 export { workspaceSource } from './workspace.ts';
 
-/** 本包的 StyleX 入口：运行时同 @stylexjs/stylex，类型带中文注释（见 src/stylex） */
-const STYLEX_ENTRY = '@vue-tsx-pro/tsx/stylex';
-
-/** StyleX 的选项：StyleX Babel 插件的选项，加上合成 CSS 的选项 */
+/**
+ * StyleX 的选项：StyleX Babel 插件的选项，加上合成 CSS 的选项。
+ * importSources 总是认 @stylexjs/stylex 与本包带中文注释的入口 @vue-tsx-pro/tsx/stylex，这里给的加在后面
+ */
 export type StylexOptions = Partial<StylexBabelOptions> & StylexCssOptions;
 
 /** vueTsxPro() 的选项；都不写就是应用的默认配置 */
@@ -92,8 +93,6 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
     treeshakeCompensation: true,
     enableLTRRTLComments,
     ...babel,
-    // 同时识别带中文注释的入口 @vue-tsx-pro/tsx/stylex
-    importSources: [...(babel.importSources ?? ['@stylexjs/stylex']), STYLEX_ENTRY],
   };
   return [compiler(options, { babel: stylex, rules }), stylexCss(rules)];
 }
@@ -196,8 +195,7 @@ function compiler(
         // 预构建的依赖在 cacheDir 里：cacheDir 不在 node_modules 下（自定义了位置）时也不是项目自己的代码
         const own =
           SCRIPT_FILE.test(file) && !file.includes('/node_modules/') && !file.startsWith(cacheDir);
-        const lang = (/(?:^|&)lang\.([jt]sx?)(?:&|$)/.exec(query)?.[1] ??
-          /\.[cm]?([jt]sx?)$/.exec(file)?.[1]) as 'ts' | 'tsx' | 'js' | 'jsx' | undefined;
+        const lang = languageOf(id);
         if (!lang) return;
         const ssr = transformOptions?.ssr === true;
         const dependencies = stylex ? await loadStylexModules(this, code, id) : [];

@@ -8,7 +8,7 @@
  */
 import { transformAsync, types as t, type NodePath, type PluginObject } from '@babel/core';
 import { TOKEN_GROUP_OF } from '../stylex/token-map.ts';
-import { parserPlugins } from './ast.ts';
+import { languageOf, parserPlugins, STYLEX_SOURCES } from './ast.ts';
 import type { SourceMap } from './compile.ts';
 import { fail } from './errors.ts';
 
@@ -23,7 +23,6 @@ export interface TokenModule {
 /** 按需取 token 模块（只有文件里真的用到字符串写法才去找）；找不到时返回 null */
 export type TokenModuleLoader = () => TokenModule | null;
 
-const STYLEX_SOURCES = new Set(['@stylexjs/stylex', '@vue-tsx-pro/tsx/stylex']);
 const STYLE_FUNCTIONS = new Set(['create', 'keyframes']);
 const TOKEN = /^_(?:(\w+)\.)?(\w+)$/;
 
@@ -43,7 +42,7 @@ export async function compileTokens(
     babelrc: false,
     configFile: false,
     sourceMaps: true,
-    parserOpts: { plugins: parserPlugins(filename) },
+    parserOpts: { plugins: parserPlugins(languageOf(filename)) },
     plugins: [() => tokensBabelPlugin(load, state)],
   });
   if (!result || !state.changed) return null;
@@ -52,7 +51,7 @@ export async function compileTokens(
 
 /** 文件里可能有 token 写法（解析之前的快速判断）：有下划线开头的词，且导入了 StyleX */
 export const needsTokens = (code: string) =>
-  /(?<![\w$.-])_[A-Za-z]/.test(code) && /@stylexjs\/stylex|@vue-tsx-pro\/tsx\/stylex/.test(code);
+  /(?<![\w$.-])_[A-Za-z]/.test(code) && STYLEX_SOURCES.some((source) => code.includes(source));
 
 /** token 写法的 Babel 插件；state.changed 记下有没有改写 */
 export function tokensBabelPlugin(
@@ -78,7 +77,8 @@ function styleCalls(program: NodePath<t.Program>) {
   const namespaces = new Set<string>();
   const named = new Set<string>();
   for (const statement of program.node.body) {
-    if (!t.isImportDeclaration(statement) || !STYLEX_SOURCES.has(statement.source.value)) continue;
+    if (!t.isImportDeclaration(statement) || !STYLEX_SOURCES.includes(statement.source.value))
+      continue;
     for (const specifier of statement.specifiers) {
       if (!t.isImportSpecifier(specifier)) namespaces.add(specifier.local.name);
       else if (STYLE_FUNCTIONS.has(importedName(specifier))) named.add(specifier.local.name);

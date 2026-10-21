@@ -119,7 +119,9 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       `_bindable` 的受控判断不再每次读取都做连字符转换。决定保留：`_bindable` 的默认值只在创建时求值（它是组件自己的状态），RUNES §5 写清
 - [x] 热更新：模块还导出了组件以外的值时，接住更新后 invalidate，导入方重新执行拿到新值；工厂函数做的组件（大写开头、由调用得到）
       运行时确认是组件才登记、才热替换（同 React Refresh 的判断），不是组件时也按组件以外的值处理
-- [ ] 编译缓存的键只算 token-map；StyleX 路径解析缓存 package.json；重复的语言判断与 StyleX 来源名
+- [x] 编译缓存的键只算 stylex 目录里的 token-map；StyleX 路径解析按进程缓存 package.json 与包根目录；
+      语言判断（`languageOf`，含单文件组件的 lang 查询参数）与 StyleX 导入来源（`STYLEX_SOURCES`）各只定义一处，
+      compile 总认官方包与本包入口，使用方的 importSources 加在后面（Vite 预设、演练场不再各写一份）
 
 ### 1.5 文档与案例
 

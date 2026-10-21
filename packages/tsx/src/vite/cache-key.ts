@@ -15,18 +15,20 @@ export function compilerCacheKey(): string {
   return (cached ??= hashFiles(compilerFiles()));
 }
 
-/** 产物：dist 下的全部 js（编译器打进了共享 chunk）；仓库源码：编译器与 Vite 预设的源文件 */
+/**
+ * 产物：dist 下的全部 js（编译器打进了共享 chunk）；仓库源码：编译器与 Vite 预设的源文件，
+ * 加上 token 写法的对照表（stylex 目录的其他文件是运行时与类型，不影响编译结果）
+ */
 function compilerFiles() {
   const here = dirname(fileURLToPath(import.meta.url));
   const fromSource = here.replaceAll('\\', '/').endsWith('/src/vite');
-  const directories = fromSource
-    ? [here, join(here, '../compiler'), join(here, '../stylex')]
-    : [here];
-  return directories.flatMap((directory) =>
+  const directories = fromSource ? [here, join(here, '../compiler')] : [here];
+  const files = directories.flatMap((directory) =>
     readdirSync(directory)
       .filter((file) => /\.(js|ts)$/.test(file) && !file.endsWith('.d.ts'))
       .map((file) => join(directory, file)),
   );
+  return fromSource ? [...files, join(here, '../stylex/token-map.ts')] : files;
 }
 
 function hashFiles(files: string[]) {

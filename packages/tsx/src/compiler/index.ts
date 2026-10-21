@@ -21,7 +21,7 @@
  * 目录内的相对导入带 .ts 扩展名：语言服务（scripts/language-services）与 Vitest 配置在 Node 里直接加载这些源码。
  */
 import { transformAsync } from '@babel/core';
-import { parserPlugins } from './ast.ts';
+import { languageOf, parserPlugins } from './ast.ts';
 import type { SourceMap } from './compile.ts';
 import type { RunesWarning } from './errors.ts';
 import { needsRunes, runesBabelPlugin, type RunesOptions } from './transform.ts';
@@ -54,7 +54,7 @@ export async function compileRunes(
     sourceMaps: true,
     // 生成的字符串（子节点里的文字）保留原样，不转成 \u 转义
     generatorOpts: { jsescOption: { minimal: true } },
-    parserOpts: { plugins: parserPlugins(filename) },
+    parserOpts: { plugins: parserPlugins(languageOf(filename)) },
     plugins: [[runesBabelPlugin, options]],
   });
   if (!result) return null;

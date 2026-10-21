@@ -94,7 +94,6 @@ export async function compilePlayground(code: string, tokenGroups: TokenGroups) 
     stylex: {
       dev: true,
       runtimeInjection: false,
-      importSources: ['@stylexjs/stylex', '@vue-tsx-pro/tsx/stylex'],
       unstable_moduleResolution: moduleResolution as never,
       // 调试用的文件路径直接取文件名：默认会去找所在的包（读 package.json），浏览器里没有文件系统
       debugFilePath: (file: string) => file,

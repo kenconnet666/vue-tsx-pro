@@ -5,6 +5,7 @@
  */
 import type { Options as StylexBabelOptions } from '@stylexjs/babel-plugin';
 import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
+import type { Language } from '../compiler/ast.ts';
 import { compile, type SourceMap, type StylexRule } from '../compiler/index.ts';
 import { componentMarkers, exportedComponents, hmrCode, ssrCode } from './hmr.ts';
 import { stylexModuleResolution } from './stylex-resolution.ts';
@@ -35,7 +36,7 @@ export interface ModuleRequest {
   /** 文件路径（不带查询参数） */
   file: string;
   /** 语言 */
-  lang: 'ts' | 'tsx' | 'js' | 'jsx';
+  lang: Language;
   /** 项目自己的脚本文件：编译符文与 token 写法 */
   own: boolean;
   /** SSR 环境 */

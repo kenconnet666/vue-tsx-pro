@@ -50,7 +50,7 @@ export function resolveFromExports(importPath: string, sourceFilePath: string): 
   const subpath = `.${importPath.slice(name.length)}`;
   try {
     const manifest = requireFrom(sourceFilePath).resolve(`${name}/package.json`);
-    const target = (JSON.parse(readFileSync(manifest, 'utf8')) as Manifest).exports?.[subpath];
+    const target = readManifest(manifest).exports?.[subpath];
     const file =
       typeof target === 'string' ? target : (target?.[SOURCE_CONDITION] ?? target?.default);
     return file ? join(dirname(manifest), file) : undefined;
@@ -64,10 +64,23 @@ interface Manifest {
   exports?: Record<string, string | Record<string, string>>;
 }
 
+// 每个导入 token 模块的文件都要解析、规范一次：package.json 与包的根目录按进程缓存（同 Node 的模块解析，改了要重启）
+const manifests = new Map<string, Manifest>();
+const roots = new Map<string, string | undefined>();
+
+function readManifest(path: string): Manifest {
+  let manifest = manifests.get(path);
+  if (!manifest) {
+    manifest = JSON.parse(readFileSync(path, 'utf8')) as Manifest;
+    manifests.set(path, manifest);
+  }
+  return manifest;
+}
+
 function getCanonicalFilePath(filePath: string): string {
   const directory = packageRoot(filePath);
   if (!directory) return filePath.replaceAll('\\', '/');
-  const { name } = JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8')) as Manifest;
+  const { name } = readManifest(join(directory, 'package.json'));
   const path = relative(directory, filePath)
     .replaceAll('\\', '/')
     .replace(/^(src|dist)\//, '')
@@ -77,8 +90,16 @@ function getCanonicalFilePath(filePath: string): string {
 
 /** 文件所在包的根目录（最近的 package.json 所在目录） */
 export function packageRoot(filePath: string): string | undefined {
-  for (let directory = dirname(filePath); ; directory = dirname(directory)) {
-    if (existsSync(join(directory, 'package.json'))) return directory;
-    if (dirname(directory) === directory) return undefined;
+  const start = dirname(filePath);
+  if (roots.has(start)) return roots.get(start);
+  let root: string | undefined;
+  for (let directory = start; ; directory = dirname(directory)) {
+    if (existsSync(join(directory, 'package.json'))) {
+      root = directory;
+      break;
+    }
+    if (dirname(directory) === directory) break;
   }
+  roots.set(start, root);
+  return root;
 }

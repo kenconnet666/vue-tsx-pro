@@ -7,7 +7,7 @@ const setup: CompilerSetup = {
   optimize: true,
   tokens: false,
   root: process.cwd(),
-  stylex: { dev: false, importSources: ['@stylexjs/stylex'] },
+  stylex: { dev: false },
   jsx: undefined,
   hmr: true,
 };
