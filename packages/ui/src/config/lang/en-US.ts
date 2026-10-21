@@ -147,7 +147,7 @@ export const enUS: Lang = {
   tableOfContents: 'On this page',
   navigation: 'Navigation',
   navigationOpen: 'Open navigation',
-  navigationClose: 'Close navigation',
+  navigationMenu: 'Menu',
   navigationResize: 'Resize navigation',
   searchLabel: 'Search',
   searchPlaceholder: 'Search docs',

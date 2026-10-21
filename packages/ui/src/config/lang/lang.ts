@@ -295,8 +295,8 @@ export interface Lang {
   readonly navigation: string;
   /** 窄屏时打开侧边导航的按钮，默认“打开导航” */
   readonly navigationOpen: string;
-  /** 收起抽屉式侧边导航的按钮，默认“收起导航” */
-  readonly navigationClose: string;
+  /** 抽屉式侧边导航的开关按钮上的文字，默认“菜单” */
+  readonly navigationMenu: string;
   /** 抽屉式侧边导航的宽度调整手柄，默认“调整导航宽度” */
   readonly navigationResize: string;
   /** 搜索面板与搜索按钮的名称，默认“搜索” */
