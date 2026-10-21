@@ -112,6 +112,10 @@ export const CodePreview = _component(
   }: CodePreviewProps) => {
     const messages = useLang();
     const codeId = useId();
+    // 收起的源码先按纯文本渲染（页内搜索照样找得到）：要显示时才高亮。指针移到、焦点落到“显示代码”上就开始，
+    // 点下去时多半已经高亮好了。一页十来个示例，打开页面时不必一次高亮全部
+    let wanted = _state(false);
+    const prepare = () => (wanted = true);
     return () => (
       <Card
         {...mergePartProps<CardProps>(
@@ -131,6 +135,8 @@ export const CodePreview = _component(
                     'aria-expanded': showCode,
                     'aria-controls': codeId,
                     onClick: () => (showCode = !showCode),
+                    onPointerenter: prepare,
+                    onFocus: prepare,
                   },
                 )}
               >
@@ -152,6 +158,7 @@ export const CodePreview = _component(
                   {
                     code,
                     lang,
+                    highlight: showCode || wanted,
                     maxLines,
                     copyable: false,
                     propsRoot: { sx: codePreviewStyles.code },

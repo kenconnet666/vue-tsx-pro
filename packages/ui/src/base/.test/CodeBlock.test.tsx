@@ -49,6 +49,23 @@ describe('CodeBlock', () => {
     expect(highlighter).not.toHaveBeenCalled();
   });
 
+  it('highlight={false} 时按纯文本显示、不调用高亮器；改成 true 再高亮', async () => {
+    const highlighter = vi.fn(fake);
+    let highlight = _state(false);
+    const root = mount(() => (
+      <Provider highlighter={highlighter}>
+        <CodeBlock code="const a = 1" lang="ts" highlight={highlight} />
+      </Provider>
+    ));
+    await settle();
+    expect(highlighter).not.toHaveBeenCalled();
+    expect(pre(root).querySelector('code')!.textContent).toBe('const a = 1');
+    highlight = true;
+    await settle();
+    expect(highlighter).toHaveBeenCalledOnce();
+    expect(pre(root).querySelector('code .hl-ts')).not.toBeNull();
+  });
+
   it('代码变了先回到纯文本；先发出的慢结果晚到时不覆盖新结果', async () => {
     const pending: ((html: string) => void)[] = [];
     const slow: Highlighter = () => new Promise((resolve) => pending.push(resolve));

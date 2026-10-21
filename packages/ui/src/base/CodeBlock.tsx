@@ -33,6 +33,12 @@ export interface CodeBlockProps extends PartProps<'pre', 'title'> {
   code: string;
   /** 语言（如 ts、vue、bash），交给高亮器；不写时不高亮，高亮器不认识的语言也按纯文本显示 */
   lang?: string;
+  /**
+   * 高亮：false 时先按纯文本显示，改成 true 时才交给高亮器。看不见的代码（收起的示例源码）可以等要显示时再高亮，
+   * 页面打开时不必一次高亮全部
+   * @default true
+   */
+  highlight?: boolean;
   /** 标题栏：通常是文件名；有标题时复制按钮放在标题栏里 */
   title?: VNodeChild;
   /** 长行自动换行，而不是横向滚动 */
@@ -189,6 +195,7 @@ export const CodeBlock = _component(
   ({
     code,
     lang,
+    highlight = true,
     title,
     wrap = false,
     copyable = true,
@@ -219,7 +226,7 @@ export const CodeBlock = _component(
     _effect(() => {
       const highlighter = config.highlighter;
       html = null;
-      if (!highlighter || !lang) return;
+      if (!highlighter || !lang || !highlight) return;
       let stale = false;
       highlighter(code, lang).then(
         (result) => {

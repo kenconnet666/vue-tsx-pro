@@ -1,6 +1,7 @@
 // 文档展示：代码示例卡片 CodePreview、色块 ColorSwatch
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
+import { Provider } from '../../config/Provider';
 import { mount } from '../../utils/.test/mount';
 import { CodePreview } from '../CodePreview';
 import { ColorSwatch } from '../ColorSwatch';
@@ -33,6 +34,22 @@ describe('CodePreview', () => {
     ]);
     // 复制按钮在工具栏上，源码里不再重复一个
     expect(root.querySelectorAll('button[aria-label="复制"]')).toHaveLength(1);
+  });
+
+  it('收起的源码不高亮：指针移到或焦点落到“显示代码”上时才交给高亮器', async () => {
+    const highlighter = vi.fn(async (code: string) => `<span class="hl">${code}</span>`);
+    const root = mount(() => (
+      <Provider highlighter={highlighter}>
+        <CodePreview code="const a = 1">x</CodePreview>
+      </Provider>
+    ));
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve));
+    expect(highlighter).not.toHaveBeenCalled();
+    const toggle = root.querySelector<HTMLElement>('button[aria-controls]')!;
+    toggle.dispatchEvent(new PointerEvent('pointerenter'));
+    await nextTick();
+    expect(highlighter).toHaveBeenCalledOnce();
   });
 
   it('actions 排在工具栏最前面', () => {
