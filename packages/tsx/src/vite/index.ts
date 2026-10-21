@@ -14,7 +14,7 @@
 import type { Options as StylexBabelOptions } from '@stylexjs/babel-plugin';
 import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { Features } from 'lightningcss';
-import type { Plugin, Rollup } from 'vite';
+import { normalizePath, type Plugin, type Rollup } from 'vite';
 import { availableParallelism } from 'node:os';
 import { needsTokens } from '../compiler/tokens.ts';
 import { CompileCache } from './cache.ts';
@@ -24,6 +24,8 @@ import { compileModule, type CompilerSetup, type ModuleRequest } from './module.
 import { CompilePool } from './pool.ts';
 import { stylexCss, StylexRules, type StylexCssOptions } from './stylex.ts';
 import { tokenModule } from './tokens.ts';
+
+export { workspaceSource } from './workspace.ts';
 
 /** 本包的 StyleX 入口：运行时同 @stylexjs/stylex，类型带中文注释（见 src/stylex） */
 const STYLEX_ENTRY = '@vue-tsx-pro/tsx/stylex';
@@ -121,6 +123,7 @@ function compiler(
   let setup: CompilerSetup;
   let cache: CompileCache | undefined;
   let pool: CompilePool | undefined;
+  let cacheDir = '';
   const run = (request: ModuleRequest) =>
     pool ? pool.run(request) : compileModule(request, setup);
   return {
@@ -156,6 +159,7 @@ function compiler(
       };
     },
     configResolved(config) {
+      cacheDir = `${normalizePath(config.cacheDir)}/`;
       const hmr = config.command === 'serve' && !config.isProduction;
       setup = { optimize, tokens, root: config.root, stylex: stylex?.babel, jsx: options.jsx, hmr };
       if ((options.cache ?? true) && config.command === 'serve' && !process.env.VITEST) {
@@ -182,7 +186,9 @@ function compiler(
         const [file = id, query = ''] = id.split('?');
         // ?raw、?url 的模块是文件内容或地址，不是要编译的代码
         if (/(?:^|&)(?:raw|url)(?:&|$)/.test(query)) return;
-        const own = SCRIPT_FILE.test(file) && !file.includes('/node_modules/');
+        // 预构建的依赖在 cacheDir 里：cacheDir 不在 node_modules 下（自定义了位置）时也不是项目自己的代码
+        const own =
+          SCRIPT_FILE.test(file) && !file.includes('/node_modules/') && !file.startsWith(cacheDir);
         const lang = (/(?:^|&)lang\.([jt]sx?)(?:&|$)/.exec(query)?.[1] ??
           /\.[cm]?([jt]sx?)$/.exec(file)?.[1]) as 'ts' | 'tsx' | 'js' | 'jsx' | undefined;
         if (!lang) return;
@@ -240,25 +246,4 @@ async function loadStylexModules(context: Rollup.PluginContext, code: string, im
     files.push(resolved.id.split('?')[0]!);
   }
   return files;
-}
-
-/**
- * 仅供本仓库使用：让 Vite 解析 @vue-tsx-pro/* 时直接读取源码（exports 中的 @vue-tsx-pro/source 条件），
- * 改组件库源码后无需先构建。发布包的使用方不需要它。
- */
-export function workspaceSource(): Plugin {
-  const condition = '@vue-tsx-pro/source';
-  return {
-    name: 'vue-tsx-pro:workspace-source',
-    config() {
-      return {
-        resolve: { conditions: [condition, 'module', 'browser', 'development|production'] },
-        // 按源码读 tsx 包时，它运行时导入的 @stylexjs/stylex 不会被启动时的扫描发现（发布包则会随包预构建）：
-        // 爬取时才发现会丢掉已经做完的预构建、整体重来，冷启动多等二十秒。
-        // 写不带前缀的名字：爬取时记下的就是这个名字，写成“@vue-tsx-pro/tsx > …”会被当成另一个依赖，照样重来
-        optimizeDeps: { include: ['@stylexjs/stylex'] },
-        ssr: { resolve: { conditions: [condition, 'module', 'node', 'development|production'] } },
-      };
-    },
-  };
 }

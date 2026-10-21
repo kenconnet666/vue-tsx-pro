@@ -81,7 +81,7 @@ export default defineConfig({
   server: {
     port: 5174,
     strictPort: true,
-    // 启动时就编译入口引到的模块（整个组件库，几百个文件）：打开浏览器时不用再等
+    // 启动时就编译入口引到的模块（站点外壳与它用到的组件）：打开浏览器时不用再等
     warmup: { clientFiles: ['./src/main.ts'] },
   },
   optimizeDeps,
