@@ -25,13 +25,14 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="basic" title="基础用法" demo={Basic}>
           Stat 只是内容，放进 Card、Grid 里组合。数字按当前语言格式化，<Code>format</Code>{' '}
-          控制小数位；结构是 <Code>dl</Code>，读屏按“名称—数值”成对朗读，图标对读屏隐藏。
+          控制小数位与缩放：金额以元给出、按万元显示时写 <Code>{'{ scale: 10_000 }'}</Code> 并配{' '}
+          <Code>unit="万元"</Code>，Decimal 按十进制移位、不丢精度。结构是 <Code>dl</Code>
+          ，读屏按“名称—数值”成对朗读，图标对读屏隐藏。
         </Example>
         <Example id="change" title="变化量" demo={Change}>
           <Code>change</Code>{' '}
           默认按百分比显示，上升为成功色、下降为危险色；成本、耗时这类越低越好的指标写{' '}
-          <Code>invertChange</Code>。变化量是绝对数时用 <Code>changeFormat</Code>{' '}
-          换格式（Intl.NumberFormat 的选项）。
+          <Code>invertChange</Code>。变化量是绝对数时用 <Code>changeFormat</Code> 换格式。
         </Example>
         <Example id="live" title="数值变化" demo={Live}>
           数值变化时从旧值滚动到新值（AnimatedNumber），读屏只读终值；减少动态效果时直接跳到新值。下方的迷你趋势是示例自己拼的最近
@@ -41,8 +42,8 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="animated-number" title="AnimatedNumber 单独使用" demo={Numbers}>
           值变化时从旧值滚到新值，等宽数字不抖动。<Code>format</Code> 是 Intl.NumberFormat
-          的选项；值可以是 number、bigint 或
-          Decimal，中间帧按浮点数算，停下时按原值格式化，不丢精度。
+          的选项加上缩放 <Code>scale</Code>，金额不写币种时用语言包的币种；值可以是 number、bigint
+          或 Decimal，中间帧按浮点数算，停下时按原值格式化，不丢精度。
           <Code>trend</Code> 按正负着色；<Code>prefix</Code>、<Code>suffix</Code>{' '}
           放在数字前后（图标、单位）。
         </Example>

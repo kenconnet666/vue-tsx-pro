@@ -12,11 +12,11 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useFormat } from '../config/lang/format';
+import { useFormat, type NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
-import { ChartFrame, chartTooltip, type ChartFrameParts } from './frame';
+import { ChartFrame, chartTooltip, useChartValueText, type ChartFrameParts } from './frame';
 import { useSingleChart, type SingleChart } from './single';
 import { resolveColor, seriesValue, type ChartColor, type NumericKey } from './series';
 
@@ -31,8 +31,8 @@ export interface DonutChartProps<T extends object>
   value: NumericKey<T>;
   /** 每一项的颜色；不写时按顺序取图表色板 */
   itemColor?: (row: T, index: number) => ChartColor | undefined;
-  /** 数值的格式（Intl.NumberFormatOptions）：中间的合计、提示框、数据表共用 */
-  valueFormat?: Intl.NumberFormatOptions;
+  /** 数值的格式（可缩放，如以万元为单位）：中间的合计、提示框、数据表共用 */
+  valueFormat?: NumericFormat;
   /** 单位：显示在左上方，数值后面带上 */
   unit?: string;
   /**
@@ -129,11 +129,10 @@ export const DonutChart = _component(
       ),
     );
 
-    const valueText = (amount: NumericValue | undefined) =>
-      amount === undefined ? '—' : `${format.number(amount, valueFormat)}${unit ? ` ${unit}` : ''}`;
+    const valueText = useChartValueText(() => ({ valueFormat, unit }));
     const shareText = (amount: NumericValue | undefined) =>
       amount === undefined || total === 0
-        ? '—'
+        ? lang.emptyValue
         : format.number(toNumber(amount) / total, { style: 'percent', maximumFractionDigits: 1 });
 
     function toggle(name: string) {
@@ -210,7 +209,7 @@ export const DonutChart = _component(
           rows: visible.map((slice) => ({
             header: slice.name,
             cells: [
-              slice.value === undefined ? '—' : format.number(slice.value, valueFormat),
+              slice.value === undefined ? lang.emptyValue : format.number(slice.value, valueFormat),
               shareText(slice.value),
             ],
           })),

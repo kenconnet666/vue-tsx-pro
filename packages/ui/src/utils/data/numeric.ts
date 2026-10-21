@@ -48,6 +48,23 @@ export function numericText(value: NumericValue): string {
   return value.isFinite() ? value.toFixed() : value.toString();
 }
 
+/**
+ * 十进制文本的小数点左移 places 位（除以 10 的 places 次方；负数右移），按文字移位、不经过浮点数：
+ * `shiftDecimal('155353.2', 4)` → `'15.53532'`。不是普通十进制写法的文本（NaN、科学计数法）原样返回
+ */
+export function shiftDecimal(text: string, places: number): string {
+  const match = /^([+-]?)(\d*)(?:\.(\d*))?$/.exec(text);
+  if (!match || places === 0 || !/\d/.test(text)) return text;
+  const [, sign, whole = '', fraction = ''] = match;
+  const digits = whole + fraction;
+  const point = whole.length - places;
+  const padded = point <= 0 ? '0'.repeat(1 - point) + digits : digits.padEnd(point, '0');
+  const at = Math.max(point, 1);
+  const integer = padded.slice(0, at).replace(/^0+(?=\d)/, '');
+  const decimal = padded.slice(at).replace(/0+$/, '');
+  return `${sign}${integer}${decimal ? `.${decimal}` : ''}`;
+}
+
 /** 用 Decimal 的构造函数（从 a 或 b 里找）把两个值都转成 Decimal 比较 */
 function compareWithDecimal(a: NumericValue, b: NumericValue, Ctor: DecimalConstructor): number {
   const left = isDecimal(a) ? a : new Ctor(numericText(a));

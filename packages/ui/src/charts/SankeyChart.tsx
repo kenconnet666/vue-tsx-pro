@@ -12,13 +12,12 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useFormat } from '../config/lang/format';
+import { useFormat, type NumericFormat } from '../config/lang/format';
 import { colors, fontSizes } from '../config/theme/tokens.stylex';
 import { Skeleton } from '../feedback/Skeleton';
-import type { NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
 import { flowData, resolveFlowNodes, type FlowLink, type FlowNode } from './flow';
-import { ChartFrame, chartTooltip, type ChartFrameParts } from './frame';
+import { ChartFrame, chartTooltip, useChartValueText, type ChartFrameParts } from './frame';
 import { useSingleChart, type SingleChart } from './single';
 
 /** 节点怎样排：justify 两端对齐（默认），left、right 靠向一侧，center 居中 */
@@ -39,8 +38,8 @@ export interface SankeyChartProps extends PartProps<'div', 'role' | 'aria-busy'>
   nodes: readonly FlowNode[];
   /** 流向 */
   links: readonly FlowLink[];
-  /** 数值的格式（Intl.NumberFormatOptions）：节点旁的总量、提示框、数据表共用 */
-  valueFormat?: Intl.NumberFormatOptions;
+  /** 数值的格式（可缩放，如以万元为单位）：节点旁的总量、提示框、数据表共用 */
+  valueFormat?: NumericFormat;
   /** 单位：显示在左上方，数值后面带上 */
   unit?: string;
   /**
@@ -115,8 +114,7 @@ export const SankeyChart = _component(
     const lang = useLang();
     const format = useFormat();
     const resolved = _derived(resolveFlowNodes(nodes));
-    const valueText = (amount: NumericValue | undefined) =>
-      amount === undefined ? '—' : `${format.number(amount, valueFormat)}${unit ? ` ${unit}` : ''}`;
+    const valueText = useChartValueText(() => ({ valueFormat, unit }));
     const labelOf = (id: string) => resolved.get(id)?.label ?? id;
 
     let plot = _state.raw<HTMLElement | null>(null);

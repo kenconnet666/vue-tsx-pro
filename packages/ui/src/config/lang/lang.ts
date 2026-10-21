@@ -65,6 +65,8 @@ export interface Lang {
   readonly copy: string;
   /** 复制成功后读屏播报的提示，默认“已复制” */
   readonly copied: string;
+  /** 没有值时显示的占位（表格单元格、图表提示、描述列表），默认“—” */
+  readonly emptyValue: string;
 
   // ───────── 组件文案 ─────────
 

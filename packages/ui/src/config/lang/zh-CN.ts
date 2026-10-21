@@ -15,6 +15,7 @@ export const zhCN: Lang = {
   remove: '移除',
   copy: '复制',
   copied: '已复制',
+  emptyValue: '—',
 
   toasterLabel: '通知',
   linkNewWindow: '（在新窗口打开）',

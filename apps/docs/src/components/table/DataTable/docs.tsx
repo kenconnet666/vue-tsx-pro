@@ -38,7 +38,11 @@ export default _component(() => () => (
         <Example id="tree" title="组织架构" demo={Org}>
           TreeDataTable 建在 DataTable
           上，列定义、排序、勾选都一样；第一列带缩进与展开按钮，同级之间按排序排。
-          <Code>loadChildren</Code> 懒加载：展开时取回子项放进数据，期间按钮显示加载中。
+          <Code>
+            loadChildren
+          </Code> 懒加载：展开时取回子项放进数据，期间按钮显示加载中。数字列的 <Code>format</Code>{' '}
+          与类型的默认格式合并，金额按万元显示写 <Code>{'{ scale: 10_000 }'}</Code>
+          ，单位放在表头里。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

@@ -14,6 +14,7 @@ import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
+import { useFormat, type NumericFormat } from '../config/lang/format';
 import {
   borderWidths,
   colors,
@@ -26,6 +27,7 @@ import {
   space,
 } from '../config/theme/tokens.stylex';
 import { Empty } from '../feedback/Empty';
+import type { NumericValue } from '../utils/data/numeric';
 import { themeTransition } from '../utils/motion/animation';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 
@@ -179,6 +181,20 @@ export function chartTooltip(title: string, items: readonly ChartTooltipItem[]) 
       ))}
     </div>
   );
+}
+
+/**
+ * 图表里数值的文字（提示框、读屏数据表、扇区标签）：按 valueFormat 格式化、带上单位；
+ * 没有值时是语言包的 emptyValue。setup 里调用，返回的函数在渲染里用
+ */
+export function useChartValueText(read: () => { valueFormat?: NumericFormat; unit?: string }) {
+  const lang = useLang();
+  const format = useFormat();
+  return (value: NumericValue | undefined) => {
+    if (value === undefined) return lang.emptyValue;
+    const { valueFormat, unit } = read();
+    return format.number(value, unit ? { ...valueFormat, suffix: unit } : valueFormat);
+  };
 }
 
 /** 主题的 lg 时长（毫秒），减少动态效果时为 0；读不到（元素不在主题范围内）时不要动画 */

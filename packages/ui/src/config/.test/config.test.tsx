@@ -152,6 +152,27 @@ describe('useFormat', () => {
     expect(english.textContent).toBe('1,234.5|$0.30|October 18, 2026');
   });
 
+  it('数字可以缩放、带单位文字；金额不写币种时用语言的币种', () => {
+    const Amounts = _component(() => {
+      const format = useFormat();
+      const wan = { scale: 10_000, maximumFractionDigits: 2, suffix: '万元' };
+      return () => (
+        <i>
+          {[
+            format.number(155353.2, wan),
+            format.number(new Decimal('12345678901234567890.12'), { scale: 10_000 }),
+            format.number('19.9', { style: 'currency' }),
+            format.number(1500, { scale: 1000, suffix: 'k' }),
+            format.number(30, { scale: 3, maximumFractionDigits: 0 }),
+          ].join('|')}
+        </i>
+      );
+    });
+    expect(mount(() => <Amounts />).textContent).toBe(
+      '15.54 万元|1,234,567,890,123,456.789|¥19.90|1.5 k|10',
+    );
+  });
+
   it('文件大小按 1000 进位取单位', () => {
     const Sizes = _component(() => {
       const format = useFormat();

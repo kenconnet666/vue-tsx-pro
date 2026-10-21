@@ -12,8 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden';
-import { useLang } from '../config/context';
-import { useFormat } from '../config/lang/format';
+import { useFormat, type NumericFormat } from '../config/lang/format';
 import { compareNumeric, numericText, toNumber, type NumericValue } from '../utils/data/numeric';
 import { useTween, type TweenOptions } from '../utils/motion/tween';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -23,8 +22,11 @@ import { toneStyles, type Tone } from '../utils/style/typography';
 export interface AnimatedNumberProps extends PartProps<'span', 'prefix'> {
   /** 数值：number、bigint 或 Decimal */
   value: NumericValue;
-  /** 格式（Intl.NumberFormat 的选项）：金额 `{ style: 'currency' }`（币种默认取语言包）、百分比 `{ style: 'percent' }` */
-  format?: Intl.NumberFormatOptions;
+  /**
+   * 格式：金额 `{ style: 'currency' }`（币种默认取语言包）、百分比 `{ style: 'percent' }`、
+   * 以万为单位 `{ scale: 10_000, maximumFractionDigits: 2 }`
+   */
+  format?: NumericFormat;
   /** 过渡的时长档位，默认 lg */
   duration?: TweenOptions['duration'];
   /** 挂载时从这个值滚到 value；不给时直接显示 value */
@@ -75,7 +77,6 @@ export const AnimatedNumber = _component(
     propsLabel,
     ...rest
   }: AnimatedNumberProps) => {
-    const lang = useLang();
     const formatter = useFormat();
     let root: HTMLElement | null = null;
     // 时长按自己所在的主题范围读（子树里可能覆盖了主题）
@@ -86,13 +87,7 @@ export const AnimatedNumber = _component(
       scope: () => root,
     });
 
-    const text = (number: NumericValue) =>
-      formatter.number(
-        number,
-        format?.style === 'currency' && !format.currency
-          ? { ...format, currency: lang.currency }
-          : (format ?? {}),
-      );
+    const text = (number: NumericValue) => formatter.number(number, format);
 
     /** 过渡中当前显示的文字 */
     const shownText = () => {

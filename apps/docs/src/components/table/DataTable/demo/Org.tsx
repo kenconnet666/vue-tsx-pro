@@ -43,9 +43,16 @@ const columns: DataTableColumn<Unit>[] = [
       </Flex>
     ),
   },
-  // 数字列：按第一个值推断成 number，靠右对齐；金额写 type: 'currency' 用语言的币种
+  // 数字列：按第一个值推断成 number，靠右对齐
   { key: 'headcount', header: '人数', width: 80, sortable: true },
-  { key: 'budget', header: '年度预算', width: 150, type: 'currency', sortable: true },
+  // 预算以元存、按万元显示：format 缩放，单位写在表头里，一列数字更整齐
+  {
+    key: 'budget',
+    header: '年度预算（万元）',
+    width: 150,
+    format: { scale: 10_000, minimumFractionDigits: 1, maximumFractionDigits: 1 },
+    sortable: true,
+  },
 ];
 
 const styles = stylex.create({ table: { maxHeight: '20rem' } });

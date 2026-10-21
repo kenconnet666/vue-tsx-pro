@@ -525,7 +525,9 @@ export const DataTableView = _component(
         return {
           ...column,
           align: column.align ?? columnAlign(type),
-          cell: column.cell ?? ((row) => formatCell(columnValue(column, row), type, format)),
+          cell:
+            column.cell ??
+            ((row) => formatCell(columnValue(column, row), type, format, column.format)),
         };
       });
     });

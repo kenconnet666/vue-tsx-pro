@@ -15,6 +15,7 @@ export const enUS: Lang = {
   remove: 'Remove',
   copy: 'Copy',
   copied: 'Copied',
+  emptyValue: '—',
 
   toasterLabel: 'Notifications',
 

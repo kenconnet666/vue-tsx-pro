@@ -25,9 +25,8 @@ export default _component(() => {
         items={[
           {
             label: '余额（Decimal）',
-            value: (
-              <AnimatedNumber value={balance} format={{ style: 'currency', currency: 'CNY' }} />
-            ),
+            // 不写币种时用语言包的币种
+            value: <AnimatedNumber value={balance} format={{ style: 'currency' }} />,
           },
           {
             label: '环比',

@@ -1,6 +1,10 @@
 /**
  * 按当前语言格式化数字、金额与日期：`const format = useFormat()`，之后 `format.currency(19.9)`。
  * 格式化器按“语言 + 选项”缓存，重复调用不再新建。
+ *
+ * 数字的格式是 NumericFormat：Intl.NumberFormat 的选项，加上缩放与单位文字，
+ * `format.number(155353.2, { scale: 10_000, maximumFractionDigits: 2, suffix: '万元' })` → `15.54 万元`。
+ * 组件的数字格式属性（AnimatedNumber、Stat、图表、表格列）都是它。
  */
 import {
   CalendarDateTime,
@@ -16,22 +20,37 @@ import {
   relativeUnit,
   toInstant,
 } from '../../utils/data/date';
+import { numericText, shiftDecimal } from '../../utils/data/numeric';
 import { useLang } from '../context';
 import type { Lang } from './lang';
 
 /** 字符串与 Decimal 按十进制原样格式化，不经过浮点数，金额不丢精度 */
 type NumberInput = number | bigint | string | Decimal;
 
+/** 数字的显示格式：Intl.NumberFormat 的选项，加上缩放与单位文字 */
+export interface NumericFormat extends Intl.NumberFormatOptions {
+  /**
+   * 先除以它再显示：`10_000` 表示以“万”为单位（155353.2 → 15.53532，再按小数位取舍）。
+   * 10 的整数次幂按十进制移动小数点，Decimal 与大整数不丢精度；其他值按浮点数相除
+   */
+  scale?: number;
+  /** 跟在数字后面的单位文字，如“万元”“美元/FH”；与数字之间是不换行的空格 */
+  suffix?: string;
+}
+
 /** 按当前语言格式化数字、金额、百分比与日期；在渲染函数里调用方法即可随语言切换 */
 export function useFormat() {
   const lang = useLang();
   return {
-    /** 数字：`format.number(1234.5)` → `1,234.5` */
-    number: (value: NumberInput, options: Intl.NumberFormatOptions = {}) =>
-      numberFormatter(lang, options).format(toIntl(value)),
+    /**
+     * 数字：`format.number(1234.5)` → `1,234.5`；`{ style: 'currency' }` 不写币种时用语言的币种，
+     * 缩放与单位见 NumericFormat
+     */
+    number: (value: NumberInput, options: NumericFormat = {}) =>
+      formatNumeric(lang, value, options),
     /** 金额，默认使用语言的币种：`format.currency(new Decimal('19.9'))` → `¥19.90` */
     currency: (value: NumberInput, currency = lang.currency) =>
-      numberFormatter(lang, { style: 'currency', currency }).format(toIntl(value)),
+      formatNumeric(lang, value, { style: 'currency', currency }),
     /** 文件大小，按 1000 进位取合适的单位：`format.fileSize(1_234_567)` → `1.2 MB` */
     fileSize: (bytes: number) => {
       const exponent = Math.min(
@@ -103,6 +122,25 @@ function cached<T extends Formatter>(key: string, create: () => T): T {
 function numberFormatter(lang: Lang, options: Intl.NumberFormatOptions) {
   const key = `number|${lang.code}|${JSON.stringify(options)}`;
   return cached(key, () => new Intl.NumberFormat(lang.code, options));
+}
+
+function formatNumeric(
+  lang: Lang,
+  value: NumberInput,
+  { scale, suffix, ...options }: NumericFormat,
+) {
+  if (options.style === 'currency' && !options.currency) options.currency = lang.currency;
+  const text = numberFormatter(lang, options).format(scaled(value, scale));
+  return suffix ? `${text} ${suffix}` : text;
+}
+
+/** 除以 scale：10 的整数次幂按十进制移位（精确），其他值按浮点数相除 */
+function scaled(value: NumberInput, scale: number | undefined) {
+  if (scale == null || scale === 1) return toIntl(value);
+  const places = Math.log10(scale);
+  if (!Number.isInteger(places)) return Number(toIntl(value)) / scale;
+  const text = typeof value === 'string' ? value.trim() : numericText(value);
+  return shiftDecimal(text, places) as Intl.StringNumericLiteral;
 }
 
 function dateFormatter(lang: Lang, options: Intl.DateTimeFormatOptions) {

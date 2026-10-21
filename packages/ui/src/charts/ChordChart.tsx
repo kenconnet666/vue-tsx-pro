@@ -12,13 +12,13 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useFormat } from '../config/lang/format';
+import { useFormat, type NumericFormat } from '../config/lang/format';
 import { colors, fontSizes } from '../config/theme/tokens.stylex';
 import { Skeleton } from '../feedback/Skeleton';
 import type { NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
 import { flowData, resolveFlowNodes, type FlowLink, type FlowNode } from './flow';
-import { ChartFrame, chartTooltip, type ChartFrameParts } from './frame';
+import { ChartFrame, chartTooltip, useChartValueText, type ChartFrameParts } from './frame';
 import { useSingleChart, type SingleChart } from './single';
 
 /** 未声明的属性落到外层 div（role="figure"）上，aria-label 是图表的名称 */
@@ -27,8 +27,8 @@ export interface ChordChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
   nodes: readonly FlowNode[];
   /** 流向 */
   links: readonly FlowLink[];
-  /** 数值的格式（Intl.NumberFormatOptions）：提示框、数据表共用 */
-  valueFormat?: Intl.NumberFormatOptions;
+  /** 数值的格式（可缩放，如以万元为单位）：提示框、数据表共用 */
+  valueFormat?: NumericFormat;
   /** 单位：显示在左上方，数值后面带上 */
   unit?: string;
   /**
@@ -102,8 +102,7 @@ export const ChordChart = _component(
     const format = useFormat();
     const resolved = _derived(resolveFlowNodes(nodes));
     const visible = _derived(new Map([...resolved].filter(([id]) => !hiddenNodes.includes(id))));
-    const valueText = (amount: NumericValue | undefined) =>
-      amount === undefined ? '—' : `${format.number(amount, valueFormat)}${unit ? ` ${unit}` : ''}`;
+    const valueText = useChartValueText(() => ({ valueFormat, unit }));
     const labelOf = (id: string) => resolved.get(id)?.label ?? id;
 
     function toggle(id: string) {

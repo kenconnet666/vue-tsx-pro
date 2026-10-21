@@ -1022,7 +1022,7 @@ import './config/theme/token-names';
 
 // 语言与格式化
 export { enUS } from './config/lang/en-US';
-export { useFormat, type RelativeFormatOptions } from './config/lang/format';
+export { useFormat, type NumericFormat, type RelativeFormatOptions } from './config/lang/format';
 export { defineLang, type Directions, type HourCycles, type Lang } from './config/lang/lang';
 export { zhCN } from './config/lang/zh-CN';
 
@@ -1244,6 +1244,7 @@ export {
   numericKind,
   numericText,
   sameNumeric,
+  shiftDecimal,
   snapNumeric,
   toNumber,
   toNumericKind,

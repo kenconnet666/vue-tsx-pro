@@ -10,9 +10,8 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { render, useId, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useFormat } from '../config/lang/format';
+import { useFormat, type NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
-import type { NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
 import {
   ChartFrame,
@@ -20,6 +19,7 @@ import {
   chartTooltip,
   createChartInstances,
   uniqueHighlightFilter,
+  useChartValueText,
   type ChartFrameParts,
 } from './frame';
 import {
@@ -41,8 +41,11 @@ export interface XYChartProps<T extends object>
   series: readonly ChartSeries<T>[];
   /** 类目的显示文字；不写时把字段的值转成字符串 */
   indexFormat?: (value: T[keyof T & string], row: T) => string;
-  /** 数值的格式（Intl.NumberFormatOptions）：数值轴、提示框、数据表共用，按当前语言格式化 */
-  valueFormat?: Intl.NumberFormatOptions;
+  /**
+   * 数值的格式：数值轴、提示框、数据表共用，按当前语言格式化。以万元为单位画金额时写
+   * `{ scale: 10_000, maximumFractionDigits: 1 }` 并配 `unit="万元"`
+   */
+  valueFormat?: NumericFormat;
   /** 单位：显示在数值轴上方，提示框与数据表的数值后面带上 */
   unit?: string;
   /**
@@ -197,12 +200,11 @@ export const XYChart = _component(
         : indexFormat
           ? indexFormat(row[index], row)
           : String(row[index] ?? '');
-    const valueText = (value: NumericValue | undefined) =>
-      value === undefined ? '—' : `${format.number(value, valueFormat)}${unit ? ` ${unit}` : ''}`;
+    const valueText = useChartValueText(() => ({ valueFormat, unit }));
 
     const xText = (row: T) => {
       const x = kind.continuousX?.value(row);
-      return x === undefined ? '—' : kind.continuousX!.format(x);
+      return x === undefined ? lang.emptyValue : kind.continuousX!.format(x);
     };
 
     function toggle(key: string) {
@@ -359,7 +361,7 @@ export const XYChart = _component(
               ...(kind.continuousX ? [xText(row)] : []),
               ...resolved.map((item) => {
                 const value = seriesValue(row, item.key);
-                return value === undefined ? '—' : format.number(value, valueFormat);
+                return value === undefined ? lang.emptyValue : format.number(value, valueFormat);
               }),
             ],
           })),

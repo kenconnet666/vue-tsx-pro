@@ -8,7 +8,7 @@
  *   ];
  */
 import type { VNodeChild } from 'vue';
-import type { useFormat } from '../config/lang/format';
+import type { NumericFormat, useFormat } from '../config/lang/format';
 import { createComparer, isDateValue, type SortValue } from '../utils/data/collation';
 import { isNumeric } from '../utils/data/numeric';
 
@@ -58,6 +58,11 @@ export interface DataTableColumn<T> {
   cell?: (row: T, index: number) => VNodeChild;
   /** 值的类型：决定默认的格式与对齐；不写时按第一个非空值推断（数字 → number，日期 → date，其余 text） */
   type?: keyof ColumnTypes;
+  /**
+   * 数字类（number、currency、percent）的格式，与 type 的默认格式合并：
+   * 金额以万元显示写 `{ scale: 10_000, maximumFractionDigits: 2 }`（单位写在表头里），美元写 `{ currency: 'USD' }`
+   */
+  format?: NumericFormat;
   /** 排序用的值；不写时取 row[key] */
   value?: (row: T) => SortValue;
   /** 宽度（px）；不写时与其他没写宽度的列平分剩余宽度。固定列一定要写（偏移量按它算） */
@@ -177,16 +182,18 @@ export function formatCell(
   value: SortValue,
   type: keyof ColumnTypes,
   format: ReturnType<typeof useFormat>,
+  options?: NumericFormat,
 ): string {
   if (value == null) return '';
   // 接口常把金额给成十进制字符串（'19.90'）：能读成数字的字符串也按数字格式化，且不经过浮点
   const numeric =
     isNumeric(value) ||
     (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value)));
-  if (numeric && type === 'number') return format.number(value);
-  if (numeric && type === 'currency') return format.currency(value);
+  if (numeric && type === 'number') return format.number(value, options);
+  if (numeric && type === 'currency')
+    return format.number(value, { style: 'currency', ...options });
   if (numeric && type === 'percent')
-    return format.number(value, { style: 'percent', maximumFractionDigits: 1 });
+    return format.number(value, { style: 'percent', maximumFractionDigits: 1, ...options });
   if (typeof value === 'number' && type === 'fileSize') return format.fileSize(value);
   const date = value instanceof Date || isDateValue(value) || typeof value === 'string';
   if (date && type === 'date') return format.date(value);

@@ -7,6 +7,7 @@ import {
   isNumeric,
   numericText,
   sameNumeric,
+  shiftDecimal,
   toNumber,
 } from '../numeric';
 
@@ -47,5 +48,20 @@ describe('numeric', () => {
     expect(numericText(1e21)).toBe('1000000000000000000000');
     expect(numericText(0.5)).toBe('0.5');
     expect([toNumber(new Decimal('19.9')), toNumber(10n), toNumber(1.5)]).toEqual([19.9, 10, 1.5]);
+  });
+
+  it('小数点按文字移位：缩放到万不经过浮点数', () => {
+    expect(shiftDecimal('155353.2', 4)).toBe('15.53532');
+    expect(shiftDecimal('5', 4)).toBe('0.0005');
+    expect(shiftDecimal('-0.5', 1)).toBe('-0.05');
+    expect(shiftDecimal('.5', 2)).toBe('0.005');
+    expect(shiftDecimal('100', 2)).toBe('1');
+    expect(shiftDecimal('12.3', -2)).toBe('1230');
+    expect(shiftDecimal('12345678901234567890', 4)).toBe('1234567890123456.789');
+    expect([shiftDecimal('NaN', 4), shiftDecimal('1e5', 4), shiftDecimal('7', 0)]).toEqual([
+      'NaN',
+      '1e5',
+      '7',
+    ]);
   });
 });

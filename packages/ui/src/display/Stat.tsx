@@ -12,6 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
+import type { NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -29,8 +30,11 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   label: VNodeChild;
   /** 数值：number、bigint、Decimal 按当前语言格式化并在变化时滚动；字符串原样显示（如“—”、“98.5%”） */
   value: NumericValue | string;
-  /** 数值的格式（Intl.NumberFormatOptions），如两位小数 `{ minimumFractionDigits: 2 }`、百分比 `{ style: 'percent' }` */
-  format?: Intl.NumberFormatOptions;
+  /**
+   * 数值的格式，如两位小数 `{ minimumFractionDigits: 2 }`、百分比 `{ style: 'percent' }`；
+   * 值以元给出、按万元显示时写 `{ scale: 10_000, maximumFractionDigits: 2 }` 并配 `unit="万元"`
+   */
+  format?: NumericFormat;
   /** 单位，跟在数值后面、字号小一档 */
   unit?: VNodeChild;
   /** 右上角的图标（装饰，对读屏隐藏） */
@@ -38,7 +42,7 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   /** 变化量（环比、同比）：正数向上、负数向下；默认按百分比显示（0.12 → +12%） */
   change?: number;
   /** 变化量的格式，默认 `{ style: 'percent', maximumFractionDigits: 1, signDisplay: 'exceptZero' }` */
-  changeFormat?: Intl.NumberFormatOptions;
+  changeFormat?: NumericFormat;
   /** 变化量后面的说明，如“较上月” */
   changeLabel?: VNodeChild;
   /** 下降是好事（成本、耗时、故障数）：下降显示成功色、上升显示危险色 */
@@ -68,7 +72,7 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   propsDescription?: PartProps<'dd'>;
 }
 
-const CHANGE_FORMAT: Intl.NumberFormatOptions = {
+const CHANGE_FORMAT: NumericFormat = {
   style: 'percent',
   maximumFractionDigits: 1,
   signDisplay: 'exceptZero',
