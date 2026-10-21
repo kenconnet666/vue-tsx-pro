@@ -76,7 +76,10 @@ export const DatePicker = _component(
     ...rest
   }: DatePickerProps<V>) => {
     const lang = useLang();
-    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    // 输入由里面的 DateField 接 Field；这里只读状态决定能不能打开面板
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }), {
+      delegate: true,
+    });
     const hasTime = () => TIME_GRANULARITIES.has(granularity);
     const picker = usePickerPopover(
       () => ({

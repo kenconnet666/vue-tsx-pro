@@ -71,6 +71,12 @@ export interface FieldControlOptions {
   readonly?: boolean;
 }
 
+/** useFieldControl 的选项 */
+export interface FieldControlUse {
+  /** 输入交给里面的另一个控件（DatePicker 里的 DateField）：子树仍属于 Field，由那个控件接 */
+  delegate?: boolean;
+}
+
 /** 控件合并 Field 之后的状态与关联属性 */
 export interface FieldControl {
   /** 控件的 id：显式写的优先，其次是 Field 给的 */
@@ -95,11 +101,15 @@ export interface FieldControl {
  * 控件读取所在 Field 的信息（在 setup 里调用，返回的函数在渲染时调用）：
  * 控件上显式写的状态优先；不在 Field 里时用控件自己的，不可用与只读再看所在的 Form、FormSection。
  * 控件里再嵌的控件（Select 的搜索框、区间的两个框、时间面板的列表）不是 Field 的控件，
- * 拿到 Field 的 id、说明与必填会重复 id、让表单提交被空的搜索框拦住：调用后子树与 Field 隔开
+ * 拿到 Field 的 id、说明与必填会重复 id、让表单提交被空的搜索框拦住：调用后子树与 Field 隔开，
+ * 除非写了 delegate
  */
-export function useFieldControl(read: () => FieldControlOptions): () => FieldControl {
+export function useFieldControl(
+  read: () => FieldControlOptions,
+  { delegate = false }: FieldControlUse = {},
+): () => FieldControl {
   const field = FieldContext.inject(null);
-  FieldContext.provide(null);
+  if (!delegate) FieldContext.provide(null);
   const layout = field ? null : FieldLayoutContext.inject(null);
   return () => {
     const own = read();

@@ -77,7 +77,10 @@ export const TimePicker = _component(
     const lang = useLang();
     const format = useFormat();
     const locale = useDateLocale();
-    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    // 输入由里面的 TimeField 接 Field；这里只读状态决定能不能打开面板
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }), {
+      delegate: true,
+    });
     const picker = usePickerPopover(
       () => ({
         open,

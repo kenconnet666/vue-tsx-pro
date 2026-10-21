@@ -842,6 +842,7 @@ export {
   useFieldControl,
   type FieldControl,
   type FieldControlOptions,
+  type FieldControlUse,
   type FieldProps,
   type FieldState,
   type LabelProps,
