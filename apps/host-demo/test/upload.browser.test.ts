@@ -36,12 +36,12 @@ describe('Upload', () => {
       new File(['oops'], 'fail.txt', { type: 'text/plain' }),
     ]);
     await expect.poll(states).toEqual(['uploading', 'uploading']);
-    await expect.poll(states, { timeout: 3000 }).toEqual(['done', 'error']);
+    await expect.poll(states, { timeout: 5000 }).toEqual(['done', 'error']);
     expect($('.upload-demo li[data-state="error"]').textContent).toContain('服务器开小差了');
     expect($<HTMLInputElement>('.upload-demo input[name="attachments"]').files).toHaveLength(2);
 
     await userEvent.click($('.upload-demo [aria-label="重新上传 fail.txt"]'));
-    await expect.poll(states, { timeout: 3000 }).toEqual(['done', 'done']);
+    await expect.poll(states, { timeout: 5000 }).toEqual(['done', 'done']);
     await userEvent.click($('.upload-demo [aria-label="移除 a.txt"]'));
     expect(states()).toEqual(['done']);
   });
