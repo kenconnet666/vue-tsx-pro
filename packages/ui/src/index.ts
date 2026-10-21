@@ -1343,6 +1343,7 @@ export {
   type WeekdayFormats,
   type WeekOptions,
 } from './utils/data/date';
+export { diffFields, type FieldDiff } from './utils/data/diff';
 export { sameValue } from './utils/data/equality';
 export { cachedIntl } from './utils/data/intl-cache';
 export { normalizeNumber, parseNumber } from './utils/data/number-parse';

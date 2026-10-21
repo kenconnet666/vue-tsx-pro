@@ -164,7 +164,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 工作日与时限：`createWorkCalendar`（周末、节假日、调休补班）经 createUi / Provider 的 `workCalendar` 给出，
       `useWorkCalendar()` 取用；`workdaysBetween`、`addWorkdays`、`deadlineOf`（截止日、剩余工作日、五种状态）。
       决定不另做 useDeadline：纯函数加 useWorkCalendar 已经够用；降本案例的认定时限改用它
-- [ ] 字段差异 `diffFields`：两份记录按字段比较，得出是否变化与数值差
+- [x] 字段差异 `diffFields`：两份记录按字段比较（结构相等），数值字段给出精确的差（Decimal、bigint 不经过浮点）与变化率；
+      字段与顺序由 keys 决定，FieldCompare 之后用它
 - [ ] 跨容器拖动：`useSortable` 加分组
 - [ ] 通知控制器 `createNotifications()`（与 `createToaster` 同一模式），NotificationCenter 用它
 - [ ] 持久化状态 `usePersistentState`：列宽、密度、每页条数、侧栏、筛选条件（文档站的 sidebar.ts、theme.ts 改用它）
