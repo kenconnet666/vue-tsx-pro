@@ -5,11 +5,11 @@
  *
  * - 正则引擎用 JavaScript 版（不加载 wasm），语法不完全支持的语言尽量高亮而不是报错
  * - 语言按需加载：第一次遇到某种语言时才下载它的语法；不认识的语言按纯文本显示
+ * - Shiki 与正则引擎在第一次高亮时才加载：放在入口里的高亮器不会把它们带进首屏（文档站首屏因此少了约 240 KB）
  * - 颜色用 Shiki 的 CSS 变量主题（另加类型、标签名、属性名三类），默认值指向组件库的代码高亮 tokens（colors.code*）：
  *   切换主题、覆盖 tokens 都不需要重新高亮；使用方也可以用 --shiki-token-keyword 这类变量单独调整
  */
-import { createCssVariablesTheme, createHighlighterCore, type HighlighterCore } from 'shiki/core';
-import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
+import type { HighlighterCore } from 'shiki/core';
 import type { LanguageInput } from 'shiki/types';
 import type { Highlighter } from './context';
 import { colors } from './theme/tokens.stylex';
@@ -26,26 +26,30 @@ export interface ShikiHighlighterOptions {
 
 const THEME = 'vue-tsx-pro';
 
-// colors.x 在运行时是 var(--哈希) 字符串，作为 Shiki 变量的默认值：跟随当前主题
-const base = createCssVariablesTheme({
-  name: THEME,
-  variableDefaults: {
-    foreground: String(colors.text),
-    background: 'transparent',
-    'token-comment': String(colors.codeComment),
-    'token-punctuation': String(colors.codeComment),
-    'token-keyword': String(colors.codeKeyword),
-    'token-link': String(colors.codeKeyword),
-    'token-string': String(colors.codeString),
-    'token-string-expression': String(colors.codeString),
-    'token-constant': String(colors.codeNumber),
-    'token-function': String(colors.codeFunction),
-    'token-parameter': String(colors.text),
-    'token-inserted': String(colors.codeString),
-    'token-deleted': String(colors.dangerText),
-    'token-changed': String(colors.codeNumber),
-  },
-});
+/** 组件库的 Shiki 主题；createCssVariablesTheme 来自按需加载的 shiki/core */
+function theme(createCssVariablesTheme: typeof import('shiki/core').createCssVariablesTheme) {
+  // colors.x 在运行时是 var(--哈希) 字符串，作为 Shiki 变量的默认值：跟随当前主题
+  const base = createCssVariablesTheme({
+    name: THEME,
+    variableDefaults: {
+      foreground: String(colors.text),
+      background: 'transparent',
+      'token-comment': String(colors.codeComment),
+      'token-punctuation': String(colors.codeComment),
+      'token-keyword': String(colors.codeKeyword),
+      'token-link': String(colors.codeKeyword),
+      'token-string': String(colors.codeString),
+      'token-string-expression': String(colors.codeString),
+      'token-constant': String(colors.codeNumber),
+      'token-function': String(colors.codeFunction),
+      'token-parameter': String(colors.text),
+      'token-inserted': String(colors.codeString),
+      'token-deleted': String(colors.dangerText),
+      'token-changed': String(colors.codeNumber),
+    },
+  });
+  return { ...base, tokenColors: [...(base.tokenColors ?? []), ...extraTokenColors] };
+}
 
 /** Shiki 的 CSS 变量主题不区分类型、标签名、属性名：追加几条规则，同样可以用 --shiki-token-* 覆盖 */
 const extraTokenColors = [
@@ -68,7 +72,6 @@ const extraTokenColors = [
     settings: { foreground: `var(--shiki-token-attribute, ${String(colors.codeAttribute)})` },
   },
 ];
-const theme = { ...base, tokenColors: [...(base.tokenColors ?? []), ...extraTokenColors] };
 
 /** 生成高亮器；Shiki 本身在第一次高亮时才创建，同一个高亮器里的语言只加载一次 */
 export function createShikiHighlighter(options: ShikiHighlighterOptions = {}): Highlighter {
@@ -80,6 +83,17 @@ export function createShikiHighlighter(options: ShikiHighlighterOptions = {}): H
       ? Promise.resolve(options.languages)
       : import('shiki/langs').then((module): LanguageTable => module.bundledLanguages));
   let core: Promise<HighlighterCore> | undefined;
+  const loadCore = async () => {
+    const [shiki, engine] = await Promise.all([
+      import('shiki/core'),
+      import('shiki/engine/javascript'),
+    ]);
+    return shiki.createHighlighterCore({
+      themes: [theme(shiki.createCssVariablesTheme)],
+      langs: [],
+      engine: engine.createJavaScriptRegexEngine({ forgiving: true }),
+    });
+  };
   const loading = new Map<string, Promise<boolean>>();
 
   /** 加载语言，返回能否高亮；不认识的语言返回 false */
@@ -106,11 +120,7 @@ export function createShikiHighlighter(options: ShikiHighlighterOptions = {}): H
   };
 
   return async (code, lang) => {
-    const highlighter = await (core ??= createHighlighterCore({
-      themes: [theme],
-      langs: [],
-      engine: createJavaScriptRegexEngine({ forgiving: true }),
-    }));
+    const highlighter = await (core ??= loadCore());
     const name = lang.toLowerCase();
     const known = await ensureLanguage(highlighter, name);
     return highlighter.codeToHtml(code, {
