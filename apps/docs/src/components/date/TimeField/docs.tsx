@@ -5,8 +5,11 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
+import { segmentKeys } from '../keyboard';
 import Basic from './demo/Basic.tsx?demo';
 import HourCycle from './demo/HourCycle.tsx?demo';
+import States from './demo/States.tsx?demo';
 
 export const meta = {
   title: 'TimeField 时间输入框',
@@ -31,8 +34,15 @@ export default _component(() => () => (
           切换；改“时”时保留上午下午。语言配置的 <Code>hourCycle</Code>{' '}
           统一指定，组件上的同名属性单独覆盖。
         </Example>
+        <Example id="states" title="外观与状态" demo={States}>
+          <Code>icon</Code>、<Code>clearable</Code>、<Code>variant</Code>、<Code>size</Code>{' '}
+          与其他输入框同一套；<Code>valueType="dateValue"</Code> 写回 @internationalized/date 的
+          Time。 Field 上的 <Code>required</Code>、<Code>error</Code>、<Code>readonly</Code>、
+          <Code>disabled</Code> 交给里面的输入框。
+        </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference keys={segmentKeys} />
     <ApiReference api={api} />
   </DocPage>
 ));

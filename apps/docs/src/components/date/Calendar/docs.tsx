@@ -5,6 +5,8 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
+import { calendarKeys } from '../keyboard';
 import Basic from './demo/Basic.tsx?demo';
 import Locales from './demo/Locales.tsx?demo';
 import Multiple from './demo/Multiple.tsx?demo';
@@ -13,6 +15,7 @@ import Prices from './demo/Prices.tsx?demo';
 import Sizes from './demo/Sizes.tsx?demo';
 import Unavailable from './demo/Unavailable.tsx?demo';
 import Views from './demo/Views.tsx?demo';
+import Footer from './demo/Footer.tsx?demo';
 
 export const meta = {
   title: 'Calendar 日历',
@@ -69,8 +72,16 @@ export default _component(() => () => (
         <Example id="sizes" title="尺寸与状态" demo={Sizes}>
           <Code>size</Code> 对应主题的字号档位，格子、按钮按比例缩放，点击区域不小于 24px。
         </Example>
+        <Example id="footer" title="页脚、固定六行与 onPick" demo={Footer}>
+          <Code>footer</Code> 放在网格下面（快捷操作、图例）；<Code>fixedWeeks</Code>{' '}
+          让每个月都显示六行，翻页时高度不跳；<Code>defaultFocused</Code> 是没有选择时先显示哪个月；
+          <Code>onPick</Code> 在每次点选时调用，再点已选的那天也会——日期选择器据此关闭弹层。
+        </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference keys={calendarKeys}>
+      整个月是一个网格（role="grid"），只有聚焦的那一格在 Tab 顺序里；移出当前显示的月份时自动翻页。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

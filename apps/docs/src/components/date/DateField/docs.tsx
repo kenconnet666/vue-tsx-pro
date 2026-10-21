@@ -5,6 +5,8 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
+import { segmentKeys } from '../keyboard';
 import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Granularity from './demo/Granularity.tsx?demo';
@@ -48,6 +50,9 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference keys={segmentKeys}>
+      每一段是一个 spinbutton，读屏念出段名与取值；整组是一个 group，名称取 Field 的标签。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

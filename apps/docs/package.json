@@ -20,6 +20,7 @@
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
     "@floating-ui/dom": "catalog:",
+    "@internationalized/date": "catalog:",
     "@lezer/highlight": "catalog:",
     "@lucide/icons": "catalog:",
     "@shikijs/langs": "catalog:",

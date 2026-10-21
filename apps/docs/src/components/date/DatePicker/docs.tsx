@@ -5,8 +5,12 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import { KeyboardReference } from '../../../site/KeyboardReference';
+import { calendarKeys, pickerKeys, segmentKeys } from '../keyboard';
 import Booking from './demo/Booking.tsx?demo';
 import Granularity from './demo/Granularity.tsx?demo';
+import States from './demo/States.tsx?demo';
+import Values from './demo/Values.tsx?demo';
 
 export const meta = {
   title: 'DatePicker 日期选择器',
@@ -23,6 +27,12 @@ export default _component(() => () => (
           弹出日历，焦点落在已选（或今天）那一格，点选后关闭、焦点回到按钮。<Code>min</Code>、
           <Code>max</Code>、<Code>isDateUnavailable</Code> 同时作用于输入框与日历。
         </Example>
+        <Example id="states" title="外观与状态" demo={States}>
+          <Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>、<Code>icon</Code>{' '}
+          与其他输入框同一套。只读时能聚焦、能复制，不弹日历；Field 上的 <Code>disabled</Code>、
+          <Code>readonly</Code>、<Code>required</Code> 与 <Code>error</Code> 会交给里面的选择器。
+          <Code>placement</Code> 改弹出位置，<Code>visibleMonths</Code> 并排显示几个月。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="granularity" title="年份、月份与时间" demo={Granularity}>
@@ -30,8 +40,17 @@ export default _component(() => () => (
           时弹出年份、月份的选择（即 YearPicker、MonthPicker）；到 <Code>minute</Code>{' '}
           时选完日期焦点落到“时”那一段接着输入（即 DateTimePicker），没有时间时先补 00:00。
         </Example>
+        <Example id="values" title="值的类型与表单提交" demo={Values}>
+          值默认是 ISO 字符串（与原生 input、URL 参数、zod 一致）；
+          <Code>valueType="dateValue"</Code> 写回 @internationalized/date 的 CalendarDate，可以直接{' '}
+          <Code>add</Code>、<Code>compare</Code>。传进来是哪种类型就写回哪种。<Code>name</Code>{' '}
+          让原生表单提交 ISO 字符串。
+        </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference keys={[...segmentKeys, ...pickerKeys, ...calendarKeys]}>
+      输入框是分段的 DateField；弹出的日历与 Calendar 相同，选中后关闭，焦点回到按钮。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

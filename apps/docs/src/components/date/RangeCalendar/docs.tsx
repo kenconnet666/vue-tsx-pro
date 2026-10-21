@@ -5,6 +5,8 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
+import { calendarKeys } from '../keyboard';
 import Hotel from './demo/Hotel.tsx?demo';
 import Leave from './demo/Leave.tsx?demo';
 import Report from './demo/Report.tsx?demo';
@@ -38,6 +40,9 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference keys={calendarKeys}>
+      先选开始、再选结束；选了开始以后移动焦点时，区间跟着预览。<Kbd>Esc</Kbd> 取消还没选完的区间。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

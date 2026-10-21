@@ -409,6 +409,9 @@ importers:
       '@floating-ui/dom':
         specifier: 'catalog:'
         version: 1.8.0
+      '@internationalized/date':
+        specifier: 'catalog:'
+        version: 3.12.4
       '@lezer/highlight':
         specifier: 'catalog:'
         version: 1.2.5
