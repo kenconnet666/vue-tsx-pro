@@ -1,6 +1,6 @@
 // 降本管理案例共用的虚构数据：主数据（人员、团队、型号、工作包、供应商）与一批任务卡。字段、状态与口径按《需求定义方案》
 // 的任务卡与一本账；名称都是虚构的。按序号确定地生成（不用随机数），每次打开都一样，截图与测试才稳定
-import { createStatusMap } from '@vue-tsx-pro/ui';
+import { createStatusMap, daysBetween, shiftIsoDate } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import { shallowRef } from 'vue';
 
@@ -308,19 +308,27 @@ export interface CostTask {
   dmcNodes: DmcNode[];
 }
 
+/**
+ * 两种降本类型：名称、编码列的表头、金额的单位与格式（显示与输入共用）。
+ * 单机降本存的是元、按万元显示；降 DMC 是美元 / FH。一个视图里只有一种单位，不混着相加
+ */
+export const costKinds = {
+  unit: {
+    label: '单机降本',
+    codeHeader: '降本项目编码',
+    unit: '万元',
+    format: { scale: 10_000, minimumFractionDigits: 2, maximumFractionDigits: 2 },
+  },
+  dmc: {
+    label: '降 DMC',
+    codeHeader: '项目编码',
+    unit: '美元/FH',
+    format: { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+  },
+} as const;
+
 /** 案例里的“今天”：固定下来，超时、到期的天数每次都一样 */
 export const TODAY = '2026-10-21';
-
-/** ISO 日期加几天 */
-export function addDays(iso: string, days: number): string {
-  const date = new Date(`${iso}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
-}
-
-/** 两个 ISO 日期相差几天（to − from） */
-export const daysBetween = (from: string, to: string) =>
-  Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
 
 /** 已经结束的状态：不再算超时 */
 export const isFinished = (task: CostTask) => ['closed', 'terminated'].includes(task.status);
@@ -467,11 +475,11 @@ function dmcNodes(index: number, status: string, due: string, team: string): Dmc
     ? 4
     : Math.min(3, Math.max(0, taskFlow.indexOf(status)));
   return forms.map((form, position) => {
-    const planned = addDays(due, (position - 3) * 30);
+    const planned = shiftIsoDate(due, { days: (position - 3) * 30 });
     return {
       form,
       due: planned,
-      done: position < finished ? addDays(planned, (index % 5) - 2) : null,
+      done: position < finished ? shiftIsoDate(planned, { days: (index % 5) - 2 }) : null,
       flights: form === '实施' ? 20 + (index % 6) * 10 : null,
       team,
       needSb: form === '实施' && index % 2 === 0,
@@ -497,14 +505,14 @@ function task(index: number): CostTask {
   // 计划完成时间散在“今天”前后两个月里：有超时的、有快到期的；刚开始的有一半排到明年上半年。
   // 完成年度就是计划完成的年份（编码里的年度）
   const justStarted = ['pending', 'designing'].includes(status) && index % 2 === 0;
-  const due = addDays(TODAY, ((index * 17) % 75) - 15 + (justStarted ? 150 : 0));
+  const due = shiftIsoDate(TODAY, { days: ((index * 17) % 75) - 15 + (justStarted ? 150 : 0) });
   const year = due.slice(0, 4);
   const confirmed = reached(status, 'confirmed');
   const a = confirmed ? expected.times(0.92 + (index % 5) * 0.03).toDecimalPlaces(2) : null;
   const b =
     reached(status, 'realized') && a ? a.times(0.88 + (index % 7) * 0.03).toDecimalPlaces(2) : null;
   const done = (step: string, offset: number) =>
-    reached(status, step) ? addDays(TODAY, -offset) : null;
+    reached(status, step) ? shiftIsoDate(TODAY, { days: -offset }) : null;
   const evidence = ['方案评审纪要.pdf', '验证窗结论.pdf', '收益认定意见.pdf'];
   return {
     code: `${kind === 'unit' ? 'DJ' : 'DMC'}-${year}-${teamCodes[teamIndex]}-${index + 1}`,
@@ -708,7 +716,7 @@ export function workdaysBetween(from: string, to: string): number {
   const sign = to >= from ? 1 : -1;
   let count = 0;
   for (let day = from; day !== to;) {
-    day = addDays(day, sign);
+    day = shiftIsoDate(day, { days: sign });
     const weekday = new Date(`${day}T00:00:00Z`).getUTCDay();
     if (weekday !== 0 && weekday !== 6) count += sign;
   }
@@ -753,7 +761,7 @@ export const confirmReturns = shallowRef<readonly ConfirmReturn[]>(
         '测算参数与报价不一致，请复核材料单价',
         '工时定额没有依据',
       ][index]!,
-      at: addDays(TODAY, -(index * 3 + 2)),
+      at: shiftIsoDate(TODAY, { days: -(index * 3 + 2) }),
     })),
 );
 

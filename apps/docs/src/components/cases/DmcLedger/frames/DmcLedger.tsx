@@ -1,8 +1,8 @@
 // 案例：降 DMC 台账（表格页）。DMC 的明细是实施节点：表格里一列是节点的完成情况与下一个节点（过期标红），
 // 各节点的日期、是否需要 SB 与贯彻架次在详情里；金额单位是美元 / FH
 import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
-import { daysBetween, TODAY, type CostTask, type DmcNode } from '../../data';
+import { daysBetween, Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { TODAY, type CostTask, type DmcNode } from '../../data';
 import {
   checklist,
   countActive,
@@ -12,8 +12,6 @@ import {
   ledgerColumns,
   progressDots,
 } from '../../ledger';
-
-const DMC = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
 
 const nextNode = (task: CostTask) => task.dmcNodes.find((node) => node.done == null);
 
@@ -87,8 +85,6 @@ export default _component(() => () => (
   <LedgerPage
     kind="dmc"
     editor="DmcEditor"
-    unit="美元/FH"
-    amountFormat={DMC}
     middle={[ledgerColumns.org, ledgerColumns.contact]}
     after={nodeColumns}
     detailExtra={nodeDetail}

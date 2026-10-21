@@ -133,8 +133,10 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 组合用的底层组件补上 API 表（CalendarView、DateSegmentGroup、SegmentedField、DataTableView、ColumnResizer、EffectSurface、
       Label、ListPopover、ListboxView），API 表的说明改取组件自己的注释；TreeSelect 补“外观与状态”（isDisabled、图标、外观、必填、只读），
       DateRangePicker 补 valueType、必填、图标与圆角。决定不补：DataTableRow 这类渲染单元；PageSizeSelect 这类继承来的属性不逐个演示
-- [ ] 案例：`addDays`、`daysBetween` 换成组件库的；单位与格式的映射合成一份；两个编辑页共用 schema；DmcEditor 用 `form.array`；
-      铺满视口的高度用 `layoutVars`；看板的栅格用 Grid；图表示例里的真实机型名换成虚构的
+- [x] 案例：日期用组件库的 `shiftIsoDate`、`daysBetween`；两种降本类型的名称、编码表头、单位与格式合成 `costKinds`，台账只传类型；
+      两个编辑页共用 `task-form.ts` 的字段与条件必填；DmcEditor 的实施节点用 `form.array`（删行时错误跟着移动）；
+      铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@vue-tsx-pro/ui/vars.stylex`，主入口不再导出它）；看板用 Grid；
+      图表示例的真实机型名换成“机型 A / B”
 
 ## 2. 基础设施
 

@@ -13,7 +13,6 @@ import {
   CheckboxGroup,
   Combobox,
   DatePicker,
-  decimalSchema,
   Flex,
   Form,
   FormSection,
@@ -44,6 +43,7 @@ import * as z from 'zod';
 import {
   categories,
   completionForms,
+  costKinds,
   depts,
   fundingSources,
   models,
@@ -63,41 +63,22 @@ import {
   type UnitDetail,
 } from '../../data';
 import { PartChangeDialog } from '../../part-change';
+import { checkSavings, taskFields } from '../../task-form';
 import { CaseShell, casePath, useCaseNavigate, useCaseQuery } from '../../shell';
 
-const amount = decimalSchema({ min: 0, scale: 2 }).nullable();
 const schema = z
   .object({
+    // 主表：与降 DMC 共用的基本信息、降本信息、技术与实施、备注
+    ...taskFields,
     // 主表 · 基本信息
-    name: z.string().min(1, '请填写项目名称').max(200, '项目名称不超过 200 字'),
     category: z.string().min(1, '请选择任务类别'),
     source: z.string().min(1, '请选择任务来源'),
-    org: z.string().min(1, '请选择提出单位'),
     dept: z.string().min(1, '请选择提出部门'),
-    contact: z.string().min(1, '请选择联络人'),
-    team: z.string().min(1, '请选择责任一级团队'),
-    // 主表 · 降本信息
-    install: z.string().min(1, '请选择必装或选装'),
-    types: z.array(z.string()).min(1, '至少选一种降本类型'),
-    unitSaving: amount,
-    dmcSaving: amount,
-    description: z
-      .string()
-      .min(
-        20,
-        '写明更改内容、降本金额计算依据、材料降本、工时降本，并填三级项目建议书编号或计算方法',
-      ),
     // 主表 · 技术与实施
-    modelNo: z.string().regex(/^$|^\S+ R\d+$/, '按“编号 + 版本”填写，如 C1H02-5513-002 R03'),
     year: z.string().min(4, '请选择完成年度'),
-    flights: z.number().int().min(0, '贯彻架次不能小于 0').nullable(),
-    form: z.string().min(1, '请选择完成形式'),
-    suppliers: z.array(z.string()),
-    plan: z.string(),
     // 主表 · 经费与依据
     funding: z.array(z.string()),
     proposalNo: z.string(),
-    remark: z.string().max(1000, '备注不超过 1000 字'),
     // 明细 · 项目基本信息
     notices: z.array(z.string()).min(1, '至少一个构型通知单编号'),
     projectDescription: z.string().min(1, '请填写项目描述').max(1000),
@@ -111,10 +92,7 @@ const schema = z
   })
   // 条件必填：选了哪种降本类型就要填对应的预期收益；评估意见不是“初步同意”时要写原因
   .superRefine((values, ctx) => {
-    if (values.types.includes('unit') && values.unitSaving == null)
-      ctx.addIssue({ code: 'custom', path: ['unitSaving'], message: '降本类型含单机降本时必填' });
-    if (values.types.includes('dmc') && values.dmcSaving == null)
-      ctx.addIssue({ code: 'custom', path: ['dmcSaving'], message: '降本类型含降 DMC 时必填' });
+    checkSavings(values, ctx);
     if (values.opinion && values.opinion !== '初步同意' && !values.reason)
       ctx.addIssue({
         code: 'custom',
@@ -263,8 +241,7 @@ export default _component(() => {
   const navigate = useCaseNavigate();
   const yuan = (value: Decimal) =>
     format.number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const wan = (value: Decimal) =>
-    format.number(value, { scale: 10_000, minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const wan = (value: Decimal) => format.number(value, costKinds.unit.format);
   // 地址上带 code：编辑那一项；找不到或不带：新建
   const editing =
     taskStore.value.find((task) => task.code === route().code && task.kind === 'unit') ?? null;
@@ -422,14 +399,14 @@ export default _component(() => {
                     name="unitSaving"
                     label="单机降本"
                     required
-                    description={`明细算出 ${wan(total())} 万元`}
+                    description={`明细算出 ${wan(total())} ${costKinds.unit.unit}`}
                   >
                     <NumberField
                       value={_bind(form.values.unitSaving)}
                       valueType={Decimal}
-                      format={{ scale: 10_000, maximumFractionDigits: 2 }}
+                      format={costKinds.unit.format}
                       min={0}
-                      suffix="万元"
+                      suffix={costKinds.unit.unit}
                     />
                   </form.Field>
                 )}
@@ -438,9 +415,9 @@ export default _component(() => {
                     <NumberField
                       value={_bind(form.values.dmcSaving)}
                       valueType={Decimal}
-                      format={{ minimumFractionDigits: 2 }}
+                      format={costKinds.dmc.format}
                       min={0}
-                      suffix="美元/FH"
+                      suffix={costKinds.dmc.unit}
                     />
                   </form.Field>
                 )}

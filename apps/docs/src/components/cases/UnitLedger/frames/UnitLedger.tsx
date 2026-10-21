@@ -5,8 +5,6 @@ import { Small } from '@vue-tsx-pro/ui';
 import type { CostTask } from '../../data';
 import { countActive, detailSection, filterFields, LedgerPage, ledgerColumns } from '../../ledger';
 
-const WAN = { scale: 10_000, minimumFractionDigits: 2, maximumFractionDigits: 2 };
-
 function partsSummary(task: CostTask) {
   const detail = task.unitDetail;
   if (!detail) return null;
@@ -24,8 +22,6 @@ export default _component(() => () => (
   <LedgerPage
     kind="unit"
     editor="UnitEditor"
-    unit="万元"
-    amountFormat={WAN}
     middle={[ledgerColumns.category, ledgerColumns.team, ledgerColumns.contact]}
     after={[ledgerColumns.form]}
     detailExtra={partsSummary}

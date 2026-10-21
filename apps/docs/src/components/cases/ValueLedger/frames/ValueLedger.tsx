@@ -20,6 +20,8 @@ import {
   type DataTableColumn,
   type DataTableColumnGroup,
 } from '@vue-tsx-pro/ui';
+import { space } from '@vue-tsx-pro/ui/tokens.stylex';
+import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
 import Decimal from 'decimal.js';
 import {
   amountBases,
@@ -64,7 +66,7 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     gap: '_sm',
-    height: 'calc(100dvh - 3rem - 2 * _space.md)',
+    height: `calc(100dvh - ${layoutVars.stickyOffset} - 2 * ${space.md})`,
     minHeight: '28rem',
   },
   toolbar: { display: 'flex', alignItems: 'center', gap: '_md', flexWrap: 'wrap' },

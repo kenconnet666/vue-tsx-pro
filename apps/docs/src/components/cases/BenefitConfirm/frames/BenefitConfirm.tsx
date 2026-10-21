@@ -27,12 +27,15 @@ import {
   useFormat,
   type DataTableColumn,
 } from '@vue-tsx-pro/ui';
+import { space } from '@vue-tsx-pro/ui/tokens.stylex';
+import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
 import Decimal from 'decimal.js';
 import {
   advanceTask,
   CONFIRM_WORKDAYS,
   confirmWorkdaysLeft,
   confirmReturns,
+  costKinds,
   latestEstimate,
   reached,
   returnTask,
@@ -67,7 +70,7 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     gap: '_sm',
-    height: 'calc(100dvh - 3rem - 2 * _space.md)',
+    height: `calc(100dvh - ${layoutVars.stickyOffset} - 2 * ${space.md})`,
     minHeight: '28rem',
   },
   toolbar: { display: 'flex', alignItems: 'center', gap: '_md', flexWrap: 'wrap' },
@@ -98,13 +101,8 @@ export default _component(() => {
   let reason = _state('');
   let reasonError = _state('');
 
-  const unit = () => kind === 'unit';
-  const money = (value: Decimal) =>
-    format.number(value, {
-      scale: unit() ? 10_000 : 1,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+  const amount = () => costKinds[kind];
+  const money = (value: Decimal) => format.number(value, amount().format);
 
   /** 各页签的行：当前单位、关键字下 */
   function rowsOf(view: string): Row[] {
@@ -126,10 +124,10 @@ export default _component(() => {
   }
 
   async function approve(task: CostTask) {
-    const amount = latestEstimate(task);
+    const estimate = latestEstimate(task);
     const ok = await confirm({
       title: `认定 ${task.code} 的收益？`,
-      description: `按最新一版测算（V2）锁定测算金额 A：${money(amount)} ${unit() ? '万元' : '美元/FH'}。锁定后不能改，商务谈定后再回填 B。`,
+      description: `按最新一版测算（V2）锁定测算金额 A：${money(estimate)} ${amount().unit}。锁定后不能改，商务谈定后再回填 B。`,
       confirmText: '认定并锁定 A',
     });
     if (!ok) return;
@@ -156,7 +154,7 @@ export default _component(() => {
   const columns = (): DataTableColumn<Row>[] => [
     {
       key: 'code',
-      header: unit() ? '降本项目编码' : '项目编码',
+      header: amount().codeHeader,
       width: 150,
       sticky: 'start',
       sortable: true,
@@ -211,7 +209,7 @@ export default _component(() => {
     },
     {
       key: 'amount',
-      header: `测算金额（${unit() ? '万元' : '美元/FH'}）`,
+      header: `测算金额（${amount().unit}）`,
       width: 140,
       align: 'end',
       sortable: true,
@@ -337,8 +335,11 @@ export default _component(() => {
         <div {...stylex.attrs(styles.page)}>
           <div {...stylex.attrs(styles.toolbar)}>
             <ToggleGroup value={_bind(kind)} aria-label="降本类型" required>
-              <ToggleItem value="unit">单机降本（万元）</ToggleItem>
-              <ToggleItem value="dmc">降 DMC（美元/FH）</ToggleItem>
+              {(['unit', 'dmc'] as const).map((value) => (
+                <ToggleItem key={value} value={value}>
+                  {costKinds[value].label}（{costKinds[value].unit}）
+                </ToggleItem>
+              ))}
             </ToggleGroup>
             <TextField
               value={_bind(keyword)}

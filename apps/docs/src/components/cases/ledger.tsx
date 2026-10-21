@@ -59,15 +59,18 @@ import {
   useFormat,
   type DataTableColumn,
   type DataTableColumnGroup,
+  daysBetween,
   type SortState,
 } from '@vue-tsx-pro/ui';
+import { space } from '@vue-tsx-pro/ui/tokens.stylex';
+import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
 import Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';
 import {
   canClose,
   categories,
+  costKinds,
   completionForms,
-  daysBetween,
   fundingSources,
   isFinished,
   labelOf,
@@ -216,7 +219,7 @@ const styles = stylex.create({
     flexDirection: 'column',
     gap: '_md',
     minWidth: 0,
-    height: 'calc(100dvh - 3rem - 2 * _space.md)',
+    height: `calc(100dvh - ${layoutVars.stickyOffset} - 2 * ${space.md})`,
     minHeight: '32rem',
   },
   list: { display: 'flex', flexDirection: 'column', gap: '_sm', flexGrow: 1, minHeight: 0 },
@@ -351,14 +354,10 @@ export const shortTeam = (team: string) => team.replace('集成团队', '');
 
 /** 台账页的参数 */
 export interface LedgerPageProps {
-  /** 降本类型 */
-  kind: 'unit' | 'dmc';
+  /** 降本类型：决定编码列的表头、金额的单位与格式（costKinds） */
+  kind: CostTask['kind'];
   /** 新建、编辑去的编辑页 */
   editor: CasePage;
-  /** 收益分组的单位 */
-  unit: string;
-  /** 金额的格式 */
-  amountFormat: Intl.NumberFormatOptions & { scale?: number };
   /** 编码、名称之后、收益之前的列（各台账自己的字段） */
   middle: readonly DataTableColumn<CostTask>[];
   /** 收益之后、状态之前的列 */
@@ -371,17 +370,10 @@ export interface LedgerPageProps {
 
 /** 降本项目台账 */
 export const LedgerPage = _component(
-  ({
-    kind,
-    editor,
-    unit,
-    amountFormat,
-    middle,
-    after = [],
-    detailExtra,
-    filters,
-  }: LedgerPageProps) => {
+  ({ kind, editor, middle, after = [], detailExtra, filters }: LedgerPageProps) => {
     const format = useFormat();
+    // 台账的类型是页面写死的配置：取一次
+    const amount = costKinds[_untrack(kind)];
     const route = useCaseQuery();
     const fromLink = (): LedgerQuery => ({
       ...blank(),
@@ -405,7 +397,7 @@ export const LedgerPage = _component(
       value == null ? (
         <Small tone="muted">{empty}</Small>
       ) : (
-        <span {...stylex.attrs(styles.number)}>{format.number(value, amountFormat)}</span>
+        <span {...stylex.attrs(styles.number)}>{format.number(value, amount.format)}</span>
       );
 
     // 编码、名称、操作一直显示，其余的可以隐藏
@@ -472,11 +464,11 @@ export const LedgerPage = _component(
       });
     }
 
-    // 列定义只建一次：台账的类型、各自的列与单位是页面写死的配置，用 _untrack 取一次
+    // 列定义只建一次：各台账自己的列是页面写死的配置，用 _untrack 取一次
     const columns: DataTableColumn<CostTask>[] = [
       {
         key: 'code',
-        header: _untrack(kind) === 'unit' ? '降本项目编码' : '项目编码',
+        header: amount.codeHeader,
         width: 140,
         sticky: 'start',
         sortable: true,
@@ -610,7 +602,7 @@ export const LedgerPage = _component(
     const groups: DataTableColumnGroup[] = [
       {
         key: 'benefit',
-        header: `收益（${_untrack(unit)}）`,
+        header: `收益（${amount.unit}）`,
         columns: ['target', 'a', 'b', 'valueState'],
       },
     ];

@@ -42,7 +42,7 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     code: '项目 01',
-    title: 'C919 飞机平尾翼梢整流罩设计优化',
+    title: '机型 A 平尾翼梢整流罩设计优化',
     category: '设计优化',
     department: '结构设计部',
     year: 2026,
@@ -52,7 +52,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 02',
-    title: 'C919 机身支架工艺优化',
+    title: '机型 A 机身支架工艺优化',
     category: '工艺优化',
     department: '工艺研究所',
     year: 2026,
@@ -64,7 +64,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 03',
-    title: 'C919 舱门密封件多货源',
+    title: '机型 A 舱门密封件多货源',
     category: '多货源',
     department: '采购中心',
     year: 2026,
@@ -76,7 +76,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 04',
-    title: 'C919 客舱地板支撑件设计优化',
+    title: '机型 A 客舱地板支撑件设计优化',
     category: '设计优化',
     department: '结构设计部',
     year: 2026,
@@ -88,7 +88,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 05',
-    title: 'C919 线束支架工艺优化',
+    title: '机型 A 线束支架工艺优化',
     category: '工艺优化',
     department: '工艺研究所',
     year: 2026,
@@ -98,7 +98,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 06',
-    title: 'C919 内饰连接件多货源',
+    title: '机型 A 内饰连接件多货源',
     category: '多货源',
     department: '采购中心',
     year: 2026,
@@ -108,7 +108,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 07',
-    title: 'ARJ21 起落架舱门工艺优化',
+    title: '机型 B 起落架舱门工艺优化',
     category: '工艺优化',
     department: '工艺研究所',
     year: 2025,

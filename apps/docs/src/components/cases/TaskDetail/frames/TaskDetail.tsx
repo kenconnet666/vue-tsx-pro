@@ -47,17 +47,18 @@ import {
   useConfirm,
   useFormat,
   type TimelineItem,
+  daysBetween,
+  shiftIsoDate,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import type { VNodeChild } from 'vue';
 import {
-  addDays,
   advanceTask,
   amountBases,
   canClose,
   categories,
   channels,
-  daysBetween,
+  costKinds,
   fundingSources,
   isFinished,
   labelOf,
@@ -113,7 +114,7 @@ function history(task: CostTask, money: (value: Decimal) => string): TimelineIte
   const firstDone = task.milestones.find((item) => item.done)?.done;
   const items: (TimelineItem & { at: string })[] = [
     {
-      at: addDays(firstDone ?? TODAY, -21),
+      at: shiftIsoDate(firstDone ?? TODAY, { days: -21 }),
       title: '进入任务池',
       description: `${labelOf(channels, task.channel)}（${task.sourceCode}）派单，主办 ${personName(task.owner)}`,
     },
@@ -137,7 +138,7 @@ function history(task: CostTask, money: (value: Decimal) => string): TimelineIte
     });
   if (task.b)
     items.push({
-      at: addDays(confirmed ?? TODAY, 14),
+      at: shiftIsoDate(confirmed ?? TODAY, { days: 14 }),
       title: '商务金额 B 回填',
       description: `B ${money(task.b)}，差额 D ${money(task.b.minus(task.a ?? task.b))}（${task.gapReason ?? '—'}）`,
       tone: 'success',
@@ -253,9 +254,8 @@ export default _component(() => {
     const unit = current.kind === 'unit';
     const ledger: CasePage = unit ? 'UnitLedger' : 'DmcLedger';
     const editor: CasePage = unit ? 'UnitEditor' : 'DmcEditor';
-    const unitLabel = unit ? '万元' : '美元/FH';
-    const money = (value: Decimal) =>
-      `${format.number(value, { scale: unit ? 10_000 : 1, minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${unitLabel}`;
+    const amount = costKinds[current.kind];
+    const money = (value: Decimal) => `${format.number(value, amount.format)} ${amount.unit}`;
     const yuan = (value: Decimal) =>
       format.number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const step = nextStep(current);
@@ -267,7 +267,7 @@ export default _component(() => {
     const gap = current.a && current.b ? current.b.minus(current.a) : null;
 
     const facts: [string, VNodeChild][] = [
-      ['降本类型', unit ? '单机降本' : '降 DMC'],
+      ['降本类型', amount.label],
       ['责任一级团队', current.team],
       ['主办', personName(current.owner)],
       ['联络人', `${personName(current.contact)}（${current.contact}）`],
@@ -292,7 +292,7 @@ export default _component(() => {
           <header {...stylex.attrs(styles.head)}>
             <Breadcrumbs
               items={[
-                { label: unit ? '单机降本台账' : '降 DMC 台账', href: casePath(ledger) },
+                { label: `${amount.label}台账`, href: casePath(ledger) },
                 { label: current.code },
               ]}
             />
@@ -590,7 +590,7 @@ export default _component(() => {
                 variant="outline"
                 header={
                   <div {...stylex.attrs(styles.cardHead)}>
-                    <H2 size="sm">收益（{unitLabel}）</H2>
+                    <H2 size="sm">收益（{amount.unit}）</H2>
                     <Small tone="muted">口径：{labelOf(amountBases, current.basis)}</Small>
                   </div>
                 }
@@ -614,11 +614,7 @@ export default _component(() => {
                             ? current.status === 'unpriced' && label === '测算 A'
                               ? '待定价'
                               : '—'
-                            : format.number(value, {
-                                scale: unit ? 10_000 : 1,
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
+                            : format.number(value, amount.format)}
                         </span>
                       </div>
                     ))}

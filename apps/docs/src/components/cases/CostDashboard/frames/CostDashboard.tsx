@@ -19,6 +19,9 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Card,
   Flex,
+  Grid,
+  gridItemDynamicStyles,
+  gridItemStyles,
   Icon,
   Link,
   Small,
@@ -43,6 +46,7 @@ import Decimal from 'decimal.js';
 import {
   amountBases,
   confirmWorkdaysLeft,
+  costKinds,
   gapReasons,
   ledgerAmount,
   overdueDays,
@@ -56,21 +60,8 @@ import {
 import { focuses, shortTeam } from '../../ledger';
 import { CaseShell, casePath, type CasePage } from '../../shell';
 
-/** 降本类型：各自的单位与格式 */
-const kinds = [
-  {
-    value: 'unit',
-    label: '单机降本',
-    unit: '万元',
-    format: { scale: 10_000, minimumFractionDigits: 2, maximumFractionDigits: 2 },
-  },
-  {
-    value: 'dmc',
-    label: '降 DMC',
-    unit: '美元/FH',
-    format: { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-  },
-] as const;
+/** 降本类型的切换项：各自的单位与格式（costKinds） */
+const kinds = (['unit', 'dmc'] as const).map((value) => ({ value, ...costKinds[value] }));
 
 /** 三桶：互斥，加总等于任务池总数 */
 const buckets = [
@@ -96,17 +87,7 @@ const sum = (rows: readonly CostTask[]) =>
   rows.reduce((total, task) => total.plus(ledgerAmount(task) ?? 0), new Decimal(0));
 
 const styles = stylex.create({
-  // 十二栏：各块按内容分宽，一屏放下
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: '_md' },
-  span2: { gridColumn: 'span 2' },
-  span3: { gridColumn: 'span 3' },
-  span4: { gridColumn: 'span 4' },
-  span5: { gridColumn: 'span 5' },
-  span6: { gridColumn: 'span 6' },
-  span7: { gridColumn: 'span 7' },
-  span12: { gridColumn: 'span 12' },
-  // 需要处理：六项一排，项与项之间一条竖线
-  todo: { display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' },
+  // 需要处理：六项一排（Grid columns=6），项与项之间一条竖线
   todoItem: {
     paddingInline: '_md',
     borderInlineStartWidth: { default: '_xs', ':first-child': 0 },
@@ -274,10 +255,10 @@ export default _component(() => {
           </Tabs>
         }
       >
-        <div {...stylex.attrs(styles.grid)}>
+        <Grid columns={12} gap="md">
           {/* 需要处理：件数在这里，点进去是对应页签里的那几项 */}
-          <Card padding="md" sx={styles.span12} header="需要处理">
-            <div {...stylex.attrs(styles.todo)}>
+          <Card padding="md" sx={gridItemStyles.full} header="需要处理">
+            <Grid columns={6}>
               {todos.map((item) => (
                 <div key={item.label} {...stylex.attrs(styles.todoItem)}>
                   <Stat
@@ -296,11 +277,11 @@ export default _component(() => {
                   />
                 </div>
               ))}
-            </div>
+            </Grid>
           </Card>
 
           {/* 三桶：任务池总数只在这里出现一次 */}
-          <Card padding="md" sx={styles.span6} header="任务池构成">
+          <Card padding="md" sx={gridItemDynamicStyles.span(6)} header="任务池构成">
             <Flex direction="column" gap="md">
               <Flex align="baseline" gap="sm">
                 <span {...stylex.attrs(styles.total)}>{pool.length}</span>
@@ -341,7 +322,12 @@ export default _component(() => {
           {states.map((state) => {
             const rows = pool.filter((task) => task.valueState === state);
             return (
-              <Card key={state} padding="md" sx={styles.span2} header={valueStates.label(state)}>
+              <Card
+                key={state}
+                padding="md"
+                sx={gridItemDynamicStyles.span(2)}
+                header={valueStates.label(state)}
+              >
                 <Stat
                   label={`${rows.length} 项`}
                   value={sum(rows).toNumber()}
@@ -354,7 +340,7 @@ export default _component(() => {
           })}
 
           {/* 进度 × 收益状态：行与台账的页签一致，格子跳到“页签 + 收益状态” */}
-          <Card padding="md" sx={styles.span7} header="进度 × 收益状态（项）">
+          <Card padding="md" sx={gridItemDynamicStyles.span(7)} header="进度 × 收益状态（项）">
             <Table aria-label="进度与收益状态" density="compact" variant="ghost">
               <TableHead>
                 <TableRow>
@@ -429,7 +415,7 @@ export default _component(() => {
           {/* 超时最久的几项：直接去详情推进 */}
           <Card
             padding="md"
-            sx={styles.span5}
+            sx={gridItemDynamicStyles.span(5)}
             header={
               <Flex justify="between" align="center" gap="sm">
                 <span>超时最久的项目</span>
@@ -472,7 +458,7 @@ export default _component(() => {
           </Card>
 
           {/* 各团队的进度分布 */}
-          <Card padding="md" sx={styles.span5} header="责任团队 × 进度（项）">
+          <Card padding="md" sx={gridItemDynamicStyles.span(5)} header="责任团队 × 进度（项）">
             <BarChart
               aria-label="各责任团队在各进度的任务数"
               data={teamRows}
@@ -486,7 +472,11 @@ export default _component(() => {
           </Card>
 
           {/* 差额 D 的归因：用来校准测算模型、分析让利结构 */}
-          <Card padding="md" sx={styles.span3} header={`差额 D 归因（${current().unit}）`}>
+          <Card
+            padding="md"
+            sx={gridItemDynamicStyles.span(3)}
+            header={`差额 D 归因（${current().unit}）`}
+          >
             <DonutChart
               aria-label="差额 D 的归因"
               data={gapRows.filter((row) => !row.amount.isZero())}
@@ -499,7 +489,11 @@ export default _component(() => {
           </Card>
 
           {/* 金额口径三分法：三栏分开，不混总数；点了去一本账（带单位与口径） */}
-          <Card padding="md" sx={styles.span4} header={`金额口径（${current().unit}）`}>
+          <Card
+            padding="md"
+            sx={gridItemDynamicStyles.span(4)}
+            header={`金额口径（${current().unit}）`}
+          >
             <Table aria-label="金额口径" density="compact" variant="ghost">
               <TableHead>
                 <TableRow>
@@ -539,7 +533,7 @@ export default _component(() => {
               </TableBody>
             </Table>
           </Card>
-        </div>
+        </Grid>
       </CaseShell>
     );
   };

@@ -24,6 +24,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   AppShell,
   Avatar,
+  daysBetween,
   Icon,
   IconButton,
   Indicator,
@@ -44,7 +45,7 @@ import { inject, type VNodeChild } from 'vue';
 import { routeLocationKey, routerKey } from 'vue-router';
 import { sidebarPreference } from '../../site/sidebar';
 import { preference } from '../../site/theme';
-import { daysBetween, inbox, myTasks, taskStatuses, TODAY } from './data';
+import { inbox, myTasks, taskStatuses, TODAY } from './data';
 
 /** 已经做好的案例页 */
 export type CasePage =

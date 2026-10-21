@@ -14,7 +14,6 @@ import {
   CheckboxGroup,
   Combobox,
   DatePicker,
-  decimalSchema,
   Flex,
   Form,
   FormSection,
@@ -43,6 +42,7 @@ import * as z from 'zod';
 import {
   categories,
   completionForms,
+  costKinds,
   depts,
   models,
   nextTaskCode,
@@ -56,8 +56,7 @@ import {
   type CostTask,
 } from '../../data';
 import { CaseShell, casePath, useCaseNavigate, useCaseQuery } from '../../shell';
-
-const amount = decimalSchema({ min: 0, scale: 2 }).nullable();
+import { checkSavings, taskFields } from '../../task-form';
 
 const node = z.object({
   form: z.string().min(1, '请选择完成形式'),
@@ -70,41 +69,18 @@ const node = z.object({
 
 const schema = z
   .object({
-    // 基本信息
-    name: z.string().min(1, '请填写项目名称').max(200, '项目名称不超过 200 字'),
-    org: z.string().min(1, '请选择提出单位'),
-    contact: z.string().min(1, '请选择联络人'),
-    team: z.string().min(1, '请选择责任一级团队'),
-    // 降本信息
-    install: z.string().min(1, '请选择必装或选装'),
-    types: z.array(z.string()).min(1, '至少选一种降本类型'),
-    unitSaving: amount,
-    dmcSaving: amount,
-    description: z
-      .string()
-      .min(
-        20,
-        '写明项目更改内容、降本金额来源、材料降本、工时降本，并填三级项目建议书编号或计算方法',
-      ),
+    // 与单机降本共用的基本信息、降本信息、技术与实施、备注
+    ...taskFields,
     // 技术与实施
-    modelNo: z.string().regex(/^$|^\S+ R\d+$/, '按“编号 + 版本”填写，如 C1H02-5513-002 R03'),
     supplierPartNos: z.array(z.string().max(100, '单个件号不超过 100 字')),
     date: z.string().min(1, '请选择完成日期'),
-    flights: z.number().int().min(0, '贯彻架次不能小于 0').nullable(),
-    form: z.string().min(1, '请选择完成形式'),
-    suppliers: z.array(z.string()),
-    plan: z.string(),
     needSb: z.string(),
-    remark: z.string(),
     // 实施节点
     nodes: z.array(node).min(1, '至少一个实施节点'),
   })
   // 条件必填：选了哪种降本类型就要填对应的预期收益；实际完成不能早于计划前一年（多半是填错了年份）
   .superRefine((values, ctx) => {
-    if (values.types.includes('unit') && values.unitSaving == null)
-      ctx.addIssue({ code: 'custom', path: ['unitSaving'], message: '降本类型含单机降本时必填' });
-    if (values.types.includes('dmc') && values.dmcSaving == null)
-      ctx.addIssue({ code: 'custom', path: ['dmcSaving'], message: '降本类型含降 DMC 时必填' });
+    checkSavings(values, ctx);
     values.nodes.forEach((item, index) => {
       if (
         item.done &&
@@ -263,16 +239,18 @@ export default _component(() => {
   const visibleErrors = () =>
     Object.keys(form.errors).filter((path) => form.visibleError(path) != null).length;
 
+  // 实施节点：每行一个稳定的 key，删掉一行时其余行的错误与失焦记录跟着移动
+  const nodes = form.array('nodes');
   /** 加一个节点：责任团队默认跟主表 */
-  function addNode() {
-    form.values.nodes = [
-      ...form.values.nodes,
-      { form: '', due: '', done: '', flights: null, team: form.values.team, needSb: false },
-    ];
-  }
-  function removeNode(index: number) {
-    form.values.nodes = form.values.nodes.filter((_, position) => position !== index);
-  }
+  const addNode = () =>
+    nodes.append({
+      form: '',
+      due: '',
+      done: '',
+      flights: null,
+      team: form.values.team,
+      needSb: false,
+    });
 
   return () => {
     const types = form.values.types;
@@ -358,9 +336,9 @@ export default _component(() => {
                     <NumberField
                       value={_bind(form.values.dmcSaving)}
                       valueType={Decimal}
-                      format={{ minimumFractionDigits: 2 }}
+                      format={costKinds.dmc.format}
                       min={0}
-                      suffix="美元/FH"
+                      suffix={costKinds.dmc.unit}
                     />
                   </form.Field>
                 )}
@@ -369,9 +347,9 @@ export default _component(() => {
                     <NumberField
                       value={_bind(form.values.unitSaving)}
                       valueType={Decimal}
-                      format={{ scale: 10_000, maximumFractionDigits: 2 }}
+                      format={costKinds.unit.format}
                       min={0}
-                      suffix="万元"
+                      suffix={costKinds.unit.unit}
                     />
                   </form.Field>
                 )}
@@ -468,11 +446,11 @@ export default _component(() => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {form.values.nodes.map((item, index) => {
+                        {nodes.items.map((item, index) => {
                           const which = `第 ${index + 1} 个节点的`;
                           const path = `nodes.${index}` as const;
                           return (
-                            <TableRow key={index}>
+                            <TableRow key={nodes.keys[index]}>
                               <TableCell>{index + 1}</TableCell>
                               <TableCell>
                                 <form.Field name={`${path}.form`} labelPlacement="top">
@@ -532,7 +510,7 @@ export default _component(() => {
                                   icon={Trash2}
                                   tone="danger"
                                   aria-label={`删除第 ${index + 1} 个节点`}
-                                  onClick={() => removeNode(index)}
+                                  onClick={() => nodes.remove(index)}
                                 />
                               </TableCell>
                             </TableRow>
