@@ -27,7 +27,9 @@ export interface FlowLink {
 
 /** 节点加上实际的颜色与名字 */
 export interface ResolvedFlowNode extends FlowNode {
+  /** 显示的名字：没写 label 时是 id */
   label: string;
+  /** 实际的颜色：没写 color 时按顺序取的图表色板 */
   color: string;
 }
 

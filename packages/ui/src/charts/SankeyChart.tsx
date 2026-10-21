@@ -23,9 +23,13 @@ import { useSingleChart, type SingleChart } from './single';
 
 /** 节点怎样排：justify 两端对齐（默认），left、right 靠向一侧，center 居中 */
 export interface SankeyAligns {
+  /** 两端对齐（默认）：按离起点的远近分列，没有流出的节点都排到最右一列 */
   justify: unknown;
+  /** 靠左：每个节点排在离起点最近的一列 */
   left: unknown;
+  /** 靠右：每个节点排在离终点最近的一列 */
   right: unknown;
+  /** 居中：同靠左，但没有流入的节点往右挪，贴着它流向的节点 */
   center: unknown;
 }
 
