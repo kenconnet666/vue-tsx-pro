@@ -156,27 +156,28 @@ pnpm -C apps/host-demo exec vitest run --configLoader native --config vitest.bro
 
 ## 7. 踩过的坑
 
-| 现象                                                           | 原因与解决                                                                                                                                                                   |
-| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 改了编译器，测试结果没变                                       | 以前 Vite 配置从 `packages/tsx/dist` 加载预设；现在走源码（`nodeOptions` + `--configLoader native`），直接用 `vitest` 而不经 pnpm 脚本时要自己带上这两项                     |
-| 子组件显示旧内容                                               | 原来 `children` 经 computed 缓存，已改为不缓存的 `childrenProp`（编译器生成）                                                                                                |
-| 覆盖样式不生效（如 `borderColor`）                             | StyleX 里长属性总是优先于简写，要写同一个长属性（`borderBottomColor`）                                                                                                       |
-| `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉（`Features.DirSelector`）                                                                                              |
-| `width: '_lg'` 变成 64rem                                      | 短写按属性找组，`width` 属于 sizes；间距写 `'_space.lg'`                                                                                                                     |
-| 构建报 TS2883（类型无法命名）                                  | 推导出的类型引用了没导出的类型：泛型组件需要的类型（如 `TsxNode`）要从入口导出；StyleX 的样式引用已是具名的 `CompiledStyles`                                                 |
-| StyleX 报 “Referenced constant is not defined”                 | 把导入的样式（如 `focusRingStyles`）直接传给 `stylex.attrs` 会触发编译期求值失败；经 `mergeAttrs({ sx })` 或 `elementProps({ sx })` 传                                       |
-| axe 在暗色主题报对比度不足，背景是 #ffffff                     | 元素溢出到视口外，axe 取不到背景按白色算（亮色主题刚好蒙对）。演示页有“窄屏不横向溢出”的回归测试；容器里的滚动元素外层要 `minWidth: 0`                                       |
-| Firefox / WebKit 里 axe 测试超时                               | Firefox 里个别过渡永远停在 running；等动画结束要设上限，并跳过无限循环的动画（加载指示）                                                                                     |
-| WebKit 里“点击后应有过渡”偶发失败                              | WebKit 不一定在下一帧建好过渡，用 `expect.poll`                                                                                                                              |
-| “ResizeObserver loop completed with undelivered notifications” | 不要在 ResizeObserver 回调里同步改布局；Virtualizer 已改为下一帧应用测量结果                                                                                                 |
-| `docs:check` 没查新文件                                        | 它按 `git ls-files` 取文件，新文件先 `git add`                                                                                                                               |
-| CI 的 `exports:check` 失败，或使用方导入不到新加的工具         | 入口由脚本生成：模块里加、改了导出后运行 `pnpm exports`；报重名时按 COMPONENTS §4 改成全局唯一的名字                                                                         |
-| 改了 tokens 后 CI 的 `css-docs:check` 失败                     | `token-names.ts` 由 `pnpm css-docs` 生成，改了 tokens 要重新生成                                                                                                             |
-| 宽的内容（表格）把 grid / flex 容器撑宽，页面横向溢出          | 网格项、弹性项的最小宽度默认等于内容宽度；表格外层用了 `contain: inline-size`，自己写的宽内容外层加 `minWidth: 0`                                                            |
-| 勾选一行，表格的所有可见行都重渲染                             | 传给 DataTable 的 `rowKey`、`columns` 每次渲染都新建（条件表达式、调用结果编译器不缓存）：在 setup 或模块里定义；直接写成箭头函数的会被编译器缓存                            |
-| 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找（findLast、includes）；用 computed 缓存集合或映射。演示页有“2 秒内挂载完”的测试，table / Listbox 的单元测试有全选、大量展开与已选的性能用例 |
-| WebKit 里点开下拉后方向键无效，焦点在 body 上                  | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件（Select 的触发按钮）在 click 里自己 `focus()`；`focusOrigin` 已经处理了归还焦点的情况                                      |
-| 组件事件名和原生事件冲突（如 `onSelect`）                      | 组件 props 继承了元素属性，自定义回调起不冲突的名字（`onStepChange`）或把原生的放进受管属性                                                                                  |
+| 现象                                                           | 原因与解决                                                                                                                                                                                                |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 改了编译器，测试结果没变                                       | 以前 Vite 配置从 `packages/tsx/dist` 加载预设；现在走源码（`nodeOptions` + `--configLoader native`），直接用 `vitest` 而不经 pnpm 脚本时要自己带上这两项                                                  |
+| 组件库的测试里新加的依赖报 “… is not a function”，页面上没事   | ui 的测试用 `vmForks` 池（快几倍）：VM 上下文里外部化的依赖按 Node 的 import 条件加载，CommonJS 包装的默认导出拿到的是对象。把它连同引到它的包加进 `packages/ui/vitest.config.ts` 的 `server.deps.inline` |
+| 子组件显示旧内容                                               | 原来 `children` 经 computed 缓存，已改为不缓存的 `childrenProp`（编译器生成）                                                                                                                             |
+| 覆盖样式不生效（如 `borderColor`）                             | StyleX 里长属性总是优先于简写，要写同一个长属性（`borderBottomColor`）                                                                                                                                    |
+| `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉（`Features.DirSelector`）                                                                                                                           |
+| `width: '_lg'` 变成 64rem                                      | 短写按属性找组，`width` 属于 sizes；间距写 `'_space.lg'`                                                                                                                                                  |
+| 构建报 TS2883（类型无法命名）                                  | 推导出的类型引用了没导出的类型：泛型组件需要的类型（如 `TsxNode`）要从入口导出；StyleX 的样式引用已是具名的 `CompiledStyles`                                                                              |
+| StyleX 报 “Referenced constant is not defined”                 | 把导入的样式（如 `focusRingStyles`）直接传给 `stylex.attrs` 会触发编译期求值失败；经 `mergeAttrs({ sx })` 或 `elementProps({ sx })` 传                                                                    |
+| axe 在暗色主题报对比度不足，背景是 #ffffff                     | 元素溢出到视口外，axe 取不到背景按白色算（亮色主题刚好蒙对）。演示页有“窄屏不横向溢出”的回归测试；容器里的滚动元素外层要 `minWidth: 0`                                                                    |
+| Firefox / WebKit 里 axe 测试超时                               | Firefox 里个别过渡永远停在 running；等动画结束要设上限，并跳过无限循环的动画（加载指示）                                                                                                                  |
+| WebKit 里“点击后应有过渡”偶发失败                              | WebKit 不一定在下一帧建好过渡，用 `expect.poll`                                                                                                                                                           |
+| “ResizeObserver loop completed with undelivered notifications” | 不要在 ResizeObserver 回调里同步改布局；Virtualizer 已改为下一帧应用测量结果                                                                                                                              |
+| `docs:check` 没查新文件                                        | 它按 `git ls-files` 取文件，新文件先 `git add`                                                                                                                                                            |
+| CI 的 `exports:check` 失败，或使用方导入不到新加的工具         | 入口由脚本生成：模块里加、改了导出后运行 `pnpm exports`；报重名时按 COMPONENTS §4 改成全局唯一的名字                                                                                                      |
+| 改了 tokens 后 CI 的 `css-docs:check` 失败                     | `token-names.ts` 由 `pnpm css-docs` 生成，改了 tokens 要重新生成                                                                                                                                          |
+| 宽的内容（表格）把 grid / flex 容器撑宽，页面横向溢出          | 网格项、弹性项的最小宽度默认等于内容宽度；表格外层用了 `contain: inline-size`，自己写的宽内容外层加 `minWidth: 0`                                                                                         |
+| 勾选一行，表格的所有可见行都重渲染                             | 传给 DataTable 的 `rowKey`、`columns` 每次渲染都新建（条件表达式、调用结果编译器不缓存）：在 setup 或模块里定义；直接写成箭头函数的会被编译器缓存                                                         |
+| 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找（findLast、includes）；用 computed 缓存集合或映射。演示页有“2 秒内挂载完”的测试，table / Listbox 的单元测试有全选、大量展开与已选的性能用例                              |
+| WebKit 里点开下拉后方向键无效，焦点在 body 上                  | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件（Select 的触发按钮）在 click 里自己 `focus()`；`focusOrigin` 已经处理了归还焦点的情况                                                                   |
+| 组件事件名和原生事件冲突（如 `onSelect`）                      | 组件 props 继承了元素属性，自定义回调起不冲突的名字（`onStepChange`）或把原生的放进受管属性                                                                                                               |
 
 ## 8. 下一步
 
