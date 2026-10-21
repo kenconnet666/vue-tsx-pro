@@ -968,6 +968,7 @@ export {
   formatCell,
   headerLayout,
   nextSort,
+  sameStickyOffsets,
   sortRows,
   stickyOffsets,
   sumColumn,

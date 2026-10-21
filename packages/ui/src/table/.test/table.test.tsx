@@ -212,6 +212,34 @@ describe('DataTable', () => {
     expect(root.querySelectorAll('tbody tr[aria-selected="true"]')).toHaveLength(2);
   });
 
+  it('单选：每行是同一组的单选框（同一个 name），选中写回 selected；表头没有全选', async () => {
+    let picked = _state<string[]>(['a']);
+    const root = mount(() => (
+      <DataTable
+        rows={people}
+        columns={columns}
+        getKey={(p) => p.id}
+        selectionMode="single"
+        selected={_bind(picked)}
+        propsSelectRadio={{ class: 'pick' }}
+        aria-label="人员"
+      />
+    ));
+    await flush();
+    expect(root.querySelector('thead input')).toBeNull();
+    expect(root.querySelector('tbody input[type=checkbox]')).toBeNull();
+    const radios = [...root.querySelectorAll<HTMLInputElement>('tbody input[type=radio]')];
+    expect(radios).toHaveLength(3);
+    expect(new Set(radios.map((radio) => radio.name)).size).toBe(1);
+    expect(radios.map((radio) => radio.checked)).toEqual([true, false, false]);
+    expect(radios[1]!.getAttribute('aria-label')).toBe('选择第 2 行');
+    expect(radios[1]!.classList).toContain('pick');
+    radios[2]!.click();
+    await flush();
+    expect(picked).toEqual(['c']);
+    expect(root.querySelectorAll('tbody tr[aria-selected="true"]')).toHaveLength(1);
+  });
+
   it('性能：五万行全选、取消全选各在 1 秒内', async () => {
     // 曾经逐个 includes（O(n²)），五万行全选要好几秒；正常时几十毫秒，给慢的 CI 机器留足余量
     const many = Array.from({ length: 50_000 }, (_, index) => ({

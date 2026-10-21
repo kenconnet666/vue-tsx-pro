@@ -32,6 +32,7 @@ import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { Checkbox, type CheckboxProps } from '../input/Checkbox';
+import { Radio, RadioGroupContext, type RadioProps } from '../input/Radio';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
@@ -46,6 +47,7 @@ import {
   columnValue,
   formatCell,
   headerLayout,
+  sameStickyOffsets,
   stickyOffsets,
   sumColumn,
   tableMinWidth,
@@ -161,8 +163,10 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsSelectCell?: PartProps<'td'>;
   /** 表头的全选框（多选时）的部件属性；勾选状态、不可用与切换由组件管理 */
   propsSelectAll?: Omit<Partial<CheckboxProps>, SelectCheckboxManaged | 'disabled'>;
-  /** 每一行的勾选框的部件属性；勾选状态、切换与名称（选择第 N 行，每行不同）由组件管理 */
+  /** 每一行的勾选框（多选时）的部件属性；勾选状态、切换与名称（选择第 N 行，每行不同）由组件管理 */
   propsSelectCheckbox?: Omit<Partial<CheckboxProps>, SelectCheckboxManaged | 'aria-label'>;
+  /** 每一行的单选框（单选时）的部件属性；选中状态、切换与名称由组件管理 */
+  propsSelectRadio?: Omit<Partial<RadioProps>, 'value' | 'disabled' | 'aria-label'>;
   /** 第一个数据列里 leading 与内容的外层（有 leading 时才有）的部件属性 */
   propsLeading?: PartProps<'div'>;
   /** 第一个数据列里内容的包装（有 leading 时才有）的部件属性 */
@@ -331,6 +335,8 @@ export interface DataTableRowProps<T> {
   propsSelectCell?: PartProps<'td'>;
   /** 勾选框的部件属性 */
   propsSelectCheckbox?: DataTableViewProps<T>['propsSelectCheckbox'];
+  /** 单选框的部件属性 */
+  propsSelectRadio?: DataTableViewProps<T>['propsSelectRadio'];
   /** leading 与内容外层的部件属性 */
   propsLeading?: PartProps<'div'>;
   /** 内容包装的部件属性 */
@@ -372,6 +378,7 @@ export const DataTableRow = _component(
     propsCell,
     propsSelectCell,
     propsSelectCheckbox,
+    propsSelectRadio,
     propsLeading,
     propsContent,
     measure,
@@ -414,19 +421,31 @@ export const DataTableRow = _component(
               propsSelectCell,
             )}
           >
-            <Checkbox
-              {...mergePartProps<CheckboxProps>(
-                // 名称每行不同（选择第 N 行）：类型里不让使用方覆盖
-                { 'aria-label': lang.tableSelectRow(index + 1), sx: dataTableStyles.cellControl },
-                propsSelectCheckbox,
-                {
-                  checked: selected,
-                  indeterminate: false,
-                  disabled: !selectable,
-                  onChange: () => onToggle?.(row.key),
-                },
-              )}
-            />
+            {selectionMode === 'single' ? (
+              // 单选：同一个 name 的原生单选框，选中由 DataTableView 提供的 RadioGroupContext 决定
+              <Radio
+                {...mergePartProps<Partial<RadioProps>>(
+                  { sx: dataTableStyles.cellControl },
+                  propsSelectRadio,
+                  { disabled: !selectable, 'aria-label': lang.tableSelectRow(index + 1) },
+                )}
+                value={row.key}
+              />
+            ) : (
+              <Checkbox
+                {...mergePartProps<CheckboxProps>(
+                  // 名称每行不同（选择第 N 行）：类型里不让使用方覆盖
+                  { 'aria-label': lang.tableSelectRow(index + 1), sx: dataTableStyles.cellControl },
+                  propsSelectCheckbox,
+                  {
+                    checked: selected,
+                    indeterminate: false,
+                    disabled: !selectable,
+                    onChange: () => onToggle?.(row.key),
+                  },
+                )}
+              />
+            )}
           </td>
         )}
         {detailColumn && (
@@ -636,6 +655,7 @@ export const DataTableView = _component(
     propsSelectCell,
     propsSelectAll,
     propsSelectCheckbox,
+    propsSelectRadio,
     propsLeading,
     propsContent,
     propsProgress,
@@ -654,6 +674,21 @@ export const DataTableView = _component(
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
+    // 单选：各行的 Radio 接入这一组（同一个 name，方向键在可见的行之间移动），选中即写回
+    const radioName = useId();
+    RadioGroupContext.provide({
+      get value() {
+        return selectedKeys[0] ?? null;
+      },
+      name: radioName,
+      disabled: false,
+      readonly: false,
+      required: false,
+      invalid: false,
+      size: undefined,
+      tone: 'accent',
+      select: (key) => onToggleRow?.(key),
+    });
     // 遍历全部行：放在派生里，滚动时的重新渲染不必再算一遍；全选只看能勾选的行
     const selectableRows = _derived(
       isRowSelectable ? rows.filter((row) => isRowSelectable(row.data)) : rows,
@@ -802,7 +837,13 @@ export const DataTableView = _component(
     const leadingWidth = () =>
       (selectionMode ? SELECT_WIDTH : 0) + (renderDetail ? DETAIL_WIDTH : 0);
     const bodyRowCount = () => entries?.length ?? rows.length;
-    const offsets = _derived.by(() => stickyOffsets(shown, widthOf, leadingWidth()));
+    // 偏移没变时沿用上一次的对象：它交给每一行，调整非固定列的宽度（每次指针移动）时各行不必重渲染
+    let lastOffsets: StickyOffsets | undefined;
+    const offsets = _derived.by(() => {
+      const next = stickyOffsets(shown, widthOf, leadingWidth());
+      if (lastOffsets && sameStickyOffsets(lastOffsets, next)) return lastOffsets;
+      return (lastOffsets = next);
+    });
     const minWidth = () => tableMinWidth(shown, widthOf, leadingWidth());
 
     /** 一个列标题；rowspan 是没分组的列在两行表头里跨两行，divider 是与分组相邻的竖线 */
@@ -1195,6 +1236,7 @@ export const DataTableView = _component(
                     propsCell={propsCell}
                     propsSelectCell={propsSelectCell}
                     propsSelectCheckbox={propsSelectCheckbox}
+                    propsSelectRadio={propsSelectRadio}
                     propsLeading={propsLeading}
                     propsContent={propsContent}
                     measure={virtual.measure}

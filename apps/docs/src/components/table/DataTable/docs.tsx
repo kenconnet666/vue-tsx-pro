@@ -14,6 +14,7 @@ import Ledger from './demo/Ledger.tsx?demo';
 import Locate from './demo/Locate.tsx?demo';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
+import Pick from './demo/Pick.tsx?demo';
 import Proposals from './demo/Proposals.tsx?demo';
 import States from './demo/States.tsx?demo';
 import { ExampleColumn, Examples } from '../../../site/Examples';
@@ -86,6 +87,11 @@ export default _component(() => () => (
           <Code>loading</Code> 且没有数据时显示骨架行，已有数据（刷新）时表头下方一条进度条，表格带
           aria-busy；没有数据显示 <Code>empty</Code>。<Code>density</Code>、<Code>variant</Code>、
           <Code>striped</Code> 与静态表格相同。
+        </Example>
+        <Example id="single" title="单选：选一家报价" demo={Pick}>
+          <Code>selectionMode="single"</Code> 时每行是同一组的单选框（同一个
+          name）：点击或方向键选中，选中的行带 aria-selected 并整行高亮；没有全选，取消选择用
+          SelectionBar 的清空或把 <Code>selected</Code> 设为空数组。
         </Example>
         <Example id="infinite" title="滚动加载" demo={Infinite}>
           <Code>onRangeChange</Code>{' '}

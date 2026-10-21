@@ -201,6 +201,18 @@ export function stickyOffsets<T>(
   return { start, end, startEdge: [...start.keys()].at(-1), endEdge: [...end.keys()].at(-1) };
 }
 
+/** 两组固定列的偏移是否相同（列与偏移都一样） */
+export function sameStickyOffsets(a: StickyOffsets, b: StickyOffsets): boolean {
+  const sameMap = (x: Map<string, number>, y: Map<string, number>) =>
+    x.size === y.size && [...x].every(([key, offset]) => y.get(key) === offset);
+  return (
+    a.startEdge === b.startEdge &&
+    a.endEdge === b.endEdge &&
+    sameMap(a.start, b.start) &&
+    sameMap(a.end, b.end)
+  );
+}
+
 /** 表格的最小宽度（px）：写了宽度的列按宽度，没写的按 minWidth 或 COLUMN_FLEX_MIN_WIDTH；放不下时横向滚动 */
 export function tableMinWidth<T>(
   columns: readonly DataTableColumn<T>[],

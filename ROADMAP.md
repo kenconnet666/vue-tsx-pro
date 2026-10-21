@@ -91,7 +91,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       ActionBar、Separator、PageHeader 的说明不再写死 token 字号
 - [x] 部件属性补齐：PageHeader 的标题块 / 标题文字 / 标题一行、Progress 的标签行、AppShell 的 header 内容格 / 主体 / 两个滚动区域、
       IconButton 与 IconLinkButton 的内容层、Indicator 的计数、Toaster 的 Collapse
-- [ ] DataTable：单选用单选框；行模型不随 columns 的引用变化重建；调整列宽时只在松手时写回
+- [x] DataTable：单选用单选框（DataTableView 提供 RadioGroupContext，不用包一层元素；文档加“单选”示例）；调整非固定列的宽度时
+      各行不再重渲染（固定列偏移没变就沿用，render-counts 有回归测试）。行模型只在 columns 的引用变了才重算，列定义放在 setup 里即可（HANDOFF 已写）
 - [ ] Toolbar 的漫游焦点不进子弹层；Popover、Menu 不盖使用方的 aria-label；Tooltip 与 Menu 共用触发器的写法
 - [ ] Steps：竖排的连线、状态文字给读屏、每步的 key / href / status
 - [ ] Tree：loading 与 empty、checkStrictly；TreeDataTable 的勾选联动与 manualSort

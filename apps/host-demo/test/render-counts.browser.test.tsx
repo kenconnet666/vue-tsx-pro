@@ -103,6 +103,33 @@ it('表格勾选一行：只更新那一行', async () => {
   expect(counted.get('DataTableRow')).toBe(1);
 });
 
+it('调整非固定列的宽度：表头更新，各行不重渲染', async () => {
+  const rows = Array.from({ length: 200 }, (_, i) => ({ id: `r${i}`, name: `客户 ${i}` }));
+  const columns: DataTableColumn<(typeof rows)[number]>[] = [
+    { key: 'id', header: '编号', width: 100, sticky: 'start' },
+    { key: 'name', header: '客户', width: 200 },
+  ];
+  let resize = () => {};
+  mount(
+    _component(() => {
+      let widths = _state<Record<string, number>>({});
+      resize = () => (widths = { ...widths, name: (widths.name ?? 200) + 8 });
+      return () => (
+        <DataTable
+          rows={rows}
+          columns={columns}
+          getKey={(row) => row.id}
+          resizable
+          columnWidths={_bind(widths)}
+          aria-label="客户"
+        />
+      );
+    }),
+  );
+  const counted = await during(() => resize());
+  expect(counted.get('DataTableRow') ?? 0).toBe(0);
+});
+
 it('Listbox 移动高亮：只重建前后两个选项', async () => {
   const options: ListboxOption[] = Array.from({ length: 1000 }, (_, i) => ({
     value: `v${i}`,
