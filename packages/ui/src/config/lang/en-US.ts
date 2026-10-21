@@ -93,6 +93,7 @@ export const enUS: Lang = {
   previousPage: 'Previous page',
   nextPage: 'Next page',
   pageLabel: (page) => `Page ${page}`,
+  treeEmpty: 'No data',
   breadcrumbs: 'Breadcrumb',
   breadcrumbsExpand: 'Show hidden levels',
   stepState: (state) =>

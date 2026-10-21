@@ -74,7 +74,10 @@ export default _component(() => () => (
         </Example>
         <Example id="tree" title="组织架构" demo={Org}>
           TreeDataTable 建在 DataTable
-          上，列定义、排序、勾选都一样；第一列带缩进与展开按钮，同级之间按排序排。
+          上，列定义、排序、勾选都一样；第一列带缩进与展开按钮，同级之间按排序排（
+          <Code>manualSort</Code>{' '}
+          时按数据的顺序）。多选默认父子联动：勾父行连带子孙，只勾一部分时父行半选；
+          <Code>checkStrictly</Code> 时各自勾选。
           <Code>
             loadChildren
           </Code> 懒加载：展开时取回子项放进数据，期间按钮显示加载中。数字列的 <Code>format</Code>{' '}

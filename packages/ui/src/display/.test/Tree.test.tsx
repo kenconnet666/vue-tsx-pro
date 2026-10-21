@@ -151,6 +151,50 @@ describe('Tree', () => {
     expect(items(root)[0]!.getAttribute('aria-checked')).toBe('mixed');
   });
 
+  it('checkStrictly：父子不联动，每个节点各自勾选、没有半选', async () => {
+    let checked = _state<string[]>([]);
+    const root = mount(() => (
+      <Tree
+        items={data}
+        getKey={(node) => node.id}
+        getLabel={(node) => node.name}
+        getChildren={(node) => node.children}
+        expanded={['src']}
+        checkable
+        checkStrictly
+        checked={_bind(checked)}
+        aria-label="文件"
+      />
+    ));
+    await flush();
+    const tree = root.querySelector<HTMLElement>('[role="tree"]')!;
+    tree.dispatchEvent(new FocusEvent('focus'));
+    key(tree, ' ');
+    await flush();
+    expect(checked).toEqual(['src']);
+    key(tree, 'ArrowDown');
+    key(tree, ' ');
+    await flush();
+    expect(checked).toEqual(['src', 'main']);
+    // src、main 勾上；app 不跟着父节点，src 也不因为只勾了 main 而半选
+    expect(items(root).map((item) => item.getAttribute('aria-checked'))).toEqual([
+      'true',
+      'true',
+      'false',
+      'false',
+    ]);
+  });
+
+  it('没有节点时：loading 显示骨架、带 aria-busy；否则显示空状态（可以换成 empty）', async () => {
+    const loading = renderTree({ items: [], loading: true });
+    expect(loading.tree.getAttribute('aria-busy')).toBe('true');
+    const empty = renderTree({ items: [] });
+    expect(empty.tree.textContent).toContain('暂无数据');
+    expect(empty.tree.hasAttribute('aria-busy')).toBe(false);
+    const custom = renderTree({ items: [], empty: <span class="none">没有文件</span> });
+    expect(custom.tree.querySelector('.none')!.textContent).toBe('没有文件');
+  });
+
   it('懒加载：展开还没有子节点的节点时调用 loadChildren，加载中带 aria-busy', async () => {
     let resolve!: () => void;
     const lazy: Node[] = [{ id: 'remote', name: 'remote', lazy: true }];

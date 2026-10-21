@@ -31,14 +31,17 @@ export default _component(() => () => (
         <Example id="checkable" title="勾选" demo={Checkable}>
           <Code>checkable</Code>{' '}
           时每项前有勾选框：勾上父节点会勾上全部子孙，子节点全勾上时父节点也勾上，只勾一部分时父节点半选（读屏念“部分选中”）。
-          <Code>checked</Code> 里是全部勾上的节点。
+          <Code>checked</Code> 里是全部勾上的节点。权限树里“只给这一级”时写{' '}
+          <Code>checkStrictly</Code>：父子不联动，各自勾选。
         </Example>
         <Example id="lazy" title="按需加载、不可用与自定义内容" demo={Lazy}>
           <Code>hasChildren</Code> 说节点有子节点（还没取回来也能展开），展开时调用{' '}
           <Code>loadChildren</Code>，返回 Promise 期间显示加载指示；取回后放进数据。
           <Code>isDisabled</Code> 的节点可以经过、展开，不能选中；<Code>getIcon</Code>{' '}
           按节点（和展开状态）换图标，
-          <Code>renderItem</Code> 自定义文字部分，<Code>indent</Code> 改每层的缩进（em）。
+          <Code>renderItem</Code> 自定义文字部分，<Code>indent</Code>{' '}
+          改每层的缩进（em）。整棵树还没取回来时写 <Code>loading</Code>（骨架行），没有节点时显示{' '}
+          <Code>empty</Code>（默认“暂无数据”）。
         </Example>
       </ExampleColumn>
     </Examples>

@@ -25,7 +25,14 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
-import { flattenTree, useTreeExpansion, type TreeAccessors } from '../utils/data/tree';
+import {
+  checkStates,
+  flattenTree,
+  indexTree,
+  toggleChecked,
+  useTreeExpansion,
+  type TreeAccessors,
+} from '../utils/data/tree';
 import { mergePartProps, mergeProps } from '../utils/props';
 import { columnValue, sortRows, type SortState } from './columns';
 import { DataTable, type DataTableProps } from './DataTable';
@@ -33,7 +40,7 @@ import type { DataTableRowModel } from './DataTableView';
 import { disclosureStyles } from '../utils/style/transitions';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
-export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSort' | 'leading'> {
+export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'> {
   /** 第一层的行 */
   rows: readonly T[];
   /** 一行的子项；没有子项（叶子）或还没加载时返回 undefined / 空数组 */
@@ -48,6 +55,8 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'manualSo
   expanded?: string[];
   /** 每一层缩进多少（em），默认 1.25 */
   indent?: number;
+  /** 多选时勾选父子不联动：每一行各自勾选；默认联动（勾上父行连带子孙，子行全勾上时父行也勾上，只勾一部分时父行半选） */
+  checkStrictly?: boolean;
   /** 展开按钮的部件属性；加载中、展开状态与点击由组件管理 */
   propsToggle?: Omit<Partial<IconButtonProps>, 'loading' | 'aria-expanded' | 'onClick'>;
 }
@@ -78,8 +87,10 @@ export const TreeDataTable = _component(
     onLoadError,
     expanded = _bindable<string[]>([]),
     indent = 1.25,
+    checkStrictly = false,
     propsToggle,
     sort = _bindable<SortState | null>(null),
+    manualSort = false,
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
     ...rest
@@ -95,12 +106,41 @@ export const TreeDataTable = _component(
       onLoadError: _untrack(onLoadError) && ((error, row) => onLoadError?.(error, row)),
     });
 
-    /** 按展开状态深度优先展开成一列；同级之间按当前排序 */
+    /** 按展开状态深度优先展开成一列；同级之间按当前排序（manualSort 时按数据里的顺序） */
     const flat = _derived.by(() =>
       flattenTree(rows, accessors(), new Set(expanded), (level) =>
-        sortRows(level, columns, sort, lang.code),
+        manualSort ? level : sortRows(level, columns, sort, lang.code),
       ),
     );
+
+    // 多选联动：整棵树的索引（含折叠着的行），勾选状态按它推出；交给 DataTable 的是实际勾上的行与半选的父行
+    const index = _derived.by(() =>
+      rest.selectionMode === 'multiple' && !checkStrictly ? indexTree(rows, accessors()) : null,
+    );
+    const states = _derived.by(() => (index ? checkStates(index, selected) : null));
+    const checkedKeys = _derived.by(() =>
+      states ? [...states].flatMap(([key, state]) => (state === 'checked' ? [key] : [])) : selected,
+    );
+    const partialKeys = _derived.by(() =>
+      states
+        ? [...states].flatMap(([key, state]) => (state === 'indeterminate' ? [key] : []))
+        : undefined,
+    );
+
+    /** DataTable 写回的勾选：只变了一行时按它联动子孙与祖先；全选、取消全选原样写回 */
+    function writeSelected(next: string[]) {
+      if (!index) {
+        selected = next;
+        return;
+      }
+      const before = new Set(checkedKeys);
+      const after = new Set(next);
+      const changed = [
+        ...next.filter((key) => !before.has(key)),
+        ...checkedKeys.filter((key) => !after.has(key)),
+      ];
+      selected = changed.length === 1 ? toggleChecked(index, checkedKeys, changed[0]!) : next;
+    }
     const byKey = _derived.by(() => new Map(flat.map((item) => [item.key, item])));
     // 交给 DataTable 的行与取 key 的函数要保持同一个引用：每次渲染都新建的话，DataTable 会重排全部行
     const nodes = _derived(flat.map((item) => item.node));
@@ -154,7 +194,8 @@ export const TreeDataTable = _component(
         columns={columns}
         manualSort
         sort={_bind(sort)}
-        selected={_bind(selected)}
+        selected={_bind(() => checkedKeys as string[], writeSelected)}
+        partialKeys={partialKeys}
         columnWidths={_bind(columnWidths)}
         leading={leading}
       />

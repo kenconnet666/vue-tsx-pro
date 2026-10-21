@@ -215,6 +215,8 @@ export interface Lang {
   readonly nextPage: string;
   /** 页码按钮的名称，默认“第 n 页” */
   readonly pageLabel: (page: number) => string;
+  /** 树没有节点时的提示，默认“暂无数据” */
+  readonly treeEmpty: string;
   /** 面包屑导航的无障碍名称，默认“面包屑” */
   readonly breadcrumbs: string;
   /** 面包屑折叠按钮（打开被折叠各级的菜单）的名称，默认“显示被折叠的路径” */

@@ -91,6 +91,7 @@ export const zhCN: Lang = {
   previousPage: '上一页',
   nextPage: '下一页',
   pageLabel: (page) => `第 ${page} 页`,
+  treeEmpty: '暂无数据',
   breadcrumbs: '面包屑',
   breadcrumbsExpand: '显示被折叠的路径',
   stepState: (state) => `（${{ complete: '已完成', upcoming: '未开始', error: '出错' }[state]}）`,

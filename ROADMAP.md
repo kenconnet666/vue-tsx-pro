@@ -97,7 +97,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       （`defaultLabelledBy`，与 Field 的控件共用）；同一按钮套 Tooltip 与 Menu 用 `mergeProps` 合并触发器属性（文档示例）
 - [x] Steps：current 可绑定、`navigable` 点回已完成的步骤（替代 onStepChange）；每步的 `status`（替代 error）与 `href`（已完成的是链接）；
       竖排有连接线；已完成、未开始、出错有读屏文字（`lang.stepState`）
-- [ ] Tree：loading 与 empty、checkStrictly；TreeDataTable 的勾选联动与 manualSort
+- [x] Tree：loading（骨架行、aria-busy）与 empty、checkStrictly；TreeDataTable 多选默认父子联动（父行半选，DataTableView 加 `partialKeys`）、
+      checkStrictly 与 manualSort
 - [ ] 日期：字符串的 min / max 带时间时日历也禁用；分段输入重置时清掉半截；年份输完再写回；Enter 提交表单
 - [ ] TagsInput 失焦时保留文字（acceptOnBlur）；Upload / FileDrop 读 Field 的只读与不可用；Label 点击聚焦组控件
 - [ ] Toast：只给显示出来的计时；important（role="alert"）；Progress 的不确定动画跟随从右到左

@@ -30,6 +30,11 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
+import { useLang } from '../config/context';
+import { Empty, type EmptyProps } from '../feedback/Empty';
+import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
+import { useDelayedLoading } from '../utils/motion/delayed-loading';
+import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { checkboxStyles } from '../input/Checkbox';
 import { choiceStyles } from '../input/choice-styles';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
@@ -92,10 +97,16 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   selectionMode?: keyof SelectionModes;
   /** 选中的节点：父级写 selected={_bind(keys)} */
   selected?: string[];
-  /** 每项前显示勾选框，父子联动 */
+  /** 每项前显示勾选框，默认父子联动 */
   checkable?: boolean;
-  /** 勾上的节点（含联动勾上的父节点与子孙）：父级写 checked={_bind(keys)} */
+  /** 勾选父子不联动：每个节点各自勾选（权限树里“只给这一级”） */
+  checkStrictly?: boolean;
+  /** 勾上的节点（联动时含勾上的父节点与子孙）：父级写 checked={_bind(keys)} */
   checked?: string[];
+  /** 正在取节点：还没有节点时显示骨架行，树带 aria-busy */
+  loading?: boolean;
+  /** 没有节点时显示的内容；默认是 Empty（文案取语言包） */
+  empty?: VNodeChild;
   /** 每一层缩进多少（em），默认 1.25 */
   indent?: number;
   /** 每项的估计高度（px），默认 32；渲染后以实际高度为准 */
@@ -113,6 +124,10 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   propsCheckbox?: PartProps<'span', 'aria-hidden'>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
+  /** 默认空状态（Empty）的部件属性 */
+  propsEmpty?: Partial<EmptyProps>;
+  /** 加载中的骨架行的部件属性 */
+  propsSkeleton?: SkeletonShapeProps;
   /** 外层滚动区域（ScrollArea）的部件属性：放进弹出层、弹性布局时给它 sx；树元素本身是它的视口 */
   propsScrollArea?: Partial<Omit<ScrollAreaProps, 'propsViewport'>>;
 }
@@ -127,6 +142,7 @@ export const treeStyles = stylex.create({
     outlineStyle: 'none',
   },
   sizer: { position: 'relative', width: '_full' },
+  skeleton: { display: 'block', height: '1em', marginBlock: '0.625em', marginInline: '_sm' },
   row: { position: 'absolute', top: 0, insetInline: 0, paddingBlock: '1px' },
   item: { gap: '_xs', minHeight: '_sizes.minTarget', paddingInlineStart: '_xs' },
   toggle: {
@@ -149,7 +165,11 @@ export const treeDynamicStyles = stylex.create({
   indent: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),
+  width: (value: string) => ({ width: value }),
 });
+
+/** 加载中显示几行骨架 */
+const SKELETON_ROWS = 4;
 
 const ARIA_CHECKED: Record<CheckState, 'true' | 'false' | 'mixed'> = {
   checked: 'true',
@@ -173,7 +193,10 @@ export const Tree = _component(
     selectionMode,
     selected = _bindable<string[]>([]),
     checkable = false,
+    checkStrictly = false,
     checked = _bindable<string[]>([]),
+    loading = false,
+    empty,
     indent = 1.25,
     estimateSize = 32,
     renderItem,
@@ -182,10 +205,15 @@ export const Tree = _component(
     propsToggle,
     propsCheckbox,
     propsLabel,
+    propsEmpty,
+    propsSkeleton,
     propsScrollArea,
     id,
     ...rest
   }: TreeProps<T>) => {
+    const lang = useLang();
+    // 骨架防闪烁：很快就取回来时不显示；aria-busy 按真实的 loading
+    const indicator = useDelayedLoading(() => loading);
     const generatedId = useId();
     const prefix = () => id ?? generatedId;
     let root = _state.raw<HTMLElement | null>(null);
@@ -211,9 +239,12 @@ export const Tree = _component(
 
     const rows = _derived.by(() => flattenTree(items, accessors(), new Set(expanded)));
     const rowOf = _derived.by(() => new Map(rows.map((row, index) => [row.key, index])));
-    // 勾选联动要看到折叠着的节点：只在 checkable 时建整棵树的索引
-    const index = _derived.by(() => (checkable ? indexTree(items, accessors()) : null));
+    // 勾选联动要看到折叠着的节点：只在联动勾选时建整棵树的索引
+    const index = _derived.by(() =>
+      checkable && !checkStrictly ? indexTree(items, accessors()) : null,
+    );
     const states = _derived.by(() => (index ? checkStates(index, checked) : null));
+    const checkedSet = _derived.by(() => new Set(checked));
     const selectedSet = _derived.by(() => new Set(selected));
 
     /** 当前项的行号；没有时 -1 */
@@ -276,8 +307,10 @@ export const Tree = _component(
 
     function check(position: number) {
       const row = rows[position];
-      if (!row || !index || disabledAt(position)) return;
-      checked = toggleChecked(index, checked, row.key);
+      if (!row || !checkable || disabledAt(position)) return;
+      checked = index
+        ? toggleChecked(index, checked, row.key)
+        : [...toggleSelection(checked, row.key, { mode: 'multiple' })];
     }
 
     function toggle(position: number) {
@@ -352,7 +385,11 @@ export const Tree = _component(
         depth: row.depth,
         expanded: open,
         selected: selectedSet.has(row.key),
-        checked: states?.get(row.key) ?? 'unchecked',
+        checked: states
+          ? (states.get(row.key) ?? 'unchecked')
+          : checkedSet.has(row.key)
+            ? 'checked'
+            : 'unchecked',
         active: active === row.key,
       };
       const own = typeof propsItem === 'function' ? propsItem(row.node, state) : propsItem;
@@ -465,6 +502,35 @@ export const Tree = _component(
       );
     }
 
+    /** 没有节点时：加载中是几行骨架，否则是空状态 */
+    function renderPlaceholder() {
+      if (loading) {
+        if (!indicator.value) return null;
+        return Array.from({ length: SKELETON_ROWS }, (_, row) => (
+          <Skeleton
+            key={row}
+            {...mergePartProps<SkeletonProps>(
+              {
+                sx: [treeStyles.skeleton, treeDynamicStyles.width(`${85 - row * 15}%`)],
+                delay: row * SHIMMER_STAGGER,
+              },
+              propsSkeleton,
+            )}
+          />
+        ));
+      }
+      return (
+        empty ?? (
+          <Empty
+            {...mergePartProps<EmptyProps>(
+              { size: 'sm', icon: false, description: lang.treeEmpty },
+              propsEmpty,
+            )}
+          />
+        )
+      );
+    }
+
     return () => {
       const position = activeRow();
       return (
@@ -479,12 +545,14 @@ export const Tree = _component(
               tabindex: rows.length > 0 ? 0 : -1,
               'aria-multiselectable': selectionMode === 'multiple' || undefined,
               'aria-activedescendant': position >= 0 ? `${prefix()}-${position}` : undefined,
+              'aria-busy': loading || undefined,
               onFocus,
               onBlur: () => (focused = false),
               onKeydown,
             }) as PartProps<'div'>
           }
         >
+          {rows.length === 0 && renderPlaceholder()}
           <div
             ref={_toRef(sizer)}
             role="presentation"

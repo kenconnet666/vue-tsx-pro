@@ -93,6 +93,8 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   selectionMode?: keyof SelectionModes;
   /** 已选行的 key */
   selectedKeys?: readonly string[];
+  /** 部分勾选的行的 key（树形表格的父行：子孙只勾了一部分）：勾选框显示横线，读屏念“部分选中” */
+  partialKeys?: readonly string[];
   /** 勾选或取消一行 */
   onToggleRow?: (key: string) => void;
   /** 表头的全选：全部选中时取消全部，否则全选 */
@@ -291,6 +293,8 @@ export interface DataTableRowProps<T> {
   index: number;
   /** 是否已选 */
   selected: boolean;
+  /** 部分勾选（树形表格的父行） */
+  partial?: boolean;
   /** 能不能勾选，默认 true */
   selectable?: boolean;
   /** 整行的色调 */
@@ -356,6 +360,7 @@ export const DataTableRow = _component(
     row,
     index,
     selected,
+    partial = false,
     selectable = true,
     tone,
     selectionMode,
@@ -439,7 +444,7 @@ export const DataTableRow = _component(
                   propsSelectCheckbox,
                   {
                     checked: selected,
-                    indeterminate: false,
+                    indeterminate: partial,
                     disabled: !selectable,
                     onChange: () => onToggle?.(row.key),
                   },
@@ -616,6 +621,7 @@ export const DataTableView = _component(
     onSortClick,
     selectionMode,
     selectedKeys = [],
+    partialKeys,
     onToggleRow,
     onToggleAll,
     widths,
@@ -674,6 +680,7 @@ export const DataTableView = _component(
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
+    const partialSet = _derived.by(() => new Set(partialKeys));
     // 单选：各行的 Radio 接入这一组（同一个 name，方向键在可见的行之间移动），选中即写回
     const radioName = useId();
     RadioGroupContext.provide({
@@ -1222,6 +1229,7 @@ export const DataTableView = _component(
                     propsDetailToggle={propsDetailToggle}
                     onToggleDetail={onToggleDetail}
                     selected={selectionMode != null && selectedSet.has(row.key)}
+                    partial={partialSet.has(row.key)}
                     selectable={isRowSelectable ? isRowSelectable(row.data) : true}
                     tone={rowTone?.(row.data)}
                     selectionMode={selectionMode}

@@ -688,6 +688,75 @@ describe('TreeDataTable', () => {
     expect(toggle.querySelector('svg')!.getAttribute('class')).not.toBe(closedClass);
   });
 
+  it('多选默认父子联动：勾父行连带子孙，只勾一个子行时父行半选；checkStrictly 时各自勾选', async () => {
+    let picked = _state<string[]>([]);
+    let strict = _state<string[]>([]);
+    const root = mount(() => (
+      <>
+        <TreeDataTable
+          class="linked"
+          rows={tree}
+          columns={columns}
+          getKey={(p) => p.id}
+          getChildren={(p) => p.children}
+          expanded={['dept']}
+          selectionMode="multiple"
+          selected={_bind(picked)}
+          aria-label="联动"
+        />
+        <TreeDataTable
+          class="strict"
+          rows={tree}
+          columns={columns}
+          getKey={(p) => p.id}
+          getChildren={(p) => p.children}
+          expanded={['dept']}
+          selectionMode="multiple"
+          checkStrictly
+          selected={_bind(strict)}
+          aria-label="各自"
+        />
+      </>
+    ));
+    await flush();
+    const boxes = (table: string) => [
+      ...root.querySelectorAll<HTMLInputElement>(`.${table} tbody input[type=checkbox]`),
+    ];
+    // 行的顺序：研发部、小王、小李、市场部（不排序时按数据）
+    boxes('linked')[0]!.click();
+    await flush();
+    expect([...picked].sort()).toEqual(['dept', 'x', 'y']);
+    boxes('linked')[1]!.click();
+    await flush();
+    expect(picked).toEqual(['y']);
+    expect(boxes('linked')[0]!.indeterminate).toBe(true);
+    boxes('strict')[0]!.click();
+    await flush();
+    expect(strict).toEqual(['dept']);
+    expect(boxes('strict')[1]!.checked).toBe(false);
+  });
+
+  it('manualSort：同级之间不在本地排序，只写回 sort', async () => {
+    let sort = _state<SortState | null>({ key: 'age', direction: 'ascending' });
+    const root = mount(() => (
+      <TreeDataTable
+        rows={tree}
+        columns={columns}
+        getKey={(p) => p.id}
+        getChildren={(p) => p.children}
+        expanded={['dept']}
+        manualSort
+        sort={_bind(sort)}
+        aria-label="组织"
+      />
+    ));
+    await flush();
+    const names = [...root.querySelectorAll('tbody tr[aria-rowindex] td:first-child')].map(
+      (td) => td.textContent,
+    );
+    expect(names).toEqual(['研发部', '小王', '小李', '市场部']);
+  });
+
   it('性能：两万个展开的节点挂载在 1 秒内', async () => {
     // 展开时曾经对每个节点在 expanded 里逐个 includes（O(n²)）
     const parents: Person[] = Array.from({ length: 20_000 }, (_, index) => ({
