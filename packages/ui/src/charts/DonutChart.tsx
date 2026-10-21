@@ -7,23 +7,17 @@
  * 颜色默认按顺序取图表色板（itemColor 可以按行给）；值可以是 number、bigint、Decimal，提示框与数据表按原值显示。
  * 图例、单位、加载与空状态、给读屏的数据表（类目、数值、占比）同其他图表（见 ChartFrame）。
  */
-import { Donut, SingleContainer, Tooltip } from '@unovis/ts';
+import { Donut } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { render, useId, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
-import {
-  ChartFrame,
-  chartDuration,
-  chartTooltip,
-  createChartInstances,
-  uniqueHighlightFilter,
-  type ChartFrameParts,
-} from './frame';
+import { ChartFrame, chartTooltip, type ChartFrameParts } from './frame';
+import { useSingleChart, type SingleChart } from './single';
 import { resolveColor, seriesValue, type ChartColor, type NumericKey } from './series';
 
 /** 未声明的属性落到外层 div（role="figure"）上，aria-label 是图表的名称 */
@@ -117,7 +111,6 @@ export const DonutChart = _component(
   }: DonutChartProps<T>) => {
     const lang = useLang();
     const format = useFormat();
-    const id = useId();
 
     // 颜色按原来的顺序定：隐藏一项时其余扇区不换色
     const slices = _derived.by((): Slice<T>[] => {
@@ -149,68 +142,48 @@ export const DonutChart = _component(
         : [...hiddenItems, name];
     }
 
-    const instances = createChartInstances();
-    let tooltipElement: HTMLElement | undefined;
-    function renderTooltip(slice: Slice<T>) {
-      tooltipElement ??= document.createElement('div');
-      render(
-        chartTooltip(slice.name, [
-          { label: lang.chartValue, color: slice.color, value: valueText(slice.value) },
-          { label: lang.chartShare, color: 'transparent', value: shareText(slice.value) },
-        ]),
-        tooltipElement,
-      );
-      return tooltipElement;
-    }
-
     let plot = _state.raw<HTMLElement | null>(null);
-    let container: SingleContainer<Slice<T>[]> | undefined;
-    let containerElement: HTMLElement | undefined;
-    _effect(() => () => {
-      container?.destroy();
-      if (tooltipElement) render(null, tooltipElement);
-    });
-    _effect(() => {
-      const shown = [...visible];
-      const element = plot;
-      if (!element || loading || data.length === 0) return;
-      if (container && containerElement !== element) {
-        container.destroy();
-        container = undefined;
-        instances.reset();
-      }
-      const donut = instances.get('donut', () => new Donut<Slice<T>>({ value: () => 0 }));
-      donut.setConfig({
-        value: (slice) => (slice.value === undefined ? 0 : toNumber(slice.value)),
-        id: (slice) => slice.name,
-        color: (slice) => slice.color,
-        arcWidth,
-        padAngle: arcWidth > 0 ? 0.01 : 0,
-        cornerRadius: arcWidth > 0 ? 3 : 0,
-        centralLabel:
-          centerLabel === false ? undefined : (centerLabel ?? format.number(total, valueFormat)),
-        centralSubLabel: centerLabel === false ? undefined : (centerSubLabel ?? lang.chartTotal),
-        showBackground: true,
-      });
-      const tooltipBox = instances.get('tooltip', () => new Tooltip());
-      tooltipBox.setConfig({
-        triggers: {
-          [Donut.selectors.segment]: (arc: { data: Slice<T> }) => renderTooltip(arc.data),
-        },
-      });
-      const config = {
-        component: donut,
-        tooltip: tooltip ? tooltipBox : undefined,
-        ariaLabel: null,
-        duration: chartDuration(element),
-      };
-      if (container) container.update(config, undefined, shown);
-      else {
-        container = new SingleContainer<Slice<T>[]>(element, config, shown);
-        containerElement = element;
-        uniqueHighlightFilter(element, `${id}-highlight`);
-      }
-    });
+    const chart: SingleChart = useSingleChart<Slice<T>[]>(() => ({
+      element: plot,
+      ready: !loading && data.length > 0,
+      tooltip,
+      build: (instance) => {
+        const donut = instance('donut', () => new Donut<Slice<T>>({ value: () => 0 }));
+        donut.setConfig({
+          value: (slice) => (slice.value === undefined ? 0 : toNumber(slice.value)),
+          id: (slice) => slice.name,
+          color: (slice) => slice.color,
+          arcWidth,
+          padAngle: arcWidth > 0 ? 0.01 : 0,
+          cornerRadius: arcWidth > 0 ? 3 : 0,
+          centralLabel:
+            centerLabel === false ? undefined : (centerLabel ?? format.number(total, valueFormat)),
+          centralSubLabel: centerLabel === false ? undefined : (centerSubLabel ?? lang.chartTotal),
+          showBackground: true,
+        });
+        return {
+          component: donut,
+          data: [...visible],
+          triggers: {
+            [Donut.selectors.segment]: (arc: { data: Slice<T> }) =>
+              chart.tooltip(
+                chartTooltip(arc.data.name, [
+                  {
+                    label: lang.chartValue,
+                    color: arc.data.color,
+                    value: valueText(arc.data.value),
+                  },
+                  {
+                    label: lang.chartShare,
+                    color: 'transparent',
+                    value: shareText(arc.data.value),
+                  },
+                ]),
+              ),
+          },
+        };
+      },
+    }));
 
     return () => (
       <ChartFrame

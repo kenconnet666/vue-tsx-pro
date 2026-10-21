@@ -7,7 +7,9 @@
  */
 export { AreaChart, type AreaChartProps } from './AreaChart';
 export { BarChart, type BarChartProps } from './BarChart';
+export { ChordChart, chordChartStyles, type ChordChartProps } from './ChordChart';
 export { DonutChart, donutChartStyles, type DonutChartProps } from './DonutChart';
+export { type FlowLink, type FlowNode } from './flow';
 export { chartStyles, type ChartFrameParts, type ChartLegendItem } from './frame';
 export {
   CURVES,
@@ -16,6 +18,12 @@ export {
   type LineCurves,
   type LineDots,
 } from './LineChart';
+export {
+  SankeyChart,
+  sankeyChartStyles,
+  type SankeyAligns,
+  type SankeyChartProps,
+} from './SankeyChart';
 export { ScatterChart, type ScatterChartProps } from './ScatterChart';
 export {
   resolveColor,

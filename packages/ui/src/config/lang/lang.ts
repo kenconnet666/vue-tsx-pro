@@ -110,6 +110,10 @@ export interface Lang {
   readonly chartShare: string;
   /** 环形图中间总数下面的说明，默认“合计” */
   readonly chartTotal: string;
+  /** 桑基图、弦图数据表里“流向”一列，默认“流向” */
+  readonly chartFlow: string;
+  /** 一条流向的写法：`('官网', '注册')` → “官网 → 注册” */
+  readonly chartFlowLabel: (source: string, target: string) => string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
   /** 选择文件区域的提示，默认“点击或拖放文件到这里” */

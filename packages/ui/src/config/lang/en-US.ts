@@ -39,6 +39,8 @@ export const enUS: Lang = {
   chartValue: 'Value',
   chartShare: 'Share',
   chartTotal: 'Total',
+  chartFlow: 'Flow',
+  chartFlowLabel: (source, target) => `${source} → ${target}`,
   treeToggle: (row) => `Children of ${row}`,
   fileDrop: 'Click or drop files here',
   fileTooLarge: (max) => `File must be at most ${max}`,

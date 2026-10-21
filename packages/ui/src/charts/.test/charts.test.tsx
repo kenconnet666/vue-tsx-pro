@@ -6,10 +6,13 @@ import { colors } from '../../config/theme/tokens.stylex';
 import { mount } from '../../utils/.test/mount';
 import { AreaChart } from '../AreaChart';
 import { BarChart } from '../BarChart';
+import { ChordChart } from '../ChordChart';
 import { DonutChart } from '../DonutChart';
+import { flowData, resolveFlowNodes } from '../flow';
 import { LineChart } from '../LineChart';
+import { SankeyChart } from '../SankeyChart';
 import { ScatterChart } from '../ScatterChart';
-import { resolveSeries, seriesNumber, seriesValue } from '../series';
+import { resolveColor, resolveSeries, seriesNumber, seriesValue } from '../series';
 
 interface Row {
   name: string;
@@ -236,5 +239,72 @@ describe('DonutChart、ScatterChart、AreaChart', () => {
     const [area, empty] = root.querySelectorAll(':scope > [role="figure"]');
     expect(area!.querySelectorAll('tbody tr')).toHaveLength(2);
     expect(empty!.textContent).toContain('暂无数据');
+  });
+});
+
+describe('SankeyChart、ChordChart', () => {
+  const nodes = [
+    { id: 'visit', label: '访问' },
+    { id: 'signup', label: '注册' },
+    { id: 'pay', label: '付费', color: 'red' },
+  ];
+  const links = [
+    { source: 'visit', target: 'signup', value: 300 },
+    { source: 'signup', target: 'pay', value: new Decimal('120.5') },
+    { source: 'visit', target: 'ghost', value: 10 },
+    { source: 'visit', target: 'pay', value: 0 },
+  ];
+
+  it('流向数据：节点按顺序取色板；交给 Unovis 前去掉指向不存在节点、值不为正的流向', () => {
+    const resolved = resolveFlowNodes(nodes);
+    expect(resolved.get('visit')).toMatchObject({
+      label: '访问',
+      color: resolveColor(undefined, 0),
+    });
+    expect(resolved.get('pay')!.color).toBe('red');
+    const data = flowData(resolved, links);
+    expect(data.links.map((link) => [link.source, link.target, link.amount])).toEqual([
+      ['visit', 'signup', 300],
+      ['signup', 'pay', 120.5],
+    ]);
+    // 复制一份：Unovis 往节点上写布局字段，不能改到调用方的数据
+    expect(data.nodes[0]).not.toBe(resolved.get('visit'));
+  });
+
+  it('桑基图：数据表每条流向一行，写“起点 → 终点”，数值按原值格式化', () => {
+    const root = mount(() => (
+      <SankeyChart aria-label="转化" nodes={nodes} links={links.slice(0, 2)} unit="人" />
+    ));
+    expect([...root.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual([
+      '流向',
+      '数值（人）',
+    ]);
+    expect([...root.querySelectorAll('tbody tr')].map((tr) => tr.textContent)).toEqual([
+      '访问 → 注册300',
+      '注册 → 付费120.5',
+    ]);
+    expect(root.querySelector('[role="group"]')).toBeNull();
+  });
+
+  it('弦图：图例是节点，点一下隐藏节点，连同它的流向（写回 hiddenNodes）', async () => {
+    const hidden = shallowRef<string[]>([]);
+    const root = mount(() => (
+      <ChordChart
+        aria-label="往来"
+        nodes={nodes}
+        links={links.slice(0, 2)}
+        hiddenNodes={hidden.value}
+        {...{ 'onUpdate:hiddenNodes': (next: string[]) => (hidden.value = next) }}
+      />
+    ));
+    const buttons = root.querySelectorAll<HTMLButtonElement>('[role="group"] button');
+    expect([...buttons].map((button) => button.textContent)).toEqual(['访问', '注册', '付费']);
+    buttons[0]!.click();
+    await nextTick();
+    expect(hidden.value).toEqual(['visit']);
+    expect(buttons[0]!.getAttribute('aria-pressed')).toBe('false');
+    expect([...root.querySelectorAll('tbody tr')].map((tr) => tr.textContent)).toEqual([
+      '注册 → 付费120.5',
+    ]);
   });
 });

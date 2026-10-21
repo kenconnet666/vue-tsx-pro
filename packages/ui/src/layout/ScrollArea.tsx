@@ -238,7 +238,10 @@ export const OverlayScrollbar = _component(
       };
       const onEnter = () => {
         hovering = true;
-        if (revealsOnHover()) show();
+        if (!revealsOnHover()) return;
+        // 绝对定位的后代（图表的提示框）撑出、收回溢出时内容尺寸不变，ResizeObserver 察觉不到，显示前重新量
+        sync();
+        show();
       };
       const onLeave = () => {
         hovering = false;

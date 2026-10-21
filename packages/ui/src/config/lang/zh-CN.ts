@@ -38,6 +38,8 @@ export const zhCN: Lang = {
   chartValue: '数值',
   chartShare: '占比',
   chartTotal: '合计',
+  chartFlow: '流向',
+  chartFlowLabel: (source, target) => `${source} → ${target}`,
   treeToggle: (row) => `${row} 的子项`,
   fileDrop: '点击或拖放文件到这里',
   fileTooLarge: (max) => `文件不能超过 ${max}`,
