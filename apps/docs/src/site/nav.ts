@@ -38,6 +38,7 @@ const CATEGORIES: [string, string][] = [
   ['charts', '图表'],
   ['effects', '效果'],
   ['config', '配置'],
+  ['cases', '案例'],
 ];
 
 /** 分类目录名 → 组名 */
