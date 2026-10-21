@@ -17,7 +17,8 @@ import {
   type DataTableColumn,
 } from '../columns';
 import { DataTable } from '../DataTable';
-import { dataTableDynamicStyles, dataTableStyles, type DataTableHandle } from '../DataTableView';
+import { dataTableDynamicStyles, type DataTableHandle } from '../DataTableView';
+import { dataTableStyles } from '../table-styles';
 import { TreeDataTable } from '../TreeDataTable';
 
 // happy-dom 不排版：给滚动容器一个 400px 的视口（行是虚拟滚动的）

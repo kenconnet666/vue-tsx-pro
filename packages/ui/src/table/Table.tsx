@@ -26,7 +26,7 @@ import {
   type DataTableDensities,
   type DataTableOptions,
   type DataTableVariants,
-} from './DataTableView';
+} from './table-styles';
 
 /** Table 交给各单元格与行的外观 */
 export interface TableState {

@@ -921,20 +921,15 @@ export {
 } from './table/ColumnResizer';
 export { DataTable, type DataTableProps } from './table/DataTable';
 export {
-  dataTableDensityStyles,
   DataTableDetailRow,
   dataTableDynamicStyles,
   DataTableRow,
   dataTableRowToneStyles,
-  dataTableStyles,
   DataTableView,
-  type DataTableDensities,
   type DataTableDetailRowProps,
   type DataTableHandle,
-  type DataTableOptions,
   type DataTableRowModel,
   type DataTableRowProps,
-  type DataTableVariants,
   type DataTableViewProps,
   type RowTone,
 } from './table/DataTableView';
@@ -988,6 +983,13 @@ export {
   type SortState,
   type StickyOffsets,
 } from './table/columns';
+export {
+  dataTableDensityStyles,
+  dataTableStyles,
+  type DataTableDensities,
+  type DataTableOptions,
+  type DataTableVariants,
+} from './table/table-styles';
 
 // 效果：倾斜卡片、聚光卡片、流光边框（3D 与 WebGL 效果在子路径 @vue-tsx-pro/ui/three）
 export {

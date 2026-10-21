@@ -23,7 +23,7 @@ import type { CardOptions } from '../display/Card';
 import type { ChoiceOptions } from '../input/choice-styles';
 import type { ControlOptions } from '../input/control';
 import type { TabsOptions } from '../navigation/Tabs';
-import type { DataTableOptions } from '../table/DataTableView';
+import type { DataTableOptions } from '../table/table-styles';
 import type { ButtonOptions } from '../base/button-core';
 
 /** 可以配置默认值的组件与选项；新组件有外观档位时在这里登记 */
