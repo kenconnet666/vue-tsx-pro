@@ -6,6 +6,7 @@ import { builtinThemeBootColors, themeBootScript } from '@vue-tsx-pro/ui/theme-b
 import { uiPrebundle, uiPrebundleExclude } from '../../packages/ui/prebundle.config.ts';
 import { componentApi } from './build/api.ts';
 import { demoSource } from './build/demo.ts';
+import { iconImports } from './build/icons.ts';
 import { docPages } from './build/pages.ts';
 
 /** 代码演练场 Worker 用的 Node 模块替身 */
@@ -29,6 +30,7 @@ function themeBoot(): Plugin {
 // 组件库与 tsx 包都按 @vue-tsx-pro/source 条件解析源码：改了组件立刻热更新，不用先构建
 export const plugins = [
   workspaceSource(),
+  iconImports(),
   ...vueTsxPro(),
   demoSource(),
   docPages(),
