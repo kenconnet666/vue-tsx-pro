@@ -1,6 +1,6 @@
 // 渲染优化（compiler/optimize.ts）：哪些子节点标 $stable、哪些属性值缓存，以及运行时的效果与正确性
 import { afterEach, describe, expect, it } from 'vitest';
-import { createApp, nextTick, type VNodeChild } from 'vue';
+import { createApp, nextTick, reactive, type VNodeChild } from 'vue';
 import { _component } from '../src';
 import { compileRunes } from '../src/compiler';
 
@@ -30,11 +30,26 @@ describe('哪些子节点标 $stable', () => {
     ['会被重新赋值的普通 let', '<Box>{plain}</Box>'],
     ['字面量初始化的 const（可能被直接改）', '<Box>{list}</Box>'],
     ['...rest（attrs 不是响应式的）', '<Box>{rest.title}</Box>'],
+    ['as 断言的字面量（[] as T[] 一样可能被直接改）', '<Box>{typed.length}</Box>'],
   ])('%s → 保持原样', async (_, render) => {
     const out = await compile(
-      component('let plain = 0; const bump = () => plain++; const list: number[] = []', render),
+      component(
+        'let plain = 0; const bump = () => plain++; const list: number[] = []; const typed = [] as number[]',
+        render,
+      ),
     );
     expect(out).not.toContain('$stable');
+  });
+
+  it('子节点是绑定到函数的变量：当作渲染函数交出；导入的标识符看不出来，保持运行时判断', async () => {
+    const fn = await compile(
+      component('const renderRow = (row: number) => <i>{row}</i>', '<List>{renderRow}</List>'),
+    );
+    expect(fn).toMatch(/default: renderRow,\s*\$stable: true/);
+    const imported = await compile(
+      `import { label } from './x'; ${component('', '<Box>{label}</Box>')}`,
+    );
+    expect(imported).not.toContain('$stable');
   });
 
   it('原样转交 children 交给 forwardChildren，夹着别的内容时稳不稳定由运行时判断', async () => {
@@ -85,6 +100,22 @@ describe('哪些属性值缓存', () => {
     expect(out).toContain('sx={_cache[0] || (_cache[0] = [styles.a, styles.b])}');
     expect(out).toContain('sx={[styles.a, on.value && styles.b]}');
     expect(out).toContain('sx={[pick(styles.a)]}');
+  });
+
+  it('常量里面的东西可能会变：组合式函数的结果、导入的对象，读成员与展开都不缓存；样式表、命名空间导入的一层例外', async () => {
+    const out = await compile(
+      `import * as stylex from '@vue-tsx-pro/tsx/stylex'; import * as icons from './icons'; import { settings } from './store';
+      const styles = stylex.create({ a: { color: 'red' } });
+      ${component(
+        'const store = useStore()',
+        '<><Probe style={{ color: store.color }} /><Probe items={[...store.items]} /><Probe flag={[settings.dark]} /><Probe sx={[styles.a]} /><Probe icon={[icons.Plus]} /></>',
+      )}`,
+    );
+    expect(out).not.toMatch(/_cache\[\d+\] = \{\s*color: store\.color/);
+    expect(out).not.toMatch(/_cache\[\d+\] = \[\.\.\.store\.items\]/);
+    expect(out).not.toMatch(/_cache\[\d+\] = \[settings\.dark\]/);
+    expect(out).toMatch(/_cache\[\d+\] = \[styles\.a\]/);
+    expect(out).toMatch(/_cache\[\d+\] = \[icons\.Plus\]/);
   });
 
   it('组件上的 _bind 生成的更新回调也被缓存', async () => {
@@ -167,6 +198,42 @@ describe('运行时', () => {
       '计数 1',
       '第 1 次',
     ]);
+  });
+
+  it('属性里读 store 成员的对象不缓存：store 变了、父组件重新渲染时子组件拿到新值', async () => {
+    const store = reactive({ color: 'red' });
+    let bump = () => {};
+    const seen: string[] = [];
+    const Probe = _component(({ look }: { look: { color: string } }) => () => {
+      seen.push(look.color);
+      return <i />;
+    });
+    const Page = _component(() => {
+      let n = _state(0);
+      bump = () => n++;
+      return () => (
+        <p>
+          {n}
+          <Probe look={{ color: store.color }} />
+        </p>
+      );
+    });
+    mount(Page);
+    store.color = 'blue';
+    bump();
+    await nextTick();
+    expect(seen.at(-1)).toBe('blue');
+  });
+
+  it('子节点是渲染函数变量：子组件按参数调用它', () => {
+    const Rows = _component(({ children }: { children: (row: number) => VNodeChild }) => () => (
+      <ul>{[1, 2].map((row) => children(row))}</ul>
+    ));
+    const Page = _component(() => {
+      const renderRow = (row: number) => <li>{row}</li>;
+      return () => <Rows>{renderRow}</Rows>;
+    });
+    expect(mount(Page).textContent).toBe('12');
   });
 
   it('缓存的函数每次渲染是同一个，调用时读到的是最新状态', async () => {

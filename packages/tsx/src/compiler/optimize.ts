@@ -108,7 +108,9 @@ function cacheAttributeValue(
 
 /**
  * 函数：闭包读的都是活的绑定，只要不用到这次渲染才有的变量就能缓存。
- * 数组、对象：直接读到的值（不在函数里的）必须是不会变的常量；符文的值会变，不能缓存
+ * 数组、对象：直接读到的值（不在函数里的）必须是不会变的常量；符文的值会变，不能缓存。
+ * 常量本身不变，它里面的属性却可能变（组合式函数返回的 store、导入的 _state 对象）：
+ * 读它的成员、把它展开都不缓存，只有 stylex.create 的样式表与命名空间导入的一层成员例外
  */
 function isCacheable(
   value: NodePath<t.Expression>,
@@ -116,9 +118,11 @@ function isCacheable(
   context: OptimizeContext,
 ) {
   let cacheable = true;
-  forEachReference(value, setup, context, (kind, insideFunction) => {
+  forEachReference(value, setup, context, (kind, insideFunction, reference) => {
     if (kind === 'local') cacheable = false;
-    else if (!insideFunction && kind !== 'constant') cacheable = false;
+    else if (insideFunction) return;
+    else if (kind !== 'constant') cacheable = false;
+    else if (readsInside(reference) && !isFrozenRead(reference)) cacheable = false;
   });
   // 数组、对象里直接的调用、new、自增等每次可能得到不同的值
   if (cacheable && !value.isFunction()) {
@@ -132,6 +136,46 @@ function isCacheable(
     });
   }
   return cacheable;
+}
+
+/** 读的是常量里面的东西：obj.x、obj?.x、...obj */
+function readsInside(reference: NodePath) {
+  const parent = reference.parentPath;
+  if (!parent) return false;
+  if (parent.isSpreadElement()) return true;
+  return (
+    (parent.isMemberExpression() || parent.isOptionalMemberExpression()) &&
+    parent.node.object === reference.node
+  );
+}
+
+const STYLEX_FACTORIES = new Set(['create', 'createTheme', 'defineVars', 'defineConsts']);
+
+/**
+ * 读的成员不会变：同一文件里 stylex.create（等）的结果；命名空间导入（import * as icons）的一层成员。
+ * 再往下一层（icons.X.y）、或别的常量的成员都可能会变
+ */
+function isFrozenRead(reference: NodePath) {
+  if (!reference.isIdentifier()) return false;
+  const binding = reference.scope.getBinding(reference.node.name);
+  if (!binding) return false;
+  const member = reference.parentPath!;
+  if (binding.path.isImportNamespaceSpecifier()) {
+    const outer = member.parentPath;
+    const deeper =
+      (outer?.isMemberExpression() || outer?.isOptionalMemberExpression()) &&
+      outer.node.object === member.node;
+    return member.isMemberExpression() && !deeper;
+  }
+  const init = binding.path.isVariableDeclarator() ? unwrapTypes(binding.path.node.init) : null;
+  // 模块顶层字面量写的数据（setup 里的字面量是 mutable，到不了这里）
+  if (t.isObjectExpression(init) || t.isArrayExpression(init)) return true;
+  if (!t.isCallExpression(init) || !t.isMemberExpression(init.callee)) return false;
+  const { object, property } = init.callee;
+  if (!t.isIdentifier(property) || !STYLEX_FACTORIES.has(property.name)) return false;
+  if (!t.isIdentifier(object)) return false;
+  const source = binding.scope.getBinding(object.name)?.path.parent;
+  return t.isImportDeclaration(source) && /stylex$/.test(source.source.value);
 }
 
 // ───────────────────────── 稳定插槽 ─────────────────────────
@@ -169,9 +213,11 @@ function stabilizeChildren(element: NodePath<t.JSXElement>, context: OptimizeCon
     // 分几遍编译时重新解析会补上位置，同一遍里接着跑 vue-jsx（代码演练场）就要自己借元素的
     slots.loc = element.node.loc;
   } else {
+    // 唯一的子节点是导入的标识符：可能是渲染函数，也可能是内容，看不出来，保持 vue-jsx 的运行时判断（_isSlot）
+    if (only && t.isIdentifier(only) && isImported(only, element)) return;
     const content =
-      only && (t.isArrowFunctionExpression(only) || t.isFunctionExpression(only))
-        ? only // 函数子节点：带参数的是渲染函数，由子组件调用
+      only && (isFunctionNode(only) || bindsFunction(only, element))
+        ? only // 函数子节点（含绑定到函数的变量 {renderRow}）：带参数的是渲染函数，由子组件调用
         : t.arrowFunctionExpression([], t.arrayExpression(children));
     const stable = usesChildren
       ? context.imports.runtime('childrenStable', [])
@@ -183,6 +229,30 @@ function stabilizeChildren(element: NodePath<t.JSXElement>, context: OptimizeCon
     ]);
   }
   element.node.children = [t.jsxExpressionContainer(slots)];
+}
+
+const isFunctionNode = (node: t.Node) =>
+  t.isArrowFunctionExpression(node) || t.isFunctionExpression(node);
+
+/** 标识符绑定到函数：const renderRow = (row) => …、function renderRow() {} */
+function bindsFunction(node: t.Expression, element: NodePath) {
+  if (!t.isIdentifier(node)) return false;
+  const binding = element.scope.getBinding(node.name);
+  if (!binding?.constant) return false;
+  if (binding.path.isFunctionDeclaration()) return true;
+  const init = binding.path.isVariableDeclarator() ? binding.path.node.init : null;
+  return !!init && isFunctionNode(init);
+}
+
+/** 标识符来自 import */
+function isImported(node: t.Identifier, element: NodePath) {
+  const path = element.scope.getBinding(node.name)?.path;
+  return (
+    !!path &&
+    (path.isImportSpecifier() ||
+      path.isImportDefaultSpecifier() ||
+      path.isImportNamespaceSpecifier())
+  );
 }
 
 /** 大写开头或 a.B 形式的标签；Vue 的 Teleport、KeepAlive、Suspense 子节点不是插槽 */
@@ -227,12 +297,12 @@ function enclosingSetup(path: NodePath): NodePath<t.Function> | null {
   return null;
 }
 
-/** 表达式用到的外部变量逐个回调：变量的性质，以及引用是否在表达式里的函数中 */
+/** 表达式用到的外部变量逐个回调：变量的性质、引用是否在表达式里的函数中，以及引用本身 */
 function forEachReference(
   expression: NodePath,
   setup: NodePath<t.Function> | null,
   context: OptimizeContext,
-  visit: (kind: Kind, insideFunction: boolean) => void,
+  visit: (kind: Kind, insideFunction: boolean, reference: NodePath) => void,
 ) {
   const check = (reference: NodePath, name: string) => {
     const binding = reference.scope.getBinding(name);
@@ -240,10 +310,10 @@ function forEachReference(
     if (!binding) return;
     // 表达式自己里面声明的（回调参数、局部变量）
     if (isWithin(binding.scope.path, expression)) return;
-    visit(kindOf(binding, setup, context), isInsideFunction(reference, expression));
+    visit(kindOf(binding, setup, context), isInsideFunction(reference, expression), reference);
   };
   if (expression.isIdentifier()) check(expression, expression.node.name);
-  if (expression.isThisExpression()) visit('local', false);
+  if (expression.isThisExpression()) visit('local', false, expression);
   expression.traverse({
     Identifier(reference) {
       if (reference.isReferencedIdentifier()) check(reference, reference.node.name);
@@ -252,7 +322,7 @@ function forEachReference(
       if (reference.isReferencedIdentifier()) check(reference, reference.node.name);
     },
     ThisExpression(reference) {
-      visit('local', isInsideFunction(reference, expression));
+      visit('local', isInsideFunction(reference, expression), reference);
     },
   });
 }
@@ -276,12 +346,27 @@ function kindOf(
   if (!binding.constant) return 'mutable';
   if (binding.kind === 'hoisted' || binding.kind === 'module') return 'constant';
   const declarator = binding.path;
-  const init = declarator.isVariableDeclarator() ? declarator.node.init : null;
+  const init = declarator.isVariableDeclarator() ? unwrapTypes(declarator.node.init) : null;
   // 字面量建的对象、数组可能被直接改（push、赋属性），改了不会通知谁
   if (t.isObjectExpression(init) || t.isArrayExpression(init) || t.isNewExpression(init)) {
     return 'mutable';
   }
   return 'constant';
+}
+
+/** 去掉只影响类型的外壳：[] as T[]、{…} satisfies S、x!、(x) */
+function unwrapTypes(node: t.Expression | null | undefined): t.Expression | null | undefined {
+  let current = node;
+  while (
+    t.isTSAsExpression(current) ||
+    t.isTSSatisfiesExpression(current) ||
+    t.isTSNonNullExpression(current) ||
+    t.isTSTypeAssertion(current) ||
+    t.isParenthesizedExpression(current)
+  ) {
+    current = current.expression;
+  }
+  return current;
 }
 
 /** inner 是否就是 outer 或在它里面 */

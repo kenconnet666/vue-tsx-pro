@@ -4,7 +4,16 @@
  *   - snapshot：_state.snapshot(x)
  *   - untrack：_untrack(x)
  */
-import { computed, customRef, isRef, ReactiveEffect, toRaw, watch, type Ref } from 'vue';
+import {
+  computed,
+  customRef,
+  effectScope,
+  isRef,
+  ReactiveEffect,
+  toRaw,
+  watch,
+  type Ref,
+} from 'vue';
 
 /**
  * 跟随来源、可以临时覆盖的值（同 Svelte 5.25 的可覆盖派生）：
@@ -42,13 +51,16 @@ export function overridable<T>(getter: () => T): Ref<T> {
 /**
  * 读取但不追踪（同 Svelte 的 untrack）：在一个临时的 effect 里执行，读到的响应式值记在它身上，
  * 外层的 _effect、_derived、渲染函数不会因此依赖它们。用 Vue 公开的 ReactiveEffect，不碰内部 API。
+ * 临时的 effect 建在独立的作用域里、用完连同作用域停掉：不然它会留在当前组件的作用域上，调用一次多一个
  */
 export function untrack<T>(read: () => T): T {
-  const runner = new ReactiveEffect(read);
+  const scope = effectScope(true);
+  const runner = scope.run(() => new ReactiveEffect(read))!;
   try {
+    // 在作用域外执行：read 里创建的 computed、watch 照常属于当前组件
     return runner.run();
   } finally {
-    runner.stop();
+    scope.stop();
   }
 }
 

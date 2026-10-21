@@ -120,9 +120,12 @@ export function replaceWithValue(path: NodePath) {
     return;
   }
   if (!t.isIdentifier(node)) return;
+  // 对象简写 { x }、带默认值的简写 { x = 1 }（解构赋值里）：改写后不再是简写
   const parent = path.parentPath;
-  if (parent?.isObjectProperty() && parent.node.shorthand && parent.node.value === node) {
-    parent.node.shorthand = false;
+  const property = parent?.isAssignmentPattern() ? parent.parentPath : parent;
+  const value = parent?.isAssignmentPattern() ? parent.node : node;
+  if (property?.isObjectProperty() && property.node.shorthand && property.node.value === value) {
+    property.node.shorthand = false;
   }
   path.replaceWith(t.memberExpression(t.identifier(node.name), t.identifier('value')));
   path.skip();
@@ -153,8 +156,9 @@ export function writeTargets(violation: NodePath, binding: Binding): NodePath[] 
   target.traverse({
     Identifier(path) {
       const parent = path.parentPath;
+      // 属性名不是写入目标：{ x: y } 的 x、简写 { x } 里与值分开的那个键节点
       const isKey =
-        parent.isObjectProperty() && parent.node.key === path.node && !parent.node.shorthand;
+        parent.isObjectProperty() && parent.node.key === path.node && !parent.node.computed;
       if (isKey || path.node.name !== binding.identifier.name) return;
       if (path.scope.getBinding(path.node.name) === binding) found.push(path);
     },

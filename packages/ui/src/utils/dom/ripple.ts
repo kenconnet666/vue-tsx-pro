@@ -9,6 +9,7 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useConfig } from '../../config/context';
+import { applyStyleAttrs } from '../props';
 import { afterTransitions } from '../style/transitions';
 
 const expand = stylex.keyframes({
@@ -85,12 +86,10 @@ export function startRipple(event: PointerEvent | KeyboardEvent): void {
   const radius = Math.hypot(Math.max(x, rect.width - x), Math.max(y, rect.height - y));
   const ripple = document.createElement('span');
   ripple.setAttribute('aria-hidden', 'true');
-  const { class: className, style } = stylex.attrs(
-    rippleStyles.ripple,
-    ripplePlacementStyles.at(x - radius, y - radius, radius * 2),
+  applyStyleAttrs(
+    ripple,
+    stylex.attrs(rippleStyles.ripple, ripplePlacementStyles.at(x - radius, y - radius, radius * 2)),
   );
-  ripple.className = className ?? '';
-  if (style) ripple.setAttribute('style', style);
   host.append(ripple);
 
   const release = () => {

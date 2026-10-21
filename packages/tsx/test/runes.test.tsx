@@ -1,7 +1,7 @@
 // 冒烟测试：符文经 Vite 预设编译后，在 Vue 中的运行时语义
 import { describe, it, expect } from 'vitest';
-import { createApp, nextTick, ref } from 'vue';
-import { _component, effect } from '../src';
+import { createApp, effectScope, nextTick, ref } from 'vue';
+import { _component, effect, untrack } from '../src';
 import { Counter, log } from './fixtures/Counter';
 import { Switch } from './fixtures/Switch';
 
@@ -12,6 +12,24 @@ function mount(root: Parameters<typeof createApp>[0]) {
 }
 
 describe('符文', () => {
+  it('解构赋值给状态：简写 ({ x } = obj)、带默认值的简写 ({ y = 5 } = obj)', async () => {
+    const source: { x: number; y?: number } = { x: 3 };
+    const el = mount(
+      _component(() => {
+        let x = _state(0);
+        let y = _state(0);
+        return () => (
+          <button type="button" onClick={() => ({ x, y = 5 } = source)}>
+            {x}/{y}
+          </button>
+        );
+      }),
+    );
+    el.querySelector('button')!.click();
+    await nextTick();
+    expect(el.textContent).toBe('3/5');
+  });
+
   it('_state / _derived / _derived.by；副作用与生命周期直接用 Vue', async () => {
     log.length = 0;
     const el = mount(_component(() => () => <Counter step={2} />));
@@ -162,6 +180,16 @@ describe('_effect（同 Svelte 的 $effect）', () => {
     setA(1);
     await nextTick();
     expect(runs).toEqual(['0-0', '1-5']);
+  });
+
+  it('untrack 不在当前作用域上留下临时的 effect（调用一次多一个）', () => {
+    const scope = effectScope();
+    const count = ref(1);
+    scope.run(() => {
+      for (let i = 0; i < 100; i++) untrack(() => count.value);
+    });
+    expect((scope as unknown as { effects: unknown[] }).effects).toHaveLength(0);
+    scope.stop();
   });
 
   it('_effect.pre 在 DOM 更新前执行', async () => {

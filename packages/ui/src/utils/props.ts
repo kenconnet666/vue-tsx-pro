@@ -11,7 +11,7 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { IntrinsicProps, JSX } from '@vue-tsx-pro/tsx/jsx-runtime';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import type { StyleXAttrs, StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { Ref, VNodeChild } from 'vue';
 
 /**
@@ -91,7 +91,12 @@ export function mergeProps<Target = Props>(
   // 同名事件：使用方的与组件的（默认层、受管层）合并；只有组件两层都有时也要合并
   if (own) {
     for (const key in own) {
-      if (!isHandlerKey(key) || (base[key] == null && fixed?.[key] == null)) continue;
+      if (!isHandlerKey(key)) continue;
+      if (base[key] == null && fixed?.[key] == null) {
+        // 受管层写了 onXxx: undefined（这时没有自己的处理）也不盖掉使用方的事件
+        merged[key] = own[key];
+        continue;
+      }
       // 使用方传了 undefined（onClick={cond ? fn : undefined}）时也保留组件自己的
       merged[key] =
         mergeHandlers(own[key] as Handler | undefined, [base[key], fixed?.[key]]) ??
@@ -223,4 +228,18 @@ function present3(a: unknown, b: unknown, c?: unknown): unknown[] | undefined {
  */
 export function hasContent(node: VNodeChild): boolean {
   return node != null && typeof node !== 'boolean' && node !== '';
+}
+
+/**
+ * 把 stylex.attrs 的结果写到命令式创建的元素上（波纹、量取主题的探针）：class 与行内样式，
+ * 自定义属性（动态样式的变量）名字原样、用 setProperty
+ */
+export function applyStyleAttrs(element: HTMLElement, { class: className, style }: StyleXAttrs) {
+  element.className = className ?? '';
+  for (const [name, value] of Object.entries(style ?? {})) {
+    const property = name.startsWith('--')
+      ? name
+      : name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+    element.style.setProperty(property, String(value));
+  }
 }

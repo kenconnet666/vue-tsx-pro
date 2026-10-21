@@ -1107,6 +1107,7 @@ export { zhCN } from './config/lang/zh-CN';
 
 // 工具：部件属性的合并
 export {
+  applyStyleAttrs,
   dataAttrs,
   elementProps,
   hasContent,

@@ -21,7 +21,8 @@ import { declareProps } from './props.ts';
 import { RUNE_GLOBALS, runeOf, type Rune, type TrackedInfo } from './runes.ts';
 
 /** 用到符文，或定义了 _component（需要编译 props 解构）的文件才需要编译；宿主项目的其他文件原样放过 */
-const NEEDS_COMPILE = /\b_(?:state|derived|bindable|bind|effect|fromRef|toRef)\b|\b_component\s*\(/;
+const NEEDS_COMPILE =
+  /\b_(?:state|derived|bindable|bind|effect|untrack|fromRef|toRef)\b|\b_component\s*\(/;
 
 /** 文件里有没有要编译的符文（解析之前的快速判断） */
 export const needsRunes = (code: string) => NEEDS_COMPILE.test(code);
@@ -339,7 +340,10 @@ export class RunesTransform {
         `${name} 是父级传入的内容，读取时才生成；请在渲染函数或回调里读取，不要直接写在组件函数体中`,
       );
     }
-    if (parent.isExportSpecifier()) throw fail(reference, `不能导出响应式变量 ${name}`);
+    // export default n 导出的是当时的值（编译成 n.value），之后的变化传不出去
+    if (parent.isExportSpecifier() || parent.isExportDefaultDeclaration()) {
+      throw fail(reference, `不能导出响应式变量 ${name}`);
+    }
     // watch(form, cb) 传进去的是当前值：原始值 TypeScript 会报错，对象则悄悄监听旧对象，整体替换后失效
     if (isVueWatchSource(reference)) {
       throw fail(

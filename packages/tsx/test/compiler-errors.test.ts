@@ -4,6 +4,11 @@ import { compileRunes } from '../src/compiler/index';
 const cases: [string, string, RegExp][] = [
   ['导出会被整体替换的状态', 'export let x = _state(0)', /不能导出会被整体替换的响应式变量 x/],
   ['export { x }', 'let x = _state(0); export { x }', /不能导出响应式变量 x/],
+  [
+    'export default x（导出的是当时的值）',
+    'let x = _state(0); export default x',
+    /不能导出响应式变量 x/,
+  ],
   ['写入 _derived', 'let a = _state(1); const d = _derived(a * 2); d = 3', /只读/],
   [
     '写入解构出的 _derived',
@@ -284,6 +289,11 @@ describe('编译警告', () => {
     const result = (await compileRunes(code))!;
     expect(result.warnings).toEqual([]);
     expect(result.code).toContain('_vtp_untrack(() => !open.value)');
+  });
+
+  it('只用到 _untrack 的文件（组合式函数）也要编译，不然运行时找不到它', async () => {
+    const result = await compileRunes('export const read = (source) => _untrack(source.value);');
+    expect(result?.code).toContain('_vtp_untrack(() => source.value)');
   });
 });
 

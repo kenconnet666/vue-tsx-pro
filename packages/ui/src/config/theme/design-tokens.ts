@@ -16,6 +16,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXVar } from '@vue-tsx-pro/tsx/stylex';
 import { formatHex } from 'culori/fn';
 import { parseColor } from '../../utils/data/color';
+import { applyStyleAttrs } from '../../utils/props';
 import { readToken, themeVariables, tokenGroups, type Theme } from './theme';
 import { tokenCatalog } from './token-catalog';
 
@@ -180,9 +181,7 @@ export function elementDesignTokens(element: Element): DesignTokens {
 /** 一套主题的设计令牌：在 container 里挂一个套着这套主题、不显示的空元素，读完取值就移除 */
 export function themeDesignTokens(theme: Theme, container: Element = document.body): DesignTokens {
   const probe = document.createElement('div');
-  const compiled = stylex.attrs(...theme.styles);
-  probe.className = compiled.class ?? '';
-  probe.style.cssText = compiled.style ?? '';
+  applyStyleAttrs(probe, stylex.attrs(...theme.styles));
   for (const [name, value] of Object.entries(themeVariables(theme))) {
     probe.style.setProperty(name, value);
   }
