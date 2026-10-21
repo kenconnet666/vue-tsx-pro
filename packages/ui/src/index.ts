@@ -971,6 +971,13 @@ export {
   type DataTableOptions,
   type DataTableVariants,
 } from './table/table-styles';
+export {
+  useTableQuery,
+  type TablePage,
+  type TableQuery,
+  type TableQueryOptions,
+  type TableQueryState,
+} from './table/use-table-query';
 
 // 效果：倾斜卡片、聚光卡片、流光边框（3D 与 WebGL 效果在子路径 @vue-tsx-pro/ui/three）
 export {
