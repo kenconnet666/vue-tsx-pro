@@ -93,10 +93,14 @@ export const switchStyles = stylex.create({
   },
   // 移到结束边：百分比相对整条轨道，轨道随文字加宽时同样贴边
   thumbOn: { marginInlineStart: 'calc(100% - 1.0625em)', backgroundColor: 'var(--tone-on-fill)' },
+  // 用 flex 居中：按行内文字排时随外层的行高落在基线上，图标会比轨道中线偏下
   content: {
     gridArea: '1 / 1',
     justifySelf: 'stretch',
-    textAlign: 'center',
+    alignSelf: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
   },
@@ -109,7 +113,13 @@ export const switchStyles = stylex.create({
   contentOff: { paddingInlineStart: '1.375em', paddingInlineEnd: '0.5em', color: '_text' },
   contentHidden: { visibility: 'hidden' },
   // 字号缩在里层：外层的内边距按开关的字号算，给滑块留的位置才够
-  contentText: { fontSize: '_xs', fontWeight: '_semibold', lineHeight: 1 },
+  contentText: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '_xs',
+    fontWeight: '_semibold',
+    lineHeight: 1,
+  },
   spinner: { width: '0.75em', height: '0.75em', color: 'var(--tone-fill)' },
 });
 
