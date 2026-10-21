@@ -281,7 +281,8 @@ export const Globe = _component(
     ...rest
   }: GlobeProps) => {
     // 朝向：一开始正对 center；拖动左右改 yaw、上下改 pitch，松手后带惯性回到自转
-    const orbit = createOrbit({ yaw: -center.lng * DEG, pitch: center.lat * DEG });
+    const start = _untrack(center);
+    const orbit = createOrbit({ yaw: -start.lng * DEG, pitch: start.lat * DEG });
 
     return () => (
       <EffectSurface

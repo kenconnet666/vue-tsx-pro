@@ -123,11 +123,8 @@ export const ModelViewer = _component(
   }: ModelViewerProps) => {
     const lang = useLang();
     let status = _state<keyof ModelViewerStatuses>('loading');
-    const orbit = createOrbit({
-      yaw: initial.yaw * DEG,
-      pitch: initial.pitch * DEG,
-      pitchLimit: 1.4,
-    });
+    const start = _untrack(initial);
+    const orbit = createOrbit({ yaw: start.yaw * DEG, pitch: start.pitch * DEG, pitchLimit: 1.4 });
     let distance = 1;
     // 场景建好后换成真正的 invalidate：静止模式下交互也要重画
     let redraw = () => {};
