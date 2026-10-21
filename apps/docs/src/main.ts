@@ -7,7 +7,9 @@ import { createDocsRouter, prefetchOnIntent } from './router';
 import { siteTheme, siteThemeReady } from './site/theme';
 
 const router = createDocsRouter();
-prefetchOnIntent(router);
+// 只在生产环境预取：开发时取一页要现编译、现提取 API（没缓存时 Worker 要建十几秒的程序），
+// 指针划过侧栏就会触发好几页，挂起的请求占满浏览器到开发服务器的连接，真正点开的页面反而被堵住
+if (import.meta.env.PROD) prefetchOnIntent(router);
 
 const app = createApp(App)
   .use(router)
