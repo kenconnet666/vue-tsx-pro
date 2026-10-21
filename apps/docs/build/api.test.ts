@@ -7,8 +7,8 @@ describe('extractComponentApi', () => {
   const button = extractComponentApi('ButtonProps');
   const prop = (name: string) => button.props.find((item) => item.name === name)!;
 
-  it('接口注释、只列组件库声明的 prop（不含原生属性与 sx）', () => {
-    expect(button.description).toBe('未声明的属性落到 button 上');
+  it('说明取组件自己的注释（不是接口的“未声明的属性落到…上”）、只列组件库声明的 prop（不含原生属性与 sx）', () => {
+    expect(button.description).toBe('按钮（button）：样式、色调、尺寸、圆角、图标、加载中、波纹');
     expect(button.props.map((item) => item.name)).not.toContain('sx');
     expect(button.props.map((item) => item.name)).not.toContain('onClick');
   });
