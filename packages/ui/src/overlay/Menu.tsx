@@ -316,7 +316,9 @@ export interface MenuItemMark {
 
 /** 有说明的菜单项：文字与说明各自的 id（名称只取文字，说明作为描述） */
 export interface MenuItemContentIds {
+  /** 文字的 id：菜单项的 aria-labelledby */
   label: string;
+  /** 说明的 id：菜单项的 aria-describedby */
   description: string;
 }
 
