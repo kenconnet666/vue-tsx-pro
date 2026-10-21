@@ -15,7 +15,12 @@ import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
-import { fontSizeStyles, toneStyles, type TextSize } from '../utils/style/typography';
+import {
+  fontSizeStyles,
+  relativeFontSizeStyles,
+  toneStyles,
+  type TextSize,
+} from '../utils/style/typography';
 
 /** 结果的色调：决定图标与颜色（与 Alert、Toast 的色调同名） */
 export interface ResultTones {
@@ -74,7 +79,7 @@ export const resultStyles = stylex.create({
     color: '_text',
   },
   icon: { width: '4em', height: '4em', marginBlockEnd: '_sm', strokeWidth: '_sm' },
-  title: { fontSize: '_xl', fontWeight: '_semibold', lineHeight: '_tight' },
+  title: { fontWeight: '_semibold', lineHeight: '_tight' },
   description: { maxWidth: '36em', color: '_textMuted' },
   action: {
     display: 'flex',
@@ -126,7 +131,12 @@ export const Result = _component(
             />
           )}
           {title != null && (
-            <Text {...mergePartProps<TextProps>({ sx: resultStyles.title }, propsTitle)}>
+            <Text
+              {...mergePartProps<TextProps>(
+                { sx: [resultStyles.title, relativeFontSizeStyles.xl] },
+                propsTitle,
+              )}
+            >
               {title}
             </Text>
           )}

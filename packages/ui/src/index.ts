@@ -1168,6 +1168,7 @@ export {
   fontSizeStyles,
   fontWeightStyles,
   lineClampStyles,
+  relativeFontSizeStyles,
   textAlignStyles,
   textStyles,
   textWrapStyles,

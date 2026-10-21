@@ -100,7 +100,8 @@ export const pageHeaderStyles = stylex.create({
     rowGap: '_xs',
   },
   meta: { display: 'inline-flex', alignItems: 'center', gap: '_xs', flexWrap: 'wrap' },
-  description: { fontSize: '_sm' },
+  // 比所在文字小一档（0.93em ≈ 默认字号下的 sm）
+  description: { fontSize: '0.93em' },
   actions: {
     display: 'flex',
     alignItems: 'center',

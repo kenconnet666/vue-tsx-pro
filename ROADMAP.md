@@ -87,7 +87,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] forced-colors（Windows 高对比）：Separator、Progress、Indicator、Skeleton 用边框或系统色
 - [x] 共用的读屏播报 `announce`（utils/dom/announcer.ts，常驻的 polite / assertive 区域，模态打开时挂进去）：Select、
       Combobox 的结果条数与“没有匹配”（`useResultAnnouncement`）、SelectionBar、CopyButton 改用它；常驻的播报区（Sortable、Upload…）不动
-- [ ] 内部部件跟随根上的 size（Result 标题、Progress 标签、Alert 关闭按钮、ActionBar、Separator、PageHeader）
+- [x] 内部部件跟随根上的 size：新增 `relativeFontSizeStyles`（相对所在字号的 em 档位）；Result 标题、Progress 标签、Alert 关闭按钮、
+      ActionBar、Separator、PageHeader 的说明不再写死 token 字号
 - [ ] 部件属性补齐：PageHeader 的标题块、Progress 的标题行、AppShell 的内层与三个滚动区域、按钮的内容层、Indicator 的计数、Toast 的 Collapse
 - [ ] DataTable：单选用单选框；行模型不随 columns 的引用变化重建；调整列宽时只在松手时写回
 - [ ] Toolbar 的漫游焦点不进子弹层；Popover、Menu 不盖使用方的 aria-label；Tooltip 与 Menu 共用触发器的写法

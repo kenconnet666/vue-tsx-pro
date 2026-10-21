@@ -71,7 +71,8 @@ export const separatorStyles = stylex.create({
     gap: '_md',
     width: '_full',
     color: '_textMuted',
-    fontSize: '_sm',
+    // 比所在文字小一档（0.93em ≈ 默认字号下的 sm）
+    fontSize: '0.93em',
     lineHeight: '_tight',
   },
   label: { flexShrink: 0, whiteSpace: 'nowrap' },

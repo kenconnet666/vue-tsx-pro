@@ -53,7 +53,8 @@ export const actionBarStyles = stylex.create({
   sticky: { position: 'sticky', insetBlockEnd: 'calc(-1 * _borderWidths.xs)', zIndex: 1 },
   // 盖着下面的内容：阴影提示还能往下滚
   stuck: { boxShadow: '_md', borderBlockStartColor: '_border' },
-  start: { flexGrow: 1, minWidth: 0, color: '_textMuted', fontSize: '_sm' },
+  // 说明文字比所在文字小一档（0.93em ≈ 默认字号下的 sm）
+  start: { flexGrow: 1, minWidth: 0, color: '_textMuted', fontSize: '0.93em' },
   actions: {
     display: 'flex',
     alignItems: 'center',

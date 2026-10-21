@@ -21,7 +21,7 @@ import { usePresence } from '../utils/motion/presence';
 import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
@@ -208,7 +208,7 @@ export const Alert = _component(
           {onClose && (
             <CloseButton
               {...mergeProps<PresetIconButtonProps>(
-                { sx: alertStyles.close, size: 'sm' },
+                { sx: [alertStyles.close, relativeFontSizeStyles.sm] },
                 propsClose,
                 {
                   onClick: (event: MouseEvent) => {

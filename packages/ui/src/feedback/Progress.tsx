@@ -19,7 +19,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/number';
 import { compareNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 import type { StatusTone } from '../utils/style/tone-styles';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** 角色与取值由组件管理 */
@@ -222,16 +222,14 @@ export const Progress = _component(
             propsRoot,
           )}
         >
-          <div {...stylex.attrs(progressStyles.header)}>
+          <div {...stylex.attrs(progressStyles.header, relativeFontSizeStyles.sm)}>
             {label != null && (
-              <Text {...mergePartProps<TextProps>({ size: 'sm' }, propsLabel, { id: labelId })}>
-                {label}
-              </Text>
+              <Text {...mergePartProps<TextProps>({}, propsLabel, { id: labelId })}>{label}</Text>
             )}
             {determinate && (showValueLabel ?? true) && (
               <Text
                 {...mergePartProps<TextProps>(
-                  { size: 'sm', tone: 'muted', sx: progressStyles.valueLabel },
+                  { tone: 'muted', sx: progressStyles.valueLabel },
                   propsValueLabel,
                   // 读屏从进度条的 aria-valuetext 得知数值，这里不重复念
                   { 'aria-hidden': true },

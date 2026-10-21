@@ -112,6 +112,17 @@ export const fontSizeStyles = stylex.create({
   xxxl: { fontSize: '_xxxl' },
 });
 
+/**
+ * 相对所在字号的档位（em）：组件内部的小字、标题用它，跟着根上的 size 或所在文字一起缩放。
+ * 比例取主题默认字号（md 14px）下与各档的比值：sm ≈ 13px、xs ≈ 12px、lg ≈ 16px、xl ≈ 18px
+ */
+export const relativeFontSizeStyles = stylex.create({
+  xs: { fontSize: '0.86em' },
+  sm: { fontSize: '0.93em' },
+  lg: { fontSize: '1.14em' },
+  xl: { fontSize: '1.29em' },
+});
+
 /** 字重档位 → fontWeights token */
 export const fontWeightStyles = stylex.create({
   light: { fontWeight: '_light' },
