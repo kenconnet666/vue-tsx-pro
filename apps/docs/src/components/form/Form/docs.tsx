@@ -3,6 +3,7 @@ import { Code } from '@vue-tsx-pro/ui';
 import fieldApi from 'virtual:api/FieldProps';
 import api from 'virtual:api/FormProps';
 import formValueApi from 'virtual:api/FormValueProps';
+import labelApi from 'virtual:api/LabelProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -67,6 +68,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, fieldApi, formValueApi]} />
+    <ApiReference api={[api, fieldApi, formValueApi, labelApi]} />
   </DocPage>
 ));

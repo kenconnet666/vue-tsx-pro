@@ -87,6 +87,15 @@ const docOf = (symbol: ts.Symbol, checker: ts.TypeChecker) =>
   ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim();
 
 /** 组件库入口（含子路径）导出的名字 → 符号 */
+/** 组件的符号；入口没有导出这个名字时 undefined */
+function componentSymbol(checker: ts.TypeChecker, name: string): ts.Symbol | undefined {
+  try {
+    return exportedSymbol(checker, name);
+  } catch {
+    return undefined;
+  }
+}
+
 function exportedSymbol(checker: ts.TypeChecker, name: string): ts.Symbol {
   for (const entry of ENTRIES) {
     const file = currentProgram().getSourceFile(`${src}/${entry}`)!;
@@ -142,12 +151,8 @@ function valuesOf(
 /** 组件实现的参数解构：prop → 默认值的源码、是否 _bindable */
 function implementationDefaults(checker: ts.TypeChecker, componentName: string) {
   const defaults = new Map<string, { value?: string; bindable: boolean }>();
-  let symbol: ts.Symbol;
-  try {
-    symbol = exportedSymbol(checker, componentName);
-  } catch {
-    return defaults;
-  }
+  const symbol = componentSymbol(checker, componentName);
+  if (!symbol) return defaults;
   const declaration = symbol.declarations?.find(ts.isVariableDeclaration);
   const call = declaration?.initializer;
   if (!call || !ts.isCallExpression(call)) return defaults;
@@ -196,12 +201,7 @@ function kindOf(name: string): keyof ApiPropKinds {
  */
 function componentOf(checker: ts.TypeChecker, interfaceName: string): string {
   const component = interfaceName.replace(/Props$/, '');
-  try {
-    exportedSymbol(checker, component);
-    return component;
-  } catch {
-    return component.replace(/Base$/, '');
-  }
+  return componentSymbol(checker, component) ? component : component.replace(/Base$/, '');
 }
 
 /** 一个 Props 接口的 API 数据，默认值从对应组件的参数里读 */
@@ -238,10 +238,12 @@ export function extractComponentApi(interfaceName: string): ComponentApi {
       values: valuesOf(typeNode, checker),
     });
   }
+  // 说明取组件自己的注释（“按钮（button）：样式、色调…”），没有时才用接口的（“未声明的属性落到…上”这类）
+  const componentDoc = componentSymbol(checker, component);
   return {
     name: interfaceName,
     component,
-    description: docOf(symbol, checker),
+    description: (componentDoc && docOf(componentDoc, checker)) || docOf(symbol, checker),
     props,
   };
 }
@@ -273,8 +275,7 @@ export function extractCatalog(): CatalogEntry[] {
     entries.push({
       name: component,
       category: path.slice(src.length + 1).split('/')[0]!,
-      // 说明取组件自己的注释（“按钮（button）：样式、色调…”），没有时才用接口的
-      api: { ...api, description: docOf(symbol, checker) || api.description, props },
+      api: { ...api, props },
     });
   }
   return entries;

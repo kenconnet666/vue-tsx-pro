@@ -3,6 +3,8 @@ import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/DataTableProps';
 import selectionBarApi from 'virtual:api/SelectionBarProps';
 import treeApi from 'virtual:api/TreeDataTableProps';
+import viewApi from 'virtual:api/DataTableViewProps';
+import resizerApi from 'virtual:api/ColumnResizerProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -116,6 +118,6 @@ export default _component(() => () => (
       列标题、勾选框、展开按钮都是原生控件，按 Tab
       顺序经过；行本身不可聚焦，单元格里的链接、按钮照常可用。
     </KeyboardReference>
-    <ApiReference api={[api, treeApi, selectionBarApi]} />
+    <ApiReference api={[api, treeApi, selectionBarApi, viewApi, resizerApi]} />
   </DocPage>
 ));

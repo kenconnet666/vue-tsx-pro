@@ -1,6 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code, Kbd } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/DateFieldProps';
+import segmentGroupApi from 'virtual:api/DateSegmentGroupProps';
+import segmentedFieldApi from 'virtual:api/SegmentedFieldProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
@@ -60,6 +62,6 @@ export default _component(() => () => (
     <KeyboardReference keys={segmentKeys}>
       每一段是一个 spinbutton，读屏念出段名与取值；整组是一个 group，名称取 Field 的标签。
     </KeyboardReference>
-    <ApiReference api={api} />
+    <ApiReference api={[api, segmentedFieldApi, segmentGroupApi]} />
   </DocPage>
 ));

@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/ThreeCanvasProps';
+import effectSurfaceApi from 'virtual:api/EffectSurfaceProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -51,6 +52,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={api} />
+    <ApiReference api={[api, effectSurfaceApi]} />
   </DocPage>
 ));

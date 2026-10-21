@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code, Link } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/SelectBaseProps';
+import listPopoverApi from 'virtual:api/ListPopoverProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -71,6 +72,6 @@ export default _component(() => () => (
       时用隐藏的 input 随表单提交（多选每个值一个）。数据层与{' '}
       <Link href="/components/listbox">Listbox</Link> 相同，选项多时虚拟滚动。
     </KeyboardReference>
-    <ApiReference api={api} />
+    <ApiReference api={[api, listPopoverApi]} />
   </DocPage>
 ));

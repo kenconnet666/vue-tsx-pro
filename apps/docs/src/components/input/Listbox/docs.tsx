@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/ListboxBaseProps';
+import listboxViewApi from 'virtual:api/ListboxViewProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -50,6 +51,6 @@ export default _component(() => () => (
     >
       整个列表只占一个 Tab 位置，高亮项经 aria-activedescendant 告诉读屏。
     </KeyboardReference>
-    <ApiReference api={api} />
+    <ApiReference api={[api, listboxViewApi]} />
   </DocPage>
 ));

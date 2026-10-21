@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
+import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 
 export const meta = {
@@ -23,6 +24,11 @@ export default _component(() => () => (
       <Code>selectionMode="multiple"</Code> 勾选，勾上父节点会勾上它的子孙，value
       是勾上的全部节点，触发框里只列最上层的整枝。<Code>searchable</Code>{' '}
       按节点文字过滤，命中节点的上级一起显示并展开；打开时已选节点的上级自动展开。
+    </Example>
+    <Example id="appearance" title="外观与状态" demo={Appearance}>
+      <Code>isDisabled</Code>{' '}
+      让某些节点不能选（这里只能选到团队，中心、部这一级只用来展开）。图标、外观、尺寸、必填、只读、不可用同{' '}
+      <Link href="/components/select">Select</Link>。
     </Example>
     <KeyboardReference
       keys={[

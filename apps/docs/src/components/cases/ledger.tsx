@@ -472,10 +472,11 @@ export const LedgerPage = _component(
       });
     }
 
+    // 列定义只建一次：台账的类型、各自的列与单位是页面写死的配置，用 _untrack 取一次
     const columns: DataTableColumn<CostTask>[] = [
       {
         key: 'code',
-        header: kind === 'unit' ? '降本项目编码' : '项目编码',
+        header: _untrack(kind) === 'unit' ? '降本项目编码' : '项目编码',
         width: 140,
         sticky: 'start',
         sortable: true,
@@ -487,7 +488,7 @@ export const LedgerPage = _component(
       },
       // 每列都写宽度：放不下时横向滚动；更宽时多出来的按各列宽度的比例分摊，不会只撑大名称一列
       { key: 'name', header: '项目名称', sortable: true, width: 220 },
-      ...middle,
+      ..._untrack(middle),
       {
         key: 'target',
         header: '目标',
@@ -517,7 +518,7 @@ export const LedgerPage = _component(
         cell: (task) => money(task.b, '—'),
       },
       { key: 'valueState', header: '挂账', width: 92, statuses: valueStates },
-      ...after,
+      ..._untrack(after),
       { key: 'status', header: '状态', width: 104, statuses: taskStatuses },
       {
         key: 'milestones',
@@ -609,7 +610,7 @@ export const LedgerPage = _component(
     const groups: DataTableColumnGroup[] = [
       {
         key: 'benefit',
-        header: `收益（${unit}）`,
+        header: `收益（${_untrack(unit)}）`,
         columns: ['target', 'a', 'b', 'valueState'],
       },
     ];
