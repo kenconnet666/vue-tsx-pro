@@ -2,7 +2,7 @@
  * 生成组件库的入口 packages/ui/src/index.ts：逐个模块读出导出的声明，按目录分组写成 export 语句。
  * 组件库的工具都对外导出（方便使用方定制），模块里写了 export 的就进入口，不再手写。
  *
- * - 跳过测试（.test/）、子路径入口（shiki、vue-router、tokens.stylex、theme-customize、charts/、three/：
+ * - 跳过测试（.test/）、子路径入口（shiki、vue-router、tokens.stylex、vars.stylex、theme-customize、charts/、three/、docs-kit/：
  *   它们在 package.json 的 exports 里单独暴露）与由子路径入口转出的模块；
  * - 没有导出、只有 declare module 的模块（token-names.ts）写成副作用导入，产物的类型声明才带上它；
  * - 两个模块导出了同一个名字时报错并列出位置：改成全局唯一的名字（COMPONENTS.md §4）；
@@ -25,6 +25,7 @@ const SUBPATH_ENTRIES = new Set([
   'config/shiki.ts',
   'config/vue-router.ts',
   'config/theme/tokens.stylex.ts',
+  'utils/style/vars.stylex.ts',
   'config/theme-customize.ts',
 ]);
 

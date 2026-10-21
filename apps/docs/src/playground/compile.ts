@@ -71,6 +71,12 @@ function modulesToGlobals(): PluginObject {
 /** token 模块：用户代码与组件库从同一个包名导入 */
 const TOKENS = '@vue-tsx-pro/ui/tokens.stylex';
 
+/** 能导入的 .stylex 模块 → 站点构建时的规范路径 */
+const STYLEX_MODULES: Record<string, string | undefined> = {
+  [TOKENS]: '@vue-tsx-pro/ui:config/theme/tokens.stylex',
+  '@vue-tsx-pro/ui/vars.stylex': '@vue-tsx-pro/ui:utils/style/vars.stylex',
+};
+
 /**
  * StyleX 按“规范路径 + 导出名”给 defineVars 的变量算哈希。规范路径与站点构建时一致
  * （packages/tsx/src/vite/stylex-resolution.ts 的 包名:去掉 src/ 与扩展名的路径），
@@ -78,8 +84,7 @@ const TOKENS = '@vue-tsx-pro/ui/tokens.stylex';
  */
 const moduleResolution = {
   type: 'custom',
-  filePathResolver: (importPath: string) =>
-    importPath === TOKENS ? '@vue-tsx-pro/ui:config/theme/tokens.stylex' : undefined,
+  filePathResolver: (importPath: string) => STYLEX_MODULES[importPath],
   getCanonicalFilePath: (filePath: string) => filePath,
 };
 

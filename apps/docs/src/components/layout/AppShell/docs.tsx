@@ -21,8 +21,8 @@ export default _component(() => () => (
       三个插槽，正文是子元素。断点按视口：64rem
       以上侧栏常驻，更窄时收进从起始边滑出的抽屉，换页或变宽时自动关上；80rem
       以上显示右侧栏（目录这类辅助内容），更窄时不显示。两侧栏粘在顶栏下面，内容多时各自滚动；顶栏的高度经{' '}
-      <Code>layoutVars.stickyOffset</Code>{' '}
-      交给正文里的标题，锚点跳转不被顶栏挡住。示例在单独的页面里打开，窗口缩窄可以看到抽屉。
+      <Code>layoutVars.stickyOffset</Code>（从 <Code>@vue-tsx-pro/ui/vars.stylex</Code>{' '}
+      导入）交给正文里的标题，锚点跳转不被顶栏挡住；铺满视口的页面也用它算高度。示例在单独的页面里打开，窗口缩窄可以看到抽屉。
       <Code>sidebarOpen</Code>{' '}
       可以双向绑定抽屉的开关：示例的导航只写锚点、不换路由，点了导航项自己关上。页面最前面的“跳到正文”（
       <Code>skipLink</Code>）与整页的浮层滚动条（<Code>pageScrollbar</Code>

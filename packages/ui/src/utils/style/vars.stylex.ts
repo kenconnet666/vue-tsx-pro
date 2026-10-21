@@ -1,6 +1,7 @@
 /**
  * 组件之间约定的 CSS 变量（defineVars）：不属于主题，由外层组件设置、里面的组件读取。
- * StyleX 要求 defineVars 写在 *.stylex.ts 文件里并导出。
+ * StyleX 要求 defineVars 写在 *.stylex.ts 文件里并导出，使用方也只能从 .stylex 结尾的路径导入：
+ * 子路径 `@vue-tsx-pro/ui/vars.stylex`（同 tokens.stylex），主入口不导出。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 

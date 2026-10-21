@@ -285,7 +285,7 @@ interface Lang {
 - StyleX 里长属性总是优先于简写：`borderColor` 盖不过别处的 `borderBottomColor`，`gap: 0` 盖不过 `columnGap`，要覆盖就写同一个长属性。
 - 只画一两条边时，线型也写那几条边的长属性（`borderBlockStartStyle: 'solid'`）：写 `borderStyle: 'solid'` 会让没给宽度的边按默认的 medium（3px）画出来。
 
-- StyleX 只认以 `.stylex` 结尾的导入路径，所以 tokens 从 `@vue-tsx-pro/ui/tokens.stylex` 导入，主入口不导出。
+- StyleX 只认以 `.stylex` 结尾的导入路径，所以 tokens 从 `@vue-tsx-pro/ui/tokens.stylex`、组件之间约定的变量（`layoutVars`、`shimmerVars`）从 `@vue-tsx-pro/ui/vars.stylex` 导入，主入口都不导出。
 - 变量名按“包名:文件路径”算哈希；预设用自定义模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
 - 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
 - `stylex.create` / `createTheme` 的结果必须赋给变量；只用一次的常量会被打包工具内联，使用方编译 dist 时报错，所以这类常量要么被多处使用，要么 `export`（`dark.ts` 就是这样）。`pnpm test:consumer` 会发现这类问题。

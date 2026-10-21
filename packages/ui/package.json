@@ -51,6 +51,11 @@
       "types": "./dist/config/theme/tokens.stylex.d.ts",
       "default": "./dist/config/theme/tokens.stylex.js"
     },
+    "./vars.stylex": {
+      "@vue-tsx-pro/source": "./src/utils/style/vars.stylex.ts",
+      "types": "./dist/utils/style/vars.stylex.d.ts",
+      "default": "./dist/utils/style/vars.stylex.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [

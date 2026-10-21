@@ -6,6 +6,7 @@ import * as tsx from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import * as ui from '@vue-tsx-pro/ui';
 import * as tokens from '@vue-tsx-pro/ui/tokens.stylex';
+import * as vars from '@vue-tsx-pro/ui/vars.stylex';
 import * as vue from 'vue';
 import type { Component } from 'vue';
 import type { TokenGroups } from './compile';
@@ -30,6 +31,7 @@ async function moduleTable(code: string): Promise<Record<string, unknown>> {
     '@stylexjs/stylex': stylex,
     '@vue-tsx-pro/ui': ui,
     '@vue-tsx-pro/ui/tokens.stylex': tokens,
+    '@vue-tsx-pro/ui/vars.stylex': vars,
   };
   const used = Object.entries(LAZY_MODULES).filter(
     ([name]) => code.includes(JSON.stringify(name)) || code.includes(`'${name}'`),

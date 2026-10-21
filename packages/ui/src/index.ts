@@ -1179,7 +1179,6 @@ export {
   type Tone,
   type Tones,
 } from './utils/style/typography';
-export { layoutVars, shimmerVars } from './utils/style/vars.stylex';
 
 // 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板
 export { announce, type Politeness, type Politenesses } from './utils/dom/announcer';
