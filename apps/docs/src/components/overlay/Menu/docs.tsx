@@ -44,7 +44,7 @@ export default _component(() => () => (
         </Example>
         <Example id="description" title="带说明的菜单项" demo={Create}>
           <Code>description</Code>{' '}
-          是名称下方的一行说明，弱化显示；读屏先念名称、再把说明作为描述念出， 不混进名称里。
+          是名称下方的一行说明，弱化显示；读屏先念名称、再把说明作为描述念出，不混进名称里。
           <Code>MenuGroup</Code> 的 <Code>label</Code> 是组标题，也是这一组的名称。
         </Example>
         <Example id="checkable" title="复选与单选" demo={View}>

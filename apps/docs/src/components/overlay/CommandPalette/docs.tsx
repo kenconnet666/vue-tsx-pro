@@ -29,8 +29,8 @@ export default _component(() => () => (
         <Example id="remote" title="远程搜索" demo={Remote}>
           与 Combobox 相同的写法：<Code>inputValue={'{_bind(keyword)}'}</Code> 拿到输入去服务端查，
           <Code>filter={'{false}'}</Code> 表示 <Code>items</Code> 就是结果、不再本地过滤；查询期间{' '}
-          <Code>loading</Code> 为 true，还没有结果时列表里是骨架行，已有结果时顶部显示进度条。
-          晚到的旧请求要自己丢掉。
+          <Code>loading</Code> 为
+          true，还没有结果时列表里是骨架行，已有结果时顶部显示进度条。晚到的旧请求要自己丢掉。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
