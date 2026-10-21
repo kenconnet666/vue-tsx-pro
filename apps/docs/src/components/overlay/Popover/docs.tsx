@@ -7,9 +7,11 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Placements from './demo/Placements.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
 import Share from './demo/Share.tsx?demo';
+import Timing from './demo/Timing.tsx?demo';
 import Toolbar from './demo/Toolbar.tsx?demo';
 
 export const meta = {
@@ -46,8 +48,30 @@ export default _component(() => () => (
           <Code>placement</Code> 是边加对齐，共 12 种；空间不够时自动翻到另一边、贴着视口平移。
           <Code>arrow</Code> 显示指向触发器的小箭头。
         </Example>
+        <Example id="timing" title="显示的时机" demo={Timing}>
+          Tooltip 的 <Code>delay</Code> 是指针停多久才显示（默认 500
+          毫秒），工具栏这类连续的按钮可以设成 0；<Code>disabled</Code> 时只渲染触发器。HoverCard 的{' '}
+          <Code>delay</Code> / <Code>closeDelay</Code> 分别控制打开与离开后关闭的等待，
+          <Code>offset</Code> 是与触发器的距离（像素）。三者都可以 <Code>open={'{_bind(x)}'}</Code>{' '}
+          受控。
+        </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        [
+          'Enter / Space',
+          'Popover 的触发器：打开或关闭；打开后焦点移到第一个可聚焦元素（有 autofocus 的优先）',
+        ],
+        [
+          'Tab',
+          '聚焦 Tooltip 的触发器时立即显示提示；聚焦 HoverCard 的触发器时打开卡片，再按 Tab 进入卡片',
+        ],
+        ['Esc', '关闭弹出层或隐藏提示；Popover 关闭后焦点回到触发器'],
+      ]}
+    >
+      焦点离开 HoverCard 的触发器与卡片时卡片关闭；Tooltip 不可交互，焦点不会进入提示。
+    </KeyboardReference>
     <ApiReference api={[api, tooltipApi, hoverCardApi]} />
   </DocPage>
 ));

@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { Code, Kbd } from '@vue-tsx-pro/ui';
 import alertDialogApi from 'virtual:api/AlertDialogProps';
 import api from 'virtual:api/DialogProps';
 import drawerApi from 'virtual:api/DrawerProps';
@@ -7,8 +7,10 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Confirm from './demo/Confirm.tsx?demo';
 import Drawers from './demo/Drawers.tsx?demo';
+import Import from './demo/Import.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
 import Terms from './demo/Terms.tsx?demo';
 
@@ -36,7 +38,14 @@ export default _component(() => () => (
         <Example id="alert-dialog" title="确认操作" demo={Confirm}>
           AlertDialog 用于不可撤销的操作：role="alertdialog"，焦点先落在取消上，点遮罩不关闭。
           <Code>onConfirm</Code> 返回 Promise 时确认按钮显示加载中，完成才关。不想维护 open 状态时用{' '}
-          <Code>useConfirm()</Code>，await 得到 true / false。
+          <Code>useConfirm()</Code>，await 得到 true / false。<Code>confirmText</Code> /{' '}
+          <Code>cancelText</Code> 改按钮文字，默认取语言包。
+        </Example>
+        <Example id="blocking" title="进行中的任务" demo={Import}>
+          <Code>closable={'{false}'}</Code> 去掉右上角的关闭按钮，
+          <Code>dismissible={'{false}'}</Code> 让点遮罩不关闭——任务进行中别被误关；<Kbd>Esc</Kbd>{' '}
+          仍然可以关（浏览器的约定），关闭时原生 dialog 发出 <Code>close</Code> 事件，在{' '}
+          <Code>onClose</Code> 里收尾。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -51,6 +60,18 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        [
+          'Tab / Shift+Tab',
+          '在对话框里的可聚焦元素之间移动；页面其余部分不可操作（原生模态 dialog 的 inert）',
+        ],
+        ['Esc', '关闭对话框（AlertDialog 相当于取消），焦点回到打开它的元素'],
+        ['Enter / Space', '按下聚焦的按钮；AlertDialog 打开时焦点在取消上，误按 Enter 不会执行'],
+      ]}
+    >
+      打开时焦点落在带 <Code>autofocus</Code> 的元素上，没有就是第一个可聚焦的元素。
+    </KeyboardReference>
     <ApiReference api={[api, alertDialogApi, drawerApi]} />
   </DocPage>
 ));

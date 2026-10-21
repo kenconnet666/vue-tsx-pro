@@ -5,8 +5,10 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Commands from './demo/Commands.tsx?demo';
 import People from './demo/People.tsx?demo';
+import Remote from './demo/Remote.tsx?demo';
 
 export const meta = {
   title: 'CommandPalette 命令面板',
@@ -24,6 +26,12 @@ export default _component(() => () => (
           <Kbd>↓</Kbd> 移动高亮，<Kbd>Enter</Kbd> 执行，<Kbd>Esc</Kbd> 关闭。<Code>hotkey</Code>{' '}
           默认是 Mod+K（本站的搜索占用了），这里换成 Mod+J。
         </Example>
+        <Example id="remote" title="远程搜索" demo={Remote}>
+          与 Combobox 相同的写法：<Code>inputValue={'{_bind(keyword)}'}</Code> 拿到输入去服务端查，
+          <Code>filter={'{false}'}</Code> 表示 <Code>items</Code> 就是结果、不再本地过滤；查询期间{' '}
+          <Code>loading</Code> 为 true，还没有结果时列表里是骨架行，已有结果时顶部显示进度条。
+          晚到的旧请求要自己丢掉。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="custom" title="任意数据与自定义选项" demo={People}>
@@ -34,6 +42,15 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Ctrl+K / ⌘+K', '打开或关闭面板（hotkey，默认 Mod+K；输入框里也生效）'],
+        ['↓ / ↑', '移动高亮，焦点留在输入框里（aria-activedescendant）'],
+        ['PageDown / PageUp', '按一屏移动高亮'],
+        ['Enter', '执行高亮的一项，随后关闭面板'],
+        ['Esc', '关闭面板，焦点回到打开它的元素'],
+      ]}
+    />
     <ApiReference api={api} />
   </DocPage>
 ));

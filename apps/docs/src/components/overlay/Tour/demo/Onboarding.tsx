@@ -1,4 +1,4 @@
-import { Download, Filter, Plus, Search, Sparkles } from '@lucide/icons';
+import { Download, Filter, PackageCheck, Plus, Search, Sparkles } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Flex,
+  Icon,
   IconButton,
   Small,
   Table,
@@ -26,7 +27,18 @@ const orders = [
   ['#10232', '陈默', '¥4,299.00', 'info', '备货中'],
 ] as const;
 
-const styles = stylex.create({ search: { flexGrow: 1 } });
+const styles = stylex.create({
+  search: { flexGrow: 1 },
+  // 第一步的封面：主题色的渐变上放一个大图标，换主题时跟着变
+  cover: {
+    display: 'grid',
+    placeItems: 'center',
+    height: '7rem',
+    backgroundImage: 'linear-gradient(135deg, _colors.accentSoft, _colors.fill)',
+    color: '_accentText',
+    fontSize: '3rem',
+  },
+});
 
 export default _component(() => {
   let root = _state.raw<HTMLElement | null>(null);
@@ -37,7 +49,15 @@ export default _component(() => {
   const target = (name: string) => () =>
     root?.querySelector<HTMLElement>(`[data-tour="${name}"]`) ?? null;
   const steps: TourStep[] = [
-    { title: '欢迎使用订单中心', content: '花一分钟认识这几个常用功能。' },
+    {
+      title: '欢迎使用订单中心',
+      content: '花一分钟认识这几个常用功能。',
+      cover: (
+        <div {...stylex.attrs(styles.cover)}>
+          <Icon icon={PackageCheck} />
+        </div>
+      ),
+    },
     { target: target('search'), title: '搜索', content: '按订单号、客户姓名或手机号查找订单。' },
     { target: target('filter'), title: '筛选', content: '按状态、日期、金额筛选，条件会记住。' },
     {
@@ -67,7 +87,9 @@ export default _component(() => {
           >
             开始引导
           </Button>
-          <Small tone="muted">{finished ? '已完成引导' : 'Esc 或“跳过”随时退出'}</Small>
+          <Small tone="muted">
+            {finished ? '已完成引导' : '← → 切换步骤，Esc 或“跳过”随时退出'}
+          </Small>
         </Flex>
         <Card padding="sm">
           <Flex direction="column" gap="sm">
