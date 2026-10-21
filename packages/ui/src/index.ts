@@ -835,6 +835,13 @@ export {
   type FieldState,
   type LabelProps,
 } from './form/Field';
+export {
+  FilterBar,
+  filterBarColumnStyles,
+  filterBarStyles,
+  type FilterBarManaged,
+  type FilterBarProps,
+} from './form/FilterBar';
 export { Form, FormContext, type FormProps } from './form/Form';
 export {
   FormSection,

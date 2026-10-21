@@ -17,6 +17,11 @@ export const zhCN: Lang = {
   copied: '已复制',
   emptyValue: '—',
   back: '返回',
+  filterSearch: '查询',
+  filterReset: '重置',
+  filterExpand: '展开',
+  filterCollapse: '收起',
+  filterActive: (count) => `已设 ${count} 项`,
 
   toasterLabel: '通知',
   linkNewWindow: '（在新窗口打开）',

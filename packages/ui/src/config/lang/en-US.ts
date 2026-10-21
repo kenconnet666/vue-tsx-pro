@@ -17,6 +17,11 @@ export const enUS: Lang = {
   copied: 'Copied',
   emptyValue: '—',
   back: 'Back',
+  filterSearch: 'Search',
+  filterReset: 'Reset',
+  filterExpand: 'More filters',
+  filterCollapse: 'Fewer filters',
+  filterActive: (count) => `${count} set`,
 
   toasterLabel: 'Notifications',
 

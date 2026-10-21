@@ -69,6 +69,16 @@ export interface Lang {
   readonly emptyValue: string;
   /** 返回上一级的按钮名称（页头的返回），默认“返回” */
   readonly back: string;
+  /** 查询栏的查询按钮，默认“查询” */
+  readonly filterSearch: string;
+  /** 查询栏的重置按钮，默认“重置” */
+  readonly filterReset: string;
+  /** 查询栏展开更多条件，默认“展开” */
+  readonly filterExpand: string;
+  /** 查询栏收起更多条件，默认“收起” */
+  readonly filterCollapse: string;
+  /** 收起的条件里已经填了几项：`(2)` → “已设 2 项” */
+  readonly filterActive: (count: number) => string;
 
   // ───────── 组件文案 ─────────
 
