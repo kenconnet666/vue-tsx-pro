@@ -3,10 +3,11 @@ import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki';
 import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
 import { createApp } from 'vue';
 import { App } from './App';
-import { createDocsRouter } from './router';
+import { createDocsRouter, prefetchOnIntent } from './router';
 import { siteTheme, siteThemeReady } from './site/theme';
 
 const router = createDocsRouter();
+prefetchOnIntent(router);
 
 const app = createApp(App)
   .use(router)
