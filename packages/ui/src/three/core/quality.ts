@@ -1,7 +1,7 @@
 /**
  * 3D 效果的画质档位与 WebGL 上下文的数量上限。
  *
- * 档位决定像素比上限、粒子等元素的密度、是否抗锯齿；auto 按设备判断（触屏、核数、内存、省流量）。
+ * 档位决定像素比上限、粒子等元素的密度、是否抗锯齿；auto 按设备判断（触屏、核数、内存、省流量）；off 不渲染，显示降级内容。
  * 浏览器同时能保持的 WebGL 上下文有限（Chrome 约 16 个，超出时最早的上下文被强制丢失），
  * 页面上的效果多时由这里分配：超过上限时，回收最久没出现在视口里的那个，它再滚回视口时重建。
  */
@@ -16,6 +16,8 @@ export interface ThreeQualities {
   medium: unknown;
   /** 像素比上限 2、全密度 */
   high: unknown;
+  /** 不创建 WebGL，直接显示降级内容：用户在设置里关掉了特效、省电模式 */
+  off: unknown;
 }
 
 /** 画质档位名 */
@@ -24,7 +26,7 @@ export type ThreeQuality = keyof ThreeQualities;
 /** 档位落到渲染上的参数 */
 export interface ResolvedThreeQuality {
   /** 实际档位（auto 已按设备选定） */
-  level: Exclude<ThreeQuality, 'auto'>;
+  level: Exclude<ThreeQuality, 'auto' | 'off'>;
   /** 像素比上限：实际像素比取它与 devicePixelRatio 的较小值 */
   pixelRatio: number;
   /** 密度系数（0–1）：粒子数、网格细分等按它缩放 */
@@ -57,8 +59,10 @@ function deviceLevel(): ResolvedThreeQuality['level'] {
   return 'high';
 }
 
-/** 档位名 → 渲染参数 */
-export function resolveThreeQuality(quality: ThreeQuality = 'auto'): ResolvedThreeQuality {
+/** 档位名 → 渲染参数（off 不渲染，没有参数） */
+export function resolveThreeQuality(
+  quality: Exclude<ThreeQuality, 'off'> = 'auto',
+): ResolvedThreeQuality {
   const level = quality === 'auto' ? deviceLevel() : quality;
   return { level, ...LEVELS[level] };
 }

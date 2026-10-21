@@ -1,4 +1,4 @@
-// CopyButton：复制后换成对勾、播报“已复制”，timeout 后复原；value 可以是函数
+// CopyButton：复制后换成对勾、播报“已复制”，timeout 后复原；value 可以是函数，异步时转圈
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
@@ -41,4 +41,22 @@ it('aria-label 可以改；复制失败时回调拿到 false', async () => {
   button.click();
   await vi.waitFor(() => expect(onCopied).toHaveBeenCalledWith(false));
   expect(button.dataset.state).toBe('idle');
+});
+
+it('异步取值：等待时转圈（aria-busy），重复点击不再取值', async () => {
+  let resolve!: (text: string) => void;
+  const value = vi.fn(() => new Promise<string>((done) => (resolve = done)));
+  const onCopied = vi.fn();
+  const root = mount(() => <CopyButton value={value} onCopied={onCopied} />);
+  const button = root.querySelector('button')!;
+  button.click();
+  await nextTick();
+  expect(button.getAttribute('aria-busy')).toBe('true');
+  button.click();
+  expect(value).toHaveBeenCalledTimes(1);
+  resolve('later');
+  await vi.waitFor(() => expect(onCopied).toHaveBeenCalledWith(true));
+  await nextTick();
+  expect(writeText).toHaveBeenCalledWith('later');
+  expect(button.hasAttribute('aria-busy')).toBe(false);
 });

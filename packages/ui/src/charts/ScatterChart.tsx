@@ -18,7 +18,7 @@ import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 export interface ScatterChartProps<T extends object> extends XYChartProps<T> {
   /** 横轴的数值字段 */
   x: NumericKey<T>;
-  /** 横轴的名字：提示框与数据表里用；不写时用字段名 */
+  /** 横轴的名字：显示在横轴下方，提示框与数据表里也用；不写时轴下不显示，提示框与数据表用字段名 */
   xLabel?: string;
   /** 横轴数值的格式（Intl.NumberFormatOptions） */
   xFormat?: Intl.NumberFormatOptions;
@@ -52,6 +52,7 @@ export const ScatterChart = _component(
         value: (row) => seriesNumber(row, xKey),
         format: (value) => format.number(value, xFormat),
         label: xLabel ?? xKey,
+        title: xLabel,
       },
       components: ({ series, x, y, instance }) =>
         series.map((item) => {

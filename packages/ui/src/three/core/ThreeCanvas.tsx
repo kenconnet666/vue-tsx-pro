@@ -11,7 +11,7 @@
  *   />
  *
  * - 尺寸由外层 div 决定（默认占满父元素），canvas 铺满它，背景透明；
- * - 没有 WebGL 时显示 fallback，默认是一层主题色的柔和渐变；
+ * - 没有 WebGL、或 quality="off" 时显示 fallback，默认是一层主题色的柔和渐变；
  * - 默认是装饰（aria-hidden）；传了 aria-label 时是一张图（role="img"）；
  * - 渲染状态写在根元素的 data-state 上（idle / running / paused / still / fallback）。
  *
@@ -29,7 +29,7 @@ export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'
   /** 搭场景：每次创建渲染器时调用一次（被回收、上下文丢失后会重新调用），返回每帧、尺寸变化、释放的回调 */
   setup: (context: ThreeContext) => ThreeSceneHandle | void;
   /**
-   * 画质档位：像素比上限、粒子密度、抗锯齿；变了会重建
+   * 画质档位：像素比上限、粒子密度、抗锯齿；变了会重建。off 不创建 WebGL，显示 fallback
    * @default 'auto'
    */
   quality?: ThreeQuality;
@@ -40,9 +40,9 @@ export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'
    * @default 1
    */
   resolution?: number;
-  /** 没有 WebGL 时显示的内容，默认是主题色的柔和渐变 */
+  /** 没有 WebGL（或 quality 为 off）时显示的内容，默认是主题色的柔和渐变 */
   fallback?: VNodeChild;
-  /** 渲染状态变化时调用（同根元素的 data-state）：比如降级时改放一张静态图，或一次性的效果直接收尾 */
+  /** 渲染状态变化时调用（同根元素的 data-state），挂载时先调用一次：比如降级时改放一张静态图，或一次性的效果直接收尾 */
   onStatusChange?: (status: ThreeStatus) => void;
   /** canvas 的部件属性 */
   propsCanvas?: PartProps<'canvas', 'aria-hidden'>;
@@ -94,9 +94,11 @@ export const ThreeCanvas = _component(
       paused: () => paused,
       resolution: () => resolution,
     });
+    // 挂载时先报告一次：quality="off" 一开始就是 fallback，之后不再变
     watch(
       () => three.status,
       (status) => onStatusChange?.(status),
+      { immediate: true },
     );
 
     return () => {

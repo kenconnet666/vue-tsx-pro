@@ -101,7 +101,7 @@ export type ThreeStatus =
   | 'paused'
   /** 只画了一帧静止画面（减少动态效果） */
   | 'still'
-  /** 没有 WebGL：显示降级内容 */
+  /** 没有 WebGL，或画质是 off：显示降级内容 */
   | 'fallback';
 
 /** useThree 的选项 */
@@ -110,7 +110,7 @@ export interface ThreeOptions {
   canvas: () => HTMLCanvasElement | null | undefined;
   /** 搭场景：每次创建渲染器时调用一次 */
   setup: (context: ThreeContext) => ThreeSceneHandle | void;
-  /** 画质档位，默认 auto；变了会重建 */
+  /** 画质档位，默认 auto；变了会重建，off 时释放渲染器、显示降级内容 */
   quality?: () => ThreeQuality | undefined;
   /** 暂停循环（停在当前画面） */
   paused?: () => boolean | undefined;
@@ -172,7 +172,8 @@ interface Instance {
 export function useThree(options: ThreeOptions): ThreeController {
   const config = useConfig();
   const reducedMotion = useReducedMotion();
-  const status = shallowRef<ThreeStatus>('idle');
+  const off = () => options.quality?.() === 'off';
+  const status = shallowRef<ThreeStatus>(off() ? 'fallback' : 'idle');
   const pointer = usePointer(options.canvas);
   const generation = shallowRef(0);
   const themeStill = shallowRef(false);
@@ -185,6 +186,8 @@ export function useThree(options: ThreeOptions): ThreeController {
   let lastSeen = 0;
   let losses = 0;
   let unmounted = false;
+  // 创建失败或上下文反复丢失：换画质也不再重试（区别于 off 的降级）
+  let unsupported = false;
 
   const still = () => reducedMotion.value || themeStill.value;
 
@@ -245,8 +248,11 @@ export function useThree(options: ThreeOptions): ThreeController {
     invalidate();
   }
 
-  function create(canvas: HTMLCanvasElement): Instance {
-    const quality = resolveThreeQuality(options.quality?.());
+  function create(
+    canvas: HTMLCanvasElement,
+    level: Exclude<ThreeQuality, 'off'> | undefined,
+  ): Instance {
+    const quality = resolveThreeQuality(level);
     const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: quality.antialias });
     renderer.setClearColor(0x000000, 0);
     const camera = new PerspectiveCamera(45, 1, 0.1, 100);
@@ -290,12 +296,15 @@ export function useThree(options: ThreeOptions): ThreeController {
   function start() {
     const canvas = options.canvas();
     if (unmounted || instance || !canvas || !visible.value || status.value === 'fallback') return;
+    const level = options.quality?.();
+    if (level === 'off') return;
     if (!acquireContext(holder)) return;
     try {
-      instance = create(canvas);
+      instance = create(canvas, level);
     } catch {
       // 没有 WebGL（浏览器禁用、驱动黑名单、测试环境）
       releaseContext(holder);
+      unsupported = true;
       status.value = 'fallback';
       return;
     }
@@ -303,6 +312,7 @@ export function useThree(options: ThreeOptions): ThreeController {
       instance.handle = options.setup(instance.context) ?? {};
     } catch (error) {
       teardown();
+      unsupported = true;
       status.value = 'fallback';
       throw error;
     }
@@ -329,7 +339,8 @@ export function useThree(options: ThreeOptions): ThreeController {
     if (instance !== target) return;
     teardown();
     losses++;
-    status.value = losses >= MAX_CONTEXT_LOSSES ? 'fallback' : 'idle';
+    unsupported = losses >= MAX_CONTEXT_LOSSES;
+    status.value = unsupported ? 'fallback' : 'idle';
     // 丢失过上下文的 canvas 拿不回新的上下文：换一块
     if (status.value === 'idle') generation.value++;
   }
@@ -408,10 +419,16 @@ export function useThree(options: ThreeOptions): ThreeController {
   watch(
     () => options.quality?.(),
     () => {
-      if (!instance) return;
-      teardown();
-      status.value = 'idle';
-      generation.value++;
+      if (unsupported) return;
+      if (off()) {
+        teardown();
+        status.value = 'fallback';
+      } else if (instance || status.value === 'fallback') {
+        // 换档重建；从 off 回来时渲染方重新挂上 canvas，再按可见性创建
+        teardown();
+        status.value = 'idle';
+        generation.value++;
+      }
     },
   );
 

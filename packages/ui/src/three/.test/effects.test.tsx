@@ -215,6 +215,21 @@ describe('Confetti', () => {
     expect(done).toHaveBeenCalledTimes(1);
     expect(root.querySelector('[data-state]')).toBeNull();
   });
+
+  it('quality="off"：不放，直接收尾并调用 onDone', async () => {
+    const done = vi.fn();
+    let fired = _state(0);
+    const root = mount(() => (
+      <Confetti trigger={fired} quality="off" fullscreen={false} onDone={done} />
+    ));
+    fired++;
+    await nextTick();
+    await Promise.resolve();
+    await nextTick();
+    expect(done).toHaveBeenCalledTimes(1);
+    expect(FakeRenderer.instances).toHaveLength(0);
+    expect(root.querySelector('[data-state]')).toBeNull();
+  });
 });
 
 describe('Globe', () => {

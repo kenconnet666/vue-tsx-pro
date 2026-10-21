@@ -29,7 +29,7 @@ export type CopyButtonManaged = 'disabled' | 'aria-disabled' | 'aria-busy' | 'va
 export interface CopyButtonProps
   extends PartProps<'button', CopyButtonManaged>, Omit<ButtonOptions, 'loading' | 'propsSpinner'> {
   /**
-   * 要复制的文字；给函数时点击时才取值，可以返回 Promise（内容按需加载）。
+   * 要复制的文字；给函数时点击时才取值，可以返回 Promise（内容按需加载，等待时按钮转圈）。
    * 返回字符串时同步写入剪贴板；Safari 只认点击当下的写入，异步内容最好提前加载好
    */
   value: string | (() => string | Promise<string>);
@@ -49,7 +49,7 @@ export interface CopyButtonProps
   tone?: ButtonOptions['tone'];
   /** 不可用 */
   disabled?: boolean;
-  /** 复制完成后调用，参数是是否成功（不安全的上下文、用户拒绝权限时失败） */
+  /** 复制完成后调用，参数是是否成功（不安全的上下文、用户拒绝权限、异步取值出错时失败） */
   onCopied?: (success: boolean) => void;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
@@ -87,6 +87,8 @@ export const CopyButton = _component(
   }: CopyButtonProps) => {
     const lang = useLang();
     const clipboard = useClipboard({ timeout: _untrack(timeout) });
+    // 异步取值时转圈、忽略重复点击
+    let pending = _state(false);
     const appearance = useButtonAppearance(
       () => ({ variant, tone, size, radius }),
       'ghost',
@@ -94,14 +96,21 @@ export const CopyButton = _component(
       'neutral',
     );
     const behavior = useButtonBehavior(
-      () => ({ disabled, loading: false, ripple }),
+      () => ({ disabled, loading: pending, ripple }),
       () => () => void copy(),
     );
 
     async function copy() {
       const text = typeof value === 'function' ? value() : value;
-      const success = await clipboard.copy(typeof text === 'string' ? text : await text);
-      onCopied?.(success);
+      let success = false;
+      pending = typeof text !== 'string';
+      try {
+        // 字符串在点击当下就写入（不先 await），Safari 才认
+        success = await clipboard.copy(typeof text === 'string' ? text : await text);
+      } finally {
+        pending = false;
+        onCopied?.(success);
+      }
     }
 
     return () => (
@@ -125,7 +134,7 @@ export const CopyButton = _component(
               sx: clipboard.copied && copyButtonStyles.copied,
             }),
           },
-          { loading: false },
+          { loading: pending },
         )}
         <VisuallyHidden
           {...mergeProps<Partial<VisuallyHiddenProps>>(propsStatus ?? {}, {

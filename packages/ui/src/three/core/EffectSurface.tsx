@@ -21,7 +21,7 @@ import { ThreeCanvas, type ThreeCanvasProps } from './ThreeCanvas';
 /** 各种效果共有的属性；未声明的属性落到外层 div 上 */
 export interface EffectProps extends PartProps<'div'> {
   /**
-   * 画质档位：像素比上限、粒子密度、抗锯齿
+   * 画质档位：像素比上限、粒子密度、抗锯齿；off 不渲染，显示 fallback
    * @default 'auto'
    */
   quality?: ThreeQuality;
@@ -29,7 +29,7 @@ export interface EffectProps extends PartProps<'div'> {
   paused?: boolean;
   /** 渲染分辨率相对像素比的倍数（0.1–1），见 ThreeCanvas；各效果有自己的默认值 */
   resolution?: number;
-  /** 没有 WebGL 时显示的内容，默认是主题色的柔和渐变 */
+  /** 没有 WebGL（或 quality 为 off）时显示的内容，默认是主题色的柔和渐变 */
   fallback?: VNodeChild;
   /** 画布（ThreeCanvas）的部件属性 */
   propsCanvas?: Omit<Partial<ThreeCanvasProps>, 'setup'>;

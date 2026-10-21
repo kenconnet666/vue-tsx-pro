@@ -101,11 +101,12 @@ export interface XYChartKind<T extends object> {
   padding?: { left?: number; right?: number; top?: number; bottom?: number };
   /** 数值范围按堆叠后的总和算（堆叠的柱子、面积） */
   stacked?: boolean;
-  /** 横轴是连续的数值（散点图）：取值、刻度与提示框里的写法、数据表的列名；不写时横轴是类目（第几行） */
+  /** 横轴是连续的数值（散点图）：取值、刻度与提示框里的写法、数据表的列名、轴下方的标题；不写时横轴是类目（第几行） */
   continuousX?: {
     value: (row: T) => number | undefined;
     format: (value: number) => string;
     label: string;
+    title?: string;
   };
   /** 数值轴默认从 0 起（数据有负数时取负数）；false 时按数据自动取（散点图） */
   zeroBaseline?: boolean;
@@ -289,6 +290,8 @@ export const XYChart = _component(
         domainLine: false,
         tickTextHideOverlapping: true,
         tickPadding: 8,
+        label: continuous?.title,
+        labelMargin: 8,
       });
       valueAxis.setConfig({
         type: kind.horizontal ? 'x' : 'y',

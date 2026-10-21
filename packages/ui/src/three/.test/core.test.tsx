@@ -49,6 +49,39 @@ describe('降级与无障碍', () => {
     expect(root.querySelector('img')).not.toBeNull();
   });
 
+  it('quality="off"：不创建渲染器、直接降级；换回别的档位时在视口里重新创建', async () => {
+    const quality = shallowRef<'off' | 'low'>('off');
+    const root = mount(() => <ThreeCanvas quality={quality.value} setup={() => {}} />);
+    const state = () => root.firstElementChild!.getAttribute('data-state');
+    expect(state()).toBe('fallback');
+    expect(root.querySelector('canvas')).toBeNull();
+    quality.value = 'low';
+    await nextTick();
+    await nextTick();
+    setIntersecting(true);
+    await nextTick();
+    expect(state()).toBe('running');
+    expect(FakeRenderer.instances).toHaveLength(1);
+    quality.value = 'off';
+    await nextTick();
+    expect(state()).toBe('fallback');
+    expect(FakeRenderer.instances[0]!.disposed).toBe(true);
+    expect(activeThreeContexts()).toBe(0);
+  });
+
+  it('真的没有 WebGL 时，换画质也不再重试', async () => {
+    FakeRenderer.fail = true;
+    const quality = shallowRef<'low' | 'high'>('low');
+    const root = mount(() => <ThreeCanvas quality={quality.value} setup={() => {}} />);
+    await nextTick();
+    setIntersecting(true);
+    await nextTick();
+    quality.value = 'high';
+    await nextTick();
+    expect(root.firstElementChild!.getAttribute('data-state')).toBe('fallback');
+    expect(root.querySelector('canvas')).toBeNull();
+  });
+
   it('默认是装饰（aria-hidden）；有 aria-label 时是一张图', () => {
     const root = mount(() => (
       <>
