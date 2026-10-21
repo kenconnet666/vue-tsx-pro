@@ -157,6 +157,8 @@ export class Virtualizer {
   private scrollElement: HTMLElement | Window | null = null;
   private itemObserver: ResizeObserver | null = null;
   private readonly observed = new Set<Element>();
+  /** 这一批新渲染、还没量过的项 */
+  private readonly unmeasured: HTMLElement[] = [];
   private pendingScroll = 0;
 
   constructor(options: VirtualizerOptions) {
@@ -190,7 +192,7 @@ export class Virtualizer {
     }
     if (typeof ResizeObserver !== 'undefined') {
       // 测量结果下一帧再用：在回调里同步改布局（重排位置、调整滚动），浏览器会报
-      // “ResizeObserver loop completed with undelivered notifications”。第一次测量在 measureElement 里已经同步做过
+      // “ResizeObserver loop completed with undelivered notifications”。第一次测量在 measureRendered 里已经做过
       this.itemObserver = new ResizeObserver((entries) => {
         const sizes = entries.map((entry) => [entry.target, this.borderBoxSize(entry)] as const);
         requestAnimationFrame(() => {
@@ -268,8 +270,8 @@ export class Virtualizer {
   }
 
   /**
-   * 测量渲染出来的项：作为元素的 ref 回调，元素要带 data-index。之后大小变化由 ResizeObserver 自动更新。
-   * 传 null（元素卸载）时不再观察已经离开文档的元素。
+   * 测量渲染出来的项：作为元素的 ref 回调，元素要带 data-index。同一批渲染的项在微任务里一起量，
+   * 之后大小变化由 ResizeObserver 自动更新。传 null（元素卸载）时不再观察已经离开文档的元素。
    */
   measureElement = (element: Element | null): void => {
     if (!element) {
@@ -280,15 +282,29 @@ export class Virtualizer {
       }
       return;
     }
-    // 只在元素第一次出现时同步量：之后的变化交给 ResizeObserver。
-    // 量布局尺寸（offsetHeight）而不是 getBoundingClientRect：浮层进场的 scale 变换会把后者缩小，
-    // 元素之后被复用（列表过滤、重排）时 ResizeObserver 不会再报，缩小的值就一直留着，行与行叠在一起
+    // 只在元素第一次出现时量（这一批渲染完、绘制之前）：之后的变化交给 ResizeObserver
     if (this.observed.has(element)) return;
     this.observed.add(element);
     this.itemObserver?.observe(element);
-    const box = element as HTMLElement;
-    this.resizeItem(element, this.options.horizontal ? box.offsetWidth : box.offsetHeight);
+    this.unmeasured.push(element as HTMLElement);
+    if (this.unmeasured.length === 1) queueMicrotask(() => this.measureRendered());
   };
+
+  /**
+   * 量这一批新渲染的项：先全部读完再更新。边读边改（调整滚动位置）时每次读取都强制重新布局，
+   * 一次渲染很多项（如滚动容器没有限高，所有项都“可见”）时是平方级的布局，页面会卡死。
+   * 量布局尺寸（offsetHeight）而不是 getBoundingClientRect：浮层进场的 scale 变换会把后者缩小，
+   * 元素之后被复用（列表过滤、重排）时 ResizeObserver 不会再报，缩小的值就一直留着，行与行叠在一起
+   */
+  private measureRendered() {
+    const { horizontal } = this.options;
+    const sizes = this.unmeasured
+      .splice(0)
+      .map(
+        (element) => [element, horizontal ? element.offsetWidth : element.offsetHeight] as const,
+      );
+    for (const [element, size] of sizes) this.resizeItem(element, size);
+  }
 
   /** 滚动到第 index 项 */
   scrollToIndex(index: number, { align = 'auto', behavior }: VirtualScrollOptions = {}): void {

@@ -75,6 +75,9 @@ function fakeScroller(viewport = 100) {
   return element;
 }
 
+/** 同一批渲染的项在微任务里一起量：等它们量完、通知完 */
+const measured = () => new Promise((resolve) => setTimeout(resolve));
+
 /** 渲染一项：带 data-index 与指定高度 */
 function itemElement(index: number, height: number) {
   const element = document.createElement('div');
@@ -133,24 +136,27 @@ describe('Virtualizer', () => {
     expect(virtualizer.getVisibleRange()).toEqual({ startIndex: 20, endIndex: 24 });
   });
 
-  it('测量到真实大小后重排位置；可视区上方的项变大时同步调整滚动位置', () => {
+  it('测量到真实大小后重排位置；可视区上方的项变大时同步调整滚动位置', async () => {
     const { element, virtualizer } = create();
     virtualizer.measureElement(itemElement(0, 50));
+    await measured();
     expect(virtualizer.getMeasurements()[1]!.start).toBe(50);
     expect(virtualizer.getTotalSize()).toBe(20030);
 
     virtualizer.scrollToOffset(1000);
     virtualizer.measureElement(itemElement(1, 70));
+    await measured();
     // 第 1 项在可视区上方，变大 50：滚动位置跟着加 50，看到的内容不动
     expect(element.scrollTop).toBe(1050);
   });
 
-  it('一批测量只通知一次，位置表从变化处往后补算', async () => {
+  it('一批测量只通知一次，先全部读完再更新，位置表从变化处往后补算', async () => {
     const { virtualizer, onChange } = create();
     onChange.mockClear();
-    for (let index = 0; index < 5; index++) virtualizer.measureElement(itemElement(index, 30));
+    const elements = Array.from({ length: 5 }, (_, index) => itemElement(index, 30));
+    for (const element of elements) virtualizer.measureElement(element);
     expect(onChange).not.toHaveBeenCalled();
-    await Promise.resolve();
+    await measured();
     expect(onChange).toHaveBeenCalledTimes(1);
     const items = virtualizer.getMeasurements();
     expect(items[4]).toMatchObject({ start: 120, size: 30, end: 150 });
@@ -158,11 +164,36 @@ describe('Virtualizer', () => {
     expect(virtualizer.getTotalSize()).toBe(20000 + 5 * 10);
   });
 
-  it('首次测量取布局尺寸：浮层进场的 scale 变换不影响（getBoundingClientRect 会被缩小）', () => {
+  it('同一批先全部读完尺寸再调整滚动位置：边读边改每次读取都会强制重新布局', async () => {
+    const { element, virtualizer } = create();
+    virtualizer.scrollToOffset(1000);
+    const log: string[] = [];
+    const scrollBy = element.scrollBy.bind(element);
+    element.scrollBy = ((options: ScrollToOptions) => {
+      log.push('scroll');
+      scrollBy(options);
+    }) as typeof element.scrollBy;
+    for (const index of [0, 1, 2]) {
+      const item = document.createElement('div');
+      item.dataset.index = String(index);
+      Object.defineProperty(item, 'offsetHeight', {
+        get: () => (log.push(`read ${index}`), 30),
+      });
+      document.body.append(item);
+      virtualizer.measureElement(item);
+    }
+    await measured();
+    // 三项都在可视区上方，各变大 10
+    expect(log).toEqual(['read 0', 'read 1', 'read 2', 'scroll', 'scroll', 'scroll']);
+    expect(element.scrollTop).toBe(1030);
+  });
+
+  it('首次测量取布局尺寸：浮层进场的 scale 变换不影响（getBoundingClientRect 会被缩小）', async () => {
     const { virtualizer } = create();
     const element = itemElement(0, 48);
     element.getBoundingClientRect = () => ({ height: 36, width: 75 }) as DOMRect;
     virtualizer.measureElement(element);
+    await measured();
     expect(virtualizer.getMeasurements()[0]!.size).toBe(48);
   });
 
@@ -192,13 +223,14 @@ describe('Virtualizer', () => {
     }
   });
 
-  it('大小为 0（还没排版）的测量值不采用', () => {
+  it('大小为 0（还没排版）的测量值不采用', async () => {
     const { virtualizer } = create();
     virtualizer.measureElement(itemElement(0, 0));
+    await measured();
     expect(virtualizer.getMeasurements()[0]!.size).toBe(20);
   });
 
-  it('测量结果按 key 缓存：数据重排后仍对得上', () => {
+  it('测量结果按 key 缓存：数据重排后仍对得上', async () => {
     let order = ['a', 'b', 'c'];
     const options = (): Partial<VirtualizerOptions> => ({
       count: order.length,
@@ -206,6 +238,7 @@ describe('Virtualizer', () => {
     });
     const { virtualizer, element } = create(options());
     virtualizer.measureElement(itemElement(0, 60));
+    await measured();
     order = ['c', 'b', 'a'];
     virtualizer.setOptions({
       count: 3,
