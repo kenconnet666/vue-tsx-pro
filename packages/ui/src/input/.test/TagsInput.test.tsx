@@ -33,6 +33,26 @@ describe('TagsInput', () => {
     expect(value).toEqual([]);
   });
 
+  it('失焦时把没确认的文字加成标签；acceptOnBlur={false} 时文字留在框里', async () => {
+    let value = _state<string[]>([]);
+    let kept = _state<string[]>([]);
+    const root = mount(() => (
+      <>
+        <TagsInput value={_bind(value)} aria-label="关键词" />
+        <TagsInput value={_bind(kept)} acceptOnBlur={false} aria-label="备注" />
+      </>
+    ));
+    const [accepting, keeping] = root.querySelectorAll('input');
+    await type(accepting!, '降本');
+    accepting!.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    expect([value, accepting!.value]).toEqual([['降本'], '']);
+    await type(keeping!, '草稿');
+    keeping!.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    expect([kept, keeping!.value]).toEqual([[], '草稿']);
+  });
+
   it('输入分隔符时加入前面的部分；粘贴按分隔符与换行拆开；max 之外不加', async () => {
     let value = _state<string[]>([]);
     const root = mount(() => <TagsInput value={_bind(value)} max={3} aria-label="x" />);

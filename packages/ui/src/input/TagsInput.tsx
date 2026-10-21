@@ -72,6 +72,8 @@ export interface TagsInputBaseProps<T>
   items?: readonly T[];
   /** 允许加入不在建议里的文字，默认 true */
   allowCustomValue?: boolean;
+  /** 失焦时把输入框里还没确认的文字加成标签，默认 true（同 Mantine）；false 时文字留在框里 */
+  acceptOnBlur?: boolean;
   /** 把输入拆成标签的分隔符，默认 [',', '，', ';', '；']；回车与粘贴里的换行总是分隔 */
   delimiters?: readonly string[];
   /** 最多几个标签；到了上限不再加入 */
@@ -133,6 +135,7 @@ export const TagsInput = _component(
     items = [],
     toOption,
     allowCustomValue = true,
+    acceptOnBlur = true,
     delimiters = DELIMITERS,
     max,
     inputValue = _bindable(''),
@@ -342,7 +345,11 @@ export const TagsInput = _component(
                 'aria-describedby': state.describedBy,
                 onKeydown,
                 onPaste,
-                onBlur: () => (open = false),
+                onBlur: () => {
+                  open = false;
+                  if (acceptOnBlur && inputValue.trim() && !control().readonly && add([inputValue]))
+                    inputValue = '';
+                },
               })}
               value={_bind(inputValue)}
             />

@@ -22,6 +22,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
+import { focusControl } from '../utils/dom/focus';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import {
@@ -161,12 +162,27 @@ export const labelStyles = stylex.create({
   required: { alignSelf: 'flex-start', width: '0.7em', height: '0.7em', color: '_dangerText' },
 });
 
+/**
+ * for 指向的不是原生能被标签关联的元素（单选组、滑块组、日期分段这类 role="group"）时，点标签浏览器什么也不做：
+ * 改为聚焦它里面第一个能聚焦的控件（同点原生输入框的标签）
+ */
+function focusGroupControl(event: MouseEvent) {
+  const label = event.currentTarget as HTMLLabelElement;
+  if (event.defaultPrevented || label.control || !label.htmlFor) return;
+  const target = label.ownerDocument.getElementById(label.htmlFor);
+  if (target) focusControl(target);
+}
+
 /** 表单标签（label）：for 指向控件；Field 里自动关联，单独使用时自己写 for */
 export const Label = _component(
   ({ required = false, disabled = false, propsRequired, children, ...rest }: LabelProps) =>
     () => (
       <label
-        {...mergeAttrs<'label'>({ sx: [labelStyles.root, disabled && labelStyles.disabled] }, rest)}
+        {...mergeAttrs<'label'>(
+          { sx: [labelStyles.root, disabled && labelStyles.disabled] },
+          rest,
+          { onClick: focusGroupControl },
+        )}
         data-disabled={disabled || undefined}
       >
         {children}

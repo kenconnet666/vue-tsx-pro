@@ -1,6 +1,7 @@
 // FileDrop：accept 的匹配、拖放过滤；Upload：上传进度与结果、失败重试、移除时中止、大小上限、单选替换
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
+import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
 import { FileDrop, matchesAccept } from '../FileDrop';
 import { Upload, type UploadFile, type UploadHandler } from '../Upload';
@@ -168,5 +169,35 @@ describe('Upload', () => {
     await flush();
     expect(upload).toHaveBeenCalledTimes(1);
     expect(list[0]!.status).toBe('uploading');
+  });
+  it('读 Field 的只读与不可用；已有文件时选择框不再原生必填（它选完就清空，否则表单交不了）', async () => {
+    const files: UploadFile[] = [{ id: 'a', file: file('a.txt'), status: 'done' }];
+    const root = mount(() => (
+      <>
+        <Field label="附件" readonly>
+          <Upload value={files} class="readonly" />
+        </Field>
+        <Field label="附件" disabled>
+          <Upload value={files} class="disabled" />
+        </Field>
+        <Field label="附件" required>
+          <Upload value={files} class="filled" />
+        </Field>
+        <Field label="附件" required>
+          <Upload class="empty" />
+        </Field>
+      </>
+    ));
+    await flush();
+    const readonly = root.querySelector('.readonly')!;
+    expect(readonly.querySelector('input[type=file]')).toBeNull();
+    expect(readonly.querySelector('button')).toBeNull();
+    expect(root.querySelector<HTMLButtonElement>('.disabled button')!.disabled).toBe(true);
+    expect(root.querySelector<HTMLInputElement>('.disabled input[type=file]')!.disabled).toBe(true);
+    expect(root.querySelector<HTMLInputElement>('.filled input[type=file]')!.required).toBe(false);
+    const empty = root.querySelector<HTMLInputElement>('.empty input[type=file]')!;
+    expect(empty.required).toBe(true);
+    // 选择框照常从 Field 拿 id：标签指向它
+    expect(empty.id).toBe(root.querySelectorAll('label[for]')[3]!.getAttribute('for'));
   });
 });

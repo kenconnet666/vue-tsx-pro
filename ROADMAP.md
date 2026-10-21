@@ -101,7 +101,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       checkStrictly 与 manualSort
 - [x] 日期：字符串的 min / max 带时间时日历按日期部分禁用；表单重置时分段丢掉半截输入（新增 `resetCount`、`useFormReset`）；
       年份打满四位或离开这一段才写回；分段里按 Enter 写回并提交所在的表单
-- [ ] TagsInput 失焦时保留文字（acceptOnBlur）；Upload / FileDrop 读 Field 的只读与不可用；Label 点击聚焦组控件
+- [x] TagsInput 失焦时把文字加成标签（`acceptOnBlur`，默认 true，同 Mantine）；Upload / FileDrop 读 Field 的只读与不可用、
+      已有文件时不再原生必填；Label 的 for 指向组时点击聚焦组里第一个控件（focusControl 先判断能否聚焦）
 - [ ] Toast：只给显示出来的计时；important（role="alert"）；Progress 的不确定动画跟随从右到左
 - [ ] reveal.ts 的转场样式只在转场期间生效；主题定制的圆角档位按主题自己的取值缩放
 

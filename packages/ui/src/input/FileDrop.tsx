@@ -48,6 +48,8 @@ export interface FileDropProps extends PartProps<
   disabled?: boolean;
   /** 必填 */
   required?: boolean;
+  /** 只读：不能选文件（同不可用，文件输入框没有原生的只读） */
+  readonly?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
   /** 选到了文件（已按 accept 过滤） */
@@ -106,6 +108,7 @@ export const FileDrop = _component(
     multiple = false,
     disabled,
     required,
+    readonly,
     invalid,
     onFiles,
     onReject,
@@ -119,7 +122,8 @@ export const FileDrop = _component(
     ...rest
   }: FileDropProps) => {
     const lang = useLang();
-    const control = useFieldControl(() => ({ id, invalid, required, disabled }));
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    const locked = () => control().disabled || control().readonly;
     let dragging = _state(false);
     // dragenter / dragleave 在子元素之间也会触发：计数，回到 0 才算离开
     let depth = 0;
@@ -141,7 +145,7 @@ export const FileDrop = _component(
     }
 
     const accepting = (event: DragEvent) =>
-      !control().disabled && (event.dataTransfer?.types.includes('Files') ?? false);
+      !locked() && (event.dataTransfer?.types.includes('Files') ?? false);
 
     const dragHandlers = {
       onDragenter: (event: DragEvent) => {
@@ -181,7 +185,7 @@ export const FileDrop = _component(
                 focusRingStyles.hasVisible,
                 dragging && fileDropStyles.dragging,
                 field.invalid && fileDropStyles.invalid,
-                field.disabled && fileDropStyles.disabled,
+                (field.disabled || field.readonly) && fileDropStyles.disabled,
               ],
             },
             propsRoot,
@@ -189,6 +193,7 @@ export const FileDrop = _component(
           )}
           data-dragging={dragging || undefined}
           data-disabled={field.disabled || undefined}
+          data-readonly={field.readonly || undefined}
         >
           <input
             {...mergeAttrs<'input'>({ sx: visuallyHiddenStyles.hidden }, rest, {
@@ -196,7 +201,7 @@ export const FileDrop = _component(
               id: field.id,
               accept,
               multiple,
-              disabled: field.disabled,
+              disabled: field.disabled || field.readonly,
               required: field.required,
               'aria-invalid': field.invalid || undefined,
               'aria-describedby': field.describedBy,

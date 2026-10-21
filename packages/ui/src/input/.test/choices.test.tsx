@@ -232,3 +232,16 @@ describe('组的名称', () => {
     expect(root.querySelector('[role="group"]')!.getAttribute('aria-labelledby')).toBe('custom');
   });
 });
+
+it('点 Field 的标签聚焦组里的第一个控件（for 指向的单选组不是原生能关联的元素）', () => {
+  const root = mount(() => (
+    <Field label="配送">
+      <RadioGroup>
+        <Radio value="express">快递</Radio>
+        <Radio value="pickup">自提</Radio>
+      </RadioGroup>
+    </Field>
+  ));
+  root.querySelector<HTMLLabelElement>('label[for]')!.click();
+  expect(document.activeElement).toBe(root.querySelector('input[value="express"]'));
+});

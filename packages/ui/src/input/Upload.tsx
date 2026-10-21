@@ -26,6 +26,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
+import { useFieldControl } from '../form/Field';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
@@ -74,6 +75,8 @@ export interface UploadProps extends PartProps<'div'> {
   name?: string;
   /** 不可用 */
   disabled?: boolean;
+  /** 只读：只列出文件，不能再选、不能移除或重试 */
+  readonly?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
   /** 必填 */
@@ -138,6 +141,7 @@ export const Upload = _component(
     maxFiles,
     name,
     disabled,
+    readonly,
     invalid,
     required,
     description,
@@ -155,6 +159,10 @@ export const Upload = _component(
   }: UploadProps) => {
     const lang = useLang();
     const format = useFormat();
+    // delegate：里面的 FileDrop 照常从 Field 拿 id、说明与标签
+    const control = useFieldControl(() => ({ invalid, required, disabled, readonly }), {
+      delegate: true,
+    });
     let hidden = _state.raw<HTMLInputElement | null>(null);
     // 每个正在上传的文件一个：移除、重试、卸载时中止
     const controllers = new Map<string, AbortController>();
@@ -221,6 +229,7 @@ export const Upload = _component(
     });
 
     function renderItem(item: UploadFile) {
+      const state = control();
       const own = typeof propsItem === 'function' ? propsItem(item) : propsItem;
       const fileName = item.file.name;
       const failed = item.status === 'error';
@@ -268,7 +277,7 @@ export const Upload = _component(
               </span>
             )}
           </div>
-          {failed && upload && !item.rejected && (
+          {failed && upload && !item.rejected && !state.readonly && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
@@ -283,55 +292,70 @@ export const Upload = _component(
               )}
             />
           )}
-          <IconButton
-            {...mergePartProps<IconButtonProps>(
-              {
-                icon: X,
-                variant: 'ghost',
-                size: 'sm',
-                'aria-label': lang.uploadRemove(fileName),
-              },
-              propsRemove,
-              { disabled, onClick: () => remove(item.id) },
-            )}
-          />
+          {!state.readonly && (
+            <IconButton
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: X,
+                  variant: 'ghost',
+                  size: 'sm',
+                  'aria-label': lang.uploadRemove(fileName),
+                },
+                propsRemove,
+                { disabled: state.disabled, onClick: () => remove(item.id) },
+              )}
+            />
+          )}
         </li>
       );
     }
 
-    return () => (
-      <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest)}>
-        <FileDrop
-          {...mergePartProps<FileDropProps>(
-            { accept, multiple, disabled, invalid, required, description },
-            propsDrop,
-            {
-              onFiles: (files) => add(files),
-              onReject: (files) => add(files, true),
-            },
+    return () => {
+      const state = control();
+      return (
+        <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest)}>
+          {!state.readonly && (
+            <FileDrop
+              {...mergePartProps<FileDropProps>(
+                {
+                  accept,
+                  multiple,
+                  disabled: state.disabled,
+                  invalid: state.invalid,
+                  // 选好的文件不在这个输入框里（它选完就清空）：已有文件时不再原生必填，免得表单交不了
+                  required: state.required && value.length === 0,
+                  description,
+                },
+                propsDrop,
+                {
+                  onFiles: (files) => add(files),
+                  onReject: (files) => add(files, true),
+                },
+              )}
+            />
           )}
-        />
-        {name != null && (
-          <input
-            ref={_toRef(hidden)}
-            type="file"
-            name={name}
-            multiple
-            hidden
-            tabindex={-1}
-            aria-hidden="true"
-          />
-        )}
-        {value.length > 0 && (
-          // 状态变化（失败、完成）由读屏播报
-          <GridList
-            {...mergePartProps<GridProps<'ul'>>({ gap: 'xs' }, propsList)}
-            aria-live="polite"
-          >
-            {value.map(renderItem)}
-          </GridList>
-        )}
-      </div>
-    );
+          {name != null && (
+            <input
+              ref={_toRef(hidden)}
+              type="file"
+              name={name}
+              multiple
+              hidden
+              tabindex={-1}
+              aria-hidden="true"
+            />
+          )}
+          {value.length > 0 && (
+            // 状态变化（失败、完成）由读屏播报
+            <GridList
+              {...mergePartProps<GridProps<'ul'>>({ gap: 'xs' }, propsList)}
+              aria-live="polite"
+            >
+              {value.map(renderItem)}
+            </GridList>
+          )}
+        </div>
+      );
+    };
   },
 );

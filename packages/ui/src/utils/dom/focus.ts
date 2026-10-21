@@ -17,8 +17,9 @@ export function focusFirst(container: HTMLElement): void {
  * 表单提交不通过时把焦点移到出错的控件上用它
  */
 export function focusControl(element: HTMLElement): void {
-  element.focus();
-  if (document.activeElement !== element) tabbable(element)[0]?.focus();
+  // 先看能不能聚焦，而不是聚焦后再看 activeElement：有的环境（happy-dom）让任何元素都能拿到焦点
+  const target = element.matches(FOCUSABLE) ? element : tabbable(element)[0];
+  target?.focus();
 }
 
 const FOCUSABLE = 'button, a[href], input, select, textarea, summary, [tabindex]';
