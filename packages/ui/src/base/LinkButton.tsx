@@ -8,7 +8,7 @@
 import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
-import { useRouterLink } from '../utils/dom/link';
+import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
@@ -81,7 +81,7 @@ export const LinkButton = _component(
         {...mergeAttrs<'a'>(
           {
             sx: buttonSx(appearance(), { disabled, fullWidth }),
-            ...(external && { target: '_blank', rel: 'noopener noreferrer' }),
+            ...(external && externalLinkAttrs),
           },
           rest,
           {

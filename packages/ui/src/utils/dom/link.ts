@@ -14,6 +14,9 @@ export function shouldRouteClick(event: MouseEvent, anchor: HTMLAnchorElement): 
   return anchor.origin === window.location.origin;
 }
 
+/** 外部链接（external）的属性：新窗口打开，不把本页交给对方（window.opener）、不带来源地址 */
+export const externalLinkAttrs = { target: '_blank', rel: 'noopener noreferrer' } as const;
+
 /** 外部链接（带协议、// 开头）与页内锚点（#…）不经过路由 */
 const isRoutable = (href: string) => !/^([a-z][\w+.-]*:|\/\/|#)/i.test(href);
 

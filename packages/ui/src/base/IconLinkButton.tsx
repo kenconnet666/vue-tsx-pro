@@ -6,7 +6,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
-import { useRouterLink } from '../utils/dom/link';
+import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
@@ -85,7 +85,7 @@ export const IconLinkButton = _component(
         {...mergeAttrs<'a'>(
           {
             sx: buttonSx(appearance(), { disabled, square: true }),
-            ...(external && { target: '_blank', rel: 'noopener noreferrer' }),
+            ...(external && externalLinkAttrs),
           },
           rest,
           {

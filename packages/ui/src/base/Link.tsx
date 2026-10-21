@@ -12,7 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
-import { useRouterLink } from '../utils/dom/link';
+import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { toneStyles, type Tone } from '../utils/style/typography';
@@ -85,7 +85,7 @@ export const Link = _component(
           },
           rest,
           external
-            ? { href, target: '_blank', rel: 'noopener noreferrer' }
+            ? { href, ...externalLinkAttrs }
             : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
               {
                 href: router.href(href),
