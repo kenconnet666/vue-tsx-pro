@@ -5,6 +5,7 @@
  *   外层是 ScrollArea（两个方向滚动，视口可聚焦，键盘也能滚）。
  * - 虚拟滚动（useVirtualizer）：只渲染看得见的行，上下各一行占位撑出滚动高度（各列仍在同一张表里对齐）；
  *   行带 aria-rowindex，表格带 aria-rowcount，读屏知道总行数与当前位置。
+ * - 分组表头（columnGroups）：相邻的几列上方共用一个标题，表头两行（th scope="colgroup"），没分组的列跨两行。
  * - 吸顶表头、固定列：position: sticky，固定列的偏移按列宽累加（逻辑方向，从右到左排版自动换边）；
  *   固定列的单元格继承行的底色，盖住滚过去的内容。
  * - 排序：可排序的列标题是按钮，th 带 aria-sort；勾选列用 Checkbox（表头的全选有部分选中状态）。
@@ -38,10 +39,12 @@ import {
   columnType,
   columnValue,
   formatCell,
+  headerLayout,
   stickyOffsets,
   sumColumn,
   tableMinWidth,
   type ColumnTypes,
+  type DataTableColumnGroup,
   type SortState,
   type StickyOffsets,
   type DataTableColumn,
@@ -129,6 +132,8 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   hiddenColumns?: readonly string[];
   /** 合计行第一列的文字（第一列自己没写 summary 时），默认取语言包（合计） */
   summaryLabel?: VNodeChild;
+  /** 分组表头：相邻的几列上方共用一个标题，表头变成两行；没分组的列跨两行 */
+  columnGroups?: readonly DataTableColumnGroup[];
   /** 可见行范围变化（不含 overscan）：接近末尾时加载更多 */
   onRangeChange?: (range: VisibleRange) => void;
   /** 外层滚动区域（决定表格的高度）的部件属性；高度用 sx 给，默认最高 32em */
@@ -143,6 +148,8 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsEmpty?: Partial<EmptyProps>;
   /** 加载中占位的部件属性 */
   propsSkeleton?: SkeletonShapeProps;
+  /** 分组标题（th，跨组里的几列）的部件属性，可以按组计算 */
+  propsGroupHeaderCell?: PartProps<'th'> | ((group: DataTableColumnGroup) => PartProps<'th'>);
   /** 可排序列标题里的排序按钮的部件属性 */
   propsSortButton?: Partial<ButtonBaseProps>;
   /** 列宽调整手柄的部件属性 */
@@ -151,7 +158,7 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsSortLabel?: PartProps<'span'>;
   /** 表头（thead，吸顶）的部件属性 */
   propsHead?: PartProps<'thead'>;
-  /** 表头那一行（tr）的部件属性 */
+  /** 表头的行（tr）的部件属性；分组表头的两行都用它 */
   propsHeadRow?: PartProps<'tr', 'aria-rowindex'>;
   /** 表头勾选列（th，多选时里面是全选框）的部件属性 */
   propsSelectHeaderCell?: PartProps<'th', 'scope'>;
@@ -244,6 +251,14 @@ export const dataTableStyles = stylex.create({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     verticalAlign: 'middle',
+  },
+  // 分组标题居中，下边线淡一些：与下面一行的列标题仍是一个表头
+  groupHeaderCell: { textAlign: 'center', borderBottomColor: '_borderMuted' },
+  // 分组与相邻的列之间一条竖线（只在表头里）：看得出哪几列属于一组
+  groupDivider: {
+    borderInlineStartWidth: '_xs',
+    borderInlineStartStyle: 'solid',
+    borderInlineStartColor: '_borderMuted',
   },
   wrap: { whiteSpace: 'normal', overflowWrap: 'anywhere' },
   start: { textAlign: 'start' },
@@ -343,6 +358,25 @@ function stickyCellSx(column: DataTableColumn<never>, offsets: StickyOffsets) {
   return null;
 }
 
+/** 分组标题的固定：组里的列都固定在同一侧时跟着固定，偏移取最靠外的一列；含挨着滚动列的那一列时也画竖线 */
+function groupStickySx(columns: readonly DataTableColumn<never>[], offsets: StickyOffsets) {
+  const side = columns[0]?.sticky;
+  if (!side || columns.some((column) => column.sticky !== side)) return null;
+  const [outer, inner] =
+    side === 'start' ? [columns[0]!, columns.at(-1)!] : [columns.at(-1)!, columns[0]!];
+  return side === 'start'
+    ? [
+        dataTableStyles.sticky,
+        dataTableDynamicStyles.start(offsets.start.get(outer.key)!),
+        offsets.startEdge === inner.key && dataTableStyles.stickyStartEdge,
+      ]
+    : [
+        dataTableStyles.sticky,
+        dataTableDynamicStyles.end(offsets.end.get(outer.key)!),
+        offsets.endEdge === inner.key && dataTableStyles.stickyEndEdge,
+      ];
+}
+
 /** DataTableRow 的属性：一行要用到的全部数据；除了 row、index、selected，同一张表里各行都相同 */
 export interface DataTableRowProps<T> {
   /** 这一行 */
@@ -367,6 +401,8 @@ export interface DataTableRowProps<T> {
   striped: boolean;
   /** 固定列的偏移 */
   offsets: StickyOffsets;
+  /** 表头有几行（分组表头是两行）：行的 aria-rowindex 从表头之后算起，默认 1 */
+  headerRows?: number;
   /** 第一个数据列前面加的东西（TreeDataTable 的缩进与展开按钮） */
   leading?: (row: DataTableRowModel<T>, index: number) => VNodeChild;
   /** 行的部件属性 */
@@ -404,6 +440,7 @@ export const DataTableRow = _component(
     variant,
     striped,
     offsets,
+    headerRows = 1,
     leading,
     propsRow,
     propsCell,
@@ -429,7 +466,7 @@ export const DataTableRow = _component(
           typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow,
           {
             ref: measure,
-            'aria-rowindex': index + 2,
+            'aria-rowindex': index + headerRows + 1,
             'aria-selected': selectionMode != null ? selected : undefined,
           },
         )}
@@ -530,10 +567,12 @@ export const DataTableView = _component(
     isRowSelectable,
     hiddenColumns,
     summaryLabel,
+    columnGroups,
     propsRoot,
     propsRow,
     propsCell,
     propsHeaderCell,
+    propsGroupHeaderCell,
     propsEmpty,
     propsSkeleton,
     propsSortButton,
@@ -626,6 +665,11 @@ export const DataTableView = _component(
       });
     });
     const hasSummary = _derived(visibleColumns.some((column) => column.summary != null));
+    // 有可见的分组时表头两行：第一行是分组标题与没分组的列（跨两行），第二行是组里的列
+    const layout = _derived.by(() =>
+      columnGroups?.length ? headerLayout(shown, columnGroups) : null,
+    );
+    const headerRows = _derived(layout?.some((cell) => cell.kind === 'group') ? 2 : 1);
 
     /** 合计行里一列的内容 */
     function summaryOf(column: DataTableColumn<T>, position: number): VNodeChild {
@@ -648,7 +692,8 @@ export const DataTableView = _component(
     const offsets = _derived.by(() => stickyOffsets(shown, widthOf, leadingWidth()));
     const minWidth = () => tableMinWidth(shown, widthOf, leadingWidth());
 
-    function renderHeaderCell(column: DataTableColumn<T>) {
+    /** 一个列标题；rowspan 是没分组的列在两行表头里跨两行，divider 是与分组相邻的竖线 */
+    function renderHeaderCell(column: DataTableColumn<T>, rowspan = 1, divider = false) {
       const own = typeof propsHeaderCell === 'function' ? propsHeaderCell(column) : propsHeaderCell;
       const sorted = sort?.key === column.key ? sort.direction : undefined;
       const label = plainText(column.header);
@@ -663,11 +708,13 @@ export const DataTableView = _component(
                 dataTableDensityStyles[density],
                 dataTableStyles[column.align ?? 'start'],
                 stickyCellSx(column, offsets),
+                divider && dataTableStyles.groupDivider,
               ],
             },
             own,
             {
               scope: 'col',
+              rowspan: rowspan > 1 ? rowspan : undefined,
               'aria-sort': column.sortable ? (sorted ?? 'none') : undefined,
             },
           )}
@@ -715,8 +762,78 @@ export const DataTableView = _component(
       );
     }
 
+    /** 一个分组标题：跨组里的几列 */
+    function renderGroupCell(
+      group: DataTableColumnGroup,
+      members: DataTableColumn<T>[],
+      key: string,
+      divider: boolean,
+    ) {
+      return (
+        <th
+          key={key}
+          {...mergeAttrs<'th'>(
+            {
+              sx: [
+                dataTableStyles.headerCell,
+                dataTableDensityStyles[density],
+                dataTableStyles.groupHeaderCell,
+                groupStickySx(members, offsets),
+                divider && dataTableStyles.groupDivider,
+              ],
+            },
+            typeof propsGroupHeaderCell === 'function'
+              ? propsGroupHeaderCell(group)
+              : propsGroupHeaderCell,
+            { scope: 'colgroup', colspan: members.length },
+          )}
+        >
+          {group.header}
+        </th>
+      );
+    }
+
+    /** 表头的列标题：一行；有分组时两行 */
+    function renderHeaderRows(selectHeader: VNodeChild) {
+      const cells = layout;
+      if (!cells || headerRows === 1)
+        return (
+          <tr {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
+            {selectHeader}
+            {shown.map((column) => renderHeaderCell(column))}
+          </tr>
+        );
+      const nextToGroup = (position: number) =>
+        position > 0 &&
+        (cells[position]!.kind === 'group' || cells[position - 1]!.kind === 'group');
+      return [
+        <tr key="groups" {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
+          {selectHeader}
+          {cells.map((cell, position) =>
+            cell.kind === 'group'
+              ? renderGroupCell(
+                  cell.group,
+                  cell.columns,
+                  `${cell.group.key}-${position}`,
+                  nextToGroup(position),
+                )
+              : renderHeaderCell(cell.column, 2, nextToGroup(position)),
+          )}
+        </tr>,
+        <tr key="columns" {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 2 })}>
+          {cells.flatMap((cell, position) =>
+            cell.kind === 'group'
+              ? cell.columns.map((column, index) =>
+                  renderHeaderCell(column, 1, index === 0 && position > 0),
+                )
+              : [],
+          )}
+        </tr>,
+      ];
+    }
+
     return () => {
-      const span = columns.length + (selectionMode ? 1 : 0);
+      const span = shown.length + (selectionMode ? 1 : 0);
       const items = virtual.items;
       const top = items[0]?.start ?? 0;
       const bottom = items.length ? virtual.total - items.at(-1)!.end : 0;
@@ -745,7 +862,7 @@ export const DataTableView = _component(
               },
               rest,
               {
-                'aria-rowcount': rows.length + 1 + (hasSummary ? 1 : 0),
+                'aria-rowcount': rows.length + headerRows + (hasSummary ? 1 : 0),
                 'aria-busy': loading || undefined,
               },
             )}
@@ -765,8 +882,8 @@ export const DataTableView = _component(
               })}
             </colgroup>
             <thead {...mergeAttrs<'thead'>({ sx: dataTableStyles.head }, propsHead)}>
-              <tr {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
-                {selectionMode && (
+              {renderHeaderRows(
+                selectionMode && (
                   <th
                     {...mergeAttrs<'th'>(
                       {
@@ -778,7 +895,7 @@ export const DataTableView = _component(
                         ],
                       },
                       propsSelectHeaderCell,
-                      { scope: 'col' },
+                      { scope: 'col', rowspan: headerRows > 1 ? headerRows : undefined },
                     )}
                   >
                     {selectionMode === 'multiple' && (
@@ -796,9 +913,8 @@ export const DataTableView = _component(
                       />
                     )}
                   </th>
-                )}
-                {shown.map(renderHeaderCell)}
-              </tr>
+                ),
+              )}
               {indicator.value && rows.length > 0 && (
                 <tr aria-hidden="true">
                   <td colspan={span} {...stylex.attrs(dataTableStyles.progressCell)}>
@@ -898,6 +1014,7 @@ export const DataTableView = _component(
                     variant={variant}
                     striped={striped}
                     offsets={offsets}
+                    headerRows={headerRows}
                     leading={leading}
                     propsRow={propsRow}
                     propsCell={propsCell}
@@ -921,7 +1038,7 @@ export const DataTableView = _component(
             </tbody>
             {hasSummary && rows.length > 0 && (
               <tfoot {...mergeAttrs<'tfoot'>({ sx: dataTableStyles.foot }, propsFoot)}>
-                <tr aria-rowindex={rows.length + 2}>
+                <tr aria-rowindex={rows.length + headerRows + 1}>
                   {selectionMode && (
                     <td
                       {...stylex.attrs(

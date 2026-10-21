@@ -98,6 +98,42 @@ export interface DataTableColumn<T> {
   summary?: 'sum' | ((rows: readonly T[]) => VNodeChild);
 }
 
+/** 分组表头：相邻的几列上方共用一个标题（如“测算”下的 A、B、D 值）；只分一层 */
+export interface DataTableColumnGroup {
+  /** 组的标识 */
+  key: string;
+  /** 组标题 */
+  header: VNodeChild;
+  /** 组里各列的 key：要相邻，显示顺序随列定义 */
+  columns: readonly string[];
+}
+
+/** 表头第一行的一格：一个分组（跨组里的几列），或没有分组的一列（跨两行） */
+export type HeaderLayoutCell<T> =
+  | { kind: 'group'; group: DataTableColumnGroup; columns: DataTableColumn<T>[] }
+  | { kind: 'column'; column: DataTableColumn<T> };
+
+/**
+ * 按分组排出表头第一行：隐藏了的列不算，组里的列全隐藏时这一组也不显示；
+ * 组里的列被别的列隔开时，后一段另起一格、重复组标题
+ */
+export function headerLayout<T>(
+  columns: readonly DataTableColumn<T>[],
+  groups: readonly DataTableColumnGroup[],
+): HeaderLayoutCell<T>[] {
+  const groupOf = new Map<string, DataTableColumnGroup>();
+  for (const group of groups) for (const key of group.columns) groupOf.set(key, group);
+  const cells: HeaderLayoutCell<T>[] = [];
+  for (const column of columns) {
+    const group = groupOf.get(column.key);
+    const last = cells.at(-1);
+    if (!group) cells.push({ kind: 'column', column });
+    else if (last?.kind === 'group' && last.group === group) last.columns.push(column);
+    else cells.push({ kind: 'group', group, columns: [column] });
+  }
+  return cells;
+}
+
 /** 排序方向（与 aria-sort 的取值一致） */
 export interface SortDirections {
   /** 升序：小到大、A 到 Z */

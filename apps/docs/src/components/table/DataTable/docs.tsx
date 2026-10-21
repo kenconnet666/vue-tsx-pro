@@ -7,6 +7,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
+import Changes from './demo/Changes.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Infinite from './demo/Infinite.tsx?demo';
 import Ledger from './demo/Ledger.tsx?demo';
@@ -45,6 +46,10 @@ export default _component(() => () => (
       决定哪些行能勾选，全选跳过不能勾选的；勾选后上方的 <Code>SelectionBar</Code>{' '}
       显示已选几项与批量操作。<Code>hiddenColumns</Code> 隐藏列，用 Menu 的 MenuCheckboxItem
       做列显示设置；固定列与滚动的列之间有一条竖线。
+    </Example>
+    <Example id="changes" title="零件更改对比：分组表头" demo={Changes}>
+      <Code>columnGroups</Code> 写组标题与组里各列的
+      key：相邻的几列上方共用一个标题，表头变成两行，没分组的列跨两行；组与相邻的列之间有竖线，固定列照常固定。列定义仍是平铺的，排序、列宽、隐藏列都按列算，组里的列全隐藏时这一组也不显示。
     </Example>
     <Examples>
       <ExampleColumn>

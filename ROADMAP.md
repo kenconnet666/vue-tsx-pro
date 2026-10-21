@@ -114,8 +114,15 @@
 
 - [x] 金额格式：缩放（万元）、单位文字、币种、小数位（NumericFormat）；空值占位 `lang.emptyValue`，DataTable 列的“待定价”放 M2
 - [x] 表单布局上下文：Form、FormSection 下发标签位置、标签宽度、只读、不可用（field-layout）；`useFieldControl` 接上
-- [ ] 状态映射 `createStatusMap`：标签、色调、图标、阶段顺序；Badge、Steps、Timeline、表格状态列、看板、筛选共用
-- [ ] 选项缓存：远程搜索换了结果后已选项的文字不丢，回调带完整数据（Select、Combobox、TagsInput、TreeSelect）
+- [x] 状态映射 `createStatusMap`：标签、色调、阶段顺序；Badge、表格状态列已用，Steps、Timeline、看板、筛选在 M3 接上
+- [x] 选项缓存：远程搜索换了结果后已选项的文字不丢（`useSelectedOptions`：Select、Combobox、TagsInput、TreeSelect）
+- [ ] 请求层（排在 M2 之后）：薄封装原生 fetch（baseURL、query、JSON 体、超时与取消、`HttpError`、请求 / 响应钩子拆后端的
+      `{ code, data, message }` 包装），组件只依赖 `HttpClient` 接口，createUi / Provider 换成 axios、ky 或自己的实现；
+      `useRequest`（只采用最后一次、取消上一次、防抖、保留旧数据）、表格分页请求（页码、条数、排序、筛选联动 DataTable +
+      Pagination + FilterBar）、远程选项（Select / Combobox / TreeSelect 的 `load`）、Upload 走同一个客户端（进度用 XHR 适配）；
+      文档站用内存里的假接口演示，加“请求与数据”指南。现状：组件只收 `loading` 与数据、调用方自己请求；示例各自手写
+      “只采用最后一次”；Select / TreeSelect 的搜索词是内部状态、不能远程搜；`useTreeExpansion` 的 loadChildren 失败没有
+      catch（未处理的 rejection）；Form 的 onSubmit 失败没有处理
 - [ ] 工作日与时限：节假日日历走 Provider，`useDeadline` 给出截止日、剩余与逾期天数、状态
 - [ ] 字段差异：两份记录按字段比较，得出是否变化与数值差
 - [ ] 跨容器拖动：`useSortable` 加分组
@@ -127,8 +134,8 @@
       ToggleGroup / Slider 只读（Upload 的只读并入 M3 的服务端文件）、Separator 标题、GridItem 跨列、FormSection、
       NumberField 单位与缩放、ActionBar 吸底操作栏；案例：单机降本项目编辑（长表单，“案例”分组的第一页）
 - [ ] M2 列表：状态映射、PageHeader、FilterBar、DataTable（合计行、分组表头、列级格式、行可选与行色调、展开行、列显示设置、
-      固定列阴影、滚动到行、状态列与时限列）、SelectionBar、Badge 圆点、Select 搜索、选项缓存、TreeSelect、NumberRangeField；
-      案例：任务台账
+      固定列分隔线、滚动到行、状态列）、SelectionBar、Badge 圆点、Select 搜索、选项缓存、TreeSelect、NumberRangeField；
+      案例：任务台账（时限列依赖工作日与时限，放进 M3）
 - [ ] M3 流程与协作：工作日与时限、Steps（状态色调、每步信息、竖排连接线）、Timeline（操作人、状态、折叠、倒序）、Countdown 逾期、
       CommentThread、带必填理由的确认、Upload 服务端文件与只读列表、NotificationCenter、跨容器拖动与 KanbanBoard；
       案例：任务卡详情、工作台与收件箱

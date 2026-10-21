@@ -7,6 +7,7 @@ import { hasStyles, mount } from '../../utils/.test/mount';
 import { createStatusMap } from '../../utils/data/status';
 import {
   columnType,
+  headerLayout,
   nextSort,
   sortRows,
   sumColumn,
@@ -391,6 +392,65 @@ describe('DataTable 的台账能力', () => {
       '状态',
       '测算（万元）',
     ]);
+  });
+
+  it('分组表头：两行，组标题跨组里的列，没分组的列与勾选列跨两行；行号从表头之后算起；隐藏列不算进组', async () => {
+    const groups = [{ key: 'money', header: '金额', columns: ['estimate', 'agreed'] }];
+    let hidden = _state<string[]>([]);
+    const root = mount(() => (
+      <DataTable
+        aria-label="台账"
+        rows={tasks}
+        rowKey={(task) => task.id}
+        columns={ledgerColumns}
+        columnGroups={groups}
+        selectionMode="multiple"
+        hiddenColumns={hidden}
+      />
+    ));
+    await flush();
+    const head = () =>
+      [...root.querySelectorAll('thead tr[aria-rowindex]')].map((tr) =>
+        [...tr.children].map(
+          (th) =>
+            `${th.textContent}:${th.getAttribute('colspan') ?? th.getAttribute('rowspan') ?? 1}`,
+        ),
+      );
+    expect(head()).toEqual([
+      [':2', '编码:2', '状态:2', '金额:2'],
+      ['测算（万元）:1', '谈定（元）:1'],
+    ]);
+    expect(root.querySelector('th[scope="colgroup"]')!.textContent).toBe('金额');
+    const table = root.querySelector('table')!;
+    expect(table.getAttribute('aria-rowcount')).toBe(String(tasks.length + 2 + 1));
+    expect(root.querySelector('tbody tr[aria-rowindex]')!.getAttribute('aria-rowindex')).toBe('3');
+    expect(root.querySelector('tfoot tr')!.getAttribute('aria-rowindex')).toBe(
+      String(tasks.length + 3),
+    );
+
+    hidden = ['agreed'];
+    await flush();
+    expect(head()).toEqual([[':2', '编码:2', '状态:2', '金额:1'], ['测算（万元）:1']]);
+    // 组里的列全隐藏：回到一行表头
+    hidden = ['agreed', 'estimate'];
+    await flush();
+    expect(head()).toEqual([[':1', '编码:1', '状态:1']]);
+  });
+});
+
+describe('headerLayout', () => {
+  it('组里的列被别的列隔开时另起一格；不在任何组里的列单独一格', () => {
+    const column = (key: string) => ({ key, header: key });
+    const cells = headerLayout(['a', 'b', 'x', 'c'].map(column), [
+      { key: 'g', header: 'G', columns: ['a', 'b', 'c'] },
+    ]);
+    expect(
+      cells.map((cell) =>
+        cell.kind === 'group'
+          ? `${cell.group.key}[${cell.columns.map((c) => c.key).join(',')}]`
+          : cell.column.key,
+      ),
+    ).toEqual(['g[a,b]', 'x', 'g[c]']);
   });
 });
 
