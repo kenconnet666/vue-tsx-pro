@@ -532,6 +532,7 @@ export {
   type StepsOrientations,
   type StepsProps,
   type StepState,
+  type StepStates,
 } from './navigation/Steps';
 export {
   TableOfContents,

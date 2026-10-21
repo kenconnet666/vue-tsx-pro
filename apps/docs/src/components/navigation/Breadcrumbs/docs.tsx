@@ -27,15 +27,17 @@ export default _component(() => () => (
           Themes），不会把布局撑乱。分隔符从右到左排版时翻转。
         </Example>
         <Example id="steps" title="下单流程" demo={Checkout}>
-          <Code>current</Code> 是当前步骤的序号；给了 <Code>onStepChange</Code>{' '}
-          时已完成的步骤可以点回去。已完成的显示对勾，当前步骤带
-          aria-current="step"，图标可以自定义。
+          <Code>current</Code> 是当前步骤的序号，可以双向绑定；写了 <Code>navigable</Code>{' '}
+          时已完成的步骤可以点回去，有 <Code>href</Code>{' '}
+          的已完成步骤是链接。已完成的显示对勾，当前步骤带
+          aria-current="step"，其余的状态另有读屏文字；图标可以自定义，<Code>status</Code>{' '}
+          改写某一步的状态（出错的一步）。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="vertical" title="竖排与出错" demo={Deploy}>
-          <Code>orientation="vertical"</Code> 适合说明文字长的流程；<Code>error</Code>{' '}
-          标出出错的步骤，<Code>disabled</Code> 的步骤不能点。
+          <Code>orientation="vertical"</Code> 适合说明文字长的流程，步骤之间有竖的连接线；
+          <Code>status: 'error'</Code> 标出出错的步骤，<Code>disabled</Code> 的步骤不能点。
         </Example>
       </ExampleColumn>
     </Examples>

@@ -219,6 +219,8 @@ export interface Lang {
   readonly breadcrumbs: string;
   /** 面包屑折叠按钮（打开被折叠各级的菜单）的名称，默认“显示被折叠的路径” */
   readonly breadcrumbsExpand: string;
+  /** 步骤的状态给读屏的文字，接在标题后面：`('complete')` → “（已完成）”；当前步骤由 aria-current 念出，不用它 */
+  readonly stepState: (state: 'complete' | 'upcoming' | 'error') => string;
   /** 拖动验证的提示，同时是滑块的无障碍名称，默认“拖动滑块完成验证” */
   readonly slideVerifyHint: string;
   /** 拖动验证：等待服务端判定，默认“验证中…” */

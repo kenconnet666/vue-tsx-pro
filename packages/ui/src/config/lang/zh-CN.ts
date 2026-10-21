@@ -93,6 +93,7 @@ export const zhCN: Lang = {
   pageLabel: (page) => `第 ${page} 页`,
   breadcrumbs: '面包屑',
   breadcrumbsExpand: '显示被折叠的路径',
+  stepState: (state) => `（${{ complete: '已完成', upcoming: '未开始', error: '出错' }[state]}）`,
   slideVerifyHint: '拖动滑块完成验证',
   slideVerifyChecking: '验证中…',
   slideVerifySuccess: '验证通过',

@@ -95,6 +95,8 @@ export const enUS: Lang = {
   pageLabel: (page) => `Page ${page}`,
   breadcrumbs: 'Breadcrumb',
   breadcrumbsExpand: 'Show hidden levels',
+  stepState: (state) =>
+    ` (${{ complete: 'completed', upcoming: 'not started', error: 'error' }[state]})`,
   slideVerifyHint: 'Slide to verify',
   slideVerifyChecking: 'Verifying…',
   slideVerifySuccess: 'Verified',

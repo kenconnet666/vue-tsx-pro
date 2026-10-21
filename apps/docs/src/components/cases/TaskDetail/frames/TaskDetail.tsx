@@ -381,7 +381,7 @@ export default _component(() => {
             sx={styles.steps}
             items={taskFlow.map((status, index) => ({
               title: taskStatuses.label(status),
-              error: abnormal && index === stepIndex,
+              status: abnormal && index === stepIndex ? 'error' : undefined,
               description:
                 abnormal && index === stepIndex ? taskStatuses.label(current.status) : undefined,
             }))}

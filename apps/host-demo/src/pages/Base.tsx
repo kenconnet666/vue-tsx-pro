@@ -529,8 +529,8 @@ export const Base = _component(() => {
           <Steps
             class="steps-demo"
             aria-label="下单步骤"
-            current={step}
-            onStepChange={(index) => (step = index)}
+            current={_bind(step)}
+            navigable
             items={[
               { title: '填写信息', description: '收货地址与联系方式' },
               { title: '确认订单', description: '核对商品与金额' },

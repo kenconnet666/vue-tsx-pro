@@ -1,9 +1,12 @@
 /**
- * 步骤条（ol）：多步流程里的位置（下单、注册、配置向导）。当前步骤带 aria-current="step"，
- * 已完成的步骤显示对勾（Lucide 的 Check），出错的步骤显示警示图标。
+ * 步骤条（ol）：多步流程里的位置（下单、注册、配置向导、任务的流转）。当前步骤带 aria-current="step"，
+ * 已完成的步骤显示对勾（Lucide 的 Check），出错的步骤显示警示图标；已完成、未开始、出错另有读屏文字，不只靠颜色。
  *
  *   <Steps current={1} items={[{ title: '填写信息' }, { title: '确认订单' }, { title: '完成' }]} />
- *   <Steps current={step} items={items} onStepChange={(index) => (step = index)} />   已完成的步骤可以点回去
+ *   <Steps current={_bind(step)} items={items} navigable />               已完成的步骤可以点回去
+ *   <Steps current={2} items={[{ title: '概览', href: '/task/1' }, …]} />   已完成的步骤是链接
+ *
+ * 每一步的状态默认按 current 推出（之前已完成、当前、之后未开始），item 的 status 可以改：出错的一步、非线性的流程。
  */
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -11,7 +14,11 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData } from '../base/Icon';
+import { VisuallyHidden } from '../base/VisuallyHidden';
+import { useLang } from '../config/context';
+import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { focusRingStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
@@ -20,9 +27,24 @@ import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 export interface StepsOrientations {
   /** 横排（默认） */
   horizontal: unknown;
-  /** 竖排：步骤多、说明长时 */
+  /** 竖排：步骤多、说明长时；步骤之间有竖的连接线 */
   vertical: unknown;
 }
+
+/** 步骤的状态 */
+export interface StepStates {
+  /** 已完成：对勾、品牌色 */
+  complete: unknown;
+  /** 当前：aria-current="step" */
+  current: unknown;
+  /** 未开始 */
+  upcoming: unknown;
+  /** 出错：警示图标、危险色 */
+  error: unknown;
+}
+
+/** 步骤的状态：已完成、当前、未开始、出错 */
+export type StepState = keyof StepStates;
 
 /** 一个步骤 */
 export interface StepItem {
@@ -34,33 +56,32 @@ export interface StepItem {
   description?: VNodeChild;
   /** 代替序号的图标；已完成时仍显示对勾，出错时仍显示警示图标 */
   icon?: IconData;
-  /** 出错：显示警示图标与危险色 */
-  error?: boolean;
-  /** 不可点回（即使已完成） */
+  /** 状态；不写时按 current 推出 */
+  status?: StepState;
+  /** 地址：已完成的这一步渲染成链接（走路由适配），点了跳过去 */
+  href?: string;
+  /** 不可点回（即使已完成、有 href 或 navigable） */
   disabled?: boolean;
 }
-
-/** 步骤的状态：已完成、当前、未开始、出错 */
-export type StepState = 'complete' | 'current' | 'upcoming' | 'error';
 
 /** 未声明的属性落到 ol 上；aria-label 是步骤条的名称 */
 export interface StepsProps extends PartProps<'ol'> {
   /** 步骤 */
   items: readonly StepItem[];
-  /** 当前步骤的序号，从 0 开始 */
-  current: number;
+  /** 当前步骤的序号，从 0 开始：父级可以写 current={_bind(x)}，配合 navigable 点回已完成的步骤 */
+  current?: number;
   /** 方向，默认 horizontal */
   orientation?: keyof StepsOrientations;
   /** 字号档位：圆圈、文字随之缩放；不写时继承上下文字号 */
   size?: TextSize;
-  /** 给了就可以点击已完成的步骤回去（参数是序号） */
-  onStepChange?: (index: number) => void;
+  /** 已完成的步骤可以点击回去：点了写回 current */
+  navigable?: boolean;
   /** 每个步骤（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: StepItem, index: number) => PartProps<'li'>);
   /** 序号圆圈的部件属性 */
   propsIndicator?: PartProps<'span'>;
-  /** 可点回的步骤外层按钮的部件属性 */
-  propsTrigger?: Partial<ButtonBaseProps>;
+  /** 可点回的步骤外层（按钮，或有 href 时的链接）的部件属性 */
+  propsTrigger?: Partial<ButtonBaseProps> & PartProps<'a'>;
   /** 文字区（标题与说明的容器）的部件属性 */
   propsText?: PartProps<'span'>;
   /** 标题的部件属性 */
@@ -71,7 +92,7 @@ export interface StepsProps extends PartProps<'ol'> {
   propsConnector?: PartProps<'span'>;
 }
 
-/** Steps 的样式：root、vertical、item、trigger、indicator、text 等 */
+/** Steps 的样式：item、itemVertical、trigger、link、indicator、text、title、description、connector 等 */
 export const stepsStyles = stylex.create({
   item: {
     display: 'flex',
@@ -81,7 +102,9 @@ export const stepsStyles = stylex.create({
     gap: '_sm',
     minWidth: 0,
   },
-  // 可点回的步骤：整块是按钮
+  // 竖排：高度随内容，连接线相对这一项定位
+  itemVertical: { flexGrow: 0, flexBasis: 'auto', position: 'relative' },
+  // 可点回的步骤：整块是按钮或链接
   // 去掉按钮默认外观、焦点环、波纹由 ButtonBase 给出
   trigger: {
     display: 'flex',
@@ -90,6 +113,7 @@ export const stepsStyles = stylex.create({
     borderRadius: '_sm',
     textAlign: 'start',
   },
+  link: { color: 'inherit', textDecorationLine: 'none' },
   indicator: {
     boxSizing: 'border-box',
     display: 'inline-flex',
@@ -120,6 +144,19 @@ export const stepsStyles = stylex.create({
     backgroundColor: '_border',
     transition: 'background-color _durations.md _easings.standard',
   },
+  // 竖排：从圆圈下面一直连到下一步的圆圈（圆圈宽 2 × 0.93em，中线在 0.93em）
+  connectorVertical: {
+    position: 'absolute',
+    insetInlineStart: '0.93em',
+    insetBlockStart: 'calc(1.86em + _space.xs)',
+    insetBlockEnd: 'calc(-1 * _space.lg + _space.xs)',
+    width: '_borderWidths.xs',
+    height: 'auto',
+    minWidth: 0,
+    // 两端都定了位置时按 align-self 对齐：横排的 center 会让空的 span 缩成 0 高，这里要拉伸
+    alignSelf: 'stretch',
+    marginInlineStart: 'calc(_borderWidths.xs / -2)',
+  },
   connectorDone: { backgroundColor: '_accent' },
 });
 
@@ -131,14 +168,14 @@ export const stepsStateStyles = stylex.create({
   error: { borderColor: '_danger', backgroundColor: '_dangerSoft', color: '_dangerText' },
 });
 
-/** 步骤条：已完成、当前、未开始，可选点回已完成的步骤 */
+/** 步骤条：已完成、当前、未开始、出错；已完成的步骤可以点回去或是链接 */
 export const Steps = _component(
   ({
     items,
-    current,
+    current = _bindable(0),
     orientation = 'horizontal',
     size,
-    onStepChange,
+    navigable = false,
     propsItem,
     propsIndicator,
     propsTrigger,
@@ -147,8 +184,10 @@ export const Steps = _component(
     propsDescription,
     propsConnector,
     ...rest
-  }: StepsProps) =>
-    () => {
+  }: StepsProps) => {
+    const lang = useLang();
+    const router = useRouterLink();
+    return () => {
       const vertical = orientation === 'vertical';
       return (
         <FlexOrderedList
@@ -163,13 +202,9 @@ export const Steps = _component(
           data-orientation={orientation}
         >
           {items.map((item, index) => {
-            const state: StepState = item.error
-              ? 'error'
-              : index < current
-                ? 'complete'
-                : index === current
-                  ? 'current'
-                  : 'upcoming';
+            const state: StepState =
+              item.status ??
+              (index < current ? 'complete' : index === current ? 'current' : 'upcoming');
             const own = typeof propsItem === 'function' ? propsItem(item, index) : propsItem;
             const content = [
               <span
@@ -191,6 +226,8 @@ export const Steps = _component(
               <span {...mergeAttrs<'span'>({ sx: stepsStyles.text }, propsText)}>
                 <span {...mergeAttrs<'span'>({ sx: stepsStyles.title }, propsTitle)}>
                   {item.title}
+                  {/* 当前步骤由 aria-current 念出，其余的状态补一句文字：不只靠颜色与图标 */}
+                  {state !== 'current' && <VisuallyHidden>{lang.stepState(state)}</VisuallyHidden>}
                 </span>
                 {item.description != null && (
                   <span {...mergeAttrs<'span'>({ sx: stepsStyles.description }, propsDescription)}>
@@ -199,19 +236,36 @@ export const Steps = _component(
                 )}
               </span>,
             ];
-            const clickable = onStepChange && state === 'complete' && !item.disabled;
+            const reachable = state === 'complete' && !item.disabled;
+            const link = reachable && item.href != null;
+            const button = reachable && !link && navigable;
             return (
               <li
                 key={item.key ?? index}
-                {...mergeAttrs<'li'>({ sx: stepsStyles.item }, own, {
-                  'aria-current': state === 'current' ? 'step' : undefined,
-                })}
+                {...mergeAttrs<'li'>(
+                  { sx: [stepsStyles.item, vertical && stepsStyles.itemVertical] },
+                  own,
+                  { 'aria-current': state === 'current' ? 'step' : undefined },
+                )}
                 data-state={state}
               >
-                {clickable ? (
+                {link ? (
+                  <a
+                    {...mergeAttrs<'a'>(
+                      { sx: [stepsStyles.trigger, stepsStyles.link, focusRingStyles.visible] },
+                      propsTrigger,
+                      {
+                        href: router.href(item.href!),
+                        onClick: (event: MouseEvent) => router.onClick(event, item.href!),
+                      },
+                    )}
+                  >
+                    {content}
+                  </a>
+                ) : button ? (
                   <ButtonBase
                     {...mergePartProps<ButtonBaseProps>({ sx: stepsStyles.trigger }, propsTrigger, {
-                      onClick: () => onStepChange(index),
+                      onClick: () => (current = index),
                     })}
                   >
                     {content}
@@ -219,12 +273,16 @@ export const Steps = _component(
                 ) : (
                   content
                 )}
-                {!vertical && index < items.length - 1 && (
+                {index < items.length - 1 && (
                   <span
-                    {...mergeAttrs<'span'>({ sx: stepsStyles.connector }, propsConnector, {
-                      sx: index < current && stepsStyles.connectorDone,
-                      'aria-hidden': true,
-                    })}
+                    {...mergeAttrs<'span'>(
+                      { sx: [stepsStyles.connector, vertical && stepsStyles.connectorVertical] },
+                      propsConnector,
+                      {
+                        sx: state === 'complete' && stepsStyles.connectorDone,
+                        'aria-hidden': true,
+                      },
+                    )}
                   />
                 )}
               </li>
@@ -232,5 +290,6 @@ export const Steps = _component(
           })}
         </FlexOrderedList>
       );
-    },
+    };
+  },
 );
