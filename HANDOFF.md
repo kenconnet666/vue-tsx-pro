@@ -52,7 +52,7 @@ pnpm css-docs:check  # 改了 tokens 或 StyleX 属性数据后先 pnpm css-docs
 pnpm exports:check   # 模块里加、改了导出后先 pnpm exports 重新生成入口
 ```
 
-推送前跑 `pnpm check`（约 40 秒）：CI 静态检查任务的同一组检查（lint、格式、生成文件、注释、导出、对比度、文字），加上上面这些。
+推送前跑 `pnpm check`（约 15 秒；prettier 带缓存，第二次起只查改过的文件）：CI 静态检查任务的同一组检查（lint、格式、生成文件、注释、导出、对比度、文字），加上上面这些。
 
 单独跑某个浏览器的某个测试文件（几十秒，放后台）：
 
