@@ -31,6 +31,7 @@ import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedba
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { itemStyles } from '../utils/style/item-styles';
 import {
+  defaultLabelledBy,
   elementProps,
   mergeAttrs,
   mergePartProps,
@@ -42,7 +43,7 @@ import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
-import { labelledByField, useFieldControl } from '../form/Field';
+import { useFieldControl } from '../form/Field';
 import {
   handleListKeydown,
   useListState,
@@ -512,7 +513,7 @@ export const Listbox = _component(
             {
               id: prefix,
               tabindex: state.disabled ? -1 : 0,
-              'aria-labelledby': labelledByField(rest, state.labelledBy),
+              'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
               'aria-describedby': state.describedBy,
               'aria-disabled': state.disabled || undefined,
               'aria-required': state.required || undefined,

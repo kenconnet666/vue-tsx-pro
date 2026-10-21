@@ -1,5 +1,6 @@
 import {
   Bold,
+  Ellipsis,
   Italic,
   Link2,
   List,
@@ -9,7 +10,20 @@ import {
   Underline,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, IconButton, Kbd, Separator, Tooltip, type IconData } from '@vue-tsx-pro/ui';
+import {
+  Card,
+  Flex,
+  IconButton,
+  Kbd,
+  Menu,
+  MenuItem,
+  mergeProps,
+  Separator,
+  Tooltip,
+  type IconData,
+  type MenuTriggerProps,
+  type TooltipTriggerProps,
+} from '@vue-tsx-pro/ui';
 
 const groups: [IconData, string, string?][][] = [
   [
@@ -53,6 +67,27 @@ export default _component(() => () => (
           ))}
         </>
       ))}
+      <Separator orientation="vertical" />
+      {/* 同一个按钮既有提示又打开菜单：mergeProps 合并两边的属性，ref 与事件都保留 */}
+      <Tooltip
+        trigger={(tip) => (
+          <Menu
+            trigger={(menu) => (
+              <IconButton
+                {...mergeProps<TooltipTriggerProps & MenuTriggerProps>(tip, menu)}
+                icon={Ellipsis}
+                aria-label="更多格式"
+              />
+            )}
+          >
+            <MenuItem>上标</MenuItem>
+            <MenuItem>下标</MenuItem>
+            <MenuItem>清除格式</MenuItem>
+          </Menu>
+        )}
+      >
+        更多格式
+      </Tooltip>
     </Flex>
   </Card>
 ));

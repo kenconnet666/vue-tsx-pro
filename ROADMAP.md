@@ -93,7 +93,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       IconButton 与 IconLinkButton 的内容层、Indicator 的计数、Toaster 的 Collapse
 - [x] DataTable：单选用单选框（DataTableView 提供 RadioGroupContext，不用包一层元素；文档加“单选”示例）；调整非固定列的宽度时
       各行不再重渲染（固定列偏移没变就沿用，render-counts 有回归测试）。行模型只在 columns 的引用变了才重算，列定义放在 setup 里即可（HANDOFF 已写）
-- [ ] Toolbar 的漫游焦点不进子弹层；Popover、Menu 不盖使用方的 aria-label；Tooltip 与 Menu 共用触发器的写法
+- [x] 漫游焦点不收容器里弹层（popover、dialog）的项；Popover、Menu 的面板写了 aria-label 时不再加默认的 aria-labelledby
+      （`defaultLabelledBy`，与 Field 的控件共用）；同一按钮套 Tooltip 与 Menu 用 `mergeProps` 合并触发器属性（文档示例）
 - [ ] Steps：竖排的连线、状态文字给读屏、每步的 key / href / status
 - [ ] Tree：loading 与 empty、checkStrictly；TreeDataTable 的勾选联动与 manualSort
 - [ ] 日期：字符串的 min / max 带时间时日历也禁用；分段输入重置时清掉半截；年份输完再写回；Enter 提交表单

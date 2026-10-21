@@ -42,7 +42,13 @@ import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/overlay';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { childNodes } from '../utils/data/text';
-import { mergeAttrs, mergePartProps, type PartProps, type TriggerProps } from '../utils/props';
+import {
+  defaultLabelledBy,
+  mergeAttrs,
+  mergePartProps,
+  type PartProps,
+  type TriggerProps,
+} from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
@@ -248,7 +254,7 @@ export const Menu = _component(
                 transitions.scale,
               ],
               // 右键菜单没有触发器：名称由使用方的 aria-label 给
-              'aria-labelledby': anchor ? triggerId : undefined,
+              'aria-labelledby': anchor ? defaultLabelledBy(rest, triggerId) : undefined,
             },
             rest,
             {
@@ -984,7 +990,7 @@ export const MenuSub = _component(
                 menuStyles.panel,
                 transitions.scale,
               ],
-              'aria-labelledby': triggerId,
+              'aria-labelledby': defaultLabelledBy(propsPanel ?? {}, triggerId),
             },
             propsPanel,
             {

@@ -98,17 +98,6 @@ export interface FieldControl {
 }
 
 /**
- * 控件以 Field 的标签为名称时的 aria-labelledby：使用方写的 aria-labelledby 优先；使用方写了 aria-label 时
- * 不再指向标签（aria-labelledby 会盖过 aria-label，使用方的名称就白写了）
- */
-export function labelledByField(
-  attrs: { 'aria-label'?: string; 'aria-labelledby'?: string },
-  fieldLabelledBy: string | undefined,
-): string | undefined {
-  return attrs['aria-labelledby'] ?? (attrs['aria-label'] == null ? fieldLabelledBy : undefined);
-}
-
-/**
  * 控件读取所在 Field 的信息（在 setup 里调用，返回的函数在渲染时调用）：
  * 控件上显式写的状态优先；不在 Field 里时用控件自己的，不可用与只读再看所在的 Form、FormSection。
  * 控件里再嵌的控件（Select 的搜索框、区间的两个框、时间面板的列表）不是 Field 的控件，

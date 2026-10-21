@@ -854,7 +854,6 @@ export {
   FieldContext,
   fieldStyles,
   Label,
-  labelledByField,
   labelStyles,
   useFieldControl,
   type FieldControl,
@@ -1118,6 +1117,7 @@ export { zhCN } from './config/lang/zh-CN';
 export {
   applyStyleAttrs,
   dataAttrs,
+  defaultLabelledBy,
   elementProps,
   hasContent,
   mergeAttrs,

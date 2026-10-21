@@ -54,10 +54,14 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
 
   // 嵌套的组（自己也调用了 rovingFocus 的容器）各管各的：只取最近的组是自己的项。
   // 工具栏里的 ToggleGroup 不调用，它的按钮归工具栏
+  // 容器里的弹层（popover、dialog）是另一个焦点范围：工具栏里 Popover 的面板、对话框里的按钮不归工具栏
   const all = () =>
-    [...container.querySelectorAll<HTMLElement>(options.items)].filter(
-      (item) => item.parentElement?.closest('[data-roving-focus]') === container,
-    );
+    [...container.querySelectorAll<HTMLElement>(options.items)].filter((item) => {
+      if (item.parentElement?.closest('[data-roving-focus]') !== container) return false;
+      const layer = item.closest('[popover], dialog');
+      // 容器自己就是弹层（菜单的面板）时，它里面的项照常归它
+      return !layer || layer === container || !container.contains(layer);
+    });
   const enabled = () => all().filter(isEnabled);
 
   /** 定下哪一项是 Tab 进入点，其余设为 -1 */

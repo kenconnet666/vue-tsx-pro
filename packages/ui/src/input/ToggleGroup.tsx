@@ -21,11 +21,11 @@ import {
 } from '../base/button-core';
 import type { IconData, IconProps } from '../base/Icon';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { ToolbarContext } from '../navigation/Toolbar';
 import { selectedValues, toggleSelection, type SelectionProps } from '../utils/data/selection';
-import { labelledByField, useFieldControl } from '../form/Field';
+import { useFieldControl } from '../form/Field';
 import type { TextSize } from '../utils/style/typography';
 
 /** ToggleGroup 交给组内 ToggleGroupItem 的状态 */
@@ -197,7 +197,7 @@ export const ToggleGroup = _component(
               ref: _toRef(root),
               id: field.id,
               role: 'group',
-              'aria-labelledby': labelledByField(rest, field.labelledBy),
+              'aria-labelledby': defaultLabelledBy(rest, field.labelledBy),
               'aria-describedby': field.describedBy,
             },
           )}

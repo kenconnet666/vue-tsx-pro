@@ -20,8 +20,8 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
-import { labelledByField, useFieldControl } from '../form/Field';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { useFieldControl } from '../form/Field';
+import { defaultLabelledBy, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { toggleSelection } from '../utils/data/selection';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -269,7 +269,7 @@ export const CheckboxGroup = _component(
           {...mergeAttrs<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
             id: state.id,
             role: 'group',
-            'aria-labelledby': labelledByField(rest, state.labelledBy),
+            'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
             'aria-describedby': state.describedBy,
           })}
           data-orientation={orientation}

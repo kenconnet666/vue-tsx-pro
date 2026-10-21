@@ -16,8 +16,8 @@
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
-import { labelledByField, useFieldControl } from '../form/Field';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { useFieldControl } from '../form/Field';
+import { defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
@@ -134,7 +134,7 @@ export const RadioGroup = _component(
           {...mergeAttrs<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
             id: state.id,
             role: 'radiogroup',
-            'aria-labelledby': labelledByField(rest, state.labelledBy),
+            'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
             'aria-describedby': state.describedBy,
             'aria-invalid': state.invalid || undefined,
             'aria-required': state.required || undefined,

@@ -36,7 +36,10 @@ export default _component(() => () => (
         </Example>
         <Example id="tooltip" title="Tooltip" demo={Toolbar}>
           给图标按钮补一句用途和快捷键。指针停一会儿显示，在一排按钮上移动时不用每次都等；键盘聚焦立即显示，Esc
-          隐藏。提示经 aria-describedby 补充说明，触发器自己要有名称，提示里不放可交互的内容。
+          隐藏。提示经 aria-describedby
+          补充说明，触发器自己要有名称，提示里不放可交互的内容。同一个按钮既有提示又打开菜单时，用{' '}
+          <Code>mergeProps&lt;TooltipTriggerProps &amp; MenuTriggerProps&gt;(tip, menu)</Code>{' '}
+          合并两个触发器的属性（ref 与事件都保留）。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

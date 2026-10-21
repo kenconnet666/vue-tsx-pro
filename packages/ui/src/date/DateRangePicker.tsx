@@ -18,7 +18,7 @@ import { Button } from '../base/Button';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { labelledByField, useFieldControl } from '../form/Field';
+import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
   controlClear,
@@ -39,7 +39,7 @@ import {
   type DateRangePreset,
 } from '../utils/data/date';
 import { toElement } from '../utils/dom/overlay';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { defaultLabelledBy, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   toDateLimits,
   useDateLocale,
@@ -307,7 +307,7 @@ export const DateRangePicker = _component(
             {...mergeAttrs<'div'>(
               {
                 sx: controlSx(appearance(), { ...state, invalid: bad }),
-                'aria-labelledby': labelledByField(rest, state.labelledBy),
+                'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
               },
               rest,
               {

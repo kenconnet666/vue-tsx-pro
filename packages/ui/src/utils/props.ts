@@ -223,6 +223,17 @@ function present3(a: unknown, b: unknown, c?: unknown): unknown[] | undefined {
 }
 
 /**
+ * 默认的 aria-labelledby（Field 的标签、弹层的触发器）：使用方写的 aria-labelledby 优先；使用方写了 aria-label 时
+ * 不加默认的（aria-labelledby 会盖过 aria-label，使用方写的名称就白写了）
+ */
+export function defaultLabelledBy(
+  attrs: { 'aria-label'?: string; 'aria-labelledby'?: string },
+  fallback: string | undefined,
+): string | undefined {
+  return attrs['aria-labelledby'] ?? (attrs['aria-label'] == null ? fallback : undefined);
+}
+
+/**
  * 内容（插槽、标题、说明、错误这类 VNodeChild）有没有东西：null、undefined、空字符串与布尔都算没有。
  * 使用方常写 `error={cond && '…'}`、`aside={wide && <Panel />}`，条件不成立时是 false，不该渲染出空的外层
  */

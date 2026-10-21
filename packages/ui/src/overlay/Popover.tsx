@@ -19,7 +19,7 @@ import {
 import { toElement } from '../utils/dom/overlay';
 import { focusFirst } from '../utils/dom/focus';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
-import { mergeAttrs, type PartProps, type TriggerProps } from '../utils/props';
+import { defaultLabelledBy, mergeAttrs, type PartProps, type TriggerProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 
 /** 交给触发器的属性：展开收起的通用属性，加上弹层需要的 id、ref 与 aria-haspopup */
@@ -104,7 +104,7 @@ export const Popover = _component(
                 transitions.scale,
                 arrow && floatingStyles.withArrow,
               ],
-              'aria-labelledby': triggerId,
+              'aria-labelledby': defaultLabelledBy(rest, triggerId),
             },
             rest,
             { ref: _toRef(panel), id, popover: 'auto', role: 'dialog', onToggle },

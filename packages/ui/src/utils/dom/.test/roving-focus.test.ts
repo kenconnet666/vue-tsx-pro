@@ -107,4 +107,27 @@ describe('嵌套的组', () => {
     );
     expect(document.activeElement!.textContent).toBe('b');
   });
+
+  it('弹层（popover、dialog）里的按钮不归外面的组：工具栏里 Popover 的面板另有焦点范围', () => {
+    const { tabStops, buttons, press } = group(
+      '<button>a</button><div popover><button>x</button></div><dialog><button>y</button></dialog><button>b</button>',
+    );
+    expect(tabStops()).toEqual(['a']);
+    expect(buttons.map((b) => b.getAttribute('tabindex'))).toEqual(['0', null, null, '-1']);
+    buttons[0]!.focus();
+    press('ArrowRight');
+    expect(document.activeElement!.textContent).toBe('b');
+  });
+
+  it('容器自己是弹层（菜单的面板）时，里面的项照常归它', () => {
+    const panel = document.createElement('div');
+    panel.setAttribute('popover', '');
+    panel.innerHTML = '<button>a</button><button>b</button>';
+    document.body.append(panel);
+    cleanups.push(rovingFocus(panel, { items: 'button' }));
+    expect([...panel.querySelectorAll('button')].map((b) => b.getAttribute('tabindex'))).toEqual([
+      '0',
+      '-1',
+    ]);
+  });
 });
