@@ -83,7 +83,7 @@ export const SelectionBar = _component(
     );
     // 数目变成 0 后等淡出结束再卸载；淡出时仍显示最后的数目，不闪成“已选 0 项”
     const presence = usePresence(() => count > 0);
-    let shownCount = count;
+    let shownCount = _untrack(count);
     return () => {
       if (count > 0) shownCount = count;
       return (
