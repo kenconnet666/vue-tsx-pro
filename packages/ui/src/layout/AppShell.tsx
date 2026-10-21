@@ -279,21 +279,21 @@ export const AppShell = _component(
     const id = useId();
     const mainId = `${id}-main`;
     const sidebarId = `${id}-sidebar`;
-    const overlay = sidebarMode === 'overlay';
-    const docked = () => filled(sidebar) && !overlay;
+    const overlay = () => sidebarMode === 'overlay';
+    const docked = () => filled(sidebar) && !overlay();
     const wide = useMediaQuery(WIDE_QUERY);
     // docked：变宽后侧栏已经显示出来，抽屉没必要再开着
     watch(wide, (isWide) => {
-      if (isWide && !overlay) sidebarOpen = false;
+      if (isWide && !overlay()) sidebarOpen = false;
     });
     // 抽屉里点了链接（通常是换页）：关闭抽屉；overlay 在宽屏时不关（挡不住正文的主要部分，常要连着换几页）
     function closeOnNavigate(event: MouseEvent) {
-      if (overlay && wide.value) return;
+      if (overlay() && wide.value) return;
       if (event.target instanceof Element && event.target.closest('a[href]')) sidebarOpen = false;
     }
 
     // overlay：品牌格按初始宽度，拖动抽屉时不变；双击手柄回到它
-    const initialWidth = sidebarWidth;
+    const initialWidth = _untrack(sidebarWidth);
     // “打开”在顶栏、“收起”在抽屉里，开关后点的那个就不在了：焦点移到另一个
     let openButton = _state.raw<HTMLElement | null>(null);
     let closeButton = _state.raw<HTMLElement | null>(null);
@@ -327,7 +327,7 @@ export const AppShell = _component(
             propsHeader,
           )}
         >
-          {filled(sidebar) && !overlay && (
+          {filled(sidebar) && !overlay() && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
@@ -347,7 +347,7 @@ export const AppShell = _component(
                   sx: [
                     appShellStyles.brand,
                     filled(sidebar) &&
-                      (overlay
+                      (overlay()
                         ? [
                             appShellStyles.brandOverlay,
                             appShellDynamicStyles.brandWidth(initialWidth),
@@ -361,7 +361,7 @@ export const AppShell = _component(
               {brand}
             </div>
           )}
-          {filled(sidebar) && overlay && !sidebarOpen && (
+          {filled(sidebar) && overlay() && !sidebarOpen && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
@@ -434,7 +434,7 @@ export const AppShell = _component(
             </aside>
           )}
         </div>
-        {filled(sidebar) && overlay && (
+        {filled(sidebar) && overlay() && (
           <div
             {...mergeAttrs<'div'>(
               {
