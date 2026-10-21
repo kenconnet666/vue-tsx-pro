@@ -49,17 +49,13 @@ export default _component(() => {
           </Button>
         }
       >
-        <Flex direction="column" gap="sm">
-          <Progress
-            value={done}
-            max={TOTAL}
-            aria-label="导入进度"
-            valueText={(value, max) => `已导入 ${String(value)} / ${String(max)} 位`}
-          />
-          <Small tone="muted">
-            {done} / {TOTAL}
-          </Small>
-        </Flex>
+        <Progress
+          value={done}
+          max={TOTAL}
+          label="导入进度"
+          valueLabel={`${done} / ${TOTAL}`}
+          valueText={(value, max) => `已导入 ${String(value)} / ${String(max)} 位`}
+        />
       </Dialog>
     </Flex>
   );

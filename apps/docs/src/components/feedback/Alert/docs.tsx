@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Status from './demo/Status.tsx?demo';
 import Tones from './demo/Tones.tsx?demo';
 import Variants from './demo/Variants.tsx?demo';
 
@@ -22,6 +23,12 @@ export default _component(() => () => (
         <Example id="tones" title="色调" demo={Tones}>
           <Code>tone</Code> 决定颜色与默认图标（Lucide），<Code>icon</Code> 可以换，写 false
           去掉。页面加载时就在的提示不打断读屏；操作后才出现的写 <Code>live</Code> 让读屏播报。
+        </Example>
+        <Example id="status" title="进行中、播报与尺寸" demo={Status}>
+          操作后才出现的提示写 <Code>live="polite"</Code>
+          （role="status"），读屏念完当前内容再念；错误等紧急信息用 <Code>assertive</Code>。
+          <Code>loading</Code> 时图标换成加载指示并带 aria-busy，结果出来后换掉内容即可。
+          <Code>size</Code> 是字号档位，图标与内边距随之缩放。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

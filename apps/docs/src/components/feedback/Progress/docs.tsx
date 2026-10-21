@@ -29,8 +29,10 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="progress" title="进度条" demo={Bars}>
           <Code>value</Code> 与 <Code>max</Code>（默认 100）算完成比例，超出时夹住；
-          <Code>tone</Code> 表示状态，读屏念的文字用 <Code>valueText</Code>{' '}
-          改（默认是百分比）。值也可以是 bigint、Decimal。
+          <Code>tone</Code> 表示状态。<Code>label</Code>{' '}
+          显示在上方，同时是进度条的名称；右侧默认是按语言格式化的百分比，
+          <Code>valueLabel</Code> 换成自己的文字（只是显示），读屏念的用 <Code>valueText</Code>{' '}
+          改。值也可以是 bigint、Decimal。
         </Example>
         <Example id="shapes" title="粗细与不确定进度" demo={Shapes}>
           <Code>size</Code> 跟字号档位缩放粗细，<Code>radius</Code> 改圆角；不写 <Code>value</Code>{' '}
