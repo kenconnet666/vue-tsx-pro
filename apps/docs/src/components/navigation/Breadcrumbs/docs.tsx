@@ -11,7 +11,7 @@ import Deploy from './demo/Deploy.tsx?demo';
 import Paths from './demo/Paths.tsx?demo';
 
 export const meta = {
-  title: 'Breadcrumbs 与 Steps',
+  title: 'Breadcrumbs 面包屑与步骤',
   description:
     '当前在哪：面包屑是页面在站点层级里的位置，步骤条是多步流程里的位置。都是有序列表，当前项带 aria-current。',
   order: 3,

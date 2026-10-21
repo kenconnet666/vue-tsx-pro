@@ -80,7 +80,7 @@ export default _component(() => () => (
       </TableBody>
     </Table>
     <Paragraph>
-      页面里的分栏与间距见 <Link href="/components/flex">Flex 与 Grid</Link>。
+      页面里的分栏与间距见 <Link href="/components/flex">Flex 弹性与网格布局</Link>。
     </Paragraph>
   </Prose>
 ));

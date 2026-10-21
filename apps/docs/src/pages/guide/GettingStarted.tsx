@@ -7,7 +7,7 @@ import { DocPage } from '../../site/DocPage';
 import { EditInPlayground } from '../../site/EditInPlayground';
 
 const meta = {
-  title: '快速开始',
+  title: 'Getting Started 快速开始',
   description: '在已有的 Vue 3.5 项目里装上 vue-tsx-pro，写第一个 TSX 页面。',
 };
 

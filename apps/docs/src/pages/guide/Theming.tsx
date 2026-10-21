@@ -17,7 +17,7 @@ import { Preview } from './theming/Preview';
 import { StartingPoint } from './theming/StartingPoint';
 
 const meta = {
-  title: '主题定制',
+  title: 'Theming 主题定制',
   description:
     '十二套内置主题，局部主题、跟随系统、运行时切换与自定义品牌色的用法；选一套主题作起点，再调品牌色、中性色、圆角、缩放、字体与动效，改动立即作用在整个站点上，满意后复制或下载代码。',
 };

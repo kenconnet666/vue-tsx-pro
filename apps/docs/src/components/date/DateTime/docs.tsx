@@ -12,7 +12,7 @@ import Countdowns from './demo/Countdowns.tsx?demo';
 import Formats from './demo/Formats.tsx?demo';
 
 export const meta = {
-  title: '时间的显示',
+  title: 'DateTime 时间显示',
   description:
     'DateTime 按语言写日期时间，RelativeTime 写“3 分钟前”并自动更新，Countdown 倒数到某个时刻；都输出语义化的元素。',
   order: 8,

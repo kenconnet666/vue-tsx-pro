@@ -16,7 +16,7 @@ import Separators from './demo/Separators.tsx?demo';
 import Grow from './demo/Grow.tsx?demo';
 
 export const meta = {
-  title: 'Flex 与 Grid',
+  title: 'Flex 弹性与网格布局',
   description:
     '一维的 Flex、二维的 Grid，加上列表语义的 FlexList / GridList、限宽居中的 Container 与分隔线 Separator：间距都取主题的五档。',
   order: 1,

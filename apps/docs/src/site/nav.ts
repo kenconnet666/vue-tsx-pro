@@ -51,19 +51,19 @@ const guide: NavSection = {
   pages: [
     {
       path: '/guide/getting-started',
-      title: '快速开始',
+      title: 'Getting Started 快速开始',
       description: '安装、配置 Vite 与 createUi，写第一个 TSX 页面',
       component: () => import('../pages/guide/GettingStarted'),
     },
     {
       path: '/guide/theming',
-      title: '主题定制',
+      title: 'Theming 主题定制',
       description: '调品牌色、中性色、圆角、缩放、字体与动效，实时检查对比度，导出代码',
       component: () => import('../pages/guide/Theming'),
     },
     {
       path: PLAYGROUND_PATH,
-      title: '代码演练场',
+      title: 'Playground 代码演练场',
       description: '在浏览器里改代码、立即看效果，复制链接分享；示例卡片上的“编辑”把示例带进来',
       component: () => import('../pages/Playground'),
     },

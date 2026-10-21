@@ -11,7 +11,7 @@ import Plans from './demo/Plans.tsx?demo';
 import States from './demo/States.tsx?demo';
 
 export const meta = {
-  title: '无障碍与基础部件',
+  title: 'ButtonBase 无障碍与基础部件',
   description:
     'ButtonBase 是没有外观的按钮，菜单项、标签页、折叠标题这类“长得不像按钮的按钮”都建在它上面；VisuallyHidden 放只给读屏器看的文字。',
   order: 20,

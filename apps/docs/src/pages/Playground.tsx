@@ -19,7 +19,7 @@ import { STARTER } from '../playground/starter';
 import { DocPage } from '../site/DocPage';
 
 const meta = {
-  title: '代码演练场',
+  title: 'Playground 代码演练场',
   description:
     '在浏览器里改代码、立即看效果：符文、StyleX 与主题 token、组件库、图标都能直接用。改动存在地址栏里，复制链接就能分享。',
 };

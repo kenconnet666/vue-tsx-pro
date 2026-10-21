@@ -5,7 +5,7 @@ import { Example } from '../../../site/Example';
 import Dashboard from './demo/Dashboard.tsx?demo';
 
 export const meta = {
-  title: '统计看板示例',
+  title: 'Dashboard 统计看板示例',
   description:
     '筛选、关键指标、柱状图与折线图、供应商地球、明细表组合成一页统计分析；切换主题、改品牌色，图表与指标卡一起变化。',
   order: 0,
