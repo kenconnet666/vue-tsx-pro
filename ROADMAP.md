@@ -89,3 +89,5 @@
 - [x] P3：剖析组件实例化的热点：prop 访问器直读 Vue props、字面量默认值、合并属性少分配（Button 58 → 43 µs）
 - [x] Shiki 按需加载（首屏 249 → 197 KB gzip）；编译线程池（文档站构建 9 秒）；prettier 缓存（pnpm check 15 秒）
 - [x] 主题定制的子路径 `@vue-tsx-pro/ui/theme-customize`：文档站只在访客改过主题设置时加载（首屏 JS gzip 170 → 153 KB）
+- [x] 全站巡检（控制台、卡死、溢出、交互、12 套主题下的 axe、截图）与运行时剖析：开发时模块等 StyleX 规则、
+      收起的源码按需高亮、骨架扫光走合成器、先读后写与共用 ResizeObserver；点击到渲染中位数 1030 → 643 ms（4 倍降速）
