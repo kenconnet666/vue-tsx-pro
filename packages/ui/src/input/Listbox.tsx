@@ -210,11 +210,13 @@ export const ListboxView = _component(
       const current = rows;
       // 读一下高亮项：它变了要重新算渲染范围（高亮项总要渲染）
       const active = activeRow();
+      // 先读出来：每一项都要调用一次估计高度，不要每次都经过 props 的响应式读取
+      const size = estimateSize;
       return {
         count: current.length,
         scrollElement: scroller === undefined ? root : scroller,
         list: sizer,
-        estimateSize: (index: number) => (current[index]?.kind === 'group' ? 30 : estimateSize),
+        estimateSize: (index: number) => (current[index]?.kind === 'group' ? 30 : size),
         getItemKey: (index: number) => current[index]!.key,
         overscan: 6,
         rangeExtractor: (range) => {

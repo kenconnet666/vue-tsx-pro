@@ -254,11 +254,13 @@ export const Tree = _component(
       const current = rows;
       // 读一下当前项：它变了要重新算渲染范围（当前项总要渲染，aria-activedescendant 才指得到）
       const focusedRow = activeRow();
+      // 先读出来：每一项都要调用一次估计高度，不要每次都经过 props 的响应式读取
+      const size = estimateSize;
       return {
         count: current.length,
         scrollElement: root,
         list: sizer,
-        estimateSize: () => estimateSize,
+        estimateSize: () => size,
         getItemKey: (position: number) => current[position]!.key,
         overscan: 6,
         rangeExtractor: (range) => {

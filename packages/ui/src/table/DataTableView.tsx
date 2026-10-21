@@ -737,12 +737,13 @@ export const DataTableView = _component(
     const virtual = useVirtualizer(() => {
       const current = rows;
       const list = entries;
+      // 先读出来：估计行高对每一行都要调用一次（几万行），每次都经过 props 的响应式读取很慢
+      const rowHeight = estimateRowHeight ?? ROW_HEIGHT[density];
       return {
         count: list?.length ?? current.length,
         scrollElement: viewport,
         list: body,
-        estimateSize: (position: number) =>
-          list?.[position]?.detail ? DETAIL_HEIGHT : (estimateRowHeight ?? ROW_HEIGHT[density]),
+        estimateSize: (position: number) => (list?.[position]?.detail ? DETAIL_HEIGHT : rowHeight),
         // 详情的 key 是行的 key 加一个不会出现在 key 里的分隔：与数据行的 key 不会重复
         getItemKey: (position: number) => {
           if (!list) return current[position]!.key;
