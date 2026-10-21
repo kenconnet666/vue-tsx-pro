@@ -4,6 +4,7 @@ import api from 'virtual:api/NumberFieldProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
@@ -42,6 +43,16 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['↑ / ↓', '加减一个 step'],
+        ['PageUp / PageDown', '加减一个 bigStep'],
+        ['Home / End', '到 min / max（有设时）'],
+        ['Enter', '按当前输入格式化并写回'],
+      ]}
+    >
+      输入框是 role="spinbutton"；加减按钮不在 Tab 顺序里（键盘用方向键），指针按住时连续加减。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

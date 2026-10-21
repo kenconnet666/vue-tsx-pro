@@ -4,6 +4,7 @@ import api from 'virtual:api/SlideVerifyProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Login from './demo/Login.tsx?demo';
 import Puzzle from './demo/Puzzle.tsx?demo';
@@ -35,6 +36,13 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['→ / ←', '移动滑块（从右到左排版时反过来）'],
+        ['Home / End', '移到起点 / 终点'],
+        ['Enter / Space', '松手提交这个位置（不能拖动时的替代操作，WCAG 2.5.7）'],
+      ]}
+    />
     <ApiReference api={api} />
   </DocPage>
 ));

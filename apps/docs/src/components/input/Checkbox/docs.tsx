@@ -8,10 +8,12 @@ import switchApi from 'virtual:api/SwitchProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Permissions from './demo/Permissions.tsx?demo';
 import Settings from './demo/Settings.tsx?demo';
 import Shipping from './demo/Shipping.tsx?demo';
+import Validation from './demo/Validation.tsx?demo';
 
 export const meta = {
   title: 'Checkbox、Radio 与 Switch',
@@ -45,8 +47,25 @@ export default _component(() => () => (
           只停在选中项，方向键在组内移动并选中，都是浏览器的原生行为。选项里可以放任意内容（说明、价格）；
           <Code>orientation="horizontal"</Code> 横排。
         </Example>
+        <Example id="validation" title="必选与出错" demo={Validation}>
+          提交时才检查：Field 的 <Code>required</Code> 标出必填，<Code>error</Code>{' '}
+          让整组标红并把错误作为说明念出；单个复选框（同意条款）同样包在 Field 里显示错误。
+          <Code>orientation="horizontal"</Code> 让一组横排。
+        </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Space', '复选框、开关：切换勾选'],
+        [
+          '↓ / → / ↑ / ←',
+          '单选组里：移到下一个 / 上一个选项并选中（原生 radio，整组一个 Tab 位置）',
+        ],
+        ['Tab', '复选框、开关各占一个 Tab 位置；单选组只停在已选（或第一个）选项上'],
+      ]}
+    >
+      都是原生的 input，键盘与读屏行为来自浏览器；样式自己画。
+    </KeyboardReference>
     <ApiReference api={[api, groupApi, radioApi, radioGroupApi, switchApi]} />
   </DocPage>
 ));

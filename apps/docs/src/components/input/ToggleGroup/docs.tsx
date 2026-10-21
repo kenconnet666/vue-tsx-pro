@@ -5,6 +5,7 @@ import itemApi from 'virtual:api/ToggleItemProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Format from './demo/Format.tsx?demo';
 import Vertical from './demo/Vertical.tsx?demo';
@@ -39,6 +40,14 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Tab', '整组只占一个 Tab 位置，进来时落在已按下（或第一个）的项上'],
+        ['→ / ↓ / ← / ↑', '按排列方向在组内移动焦点（漫游焦点），到头后循环；不改变选择'],
+        ['Home / End', '移到第一项 / 最后一项'],
+        ['Enter / Space', '按下或弹起聚焦的项；required 的单选组不能把唯一按下的项弹起'],
+      ]}
+    />
     <ApiReference api={[api, itemApi]} />
   </DocPage>
 ));

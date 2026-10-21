@@ -5,6 +5,7 @@ import api from 'virtual:api/UploadProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Import from './demo/Import.tsx?demo';
 import Photos from './demo/Photos.tsx?demo';
@@ -40,6 +41,13 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Enter / Space', '在选择区域上：打开系统的文件对话框（原生 input[type=file]）'],
+        ['Tab', '每个文件的“重试”“移除”按钮都在 Tab 顺序里'],
+        ['Enter / Space', '在“重试”“移除”上：重新上传 / 移除这个文件（上传中的会中止）'],
+      ]}
+    />
     <ApiReference api={[api, dropApi]} />
   </DocPage>
 ));

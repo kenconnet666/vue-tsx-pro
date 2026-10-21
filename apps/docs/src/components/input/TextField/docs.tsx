@@ -10,6 +10,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Appearance from './demo/Appearance.tsx?demo';
 import Comment from './demo/Comment.tsx?demo';
 import Signup from './demo/Signup.tsx?demo';
+import Adornments from './demo/Adornments.tsx?demo';
 
 export const meta = {
   title: 'TextField 文本框',
@@ -42,6 +43,13 @@ export default _component(() => () => (
           高度随内容在 <Code>rows</Code> 与 <Code>maxRows</Code> 之间增长（父级改值也会跟着变）；
           <Code>fixed</Code>{' '}
           关掉自动增高、允许拖动调整。字数计数超出上限时变成危险色，读屏念完整的句子。
+        </Example>
+        <Example id="adornments" title="图标、前后缀、清空与字数" demo={Adornments}>
+          <Code>icon</Code> / <Code>iconEnd</Code> 放在框的两头，<Code>prefix</Code> /{' '}
+          <Code>suffix</Code> 是不算在值里的固定文字，<Code>clearable</Code>{' '}
+          有内容时显示清空按钮。Field 的 <Code>error</Code>{' '}
+          让框标红并把错误作为说明。自己做的输入组件用 <Code>CharacterCount</Code>{' '}
+          显示字数，超出上限时变成危险色，读屏念完整的句子。
         </Example>
       </ExampleColumn>
     </Examples>

@@ -4,10 +4,12 @@ import api from 'virtual:api/SliderProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Equalizer from './demo/Equalizer.tsx?demo';
 import Player from './demo/Player.tsx?demo';
 import Price from './demo/Price.tsx?demo';
+import Form from './demo/Form.tsx?demo';
 
 export const meta = {
   title: 'Slider 滑块',
@@ -38,8 +40,23 @@ export default _component(() => () => (
           <Code>orientation="vertical"</Code>：<Kbd>↑</Kbd> 增大、<Kbd>↓</Kbd> 减小。数值用
           number：需要精确小数或超大整数的输入用 NumberField。
         </Example>
+        <Example id="form" title="表单提交与不可用" demo={Form}>
+          <Code>name</Code> 用隐藏的 input 随表单提交当前值；拖动过程中 <Code>value</Code>{' '}
+          一直在变，<Code>onValueCommit</Code> 只在松手（或键盘改完）时调用，适合保存到服务端。Field
+          的 <Code>disabled</Code> 交给里面的滑块。
+        </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['→ / ↑', '加一个 step（从右到左排版时横向的方向键反过来）'],
+        ['← / ↓', '减一个 step'],
+        ['PageUp / PageDown', '加减一个 bigStep（默认是范围的十分之一）'],
+        ['Home / End', '到最小值 / 最大值'],
+      ]}
+    >
+      每个滑块手柄是一个 role="slider"，区间滑块的两个手柄各占一个 Tab 位置，不会互相越过。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));
