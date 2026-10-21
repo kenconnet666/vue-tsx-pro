@@ -57,6 +57,8 @@ export class RunesTransform {
   private pending = new Map<t.VariableDeclarator, TrackedInfo>();
   private tracked = new Map<Binding, TrackedInfo>();
   private pendingRest = new Set<t.VariableDeclarator>();
+  /** _derived / _derived.by 的求值函数：里面不能修改状态 */
+  private derivedGetters = new WeakSet<t.Node>();
   private rest = new Set<Binding>();
   private program: NodePath<t.Program>;
   private readonly filename: string | undefined;
@@ -180,6 +182,7 @@ export class RunesTransform {
         // const：只读的 computed；let：可以临时覆盖，依赖变化后重新跟随（同 Svelte 5.25）
         if (!arg) throw fail(path, `${rune} 需要一个参数`);
         const getter = rune === '_derived' ? t.arrowFunctionExpression([], arg) : arg;
+        this.derivedGetters.add(getter);
         const writable = kind === 'let';
         if (t.isObjectPattern(id) || t.isArrayPattern(id)) {
           this.declareDestructuredDerived(declarator, id, getter, rune, writable);
@@ -309,6 +312,13 @@ export class RunesTransform {
       // 先处理写入，再处理读取；同一个标识符只改写一次
       for (const violation of binding.constantViolations) {
         if (!info.writable) throw fail(violation, readonlyMessage(binding, info));
+        // 派生值是读出来的：求值时改状态会让它与依赖互相触发（Svelte 也禁止）
+        if (violation.findParent((parent) => this.derivedGetters.has(parent.node))) {
+          throw fail(
+            violation,
+            `不能在 _derived 里修改 ${binding.identifier.name}：派生值只读取状态；需要跟着变化去改状态时用 _effect`,
+          );
+        }
         for (const target of writeTargets(violation, binding)) replaceWithValue(target);
       }
       for (const reference of binding.referencePaths) {
@@ -385,7 +395,14 @@ export class RunesTransform {
           path.replaceWith(this.imports.runtime('snapshot', [singleArgument(path, rune)]));
         }
         if (rune === '_untrack') {
-          const read = t.arrowFunctionExpression([], singleArgument(path, rune));
+          const argument = singleArgument(path, rune);
+          if (t.isArrowFunctionExpression(argument) || t.isFunctionExpression(argument)) {
+            throw fail(
+              path,
+              '_untrack 的参数就是要读的值：写 _untrack(x)，不要写成 _untrack(() => x)（那样拿到的是函数本身）',
+            );
+          }
+          const read = t.arrowFunctionExpression([], argument);
           path.replaceWith(this.imports.runtime('untrack', [read]));
         }
         if (rune === '_effect' || rune === '_effect.pre' || rune === '_effect.root') {

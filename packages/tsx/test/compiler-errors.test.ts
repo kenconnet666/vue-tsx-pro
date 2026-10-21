@@ -11,6 +11,21 @@ const cases: [string, string, RegExp][] = [
   ],
   ['写入 _derived', 'let a = _state(1); const d = _derived(a * 2); d = 3', /只读/],
   [
+    '_derived 里修改状态',
+    'let a = _state(1); let n = _state(0); const d = _derived(a * 2 + n++)',
+    /不能在 _derived 里修改 n/,
+  ],
+  [
+    '_derived.by 里修改状态',
+    'let a = _state(1); let last = _state(0); const d = _derived.by(() => { last = a; return a * 2; })',
+    /不能在 _derived 里修改 last/,
+  ],
+  [
+    '_untrack 的参数写成函数',
+    'let a = _state(1); const b = _untrack(() => a)',
+    /_untrack 的参数就是要读的值/,
+  ],
+  [
     '写入解构出的 _derived',
     'let p = _state({ x: 1 }); const { x } = _derived(p); x = 2',
     /x 来自 _derived，是只读的/,

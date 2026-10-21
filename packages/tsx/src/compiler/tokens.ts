@@ -123,15 +123,19 @@ class TokenRewriter {
   /** create({ 组: 样式 | (参数) => 样式 }) 与 keyframes({ from: 样式, '50%': 样式 }) */
   rewriteCall(call: NodePath<t.CallExpression>) {
     const argument = call.get('arguments')[0];
-    if (!argument?.isObjectExpression()) return;
-    for (const entry of argument.get('properties')) {
-      if (!entry.isObjectProperty()) continue;
-      const value = entry.get('value');
-      if (value.isObjectExpression()) this.rewriteStyles(value);
-      else if (value.isArrowFunctionExpression() || value.isFunctionExpression()) {
-        for (const styles of returnedObjects(value)) this.rewriteStyles(styles);
+    if (!argument) return;
+    const groups = unwrapTypes(argument);
+    if (groups.isObjectExpression()) {
+      for (const entry of groups.get('properties')) {
+        if (!entry.isObjectProperty()) continue;
+        const value = unwrapTypes(entry.get('value'));
+        if (value.isObjectExpression()) this.rewriteStyles(value);
+        else if (value.isArrowFunctionExpression() || value.isFunctionExpression()) {
+          for (const styles of returnedObjects(value)) this.rewriteStyles(styles);
+        }
       }
     }
+    assertNoTokensLeft(argument);
   }
 
   insertImport() {
@@ -165,7 +169,7 @@ class TokenRewriter {
             ? key.value
             : null;
       if (name == null) continue;
-      const value = entry.get('value');
+      const value = unwrapTypes(entry.get('value'));
       if (/^[:@]/.test(name)) {
         if (value.isObjectExpression()) this.rewriteStyles(value);
       } else {
@@ -175,7 +179,8 @@ class TokenRewriter {
   }
 
   /** 属性值：字符串、回退数组、按条件取值的对象（条件可嵌套）、动态样式里的三元表达式 */
-  private rewriteValue(property: string, value: NodePath<t.Node | null>) {
+  private rewriteValue(property: string, path: NodePath<t.Node | null>) {
+    const value = unwrapTypes(path);
     if (value.isStringLiteral()) {
       const replacement = this.rewriteString(property, value.node.value, value);
       if (replacement) value.replaceWith(replacement);
@@ -266,21 +271,106 @@ class TokenRewriter {
   }
 }
 
-/** 动态样式函数返回的样式对象：`(w) => ({ … })` 或函数体里 return 的对象 */
+/** 动态样式函数返回的样式对象：`(w) => ({ … })`、按条件返回的（`w ? { … } : { … }`）、函数体里 return 的对象 */
 function returnedObjects(fn: NodePath<t.ArrowFunctionExpression | t.FunctionExpression>) {
-  const body = fn.get('body');
-  if (body.isObjectExpression()) return [body];
   const objects: NodePath<t.ObjectExpression>[] = [];
+  const collect = (path: unknown) => {
+    const value = unwrapTypes(path);
+    if (value.isObjectExpression()) objects.push(value);
+    else if (value.isConditionalExpression()) {
+      collect(value.get('consequent'));
+      collect(value.get('alternate'));
+    } else if (value.isLogicalExpression()) collect(value.get('right'));
+  };
+  const body = fn.get('body');
+  if (!body.isBlockStatement()) {
+    collect(body);
+    return objects;
+  }
   body.traverse({
     Function(inner) {
       inner.skip();
     },
     ReturnStatement(statement) {
-      const argument = statement.get('argument');
-      if (argument.isObjectExpression()) objects.push(argument);
+      collect(statement.get('argument'));
     },
   });
   return objects;
+}
+
+/** 去掉只影响类型的外壳：`{…} as const`、`satisfies`、`x!`、括号 */
+// 参数收 unknown：Babel 的 NodePath 联合类型互相不能赋值（get() 得到的是各种 NodePath 的联合）
+function unwrapTypes(path: unknown): NodePath {
+  let current = path as NodePath;
+  while (
+    current.isTSAsExpression() ||
+    current.isTSSatisfiesExpression() ||
+    current.isTSNonNullExpression() ||
+    current.isTSTypeAssertion() ||
+    current.isParenthesizedExpression()
+  ) {
+    current = current.get('expression') as NodePath;
+  }
+  return current;
+}
+
+/** 文字里是不是 token 写法（整个是 token，或夹着 token） */
+const looksLikeToken = (text: string) => TOKEN.test(text) || embeddedTokens(text).length > 0;
+
+/**
+ * 改写完还留着 token 写法：是没认出来的形状（模板字符串、写在 create 外面的对象、展开别的对象），
+ * 原样进了 CSS 就是无效的变量值、整条声明失效且没有提示，所以报错，指出该怎么写
+ */
+function assertNoTokensLeft(argument: NodePath) {
+  argument.traverse({
+    StringLiteral(path) {
+      const parent = path.parentPath;
+      // 键（'::before'、'@media …'）不是值
+      if (parent?.isObjectProperty() && parent.node.key === path.node) return;
+      if (looksLikeToken(path.node.value)) {
+        throw fail(
+          path,
+          `'${path.node.value}' 在这里不会改写成主题 token：token 写法只认样式的属性值（字符串、回退数组、按条件取值的对象）`,
+        );
+      }
+    },
+    TemplateLiteral(path) {
+      if (path.node.quasis.some((quasi) => looksLikeToken(quasi.value.cooked ?? quasi.value.raw))) {
+        throw fail(
+          path,
+          "模板字符串里的 token 写法不会改写：改成普通字符串（值里可以夹 token，如 'calc(_sm + 2px)'），或直接写 token 变量",
+        );
+      }
+    },
+    Identifier(path) {
+      if (!path.isReferencedIdentifier()) return;
+      const binding = path.scope.getBinding(path.node.name);
+      const init = binding?.path.isVariableDeclarator() ? binding.path.get('init') : null;
+      if (!init?.node || !containsToken(init as NodePath)) return;
+      throw fail(
+        path,
+        `${path.node.name} 里的 token 写法不会改写：token 写法只在 stylex.create / keyframes 的参数里改写，样式请直接写在里面`,
+      );
+    },
+  });
+}
+
+/** 子树里有没有 token 写法的字符串（属性的键除外） */
+function containsToken(path: NodePath): boolean {
+  let found = false;
+  const check = (node: t.StringLiteral) => {
+    if (looksLikeToken(node.value)) found = true;
+  };
+  if (path.isStringLiteral()) check(path.node);
+  path.traverse({
+    StringLiteral(inner) {
+      const parent = inner.parentPath;
+      if (parent?.isObjectProperty() && parent.node.key === inner.node) return;
+      check(inner.node);
+      if (found) inner.stop();
+    },
+  });
+  return found;
 }
 
 /**

@@ -88,6 +88,19 @@ describe('改写', () => {
     expect(code).toContain("f('_xs')");
   });
 
+  it('as const、satisfies 这类类型外壳与按条件返回的动态样式里同样改写', async () => {
+    const code = await compile(`
+      const s = stylex.create({
+        a: { fontSize: '_xs' as const, padding: ['_md', '_sm'] as const } as const,
+        b: (on: boolean) => (on ? { color: '_accent' } : { color: '_text' }),
+        c: (on: boolean) => { if (on) return { margin: '_md' }; return { margin: '_sm' }; },
+      });
+    `);
+    expect(code).not.toMatch(/'_\w/);
+    expect(code).toContain('color: _colors.accent');
+    expect(code).toContain('margin: _space.sm');
+  });
+
   it('没有 token 写法时不改写，也不去找 token 模块', async () => {
     const load = () => {
       throw new Error('不该加载');
@@ -113,6 +126,11 @@ describe('报错', () => {
     ['格式不对', `{ fontSize: '_x-s' }`, /不是主题 token 的写法/],
     ['值里夹着的 token 不存在', `{ padding: '_sm _huge' }`, /space 里没有 huge/],
     [
+      '模板字符串里的 token 写法不会改写',
+      '{ padding: `_sm ${1}px` }',
+      /模板字符串里的 token 写法不会改写/,
+    ],
+    [
       '覆盖变量用短写：没有属性可查表',
       `{ [vars.highlight]: '_text' }`,
       /\[vars\.highlight\] 不在 token 对照表里.*'_colors\.text'/,
@@ -120,6 +138,13 @@ describe('报错', () => {
   ];
   it.each(cases)('%s', async (_, styles, message) => {
     await expect(compile(`stylex.create({ a: ${styles} });`)).rejects.toThrow(message);
+  });
+
+  it('写在 create 外面的样式对象里的 token 写法不会改写：报错，指出样式要直接写在里面', async () => {
+    await expect(
+      compile(`const base = { fontSize: '_xs' };
+stylex.create({ a: base });`),
+    ).rejects.toThrow(/base 里的 token 写法不会改写/);
   });
 
   it('找不到 token 模块', async () => {
