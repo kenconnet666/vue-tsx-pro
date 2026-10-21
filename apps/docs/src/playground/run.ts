@@ -15,6 +15,7 @@ import type { CompileRequest, CompileResponse } from './compile.worker';
 const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@lucide/icons': () => import('@lucide/icons'),
   '@vue-tsx-pro/ui/charts': () => import('@vue-tsx-pro/ui/charts'),
+  '@vue-tsx-pro/ui/theme-customize': () => import('@vue-tsx-pro/ui/theme-customize'),
   '@vue-tsx-pro/ui/three': () => import('@vue-tsx-pro/ui/three'),
   three: () => import('three'),
 };

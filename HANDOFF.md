@@ -129,7 +129,7 @@ pnpm -C apps/host-demo exec vitest run --configLoader native --config vitest.bro
 | 夹取值、对齐步长                                               | `clamp`、`snapToStep`（`utils/data/number.ts`）；判断从右到左用 `isRtl`（`utils/dom/direction.ts`）                                                                                 |
 | 浮层滚动条                                                     | 局部区域用 `ScrollArea`（视口本身管焦点时 `focusable={false}`，拿视口用 `propsViewport.ref`）；整页用 `PageScrollbar`；会滚动的弹出层用 `floatingStyles.scrollPanel` + `scrollArea` |
 | 颜色解析、对比度                                               | `parseColor`、`toHex`、`contrastRatio`、`readableText`、`withAlpha`（`utils/data/color.ts`，culori）                                                                                |
-| 主题定制                                                       | `paletteColors`（Radix 色阶）、`customizeTheme` / `themeSettingsCode`、`checkContrast`、`tokenCatalog`（`config/theme/`）                                                           |
+| 主题定制                                                       | `paletteColors`（Radix 色阶）、`customizeTheme` / `themeSettingsCode`、`checkContrast`、`tokenCatalog`（子路径 `@vue-tsx-pro/ui/theme-customize`）                                  |
 | 元素大小变化                                                   | `useResizeObserver(() => [a, b], onResize)`：目标换了自动重新观察，卸载时断开（`utils/dom/resize.ts`）                                                                              |
 
 ## 5. 硬性约定（用户的长期要求）

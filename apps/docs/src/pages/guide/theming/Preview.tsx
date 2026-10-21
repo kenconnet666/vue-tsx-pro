@@ -12,7 +12,6 @@ import {
   Button,
   Card,
   Checkbox,
-  customizeTheme,
   darkTheme,
   Field,
   Flex,
@@ -41,6 +40,7 @@ import {
   type StatusTone,
 } from '@vue-tsx-pro/ui';
 import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { customizeTheme } from '@vue-tsx-pro/ui/theme-customize';
 import { themeSettings } from '../../../site/theme';
 
 const styles = stylex.create({

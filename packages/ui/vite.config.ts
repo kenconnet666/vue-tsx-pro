@@ -22,6 +22,7 @@ export default defineConfig({
         'src/three/index.ts',
         'src/config/vue-router.ts',
         'src/config/theme/boot.ts',
+        'src/config/theme-customize.ts',
       ],
       formats: ['es'],
     },

@@ -88,4 +88,4 @@
 - [x] P3：没写过的 prop 用只读访问器 readonlyProp（实例化快约两成）
 - [x] P3：剖析组件实例化的热点：prop 访问器直读 Vue props、字面量默认值、合并属性少分配（Button 58 → 43 µs）
 - [x] Shiki 按需加载（首屏 249 → 197 KB gzip）；编译线程池（文档站构建 9 秒）；prettier 缓存（pnpm check 15 秒）
-- [ ] 文档站首屏的主题编辑器颜色库（约 15 KB gzip）：要给组件库加子路径入口才能拆，先不做
+- [x] 主题定制的子路径 `@vue-tsx-pro/ui/theme-customize`：文档站只在访客改过主题设置时加载（首屏 JS gzip 170 → 153 KB）

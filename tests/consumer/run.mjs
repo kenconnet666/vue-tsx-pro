@@ -103,6 +103,10 @@ async function checkInBrowser() {
         await style('.dark-text', 'color'),
         'rgb(237, 238, 240)',
       ],
+      'customizeTheme 换的品牌色（grass 9）': [
+        await style('.grass-text', 'color'),
+        'rgb(70, 167, 88)',
+      ],
       'Icon 有无障碍名称': [
         await page.$eval('.count svg', (svg) => svg.getAttribute('role')),
         'img',

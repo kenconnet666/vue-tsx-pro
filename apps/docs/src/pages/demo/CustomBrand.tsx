@@ -3,15 +3,14 @@ import {
   Badge,
   Button,
   Card,
-  customizeTheme,
   defineTheme,
   Flex,
   lightTheme,
-  paletteColors,
   Provider,
   Switch,
   Text,
 } from '@vue-tsx-pro/ui';
+import { customizeTheme, paletteColors } from '@vue-tsx-pro/ui/theme-customize';
 
 // 直接改 token：品牌色、中性色整组换成 Radix 的 plum、mauve，再把圆角调大
 const plum = defineTheme(

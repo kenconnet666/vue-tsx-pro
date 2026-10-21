@@ -4,11 +4,11 @@ import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
 import { createApp } from 'vue';
 import { App } from './App';
 import { createDocsRouter } from './router';
-import { siteTheme } from './site/theme';
+import { siteTheme, siteThemeReady } from './site/theme';
 
 const router = createDocsRouter();
 
-createApp(App)
+const app = createApp(App)
   .use(router)
   .use(
     createUi({
@@ -32,5 +32,7 @@ createApp(App)
       }),
       router: vueRouterAdapter(router),
     }),
-  )
-  .mount('#app');
+  );
+
+// 加载失败也照常挂载（用没定制的主题），错误照样报出来
+void siteThemeReady().finally(() => app.mount('#app'));

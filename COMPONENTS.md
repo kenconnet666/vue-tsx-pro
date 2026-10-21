@@ -204,7 +204,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
-- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。定制品牌色、中性色、圆角、缩放、字体、动效用 `customizeTheme(preference.theme, settings)`，界面是 `ThemeCustomizer`（§10.19）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
+- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。定制品牌色、中性色、圆角、缩放、字体、动效用 `customizeTheme(preference.theme, settings)`（子路径 `@vue-tsx-pro/ui/theme-customize`，要用颜色库，用到时再导入），界面是 `ThemeCustomizer`（§10.19）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
 - 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
 - 对比度：`pnpm themes:check`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把三套主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查依次跑三套主题。改颜色前后都跑一遍。
@@ -718,15 +718,16 @@ apps/docs/src/components/base/Button/
 
 **主题编辑器**：
 
-| 项         | 做法                                                                                                                                                                                                     |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                               |
-| 色阶规则   | `config/theme/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                    |
-| 对比度规则 | `config/theme/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                         |
-| token 清单 | `config/theme/token-catalog.ts`（`pnpm css-docs` 从 tokens.stylex.ts 生成）：每个 token 的默认值与说明                                                                                                   |
-| 定制逻辑   | `config/theme/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)` |
-| 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                               |
-| 文档站     | “主题定制”指南页：左边编辑器，右边样板间；设置记在本地，与明暗偏好叠加生效                                                                                                                               |
+| 项         | 做法                                                                                                                                                                                                               |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                                         |
+| 色阶规则   | `config/theme/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                              |
+| 对比度规则 | `config/theme/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                                   |
+| token 清单 | `config/theme/token-catalog.ts`（`pnpm css-docs` 从 tokens.stylex.ts 生成）：每个 token 的默认值与说明                                                                                                             |
+| 定制逻辑   | `config/theme/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)`           |
+| 入口       | 色阶、对比度、token 清单、定制逻辑由子路径 `@vue-tsx-pro/ui/theme-customize`（`config/theme-customize.ts`）导出：它们要用 culori 与 Radix 色板，主入口不带，应用只在真要套用设置时导入；`ThemeCustomizer` 在主入口 |
+| 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                                         |
+| 文档站     | “主题定制”指南页：左边编辑器，右边样板间；设置记在本地，与明暗偏好叠加生效                                                                                                                                         |
 
 **取舍**：运行时覆盖写在根元素的行内样式上，会盖过“减少动态效果时为 0”的媒体查询，所以用户开启减少动态效果时动效旋钮不覆盖时长。中间亮度的色阶（如 crimson、teal）上白字与深色字都可能到不了 4.5:1，编辑器如实提示。逐个 token 编辑、任意颜色生成色阶（OKLCH）留到第二期。
 

@@ -965,22 +965,6 @@ export {
 export { builtinThemeLabel, builtinThemes, type BuiltinThemeName } from './config/theme/builtin';
 export { coffeeColors, coffeeTheme } from './config/theme/coffee';
 export {
-  checkContrast,
-  CONTRAST_PAIRS,
-  type ContrastIssue,
-  type ContrastPair,
-} from './config/theme/contrast';
-export {
-  customizeTheme,
-  themeSettingsCode,
-  themeSettingsOverrides,
-  type CustomizeOptions,
-  type FontPresets,
-  type MotionPresets,
-  type RadiusPresets,
-  type ThemeSettings,
-} from './config/theme/customize';
-export {
   cyberpunkColors,
   cyberpunkFonts,
   cyberpunkRadii,
@@ -1006,17 +990,6 @@ export {
 } from './config/theme/light';
 export { midnightColors, midnightTheme } from './config/theme/midnight';
 export { oceanColors, oceanRadii, oceanShadows, oceanTheme } from './config/theme/ocean';
-export {
-  ACCENT_SCALES,
-  ACCENT_STEPS,
-  NEUTRAL_SCALES,
-  NEUTRAL_STEPS,
-  paletteColors,
-  scaleSwatch,
-  type AccentScale,
-  type NeutralScale,
-  type PaletteOptions,
-} from './config/theme/palette';
 export { paperColors, paperFonts, paperShadows, paperTheme } from './config/theme/paper';
 export {
   createThemePreference,
@@ -1036,7 +1009,6 @@ export {
   type ThemeInput,
   type ThemeOverrides,
 } from './config/theme/theme';
-export { tokenCatalog, type TokenEntry, type TokenGroupEntry } from './config/theme/token-catalog';
 import './config/theme/token-names';
 
 // 语言与格式化

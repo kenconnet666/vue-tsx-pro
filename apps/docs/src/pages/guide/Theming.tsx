@@ -84,7 +84,8 @@ export default _component(() => () => (
       <Code>defineTheme</Code> 在已有主题上改 token，<Code>paletteColors</Code> 按 Radix
       色阶整组换品牌色与中性色；
       <Code>customizeTheme</Code>{' '}
-      是上面主题编辑器的旋钮，品牌色、中性色、圆角、缩放、字体、动效一次给出。
+      是上面主题编辑器的旋钮，品牌色、中性色、圆角、缩放、字体、动效一次给出。它们要用颜色库，在子路径{' '}
+      <Code>@vue-tsx-pro/ui/theme-customize</Code>：本站只在访客改过主题设置时才加载。
     </Example>
   </DocPage>
 ));
