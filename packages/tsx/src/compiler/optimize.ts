@@ -45,9 +45,16 @@ type Kind =
 /** 子节点不能当插槽对象传的内置组件 */
 const VUE_BUILTINS = new Set(['Teleport', 'KeepAlive', 'Suspense']);
 
+/**
+ * 元素里引用到、声明在它外面的变量（this 记为 null）：每个 JSX 元素退出时算一次，外层元素直接用，
+ * 不再把里层整个子树重新遍历一遍（深层嵌套时那样是立方级）
+ */
+type Summaries = WeakMap<t.Node, readonly (Binding | null)[]>;
+
 /** 第 6 步的入口：稳定插槽与属性值缓存，改动直接写在 AST 上（规则见文件开头） */
 export function optimizeRender(program: NodePath<t.Program>, context: OptimizeContext) {
   const caches = new Map<NodePath<t.Function>, { id: t.Identifier; size: number }>();
+  const summaries: Summaries = new WeakMap();
 
   /** setup 里的缓存数组：用到时才声明 */
   const cacheSlot = (setup: NodePath<t.Function>, value: t.Expression) => {
@@ -71,7 +78,12 @@ export function optimizeRender(program: NodePath<t.Program>, context: OptimizeCo
     },
     JSXElement: {
       exit(path) {
-        stabilizeChildren(path, context);
+        // 先汇总（看的是改写前的子节点），再改写子节点
+        const external = externalReferences(path, summaries).filter(
+          (binding) => binding === null || !declaredWithin(binding, path),
+        );
+        stabilizeChildren(path, context, summaries);
+        summaries.set(path.node, external);
       },
     },
   });
@@ -181,7 +193,11 @@ function isFrozenRead(reference: NodePath) {
 // ───────────────────────── 稳定插槽 ─────────────────────────
 
 /** 组件元素的子节点改成显式的插槽对象，按用到的变量标 $stable */
-function stabilizeChildren(element: NodePath<t.JSXElement>, context: OptimizeContext) {
+function stabilizeChildren(
+  element: NodePath<t.JSXElement>,
+  context: OptimizeContext,
+  summaries: Summaries,
+) {
   if (!isComponentElement(element)) return;
   if (element.node.children.some((child) => t.isJSXSpreadChild(child))) return;
   const children = t.react.buildChildren(element.node) as t.Expression[];
@@ -195,10 +211,13 @@ function stabilizeChildren(element: NodePath<t.JSXElement>, context: OptimizeCon
   let usesChildren = false;
   for (const child of childPaths) {
     if (child.isJSXText()) continue;
-    forEachReference(child, setup, context, (kind) => {
+    for (const binding of externalReferences(child, summaries)) {
+      // 子节点自己里面声明的（回调参数、局部变量）不算
+      if (binding && declaredWithin(binding, child)) continue;
+      const kind = binding ? kindOf(binding, setup, context) : 'local';
       if (kind === 'local' || kind === 'mutable') dynamic = true;
       if (kind === 'children') usesChildren = true;
-    });
+    }
   }
   // 用到了这次渲染才有的值：保持 vue-jsx 原来的输出
   if (dynamic) return;
@@ -295,6 +314,50 @@ function enclosingSetup(path: NodePath): NodePath<t.Function> | null {
     if (isComponentSetup(fn)) return fn;
   }
   return null;
+}
+
+/**
+ * 子树里引用的变量（含 this，记为 null；全局变量不算）。已经汇总过的元素用它的汇总、不再进去，
+ * 所以每个引用只在声明它的地方以内逐层往上传，不会被每一层祖先各遍历一次
+ */
+function externalReferences(path: NodePath, summaries: Summaries): (Binding | null)[] {
+  // 已经汇总过的元素（子节点就是一个元素时）直接用：进到它里面会碰到改写插槽时新建的函数，Babel 要重新建它的作用域
+  const own = summaries.get(path.node);
+  if (own) return [...own];
+  const found: (Binding | null)[] = [];
+  const add = (reference: NodePath, name: string) => {
+    const binding = reference.scope.getBinding(name);
+    if (binding) found.push(binding);
+  };
+  if (path.isIdentifier()) add(path, path.node.name);
+  path.traverse({
+    JSXElement(inner) {
+      const summary = summaries.get(inner.node);
+      if (!summary) return;
+      found.push(...summary);
+      inner.skip();
+    },
+    Identifier(reference) {
+      if (reference.isReferencedIdentifier()) add(reference, reference.node.name);
+    },
+    JSXIdentifier(reference) {
+      if (reference.isReferencedIdentifier()) add(reference, reference.node.name);
+    },
+    ThisExpression() {
+      found.push(null);
+    },
+  });
+  return found;
+}
+
+/** 变量是不是在 path 里面声明的：有源码位置时比较位置（不用逐层往上找），生成的节点退回 isDescendant */
+function declaredWithin(binding: Binding, path: NodePath) {
+  const scope = binding.scope.path.node;
+  const outer = path.node;
+  if (scope.start != null && scope.end != null && outer.start != null && outer.end != null) {
+    return scope.start >= outer.start && scope.end <= outer.end;
+  }
+  return isWithin(binding.scope.path, path);
 }
 
 /** 表达式用到的外部变量逐个回调：变量的性质、引用是否在表达式里的函数中，以及引用本身 */

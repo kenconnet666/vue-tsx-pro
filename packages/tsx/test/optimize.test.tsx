@@ -315,3 +315,17 @@ describe('运行时', () => {
     expect(el.textContent).toBe('开on');
   });
 });
+
+it('深层嵌套：每个元素只汇总一次，200 层在 1.5 秒内编译完（原先逐层遍历子树，约 7 秒）', async () => {
+  const depth = 200;
+  const open = Array.from({ length: depth }, (_, i) => `<Box key="${i}" label={label}>`).join('');
+  const code = [
+    "import { Box } from './box';",
+    `export const C = _component(({ label }: { label: string }) => () => ${open}<span>{label}</span>${'</Box>'.repeat(depth)});`,
+  ].join('\n');
+  const start = performance.now();
+  const result = await compileRunes(code, 'deep.tsx');
+  expect(performance.now() - start).toBeLessThan(1500);
+  // 只用到 props：每一层都是稳定插槽
+  expect(result!.code.match(/\$stable: true/g)).toHaveLength(depth);
+});
