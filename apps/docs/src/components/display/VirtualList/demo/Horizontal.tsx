@@ -17,12 +17,13 @@ const photos = Array.from({ length: 1000 }, (_, index) => ({
 }));
 
 const styles = stylex.create({
-  list: { width: '_full', height: '9rem' },
+  list: { width: '_full', height: '8.5rem' },
   photo: {
     display: 'grid',
     placeItems: 'end start',
+    boxSizing: 'border-box',
     width: '8rem',
-    height: '100%',
+    height: '8rem',
     marginInlineEnd: '_sm',
     padding: '_sm',
     borderRadius: '_md',
