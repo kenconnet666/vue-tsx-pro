@@ -1,7 +1,9 @@
 // FileDrop：accept 的匹配、拖放过滤；Upload：上传进度与结果、失败重试、移除时中止、大小上限、单选替换
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
+import { Provider } from '../../config/Provider';
 import { Field } from '../../form/Field';
+import type { HttpClient, HttpRequest } from '../../utils/request/http';
 import { mount } from '../../utils/.test/mount';
 import { FileDrop, matchesAccept } from '../FileDrop';
 import { Upload, type UploadFile, type UploadHandler } from '../Upload';
@@ -87,6 +89,29 @@ describe('Upload', () => {
     calls[2]!.resolve(null);
     await flush();
     expect(list[1]!.status).toBe('done');
+  });
+
+  it('action：用配置的请求客户端 POST（multipart，字段名 fieldName），响应记在 response 上', async () => {
+    let list = _state<UploadFile[]>([]);
+    const requests: HttpRequest[] = [];
+    const http: HttpClient = {
+      request: (request) => {
+        requests.push(request);
+        return Promise.resolve({ url: '/files/1' } as never);
+      },
+    };
+    const root = mount(() => (
+      <Provider http={http}>
+        <Upload value={_bind(list)} action="/files" fieldName="attachment" />
+      </Provider>
+    ));
+    drop(root, [file('a.txt')]);
+    await flush();
+    await flush();
+    expect(requests[0]).toMatchObject({ method: 'POST', url: '/files' });
+    expect((requests[0]!.body as FormData).get('attachment')).toBeInstanceOf(File);
+    expect(requests[0]!.signal).toBeInstanceOf(AbortSignal);
+    expect(list[0]).toMatchObject({ status: 'done', response: { url: '/files/1' } });
   });
 
   it('移除正在上传的文件时中止', async () => {

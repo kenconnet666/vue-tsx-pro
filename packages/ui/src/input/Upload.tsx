@@ -8,9 +8,12 @@
  *     maxSize={5_000_000}
  *     upload={(file, { onProgress, signal }) => api.upload(file, { onProgress, signal })}
  *   />
+ *   <Upload value={_bind(files)} action="/files" />   用应用配置的请求客户端（http）上传
  *
  * - value 是 UploadFile 的数组（文件、状态、进度、错误、upload 的结果），父级写 value={_bind(list)}；
- * - 给了 upload 时选到文件就开始上传，否则停在 selected（等提交时一起上传）；移除正在上传的文件会中止（signal）；
+ * - 给了 upload 或 action 时选到文件就开始上传，否则停在 selected（等提交时一起上传）；移除正在上传的文件会中止（signal）；
+ * - action：经 createUi / Provider 的 http 把文件 POST 过去（multipart，字段名 fieldName），与其他请求共用 baseURL、令牌与拆包；
+ *   fetch 拿不到上传的字节进度，进度条是不确定的，要进度时写 upload（XMLHttpRequest 的 upload.onprogress）；
  * - 超过 maxSize、不在 accept 里的文件也列出来，带错误、不上传；单选（不写 multiple）时新文件替换旧的；
  * - 在 Field 里时关联标签与错误；写了 name 时有一个隐藏的 file input 带着全部文件，原生提交（FormData）也拿得到。
  *
@@ -27,6 +30,7 @@ import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { useFieldControl } from '../form/Field';
+import { useHttp } from '../utils/request/http';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
@@ -61,8 +65,12 @@ export type UploadHandler = (
 export interface UploadProps extends PartProps<'div'> {
   /** 文件列表：父级写 value={_bind(list)} */
   value?: UploadFile[];
-  /** 怎样上传一个文件；不写时只选文件、不上传 */
+  /** 怎样上传一个文件；不写时用 action，都没有时只选文件、不上传 */
   upload?: UploadHandler;
+  /** 上传地址：没写 upload 时用应用配置的请求客户端（useHttp）POST 过去，响应体记在 response 上 */
+  action?: string;
+  /** action 上传时文件在表单里的字段名，默认 file */
+  fieldName?: string;
   /** 接受的文件类型（同原生 accept） */
   accept?: string;
   /** 可以选多个；不写时新文件替换旧的 */
@@ -135,6 +143,8 @@ export const Upload = _component(
   ({
     value = _bindable<UploadFile[]>([]),
     upload,
+    action,
+    fieldName = 'file',
     accept,
     multiple = false,
     maxSize,
@@ -163,6 +173,17 @@ export const Upload = _component(
     const control = useFieldControl(() => ({ invalid, required, disabled, readonly }), {
       delegate: true,
     });
+    const http = useHttp();
+    /** 实际用的上传函数：upload 优先，其次按 action 用请求客户端发 */
+    const uploader = (): UploadHandler | undefined =>
+      upload ??
+      (action
+        ? (file, { signal }) => {
+            const body = new FormData();
+            body.append(fieldName, file);
+            return http.request({ method: 'POST', url: action, body, signal });
+          }
+        : undefined);
     let hidden = _state.raw<HTMLInputElement | null>(null);
     // 每个正在上传的文件一个：移除、重试、卸载时中止
     const controllers = new Map<string, AbortController>();
@@ -172,13 +193,14 @@ export const Upload = _component(
       (value = value.map((item) => (item.id === id ? { ...item, ...changes } : item)));
 
     async function start(item: UploadFile) {
-      if (!upload) return;
+      const send = uploader();
+      if (!send) return;
       controllers.get(item.id)?.abort();
       const controller = new AbortController();
       controllers.set(item.id, controller);
       patch(item.id, { status: 'uploading', progress: undefined, error: undefined });
       try {
-        const response = await upload(item.file, {
+        const response = await send(item.file, {
           onProgress: (fraction) => {
             if (!controller.signal.aborted) patch(item.id, { progress: fraction });
           },
@@ -277,7 +299,7 @@ export const Upload = _component(
               </span>
             )}
           </div>
-          {failed && upload && !item.rejected && !state.readonly && (
+          {failed && uploader() && !item.rejected && !state.readonly && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {

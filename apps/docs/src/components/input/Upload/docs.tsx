@@ -26,7 +26,10 @@ export default _component(() => () => (
           给了 <Code>upload</Code> 时选到文件就开始上传：它拿到文件、报告进度的{' '}
           <Code>onProgress</Code> 和中止用的 <Code>signal</Code>，返回
           Promise。失败的可以重试，移除正在上传的会中止。超过 <Code>maxSize</Code>、不在{' '}
-          <Code>accept</Code> 里的也列出来，带错误、不上传。
+          <Code>accept</Code> 里的也列出来，带错误、不上传。不写 upload 时可以给 <Code>action</Code>
+          ：用应用配置的请求客户端（<Code>createUi</Code> 的 <Code>http</Code>
+          ，同一套 baseURL、令牌与拆包）把文件 POST 过去，字段名默认 file（<Code>fieldName</Code>
+          ）；fetch 拿不到上传进度，要进度时写 upload。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

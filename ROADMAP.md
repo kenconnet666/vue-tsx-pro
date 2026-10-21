@@ -158,7 +158,9 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       直接 _bind 到 Pagination、PageSizeSelect、DataTable；换排序、条数、条件、params 回到第一页且只请求一次，当前页空了退到最后一页；
       降本台账改用它（删掉手写的请求编号与侦听）
 - [ ] 路由适配读写 query（UiRouter 加 query 的读与替换，vueRouterAdapter 实现）：useTableQuery、查询栏的条件可选同步到地址
-- [ ] 远程选项：Select / TreeSelect 的搜索词交出来（`onSearch`），Combobox / TreeSelect 的 `load`；Upload 走同一个客户端
+- [x] 远程选项：Select、Combobox、TreeSelect 的 `load(搜索词, signal)`（打开时请求、输入停下 300 ms 再请求、只采用最后一次，
+      共用 remote-items.ts）；Select、TreeSelect 的 `search` 可绑定、`filter={false}`；Upload 的 `action` 走 createUi 的 http；
+      useRequest 加 `enabled`
 - [ ] 工作日与时限：节假日日历走 Provider，`useDeadline` 给出截止日、剩余与逾期天数、状态；`workdaysBetween`、`addWorkdays`
 - [ ] 字段差异 `diffFields`：两份记录按字段比较，得出是否变化与数值差
 - [ ] 跨容器拖动：`useSortable` 加分组
