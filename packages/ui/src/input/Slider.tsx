@@ -109,9 +109,19 @@ export const sliderStyles = stylex.create({
     userSelect: 'none',
     cursor: 'pointer',
   },
-  // 点击区域至少 24px（WCAG 2.5.8）
-  horizontal: { width: '_full', minHeight: '_minTarget' },
-  vertical: { flexDirection: 'column', height: '10em', minWidth: '_minTarget' },
+  // 点击区域至少 24px（WCAG 2.5.8）。滑块的中心对准取值，两端各留半个滑块的外边距：
+  // 滑块在最小、最大值时不伸出组件的盒子，不压到旁边的控件
+  horizontal: {
+    width: 'calc(100% - _space.lg - _space.xs)',
+    marginInline: 'calc((_space.lg + _space.xs) / 2)',
+    minHeight: '_minTarget',
+  },
+  vertical: {
+    flexDirection: 'column',
+    height: '10em',
+    marginBlock: 'calc((_space.lg + _space.xs) / 2)',
+    minWidth: '_minTarget',
+  },
   // 刻度文字放在轨道下方（纵向时右侧），给它留出位置
   labelledHorizontal: { paddingBlockEnd: '1.5em' },
   labelledVertical: { paddingInlineEnd: '3em' },
