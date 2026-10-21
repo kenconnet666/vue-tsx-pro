@@ -150,9 +150,10 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 2. 基础设施
 
-- [ ] 请求层：薄封装原生 fetch（baseURL、query、JSON 体、超时与取消、`HttpError`、请求与响应钩子拆后端的
-      `{ code, data, message }` 包装）。组件只依赖 `HttpClient` 接口，createUi / Provider 可以换成 axios、ky 或自己的实现。
-      `useRequest` 只采用最后一次、取消上一次、防抖、保留旧数据；文档站用内存里的假接口演示，加“请求与数据”指南
+- [x] 请求层：`HttpClient` 接口（只有 request，axios、ky 包一层即可）经 createUi / Provider 的 `http` 给出，`useHttp()` 取它；
+      `createHttpClient` 是原生 fetch 的薄封装（baseURL、query、JSON 体、超时与取消、`HttpError`、onRequest / onResponse 拆包）；
+      `useRequest` 只采用最后一次、取消上一次、参数防抖与去重、保留旧数据、mutate；“请求与数据”指南连着内存里的假接口演示。
+      `sameValue`（结构相等）从 useForm 挪到 utils/data/equality.ts 共用
 - [ ] 列表查询 `useTableQuery`：页码、条数、排序、筛选、总数、加载与出错一起管，联动 DataTable + Pagination + FilterBar；
       可选同步到 URL 的 query
 - [ ] 远程选项：Select / TreeSelect 的搜索词交出来（`onSearch`），Combobox / TreeSelect 的 `load`；Upload 走同一个客户端

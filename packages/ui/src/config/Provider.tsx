@@ -5,6 +5,7 @@ import { ConfigContext, useConfig, type Highlighter, type UiRouter } from './con
 import { mergeDefaults, type ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
+import type { HttpClient } from '../utils/request/http';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
 
 /** 局部配置；都不写时只是透明的容器，沿用上层配置 */
@@ -19,6 +20,8 @@ export interface ProviderProps {
   defaults?: ComponentDefaults;
   /** 路由适配；不写时沿用上层配置 */
   router?: UiRouter;
+  /** 请求客户端；不写时沿用上层配置 */
+  http?: HttpClient;
   /** 波纹效果的开关；不写时沿用上层配置 */
   ripple?: boolean;
   children?: VNodeChild;
@@ -41,7 +44,7 @@ export const providerStyles = stylex.create({
  * 应用级配置见 createUi。
  */
 export const Provider = _component(
-  ({ theme, lang, highlighter, defaults, router, ripple, children }: ProviderProps) => {
+  ({ theme, lang, highlighter, defaults, router, http, ripple, children }: ProviderProps) => {
     const parent = useConfig();
     const prefersDark = usePrefersDark();
     const currentTheme = _derived(theme ? resolveTheme(theme, prefersDark.value) : parent.theme);
@@ -62,6 +65,9 @@ export const Provider = _component(
       },
       get router() {
         return router ?? parent.router;
+      },
+      get http() {
+        return http ?? parent.http;
       },
       get ripple() {
         return ripple ?? parent.ripple;

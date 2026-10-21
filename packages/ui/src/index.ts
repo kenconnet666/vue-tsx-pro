@@ -1279,7 +1279,7 @@ export {
 } from './utils/dom/sortable';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
-// 工具：比较与匹配、选择、分页、文字、数值、日期
+// 工具：比较与匹配、相等、选择、分页、文字、数值、日期
 export { createComparer, createMatcher, isDateValue, type SortValue } from './utils/data/collation';
 export {
   CONTRAST_AA,
@@ -1335,6 +1335,7 @@ export {
   type WeekdayFormats,
   type WeekOptions,
 } from './utils/data/date';
+export { sameValue } from './utils/data/equality';
 export { cachedIntl } from './utils/data/intl-cache';
 export { normalizeNumber, parseNumber } from './utils/data/number-parse';
 export { clamp, snapToStep } from './utils/data/number';
@@ -1405,6 +1406,22 @@ export {
   type VirtualScrollOptions,
   type VisibleRange,
 } from './utils/virtual/virtualizer';
+
+// 工具：请求（HttpClient、createHttpClient、useRequest）
+export {
+  createHttpClient,
+  HttpError,
+  isAbortError,
+  useHttp,
+  type FetchClient,
+  type HttpClient,
+  type HttpClientOptions,
+  type HttpErrorContext,
+  type HttpMethod,
+  type HttpRequest,
+  type QueryValue,
+} from './utils/request/http';
+export { useRequest, type RequestOptions, type RequestState } from './utils/request/use-request';
 
 // 工具：JS 动画与动效
 export {

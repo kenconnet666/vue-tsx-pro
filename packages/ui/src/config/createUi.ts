@@ -15,6 +15,7 @@ import { ConfigContext, defaultConfig, type Highlighter, type UiRouter } from '.
 import type { ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
+import type { HttpClient } from '../utils/request/http';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
 
 /** 应用级配置；theme 与 lang 可以传 ref 或 getter，运行时切换，其余在安装时确定 */
@@ -29,6 +30,8 @@ export interface UiOptions {
   defaults?: ComponentDefaults;
   /** 路由适配：站内链接不刷新页面地跳转、导航组件判断当前页（见 UiRouter） */
   router?: UiRouter;
+  /** 请求客户端：createHttpClient({ baseURL, onRequest, onResponse })，或包一层 axios、ky（见 HttpClient） */
+  http?: HttpClient;
   /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
   ripple?: boolean;
   /**
@@ -80,6 +83,7 @@ export function createUi(options: UiOptions = {}): Plugin {
           highlighter: options.highlighter,
           defaults: options.defaults ?? {},
           router: options.router,
+          http: options.http,
           ripple: options.ripple ?? true,
         });
         // 应用级的语言也写在页面根元素上（Provider 写在自己的元素上）：读屏按 lang 选发音，

@@ -69,6 +69,12 @@ const guide: NavSection = {
       component: () => import('../pages/guide/DesignResources'),
     },
     {
+      path: '/guide/data',
+      title: 'Data 请求与数据',
+      description: '配置请求客户端、换成 axios 或 ky，useRequest 管加载、出错、防抖与取消',
+      component: () => import('../pages/guide/Data'),
+    },
+    {
       path: PLAYGROUND_PATH,
       title: 'Playground 代码演练场',
       description: '在浏览器里改代码、立即看效果，复制链接分享；示例卡片上的“编辑”把示例带进来',

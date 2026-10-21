@@ -31,13 +31,7 @@ import { safeParseAsync, type $ZodIssue, type $ZodRawIssue, type $ZodType } from
 import { useLang } from '../config/context';
 import { Field, type FieldProps } from './Field';
 import { createConstraints, type FieldConstraints } from './form-constraints';
-import { isNumeric, sameNumeric } from '../utils/data/numeric';
-
-/** 自带 compare 的值（@internationalized/date 的日期值）：不在运行时导入，按形状识别 */
-const isComparable = (value: unknown): value is { compare: (other: unknown) => number } =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as { compare?: unknown }).compare === 'function';
+import { sameValue } from '../utils/data/equality';
 
 /** 字段路径 → 错误信息；路径用点连接（`address.city`、`items.0.name`） */
 export type FormErrors = Partial<Record<string, string>>;
@@ -215,25 +209,6 @@ function readPath(source: unknown, path: string): unknown {
     current = (current as Record<string, unknown>)[key];
   }
   return current;
-}
-
-/**
- * 结构相等：普通对象与数组逐项比较；Date 比时间；数值（number、bigint、Decimal）按大小，Decimal('1.0') 与 1 相等；
- * 日期值（CalendarDate 等）按它自己的 compare；其余（含 Blob）比引用
- */
-function sameValue(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) return true;
-  if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
-  if (isNumeric(a) && isNumeric(b)) return sameNumeric(a, b);
-  if (isComparable(a) && isComparable(b) && a.constructor === b.constructor)
-    return a.compare(b) === 0;
-  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
-  if (Array.isArray(a) !== Array.isArray(b) || a instanceof Blob || b instanceof Blob) return false;
-  const keys = Object.keys(a);
-  if (keys.length !== Object.keys(b).length) return false;
-  return keys.every((key) =>
-    sameValue((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]),
-  );
 }
 
 /**
