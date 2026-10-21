@@ -78,13 +78,13 @@ export function mergeProps<Target = Props>(
   if (!own && !fixed) return defaults;
   const merged: Props = { ...base, ...own, ...fixed };
 
-  for (const key of ['sx', 'class', 'style']) {
-    const values = present([base[key], own?.[key], fixed?.[key]]);
-    if (values.length) merged[key] = values;
+  for (const key of LISTED_KEYS) {
+    const values = present3(base[key], own?.[key], fixed?.[key]);
+    if (values) merged[key] = values;
   }
 
-  const refs = present([base.ref, own?.ref, fixed?.ref] as (RefSetter | undefined)[]);
-  if (refs.length > 1) {
+  const refs = present3(base.ref, own?.ref, fixed?.ref) as RefSetter[] | undefined;
+  if (refs && refs.length > 1) {
     merged.ref = (element: unknown) => refs.forEach((ref) => setRef(ref, element));
   }
 
@@ -144,17 +144,17 @@ export function mergeAttrs<Tag extends keyof JSX.IntrinsicElements>(
  * 去掉 children：它是内容不是元素属性（组件的 ...rest 里带着它，转交给子组件时要用）。
  */
 export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'children'> {
+  // 解构出的 rest 是新对象：之后直接往上写，不再复制一次（每个元素每次渲染都要走这里）
   const { sx, children: _children, ...rest } = props as P & Props;
   if (sx == null) return rest as Omit<P, 'sx' | 'children'>;
   const compiled = compileSx(sx as StyleXStyles);
   if (rest.class == null && rest.style == null) {
-    return { ...rest, ...compiled } as Omit<P, 'sx' | 'children'>;
+    return Object.assign(rest, compiled) as Omit<P, 'sx' | 'children'>;
   }
-  return {
-    ...rest,
-    class: present([rest.class, compiled.class]),
-    style: present([compiled.style, rest.style]),
-  } as Omit<P, 'sx' | 'children'>;
+  const element = rest as Props;
+  element.class = present3(rest.class, compiled.class) ?? [];
+  element.style = present3(compiled.style, rest.style) ?? [];
+  return rest as Omit<P, 'sx' | 'children'>;
 }
 
 /**
@@ -203,3 +203,16 @@ function setRef(ref: RefSetter, element: unknown) {
 
 const present = <T>(values: readonly (T | null | undefined)[]) =>
   values.filter((value): value is T => value != null);
+
+/** 按层排列、要合并成数组的属性 */
+const LISTED_KEYS = ['sx', 'class', 'style'] as const;
+
+/** 最多三个值里不为空的那些，按原顺序成数组；都为空时返回 undefined。渲染路径上用，不建中间数组 */
+function present3(a: unknown, b: unknown, c?: unknown): unknown[] | undefined {
+  if (a == null) {
+    if (b == null) return c == null ? undefined : [c];
+    return c == null ? [b] : [b, c];
+  }
+  if (b == null) return c == null ? [a] : [a, c];
+  return c == null ? [a, b] : [a, b, c];
+}

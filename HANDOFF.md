@@ -71,7 +71,7 @@ pnpm -C apps/host-demo exec vitest run --configLoader native --config vitest.bro
   4. `_bind` 转成 v-model，`_untrack`、`_effect` 等转成运行时函数；
   5. 报告误用。
      另有 `tokens.ts`：把 `stylex.create` 里的 `'_xs'` 换成 token 变量。
-- `runtime/`：`_component`、prop 访问器（`children` 用不缓存的 `childrenProp`）、`overridable`、`snapshot`、`untrack`、`effect`、`createContext`。
+- `runtime/`：`_component`、prop 访问器（没写过的 prop 用只读的 `readonlyProp`，`children` 用不缓存的 `childrenProp`）、`overridable`、`snapshot`、`untrack`、`effect`、`createContext`。
 - `vite/`：预设是一个编译插件（每个文件调用一次 `compile`，`hmr.ts` 登记组件热更新，`cache.ts` 是开发服务器的磁盘编译缓存）加 `stylex.ts`（收集规则合成 CSS：开发时按版本推送，构建时输出并在 HTML 里引用）。这里还关掉了 lightningcss 对 `:dir()` 的降级。
 - `stylex/`：带中文注释的 StyleX 类型入口（`styles.ts` 由 `scripts/css-docs` 生成，不要手改）。
 

@@ -12,24 +12,25 @@
 
 ## 1. 一览
 
-| 写法                                                    | 编译成                                     | 说明                                                           |
-| ------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
-| `let n = _state(0)`                                     | `ref(0)`                                   | 读写 `n` ↔ `n.value`                                           |
-| `const form = _state({ … })`                            | `ref({ … })`                               | 不能整体替换，属性照常可改                                     |
-| `export const settings = _state({ … })`                 | `reactive({ … })`                          | 导出 ref 里的对象本身，导入方改属性是响应式的                  |
-| `let list = _state.raw([])`                             | `shallowRef([])`                           | 只整体替换，不做深层代理                                       |
-| `_state.snapshot(form)`                                 | `snapshot(form.value)`                     | 去掉代理的静态深拷贝                                           |
-| `const d = _derived(expr)` / `_derived.by(() => { … })` | `computed`                                 | 只读                                                           |
-| `let d = _derived(expr)`                                | `overridable(() => expr)`                  | 可以临时覆盖，依赖变化后重新跟随                               |
-| `const { a, b } = _derived(obj)`                        | 每个变量各自一个派生值                     | 嵌套、默认值、`...rest` 与普通解构一致                         |
-| `_effect(fn)` / `_effect.pre(fn)`                       | `watchEffect`（`flush: 'post'` / `'pre'`） | 副作用；返回的函数是清理函数                                   |
-| `const stop = _effect.root(fn)`                         | 独立的 `effectScope`                       | 不随组件销毁，手动清理                                         |
-| 组件参数 `({ size = 'md' })`                            | `prop(__props, 'size', () => 'md')`        | 普通 prop：可以临时覆盖（只改本地）                            |
-| 组件参数 `({ checked = _bindable(false) })`             | `bindable(…, emit)`                        | 可双向绑定的 prop                                              |
-| `<Switch checked={_bind(on)} />`                        | `v-model:checked={on.value}`               | 父级声明双向绑定；原生元素支持 `_bind.trim/.number/.lazy`      |
-| `let theme = _fromRef(useStorage(…))`                   | 直接持有这个 Ref                           | Ref → 变量；也支持解构 `const { x, y } = _fromRef(useMouse())` |
-| `_toRef(count)`                                         | `count`（背后的 Ref）                      | 变量 → Ref，交给需要可写 Ref 的 API                            |
-| `_untrack(x)`                                           | `untrack(() => x.value)`                   | 只取当前值、不追踪；组件函数体里写表示有意只要初始值，不警告   |
+| 写法                                                      | 编译成                                     | 说明                                                           |
+| --------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
+| `let n = _state(0)`                                       | `ref(0)`                                   | 读写 `n` ↔ `n.value`                                           |
+| `const form = _state({ … })`                              | `ref({ … })`                               | 不能整体替换，属性照常可改                                     |
+| `export const settings = _state({ … })`                   | `reactive({ … })`                          | 导出 ref 里的对象本身，导入方改属性是响应式的                  |
+| `let list = _state.raw([])`                               | `shallowRef([])`                           | 只整体替换，不做深层代理                                       |
+| `_state.snapshot(form)`                                   | `snapshot(form.value)`                     | 去掉代理的静态深拷贝                                           |
+| `const d = _derived(expr)` / `_derived.by(() => { … })`   | `computed`                                 | 只读                                                           |
+| `let d = _derived(expr)`                                  | `overridable(() => expr)`                  | 可以临时覆盖，依赖变化后重新跟随                               |
+| `const { a, b } = _derived(obj)`                          | 每个变量各自一个派生值                     | 嵌套、默认值、`...rest` 与普通解构一致                         |
+| `_effect(fn)` / `_effect.pre(fn)`                         | `watchEffect`（`flush: 'post'` / `'pre'`） | 副作用；返回的函数是清理函数                                   |
+| `const stop = _effect.root(fn)`                           | 独立的 `effectScope`                       | 不随组件销毁，手动清理                                         |
+| 组件参数 `({ size = 'md' })`                              | `readonlyProp(__props, 'size', 'md')`      | 组件里没写过的 prop：只读访问器，字面量默认值直接传            |
+| 组件里写过的 prop（`size = 'lg'`、交给 `_toRef`/`_bind`） | `prop(__props, 'size', () => 'md')`        | 普通 prop：可以临时覆盖（只改本地）                            |
+| 组件参数 `({ checked = _bindable(false) })`               | `bindable(…, emit)`                        | 可双向绑定的 prop                                              |
+| `<Switch checked={_bind(on)} />`                          | `v-model:checked={on.value}`               | 父级声明双向绑定；原生元素支持 `_bind.trim/.number/.lazy`      |
+| `let theme = _fromRef(useStorage(…))`                     | 直接持有这个 Ref                           | Ref → 变量；也支持解构 `const { x, y } = _fromRef(useMouse())` |
+| `_toRef(count)`                                           | `count`（背后的 Ref）                      | 变量 → Ref，交给需要可写 Ref 的 API                            |
+| `_untrack(x)`                                             | `untrack(() => x.value)`                   | 只取当前值、不追踪；组件函数体里写表示有意只要初始值，不警告   |
 
 ## 2. 状态 `_state`
 
@@ -189,4 +190,4 @@ JSX 交给 vue-jsx 后，没有模板编译器的那几项优化：父组件一�
 
 - **看不出哪里被追踪**：去掉 `.value` 后，读代码时分不清普通变量和响应式变量。缓解：声明处必须写符文；编辑器悬停可见类型。这是 Vue 当年放弃 Reactivity Transform 的主要理由，Svelte 5 接受了同样的代价。
 - **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。编译器生成的导入别名是 `_vue_ref`、`_vtp_prop` 这类名字，不会冲突。
-- 实现见 `packages/tsx/src/compiler`（编译，渲染优化在 `optimize.ts`）与 `packages/tsx/src/runtime`（`prop`、`bindable`、`overridable`、`snapshot`、`effect`、`forwardChildren`）。
+- 实现见 `packages/tsx/src/compiler`（编译，渲染优化在 `optimize.ts`）与 `packages/tsx/src/runtime`（`prop`、`readonlyProp`、`bindable`、`overridable`、`snapshot`、`effect`、`forwardChildren`）。

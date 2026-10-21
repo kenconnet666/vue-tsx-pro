@@ -113,9 +113,9 @@ describe('误用在编译期报错', () => {
       '  () => [size, icon, index, label, items])',
     ].join('\n');
     const out = (await compileRunes(code))!.code;
-    // 默认值变成惰性函数，引用的前一个 prop 已改写为 .value；都没被写过，用只读访问器
+    // 默认值变成惰性函数，引用的前一个 prop 已改写为 .value；字面量直接传值；都没被写过，用只读访问器
     expect(out).toContain('_vtp_readonlyProp(_props, "icon", () => pick(size.value))');
-    expect(out).toContain('_vtp_readonlyProp(_props, "index", () => -1)');
+    expect(out).toContain('_vtp_readonlyProp(_props, "index", -1)');
     expect(out).not.toContain('_vtp_prop');
     // 自动补上组件的 props 声明
     expect(out).toMatch(/props: \["size", "icon", "index", "label", "items"\]/);

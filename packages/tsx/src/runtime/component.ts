@@ -60,13 +60,25 @@ export function _component(
   };
 }
 
+/** withChildren 包着的 Vue props 本身 */
+const VUE_PROPS = Symbol('vueProps');
+
 /** 只拦截 children，其余属性原样交给 Vue 的 props（保持依赖收集） */
 function withChildren(props: object, ctx: SetupContext, instance: ComponentInternalInstance) {
   return new Proxy(props, {
     get(target, key, receiver) {
-      return key === 'children' ? readChildren(ctx, instance) : Reflect.get(target, key, receiver);
+      if (key === 'children') return readChildren(ctx, instance);
+      return key === VUE_PROPS ? target : Reflect.get(target, key, receiver);
     },
   });
+}
+
+/**
+ * 编译器传给 prop 访问器的 props 背后的 Vue props：访问器只读声明过的 prop，直接读它（同样是响应式的），
+ * 不必每次再穿过 withChildren 这层 Proxy（渲染时读 prop 是最频繁的操作之一）
+ */
+export function vueProps<P extends object>(props: P): P {
+  return ((props as { [VUE_PROPS]?: P })[VUE_PROPS] ?? props) as P;
 }
 
 /**
@@ -87,9 +99,13 @@ export function restProps(
       return withChildren ? props.children : undefined;
     },
     has: (target, key) => (key === 'children' ? hasChildren() : Reflect.has(target, key)),
+    // 展开 ...rest、合并属性时都会走这里：Reflect.ownKeys 返回的是新数组，直接在上面改，不再复制
     ownKeys: (target) => {
-      const keys = Reflect.ownKeys(target).filter((key) => key !== 'children');
-      return hasChildren() ? [...keys, 'children'] : keys;
+      const keys = Reflect.ownKeys(target);
+      const index = keys.indexOf('children');
+      if (index >= 0) keys.splice(index, 1);
+      if (hasChildren()) keys.push('children');
+      return keys;
     },
     getOwnPropertyDescriptor: (target, key) => {
       if (key !== 'children') return Reflect.getOwnPropertyDescriptor(target, key);

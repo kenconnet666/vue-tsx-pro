@@ -5,10 +5,13 @@
  * 返回的都是真正的 Vue Ref（读写改写为 .value），因此 _toRef(size) 可以交给 watch 等 Vue API。
  */
 import { computed, customRef, getCurrentInstance, nextTick, toRef, watch, type Ref } from 'vue';
+import { vueProps } from './component';
 import { overridable } from './state';
 
 type Props = Record<string, unknown>;
 type Emit = (event: string, ...args: unknown[]) => void;
+/** 编译器原样传入的字面量默认值 */
+type Literal = string | number | boolean | bigint | null;
 
 /**
  * 普通 prop：父级传了值就用父级的，否则用默认值；组件内可以临时覆盖（见 overridable），
@@ -28,7 +31,12 @@ export function prop<T>(props: Props, key: string, fallback?: () => T): Ref<T> {
  * 默认值的处理与 prop 相同；有默认值时在 setup 里先读一次（prop 的 watch 也是这时求值），
  * 默认值里调用的组合式函数（useId() 等）才拿得到组件实例
  */
-export function readonlyProp<T>(props: Props, key: string, fallback?: () => T): Ref<T> {
+export function readonlyProp<T>(props: Props, key: string, fallback?: (() => T) | Literal): Ref<T> {
+  // 字面量默认值（'md'、false、0，编译器直接传值）：不用缓存，也不必先求值
+  if (fallback !== undefined && typeof fallback !== 'function') {
+    const source = vueProps(props);
+    return toRef(() => (source[key] !== undefined ? source[key] : fallback) as T) as Ref<T>;
+  }
   const read = propReader(props, key, fallback);
   if (fallback) read();
   return toRef(read) as Ref<T>;
@@ -36,9 +44,10 @@ export function readonlyProp<T>(props: Props, key: string, fallback?: () => T): 
 
 /** 父级传了值就用父级的，否则用默认值（第一次用到时求值，computed 缓存） */
 function propReader<T>(props: Props, key: string, fallback: (() => T) | undefined) {
+  const source = vueProps(props);
   let fallbackValue: Readonly<Ref<T>> | undefined;
   return () => {
-    const value = props[key];
+    const value = source[key];
     if (value !== undefined || !fallback) return value as T;
     fallbackValue ??= computed(fallback);
     return fallbackValue.value;
@@ -77,6 +86,7 @@ export function bindable<T>(
   emit: Emit,
 ): Ref<T> {
   const instance = getCurrentInstance()!;
+  const source = vueProps(props);
   const listener = `onUpdate:${key}`;
   const passed = (name: string) => {
     const raw = instance.vnode.props;
@@ -85,7 +95,7 @@ export function bindable<T>(
   const isControlled = () => passed(key) && passed(listener);
 
   const fallbackValue = fallback?.() as T;
-  const parentValue = () => (props[key] !== undefined ? (props[key] as T) : fallbackValue);
+  const parentValue = () => (source[key] !== undefined ? (source[key] as T) : fallbackValue);
   let local = parentValue();
   /** 受控时写入的值，只在本轮更新内有效 */
   let pending: { value: T } | undefined;
@@ -93,7 +103,7 @@ export function bindable<T>(
 
   return customRef((track, trigger) => {
     watch(
-      () => props[key],
+      () => source[key],
       (value) => {
         if (value !== undefined) local = value as T;
         trigger();

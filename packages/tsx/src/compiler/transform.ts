@@ -291,7 +291,13 @@ export class RunesTransform {
         return rune === '_toRef' || rune === '_bind';
       });
       const init = (binding.path.node as t.VariableDeclarator).init;
-      if (!escapes && t.isCallExpression(init)) this.imports.retarget(init, 'prop', 'readonlyProp');
+      if (escapes || !t.isCallExpression(init)) continue;
+      this.imports.retarget(init, 'prop', 'readonlyProp');
+      // 默认值是字面量（'md'、false、0）时直接传值：不用惰性求值，运行时也不必缓存
+      const fallback = init.arguments[2];
+      if (t.isArrowFunctionExpression(fallback) && isConstantLiteral(fallback.body)) {
+        init.arguments[2] = fallback.body;
+      }
     }
   }
 
@@ -460,6 +466,19 @@ function readonlyMessage(binding: Binding, info: TrackedInfo) {
     return `${name} 用 const 声明，不能整体替换（属性照常可改）；需要替换请用 let`;
   }
   return `${name} 来自 ${info.source}，是只读的`;
+}
+
+/** 不引用任何变量的原始值字面量：'md'、0、-1、false、null、1n、不含插值的模板字符串 */
+function isConstantLiteral(node: t.Node): node is t.Expression {
+  if (t.isUnaryExpression(node, { operator: '-' })) return t.isNumericLiteral(node.argument);
+  if (t.isTemplateLiteral(node)) return node.expressions.length === 0;
+  return (
+    t.isStringLiteral(node) ||
+    t.isNumericLiteral(node) ||
+    t.isBooleanLiteral(node) ||
+    t.isNullLiteral(node) ||
+    t.isBigIntLiteral(node)
+  );
 }
 
 /** 0、'x'、true、null、模板字符串、undefined 或不传参数：const 声明这类初始值就永远改不了 */
