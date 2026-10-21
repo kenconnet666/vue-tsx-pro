@@ -11,6 +11,7 @@
  */
 import { utils, type AnimationParams } from 'animejs';
 import { onMounted, onScopeDispose, watch } from 'vue';
+import { batchLayout } from '../dom/layout-batch';
 import { useResizeObserver } from '../dom/resize';
 import { useAnimate } from './animation';
 
@@ -42,17 +43,22 @@ export interface ActiveIndicatorOptions {
 export function useActiveIndicator(read: () => ActiveIndicatorOptions): void {
   const animate = useAnimate();
 
+  // 合并到这一轮的先读后写里：一页的标签、分段控件挂载时各量一次，合起来只排一次版
   function place(animated: boolean) {
-    const { container, indicator, active, axis } = read();
-    const item = container?.querySelector<HTMLElement>(active);
-    if (!indicator || !item) return;
-    const x = axis === 'vertical' ? 0 : item.offsetLeft;
-    const y = axis === 'horizontal' ? 0 : item.offsetTop;
-    const target: AnimationParams = { x, y };
-    if (axis !== 'vertical') target.width = item.offsetWidth;
-    if (axis !== 'horizontal') target.height = item.offsetHeight;
-    if (animated) void animate(indicator, target);
-    else void utils.set(indicator, target);
+    batchLayout(() => {
+      const { container, indicator, active, axis } = read();
+      const item = container?.querySelector<HTMLElement>(active);
+      if (!indicator || !item) return;
+      const x = axis === 'vertical' ? 0 : item.offsetLeft;
+      const y = axis === 'horizontal' ? 0 : item.offsetTop;
+      const target: AnimationParams = { x, y };
+      if (axis !== 'vertical') target.width = item.offsetWidth;
+      if (axis !== 'horizontal') target.height = item.offsetHeight;
+      return () => {
+        if (animated) void animate(indicator, target);
+        else void utils.set(indicator, target);
+      };
+    });
   }
 
   onMounted(() => place(false));

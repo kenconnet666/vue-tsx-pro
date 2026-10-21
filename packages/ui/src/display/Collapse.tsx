@@ -60,6 +60,9 @@ export const Collapse = _component(
         collapsed = false;
         return;
       }
+      // 一开始就是收起的：没有过渡要等。不然每个收起的 Collapse 挂载时都要对整棵内容 getAnimations，
+      // 一页十来个收起的源码就是十来次样式计算
+      if (_untrack(collapsed)) return;
       let cancelled = false;
       void afterTransitions(root!).then(() => {
         if (!cancelled) collapsed = true;

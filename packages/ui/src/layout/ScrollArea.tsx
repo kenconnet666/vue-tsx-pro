@@ -19,6 +19,7 @@ import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { isRtl } from '../utils/dom/direction';
+import { batchLayout } from '../utils/dom/layout-batch';
 import { useResizeObserver } from '../utils/dom/resize';
 
 /** 哪个方向可以滚动 */
@@ -194,22 +195,32 @@ export const OverlayScrollbar = _component(
     const thumbSize = (view: number, size: number, trackSize: number) =>
       Math.max(MIN_THUMB, (view / size) * trackSize);
 
-    // 滑块的大小与位置随滚动频繁变化，直接写到元素上，不经过渲染
-    function sync() {
+    // 滑块的大小与位置随滚动频繁变化，直接写到元素上，不经过渲染。read 量、返回的函数写
+    function read() {
       if (!viewport || !track || !thumb) return;
+      // 看不见的（收起的 Collapse 是 hidden="until-found"，即 content-visibility: hidden）不量：
+      // 在这种子树里读尺寸，浏览器每次都要为它单独排一遍版。显示出来时 ResizeObserver 会再通知
+      if (viewport.checkVisibility?.() === false) return;
+      const element = thumb;
       const { view, size, position } = measure(viewport);
-      overflowing = size > view + 1;
       const trackSize = axis === 'y' ? track.clientHeight : track.clientWidth;
       const length = thumbSize(view, size, trackSize);
       const offset = size > view ? (position / (size - view)) * (trackSize - length) : 0;
-      if (axis === 'y') {
-        thumb.style.height = `${length}px`;
-        thumb.style.transform = `translateY(${offset}px)`;
-      } else {
-        thumb.style.width = `${length}px`;
-        thumb.style.transform = `translateX(${sign() * offset}px)`;
-      }
+      const direction = sign();
+      return () => {
+        overflowing = size > view + 1;
+        if (axis === 'y') {
+          element.style.height = `${length}px`;
+          element.style.transform = `translateY(${offset}px)`;
+        } else {
+          element.style.width = `${length}px`;
+          element.style.transform = `translateX(${direction * offset}px)`;
+        }
+      };
     }
+    // 滚动时立即对齐；挂载、尺寸变化时合并到这一轮的先读后写里（一页十几个滚动区域只排一次版）
+    const sync = () => read()?.();
+    const syncLater = () => batchLayout(read);
 
     // 整页的滚动条（fixed）不论 type，指针移到它上面都显示
     const revealsOnHover = () => type === 'hover' || fixed;
@@ -231,7 +242,7 @@ export const OverlayScrollbar = _component(
       // 整页滚动时滚动事件发在 window 上；窗口高度变了（不改变内容尺寸）也要重算
       const scroller = element === document.scrollingElement ? window : element;
       const hover = hoverTarget ?? track;
-      sync();
+      syncLater();
       const onScroll = () => {
         sync();
         show();
@@ -259,7 +270,7 @@ export const OverlayScrollbar = _component(
         clearTimeout(hideTimer);
       };
     });
-    useResizeObserver(() => [viewport, content], sync);
+    useResizeObserver(() => [viewport, content], syncLater);
 
     /** 拖动滑块：位移按“可滚动距离 / 滑块可移动距离”换算成滚动距离 */
     function dragThumb(event: PointerEvent) {

@@ -1,4 +1,5 @@
-// useActiveIndicator：挂载时对齐到当前项，换方向时清掉旧方向的尺寸（滑动的终态见浏览器测试）
+// useActiveIndicator：挂载时对齐到当前项，换方向时清掉旧方向的尺寸（滑动的终态见浏览器测试）。
+// 量与写合并在同一轮的微任务里（batchLayout），断言前等一下
 import { _component } from '@vue-tsx-pro/tsx';
 import { nextTick, shallowRef } from 'vue';
 import { expect, it } from 'vitest';
@@ -26,11 +27,13 @@ it('写当前项的位置与尺寸；axis 换了清掉旧的尺寸', async () =>
   });
   const host = mount(() => <Bar />);
   const indicator = host.querySelector('span')!;
+  await Promise.resolve();
   expect(indicator.style.width).toBe('0px');
   expect(indicator.style.height).toBe('');
 
   axis.value = 'vertical';
   await nextTick();
+  await Promise.resolve();
   expect(indicator.style.width).toBe('');
   expect(indicator.style.height).toBe('0px');
 });

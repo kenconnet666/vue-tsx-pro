@@ -1133,6 +1133,7 @@ export {
   type HoverIntentOptions,
 } from './utils/dom/hover-intent';
 export { useHoverLayer, type HoverLayer, type HoverLayerOptions } from './utils/dom/hover-layer';
+export { batchLayout } from './utils/dom/layout-batch';
 export { useLeaveConfirmation } from './utils/dom/leave-confirmation';
 export { shouldRouteClick, useRouterLink, type RouterLink } from './utils/dom/link';
 export { useMediaQuery, usePrefersDark, useReducedMotion } from './utils/dom/media-query';
