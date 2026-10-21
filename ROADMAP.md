@@ -138,6 +138,16 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@vue-tsx-pro/ui/vars.stylex`，主入口不再导出它）；看板用 Grid；
       图表示例的真实机型名换成“机型 A / B”
 
+### 1.6 审查余项
+
+- [x] 剪贴板：没有 Clipboard API（内网常见的 http 部署）时退回 execCommand，焦点还给按钮，模态对话框里也能复制（同 VueUse 的 legacy）
+- [x] `themeTransitionOrInstant` 只在读不到 token 时直接到位，token 格式写错照常报错（新增 `tokenValue`）；
+      `downloadFile` 过一会儿再回收地址（Safari、Firefox，同 FileSaver.js），BOM 由调用方加的说明改对
+- [x] `toElement` 从 overlay.ts 挪到 utils/dom/element.ts（十几个模块只为它导入浮层工具）；selection、text、layout-batch、
+      download 补上单元测试。决定保留：utils 读主题与配置（动画时长、波纹、路由），模块图里没有环（271 个模块、1117 条边）；
+      culori 按需注册颜色空间；date.ts 解析返回 null、运算抛 RangeError 的约定写进文件说明；floating、resize、hover-layer、
+      pointer、reveal、sortable、use-virtualizer 由组件与浏览器测试覆盖，不另写
+
 ## 2. 基础设施
 
 - [ ] 请求层：薄封装原生 fetch（baseURL、query、JSON 体、超时与取消、`HttpError`、请求与响应钩子拆后端的
