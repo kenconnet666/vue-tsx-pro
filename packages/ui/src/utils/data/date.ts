@@ -4,6 +4,8 @@
  *
  * 组件对外的值是 ISO 8601 字符串（'2026-10-20'、'14:30'、'2026-10-20T14:30'），与原生 input、URL 参数、
  * zod 的 z.iso.date() 一致；组件内部换成 CalendarDate 等对象运算。月份名、星期名一律取自 Intl。
+ * 出错的约定：parseXxx 解析不了时返回 null（输入框里的半截内容是常态）；shiftIsoDate、daysBetween 这类运算
+ * 要求合法的 ISO 字符串，不合法时抛 RangeError 并带上原值（多半是调用方的数据错了，不该悄悄算出别的日子）。
  *
  *   monthGrid(new CalendarDate(2026, 10, 1), { locale: 'zh-CN' })  → 6 行 × 7 天，补齐上下月
  *   weekdayNames('en-US', { format: 'short' })                      → ['Sun', 'Mon', …]

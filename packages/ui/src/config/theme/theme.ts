@@ -117,14 +117,19 @@ export function themeVariables(theme: Theme): Record<string, string> {
   return variables;
 }
 
+/** token 在元素上的当前取值；元素不在主题范围里（没加载组件库的样式、还没挂载）时为空字符串 */
+export function tokenValue(element: Element, token: StyleXVar<string>): string {
+  return getComputedStyle(element)
+    .getPropertyValue(variableName(String(token)))
+    .trim();
+}
+
 /**
- * token 在元素上的当前取值，含主题覆盖与媒体查询：`readToken(el, colors.accent)` → `'#3e63dd'`。
+ * token 在元素上的当前取值，含主题覆盖与媒体查询：`readToken(el, colors.accent)` → `'#3e63dd'`；读不到时报错。
  * 给拿不到 CSS 变量的地方用：JS 动画的时长与缓动（utils/motion/animation 的 themeTransition、useAnimate）、canvas 图表与 3D 场景的颜色。
  */
 export function readToken(element: Element, token: StyleXVar<string>): string {
-  const value = getComputedStyle(element)
-    .getPropertyValue(variableName(String(token)))
-    .trim();
+  const value = tokenValue(element, token);
   if (!value)
     throw new Error(
       `读不到主题 token ${String(token)}：元素要已挂载，且在 Provider 或页面的主题范围内`,

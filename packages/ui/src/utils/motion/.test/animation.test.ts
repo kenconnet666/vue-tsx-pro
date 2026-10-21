@@ -5,7 +5,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readToken } from '../../../config/theme/theme';
 import { durations, easings } from '../../../config/theme/tokens.stylex';
-import { themeTransition, useAnimate } from '../animation';
+import { themeTransition, themeTransitionOrInstant, useAnimate } from '../animation';
 
 const variable = (token: unknown) => /^var\((--[\w-]+)\)$/.exec(String(token))![1]!;
 
@@ -53,6 +53,15 @@ describe('themeTransition', () => {
 
 it('readToken 读不到时说明原因', () => {
   expect(() => readToken(document.createElement('div'), durations.md)).toThrow(/读不到主题 token/);
+});
+
+it('themeTransitionOrInstant：没有主题样式时直接到位；token 写错了格式照常报错', () => {
+  expect(themeTransitionOrInstant(element([]))).toEqual({ duration: 0 });
+  const wrong = element([
+    [durations.md, '200'],
+    [easings.standard, 'cubic-bezier(0.2, 0, 0, 1)'],
+  ]);
+  expect(() => themeTransitionOrInstant(wrong)).toThrow(/无法识别的时长/);
 });
 
 describe('useAnimate', () => {

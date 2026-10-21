@@ -1084,6 +1084,7 @@ export {
   themeAttrs,
   themeVariables,
   tokenGroups,
+  tokenValue,
   type ColorSchemes,
   type GroupTheme,
   type Theme,

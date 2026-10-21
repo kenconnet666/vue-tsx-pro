@@ -20,7 +20,7 @@ import {
   type JSAnimation,
 } from 'animejs';
 import { onScopeDispose } from 'vue';
-import { readToken } from '../../config/theme/theme';
+import { readToken, tokenValue } from '../../config/theme/theme';
 import { durations, easings } from '../../config/theme/tokens.stylex';
 
 /** themeTransition 的选项：取哪一档时长与缓动，或用弹簧 */
@@ -86,17 +86,15 @@ export interface ThemeAnimateOptions extends ThemeTransitionOptions {
 
 /**
  * 同 themeTransition，但读不到主题 token（页面没加载组件库的样式，如单元测试）时返回时长 0（直接到位），
- * 不让动画报错打断交互。组件里的动画都用它。
+ * 不让动画报错打断交互。组件里的动画都用它。token 写错了格式（时长没带单位、缓动不是 cubic-bezier）照常报错：
+ * 那是主题的错，悄悄变成没有动画就发现不了
  */
 export function themeTransitionOrInstant(
   element: Element,
   transition?: ThemeTransitionOptions,
 ): ThemeTiming {
-  try {
-    return themeTransition(element, transition);
-  } catch {
-    return { duration: 0 };
-  }
+  if (!tokenValue(element, durations[transition?.duration ?? 'md'])) return { duration: 0 };
+  return themeTransition(element, transition);
 }
 
 /**
