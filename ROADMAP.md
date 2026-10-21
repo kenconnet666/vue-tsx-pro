@@ -77,7 +77,11 @@
 - [x] 第 5 批：Stat 与图表补 propsXxx；XYChart 图例改用 ButtonBase（ChartFrame）；色块的棋盘格与描边统一用 swatchStyles
 - [ ] 目录整理：零散文件按职责收进文件夹；删除无人调用的代码与过时文件
 
-## 8. 开发体验
+## 8. 开发体验（见 .claude/reports/build-performance.md）
 
 - [x] 开发服务器冷启动、热更新、换页提速（StyleX 加载、API Worker、shiki 语言表、预热）
-- [ ] 每个文件要过三四次 Babel（符文、tokens、StyleX、vue-jsx）：评估合并成一次解析
+- [x] 评估合并编译、Babel 8、Rust 版 StyleX、TypeScript 7 与运行时优化：数据与结论见报告
+- [ ] P0：typecheck 与 CI 改用 TypeScript 7（别名包；用 JS API 的脚本、语言服务、IDE 留在 TS 6）；构建开 lazyBarrel
+- [ ] P1：合并编译（一次解析、两遍遍历、一次生成），同时升级 Babel 8 与 jsx 3.0，替换 @vitejs/plugin-vue-jsx 与 @stylexjs/unplugin；StyleX 开发 CSS 按规则版本缓存
+- [ ] P2：持久化转换缓存；API Worker 的结果落盘；查清首屏的整套图标块
+- [ ] P3：prop 访问器按读写选实现；找组件实例化的热点

@@ -1,0 +1,269 @@
+# 编译、启动、类型检查与加载性能调研
+
+快照：master @ eb951b8（2026-10-21），Windows 11、Node 24.12、Vite 8.3.4、Rolldown 1.2.14、Babel 7.29、Vue 3.5.44、@vue/babel-plugin-jsx 2.0.1、StyleX 0.19.1、TypeScript 6.0.3。
+样本：`apps/docs/src` 与 `packages/ui/src` 里除测试、演练场外的全部 587 个 TS/TSX 文件（1.9 MB）。
+本机后台有别的负载，单线程计时的波动在 20–30%：比较都取同一进程里交替跑的结果（多轮取最好），只看比例，不看绝对值。
+原型与基准脚本没有进仓库；需要复现时按“附：怎么测的”重写。
+
+## 结论
+
+| 问题                    | 做法                                                                                                         | 效果（实测或估算）                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| 每个文件过四遍 Babel    | 自己的 Vite 插件：**一次解析 → 两次遍历 → 一次生成**，组合官方的 Babel 插件，不 fork 编译器本体              | 编译 CPU **-35%~45%**（实测），输出与现在逐字等价（587/587）                 |
+| 升级到 Babel 8          | 与上一条一起做：jsx 3.0 只支持 Babel 8，官方的 `@vitejs/plugin-vue-jsx` 还绑着 Babel 7，自己的插件正好不需要它 | 速度与 Babel 7 持平；输出与现在等价（587/587）                               |
+| StyleX 换社区 Rust 版   | **不换**：不支持我们的自定义模块解析、不认 `@vue-tsx-pro/tsx/stylex`，233/242 个文件的类名不同                | 合并后 StyleX 的边际成本只剩零点几秒，换了也省不了多少                       |
+| 重启后第一页慢          | 持久化转换缓存（内容哈希 + 编译器版本 + `.stylex` 文件纪元）；API Worker 的结果也落盘                        | 首页可达的模块图：12.9–18.3 s → 5.3–6.3 s（四个 Babel 插件命中缓存，模拟实测） |
+| 类型检查慢              | `typecheck` 改用 **TypeScript 7.0.2**（Go 原生版）；JS API 的使用方（脚本、语言服务、IDE）留在 TS 6           | 每个包 **5.5–7 倍**：ui 22.3 s → 3.3 s，docs 17.0 s → 3.0 s，结果一致        |
+| 热更新时 CSS 重算两遍   | 自己的 StyleX 集成里按规则版本缓存 CSS，只在 StyleX 文件变化时通知                                            | 每次保存少一到两遍全量 LightningCSS（现在每遍约 100 ms，同步阻塞）           |
+| 生产首屏带了整套图标    | 原因在分块阶段：1893 个图标模块合成一个首页依赖的公共块；几种简单修法都无效，需要按下文继续查                  | 首屏 394 KB（gzip）里图标占 173 KB                                           |
+| 组件实例化              | prop 访问器按“会不会被写”在编译期选实现；不被写的不建 watch                                                  | 每个 prop 0.70 µs → 约 0.07 µs；Button（80 µs/实例）约省一成                 |
+| Vapor、静态内容 innerHTML | 现阶段不做：Vue 3.6 还在 RC；本库“一个元素一个组件”，静态的原生元素子树很少                                 | —                                                                            |
+
+顺手修的两个问题见文末“附：本次修复”。
+
+---
+
+## 1. 现状测量
+
+### 1.1 编译管线
+
+预设（`packages/tsx/src/vite/index.ts`）按顺序组合四个插件，**每个都是一次完整的 Babel 解析 → 遍历 → 生成**：
+
+| 插件                         | 587 个文件的耗时（Vite 开发服务器里顺序转换，各轮之间差异大） |
+| ---------------------------- | ------------------------------------------------------------- |
+| `vue-tsx-pro:runes`          | 2.9–5.1 s                                                     |
+| `@stylexjs/unplugin`         | 1.8–3.5 s                                                     |
+| `vite:vue-jsx`               | 2.3–2.6 s（还是同步的 `transformSync`，自带一遍 TS 去类型）   |
+| `vue-tsx-pro:tokens`         | 1.3–2.4 s                                                     |
+| 合计（墙钟 13.1 s 里的 ~10 s） |                                                               |
+
+Babel 自身各阶段的成本（同样 587 个文件，5 轮取最好）：
+
+| 阶段                         | 耗时    |
+| ---------------------------- | ------- |
+| 只解析                       | 0.31 s  |
+| 解析 + 建作用域、遍历一遍    | 1.97 s  |
+| 解析 + 生成代码与 source map | 2.45 s  |
+| oxc 解析（对照）             | 0.09 s  |
+
+**大头是遍历（作用域）和生成（尤其 source map），不是解析**。四遍流水线付了四次遍历、四次生成，还要把四份 source map 串起来。这也决定了：只把某一步换成 Rust、中间仍然要“生成字符串 → 再解析”，省不了多少（见 2.4）。
+
+### 1.2 重启与页面加载（开发服务器）
+
+- 重启后打开首页：约 **8 s**。首页加载 250+ 个模块，其中 219 个是组件库源码（`@vue-tsx-pro/ui` 的入口把整个库都导入了）。
+- 首页还没编译完时换到 DataTable 页：再等 3.7 s，其中包括 API Worker 用 TS 6 建整个组件库的类型程序（`apps/docs/build/api.ts`）。
+- 模拟重启（同一进程里先起一个服务器编译首页可达的整个模块图 982 个模块，再起一个空模块图的新服务器）：冷启动 12.9–18.3 s；四个 Babel 插件命中内存缓存后 **5.3–6.3 s**。剩下的时间主要在 `docs:component-api` 等 Worker 建程序，以及 Vite 自身。
+- 热重载后的刷新（服务器有缓存）约 0.4 s，不是问题。
+
+### 1.3 热更新
+
+在 Button 页给 `Button.tsx` 末尾加注释，浏览器里观察到（以写文件为 0）：
+
+| 时间        | 事件                                                                 |
+| ----------- | -------------------------------------------------------------------- |
+| +13 ms      | StyleX 插件的 `handleHotUpdate` **无条件**通知重新拉 `/virtual:stylex.css` |
+| +120~140 ms | 新的 `Button.tsx` 到达                                               |
+| +370~460 ms | 150 ms 轮询发现规则版本变了，**再拉一次**整份 CSS                    |
+
+每次拉 CSS，服务器都同步把全部规则重新跑一遍 LightningCSS（只加载了几页时 104 KB、约 1000 条规则，70–100 ms；全站规则加载后更多）。改任何文件都会触发，哪怕文件里没有 StyleX。
+
+大文件单次编译（现在 → 合并后）：DataTableView（816 行）167 → 108 ms，Menu（899 行）155 → 97 ms。
+
+### 1.4 类型检查
+
+| 项目           | TS 6.0.3 | TS 7.0.2 | 错误数（两者） |
+| -------------- | -------- | -------- | -------------- |
+| packages/tsx   | 13.1 s   | 1.9 s    | 0 / 0          |
+| packages/ui    | 22.3 s   | 3.3 s    | 0 / 0          |
+| apps/docs      | 17.0 s   | 3.0 s    | 0 / 0          |
+| apps/host-demo | 13.8 s   | 2.8 s    | 0 / 0          |
+
+### 1.5 生产首屏（文档站）
+
+首屏（index.html 里的入口与 modulepreload）43 个文件、1298 KB / **394 KB gzip**。最大的是 `lucide-icons-*.js`：716 KB / **173 KB gzip**，即全部 1893 个图标。见 3.4。
+
+文档站构建 25–27 s，最大的单项是演练场的编译 Worker（浏览器里跑的 Babel，嵌套打包一次，8–14 s）。
+
+### 1.6 组件实例化（浏览器、开发版 Vue，2000 个实例取中位数）
+
+| 渲染内容          | 每个实例 |
+| ----------------- | -------- |
+| 原生 `<button>`   | 3 µs     |
+| 普通 Vue 组件     | 20 µs    |
+| ui 的 `Button`    | 85 µs    |
+
+单独测 prop 访问器（20000 个）：
+
+| 实现                                                   | 每个    |
+| ------------------------------------------------------ | ------- |
+| `overridable`（现在的 prop：computed + customRef + 同步 watch） | 0.70 µs |
+| `computed`                                             | 0.13 µs |
+| getter ref（`toRef(() => …)`）                         | 0.07 µs |
+
+---
+
+## 2. 编译方案
+
+### 2.1 合并编译的原型
+
+复制 `packages/tsx/src` 做了三种组合（都用官方的 `@stylexjs/babel-plugin`、`@vue/babel-plugin-jsx`、`@babel/plugin-transform-typescript`）：
+
+| 方案                                          | 587 个文件（同一进程交替 5 轮取最好） | 与现在的输出         |
+| --------------------------------------------- | ------------------------------------- | -------------------- |
+| A 现在：四遍                                  | 10.0–11.0 s                           | —                    |
+| B 一次 `transformAsync`，全部插件一遍遍历      | 5.4–6.4 s                             | 17 个文件多了运行时 `mergeProps` |
+| **D 一次解析 → 两遍遍历 → 一次生成**          | 6.2–6.9 s                             | **逐字等价**         |
+
+比较方法：两边的输出都重新解析，去掉 import、统一键名写法（`"class"` 与 `class`）、去掉只用于调试的 `$$css` 与 `data-style-src`，再逐字比较。D 连 import 都与 A 完全一致。
+
+D 的两遍：
+
+1. 符文 + token 字符串 + StyleX；
+2. vue-jsx + 去类型（+ 热更新注册）。
+
+B 只差一点：StyleX 在 Program 退出时才替换 `stylex.attrs(…)`，一遍遍历里 vue-jsx 先处理了元素，于是生成 `_mergeProps({to}, {class})` 而不是一个对象。结果等价，只是多一次运行时合并，所以选 D。
+
+### 2.2 原型暴露的三处耦合（合并前必须改）
+
+1. **作用域没登记新绑定**。token 插件补的 import、符文改写出的声明没有登记进作用域；分开跑时靠重新解析掩盖了。合并后 StyleX 报 “Referenced constant is not defined”，vue-jsx 判断也会出错。原型在两遍之间 `program.scope.crawl()`；正式做时改成插入节点时登记绑定（`scope.registerDeclaration`），不额外遍历。
+2. **vue-jsx 靠 `loc` 区分用户写的调用**。它只对带源码位置的调用子节点做 `_isSlot` 判断。编译器生成的 `forwardChildren(_props)` 没有位置，同一遍里接着跑 vue-jsx 时，转交的插槽对象被当成内容再包一层。**这个问题在代码演练场里已经存在**（演练场本来就是一遍编译），已修复，见文末。
+3. **`.ts` 不能开 JSX 解析**。官方 StyleX unplugin 对所有 TS 文件都用 `isTSX: true`；Babel 7 能容忍，Babel 8 对 `<T>(x) => …` 直接报错。自己的插件按扩展名选解析插件（`parserPlugins` 已有）。
+
+另外两处合并后自动变好的：
+
+- `$$css`、`data-style-src` 里的行号现在对应的是“被前几遍重新生成后的代码”，与源码对不上（例如 Text.tsx 的 `paragraph` 在第 56 行，现在标的是 45）；合并后是源码的真实行号。
+- 现在 `data-style-src` 在 Windows 上反斜杠被转义了两次（`src\\\\base`），合并后正常。
+
+### 2.3 Babel 8 与 @vue/babel-plugin-jsx 3.0
+
+- Babel 8.0.0 于 2026-06-16 发布，当前 8.0.7；`@vue/babel-plugin-jsx` 3.0.0（2026-06-22）只支持 Babel 8，选项与 2.x 相同（没有新的优化）。
+- `@vitejs/plugin-vue-jsx` 最新 5.1.6 仍依赖 Babel 7 与 jsx 2.x——升级 Babel 8 的阻碍正是它，而自己的插件本来就要替代它。
+- `@stylexjs/babel-plugin` 0.19.1 把 `@babel/core ^7` 写在 dependencies 里，在 Babel 8 下实测能跑，输出一致，但它自己会再装一份 Babel 7 的 traverse / types。
+- 实测：Babel 8 下 A 与 D 的耗时与 Babel 7 持平；**Babel 8 + jsx 3.0 + D 的输出与现在的 Babel 7 四遍完全等价（587/587）**。
+- 代码演练场的 Worker 也在浏览器里跑同一套 Babel 插件，升级时一起换（Babel 8 只有 ESM，对浏览器打包没有影响）。
+
+### 2.4 社区的 Rust 版 StyleX（@stylexswc/rs-compiler 0.19.2）
+
+- 速度：同样 242 个用到 StyleX 的文件，单独跑 0.65–0.77 s，官方 Babel 版单独跑 3.3–4.6 s，约快 5 倍。
+- 但在我们的配置下用不了：
+  - `unstable_moduleResolution` 只有 `type / rootDir / themeFileExtension`，**没有 `custom`**。我们靠 `custom` 的 `filePathResolver` / `getCanonicalFilePath` 让 src 与 dist 算出同一个变量名（`stylex-resolution.ts`）。
+  - `importSources` 不接受带子路径的包名，`@vue-tsx-pro/tsx/stylex` 直接报 “Import path does not match required pattern”。
+  - 换成能接受的写法后，**242 个文件里 233 个的类名与官方不同**（凡是引用 token 变量的样式都不同，README 自己也说 exports 字段“只部分支持”）。
+- 合并编译后 StyleX 在共享遍历里的边际成本只有零点几秒（实测噪声内），换 Rust 还要多一次“生成 → Rust 解析 → Rust 生成 → 再解析”，得不偿失。
+- 演练场在浏览器里只能用 Babel 版，换 Rust 等于维护两套 StyleX 实现。
+
+结论：不换。等官方 StyleX 自己出编译器、或社区版支持自定义解析并且输出一致后再评估。
+
+### 2.5 全部换 oxc / Rust
+
+- 解析只占 0.3 s，换 oxc 解析省的就是这些；真正的成本在遍历和生成。
+- 要把符文编译器（约 1700 行，基于 Babel 的 path / scope）改写到 oxc 的 AST 上，还要替换 vue-jsx。Vue JSX 的 Rust 实现目前只有 vue-jsx-vapor 的 compiler-rs，目标是 Vapor。
+- 结论：现在不做。如果将来转向 Vapor（见 5.3），再一起考虑。
+
+### 2.6 选型
+
+**不 fork vue-jsx 与 StyleX 的编译器本体**：原型证明它们可以原样组合进一遍编译，需要改的三处都在我们自己的编译器里。要“自己写”的只是 Vite 胶水层：
+
+- 热更新注册（`__hmrId`、`createRecord`、`accept`，取自 `@vitejs/plugin-vue-jsx`，约 60 行）；
+- StyleX 规则收集与 CSS（开发时的 CSS 端点与更新通知、构建时输出 CSS；`@stylexjs/babel-plugin` 自带 `processStylexRules`）。这样也删掉现在为绕开 unplugin 问题写的两个包装（`skipDevServerWithoutHttp`、`loadStylexModulesOnly`），但要保留“先加载导入的 `.stylex` 模块”的行为。
+
+编译核心做成一个与 Vite 无关的函数（`@vue-tsx-pro/tsx/compiler` 导出），Vite 插件、演练场 Worker、测试共用，三处不再各写一份插件列表。
+
+---
+
+## 3. 启动与加载
+
+### 3.1 持久化转换缓存
+
+Vite 没有跨重启的转换缓存（每次重启全部重编），Vitest 有 fsModuleCache（预设已经登记了编译器哈希，见 `cache-key.ts`）。在自己的插件里加：
+
+- 键：编译器哈希（复用 `compilerCacheKey`）+ 选项 + 文件内容 + 依赖版本（Babel、StyleX、jsx 插件）+ **`.stylex` 纪元**（所有 `.stylex` 文件内容的哈希：`defineConsts` 的值会被内联进引用方，token 写法要读 token 组名）；
+- 值：代码、source map、StyleX 规则（命中缓存时把规则重新登记，否则 CSS 会缺）；
+- 位置：Vite 的 `cacheDir` 下。
+
+效果：模拟重启实测，首页可达的模块图从 12.9–18.3 s 降到 5.3–6.3 s；剩下的时间见 3.2。
+
+### 3.2 API Worker
+
+每个组件页都等 Worker 用 TS 6 建出整个组件库的程序。把提取结果按“组件库源文件内容的哈希”落盘，重启后直接读；源码变了再按现在的增量方式重建。TS 7 暂时没有 JS API，不能直接换。
+
+### 3.3 开发时的桶文件
+
+`import { … } from '@vue-tsx-pro/ui'` 让首页加载整个库（219 个模块）。可以在开发时把具名导入改写成直接导入所在模块（`pnpm exports` 生成的入口就是现成的映射表），首页只加载用到的部分。等 3.1 做完再测还值不值得做：有缓存后多出的模块只是请求数。
+
+Vite 8.3 的 `experimental.bundledDev`（开发时也打包，带懒打包）能减少请求数，但官方标注 “highly experimental”，热更新语义不同，我们的 StyleX 开发集成也要适配，暂不采用。
+
+### 3.4 首屏的图标
+
+- 首页静态依赖了一个装着全部 1893 个图标模块的公共块（被 87 个块静态导入、被演练场页动态导入）。
+- 用到整套图标的只有懒加载的地方：图库（`IconGallery.tsx` 的 `import * as lucide`）与演练场的模块表（`run.ts` 的 `import('@lucide/icons')`）。
+- 已排除：开 `experimental.lazyBarrel`、关 `chunkOptimization`、图库改成顶层 `await import('@lucide/icons')`，图标块都还在首屏；构建时把 145 处具名导入改写成单个图标模块，产物逐字不变（Rolldown 本来就把桶文件的再导出直接追到单个模块）；图库改用 `@lucide/icons/dynamic` 逐个懒加载，更糟（1945 个文件进了首屏）。
+- 下一步：看 Rolldown 为什么把只被懒加载块用到的图标模块也归进首页的块（可以写个 `generateBundle` 探针按模块打印它被哪些入口可达）；或者让图库与演练场的图标数据走另一批模块（例如构建时生成“图标名 → 单个图标路径”的懒加载表，演练场只在用户代码导入某个图标时才加载它）。
+- `lazyBarrel` 本身值得开：构建时符文插件的调用从 5090 次降到 3884 次，产物首屏一致。
+
+### 3.5 其他懒加载
+
+已经做了的：页面按路由懒加载、Shiki 只加载用到的语言、three 与 Unovis 在子路径、演练场与 API 目录懒加载、浮层内容第一次打开才渲染。可以再加：
+
+- 组件页的示例卡片加 `content-visibility: auto`（长页面只渲染视口附近，纯 CSS，Chrome 85、Firefox 125、Safari 18 起支持）。
+
+---
+
+## 4. 类型检查：TypeScript 7
+
+- 7.0.2 是 Go 原生版，没有 JS API；官方另发了 `@typescript/typescript6` 给需要 API 的工具。
+- 仓库里用 TS 的 JS API 的有：文档站构建（`build/api.ts`、`build/pages.ts`）、注释检查、导出生成、css-docs、主题检查、语言服务脚本，以及 `typescript-language-server`（Claude Code 的 LSP 插件）和 IDE。
+- 建议：`typescript` 保持 6.0.3（API、IDE、语言服务不受影响），另装 `typescript@7.0.2` 的别名包，各包的 `typecheck` 与 CI 用它的 `tsc`（别名包与 6 都提供 `tsc` 命令，脚本里写路径，不靠 `.bin`）。IDE 与 LSP 支持 TS 7 后再整体切换。
+- `oxlint-tsgolint` 已经是基于 tsgo 的类型感知检查，不受影响。
+
+---
+
+## 5. 运行时架构
+
+### 5.1 prop 访问器
+
+每个普通 prop 现在是 `overridable`：1 个 computed + 1 个 customRef + 1 个同步 watch，watch 还在 setup 时就立即求值一次。编译器知道组件里有没有给这个 prop 赋值：
+
+- 没被写过（绝大多数）：生成只读的 getter ref，默认值引用了其他 prop 或要每个实例一份（`[]`、`{}`、函数调用）时才用 computed 缓存；
+- 被写过：保留 `overridable`。
+
+每个 prop 0.70 µs → 约 0.07 µs。Button 约十几个 prop，每个实例约省 9 µs（占 85 µs 的一成）。剩下的开销在组合式函数（外观默认值、延迟加载指示、按钮行为与波纹）；做之前先用浏览器性能面板看一次 DataTable 大量行的挂载，按热点改。
+
+### 5.2 静态内容转 innerHTML
+
+Vue 的模板编译器会把大段静态子树字符串化，用 innerHTML 一次建好（`createStaticVNode`）；vue-jsx 没有这一步，jsx 3.0 也没有。本库约定“一个元素一个组件”，静态内容大多是组件（Paragraph、H2…），只有原生元素组成的静态子树才能这样做，这种地方很少。Icon 已经用 innerHTML。暂不做。
+
+### 5.3 Vapor 模式
+
+Vue 3.6（当前 3.6.0-rc.12）的 Vapor 不用虚拟 DOM，模板编译成克隆好的 DOM 片段加直接的 DOM 操作，是“实例化”和更新开销的根本解法；JSX 有社区的 vue-jsx-vapor（3.2.x，带 Rust 编译器）。但 3.6 还没正式发布，我们的渲染优化（稳定插槽、属性缓存）是为虚拟 DOM 做的，组件库还要在使用方的虚拟 DOM 应用里工作（需要 interop）。等 3.6 正式发布后单独评估。
+
+---
+
+## 6. 建议的执行顺序
+
+| 优先级 | 内容                                                                                      | 风险                         |
+| ------ | ----------------------------------------------------------------------------------------- | ---------------------------- |
+| P0     | 类型检查改用 TS 7（别名包，typecheck 与 CI）                                              | 低：结果一致，可随时退回     |
+| P0     | 构建开 `lazyBarrel`                                                                       | 低：产物一致                 |
+| P1     | 合并编译：编译核心函数 + 自己的 Vite 插件（D 方案），同时升级 Babel 8 与 jsx 3.0；先修 2.2 的三处耦合；拿 587 个文件的“新旧输出等价”比较当回归测试 | 中：替换官方 vue-jsx 插件与 StyleX unplugin |
+| P1     | StyleX 开发 CSS：按规则版本缓存，只在 StyleX 文件变化时通知（随合并编译一起做）            | 低                           |
+| P2     | 持久化转换缓存；API Worker 结果落盘                                                       | 中：缓存键漏项会读到旧结果   |
+| P2     | 查清首屏图标块的成因并修                                                                  | 低                           |
+| P3     | prop 访问器按读写选实现；性能面板找组件实例化的热点                                       | 中：涉及符文语义             |
+| 观察   | Vite `bundledDev`、Vue 3.6 Vapor、官方 StyleX 编译器、TS 7 的 JS API                      | —                            |
+
+---
+
+## 附：本次修复
+
+1. **Windows 上按正斜杠路径解析包的自引用失败**（`packages/tsx/src/vite/stylex-resolution.ts`、`tokens.ts`）。Vite 给的路径是正斜杠，Node 在 Windows 上从这种路径找不到所在的包，组件库源码导入 `@vue-tsx-pro/ui/tokens.stylex` 时，token 插件报“找不到主题 tokens 模块”。平时没出事，是因为 StyleX 插件内部恰好先用反斜杠路径解析过一次、填上了 Node 的缓存——依赖调用顺序，基准脚本先编译组件库文件时 105 个文件全部报错。改为解析前用 `path.resolve` 规范成本机分隔符（`requireFrom`）；测试在缓存为空的新进程里跑。
+2. **代码演练场里转交的 children 显示成 `[object Object]`**（`packages/tsx/src/compiler/optimize.ts`）。组件写 `<Box>{children}</Box>` 转交内容时，编译器生成的 `forwardChildren(...)` 没有源码位置，vue-jsx 不对它做插槽判断，把插槽对象当成内容再包一层。Vite 那条路因为“重新生成再解析”补上了位置所以没出错，演练场是一遍编译就出错了。生成的调用借用元素的位置；演练场的编译测试加了这个场景。
+
+## 附：怎么测的
+
+- 插件耗时：用文档站的 Vite 配置起中间件模式的服务器，给每个插件的 transform 套计时，`transformRequest` 全部源文件（`server.preTransformRequests: false`）。
+- 合并编译原型：直接调用各个 Babel 插件，A、B、D 在同一进程里交替跑多轮；输出按 2.1 的方法归一化后逐字比较。Babel 8 在单独的目录里装 `@babel/core@8`、`@vue/babel-plugin-jsx@3` 跑同一份原型。
+- Rust 版 StyleX：导出每个文件进入 StyleX 之前的中间代码，Babel 版与 Rust 版分别编译同一批输入。
+- 重启：同一进程里先后起两个服务器，从 `/src/main.ts` 按 import 并发爬取模块图；第二个服务器的四个 Babel 插件从内存缓存返回。
+- 热更新：浏览器里用 PerformanceObserver 记录 `?t=` 请求与 CSS 请求的时间，Node 里记录写文件的时间。
+- 首屏：统计构建产物 index.html 引用的入口与 modulepreload，gzip 后求和；分块用 `generateBundle` 探针打印。
