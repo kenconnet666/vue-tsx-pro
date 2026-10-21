@@ -1,21 +1,12 @@
 // 案例：编辑单机降本项目（长表单）。字段来自《降本项目信息表》的单机降本主表；机型、单位、人员都是虚构的。
 // FormSection 分组、两列、标签在左侧；条件必填（选了降本类型才要填对应的金额）；选联络人后带出工号；
-// 金额以元保存、按万元输入；底部的 ActionBar 吸在窗口底边，滚动时随时能保存
-import {
-  Archive,
-  Calculator,
-  ChartColumn,
-  ClipboardList,
-  FilePen,
-  Inbox,
-  Plane,
-} from '@lucide/icons';
+// 金额以元保存、按万元输入；底部的 ActionBar 吸在窗口底边，滚动时随时能保存。
+// 新建、编辑共用这一页：地址上带 code 时编辑那张任务卡，不带时新建；“任务卡”一组是任务池要的型号、工作包、主办与计划，
+// 其余是信息表的单机降本主表。保存后去任务卡详情
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   ActionBar,
-  AppShell,
-  Avatar,
   Badge,
   Breadcrumbs,
   Button,
@@ -30,10 +21,7 @@ import {
   FormSection,
   GridItem,
   H1,
-  Icon,
-  NavItem,
-  NavList,
-  NavSection,
+  LinkButton,
   NumberField,
   Radio,
   RadioGroup,
@@ -47,22 +35,25 @@ import {
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
+import {
+  addDays,
+  CURRENT_USER,
+  models,
+  nextTaskCode,
+  orgs,
+  people,
+  saveTask,
+  sources,
+  suppliers,
+  taskStore,
+  teams,
+  TODAY,
+  workPackages,
+  type CostTask,
+} from '../../data';
+import { CaseShell, casePath, useCaseNavigate, useCaseQuery } from '../../shell';
 
-const people = [
-  { value: 'E10732', label: '林小满', description: '复合材料中心 · 结构设计' },
-  { value: 'E20418', label: '周一航', description: '制造工程部 · 工艺' },
-  { value: 'E31056', label: '陈默', description: '采购部 · 供应商管理' },
-  { value: 'E40287', label: '许悠', description: '总装制造中心 · 计划' },
-];
-const orgs = ['总装制造中心', '复合材料中心', '制造工程部', '采购部'];
-const teams = ['总体技术集成团队', '复合材料结构集成团队', '起落架液压系统集成团队'];
-const sources = [
-  { value: 'supplier', label: '供应商建议', description: '渠道一：供应商提交的降本建议' },
-  { value: 'team', label: '项目团队方案', description: '渠道二：PEMO 派单、产品团队出方案' },
-  { value: 'review', label: '年度成本评审', description: '成本团队在评审中识别' },
-];
 const forms = ['MI 批准', 'QSL 入册', 'ECP 批准', '文件', '实施'];
-const suppliers = ['供应商甲', '供应商乙', '供应商丙', '供应商丁'];
 
 const amount = decimalSchema({ min: 0, scale: 2 }).nullable();
 const schema = z
@@ -87,6 +78,10 @@ const schema = z
     funding: z.array(z.string()),
     proposalNo: z.string().max(40),
     remark: z.string().max(1000),
+    aircraft: z.string().min(1, '请选择型号'),
+    workPackage: z.string().min(1, '请选择工作包'),
+    owner: z.string().min(1, '请选择主办责任人'),
+    due: z.string().min(10, '请选择计划完成时间'),
   })
   // 条件必填：选了哪种降本类型，就要填对应的预期收益
   .superRefine((values, ctx) => {
@@ -97,49 +92,131 @@ const schema = z
   });
 
 const styles = stylex.create({
-  brand: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '_sm',
-    marginInlineEnd: 'auto',
-    fontWeight: '_semibold',
-    fontSize: '_lg',
-  },
-  brandMark: { color: '_accentText' },
   code: { fontFamily: '_mono', fontSize: '_sm' },
 });
 
+/** 表单的值 */
+type Values = z.input<typeof schema>;
+
+/** 新建时的空表 */
+const blank = (): Values => ({
+  name: '',
+  category: '',
+  source: '',
+  org: '',
+  contact: CURRENT_USER,
+  team: '',
+  install: 'required',
+  types: ['unit'],
+  unitSaving: null,
+  dmcSaving: null,
+  description: '',
+  model: '',
+  suppliers: [],
+  year: TODAY.slice(0, 4),
+  flights: null,
+  form: '',
+  needSb: 'no',
+  funding: [],
+  proposalNo: '',
+  remark: '',
+  aircraft: models[0]!,
+  workPackage: '',
+  owner: CURRENT_USER,
+  due: addDays(TODAY, 90),
+});
+
+/** 编辑时：任务卡上的值 */
+const fromTask = (task: CostTask): Values => ({
+  name: task.name,
+  category: task.category,
+  source: task.channel === 'two' ? 'team' : 'supplier',
+  org: task.org,
+  contact: task.contact,
+  team: task.team,
+  install: task.install,
+  types: [task.kind],
+  unitSaving: task.kind === 'unit' ? task.expected : null,
+  dmcSaving: task.kind === 'dmc' ? task.expected : null,
+  description: task.description,
+  model: task.modelNo,
+  suppliers: [task.supplier],
+  year: task.year,
+  flights: task.flights,
+  form: task.form,
+  needSb: task.needSb ? 'yes' : 'no',
+  funding: task.funding,
+  proposalNo: task.proposalNo,
+  remark: task.remark,
+  aircraft: task.model,
+  workPackage: task.workPackage,
+  owner: task.owner,
+  due: task.due,
+});
+
+/** 表单的值写回任务卡：主表字段与任务卡字段；新建的任务从“待启动”开始 */
+function toTask(values: Values, base: CostTask | null): CostTask {
+  const kind = values.types.includes('unit') ? 'unit' : 'dmc';
+  const expected = (kind === 'unit' ? values.unitSaving : values.dmcSaving) ?? new Decimal(0);
+  return {
+    ...(base ?? {
+      code: nextTaskCode(kind, values.year, values.team),
+      sourceCode: '待关联',
+      status: 'pending',
+      valueState: 'forecast',
+      basis: 'hard',
+      a: null,
+      b: null,
+      gapReason: null,
+      milestones: [
+        { label: '方案确定', done: null, evidence: null },
+        { label: '验证完成', done: null, evidence: null },
+        { label: '收益确认', done: null, evidence: null },
+      ],
+      closing: { verification: false, benefit: false, business: false },
+    }),
+    name: values.name,
+    category: values.category,
+    channel: values.source === 'team' ? 'two' : 'one',
+    org: values.org,
+    contact: values.contact,
+    team: values.team,
+    install: values.install as CostTask['install'],
+    kind,
+    expected: new Decimal(expected),
+    description: values.description,
+    modelNo: values.model,
+    supplier: values.suppliers[0] ?? suppliers[0]!,
+    year: values.year,
+    flights: values.flights,
+    form: values.form,
+    needSb: values.needSb === 'yes',
+    funding: values.funding,
+    proposalNo: values.proposalNo,
+    remark: values.remark,
+    model: values.aircraft,
+    workPackage: values.workPackage,
+    owner: values.owner,
+    due: values.due,
+  };
+}
+
 export default _component(() => {
+  const route = useCaseQuery();
+  const navigate = useCaseNavigate();
+  // 地址上带 code：编辑那张任务卡；找不到或不带：新建
+  const editing = taskStore.value.find((task) => task.code === route().code) ?? null;
   let status = _state('');
   const form = useForm({
     schema,
-    initial: {
-      name: '机型 A 平尾翼根整流罩设计优化',
-      category: 'design',
-      source: 'team',
-      org: '复合材料中心',
-      contact: 'E10732',
-      team: '复合材料结构集成团队',
-      install: 'required',
-      types: ['unit'],
-      unitSaving: new Decimal('155353.2') as Decimal | null,
-      dmcSaving: null as Decimal | null,
-      description:
-        '整流罩由两件合并为一件，减少紧固件 36 个；材料由 T300 换为 T700，单件减重 2.3 kg。材料降本 9.24 万元、工时降本 6.30 万元，计算方法见三级项目建议书。',
-      model: 'C1H02-5513-002 R03',
-      suppliers: ['供应商甲'],
-      year: '2026',
-      flights: 40 as number | null,
-      form: 'MI 批准',
-      needSb: 'no',
-      funding: ['quality'],
-      proposalNo: '',
-      remark: '',
-    },
-    onSubmit: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      status = '已保存并提交';
+    initial: editing ? fromTask(editing) : blank(),
+    onSubmit: async (values) => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      const task = toTask(values as Values, editing);
+      saveTask(task);
+      status = editing ? '已保存' : `已新建 ${task.code}`;
       form.reset(form.values);
+      navigate('TaskDetail', { code: task.code });
     },
   });
   const contact = () => people.find((person) => person.value === form.values.contact);
@@ -156,62 +233,67 @@ export default _component(() => {
     const types = form.values.types;
     const errors = visibleErrors();
     return (
-      <AppShell
-        header={
-          <>
-            <span {...stylex.attrs(styles.brand)}>
-              <Icon icon={Plane} sx={styles.brandMark} />
-              联合降本管理
-            </span>
-            <Avatar size="sm" name="林小满" />
-          </>
-        }
-        sidebar={
-          <NavList aria-label="联合降本管理">
-            <NavSection label="工作台">
-              <NavItem href="#inbox" icon={Inbox} end={<Badge radius="full">3</Badge>}>
-                我的收件箱
-              </NavItem>
-            </NavSection>
-            <NavSection label="降本管理">
-              <NavItem href="#tasks" icon={ClipboardList} active>
-                降本任务
-              </NavItem>
-              <NavItem href="#details" icon={FilePen}>
-                降本明细
-              </NavItem>
-              <NavItem href="#model" icon={Calculator}>
-                测算模型
-              </NavItem>
-              <NavItem href="#reserve" icon={Archive}>
-                储备库
-              </NavItem>
-              <NavItem href="#stats" icon={ChartColumn}>
-                统计分析
-              </NavItem>
-            </NavSection>
-          </NavList>
-        }
-      >
+      <CaseShell current="tasks">
         {/* 两列的表单在宽屏上限宽居中：一行太长，眼睛从标签扫到控件太远 */}
         <Container size="lg" padding="none">
           <Flex direction="column" gap="xl">
             <Flex direction="column" gap="sm">
               <Breadcrumbs
-                items={[{ label: '降本任务', href: '#tasks' }, { label: '编辑降本项目' }]}
+                items={[
+                  { label: '任务池', href: casePath('TaskPool') },
+                  editing
+                    ? { label: editing.code, href: casePath('TaskDetail', { code: editing.code }) }
+                    : { label: '新建任务卡' },
+                  ...(editing ? [{ label: '编辑' }] : []),
+                ]}
               />
               <Flex align="center" gap="sm" wrap>
-                <H1 size="xxl">编辑降本项目</H1>
-                <Badge tone="neutral">草稿</Badge>
+                <H1 size="xxl">{editing ? '编辑降本项目' : '新建任务卡'}</H1>
+                {!editing && <Badge tone="neutral">待启动</Badge>}
               </Flex>
               <Text tone="muted" size="sm">
-                项目编码 <span {...stylex.attrs(styles.code)}>DJ-2026-FC-1</span>
-                ，保存后按“完成年度 + 团队”生成，不能手改
+                {editing ? (
+                  <>
+                    项目编码 <span {...stylex.attrs(styles.code)}>{editing.code}</span>
+                    ，按“完成年度 + 团队”生成，不能手改
+                  </>
+                ) : (
+                  '项目编码保存后按“完成年度 + 团队”生成，不能手改'
+                )}
               </Text>
             </Flex>
 
             <Form controller={form} labelPlacement="start" labelWidth="7.5em">
               <Flex direction="column" gap="xl">
+                <FormSection
+                  headingLevel={2}
+                  id="card"
+                  title="任务卡"
+                  description="任务池要的型号、工作包、主办与计划；状态、里程碑与收益在任务卡详情里推进"
+                  columns={2}
+                >
+                  <form.Field name="aircraft" label="型号" required>
+                    <Select items={models} value={_bind(form.values.aircraft)} />
+                  </form.Field>
+                  <form.Field name="workPackage" label="工作包" required>
+                    <Select
+                      items={workPackages}
+                      value={_bind(form.values.workPackage)}
+                      placeholder="请选择"
+                    />
+                  </form.Field>
+                  <form.Field name="owner" label="主办责任人" required>
+                    <Combobox
+                      items={people}
+                      value={_bind(form.values.owner)}
+                      placeholder="输入姓名搜索"
+                    />
+                  </form.Field>
+                  <form.Field name="due" label="计划完成" required>
+                    <DatePicker value={_bind(form.values.due)} />
+                  </form.Field>
+                </FormSection>
+
                 <FormSection headingLevel={2} id="basic" title="项目基本信息" columns={2}>
                   <GridItem span="full">
                     <form.Field name="name" label="项目名称">
@@ -381,9 +463,17 @@ export default _component(() => {
                     )
                   }
                 >
-                  <Button variant="ghost" tone="neutral">
+                  <LinkButton
+                    variant="ghost"
+                    tone="neutral"
+                    href={
+                      editing
+                        ? casePath('TaskDetail', { code: editing.code })
+                        : casePath('TaskPool')
+                    }
+                  >
                     取消
-                  </Button>
+                  </LinkButton>
                   <Button variant="outline" tone="neutral" onClick={() => void saveDraft()}>
                     保存草稿
                   </Button>
@@ -395,7 +485,7 @@ export default _component(() => {
             </Form>
           </Flex>
         </Container>
-      </AppShell>
+      </CaseShell>
     );
   };
 });
