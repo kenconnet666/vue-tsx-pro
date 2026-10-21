@@ -13,6 +13,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { Text, type TextProps } from '../base/Text';
+import { useDefaults } from '../config/defaults';
 import { useFormat } from '../config/lang/format';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/number';
@@ -25,18 +26,22 @@ import { radiusStyles, type Radius } from '../utils/style/styles';
 export type ProgressManaged =
   'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow' | 'aria-valuetext';
 
-/** 未声明的属性落到轨道（role="progressbar" 的主元素）上 */
-export interface ProgressProps extends PartProps<'div', ProgressManaged> {
-  /** 当前值：number、bigint 或 Decimal；不写（或 null）时为不确定进度 */
-  value?: NumericValue | null;
-  /** 最大值，默认 100 */
-  max?: NumericValue;
+/** Progress 的外观选项：可以在 ComponentDefaults 里统一设置 */
+export interface ProgressOptions {
   /** 色调（与 Badge、Alert 等同一套），默认 accent */
   tone?: StatusTone;
   /** 字号档位：进度条的粗细随之缩放；不写时继承上下文字号 */
   size?: TextSize;
   /** 圆角，默认 full */
   radius?: Radius;
+}
+
+/** 未声明的属性落到轨道（role="progressbar" 的主元素）上 */
+export interface ProgressProps extends PartProps<'div', ProgressManaged>, ProgressOptions {
+  /** 当前值：number、bigint 或 Decimal；不写（或 null）时为不确定进度 */
+  value?: NumericValue | null;
+  /** 最大值，默认 100 */
+  max?: NumericValue;
   /** 读屏念的取值文字，如 `(value, max) => \`已上传 ${value} / ${max} 个文件\``；默认是百分比 */
   valueText?: (value: NumericValue, max: NumericValue) => string;
   /** 进度条上方的标签：同时是进度条的名称（aria-labelledby），不用再写 aria-label */
@@ -128,9 +133,9 @@ export const Progress = _component(
   ({
     value,
     max = 100,
-    tone = 'accent',
+    tone,
     size,
-    radius = 'full',
+    radius,
     valueText,
     label,
     showValueLabel,
@@ -143,7 +148,12 @@ export const Progress = _component(
   }: ProgressProps) => {
     const labelId = `${useId()}-label`;
     const format = useFormat();
+    const appearance = useDefaults('Progress', () => ({ tone, size, radius }), {
+      tone: 'accent',
+      radius: 'full',
+    });
     return () => {
+      const look = appearance();
       const determinate = value != null;
       // 夹在 0–max 之间、按原值比较；比例与读屏的 aria-valuenow 用浮点数就够
       const clamped: NumericValue = !determinate
@@ -166,9 +176,9 @@ export const Progress = _component(
             {
               sx: [
                 progressStyles.root,
-                radiusStyles[radius],
+                radiusStyles[look.radius],
                 // 有外层时字号档位放在外层，标签行一起缩放
-                !header && size && fontSizeStyles[size],
+                !header && look.size && fontSizeStyles[look.size],
               ],
               'aria-labelledby': label != null ? labelId : undefined,
             },
@@ -193,7 +203,7 @@ export const Progress = _component(
         >
           <div
             {...mergeAttrs<'div'>(
-              { sx: [progressStyles.indicator, progressToneStyles[tone]] },
+              { sx: [progressStyles.indicator, progressToneStyles[look.tone]] },
               propsIndicator,
               {
                 sx: determinate
@@ -208,7 +218,7 @@ export const Progress = _component(
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [progressStyles.shell, size && fontSizeStyles[size]] },
+            { sx: [progressStyles.shell, look.size && fontSizeStyles[look.size]] },
             propsRoot,
           )}
         >

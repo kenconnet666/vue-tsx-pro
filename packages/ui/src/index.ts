@@ -68,12 +68,19 @@ export {
 export {
   Indicator,
   indicatorStyles,
+  type IndicatorOptions,
   type IndicatorOverlaps,
   type IndicatorPlacements,
   type IndicatorProps,
 } from './base/Indicator';
 export { Kbd, kbdStyles, type KbdProps } from './base/Kbd';
-export { Link, linkStyles, type LinkProps, type LinkUnderlines } from './base/Link';
+export {
+  Link,
+  linkStyles,
+  type LinkOptions,
+  type LinkProps,
+  type LinkUnderlines,
+} from './base/Link';
 export { LinkButton, type LinkButtonManaged, type LinkButtonProps } from './base/LinkButton';
 export {
   List,
@@ -347,7 +354,7 @@ export {
   type AlertProps,
   type AlertVariants,
 } from './feedback/Alert';
-export { Empty, emptyStyles, type EmptyProps } from './feedback/Empty';
+export { Empty, emptyStyles, type EmptyOptions, type EmptyProps } from './feedback/Empty';
 export {
   LoadingOverlay,
   loadingOverlayStyles,
@@ -360,9 +367,16 @@ export {
   progressToneStyles,
   progressWidthStyles,
   type ProgressManaged,
+  type ProgressOptions,
   type ProgressProps,
 } from './feedback/Progress';
-export { Result, resultStyles, type ResultProps, type ResultTones } from './feedback/Result';
+export {
+  Result,
+  resultStyles,
+  type ResultOptions,
+  type ResultProps,
+  type ResultTones,
+} from './feedback/Result';
 export {
   Skeleton,
   skeletonStyles,

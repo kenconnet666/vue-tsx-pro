@@ -12,6 +12,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
+import { useDefaults } from '../config/defaults';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -36,8 +37,14 @@ export interface IndicatorOverlaps {
   circular: unknown;
 }
 
+/** Indicator 的外观选项：可以在 ComponentDefaults 里统一设置 */
+export interface IndicatorOptions {
+  /** 色调，默认 danger */
+  tone?: StatusTone;
+}
+
 /** 未声明的属性落到外层 span 上 */
-export interface IndicatorProps extends PartProps<'span'> {
+export interface IndicatorProps extends PartProps<'span'>, IndicatorOptions {
   /** 计数；超过 max 显示“max+” */
   count?: number;
   /** 计数的上限，默认 99 */
@@ -46,8 +53,6 @@ export interface IndicatorProps extends PartProps<'span'> {
   dot?: boolean;
   /** count 为 0 时也显示 */
   showZero?: boolean;
-  /** 色调，默认 danger */
-  tone?: StatusTone;
   /** 位置，默认 top-end */
   placement?: keyof IndicatorPlacements;
   /** 被标记元素的形状，默认 rectangular */
@@ -115,7 +120,7 @@ export const Indicator = _component(
     max = 99,
     dot = false,
     showZero = false,
-    tone = 'danger',
+    tone,
     placement = 'top-end',
     overlap = 'rectangular',
     label,
@@ -124,6 +129,7 @@ export const Indicator = _component(
     ...rest
   }: IndicatorProps) => {
     const lang = useLang();
+    const appearance = useDefaults('Indicator', () => ({ tone }), { tone: 'danger' });
     return () => {
       const visible = dot || (count != null && (count > 0 || showZero));
       const text = count == null ? '' : count > max ? `${max}+` : String(count);
@@ -136,7 +142,7 @@ export const Indicator = _component(
                 {
                   sx: [
                     indicatorStyles.badge,
-                    statusToneSx('solid', tone),
+                    statusToneSx('solid', appearance().tone),
                     dot ? indicatorStyles.dot : indicatorStyles.count,
                     indicatorStyles[placement],
                     overlap === 'circular' && indicatorStyles.circular,

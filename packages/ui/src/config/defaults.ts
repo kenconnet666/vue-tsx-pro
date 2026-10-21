@@ -11,6 +11,11 @@ import { computed } from 'vue';
 import { useConfig } from './context';
 import type { BadgeOptions } from '../base/badge-styles';
 import type { AlertOptions } from '../feedback/Alert';
+import type { EmptyOptions } from '../feedback/Empty';
+import type { ProgressOptions } from '../feedback/Progress';
+import type { ResultOptions } from '../feedback/Result';
+import type { IndicatorOptions } from '../base/Indicator';
+import type { LinkOptions } from '../base/Link';
 import type { DialogOptions } from '../overlay/Dialog';
 import type { DrawerOptions } from '../overlay/Drawer';
 import type { AvatarOptions } from '../display/Avatar';
@@ -27,8 +32,18 @@ export interface ComponentDefaults {
   Button?: Partial<Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>>;
   /** Badge、Tag 共用 */
   Badge?: BadgeOptions;
+  /** Link */
+  Link?: LinkOptions;
+  /** Indicator */
+  Indicator?: IndicatorOptions;
   /** Alert */
   Alert?: AlertOptions;
+  /** Progress */
+  Progress?: ProgressOptions;
+  /** Empty */
+  Empty?: EmptyOptions;
+  /** Result */
+  Result?: ResultOptions;
   /** Card */
   Card?: CardOptions;
   /** Dialog、AlertDialog 共用 */

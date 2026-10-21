@@ -51,7 +51,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 间距：List 的 `spacing` 改成 `gap`（全档）；Flex 加 rowGap / columnGap；Heading 加 wrap / lineClamp
 - [x] 枚举类取值改成带注释接口的 `keyof`：AppShell 的 sidebarMode、ButtonGroup / BarChart / Sortable 的方向、图表的骨架、
       useForm 的 validateOn。决定保留：Flex 的 `wrap`（`true` 的简写更常用）、标题级别 1–6（数字本身就清楚）、镜像原生属性的 `type`、`scope`
-- [ ] ComponentDefaults 补上 Progress、Indicator、Link、Spinner、Empty、Result
+- [x] ComponentDefaults 补上 Progress、Indicator、Link、Empty、Result（各自的 `XxxOptions`）。决定不加 Spinner：它在按钮、Alert、
+      Switch 里跟随所在文字的大小，统一的 size 会打破这一点
 - [x] PageSizeSelect 的 `onUpdate` 改名 `onSizeChange`（回调统一叫 onXxxChange）。决定保留 Drawer 的 `side`（四条边，
       与浮层的定位 placement 不是一回事）；Steps 的 current 可绑定并入 §4 M3 的 Steps 升级
 

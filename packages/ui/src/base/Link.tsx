@@ -11,6 +11,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
+import { useDefaults } from '../config/defaults';
 import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
@@ -28,14 +29,18 @@ export interface LinkUnderlines {
   none: unknown;
 }
 
-/** 未声明的属性落到 <a> 上 */
-export interface LinkProps extends PartProps<'a', 'href'> {
-  /** 链接地址；必填：没有地址的“链接”应该用按钮 */
-  href: string;
+/** Link 的外观选项：可以在 ComponentDefaults 里统一设置 */
+export interface LinkOptions {
   /** 色调，默认 accent（品牌色文字） */
   tone?: Tone;
   /** 下划线，默认 always */
   underline?: keyof LinkUnderlines;
+}
+
+/** 未声明的属性落到 <a> 上 */
+export interface LinkProps extends PartProps<'a', 'href'>, LinkOptions {
+  /** 链接地址；必填：没有地址的“链接”应该用按钮 */
+  href: string;
   /** 外部链接：新窗口打开，加 rel="noopener noreferrer"、外链图标与读屏提示 */
   external?: boolean;
   /** 外链图标的部件属性 */
@@ -60,22 +65,23 @@ export const linkStyles = stylex.create({
 
 /** 文字链接（a）：品牌色、下划线与焦点环；external 时新窗口打开并带读屏提示 */
 export const Link = _component(
-  ({
-    href,
-    tone = 'accent',
-    underline = 'always',
-    external = false,
-    propsIcon,
-    children,
-    ...rest
-  }: LinkProps) => {
+  ({ href, tone, underline, external = false, propsIcon, children, ...rest }: LinkProps) => {
     const lang = useLang();
     const router = useRouterLink();
+    const appearance = useDefaults('Link', () => ({ tone, underline }), {
+      tone: 'accent',
+      underline: 'always',
+    });
     return () => (
       <a
         {...mergeAttrs<'a'>(
           {
-            sx: [linkStyles.root, focusRingStyles.visible, toneStyles[tone], linkStyles[underline]],
+            sx: [
+              linkStyles.root,
+              focusRingStyles.visible,
+              toneStyles[appearance().tone],
+              linkStyles[appearance().underline],
+            ],
           },
           rest,
           external

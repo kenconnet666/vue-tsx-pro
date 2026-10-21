@@ -12,6 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
+import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { fontSizeStyles, toneStyles, type TextSize } from '../utils/style/typography';
@@ -28,8 +29,14 @@ export interface ResultTones {
   info: unknown;
 }
 
+/** Result 的外观选项：可以在 ComponentDefaults 里统一设置 */
+export interface ResultOptions {
+  /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
+  size?: TextSize;
+}
+
 /** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
-export interface ResultProps extends PartProps<'div', 'title'> {
+export interface ResultProps extends PartProps<'div', 'title'>, ResultOptions {
   /** 色调，默认 success */
   tone?: keyof ResultTones;
   /** 图标；不写时按色调选，false 不显示 */
@@ -42,8 +49,6 @@ export interface ResultProps extends PartProps<'div', 'title'> {
   description?: VNodeChild;
   /** 操作（如“返回”“重试”按钮） */
   action?: VNodeChild;
-  /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
-  size?: TextSize;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
   /** 标题的部件属性 */
@@ -96,40 +101,48 @@ export const Result = _component(
     propsAction,
     children,
     ...rest
-  }: ResultProps) =>
-    () => (
-      <div
-        {...mergeAttrs<'div'>({ sx: [resultStyles.root, size && fontSizeStyles[size]] }, rest)}
-        data-tone={tone}
-      >
-        {icon !== false && (
-          <Icon
-            {...mergePartProps<IconProps>(
-              {
-                icon: icon ?? statusIcons[tone],
-                draw,
-                sx: [resultStyles.icon, toneStyles[tone]],
-              },
-              propsIcon,
-            )}
-          />
-        )}
-        {title != null && (
-          <Text {...mergePartProps<TextProps>({ sx: resultStyles.title }, propsTitle)}>
-            {title}
-          </Text>
-        )}
-        {description != null && (
-          <Paragraph
-            {...mergePartProps<TextProps>({ sx: resultStyles.description }, propsDescription)}
-          >
-            {description}
-          </Paragraph>
-        )}
-        {children}
-        {action != null && (
-          <div {...mergeAttrs<'div'>({ sx: resultStyles.action }, propsAction)}>{action}</div>
-        )}
-      </div>
-    ),
+  }: ResultProps) => {
+    const appearance = useDefaults('Result', () => ({ size }));
+    return () => {
+      const textSize = appearance().size;
+      return (
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: [resultStyles.root, textSize && fontSizeStyles[textSize]] },
+            rest,
+          )}
+          data-tone={tone}
+        >
+          {icon !== false && (
+            <Icon
+              {...mergePartProps<IconProps>(
+                {
+                  icon: icon ?? statusIcons[tone],
+                  draw,
+                  sx: [resultStyles.icon, toneStyles[tone]],
+                },
+                propsIcon,
+              )}
+            />
+          )}
+          {title != null && (
+            <Text {...mergePartProps<TextProps>({ sx: resultStyles.title }, propsTitle)}>
+              {title}
+            </Text>
+          )}
+          {description != null && (
+            <Paragraph
+              {...mergePartProps<TextProps>({ sx: resultStyles.description }, propsDescription)}
+            >
+              {description}
+            </Paragraph>
+          )}
+          {children}
+          {action != null && (
+            <div {...mergeAttrs<'div'>({ sx: resultStyles.action }, propsAction)}>{action}</div>
+          )}
+        </div>
+      );
+    };
+  },
 );

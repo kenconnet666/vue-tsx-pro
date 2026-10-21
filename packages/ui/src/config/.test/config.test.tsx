@@ -8,9 +8,14 @@ import {
   createUi,
   darkTheme,
   defineTheme,
+  Empty,
   enUS,
+  Indicator,
   lightTheme,
+  Link,
+  Progress,
   Provider,
+  Result,
   useDefaults,
   useFormat,
   useLang,
@@ -128,6 +133,52 @@ describe('useDefaults', () => {
 
   it('没有 fallback、也没有配置的项是 undefined（如没写的 density）', () => {
     expect(mount(() => <Probe />).textContent).toBe('{"variant":"surface"}');
+  });
+
+  it('Link、Progress、Indicator、Empty、Result 读默认值：与显式写 prop 的结果相同', () => {
+    const samples = (look: 'defaults' | 'explicit') => {
+      const own = look === 'explicit';
+      return (
+        <div class={look}>
+          <Link href="/a" {...(own ? { tone: 'neutral', underline: 'none' } : {})}>
+            链接
+          </Link>
+          <Progress
+            value={40}
+            aria-label="进度"
+            {...(own ? { tone: 'success', radius: 'none' } : {})}
+          />
+          <Indicator count={3} {...(own ? { tone: 'accent' } : {})}>
+            <span>消息</span>
+          </Indicator>
+          <Empty title="空" {...(own ? { size: 'sm' } : {})} />
+          <Result title="完成" {...(own ? { size: 'lg' } : {})} />
+        </div>
+      );
+    };
+    const el = mount(() => (
+      <>
+        <Provider
+          defaults={{
+            Link: { tone: 'neutral', underline: 'none' },
+            Progress: { tone: 'success', radius: 'none' },
+            Indicator: { tone: 'accent' },
+            Empty: { size: 'sm' },
+            Result: { size: 'lg' },
+          }}
+        >
+          {samples('defaults')}
+        </Provider>
+        {samples('explicit')}
+      </>
+    ));
+    const classes = (root: Element, look: string) =>
+      [...root.querySelectorAll(`.${look} *`)].map((node) => node.getAttribute('class'));
+    expect(classes(el, 'defaults')).toEqual(classes(el, 'explicit'));
+    // 没有 Provider 时是各自的默认外观，不同于上面
+    expect(classes(mount(() => samples('defaults')), 'defaults')).not.toEqual(
+      classes(el, 'defaults'),
+    );
   });
 });
 
