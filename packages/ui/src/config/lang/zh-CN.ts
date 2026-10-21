@@ -145,6 +145,8 @@ export const zhCN: Lang = {
   tableOfContents: '本页目录',
   navigation: '导航',
   navigationOpen: '打开导航',
+  navigationClose: '收起导航',
+  navigationResize: '调整导航宽度',
   searchLabel: '搜索',
   searchPlaceholder: '搜索文档',
   searchEmpty: '没有找到相关内容',

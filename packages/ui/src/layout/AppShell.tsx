@@ -20,20 +20,27 @@
  * 写了 brand 时，侧栏常驻的宽度下品牌这一格与侧栏同宽，侧栏的竖线一直延伸到顶栏顶端，
  * header 的内容从竖线之后开始、与正文的起始边对齐（本页的页签放在这里）。
  *
+ * sidebarMode="overlay"：侧栏改为盖在页面上面的抽屉，开不开都不占正文的位置（正文总是整宽，布局不随侧栏变化）。
+ * 抽屉从顶端开始、顶上一格与顶栏同高，放品牌与“收起”按钮；收起后“打开”按钮出现在顶栏品牌格之后，把 header 的内容往后挤。
+ * 抽屉结束边可以拖动调整宽度（ResizeHandle，也能聚焦后用 ← / →，双击回到初始宽度），父级写 sidebarWidth={_bind(x)} 记住；
+ * 顶栏的品牌格按初始宽度，拖动时不变。焦点在抽屉里时按 Esc 收起、焦点回到“打开”按钮；窄屏时点了链接也收起。
+ *
  * 自带 SkipLink（跳到正文）；顶栏的高度经 layoutVars.stickyOffset 交给里面的标题，锚点跳转后不被顶栏挡住。
  */
-import { Menu as MenuIcon } from '@lucide/icons';
+import { Menu as MenuIcon, PanelLeftClose, PanelLeftOpen } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import { useId, watch, type VNodeChild } from 'vue';
+import { nextTick, useId, watch, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { SkipLink } from '../navigation/SkipLink';
 import { PageScrollbar } from './PageScrollbar';
+import { ResizeHandle, type ResizeHandleProps } from './ResizeHandle';
 import { ScrollArea } from './ScrollArea';
 import { Drawer, type DrawerProps } from '../overlay/Drawer';
 import { useMediaQuery } from '../utils/dom/media-query';
+import { toElement } from '../utils/dom/overlay';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { breakpoints } from '../config/theme/tokens.stylex';
 import { layoutVars } from '../utils/style/vars.stylex';
@@ -42,6 +49,10 @@ import { layoutVars } from '../utils/style/vars.stylex';
 const HEADER_HEIGHT = '3rem';
 /** 左侧栏的宽度：顶栏的品牌格与它同宽 */
 const SIDEBAR_WIDTH = '16rem';
+/** 抽屉式侧栏的默认宽度与可以拖动的范围（px） */
+const OVERLAY_WIDTH = 256;
+const OVERLAY_MIN_WIDTH = 192;
+const OVERLAY_MAX_WIDTH = 480;
 // 运行时判断侧栏是否常驻（useMediaQuery 要的是不带 @media 的查询）
 const WIDE_QUERY = breakpoints.lg.replace('@media ', '');
 
@@ -55,8 +66,15 @@ export interface AppShellProps extends PartProps<'div'> {
   sidebar?: VNodeChild;
   /** 右侧栏：本页目录等辅助内容；较窄时不显示 */
   aside?: VNodeChild;
-  /** 窄屏时侧栏抽屉是否打开：父级可以写 sidebarOpen={_bind(x)} */
+  /**
+   * 左侧栏的形式：docked（默认）宽屏时占一列、窄屏时收进抽屉；
+   * overlay 各宽度都是盖在页面上面的抽屉，不占正文的位置，可以收起、拖动宽度
+   */
+  sidebarMode?: 'docked' | 'overlay';
+  /** 侧栏抽屉是否打开（docked 时只在窄屏有抽屉）：父级可以写 sidebarOpen={_bind(x)} */
   sidebarOpen?: boolean;
+  /** overlay 抽屉的宽度（px），默认 256，范围 192–480：父级写 sidebarWidth={_bind(x)} 记住拖动后的宽度 */
+  sidebarWidth?: number;
   /** 页面最前面的“跳到正文”链接，默认 true */
   skipLink?: boolean;
   /** 整页用浮层滚动条（PageScrollbar：不占宽度，滚动时出现），默认 true */
@@ -71,8 +89,12 @@ export interface AppShellProps extends PartProps<'div'> {
   propsMain?: PartProps<'main'>;
   /** 右侧栏（aside）的部件属性 */
   propsAside?: PartProps<'aside'>;
-  /** 窄屏时打开侧栏的按钮的部件属性 */
+  /** 打开侧栏的按钮（docked 时是窄屏的菜单按钮，overlay 时是顶栏里的“打开”）的部件属性 */
   propsMenuButton?: Partial<IconButtonProps>;
+  /** overlay 抽屉里“收起”按钮的部件属性 */
+  propsCloseButton?: Partial<IconButtonProps>;
+  /** overlay 抽屉宽度调整手柄的部件属性 */
+  propsResizeHandle?: Partial<ResizeHandleProps>;
   /** 窄屏时的侧栏抽屉的部件属性 */
   propsDrawer?: Partial<DrawerProps>;
   /** 正文 */
@@ -165,7 +187,69 @@ export const appShellStyles = stylex.create({
   asideContent: { paddingBlock: '_xl', paddingInline: '_lg' },
   // 正文由 SkipLink 聚焦（tabindex=-1）：不显示焦点框
   main: { minWidth: 0, paddingBlock: '_xl', paddingInline: '_xl', outlineStyle: 'none' },
+  // overlay：盖在顶栏与正文上面（低于顶层渲染的浮层）；从起始边滑入，收起后不显示（inert，不能聚焦）。
+  // 打开时 translate 是 none：否则抽屉会成为里面 fixed 元素的包含块（同 Drawer）
+  overlay: {
+    position: 'fixed',
+    insetBlock: 0,
+    insetInlineStart: 0,
+    zIndex: 20,
+    boxSizing: 'border-box',
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: 'calc(100vw - 3rem)',
+    backgroundColor: '_surface',
+    borderInlineEndWidth: '_xs',
+    borderInlineEndStyle: 'solid',
+    borderInlineEndColor: '_border',
+    boxShadow: '_lg',
+    // 收起：滑出去之后再隐藏（visibility 延迟到滑完）
+    visibility: 'hidden',
+    translate: { default: '-100% 0', ':dir(rtl)': '100% 0' },
+    transition: 'translate _durations.md _easings.exit, visibility 0s linear _durations.md',
+  },
+  // 打开：立刻可见，“收起”按钮马上就能拿到焦点；再滑进来
+  overlayOpen: {
+    visibility: 'visible',
+    translate: 'none',
+    transition: 'translate _durations.lg _easings.enter, visibility 0s',
+  },
+  // 抽屉顶上一格：与顶栏同高、底边线接上，放品牌与“收起”
+  overlayTop: {
+    boxSizing: 'border-box',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '_sm',
+    height: HEADER_HEIGHT,
+    flexShrink: 0,
+    paddingInlineStart: '_lg',
+    paddingInlineEnd: '_sm',
+    borderBlockEndWidth: '_xs',
+    borderBlockEndStyle: 'solid',
+    borderBlockEndColor: '_border',
+  },
+  overlayScroll: { flexGrow: 1, minHeight: 0 },
+  // overlay 时顶栏的品牌格：宽屏时按抽屉的初始宽度，抽屉打开时正好被它顶上那一格盖住
+  brandOverlay: {
+    alignSelf: { default: null, [breakpoints.lg]: 'stretch' },
+    boxSizing: 'border-box',
+    paddingInline: { default: null, [breakpoints.lg]: '_lg' },
+    borderInlineEndWidth: { default: null, [breakpoints.lg]: '_xs' },
+    borderInlineEndStyle: { default: null, [breakpoints.lg]: 'solid' },
+    borderInlineEndColor: { default: null, [breakpoints.lg]: '_border' },
+  },
+  toggle: { flexShrink: 0 },
 });
+
+/** AppShell 的动态样式：抽屉的宽度、宽屏时品牌格的宽度（px） */
+export const appShellDynamicStyles = stylex.create({
+  width: (px: number) => ({ width: px }),
+  brandWidth: (px: number) => ({ width: { default: null, [breakpoints.lg]: px } }),
+});
+
+/** 插槽有没有内容：使用方常写 cond && <…/>，false、true 同没写 */
+const filled = (slot: VNodeChild) => slot != null && typeof slot !== 'boolean';
 
 /** 应用外壳：粘性顶栏、左侧栏、正文、右侧栏；窄屏时左侧栏收进抽屉 */
 export const AppShell = _component(
@@ -174,7 +258,9 @@ export const AppShell = _component(
     header,
     sidebar,
     aside,
+    sidebarMode = 'docked',
     sidebarOpen = _bindable(false),
+    sidebarWidth = _bindable(OVERLAY_WIDTH),
     skipLink = true,
     pageScrollbar = true,
     propsHeader,
@@ -183,20 +269,42 @@ export const AppShell = _component(
     propsMain,
     propsAside,
     propsMenuButton,
+    propsCloseButton,
+    propsResizeHandle,
     propsDrawer,
     children,
     ...rest
   }: AppShellProps) => {
     const lang = useLang();
-    const mainId = `${useId()}-main`;
+    const id = useId();
+    const mainId = `${id}-main`;
+    const sidebarId = `${id}-sidebar`;
+    const overlay = sidebarMode === 'overlay';
+    const docked = () => filled(sidebar) && !overlay;
     const wide = useMediaQuery(WIDE_QUERY);
-    // 变宽后侧栏已经显示出来：抽屉没必要再开着
+    // docked：变宽后侧栏已经显示出来，抽屉没必要再开着
     watch(wide, (isWide) => {
-      if (isWide) sidebarOpen = false;
+      if (isWide && !overlay) sidebarOpen = false;
     });
-    // 抽屉里点了链接（通常是换页）：关闭抽屉
+    // 抽屉里点了链接（通常是换页）：关闭抽屉；overlay 在宽屏时不关（挡不住正文的主要部分，常要连着换几页）
     function closeOnNavigate(event: MouseEvent) {
+      if (overlay && wide.value) return;
       if (event.target instanceof Element && event.target.closest('a[href]')) sidebarOpen = false;
+    }
+
+    // overlay：品牌格按初始宽度，拖动抽屉时不变；双击手柄回到它
+    const initialWidth = sidebarWidth;
+    // “打开”在顶栏、“收起”在抽屉里，开关后点的那个就不在了：焦点移到另一个
+    let openButton = _state.raw<HTMLElement | null>(null);
+    let closeButton = _state.raw<HTMLElement | null>(null);
+    function toggleOverlay(open: boolean) {
+      sidebarOpen = open;
+      void nextTick(() => (open ? closeButton : openButton)?.focus());
+    }
+    function onOverlayKeydown(event: KeyboardEvent) {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      event.preventDefault();
+      toggleOverlay(false);
     }
 
     return () => (
@@ -213,13 +321,13 @@ export const AppShell = _component(
             {
               sx: [
                 appShellStyles.header,
-                brand != null && sidebar != null && appShellStyles.headerWithBrand,
+                filled(brand) && filled(sidebar) && appShellStyles.headerWithBrand,
               ],
             },
             propsHeader,
           )}
         >
-          {sidebar != null && (
+          {filled(sidebar) && !overlay && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
@@ -232,11 +340,20 @@ export const AppShell = _component(
               )}
             />
           )}
-          {brand != null && (
+          {filled(brand) && (
             <div
               {...mergeAttrs<'div'>(
                 {
-                  sx: [appShellStyles.brand, sidebar != null && appShellStyles.brandRail],
+                  sx: [
+                    appShellStyles.brand,
+                    filled(sidebar) &&
+                      (overlay
+                        ? [
+                            appShellStyles.brandOverlay,
+                            appShellDynamicStyles.brandWidth(initialWidth),
+                          ]
+                        : appShellStyles.brandRail),
+                  ],
                 },
                 propsBrand,
               )}
@@ -244,21 +361,39 @@ export const AppShell = _component(
               {brand}
             </div>
           )}
+          {filled(sidebar) && overlay && !sidebarOpen && (
+            <IconButton
+              {...mergePartProps<IconButtonProps>(
+                {
+                  sx: appShellStyles.toggle,
+                  icon: PanelLeftOpen,
+                  'aria-label': lang.navigationOpen,
+                },
+                propsMenuButton,
+                {
+                  ref: (element: unknown) => (openButton = toElement(element)),
+                  'aria-expanded': false,
+                  'aria-controls': sidebarId,
+                  onClick: () => toggleOverlay(true),
+                },
+              )}
+            />
+          )}
           <div {...mergeAttrs<'div'>({ sx: appShellStyles.headerContent })}>{header}</div>
         </header>
         <div
           {...mergeAttrs<'div'>({
             sx: [
               appShellStyles.body,
-              sidebar != null && aside != null
+              docked() && filled(aside)
                 ? appShellStyles.withBoth
-                : sidebar != null
+                : docked()
                   ? appShellStyles.withSidebar
-                  : aside != null && appShellStyles.withAside,
+                  : filled(aside) && appShellStyles.withAside,
             ],
           })}
         >
-          {sidebar != null && (
+          {docked() && (
             <div
               {...mergeAttrs<'div'>(
                 { sx: [appShellStyles.rail, appShellStyles.sidebar] },
@@ -282,7 +417,7 @@ export const AppShell = _component(
           >
             {children}
           </main>
-          {aside != null && (
+          {filled(aside) && (
             <aside
               {...mergeAttrs<'aside'>(
                 { sx: [appShellStyles.rail, appShellStyles.aside] },
@@ -299,7 +434,63 @@ export const AppShell = _component(
             </aside>
           )}
         </div>
-        {sidebar != null && (
+        {filled(sidebar) && overlay && (
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  appShellStyles.overlay,
+                  sidebarOpen && appShellStyles.overlayOpen,
+                  appShellDynamicStyles.width(sidebarWidth),
+                ],
+              },
+              propsSidebar,
+              {
+                id: sidebarId,
+                inert: !sidebarOpen,
+                onKeydown: onOverlayKeydown,
+                onClick: closeOnNavigate,
+              },
+            )}
+          >
+            <div {...stylex.attrs(appShellStyles.overlayTop)}>
+              {filled(brand) && <div {...stylex.attrs(appShellStyles.brand)}>{brand}</div>}
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  {
+                    sx: appShellStyles.toggle,
+                    icon: PanelLeftClose,
+                    'aria-label': lang.navigationClose,
+                  },
+                  propsCloseButton,
+                  {
+                    ref: (element: unknown) => (closeButton = toElement(element)),
+                    'aria-expanded': true,
+                    'aria-controls': sidebarId,
+                    onClick: () => toggleOverlay(false),
+                  },
+                )}
+              />
+            </div>
+            <ScrollArea
+              sx={appShellStyles.overlayScroll}
+              propsViewport={{ sx: appShellStyles.railViewport }}
+              propsContent={{ sx: appShellStyles.sidebarContent }}
+            >
+              {sidebar}
+            </ScrollArea>
+            <ResizeHandle
+              aria-label={lang.navigationResize}
+              {...propsResizeHandle}
+              width={sidebarWidth}
+              minWidth={OVERLAY_MIN_WIDTH}
+              maxWidth={OVERLAY_MAX_WIDTH}
+              defaultWidth={initialWidth}
+              onWidthChange={(px: number) => (sidebarWidth = px)}
+            />
+          </div>
+        )}
+        {docked() && (
           <Drawer
             {...mergePartProps<DrawerProps>(
               { title: lang.navigation, side: 'start' },

@@ -1,5 +1,7 @@
-// AppShell：品牌格在顶栏最前面、header 的内容在它之后；没有侧栏时品牌格不与侧栏对齐
+// AppShell：品牌格在顶栏最前面、header 的内容在它之后；没有侧栏时品牌格不与侧栏对齐；
+// overlay 的抽屉：不占正文的列，开关按钮与焦点、Esc、宽度手柄
 import { describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 import { hasStyles, mount } from '../../utils/.test/mount';
 import { AppShell, appShellStyles } from '../AppShell';
 
@@ -23,5 +25,63 @@ describe('AppShell', () => {
     const header = root.querySelector('header')!;
     const brand = [...header.children].find((child) => child.textContent === '品牌')!;
     expect(hasStyles(brand, appShellStyles.brandRail)).toBe(false);
+  });
+
+  it('overlay：侧栏不占正文的列；“打开”在品牌格之后，打开后收起、焦点在抽屉的“收起”，Esc 收起、焦点回到“打开”', async () => {
+    let open = _state(false);
+    const root = mount(() => (
+      <AppShell
+        sidebarMode="overlay"
+        sidebarOpen={_bind(open)}
+        brand={<span>品牌</span>}
+        header={<span>页签</span>}
+        sidebar={<a href="#a">导航项</a>}
+      >
+        正文
+      </AppShell>
+    ));
+    const header = root.querySelector('header')!;
+    const panel = root.querySelector<HTMLElement>('[id$="-sidebar"]')!;
+    expect(root.querySelector('main')!.previousElementSibling).toBeNull();
+    expect(panel.inert).toBe(true);
+    const opener = header.querySelector<HTMLButtonElement>('button[aria-label="打开导航"]')!;
+    expect(opener.previousElementSibling!.textContent).toBe('品牌');
+    expect(opener.getAttribute('aria-controls')).toBe(panel.id);
+
+    opener.click();
+    await nextTick();
+    await nextTick();
+    expect(open).toBe(true);
+    expect(panel.inert).toBe(false);
+    expect(header.querySelector('button[aria-label="打开导航"]')).toBeNull();
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('收起导航');
+
+    panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await nextTick();
+    await nextTick();
+    expect(open).toBe(false);
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('打开导航');
+  });
+
+  it('overlay：抽屉的宽度手柄用 ← / → 调整、夹在 192–480 之间，写回 sidebarWidth；双击回到初始宽度', async () => {
+    let width = _state(256);
+    const root = mount(() => (
+      <AppShell sidebarMode="overlay" sidebarOpen sidebarWidth={_bind(width)} sidebar={<nav />}>
+        正文
+      </AppShell>
+    ));
+    const handle = root.querySelector<HTMLElement>('[role="separator"]')!;
+    expect(handle.getAttribute('aria-label')).toBe('调整导航宽度');
+    handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    await nextTick();
+    expect(width).toBe(272);
+    width = 470;
+    await nextTick();
+    handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    await nextTick();
+    expect(width).toBe(480);
+    handle.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    await nextTick();
+    expect(width).toBe(256);
   });
 });

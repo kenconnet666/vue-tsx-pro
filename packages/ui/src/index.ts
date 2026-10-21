@@ -133,7 +133,13 @@ export {
 
 // 布局
 export { ActionBar, actionBarStyles, type ActionBarProps } from './layout/ActionBar';
-export { AppShell, appShellOffset, appShellStyles, type AppShellProps } from './layout/AppShell';
+export {
+  AppShell,
+  appShellDynamicStyles,
+  appShellOffset,
+  appShellStyles,
+  type AppShellProps,
+} from './layout/AppShell';
 export {
   Container,
   containerPaddingStyles,
@@ -192,6 +198,12 @@ export {
   type PageScrollbarProps,
 } from './layout/PageScrollbar';
 export { Prose, proseStyles, type ProseProps } from './layout/Prose';
+export {
+  ResizeHandle,
+  resizeHandleStyles,
+  type ResizeHandleManaged,
+  type ResizeHandleProps,
+} from './layout/ResizeHandle';
 export {
   OverlayScrollbar,
   ScrollArea,
@@ -898,7 +910,6 @@ export {
 // 表格
 export {
   ColumnResizer,
-  columnResizerStyles,
   type ColumnResizerManaged,
   type ColumnResizerProps,
 } from './table/ColumnResizer';

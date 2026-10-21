@@ -5,11 +5,12 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Admin from './frames/Admin.tsx?demo';
+import Overlay from './frames/Overlay.tsx?demo';
 
 export const meta = {
   title: 'AppShell 应用外壳',
   description:
-    '整页骨架：粘性半透明顶栏、左侧导航、正文、右侧栏；窄屏时侧栏收进抽屉，自带跳到正文与浮层滚动条。本站就是用它搭的。',
+    '整页骨架：粘性半透明顶栏、左侧导航、正文、右侧栏；侧栏可以常驻（窄屏收进抽屉），也可以是盖在页面上、能拖动宽度的抽屉。自带跳到正文与浮层滚动条，本站就是用它搭的。',
   order: 4,
 };
 
@@ -26,6 +27,15 @@ export default _component(() => () => (
       可以双向绑定抽屉的开关：示例的导航只写锚点、不换路由，点了导航项自己关上。页面最前面的“跳到正文”（
       <Code>skipLink</Code>）与整页的浮层滚动条（<Code>pageScrollbar</Code>
       ）默认都开。
+    </Example>
+    <Example id="overlay" title="抽屉式侧栏" demo={Overlay} frame="40rem">
+      <Code>sidebarMode="overlay"</Code>{' '}
+      时侧栏是盖在页面上面的抽屉，开不开都不占正文的位置：正文总是整宽，布局不随侧栏变化，数据为主的工作台（本站的降本管理案例）用它。抽屉从顶端开始，顶上一格与顶栏同高，放品牌与“收起”；收起后“打开”出现在顶栏品牌格之后，把
+      header 的内容往后挤。抽屉的结束边可以拖动调整宽度（也能聚焦后用 ← /
+      →，双击回到初始宽度），范围 192–480 px；顶栏的品牌格按初始宽度，拖动时不变。
+      <Code>sidebarOpen</Code>、<Code>sidebarWidth</Code>{' '}
+      都能双向绑定，存起来就能记住各人的设置（本站记在 localStorage）。焦点在抽屉里时按 Esc
+      收起、焦点回到“打开”；窄屏时点了链接也收起。
     </Example>
     <ApiReference api={api} />
   </DocPage>

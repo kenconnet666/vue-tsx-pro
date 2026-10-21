@@ -25,6 +25,7 @@ import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { allPages, sectionOf, sections } from './site/nav';
 import { PropsPlaygroundButton } from './site/PropsPlaygroundButton';
+import { sidebarPreference } from './site/sidebar';
 import { isFrame } from './router';
 import { preference } from './site/theme';
 
@@ -38,7 +39,6 @@ const styles = stylex.create({
     display: 'inline-flex',
     alignItems: 'center',
     gap: '_sm',
-    marginInlineEnd: 'auto',
     color: '_text',
     fontFamily: '_heading',
     fontSize: '_lg',
@@ -46,6 +46,8 @@ const styles = stylex.create({
     textDecoration: 'none',
   },
   brandMark: { color: '_accentText' },
+  // 搜索与各个按钮靠顶栏的结束边
+  tools: { display: 'flex', alignItems: 'center', gap: '_md', marginInlineStart: 'auto' },
   page: { display: 'flex', flexDirection: 'column', gap: '_xl' },
   // 换页时新页面轻轻浮上来；时长取主题 token，“减少动态效果”时为 0
   enter: {
@@ -57,6 +59,9 @@ const styles = stylex.create({
   main: { paddingBlockStart: '2.5rem', paddingBlockEnd: '4rem' },
   pager: { marginBlockStart: '_xl' },
 });
+
+// 站点导航是盖在页面上的抽屉：默认收起，不挡正文（首页就是导航）；开关与拖动后的宽度各人记住
+const sidebar = sidebarPreference('docs.sidebar', { open: false, width: 256 });
 
 /** 搜索面板的选项：每个页面一项，按侧栏分组 */
 const searchItems = allPages.map((page) => ({
@@ -129,17 +134,22 @@ export const App = _component(() => {
     const isHome = route.path === '/';
     return (
       <AppShell
+        sidebarMode="overlay"
+        sidebarOpen={_bind(sidebar.open)}
+        sidebarWidth={_bind(sidebar.width)}
+        brand={
+          <RouterLink to="/" {...stylex.attrs(styles.brand)}>
+            <Icon icon={Box} sx={styles.brandMark} />
+            vue-tsx-pro
+          </RouterLink>
+        }
         header={
-          <>
-            <RouterLink to="/" {...stylex.attrs(styles.brand)}>
-              <Icon icon={Box} sx={styles.brandMark} />
-              vue-tsx-pro
-            </RouterLink>
+          <div {...stylex.attrs(styles.tools)}>
             <CommandPalette items={searchItems} onAction={(item) => void router.push(item.value)} />
             <PropsPlaygroundButton />
             <ThemeSwitcher preference={preference} />
             <IconLinkButton href={REPOSITORY} external icon={GithubIcon} aria-label="GitHub 仓库" />
-          </>
+          </div>
         }
         sidebar={
           <NavList aria-label="文档">
