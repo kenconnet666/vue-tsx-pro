@@ -7,6 +7,7 @@ import collapsibleApi from 'virtual:api/CollapsibleProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Disclosure from './demo/Disclosure.tsx?demo';
 import Faq from './demo/Faq.tsx?demo';
@@ -43,6 +44,14 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Enter / Space', '展开或收起聚焦的那一项'],
+        ['↓ / ↑', '移到下一个 / 上一个标题，到头后循环'],
+        ['Home / End', '移到第一个 / 最后一个标题'],
+        ['Tab', '标题都在 Tab 顺序里；展开的内容里的元素按顺序跟在标题后面'],
+      ]}
+    />
     <ApiReference api={[api, itemApi, collapsibleApi, collapseApi]} />
   </DocPage>
 ));

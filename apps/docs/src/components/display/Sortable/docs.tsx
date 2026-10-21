@@ -4,6 +4,7 @@ import api from 'virtual:api/SortableProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Columns from './demo/Columns.tsx?demo';
 import Tasks from './demo/Tasks.tsx?demo';
@@ -32,6 +33,16 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Space / Enter', '在把手上：拿起这一项；拿起后再按：放下'],
+        ['↓ / ↑', '拿起后：移动一位（横排时用 → / ←，跟随从右到左排版）'],
+        ['Home / End', '拿起后：移到最前 / 最后'],
+        ['Esc', '取消，回到原来的位置'],
+      ]}
+    >
+      拿起、移动、放下、取消都会播报给读屏（WCAG 2.5.7 的拖动替代操作）。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

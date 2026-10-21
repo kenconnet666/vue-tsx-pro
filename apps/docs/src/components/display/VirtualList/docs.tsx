@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Contacts from './demo/Contacts.tsx?demo';
 import Feed from './demo/Feed.tsx?demo';
+import Horizontal from './demo/Horizontal.tsx?demo';
 
 export const meta = {
   title: 'VirtualList 虚拟列表',
@@ -29,6 +30,12 @@ export default _component(() => () => (
         <Example id="feed" title="滚动加载" demo={Feed}>
           <Code>onRangeChange</Code> 报告可见范围，接近末尾时取下一页。<Code>loading</Code>{' '}
           时没有数据显示骨架行，已有数据则在顶部显示进度条。
+        </Example>
+        <Example id="horizontal" title="横向与跳到指定项" demo={Horizontal}>
+          <Code>horizontal</Code> 横向排列与滚动（给宽度），<Code>estimateSize</Code> 是估计的宽度；
+          <Code>overscan</Code> 是可见范围前后多渲染几项。<Code>handle</Code> 拿到{' '}
+          <Code>scrollToIndex</Code> / <Code>scrollToOffset</Code>，<Code>align</Code>{' '}
+          控制停在开头、中间还是末尾。
         </Example>
       </ExampleColumn>
     </Examples>

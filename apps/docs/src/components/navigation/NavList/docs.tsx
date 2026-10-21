@@ -3,6 +3,7 @@ import { Code } from '@vue-tsx-pro/ui';
 import groupApi from 'virtual:api/NavGroupProps';
 import itemApi from 'virtual:api/NavItemProps';
 import api from 'virtual:api/NavListProps';
+import sectionApi from 'virtual:api/NavSectionProps';
 import skipLinkApi from 'virtual:api/SkipLinkProps';
 import tocApi from 'virtual:api/TableOfContentsProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -46,6 +47,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, itemApi, groupApi, tocApi, skipLinkApi]} />
+    <ApiReference api={[api, sectionApi, itemApi, groupApi, tocApi, skipLinkApi]} />
   </DocPage>
 ));

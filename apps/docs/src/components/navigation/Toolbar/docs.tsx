@@ -4,6 +4,7 @@ import api from 'virtual:api/ToolbarProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Editor from './demo/Editor.tsx?demo';
 import Tools from './demo/Tools.tsx?demo';
@@ -32,6 +33,16 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Tab', '整组只占一个 Tab 位置；里面的输入框单独占 Tab 位置'],
+        ['→ / ←', '在按钮、链接之间移动（竖排时用 ↓ / ↑）；loop 时到头后循环'],
+        ['Home / End', '移到第一项 / 最后一项'],
+      ]}
+    >
+      里面的 ToggleGroup 不再自己管焦点，它的按钮和其他按钮一起用方向键移动（同 WAI-ARIA
+      的文字格式工具栏示例）。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

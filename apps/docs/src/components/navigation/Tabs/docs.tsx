@@ -7,6 +7,7 @@ import api from 'virtual:api/TabsProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Orders from './demo/Orders.tsx?demo';
 import Soft from './demo/Soft.tsx?demo';
@@ -45,6 +46,14 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Tab', '标签栏只占一个 Tab 位置（停在当前标签上），再按 Tab 进入面板'],
+        ['→ / ←', '移到下一个 / 上一个标签（竖排时用 ↓ / ↑）；loop 时到头后循环'],
+        ['Home / End', '移到第一个 / 最后一个标签'],
+        ['Enter / Space', 'activation="manual" 时切换到聚焦的标签；默认焦点移到哪个就切换到哪个'],
+      ]}
+    />
     <ApiReference api={[api, tabListApi, tabApi, tabPanelApi]} />
   </DocPage>
 ));
