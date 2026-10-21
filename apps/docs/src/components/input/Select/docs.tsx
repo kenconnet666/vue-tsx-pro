@@ -1,57 +1,64 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
-import comboboxApi from 'virtual:api/ComboboxBaseProps';
-import listboxApi from 'virtual:api/ListboxBaseProps';
+import { Code, Link } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/SelectBaseProps';
-import tagsApi from 'virtual:api/TagsInputBaseProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import { KeyboardReference } from '../../../site/KeyboardReference';
+import Appearance from './demo/Appearance.tsx?demo';
 import Assign from './demo/Assign.tsx?demo';
-import Cities from './demo/Cities.tsx?demo';
-import Columns from './demo/Columns.tsx?demo';
-import Tags from './demo/Tags.tsx?demo';
+import Members from './demo/Members.tsx?demo';
 
 export const meta = {
-  title: 'Select 选择器',
+  title: 'Select 下拉选择',
   description:
-    '从一列选项里选：下拉的 Select、边输入边选的 Combobox、输入多个标签的 TagsInput、平铺的 Listbox。数据层相同，选项多时都虚拟滚动。',
-  order: 3,
+    '点开一列选项选一个或几个，同原生 select 的交互。要边输入边筛选用 Combobox，输入多个标签用 TagsInput，平铺在页面上用 Listbox。',
+  order: 4,
 };
 
 export default _component(() => () => (
-  <DocPage
-    wide
-    meta={meta}
-    imports="import { Combobox, Listbox, Select, TagsInput } from '@vue-tsx-pro/ui';"
-  >
+  <DocPage wide meta={meta} imports="import { Select } from '@vue-tsx-pro/ui';">
     <Examples>
       <ExampleColumn>
-        <Example id="select" title="Select" demo={Assign}>
+        <Example id="basic" title="单选与多选" demo={Assign}>
           <Code>items</Code>{' '}
           可以是字符串、ListboxOption（值、文字、图标、说明、分组、不可用），或任意数据加{' '}
           <Code>toOption</Code>；子节点是渲染函数时自定义选项内容，拿到的是原始数据。
-          <Code>selectionMode="multiple"</Code> 多选。键盘同原生 select：按字母选中以它开头的项。
+          <Code>selectionMode="multiple"</Code> 多选，已选的显示成标签。键盘同原生
+          select：关闭时按字母直接选中以它开头的项。
         </Example>
-        <Example id="combobox" title="Combobox" demo={Cities}>
-          默认本地过滤（忽略大小写与重音），中文输入法组合期间不拿拼音去过滤。远程搜索写{' '}
-          <Code>filter={'{false}'}</Code>，监听 <Code>inputValue</Code> 换 <Code>items</Code>，配合{' '}
-          <Code>loading</Code>；只用最后一次输入的结果。
+        <Example id="appearance" title="图标、外观与状态" demo={Appearance}>
+          <Code>icon</Code>、<Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>{' '}
+          与其他输入框同一套。只读时能聚焦、能看到已选的内容，不能打开、不能清空；Field 上的{' '}
+          <Code>required</Code>、<Code>readonly</Code>、<Code>disabled</Code>、<Code>error</Code>{' '}
+          都交给里面的 Select。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
-        <Example id="tags" title="TagsInput" demo={Tags}>
-          回车、逗号或分号加一个标签，粘贴时自动拆开，重复的不加；输入框空着时退格删掉最后一个。给了{' '}
-          <Code>items</Code> 就有建议列表；<Code>allowCustomValue={'{false}'}</Code>{' '}
-          只能从建议里选，
-          <Code>max</Code> 限制个数。
-        </Example>
-        <Example id="listbox" title="Listbox" demo={Columns}>
-          平铺的列表框，适合常驻在页面上的选择（表格显示哪些列、穿梭框的一侧）。一千个选项也只渲染看得见的几十个；焦点在列表上，按字母跳转。
+        <Example id="custom" title="异步加载与自定义显示" demo={Members}>
+          第一次打开时再去取选项：<Code>loading</Code>{' '}
+          期间列表里是骨架行，已有选项时顶部显示进度条。
+          <Code>renderValue</Code> 自定义触发框里的已选内容（这里是头像叠放加名字），返回 null
+          时显示占位文字；分组来自选项的 <Code>group</Code>。
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, comboboxApi, tagsApi, listboxApi]} />
+    <KeyboardReference
+      keys={[
+        ['↓ / Enter / Space', '关闭时：打开列表，高亮已选的项（没有时是第一项）'],
+        ['↑', '关闭时：打开列表并高亮最后一项'],
+        ['字母键', '关闭时（单选）：直接选中下一个以它开头的项；打开时移动高亮'],
+        ['↓ / ↑', '打开时：移动高亮'],
+        ['Home / End / PageUp / PageDown', '打开时：移到第一项、最后一项，或按一屏移动'],
+        ['Enter / Space', '打开时：选中高亮的项；单选随后关闭，多选切换勾选'],
+        ['Esc / Tab', '关闭列表；焦点一直在触发按钮上'],
+      ]}
+    >
+      焦点一直留在触发按钮上，高亮项经 aria-activedescendant 告诉读屏。写了 <Code>name</Code>{' '}
+      时用隐藏的 input 随表单提交（多选每个值一个）。数据层与{' '}
+      <Link href="/components/listbox">Listbox</Link> 相同，选项多时虚拟滚动。
+    </KeyboardReference>
+    <ApiReference api={api} />
   </DocPage>
 ));

@@ -17,7 +17,7 @@ export const meta = {
   title: 'Checkbox、Radio 与 Switch',
   description:
     '选择：多选的 Checkbox 与 CheckboxGroup、单选的 Radio 与 RadioGroup、立即生效的 Switch。都是原生 input，键盘与读屏行为由浏览器保证。',
-  order: 2,
+  order: 3,
 };
 
 export default _component(() => () => (

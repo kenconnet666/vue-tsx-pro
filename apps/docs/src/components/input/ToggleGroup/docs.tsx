@@ -14,7 +14,7 @@ export const meta = {
   title: 'ToggleGroup 分段控件',
   description:
     '一组切换按钮：单选（视图切换、时间范围）或多选（字形）。选中项的底色滑过去；方向键在组内移动，整组只占一个 Tab 位置。',
-  order: 5,
+  order: 9,
 };
 
 export default _component(() => () => (

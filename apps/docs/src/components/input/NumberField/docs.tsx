@@ -13,6 +13,7 @@ import Submit from './demo/Submit.tsx?demo';
 export const meta = {
   title: 'NumberField 数字输入框',
   description: '输入数字，方向键与按钮加减，按语言格式化；值可以是 number、bigint 或 Decimal。',
+  order: 2,
 };
 
 export default _component(() => () => (

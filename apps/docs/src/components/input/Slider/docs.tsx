@@ -13,7 +13,7 @@ export const meta = {
   title: 'Slider 滑块',
   description:
     '在一个范围里拖动选值：音量、进度、价格区间。单值或 [低, 高] 范围，刻度、竖排、色调；键盘与读屏同 WAI-ARIA Slider 模式。',
-  order: 4,
+  order: 8,
 };
 
 export default _component(() => () => (

@@ -12,7 +12,7 @@ export const meta = {
   title: 'SlideVerify 拖动验证',
   description:
     '把滑块拖到头（或拖到拼图缺口）完成人机验证。组件只管交互，判定交给服务端：松手时交出位置与拖动轨迹。',
-  order: 8,
+  order: 12,
 };
 
 export default _component(() => () => (
