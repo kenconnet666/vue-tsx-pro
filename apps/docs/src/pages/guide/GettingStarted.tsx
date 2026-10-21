@@ -17,7 +17,7 @@ const viteConfig = `import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
 
-// 原有的 @vitejs/plugin-vue 保留，再加上预设：符文 → StyleX → JSX
+// 原有的 @vitejs/plugin-vue 保留，再加上预设：符文、token 写法、StyleX 与 JSX 一次编译完
 export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });`;
 
 const tsconfig = `{
@@ -58,7 +58,7 @@ export default _component(() => () => (
       <CodeBlock title="tsconfig.json" code={tsconfig} lang="json" />
       <Alert tone="info">
         只有用到符文或 <Code>_component</Code> 的文件会被改写，宿主的其他代码不受影响；不要再单独加{' '}
-        <Code>@vitejs/plugin-vue-jsx</Code>。
+        <Code>@vitejs/plugin-vue-jsx</Code> 或 StyleX 的打包插件，预设已经包含。
       </Alert>
     </Flex>
     <Flex direction="column" gap="md">

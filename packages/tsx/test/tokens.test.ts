@@ -2,7 +2,7 @@
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { compileTokens, type TokenModule } from '../src/compiler/index';
-import { themeTokens } from '../src/vite/tokens';
+import { tokenModule } from '../src/vite/tokens';
 
 const module: TokenModule = {
   importPath: './tokens.stylex',
@@ -129,18 +129,15 @@ describe('报错', () => {
   });
 });
 
-describe('Vite 插件', () => {
+describe('按导入方找 token 模块', () => {
   const ui = (path: string) => join(import.meta.dirname, '../../ui', path);
-  const transform = async (file: string, code: string) => {
-    const plugin = themeTokens('@vue-tsx-pro/ui/tokens.stylex');
-    const context = { addWatchFile() {} };
-    const hook = plugin.transform as (
-      this: unknown,
-      code: string,
-      id: string,
-    ) => Promise<{ code: string } | null>;
-    return (await hook.call(context, header + code, file))?.code;
-  };
+  const root = join(import.meta.dirname, '../../..');
+  const transform = async (file: string, code: string) =>
+    (
+      await compileTokens(header + code, file, () =>
+        tokenModule('@vue-tsx-pro/ui/tokens.stylex', file, root),
+      )
+    )?.code;
 
   it('组件库自己的源码用相对路径导入，token 名从源码读取', async () => {
     const code = await transform(

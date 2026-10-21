@@ -15,8 +15,7 @@
  * 这类数据变了不会通知任何组件，以前靠父组件碰巧重新渲染才刷新。
  */
 import { types as t, type NodePath } from '@babel/core';
-import type { Binding } from '@babel/traverse';
-import { isComponentSetup, prependToBody } from './ast.ts';
+import { isComponentSetup, prependToBody, type Binding } from './ast.ts';
 import type { RuntimeImports } from './imports.ts';
 import type { TrackedInfo } from './runes.ts';
 

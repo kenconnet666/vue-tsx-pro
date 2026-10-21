@@ -1,7 +1,7 @@
-/** 一个文件的编译流程：按顺序执行 run() 里的各步 */
-import { types as t, type NodePath } from '@babel/core';
-import type { Binding } from '@babel/traverse';
+/** 符文编译：一个文件的流程按顺序执行 run() 里的各步，runesBabelPlugin 是它的 Babel 插件形式 */
+import { types as t, type NodePath, type PluginObject, type PluginPass } from '@babel/core';
 import {
+  type Binding,
   findDeclarator,
   isAttached,
   isComponentChild,
@@ -19,6 +19,33 @@ import { RuntimeImports } from './imports.ts';
 import { optimizeRender } from './optimize.ts';
 import { declareProps } from './props.ts';
 import { RUNE_GLOBALS, runeOf, type Rune, type TrackedInfo } from './runes.ts';
+
+/** 用到符文，或定义了 _component（需要编译 props 解构）的文件才需要编译；宿主项目的其他文件原样放过 */
+const NEEDS_COMPILE = /\b_(?:state|derived|bindable|bind|effect|fromRef|toRef)\b|\b_component\s*\(/;
+
+/** 文件里有没有要编译的符文（解析之前的快速判断） */
+export const needsRunes = (code: string) => NEEDS_COMPILE.test(code);
+
+/** 符文编译的选项 */
+export interface RunesOptions {
+  /** 渲染优化（稳定插槽、缓存属性里的函数与常量，见 optimize.ts），默认 true */
+  optimize?: boolean;
+}
+
+/** 符文编译的 Babel 插件：误用直接抛出 RunesError，警告放在文件的 metadata.runesWarnings */
+export function runesBabelPlugin(): PluginObject<PluginPass<RunesOptions>> {
+  return {
+    name: 'vue-tsx-pro-runes',
+    visitor: {
+      Program(program, state) {
+        const transform = new RunesTransform(program, state.filename, state.opts.optimize ?? true);
+        transform.run();
+        (state.file.metadata as { runesWarnings?: RunesWarning[] }).runesWarnings =
+          transform.warnings;
+      },
+    },
+  };
+}
 
 /** 一个文件的符文改写：五个步骤见 run()，由 runesBabelPlugin 对每个文件新建一个 */
 export class RunesTransform {

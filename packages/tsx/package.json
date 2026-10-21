@@ -45,9 +45,11 @@
   },
   "dependencies": {
     "@babel/core": "catalog:",
-    "lightningcss": "catalog:",
-    "@stylexjs/unplugin": "catalog:",
-    "@vitejs/plugin-vue-jsx": "catalog:"
+    "@babel/plugin-transform-typescript": "catalog:",
+    "@stylexjs/babel-plugin": "catalog:",
+    "@vue/babel-plugin-jsx": "catalog:",
+    "browserslist": "catalog:",
+    "lightningcss": "catalog:"
   },
   "peerDependencies": {
     "@stylexjs/stylex": "^0.19.1",
@@ -61,8 +63,6 @@
   },
   "devDependencies": {
     "@stylexjs/stylex": "catalog:",
-    "@types/babel__core": "catalog:",
-    "@types/babel__traverse": "catalog:",
     "happy-dom": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",

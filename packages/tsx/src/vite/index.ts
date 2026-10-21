@@ -1,31 +1,46 @@
 /**
- * Vite 预设：按固定顺序组合四个插件，使用方只写一行 vueTsxPro()。
+ * Vite 预设：使用方只写一行 vueTsxPro()。
  *
- *   1. 符文与 props（本包）：_state / _derived / _component 参数解构 … → Vue API，读写 → .value
- *   2. 主题 tokens 的字符串写法（本包）：stylex.create 里的 '_xs' → token 变量（tokens.ts）
- *   3. StyleX：stylex.create → 原子类与 CSS
- *   4. @vitejs/plugin-vue-jsx（官方）：去掉 TS 类型、JSX → VNode、热更新
+ * 编译插件（vue-tsx-pro）对每个文件调用一次 compile（compiler/compile.ts）：解析一次、生成一次，
+ * 依次是符文、token 字符串写法、StyleX、Vue JSX 与去掉类型，再登记组件的热更新（hmr.ts）。
+ * StyleX 的规则由 stylex.ts 合成 CSS 交给页面。
+ * 以前是符文、token、@stylexjs/unplugin、@vitejs/plugin-vue-jsx 四个插件，每个文件解析、生成四次。
  *
- * 第 1、2 步只改写用到符文、token 写法的文件，宿主项目里的其他代码原样交给后续插件。
+ * 哪些文件做哪一步：
+ *   - 符文与 token 写法：项目自己的脚本文件（不含 node_modules、虚拟模块与 Vue 单文件组件）
+ *   - StyleX：从 StyleX 入口导入的脚本，含 node_modules（组件库的发布包保留着 stylex.create）与单文件组件的脚本
+ *   - JSX 与去掉类型：.jsx、.tsx，以及单文件组件里 lang="jsx" / "tsx" 的脚本；.ts 的类型由 Vite 自带的 oxc 去掉
  */
-import type { Plugin } from 'vite';
-import stylex from '@stylexjs/unplugin';
-import vueJsx from '@vitejs/plugin-vue-jsx';
+import type { Options as StylexBabelOptions } from '@stylexjs/babel-plugin';
+import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { Features } from 'lightningcss';
-import { compileRunes } from '../compiler/index.ts';
+import type { Plugin, Rollup } from 'vite';
+import { compile } from '../compiler/index.ts';
+import { needsTokens } from '../compiler/tokens.ts';
+import { CompileCache } from './cache.ts';
 import { compilerCacheKey } from './cache-key.ts';
+import {
+  componentMarkers,
+  exportedComponents,
+  hmrCode,
+  SSR_REGISTER_CODE,
+  SSR_REGISTER_ID,
+  ssrCode,
+} from './hmr.ts';
+import { stylexCss, StylexRules, type StylexCssOptions } from './stylex.ts';
 import { stylexModuleResolution } from './stylex-resolution.ts';
-import { themeTokens } from './tokens.ts';
-
-type StylexOptions = NonNullable<Parameters<typeof stylex.vite>[0]>;
+import { tokenModule } from './tokens.ts';
 
 /** 本包的 StyleX 入口：运行时同 @stylexjs/stylex，类型带中文注释（见 src/stylex） */
 const STYLEX_ENTRY = '@vue-tsx-pro/tsx/stylex';
 
+/** StyleX 的选项：StyleX Babel 插件的选项，加上合成 CSS 的选项 */
+export type StylexOptions = Partial<StylexBabelOptions> & StylexCssOptions;
+
 /** vueTsxPro() 的选项；都不写就是应用的默认配置 */
 export interface VueTsxProOptions {
   /**
-   * StyleX 插件选项；传 false 时不编译 StyleX。
+   * StyleX 选项；传 false 时不编译 StyleX。
    * 组件库构建应传 false：保留 stylex.create，由使用方应用统一编译。
    */
   stylex?: StylexOptions | false;
@@ -41,42 +56,49 @@ export interface VueTsxProOptions {
    * 怀疑哪里因此没更新时，传 false 对比
    */
   optimize?: boolean;
+  /** Vue JSX 插件（@vue/babel-plugin-jsx）的选项 */
+  jsx?: VueJSXPluginOptions;
+  /**
+   * 开发服务器把编译结果存在磁盘上（cacheDir/vue-tsx-pro），重启后没改过的文件不再编译，默认 true。
+   * 构建与 Vitest 不用它（Vitest 有自己的模块缓存）
+   */
+  cache?: boolean;
 }
 
 /**
  * Vite 预设：`plugins: [vueTsxPro()]`。组件库构建写 `vueTsxPro({ stylex: false })`，由使用方统一编译 StyleX。
  */
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
-  const plugins: Plugin[] = [runes(options.optimize ?? true)];
-  const tokens = options.tokens ?? '@vue-tsx-pro/ui/tokens.stylex';
-  if (tokens !== false) plugins.push(themeTokens(tokens));
-  if (options.stylex !== false) {
-    // 让编译器同时识别带中文注释的入口 @vue-tsx-pro/tsx/stylex
-    const importSources = [
-      ...(options.stylex?.importSources ?? ['@stylexjs/stylex']),
-      STYLEX_ENTRY,
-    ];
-    const stylexPlugins = toArray(
-      stylex.vite({
-        // 源码与产物编译出相同的变量名（见 stylex-resolution.ts）
-        unstable_moduleResolution: stylexModuleResolution(),
-        ...options.stylex,
-        importSources,
-        // 不把 :dir(rtl) 降级成 :lang(ar, he, …)：降级后镜像只认 lang 属性，dir="rtl" 而 lang 不是
-        // 右到左语言时（或没写 lang）图标不翻转。:dir() 在 Chrome 120、Firefox 49、Safari 16.4 起都支持，
-        // 组件库本来就要求 2024 年后的浏览器（Popover API、@starting-style）
-        lightningcssOptions: {
-          ...options.stylex?.lightningcssOptions,
-          exclude: (options.stylex?.lightningcssOptions?.exclude ?? 0) | Features.DirSelector,
-        },
-      }),
-    );
-    plugins.push(...stylexPlugins.map(skipDevServerWithoutHttp).map(loadStylexModulesOnly));
-  }
-  // _component 与 defineComponent 一样参与热更新与 tree-shaking 标注
-  plugins.push(vueJsx({ defineComponentName: ['defineComponent', '_component'] }));
-  return plugins;
+  if (options.stylex === false) return [compiler(options, undefined)];
+  const { useCSSLayers, enableLTRRTLComments, lightningcssOptions, ...babel } =
+    options.stylex ?? {};
+  const rules = new StylexRules({
+    useCSSLayers,
+    enableLTRRTLComments,
+    // 不把 :dir(rtl) 降级成 :lang(ar, he, …)：降级后镜像只认 lang 属性，dir="rtl" 而 lang 不是
+    // 右到左语言时（或没写 lang）图标不翻转。:dir() 在 Chrome 120、Firefox 49、Safari 16.4 起都支持，
+    // 组件库本来就要求 2024 年后的浏览器（Popover API、@starting-style）
+    lightningcssOptions: {
+      ...lightningcssOptions,
+      exclude: (lightningcssOptions?.exclude ?? 0) | Features.DirSelector,
+    },
+  });
+  const stylex: StylexBabel = {
+    // 源码与产物编译出相同的变量名（见 stylex-resolution.ts）
+    unstable_moduleResolution: stylexModuleResolution(),
+    // 与 @stylexjs/unplugin 一致：开发服务器里带可读的类名与来源
+    dev: process.env.NODE_ENV === 'development' || process.env.BABEL_ENV === 'development',
+    // 打包工具会去掉只被 StyleX 用过的导入，留一个副作用导入保住 .stylex 模块
+    treeshakeCompensation: true,
+    enableLTRRTLComments,
+    ...babel,
+    // 同时识别带中文注释的入口 @vue-tsx-pro/tsx/stylex
+    importSources: [...(babel.importSources ?? ['@stylexjs/stylex']), STYLEX_ENTRY],
+  };
+  return [compiler(options, { babel: stylex, rules }), stylexCss(rules)];
 }
+
+type StylexBabel = Partial<StylexBabelOptions>;
 
 /** Vitest 的插件钩子：只用到其中注册缓存键的部分，不依赖 vitest 的类型 */
 interface VitestHooks {
@@ -85,24 +107,148 @@ interface VitestHooks {
   }) => void;
 }
 
-/** 符文与 props 编译 */
-function runes(optimize: boolean): Plugin & VitestHooks {
+/** 脚本模块：JS、TS 文件，或 Vue 单文件组件里的脚本（…/X.vue?vue&type=script&lang.tsx） */
+const SCRIPT = /\.[cm]?[jt]sx?(?:\?|$)/;
+const SCRIPT_FILE = /\.[cm]?[jt]sx?$/;
+/** 导入的 .stylex 模块（defineVars、defineConsts 只能写在这种文件里） */
+const STYLEX_MODULE_IMPORT = /\bfrom\s*['"]([^'"]+\.stylex(?:\.[cm]?[jt]sx?)?)['"]/g;
+
+/** 编译插件：每个文件一次 compile，加上组件的热更新、SSR 登记 */
+function compiler(
+  options: VueTsxProOptions,
+  stylex: { babel: StylexBabel; rules: StylexRules } | undefined,
+): Plugin & VitestHooks {
+  const optimize = options.optimize ?? true;
+  const tokens = options.tokens ?? '@vue-tsx-pro/ui/tokens.stylex';
+  let root = process.cwd();
+  let hmr = false;
+  let cache: CompileCache | undefined;
   return {
-    name: 'vue-tsx-pro:runes',
+    name: 'vue-tsx-pro',
     enforce: 'pre',
     // 编译器变了，Vitest 缓存的旧编译结果要作废（见 cache-key.ts）
     configureVitest({ defineCacheKeyGenerator }) {
       defineCacheKeyGenerator?.(() => `${compilerCacheKey()}${optimize ? '' : ':plain'}`);
     },
-    async transform(code, id) {
-      const file = id.split('?')[0]!;
-      if (!/\.[cm]?[jt]sx?$/.test(file) || file.includes('/node_modules/')) return;
-      const result = await compileRunes(code, file, { optimize });
-      if (!result) return;
-      for (const warning of result.warnings) this.warn(warning.frame);
-      return { code: result.code, map: result.map };
+    config(user) {
+      const flag = (name: string, fallback: boolean): unknown => {
+        const value = user.define?.[name];
+        if (value === undefined) return fallback;
+        try {
+          return typeof value === 'string' ? JSON.parse(value) : value;
+        } catch {
+          return value;
+        }
+      };
+      return {
+        // .jsx、.tsx 由本插件编译；Vite 自带的 oxc 只去掉 .ts 的类型
+        oxc: { include: /\.[cm]?ts$/ },
+        define: {
+          __VUE_OPTIONS_API__: flag('__VUE_OPTIONS_API__', true),
+          __VUE_PROD_DEVTOOLS__: flag('__VUE_PROD_DEVTOOLS__', false),
+          __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: flag(
+            '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__',
+            false,
+          ),
+        },
+        // 预构建依赖时保留 JSX，不按 React 的方式编译
+        optimizeDeps: { rolldownOptions: { transform: { jsx: 'preserve' } } },
+      };
+    },
+    configResolved(config) {
+      root = config.root;
+      hmr = config.command === 'serve' && !config.isProduction;
+      if ((options.cache ?? true) && config.command === 'serve' && !process.env.VITEST) {
+        const { stylex: _, ...rest } = options;
+        cache = new CompileCache(
+          config.cacheDir,
+          JSON.stringify([rest, stylex?.babel, hmr, process.env.NODE_ENV]),
+        );
+      }
+    },
+    resolveId: (id) => (id === SSR_REGISTER_ID ? id : undefined),
+    load: (id) => (id === SSR_REGISTER_ID ? SSR_REGISTER_CODE : undefined),
+    transform: {
+      filter: { id: SCRIPT },
+      async handler(code, id, transformOptions) {
+        if (id.startsWith('\0')) return;
+        const [file = id, query = ''] = id.split('?');
+        // ?raw、?url 的模块是文件内容或地址，不是要编译的代码
+        if (/(?:^|&)(?:raw|url)(?:&|$)/.test(query)) return;
+        const own = SCRIPT_FILE.test(file) && !file.includes('/node_modules/');
+        const lang = (/(?:^|&)lang\.([jt]sx?)(?:&|$)/.exec(query)?.[1] ??
+          /\.[cm]?([jt]sx?)$/.exec(file)?.[1]) as 'ts' | 'tsx' | 'js' | 'jsx' | undefined;
+        if (!lang) return;
+        const jsx = lang === 'tsx' || lang === 'jsx';
+        const ssr = transformOptions?.ssr === true;
+        const dependencies = stylex ? await loadStylexModules(this, code, id) : [];
+        const tokenFile =
+          own && tokens !== false && needsTokens(code)
+            ? tokenModule(tokens, file, root)?.file
+            : undefined;
+        if (tokenFile) {
+          this.addWatchFile(tokenFile);
+          dependencies.push(tokenFile);
+        }
+
+        const key = cache?.key(ssr ? `${id}\0ssr` : id, code, dependencies);
+        const cached = key ? cache!.read(ssr ? `${id}\0ssr` : id, key) : undefined;
+        if (cached) {
+          stylex?.rules.set(id, cached.stylex);
+          for (const warning of cached.warnings) this.warn(warning);
+          return { code: cached.code, map: cached.map as never };
+        }
+
+        const result = await compile(code, {
+          filename: file,
+          lang,
+          runes: own,
+          optimize,
+          tokens: own && tokens !== false ? () => tokenModule(tokens, file, root) : undefined,
+          stylex: stylex?.babel,
+          jsx: options.jsx,
+          plugins: jsx ? [() => componentMarkers(hmr || ssr)] : undefined,
+        });
+        stylex?.rules.set(id, result?.stylex ?? []);
+        if (!result) return;
+        for (const warning of result.warnings) this.warn(warning.frame);
+
+        let output = result.code;
+        if (jsx && (hmr || ssr)) {
+          const components = exportedComponents(result.ast, id);
+          if (components.length && hmr && !ssr && !/\?vue&type=script/.test(id)) {
+            output += hmrCode(components);
+          }
+          if (components.length && ssr) output += ssrCode(components, id, root);
+        }
+        if (key) {
+          cache!.write(ssr ? `${id}\0ssr` : id, key, {
+            code: output,
+            map: result.map,
+            stylex: result.stylex,
+            warnings: result.warnings.map((warning) => warning.frame),
+          });
+        }
+        return { code: output, map: result.map as never };
+      },
     },
   };
+}
+
+/**
+ * 编译前先加载导入的 .stylex 模块：常量（如断点）的值在定义它的模块编译时才登记，引用方的规则先登记、
+ * 这时正好合成 CSS 的话，媒体查询会留成 var(--哈希)，LightningCSS 报 “Invalid empty selector”。
+ * .stylex 模块只导入 StyleX 本身，等它们不会形成层层等待。返回这些模块的文件（编译缓存的键要包含它们的内容）
+ */
+async function loadStylexModules(context: Rollup.PluginContext, code: string, importer: string) {
+  const files: string[] = [];
+  for (const [, source] of code.matchAll(STYLEX_MODULE_IMPORT)) {
+    const resolved = await context.resolve(source!, importer);
+    if (!resolved || resolved.external) continue;
+    await context.load(resolved);
+    files.push(resolved.id.split('?')[0]!);
+  }
+  return files;
 }
 
 /**
@@ -122,70 +268,6 @@ export function workspaceSource(): Plugin {
         optimizeDeps: { include: ['@stylexjs/stylex'] },
         ssr: { resolve: { conditions: [condition, 'module', 'node', 'development|production'] } },
       };
-    },
-  };
-}
-
-// ───────── 内部实现 ─────────
-
-/** 导入的 .stylex 模块（defineVars、defineConsts 只能写在这种文件里） */
-const STYLEX_MODULE_IMPORT = /\bfrom\s*['"]([^'"]+\.stylex(?:\.[cm]?[jt]sx?)?)['"]/g;
-
-/**
- * 绕过 @stylexjs/unplugin 0.19.1 的问题：监听模式（开发服务器）下它每编译完一个文件，就对文件里的每个导入
- * this.resolve + this.load。每个模块要等它的整棵导入树都编译完才返回，并行编译变成层层等待，
- * 文档站冷启动第一页多等十几秒。这里让它以为不在监听模式，改为编译前先加载导入的 .stylex 模块：
- * 常量（如断点）的值在定义它的模块编译时才登记，引用方的规则先登记、这时正好收集 CSS 的话，
- * 媒体查询会留成 var(--哈希)，LightningCSS 报 “Invalid empty selector”（浏览器测试里出现过）。
- * .stylex 模块只导入 StyleX 本身，等它们不会形成层层等待
- */
-function loadStylexModulesOnly(plugin: Plugin): Plugin {
-  const hook = plugin.transform;
-  if (!hook) return plugin;
-  const handler = typeof hook === 'function' ? hook : hook.handler;
-  const transform = async function (
-    this: ThisParameterType<typeof handler>,
-    ...args: Parameters<typeof handler>
-  ) {
-    const context = new Proxy(this, {
-      get(target, key) {
-        if (key === 'meta') return { ...target.meta, watchMode: false };
-        const value: unknown = Reflect.get(target, key, target);
-        // 上下文的方法可能用到私有字段：绑定回原对象
-        return typeof value === 'function' ? value.bind(target) : value;
-      },
-    });
-    const [code, id] = args;
-    for (const [, source] of code.matchAll(STYLEX_MODULE_IMPORT)) {
-      const resolved = await this.resolve(source!, id);
-      if (resolved && !resolved.external) await this.load(resolved);
-    }
-    return handler.apply(context, args);
-  };
-  return {
-    ...plugin,
-    transform: typeof hook === 'function' ? transform : { ...hook, handler: transform },
-  };
-}
-
-/** unplugin 生成的 Vite 插件可能是单个插件，也可能是数组 */
-function toArray(plugin: unknown): Plugin[] {
-  return (Array.isArray(plugin) ? plugin : [plugin]) as Plugin[];
-}
-
-/**
- * 绕过 @stylexjs/unplugin 0.19.1 的问题：它在 configureServer 里启动 150ms 轮询，
- * 只在 httpServer 关闭时清理。Vitest 等中间件模式没有 httpServer，定时器永不清理，
- * 进程退出要多等 10 秒。这种模式也用不到它的开发服务器功能（CSS 端点、热更新推送），直接跳过。
- */
-function skipDevServerWithoutHttp(plugin: Plugin): Plugin {
-  const original = plugin.configureServer;
-  if (typeof original !== 'function') return plugin;
-  return {
-    ...plugin,
-    configureServer(server) {
-      if (!server.httpServer) return;
-      return original.call(this, server);
     },
   };
 }

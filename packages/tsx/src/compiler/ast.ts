@@ -1,7 +1,9 @@
 /** 与符文无关的 AST 判断与改写工具 */
-import { types as t, type NodePath } from '@babel/core';
-import type { Binding } from '@babel/traverse';
+import { types as t, type NodePath, type Scope } from '@babel/core';
 import { fail } from './errors.ts';
+
+/** 作用域里的一个绑定（@babel/traverse 的 Binding；本包只依赖 @babel/core，从 Scope 取它的类型） */
+export type Binding = NonNullable<ReturnType<Scope['getBinding']>>;
 
 /** Babel 解析插件：.ts 不能开 JSX，否则 <T>value 类型断言、<T>(x) => x 泛型箭头函数会被当作 JSX 解析 */
 export function parserPlugins(filename: string): ('jsx' | 'typescript')[] {

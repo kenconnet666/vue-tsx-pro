@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { vueTsxPro } from '../src/vite/index';
 
 it('vue-tsx-pro:runes 插件向 Vitest 注册缓存键：编译器代码的哈希，同一进程内不变', () => {
-  const runes = vueTsxPro().find((plugin) => plugin.name === 'vue-tsx-pro:runes') as unknown as {
+  const runes = vueTsxPro().find((plugin) => plugin.name === 'vue-tsx-pro') as unknown as {
     configureVitest: (context: {
       defineCacheKeyGenerator: (generator: () => string) => void;
     }) => void;

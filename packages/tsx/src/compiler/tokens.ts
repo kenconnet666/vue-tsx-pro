@@ -6,9 +6,10 @@
  * 改写成 token 变量并补上 import。在 StyleX 编译之前运行，StyleX 看到的就是手写 import 的变量；
  * 组件库构建不编译 StyleX，也要做这一步，产物里才不会留下字符串。
  */
-import { transformAsync, types as t, type NodePath, type PluginObj } from '@babel/core';
+import { transformAsync, types as t, type NodePath, type PluginObject } from '@babel/core';
 import { TOKEN_GROUP_OF } from '../stylex/token-map.ts';
 import { parserPlugins } from './ast.ts';
+import type { SourceMap } from './compile.ts';
 import { fail } from './errors.ts';
 
 /** token 模块：生成的 import 写哪个路径，以及各组有哪些 token */
@@ -30,13 +31,12 @@ const TOKEN = /^_(?:(\w+)\.)?(\w+)$/;
  * 把 stylex.create / keyframes 里的 token 字符串（'_xs'、'_space.md'、'calc(-1 * _sm)'）改写成 token 变量，
  * 并补上 import；没有这种写法时返回 null，写错时抛出带代码帧的错误。
  */
-export async function compileTokens(code: string, filename: string, load: TokenModuleLoader) {
-  if (
-    !/(?<![\w$.-])_[A-Za-z]/.test(code) ||
-    !/@stylexjs\/stylex|@vue-tsx-pro\/tsx\/stylex/.test(code)
-  ) {
-    return null;
-  }
+export async function compileTokens(
+  code: string,
+  filename: string,
+  load: TokenModuleLoader,
+): Promise<{ code: string; map: SourceMap | null } | null> {
+  if (!needsTokens(code)) return null;
   const state = { changed: false };
   const result = await transformAsync(code, {
     filename,
@@ -47,10 +47,18 @@ export async function compileTokens(code: string, filename: string, load: TokenM
     plugins: [() => tokensBabelPlugin(load, state)],
   });
   if (!result || !state.changed) return null;
-  return { code: result.code ?? '', map: result.map };
+  return { code: result.code ?? '', map: result.map ?? null };
 }
 
-function tokensBabelPlugin(load: TokenModuleLoader, state: { changed: boolean }): PluginObj {
+/** 文件里可能有 token 写法（解析之前的快速判断）：有下划线开头的词，且导入了 StyleX */
+export const needsTokens = (code: string) =>
+  /(?<![\w$.-])_[A-Za-z]/.test(code) && /@stylexjs\/stylex|@vue-tsx-pro\/tsx\/stylex/.test(code);
+
+/** token 写法的 Babel 插件；state.changed 记下有没有改写 */
+export function tokensBabelPlugin(
+  load: TokenModuleLoader,
+  state = { changed: false },
+): PluginObject {
   return {
     name: 'vue-tsx-pro-tokens',
     visitor: {
@@ -131,10 +139,12 @@ class TokenRewriter {
     const specifiers = [...this.locals].map(([group, local]) =>
       t.importSpecifier(local, t.identifier(group)),
     );
-    this.program.unshiftContainer(
+    const [declaration] = this.program.unshiftContainer(
       'body',
       t.importDeclaration(specifiers, t.stringLiteral(this.module!.importPath)),
     );
+    // 同一遍里接着运行的 StyleX 要从作用域找到这些变量才能求值
+    this.program.scope.registerDeclaration(declaration!);
     return true;
   }
 
@@ -165,7 +175,7 @@ class TokenRewriter {
   }
 
   /** 属性值：字符串、回退数组、按条件取值的对象（条件可嵌套）、动态样式里的三元表达式 */
-  private rewriteValue(property: string, value: NodePath<t.Node | null | undefined>) {
+  private rewriteValue(property: string, value: NodePath<t.Node | null>) {
     if (value.isStringLiteral()) {
       const replacement = this.rewriteString(property, value.node.value, value);
       if (replacement) value.replaceWith(replacement);

@@ -34,10 +34,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'packages/tsx/src/stylex/styles.ts');
 const require = createRequire(join(root, 'packages/tsx/package.json'));
 const stylexDir = dirname(require.resolve('@stylexjs/stylex/package.json'));
-// 编译器是 @stylexjs/unplugin 的依赖，从它那里解析
-const compilerEntry = createRequire(require.resolve('@stylexjs/unplugin')).resolve(
-  '@stylexjs/babel-plugin',
-);
+const compilerEntry = require.resolve('@stylexjs/babel-plugin');
 const mdn = createRequire(join(root, 'package.json'))('mdn-data/css/properties.json');
 const docs = JSON.parse(readFileSync(join(root, 'scripts/css-docs/docs.json'), 'utf8'));
 

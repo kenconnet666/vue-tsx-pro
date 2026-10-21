@@ -4,8 +4,7 @@
  */
 import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
-// CommonJS 包，导出是运行时逐个挂上去的：要用默认导入拿整个 exports 对象，命名空间导入拿不到
-import types from '@babel/types';
+import * as types from '@babel/types';
 
 /** StyleX 用到的那几个包 */
 export const packages = {

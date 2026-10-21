@@ -9,7 +9,7 @@
 | 项         | 决定                                                                                                 |
 | ---------- | ---------------------------------------------------------------------------------------------------- |
 | 渲染       | 只做 Vue 3.5 虚拟 DOM；只写 TSX                                                                      |
-| 编译       | 我们的符文编译器（Babel 7）先执行，再交给官方插件：StyleX → `@vitejs/plugin-vue-jsx`                 |
+| 编译       | 一个 Vite 插件、每个文件解析一次：符文编译器与官方的 StyleX、Vue JSX Babel 插件组合（Babel 8）       |
 | 文件范围   | 不按目录隔离：只有用到符文或 `_component` 的文件被改写，宿主其他代码原样交给后续插件                 |
 | 响应式写法 | 下划线符文，语义对标 Svelte 5，编译为 Vue 原生 API（[RUNES.md](RUNES.md)）                           |
 | 组件       | 只有 props：参数解构即 props；内容用 `children`；通知用 `onXxx`；不用 slot / emit / expose           |
@@ -23,9 +23,9 @@
 ```
 packages/
   tsx/   @vue-tsx-pro/tsx
-    src/compiler/   符文编译器（纯函数，不依赖 Vite）
+    src/compiler/   编译器（纯函数，不依赖 Vite）：符文、token 写法，compile 组合全部步骤
     src/runtime/    _component、prop 访问器、overridable / snapshot / effect
-    src/vite/       Vite 预设：符文 → StyleX → @vitejs/plugin-vue-jsx
+    src/vite/       Vite 预设：调用 compile、组件热更新、StyleX 的 CSS、编译缓存
     src/stylex/     StyleX 类型入口（属性中文注释，scripts/css-docs 生成）
     types/          符文全局类型、jsx-runtime 类型
   ui/    @vue-tsx-pro/ui

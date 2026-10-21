@@ -1,5 +1,5 @@
 /**
- * 主题 tokens 字符串写法（`fontSize: '_xs'`）的 Vite 插件：找到 token 模块、读出各组 token 名，
+ * 主题 tokens 字符串写法（`fontSize: '_xs'`）用到的 token 模块：按导入方找到它、读出各组 token 名，
  * 交给编译器改写成 token 变量（compiler/tokens.ts）。
  *
  * 生成的 import 写什么路径：
@@ -9,34 +9,16 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { parseSync, types as t } from '@babel/core';
-import type { Plugin } from 'vite';
-import { compileTokens, type TokenModule } from '../compiler/index.ts';
+import type { TokenModule } from '../compiler/index.ts';
 import { packageRoot, requireFrom, resolveFromExports } from './stylex-resolution.ts';
-
-/** token 字符串写法的 Vite 插件；specifier 是 token 模块的包名或相对项目根目录的路径 */
-export function themeTokens(specifier: string): Plugin {
-  let root = process.cwd();
-  return {
-    name: 'vue-tsx-pro:tokens',
-    enforce: 'pre',
-    configResolved(config) {
-      root = config.root;
-    },
-    async transform(code, id) {
-      const file = id.split('?')[0]!;
-      if (!/\.[cm]?[jt]sx?$/.test(file) || file.includes('/node_modules/')) return;
-      return compileTokens(code, file, () => {
-        const module = tokenModule(specifier, file, root);
-        if (module) this.addWatchFile(module.file);
-        return module;
-      });
-    },
-  };
-}
 
 const isPath = (specifier: string) => specifier.startsWith('.') || isAbsolute(specifier);
 
-function tokenModule(
+/**
+ * importer 用的 token 模块，找不到时返回 null。specifier 是包名或相对项目根目录的路径；
+ * file 是模块文件，调用方要监听它（token 改名后重新编译用到的文件）
+ */
+export function tokenModule(
   specifier: string,
   importer: string,
   root: string,

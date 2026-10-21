@@ -42,8 +42,6 @@
     "@babel/traverse": "catalog:",
     "@babel/types": "catalog:",
     "@stylexjs/babel-plugin": "catalog:",
-    "@types/babel__core": "catalog:",
-    "@types/babel__traverse": "catalog:",
     "@vitest/browser-playwright": "catalog:",
     "@vue/babel-plugin-jsx": "catalog:",
     "axe-core": "catalog:",

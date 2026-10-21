@@ -17,9 +17,21 @@ export default _component(() => {
       <CodeGroup
         value={_bind(manager)}
         items={[
-          { label: 'pnpm', code: 'pnpm add -D vite @vitejs/plugin-vue-jsx', lang: 'bash' },
-          { label: 'npm', code: 'npm install -D vite @vitejs/plugin-vue-jsx', lang: 'bash' },
-          { label: 'yarn', code: 'yarn add -D vite @vitejs/plugin-vue-jsx', lang: 'bash' },
+          {
+            label: 'pnpm',
+            code: 'pnpm add @vue-tsx-pro/ui @vue-tsx-pro/tsx @stylexjs/stylex',
+            lang: 'bash',
+          },
+          {
+            label: 'npm',
+            code: 'npm install @vue-tsx-pro/ui @vue-tsx-pro/tsx @stylexjs/stylex',
+            lang: 'bash',
+          },
+          {
+            label: 'yarn',
+            code: 'yarn add @vue-tsx-pro/ui @vue-tsx-pro/tsx @stylexjs/stylex',
+            lang: 'bash',
+          },
         ]}
       />
     </Flex>
