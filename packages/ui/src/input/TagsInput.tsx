@@ -294,7 +294,12 @@ export const TagsInput = _component(
             {...mergeAttrs<'div'>(
               { sx: [controlSx(appearance(), state), tagsInputStyles.root] },
               propsRoot,
-              { ref: _toRef(shell), onPointerdown: focusOnShell(() => input) },
+              {
+                ref: _toRef(shell),
+                // 外壳里的标签不是原生控件的一部分：不可用要写在外壳上，辅助技术才把它们一起当作不可用
+                'aria-disabled': state.disabled || undefined,
+                onPointerdown: focusOnShell(() => input),
+              },
             )}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}

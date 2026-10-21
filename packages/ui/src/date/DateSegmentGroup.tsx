@@ -169,7 +169,13 @@ export const DateSegmentGroup = _component(
               'aria-describedby': describedBy,
             },
             rest,
-            { ref: _toRef(root), role: 'group', onFocusout },
+            // 整组标为不可用：标签（for 指向这一组）随之按不可用处理，不只是各段
+            {
+              ref: _toRef(root),
+              role: 'group',
+              'aria-disabled': disabled || undefined,
+              onFocusout,
+            },
           )}
           data-invalid={invalid || undefined}
           data-disabled={disabled || undefined}

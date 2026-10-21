@@ -1,4 +1,4 @@
-// TagsInput：回车、分隔符、粘贴加入；重复与上限；退格删最后一个（建议列表用原生 popover，见浏览器测试）
+// TagsInput：回车、分隔符、粘贴加入；重复与上限；退格删最后一个；不可用（建议列表用原生 popover，见浏览器测试）
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
@@ -47,5 +47,13 @@ describe('TagsInput', () => {
     expect(value).toEqual(['a', 'c', 'd']);
     await nextTick();
     expect(tags(root)).toEqual(['a', 'c', 'd']);
+  });
+
+  it('不可用：输入框 disabled，外壳 aria-disabled（标签在外壳里），标签没有移除按钮', () => {
+    const root = mount(() => <TagsInput value={['a', 'b']} disabled aria-label="x" />);
+    const input = root.querySelector('input')!;
+    expect(input.disabled).toBe(true);
+    expect(input.parentElement!.getAttribute('aria-disabled')).toBe('true');
+    expect(root.querySelector('[data-tag] button')).toBeNull();
   });
 });

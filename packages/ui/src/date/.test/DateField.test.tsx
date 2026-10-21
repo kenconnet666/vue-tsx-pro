@@ -159,11 +159,12 @@ describe('DateField', () => {
     expect(text(root)).toBe('2026年10月');
   });
 
-  it('不可用：段不能聚焦、不可编辑', () => {
+  it('不可用：段不能聚焦、不可编辑；整组 aria-disabled（标签的 for 指向这一组）', () => {
     const root = mount(() => <DateField disabled aria-label="日期" />);
     expect(
       segments(root).every((item) => item.tabIndex === -1 && !item.hasAttribute('contenteditable')),
     ).toBe(true);
+    expect(root.querySelector('[role="group"]')!.getAttribute('aria-disabled')).toBe('true');
   });
 });
 

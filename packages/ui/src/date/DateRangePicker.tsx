@@ -307,6 +307,7 @@ export const DateRangePicker = _component(
               {
                 ref: picker.anchorRef,
                 role: 'group',
+                'aria-disabled': state.disabled || undefined,
                 onPointerdown: state.disabled ? undefined : focusOnShell(firstEmpty),
               },
             )}
