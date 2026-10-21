@@ -415,6 +415,66 @@ export function useMenuItem() {
   return { menu, ripple: useRipple(() => menu.ripple), close: () => menu.close() };
 }
 
+/** 按钮类菜单项这一次渲染的取值 */
+interface ButtonItemOptions {
+  role: 'menuitem' | 'menuitemcheckbox' | 'menuitemradio';
+  tone?: MenuItemTone;
+  disabled: boolean;
+  closeOnSelect: boolean;
+  /** 勾选与单选项的状态；普通项不写 */
+  checked?: boolean;
+  /** 勾选与单选项起始边的标记 */
+  indicator?: MenuItemMark;
+  content: MenuItemContentProps;
+  /** 使用方的其余属性，落到 button 上 */
+  attrs: object;
+}
+
+/**
+ * 按钮类菜单项（MenuItem、MenuCheckboxItem、MenuRadioItem）共用的：快捷键、说明的关联、外观与角色，
+ * 执行（点击、Enter、空格、快捷键）时调用 run，点击后按 closeOnSelect 关闭菜单。返回渲染函数
+ */
+function useButtonItem(
+  read: () => { shortcut?: string; disabled: boolean },
+  run: () => void,
+): (options: ButtonItemOptions) => VNodeChild {
+  const item = useMenuItem();
+  const ids = useMenuItemContentIds();
+  useItemShortcut(read, run);
+  return ({
+    role,
+    tone = 'neutral',
+    disabled,
+    closeOnSelect,
+    checked,
+    indicator,
+    content,
+    attrs,
+  }) => (
+    <ButtonBase
+      {...mergePartProps<ButtonBaseProps>(
+        { sx: menuItemSx(tone, disabled), ripple: item.menu.ripple },
+        attrs as Partial<ButtonBaseProps>,
+        {
+          role,
+          disabled,
+          'aria-keyshortcuts': keyShortcuts(content.shortcut),
+          'aria-checked': checked,
+          ...menuItemDescribedBy(content.description, ids),
+          // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
+          onClick: () => {
+            run();
+            if (closeOnSelect) item.close();
+          },
+        },
+      )}
+      data-state={checked == null ? undefined : checked ? 'checked' : 'unchecked'}
+    >
+      {menuItemContent(content, indicator, ids)}
+    </ButtonBase>
+  );
+}
+
 /** 按钮类菜单项共有的属性；未声明的属性落到 button 上 */
 export interface MenuButtonItemProps
   extends PartProps<'button', 'role' | 'type' | 'disabled' | 'aria-checked'>, MenuItemContentProps {
@@ -449,46 +509,28 @@ export const MenuItem = _component(
     children,
     ...rest
   }: MenuItemProps) => {
-    const item = useMenuItem();
-    const ids = useMenuItemContentIds();
-    useItemShortcut(
+    const render = useButtonItem(
       () => ({ shortcut, disabled }),
       () => onAction?.(),
     );
-    return () => (
-      <ButtonBase
-        {...mergePartProps<ButtonBaseProps>(
-          { sx: menuItemSx(tone, disabled), ripple: item.menu.ripple },
-          rest as Partial<ButtonBaseProps>,
-          {
-            role: 'menuitem',
-            disabled,
-            'aria-keyshortcuts': keyShortcuts(shortcut),
-            ...menuItemDescribedBy(description, ids),
-            // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
-            onClick: () => {
-              onAction?.();
-              if (closeOnSelect) item.close();
-            },
-          },
-        )}
-      >
-        {menuItemContent(
-          {
-            icon,
-            shortcut,
-            description,
-            propsIcon,
-            propsLabel,
-            propsShortcut,
-            propsDescription,
-            children,
-          },
-          undefined,
-          ids,
-        )}
-      </ButtonBase>
-    );
+    return () =>
+      render({
+        role: 'menuitem',
+        tone,
+        disabled,
+        closeOnSelect,
+        attrs: rest,
+        content: {
+          icon,
+          shortcut,
+          description,
+          propsIcon,
+          propsLabel,
+          propsShortcut,
+          propsDescription,
+          children,
+        },
+      });
   },
 );
 
@@ -581,47 +623,29 @@ export const MenuCheckboxItem = _component(
     children,
     ...rest
   }: MenuCheckboxItemProps) => {
-    const item = useMenuItem();
-    const ids = useMenuItemContentIds();
-    useItemShortcut(
+    const render = useButtonItem(
       () => ({ shortcut, disabled }),
       () => (checked = !checked),
     );
-    return () => (
-      <ButtonBase
-        {...mergePartProps<ButtonBaseProps>(
-          { sx: menuItemSx('neutral', disabled), ripple: item.menu.ripple },
-          rest as Partial<ButtonBaseProps>,
-          {
-            role: 'menuitemcheckbox',
-            disabled,
-            'aria-keyshortcuts': keyShortcuts(shortcut),
-            'aria-checked': checked,
-            ...menuItemDescribedBy(description, ids),
-            onClick: () => {
-              checked = !checked;
-              if (closeOnSelect) item.close();
-            },
-          },
-        )}
-        data-state={checked ? 'checked' : 'unchecked'}
-      >
-        {menuItemContent(
-          {
-            icon,
-            shortcut,
-            description,
-            propsIcon,
-            propsLabel,
-            propsShortcut,
-            propsDescription,
-            children,
-          },
-          { icon: Check, checked, props: propsIndicator },
-          ids,
-        )}
-      </ButtonBase>
-    );
+    return () =>
+      render({
+        role: 'menuitemcheckbox',
+        disabled,
+        closeOnSelect,
+        checked,
+        indicator: { icon: Check, checked, props: propsIndicator },
+        attrs: rest,
+        content: {
+          icon,
+          shortcut,
+          description,
+          propsIcon,
+          propsLabel,
+          propsShortcut,
+          propsDescription,
+          children,
+        },
+      });
   },
 );
 
@@ -719,50 +743,31 @@ export const MenuRadioItem = _component(
     children,
     ...rest
   }: MenuRadioItemProps) => {
-    const item = useMenuItem();
-    const ids = useMenuItemContentIds();
     const group = MenuRadioGroupContext.inject();
-    useItemShortcut(
+    const render = useButtonItem(
       () => ({ shortcut, disabled }),
       () => group.select(value),
     );
     return () => {
       const checked = group.value === value;
-      return (
-        <ButtonBase
-          {...mergePartProps<ButtonBaseProps>(
-            { sx: menuItemSx('neutral', disabled), ripple: item.menu.ripple },
-            rest as Partial<ButtonBaseProps>,
-            {
-              role: 'menuitemradio',
-              disabled,
-              'aria-keyshortcuts': keyShortcuts(shortcut),
-              'aria-checked': checked,
-              ...menuItemDescribedBy(description, ids),
-              onClick: () => {
-                group.select(value);
-                if (closeOnSelect) item.close();
-              },
-            },
-          )}
-          data-state={checked ? 'checked' : 'unchecked'}
-        >
-          {menuItemContent(
-            {
-              icon,
-              shortcut,
-              description,
-              propsIcon,
-              propsLabel,
-              propsShortcut,
-              propsDescription,
-              children,
-            },
-            { icon: Dot, checked, props: propsIndicator },
-            ids,
-          )}
-        </ButtonBase>
-      );
+      return render({
+        role: 'menuitemradio',
+        disabled,
+        closeOnSelect,
+        checked,
+        indicator: { icon: Dot, checked, props: propsIndicator },
+        attrs: rest,
+        content: {
+          icon,
+          shortcut,
+          description,
+          propsIcon,
+          propsLabel,
+          propsShortcut,
+          propsDescription,
+          children,
+        },
+      });
     };
   },
 );
