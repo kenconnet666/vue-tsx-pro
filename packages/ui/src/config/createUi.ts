@@ -15,6 +15,7 @@ import { ConfigContext, defaultConfig, type Highlighter, type UiRouter } from '.
 import type { ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
+import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
 
@@ -32,6 +33,8 @@ export interface UiOptions {
   router?: UiRouter;
   /** 请求客户端：createHttpClient({ baseURL, onRequest, onResponse })，或包一层 axios、ky（见 HttpClient） */
   http?: HttpClient;
+  /** 工作日历：createWorkCalendar({ holidays, workdays }) 带上法定节假日与调休；不写时只按周末算 */
+  workCalendar?: WorkCalendar;
   /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
   ripple?: boolean;
   /**
@@ -84,6 +87,7 @@ export function createUi(options: UiOptions = {}): Plugin {
           defaults: options.defaults ?? {},
           router: options.router,
           http: options.http,
+          workCalendar: options.workCalendar,
           ripple: options.ripple ?? true,
         });
         // 应用级的语言也写在页面根元素上（Provider 写在自己的元素上）：读屏按 lang 选发音，

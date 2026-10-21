@@ -5,6 +5,7 @@ import { ConfigContext, useConfig, type Highlighter, type UiRouter } from './con
 import { mergeDefaults, type ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
+import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
 
@@ -22,6 +23,8 @@ export interface ProviderProps {
   router?: UiRouter;
   /** 请求客户端；不写时沿用上层配置 */
   http?: HttpClient;
+  /** 工作日历；不写时沿用上层配置 */
+  workCalendar?: WorkCalendar;
   /** 波纹效果的开关；不写时沿用上层配置 */
   ripple?: boolean;
   children?: VNodeChild;
@@ -44,7 +47,17 @@ export const providerStyles = stylex.create({
  * 应用级配置见 createUi。
  */
 export const Provider = _component(
-  ({ theme, lang, highlighter, defaults, router, http, ripple, children }: ProviderProps) => {
+  ({
+    theme,
+    lang,
+    highlighter,
+    defaults,
+    router,
+    http,
+    workCalendar,
+    ripple,
+    children,
+  }: ProviderProps) => {
     const parent = useConfig();
     const prefersDark = usePrefersDark();
     const currentTheme = _derived(theme ? resolveTheme(theme, prefersDark.value) : parent.theme);
@@ -68,6 +81,9 @@ export const Provider = _component(
       },
       get http() {
         return http ?? parent.http;
+      },
+      get workCalendar() {
+        return workCalendar ?? parent.workCalendar;
       },
       get ripple() {
         return ripple ?? parent.ripple;

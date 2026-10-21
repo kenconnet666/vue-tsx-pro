@@ -3,6 +3,7 @@
  * 都没有时使用默认值（亮色主题 + 简体中文），组件单独使用也能工作。
  */
 import { createContext } from '@vue-tsx-pro/tsx';
+import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
 import type { ComponentDefaults } from './defaults';
 import type { Lang } from './lang/lang';
@@ -50,6 +51,8 @@ export interface UiConfig {
   readonly router?: UiRouter;
   /** 请求客户端（远程选项、上传、列表查询用）；没有时 useHttp 给一个默认的 createHttpClient() */
   readonly http?: HttpClient;
+  /** 工作日历（时限、剩余工作日用）；没有时只按周末算 */
+  readonly workCalendar?: WorkCalendar;
   /** 可点击组件按下时的波纹效果，默认开启；组件的 ripple prop 可以单独覆盖 */
   readonly ripple: boolean;
 }

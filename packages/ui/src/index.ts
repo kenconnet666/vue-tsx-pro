@@ -1394,6 +1394,19 @@ export {
   type TreeExpansionOptions,
   type TreeIndex,
 } from './utils/data/tree';
+export {
+  addWorkdays,
+  createWorkCalendar,
+  deadlineOf,
+  useWorkCalendar,
+  weekdayCalendar,
+  workdaysBetween,
+  type Deadline,
+  type DeadlineInput,
+  type DeadlineStates,
+  type WorkCalendar,
+  type WorkCalendarOptions,
+} from './utils/data/workdays';
 
 // 工具：虚拟滚动
 export {
