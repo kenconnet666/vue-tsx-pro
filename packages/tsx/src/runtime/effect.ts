@@ -17,6 +17,8 @@ export function effect(fn: EffectFn, flush: 'pre' | 'post' = 'post'): void {
       '_effect 需要在组件函数体、组件里调用的组合式函数、或另一个 _effect 里创建，否则不会自动停止；需要手动管理时用 _effect.root',
     );
   }
+  // 服务端渲染不执行副作用（同 Svelte）：Vue 在服务端会立即执行 flush: 'pre' 的 watchEffect，只跳过 post
+  if (typeof document === 'undefined') return;
   watchEffect(
     (onCleanup) => {
       // 每次执行一个作用域：这次执行里创建的 _effect 属于它，下次执行前一起销毁（同 Svelte 的嵌套 effect）

@@ -279,6 +279,19 @@ describe('编译警告', () => {
     expect((await compileRunes(code))!.warnings).toEqual([]);
   });
 
+  it('const 的状态（对象读到的就是那个响应式对象）、函数体里的 n++ 不警告', async () => {
+    const code = [
+      '_component(() => {',
+      "  const form = _state({ name: '' });",
+      '  register(form);',
+      '  let count = _state(0);',
+      '  count++;',
+      '  return () => count;',
+      '})',
+    ].join('\n');
+    expect((await compileRunes(code))!.warnings).toEqual([]);
+  });
+
   it('_untrack(x)：有意只取当前值，不警告；编译成 untrack(() => …)', async () => {
     const code = [
       '_component(({ open = false }: { open?: boolean }) => {',

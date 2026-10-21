@@ -313,6 +313,8 @@ export class RunesTransform {
       }
       for (const reference of binding.referencePaths) {
         if (!isAttached(reference) || isInTypePosition(reference)) continue;
+        // 既读又写的（n++、n += 1）在上面按写入改写过了：节点已是 n.value
+        if (!t.isIdentifier(reference.node) && !t.isJSXIdentifier(reference.node)) continue;
         this.rewriteRead(reference, binding, info);
       }
     }
@@ -353,8 +355,9 @@ export class RunesTransform {
     }
 
     const owner = reference.getFunctionParent();
-    // _untrack(x) 明确表示只要当前值，不警告
-    if (owner && isComponentSetup(owner) && !isInsideUntrack(reference)) {
+    // _untrack(x) 明确表示只要当前值，不警告；const 的状态不会被整体替换（对象读到的就是那个响应式对象），也不警告
+    const fixed = !info.writable && info.source === '_state';
+    if (owner && isComponentSetup(owner) && !fixed && !isInsideUntrack(reference)) {
       this.warnings.push(
         warning(
           reference,

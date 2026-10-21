@@ -110,7 +110,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ### 1.4 编译器（tsx）
 
-- [ ] `_effect.pre` 在服务端不执行；警告的误报（const 的对象状态）与 `n++` 的警告位置
+- [x] `_effect` / `_effect.pre` 在服务端不执行（Vue 会立即执行 pre 的 watchEffect）；const 的状态在函数体里读取不再警告；
+      `n++` 这类既读又写的不再出没有位置的警告
 - [ ] 渲染优化遍改成自底向上汇总（现在对嵌套深度近似立方）
 - [ ] token 写法遇到不支持的形状时报错（不静默留下 `'_lg'`）；`_derived` 里写状态、`_untrack(() => x)` 报错
 - [ ] `_bindable` 的默认值随前面的 prop 更新；`snapshot` 复制 Map、Set、类型化数组；解构的 `_derived` 按变量取路径
