@@ -176,9 +176,12 @@ describe('useDefaults', () => {
       [...root.querySelectorAll(`.${look} *`)].map((node) => node.getAttribute('class'));
     expect(classes(el, 'defaults')).toEqual(classes(el, 'explicit'));
     // 没有 Provider 时是各自的默认外观，不同于上面
-    expect(classes(mount(() => samples('defaults')), 'defaults')).not.toEqual(
-      classes(el, 'defaults'),
-    );
+    expect(
+      classes(
+        mount(() => samples('defaults')),
+        'defaults',
+      ),
+    ).not.toEqual(classes(el, 'defaults'));
   });
 });
 
