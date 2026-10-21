@@ -14,7 +14,7 @@
     "dev:docs": "pnpm --filter @vue-tsx-pro/docs dev",
     "build:docs": "pnpm --filter @vue-tsx-pro/docs build",
     "build:host": "pnpm --filter @vue-tsx-pro/host-demo build",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm -r --parallel typecheck",
     "test": "vitest run --configLoader native",
     "test:browser": "pnpm --filter \"./apps/**\" test:browser",
     "test:consumer": "node tests/consumer/run.mjs",

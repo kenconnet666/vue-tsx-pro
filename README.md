@@ -84,7 +84,7 @@ const styles = stylex.create({
 ```bash
 pnpm install
 pnpm build          # 依次构建 tsx、ui
-pnpm typecheck      # 各包类型检查（TypeScript 7，全部约 15 秒）
+pnpm typecheck      # 各包并行做类型检查（TypeScript 7，增量：首次约 7 秒，之后两三秒）
 pnpm test           # 先构建 tsx，再运行各包测试
 pnpm dev:docs       # 启动文档站（http://localhost:5174，固定端口）
 pnpm build:docs     # 构建文档站静态页面

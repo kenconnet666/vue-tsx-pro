@@ -53,7 +53,7 @@
   ],
   "scripts": {
     "build": "vite build --configLoader native && node ../../node_modules/typescript7/bin/tsc -p tsconfig.build.json",
-    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p .",
+    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
     "test": "vitest run --configLoader native"
   },
   "dependencies": {
