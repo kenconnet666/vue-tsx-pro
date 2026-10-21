@@ -43,6 +43,8 @@ export const zhCN: Lang = {
   tableSummary: '合计',
   tableSelectedCount: (count) => `已选 ${count} 项`,
   tableClearSelection: '取消选择',
+  tableDetails: '详情',
+  tableRowDetails: (row) => `${row} 的详情`,
   chartEmpty: '暂无数据',
   chartCategory: '类目',
   chartValue: '数值',

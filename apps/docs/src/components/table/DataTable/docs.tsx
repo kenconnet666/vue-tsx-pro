@@ -13,6 +13,7 @@ import Infinite from './demo/Infinite.tsx?demo';
 import Ledger from './demo/Ledger.tsx?demo';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
+import Proposals from './demo/Proposals.tsx?demo';
 import States from './demo/States.tsx?demo';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 
@@ -50,6 +51,12 @@ export default _component(() => () => (
     <Example id="changes" title="零件更改对比：分组表头" demo={Changes}>
       <Code>columnGroups</Code> 写组标题与组里各列的
       key：相邻的几列上方共用一个标题，表头变成两行，没分组的列跨两行；组与相邻的列之间有竖线，固定列照常固定。列定义仍是平铺的，排序、列宽、隐藏列都按列算，组里的列全隐藏时这一组也不显示。
+    </Example>
+    <Example id="details" title="供应商降本建议：展开行" demo={Proposals}>
+      <Code>renderDetail</Code> 给出一行的详情：多一列展开按钮（aria-expanded，aria-controls
+      指向详情），展开的行下面多一行跨全部列的详情，虚拟滚动按真实高度测量；<Code>hasDetail</Code>{' '}
+      决定哪些行能展开，<Code>expandedRows</Code>{' '}
+      可以双向绑定。详情横向滚动时贴着可见区域的起始边，宽度不超过可见区域。
     </Example>
     <Examples>
       <ExampleColumn>

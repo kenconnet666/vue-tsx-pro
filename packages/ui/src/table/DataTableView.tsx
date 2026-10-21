@@ -10,15 +10,19 @@
  *   固定列的单元格继承行的底色，盖住滚过去的内容。
  * - 排序：可排序的列标题是按钮，th 带 aria-sort；勾选列用 Checkbox（表头的全选有部分选中状态）。
  * - 列宽：表头结束边的 ColumnResizer（拖动或 ← / →）调整；固定列偏移与最小宽度的计算在 columns.ts。
+ * - 详情行（renderDetail）：多一列展开按钮（aria-expanded、aria-controls），展开的行下面多一行跨全部列的详情；
+ *   详情在虚拟滚动里也算一行（测量真实高度），内容贴着视口的起始边，横向滚动时不跟着滚走。
  * - 加载：没有数据时显示骨架行；已有数据（刷新中）时表头下方显示一条进度条；表格带 aria-busy。没有数据时显示 Empty。
  */
-import { ArrowDown, ArrowUp, ArrowUpDown } from '@lucide/icons';
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
 import { StatusBadge } from '../base/Badge';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Icon } from '../base/Icon';
+import { Icon, type IconProps } from '../base/Icon';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
+import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
@@ -28,7 +32,8 @@ import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedba
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { Checkbox, type CheckboxProps } from '../input/Checkbox';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { disclosureStyles } from '../utils/style/transitions';
 import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -134,6 +139,14 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   summaryLabel?: VNodeChild;
   /** 分组表头：相邻的几列上方共用一个标题，表头变成两行；没分组的列跨两行 */
   columnGroups?: readonly DataTableColumnGroup[];
+  /** 行的详情：写了它时多一列展开按钮，展开的行下面多一行跨全部列的详情 */
+  renderDetail?: (row: T) => VNodeChild;
+  /** 这一行有没有详情：没有的不显示展开按钮；默认都有 */
+  hasDetail?: (row: T) => boolean;
+  /** 展开了详情的行的 key */
+  expandedRows?: readonly string[];
+  /** 点了一行的展开按钮 */
+  onToggleDetail?: (key: string) => void;
   /** 可见行范围变化（不含 overscan）：接近末尾时加载更多 */
   onRangeChange?: (range: VisibleRange) => void;
   /** 外层滚动区域（决定表格的高度）的部件属性；高度用 sx 给，默认最高 32em */
@@ -176,6 +189,16 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsProgress?: Partial<ProgressProps>;
   /** 空状态所在的单元格（td，跨全部列）的部件属性 */
   propsEmptyCell?: PartProps<'td', 'colspan'>;
+  /** 详情列的列标题（th，文字只给读屏）的部件属性 */
+  propsDetailHeaderCell?: PartProps<'th', 'scope'>;
+  /** 每行展开按钮所在单元格（td）的部件属性 */
+  propsDetailToggleCell?: PartProps<'td'>;
+  /** 展开按钮的部件属性；展开状态、关联的详情与点击由组件管理 */
+  propsDetailToggle?: Omit<Partial<IconButtonProps>, 'aria-expanded' | 'aria-controls' | 'onClick'>;
+  /** 详情行（tr）的部件属性 */
+  propsDetailRow?: PartProps<'tr', 'aria-rowindex'>;
+  /** 详情所在的单元格（td，跨全部列）的部件属性 */
+  propsDetailCell?: PartProps<'td', 'colspan'>;
   /** 表尾（tfoot，合计行，吸底）的部件属性 */
   propsFoot?: PartProps<'tfoot'>;
   /** 合计行每个单元格的部件属性，可以按列计算 */
@@ -190,6 +213,10 @@ type SelectCheckboxManaged = 'checked' | 'indeterminate' | 'onChange';
 
 /** 勾选列的宽度（px） */
 const SELECT_WIDTH = 44;
+/** 详情列（展开按钮）的宽度（px） */
+const DETAIL_WIDTH = 40;
+/** 详情行的估计高度（px），渲染后以实际高度为准 */
+const DETAIL_HEIGHT = 160;
 /** 加载中显示几行骨架 */
 const SKELETON_ROWS = 6;
 /** 各密度下行高的估计（px） */
@@ -203,7 +230,8 @@ const ROW_HEIGHT: Record<keyof DataTableDensities, number> = {
 export const dataTableStyles = stylex.create({
   // contain: inline-size：宽表格不会把外层的 grid / flex 容器撑宽（它们的最小宽度默认等于内容宽度），
   // 宽度只由所在的容器决定，放不下的部分在表格里横向滚动
-  root: { maxHeight: '32em', minWidth: 0, contain: 'inline-size' },
+  // 也是容器查询的容器：详情的内容用 100cqi 限宽到视口，横向滚动时贴着起始边
+  root: { maxHeight: '32em', minWidth: 0, containerType: 'inline-size' },
   surface: {
     borderWidth: '_xs',
     borderStyle: 'solid',
@@ -295,6 +323,24 @@ export const dataTableStyles = stylex.create({
   // 有起始边的固定列时，勾选列也固定在最前面
   stickySelect: { position: 'sticky', zIndex: 1, insetInlineStart: 0 },
   selectCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
+  chevronOpen: { rotate: '90deg' },
+  // 展开按钮 24px（最小点击区域），上下的负外边距抵掉多出行高的部分：有按钮的行与没有的一样高
+  detailToggle: {
+    width: '1.5rem',
+    height: '1.5rem',
+    minHeight: '1.5rem',
+    marginBlock: '-0.1875rem',
+  },
+  // 详情行：浅底、可以换行；内边距放在内容上，内容贴着视口起始边、宽度不超过视口
+  detailCell: { paddingBlock: 0, paddingInline: 0, whiteSpace: 'normal', backgroundColor: '_fill' },
+  detailContent: {
+    position: 'sticky',
+    insetInlineStart: 0,
+    boxSizing: 'border-box',
+    maxWidth: '100cqi',
+    paddingBlock: '_md',
+    paddingInline: '_md',
+  },
   // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
   sortButton: {
     display: 'inline-flex',
@@ -358,6 +404,11 @@ function stickyCellSx(column: DataTableColumn<never>, offsets: StickyOffsets) {
   return null;
 }
 
+/** 勾选列、详情列在有起始边固定列时也固定，偏移是它前面的列宽 */
+function leadingStickySx(sticky: boolean, offset: number) {
+  return sticky && [dataTableStyles.sticky, dataTableDynamicStyles.start(offset)];
+}
+
 /** 分组标题的固定：组里的列都固定在同一侧时跟着固定，偏移取最靠外的一列；含挨着滚动列的那一列时也画竖线 */
 function groupStickySx(columns: readonly DataTableColumn<never>[], offsets: StickyOffsets) {
   const side = columns[0]?.sticky;
@@ -403,6 +454,22 @@ export interface DataTableRowProps<T> {
   offsets: StickyOffsets;
   /** 表头有几行（分组表头是两行）：行的 aria-rowindex 从表头之后算起，默认 1 */
   headerRows?: number;
+  /** 在表体里的位置（展开的详情也算一行）：测量与 aria-rowindex 用它；默认等于 index */
+  position?: number;
+  /** 表格有详情列 */
+  detailColumn?: boolean;
+  /** 这一行有详情（显示展开按钮），默认 true */
+  expandable?: boolean;
+  /** 详情已展开 */
+  expanded?: boolean;
+  /** 详情单元格的 id（展开按钮的 aria-controls） */
+  detailId?: string;
+  /** 详情列单元格的部件属性 */
+  propsDetailToggleCell?: PartProps<'td'>;
+  /** 展开按钮的部件属性 */
+  propsDetailToggle?: DataTableViewProps<T>['propsDetailToggle'];
+  /** 点了展开按钮 */
+  onToggleDetail?: (key: string) => void;
   /** 第一个数据列前面加的东西（TreeDataTable 的缩进与展开按钮） */
   leading?: (row: DataTableRowModel<T>, index: number) => VNodeChild;
   /** 行的部件属性 */
@@ -441,6 +508,14 @@ export const DataTableRow = _component(
     striped,
     offsets,
     headerRows = 1,
+    position = index,
+    detailColumn = false,
+    expandable = true,
+    expanded = false,
+    detailId,
+    propsDetailToggleCell,
+    propsDetailToggle,
+    onToggleDetail,
     leading,
     propsRow,
     propsCell,
@@ -466,11 +541,11 @@ export const DataTableRow = _component(
           typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow,
           {
             ref: measure,
-            'aria-rowindex': index + headerRows + 1,
+            'aria-rowindex': position + headerRows + 1,
             'aria-selected': selectionMode != null ? selected : undefined,
           },
         )}
-        data-index={index}
+        data-index={position}
         data-state={selected ? 'selected' : undefined}
         data-tone={tone}
       >
@@ -501,6 +576,47 @@ export const DataTableRow = _component(
                 },
               )}
             />
+          </td>
+        )}
+        {detailColumn && (
+          <td
+            {...mergeAttrs<'td'>(
+              {
+                sx: [
+                  dataTableStyles.cell,
+                  dataTableDensityStyles[density],
+                  dataTableStyles.selectCell,
+                  leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
+                ],
+              },
+              propsDetailToggleCell,
+            )}
+          >
+            {expandable && (
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  {
+                    icon: ChevronRight,
+                    size: 'sm',
+                    radius: 'full',
+                    sx: dataTableStyles.detailToggle,
+                    'aria-label': lang.tableRowDetails(rowLabel(columns, row)),
+                  },
+                  propsDetailToggle,
+                  {
+                    'aria-expanded': expanded,
+                    'aria-controls': expanded ? detailId : undefined,
+                    // 箭头的转向跟着展开状态：使用方的 propsIcon 合并进来，而不是整个替换掉
+                    propsIcon: mergeProps<IconProps>(
+                      { flipInRtl: true, sx: disclosureStyles.icon },
+                      propsDetailToggle?.propsIcon,
+                      expanded ? { sx: dataTableStyles.chevronOpen } : undefined,
+                    ),
+                    onClick: () => onToggleDetail?.(row.key),
+                  },
+                )}
+              />
+            )}
           </td>
         )}
         {columns.map((column, position) => {
@@ -541,6 +657,79 @@ export const DataTableRow = _component(
   },
 );
 
+/** 行的名称（展开按钮用）：第一列的文字，没有时用行的 key */
+function rowLabel<T>(columns: readonly DataTableColumn<T>[], row: DataTableRowModel<T>): string {
+  const first = columns[0] ? columnValue(columns[0], row.data) : undefined;
+  return first != null && first !== '' ? String(first) : row.key;
+}
+
+/** DataTableDetailRow 的属性 */
+export interface DataTableDetailRowProps<T> {
+  /** 详情所属的行 */
+  row: DataTableRowModel<T>;
+  /** 在表体里的位置（测量与 aria-rowindex） */
+  position: number;
+  /** 表头有几行 */
+  headerRows: number;
+  /** 跨几列（全部列，含勾选列与详情列） */
+  span: number;
+  /** 详情单元格的 id（展开按钮的 aria-controls 指向它） */
+  id: string;
+  /** 详情的内容 */
+  renderDetail: (row: T) => VNodeChild;
+  /** 详情行的部件属性 */
+  propsDetailRow?: PartProps<'tr', 'aria-rowindex'>;
+  /** 详情单元格的部件属性 */
+  propsDetailCell?: PartProps<'td', 'colspan'>;
+  /** 测量行高（虚拟滚动） */
+  measure: (element: unknown) => void;
+}
+
+/** 展开的详情：一行一个跨全部列的单元格；单独成组件，滚动时没变的详情不必重渲 */
+export const DataTableDetailRow = _component(
+  <T,>({
+    row,
+    position,
+    headerRows,
+    span,
+    id,
+    renderDetail,
+    propsDetailRow,
+    propsDetailCell,
+    measure,
+  }: DataTableDetailRowProps<T>) =>
+    () => (
+      <tr
+        {...mergeAttrs<'tr'>({}, propsDetailRow, {
+          ref: measure,
+          'aria-rowindex': position + headerRows + 1,
+        })}
+        data-index={position}
+        data-detail=""
+      >
+        <td
+          {...mergeAttrs<'td'>(
+            { sx: [dataTableStyles.cell, dataTableStyles.detailCell] },
+            propsDetailCell,
+            { id, colspan: span },
+          )}
+        >
+          <div {...stylex.attrs(dataTableStyles.detailContent)}>{renderDetail(row.data)}</div>
+        </td>
+      </tr>
+    ),
+);
+
+/** 表体里的一行：数据行，或某一行展开的详情 */
+interface BodyEntry<T> {
+  /** 所属的数据行 */
+  row: DataTableRowModel<T>;
+  /** 数据行在 rows 里的序号 */
+  index: number;
+  /** 是这一行的详情 */
+  detail: boolean;
+}
+
 /** 表格的渲染层：虚拟滚动的行、吸顶表头、固定列、排序、勾选、列宽调整、加载与空状态 */
 export const DataTableView = _component(
   <T,>({
@@ -568,6 +757,10 @@ export const DataTableView = _component(
     hiddenColumns,
     summaryLabel,
     columnGroups,
+    renderDetail,
+    hasDetail,
+    expandedRows,
+    onToggleDetail,
     propsRoot,
     propsRow,
     propsCell,
@@ -590,6 +783,11 @@ export const DataTableView = _component(
     propsEmptyCell,
     propsFoot,
     propsSummaryCell,
+    propsDetailHeaderCell,
+    propsDetailToggleCell,
+    propsDetailToggle,
+    propsDetailRow,
+    propsDetailCell,
     ...rest
   }: DataTableViewProps<T>) => {
     const lang = useLang();
@@ -614,14 +812,37 @@ export const DataTableView = _component(
     let viewport = _state.raw<HTMLElement | null>(null);
     let body = _state.raw<HTMLElement | null>(null);
 
+    const detailIdPrefix = useId();
+    const detailId = (index: number) => `${detailIdPrefix}-detail-${index}`;
+    const expandedSet = _derived.by(() => new Set(expandedRows ?? []));
+    /** 表体里的各行：展开了详情的行后面跟它的详情；没有展开的详情时为 null，直接用 rows */
+    const entries = _derived.by((): BodyEntry<T>[] | null => {
+      if (!renderDetail || expandedSet.size === 0) return null;
+      const list: BodyEntry<T>[] = [];
+      rows.forEach((row, index) => {
+        list.push({ row, index, detail: false });
+        if (expandedSet.has(row.key)) list.push({ row, index, detail: true });
+      });
+      return list;
+    });
+    const entryAt = (position: number): BodyEntry<T> =>
+      entries ? entries[position]! : { row: rows[position]!, index: position, detail: false };
+
     const virtual = useVirtualizer(() => {
       const current = rows;
+      const list = entries;
       return {
-        count: current.length,
+        count: list?.length ?? current.length,
         scrollElement: viewport,
         list: body,
-        estimateSize: () => estimateRowHeight ?? ROW_HEIGHT[density],
-        getItemKey: (index: number) => current[index]!.key,
+        estimateSize: (position: number) =>
+          list?.[position]?.detail ? DETAIL_HEIGHT : (estimateRowHeight ?? ROW_HEIGHT[density]),
+        // 详情的 key 是行的 key 加一个不会出现在 key 里的分隔：与数据行的 key 不会重复
+        getItemKey: (position: number) => {
+          if (!list) return current[position]!.key;
+          const entry = list[position]!;
+          return entry.detail ? `${entry.row.key}\u0000detail` : entry.row.key;
+        },
         overscan: 8,
         onRangeChange,
       };
@@ -688,7 +909,9 @@ export const DataTableView = _component(
     /** 列的宽度：调整过的、列定义里的，或者没有（与其他没写宽度的列平分） */
     const widthOf = (column: DataTableColumn<T>) => widths[column.key] ?? column.width;
 
-    const leadingWidth = () => (selectionMode ? SELECT_WIDTH : 0);
+    const leadingWidth = () =>
+      (selectionMode ? SELECT_WIDTH : 0) + (renderDetail ? DETAIL_WIDTH : 0);
+    const bodyRowCount = () => entries?.length ?? rows.length;
     const offsets = _derived.by(() => stickyOffsets(shown, widthOf, leadingWidth()));
     const minWidth = () => tableMinWidth(shown, widthOf, leadingWidth());
 
@@ -794,12 +1017,13 @@ export const DataTableView = _component(
     }
 
     /** 表头的列标题：一行；有分组时两行 */
-    function renderHeaderRows(selectHeader: VNodeChild) {
+    function renderHeaderRows(selectHeader: VNodeChild, detailHeader: VNodeChild) {
       const cells = layout;
       if (!cells || headerRows === 1)
         return (
           <tr {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
             {selectHeader}
+            {detailHeader}
             {shown.map((column) => renderHeaderCell(column))}
           </tr>
         );
@@ -809,6 +1033,7 @@ export const DataTableView = _component(
       return [
         <tr key="groups" {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
           {selectHeader}
+          {detailHeader}
           {cells.map((cell, position) =>
             cell.kind === 'group'
               ? renderGroupCell(
@@ -833,7 +1058,7 @@ export const DataTableView = _component(
     }
 
     return () => {
-      const span = shown.length + (selectionMode ? 1 : 0);
+      const span = shown.length + (selectionMode ? 1 : 0) + (renderDetail ? 1 : 0);
       const items = virtual.items;
       const top = items[0]?.start ?? 0;
       const bottom = items.length ? virtual.total - items.at(-1)!.end : 0;
@@ -862,7 +1087,7 @@ export const DataTableView = _component(
               },
               rest,
               {
-                'aria-rowcount': rows.length + headerRows + (hasSummary ? 1 : 0),
+                'aria-rowcount': bodyRowCount() + headerRows + (hasSummary ? 1 : 0),
                 'aria-busy': loading || undefined,
               },
             )}
@@ -870,6 +1095,9 @@ export const DataTableView = _component(
             <colgroup>
               {selectionMode && (
                 <col {...stylex.attrs(dataTableDynamicStyles.width(SELECT_WIDTH))} />
+              )}
+              {renderDetail && (
+                <col {...stylex.attrs(dataTableDynamicStyles.width(DETAIL_WIDTH))} />
               )}
               {shown.map((column) => {
                 const width = widthOf(column);
@@ -914,6 +1142,24 @@ export const DataTableView = _component(
                     )}
                   </th>
                 ),
+                renderDetail && (
+                  <th
+                    {...mergeAttrs<'th'>(
+                      {
+                        sx: [
+                          dataTableStyles.headerCell,
+                          dataTableDensityStyles[density],
+                          dataTableStyles.selectCell,
+                          leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
+                        ],
+                      },
+                      propsDetailHeaderCell,
+                      { scope: 'col', rowspan: headerRows > 1 ? headerRows : undefined },
+                    )}
+                  >
+                    <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>{lang.tableDetails}</span>
+                  </th>
+                ),
               )}
               {indicator.value && rows.length > 0 && (
                 <tr aria-hidden="true">
@@ -942,6 +1188,11 @@ export const DataTableView = _component(
                     )}
                   >
                     {selectionMode && (
+                      <td
+                        {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
+                      />
+                    )}
+                    {renderDetail && (
                       <td
                         {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
                       />
@@ -999,12 +1250,35 @@ export const DataTableView = _component(
                 </tr>
               )}
               {items.map((item) => {
-                const row = rows[item.index]!;
+                const { row, index, detail } = entryAt(item.index);
+                if (detail && renderDetail)
+                  return (
+                    <DataTableDetailRow
+                      key={item.key as string}
+                      row={row}
+                      position={item.index}
+                      headerRows={headerRows}
+                      span={span}
+                      id={detailId(index)}
+                      renderDetail={renderDetail}
+                      propsDetailRow={propsDetailRow}
+                      propsDetailCell={propsDetailCell}
+                      measure={virtual.measure}
+                    />
+                  );
                 return (
                   <DataTableRow
                     key={row.key}
                     row={row}
-                    index={item.index}
+                    index={index}
+                    position={item.index}
+                    detailColumn={renderDetail != null}
+                    expandable={hasDetail ? hasDetail(row.data) : true}
+                    expanded={expandedSet.has(row.key)}
+                    detailId={detailId(index)}
+                    propsDetailToggleCell={propsDetailToggleCell}
+                    propsDetailToggle={propsDetailToggle}
+                    onToggleDetail={onToggleDetail}
                     selected={selectionMode != null && selectedSet.has(row.key)}
                     selectable={isRowSelectable ? isRowSelectable(row.data) : true}
                     tone={rowTone?.(row.data)}
@@ -1038,7 +1312,7 @@ export const DataTableView = _component(
             </tbody>
             {hasSummary && rows.length > 0 && (
               <tfoot {...mergeAttrs<'tfoot'>({ sx: dataTableStyles.foot }, propsFoot)}>
-                <tr aria-rowindex={rows.length + headerRows + 1}>
+                <tr aria-rowindex={bodyRowCount() + headerRows + 1}>
                   {selectionMode && (
                     <td
                       {...stylex.attrs(
@@ -1046,6 +1320,16 @@ export const DataTableView = _component(
                         dataTableDensityStyles[density],
                         dataTableStyles.summaryCell,
                         offsets.start.size > 0 && dataTableStyles.stickySelect,
+                      )}
+                    />
+                  )}
+                  {renderDetail && (
+                    <td
+                      {...stylex.attrs(
+                        dataTableStyles.cell,
+                        dataTableDensityStyles[density],
+                        dataTableStyles.summaryCell,
+                        leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
                       )}
                     />
                   )}

@@ -19,6 +19,7 @@
  * - 选择：selectionMode 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
  * - 列宽：resizable 时可以拖动或用键盘调整，columnWidths 记录调整后的宽度（可以双向绑定，保存到本地设置里）。
  * - 加载：loading 时没有数据显示骨架行，已有数据显示进度条；接近末尾加载更多用 onRangeChange。
+ * - 详情行：renderDetail 给出一行的详情，多一列展开按钮；expandedRows 是展开了的行（可以双向绑定），hasDetail 决定哪些行有。
  * - 分组表头：columnGroups 写组标题与组里各列的 key，相邻的列上方共用一个标题。
  * - 合计：列写 summary（'sum' 精确相加，或函数）时底部多一行吸底的合计；空值显示列的 empty（默认 —）。
  * - 状态列：列写 statuses（createStatusMap）时显示成 StatusBadge；rowTone 给整行着色（导入校验的错误行）。
@@ -44,6 +45,8 @@ export interface DataTableProps<T> extends Omit<
   | 'onToggleAll'
   | 'widths'
   | 'onResize'
+  | 'expandedRows'
+  | 'onToggleDetail'
 > {
   /** 数据 */
   rows: readonly T[];
@@ -57,6 +60,8 @@ export interface DataTableProps<T> extends Omit<
   selected?: string[];
   /** 各列调整后的宽度（px）：父级可以写 columnWidths={_bind(x)} 保存起来 */
   columnWidths?: Record<string, number>;
+  /** 展开了详情的行的 key（有 renderDetail 时）：父级可以写 expandedRows={_bind(x)} */
+  expandedRows?: string[];
 }
 
 /** 数据表格：虚拟滚动、排序、勾选、列宽调整、加载与空状态 */
@@ -70,6 +75,7 @@ export const DataTable = _component(
     selectionMode,
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
+    expandedRows = _bindable<string[]>([]),
     isRowSelectable,
     density,
     variant,
@@ -107,6 +113,10 @@ export const DataTable = _component(
       selected = selected.filter((key) => !visible.has(key));
     }
 
+    function toggleDetail(key: string) {
+      expandedRows = [...toggleSelection(expandedRows, key, { mode: 'multiple' })];
+    }
+
     return () => (
       <DataTableView
         {...mergePartProps<DataTableViewProps<T>>(
@@ -129,6 +139,8 @@ export const DataTable = _component(
             widths: columnWidths,
             onResize: (key: string, width: number) =>
               (columnWidths = { ...columnWidths, [key]: width }),
+            expandedRows,
+            onToggleDetail: toggleDetail,
           },
         )}
       />

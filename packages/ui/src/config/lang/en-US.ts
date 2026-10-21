@@ -44,6 +44,8 @@ export const enUS: Lang = {
   tableSummary: 'Total',
   tableSelectedCount: (count) => `${count} selected`,
   tableClearSelection: 'Clear selection',
+  tableDetails: 'Details',
+  tableRowDetails: (row) => `Details of ${row}`,
   chartEmpty: 'No data',
   chartCategory: 'Category',
   chartValue: 'Value',

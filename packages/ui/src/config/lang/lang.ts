@@ -120,6 +120,10 @@ export interface Lang {
   readonly tableSelectedCount: (count: number) => string;
   /** 批量操作栏里取消全部选择的按钮，默认“取消选择” */
   readonly tableClearSelection: string;
+  /** 详情列的列标题（只给读屏），默认“详情” */
+  readonly tableDetails: string;
+  /** 展开详情的按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的详情” */
+  readonly tableRowDetails: (row: string) => string;
   /** 图表没有数据时的提示，默认“暂无数据” */
   readonly chartEmpty: string;
   /** 图表的数据表（给读屏）里类目那一列的表头，默认“类目” */

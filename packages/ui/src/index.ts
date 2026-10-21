@@ -905,12 +905,14 @@ export {
 export { DataTable, type DataTableProps } from './table/DataTable';
 export {
   dataTableDensityStyles,
+  DataTableDetailRow,
   dataTableDynamicStyles,
   DataTableRow,
   dataTableRowToneStyles,
   dataTableStyles,
   DataTableView,
   type DataTableDensities,
+  type DataTableDetailRowProps,
   type DataTableOptions,
   type DataTableRowModel,
   type DataTableRowProps,

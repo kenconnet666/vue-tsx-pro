@@ -438,6 +438,52 @@ describe('DataTable 的台账能力', () => {
   });
 });
 
+describe('DataTable 的详情行', () => {
+  it('展开按钮带 aria-expanded 与 aria-controls；展开后下面多一行跨全部列的详情，行号随之顺延；hasDetail 为 false 的行没有按钮', async () => {
+    let expanded = _state<string[]>([]);
+    const root = mount(() => (
+      <DataTable
+        aria-label="人员"
+        rows={people}
+        rowKey={(person) => person.name}
+        columns={columns}
+        selectionMode="multiple"
+        renderDetail={(person) => <p class="detail">{person.name} 的简历</p>}
+        hasDetail={(person) => person.name !== 'Ada'}
+        expandedRows={_bind(expanded)}
+      />
+    ));
+    await flush();
+    const toggles = () => [
+      ...root.querySelectorAll<HTMLButtonElement>('tbody button[aria-expanded]'),
+    ];
+    expect(toggles()).toHaveLength(people.length - 1);
+    expect(toggles()[0]!.getAttribute('aria-label')).toBe(`${people[0]!.name} 的详情`);
+    expect(toggles()[0]!.getAttribute('aria-expanded')).toBe('false');
+
+    toggles()[0]!.click();
+    await flush();
+    expect(expanded).toEqual([people[0]!.name]);
+    const toggle = toggles()[0]!;
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    const cell = document.getElementById(toggle.getAttribute('aria-controls')!)!;
+    expect(cell.textContent).toBe(`${people[0]!.name} 的简历`);
+    // 勾选列 + 详情列 + 数据列
+    expect(cell.getAttribute('colspan')).toBe(String(columns.length + 2));
+    const indexes = [...root.querySelectorAll('tbody tr[aria-rowindex]')].map((tr) =>
+      tr.getAttribute('aria-rowindex'),
+    );
+    expect(indexes.slice(0, 3)).toEqual(['2', '3', '4']);
+    expect(root.querySelector('table')!.getAttribute('aria-rowcount')).toBe(
+      String(people.length + 2),
+    );
+
+    expanded = [];
+    await flush();
+    expect(root.querySelector('.detail')).toBeNull();
+  });
+});
+
 describe('headerLayout', () => {
   it('组里的列被别的列隔开时另起一格；不在任何组里的列单独一格', () => {
     const column = (key: string) => ({ key, header: key });
