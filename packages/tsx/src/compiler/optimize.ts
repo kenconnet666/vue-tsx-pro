@@ -166,6 +166,9 @@ function stabilizeChildren(element: NodePath<t.JSXElement>, context: OptimizeCon
     // <X>{children}</X>：原样转交，稳不稳定跟着上层（运行时判断），带参数的渲染函数原样交出
     if (!setup) return;
     slots = context.imports.runtime('forwardChildren', [propsOf(setup)]);
+    // vue-jsx 只对带源码位置的调用子节点做运行时的插槽判断（_isSlot），没有位置的当成内容再包一层。
+    // 分几遍编译时重新解析会补上位置，同一遍里接着跑 vue-jsx（代码演练场）就要自己借元素的
+    slots.loc = element.node.loc;
   } else {
     const content =
       only && (t.isArrowFunctionExpression(only) || t.isFunctionExpression(only))
