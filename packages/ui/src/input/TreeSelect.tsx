@@ -14,8 +14,10 @@
  * - 单选：点节点或 Enter 选中并关闭；多选：空格或点勾选框，勾上父节点会勾上它的子孙，子节点全勾上时父节点也勾上。
  *   value 是勾上的全部节点；触发框里只显示最上层的整枝（勾上了“复合材料中心”就不再列它下面的每个组）。
  * - searchable：弹出层顶部的搜索框，按节点文字过滤，命中节点的祖先一起显示并展开；↓ 从搜索框进到树里。
+ *   给 load 时由服务端搜索：打开时与输入停下 300 ms 后按搜索词请求，返回命中的节点连同祖先，结果全部展开
+ *   （remote-items.ts，同 Select）；自己管请求时写 search={_bind(keyword)}、filter={false}。
  * - 打开后焦点在树上（或搜索框里），键盘同 Tree；Esc 关闭并把焦点还给触发按钮。懒加载同 Tree 的 loadChildren。
- * - 已选节点的文字从已加载的树里找；收起、懒加载还没取回来的节点显示成 key。
+ * - 已选节点的文字从已加载的树里找，远程搜索换掉的按见过的文字显示；从没见过的（懒加载还没取回来）显示成 key。
  *
  * 部件：Root（外壳）、Trigger（button，主元素）、Value、Tag（多选时）、Clear、Chevron、Popover、Search（TextField）、Tree。
  */
@@ -52,14 +54,15 @@ import {
   type ControlOptions,
 } from './control';
 import { listPopoverStyles } from './ListPopover';
+import { useRemoteItems, type OptionsLoader } from './remote-items';
 import { selectStyles, type SelectManaged } from './Select';
 import { TextField, type TextFieldProps } from './TextField';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 export interface TreeSelectProps<T>
   extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions {
-  /** 顶层节点 */
-  items: readonly T[];
+  /** 顶层节点；有 load 时是第一次加载之前的树（编辑页放上已选节点的那一枝） */
+  items?: readonly T[];
   /** 节点的 key，整棵树里唯一：也是选中后写回的值 */
   getKey: (node: T) => string;
   /** 节点的文字 */
@@ -86,6 +89,12 @@ export interface TreeSelectProps<T>
   clearable?: boolean;
   /** 弹出层顶部带搜索框，按节点文字过滤 */
   searchable?: boolean;
+  /** 搜索时怎样算命中；默认节点文字包含输入（忽略大小写与重音）。false 时不在本地过滤（服务端按 search 过滤） */
+  filter?: false | ((node: T, query: string) => boolean);
+  /** 搜索框里的文字：打开时清空；父级写 search={_bind(x)} 拿到它（自己发请求时） */
+  search?: string;
+  /** 远程搜索：打开时与搜索词停下 300 ms 后调用，返回命中的节点连同祖先（顶层节点），结果代替 items */
+  load?: OptionsLoader<T>;
   /** 表单提交时的 name（用隐藏的 input） */
   name?: string;
   /** 不可用 */
@@ -125,7 +134,7 @@ export const treeSelectStyles = stylex.create({
 /** 树形下拉选择：触发框 + 弹出的树，单选或勾选，可搜索 */
 export const TreeSelect = _component(
   <T,>({
-    items,
+    items = [],
     getKey,
     getLabel,
     getChildren,
@@ -139,6 +148,9 @@ export const TreeSelect = _component(
     placement = 'bottom-start',
     clearable = false,
     searchable = false,
+    filter,
+    search = _bindable(''),
+    load,
     name,
     variant,
     size,
@@ -165,7 +177,12 @@ export const TreeSelect = _component(
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     const multiple = () => selectionMode === 'multiple';
-    let query = _state('');
+    const remote = useRemoteItems({
+      load: () => load,
+      query: () => search,
+      open: () => open,
+      items: () => items,
+    });
     let expanded = _state<string[]>([]);
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
@@ -181,17 +198,29 @@ export const TreeSelect = _component(
           visit(getChildren(node) ?? [], key);
         }
       };
-      visit(items, undefined);
+      visit(remote.items(), undefined);
       return map;
     });
+    // 见过的节点文字：远程搜索换掉了已选的节点，触发框里仍显示它的文字
+    const seenLabels = new Map<string, string>();
+    watch(
+      () => nodes,
+      (map) => {
+        for (const [key, { node }] of map) seenLabels.set(key, getLabel(node));
+      },
+      { immediate: true },
+    );
 
     // 搜索：命中的节点与它们的祖先（为 null 时不过滤）
     const visible = _derived.by(() => {
-      if (!searchable || !query.trim()) return null;
+      const text = search.trim();
+      // 有 load 或 filter={false} 时结果已经是服务端筛好的
+      if (!searchable || !text || load || filter === false) return null;
       const match = createMatcher(lang.code);
+      const hits = (node: T) => (filter ? filter(node, text) : match(getLabel(node), text));
       const keys = new Set<string>();
       for (const [key, { node }] of nodes) {
-        if (!match(getLabel(node), query.trim())) continue;
+        if (!hits(node)) continue;
         for (let at: string | undefined = key; at !== undefined && !keys.has(at);) {
           keys.add(at);
           at = nodes.get(at)?.parent;
@@ -199,13 +228,21 @@ export const TreeSelect = _component(
       }
       return keys;
     });
-    const shownItems = () => (visible ? items.filter((node) => visible.has(getKey(node))) : items);
+    const shownItems = () => {
+      const all = remote.items();
+      return visible ? all.filter((node) => visible.has(getKey(node))) : all;
+    };
     const shownChildren = (node: T) => {
       const children = getChildren(node);
       return visible ? children?.filter((child) => visible.has(getKey(child))) : children;
     };
     // 搜索时展开命中节点的祖先；清空搜索回到自己展开的状态
-    const shownExpanded = () => (visible ? [...visible].filter((key) => nodes.has(key)) : expanded);
+    const shownExpanded = () => {
+      if (visible) return [...visible].filter((key) => nodes.has(key));
+      // 服务端搜索的结果全部展开（只有命中的节点与它们的祖先）
+      if (load && search.trim()) return [...nodes.keys()];
+      return expanded;
+    };
 
     const values = () => selectedValues(value);
     /** 触发框里显示的节点：多选时只列最上层的整枝（父节点也勾上了的不重复列） */
@@ -220,11 +257,11 @@ export const TreeSelect = _component(
     };
     const labelOf = (key: string) => {
       const found = nodes.get(key);
-      return found ? getLabel(found.node) : key;
+      return found ? getLabel(found.node) : (seenLabels.get(key) ?? key);
     };
 
     function show() {
-      query = '';
+      search = '';
       // 打开时展开已选节点的祖先：已选的看得见
       const ancestors = new Set(expanded);
       for (const key of values()) {
@@ -297,6 +334,12 @@ export const TreeSelect = _component(
           getChildren: shownChildren,
           hasChildren: visible ? undefined : hasChildren,
           loadChildren,
+          loading: remote.loading(),
+          empty: remote.error()
+            ? lang.listLoadFailed
+            : search.trim()
+              ? lang.selectNoMatch
+              : undefined,
           isDisabled,
           propsScrollArea: { sx: treeSelectStyles.tree },
           'aria-labelledby': labelledBy,
@@ -423,7 +466,7 @@ export const TreeSelect = _component(
                     propsSearch,
                   )}
                   type="search"
-                  value={_bind(query)}
+                  value={_bind(search)}
                   aria-controls={treeId}
                   onKeydown={onSearchKeydown}
                 />

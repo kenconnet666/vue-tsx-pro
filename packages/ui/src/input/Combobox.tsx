@@ -8,7 +8,8 @@
  * 焦点一直在输入框里，高亮项经 aria-activedescendant 告诉读屏。
  *
  * - 过滤：默认本地按显示文字包含输入（Intl.Collator，忽略大小写与重音）；filter={false} 时不过滤，
- *   由调用方按 inputValue 换 items（异步搜索，配合 loading）。
+ *   由调用方按 inputValue 换 items（异步搜索，配合 loading）。给 load 时组件自己请求：打开时与输入停下 300 ms 后
+ *   按输入请求，只采用最后一次（remote-items.ts，同 Select）。
  * - 中文输入法：输入经 v-model 写回，组合输入期间 inputValue 不变，所以不会拿拼音去过滤。
  * - 选中后输入框显示选项文字；失焦时如果文字不是某个选项（且没开 allowCustomValue），恢复成已选项的文字，清空则取消选择。
  * - 键盘：↓ 打开、↑↓ / Page Up / Down 移动，Enter 选中，Esc 关闭（关闭时再按 Esc 清空）；Home / End 照常移动光标。
@@ -50,6 +51,7 @@ import {
   type OptionMapping,
   toListboxOption,
 } from './list-state';
+import { useRemoteItems, type OptionsLoader } from './remote-items';
 
 /** 角色、展开状态、值与可用性由组件管理 */
 export type ComboboxManaged =
@@ -70,8 +72,8 @@ export type ComboboxManaged =
 /** Combobox 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
 export interface ComboboxBaseProps<T>
   extends PartProps<'input', ComboboxManaged>, ControlOptions, ControlIconOptions {
-  /** 数据：ListboxOption、字符串，或任意数据加 toOption */
-  items: readonly T[];
+  /** 数据：ListboxOption、字符串，或任意数据加 toOption；有 load 时是第一次加载之前的选项（编辑页放上已选的那一项） */
+  items?: readonly T[];
   /** 选中项的值：父级写 value={_bind(x)}；没有选中时是 null */
   value?: string | null;
   /** 输入框里的文字：父级可以写 inputValue={_bind(x)}（异步搜索时据此取数据） */
@@ -80,6 +82,8 @@ export interface ComboboxBaseProps<T>
   open?: boolean;
   /** 过滤：默认按显示文字包含输入（忽略大小写与重音）；函数自定义；false 不过滤（异步搜索） */
   filter?: false | ((item: T, query: string) => boolean);
+  /** 远程选项：打开时与输入停下 300 ms 后按输入调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止 */
+  load?: OptionsLoader<T>;
   /** 允许输入不在选项里的文字：失焦时保留，value 为 null */
   allowCustomValue?: boolean;
   /** 正在取选项（异步搜索）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
@@ -125,12 +129,13 @@ export const comboboxStyles = stylex.create({
 /** 组合框：输入框 + 过滤后的选项列表 */
 export const Combobox = _component(
   <T,>({
-    items,
+    items = [],
     toOption,
     value = _bindable<string | null>(null),
     inputValue = _bindable(''),
     open = _bindable(false),
     filter,
+    load,
     allowCustomValue = false,
     loading = false,
     placement = 'bottom-start',
@@ -174,8 +179,18 @@ export const Combobox = _component(
       return filter ? filter(item, text) : createMatcher(lang.code)(optionOf(item).label, text);
     }
 
+    const remote = useRemoteItems({
+      load: () => load,
+      query: () => query,
+      open: () => open,
+      items: () => items,
+    });
     const list = useListState({
-      items: () => (filter === false ? items : items.filter((item) => matches(item, query))),
+      // 有 load 或 filter={false} 时由服务端按输入过滤
+      items: () =>
+        load || filter === false
+          ? remote.items()
+          : remote.items().filter((item) => matches(item, query)),
       toOption: optionOf,
       selected: () => (value != null ? [value] : []),
       mode: () => 'single',
@@ -185,7 +200,7 @@ export const Combobox = _component(
     });
 
     // 已选项的文字：远程搜索换了 items 之后，仍按之前见过的文字显示
-    const selectedOf = useSelectedOptions({ items: () => items, toOption: optionOf });
+    const selectedOf = useSelectedOptions({ items: remote.items, toOption: optionOf });
     const selectedLabel = () => (value == null ? '' : selectedOf([value])[0]!.label);
 
     function setText(text: string) {
@@ -360,9 +375,14 @@ export const Combobox = _component(
             size={appearance().size}
             labelledBy={state.labelledBy}
             label={rest['aria-label']}
-            loading={loading}
+            loading={loading || remote.loading()}
             onPick={pick}
-            listbox={{ list, id: listId, renderOption: children, empty }}
+            listbox={{
+              list,
+              id: listId,
+              renderOption: children,
+              empty: remote.error() ? lang.listLoadFailed : empty,
+            }}
             propsListbox={propsListbox}
             propsPopover={propsPopover}
           />

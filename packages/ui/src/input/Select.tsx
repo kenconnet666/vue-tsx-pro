@@ -18,6 +18,11 @@
  * ↑↓ 移动、Enter 选中、Esc 关闭并把焦点还给触发按钮。已选的项被过滤掉、或 items 换了（远程搜索）时，
  * 触发框里仍显示它的文字（useSelectedOptions）。
  *
+ * 远程选项：给 load 时打开就按搜索词请求，输入停下 300 ms 再请求，只采用最后一次（remote-items.ts）；
+ * 自己管请求时写 search={_bind(keyword)} 拿到搜索词、filter={false} 关掉本地过滤，items 与 loading 自己给。
+ *
+ *   <Select searchable load={(q, signal) => http.get<User[]>('/users', { query: { q }, signal })} toOption={…} value={_bind(owner)} />
+ *
  * 部件：Root（外壳）、Trigger（button，主元素）、Value、Tag（多选时）、Clear、Chevron、Popover、Search（TextField）、Listbox。
  */
 import { ChevronDown, Search } from '@lucide/icons';
@@ -57,6 +62,7 @@ import {
   type OptionMapping,
   toListboxOption,
 } from './list-state';
+import { useRemoteItems, type OptionsLoader } from './remote-items';
 import { TextField, type TextFieldProps } from './TextField';
 
 /** 角色、展开状态与可用性由组件管理 */
@@ -76,8 +82,8 @@ export type SelectManaged =
 /** 下拉选择共有的属性；未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 export interface SelectBaseProps<T>
   extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions {
-  /** 数据：ListboxOption、字符串，或任意数据加 toOption */
-  items: readonly T[];
+  /** 数据：ListboxOption、字符串，或任意数据加 toOption；有 load 时是第一次加载之前的选项（编辑页放上已选的那一项） */
+  items?: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
   /** 是否打开：父级可以写 open={_bind(x)} */
@@ -88,8 +94,12 @@ export interface SelectBaseProps<T>
   clearable?: boolean;
   /** 弹出层顶部带搜索框，输入过滤选项：选项多（供应商、人员、件号）时用 */
   searchable?: boolean;
-  /** 搜索时怎样算匹配；默认显示文字包含输入（忽略大小写与重音） */
-  filter?: (item: T, query: string) => boolean;
+  /** 搜索时怎样算匹配；默认显示文字包含输入（忽略大小写与重音）。false 时不在本地过滤（服务端按 search 过滤） */
+  filter?: false | ((item: T, query: string) => boolean);
+  /** 搜索框里的文字：打开时清空；父级写 search={_bind(x)} 拿到它（自己发请求时） */
+  search?: string;
+  /** 远程选项：打开时与搜索词停下 300 ms 后调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止 */
+  load?: OptionsLoader<T>;
   /** 表单提交时的 name（用隐藏的 input） */
   name?: string;
   /** 不可用 */
@@ -164,7 +174,7 @@ export const selectStyles = stylex.create({
 /** 下拉选择：触发框 + 弹出的选项列表 */
 export const Select = _component(
   <T,>({
-    items,
+    items = [],
     toOption,
     selectionMode = 'single',
     value = _bindable<string | string[] | null>(null),
@@ -174,6 +184,8 @@ export const Select = _component(
     clearable = false,
     searchable = false,
     filter,
+    search = _bindable(''),
+    load,
     name,
     variant,
     size,
@@ -205,12 +217,23 @@ export const Select = _component(
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     const multiple = () => selectionMode === 'multiple';
     const optionOf = (item: T) => toListboxOption(item, toOption);
-    // 搜索框里的文字：打开时清空
-    let query = _state('');
+    const remote = useRemoteItems({
+      load: () => load,
+      query: () => search,
+      open: () => open,
+      items: () => items,
+    });
+    // 本地过滤：有 load 或 filter={false} 时交给服务端
+    const localFilter = () => !load && filter !== false;
     const matches = (item: T, text: string) =>
       filter ? filter(item, text) : createMatcher(lang.code)(optionOf(item).label, text);
     const list = useListState({
-      items: () => (searchable && query ? items.filter((item) => matches(item, query)) : items),
+      items: () => {
+        const all = remote.items();
+        return searchable && search && localFilter()
+          ? all.filter((item) => matches(item, search))
+          : all;
+      },
       toOption: optionOf,
       selected: () => selectedValues(value),
       mode: () => selectionMode,
@@ -219,23 +242,23 @@ export const Select = _component(
       required: () => !multiple(),
     });
     // 已选项的文字取自全部 items（过滤掉的、远程搜索换掉的也在）
-    const selectedOptions = useSelectedOptions({ items: () => items, toOption: optionOf });
+    const selectedOptions = useSelectedOptions({ items: remote.items, toOption: optionOf });
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
 
     function show(highlight: 'default' | 'last' = 'default') {
-      query = '';
+      search = '';
       list.activateDefault();
       if (highlight === 'last' && selectedValues(value).length === 0) list.move('last');
       open = true;
     }
 
-    useResultAnnouncement(() => ({ query, count: list.options.length }));
+    useResultAnnouncement(() => ({ query: search, count: list.options.length }));
 
     // 输入搜索词：高亮第一个匹配的。打开时清空搜索词不算：那时高亮的是已选项
     watch(
-      () => query,
+      () => search,
       (text) => text && list.move('first'),
     );
 
@@ -405,7 +428,7 @@ export const Select = _component(
             size={appearance().size}
             labelledBy={state.labelledBy}
             label={rest['aria-label']}
-            loading={loading}
+            loading={loading || remote.loading()}
             onPick={picked}
             header={
               searchable && (
@@ -421,7 +444,7 @@ export const Select = _component(
                     propsSearch,
                   )}
                   type="search"
-                  value={_bind(query)}
+                  value={_bind(search)}
                   aria-controls={listId}
                   aria-activedescendant={open ? activeOptionId(list, listId) : undefined}
                   onKeydown={onSearchKeydown}
@@ -431,7 +454,7 @@ export const Select = _component(
             listbox={{
               list,
               id: listId,
-              empty: query ? lang.selectNoMatch : empty,
+              empty: remote.error() ? lang.listLoadFailed : search ? lang.selectNoMatch : empty,
               renderOption: children,
               multiple: multiple(),
             }}

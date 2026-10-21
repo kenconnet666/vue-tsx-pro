@@ -25,6 +25,11 @@ export interface RequestOptions<P, T> {
   immediate?: boolean;
   /** 重新请求时保留上一次的数据，默认 true；false 时请求一开始就清空 */
   keepPrevious?: boolean;
+  /**
+   * 自动请求的开关（弹层打开时才请求这类）：为 false 时 immediate 与参数变化都不请求，refresh 照常。
+   * 变回 true 时不自动补一次，需要时调用 refresh
+   */
+  enabled?: () => boolean;
   /** 成功后调用 */
   onSuccess?: (data: T, params: P) => void;
   /** 失败后调用（取消的不算） */
@@ -101,6 +106,7 @@ export function useRequest<T, P = undefined>(
 
   if (params) {
     watch(readParams, (next) => {
+      if (options.enabled?.() === false) return;
       if (sameValue(next, last)) return;
       last = next;
       clearTimeout(timer);
@@ -108,7 +114,9 @@ export function useRequest<T, P = undefined>(
       else void run(next);
     });
   }
-  if (immediate && typeof window !== 'undefined') void run(readParams());
+  if (immediate && options.enabled?.() !== false && typeof window !== 'undefined') {
+    void run(readParams());
+  }
   onScopeDispose(cancel);
 
   return {

@@ -719,6 +719,7 @@ export {
   type OptionMapping,
   type SelectedOption,
 } from './input/list-state';
+export { useRemoteItems, type OptionsLoader } from './input/remote-items';
 
 // 日期：日历、分段输入、日期与时间选择
 export {

@@ -48,6 +48,7 @@ export const enUS: Lang = {
   tableSummary: 'Total',
   tableSelectedCount: (count) => `${count} selected`,
   listResultCount: (count) => (count === 1 ? '1 option' : `${count} options`),
+  listLoadFailed: 'Failed to load. Try again.',
   tableClearSelection: 'Clear selection',
   tableDetails: 'Details',
   tableRowDetails: (row) => `Details of ${row}`,
