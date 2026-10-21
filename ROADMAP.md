@@ -103,3 +103,40 @@
 - [x] 组件库测试用 vmForks 池（每个 Worker 只建一次 happy-dom）：106 个文件 37 s → 10 s
 - [x] 文档站示例卡片只展示：源码与演练场地址按需加载（Button 页的块 gzip 9.8 → 5.2 KB）
 - [x] 文档工具进仓库：`pnpm docs:shot`（示例截图，各主题）、`pnpm docs:coverage`（示例没用到的属性）
+
+## 9. 业务后台能力（以联合降本管理为案例）
+
+需求来自《联合降本需求定义方案》与《降本项目信息表（单机 + DMC）》：两条渠道（供应商建议、项目团队方案）、任务池、一本账、
+储备库，收件箱认领，测算版本与 A / B / D 值。组件尽量进组件库：先补基础设施，再增强已有组件、新建通用组件，业务逻辑只留在
+文档站的案例里。案例用虚构数据（机型、供应商、人员都不用真实名称），整页示例同时是之后 Figma 改版的蓝本。
+
+**第 0 层：基础设施**
+
+- [ ] 金额格式：缩放（万元）、单位文字、币种、小数位、空值文案（“待定价”，走语言包）；`useFormat`、DataTable 列、Stat、图表共用
+- [ ] 表单布局上下文：Form 下发标签位置、标签宽度、列数、只读、不可用；`useFieldControl` 接上
+- [ ] 状态映射 `createStatusMap`：标签、色调、图标、阶段顺序；Badge、Steps、Timeline、表格状态列、看板、筛选共用
+- [ ] 选项缓存：远程搜索换了结果后已选项的文字不丢，回调带完整数据（Select、Combobox、TagsInput、TreeSelect）
+- [ ] 工作日与时限：节假日日历走 Provider，`useDeadline` 给出截止日、剩余与逾期天数、状态
+- [ ] 字段差异：两份记录按字段比较，得出是否变化与数值差
+- [ ] 跨容器拖动：`useSortable` 加分组
+- [ ] 通知控制器 `createNotifications()`（与 `createToaster` 同一模式）
+
+**里程碑**（每块做完就提交推送；每个组件有测试、文档页、API 表）
+
+- [ ] M1 表单：表单布局上下文、金额格式、Field 左标签（`labelPlacement`、`labelWidth`）、Checkbox / Radio / Switch /
+      ToggleGroup / Upload 读只读、Separator 标题、GridItem 跨列、FormSection、NumberField 单位与缩放、ActionBar 吸底操作栏；
+      案例：单机降本项目编辑（长表单）
+- [ ] M2 列表：状态映射、PageHeader、FilterBar、DataTable（合计行、分组表头、列级格式、行可选与行色调、展开行、列显示设置、
+      固定列阴影、滚动到行、状态列与时限列）、SelectionBar、Badge 圆点、Select 搜索、选项缓存、TreeSelect、NumberRangeField；
+      案例：任务台账
+- [ ] M3 流程与协作：工作日与时限、Steps（状态色调、每步信息、竖排连接线）、Timeline（操作人、状态、折叠、倒序）、Countdown 逾期、
+      CommentThread、带必填理由的确认、Upload 服务端文件与只读列表、NotificationCenter、跨容器拖动与 KanbanBoard；
+      案例：任务卡详情、工作台与收件箱
+- [ ] M4 测算与看板：字段差异、FieldCompare、WaterfallChart、FunnelChart、PivotTable、Stat 目标与下钻、Progress 目标刻度、
+      XYChart 目标线与点击；案例：测算对比与协商、一本账、储备库
+- [ ] M5 设计资源：tokens 导出为 Figma 变量（每套主题一个模式）、组件导出为 Figma 组件集；“设计资源”指南
+- [ ] M6 用新的设计资源重做降本的 Figma 界面
+
+**文档站**：新组件各一页，增强的组件补示例；新增“页面模式”分组（列表页、详情页、长表单、流程与审批、看板、数据看板）与
+“案例：降本管理”。顺带的增强：Tree 搜索与取消联动、Checkbox / Radio 卡片外观、DateRangePicker 月与年区间、AppShell 侧栏收起、
+Descriptions `labelWidth`；DataTable 行内编辑排在最后。
