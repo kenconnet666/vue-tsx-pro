@@ -92,9 +92,11 @@ describe('Pagination', () => {
     expect(root.querySelectorAll('li [aria-hidden="true"] svg').length).toBeGreaterThan(0);
   });
 
-  it('给了 href 时页码是链接', () => {
+  it('给了 href 时页码与上一页、下一页都是链接（rel=prev / next）', () => {
     const root = mount(() => <Pagination page={2} pageCount={3} href={(n) => `?page=${n}`} />);
-    expect([...root.querySelectorAll('a')].map((a) => a.getAttribute('href'))).toEqual([
+    const href = (selector: string) => root.querySelector(selector)!.getAttribute('href');
+    expect([href('a[rel="prev"]'), href('a[rel="next"]')]).toEqual(['?page=1', '?page=3']);
+    expect([...root.querySelectorAll('a:not([rel])')].map((a) => a.getAttribute('href'))).toEqual([
       '?page=1',
       '?page=2',
       '?page=3',

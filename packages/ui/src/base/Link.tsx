@@ -81,7 +81,10 @@ export const Link = _component(
           external
             ? { href, target: '_blank', rel: 'noopener noreferrer' }
             : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
-              { href, onClick: router.onClick },
+              {
+                href: router.href(href),
+                onClick: (event: MouseEvent) => router.onClick(event, href),
+              },
         )}
       >
         {children}

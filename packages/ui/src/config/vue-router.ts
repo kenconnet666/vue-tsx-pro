@@ -3,8 +3,8 @@
  *
  *   app.use(router).use(createUi({ router: vueRouterAdapter(router) }))
  *
- * Link、LinkButton、导航组件的站内链接点击后走 router.push（不刷新页面），当前页按路由判断。
- * 组件本身只依赖 config 里的 UiRouter 接口，换别的路由库时自己实现这两个函数即可。
+ * Link、LinkButton、导航组件的站内链接点击后走 router.push（不刷新页面），<a href> 渲染 router.resolve 的真实地址
+ * （带 base 与 hash 模式的 #），当前页按路由判断。组件本身只依赖 config 里的 UiRouter 接口，换别的路由库时自己实现即可。
  */
 import type { Router } from 'vue-router';
 import type { UiRouter } from './context';
@@ -30,6 +30,7 @@ export function vueRouterAdapter(
 ): UiRouter {
   return {
     navigate: (href) => void router.push(href),
+    resolve: (href) => router.resolve(href).href,
     isActive(href) {
       // resolve 处理 base 与相对路径；读 currentRoute 是响应式的，导航组件在渲染时调用即可跟随路由
       const resolved = router.resolve(href);
@@ -38,7 +39,9 @@ export function vueRouterAdapter(
       const target = resolved.path;
       const current = router.currentRoute.value.path;
       if (current === target) return true;
-      return match === 'prefix' && current.startsWith(target.endsWith('/') ? target : `${target}/`);
+      // 首页（/）是所有路径的前缀：只在就是首页时算当前
+      if (match !== 'prefix' || target === '/') return false;
+      return current.startsWith(target.endsWith('/') ? target : `${target}/`);
     },
   };
 }

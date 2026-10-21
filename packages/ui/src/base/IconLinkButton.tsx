@@ -76,7 +76,7 @@ export const IconLinkButton = _component(
       () => ({ disabled, loading: false, focusableWhenDisabled: true, ripple }),
       () => (event) => {
         (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
-        router.onClick(event);
+        router.onClick(event, href);
       },
     );
 
@@ -90,7 +90,7 @@ export const IconLinkButton = _component(
           rest,
           {
             ...behavior(),
-            href: disabled ? undefined : href,
+            href: disabled ? undefined : router.href(href),
             role: disabled ? 'link' : undefined,
             'aria-label': external ? `${label}${lang.linkNewWindow}` : label,
           },

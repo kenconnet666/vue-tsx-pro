@@ -72,7 +72,7 @@ export const LinkButton = _component(
       () => (event) => {
         // 使用方的 onClick 按元素类型声明，这里的事件就是它
         (onClick as ((event: MouseEvent) => void) | undefined)?.(event);
-        router.onClick(event);
+        router.onClick(event, href);
       },
     );
 
@@ -86,7 +86,7 @@ export const LinkButton = _component(
           rest,
           {
             ...behavior(),
-            href: disabled ? undefined : href,
+            href: disabled ? undefined : router.href(href),
             role: disabled ? 'link' : undefined,
           },
         )}

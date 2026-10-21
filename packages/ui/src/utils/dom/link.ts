@@ -14,10 +14,15 @@ export function shouldRouteClick(event: MouseEvent, anchor: HTMLAnchorElement): 
   return anchor.origin === window.location.origin;
 }
 
-/** 链接的路由能力：点击处理（展开到 <a> 的 onClick）与“是不是当前页” */
+/** 外部链接（带协议、// 开头）与页内锚点（#…）不经过路由 */
+const isRoutable = (href: string) => !/^([a-z][\w+.-]*:|\/\/|#)/i.test(href);
+
+/** 链接的路由能力：渲染的地址、点击处理（展开到 <a> 的 onClick）与“是不是当前页” */
 export interface RouterLink {
-  /** 站内链接的普通点击改由路由跳转；没有配置路由时什么也不做 */
-  onClick: (event: MouseEvent) => void;
+  /** 渲染到 <a href> 上的地址：站内链接经路由的 resolve 补上 base 与 hash 模式的 #；没有 resolve 时原样 */
+  href: (href: string) => string;
+  /** 站内链接的普通点击改由路由跳转，交给路由的是写在组件上的原文 href；没有配置路由时什么也不做 */
+  onClick: (event: MouseEvent, href: string) => void;
   /** href 是不是当前页；没有配置 isActive 时为 false。在渲染里调用以跟随路由变化 */
   isActive: (href: string | undefined) => boolean;
 }
@@ -26,15 +31,19 @@ export interface RouterLink {
 export function useRouterLink(): RouterLink {
   const config = useConfig();
   return {
-    onClick(event) {
+    href: (href) => {
+      const resolve = config.router?.resolve;
+      return resolve && isRoutable(href) ? resolve(href) : href;
+    },
+    onClick(event, href) {
       const router = config.router;
       const anchor = event.currentTarget;
       if (!router || !(anchor instanceof HTMLAnchorElement) || !shouldRouteClick(event, anchor)) {
         return;
       }
       event.preventDefault();
-      // 用写在 href 上的原文（而不是解析后的绝对地址）：路由的 base、相对路径由路由自己处理
-      router.navigate(anchor.getAttribute('href')!);
+      // 交给路由的是原文（不是渲染出的带 base 的地址）：base、相对路径由路由自己处理
+      router.navigate(href);
     },
     isActive: (href) => (href != null && config.router?.isActive?.(href)) || false,
   };

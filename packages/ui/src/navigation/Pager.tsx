@@ -87,7 +87,11 @@ export const Pager = _component(({ previous, next, propsLink, ...rest }: PagerPr
             ],
           },
           propsLink,
-          { href: link.href, rel: direction, onClick: router.onClick },
+          {
+            href: router.href(link.href),
+            rel: direction,
+            onClick: (event: MouseEvent) => router.onClick(event, link.href),
+          },
         )}
       >
         <span {...mergeAttrs<'span'>({ sx: pagerStyles.hint })}>

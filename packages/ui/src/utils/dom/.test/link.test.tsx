@@ -9,9 +9,9 @@ const RouterAnchor = _component(({ href, target }: { href: string; target?: stri
   const link = useRouterLink();
   return () => (
     <a
-      href={href}
+      href={link.href(href)}
       target={target}
-      onClick={link.onClick}
+      onClick={(event: MouseEvent) => link.onClick(event, href)}
       aria-current={link.isActive(href) ? 'page' : undefined}
     >
       x

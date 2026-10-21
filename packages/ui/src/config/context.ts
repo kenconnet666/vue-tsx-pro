@@ -17,15 +17,20 @@ import type { Theme } from './theme/theme';
 export type Highlighter = (code: string, lang: string) => Promise<string>;
 
 /**
- * 路由适配（参考 React Aria 的 RouterProvider）：组件库不依赖具体的路由库。
+ * 路由适配（参考 React Aria 的 RouterProvider 与 useHref）：组件库不依赖具体的路由库。
  * Link、LinkButton、导航组件渲染的仍是 <a href>；普通左键点击站内链接时改由 navigate 跳转（不刷新页面），
  * 新窗口打开、按着修饰键、外部链接、下载照常交给浏览器。
  *
  *   createUi({ router: { navigate: (href) => router.push(href), isActive: (href) => route.path === href } })
  */
 export interface UiRouter {
-  /** 站内跳转 */
+  /** 站内跳转；收到的是组件上写的原文（/orders），不是 resolve 之后的地址 */
   navigate: (href: string) => void;
+  /**
+   * 站内链接渲染到 <a href> 上的真实地址：补上路由的 base（/admin/orders）、hash 模式的 #（#/orders），
+   * 新标签页打开、复制链接才对。不写时原样渲染
+   */
+  resolve?: (href: string) => string;
   /** href 是不是当前页：导航组件据此加 aria-current="page"。在渲染时调用，读路由的响应式状态就能跟随变化 */
   isActive?: (href: string) => boolean;
 }

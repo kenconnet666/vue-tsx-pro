@@ -159,11 +159,11 @@ export const NavItem = _component(
             },
             rest,
             {
-              href: disabled ? undefined : href,
+              href: disabled ? undefined : router.href(href),
               'aria-current': current ? 'page' : undefined,
               'aria-disabled': disabled || undefined,
               // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转
-              onClick: router.onClick,
+              onClick: (event: MouseEvent) => router.onClick(event, href),
               ...rippleHandlers,
             },
           )}

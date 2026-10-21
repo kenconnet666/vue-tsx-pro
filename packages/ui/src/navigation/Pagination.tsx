@@ -11,6 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { Button, type ButtonProps } from '../base/Button';
 import { Icon } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
+import { IconLinkButton, type IconLinkButtonProps } from '../base/IconLinkButton';
 import { LinkButton, type LinkButtonProps } from '../base/LinkButton';
 import { useLang } from '../config/context';
 import { paginationItems } from '../utils/data/pagination';
@@ -47,8 +48,8 @@ export interface PaginationProps extends PartProps<'nav'> {
   propsPage?:
     | Partial<ButtonProps & LinkButtonProps>
     | ((page: number) => Partial<ButtonProps & LinkButtonProps>);
-  /** 上一页、下一页按钮的部件属性 */
-  propsStep?: Partial<IconButtonProps>;
+  /** 上一页、下一页按钮的部件属性（有 href 时是图标链接按钮） */
+  propsStep?: Partial<IconButtonProps & IconLinkButtonProps>;
   /** 省略号的部件属性 */
   propsEllipsis?: PartProps<'span'>;
   /** 总条数文字的部件属性 */
@@ -117,44 +118,48 @@ export const Pagination = _component(
       );
       return href ? (
         <LinkButton
-          {...mergePartProps<LinkButtonProps>(
-            shared as LinkButtonProps,
-            {},
-            {
-              href: href(target),
-              onClick: () => go(target),
-            },
-          )}
+          {...mergePartProps<LinkButtonProps>(shared as LinkButtonProps, {
+            href: href(target),
+            onClick: () => go(target),
+          })}
         >
           {target}
         </LinkButton>
       ) : (
         <Button
-          {...mergePartProps<ButtonProps>(shared as ButtonProps, {}, { onClick: () => go(target) })}
+          {...mergePartProps<ButtonProps>(shared as ButtonProps, { onClick: () => go(target) })}
         >
           {target}
         </Button>
       );
     }
 
-    /** 上一页、下一页：到头时不可用 */
+    /** 上一页、下一页：到头时不可用；有 href 时也是链接（rel="prev" / "next"），与页码一样可分享 */
     function stepButton(direction: -1 | 1) {
       const target = current + direction;
       const disabled = target < 1 || target > count;
-      return (
-        <IconButton
-          {...mergePartProps<IconButtonProps>(
-            {
-              size,
-              variant: 'ghost',
-              tone: 'neutral',
-              icon: direction < 0 ? ChevronLeft : ChevronRight,
-              propsIcon: { flipInRtl: true },
-              'aria-label': direction < 0 ? lang.previousPage : lang.nextPage,
-            },
+      const shared = {
+        size,
+        variant: 'ghost',
+        tone: 'neutral',
+        icon: direction < 0 ? ChevronLeft : ChevronRight,
+        propsIcon: { flipInRtl: true },
+        'aria-label': direction < 0 ? lang.previousPage : lang.nextPage,
+      } as const;
+      return href ? (
+        <IconLinkButton
+          {...mergePartProps<IconLinkButtonProps>(
+            { ...shared, href: href(disabled ? current : target) },
             propsStep,
-            { disabled, onClick: () => go(target) },
+            { disabled, rel: direction < 0 ? 'prev' : 'next', onClick: () => go(target) },
           )}
+        />
+      ) : (
+        <IconButton
+          {...mergePartProps<IconButtonProps>(shared, propsStep, {
+            disabled,
+            onClick: () => go(target),
+          })}
         />
       );
     }

@@ -529,12 +529,14 @@ export const MenuLinkItem = _component(
       <a
         {...mergeAttrs<'a'>({ sx: menuItemSx('neutral', disabled) }, rest, {
           role: 'menuitem',
-          href: disabled ? undefined : href,
+          href: disabled ? undefined : router.href(href),
           'aria-keyshortcuts': keyShortcuts(shortcut),
           'aria-disabled': disabled || undefined,
           ...menuItemDescribedBy(description, ids),
           onClick: (event: MouseEvent) => {
-            router.onClick(event);
+            // 不可用的项不响应点击：不跳转，也不关闭菜单
+            if (disabled) return event.preventDefault();
+            router.onClick(event, href);
             item.close();
           },
           ...item.ripple,
