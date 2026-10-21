@@ -22,7 +22,7 @@
  *
  * 展开状态与勾选联动见 utils/data/tree.ts（TreeDataTable 共用）。部件：Root（div，role="tree"）、
  * Row（虚拟滚动定位的一行，包着 Item）、Item（div，role="treeitem"）、Toggle（展开箭头）、
- * Checkbox（勾选框，只是外观，状态在 treeitem 的 aria-checked 上）、Label。
+ * Checkbox（勾选框，只是外观，状态在 treeitem 的 aria-checked 上）、Label、ScrollArea（外层的滚动区域）。
  */
 import { Check, ChevronRight, Minus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -44,8 +44,8 @@ import {
   type TreeAccessors,
 } from '../utils/data/tree';
 import { createTypeahead } from '../utils/dom/typeahead';
-import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
-import { ScrollArea } from '../layout/ScrollArea';
+import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
@@ -111,6 +111,8 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   propsCheckbox?: PartProps<'span', 'aria-hidden'>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
+  /** 外层滚动区域（ScrollArea）的部件属性：放进弹出层、弹性布局时给它 sx；树元素本身是它的视口 */
+  propsScrollArea?: Partial<Omit<ScrollAreaProps, 'propsViewport'>>;
 }
 
 /** Tree 的样式：root、sizer、row、item、toggle、checkbox、label 等 */
@@ -177,6 +179,7 @@ export const Tree = _component(
     propsToggle,
     propsCheckbox,
     propsLabel,
+    propsScrollArea,
     id,
     ...rest
   }: TreeProps<T>) => {
@@ -463,6 +466,7 @@ export const Tree = _component(
       const position = activeRow();
       return (
         <ScrollArea
+          {...mergePartProps<ScrollAreaProps>({}, propsScrollArea)}
           focusable={false}
           propsViewport={
             mergeProps<'div'>({ sx: [treeStyles.root, focusRingStyles.visible] }, rest, {

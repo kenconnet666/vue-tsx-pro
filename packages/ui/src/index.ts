@@ -607,6 +607,13 @@ export {
   type NumberFieldProps,
 } from './input/NumberField';
 export {
+  NumberRangeField,
+  numberRangeFieldStyles,
+  type NumberRange,
+  type NumberRangeFieldManaged,
+  type NumberRangeFieldProps,
+} from './input/NumberRangeField';
+export {
   Radio,
   RadioGroup,
   RadioGroupContext,
@@ -670,6 +677,7 @@ export {
   type ToggleGroupState,
   type ToggleItemProps,
 } from './input/ToggleGroup';
+export { TreeSelect, treeSelectStyles, type TreeSelectProps } from './input/TreeSelect';
 export {
   Upload,
   uploadStyles,

@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/NumberFieldProps';
+import rangeApi from 'virtual:api/NumberRangeFieldProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -9,6 +10,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Precise from './demo/Precise.tsx?demo';
+import Range from './demo/Range.tsx?demo';
 import Submit from './demo/Submit.tsx?demo';
 import Units from './demo/Units.tsx?demo';
 
@@ -19,7 +21,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { NumberField } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { NumberField, NumberRangeField } from '@vue-tsx-pro/ui';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="基础用法" demo={Basic}>
@@ -48,6 +54,12 @@ export default _component(() => () => (
           写了 <Code>name</Code>{' '}
           时，原生表单提交的是十进制文本（不带千分位与货币符号），不是输入框里显示的格式。
         </Example>
+        <Example id="range" title="数值区间" demo={Range}>
+          <Code>NumberRangeField</Code> 是两个数字框，值是 <Code>[起, 止]</Code>，任一端可以为{' '}
+          <Code>null</Code>（不限）；两端都填了、起比止大时自动对调。<Code>min</Code>、
+          <Code>format</Code>、<Code>suffix</Code> 这些两端共用；在 Field
+          里时组以标签为名称，两个框各自念“最小值”“最大值”。
+        </Example>
       </ExampleColumn>
     </Examples>
     <KeyboardReference
@@ -60,6 +72,6 @@ export default _component(() => () => (
     >
       输入框是 role="spinbutton"；加减按钮不在 Tab 顺序里（键盘用方向键），指针按住时连续加减。
     </KeyboardReference>
-    <ApiReference api={api} />
+    <ApiReference api={[api, rangeApi]} />
   </DocPage>
 ));
