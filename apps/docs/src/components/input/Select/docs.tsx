@@ -43,11 +43,14 @@ export default _component(() => () => (
           ：弹出层顶部是搜索框，打开后焦点就在里面，输入即按显示文字过滤（忽略大小写与重音，
           <Code>filter</Code> 可以换规则），↑↓ 移动、Enter 选中，Esc
           关闭并把焦点还给触发按钮。已选的项被过滤掉、或 items
-          换成了另一页的搜索结果时，触发框里照样显示它的文字。
+          换成了另一页的搜索结果时，触发框里照样显示它的文字。远程搜索给 <Code>load</Code>{' '}
+          （见下一个示例）；自己管请求时用 <Code>search={'{_bind(keyword)}'}</Code> 拿到搜索词、
+          <Code>filter={'{false}'}</Code> 关掉本地过滤。
         </Example>
         <Example id="custom" title="异步加载与自定义显示" demo={Members}>
-          第一次打开时再去取选项：<Code>loading</Code>{' '}
-          期间列表里是骨架行，已有选项时顶部显示进度条。
+          <Code>load(搜索词, signal)</Code> 在打开时请求（searchable 时搜索词停下 300 ms
+          再请求），只采用最后一次，请求期间列表里是骨架行，失败时提示重试；<Code>items</Code>{' '}
+          是第一次结果之前的选项（编辑页放上已选的那几项）。
           <Code>renderValue</Code> 自定义触发框里的已选内容（这里是头像叠放加名字），返回 null
           时显示占位文字；分组来自选项的 <Code>group</Code>。
         </Example>

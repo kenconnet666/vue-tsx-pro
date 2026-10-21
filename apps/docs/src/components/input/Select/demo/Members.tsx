@@ -1,8 +1,7 @@
-// 第一次打开时才去取选项（loading 期间列表里是骨架行）；renderValue 自定义触发框里的已选内容，
+// 打开时才去取选项（load：请求期间列表里是骨架行）；renderValue 自定义触发框里的已选内容，
 // 子节点渲染函数自定义每个选项
 import { _component } from '@vue-tsx-pro/tsx';
 import { Avatar, AvatarGroup, Field, Flex, Select, Small, Text } from '@vue-tsx-pro/ui';
-import { watch } from 'vue';
 
 interface Member {
   id: string;
@@ -19,33 +18,26 @@ const directory: Member[] = [
   { id: 'wq', name: '王晴', role: '测试' },
 ];
 
+/** 假的成员接口：900 ms 后返回全部成员，关掉弹层（请求被取消）时中止 */
+const fetchMembers = (_query: string, signal: AbortSignal) =>
+  new Promise<Member[]>((resolve, reject) => {
+    const timer = setTimeout(() => resolve(directory), 900);
+    signal.addEventListener('abort', () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    });
+  });
+
 export default _component(() => {
-  let open = _state(false);
-  let loading = _state(false);
-  let members = _state<Member[]>([]);
   let picked = _state<string[]>([]);
 
-  watch(
-    () => open,
-    (isOpen) => {
-      if (!isOpen || members.length > 0 || loading) return;
-      loading = true;
-      setTimeout(() => {
-        members = directory;
-        loading = false;
-      }, 900);
-    },
-  );
-
   return () => (
-    <Field label="项目成员" description="第一次打开时才加载成员列表">
+    <Field label="项目成员" description="打开时才加载成员列表">
       <Select
-        items={members}
+        load={fetchMembers}
         toOption={(member) => ({ value: member.id, label: member.name, group: member.role })}
         selectionMode="multiple"
         value={_bind(picked)}
-        open={_bind(open)}
-        loading={loading}
         clearable
         placeholder="添加成员"
         renderValue={(selected) =>

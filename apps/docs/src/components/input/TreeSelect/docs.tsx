@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
+import Remote from './demo/Remote.tsx?demo';
 
 export const meta = {
   title: 'TreeSelect 树形选择',
@@ -29,6 +30,12 @@ export default _component(() => () => (
       <Code>isDisabled</Code>{' '}
       让某些节点不能选（这里只能选到团队，中心、部这一级只用来展开）。图标、外观、尺寸、必填、只读、不可用同{' '}
       <Link href="/components/select">Select</Link>。
+    </Example>
+    <Example id="remote" title="远程搜索" demo={Remote}>
+      数据多（整个集团的组织机构）时给 <Code>load</Code>：打开时与输入停下 300 ms
+      后按搜索词请求，只采用最后一次；服务端返回命中的节点连同它们的上级，结果全部展开。
+      <Code>items</Code>{' '}
+      是第一次结果回来之前的树，编辑页放上已选节点的那一枝，触发框一开始就有文字；结果换掉之后也仍按见过的文字显示。
     </Example>
     <KeyboardReference
       keys={[

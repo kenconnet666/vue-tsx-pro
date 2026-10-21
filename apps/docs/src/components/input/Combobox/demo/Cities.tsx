@@ -45,46 +45,33 @@ const users = [
   'liyutong',
 ];
 
-// 假的远程搜索：300ms 后返回包含关键词的用户名
-const search = (keyword: string) =>
-  new Promise<string[]>((resolve) =>
-    setTimeout(() => resolve(users.filter((user) => user.includes(keyword.toLowerCase()))), 300),
-  );
+// 假的远程搜索：300 ms 后返回包含关键词的用户名，被后来的请求顶掉时中止
+const searchUsers = (keyword: string, signal: AbortSignal) =>
+  new Promise<string[]>((resolve, reject) => {
+    const timer = setTimeout(
+      () => resolve(keyword ? users.filter((user) => user.includes(keyword.toLowerCase())) : []),
+      300,
+    );
+    signal.addEventListener('abort', () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    });
+  });
 
 export default _component(() => {
   let city = _state<string | null>(null);
   let keyword = _state('');
-  let results = _state<string[]>([]);
-  let searching = _state(false);
   let user = _state<string | null>(null);
-
-  let latest = 0;
-  const onKeyword = async (next: string) => {
-    keyword = next;
-    const id = ++latest;
-    if (!next) return void (results = []);
-    searching = true;
-    const found = await search(next);
-    // 只用最后一次输入的结果：先发的请求后回来时丢掉
-    if (id !== latest) return;
-    results = found;
-    searching = false;
-  };
 
   return () => (
     <Flex direction="column" gap="md">
       <Field label="城市" description="本地过滤：输入“州”试试">
         <Combobox items={cities} value={_bind(city)} clearable placeholder="输入或选择" />
       </Field>
-      <Field label="成员" description="远程搜索：filter={false}，按 inputValue 换数据">
+      <Field label="成员" description="远程搜索：load 在输入停下 300 ms 后请求，只采用最后一次">
         <Combobox
-          items={results}
-          filter={false}
-          loading={searching}
-          inputValue={_bind(
-            () => keyword,
-            (next) => void onKeyword(next),
-          )}
+          load={searchUsers}
+          inputValue={_bind(keyword)}
           value={_bind(user)}
           placeholder="输入用户名"
           empty={keyword ? '没有匹配的成员' : '输入关键词开始搜索'}

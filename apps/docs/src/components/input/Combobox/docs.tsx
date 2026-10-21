@@ -21,9 +21,10 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="本地筛选与远程搜索" demo={Cities}>
-          默认本地筛选（忽略大小写与重音），中文输入法组合期间不拿拼音去筛选。远程搜索写{' '}
-          <Code>filter={'{false}'}</Code>，监听 <Code>inputValue</Code> 换 <Code>items</Code>，配合{' '}
-          <Code>loading</Code>；只用最后一次输入的结果。
+          默认本地筛选（忽略大小写与重音），中文输入法组合期间不拿拼音去筛选。远程搜索给{' '}
+          <Code>load(输入, signal)</Code>：输入停下 300 ms 后请求，只采用最后一次，被顶掉的请求经
+          signal 中止；自己管请求时写 <Code>filter={'{false}'}</Code>，按 <Code>inputValue</Code> 换{' '}
+          <Code>items</Code>、配合 <Code>loading</Code>。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
