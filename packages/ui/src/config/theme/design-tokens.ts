@@ -158,8 +158,8 @@ export function designTokens(values: ThemeValues, bases: DesignTokenBases): Desi
   return result;
 }
 
-/** 元素上实际生效的主题（所在 Provider 或页面根元素的主题）导出为设计令牌；元素要已挂载 */
-export function elementDesignTokens(element: Element): DesignTokens {
+/** 元素上实际生效的各组 token 取值（CSS 文本，如 radii.md → '0.4em'）；元素要已挂载 */
+export function elementThemeValues(element: Element): ThemeValues {
   const read = (group: string, token: string) => {
     const vars = tokenGroups[group as keyof typeof tokenGroups] as unknown as Record<
       string,
@@ -167,19 +167,24 @@ export function elementDesignTokens(element: Element): DesignTokens {
     >;
     return readToken(element, vars[token]!);
   };
-  const rem = Number.parseFloat(getComputedStyle(element.ownerDocument.documentElement).fontSize);
-  const em = toPx(read('fontSizes', 'md'), { em: rem, rem })!.value;
-  const values: ThemeValues = Object.fromEntries(
+  return Object.fromEntries(
     tokenCatalog.map((group) => [
       group.name,
       Object.fromEntries(group.tokens.map((token) => [token.name, read(group.name, token.name)])),
     ]),
   );
+}
+
+/** 元素上实际生效的主题（所在 Provider 或页面根元素的主题）导出为设计令牌；元素要已挂载 */
+export function elementDesignTokens(element: Element): DesignTokens {
+  const values = elementThemeValues(element);
+  const rem = Number.parseFloat(getComputedStyle(element.ownerDocument.documentElement).fontSize);
+  const em = toPx(values.fontSizes!.md!, { em: rem, rem })!.value;
   return designTokens(values, { em, rem });
 }
 
-/** 一套主题的设计令牌：在 container 里挂一个套着这套主题、不显示的空元素，读完取值就移除 */
-export function themeDesignTokens(theme: Theme, container: Element = document.body): DesignTokens {
+/** 在 container 里挂一个套着这套主题、不显示的空元素，读完就移除 */
+function probeTheme<T>(theme: Theme, container: Element, read: (probe: Element) => T): T {
   const probe = document.createElement('div');
   applyStyleAttrs(probe, stylex.attrs(...theme.styles));
   for (const [name, value] of Object.entries(themeVariables(theme))) {
@@ -188,8 +193,18 @@ export function themeDesignTokens(theme: Theme, container: Element = document.bo
   probe.hidden = true;
   container.append(probe);
   try {
-    return elementDesignTokens(probe);
+    return read(probe);
   } finally {
     probe.remove();
   }
+}
+
+/** 一套主题的各组 token 取值（CSS 文本）：主题的取值编译成了样式，要放进页面里量 */
+export function themeValues(theme: Theme, container: Element = document.body): ThemeValues {
+  return probeTheme(theme, container, elementThemeValues);
+}
+
+/** 一套主题的设计令牌 */
+export function themeDesignTokens(theme: Theme, container: Element = document.body): DesignTokens {
+  return probeTheme(theme, container, elementDesignTokens);
 }

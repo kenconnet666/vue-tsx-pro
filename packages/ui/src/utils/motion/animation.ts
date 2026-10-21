@@ -55,8 +55,8 @@ export function themeTransition(
   };
 }
 
-/** '200ms' / '0.2s' → 200 */
-function parseDuration(value: string) {
+/** CSS 时长 → 毫秒：'200ms' / '0.2s' → 200；时长 token 读出来的值用它换算 */
+export function parseDuration(value: string): number {
   const match = /^([\d.]+)(ms|s)$/.exec(value);
   if (!match) throw new Error(`无法识别的时长 token：${value}`);
   return Number(match[1]) * (match[2] === 's' ? 1000 : 1);

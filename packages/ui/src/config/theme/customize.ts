@@ -7,8 +7,10 @@
  *   themeSettingsCode('lightTheme', settings, 'light')   // 生成可以粘贴的 defineTheme(…) 代码
  *
  * 每个旋钮只改相关的一组 token，层级关系不变：换品牌色按 Radix 的级别整组替换（palette.ts），
- * 圆角、字号按默认值等比缩放（token-catalog.ts），动效按倍数缩放时长。
+ * 圆角按这套主题自己的圆角等比缩放（在页面里量出来；服务端用默认值），字号按默认值缩放（token-catalog.ts），
+ * 动效按倍数缩放时长。
  */
+import { themeValues } from './design-tokens';
 import { paletteColors, type AccentScale, type NeutralScale } from './palette';
 import { defineTheme, type Theme, type ThemeOverrides } from './theme';
 import { tokenCatalog } from './token-catalog';
@@ -68,6 +70,8 @@ export interface CustomizeOptions {
    * 会盖过主题里“减少动态效果时为 0”的媒体查询
    */
   reducedMotion?: boolean;
+  /** 基础主题自己的圆角（radii 各档的 CSS 取值）：圆角档位按它缩放；不给时按默认主题的取值 */
+  radii?: Readonly<Record<string, string>>;
 }
 
 const RADIUS_FACTORS: Record<keyof RadiusPresets, number> = {
@@ -97,26 +101,50 @@ function scale(value: string, factor: number): string {
   return `${scaled}${match[2]}`;
 }
 
-/** 按倍数缩放一组 token，跳过指定的键（如圆角的 full、none） */
-function scaleGroup(group: string, factor: number, skip: readonly string[] = []) {
+/** 按倍数缩放一组取值（默认是这组 token 的默认值），跳过指定的键（如圆角的 full、none） */
+function scaleGroup(
+  group: string,
+  factor: number,
+  skip: readonly string[] = [],
+  values: Readonly<Record<string, string>> = defaults(group),
+) {
   return Object.fromEntries(
-    Object.entries(defaults(group))
+    Object.entries(values)
       .filter(([key]) => !skip.includes(key))
       .map(([key, value]) => [key, scale(value, factor)]),
   );
+}
+
+const measuredRadii = new WeakMap<Theme, Readonly<Record<string, string>>>();
+
+/**
+ * 主题自己的圆角：放进页面里量一次（按主题缓存）。量不到时（服务端、样式还没加载）为 undefined，
+ * 按默认值缩放：定制主题不能因为量不到而出错
+ */
+function themeRadii(theme: Theme): Readonly<Record<string, string>> | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const cached = measuredRadii.get(theme);
+  if (cached) return cached;
+  try {
+    const radii = themeValues(theme).radii!;
+    measuredRadii.set(theme, radii);
+    return radii;
+  } catch {
+    return undefined;
+  }
 }
 
 /** 设置换算成 token 覆盖；appearance 决定品牌色、中性色取亮色还是暗色色阶 */
 export function themeSettingsOverrides(
   settings: ThemeSettings,
   appearance: 'light' | 'dark',
-  { reducedMotion = false }: CustomizeOptions = {},
+  { reducedMotion = false, radii }: CustomizeOptions = {},
 ): ThemeOverrides {
   const overrides: ThemeOverrides = {};
   const colors = paletteColors({ accent: settings.accent, neutral: settings.neutral, appearance });
   if (Object.keys(colors).length) overrides.colors = colors;
   if (settings.radius && settings.radius !== 'medium') {
-    overrides.radii = scaleGroup('radii', RADIUS_FACTORS[settings.radius], ['none', 'full']);
+    overrides.radii = scaleGroup('radii', RADIUS_FACTORS[settings.radius], ['none', 'full'], radii);
   }
   if (settings.scaling && settings.scaling !== 1) {
     overrides.fontSizes = scaleGroup('fontSizes', settings.scaling);
@@ -136,7 +164,12 @@ export function customizeTheme(
   settings: ThemeSettings,
   options: CustomizeOptions = {},
 ): Theme {
-  const overrides = themeSettingsOverrides(settings, base.colorScheme, options);
+  // 圆角按这套主题自己的取值缩放：自带圆角的主题（柠檬）上小、默认、大才是由小到大
+  const scaled = settings.radius != null && settings.radius !== 'medium';
+  const overrides = themeSettingsOverrides(settings, base.colorScheme, {
+    ...options,
+    radii: options.radii ?? (scaled ? themeRadii(base) : undefined),
+  });
   if (!Object.keys(overrides).length) return base;
   return defineTheme(base, overrides, { name: `${base.name}-custom` });
 }

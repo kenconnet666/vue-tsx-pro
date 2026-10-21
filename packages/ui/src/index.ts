@@ -1423,6 +1423,7 @@ export {
   type IndicatorAxes,
 } from './utils/motion/active-indicator';
 export {
+  parseDuration,
   themeTransition,
   themeTransitionOrInstant,
   useAnimate,

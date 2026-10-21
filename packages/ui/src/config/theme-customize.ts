@@ -28,7 +28,9 @@ export {
 export {
   designTokens,
   elementDesignTokens,
+  elementThemeValues,
   themeDesignTokens,
+  themeValues,
   type DesignToken,
   type DesignTokenBases,
   type DesignTokens,

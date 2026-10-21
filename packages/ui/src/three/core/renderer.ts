@@ -21,6 +21,7 @@ import { useReducedMotion } from '../../utils/dom/media-query';
 import { usePageVisible } from '../../utils/dom/page-visibility';
 import { disposeObject } from './dispose';
 import { clamp } from '../../utils/data/number';
+import { parseDuration } from '../../utils/motion/animation';
 import { usePointer, type PointerState } from '../../utils/motion/pointer';
 import {
   acquireContext,
@@ -156,7 +157,7 @@ const MAX_CONTEXT_LOSSES = 3;
 /** 主题的时长为 0（主题编辑器关掉了动效，或系统要求减少动态效果）：读不到主题时当作有动效 */
 function themeMotionOff(element: Element) {
   try {
-    return Number.parseFloat(readToken(element, durations.md)) === 0;
+    return parseDuration(readToken(element, durations.md)) === 0;
   } catch {
     return false;
   }

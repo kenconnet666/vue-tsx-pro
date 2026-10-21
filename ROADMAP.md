@@ -105,7 +105,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       已有文件时不再原生必填；Label 的 for 指向组时点击聚焦组里第一个控件（focusControl 先判断能否聚焦）
 - [x] Toast：只给显示出来的（最新的 max 条）计时（控制器的 `setLimit`）；`important` 打断播报（aria-live="assertive"，同 Sonner）；
       Progress 的不确定动画跟随从右到左
-- [ ] reveal.ts 的转场样式只在转场期间生效；主题定制的圆角档位按主题自己的取值缩放
+- [x] reveal.ts：去掉默认淡入淡出的样式只对转场期间的根元素生效（不再关掉宿主自己的 View Transitions），跳过的转场不报错、
+      时长用 parseDuration；主题定制的圆角按这套主题自己的取值缩放（`themeValues` 在页面里量，量不到时按默认值）
 
 ### 1.4 编译器（tsx）
 

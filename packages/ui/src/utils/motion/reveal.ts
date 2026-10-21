@@ -9,6 +9,7 @@
 import { nextTick } from 'vue';
 import { durations, easings } from '../../config/theme/tokens.stylex';
 import { readToken } from '../../config/theme/theme';
+import { parseDuration } from './animation';
 
 /** 圆形展开的起点（视口坐标，px） */
 export interface RevealOrigin {
@@ -19,10 +20,16 @@ export interface RevealOrigin {
 }
 
 type ViewTransitionDocument = Document & {
-  startViewTransition?: (update: () => Promise<void>) => { ready: Promise<void> };
+  startViewTransition?: (update: () => Promise<void>) => {
+    ready: Promise<void>;
+    finished: Promise<void>;
+  };
 };
 
-/** 圆形展开时去掉浏览器默认的淡入淡出：只插入一次 */
+/**
+ * 圆形展开时去掉浏览器默认的淡入淡出：只插入一次，只对带 data-vtp-reveal 的根元素生效（转场期间才带），
+ * 不影响宿主自己的 View Transitions
+ */
 let styleInserted = false;
 function insertRevealStyle() {
   if (styleInserted) return;
@@ -30,7 +37,7 @@ function insertRevealStyle() {
   const style = document.createElement('style');
   style.dataset.vtpReveal = '';
   style.textContent =
-    '::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}';
+    ':root[data-vtp-reveal]::view-transition-old(root),:root[data-vtp-reveal]::view-transition-new(root){animation:none;mix-blend-mode:normal}';
   document.head.append(style);
 }
 
@@ -42,15 +49,31 @@ export async function revealTransition(update: () => void, origin?: RevealOrigin
     update();
     return;
   }
-  if (origin) insertRevealStyle();
+  const root = doc.documentElement;
+  if (origin) {
+    insertRevealStyle();
+    root.dataset.vtpReveal = '';
+  }
+  let failed = false;
   const transition = doc.startViewTransition(async () => {
-    update();
+    try {
+      update();
+    } catch (error) {
+      failed = true;
+      throw error;
+    }
     // 等 Vue 把新主题写进 DOM，浏览器才截到新画面
     await nextTick();
   });
-  if (!origin) return transition.ready;
-  await transition.ready;
-  const root = doc.documentElement;
+  void transition.finished.finally(() => delete root.dataset.vtpReveal).catch(() => {});
+  try {
+    await transition.ready;
+  } catch (error) {
+    // update 出错照常抛给调用方；转场被跳过（又开始了一个）时没有动画可做，不算错误
+    if (failed) throw error;
+    return;
+  }
+  if (!origin) return;
   const radius = Math.hypot(
     Math.max(origin.x, innerWidth - origin.x),
     Math.max(origin.y, innerHeight - origin.y),
@@ -63,7 +86,7 @@ export async function revealTransition(update: () => void, origin?: RevealOrigin
       ],
     },
     {
-      duration: parseFloat(readToken(root, durations.lg)),
+      duration: parseDuration(readToken(root, durations.lg)),
       easing: readToken(root, easings.standard),
       pseudoElement: '::view-transition-new(root)',
     },
