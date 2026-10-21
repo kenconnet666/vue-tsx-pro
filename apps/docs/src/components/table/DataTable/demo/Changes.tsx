@@ -82,7 +82,7 @@ export default _component(() => () => (
     rows={changes}
     columns={columns}
     columnGroups={groups}
-    rowKey={(change) => String(change.no)}
+    getKey={(change) => String(change.no)}
     density="compact"
     aria-label="零件更改对比"
     propsCell={(change, column) =>

@@ -1293,7 +1293,7 @@ export const Base = _component(() => {
           <VirtualList
             class="virtual-demo"
             items={rows}
-            itemKey={(row) => row.id}
+            getKey={(row) => row.id}
             estimateSize={30}
             aria-label="一万行演示数据"
             handle={(handle) => (listHandle = handle)}

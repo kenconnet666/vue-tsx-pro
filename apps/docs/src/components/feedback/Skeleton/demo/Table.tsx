@@ -61,7 +61,7 @@ export default _component(() => {
         aria-label="订单"
         rows={loading ? [] : orders}
         columns={columns}
-        rowKey={(order) => order.id}
+        getKey={(order) => order.id}
         loading={loading}
       />
     </Flex>

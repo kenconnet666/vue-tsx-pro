@@ -355,7 +355,7 @@ export default _component(() => {
           <DataTable
             rows={rows}
             columns={columns()}
-            rowKey={(row) => row.task.code}
+            getKey={(row) => row.task.code}
             aria-label="收益认定"
             empty={tab === 'awaiting' ? '没有待认定的项目' : '没有记录'}
             propsRoot={{ sx: styles.table }}

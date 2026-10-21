@@ -6,7 +6,7 @@
  *   <TreeDataTable
  *     rows={departments}
  *     columns={columns}
- *     rowKey={(row) => row.id}
+ *     getKey={(row) => row.id}
  *     getChildren={(row) => row.children}
  *     expanded={_bind(open)}
  *     aria-label="组织架构"
@@ -71,7 +71,7 @@ export const TreeDataTable = _component(
   <T,>({
     rows,
     columns,
-    rowKey,
+    getKey,
     getChildren,
     hasChildren,
     loadChildren,
@@ -85,7 +85,7 @@ export const TreeDataTable = _component(
     ...rest
   }: TreeDataTableProps<T>) => {
     const lang = useLang();
-    const accessors = (): TreeAccessors<T> => ({ getKey: rowKey, getChildren, hasChildren });
+    const accessors = (): TreeAccessors<T> => ({ getKey, getChildren, hasChildren });
     const expansion = useTreeExpansion<T>({
       expanded: () => expanded,
       setExpanded: (keys) => (expanded = keys),
@@ -150,7 +150,7 @@ export const TreeDataTable = _component(
       <DataTable
         {...rest}
         rows={nodes}
-        rowKey={keyOf}
+        getKey={keyOf}
         columns={columns}
         manualSort
         sort={_bind(sort)}

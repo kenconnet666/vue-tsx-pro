@@ -436,7 +436,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - `scrollToIndex(index, { align: start | center | end | auto })`、`scrollToOffset`：动态大小下滚过去后周围的项才被测量，位置会变，下一帧重新对准直到稳定（`smooth` 时不重试）。
   - 只在渲染范围或总大小变化时通知（`onChange`），滚动本身不触发重新渲染。
 - **组件 `display/VirtualList`**：
-  - `items` + 渲染函数子节点 `{(item, index) => …}`，`itemKey`、`estimateSize`（数字或函数）、`overscan`、`horizontal`。
+  - `items` + 渲染函数子节点 `{(item, index) => …}`，`getKey`、`estimateSize`（数字或函数）、`overscan`、`horizontal`。
   - `scroll="container"`（默认，组件自己是滚动容器，高度由使用方给）或 `"window"`（随页面滚动）。
   - 无障碍：列表 `role="list"`，每项 `role="listitem"` 带 `aria-setsize` / `aria-posinset`（读屏知道总数与位置）；容器模式下可聚焦（键盘滚动，方向键、Page Up/Down、Home/End 都是浏览器原生行为）。
   - `empty`：没有数据时显示的内容。
@@ -643,7 +643,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 | 部件合并             | `mergeAttrs<'tag'>` 合并 `elementProps(mergeProps(…))`（216 处）；`mergeProps` 只有默认层时原样返回、事件名不用正则；单个静态样式缓存编译结果                              | 单元格合并 1.1µs → 0.36µs，按钮类挂载快约 20%              |
 | 目录与工具           | 表单结构拆到 `form/`，对话框一族移到 `overlay/`；`data/layout` 拆成 `data/number` 与 `dom/direction`；`useResizeObserver`；Toast 的 F8 用 `useHotkeys`；`useDefaults` 缓存 | —                                                          |
 | Virtualizer          | 位置表只从变了大小的项往后重排，一批测量合并成一次通知                                                                                                                     | 纯文本表格滚动每步 10.0ms → 3.8ms                          |
-| 表格                 | 行拆成 `DataTableRow`，全选状态改为派生；TreeDataTable 交给 DataTable 的行与 `rowKey` 保持同一个引用                                                                       | 勾选一行 4.4ms / 63 次更新 → 1.4ms / 8 次                  |
+| 表格                 | 行拆成 `DataTableRow`，全选状态改为派生；TreeDataTable 交给 DataTable 的行与 `getKey` 保持同一个引用                                                                       | 勾选一行 4.4ms / 63 次更新 → 1.4ms / 8 次                  |
 | 浮层                 | 内容第一次打开时才渲染（Popover、HoverCard、Menu、对话框与抽屉），统一成 `useLazyContent`                                                                                  | 一百个关闭的十项菜单挂载 118.6ms → 15.2ms，节点 5301 → 301 |
 | 图标与列表项         | Icon 用缓存的 SVG 标记作 innerHTML；Listbox 选项行用 `withMemo`                                                                                                            | 一千个图标挂载 39ms → 19ms；方向键的组件更新 31.9 → 4.5 次 |
 | 编译器               | 第 6 步渲染优化：组件子节点的插槽标 `$stable`，JSX 属性里的函数与常量按实例缓存，组件上的 `_bind` 写出可缓存的回调（RUNES §9）                                             | 父组件更新的级联 5.2ms / 203 次 → 0.0ms / 1 次             |

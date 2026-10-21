@@ -230,7 +230,7 @@ export default _component(() => {
             rows={rows}
             columns={columns()}
             columnGroups={groups()}
-            rowKey={(row) => row.code}
+            getKey={(row) => row.code}
             summaryLabel="按栏合计"
             aria-label="一本账"
             propsRoot={{ sx: styles.table }}

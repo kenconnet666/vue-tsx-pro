@@ -83,7 +83,7 @@ export default _component(() => {
     <TreeDataTable
       rows={rows}
       columns={columns}
-      rowKey={(unit) => unit.id}
+      getKey={(unit) => unit.id}
       getChildren={(unit) => unit.children}
       hasChildren={(unit) => !!unit.children?.length || !!unit.lazy}
       loadChildren={loadChildren}

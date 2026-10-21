@@ -225,7 +225,7 @@ export const TableDemo = _component(() => {
         <DataTable
           rows={filtered}
           columns={shown}
-          rowKey={(order) => order.id}
+          getKey={(order) => order.id}
           sort={_bind(sort)}
           selectionMode="multiple"
           selected={_bind(picked)}
@@ -240,7 +240,7 @@ export const TableDemo = _component(() => {
         <TreeDataTable
           rows={units}
           columns={unitColumns}
-          rowKey={(unit) => unit.id}
+          getKey={(unit) => unit.id}
           getChildren={(unit) => unit.children}
           hasChildren={(unit) => unit.lazy === true || (unit.children?.length ?? 0) > 0}
           loadChildren={loadUnit}

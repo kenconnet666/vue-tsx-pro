@@ -209,7 +209,7 @@ export default _component(() => {
       <DataTable
         rows={tasks}
         columns={columns}
-        rowKey={(task) => task.code}
+        getKey={(task) => task.code}
         selectionMode="multiple"
         selected={_bind(selected)}
         isRowSelectable={(task) => task.status !== 'closed'}

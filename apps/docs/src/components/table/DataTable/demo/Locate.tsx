@@ -89,7 +89,7 @@ export default _component(() => {
       <DataTable
         rows={tasks}
         columns={columns}
-        rowKey={(task) => task.code}
+        getKey={(task) => task.code}
         rowTone={(task) => (task.code === flashing ? 'info' : undefined)}
         handle={(api) => (table = api)}
         density="compact"

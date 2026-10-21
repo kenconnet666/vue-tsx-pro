@@ -163,7 +163,7 @@ export const IconGallery = _component(({ value = _bindable(''), onPick }: IconGa
       <div ref={_toRef(frame)}>
         <VirtualList
           items={rows}
-          itemKey={(row) => row[0]!.name}
+          getKey={(row) => row[0]!.name}
           estimateSize={ROW}
           sx={styles.scroller}
         >

@@ -127,7 +127,7 @@ describe('列的值类型', () => {
       <DataTable
         aria-label="明细"
         rows={lines}
-        rowKey={(line) => line.id}
+        getKey={(line) => line.id}
         columns={[
           { key: 'count', header: '数量' },
           { key: 'price', header: '金额', type: 'currency' },
@@ -165,7 +165,7 @@ describe('DataTable', () => {
       <DataTable
         rows={people}
         columns={columns}
-        rowKey={(p) => p.id}
+        getKey={(p) => p.id}
         sort={_bind(sort)}
         aria-label="人员"
       />
@@ -192,7 +192,7 @@ describe('DataTable', () => {
       <DataTable
         rows={people}
         columns={columns}
-        rowKey={(p) => p.id}
+        getKey={(p) => p.id}
         selectionMode="multiple"
         selected={_bind(picked)}
         aria-label="人员"
@@ -223,7 +223,7 @@ describe('DataTable', () => {
       <DataTable
         rows={many}
         columns={columns}
-        rowKey={(p) => p.id}
+        getKey={(p) => p.id}
         selectionMode="multiple"
         selected={_bind(picked)}
         aria-label="很多"
@@ -248,9 +248,9 @@ describe('DataTable', () => {
     }));
     const root = mount(() => (
       <>
-        <DataTable rows={many} columns={columns} rowKey={(p) => p.id} aria-label="很多" />
-        <DataTable rows={[]} columns={columns} rowKey={(p) => p.id} loading aria-label="加载中" />
-        <DataTable rows={[]} columns={columns} rowKey={(p) => p.id} aria-label="空" />
+        <DataTable rows={many} columns={columns} getKey={(p) => p.id} aria-label="很多" />
+        <DataTable rows={[]} columns={columns} getKey={(p) => p.id} loading aria-label="加载中" />
+        <DataTable rows={[]} columns={columns} getKey={(p) => p.id} aria-label="空" />
       </>
     ));
     await flush();
@@ -270,7 +270,7 @@ describe('DataTable', () => {
         <DataTable
           rows={people}
           columns={columns}
-          rowKey={(p) => p.id}
+          getKey={(p) => p.id}
           selectionMode="multiple"
           loading
           leading={() => <i>›</i>}
@@ -286,7 +286,7 @@ describe('DataTable', () => {
         <DataTable
           rows={[]}
           columns={columns}
-          rowKey={(p) => p.id}
+          getKey={(p) => p.id}
           propsEmptyCell={{ class: 'empty' }}
           aria-label="空"
         />
@@ -311,7 +311,7 @@ describe('DataTable', () => {
       <DataTable
         rows={people}
         columns={columns}
-        rowKey={(p) => p.id}
+        getKey={(p) => p.id}
         selectionMode="multiple"
         selected={_bind(picked)}
         propsHeadRow={{ class: 'head-row', ...({ 'aria-rowindex': 9 } as object) }}
@@ -368,7 +368,7 @@ describe('DataTable 的台账能力', () => {
       <DataTable
         aria-label="台账"
         rows={tasks}
-        rowKey={(task) => task.id}
+        getKey={(task) => task.id}
         columns={ledgerColumns}
       />
     ));
@@ -390,7 +390,7 @@ describe('DataTable 的台账能力', () => {
       <DataTable
         aria-label="台账"
         rows={tasks}
-        rowKey={(task) => task.id}
+        getKey={(task) => task.id}
         columns={ledgerColumns}
         selectionMode="multiple"
         selected={_bind(picked)}
@@ -425,7 +425,7 @@ describe('DataTable 的台账能力', () => {
       <DataTable
         aria-label="台账"
         rows={tasks}
-        rowKey={(task) => task.id}
+        getKey={(task) => task.id}
         columns={ledgerColumns}
         columnGroups={groups}
         selectionMode="multiple"
@@ -469,7 +469,7 @@ describe('DataTable 的详情行', () => {
       <DataTable
         aria-label="人员"
         rows={people}
-        rowKey={(person) => person.name}
+        getKey={(person) => person.name}
         columns={columns}
         selectionMode="multiple"
         renderDetail={(person) => <p class="detail">{person.name} 的简历</p>}
@@ -538,7 +538,7 @@ describe('DataTable 的 handle', () => {
       <DataTable
         aria-label="人员"
         rows={many}
-        rowKey={(person) => person.id}
+        getKey={(person) => person.id}
         columns={columns}
         handle={(api) => (table = api)}
       />
@@ -602,7 +602,7 @@ describe('TreeDataTable', () => {
       <TreeDataTable
         rows={tree}
         columns={columns}
-        rowKey={(p) => p.id}
+        getKey={(p) => p.id}
         getChildren={(p) => p.children}
         hasChildren={(p) => p.id === 'dept' || p.id === 'lazy'}
         loadChildren={(p) => void loaded.push(p.id)}
@@ -635,7 +635,7 @@ describe('TreeDataTable', () => {
       <TreeDataTable
         rows={tree}
         columns={columns}
-        rowKey={(p) => p.id}
+        getKey={(p) => p.id}
         getChildren={(p) => p.children}
         expanded={_bind(open)}
         propsToggle={{
@@ -673,7 +673,7 @@ describe('TreeDataTable', () => {
       <TreeDataTable
         rows={parents}
         columns={columns}
-        rowKey={(p) => p.id}
+        getKey={(p) => p.id}
         getChildren={(p) => p.children}
         expanded={open}
         aria-label="很多"

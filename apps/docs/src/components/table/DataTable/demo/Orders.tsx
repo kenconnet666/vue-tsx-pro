@@ -124,7 +124,7 @@ export default _component(() => {
         <DataTable
           rows={rows}
           columns={columns}
-          rowKey={(order) => order.id}
+          getKey={(order) => order.id}
           sort={_bind(sort)}
           selectionMode="multiple"
           selected={_bind(selected)}

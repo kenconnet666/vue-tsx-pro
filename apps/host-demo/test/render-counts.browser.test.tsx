@@ -89,7 +89,7 @@ it('表格勾选一行：只更新那一行', async () => {
         <DataTable
           rows={rows}
           columns={columns}
-          rowKey={(row) => row.id}
+          getKey={(row) => row.id}
           selectionMode="multiple"
           selected={_bind(selected)}
           aria-label="客户"

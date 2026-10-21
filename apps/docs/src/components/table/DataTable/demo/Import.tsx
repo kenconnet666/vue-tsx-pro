@@ -119,7 +119,7 @@ export default _component(() => {
       <DataTable
         rows={lines}
         columns={columns}
-        rowKey={(line) => String(line.row)}
+        getKey={(line) => String(line.row)}
         rowTone={toneOf}
         selectionMode="multiple"
         selected={_bind(selected)}

@@ -139,7 +139,7 @@ export default _component(() => {
           aria-label="设备台账"
           rows={line === 'all' ? machines : machines.filter((item) => item.line === line)}
           columns={columns}
-          rowKey={(item) => item.id}
+          getKey={(item) => item.id}
           selectionMode="multiple"
           propsRoot={{ sx: styles.table }}
         />

@@ -40,7 +40,7 @@ export default _component(() => {
         </Flex>
         <VirtualList
           items={list}
-          itemKey={(contact) => contact.id}
+          getKey={(contact) => contact.id}
           estimateSize={56}
           aria-label="联系人"
           sx={styles.list}

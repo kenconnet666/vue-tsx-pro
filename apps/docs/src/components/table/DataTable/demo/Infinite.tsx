@@ -60,7 +60,7 @@ export default _component(() => {
       <DataTable
         rows={rows}
         columns={columns}
-        rowKey={(event) => String(event.id)}
+        getKey={(event) => String(event.id)}
         loading={loading}
         estimateRowHeight={44}
         onRangeChange={({ endIndex }) => {

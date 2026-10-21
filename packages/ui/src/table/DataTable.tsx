@@ -4,7 +4,7 @@
  *   <DataTable
  *     rows={orders}
  *     columns={columns}
- *     rowKey={(order) => order.id}
+ *     getKey={(order) => order.id}
  *     sort={_bind(sort)}
  *     selectionMode="multiple"
  *     selected={_bind(picked)}
@@ -52,7 +52,7 @@ export interface DataTableProps<T> extends Omit<
   /** 数据 */
   rows: readonly T[];
   /** 行的 key：稳定且唯一（选择、测量都按它） */
-  rowKey: (row: T, index: number) => string;
+  getKey: (row: T, index: number) => string;
   /** 当前排序：父级可以写 sort={_bind(x)}；null 为不排序 */
   sort?: SortState | null;
   /** 不在本地排序：只写回 sort，数据由调用方按 sort 取 */
@@ -69,7 +69,7 @@ export interface DataTableProps<T> extends Omit<
 export const DataTable = _component(
   <T,>({
     rows,
-    rowKey,
+    getKey,
     columns,
     sort = _bindable<SortState | null>(null),
     manualSort = false,
@@ -92,7 +92,7 @@ export const DataTable = _component(
 
     const models = _derived.by<DataTableRowModel<T>[]>(() => {
       const ordered = manualSort ? rows : sortRows(rows, columns, sort, lang.code);
-      return ordered.map((row, index) => ({ key: rowKey(row, index), data: row, depth: 0 }));
+      return ordered.map((row, index) => ({ key: getKey(row, index), data: row, depth: 0 }));
     });
 
     function toggleRow(key: string) {

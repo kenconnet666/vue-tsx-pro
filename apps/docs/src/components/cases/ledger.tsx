@@ -720,7 +720,7 @@ export const LedgerPage = _component(
                 rows={result.rows}
                 columns={columns}
                 columnGroups={groups}
-                rowKey={(task) => task.code}
+                getKey={(task) => task.code}
                 sort={_bind(sort)}
                 manualSort
                 selectionMode="multiple"

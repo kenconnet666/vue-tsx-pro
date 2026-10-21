@@ -1,7 +1,7 @@
 /**
  * 虚拟列表：只渲染可见范围内的项，上万条数据也流畅。行高可以不固定，渲染后自动测量（COMPONENTS.md §10.7）。
  *
- *   <VirtualList items={users} itemKey={(user) => user.id} estimateSize={48} sx={styles.list}>
+ *   <VirtualList items={users} getKey={(user) => user.id} estimateSize={48} sx={styles.list}>
  *     {(user) => <UserRow user={user} />}
  *   </VirtualList>
  *
@@ -55,7 +55,7 @@ export interface VirtualListProps<T> extends PartProps<'div', VirtualListManaged
   /** 渲染一项：`{(item, index) => …}` */
   children: (item: T, index: number) => VNodeChild;
   /** 每项的 key，默认用序号；数据会重排、增删时一定要给，测量结果与组件状态才对得上 */
-  itemKey?: (item: T, index: number) => PropertyKey;
+  getKey?: (item: T, index: number) => PropertyKey;
   /** 每项的估计大小（px），数字或按项计算；渲染后以实际大小为准，默认 40 */
   estimateSize?: number | ((item: T, index: number) => number);
   /** 可见范围前后各多渲染几项，默认 4 */
@@ -121,7 +121,7 @@ export const VirtualList = _component(
   <T,>({
     items,
     children,
-    itemKey,
+    getKey,
     estimateSize = 40,
     overscan = 4,
     scroll = 'container',
@@ -143,7 +143,7 @@ export const VirtualList = _component(
     const virtual = useVirtualizer(() => {
       const data = items;
       const estimate = estimateSize;
-      const keyOf = itemKey;
+      const keyOf = getKey;
       return {
         count: data.length,
         overscan,

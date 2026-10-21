@@ -24,7 +24,7 @@ describe('VirtualList', () => {
     const root = mount(() => (
       <VirtualList
         items={rows}
-        itemKey={(row) => row.id}
+        getKey={(row) => row.id}
         estimateSize={40}
         overscan={2}
         aria-label="行"
@@ -131,7 +131,7 @@ describe('VirtualList：加载中', () => {
         <VirtualList items={[]} loading aria-label="空">
           {(row: { id: string }) => <span>{row.id}</span>}
         </VirtualList>
-        <VirtualList items={rows} loading itemKey={(row) => row.id} aria-label="刷新中">
+        <VirtualList items={rows} loading getKey={(row) => row.id} aria-label="刷新中">
           {(row) => <span>{row.label}</span>}
         </VirtualList>
       </>

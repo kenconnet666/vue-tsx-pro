@@ -22,7 +22,7 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="contacts" title="一万条联系人" demo={Contacts}>
           组件自己是滚动容器，高度用 <Code>sx</Code> 给；<Code>estimateSize</Code>{' '}
-          是估计的行高，渲染后按实际高度测量。数据会过滤、重排时给 <Code>itemKey</Code>
+          是估计的行高，渲染后按实际高度测量。数据会过滤、重排时给 <Code>getKey</Code>
           。没有数据时显示 <Code>empty</Code>；读屏念“第几项，共几项”，没渲染的也算在总数里。
         </Example>
       </ExampleColumn>

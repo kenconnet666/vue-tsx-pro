@@ -191,7 +191,7 @@ pnpm docs:coverage input/                                            # 各页 AP
 | `text:check --fix` 之后 `format:check` 失败                    | 它把拆开的中文行接回去，行可能超长：修完再跑一次 Prettier                                                                                                        |
 | 改了 tokens 后 `css-docs:check` 失败                           | `token-names.ts` 由 `pnpm css-docs` 生成                                                                                                                         |
 | 宽的内容把 grid / flex 容器撑宽，页面横向溢出                  | 网格项、弹性项的最小宽度默认等于内容宽度；外层加 `minWidth: 0`                                                                                                   |
-| 勾选一行，表格的所有可见行都重渲染                             | 传给 DataTable 的 `rowKey`、`columns` 每次渲染都新建：在 setup 或模块里定义                                                                                      |
+| 勾选一行，表格的所有可见行都重渲染                             | 传给 DataTable 的 `getKey`、`columns` 每次渲染都新建：在 setup 或模块里定义                                                                                      |
 | 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找；用 computed 缓存集合或映射                                                                                                     |
 | WebKit 里点开下拉后方向键无效                                  | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件在 click 里自己 `focus()`                                                                                       |
 | 改了 `apps/docs/build/api.ts` 或 `vite.config.ts` 后页面不对   | Vite 在进程内重启，新加的文档页可能要刷新一次；文件改名后开发服务器还引用旧路径时重启它                                                                          |

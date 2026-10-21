@@ -26,6 +26,8 @@ export interface StepsOrientations {
 
 /** 一个步骤 */
 export interface StepItem {
+  /** 唯一的 key；不写时用位置 */
+  key?: string;
   /** 标题 */
   title: VNodeChild;
   /** 说明（标题下面的小字） */
@@ -200,7 +202,7 @@ export const Steps = _component(
             const clickable = onStepChange && state === 'complete' && !item.disabled;
             return (
               <li
-                key={index}
+                key={item.key ?? index}
                 {...mergeAttrs<'li'>({ sx: stepsStyles.item }, own, {
                   'aria-current': state === 'current' ? 'step' : undefined,
                 })}

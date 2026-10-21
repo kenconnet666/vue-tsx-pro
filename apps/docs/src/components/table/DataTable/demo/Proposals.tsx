@@ -134,7 +134,7 @@ export default _component(() => {
     <DataTable
       rows={proposals}
       columns={columns}
-      rowKey={(proposal) => proposal.code}
+      getKey={(proposal) => proposal.code}
       renderDetail={detail}
       hasDetail={(proposal) => proposal.content != null}
       expandedRows={_bind(expanded)}

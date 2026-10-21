@@ -52,7 +52,7 @@ export default _component(() => {
       <DataTable
         rows={mode === 'empty' || mode === 'loading' ? [] : sample}
         columns={columns}
-        rowKey={(log) => String(log.id)}
+        getKey={(log) => String(log.id)}
         loading={mode === 'loading' || mode === 'refreshing'}
         density={density}
         variant="ghost"

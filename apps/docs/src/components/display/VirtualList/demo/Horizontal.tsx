@@ -46,7 +46,7 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <VirtualList
         items={photos}
-        itemKey={(photo) => photo.id}
+        getKey={(photo) => photo.id}
         horizontal
         estimateSize={136}
         overscan={2}

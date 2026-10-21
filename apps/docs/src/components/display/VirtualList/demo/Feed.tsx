@@ -65,7 +65,7 @@ export default _component(() => {
     <Card padding="none">
       <VirtualList
         items={entries}
-        itemKey={(entry) => entry.id}
+        getKey={(entry) => entry.id}
         estimateSize={32}
         loading={loading}
         onRangeChange={onRangeChange}

@@ -21,6 +21,8 @@ import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 
 /** 一级路径 */
 export interface BreadcrumbItem {
+  /** 唯一的 key；不写时用 href，再没有时用位置 */
+  key?: string;
   /** 显示的文字 */
   label: VNodeChild;
   /** 地址；最后一项（当前页）不需要 */
@@ -168,7 +170,10 @@ export const Breadcrumbs = _component(
                 </span>
               );
               return (
-                <li key={index} {...mergeAttrs<'li'>({ sx: breadcrumbsStyles.item }, own)}>
+                <li
+                  key={entry.key ?? entry.href ?? index}
+                  {...mergeAttrs<'li'>({ sx: breadcrumbsStyles.item }, own)}
+                >
                   {index === last ? (
                     <span
                       {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.current }, propsCurrent, {
