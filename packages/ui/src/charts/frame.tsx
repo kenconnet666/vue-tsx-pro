@@ -136,7 +136,9 @@ export const chartStyles = stylex.create({
     backgroundColor: 'transparent',
     boxShadow: `inset 0 0 0 ${borderWidths.md} ${color}`,
   }),
-  plot: { position: 'relative', minWidth: 0 },
+  // contain: inline-size：画好的 SVG 写死了宽度，不能让它反过来撑住按内容定宽的外层（表格式的滚动区、
+  // 起始对齐的弹性布局）；不然容器变窄时图表还是原来那么宽，Unovis 量不到变化也就不重画
+  plot: { position: 'relative', minWidth: 0, contain: 'inline-size' },
   plotHeight: (height: string) => ({ height }),
   center: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' },
   tooltip: { display: 'flex', flexDirection: 'column', gap: '_xs', fontSize: '_xs' },

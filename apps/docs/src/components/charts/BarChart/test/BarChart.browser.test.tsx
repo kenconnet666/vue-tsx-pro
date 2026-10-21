@@ -110,3 +110,32 @@ it('加载中之后再显示：绘图区换了元素，容器与坐标轴整套�
     [...root.querySelectorAll('svg text')].some((text) => text.textContent === 'B'),
   );
 });
+
+it('放在按内容定宽的容器里（表格式的滚动区、起始对齐的弹性布局），容器变窄时图表跟着变窄重画', async () => {
+  const data = [
+    { name: 'A', value: 40 },
+    { name: 'B', value: 65 },
+    { name: 'C', value: 52 },
+  ];
+  // 外层 table 按内容定宽：画好的 SVG 写死了宽度，不能反过来把它撑住
+  const root = mount(
+    _component(() => () => (
+      <div class="outer" style="width: 800px">
+        <div style="display: table; min-width: 100%">
+          <div style="display: flex; flex-direction: column; align-items: flex-start">
+            <BarChart
+              aria-label="宽度"
+              data={data}
+              index="name"
+              series={[{ key: 'value', label: '数值' }]}
+            />
+          </div>
+        </div>
+      </div>
+    )),
+  );
+  const svgWidth = () => Number(root.querySelector('[role="figure"] svg')?.getAttribute('width'));
+  await until(() => svgWidth() > 700);
+  root.querySelector<HTMLElement>('.outer')!.style.width = '400px';
+  await until(() => svgWidth() > 0 && svgWidth() <= 400);
+});
