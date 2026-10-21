@@ -295,7 +295,8 @@ export const Globe = _component(
           rest.sx,
         ]}
         {...(draggable ? orbit.handlers : {})}
-        sceneKey={`${density}|${glow}|${JSON.stringify(markers)}|${JSON.stringify(arcs)}`}
+        // 颜色也在键里：改了 landColor、markerColor 要重建场景（颜色在 setup 里读一次）
+        sceneKey={`${density}|${glow}|${landColor}|${markerColor}|${JSON.stringify(markers)}|${JSON.stringify(arcs)}`}
         setup={({ scene, quality, still, themeColors }) => {
           const camera = new PerspectiveCamera(FOV, 1, 0.1, 100);
           const palette = themeColors({ land: landColor, marker: markerColor }) as {

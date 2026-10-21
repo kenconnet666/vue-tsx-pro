@@ -135,11 +135,9 @@ export const WaveGrid = _component(
       <EffectSurface
         {...rest}
         sceneKey={`${variant}|${palette.join(',')}`}
-        setup={({ scene, camera, quality, size, pointer, themeColors }) => {
+        setup={({ scene, camera, quality, size, pointer, themeColorList }) => {
           const sources = palette.slice(0, THEME_PALETTE_SIZE);
-          const themed = themeColors(Object.fromEntries(sources.map((c, i) => [i, c])));
-          const list = sources.map((_, index) => themed[index]!);
-          while (list.length < THEME_PALETTE_SIZE) list.push(list.at(-1)!);
+          const list = themeColorList(sources, THEME_PALETTE_SIZE);
           const uniforms = {
             uTime: { value: 0 },
             uAmplitude: { value: amplitude },

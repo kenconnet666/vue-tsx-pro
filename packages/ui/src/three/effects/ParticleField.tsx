@@ -19,7 +19,6 @@ import {
   OrthographicCamera,
   Points,
   ShaderMaterial,
-  type Color,
 } from 'three';
 import { colors } from '../../config/theme/tokens.stylex';
 import { clamp } from '../../utils/data/number';
@@ -140,16 +139,11 @@ export const ParticleField = _component(
       <EffectSurface
         {...rest}
         sceneKey={`${palette.join(',')}|${links}`}
-        setup={({ scene, size: area, quality, pointer, themeColors }) => {
+        setup={({ scene, size: area, quality, pointer, themeColorList }) => {
           const camera = new OrthographicCamera(0, 1, 1, 0, -1, 1);
           const max = links ? MAX_LINKED : MAX_PARTICLES;
           const sources = palette.slice(0, THEME_PALETTE_SIZE);
-          const themed = themeColors(Object.fromEntries(sources.map((c, i) => [i, c]))) as Record<
-            string,
-            Color
-          >;
-          const list = sources.map((_, index) => themed[index]!);
-          while (list.length < THEME_PALETTE_SIZE) list.push(list[0]!);
+          const list = themeColorList(sources, THEME_PALETTE_SIZE);
 
           // 粒子状态：位置、速度、各自的漂移速度
           const position = new Float32Array(max * 3);

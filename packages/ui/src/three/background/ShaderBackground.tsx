@@ -21,7 +21,7 @@
  * 颜色在线性空间里计算，输出时按渲染器的色彩空间转换。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import { Color, Mesh, PlaneGeometry, ShaderMaterial, Vector2, Vector3, type IUniform } from 'three';
+import { Mesh, PlaneGeometry, ShaderMaterial, Vector2, Vector3, type IUniform } from 'three';
 import { useConfig } from '../../config/context';
 import { colors } from '../../config/theme/tokens.stylex';
 import { clamp } from '../../utils/data/number';
@@ -101,20 +101,19 @@ export const ShaderBackground = _component(
       <EffectSurface
         {...rest}
         sceneKey={`${fragmentShader}|${palette.join(',')}`}
-        setup={({ scene, size, pointer, themeColors }) => {
-          const themed = themeColors({
-            background: colors.background,
-            ...Object.fromEntries(palette.slice(0, THEME_PALETTE_SIZE).map((c, i) => [i, c])),
-          }) as Record<string, Color>;
-          const list = palette.slice(0, THEME_PALETTE_SIZE).map((_, index) => themed[index]!);
-          // uColors 的长度固定：不足的用最后一个补齐
-          while (list.length < THEME_PALETTE_SIZE) list.push(list.at(-1) ?? themed.background!);
+        setup={({ scene, size, pointer, themeColors, themeColorList }) => {
+          const { background } = themeColors({ background: colors.background });
+          // 没给颜色时色板全是背景色
+          const list = themeColorList(
+            palette.length > 0 ? palette : [colors.background],
+            THEME_PALETTE_SIZE,
+          );
           const builtin = {
             uTime: { value: 0 },
             uResolution: { value: new Vector2(size.width, size.height) },
             uPointer: { value: new Vector3() },
             uDark: { value: 0 },
-            uBackground: { value: themed.background },
+            uBackground: { value: background },
             uColors: { value: list },
             uColorCount: { value: clamp(palette.length, 1, THEME_PALETTE_SIZE) },
           };

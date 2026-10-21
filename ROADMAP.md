@@ -74,7 +74,9 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       语言包的名字都按 `BuiltinThemeName` 写成完整的表，加主题时漏了类型检查会报错。底色仍在 boot.ts 抄一份：它要在 Node 里跑、不能带 StyleX
 - [x] 静态 Table 与 DataTable 共用的外观移到 table-styles.ts（Table 不再连带打包 DataTable 的视图）；MenuItem、MenuCheckboxItem、
       MenuRadioItem 共用 `useButtonItem`。MenuSub 的触发项要管子菜单的打开与安全三角，与它们不同，不合并
-- [ ] 图表：`useUnovisContainer`、`ChartCommonProps`、骨架样式、`toggle`；3D 的 `themeColors.list`
+- [x] 3D：一列颜色变成主题色的写法（四处）收成 setup 上下文的 `themeColorList`；Globe 改 landColor、markerColor 不生效（不在 sceneKey 里）。
+      决定保留：Unovis 容器的生命周期两份对应两种容器（XYContainer 给直角坐标图、SingleContainer 给其余），各自已被同类图表共用；
+      四类图表的公共属性说明里带着各自的默认高度、骨架形状与格式的用处，不合成 `ChartCommonProps`
 - [ ] Lang 拆成核心与扩展（文档站、主题编辑器、PropsTable 的键不必每种语言都翻）
 - [ ] 文档站用的组件（CodePreview、PropsTable、CodeGroup、TableOfContents、Pager）挪到单独的入口
 - [ ] 脚本：`scripts/lib`（TypeScript 解析、仓库根目录、createRequire）；没登记的脚本登记或删掉；清理旧 worktree

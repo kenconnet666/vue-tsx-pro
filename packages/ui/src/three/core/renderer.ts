@@ -12,7 +12,7 @@
  * - 卸载、被回收时释放场景里的几何体、材质、纹理和渲染器，并立即交还上下文（forceContextLoss），
  *   不等浏览器回收；上下文连续丢失三次后改显示降级内容。
  */
-import { PerspectiveCamera, Scene, WebGLRenderer, type Camera } from 'three';
+import { PerspectiveCamera, Scene, WebGLRenderer, type Camera, type Color } from 'three';
 import { onScopeDispose, shallowRef, watch } from 'vue';
 import { useConfig } from '../../config/context';
 import { readToken } from '../../config/theme/theme';
@@ -73,6 +73,11 @@ export interface ThreeContext {
    * 材质的 color 直接赋这个对象（`material.color = palette.accent`），见 theme-colors.ts
    */
   themeColors: <Sources extends ThemeColorSources>(sources: Sources) => ThemeColors<Sources>;
+  /**
+   * 一列跟随主题的颜色（着色器的色板 uColors、粒子的色调）：给了 size 时取前 size 个，不足的用最后一个补齐
+   * （uniform 数组的长度是固定的）；sources 不能为空
+   */
+  themeColorList: (sources: readonly string[], size?: number) => Color[];
 }
 
 /** 每帧交给 frame 的时间 */
@@ -275,6 +280,13 @@ export function useThree(options: ThreeOptions): ThreeController {
         set.refresh(canvas, sources, false);
         colorSets.push({ set, sources });
         return set.colors;
+      },
+      themeColorList(sources, size) {
+        const used = size == null ? sources : sources.slice(0, size);
+        const themed = context.themeColors(Object.fromEntries(used.map((color, i) => [i, color])));
+        const list = used.map((_, index) => themed[index]!);
+        while (size != null && list.length < size) list.push(list.at(-1)!);
+        return list;
       },
     };
     const target: Instance = {

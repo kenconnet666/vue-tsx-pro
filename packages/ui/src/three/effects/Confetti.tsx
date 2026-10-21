@@ -199,18 +199,14 @@ export const Confetti = _component(
             },
           })}
           sceneKey={palette.join(',')}
-          setup={({ scene, size: area, still, themeColors }) => {
+          setup={({ scene, size: area, still, themeColorList }) => {
             if (still) {
               pending.length = 0;
               finish();
               return;
             }
             const camera = new OrthographicCamera(0, 1, 1, 0, -500, 500);
-            const themed = themeColors(Object.fromEntries(palette.map((c, i) => [i, c]))) as Record<
-              string,
-              Color
-            >;
-            const tints = palette.map((_, index) => themed[index]!);
+            const tints = themeColorList(palette);
 
             const mesh = new InstancedMesh(
               new PlaneGeometry(1, 1),
