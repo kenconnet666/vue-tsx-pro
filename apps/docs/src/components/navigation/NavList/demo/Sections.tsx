@@ -1,6 +1,6 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, NavItem, NavList, NavSection } from '@vue-tsx-pro/ui';
+import { Badge, Card, NavItem, NavList, NavSection } from '@vue-tsx-pro/ui';
 
 const sections = [
   ['指南', ['快速开始', '主题定制', '国际化']],
@@ -22,6 +22,9 @@ export default _component(() => {
                 key={page}
                 href={`#${encodeURIComponent(page)}`}
                 active={current === page}
+                // 还没上线的页面：不能点、不能聚焦
+                disabled={page === '设计资源'}
+                end={page === '设计资源' && <Badge variant="soft">即将上线</Badge>}
                 onClick={() => (current = page)}
               >
                 {page}

@@ -6,6 +6,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
+import Infinite from './demo/Infinite.tsx?demo';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
 import States from './demo/States.tsx?demo';
@@ -45,6 +46,12 @@ export default _component(() => () => (
           <Code>loading</Code> 且没有数据时显示骨架行，已有数据（刷新）时表头下方一条进度条，表格带
           aria-busy；没有数据显示 <Code>empty</Code>。<Code>density</Code>、<Code>variant</Code>、
           <Code>striped</Code> 与静态表格相同。
+        </Example>
+        <Example id="infinite" title="滚动加载" demo={Infinite}>
+          <Code>onRangeChange</Code>{' '}
+          报告可见行的范围（不含预渲染的行），离末尾不远时取下一页；取的时候 <Code>loading</Code>
+          ，已有数据所以只在表头下方显示进度条。内容会换行时给 <Code>estimateRowHeight</Code>{' '}
+          一个接近的估计，滚动条更准。
         </Example>
       </ExampleColumn>
     </Examples>

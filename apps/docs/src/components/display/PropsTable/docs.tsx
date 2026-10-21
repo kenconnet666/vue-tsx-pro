@@ -20,7 +20,8 @@ export default _component(() => () => (
       ：名称、种类（属性、事件、内容、部件属性）、类型、必填、默认值、能否 <Code>_bind</Code>
       、说明，档位类的 <Code>values</Code>{' '}
       列出每个可选值的含义。必填、可绑定的标记文案取语言包；外层是静态表格，窄屏时横向滚动。本站的
-      API 表从类型与 JSDoc 自动生成同样的数据。
+      API 表从类型与 JSDoc 自动生成同样的数据。外观属性同 Table：<Code>density</Code> 默认 compact，
+      <Code>variant</Code>、<Code>striped</Code> 照常可用。
     </Example>
     <ApiReference api={api} />
   </DocPage>

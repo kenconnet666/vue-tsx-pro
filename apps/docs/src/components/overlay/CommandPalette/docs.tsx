@@ -38,7 +38,7 @@ export default _component(() => () => (
           后端数据直接给 <Code>items</Code>，<Code>toOption</Code> 说明值、文字和分组；
           <Code>filter</Code> 自定义匹配（这里姓名、邮箱都能搜），<Code>renderOption</Code>{' '}
           自定义每一项的内容；<Code>trigger</Code> 换成自己的按钮，<Code>hotkey={'{false}'}</Code>{' '}
-          不注册快捷键。
+          不注册快捷键；<Code>empty</Code> 换掉没有匹配时的内容。
         </Example>
       </ExampleColumn>
     </Examples>

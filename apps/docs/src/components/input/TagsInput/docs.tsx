@@ -6,6 +6,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
+import Remote from './demo/Remote.tsx?demo';
 import States from './demo/States.tsx?demo';
 import Tags from './demo/Tags.tsx?demo';
 
@@ -24,6 +25,10 @@ export default _component(() => () => (
           可以改），粘贴时自动拆开，重复的不加；输入框空着时退格删掉最后一个。给了{' '}
           <Code>items</Code> 就有建议列表；
           <Code>allowCustomValue={'{false}'}</Code> 只能从建议里选。
+        </Example>
+        <Example id="remote" title="异步建议" demo={Remote}>
+          <Code>inputValue</Code> 双向绑定输入框的文字，按它请求建议；
+          <Code>filter={'{false}'}</Code> 不再本地过滤，<Code>loading</Code> 时建议列表显示加载中。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

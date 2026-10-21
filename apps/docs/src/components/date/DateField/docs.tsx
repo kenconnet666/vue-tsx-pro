@@ -11,6 +11,7 @@ import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Granularity from './demo/Granularity.tsx?demo';
 import Locales from './demo/Locales.tsx?demo';
+import Rules from './demo/Rules.tsx?demo';
 
 export const meta = {
   title: 'DateField 日期输入框',
@@ -34,6 +35,12 @@ export default _component(() => () => (
           <Code>granularity</Code> 从 <Code>year</Code> 到 <Code>second</Code>
           ，值的格式与原生输入框一致：
           <Code>'2026-10'</Code>、<Code>'2026-10-20'</Code>、<Code>'2026-10-20T14:30'</Code>。
+        </Example>
+        <Example id="rules" title="不可选的日期、时制与值的类型" demo={Rules}>
+          <Code>isDateUnavailable</Code> 标出不可选的日期：值照样写回、外壳显示出错，错误文字交给
+          Field。<Code>hourCycle</Code> 固定 12 / 24 小时制（不写时按语言），
+          <Code>suffix</Code> 放在框里最后。值的类型跟着绑定的值走，一开始为空时{' '}
+          <Code>valueType="dateValue"</Code> 写回 CalendarDate。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

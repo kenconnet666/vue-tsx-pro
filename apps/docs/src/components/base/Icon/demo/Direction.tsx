@@ -21,7 +21,10 @@ export default _component(() => () => (
             下一步 <Icon icon={ArrowRight} flipInRtl />
           </Text>
           <Text>
-            <Icon icon={Clock} /> 3 分钟前 · <Icon icon={Check} /> 已读
+            <Icon icon={Clock} /> 刚刚更新
+          </Text>
+          <Text>
+            <Icon icon={Check} /> 已读
           </Text>
         </Flex>
       </Card>

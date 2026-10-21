@@ -71,13 +71,17 @@ const styles = stylex.create({
 
 export default _component(() => {
   let current = _state<Page>('overview');
-  // 示例里不真的换页：链接只写锚点，当前项由 active 指定
+  let navOpen = _state(false);
+  // 示例里不真的换页：链接只写锚点，当前项由 active 指定；没有换路由，抽屉要自己关上
   const item = (page: Page) => (
     <NavItem
       href={`#${page}`}
       icon={pages[page].icon}
       active={current === page}
-      onClick={() => (current = page)}
+      onClick={() => {
+        current = page;
+        navOpen = false;
+      }}
       end={page === 'orders' && <Badge radius="full">12</Badge>}
     >
       {pages[page].label}
@@ -86,6 +90,7 @@ export default _component(() => {
 
   return () => (
     <AppShell
+      sidebarOpen={_bind(navOpen)}
       header={
         <>
           <span {...stylex.attrs(styles.brand)}>

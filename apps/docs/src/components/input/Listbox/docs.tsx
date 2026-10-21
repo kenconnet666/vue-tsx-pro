@@ -8,6 +8,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Columns from './demo/Columns.tsx?demo';
 import Plans from './demo/Plans.tsx?demo';
+import Remote from './demo/Remote.tsx?demo';
 
 export const meta = {
   title: 'Listbox 列表框',
@@ -31,6 +32,11 @@ export default _component(() => () => (
           选项可以带 <Code>icon</Code>、<Code>description</Code>、<Code>group</Code>，
           <Code>disabled</Code> 的项高亮时跳过。<Code>required</Code>{' '}
           时单选至少保留一项，再点已选项不取消；在 Field 里时名称取 Field 的标签。
+        </Example>
+        <Example id="remote" title="远程搜索：加载、空结果与点选" demo={Remote}>
+          <Code>loading</Code> 时没有选项显示骨架行，已有选项时顶部显示进度条，旧结果留着不闪；
+          <Code>empty</Code> 换掉默认的空状态。<Code>onPick</Code> 在每次点选（点击或
+          Enter）时调用，再点已选的那项也算，适合“选中即执行”。
         </Example>
       </ExampleColumn>
     </Examples>

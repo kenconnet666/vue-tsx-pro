@@ -39,6 +39,7 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="sections" title="文档站导航" demo={Sections}>
           NavSection 是带小标题、不能收起的一组：链接多、按主题分组的侧栏（本站就是）。
+          <Code>disabled</Code> 的项不能点、不能聚焦，<Code>end</Code> 放在项的末尾（计数、标记）。
         </Example>
         <Example id="toc" title="本页目录" demo={Contents}>
           TableOfContents 列出各节标题，滚动时高亮正在读的一节，指示条滑过去；当前节带

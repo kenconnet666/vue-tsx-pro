@@ -1,6 +1,6 @@
-import { AtSign } from '@lucide/icons';
+import { AtSign, UserPlus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Button, CommandPalette, Flex, Small, Text } from '@vue-tsx-pro/ui';
+import { Avatar, Button, CommandPalette, Empty, Flex, Small, Text } from '@vue-tsx-pro/ui';
 
 interface Person {
   id: string;
@@ -47,6 +47,14 @@ export default _component(() => {
           </Flex>
         )}
         onAction={(person) => (mentioned = person)}
+        empty={
+          <Empty
+            icon={UserPlus}
+            title="没有找到这个人"
+            description="可以先邀请对方加入团队"
+            size="sm"
+          />
+        }
       />
       <Small tone="muted">
         {mentioned ? `已提及 @${mentioned.name}（${mentioned.team}）` : '还没有提及谁'}

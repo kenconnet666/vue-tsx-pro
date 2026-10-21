@@ -42,4 +42,5 @@ const props: ApiProp[] = [
   },
 ];
 
-export default _component(() => () => <PropsTable props={props} caption="Rating 的属性" />);
+// 外观属性同 Table：density 默认 compact，这里加了斑马纹
+export default _component(() => () => <PropsTable props={props} caption="Rating 的属性" striped />);
