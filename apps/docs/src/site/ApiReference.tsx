@@ -15,6 +15,7 @@ import {
   type ApiPropKinds,
   type ComponentApi,
 } from '@vue-tsx-pro/ui';
+import { onBeforeUnmount, onMounted } from 'vue';
 
 /** 各种类的小节标题与顺序 */
 const KINDS: [keyof ApiPropKinds, string][] = [
@@ -36,34 +37,77 @@ export interface ApiReferenceProps {
   api: ComponentApi | ComponentApi[];
 }
 
+/** 浏览器空闲时执行；没有 requestIdleCallback 的（Safari）退到下一个任务。返回取消函数 */
+function whenIdle(run: () => void): () => void {
+  if (typeof requestIdleCallback === 'function') {
+    const handle = requestIdleCallback(run, { timeout: 500 });
+    return () => cancelIdleCallback(handle);
+  }
+  const handle = setTimeout(run);
+  return () => clearTimeout(handle);
+}
+
+/** 一个组件的 API 按种类分成的几张表 */
+const tablesOf = (item: ComponentApi) =>
+  KINDS.map(([kind, label]) => ({
+    kind,
+    label,
+    props: item.props.filter((prop) => prop.kind === kind),
+  })).filter((table) => table.props.length > 0);
+
 /** API 小节：每个组件一组表格 */
-export const ApiReference = _component(({ api }: ApiReferenceProps) => () => {
-  const apis = Array.isArray(api) ? api : [api];
-  return (
-    <Flex direction="column" gap="lg">
-      <H2 id="api" size="xl" anchor>
-        API
-      </H2>
-      {apis.map((item) => (
-        <Flex key={item.name} direction="column" gap="md">
-          {apis.length > 1 && (
-            <H3 id={`api-${item.name}`} size="lg" anchor>
-              {item.component}
-            </H3>
-          )}
-          {item.description && <Paragraph tone="muted">{item.description}</Paragraph>}
-          {KINDS.map(([kind, label]) => {
-            const props = item.props.filter((prop) => prop.kind === kind);
-            return (
-              props.length > 0 && (
-                <div key={kind} {...stylex.attrs(styles.table)}>
-                  <PropsTable props={props} caption={label} />
-                </div>
-              )
-            );
-          })}
-        </Flex>
-      ))}
-    </Flex>
-  );
+export const ApiReference = _component(({ api }: ApiReferenceProps) => {
+  const apis = () => (Array.isArray(api) ? api : [api]);
+  // 表格在页面底部，打开页面时看不见，却占了换页时三四成的渲染（一页上千个单元格）：
+  // 标题、说明先渲染（本页目录与 #api 锚点照常），首帧画出来以后，空闲时一张一张补上
+  let shown = _state(0);
+  let cancel = () => {};
+  onMounted(() => {
+    const total = apis().reduce((sum, item) => sum + tablesOf(item).length, 0);
+    const next = () => {
+      shown++;
+      if (shown < total) cancel = whenIdle(next);
+    };
+    const frame = requestAnimationFrame(() => (cancel = whenIdle(next)));
+    cancel = () => cancelAnimationFrame(frame);
+  });
+  onBeforeUnmount(() => cancel());
+
+  return () => {
+    const list = apis();
+    // 每张表在整页里排第几（按序号补上）：先算好，不在渲染里累加——下面是 Flex 的插槽，
+    // shown 变了只重新渲染插槽，外面的计数器不会归零
+    let offset = 0;
+    const groups = list.map((item) => {
+      const tables = tablesOf(item);
+      const start = offset;
+      offset += tables.length;
+      return { item, tables, start };
+    });
+    return (
+      <Flex direction="column" gap="lg">
+        <H2 id="api" size="xl" anchor>
+          API
+        </H2>
+        {groups.map(({ item, tables, start }) => (
+          <Flex key={item.name} direction="column" gap="md">
+            {list.length > 1 && (
+              <H3 id={`api-${item.name}`} size="lg" anchor>
+                {item.component}
+              </H3>
+            )}
+            {item.description && <Paragraph tone="muted">{item.description}</Paragraph>}
+            {tables.map(
+              ({ kind, label, props }, index) =>
+                start + index < shown && (
+                  <div key={kind} {...stylex.attrs(styles.table)}>
+                    <PropsTable props={props} caption={label} />
+                  </div>
+                ),
+            )}
+          </Flex>
+        ))}
+      </Flex>
+    );
+  };
 });
