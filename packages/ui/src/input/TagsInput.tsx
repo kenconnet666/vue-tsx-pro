@@ -8,6 +8,7 @@
  * - 回车、输入分隔符（默认 , ， ; ；）把文字加成标签；粘贴时按分隔符与换行拆成多个；重复的不加；
  * - 输入框为空时按退格删掉最后一个标签；每个标签有移除按钮（离场后其余的平移补位）；
  * - 有 items 时边输入边过滤建议（同 Combobox），↑↓ 移动、回车加入或移除高亮项（已选的打勾）；
+ *   异步取建议时绑定 inputValue 去请求、写 filter={false} 与 loading，结果没回来时列表显示加载中；
  * - 写了 name 时每个值一个隐藏的 input 随表单提交。
  *
  * 未声明的属性落到 input（主元素）上。部件：Root（外壳）、Tag、Input、Clear、Popover、Listbox。
@@ -167,7 +168,8 @@ export const TagsInput = _component(
     const layout = useLayoutAnimation(() => shell, { children: '[data-tag]' });
 
     const optionOf = (item: T) => toListboxOption(item, toOption);
-    const suggestions = () => items.length > 0;
+    // 异步搜索（filter={false}）时结果可能还没回来：建议列表与 combobox 角色一直在，等待时显示加载中
+    const suggestions = () => items.length > 0 || filter === false;
     const labelOf = (tag: string) => {
       const item = items.find((candidate) => optionOf(candidate).value === tag);
       return item === undefined ? tag : optionOf(item).label;

@@ -49,6 +49,19 @@ describe('TagsInput', () => {
     expect(tags(root)).toEqual(['a', 'c', 'd']);
   });
 
+  it('异步搜索（filter={false}）：还没有建议时也是 combobox；没有 items、也不是异步时不是', () => {
+    const root = mount(() => (
+      <>
+        <TagsInput items={[]} filter={false} loading aria-label="话题" />
+        <TagsInput aria-label="关键词" />
+      </>
+    ));
+    const [remote, free] = root.querySelectorAll('input');
+    expect(remote!.getAttribute('role')).toBe('combobox');
+    expect(remote!.getAttribute('aria-expanded')).toBe('false');
+    expect(free!.hasAttribute('role')).toBe(false);
+  });
+
   it('不可用：输入框 disabled，外壳 aria-disabled（标签在外壳里），标签没有移除按钮', () => {
     const root = mount(() => <TagsInput value={['a', 'b']} disabled aria-label="x" />);
     const input = root.querySelector('input')!;
