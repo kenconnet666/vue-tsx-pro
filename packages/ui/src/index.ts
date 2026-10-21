@@ -181,6 +181,12 @@ export {
   type GridProps,
 } from './layout/Grid';
 export {
+  PageHeader,
+  pageHeaderStyles,
+  type PageHeaderManaged,
+  type PageHeaderProps,
+} from './layout/PageHeader';
+export {
   PageScrollbar,
   pageScrollbarStyles,
   type PageScrollbarProps,

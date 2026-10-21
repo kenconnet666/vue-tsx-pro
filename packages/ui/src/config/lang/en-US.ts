@@ -16,6 +16,7 @@ export const enUS: Lang = {
   copy: 'Copy',
   copied: 'Copied',
   emptyValue: '—',
+  back: 'Back',
 
   toasterLabel: 'Notifications',
 

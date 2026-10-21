@@ -67,6 +67,8 @@ export interface Lang {
   readonly copied: string;
   /** 没有值时显示的占位（表格单元格、图表提示、描述列表），默认“—” */
   readonly emptyValue: string;
+  /** 返回上一级的按钮名称（页头的返回），默认“返回” */
+  readonly back: string;
 
   // ───────── 组件文案 ─────────
 
