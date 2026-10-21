@@ -41,7 +41,7 @@ const NOTIFY_INTERVAL = 100;
 export class StylexRules {
   /** 当前版本号 */
   version = 0;
-  private modules = new Map<string, { rules: StylexRule[]; key: string }>();
+  private modules = new Map<string, { rules: StylexRule[]; key: string; version: number }>();
   private cache: { version: number; minify: boolean; css: string } | undefined;
   private listeners = new Set<() => void>();
   private targets: TransformOptions<never>['targets'] | undefined;
@@ -55,10 +55,15 @@ export class StylexRules {
   set(id: string, rules: StylexRule[]) {
     const key = JSON.stringify(rules);
     if ((this.modules.get(id)?.key ?? '[]') === key) return;
-    if (rules.length) this.modules.set(id, { rules, key });
-    else this.modules.delete(id);
     this.version++;
+    if (rules.length) this.modules.set(id, { rules, key, version: this.version });
+    else this.modules.delete(id);
     for (const listener of this.listeners) listener();
+  }
+
+  /** 模块的规则从哪个版本起在 CSS 里；模块没有规则时为 undefined */
+  versionOf(id: string) {
+    return this.modules.get(id)?.version;
   }
 
   /** 重新构建前清空 */
@@ -103,6 +108,8 @@ export function stylexCss(rules: StylexRules): Plugin {
   let config: ResolvedConfig;
   /** 构建时输出的 CSS 资源；HTML 里用 Vite 的资源占位符引用，路径由 Vite 按 base 算 */
   let emitted: string | undefined;
+  /** 开发服务器在向浏览器提供 CSS（Vitest 等中间件模式不提供） */
+  let serving = false;
   return {
     name: 'vue-tsx-pro:stylex-css',
     // 依赖 StyleX 的包（组件库的发布包）不预构建：它们的 stylex.create 要经过编译插件
@@ -125,6 +132,7 @@ export function stylexCss(rules: StylexRules): Plugin {
     configureServer(server) {
       // Vitest 等没有 HTTP 服务器的中间件模式：页面不从这里取样式
       if (!server.httpServer) return;
+      serving = true;
       const path = config.base + CSS_PATH;
       server.middlewares.use((request, response, next) => {
         if (request.url?.split('?')[0] !== path) return next();
@@ -151,6 +159,19 @@ export function stylexCss(rules: StylexRules): Plugin {
         clearTimeout(timer);
       });
     },
+    // 开发时模块求值完之前等它的规则进了页面：否则新打开的页面先按没有样式渲染一下（会闪；
+    // 虚拟列表这类靠容器高度决定渲染多少的组件，没有高度时会把全部项都渲染出来）。
+    // 加在末尾，不挪动已有代码，source map 不用改。不能排到 order: 'post'：那时 Vite 已经解析完导入，
+    // 加上的 import 会原样留给浏览器
+    transform(code, id, options) {
+      if (!serving || options?.ssr || this.environment.name !== 'client') return;
+      const version = rules.versionOf(id);
+      if (version === undefined) return;
+      return {
+        code: `${code}\nimport { stylexReady as __stylexReady } from ${JSON.stringify(CLIENT_ID)};\nawait __stylexReady(${version});\n`,
+        map: null,
+      };
+    },
     transformIndexHtml(_, context) {
       if (context.server) {
         return [
@@ -161,7 +182,8 @@ export function stylexCss(rules: StylexRules): Plugin {
           },
           {
             tag: 'script',
-            attrs: { type: 'module', src: `${config.base}@id/${CLIENT_ID}` },
+            // 与模块里 import 的是同一个地址（\0 在地址里写成 __x00__），页面上才只有一份客户端脚本
+            attrs: { type: 'module', src: `${config.base}@id/__x00__${CLIENT_ID}` },
             injectTo: 'head',
           },
         ];
@@ -188,18 +210,20 @@ export function stylexCss(rules: StylexRules): Plugin {
   };
 }
 
-/** 客户端脚本：<link> 换成 <style>，之后按版本号拉取最新的 CSS（乱序到达的旧响应丢掉） */
+/**
+ * 客户端脚本：<link> 换成 <style>，之后拉取最新的 CSS。请求一个接一个发（版本号不会乱序）；
+ * 正在请求时又要更新，就在它之后再拉一次：服务器登记新规则可能晚于正在进行的那次请求
+ */
 function clientCode(url: string) {
   return `const url = ${JSON.stringify(url)};
 let current = -1;
 let style;
-async function update(version) {
-  if (version !== undefined && version <= current) return;
+let running;
+let queued;
+async function load() {
   const response = await fetch(url, { cache: 'no-store' });
-  const latest = Number(response.headers.get('X-StyleX-Version'));
   const css = await response.text();
-  if (latest <= current) return;
-  current = latest;
+  current = Number(response.headers.get('X-StyleX-Version'));
   if (!style) {
     style = document.createElement('style');
     style.setAttribute('data-stylex', '');
@@ -208,8 +232,19 @@ async function update(version) {
   }
   style.textContent = css;
 }
-update();
-import.meta.hot?.on(${JSON.stringify(UPDATE_EVENT)}, ({ version }) => update(version));
+function refresh() {
+  if (running) return (queued ??= running.then(() => ((queued = undefined), refresh())));
+  running = load()
+    .catch((error) => console.error('[vue-tsx-pro] 拉取 StyleX 的 CSS 失败', error))
+    .finally(() => (running = undefined));
+  return running;
+}
+/** 模块末尾等它的规则（从 version 版起）进了页面：编译插件在开发时加上 */
+export function stylexReady(version) {
+  if (typeof document !== 'undefined' && version > current) return refresh();
+}
+if (typeof document !== 'undefined') refresh();
+import.meta.hot?.on(${JSON.stringify(UPDATE_EVENT)}, ({ version }) => stylexReady(version));
 `;
 }
 
