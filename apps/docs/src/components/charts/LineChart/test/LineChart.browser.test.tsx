@@ -44,7 +44,8 @@ it('悬停：提示框列出当月各系列的值', async () => {
     return content.includes('实际降本') && content;
   });
   expect(text).toContain('12月');
-  expect(text).toContain('360 万元');
+  // 数字与单位之间是不换行的空格
+  expect(text).toContain('360\u00a0万元');
 });
 
 it('空值不画点：8 个月里 6 月没有数据，只有 7 个点', async () => {

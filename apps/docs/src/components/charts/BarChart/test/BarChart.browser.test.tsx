@@ -46,8 +46,9 @@ it('悬停一个类目：提示框列出这一组的各系列，数值带单位'
     return content.includes('预期降本') && content;
   });
   expect(text).toContain('项目 02');
-  expect(text).toContain('280 万元');
-  expect(text).toContain('438.4 万元');
+  // 数字与单位之间是不换行的空格
+  expect(text).toContain('280\u00a0万元');
+  expect(text).toContain('438.4\u00a0万元');
 });
 
 it('点图例隐藏一个系列：只剩 6 根柱子，再点恢复', async () => {
