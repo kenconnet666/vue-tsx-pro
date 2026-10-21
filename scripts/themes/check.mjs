@@ -1,5 +1,5 @@
 /**
- * 主题颜色的对比度检查（WCAG 2.2 AA）：每套内置主题（亮色即 tokens.stylex.ts 的默认值，其余见 themeFiles）逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
+ * 主题颜色的对比度检查（WCAG 2.2 AA）：每套内置主题（从 builtin.ts 读出，亮色即 tokens.stylex.ts 的默认值）逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
  *
  * 用法：node scripts/themes/check.mjs（CI 的静态检查里跑；改颜色前后都跑一遍）
  *
@@ -59,21 +59,25 @@ function readColors(file, group = 'colors') {
   return values;
 }
 
-// 内置主题名 → 主题文件（亮色即 tokens.stylex.ts 的默认值）；与 builtin.ts 的 builtinThemes 一一对应
-const themeFiles = {
-  light: 'tokens.stylex.ts',
-  dark: 'dark.ts',
-  paper: 'paper.ts',
-  midnight: 'midnight.ts',
-  'high-contrast': 'high-contrast.ts',
-  ocean: 'ocean.ts',
-  forest: 'forest.ts',
-  lemon: 'lemon.ts',
-  sakura: 'sakura.ts',
-  festive: 'festive.ts',
-  cyberpunk: 'cyberpunk.ts',
-  coffee: 'coffee.ts',
-};
+/** 内置主题名 → 主题文件：从 builtin.ts 的导入与 builtinThemes 读出来（亮色即 tokens.stylex.ts 的默认值） */
+function builtinThemeFiles() {
+  const text = readFileSync(join(themeDir, 'builtin.ts'), 'utf8');
+  const files = Object.fromEntries(
+    [...text.matchAll(/^import \{ (\w+) \} from '\.\/([\w-]+)';$/gm)].map(([, id, file]) => [
+      id,
+      `${file}.ts`,
+    ]),
+  );
+  const body = text.match(/export const builtinThemes = \{([\s\S]*?)\} as const/)?.[1];
+  if (!body) throw new Error('builtin.ts 里找不到 builtinThemes');
+  return Object.fromEntries(
+    [...body.matchAll(/^\s*'?([\w-]+)'?: (\w+),$/gm)].map(([, name, id]) => {
+      if (!files[id]) throw new Error(`builtin.ts 的 ${name}（${id}）找不到对应的导入`);
+      return [name, name === 'light' ? 'tokens.stylex.ts' : files[id]];
+    }),
+  );
+}
+const themeFiles = builtinThemeFiles();
 const light = readColors('tokens.stylex.ts');
 const themes = Object.fromEntries(
   Object.entries(themeFiles).map(([name, file]) => [name, { ...light, ...readColors(file) }]),

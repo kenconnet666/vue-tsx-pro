@@ -51,7 +51,8 @@ export interface ThemeSwitcherProps<Name extends string> extends Omit<
   propsTrigger?: Partial<IconButtonProps>;
 }
 
-const DEFAULT_ICONS: Record<string, IconData> = {
+// 每套内置主题都要有图标：加主题时漏了这里类型检查会报错
+const DEFAULT_ICONS: Record<BuiltinThemeName | typeof SYSTEM_THEME, IconData> = {
   [SYSTEM_THEME]: Monitor,
   light: Sun,
   dark: Moon,
@@ -89,7 +90,7 @@ export const ThemeSwitcher = _component(
           : name);
     const iconOf = (name: string) =>
       (icons as Record<string, IconData | undefined> | undefined)?.[name] ??
-      DEFAULT_ICONS[name] ??
+      (DEFAULT_ICONS as Record<string, IconData | undefined>)[name] ??
       Palette;
 
     function choose(next: string) {

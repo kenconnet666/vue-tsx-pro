@@ -5,6 +5,8 @@
  *   import { builtinThemeBootColors, themeBootScript } from '@vue-tsx-pro/ui/theme-boot';
  *   const html = `<script>${themeBootScript({ themes: builtinThemeBootColors })}</script>`;
  */
+// 只取类型：这个模块要在 Node 里运行，不能带上主题文件（StyleX）
+import type { BuiltinThemeName } from './builtin';
 import type { ColorSchemes } from './theme';
 
 /** 跟随系统的取值 */
@@ -63,4 +65,4 @@ export const builtinThemeBootColors = {
   festive: { background: '#fffaf6', text: '#2c1b13', colorScheme: 'light' },
   cyberpunk: { background: '#110e20', text: '#ede9ff', colorScheme: 'dark' },
   coffee: { background: '#180f0a', text: '#ffe9dc', colorScheme: 'dark' },
-} as const satisfies Record<string, ThemeBootColors>;
+} as const satisfies Record<BuiltinThemeName, ThemeBootColors>;

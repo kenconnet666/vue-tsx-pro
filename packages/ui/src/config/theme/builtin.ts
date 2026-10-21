@@ -4,7 +4,8 @@
  *   createThemePreference({ themes: builtinThemes })
  *   createThemePreference({ themes: { light: lightTheme, dark: darkTheme, ocean: oceanTheme } })
  *
- * 名字与各主题的 name、防闪烁脚本的 builtinThemeBootColors、ThemeSwitcher 的默认文字和图标一一对应。
+ * 加一套内置主题：在这里登记，再补上语言包里的名字（builtinThemeLabel）、boot.ts 的底色、ThemeSwitcher 的图标——
+ * 后三处按 BuiltinThemeName 写成完整的表，漏了类型检查会报错；pnpm themes:check 从这里读出主题文件核对颜色。
  */
 import { coffeeTheme } from './coffee';
 import { cyberpunkTheme } from './cyberpunk';

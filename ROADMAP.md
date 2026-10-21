@@ -70,7 +70,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       Tooltip 与 HoverCard 的触发器属性只有两处（并入 §1.3 的触发器写法）
 - [x] 组合式函数的清理一律 `onScopeDispose`（九处 onBeforeUnmount：effectScope 里也能用，组件里同样在移除 DOM 之前执行）。
       决定保留两种返回：单个值返回 `Readonly<Ref>`（useMediaQuery、useNow、usePageVisible，同 VueUse），状态加方法返回带 getter 的控制器（RUNES §7）
-- [ ] 内置主题的元数据（名字、图标、防闪烁底色）集中到 builtin.ts，其余从它派生
+- [x] 内置主题的登记：themes:check 从 builtin.ts 读出主题文件（不再另抄一份表）；boot.ts 的底色、ThemeSwitcher 的图标、
+      语言包的名字都按 `BuiltinThemeName` 写成完整的表，加主题时漏了类型检查会报错。底色仍在 boot.ts 抄一份：它要在 Node 里跑、不能带 StyleX
 - [ ] 静态 Table 的样式移到 table-styles.ts（不再连带打包 DataTable）；Menu 三种菜单项与 MenuSub 的重复
 - [ ] 图表：`useUnovisContainer`、`ChartCommonProps`、骨架样式、`toggle`；3D 的 `themeColors.list`
 - [ ] Lang 拆成核心与扩展（文档站、主题编辑器、PropsTable 的键不必每种语言都翻）
