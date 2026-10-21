@@ -1,3 +1,4 @@
+import zodMessages from 'zod/v4/locales/en.js';
 import type { Lang } from './lang';
 
 /** English (United States) */
@@ -22,6 +23,8 @@ export const enUS: Lang = {
   filterExpand: 'More filters',
   filterCollapse: 'Fewer filters',
   filterActive: (count) => `${count} set`,
+  formRequired: 'Required',
+  formIssues: zodMessages().localeError,
 
   toasterLabel: 'Notifications',
 

@@ -121,7 +121,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [ ] 导出 CSV：从列定义生成（BOM、转义、列的 value 与格式）；`downloadFile` 的 BOM 说明改对
 - [ ] 通用钩子：`useEventListener`、`useDebounce`、`useIntersectionObserver`、`useDocumentVisibility`
 - [ ] 快捷键：作用域、序列键（`g i`）、预解析；离开确认接上路由守卫与 `form.dirty`
-- [ ] zod 的报错跟随语言包
+- [x] zod 的报错跟随语言包：useForm 按语言包给 zod 传错误文案，空值是 `lang.formRequired`，其余是 `lang.formIssues`（zod 自带的语言包）；
+      createContext 在 setup 之外读取时直接用 fallback
 
 ## 3. 组件补齐（后台常用）
 

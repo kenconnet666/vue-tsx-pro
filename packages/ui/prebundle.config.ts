@@ -22,6 +22,8 @@ export const UI_DEPENDENCIES = [
   'three/addons/loaders/GLTFLoader.js',
   'zod',
   'zod/v4/core',
+  'zod/v4/locales/en.js',
+  'zod/v4/locales/zh-CN.js',
 ];
 
 /**

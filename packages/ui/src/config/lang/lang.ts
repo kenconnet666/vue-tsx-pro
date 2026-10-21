@@ -5,6 +5,7 @@
  * 命名：通用文案不加前缀；组件文案用组件名作前缀（selectEmpty），键入 lang.select 即可筛出。
  * 需要插值的文案写成函数。
  */
+import type { $ZodErrorMap } from 'zod/v4/core';
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
 import type { AccentScale, NeutralScale } from '../theme/palette';
@@ -79,6 +80,10 @@ export interface Lang {
   readonly filterCollapse: string;
   /** 收起的条件里已经填了几项：`(2)` → “已设 2 项” */
   readonly filterActive: (count: number) => string;
+  /** 表单里该填的没有填（null、undefined、空字符串、空数组）时的错误，默认“必填”；schema 里自己写的提示优先 */
+  readonly formRequired: string;
+  /** 其余校验错误的文案：取 zod 自带的语言包（`zod/v4/locales` 的 localeError）；schema 里自己写的提示优先 */
+  readonly formIssues: $ZodErrorMap;
 
   // ───────── 组件文案 ─────────
 

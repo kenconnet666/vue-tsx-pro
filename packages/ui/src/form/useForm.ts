@@ -27,7 +27,8 @@
  */
 import type { TsxComponent } from '@vue-tsx-pro/tsx';
 import { computed, reactive, shallowReactive, toRaw, watch } from 'vue';
-import { safeParseAsync, type $ZodIssue, type $ZodType } from 'zod/v4/core';
+import { safeParseAsync, type $ZodIssue, type $ZodRawIssue, type $ZodType } from 'zod/v4/core';
+import { useLang } from '../config/context';
 import { Field, type FieldProps } from './Field';
 import { createConstraints, type FieldConstraints } from './form-constraints';
 import { isNumeric, sameNumeric } from '../utils/data/numeric';
@@ -194,6 +195,16 @@ export interface FormController<Values extends object> extends FormControllerBas
 /** zod issue 的路径 → 点连接的字符串 */
 const issuePath = (issue: $ZodIssue) => issue.path.map(String).join('.');
 
+/**
+ * 该填的没有填：类型不对且是空值（null、undefined，包括缺少的键），或长度不够且是空字符串、空数组。
+ * 选择、数字、日期控件清空后是 null（COMPONENTS.md §1 空值），z.string() 遇到它报的是类型不对，读起来应当是“必填”
+ */
+function isBlankIssue({ code, input }: $ZodRawIssue): boolean {
+  if (code === 'invalid_type') return input == null;
+  if (code === 'too_small') return input === '' || (Array.isArray(input) && input.length === 0);
+  return false;
+}
+
 /** 按点连接的路径取值；中途是 null / undefined 时为 undefined */
 function readPath(source: unknown, path: string): unknown {
   let current = source;
@@ -270,6 +281,12 @@ export function useForm<Values extends object, Output = Values>(
   options: FormOptions<Values, Output>,
 ): FormController<Values> {
   const { schema, validateOn = 'blur', onSubmit } = options;
+  const lang = useLang();
+  // zod 的报错跟随语言包；schema 里自己写的提示优先于它（zod 的规则）
+  const parseOptions = {
+    error: (issue: $ZodRawIssue) =>
+      isBlankIssue(issue) ? lang.formRequired : lang.formIssues(issue),
+  };
   const fieldValidators = Object.entries(options.fields ?? {}) as [
     string,
     FieldValidator<unknown, Values>,
@@ -364,7 +381,7 @@ export function useForm<Values extends object, Output = Values>(
     const errors: FormErrors = {};
     let output = values as unknown as Output;
     if (schema) {
-      const result = await safeParseAsync(schema, values);
+      const result = await safeParseAsync(schema, values, parseOptions);
       if (result.success) output = result.data;
       for (const issue of result.error?.issues ?? []) {
         errors[issuePath(issue)] ??= issue.message;

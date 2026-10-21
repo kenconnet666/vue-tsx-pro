@@ -35,7 +35,9 @@ export default _component(() => () => (
           <Code>form.validating</Code>{' '}
           显示校验中。空值的约定：文本框清空是空字符串；选择、数字、日期控件没有值时是{' '}
           <Code>null</Code>，选填的字段在 schema 里写 <Code>.nullable()</Code>
-          （字段约束据此不标必填）。
+          （字段约束据此不标必填）。schema 没写提示时，错误跟随当前语言：该填的没填是“必填”（
+          <Code>lang.formRequired</Code>），其余取 zod 自带的语言包（<Code>lang.formIssues</Code>
+          ）。
         </Example>
         <Example id="layout" title="标签在左侧、整组只读" demo={Layout}>
           <Code>labelPlacement="start"</Code> 把标签放到控件的起始边：标签一列（

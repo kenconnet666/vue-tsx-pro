@@ -1,3 +1,4 @@
+import zodMessages from 'zod/v4/locales/zh-CN.js';
 import type { Lang } from './lang';
 
 /** 简体中文 */
@@ -22,6 +23,8 @@ export const zhCN: Lang = {
   filterExpand: '展开',
   filterCollapse: '收起',
   filterActive: (count) => `已设 ${count} 项`,
+  formRequired: '必填',
+  formIssues: zodMessages().localeError,
 
   toasterLabel: '通知',
   linkNewWindow: '（在新窗口打开）',

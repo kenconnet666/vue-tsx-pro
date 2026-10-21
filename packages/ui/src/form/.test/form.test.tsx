@@ -1,7 +1,10 @@
 // useForm + Form + Field：zod 校验、何时显示错误、提交、重置、聚焦第一个出错的控件、schema 推出的字段约束
 import { describe, expect, it, vi } from 'vitest';
+import { _component } from '@vue-tsx-pro/tsx';
 import { nextTick } from 'vue';
 import * as z from 'zod';
+import { Provider } from '../../config/Provider';
+import { enUS } from '../../config/lang/en-US';
 import { Checkbox } from '../../input/Checkbox';
 import { NumberField } from '../../input/NumberField';
 import { NumberRangeField } from '../../input/NumberRangeField';
@@ -30,6 +33,49 @@ describe('useForm', () => {
     await flush();
     expect(form.visibleError('email')).toBe('邮箱格式不对');
     expect(form.visibleError('profile.name')).toBeUndefined();
+  });
+
+  it('没写提示时报错跟随语言包：空值（null、空字符串、空数组）是“必填”，其余取 zod 的语言包；schema 写的提示优先', async () => {
+    const form = useForm({
+      initial: {
+        // 清空后的选择控件是 null；schema 忘了写 nullable 时读起来也是“必填”
+        city: null as unknown as string,
+        name: '',
+        tags: [] as string[],
+        email: 'x',
+        age: 3,
+        note: '',
+      },
+      schema: z.object({
+        city: z.string(),
+        name: z.string().min(1),
+        tags: z.array(z.string()).min(1),
+        email: z.email(),
+        age: z.number().min(18),
+        note: z.string().min(1, '请写备注'),
+      }),
+    });
+    expect(await form.validate()).toBe(false);
+    const { city, name, tags, email, age, note } = form.errors;
+    expect([city, name, tags, note]).toEqual(['必填', '必填', '必填', '请写备注']);
+    expect(email).toContain('电子邮件');
+    expect(age).toContain('18');
+
+    let english!: ReturnType<typeof useForm<{ city: string }>>;
+    const Probe = _component(() => {
+      english = useForm({
+        initial: { city: null as unknown as string },
+        schema: z.object({ city: z.string() }),
+      });
+      return () => null;
+    });
+    mount(() => (
+      <Provider lang={enUS}>
+        <Probe />
+      </Provider>
+    ));
+    expect(await english.validate()).toBe(false);
+    expect(english.errors.city).toBe('Required');
   });
 
   it('提交：校验不通过不调用 onSubmit；之后随输入实时更新；通过后 submitting 直到完成', async () => {
