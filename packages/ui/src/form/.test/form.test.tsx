@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import * as z from 'zod';
+import { Checkbox } from '../../input/Checkbox';
 import { NumberField } from '../../input/NumberField';
 import { TextField } from '../../input/TextField';
 import { mount } from '../../utils/.test/mount';
@@ -154,6 +155,67 @@ describe('Form + Field', () => {
       count: 1,
       age: 20,
     });
+  });
+});
+
+describe('字段布局与整组状态（field-layout）', () => {
+  const values = { email: 'ada@example.com', profile: { name: 'Ada' } };
+
+  it('Form 统一把标签放到起始边：控件、说明、错误包进控件列；Field 上写的优先', () => {
+    const form = useForm({ initial: values, schema });
+    const root = mount(() => (
+      <Form controller={form} labelPlacement="start" labelWidth={96}>
+        <Field label="邮箱" description="用于找回密码">
+          <TextField value={_bind(form.values.email)} />
+        </Field>
+        <Field label="名字" labelPlacement="top">
+          <TextField value={_bind(form.values.profile.name)} />
+        </Field>
+        <Field>
+          <Checkbox>记住我</Checkbox>
+        </Field>
+      </Form>
+    ));
+    const [email, name, remember] = root.querySelectorAll<HTMLElement>('form > div');
+    expect(email!.dataset.labelPlacement).toBe('start');
+    // 标签、控件列两个子元素；说明在控件列里
+    expect(email!.children).toHaveLength(2);
+    expect(email!.children[1]!.textContent).toContain('用于找回密码');
+    expect(name!.dataset.labelPlacement).toBe('top');
+    // 没有标签时控件列仍在第二列，只有一个子元素
+    expect(remember!.children).toHaveLength(1);
+  });
+
+  it('Form 只读、不可用下发到字段与不在 Field 里的控件；控件上显式写的优先', async () => {
+    const form = useForm({ initial: { email: 'ada@example.com', agreed: true } });
+    let state = _state({ readonly: true, disabled: false });
+    const root = mount(() => (
+      <Form controller={form} readonly={state.readonly} disabled={state.disabled}>
+        <Field label="邮箱">
+          <TextField value={_bind(form.values.email)} />
+        </Field>
+        <Checkbox checked={_bind(form.values.agreed)}>同意</Checkbox>
+        <Field label="备注" readonly={false}>
+          <TextField value="" />
+        </Field>
+      </Form>
+    ));
+    const [email, , remark] = root.querySelectorAll('input');
+    const agree = root.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    expect(email!.readOnly).toBe(true);
+    expect(remark!.readOnly).toBe(false);
+    expect(agree.getAttribute('aria-readonly')).toBe('true');
+    // 只读的复选框点了不变
+    agree.click();
+    await flush();
+    expect(agree.checked).toBe(true);
+    expect(form.values.agreed).toBe(true);
+
+    state = { readonly: false, disabled: true };
+    await flush();
+    expect(email!.disabled).toBe(true);
+    expect(agree.disabled).toBe(true);
+    expect(agree.hasAttribute('aria-readonly')).toBe(false);
   });
 });
 

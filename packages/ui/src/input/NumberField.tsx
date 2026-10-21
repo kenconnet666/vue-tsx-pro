@@ -87,11 +87,11 @@ export interface NumberFieldProps
   name?: string;
   /** 显示格式（Intl.NumberFormat 的选项），如 `{ style: 'currency', currency: 'CNY' }` */
   format?: Intl.NumberFormatOptions;
-  /** 显示减少 / 增加按钮，默认 true */
+  /** 显示减少 / 增加按钮，默认 true；只读时不显示 */
   stepper?: boolean;
   /** 不可用 */
   disabled?: boolean;
-  /** 只读 */
+  /** 只读：能聚焦、选中复制，不能改；不显示加减按钮 */
   readonly?: boolean;
   /** 必填 */
   required?: boolean;
@@ -311,7 +311,7 @@ export const NumberField = _component(
               onKeydown,
             })}
           />
-          {stepper && (
+          {stepper && !state.readonly && (
             <>
               <IconButton
                 {...mergePartProps<IconButtonProps>(

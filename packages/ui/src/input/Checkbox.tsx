@@ -32,6 +32,7 @@ import {
   choiceRootSx,
   useChoiceAppearance,
   type ChoiceOrientations,
+  readonlyChoiceHandlers,
   syncChecked,
 } from './choice-styles';
 
@@ -43,6 +44,8 @@ export interface CheckboxGroupState {
   readonly name: string | undefined;
   /** 整组不可用 */
   readonly disabled: boolean;
+  /** 整组只读 */
+  readonly readonly: boolean;
   /** 整组校验未通过 */
   readonly invalid: boolean;
   /** 勾选或取消一个值 */
@@ -66,6 +69,8 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
   value?: string;
   /** 不可用 */
   disabled?: boolean;
+  /** 只读：能聚焦、读屏念“只读”，勾选状态不能改（查看详情、审批时）；外观照常 */
+  readonly?: boolean;
   /** 必填（如“同意条款”） */
   required?: boolean;
   /** 校验未通过 */
@@ -100,6 +105,7 @@ export const Checkbox = _component(
     indeterminate = false,
     value,
     disabled,
+    readonly,
     required,
     invalid,
     size,
@@ -114,7 +120,7 @@ export const Checkbox = _component(
   }: CheckboxProps) => {
     const group = CheckboxGroupContext.inject(null);
     const appearance = useChoiceAppearance(() => ({ size, tone }));
-    const control = useFieldControl(() => ({ id, invalid, required, disabled }));
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let input = _state.raw<HTMLInputElement | null>(null);
     // 用户点击勾上时对勾描线；初次渲染、外部改值不播
     let drawCheck = _state(false);
@@ -138,13 +144,15 @@ export const Checkbox = _component(
       const field = group ? undefined : control();
       const isChecked = group && value != null ? group.value.includes(value) : checked;
       const off = disabled ?? group?.disabled ?? field?.disabled ?? false;
+      const locked = readonly ?? group?.readonly ?? field?.readonly ?? false;
       const bad = invalid ?? group?.invalid ?? field?.invalid ?? false;
       const marked = isChecked || indeterminate;
       return (
         <label
-          {...mergeAttrs<'label'>({ sx: choiceRootSx(appearance(), off) }, propsRoot)}
+          {...mergeAttrs<'label'>({ sx: choiceRootSx(appearance(), off, locked) }, propsRoot)}
           data-state={indeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
+          data-readonly={locked || undefined}
         >
           <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
             <input
@@ -169,8 +177,10 @@ export const Checkbox = _component(
                   disabled: off,
                   required: required ?? field?.required,
                   'aria-invalid': bad || undefined,
+                  'aria-readonly': locked || undefined,
                   'aria-describedby': field?.describedBy,
                   onChange,
+                  ...(locked && readonlyChoiceHandlers),
                 },
               )}
             />
@@ -207,6 +217,8 @@ export interface CheckboxGroupProps extends PartProps<'div', 'role'> {
   name?: string;
   /** 整组不可用 */
   disabled?: boolean;
+  /** 整组只读 */
+  readonly?: boolean;
   /** 校验未通过（如“至少选一项”） */
   invalid?: boolean;
   /** 排列方向，默认 vertical */
@@ -221,13 +233,14 @@ export const CheckboxGroup = _component(
     value = _bindable<string[]>([]),
     name,
     disabled,
+    readonly,
     invalid,
     orientation = 'vertical',
     id,
     children,
     ...rest
   }: CheckboxGroupProps) => {
-    const control = useFieldControl(() => ({ id, disabled, invalid }));
+    const control = useFieldControl(() => ({ id, disabled, readonly, invalid }));
     CheckboxGroupContext.provide({
       get value() {
         return value;
@@ -237,6 +250,9 @@ export const CheckboxGroup = _component(
       },
       get disabled() {
         return control().disabled;
+      },
+      get readonly() {
+        return control().readonly;
       },
       get invalid() {
         return control().invalid;
@@ -258,6 +274,7 @@ export const CheckboxGroup = _component(
           })}
           data-orientation={orientation}
           data-disabled={state.disabled || undefined}
+          data-readonly={state.readonly || undefined}
         >
           {children}
         </div>

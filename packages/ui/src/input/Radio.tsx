@@ -27,6 +27,7 @@ import {
   choiceRootSx,
   useChoiceAppearance,
   type ChoiceOrientations,
+  readonlyChoiceHandlers,
   syncChecked,
 } from './choice-styles';
 
@@ -38,6 +39,8 @@ export interface RadioGroupState {
   readonly name: string;
   /** 整组不可用 */
   readonly disabled: boolean;
+  /** 整组只读 */
+  readonly readonly: boolean;
   /** 必填 */
   readonly required: boolean;
   /** 整组校验未通过 */
@@ -61,6 +64,8 @@ export interface RadioGroupProps extends PartProps<'div', 'role'> {
   name?: string;
   /** 整组不可用 */
   disabled?: boolean;
+  /** 整组只读：能聚焦、读屏念“只读”，选中项不能改（查看详情、审批时）；外观照常 */
+  readonly?: boolean;
   /** 必填 */
   required?: boolean;
   /** 校验未通过 */
@@ -81,6 +86,7 @@ export const RadioGroup = _component(
     value = _bindable<string | undefined>(undefined),
     name,
     disabled,
+    readonly,
     required,
     invalid,
     size,
@@ -91,7 +97,7 @@ export const RadioGroup = _component(
     ...rest
   }: RadioGroupProps) => {
     const generatedName = useId();
-    const control = useFieldControl(() => ({ id, disabled, required, invalid }));
+    const control = useFieldControl(() => ({ id, disabled, readonly, required, invalid }));
     const appearance = useChoiceAppearance(() => ({ size, tone }));
     RadioGroupContext.provide({
       get value() {
@@ -102,6 +108,9 @@ export const RadioGroup = _component(
       },
       get disabled() {
         return control().disabled;
+      },
+      get readonly() {
+        return control().readonly;
       },
       get required() {
         return control().required;
@@ -129,9 +138,11 @@ export const RadioGroup = _component(
             'aria-describedby': state.describedBy,
             'aria-invalid': state.invalid || undefined,
             'aria-required': state.required || undefined,
+            'aria-readonly': state.readonly || undefined,
           })}
           data-orientation={orientation}
           data-disabled={state.disabled || undefined}
+          data-readonly={state.readonly || undefined}
         >
           {children}
         </div>
@@ -193,9 +204,10 @@ export const Radio = _component(
       const off = disabled ?? group.disabled;
       return (
         <label
-          {...mergeAttrs<'label'>({ sx: choiceRootSx(group, off) }, propsRoot)}
+          {...mergeAttrs<'label'>({ sx: choiceRootSx(group, off, group.readonly) }, propsRoot)}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
+          data-readonly={group.readonly || undefined}
         >
           <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
             <input
@@ -225,6 +237,7 @@ export const Radio = _component(
                       ?.querySelectorAll<HTMLInputElement>('input[type="radio"]');
                     syncChecked([...(radios ?? [])], (input) => input.value === group.value);
                   },
+                  ...(group.readonly && readonlyChoiceHandlers),
                 },
               )}
             />

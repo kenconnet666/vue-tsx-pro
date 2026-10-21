@@ -10,7 +10,11 @@
  * 控件上显式写的状态优先于 Field 的。控件用 useFieldControl 读取这些信息，单独使用（不在 Field 里）时照常工作。
  * 在 Form 里写了 name 时，错误信息取自表单控制器（useForm），焦点离开字段时报告失焦（何时显示错误见 useForm）。
  *
- * 部件：Root（div）、Label（Label）、Description（Text）、Error（Text，带警示图标）。
+ * 标签可以放在起始边（`labelPlacement="start"`）：标签一列、控件一列，标签与控件的第一行文字按基线对齐，
+ * 多行文本框、勾选组也对得齐。通常在 Form、FormSection 上统一设置（见 field-layout），整组的只读、不可用同样从那里来。
+ *
+ * 部件：Root（div）、Label（Label）、Control（div，标签在起始边时包住控件、说明与错误）、
+ * Description（Text）、Error（Text，带警示图标）。
  */
 import { Asterisk } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
@@ -20,6 +24,11 @@ import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
+import {
+  FieldLayoutContext,
+  type FieldLabelAligns,
+  type FieldLabelPlacements,
+} from './field-layout';
 import { FormContext } from './Form';
 import type { FieldConstraints } from './form-constraints';
 
@@ -84,10 +93,11 @@ export interface FieldControl {
 
 /**
  * 控件读取所在 Field 的信息（在 setup 里调用，返回的函数在渲染时调用）：
- * 控件上显式写的状态优先；不在 Field 里时只用控件自己的
+ * 控件上显式写的状态优先；不在 Field 里时用控件自己的，不可用与只读再看所在的 Form、FormSection
  */
 export function useFieldControl(read: () => FieldControlOptions): () => FieldControl {
   const field = FieldContext.inject(null);
+  const layout = field ? null : FieldLayoutContext.inject(null);
   return () => {
     const own = read();
     return {
@@ -96,8 +106,8 @@ export function useFieldControl(read: () => FieldControlOptions): () => FieldCon
       describedBy: field?.describedBy,
       invalid: own.invalid ?? field?.invalid ?? false,
       required: own.required ?? field?.required ?? false,
-      disabled: own.disabled ?? field?.disabled ?? false,
-      readonly: own.readonly ?? field?.readonly ?? false,
+      disabled: own.disabled ?? field?.disabled ?? layout?.disabled ?? false,
+      readonly: own.readonly ?? field?.readonly ?? layout?.readonly ?? false,
       constraints: field?.constraints ?? NO_CONSTRAINTS,
     };
   };
@@ -164,12 +174,20 @@ export interface FieldProps extends PartProps<'div'> {
   invalid?: boolean;
   /** 必填 */
   required?: boolean;
-  /** 不可用 */
+  /** 不可用；不写时取所在 Form、FormSection 的 */
   disabled?: boolean;
-  /** 只读 */
+  /** 只读；不写时取所在 Form、FormSection 的 */
   readonly?: boolean;
+  /** 标签放在哪；不写时取所在 Form、FormSection 的，都没写时在上方 */
+  labelPlacement?: keyof FieldLabelPlacements;
+  /** 标签在起始边时标签列的宽度：数字是 px，也可以写 CSS 长度；默认 `'8em'` */
+  labelWidth?: number | string;
+  /** 标签在起始边时文字的对齐，默认 end（贴着控件） */
+  labelAlign?: keyof FieldLabelAligns;
   /** 标签的部件属性 */
   propsLabel?: Partial<LabelProps>;
+  /** 控件列（标签在起始边时包住控件、说明与错误的 div）的部件属性 */
+  propsControl?: PartProps<'div'>;
   /** 说明的部件属性 */
   propsDescription?: Partial<TextProps>;
   /** 错误信息的部件属性 */
@@ -178,12 +196,32 @@ export interface FieldProps extends PartProps<'div'> {
   children?: VNodeChild;
 }
 
-/** Field 的样式：root、hint、error、errorIcon */
+/** 标签在起始边时默认的标签列宽度：放得下七八个汉字 */
+const DEFAULT_LABEL_WIDTH = '8em';
+
+/** Field 的样式：root、start、label…、control、hint、error、errorIcon */
 export const fieldStyles = stylex.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
+  // 标签一列、控件一列；第一行按基线对齐：标签与输入框里的文字、勾选项的文字在同一条线上
+  start: {
+    display: 'grid',
+    columnGap: '_md',
+    rowGap: '_xs',
+    alignItems: 'baseline',
+  },
+  labelStart: { justifySelf: 'start', textAlign: 'start' },
+  labelEnd: { justifySelf: 'end', textAlign: 'end' },
+  // 没有标签时控件仍放在第二列，与上下的字段对齐
+  controlWithoutLabel: { gridColumnStart: '2' },
+  control: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
   hint: { fontSize: '_sm', lineHeight: '_normal' },
   error: { display: 'inline-flex', alignItems: 'flex-start', gap: '_xs' },
   errorIcon: { flexShrink: 0, marginBlock: '0.25em' },
+});
+
+/** Field 的动态样式：标签列的宽度 */
+export const fieldColumnStyles = stylex.create({
+  columns: (labelWidth: string) => ({ gridTemplateColumns: `${labelWidth} minmax(0, 1fr)` }),
 });
 
 /** 表单字段：标签、控件、说明、错误信息，自动关联 id 与状态 */
@@ -195,9 +233,13 @@ export const Field = _component(
     error,
     invalid,
     required,
-    disabled = false,
-    readonly = false,
+    disabled,
+    readonly,
+    labelPlacement,
+    labelWidth,
+    labelAlign,
     propsLabel,
+    propsControl,
     propsDescription,
     propsError,
     children,
@@ -211,10 +253,13 @@ export const Field = _component(
       error: `${id}-error`,
     };
     const form = FormContext.inject(null);
+    const layout = FieldLayoutContext.inject(null);
     const message = () => error ?? (name != null ? form?.visibleError(name) : undefined);
     const showError = () => message() != null && invalid !== false;
     const constraints = () => (name != null && form ? form.constraints(name) : NO_CONSTRAINTS);
     const isRequired = () => required ?? constraints().required ?? false;
+    const isDisabled = () => disabled ?? layout?.disabled ?? false;
+    const isReadonly = () => readonly ?? layout?.readonly ?? false;
 
     FieldContext.provide({
       controlId: ids.control,
@@ -235,10 +280,10 @@ export const Field = _component(
         return constraints();
       },
       get disabled() {
-        return disabled;
+        return isDisabled();
       },
       get readonly() {
-        return readonly;
+        return isReadonly();
       },
     });
 
@@ -249,24 +294,13 @@ export const Field = _component(
       if (name != null && !(next instanceof Node && field.contains(next))) form?.blur(name);
     }
 
-    return () => (
-      <div
-        {...mergeAttrs<'div'>({ sx: fieldStyles.root }, rest, { onFocusout })}
-        data-invalid={(invalid ?? message() != null) || undefined}
-        data-disabled={disabled || undefined}
-      >
-        {label != null && (
-          <Label
-            {...mergePartProps<LabelProps>({ required: isRequired(), disabled }, propsLabel, {
-              id: ids.label,
-              for: ids.control,
-            })}
-          >
-            {label}
-          </Label>
-        )}
-        {children}
-        {description != null && (
+    return () => {
+      const placement = labelPlacement ?? layout?.labelPlacement ?? 'top';
+      const start = placement === 'start';
+      const width = labelWidth ?? layout?.labelWidth ?? DEFAULT_LABEL_WIDTH;
+      const align = labelAlign ?? layout?.labelAlign ?? 'end';
+      const hints = [
+        description != null && (
           <Text
             {...mergePartProps<TextProps>(
               { tone: 'muted', sx: fieldStyles.hint },
@@ -278,8 +312,8 @@ export const Field = _component(
           >
             {description}
           </Text>
-        )}
-        {showError() && (
+        ),
+        showError() && (
           <Text
             {...mergePartProps<TextProps>(
               { tone: 'danger', sx: [fieldStyles.hint, fieldStyles.error] },
@@ -290,8 +324,56 @@ export const Field = _component(
             <Icon icon={statusIcons.danger} sx={fieldStyles.errorIcon} />
             {message()}
           </Text>
-        )}
-      </div>
-    );
+        ),
+      ];
+      return (
+        <div
+          {...mergeAttrs<'div'>(
+            {
+              sx: start
+                ? [
+                    fieldStyles.start,
+                    fieldColumnStyles.columns(typeof width === 'number' ? `${width}px` : width),
+                  ]
+                : fieldStyles.root,
+            },
+            rest,
+            { onFocusout },
+          )}
+          data-invalid={(invalid ?? message() != null) || undefined}
+          data-disabled={isDisabled() || undefined}
+          data-label-placement={placement}
+        >
+          {label != null && (
+            <Label
+              {...mergePartProps<LabelProps>(
+                {
+                  required: isRequired(),
+                  disabled: isDisabled(),
+                  sx: start && (align === 'end' ? fieldStyles.labelEnd : fieldStyles.labelStart),
+                },
+                propsLabel,
+                { id: ids.label, for: ids.control },
+              )}
+            >
+              {label}
+            </Label>
+          )}
+          {start ? (
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: [fieldStyles.control, label == null && fieldStyles.controlWithoutLabel] },
+                propsControl,
+              )}
+            >
+              {children}
+              {hints}
+            </div>
+          ) : (
+            [children, hints]
+          )}
+        </div>
+      );
+    };
   },
 );

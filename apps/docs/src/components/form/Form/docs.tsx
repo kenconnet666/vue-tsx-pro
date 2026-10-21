@@ -7,6 +7,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Layout from './demo/Layout.tsx?demo';
 import Native from './demo/Native.tsx?demo';
 import Quote from './demo/Quote.tsx?demo';
 import Signup from './demo/Signup.tsx?demo';
@@ -32,6 +33,14 @@ export default _component(() => () => (
           的范围都从 schema 推出来。
           <Code>fields.username.validate</Code> 是单字段的异步校验：防抖、只采用最后一次的结果，
           <Code>form.validating</Code> 显示校验中。
+        </Example>
+        <Example id="layout" title="标签在左侧、整组只读" demo={Layout}>
+          <Code>labelPlacement="start"</Code> 把标签放到控件的起始边：标签一列（
+          <Code>labelWidth</Code>，默认
+          8em）贴着控件右对齐，控件一列；两列按第一行文字的基线对齐，单选组、多行文本框也对得齐。写在{' '}
+          <Code>Form</Code> 上的布局与 <Code>readonly</Code>、<Code>disabled</Code>{' '}
+          交给所有字段与控件：只读时勾选、开关、滑块、分段控件照常显示与聚焦，读屏念“只读”，点了不变。Field
+          与控件上显式写的优先。
         </Example>
         <Example id="states" title="字段的状态" demo={States}>
           写在 <Code>Field</Code> 上的状态交给里面的控件（控件上显式写的优先）：

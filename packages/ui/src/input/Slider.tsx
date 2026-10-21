@@ -74,6 +74,8 @@ export interface SliderProps<V extends SliderValue = number> extends PartProps<
   orientation?: keyof SliderOrientations;
   /** 不可用 */
   disabled?: boolean;
+  /** 只读：滑块能聚焦、读屏念“只读”，拖动与方向键不改值（查看详情、审批时）；外观照常 */
+  readonly?: boolean;
   /** 字号档位，滑块与轨道随之缩放；不写时继承 */
   size?: TextSize;
   /** 已选范围与滑块描边的色调（与 Button、Badge 等同一套），默认 accent */
@@ -98,7 +100,7 @@ export interface SliderProps<V extends SliderValue = number> extends PartProps<
   propsMarkLabel?: PartProps<'span'> | ((mark: SliderMark) => PartProps<'span'>);
 }
 
-/** Slider 的样式：root、horizontal、vertical、disabled、track、range、thumb、mark、markLabel 等 */
+/** Slider 的样式：root、horizontal、vertical、disabled、readonly、track、range、thumb、mark、markLabel 等 */
 export const sliderStyles = stylex.create({
   root: {
     position: 'relative',
@@ -126,6 +128,7 @@ export const sliderStyles = stylex.create({
   labelledHorizontal: { paddingBlockEnd: '1.5em' },
   labelledVertical: { paddingInlineEnd: '3em' },
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  readonly: { cursor: 'default' },
   track: {
     position: 'relative',
     flexGrow: 1,
@@ -200,6 +203,7 @@ export const Slider = _component(
     bigStep,
     orientation = 'horizontal',
     disabled,
+    readonly,
     size,
     tone = 'accent',
     marks,
@@ -215,9 +219,10 @@ export const Slider = _component(
     ...rest
   }: SliderProps<V>) => {
     const lang = useLang();
-    // 在 Field 里时：标签作为名称、关联说明与错误、沿用不可用
-    const control = useFieldControl(() => ({ id, disabled }));
-    const off = () => control().disabled;
+    // 在 Field 里时：标签作为名称、关联说明与错误、沿用不可用与只读
+    const control = useFieldControl(() => ({ id, disabled, readonly }));
+    /** 不接受改值：不可用或只读 */
+    const off = () => control().disabled || control().readonly;
     const labelId = useId();
     let track = _state.raw<HTMLElement | null>(null);
     const thumbs: (HTMLElement | null)[] = [null, null];
@@ -358,6 +363,7 @@ export const Slider = _component(
                 'aria-valuetext': valueText?.(number),
                 'aria-orientation': orientation,
                 'aria-disabled': field.disabled || undefined,
+                'aria-readonly': field.readonly || undefined,
                 'aria-label': part && ownLabel != null ? `${ownLabel} ${part}` : ownLabel,
                 'aria-labelledby':
                   part && labelledBy ? `${labelledBy} ${labelId}-${index}` : labelledBy,
@@ -389,9 +395,16 @@ export const Slider = _component(
               ],
             },
             propsRoot,
-            { sx: field.disabled && sliderStyles.disabled, onPointerdown: grab },
+            {
+              sx: [
+                field.readonly && sliderStyles.readonly,
+                field.disabled && sliderStyles.disabled,
+              ],
+              onPointerdown: grab,
+            },
           )}
           data-disabled={field.disabled || undefined}
+          data-readonly={field.readonly || undefined}
           data-orientation={orientation}
           data-range={range || undefined}
         >

@@ -659,6 +659,7 @@ export {
   choiceGroupStyles,
   choiceRootSx,
   choiceStyles,
+  readonlyChoiceHandlers,
   syncChecked,
   useChoiceAppearance,
   type ChoiceAppearance,
@@ -800,6 +801,7 @@ export {
 // 表单：字段、校验
 export {
   Field,
+  fieldColumnStyles,
   FieldContext,
   fieldStyles,
   Label,
@@ -818,6 +820,13 @@ export {
   type FormValueItem,
   type FormValueProps,
 } from './form/FormValue';
+export {
+  FieldLayoutContext,
+  provideFieldLayout,
+  type FieldLabelAligns,
+  type FieldLabelPlacements,
+  type FieldLayout,
+} from './form/field-layout';
 export { createConstraints, type FieldConstraints } from './form/form-constraints';
 export {
   bigintSchema,

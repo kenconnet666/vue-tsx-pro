@@ -38,6 +38,8 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   checked?: boolean;
   /** 不可用 */
   disabled?: boolean;
+  /** 只读：能聚焦、读屏念“只读”，不能切换（查看详情、审批时）；外观照常 */
+  readonly?: boolean;
   /** 必填 */
   required?: boolean;
   /** 校验未通过 */
@@ -116,6 +118,7 @@ export const Switch = _component(
   ({
     checked = _bindable(false),
     disabled,
+    readonly,
     required,
     invalid,
     size,
@@ -134,7 +137,7 @@ export const Switch = _component(
     children,
     ...rest
   }: SwitchProps) => {
-    const control = useFieldControl(() => ({ id, invalid, required, disabled }));
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     const appearance = useChoiceAppearance(() => ({ size, tone }));
     // 很快完成的切换不闪加载指示；点击拦截、aria-busy 按真实的 loading
     const spinner = useDelayedLoading(() => loading);
@@ -162,9 +165,13 @@ export const Switch = _component(
       );
       return (
         <label
-          {...mergeAttrs<'label'>({ sx: choiceRootSx(appearance(), state.disabled) }, propsRoot)}
+          {...mergeAttrs<'label'>(
+            { sx: choiceRootSx(appearance(), state.disabled, state.readonly) },
+            propsRoot,
+          )}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={state.disabled || undefined}
+          data-readonly={state.readonly || undefined}
           data-loading={loading || undefined}
         >
           <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
@@ -189,11 +196,12 @@ export const Switch = _component(
                   disabled: state.disabled,
                   required: state.required,
                   'aria-invalid': state.invalid || undefined,
+                  'aria-readonly': state.readonly || undefined,
                   'aria-describedby': state.describedBy,
                   'aria-busy': loading || undefined,
-                  // 切换中不接受新的切换：拦下 click，勾选状态就不变
+                  // 切换中、只读时不接受切换：拦下 click，勾选状态就不变
                   onClick: (event: MouseEvent) => {
-                    if (loading) event.preventDefault();
+                    if (loading || state.readonly) event.preventDefault();
                   },
                   onChange: (event: Event) => {
                     const target = event.target as HTMLInputElement;

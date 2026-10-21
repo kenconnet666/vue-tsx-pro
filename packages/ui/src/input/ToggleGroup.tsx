@@ -36,6 +36,8 @@ export interface ToggleGroupState {
   readonly size: TextSize | undefined;
   /** 整组不可用 */
   readonly disabled: boolean;
+  /** 整组只读：按钮照常显示与聚焦，点了不切换 */
+  readonly readonly: boolean;
   /** 波纹；不写时沿用配置 */
   readonly ripple: boolean | undefined;
   /** 单选：选中底色由组里的滑块（Indicator）画，项本身不画底色 */
@@ -64,6 +66,8 @@ interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
   required?: boolean;
   /** 整组不可用 */
   disabled?: boolean;
+  /** 整组只读：选中项照常显示、按钮能聚焦，点了不切换（查看详情、审批时） */
+  readonly?: boolean;
   /** 方向，默认 horizontal */
   orientation?: keyof ToggleGroupOrientations;
   /** 字号档位，按钮随之缩放 */
@@ -85,12 +89,16 @@ export const toggleGroupStyles = stylex.create({
     position: 'relative',
     isolation: 'isolate',
     display: 'inline-flex',
+    // 放在竖排的弹性容器里（Field 的控件列）时不被拉满整行
+    width: 'fit-content',
     gap: '_xs',
     padding: '_xs',
     borderRadius: '_md',
     backgroundColor: '_fill',
   },
   vertical: { flexDirection: 'column' },
+  // 只读、没选中的项：不像能点（悬停也不出底色）
+  readonlyItem: { cursor: 'default', backgroundColor: 'transparent' },
   // 同按钮的 surface 外观；位置与宽高由脚本写（useActiveIndicator）
   indicator: {
     position: 'absolute',
@@ -114,6 +122,7 @@ export const ToggleGroup = _component(
     value = _bindable<string | string[] | undefined>(undefined),
     required = false,
     disabled,
+    readonly,
     orientation = 'horizontal',
     size,
     ripple,
@@ -122,8 +131,8 @@ export const ToggleGroup = _component(
     id,
     ...rest
   }: ToggleGroupProps) => {
-    // 在 Field 里时：标签作为组的名称、关联说明与错误、沿用不可用
-    const control = useFieldControl(() => ({ id, disabled }));
+    // 在 Field 里时：标签作为组的名称、关联说明与错误、沿用不可用与只读
+    const control = useFieldControl(() => ({ id, disabled, readonly }));
     let root = _state.raw<HTMLElement | null>(null);
     // 在工具栏里时焦点交给工具栏：整栏一个 Tab 位置，方向键跨过组内外的按钮（WAI-ARIA Toolbar 模式）
     const inToolbar = ToolbarContext.inject(null) != null;
@@ -154,6 +163,9 @@ export const ToggleGroup = _component(
       get disabled() {
         return control().disabled;
       },
+      get readonly() {
+        return control().readonly;
+      },
       get ripple() {
         return ripple;
       },
@@ -161,6 +173,7 @@ export const ToggleGroup = _component(
         return selectionMode === 'single';
       },
       toggle(item) {
+        if (control().readonly) return;
         const next = toggleSelection(selected, item, { mode: selectionMode, required });
         if (next === selected) return;
         value = selectionMode === 'multiple' ? [...next] : next[0];
@@ -191,6 +204,7 @@ export const ToggleGroup = _component(
           )}
           data-orientation={orientation}
           data-disabled={field.disabled || undefined}
+          data-readonly={field.readonly || undefined}
         >
           {selectionMode === 'single' && selected.length > 0 && (
             <span
@@ -239,9 +253,13 @@ export const ToggleItem = _component(
     ...rest
   }: ToggleItemProps) => {
     const group = ToggleGroupContext.inject();
-    // 与 Button 同一套行为：不可用、拦截点击、波纹、状态 data 属性
+    // 与 Button 同一套行为：不可用、拦截点击、波纹、状态 data 属性；只读时不出波纹
     const behavior = useButtonBehavior(
-      () => ({ disabled: disabled || group.disabled, loading: false, ripple: group.ripple }),
+      () => ({
+        disabled: disabled || group.disabled,
+        loading: false,
+        ripple: group.readonly ? false : group.ripple,
+      }),
       () => () => group.toggle(value),
     );
     // 选中的是浅色底，其余是幽灵按钮；尺寸跟随组
@@ -258,15 +276,18 @@ export const ToggleItem = _component(
         <button
           {...mergeAttrs<'button'>(
             {
-              sx: buttonSx(
-                {
-                  ...base,
-                  // 单选时选中底色由组的滑块画
-                  variant: pressed && !group.sliding ? 'surface' : 'ghost',
-                  tone: pressed ? 'accent' : 'neutral',
-                },
-                { disabled: off, square: children == null },
-              ),
+              sx: [
+                buttonSx(
+                  {
+                    ...base,
+                    // 单选时选中底色由组的滑块画
+                    variant: pressed && !group.sliding ? 'surface' : 'ghost',
+                    tone: pressed ? 'accent' : 'neutral',
+                  },
+                  { disabled: off, square: children == null },
+                ),
+                group.readonly && !pressed && toggleGroupStyles.readonlyItem,
+              ],
             },
             rest,
             {

@@ -34,15 +34,33 @@ export function useChoiceAppearance(read: () => ChoiceOptions): () => ChoiceAppe
   return useDefaults('Choice', read, { tone: 'accent' });
 }
 
-/** 外层 label 的样式：字号、色调（经 toneFillStyles 的变量传给方框、圆点、轨道）、不可用 */
-export function choiceRootSx({ size, tone }: ChoiceAppearance, disabled: boolean): StyleXStyles {
+/** 外层 label 的样式：字号、色调（经 toneFillStyles 的变量传给方框、圆点、轨道）、不可用、只读 */
+export function choiceRootSx(
+  { size, tone }: ChoiceAppearance,
+  disabled: boolean,
+  readonly = false,
+): StyleXStyles {
   return [
     choiceStyles.root,
     toneFillStyles[tone],
     size && fontSizeStyles[size],
+    readonly && choiceStyles.readonly,
     disabled && choiceStyles.disabled,
   ] as StyleXStyles;
 }
+
+const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+
+/**
+ * 只读的原生勾选框要拦住的事件：点击（空格键也是点击）不改勾选，单选组的方向键不换选中项。
+ * 原生 checkbox 没有 readonly 属性；这样焦点照常能到，读屏经 aria-readonly 念“只读”，值也照常随表单提交
+ */
+export const readonlyChoiceHandlers = {
+  onClick: (event: Event) => event.preventDefault(),
+  onKeydown: (event: KeyboardEvent) => {
+    if (ARROW_KEYS.has(event.key)) event.preventDefault();
+  },
+};
 
 /**
  * 受控的勾选：改值之后，父级没接受（或改成了别的值）时把原生 input 的 checked 改回去。
@@ -75,6 +93,8 @@ export const choiceStyles = stylex.create({
     userSelect: 'none',
   },
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  /** 只读：外观照常（看得清选了什么），只是不像能点 */
+  readonly: { cursor: 'default' },
   /** 叠放层：input 与标记放在同一个网格格子里；与第一行文字垂直居中（行高 1.5em） */
   control: {
     display: 'inline-grid',

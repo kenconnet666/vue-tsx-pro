@@ -1,0 +1,97 @@
+// 标签放在起始边：Form 上统一设置，标签一列右对齐、控件一列，按第一行文字的基线对齐；
+// readonly / disabled 写在 Form 上，所有字段与控件（含勾选、开关、滑块、分段）一起只读或不可用
+import { _component } from '@vue-tsx-pro/tsx';
+import {
+  Card,
+  Checkbox,
+  CheckboxGroup,
+  Field,
+  Flex,
+  Form,
+  NumberField,
+  Radio,
+  RadioGroup,
+  Switch,
+  Textarea,
+  TextField,
+  ToggleGroup,
+  ToggleItem,
+  useForm,
+} from '@vue-tsx-pro/ui';
+
+type Mode = 'edit' | 'readonly' | 'disabled';
+
+export default _component(() => {
+  let mode = _state<Mode>('readonly');
+  const form = useForm({
+    initial: {
+      name: '机型 A 平尾翼根整流罩设计优化',
+      category: 'design',
+      install: 'required',
+      funding: ['quality', 'certification'],
+      needSb: false,
+      flights: 40,
+      description:
+        '整流罩由两件合并为一件，减少紧固件 36 个；材料由 T300 换为 T700，单件减重 2.3 kg。',
+    },
+  });
+
+  return () => (
+    <Card
+      header={
+        <Flex align="center" justify="between" gap="md" wrap>
+          <strong>降本项目基本信息</strong>
+          <ToggleGroup value={_bind(mode)} required size="sm" aria-label="表单状态">
+            <ToggleItem value="edit">编辑</ToggleItem>
+            <ToggleItem value="readonly">只读</ToggleItem>
+            <ToggleItem value="disabled">不可用</ToggleItem>
+          </ToggleGroup>
+        </Flex>
+      }
+    >
+      <Form
+        controller={form}
+        labelPlacement="start"
+        labelWidth="6.5em"
+        readonly={mode === 'readonly'}
+        disabled={mode === 'disabled'}
+      >
+        <Flex direction="column" gap="md">
+          <Field label="项目名称" required>
+            <TextField value={_bind(form.values.name)} />
+          </Field>
+          <Field label="任务类别" required>
+            <RadioGroup value={_bind(form.values.category)} orientation="horizontal">
+              <Radio value="design">设计优化</Radio>
+              <Radio value="source">多货源</Radio>
+              <Radio value="process">工艺优化</Radio>
+            </RadioGroup>
+          </Field>
+          <Field label="安装类型" required>
+            <ToggleGroup value={_bind(form.values.install)} required size="sm">
+              <ToggleItem value="required">必装</ToggleItem>
+              <ToggleItem value="optional">选装</ToggleItem>
+            </ToggleGroup>
+          </Field>
+          <Field label="经费来源" description="可多选">
+            <CheckboxGroup value={_bind(form.values.funding)} orientation="horizontal">
+              <Checkbox value="quality">精品工程</Checkbox>
+              <Checkbox value="certification">适航取证</Checkbox>
+              <Checkbox value="plateau">高原型项目</Checkbox>
+              <Checkbox value="self">其他自筹</Checkbox>
+            </CheckboxGroup>
+          </Field>
+          <Field label="贯彻架次">
+            <NumberField value={_bind(form.values.flights)} min={0} />
+          </Field>
+          <Field label="SB 贯彻">
+            <Switch checked={_bind(form.values.needSb)}>需要 SB 贯彻航线架次</Switch>
+          </Field>
+          <Field label="简要描述" required description="说明更改内容与降本金额的计算依据">
+            <Textarea value={_bind(form.values.description)} rows={3} />
+          </Field>
+        </Flex>
+      </Form>
+    </Card>
+  );
+});
