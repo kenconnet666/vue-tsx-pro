@@ -170,6 +170,10 @@ export interface Lang {
   readonly selectEmpty: string;
   /** 下拉框未选择时的占位文字，默认“请选择” */
   readonly selectPlaceholder: string;
+  /** 下拉框里搜索框的占位文字与名称，默认“搜索” */
+  readonly selectSearch: string;
+  /** 下拉框搜索没有结果时的提示，默认“没有匹配的选项” */
+  readonly selectNoMatch: string;
   /** 分页的总条数，默认“共 1,286 条”（按语言加千分位） */
   readonly paginationTotal: (total: number) => string;
   /** 分页导航的无障碍名称，默认“分页” */

@@ -706,12 +706,14 @@ export {
   handleListKeydown,
   toListboxOption,
   useListState,
+  useSelectedOptions,
   type ListboxOption,
   type ListKeydownOptions,
   type ListState,
   type ListStateEntry,
   type ListStateOptions,
   type OptionMapping,
+  type SelectedOption,
 } from './input/list-state';
 
 // 日期：日历、分段输入、日期与时间选择

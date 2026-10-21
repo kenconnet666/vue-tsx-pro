@@ -68,6 +68,8 @@ export const zhCN: Lang = {
   tourProgress: (current, total) => `${current} / ${total}`,
   selectEmpty: '没有选项',
   selectPlaceholder: '请选择',
+  selectSearch: '搜索',
+  selectNoMatch: '没有匹配的选项',
   paginationTotal: (total) => `共 ${total.toLocaleString('zh-CN')} 条`,
   pagination: '分页',
   pageSizeOption: (size) => `${size} 条/页`,

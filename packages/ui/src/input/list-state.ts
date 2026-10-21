@@ -58,6 +58,44 @@ export function toListboxOption<T>(item: T, toOption?: (item: T) => ListboxOptio
   return typeof item === 'string' ? { value: item, label: item } : (item as ListboxOption);
 }
 
+/** 已选值对应的选项：item 是它来自的数据；从没在 items 里见过的值（自定义的、还没加载的）item 为 undefined */
+export interface SelectedOption<T> extends ListboxOption {
+  /** 来自的数据 */
+  item: T | undefined;
+}
+
+/**
+ * 按值查已选项的显示信息（在 setup 里调用）：Select、Combobox、TagsInput 显示已选项的文字都用它。
+ * 记住见过的已选项：远程搜索、过滤、分页把 items 换掉之后，不在当前 items 里的已选项仍按之前见过的文字显示，
+ * 不会退化成值本身（工号、id）。只记已选的值，不随 items 增长
+ */
+export function useSelectedOptions<T>(read: {
+  /** 数据 */
+  items: () => readonly T[];
+  /** 数据 → 选项 */
+  toOption: (item: T) => ListboxOption;
+}): (values: readonly string[]) => SelectedOption<T>[] {
+  // 按值建索引：items 变了才重建，选择变化时只查表
+  const index = computed(() => {
+    const map = new Map<string, SelectedOption<T>>();
+    for (const item of read.items()) {
+      const option = read.toOption(item);
+      map.set(option.value, { ...option, item });
+    }
+    return map;
+  });
+  const seen = new Map<string, SelectedOption<T>>();
+  return (values) =>
+    values.map((value) => {
+      const found = index.value.get(value);
+      if (found) {
+        seen.set(value, found);
+        return found;
+      }
+      return seen.get(value) ?? { value, label: value, item: undefined };
+    });
+}
+
 /**
  * useListState 的选项。按字段给读取函数（不是一个返回整个对象的 read）：
  * 选项上万时，选择变了不该重新整理选项，各字段要分开追踪依赖

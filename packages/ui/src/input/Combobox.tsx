@@ -42,6 +42,7 @@ import { activeOptionId, type ListboxViewProps, type OptionRenderState } from '.
 import {
   handleListKeydown,
   useListState,
+  useSelectedOptions,
   type ListboxOption,
   type OptionMapping,
   toListboxOption,
@@ -187,10 +188,9 @@ export const Combobox = _component(
       onChange: (next) => (value = next[0]),
     });
 
-    const selectedLabel = () => {
-      const selected = items.find((item) => optionOf(item).value === value);
-      return selected === undefined ? '' : optionOf(selected).label;
-    };
+    // 已选项的文字：远程搜索换了 items 之后，仍按之前见过的文字显示
+    const selectedOf = useSelectedOptions({ items: () => items, toOption: optionOf });
+    const selectedLabel = () => (value == null ? '' : selectedOf([value])[0]!.label);
 
     function setText(text: string) {
       if (inputValue === text) return;

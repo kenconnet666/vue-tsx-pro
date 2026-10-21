@@ -11,7 +11,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { Ref } from 'vue';
+import type { Ref, VNodeChild } from 'vue';
 import { ScrollArea } from '../layout/ScrollArea';
 import { floatingStyles } from '../utils/dom/floating';
 import { toElement } from '../utils/dom/overlay';
@@ -41,15 +41,24 @@ export interface ListPopoverProps<T> {
   onPick?: (value: string) => void;
   /** 列表的组件自己给的属性（list、id、渲染方式…），使用方的 propsListbox 可以覆盖 */
   listbox: ListboxViewProps<T>;
+  /** 列表上方、不随列表滚动的内容（Select 的搜索框） */
+  header?: VNodeChild;
   /** 使用方给列表的部件属性 */
   propsListbox?: Partial<ListboxViewProps<T>>;
   /** 使用方给弹层面板的部件属性 */
   propsPopover?: PartProps<'div', ListPopoverManaged>;
 }
 
-/** ListPopover 的样式：panel */
+/** ListPopover 的样式：panel、header */
 export const listPopoverStyles = stylex.create({
   panel: { maxWidth: 'calc(100vw - 2em)' },
+  header: {
+    flexShrink: 0,
+    padding: '_xs',
+    borderBlockEndWidth: '_xs',
+    borderBlockEndStyle: 'solid',
+    borderBlockEndColor: '_borderMuted',
+  },
 });
 
 /** 选项弹出层：锚定的面板、浮层滚动条与选项列表 */
@@ -63,6 +72,7 @@ export const ListPopover = _component(
     loading,
     onPick,
     listbox,
+    header,
     propsListbox,
     propsPopover,
   }: ListPopoverProps<T>) => {
@@ -84,6 +94,7 @@ export const ListPopover = _component(
           { ref: panelRef, popover: 'auto', onToggle },
         )}
       >
+        {header != null && <div {...stylex.attrs(listPopoverStyles.header)}>{header}</div>}
         <ScrollArea
           focusable={false}
           sx={floatingStyles.scrollArea}

@@ -9,6 +9,7 @@ import { KeyboardReference } from '../../../site/KeyboardReference';
 import Appearance from './demo/Appearance.tsx?demo';
 import Assign from './demo/Assign.tsx?demo';
 import Members from './demo/Members.tsx?demo';
+import Searchable from './demo/Searchable.tsx?demo';
 
 export const meta = {
   title: 'Select 下拉选择',
@@ -36,6 +37,13 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
+        <Example id="searchable" title="可搜索" demo={Searchable}>
+          选项多（供应商、人员、件号）时写 <Code>searchable</Code>
+          ：弹出层顶部是搜索框，打开后焦点就在里面，输入即按显示文字过滤（忽略大小写与重音，
+          <Code>filter</Code> 可以换规则），↑↓ 移动、Enter 选中，Esc
+          关闭并把焦点还给触发按钮。已选的项被过滤掉、或 items
+          换成了另一页的搜索结果时，触发框里照样显示它的文字。
+        </Example>
         <Example id="custom" title="异步加载与自定义显示" demo={Members}>
           第一次打开时再去取选项：<Code>loading</Code>{' '}
           期间列表里是骨架行，已有选项时顶部显示进度条。
@@ -53,6 +61,10 @@ export default _component(() => () => (
         ['Home / End / PageUp / PageDown', '打开时：移到第一项、最后一项，或按一屏移动'],
         ['Enter / Space', '打开时：选中高亮的项；单选随后关闭，多选切换勾选'],
         ['Esc / Tab', '关闭列表；焦点一直在触发按钮上'],
+        [
+          '输入（searchable）',
+          '打开时焦点在搜索框里：输入过滤选项，↑↓、Enter 同上，Esc 关闭并回到触发按钮',
+        ],
       ]}
     >
       焦点一直留在触发按钮上，高亮项经 aria-activedescendant 告诉读屏。写了 <Code>name</Code>{' '}

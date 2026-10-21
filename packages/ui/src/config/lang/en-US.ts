@@ -70,6 +70,8 @@ export const enUS: Lang = {
   tourProgress: (current, total) => `${current} of ${total}`,
   selectEmpty: 'No options',
   selectPlaceholder: 'Select…',
+  selectSearch: 'Search',
+  selectNoMatch: 'No matching options',
   paginationTotal: (total) => `${total.toLocaleString('en-US')} items`,
   pagination: 'Pagination',
   pageSizeOption: (size) => `${size} / page`,

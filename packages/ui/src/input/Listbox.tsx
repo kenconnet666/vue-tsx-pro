@@ -227,12 +227,16 @@ export const ListboxView = _component(
       };
     });
 
-    // 高亮项变了（键盘移动）时滚进可见范围；已经完整可见就不动（指针悬停触发的不会滚）
+    // 高亮项变了（键盘移动）时滚进可见范围；已经完整可见就不动（指针悬停触发的不会滚）。
+    // 高亮的是第一项、上面是组名时滚到最顶上：组名不被挡住（搜索过滤后高亮第一个匹配的）
     watch(
       () => list.active,
       () => {
         const index = activeRow();
-        if (index >= 0) virtual.scrollToIndex(index, { align: 'auto' });
+        if (index < 0) return;
+        virtual.scrollToIndex(index === 1 && rows[0]?.kind === 'group' ? 0 : index, {
+          align: 'auto',
+        });
       },
       { flush: 'post' },
     );

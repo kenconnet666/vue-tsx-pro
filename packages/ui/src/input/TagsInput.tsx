@@ -39,6 +39,7 @@ import { activeOptionId, type ListboxViewProps, type OptionRenderState } from '.
 import {
   handleListKeydown,
   useListState,
+  useSelectedOptions,
   type ListboxOption,
   type OptionMapping,
   toListboxOption,
@@ -170,10 +171,9 @@ export const TagsInput = _component(
     const optionOf = (item: T) => toListboxOption(item, toOption);
     // 异步搜索（filter={false}）时结果可能还没回来：建议列表与 combobox 角色一直在，等待时显示加载中
     const suggestions = () => items.length > 0 || filter === false;
-    const labelOf = (tag: string) => {
-      const item = items.find((candidate) => optionOf(candidate).value === tag);
-      return item === undefined ? tag : optionOf(item).label;
-    };
+    // 标签的文字：异步建议换了 items 之后，已选的仍按之前见过的文字显示；自定义的值就是文字
+    const selectedOf = useSelectedOptions({ items: () => items, toOption: optionOf });
+    const labelOf = (tag: string) => selectedOf([tag])[0]!.label;
 
     const list = useListState({
       items: () => {
