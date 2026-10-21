@@ -47,6 +47,7 @@ export interface HttpRequest {
 
 /** 组件依赖的请求接口：发出请求，返回解析（拆包）后的数据；失败时拒绝 */
 export interface HttpClient {
+  /** 发出一次请求，返回解析（拆包）后的数据；失败时以 HttpError 拒绝，取消时以 AbortError 拒绝 */
   request<T = unknown>(request: HttpRequest): Promise<T>;
 }
 
@@ -64,6 +65,7 @@ export interface HttpErrorContext {
 
 /** 请求失败：状态码不是 2xx、网络错误、超时，或 onResponse 判定的业务错误 */
 export class HttpError extends Error {
+  /** 错误名，同类名：日志与 instanceof 之外的判断用 */
   override readonly name = 'HttpError';
   /** 出错的请求 */
   readonly request: HttpRequest;
@@ -105,18 +107,23 @@ export interface HttpClientOptions {
 
 /** createHttpClient 的结果：request 之外，再给常用方法的简写 */
 export interface FetchClient extends HttpClient {
+  /** GET：参数写在 options.query 里 */
   get<T = unknown>(url: string, options?: Omit<HttpRequest, 'url' | 'method'>): Promise<T>;
+  /** DELETE */
   delete<T = unknown>(url: string, options?: Omit<HttpRequest, 'url' | 'method'>): Promise<T>;
+  /** POST：普通对象的 body 按 JSON 发送 */
   post<T = unknown>(
     url: string,
     body?: unknown,
     options?: Omit<HttpRequest, 'url' | 'method' | 'body'>,
   ): Promise<T>;
+  /** PUT：普通对象的 body 按 JSON 发送 */
   put<T = unknown>(
     url: string,
     body?: unknown,
     options?: Omit<HttpRequest, 'url' | 'method' | 'body'>,
   ): Promise<T>;
+  /** PATCH：普通对象的 body 按 JSON 发送 */
   patch<T = unknown>(
     url: string,
     body?: unknown,
