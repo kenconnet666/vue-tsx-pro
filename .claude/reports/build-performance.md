@@ -106,7 +106,19 @@ DataTable 页的 h1；再在 Button 页上依次改组件、样式模块、工�
 | cacheDir 不在 node_modules 下时，预构建的依赖（three.module.js 1 MB）被当成项目代码过 Babel | 编译插件把 cacheDir 里的文件排除在“项目自己的代码”之外 | — |
 
 其余几类改动本来就快：改组件文件 40–80 ms，改示例 30 ms，改站点组件 35–40 ms，改文档页正文 150 ms 页面上可见；
-改 token 文件整页刷新约 0.9 s（token 的值会内联进引用方，刷新是对的）。
+改 token 文件整页刷新约 0.9 s（token 的值会内联进引用方，刷新是对的）。改了组件库源码之后进别的组件页，API 数据
+重新提取只要 40–180 ms（Worker 在后台增量重建程序），不用改。
+
+**类型检查**：`pnpm typecheck` 原来 8.5–9.3 s，正好是四个包（tsx 1.3、ui 2.6、docs 3.0、host-demo 2.4 s）之和——
+`pnpm -r` 按依赖顺序一个个跑，可类型检查不产出文件、各包都直接读源码，不需要先后。改成 `pnpm -r --parallel`，
+各包加 `--incremental`（tsbuildinfo 放在各包的 node_modules/.cache）：首次 7.5 s，之后 2.4–2.8 s（ui 单独：
+全量 2.8 s，没改动 0.64 s，改一个文件 1.05 s）；有错误时照样报出并以非零码退出。
+
+**测试**：组件库的 106 个 happy-dom 测试文件 37 s，建环境（38%）与导入模块（37%）占了大头，测试本身只占 6%。
+按 Vitest 的 improving-performance 换成 `pool: 'vmForks'`：每个 Worker 只建一次 happy-dom，每个文件仍是新的 VM 上下文
+与 window。VM 上下文里外部化的依赖按 Node 的 import 条件加载，@emotion 的 `.cjs.mjs` 包装默认导入拿到的是对象
+（Unovis 用到），把 @unovis、@emotion 交给 Vite 内联后全部通过：**37 s → 10 s**。文档站的测试不换：时间主要在编译
+（53%），建环境只占 8%，而且 VM 上下文里没有 CompressionStream 等全局，有 11 个用例过不了。
 
 ## 结论
 

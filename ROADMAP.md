@@ -95,3 +95,5 @@
       Select 1478 → 890 ms）；冷启动的每页 HTML + modulepreload 实测收益太小，不做
 - [x] 热更新不整页刷新：开发与测试时桶文件的具名导入改成直接导入所在模块（workspaceSource），组件库里改了会整页刷新的
       模块 102 → 26 个（剩下的是启动时用掉的配置）；开发时不悬停预取（重启后进 DataTable 11 s → 0.5 s）
+- [x] `pnpm typecheck` 各包并行、增量：8.5–9.3 s → 之后每次 2.4–2.8 s
+- [x] 组件库测试用 vmForks 池（每个 Worker 只建一次 happy-dom）：106 个文件 37 s → 10 s
