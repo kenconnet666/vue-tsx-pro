@@ -15,6 +15,7 @@ import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { childNodes } from '../utils/data/text';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { radiusStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { AvatarGroupContext, avatarStyles } from './Avatar';
 
@@ -69,7 +70,7 @@ export const AvatarGroup = _component(
                 {
                   sx: [
                     avatarStyles.root,
-                    avatarStyles.full,
+                    radiusStyles.full,
                     avatarStyles.grouped,
                     avatarGroupStyles.more,
                   ],

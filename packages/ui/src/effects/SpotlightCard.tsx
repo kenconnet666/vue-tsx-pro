@@ -18,6 +18,7 @@ import type { VNodeChild } from 'vue';
 import { colors } from '../config/theme/tokens.stylex';
 import { usePointer } from '../utils/motion/pointer';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface SpotlightCardProps extends PartProps<'div'> {
@@ -33,6 +34,11 @@ export interface SpotlightCardProps extends PartProps<'div'> {
    * @default true
    */
   border?: boolean;
+  /**
+   * 圆角：与里面的卡片一致，光层跟着它裁切
+   * @default 'lg'
+   */
+  radius?: Radius;
   /** 表面光层的部件属性 */
   propsSpotlight?: PartProps<'span', 'aria-hidden'>;
   /** 边框光层的部件属性 */
@@ -43,7 +49,7 @@ export interface SpotlightCardProps extends PartProps<'div'> {
 
 /** SpotlightCard 的样式：root、layer、border */
 export const spotlightCardStyles = stylex.create({
-  root: { position: 'relative', display: 'block', borderRadius: '_lg' },
+  root: { position: 'relative', display: 'block' },
   layer: {
     position: 'absolute',
     inset: 0,
@@ -74,6 +80,7 @@ export const SpotlightCard = _component(
     color = colors.accent,
     size = '20em',
     border = true,
+    radius = 'lg',
     propsSpotlight,
     propsBorder,
     children,
@@ -89,7 +96,11 @@ export const SpotlightCard = _component(
       const x = (pointer.x + 1) * 50;
       const y = (1 - pointer.y) * 50;
       return (
-        <div {...mergeAttrs<'div'>({ sx: spotlightCardStyles.root }, rest, { ref: _toRef(root) })}>
+        <div
+          {...mergeAttrs<'div'>({ sx: [spotlightCardStyles.root, radiusStyles[radius]] }, rest, {
+            ref: _toRef(root),
+          })}
+        >
           {children}
           <span
             {...mergeAttrs<'span'>(

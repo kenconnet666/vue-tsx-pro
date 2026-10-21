@@ -108,13 +108,12 @@ export {
   visuallyHiddenStyles,
   type VisuallyHiddenProps,
 } from './base/VisuallyHidden';
-export { badgeStyles, badgeSx, type BadgeOptions, type BadgeRadii } from './base/badge-styles';
+export { badgeStyles, badgeSx, type BadgeOptions } from './base/badge-styles';
 export {
   buttonBaseStyles,
   buttonContent,
   ButtonGroupContext,
   buttonLinkStyles,
-  buttonRadiusStyles,
   buttonStyles,
   buttonSx,
   buttonVariantStyles,
@@ -127,7 +126,6 @@ export {
   type ButtonGroupOrientation,
   type ButtonGroupState,
   type ButtonOptions,
-  type ButtonRadii,
   type ButtonVariants,
 } from './base/button-core';
 
@@ -246,7 +244,6 @@ export {
   type AvatarManaged,
   type AvatarOptions,
   type AvatarProps,
-  type AvatarRadii,
   type AvatarVariants,
 } from './display/Avatar';
 export {
@@ -360,15 +357,13 @@ export {
 } from './feedback/LoadingOverlay';
 export {
   Progress,
-  progressRadiusStyles,
   progressStyles,
   progressToneStyles,
   progressWidthStyles,
   type ProgressManaged,
   type ProgressProps,
-  type ProgressRadii,
 } from './feedback/Progress';
-export { Result, resultStyles, type ResultProps, type ResultStatuses } from './feedback/Result';
+export { Result, resultStyles, type ResultProps, type ResultTones } from './feedback/Result';
 export {
   Skeleton,
   skeletonStyles,
@@ -711,7 +706,6 @@ export {
 export {
   controlAffix,
   controlIcon,
-  controlRadiusStyles,
   controlShellStyles,
   controlStyles,
   controlSx,
@@ -1128,8 +1122,11 @@ export {
   gapStyles,
   listRole,
   listStyles,
+  radiusStyles,
   rowGapStyles,
   type LayoutTag,
+  type Radius,
+  type RadiusScale,
   type Space,
   type SpaceScale,
   type StyleTable,

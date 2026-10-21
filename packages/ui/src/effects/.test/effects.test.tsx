@@ -84,12 +84,12 @@ describe('SpotlightCard', () => {
 });
 
 describe('BorderBeam', () => {
-  it('整个对读屏隐藏；光带带上时长与延迟', () => {
-    const root = mount(() => <BorderBeam class="beam" duration={4} delay={1} />);
+  it('整个对读屏隐藏；光带带上时长与延迟（毫秒，同别的组件）', () => {
+    const root = mount(() => <BorderBeam class="beam" duration={4000} delay={1000} />);
     const beam = root.querySelector<HTMLElement>('.beam')!;
     expect(beam.getAttribute('aria-hidden')).toBe('true');
     const style = beam.querySelector('span')!.getAttribute('style')!;
-    expect(style).toContain('4s');
-    expect(style).toContain('-1s');
+    expect(style).toContain('4000ms');
+    expect(style).toContain('-1000ms');
   });
 });

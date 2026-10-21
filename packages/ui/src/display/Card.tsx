@@ -14,7 +14,7 @@ import { SkeletonText, type SkeletonTextProps } from '../feedback/SkeletonText';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
-import type { Space } from '../utils/style/styles';
+import { radiusStyles, type Radius, type Space } from '../utils/style/styles';
 
 /** 卡片样式 */
 export interface CardVariants {
@@ -34,6 +34,8 @@ export interface CardOptions {
   variant?: keyof CardVariants;
   /** 内边距档位，对应主题的 space，默认 lg */
   padding?: Space;
+  /** 圆角，默认 lg */
+  radius?: Radius;
 }
 
 /** 忙碌由组件按 loading 管理 */
@@ -71,7 +73,6 @@ export const cardStyles = stylex.create({
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: 'transparent',
-    borderRadius: '_lg',
     color: '_text',
     overflow: 'hidden',
   },
@@ -113,6 +114,7 @@ export const Card = _component(
   ({
     variant,
     padding,
+    radius,
     header,
     footer,
     loading = false,
@@ -123,9 +125,10 @@ export const Card = _component(
     children,
     ...rest
   }: CardProps) => {
-    const appearance = useDefaults('Card', () => ({ variant, padding }), {
+    const appearance = useDefaults('Card', () => ({ variant, padding, radius }), {
       variant: 'surface',
       padding: 'lg',
+      radius: 'lg',
     });
     // 骨架防闪烁；aria-busy 按真实的 loading
     const skeleton = useDelayedLoading(() => loading);
@@ -138,7 +141,11 @@ export const Card = _component(
         <div
           {...mergeAttrs<'div'>(
             {
-              sx: [cardStyles.root, cardVariantStyles[appearance().variant]],
+              sx: [
+                cardStyles.root,
+                cardVariantStyles[appearance().variant],
+                radiusStyles[appearance().radius],
+              ],
             },
             rest,
             { 'aria-busy': loading || undefined },

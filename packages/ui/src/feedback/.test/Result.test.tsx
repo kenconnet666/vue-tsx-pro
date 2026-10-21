@@ -4,10 +4,10 @@ import { expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
 import { Result } from '../Result';
 
-it('状态写到 data-status；标题、说明、操作、内容依次排列', () => {
+it('色调写到 data-tone；标题、说明、操作、内容依次排列', () => {
   const root = mount(() => (
     <Result
-      status="danger"
+      tone="danger"
       title="支付失败"
       description="余额不足"
       action={<button>重试</button>}
@@ -16,7 +16,7 @@ it('状态写到 data-status；标题、说明、操作、内容依次排列', (
       <code>E42</code>
     </Result>
   )).firstElementChild as HTMLElement;
-  expect(root.dataset.status).toBe('danger');
+  expect(root.dataset.tone).toBe('danger');
   expect(root.querySelector('svg')).not.toBeNull();
   expect(root.querySelector('.title')!.textContent).toBe('支付失败');
   expect(root.textContent).toBe('支付失败余额不足E42重试');

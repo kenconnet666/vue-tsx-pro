@@ -36,9 +36,9 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ### 1.1 API 统一（公共契约，一类一次改完：调用方、文档、测试同步）
 
-- [ ] 色调：文字类的 `tone` 改用状态色调的六档再加文字专用的 `muted`（`default` → `neutral`）；Result 的 `status` 改成 `tone`
-- [ ] 圆角：统一一个 `Radius`（none、xs–xl、full，对应 tokens），各组件给默认值；Alert、Empty、SpotlightCard、TiltCard 补上
-- [ ] 时长一律毫秒（BorderBeam 的 duration、delay）；`size` 只表示字号档位，BorderBeam、SpotlightCard 的长度另起名字
+- [x] 色调：文字类的 `tone` 改用状态色调的六档再加文字专用的 `muted`（`default` → `neutral`）；Result 的 `status` 改成 `tone`
+- [x] 圆角：统一一个 `Radius`（none、xs–xl、full，对应 tokens，`radiusStyles`），各组件给默认值；Alert、Card、SpotlightCard、TiltCard、BorderBeam 补上
+- [x] 时长一律毫秒（BorderBeam 的 duration、delay）；BorderBeam 的光带长度改叫 `length`（`size` 只表示字号档位；SpotlightCard 的光斑半径仍叫 size，排在下一批）
 - [ ] 内容属性：Alert 加 `description`（children 是额外内容，同 Empty、Result）；`label` 只表示可见的标签，读屏文字一律 `aria-label`
 - [ ] 项的形状：标题统一叫 `label`（Steps、Timeline、AccordionItem 的 title），都可以带 `key`；取 key 的函数统一叫 `getKey`
 - [ ] “至少保留一项”从 `required` 改名 `disallowEmptySelection`（Listbox、ToggleGroup），`required` 只表示表单必填

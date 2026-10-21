@@ -15,14 +15,7 @@ import { useDefaults } from '../config/defaults';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-
-/** 头像的圆角 */
-export interface AvatarRadii {
-  /** 圆形（默认） */
-  full: unknown;
-  /** 圆角方形：团队、组织、应用的图标 */
-  md: unknown;
-}
+import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** 后备内容（首字母、图标）的底色样式 */
 export interface AvatarVariants {
@@ -36,8 +29,8 @@ export interface AvatarVariants {
 export interface AvatarOptions {
   /** 字号档位，头像边长是它的 2.5 倍；不写时继承 */
   size?: TextSize;
-  /** 圆角，默认 full */
-  radius?: keyof AvatarRadii;
+  /** 圆角，默认 full（圆形）；团队、组织、应用的图标常用 md（圆角方形） */
+  radius?: Radius;
   /** 后备内容的底色样式，默认 soft */
   variant?: keyof AvatarVariants;
   /** 后备内容的色调（与 Button、Badge 等同一套），默认 accent */
@@ -78,8 +71,6 @@ export const avatarStyles = stylex.create({
     verticalAlign: 'middle',
     userSelect: 'none',
   },
-  full: { borderRadius: '_full' },
-  md: { borderRadius: '_md' },
   image: { width: '_full', height: '_full', objectFit: 'cover' },
   // 图片加载完之前先藏起来（仍在 DOM 里加载），后备内容垫在下面
   loading: { position: 'absolute', opacity: 0 },
@@ -137,7 +128,7 @@ export const Avatar = _component(
               sx: [
                 avatarStyles.root,
                 statusToneStyles[fill][color],
-                avatarStyles[corner],
+                radiusStyles[corner],
                 fontSize && fontSizeStyles[fontSize],
                 group && avatarStyles.grouped,
               ],

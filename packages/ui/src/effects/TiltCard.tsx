@@ -19,6 +19,7 @@ import { colors } from '../config/theme/tokens.stylex';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { usePointer } from '../utils/motion/pointer';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface TiltCardProps extends PartProps<'div'> {
@@ -39,6 +40,11 @@ export interface TiltCardProps extends PartProps<'div'> {
   glare?: boolean;
   /** 不倾斜（例如列表在拖动排序时） */
   disabled?: boolean;
+  /**
+   * 圆角：与里面的卡片一致，高光层跟着它裁切
+   * @default 'lg'
+   */
+  radius?: Radius;
   /** 高光层的部件属性 */
   propsGlare?: PartProps<'span', 'aria-hidden'>;
   /** 内容 */
@@ -50,7 +56,6 @@ export const tiltCardStyles = stylex.create({
   root: {
     position: 'relative',
     display: 'block',
-    borderRadius: '_lg',
     transformStyle: 'preserve-3d',
     willChange: 'transform',
   },
@@ -82,6 +87,7 @@ export const TiltCard = _component(
     scale = 1.02,
     glare = true,
     disabled = false,
+    radius = 'lg',
     propsGlare,
     children,
     ...rest
@@ -99,6 +105,7 @@ export const TiltCard = _component(
             {
               sx: [
                 tiltCardStyles.root,
+                radiusStyles[radius],
                 tiltCardDynamicStyles.transform(
                   pointer.y * maxTilt * tilt,
                   pointer.x * maxTilt * tilt,

@@ -6,16 +6,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { statusToneSx, type StatusTone, type StatusVariant } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-
-/** 标记的圆角 */
-export interface BadgeRadii {
-  /** 直角：表格、密集列表里的状态，与表格的直线对齐 */
-  none: unknown;
-  /** 小圆角（默认） */
-  sm: unknown;
-  /** 胶囊形 */
-  full: unknown;
-}
+import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** Badge、Tag 共用的外观选项；可以用 createUi / Provider 的 defaults.Badge 统一改默认值 */
 export interface BadgeOptions {
@@ -25,11 +16,11 @@ export interface BadgeOptions {
   tone?: StatusTone;
   /** 字号档位，默认 xs */
   size?: TextSize;
-  /** 圆角，默认 sm */
-  radius?: keyof BadgeRadii;
+  /** 圆角，默认 sm；表格、密集列表里的状态常用 none，与表格的直线对齐 */
+  radius?: Radius;
 }
 
-/** Badge、Tag 的样式：root、none、sm、full */
+/** Badge、Tag 的样式：root */
 export const badgeStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
@@ -44,9 +35,6 @@ export const badgeStyles = stylex.create({
     whiteSpace: 'nowrap',
     verticalAlign: 'middle',
   },
-  none: { borderRadius: 0 },
-  sm: { borderRadius: '_sm' },
-  full: { borderRadius: '_full' },
 });
 
 /** 合并后的外观 → 样式 */
@@ -60,6 +48,6 @@ export function badgeSx({
     badgeStyles.root,
     statusToneSx(variant, tone),
     fontSizeStyles[size],
-    badgeStyles[radius],
+    radiusStyles[radius],
   ] as StyleXStyles;
 }

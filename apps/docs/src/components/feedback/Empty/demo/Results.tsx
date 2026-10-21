@@ -23,24 +23,24 @@ const results: Record<Status, { title: string; description: string; action: stri
 };
 
 export default _component(() => {
-  let status = _state<Status>('success');
+  let tone = _state<Status>('success');
   // 换状态时重新挂载，图标重新画一遍
   let round = _state(0);
   return () => {
-    const result = results[status];
+    const result = results[tone];
     return (
       <Flex direction="column" gap="md">
         <ToggleGroup
           value={_bind(
-            () => status,
+            () => tone,
             (next) => {
-              status = next;
+              tone = next;
               round++;
             },
           )}
           required
           size="sm"
-          aria-label="结果状态"
+          aria-label="结果的色调"
         >
           <ToggleItem value="success">成功</ToggleItem>
           <ToggleItem value="danger">失败</ToggleItem>
@@ -50,7 +50,7 @@ export default _component(() => {
         <Card>
           <Result
             key={round}
-            status={status}
+            tone={tone}
             title={result.title}
             description={result.description}
             action={
@@ -62,7 +62,7 @@ export default _component(() => {
               </Flex>
             }
           >
-            <Code>status="{status}"</Code>
+            <Code>tone="{tone}"</Code>
           </Result>
         </Card>
       </Flex>

@@ -52,7 +52,8 @@ export default _component(() => () => (
           同样适用。
         </Example>
         <Example id="radius" title="圆角" demo={Radius}>
-          <Code>radius</Code> 从直角到胶囊形；图标按钮写 <Code>full</Code> 是圆形。整个应用统一改用{' '}
+          <Code>radius</Code> 从直角到胶囊形，七档与 Badge、Card、输入框共用（对应主题的
+          radii，随字号缩放）；图标按钮写 <Code>full</Code> 是圆形。整个应用统一改用{' '}
           <Code>createUi</Code> 的 <Code>defaults.Button</Code>。
         </Example>
       </ExampleColumn>

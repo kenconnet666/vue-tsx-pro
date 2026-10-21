@@ -49,10 +49,13 @@ export interface FontWeights {
 /** 字重档位 */
 export type FontWeight = keyof FontWeights;
 
-/** 文字色调，对应主题的文字颜色 */
+/**
+ * 文字色调，对应主题的文字颜色。与状态色调（StatusTones：neutral、accent、info、success、warning、danger）同名，
+ * 再加文字专用的 muted：Text、Link、Icon 与 Button、Badge 写同一个值得到同一种颜色
+ */
 export interface Tones {
-  /** 主要文字色 */
-  default: unknown;
+  /** 中性：正文色 */
+  neutral: unknown;
   /** 次要文字色：说明、辅助信息 */
   muted: unknown;
   /** 品牌色文字：链接、强调 */
@@ -120,7 +123,7 @@ export const fontWeightStyles = stylex.create({
 
 /** 色调 → 文字颜色 token */
 export const toneStyles = stylex.create({
-  default: { color: '_text' },
+  neutral: { color: '_text' },
   muted: { color: '_textMuted' },
   accent: { color: '_accentText' },
   danger: { color: '_dangerText' },

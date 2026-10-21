@@ -13,7 +13,7 @@ import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles, radiusStyles, type Radius, type StyleTable } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -34,18 +34,6 @@ export interface ButtonVariants {
   link: unknown;
 }
 
-/** 按钮圆角 */
-export interface ButtonRadii {
-  /** 直角 */
-  none: unknown;
-  /** 小圆角 */
-  sm: unknown;
-  /** 中圆角（默认） */
-  md: unknown;
-  /** 胶囊形（图标按钮为圆形） */
-  full: unknown;
-}
-
 /** 按钮家族共用的外观选项；可以用 createUi / Provider 的 defaults.Button 统一改默认值 */
 export interface ButtonOptions {
   /**
@@ -64,7 +52,7 @@ export interface ButtonOptions {
    * 圆角
    * @default 'md'
    */
-  radius?: keyof ButtonRadii;
+  radius?: Radius;
   /** 加载中：显示旋转指示，宽度不变，点击无效，焦点保留；读屏会得知 aria-busy */
   loading?: boolean;
   /** 按下时的波纹效果；不写时沿用 createUi / Provider 的 ripple（默认开启） */
@@ -150,14 +138,6 @@ export const buttonStyles = stylex.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
-
-/** 按钮家族 的样式：none、sm、md、full */
-export const buttonRadiusStyles = stylex.create({
-  none: { borderRadius: 0 },
-  sm: { borderRadius: '_sm' },
-  md: { borderRadius: '_md' },
-  full: { borderRadius: '_full' },
 });
 
 // 每种样式按色调各一组。中性色没有专门的实底色，用反色表面。
@@ -423,7 +403,7 @@ export function buttonSx(
     rippleHostStyles.host,
     buttonVariantStyles[variant][tone],
     variant === 'link' && buttonLinkStyles.root,
-    buttonRadiusStyles[radius],
+    radiusStyles[radius],
     attached && attachedStyles[attached],
     size && fontSizeStyles[size],
     state.square && buttonStyles.square,

@@ -26,9 +26,10 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="variants" title="多条、长度与圆角" demo={Variants}>
-          <Code>delay</Code> 与 <Code>reverse</Code> 让几条光带错开；<Code>size</Code>、
-          <Code>borderWidth</Code>、<Code>duration</Code> 调长度、粗细与速度。<Code>radius</Code>{' '}
-          要与容器的圆角一致（默认主题的 lg，与 Card 相同）。减少动态效果时光带停在起点。
+          <Code>delay</Code> 与 <Code>reverse</Code> 让几条光带错开；<Code>length</Code>、
+          <Code>borderWidth</Code>、<Code>duration</Code> 调长度、粗细与速度。<Code>radius</Code> 与
+          Card、按钮同一套档位，要与容器的圆角一致（默认 lg，与 Card
+          相同）。时长、延迟都是毫秒。减少动态效果时光带停在起点。
         </Example>
       </ExampleColumn>
     </Examples>

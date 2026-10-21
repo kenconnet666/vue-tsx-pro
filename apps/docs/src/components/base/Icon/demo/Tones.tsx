@@ -3,7 +3,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Flex, Grid, Icon, Text, type IconData, type IconProps } from '@vue-tsx-pro/ui';
 
 const tones: [IconProps['tone'], IconData, string][] = [
-  ['default', CircleUser, '默认：跟随文字'],
+  ['neutral', CircleUser, '中性：正文色'],
   ['muted', CircleUser, '次要'],
   ['accent', Sparkles, '品牌色'],
   ['info', Info, '信息'],

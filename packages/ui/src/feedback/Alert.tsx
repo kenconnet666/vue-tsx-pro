@@ -19,6 +19,7 @@ import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {
@@ -44,6 +45,8 @@ export interface AlertLives {
 export interface AlertOptions {
   /** 样式，默认 soft */
   variant?: keyof AlertVariants;
+  /** 圆角，默认 md；贴着页面顶部的通栏写 none */
+  radius?: Radius;
 }
 
 /** 角色由 live 决定，忙碌由 loading 决定；原生的 title 属性（悬停提示）让给标题 */
@@ -93,7 +96,6 @@ export const alertStyles = stylex.create({
     alignItems: 'flex-start',
     gap: '_sm',
     padding: '_md',
-    borderRadius: '_md',
     lineHeight: '_normal',
   },
   // 图标与第一行文字对齐：行高 1.5em 里居中 1em 的图标
@@ -111,6 +113,7 @@ const ROLES = { off: undefined, polite: 'status', assertive: 'alert' } as const;
 export const Alert = _component(
   ({
     variant,
+    radius,
     tone = 'info',
     size,
     title,
@@ -129,7 +132,10 @@ export const Alert = _component(
     children,
     ...rest
   }: AlertProps) => {
-    const appearance = useDefaults('Alert', () => ({ variant }), { variant: 'soft' });
+    const appearance = useDefaults('Alert', () => ({ variant, radius }), {
+      variant: 'soft',
+      radius: 'md',
+    });
     let closing = _state(false);
     // 离场结束才交给使用方移除；使用方没移除时 closing 复位，提示条重新出现
     const presence = usePresence(() => !closing, {
@@ -148,6 +154,7 @@ export const Alert = _component(
                 alertStyles.root,
                 presenceStyles.fade,
                 statusToneSx(appearance().variant, tone),
+                radiusStyles[appearance().radius],
                 size && fontSizeStyles[size],
                 closing && presenceStyles.leaving,
               ],

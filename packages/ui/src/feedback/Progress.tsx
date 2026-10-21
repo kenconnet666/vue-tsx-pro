@@ -19,16 +19,7 @@ import { clamp } from '../utils/data/number';
 import { compareNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-
-/** 进度条的圆角 */
-export interface ProgressRadii {
-  /** 直角 */
-  none: unknown;
-  /** 小圆角 */
-  sm: unknown;
-  /** 胶囊形（默认） */
-  full: unknown;
-}
+import { radiusStyles, type Radius } from '../utils/style/styles';
 
 /** 角色与取值由组件管理 */
 export type ProgressManaged =
@@ -45,7 +36,7 @@ export interface ProgressProps extends PartProps<'div', ProgressManaged> {
   /** 字号档位：进度条的粗细随之缩放；不写时继承上下文字号 */
   size?: TextSize;
   /** 圆角，默认 full */
-  radius?: keyof ProgressRadii;
+  radius?: Radius;
   /** 读屏念的取值文字，如 `(value, max) => \`已上传 ${value} / ${max} 个文件\``；默认是百分比 */
   valueText?: (value: NumericValue, max: NumericValue) => string;
   /** 进度条上方的标签：同时是进度条的名称（aria-labelledby），不用再写 aria-label */
@@ -96,13 +87,6 @@ export const progressStyles = stylex.create({
     animationTimingFunction: '_easings.standard',
     animationIterationCount: 'infinite',
   },
-});
-
-/** Progress 的样式：none、sm、full */
-export const progressRadiusStyles = stylex.create({
-  none: { borderRadius: 0 },
-  sm: { borderRadius: '_sm' },
-  full: { borderRadius: '_full' },
 });
 
 // 和轨道（fill）之间要有 3:1：中性色用次要文字色，accent 以外的状态色用各自的文字色
@@ -165,7 +149,7 @@ export const Progress = _component(
             {
               sx: [
                 progressStyles.root,
-                progressRadiusStyles[radius],
+                radiusStyles[radius],
                 // 有外层时字号档位放在外层，标签行一起缩放
                 !header && size && fontSizeStyles[size],
               ],

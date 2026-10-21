@@ -1,8 +1,8 @@
 /**
  * 结果页：操作完成后的整块反馈（提交成功、支付失败、权限不足）。大图标（挂载时一笔画出）+ 标题 + 说明 + 操作，居中排列。
  *
- *   <Result status="success" title="提交成功" description="审核结果会通过邮件通知你。" action={<Button>返回列表</Button>} />
- *   <Result status="danger" title="支付失败" action={<Button onClick={retry}>重试</Button>}>{details}</Result>
+ *   <Result tone="success" title="提交成功" description="审核结果会通过邮件通知你。" action={<Button>返回列表</Button>} />
+ *   <Result tone="danger" title="支付失败" action={<Button onClick={retry}>重试</Button>}>{details}</Result>
  *
  * 只是展示，不带角色；操作后才出现、需要读屏播报时，由所在区域用 aria-live 或把焦点移到标题上。
  * 部件：Root（div）、Icon、Title（Text）、Description（Paragraph）、Action（div）。
@@ -16,8 +16,8 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import { fontSizeStyles, toneStyles, type TextSize } from '../utils/style/typography';
 
-/** 结果的状态：决定图标与颜色 */
-export interface ResultStatuses {
+/** 结果的色调：决定图标与颜色（与 Alert、Toast 的色调同名） */
+export interface ResultTones {
   /** 成功（默认）：对勾 */
   success: unknown;
   /** 失败：感叹号 */
@@ -30,9 +30,9 @@ export interface ResultStatuses {
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
 export interface ResultProps extends PartProps<'div', 'title'> {
-  /** 状态，默认 success */
-  status?: keyof ResultStatuses;
-  /** 图标；不写时按状态选，false 不显示 */
+  /** 色调，默认 success */
+  tone?: keyof ResultTones;
+  /** 图标；不写时按色调选，false 不显示 */
   icon?: IconData | false;
   /** 挂载时描线画出图标，默认 true；减少动态效果时直接画好 */
   draw?: boolean;
@@ -83,7 +83,7 @@ export const resultStyles = stylex.create({
 /** 结果页：状态图标、标题、说明、操作，居中排列 */
 export const Result = _component(
   ({
-    status = 'success',
+    tone = 'success',
     icon,
     draw = true,
     title,
@@ -100,15 +100,15 @@ export const Result = _component(
     () => (
       <div
         {...mergeAttrs<'div'>({ sx: [resultStyles.root, size && fontSizeStyles[size]] }, rest)}
-        data-status={status}
+        data-tone={tone}
       >
         {icon !== false && (
           <Icon
             {...mergePartProps<IconProps>(
               {
-                icon: icon ?? statusIcons[status],
+                icon: icon ?? statusIcons[tone],
                 draw,
-                sx: [resultStyles.icon, toneStyles[status]],
+                sx: [resultStyles.icon, toneStyles[tone]],
               },
               propsIcon,
             )}

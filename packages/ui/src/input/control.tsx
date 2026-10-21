@@ -7,11 +7,10 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import type { ButtonRadii } from '../base/button-core';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 输入框的样式 */
@@ -28,8 +27,8 @@ export interface ControlOptions {
   variant?: keyof ControlVariants;
   /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
   size?: TextSize;
-  /** 圆角，与按钮相同的四档，默认 md；搜索框常用 full（胶囊形） */
-  radius?: keyof ButtonRadii;
+  /** 圆角，与按钮同一套档位，默认 md；搜索框常用 full（胶囊形） */
+  radius?: Radius;
 }
 
 /** 框里最前面的图标（搜索、日历、地球……）：各种输入框共有 */
@@ -85,14 +84,6 @@ export const controlShellStyles = stylex.create({
   },
   // 多行（Textarea）：内容从顶部开始，上下也留内边距
   multiline: { alignItems: 'stretch', paddingBlock: '_xs' },
-});
-
-/** 输入框外壳 的样式：none、sm、md、full */
-export const controlRadiusStyles = stylex.create({
-  none: { borderRadius: 0 },
-  sm: { borderRadius: '_sm' },
-  md: { borderRadius: '_md' },
-  full: { borderRadius: '_full' },
 });
 
 /** 外壳里的各部分：原生输入元素、前后图标、前后缀文字、框里的小按钮（清除、显示密码、步进） */
@@ -176,7 +167,7 @@ export function controlSx(
     controlShellStyles.root,
     focusRingStyles.within,
     variant === 'soft' && controlShellStyles.soft,
-    controlRadiusStyles[radius],
+    radiusStyles[radius],
     size && fontSizeStyles[size],
     readonly && controlShellStyles.readonly,
     invalid && controlShellStyles.invalid,

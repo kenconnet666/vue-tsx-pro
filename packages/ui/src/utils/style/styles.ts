@@ -11,6 +11,38 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
  * 补全列表与悬停取值时能看到每个取值的效果（WebStorm 把字符串字面量解析到 keyof 的键上）。
  */
 
+/** 圆角档位，对应主题的 radii（em，随字号缩放），括号里是默认主题的值；各组件的 radius 都用它 */
+export interface RadiusScale {
+  /** 直角：表格、密集列表里与直线对齐 */
+  none: unknown;
+  /** 0.15em */
+  xs: unknown;
+  /** 0.25em */
+  sm: unknown;
+  /** 0.4em：控件与按钮的默认 */
+  md: unknown;
+  /** 0.7em：卡片、面板 */
+  lg: unknown;
+  /** 1em */
+  xl: unknown;
+  /** 胶囊形（宽高相等时是圆形） */
+  full: unknown;
+}
+
+/** 圆角档位 */
+export type Radius = keyof RadiusScale;
+
+/** 圆角档位的样式：none、xs、sm、md、lg、xl、full */
+export const radiusStyles = stylex.create({
+  none: { borderRadius: 0 },
+  xs: { borderRadius: '_xs' },
+  sm: { borderRadius: '_sm' },
+  md: { borderRadius: '_md' },
+  lg: { borderRadius: '_lg' },
+  xl: { borderRadius: '_xl' },
+  full: { borderRadius: '_full' },
+});
+
 /** 间距档位，对应主题的 space（em，随字号缩放），括号里是默认主题的值 */
 export interface SpaceScale {
   /** 无间距（0） */
