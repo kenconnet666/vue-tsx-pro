@@ -4,7 +4,15 @@ import { nextTick } from 'vue';
 import { CalendarDate } from '@internationalized/date';
 import Decimal from 'decimal.js';
 import { hasStyles, mount } from '../../utils/.test/mount';
-import { columnType, nextSort, sortRows, type SortState, type DataTableColumn } from '../columns';
+import { createStatusMap } from '../../utils/data/status';
+import {
+  columnType,
+  nextSort,
+  sortRows,
+  sumColumn,
+  type SortState,
+  type DataTableColumn,
+} from '../columns';
 import { DataTable } from '../DataTable';
 import { dataTableStyles } from '../DataTableView';
 import { TreeDataTable } from '../TreeDataTable';
@@ -299,6 +307,101 @@ describe('DataTable', () => {
     boxes[0]!.click();
     await flush();
     expect(picked).toEqual(['a']);
+  });
+});
+
+describe('DataTable 的台账能力', () => {
+  interface Task {
+    id: string;
+    status: string;
+    estimate: Decimal | null;
+    agreed: string | null;
+  }
+  const tasks: Task[] = [
+    { id: 'a', status: 'verifying', estimate: new Decimal('155353.2'), agreed: null },
+    { id: 'b', status: 'closed', estimate: new Decimal('109600'), agreed: '98000.10' },
+    { id: 'c', status: 'archived', estimate: null, agreed: '0.20' },
+  ];
+  const statuses = createStatusMap({
+    verifying: { label: '验证中', tone: 'info' },
+    closed: { label: '关闭', tone: 'success' },
+  });
+  const ledgerColumns: DataTableColumn<Task>[] = [
+    { key: 'id', header: '编码' },
+    { key: 'status', header: '状态', statuses },
+    {
+      key: 'estimate',
+      header: '测算（万元）',
+      format: { scale: 10_000, maximumFractionDigits: 2 },
+      summary: 'sum',
+    },
+    { key: 'agreed', header: '谈定（元）', type: 'number', empty: '待定价', summary: 'sum' },
+  ];
+
+  it('状态列显示 StatusBadge；空值显示 empty；合计行精确相加并按列的格式显示', async () => {
+    const root = mount(() => (
+      <DataTable
+        aria-label="台账"
+        rows={tasks}
+        rowKey={(task) => task.id}
+        columns={ledgerColumns}
+      />
+    ));
+    await flush();
+    const rows = [...root.querySelectorAll('tbody tr[aria-rowindex]')];
+    const text = (row: Element) => [...row.querySelectorAll('td')].map((td) => td.textContent);
+    expect(text(rows[0]!)).toEqual(['a', '验证中', '15.54', '待定价']);
+    // 不认识的状态显示 key；没有测算值显示默认的 —
+    expect(text(rows[2]!)).toEqual(['c', 'archived', '—', '0.2']);
+    expect(rows[0]!.querySelector('[data-status="verifying"]')).not.toBeNull();
+    const summary = root.querySelector('tfoot tr')!;
+    expect(text(summary)).toEqual(['合计', '', '26.5', '98,000.3']);
+    expect(root.querySelector('table')!.getAttribute('aria-rowcount')).toBe('5');
+  });
+
+  it('rowTone 给整行着色；isRowSelectable 不能勾选的行勾选框不可用，全选跳过它；hiddenColumns 隐藏列', async () => {
+    let picked = _state<string[]>([]);
+    const root = mount(() => (
+      <DataTable
+        aria-label="台账"
+        rows={tasks}
+        rowKey={(task) => task.id}
+        columns={ledgerColumns}
+        selectionMode="multiple"
+        selected={_bind(picked)}
+        isRowSelectable={(task) => task.status !== 'closed'}
+        rowTone={(task) => (task.estimate == null ? 'danger' : undefined)}
+        hiddenColumns={['agreed']}
+      />
+    ));
+    await flush();
+    const rows = [...root.querySelectorAll<HTMLElement>('tbody tr[aria-rowindex]')];
+    expect(rows.map((row) => row.dataset.tone)).toEqual([undefined, undefined, 'danger']);
+    const boxes = rows.map((row) => row.querySelector<HTMLInputElement>('input[type="checkbox"]')!);
+    expect(boxes.map((box) => box.disabled)).toEqual([false, true, false]);
+    root.querySelector<HTMLInputElement>('thead input[type="checkbox"]')!.click();
+    await flush();
+    expect(picked).toEqual(['a', 'c']);
+    // 能勾选的都勾上了：全选框是勾上的，不是部分选中
+    const all = root.querySelector<HTMLInputElement>('thead input[type="checkbox"]')!;
+    expect([all.checked, all.indeterminate]).toEqual([true, false]);
+    expect([...root.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual([
+      '',
+      '编码',
+      '状态',
+      '测算（万元）',
+    ]);
+  });
+});
+
+describe('sumColumn', () => {
+  it('有 Decimal 时按 Decimal 精确相加；全是 bigint 时整数相加；十进制字符串按数字；没有数值时 null', () => {
+    const column = { key: 'v', header: 'v' } as DataTableColumn<{ v: unknown }>;
+    const sum = (values: unknown[]) => sumColumn(column, values.map((v) => ({ v })) as never);
+    expect(String(sum([new Decimal('0.1'), 0.2, null]))).toBe('0.3');
+    expect(sum([1n, 2n])).toBe(3n);
+    expect(sum(['1.5', 2])).toBe(3.5);
+    expect(sum([null, '', 'abc'])).toBeNull();
   });
 });
 

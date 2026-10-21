@@ -15,6 +15,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { StatusBadge } from '../base/Badge';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
@@ -38,6 +39,7 @@ import {
   columnValue,
   formatCell,
   stickyOffsets,
+  sumColumn,
   tableMinWidth,
   type ColumnTypes,
   type SortState,
@@ -119,6 +121,14 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   leading?: (row: DataTableRowModel<T>, index: number) => VNodeChild;
   /** 行的估计高度（px）；不写时按密度估计，渲染后以实际高度为准 */
   estimateRowHeight?: number;
+  /** 行的色调：导入校验的错误行、即将超期的行整行着浅色底（不透明，固定列也盖得住） */
+  rowTone?: (row: T) => RowTone | undefined;
+  /** 这一行能不能勾选：不能的勾选框不可用，全选也跳过它 */
+  isRowSelectable?: (row: T) => boolean;
+  /** 隐藏的列的 key：列显示设置（用 Menu 的 MenuCheckboxItem 组合）写回这里 */
+  hiddenColumns?: readonly string[];
+  /** 合计行第一列的文字（第一列自己没写 summary 时），默认取语言包（合计） */
+  summaryLabel?: VNodeChild;
   /** 可见行范围变化（不含 overscan）：接近末尾时加载更多 */
   onRangeChange?: (range: VisibleRange) => void;
   /** 外层滚动区域（决定表格的高度）的部件属性；高度用 sx 给，默认最高 32em */
@@ -159,7 +169,14 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsProgress?: Partial<ProgressProps>;
   /** 空状态所在的单元格（td，跨全部列）的部件属性 */
   propsEmptyCell?: PartProps<'td', 'colspan'>;
+  /** 表尾（tfoot，合计行，吸底）的部件属性 */
+  propsFoot?: PartProps<'tfoot'>;
+  /** 合计行每个单元格的部件属性，可以按列计算 */
+  propsSummaryCell?: PartProps<'td'> | ((column: DataTableColumn<T>) => PartProps<'td'>);
 }
+
+/** 行的色调：整行浅色底 */
+export type RowTone = 'info' | 'success' | 'warning' | 'danger';
 
 /** 勾选列里的勾选框由表格管理的属性 */
 type SelectCheckboxManaged = 'checked' | 'indeterminate' | 'onChange';
@@ -239,6 +256,27 @@ export const dataTableStyles = stylex.create({
   selected: { backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' } },
   // 固定列在普通单元格之上，表头在固定列之上
   sticky: { position: 'sticky', zIndex: 1 },
+  // 固定列与滚动的列之间一条竖线：横向滚动时看得出哪几列是固定的
+  stickyStartEdge: {
+    borderInlineEndWidth: '_xs',
+    borderInlineEndStyle: 'solid',
+    borderInlineEndColor: '_borderMuted',
+  },
+  stickyEndEdge: {
+    borderInlineStartWidth: '_xs',
+    borderInlineStartStyle: 'solid',
+    borderInlineStartColor: '_borderMuted',
+  },
+  // 合计行吸底；在表头、固定列之上
+  foot: { position: 'sticky', bottom: 0, zIndex: 2 },
+  summaryCell: {
+    borderTopWidth: '_xs',
+    borderTopStyle: 'solid',
+    borderTopColor: '_border',
+    borderBottomWidth: 0,
+    backgroundColor: '_fill',
+    fontWeight: '_semibold',
+  },
   // 有起始边的固定列时，勾选列也固定在最前面
   stickySelect: { position: 'sticky', zIndex: 1, insetInlineStart: 0 },
   selectCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
@@ -262,6 +300,14 @@ export const dataTableStyles = stylex.create({
   emptyCell: { padding: 0, whiteSpace: 'normal' },
 });
 
+/** DataTable、TreeDataTable 的样式：行的色调（不透明的浅色底，悬停加深） */
+export const dataTableRowToneStyles = stylex.create({
+  info: { backgroundColor: { default: '_infoSoft', ':hover': '_infoSoftHover' } },
+  success: { backgroundColor: { default: '_successSoft', ':hover': '_successSoftHover' } },
+  warning: { backgroundColor: { default: '_warningSoft', ':hover': '_warningSoftHover' } },
+  danger: { backgroundColor: { default: '_dangerSoft', ':hover': '_dangerSoftHover' } },
+});
+
 /** DataTable、TreeDataTable 的样式：单元格按密度的上下内边距 */
 export const dataTableDensityStyles = stylex.create({
   compact: { paddingBlock: '_xs' },
@@ -280,12 +326,20 @@ export const dataTableDynamicStyles = stylex.create({
   percent: (value: string) => ({ width: value }),
 });
 
-/** 固定列单元格的样式：position: sticky 加上按列宽累加的偏移 */
+/** 固定列单元格的样式：position: sticky 加上按列宽累加的偏移；挨着滚动列的那一列加一条竖线 */
 function stickyCellSx(column: DataTableColumn<never>, offsets: StickyOffsets) {
   if (column.sticky === 'start')
-    return [dataTableStyles.sticky, dataTableDynamicStyles.start(offsets.start.get(column.key)!)];
+    return [
+      dataTableStyles.sticky,
+      dataTableDynamicStyles.start(offsets.start.get(column.key)!),
+      offsets.startEdge === column.key && dataTableStyles.stickyStartEdge,
+    ];
   if (column.sticky === 'end')
-    return [dataTableStyles.sticky, dataTableDynamicStyles.end(offsets.end.get(column.key)!)];
+    return [
+      dataTableStyles.sticky,
+      dataTableDynamicStyles.end(offsets.end.get(column.key)!),
+      offsets.endEdge === column.key && dataTableStyles.stickyEndEdge,
+    ];
   return null;
 }
 
@@ -297,6 +351,10 @@ export interface DataTableRowProps<T> {
   index: number;
   /** 是否已选 */
   selected: boolean;
+  /** 能不能勾选，默认 true */
+  selectable?: boolean;
+  /** 整行的色调 */
+  tone?: RowTone;
   /** 选择方式；不写时没有勾选列 */
   selectionMode?: keyof SelectionModes;
   /** 列 */
@@ -338,6 +396,8 @@ export const DataTableRow = _component(
     row,
     index,
     selected,
+    selectable = true,
+    tone,
     selectionMode,
     columns,
     density,
@@ -362,6 +422,7 @@ export const DataTableRow = _component(
             sx: [
               variant === 'ghost' ? dataTableStyles.rowGhost : dataTableStyles.row,
               striped && index % 2 === 1 && dataTableStyles.striped,
+              tone && dataTableRowToneStyles[tone],
               selected && dataTableStyles.selected,
             ],
           },
@@ -374,6 +435,7 @@ export const DataTableRow = _component(
         )}
         data-index={index}
         data-state={selected ? 'selected' : undefined}
+        data-tone={tone}
       >
         {selectionMode && (
           <td
@@ -394,7 +456,12 @@ export const DataTableRow = _component(
                 // 名称每行不同（选择第 N 行）：类型里不让使用方覆盖
                 { 'aria-label': lang.tableSelectRow(index + 1) },
                 propsSelectCheckbox,
-                { checked: selected, indeterminate: false, onChange: () => onToggle?.(row.key) },
+                {
+                  checked: selected,
+                  indeterminate: false,
+                  disabled: !selectable,
+                  onChange: () => onToggle?.(row.key),
+                },
               )}
             />
           </td>
@@ -459,6 +526,10 @@ export const DataTableView = _component(
     striped = false,
     estimateRowHeight,
     onRangeChange,
+    rowTone,
+    isRowSelectable,
+    hiddenColumns,
+    summaryLabel,
     propsRoot,
     propsRow,
     propsCell,
@@ -478,6 +549,8 @@ export const DataTableView = _component(
     propsContent,
     propsProgress,
     propsEmptyCell,
+    propsFoot,
+    propsSummaryCell,
     ...rest
   }: DataTableViewProps<T>) => {
     const lang = useLang();
@@ -485,9 +558,20 @@ export const DataTableView = _component(
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
-    // 遍历全部行：放在派生里，滚动时的重新渲染不必再算一遍
-    const allSelected = _derived(rows.length > 0 && rows.every((row) => selectedSet.has(row.key)));
-    const someSelected = _derived(!allSelected && rows.some((row) => selectedSet.has(row.key)));
+    // 遍历全部行：放在派生里，滚动时的重新渲染不必再算一遍；全选只看能勾选的行
+    const selectableRows = _derived(
+      isRowSelectable ? rows.filter((row) => isRowSelectable(row.data)) : rows,
+    );
+    const allSelected = _derived(
+      selectableRows.length > 0 && selectableRows.every((row) => selectedSet.has(row.key)),
+    );
+    const someSelected = _derived(
+      !allSelected && selectableRows.some((row) => selectedSet.has(row.key)),
+    );
+    const hidden = _derived.by(() => new Set(hiddenColumns ?? []));
+    const visibleColumns = _derived(
+      hidden.size > 0 ? columns.filter((column) => !hidden.has(column.key)) : columns,
+    );
     let viewport = _state.raw<HTMLElement | null>(null);
     let body = _state.raw<HTMLElement | null>(null);
 
@@ -506,7 +590,7 @@ export const DataTableView = _component(
 
     // 每列的值类型（没写 type 时看第一个非空值）拼成字符串：类型没变时 shown 保持同一个引用，行组件不必重渲
     const types = _derived(
-      columns
+      visibleColumns
         .map((column) =>
           columnType(
             column,
@@ -517,20 +601,45 @@ export const DataTableView = _component(
         )
         .join('|'),
     );
+    /** 一个值的显示：空值显示 empty（默认 —），状态显示成 StatusBadge，其余按类型与 format 格式化 */
+    const display = (
+      column: DataTableColumn<T>,
+      type: keyof ColumnTypes,
+      value: ReturnType<typeof columnValue>,
+    ): VNodeChild => {
+      if (value == null || value === '') return column.empty ?? lang.emptyValue;
+      if (column.statuses)
+        return <StatusBadge statuses={column.statuses} value={String(value)} radius="full" />;
+      return formatCell(value, type, format, column.format);
+    };
+
     /** 补上默认对齐与格式化的列：没写 align、cell 的列按值类型来 */
     const shown = _derived.by(() => {
       const list = types.split('|') as (keyof ColumnTypes)[];
-      return columns.map((column, position): DataTableColumn<T> => {
+      return visibleColumns.map((column, position): DataTableColumn<T> => {
         const type = list[position]!;
         return {
           ...column,
-          align: column.align ?? columnAlign(type),
-          cell:
-            column.cell ??
-            ((row) => formatCell(columnValue(column, row), type, format, column.format)),
+          align: column.align ?? (column.statuses ? 'start' : columnAlign(type)),
+          cell: column.cell ?? ((row) => display(column, type, columnValue(column, row))),
         };
       });
     });
+    const hasSummary = _derived(visibleColumns.some((column) => column.summary != null));
+
+    /** 合计行里一列的内容 */
+    function summaryOf(column: DataTableColumn<T>, position: number): VNodeChild {
+      if (column.summary === 'sum') {
+        const type = (types.split('|')[position] ?? 'number') as keyof ColumnTypes;
+        const total = sumColumn(
+          column,
+          rows.map((row) => row.data),
+        );
+        return total == null ? (column.empty ?? lang.emptyValue) : display(column, type, total);
+      }
+      if (column.summary) return column.summary(rows.map((row) => row.data));
+      return position === 0 ? (summaryLabel ?? lang.tableSummary) : null;
+    }
 
     /** 列的宽度：调整过的、列定义里的，或者没有（与其他没写宽度的列平分） */
     const widthOf = (column: DataTableColumn<T>) => widths[column.key] ?? column.width;
@@ -636,7 +745,7 @@ export const DataTableView = _component(
               },
               rest,
               {
-                'aria-rowcount': rows.length + 1,
+                'aria-rowcount': rows.length + 1 + (hasSummary ? 1 : 0),
                 'aria-busy': loading || undefined,
               },
             )}
@@ -680,7 +789,7 @@ export const DataTableView = _component(
                           {
                             checked: allSelected,
                             indeterminate: someSelected,
-                            disabled: rows.length === 0,
+                            disabled: selectableRows.length === 0,
                             onChange: () => onToggleAll?.(),
                           },
                         )}
@@ -781,6 +890,8 @@ export const DataTableView = _component(
                     row={row}
                     index={item.index}
                     selected={selectionMode != null && selectedSet.has(row.key)}
+                    selectable={isRowSelectable ? isRowSelectable(row.data) : true}
+                    tone={rowTone?.(row.data)}
                     selectionMode={selectionMode}
                     columns={shown}
                     density={density}
@@ -808,6 +919,43 @@ export const DataTableView = _component(
                 </tr>
               )}
             </tbody>
+            {hasSummary && rows.length > 0 && (
+              <tfoot {...mergeAttrs<'tfoot'>({ sx: dataTableStyles.foot }, propsFoot)}>
+                <tr aria-rowindex={rows.length + 2}>
+                  {selectionMode && (
+                    <td
+                      {...stylex.attrs(
+                        dataTableStyles.cell,
+                        dataTableDensityStyles[density],
+                        dataTableStyles.summaryCell,
+                        offsets.start.size > 0 && dataTableStyles.stickySelect,
+                      )}
+                    />
+                  )}
+                  {shown.map((column, position) => (
+                    <td
+                      key={column.key}
+                      {...mergeAttrs<'td'>(
+                        {
+                          sx: [
+                            dataTableStyles.cell,
+                            dataTableDensityStyles[density],
+                            dataTableStyles.summaryCell,
+                            dataTableStyles[column.align ?? 'start'],
+                            stickyCellSx(column, offsets),
+                          ],
+                        },
+                        typeof propsSummaryCell === 'function'
+                          ? propsSummaryCell(column)
+                          : propsSummaryCell,
+                      )}
+                    >
+                      {summaryOf(column, position)}
+                    </td>
+                  ))}
+                </tr>
+              </tfoot>
+            )}
           </table>
         </ScrollArea>
       );

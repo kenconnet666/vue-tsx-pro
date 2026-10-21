@@ -1,12 +1,15 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/DataTableProps';
+import selectionBarApi from 'virtual:api/SelectionBarProps';
 import treeApi from 'virtual:api/TreeDataTableProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
+import Import from './demo/Import.tsx?demo';
 import Infinite from './demo/Infinite.tsx?demo';
+import Ledger from './demo/Ledger.tsx?demo';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
 import States from './demo/States.tsx?demo';
@@ -33,8 +36,22 @@ export default _component(() => () => (
       <Code>columnWidths</Code>{' '}
       双向绑定可以存到本地设置里。工具栏（搜索、批量操作、分页）用现有组件组合，不内置。
     </Example>
+    <Example id="ledger" title="降本台账：合计、状态与批量操作" demo={Ledger}>
+      列的 <Code>summary</Code> 写 <Code>'sum'</Code> 时底部多一行吸底的合计（Decimal
+      精确相加，按列的格式显示）；
+      <Code>statuses</Code> 是状态映射，单元格显示成 StatusBadge；没有值时显示列的{' '}
+      <Code>empty</Code>
+      （默认 —，这里是“待定价”）。<Code>isRowSelectable</Code>{' '}
+      决定哪些行能勾选，全选跳过不能勾选的；勾选后上方的 <Code>SelectionBar</Code>{' '}
+      显示已选几项与批量操作。<Code>hiddenColumns</Code> 隐藏列，用 Menu 的 MenuCheckboxItem
+      做列显示设置；固定列与滚动的列之间有一条竖线。
+    </Example>
     <Examples>
       <ExampleColumn>
+        <Example id="import" title="导入校验" demo={Import}>
+          <Code>rowTone</Code> 给整行着色：错误行浅红、提醒行浅黄，底色不透明，固定列也盖得住；配合{' '}
+          <Code>isRowSelectable</Code> 只让校验通过的行能勾选导入。
+        </Example>
         <Example id="tree" title="组织架构" demo={Org}>
           TreeDataTable 建在 DataTable
           上，列定义、排序、勾选都一样；第一列带缩进与展开按钮，同级之间按排序排。
@@ -71,6 +88,6 @@ export default _component(() => () => (
       列标题、勾选框、展开按钮都是原生控件，按 Tab
       顺序经过；行本身不可聚焦，单元格里的链接、按钮照常可用。
     </KeyboardReference>
-    <ApiReference api={[api, treeApi]} />
+    <ApiReference api={[api, treeApi, selectionBarApi]} />
   </DocPage>
 ));

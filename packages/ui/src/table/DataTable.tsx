@@ -19,7 +19,10 @@
  * - 选择：selectionMode 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
  * - 列宽：resizable 时可以拖动或用键盘调整，columnWidths 记录调整后的宽度（可以双向绑定，保存到本地设置里）。
  * - 加载：loading 时没有数据显示骨架行，已有数据显示进度条；接近末尾加载更多用 onRangeChange。
- * - 工具栏（搜索、筛选、列显示开关、批量操作、分页）用 TextField、Select、Menu、Toolbar、Pagination 组合，不内置。
+ * - 合计：列写 summary（'sum' 精确相加，或函数）时底部多一行吸底的合计；空值显示列的 empty（默认 —）。
+ * - 状态列：列写 statuses（createStatusMap）时显示成 StatusBadge；rowTone 给整行着色（导入校验的错误行）。
+ * - 工具栏（筛选用 FilterBar、批量操作用 SelectionBar、分页用 Pagination）组合在外面，不内置；
+ *   列显示设置用 Menu 的 MenuCheckboxItem 写回 hiddenColumns。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
@@ -66,6 +69,7 @@ export const DataTable = _component(
     selectionMode,
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
+    isRowSelectable,
     density,
     variant,
     striped,
@@ -87,9 +91,11 @@ export const DataTable = _component(
       selected = [...toggleSelection(selected, key, { mode: selectionMode ?? 'multiple' })];
     }
 
-    // 用集合查找：逐个 includes 是 O(n²)，十万行全选会卡住页面
+    // 用集合查找：逐个 includes 是 O(n²)，十万行全选会卡住页面；不能勾选的行跳过
     function toggleAll() {
-      const keys = models.map((row) => row.key);
+      const keys = (
+        isRowSelectable ? models.filter((row) => isRowSelectable(row.data)) : models
+      ).map((row) => row.key);
       const current = new Set(selected);
       const all = keys.length > 0 && keys.every((key) => current.has(key));
       if (!all) {
@@ -115,6 +121,7 @@ export const DataTable = _component(
             sort,
             onSortClick: (key: string) => (sort = nextSort(sort, key)),
             selectionMode,
+            isRowSelectable,
             selectedKeys: selected,
             onToggleRow: toggleRow,
             onToggleAll: toggleAll,

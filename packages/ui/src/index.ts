@@ -905,6 +905,7 @@ export {
   dataTableDensityStyles,
   dataTableDynamicStyles,
   DataTableRow,
+  dataTableRowToneStyles,
   dataTableStyles,
   DataTableView,
   type DataTableDensities,
@@ -913,7 +914,9 @@ export {
   type DataTableRowProps,
   type DataTableVariants,
   type DataTableViewProps,
+  type RowTone,
 } from './table/DataTableView';
+export { SelectionBar, selectionBarStyles, type SelectionBarProps } from './table/SelectionBar';
 export {
   Table,
   TableBody,
@@ -949,6 +952,7 @@ export {
   nextSort,
   sortRows,
   stickyOffsets,
+  sumColumn,
   tableMinWidth,
   type ColumnAligns,
   type ColumnStickies,

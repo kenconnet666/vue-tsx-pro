@@ -114,6 +114,12 @@ export interface Lang {
   readonly tableResizeColumn: (column: string) => string;
   /** 表格没有数据时的提示，默认“暂无数据” */
   readonly tableEmpty: string;
+  /** 表格合计行第一列的文字，默认“合计” */
+  readonly tableSummary: string;
+  /** 批量操作栏里已选的行数：`(3)` → “已选 3 项” */
+  readonly tableSelectedCount: (count: number) => string;
+  /** 批量操作栏里取消全部选择的按钮，默认“取消选择” */
+  readonly tableClearSelection: string;
   /** 图表没有数据时的提示，默认“暂无数据” */
   readonly chartEmpty: string;
   /** 图表的数据表（给读屏）里类目那一列的表头，默认“类目” */

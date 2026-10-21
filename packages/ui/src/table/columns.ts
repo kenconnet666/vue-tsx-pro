@@ -10,7 +10,15 @@
 import type { VNodeChild } from 'vue';
 import type { NumericFormat, useFormat } from '../config/lang/format';
 import { createComparer, isDateValue, type SortValue } from '../utils/data/collation';
-import { isNumeric } from '../utils/data/numeric';
+import {
+  addNumeric,
+  isDecimal,
+  isNumeric,
+  numericKind,
+  type NumericKind,
+  type NumericValue,
+} from '../utils/data/numeric';
+import type { StatusMap } from '../utils/data/status';
 
 /** 单元格内容的对齐 */
 export interface ColumnAligns {
@@ -79,6 +87,15 @@ export interface DataTableColumn<T> {
   resizable?: boolean;
   /** 内容可以换行；默认一行显示不下时省略 */
   wrap?: boolean;
+  /** 没有值（null、undefined、空字符串）时显示的内容，如“待定价”；默认语言包的 emptyValue（—） */
+  empty?: VNodeChild;
+  /** 状态映射（createStatusMap）：值是状态的 key，显示成 StatusBadge；写了 cell 时以 cell 为准 */
+  statuses?: StatusMap;
+  /**
+   * 合计行里这一列的内容：`'sum'` 把这一列的数值精确相加（有 Decimal 时按 Decimal），按列的类型与 format 显示；
+   * 也可以是函数，拿到全部行（如平均值、“3 项待定价”）。有一列写了 summary，表格底部就多一行吸底的合计
+   */
+  summary?: 'sum' | ((rows: readonly T[]) => VNodeChild);
 }
 
 /** 排序方向（与 aria-sort 的取值一致） */
@@ -112,6 +129,10 @@ export interface StickyOffsets {
   start: Map<string, number>;
   /** 固定在结束边的列 */
   end: Map<string, number>;
+  /** 起始边固定列里最靠里的一列（挨着滚动的列，画分隔线） */
+  startEdge?: string;
+  /** 结束边固定列里最靠里的一列 */
+  endEdge?: string;
 }
 
 /** 固定列的偏移（px）：起始边的从 leading（勾选列的宽度）之后累加，结束边的从末尾往回累加 */
@@ -134,10 +155,10 @@ export function stickyOffsets<T>(
     }
     return offsets;
   };
-  return {
-    start: accumulate('start', columns, leading),
-    end: accumulate('end', [...columns].reverse(), 0),
-  };
+  const start = accumulate('start', columns, leading);
+  const end = accumulate('end', [...columns].reverse(), 0);
+  // Map 按插入顺序：最后插入的就是最靠里的
+  return { start, end, startEdge: [...start.keys()].at(-1), endEdge: [...end.keys()].at(-1) };
 }
 
 /** 表格的最小宽度（px）：写了宽度的列按宽度，没写的按 COLUMN_FLEX_MIN_WIDTH；放不下时横向滚动 */
@@ -200,6 +221,31 @@ export function formatCell(
   if (date && type === 'dateTime')
     return format.date(value, { dateStyle: 'medium', timeStyle: 'short' });
   return String(value);
+}
+
+/**
+ * 一列数值的合计：跳过空值与不是数字的值；有 Decimal 时用它的构造函数精确相加，全是 bigint 时整数相加，
+ * 接口给的十进制字符串（'19.90'）按数字算。没有任何数值时为 null
+ */
+export function sumColumn<T>(column: DataTableColumn<T>, rows: Iterable<T>): NumericValue | null {
+  const values: NumericValue[] = [];
+  let kind: NumericKind | undefined;
+  for (const row of rows) {
+    const value = columnValue(column, row);
+    const numeric = isNumeric(value)
+      ? value
+      : typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))
+        ? Number(value)
+        : null;
+    if (numeric == null) continue;
+    values.push(numeric);
+    // 有 Decimal 就按 Decimal；否则全是 bigint 才按 bigint
+    if (isDecimal(numeric)) kind = numericKind(numeric);
+    else if (kind === undefined) kind = typeof numeric === 'bigint' ? 'bigint' : 'number';
+    else if (kind === 'bigint' && typeof numeric !== 'bigint') kind = 'number';
+  }
+  if (values.length === 0 || kind === undefined) return null;
+  return values.reduce<NumericValue>((total, value) => addNumeric(total, value, kind!), 0);
 }
 
 /** 点表头时的下一个排序：没排 → 升序 → 降序 → 不排 */
