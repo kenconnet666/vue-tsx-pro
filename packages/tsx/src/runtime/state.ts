@@ -66,7 +66,8 @@ export function untrack<T>(read: () => T): T {
 
 /**
  * 去掉响应式代理的静态深拷贝（同 Svelte 的 $state.snapshot），交给 structuredClone、第三方库或日志。
- * 普通对象与数组逐层拷贝，Date 复制一份，有 toJSON 的取它的结果，其他值（类实例、函数等）原样保留。
+ * 普通对象、数组、Map、Set 逐层拷贝，Date、类型化数组、ArrayBuffer 复制一份，有 toJSON 的取它的结果，
+ * 其他值（类实例、函数等）原样保留。
  */
 export function snapshot<T>(value: T): T {
   return clone(value, new Map()) as T;
@@ -84,7 +85,26 @@ function clone(value: unknown, seen: Map<object, unknown>): unknown {
     for (const item of raw) copy.push(clone(item, seen));
     return copy;
   }
+  if (raw instanceof Map) {
+    const copy = new Map();
+    seen.set(raw, copy);
+    for (const [key, item] of raw) copy.set(clone(key, seen), clone(item, seen));
+    return copy;
+  }
+  if (raw instanceof Set) {
+    const copy = new Set();
+    seen.set(raw, copy);
+    for (const item of raw) copy.add(clone(item, seen));
+    return copy;
+  }
   if (raw instanceof Date) return new Date(raw);
+  if (raw instanceof ArrayBuffer) return raw.slice(0);
+  // 类型化数组（Uint8Array 等）与 DataView：复制底层的数据，不与原来的共用
+  if (ArrayBuffer.isView(raw)) {
+    return raw instanceof DataView
+      ? new DataView(raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength))
+      : (raw as unknown as { slice(): unknown }).slice();
+  }
   const prototype = Object.getPrototypeOf(raw);
   if (prototype === Object.prototype || prototype === null) {
     const copy: Record<string, unknown> = {};

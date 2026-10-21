@@ -212,11 +212,11 @@ export class RunesTransform {
    *
    *   const { name, tags: [first] } = _derived(user)
    *   ↓
-   *   const _derivedSource = computed(() => user)
-   *   const name = computed(() => { const { name, tags: [first] } = _derivedSource.value; return name })
-   *   const first = computed(() => { const { name, tags: [first] } = _derivedSource.value; return first })
+   *   const _derivedParts = computed(() => { const { name, tags: [first] } = (() => user)(); return { name, first } })
+   *   const name = computed(() => _derivedParts.value.name)
+   *   const first = computed(() => _derivedParts.value.first)
    *
-   * 每个变量都按原样重新解构一次，默认值、嵌套与 ...rest 因此与普通解构完全一致。
+   * 按原样解构一次，默认值、嵌套与 ...rest 因此与普通解构完全一致，默认值也只执行一次。
    * let 声明时每个变量都可以临时覆盖。
    */
   private declareDestructuredDerived(
@@ -226,18 +226,33 @@ export class RunesTransform {
     rune: Rune,
     writable: boolean,
   ) {
-    const source = declarator.scope.generateUidIdentifier('derivedSource');
-    const sourceValue = () => t.memberExpression(t.identifier(source.name), t.identifier('value'));
-    const declarators = [t.variableDeclarator(source, this.imports.vue('computed', [getter]))];
-    for (const name of Object.keys(t.getBindingIdentifiers(pattern))) {
+    const names = Object.keys(t.getBindingIdentifiers(pattern));
+    // 解构只做一次：一个 computed 按原样解构（默认值、嵌套、...rest 与普通解构一致），交出各变量组成的对象
+    const parts = declarator.scope.generateUidIdentifier('derivedParts');
+    const destructure = t.arrowFunctionExpression(
+      [],
+      t.blockStatement([
+        t.variableDeclaration('const', [
+          t.variableDeclarator(t.cloneNode(pattern), t.callExpression(getter, [])),
+        ]),
+        t.returnStatement(
+          t.objectExpression(
+            names.map((name) =>
+              t.objectProperty(t.identifier(name), t.identifier(name), false, true),
+            ),
+          ),
+        ),
+      ]),
+    );
+    const declarators = [t.variableDeclarator(parts, this.imports.vue('computed', [destructure]))];
+    for (const name of names) {
+      // 每个变量各取各的：值没变时不通知读它的地方
       const pick = t.arrowFunctionExpression(
         [],
-        t.blockStatement([
-          t.variableDeclaration('const', [
-            t.variableDeclarator(t.cloneNode(pattern), sourceValue()),
-          ]),
-          t.returnStatement(t.identifier(name)),
-        ]),
+        t.memberExpression(
+          t.memberExpression(t.identifier(parts.name), t.identifier('value')),
+          t.identifier(name),
+        ),
       );
       const derived = t.variableDeclarator(t.identifier(name), this.derived(pick, writable));
       this.pending.set(derived, { writable, source: rune });

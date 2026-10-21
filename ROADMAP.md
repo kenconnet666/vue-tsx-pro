@@ -115,7 +115,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 渲染优化遍自底向上汇总：每个元素退出时记下引用到的外部变量，外层直接用；200 层嵌套从约 7.6 秒降到 0.3 秒（有回归测试）
 - [x] token 写法认 as const 等类型外壳与按条件返回的动态样式；模板字符串、写在 create 外面的对象里的 token 写法报错（不再静默留下 `'_lg'`）；
       `_derived` 里修改状态、`_untrack(() => x)` 报错
-- [ ] `_bindable` 的默认值随前面的 prop 更新；`snapshot` 复制 Map、Set、类型化数组；解构的 `_derived` 按变量取路径
+- [x] `snapshot` 复制 Map、Set、类型化数组与 ArrayBuffer；解构的 `_derived` 只解构一次（默认值不再按变量各执行一次）；
+      `_bindable` 的受控判断不再每次读取都做连字符转换。决定保留：`_bindable` 的默认值只在创建时求值（它是组件自己的状态），RUNES §5 写清
 - [ ] 热更新：非组件的导出变了时 invalidate；工厂函数做的组件也能热更新
 - [ ] 编译缓存的键只算 token-map；StyleX 路径解析缓存 package.json；重复的语言判断与 StyleX 来源名
 

@@ -87,13 +87,16 @@ export function bindable<T>(
 ): Ref<T> {
   const instance = getCurrentInstance()!;
   const source = vueProps(props);
-  const listener = `onUpdate:${key}`;
-  const passed = (name: string) => {
+  // 父级可能用连字符写法传入（checked-value、onUpdate:checked-value）：两种写法先算好，每次读取只查表
+  const names = [key, hyphenate(key)];
+  const listeners = names.map((name) => `onUpdate:${name}`);
+  const passed = (candidates: readonly string[]) => {
     const raw = instance.vnode.props;
-    return !!raw && (name in raw || hyphenate(name) in raw);
+    return !!raw && candidates.some((name) => name in raw);
   };
-  const isControlled = () => passed(key) && passed(listener);
+  const isControlled = () => passed(names) && passed(listeners);
 
+  // 默认值只在创建时求一次：它是组件自己的初始状态，别的 prop 变了也不该冲掉组件里改过的值
   const fallbackValue = fallback?.() as T;
   const parentValue = () => (source[key] !== undefined ? (source[key] as T) : fallbackValue);
   let local = parentValue();

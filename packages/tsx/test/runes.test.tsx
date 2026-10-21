@@ -68,6 +68,19 @@ describe('符文', () => {
     expect(renders).toBe(2);
   });
 
+  it('_derived 解构只做一次：默认值每次求值只执行一次（不是每个变量各执行一次）', () => {
+    let calls = 0;
+    const fallback = () => (calls++, 'x');
+    mount(
+      _component(() => {
+        const source = _state({ a: undefined as string | undefined, b: 1, c: 2 });
+        const { a = fallback(), b, c } = _derived(source);
+        return () => `${a}${b}${c}`;
+      }),
+    );
+    expect(calls).toBe(1);
+  });
+
   it('_bindable + _bind 双向同步，子组件写入后同步读到新值', async () => {
     const on = ref(false);
     const seen: boolean[] = [];
@@ -120,6 +133,27 @@ describe('符文', () => {
     expect(copy).toEqual({ tags: ['a'], at: new Date(0) });
     expect(form!.tags).toEqual(['a', 'b']);
     expect(structuredClone(copy)).toEqual(copy); // 不是代理，可以交给 structuredClone
+  });
+
+  it('_state.snapshot：Map、Set、类型化数组也复制一份，不与状态共用', () => {
+    let copy: { byId: Map<string, number[]>; tags: Set<string>; bytes: Uint8Array } | undefined;
+    mount(
+      _component(() => {
+        const state = _state({
+          byId: new Map([['a', [1]]]),
+          tags: new Set(['x']),
+          bytes: new Uint8Array([1, 2]),
+        });
+        copy = _state.snapshot(state);
+        state.byId.get('a')!.push(2);
+        state.tags.add('y');
+        state.bytes[0] = 9;
+        return () => null;
+      }),
+    );
+    expect([...copy!.byId.get('a')!]).toEqual([1]);
+    expect([...copy!.tags]).toEqual(['x']);
+    expect([...copy!.bytes]).toEqual([1, 2]);
   });
 });
 
