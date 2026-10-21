@@ -13,13 +13,13 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { now } from '@internationalized/date';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import { useLang } from '../config/context';
 import type { HourCycles } from '../config/lang/lang';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
-  controlStyles,
+  controlClear,
   controlSx,
   focusOnShell,
   controlIcon,
@@ -212,17 +212,11 @@ export const SegmentedField = _component(
               },
             )}
           />
-          {clearable && filled && !state.disabled && !state.readonly && (
-            <ClearButton
-              {...mergePartProps<PresetIconButtonProps>(
-                { sx: controlStyles.button, radius: 'full' },
-                propsClear,
-                {
-                  onClick: clear,
-                },
-              )}
-            />
-          )}
+          {clearable &&
+            filled &&
+            !state.disabled &&
+            !state.readonly &&
+            controlClear(propsClear, clear)}
           {suffix}
           <FormValue name={name} value={value} disabled={state.disabled} />
         </div>

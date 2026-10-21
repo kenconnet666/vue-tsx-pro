@@ -13,6 +13,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick, useId } from 'vue';
 import { isRtl } from '../utils/dom/direction';
+import { labelledByField } from '../form/Field';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   handleSegmentKeydown,
@@ -165,7 +166,7 @@ export const DateSegmentGroup = _component(
           {...mergeAttrs<'div'>(
             {
               sx: dateSegmentStyles.root,
-              'aria-labelledby': rest['aria-label'] ? undefined : labelledBy,
+              'aria-labelledby': labelledByField(rest, labelledBy),
               'aria-describedby': describedBy,
             },
             rest,

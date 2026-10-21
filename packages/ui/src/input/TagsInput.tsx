@@ -16,7 +16,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
-import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { isComposingKey } from '../utils/dom/hotkeys';
@@ -26,6 +26,7 @@ import { ListPopover } from './ListPopover';
 import { useLayoutAnimation } from '../utils/motion/layout';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
+  controlClear,
   controlStyles,
   controlSx,
   focusOnShell,
@@ -345,20 +346,13 @@ export const TagsInput = _component(
               })}
               value={_bind(inputValue)}
             />
-            {clearable && value.length > 0 && editable && (
-              <ClearButton
-                {...mergePartProps<PresetIconButtonProps>(
-                  { sx: controlStyles.button, radius: 'full' },
-                  propsClear,
-                  {
-                    onClick: () => {
-                      void layout.change(() => (value = []));
-                      input?.focus();
-                    },
-                  },
-                )}
-              />
-            )}
+            {clearable &&
+              value.length > 0 &&
+              editable &&
+              controlClear(propsClear, () => {
+                void layout.change(() => (value = []));
+                input?.focus();
+              })}
             <FormValue name={name} value={value} disabled={state.disabled} />
           </div>
           {suggestions() && (

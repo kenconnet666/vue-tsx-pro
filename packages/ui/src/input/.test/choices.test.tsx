@@ -203,3 +203,32 @@ describe('色调', () => {
     expect(hasTone(explicit!, 'info')).toBe(true);
   });
 });
+
+describe('组的名称', () => {
+  it('在 Field 里以标签为名称；组上写了 aria-label 时不再指向标签（aria-labelledby 会盖过它）', () => {
+    const root = mount(() => (
+      <>
+        <Field label="配送">
+          <RadioGroup>
+            <Radio value="express">快递</Radio>
+          </RadioGroup>
+        </Field>
+        <Field label="配送">
+          <RadioGroup aria-label="配送方式">
+            <Radio value="express">快递</Radio>
+          </RadioGroup>
+        </Field>
+        <Field label="通知">
+          <CheckboxGroup aria-labelledby="custom">
+            <Checkbox value="email">邮件</Checkbox>
+          </CheckboxGroup>
+        </Field>
+      </>
+    ));
+    const [byField, own] = root.querySelectorAll('[role="radiogroup"]');
+    expect(byField!.getAttribute('aria-labelledby')).toBe(root.querySelector('label')!.id);
+    expect(own!.hasAttribute('aria-labelledby')).toBe(false);
+    expect(own!.getAttribute('aria-label')).toBe('配送方式');
+    expect(root.querySelector('[role="group"]')!.getAttribute('aria-labelledby')).toBe('custom');
+  });
+});

@@ -22,6 +22,7 @@ import {
   type CalendarDateTime,
 } from '@internationalized/date';
 import {
+  fullIsoDay,
   isDateDisabled,
   parseIsoDate,
   parseIsoDateTime,
@@ -52,10 +53,6 @@ export interface DateFieldProps<V extends DateInput = string>
 
 const hasTime = (granularity: DateFieldGranularity) =>
   granularity === 'hour' || granularity === 'minute' || granularity === 'second';
-
-/** 补成完整的 ISO 日期：'2026' 与 '2026-10' 补成 1 日，日期时间取日期部分 */
-const fullDay = (iso: string) =>
-  iso.length === 4 ? `${iso}-01-01` : iso.length === 7 ? `${iso}-01` : iso.slice(0, 10);
 
 /** ISO 日期时间统一到秒（'2026-10-20T14:30' → '2026-10-20T14:30:00'），去掉时区后缀：按字符串比较就是按时间先后 */
 const toSeconds = (iso: string) => (iso.length >= 19 ? iso.slice(0, 19) : `${iso.slice(0, 16)}:00`);
@@ -90,7 +87,7 @@ function isoToValue(
   if (typeof like === 'string' || (like == null && valueType === 'iso')) return iso;
   const parsed: CalendarDate | CalendarDateTime = hasTime(granularity)
     ? parseIsoDateTime(iso)!
-    : parseIsoDate(fullDay(iso))!;
+    : parseIsoDate(fullIsoDay(iso))!;
   if (like == null) return parsed;
   const converted = toCalendar(parsed, like.calendar);
   if (!('hour' in like)) return converted;
@@ -117,7 +114,7 @@ export const DateField = _component(
       granularity === 'year' || granularity === 'month' ? granularity : 'day';
     // 先按日期比较（含不可选的日期）；min / max 带时间时，同一天里再比时分秒
     const outOfRange = (iso: string) => {
-      const date = locale.fromValue(fullDay(iso));
+      const date = locale.fromValue(fullIsoDay(iso));
       if (date == null) return false;
       if (isDateDisabled(date, limits, unit())) return true;
       const low = timeBound(min, granularity);

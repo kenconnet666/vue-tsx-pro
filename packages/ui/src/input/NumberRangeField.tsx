@@ -17,7 +17,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import type { NumericFormat } from '../config/lang/format';
-import { useFieldControl } from '../form/Field';
+import { labelledByField, useFieldControl } from '../form/Field';
 import { compareNumeric, type NumericKind, type NumericValue } from '../utils/data/numeric';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles } from '../utils/style/typography';
@@ -143,7 +143,7 @@ export const NumberRangeField = _component(
             rest,
             {
               role: 'group',
-              'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
+              'aria-labelledby': labelledByField(rest, state.labelledBy),
               'aria-describedby': state.describedBy,
             },
           )}

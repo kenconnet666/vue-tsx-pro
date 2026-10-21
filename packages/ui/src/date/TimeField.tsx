@@ -29,6 +29,10 @@ export interface TimeFieldGranularities {
 /** 时间输入框接受的值：'HH:mm[:ss]' 字符串，或 @internationalized/date 的 Time */
 export type TimeInput = string | Time;
 
+/** TimeInput → Time：ISO 字符串按 'HH:mm[:ss]' 解析，空值或格式不对时为 null */
+export const toTime = (input: TimeInput | null | undefined): Time | null =>
+  typeof input === 'string' || input == null ? parseIsoTime(input) : input;
+
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface TimeFieldProps<V extends TimeInput = string> extends SegmentedFieldOptions {
   /** 值（'HH:mm' 或 'HH:mm:ss'，24 小时制；或 Time，写回时保持同一种类型）：父级写 value={_bind(x)}；没填全时 null */
@@ -53,8 +57,6 @@ export const TimeField = _component(
     max,
     ...rest
   }: TimeFieldProps<V>) => {
-    const toTime = (input: TimeInput | undefined) =>
-      typeof input === 'string' || input == null ? parseIsoTime(input) : input;
     const outOfRange = (iso: string) => {
       const time = parseIsoTime(iso);
       const low = toTime(min);

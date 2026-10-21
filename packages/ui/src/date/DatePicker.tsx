@@ -18,7 +18,7 @@ import { toCalendarDateTime } from '@internationalized/date';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
-import type { DateUnit } from '../utils/data/date';
+import { fullIsoDay, type DateUnit } from '../utils/data/date';
 import { mergePartProps, type PartProps } from '../utils/props';
 import { Calendar, type CalendarBaseProps } from './Calendar';
 import { DateField, type DateFieldProps } from './DateField';
@@ -94,9 +94,7 @@ export const DatePicker = _component(
 
     // 字符串值按 granularity 的形式（'2026'、'2026-10'、'2026-10-20T14:30'）：日历只认完整的日期
     const calendarValue = _derived.by((): DateInput | null => {
-      if (typeof value !== 'string') return value;
-      if (value.length === 4) return `${value}-01-01`;
-      return value.length === 7 ? `${value}-01` : value.slice(0, 10);
+      return typeof value === 'string' ? fullIsoDay(value) : value;
     });
 
     /** 日历选了一天：换回 granularity 的形式；带时间的保留原来的时间，没有时补 00:00 */

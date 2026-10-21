@@ -44,6 +44,10 @@ export function parseIsoTime(value: string | null | undefined): Time | null {
   return tryParse(value, parseTime);
 }
 
+/** 补成完整的 ISO 日期：'2026' 与 '2026-10' 补成 1 日，日期时间取日期部分（DateField、DatePicker 的年、月粒度） */
+export const fullIsoDay = (iso: string): string =>
+  iso.length === 4 ? `${iso}-01-01` : iso.length === 7 ? `${iso}-01` : iso.slice(0, 10);
+
 /** 'YYYY-MM-DDTHH:mm[:ss]' → CalendarDateTime（公历）；空值或格式不对时为 null */
 export function parseIsoDateTime(value: string | null | undefined): CalendarDateTime | null {
   return tryParse(value, parseDateTime);

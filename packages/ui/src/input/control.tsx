@@ -7,6 +7,7 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -127,6 +128,22 @@ export function controlIcon(icon: IconData | undefined, props?: Partial<IconProp
   return icon ? (
     <Icon {...mergePartProps<IconProps>({ icon, sx: controlStyles.icon }, props)} />
   ) : null;
+}
+
+/** 外壳里的清空按钮：圆形、名称取语言包（清空）；有值、可编辑时才渲染由调用方决定 */
+export function controlClear(
+  props: Partial<PresetIconButtonProps> | undefined,
+  onClick: () => void,
+): VNodeChild {
+  return (
+    <ClearButton
+      {...mergePartProps<PresetIconButtonProps>(
+        { sx: controlStyles.button, radius: 'full' },
+        props,
+        { onClick },
+      )}
+    />
+  );
 }
 
 /**

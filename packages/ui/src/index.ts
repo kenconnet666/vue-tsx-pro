@@ -718,6 +718,7 @@ export {
 } from './input/choice-styles';
 export {
   controlAffix,
+  controlClear,
   controlIcon,
   controlShellStyles,
   controlStyles,
@@ -803,6 +804,7 @@ export {
 } from './date/SegmentedField';
 export {
   TimeField,
+  toTime,
   type TimeFieldGranularities,
   type TimeFieldProps,
   type TimeInput,
@@ -858,6 +860,7 @@ export {
   FieldContext,
   fieldStyles,
   Label,
+  labelledByField,
   labelStyles,
   useFieldControl,
   type FieldControl,
@@ -1301,6 +1304,7 @@ export {
   clampDate,
   compareDates,
   daysBetween,
+  fullIsoDay,
   isDateDisabled,
   isInRange,
   isoDayOfWeek,

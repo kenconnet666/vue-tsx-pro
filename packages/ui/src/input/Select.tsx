@@ -24,7 +24,7 @@ import { ChevronDown, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
-import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
@@ -35,6 +35,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { createMatcher } from '../utils/data/collation';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import {
+  controlClear,
   controlStyles,
   controlSx,
   focusOnShell,
@@ -386,15 +387,7 @@ export const Select = _component(
             >
               <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
-            {clearable && values.length > 0 && !locked && (
-              <ClearButton
-                {...mergePartProps<PresetIconButtonProps>(
-                  { sx: controlStyles.button, radius: 'full' },
-                  propsClear,
-                  { onClick: clear },
-                )}
-              />
-            )}
+            {clearable && values.length > 0 && !locked && controlClear(propsClear, clear)}
             <Icon
               {...mergePartProps<IconProps>(
                 {

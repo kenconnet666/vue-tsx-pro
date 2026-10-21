@@ -15,13 +15,13 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch } from 'vue';
 import { Button } from '../base/Button';
-import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { useFieldControl } from '../form/Field';
+import { labelledByField, useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
-  controlStyles,
+  controlClear,
   controlSx,
   focusOnShell,
   controlIcon,
@@ -307,7 +307,7 @@ export const DateRangePicker = _component(
             {...mergeAttrs<'div'>(
               {
                 sx: controlSx(appearance(), { ...state, invalid: bad }),
-                'aria-labelledby': state.labelledBy,
+                'aria-labelledby': labelledByField(rest, state.labelledBy),
               },
               rest,
               {
@@ -331,15 +331,7 @@ export const DateRangePicker = _component(
               –
             </span>
             {group('end')}
-            {clearable && filled && editable() && (
-              <ClearButton
-                {...mergePartProps<PresetIconButtonProps>(
-                  { sx: controlStyles.button, radius: 'full' },
-                  propsClear,
-                  { onClick: clear },
-                )}
-              />
-            )}
+            {clearable && filled && editable() && controlClear(propsClear, clear)}
             {picker.button(CalendarRange, propsButton)}
             <FormValue name={startName} value={start} disabled={state.disabled} />
             <FormValue name={endName} value={end} disabled={state.disabled} />

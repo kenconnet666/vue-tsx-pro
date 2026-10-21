@@ -23,7 +23,7 @@ import { ChevronDown, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch } from 'vue';
-import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
@@ -42,6 +42,7 @@ import {
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import {
+  controlClear,
   controlIcon,
   controlStyles,
   controlSx,
@@ -382,15 +383,7 @@ export const TreeSelect = _component(
             >
               <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
-            {clearable && shownKeys.length > 0 && !locked && (
-              <ClearButton
-                {...mergePartProps<PresetIconButtonProps>(
-                  { sx: controlStyles.button, radius: 'full' },
-                  propsClear,
-                  { onClick: clear },
-                )}
-              />
-            )}
+            {clearable && shownKeys.length > 0 && !locked && controlClear(propsClear, clear)}
             <Icon
               {...mergePartProps<IconProps>(
                 {

@@ -19,7 +19,7 @@ import { ChevronDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
-import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { isComposingKey } from '../utils/dom/hotkeys';
@@ -28,6 +28,7 @@ import { ListPopover } from './ListPopover';
 import { createMatcher } from '../utils/data/collation';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
+  controlClear,
   controlStyles,
   controlSx,
   focusOnShell,
@@ -315,21 +316,14 @@ export const Combobox = _component(
               })}
               value={_bind(inputValue)}
             />
-            {clearable && inputValue && editable && (
-              <ClearButton
-                {...mergePartProps<PresetIconButtonProps>(
-                  { sx: controlStyles.button, radius: 'full' },
-                  propsClear,
-                  {
-                    onClick: () => {
-                      setText('');
-                      value = null;
-                      input?.focus();
-                    },
-                  },
-                )}
-              />
-            )}
+            {clearable &&
+              inputValue &&
+              editable &&
+              controlClear(propsClear, () => {
+                setText('');
+                value = null;
+                input?.focus();
+              })}
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {

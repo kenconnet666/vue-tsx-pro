@@ -62,7 +62,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 选择类：日期面板、TreeSelect、ListPopover 共用 `anchoredPanelSx(size)`（定位、表面、字号、进出场），日期面板跟着 size。`SelectTrigger` 只有 Select 与 TreeSelect 两处，按三次再抽的约定暂不抽
 - [x] 外链的 target、rel 收成 `externalLinkAttrs`（utils/dom/link.ts），Link、LinkButton、IconLinkButton 共用；图标与读屏提示各组件不同，留在原处。
       决定暂缓 `useDismissible`：先离场再交给使用方移除的只有 Tag、Alert 两处（Toast 由控制器管），§3 加 Banner 时再抽
-- [ ] 输入：清除按钮 `controlClear()`；分组控件的 aria-labelledby 兜底；ISO 补全日期与 `toTime` 各合成一份
+- [x] 输入：清空按钮 `controlClear()`（七处）；组的名称 `labelledByField()`（使用方写了 aria-label 时不再指向 Field 的标签，八处）；
+      `fullIsoDay`（DateField、DatePicker）、`toTime`（TimeField、TimePicker）各一份
 - [ ] 数字：按语言解析数字移出 NumberField（`utils/data/number-parse.ts`，按语言缓存）；Intl 缓存合成 `cachedIntl`
 - [x] 工具：手写的 clamp 十处改用 `clamp`；`visibilitychange` 三处改用 `usePageVisible`；方向键 × RTL 七处改用 `inlineArrows`；
       MenuTriggerProps 继承 TriggerProps。决定保留：toArray 剩三处、语义各不相同（null 算不算一项、要不要复制）；

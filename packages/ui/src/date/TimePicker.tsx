@@ -24,7 +24,7 @@ import { parseIsoTime, toIsoTime } from '../utils/data/date';
 import { mergePartProps, type PartProps } from '../utils/props';
 import { useDateLocale } from './date-locale';
 import { usePickerPopover, type PickerPopoverParts } from './picker-popover';
-import { TimeField, type TimeFieldProps, type TimeInput } from './TimeField';
+import { TimeField, toTime, type TimeFieldProps, type TimeInput } from './TimeField';
 
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface TimePickerProps<V extends TimeInput = string>
@@ -95,9 +95,6 @@ export const TimePicker = _component(
         shown: (panel) => panel.querySelector<HTMLElement>('[role="listbox"]')?.focus(),
       },
     );
-
-    const toTime = (input: TimeInput | null | undefined) =>
-      typeof input === 'string' || input == null ? parseIsoTime(input) : input;
 
     /** 列表的选项：min 到 max，每 step 分钟一项，按语言的小时制显示 */
     const options = _derived.by((): ListboxOption[] => {

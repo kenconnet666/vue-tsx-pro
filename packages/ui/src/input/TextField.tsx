@@ -14,7 +14,7 @@
 import { Eye, EyeOff } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { useId, type VNodeChild } from 'vue';
-import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import type { IconData, IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -22,6 +22,7 @@ import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
+  controlClear,
   controlStyles,
   controlSx,
   focusOnShell,
@@ -171,15 +172,7 @@ export const TextField = _component(
             value={_bind(value)}
           />
           {controlAffix(suffix, inputId, propsSuffix)}
-          {clearable && value && editable && (
-            <ClearButton
-              {...mergePartProps<PresetIconButtonProps>(
-                { sx: controlStyles.button, radius: 'full' },
-                propsClear,
-                { onClick: clear },
-              )}
-            />
-          )}
+          {clearable && value && editable && controlClear(propsClear, clear)}
           {password && (
             <IconButton
               {...mergePartProps<IconButtonProps>(

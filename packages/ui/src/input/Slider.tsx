@@ -22,7 +22,7 @@ import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { clamp, snapToStep } from '../utils/data/number';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
-import { useFieldControl } from '../form/Field';
+import { labelledByField, useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 
 /** 滑块方向 */
@@ -336,8 +336,7 @@ export const Slider = _component(
         const part = range ? (index === 0 ? lang.sliderMin : lang.sliderMax) : undefined;
         const ownLabel = rest['aria-label'];
         // 范围时每个滑块的名称后面加“最小值 / 最大值”：有 aria-label 时拼在一起，用 Field 的标签时连上隐藏的文字
-        const labelledBy =
-          rest['aria-labelledby'] ?? (ownLabel == null ? field.labelledBy : undefined);
+        const labelledBy = labelledByField(rest, field.labelledBy);
         return (
           <div
             key={index}
