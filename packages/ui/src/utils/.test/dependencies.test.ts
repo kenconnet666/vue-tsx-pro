@@ -43,7 +43,8 @@ it('animejs：动画 JS 对象的数值（canvas、3D 场景用）；拖拽与�
 });
 
 // 可选 peer 依赖：以后的图表、3D 组件用，组件库开发时安装
-it('@unovis/ts、three：按需导入可以解析', async () => {
+// Unovis 在 vmForks 里由 Vite 内联编译（见 vitest.config.ts），第一次导入要几秒，CPU 忙时会超过默认的 5 秒
+it('@unovis/ts、three：按需导入可以解析', { timeout: 30_000 }, async () => {
   const [{ XYContainer, Line }, { Scene, Vector3 }] = await Promise.all([
     import('@unovis/ts'),
     import('three'),
