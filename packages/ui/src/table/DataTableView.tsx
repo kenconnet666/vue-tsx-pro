@@ -10,7 +10,8 @@
  *   固定列的单元格继承行的底色，盖住滚过去的内容。
  * - 排序：可排序的列标题是按钮，th 带 aria-sort；勾选列用 Checkbox（表头的全选有部分选中状态）。
  * - 列宽：表头结束边的 ColumnResizer（拖动或 ← / →）调整；固定列偏移与最小宽度的计算在 columns.ts。
- * - 详情行（renderDetail）：多一列展开按钮（aria-expanded、aria-controls），展开的行下面多一行跨全部列的详情；
+ * - 详情行（renderDetail）：多一列展开按钮（aria-expanded、aria-controls），展开的行下面多一行跨全部列的详情，
+ *   内容让过勾选列与展开列、和第一个数据列对齐；
  *   详情在虚拟滚动里也算一行（测量真实高度），内容贴着视口的起始边，横向滚动时不跟着滚走。
  * - 加载：没有数据时显示骨架行；已有数据（刷新中）时表头下方显示一条进度条；表格带 aria-busy。没有数据时显示 Empty。
  */
@@ -392,6 +393,8 @@ export const dataTableDynamicStyles = stylex.create({
   height: (px: number) => ({ height: px }),
   start: (px: number) => ({ insetInlineStart: px }),
   end: (px: number) => ({ insetInlineEnd: px }),
+  // 详情内容让过勾选列与展开列，和第一个数据列对齐
+  indent: (px: number) => ({ marginInlineStart: px, maxWidth: `calc(100cqi - ${px}px)` }),
   percent: (value: string) => ({ width: value }),
 });
 
@@ -681,6 +684,8 @@ export interface DataTableDetailRowProps<T> {
   headerRows: number;
   /** 跨几列（全部列，含勾选列与详情列） */
   span: number;
+  /** 勾选列与展开列的宽度（px）：内容让过它们，和第一个数据列对齐 */
+  indent: number;
   /** 详情单元格的 id（展开按钮的 aria-controls 指向它） */
   id: string;
   /** 详情的内容 */
@@ -700,6 +705,7 @@ export const DataTableDetailRow = _component(
     position,
     headerRows,
     span,
+    indent,
     id,
     renderDetail,
     propsDetailRow,
@@ -722,7 +728,11 @@ export const DataTableDetailRow = _component(
             { id, colspan: span },
           )}
         >
-          <div {...stylex.attrs(dataTableStyles.detailContent)}>{renderDetail(row.data)}</div>
+          <div
+            {...stylex.attrs(dataTableStyles.detailContent, dataTableDynamicStyles.indent(indent))}
+          >
+            {renderDetail(row.data)}
+          </div>
         </td>
       </tr>
     ),
@@ -1295,6 +1305,7 @@ export const DataTableView = _component(
                       position={item.index}
                       headerRows={headerRows}
                       span={span}
+                      indent={leadingWidth()}
                       id={detailId(index)}
                       renderDetail={renderDetail}
                       propsDetailRow={propsDetailRow}

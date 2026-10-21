@@ -6,16 +6,18 @@ import Decimal from 'decimal.js';
 import { hasStyles, mount } from '../../utils/.test/mount';
 import { createStatusMap } from '../../utils/data/status';
 import {
+  COLUMN_FLEX_MIN_WIDTH,
   columnType,
   headerLayout,
   nextSort,
   sortRows,
   sumColumn,
+  tableMinWidth,
   type SortState,
   type DataTableColumn,
 } from '../columns';
 import { DataTable } from '../DataTable';
-import { dataTableStyles, type DataTableHandle } from '../DataTableView';
+import { dataTableDynamicStyles, dataTableStyles, type DataTableHandle } from '../DataTableView';
 import { TreeDataTable } from '../TreeDataTable';
 
 // happy-dom 不排版：给滚动容器一个 400px 的视口（行是虚拟滚动的）
@@ -487,9 +489,27 @@ describe('DataTable 的详情行', () => {
       String(people.length + 2),
     );
 
+    // 内容让过勾选列（44）与展开列（40），和第一个数据列对齐
+    const content = cell.firstElementChild!;
+    expect(hasStyles(content, dataTableDynamicStyles.indent(84))).toBe(true);
+    expect(content.getAttribute('style')).toContain('84px');
+
     expanded = [];
     await flush();
     expect(root.querySelector('.detail')).toBeNull();
+  });
+});
+
+describe('tableMinWidth', () => {
+  it('写了宽度的列按宽度，没写宽度的按 minWidth，都没写的按 COLUMN_FLEX_MIN_WIDTH；加上前面的控制列', () => {
+    const list: DataTableColumn<unknown>[] = [
+      { key: 'code', header: '编码', width: 140 },
+      { key: 'name', header: '名称', minWidth: 200 },
+      { key: 'note', header: '备注' },
+    ];
+    expect(tableMinWidth(list, (column) => column.width, 84)).toBe(
+      84 + 140 + 200 + COLUMN_FLEX_MIN_WIDTH,
+    );
   });
 });
 

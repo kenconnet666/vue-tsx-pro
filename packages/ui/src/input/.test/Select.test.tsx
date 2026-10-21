@@ -48,6 +48,18 @@ describe('Select', () => {
     expect(root.querySelector('button[aria-label="清空"]')).toBeNull();
   });
 
+  it('不可搜索时弹层没有头部（不留空的分隔线）；可搜索时头部是搜索框', () => {
+    const root = mount(() => (
+      <>
+        <Select items={cities} aria-label="城市" />
+        <Select items={cities} searchable aria-label="出发地" />
+      </>
+    ));
+    const [plain, searchable] = [...root.querySelectorAll('[popover]')];
+    expect(plain!.firstElementChild!.querySelector('[role="listbox"]')).not.toBeNull();
+    expect(searchable!.firstElementChild!.querySelector('input')).not.toBeNull();
+  });
+
   it('前置图标在触发按钮之前，propsIcon 透传', () => {
     const root = mount(() => (
       <Select items={cities} icon={Globe} propsIcon={{ class: 'lead' }} aria-label="城市" />

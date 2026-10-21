@@ -94,7 +94,10 @@ export const ListPopover = _component(
           { ref: panelRef, popover: 'auto', onToggle },
         )}
       >
-        {header != null && <div {...stylex.attrs(listPopoverStyles.header)}>{header}</div>}
+        {/* 使用方常写 cond && <…/>：false 同 undefined，不渲染带分隔线的空头部 */}
+        {header != null && typeof header !== 'boolean' && (
+          <div {...stylex.attrs(listPopoverStyles.header)}>{header}</div>
+        )}
         <ScrollArea
           focusable={false}
           sx={floatingStyles.scrollArea}

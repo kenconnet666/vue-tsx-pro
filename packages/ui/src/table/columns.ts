@@ -75,7 +75,10 @@ export interface DataTableColumn<T> {
   value?: (row: T) => SortValue;
   /** 宽度（px）；不写时与其他没写宽度的列平分剩余宽度。固定列一定要写（偏移量按它算） */
   width?: number;
-  /** 拖动调整宽度时的最小宽度（px），默认 COLUMN_MIN_WIDTH（64） */
+  /**
+   * 最小宽度（px）：拖动调整宽度时不能更窄，默认 COLUMN_MIN_WIDTH（64）；
+   * 没写宽度的列按它（默认 COLUMN_FLEX_MIN_WIDTH）算表格的最小宽度，放不下时横向滚动而不是继续压窄
+   */
   minWidth?: number;
   /** 对齐；默认数字类（number、currency、percent、fileSize）靠 end，其余 start */
   align?: keyof ColumnAligns;
@@ -197,14 +200,14 @@ export function stickyOffsets<T>(
   return { start, end, startEdge: [...start.keys()].at(-1), endEdge: [...end.keys()].at(-1) };
 }
 
-/** 表格的最小宽度（px）：写了宽度的列按宽度，没写的按 COLUMN_FLEX_MIN_WIDTH；放不下时横向滚动 */
+/** 表格的最小宽度（px）：写了宽度的列按宽度，没写的按 minWidth 或 COLUMN_FLEX_MIN_WIDTH；放不下时横向滚动 */
 export function tableMinWidth<T>(
   columns: readonly DataTableColumn<T>[],
   widthOf: ColumnWidthOf<T>,
   leading: number,
 ): number {
   return columns.reduce(
-    (total, column) => total + (widthOf(column) ?? COLUMN_FLEX_MIN_WIDTH),
+    (total, column) => total + (widthOf(column) ?? column.minWidth ?? COLUMN_FLEX_MIN_WIDTH),
     leading,
   );
 }

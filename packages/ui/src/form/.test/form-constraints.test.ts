@@ -19,6 +19,8 @@ const schema = z.object({
   address: z.object({ zip: z.string().length(6) }),
   items: z.array(z.object({ qty: z.number().min(1) })),
   slug: z.string().transform((value) => value.toLowerCase()),
+  code: z.string().regex(/^[A-Z]{2}-\d+$/),
+  modelNo: z.string().regex(/^$|^\S+ R\d+$/),
 });
 const constraints = createConstraints(schema);
 
@@ -29,6 +31,11 @@ describe('createConstraints', () => {
     expect(constraints('newsletter')).toEqual({});
     expect(constraints('agree').required).toBe(true);
     expect(constraints('tags').required).toBe(true);
+  });
+
+  it('正则：不匹配空字符串的才算必填；能匹配空的（选填、填了要合格式）只给出 pattern', () => {
+    expect(constraints('code')).toEqual({ required: true, pattern: '^[A-Z]{2}-\\d+$' });
+    expect(constraints('modelNo')).toEqual({ pattern: '^$|^\\S+ R\\d+$' });
   });
 
   it('optional、nullable 不必填，但长度约束照样给出', () => {

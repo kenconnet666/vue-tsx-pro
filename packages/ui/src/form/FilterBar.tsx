@@ -6,12 +6,13 @@
  *     <Field label="任务类别"><Select … /></Field>
  *   </FilterBar>
  *
- * 条件排成栅格：每格不窄于 minFieldWidth，容器多宽就放几格；按钮在最后一行的最后一格，靠结束边。
+ * 条件排成栅格：每格不窄于 minFieldWidth，栅格多宽就放几格；按钮区在栅格的结束边，宽度随按钮、不折行，
+ * 和条件的最后一行对齐（按钮再多也不会在一格里挤成两行）；容器太窄放不下时，按钮区整体换到下一行、靠结束边。
  * 默认标签在起始边、宽度随文字（labelWidth 为 auto：控件紧跟着标签，不留空白；要几行对齐时写固定宽度）。在输入框里按回车就是查询（原生表单提交）。
  * more 收起时不渲染；moreActive 是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。
  *
- * 部件：Root（form）、Field 们、More（收起的条件，display: contents）、Actions（div）、Search、Reset（Button）、
- * Toggle（展开收起的 Button）。
+ * 部件：Root（form）、Fields（条件的栅格）、Field 们、More（收起的条件，display: contents）、Actions（div）、
+ * Search、Reset（Button）、Toggle（展开收起的 Button）。
  */
 import { ChevronDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -46,6 +47,8 @@ export interface FilterBarProps
   minFieldWidth?: string;
   /** 结束边额外的按钮：放在“重置”前面（如“导出筛选结果”） */
   actions?: VNodeChild;
+  /** 条件栅格的部件属性 */
+  propsFields?: PartProps<'div'>;
   /** 按钮区的部件属性 */
   propsActions?: PartProps<'div'>;
   /** 查询按钮的部件属性 */
@@ -60,32 +63,42 @@ export interface FilterBarProps
   children?: VNodeChild;
 }
 
-/** FilterBar 的样式：root、more、actions、toggleIconOpen */
+/** FilterBar 的样式：root、fields、more、actions、toggleIconOpen */
 export const filterBarStyles = stylex.create({
+  // 条件栅格与按钮区并排；放不下时按钮区换行
   root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'flex-end',
+    columnGap: '_xl',
+    rowGap: '_md',
+  },
+  fields: {
     display: 'grid',
     columnGap: '_xl',
     rowGap: '_md',
     alignItems: 'start',
+    flexGrow: 1,
+    minWidth: 0,
   },
   // 收起的条件直接是栅格的格子
   more: { display: 'contents' },
-  // 按钮放在最后一行的最后一格：前面的格子不够时自动换到新的一行
+  // 宽度随按钮、不折行；换到下一行时也靠结束边
   actions: {
-    gridColumnEnd: '-1',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    flexWrap: 'wrap',
     gap: '_sm',
+    flexShrink: 0,
+    marginInlineStart: 'auto',
   },
   // 展开后箭头朝上
   toggleIconOpen: { rotate: '180deg' },
 });
 
-/** FilterBar 的样式：columns（每格的最小宽度） */
+/** FilterBar 的样式：columns（每格的最小宽度；栅格本身至少放得下一格） */
 export const filterBarColumnStyles = stylex.create({
   columns: (minWidth: string) => ({
+    flexBasis: minWidth,
     gridTemplateColumns: `repeat(auto-fill, minmax(min(${minWidth}, 100%), 1fr))`,
   }),
 });
@@ -103,6 +116,7 @@ export const FilterBar = _component(
     actions,
     labelPlacement = 'start',
     labelWidth = 'auto',
+    propsFields,
     propsActions,
     propsSearch,
     propsReset,
@@ -122,19 +136,22 @@ export const FilterBar = _component(
 
     return () => (
       <form
-        {...mergeAttrs<'form'>(
-          { sx: [filterBarStyles.root, filterBarColumnStyles.columns(minFieldWidth)] },
-          rest,
-          { role: 'search', onSubmit },
-        )}
+        {...mergeAttrs<'form'>({ sx: filterBarStyles.root }, rest, { role: 'search', onSubmit })}
         data-expanded={more != null ? expanded : undefined}
       >
-        {children}
-        {more != null && expanded && (
-          <div {...mergeAttrs<'div'>({ sx: filterBarStyles.more }, propsMore, { id: moreId })}>
-            {more}
-          </div>
-        )}
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: [filterBarStyles.fields, filterBarColumnStyles.columns(minFieldWidth)] },
+            propsFields,
+          )}
+        >
+          {children}
+          {more != null && expanded && (
+            <div {...mergeAttrs<'div'>({ sx: filterBarStyles.more }, propsMore, { id: moreId })}>
+              {more}
+            </div>
+          )}
+        </div>
         <div {...mergeAttrs<'div'>({ sx: filterBarStyles.actions }, propsActions)}>
           {more != null && (
             <Button

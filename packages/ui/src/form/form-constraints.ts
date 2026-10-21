@@ -88,6 +88,15 @@ function unwrap(
 
 const numberOf = (value: unknown) => (typeof value === 'number' ? value : undefined);
 
+/** 正则能不能匹配空字符串（如 `^$|^\S+ R\d+$` 是“选填，填了要合格式”）；写错的正则当作不能 */
+function matchesEmpty(pattern: string): boolean {
+  try {
+    return new RegExp(pattern, 'u').test('');
+  } catch {
+    return false;
+  }
+}
+
 /** 字段自己的 schema → 约束；parentRequires 表示父对象要求这个键存在 */
 function constraintsOf(
   node: JsonSchema,
@@ -113,7 +122,7 @@ function constraintsOf(
     type === 'string'
       ? (result.minLength ?? 0) > 0 ||
         result.format != null ||
-        result.pattern != null ||
+        (result.pattern != null && !matchesEmpty(result.pattern)) ||
         result.options != null
       : type === 'boolean'
         ? node.const === true
