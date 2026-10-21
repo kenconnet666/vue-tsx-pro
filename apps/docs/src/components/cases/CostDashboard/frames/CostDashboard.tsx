@@ -3,7 +3,7 @@
 // - 任务池总数在这一页只出现一次；已确认收益、挂账待定、方案待定三桶互斥、加总等于总数（终止的回流储备库，不计入）；
 // - 预测、承诺、实现三种收益分开挂账，不跨状态合计；挂账待定写“待定价”，不写零；
 // - 进度 × 收益状态交叉成矩阵（行与任务池的页签一致），不用“其中”；金额口径硬节约、成本规避、软节约分栏。
-// 数字都能点：跳到筛好条件的任务池（页签 + 收益状态 + 降本类型 + 金额口径）
+// 数字都能点：跳到对应降本类型的台账，带着页签与筛选（页签 + 收益状态 + 金额口径）
 import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -133,10 +133,13 @@ const styles = stylex.create({
   segment: (share: number) => ({ flexGrow: share, flexBasis: 0 }),
 });
 
-/** 跳到任务池的小链接：“明细 ↗” */
-function detailLink(query: Record<string, string>, label = '明细') {
+/** 降本类型对应的台账 */
+const ledgerOf = (kind: string) => (kind === 'dmc' ? 'DmcLedger' : 'UnitLedger');
+
+/** 跳到台账的小链接：“明细 ↗” */
+function detailLink(kind: string, query: Record<string, string>, label = '明细') {
   return (
-    <Link href={casePath('TaskPool', query)}>
+    <Link href={casePath(ledgerOf(kind), query)}>
       {label}
       <Icon icon={ArrowUpRight} />
     </Link>
@@ -250,7 +253,7 @@ export default _component(() => {
                   </span>
                   <Flex justify="between" align="center">
                     <Small tone="muted">{rows.length} 项</Small>
-                    {detailLink({ valueState: state, kind })}
+                    {detailLink(kind, { valueState: state })}
                   </Flex>
                 </Flex>
               </Card>
@@ -285,10 +288,9 @@ export default _component(() => {
                           <TableCell key={state} align="end">
                             {count ? (
                               <Link
-                                href={casePath('TaskPool', {
+                                href={casePath(ledgerOf(kind), {
                                   view: group.value,
                                   valueState: state,
-                                  kind,
                                 })}
                                 sx={styles.number}
                               >
@@ -302,7 +304,7 @@ export default _component(() => {
                       })}
                       <TableCell align="end">
                         <Link
-                          href={casePath('TaskPool', { view: group.value, kind })}
+                          href={casePath(ledgerOf(kind), { view: group.value })}
                           sx={styles.number}
                         >
                           {inGroup.length}
@@ -383,10 +385,9 @@ export default _component(() => {
                         <TableCell key={basis.value} align="end">
                           {rows.length ? (
                             <Link
-                              href={casePath('TaskPool', {
+                              href={casePath(ledgerOf(kind), {
                                 valueState: state,
                                 basis: basis.value,
-                                kind,
                               })}
                               sx={styles.number}
                             >

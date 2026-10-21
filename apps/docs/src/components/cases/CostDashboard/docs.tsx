@@ -8,7 +8,7 @@ export const meta = {
   title: 'Cost Dashboard 降本统计看板',
   description:
     '联合降本的统计页：任务池三桶构成、三种收益分开挂账、进度 × 收益状态矩阵、差额归因、团队分布与金额口径；数字点进去是筛好条件的任务池。',
-  order: 3,
+  order: 8,
 };
 
 export default _component(() => () => (

@@ -1,20 +1,24 @@
 // 降本管理案例共用的外壳：顶栏（品牌、本页的页签、收件箱与我负责的任务、当前用户）与侧栏导航，current 是当前所在的一项。
-// 侧栏按需求的模块排：两条渠道、任务池、一本账、测算、储备库、统计、基础数据（侧栏不放计数：数字只在一处出现）；
-// 工作台（收件箱、我负责的任务）是图标按钮，右上角是条数，点开看详情。
-// 做好的案例页之间可以跳转（同一个文档站里的整页示例），一本账点数字跳到筛好条件的任务池
+// 侧栏按设计规格的导航：首页、降本项目（单机降本台账、降 DMC 台账）、收益（收益认定、一本账）、两条渠道（二期）、
+// 分析与资料（统计看板、测算参数、储备库、基础数据）；侧栏不放计数：数字只在一处出现。各项的说明、岗位与分期首页也用。
+// 侧栏是盖在页面上的抽屉（AppShell overlay），开不开正文都是整宽。
+// 工作台（收件箱、我负责的任务）是顶栏的图标按钮，右上角是条数，点开看最近几条。
+// 做好的案例页之间可以跳转（同一个文档站里的整页示例），统计看板点数字跳到筛好条件的台账
 import {
   Archive,
+  BadgeCheck,
   BookOpenText,
   Building2,
   Calculator,
   ChartColumn,
-  ClipboardList,
+  Gauge,
+  House,
   Inbox,
   Lightbulb,
   ListTodo,
-  Package,
   Plane,
   Users,
+  Wrench,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -38,10 +42,20 @@ import {
 } from '@vue-tsx-pro/ui';
 import { inject, type VNodeChild } from 'vue';
 import { routeLocationKey, routerKey } from 'vue-router';
+import { sidebarPreference } from '../../site/sidebar';
 import { daysBetween, inbox, myTasks, taskStatuses, TODAY } from './data';
 
 /** 已经做好的案例页 */
-export type CasePage = 'TaskPool' | 'TaskDetail' | 'CostDashboard' | 'ProjectEditor';
+export type CasePage =
+  | 'CaseHome'
+  | 'UnitLedger'
+  | 'DmcLedger'
+  | 'UnitEditor'
+  | 'DmcEditor'
+  | 'TaskDetail'
+  | 'BenefitConfirm'
+  | 'ValueLedger'
+  | 'CostDashboard';
 
 /** 案例页的地址（文档站的整页示例），query 是带过去的筛选条件 */
 export function casePath(page: CasePage, query: Record<string, string> = {}): string {
@@ -66,47 +80,139 @@ export function useCaseQuery(): () => Record<string, string> {
 
 /** 侧栏的各项 */
 export type CaseSection =
+  | 'home'
+  | 'unit'
+  | 'dmc'
+  | 'confirm'
+  | 'ledger'
   | 'proposals'
   | 'plans'
-  | 'tasks'
-  | 'ledger'
-  | 'model'
-  | 'reserve'
   | 'dashboard'
-  | 'people'
-  | 'parts';
+  | 'params'
+  | 'reserve'
+  | 'master';
 
-interface NavEntry {
+/** 侧栏的一项；说明、岗位与分期在首页的入口卡片上 */
+export interface NavEntry {
   key: CaseSection;
   icon: IconData;
   label: string;
-  /** 做好的案例页 */
+  /** 在这里做什么 */
+  description: string;
+  /** 主要使用的岗位 */
+  roles: string;
+  /** 第几期上线（设计规格的分期） */
+  phase: 1 | 2 | 3;
+  /** 做好的案例页；没有时是“建设中” */
   page?: CasePage;
 }
 
-const groups: { label: string; items: NavEntry[] }[] = [
+/** 侧栏的分组（首页的入口按同样的分组） */
+export const navGroups: { label: string; items: NavEntry[] }[] = [
+  {
+    label: '降本项目',
+    items: [
+      {
+        key: 'unit',
+        icon: Wrench,
+        label: '单机降本台账',
+        description:
+          '单机降本项目的列表：按状态分组与关注筛选，新建、编辑、删除，看零件更改与里程碑',
+        roles: 'PEMO、产品团队',
+        phase: 1,
+        page: 'UnitLedger',
+      },
+      {
+        key: 'dmc',
+        icon: Gauge,
+        label: '降 DMC 台账',
+        description: '降 DMC 项目的列表：美元 / FH，实施节点的完成情况与下一节点，过期标红',
+        roles: 'PEMO、产品团队',
+        phase: 1,
+        page: 'DmcLedger',
+      },
+    ],
+  },
+  {
+    label: '收益',
+    items: [
+      {
+        key: 'confirm',
+        icon: BadgeCheck,
+        label: '收益认定',
+        description: '验证达标的项目：核对测算版本，认定并锁定测算金额 A，或退回',
+        roles: '成本团队',
+        phase: 1,
+        page: 'BenefitConfirm',
+      },
+      {
+        key: 'ledger',
+        icon: BookOpenText,
+        label: '一本账',
+        description: '机会、预测、承诺、实现四种收益分栏挂账，只按栏合计、不跨栏相加',
+        roles: '成本团队',
+        phase: 1,
+        page: 'ValueLedger',
+      },
+    ],
+  },
   {
     label: '两条渠道',
     items: [
-      { key: 'proposals', icon: Lightbulb, label: '渠道一 · 供应商建议' },
-      { key: 'plans', icon: Users, label: '渠道二 · 项目团队方案' },
+      {
+        key: 'proposals',
+        icon: Lightbulb,
+        label: '渠道一 · 供应商建议',
+        description: '供应商提交降本建议，流转评估，通过后派入任务池',
+        roles: '供应商、产品团队',
+        phase: 2,
+      },
+      {
+        key: 'plans',
+        icon: Users,
+        label: '渠道二 · 项目团队方案',
+        description: '项目团队自主提出降本方案，评审通过后派入任务池',
+        roles: '项目团队',
+        phase: 2,
+      },
     ],
   },
   {
-    label: '执行与收益',
+    label: '分析与资料',
     items: [
-      { key: 'tasks', icon: ClipboardList, label: '任务池', page: 'TaskPool' },
-      { key: 'ledger', icon: BookOpenText, label: '一本账' },
-      { key: 'model', icon: Calculator, label: '测算与参数' },
-      { key: 'reserve', icon: Archive, label: '储备库' },
-    ],
-  },
-  {
-    label: '统计与基础数据',
-    items: [
-      { key: 'dashboard', icon: ChartColumn, label: '统计看板', page: 'CostDashboard' },
-      { key: 'people', icon: Building2, label: '团队与人员' },
-      { key: 'parts', icon: Package, label: '型号、工作包与供应商' },
+      {
+        key: 'dashboard',
+        icon: ChartColumn,
+        label: '统计看板',
+        description: '任务池三桶、三种收益分开挂账、进度 × 收益状态矩阵；点数字跳到筛好条件的台账',
+        roles: '项目团队、PEMO',
+        phase: 1,
+        page: 'CostDashboard',
+      },
+      {
+        key: 'params',
+        icon: Calculator,
+        label: '测算参数',
+        description: '材料单价、工时费率等测算参数；每次测算保存参数快照',
+        roles: '成本团队',
+        phase: 1,
+      },
+      {
+        key: 'reserve',
+        icon: Archive,
+        label: '储备库',
+        description: '暂不实施、终止的事项按否决原因入库，写明复活条件',
+        roles: '成本团队',
+        phase: 3,
+      },
+      {
+        key: 'master',
+        icon: Building2,
+        label: '基础数据',
+        description: '组织机构、人员、供应商、字典（任务类别、完成形式等）',
+        roles: '管理员',
+        phase: 1,
+      },
     ],
   },
 ];
@@ -120,13 +226,15 @@ const styles = stylex.create({
     alignItems: 'center',
     gap: '_sm',
     flexShrink: 0,
+    color: '_text',
+    textDecoration: 'none',
     fontWeight: '_semibold',
     fontSize: '_lg',
   },
   brandMark: { color: '_accentText' },
   // 正文上下的内边距与区块之间的间距一致：列表页的分页贴近窗口底边
   main: { paddingBlock: '_md' },
-  // 本页的页签在竖线之后、与正文的起始边对齐，贴着顶栏底边；占满中间
+  // 本页的页签在品牌格（与“打开”导航）之后，贴着顶栏底边；占满中间
   nav: { display: 'flex', alignSelf: 'stretch', alignItems: 'flex-end', flexGrow: 1, minWidth: 0 },
   tools: { display: 'flex', alignItems: 'center', gap: '_xs', flexShrink: 0 },
   panel: { width: '24rem', padding: 0 },
@@ -208,6 +316,9 @@ const Tray = _component(
     ),
 );
 
+// 侧栏是盖在页面上的抽屉：默认收起，表格不被挡住；开关与拖动后的宽度各人记住
+const sidebar = sidebarPreference('cases.sidebar', { open: false, width: 256 });
+
 /** 降本管理的页面外壳 */
 export const CaseShell = _component(
   ({
@@ -223,12 +334,15 @@ export const CaseShell = _component(
     () => (
       <Provider defaults={caseDefaults}>
         <AppShell
+          sidebarMode="overlay"
+          sidebarOpen={_bind(sidebar.open)}
+          sidebarWidth={_bind(sidebar.width)}
           propsMain={{ sx: styles.main }}
           brand={
-            <span {...stylex.attrs(styles.brand)}>
+            <a href={casePath('CaseHome')} {...stylex.attrs(styles.brand)}>
               <Icon icon={Plane} sx={styles.brandMark} />
               联合降本管理
-            </span>
+            </a>
           }
           header={
             <>
@@ -274,7 +388,10 @@ export const CaseShell = _component(
           }
           sidebar={
             <NavList aria-label="联合降本管理">
-              {groups.map((group) => (
+              <NavItem href={casePath('CaseHome')} icon={House} active={current === 'home'}>
+                首页
+              </NavItem>
+              {navGroups.map((group) => (
                 <NavSection key={group.label} label={group.label}>
                   {group.items.map((item) => (
                     <NavItem
