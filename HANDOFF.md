@@ -72,7 +72,7 @@ pnpm -C apps/host-demo exec vitest run --configLoader native --config vitest.bro
   5. 报告误用。
      另有 `tokens.ts`：把 `stylex.create` 里的 `'_xs'` 换成 token 变量。
 - `runtime/`：`_component`、prop 访问器（没写过的 prop 用只读的 `readonlyProp`，`children` 用不缓存的 `childrenProp`）、`overridable`、`snapshot`、`untrack`、`effect`、`createContext`。
-- `vite/`：预设是一个编译插件（每个文件调用一次 `compile`，`hmr.ts` 登记组件热更新，`cache.ts` 是开发服务器的磁盘编译缓存）加 `stylex.ts`（收集规则合成 CSS：开发时按版本推送，构建时输出并在 HTML 里引用）。这里还关掉了 lightningcss 对 `:dir()` 的降级。
+- `vite/`：预设是一个编译插件（每个文件经 `module.ts` 调用一次 `compile` 并由 `hmr.ts` 登记组件热更新；`pool.ts` 把编译分到工作线程 `compile-worker.ts`，Vitest 里不用；`cache.ts` 是开发服务器的磁盘编译缓存）加 `stylex.ts`（收集规则合成 CSS：开发时按版本推送，构建时输出并在 HTML 里引用）。这里还关掉了 lightningcss 对 `:dir()` 的降级。
 - `stylex/`：带中文注释的 StyleX 类型入口（`styles.ts` 由 `scripts/css-docs` 生成，不要手改）。
 
 **ui 包**（`packages/ui/src`）的基础设施都在 `utils/` 与 `config/`。写新组件前先看有没有现成的：

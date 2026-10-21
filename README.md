@@ -22,7 +22,7 @@ import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
 export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
 ```
 
-预设对每个文件只解析、生成一次：符文编译 → token 字符串写法 → StyleX → Vue JSX 与去类型，加上组件热更新；StyleX 的 CSS 开发时由服务器按版本推送，构建时输出成 CSS 文件并在 HTML 里引用；重启开发服务器时没改过的文件直接取磁盘上的编译缓存。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx` 或 StyleX 的打包插件。
+预设对每个文件只解析、生成一次：符文编译 → token 字符串写法 → StyleX → Vue JSX 与去类型，加上组件热更新；StyleX 的 CSS 开发时由服务器按版本推送，构建时输出成 CSS 文件并在 HTML 里引用；重启开发服务器时没改过的文件直接取磁盘上的编译缓存；构建与开发服务器在工作线程里并行编译。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx` 或 StyleX 的打包插件。
 
 TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
 
