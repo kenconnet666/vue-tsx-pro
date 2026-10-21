@@ -1,15 +1,14 @@
 /**
  * 生成文档站 ModelViewer 示例用的模型（apps/docs/public/models/trophy.glb）：一座奖杯，
  * 金属的杯身、把手、杯脚，石质的底座；全部由 three 的几何体拼成，没有贴图，用 GLTFExporter 导出成 GLB。
- * 改了造型时重跑：node scripts/models/trophy.mjs
+ * 改了造型时重跑：pnpm gen:trophy
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
+import { requireFrom, root } from '../lib/repo.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
-const fromDocs = createRequire(join(root, 'apps/docs/package.json'));
+const fromDocs = requireFrom('apps/docs');
 // 用 ES 模块版：GLTFExporter 里 import 的 three 也是它，instanceof 才对得上
 // three 的 exports 不含 package.json：从主入口（build/three.cjs）往上一层就是包目录
 const threeDir = dirname(dirname(fromDocs.resolve('three')));

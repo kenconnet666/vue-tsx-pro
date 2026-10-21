@@ -5,12 +5,11 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import { parse } from 'smol-toml';
+import { root } from '../lib/repo.mjs';
 
 const SERVER_NAME = 'vue_tsx_pro_lsp';
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const SWITCH = 'packages/tsx/test/fixtures/Switch.tsx';
 const TEMP = 'packages/tsx/test/fixtures/__lsp_verify__.tsx';
 

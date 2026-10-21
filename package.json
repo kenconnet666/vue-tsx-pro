@@ -32,7 +32,10 @@
     "themes:check": "node scripts/themes/check.mjs",
     "text:check": "node scripts/text/check.mjs",
     "lsp:setup": "node scripts/language-services/setup.mjs",
-    "lsp:verify": "node scripts/language-services/verify.mjs"
+    "lsp:verify": "node scripts/language-services/verify.mjs",
+    "move": "node scripts/structure/move.mjs",
+    "gen:globe-land": "node scripts/globe/land.mjs",
+    "gen:trophy": "node scripts/models/trophy.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "catalog:",

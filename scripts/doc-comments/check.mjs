@@ -5,13 +5,10 @@
  * 用法：pnpm docs:check。生成的文件、测试与只在类型里出现的 children 不检查。
  */
 import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
-const ts = createRequire(join(root, 'packages/tsx/package.json'))('typescript');
+import ts from 'typescript';
+import { parseSource, root } from '../lib/repo.mjs';
 
 /** 检查范围：已发布的两个包 */
 const INCLUDE = [
@@ -37,12 +34,7 @@ const isAugmentation = (node) =>
 
 const problems = [];
 for (const file of files) {
-  const source = ts.createSourceFile(
-    file,
-    readFileSync(join(root, file), 'utf8'),
-    ts.ScriptTarget.Latest,
-    true,
-  );
+  const source = parseSource(file, readFileSync(join(root, file), 'utf8'));
   const report = (node, label) => {
     const { line } = source.getLineAndCharacterOfPosition(node.getStart(source));
     problems.push(`${file}:${line + 1}  ${label}`);

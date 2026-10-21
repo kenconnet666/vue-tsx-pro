@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import ts from 'typescript';
 import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
+import { parseSource } from '../lib/repo.mjs';
 
 /**
  * 短写的类型：每组一个接口（fontSizes → FontSizesTokens），属性直接写 `keyof FontSizesTokens`。
@@ -52,7 +53,7 @@ export function generateTokenNames(root) {
 /** export const 组 = stylex.defineVars({ … }) → 组名、注释与各 token 的名字、注释 */
 export function readTokenGroups(file) {
   const text = readFileSync(file, 'utf8');
-  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+  const source = parseSource(file, text);
   const groups = [];
   for (const statement of source.statements) {
     if (!ts.isVariableStatement(statement)) continue;

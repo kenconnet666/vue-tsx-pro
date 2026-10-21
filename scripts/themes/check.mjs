@@ -6,10 +6,10 @@
  * 演示页的 axe 检查只覆盖页面上出现过的组合，而且看不到悬停态；这里按 token 的用途把组合列全。
  */
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import ts from 'typescript';
 import { registerHooks } from 'node:module';
+import { parseSource, root } from '../lib/repo.mjs';
 
 // 组件库源码的相对导入不写扩展名（由打包工具补全）：Node 直接加载时补上 .ts
 registerHooks({
@@ -23,7 +23,6 @@ registerHooks({
   },
 });
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const themeDir = join(root, 'packages/ui/src/config/theme');
 
 /**
@@ -32,7 +31,7 @@ const themeDir = join(root, 'packages/ui/src/config/theme');
  */
 function readColors(file, group = 'colors') {
   const text = readFileSync(join(themeDir, file), 'utf8');
-  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
+  const source = parseSource(file, text);
   let object;
   const visit = (node) => {
     if (object || !ts.isCallExpression(node)) return ts.forEachChild(node, visit);

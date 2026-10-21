@@ -6,12 +6,11 @@
 //   pnpm docs:shot /components/menu page                  整页；keyboard 是键盘小节
 //   pnpm docs:shot /components/select basic --click=basic:城市    截图前点开一个按钮或下拉框（按名称找）
 import { mkdirSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { join } from 'node:path';
+import { requireFrom, root } from '../lib/repo.mjs';
 
-const repo = join(import.meta.dirname, '../..');
 // playwright 装在 host-demo（浏览器测试）里
-const { chromium } = createRequire(join(repo, 'apps/host-demo/package.json'))('playwright');
+const { chromium } = requireFrom('apps/host-demo')('playwright');
 const [path, which = 'all'] = process.argv.slice(2).filter((arg) => !arg.startsWith('--'));
 if (!path?.startsWith('/')) {
   console.error(
@@ -30,7 +29,7 @@ const clicks = new Map(
     .map((arg) => arg.slice(8).split(':'))
     .map(([id, ...text]) => [id, text.join(':')]),
 );
-const dir = join(repo, 'node_modules/.cache/docs-shots');
+const dir = join(root, 'node_modules/.cache/docs-shots');
 mkdirSync(dir, { recursive: true });
 const name = path.replaceAll('/', '_').replace(/^_/, '');
 

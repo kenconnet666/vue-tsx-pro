@@ -15,9 +15,7 @@
  *   --check 只比较不写入，生成结果与仓库里的文件不一致时以非零退出（CI 用）
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import prettier from 'prettier';
 import ts from 'typescript';
 import { features } from 'web-features';
@@ -29,13 +27,13 @@ import {
   tokenInterfaceName,
   tokenNamesOutput,
 } from './tokens.mjs';
+import { requireFrom, root } from '../lib/repo.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const output = join(root, 'packages/tsx/src/stylex/styles.ts');
-const require = createRequire(join(root, 'packages/tsx/package.json'));
+const require = requireFrom('packages/tsx');
 const stylexDir = dirname(require.resolve('@stylexjs/stylex/package.json'));
 const compilerEntry = require.resolve('@stylexjs/babel-plugin');
-const mdn = createRequire(join(root, 'package.json'))('mdn-data/css/properties.json');
+const mdn = requireFrom('.')('mdn-data/css/properties.json');
 const docs = JSON.parse(readFileSync(join(root, 'scripts/css-docs/docs.json'), 'utf8'));
 
 // ───────────────────────── StyleX：属性集合、伪元素、数字单位 ─────────────────────────

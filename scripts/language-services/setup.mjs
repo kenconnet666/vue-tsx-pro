@@ -6,11 +6,10 @@
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { parse } from 'smol-toml';
+import { root } from '../lib/repo.mjs';
 
 const SERVER_NAME = 'vue_tsx_pro_lsp';
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const node = process.execPath.replaceAll('\\', '/');
 const rootPath = root.replaceAll('\\', '/');
 

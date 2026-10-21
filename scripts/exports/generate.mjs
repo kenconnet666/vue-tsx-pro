@@ -12,12 +12,11 @@
  *   --check 只比较不写入，生成结果与仓库里的文件不一致时以非零退出（CI 用）
  */
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join, relative } from 'node:path';
 import prettier from 'prettier';
 import ts from 'typescript';
+import { parseSource, root } from '../lib/repo.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const src = join(root, 'packages/ui/src');
 const output = join(src, 'index.ts');
 
@@ -88,8 +87,7 @@ const isExported = (node) => node.modifiers?.some((m) => m.kind === ts.SyntaxKin
 /** 一个模块导出的名字：values 与 types 分开（类型写成 `type X`） */
 function exportsOf(file) {
   const text = readFileSync(file, 'utf8');
-  const kind = file.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
-  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, kind);
+  const source = parseSource(file, text);
   const values = [];
   const types = [];
   let declaresModule = false;

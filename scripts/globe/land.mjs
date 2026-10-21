@@ -1,16 +1,16 @@
 /**
  * 生成 Globe 的陆地位图（packages/ui/src/three/globe/land.ts）：世界地图（Natural Earth 1:110m，经 @unovis/ts 的
  * WorldMapTopoJSON）按 1° 的经纬网格判断每格中心是不是陆地，一格一位，打包成 base64。
- * 地图数据更新时重跑：node scripts/globe/land.mjs
+ * 地图数据更新时重跑：pnpm gen:globe-land
  */
 import { writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { requireFrom, root } from '../lib/repo.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 // 地图与几何库是组件库（图表）的依赖，从那里解析
-const fromUi = createRequire(join(root, 'packages/ui/package.json'));
+const fromUi = requireFrom('packages/ui');
 const unovisRequire = createRequire(fromUi.resolve('@unovis/ts'));
 const load = (name) => import(pathToFileURL(unovisRequire.resolve(name)).href);
 const { WorldMapTopoJSON } = await load('@unovis/ts/maps');

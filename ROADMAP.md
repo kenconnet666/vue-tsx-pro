@@ -81,7 +81,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       （同 React Aria），改写或补语言写在 `lang.messages`，`defineLang` 按组件合并
 - [x] CodePreview、PropsTable、CodeGroup 挪到子路径 `@vue-tsx-pro/ui/docs-kit`。决定保留在主入口：CodeBlock、
       TableOfContents、Pager（帮助中心、文章页也用）；顺手把 SelectionBar 里有意只取初始值的读取写成 `_untrack`
-- [ ] 脚本：`scripts/lib`（TypeScript 解析、仓库根目录、createRequire）；没登记的脚本登记或删掉；清理旧 worktree
+- [x] 脚本：`scripts/lib/repo.mjs`（`root`、`requireFrom`、`parseSource`），十二个脚本不再各算根目录、各自建 require；
+      没登记的三个登记成 `pnpm move`、`gen:globe-land`、`gen:trophy`（重跑结果与仓库里的一致）；五个已合并的旧 worktree 与分支删掉
 
 ### 1.3 行为与无障碍
 

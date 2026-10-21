@@ -2,8 +2,8 @@
  * 移动 packages/ui/src 里的文件，并改写所有受影响的相对导入（import、export from、import()、vi.mock，保留 ?raw 这类后缀）。
  * 用 git mv 移动，历史跟得上；移走后空下来的目录一并删掉。
  *
- * 用法：node scripts/structure/move.mjs <旧路径>=<新路径> …（路径相对 packages/ui/src）
- *   node scripts/structure/move.mjs display/Card.tsx=layout/Card.tsx display/.test/Card.test.tsx=layout/.test/Card.test.tsx
+ * 用法：pnpm move <旧路径>=<新路径> …（路径相对 packages/ui/src）
+ *   pnpm move display/Card.tsx=layout/Card.tsx display/.test/Card.test.tsx=layout/.test/Card.test.tsx
  * 之后运行 pnpm exports 重新生成入口，再跑类型检查与测试。
  */
 import { execFileSync } from 'node:child_process';
@@ -17,14 +17,13 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { root } from '../lib/repo.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const src = join(root, 'packages/ui/src');
 
 const pairs = process.argv.slice(2).map((arg) => arg.split('='));
 if (!pairs.length || pairs.some((pair) => pair.length !== 2)) {
-  console.error('用法：node scripts/structure/move.mjs <旧路径>=<新路径> …');
+  console.error('用法：pnpm move <旧路径>=<新路径> …');
   process.exit(1);
 }
 
