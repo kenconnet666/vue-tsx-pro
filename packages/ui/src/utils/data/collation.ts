@@ -7,18 +7,14 @@
  */
 import type { DateValue } from '@internationalized/date';
 import type Decimal from 'decimal.js';
+import { cachedIntl } from './intl-cache';
 import { compareNumeric, isNumeric } from './numeric';
 
-const collators = new Map<string, Intl.Collator>();
-
 function collator(locale: string, usage: 'search' | 'sort'): Intl.Collator {
-  const key = `${locale}|${usage}`;
-  let found = collators.get(key);
-  if (!found) {
-    found = new Intl.Collator(locale, { usage, sensitivity: 'base', numeric: true });
-    collators.set(key, found);
-  }
-  return found;
+  return cachedIntl(
+    `collator|${locale}|${usage}`,
+    () => new Intl.Collator(locale, { usage, sensitivity: 'base', numeric: true }),
+  );
 }
 
 /** 判断 text 是否包含 query：忽略大小写与重音（é 与 e、Å 与 a 视为相同）；query 为空时总是 true */

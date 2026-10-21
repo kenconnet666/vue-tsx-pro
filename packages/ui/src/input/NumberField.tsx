@@ -26,6 +26,7 @@ import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
+import { normalizeNumber } from '../utils/data/number-parse';
 import {
   addNumeric,
   compareNumeric,
@@ -120,45 +121,6 @@ export interface NumberFieldProps
   propsDecrement?: Partial<IconButtonProps>;
   /** 增加按钮的部件属性 */
   propsIncrement?: Partial<IconButtonProps>;
-}
-
-/** 当前语言的数字符号：小数点、千分位、负号 */
-function numberSymbols(locale: string) {
-  const parts = new Intl.NumberFormat(locale).formatToParts(-12345.6);
-  const find = (type: string) => parts.find((part) => part.type === type)?.value;
-  return {
-    decimal: find('decimal') ?? '.',
-    group: find('group') ?? ',',
-    minus: find('minusSign') ?? '-',
-  };
-}
-
-/**
- * 按语言把用户输入规范成十进制文本（'-1234.5'）：去掉千分位与空白，认全角数字；
- * 空字符串为 null，解析不了时为 undefined。不经过浮点数，大整数、长小数不丢精度
- */
-export function normalizeNumber(text: string, locale: string): string | null | undefined {
-  const { decimal, group, minus } = numberSymbols(locale);
-  let normalized = text
-    // 全角数字、全角句点与负号（中文输入法）
-    .replace(/[０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xfee0))
-    .replace(/[．｡]/g, '.')
-    .replace(/[－−]/g, '-')
-    .replace(/[\s  ]/g, '');
-  if (!normalized) return null;
-  if (group !== decimal) normalized = normalized.split(group).join('');
-  if (decimal !== '.') normalized = normalized.split(decimal).join('.');
-  normalized = normalized.split(minus).join('-');
-  if (!/^-?(\d+\.?\d*|\.\d+)$/.test(normalized)) return undefined;
-  // '.5' → '0.5'、'12.' → '12'：Decimal 与 BigInt 都认的写法
-  return normalized.replace(/^(-?)\./, '$10.').replace(/\.$/, '');
-}
-
-/** 按语言解析用户输入成 number：解析不了时为 NaN，空字符串为 null */
-export function parseNumber(text: string, locale: string): number | null {
-  const normalized = normalizeNumber(text, locale);
-  if (normalized === undefined) return Number.NaN;
-  return normalized === null ? null : Number(normalized);
 }
 
 /** 数字输入框：输入、方向键与按钮加减，提交时夹到范围并对齐步长 */

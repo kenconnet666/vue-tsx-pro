@@ -619,13 +619,7 @@ export {
   type ListboxViewProps,
   type OptionRenderState,
 } from './input/Listbox';
-export {
-  normalizeNumber,
-  NumberField,
-  parseNumber,
-  type NumberFieldManaged,
-  type NumberFieldProps,
-} from './input/NumberField';
+export { NumberField, type NumberFieldManaged, type NumberFieldProps } from './input/NumberField';
 export {
   NumberRangeField,
   numberRangeFieldStyles,
@@ -1345,6 +1339,8 @@ export {
   type WeekdayFormats,
   type WeekOptions,
 } from './utils/data/date';
+export { cachedIntl } from './utils/data/intl-cache';
+export { normalizeNumber, parseNumber } from './utils/data/number-parse';
 export { clamp, snapToStep } from './utils/data/number';
 export {
   addNumeric,

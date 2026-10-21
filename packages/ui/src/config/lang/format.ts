@@ -20,6 +20,7 @@ import {
   relativeUnit,
   toInstant,
 } from '../../utils/data/date';
+import { cachedIntl } from '../../utils/data/intl-cache';
 import { numericText, shiftDecimal } from '../../utils/data/numeric';
 import { useLang } from '../context';
 import type { Lang } from './lang';
@@ -89,7 +90,7 @@ export function useFormat() {
       if (Number.isNaN(instant)) return typeof value === 'string' ? value : '';
       const { value: amount, unit } = relativeUnit(instant - now);
       const key = `relative|${lang.code}|${JSON.stringify(options)}`;
-      const formatter = cached(
+      const formatter = cachedIntl(
         key,
         () => new Intl.RelativeTimeFormat(lang.code, { numeric: 'auto', ...options }),
       );
@@ -109,19 +110,9 @@ export interface RelativeFormatOptions extends Intl.RelativeTimeFormatOptions {
 /** Intl 支持的文件大小单位（SI，1000 进位） */
 const FILE_SIZE_UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'] as const;
 
-type Formatter = Intl.NumberFormat | Intl.RelativeTimeFormat | DateFormatter;
-
-const cache = new Map<string, Formatter>();
-
-function cached<T extends Formatter>(key: string, create: () => T): T {
-  let formatter = cache.get(key) as T | undefined;
-  if (!formatter) cache.set(key, (formatter = create()));
-  return formatter;
-}
-
 function numberFormatter(lang: Lang, options: Intl.NumberFormatOptions) {
   const key = `number|${lang.code}|${JSON.stringify(options)}`;
-  return cached(key, () => new Intl.NumberFormat(lang.code, options));
+  return cachedIntl(key, () => new Intl.NumberFormat(lang.code, options));
 }
 
 function formatNumeric(
@@ -151,7 +142,7 @@ function dateFormatter(lang: Lang, options: Intl.DateTimeFormatOptions) {
     ...options,
   };
   const key = `date|${lang.code}|${JSON.stringify(resolved)}`;
-  return cached(key, () => new DateFormatter(lang.code, resolved));
+  return cachedIntl(key, () => new DateFormatter(lang.code, resolved));
 }
 
 /** Intl 接受数字字符串（StringNumericLiteral）；Decimal 先转成字符串 */

@@ -1,29 +1,10 @@
-// NumberField：按语言解析、提交时夹到范围并对齐步长、方向键与按钮加减
+// NumberField：提交时夹到范围并对齐步长、方向键与按钮加减（按语言解析见 utils/data/.test/number-parse.test.ts）
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import Decimal from 'decimal.js';
 import type { NumericValue } from '../../utils/data/numeric';
-import { NumberField, parseNumber, type NumberFieldProps } from '../NumberField';
-
-describe('parseNumber', () => {
-  it.each([
-    ['1,234.5', 'en-US', 1234.5],
-    ['1.234,5', 'de-DE', 1234.5],
-    ['１２．５', 'zh-CN', 12.5],
-    ['－3', 'zh-CN', -3],
-    [' 42 ', 'zh-CN', 42],
-    ['.5', 'en-US', 0.5],
-    ['', 'zh-CN', null],
-  ])('%s（%s）→ %s', (text, locale, expected) => {
-    expect(parseNumber(text, locale)).toBe(expected);
-  });
-
-  it('解析不了时为 NaN', () => {
-    expect(parseNumber('12abc', 'zh-CN')).toBeNaN();
-    expect(parseNumber('1-2', 'zh-CN')).toBeNaN();
-  });
-});
+import { NumberField, type NumberFieldProps } from '../NumberField';
 
 describe('NumberField', () => {
   const setup = (props: { min?: number; max?: number; step?: number } = {}) => {
