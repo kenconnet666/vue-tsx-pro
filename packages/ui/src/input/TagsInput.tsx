@@ -27,7 +27,9 @@ import {
   controlStyles,
   controlSx,
   focusOnShell,
+  controlIcon,
   useControlAppearance,
+  type ControlIconOptions,
   type ControlOptions,
 } from './control';
 import { useFieldControl } from '../form/Field';
@@ -54,11 +56,12 @@ export type TagsInputManaged =
   | 'aria-controls'
   | 'aria-activedescendant'
   | 'aria-invalid'
+  | 'aria-required'
   | 'aria-describedby';
 
 /** TagsInput 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
 export interface TagsInputBaseProps<T>
-  extends PartProps<'input', TagsInputManaged>, ControlOptions {
+  extends PartProps<'input', TagsInputManaged>, ControlOptions, ControlIconOptions {
   /** 已选的值：父级写 value={_bind(list)} */
   value?: string[];
   /** 建议：ListboxOption、字符串，或任意数据加 toOption；不给时是纯自由输入 */
@@ -87,6 +90,8 @@ export interface TagsInputBaseProps<T>
   disabled?: boolean;
   /** 只读：标签不能移除，不能输入 */
   readonly?: boolean;
+  /** 必填：至少要有一个标签（读屏念“必填”；校验交给表单） */
+  required?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
   /** 自定义建议的内容 */
@@ -138,10 +143,13 @@ export const TagsInput = _component(
     radius,
     disabled,
     readonly,
+    required,
     invalid,
     id,
     children,
     propsRoot,
+    icon,
+    propsIcon,
     propsTag,
     propsClear,
     propsPopover,
@@ -151,7 +159,7 @@ export const TagsInput = _component(
     const lang = useLang();
     const listId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
-    const control = useFieldControl(() => ({ id, invalid, disabled, readonly }));
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let shell = _state.raw<HTMLElement | null>(null);
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
@@ -292,6 +300,7 @@ export const TagsInput = _component(
             data-invalid={state.invalid || undefined}
             data-disabled={state.disabled || undefined}
           >
+            {controlIcon(icon, propsIcon)}
             {value.map((tag) => {
               const own = typeof propsTag === 'function' ? propsTag(tag) : propsTag;
               return (
@@ -320,6 +329,7 @@ export const TagsInput = _component(
                 'aria-activedescendant':
                   open && suggestions() ? activeOptionId(list, listId) : undefined,
                 'aria-invalid': state.invalid || undefined,
+                'aria-required': state.required || undefined,
                 'aria-describedby': state.describedBy,
                 onKeydown,
                 onPaste,

@@ -32,7 +32,9 @@ import {
   controlStyles,
   controlSx,
   focusOnShell,
+  controlIcon,
   useControlAppearance,
+  type ControlIconOptions,
   type ControlOptions,
 } from './control';
 import { useFieldControl } from '../form/Field';
@@ -62,7 +64,8 @@ export type SelectManaged =
   | 'aria-describedby';
 
 /** 下拉选择共有的属性；未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
-export interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, ControlOptions {
+export interface SelectBaseProps<T>
+  extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions {
   /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */
@@ -77,6 +80,8 @@ export interface SelectBaseProps<T> extends PartProps<'button', SelectManaged>, 
   name?: string;
   /** 不可用 */
   disabled?: boolean;
+  /** 只读：能聚焦、能看到已选的内容，不能打开、不能清空 */
+  readonly?: boolean;
   /** 必填 */
   required?: boolean;
   /** 校验未通过 */
@@ -154,14 +159,17 @@ export const Select = _component(
     size,
     radius,
     disabled,
+    readonly,
     required,
     invalid,
     id,
+    icon,
     children,
     renderValue,
     empty,
     loading = false,
     propsRoot,
+    propsIcon,
     propsValue,
     propsTag,
     propsClear,
@@ -173,7 +181,7 @@ export const Select = _component(
     const lang = useLang();
     const listId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
-    const control = useFieldControl(() => ({ id, invalid, required, disabled }));
+    const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     const multiple = () => selectionMode === 'multiple';
     const list = useListState({
       items: () => items,
@@ -198,7 +206,7 @@ export const Select = _component(
     }
 
     function onKeydown(event: KeyboardEvent) {
-      if (control().disabled) return;
+      if (control().disabled || control().readonly) return;
       if (!open) {
         if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
@@ -244,6 +252,8 @@ export const Select = _component(
       const values = selectedValues(value);
       const selected = list.options.filter((option) => list.isSelected(option.value));
       const off = state.disabled;
+      // 只读：能聚焦，不能打开、不能改
+      const locked = off || state.readonly;
       const shown =
         renderValue?.(selected.map((option) => option.item)) ??
         (selected.length === 0 ? (
@@ -270,20 +280,17 @@ export const Select = _component(
               propsRoot,
               {
                 ref: _toRef(shell),
-                // 点在外壳的空白处也打开：焦点交给触发按钮
-                // 点在外壳空白处：焦点交给触发按钮并切换打开
+                // 点在外壳空白处：焦点交给触发按钮并切换打开（只读时只聚焦）
                 onPointerdown: off
                   ? undefined
-                  : focusOnShell(
-                      () => trigger,
-                      () => (open = !open),
-                    ),
+                  : focusOnShell(() => trigger, state.readonly ? undefined : () => (open = !open)),
               },
             )}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={off || undefined}
           >
+            {controlIcon(icon, propsIcon)}
             <button
               {...mergeAttrs<'button'>(
                 { sx: [buttonBaseStyles.root, selectStyles.trigger] },
@@ -300,10 +307,12 @@ export const Select = _component(
                   'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
                   'aria-invalid': state.invalid || undefined,
                   'aria-required': state.required || undefined,
+                  'aria-readonly': state.readonly || undefined,
                   'aria-describedby': state.describedBy,
                   onClick: () => {
                     // Safari 点击按钮不会聚焦它：焦点要在触发按钮上，键盘与 aria-activedescendant 才有效
                     trigger?.focus();
+                    if (locked) return;
                     if (open) open = false;
                     else show();
                   },
@@ -313,7 +322,7 @@ export const Select = _component(
             >
               <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
-            {clearable && values.length > 0 && !off && (
+            {clearable && values.length > 0 && !locked && (
               <ClearButton
                 {...mergePartProps<PresetIconButtonProps>(
                   { sx: controlStyles.button, radius: 'full' },

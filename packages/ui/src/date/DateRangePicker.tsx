@@ -24,7 +24,9 @@ import {
   controlStyles,
   controlSx,
   focusOnShell,
+  controlIcon,
   useControlAppearance,
+  type ControlIconOptions,
   type ControlOptions,
 } from '../input/control';
 import {
@@ -54,7 +56,12 @@ import { firstSegmentOf, segmentedFieldStyles, useFieldSegments } from './Segmen
 
 /** 未声明的属性落到外壳（role="group"）上 */
 export interface DateRangePickerProps<V extends DateInput = string>
-  extends PartProps<'div', 'role'>, ControlOptions, DateLimitProps, PickerPopoverParts {
+  extends
+    PartProps<'div', 'role'>,
+    ControlOptions,
+    ControlIconOptions,
+    DateLimitProps,
+    PickerPopoverParts {
   /** 区间（两端都含）：父级写 value={_bind(x)}；没填全时 null */
   value?: DateRange<V> | null;
   /** 弹层是否打开：父级可写 open={_bind(x)} */
@@ -144,6 +151,8 @@ export const DateRangePicker = _component(
     propsEnd,
     propsSeparator,
     propsClear,
+    icon,
+    propsIcon,
     propsButton,
     propsPopover,
     propsPresets,
@@ -304,6 +313,7 @@ export const DateRangePicker = _component(
             data-invalid={bad || undefined}
             data-disabled={state.disabled || undefined}
           >
+            {controlIcon(icon, propsIcon)}
             <VisuallyHidden id={ids.start}>{lang.dateRangeStart}</VisuallyHidden>
             <VisuallyHidden id={ids.end}>{lang.dateRangeEnd}</VisuallyHidden>
             {group('start')}

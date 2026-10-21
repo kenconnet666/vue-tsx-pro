@@ -30,7 +30,9 @@ import {
   controlStyles,
   controlSx,
   focusOnShell,
+  controlIcon,
   useControlAppearance,
+  type ControlIconOptions,
   type ControlOptions,
 } from './control';
 import { useFieldControl } from '../form/Field';
@@ -62,7 +64,8 @@ export type ComboboxManaged =
   | 'aria-describedby';
 
 /** Combobox 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
-export interface ComboboxBaseProps<T> extends PartProps<'input', ComboboxManaged>, ControlOptions {
+export interface ComboboxBaseProps<T>
+  extends PartProps<'input', ComboboxManaged>, ControlOptions, ControlIconOptions {
   /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 选中项的值：父级写 value={_bind(x)} */
@@ -147,6 +150,8 @@ export const Combobox = _component(
     children,
     empty,
     propsRoot,
+    icon,
+    propsIcon,
     propsClear,
     propsChevron,
     propsPopover,
@@ -289,6 +294,7 @@ export const Combobox = _component(
             data-invalid={state.invalid || undefined}
             data-disabled={state.disabled || undefined}
           >
+            {controlIcon(icon, propsIcon)}
             {/* _bind 编译为 v-model：输入法组合期间不写回 */}
             <input
               {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {

@@ -46,9 +46,11 @@ export function workspaceSource(): Plugin {
     configResolved(config) {
       serve = config.command === 'serve';
     },
+    // 入口改了重新读；新建、删除（含改名）文件时全部重读：映射里存的是解析后的文件，旧文件可能已经不在了。
     // 已经改写过的模块不重新改写：入口里挪了位置的导出要重启才对得上（入口由 pnpm exports 生成，很少挪）
-    watchChange(id) {
-      barrels.delete(normalizePath(id));
+    watchChange(id, change) {
+      if (change.event === 'update') barrels.delete(normalizePath(id));
+      else barrels.clear();
     },
     transform: {
       // 普通插件：在编译插件（enforce: 'pre'）与 Vite 去掉 .ts 的类型之后，拿到的是 JS

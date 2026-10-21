@@ -662,6 +662,7 @@ export {
   type ChoiceOrientations,
 } from './input/choice-styles';
 export {
+  controlIcon,
   controlRadiusStyles,
   controlShellStyles,
   controlStyles,
@@ -669,6 +670,7 @@ export {
   focusOnShell,
   useControlAppearance,
   type ControlAppearance,
+  type ControlIconOptions,
   type ControlOptions,
   type ControlState,
   type ControlVariants,

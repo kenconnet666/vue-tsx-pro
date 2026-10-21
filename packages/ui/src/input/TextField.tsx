@@ -15,7 +15,7 @@ import { Eye, EyeOff } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { useId, type VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
-import { Icon, type IconData, type IconProps } from '../base/Icon';
+import type { IconData, IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
@@ -25,7 +25,9 @@ import {
   controlStyles,
   controlSx,
   focusOnShell,
+  controlIcon,
   useControlAppearance,
+  type ControlIconOptions,
   type ControlOptions,
 } from './control';
 
@@ -44,7 +46,8 @@ export type TextFieldManaged =
 const FORMAT_TYPES: Readonly<Record<string, 'email' | 'url'>> = { email: 'email', uri: 'url' };
 
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
-export interface TextFieldProps extends PartProps<'input', TextFieldManaged>, ControlOptions {
+export interface TextFieldProps
+  extends PartProps<'input', TextFieldManaged>, ControlOptions, ControlIconOptions {
   /** 输入值：父级写 value={_bind(x)} 双向绑定 */
   value?: string;
   /** 不可用 */
@@ -57,8 +60,6 @@ export interface TextFieldProps extends PartProps<'input', TextFieldManaged>, Co
   invalid?: boolean;
   /** 有内容时显示清空按钮 */
   clearable?: boolean;
-  /** 前置图标 */
-  icon?: IconData;
   /** 后置图标 */
   iconEnd?: IconData;
   /** 输入框前的固定文字（如 `https://`、`¥`），不算在值里 */
@@ -69,8 +70,6 @@ export interface TextFieldProps extends PartProps<'input', TextFieldManaged>, Co
   showCount?: boolean;
   /** 外壳（边框、焦点环）的部件属性 */
   propsRoot?: PartProps<'div'>;
-  /** 前置图标的部件属性 */
-  propsIcon?: Partial<IconProps>;
   /** 后置图标的部件属性 */
   propsIconEnd?: Partial<IconProps>;
   /** 前缀文字的部件属性 */
@@ -143,9 +142,7 @@ export const TextField = _component(
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
-          {icon && (
-            <Icon {...mergePartProps<IconProps>({ icon, sx: controlStyles.icon }, propsIcon)} />
-          )}
+          {controlIcon(icon, propsIcon)}
           {prefix != null && (
             <span {...mergeAttrs<'span'>({ sx: controlStyles.affix }, propsPrefix)}>{prefix}</span>
           )}
@@ -211,14 +208,7 @@ export const TextField = _component(
               )}
             />
           )}
-          {iconEnd && (
-            <Icon
-              {...mergePartProps<IconProps>(
-                { icon: iconEnd, sx: controlStyles.icon },
-                propsIconEnd,
-              )}
-            />
-          )}
+          {controlIcon(iconEnd, propsIconEnd)}
         </div>
       );
     };

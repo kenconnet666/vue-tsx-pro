@@ -14,7 +14,6 @@ import { now } from '@internationalized/date';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
-import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useLang } from '../config/context';
 import type { HourCycles } from '../config/lang/lang';
 import { useFieldControl } from '../form/Field';
@@ -23,7 +22,9 @@ import {
   controlStyles,
   controlSx,
   focusOnShell,
+  controlIcon,
   useControlAppearance,
+  type ControlIconOptions,
   type ControlOptions,
 } from '../input/control';
 import { toElement } from '../utils/dom/overlay';
@@ -40,6 +41,7 @@ export interface SegmentedFieldOptions
   extends
     PartProps<'div', SegmentedFieldManaged>,
     ControlOptions,
+    ControlIconOptions,
     Pick<DateSegmentGroupProps, 'propsSegment' | 'propsLiteral'> {
   /** 12 / 24 小时制（有时的段时）；不写时按语言 */
   hourCycle?: keyof HourCycles;
@@ -55,14 +57,10 @@ export interface SegmentedFieldOptions
   name?: string;
   /** 有值时显示清空按钮 */
   clearable?: boolean;
-  /** 前置图标 */
-  icon?: IconData;
   /** 框里最后的内容：日期选择器打开日历的按钮 */
   suffix?: VNodeChild;
   /** 外壳的部件属性 */
   propsRoot?: PartProps<'div'>;
-  /** 前置图标的部件属性 */
-  propsIcon?: Partial<IconProps>;
   /** 清空按钮的部件属性 */
   propsClear?: Omit<Partial<PresetIconButtonProps>, 'onClick'>;
 }
@@ -191,9 +189,7 @@ export const SegmentedField = _component(
           data-invalid={bad || undefined}
           data-disabled={state.disabled || undefined}
         >
-          {icon && (
-            <Icon {...mergePartProps<IconProps>({ icon, sx: controlStyles.icon }, propsIcon)} />
-          )}
+          {controlIcon(icon, propsIcon)}
           <DateSegmentGroup
             {...mergePartProps<DateSegmentGroupProps>(
               {

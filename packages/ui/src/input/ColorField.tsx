@@ -6,7 +6,7 @@
  * - 值是 #rrggbb（有透明度时 #rrggbbaa）：输入 rgb()、颜色名也行，失焦或回车时规范成 #hex 写回；
  *   写不成颜色时外壳标为无效（aria-invalid），值不变，失焦后恢复成原来的值。
  * - 原生取色器不带透明度：用它选色时透明度去掉。
- * - 接入 Field（标签、说明、错误、必填、不可用），外观同 TextField（control.ts）。
+ * - 接入 Field（标签、说明、错误、必填、不可用），外观同 TextField（control.tsx）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';

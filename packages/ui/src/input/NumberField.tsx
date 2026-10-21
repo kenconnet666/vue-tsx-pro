@@ -35,7 +35,14 @@ import {
   type NumericValue,
 } from '../utils/data/numeric';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
+import {
+  controlIcon,
+  controlStyles,
+  controlSx,
+  useControlAppearance,
+  type ControlIconOptions,
+  type ControlOptions,
+} from './control';
 
 /** 值、角色与状态由组件管理 */
 export type NumberFieldManaged =
@@ -59,7 +66,8 @@ export type NumberFieldManaged =
   | 'aria-describedby';
 
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
-export interface NumberFieldProps extends PartProps<'input', NumberFieldManaged>, ControlOptions {
+export interface NumberFieldProps
+  extends PartProps<'input', NumberFieldManaged>, ControlOptions, ControlIconOptions {
   /** 当前值：number、bigint 或 Decimal，父级写 value={_bind(x)}；空着时为 null。写回时保持传入的类型 */
   value?: NumericValue | null;
   /**
@@ -157,6 +165,8 @@ export const NumberField = _component(
     invalid,
     id,
     propsRoot,
+    icon,
+    propsIcon,
     propsDecrement,
     propsIncrement,
     ...rest
@@ -275,6 +285,7 @@ export const NumberField = _component(
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
+          {controlIcon(icon, propsIcon)}
           <input
             {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {
               ref: _toRef(input),
