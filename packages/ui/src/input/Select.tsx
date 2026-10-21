@@ -50,6 +50,7 @@ import { activeOptionId, type ListboxViewProps, type OptionRenderState } from '.
 import {
   handleListKeydown,
   useListState,
+  useResultAnnouncement,
   useSelectedOptions,
   type ListboxOption,
   type OptionMapping,
@@ -228,6 +229,8 @@ export const Select = _component(
       if (highlight === 'last' && selectedValues(value).length === 0) list.move('last');
       open = true;
     }
+
+    useResultAnnouncement(() => ({ query, count: list.options.length }));
 
     // 输入搜索词：高亮第一个匹配的。打开时清空搜索词不算：那时高亮的是已选项
     watch(

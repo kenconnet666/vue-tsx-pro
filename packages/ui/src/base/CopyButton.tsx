@@ -10,8 +10,9 @@ import { Check, Copy } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useLang } from '../config/context';
+import { announce } from '../utils/dom/announcer';
 import { useClipboard } from '../utils/dom/clipboard';
-import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   buttonContent,
   buttonSx,
@@ -20,7 +21,6 @@ import {
   type ButtonOptions,
 } from './button-core';
 import type { IconProps } from './Icon';
-import { VisuallyHidden, type VisuallyHiddenProps } from './VisuallyHidden';
 
 /** 不可用、忙碌由组件管理；value 是要复制的文字（不是原生 value） */
 export type CopyButtonManaged = 'disabled' | 'aria-disabled' | 'aria-busy' | 'value' | 'type';
@@ -53,8 +53,6 @@ export interface CopyButtonProps
   onCopied?: (success: boolean, error?: unknown) => void;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
-  /** 读屏播报区（按钮里的隐藏文字，复制后念“已复制”）的部件属性 */
-  propsStatus?: Partial<VisuallyHiddenProps>;
 }
 
 const pop = stylex.keyframes({ from: { transform: 'scale(0.5)', opacity: 0 } });
@@ -82,7 +80,6 @@ export const CopyButton = _component(
     disabled = false,
     onCopied,
     propsIcon,
-    propsStatus,
     ...rest
   }: CopyButtonProps) => {
     const lang = useLang();
@@ -115,8 +112,11 @@ export const CopyButton = _component(
       } finally {
         pending = false;
       }
-      if (success) onCopied?.(true);
-      else onCopied?.(false, error);
+      if (success) {
+        // 经共用的播报区念“已复制”：按钮里的 aria-live 区域各家读屏念不念不一定
+        announce(lang.copied);
+        onCopied?.(true);
+      } else onCopied?.(false, error);
     }
 
     return () => (
@@ -142,13 +142,6 @@ export const CopyButton = _component(
           },
           { loading: pending },
         )}
-        <VisuallyHidden
-          {...mergeProps<Partial<VisuallyHiddenProps>>(propsStatus ?? {}, {
-            'aria-live': 'polite',
-          })}
-        >
-          {clipboard.copied ? lang.copied : ''}
-        </VisuallyHidden>
       </button>
     );
   },

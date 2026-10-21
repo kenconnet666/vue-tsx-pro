@@ -120,6 +120,8 @@ export interface Lang {
   readonly tableSummary: string;
   /** 批量操作栏里已选的行数：`(3)` → “已选 3 项” */
   readonly tableSelectedCount: (count: number) => string;
+  /** 选项列表：输入搜索词后给读屏播报的结果条数，默认“{count} 个选项” */
+  readonly listResultCount: (count: number) => string;
   /** 批量操作栏里取消全部选择的按钮，默认“取消选择” */
   readonly tableClearSelection: string;
   /** 详情列的列标题（只给读屏），默认“详情” */

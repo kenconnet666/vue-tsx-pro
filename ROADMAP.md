@@ -72,7 +72,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 - [x] 按钮不可用时不响应悬停（按钮家族、itemStyles.hoverable）
 - [x] forced-colors（Windows 高对比）：Separator、Progress、Indicator、Skeleton 用边框或系统色
-- [ ] 共用的读屏播报 `useAnnouncer`：输入的结果条数与“没有匹配”、SelectionBar、Upload、Sortable、CopyButton 都改用它
+- [x] 共用的读屏播报 `announce`（utils/dom/announcer.ts，常驻的 polite / assertive 区域，模态打开时挂进去）：Select、
+      Combobox 的结果条数与“没有匹配”（`useResultAnnouncement`）、SelectionBar、CopyButton 改用它；常驻的播报区（Sortable、Upload…）不动
 - [ ] 内部部件跟随根上的 size（Result 标题、Progress 标签、Alert 关闭按钮、ActionBar、Separator、PageHeader）
 - [ ] 部件属性补齐：PageHeader 的标题块、Progress 的标题行、AppShell 的内层与三个滚动区域、按钮的内容层、Indicator 的计数、Toast 的 Collapse
 - [ ] DataTable：单选用单选框；行模型不随 columns 的引用变化重建；调整列宽时只在松手时写回

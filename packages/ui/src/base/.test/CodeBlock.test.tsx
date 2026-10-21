@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { Provider } from '../../config/Provider';
 import type { Highlighter } from '../../config/context';
-import { mount } from '../../utils/.test/mount';
+import { announced, mount } from '../../utils/.test/mount';
 import { CodeBlock, parseLineSpec } from '../CodeBlock';
 
 const pre = (root: Element) => root.querySelector('pre')!;
@@ -95,7 +95,7 @@ describe('CodeBlock', () => {
     button.click();
     await settle();
     expect(writeText).toHaveBeenCalledWith('pnpm install');
-    expect(root.querySelector('[aria-live]')!.textContent).toBe('已复制');
+    await vi.waitFor(() => expect(announced()).toBe('已复制'));
     expect(mount(() => <CodeBlock code="x" copyable={false} />).querySelector('button')).toBeNull();
   });
 

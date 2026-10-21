@@ -7,7 +7,9 @@
  *     selected: () => [value], mode: () => 'single', onChange });
  *   if (handleListKeydown(list, event, { space: true, typeahead: true })) event.preventDefault();
  */
-import { computed, ref } from 'vue';
+import { computed, onScopeDispose, ref, watch } from 'vue';
+import { useLang } from '../config/context';
+import { announce } from '../utils/dom/announcer';
 import type { IconData } from '../base/Icon';
 import { isComposingKey } from '../utils/dom/hotkeys';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
@@ -227,6 +229,30 @@ export function useListState<T>(config: ListStateOptions<T>): ListState<T> {
     },
   };
   return state;
+}
+
+/** 搜索词停下多久之后播报结果条数（毫秒）：不在每打一个字时都念 */
+const RESULT_ANNOUNCE_DELAY = 500;
+
+/**
+ * 输入搜索词后给读屏播报结果条数（“12 个选项”“没有匹配的选项”），停顿一会儿再念（在 setup 里调用）。
+ * WAI-ARIA 的组合框模式里看不见列表的读屏用户靠它知道过滤的结果；Select 的搜索框、Combobox 用它
+ */
+export function useResultAnnouncement(read: () => { query: string; count: number }): void {
+  const lang = useLang();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  watch(
+    () => read().query,
+    (query) => {
+      clearTimeout(timer);
+      if (!query) return;
+      timer = setTimeout(() => {
+        const { count } = read();
+        announce(count > 0 ? lang.listResultCount(count) : lang.selectNoMatch);
+      }, RESULT_ANNOUNCE_DELAY);
+    },
+  );
+  onScopeDispose(() => clearTimeout(timer));
 }
 
 /** handleListKeydown 的选项：不同的宿主（列表、触发按钮、输入框）对空格与字母的处理不同 */

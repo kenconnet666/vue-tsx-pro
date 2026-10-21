@@ -44,6 +44,7 @@ export const enUS: Lang = {
   tableEmpty: 'No data',
   tableSummary: 'Total',
   tableSelectedCount: (count) => `${count} selected`,
+  listResultCount: (count) => (count === 1 ? '1 option' : `${count} options`),
   tableClearSelection: 'Clear selection',
   tableDetails: 'Details',
   tableRowDetails: (row) => `Details of ${row}`,

@@ -31,3 +31,8 @@ export function hasStyles(element: Element, styles: StyleXStyles): boolean {
     .className!.split(' ')
     .every((name) => element.classList.contains(name));
 }
+
+/** 共用播报区（utils/dom/announcer）里现在的文字；announce 稍后才写入，断言时用 vi.waitFor */
+export function announced(politeness: 'polite' | 'assertive' = 'polite'): string {
+  return document.querySelector(`[data-live-announcer="${politeness}"]`)?.textContent ?? '';
+}

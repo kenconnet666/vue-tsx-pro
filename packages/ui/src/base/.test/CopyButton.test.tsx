@@ -1,7 +1,7 @@
 // CopyButton：复制后换成对勾、播报“已复制”，timeout 后复原；value 可以是函数，异步时转圈
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { announced, mount } from '../../utils/.test/mount';
 import { CopyButton } from '../CopyButton';
 
 const writeText = vi.fn<(text: string) => Promise<void>>();
@@ -25,11 +25,11 @@ it('复制后 data-state="copied"、播报“已复制”，timeout 后复原', 
   await nextTick();
   expect(writeText).toHaveBeenCalledWith('secret');
   expect(button.dataset.state).toBe('copied');
-  expect(button.querySelector('[aria-live="polite"]')!.textContent).toBe('已复制');
-  vi.advanceTimersByTime(1000);
+  vi.advanceTimersByTime(100);
+  expect(announced()).toBe('已复制');
+  vi.advanceTimersByTime(900);
   await nextTick();
   expect(button.dataset.state).toBe('idle');
-  expect(button.querySelector('[aria-live="polite"]')!.textContent).toBe('');
 });
 
 it('aria-label 可以改；复制失败时回调拿到 false 与原因', async () => {

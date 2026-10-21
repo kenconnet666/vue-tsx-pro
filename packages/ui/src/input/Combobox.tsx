@@ -43,6 +43,7 @@ import { activeOptionId, type ListboxViewProps, type OptionRenderState } from '.
 import {
   handleListKeydown,
   useListState,
+  useResultAnnouncement,
   useSelectedOptions,
   type ListboxOption,
   type OptionMapping,
@@ -191,6 +192,8 @@ export const Combobox = _component(
       writing = true;
       inputValue = text;
     }
+
+    useResultAnnouncement(() => ({ query, count: list.options.length }));
 
     // 用户输入（含输入法组合结束）：打开并按输入过滤，高亮第一项
     watch(

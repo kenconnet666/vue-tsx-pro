@@ -7,13 +7,14 @@
  *   </SelectionBar>
  *
  * count 为 0 时不显示（淡出）；已选的数目在读屏的播报区里，勾选变化时念出来。
- * 部件：Root（div）、Count（span，aria-live）、Clear（Button）、Actions（div）。
+ * 部件：Root（div）、Count（span）、Clear（Button）、Actions（div）。数目变化经共用的播报区（announce）念出。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { VNodeChild } from 'vue';
+import { watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
+import { announce } from '../utils/dom/announcer';
 import { usePresence } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { presenceStyles } from '../utils/style/transitions';
@@ -27,7 +28,7 @@ export interface SelectionBarProps extends PartProps<'div'> {
   /** 已选数目的文字，默认取语言包（已选 N 项）：跨页全选时写“已选全部 1,286 项” */
   label?: VNodeChild;
   /** 已选数目的部件属性 */
-  propsCount?: PartProps<'span', 'aria-live'>;
+  propsCount?: PartProps<'span'>;
   /** 取消选择按钮的部件属性 */
   propsClear?: Partial<ButtonProps>;
   /** 批量操作区的部件属性 */
@@ -74,6 +75,12 @@ export const SelectionBar = _component(
     ...rest
   }: SelectionBarProps) => {
     const lang = useLang();
+    // 数目变了给读屏播报：栏是随第一次选择一起出现的，挂在它里面的 aria-live 区域第一句念不出来
+    // 给了文字的 label（“已选全部 1,286 项”）就念它
+    watch(
+      () => [count, label] as const,
+      ([next, text]) => announce(typeof text === 'string' ? text : lang.tableSelectedCount(next)),
+    );
     // 数目变成 0 后等淡出结束再卸载；淡出时仍显示最后的数目，不闪成“已选 0 项”
     const presence = usePresence(() => count > 0);
     let shownCount = count;
@@ -95,11 +102,7 @@ export const SelectionBar = _component(
             )}
             data-state={presence.state}
           >
-            <span
-              {...mergeAttrs<'span'>({ sx: selectionBarStyles.count }, propsCount, {
-                'aria-live': 'polite',
-              })}
-            >
+            <span {...mergeAttrs<'span'>({ sx: selectionBarStyles.count }, propsCount)}>
               {label ?? lang.tableSelectedCount(shownCount)}
             </span>
             <Button
