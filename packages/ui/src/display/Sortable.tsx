@@ -62,7 +62,9 @@ export const sortableStyles = stylex.create({
     alignItems: 'center',
     gap: '_sm',
     paddingBlock: '_xs',
-    paddingInline: '_xs',
+    // 起始边是把手（自带留白），结束边多留一点，文字不贴着边框
+    paddingInlineStart: '_xs',
+    paddingInlineEnd: '_sm',
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: '_borderMuted',
@@ -70,6 +72,8 @@ export const sortableStyles = stylex.create({
     backgroundColor: '_surface',
     color: '_text',
   },
+  // 横排时项不收缩：放不下就溢出（外面包 ScrollArea 横向滚动），不把文字挤成一字一行
+  itemHorizontal: { flexShrink: 0 },
   // 拿起时浮起来：阴影与品牌色边框，盖在其他项上面
   active: { zIndex: 1, borderColor: '_accent', boxShadow: '_md' },
   // 去掉按钮默认外观、焦点环由 ButtonBase 给出
@@ -136,7 +140,13 @@ export const Sortable = _component(
               <li
                 key={key}
                 {...mergeAttrs<'li'>(
-                  { sx: [sortableStyles.item, state.active && sortableStyles.active] },
+                  {
+                    sx: [
+                      sortableStyles.item,
+                      orientation === 'horizontal' && sortableStyles.itemHorizontal,
+                      state.active && sortableStyles.active,
+                    ],
+                  },
                   own,
                   sortable.itemProps(key),
                 )}
