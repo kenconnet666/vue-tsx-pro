@@ -312,6 +312,43 @@ export const buttonLinkStyles = stylex.create({
   },
 });
 
+// 不可用时只留静止的底色：原生 disabled 的按钮照样匹配 :hover，悬停变色会让人以为还能点。
+// 加在 buttonVariantStyles 之后，同一个 backgroundColor 整个盖掉它的 :hover（StyleX 按属性合并）
+const resting = stylex.create({
+  transparent: { backgroundColor: 'transparent' },
+  inverse: { backgroundColor: '_inverseSurface' },
+  surface: { backgroundColor: '_surface' },
+  fill: { backgroundColor: '_fill' },
+  accent: { backgroundColor: '_accent' },
+  info: { backgroundColor: '_info' },
+  success: { backgroundColor: '_success' },
+  warning: { backgroundColor: '_warning' },
+  danger: { backgroundColor: '_danger' },
+  accentSoft: { backgroundColor: '_accentSoft' },
+  infoSoft: { backgroundColor: '_infoSoft' },
+  successSoft: { backgroundColor: '_successSoft' },
+  warningSoft: { backgroundColor: '_warningSoft' },
+  dangerSoft: { backgroundColor: '_dangerSoft' },
+  // 链接样式：去掉悬停时的下划线
+  link: { textDecorationLine: 'none' },
+});
+
+/** 不可用的按钮的静止外观：各样式 × 色调默认时的底色 */
+function restingSx(variant: keyof ButtonVariants, tone: StatusTone) {
+  switch (variant) {
+    case 'solid':
+      return tone === 'neutral' ? resting.inverse : resting[tone];
+    case 'soft':
+      return tone === 'neutral' ? resting.fill : resting[`${tone}Soft`];
+    case 'surface':
+      return tone === 'neutral' ? resting.surface : resting[`${tone}Soft`];
+    case 'link':
+      return resting.link;
+    default:
+      return resting.transparent;
+  }
+}
+
 /** 样式 × 色调 → 样式表：buttonVariantStyles[variant][tone] */
 export const buttonVariantStyles: Readonly<Record<keyof ButtonVariants, StyleTable<StatusTone>>> = {
   solid,
@@ -408,7 +445,7 @@ export function buttonSx(
     size && fontSizeStyles[size],
     state.square && buttonStyles.square,
     state.fullWidth && buttonStyles.fullWidth,
-    state.disabled && buttonStyles.disabled,
+    state.disabled && [buttonStyles.disabled, restingSx(variant, tone)],
   ] as StyleXStyles;
 }
 

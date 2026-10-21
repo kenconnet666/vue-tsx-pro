@@ -49,8 +49,8 @@ export const itemStyles = stylex.create({
     color: '_dangerText',
     backgroundColor: { default: 'transparent', ':hover': '_dangerSoft' },
   },
-  /** 不可用 */
-  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  /** 不可用：不响应悬停（盖掉 hoverable、danger 的 :hover 底色；放在它们后面） */
+  disabled: { opacity: '_disabled', cursor: 'not-allowed', backgroundColor: 'transparent' },
   /** 文字部分：占满剩余宽度，一行放不下时省略 */
   label: {
     flexGrow: 1,

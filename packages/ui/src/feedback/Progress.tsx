@@ -73,10 +73,15 @@ export const progressStyles = stylex.create({
     width: '_full',
     height: 'calc(_space.xs * 1.5)',
     backgroundColor: '_fill',
+    // Windows 高对比下系统把背景色改掉：轨道画一圈系统的文字色，进度用系统的高亮色（见 progressToneStyles）
+    outlineStyle: { default: null, '@media (forced-colors: active)': 'solid' },
+    outlineWidth: { default: null, '@media (forced-colors: active)': '_borderWidths.xs' },
+    outlineColor: { default: null, '@media (forced-colors: active)': 'CanvasText' },
   },
   indicator: {
     height: '_full',
     borderRadius: 'inherit',
+    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
     transition: 'width _durations.md _easings.standard',
   },
   // 不确定进度：一段 40% 宽的色块从左到右循环；它本身就是信息，不随 durations 变为 0，减少动态效果时变慢
@@ -92,12 +97,24 @@ export const progressStyles = stylex.create({
 // 和轨道（fill）之间要有 3:1：中性色用次要文字色，accent 以外的状态色用各自的文字色
 /** Progress 的样式：neutral、accent、info、success、warning、danger */
 export const progressToneStyles = stylex.create({
-  neutral: { backgroundColor: '_textMuted' },
-  accent: { backgroundColor: '_accent' },
-  info: { backgroundColor: '_infoText' },
-  success: { backgroundColor: '_successText' },
-  warning: { backgroundColor: '_warningText' },
-  danger: { backgroundColor: '_dangerText' },
+  neutral: {
+    backgroundColor: { default: '_textMuted', '@media (forced-colors: active)': 'Highlight' },
+  },
+  accent: {
+    backgroundColor: { default: '_accent', '@media (forced-colors: active)': 'Highlight' },
+  },
+  info: {
+    backgroundColor: { default: '_infoText', '@media (forced-colors: active)': 'Highlight' },
+  },
+  success: {
+    backgroundColor: { default: '_successText', '@media (forced-colors: active)': 'Highlight' },
+  },
+  warning: {
+    backgroundColor: { default: '_warningText', '@media (forced-colors: active)': 'Highlight' },
+  },
+  danger: {
+    backgroundColor: { default: '_dangerText', '@media (forced-colors: active)': 'Highlight' },
+  },
 });
 
 // 宽度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4

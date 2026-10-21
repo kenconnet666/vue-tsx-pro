@@ -78,6 +78,8 @@ export const indicatorStyles = stylex.create({
     fontVariantNumeric: 'tabular-nums',
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
+    // 圆点只靠颜色表示“有新消息”：Windows 高对比下保留色调，不被系统改成背景色
+    forcedColorAdjust: 'none',
   },
   count: { minWidth: '1.6em', height: '1.6em', paddingInline: '0.4em', fontSize: '0.75em' },
   dot: { width: '0.625em', height: '0.625em' },

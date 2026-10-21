@@ -53,17 +53,25 @@ export type SkeletonShapeProps = Omit<
   'loading' | 'children' | 'propsContent'
 >;
 
-/** Skeleton 的样式：root、wrapping、hidden */
+/** Skeleton 的样式：root、surface、wrapping、hidden */
 export const skeletonStyles = stylex.create({
   root: {
     display: 'inline-block',
     borderRadius: '_sm',
     // 底色与光带都是半透明的正文色：叠在任何表面（页面、卡片、浮层）上都比表面深一档（暗色主题里浅一档），
     // 十二套主题不必各调一遍；光带叠在底色上，再深一档
-    backgroundColor: 'color-mix(in oklab, _colors.text 9%, transparent)',
     [shimmerVars.highlight]: 'color-mix(in oklab, _colors.text 9%, transparent)',
     pointerEvents: 'none',
     userSelect: 'none',
+  },
+  // 底色单独一项（root 里有 CSS 变量的键，条件取值放在一起时类型推不出来）。
+  // Windows 高对比下系统把背景色改掉，占位块就看不见了：用系统的灰色文字色
+  surface: {
+    backgroundColor: {
+      default: 'color-mix(in oklab, _colors.text 9%, transparent)',
+      '@media (forced-colors: active)': 'GrayText',
+    },
+    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
   },
   // 包着内容时：内容决定大小但看不见
   wrapping: { color: 'transparent' },
@@ -96,6 +104,7 @@ export const Skeleton = _component(
             {
               sx: [
                 skeletonStyles.root,
+                skeletonStyles.surface,
                 shimmerStyles.wave,
                 variant && skeletonVariantStyles[variant],
                 !!delay && shimmerStyles.delay(`${delay}ms`),

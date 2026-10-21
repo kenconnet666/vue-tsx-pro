@@ -55,7 +55,12 @@ export interface SeparatorProps extends PartProps<'div', SeparatorManaged> {
 
 /** Separator 的样式：root、horizontal、vertical、labelled、label、line */
 export const separatorStyles = stylex.create({
-  root: { flexShrink: 0, backgroundColor: '_borderMuted' },
+  // Windows 高对比（forced-colors）下系统会把背景色改掉，线就看不见了：改用系统的文字色并保留它
+  root: {
+    flexShrink: 0,
+    backgroundColor: { default: '_borderMuted', '@media (forced-colors: active)': 'CanvasText' },
+    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
+  },
   horizontal: { height: '_borderWidths.xs', width: '_full' },
   // 在 flex 容器里随行高拉伸
   vertical: { width: '_borderWidths.xs', alignSelf: 'stretch' },
@@ -70,7 +75,12 @@ export const separatorStyles = stylex.create({
     lineHeight: '_tight',
   },
   label: { flexShrink: 0, whiteSpace: 'nowrap' },
-  line: { flexGrow: 1, height: '_borderWidths.xs', backgroundColor: '_borderMuted' },
+  line: {
+    flexGrow: 1,
+    height: '_borderWidths.xs',
+    backgroundColor: { default: '_borderMuted', '@media (forced-colors: active)': 'CanvasText' },
+    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
+  },
 });
 
 /** 分隔线（div）：默认装饰性、对读屏隐藏；decorative={false} 时为 role="separator"；可以带文字 */
