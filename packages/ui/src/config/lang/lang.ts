@@ -180,6 +180,38 @@ export interface Lang {
   readonly chartDegree: (count: number) => string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
+  /** 时限标记：还剩几个工作日，默认“剩 n 个工作日” */
+  readonly deadlineRemaining: (workdays: number) => string;
+  /** 时限标记：今天到期，默认“今天到期” */
+  readonly deadlineDue: string;
+  /** 时限标记：超时几个工作日（0 时是周末、假日里刚过期），默认“超时 n 个工作日”“已超时” */
+  readonly deadlineOverdue: (workdays: number) => string;
+  /** 时限标记：按时完成，默认“按时完成” */
+  readonly deadlineDone: string;
+  /** 时限标记：超时完成，默认“超时 n 个工作日完成” */
+  readonly deadlineDoneLate: (workdays: number) => string;
+  /** 时限标记的完整说明（title 与读屏）：截止日，默认“截止 2026-10-23” */
+  readonly deadlineOn: (date: string) => string;
+  /** 分栏的分隔条的名称，默认“调整分栏” */
+  readonly splitterResize: string;
+  /** 分栏收起一侧的按钮，默认“收起” */
+  readonly splitterCollapse: string;
+  /** 分栏展开一侧的按钮，默认“展开” */
+  readonly splitterExpand: string;
+  /** 通知中心的标题与按钮名称，默认“通知” */
+  readonly notifications: string;
+  /** 通知中心按钮的名称（带未读数），默认“通知，未读 n 条” */
+  readonly notificationsUnread: (count: number) => string;
+  /** 通知中心：全部标为已读，默认“全部标为已读” */
+  readonly notificationsMarkAllRead: string;
+  /** 通知中心：不按类型筛选，默认“全部” */
+  readonly notificationsAll: string;
+  /** 通知中心：只看未读，默认“只看未读” */
+  readonly notificationsUnreadOnly: string;
+  /** 通知中心：没有通知，默认“没有通知” */
+  readonly notificationsEmpty: string;
+  /** 通知中心：一条未读的标记（读屏），默认“未读” */
+  readonly notificationUnreadMark: string;
   /** 选择文件区域的提示，默认“点击或拖放文件到这里” */
   readonly fileDrop: string;
   /** 文件超过大小上限时的错误，默认“文件不能超过 上限” */

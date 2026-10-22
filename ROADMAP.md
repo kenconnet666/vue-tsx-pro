@@ -209,9 +209,11 @@ C919 模板与 1013 原型重新设计；原来的一期页面只作参考，按
 
 - [x] D0 设计规格与底座：DESIGN.md；分层（app / domain / api / mock / modules / shared）、接口契约与金额编解码、
       MSW 假后端（localStorage、可恢复）、演示身份切换、主数据缓存、路由表与外壳；组件库的流程定义模型（`workflow/`）
-- [ ] D1 流程：五个流程定义、假后端的流转模拟（认领、退回、提级、会签、超时、轮次）、权限 `can()`；
-      FlowDiagram、ApprovalActions、WorkflowTimeline
-- [ ] D2 收件箱、工作台、通知：Splitter、DeadlineTag、useFormDialog、createNotifications + NotificationCenter
+- [x] D1 流程：五个流程定义、假后端的流转模拟（认领、退回、提级、会签、超时、轮次）、权限 `can()`；
+      FlowDiagram、ApprovalActions、WorkflowTimeline；任务详情的流程面板；新建、编辑在右侧抽屉里
+- [x] D2 收件箱（五个页签、分栏预览、批量认领、退回 / 改派 / 指定 / 催办）、工作台（按角色）、通知（按流转记录推出，
+      记已读）：Splitter、DeadlineTag、useFormDialog、NotificationCenter、DataTable 的 activeKey / onRowClick
+      （通知的存取由应用决定，不另做 createNotifications）
 - [ ] D3 任务池：任务列表、任务看板、任务详情、信息表编辑、计划调整、DMC 审批链：KanbanBoard（useSortable 分组）、Upload 已有文件
 - [ ] D4 收益：收益认定、商务洽谈、一本账（时点）、差额分析；Excel 导入导出：`@vue-tsx-pro/ui/xlsx`、DataImport
 - [ ] D5 渠道一：建议列表、提交建议、建议详情、测算表单与版本对比、协商：FieldCompare、CommentThread

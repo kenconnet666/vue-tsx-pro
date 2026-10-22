@@ -227,6 +227,13 @@ export {
   type SeparatorOrientations,
   type SeparatorProps,
 } from './layout/Separator';
+export {
+  Splitter,
+  splitterDynamicStyles,
+  splitterStyles,
+  type SplitterOrientations,
+  type SplitterProps,
+} from './layout/Splitter';
 
 // 展示
 export {
@@ -277,6 +284,7 @@ export {
   colorSwatchStyles,
   type ColorSwatchProps,
 } from './display/ColorSwatch';
+export { DeadlineTag, type DeadlineTagProps } from './display/DeadlineTag';
 export {
   Descriptions,
   descriptionsGridStyles,
@@ -341,6 +349,14 @@ export {
   type LoadingOverlayManaged,
   type LoadingOverlayProps,
 } from './feedback/LoadingOverlay';
+export {
+  NotificationCenter,
+  notificationCenterStyles,
+  notificationToneStyles,
+  type NotificationCenterProps,
+  type NotificationItem,
+  type NotificationType,
+} from './feedback/NotificationCenter';
 export {
   Progress,
   progressStyles,
@@ -417,6 +433,7 @@ export {
   type DrawerProps,
   type DrawerSides,
 } from './overlay/Drawer';
+export { useFormDialog, type FormDialogField, type FormDialogOptions } from './overlay/FormDialog';
 export {
   HoverCard,
   hoverCardStyles,
@@ -477,6 +494,7 @@ export {
   type TooltipTriggerProps,
 } from './overlay/Tooltip';
 export { Tour, tourDynamicStyles, tourStyles, type TourProps, type TourStep } from './overlay/Tour';
+export { useDetachedDialog, type DetachedDialogHost } from './overlay/detached';
 
 // 导航
 export {

@@ -10,6 +10,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Confirm from './demo/Confirm.tsx?demo';
 import Drawers from './demo/Drawers.tsx?demo';
+import FormPrompt from './demo/FormPrompt.tsx?demo';
 import EditDrawer from './demo/EditDrawer.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
@@ -26,7 +27,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { AlertDialog, Dialog, Drawer, useConfirm } from '@vue-tsx-pro/ui';"
+    imports="import { AlertDialog, Dialog, Drawer, useConfirm, useFormDialog } from '@vue-tsx-pro/ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -41,6 +42,13 @@ export default _component(() => () => (
           <Code>onConfirm</Code> 返回 Promise 时确认按钮显示加载中，完成才关。不想维护 open 状态时用{' '}
           <Code>useConfirm()</Code>，await 得到 true / false。<Code>confirmText</Code> /{' '}
           <Code>cancelText</Code> 改按钮文字，默认取语言包。
+        </Example>
+        <Example id="form-prompt" title="要填一两个字段的操作" demo={FormPrompt}>
+          退回要写原因、改派要选人这类操作，不值得单独写一个对话框：<Code>useFormDialog()</Code>{' '}
+          返回 <Code>prompt(options)</Code>，await 得到填好的值（取消时是 null）。字段是
+          text、textarea、 select，<Code>required</Code> 与 <Code>validate</Code>{' '}
+          的错误落在字段下面；<Code>onSubmit</Code> 返回 Promise
+          时确认按钮显示加载中，失败时对话框留着。对话框渲染在组件树之外，沿用调用处的主题与语言。
         </Example>
         <Example id="blocking" title="进行中的任务" demo={Import}>
           <Code>closable={'{false}'}</Code> 去掉右上角的关闭按钮，

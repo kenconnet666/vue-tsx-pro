@@ -571,6 +571,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - NumberField：按住步进按钮连续加减（停 400ms 后每 60ms 一步，同 React Aria）。
 - Progress：`size` 档位。
 - `useConfirm()`：建在 AlertDialog 上的命令式确认。对话框挂在组件树之外，所以在 setup 里记下配置与应用上下文，再用 ConfigScope 带上主题；关闭后卸载。
+- `useFormDialog()`：命令式的小表单对话框（text、textarea、select 字段，必填与校验，onSubmit 失败时留着）；与 useConfirm 共用 `useDetachedDialog`（挂在组件树之外、沿用配置、离场过渡后卸载）。
 - Toast：横向滑动超过宽度的 35% 关闭，否则弹回（`startMove`）。
 
 **暂不做**：选项列表的虚拟化（要让 `aria-activedescendant` 指向的高亮项始终渲染，在 `Virtualizer` 的 `rangeExtractor` 上加）、Combobox 多选（TagsInput）、子菜单、环形进度。

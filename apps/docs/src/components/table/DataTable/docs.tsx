@@ -14,6 +14,7 @@ import Import from './demo/Import.tsx?demo';
 import Infinite from './demo/Infinite.tsx?demo';
 import Ledger from './demo/Ledger.tsx?demo';
 import Locate from './demo/Locate.tsx?demo';
+import MasterDetail from './demo/MasterDetail.tsx?demo';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
 import Pick from './demo/Pick.tsx?demo';
@@ -67,6 +68,12 @@ export default _component(() => () => (
       ：虚拟滚动里还没渲染的行也能滚到，停在吸顶表头之下、吸底合计行之上（<Code>align</Code> 同
       VirtualList，默认已完整可见就不动）；找不到这一行时返回 false。滚到之后用 <Code>rowTone</Code>{' '}
       闪一下，方便从通知、搜索结果跳过来时找到它。
+    </Example>
+    <Example id="master-detail" title="主从视图：点一行看详情" demo={MasterDetail}>
+      <Code>onRowClick</Code> 点一行（点在按钮、链接、输入框上的除外）在旁边打开详情，
+      <Code>activeKey</Code> 高亮正在看的那一行（起始边一条竖线，带
+      aria-current）。整行点击只是鼠标的捷径：行里还要有键盘能到的入口，这里编号是按钮。配 Splitter
+      做成可拖动的左右两栏（收件箱就是这样）。
     </Example>
     <Examples>
       <ExampleColumn>

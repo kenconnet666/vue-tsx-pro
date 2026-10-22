@@ -103,6 +103,17 @@ export const dataTableStyles = stylex.create({
   rowGhost: { backgroundColor: { default: '_background', ':hover': '_fillHover' } },
   striped: { backgroundColor: { default: '_fill', ':hover': '_fillHover' } },
   selected: { backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' } },
+  // 主从视图里正在看的一行：同已选的底色；起始边一条强调色的竖线（与勾选区分开）画在第一个单元格上，
+  // 浏览器不给 tr 画阴影
+  active: { backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' } },
+  activeEdge: {
+    boxShadow: {
+      default: 'inset 3px 0 0 _colors.accent',
+      ':dir(rtl)': 'inset -3px 0 0 _colors.accent',
+    },
+  },
+  // 整行能点（打开详情）：手形指针
+  clickable: { cursor: 'pointer' },
   // 固定列在普通单元格之上，表头在固定列之上
   sticky: { position: 'sticky', zIndex: 1 },
   // 固定列与滚动的列之间一条竖线：横向滚动时看得出哪几列是固定的

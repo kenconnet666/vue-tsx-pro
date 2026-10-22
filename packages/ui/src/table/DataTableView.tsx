@@ -116,6 +116,13 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   estimateRowHeight?: number;
   /** 行的色调：导入校验的错误行、即将超期的行整行着浅色底（不透明，固定列也盖得住） */
   rowTone?: (row: T) => RowTone | undefined;
+  /** 主从视图里正在看的那一行的 key：整行高亮、起始边一条竖线，带 aria-current */
+  activeKey?: string | null;
+  /**
+   * 点了一行（点在按钮、链接、输入框上的除外）：主从视图里打开这一行的详情。
+   * 只是鼠标的捷径：行里还要有键盘能到的入口（如名称做成按钮或链接）
+   */
+  onRowClick?: (row: T, key: string) => void;
   /** 这一行能不能勾选：不能的勾选框不可用，全选也跳过它 */
   isRowSelectable?: (row: T) => boolean;
   /** 隐藏的列的 key：列显示设置（用 Menu 的 MenuCheckboxItem 组合）写回这里 */
@@ -300,6 +307,10 @@ export interface DataTableRowProps<T> {
   selectable?: boolean;
   /** 整行的色调 */
   tone?: RowTone;
+  /** 主从视图里正在看的一行 */
+  active?: boolean;
+  /** 点了这一行 */
+  onRowClick?: (row: T, key: string) => void;
   /** 选择方式；不写时没有勾选列 */
   selectionMode?: keyof SelectionModes;
   /** 列 */
@@ -364,6 +375,8 @@ export const DataTableRow = _component(
     partial = false,
     selectable = true,
     tone,
+    active = false,
+    onRowClick,
     selectionMode,
     columns,
     density,
@@ -400,6 +413,8 @@ export const DataTableRow = _component(
               striped && index % 2 === 1 && dataTableStyles.striped,
               tone && dataTableRowToneStyles[tone],
               selected && dataTableStyles.selected,
+              active && dataTableStyles.active,
+              onRowClick && dataTableStyles.clickable,
             ],
           },
           typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow,
@@ -407,6 +422,17 @@ export const DataTableRow = _component(
             ref: measure,
             'aria-rowindex': position + headerRows + 1,
             'aria-selected': selectionMode != null ? selected : undefined,
+            'aria-current': active ? 'true' : undefined,
+            onClick: onRowClick
+              ? (event: MouseEvent) => {
+                  // 点在行里的控件上：交给控件自己
+                  if (
+                    (event.target as Element).closest('a, button, input, select, textarea, label')
+                  )
+                    return;
+                  onRowClick(row.data, row.key);
+                }
+              : undefined,
           },
         )}
         data-index={position}
@@ -422,6 +448,7 @@ export const DataTableRow = _component(
                   dataTableDensityStyles[density],
                   dataTableStyles.selectCell,
                   offsets.start.size > 0 && dataTableStyles.stickySelect,
+                  active && dataTableStyles.activeEdge,
                 ],
               },
               propsSelectCell,
@@ -463,6 +490,7 @@ export const DataTableRow = _component(
                   dataTableDensityStyles[density],
                   dataTableStyles.selectCell,
                   leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
+                  active && !selectionMode && dataTableStyles.activeEdge,
                 ],
               },
               propsDetailToggleCell,
@@ -510,6 +538,11 @@ export const DataTableRow = _component(
                     dataTableStyles[column.align ?? 'start'],
                     column.wrap && dataTableStyles.wrap,
                     stickyCellSx(column, offsets),
+                    active &&
+                      position === 0 &&
+                      !selectionMode &&
+                      !detailColumn &&
+                      dataTableStyles.activeEdge,
                   ],
                 },
                 typeof propsCell === 'function' ? propsCell(row.data, column) : propsCell,
@@ -638,6 +671,8 @@ export const DataTableView = _component(
     onRangeChange,
     handle,
     rowTone,
+    activeKey,
+    onRowClick,
     isRowSelectable,
     hiddenColumns,
     summaryLabel,
@@ -1244,6 +1279,8 @@ export const DataTableView = _component(
                     partial={partialSet.has(row.key)}
                     selectable={isRowSelectable ? isRowSelectable(row.data) : true}
                     tone={rowTone?.(row.data)}
+                    active={activeKey != null && activeKey === row.key}
+                    onRowClick={onRowClick}
                     selectionMode={selectionMode}
                     columns={shown}
                     density={density}
