@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite --configLoader native",
     "build": "vite build --configLoader native",
-    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
+    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "test": "vitest run --configLoader native"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:",
@@ -24,11 +25,19 @@
     "three": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "msw": "catalog:"
   },
   "devDependencies": {
     "@types/three": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "happy-dom": "catalog:"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

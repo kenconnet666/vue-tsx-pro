@@ -8,3 +8,5 @@ pnpm-lock.yaml
 patches/
 .mcp.json
 .claude/
+# 由 msw init 生成、随 msw 升级更新，不手改
+apps/cost-reduction/public/mockServiceWorker.js

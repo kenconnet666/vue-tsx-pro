@@ -23,7 +23,9 @@ import {
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
-import { changeTypes, partCost, partSaving, type PartChange, type PartSide } from './data';
+import { partCost, partSaving } from '../../../domain/task/calc';
+import { changeTypes, type PartChange, type PartSide } from '../../../domain/task/types';
+import { yuanFormat } from '../../../shared/kinds';
 
 const side = z.object({
   partNo: z.string(),
@@ -121,8 +123,7 @@ export const PartChangeDialog = _component(
     onSave: (change: PartChange) => void;
   }) => {
     const format = useFormat();
-    const yuan = (value: Decimal) =>
-      `${format.number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 元`;
+    const yuan = (value: Decimal) => `${format.number(value, yuanFormat)} 元`;
     const form = useForm({
       schema,
       initial: {

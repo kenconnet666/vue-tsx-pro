@@ -19,7 +19,7 @@ import {
   type StatusMap,
 } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
-import { DocPage } from '../DocPage';
+import { DocPage } from './DocPage';
 
 export const meta = {
   title: 'Overview 降本管理设计',

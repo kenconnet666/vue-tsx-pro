@@ -1,10 +1,7 @@
-// 案例：统计看板，也是联合降本管理的首页（图表页，与表格页分开）。口径按《需求定义方案》的“收益测算与一本账”：
-// - 顶栏按降本类型切换：单机降本（万元）与降 DMC（美元 / FH）单位不同，一个视图里只有一种单位，不混着相加；
-// - 最上面一排是需要处理的事（超时、快到期、待认定、认定超期、可关闭、关闭材料不全），点了去对应的页签；
-// - 任务池总数在这一页只出现一次；已确认收益、挂账待定、方案待定三桶互斥、加总等于总数（终止的回流储备库，不计入）；
-// - 预测、承诺、实现三种收益分开挂账，不跨状态合计；挂账待定写“待定价”，不写零；金额与一本账同一套算法；
-// - 进度 × 收益状态交叉成矩阵（行与台账的页签一致），不用“其中”；金额口径硬节约、成本规避、软节约分栏。
-// 数字都能点：件数去台账（带页签与筛选），金额去一本账（带单位与口径），待认定去收益认定，项目去详情
+/**
+ * 统计看板（首页）：口径按《需求定义方案》“收益测算与一本账”，数据由后端按同一套算法算好（dashboardSummary）。
+ * 一期的参考实现，按新的设计规格重建
+ */
 import {
   AlarmClock,
   ArrowUpRight,
@@ -39,52 +36,25 @@ import {
   Tabs,
   Text,
   useFormat,
+  useRequest,
   type IconData,
 } from '@vue-tsx-pro/ui';
 import { BarChart, DonutChart } from '@vue-tsx-pro/ui/charts';
-import Decimal from 'decimal.js';
+import { getDashboard } from '../../api/benefit';
+import { PageNav } from '../../app/layout/PageNav';
+import { dict, shortTeam } from '../../app/master';
+import { paths } from '../../app/paths';
 import {
-  amountBases,
-  confirmDeadline,
-  costKinds,
-  gapReasons,
-  ledgerAmount,
-  overdueDays,
-  statusGroups,
-  taskStatuses,
-  taskStore,
-  teams,
-  valueStates,
-  type CostTask,
-} from '../data';
-import { focuses, shortTeam } from '../ledger';
-import { CaseShell, casePath, type CasePage } from '../shell';
-
-/** 降本类型的切换项：各自的单位与格式（costKinds） */
-const kinds = (['unit', 'dmc'] as const).map((value) => ({ value, ...costKinds[value] }));
-
-/** 三桶：互斥，加总等于任务池总数 */
-const buckets = [
-  {
-    value: 'confirmed',
-    label: '已确认收益',
-    tone: 'success',
-    statuses: ['confirmed', 'negotiating', 'realized', 'closed'],
-  },
-  { value: 'unpriced', label: '挂账待定', tone: 'warning', statuses: ['unpriced'] },
-  {
-    value: 'plan',
-    label: '方案待定',
-    tone: 'info',
-    statuses: ['pending', 'designing', 'verifying', 'awaiting', 'paused'],
-  },
-] as const;
-
-/** 各团队在各状态分组里的任务数（条形图的一行） */
-type TeamCounts = { team: string } & Record<(typeof statusGroups)[number]['value'], number>;
-
-const sum = (rows: readonly CostTask[]) =>
-  rows.reduce((total, task) => total.plus(ledgerAmount(task) ?? 0), new Decimal(0));
+  pricedStates,
+  valueStateOrder,
+  type DashboardSummary,
+  type DashboardTodos,
+} from '../../domain/ledger/dashboard';
+import { statusGroups } from '../../domain/task/status';
+import type { CostKind } from '../../domain/task/types';
+import { costKindKeys, costKinds } from '../../shared/kinds';
+import { RequestView } from '../../shared/RequestView';
+import { taskStatuses, valueStates } from '../../shared/statuses';
 
 const styles = stylex.create({
   // 需要处理：六项一排（Grid columns=6），项与项之间一条竖线
@@ -103,9 +73,9 @@ const styles = stylex.create({
     overflow: 'hidden',
     gap: '2px',
   },
-  success: { backgroundColor: '_success' },
-  warning: { backgroundColor: '_warning' },
-  info: { backgroundColor: '_info' },
+  confirmed: { backgroundColor: '_success' },
+  unpriced: { backgroundColor: '_warning' },
+  plan: { backgroundColor: '_info' },
   dot: { width: '0.625rem', height: '0.625rem', borderRadius: '_full', flexShrink: 0 },
   total: {
     fontSize: '_xxl',
@@ -119,422 +89,363 @@ const styles = stylex.create({
   late: { color: '_dangerText', fontWeight: '_semibold', fontVariantNumeric: 'tabular-nums' },
 });
 
-/** 降本类型对应的台账 */
-const ledgerOf = (kind: string): CasePage => (kind === 'dmc' ? 'DmcLedger' : 'UnitLedger');
-
 /** 跳转的小链接：“去处理 ↗”“明细 ↗” */
-function jump(page: CasePage, query: Record<string, string>, label: string) {
-  return (
-    <Link href={casePath(page, query)}>
-      {label}
-      <Icon icon={ArrowUpRight} />
-    </Link>
-  );
-}
+const jump = (href: string, label: string) => (
+  <Link href={href}>
+    {label}
+    <Icon icon={ArrowUpRight} />
+  </Link>
+);
 
-export default _component(() => {
+/** 需要处理的一项：名称、图标、是否紧急（有数时标红）、去哪儿处理 */
+const todoItems = (
+  kind: CostKind,
+): {
+  key: keyof DashboardTodos;
+  label: string;
+  icon: IconData;
+  urgent: boolean;
+  href: string;
+}[] => [
+  {
+    key: 'overdue',
+    label: '超时',
+    icon: AlarmClock,
+    urgent: true,
+    href: paths.ledger(kind, { view: 'overdue' }),
+  },
+  {
+    key: 'soon',
+    label: '7 天内到期',
+    icon: CalendarClock,
+    urgent: false,
+    href: paths.ledger(kind, { view: 'soon' }),
+  },
+  {
+    key: 'awaiting',
+    label: '待认定',
+    icon: BadgeCheck,
+    urgent: false,
+    href: paths.confirm({ kind, tab: 'awaiting' }),
+  },
+  {
+    key: 'confirmOverdue',
+    label: '认定超期',
+    icon: Hourglass,
+    urgent: true,
+    href: paths.confirm({ kind, tab: 'awaiting' }),
+  },
+  {
+    key: 'closable',
+    label: '可关闭',
+    icon: PackageCheck,
+    urgent: false,
+    href: paths.ledger(kind, { view: 'closable' }),
+  },
+  {
+    key: 'missing',
+    label: '关闭材料不全',
+    icon: FileWarning,
+    urgent: false,
+    href: paths.ledger(kind, { view: 'missing' }),
+  },
+];
+
+/** 一种降本类型的看板 */
+const Board = _component(({ summary }: { summary: DashboardSummary }) => {
   const format = useFormat();
-  let kind = _state<(typeof kinds)[number]['value']>('unit');
-  const current = () => kinds.find((item) => item.value === kind)!;
-  const money = (value: Decimal) => format.number(value, current().format);
-
   return () => {
-    const tasks = taskStore.value.filter((task) => task.kind === kind);
-    // 终止的回流储备库：不计入任务池
-    const pool = tasks.filter((task) => task.status !== 'terminated');
-    const terminated = tasks.length - pool.length;
-    const byBucket = buckets.map((bucket) => ({
-      ...bucket,
-      rows: pool.filter((task) => (bucket.statuses as readonly string[]).includes(task.status)),
-    }));
-    const states = valueStates.keys.filter((state) => state !== 'unpriced');
-    const awaiting = pool.filter((task) => task.status === 'awaiting');
-    const focusCount = (value: string) =>
-      pool.filter(focuses.find((item) => item.value === value)!.test).length;
-
-    // 需要处理：每一项去对应的页签或页面
-    const todos: {
-      label: string;
-      icon: IconData;
-      count: number;
-      urgent: boolean;
-      page: CasePage;
-      query: Record<string, string>;
-    }[] = [
-      {
-        label: '超时',
-        icon: AlarmClock,
-        count: focusCount('overdue'),
-        urgent: true,
-        page: ledgerOf(kind),
-        query: { view: 'overdue' },
-      },
-      {
-        label: '7 天内到期',
-        icon: CalendarClock,
-        count: focusCount('soon'),
-        urgent: false,
-        page: ledgerOf(kind),
-        query: { view: 'soon' },
-      },
-      {
-        label: '待认定',
-        icon: BadgeCheck,
-        count: awaiting.length,
-        urgent: false,
-        page: 'BenefitConfirm',
-        query: { kind, tab: 'awaiting' },
-      },
-      {
-        label: '认定超期',
-        icon: Hourglass,
-        count: awaiting.filter((task) => confirmDeadline(task)?.state === 'overdue').length,
-        urgent: true,
-        page: 'BenefitConfirm',
-        query: { kind, tab: 'awaiting' },
-      },
-      {
-        label: '可关闭',
-        icon: PackageCheck,
-        count: focusCount('closable'),
-        urgent: false,
-        page: ledgerOf(kind),
-        query: { view: 'closable' },
-      },
-      {
-        label: '关闭材料不全',
-        icon: FileWarning,
-        count: focusCount('missing'),
-        urgent: false,
-        page: ledgerOf(kind),
-        query: { view: 'missing' },
-      },
-    ];
-
-    const gapRows = gapReasons.map((reason) => ({
-      reason,
-      amount: pool
-        .filter((task) => task.gapReason === reason && task.a && task.b)
-        .reduce((total, task) => total.plus(task.b!.minus(task.a!).abs()), new Decimal(0)),
-    }));
-    const teamRows = teams.map((team) => ({
-      team: shortTeam(team),
-      ...Object.fromEntries(
-        statusGroups.map((group) => [
-          group.value,
-          pool.filter(
-            (task) =>
-              task.team === team && (group.statuses as readonly string[]).includes(task.status),
-          ).length,
-        ]),
-      ),
-    })) as TeamCounts[];
-    const groups = statusGroups.filter(
-      (group) =>
-        group.value !== 'abnormal' ||
-        pool.some((task) => (group.statuses as readonly string[]).includes(task.status)),
-    );
-    // 超时最久的几项：直接去详情
-    const lateTasks = pool
-      .filter((task) => overdueDays(task) > 0)
-      .toSorted((a, b) => overdueDays(b) - overdueDays(a))
-      .slice(0, 6);
-
+    const { kind } = summary;
+    const amount = costKinds[kind];
+    const money = (value: Parameters<typeof format.number>[0]) =>
+      format.number(value, amount.format);
     return (
-      <CaseShell
-        current="dashboard"
-        nav={
-          <Tabs value={_bind(kind)}>
-            <TabList aria-label="降本类型">
-              {kinds.map((item) => (
-                <Tab key={item.value} value={item.value}>
-                  {item.label}（{item.unit}）
-                </Tab>
-              ))}
-            </TabList>
-          </Tabs>
-        }
-      >
-        <Grid columns={12} gap="md">
-          {/* 需要处理：件数在这里，点进去是对应页签里的那几项 */}
-          <Card padding="md" sx={gridItemStyles.full} header="需要处理">
-            <Grid columns={6}>
-              {todos.map((item) => (
-                <div key={item.label} {...stylex.attrs(styles.todoItem)}>
+      <Grid columns={12} gap="md">
+        {/* 需要处理：件数在这里，点进去是对应页签里的那几项 */}
+        <Card padding="md" sx={gridItemStyles.full} header="需要处理">
+          <Grid columns={6}>
+            {todoItems(kind).map((item) => {
+              const count = summary.todos[item.key];
+              return (
+                <div key={item.key} {...stylex.attrs(styles.todoItem)}>
                   <Stat
                     label={item.label}
                     icon={item.icon}
-                    value={item.count}
+                    value={count}
                     unit="项"
-                    propsNumber={{ sx: item.urgent && item.count > 0 && styles.danger }}
+                    propsNumber={{ sx: item.urgent && count > 0 && styles.danger }}
                     footer={
-                      item.count > 0 ? (
-                        jump(item.page, item.query, '去处理')
-                      ) : (
-                        <Small tone="muted">没有</Small>
-                      )
+                      count > 0 ? jump(item.href, '去处理') : <Small tone="muted">没有</Small>
                     }
                   />
                 </div>
-              ))}
-            </Grid>
-          </Card>
+              );
+            })}
+          </Grid>
+        </Card>
 
-          {/* 三桶：任务池总数只在这里出现一次 */}
-          <Card padding="md" sx={gridItemDynamicStyles.span(6)} header="任务池构成">
-            <Flex direction="column" gap="md">
-              <Flex align="baseline" gap="sm">
-                <span {...stylex.attrs(styles.total)}>{pool.length}</span>
-                <Small tone="muted">
-                  项任务 · 三桶互斥，加总等于总数（终止 {terminated} 项回流储备库，不计入）
-                </Small>
-              </Flex>
-              <div
-                {...stylex.attrs(styles.bar)}
-                role="img"
-                aria-label={byBucket
-                  .map((bucket) => `${bucket.label} ${bucket.rows.length} 项`)
-                  .join('，')}
-              >
-                {byBucket.map((bucket) => (
-                  <span
-                    key={bucket.value}
-                    {...stylex.attrs(styles[bucket.tone], styles.segment(bucket.rows.length))}
-                  />
-                ))}
-              </div>
-              <Flex justify="between" gap="md" wrap>
-                {byBucket.map((bucket) => (
-                  <Flex key={bucket.value} align="center" gap="sm">
-                    <span {...stylex.attrs(styles.dot, styles[bucket.tone])} />
-                    <Text size="sm">{bucket.label}</Text>
-                    <Text size="sm" weight="semibold" sx={styles.number}>
-                      {bucket.rows.length} 项
-                    </Text>
-                    {bucket.value === 'unpriced' && <Small tone="muted">待定价</Small>}
-                  </Flex>
-                ))}
-              </Flex>
+        {/* 三桶：任务池总数只在这里出现一次 */}
+        <Card padding="md" sx={gridItemDynamicStyles.span(6)} header="任务池构成">
+          <Flex direction="column" gap="md">
+            <Flex align="baseline" gap="sm">
+              <span {...stylex.attrs(styles.total)}>{summary.pool}</span>
+              <Small tone="muted">
+                项任务 · 三桶互斥，加总等于总数（终止 {summary.terminated} 项回流储备库，不计入）
+              </Small>
             </Flex>
-          </Card>
-
-          {/* 三种收益分开挂账：各自的金额与条数，不相加；金额与一本账一致，点进去看一本账 */}
-          {states.map((state) => {
-            const rows = pool.filter((task) => task.valueState === state);
-            return (
-              <Card
-                key={state}
-                padding="md"
-                sx={gridItemDynamicStyles.span(2)}
-                header={valueStates.label(state)}
-              >
-                <Stat
-                  label={`${rows.length} 项`}
-                  value={sum(rows).toNumber()}
-                  format={current().format}
-                  unit={current().unit}
-                  footer={jump('ValueLedger', { kind }, '看一本账')}
+            <div
+              {...stylex.attrs(styles.bar)}
+              role="img"
+              aria-label={summary.buckets
+                .map((bucket) => `${bucket.label} ${bucket.count} 项`)
+                .join('，')}
+            >
+              {summary.buckets.map((bucket) => (
+                <span
+                  key={bucket.value}
+                  {...stylex.attrs(
+                    styles[bucket.value as 'confirmed' | 'unpriced' | 'plan'],
+                    styles.segment(bucket.count),
+                  )}
                 />
-              </Card>
-            );
-          })}
+              ))}
+            </div>
+            <Flex justify="between" gap="md" wrap>
+              {summary.buckets.map((bucket) => (
+                <Flex key={bucket.value} align="center" gap="sm">
+                  <span
+                    {...stylex.attrs(
+                      styles.dot,
+                      styles[bucket.value as 'confirmed' | 'unpriced' | 'plan'],
+                    )}
+                  />
+                  <Text size="sm">{bucket.label}</Text>
+                  <Text size="sm" weight="semibold" sx={styles.number}>
+                    {bucket.count} 项
+                  </Text>
+                  {bucket.value === 'unpriced' && <Small tone="muted">待定价</Small>}
+                </Flex>
+              ))}
+            </Flex>
+          </Flex>
+        </Card>
 
-          {/* 进度 × 收益状态：行与台账的页签一致，格子跳到“页签 + 收益状态” */}
-          <Card padding="md" sx={gridItemDynamicStyles.span(7)} header="进度 × 收益状态（项）">
-            <Table aria-label="进度与收益状态" density="compact" variant="ghost">
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>进度</TableHeaderCell>
-                  {valueStates.keys.map((state) => (
-                    <TableHeaderCell key={state} align="end">
-                      <StatusBadge statuses={valueStates} value={state} />
-                    </TableHeaderCell>
-                  ))}
-                  <TableHeaderCell align="end">小计</TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {groups.map((group) => {
-                  const inGroup = pool.filter((task) =>
-                    (group.statuses as readonly string[]).includes(task.status),
-                  );
-                  return (
-                    <TableRow key={group.value}>
-                      <TableHeaderCell scope="row">{group.label}</TableHeaderCell>
-                      {valueStates.keys.map((state) => {
-                        const count = inGroup.filter((task) => task.valueState === state).length;
-                        return (
-                          <TableCell key={state} align="end">
-                            {count ? (
-                              <Link
-                                href={casePath(ledgerOf(kind), {
-                                  view: group.value,
-                                  valueState: state,
-                                })}
-                                sx={styles.number}
-                              >
-                                {count}
-                              </Link>
-                            ) : (
-                              <Small tone="muted">—</Small>
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                      <TableCell align="end">
+        {/* 三种收益分开挂账：各自的金额与条数，不相加；金额与一本账一致，点进去看一本账 */}
+        {summary.states.map((item) => (
+          <Card
+            key={item.state}
+            padding="md"
+            sx={gridItemDynamicStyles.span(2)}
+            header={valueStates.label(item.state)}
+          >
+            <Stat
+              label={`${item.count} 项`}
+              value={item.amount.toNumber()}
+              format={amount.format}
+              unit={amount.unit}
+              footer={jump(paths.valueLedger({ kind }), '看一本账')}
+            />
+          </Card>
+        ))}
+
+        {/* 进度 × 收益状态：行与台账的页签一致，格子跳到“页签 + 收益状态” */}
+        <Card padding="md" sx={gridItemDynamicStyles.span(7)} header="进度 × 收益状态（项）">
+          <Table aria-label="进度与收益状态" density="compact" variant="ghost">
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell>进度</TableHeaderCell>
+                {valueStateOrder.map((state) => (
+                  <TableHeaderCell key={state} align="end">
+                    <StatusBadge statuses={valueStates} value={state} />
+                  </TableHeaderCell>
+                ))}
+                <TableHeaderCell align="end">小计</TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {summary.matrix.map((row) => (
+                <TableRow key={row.group}>
+                  <TableHeaderCell scope="row">{row.label}</TableHeaderCell>
+                  {valueStateOrder.map((state) => (
+                    <TableCell key={state} align="end">
+                      {row.counts[state] ? (
                         <Link
-                          href={casePath(ledgerOf(kind), { view: group.value })}
+                          href={paths.ledger(kind, { view: row.group, valueState: state })}
                           sx={styles.number}
                         >
-                          {inGroup.length}
+                          {row.counts[state]}
                         </Link>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-              <TableFoot>
-                <TableRow>
-                  <TableHeaderCell scope="row">小计</TableHeaderCell>
-                  {valueStates.keys.map((state) => (
-                    <TableCell key={state} align="end">
-                      <span {...stylex.attrs(styles.number)}>
-                        {pool.filter((task) => task.valueState === state).length}
-                      </span>
+                      ) : (
+                        <Small tone="muted">—</Small>
+                      )}
                     </TableCell>
                   ))}
-                  {/* 总数已在“任务池构成”里：这里不再重复 */}
                   <TableCell align="end">
-                    <Small tone="muted">—</Small>
+                    <Link href={paths.ledger(kind, { view: row.group })} sx={styles.number}>
+                      {row.total}
+                    </Link>
                   </TableCell>
                 </TableRow>
-              </TableFoot>
-            </Table>
-          </Card>
+              ))}
+            </TableBody>
+            <TableFoot>
+              <TableRow>
+                <TableHeaderCell scope="row">小计</TableHeaderCell>
+                {valueStateOrder.map((state) => (
+                  <TableCell key={state} align="end">
+                    <span {...stylex.attrs(styles.number)}>{summary.stateTotals[state]}</span>
+                  </TableCell>
+                ))}
+                {/* 总数已在“任务池构成”里：这里不再重复 */}
+                <TableCell align="end">
+                  <Small tone="muted">—</Small>
+                </TableCell>
+              </TableRow>
+            </TableFoot>
+          </Table>
+        </Card>
 
-          {/* 超时最久的几项：直接去详情推进 */}
-          <Card
-            padding="md"
-            sx={gridItemDynamicStyles.span(5)}
-            header={
-              <Flex justify="between" align="center" gap="sm">
-                <span>超时最久的项目</span>
-                {jump(ledgerOf(kind), { view: 'overdue' }, '全部超时')}
-              </Flex>
-            }
-          >
-            {lateTasks.length ? (
-              <Table aria-label="超时最久的项目" density="compact" variant="ghost">
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>编码</TableHeaderCell>
-                    <TableHeaderCell>项目名称</TableHeaderCell>
-                    <TableHeaderCell>状态</TableHeaderCell>
-                    <TableHeaderCell align="end">超时</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {lateTasks.map((task) => (
-                    <TableRow key={task.code}>
-                      <TableCell>
-                        <Link href={casePath('TaskDetail', { code: task.code })} sx={styles.code}>
-                          {task.code}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{task.name}</TableCell>
-                      <TableCell>
-                        <StatusBadge statuses={taskStatuses} value={task.status} />
-                      </TableCell>
-                      <TableCell align="end">
-                        <span {...stylex.attrs(styles.late)}>{overdueDays(task)} 天</span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <Small tone="muted">没有超时的项目</Small>
-            )}
-          </Card>
-
-          {/* 各团队的进度分布 */}
-          <Card padding="md" sx={gridItemDynamicStyles.span(5)} header="责任团队 × 进度（项）">
-            <BarChart
-              aria-label="各责任团队在各进度的任务数"
-              data={teamRows}
-              index="team"
-              series={statusGroups.map((group) => ({ key: group.value, label: group.label }))}
-              unit="项"
-              orientation="horizontal"
-              stacked
-              height={170}
-            />
-          </Card>
-
-          {/* 差额 D 的归因：用来校准测算模型、分析让利结构 */}
-          <Card
-            padding="md"
-            sx={gridItemDynamicStyles.span(3)}
-            header={`差额 D 归因（${current().unit}）`}
-          >
-            <DonutChart
-              aria-label="差额 D 的归因"
-              data={gapRows.filter((row) => !row.amount.isZero())}
-              index="reason"
-              value="amount"
-              unit={current().unit}
-              valueFormat={current().format}
-              height={170}
-            />
-          </Card>
-
-          {/* 金额口径三分法：三栏分开，不混总数；点了去一本账（带单位与口径） */}
-          <Card
-            padding="md"
-            sx={gridItemDynamicStyles.span(4)}
-            header={`金额口径（${current().unit}）`}
-          >
-            <Table aria-label="金额口径" density="compact" variant="ghost">
+        {/* 超时最久的几项：直接去详情推进 */}
+        <Card
+          padding="md"
+          sx={gridItemDynamicStyles.span(5)}
+          header={
+            <Flex justify="between" align="center" gap="sm">
+              <span>超时最久的项目</span>
+              {jump(paths.ledger(kind, { view: 'overdue' }), '全部超时')}
+            </Flex>
+          }
+        >
+          {summary.late.length ? (
+            <Table aria-label="超时最久的项目" density="compact" variant="ghost">
               <TableHead>
                 <TableRow>
-                  <TableHeaderCell>收益</TableHeaderCell>
-                  {amountBases.map((basis) => (
-                    <TableHeaderCell key={basis.value} align="end">
-                      {basis.label}
-                    </TableHeaderCell>
-                  ))}
+                  <TableHeaderCell>编码</TableHeaderCell>
+                  <TableHeaderCell>项目名称</TableHeaderCell>
+                  <TableHeaderCell>状态</TableHeaderCell>
+                  <TableHeaderCell align="end">超时</TableHeaderCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {states.map((state) => (
-                  <TableRow key={state}>
-                    <TableHeaderCell scope="row">{valueStates.label(state)}</TableHeaderCell>
-                    {amountBases.map((basis) => {
-                      const rows = pool.filter(
-                        (task) => task.valueState === state && task.basis === basis.value,
-                      );
-                      return (
-                        <TableCell key={basis.value} align="end">
-                          {rows.length ? (
-                            <Link
-                              href={casePath('ValueLedger', { kind, basis: basis.value })}
-                              sx={styles.number}
-                            >
-                              {money(sum(rows))}
-                            </Link>
-                          ) : (
-                            <Small tone="muted">—</Small>
-                          )}
-                        </TableCell>
-                      );
-                    })}
+                {summary.late.map((task) => (
+                  <TableRow key={task.code}>
+                    <TableCell>
+                      <Link href={paths.task(task.code)} sx={styles.code}>
+                        {task.code}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{task.name}</TableCell>
+                    <TableCell>
+                      <StatusBadge statuses={taskStatuses} value={task.status} />
+                    </TableCell>
+                    <TableCell align="end">
+                      <span {...stylex.attrs(styles.late)}>{task.days} 天</span>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </Card>
-        </Grid>
-      </CaseShell>
+          ) : (
+            <Small tone="muted">没有超时的项目</Small>
+          )}
+        </Card>
+
+        {/* 各团队的进度分布 */}
+        <Card padding="md" sx={gridItemDynamicStyles.span(5)} header="责任团队 × 进度（项）">
+          <BarChart
+            aria-label="各责任团队在各进度的任务数"
+            data={summary.teams.map((row) => ({ team: shortTeam(row.team), ...row.counts }))}
+            index="team"
+            series={statusGroups.map((group) => ({ key: group.value, label: group.label }))}
+            unit="项"
+            orientation="horizontal"
+            stacked
+            height={170}
+          />
+        </Card>
+
+        {/* 差额 D 的归因：用来校准测算模型、分析让利结构 */}
+        <Card
+          padding="md"
+          sx={gridItemDynamicStyles.span(3)}
+          header={`差额 D 归因（${amount.unit}）`}
+        >
+          <DonutChart
+            aria-label="差额 D 的归因"
+            data={summary.gaps.filter((row) => !row.amount.isZero())}
+            index="reason"
+            value="amount"
+            unit={amount.unit}
+            valueFormat={amount.format}
+            height={170}
+          />
+        </Card>
+
+        {/* 金额口径三分法：三栏分开，不混总数；点了去一本账（带单位与口径） */}
+        <Card padding="md" sx={gridItemDynamicStyles.span(4)} header={`金额口径（${amount.unit}）`}>
+          <Table aria-label="金额口径" density="compact" variant="ghost">
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell>收益</TableHeaderCell>
+                {dict('amountBases').map((basis) => (
+                  <TableHeaderCell key={basis.value} align="end">
+                    {basis.label}
+                  </TableHeaderCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {pricedStates.map((state) => (
+                <TableRow key={state}>
+                  <TableHeaderCell scope="row">{valueStates.label(state)}</TableHeaderCell>
+                  {dict('amountBases').map((basis) => {
+                    const cell = summary.bases.find(
+                      (item) => item.state === state && item.basis === basis.value,
+                    );
+                    return (
+                      <TableCell key={basis.value} align="end">
+                        {cell?.amount ? (
+                          <Link
+                            href={paths.valueLedger({ kind, basis: basis.value })}
+                            sx={styles.number}
+                          >
+                            {money(cell.amount)}
+                          </Link>
+                        ) : (
+                          <Small tone="muted">—</Small>
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
+      </Grid>
     );
   };
+});
+
+export default _component(() => {
+  let kind = _state<CostKind>('unit');
+  const summary = useRequest((current: CostKind, signal) => getDashboard(current, signal), {
+    params: () => kind,
+  });
+  return () => (
+    <>
+      <PageNav>
+        <Tabs value={_bind(kind)}>
+          <TabList aria-label="降本类型">
+            {costKindKeys.map((value) => (
+              <Tab key={value} value={value}>
+                {costKinds[value].label}（{costKinds[value].unit}）
+              </Tab>
+            ))}
+          </TabList>
+        </Tabs>
+      </PageNav>
+      <RequestView request={summary}>{(data) => <Board summary={data} />}</RequestView>
+    </>
+  );
 });

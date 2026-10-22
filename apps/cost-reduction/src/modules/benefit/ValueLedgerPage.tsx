@@ -1,7 +1,7 @@
-// 案例：一本账（表格页，成本团队）。按设计规格与统计口径：顶栏页签是单机降本（万元）与降 DMC（美元 / FH），一个视图只有一种单位；
-// 金额口径（硬节约、成本规避、软节约）分段切换、一次只看一种，不混总数；
-// 机会值、预测值、承诺值、实现值四栏，每一项的金额只落在所属状态那一栏，挂账待定一栏写“待定价”；底部只按栏合计、不跨栏相加。
-// 机会值是渠道里还没进任务池的建议与方案；终止的项目没有收益，不上账。编码链到项目详情。数据是虚构的
+/**
+ * 一本账（表格页，成本团队）：单机降本与降 DMC 分页签，金额口径一次看一种；机会、预测、承诺、实现四栏，
+ * 每一项的金额只落在所属状态那一栏，挂账待定写“待定价”；底部只按栏合计。一期的参考实现，按新的设计规格重建
+ */
 import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -21,35 +21,16 @@ import {
   type DataTableColumnGroup,
   queryCodecs,
   useQueryState,
+  useRequest,
 } from '@vue-tsx-pro/ui';
 import { space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
-import Decimal from 'decimal.js';
-import {
-  amountBases,
-  channels,
-  labelOf,
-  ledgerAmount,
-  opportunities,
-  taskStore,
-  teams,
-} from '../data';
-import { shortTeam } from '../ledger';
-import { CaseShell, casePath } from '../shell';
-
-/** 一本账的一行：任务池里的任务，或渠道里的机会 */
-interface Row {
-  code: string;
-  name: string;
-  team: string;
-  /** 来源：渠道一建议、渠道二方案 */
-  source: string;
-  /** 挂在哪一栏 */
-  state: 'opportunity' | 'forecast' | 'committed' | 'realized' | 'unpriced';
-  amount: Decimal | null;
-  /** 任务池里的任务（链到详情）；机会没有详情页 */
-  inPool: boolean;
-}
+import { getValueLedger } from '../../api/benefit';
+import { PageNav } from '../../app/layout/PageNav';
+import { dict, dictLabel, shortTeam, teamNames } from '../../app/master';
+import { paths } from '../../app/paths';
+import type { ValueLedgerQuery, ValueLedgerRow as Row } from '../../domain/ledger/value';
+import type { CostKind } from '../../domain/task/types';
 
 const kinds = [
   { value: 'unit', label: '单机降本（万元）', unit: '万元', format: { scale: 10_000 } },
@@ -80,41 +61,16 @@ const styles = stylex.create({
 
 export default _component(() => {
   // 单位与金额口径在地址里：从统计看板跳过来时带着，刷新、分享也还是这份
-  let kind = _fromRef(useQueryState('kind', 'unit', queryCodecs.oneOf(['unit', 'dmc'])));
+  let kind = _fromRef(useQueryState<CostKind>('kind', 'unit', queryCodecs.oneOf(['unit', 'dmc'])));
   let basis = _fromRef(useQueryState('basis', 'hard'));
   let keyword = _state('');
   let team = _state<string | null>(null);
 
-  /** 当前单位、口径与条件下的行：任务按收益状态上账，机会单独一栏 */
-  function rowsOf(view: 'unit' | 'dmc'): Row[] {
-    const pool: Row[] = taskStore.value
-      .filter((task) => task.kind === view && task.basis === basis && task.status !== 'terminated')
-      .map((task) => ({
-        code: task.code,
-        name: task.name,
-        team: task.team,
-        source: labelOf(channels, task.channel),
-        state: task.valueState as Row['state'],
-        amount: ledgerAmount(task),
-        inPool: true,
-      }));
-    const channel: Row[] = opportunities
-      .filter((item) => item.kind === view && item.basis === basis)
-      .map((item) => ({
-        code: item.code,
-        name: item.name,
-        team: item.team,
-        source: `${labelOf(channels, item.channel)}（未入池）`,
-        state: 'opportunity',
-        amount: item.expected,
-        inPool: false,
-      }));
-    return [...channel, ...pool].filter(
-      (row) =>
-        (!keyword || row.code.includes(keyword) || row.name.includes(keyword)) &&
-        (!team || row.team === team),
-    );
-  }
+  // 当前单位、口径与条件下的行；两种单位各有几行（页签上的数）一起取回
+  const ledger = useRequest((query: ValueLedgerQuery, signal) => getValueLedger(query, signal), {
+    params: () => ({ kind, basis, keyword, team }),
+    debounce: 300,
+  });
 
   const columns = (): DataTableColumn<Row>[] => {
     const current = kinds.find((item) => item.value === kind)!;
@@ -127,7 +83,7 @@ export default _component(() => {
         sortable: true,
         cell: (row) =>
           row.inPool ? (
-            <Link href={casePath('TaskDetail', { code: row.code })} sx={styles.code}>
+            <Link href={paths.task(row.code)} sx={styles.code}>
               {row.code}
             </Link>
           ) : (
@@ -136,7 +92,12 @@ export default _component(() => {
       },
       // 写宽度：更宽时多出来的按比例摊给各列，不只撑大名称
       { key: 'name', header: '项目名称', width: 240, sortable: true },
-      { key: 'source', header: '来源', width: 150 },
+      {
+        key: 'source',
+        header: '来源',
+        width: 150,
+        value: (row) => `${dictLabel('channels', row.channel)}${row.inPool ? '' : '（未入池）'}`,
+      },
       {
         key: 'team',
         header: '责任团队',
@@ -152,7 +113,7 @@ export default _component(() => {
         align: 'end',
         sortable: true,
         format: { ...current.format, minimumFractionDigits: 2, maximumFractionDigits: 2 },
-        value: (row) => (row.state === state.key ? row.amount : null),
+        value: (row) => (row.column === state.key ? row.amount : null),
         summary: 'sum',
         empty: '',
       })),
@@ -161,10 +122,10 @@ export default _component(() => {
         header: '挂账待定',
         width: 110,
         align: 'end',
-        value: (row) => (row.state === 'unpriced' ? 1 : null),
-        cell: (row) => (row.state === 'unpriced' ? <Small tone="warning">待定价</Small> : ''),
+        value: (row) => (row.column === 'unpriced' ? 1 : null),
+        cell: (row) => (row.column === 'unpriced' ? <Small tone="warning">待定价</Small> : ''),
         summary: (rows) => {
-          const count = rows.filter((row) => row.state === 'unpriced').length;
+          const count = rows.filter((row) => row.column === 'unpriced').length;
           return count ? `${count} 项待定价` : '—';
         },
       },
@@ -176,70 +137,66 @@ export default _component(() => {
     return [
       {
         key: 'value',
-        header: `收益（${current.unit}，${labelOf(amountBases, basis)}）`,
+        header: `收益（${current.unit}，${dictLabel('amountBases', basis)}）`,
         columns: [...states.map((state) => state.key), 'unpriced'],
       },
     ];
   };
 
-  return () => {
-    const rows = rowsOf(kind);
-    return (
-      <CaseShell
-        current="ledger"
-        nav={
-          <Tabs value={_bind(kind)}>
-            <TabList aria-label="降本类型">
-              {kinds.map((item) => (
-                <Tab key={item.value} value={item.value}>
-                  {item.label}
-                  <Badge radius="full" tone={kind === item.value ? 'accent' : 'neutral'}>
-                    {rowsOf(item.value).length}
-                  </Badge>
-                </Tab>
-              ))}
-            </TabList>
-          </Tabs>
-        }
-      >
-        <div {...stylex.attrs(styles.page)}>
-          <div {...stylex.attrs(styles.toolbar)}>
-            <ToggleGroup value={_bind(basis)} aria-label="金额口径" required>
-              {amountBases.map((item) => (
-                <ToggleItem key={item.value} value={item.value}>
-                  {item.label}
-                </ToggleItem>
-              ))}
-            </ToggleGroup>
-            <TextField
-              value={_bind(keyword)}
-              icon={Search}
-              placeholder="编码 / 名称"
-              clearable
-              aria-label="关键字"
-              sx={styles.search}
-            />
-            <Select
-              items={teams}
-              value={_bind(team)}
-              placeholder="全部团队"
-              clearable
-              aria-label="责任一级团队"
-              sx={styles.team}
-            />
-            <Small tone="muted">四种状态分开挂账、只按栏合计；金额口径一次看一种，不混总数</Small>
-          </div>
-          <DataTable
-            rows={rows}
-            columns={columns()}
-            columnGroups={groups()}
-            getKey={(row) => row.code}
-            summaryLabel="按栏合计"
-            aria-label="一本账"
-            propsRoot={{ sx: styles.table }}
+  return () => (
+    <>
+      <PageNav>
+        <Tabs value={_bind(kind)}>
+          <TabList aria-label="降本类型">
+            {kinds.map((item) => (
+              <Tab key={item.value} value={item.value}>
+                {item.label}
+                <Badge radius="full" tone={kind === item.value ? 'accent' : 'neutral'}>
+                  {ledger.data?.counts[item.value] ?? '…'}
+                </Badge>
+              </Tab>
+            ))}
+          </TabList>
+        </Tabs>
+      </PageNav>
+      <div {...stylex.attrs(styles.page)}>
+        <div {...stylex.attrs(styles.toolbar)}>
+          <ToggleGroup value={_bind(basis)} aria-label="金额口径" required>
+            {dict('amountBases').map((item) => (
+              <ToggleItem key={item.value} value={item.value}>
+                {item.label}
+              </ToggleItem>
+            ))}
+          </ToggleGroup>
+          <TextField
+            value={_bind(keyword)}
+            icon={Search}
+            placeholder="编码 / 名称"
+            clearable
+            aria-label="关键字"
+            sx={styles.search}
           />
+          <Select
+            items={teamNames()}
+            value={_bind(team)}
+            placeholder="全部团队"
+            clearable
+            aria-label="责任一级团队"
+            sx={styles.team}
+          />
+          <Small tone="muted">四种状态分开挂账、只按栏合计；金额口径一次看一种，不混总数</Small>
         </div>
-      </CaseShell>
-    );
-  };
+        <DataTable
+          rows={ledger.data?.rows ?? []}
+          loading={ledger.loading}
+          columns={columns()}
+          columnGroups={groups()}
+          getKey={(row) => row.code}
+          summaryLabel="按栏合计"
+          aria-label="一本账"
+          propsRoot={{ sx: styles.table }}
+        />
+      </div>
+    </>
+  );
 });

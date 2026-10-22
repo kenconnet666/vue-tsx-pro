@@ -10,5 +10,10 @@
       { "considerDefaultExhaustiveForUnions": true }
     ]
   },
-  "ignorePatterns": ["**/dist/**", "coverage/**", "tests/consumer/app/**"]
+  "ignorePatterns": [
+    "**/dist/**",
+    "coverage/**",
+    "tests/consumer/app/**",
+    "apps/cost-reduction/public/mockServiceWorker.js"
+  ]
 }

@@ -46,6 +46,18 @@
         "dev"
       ],
       "port": 5175
+    },
+    {
+      "name": "cost-reduction-5176",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@vue-tsx-pro/cost-reduction",
+        "dev",
+        "--port",
+        "5176"
+      ],
+      "port": 5176
     }
   ]
 }

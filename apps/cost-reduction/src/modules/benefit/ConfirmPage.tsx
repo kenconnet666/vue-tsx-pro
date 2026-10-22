@@ -1,14 +1,13 @@
-// 案例：收益认定（表格页，成本团队）。按设计规格：顶栏页签待认定、已认定、退回（条数在页签上）；一页只有一种单位，
-// 单机降本（万元）与降 DMC（美元 / FH）用分段切换；列是编码、项目名称、验证窗结论、最新测算版本与金额、协商轮次、
-// 剩余工作日（验证完成后 10 个工作日内认定，超期标红）。“认定并锁定 A”确认后推进到已认定，“退回”写原因、任务回到验证中。
-// 编码链到项目详情。数据是虚构的
+/**
+ * 收益认定（表格页，成本团队）：顶栏页签待认定、已认定、退回；一页只有一种单位。
+ * 一期的参考实现，按新的设计规格重建
+ */
 import { BadgeCheck, Search, Undo2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
   Button,
-  createToaster,
   DataTable,
   Dialog,
   Field,
@@ -20,11 +19,11 @@ import {
   Tabs,
   Textarea,
   TextField,
-  Toaster,
   ToggleGroup,
   ToggleItem,
   useConfirm,
   useFormat,
+  useRequest,
   type DataTableColumn,
   queryCodecs,
   useQueryState,
@@ -32,40 +31,28 @@ import {
 import { space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
 import Decimal from 'decimal.js';
+import { approveBenefit, listConfirmRows, returnBenefit } from '../../api/benefit';
+import { notifyError, toaster } from '../../app/feedback';
+import { PageNav } from '../../app/layout/PageNav';
+import { paths } from '../../app/paths';
 import {
-  advanceTask,
   CONFIRM_WORKDAYS,
   confirmDeadline,
-  confirmReturns,
-  costKinds,
   latestEstimate,
-  reached,
-  returnTask,
-  saveTask,
-  taskStore,
-  type CostTask,
-} from '../data';
-import { ledgerColumns } from '../ledger';
-import { CaseShell, casePath } from '../shell';
+  milestoneDone,
+  negotiationRounds,
+  type ConfirmRow as Row,
+  type ConfirmView,
+} from '../../domain/task/benefit';
+import type { CostKind, CostTask } from '../../domain/task/types';
+import { costKindKeys, costKinds } from '../../shared/kinds';
+import { taskColumns } from '../tasks/ledger/columns';
 
-const tabs = [
+const tabs: readonly { value: ConfirmView; label: string }[] = [
   { value: 'awaiting', label: '待认定' },
   { value: 'confirmed', label: '已认定' },
   { value: 'returned', label: '退回' },
-] as const;
-
-/** 表格的一行：任务卡加上退回的原因与日期 */
-interface Row {
-  task: CostTask;
-  returned?: { reason: string; at: string };
-}
-
-const verifiedOn = (task: CostTask) =>
-  task.milestones.find((item) => item.label === '验证完成')?.done ?? null;
-const confirmedOn = (task: CostTask) =>
-  task.milestones.find((item) => item.label === '收益确认')?.done ?? null;
-/** 协商轮次：成本团队与产品团队就测算来回了几轮（虚构：按编号定） */
-const rounds = (task: CostTask) => 1 + (Number(task.code.split('-').at(-1)) % 3);
+];
 
 const styles = stylex.create({
   page: {
@@ -93,10 +80,15 @@ const styles = stylex.create({
 export default _component(() => {
   const format = useFormat();
   const confirm = useConfirm();
-  const toaster = createToaster();
   // 单位与页签在地址里：从统计看板跳过来时带着，刷新、分享也还是这份
-  let tab = _fromRef(useQueryState('tab', 'awaiting'));
-  let kind = _fromRef(useQueryState('kind', 'unit', queryCodecs.oneOf(['unit', 'dmc'])));
+  let tab = _fromRef(
+    useQueryState<ConfirmView>(
+      'tab',
+      'awaiting',
+      queryCodecs.oneOf(['awaiting', 'confirmed', 'returned']),
+    ),
+  );
+  let kind = _fromRef(useQueryState<CostKind>('kind', 'unit', queryCodecs.oneOf(['unit', 'dmc'])));
   let keyword = _state('');
   let returning = _state.raw<CostTask | null>(null);
   let reason = _state('');
@@ -105,24 +97,12 @@ export default _component(() => {
   const amount = () => costKinds[kind];
   const money = (value: Decimal) => format.number(value, amount().format);
 
-  /** 各页签的行：当前单位、关键字下 */
-  function rowsOf(view: string): Row[] {
-    const own = taskStore.value.filter(
-      (task) =>
-        task.kind === kind &&
-        (!keyword || task.code.includes(keyword) || task.name.includes(keyword)),
-    );
-    if (view === 'awaiting')
-      return own.filter((task) => task.status === 'awaiting').map((task) => ({ task }));
-    if (view === 'confirmed')
-      return own
-        .filter((task) => task.a != null && reached(task.status, 'confirmed'))
-        .map((task) => ({ task }));
-    return confirmReturns.value.flatMap((item) => {
-      const task = own.find((candidate) => candidate.code === item.code);
-      return task ? [{ task, returned: { reason: item.reason, at: item.at } }] : [];
-    });
-  }
+  // 三个页签的行一次取回（条数在页签上）；关键字停下 300 ms 再查
+  const rows = useRequest(
+    (query: { kind: CostKind; keyword: string }, signal) => listConfirmRows(query, signal),
+    { params: () => ({ kind, keyword }), debounce: 300 },
+  );
+  const rowsOf = (view: ConfirmView): Row[] => rows.data?.[view] ?? [];
 
   async function approve(task: CostTask) {
     const estimate = latestEstimate(task);
@@ -132,8 +112,13 @@ export default _component(() => {
       confirmText: '认定并锁定 A',
     });
     if (!ok) return;
-    saveTask(advanceTask(task, 'confirmed'));
-    toaster.show({ title: `已认定 ${task.code}，A 已锁定`, tone: 'success' });
+    try {
+      await approveBenefit(task.code);
+      toaster.show({ title: `已认定 ${task.code}，A 已锁定`, tone: 'success' });
+      void rows.refresh();
+    } catch (error) {
+      notifyError(`${task.code} 没能认定`, error);
+    }
   }
 
   function openReturn(task: CostTask) {
@@ -141,15 +126,21 @@ export default _component(() => {
     reason = '';
     reasonError = '';
   }
-  function submitReturn() {
-    if (!returning) return;
+  async function submitReturn() {
+    const task = returning;
+    if (!task) return;
     if (reason.trim().length < 4) {
       reasonError = '写明退回的原因（至少 4 个字），产品团队按它补材料';
       return;
     }
-    returnTask(returning, reason.trim());
-    toaster.show({ title: `已退回 ${returning.code}，任务回到验证中`, tone: 'success' });
-    returning = null;
+    try {
+      await returnBenefit(task.code, reason.trim());
+      toaster.show({ title: `已退回 ${task.code}，任务回到验证中`, tone: 'success' });
+      returning = null;
+      void rows.refresh();
+    } catch (error) {
+      notifyError(`${task.code} 没能退回`, error);
+    }
   }
 
   const columns = (): DataTableColumn<Row>[] => [
@@ -161,7 +152,7 @@ export default _component(() => {
       sortable: true,
       value: (row) => row.task.code,
       cell: (row) => (
-        <Link href={casePath('TaskDetail', { code: row.task.code })} sx={styles.code}>
+        <Link href={paths.task(row.task.code)} sx={styles.code}>
           {row.task.code}
         </Link>
       ),
@@ -175,17 +166,17 @@ export default _component(() => {
       value: (row) => row.task.name,
     },
     {
-      ...ledgerColumns.team,
-      value: (row) => ledgerColumns.team.value(row.task),
-      cell: (row) => ledgerColumns.team.cell(row.task),
+      ...taskColumns.team,
+      value: (row) => taskColumns.team.value(row.task),
+      cell: (row) => taskColumns.team.cell(row.task),
     },
     {
       key: 'verification',
       header: '验证窗结论',
       width: 150,
-      value: (row) => verifiedOn(row.task),
+      value: (row) => milestoneDone(row.task, '验证完成'),
       cell: (row) => {
-        const verified = verifiedOn(row.task);
+        const verified = milestoneDone(row.task, '验证完成');
         return row.returned ? (
           <Small tone="muted">已作废，待重新验证</Small>
         ) : verified ? (
@@ -227,7 +218,7 @@ export default _component(() => {
       width: 90,
       align: 'end',
       sortable: true,
-      value: (row) => rounds(row.task),
+      value: (row) => negotiationRounds(row.task),
     },
     ...(tab === 'awaiting'
       ? [
@@ -262,7 +253,7 @@ export default _component(() => {
             header: '认定日期',
             width: 110,
             sortable: true,
-            value: (row: Row) => confirmedOn(row.task),
+            value: (row: Row) => milestoneDone(row.task, '收益确认'),
           } satisfies DataTableColumn<Row>,
         ]
       : []),
@@ -310,92 +301,87 @@ export default _component(() => {
             </Button>
           </Flex>
         ) : (
-          <Link href={casePath('TaskDetail', { code: row.task.code })}>看收益</Link>
+          <Link href={paths.task(row.task.code)}>看收益</Link>
         ),
     },
   ];
 
-  return () => {
-    const rows = rowsOf(tab);
-    return (
-      <CaseShell
-        current="confirm"
-        nav={
-          <Tabs value={_bind(tab)}>
-            <TabList aria-label="认定视图">
-              {tabs.map((item) => (
-                <Tab key={item.value} value={item.value}>
-                  {item.label}
-                  <Badge radius="full" tone={tab === item.value ? 'accent' : 'neutral'}>
-                    {rowsOf(item.value).length}
-                  </Badge>
-                </Tab>
-              ))}
-            </TabList>
-          </Tabs>
+  return () => (
+    <>
+      <PageNav>
+        <Tabs value={_bind(tab)}>
+          <TabList aria-label="认定视图">
+            {tabs.map((item) => (
+              <Tab key={item.value} value={item.value}>
+                {item.label}
+                <Badge radius="full" tone={tab === item.value ? 'accent' : 'neutral'}>
+                  {rowsOf(item.value).length}
+                </Badge>
+              </Tab>
+            ))}
+          </TabList>
+        </Tabs>
+      </PageNav>
+      <div {...stylex.attrs(styles.page)}>
+        <div {...stylex.attrs(styles.toolbar)}>
+          <ToggleGroup value={_bind(kind)} aria-label="降本类型" required>
+            {costKindKeys.map((value) => (
+              <ToggleItem key={value} value={value}>
+                {costKinds[value].label}（{costKinds[value].unit}）
+              </ToggleItem>
+            ))}
+          </ToggleGroup>
+          <TextField
+            value={_bind(keyword)}
+            icon={Search}
+            placeholder="编码 / 名称"
+            clearable
+            aria-label="关键字"
+            sx={styles.search}
+          />
+          <Small tone="muted">
+            验证完成后 {CONFIRM_WORKDAYS} 个工作日内认定；认定按最新一版测算锁定测算金额 A
+          </Small>
+        </div>
+        <DataTable
+          rows={rowsOf(tab)}
+          loading={rows.loading}
+          columns={columns()}
+          getKey={(row) => row.task.code}
+          aria-label="收益认定"
+          empty={tab === 'awaiting' ? '没有待认定的项目' : '没有记录'}
+          propsRoot={{ sx: styles.table }}
+        />
+      </div>
+      <Dialog
+        open={_bind(
+          () => returning != null,
+          (open: boolean) => {
+            if (!open) returning = null;
+          },
+        )}
+        title={`退回 ${returning?.code ?? ''}`}
+        description="退回后任务回到验证中，验证窗结论作废；产品团队按原因补材料后重新提交"
+        footer={
+          <Flex justify="end" gap="sm">
+            <Button variant="ghost" tone="neutral" onClick={() => (returning = null)}>
+              取消
+            </Button>
+            <Button tone="danger" onClick={() => void submitReturn()}>
+              退回
+            </Button>
+          </Flex>
         }
       >
-        <div {...stylex.attrs(styles.page)}>
-          <div {...stylex.attrs(styles.toolbar)}>
-            <ToggleGroup value={_bind(kind)} aria-label="降本类型" required>
-              {(['unit', 'dmc'] as const).map((value) => (
-                <ToggleItem key={value} value={value}>
-                  {costKinds[value].label}（{costKinds[value].unit}）
-                </ToggleItem>
-              ))}
-            </ToggleGroup>
-            <TextField
-              value={_bind(keyword)}
-              icon={Search}
-              placeholder="编码 / 名称"
-              clearable
-              aria-label="关键字"
-              sx={styles.search}
-            />
-            <Small tone="muted">
-              验证完成后 {CONFIRM_WORKDAYS} 个工作日内认定；认定按最新一版测算锁定测算金额 A
-            </Small>
-          </div>
-          <DataTable
-            rows={rows}
-            columns={columns()}
-            getKey={(row) => row.task.code}
-            aria-label="收益认定"
-            empty={tab === 'awaiting' ? '没有待认定的项目' : '没有记录'}
-            propsRoot={{ sx: styles.table }}
+        <Field label="退回原因" required error={reasonError || undefined}>
+          <Textarea
+            value={_bind(reason)}
+            rows={3}
+            placeholder="如：验证窗结论缺少试验报告"
+            autofocus
           />
-        </div>
-        <Dialog
-          open={_bind(
-            () => returning != null,
-            (open: boolean) => {
-              if (!open) returning = null;
-            },
-          )}
-          title={`退回 ${returning?.code ?? ''}`}
-          description="退回后任务回到验证中，验证窗结论作废；产品团队按原因补材料后重新提交"
-          footer={
-            <Flex justify="end" gap="sm">
-              <Button variant="ghost" tone="neutral" onClick={() => (returning = null)}>
-                取消
-              </Button>
-              <Button tone="danger" onClick={submitReturn}>
-                退回
-              </Button>
-            </Flex>
-          }
-        >
-          <Field label="退回原因" required error={reasonError || undefined}>
-            <Textarea
-              value={_bind(reason)}
-              rows={3}
-              placeholder="如：验证窗结论缺少试验报告"
-              autofocus
-            />
-          </Field>
-        </Dialog>
-        <Toaster controller={toaster} />
-      </CaseShell>
-    );
-  };
+        </Field>
+      </Dialog>
+    </>
+  );
 });

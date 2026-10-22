@@ -1,7 +1,9 @@
-// 案例：单机降本编辑（表单页，新建、编辑共用）。字段与校验严格按《降本项目信息表》：
-// 主表四组（基本信息、降本信息、技术与实施、经费与依据），明细按“单机降本明细表”的四段（项目基本信息、构型通知单信息、
-// 收益计算、工程评估）。系统生成、计算、带出的字段只读：降本项目编码、联络人工号、各项费用与收益。
-// 地址上带 code 时编辑那一项，不带时新建；保存后去项目详情。数据是虚构的
+/**
+ * 单机降本编辑（表单，新建与编辑共用）。字段与校验严格按《降本项目信息表》：
+ * 主表四组（基本信息、降本信息、技术与实施、经费与依据），明细按“单机降本明细表”的四段（项目基本信息、构型通知单信息、
+ * 收益计算、工程评估）。系统生成、计算、带出的字段只读：降本项目编码、联络人工号、各项费用与收益。
+ * 保存后去项目详情；编码由后端在新建时生成
+ */
 import { Pencil, Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -37,36 +39,27 @@ import {
   TextField,
   useFormat,
   useForm,
+  useConfig,
   useLeaveConfirmation,
-  useQueryState,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
-import {
-  categories,
-  completionForms,
-  costKinds,
-  depts,
-  fundingSources,
-  models,
-  nextTaskCode,
-  orgs,
-  partSaving,
-  people,
-  saveTask,
-  sources,
-  suppliers,
-  taskStore,
-  teams,
-  TODAY,
-  workPackages,
-  type CostTask,
-  type PartChange,
-  type UnitDetail,
-} from '../data';
-import { PartChangeDialog } from '../part-change';
-import { checkSavings, taskFields } from '../task-form';
-import { CaseShell, casePath, useCaseNavigate } from '../shell';
+import { createTask, saveTask } from '../../../api/tasks';
+import { notifyError } from '../../../app/feedback';
+import { deptsOf, dict, master, staffOptions, teamNames } from '../../../app/master';
+import { paths } from '../../../app/paths';
+import { TODAY } from '../../../domain/clock';
+import { partSaving, totalSaving } from '../../../domain/task/calc';
+import { blankClosing, blankMilestones } from '../../../domain/task/lifecycle';
+import type {
+  CostTask,
+  EvaluationOpinion,
+  PartChange,
+  UnitDetail,
+} from '../../../domain/task/types';
+import { costKinds, yuanFormat } from '../../../shared/kinds';
+import { PartChangeDialog } from './PartChangeDialog';
+import { checkSavings, taskFields } from './task-form';
 
 const schema = z
   .object({
@@ -179,17 +172,18 @@ function toTask(values: Values, parts: PartChange[], base: CostTask | null): Cos
     engineer: values.engineer,
     parts,
     evaluation: {
-      opinion: values.opinion as UnitDetail['evaluation']['opinion'],
+      opinion: values.opinion as EvaluationOpinion,
       reason: values.reason,
       type: values.reductionType,
     },
   };
   return {
     ...(base ?? {
-      code: nextTaskCode('unit', values.year, values.team),
+      // 新建时编码由后端按“DJ-完成年度-团队缩写-序号”生成
+      code: '',
       sourceCode: '待关联',
-      model: models[0]!,
-      workPackage: workPackages[0]!,
+      model: master().models[0]!,
+      workPackage: master().workPackages[0]!,
       owner: values.contact,
       due: `${values.year}-12-31`,
       status: 'pending',
@@ -199,12 +193,8 @@ function toTask(values: Values, parts: PartChange[], base: CostTask | null): Cos
       b: null,
       gapReason: null,
       needSb: false,
-      milestones: [
-        { label: '方案确定', done: null, evidence: null },
-        { label: '验证完成', done: null, evidence: null },
-        { label: '收益确认', done: null, evidence: null },
-      ],
-      closing: { verification: false, benefit: false, business: false },
+      milestones: blankMilestones(),
+      closing: blankClosing(),
       dmcNodes: [],
       supplierPartNos: [],
     }),
@@ -223,7 +213,7 @@ function toTask(values: Values, parts: PartChange[], base: CostTask | null): Cos
     year: values.year,
     flights: values.flights,
     form: values.form,
-    supplier: values.suppliers[0] ?? suppliers[0]!,
+    supplier: values.suppliers[0] ?? master().suppliers[0]!,
     funding: values.funding,
     proposalNo: values.proposalNo,
     remark: values.remark,
@@ -237,16 +227,14 @@ const styles = stylex.create({
   tableHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_md' },
 });
 
-export default _component(() => {
+/** 单机降本编辑：task 为 null 时新建 */
+export const UnitEditor = _component(({ task }: { task: CostTask | null }) => {
   const format = useFormat();
-  const code = useQueryState('code', '');
-  const navigate = useCaseNavigate();
-  const yuan = (value: Decimal) =>
-    format.number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const router = useConfig().router;
+  const yuan = (value: Decimal) => format.number(value, yuanFormat);
   const wan = (value: Decimal) => format.number(value, costKinds.unit.format);
-  // 地址上带 code：编辑那一项；找不到或不带：新建
-  const editing =
-    taskStore.value.find((task) => task.code === code.value && task.kind === 'unit') ?? null;
+  // 编辑的是哪一项在打开时就定了：取一次
+  const editing = _untrack(task);
   let parts = _state.raw<PartChange[]>(editing?.unitDetail?.parts ?? []);
   let partsError = _state('');
   let dialogOpen = _state(false);
@@ -261,19 +249,21 @@ export default _component(() => {
         partsError = '至少一条零件更改：受影响零件一个件号一条';
         return;
       }
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      const task = toTask(values as Values, parts, editing);
-      saveTask(task);
-      status = editing ? '已保存' : `已新建 ${task.code}`;
-      form.reset(form.values);
-      navigate('TaskDetail', { code: task.code });
+      const draft = toTask(values as Values, parts, editing);
+      try {
+        const saved = editing ? await saveTask(draft) : await createTask(draft);
+        status = editing ? '已保存' : `已新建 ${saved.code}`;
+        form.reset(form.values);
+        router?.navigate(paths.task(saved.code));
+      } catch (error) {
+        notifyError(editing ? '没能保存' : '没能创建项目', error);
+      }
     },
   });
   // 有没保存的改动时，点“取消”、面包屑或关掉页面都先问一下
   useLeaveConfirmation(() => form.dirty && !form.submitting);
-  const person = () => people.find((item) => item.value === form.values.contact);
-  const total = () =>
-    parts.reduce((sum, change) => sum.plus(partSaving(change).aircraft), new Decimal(0));
+  const person = () => staffOptions().find((item) => item.value === form.values.contact);
+  const total = () => totalSaving(parts);
   const visibleErrors = () =>
     Object.keys(form.errors).filter((path) => form.visibleError(path) != null).length +
     (partsError ? 1 : 0);
@@ -292,17 +282,17 @@ export default _component(() => {
   return () => {
     const types = form.values.types;
     const errors = visibleErrors();
-    const back = editing ? casePath('TaskDetail', { code: editing.code }) : casePath('UnitLedger');
+    const back = editing ? paths.task(editing.code) : paths.ledger('unit');
     return (
-      <CaseShell current="unit">
+      <>
         {/* 宽屏上每段最多三列、占满宽度：字段多，少翻页；窄了按 minColumnWidth 自动减列 */}
         <Flex direction="column" gap="lg">
           <Flex direction="column" gap="xs">
             <Breadcrumbs
               items={[
-                { label: '单机降本台账', href: casePath('UnitLedger') },
+                { label: '单机降本台账', href: paths.ledger('unit') },
                 editing
-                  ? { label: editing.code, href: casePath('TaskDetail', { code: editing.code }) }
+                  ? { label: editing.code, href: paths.task(editing.code) }
                   : { label: '新建项目' },
                 ...(editing ? [{ label: '编辑' }] : []),
               ]}
@@ -331,7 +321,7 @@ export default _component(() => {
                 </GridItem>
                 <form.Field name="category" label="任务类别" required>
                   <RadioGroup value={_bind(form.values.category)} orientation="horizontal">
-                    {categories.map((item) => (
+                    {dict('categories').map((item) => (
                       <Radio key={item.value} value={item.value}>
                         {item.label}
                       </Radio>
@@ -339,14 +329,22 @@ export default _component(() => {
                   </RadioGroup>
                 </form.Field>
                 <form.Field name="source" label="任务来源" required>
-                  <Select items={sources} value={_bind(form.values.source)} placeholder="请选择" />
+                  <Select
+                    items={dict('sources')}
+                    value={_bind(form.values.source)}
+                    placeholder="请选择"
+                  />
                 </form.Field>
                 <form.Field name="team" label="责任一级团队" required>
-                  <Select items={teams} value={_bind(form.values.team)} placeholder="请选择" />
+                  <Select
+                    items={teamNames()}
+                    value={_bind(form.values.team)}
+                    placeholder="请选择"
+                  />
                 </form.Field>
                 <form.Field name="org" label="提出单位" required>
                   <Select
-                    items={orgs}
+                    items={master().orgs.map((org) => org.name)}
                     value={_bind(
                       () => form.values.org,
                       (next: string) => {
@@ -360,7 +358,7 @@ export default _component(() => {
                 </form.Field>
                 <form.Field name="dept" label="提出部门" required>
                   <Select
-                    items={depts[form.values.org] ?? []}
+                    items={deptsOf(form.values.org)}
                     value={_bind(form.values.dept)}
                     placeholder={form.values.org ? '请选择' : '先选提出单位'}
                     disabled={!form.values.org}
@@ -368,7 +366,7 @@ export default _component(() => {
                 </form.Field>
                 <form.Field name="contact" label="联络人" required>
                   <Combobox
-                    items={people}
+                    items={staffOptions()}
                     value={_bind(form.values.contact)}
                     placeholder="输入姓名搜索"
                   />
@@ -387,8 +385,11 @@ export default _component(() => {
               >
                 <form.Field name="install" label="必装 / 选装" required>
                   <RadioGroup value={_bind(form.values.install)} orientation="horizontal">
-                    <Radio value="required">必装</Radio>
-                    <Radio value="optional">选装</Radio>
+                    {dict('installTypes').map((item) => (
+                      <Radio key={item.value} value={item.value}>
+                        {item.label}
+                      </Radio>
+                    ))}
                   </RadioGroup>
                 </form.Field>
                 <form.Field name="types" label="降本类型" required>
@@ -449,14 +450,14 @@ export default _component(() => {
                 </form.Field>
                 <form.Field name="form" label="完成形式" required>
                   <Select
-                    items={completionForms}
+                    items={dict('completionForms')}
                     value={_bind(form.values.form)}
                     placeholder="请选择"
                   />
                 </form.Field>
                 <form.Field name="suppliers" label="涉及供应商">
                   <Select
-                    items={suppliers}
+                    items={master().suppliers}
                     selectionMode="multiple"
                     value={_bind(form.values.suppliers)}
                     placeholder="可多选"
@@ -474,7 +475,7 @@ export default _component(() => {
               <FormSection headingLevel={2} id="funding" title="经费与依据" columns={3} collapsible>
                 <form.Field name="funding" label="经费来源">
                   <CheckboxGroup value={_bind(form.values.funding)} orientation="horizontal">
-                    {fundingSources.map((item) => (
+                    {dict('fundingSources').map((item) => (
                       <Checkbox key={item.value} value={item.value}>
                         {item.label}
                       </Checkbox>
@@ -512,7 +513,7 @@ export default _component(() => {
                 </form.Field>
                 <form.Field name="engineer" label="工程责任人" required>
                   <Combobox
-                    items={people}
+                    items={staffOptions()}
                     value={_bind(form.values.engineer)}
                     placeholder="输入姓名搜索"
                   />
@@ -664,16 +665,15 @@ export default _component(() => {
               <FormSection headingLevel={2} id="evaluation" title="降本明细 · 工程评估" columns={3}>
                 <form.Field name="opinion" label="工程初步评估意见" required>
                   <RadioGroup value={_bind(form.values.opinion)} orientation="horizontal">
-                    <Radio value="初步同意">初步同意</Radio>
-                    <Radio value="暂不具备实施条件">暂不具备实施条件</Radio>
-                    <Radio value="待评估">待评估</Radio>
+                    {dict('evaluationOpinions').map((item) => (
+                      <Radio key={item.value} value={item.value}>
+                        {item.label}
+                      </Radio>
+                    ))}
                   </RadioGroup>
                 </form.Field>
                 <form.Field name="reductionType" label="类型">
-                  <Select
-                    items={['降本降价', '降本不降价']}
-                    value={_bind(form.values.reductionType)}
-                  />
+                  <Select items={dict('reductionTypes')} value={_bind(form.values.reductionType)} />
                 </form.Field>
                 {/* 暂不具备实施条件、待评估时才要写原因 */}
                 {form.values.opinion !== '初步同意' && (
@@ -705,7 +705,7 @@ export default _component(() => {
           </Form>
         </Flex>
         <PartChangeDialog open={_bind(dialogOpen)} change={editingPart} onSave={savePart} />
-      </CaseShell>
+      </>
     );
   };
 });

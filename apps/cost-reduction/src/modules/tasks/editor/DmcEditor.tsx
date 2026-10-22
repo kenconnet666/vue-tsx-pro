@@ -1,8 +1,9 @@
-// 案例：降 DMC 编辑（表单页，新建、编辑共用）。字段与校验严格按《降本项目信息表》的“DMC降本主表”与
-// “DMC降本实施节点信息表”：主表三组（基本信息、降本信息、技术与实施），实施节点在表格里逐行编辑
-// （完成形式、计划与实际完成日期、贯彻架次、责任一级团队、是否需要 SB）。项目编码、联络人工号系统生成或带出，只读。
-// 主表的“完成年度”按信息表存完整日期，就是项目的计划完成日期。地址上带 code 时编辑那一项，不带时新建；保存后去项目详情。
-// 数据是虚构的
+/**
+ * 降 DMC 编辑（表单，新建与编辑共用）。字段与校验严格按《降本项目信息表》的“DMC降本主表”与
+ * “DMC降本实施节点信息表”：主表三组（基本信息、降本信息、技术与实施），实施节点在表格里逐行编辑
+ * （完成形式、计划与实际完成日期、贯彻架次、责任一级团队、是否需要 SB）。项目编码、联络人工号系统生成或带出，只读。
+ * 主表的“完成年度”按信息表存完整日期，就是项目的计划完成日期。保存后去项目详情；编码由后端在新建时生成
+ */
 import { Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -36,29 +37,19 @@ import {
   Textarea,
   TextField,
   useForm,
+  useConfig,
   useLeaveConfirmation,
-  useQueryState,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
-import {
-  categories,
-  completionForms,
-  costKinds,
-  depts,
-  models,
-  nextTaskCode,
-  orgs,
-  people,
-  saveTask,
-  suppliers,
-  taskStore,
-  teams,
-  workPackages,
-  type CostTask,
-} from '../data';
-import { CaseShell, casePath, useCaseNavigate } from '../shell';
-import { checkSavings, taskFields } from '../task-form';
+import { createTask, saveTask } from '../../../api/tasks';
+import { notifyError } from '../../../app/feedback';
+import { deptsOf, dict, master, staffOptions, teamNames } from '../../../app/master';
+import { paths } from '../../../app/paths';
+import { blankClosing, blankMilestones } from '../../../domain/task/lifecycle';
+import type { CostTask, InstallType } from '../../../domain/task/types';
+import { costKinds } from '../../../shared/kinds';
+import { checkSavings, taskFields } from './task-form';
 
 const node = z.object({
   form: z.string().min(1, '请选择完成形式'),
@@ -159,13 +150,14 @@ const fromTask = (task: CostTask): Values => ({
 function toTask(values: Values, base: CostTask | null): CostTask {
   return {
     ...(base ?? {
-      code: nextTaskCode('dmc', values.date.slice(0, 4), values.team),
+      // 新建时编码由后端按“DMC-完成年度-团队缩写-序号”生成
+      code: '',
       sourceCode: '待关联',
-      model: models[0]!,
-      workPackage: workPackages[0]!,
+      model: master().models[0]!,
+      workPackage: master().workPackages[0]!,
       // DMC 主表没有任务类别、提出部门、经费来源与项目建议书：取默认值，统计时按降本类型分开
-      category: categories[0]!.value,
-      dept: depts[values.org]?.[0] ?? '',
+      category: dict('categories')[0]!.value,
+      dept: deptsOf(values.org)[0] ?? '',
       funding: [],
       proposalNo: '',
       owner: values.contact,
@@ -175,12 +167,8 @@ function toTask(values: Values, base: CostTask | null): CostTask {
       a: null,
       b: null,
       gapReason: null,
-      milestones: [
-        { label: '方案确定', done: null, evidence: null },
-        { label: '验证完成', done: null, evidence: null },
-        { label: '收益确认', done: null, evidence: null },
-      ],
-      closing: { verification: false, benefit: false, business: false },
+      milestones: blankMilestones(),
+      closing: blankClosing(),
       unitDetail: null,
     }),
     kind: 'dmc',
@@ -189,7 +177,7 @@ function toTask(values: Values, base: CostTask | null): CostTask {
     org: values.org,
     contact: values.contact,
     team: values.team,
-    install: values.install as CostTask['install'],
+    install: values.install as InstallType,
     expected: values.dmcSaving ?? new Decimal(0),
     description: values.description,
     modelNo: values.modelNo,
@@ -198,7 +186,7 @@ function toTask(values: Values, base: CostTask | null): CostTask {
     year: values.date.slice(0, 4),
     flights: values.flights,
     form: values.form,
-    supplier: values.suppliers[0] ?? suppliers[0]!,
+    supplier: values.suppliers[0] ?? master().suppliers[0]!,
     needSb: values.needSb === 'yes',
     remark: values.remark,
     dmcNodes: values.nodes.map((item) => ({ ...item, done: item.done || null })),
@@ -217,29 +205,31 @@ const styles = stylex.create({
   actions: { width: '4rem' },
 });
 
-export default _component(() => {
-  const code = useQueryState('code', '');
-  const navigate = useCaseNavigate();
-  // 地址上带 code：编辑那一项；找不到或不带：新建
-  const editing =
-    taskStore.value.find((task) => task.code === code.value && task.kind === 'dmc') ?? null;
+/** 降 DMC 编辑：task 为 null 时新建 */
+export const DmcEditor = _component(({ task }: { task: CostTask | null }) => {
+  const router = useConfig().router;
+  // 编辑的是哪一项在打开时就定了：取一次
+  const editing = _untrack(task);
   let status = _state('');
 
   const form = useForm({
     schema,
     initial: editing ? fromTask(editing) : blank(),
     onSubmit: async (values) => {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      const task = toTask(values as Values, editing);
-      saveTask(task);
-      status = editing ? '已保存' : `已新建 ${task.code}`;
-      form.reset(form.values);
-      navigate('TaskDetail', { code: task.code });
+      const draft = toTask(values as Values, editing);
+      try {
+        const saved = editing ? await saveTask(draft) : await createTask(draft);
+        status = editing ? '已保存' : `已新建 ${saved.code}`;
+        form.reset(form.values);
+        router?.navigate(paths.task(saved.code));
+      } catch (error) {
+        notifyError(editing ? '没能保存' : '没能创建项目', error);
+      }
     },
   });
   // 有没保存的改动时，点“取消”、面包屑或关掉页面都先问一下
   useLeaveConfirmation(() => form.dirty && !form.submitting);
-  const person = () => people.find((item) => item.value === form.values.contact);
+  const person = () => staffOptions().find((item) => item.value === form.values.contact);
   const visibleErrors = () =>
     Object.keys(form.errors).filter((path) => form.visibleError(path) != null).length;
 
@@ -259,18 +249,18 @@ export default _component(() => {
   return () => {
     const types = form.values.types;
     const errors = visibleErrors();
-    const back = editing ? casePath('TaskDetail', { code: editing.code }) : casePath('DmcLedger');
+    const back = editing ? paths.task(editing.code) : paths.ledger('dmc');
     const nodesError = form.visibleError('nodes');
     return (
-      <CaseShell current="dmc">
+      <>
         {/* 宽屏上每段最多三列、占满宽度；窄了按 minColumnWidth 自动减列 */}
         <Flex direction="column" gap="lg">
           <Flex direction="column" gap="xs">
             <Breadcrumbs
               items={[
-                { label: '降 DMC 台账', href: casePath('DmcLedger') },
+                { label: '降 DMC 台账', href: paths.ledger('dmc') },
                 editing
-                  ? { label: editing.code, href: casePath('TaskDetail', { code: editing.code }) }
+                  ? { label: editing.code, href: paths.task(editing.code) }
                   : { label: '新建项目' },
                 ...(editing ? [{ label: '编辑' }] : []),
               ]}
@@ -298,14 +288,22 @@ export default _component(() => {
                   </form.Field>
                 </GridItem>
                 <form.Field name="team" label="责任一级团队" required>
-                  <Select items={teams} value={_bind(form.values.team)} placeholder="请选择" />
+                  <Select
+                    items={teamNames()}
+                    value={_bind(form.values.team)}
+                    placeholder="请选择"
+                  />
                 </form.Field>
                 <form.Field name="org" label="提出单位" required>
-                  <Select items={orgs} value={_bind(form.values.org)} placeholder="请选择" />
+                  <Select
+                    items={master().orgs.map((org) => org.name)}
+                    value={_bind(form.values.org)}
+                    placeholder="请选择"
+                  />
                 </form.Field>
                 <form.Field name="contact" label="联络人" required>
                   <Combobox
-                    items={people}
+                    items={staffOptions()}
                     value={_bind(form.values.contact)}
                     placeholder="输入姓名搜索"
                   />
@@ -324,8 +322,11 @@ export default _component(() => {
               >
                 <form.Field name="install" label="必装 / 选装" required>
                   <RadioGroup value={_bind(form.values.install)} orientation="horizontal">
-                    <Radio value="required">必装</Radio>
-                    <Radio value="optional">选装</Radio>
+                    {dict('installTypes').map((item) => (
+                      <Radio key={item.value} value={item.value}>
+                        {item.label}
+                      </Radio>
+                    ))}
                   </RadioGroup>
                 </form.Field>
                 <form.Field name="types" label="降本类型" required>
@@ -385,7 +386,7 @@ export default _component(() => {
                 </form.Field>
                 <form.Field name="form" label="完成形式" required>
                   <Select
-                    items={completionForms}
+                    items={dict('completionForms')}
                     value={_bind(form.values.form)}
                     placeholder="请选择"
                   />
@@ -401,7 +402,7 @@ export default _component(() => {
                 </form.Field>
                 <form.Field name="suppliers" label="涉及供应商">
                   <Select
-                    items={suppliers}
+                    items={master().suppliers}
                     selectionMode="multiple"
                     value={_bind(form.values.suppliers)}
                     placeholder="可多选"
@@ -459,7 +460,7 @@ export default _component(() => {
                               <TableCell>
                                 <form.Field name={`${path}.form`} labelPlacement="top">
                                   <Select
-                                    items={completionForms}
+                                    items={dict('completionForms')}
                                     value={_bind(item.form)}
                                     placeholder="请选择"
                                     aria-label={`${which}完成形式`}
@@ -495,7 +496,7 @@ export default _component(() => {
                               <TableCell>
                                 <form.Field name={`${path}.team`} labelPlacement="top">
                                   <Select
-                                    items={teams}
+                                    items={teamNames()}
                                     value={_bind(item.team)}
                                     placeholder="请选择"
                                     aria-label={`${which}责任一级团队`}
@@ -547,7 +548,7 @@ export default _component(() => {
             </Flex>
           </Form>
         </Flex>
-      </CaseShell>
+      </>
     );
   };
 });
