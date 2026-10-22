@@ -1,6 +1,6 @@
 /**
  * 页面外壳（路由的布局）：顶栏是品牌、本页的导航（页面用 PageNav 放进来）、收件箱与我负责的任务、主题与当前用户；
- * 侧栏是盖在页面上的抽屉（开不开正文都是整宽），按模块分组，只列当前角色看得到的项；
+ * 侧栏是盖在页面上的抽屉（开不开正文都是整宽），按模块分组，只列当前角色看得到的项；拖窄时只剩图标；
  * 正文是当前路由的页面。外壳只渲染一次，换页时只换正文与顶栏里本页导航那一格
  */
 import { Plane } from '@lucide/icons';
@@ -95,7 +95,7 @@ export const AppLayout = _component(() => {
                 const items = group.items.filter((item) => hasAnyRole(item.roles));
                 return (
                   items.length > 0 && (
-                    <NavSection key={group.label} label={group.label}>
+                    <NavSection key={group.label} label={group.label} icon={group.icon}>
                       {items.map((item) => (
                         <NavItem
                           key={item.key}

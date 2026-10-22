@@ -1,7 +1,7 @@
 /**
  * 新建、编辑任务卡的抽屉：从右侧滑入，页面留在原处（台账、详情都用它）。target 是 'new:unit'、'new:dmc'
  * 或任务编号，空字符串是关着；页面把它放在地址的查询参数里（?editor=…），刷新、分享都还打开着。
- * 宽度可以拖动、各人记住；有未保存的改动时，关闭按钮、Esc、点遮罩、取消都先确认；保存后关上并通知页面刷新
+ * 宽度可以拖动（能拖到几乎关上，让出后面的台账）、各人记住；有未保存的改动时，关闭按钮、Esc、点遮罩、取消都先确认；保存后关上并通知页面刷新
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { Drawer, useConfirm, usePersistentState, useRequest } from '@vue-tsx-pro/ui';
@@ -86,8 +86,6 @@ export const TaskEditorDrawer = _component(
           )}
           title={creating() ? `新建${amount.label}项目` : `编辑 ${code()}`}
           description={`${amount.codeHeader}按“${taskCodePrefix(kind)}-完成年度-团队拼音缩写-序号”自动生成，不能手改${creating() ? '；保存后生成' : ''}`}
-          resizable
-          minWidth={560}
           width={_bind(width.value)}
           beforeClose={mayClose}
         >

@@ -8,10 +8,14 @@ import {
   BookOpenText,
   Building2,
   Calculator,
+  CircleDollarSign,
   FileText,
+  FolderKanban,
   Gauge,
   House,
+  Library,
   Lightbulb,
+  Split,
   Users,
   Wrench,
 } from '@lucide/icons';
@@ -66,10 +70,11 @@ const internal: readonly RoleKey[] = [
   'admin',
 ];
 
-/** 侧栏的分组 */
-export const navGroups: readonly { label: string; items: readonly NavEntry[] }[] = [
+/** 侧栏的分组：图标标在小节标题前（不能点），侧栏拖窄只剩图标时代替标题 */
+export const navGroups: readonly { label: string; icon: IconData; items: readonly NavEntry[] }[] = [
   {
     label: '降本项目',
+    icon: FolderKanban,
     items: [
       {
         key: 'unit',
@@ -83,6 +88,7 @@ export const navGroups: readonly { label: string; items: readonly NavEntry[] }[]
   },
   {
     label: '收益',
+    icon: CircleDollarSign,
     items: [
       {
         key: 'confirm',
@@ -102,6 +108,7 @@ export const navGroups: readonly { label: string; items: readonly NavEntry[] }[]
   },
   {
     label: '两条渠道',
+    icon: Split,
     items: [
       {
         key: 'proposals',
@@ -120,6 +127,7 @@ export const navGroups: readonly { label: string; items: readonly NavEntry[] }[]
   },
   {
     label: '分析与资料',
+    icon: Library,
     items: [
       {
         key: 'params',
