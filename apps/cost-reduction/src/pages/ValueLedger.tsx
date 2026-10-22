@@ -33,9 +33,9 @@ import {
   opportunities,
   taskStore,
   teams,
-} from '../../data';
-import { shortTeam } from '../../ledger';
-import { CaseShell, casePath } from '../../shell';
+} from '../data';
+import { shortTeam } from '../ledger';
+import { CaseShell, casePath } from '../shell';
 
 /** 一本账的一行：任务池里的任务，或渠道里的机会 */
 interface Row {

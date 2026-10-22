@@ -17,7 +17,6 @@ import {
   TableOfContents,
   ThemeSwitcher,
   collectHeadings,
-  usePersistentState,
   type HeadingEntry,
 } from '@vue-tsx-pro/ui';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -59,9 +58,6 @@ const styles = stylex.create({
   main: { paddingBlockStart: '2.5rem', paddingBlockEnd: '4rem' },
   pager: { marginBlockStart: '_xl' },
 });
-
-// 站点导航是盖在页面上的抽屉：默认收起，不挡正文（首页就是导航）；开关与拖动后的宽度各人记住
-const sidebar = usePersistentState('docs.sidebar', { open: false, width: 256 });
 
 /** 搜索面板的选项：每个页面一项，按侧栏分组 */
 const searchItems = allPages.map((page) => ({
@@ -134,9 +130,6 @@ export const App = _component(() => {
     const isHome = route.path === '/';
     return (
       <AppShell
-        sidebarMode="overlay"
-        sidebarOpen={_bind(sidebar.value.open)}
-        sidebarWidth={_bind(sidebar.value.width)}
         brand={
           <RouterLink to="/" {...stylex.attrs(styles.brand)}>
             <Icon icon={Box} sx={styles.brandMark} />

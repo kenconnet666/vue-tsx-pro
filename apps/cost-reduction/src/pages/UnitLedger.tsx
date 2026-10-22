@@ -2,8 +2,8 @@
 // 详情里有降本明细的摘要（构型通知单、零件更改条数、工程评估），明细本身在编辑页维护
 import { _component } from '@vue-tsx-pro/tsx';
 import { Small } from '@vue-tsx-pro/ui';
-import type { CostTask } from '../../data';
-import { countActive, detailSection, filterFields, LedgerPage, ledgerColumns } from '../../ledger';
+import type { CostTask } from '../data';
+import { countActive, detailSection, filterFields, LedgerPage, ledgerColumns } from '../ledger';
 
 function partsSummary(task: CostTask) {
   const detail = task.unitDetail;

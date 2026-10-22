@@ -74,8 +74,8 @@ import {
   TODAY,
   valueStates,
   type CostTask,
-} from '../../data';
-import { CaseShell, casePath, useCaseNavigate, type CasePage } from '../../shell';
+} from '../data';
+import { CaseShell, casePath, useCaseNavigate, type CasePage } from '../shell';
 
 /** 按当前状态的下一步：主按钮的文字与推进到的状态；没有下一步时为 null */
 function nextStep(task: CostTask): { label: string; next: string } | null {

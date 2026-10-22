@@ -639,7 +639,7 @@ export const inbox = [
 ] as const;
 
 /**
- * 任务卡的存储：同一个文档站里的案例页共用（新建、编辑、删除后回到任务池、看板都能看到）；刷新页面回到初始数据
+ * 任务卡的存储：各页共用（新建、编辑、删除后回到任务池、看板都能看到）；刷新页面回到初始数据
  */
 export const taskStore = shallowRef<readonly CostTask[]>(costTasks);
 

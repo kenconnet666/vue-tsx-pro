@@ -63,10 +63,10 @@ import {
   type CostTask,
   type PartChange,
   type UnitDetail,
-} from '../../data';
-import { PartChangeDialog } from '../../part-change';
-import { checkSavings, taskFields } from '../../task-form';
-import { CaseShell, casePath, useCaseNavigate } from '../../shell';
+} from '../data';
+import { PartChangeDialog } from '../part-change';
+import { checkSavings, taskFields } from '../task-form';
+import { CaseShell, casePath, useCaseNavigate } from '../shell';
 
 const schema = z
   .object({

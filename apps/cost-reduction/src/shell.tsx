@@ -3,7 +3,7 @@
 // 分析与资料（测算参数、储备库、基础数据）；侧栏不放计数：数字只在一处出现。品牌也链到首页。
 // 侧栏是盖在页面上的抽屉（AppShell overlay），开不开正文都是整宽。
 // 工作台（收件箱、我负责的任务）是顶栏的图标按钮，右上角是条数，点开看最近几条。
-// 做好的案例页之间可以跳转（同一个文档站里的整页示例），统计看板点数字跳到筛好条件的台账
+// 做好的案例页之间可以跳转，统计看板点数字跳到筛好条件的台账
 import {
   Archive,
   BadgeCheck,
@@ -44,7 +44,7 @@ import {
   type IconData,
 } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
-import { preference } from '../../site/theme';
+import { preference } from './theme';
 import { inbox, myTasks, taskStatuses, TODAY } from './data';
 
 /** 已经做好的案例页 */
@@ -58,10 +58,14 @@ export type CasePage =
   | 'ValueLedger'
   | 'CostDashboard';
 
-/** 案例页的地址（文档站的整页示例），query 是带过去的筛选条件 */
+/** 页面名 → 路由地址：CostDashboard → cost-dashboard */
+export const pageRoute = (page: string) =>
+  page.replace(/(?<=[a-z0-9])([A-Z])/g, '-$1').toLowerCase();
+
+/** 案例页的地址，query 是带过去的筛选条件 */
 export function casePath(page: CasePage, query: Record<string, string> = {}): string {
   const search = new URLSearchParams(query).toString();
-  return `${import.meta.env.BASE_URL}frame/cases/${page}/frames/${page}${search ? `?${search}` : ''}`;
+  return `${import.meta.env.BASE_URL}${pageRoute(page)}${search ? `?${search}` : ''}`;
 }
 
 /** 跳到另一个案例页（保存后去详情、删除后回列表）：走 Provider 的路由适配；没配路由（单元测试）时什么也不做 */
@@ -331,7 +335,6 @@ export const CaseShell = _component(
                   })}
                 </Tray>
               </div>
-              {/* 主题与文档站共用一个偏好：在这里切换，文档站也跟着变 */}
               <ThemeSwitcher preference={preference} />
               <Avatar size="sm" name="林小满" />
             </>

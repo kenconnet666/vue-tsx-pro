@@ -44,9 +44,9 @@ import {
   saveTask,
   taskStore,
   type CostTask,
-} from '../../data';
-import { ledgerColumns } from '../../ledger';
-import { CaseShell, casePath } from '../../shell';
+} from '../data';
+import { ledgerColumns } from '../ledger';
+import { CaseShell, casePath } from '../shell';
 
 const tabs = [
   { value: 'awaiting', label: '待认定' },

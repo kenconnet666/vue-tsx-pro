@@ -1,6 +1,6 @@
 /**
- * 首页：介绍与导航。站点导航是默认收起的抽屉，首页就是入口：
- * 一句话介绍（背后是粒子星座）与两个入口；从这里开始（指南）；降本管理案例（整页示例）；组件目录（按分类、带数量）；
+ * 首页：介绍与导航：
+ * 一句话介绍（背后是粒子星座）与两个入口；从这里开始（指南）；组件目录（按分类、带数量）；
  * 最后是几个特点和一段能直接运行的代码。目录与侧栏、搜索同一份数据（site/nav），新增页面自动出现
  */
 import {
@@ -8,7 +8,6 @@ import {
   BookOpen,
   Code2,
   Palette,
-  Plane,
   Shapes,
   Sparkles,
   SwatchBook,
@@ -145,10 +144,7 @@ const guideIcons: Record<string, IconData> = {
   [PLAYGROUND_PATH]: Code2,
 };
 const guide = sections.find((section) => section.label === '指南')?.pages ?? [];
-const cases = sections.find((section) => section.label === '案例')?.pages ?? [];
-const components = sections.filter(
-  (section) => section.label !== '指南' && section.label !== '案例',
-);
+const components = sections.filter((section) => section.label !== '指南');
 const componentCount = components.reduce((total, section) => total + section.pages.length, 0);
 
 const features: { icon: IconData; title: string; text: string }[] = [
@@ -198,14 +194,14 @@ export default _component(() => () => (
         <H1 sx={styles.title}>更自然的 Vue TSX</H1>
         <Paragraph tone="muted" sx={styles.lead}>
           props 驱动的组件、下划线符文与 StyleX，加上一套按无障碍规范写的组件库（{componentCount}{' '}
-          个组件页）与整页的业务案例。在已有的 Vue 项目里直接用。
+          个组件页）。在已有的 Vue 项目里直接用。
         </Paragraph>
         <Flex gap="sm" wrap justify="center">
           <LinkButton href="/guide/getting-started" iconEnd={ArrowRight}>
             快速开始
           </LinkButton>
-          <LinkButton href={cases[0]?.path ?? '/components/button'} variant="soft" icon={Plane}>
-            看降本管理案例
+          <LinkButton href="/components/button" variant="soft" icon={Shapes}>
+            看组件
           </LinkButton>
         </Flex>
       </Flex>
@@ -218,20 +214,6 @@ export default _component(() => () => (
           {guide.map((page) => entry(page, guideIcons[page.path] ?? BookOpen))}
         </Grid>
       </section>
-
-      {cases.length > 0 && (
-        <section {...stylex.attrs(styles.section)} aria-labelledby="home-cases">
-          <div {...stylex.attrs(styles.sectionHead)}>
-            <H2 id="home-cases" size="lg">
-              案例 · 联合降本管理
-            </H2>
-            <Small tone="muted">按需求文档与降本项目信息表做的整页示例，数据是虚构的</Small>
-          </div>
-          <Grid minItemWidth="18rem" gap="md">
-            {cases.map((page) => entry(page, Plane))}
-          </Grid>
-        </section>
-      )}
 
       <section {...stylex.attrs(styles.section)} aria-labelledby="home-components">
         <div {...stylex.attrs(styles.sectionHead)}>

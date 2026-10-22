@@ -1,0 +1,34 @@
+{
+  "name": "@vue-tsx-pro/cost-reduction",
+  "version": "0.0.0",
+  "private": true,
+  "description": "联合降本管理：用 vue-tsx-pro 组件库搭的整页业务应用（统计看板、台账、详情、表单与审批），数据是虚构的",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader native",
+    "build": "vite build --configLoader native",
+    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "catalog:",
+    "@internationalized/date": "catalog:",
+    "@lucide/icons": "catalog:",
+    "@stylexjs/stylex": "catalog:",
+    "@vue-tsx-pro/tsx": "workspace:^",
+    "@vue-tsx-pro/ui": "workspace:^",
+    "animejs": "catalog:",
+    "decimal.js": "catalog:",
+    "shiki": "catalog:",
+    "@shikijs/langs": "catalog:",
+    "tabbable": "catalog:",
+    "three": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/three": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

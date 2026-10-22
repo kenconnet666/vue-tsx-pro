@@ -19,13 +19,12 @@ import {
   type StatusMap,
 } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
-import { DocPage } from '../../../site/DocPage';
+import { DocPage } from '../DocPage';
 
 export const meta = {
   title: 'Overview 降本管理设计',
   description:
     '只依据需求定义方案与降本项目信息表梳理的设计规格：分期、角色与权限、业务对象、三张卡的状态机、导航、每个页面的布局与字段、统计口径与界面规范。',
-  order: 0,
 };
 
 /** 一张简单的表：第一列是行标题 */

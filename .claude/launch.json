@@ -36,6 +36,16 @@
         "--strictPort"
       ],
       "port": 4174
+    },
+    {
+      "name": "cost-reduction",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@vue-tsx-pro/cost-reduction",
+        "dev"
+      ],
+      "port": 5175
     }
   ]
 }

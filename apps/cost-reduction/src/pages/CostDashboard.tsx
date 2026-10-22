@@ -56,9 +56,9 @@ import {
   teams,
   valueStates,
   type CostTask,
-} from '../../data';
-import { focuses, shortTeam } from '../../ledger';
-import { CaseShell, casePath, type CasePage } from '../../shell';
+} from '../data';
+import { focuses, shortTeam } from '../ledger';
+import { CaseShell, casePath, type CasePage } from '../shell';
 
 /** 降本类型的切换项：各自的单位与格式（costKinds） */
 const kinds = (['unit', 'dmc'] as const).map((value) => ({ value, ...costKinds[value] }));

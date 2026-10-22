@@ -1,6 +1,6 @@
 /**
  * 指南：设计资源。每套内置主题导出成 Figma 变量（DTCG JSON，点了才在浏览器里生成）、导入步骤与换算规则、
- * Figma 设计文件里有什么、图标从哪里来、降本管理的整页示例（界面稿的蓝本）
+ * Figma 设计文件里有什么、图标从哪里来
  */
 import { Download } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -36,12 +36,11 @@ import {
 } from '@vue-tsx-pro/ui';
 import { themeDesignTokens } from '@vue-tsx-pro/ui/theme-customize';
 import { DocPage } from '../../site/DocPage';
-import { sections } from '../../site/nav';
 
 const meta = {
   title: 'Design Resources 设计资源',
   description:
-    '每套内置主题都能导出成 Figma 变量（DTCG 格式的 JSON），与代码里的 token 一一对应；Figma 设计文件里有文字样式、阴影、图标与常用组件；降本管理的整页示例是界面稿的蓝本。',
+    '每套内置主题都能导出成 Figma 变量（DTCG 格式的 JSON），与代码里的 token 一一对应；Figma 设计文件里有文字样式、阴影、图标与常用组件。',
 };
 
 const FIGMA_FILE = 'https://www.figma.com/design/UTDP9KBNhelTIK1KoMlHYk';
@@ -74,8 +73,6 @@ const conversions: [groups: string, type: string, rule: string][] = [
     'Figma 变量没有这两种类型；文件里按 DTCG 的 shadow、cubicBezier 写出，给 Style Dictionary 这类工具用',
   ],
 ];
-
-const cases = sections.find((section) => section.label === '案例')?.pages ?? [];
 
 /** 一套主题的设计令牌存成 <主题名>.tokens.json */
 function download(name: BuiltinThemeName) {
@@ -189,7 +186,7 @@ export default _component(() => {
           </LinkButton>
         </Flex>
         <Alert tone="info">
-          降本管理的界面稿还在画；在那之前，下面的整页示例就是蓝本，界面以它为准。
+          降本管理的界面稿还在画；在那之前，以仓库里 apps/cost-reduction 的整页应用为蓝本。
         </Alert>
       </Flex>
 
@@ -207,25 +204,6 @@ export default _component(() => {
           。
         </Paragraph>
       </Flex>
-
-      {cases.length > 0 && (
-        <Flex direction="column" gap="md">
-          <H2 id="pages" size="xl" anchor>
-            整页示例
-          </H2>
-          <Paragraph>
-            按需求文档与降本项目信息表做的联合降本管理：抽屉导航、统计看板、台账、详情、长表单与审批，都用组件库搭出来，数据是虚构的。
-          </Paragraph>
-          <List gap="sm">
-            {cases.map((page) => (
-              <ListItem key={page.path}>
-                <Link href={page.path}>{page.title}</Link>
-                <Small tone="muted"> · {page.description}</Small>
-              </ListItem>
-            ))}
-          </List>
-        </Flex>
-      )}
     </DocPage>
   );
 });
