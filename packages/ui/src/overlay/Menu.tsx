@@ -380,7 +380,8 @@ export function menuItemContent(
         {...mergePartProps<TextProps>(
           { tone: 'muted', size: 'sm', sx: menuStyles.shortcut },
           propsShortcut,
-          { 'aria-hidden': true },
+          // 有 aria-keyshortcuts 时读屏从它念，显示的文字不重复念；序列键没有，照常念
+          { 'aria-hidden': keyShortcuts(shortcut) ? true : undefined },
         )}
       >
         {formatHotkey(shortcut)}

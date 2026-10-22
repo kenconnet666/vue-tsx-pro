@@ -2,6 +2,7 @@
 import { effectScope } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ariaKeyShortcut, formatHotkey, matchesHotkey, useHotkeys } from '../hotkeys';
+import { trackModal } from '../overlay';
 
 const press = (key: string, init: KeyboardEventInit = {}, target: EventTarget = document.body) => {
   const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
@@ -106,5 +107,55 @@ describe('useHotkeys', () => {
     press('Enter', { isComposing: true }, input);
     expect(save).toHaveBeenCalledTimes(1);
     scope.stop();
+  });
+
+  it('序列键：先按 g 再按 i（1.5 秒内）；序列优先于单键；超时就断开', () => {
+    vi.useFakeTimers();
+    const inbox = vi.fn();
+    const info = vi.fn();
+    const scope = effectScope();
+    scope.run(() => useHotkeys(() => ({ I: info, 'G I': inbox })));
+    press('g');
+    press('i');
+    expect([inbox.mock.calls.length, info.mock.calls.length]).toEqual([1, 0]);
+    press('g');
+    vi.advanceTimersByTime(2000);
+    vi.spyOn(performance, 'now').mockReturnValue(performance.now() + 2000);
+    press('i');
+    expect([inbox.mock.calls.length, info.mock.calls.length]).toEqual([1, 1]);
+    scope.stop();
+    vi.useRealTimers();
+  });
+
+  it('模态对话框打开时，页面级的快捷键只认对话框里的按键；target 让快捷键只在区域里生效', () => {
+    const search = vi.fn();
+    const edit = vi.fn();
+    const editor = document.body.appendChild(document.createElement('div'));
+    editor.tabIndex = 0;
+    const scope = effectScope();
+    scope.run(() => {
+      useHotkeys(() => ({ '/': search }));
+      useHotkeys(() => ({ 'Mod+B': edit }), { target: () => editor });
+    });
+    onPlatform('Win32');
+    press('b', { ctrlKey: true });
+    press('b', { ctrlKey: true }, editor);
+    expect(edit).toHaveBeenCalledTimes(1);
+
+    // 模态对话框由组件库打开（openModalDialog 登记成最上层的模态）
+    const dialog = document.body.appendChild(document.createElement('dialog'));
+    const untrack = trackModal(dialog);
+    press('/');
+    press('/', {}, dialog);
+    expect(search).toHaveBeenCalledTimes(1);
+    untrack();
+    scope.stop();
+  });
+});
+
+describe('序列键的显示与读屏', () => {
+  it('显示时每一步分开写；aria-keyshortcuts 表达不了序列，返回 undefined', () => {
+    expect(formatHotkey('G I')).toBe('G I');
+    expect(ariaKeyShortcut('G I')).toBeUndefined();
   });
 });

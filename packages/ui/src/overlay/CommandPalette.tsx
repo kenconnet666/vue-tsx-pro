@@ -227,7 +227,10 @@ export const CommandPalette = _component(
           <Icon icon={Search} sx={controlStyles.icon} />
           <span {...mergeAttrs<'span'>({ sx: commandPaletteStyles.triggerLabel })}>{text}</span>
           {hotkey && (
-            <Kbd sx={commandPaletteStyles.triggerText} aria-hidden="true">
+            <Kbd
+              sx={commandPaletteStyles.triggerText}
+              aria-hidden={ariaKeyShortcut(hotkey) ? 'true' : undefined}
+            >
               {formatHotkey(hotkey)}
             </Kbd>
           )}
