@@ -44,7 +44,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium firefox webkit
+      # 浏览器从 Playwright 的 CDN 下载，偶尔连不上（TLS、超时）：重试三次再算失败
+      - name: Install browsers
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium firefox webkit && exit 0
+            echo "playwright install failed (attempt $attempt), retrying"
+            sleep 15
+          done
+          exit 1
       - run: pnpm test:browser
       # 偶发失败只在 CI 上出现时，靠失败截图判断是谁挡住了点击、停在了哪一步
       - if: failure()
@@ -78,5 +87,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium
+      # 浏览器从 Playwright 的 CDN 下载，偶尔连不上（TLS、超时）：重试三次再算失败
+      - name: Install browsers
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            echo "playwright install failed (attempt $attempt), retrying"
+            sleep 15
+          done
+          exit 1
       - run: pnpm test:consumer
