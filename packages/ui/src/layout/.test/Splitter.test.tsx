@@ -54,13 +54,16 @@ describe('Splitter', () => {
       />
     ));
     const handle = root.querySelector('[role="separator"]')!;
-    const end = root.querySelector<HTMLElement>('[role="separator"] + div')!;
+    // 分隔条在中间那一格里，收起按钮与它并排（交互元素不能嵌套）
+    const track = handle.parentElement!;
+    const end = track.nextElementSibling as HTMLElement;
     key(handle, 'Enter');
     await nextTick();
     expect(collapsed.value).toBe(true);
     expect(end.hidden).toBe(true);
     expect(handle.getAttribute('aria-valuenow')).toBe('100');
-    const toggle = handle.querySelector('button')!;
+    expect(handle.querySelector('button')).toBeNull();
+    const toggle = track.querySelector('button')!;
     expect(toggle.getAttribute('aria-label')).toBe('展开');
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
     toggle.click();
@@ -69,7 +72,7 @@ describe('Splitter', () => {
     expect(end.hidden).toBe(false);
 
     const plain = mount(() => <Splitter start="a" end="b" />);
-    expect(plain.querySelector('[role="separator"] button')).toBeNull();
+    expect(plain.querySelector('button')).toBeNull();
   });
 
   it('上下排列：分隔条是横向的，用 ↑/↓', () => {

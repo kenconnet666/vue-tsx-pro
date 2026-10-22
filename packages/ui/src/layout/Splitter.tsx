@@ -91,11 +91,11 @@ export const splitterStyles = stylex.create({
   },
   pane: { minWidth: 0, minHeight: 0, overflow: 'auto' },
   // 分隔条：看得见的是中间一条细线，能拖的范围更宽；悬停、拖动时变成强调色
+  // 分隔条所在的格：分隔条铺满它，收起按钮叠在中间（不放进可聚焦的分隔条里：交互元素不能嵌套）
+  track: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   handle: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    position: 'absolute',
+    inset: 0,
     touchAction: 'none',
     outlineStyle: 'none',
     color: { default: '_borderMuted', ':hover': '_borderStrong', ':focus-visible': '_accent' },
@@ -225,36 +225,43 @@ export const Splitter = _component(
             {start}
           </div>
           <div
-            {...mergeAttrs<'div'>(
-              {
-                sx: [
-                  splitterStyles.handle,
-                  horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
-                  focusRingStyles.visible,
-                ],
-              },
-              propsHandle,
-              {
-                role: 'separator',
-                tabindex: 0,
-                'aria-label': label ?? lang.splitterResize,
-                'aria-orientation': horizontal() ? 'vertical' : 'horizontal',
-                'aria-controls': `${id}-start`,
-                'aria-valuenow': hideStart ? 0 : hideEnd ? 100 : size,
-                'aria-valuemin': minSize,
-                'aria-valuemax': maxSize,
-                onPointerdown,
-                onKeydown,
-                onDblclick: () => (size = fit(initialSize)),
-              },
+            {...stylex.attrs(
+              splitterStyles.track,
+              horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
             )}
           >
-            <span
-              {...stylex.attrs(
-                splitterStyles.line,
-                horizontal() ? splitterStyles.lineHorizontal : splitterStyles.lineVertical,
+            <div
+              {...mergeAttrs<'div'>(
+                {
+                  sx: [
+                    splitterStyles.handle,
+                    horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
+                    focusRingStyles.visible,
+                  ],
+                },
+                propsHandle,
+                {
+                  role: 'separator',
+                  tabindex: 0,
+                  'aria-label': label ?? lang.splitterResize,
+                  'aria-orientation': horizontal() ? 'vertical' : 'horizontal',
+                  'aria-controls': `${id}-start`,
+                  'aria-valuenow': hideStart ? 0 : hideEnd ? 100 : size,
+                  'aria-valuemin': minSize,
+                  'aria-valuemax': maxSize,
+                  onPointerdown,
+                  onKeydown,
+                  onDblclick: () => (size = fit(initialSize)),
+                },
               )}
-            />
+            >
+              <span
+                {...stylex.attrs(
+                  splitterStyles.line,
+                  horizontal() ? splitterStyles.lineHorizontal : splitterStyles.lineVertical,
+                )}
+              />
+            </div>
             {collapsible && (
               <IconButton
                 {...mergePartProps<IconButtonProps>(
