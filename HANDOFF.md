@@ -23,7 +23,7 @@
   - 日期：Calendar、RangeCalendar、DateField、TimeField、DatePicker（年、月、日期时间）、TimePicker、DateRangePicker、RelativeTime、DateTime、Countdown（`@internationalized/date`，值可以是 ISO 字符串或 DateValue）
   - 表格：Table 家族、DataTable（始终虚拟滚动；排序、勾选、固定列、列宽、滚动加载）、TreeDataTable
   - 表单（form/）：Field、Label、Form、FormValue、useForm（zod；decimalSchema / bigintSchema）
-  - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart
+  - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart；XY 图的目标线（targets）、各图的下钻（onItemClick）
   - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer；不依赖 three 的 TiltCard、SpotlightCard、BorderBeam 在主入口
 - **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher` 切换，`ThemeCustomizer` 定制（子路径 `@vue-tsx-pro/ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
 - **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。联合降本管理已拆成独立子项目 `apps/cost-reduction`（`pnpm dev:cost`，端口 5175），文档站不再收案例页。

@@ -68,6 +68,11 @@ export interface DonutChartProps<T extends object>
   hiddenItems?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
+  /**
+   * 点了一个扇区（下钻）：参数是这一行与它在 data 里的位置；写了它时指针是手形。
+   * 点图是鼠标的捷径：同样的去处在页面上还要有链接或按钮
+   */
+  onItemClick?: (row: T, index: number) => void;
 }
 
 /** DonutChart 的样式：skeleton */
@@ -105,6 +110,7 @@ export const DonutChart = _component(
     legend = true,
     tooltip = true,
     loading = false,
+    onItemClick,
     hiddenItems = _bindable<string[]>([]),
     empty,
     ...rest
@@ -159,6 +165,12 @@ export const DonutChart = _component(
             centerLabel === false ? undefined : (centerLabel ?? format.number(total, valueFormat)),
           centralSubLabel: centerLabel === false ? undefined : (centerSubLabel ?? lang.chartTotal),
           showBackground: true,
+          events: {
+            [Donut.selectors.segment]: {
+              click: (arc: { data: Slice<T> }) =>
+                onItemClick?.(arc.data.row, data.indexOf(arc.data.row)),
+            },
+          },
         });
         return {
           component: donut,
@@ -198,6 +210,7 @@ export const DonutChart = _component(
         onLegendToggle={toggle}
         loading={loading}
         skeleton={<Skeleton sx={donutChartStyles.skeleton} />}
+        clickable={onItemClick != null}
         isEmpty={data.length === 0}
         empty={empty}
         table={{

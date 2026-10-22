@@ -1,5 +1,5 @@
 /**
- * 各种图表共用的外层结构（XYChart、DonutChart、SankeyChart、ChordChart）：外层 figure、单位与图例、绘图区（加载中的骨架、空状态、Unovis 画布）、
+ * 各种图表共用的外层结构（XYChart、DonutChart、SankeyChart、ChordChart、FunnelChart、GraphChart）：外层 figure、单位与图例、绘图区（加载中的骨架、空状态、Unovis 画布）、
  * 给读屏的数据表；还有提示框的内容、Unovis 实例表与主题变量。
  *
  *   <ChartFrame unit="万元" legend={items} hiddenKeys={hidden} onLegendToggle={toggle} loading={loading}
@@ -103,6 +103,9 @@ export const chartStyles = stylex.create({
     '--vis-donut-central-label-font-size': fontSizes.xl,
     '--vis-donut-central-sub-label-text-color': colors.textMuted,
     '--vis-donut-central-sub-label-font-size': fontSizes.xs,
+    // 目标线：虚线，标签是小号的次要文字（颜色由各条线自己给）
+    '--vis-plotline-label-font-size': fontSizes.xs,
+    '--vis-plotline-label-color': colors.textMuted,
   },
   header: {
     display: 'flex',
@@ -144,6 +147,8 @@ export const chartStyles = stylex.create({
   // contain: inline-size：画好的 SVG 写死了宽度，不能让它反过来撑住按内容定宽的外层（表格式的滚动区、
   // 起始对齐的弹性布局）；不然容器变窄时图表还是原来那么宽，Unovis 量不到变化也就不重画
   plot: { position: 'relative', minWidth: 0, contain: 'inline-size' },
+  // 点了能下钻：手形指针
+  plotClickable: { cursor: 'pointer' },
   plotHeight: (height: string) => ({ height }),
   center: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' },
   tooltip: { display: 'flex', flexDirection: 'column', gap: '_xs', fontSize: '_xs' },
@@ -259,7 +264,13 @@ export interface ChartFrameProps extends PartProps<'div', 'role' | 'aria-busy'>,
   /** 给读屏的数据表 */
   table: ChartTable;
   /** 取得绘图区元素（Unovis 画在这里）；加载、空状态之后重新出现时是新的元素 */
-  plotRef: (element: HTMLElement | null) => void;
+  plotRef?: (element: HTMLElement | null) => void;
+  /** 绘图区里直接渲染的内容（不用 Unovis 的图，如漏斗图）；同样对读屏隐藏 */
+  plot?: VNodeChild;
+  /** 点了绘图区（下钻）：写了它时指针是手形 */
+  onPlotClick?: () => void;
+  /** 图里的项能点（手形指针），点击由图自己处理（环形图的扇区、网络图的节点） */
+  clickable?: boolean;
 }
 
 /** 图表的外层结构 */
@@ -276,6 +287,9 @@ export const ChartFrame = _component(
     empty,
     table,
     plotRef,
+    plot,
+    onPlotClick,
+    clickable = false,
     propsHeader,
     propsUnit,
     propsLegend,
@@ -352,15 +366,24 @@ export const ChartFrame = _component(
             <div
               key="plot"
               {...mergeAttrs<'div'>(
-                { sx: [chartStyles.plot, chartStyles.plotHeight(plotHeight)] },
+                {
+                  sx: [
+                    chartStyles.plot,
+                    chartStyles.plotHeight(plotHeight),
+                    (clickable || onPlotClick) && chartStyles.plotClickable,
+                  ],
+                },
                 propsPlot,
                 {
                   'aria-hidden': true,
                   ref: (element: unknown) =>
-                    plotRef(element instanceof HTMLElement ? element : null),
+                    plotRef?.(element instanceof HTMLElement ? element : null),
+                  onClick: onPlotClick,
                 },
               )}
-            />
+            >
+              {plot}
+            </div>
           )}
           {!isEmpty && (
             <table {...mergeAttrs<'table'>({ sx: visuallyHiddenStyles.hidden }, propsTable)}>

@@ -10,8 +10,11 @@ import { isDecimal, isNumeric, toNumber, type NumericValue } from '../utils/data
 export type ChartPaletteColor =
   'chart1' | 'chart2' | 'chart3' | 'chart4' | 'chart5' | 'chart6' | 'chart7' | 'chart8';
 
-/** 系列颜色：色板里的一个（`'chart3'`），或任意 CSS 颜色（`'#e5484d'`、`colors.danger`） */
-export type ChartColor = ChartPaletteColor | (string & {});
+/** 语义色：好坏、提醒（瀑布图的增减、目标线），跟随主题 */
+export type ChartToneColor = 'accent' | 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+
+/** 系列颜色：色板里的一个（`'chart3'`）、语义色（`'danger'`），或任意 CSS 颜色（`'#e5484d'`） */
+export type ChartColor = ChartPaletteColor | ChartToneColor | (string & {});
 
 /** 数据行里取值是数字（number、bigint、Decimal）的字段 */
 export type NumericKey<T> = {
@@ -48,10 +51,23 @@ const PALETTE: readonly string[] = [
 
 const PALETTE_NAME = /^chart([1-8])$/;
 
-/** 一个颜色：色板名换成 CSS 变量；没写时按位置取色板，多于 8 个时循环使用（系列、环形图的扇区共用） */
+const TONES: Record<ChartToneColor, string> = {
+  accent: colors.accent,
+  success: colors.success,
+  warning: colors.warning,
+  danger: colors.danger,
+  info: colors.info,
+  neutral: colors.textMuted,
+};
+
+/**
+ * 一个颜色：色板名、语义色换成 CSS 变量；没写时按位置取色板，多于 8 个时循环使用
+ * （系列、环形图的扇区、网络图的组共用）
+ */
 export function resolveColor(color: ChartColor | undefined, index: number): string {
   const palette = color && PALETTE_NAME.exec(color);
   if (palette) return PALETTE[Number(palette[1]) - 1]!;
+  if (color && color in TONES) return TONES[color as ChartToneColor];
   return color ?? PALETTE[index % PALETTE.length]!;
 }
 

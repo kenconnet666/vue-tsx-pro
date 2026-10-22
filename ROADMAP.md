@@ -217,15 +217,17 @@ C919 模板与 1013 原型重新设计；原来的一期页面只作参考，按
 - [ ] D5 渠道一：建议列表、提交建议、建议详情、测算表单与版本对比、协商：FieldCompare、CommentThread
 - [ ] D6 渠道二：方案列表、新需求、方案详情；供应商门户
 - [ ] D7 测算公式与参数、储备库与匹配推送、降本明细两页：DataTable 单元格编辑
-- [ ] D8 统计分析四页；基础数据、系统管理（流程配置 FlowDesigner、工作日历、分级授权、提醒、日志）：WaterfallChart、FunnelChart
+- [ ] D8 统计分析四页；基础数据、系统管理（流程配置 FlowDesigner、工作日历、分级授权、提醒、日志）（图表已备：WaterfallChart、FunnelChart、GraphChart、目标线、下钻；看板已用上）
 - [x] 设计资源：主题导出为设计令牌（DTCG JSON）；Figma 文件里的变量、样式、图标与组件；“设计资源”指南
 - [ ] 降本的 Figma 界面：Figma MCP 的月度额度恢复后再画，以 DESIGN.md 与做好的页面为蓝本
 
 ## 5. 图表
 
-- [ ] 点击与下钻：ChartFrame 的 `onItemClick`，统计看板的柱子、环形图能点进筛好的列表
-- [ ] 目标线、标注、组合图（柱 + 线，双轴）、100% 堆叠
-- [ ] 新图表：WaterfallChart（A → B → D 差额）、FunnelChart、热力图 / PivotTable、Gauge、Sparkline、TimelineChart、GraphChart
+- [x] 点击与下钻：`onItemClick`（柱子按图形、折线面积按十字线所在的类目、环形图的扇区、漏斗的环节、网络图的节点）；统计看板的团队图、漏斗能点进筛好的台账
+- [x] 目标线：XY 图的 `targets`（Unovis Plotline，数值轴范围包含它）；图表颜色认语义色（success、danger…）
+- [ ] 标注、组合图（柱 + 线，双轴）、100% 堆叠
+- [x] 新图表：WaterfallChart（正负跨 0、合计柱、`fromZero`）、FunnelChart（主题 tokens 画，subgrid 对齐）、GraphChart（Unovis Graph：force / dagre / elk / parallel、分组框、选中高亮、缩放）
+- [ ] 新图表：热力图 / PivotTable、Gauge、Sparkline、TimelineChart
 - [ ] 其余：雷达、矩形树图、缩放、导出图片与数据；地图（TopoJSON、Leaflet）排在最后
 - [ ] 浏览器测试补上 Area、Scatter、Donut、Sankey、Chord；部件属性的示例
 

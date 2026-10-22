@@ -11,6 +11,7 @@ import Horizontal from './demo/Horizontal.tsx?demo';
 import Legend from './demo/Legend.tsx?demo';
 import Options from './demo/Options.tsx?demo';
 import Stacked from './demo/Stacked.tsx?demo';
+import Targets from './demo/Targets.tsx?demo';
 import States from './demo/States.tsx?demo';
 
 export const meta = {
@@ -53,6 +54,12 @@ export default _component(() => () => (
           点图例隐藏、恢复系列；<Code>hiddenSeries</Code> 可以用 <Code>_bind</Code>{' '}
           双向绑定，记住用户的选择或由外部控制。多于一个系列时才显示图例，<Code>legend</Code>{' '}
           可以强制显示或隐藏。
+        </Example>
+        <Example id="targets" title="目标线与下钻" demo={Targets}>
+          <Code>targets</Code>{' '}
+          在数值轴上画虚线（横向图是竖线），标签后面带上数值，数值轴的范围会包含它；颜色默认
+          danger，可以写语义色（<Code>warning</Code>）或色板。<Code>onItemClick</Code>{' '}
+          点一个类目下钻（指针是手形），参数是这一行与它的位置；点图是鼠标的捷径，同样的去处页面上还要有链接。折线图、面积图、散点图、瀑布图同样支持。
         </Example>
         <Example id="states" title="加载与空状态" demo={States}>
           <Code>loading</Code> 时绘图区显示一排高低不一的骨架柱并扫光（折线图是一整块），图表带{' '}

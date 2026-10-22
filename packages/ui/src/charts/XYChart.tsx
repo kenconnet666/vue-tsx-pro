@@ -4,14 +4,26 @@
  * 绘图交给 Unovis 的 XYContainer：组件实例只建一次，数据与配置变化时 update，卸载时 destroy；
  * 绘图区换了元素（加载、空状态之后重新出现）时容器连同全部实例一起重建。
  * 各种图只决定画什么（kind.components），坐标轴、十字线、提示框、配色都在这里统一。
+ * 目标线（targets）用 Unovis 的 Plotline。点了下钻（onItemClick）：有图形可点的图（柱子）按图形的点击事件
+ * （kind.itemSelector），折线、面积图按十字线所在的那一行，散点图按悬停的点。
  */
-import { Axis, Crosshair, Tooltip, XYContainer, type XYComponentCore } from '@unovis/ts';
+import {
+  Axis,
+  Crosshair,
+  Plotline,
+  PlotlineLabelPosition,
+  PlotlineLineStylePresets,
+  Tooltip,
+  XYContainer,
+  type XYComponentCore,
+} from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { render, useId, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
+import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
 import {
   ChartFrame,
@@ -21,14 +33,28 @@ import {
   uniqueHighlightFilter,
   useChartValueText,
   type ChartFrameParts,
+  type ChartTable,
+  type ChartTooltipItem,
 } from './frame';
 import {
+  resolveColor,
   resolveSeries,
   seriesNumber,
   seriesValue,
+  type ChartColor,
   type ChartSeries,
   type ResolvedSeries,
 } from './series';
+
+/** 目标线（参考线）：数值轴上的一条虚线 */
+export interface ChartTarget {
+  /** 位置：数值轴上的值 */
+  value: NumericValue;
+  /** 标签：写在线的一端，后面带上格式化的数值（“年度指标 1,200”） */
+  label?: string;
+  /** 颜色；默认是 danger（要够到的线） */
+  color?: ChartColor;
+}
 
 /** 加载中的骨架 */
 export interface ChartSkeletons {
@@ -84,6 +110,13 @@ export interface XYChartProps<T extends object>
   hiddenSeries?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
+  /** 目标线、参考线：数值轴上的虚线（横向图是竖线），如年度降本指标；数值轴的范围会包含它 */
+  targets?: readonly ChartTarget[];
+  /**
+   * 点了一个类目（下钻，如跳到筛好条件的台账）：参数是这一行与它的位置；写了它时绘图区的指针是手形。
+   * 点图是鼠标的捷径：同样的去处在页面上还要有链接或按钮，键盘与读屏才到得了（WCAG 2.1.1）
+   */
+  onItemClick?: (row: T, index: number) => void;
 }
 
 /** 交给各种图的绘制上下文 */
@@ -96,6 +129,8 @@ export interface XYChartContext<T extends object> {
   y: (series: ResolvedSeries<T>) => (row: T) => number | undefined;
   /** 取一个跨渲染保留的组件实例：第一次调用时创建；Unovis 组件保留实例，更新时才有过渡动画 */
   instance: <C>(key: string, create: () => C) => C;
+  /** 点图形下钻的事件（写了 itemSelector 时）：并进组件的 events；没有 onItemClick 时是空的 */
+  events: Record<string, Record<string, (row: T) => void>>;
 }
 
 /** 一种图：画哪些组件，以及与坐标轴、十字线有关的差别 */
@@ -123,6 +158,14 @@ export interface XYChartKind<T extends object> {
   zeroBaseline?: boolean;
   /** 提示框跟着数据点（散点图），没有十字线：按选择器触发，悬停的数据是这一行 */
   pointTooltip?: string;
+  /** 提示框里列的项；不写时每个显示中的系列一行（瀑布图列变动与累计） */
+  tooltipItems?: (row: T) => ChartTooltipItem[];
+  /** 数值轴的范围要包含的值；不写时按系列的值（stacked 时按正负各自的总和） */
+  domainValues?: (rows: readonly T[]) => number[];
+  /** 给读屏的数据表；不写时类目一列加每个系列一列 */
+  table?: (rows: readonly T[]) => ChartTable;
+  /** 点哪种图形算点了这一行（柱子的选择器，图形绑定的数据是这一行）；不写时按十字线所在的那一行 */
+  itemSelector?: string;
 }
 
 /** 骨架柱的高度（百分比）：高低错落，看起来像一组数据 */
@@ -192,6 +235,8 @@ export const XYChart = _component(
     loading = false,
     hiddenSeries = _bindable<string[]>([]),
     empty,
+    targets,
+    onItemClick,
     kind,
     sx,
     ...rest
@@ -224,23 +269,34 @@ export const XYChart = _component(
     const instances = createChartInstances();
     let tooltipElement: HTMLElement | undefined;
 
+    // 指针所在的那一行：十字线移动时记下，点绘图区时下钻到它；离开绘图区时清掉
+    let hovered: { row: T; index: number } | null = null;
+    const hover = (row: T | undefined) => {
+      hovered = row === undefined ? null : { row, index: data.indexOf(row) };
+    };
+
     /** 十字线的提示框：内容用 Vue 渲染进同一个元素，交给 Unovis 定位 */
     function renderTooltip(row: T) {
       tooltipElement ??= document.createElement('div');
+      // 跟着数据点的提示框（散点图）没有十字线：悬停哪个点就是哪一行
+      if (kind.pointTooltip) hover(row);
       render(
-        chartTooltip(categoryText(row), [
-          ...(kind.continuousX
-            ? [{ label: kind.continuousX.label, color: 'transparent', value: xText(row) }]
-            : []),
-          // 跟着数据点的提示框只列这一行有值的系列（散点图里一行通常只落在一个系列上）
-          ...visible
-            .filter((item) => !kind.pointTooltip || seriesValue(row, item.key) !== undefined)
-            .map((item) => ({
-              label: item.label,
-              color: item.color,
-              value: valueText(seriesValue(row, item.key)),
-            })),
-        ]),
+        chartTooltip(
+          categoryText(row),
+          kind.tooltipItems?.(row) ?? [
+            ...(kind.continuousX
+              ? [{ label: kind.continuousX.label, color: 'transparent', value: xText(row) }]
+              : []),
+            // 跟着数据点的提示框只列这一行有值的系列（散点图里一行通常只落在一个系列上）
+            ...visible
+              .filter((item) => !kind.pointTooltip || seriesValue(row, item.key) !== undefined)
+              .map((item) => ({
+                label: item.label,
+                color: item.color,
+                value: valueText(seriesValue(row, item.key)),
+              })),
+          ],
+        ),
         tooltipElement,
       );
       return tooltipElement;
@@ -266,12 +322,16 @@ export const XYChart = _component(
       }
 
       const totals = rows.map((row) => shown.map((item) => seriesNumber(row, item.key) ?? 0));
-      const values = kind.stacked
-        ? totals.flatMap((row) => [
-            row.reduce((sum, value) => sum + Math.max(value, 0), 0),
-            row.reduce((sum, value) => sum + Math.min(value, 0), 0),
-          ])
-        : totals.flat();
+      const seriesValues = kind.domainValues
+        ? kind.domainValues(rows)
+        : kind.stacked
+          ? totals.flatMap((row) => [
+              row.reduce((sum, value) => sum + Math.max(value, 0), 0),
+              row.reduce((sum, value) => sum + Math.min(value, 0), 0),
+            ])
+          : totals.flat();
+      // 目标线要落在数值轴的范围里
+      const values = [...seriesValues, ...(targets ?? []).map((target) => toNumber(target.value))];
       const domain: [number | undefined, number | undefined] = [
         valueDomain?.[0] ?? (kind.zeroBaseline === false ? undefined : Math.min(0, ...values)),
         valueDomain?.[1],
@@ -280,7 +340,42 @@ export const XYChart = _component(
         ? (row: T) => kind.continuousX!.value(row) ?? Number.NaN
         : (_row: T, position: number) => position;
       const y = (item: (typeof shown)[number]) => (row: T) => seriesNumber(row, item.key);
-      const components = kind.components({ series: shown, x, y, instance: instances.get });
+      const lines = (targets ?? []).map((target, position) => {
+        const line = instances.get(`target-${position}`, () => new Plotline<T>({}));
+        const value = toNumber(target.value);
+        const label = valueText(target.value);
+        line.setConfig({
+          axis: kind.horizontal ? 'x' : 'y',
+          value,
+          color: resolveColor(target.color ?? 'danger', 0),
+          lineWidth: 1.5,
+          lineStyle: PlotlineLineStylePresets.Dash,
+          labelText: target.label ? `${target.label} ${label}` : label,
+          labelPosition: kind.horizontal
+            ? PlotlineLabelPosition.TopRight
+            : PlotlineLabelPosition.TopLeft,
+          labelOffsetX: 4,
+          labelOffsetY: 10,
+        });
+        return line;
+      });
+      const components = [
+        ...kind.components({
+          series: shown,
+          x,
+          y,
+          instance: instances.get,
+          events:
+            kind.itemSelector && onItemClick
+              ? {
+                  [kind.itemSelector]: {
+                    click: (row: T) => onItemClick(row, data.indexOf(row)),
+                  },
+                }
+              : {},
+        }),
+        ...lines,
+      ];
       const xAxis = instances.get('xAxis', () => new Axis<T>({ type: 'x' }));
       const yAxis = instances.get('yAxis', () => new Axis<T>({ type: 'y' }));
       const crosshair = instances.get('crosshair', () => new Crosshair<T>());
@@ -320,6 +415,7 @@ export const XYChart = _component(
         color: (_row: T, position: number) => shown[position]?.color ?? 'transparent',
         getCircles: kind.crosshairDots ? undefined : () => [],
         hideWhenFarFromPointer: false,
+        onCrosshairMove: (_x, row) => hover(row),
       });
 
       tooltipBox.setConfig({
@@ -329,7 +425,11 @@ export const XYChart = _component(
         components,
         xAxis,
         yAxis,
-        crosshair: tooltip && !kind.pointTooltip ? crosshair : undefined,
+        // 能下钻时没有提示框也要十字线：靠它知道指针在哪一行
+        crosshair:
+          (tooltip || (onItemClick && !kind.itemSelector)) && !kind.pointTooltip
+            ? crosshair
+            : undefined,
         tooltip: tooltip ? tooltipBox : undefined,
         [kind.horizontal ? 'xDomain' : 'yDomain']: domain,
         padding: kind.padding ?? {},
@@ -357,23 +457,33 @@ export const XYChart = _component(
         skeleton={chartSkeleton(kind)}
         isEmpty={data.length === 0}
         empty={empty}
-        table={{
-          columns: [
-            lang.chartCategory,
-            ...(kind.continuousX ? [kind.continuousX.label] : []),
-            ...resolved.map((item) => (unit ? `${item.label}（${unit}）` : item.label)),
-          ],
-          rows: data.map((row) => ({
-            header: categoryText(row),
-            cells: [
-              ...(kind.continuousX ? [xText(row)] : []),
-              ...resolved.map((item) => {
-                const value = seriesValue(row, item.key);
-                return value === undefined ? lang.emptyValue : format.number(value, valueFormat);
-              }),
+        clickable={onItemClick != null}
+        onPlotClick={
+          onItemClick && !kind.itemSelector
+            ? () => {
+                if (hovered) onItemClick(hovered.row, hovered.index);
+              }
+            : undefined
+        }
+        table={
+          kind.table?.(data) ?? {
+            columns: [
+              lang.chartCategory,
+              ...(kind.continuousX ? [kind.continuousX.label] : []),
+              ...resolved.map((item) => (unit ? `${item.label}（${unit}）` : item.label)),
             ],
-          })),
-        }}
+            rows: data.map((row) => ({
+              header: categoryText(row),
+              cells: [
+                ...(kind.continuousX ? [xText(row)] : []),
+                ...resolved.map((item) => {
+                  const value = seriesValue(row, item.key);
+                  return value === undefined ? lang.emptyValue : format.number(value, valueFormat);
+                }),
+              ],
+            })),
+          }
+        }
         plotRef={(element) => (plot = element)}
       />
     );

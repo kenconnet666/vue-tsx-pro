@@ -10,6 +10,23 @@ export { BarChart, type BarChartOrientations, type BarChartProps } from './BarCh
 export { ChordChart, chordChartStyles, type ChordChartProps } from './ChordChart';
 export { DonutChart, donutChartStyles, type DonutChartProps } from './DonutChart';
 export { type FlowLink, type FlowNode } from './flow';
+export {
+  FunnelChart,
+  funnelChartDynamicStyles,
+  funnelChartStyles,
+  type FunnelChartProps,
+  type FunnelStage,
+} from './FunnelChart';
+export {
+  GraphChart,
+  graphChartStyles,
+  type GraphChartGroup,
+  type GraphChartLayouts,
+  type GraphChartLink,
+  type GraphChartNode,
+  type GraphChartProps,
+  type GraphChartShapes,
+} from './GraphChart';
 export { chartStyles, type ChartFrameParts, type ChartLegendItem } from './frame';
 export {
   CURVES,
@@ -30,8 +47,16 @@ export {
   resolveSeries,
   type ChartColor,
   type ChartPaletteColor,
+  type ChartToneColor,
   type ChartSeries,
   type NumericKey,
   type ResolvedSeries,
 } from './series';
-export { xyChartStyles, type ChartSkeletons, type XYChartProps } from './XYChart';
+export {
+  WaterfallChart,
+  waterfallRows,
+  type WaterfallChartProps,
+  type WaterfallRow,
+  type WaterfallStep,
+} from './WaterfallChart';
+export { xyChartStyles, type ChartSkeletons, type ChartTarget, type XYChartProps } from './XYChart';

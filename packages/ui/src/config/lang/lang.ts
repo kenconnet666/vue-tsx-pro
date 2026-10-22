@@ -160,6 +160,24 @@ export interface Lang {
   readonly chartFlow: string;
   /** 一条流向的写法：`('官网', '注册')` → “官网 → 注册” */
   readonly chartFlowLabel: (source: string, target: string) => string;
+  /** 瀑布图里往上走的一步，默认“增加” */
+  readonly chartIncrease: string;
+  /** 瀑布图里往下走的一步，默认“减少” */
+  readonly chartDecrease: string;
+  /** 瀑布图数据表与提示框的“变动”，默认“变动” */
+  readonly chartChange: string;
+  /** 瀑布图数据表与提示框的“累计”，默认“累计” */
+  readonly chartCumulative: string;
+  /** 漏斗图：比上一环节的转化率，默认“环节转化” */
+  readonly chartStepRate: string;
+  /** 漏斗图：比第一环节的转化率，默认“总转化” */
+  readonly chartOverallRate: string;
+  /** 漏斗图数据表里“环节”一列，默认“环节” */
+  readonly chartStage: string;
+  /** 网络图数据表里“连接”一列，默认“连接” */
+  readonly chartLink: string;
+  /** 网络图提示框：一个节点连着几个节点，默认“连接 n 个” */
+  readonly chartDegree: (count: number) => string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
   /** 选择文件区域的提示，默认“点击或拖放文件到这里” */

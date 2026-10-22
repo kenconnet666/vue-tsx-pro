@@ -46,13 +46,15 @@ export const BarChart = _component(
       horizontal: orientation === 'horizontal',
       skeleton: 'bars',
       stacked,
-      components: ({ series, x, y, instance }) => {
+      itemSelector: stacked ? StackedBar.selectors.bar : GroupedBar.selectors.bar,
+      components: ({ series, x, y, instance, events }) => {
         const common = {
           x,
           y: series.map(y),
           color: (_row: T, position: number) => series[position]?.color,
           roundedCorners: radius,
           orientation,
+          events,
         };
         if (stacked) {
           const bars = instance('stacked', () => new StackedBar<T>({ x, y: [] }));

@@ -767,20 +767,20 @@ apps/docs/src/components/base/Button/
 
 子路径 `@vue-tsx-pro/ui/charts` 封装 `@unovis/ts`（可选 peer），主入口不导入：没用到图表的应用不打包 Unovis。柱状 + 折线按需打包约 77 KB（gzip，含 d3 与 emotion）。
 
-| 项         | 做法                                                                                                                                                                                                                                              |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 公共部分   | `charts/XYChart.tsx`（内部）：图例（按钮，`aria-pressed`，隐藏的系列可 `_bind`）、单位、绘图区、十字线与提示框（内容用 Vue 渲染进 Unovis 的提示框）、空与加载状态、给读屏的数据表；各种图只给出要画的 Unovis 组件                                 |
-| 生命周期   | Unovis 组件实例只建一次（`instance(key, create)`），数据与属性变化时 `setConfig` + `container.update`，卸载时 `destroy`，更新才有过渡动画                                                                                                         |
-| 外观       | 根元素上把 `--vis-*` 变量（坐标轴、网格、十字线、提示框、字体）指到 tokens；系列颜色是 CSS 变量；动画时长取 `durations.lg`（`themeTransition` 解析，减少动态效果时为 0）                                                                          |
-| 色板       | 新 tokens `colors.chart1–chart8`：Radix 各色阶里能在背景上到 3:1（WCAG 图形对比度）的最浅一级；`chart1` 跟随品牌色（palette 的 ACCENT_STEPS），亮、暗、纸张三套主题都进 `themes:check`                                                            |
-| 组件       | `BarChart`（分组 / 堆叠、竖向 / 横向、圆角）、`LineChart`（直线 / 平滑 / 阶梯、实心或空心数据点、空值断开）、`AreaChart`、`ScatterChart`；单容器的 `DonutChart`、`SankeyChart`、`ChordChart`；`series` 的 `key` 只接受数值字段（`NumericKey<T>`） |
-| Stat       | 主入口的 `Stat`（`display/Stat.tsx`）：`dl` 结构的指标名、数值（AnimatedNumber）、单位、图标、变化量（`invertChange` 用于越低越好）                                                                                                               |
-| 文档站     | “图表”分类：统计看板示例（筛选、指标卡、两张图、明细表、导出 CSV）、BarChart、LineChart；Stat 在“展示”                                                                                                                                            |
-| 顺带的基础 | StyleX 类型支持自定义属性（`'--x': …`，scripts/css-docs 生成）；API 表能读子路径导出的类型；`prebundle.config.ts` 加上 `@unovis/ts`                                                                                                               |
+| 项         | 做法                                                                                                                                                                                                                                                                                                                                                                             |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 公共部分   | `charts/XYChart.tsx`（内部）：图例（按钮，`aria-pressed`，隐藏的系列可 `_bind`）、单位、绘图区、十字线与提示框（内容用 Vue 渲染进 Unovis 的提示框）、空与加载状态、给读屏的数据表；各种图只给出要画的 Unovis 组件                                                                                                                                                                |
+| 生命周期   | Unovis 组件实例只建一次（`instance(key, create)`），数据与属性变化时 `setConfig` + `container.update`，卸载时 `destroy`，更新才有过渡动画                                                                                                                                                                                                                                        |
+| 外观       | 根元素上把 `--vis-*` 变量（坐标轴、网格、十字线、提示框、字体）指到 tokens；系列颜色是 CSS 变量；动画时长取 `durations.lg`（`themeTransition` 解析，减少动态效果时为 0）                                                                                                                                                                                                         |
+| 色板       | 新 tokens `colors.chart1–chart8`：Radix 各色阶里能在背景上到 3:1（WCAG 图形对比度）的最浅一级；`chart1` 跟随品牌色（palette 的 ACCENT_STEPS），亮、暗、纸张三套主题都进 `themes:check`                                                                                                                                                                                           |
+| 组件       | `BarChart`（分组 / 堆叠、竖向 / 横向、圆角）、`LineChart`（直线 / 平滑 / 阶梯、实心或空心数据点、空值断开）、`AreaChart`、`ScatterChart`；单容器的 `DonutChart`、`SankeyChart`、`ChordChart`、`GraphChart`；`WaterfallChart`（基于 XYChart 的堆叠柱）、`FunnelChart`（tokens 直接画）；`targets` 目标线、`onItemClick` 下钻；`series` 的 `key` 只接受数值字段（`NumericKey<T>`） |
+| Stat       | 主入口的 `Stat`（`display/Stat.tsx`）：`dl` 结构的指标名、数值（AnimatedNumber）、单位、图标、变化量（`invertChange` 用于越低越好）                                                                                                                                                                                                                                              |
+| 文档站     | “图表”分类：统计看板示例（筛选、指标卡、两张图、明细表、导出 CSV）、BarChart、LineChart；Stat 在“展示”                                                                                                                                                                                                                                                                           |
+| 顺带的基础 | StyleX 类型支持自定义属性（`'--x': …`，scripts/css-docs 生成）；API 表能读子路径导出的类型；`prebundle.config.ts` 加上 `@unovis/ts`                                                                                                                                                                                                                                              |
 
 **Unovis 的坑**：每个 XYContainer 都插一个 id 固定为 `saturate` 的滤镜，一页多张图时 id 重复，创建后改成各自的 id（`useId`）；GroupedBar 默认给空值画 2px 的最小高度，设为 0；happy-dom 没有 SVG 的 `transform.baseVal.consolidate`，时长为 0 时不走 d3 的过渡，单元测试不受影响；绘制在动画帧里，页面在后台（标签页隐藏）时暂停，回到前台才画。
 
-**之后**：点击下钻、目标线、组合图、新图表与键盘逐点浏览见 ROADMAP.md §5。
+**之后**：组合图、其余新图表与键盘逐点浏览见 ROADMAP.md §5。
 
 ### 10.22 3D 与视觉效果（已完成）
 
