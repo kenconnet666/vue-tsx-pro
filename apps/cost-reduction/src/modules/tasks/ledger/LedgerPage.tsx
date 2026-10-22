@@ -32,11 +32,9 @@ import {
   Flex,
   IconButton,
   Link,
-  LinkButton,
   Menu,
   MenuCheckboxItem,
   MenuItem,
-  MenuLinkItem,
   PageSizeSelect,
   Pagination,
   SelectionBar,
@@ -69,6 +67,7 @@ import type { CostKind, CostTask } from '../../../domain/task/types';
 import { costKinds } from '../../../shared/kinds';
 import { ProgressDots } from '../../../shared/Progress';
 import { focusTones, taskStatuses, valueStates } from '../../../shared/statuses';
+import { editorTarget, TaskEditorDrawer } from '../editor/TaskEditorDrawer';
 import { useTaskActions } from '../task-actions';
 import { LedgerDetail } from './LedgerDetail';
 
@@ -123,6 +122,8 @@ export const LedgerPage = _component(
     const amount = costKinds[ledgerKind];
     // 页签在地址里：从看板点进来（?view=…&valueState=…）、刷新、分享都是同一份列表
     let tab = _fromRef(useQueryState('view', 'all'));
+    // 新建、编辑的抽屉：在地址里（?editor=new:unit 或编号），刷新、分享都还打开着
+    let editor = _fromRef(useQueryState('editor', ''));
     /** 查询栏里编辑中的条件；点“查询”才应用 */
     let query = _state(blankLedgerQuery());
     let selected = _state<string[]>([]);
@@ -203,9 +204,9 @@ export const LedgerPage = _component(
           >
             推进到下一状态
           </MenuItem>
-          <MenuLinkItem icon={FilePen} href={paths.editTask(task.code)}>
+          <MenuItem icon={FilePen} onAction={() => (editor = editorTarget.edit(task.code))}>
             调整计划
-          </MenuLinkItem>
+          </MenuItem>
           <MenuItem
             icon={Send}
             disabled={!canClose(task)}
@@ -341,9 +342,13 @@ export const LedgerPage = _component(
         // 查看就是点编码，这里不重复。文字按钮用 link、图标按钮用 xs 加 cellControl：不把行撑高
         cell: (task) => (
           <Flex align="center" gap="sm">
-            <LinkButton href={paths.editTask(task.code)} size="sm" variant="link">
+            <Button
+              size="sm"
+              variant="link"
+              onClick={() => (editor = editorTarget.edit(task.code))}
+            >
               编辑
-            </LinkButton>
+            </Button>
             {moreMenu(task)}
           </Flex>
         ),
@@ -442,9 +447,13 @@ export const LedgerPage = _component(
               moreActive={bar.moreActive}
               actions={
                 canDo('task.create') && (
-                  <LinkButton href={paths.newTask(ledgerKind)} icon={Plus} variant="soft">
+                  <Button
+                    icon={Plus}
+                    variant="soft"
+                    onClick={() => (editor = editorTarget.create(ledgerKind))}
+                  >
                     新建项目
-                  </LinkButton>
+                  </Button>
                 )
               }
               more={bar.more}
@@ -509,6 +518,7 @@ export const LedgerPage = _component(
               </Flex>
             </div>
           </div>
+          <TaskEditorDrawer target={_bind(editor)} onSaved={() => void tasks.refresh()} />
         </>
       );
     };

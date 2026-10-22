@@ -2,6 +2,7 @@
 // 以及“选了哪种降本类型就要填对应的预期收益”
 import { decimalSchema } from '@vue-tsx-pro/ui';
 import * as z from 'zod';
+import type { CostTask } from '../../../domain/task/types';
 
 /** 金额：≥0、两位小数，可以先不填 */
 const amount = decimalSchema({ min: 0, scale: 2 }).nullable();
@@ -39,4 +40,16 @@ export function checkSavings(
     ctx.addIssue({ code: 'custom', path: ['unitSaving'], message: '降本类型含单机降本时必填' });
   if (values.types.includes('dmc') && values.dmcSaving == null)
     ctx.addIssue({ code: 'custom', path: ['dmcSaving'], message: '降本类型含降 DMC 时必填' });
+}
+
+/** 单机降本、降 DMC 两张编辑表单共同的属性（放在抽屉里） */
+export interface TaskEditorProps {
+  /** 编辑的任务卡；新建时为 null */
+  task: CostTask | null;
+  /** 保存成功（新建时带上后端生成的编码） */
+  onSaved: (task: CostTask) => void;
+  /** 点了取消 */
+  onCancel: () => void;
+  /** 有没有未保存的改动：父级写 dirty={_bind(x)}，关闭抽屉前确认 */
+  dirty?: boolean;
 }

@@ -1,6 +1,6 @@
 /**
  * 路由表：外壳是布局路由，各页是它的子路由（按需加载）。meta 写页面标题（浏览器标签上显示）与侧栏里高亮哪一项；
- * 项目详情、编辑按编号的前缀（DJ / DMC）高亮对应的台账
+ * 项目详情按编号的前缀（DJ / DMC）高亮对应的台账；新建、编辑不是单独的页，是页面上的抽屉（?editor=…）
  */
 import {
   createRouter,
@@ -22,7 +22,7 @@ declare module 'vue-router' {
   }
 }
 
-/** 项目详情、编辑：按编号的前缀高亮单机降本或降 DMC 台账 */
+/** 项目详情：按编号的前缀高亮单机降本或降 DMC 台账 */
 const ledgerOfCode = (route: RouteLocationNormalized): NavKey =>
   kindOfCode(String(route.params.code));
 
@@ -48,24 +48,9 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '降 DMC 台账', section: 'dmc' },
       },
       {
-        path: 'tasks/unit/new',
-        component: () => import('../modules/tasks/editor/UnitEditorPage'),
-        meta: { title: '新建单机降本项目', section: 'unit' },
-      },
-      {
-        path: 'tasks/dmc/new',
-        component: () => import('../modules/tasks/editor/DmcEditorPage'),
-        meta: { title: '新建降 DMC 项目', section: 'dmc' },
-      },
-      {
         path: 'tasks/:code',
         component: () => import('../modules/tasks/detail/TaskDetailPage'),
         meta: { title: '项目详情', section: ledgerOfCode },
-      },
-      {
-        path: 'tasks/:code/edit',
-        component: () => import('../modules/tasks/editor/TaskEditPage'),
-        meta: { title: '编辑项目', section: ledgerOfCode },
       },
       {
         path: 'benefit/confirm',

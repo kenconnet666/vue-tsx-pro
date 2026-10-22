@@ -5,7 +5,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Steps, useConfig, useRequest } from '@vue-tsx-pro/ui';
+import { Steps, useConfig, useQueryState, useRequest } from '@vue-tsx-pro/ui';
 import { useRoute } from 'vue-router';
 import { getTask } from '../../../api/tasks';
 import { paths } from '../../../app/paths';
@@ -15,6 +15,7 @@ import { taskFlow } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
 import { RequestView } from '../../../shared/RequestView';
 import { taskStatuses } from '../../../shared/statuses';
+import { editorTarget, TaskEditorDrawer } from '../editor/TaskEditorDrawer';
 import { useTaskActions } from '../task-actions';
 import { DetailHeader } from './DetailHeader';
 import { NodesCard, OverviewCard, PartsCard } from './MainCards';
@@ -81,12 +82,18 @@ export default _component(() => {
   });
 
   const flow = taskFlowFields(() => request.data!);
+  // 编辑的抽屉在地址里（?editor=编号）
+  let editor = _fromRef(useQueryState('editor', ''));
 
   return () => (
     <RequestView request={request} notFound={`没有找到项目 ${code()}`}>
       {(task) => (
         <div {...stylex.attrs(styles.page)}>
-          <DetailHeader task={task} actions={actions} />
+          <DetailHeader
+            task={task}
+            actions={actions}
+            onEdit={() => (editor = editorTarget.edit(task.code))}
+          />
           <StatusSteps task={task} />
           <div {...stylex.attrs(styles.body)}>
             <div {...stylex.attrs(styles.main)}>
@@ -110,6 +117,7 @@ export default _component(() => {
               <ClosingCard task={task} />
             </aside>
           </div>
+          <TaskEditorDrawer target={_bind(editor)} onSaved={() => void request.refresh()} />
         </div>
       )}
     </RequestView>

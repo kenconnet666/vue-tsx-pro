@@ -18,12 +18,12 @@ export const paths = {
   dashboard: (query?: Query) => withQuery('/dashboard', query),
   /** 单机降本台账、降 DMC 台账 */
   ledger: (kind: CostKind, query?: Query) => withQuery(`/tasks/${kind}`, query),
-  /** 新建项目 */
-  newTask: (kind: CostKind) => `/tasks/${kind}/new`,
+  /** 新建项目：台账上打开新建的抽屉 */
+  newTask: (kind: CostKind) => withQuery(`/tasks/${kind}`, { editor: `new:${kind}` }),
   /** 项目详情（任务卡） */
   task: (code: string) => `/tasks/${encodeURIComponent(code)}`,
-  /** 编辑项目 */
-  editTask: (code: string) => `/tasks/${encodeURIComponent(code)}/edit`,
+  /** 编辑项目：详情页上打开编辑的抽屉 */
+  editTask: (code: string) => withQuery(`/tasks/${encodeURIComponent(code)}`, { editor: code }),
   /** 收益认定 */
   confirm: (query?: Query) => withQuery('/benefit/confirm', query),
   /** 一本账 */

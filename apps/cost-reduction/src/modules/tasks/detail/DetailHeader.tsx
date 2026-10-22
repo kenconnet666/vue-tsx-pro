@@ -6,12 +6,11 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Breadcrumbs,
+  Button,
   H1,
   IconButton,
-  LinkButton,
   Menu,
   MenuItem,
-  MenuLinkItem,
   Small,
   StatusBadge,
 } from '@vue-tsx-pro/ui';
@@ -40,7 +39,16 @@ const styles = stylex.create({
 
 /** 项目详情的页头 */
 export const DetailHeader = _component(
-  ({ task, actions }: { task: CostTask; actions: TaskActions }) =>
+  ({
+    task,
+    actions,
+    onEdit,
+  }: {
+    task: CostTask;
+    actions: TaskActions;
+    /** 打开编辑的抽屉 */
+    onEdit: () => void;
+  }) =>
     () => {
       const amount = costKinds[task.kind];
       const late = overdueDays(task);
@@ -82,14 +90,11 @@ export const DetailHeader = _component(
               {task.status === 'realized' && missing > 0 && (
                 <Small tone="muted">关闭三材料缺 {missing} 项，补齐后可以关闭</Small>
               )}
-              <LinkButton
-                href={paths.editTask(task.code)}
-                variant="outline"
-                tone="neutral"
-                icon={FilePen}
-              >
-                编辑
-              </LinkButton>
+              {canDo('task.edit') && (
+                <Button variant="outline" tone="neutral" icon={FilePen} onClick={onEdit}>
+                  编辑
+                </Button>
+              )}
               <Menu
                 trigger={(trigger) => (
                   <IconButton
@@ -100,9 +105,9 @@ export const DetailHeader = _component(
                   />
                 )}
               >
-                <MenuLinkItem icon={FilePen} href={paths.editTask(task.code)}>
+                <MenuItem icon={FilePen} onAction={onEdit}>
                   调整计划
-                </MenuLinkItem>
+                </MenuItem>
                 {canDo('task.pause') && (
                   <MenuItem
                     icon={Pause}
