@@ -1,6 +1,6 @@
 /**
  * 假接口：任务卡的台账查询、读写、删除，与任务池流程的衔接（新建时发起流程、删除时终止、
- * 推进 / 暂停 / 恢复 / 终止都经流程实例，任务状态按流程节点回写）
+ * 推进 / 暂停 / 恢复 / 终止都经流程实例，任务状态按流程节点回写；计划调整发起 task-change 流程）
  */
 import { http, HttpResponse } from 'msw';
 import { decodeTask, type Wire } from '../../api/wire';
@@ -13,9 +13,11 @@ import {
   type LedgerQuery,
   type LedgerRequest,
 } from '../../domain/task/query';
+import { planChangeProblem } from '../../domain/task/plan-change';
 import { canClose, isFinished } from '../../domain/task/status';
-import type { CostKind, CostTask, TaskStatus } from '../../domain/task/types';
+import type { CostKind, CostTask, PlanChange, TaskStatus } from '../../domain/task/types';
 import { taskProcess } from '../../domain/workflow/task';
+import { taskChangeProcess } from '../../domain/workflow/task-change';
 import type { MockDatabase } from '../db';
 import { actorOf, attempt, bodyOf, fail, latency, route } from '../respond';
 import { advanceTaskTo, taskInstance } from '../workflow/task-flow';
@@ -68,6 +70,20 @@ export const taskHandlers = (db: MockDatabase) => {
         variables: { owner: task.owner, kind: task.kind, verifyDue: task.due },
       }),
     );
+  /** 任务卡在任务池流程里正在处理的环节（编号 → 待办；结束、没有流程的不在里面） */
+  const currentItems = (codes: readonly string[]) => {
+    const wanted = new Set(codes);
+    return Object.fromEntries(
+      db.tables.workflow.items
+        .filter(
+          (item) =>
+            item.processKey === taskProcess.key &&
+            item.state === 'open' &&
+            wanted.has(item.businessKey),
+        )
+        .map((item) => [item.businessKey, item]),
+    );
+  };
   /** 任务卡的流程实例（老数据没有时补上） */
   const instanceOf = (task: CostTask, actor: string) =>
     taskInstance(db.workflow, task.code) ?? startFlow(task, actor);
@@ -75,7 +91,11 @@ export const taskHandlers = (db: MockDatabase) => {
   return [
     http.get(route('tasks'), async ({ request }) => {
       await latency();
-      return HttpResponse.json(queryLedger(db.tables.tasks, ledgerRequestOf(new URL(request.url))));
+      const page = queryLedger(db.tables.tasks, ledgerRequestOf(new URL(request.url)));
+      return HttpResponse.json({
+        ...page,
+        current: currentItems(page.rows.map((task) => task.code)),
+      });
     }),
     http.post(route('tasks'), async ({ request }) => {
       await latency();
@@ -93,7 +113,15 @@ export const taskHandlers = (db: MockDatabase) => {
       startFlow(created, actorOf(request));
       return HttpResponse.json(db.task(code), { status: 201 });
     }),
-    // 写在 /tasks/:code 前面：否则 selection 会被当成编号
+    // 写在 /tasks/:code 前面：否则 selection、board 会被当成编号
+    http.get(route('taskBoard'), async ({ request }) => {
+      await latency();
+      db.run((engine) => engine.tick());
+      const kind = new URL(request.url).searchParams.get('kind') ?? 'unit';
+      const tasks = db.tables.tasks.filter((task) => task.kind === kind);
+      const current = currentItems(tasks.map((task) => task.code));
+      return HttpResponse.json(tasks.map((task) => ({ task, item: current[task.code] ?? null })));
+    }),
     http.get(route('taskSelection'), ({ request }) => {
       const codes = new URL(request.url).searchParams.getAll('codes');
       return HttpResponse.json(codes.flatMap((code) => db.task(code) ?? []));
@@ -150,6 +178,32 @@ export const taskHandlers = (db: MockDatabase) => {
           task.status === 'paused'
             ? engine.resume(instance.id, actor)
             : advanceTaskTo(engine, task, next, actor),
+        );
+        return HttpResponse.json(db.task(task.code));
+      });
+    }),
+    http.post(route('taskPlanChange'), async ({ request, params }) => {
+      await latency();
+      const { task, error } = found(params.code);
+      if (error) return error;
+      const actor = actorOf(request);
+      // 主办自己提交；能编辑任务的（PEMO）也可以代为提交
+      const roles = db.master.people.find((person) => person.id === actor)?.roles ?? [];
+      if (actor !== task.owner && !can(roles, 'task.edit'))
+        return fail(403, '只有主办能提交计划调整');
+      const body = await bodyOf<PlanChange>(request);
+      const change = { due: body.due ?? '', owner: body.owner ?? '', reason: body.reason ?? '' };
+      const problem = planChangeProblem(task, change);
+      if (problem) return fail(409, problem);
+      return attempt(() => {
+        db.run((engine) =>
+          engine.start({
+            key: taskChangeProcess.key,
+            businessKey: task.code,
+            title: `${task.name}：计划调整`,
+            actor,
+            variables: { ...change, reason: change.reason.trim() },
+          }),
         );
         return HttpResponse.json(db.task(task.code));
       });

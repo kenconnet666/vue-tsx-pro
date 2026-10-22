@@ -1,7 +1,7 @@
 /**
  * 收件箱右栏：选中的这一条的预览与处理。上面是摘要（编号、名称、流程与环节、到达方式、来自、时限、处理人；
  * 任务卡再带状态、责任团队、主办、计划完成），下面是流程面板（流程图缩略、按我和这一条的关系给出的操作、流转记录）。
- * 任务池流程的节点要填的业务字段与任务详情里一样（TaskWorkflowPanel）；表单类的节点到卡里处理
+ * 任务池流程的节点要填的业务字段与任务详情里一样（TaskWorkflowPanel），计划调整带上申请的改动；表单类的节点到卡里处理
  */
 import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -29,8 +29,15 @@ import { CodeLink, isTaskCode } from '../../shared/CodeLink';
 import { RequestView } from '../../shared/RequestView';
 import { taskStatuses } from '../../shared/statuses';
 import { WorkflowPanel } from '../../shared/WorkflowPanel';
+import { PlanChangeSummary } from '../tasks/detail/PlanChangeCards';
 import { TaskWorkflowPanel } from '../tasks/detail/TaskWorkflowPanel';
-import { arrivals, fromText, handlerText, outcomeLabel, processName } from './inbox-labels';
+import {
+  arrivals,
+  fromText,
+  handlerText,
+  outcomeLabel,
+  processName,
+} from '../../shared/work-item-labels';
 
 const styles = stylex.create({
   root: { padding: '_md' },
@@ -150,7 +157,11 @@ export const InboxPreview = _component(
                         businessKey={item.businessKey}
                         processKey={item.processKey}
                         onChange={onChange}
-                      />
+                      >
+                        {item.processKey === 'task-change' && card.pendingChange && (
+                          <PlanChangeSummary task={card} change={card.pendingChange} />
+                        )}
+                      </WorkflowPanel>
                     )}
                   </Flex>
                 );

@@ -238,6 +238,52 @@ export interface CostTask {
   unitDetail: UnitDetail | null;
   /** DMC 实施节点（降 DMC）；单机降本为空 */
   dmcNodes: DmcNode[];
+  /** 在审批中的计划调整；没有时为 null */
+  pendingChange: PendingPlanChange | null;
+  /** 变更记录（新的在前）：PEMO 同意的计划调整 */
+  changes: TaskChangeRecord[];
+}
+
+/** 计划调整的内容：调成什么、为什么（主办提交，PEMO 审批；不得自行改日期） */
+export interface PlanChange {
+  /** 调整后的计划完成时间（ISO 日期） */
+  due: string;
+  /** 调整后的主办工号 */
+  owner: string;
+  /** 调整原因 */
+  reason: string;
+}
+
+/** 在审批中的计划调整：内容与谁、哪天提交的 */
+export interface PendingPlanChange extends PlanChange {
+  /** 申请人工号 */
+  by: string;
+  /** 提交日期（ISO 日期） */
+  at: string;
+}
+
+/** 一项从什么改成什么 */
+export interface ValueChange {
+  /** 原来的 */
+  before: string;
+  /** 改成的 */
+  after: string;
+}
+
+/** 变更记录的一条：同意的计划调整，改了哪几项 */
+export interface TaskChangeRecord {
+  /** 生效日期（ISO 日期） */
+  at: string;
+  /** 申请人工号 */
+  by: string;
+  /** 同意的人工号 */
+  approvedBy: string;
+  /** 调整原因 */
+  reason: string;
+  /** 计划完成时间；没改时为 null */
+  due: ValueChange | null;
+  /** 主办；没改时为 null */
+  owner: ValueChange | null;
 }
 
 /** 收益认定的退回记录：退回后任务回到“验证中”，在收益认定的“退回”页签里看原因 */

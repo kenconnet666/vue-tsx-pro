@@ -49,7 +49,7 @@ export const taskPeople: readonly Person[] = [
   },
 ];
 
-/** 其余的演示身份：总体团队的设计、成本团队的第二人（认领要抢）、项目团队、财务、管理员与供应商的主账号、子账号 */
+/** 其余的演示身份：总体团队的两位设计、成本团队的第二人（认领要抢）、项目团队、财务、管理员与供应商的主账号、子账号 */
 const otherPeople: readonly Person[] = [
   {
     id: 'E10855',
@@ -58,6 +58,14 @@ const otherPeople: readonly Person[] = [
     roles: ['product'],
     team: '总体技术集成团队',
     leads: ['product:ZT'],
+  },
+  // 总体团队的第二位设计：计划调整里交接主办的对象
+  {
+    id: 'E10916',
+    name: '韩亦舟',
+    title: '总体技术集成团队 · 总体设计',
+    roles: ['product'],
+    team: '总体技术集成团队',
   },
   { id: 'E50377', name: '唐可', title: '成本团队 · 测算', roles: ['cost'] },
   {
@@ -88,6 +96,28 @@ const otherPeople: readonly Person[] = [
     title: '供应商甲 · 工艺部（子账号）',
     roles: ['supplierMember'],
     supplier: '供应商甲',
+  },
+  // 其余供应商的主账号：降 DMC 审批链的供应商收益评估由主账号会签
+  {
+    id: 'S02-SY',
+    name: '孙越',
+    title: '供应商乙 · 主账号',
+    roles: ['supplier'],
+    supplier: '供应商乙',
+  },
+  {
+    id: 'S03-LN',
+    name: '李楠',
+    title: '供应商丙 · 主账号',
+    roles: ['supplier'],
+    supplier: '供应商丙',
+  },
+  {
+    id: 'S04-ZW',
+    name: '周闻',
+    title: '供应商丁 · 主账号',
+    roles: ['supplier'],
+    supplier: '供应商丁',
   },
 ];
 

@@ -57,6 +57,11 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '降 DMC 台账', section: 'dmc' },
       },
       {
+        path: 'tasks/board',
+        component: () => import('../modules/tasks/board/TaskBoardPage'),
+        meta: { title: '任务看板', section: 'board' },
+      },
+      {
         path: 'tasks/:code',
         component: () => import('../modules/tasks/detail/TaskDetailPage'),
         meta: { title: '项目详情', section: ledgerOfCode },

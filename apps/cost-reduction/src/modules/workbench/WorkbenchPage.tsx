@@ -40,7 +40,7 @@ import { costKinds } from '../../shared/kinds';
 import { MoreLink } from '../../shared/MoreLink';
 import { RequestView } from '../../shared/RequestView';
 import { taskStatuses } from '../../shared/statuses';
-import { handlerText, processName } from '../inbox/inbox-labels';
+import { handlerText, processName } from '../../shared/work-item-labels';
 
 const styles = stylex.create({
   page: { paddingBlockEnd: '_xl' },

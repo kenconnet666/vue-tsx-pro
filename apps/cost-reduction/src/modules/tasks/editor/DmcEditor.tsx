@@ -165,6 +165,8 @@ function toTask(values: Values, base: CostTask | null): CostTask {
       milestones: blankMilestones(),
       closing: blankClosing(),
       unitDetail: null,
+      pendingChange: null,
+      changes: [],
     }),
     kind: 'dmc',
     channel: base?.channel ?? 'one',
@@ -353,8 +355,17 @@ export const DmcEditor = _component(
                       placeholder="SP-5513-01"
                     />
                   </form.Field>
-                  <form.Field name="date" label="完成年度" required description="存完整日期">
-                    <DatePicker value={_bind(form.values.date)} />
+                  <form.Field
+                    name="date"
+                    label="完成年度"
+                    required
+                    description={
+                      editing
+                        ? '计划完成不在这里改：用“调整计划”提交，PEMO 同意后生效'
+                        : '存完整日期'
+                    }
+                  >
+                    <DatePicker value={_bind(form.values.date)} disabled={editing != null} />
                   </form.Field>
                   <form.Field name="form" label="完成形式" required>
                     <Select

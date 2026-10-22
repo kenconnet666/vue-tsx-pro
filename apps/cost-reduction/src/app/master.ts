@@ -36,6 +36,12 @@ export const staffOptions = () =>
     .people.filter((person) => !person.supplier)
     .map((person) => ({ value: person.id, label: person.name, description: person.title }));
 
+/** 主办的候选：产品团队成员，第二行是所在团队 */
+export const ownerOptions = () =>
+  master()
+    .people.filter((person) => person.roles.includes('product'))
+    .map((person) => ({ value: person.id, label: person.name, description: person.team }));
+
 /** 岗位收件箱的成员（指定承办人时的候选人） */
 export const poolMembers = (pool: string) =>
   master().people.filter((person) => groupsOf(person, master().teams).includes(pool));

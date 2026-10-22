@@ -5,7 +5,8 @@
 ## 1. 现状（2026-10-22）
 
 - **分支**：只有 `master`，已推送到 origin，工作区干净。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
-- **进度**：[ROADMAP.md](ROADMAP.md) §1 审查整改全部完成；§2 基础设施只剩“跨容器拖动”和“通知控制器”两项；§3 之后未开始。
+- **进度**：[ROADMAP.md](ROADMAP.md) §1 审查整改全部完成；§2 基础设施只剩“跨容器拖动”（Sortable 分组）；
+  §4 联合降本管理 D0–D3 已完成（D3：任务看板、计划调整、DMC 审批链、台账的当前环节），下一个是 D4 收益。
   这一轮（2026-10-22）新加的基础设施：请求层（`createHttpClient`、`useHttp`、`useRequest`）、`useTableQuery`、远程选项
   （Select / Combobox / TreeSelect 的 `load`）、工作日与时限（`createWorkCalendar`、`deadlineOf`）、`diffFields`、
   `usePersistentState`、`tableToCsv`、`useEventListener`、快捷键的序列键与作用域、离开确认接路由守卫、地址里的状态
@@ -248,11 +249,9 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 
 按 [ROADMAP.md](ROADMAP.md) 的顺序往下做（用户的总要求：持续执行、不必问，把组件库做到成熟可用）：
 
-1. §2 剩下两项：
-   - **跨容器拖动**（`useSortable` 加分组）：拖动中改用 window 级的指针跟踪（现在是 pointer capture，离不开容器）；
-     分组登记表（同组的列表互相接收）；二维跟随；键盘在列表之间移动；读屏播报“移到了哪一列第几项”。
-   - **通知控制器 `createNotifications()`**：照 `createToaster` 的模式，给 M3 的 NotificationCenter 用（已读、分组、操作）。
-2. §4 联合降本管理按 DESIGN.md 的 D1–D8 推进（每块用到的组件先进组件库）→ §3 其余组件补齐 → §5 图表 → §6 质量与发布。
+1. §4 联合降本管理按 DESIGN.md 的 D4–D8 推进（每块用到的组件先进组件库）→ §3 其余组件补齐 → §5 图表 → §6 质量与发布。
+2. §2 剩下的 **跨容器拖动**（`useSortable` 加分组）：等有“列内排序 + 跨列”的需求再做。看板（只换列、由使用方确认）
+   已有 KanbanBoard：指针下的列按各列的矩形算，影子卡画在滚动区域外面，键盘 ←/→ 换列。
 
 审查的细节在 `.claude/reports/audit-2026-10-22.md`（已修的已标出）。每做完一块：勾 ROADMAP、`check.sh`、分开提交（整理与功能）、
 `push.sh`。

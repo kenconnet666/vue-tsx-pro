@@ -1,11 +1,11 @@
 /**
- * 收件箱里的写法：页签名称、到达方式的名称与色调、来自哪个节点与谁、处理人或岗位
+ * 待办的写法（收件箱、工作台、任务看板共用）：页签名称、到达方式的名称与色调、来自哪个节点与谁、处理人或岗位
  */
 import { workItemOutcomes, type StatusTone, type WorkItem } from '@vue-tsx-pro/ui';
-import { master, personName } from '../../app/master';
-import { processOf } from '../../domain/workflow';
-import { groupName } from '../../domain/workflow/groups';
-import type { InboxView } from '../../domain/workflow/inbox';
+import { master, personName } from '../app/master';
+import { processOf } from '../domain/workflow';
+import { groupName } from '../domain/workflow/groups';
+import type { InboxView } from '../domain/workflow/inbox';
 
 /** 页签的名称 */
 export const inboxViewLabels: Record<InboxView, string> = {

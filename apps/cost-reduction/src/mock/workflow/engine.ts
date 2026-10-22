@@ -634,6 +634,38 @@ export function createWorkflowEngine(state: WorkflowState, options: WorkflowEngi
     },
 
     /**
+     * 业务数据变了（计划调整同意后换了主办、改了日期）：合并流程变量；from 手上还没处理的待办转给 to，记作指定
+     */
+    handover(
+      instanceId: string,
+      actor: string,
+      input: { variables?: Readonly<Record<string, unknown>>; from?: string; to?: string },
+    ): ProcessInstance {
+      const instance = instanceOf(instanceId);
+      const next = patch(instance, { variables: { ...instance.variables, ...input.variables } });
+      if (!input.from || !input.to || input.from === input.to) return next;
+      for (const item of state.items)
+        if (
+          item.instanceId === instanceId &&
+          item.state === 'open' &&
+          item.assignee === input.from
+        ) {
+          patchItem(item, {
+            assignee: input.to,
+            assignment: 'designated',
+            claimedAt: options.now(),
+            reassignRequest: null,
+          });
+          record(next, 'designated', actor, {
+            node: item.node,
+            workItem: item.id,
+            comment: input.to,
+          });
+        }
+      return next;
+    },
+
+    /**
      * 流程调整：取消正在处理的待办，把流程移到 nodes（驳回到任意节点、数据修正）；原因必填。
      * 移到的人工节点按退回的规则落到那个节点原来的处理人
      */

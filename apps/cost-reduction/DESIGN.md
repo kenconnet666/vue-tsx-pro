@@ -424,7 +424,7 @@ D 实时算出。
 | D0     | 本文；底座（分层、接口、假后端、身份切换、流程定义模型）——已完成                                                                                 |
 | D1     | 流程：五个流程定义、假后端的流转模拟（认领、退回、提级、会签、超时、轮次）；FlowDiagram、ApprovalActions、WorkflowTimeline；权限 `can()`——已完成 |
 | D2     | 收件箱、工作台、通知；Splitter、DeadlineTag、useFormDialog、NotificationCenter——已完成                                                           |
-| D3     | 任务池：任务列表、任务看板、任务详情、信息表编辑、计划调整、DMC 审批链；KanbanBoard、Upload 已有文件                                             |
+| D3     | 任务池：任务列表、任务看板、任务详情、信息表编辑、计划调整、DMC 审批链；KanbanBoard、Upload 已有文件——已完成                                     |
 | D4     | 收益：收益认定、商务洽谈、一本账（时点）、差额分析；Excel 导入导出（xlsx、DataImport）                                                           |
 | D5     | 渠道一：建议列表、提交建议、建议详情、测算表单与版本对比、协商；FieldCompare、CommentThread                                                      |
 | D6     | 渠道二：方案列表、新需求、方案详情；供应商门户                                                                                                   |

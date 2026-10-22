@@ -7,12 +7,12 @@
  * - 筛选、排序、分页都在后端做；页签、条件、页码、排序都在地址里（统计看板点数字跳过来时带着）
  */
 import {
+  CalendarClock,
   CircleX,
   Columns3,
   Download,
   Ellipsis,
   FastForward,
-  FilePen,
   Pause,
   Plus,
   Search,
@@ -61,6 +61,7 @@ import { notifyError } from '../../../app/feedback';
 import { PageNav } from '../../../app/layout/PageNav';
 import { canDo } from '../../../app/session';
 import { nextStepOf } from '../../../domain/task/lifecycle';
+import { planChangeBlocked } from '../../../domain/task/plan-change';
 import { blankLedgerQuery, ledgerViews, type LedgerQuery } from '../../../domain/task/query';
 import { canClose, isFinished, overdueDays, taskFocuses } from '../../../domain/task/status';
 import type { CostKind, CostTask } from '../../../domain/task/types';
@@ -69,6 +70,7 @@ import { focusTones, taskStatuses, valueStates } from '../../../shared/statuses'
 import { editorTarget, TaskEditorDrawer } from '../editor/TaskEditorDrawer';
 import { useTaskActions } from '../task-actions';
 import { CodeLink } from '../../../shared/CodeLink';
+import { handlerText } from '../../../shared/work-item-labels';
 import { LedgerDetail } from './LedgerDetail';
 
 const styles = stylex.create({
@@ -181,7 +183,12 @@ export const LedgerPage = _component(
           >
             推进到下一状态
           </MenuItem>
-          <MenuItem icon={FilePen} onAction={() => (editor = editorTarget.edit(task.code))}>
+          <MenuItem
+            icon={CalendarClock}
+            disabled={planChangeBlocked(task) != null}
+            description={planChangeBlocked(task) ?? undefined}
+            onAction={() => void actions.adjustPlan(task)}
+          >
             调整计划
           </MenuItem>
           <MenuItem
@@ -272,6 +279,25 @@ export const LedgerPage = _component(
       ..._untrack(after),
       { key: 'status', header: '状态', width: 104, statuses: taskStatuses },
       {
+        key: 'current',
+        header: '当前环节',
+        width: 150,
+        value: (task) => {
+          const item = tasks.data?.current[task.code];
+          return item ? `${item.name} · ${handlerText(item)}` : '';
+        },
+        cell: (task) => {
+          const item = tasks.data?.current[task.code];
+          if (!item) return <Small tone="muted">—</Small>;
+          return (
+            <Flex direction="column">
+              <Text size="sm">{item.name}</Text>
+              <Small tone="muted">{handlerText(item)}</Small>
+            </Flex>
+          );
+        },
+      },
+      {
         key: 'milestones',
         header: '里程碑',
         width: 68,
@@ -360,13 +386,13 @@ export const LedgerPage = _component(
       search();
     }
 
-    /** 导出所选（跨页）：显示着的数据列；里程碑、超时、操作是界面上的列，不导出 */
+    /** 导出所选（跨页）：显示着的数据列；里程碑、超时、当前环节（随流程变）、操作是界面上的列，不导出 */
     async function exportSelected() {
       try {
         const rows = await getTasks(selected);
         const exported = columns.filter(
           (column) =>
-            !['milestones', 'overdue', 'actions'].includes(column.key) &&
+            !['milestones', 'overdue', 'current', 'actions'].includes(column.key) &&
             !hidden.includes(column.key),
         );
         downloadFile(

@@ -1,6 +1,7 @@
 /**
  * 项目详情（任务卡）：页头（编码、名称、状态、收益状态、下一步与更多操作、关键信息）、八个状态的步骤条
- * （异常状态按已完成的里程碑推断停在哪一步并标红）、左栏（概览；降本明细或实施节点；变更记录）、
+ * （异常状态按已完成的里程碑推断停在哪一步并标红）、左栏（概览；审批中的计划调整；降本明细；流程；
+ * 降 DMC 的实施节点与实施审批链；变更记录）、
  * 右栏（收益；里程碑与交付证据；关闭三材料），右栏滚动时粘住。“下一步”推进状态并写回任务卡
  */
 import { _component } from '@vue-tsx-pro/tsx';
@@ -14,11 +15,13 @@ import { stepIndexOf } from '../../../domain/task/lifecycle';
 import { taskFlow } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
 import { RequestView } from '../../../shared/RequestView';
+import { WorkflowPanel } from '../../../shared/WorkflowPanel';
 import { taskStatuses } from '../../../shared/statuses';
 import { editorTarget, TaskEditorDrawer } from '../editor/TaskEditorDrawer';
 import { useTaskActions } from '../task-actions';
 import { DetailHeader } from './DetailHeader';
 import { NodesCard, OverviewCard, PartsCard } from './MainCards';
+import { ChangesCard, PendingPlanChangeCard } from './PlanChangeCards';
 import { BenefitCard, ClosingCard, MilestonesCard } from './SideCards';
 import { TaskWorkflowPanel } from './TaskWorkflowPanel';
 
@@ -86,9 +89,20 @@ export default _component(() => {
             }
           >
             <OverviewCard task={task} />
+            <PendingPlanChangeCard task={task} onChange={() => void request.refresh()} />
             {task.unitDetail && <PartsCard detail={task.unitDetail} />}
             <TaskWorkflowPanel task={task} onChange={() => void request.refresh()} />
             {task.kind === 'dmc' && <NodesCard task={task} />}
+            {/* 降 DMC：建卡以后跑实施审批链，节点通过时回填上面实施节点的完成日期 */}
+            {task.kind === 'dmc' && task.status !== 'pending' && (
+              <WorkflowPanel
+                title="降 DMC 实施审批"
+                businessKey={task.code}
+                processKey="dmc-implementation"
+                onChange={() => void request.refresh()}
+              />
+            )}
+            <ChangesCard task={task} />
           </AsideLayout>
           <TaskEditorDrawer target={_bind(editor)} onSaved={() => void request.refresh()} />
         </Flex>

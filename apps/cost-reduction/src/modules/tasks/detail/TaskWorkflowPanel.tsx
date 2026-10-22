@@ -25,6 +25,7 @@ export const TaskWorkflowPanel = _component(
     const flow = taskFlowFields(() => task);
     return () => (
       <WorkflowPanel
+        title="任务池流程"
         businessKey={task.code}
         processKey="task"
         fields={flow.fields}

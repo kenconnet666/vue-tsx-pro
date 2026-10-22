@@ -47,7 +47,7 @@ import {
   inboxViewLabels,
   outcomeLabel,
   processName,
-} from './inbox-labels';
+} from '../../shared/work-item-labels';
 import { InboxPreview } from './InboxPreview';
 
 const styles = stylex.create({

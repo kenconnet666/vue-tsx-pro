@@ -7,7 +7,15 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { getValueLedger } from '../../api/benefit';
 import { setRequestUser } from '../../api/client';
 import { getMe, getMyTasks } from '../../api/session';
-import { advanceTask, createTask, deleteTask, getTask, listTasks } from '../../api/tasks';
+import {
+  advanceTask,
+  createTask,
+  deleteTask,
+  getTask,
+  getTaskBoard,
+  listTasks,
+  requestPlanChange,
+} from '../../api/tasks';
 import {
   claimWorkItem,
   completeWorkItem,
@@ -113,5 +121,69 @@ describe('假后端', () => {
     await expect(
       completeWorkItem(design.id, { outcome: 'done' }).catch(errorMessage),
     ).resolves.toMatch(/不是你的|附件/);
+  });
+
+  it('任务看板与台账带上正在处理的环节；结束的任务没有', async () => {
+    const cards = await getTaskBoard('unit');
+    expect(cards.every((card) => card.task.kind === 'unit')).toBe(true);
+    const running = cards.find((card) => card.task.status === 'designing')!;
+    expect(running.item).toMatchObject({ businessKey: running.task.code, state: 'open' });
+    expect(cards.find((card) => card.task.status === 'closed')!.item).toBeNull();
+    const page = await ledger('doing');
+    const code = page.rows.find((task) => task.status === 'designing')!.code;
+    expect(page.current[code]!.node).toBe('design');
+  });
+
+  it('计划调整：主办提交、不能重复提交；PEMO 同意后写回、记变更记录，手上的环节转给新主办', async () => {
+    const card = (await getTaskBoard('unit')).find(
+      (entry) => entry.task.status === 'designing' && !entry.task.pendingChange,
+    )!;
+    const task = card.task;
+    const successor = task.owner === 'E10855' ? 'E10916' : 'E10855';
+    setRequestUser(() => task.owner);
+    const change = { due: '2027-06-30', owner: successor, reason: '工装交付推迟' };
+    const pending = await requestPlanChange(task.code, change);
+    expect(pending.pendingChange).toMatchObject({ ...change, by: task.owner });
+    expect(pending.due).toBe(task.due);
+    await expect(requestPlanChange(task.code, change).catch(errorMessage)).resolves.toContain(
+      '在审批中',
+    );
+
+    setRequestUser(() => PEMO);
+    const trace = await getWorkflowTrace(task.code, 'task-change');
+    const approve = trace.items.find((entry) => entry.state === 'open')!;
+    await claimWorkItem(approve.id);
+    await completeWorkItem(approve.id, { outcome: 'agree' });
+    const updated = await getTask(task.code);
+    expect(updated).toMatchObject({ due: '2027-06-30', owner: successor, pendingChange: null });
+    expect(updated.changes[0]).toMatchObject({
+      by: task.owner,
+      approvedBy: PEMO,
+      due: { before: task.due, after: '2027-06-30' },
+      owner: { before: task.owner, after: successor },
+    });
+    const flow = await getWorkflowTrace(task.code, 'task');
+    expect(flow.items.find((entry) => entry.state === 'open')!.assignee).toBe(successor);
+  });
+
+  it('降 DMC：建卡后发起实施审批链，节点通过时回填实施节点的完成日期', async () => {
+    setRequestUser(() => PEMO);
+    const task = (await getTaskBoard('dmc')).find(
+      (entry) => entry.task.status === 'designing',
+    )!.task;
+    const chain = await getWorkflowTrace(task.code, 'dmc-implementation');
+    expect(chain.instance.status).toBe('active');
+    const open = chain.items.find((entry) => entry.state === 'open')!;
+    const form = open.node === 'ecp' ? 'ECP 批准' : open.node === 'mi' ? 'MI 批准' : null;
+    // 岗位的负责人认领、通过
+    const lead = open.pool === 'product:QY' ? 'E20418' : 'E10855';
+    setRequestUser(() => lead);
+    await claimWorkItem(open.id);
+    await completeWorkItem(open.id, { outcome: 'approve' });
+    const updated = await getTask(task.code);
+    if (form) expect(updated.dmcNodes.find((node) => node.form === form)!.done).not.toBeNull();
+    expect((await getWorkflowTrace(task.code, 'dmc-implementation')).instance.active).not.toEqual(
+      chain.instance.active,
+    );
   });
 });

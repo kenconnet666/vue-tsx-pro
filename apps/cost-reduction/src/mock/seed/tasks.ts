@@ -285,6 +285,8 @@ function task(index: number): CostTask {
     remark: '',
     unitDetail: detail,
     dmcNodes: kind === 'dmc' ? dmcNodes(index, status, due, team.name) : [],
+    pendingChange: null,
+    changes: [],
   };
 }
 

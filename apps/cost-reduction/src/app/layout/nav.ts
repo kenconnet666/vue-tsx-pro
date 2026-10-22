@@ -19,6 +19,7 @@ import {
   Library,
   Lightbulb,
   Split,
+  SquareKanban,
   Users,
   Wrench,
 } from '@lucide/icons';
@@ -34,6 +35,7 @@ export type NavKey =
   | 'dashboard'
   | 'unit'
   | 'dmc'
+  | 'board'
   | 'confirm'
   | 'ledger'
   | 'proposals'
@@ -94,6 +96,13 @@ export const navGroups: readonly { label: string; icon: IconData; items: readonl
         roles: internal,
       },
       { key: 'dmc', icon: Gauge, label: '降 DMC 台账', href: paths.ledger('dmc'), roles: internal },
+      {
+        key: 'board',
+        icon: SquareKanban,
+        label: '任务看板',
+        href: paths.board(),
+        roles: internal,
+      },
     ],
   },
   {

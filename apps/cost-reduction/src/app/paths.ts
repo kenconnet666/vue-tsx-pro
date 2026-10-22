@@ -22,6 +22,8 @@ export const paths = {
   dashboard: (query?: Query) => withQuery('/dashboard', query),
   /** 单机降本台账、降 DMC 台账 */
   ledger: (kind: CostKind, query?: Query) => withQuery(`/tasks/${kind}`, query),
+  /** 任务看板：kind 降本类型，以及筛选条件 */
+  board: (query?: Query) => withQuery('/tasks/board', query),
   /** 新建项目：台账上打开新建的抽屉 */
   newTask: (kind: CostKind) => withQuery(`/tasks/${kind}`, { editor: `new:${kind}` }),
   /** 项目详情（任务卡） */

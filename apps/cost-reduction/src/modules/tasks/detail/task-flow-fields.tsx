@@ -14,17 +14,11 @@ import {
   type ProcessOutcome,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
-import { dict, master } from '../../../app/master';
+import { dict, ownerOptions } from '../../../app/master';
 import { latestEstimate } from '../../../domain/task/benefit';
 import type { CostTask } from '../../../domain/task/types';
 import { costKinds } from '../../../shared/kinds';
 import type { WorkflowValues } from '../../../shared/WorkflowPanel';
-
-/** 产品团队成员（主办的候选） */
-const productPeople = () =>
-  master()
-    .people.filter((person) => person.roles.includes('product'))
-    .map((person) => ({ value: person.id, label: person.name, description: person.team }));
 
 /** 任务卡的流程字段：对话框里的内容与各节点的初始值 */
 export function taskFlowFields(task: () => CostTask) {
@@ -52,7 +46,7 @@ export function taskFlowFields(task: () => CostTask) {
           {need('owner') && (
             <Field label="主办" required description="责任团队里的产品团队成员">
               <Select
-                items={productPeople()}
+                items={ownerOptions()}
                 value={_bind(
                   () => (values.owner as string | undefined) ?? null,
                   (next: string | null) => (values.owner = next),

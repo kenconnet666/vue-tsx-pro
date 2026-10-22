@@ -50,6 +50,9 @@ export const decodeTask = (task: Wire<CostTask>): CostTask => ({
     ...task.unitDetail,
     parts: task.unitDetail.parts.map(decodeChange),
   },
+  // 加计划调整之前存的数据没有这两项
+  pendingChange: task.pendingChange ?? null,
+  changes: task.changes ?? [],
 });
 
 /** 收益认定的三个页签 */

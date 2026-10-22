@@ -1,7 +1,7 @@
 /**
  * 假后端的数据库：内存里的几张表与流转模拟的状态，每次改动后存进 localStorage（刷新页面、走流程都接得上），
  * 可以一键恢复成种子数据。存储里放的就是接口上的格式（金额是字符串），读回来时按字段换回 Decimal。
- * 流程的命令经 run() 执行：执行完把新的流转记录回写到任务卡（任务池的节点改字段与状态），再存盘
+ * 流程的命令经 run() 执行：执行完把新的流转记录回写到任务卡（任务池的节点改字段与状态），做流程之间的联动，再存盘
  */
 import { createWorkCalendar } from '@vue-tsx-pro/ui';
 import { decodeTask, toDecimal, type Wire } from '../api/wire';
@@ -21,7 +21,14 @@ import {
   type WorkflowEngine,
   type WorkflowState,
 } from './workflow/engine';
-import { applyTaskEvents, replayTask } from './workflow/task-flow';
+import {
+  applyTaskEvents,
+  followTaskEvents,
+  replayDmcChain,
+  replayPlanChanges,
+  replayTask,
+  type FollowContext,
+} from './workflow/task-flow';
 
 /** 数据库里的表 */
 export interface MockTables {
@@ -64,9 +71,15 @@ export interface MockDatabase {
 }
 
 /** 存储的键：表结构变了就换版本，旧数据作废、重新播种 */
-const STORAGE_KEY = 'cost-reduction:mock-db:v2';
+const STORAGE_KEY = 'cost-reduction:mock-db:v3';
 
 const calendar = createWorkCalendar();
+const followContext: FollowContext = {
+  supplierAccounts: (supplier) =>
+    masterSeed.people
+      .filter((person) => person.supplier === supplier && person.roles.includes('supplier'))
+      .map((person) => person.id),
+};
 const directory = createDirectory(masterSeed);
 
 /** 演示的“现在”：日期固定在 TODAY，时刻用真实的（同一天里的先后看得出来） */
@@ -84,14 +97,32 @@ function seed(): MockTables {
     now: () => clock,
   });
   const actors = { pemo: 'E40287', cost: 'E50913', business: 'E31056' };
-  for (const task of tasks)
-    replayTask(engine, task, (iso) => (clock = iso), {
+  const setClock = (iso: string) => (clock = iso);
+  for (const task of tasks) {
+    replayTask(engine, task, setClock, {
       ...actors,
       // 成本团队两人轮流：收件箱里看得出谁处理的
       cost: task.code.endsWith('1') || task.code.endsWith('3') ? 'E50377' : actors.cost,
     });
+    replayDmcChain(engine, task, setClock, {
+      ...followContext,
+      // 岗位收件箱里的环节由岗位的负责人认领
+      memberOf: (group) => directory.leaderOf(group) ?? actors.pemo,
+    });
+  }
+  const before = workflow.events.length;
+  replayPlanChanges(engine, tasks, setClock, {
+    pemo: actors.pemo,
+    // 交接给同一团队的另一位产品团队成员
+    successorOf: (task) =>
+      masterSeed.people.find(
+        (person) =>
+          person.roles.includes('product') && person.team === task.team && person.id !== task.owner,
+      )?.id ?? task.owner,
+  });
+  const changed = applyTaskEvents(engine, workflow.events.slice(before), tasks);
   return {
-    tasks,
+    tasks: tasks.map((task) => changed.find((item) => item.code === task.code) ?? task),
     confirmReturns: seedConfirmReturns(tasks),
     opportunities: seedOpportunities(),
     workflow,
@@ -155,6 +186,24 @@ export function createDatabase(storage: Storage | null = defaultStorage()): Mock
       : list.map((item, position) => (position === index ? task : item));
   };
 
+  /**
+   * 把 from 之后的流转记录回写到任务卡，再做它引起的联动（发起 DMC 审批链、换主办……）；
+   * 联动又产生的流转记录照样回写，直到没有新的（最多几轮，防止联动互相触发停不下来）
+   */
+  const syncTasks = (from: number) => {
+    for (let round = 0; round < 4 && from < tables.workflow.events.length; round++) {
+      const events = tables.workflow.events.slice(from);
+      from = tables.workflow.events.length;
+      const changed = applyTaskEvents(engine, events, tables.tasks);
+      if (changed.length)
+        tables = {
+          ...tables,
+          tasks: changed.reduce((list, task) => upsert(list, task), tables.tasks),
+        };
+      followTaskEvents(engine, events, tables.tasks, followContext);
+    }
+  };
+
   return {
     master: masterSeed,
     get tables() {
@@ -169,12 +218,7 @@ export function createDatabase(storage: Storage | null = defaultStorage()): Mock
         return command(engine);
       } finally {
         // 命令中途出错时，已经发生的流转（如自动推进的前几步）照样回写
-        const changed = applyTaskEvents(engine, tables.workflow.events.slice(before), tables.tasks);
-        if (changed.length)
-          tables = {
-            ...tables,
-            tasks: changed.reduce((list, task) => upsert(list, task), tables.tasks),
-          };
+        syncTasks(before);
         persist();
       }
     },

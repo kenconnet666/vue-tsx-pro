@@ -1,7 +1,7 @@
 /**
  * 项目详情的页头：面包屑、编码与名称、状态与收益状态、按当前状态给出的下一步与更多操作、一行关键信息
  */
-import { CircleX, Ellipsis, FilePen, Pause, Trash2 } from '@lucide/icons';
+import { CalendarClock, CircleX, Ellipsis, FilePen, Pause, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
   Button,
@@ -19,6 +19,7 @@ import type { VNodeChild } from 'vue';
 import { dictLabel, personName } from '../../../app/master';
 import { paths } from '../../../app/paths';
 import { canDo } from '../../../app/session';
+import { planChangeBlocked } from '../../../domain/task/plan-change';
 import { daysToDue, isFinished, missingClosing, overdueDays } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
 import { costKinds } from '../../../shared/kinds';
@@ -100,7 +101,12 @@ export const DetailHeader = _component(
                   />
                 )}
               >
-                <MenuItem icon={FilePen} onAction={onEdit}>
+                <MenuItem
+                  icon={CalendarClock}
+                  disabled={planChangeBlocked(task) != null}
+                  description={planChangeBlocked(task) ?? '改计划完成、换主办，PEMO 审批'}
+                  onAction={() => void actions.adjustPlan(task)}
+                >
                   调整计划
                 </MenuItem>
                 {canDo('task.pause') && (

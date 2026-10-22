@@ -1,11 +1,22 @@
 /**
- * 任务卡的操作：推进、暂停、终止、删除（可撤销）。台账的“更多”菜单与项目详情共用：
+ * 任务卡的操作：推进、调整计划（PEMO 审批）、暂停、终止、删除（可撤销）。台账的“更多”菜单与项目详情共用：
  * 破坏性的先确认，结果用全局提示告诉用户，失败时显示后端给的原因；成功后把新的任务卡交给 onChange
  */
-import { Button, useConfirm } from '@vue-tsx-pro/ui';
-import { advanceTask, deleteTask, pauseTask, saveTask, terminateTask } from '../../api/tasks';
+import { Button, useConfirm, useFormDialog } from '@vue-tsx-pro/ui';
+import {
+  advanceTask,
+  deleteTask,
+  pauseTask,
+  requestPlanChange,
+  saveTask,
+  terminateTask,
+} from '../../api/tasks';
 import { notifyError, toaster } from '../../app/feedback';
+import { ownerOptions } from '../../app/master';
+import { announceWorkflowChange } from '../../app/sync';
+import { TODAY } from '../../domain/clock';
 import { nextStepOf } from '../../domain/task/lifecycle';
+import { planChangeBlocked, planChangeProblem } from '../../domain/task/plan-change';
 import type { CostTask } from '../../domain/task/types';
 import { taskStatuses } from '../../shared/statuses';
 
@@ -18,6 +29,7 @@ export function useTaskActions(options: {
   onChange: (task: CostTask | null, code: string) => void;
 }) {
   const confirm = useConfirm();
+  const prompt = useFormDialog();
 
   async function run(title: string, action: () => Promise<CostTask>, success: string) {
     try {
@@ -41,6 +53,68 @@ export function useTaskActions(options: {
         () => advanceTask(task.code, step.next),
         `已推进到“${taskStatuses.label(step.next)}”`,
       );
+    },
+    /**
+     * 调整计划：改计划完成、换主办，写明原因，提交给 PEMO 审批；同意后才生效（不得自行改日期）。
+     * 已有一项在审批中、或任务已经结束时直接说明
+     */
+    async adjustPlan(task: CostTask) {
+      const blocked = planChangeBlocked(task);
+      if (blocked) {
+        toaster.show({ title: '现在不能调整计划', description: blocked, tone: 'warning' });
+        return null;
+      }
+      let updated: CostTask | null = null;
+      await prompt({
+        title: `调整计划：${task.code}`,
+        description: '提交后由 PEMO 审批，同意后计划完成与主办才会改；审批结果在收件箱与通知里',
+        confirmText: '提交审批',
+        fields: [
+          {
+            name: 'due',
+            label: '计划完成',
+            type: 'date',
+            required: true,
+            defaultValue: task.due,
+            min: TODAY,
+          },
+          {
+            name: 'owner',
+            label: '主办',
+            type: 'select',
+            required: true,
+            defaultValue: task.owner,
+            options: ownerOptions(),
+          },
+          {
+            name: 'reason',
+            label: '调整原因',
+            type: 'textarea',
+            required: true,
+            placeholder: '方案调整、延期的原因与新的安排',
+            maxlength: 300,
+            validate: (reason, values) =>
+              planChangeProblem(task, { due: values.due!, owner: values.owner!, reason }),
+          },
+        ],
+        onSubmit: async (values) => {
+          try {
+            updated = await requestPlanChange(task.code, {
+              due: values.due!,
+              owner: values.owner!,
+              reason: values.reason!,
+            });
+          } catch (error) {
+            notifyError('没能提交计划调整', error);
+            throw error;
+          }
+        },
+      });
+      if (!updated) return null;
+      options.onChange(updated, task.code);
+      announceWorkflowChange();
+      toaster.show({ title: '已提交计划调整，等 PEMO 审批', tone: 'success' });
+      return updated;
     },
     /** 暂停 */
     pause(task: CostTask) {

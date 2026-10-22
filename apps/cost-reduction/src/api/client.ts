@@ -25,10 +25,14 @@ export const apiPaths = {
   tasks: '/tasks',
   /** 按编号取一批任务（跨页勾选后导出） */
   taskSelection: '/tasks/selection',
+  /** 任务看板：一种类型的全部任务卡，各带正在处理的环节（?kind=） */
+  taskBoard: '/tasks/board',
   /** 一张任务卡：读（GET）、保存（PUT，不存在时新建）、删除（DELETE） */
   task: '/tasks/:code',
   /** 推进到下一状态 */
   taskAdvance: '/tasks/:code/advance',
+  /** 提交计划调整（PEMO 审批） */
+  taskPlanChange: '/tasks/:code/plan-change',
   /** 暂停 */
   taskPause: '/tasks/:code/pause',
   /** 终止 */

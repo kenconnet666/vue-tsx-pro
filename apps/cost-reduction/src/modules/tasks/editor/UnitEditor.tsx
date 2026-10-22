@@ -193,6 +193,8 @@ function toTask(values: Values, parts: PartChange[], base: CostTask | null): Cos
       closing: blankClosing(),
       dmcNodes: [],
       supplierPartNos: [],
+      pendingChange: null,
+      changes: [],
     }),
     kind: 'unit',
     name: values.name,

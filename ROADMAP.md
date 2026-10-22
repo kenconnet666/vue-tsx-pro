@@ -169,8 +169,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       决定不另做 useDeadline：纯函数加 useWorkCalendar 已经够用；降本案例的认定时限改用它
 - [x] 字段差异 `diffFields`：两份记录按字段比较（结构相等），数值字段给出精确的差（Decimal、bigint 不经过浮点）与变化率；
       字段与顺序由 keys 决定，FieldCompare 之后用它
-- [ ] 跨容器拖动：`useSortable` 加分组
-- [ ] 通知控制器 `createNotifications()`（与 `createToaster` 同一模式），NotificationCenter 用它
+- [ ] 跨容器拖动：`useSortable` 加分组（看板的跨列移动已由 KanbanBoard 解决；列内排序 + 跨列的分组仍待做）
+- [x] 通知控制器：决定不另做 `createNotifications()`，NotificationCenter 只管显示，通知的存取、已读由应用决定（D2）
 - [x] 持久化状态 `usePersistentState`（参考 VueUse useStorage）：JSON、类型不对用默认值、对象按字段合并、存不了只在这次有效、
       别的标签页改了跟着变；文档站的侧栏与主题设置改用它（删掉 site/sidebar.ts），台账记住隐藏的列
 - [x] 导出 CSV `tableToCsv`：从列定义生成（RFC 4180 转义、BOM、状态名与列格式同界面、分组表头、raw 原值、防公式注入）；
@@ -214,7 +214,10 @@ C919 模板与 1013 原型重新设计；原来的一期页面只作参考，按
 - [x] D2 收件箱（五个页签、分栏预览、批量认领、退回 / 改派 / 指定 / 催办）、工作台（按角色）、通知（按流转记录推出，
       记已读）：Splitter、DeadlineTag、useFormDialog、NotificationCenter、DataTable 的 activeKey / onRowClick
       （通知的存取由应用决定，不另做 createNotifications）
-- [ ] D3 任务池：任务列表、任务看板、任务详情、信息表编辑、计划调整、DMC 审批链：KanbanBoard（useSortable 分组）、Upload 已有文件
+- [x] D3 任务池：任务列表（当前环节与处理岗位）、任务看板（拖到下一列在抽屉里处理当前环节，不能拖的写明原因）、任务详情、
+      信息表编辑（计划完成、主办只能经计划调整改）、计划调整（task-change：PEMO 审批，同意后写回、记变更记录、环节转给新主办）、
+      DMC 审批链（建卡后发起，节点通过回填实施节点，跟着暂停 / 恢复 / 终止）：KanbanBoard（独立组件，不复用 useSortable：
+      跨列移动由使用方确认）、Upload 已有文件（existingUploadFile；ApprovalActions 被退回时带上次的附件）、useFormDialog 的日期字段
 - [ ] D4 收益：收益认定、商务洽谈、一本账（时点）、差额分析；Excel 导入导出：`@vue-tsx-pro/ui/xlsx`、DataImport
 - [ ] D5 渠道一：建议列表、提交建议、建议详情、测算表单与版本对比、协商：FieldCompare、CommentThread
 - [ ] D6 渠道二：方案列表、新需求、方案详情；供应商门户

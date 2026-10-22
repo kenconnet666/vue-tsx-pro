@@ -2,7 +2,7 @@
  * 一张卡的流程面板（建议卡、方案卡、任务卡、收件箱的预览共用）：泳道流程图与进度、正在处理的节点（处理岗位或人、时限）、
  * 当前用户和这张卡的关系决定能做的事（DESIGN.md §6.2）：
  * - 岗位待认领：认领；
- * - 我认领的：处理（审批按钮，结果要求的业务字段由使用方给出）、退回收件箱（原因必填）；
+ * - 我认领的：处理（审批按钮，结果要求的业务字段由使用方给出；被退回的带上次交的附件）、退回收件箱（原因必填）；
  * - 指定给我的：处理、申请改派（原因必填）；
  * - 我负责的收件箱待指定（没人认领超时、有人申请改派）：从岗位成员里指定承办人；
  * - 我发起的：催办正在处理的人或岗位。
@@ -66,6 +66,13 @@ export interface WorkflowPanelProps {
   onChange?: () => void;
   /** 不画流程图（收件箱的预览里另有缩略图时） */
   hideDiagram?: boolean;
+  /**
+   * 卡片的标题
+   * @default '流程'
+   */
+  title?: string;
+  /** 流程图上面的内容：审批的是什么（计划调整的改动） */
+  children?: VNodeChild;
 }
 
 /** 流程变量要能放进 JSON：Decimal 写成十进制字符串 */
@@ -84,6 +91,8 @@ export const WorkflowPanel = _component(
     check,
     onChange,
     hideDiagram = false,
+    title = '流程',
+    children,
   }: WorkflowPanelProps) => {
     // 别处（收件箱、另一个标签里的同一张卡）做了操作也重新取
     const trace = useRequest(
@@ -207,193 +216,207 @@ export const WorkflowPanel = _component(
     }
 
     return () => (
-      <Card variant="outline" header={<H2 size="sm">流程</H2>}>
-        <RequestView request={trace} notFound="这张卡还没有流程">
-          {({ instance, events, items }) => {
-            const definition = processOf(instance.key);
-            if (!definition) return <Small tone="muted">没有流程定义 {instance.key}</Small>;
-            const open = items.filter((item) => item.state === 'open');
-            const mine = open.filter((item) => item.assignee === me.id);
-            const claimable = open.filter(
-              (item) =>
-                item.assignment === 'pool' &&
-                item.pool != null &&
-                myGroups.includes(item.pool) &&
-                !item.releasedBy.includes(me.id),
-            );
-            const toDesignate = open.filter(
-              (item) =>
-                item.pool != null &&
-                (me.leads ?? []).includes(item.pool) &&
-                (item.needsDesignation || item.reassignRequest != null),
-            );
-            // 我发起的、还在流转：可以催正在处理的（不是我自己的）
-            const remindable =
-              instance.startedBy === me.id && instance.status === 'active'
-                ? open.filter((item) => item.assignee !== me.id)
-                : [];
-            return (
-              <Flex direction="column" gap="md">
-                {!hideDiagram && (
-                  <FlowDiagram
-                    definition={definition}
-                    progress={processProgress(instance, events)}
-                    size="sm"
-                    fit
-                    nodeDetail={(node) => {
-                      const item = open.find((entry) => entry.node === node.id);
-                      return (
-                        item && `${handler(item)}${item.dueOn ? ` · ${item.dueOn.slice(5)}` : ''}`
-                      );
-                    }}
-                    aria-label={`${definition.name}的流程图`}
-                  />
-                )}
-                {instance.status === 'suspended' && (
-                  <Alert tone="warning" size="sm" description="流程已暂停：恢复后才能处理" />
-                )}
-                {claimable.map((item) => (
-                  <Alert
-                    key={item.id}
-                    tone="accent"
-                    size="sm"
-                    icon={false}
-                    description={`${item.name} 在${groupName(item.pool ?? '', master().teams)}的收件箱里，还没人认领`}
-                    action={
-                      <Button size="sm" icon={Hand} onClick={() => void claim(item)}>
-                        认领
-                      </Button>
-                    }
-                  />
-                ))}
-                {toDesignate.map((item) => (
-                  <Alert
-                    key={item.id}
-                    tone="warning"
-                    size="sm"
-                    icon={false}
-                    description={
-                      item.reassignRequest
-                        ? `${personName(item.reassignRequest.by)}申请改派「${item.name}」：${item.reassignRequest.reason}`
-                        : `「${item.name}」没人认领，等你指定承办人`
-                    }
-                    action={
-                      <Button size="sm" icon={UserCheck} onClick={() => void designate(item)}>
-                        指定承办人
-                      </Button>
-                    }
-                  />
-                ))}
-                {remindable.map((item) => (
-                  <Alert
-                    key={item.id}
-                    tone="neutral"
-                    size="sm"
-                    icon={false}
-                    description={`你发起的这张卡在「${item.name}」，${handler(item)}处理中${item.dueOn ? `，${item.dueOn} 前` : ''}`}
-                    action={
-                      <Button
-                        size="sm"
-                        variant="soft"
-                        icon={BellRing}
-                        onClick={() =>
-                          void withReason(
-                            `催办：${item.name}`,
-                            '催办',
-                            false,
-                            (comment) => remindWorkItem(item.id, comment),
-                            `已催办：${item.name}`,
+      <Card variant="outline" header={<H2 size="sm">{title}</H2>}>
+        <Flex direction="column" gap="md">
+          {children}
+          <RequestView request={trace} notFound="这张卡还没有流程">
+            {({ instance, events, items }) => {
+              const definition = processOf(instance.key);
+              if (!definition) return <Small tone="muted">没有流程定义 {instance.key}</Small>;
+              const open = items.filter((item) => item.state === 'open');
+              const mine = open.filter((item) => item.assignee === me.id);
+              const claimable = open.filter(
+                (item) =>
+                  item.assignment === 'pool' &&
+                  item.pool != null &&
+                  myGroups.includes(item.pool) &&
+                  !item.releasedBy.includes(me.id),
+              );
+              const toDesignate = open.filter(
+                (item) =>
+                  item.pool != null &&
+                  (me.leads ?? []).includes(item.pool) &&
+                  (item.needsDesignation || item.reassignRequest != null),
+              );
+              // 我发起的、还在流转：可以催正在处理的（不是我自己的）
+              const remindable =
+                instance.startedBy === me.id && instance.status === 'active'
+                  ? open.filter((item) => item.assignee !== me.id)
+                  : [];
+              return (
+                <Flex direction="column" gap="md">
+                  {!hideDiagram && (
+                    <FlowDiagram
+                      definition={definition}
+                      progress={processProgress(instance, events)}
+                      size="sm"
+                      fit
+                      nodeDetail={(node) => {
+                        const item = open.find((entry) => entry.node === node.id);
+                        return (
+                          item && `${handler(item)}${item.dueOn ? ` · ${item.dueOn.slice(5)}` : ''}`
+                        );
+                      }}
+                      aria-label={`${definition.name}的流程图`}
+                    />
+                  )}
+                  {instance.status === 'suspended' && (
+                    <Alert tone="warning" size="sm" description="流程已暂停：恢复后才能处理" />
+                  )}
+                  {claimable.map((item) => (
+                    <Alert
+                      key={item.id}
+                      tone="accent"
+                      size="sm"
+                      icon={false}
+                      description={`${item.name} 在${groupName(item.pool ?? '', master().teams)}的收件箱里，还没人认领`}
+                      action={
+                        <Button size="sm" icon={Hand} onClick={() => void claim(item)}>
+                          认领
+                        </Button>
+                      }
+                    />
+                  ))}
+                  {toDesignate.map((item) => (
+                    <Alert
+                      key={item.id}
+                      tone="warning"
+                      size="sm"
+                      icon={false}
+                      description={
+                        item.reassignRequest
+                          ? `${personName(item.reassignRequest.by)}申请改派「${item.name}」：${item.reassignRequest.reason}`
+                          : `「${item.name}」没人认领，等你指定承办人`
+                      }
+                      action={
+                        <Button size="sm" icon={UserCheck} onClick={() => void designate(item)}>
+                          指定承办人
+                        </Button>
+                      }
+                    />
+                  ))}
+                  {remindable.map((item) => (
+                    <Alert
+                      key={item.id}
+                      tone="neutral"
+                      size="sm"
+                      icon={false}
+                      description={`你发起的这张卡在「${item.name}」，${handler(item)}处理中${item.dueOn ? `，${item.dueOn} 前` : ''}`}
+                      action={
+                        <Button
+                          size="sm"
+                          variant="soft"
+                          icon={BellRing}
+                          onClick={() =>
+                            void withReason(
+                              `催办：${item.name}`,
+                              '催办',
+                              false,
+                              (comment) => remindWorkItem(item.id, comment),
+                              `已催办：${item.name}`,
+                            )
+                          }
+                        >
+                          催办
+                        </Button>
+                      }
+                    />
+                  ))}
+                  {mine.map((item) => {
+                    const outcomes = workItemOutcomes(definition, item);
+                    // 被退回重新处理：上次在这个节点交的附件作为已有文件带上，不用重新上传
+                    const previous =
+                      item.arrival === 'return'
+                        ? events.findLast(
+                            (event) =>
+                              event.node === item.node &&
+                              (event.type === 'completed' || event.type === 'auto-completed') &&
+                              event.attachments.length > 0,
                           )
-                        }
-                      >
-                        催办
-                      </Button>
-                    }
-                  />
-                ))}
-                {mine.map((item) => {
-                  const outcomes = workItemOutcomes(definition, item);
-                  return (
-                    <Flex key={item.id} direction="column" gap="sm">
-                      <Small tone="muted">
-                        轮到你处理：{item.name}
-                        {item.dueOn ? `（${item.dueOn} 前）` : ''}
-                        {item.arrival === 'return' ? ' · 被退回' : ''}
-                      </Small>
-                      <ApprovalActions
-                        node={item.name}
-                        outcomes={outcomes}
-                        disabled={instance.status !== 'active'}
-                        fields={(outcome) => fields?.(outcome, item.node, values)}
-                        validate={(outcome) => {
-                          const missing = (outcome.fields ?? []).filter((field) =>
-                            isEmpty(values[field]),
-                          );
-                          return missing.length
-                            ? '还有业务字段没填'
-                            : (check?.(outcome, item.node, values) ?? null);
-                        }}
-                        onComplete={(input) =>
-                          complete(
-                            item,
-                            outcomes.find((entry) => entry.key === input.outcome),
-                            input,
-                          )
-                        }
-                      />
-                      <Flex wrap gap="xs">
-                        {item.assignment === 'claimed' && (
-                          <Button
-                            size="xs"
-                            variant="ghost"
-                            tone="neutral"
-                            icon={Undo2}
-                            onClick={() =>
-                              void withReason(
-                                `退回收件箱：${item.name}`,
-                                '退回',
-                                true,
-                                (reason) => releaseWorkItem(item.id, reason),
-                                `已退回收件箱：${item.name}`,
-                              )
-                            }
-                          >
-                            退回收件箱
-                          </Button>
-                        )}
-                        {item.assignment === 'designated' && (
-                          <Button
-                            size="xs"
-                            variant="ghost"
-                            tone="neutral"
-                            icon={UserRoundCog}
-                            onClick={() =>
-                              void withReason(
-                                `申请改派：${item.name}`,
-                                '申请改派',
-                                true,
-                                (reason) => requestReassign(item.id, reason),
-                                `已申请改派：${item.name}`,
-                              )
-                            }
-                          >
-                            申请改派
-                          </Button>
-                        )}
+                        : undefined;
+                    return (
+                      <Flex key={item.id} direction="column" gap="sm">
+                        <Small tone="muted">
+                          轮到你处理：{item.name}
+                          {item.dueOn ? `（${item.dueOn} 前）` : ''}
+                          {item.arrival === 'return' ? ' · 被退回' : ''}
+                        </Small>
+                        <ApprovalActions
+                          node={item.name}
+                          outcomes={outcomes}
+                          attachments={previous?.attachments.map((name) => ({ name }))}
+                          disabled={instance.status !== 'active'}
+                          fields={(outcome) => fields?.(outcome, item.node, values)}
+                          validate={(outcome) => {
+                            const missing = (outcome.fields ?? []).filter((field) =>
+                              isEmpty(values[field]),
+                            );
+                            return missing.length
+                              ? '还有业务字段没填'
+                              : (check?.(outcome, item.node, values) ?? null);
+                          }}
+                          onComplete={(input) =>
+                            complete(
+                              item,
+                              outcomes.find((entry) => entry.key === input.outcome),
+                              input,
+                            )
+                          }
+                        />
+                        <Flex wrap gap="xs">
+                          {item.assignment === 'claimed' && (
+                            <Button
+                              size="xs"
+                              variant="ghost"
+                              tone="neutral"
+                              icon={Undo2}
+                              onClick={() =>
+                                void withReason(
+                                  `退回收件箱：${item.name}`,
+                                  '退回',
+                                  true,
+                                  (reason) => releaseWorkItem(item.id, reason),
+                                  `已退回收件箱：${item.name}`,
+                                )
+                              }
+                            >
+                              退回收件箱
+                            </Button>
+                          )}
+                          {item.assignment === 'designated' && (
+                            <Button
+                              size="xs"
+                              variant="ghost"
+                              tone="neutral"
+                              icon={UserRoundCog}
+                              onClick={() =>
+                                void withReason(
+                                  `申请改派：${item.name}`,
+                                  '申请改派',
+                                  true,
+                                  (reason) => requestReassign(item.id, reason),
+                                  `已申请改派：${item.name}`,
+                                )
+                              }
+                            >
+                              申请改派
+                            </Button>
+                          )}
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  );
-                })}
-                <WorkflowTimeline
-                  size="sm"
-                  definition={definition}
-                  events={events}
-                  actorName={personName}
-                />
-              </Flex>
-            );
-          }}
-        </RequestView>
+                    );
+                  })}
+                  <WorkflowTimeline
+                    size="sm"
+                    definition={definition}
+                    events={events}
+                    actorName={personName}
+                  />
+                </Flex>
+              );
+            }}
+          </RequestView>
+        </Flex>
       </Card>
     );
   },
