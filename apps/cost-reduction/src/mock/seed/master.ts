@@ -111,6 +111,11 @@ export const masterSeed: MasterData = {
   models: ['机型 A', '机型 B'],
   workPackages: ['平尾', '机身', '舱门', '客舱', '起落架', '机电'],
   suppliers: ['供应商甲', '供应商乙', '供应商丙', '供应商丁'],
+  // 演示用的年度指标：单机降本 600 万元，降 DMC 18 美元/FH
+  targets: [
+    { kind: 'unit', year: '2026', amount: '6000000' },
+    { kind: 'dmc', year: '2026', amount: '18' },
+  ],
   dictionaries: {
     categories: [
       { value: 'design', label: '设计优化' },

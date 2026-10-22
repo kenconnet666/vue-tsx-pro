@@ -75,6 +75,16 @@ export const decodeLedgerRow = (row: Wire<ValueLedgerRow>): ValueLedgerRow => ({
 export const decodeDashboard = (summary: Wire<DashboardSummary>): DashboardSummary => ({
   ...summary,
   states: summary.states.map((item) => ({ ...item, amount: toDecimal(item.amount) })),
-  gaps: summary.gaps.map((item) => ({ ...item, amount: toDecimal(item.amount) })),
+  bridge: {
+    a: toDecimal(summary.bridge.a),
+    b: toDecimal(summary.bridge.b),
+    reasons: summary.bridge.reasons.map((item) => ({ ...item, amount: toDecimal(item.amount) })),
+  },
+  monthly: summary.monthly.map((item) => ({
+    ...item,
+    expected: toDecimal(item.expected),
+    realized: toDecimalOrNull(item.realized),
+  })),
+  target: toDecimalOrNull(summary.target),
   bases: summary.bases.map((item) => ({ ...item, amount: toDecimalOrNull(item.amount) })),
 });

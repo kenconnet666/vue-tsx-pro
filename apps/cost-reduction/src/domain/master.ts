@@ -3,6 +3,7 @@
  * 由后端维护（SAP 的物料与供应商主数据、组织机构、字典管理），前端启动时取一次、缓存起来，各页同步读取
  */
 import type { RoleKey } from './roles';
+import type { CostKind } from './task/types';
 
 /** 字典的一项：值、名称、说明 */
 export interface DictItem {
@@ -88,8 +89,20 @@ export interface MasterData {
   workPackages: readonly string[];
   /** 供应商 */
   suppliers: readonly string[];
+  /** 年度降本指标：统计看板的目标线 */
+  targets: readonly AnnualTarget[];
   /** 字典 */
   dictionaries: Dictionaries;
+}
+
+/** 一种降本类型一年的降本指标 */
+export interface AnnualTarget {
+  /** 降本类型 */
+  kind: CostKind;
+  /** 年度 */
+  year: string;
+  /** 指标金额：十进制字符串，单位同账面（单机降本是元，降 DMC 是美元 / FH） */
+  amount: string;
 }
 
 /** 字典里的值 → 名称；不认识的值原样显示 */

@@ -1,6 +1,6 @@
 /**
  * 统计看板（首页）：口径按《需求定义方案》“收益测算与一本账”，数据由后端按同一套算法算好（dashboardSummary）。
- * 一期的参考实现，按新的设计规格重建
+ * 数字都能点：表格里是链接；图表点了下钻（鼠标的捷径），同样的去处在卡片标题旁另有链接
  */
 import {
   AlarmClock,
@@ -35,11 +35,13 @@ import {
   TabList,
   Tabs,
   Text,
+  useConfig,
   useFormat,
   useRequest,
   type IconData,
 } from '@vue-tsx-pro/ui';
-import { BarChart, DonutChart } from '@vue-tsx-pro/ui/charts';
+import { BarChart, FunnelChart, LineChart, WaterfallChart } from '@vue-tsx-pro/ui/charts';
+import type { VNodeChild } from 'vue';
 import { getDashboard } from '../../api/benefit';
 import { PageNav } from '../../app/layout/PageNav';
 import { dict, shortTeam } from '../../app/master';
@@ -151,9 +153,29 @@ const todoItems = (
   },
 ];
 
+/** 推进漏斗的环节点进哪里：有对应页签的环节才能点 */
+const progressHref = (kind: CostKind, key: string) =>
+  ({
+    pool: paths.ledger(kind),
+    realized: paths.ledger(kind, { view: 'realized' }),
+    closed: paths.ledger(kind, { view: 'closed' }),
+  })[key];
+
+/** 卡片标题：左边名称，右边跳转链接 */
+const cardHeader = (title: string, link?: VNodeChild) => (
+  <Flex justify="between" align="center" gap="sm">
+    <span>{title}</span>
+    {link}
+  </Flex>
+);
+
 /** 一种降本类型的看板 */
 const Board = _component(({ summary }: { summary: DashboardSummary }) => {
   const format = useFormat();
+  const router = useConfig().router;
+  const go = (href: string | undefined) => {
+    if (href) router?.navigate(href);
+  };
   return () => {
     const { kind } = summary;
     const amount = costKinds[kind];
@@ -248,6 +270,39 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
           </Card>
         ))}
 
+        {/* 预期与实际：按月累计，年度指标是目标线；实际值到今天为止 */}
+        <Card
+          padding="md"
+          sx={gridItemDynamicStyles.span(8)}
+          header={cardHeader(
+            `预期与实际（今年按月累计，${amount.unit}）`,
+            jump(paths.valueLedger({ kind }), '看一本账'),
+          )}
+        >
+          <LineChart
+            aria-label="今年按月累计的预期与实际降本"
+            data={summary.monthly}
+            index="month"
+            series={[
+              { key: 'expected', label: '预期（按计划完成月）' },
+              { key: 'realized', label: '实际（按收益确认月）', color: 'success' },
+            ]}
+            valueFormat={amount.format}
+            targets={summary.target ? [{ value: summary.target, label: '年度指标' }] : []}
+            dots="hollow"
+            height={200}
+          />
+        </Card>
+
+        {/* 推进漏斗：按里程碑逐级筛下去，看卡在哪一步 */}
+        <Card padding="md" sx={gridItemDynamicStyles.span(4)} header="推进漏斗（项）">
+          <FunnelChart
+            aria-label="任务的推进漏斗"
+            stages={summary.progress.map((stage) => ({ label: stage.label, value: stage.count }))}
+            onItemClick={(_stage, index) => go(progressHref(kind, summary.progress[index]!.key))}
+          />
+        </Card>
+
         {/* 进度 × 收益状态：行与台账的页签一致，格子跳到“页签 + 收益状态” */}
         <Card padding="md" sx={gridItemDynamicStyles.span(7)} header="进度 × 收益状态（项）">
           <Table aria-label="进度与收益状态" density="compact" variant="ghost">
@@ -309,12 +364,10 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
         <Card
           padding="md"
           sx={gridItemDynamicStyles.span(5)}
-          header={
-            <Flex justify="between" align="center" gap="sm">
-              <span>超时最久的项目</span>
-              {jump(paths.ledger(kind, { view: 'overdue' }), '全部超时')}
-            </Flex>
-          }
+          header={cardHeader(
+            '超时最久的项目',
+            jump(paths.ledger(kind, { view: 'overdue' }), '全部超时'),
+          )}
         >
           {summary.late.length ? (
             <Table aria-label="超时最久的项目" density="compact" variant="ghost">
@@ -350,35 +403,49 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
           )}
         </Card>
 
-        {/* 各团队的进度分布 */}
-        <Card padding="md" sx={gridItemDynamicStyles.span(5)} header="责任团队 × 进度（项）">
+        {/* 各团队的进度分布：点一个团队看它在台账里的项目 */}
+        <Card padding="md" sx={gridItemDynamicStyles.span(4)} header="责任团队 × 进度（项）">
           <BarChart
             aria-label="各责任团队在各进度的任务数"
-            data={summary.teams.map((row) => ({ team: shortTeam(row.team), ...row.counts }))}
+            data={summary.teams.map((row) => ({
+              team: shortTeam(row.team),
+              name: row.team,
+              ...row.counts,
+            }))}
             index="team"
             series={statusGroups.map((group) => ({ key: group.value, label: group.label }))}
             unit="项"
             orientation="horizontal"
             stacked
-            height={170}
+            height={190}
+            onItemClick={(row) => go(paths.ledger(kind, { team: row.name }))}
           />
         </Card>
 
-        {/* 差额 D 的归因：用来校准测算模型、分析让利结构 */}
+        {/* 测算到商务：A 合计按差额归因一步步加减到 B 合计，用来校准测算模型、分析让利结构 */}
         <Card
           padding="md"
-          sx={gridItemDynamicStyles.span(3)}
-          header={`差额 D 归因（${amount.unit}）`}
+          sx={gridItemDynamicStyles.span(4)}
+          header={`测算 A → 商务 B（${amount.unit}）`}
         >
-          <DonutChart
-            aria-label="差额 D 的归因"
-            data={summary.gaps.filter((row) => !row.amount.isZero())}
-            index="reason"
-            value="amount"
-            unit={amount.unit}
-            valueFormat={amount.format}
-            height={170}
-          />
+          {summary.bridge.a.isZero() ? (
+            <Small tone="muted">还没有谈定的项目</Small>
+          ) : (
+            <WaterfallChart
+              aria-label="测算金额到商务金额的差额归因"
+              steps={[
+                { label: '测算 A', value: summary.bridge.a, total: true },
+                ...summary.bridge.reasons.map((item) => ({
+                  label: item.reason,
+                  value: item.amount,
+                })),
+                { label: '商务 B', total: true },
+              ]}
+              valueFormat={amount.format}
+              fromZero={false}
+              height={190}
+            />
+          )}
         </Card>
 
         {/* 金额口径三分法：三栏分开，不混总数；点了去一本账（带单位与口径） */}

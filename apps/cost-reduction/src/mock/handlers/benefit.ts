@@ -1,4 +1,5 @@
 /** 假接口：收益认定、一本账、统计看板 */
+import Decimal from 'decimal.js';
 import { http, HttpResponse } from 'msw';
 import { TODAY } from '../../domain/clock';
 import { dashboardSummary } from '../../domain/ledger/dashboard';
@@ -79,12 +80,15 @@ export const benefitHandlers = (db: MockDatabase) => {
     }),
     http.get(route('dashboard'), async ({ request }) => {
       await latency();
-      const { teams, dictionaries } = db.master;
+      const { teams, dictionaries, targets } = db.master;
+      const kind = kindOf(new URL(request.url).searchParams);
+      const target = targets.find((item) => item.kind === kind && item.year === TODAY.slice(0, 4));
       return HttpResponse.json(
-        dashboardSummary(db.tables.tasks, kindOf(new URL(request.url).searchParams), {
+        dashboardSummary(db.tables.tasks, kind, {
           teams: teams.map((team) => team.name),
           gapReasons: dictionaries.gapReasons.map((item) => item.value),
           amountBases: dictionaries.amountBases.map((item) => item.value),
+          target: target ? new Decimal(target.amount) : null,
         }),
       );
     }),

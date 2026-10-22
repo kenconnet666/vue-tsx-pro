@@ -45,7 +45,7 @@ describe('valueLedgerRows', () => {
 describe('dashboardSummary', () => {
   for (const kind of ['unit', 'dmc'] as const) {
     it(`${kind}：三桶加总等于任务池总数；矩阵各行加总等于总数；收益金额与一本账一致`, () => {
-      const summary = dashboardSummary(tasks, kind, dictionaries);
+      const summary = dashboardSummary(tasks, kind, { ...dictionaries, target: null });
       expect(summary.buckets.reduce((sum, bucket) => sum + bucket.count, 0)).toBe(summary.pool);
       expect(summary.matrix.reduce((sum, row) => sum + row.total, 0)).toBe(summary.pool);
       const forecast = summary.states.find((item) => item.state === 'forecast')!;
@@ -56,6 +56,22 @@ describe('dashboardSummary', () => {
         )
         .reduce((sum, task) => sum.plus(ledgerAmount(task)!), new Decimal(0));
       expect(forecast.amount.equals(expected)).toBe(true);
+    });
+
+    it(`${kind}：推进漏斗逐级不增、第一环节是任务池；差额瀑布 A 加各项差额等于 B；按月累计不减`, () => {
+      const summary = dashboardSummary(tasks, kind, { ...dictionaries, target: new Decimal(1) });
+      const counts = summary.progress.map((stage) => stage.count);
+      expect(counts[0]).toBe(summary.pool);
+      expect(counts.every((count, index) => index === 0 || count <= counts[index - 1]!)).toBe(true);
+      const { a, b, reasons } = summary.bridge;
+      expect(reasons.reduce((total, item) => total.plus(item.amount), a).equals(b)).toBe(true);
+      expect(summary.monthly).toHaveLength(12);
+      summary.monthly.slice(1).forEach((month, index) => {
+        expect(month.expected.gte(summary.monthly[index]!.expected)).toBe(true);
+      });
+      // 今天（10 月）之后的月份没有实际值
+      expect(summary.monthly.slice(10).every((month) => month.realized === null)).toBe(true);
+      expect(summary.target?.toNumber()).toBe(1);
     });
   }
 });
