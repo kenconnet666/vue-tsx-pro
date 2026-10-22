@@ -874,6 +874,7 @@ export {
   type FieldLayout,
 } from './form/field-layout';
 export { createConstraints, type FieldConstraints } from './form/form-constraints';
+export { useLeaveConfirmation, type LeaveConfirmationOptions } from './form/leave-confirmation';
 export {
   bigintSchema,
   decimalSchema,
@@ -1243,7 +1244,6 @@ export {
 } from './utils/dom/hover-intent';
 export { useHoverLayer, type HoverLayer, type HoverLayerOptions } from './utils/dom/hover-layer';
 export { batchLayout } from './utils/dom/layout-batch';
-export { useLeaveConfirmation } from './utils/dom/leave-confirmation';
 export {
   externalLinkAttrs,
   shouldRouteClick,

@@ -30,6 +30,8 @@ export function vueRouterAdapter(
 ): UiRouter {
   return {
     navigate: (href) => void router.push(href),
+    beforeLeave: (guard) =>
+      router.beforeEach((to, from) => (to.path === from.path ? true : guard())),
     resolve: (href) => router.resolve(href).href,
     isActive(href) {
       // resolve 处理 base 与相对路径；读 currentRoute 是响应式的，导航组件在渲染时调用即可跟随路由

@@ -175,7 +175,10 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 通用钩子 `useEventListener`（作用域销毁时移除、getter 目标换绑、服务端什么都不做），页面可见性、快捷键、指针、
       离开确认、目录高亮、持久化状态六处改用它。决定不做：useDebounce（防抖在 useRequest 里，别处的延时语义各不相同）、
       useIntersectionObserver（只有 ActionBar 与 3D 两处，到第三处再抽）
-- [ ] 快捷键：作用域、序列键（`g i`）、预解析；离开确认接上路由守卫与 `form.dirty`
+- [x] 快捷键：序列键（`'G I'`，1.5 秒内，序列优先于单键）、`target` 限定区域、模态对话框打开时页面级的只认对话框里的按键、
+      解析结果按平台缓存；序列键的 Kbd 照常给读屏念（aria-keyshortcuts 表达不了序列）。
+      离开确认挪到 form/，`UiRouter.beforeLeave` 接上路由守卫（vueRouterAdapter 实现，只换 query、锚点不问）：
+      有改动时站内跳转弹确认对话框，注册示例与两个编辑器用 `form.dirty && !form.submitting`
 - [x] zod 的报错跟随语言包：useForm 按语言包给 zod 传错误文案，空值是 `lang.formRequired`，其余是 `lang.formIssues`（zod 自带的语言包）；
       createContext 在 setup 之外读取时直接用 fallback
 

@@ -25,6 +25,9 @@ export const enUS: Lang = {
   filterActive: (count) => `${count} set`,
   formRequired: 'Required',
   formIssues: zodMessages().localeError,
+  leaveTitle: 'Leave this page?',
+  leaveDescription: 'You have unsaved changes that will be lost.',
+  leaveConfirm: 'Leave',
 
   toasterLabel: 'Notifications',
 

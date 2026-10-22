@@ -9,6 +9,7 @@ import {
   Spinner,
   TextField,
   useForm,
+  useLeaveConfirmation,
 } from '@vue-tsx-pro/ui';
 import * as z from 'zod';
 
@@ -48,6 +49,9 @@ export default _component(() => {
       form.reset(form.values);
     },
   });
+
+  // 填了没注册就离开（站内跳转、关掉标签页）时先问一下
+  useLeaveConfirmation(() => form.dirty && !form.submitting);
 
   return () => (
     <Card>

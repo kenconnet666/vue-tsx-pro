@@ -25,6 +25,9 @@ export const zhCN: Lang = {
   filterActive: (count) => `已设 ${count} 项`,
   formRequired: '必填',
   formIssues: zodMessages().localeError,
+  leaveTitle: '离开这个页面？',
+  leaveDescription: '有未保存的修改，离开后会丢失。',
+  leaveConfirm: '离开',
 
   toasterLabel: '通知',
   linkNewWindow: '（在新窗口打开）',

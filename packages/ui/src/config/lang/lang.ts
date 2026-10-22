@@ -88,6 +88,12 @@ export interface Lang {
   readonly formRequired: string;
   /** 其余校验错误的文案：取 zod 自带的语言包（`zod/v4/locales` 的 localeError）；schema 里自己写的提示优先 */
   readonly formIssues: $ZodErrorMap;
+  /** 未保存离开时确认对话框的标题，默认“离开这个页面？” */
+  readonly leaveTitle: string;
+  /** 未保存离开时确认对话框的说明，默认“有未保存的修改，离开后会丢失。” */
+  readonly leaveDescription: string;
+  /** 未保存离开时确认对话框的确认按钮，默认“离开” */
+  readonly leaveConfirm: string;
 
   // ───────── 组件文案 ─────────
 

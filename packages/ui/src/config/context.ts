@@ -35,6 +35,11 @@ export interface UiRouter {
   resolve?: (href: string) => string;
   /** href 是不是当前页：导航组件据此加 aria-current="page"。在渲染时调用，读路由的响应式状态就能跟随变化 */
   isActive?: (href: string) => boolean;
+  /**
+   * 站内跳转之前问一下（useLeaveConfirmation 用）：guard 返回 false（或 resolve 成 false）时不跳转；返回注销函数。
+   * 只在路径变了时问，同一页里换 query、锚点不问
+   */
+  beforeLeave?: (guard: () => boolean | Promise<boolean>) => () => void;
 }
 
 /** 提供方用 getter 暴露当前值，读取方在渲染或 computed 里读取即可跟随变化 */

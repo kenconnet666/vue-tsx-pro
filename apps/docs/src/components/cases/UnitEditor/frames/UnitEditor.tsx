@@ -37,6 +37,7 @@ import {
   TextField,
   useFormat,
   useForm,
+  useLeaveConfirmation,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
@@ -267,6 +268,8 @@ export default _component(() => {
       navigate('TaskDetail', { code: task.code });
     },
   });
+  // 有没保存的改动时，点“取消”、面包屑或关掉页面都先问一下
+  useLeaveConfirmation(() => form.dirty && !form.submitting);
   const person = () => people.find((item) => item.value === form.values.contact);
   const total = () =>
     parts.reduce((sum, change) => sum.plus(partSaving(change).aircraft), new Decimal(0));

@@ -25,7 +25,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { bigintSchema, decimalSchema, Field, Form, FormValue, useForm } from '@vue-tsx-pro/ui';"
+    imports="import { bigintSchema, decimalSchema, Field, Form, FormValue, useForm, useLeaveConfirmation } from '@vue-tsx-pro/ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -38,7 +38,9 @@ export default _component(() => () => (
           <Code>null</Code>，选填的字段在 schema 里写 <Code>.nullable()</Code>
           （字段约束据此不标必填）。schema 没写提示时，错误跟随当前语言：该填的没填是“必填”（
           <Code>lang.formRequired</Code>），其余取 zod 自带的语言包（<Code>lang.formIssues</Code>
-          ）。
+          ）。<Code>{'useLeaveConfirmation(() => form.dirty)'}</Code>
+          在有未保存的改动时拦住离开：关掉、刷新标签页由浏览器问；站内跳转（Provider 配了
+          vueRouterAdapter）弹确认对话框，只换 query、锚点不问。填几个字后点顶栏的站名试试。
         </Example>
         <Example id="layout" title="标签在左侧、整组只读" demo={Layout}>
           <Code>labelPlacement="start"</Code> 把标签放到控件的起始边：标签一列（
