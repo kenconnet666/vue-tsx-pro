@@ -965,6 +965,7 @@ export {
   type SortState,
   type StickyOffsets,
 } from './table/columns';
+export { tableToCsv, type CsvOptions } from './table/csv';
 export {
   dataTableDensityStyles,
   dataTableStyles,
