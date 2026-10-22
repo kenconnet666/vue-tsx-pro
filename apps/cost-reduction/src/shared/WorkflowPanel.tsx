@@ -10,8 +10,8 @@
  */
 import { BellRing, Hand, Undo2, UserCheck, UserRoundCog } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  Alert,
   ApprovalActions,
   Button,
   Card,
@@ -20,7 +20,6 @@ import {
   H2,
   processProgress,
   Small,
-  Text,
   useFormDialog,
   useRequest,
   workItemOutcomes,
@@ -68,21 +67,6 @@ export interface WorkflowPanelProps {
   /** 不画流程图（收件箱的预览里另有缩略图时） */
   hideDiagram?: boolean;
 }
-
-const styles = stylex.create({
-  section: { display: 'flex', flexDirection: 'column', gap: '_sm' },
-  secondary: { display: 'flex', flexWrap: 'wrap', gap: '_xs' },
-  todo: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '_sm',
-    padding: '_sm',
-    borderRadius: '_md',
-    backgroundColor: '_accentSoft',
-  },
-});
 
 /** 流程变量要能放进 JSON：Decimal 写成十进制字符串 */
 const plain = (value: unknown) => (Decimal.isDecimal(value) ? value.toString() : value);
@@ -266,59 +250,71 @@ export const WorkflowPanel = _component(
                   />
                 )}
                 {instance.status === 'suspended' && (
-                  <Small tone="warning">流程已暂停：恢复后才能处理</Small>
+                  <Alert tone="warning" size="sm" description="流程已暂停：恢复后才能处理" />
                 )}
                 {claimable.map((item) => (
-                  <div key={item.id} {...stylex.attrs(styles.todo)}>
-                    <Text size="sm">
-                      {item.name} 在{groupName(item.pool ?? '', master().teams)}
-                      的收件箱里，还没人认领
-                    </Text>
-                    <Button size="sm" icon={Hand} onClick={() => void claim(item)}>
-                      认领
-                    </Button>
-                  </div>
+                  <Alert
+                    key={item.id}
+                    tone="accent"
+                    size="sm"
+                    icon={false}
+                    description={`${item.name} 在${groupName(item.pool ?? '', master().teams)}的收件箱里，还没人认领`}
+                    action={
+                      <Button size="sm" icon={Hand} onClick={() => void claim(item)}>
+                        认领
+                      </Button>
+                    }
+                  />
                 ))}
                 {toDesignate.map((item) => (
-                  <div key={item.id} {...stylex.attrs(styles.todo)}>
-                    <Text size="sm">
-                      {item.reassignRequest
+                  <Alert
+                    key={item.id}
+                    tone="warning"
+                    size="sm"
+                    icon={false}
+                    description={
+                      item.reassignRequest
                         ? `${personName(item.reassignRequest.by)}申请改派「${item.name}」：${item.reassignRequest.reason}`
-                        : `「${item.name}」没人认领，等你指定承办人`}
-                    </Text>
-                    <Button size="sm" icon={UserCheck} onClick={() => void designate(item)}>
-                      指定承办人
-                    </Button>
-                  </div>
+                        : `「${item.name}」没人认领，等你指定承办人`
+                    }
+                    action={
+                      <Button size="sm" icon={UserCheck} onClick={() => void designate(item)}>
+                        指定承办人
+                      </Button>
+                    }
+                  />
                 ))}
                 {remindable.map((item) => (
-                  <div key={item.id} {...stylex.attrs(styles.todo)}>
-                    <Text size="sm">
-                      你发起的这张卡在「{item.name}」，{handler(item)}处理中
-                      {item.dueOn ? `，${item.dueOn} 前` : ''}
-                    </Text>
-                    <Button
-                      size="sm"
-                      variant="soft"
-                      icon={BellRing}
-                      onClick={() =>
-                        void withReason(
-                          `催办：${item.name}`,
-                          '催办',
-                          false,
-                          (comment) => remindWorkItem(item.id, comment),
-                          `已催办：${item.name}`,
-                        )
-                      }
-                    >
-                      催办
-                    </Button>
-                  </div>
+                  <Alert
+                    key={item.id}
+                    tone="neutral"
+                    size="sm"
+                    icon={false}
+                    description={`你发起的这张卡在「${item.name}」，${handler(item)}处理中${item.dueOn ? `，${item.dueOn} 前` : ''}`}
+                    action={
+                      <Button
+                        size="sm"
+                        variant="soft"
+                        icon={BellRing}
+                        onClick={() =>
+                          void withReason(
+                            `催办：${item.name}`,
+                            '催办',
+                            false,
+                            (comment) => remindWorkItem(item.id, comment),
+                            `已催办：${item.name}`,
+                          )
+                        }
+                      >
+                        催办
+                      </Button>
+                    }
+                  />
                 ))}
                 {mine.map((item) => {
                   const outcomes = workItemOutcomes(definition, item);
                   return (
-                    <div key={item.id} {...stylex.attrs(styles.section)}>
+                    <Flex key={item.id} direction="column" gap="sm">
                       <Small tone="muted">
                         轮到你处理：{item.name}
                         {item.dueOn ? `（${item.dueOn} 前）` : ''}
@@ -345,7 +341,7 @@ export const WorkflowPanel = _component(
                           )
                         }
                       />
-                      <div {...stylex.attrs(styles.secondary)}>
+                      <Flex wrap gap="xs">
                         {item.assignment === 'claimed' && (
                           <Button
                             size="xs"
@@ -384,8 +380,8 @@ export const WorkflowPanel = _component(
                             申请改派
                           </Button>
                         )}
-                      </div>
-                    </div>
+                      </Flex>
+                    </Flex>
                   );
                 })}
                 <WorkflowTimeline

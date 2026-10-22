@@ -5,7 +5,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Steps, useConfig, useQueryState, useRequest } from '@vue-tsx-pro/ui';
+import { AsideLayout, Flex, Steps, useConfig, useQueryState, useRequest } from '@vue-tsx-pro/ui';
 import { useRoute } from 'vue-router';
 import { getTask } from '../../../api/tasks';
 import { paths } from '../../../app/paths';
@@ -23,26 +23,8 @@ import { BenefitCard, ClosingCard, MilestonesCard } from './SideCards';
 import { TaskWorkflowPanel } from './TaskWorkflowPanel';
 
 const styles = stylex.create({
-  page: { display: 'flex', flexDirection: 'column', gap: '_md', paddingBlockEnd: '_xl' },
+  page: { paddingBlockEnd: '_xl' },
   steps: { paddingBlock: '_sm' },
-  // 两栏：左栏放长内容，右栏是收益、里程碑与关闭材料，滚动时粘在顶栏下面
-  body: {
-    display: 'grid',
-    gridTemplateColumns: {
-      default: 'minmax(0, 1fr)',
-      '@media (min-width: 72rem)': 'minmax(0, 1fr) 26rem',
-    },
-    gap: '_md',
-    alignItems: 'start',
-  },
-  main: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
-  side: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_md',
-    position: { default: null, '@media (min-width: 72rem)': 'sticky' },
-    top: 'calc(3rem + _space.md)',
-  },
 });
 
 /** 八个状态的步骤条；异常状态停在推断的那一步，标红并写上异常状态 */
@@ -85,28 +67,31 @@ export default _component(() => {
   return () => (
     <RequestView request={request} notFound={`没有找到项目 ${code()}`}>
       {(task) => (
-        <div {...stylex.attrs(styles.page)}>
+        <Flex direction="column" gap="md" sx={styles.page}>
           <DetailHeader
             task={task}
             actions={actions}
             onEdit={() => (editor = editorTarget.edit(task.code))}
           />
           <StatusSteps task={task} />
-          <div {...stylex.attrs(styles.body)}>
-            <div {...stylex.attrs(styles.main)}>
-              <OverviewCard task={task} />
-              {task.unitDetail && <PartsCard detail={task.unitDetail} />}
-              <TaskWorkflowPanel task={task} onChange={() => void request.refresh()} />
-              {task.kind === 'dmc' && <NodesCard task={task} />}
-            </div>
-            <aside {...stylex.attrs(styles.side)} aria-label="收益与关闭">
-              <BenefitCard task={task} />
-              <MilestonesCard task={task} />
-              <ClosingCard task={task} />
-            </aside>
-          </div>
+          {/* 左栏放长内容；右栏是收益、里程碑与关闭材料，滚动时粘在顶栏下面 */}
+          <AsideLayout
+            asideLabel="收益与关闭"
+            aside={
+              <>
+                <BenefitCard task={task} />
+                <MilestonesCard task={task} />
+                <ClosingCard task={task} />
+              </>
+            }
+          >
+            <OverviewCard task={task} />
+            {task.unitDetail && <PartsCard detail={task.unitDetail} />}
+            <TaskWorkflowPanel task={task} onChange={() => void request.refresh()} />
+            {task.kind === 'dmc' && <NodesCard task={task} />}
+          </AsideLayout>
           <TaskEditorDrawer target={_bind(editor)} onSaved={() => void request.refresh()} />
-        </div>
+        </Flex>
       )}
     </RequestView>
   );

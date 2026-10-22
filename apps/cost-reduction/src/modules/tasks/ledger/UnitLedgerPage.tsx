@@ -5,7 +5,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Small } from '@vue-tsx-pro/ui';
 import type { CostTask } from '../../../domain/task/types';
-import { DetailSection } from '../../../shared/Progress';
+import { DetailSection } from '../../../shared/DetailSection';
 import { taskColumns } from './columns';
 import { countActive, filterFields } from './filters';
 import { LedgerPage } from './LedgerPage';

@@ -3,14 +3,7 @@
  * （待认领、超过 2 个工作日没人认领；负责人另有待指定）、我负责的任务、我发起的、关注（按角色的几个数）、
  * 快捷入口、最近通知。数字只是入口：点进去是对应页签里的那几条
  */
-import {
-  ArrowUpRight,
-  BadgeCheck,
-  ChartColumn,
-  FilePlus2,
-  Inbox,
-  type LucideIconData,
-} from '@lucide/icons';
+import { BadgeCheck, ChartColumn, FilePlus2, Inbox, type LucideIconData } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
@@ -19,19 +12,21 @@ import {
   Flex,
   Grid,
   gridItemDynamicStyles,
-  Icon,
+  ItemList,
+  ItemListItem,
   Link,
   LinkButton,
   Small,
   Stat,
+  StatGroup,
   StatusBadge,
+  StatusDot,
   Text,
   useFormat,
   useRequest,
   workdaysBetween,
   type WorkItem,
 } from '@vue-tsx-pro/ui';
-import type { VNodeChild } from 'vue';
 import { getDashboard } from '../../api/benefit';
 import { getMyTasks, getNotifications } from '../../api/session';
 import { listWorkItems } from '../../api/workflow';
@@ -42,43 +37,14 @@ import { workflowVersion } from '../../app/sync';
 import { demoNow, TODAY } from '../../domain/clock';
 import { groupName, groupsOf } from '../../domain/workflow/groups';
 import { costKinds } from '../../shared/kinds';
+import { MoreLink } from '../../shared/MoreLink';
 import { RequestView } from '../../shared/RequestView';
 import { taskStatuses } from '../../shared/statuses';
 import { handlerText, processName } from '../inbox/inbox-labels';
 
 const styles = stylex.create({
-  page: { display: 'flex', flexDirection: 'column', gap: '_md', paddingBlockEnd: '_xl' },
-  greeting: { display: 'flex', alignItems: 'baseline', gap: '_sm', flexWrap: 'wrap' },
-  list: { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' },
-  row: {
-    display: 'grid',
-    gridTemplateColumns: 'minmax(0, 1fr) auto',
-    alignItems: 'center',
-    gap: '_sm',
-    paddingBlock: '_xs',
-    borderBlockEndWidth: { default: '_xs', ':last-child': 0 },
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_borderMuted',
-  },
-  rowText: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
-  danger: { color: '_dangerText' },
-  number: { fontVariantNumeric: 'tabular-nums', fontWeight: '_semibold' },
-  dot: { width: '0.5rem', height: '0.5rem', borderRadius: '_full', flexShrink: 0 },
-  unread: { backgroundColor: '_accent' },
+  page: { paddingBlockEnd: '_xl' },
 });
-
-/** 卡片标题：左边名称，右边跳转链接 */
-const cardHeader = (title: string, href?: string, label = '全部') => (
-  <Flex justify="between" align="center" gap="sm">
-    <span>{title}</span>
-    {href && (
-      <Link href={href}>
-        {label}
-        <Icon icon={ArrowUpRight} />
-      </Link>
-    )}
-  </Flex>
-);
 
 /** 一条待办超时了：还开着、过了截止日 */
 const overdue = (item: WorkItem) => item.dueOn != null && item.dueOn < TODAY;
@@ -224,16 +190,6 @@ export default _component(() => {
     return list;
   };
 
-  const row = (main: VNodeChild, sub: VNodeChild, end: VNodeChild, key: string) => (
-    <li key={key} {...stylex.attrs(styles.row)}>
-      <span {...stylex.attrs(styles.rowText)}>
-        {main}
-        <Small tone="muted">{sub}</Small>
-      </span>
-      {end}
-    </li>
-  );
-
   return () => {
     const poolItems = pool.data?.items ?? [];
     const stale = poolItems.filter(
@@ -242,43 +198,48 @@ export default _component(() => {
     const counts = mine.data?.counts;
     const leads = me.leads ?? [];
     return (
-      <div {...stylex.attrs(styles.page)}>
-        <div {...stylex.attrs(styles.greeting)}>
+      <Flex direction="column" gap="md" sx={styles.page}>
+        <Flex align="baseline" gap="sm" wrap>
           <Text size="xl" weight="semibold">
             {me.name}，你好
           </Text>
           <Small tone="muted">
             {me.title} · 今天是 {format.date(TODAY, { dateStyle: 'full' })}
           </Small>
-        </div>
+        </Flex>
         <Grid columns={12} gap="md">
           {/* 待我处理：按环节分组，点进收件箱带筛选 */}
           <Card
             padding="md"
             sx={gridItemDynamicStyles.span(5)}
-            header={cardHeader(
-              `待我处理（${counts?.mine ?? '…'}）`,
-              paths.inbox({ view: 'mine' }),
-              '打开收件箱',
-            )}
+            header={`待我处理（${counts?.mine ?? '…'}）`}
+            extra={<MoreLink href={paths.inbox({ view: 'mine' })}>打开收件箱</MoreLink>}
           >
             <RequestView request={mine}>
               {({ items }) =>
                 items.length ? (
-                  <ul {...stylex.attrs(styles.list)}>
-                    {groupByNode(items).map((group) =>
-                      row(
-                        <Link href={paths.inbox({ view: 'mine', q: group.name })}>
-                          {group.name}
-                        </Link>,
-                        group.overdue ? `其中超时 ${group.overdue} 条` : '都在时限内',
-                        <span {...stylex.attrs(styles.number, group.overdue > 0 && styles.danger)}>
-                          {group.count} 条
-                        </span>,
-                        group.name,
-                      ),
-                    )}
-                  </ul>
+                  <ItemList divided density="compact">
+                    {groupByNode(items).map((group) => (
+                      <ItemListItem
+                        key={group.name}
+                        title={
+                          <Link href={paths.inbox({ view: 'mine', q: group.name })}>
+                            {group.name}
+                          </Link>
+                        }
+                        description={group.overdue ? `其中超时 ${group.overdue} 条` : '都在时限内'}
+                        end={
+                          <Text
+                            numeric
+                            weight="semibold"
+                            tone={group.overdue > 0 ? 'danger' : undefined}
+                          >
+                            {group.count} 条
+                          </Text>
+                        }
+                      />
+                    ))}
+                  </ItemList>
                 ) : (
                   <Small tone="muted">手上没有待办</Small>
                 )
@@ -288,7 +249,7 @@ export default _component(() => {
 
           {/* 岗位收件箱：待认领、超过 2 个工作日没人认领；负责人另有待指定 */}
           <Card padding="md" sx={gridItemDynamicStyles.span(4)} header="岗位收件箱">
-            <Grid columns={leads.length ? 3 : 2} gap="md">
+            <StatGroup minItemWidth="7rem">
               <Stat
                 label="待认领"
                 value={counts?.pool ?? 0}
@@ -299,7 +260,7 @@ export default _component(() => {
                 label="超 2 个工作日没人认领"
                 value={stale}
                 unit="条"
-                propsNumber={{ sx: stale > 0 && styles.danger }}
+                tone={stale > 0 ? 'danger' : undefined}
                 footer={<Small tone="muted">超 3 个工作日转负责人指定</Small>}
               />
               {leads.length > 0 && (
@@ -307,11 +268,11 @@ export default _component(() => {
                   label="待指定"
                   value={counts?.designate ?? 0}
                   unit="条"
-                  propsNumber={{ sx: (counts?.designate ?? 0) > 0 && styles.danger }}
+                  tone={(counts?.designate ?? 0) > 0 ? 'danger' : undefined}
                   footer={<Link href={paths.inbox({ view: 'designate' })}>去指定</Link>}
                 />
               )}
-            </Grid>
+            </StatGroup>
             <Small tone="muted">我所在：{poolNames(me).join('、') || '—'}</Small>
           </Card>
 
@@ -336,26 +297,26 @@ export default _component(() => {
           <Card
             padding="md"
             sx={gridItemDynamicStyles.span(5)}
-            header={cardHeader(`我负责的任务（${tasks.data?.length ?? '…'}）`)}
+            header={`我负责的任务（${tasks.data?.length ?? '…'}）`}
           >
             <RequestView request={tasks}>
               {(list) =>
                 list.length ? (
-                  <ul {...stylex.attrs(styles.list)}>
-                    {list.slice(0, 6).map((task) =>
-                      row(
-                        <Link href={paths.task(task.code)}>{task.name}</Link>,
-                        <>
-                          {task.code} · {costKinds[task.kind].label}
-                        </>,
-                        <Flex gap="xs" align="center">
-                          <StatusBadge statuses={taskStatuses} value={task.status} />
-                          <DeadlineTag due={task.due} today={TODAY} soon={5} />
-                        </Flex>,
-                        task.code,
-                      ),
-                    )}
-                  </ul>
+                  <ItemList divided density="compact">
+                    {list.slice(0, 6).map((task) => (
+                      <ItemListItem
+                        key={task.code}
+                        title={<Link href={paths.task(task.code)}>{task.name}</Link>}
+                        description={`${task.code} · ${costKinds[task.kind].label}`}
+                        end={
+                          <>
+                            <StatusBadge statuses={taskStatuses} value={task.status} />
+                            <DeadlineTag due={task.due} today={TODAY} soon={5} />
+                          </>
+                        }
+                      />
+                    ))}
+                  </ItemList>
                 ) : (
                   <Small tone="muted">没有我主办、还没结束的任务</Small>
                 )
@@ -367,23 +328,26 @@ export default _component(() => {
           <Card
             padding="md"
             sx={gridItemDynamicStyles.span(4)}
-            header={cardHeader('我发起的', paths.inbox({ view: 'started' }))}
+            header="我发起的"
+            extra={<MoreLink href={paths.inbox({ view: 'started' })}>全部</MoreLink>}
           >
             <RequestView request={started}>
               {({ items }) =>
                 items.length ? (
-                  <ul {...stylex.attrs(styles.list)}>
-                    {items.slice(0, 6).map((item) =>
-                      row(
-                        <Link href={paths.inbox({ view: 'started', item: item.id })}>
-                          {item.businessKey} · {item.title}
-                        </Link>,
-                        `${processName(item.processKey)} · ${item.name} · ${handlerText(item)}`,
-                        <DeadlineTag due={item.dueOn} today={TODAY} />,
-                        item.id,
-                      ),
-                    )}
-                  </ul>
+                  <ItemList divided density="compact">
+                    {items.slice(0, 6).map((item) => (
+                      <ItemListItem
+                        key={item.id}
+                        title={
+                          <Link href={paths.inbox({ view: 'started', item: item.id })}>
+                            {item.businessKey} · {item.title}
+                          </Link>
+                        }
+                        description={`${processName(item.processKey)} · ${item.name} · ${handlerText(item)}`}
+                        end={<DeadlineTag due={item.dueOn} today={TODAY} />}
+                      />
+                    ))}
+                  </ItemList>
                 ) : (
                   <Small tone="muted">没有在流转中的</Small>
                 )
@@ -394,18 +358,18 @@ export default _component(() => {
           {/* 关注：按角色的几个数（单机降本） */}
           {internal && (
             <Card padding="md" sx={gridItemDynamicStyles.span(3)} header="关注（单机降本）">
-              <Grid columns={2} gap="md">
+              <StatGroup minItemWidth="7rem">
                 {watches().map((item) => (
                   <Stat
                     key={item.label}
                     label={item.label}
                     value={item.value}
                     unit="项"
-                    propsNumber={{ sx: item.urgent && item.value > 0 && styles.danger }}
+                    tone={item.urgent && item.value > 0 ? 'danger' : undefined}
                     footer={<Link href={item.href}>去看看</Link>}
                   />
                 ))}
-              </Grid>
+              </StatGroup>
             </Card>
           )}
 
@@ -414,23 +378,31 @@ export default _component(() => {
             <RequestView request={notices}>
               {(list) =>
                 list.length ? (
-                  <ul {...stylex.attrs(styles.list)}>
-                    {list.slice(0, 5).map((notice) =>
-                      row(
-                        <Flex align="center" gap="sm">
-                          {!notice.read && <span {...stylex.attrs(styles.dot, styles.unread)} />}
+                  <ItemList divided density="compact">
+                    {list.slice(0, 5).map((notice) => (
+                      <ItemListItem
+                        key={notice.id}
+                        align="start"
+                        start={
+                          <StatusDot
+                            tone={notice.read ? 'neutral' : notice.tone}
+                            label={notice.read ? undefined : '未读'}
+                          />
+                        }
+                        title={
                           <Link href={paths.inbox({ view: notice.view, item: notice.workItem })}>
                             {notice.title}
                           </Link>
-                        </Flex>,
-                        notice.description,
-                        <Small tone="muted">
-                          {format.relative(notice.time, { now: demoNow() })}
-                        </Small>,
-                        notice.id,
-                      ),
-                    )}
-                  </ul>
+                        }
+                        description={notice.description}
+                        end={
+                          <Small tone="muted">
+                            {format.relative(notice.time, { now: demoNow() })}
+                          </Small>
+                        }
+                      />
+                    ))}
+                  </ItemList>
                 ) : (
                   <Small tone="muted">没有通知</Small>
                 )
@@ -438,7 +410,7 @@ export default _component(() => {
             </RequestView>
           </Card>
         </Grid>
-      </div>
+      </Flex>
     );
   };
 });

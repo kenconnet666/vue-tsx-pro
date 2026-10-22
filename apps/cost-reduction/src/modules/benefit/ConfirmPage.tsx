@@ -9,27 +9,26 @@ import {
   Badge,
   Button,
   DataTable,
-  Dialog,
-  Field,
-  Flex,
+  DeadlineTag,
   Link,
+  Flex,
   Small,
   Tab,
   TabList,
   Tabs,
-  Textarea,
+  Text,
   TextField,
   ToggleGroup,
   ToggleItem,
   useConfirm,
   useFormat,
+  useFormDialog,
   useRequest,
   type DataTableColumn,
   queryCodecs,
   useQueryState,
+  ViewportFill,
 } from '@vue-tsx-pro/ui';
-import { space } from '@vue-tsx-pro/ui/tokens.stylex';
-import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
 import Decimal from 'decimal.js';
 import { approveBenefit, listConfirmRows, returnBenefit } from '../../api/benefit';
 import { notifyError, toaster } from '../../app/feedback';
@@ -45,6 +44,8 @@ import {
   type ConfirmView,
 } from '../../domain/task/benefit';
 import type { CostKind, CostTask } from '../../domain/task/types';
+import { TODAY } from '../../domain/clock';
+import { CodeLink } from '../../shared/CodeLink';
 import { costKindKeys, costKinds } from '../../shared/kinds';
 import { taskColumns } from '../tasks/ledger/columns';
 
@@ -55,31 +56,13 @@ const tabs: readonly { value: ConfirmView; label: string }[] = [
 ];
 
 const styles = stylex.create({
-  page: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_sm',
-    height: `calc(100dvh - ${layoutVars.stickyOffset} - 2 * ${space.md})`,
-    minHeight: '28rem',
-  },
-  toolbar: { display: 'flex', alignItems: 'center', gap: '_md', flexWrap: 'wrap' },
   search: { width: '18rem' },
-  table: { flexGrow: 0, flexShrink: 1, flexBasis: 'auto', maxHeight: 'none', minHeight: 0 },
-  code: { fontFamily: '_mono', fontSize: '_sm' },
-  number: { fontVariantNumeric: 'tabular-nums' },
-  overdue: { color: '_dangerText', fontWeight: '_semibold' },
-  tabDivider: {
-    alignSelf: 'center',
-    width: '_borderWidths.xs',
-    height: '1.25em',
-    marginInline: '_sm',
-    backgroundColor: '_border',
-  },
 });
 
 export default _component(() => {
   const format = useFormat();
   const confirm = useConfirm();
+  const prompt = useFormDialog();
   // 单位与页签在地址里：从统计看板跳过来时带着，刷新、分享也还是这份
   let tab = _fromRef(
     useQueryState<ConfirmView>(
@@ -90,9 +73,6 @@ export default _component(() => {
   );
   let kind = _fromRef(useQueryState<CostKind>('kind', 'unit', queryCodecs.oneOf(['unit', 'dmc'])));
   let keyword = _state('');
-  let returning = _state.raw<CostTask | null>(null);
-  let reason = _state('');
-  let reasonError = _state('');
 
   const amount = () => costKinds[kind];
   const money = (value: Decimal) => format.number(value, amount().format);
@@ -121,26 +101,36 @@ export default _component(() => {
     }
   }
 
-  function openReturn(task: CostTask) {
-    returning = task;
-    reason = '';
-    reasonError = '';
-  }
-  async function submitReturn() {
-    const task = returning;
-    if (!task) return;
-    if (reason.trim().length < 4) {
-      reasonError = '写明退回的原因（至少 4 个字），产品团队按它补材料';
-      return;
-    }
-    try {
-      await returnBenefit(task.code, reason.trim());
-      toaster.show({ title: `已退回 ${task.code}，任务回到验证中`, tone: 'success' });
-      returning = null;
-      void rows.refresh();
-    } catch (error) {
-      notifyError(`${task.code} 没能退回`, error);
-    }
+  /** 退回验证：原因必填，产品团队按它补材料 */
+  async function sendBack(task: CostTask) {
+    const values = await prompt({
+      title: `退回 ${task.code}`,
+      description: '退回后任务回到验证中，验证窗结论作废；产品团队按原因补材料后重新提交',
+      confirmText: '退回',
+      tone: 'danger',
+      fields: [
+        {
+          name: 'reason',
+          label: '退回原因',
+          type: 'textarea',
+          required: true,
+          placeholder: '如：验证窗结论缺少试验报告',
+          validate: (value) =>
+            value.length < 4 ? '写明退回的原因（至少 4 个字），产品团队按它补材料' : null,
+        },
+      ],
+      onSubmit: async ({ reason }) => {
+        try {
+          await returnBenefit(task.code, reason ?? '');
+        } catch (error) {
+          notifyError(`${task.code} 没能退回`, error);
+          throw error;
+        }
+      },
+    });
+    if (!values) return;
+    toaster.show({ title: `已退回 ${task.code}，任务回到验证中`, tone: 'success' });
+    void rows.refresh();
   }
 
   const columns = (): DataTableColumn<Row>[] => [
@@ -151,11 +141,7 @@ export default _component(() => {
       sticky: 'start',
       sortable: true,
       value: (row) => row.task.code,
-      cell: (row) => (
-        <Link href={paths.task(row.task.code)} sx={styles.code}>
-          {row.task.code}
-        </Link>
-      ),
+      cell: (row) => <CodeLink code={row.task.code} />,
     },
     {
       key: 'name',
@@ -206,11 +192,7 @@ export default _component(() => {
       align: 'end',
       sortable: true,
       value: (row) => row.task.a ?? latestEstimate(row.task),
-      cell: (row) => (
-        <span {...stylex.attrs(styles.number)}>
-          {money(row.task.a ?? latestEstimate(row.task))}
-        </span>
-      ),
+      cell: (row) => <Text numeric>{money(row.task.a ?? latestEstimate(row.task))}</Text>,
     },
     {
       key: 'rounds',
@@ -231,16 +213,10 @@ export default _component(() => {
             value: (row: Row) => confirmDeadline(row.task)?.remaining,
             cell: (row: Row) => {
               const deadline = confirmDeadline(row.task);
-              if (!deadline) return <Small tone="muted">—</Small>;
-              const { remaining, state } = deadline;
-              return state === 'overdue' ? (
-                <span {...stylex.attrs(styles.overdue)}>
-                  {remaining < 0 ? `超 ${-remaining} 天` : '已超期'}
-                </span>
-              ) : state === 'due' ? (
-                <Small tone="warning">今天到期</Small>
+              return deadline ? (
+                <DeadlineTag due={deadline.due} today={TODAY} soon={3} />
               ) : (
-                <Small tone={state === 'soon' ? 'warning' : undefined}>{remaining} 天</Small>
+                <Small tone="muted">—</Small>
               );
             },
           } satisfies DataTableColumn<Row>,
@@ -295,7 +271,7 @@ export default _component(() => {
               variant="link"
               tone="danger"
               icon={Undo2}
-              onClick={() => openReturn(row.task)}
+              onClick={() => void sendBack(row.task)}
             >
               退回
             </Button>
@@ -322,8 +298,8 @@ export default _component(() => {
           </TabList>
         </Tabs>
       </PageNav>
-      <div {...stylex.attrs(styles.page)}>
-        <div {...stylex.attrs(styles.toolbar)}>
+      <ViewportFill gap="sm">
+        <Flex align="center" gap="md" wrap>
           <ToggleGroup value={_bind(kind)} aria-label="降本类型" required>
             {costKindKeys.map((value) => (
               <ToggleItem key={value} value={value}>
@@ -342,7 +318,7 @@ export default _component(() => {
           <Small tone="muted">
             验证完成后 {CONFIRM_WORKDAYS} 个工作日内认定；认定按最新一版测算锁定测算金额 A
           </Small>
-        </div>
+        </Flex>
         <DataTable
           rows={rowsOf(tab)}
           loading={rows.loading}
@@ -350,38 +326,9 @@ export default _component(() => {
           getKey={(row) => row.task.code}
           aria-label="收益认定"
           empty={tab === 'awaiting' ? '没有待认定的项目' : '没有记录'}
-          propsRoot={{ sx: styles.table }}
+          flexible
         />
-      </div>
-      <Dialog
-        open={_bind(
-          () => returning != null,
-          (open: boolean) => {
-            if (!open) returning = null;
-          },
-        )}
-        title={`退回 ${returning?.code ?? ''}`}
-        description="退回后任务回到验证中，验证窗结论作废；产品团队按原因补材料后重新提交"
-        footer={
-          <Flex justify="end" gap="sm">
-            <Button variant="ghost" tone="neutral" onClick={() => (returning = null)}>
-              取消
-            </Button>
-            <Button tone="danger" onClick={() => void submitReturn()}>
-              退回
-            </Button>
-          </Flex>
-        }
-      >
-        <Field label="退回原因" required error={reasonError || undefined}>
-          <Textarea
-            value={_bind(reason)}
-            rows={3}
-            placeholder="如：验证窗结论缺少试验报告"
-            autofocus
-          />
-        </Field>
-      </Dialog>
+      </ViewportFill>
     </>
   );
 });

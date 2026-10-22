@@ -3,10 +3,10 @@
  * 各节点的日期、是否需要 SB 与贯彻架次在详情行里；金额单位是美元 / FH
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { Checklist, Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
 import { nextDmcNode, nodeLateDays } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
-import { Checklist, DetailSection, ProgressDots } from '../../../shared/Progress';
+import { DetailSection } from '../../../shared/DetailSection';
 import { taskColumns } from './columns';
 import { countActive, filterFields } from './filters';
 import { LedgerPage } from './LedgerPage';
@@ -22,7 +22,8 @@ const nodeColumns: DataTableColumn<CostTask>[] = [
       const node = nextDmcNode(task);
       return (
         <Flex inline align="center" gap="sm">
-          <ProgressDots
+          <Checklist
+            layout="icons"
             items={task.dmcNodes.map((item) => ({ label: item.form, done: item.done != null }))}
           />
           {node ? (
@@ -45,6 +46,7 @@ function nodeDetail(task: CostTask) {
     <>
       <DetailSection title={`实施节点 · ${done} / ${task.dmcNodes.length}`}>
         <Checklist
+          layout="inline"
           items={task.dmcNodes.map((node) => {
             const late = nodeLateDays(node);
             return {

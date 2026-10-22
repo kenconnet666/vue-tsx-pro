@@ -25,6 +25,7 @@ import { paths } from '../../app/paths';
 import { workflowVersion } from '../../app/sync';
 import { TODAY } from '../../domain/clock';
 import { costKinds } from '../../shared/kinds';
+import { CodeLink, isTaskCode } from '../../shared/CodeLink';
 import { RequestView } from '../../shared/RequestView';
 import { taskStatuses } from '../../shared/statuses';
 import { WorkflowPanel } from '../../shared/WorkflowPanel';
@@ -32,13 +33,8 @@ import { TaskWorkflowPanel } from '../tasks/detail/TaskWorkflowPanel';
 import { arrivals, fromText, handlerText, outcomeLabel, processName } from './inbox-labels';
 
 const styles = stylex.create({
-  root: { display: 'flex', flexDirection: 'column', gap: '_md', padding: '_md' },
-  head: { display: 'flex', flexDirection: 'column', gap: '_xs' },
-  code: { fontFamily: '_mono', fontSize: '_sm' },
+  root: { padding: '_md' },
 });
-
-/** 任务池里的卡（单机降本、降 DMC）：编号是 DJ- 或 DMC- 开头 */
-const isTaskCode = (code: string) => /^(DJ|DMC)-/.test(code);
 
 /** 收件箱右栏的预览 */
 export const InboxPreview = _component(
@@ -102,10 +98,10 @@ export const InboxPreview = _component(
         />
       );
       return (
-        <div {...stylex.attrs(styles.root)}>
-          <div {...stylex.attrs(styles.head)}>
+        <Flex direction="column" gap="md" sx={styles.root}>
+          <Flex direction="column" gap="xs">
             <Flex align="center" gap="sm" wrap>
-              <span {...stylex.attrs(styles.code)}>{item.businessKey}</span>
+              <CodeLink code={item.businessKey} />
               <Badge tone="accent">{item.name}</Badge>
             </Flex>
             <Flex align="center" justify="between" gap="sm" wrap>
@@ -122,7 +118,7 @@ export const InboxPreview = _component(
                 </LinkButton>
               )}
             </Flex>
-          </div>
+          </Flex>
           {summary}
           {isTaskCode(item.businessKey) ? (
             <RequestView request={task} notFound={`没有找到项目 ${item.businessKey}`}>
@@ -170,7 +166,7 @@ export const InboxPreview = _component(
           {item.state !== 'open' && (
             <Small tone="muted">这一条已经处理过；流程现在走到哪里看上面的流程图</Small>
           )}
-        </div>
+        </Flex>
       );
     };
   },

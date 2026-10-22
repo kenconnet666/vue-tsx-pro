@@ -8,7 +8,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
   DataTable,
-  Link,
   Select,
   Small,
   Tab,
@@ -22,15 +21,15 @@ import {
   queryCodecs,
   useQueryState,
   useRequest,
+  Flex,
+  ViewportFill,
 } from '@vue-tsx-pro/ui';
-import { space } from '@vue-tsx-pro/ui/tokens.stylex';
-import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
 import { getValueLedger } from '../../api/benefit';
 import { PageNav } from '../../app/layout/PageNav';
 import { dict, dictLabel, shortTeam, teamNames } from '../../app/master';
-import { paths } from '../../app/paths';
 import type { ValueLedgerQuery, ValueLedgerRow as Row } from '../../domain/ledger/value';
 import type { CostKind } from '../../domain/task/types';
+import { CodeLink } from '../../shared/CodeLink';
 
 const kinds = [
   { value: 'unit', label: '单机降本（万元）', unit: '万元', format: { scale: 10_000 } },
@@ -45,18 +44,8 @@ const states = [
 ] as const;
 
 const styles = stylex.create({
-  page: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_sm',
-    height: `calc(100dvh - ${layoutVars.stickyOffset} - 2 * ${space.md})`,
-    minHeight: '28rem',
-  },
-  toolbar: { display: 'flex', alignItems: 'center', gap: '_md', flexWrap: 'wrap' },
   search: { width: '16rem' },
   team: { width: '14rem' },
-  table: { flexGrow: 0, flexShrink: 1, flexBasis: 'auto', maxHeight: 'none', minHeight: 0 },
-  code: { fontFamily: '_mono', fontSize: '_sm' },
 });
 
 export default _component(() => {
@@ -81,14 +70,8 @@ export default _component(() => {
         width: 150,
         sticky: 'start',
         sortable: true,
-        cell: (row) =>
-          row.inPool ? (
-            <Link href={paths.task(row.code)} sx={styles.code}>
-              {row.code}
-            </Link>
-          ) : (
-            <span {...stylex.attrs(styles.code)}>{row.code}</span>
-          ),
+        // 机会（渠道里的建议、方案）还没有卡的详情：只显示编号
+        cell: (row) => <CodeLink code={row.code} />,
       },
       // 写宽度：更宽时多出来的按比例摊给各列，不只撑大名称
       { key: 'name', header: '项目名称', width: 240, sortable: true },
@@ -159,8 +142,8 @@ export default _component(() => {
           </TabList>
         </Tabs>
       </PageNav>
-      <div {...stylex.attrs(styles.page)}>
-        <div {...stylex.attrs(styles.toolbar)}>
+      <ViewportFill gap="sm">
+        <Flex align="center" gap="md" wrap>
           <ToggleGroup value={_bind(basis)} aria-label="金额口径" required>
             {dict('amountBases').map((item) => (
               <ToggleItem key={item.value} value={item.value}>
@@ -185,7 +168,7 @@ export default _component(() => {
             sx={styles.team}
           />
           <Small tone="muted">四种状态分开挂账、只按栏合计；金额口径一次看一种，不混总数</Small>
-        </div>
+        </Flex>
         <DataTable
           rows={ledger.data?.rows ?? []}
           loading={ledger.loading}
@@ -194,9 +177,9 @@ export default _component(() => {
           getKey={(row) => row.code}
           summaryLabel="按栏合计"
           aria-label="一本账"
-          propsRoot={{ sx: styles.table }}
+          flexible
         />
-      </div>
+      </ViewportFill>
     </>
   );
 });

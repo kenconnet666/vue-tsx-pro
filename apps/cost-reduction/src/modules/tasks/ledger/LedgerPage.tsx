@@ -24,6 +24,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
   Button,
+  Checklist,
   DataTable,
   dataTableStyles,
   downloadFile,
@@ -31,7 +32,6 @@ import {
   FilterBar,
   Flex,
   IconButton,
-  Link,
   Menu,
   MenuCheckboxItem,
   MenuItem,
@@ -50,53 +50,30 @@ import {
   useTableQuery,
   type DataTableColumn,
   type DataTableColumnGroup,
+  Separator,
+  Text,
+  ViewportFill,
 } from '@vue-tsx-pro/ui';
-import { space } from '@vue-tsx-pro/ui/tokens.stylex';
-import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
 import type Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';
 import { getTasks, listTasks } from '../../../api/tasks';
 import { notifyError } from '../../../app/feedback';
 import { PageNav } from '../../../app/layout/PageNav';
-import { paths } from '../../../app/paths';
 import { canDo } from '../../../app/session';
 import { nextStepOf } from '../../../domain/task/lifecycle';
 import { blankLedgerQuery, ledgerViews, type LedgerQuery } from '../../../domain/task/query';
 import { canClose, isFinished, overdueDays, taskFocuses } from '../../../domain/task/status';
 import type { CostKind, CostTask } from '../../../domain/task/types';
 import { costKinds } from '../../../shared/kinds';
-import { ProgressDots } from '../../../shared/Progress';
 import { focusTones, taskStatuses, valueStates } from '../../../shared/statuses';
 import { editorTarget, TaskEditorDrawer } from '../editor/TaskEditorDrawer';
 import { useTaskActions } from '../task-actions';
+import { CodeLink } from '../../../shared/CodeLink';
 import { LedgerDetail } from './LedgerDetail';
 
 const styles = stylex.create({
-  // 正好占满窗口（减去顶栏与正文的上下内边距）：表格按行数自己的高度，最多到剩下的高度、再多就在表格里滚动；
-  // 分页紧跟在表格下面。窗口太矮时整页滚动
-  page: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_md',
-    minWidth: 0,
-    height: `calc(100dvh - ${layoutVars.stickyOffset} - 2 * ${space.md})`,
-    minHeight: '32rem',
-  },
-  list: { display: 'flex', flexDirection: 'column', gap: '_sm', flexGrow: 1, minHeight: 0 },
-  table: { flexGrow: 0, flexShrink: 1, flexBasis: 'auto', maxHeight: 'none', minHeight: 0 },
-  // 两组页签之间的竖线
-  tabDivider: {
-    alignSelf: 'center',
-    width: '_borderWidths.xs',
-    height: '1.25em',
-    marginInline: '_sm',
-    backgroundColor: '_border',
-  },
-  code: { fontFamily: '_mono', fontSize: '_sm' },
-  actionsHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  unit: { color: '_textMuted', fontSize: '_xs', marginInlineStart: '0.25em' },
-  overdue: { color: '_dangerText', fontWeight: '_semibold', fontVariantNumeric: 'tabular-nums' },
-  number: { fontVariantNumeric: 'tabular-nums' },
+  // 两组页签之间的竖线：比页签矮一些
+  tabDivider: { alignSelf: 'center', height: '1.25em', marginInline: '_sm' },
 });
 
 /** 台账页的参数 */
@@ -138,7 +115,7 @@ export const LedgerPage = _component(
       value == null ? (
         <Small tone="muted">{empty}</Small>
       ) : (
-        <span {...stylex.attrs(styles.number)}>{format.number(value, amount.format)}</span>
+        <Text numeric>{format.number(value, amount.format)}</Text>
       );
 
     // 编码、名称、操作一直显示，其余的可以隐藏
@@ -255,11 +232,7 @@ export const LedgerPage = _component(
         width: 140,
         sticky: 'start',
         sortable: true,
-        cell: (task) => (
-          <Link href={paths.task(task.code)} sx={styles.code}>
-            {task.code}
-          </Link>
-        ),
+        cell: (task) => <CodeLink code={task.code} />,
       },
       // 每列都写宽度：放不下时横向滚动；更宽时多出来的按各列宽度的比例分摊，不会只撑大名称一列
       { key: 'name', header: '项目名称', sortable: true, width: 220 },
@@ -303,7 +276,8 @@ export const LedgerPage = _component(
         header: '里程碑',
         width: 68,
         cell: (task) => (
-          <ProgressDots
+          <Checklist
+            layout="icons"
             items={task.milestones.map((item) => ({ label: item.label, done: item.done != null }))}
           />
         ),
@@ -319,10 +293,9 @@ export const LedgerPage = _component(
         cell: (task) => {
           const days = overdueDays(task);
           return days > 0 ? (
-            <span {...stylex.attrs(styles.overdue)}>
-              {days}
-              <span {...stylex.attrs(styles.unit)}>天</span>
-            </span>
+            <Text tone="danger" weight="semibold" numeric>
+              {days} <Small tone="muted">天</Small>
+            </Text>
           ) : (
             <Small tone="muted">—</Small>
           );
@@ -332,10 +305,10 @@ export const LedgerPage = _component(
         key: 'actions',
         // 列设置放在操作列的表头：不为它单独占一行
         header: (
-          <span {...stylex.attrs(styles.actionsHeader)}>
+          <Flex align="center" justify="between">
             操作
             <ColumnSettings />
-          </span>
+          </Flex>
         ),
         width: 84,
         sticky: 'end',
@@ -423,7 +396,7 @@ export const LedgerPage = _component(
                   </Tab>
                 ))}
                 {/* 第二组：关注，跨状态；条数用色调提示轻重 */}
-                <span aria-hidden="true" {...stylex.attrs(styles.tabDivider)} />
+                <Separator orientation="vertical" sx={styles.tabDivider} />
                 {taskFocuses.map((item) => (
                   <Tab key={item.value} value={item.value}>
                     {item.label}
@@ -439,7 +412,7 @@ export const LedgerPage = _component(
               </TabList>
             </Tabs>
           </PageNav>
-          <div {...stylex.attrs(styles.page)}>
+          <ViewportFill gap="md">
             <FilterBar
               onSearch={search}
               onReset={reset}
@@ -469,7 +442,7 @@ export const LedgerPage = _component(
               {bar.main}
             </FilterBar>
 
-            <div {...stylex.attrs(styles.list)}>
+            <Flex direction="column" gap="sm" grow>
               <SelectionBar count={selected.length} onClear={() => (selected = [])}>
                 <Button
                   size="sm"
@@ -500,7 +473,7 @@ export const LedgerPage = _component(
                 expandedRows={_bind(expanded)}
                 loading={tasks.loading}
                 aria-label={`${amount.label}台账`}
-                propsRoot={{ sx: styles.table }}
+                flexible
               />
               <Flex align="center" justify="between" gap="md" wrap>
                 <Small tone="muted">
@@ -516,8 +489,8 @@ export const LedgerPage = _component(
                   <PageSizeSelect value={_bind(tasks.pageSize)} />
                 </Flex>
               </Flex>
-            </div>
-          </div>
+            </Flex>
+          </ViewportFill>
           <TaskEditorDrawer target={_bind(editor)} onSaved={() => void tasks.refresh()} />
         </>
       );

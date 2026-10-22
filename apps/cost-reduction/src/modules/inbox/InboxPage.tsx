@@ -28,6 +28,9 @@ import {
   useRequest,
   type DataTableColumn,
   type WorkItem,
+  Flex,
+  Text,
+  ViewportFill,
 } from '@vue-tsx-pro/ui';
 import { claimWorkItem, listWorkItems } from '../../api/workflow';
 import { notifyError, toaster } from '../../app/feedback';
@@ -48,24 +51,10 @@ import {
 import { InboxPreview } from './InboxPreview';
 
 const styles = stylex.create({
-  page: { display: 'flex', flexDirection: 'column', gap: '_md' },
-  toolbar: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_sm' },
   search: { width: '16rem' },
   select: { width: '10rem' },
-  // 分栏占满窗口剩下的高度：两栏各自滚动
-  split: {
-    height: 'calc(100dvh - 11rem)',
-    minHeight: '28rem',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_lg',
-    backgroundColor: '_surface',
-    overflow: 'hidden',
-  },
-  table: { height: '_full', maxHeight: 'none' },
-  code: { fontFamily: '_mono', fontSize: '_sm' },
-  empty: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '_full' },
+  // 预览栏里没选中时：空状态在栏里居中
+  fill: { height: '100%' },
 });
 
 /** 查询：关键字（编号、名称、环节）、流程、到达方式、只看超时 */
@@ -141,8 +130,10 @@ export default _component(() => {
       value: (item) => item.businessKey,
       // 键盘的入口：整行点击是鼠标的捷径
       cell: (item) => (
-        <Button size="sm" variant="link" onClick={() => open(item)} sx={styles.code}>
-          {item.businessKey}
+        <Button size="sm" variant="link" onClick={() => open(item)}>
+          <Text mono size="sm">
+            {item.businessKey}
+          </Text>
         </Button>
       ),
     },
@@ -264,8 +255,8 @@ export default _component(() => {
             </TabList>
           </Tabs>
         </PageNav>
-        <div {...stylex.attrs(styles.page)}>
-          <div {...stylex.attrs(styles.toolbar)}>
+        <ViewportFill gap="md">
+          <Flex align="center" gap="sm" wrap>
             <TextField
               value={_bind(keyword)}
               icon={Search}
@@ -312,9 +303,9 @@ export default _component(() => {
                   ? '超过 3 个工作日没人认领、或有人申请改派的，由你指定承办人'
                   : ''}
             </Small>
-          </div>
+          </Flex>
           <Splitter
-            sx={styles.split}
+            bordered
             size={_bind(
               () => layout.size,
               (size: number) => (layout = { ...layout, size }),
@@ -350,7 +341,8 @@ export default _component(() => {
                       ? '手上没有待办'
                       : '没有记录'
                 }
-                propsRoot={{ sx: styles.table }}
+                variant="ghost"
+                flexible
               />
             }
             end={
@@ -361,7 +353,7 @@ export default _component(() => {
                   onChange={() => void list.refresh()}
                 />
               ) : (
-                <div {...stylex.attrs(styles.empty)}>
+                <Flex align="center" justify="center" sx={styles.fill}>
                   {list.data && (
                     <Empty
                       size="sm"
@@ -373,11 +365,11 @@ export default _component(() => {
                       }
                     />
                   )}
-                </div>
+                </Flex>
               )
             }
           />
-        </div>
+        </ViewportFill>
       </>
     );
   };

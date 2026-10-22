@@ -4,7 +4,6 @@
  */
 import {
   AlarmClock,
-  ArrowUpRight,
   BadgeCheck,
   CalendarClock,
   FileWarning,
@@ -12,17 +11,17 @@ import {
   PackageCheck,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Card,
   Flex,
   Grid,
   gridItemDynamicStyles,
   gridItemStyles,
-  Icon,
   Link,
   Small,
+  ProportionBar,
   Stat,
+  StatGroup,
   StatusBadge,
   Tab,
   Table,
@@ -41,7 +40,6 @@ import {
   type IconData,
 } from '@vue-tsx-pro/ui';
 import { BarChart, FunnelChart, LineChart, WaterfallChart } from '@vue-tsx-pro/ui/charts';
-import type { VNodeChild } from 'vue';
 import { getDashboard } from '../../api/benefit';
 import { PageNav } from '../../app/layout/PageNav';
 import { dict, shortTeam } from '../../app/master';
@@ -55,49 +53,12 @@ import {
 import { statusGroups } from '../../domain/task/status';
 import type { CostKind } from '../../domain/task/types';
 import { costKindKeys, costKinds } from '../../shared/kinds';
+import { MoreLink } from '../../shared/MoreLink';
 import { RequestView } from '../../shared/RequestView';
 import { taskStatuses, valueStates } from '../../shared/statuses';
 
-const styles = stylex.create({
-  // 需要处理：六项一排（Grid columns=6），项与项之间一条竖线
-  todoItem: {
-    paddingInline: '_md',
-    borderInlineStartWidth: { default: '_xs', ':first-child': 0 },
-    borderInlineStartStyle: 'solid',
-    borderInlineStartColor: '_borderMuted',
-  },
-  danger: { color: '_dangerText' },
-  // 三桶的条形：按条数分段
-  bar: {
-    display: 'flex',
-    height: '0.75rem',
-    borderRadius: '_full',
-    overflow: 'hidden',
-    gap: '2px',
-  },
-  confirmed: { backgroundColor: '_success' },
-  unpriced: { backgroundColor: '_warning' },
-  plan: { backgroundColor: '_info' },
-  dot: { width: '0.625rem', height: '0.625rem', borderRadius: '_full', flexShrink: 0 },
-  total: {
-    fontSize: '_xxl',
-    fontWeight: '_bold',
-    lineHeight: '_tight',
-    fontVariantNumeric: 'tabular-nums',
-  },
-  number: { fontVariantNumeric: 'tabular-nums' },
-  segment: (share: number) => ({ flexGrow: share, flexBasis: 0 }),
-  code: { fontFamily: '_mono', fontSize: '_sm' },
-  late: { color: '_dangerText', fontWeight: '_semibold', fontVariantNumeric: 'tabular-nums' },
-});
-
-/** 跳转的小链接：“去处理 ↗”“明细 ↗” */
-const jump = (href: string, label: string) => (
-  <Link href={href}>
-    {label}
-    <Icon icon={ArrowUpRight} />
-  </Link>
-);
+/** 三桶的色调：已确认收益是好事，挂账待定要盯，方案待定是在路上 */
+const bucketTones = { confirmed: 'success', unpriced: 'warning', plan: 'info' } as const;
 
 /** 需要处理的一项：名称、图标、是否紧急（有数时标红）、去哪儿处理 */
 const todoItems = (
@@ -161,14 +122,6 @@ const progressHref = (kind: CostKind, key: string) =>
     closed: paths.ledger(kind, { view: 'closed' }),
   })[key];
 
-/** 卡片标题：左边名称，右边跳转链接 */
-const cardHeader = (title: string, link?: VNodeChild) => (
-  <Flex justify="between" align="center" gap="sm">
-    <span>{title}</span>
-    {link}
-  </Flex>
-);
-
 /** 一种降本类型的看板 */
 const Board = _component(({ summary }: { summary: DashboardSummary }) => {
   const format = useFormat();
@@ -185,70 +138,52 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
       <Grid columns={12} gap="md">
         {/* 需要处理：件数在这里，点进去是对应页签里的那几项 */}
         <Card padding="md" sx={gridItemStyles.full} header="需要处理">
-          <Grid columns={6}>
+          <StatGroup>
             {todoItems(kind).map((item) => {
               const count = summary.todos[item.key];
               return (
-                <div key={item.key} {...stylex.attrs(styles.todoItem)}>
-                  <Stat
-                    label={item.label}
-                    icon={item.icon}
-                    value={count}
-                    unit="项"
-                    propsNumber={{ sx: item.urgent && count > 0 && styles.danger }}
-                    footer={
-                      count > 0 ? jump(item.href, '去处理') : <Small tone="muted">没有</Small>
-                    }
-                  />
-                </div>
+                <Stat
+                  key={item.key}
+                  label={item.label}
+                  icon={item.icon}
+                  value={count}
+                  unit="项"
+                  tone={item.urgent && count > 0 ? 'danger' : undefined}
+                  footer={
+                    count > 0 ? (
+                      <MoreLink href={item.href}>去处理</MoreLink>
+                    ) : (
+                      <Small tone="muted">没有</Small>
+                    )
+                  }
+                />
               );
             })}
-          </Grid>
+          </StatGroup>
         </Card>
 
         {/* 三桶：任务池总数只在这里出现一次 */}
         <Card padding="md" sx={gridItemDynamicStyles.span(6)} header="任务池构成">
           <Flex direction="column" gap="md">
-            <Flex align="baseline" gap="sm">
-              <span {...stylex.attrs(styles.total)}>{summary.pool}</span>
-              <Small tone="muted">
-                项任务 · 三桶互斥，加总等于总数（终止 {summary.terminated} 项回流储备库，不计入）
-              </Small>
-            </Flex>
-            <div
-              {...stylex.attrs(styles.bar)}
-              role="img"
-              aria-label={summary.buckets
-                .map((bucket) => `${bucket.label} ${bucket.count} 项`)
-                .join('，')}
-            >
-              {summary.buckets.map((bucket) => (
-                <span
-                  key={bucket.value}
-                  {...stylex.attrs(
-                    styles[bucket.value as 'confirmed' | 'unpriced' | 'plan'],
-                    styles.segment(bucket.count),
-                  )}
-                />
-              ))}
-            </div>
-            <Flex justify="between" gap="md" wrap>
-              {summary.buckets.map((bucket) => (
-                <Flex key={bucket.value} align="center" gap="sm">
-                  <span
-                    {...stylex.attrs(
-                      styles.dot,
-                      styles[bucket.value as 'confirmed' | 'unpriced' | 'plan'],
-                    )}
-                  />
-                  <Text size="sm">{bucket.label}</Text>
-                  <Text size="sm" weight="semibold" sx={styles.number}>
-                    {bucket.count} 项
-                  </Text>
-                  {bucket.value === 'unpriced' && <Small tone="muted">待定价</Small>}
-                </Flex>
-              ))}
-            </Flex>
+            <Stat
+              label="任务池"
+              value={summary.pool}
+              unit="项"
+              description={`三桶互斥，加总等于总数（终止 ${summary.terminated} 项回流储备库，不计入）`}
+            />
+            <ProportionBar
+              aria-label="任务池的三桶"
+              segments={summary.buckets.map((bucket) => ({
+                key: bucket.value,
+                label: bucket.label,
+                value: bucket.count,
+                tone: bucketTones[bucket.value as keyof typeof bucketTones],
+              }))}
+              valueText={(segment) => `${segment.value} 项`}
+              legendExtra={(segment) =>
+                segment.key === 'unpriced' && <Small tone="muted">待定价</Small>
+              }
+            />
           </Flex>
         </Card>
 
@@ -265,7 +200,7 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
               value={item.amount.toNumber()}
               format={amount.format}
               unit={amount.unit}
-              footer={jump(paths.valueLedger({ kind }), '看一本账')}
+              footer={<MoreLink href={paths.valueLedger({ kind })}>看一本账</MoreLink>}
             />
           </Card>
         ))}
@@ -274,10 +209,8 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
         <Card
           padding="md"
           sx={gridItemDynamicStyles.span(8)}
-          header={cardHeader(
-            `预期与实际（今年按月累计，${amount.unit}）`,
-            jump(paths.valueLedger({ kind }), '看一本账'),
-          )}
+          header={`预期与实际（今年按月累计，${amount.unit}）`}
+          extra={<MoreLink href={paths.valueLedger({ kind })}>看一本账</MoreLink>}
         >
           <LineChart
             aria-label="今年按月累计的预期与实际降本"
@@ -324,11 +257,8 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
                   {valueStateOrder.map((state) => (
                     <TableCell key={state} align="end">
                       {row.counts[state] ? (
-                        <Link
-                          href={paths.ledger(kind, { view: row.group, valueState: state })}
-                          sx={styles.number}
-                        >
-                          {row.counts[state]}
+                        <Link href={paths.ledger(kind, { view: row.group, valueState: state })}>
+                          <Text numeric>{row.counts[state]}</Text>
                         </Link>
                       ) : (
                         <Small tone="muted">—</Small>
@@ -336,8 +266,8 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
                     </TableCell>
                   ))}
                   <TableCell align="end">
-                    <Link href={paths.ledger(kind, { view: row.group })} sx={styles.number}>
-                      {row.total}
+                    <Link href={paths.ledger(kind, { view: row.group })}>
+                      <Text numeric>{row.total}</Text>
                     </Link>
                   </TableCell>
                 </TableRow>
@@ -348,7 +278,7 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
                 <TableHeaderCell scope="row">小计</TableHeaderCell>
                 {valueStateOrder.map((state) => (
                   <TableCell key={state} align="end">
-                    <span {...stylex.attrs(styles.number)}>{summary.stateTotals[state]}</span>
+                    <Text numeric>{summary.stateTotals[state]}</Text>
                   </TableCell>
                 ))}
                 {/* 总数已在“任务池构成”里：这里不再重复 */}
@@ -364,10 +294,8 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
         <Card
           padding="md"
           sx={gridItemDynamicStyles.span(5)}
-          header={cardHeader(
-            '超时最久的项目',
-            jump(paths.ledger(kind, { view: 'overdue' }), '全部超时'),
-          )}
+          header="超时最久的项目"
+          extra={<MoreLink href={paths.ledger(kind, { view: 'overdue' })}>全部超时</MoreLink>}
         >
           {summary.late.length ? (
             <Table aria-label="超时最久的项目" density="compact" variant="ghost">
@@ -383,8 +311,10 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
                 {summary.late.map((task) => (
                   <TableRow key={task.code}>
                     <TableCell>
-                      <Link href={paths.task(task.code)} sx={styles.code}>
-                        {task.code}
+                      <Link href={paths.task(task.code)}>
+                        <Text mono size="sm">
+                          {task.code}
+                        </Text>
                       </Link>
                     </TableCell>
                     <TableCell>{task.name}</TableCell>
@@ -392,7 +322,9 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
                       <StatusBadge statuses={taskStatuses} value={task.status} />
                     </TableCell>
                     <TableCell align="end">
-                      <span {...stylex.attrs(styles.late)}>{task.days} 天</span>
+                      <Text tone="danger" weight="semibold" numeric>
+                        {task.days} 天
+                      </Text>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -472,11 +404,8 @@ const Board = _component(({ summary }: { summary: DashboardSummary }) => {
                     return (
                       <TableCell key={basis.value} align="end">
                         {cell?.amount ? (
-                          <Link
-                            href={paths.valueLedger({ kind, basis: basis.value })}
-                            sx={styles.number}
-                          >
-                            {money(cell.amount)}
+                          <Link href={paths.valueLedger({ kind, basis: basis.value })}>
+                            <Text numeric>{money(cell.amount)}</Text>
                           </Link>
                         ) : (
                           <Small tone="muted">—</Small>

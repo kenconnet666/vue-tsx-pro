@@ -3,7 +3,6 @@
  * 流程与流转记录在 WorkflowPanel
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Card,
   Descriptions,
@@ -16,6 +15,7 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
+  Text,
   useFormat,
 } from '@vue-tsx-pro/ui';
 import { dictLabel, personName } from '../../../app/master';
@@ -23,12 +23,6 @@ import { partSaving, unitSaving } from '../../../domain/task/calc';
 import { daysToDue } from '../../../domain/task/status';
 import type { CostTask, UnitDetail } from '../../../domain/task/types';
 import { yuanFormat } from '../../../shared/kinds';
-
-const styles = stylex.create({
-  cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_sm' },
-  number: { fontVariantNumeric: 'tabular-nums' },
-  mono: { fontFamily: '_mono', fontSize: '_sm' },
-});
 
 /** 概览：主表字段只读展示（单机与降 DMC 的主表不同） */
 export const OverviewCard = _component(({ task }: { task: CostTask }) => () => {
@@ -77,13 +71,11 @@ export const PartsCard = _component(({ detail }: { detail: UnitDetail }) => {
   return () => (
     <Card
       variant="outline"
-      header={
-        <div {...stylex.attrs(styles.cardHead)}>
-          <H2 size="sm">降本明细</H2>
-          <Small tone="muted">
-            {detail.parts.length} 条零件更改 · 单机零件收益合计 {yuan(unitSaving(detail))} 元
-          </Small>
-        </div>
+      header={<H2 size="sm">降本明细</H2>}
+      extra={
+        <Small tone="muted">
+          {detail.parts.length} 条零件更改 · 单机零件收益合计 {yuan(unitSaving(detail))} 元
+        </Small>
       }
     >
       <Flex direction="column" gap="md">
@@ -128,10 +120,14 @@ export const PartsCard = _component(({ detail }: { detail: UnitDetail }) => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{change.changeType}</TableCell>
                   <TableCell>
-                    <span {...stylex.attrs(styles.mono)}>{change.before?.partNo ?? '—'}</span>
+                    <Text mono size="sm">
+                      {change.before?.partNo ?? '—'}
+                    </Text>
                   </TableCell>
                   <TableCell>
-                    <span {...stylex.attrs(styles.mono)}>{change.after?.partNo ?? '—'}</span>
+                    <Text mono size="sm">
+                      {change.after?.partNo ?? '—'}
+                    </Text>
                   </TableCell>
                   <TableCell>
                     {side?.materialChanged
@@ -140,10 +136,10 @@ export const PartsCard = _component(({ detail }: { detail: UnitDetail }) => {
                   </TableCell>
                   <TableCell align="end">{side?.quantity}</TableCell>
                   <TableCell align="end">
-                    <span {...stylex.attrs(styles.number)}>{yuan(saving.part)}</span>
+                    <Text numeric>{yuan(saving.part)}</Text>
                   </TableCell>
                   <TableCell align="end">
-                    <span {...stylex.attrs(styles.number)}>{yuan(saving.aircraft)}</span>
+                    <Text numeric>{yuan(saving.aircraft)}</Text>
                   </TableCell>
                 </TableRow>
               );
@@ -159,13 +155,11 @@ export const PartsCard = _component(({ detail }: { detail: UnitDetail }) => {
 export const NodesCard = _component(({ task }: { task: CostTask }) => () => (
   <Card
     variant="outline"
-    header={
-      <div {...stylex.attrs(styles.cardHead)}>
-        <H2 size="sm">实施节点</H2>
-        <Small tone="muted">
-          已完成 {task.dmcNodes.filter((node) => node.done).length} / {task.dmcNodes.length}
-        </Small>
-      </div>
+    header={<H2 size="sm">实施节点</H2>}
+    extra={
+      <Small tone="muted">
+        已完成 {task.dmcNodes.filter((node) => node.done).length} / {task.dmcNodes.length}
+      </Small>
     }
   >
     <Table aria-label="实施节点" density="compact">

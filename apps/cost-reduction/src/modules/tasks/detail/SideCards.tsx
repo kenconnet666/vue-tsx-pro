@@ -1,19 +1,20 @@
 /**
  * 项目详情的右栏：收益（预期、测算 A、商务 B、差额 D 与归因、金额口径）、里程碑与交付证据、关闭三材料
  */
-import { CircleCheck, CircleDashed, Lock, Paperclip } from '@lucide/icons';
+import { Lock, Paperclip } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
   Card,
+  Checklist,
   Descriptions,
   Flex,
+  Grid,
   H2,
   Icon,
   Link,
   Small,
-  Text,
+  Stat,
   useFormat,
 } from '@vue-tsx-pro/ui';
 import { dictLabel } from '../../../app/master';
@@ -21,30 +22,6 @@ import { gapOf } from '../../../domain/task/benefit';
 import { missingClosing } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
 import { costKinds } from '../../../shared/kinds';
-
-const styles = stylex.create({
-  cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_sm' },
-  // 收益：三个数一排，D 与归因在下面
-  amounts: { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '_sm' },
-  amount: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
-  amountValue: { fontSize: '_xl', fontWeight: '_semibold', fontVariantNumeric: 'tabular-nums' },
-  checklist: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_sm',
-    margin: 0,
-    padding: 0,
-    listStyle: 'none',
-  },
-  check: { display: 'flex', alignItems: 'center', gap: '_sm' },
-  done: { color: '_successText', flexShrink: 0 },
-  todo: { color: '_textMuted', flexShrink: 0 },
-  grow: { flexGrow: 1, minWidth: 0 },
-});
-
-const checkIcon = (done: boolean) => (
-  <Icon icon={done ? CircleCheck : CircleDashed} sx={done ? styles.done : styles.todo} />
-);
 
 /** 收益：预期、测算 A（锁定后不可改）、商务 B，差额 D 与归因、测算版本 */
 export const BenefitCard = _component(({ task }: { task: CostTask }) => {
@@ -57,15 +34,12 @@ export const BenefitCard = _component(({ task }: { task: CostTask }) => {
     return (
       <Card
         variant="outline"
-        header={
-          <div {...stylex.attrs(styles.cardHead)}>
-            <H2 size="sm">收益（{amount.unit}）</H2>
-            <Small tone="muted">口径：{dictLabel('amountBases', task.basis)}</Small>
-          </div>
-        }
+        header={<H2 size="sm">收益（{amount.unit}）</H2>}
+        extra={<Small tone="muted">口径：{dictLabel('amountBases', task.basis)}</Small>}
       >
         <Flex direction="column" gap="md">
-          <div {...stylex.attrs(styles.amounts)}>
+          {/* 三个数一排，D 与归因在下面 */}
+          <Grid columns={3} gap="sm">
             {(
               [
                 ['预期', task.expected, false],
@@ -73,21 +47,19 @@ export const BenefitCard = _component(({ task }: { task: CostTask }) => {
                 ['商务 B', task.b, false],
               ] as const
             ).map(([label, value, locked]) => (
-              <div key={label} {...stylex.attrs(styles.amount)}>
-                <Flex align="center" gap="xs">
-                  <Small tone="muted">{label}</Small>
-                  {locked && <Icon icon={Lock} size="sm" aria-label="已锁定" />}
-                </Flex>
-                <span {...stylex.attrs(styles.amountValue)}>
-                  {value == null
-                    ? task.status === 'unpriced' && label === '测算 A'
-                      ? '待定价'
-                      : '—'
-                    : format.number(value, amount.format)}
-                </span>
-              </div>
+              <Stat
+                key={label}
+                label={
+                  <Flex inline align="center" gap="xs">
+                    {label}
+                    {locked && <Icon icon={Lock} size="sm" aria-label="已锁定" />}
+                  </Flex>
+                }
+                value={value ?? (task.status === 'unpriced' && label === '测算 A' ? '待定价' : '—')}
+                format={amount.format}
+              />
             ))}
-          </div>
+          </Grid>
           <Descriptions
             size="sm"
             columns={1}
@@ -111,28 +83,24 @@ export const BenefitCard = _component(({ task }: { task: CostTask }) => {
 /** 里程碑与交付证据：每个里程碑都要上传证据，不允许只改状态 */
 export const MilestonesCard = _component(({ task }: { task: CostTask }) => () => (
   <Card variant="outline" header={<H2 size="sm">里程碑与交付证据</H2>}>
-    <ul {...stylex.attrs(styles.checklist)}>
-      {task.milestones.map((item) => (
-        <li key={item.label} {...stylex.attrs(styles.check)}>
-          {checkIcon(item.done != null)}
-          <Text size="sm" sx={styles.grow}>
-            {item.label}
-          </Text>
-          {item.done ? (
-            <>
-              <Small tone="muted">{item.done}</Small>
-              {item.evidence && (
-                <Link href="#" title={item.evidence} aria-label={`交付证据：${item.evidence}`}>
-                  <Icon icon={Paperclip} />
-                </Link>
-              )}
-            </>
-          ) : (
-            <Small tone="muted">未完成</Small>
-          )}
-        </li>
-      ))}
-    </ul>
+    <Checklist
+      items={task.milestones.map((item) => ({
+        label: item.label,
+        done: item.done != null,
+        extra: item.done ? (
+          <>
+            <Small tone="muted">{item.done}</Small>
+            {item.evidence && (
+              <Link href="#" title={item.evidence} aria-label={`交付证据：${item.evidence}`}>
+                <Icon icon={Paperclip} />
+              </Link>
+            )}
+          </>
+        ) : (
+          <Small tone="muted">未完成</Small>
+        ),
+      }))}
+    />
   </Card>
 ));
 
@@ -142,33 +110,18 @@ export const ClosingCard = _component(({ task }: { task: CostTask }) => () => {
   return (
     <Card
       variant="outline"
-      header={
-        <div {...stylex.attrs(styles.cardHead)}>
-          <H2 size="sm">关闭三材料</H2>
-          {missing ? (
-            <Badge tone="warning">缺 {missing} 项</Badge>
-          ) : (
-            <Badge tone="success">齐全</Badge>
-          )}
-        </div>
+      header={<H2 size="sm">关闭三材料</H2>}
+      extra={
+        missing ? <Badge tone="warning">缺 {missing} 项</Badge> : <Badge tone="success">齐全</Badge>
       }
     >
-      <ul {...stylex.attrs(styles.checklist)}>
-        {(
-          [
-            ['验证窗结论', task.closing.verification],
-            ['收益认定意见', task.closing.benefit],
-            ['商务谈定记录', task.closing.business],
-          ] as const
-        ).map(([label, ok]) => (
-          <li key={label} {...stylex.attrs(styles.check)}>
-            {checkIcon(ok)}
-            <Text size="sm" tone={ok ? undefined : 'muted'}>
-              {label}
-            </Text>
-          </li>
-        ))}
-      </ul>
+      <Checklist
+        items={[
+          { label: '验证窗结论', done: task.closing.verification },
+          { label: '收益认定意见', done: task.closing.benefit },
+          { label: '商务谈定记录', done: task.closing.business },
+        ]}
+      />
     </Card>
   );
 });

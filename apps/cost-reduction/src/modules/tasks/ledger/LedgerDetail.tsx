@@ -5,18 +5,15 @@
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Icon, Link, Small } from '@vue-tsx-pro/ui';
+import { Checklist, Flex, Icon, Link, Small } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 import { missingClosing } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
-import { Checklist, DetailSection } from '../../../shared/Progress';
+import { DetailSection } from '../../../shared/DetailSection';
 
 const styles = stylex.create({
-  detail: { display: 'flex', flexWrap: 'wrap', columnGap: '_xl', rowGap: '_md' },
+  // 描述占剩下的宽度（24 到 40rem），其余各段按内容宽
   description: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_xs',
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: '24rem',
@@ -38,14 +35,14 @@ export const LedgerDetail = _component(
       const done = task.milestones.filter((item) => item.done).length;
       const missing = missingClosing(task);
       return (
-        <div {...stylex.attrs(styles.detail)}>
-          <section {...stylex.attrs(styles.description)}>
-            <Small tone="muted">简要描述</Small>
+        <Flex wrap columnGap="xl" rowGap="md">
+          <DetailSection title="简要描述" sx={styles.description}>
             <Small>{task.description}</Small>
-          </section>
+          </DetailSection>
           {children}
           <DetailSection title={`里程碑与交付证据 · ${done} / 3`}>
             <Checklist
+              layout="inline"
               items={task.milestones.map((item) => ({
                 label: item.label,
                 done: item.done != null,
@@ -71,6 +68,7 @@ export const LedgerDetail = _component(
             tone={missing ? undefined : 'success'}
           >
             <Checklist
+              layout="inline"
               items={[
                 { label: '验证窗结论', done: task.closing.verification },
                 { label: '收益认定意见', done: task.closing.benefit },
@@ -78,7 +76,7 @@ export const LedgerDetail = _component(
               ]}
             />
           </DetailSection>
-        </div>
+        </Flex>
       );
     },
 );

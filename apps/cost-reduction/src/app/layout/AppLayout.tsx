@@ -8,7 +8,8 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   AppShell,
-  Icon,
+  Brand,
+  Flex,
   NavItem,
   NavList,
   NavSection,
@@ -32,22 +33,11 @@ import { UserMenu } from './UserMenu';
 const appDefaults: ComponentDefaults = { Badge: { radius: 'none' } };
 
 const styles = stylex.create({
-  brand: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '_sm',
-    flexShrink: 0,
-    color: '_text',
-    textDecoration: 'none',
-    fontWeight: '_semibold',
-    fontSize: '_lg',
-  },
-  brandMark: { color: '_accentText' },
   // 正文上下的内边距与区块之间的间距一致：列表页的分页贴近窗口底边
   main: { paddingBlock: '_md' },
   // 本页的导航在品牌格（与“打开”导航）之后，贴着顶栏底边；占满中间
-  nav: { display: 'flex', alignSelf: 'stretch', alignItems: 'flex-end', flexGrow: 1, minWidth: 0 },
-  tools: { display: 'flex', alignItems: 'center', gap: '_xs', flexShrink: 0 },
+  nav: { alignSelf: 'stretch' },
+  tools: { flexShrink: 0 },
 });
 
 // 侧栏默认收起（表格不被挡住）；开关与拖动后的宽度各人记住
@@ -66,19 +56,18 @@ export const AppLayout = _component(() => {
           sidebarWidth={_bind(sidebar.value.width)}
           propsMain={{ sx: styles.main }}
           brand={
-            <a href={paths.workbench()} {...stylex.attrs(styles.brand)}>
-              <Icon icon={Plane} sx={styles.brandMark} />
+            <Brand href={paths.workbench()} icon={Plane}>
               联合降本管理
-            </a>
+            </Brand>
           }
           header={
             <>
-              <div id={PAGE_NAV_ID} {...stylex.attrs(styles.nav)} />
-              <div {...stylex.attrs(styles.tools)}>
+              <Flex id={PAGE_NAV_ID} align="end" grow sx={styles.nav} />
+              <Flex align="center" gap="xs" sx={styles.tools}>
                 <InboxTray />
                 <MyTasksTray />
                 <NotificationTray />
-              </div>
+              </Flex>
               <ThemeSwitcher preference={preference} />
               <UserMenu />
             </>

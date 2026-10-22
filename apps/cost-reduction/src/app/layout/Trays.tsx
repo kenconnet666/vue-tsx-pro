@@ -6,14 +6,18 @@ import { Inbox, ListTodo } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  Card,
   DeadlineTag,
   IconButton,
   Indicator,
+  ItemList,
+  ItemListItem,
   Link,
   NotificationCenter,
   Popover,
   Small,
   StatusBadge,
+  StatusDot,
   Text,
   useRequest,
   type IconData,
@@ -22,7 +26,6 @@ import { watch, type VNodeChild } from 'vue';
 import { getMyTasks, getNotifications, markNotificationsRead } from '../../api/session';
 import { listWorkItems } from '../../api/workflow';
 import { demoNow, TODAY } from '../../domain/clock';
-import { daysToDue } from '../../domain/task/status';
 import { processOf } from '../../domain/workflow';
 import { notificationTypes } from '../../domain/workflow/notifications';
 import { taskStatuses } from '../../shared/statuses';
@@ -31,45 +34,9 @@ import { paths } from '../paths';
 import { workflowVersion } from '../sync';
 
 const styles = stylex.create({
+  // 弹出层自己不留内边距：里面的卡片给
   panel: { width: '24rem', padding: 0 },
-  panelHead: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-    borderBlockEndWidth: '_xs',
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_border',
-  },
-  list: { listStyle: 'none', margin: 0, padding: 0 },
-  item: {
-    display: 'grid',
-    gridTemplateColumns: 'auto minmax(0, 1fr) auto',
-    alignItems: 'start',
-    columnGap: '_sm',
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-    borderBlockEndWidth: '_xs',
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_borderMuted',
-    backgroundColor: { default: null, ':hover': '_fillHover' },
-  },
-  dot: { width: '0.5rem', height: '0.5rem', marginBlockStart: '0.45em', borderRadius: '_full' },
-  accent: { backgroundColor: '_accent' },
-  warning: { backgroundColor: '_warning' },
-  danger: { backgroundColor: '_danger' },
-  itemText: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
-  panelFoot: { display: 'flex', justifyContent: 'center', paddingBlock: '_sm' },
 });
-
-/** 计划完成的说明：逾期几天、还剩几天 */
-function dueText(due: string): { text: string; tone: 'danger' | 'warning' | 'muted' } {
-  const days = daysToDue({ due });
-  if (days < 0) return { text: `逾期 ${-days} 天`, tone: 'danger' };
-  if (days === 0) return { text: '今天到期', tone: 'warning' };
-  return { text: `还剩 ${days} 天`, tone: days <= 7 ? 'warning' : 'muted' };
-}
 
 /** 一个工作台入口：图标按钮、右上角的条数，点开是列表 */
 const Tray = _component(
@@ -87,6 +54,7 @@ const Tray = _component(
     count: number | undefined;
     action: string;
     actionHref: string;
+    /** ItemListItem */
     children?: VNodeChild;
   }) =>
     () => (
@@ -99,16 +67,21 @@ const Tray = _component(
           </Indicator>
         )}
       >
-        <div {...stylex.attrs(styles.panelHead)}>
-          <Text size="sm" weight="semibold">
-            {label}
-          </Text>
-          <Small tone="muted">{count ?? '…'} 项</Small>
-        </div>
-        <ul {...stylex.attrs(styles.list)}>{children}</ul>
-        <div {...stylex.attrs(styles.panelFoot)}>
-          <Link href={actionHref}>{action}</Link>
-        </div>
+        <Card
+          variant="ghost"
+          padding="sm"
+          header={
+            <Text size="sm" weight="semibold">
+              {label}
+            </Text>
+          }
+          extra={<Small tone="muted">{count ?? '…'} 项</Small>}
+          footer={<Link href={actionHref}>{action}</Link>}
+        >
+          <ItemList divided hoverable>
+            {children}
+          </ItemList>
+        </Card>
       </Popover>
     ),
 );
@@ -129,23 +102,21 @@ export const InboxTray = _component(() => {
         actionHref={paths.inbox()}
       >
         {items?.slice(0, 5).map((item) => (
-          <li key={item.id} {...stylex.attrs(styles.item)}>
-            <span
-              {...stylex.attrs(
-                styles.dot,
-                item.arrival === 'return' || item.arrival === 'escalate'
-                  ? styles.warning
-                  : styles.accent,
-              )}
-            />
-            <span {...stylex.attrs(styles.itemText)}>
-              <Link href={paths.inbox({ item: item.id })}>{item.name}</Link>
-              <Small tone="muted">
-                {item.businessKey} · {processOf(item.processKey)?.name ?? item.processKey}
-              </Small>
-            </span>
-            <DeadlineTag due={item.dueOn} today={TODAY} />
-          </li>
+          <ItemListItem
+            key={item.id}
+            align="start"
+            // 退回、提级来的醒目一些
+            start={
+              <StatusDot
+                tone={
+                  item.arrival === 'return' || item.arrival === 'escalate' ? 'warning' : 'accent'
+                }
+              />
+            }
+            title={<Link href={paths.inbox({ item: item.id })}>{item.name}</Link>}
+            description={`${item.businessKey} · ${processOf(item.processKey)?.name ?? item.processKey}`}
+            end={<DeadlineTag due={item.dueOn} today={TODAY} />}
+          />
         ))}
       </Tray>
     );
@@ -189,7 +160,9 @@ export const NotificationTray = _component(() => {
 
 /** 我负责的任务：我主办、还没结束的，最近到期的在前 */
 export const MyTasksTray = _component(() => {
-  const tasks = useRequest((_: undefined, signal) => getMyTasks(signal));
+  const tasks = useRequest((_version: number, signal) => getMyTasks(signal), {
+    params: workflowVersion,
+  });
   return () => (
     <Tray
       icon={ListTodo}
@@ -198,21 +171,16 @@ export const MyTasksTray = _component(() => {
       action={`查看全部 ${tasks.data?.length ?? ''} 项`}
       actionHref={paths.ledger('unit')}
     >
-      {tasks.data?.slice(0, 5).map((task) => {
-        const due = dueText(task.due);
-        return (
-          <li key={task.code} {...stylex.attrs(styles.item)}>
-            <StatusBadge statuses={taskStatuses} value={task.status} />
-            <span {...stylex.attrs(styles.itemText)}>
-              <Link href={paths.task(task.code)}>{task.name}</Link>
-              <Small tone="muted">
-                {task.code} · 截止 {task.due}
-              </Small>
-            </span>
-            <Small tone={due.tone}>{due.text}</Small>
-          </li>
-        );
-      })}
+      {tasks.data?.slice(0, 5).map((task) => (
+        <ItemListItem
+          key={task.code}
+          align="start"
+          start={<StatusBadge statuses={taskStatuses} value={task.status} />}
+          title={<Link href={paths.task(task.code)}>{task.name}</Link>}
+          description={`${task.code} · 截止 ${task.due}`}
+          end={<DeadlineTag due={task.due} today={TODAY} soon={5} />}
+        />
+      ))}
     </Tray>
   );
 });

@@ -6,7 +6,6 @@
  */
 import { Pencil, Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   ActionBar,
   Button,
@@ -33,6 +32,7 @@ import {
   TableRow,
   TagsInput,
   Textarea,
+  Text,
   TextField,
   useFormat,
   useForm,
@@ -216,12 +216,6 @@ function toTask(values: Values, parts: PartChange[], base: CostTask | null): Cos
     unitDetail: detail,
   };
 }
-
-const styles = stylex.create({
-  code: { fontFamily: '_mono', fontSize: '_sm' },
-  number: { fontVariantNumeric: 'tabular-nums' },
-  tableHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_md' },
-});
 
 /** 单机降本编辑：task 为 null 时新建 */
 export const UnitEditor = _component(
@@ -538,14 +532,14 @@ export const UnitEditor = _component(
                 >
                   <GridItem span="full">
                     <Flex direction="column" gap="sm">
-                      <div {...stylex.attrs(styles.tableHead)}>
+                      <Flex align="center" justify="between" gap="md">
                         <Small tone={partsError ? 'danger' : 'muted'}>
                           {partsError || `${parts.length} 条零件更改`}
                         </Small>
                         <Button size="sm" variant="soft" icon={Plus} onClick={() => openPart(null)}>
                           新增零件更改
                         </Button>
-                      </div>
+                      </Flex>
                       <Table aria-label="零件更改与收益计算" density="compact">
                         <TableHead>
                           <TableRow>
@@ -578,36 +572,22 @@ export const UnitEditor = _component(
                                 <TableCell>{index + 1}</TableCell>
                                 <TableCell>{change.changeType}</TableCell>
                                 <TableCell>
-                                  <span {...stylex.attrs(styles.code)}>
+                                  <Text mono size="sm">
                                     {change.before?.partNo ?? '—'}
-                                  </span>
+                                  </Text>
                                 </TableCell>
                                 <TableCell>
-                                  <span {...stylex.attrs(styles.code)}>
+                                  <Text mono size="sm">
                                     {change.after?.partNo ?? '—'}
-                                  </span>
+                                  </Text>
                                 </TableCell>
+                                <TableCell align="end">{yuan(saving.material)}</TableCell>
+                                <TableCell align="end">{yuan(saving.labor)}</TableCell>
+                                <TableCell align="end">{yuan(saving.part)}</TableCell>
                                 <TableCell align="end">
-                                  <span {...stylex.attrs(styles.number)}>
-                                    {yuan(saving.material)}
-                                  </span>
+                                  {(change.after ?? change.before)?.quantity}
                                 </TableCell>
-                                <TableCell align="end">
-                                  <span {...stylex.attrs(styles.number)}>{yuan(saving.labor)}</span>
-                                </TableCell>
-                                <TableCell align="end">
-                                  <span {...stylex.attrs(styles.number)}>{yuan(saving.part)}</span>
-                                </TableCell>
-                                <TableCell align="end">
-                                  <span {...stylex.attrs(styles.number)}>
-                                    {(change.after ?? change.before)?.quantity}
-                                  </span>
-                                </TableCell>
-                                <TableCell align="end">
-                                  <span {...stylex.attrs(styles.number)}>
-                                    {yuan(saving.aircraft)}
-                                  </span>
-                                </TableCell>
+                                <TableCell align="end">{yuan(saving.aircraft)}</TableCell>
                                 <TableCell>
                                   <Flex gap="xs">
                                     <IconButton
@@ -641,9 +621,7 @@ export const UnitEditor = _component(
                             <TableCell />
                             <TableCell />
                             <TableCell />
-                            <TableCell align="end">
-                              <span {...stylex.attrs(styles.number)}>{yuan(total())}</span>
-                            </TableCell>
+                            <TableCell align="end">{yuan(total())}</TableCell>
                             <TableCell />
                           </TableRow>
                         </TableFoot>

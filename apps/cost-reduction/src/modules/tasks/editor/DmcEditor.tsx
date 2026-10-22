@@ -6,7 +6,6 @@
  */
 import { Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   ActionBar,
   Button,
@@ -188,18 +187,6 @@ function toTask(values: Values, base: CostTask | null): CostTask {
     dmcNodes: values.nodes.map((item) => ({ ...item, done: item.done || null })),
   };
 }
-
-const styles = stylex.create({
-  code: { fontFamily: '_mono', fontSize: '_sm' },
-  tableHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_md' },
-  // 节点表的列宽：日期、数字按内容给定宽，责任团队占剩下的
-  index: { width: '3rem' },
-  form: { width: '11rem' },
-  date: { width: '11rem' },
-  flights: { width: '8rem' },
-  check: { width: '5rem', textAlign: 'center' },
-  actions: { width: '4rem' },
-});
 
 /** 降 DMC 编辑：task 为 null 时新建 */
 export const DmcEditor = _component(
@@ -413,7 +400,7 @@ export const DmcEditor = _component(
                 >
                   <GridItem span="full">
                     <Flex direction="column" gap="sm">
-                      <div {...stylex.attrs(styles.tableHead)}>
+                      <Flex align="center" justify="between" gap="md">
                         <Small tone={nodesError ? 'danger' : 'muted'}>
                           {nodesError ??
                             `${form.values.nodes.length} 个节点，已完成 ${form.values.nodes.filter((item) => item.done).length} 个`}
@@ -421,18 +408,20 @@ export const DmcEditor = _component(
                         <Button size="sm" variant="soft" icon={Plus} onClick={addNode}>
                           添加节点
                         </Button>
-                      </div>
+                      </Flex>
                       <Table aria-label="实施节点" density="compact">
                         <TableHead>
                           <TableRow>
-                            <TableHeaderCell sx={styles.index}>序号</TableHeaderCell>
-                            <TableHeaderCell sx={styles.form}>完成形式</TableHeaderCell>
-                            <TableHeaderCell sx={styles.date}>计划完成日期</TableHeaderCell>
-                            <TableHeaderCell sx={styles.date}>实际完成日期</TableHeaderCell>
-                            <TableHeaderCell sx={styles.flights}>贯彻架次</TableHeaderCell>
+                            <TableHeaderCell width="3rem">序号</TableHeaderCell>
+                            <TableHeaderCell width="11rem">完成形式</TableHeaderCell>
+                            <TableHeaderCell width="11rem">计划完成日期</TableHeaderCell>
+                            <TableHeaderCell width="11rem">实际完成日期</TableHeaderCell>
+                            <TableHeaderCell width="8rem">贯彻架次</TableHeaderCell>
                             <TableHeaderCell>责任一级团队</TableHeaderCell>
-                            <TableHeaderCell sx={styles.check}>需要 SB</TableHeaderCell>
-                            <TableHeaderCell sx={styles.actions}>操作</TableHeaderCell>
+                            <TableHeaderCell width="5rem" align="center">
+                              需要 SB
+                            </TableHeaderCell>
+                            <TableHeaderCell width="4rem">操作</TableHeaderCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -488,7 +477,7 @@ export const DmcEditor = _component(
                                     />
                                   </form.Field>
                                 </TableCell>
-                                <TableCell sx={styles.check}>
+                                <TableCell align="center">
                                   <Checkbox
                                     checked={_bind(item.needSb)}
                                     aria-label={`${which}是否需要 SB 贯彻航线架次`}

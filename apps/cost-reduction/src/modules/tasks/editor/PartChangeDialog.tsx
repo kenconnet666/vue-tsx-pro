@@ -2,13 +2,13 @@
 // 单件材料费、工时费、单件价格与单机价格、各项收益由系统算出、实时显示，不可手改。
 // 取消只有更改前，新增只有更改后，换号、升版两边都有
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Button,
   Descriptions,
   Dialog,
   Field,
   Flex,
+  Grid,
   Form,
   NumberField,
   RadioGroup,
@@ -101,13 +101,6 @@ const toSide = (values: SideValues): PartSide => ({
   laborRate: values.laborRate ?? new Decimal(0),
 });
 
-const styles = stylex.create({
-  sides: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '_xl' },
-  side: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
-  fields: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '_md' },
-  full: { gridColumn: '1 / -1' },
-});
-
 /** 零件更改对话框 */
 export const PartChangeDialog = _component(
   ({
@@ -159,9 +152,9 @@ export const PartChangeDialog = _component(
       const values = form.values[key];
       const cost = partCost(toSide(values));
       return (
-        <section {...stylex.attrs(styles.side)}>
+        <Flex direction="column" gap="md">
           <Text weight="semibold">{title}</Text>
-          <div {...stylex.attrs(styles.fields)}>
+          <Grid columns={2} gap="md">
             <form.Field name={`${key}.partNo`} label="受影响零件（件号）" required>
               <TextField value={_bind(values.partNo)} />
             </form.Field>
@@ -222,7 +215,7 @@ export const PartChangeDialog = _component(
                 suffix="元/小时"
               />
             </form.Field>
-          </div>
+          </Grid>
           <Descriptions
             columns={2}
             size="sm"
@@ -234,7 +227,7 @@ export const PartChangeDialog = _component(
               { label: '单机价格', value: yuan(cost.aircraft) },
             ]}
           />
-        </section>
+        </Flex>
       );
     }
 
@@ -274,7 +267,7 @@ export const PartChangeDialog = _component(
                   ))}
                 </RadioGroup>
               </form.Field>
-              <div {...stylex.attrs(styles.sides)}>
+              <Grid columns={2} gap="xl">
                 {type !== '新增' ? (
                   sideFields('before', '更改前（原方案）')
                 ) : (
@@ -285,7 +278,7 @@ export const PartChangeDialog = _component(
                 ) : (
                   <Text tone="muted">取消零件：没有更改后</Text>
                 )}
-              </div>
+              </Grid>
               <Separator>收益（系统计算）</Separator>
               <Descriptions
                 columns={4}

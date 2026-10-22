@@ -8,6 +8,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Avatar,
   ButtonBase,
+  Flex,
   Menu,
   MenuGroup,
   MenuItem,
@@ -29,12 +30,7 @@ const styles = stylex.create({
     paddingInline: '_xs',
     borderRadius: '_md',
   },
-  name: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    lineHeight: '_tight',
-  },
+  name: { lineHeight: '_tight' },
 });
 
 /** 顶栏的当前用户与身份切换 */
@@ -69,10 +65,10 @@ export const UserMenu = _component(() => {
             aria-label={`当前身份：${user.name}，切换身份`}
           >
             <Avatar size="sm" name={user.name} />
-            <span {...stylex.attrs(styles.name)}>
+            <Flex direction="column" align="start" gap="none" sx={styles.name}>
               <Small>{user.name}</Small>
               <Small tone="muted">{user.roles.map((role) => roleNames[role]).join('、')}</Small>
-            </span>
+            </Flex>
           </ButtonBase>
         )}
       >

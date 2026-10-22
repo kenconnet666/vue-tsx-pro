@@ -3,16 +3,17 @@
  */
 import { CircleX, Ellipsis, FilePen, Pause, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
-  Breadcrumbs,
   Button,
-  H1,
+  Descriptions,
+  Flex,
   IconButton,
   Menu,
   MenuItem,
+  PageHeader,
   Small,
   StatusBadge,
+  Text,
 } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 import { dictLabel, personName } from '../../../app/master';
@@ -23,19 +24,6 @@ import type { CostTask } from '../../../domain/task/types';
 import { costKinds } from '../../../shared/kinds';
 import { taskStatuses, valueStates } from '../../../shared/statuses';
 import type { TaskActions } from '../task-actions';
-
-const styles = stylex.create({
-  head: { display: 'flex', flexDirection: 'column', gap: '_xs' },
-  titleRow: { display: 'flex', alignItems: 'center', gap: '_md', flexWrap: 'wrap' },
-  code: { fontFamily: '_mono', fontSize: '_md', color: '_textMuted' },
-  actions: { display: 'flex', alignItems: 'center', gap: '_sm', marginInlineStart: 'auto' },
-  // 关键信息：一行排开，标签淡、值正常
-  facts: { display: 'flex', flexWrap: 'wrap', columnGap: '_xl', rowGap: '_xs', margin: 0 },
-  fact: { display: 'flex', gap: '_xs', alignItems: 'baseline' },
-  factLabel: { color: '_textMuted', fontSize: '_sm' },
-  factValue: { margin: 0, fontSize: '_sm' },
-  late: { color: '_dangerText', fontWeight: '_semibold' },
-});
 
 /** 项目详情的页头 */
 export const DetailHeader = _component(
@@ -63,7 +51,10 @@ export const DetailHeader = _component(
           '计划完成',
           late > 0 ? (
             <span>
-              {task.due} <span {...stylex.attrs(styles.late)}>超时 {late} 天</span>
+              {task.due}{' '}
+              <Text tone="danger" weight="semibold" numeric>
+                超时 {late} 天
+              </Text>
             </span>
           ) : isFinished(task) ? (
             task.due
@@ -74,19 +65,23 @@ export const DetailHeader = _component(
       ];
 
       return (
-        <header {...stylex.attrs(styles.head)}>
-          <Breadcrumbs
-            items={[
-              { label: `${amount.label}台账`, href: paths.ledger(task.kind) },
-              { label: task.code },
-            ]}
-          />
-          <div {...stylex.attrs(styles.titleRow)}>
-            <span {...stylex.attrs(styles.code)}>{task.code}</span>
-            <H1 size="xl">{task.name}</H1>
-            <StatusBadge statuses={taskStatuses} value={task.status} />
-            <StatusBadge statuses={valueStates} value={task.valueState} />
-            <div {...stylex.attrs(styles.actions)}>
+        <PageHeader
+          breadcrumbs={[
+            { label: `${amount.label}台账`, href: paths.ledger(task.kind) },
+            { label: task.code },
+          ]}
+          title={task.name}
+          meta={
+            <Flex inline align="center" gap="sm" wrap>
+              <Text mono tone="muted">
+                {task.code}
+              </Text>
+              <StatusBadge statuses={taskStatuses} value={task.status} />
+              <StatusBadge statuses={valueStates} value={task.valueState} />
+            </Flex>
+          }
+          actions={
+            <>
               {task.status === 'realized' && missing > 0 && (
                 <Small tone="muted">关闭三材料缺 {missing} 项，补齐后可以关闭</Small>
               )}
@@ -138,17 +133,16 @@ export const DetailHeader = _component(
                   </MenuItem>
                 )}
               </Menu>
-            </div>
-          </div>
-          <dl {...stylex.attrs(styles.facts)}>
-            {facts.map(([label, value]) => (
-              <div key={label} {...stylex.attrs(styles.fact)}>
-                <dt {...stylex.attrs(styles.factLabel)}>{label}</dt>
-                <dd {...stylex.attrs(styles.factValue)}>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </header>
+            </>
+          }
+        >
+          {/* 关键信息：一行排开，放不下换行 */}
+          <Descriptions
+            layout="inline"
+            size="sm"
+            items={facts.map(([label, value]) => ({ label, value }))}
+          />
+        </PageHeader>
       );
     },
 );
