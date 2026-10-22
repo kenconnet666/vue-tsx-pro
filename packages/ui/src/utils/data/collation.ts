@@ -4,6 +4,7 @@
  *
  *   const match = createMatcher('zh-CN');  match('Ångström', 'ang') → true（忽略大小写与重音）
  *   rows.sort(createComparer('zh-CN'))     数字按大小、日期按时间、文字按语言的排序规则（中文按拼音）
+ *   sortByValue(rows, (row) => row.amount, 'descending', 'zh-CN')   按取出的值排，空值总在最后（表格、接口的排序）
  */
 import type { DateValue } from '@internationalized/date';
 import type Decimal from 'decimal.js';
@@ -56,4 +57,25 @@ export function createComparer(locale: string): (a: SortValue, b: SortValue) => 
     if (typeof a === 'boolean' && typeof b === 'boolean') return Number(a) - Number(b);
     return compare.compare(String(a), String(b));
   };
+}
+
+/**
+ * 按每行取出的值排序（返回新数组，原数组不变）：比较用 createComparer，相等时保持原来的先后（稳定），
+ * 空值不随方向翻转、总在最后。表格的 sortRows、服务端（或假接口）的分页排序共用
+ */
+export function sortByValue<T>(
+  rows: readonly T[],
+  value: (row: T) => SortValue,
+  direction: 'ascending' | 'descending',
+  locale: string,
+): T[] {
+  const compare = createComparer(locale);
+  const factor = direction === 'ascending' ? 1 : -1;
+  return rows
+    .map((row, index) => ({ row, index, value: value(row) }))
+    .sort((a, b) => {
+      if (a.value == null || b.value == null) return compare(a.value, b.value) || a.index - b.index;
+      return compare(a.value, b.value) * factor || a.index - b.index;
+    })
+    .map((item) => item.row);
 }

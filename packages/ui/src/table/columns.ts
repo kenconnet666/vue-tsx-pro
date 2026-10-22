@@ -9,7 +9,7 @@
  */
 import type { VNodeChild } from 'vue';
 import type { NumericFormat, useFormat } from '../config/lang/format';
-import { createComparer, isDateValue, type SortValue } from '../utils/data/collation';
+import { isDateValue, sortByValue, type SortValue } from '../utils/data/collation';
 import {
   addNumeric,
   isDecimal,
@@ -316,17 +316,15 @@ export function sortRows<T>(
 ): readonly T[] {
   const column = sort && columns.find((item) => item.key === sort.key);
   if (!sort || !column) return rows;
-  const compare = createComparer(locale);
-  const factor = sort.direction === 'ascending' ? 1 : -1;
   // 数字类的列里，十进制字符串（'2.5'、'2.10'）按数值排：按文字比较时 '2.5' 会排在 '2.10' 前面
   const numeric = NUMERIC_TYPES.has(columnType(column, rows));
-  const sortable = (value: SortValue) => (numeric && isNumericText(value) ? Number(value) : value);
-  return rows
-    .map((row, index) => ({ row, index, value: sortable(columnValue(column, row)) }))
-    .sort((a, b) => {
-      // 空值不随方向翻转，总在最后
-      if (a.value == null || b.value == null) return compare(a.value, b.value) || a.index - b.index;
-      return compare(a.value, b.value) * factor || a.index - b.index;
-    })
-    .map((item) => item.row);
+  return sortByValue(
+    rows,
+    (row) => {
+      const value = columnValue(column, row);
+      return numeric && isNumericText(value) ? Number(value) : value;
+    },
+    sort.direction,
+    locale,
+  );
 }

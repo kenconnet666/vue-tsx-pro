@@ -1,7 +1,7 @@
 import { CalendarDate, CalendarDateTime } from '@internationalized/date';
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
-import { createComparer, createMatcher } from '../collation';
+import { createComparer, createMatcher, sortByValue } from '../collation';
 
 describe('createMatcher', () => {
   it('忽略大小写与重音；空查询总是匹配', () => {
@@ -48,5 +48,31 @@ describe('createComparer', () => {
       new CalendarDateTime(2026, 10, 20, 8, 30),
     ];
     expect(times.sort(compare).map(String)).toEqual(['2026-10-20T08:30:00', '2026-10-20T09:00:00']);
+  });
+});
+
+describe('sortByValue', () => {
+  const rows = [
+    { name: '乙', amount: new Decimal('2.10') },
+    { name: '甲', amount: null },
+    { name: '丙', amount: new Decimal('12') },
+    { name: '丁', amount: new Decimal('2.10') },
+  ];
+
+  it('按取出的值排、不改原数组；相等时保持原来的先后；空值不随方向翻转、总在最后', () => {
+    const value = (row: (typeof rows)[number]) => row.amount;
+    expect(sortByValue(rows, value, 'ascending', 'zh-CN').map((row) => row.name)).toEqual([
+      '乙',
+      '丁',
+      '丙',
+      '甲',
+    ]);
+    expect(sortByValue(rows, value, 'descending', 'zh-CN').map((row) => row.name)).toEqual([
+      '丙',
+      '乙',
+      '丁',
+      '甲',
+    ]);
+    expect(rows[0]!.name).toBe('乙');
   });
 });

@@ -484,7 +484,10 @@ function useButtonItem(
 
 /** 按钮类菜单项共有的属性；未声明的属性落到 button 上 */
 export interface MenuButtonItemProps
-  extends PartProps<'button', 'role' | 'type' | 'disabled' | 'aria-checked'>, MenuItemContentProps {
+  // 原生的 onSelect 是文字选中事件，不是“选了这一项”：去掉它，误写成 onSelect 时类型检查会报错（用 onAction）
+  extends
+    PartProps<'button', 'role' | 'type' | 'disabled' | 'aria-checked' | 'onSelect'>,
+    MenuItemContentProps {
   /** 不可用：跳过方向键移动，不能执行 */
   disabled?: boolean;
   /** 执行后是否关闭菜单 */
