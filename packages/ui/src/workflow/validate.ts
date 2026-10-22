@@ -97,7 +97,8 @@ function checkTask(
       });
   }
   const assignee = node.assignee;
-  if (assignee == null && !graph.lane(node.lane)?.group)
+  // 会签、或签的处理人是参与人列表，不需要 assignee
+  if (assignee == null && node.multi == null && !graph.lane(node.lane)?.group)
     report({
       severity: 'error',
       code: 'task-no-assignee',

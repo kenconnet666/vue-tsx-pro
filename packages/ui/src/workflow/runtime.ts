@@ -167,6 +167,8 @@ export interface WorkflowEventTypes {
   resumed: unknown;
   /** 终止 */
   terminated: unknown;
+  /** 流程调整：管理员把流程移到某个节点（驳回到任意节点、数据修正），原来的待办取消 */
+  moved: unknown;
   /** 走到结束节点 */
   ended: unknown;
 }

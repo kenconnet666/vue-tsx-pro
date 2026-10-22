@@ -50,6 +50,19 @@ describe('validateProcess', () => {
     expect(problems).toEqual([
       expect.objectContaining({ code: 'task-no-assignee', node: 'review' }),
     ]);
+    // 会签：处理人是参与人列表
+    const multi = variant((flow) => {
+      flow.nodes = flow.nodes.map((node) =>
+        node.id === 'review' && node.type === 'task'
+          ? {
+              ...node,
+              assignee: undefined,
+              multi: { participants: { var: 'suppliers' }, complete: 'all' },
+            }
+          : node,
+      );
+    });
+    expect(multi).toEqual([]);
   });
 
   it('开始节点有入边、结束节点有出边、连到不存在的节点、标识重复', () => {
