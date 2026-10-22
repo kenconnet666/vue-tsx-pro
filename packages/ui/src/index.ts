@@ -984,6 +984,19 @@ export {
 
 // 流程：流程定义与校验、运行时的数据（流程的执行在后端引擎）
 export {
+  ApprovalActions,
+  type ApprovalActionsProps,
+  type ApprovalInput,
+} from './workflow/ApprovalActions';
+export {
+  FlowDiagram,
+  flowDiagramStyles,
+  type FlowDiagramProps,
+  type FlowDiagramSizes,
+  type FlowNodeState,
+} from './workflow/FlowDiagram';
+export { WorkflowTimeline, type WorkflowTimelineProps } from './workflow/WorkflowTimeline';
+export {
   applyProcessEffects,
   evaluateProcessCondition,
   nextProcessEdge,
@@ -1018,6 +1031,19 @@ export {
   type ProcessVariableRef,
   type ProcessVariables,
 } from './workflow/definition';
+export {
+  layoutProcess,
+  type FlowLayout,
+  type FlowLayoutEdge,
+  type FlowLayoutLane,
+  type FlowLayoutNode,
+  type FlowLayoutOptions,
+} from './workflow/layout';
+export {
+  workflowMessages,
+  type WorkflowEventText,
+  type WorkflowMessages,
+} from './workflow/messages';
 export {
   processProgress,
   workItemOutcomes,

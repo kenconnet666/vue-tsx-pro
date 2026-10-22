@@ -12,6 +12,8 @@
  *     </ExampleColumn>
  *   </Examples>
  *
+ * 宽的示例（流程图、看板）放进 <ExampleColumn wide>：占满整行，排在它前后的两列之间。
+ *
  * 写死而不自动平衡：首屏之外的示例推迟渲染（见 Example），高度要等渲染完才知道，按高度平衡会让已经看到的示例换列。
  * 两列各自往下排，不按行对齐：展开代码、示例自己变高，只把同一列下面的示例往下推。
  */
@@ -38,6 +40,7 @@ const styles = stylex.create({
     },
   },
   column: { display: 'flex', flexDirection: 'column', gap: ROW_GAP, minWidth: 0 },
+  wide: { gridColumn: '1 / -1' },
 });
 
 /** 一组示例：两个 ExampleColumn，宽屏时并排 */
@@ -47,9 +50,11 @@ export const Examples = _component(({ children }: { children?: VNodeChild }) => 
   </div>
 ));
 
-/** 一列示例：列里的序号交给 Example（每列前几个立即渲染，其余推迟） */
-export const ExampleColumn = _component(({ children }: { children?: VNodeChild }) => {
-  let count = 0;
-  ExampleColumnContext.provide({ next: () => count++ });
-  return () => <div {...stylex.attrs(styles.column)}>{children}</div>;
-});
+/** 一列示例：列里的序号交给 Example（每列前几个立即渲染，其余推迟）；wide 时占满整行 */
+export const ExampleColumn = _component(
+  ({ wide = false, children }: { wide?: boolean; children?: VNodeChild }) => {
+    let count = 0;
+    ExampleColumnContext.provide({ next: () => count++ });
+    return () => <div {...stylex.attrs(styles.column, wide && styles.wide)}>{children}</div>;
+  },
+);

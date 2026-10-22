@@ -13,6 +13,7 @@ import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
 import type { DocsKitMessages } from '../../docs-kit/messages';
 import type { ThemeCustomizerMessages } from '../theme-customizer-messages';
+import type { WorkflowMessages } from '../../workflow/messages';
 
 /** 文字方向 */
 export interface Directions {
@@ -374,6 +375,8 @@ export interface LangMessages {
   readonly themeCustomizer: ThemeCustomizerMessages;
   /** 文档站组件 CodePreview、PropsTable（@vue-tsx-pro/ui/docs-kit） */
   readonly docsKit: DocsKitMessages;
+  /** 流程组件 FlowDiagram、WorkflowTimeline、ApprovalActions */
+  readonly workflow: WorkflowMessages;
 }
 
 /** 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })` */
