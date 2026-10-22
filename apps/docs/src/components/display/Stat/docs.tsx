@@ -8,6 +8,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
 import Basic from './demo/Basic.tsx?demo';
 import Change from './demo/Change.tsx?demo';
+import Group from './demo/Group.tsx?demo';
 import Live from './demo/Live.tsx?demo';
 import Loading from './demo/Loading.tsx?demo';
 import Numbers from './demo/Numbers.tsx?demo';
@@ -20,7 +21,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { AnimatedNumber, Stat } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { AnimatedNumber, Stat, StatGroup } from '@vue-tsx-pro/ui';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="基础用法" demo={Basic}>
@@ -46,6 +51,11 @@ export default _component(() => () => (
           或 Decimal，中间帧按浮点数算，停下时按原值格式化，不丢精度。
           <Code>trend</Code> 按正负着色；<Code>prefix</Code>、<Code>suffix</Code>{' '}
           放在数字前后（图标、单位）。
+        </Example>
+        <Example id="group" title="一排指标" demo={Group}>
+          <Code>StatGroup</Code> 把几个 Stat 排成一排，按宽度换行（<Code>minItemWidth</Code>
+          ，默认 9rem），同一行里之间一条竖线。超时、缺漏这类要引起注意的数写{' '}
+          <Code>tone="danger"</Code>，数值换成危险色。
         </Example>
         <Example id="loading" title="加载中" demo={Loading}>
           <Code>loading</Code> 时数值与变化量换成骨架，一道光带从起始边扫过，指标名照常显示； Card

@@ -192,6 +192,8 @@ export interface Lang {
   readonly deadlineDoneLate: (workdays: number) => string;
   /** 时限标记的完整说明（title 与读屏）：截止日，默认“截止 2026-10-23” */
   readonly deadlineOn: (date: string) => string;
+  /** 完成清单只有图标时，一项的说明：`('方案确定', true)` → “方案确定已完成” */
+  readonly checklistItemState: (label: string, done: boolean) => string;
   /** 分栏的分隔条的名称，默认“调整分栏” */
   readonly splitterResize: string;
   /** 分栏收起一侧的按钮，默认“收起” */

@@ -166,6 +166,10 @@ export const textStyles = stylex.create({
   truncate: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 },
   // 多行截断用带 -webkit- 前缀的写法（标准的 line-clamp 尚无浏览器支持），行数见 lineClampStyles
   clamp: { display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden' },
+  // 数字等宽：表格、金额、计数上下对齐，变化时不跳动
+  numeric: { fontVariantNumeric: 'tabular-nums' },
+  // 等宽字体：编号、件号、代码片段
+  mono: { fontFamily: '_mono' },
 });
 
 /** 多行截断的行数：任意值，用动态样式（编译为 CSS 变量），与 textStyles.clamp 一起用 */

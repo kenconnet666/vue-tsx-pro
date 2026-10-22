@@ -145,6 +145,13 @@ export {
   type AppShellSidebarModes,
 } from './layout/AppShell';
 export {
+  AsideLayout,
+  asideLayoutDynamicStyles,
+  asideLayoutStyles,
+  type AsideLayoutProps,
+} from './layout/AsideLayout';
+export { Brand, brandStyles, type BrandProps } from './layout/Brand';
+export {
   Container,
   containerPaddingStyles,
   containerSizeStyles,
@@ -234,6 +241,12 @@ export {
   type SplitterOrientations,
   type SplitterProps,
 } from './layout/Splitter';
+export {
+  ViewportFill,
+  viewportFillDynamicStyles,
+  viewportFillStyles,
+  type ViewportFillProps,
+} from './layout/ViewportFill';
 
 // 展示
 export {
@@ -276,6 +289,13 @@ export {
   type CardProps,
   type CardVariants,
 } from './display/Card';
+export {
+  Checklist,
+  checklistStyles,
+  type ChecklistItem,
+  type ChecklistLayouts,
+  type ChecklistProps,
+} from './display/Checklist';
 export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 export {
@@ -294,6 +314,14 @@ export {
   type DescriptionsProps,
 } from './display/Descriptions';
 export {
+  ItemList,
+  ItemListItem,
+  itemListStyles,
+  type ItemListDensities,
+  type ItemListItemProps,
+  type ItemListProps,
+} from './display/ItemList';
+export {
   Marquee,
   marqueeDynamicStyles,
   marqueeStyles,
@@ -302,12 +330,36 @@ export {
   type MarqueeProps,
 } from './display/Marquee';
 export {
+  ProportionBar,
+  proportionBarDynamicStyles,
+  proportionBarStyles,
+  type ProportionBarProps,
+  type ProportionSegment,
+} from './display/ProportionBar';
+export {
   Sortable,
   sortableStyles,
   type SortableItemState,
   type SortableProps,
 } from './display/Sortable';
-export { Stat, statStyles, type StatManaged, type StatProps } from './display/Stat';
+export {
+  Stat,
+  StatGroup,
+  statGroupDynamicStyles,
+  statGroupStyles,
+  statStyles,
+  type StatGroupProps,
+  type StatManaged,
+  type StatProps,
+} from './display/Stat';
+export {
+  StatusDot,
+  statusDotDynamicStyles,
+  statusDotStyles,
+  statusDotToneStyles,
+  type StatusDotProps,
+  type StatusDotSizes,
+} from './display/StatusDot';
 export {
   Timeline,
   timelineStyles,
@@ -352,7 +404,6 @@ export {
 export {
   NotificationCenter,
   notificationCenterStyles,
-  notificationToneStyles,
   type NotificationCenterProps,
   type NotificationItem,
   type NotificationType,
@@ -942,6 +993,7 @@ export {
   TableCaption,
   TableCell,
   TableContext,
+  tableDynamicStyles,
   TableFoot,
   TableHead,
   TableHeaderCell,
@@ -1251,6 +1303,7 @@ export {
   gapStyles,
   listRole,
   listStyles,
+  paddingInlineStyles,
   radiusStyles,
   rowGapStyles,
   type LayoutTag,

@@ -112,7 +112,8 @@ export interface TabsProps extends PartProps<'div'>, TabsOptions {
 
 /** Tabs 的样式：root、vertical */
 export const tabsStyles = stylex.create({
-  root: { display: 'flex', flexDirection: 'column', gap: '_md' },
+  // 能收缩：放在顶栏这类一行里时，列表放不下就在列表里滚动
+  root: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
   vertical: { flexDirection: 'row', alignItems: 'flex-start' },
 });
 
@@ -204,6 +205,14 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
 /** Tabs 的样式：root、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
 export const tabListStyles = stylex.create({
   root: { display: 'flex', flexShrink: 0 },
+  // 横排放不下时（顶栏、窄屏）在列表里横向滚动，不盖到旁边的内容上；滚动条藏起来，触控板、拖动照样能滚
+  scrollable: {
+    flexShrink: 1,
+    minWidth: 0,
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    scrollbarWidth: 'none',
+  },
   // 指示条按标签的 offsetLeft / offsetTop 定位，列表要是它的定位容器
   line: {
     position: 'relative',
@@ -226,7 +235,8 @@ export const tabListStyles = stylex.create({
   indicator: {
     position: 'absolute',
     left: 0,
-    bottom: 'calc(-1 * _borderWidths.xs)',
+    // 压在列表底边的分隔线上（滚动的列表会裁掉伸出去的部分，所以放在边框内侧）
+    bottom: 0,
     width: 0,
     height: '_borderWidths.sm',
     borderRadius: '_sm',
@@ -271,6 +281,7 @@ export const TabList = _component(
             {
               sx: [
                 tabListStyles.root,
+                !vertical && tabListStyles.scrollable,
                 tabs.variant === 'line'
                   ? [tabListStyles.line, vertical && tabListStyles.lineVertical]
                   : [tabListStyles.soft, vertical && tabListStyles.softVertical],

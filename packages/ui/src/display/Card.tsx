@@ -2,6 +2,7 @@
  * 卡片（div）：把一组相关内容放在一块表面上。可选的页头、页脚与正文之间有分隔线。
  *
  *   <Card header={<H3 size="md">订单 #1024</H3>} footer={<Button>查看</Button>}>…</Card>
+ *   <Card header="超时最久的项目" extra={<Link href="/overdue">全部</Link>}>…</Card>   页头右边的操作
  *   <Card loading={loading} header={…}>…</Card>      正文加载中：换成几行扫光的骨架，卡片带 aria-busy
  *
  * 需要语义容器（article、section）时在外面包，或把语义标签放进 header 里的标题。
@@ -45,6 +46,8 @@ export type CardManaged = 'aria-busy';
 export interface CardProps extends PartProps<'div', CardManaged>, CardOptions {
   /** 页头：标题、操作；与正文之间有分隔线 */
   header?: VNodeChild;
+  /** 页头结束边的内容（“全部 ↗”、按钮、筛选）：和 header 排在一行，放不下时换行 */
+  extra?: VNodeChild;
   /** 页脚：按钮等操作；与正文之间有分隔线 */
   footer?: VNodeChild;
   /**
@@ -81,6 +84,14 @@ export const cardStyles = stylex.create({
     borderBottomStyle: 'solid',
     borderBottomColor: '_borderMuted',
   },
+  // 有 extra 时：标题在起始边、extra 在结束边
+  headerWithExtra: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '_sm',
+  },
   footer: {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -116,6 +127,7 @@ export const Card = _component(
     padding,
     radius,
     header,
+    extra,
     footer,
     loading = false,
     propsHeader,
@@ -151,9 +163,15 @@ export const Card = _component(
             { 'aria-busy': loading || undefined },
           )}
         >
-          {header != null && (
-            <div {...mergeAttrs<'div'>({ sx: [cardStyles.header, space] }, propsHeader)}>
+          {(header != null || extra != null) && (
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: [cardStyles.header, space, extra != null && cardStyles.headerWithExtra] },
+                propsHeader,
+              )}
+            >
               {header}
+              {extra}
             </div>
           )}
           <div

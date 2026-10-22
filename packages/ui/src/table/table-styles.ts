@@ -38,6 +38,8 @@ export const dataTableStyles = stylex.create({
   // 宽度只由所在的容器决定，放不下的部分在表格里横向滚动
   // 也是容器查询的容器：详情的内容用 100cqi 限宽到视口，横向滚动时贴着起始边
   root: { maxHeight: '32em', minWidth: 0, containerType: 'inline-size' },
+  // 放在竖排的弹性容器（ViewportFill）里：按行数自己的高度，最多占到剩下的高度，再多在表格里滚动
+  flexible: { flexGrow: 0, flexShrink: 1, flexBasis: 'auto', maxHeight: 'none', minHeight: 0 },
   surface: {
     borderWidth: '_xs',
     borderStyle: 'solid',
@@ -74,8 +76,10 @@ export const dataTableStyles = stylex.create({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
+  // 数字等宽：金额、数量、日期上下对齐（文字不受影响）
   cell: {
     boxSizing: 'border-box',
+    fontVariantNumeric: 'tabular-nums',
     paddingInline: '_md',
     borderBottomWidth: '_xs',
     borderBottomStyle: 'solid',

@@ -30,6 +30,7 @@ import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
+import { StatusDot } from '../display/StatusDot';
 import { Empty } from './Empty';
 
 /** 一条通知 */
@@ -123,7 +124,8 @@ export const notificationCenterStyles = stylex.create({
     backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
     cursor: 'pointer',
   },
-  dot: { width: '0.5rem', height: '0.5rem', marginBlockStart: '0.45em', borderRadius: '_full' },
+  // 未读的色点贴着标题的第一行
+  dot: { display: 'flex', alignItems: 'center', height: '1lh' },
   body: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
   itemTitle: { fontSize: '_sm' },
   itemTitleUnread: { fontWeight: '_semibold' },
@@ -137,16 +139,6 @@ export const notificationCenterStyles = stylex.create({
     borderBlockStartColor: '_border',
   },
   empty: { paddingBlock: '_lg' },
-});
-
-/** 未读色点的颜色 */
-export const notificationToneStyles = stylex.create({
-  neutral: { backgroundColor: '_textMuted' },
-  accent: { backgroundColor: '_accent' },
-  success: { backgroundColor: '_success' },
-  warning: { backgroundColor: '_warning' },
-  danger: { backgroundColor: '_danger' },
-  info: { backgroundColor: '_info' },
 });
 
 /** 通知中心 */
@@ -256,12 +248,9 @@ export const NotificationCenter = _component(
                     }
                   }}
                 >
-                  <span
-                    {...stylex.attrs(
-                      notificationCenterStyles.dot,
-                      !item.read && notificationToneStyles[item.tone ?? 'accent'],
-                    )}
-                  />
+                  <span {...stylex.attrs(notificationCenterStyles.dot)}>
+                    {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
+                  </span>
                   <span {...stylex.attrs(notificationCenterStyles.body)}>
                     <span
                       {...stylex.attrs(

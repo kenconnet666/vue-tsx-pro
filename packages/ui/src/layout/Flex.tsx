@@ -95,7 +95,8 @@ export const flexStyles = stylex.create({
   'column-reverse': { flexDirection: 'column-reverse' },
   wrap: { flexWrap: 'wrap' },
   wrapReverse: { flexWrap: 'wrap-reverse' },
-  grow: { flexGrow: 1, minWidth: 0 },
+  // 占满剩下的空间；横排、竖排都能缩小到比内容小（列表、表格在里面自己滚动）
+  grow: { flexGrow: 1, minWidth: 0, minHeight: 0 },
 });
 
 /** Flex 的样式：start、center、end、stretch、baseline */

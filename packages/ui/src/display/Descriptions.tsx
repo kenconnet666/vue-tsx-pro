@@ -39,6 +39,8 @@ export interface DescriptionsLayouts {
   horizontal: unknown;
   /** 竖排：标签在上、值在下 */
   vertical: unknown;
+  /** 行内：各项一行排开、放不下换行（页头里的编号、团队、主办这类关键信息）；columns 不起作用 */
+  inline: unknown;
 }
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
@@ -91,6 +93,9 @@ export const descriptionsStyles = stylex.create({
   item: { minWidth: 0 },
   itemHorizontal: { display: 'flex', gap: '_md', alignItems: 'baseline' },
   itemVertical: { display: 'grid', gap: '_xs' },
+  // 行内：dl 改成换行的一行，项内标签与值挨着
+  listInline: { display: 'flex', flexWrap: 'wrap', columnGap: '_xl', rowGap: '_xs' },
+  itemInline: { display: 'flex', gap: '_xs', alignItems: 'baseline' },
   itemBordered: {
     alignItems: 'stretch',
     gap: 0,
@@ -157,7 +162,9 @@ export const Descriptions = _component(
             {
               sx: [
                 descriptionsStyles.list,
-                descriptionsGridStyles.columns(columns),
+                layout === 'inline'
+                  ? descriptionsStyles.listInline
+                  : descriptionsGridStyles.columns(columns),
                 bordered && descriptionsStyles.listBordered,
               ],
             },
@@ -175,10 +182,12 @@ export const Descriptions = _component(
                     sx: [
                       layout === 'vertical'
                         ? descriptionsStyles.itemVertical
-                        : descriptionsStyles.itemHorizontal,
+                        : layout === 'inline'
+                          ? descriptionsStyles.itemInline
+                          : descriptionsStyles.itemHorizontal,
                       bordered && descriptionsStyles.itemBordered,
                       descriptionsStyles.item,
-                      span > 1 && descriptionsGridStyles.span(span),
+                      layout !== 'inline' && span > 1 && descriptionsGridStyles.span(span),
                     ],
                   },
                   own,

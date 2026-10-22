@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Extra from './demo/Extra.tsx?demo';
 import Loading from './demo/Loading.tsx?demo';
 import Sections from './demo/Sections.tsx?demo';
 import Variants from './demo/Variants.tsx?demo';
@@ -27,6 +28,10 @@ export default _component(() => () => (
         <Example id="sections" title="页头与页脚" demo={Sections}>
           <Code>header</Code>、<Code>footer</Code> 与正文之间有分隔线；需要语义容器时把标题放进
           header，或在外面包 article、section。
+        </Example>
+        <Example id="extra" title="页头的操作" demo={Extra}>
+          <Code>extra</Code> 在页头的结束边（“全部 ↗”、标记、按钮），和 <Code>header</Code>{' '}
+          排在一行、放不下时换行，不用自己在 header 里写两端对齐。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

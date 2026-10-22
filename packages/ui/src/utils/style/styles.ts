@@ -78,6 +78,16 @@ export const gapStyles = stylex.create({
   xl: { gap: '_xl' },
 });
 
+/** 两侧的内边距：列表条目与所在容器（弹出层、卡片）的内边距对齐 */
+export const paddingInlineStyles = stylex.create({
+  none: { paddingInline: '_none' },
+  xs: { paddingInline: '_xs' },
+  sm: { paddingInline: '_sm' },
+  md: { paddingInline: '_md' },
+  lg: { paddingInline: '_lg' },
+  xl: { paddingInline: '_xl' },
+});
+
 /** 行间距：Grid 单独指定时 */
 export const rowGapStyles = stylex.create({
   none: { rowGap: '_none' },

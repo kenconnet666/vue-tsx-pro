@@ -14,8 +14,8 @@
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。编译是一次解析、两遍遍历、一次生成（`compiler/compile.ts`）。
 - **ui 包**：组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10：
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、List / OrderedList（可用图标代替圆点）、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制、行号、diff、折叠）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton、ButtonGroup）、Badge、Indicator、Tag
-  - 布局：Flex / Grid / Container（含 create\* 工厂）、Separator、ScrollArea 与 PageScrollbar、Prose、AppShell、Splitter、ResizeHandle
-  - 展示：Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat、Descriptions、Timeline、Tree、Sortable、Marquee、CodeGroup、CodePreview、ColorSwatch、PropsTable、DeadlineTag
+  - 布局：Flex / Grid / Container（含 create\* 工厂）、Separator、ScrollArea 与 PageScrollbar、Prose、AppShell、Brand、Splitter、ResizeHandle、AsideLayout、ViewportFill
+  - 展示：Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat、Descriptions、Timeline、Tree、Sortable、Marquee、CodeGroup、CodePreview、ColorSwatch、PropsTable、DeadlineTag、StatusDot、ItemList、Checklist、ProportionBar、StatGroup
   - 反馈：Progress、Skeleton、Alert、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay、NotificationCenter
   - 浮层：Dialog / Drawer / AlertDialog（含 useConfirm、useFormDialog，共用 useDetachedDialog）、Popover、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
   - 导航：Toolbar、Tabs、Steps、Breadcrumbs、Pagination（PageSizeSelect、PageJump、Pager）、NavList、TableOfContents、SkipLink

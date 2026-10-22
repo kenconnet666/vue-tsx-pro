@@ -63,6 +63,8 @@ export interface SplitterProps extends PartProps<'div'> {
   collapsed?: boolean;
   /** 分隔条的名称（读屏），默认取语言包（调整分栏） */
   label?: string;
+  /** 外面一圈边框、圆角与表面色：独立成块（收件箱的列表与预览） */
+  bordered?: boolean;
   /** 起始一栏（div）的部件属性 */
   propsStart?: PartProps<'div'>;
   /** 结束一栏（div）的部件属性 */
@@ -79,6 +81,14 @@ const STEP = 5;
 /** Splitter 的样式：root、pane、handle、line、toggle… */
 export const splitterStyles = stylex.create({
   root: { display: 'grid', minWidth: 0, minHeight: 0, height: '100%' },
+  bordered: {
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_border',
+    borderRadius: '_lg',
+    backgroundColor: '_surface',
+    overflow: 'hidden',
+  },
   pane: { minWidth: 0, minHeight: 0, overflow: 'auto' },
   // 分隔条：看得见的是中间一条细线，能拖的范围更宽；悬停、拖动时变成强调色
   handle: {
@@ -117,6 +127,7 @@ export const Splitter = _component(
     collapsible,
     collapsed = _bindable(false),
     label,
+    bordered = false,
     propsStart,
     propsEnd,
     propsHandle,
@@ -193,6 +204,7 @@ export const Splitter = _component(
             {
               sx: [
                 splitterStyles.root,
+                bordered && splitterStyles.bordered,
                 horizontal()
                   ? splitterDynamicStyles.columns(template)
                   : splitterDynamicStyles.rows(template),

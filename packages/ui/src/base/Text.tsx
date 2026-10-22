@@ -5,6 +5,8 @@
  *
  *   <Text tone="muted" size="sm">更新于 3 分钟前</Text>
  *   <Paragraph lineClamp={2}>很长的描述…</Paragraph>
+ *   <Text mono size="sm">DJ-2026-FC-14</Text>         编号、件号：等宽字体
+ *   <Text numeric tone="danger">超时 3 天</Text>       金额、计数：等宽数字，上下对齐
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -44,6 +46,10 @@ export interface TextOptions {
   lineClamp?: number;
   /** 换行方式：pretty 避免最后一行只剩一个字（Paragraph 默认 pretty） */
   wrap?: TextWrap;
+  /** 数字等宽（tabular-nums）：金额、计数、日期，上下对齐、变化时不跳动 */
+  numeric?: boolean;
+  /** 等宽字体：编号、件号、代码片段 */
+  mono?: boolean;
   children?: VNodeChild;
 }
 
@@ -72,6 +78,8 @@ export function createText<Tag extends TextTag>(
       truncate = false,
       lineClamp,
       wrap = defaults.wrap,
+      numeric = false,
+      mono = false,
       children,
       ...rest
     }: TextProps<TextTag>) =>
@@ -86,6 +94,8 @@ export function createText<Tag extends TextTag>(
           wrap && textWrapStyles[wrap],
           truncate && textStyles.truncate,
           lineClamp != null && [textStyles.clamp, lineClampStyles.lines(lineClamp)],
+          numeric && textStyles.numeric,
+          mono && textStyles.mono,
         ];
         return <Tag {...mergeAttrs<TextTag>({ sx }, rest)}>{children}</Tag>;
       },

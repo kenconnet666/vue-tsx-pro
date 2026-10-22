@@ -77,6 +77,7 @@ export const zhCN: Lang = {
   deadlineDone: '按时完成',
   deadlineDoneLate: (workdays) => `超时 ${workdays} 个工作日完成`,
   deadlineOn: (date) => `截止 ${date}`,
+  checklistItemState: (label, done) => `${label}${done ? '已完成' : '未完成'}`,
   splitterResize: '调整分栏',
   splitterCollapse: '收起',
   splitterExpand: '展开',

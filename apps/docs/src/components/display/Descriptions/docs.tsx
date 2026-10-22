@@ -26,6 +26,7 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="layouts" title="边框、竖排与尺寸" demo={Layouts}>
           <Code>bordered</Code> 是表格样式，<Code>layout="vertical"</Code> 标签在上，
+          <Code>layout="inline"</Code> 各项一行排开、放不下换行（详情页页头里的编号、团队、主办），
           <Code>size</Code> 跟字号档位缩放。
         </Example>
       </ExampleColumn>

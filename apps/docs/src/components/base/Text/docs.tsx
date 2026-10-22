@@ -13,6 +13,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Headings from './demo/Headings.tsx?demo';
 import Inline from './demo/Inline.tsx?demo';
 import Links from './demo/Links.tsx?demo';
+import Numeric from './demo/Numeric.tsx?demo';
 import Overflow from './demo/Overflow.tsx?demo';
 import Scale from './demo/Scale.tsx?demo';
 import Tones from './demo/Tones.tsx?demo';
@@ -39,6 +40,10 @@ export default _component(() => () => (
         <Example id="tones" title="色调" demo={Tones}>
           <Code>tone</Code> 取主题的文字色，与 Button、Badge 的色调同名：neutral 是正文色，muted
           用于次要说明，其余是品牌色与提示色的文字色，在每套主题下都通过对比度检查。
+        </Example>
+        <Example id="numeric" title="编号与数字" demo={Numeric}>
+          <Code>mono</Code> 用等宽字体（编号、件号），<Code>numeric</Code>{' '}
+          用等宽数字（金额、计数）：上下对齐、变化时不跳动。表格的单元格默认就是等宽数字。
         </Example>
         <Example id="overflow" title="截断与换行" demo={Overflow}>
           <Code>truncate</Code> 单行省略，<Code>lineClamp</Code> 限制行数；<Code>wrap</Code> 的

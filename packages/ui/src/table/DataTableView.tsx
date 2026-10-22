@@ -143,6 +143,11 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   onRangeChange?: (range: VisibleRange) => void;
   /** 挂载后拿到滚动到某一行的方法：`handle={(api) => (table = api)}` */
   handle?: (api: DataTableHandle) => void;
+  /**
+   * 放在竖排的弹性容器（ViewportFill、Flex direction="column"）里：按行数自己的高度，最多占到剩下的高度，
+   * 再多在表格里滚动；分页紧跟在表格下面。不写时最高 32em
+   */
+  flexible?: boolean;
   /** 外层滚动区域（决定表格的高度）的部件属性；高度用 sx 给，默认最高 32em */
   propsRoot?: Partial<ScrollAreaProps>;
   /** 每一行（tr）的部件属性，可以按行计算 */
@@ -681,6 +686,7 @@ export const DataTableView = _component(
     hasDetail,
     expandedRows,
     onToggleDetail,
+    flexible = false,
     propsRoot,
     propsRow,
     propsCell,
@@ -1055,6 +1061,7 @@ export const DataTableView = _component(
               sx: [
                 dataTableStyles.root,
                 variant === 'ghost' ? dataTableStyles.ghost : dataTableStyles.surface,
+                flexible && dataTableStyles.flexible,
               ],
             },
             propsRoot,

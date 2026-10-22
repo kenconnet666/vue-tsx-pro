@@ -11,11 +11,15 @@
  * children 是数值下面占满整宽的补充内容（进度条、迷你图）；footer 是底栏，上方一条分隔线，放两项时分别靠两端。
  * 卡片再宽，内容也铺满整行，不在中间留一大块空白。
  *
+ * 一排几个指标用 StatGroup：按宽度换行，指标之间一条竖线（同一行里）：
+ *
+ *   <StatGroup><Stat label="超时" value={10} tone="danger" /><Stat label="待认定" value={5} /></StatGroup>
+ *
  * 数值变化时滚动过渡（AnimatedNumber），读屏只读终值；变化量按正负着色并带箭头，
  * 成本、耗时这类“越低越好”的指标写 invertChange。加载中（loading）数值与变化量换成扫光的骨架，指标名照常显示。
  */
 import { TrendingDown, TrendingUp } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
@@ -24,7 +28,7 @@ import { Skeleton } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
-import { toneStyles } from '../utils/style/typography';
+import { toneStyles, type Tone } from '../utils/style/typography';
 import type { NumericValue } from '../utils/data/numeric';
 import { AnimatedNumber, type AnimatedNumberProps } from './AnimatedNumber';
 
@@ -44,6 +48,8 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   format?: NumericFormat;
   /** 单位，跟在数值后面、字号小一档 */
   unit?: VNodeChild;
+  /** 数值的色调：超时、缺漏这类要引起注意的数用 danger、warning；不写时是正文色 */
+  tone?: Tone;
   /** 指标名前面的图标（装饰，对读屏隐藏） */
   icon?: IconData;
   /** 变化量（环比、同比）：正数向上、负数向下；默认按百分比显示（0.12 → +12%） */
@@ -92,6 +98,9 @@ const CHANGE_FORMAT: NumericFormat = {
   maximumFractionDigits: 1,
   signDisplay: 'exceptZero',
 };
+
+/** 在 StatGroup 里：指标之间画竖线 */
+const StatGroupContext = createContext<boolean>('StatGroup');
 
 /** Stat 的样式：root、label、icon、value、number、unit、change、description、body、footer、skeleton… */
 export const statStyles = stylex.create({
@@ -188,6 +197,7 @@ export const Stat = _component(
     value,
     format,
     unit,
+    tone,
     icon,
     change,
     changeFormat = CHANGE_FORMAT,
@@ -209,6 +219,7 @@ export const Stat = _component(
     propsFooter,
     ...rest
   }: StatProps) => {
+    const grouped = StatGroupContext.inject(false);
     // 骨架防闪烁；aria-busy 按真实的 loading
     const skeleton = useDelayedLoading(() => loading);
     // 出现过骨架之后，换回数值时淡入（样式在切换的那一刻加上，动画才会播）
@@ -221,7 +232,7 @@ export const Stat = _component(
       const changeTone = direction === 'flat' ? 'muted' : improved ? 'success' : 'danger';
       return (
         <dl
-          {...mergeAttrs<'dl'>({ sx: statStyles.root }, rest, {
+          {...mergeAttrs<'dl'>({ sx: [statStyles.root, grouped && statGroupStyles.item] }, rest, {
             'aria-busy': loading || undefined,
           })}
         >
@@ -241,7 +252,7 @@ export const Stat = _component(
             ) : typeof value !== 'string' ? (
               <AnimatedNumber
                 {...mergePartProps<AnimatedNumberProps>(
-                  { sx: statStyles.number, value },
+                  { sx: [statStyles.number, tone && toneStyles[tone]], value },
                   propsNumber,
                   {
                     value,
@@ -250,7 +261,14 @@ export const Stat = _component(
                 )}
               />
             ) : (
-              <span {...mergeAttrs<'span'>({ sx: statStyles.number }, propsNumber)}>{value}</span>
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: [statStyles.number, tone && toneStyles[tone]] },
+                  propsNumber,
+                )}
+              >
+                {value}
+              </span>
             )}
             {unit != null && !skeleton.value && (
               <span {...mergeAttrs<'span'>({ sx: statStyles.unit }, propsUnit)}>{unit}</span>
@@ -297,5 +315,53 @@ export const Stat = _component(
         </dl>
       );
     };
+  },
+);
+
+/** 未声明的属性落到外层 div 上 */
+export interface StatGroupProps extends PartProps<'div'> {
+  /**
+   * 每个指标最窄多宽（CSS 长度）：放不下就换行
+   * @default '9rem'
+   */
+  minItemWidth?: string;
+  /** Stat */
+  children?: VNodeChild;
+}
+
+/** StatGroup 的样式：root、item */
+export const statGroupStyles = stylex.create({
+  // 每个指标的起始边一条竖线；整组往起始方向挪一条线的位置，每行第一个的竖线藏到外面（overflow 裁掉）
+  root: { display: 'grid', rowGap: '_md', overflow: 'hidden' },
+  item: {
+    paddingInline: '_md',
+    marginInlineStart: 'calc(-1 * _borderWidths.xs)',
+    borderInlineStartWidth: '_xs',
+    borderInlineStartStyle: 'solid',
+    borderInlineStartColor: '_borderMuted',
+  },
+});
+
+/** StatGroup 的动态样式：列宽 */
+export const statGroupDynamicStyles = stylex.create({
+  columns: (min: string) => ({
+    gridTemplateColumns: `repeat(auto-fit, minmax(min(${min}, 100%), 1fr))`,
+  }),
+});
+
+/** 一排指标：按宽度换行，同一行里指标之间一条竖线 */
+export const StatGroup = _component(
+  ({ minItemWidth = '9rem', children, ...rest }: StatGroupProps) => {
+    StatGroupContext.provide(true);
+    return () => (
+      <div
+        {...mergeAttrs<'div'>(
+          { sx: [statGroupStyles.root, statGroupDynamicStyles.columns(minItemWidth)] },
+          rest,
+        )}
+      >
+        {children}
+      </div>
+    );
   },
 );

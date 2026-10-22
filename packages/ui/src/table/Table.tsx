@@ -88,6 +88,11 @@ export const tableStyles = stylex.create({
   },
 });
 
+/** 静态表格的动态样式：列宽 */
+export const tableDynamicStyles = stylex.create({
+  width: (width: string) => ({ width }),
+});
+
 /** 单元格所在的区域：表头的 th 是列标题，表体与表尾的 th 是行标题 */
 export type TableSection = 'head' | 'body' | 'foot';
 
@@ -208,10 +213,12 @@ interface TableCellOptions {
   children?: VNodeChild;
 }
 
-/** 未声明的属性落到 th 上；原生的 align 属性已废弃，对齐用 align prop */
-export interface TableHeaderCellProps extends PartProps<'th', 'align'>, TableCellOptions {
+/** 未声明的属性落到 th 上；原生的 align、width 属性已废弃，用同名的 prop */
+export interface TableHeaderCellProps extends PartProps<'th', 'align' | 'width'>, TableCellOptions {
   /** 表头单元格对应的方向，默认 col（列标题）；行标题写 row */
   scope?: 'col' | 'row' | 'colgroup' | 'rowgroup';
+  /** 列宽（CSS 长度，数字按 px）：日期、数字、操作这类按内容定宽的列；不写的列分剩下的 */
+  width?: number | string;
 }
 
 /** 未声明的属性落到 td 上；对齐用 align prop */
@@ -219,7 +226,14 @@ export interface TableCellProps extends PartProps<'td', 'align'>, TableCellOptio
 
 /** 表头单元格（th） */
 export const TableHeaderCell = _component(
-  ({ align = 'start', nowrap = false, scope = 'col', children, ...rest }: TableHeaderCellProps) => {
+  ({
+    align = 'start',
+    nowrap = false,
+    scope = 'col',
+    width,
+    children,
+    ...rest
+  }: TableHeaderCellProps) => {
     const table = TableContext.inject(standalone);
     const section = TableSectionContext.inject('head');
     return () => (
@@ -234,6 +248,8 @@ export const TableHeaderCell = _component(
               dataTableDensityStyles[table.density],
               dataTableStyles[align],
               !nowrap && dataTableStyles.wrap,
+              width != null &&
+                tableDynamicStyles.width(typeof width === 'number' ? `${width}px` : width),
             ],
             scope,
           },

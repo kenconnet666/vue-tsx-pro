@@ -13,5 +13,11 @@ export default _component(() => () => (
     <Descriptions title="bordered：带边框的表格样式" columns={2} bordered items={items} />
     <Descriptions title='layout="vertical"：标签在上' columns={4} layout="vertical" items={items} />
     <Descriptions title='size="sm"' columns={2} size="sm" bordered items={items} />
+    <Descriptions
+      title='layout="inline"：一行排开（页头里的关键信息）'
+      size="sm"
+      layout="inline"
+      items={items}
+    />
   </Flex>
 ));

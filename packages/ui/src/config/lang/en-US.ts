@@ -80,6 +80,7 @@ export const enUS: Lang = {
   deadlineDoneLate: (workdays) =>
     `Done ${workdays} ${workdays === 1 ? 'workday' : 'workdays'} late`,
   deadlineOn: (date) => `Due ${date}`,
+  checklistItemState: (label, done) => `${label}: ${done ? 'done' : 'not done'}`,
   splitterResize: 'Resize panes',
   splitterCollapse: 'Collapse',
   splitterExpand: 'Expand',
