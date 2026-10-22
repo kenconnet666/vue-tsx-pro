@@ -40,7 +40,20 @@ export interface UiRouter {
    * 只在路径变了时问，同一页里换 query、锚点不问
    */
   beforeLeave?: (guard: () => boolean | Promise<boolean>) => () => void;
+  /** 当前地址的查询参数（useQueryState 用）；读路由的响应式状态，在 watch、渲染里读能跟随变化 */
+  query?: () => QueryValues;
+  /**
+   * 改当前地址的查询参数（replace，不加历史记录）：patch 里的键覆盖，值为 undefined 的删掉，其余不动。
+   * 同一轮里调用几次要合并成一次跳转（各状态分别写入时互不覆盖）
+   */
+  replaceQuery?: (patch: QueryPatch) => void;
 }
+
+/** 地址里的查询参数：同名多个时是数组；只写了键（?flag）时是空字符串 */
+export type QueryValues = Readonly<Record<string, string | readonly string[]>>;
+
+/** 要改的查询参数：undefined 是删掉 */
+export type QueryPatch = Readonly<Record<string, string | readonly string[] | undefined>>;
 
 /** 提供方用 getter 暴露当前值，读取方在渲染或 computed 里读取即可跟随变化 */
 export interface UiConfig {

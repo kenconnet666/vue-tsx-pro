@@ -49,6 +49,7 @@ import {
   type TimelineItem,
   daysBetween,
   shiftIsoDate,
+  useQueryState,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import type { VNodeChild } from 'vue';
@@ -74,7 +75,7 @@ import {
   valueStates,
   type CostTask,
 } from '../../data';
-import { CaseShell, casePath, useCaseNavigate, useCaseQuery, type CasePage } from '../../shell';
+import { CaseShell, casePath, useCaseNavigate, type CasePage } from '../../shell';
 
 /** 按当前状态的下一步：主按钮的文字与推进到的状态；没有下一步时为 null */
 function nextStep(task: CostTask): { label: string; next: string } | null {
@@ -214,12 +215,12 @@ const styles = stylex.create({
 
 export default _component(() => {
   const format = useFormat();
-  const route = useCaseQuery();
+  const code = useQueryState('code', '');
   const navigate = useCaseNavigate();
   const confirm = useConfirm();
   const toaster = createToaster();
   const task = () =>
-    taskStore.value.find((item) => item.code === route().code) ?? taskStore.value[0]!;
+    taskStore.value.find((item) => item.code === code.value) ?? taskStore.value[0]!;
 
   function update(next: CostTask, message: string) {
     saveTask(next);

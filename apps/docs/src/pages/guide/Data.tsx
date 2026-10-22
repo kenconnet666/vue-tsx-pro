@@ -140,6 +140,14 @@ export default _component(() => () => (
         。换排序、条数、条件或 <Code>params</Code>
         （当前页签这类）回到第一页，只请求一次；删掉数据后当前页空了，自动退到最后一页。
       </Paragraph>
+      <Paragraph>
+        <Code>syncToUrl: true</Code> 把页码、条数、排序（<Code>sort=-amount</Code>{' '}
+        是倒序）、筛选条件放进地址的查询参数：刷新、分享链接、从别的页带着条件点进来都是同一份列表；等于初始值的不写。页签这类单个的值用{' '}
+        <Code>{"useQueryState('view', 'all')"}</Code>
+        ，按初始值的类型读写，固定几个值的用 <Code>{'queryCodecs.oneOf([...])'}</Code>
+        。需要路由适配给出 <Code>query</Code> 与 <Code>replaceQuery</Code>（vueRouterAdapter
+        有），没配路由时就是普通的状态。降本台账用的就是它。
+      </Paragraph>
       <CodePreview code={SupplierTable.source}>
         {h(Provider, { http: demoHttp }, () => h(SupplierTable.component))}
       </CodePreview>

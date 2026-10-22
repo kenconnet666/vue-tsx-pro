@@ -38,6 +38,7 @@ import {
   useFormat,
   useForm,
   useLeaveConfirmation,
+  useQueryState,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
@@ -65,7 +66,7 @@ import {
 } from '../../data';
 import { PartChangeDialog } from '../../part-change';
 import { checkSavings, taskFields } from '../../task-form';
-import { CaseShell, casePath, useCaseNavigate, useCaseQuery } from '../../shell';
+import { CaseShell, casePath, useCaseNavigate } from '../../shell';
 
 const schema = z
   .object({
@@ -238,14 +239,14 @@ const styles = stylex.create({
 
 export default _component(() => {
   const format = useFormat();
-  const route = useCaseQuery();
+  const code = useQueryState('code', '');
   const navigate = useCaseNavigate();
   const yuan = (value: Decimal) =>
     format.number(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const wan = (value: Decimal) => format.number(value, costKinds.unit.format);
   // 地址上带 code：编辑那一项；找不到或不带：新建
   const editing =
-    taskStore.value.find((task) => task.code === route().code && task.kind === 'unit') ?? null;
+    taskStore.value.find((task) => task.code === code.value && task.kind === 'unit') ?? null;
   let parts = _state.raw<PartChange[]>(editing?.unitDetail?.parts ?? []);
   let partsError = _state('');
   let dialogOpen = _state(false);

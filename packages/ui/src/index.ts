@@ -1029,6 +1029,8 @@ export {
   useConfig,
   useLang,
   type Highlighter,
+  type QueryPatch,
+  type QueryValues,
   type UiConfig,
   type UiRouter,
 } from './config/context';
@@ -1039,6 +1041,13 @@ export {
   type ComponentDefaults,
   type ResolvedDefaults,
 } from './config/defaults';
+export {
+  queryCodecs,
+  useQueryState,
+  useQueryStates,
+  type QueryCodec,
+  type QueryCodecs,
+} from './config/query-state';
 export {
   themeCustomizerMessages,
   type ThemeCustomizerMessages,

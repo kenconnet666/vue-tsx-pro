@@ -37,6 +37,7 @@ import {
   TextField,
   useForm,
   useLeaveConfirmation,
+  useQueryState,
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
@@ -56,7 +57,7 @@ import {
   workPackages,
   type CostTask,
 } from '../../data';
-import { CaseShell, casePath, useCaseNavigate, useCaseQuery } from '../../shell';
+import { CaseShell, casePath, useCaseNavigate } from '../../shell';
 import { checkSavings, taskFields } from '../../task-form';
 
 const node = z.object({
@@ -217,11 +218,11 @@ const styles = stylex.create({
 });
 
 export default _component(() => {
-  const route = useCaseQuery();
+  const code = useQueryState('code', '');
   const navigate = useCaseNavigate();
   // 地址上带 code：编辑那一项；找不到或不带：新建
   const editing =
-    taskStore.value.find((task) => task.code === route().code && task.kind === 'dmc') ?? null;
+    taskStore.value.find((task) => task.code === code.value && task.kind === 'dmc') ?? null;
   let status = _state('');
 
   const form = useForm({

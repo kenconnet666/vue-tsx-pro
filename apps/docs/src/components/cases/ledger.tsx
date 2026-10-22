@@ -64,6 +64,7 @@ import {
   tableToCsv,
   type SortState,
   usePersistentState,
+  useQueryState,
   useTableQuery,
 } from '@vue-tsx-pro/ui';
 import { space } from '@vue-tsx-pro/ui/tokens.stylex';
@@ -92,7 +93,7 @@ import {
   valueStates,
   type CostTask,
 } from './data';
-import { CaseShell, casePath, useCaseQuery, type CasePage } from './shell';
+import { CaseShell, casePath, type CasePage } from './shell';
 
 /** 页签的第一组：全部与各状态分组 */
 const tabs = [{ value: 'all', label: '全部', statuses: null }, ...statusGroups] as const;
@@ -378,14 +379,10 @@ export const LedgerPage = _component(
     const format = useFormat();
     // 台账的类型是页面写死的配置：取一次
     const amount = costKinds[_untrack(kind)];
-    const route = useCaseQuery();
-    const fromLink = (): LedgerQuery => ({
-      ...blank(),
-      valueState: route().valueState ?? null,
-      basis: route().basis ?? null,
-    });
-    let query = _state(fromLink());
-    let tab = _state(route().view ?? 'all');
+    // 页签、查询条件、页码、排序都在地址里：从看板点进来（?view=…&valueState=…）、刷新、分享都是同一份列表
+    let tab = _fromRef(useQueryState('view', 'all'));
+    /** 查询栏里编辑中的条件；点“查询”才应用 */
+    let query = _state(blank());
     let selected = _state<string[]>([]);
     // 隐藏了哪些列：各人记住，两本台账分开记
     let hidden = _fromRef(
@@ -624,11 +621,18 @@ export const LedgerPage = _component(
           columns,
         ),
       {
-        filters: fromLink(),
+        filters: blank(),
         pageSize: 20,
         sort: { key: 'overdue', direction: 'descending' },
         params: () => tab,
+        syncToUrl: true,
       },
+    );
+    // 查询栏跟着已应用的条件走：从地址来、后退回来
+    watch(
+      () => tasks.filters,
+      (applied) => (query = { ...applied }),
+      { immediate: true },
     );
     // 数据变了（删除、撤销删除）：按当前条件重新请求，留在当前页
     watch(

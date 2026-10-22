@@ -26,6 +26,8 @@ import {
   useConfirm,
   useFormat,
   type DataTableColumn,
+  queryCodecs,
+  useQueryState,
 } from '@vue-tsx-pro/ui';
 import { space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
@@ -44,7 +46,7 @@ import {
   type CostTask,
 } from '../../data';
 import { ledgerColumns } from '../../ledger';
-import { CaseShell, casePath, useCaseQuery } from '../../shell';
+import { CaseShell, casePath } from '../../shell';
 
 const tabs = [
   { value: 'awaiting', label: '待认定' },
@@ -92,10 +94,9 @@ export default _component(() => {
   const format = useFormat();
   const confirm = useConfirm();
   const toaster = createToaster();
-  // 从统计看板跳过来时带着单位与页签
-  const route = useCaseQuery();
-  let tab = _state<string>(route().tab ?? 'awaiting');
-  let kind = _state<'unit' | 'dmc'>(route().kind === 'dmc' ? 'dmc' : 'unit');
+  // 单位与页签在地址里：从统计看板跳过来时带着，刷新、分享也还是这份
+  let tab = _fromRef(useQueryState('tab', 'awaiting'));
+  let kind = _fromRef(useQueryState('kind', 'unit', queryCodecs.oneOf(['unit', 'dmc'])));
   let keyword = _state('');
   let returning = _state.raw<CostTask | null>(null);
   let reason = _state('');

@@ -13,8 +13,15 @@
  *   <PageSizeSelect value={_bind(tasks.pageSize)} />
  *
  * 换排序、每页条数、筛选条件或 params 时回到第一页；删掉数据后当前页空了，退到最后一页。
+ * syncToUrl 把页码、条数、排序（sort=-amount 是倒序，同 JSON:API）、筛选条件放进地址的查询参数（见 useQueryState）。
  */
-import { shallowRef, watch } from 'vue';
+import { shallowRef, watch, type Ref } from 'vue';
+import {
+  useQueryState,
+  useQueryStates,
+  type QueryCodec,
+  type QueryCodecs,
+} from '../config/query-state';
 import { useRequest } from '../utils/request/use-request';
 import type { SortState } from './columns';
 
@@ -50,7 +57,33 @@ export interface TableQueryOptions<Filters, Params> {
   sort?: SortState | null;
   /** 筛选条件之外也决定结果的值（当前页签、数据源）：变了回到第一页重新请求 */
   params?: () => Params;
+  /**
+   * 页码（page）、条数（pageSize）、排序（sort）、筛选条件（键名同 filters）同步到地址：刷新、分享链接、后退回来还是这些条件。
+   * 需要路由适配给出 query、replaceQuery（vueRouterAdapter 有）；筛选条件按初始值的类型读写，别的类型在 filters 里给写法
+   */
+  syncToUrl?: boolean | { filters?: QueryCodecs<Filters> };
 }
+
+/** 正整数（页码、条数） */
+const positiveInteger: QueryCodec<number> = {
+  parse(value) {
+    const number = Number(typeof value === 'string' ? value : value[0]);
+    return Number.isInteger(number) && number >= 1 ? number : undefined;
+  },
+  serialize: String,
+};
+
+/** 排序：sort=amount 正序，sort=-amount 倒序，sort= 是默认顺序 */
+const sortCodec: QueryCodec<SortState | null> = {
+  parse(value) {
+    const text = typeof value === 'string' ? value : (value[0] ?? '');
+    if (text === '') return null;
+    return text.startsWith('-')
+      ? { key: text.slice(1), direction: 'descending' }
+      : { key: text, direction: 'ascending' };
+  },
+  serialize: (sort) => (sort ? (sort.direction === 'descending' ? '-' : '') + sort.key : ''),
+};
 
 /** useTableQuery 的返回值：page、pageSize、sort 可以直接 _bind 到 Pagination、PageSizeSelect、DataTable */
 export interface TableQueryState<Result extends TablePage<unknown>, Filters> {
@@ -87,10 +120,18 @@ export function useTableQuery<
   fetcher: (query: TableQuery<Filters, Params>, signal: AbortSignal) => Promise<Result>,
   options: TableQueryOptions<Filters, Params> = {},
 ): TableQueryState<Result, Filters> {
-  const page = shallowRef(1);
-  const pageSize = shallowRef(options.pageSize ?? 10);
-  const sort = shallowRef<SortState | null>(options.sort ?? null);
-  const filters = shallowRef(options.filters as Filters);
+  const url = options.syncToUrl === true ? {} : options.syncToUrl || undefined;
+  const page = url ? useQueryState('page', 1, positiveInteger) : shallowRef(1);
+  const pageSize = url
+    ? useQueryState('pageSize', options.pageSize ?? 10, positiveInteger)
+    : shallowRef(options.pageSize ?? 10);
+  const sort = url
+    ? useQueryState('sort', options.sort ?? null, sortCodec)
+    : shallowRef<SortState | null>(options.sort ?? null);
+  const filters: Ref<Filters> =
+    url && options.filters
+      ? (useQueryStates(options.filters, url.filters as QueryCodecs<object>) as Ref<Filters>)
+      : shallowRef(options.filters as Filters);
   const readParams = () => options.params?.() as Params;
 
   const request = useRequest(fetcher, {

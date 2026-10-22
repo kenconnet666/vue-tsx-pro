@@ -157,7 +157,10 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 列表查询 `useTableQuery`：页码、条数、排序、已应用的条件、总数、加载与出错一起管（建在 useRequest 上）；page、pageSize、sort
       直接 _bind 到 Pagination、PageSizeSelect、DataTable；换排序、条数、条件、params 回到第一页且只请求一次，当前页空了退到最后一页；
       降本台账改用它（删掉手写的请求编号与侦听）
-- [ ] 路由适配读写 query（UiRouter 加 query 的读与替换，vueRouterAdapter 实现）：useTableQuery、查询栏的条件可选同步到地址
+- [x] 地址里的状态：`UiRouter.query` / `replaceQuery`（vueRouterAdapter 实现，同一轮的写入合并成一次 replace）；
+      `useQueryState`、`useQueryStates`（本地为准、双向同步、等于初始值不写、按初始值类型读写，`queryCodecs`）；
+      useTableQuery 的 `syncToUrl`（page、pageSize、`sort=-key`、筛选条件）。降本台账、收益确认、价值台账、详情与编辑页改用它，
+      删掉文档站自写的 useCaseQuery，useCaseNavigate 改走路由适配
 - [x] 远程选项：Select、Combobox、TreeSelect 的 `load(搜索词, signal)`（打开时请求、输入停下 300 ms 再请求、只采用最后一次，
       共用 remote-items.ts）；Select、TreeSelect 的 `search` 可绑定、`filter={false}`；Upload 的 `action` 走 createUi 的 http；
       useRequest 加 `enabled`

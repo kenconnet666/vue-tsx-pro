@@ -38,12 +38,12 @@ import {
   StatusBadge,
   Text,
   ThemeSwitcher,
+  useConfig,
   usePersistentState,
   type ComponentDefaults,
   type IconData,
 } from '@vue-tsx-pro/ui';
-import { inject, type VNodeChild } from 'vue';
-import { routeLocationKey, routerKey } from 'vue-router';
+import type { VNodeChild } from 'vue';
 import { preference } from '../../site/theme';
 import { inbox, myTasks, taskStatuses, TODAY } from './data';
 
@@ -64,19 +64,10 @@ export function casePath(page: CasePage, query: Record<string, string> = {}): st
   return `${import.meta.env.BASE_URL}frame/cases/${page}/frames/${page}${search ? `?${search}` : ''}`;
 }
 
-/** 跳到另一个案例页（保存后去详情、删除后回列表）；不在路由里（单元测试）时什么也不做 */
+/** 跳到另一个案例页（保存后去详情、删除后回列表）：走 Provider 的路由适配；没配路由（单元测试）时什么也不做 */
 export function useCaseNavigate(): (page: CasePage, query?: Record<string, string>) => void {
-  const router = inject(routerKey, null);
-  return (page, query) => void router?.push(casePath(page, query));
-}
-
-/** 当前地址上的查询参数（从别的页跳过来时带的筛选）；不在路由里（单元测试）时为空 */
-export function useCaseQuery(): () => Record<string, string> {
-  const route = inject(routeLocationKey, null);
-  return () =>
-    Object.fromEntries(
-      Object.entries(route?.query ?? {}).map(([key, value]) => [key, String(value ?? '')]),
-    );
+  const router = useConfig().router;
+  return (page, query) => router?.navigate(casePath(page, query));
 }
 
 /** 侧栏的各项 */

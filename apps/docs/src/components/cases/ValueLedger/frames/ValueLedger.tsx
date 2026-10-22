@@ -19,6 +19,8 @@ import {
   ToggleItem,
   type DataTableColumn,
   type DataTableColumnGroup,
+  queryCodecs,
+  useQueryState,
 } from '@vue-tsx-pro/ui';
 import { space } from '@vue-tsx-pro/ui/tokens.stylex';
 import { layoutVars } from '@vue-tsx-pro/ui/vars.stylex';
@@ -33,7 +35,7 @@ import {
   teams,
 } from '../../data';
 import { shortTeam } from '../../ledger';
-import { CaseShell, casePath, useCaseQuery } from '../../shell';
+import { CaseShell, casePath } from '../../shell';
 
 /** 一本账的一行：任务池里的任务，或渠道里的机会 */
 interface Row {
@@ -77,10 +79,9 @@ const styles = stylex.create({
 });
 
 export default _component(() => {
-  // 从统计看板跳过来时带着单位与金额口径
-  const route = useCaseQuery();
-  let kind = _state<'unit' | 'dmc'>(route().kind === 'dmc' ? 'dmc' : 'unit');
-  let basis = _state(route().basis ?? 'hard');
+  // 单位与金额口径在地址里：从统计看板跳过来时带着，刷新、分享也还是这份
+  let kind = _fromRef(useQueryState('kind', 'unit', queryCodecs.oneOf(['unit', 'dmc'])));
+  let basis = _fromRef(useQueryState('basis', 'hard'));
   let keyword = _state('');
   let team = _state<string | null>(null);
 
