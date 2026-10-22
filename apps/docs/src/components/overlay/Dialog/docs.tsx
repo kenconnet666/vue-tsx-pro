@@ -60,8 +60,9 @@ export default _component(() => () => (
           <Code>size</Code> 控制宽度。筛选、详情、移动端导航都适合放在抽屉里。
         </Example>
         <Example id="edit-drawer" title="抽屉里编辑：拖宽度与关闭前确认" demo={EditDrawer}>
-          <Code>resizable</Code> 让靠正文的一边可以拖动（也能聚焦后用方向键，双击回到初始宽度），
-          <Code>width</Code> 双向绑定、交给 <Code>usePersistentState</Code> 记住。
+          左右两侧的抽屉靠正文的一边默认可以拖动（也能聚焦后用方向键，双击回到初始宽度），一直拖到只剩一窄条、让出后面的页面，再拖回来接着填；内容不会挤成一列，多出的部分被裁掉。
+          <Code>width</Code> 双向绑定、交给 <Code>usePersistentState</Code> 记住；
+          <Code>{'resizable={false}'}</Code> 或 <Code>defaults.Drawer</Code> 关掉。
           <Code>beforeClose</Code> 在关闭按钮、<Kbd>Esc</Kbd>、点遮罩时先问一次，返回 false
           不关——表单有未保存的改动时用它确认。
         </Example>

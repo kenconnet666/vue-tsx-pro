@@ -69,6 +69,8 @@ export interface ModalCoreProps extends ModalProps {
   role?: 'alertdialog';
   /** 直接放在 dialog 里、不随正文滚动的内容（抽屉边上的宽度调整手柄） */
   edge?: VNodeChild;
+  /** 标题行、说明、正文、页脚共同的样式（抽屉拖窄时内容保持最小宽度、被裁掉而不是挤成一列） */
+  contentSx?: StyleXStyles;
 }
 
 /** 模态面板共有的样式：面板、标题行、标题、关闭按钮、说明、正文、页脚 */
@@ -120,6 +122,7 @@ export const ModalCore = _component(
     propsFooter,
     lazy = true,
     edge,
+    contentSx,
     children,
     ...rest
   }: ModalCoreProps) => {
@@ -182,7 +185,7 @@ export const ModalCore = _component(
       >
         <Flex
           {...mergePartProps<FlexProps>(
-            { align: 'start', gap: 'md', sx: modalStyles.header },
+            { align: 'start', gap: 'md', sx: [contentSx, modalStyles.header] },
             propsHeader,
           )}
         >
@@ -203,16 +206,20 @@ export const ModalCore = _component(
         </Flex>
         {description != null && (
           <Paragraph
-            {...mergePartProps<TextProps>({ sx: modalStyles.description }, propsDescription, {
-              id: descriptionId,
-            })}
+            {...mergePartProps<TextProps>(
+              { sx: [contentSx, modalStyles.description] },
+              propsDescription,
+              {
+                id: descriptionId,
+              },
+            )}
           >
             {description}
           </Paragraph>
         )}
         <ScrollArea
           {...mergePartProps<ScrollAreaProps>(
-            { sx: modalStyles.body, propsContent: { sx: modalStyles.bodyContent } },
+            { sx: [contentSx, modalStyles.body], propsContent: { sx: modalStyles.bodyContent } },
             propsBody,
           )}
         >
@@ -221,7 +228,7 @@ export const ModalCore = _component(
         {footer != null && (
           <Flex
             {...mergePartProps<FlexProps>(
-              { justify: 'end', gap: 'sm', wrap: true, sx: modalStyles.footer },
+              { justify: 'end', gap: 'sm', wrap: true, sx: [contentSx, modalStyles.footer] },
               propsFooter,
             )}
           >

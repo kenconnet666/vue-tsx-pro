@@ -11,6 +11,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Admin from './demo/Admin.tsx?demo';
+import Compact from './demo/Compact.tsx?demo';
 import Contents from './demo/Contents.tsx?demo';
 import Sections from './demo/Sections.tsx?demo';
 
@@ -34,6 +35,11 @@ export default _component(() => () => (
           与高亮；含当前页的 NavGroup 自动展开。<Code>end</Code> 放计数之类的尾部内容。用 vue-router
           时 <Code>vueRouterAdapter(router, {'{ match: "prefix" }'})</Code> 让 /orders 在 /orders/42
           也高亮。
+        </Example>
+        <Example id="compact" title="窄侧栏：只显示图标" demo={Compact}>
+          <Code>compact</Code> 时各项只剩图标，名称留给读屏、悬停或聚焦时用提示显示；NavSection 的{' '}
+          <Code>icon</Code> 是小节标题前的标记（不能点），紧凑时代替标题。AppShell 的抽屉式侧栏拖到
+          160px 以下自动进入紧凑，不用写 <Code>compact</Code>。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

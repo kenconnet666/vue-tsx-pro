@@ -3,14 +3,15 @@
  *
  *   <Grid columns={3} gap="md">…</Grid>                 固定列数，等宽
  *   <Grid minItemWidth="14em" gap="md">…</Grid>         按宽度自动换列：容器多宽就放几列，不需要断点
- *   <GridItem span={2}>…</GridItem>                     跨两列；span="full" 占满一整行
+ *   <GridItem span={2}>…</GridItem>                     跨两列；span="full" 占满一整行；自动换列窄到放不下时跨当前的列数
  *
  * 响应式不引入断点：minItemWidth 覆盖最常见的自动换列，其余用 sx 加容器查询。
  * 一个元素一个组件（COMPONENTS.md §1）：Grid 是 div，GridList 是 ul；其他语义容器用 createGrid 生成。
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { VNodeChild } from 'vue';
+import { inject, provide, type InjectionKey, type VNodeChild } from 'vue';
+import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   columnGapStyles,
@@ -109,6 +110,51 @@ export const gridFlowStyles = stylex.create({
   'column dense': { gridAutoFlow: 'column dense' },
 });
 
+// 网格现在实际有几列；null 是不知道（没有固定列数，也量不出来），GridItem 照写的 span 跨
+const gridColumnsKey: InjectionKey<() => number | null> = Symbol('GridColumns');
+
+/** CSS 长度换成 px：认 px、em（按元素的字号）、rem；别的单位（calc、%）返回 null */
+function lengthToPx(length: string, element: Element): number | null {
+  const match = /^(\d*\.?\d+)(px|r?em)$/.exec(length.trim());
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (match[2] === 'px') return value;
+  const from = match[2] === 'rem' ? document.documentElement : element;
+  return value * parseFloat(getComputedStyle(from).fontSize);
+}
+
+/**
+ * 网格的列数交给里面的 GridItem（数字 span 不超过它）：按宽度自动换列（auto-fill / auto-fit）时量出来，
+ * 不然窄到一列时 span={2} 会撑出一条隐式的列、内容溢出。返回给网格元素的 ref；FormSection 也用它。
+ */
+export function provideGridColumns(
+  read: () => { columns?: number; minItemWidth?: string },
+): (element: unknown) => void {
+  let element = _state.raw<HTMLElement | null>(null);
+  let measured = _state<number | null>(null);
+  useResizeObserver(
+    () => (read().minItemWidth == null ? null : element),
+    () => {
+      const { columns, minItemWidth } = read();
+      if (!element || minItemWidth == null) return;
+      const style = getComputedStyle(element);
+      const gap = parseFloat(style.columnGap) || 0;
+      const width =
+        element.clientWidth -
+        parseFloat(style.paddingInlineStart) -
+        parseFloat(style.paddingInlineEnd);
+      const min = lengthToPx(minItemWidth, element);
+      const fits =
+        min == null ? null : Math.max(1, Math.floor((width + gap) / (Math.min(min, width) + gap)));
+      measured = fits == null ? null : Math.min(fits, columns ?? fits);
+    },
+  );
+  provide(gridColumnsKey, () =>
+    read().minItemWidth == null ? (read().columns ?? null) : measured,
+  );
+  return (next) => (element = next as HTMLElement | null);
+}
+
 /** 未声明的属性落到元素上：Grid 为 div，GridList 为 ul，createGrid 生成的为给定的标签 */
 export type GridProps<Tag extends LayoutTag = 'div'> = PartProps<Tag> & GridOptions;
 
@@ -133,8 +179,9 @@ export function createGrid<Tag extends LayoutTag>(
       flow,
       children,
       ...rest
-    }: GridProps<LayoutTag>) =>
-      () => {
+    }: GridProps<LayoutTag>) => {
+      const gridRef = provideGridColumns(() => ({ columns, minItemWidth }));
+      return () => {
         const Tag = tag as LayoutTag;
         const template =
           minItemWidth != null
@@ -151,8 +198,13 @@ export function createGrid<Tag extends LayoutTag>(
           flow && gridFlowStyles[flow],
           listRole(tag) && listStyles.reset,
         ];
-        return <Tag {...mergeAttrs<LayoutTag>({ sx, role: listRole(tag) }, rest)}>{children}</Tag>;
-      },
+        return (
+          <Tag {...mergeAttrs<LayoutTag>({ sx, role: listRole(tag) }, rest, { ref: gridRef })}>
+            {children}
+          </Tag>
+        );
+      };
+    },
     { name },
   ) as unknown as TsxComponent<GridProps<Tag>>;
 }
@@ -166,7 +218,7 @@ export const GridList = createGrid('ul', 'GridList');
 export interface GridItemOptions {
   /**
    * 跨几列；`'full'` 占满一整行（从第一列到最后一列）。按宽度自动换列的网格（minItemWidth、FormSection）
-   * 列数会变，跨多列时用 `'full'` 最稳：数字大于当前列数时会撑出多余的列
+   * 窄到放不下时跨当前的列数（量的是 px、em、rem 写的最小宽度）
    */
   span?: number | 'full';
   /** 跨几行 */
@@ -197,17 +249,20 @@ export function createGridItem<Tag extends GridItemTag>(
   name: string,
 ): TsxComponent<GridItemProps<Tag>> {
   return _component(
-    ({ span, rowSpan, children, ...rest }: GridItemProps<GridItemTag>) =>
-      () => {
+    ({ span, rowSpan, children, ...rest }: GridItemProps<GridItemTag>) => {
+      const columns = inject(gridColumnsKey, () => null);
+      return () => {
         const Tag = tag as GridItemTag;
+        const across = typeof span === 'number' ? Math.min(span, columns() ?? span) : span;
         const sx = [
-          span === 'full'
+          across === 'full'
             ? gridItemStyles.full
-            : span != null && span > 1 && gridItemDynamicStyles.span(span),
+            : across != null && across > 1 && gridItemDynamicStyles.span(across),
           rowSpan != null && rowSpan > 1 && gridItemDynamicStyles.rowSpan(rowSpan),
         ];
         return <Tag {...mergeAttrs<GridItemTag>({ sx }, rest)}>{children}</Tag>;
-      },
+      };
+    },
     { name },
   ) as unknown as TsxComponent<GridItemProps<Tag>>;
 }

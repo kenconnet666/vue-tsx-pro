@@ -24,6 +24,7 @@
  * “菜单”按钮固定在顶栏品牌格的结束边，开关都是它（aria-expanded）；抽屉从顶栏下面弹出、盖在正文上。
  * 抽屉结束边可以拖动调整宽度（ResizeHandle，也能聚焦后用 ← / →，双击回到初始宽度），父级写 sidebarWidth={_bind(x)} 记住；
  * 顶栏的品牌格按初始宽度，拖动时不变。焦点在抽屉里时按 Esc 收起、焦点回到“菜单”；窄屏时点了链接也收起。
+ * 拖到比 160px 窄时侧栏变紧凑：里面的 NavList 只显示图标（名称在提示里），小节标题只剩图标（NavCompactContext）。
  *
  * 自带 SkipLink（跳到正文）；顶栏的高度经 layoutVars.stickyOffset 交给里面的标题，锚点跳转后不被顶栏挡住。
  */
@@ -35,6 +36,7 @@ import { useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
+import { NavCompactContext } from '../navigation/NavList';
 import { SkipLink } from '../navigation/SkipLink';
 import { PageScrollbar } from './PageScrollbar';
 import { ResizeHandle, type ResizeHandleProps } from './ResizeHandle';
@@ -55,6 +57,8 @@ const OVERLAY_WIDTH = 256;
 // 最窄可以收到只剩滚动条那么宽
 const OVERLAY_MIN_WIDTH = 16;
 const OVERLAY_MAX_WIDTH = 480;
+// 比它窄时侧栏只放得下图标：导航变紧凑
+const OVERLAY_COMPACT_WIDTH = 160;
 // 运行时判断侧栏是否常驻（useMediaQuery 要的是不带 @media 的查询）
 const WIDE_QUERY = breakpoints.lg.replace('@media ', '');
 
@@ -80,7 +84,10 @@ export interface AppShellProps extends PartProps<'div'> {
   sidebarMode?: keyof AppShellSidebarModes;
   /** 侧栏抽屉是否打开（docked 时只在窄屏有抽屉）：父级可以写 sidebarOpen={_bind(x)} */
   sidebarOpen?: boolean;
-  /** overlay 抽屉的宽度（px），默认 256，范围 16–480（窄到几乎只剩滚动条）：父级写 sidebarWidth={_bind(x)} 记住拖动后的宽度 */
+  /**
+   * overlay 抽屉的宽度（px），默认 256，范围 16–480（窄到几乎只剩滚动条；比 160 窄时导航只显示图标）：
+   * 父级写 sidebarWidth={_bind(x)} 记住拖动后的宽度
+   */
   sidebarWidth?: number;
   /** 页面最前面的“跳到正文”链接，默认 true */
   skipLink?: boolean;
@@ -198,6 +205,8 @@ export const appShellStyles = stylex.create({
     borderInlineEndColor: '_border',
   },
   sidebarContent: { paddingBlock: '_xl', paddingInline: '_md' },
+  // 紧凑的侧栏：两边只留一点，图标居中
+  sidebarContentCompact: { paddingInline: '_xs' },
   aside: { display: { default: 'none', [breakpoints.xl]: 'block' } },
   asideContent: { paddingBlock: '_xl', paddingInline: '_lg' },
   // 正文由 SkipLink 聚焦（tabindex=-1）：不显示焦点框
@@ -287,6 +296,8 @@ export const AppShell = _component(
     const sidebarId = `${id}-sidebar`;
     const overlay = () => sidebarMode === 'overlay';
     const docked = () => hasContent(sidebar) && !overlay();
+    const compact = () => overlay() && sidebarWidth < OVERLAY_COMPACT_WIDTH;
+    NavCompactContext.provide(compact);
     const wide = useMediaQuery(WIDE_QUERY);
     // docked：变宽后侧栏已经显示出来，抽屉没必要再开着
     watch(wide, (isWide) => {
@@ -299,7 +310,9 @@ export const AppShell = _component(
     }
 
     // overlay：品牌格按初始宽度，拖动抽屉时不变；双击手柄回到它
-    const initialWidth = _untrack(sidebarWidth);
+    // 记住的宽度是拖窄后的紧凑宽度时，品牌格与双击回到的宽度按默认宽度（品牌格太窄会和顶栏的内容叠在一起）
+    const remembered = _untrack(sidebarWidth);
+    const initialWidth = remembered < OVERLAY_COMPACT_WIDTH ? OVERLAY_WIDTH : remembered;
     // Esc 收起：焦点在抽屉里，收起后它不能聚焦了，回到“菜单”
     let toggleButton = _state.raw<HTMLElement | null>(null);
     function onOverlayKeydown(event: KeyboardEvent) {
@@ -483,7 +496,12 @@ export const AppShell = _component(
                 {
                   sx: appShellStyles.overlayScroll,
                   propsViewport: { sx: appShellStyles.railViewport },
-                  propsContent: { sx: appShellStyles.sidebarContent },
+                  propsContent: {
+                    sx: [
+                      appShellStyles.sidebarContent,
+                      compact() && appShellStyles.sidebarContentCompact,
+                    ],
+                  },
                 },
                 propsSidebarScroll,
               )}

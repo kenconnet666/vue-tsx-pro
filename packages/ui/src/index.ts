@@ -182,6 +182,7 @@ export {
   GridList,
   GridListItem,
   gridStyles,
+  provideGridColumns,
   type GridAligns,
   type GridFlows,
   type GridItemOptions,
@@ -485,6 +486,7 @@ export {
   type BreadcrumbsProps,
 } from './navigation/Breadcrumbs';
 export {
+  NavCompactContext,
   NavGroup,
   NavGroupContext,
   NavItem,

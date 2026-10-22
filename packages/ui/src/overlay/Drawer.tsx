@@ -27,6 +27,12 @@ export interface DrawerSides {
 export interface DrawerOptions {
   /** 宽度（左右两侧）档位，与 Container 相同，默认 xs（30rem）；上下两侧时高度由内容决定，最多到视口高度 */
   size?: keyof ContainerSizes;
+  /**
+   * 靠正文的一边可以拖动调整宽度（也能聚焦后用 ← / →，双击回到初始宽度），能一直拖到只剩一窄条、
+   * 让出后面的页面；只用于左右两侧
+   * @default true
+   */
+  resizable?: boolean;
 }
 
 /** 未声明的属性落到 dialog 上 */
@@ -35,9 +41,10 @@ export interface DrawerProps extends ModalProps, DrawerOptions {
   side?: keyof DrawerSides;
   /** 宽度（px，左右两侧）：写了就不按 size 的档位；父级写 width={_bind(x)} 记住拖动后的宽度 */
   width?: number | null;
-  /** 靠正文的一边可以拖动调整宽度（也能聚焦后用 ← / →，双击回到初始宽度）；只用于左右两侧 */
-  resizable?: boolean;
-  /** 拖动时的最小宽度（px），默认 320 */
+  /**
+   * 拖动时的最小宽度（px）：默认只留一窄条（几乎关上，还能拖回来）；比内容窄时内容被裁掉，不挤成一列
+   * @default 48
+   */
   minWidth?: number;
   /** 宽度调整手柄的部件属性 */
   propsResizeHandle?: Partial<ResizeHandleProps>;
@@ -60,7 +67,9 @@ export const drawerStyles = stylex.create({
         'translate _durations.lg _easings.enter, display _durations.lg allow-discrete, overlay _durations.lg allow-discrete',
     },
   },
-  inline: { insetBlock: 0, width: '_full', height: '100dvh' },
+  inline: { insetBlock: 0, width: '_full', height: '100dvh', overflow: 'hidden' },
+  // 拖窄以后内容保持能读的最小宽度，多出来的被面板裁掉
+  content: { minWidth: 'min(20rem, 100vw - 3rem)' },
   // 给了 width：行内写宽度，最多到视口宽
   sized: { maxWidth: '100vw' },
   block: { insetInline: 0, width: '100vw', height: 'auto' },
@@ -121,17 +130,21 @@ export const Drawer = _component(
     side = 'end',
     size,
     width = _bindable<number | null>(null),
-    resizable = false,
-    minWidth = 320,
+    resizable,
+    minWidth = 48,
     propsResizeHandle,
     ...rest
   }: DrawerProps) => {
-    const appearance = useDefaults('Drawer', () => ({ size }), { size: 'xs' });
+    const appearance = useDefaults('Drawer', () => ({ size, resizable }), {
+      size: 'xs',
+      resizable: true,
+    });
     const messages = useLang();
     // 双击回到打开时的宽度
     const initialWidth = _untrack(width);
     return () => {
       const inline = side === 'start' || side === 'end';
+      const resizing = inline && appearance().resizable;
       return (
         <ModalCore
           {...rest}
@@ -144,9 +157,9 @@ export const Drawer = _component(
           ]}
           style={inline && width != null ? { width: `${width}px` } : undefined}
           data-side={side}
+          contentSx={resizing ? drawerStyles.content : undefined}
           edge={
-            inline &&
-            resizable && (
+            resizing && (
               <ResizeHandle
                 aria-label={messages.drawerResize}
                 minWidth={minWidth}

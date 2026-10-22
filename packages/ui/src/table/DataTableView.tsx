@@ -24,6 +24,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
+import { clamp } from '../utils/data/number';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
@@ -214,8 +215,8 @@ const SELECT_WIDTH = 44;
 const DETAIL_WIDTH = 40;
 /** 详情行的估计高度（px），渲染后以实际高度为准 */
 const DETAIL_HEIGHT = 160;
-/** 加载中显示几行骨架 */
-const SKELETON_ROWS = 6;
+/** 加载中至少、至多显示几行骨架：在这之间按表体到窗口底边的高度铺满 */
+const SKELETON_ROWS = { min: 6, max: 50 };
 /** 各密度下行高的估计（px） */
 const ROW_HEIGHT: Record<keyof DataTableDensities, number> = {
   compact: 36,
@@ -714,6 +715,16 @@ export const DataTableView = _component(
     let body = _state.raw<HTMLElement | null>(null);
     let head = _state.raw<HTMLElement | null>(null);
     let foot = _state.raw<HTMLElement | null>(null);
+    // 骨架铺满表体到窗口底边（第一次加载时表格还没有高度，只放几行显得没铺开）；
+    // 行高量已经画出来的第一行骨架，估计值与实际差几 px，几十行下来就差出一截
+    let skeletonRows = _state(SKELETON_ROWS.min);
+    _effect(() => {
+      if (!indicator.value || !body || rows.length > 0) return;
+      const drawn = (body.firstElementChild as HTMLElement | null)?.offsetHeight;
+      const rowHeight = drawn || (estimateRowHeight ?? ROW_HEIGHT[density]);
+      const space = window.innerHeight - body.getBoundingClientRect().top;
+      skeletonRows = clamp(Math.ceil(space / rowHeight), SKELETON_ROWS.min, SKELETON_ROWS.max);
+    });
 
     const detailIdPrefix = useId();
     const detailId = (index: number) => `${detailIdPrefix}-detail-${index}`;
@@ -1128,7 +1139,7 @@ export const DataTableView = _component(
             <tbody ref={_toRef(body)}>
               {rows.length === 0 &&
                 indicator.value &&
-                Array.from({ length: SKELETON_ROWS }, (_, index) => (
+                Array.from({ length: skeletonRows }, (_, index) => (
                   <tr
                     key={`skeleton-${index}`}
                     aria-hidden="true"

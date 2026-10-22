@@ -25,6 +25,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { space } from '../config/theme/tokens.stylex';
 import { Collapse, type CollapseProps } from '../display/Collapse';
+import { provideGridColumns } from '../layout/Grid';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import { layoutVars } from '../utils/style/vars.stylex';
@@ -165,6 +166,9 @@ export const FormSection = _component(
     const id = useId();
     const ids = { title: `${id}-title`, description: `${id}-description`, body: `${id}-body` };
     provideFieldLayout(() => ({ labelPlacement, labelWidth, labelAlign, disabled, readonly }));
+    const bodyRef = provideGridColumns(() =>
+      columns > 1 ? { columns, minItemWidth: minColumnWidth } : { columns: 1 },
+    );
 
     return () => {
       const expanded = !collapsible || open;
@@ -207,7 +211,7 @@ export const FormSection = _component(
               ],
             },
             propsBody,
-            collapsible ? {} : { id: ids.body },
+            { ref: bodyRef, ...(collapsible ? {} : { id: ids.body }) },
           )}
         >
           {children}
