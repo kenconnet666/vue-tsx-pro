@@ -3,11 +3,14 @@
  * 待办与流程实例的操作；命令经 db.run 执行，执行完回写任务卡。读收件箱前先处理到期（超时自动完成、没人认领转指定）
  */
 import { http, HttpResponse } from 'msw';
+import { taskCompletionProblem } from '../../domain/task/workflow';
 import { processDefinitions } from '../../domain/workflow';
+import { taskProcess } from '../../domain/workflow/task';
 import { groupsOf } from '../../domain/workflow/groups';
 import { inboxItems, inboxViews, type InboxView } from '../../domain/workflow/inbox';
 import type { MockDatabase } from '../db';
 import { actorOf, attempt, bodyOf, fail, latency, route } from '../respond';
+import { WorkflowError } from '../workflow/engine';
 import type { CompleteInput } from '../workflow/engine';
 
 /** 流程的路由 */
@@ -71,13 +74,27 @@ export const workflowHandlers = (db: MockDatabase) => {
               return engine.designate(id, actor, body.assignee ?? '');
             case 'reassign':
               return engine.requestReassign(id, actor, body.reason ?? '');
-            case 'complete':
+            case 'complete': {
+              // 任务池的节点：先过业务检查（差额归因、关闭三材料）
+              const item = engine.item(id);
+              const instance = engine.instance(item.instanceId);
+              const task =
+                instance.key === taskProcess.key ? db.task(instance.businessKey) : undefined;
+              const problem =
+                task &&
+                taskCompletionProblem(task, {
+                  node: item.node,
+                  outcome: body.outcome ?? '',
+                  variables: { ...instance.variables, ...body.variables },
+                });
+              if (problem) throw new WorkflowError('invalid', problem);
               return engine.complete(id, actor, {
                 outcome: body.outcome ?? '',
                 comment: body.comment,
                 attachments: body.attachments,
                 variables: body.variables,
               });
+            }
             case 'remind':
               engine.remind(id, actor, body.comment ?? '');
               return engine.item(id);

@@ -4,6 +4,7 @@
  * 认定时锁定 A、商务回填 B 与差额归因；挂账待定与定价改收益状态；验证不达标退回方案设计，两个里程碑作废
  */
 import Decimal from 'decimal.js';
+import { canClose } from './status';
 import type { CostTask, MilestoneLabel } from './types';
 
 /** 一次节点处理：节点、结果、日期、附件、处理时填的流程变量 */
@@ -92,4 +93,21 @@ export function applyTaskCompletion(task: CostTask, completion: TaskCompletion):
     default:
       return task;
   }
+}
+
+/** 处理任务池的节点前的业务检查：差额 D 不为零时必须选归因；关闭须三材料齐全。没问题时为 null */
+export function taskCompletionProblem(
+  task: CostTask,
+  completion: Pick<TaskCompletion, 'node' | 'outcome' | 'variables'>,
+): string | null {
+  const { node, outcome, variables } = completion;
+  if (node === 'negotiate' && outcome === 'record') {
+    const a = task.a;
+    const b = decimalOf(variables.b);
+    if (a && b && !a.equals(b) && !textOf(variables.gapReason, ''))
+      return '差额 D（B − A）不为零时必须选归因';
+  }
+  if (node === 'close' && outcome === 'close' && !canClose({ ...task, status: 'realized' }))
+    return '关闭须验证窗结论、收益认定意见、商务谈定记录三项齐全';
+  return null;
 }

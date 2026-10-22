@@ -6,7 +6,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Breadcrumbs,
-  Button,
   H1,
   IconButton,
   LinkButton,
@@ -20,7 +19,6 @@ import type { VNodeChild } from 'vue';
 import { dictLabel, personName } from '../../../app/master';
 import { paths } from '../../../app/paths';
 import { canDo } from '../../../app/session';
-import { nextStepOf } from '../../../domain/task/lifecycle';
 import { daysToDue, isFinished, missingClosing, overdueDays } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
 import { costKinds } from '../../../shared/kinds';
@@ -45,7 +43,6 @@ export const DetailHeader = _component(
   ({ task, actions }: { task: CostTask; actions: TaskActions }) =>
     () => {
       const amount = costKinds[task.kind];
-      const step = nextStepOf(task);
       const late = overdueDays(task);
       const missing = missingClosing(task);
       const facts: [string, VNodeChild][] = [
@@ -82,9 +79,6 @@ export const DetailHeader = _component(
             <StatusBadge statuses={taskStatuses} value={task.status} />
             <StatusBadge statuses={valueStates} value={task.valueState} />
             <div {...stylex.attrs(styles.actions)}>
-              {step && canDo('task.advance') && (
-                <Button onClick={() => void actions.advance(task)}>{step.label}</Button>
-              )}
               {task.status === 'realized' && missing > 0 && (
                 <Small tone="muted">关闭三材料缺 {missing} 项，补齐后可以关闭</Small>
               )}

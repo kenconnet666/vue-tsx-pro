@@ -1,5 +1,6 @@
 /**
- * 项目详情的左栏：概览（主表字段，与编辑页同组）、降本明细（单机：零件更改与收益）或实施节点（降 DMC）、变更记录
+ * 项目详情的左栏：概览（主表字段，与编辑页同组）、降本明细（单机：零件更改与收益）或实施节点（降 DMC）；
+ * 流程与流转记录在 WorkflowPanel
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
@@ -15,15 +16,13 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
-  Timeline,
   useFormat,
 } from '@vue-tsx-pro/ui';
 import { dictLabel, personName } from '../../../app/master';
 import { partSaving, unitSaving } from '../../../domain/task/calc';
 import { daysToDue } from '../../../domain/task/status';
 import type { CostTask, UnitDetail } from '../../../domain/task/types';
-import { costKinds, yuanFormat } from '../../../shared/kinds';
-import { taskHistory } from './history';
+import { yuanFormat } from '../../../shared/kinds';
 
 const styles = stylex.create({
   cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_sm' },
@@ -210,22 +209,3 @@ export const NodesCard = _component(({ task }: { task: CostTask }) => () => (
     </Table>
   </Card>
 ));
-
-/** 变更记录 */
-export const HistoryCard = _component(({ task }: { task: CostTask }) => {
-  const format = useFormat();
-  return () => {
-    const amount = costKinds[task.kind];
-    return (
-      <Card variant="outline" header={<H2 size="sm">变更记录</H2>}>
-        <Timeline
-          size="sm"
-          items={taskHistory(
-            task,
-            (value) => `${format.number(value, amount.format)} ${amount.unit}`,
-          )}
-        />
-      </Card>
-    );
-  };
-});

@@ -17,8 +17,11 @@ import { RequestView } from '../../../shared/RequestView';
 import { taskStatuses } from '../../../shared/statuses';
 import { useTaskActions } from '../task-actions';
 import { DetailHeader } from './DetailHeader';
-import { HistoryCard, NodesCard, OverviewCard, PartsCard } from './MainCards';
+import { NodesCard, OverviewCard, PartsCard } from './MainCards';
 import { BenefitCard, ClosingCard, MilestonesCard } from './SideCards';
+import { taskFlowFields } from './task-flow-fields';
+import { taskCompletionProblem } from '../../../domain/task/workflow';
+import { WorkflowPanel } from '../../../shared/WorkflowPanel';
 
 const styles = stylex.create({
   page: { display: 'flex', flexDirection: 'column', gap: '_md', paddingBlockEnd: '_xl' },
@@ -77,6 +80,8 @@ export default _component(() => {
     },
   });
 
+  const flow = taskFlowFields(() => request.data!);
+
   return () => (
     <RequestView request={request} notFound={`没有找到项目 ${code()}`}>
       {(task) => (
@@ -87,8 +92,17 @@ export default _component(() => {
             <div {...stylex.attrs(styles.main)}>
               <OverviewCard task={task} />
               {task.unitDetail && <PartsCard detail={task.unitDetail} />}
+              <WorkflowPanel
+                businessKey={task.code}
+                processKey="task"
+                fields={flow.fields}
+                defaults={flow.defaults}
+                check={(outcome, node, values) =>
+                  taskCompletionProblem(task, { node, outcome: outcome.key, variables: values })
+                }
+                onChange={() => void request.refresh()}
+              />
               {task.kind === 'dmc' && <NodesCard task={task} />}
-              <HistoryCard task={task} />
             </div>
             <aside {...stylex.attrs(styles.side)} aria-label="收益与关闭">
               <BenefitCard task={task} />
