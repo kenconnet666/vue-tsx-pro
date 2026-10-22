@@ -31,7 +31,16 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: AppLayout,
     children: [
-      { path: '', redirect: '/dashboard' },
+      {
+        path: '',
+        component: () => import('../modules/workbench/WorkbenchPage'),
+        meta: { title: '工作台', section: 'workbench' },
+      },
+      {
+        path: 'inbox',
+        component: () => import('../modules/inbox/InboxPage'),
+        meta: { title: '收件箱', section: 'inbox' },
+      },
       {
         path: 'dashboard',
         component: () => import('../modules/analytics/DashboardPage'),

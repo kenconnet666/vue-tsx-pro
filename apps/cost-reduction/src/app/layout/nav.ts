@@ -8,11 +8,14 @@ import {
   BookOpenText,
   Building2,
   Calculator,
+  ChartColumn,
   CircleDollarSign,
+  ClipboardList,
   FileText,
   FolderKanban,
   Gauge,
   House,
+  Inbox,
   Library,
   Lightbulb,
   Split,
@@ -26,6 +29,8 @@ import { paths } from '../paths';
 
 /** 侧栏的一项：路由的 meta.section 指向它，当前页的那项高亮 */
 export type NavKey =
+  | 'workbench'
+  | 'inbox'
   | 'dashboard'
   | 'unit'
   | 'dmc'
@@ -52,12 +57,12 @@ export interface NavEntry {
   roles?: readonly RoleKey[];
 }
 
-/** 首页 */
+/** 首页：工作台（按角色） */
 export const homeEntry: NavEntry = {
-  key: 'dashboard',
+  key: 'workbench',
   icon: House,
-  label: '首页 · 统计看板',
-  href: paths.dashboard(),
+  label: '工作台',
+  href: paths.workbench(),
 };
 
 const internal: readonly RoleKey[] = [
@@ -72,6 +77,11 @@ const internal: readonly RoleKey[] = [
 
 /** 侧栏的分组：图标标在小节标题前（不能点），侧栏拖窄只剩图标时代替标题 */
 export const navGroups: readonly { label: string; icon: IconData; items: readonly NavEntry[] }[] = [
+  {
+    label: '待办',
+    icon: ClipboardList,
+    items: [{ key: 'inbox', icon: Inbox, label: '收件箱', href: paths.inbox(), roles: internal }],
+  },
   {
     label: '降本项目',
     icon: FolderKanban,
@@ -129,6 +139,13 @@ export const navGroups: readonly { label: string; icon: IconData; items: readonl
     label: '分析与资料',
     icon: Library,
     items: [
+      {
+        key: 'dashboard',
+        icon: ChartColumn,
+        label: '统计看板',
+        href: paths.dashboard(),
+        roles: internal,
+      },
       {
         key: 'params',
         icon: Calculator,

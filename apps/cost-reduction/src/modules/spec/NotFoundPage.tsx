@@ -8,6 +8,6 @@ export default _component(() => () => (
     tone="warning"
     title="页面不存在"
     description="地址可能写错了，或者这一页已经挪走。"
-    action={<LinkButton href={paths.dashboard()}>回首页</LinkButton>}
+    action={<LinkButton href={paths.workbench()}>回工作台</LinkButton>}
   />
 ));

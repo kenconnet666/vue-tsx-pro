@@ -14,6 +14,10 @@ type Query = Readonly<Record<string, string>>;
 
 /** 各页的地址 */
 export const paths = {
+  /** 工作台（首页） */
+  workbench: () => '/',
+  /** 收件箱：view 页签、item 选中的待办，以及筛选条件 */
+  inbox: (query?: Query) => withQuery('/inbox', query),
   /** 统计看板（首页） */
   dashboard: (query?: Query) => withQuery('/dashboard', query),
   /** 单机降本台账、降 DMC 台账 */

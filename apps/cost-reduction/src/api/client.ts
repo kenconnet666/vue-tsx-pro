@@ -17,8 +17,10 @@ export const apiPaths = {
   me: '/me',
   /** 当前用户主办的任务 */
   myTasks: '/me/tasks',
-  /** 当前用户的收件箱（最近几条） */
-  myInbox: '/me/inbox',
+  /** 当前用户的通知（近 14 天，新的在前） */
+  myNotifications: '/me/notifications',
+  /** 标为已读（POST { ids }） */
+  myNotificationsRead: '/me/notifications/read',
   /** 台账：分页查询（GET）、新建（POST） */
   tasks: '/tasks',
   /** 按编号取一批任务（跨页勾选后导出） */

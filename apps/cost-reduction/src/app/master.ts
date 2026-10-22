@@ -4,6 +4,7 @@
  */
 import { shallowRef } from 'vue';
 import { getMaster } from '../api/session';
+import { groupsOf } from '../domain/workflow/groups';
 import { labelOf, type DictItem, type Dictionaries, type MasterData } from '../domain/master';
 
 const data = shallowRef<MasterData | null>(null);
@@ -34,6 +35,10 @@ export const staffOptions = () =>
   master()
     .people.filter((person) => !person.supplier)
     .map((person) => ({ value: person.id, label: person.name, description: person.title }));
+
+/** 岗位收件箱的成员（指定承办人时的候选人） */
+export const poolMembers = (pool: string) =>
+  master().people.filter((person) => groupsOf(person, master().teams).includes(pool));
 
 /** 责任一级团队的名称 */
 export const teamNames = () => master().teams.map((team) => team.name);

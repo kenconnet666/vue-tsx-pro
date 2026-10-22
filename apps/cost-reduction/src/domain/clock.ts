@@ -3,3 +3,7 @@
  * 接上后端后改为服务器给的日期（时限以服务器为准，不看浏览器的时钟）
  */
 export const TODAY = '2026-10-21';
+
+/** 演示的“现在”（毫秒）：日期固定在 TODAY，时刻用真实的；通知的“几分钟前”按它算 */
+export const demoNow = (): number =>
+  Date.parse(`${TODAY}T${new Date().toTimeString().slice(0, 8)}`);

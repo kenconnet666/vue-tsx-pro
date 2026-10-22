@@ -4,6 +4,7 @@
 import { createWorkCalendar, validateProcess } from '@vue-tsx-pro/ui';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { processDefinitions, statusOfInstance, suggestionProcess } from '../../domain/workflow';
+import { notificationsFor } from '../../domain/workflow/notifications';
 import { createDatabase } from '../db';
 import { masterSeed } from '../seed/master';
 import { taskStatusIn } from '../workflow/task-flow';
@@ -13,6 +14,7 @@ import {
   emptyWorkflowState,
   WorkflowError,
   type WorkflowEngine,
+  type WorkflowState,
 } from '../workflow/engine';
 
 // 演示身份：成本团队王晴（负责人）、唐可；PEMO 许悠；复材团队林小满；供应商甲主账号
@@ -24,10 +26,12 @@ const SUPPLIER = 'S01-ZL';
 
 let clock = '2026-10-21T09:00:00';
 let engine: WorkflowEngine;
+let state: WorkflowState;
 
 beforeEach(() => {
   clock = '2026-10-21T09:00:00';
-  engine = createWorkflowEngine(emptyWorkflowState(), {
+  state = emptyWorkflowState();
+  engine = createWorkflowEngine(state, {
     definitions: processDefinitions,
     directory: createDirectory(masterSeed),
     calendar: createWorkCalendar(),
@@ -309,5 +313,53 @@ describe('种子数据', () => {
       const times = db.workflow.eventsOf(instance.id).map((event) => event.at);
       expect(times, instance.businessKey).toEqual(times.toSorted());
     }
+  });
+});
+
+describe('通知', () => {
+  const db = createDatabase(null);
+  const noticesOf = (user: string, read: ReadonlySet<string> = new Set()) =>
+    notificationsFor(state, db.viewer(user), {
+      today: '2026-10-21',
+      read,
+      poolName: (pool) => pool,
+    });
+
+  it('新到岗位收件箱的待办通知岗位成员；新的在前；读过的标出来', () => {
+    toReview();
+    const notices = noticesOf(COST);
+    expect(notices.some((notice) => notice.type === 'todo')).toBe(true);
+    const times = notices.map((notice) => notice.time);
+    expect(times).toEqual(times.toSorted().reverse());
+    expect(noticesOf(COST, new Set([notices[0]!.id]))[0]!.read).toBe(true);
+    // 和这张卡无关的人收不到
+    expect(noticesOf('E80001')).toEqual([]);
+  });
+
+  it('催办通知手上有这条待办的人；没人认领超时的通知岗位负责人去指定', () => {
+    const instance = toReview();
+    const held = engine
+      .itemsOf(instance.id)
+      .find((item) => item.state === 'open' && item.assignee != null)!;
+    engine.remind(held.id, SUPPLIER, '请尽快');
+    expect(
+      noticesOf(held.assignee!).some(
+        (notice) => notice.type === 'remind' && notice.description.includes('请尽快'),
+      ),
+    ).toBe(true);
+
+    const pooled = engine.start({
+      key: 'suggestion',
+      businessKey: 'JY-2026-0002',
+      title: '舱门密封件第二货源',
+      actor: SUPPLIER,
+      variables: { supplierAccount: SUPPLIER },
+    });
+    expect(openAt(pooled.id, 'check')).toHaveLength(1);
+    clock = '2026-11-20T09:00:00';
+    engine.tick();
+    expect(
+      noticesOf(COST).some((notice) => notice.type === 'designate' && notice.view === 'designate'),
+    ).toBe(true);
   });
 });

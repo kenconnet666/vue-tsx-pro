@@ -10,6 +10,8 @@ import type { Opportunity } from '../domain/ledger/value';
 import type { MasterData } from '../domain/master';
 import type { ConfirmReturn, CostTask } from '../domain/task/types';
 import { processDefinitions } from '../domain/workflow';
+import { groupsOf } from '../domain/workflow/groups';
+import type { InboxViewer } from '../domain/workflow/inbox';
 import { masterSeed } from './seed/master';
 import { seedConfirmReturns, seedOpportunities, seedTasks } from './seed/tasks';
 import { createDirectory } from './workflow/directory';
@@ -31,6 +33,8 @@ export interface MockTables {
   opportunities: Opportunity[];
   /** 流转模拟的状态：流程实例、待办、流转记录 */
   workflow: WorkflowState;
+  /** 通知的已读记录：工号 → 读过的通知标识 */
+  notificationReads: Record<string, string[]>;
 }
 
 /** 假后端的数据库 */
@@ -51,6 +55,10 @@ export interface MockDatabase {
   removeTask(code: string): CostTask | undefined;
   /** 记一条收益认定的退回 */
   addConfirmReturn(item: ConfirmReturn): void;
+  /** 看收件箱的人：工号、所在的收件箱、负责的收件箱 */
+  viewer(user: string): InboxViewer;
+  /** 记下一个人读过的通知 */
+  markRead(user: string, ids: readonly string[]): void;
   /** 恢复成种子数据 */
   reset(): void;
 }
@@ -87,6 +95,7 @@ function seed(): MockTables {
     confirmReturns: seedConfirmReturns(tasks),
     opportunities: seedOpportunities(),
     workflow,
+    notificationReads: {},
   };
 }
 
@@ -104,6 +113,8 @@ function load(storage: Storage | null): MockTables | null {
         expected: toDecimal(item.expected),
       })),
       workflow: saved.workflow as WorkflowState,
+      // 加这张表之前存的数据没有它：从空的开始
+      notificationReads: saved.notificationReads ?? {},
     };
   } catch {
     return null;
@@ -181,6 +192,19 @@ export function createDatabase(storage: Storage | null = defaultStorage()): Mock
     },
     addConfirmReturn(item) {
       tables = { ...tables, confirmReturns: [item, ...tables.confirmReturns] };
+      persist();
+    },
+    viewer(user) {
+      const person = masterSeed.people.find((item) => item.id === user);
+      return {
+        user,
+        groups: person ? groupsOf(person, masterSeed.teams) : [],
+        leads: person?.leads ?? [],
+      };
+    },
+    markRead(user, ids) {
+      const read = new Set([...(tables.notificationReads[user] ?? []), ...ids]);
+      tables = { ...tables, notificationReads: { ...tables.notificationReads, [user]: [...read] } };
       persist();
     },
     reset() {

@@ -25,7 +25,7 @@ import { hasAnyRole } from '../session';
 import { preference } from '../theme';
 import { homeEntry, navGroups, sectionOf } from './nav';
 import { PAGE_NAV_ID } from './PageNav';
-import { InboxTray, MyTasksTray } from './Trays';
+import { InboxTray, MyTasksTray, NotificationTray } from './Trays';
 import { UserMenu } from './UserMenu';
 
 /** 降本管理的外观默认值：状态标签用直角，与表格的直线对齐 */
@@ -66,7 +66,7 @@ export const AppLayout = _component(() => {
           sidebarWidth={_bind(sidebar.value.width)}
           propsMain={{ sx: styles.main }}
           brand={
-            <a href={paths.dashboard()} {...stylex.attrs(styles.brand)}>
+            <a href={paths.workbench()} {...stylex.attrs(styles.brand)}>
               <Icon icon={Plane} sx={styles.brandMark} />
               联合降本管理
             </a>
@@ -77,6 +77,7 @@ export const AppLayout = _component(() => {
               <div {...stylex.attrs(styles.tools)}>
                 <InboxTray />
                 <MyTasksTray />
+                <NotificationTray />
               </div>
               <ThemeSwitcher preference={preference} />
               <UserMenu />

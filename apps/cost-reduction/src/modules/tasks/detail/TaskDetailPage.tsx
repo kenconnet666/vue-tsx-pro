@@ -20,9 +20,7 @@ import { useTaskActions } from '../task-actions';
 import { DetailHeader } from './DetailHeader';
 import { NodesCard, OverviewCard, PartsCard } from './MainCards';
 import { BenefitCard, ClosingCard, MilestonesCard } from './SideCards';
-import { taskFlowFields } from './task-flow-fields';
-import { taskCompletionProblem } from '../../../domain/task/workflow';
-import { WorkflowPanel } from '../../../shared/WorkflowPanel';
+import { TaskWorkflowPanel } from './TaskWorkflowPanel';
 
 const styles = stylex.create({
   page: { display: 'flex', flexDirection: 'column', gap: '_md', paddingBlockEnd: '_xl' },
@@ -81,7 +79,6 @@ export default _component(() => {
     },
   });
 
-  const flow = taskFlowFields(() => request.data!);
   // 编辑的抽屉在地址里（?editor=编号）
   let editor = _fromRef(useQueryState('editor', ''));
 
@@ -99,16 +96,7 @@ export default _component(() => {
             <div {...stylex.attrs(styles.main)}>
               <OverviewCard task={task} />
               {task.unitDetail && <PartsCard detail={task.unitDetail} />}
-              <WorkflowPanel
-                businessKey={task.code}
-                processKey="task"
-                fields={flow.fields}
-                defaults={flow.defaults}
-                check={(outcome, node, values) =>
-                  taskCompletionProblem(task, { node, outcome: outcome.key, variables: values })
-                }
-                onChange={() => void request.refresh()}
-              />
+              <TaskWorkflowPanel task={task} onChange={() => void request.refresh()} />
               {task.kind === 'dmc' && <NodesCard task={task} />}
             </div>
             <aside {...stylex.attrs(styles.side)} aria-label="收益与关闭">

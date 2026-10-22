@@ -1,9 +1,14 @@
 /**
- * 一张卡的流程面板（建议卡、方案卡、任务卡共用）：泳道流程图与进度、正在处理的节点（处理岗位或人、时限）、
- * 当前用户能做的事（岗位收件箱里的先认领，自己的待办用审批按钮处理，结果要求的业务字段由使用方给出）、流转记录。
- * 处理完重新取流程轨迹，并通知卡片刷新（状态由流程决定）
+ * 一张卡的流程面板（建议卡、方案卡、任务卡、收件箱的预览共用）：泳道流程图与进度、正在处理的节点（处理岗位或人、时限）、
+ * 当前用户和这张卡的关系决定能做的事（DESIGN.md §6.2）：
+ * - 岗位待认领：认领；
+ * - 我认领的：处理（审批按钮，结果要求的业务字段由使用方给出）、退回收件箱（原因必填）；
+ * - 指定给我的：处理、申请改派（原因必填）；
+ * - 我负责的收件箱待指定（没人认领超时、有人申请改派）：从岗位成员里指定承办人；
+ * - 我发起的：催办正在处理的人或岗位。
+ * 做完重新取流程轨迹、发“流程变了”的信号（顶栏、收件箱跟着刷新），并通知卡片刷新（状态由流程决定）
  */
-import { Hand } from '@lucide/icons';
+import { BellRing, Hand, Undo2, UserCheck, UserRoundCog } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
@@ -16,6 +21,7 @@ import {
   processProgress,
   Small,
   Text,
+  useFormDialog,
   useRequest,
   workItemOutcomes,
   WorkflowTimeline,
@@ -25,10 +31,19 @@ import {
 } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';
-import { claimWorkItem, completeWorkItem, getWorkflowTrace } from '../api/workflow';
+import {
+  claimWorkItem,
+  completeWorkItem,
+  designateWorkItem,
+  getWorkflowTrace,
+  releaseWorkItem,
+  remindWorkItem,
+  requestReassign,
+} from '../api/workflow';
 import { notifyError, toaster } from '../app/feedback';
-import { master, personName } from '../app/master';
+import { master, personName, poolMembers } from '../app/master';
 import { currentUser } from '../app/session';
+import { announceWorkflowChange, workflowVersion } from '../app/sync';
 import { processOf } from '../domain/workflow';
 import { groupName, groupsOf } from '../domain/workflow/groups';
 import { RequestView } from './RequestView';
@@ -50,10 +65,13 @@ export interface WorkflowPanelProps {
   check?: (outcome: ProcessOutcome, node: string, values: WorkflowValues) => string | null;
   /** 处理、认领之后：卡片重新取数 */
   onChange?: () => void;
+  /** 不画流程图（收件箱的预览里另有缩略图时） */
+  hideDiagram?: boolean;
 }
 
 const styles = stylex.create({
   section: { display: 'flex', flexDirection: 'column', gap: '_sm' },
+  secondary: { display: 'flex', flexWrap: 'wrap', gap: '_xs' },
   todo: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -74,10 +92,21 @@ const isEmpty = (value: unknown) =>
 
 /** 一张卡的流程面板 */
 export const WorkflowPanel = _component(
-  ({ businessKey, processKey, fields, defaults, check, onChange }: WorkflowPanelProps) => {
-    const trace = useRequest((key: string, signal) => getWorkflowTrace(key, processKey, signal), {
-      params: () => businessKey,
-    });
+  ({
+    businessKey,
+    processKey,
+    fields,
+    defaults,
+    check,
+    onChange,
+    hideDiagram = false,
+  }: WorkflowPanelProps) => {
+    // 别处（收件箱、另一个标签里的同一张卡）做了操作也重新取
+    const trace = useRequest(
+      ([key]: [string, number], signal) => getWorkflowTrace(key, processKey, signal),
+      { params: () => [businessKey, workflowVersion()] as [string, number] },
+    );
+    const prompt = useFormDialog();
     let values = _state<WorkflowValues>({});
     const me = currentUser();
     // 轮到我处理的待办换了：业务字段回到那个节点的初始值
@@ -94,14 +123,86 @@ export const WorkflowPanel = _component(
     const handler = (item: WorkItem) =>
       item.assignee ? personName(item.assignee) : groupName(item.pool ?? '', master().teams);
 
+    /** 做完一个操作：提示、重新取、通知别处 */
+    async function done(title: string) {
+      toaster.show({ title, tone: 'success' });
+      announceWorkflowChange();
+      await trace.refresh();
+      onChange?.();
+    }
+
     async function claim(item: WorkItem) {
       try {
         await claimWorkItem(item.id);
-        toaster.show({ title: `已认领：${item.name}`, tone: 'success' });
-        await trace.refresh();
+        await done(`已认领：${item.name}`);
       } catch (error) {
+        // 被别人抢先：提示并刷新，这一条从岗位待认领里消失
         notifyError('没能认领', error);
+        announceWorkflowChange();
       }
+    }
+
+    /** 要填原因的操作：退回收件箱、申请改派、催办 */
+    async function withReason(
+      title: string,
+      confirmText: string,
+      required: boolean,
+      action: (reason: string) => Promise<unknown>,
+      success: string,
+    ) {
+      const values = await prompt({
+        title,
+        confirmText,
+        fields: [
+          {
+            name: 'reason',
+            label: required ? '原因' : '留言',
+            type: 'textarea',
+            required,
+            maxlength: 200,
+          },
+        ],
+        onSubmit: async ({ reason }) => {
+          try {
+            await action(reason ?? '');
+          } catch (error) {
+            notifyError(`没能${confirmText}`, error);
+            throw error;
+          }
+        },
+      });
+      if (values) await done(success);
+    }
+
+    async function designate(item: WorkItem) {
+      const members = poolMembers(item.pool ?? '').filter(
+        (person) => person.id !== item.reassignRequest?.by,
+      );
+      const values = await prompt({
+        title: `指定承办人：${item.name}`,
+        description: item.reassignRequest
+          ? `${personName(item.reassignRequest.by)}申请改派：${item.reassignRequest.reason}`
+          : '超过约定的工作日没人认领；指定即生效，被指定人只能申请改派',
+        confirmText: '指定',
+        fields: [
+          {
+            name: 'assignee',
+            label: '承办人',
+            type: 'select',
+            required: true,
+            options: members.map((person) => ({ value: person.id, label: person.name })),
+          },
+        ],
+        onSubmit: async ({ assignee }) => {
+          try {
+            await designateWorkItem(item.id, assignee ?? '');
+          } catch (error) {
+            notifyError('没能指定', error);
+            throw error;
+          }
+        },
+      });
+      if (values) await done(`已指定 ${personName(values.assignee ?? '')} 处理：${item.name}`);
     }
 
     async function complete(
@@ -114,12 +215,7 @@ export const WorkflowPanel = _component(
       );
       try {
         await completeWorkItem(item.id, { ...input, variables });
-        toaster.show({
-          title: `已处理：${item.name} · ${outcome?.label ?? input.outcome}`,
-          tone: 'success',
-        });
-        await trace.refresh();
-        onChange?.();
+        await done(`已处理：${item.name} · ${outcome?.label ?? input.outcome}`);
       } catch (error) {
         notifyError(`${item.name} 没能处理`, error);
         throw error;
@@ -141,21 +237,34 @@ export const WorkflowPanel = _component(
                 myGroups.includes(item.pool) &&
                 !item.releasedBy.includes(me.id),
             );
+            const toDesignate = open.filter(
+              (item) =>
+                item.pool != null &&
+                (me.leads ?? []).includes(item.pool) &&
+                (item.needsDesignation || item.reassignRequest != null),
+            );
+            // 我发起的、还在流转：可以催正在处理的（不是我自己的）
+            const remindable =
+              instance.startedBy === me.id && instance.status === 'active'
+                ? open.filter((item) => item.assignee !== me.id)
+                : [];
             return (
               <Flex direction="column" gap="md">
-                <FlowDiagram
-                  definition={definition}
-                  progress={processProgress(instance, events)}
-                  size="sm"
-                  fit
-                  nodeDetail={(node) => {
-                    const item = open.find((entry) => entry.node === node.id);
-                    return (
-                      item && `${handler(item)}${item.dueOn ? ` · ${item.dueOn.slice(5)}` : ''}`
-                    );
-                  }}
-                  aria-label={`${definition.name}的流程图`}
-                />
+                {!hideDiagram && (
+                  <FlowDiagram
+                    definition={definition}
+                    progress={processProgress(instance, events)}
+                    size="sm"
+                    fit
+                    nodeDetail={(node) => {
+                      const item = open.find((entry) => entry.node === node.id);
+                      return (
+                        item && `${handler(item)}${item.dueOn ? ` · ${item.dueOn.slice(5)}` : ''}`
+                      );
+                    }}
+                    aria-label={`${definition.name}的流程图`}
+                  />
+                )}
                 {instance.status === 'suspended' && (
                   <Small tone="warning">流程已暂停：恢复后才能处理</Small>
                 )}
@@ -167,6 +276,42 @@ export const WorkflowPanel = _component(
                     </Text>
                     <Button size="sm" icon={Hand} onClick={() => void claim(item)}>
                       认领
+                    </Button>
+                  </div>
+                ))}
+                {toDesignate.map((item) => (
+                  <div key={item.id} {...stylex.attrs(styles.todo)}>
+                    <Text size="sm">
+                      {item.reassignRequest
+                        ? `${personName(item.reassignRequest.by)}申请改派「${item.name}」：${item.reassignRequest.reason}`
+                        : `「${item.name}」没人认领，等你指定承办人`}
+                    </Text>
+                    <Button size="sm" icon={UserCheck} onClick={() => void designate(item)}>
+                      指定承办人
+                    </Button>
+                  </div>
+                ))}
+                {remindable.map((item) => (
+                  <div key={item.id} {...stylex.attrs(styles.todo)}>
+                    <Text size="sm">
+                      你发起的这张卡在「{item.name}」，{handler(item)}处理中
+                      {item.dueOn ? `，${item.dueOn} 前` : ''}
+                    </Text>
+                    <Button
+                      size="sm"
+                      variant="soft"
+                      icon={BellRing}
+                      onClick={() =>
+                        void withReason(
+                          `催办：${item.name}`,
+                          '催办',
+                          false,
+                          (comment) => remindWorkItem(item.id, comment),
+                          `已催办：${item.name}`,
+                        )
+                      }
+                    >
+                      催办
                     </Button>
                   </div>
                 ))}
@@ -200,6 +345,46 @@ export const WorkflowPanel = _component(
                           )
                         }
                       />
+                      <div {...stylex.attrs(styles.secondary)}>
+                        {item.assignment === 'claimed' && (
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            tone="neutral"
+                            icon={Undo2}
+                            onClick={() =>
+                              void withReason(
+                                `退回收件箱：${item.name}`,
+                                '退回',
+                                true,
+                                (reason) => releaseWorkItem(item.id, reason),
+                                `已退回收件箱：${item.name}`,
+                              )
+                            }
+                          >
+                            退回收件箱
+                          </Button>
+                        )}
+                        {item.assignment === 'designated' && (
+                          <Button
+                            size="xs"
+                            variant="ghost"
+                            tone="neutral"
+                            icon={UserRoundCog}
+                            onClick={() =>
+                              void withReason(
+                                `申请改派：${item.name}`,
+                                '申请改派',
+                                true,
+                                (reason) => requestReassign(item.id, reason),
+                                `已申请改派：${item.name}`,
+                              )
+                            }
+                          >
+                            申请改派
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}

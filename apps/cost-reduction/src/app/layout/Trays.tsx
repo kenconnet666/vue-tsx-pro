@@ -1,13 +1,16 @@
 /**
- * 顶栏的工作台入口：收件箱与我负责的任务。图标按钮右上角是条数，点开看最近几条
+ * 顶栏的工作台入口：我的待办（收件箱）、我负责的任务、通知。图标按钮右上角是条数，点开看最近几条；
+ * 认领、处理之后（流程变了的信号）各自重新取
  */
 import { Inbox, ListTodo } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
+  DeadlineTag,
   IconButton,
   Indicator,
   Link,
+  NotificationCenter,
   Popover,
   Small,
   StatusBadge,
@@ -15,11 +18,17 @@ import {
   useRequest,
   type IconData,
 } from '@vue-tsx-pro/ui';
-import type { VNodeChild } from 'vue';
-import { getMyInbox, getMyTasks } from '../../api/session';
+import { watch, type VNodeChild } from 'vue';
+import { getMyTasks, getNotifications, markNotificationsRead } from '../../api/session';
+import { listWorkItems } from '../../api/workflow';
+import { demoNow, TODAY } from '../../domain/clock';
 import { daysToDue } from '../../domain/task/status';
+import { processOf } from '../../domain/workflow';
+import { notificationTypes } from '../../domain/workflow/notifications';
 import { taskStatuses } from '../../shared/statuses';
+import { notifyError } from '../feedback';
 import { paths } from '../paths';
+import { workflowVersion } from '../sync';
 
 const styles = stylex.create({
   panel: { width: '24rem', padding: 0 },
@@ -104,28 +113,77 @@ const Tray = _component(
     ),
 );
 
-/** 收件箱：流转到我岗位的事 */
+/** 我的待办：认领的、指定给我的、流程直接给我的；最早到的在前 */
 export const InboxTray = _component(() => {
-  const inbox = useRequest((_: undefined, signal) => getMyInbox(signal));
+  const inbox = useRequest((_version: number, signal) => listWorkItems('mine', signal), {
+    params: workflowVersion,
+  });
+  return () => {
+    const items = inbox.data?.items;
+    return (
+      <Tray
+        icon={Inbox}
+        label="我的待办"
+        count={items?.length}
+        action="打开收件箱"
+        actionHref={paths.inbox()}
+      >
+        {items?.slice(0, 5).map((item) => (
+          <li key={item.id} {...stylex.attrs(styles.item)}>
+            <span
+              {...stylex.attrs(
+                styles.dot,
+                item.arrival === 'return' || item.arrival === 'escalate'
+                  ? styles.warning
+                  : styles.accent,
+              )}
+            />
+            <span {...stylex.attrs(styles.itemText)}>
+              <Link href={paths.inbox({ item: item.id })}>{item.name}</Link>
+              <Small tone="muted">
+                {item.businessKey} · {processOf(item.processKey)?.name ?? item.processKey}
+              </Small>
+            </span>
+            <DeadlineTag due={item.dueOn} today={TODAY} />
+          </li>
+        ))}
+      </Tray>
+    );
+  };
+});
+
+/** 通知：新的待办、被退回、提级、催办、超时、待指定；打开时重新取 */
+export const NotificationTray = _component(() => {
+  const notices = useRequest((_version: number, signal) => getNotifications(signal), {
+    params: workflowVersion,
+  });
+  let open = _state(false);
+  watch(
+    () => open,
+    (value) => {
+      if (value) void notices.refresh();
+    },
+  );
+  async function read(ids: string[]) {
+    try {
+      await markNotificationsRead(ids);
+      await notices.refresh();
+    } catch (error) {
+      notifyError('没能标为已读', error);
+    }
+  }
   return () => (
-    <Tray
-      icon={Inbox}
-      label="我的收件箱"
-      count={inbox.data?.length}
-      action="打开收件箱"
-      actionHref={`${paths.spec()}#page-inbox`}
-    >
-      {inbox.data?.map((message) => (
-        <li key={message.id} {...stylex.attrs(styles.item)}>
-          <span {...stylex.attrs(styles.dot, styles[message.tone])} />
-          <span {...stylex.attrs(styles.itemText)}>
-            <Text size="sm">{message.title}</Text>
-            <Small tone="muted">{message.meta}</Small>
-          </span>
-          <Small tone="muted">{message.time}</Small>
-        </li>
-      ))}
-    </Tray>
+    <NotificationCenter
+      open={_bind(open)}
+      items={(notices.data ?? []).map((notice) => ({
+        ...notice,
+        href: paths.inbox({ view: notice.view, item: notice.workItem }),
+      }))}
+      types={notificationTypes}
+      onRead={(ids) => void read(ids)}
+      now={demoNow()}
+      footer={<Link href={paths.inbox()}>打开收件箱</Link>}
+    />
   );
 });
 

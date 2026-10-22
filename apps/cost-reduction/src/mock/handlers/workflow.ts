@@ -6,7 +6,6 @@ import { http, HttpResponse } from 'msw';
 import { taskCompletionProblem } from '../../domain/task/workflow';
 import { processDefinitions } from '../../domain/workflow';
 import { taskProcess } from '../../domain/workflow/task';
-import { groupsOf } from '../../domain/workflow/groups';
 import { inboxItems, inboxViews, type InboxView } from '../../domain/workflow/inbox';
 import type { MockDatabase } from '../db';
 import { actorOf, attempt, bodyOf, fail, latency, route } from '../respond';
@@ -15,15 +14,7 @@ import type { CompleteInput } from '../workflow/engine';
 
 /** 流程的路由 */
 export const workflowHandlers = (db: MockDatabase) => {
-  const viewerOf = (request: Request) => {
-    const user = actorOf(request);
-    const person = db.master.people.find((item) => item.id === user);
-    return {
-      user,
-      groups: person ? groupsOf(person, db.master.teams) : [],
-      leads: person?.leads ?? [],
-    };
-  };
+  const viewerOf = (request: Request) => db.viewer(actorOf(request));
 
   return [
     http.get(route('workflowDefinitions'), () => HttpResponse.json(processDefinitions)),

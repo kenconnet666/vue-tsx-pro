@@ -1,34 +1,11 @@
-/** 假接口：主数据、当前用户、我的任务与收件箱、演示数据重置 */
+/** 假接口：主数据、当前用户、我的任务与通知、演示数据重置 */
 import { http, HttpResponse } from 'msw';
-import type { InboxMessage } from '../../api/session';
+import { TODAY } from '../../domain/clock';
 import { tasksOwnedBy } from '../../domain/task/query';
+import { groupName } from '../../domain/workflow/groups';
+import { notificationsFor } from '../../domain/workflow/notifications';
 import type { MockDatabase } from '../db';
-import { actorOf, fail, latency, route } from '../respond';
-
-/** 收件箱：流转到当前用户岗位、等着认领或处理的事（流程上线前是固定的几条） */
-const inbox: InboxMessage[] = [
-  {
-    id: 'm1',
-    tone: 'accent',
-    title: '建议 JY-2026-0187“整流罩支架材料替代”派到产品团队',
-    meta: '技术评估 · 剩 15 个工作日 · 待认领',
-    time: '10 分钟前',
-  },
-  {
-    id: 'm2',
-    tone: 'warning',
-    title: '方案 FA-2026-0142“舱门密封件第二货源”待编制',
-    meta: 'PEMO 派单 · 剩 3 个工作日',
-    time: '2 小时前',
-  },
-  {
-    id: 'm3',
-    tone: 'danger',
-    title: '王晴退回了任务 DJ-2026-FC-14 的验证材料',
-    meta: '验证窗结论缺少试验报告，请补充后重新提交',
-    time: '昨天',
-  },
-];
+import { actorOf, bodyOf, fail, latency, route } from '../respond';
 
 /** 主数据与会话的路由 */
 export const sessionHandlers = (db: MockDatabase) => [
@@ -44,7 +21,24 @@ export const sessionHandlers = (db: MockDatabase) => [
     await latency();
     return HttpResponse.json(tasksOwnedBy(db.tables.tasks, actorOf(request)));
   }),
-  http.get(route('myInbox'), () => HttpResponse.json(inbox)),
+  http.get(route('myNotifications'), async ({ request }) => {
+    await latency();
+    // 先处理到期：超时、没人认领转指定也是通知
+    db.run((engine) => engine.tick());
+    const user = actorOf(request);
+    return HttpResponse.json(
+      notificationsFor(db.tables.workflow, db.viewer(user), {
+        today: TODAY,
+        read: new Set(db.tables.notificationReads[user] ?? []),
+        poolName: (pool) => groupName(pool, db.master.teams),
+      }),
+    );
+  }),
+  http.post(route('myNotificationsRead'), async ({ request }) => {
+    const { ids } = await bodyOf<{ ids: string[] }>(request);
+    db.markRead(actorOf(request), ids ?? []);
+    return new HttpResponse(null, { status: 204 });
+  }),
   http.post(route('demoReset'), () => {
     db.reset();
     return new HttpResponse(null, { status: 204 });
