@@ -60,6 +60,8 @@ export interface ModalDialogOptions {
   lockScroll?: boolean;
   /** 点遮罩（对话框外面）关闭，默认 false */
   dismissOnBackdrop?: boolean;
+  /** 点遮罩时怎样关闭，默认直接 dialog.close()（要先确认时换成自己的） */
+  onDismiss?: () => void;
 }
 
 /**
@@ -69,7 +71,11 @@ export interface ModalDialogOptions {
  */
 export function openModalDialog(
   dialog: HTMLDialogElement,
-  { lockScroll: lock = true, dismissOnBackdrop: dismiss = false }: ModalDialogOptions = {},
+  {
+    lockScroll: lock = true,
+    dismissOnBackdrop: dismiss = false,
+    onDismiss,
+  }: ModalDialogOptions = {},
 ): () => void {
   const opener = focusOrigin();
   dialog.showModal();
@@ -77,7 +83,7 @@ export function openModalDialog(
     trackModal(dialog),
     lock ? lockScroll() : undefined,
     trapFocus(dialog),
-    dismiss ? dismissOnBackdrop(dialog, () => dialog.close()) : undefined,
+    dismiss ? dismissOnBackdrop(dialog, onDismiss ?? (() => dialog.close())) : undefined,
   ];
   return () => {
     for (const cleanup of cleanups) cleanup?.();

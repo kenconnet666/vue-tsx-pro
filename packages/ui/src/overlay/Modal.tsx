@@ -41,6 +41,11 @@ export interface ModalProps extends PartProps<'dialog', ModalManaged>, LazyConte
   closable?: boolean;
   /** 点击遮罩是否关闭，默认 true；需要用户明确选择时设为 false（Esc 仍可关闭） */
   dismissible?: boolean;
+  /**
+   * 用户要关闭时（关闭按钮、Esc、点遮罩）先问它：返回 false（或 resolve 成 false）就不关，
+   * 如表单有未保存的改动时先确认。父级把 open 改成 false 不经过它
+   */
+  beforeClose?: () => boolean | Promise<boolean>;
   /** 标题行的部件属性 */
   propsHeader?: Partial<FlexProps>;
   /** 标题的部件属性 */
@@ -62,6 +67,8 @@ export interface ModalCoreProps extends ModalProps {
   panelSx: StyleXStyles;
   /** AlertDialog 改为 alertdialog；不写时是原生 dialog 的隐含角色 */
   role?: 'alertdialog';
+  /** 直接放在 dialog 里、不随正文滚动的内容（抽屉边上的宽度调整手柄） */
+  edge?: VNodeChild;
 }
 
 /** 模态面板共有的样式：面板、标题行、标题、关闭按钮、说明、正文、页脚 */
@@ -102,6 +109,7 @@ export const ModalCore = _component(
     footer,
     closable = true,
     dismissible = true,
+    beforeClose,
     panelSx,
     role,
     propsHeader,
@@ -111,6 +119,7 @@ export const ModalCore = _component(
     propsBody,
     propsFooter,
     lazy = true,
+    edge,
     children,
     ...rest
   }: ModalCoreProps) => {
@@ -124,9 +133,25 @@ export const ModalCore = _component(
     let dialog = _state.raw<HTMLDialogElement | null>(null);
     let release: (() => void) | undefined;
 
+    /** 用户要关闭：先问 beforeClose，同意了才关 */
+    async function requestClose() {
+      if (beforeClose && !(await beforeClose())) return;
+      dialog?.close();
+    }
+
     function show() {
       if (!dialog || dialog.open) return;
-      release = openModalDialog(dialog, { dismissOnBackdrop: dismissible });
+      release = openModalDialog(dialog, {
+        dismissOnBackdrop: dismissible,
+        onDismiss: () => void requestClose(),
+      });
+    }
+
+    // Esc：原生 dialog 先发 cancel；有 beforeClose 时拦下来，问过再关
+    function onCancel(event: Event) {
+      if (!beforeClose) return;
+      event.preventDefault();
+      void requestClose();
     }
 
     // 不论以什么方式关闭（Esc、遮罩、关闭按钮、open 改为 false），都会触发原生 close 事件；
@@ -152,6 +177,7 @@ export const ModalCore = _component(
           'aria-labelledby': titleId,
           'aria-describedby': description != null ? descriptionId : undefined,
           onClose,
+          onCancel,
         })}
       >
         <Flex
@@ -170,7 +196,7 @@ export const ModalCore = _component(
           {closable && (
             <CloseButton
               {...mergePartProps<PresetIconButtonProps>({ sx: modalStyles.close }, propsClose, {
-                onClick: () => dialog?.close(),
+                onClick: () => void requestClose(),
               })}
             />
           )}
@@ -202,6 +228,7 @@ export const ModalCore = _component(
             {footer}
           </Flex>
         )}
+        {edge}
       </dialog>
     );
   },

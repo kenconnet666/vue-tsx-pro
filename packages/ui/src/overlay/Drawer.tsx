@@ -6,7 +6,9 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { ContainerSizes } from '../layout/Container';
+import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { ResizeHandle, type ResizeHandleProps } from '../layout/ResizeHandle';
 import { ModalCore, type ModalProps } from './Modal';
 
 /** 抽屉从哪一侧滑入；start / end 是逻辑方向，从右到左排版下左右互换 */
@@ -31,6 +33,14 @@ export interface DrawerOptions {
 export interface DrawerProps extends ModalProps, DrawerOptions {
   /** 从哪一侧滑入，默认 end */
   side?: keyof DrawerSides;
+  /** 宽度（px，左右两侧）：写了就不按 size 的档位；父级写 width={_bind(x)} 记住拖动后的宽度 */
+  width?: number | null;
+  /** 靠正文的一边可以拖动调整宽度（也能聚焦后用 ← / →，双击回到初始宽度）；只用于左右两侧 */
+  resizable?: boolean;
+  /** 拖动时的最小宽度（px），默认 320 */
+  minWidth?: number;
+  /** 宽度调整手柄的部件属性 */
+  propsResizeHandle?: Partial<ResizeHandleProps>;
 }
 
 /** 抽屉的面板样式：去掉居中、按所在一侧定位与滑入 */
@@ -51,6 +61,8 @@ export const drawerStyles = stylex.create({
     },
   },
   inline: { insetBlock: 0, width: '_full', height: '100dvh' },
+  // 给了 width：行内写宽度，最多到视口宽
+  sized: { maxWidth: '100vw' },
   block: { insetInline: 0, width: '100vw', height: 'auto' },
   // 位置用逻辑属性，从右到左排版自动换边；translate 是物理方向，用 :dir() 区分
   start: {
@@ -93,7 +105,7 @@ export const drawerStyles = stylex.create({
   },
 });
 
-/** 抽屉（左右两侧）的宽度档位 */
+/** 抽屉（左右两侧）的宽度档位；sized 是给了 width 的（宽度写在行内，不受档位限制） */
 export const drawerSizeStyles = stylex.create({
   xs: { maxWidth: 'min(_xs, 100vw)' },
   sm: { maxWidth: 'min(_sm, 100vw)' },
@@ -104,8 +116,20 @@ export const drawerSizeStyles = stylex.create({
 
 /** 抽屉：贴着视口一侧滑入的模态面板 */
 export const Drawer = _component(
-  ({ open = _bindable(false), side = 'end', size, ...rest }: DrawerProps) => {
+  ({
+    open = _bindable(false),
+    side = 'end',
+    size,
+    width = _bindable<number | null>(null),
+    resizable = false,
+    minWidth = 320,
+    propsResizeHandle,
+    ...rest
+  }: DrawerProps) => {
     const appearance = useDefaults('Drawer', () => ({ size }), { size: 'xs' });
+    const messages = useLang();
+    // 双击回到打开时的宽度
+    const initialWidth = _untrack(width);
     return () => {
       const inline = side === 'start' || side === 'end';
       return (
@@ -116,9 +140,25 @@ export const Drawer = _component(
             drawerStyles.panel,
             inline ? drawerStyles.inline : drawerStyles.block,
             drawerStyles[side],
-            inline && drawerSizeStyles[appearance().size],
+            inline && (width == null ? drawerSizeStyles[appearance().size] : drawerStyles.sized),
           ]}
+          style={inline && width != null ? { width: `${width}px` } : undefined}
           data-side={side}
+          edge={
+            inline &&
+            resizable && (
+              <ResizeHandle
+                aria-label={messages.drawerResize}
+                minWidth={minWidth}
+                maxWidth={typeof window === 'undefined' ? undefined : window.innerWidth - 48}
+                defaultWidth={initialWidth ?? undefined}
+                {...propsResizeHandle}
+                edge={side === 'end' ? 'start' : 'end'}
+                width={width ?? undefined}
+                onWidthChange={(next: number) => (width = next)}
+              />
+            )
+          }
         />
       );
     };

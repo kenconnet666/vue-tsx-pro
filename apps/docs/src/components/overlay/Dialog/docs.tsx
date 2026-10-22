@@ -10,6 +10,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Confirm from './demo/Confirm.tsx?demo';
 import Drawers from './demo/Drawers.tsx?demo';
+import EditDrawer from './demo/EditDrawer.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
 import Terms from './demo/Terms.tsx?demo';
@@ -57,6 +58,12 @@ export default _component(() => () => (
           Drawer 与 Dialog 共用同一个内核，只是从一侧滑入：<Code>side</Code> 取
           start、end、top、bottom，
           <Code>size</Code> 控制宽度。筛选、详情、移动端导航都适合放在抽屉里。
+        </Example>
+        <Example id="edit-drawer" title="抽屉里编辑：拖宽度与关闭前确认" demo={EditDrawer}>
+          <Code>resizable</Code> 让靠正文的一边可以拖动（也能聚焦后用方向键，双击回到初始宽度），
+          <Code>width</Code> 双向绑定、交给 <Code>usePersistentState</Code> 记住。
+          <Code>beforeClose</Code> 在关闭按钮、<Kbd>Esc</Kbd>、点遮罩时先问一次，返回 false
+          不关——表单有未保存的改动时用它确认。
         </Example>
       </ExampleColumn>
     </Examples>

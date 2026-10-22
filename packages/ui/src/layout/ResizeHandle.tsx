@@ -1,5 +1,5 @@
 /**
- * 宽度调整手柄：所在元素结束边的一条细线（role="separator"），悬停、聚焦时显示。
+ * 宽度调整手柄：所在元素结束边（edge="start" 时是起始边，如从右侧滑入的抽屉）的一条细线（role="separator"），悬停、聚焦时显示。
  * 拖动（startMove）或聚焦后用 ← / →（WCAG 2.5.7 拖动的替代操作）调整，从右到左排版下方向自动镜像；
  * 双击回到 defaultWidth。宽度从父元素量起，所以要放在要调整的那个元素里（它需要 position: relative 或 fixed）。
  * AppShell 的抽屉式侧栏、DataTable 的列宽（ColumnResizer）都用它。
@@ -29,6 +29,8 @@ export interface ResizeHandleProps extends PartProps<'span', ResizeHandleManaged
   defaultWidth?: number;
   /** 键盘每按一次调整多少（px），默认 16 */
   step?: number;
+  /** 手柄在父元素的哪一边，默认 end；start 时往起始方向拖是变宽（从结束边滑入的抽屉） */
+  edge?: 'start' | 'end';
   /** 拖动或用键盘调整了宽度（已经夹在最小、最大宽度之间） */
   onWidthChange: (width: number) => void;
 }
@@ -50,6 +52,7 @@ export const resizeHandleStyles = stylex.create({
     },
     outlineStyle: 'none',
   },
+  start: { insetInlineEnd: 'auto', insetInlineStart: 0 },
 });
 
 /** 宽度调整手柄：拖动或用 ← / → 调整父元素的宽度 */
@@ -60,6 +63,7 @@ export const ResizeHandle = _component(
     maxWidth = Number.POSITIVE_INFINITY,
     defaultWidth,
     step = 16,
+    edge = 'end',
     onWidthChange,
     ...rest
   }: ResizeHandleProps) => {
@@ -69,17 +73,20 @@ export const ResizeHandle = _component(
     function onPointerdown(event: PointerEvent) {
       const parent = parentOf(event);
       const from = parent.getBoundingClientRect().width;
-      const rtl = isRtl(parent);
+      // 起始边的手柄往起始方向拖是变宽：方向与结束边相反
+      const sign = (isRtl(parent) ? -1 : 1) * (edge === 'start' ? -1 : 1);
       event.preventDefault();
       startMove(event, {
-        onMove: ({ deltaX }) => onWidthChange(fit(from + (rtl ? -deltaX : deltaX))),
+        onMove: ({ deltaX }) => onWidthChange(fit(from + sign * deltaX)),
       });
     }
 
     function onKeydown(event: KeyboardEvent) {
       const parent = parentOf(event);
       const { forward, backward } = inlineArrows(isRtl(parent));
-      const delta = event.key === forward ? step : event.key === backward ? -step : 0;
+      const delta =
+        (event.key === forward ? step : event.key === backward ? -step : 0) *
+        (edge === 'start' ? -1 : 1);
       if (!delta) return;
       event.preventDefault();
       onWidthChange(fit((width ?? parent.getBoundingClientRect().width) + delta));
@@ -87,17 +94,21 @@ export const ResizeHandle = _component(
 
     return () => (
       <span
-        {...mergeAttrs<'span'>({ sx: resizeHandleStyles.handle }, rest, {
-          role: 'separator',
-          tabindex: 0,
-          'aria-orientation': 'vertical',
-          'aria-valuenow': width,
-          'aria-valuemin': minWidth,
-          'aria-valuemax': Number.isFinite(maxWidth) ? maxWidth : undefined,
-          onPointerdown,
-          onKeydown,
-          onDblclick: defaultWidth == null ? undefined : () => onWidthChange(fit(defaultWidth)),
-        })}
+        {...mergeAttrs<'span'>(
+          { sx: [resizeHandleStyles.handle, edge === 'start' && resizeHandleStyles.start] },
+          rest,
+          {
+            role: 'separator',
+            tabindex: 0,
+            'aria-orientation': 'vertical',
+            'aria-valuenow': width,
+            'aria-valuemin': minWidth,
+            'aria-valuemax': Number.isFinite(maxWidth) ? maxWidth : undefined,
+            onPointerdown,
+            onKeydown,
+            onDblclick: defaultWidth == null ? undefined : () => onWidthChange(fit(defaultWidth)),
+          },
+        )}
       />
     );
   },

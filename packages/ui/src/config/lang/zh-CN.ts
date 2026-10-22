@@ -154,6 +154,7 @@ export const zhCN: Lang = {
   navigationOpen: '打开导航',
   navigationMenu: '菜单',
   navigationResize: '调整导航宽度',
+  drawerResize: '调整抽屉宽度',
   searchLabel: '搜索',
   searchPlaceholder: '搜索文档',
   searchEmpty: '没有找到相关内容',

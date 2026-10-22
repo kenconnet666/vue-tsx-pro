@@ -317,6 +317,8 @@ export interface Lang {
   readonly navigationMenu: string;
   /** 抽屉式侧边导航的宽度调整手柄，默认“调整导航宽度” */
   readonly navigationResize: string;
+  /** 抽屉宽度调整手柄的名称，默认“调整抽屉宽度” */
+  readonly drawerResize: string;
   /** 搜索面板与搜索按钮的名称，默认“搜索” */
   readonly searchLabel: string;
   /** 搜索框的占位文字，默认“搜索文档” */
