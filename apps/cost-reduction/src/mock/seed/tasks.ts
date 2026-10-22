@@ -76,6 +76,10 @@ const materials = [
 
 const person = (position: number) => taskPeople[position % taskPeople.length]!.id;
 
+/** 团队里的产品团队成员（任务的主办） */
+const ownerOf = (team: string) =>
+  masterSeed.people.find((item) => item.roles.includes('product') && item.team === team)!.id;
+
 /** 关闭、已兑现：节点都完成了 */
 const isFinishedStatus = (status: TaskStatus) => status === 'closed' || status === 'realized';
 
@@ -225,7 +229,8 @@ function task(index: number): CostTask {
     supplier: suppliers[(index * 3) % suppliers.length]!,
     category: category.value,
     team: team.name,
-    owner: person(index * 3),
+    // 主办是责任团队里的产品团队成员
+    owner: ownerOf(team.name),
     kind,
     status,
     valueState: valueStateOf(status, index),

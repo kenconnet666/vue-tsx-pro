@@ -7,6 +7,7 @@ import { shallowRef } from 'vue';
 import { setRequestUser } from '../api/client';
 import { getMe } from '../api/session';
 import type { Person } from '../domain/master';
+import { can, type Action } from '../domain/permissions';
 import type { RoleKey } from '../domain/roles';
 
 // 选的身份：工号，空字符串是默认身份（由后端决定）
@@ -31,6 +32,9 @@ export const hasRole = (role: RoleKey) => currentUser().roles.includes(role);
 /** 当前用户有没有其中任何一个角色；不限角色（空列表）时为 true */
 export const hasAnyRole = (roles: readonly RoleKey[] | undefined) =>
   !roles?.length || roles.some(hasRole);
+
+/** 当前用户能不能做这件事（按角色；后端会再校验） */
+export const canDo = (action: Action) => can(currentUser().roles, action);
 
 /** 切换演示身份：记住选择后重新加载，各页按新身份重新取数 */
 export function switchUser(id: string): void {

@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { seedConfirmReturns, seedTasks } from '../../mock/seed/tasks';
 import { confirmRows } from '../task/benefit';
 import { kindOfCode, nextTaskCode, taskSerial } from '../task/code';
-import { advanceTask, nextStepOf, returnForVerification } from '../task/lifecycle';
+import { nextStepOf, returnForVerification } from '../task/lifecycle';
+import { applyTaskCompletion } from '../task/workflow';
 import { blankLedgerQuery, queryLedger, tasksInView } from '../task/query';
 import { canClose, overdueDays } from '../task/status';
 
@@ -69,17 +70,33 @@ describe('queryLedger', () => {
 });
 
 describe('推进', () => {
-  it('下一步按状态给出；认定时锁定 A 并补上收益认定意见，兑现时回填 B 与商务谈定记录', () => {
+  it('节点处理完任务卡跟着变：认定锁定 A 与收益认定意见，商务回填 B 与谈定记录，不达标两个里程碑作废', () => {
     const awaiting = tasks.find((task) => task.status === 'awaiting' && task.a == null)!;
     expect(nextStepOf(awaiting)).toMatchObject({ next: 'confirmed' });
-    const confirmed = advanceTask(awaiting, 'confirmed');
-    expect(confirmed.a).not.toBeNull();
+    const completion = (node: string, outcome: string, variables = {}) => ({
+      node,
+      outcome,
+      on: '2026-10-21',
+      attachments: ['证据.pdf'],
+      variables,
+    });
+    const confirmed = applyTaskCompletion(
+      awaiting,
+      completion('confirm', 'lock', { a: '12345.60' }),
+    );
+    expect(confirmed.a?.toString()).toBe('12345.6');
     expect(confirmed.closing.benefit).toBe(true);
-    const realized = advanceTask(advanceTask(confirmed, 'negotiating'), 'realized');
-    expect(realized.b).not.toBeNull();
-    expect(realized.closing.business).toBe(true);
-    expect(canClose(realized)).toBe(true);
-    expect(nextStepOf(realized)).toMatchObject({ next: 'closed' });
+    const recorded = applyTaskCompletion(
+      confirmed,
+      completion('negotiate', 'record', { b: '12000', gapReason: '供应商让利' }),
+    );
+    expect(recorded).toMatchObject({ valueState: 'committed', gapReason: '供应商让利' });
+    expect(recorded.closing.business).toBe(true);
+    const failed = applyTaskCompletion(recorded, completion('judge', 'fail'));
+    expect(
+      failed.milestones.filter((item) => item.label !== '收益确认').every((item) => !item.done),
+    ).toBe(true);
+    expect(failed.closing.verification).toBe(false);
   });
 
   it('关闭、终止没有下一步；退回验证时验证窗结论作废', () => {

@@ -1,11 +1,9 @@
 /**
- * 任务卡的推进：下一步做什么、推进后哪些字段跟着变（完成里程碑、锁定 A、回填 B、关闭材料）。
- * 后端按它改任务卡，详情页按它给出“下一步”按钮；任务池接入流程定义后由流程节点驱动，规则不变
+ * 任务卡的推进：下一步做什么（详情页的“下一步”按钮）、步骤条停在哪一步、新卡的里程碑与关闭材料。
+ * 推进本身经任务池流程（domain/workflow/task.ts），节点处理完任务卡怎么变见 ./workflow.ts
  */
-import { TODAY } from '../clock';
-import { latestEstimate } from './benefit';
 import { canClose, taskFlow } from './status';
-import type { ClosingMaterials, CostTask, Milestone, MilestoneLabel, TaskStatus } from './types';
+import type { ClosingMaterials, CostTask, Milestone, TaskStatus } from './types';
 
 /** 新任务卡的里程碑：三个都没完成 */
 export const blankMilestones = (): Milestone[] =>
@@ -62,57 +60,6 @@ export function stepIndexOf(task: CostTask): number {
   const index = taskFlow.indexOf(task.status);
   if (index >= 0) return task.status === 'closed' ? taskFlow.length : index;
   return 1 + task.milestones.filter((item) => item.done).length;
-}
-
-/** 完成一个里程碑（已完成的不动），交付证据先用“<名称>证据.pdf”占位 */
-const finishMilestone = (task: CostTask, label: MilestoneLabel) =>
-  task.milestones.map((item) =>
-    item.label === label && !item.done
-      ? { ...item, done: TODAY, evidence: `${label}证据.pdf` }
-      : item,
-  );
-
-/**
- * 把任务推进到 next：完成对应的里程碑、补上金额与关闭材料。
- * 验证完成 → 验证窗结论；认定 → 锁定 A 与收益认定意见；兑现 → 回填 B、归因与商务谈定记录
- */
-export function advanceTask(task: CostTask, next: TaskStatus): CostTask {
-  switch (next) {
-    case 'verifying':
-      return { ...task, status: next, milestones: finishMilestone(task, '方案确定') };
-    case 'awaiting':
-      return {
-        ...task,
-        status: next,
-        milestones: finishMilestone(task, '验证完成'),
-        closing: { ...task.closing, verification: true },
-      };
-    case 'confirmed':
-      return {
-        ...task,
-        status: next,
-        milestones: finishMilestone(task, '收益确认'),
-        a: task.a ?? latestEstimate(task),
-        closing: { ...task.closing, benefit: true },
-      };
-    case 'realized': {
-      const a = task.a ?? task.expected;
-      return {
-        ...task,
-        status: next,
-        valueState: 'committed',
-        b: a.times(0.98).toDecimalPlaces(2),
-        gapReason: task.gapReason ?? '商务条件置换',
-        closing: { ...task.closing, business: true },
-        // 兑现时降 DMC 的实施节点都已完成
-        dmcNodes: task.dmcNodes.map((node) => ({ ...node, done: node.done ?? TODAY })),
-      };
-    }
-    case 'closed':
-      return { ...task, status: next, valueState: 'realized' };
-    default:
-      return { ...task, status: next };
-  }
 }
 
 /** 收益认定退回：任务回到验证中，验证窗结论作废（里程碑“验证完成”清掉） */

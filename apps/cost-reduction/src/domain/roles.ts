@@ -17,6 +17,8 @@ export interface Roles {
   product: unknown;
   /** 项目团队：分级决策、重大事项审定 */
   project: unknown;
+  /** 商务（采购部）：线下洽谈，回填谈定金额 B、商务条件、合同编号与差额归因 */
+  business: unknown;
   /** 财务：维护测算公式（公式层统一维护、版本冻结） */
   finance: unknown;
   /** 系统管理员：基础数据、流程配置、用户与权限 */
@@ -34,6 +36,7 @@ export const roleNames: Readonly<Record<RoleKey, string>> = {
   pemo: 'PEMO',
   product: '产品团队',
   project: '项目团队',
+  business: '商务',
   finance: '财务',
   admin: '系统管理员',
 };

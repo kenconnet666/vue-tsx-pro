@@ -41,6 +41,16 @@ export const apiPaths = {
   valueLedger: '/value-ledger',
   /** 统计看板 */
   dashboard: '/dashboard',
+  /** 流程定义（各流程的最新版本） */
+  workflowDefinitions: '/workflow/definitions',
+  /** 一张卡的流程轨迹：流程实例、流转记录、待办（?businessKey=&key=） */
+  workflowTrace: '/workflow/trace',
+  /** 待办：我的待办、岗位待认领、待指定、我已处理、我发起的（?view=） */
+  workItems: '/workflow/items',
+  /** 待办的操作：claim、release、designate、reassign、complete、remind */
+  workItemAction: '/workflow/items/:id/:action',
+  /** 流程实例的操作：comment、suspend、resume、terminate */
+  instanceAction: '/workflow/instances/:id/:action',
   /** 演示：把数据恢复成初始状态 */
   demoReset: '/demo/reset',
 } as const;

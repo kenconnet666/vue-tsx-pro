@@ -8,12 +8,14 @@ import { createDatabase, type MockDatabase } from './db';
 import { benefitHandlers } from './handlers/benefit';
 import { sessionHandlers } from './handlers/session';
 import { taskHandlers } from './handlers/tasks';
+import { workflowHandlers } from './handlers/workflow';
 
 /** 全部路由 */
 export const createHandlers = (db: MockDatabase): RequestHandler[] => [
   ...sessionHandlers(db),
   ...taskHandlers(db),
   ...benefitHandlers(db),
+  ...workflowHandlers(db),
 ];
 
 /** 在浏览器里启动假后端：Service Worker 注册好以后才返回，之后的请求都会被接住 */

@@ -2,6 +2,7 @@
 import { delay, HttpResponse } from 'msw';
 import { API_BASE, apiPaths } from '../api/client';
 import { DEFAULT_USER } from './seed/master';
+import { WorkflowError } from './workflow/engine';
 
 /** 接口路径的完整写法（MSW 的路由）：route('task') → '/api/tasks/:code' */
 export const route = (name: keyof typeof apiPaths) => `${API_BASE}${apiPaths[name]}`;
@@ -21,5 +22,18 @@ export async function bodyOf<T extends object>(request: Request): Promise<Partia
     return (await request.json()) as Partial<T>;
   } catch {
     return {};
+  }
+}
+
+/** 流转出错的状态码 */
+const workflowStatus = { 'not-found': 404, forbidden: 403, conflict: 409, invalid: 400 } as const;
+
+/** 执行一个可能出错的操作：流转出错给出对应的状态码与说明，其余的错误原样抛出（MSW 报 500） */
+export function attempt(action: () => Response): Response {
+  try {
+    return action();
+  } catch (error) {
+    if (error instanceof WorkflowError) return fail(workflowStatus[error.code], error.message);
+    throw error;
   }
 }

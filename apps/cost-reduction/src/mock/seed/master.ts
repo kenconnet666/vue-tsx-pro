@@ -15,6 +15,7 @@ export const taskPeople: readonly Person[] = [
     title: '复合材料中心 · 结构设计',
     roles: ['product'],
     team: '复合材料结构集成团队',
+    leads: ['product:FC'],
   },
   {
     id: 'E20418',
@@ -22,22 +23,57 @@ export const taskPeople: readonly Person[] = [
     title: '制造工程部 · 工艺',
     roles: ['product'],
     team: '起落架液压系统集成团队',
+    leads: ['product:QY'],
   },
-  { id: 'E31056', name: '陈默', title: '采购部 · 供应商管理', roles: ['cost'] },
+  {
+    id: 'E31056',
+    name: '陈默',
+    title: '采购部 · 商务',
+    roles: ['business'],
+    leads: ['business'],
+  },
   {
     id: 'E40287',
     name: '许悠',
     title: 'PEMO · 计划',
     roles: ['pemo'],
     team: '总体技术集成团队',
+    leads: ['pemo'],
   },
-  { id: 'E50913', name: '王晴', title: '成本团队 · 测算', roles: ['cost'] },
+  {
+    id: 'E50913',
+    name: '王晴',
+    title: '成本团队 · 测算（负责人）',
+    roles: ['cost'],
+    leads: ['cost'],
+  },
 ];
 
-/** 其余的演示身份：项目团队、财务、管理员与供应商的主账号、子账号 */
+/** 其余的演示身份：总体团队的设计、成本团队的第二人（认领要抢）、项目团队、财务、管理员与供应商的主账号、子账号 */
 const otherPeople: readonly Person[] = [
-  { id: 'E60521', name: '顾北辰', title: '项目团队 · 型号副总师', roles: ['project'] },
-  { id: 'E70315', name: '沈知遥', title: '财务部 · 成本核算', roles: ['finance'] },
+  {
+    id: 'E10855',
+    name: '宋知行',
+    title: '总体技术集成团队 · 总体设计',
+    roles: ['product'],
+    team: '总体技术集成团队',
+    leads: ['product:ZT'],
+  },
+  { id: 'E50377', name: '唐可', title: '成本团队 · 测算', roles: ['cost'] },
+  {
+    id: 'E60521',
+    name: '顾北辰',
+    title: '项目团队 · 型号副总师',
+    roles: ['project'],
+    leads: ['project'],
+  },
+  {
+    id: 'E70315',
+    name: '沈知遥',
+    title: '财务部 · 成本核算',
+    roles: ['finance'],
+    leads: ['finance'],
+  },
   { id: 'E80001', name: '何川', title: '信息化部 · 系统管理', roles: ['admin'] },
   {
     id: 'S01-ZL',

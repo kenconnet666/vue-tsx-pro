@@ -8,12 +8,20 @@ import { getValueLedger } from '../../api/benefit';
 import { setRequestUser } from '../../api/client';
 import { getMe, getMyTasks } from '../../api/session';
 import { advanceTask, createTask, deleteTask, getTask, listTasks } from '../../api/tasks';
+import {
+  claimWorkItem,
+  completeWorkItem,
+  getWorkflowTrace,
+  listWorkItems,
+} from '../../api/workflow';
 import { errorMessage } from '../../app/feedback';
 import { blankLedgerQuery } from '../../domain/task/query';
 import { createDatabase } from '../db';
 import { createHandlers } from '../index';
 
 const db = createDatabase(null);
+/** PEMO：建卡、删除、推进 */
+const PEMO = 'E40287';
 const server = setupServer(...createHandlers(db));
 
 beforeAll(() => server.listen({ onUnhandledFrame: 'error' }));
@@ -43,7 +51,8 @@ describe('假后端', () => {
     expect(task.code).toBe(page.rows[0]!.code);
   });
 
-  it('新建时由后端生成编码（序号接在最大的后面）', async () => {
+  it('新建时由后端生成编码（序号接在最大的后面）；建卡归 PEMO', async () => {
+    setRequestUser(() => PEMO);
     const template = await getTask((await ledger('all')).rows[0]!.code);
     const created = await createTask({
       ...template,
@@ -51,10 +60,14 @@ describe('假后端', () => {
       year: '2027',
       team: '起落架液压系统集成团队',
     });
-    expect(created.code).toBe('DJ-2027-QY-87');
+    expect(created).toMatchObject({ code: 'DJ-2027-QY-87', status: 'pending' });
+    setRequestUser(() => 'E10732');
+    const denied = await createTask({ ...template, code: '' }).catch(errorMessage);
+    expect(denied).toContain('你的角色不能新建任务');
   });
 
   it('只有待启动能删；状态只能推进到下一步；出错时说明在响应体里', async () => {
+    setRequestUser(() => PEMO);
     const started = (await ledger('doing')).rows.find((task) => task.status !== 'pending')!;
     const error = await deleteTask(started.code).catch((cause: unknown) => cause);
     expect(error).toBeInstanceOf(HttpError);
@@ -80,5 +93,25 @@ describe('假后端', () => {
     expect(result.rows.every((row) => row.amount == null || row.amount instanceof Decimal)).toBe(
       true,
     );
+  });
+
+  it('流程接口：岗位待认领、认领、处理；任务卡的状态跟着流程走', async () => {
+    setRequestUser(() => PEMO);
+    const pool = await listWorkItems('pool');
+    expect(pool.counts.pool).toBe(pool.items.length);
+    const item = pool.items.find((entry) => entry.node === 'create')!;
+    await claimWorkItem(item.id);
+    expect((await listWorkItems('mine')).items.map((entry) => entry.id)).toContain(item.id);
+    const task = await getTask(item.businessKey);
+    await completeWorkItem(item.id, { outcome: 'create', variables: { owner: task.owner } });
+    expect((await getTask(item.businessKey)).status).toBe('designing');
+    const trace = await getWorkflowTrace(item.businessKey, 'task');
+    expect(trace.instance.active).toEqual(['design']);
+    expect(trace.events.map((event) => event.type)).toContain('claimed');
+    // 不是自己的待办不能处理；缺附件不能处理
+    const design = trace.items.find((entry) => entry.node === 'design' && entry.state === 'open')!;
+    await expect(
+      completeWorkItem(design.id, { outcome: 'done' }).catch(errorMessage),
+    ).resolves.toMatch(/不是你的|附件/);
   });
 });

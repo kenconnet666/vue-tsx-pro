@@ -28,6 +28,8 @@ export interface Person {
   team?: string;
   /** 所属的供应商（供应商账号） */
   supplier?: string;
+  /** 负责的收件箱：没人认领时由他指定承办人、审批改派申请 */
+  leads?: readonly string[];
 }
 
 /** 提出单位与下属的提出部门（组织机构树的两级） */

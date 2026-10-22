@@ -19,6 +19,7 @@ import {
 import type { VNodeChild } from 'vue';
 import { dictLabel, personName } from '../../../app/master';
 import { paths } from '../../../app/paths';
+import { canDo } from '../../../app/session';
 import { nextStepOf } from '../../../domain/task/lifecycle';
 import { daysToDue, isFinished, missingClosing, overdueDays } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
@@ -81,7 +82,9 @@ export const DetailHeader = _component(
             <StatusBadge statuses={taskStatuses} value={task.status} />
             <StatusBadge statuses={valueStates} value={task.valueState} />
             <div {...stylex.attrs(styles.actions)}>
-              {step && <Button onClick={() => void actions.advance(task)}>{step.label}</Button>}
+              {step && canDo('task.advance') && (
+                <Button onClick={() => void actions.advance(task)}>{step.label}</Button>
+              )}
               {task.status === 'realized' && missing > 0 && (
                 <Small tone="muted">关闭三材料缺 {missing} 项，补齐后可以关闭</Small>
               )}
@@ -106,29 +109,35 @@ export const DetailHeader = _component(
                 <MenuLinkItem icon={FilePen} href={paths.editTask(task.code)}>
                   调整计划
                 </MenuLinkItem>
-                <MenuItem
-                  icon={Pause}
-                  disabled={isFinished(task) || task.status === 'paused'}
-                  onAction={() => void actions.pause(task)}
-                >
-                  暂停
-                </MenuItem>
-                <MenuItem
-                  icon={CircleX}
-                  tone="danger"
-                  disabled={isFinished(task)}
-                  onAction={() => void actions.terminate(task)}
-                >
-                  终止
-                </MenuItem>
-                <MenuItem
-                  icon={Trash2}
-                  tone="danger"
-                  disabled={task.status !== 'pending'}
-                  onAction={() => void actions.remove(task)}
-                >
-                  删除
-                </MenuItem>
+                {canDo('task.pause') && (
+                  <MenuItem
+                    icon={Pause}
+                    disabled={isFinished(task) || task.status === 'paused'}
+                    onAction={() => void actions.pause(task)}
+                  >
+                    暂停
+                  </MenuItem>
+                )}
+                {canDo('task.terminate') && (
+                  <MenuItem
+                    icon={CircleX}
+                    tone="danger"
+                    disabled={isFinished(task)}
+                    onAction={() => void actions.terminate(task)}
+                  >
+                    终止
+                  </MenuItem>
+                )}
+                {canDo('task.delete') && (
+                  <MenuItem
+                    icon={Trash2}
+                    tone="danger"
+                    disabled={task.status !== 'pending'}
+                    onAction={() => void actions.remove(task)}
+                  >
+                    删除
+                  </MenuItem>
+                )}
               </Menu>
             </div>
           </div>

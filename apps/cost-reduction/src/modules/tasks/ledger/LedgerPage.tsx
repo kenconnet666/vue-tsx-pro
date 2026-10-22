@@ -61,6 +61,7 @@ import { getTasks, listTasks } from '../../../api/tasks';
 import { notifyError } from '../../../app/feedback';
 import { PageNav } from '../../../app/layout/PageNav';
 import { paths } from '../../../app/paths';
+import { canDo } from '../../../app/session';
 import { nextStepOf } from '../../../domain/task/lifecycle';
 import { blankLedgerQuery, ledgerViews, type LedgerQuery } from '../../../domain/task/query';
 import { canClose, isFinished, overdueDays, taskFocuses } from '../../../domain/task/status';
@@ -212,29 +213,35 @@ export const LedgerPage = _component(
           >
             关闭归档
           </MenuItem>
-          <MenuItem
-            icon={Pause}
-            disabled={isFinished(task) || task.status === 'paused'}
-            onAction={() => void actions.pause(task)}
-          >
-            暂停
-          </MenuItem>
-          <MenuItem
-            icon={CircleX}
-            tone="danger"
-            disabled={isFinished(task)}
-            onAction={() => void actions.terminate(task)}
-          >
-            终止
-          </MenuItem>
-          <MenuItem
-            icon={Trash2}
-            tone="danger"
-            disabled={task.status !== 'pending'}
-            onAction={() => void actions.remove(task)}
-          >
-            删除
-          </MenuItem>
+          {canDo('task.pause') && (
+            <MenuItem
+              icon={Pause}
+              disabled={isFinished(task) || task.status === 'paused'}
+              onAction={() => void actions.pause(task)}
+            >
+              暂停
+            </MenuItem>
+          )}
+          {canDo('task.terminate') && (
+            <MenuItem
+              icon={CircleX}
+              tone="danger"
+              disabled={isFinished(task)}
+              onAction={() => void actions.terminate(task)}
+            >
+              终止
+            </MenuItem>
+          )}
+          {canDo('task.delete') && (
+            <MenuItem
+              icon={Trash2}
+              tone="danger"
+              disabled={task.status !== 'pending'}
+              onAction={() => void actions.remove(task)}
+            >
+              删除
+            </MenuItem>
+          )}
         </Menu>
       );
     };
@@ -434,9 +441,11 @@ export const LedgerPage = _component(
               loading={tasks.loading}
               moreActive={bar.moreActive}
               actions={
-                <LinkButton href={paths.newTask(ledgerKind)} icon={Plus} variant="soft">
-                  新建项目
-                </LinkButton>
+                canDo('task.create') && (
+                  <LinkButton href={paths.newTask(ledgerKind)} icon={Plus} variant="soft">
+                    新建项目
+                  </LinkButton>
+                )
               }
               more={bar.more}
             >

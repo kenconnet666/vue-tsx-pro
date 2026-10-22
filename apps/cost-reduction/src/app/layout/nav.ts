@@ -56,7 +56,15 @@ export const homeEntry: NavEntry = {
   href: paths.dashboard(),
 };
 
-const internal: readonly RoleKey[] = ['cost', 'pemo', 'product', 'project', 'finance', 'admin'];
+const internal: readonly RoleKey[] = [
+  'cost',
+  'pemo',
+  'product',
+  'project',
+  'business',
+  'finance',
+  'admin',
+];
 
 /** 侧栏的分组 */
 export const navGroups: readonly { label: string; items: readonly NavEntry[] }[] = [
