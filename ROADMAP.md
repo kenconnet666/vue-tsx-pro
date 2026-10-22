@@ -22,7 +22,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - 文档站：每个组件一页（示例、API 表、键盘），指南（快速开始、主题定制、设计资源、演练场），降本管理整页案例。
 - 已完成的大块（细节见提交历史与 COMPONENTS.md §10）：主题定制页；文档两轮补齐；内置值类型（Decimal、bigint、日期）；
   日期组件三层；3D 与效果；图表 P0–P2 前半（Bar、Line、Area、Scatter、Donut、Sankey、Chord）；开发体验与性能。
-  降本案例 M1、M2、M5 也已完成，进度见 §4。
+  联合降本管理正式版按 apps/cost-reduction/DESIGN.md 重建，进度见 §4。
 
 ## 1. 审查整改
 
@@ -201,31 +201,25 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - **表格**：服务端模式（§2 的 useTableQuery）、多列排序、表头筛选、行点击与键盘、单元格编辑、列菜单（`DataTableColumnMenu`）、
   导出、跨页全选、列的固定与拖动、行拖动、合并单元格、网格的方向键导航、列定义驱动的静态表格
 
-## 4. 降本管理案例（以《需求定义方案》与《信息表》为准）
+## 4. 联合降本管理（`apps/cost-reduction`，正式版前端）
 
-需求来自《联合降本需求定义方案》与《降本项目信息表（单机 + DMC）》：两条渠道（供应商建议、项目团队方案）、任务池、一本账、
-储备库，收件箱认领，测算版本与 A / B / D 值。组件尽量进组件库，业务逻辑只留在文档站的案例里；案例用虚构数据。
+设计依据是 [apps/cost-reduction/DESIGN.md](apps/cost-reduction/DESIGN.md)（按《需求定义方案》《降本项目信息表》、
+C919 模板与 1013 原型重新设计；原来的一期页面只作参考，按设计逐页重建）。后端未接：假后端（MSW）按同一份业务规则
+与流程定义处理请求；流程的执行在后端自研引擎，前端只描述流程、显示进度、调用处理接口。演示数据一律虚构。
 
-**页面设计**
-
-- 原则：一个数只在一处完整展示，别处引用或跳转；统计都能点进去看明细（跳到筛好条件的列表）；编号都是链接。
-  进度与计价是两个维度：任务池看进度（PEMO），一本账看钱（成本团队），交叉成矩阵，不用“其中”。
-- 口径：任务池总数每个视图只出现一次；已确认收益、挂账待定、方案待定三桶互斥、加总等于总数；机会、预测、承诺、实现四种收益
-  分开挂账、不跨状态合计，挂账待定写“待定价”；单机降本（万元）与降 DMC（美元 / FH）单位不同，分栏不相加；
-  金额口径硬节约、成本规避、软节约分栏。
-- 导航：顶栏是品牌、本页的视图页签、收件箱与我负责的任务（角标计数、点开看列表）；侧栏是盖在页面上的抽屉，按模块分组。
-
-**里程碑**
-
-- [x] M1 表单：长表单的布局上下文、金额格式、左标签、只读、FormSection、ActionBar；案例：单机降本编辑
-- [x] M2 列表：状态映射、PageHeader、FilterBar、DataTable（合计、分组表头、列格式、行色调、展开行、列显示、固定列、滚动到行、状态列）、
-      SelectionBar、TreeSelect、NumberRangeField；案例：单机 / DMC 台账、统计看板、收益认定、一本账
-- [ ] M3 流程与协作：工作日与时限、Steps 升级、Timeline（操作人、折叠、倒序）、Countdown 逾期、CommentThread、带理由的确认、
-      Upload 服务端文件、NotificationCenter、跨容器拖动与 KanbanBoard；案例：任务卡详情升级、工作台与收件箱、渠道一 / 二
-- [ ] M4 测算与看板：字段差异、FieldCompare、WaterfallChart、FunnelChart、PivotTable、Stat 目标与下钻、XYChart 目标线与点击；
-      案例：测算对比与协商、储备库
-- [x] M5 设计资源：主题导出为设计令牌（DTCG JSON，Figma 变量面板原生导入）；Figma 文件里的变量、样式、图标与组件；“设计资源”指南
-- [ ] M6 降本的 Figma 界面：Figma MCP 免费版的月度额度用完了，额度恢复后再画；在那之前整页示例就是蓝本
+- [x] D0 设计规格与底座：DESIGN.md；分层（app / domain / api / mock / modules / shared）、接口契约与金额编解码、
+      MSW 假后端（localStorage、可恢复）、演示身份切换、主数据缓存、路由表与外壳；组件库的流程定义模型（`workflow/`）
+- [ ] D1 流程：五个流程定义、假后端的流转模拟（认领、退回、提级、会签、超时、轮次）、权限 `can()`；
+      FlowDiagram、ApprovalActions、WorkflowTimeline
+- [ ] D2 收件箱、工作台、通知：Splitter、DeadlineTag、useFormDialog、createNotifications + NotificationCenter
+- [ ] D3 任务池：任务列表、任务看板、任务详情、信息表编辑、计划调整、DMC 审批链：KanbanBoard（useSortable 分组）、Upload 已有文件
+- [ ] D4 收益：收益认定、商务洽谈、一本账（时点）、差额分析；Excel 导入导出：`@vue-tsx-pro/ui/xlsx`、DataImport
+- [ ] D5 渠道一：建议列表、提交建议、建议详情、测算表单与版本对比、协商：FieldCompare、CommentThread
+- [ ] D6 渠道二：方案列表、新需求、方案详情；供应商门户
+- [ ] D7 测算公式与参数、储备库与匹配推送、降本明细两页：DataTable 单元格编辑
+- [ ] D8 统计分析四页；基础数据、系统管理（流程配置 FlowDesigner、工作日历、分级授权、提醒、日志）：WaterfallChart、FunnelChart
+- [x] 设计资源：主题导出为设计令牌（DTCG JSON）；Figma 文件里的变量、样式、图标与组件；“设计资源”指南
+- [ ] 降本的 Figma 界面：Figma MCP 的月度额度恢复后再画，以 DESIGN.md 与做好的页面为蓝本
 
 ## 5. 图表
 

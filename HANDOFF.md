@@ -26,7 +26,12 @@
   - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart
   - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer；不依赖 three 的 TiltCard、SpotlightCard、BorderBeam 在主入口
 - **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher` 切换，`ThemeCustomizer` 定制（子路径 `@vue-tsx-pro/ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
-- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。联合降本管理的整页示例（虚构数据）已拆成独立子项目 `apps/cost-reduction`（`pnpm dev:cost`，端口 5175），文档站不再收案例页。
+- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。联合降本管理已拆成独立子项目 `apps/cost-reduction`（`pnpm dev:cost`，端口 5175），文档站不再收案例页。
+- **联合降本管理**（`apps/cost-reduction`，正式版前端）：设计依据是 `apps/cost-reduction/DESIGN.md`（角色、流程、全部页面、口径、
+  要补的组件、里程碑 D0–D8）。分层：`domain/`（纯业务规则，前端与假后端共用）、`api/`（接口契约与调用，金额是十进制字符串）、
+  `mock/`（MSW 3 假后端，数据存 localStorage，`VITE_MOCK=false` 时直连后端）、`app/`（路由表、外壳与 PageNav、会话与演示身份、
+  主数据缓存、全局提示）、`modules/`（按模块的页面）、`shared/`（应用内共用的展示件）。流程的执行在后端自研引擎，
+  前端用组件库 `workflow/` 的流程定义（BPMN 子集）描述流程。单元测试是 vitest 项目 `cost-reduction`。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
 - **CI**：GitHub Actions 五个并行任务：check（静态检查）、test（Ubuntu 与 Windows）、browser（三种浏览器的浏览器测试与文档站的 axe）、build、consumer（发布产物验证）。
 
@@ -247,7 +252,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
    - **跨容器拖动**（`useSortable` 加分组）：拖动中改用 window 级的指针跟踪（现在是 pointer capture，离不开容器）；
      分组登记表（同组的列表互相接收）；二维跟随；键盘在列表之间移动；读屏播报“移到了哪一列第几项”。
    - **通知控制器 `createNotifications()`**：照 `createToaster` 的模式，给 M3 的 NotificationCenter 用（已读、分组、操作）。
-2. §3 组件补齐 → §4 降本案例的 M3、M4（M6 的 Figma 等额度恢复）→ §5 图表 → §6 质量与发布。
+2. §4 联合降本管理按 DESIGN.md 的 D1–D8 推进（每块用到的组件先进组件库）→ §3 其余组件补齐 → §5 图表 → §6 质量与发布。
 
 审查的细节在 `.claude/reports/audit-2026-10-22.md`（已修的已标出）。每做完一块：勾 ROADMAP、`check.sh`、分开提交（整理与功能）、
 `push.sh`。
