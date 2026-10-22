@@ -11,6 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { clamp } from '../utils/data/number';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
+import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
 /** 分隔条的角色、可聚焦与取值由组件管理 */
@@ -69,6 +70,16 @@ export const ResizeHandle = _component(
   }: ResizeHandleProps) => {
     const parentOf = (event: Event) => (event.currentTarget as HTMLElement).parentElement!;
     const fit = (px: number) => Math.round(clamp(px, minWidth, maxWidth));
+    // 没给 width 时量父元素的实际宽度：可聚焦的分隔条必须有当前值（aria-valuenow）
+    let handle = _state.raw<HTMLElement | null>(null);
+    let measured = _state<number | undefined>(undefined);
+    useResizeObserver(
+      () => (width == null ? handle?.parentElement : null),
+      () => {
+        const parent = handle?.parentElement;
+        if (parent) measured = Math.round(parent.getBoundingClientRect().width);
+      },
+    );
 
     function onPointerdown(event: PointerEvent) {
       const parent = parentOf(event);
@@ -98,10 +109,11 @@ export const ResizeHandle = _component(
           { sx: [resizeHandleStyles.handle, edge === 'start' && resizeHandleStyles.start] },
           rest,
           {
+            ref: (element: unknown) => (handle = element instanceof HTMLElement ? element : null),
             role: 'separator',
             tabindex: 0,
             'aria-orientation': 'vertical',
-            'aria-valuenow': width,
+            'aria-valuenow': width ?? measured ?? minWidth,
             'aria-valuemin': minWidth,
             'aria-valuemax': Number.isFinite(maxWidth) ? maxWidth : undefined,
             onPointerdown,
