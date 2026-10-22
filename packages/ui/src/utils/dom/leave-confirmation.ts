@@ -6,23 +6,14 @@
  * 浏览器只显示自己的固定文案，不能自定义。单页应用内的路由跳转不经过 beforeunload：由使用方在路由守卫里接，
  * 如 vue-router 的 onBeforeRouteLeave(() => !form.dirty || confirm('有未保存的修改，确定离开？'))。
  */
-import { onScopeDispose, watch } from 'vue';
+import { useEventListener } from './event-listener';
 
 /** 有未保存的修改时拦住页面卸载（在 setup 里调用，组件卸载时自动解除） */
 export function useLeaveConfirmation(read: () => boolean): void {
-  if (typeof window === 'undefined') return;
-  const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault();
   // 只在需要时注册：注册了 beforeunload 的页面进不了往返缓存（bfcache）
-  const stop = watch(
-    read,
-    (blocking) => {
-      if (blocking) window.addEventListener('beforeunload', onBeforeUnload);
-      else window.removeEventListener('beforeunload', onBeforeUnload);
-    },
-    { immediate: true },
+  useEventListener(
+    () => (read() ? window : null),
+    'beforeunload',
+    (event) => event.preventDefault(),
   );
-  onScopeDispose(() => {
-    stop();
-    window.removeEventListener('beforeunload', onBeforeUnload);
-  });
 }

@@ -5,14 +5,14 @@
  *   const visible = usePageVisible();
  *   watch(visible, (shown) => shown && refresh());
  */
-import { onScopeDispose, shallowRef, type Ref } from 'vue';
+import { shallowRef, type Ref } from 'vue';
+import { useEventListener } from './event-listener';
 
 /** 页面是否在前台（在 setup 或 effectScope 里调用）；没有 document 的环境（服务端）恒为 true */
 export function usePageVisible(): Readonly<Ref<boolean>> {
   if (typeof document === 'undefined') return shallowRef(true);
   const visible = shallowRef(document.visibilityState !== 'hidden');
   const update = () => (visible.value = document.visibilityState !== 'hidden');
-  document.addEventListener('visibilitychange', update);
-  onScopeDispose(() => document.removeEventListener('visibilitychange', update));
+  useEventListener(document, 'visibilitychange', update);
   return visible;
 }

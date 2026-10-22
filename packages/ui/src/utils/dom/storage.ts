@@ -9,7 +9,8 @@
  * - 隐私模式、禁用存储、配额满时读写会抛错：只在这次打开有效
  * - 别的标签页改了同一个键，这里跟着变（storage 事件）；服务端渲染时就是 initial
  */
-import { getCurrentScope, onScopeDispose, ref, watch, type Ref } from 'vue';
+import { ref, watch, type Ref } from 'vue';
+import { useEventListener } from './event-listener';
 
 /** usePersistentState 的选项 */
 export interface PersistentStateOptions<T> {
@@ -73,8 +74,7 @@ export function usePersistentState<T>(
     const onStorage = (event: StorageEvent) => {
       if (event.key === key && event.storageArea === storage()) state.value = read();
     };
-    window.addEventListener('storage', onStorage);
-    if (getCurrentScope()) onScopeDispose(() => window.removeEventListener('storage', onStorage));
+    useEventListener(window, 'storage', onStorage);
   }
   return state;
 }

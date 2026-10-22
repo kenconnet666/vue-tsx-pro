@@ -8,6 +8,7 @@
  * 滚到底时最后几节可能永远到不了阅读线：这时高亮视口里的最后一个。
  */
 import { onMounted, onScopeDispose, shallowRef, watch, type Ref } from 'vue';
+import { useEventListener } from './event-listener';
 
 /** useScrollSpy 每次读取的选项 */
 export interface ScrollSpyOptions {
@@ -47,32 +48,13 @@ export function useScrollSpy(read: () => ScrollSpyOptions): Readonly<Ref<string 
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(update);
   };
-  let target: HTMLElement | Window | undefined;
-  function listen(root: HTMLElement | null | undefined) {
-    target?.removeEventListener('scroll', schedule);
-    target = root ?? window;
-    target.addEventListener('scroll', schedule, { passive: true });
-  }
-
-  onMounted(() => {
-    listen(read().root);
-    update();
-  });
-  // 滚动容器常常在挂载后才拿到（ref 回调）：换了容器要按新容器重新算，不能留着按窗口算的结果
-  watch(
-    () => read().root,
-    (root) => {
-      listen(root);
-      schedule();
-    },
-  );
+  // 滚动容器常常在挂载后才拿到（ref 回调）：换了容器就换绑，并按新容器重新算，不能留着按窗口算的结果
+  useEventListener(() => read().root ?? window, 'scroll', schedule, { passive: true });
+  useEventListener(window, 'resize', schedule);
+  onMounted(update);
+  watch(() => read().root, schedule);
   watch(() => read().ids, schedule, { flush: 'post' });
-  window.addEventListener('resize', schedule);
-  onScopeDispose(() => {
-    cancelAnimationFrame(frame);
-    target?.removeEventListener('scroll', schedule);
-    window.removeEventListener('resize', schedule);
-  });
+  onScopeDispose(() => cancelAnimationFrame(frame));
   return current;
 }
 

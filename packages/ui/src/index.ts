@@ -1196,6 +1196,7 @@ export { useClipboard, type ClipboardOptions, type ClipboardState } from './util
 export { inlineArrows, isRtl, type InlineArrows } from './utils/dom/direction';
 export { downloadFile } from './utils/dom/download';
 export { toElement } from './utils/dom/element';
+export { useEventListener, type ListenerTarget } from './utils/dom/event-listener';
 export {
   anchoredPanelSx,
   anchorFloating,

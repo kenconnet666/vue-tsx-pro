@@ -113,7 +113,8 @@ function exportsOf(file) {
       values.push(node.name.text);
     }
   }
-  return { values, types, declaresModule };
+  // 函数重载是同一个名字的几条声明：只算一次
+  return { values: [...new Set(values)], types, declaresModule };
 }
 
 const byName = (a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }) || a.localeCompare(b);

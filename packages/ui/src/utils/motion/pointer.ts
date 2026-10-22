@@ -10,7 +10,8 @@
  * 监听整个窗口：背景效果通常在内容下面，指针落在上层的文字、按钮上时也要跟随。
  * 减少动态效果时弹簧的时长为 0，位置直接到位（效果自己决定要不要停下交互）。
  */
-import { onScopeDispose, shallowRef } from 'vue';
+import { shallowRef } from 'vue';
+import { useEventListener } from '../dom/event-listener';
 import { useSpring, type SpringOptions } from './tween';
 
 /** usePointer 的返回值 */
@@ -58,12 +59,8 @@ export function usePointer(
       };
     };
     const onLeave = () => (target.value = { ...target.value, inside: false });
-    window.addEventListener('pointermove', onMove, { passive: true });
-    document.documentElement.addEventListener('pointerleave', onLeave);
-    onScopeDispose(() => {
-      window.removeEventListener('pointermove', onMove);
-      document.documentElement.removeEventListener('pointerleave', onLeave);
-    });
+    useEventListener(window, 'pointermove', onMove, { passive: true });
+    useEventListener(document.documentElement, 'pointerleave', onLeave);
   }
 
   return {

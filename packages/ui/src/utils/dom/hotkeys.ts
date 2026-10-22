@@ -9,7 +9,7 @@
  * 字母按物理键也能匹配（macOS 上 Option 会改变 key）。没写的修饰键必须没按下；符号键（? ! 等）不检查 Shift。
  * 焦点在输入框、可编辑区域里时默认不触发，输入法组字时也不触发。
  */
-import { onScopeDispose } from 'vue';
+import { useEventListener } from './event-listener';
 
 /** useHotkeys 的选项 */
 export interface HotkeyOptions {
@@ -156,6 +156,5 @@ export function useHotkeys(read: () => HotkeyMap, { inInputs = false }: HotkeyOp
       return;
     }
   };
-  document.addEventListener('keydown', onKeydown);
-  onScopeDispose(() => document.removeEventListener('keydown', onKeydown));
+  useEventListener(document, 'keydown', onKeydown);
 }
