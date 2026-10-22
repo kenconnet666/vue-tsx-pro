@@ -170,7 +170,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [ ] 通知控制器 `createNotifications()`（与 `createToaster` 同一模式），NotificationCenter 用它
 - [x] 持久化状态 `usePersistentState`（参考 VueUse useStorage）：JSON、类型不对用默认值、对象按字段合并、存不了只在这次有效、
       别的标签页改了跟着变；文档站的侧栏与主题设置改用它（删掉 site/sidebar.ts），台账记住隐藏的列
-- [ ] 导出 CSV：从列定义生成（BOM、转义、列的 value 与格式）；`downloadFile` 的 BOM 说明改对
+- [x] 导出 CSV `tableToCsv`：从列定义生成（RFC 4180 转义、BOM、状态名与列格式同界面、分组表头、raw 原值、防公式注入）；
+      台账的“导出所选”用它（跨页所选、显示着的数据列）
 - [ ] 通用钩子：`useEventListener`、`useDebounce`、`useIntersectionObserver`（页面可见性已有 `usePageVisible`）
 - [ ] 快捷键：作用域、序列键（`g i`）、预解析；离开确认接上路由守卫与 `form.dirty`
 - [x] zod 的报错跟随语言包：useForm 按语言包给 zod 传错误文案，空值是 `lang.formRequired`，其余是 `lang.formIssues`（zod 自带的语言包）；

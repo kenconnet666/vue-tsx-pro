@@ -60,6 +60,8 @@ import {
   type DataTableColumn,
   type DataTableColumnGroup,
   daysBetween,
+  downloadFile,
+  tableToCsv,
   type SortState,
   usePersistentState,
   useTableQuery,
@@ -486,6 +488,7 @@ export const LedgerPage = _component(
         width: 88,
         align: 'end',
         sortable: true,
+        format: amount.format,
         value: (task) => task.expected,
         cell: (task) => money(task.expected, '—'),
       },
@@ -495,6 +498,7 @@ export const LedgerPage = _component(
         width: 88,
         align: 'end',
         sortable: true,
+        format: amount.format,
         value: (task) => task.a,
         // 认定前没有 A（状态已经说明）；挂账待定写“待定价”
         cell: (task) => money(task.a, task.status === 'unpriced' ? '待定价' : '—'),
@@ -505,6 +509,7 @@ export const LedgerPage = _component(
         width: 88,
         align: 'end',
         sortable: true,
+        format: amount.format,
         value: (task) => task.b,
         cell: (task) => money(task.b, '—'),
       },
@@ -632,6 +637,21 @@ export const LedgerPage = _component(
     );
 
     const search = () => tasks.search({ ...query });
+
+    /** 导出所选（跨页）：显示着的数据列；里程碑、超时、操作是界面上的列，不导出 */
+    function exportSelected() {
+      const rows = taskStore.value.filter((task) => selected.includes(task.code));
+      const exported = columns.filter(
+        (column) =>
+          !['milestones', 'overdue', 'actions'].includes(column.key) &&
+          !hidden.includes(column.key),
+      );
+      downloadFile(
+        `${amount.label}台账（已选 ${rows.length} 项）.csv`,
+        tableToCsv(rows, exported, format, { groups }),
+        'text/csv',
+      );
+    }
     function reset() {
       query = blank();
       search();
@@ -698,7 +718,13 @@ export const LedgerPage = _component(
 
             <div {...stylex.attrs(styles.list)}>
               <SelectionBar count={selected.length} onClear={() => (selected = [])}>
-                <Button size="sm" variant="outline" tone="neutral" icon={Download}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  tone="neutral"
+                  icon={Download}
+                  onClick={exportSelected}
+                >
                   导出所选
                 </Button>
                 <Button size="sm" icon={Send}>
