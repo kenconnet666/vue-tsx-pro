@@ -76,6 +76,19 @@ describe('useFormDialog', () => {
     expect(onSubmit).toHaveBeenCalledWith({ reason: '手上有三件超时的' });
   });
 
+  it('date 字段：日期选择（分段输入），初始值原样提交', async () => {
+    const onSubmit = vi.fn();
+    const dialog = await open({
+      title: '调整计划',
+      fields: [{ name: 'due', label: '计划完成', type: 'date', defaultValue: '2026-12-31' }],
+      onSubmit,
+    });
+    expect(dialog.querySelectorAll('[role="spinbutton"]').length).toBeGreaterThanOrEqual(3);
+    buttonOf(dialog, '确定').click();
+    await nextTick();
+    expect(onSubmit).toHaveBeenCalledWith({ due: '2026-12-31' });
+  });
+
   it('onSubmit 失败时对话框留着（open 不变）', async () => {
     const dialog = await open({
       title: '指定承办人',

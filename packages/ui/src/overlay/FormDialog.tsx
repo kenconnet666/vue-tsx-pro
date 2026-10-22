@@ -10,7 +10,7 @@
  *   });
  *   if (values) refresh();                       // 取消、Esc 时是 null
  *
- * 字段是 text（默认）、textarea、select（options）；required 的没填、validate 返回说明时，错误落在字段下面、不提交。
+ * 字段是 text（默认）、textarea、select（options）、date（ISO 日期，可限 min / max）；required 的没填、validate 返回说明时，错误落在字段下面、不提交。
  * 值都是字符串（去掉首尾空白）。onSubmit 返回 Promise 时确认按钮显示加载中，失败（reject）时对话框留着，由调用方提示原因。
  * 对话框渲染在组件树之外，沿用调用处的主题、语言（同 useConfirm）。
  */
@@ -18,6 +18,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import type { VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { useLang } from '../config/context';
+import { DatePicker } from '../date/DatePicker';
 import { Field } from '../form/Field';
 import { Select } from '../input/Select';
 import { Textarea } from '../input/Textarea';
@@ -34,14 +35,14 @@ export interface FormDialogField {
   /** 标签 */
   label: string;
   /**
-   * 控件：单行文字、多行文字、下拉选择
+   * 控件：单行文字、多行文字、下拉选择、日期（值是 ISO 日期 'YYYY-MM-DD'）
    * @default 'text'
    */
-  type?: 'text' | 'textarea' | 'select';
+  type?: 'text' | 'textarea' | 'select' | 'date';
   /** 必填 */
   required?: boolean;
-  /** 下拉的选项（type 为 select） */
-  options?: readonly { value: string; label: string }[];
+  /** 下拉的选项（type 为 select）；description 是选项的第二行 */
+  options?: readonly { value: string; label: string; description?: string }[];
   /** 初始值 */
   defaultValue?: string;
   /** 占位文字 */
@@ -50,6 +51,10 @@ export interface FormDialogField {
   description?: VNodeChild;
   /** 最多几个字（text、textarea） */
   maxlength?: number;
+  /** 最早可选的日期（type 为 date，ISO 日期） */
+  min?: string;
+  /** 最晚可选的日期（type 为 date，ISO 日期） */
+  max?: string;
   /** 校验：返回错误说明时不提交；values 是全部字段的值 */
   validate?: (value: string, values: Readonly<Record<string, string>>) => string | null | undefined;
 }
@@ -91,8 +96,11 @@ const FormDialogBody = _component(
     onClose: () => void;
   }) => {
     const lang = useLang();
+    // 初始值只取一次：对话框打开后由用户填
     let values = _state<Record<string, string>>(
-      Object.fromEntries(options.fields.map((field) => [field.name, field.defaultValue ?? ''])),
+      Object.fromEntries(
+        _untrack(options.fields).map((field) => [field.name, field.defaultValue ?? '']),
+      ),
     );
     let errors = _state<Record<string, string>>({});
     let pending = _state(false);
@@ -137,6 +145,17 @@ const FormDialogBody = _component(
               placeholder={field.placeholder}
               maxlength={field.maxlength}
               autofocus={autofocus}
+            />
+          );
+        case 'date':
+          return (
+            <DatePicker
+              value={_bind(
+                () => values[field.name] || null,
+                (next: string | null) => (values[field.name] = next ?? ''),
+              )}
+              min={field.min}
+              max={field.max}
             />
           );
         case 'select':

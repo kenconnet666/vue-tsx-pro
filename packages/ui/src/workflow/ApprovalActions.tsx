@@ -19,7 +19,7 @@ import { Button, type ButtonProps } from '../base/Button';
 import { useMessages } from '../config/lang/messages';
 import { Field } from '../form/Field';
 import { Textarea } from '../input/Textarea';
-import { Upload, type UploadFile, type UploadHandler } from '../input/Upload';
+import { existingUploadFile, Upload, type UploadFile, type UploadHandler } from '../input/Upload';
 import { Flex, type FlexProps } from '../layout/Flex';
 import { Dialog, type DialogProps } from '../overlay/Dialog';
 import { mergePartProps } from '../utils/props';
@@ -52,6 +52,11 @@ export interface ApprovalActionsProps extends Partial<FlexProps> {
   validate?: (outcome: ProcessOutcome) => string | null | undefined;
   /** 上传一个附件，返回附件的标识（地址或文件名）；不写时只记文件名 */
   upload?: UploadHandler;
+  /**
+   * 已有的附件（被退回后重新处理时上次交的）：打开对话框时列在附件里，不用重新上传，可以移除；
+   * 提交时和新传的一起交上去（url 或文件名）
+   */
+  attachments?: readonly { name: string; url?: string }[];
   /** 按钮的尺寸，默认 md */
   size?: ButtonProps['size'];
   /** 每个结果的按钮的部件属性，可以按结果计算 */
@@ -86,6 +91,7 @@ export const ApprovalActions = _component(
     fields,
     validate,
     upload,
+    attachments,
     size,
     propsButton,
     propsDialog,
@@ -120,7 +126,7 @@ export const ApprovalActions = _component(
         return;
       }
       comment = '';
-      files = [];
+      files = (attachments ?? []).map((file) => existingUploadFile(file));
       errors = { comment: '', attachments: '', fields: '' };
       active = outcome;
     }
@@ -131,7 +137,7 @@ export const ApprovalActions = _component(
       const text = comment.trim();
       const attachments = files
         .filter((item) => item.status === 'done' || (!upload && item.status === 'selected'))
-        .map((item) => (typeof item.response === 'string' ? item.response : item.file.name));
+        .map((item) => (typeof item.response === 'string' ? item.response : item.name));
       errors = {
         comment: outcome.comment === 'required' && !text ? messages.commentRequired : '',
         attachments:

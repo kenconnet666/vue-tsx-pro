@@ -6,7 +6,7 @@ import { Field } from '../../form/Field';
 import type { HttpClient, HttpRequest } from '../../utils/request/http';
 import { mount } from '../../utils/.test/mount';
 import { FileDrop, matchesAccept } from '../FileDrop';
-import { Upload, type UploadFile, type UploadHandler } from '../Upload';
+import { existingUploadFile, Upload, type UploadFile, type UploadHandler } from '../Upload';
 
 const file = (name: string, type = 'text/plain', size = 4) =>
   new File(['x'.repeat(size)], name, { type });
@@ -141,14 +141,14 @@ describe('Upload', () => {
     expect(upload).not.toHaveBeenCalled();
     drop(root, [file('small.txt')]);
     await flush();
-    expect(list.map((item) => item.file.name)).toEqual(['small.txt']);
+    expect(list.map((item) => item.name)).toEqual(['small.txt']);
     expect(upload).toHaveBeenCalledTimes(1);
   });
 
   it('部件属性：每一项的 body、文件名、大小或错误、进度条；进度与名称由组件决定', () => {
     const items: UploadFile[] = [
-      { id: 'a', file: file('a.txt'), status: 'uploading', progress: 0.5 },
-      { id: 'b', file: file('b.txt'), status: 'error', error: '网络错误' },
+      { id: 'a', name: 'a.txt', file: file('a.txt'), status: 'uploading', progress: 0.5 },
+      { id: 'b', name: 'b.txt', file: file('b.txt'), status: 'error', error: '网络错误' },
     ];
     const root = mount(() => (
       <Upload
@@ -172,7 +172,7 @@ describe('Upload', () => {
 
   it('部件属性：文件图标、重试、移除；每项的名称、点击与不可用由组件管理', async () => {
     let list = _state<UploadFile[]>([
-      { id: 'a', file: file('a.txt'), status: 'error', error: '网络错误' },
+      { id: 'a', name: 'a.txt', file: file('a.txt'), status: 'error', error: '网络错误' },
     ]);
     const upload = vi.fn<UploadHandler>(() => new Promise(() => {}));
     const root = mount(() => (
@@ -195,8 +195,25 @@ describe('Upload', () => {
     expect(upload).toHaveBeenCalledTimes(1);
     expect(list[0]!.status).toBe('uploading');
   });
+  it('已有文件：状态是完成，文件名链到地址；不重新上传，可以移除', async () => {
+    let list = _state<UploadFile[]>([
+      existingUploadFile({ name: '验证报告.pdf', url: '/files/7' }),
+      existingUploadFile({ name: '评审纪要.pdf', size: 2048 }),
+    ]);
+    const upload = vi.fn<UploadHandler>();
+    const root = mount(() => <Upload value={_bind(list)} upload={upload} multiple />);
+    const items = root.querySelectorAll('li');
+    expect([...items].map((item) => item.dataset.state)).toEqual(['done', 'done']);
+    expect(items[0]!.querySelector('a')!.getAttribute('href')).toBe('/files/7');
+    expect(items[1]!.textContent).toContain('2 kB');
+    expect(upload).not.toHaveBeenCalled();
+    items[0]!.querySelector<HTMLButtonElement>('button[aria-label="移除 验证报告.pdf"]')!.click();
+    await flush();
+    expect(list.map((item) => item.name)).toEqual(['评审纪要.pdf']);
+  });
+
   it('读 Field 的只读与不可用；已有文件时选择框不再原生必填（它选完就清空，否则表单交不了）', async () => {
-    const files: UploadFile[] = [{ id: 'a', file: file('a.txt'), status: 'done' }];
+    const files: UploadFile[] = [{ id: 'a', name: 'a.txt', file: file('a.txt'), status: 'done' }];
     const root = mount(() => (
       <>
         <Field label="附件" readonly>

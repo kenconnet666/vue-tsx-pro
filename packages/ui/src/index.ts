@@ -322,6 +322,14 @@ export {
   type ItemListProps,
 } from './display/ItemList';
 export {
+  KanbanBoard,
+  kanbanBoardDynamicStyles,
+  kanbanBoardStyles,
+  type KanbanBoardProps,
+  type KanbanCardState,
+  type KanbanColumn,
+} from './display/KanbanBoard';
+export {
   Marquee,
   marqueeDynamicStyles,
   marqueeStyles,
@@ -744,6 +752,7 @@ export {
 } from './input/ToggleGroup';
 export { TreeSelect, treeSelectStyles, type TreeSelectProps } from './input/TreeSelect';
 export {
+  existingUploadFile,
   Upload,
   uploadStyles,
   type UploadFile,

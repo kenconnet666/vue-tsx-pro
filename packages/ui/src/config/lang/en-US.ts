@@ -105,6 +105,17 @@ export const enUS: Lang = {
   sortableMoved: (item, position, total) => `${item} moved to position ${position} of ${total}`,
   sortableDropped: (item, position, total) => `Dropped ${item}, position ${position} of ${total}`,
   sortableCancelled: (item, position) => `Cancelled, ${item} returned to position ${position}`,
+  kanbanInstructions:
+    'Press space to pick up, use the left and right arrow keys to change column, press space again to drop, Escape to cancel',
+  kanbanGrabbed: (item, column) => `Picked up ${item}, in ${column}`,
+  kanbanOver: (item, column, reason) =>
+    reason ? `${column}: cannot drop, ${reason}` : `${item} over ${column}, press space to drop`,
+  kanbanDropped: (item, column) => `Moved ${item} to ${column}`,
+  kanbanCancelled: (item, column, reason) =>
+    reason
+      ? `Cannot move: ${reason}. ${item} back in ${column}`
+      : `Cancelled, ${item} back in ${column}`,
+  kanbanEmpty: 'None',
   tourPrevious: 'Back',
   tourNext: 'Next',
   tourFinish: 'Done',

@@ -101,6 +101,14 @@ export const zhCN: Lang = {
   sortableMoved: (item, position, total) => `${item} 移到第 ${position} 位，共 ${total} 项`,
   sortableDropped: (item, position, total) => `已放下 ${item}，在第 ${position} 位，共 ${total} 项`,
   sortableCancelled: (item, position) => `已取消，${item} 回到第 ${position} 位`,
+  kanbanInstructions: '按空格拿起，用左右方向键换列，再按空格放下，Esc 取消',
+  kanbanGrabbed: (item, column) => `已拿起 ${item}，在 ${column}`,
+  kanbanOver: (item, column, reason) =>
+    reason ? `${column}：不能放，${reason}` : `${item} 到了 ${column}，按空格放下`,
+  kanbanDropped: (item, column) => `已把 ${item} 移到 ${column}`,
+  kanbanCancelled: (item, column, reason) =>
+    reason ? `不能移动：${reason}。${item} 回到 ${column}` : `已取消，${item} 回到 ${column}`,
+  kanbanEmpty: '没有',
   tourPrevious: '上一步',
   tourNext: '下一步',
   tourFinish: '完成',

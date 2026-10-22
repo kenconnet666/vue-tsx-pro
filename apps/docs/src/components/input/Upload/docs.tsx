@@ -7,6 +7,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Existing from './demo/Existing.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Photos from './demo/Photos.tsx?demo';
 import Resume from './demo/Resume.tsx?demo';
@@ -37,6 +38,11 @@ export default _component(() => () => (
           不给 <Code>upload</Code> 时文件停在“已选择”，等提交时一起处理；写了 <Code>name</Code>{' '}
           时有一个隐藏的 file input 带着全部文件，原生提交、FormData
           都拿得到。单选时新文件替换旧的。
+        </Example>
+        <Example id="existing" title="已有文件" demo={Existing}>
+          之前上传过、从后端读回来的文件用 <Code>existingUploadFile</Code> 放进
+          value：状态是完成、不重新上传，给了 <Code>url</Code>{' '}
+          时文件名链到它；可以移除，新选的照常上传。
         </Example>
         <Example id="file-drop" title="FileDrop" demo={Import}>
           只负责选文件：点击、聚焦后按 Enter / 空格、或把文件拖进来。选到的经 <Code>onFiles</Code>{' '}

@@ -15,6 +15,10 @@
  * - action：经 createUi / Provider 的 http 把文件 POST 过去（multipart，字段名 fieldName），与其他请求共用 baseURL、令牌与拆包；
  *   fetch 拿不到上传的字节进度，进度条是不确定的，要进度时写 upload（XMLHttpRequest 的 upload.onprogress）；
  * - 超过 maxSize、不在 accept 里的文件也列出来，带错误、不上传；单选（不写 multiple）时新文件替换旧的；
+ * - 已有文件（之前上传过、从后端读回来的）用 existingUploadFile 放进 value：状态是 done，没有 File，
+ *   给了 url 时文件名链到它（预览、下载），可以移除；
+ *
+ *   let files = _state([existingUploadFile({ name: '验证报告.pdf', url: '/files/123' })]);
  * - 在 Field 里时关联标签与错误；写了 name 时有一个隐藏的 file input 带着全部文件，原生提交（FormData）也拿得到。
  *
  * 部件：Root（div）、Drop（FileDrop）、List（ul）、Item（li）、Icon（文件图标）、Body（文件名与下一行）、Name、Meta（大小或错误）、
@@ -25,6 +29,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
+import { Link } from '../base/Link';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
@@ -41,8 +46,14 @@ import { GridList, type GridProps } from '../layout/Grid';
 export interface UploadFile {
   /** 组件给的 id，同一个列表里唯一 */
   readonly id: string;
-  /** 文件 */
-  readonly file: File;
+  /** 文件名 */
+  readonly name: string;
+  /** 大小（字节）；已有文件不知道时为 undefined */
+  readonly size?: number;
+  /** 选的文件；已有文件没有 */
+  readonly file?: File;
+  /** 已有文件的地址：文件名链到它 */
+  readonly url?: string;
   /** selected：选了、还没上传；uploading：上传中；done：完成；error：失败或没通过检查 */
   readonly status: 'selected' | 'uploading' | 'done' | 'error';
   /** 上传进度 0–1；upload 没报告进度时为 undefined（不确定进度） */
@@ -138,6 +149,20 @@ export const uploadStyles = stylex.create({
 
 let nextId = 0;
 
+/** 已有文件（之前上传过、从后端读回来的）：放进 Upload 的 value，状态是 done */
+export function existingUploadFile(file: {
+  /** 标识；不写时生成一个 */
+  id?: string;
+  /** 文件名 */
+  name: string;
+  /** 大小（字节） */
+  size?: number;
+  /** 地址：文件名链到它 */
+  url?: string;
+}): UploadFile {
+  return { ...file, id: file.id ?? `upload-${++nextId}`, status: 'done', response: file.url };
+}
+
 /** 上传：选文件、列出文件与进度、失败重试、移除 */
 export const Upload = _component(
   ({
@@ -194,13 +219,13 @@ export const Upload = _component(
 
     async function start(item: UploadFile) {
       const send = uploader();
-      if (!send) return;
+      if (!send || !item.file) return;
       controllers.get(item.id)?.abort();
       const controller = new AbortController();
       controllers.set(item.id, controller);
       patch(item.id, { status: 'uploading', progress: undefined, error: undefined });
       try {
-        const response = await send(item.file, {
+        const response = await send(item.file!, {
           onProgress: (fraction) => {
             if (!controller.signal.aborted) patch(item.id, { progress: fraction });
           },
@@ -224,15 +249,15 @@ export const Upload = _component(
 
     function add(files: File[], rejectedType = false) {
       const entries = files.map((file): UploadFile => {
-        const id = `upload-${++nextId}`;
+        const base = { id: `upload-${++nextId}`, name: file.name, size: file.size, file };
         if (rejectedType) {
-          return { id, file, status: 'error', error: lang.fileTypeRejected, rejected: true };
+          return { ...base, status: 'error', error: lang.fileTypeRejected, rejected: true };
         }
         if (maxSize != null && file.size > maxSize) {
           const error = lang.fileTooLarge(format.fileSize(maxSize));
-          return { id, file, status: 'error', error, rejected: true };
+          return { ...base, status: 'error', error, rejected: true };
         }
-        return { id, file, status: 'selected' };
+        return { ...base, status: 'selected' };
       });
       if (!multiple) value.forEach((item) => controllers.get(item.id)?.abort());
       const kept = multiple ? value : [];
@@ -246,14 +271,14 @@ export const Upload = _component(
     _effect(() => {
       if (!hidden || typeof DataTransfer === 'undefined') return;
       const transfer = new DataTransfer();
-      value.filter((item) => !item.rejected).forEach((item) => transfer.items.add(item.file));
+      for (const item of value) if (item.file && !item.rejected) transfer.items.add(item.file);
       hidden.files = transfer.files;
     });
 
     function renderItem(item: UploadFile) {
       const state = control();
       const own = typeof propsItem === 'function' ? propsItem(item) : propsItem;
-      const fileName = item.file.name;
+      const fileName = item.name;
       const failed = item.status === 'error';
       return (
         <li
@@ -275,7 +300,15 @@ export const Upload = _component(
             )}
           />
           <div {...mergeAttrs<'div'>({ sx: uploadStyles.body }, propsBody)}>
-            <span {...mergeAttrs<'span'>({ sx: uploadStyles.name }, propsName)}>{fileName}</span>
+            <span {...mergeAttrs<'span'>({ sx: uploadStyles.name }, propsName)}>
+              {item.url ? (
+                <Link href={item.url} target="_blank">
+                  {fileName}
+                </Link>
+              ) : (
+                fileName
+              )}
+            </span>
             {item.status === 'uploading' ? (
               <Progress
                 {...mergePartProps<ProgressProps>(
@@ -294,7 +327,7 @@ export const Upload = _component(
                   propsMeta,
                 )}
               >
-                {failed ? item.error : format.fileSize(item.file.size)}
+                {failed ? item.error : item.size != null && format.fileSize(item.size)}
                 {item.status === 'done' && <VisuallyHidden> {lang.uploadDone}</VisuallyHidden>}
               </span>
             )}

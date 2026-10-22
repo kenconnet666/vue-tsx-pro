@@ -240,6 +240,18 @@ export interface Lang {
   readonly sortableDropped: (item: string, position: number, total: number) => string;
   /** 取消时的播报，默认“已取消，项名 回到第 n 位” */
   readonly sortableCancelled: (item: string, position: number) => string;
+  /** 看板卡片把手的操作说明，默认“按空格拿起，用左右方向键换列，再按空格放下，Esc 取消” */
+  readonly kanbanInstructions: string;
+  /** 看板：拿起时的播报，默认“已拿起 项名，在 列名” */
+  readonly kanbanGrabbed: (item: string, column: string) => string;
+  /** 看板：换到一列时的播报；不能放时带上原因 */
+  readonly kanbanOver: (item: string, column: string, reason: string | null) => string;
+  /** 看板：放下时的播报，默认“已把 项名 移到 列名” */
+  readonly kanbanDropped: (item: string, column: string) => string;
+  /** 看板：取消或不能放、弹回时的播报 */
+  readonly kanbanCancelled: (item: string, column: string, reason: string | null) => string;
+  /** 看板：一列没有卡片时，默认“没有” */
+  readonly kanbanEmpty: string;
   /** 引导的“上一步”按钮，默认“上一步” */
   readonly tourPrevious: string;
   /** 引导的“下一步”按钮，默认“下一步” */
