@@ -395,6 +395,7 @@ export {
   toastPlacementStyles,
   toastStackStyles,
   toastStyles,
+  type ToastCloseReasons,
   type ToasterController,
   type ToasterOptions,
   type ToasterProps,
@@ -404,6 +405,7 @@ export {
   type ToastPlacements,
   type ToastPromiseMessages,
   type ToastRecord,
+  type ToastShortcutOptions,
 } from './feedback/Toast';
 
 // 浮层：对话框、抽屉、弹出层、提示、菜单、引导

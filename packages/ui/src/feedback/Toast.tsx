@@ -6,11 +6,13 @@
  *   // App：放一个显示区域
  *   <Toaster controller={toaster} placement="bottom-end" />
  *   // 任意位置
- *   toaster.show({ tone: 'success', title: '已保存' });
+ *   toaster.show({ tone: 'success', title: '已保存' });       // 或 toaster.success('已保存')
  *   const id = toaster.show({ title: '已删除', action: <Button onClick={() => undo(id)}>撤销</Button> });
+ *   toaster.loading('正在导出', { id: 'export' }); …; toaster.success('导出完成', { id: 'export' });  // 同一个 id 换掉原来那条
  *   await toaster.promise(upload(file), { loading: { title: '正在上传' }, success: { title: '上传完成' }, error: (e) => ({ title: String(e) }) });
  *
  * 控制器是普通对象，不经 Provider 注入（COMPONENTS.md §1 的“命令式能力”），所以组件外也能用。
+ * 写了 id 的通知不重复：同一个 id 再 show 时换掉那一条（重新计时），不再加一条（接口重试、连点保存时只留一条）。
  *
  * - 每条通知就是 Alert（surface 外观加阴影），图标、标题、正文、操作、关闭按钮都复用它；加载中用 Alert 的 loading。
  * - 计时：默认 5 秒；指针在区域上、焦点在区域里、页面切到后台时暂停；加载中的、duration 为 Infinity 的不自动消失。
@@ -74,6 +76,21 @@ export interface ToastOptions {
   duration?: number;
   /** 重要：读屏立即打断播报（aria-live="assertive"），用于出错、需要马上处理的通知；默认按礼貌的顺序念 */
   important?: boolean;
+  /** 编号：同一个编号的通知只有一条，再 show 时换掉它；不写时自动生成 */
+  id?: string;
+  /** 开始关闭时调用（自动消失或被关闭）；同一条通知只调用一次 */
+  onClose?: (reason: keyof ToastCloseReasons) => void;
+}
+
+/** 快捷方法的选项：标题由第一个参数给出 */
+export type ToastShortcutOptions = Omit<ToastOptions, 'title' | 'tone'>;
+
+/** 通知为什么关闭 */
+export interface ToastCloseReasons {
+  /** 到时间自动消失 */
+  timeout: unknown;
+  /** 用户点了关闭、滑走、按了 Esc，或代码调用了 dismiss */
+  dismissed: unknown;
 }
 
 /** 列表里的一条通知 */
@@ -111,8 +128,18 @@ export interface ToasterController {
   readonly toasts: readonly ToastRecord[];
   /** 计时是否暂停（悬停、聚焦、页面隐藏时） */
   readonly paused: boolean;
-  /** 显示一条通知，返回它的编号 */
+  /** 显示一条通知，返回它的编号；options.id 已有时换掉那一条（不与它合并） */
   show(options: ToastOptions): string;
+  /** 成功的通知：`toaster.success('已保存')` */
+  success(title: VNodeChild, options?: ToastShortcutOptions): string;
+  /** 出错的通知（读屏立即播报） */
+  error(title: VNodeChild, options?: ToastShortcutOptions): string;
+  /** 警告的通知 */
+  warning(title: VNodeChild, options?: ToastShortcutOptions): string;
+  /** 提示的通知 */
+  info(title: VNodeChild, options?: ToastShortcutOptions): string;
+  /** 进行中的通知（不自动消失）：完成后用同一个 id 调 success / error 换掉它，或 dismiss */
+  loading(title: VNodeChild, options?: ToastShortcutOptions): string;
   /** 改一条通知的内容（如加载完成）；计时按新的 duration 重新开始 */
   update(id: string, options: ToastOptions): void;
   /** 关闭一条通知；不给编号时关闭全部 */
@@ -155,7 +182,17 @@ export function createToaster({
 
   function start(id: string, timer: Timer) {
     timer.startedAt = Date.now();
-    timer.handle = setTimeout(() => controller.dismiss(id), timer.remaining);
+    timer.handle = setTimeout(() => close(id, 'timeout'), timer.remaining);
+  }
+
+  function close(id: string, reason: keyof ToastCloseReasons) {
+    const toast = find(id);
+    if (!toast || toast.closing) return;
+    toast.closing = true;
+    toast.countdown = null;
+    clearTimeout(timers.get(toast.id)?.handle);
+    timers.delete(toast.id);
+    toast.onClose?.(reason);
   }
 
   function stop(timer: Timer) {
@@ -196,11 +233,29 @@ export function createToaster({
       return state.paused;
     },
     show(options) {
-      const id = `toast-${++nextId}`;
+      const existing = options.id === undefined ? undefined : find(options.id);
+      if (existing && !existing.closing) {
+        // 换掉整条（不与上一条合并）：上一条的“进行中”、不可关闭都不留着
+        for (const key of Object.keys(existing) as (keyof MutableToast)[]) {
+          if (key !== 'id' && key !== 'closing' && key !== 'countdown') delete existing[key];
+        }
+        controller.update(existing.id, options);
+        return existing.id;
+      }
+      // 同一个编号的那条正在离场：先移走，新的接着出现
+      if (existing) controller.remove(existing.id);
+      const id = options.id ?? `toast-${++nextId}`;
       toasts.push(shallowReactive({ ...options, id, closing: false, countdown: null }));
       schedule(find(id)!);
       return id;
     },
+    success: (title, options) => controller.show({ ...options, title, tone: 'success' }),
+    error: (title, options) =>
+      controller.show({ important: true, ...options, title, tone: 'danger' }),
+    warning: (title, options) => controller.show({ ...options, title, tone: 'warning' }),
+    info: (title, options) => controller.show({ ...options, title, tone: 'info' }),
+    loading: (title, options) =>
+      controller.show({ closable: false, ...options, title, tone: 'neutral', loading: true }),
     update(id, options) {
       const toast = find(id);
       if (!toast || toast.closing) return;
@@ -208,12 +263,8 @@ export function createToaster({
       schedule(toast);
     },
     dismiss(id) {
-      for (const toast of id == null ? toasts : [find(id)]) {
-        if (!toast || toast.closing) continue;
-        toast.closing = true;
-        toast.countdown = null;
-        clearTimeout(timers.get(toast.id)?.handle);
-        timers.delete(toast.id);
+      for (const toast of id == null ? [...toasts] : [find(id)]) {
+        if (toast) close(toast.id, 'dismissed');
       }
     },
     async promise(promise, { loading, success, error }) {

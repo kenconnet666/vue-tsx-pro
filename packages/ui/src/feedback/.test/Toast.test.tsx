@@ -127,4 +127,46 @@ describe('createToaster', () => {
     await expect(result).rejects.toBe(failure);
     expect([toaster.toasts[0]!.title, toaster.toasts[0]!.tone]).toEqual(['断网', 'danger']);
   });
+
+  it('快捷方法：色调与默认值；error 读屏立即播报，loading 不自动关闭、不能手动关', () => {
+    const toaster = createToaster({ duration: 1000 });
+    const ok = toaster.success('已保存', { description: '3 条' });
+    const failed = toaster.error('保存失败');
+    const busy = toaster.loading('正在导出');
+    const byId = (id: string) => toaster.toasts.find((toast) => toast.id === id)!;
+    expect(byId(ok)).toMatchObject({ tone: 'success', title: '已保存', description: '3 条' });
+    expect(byId(failed)).toMatchObject({ tone: 'danger', important: true });
+    expect(byId(busy)).toMatchObject({ loading: true, closable: false, countdown: null });
+    expect(toaster.warning('快到期了')).toBeTruthy();
+    expect(toaster.info('有新版本')).toBeTruthy();
+  });
+
+  it('同一个 id 只有一条：再 show 时换掉它（不合并），重新计时', () => {
+    const toaster = createToaster({ duration: 1000 });
+    toaster.loading('正在导出', { id: 'export' });
+    vi.advanceTimersByTime(5000);
+    const id = toaster.success('导出完成', { id: 'export' });
+    expect(id).toBe('export');
+    expect(toaster.toasts).toHaveLength(1);
+    expect(toaster.toasts[0]).toMatchObject({ tone: 'success', title: '导出完成' });
+    expect(toaster.toasts[0]!.loading).toBeUndefined();
+    expect(toaster.toasts[0]!.closable).toBeUndefined();
+    vi.advanceTimersByTime(1000);
+    expect(closing(toaster, 'export')).toBe(true);
+    // 离场中的同 id：移走，新的一条接着出现
+    toaster.info('再来一次', { id: 'export' });
+    expect(toaster.toasts).toHaveLength(1);
+    expect(closing(toaster, 'export')).toBe(false);
+  });
+
+  it('onClose：自动消失与被关闭的原因，只调用一次', () => {
+    const toaster = createToaster({ duration: 1000 });
+    const reasons: string[] = [];
+    toaster.show({ title: 'a', onClose: (reason) => reasons.push(`a:${reason}`) });
+    const b = toaster.show({ title: 'b', onClose: (reason) => reasons.push(`b:${reason}`) });
+    toaster.dismiss(b);
+    toaster.dismiss(b);
+    vi.advanceTimersByTime(1000);
+    expect(reasons).toEqual(['b:dismissed', 'a:timeout']);
+  });
 });

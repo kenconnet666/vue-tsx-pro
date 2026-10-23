@@ -9,6 +9,7 @@ import { KeyboardReference } from '../../../site/KeyboardReference';
 import Basic from './demo/Basic.tsx?demo';
 import Layout from './demo/Layout.tsx?demo';
 import Persistent from './demo/Persistent.tsx?demo';
+import Shortcuts from './demo/Shortcuts.tsx?demo';
 
 export const meta = {
   title: 'Toast 通知',
@@ -42,6 +43,15 @@ export default _component(() => () => (
           <Code>progress</Code> 在底部显示剩余时间，暂停时一起停；<Code>max</Code>{' '}
           限制同时显示的条数，更早的先排队。<Code>createToaster({'{ duration }'})</Code>{' '}
           改默认的显示时长。
+        </Example>
+        <Example id="shortcuts" title="快捷方法、同 id 只留一条、关闭回调" demo={Shortcuts}>
+          <Code>toaster.success</Code> / <Code>error</Code> / <Code>warning</Code> /{' '}
+          <Code>info</Code> / <Code>loading</Code> 第一个参数是标题；<Code>error</Code>{' '}
+          默认读屏立即播报，<Code>loading</Code> 不自动消失。写了 <Code>id</Code>{' '}
+          的通知只有一条：同一个 id 再显示时换掉原来那条并重新计时，连点保存、接口重试不会堆一摞；先{' '}
+          <Code>loading('正在导出', {'{ id }'})</Code>，完成后{' '}
+          <Code>success('已导出', {'{ id }'})</Code> 原地换成结果。<Code>onClose(reason)</Code>{' '}
+          在开始关闭时调用，<Code>reason</Code> 是到时（timeout）还是被关掉（dismissed）。
         </Example>
       </ExampleColumn>
     </Examples>
