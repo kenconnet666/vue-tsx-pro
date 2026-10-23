@@ -65,7 +65,6 @@ export const zhCN: Lang = {
   chartLink: '连接',
   chartDegree: (count) => `连接 ${count} 个`,
   treeToggle: (row) => `${row} 的子项`,
-  checklistItemState: (label, done) => `${label}${done ? '已完成' : '未完成'}`,
   splitterResize: '调整分栏',
   splitterCollapse: '收起',
   splitterExpand: '展开',

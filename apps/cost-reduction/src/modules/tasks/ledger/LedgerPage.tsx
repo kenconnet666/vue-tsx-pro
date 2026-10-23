@@ -24,7 +24,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
   Button,
-  Checklist,
   DataTable,
   dataTableStyles,
   downloadFile,
@@ -53,6 +52,7 @@ import {
   Text,
   ViewportFill,
 } from '@vue-tsx-pro/ui';
+import { Checklist } from '../../../shared/Checklist';
 import { FilterBar } from '@vue-tsx-pro/ui/patterns';
 import type Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';

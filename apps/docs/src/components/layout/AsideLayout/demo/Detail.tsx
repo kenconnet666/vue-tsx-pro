@@ -1,10 +1,10 @@
-// 详情页：主栏放概览与明细，侧栏放金额与清单；容器窄了（不到 56rem）叠成一列
+// 详情页：主栏放概览与明细，侧栏放金额与里程碑；容器窄了（不到 56rem）叠成一列
 import { _component } from '@vue-tsx-pro/tsx';
-import { AsideLayout, Card, Checklist, Descriptions, Grid, Stat } from '@vue-tsx-pro/ui';
+import { AsideLayout, Card, Descriptions, Grid, Stat, Timeline } from '@vue-tsx-pro/ui';
 
 export default _component(() => () => (
   <AsideLayout
-    asideLabel="收益与清单"
+    asideLabel="收益与里程碑"
     asideWidth="18rem"
     sticky={false}
     aside={
@@ -16,11 +16,13 @@ export default _component(() => () => (
           </Grid>
         </Card>
         <Card variant="outline" header="里程碑">
-          <Checklist
+          <Timeline
+            size="sm"
             items={[
-              { label: '方案确定', done: true },
-              { label: '验证完成', done: false },
+              { title: '方案确定', time: '2026-08-13', tone: 'success' },
+              { title: '验证样件交付', time: '2026-09-22', tone: 'success' },
             ]}
+            pending="验证中，计划 10-30 完成"
           />
         </Card>
       </>

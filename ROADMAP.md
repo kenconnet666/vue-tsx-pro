@@ -124,6 +124,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [ ] Descriptions 的自适应列与复制
 - [ ] Timeline 升级：操作人、折叠、项里放字段差异（倒序 `reverse` 已有）
 - [ ] FieldCompare（建在 diffFields 上）、CommentThread 与 Mentions（patterns）
+- [ ] 完成清单重新设计（原 Checklist 删除：只有勾与日期，信息太少；降本案例暂用 shared/Checklist 的副本）
 - [ ] FlowDesigner（workflow：流程图上选节点，属性面板改处理人、时限、超时、提醒，校验后发布）
 
 ## 阶段 7：图表

@@ -3,7 +3,8 @@
  * 各节点的日期、是否需要 SB 与贯彻架次在详情行里；金额单位是美元 / FH
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import { Checklist, Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { Checklist } from '../../../shared/Checklist';
 import { nextDmcNode, nodeLateDays } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
 import { DetailSection } from '../../../shared/DetailSection';

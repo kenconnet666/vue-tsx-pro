@@ -1,9 +1,8 @@
-// 内容块：StatusDot、ItemList、Checklist、ProportionBar、StatGroup 与 Stat 的色调、Card 的 extra、Descriptions 的行内排列
+// 内容块：StatusDot、ItemList、ProportionBar、StatGroup 与 Stat 的色调、Card 的 extra、Descriptions 的行内排列
 import { describe, expect, it } from 'vitest';
 import { Text } from '../../base/Text';
 import { mount } from '../../utils/.test/mount';
 import { Card } from '../Card';
-import { Checklist } from '../Checklist';
 import { Descriptions } from '../Descriptions';
 import { ItemList, ItemListItem } from '../ItemList';
 import { ProportionBar } from '../ProportionBar';
@@ -42,29 +41,6 @@ describe('ItemList', () => {
     expect(items[0]!.children).toHaveLength(3);
     // 第二条没有起始边：主体 + 结束边的占位
     expect(items[1]!.children).toHaveLength(2);
-  });
-});
-
-describe('Checklist', () => {
-  const items = [
-    { label: '方案确定', done: true, extra: '08-13' },
-    { label: '验证完成', done: false },
-  ];
-
-  it('list 与 inline 是列表；没完成的名称是次要色', () => {
-    const list = mount(() => <Checklist items={items} />);
-    expect(list.querySelectorAll('li')).toHaveLength(2);
-    expect(list.textContent).toContain('08-13');
-    const inline = mount(() => <Checklist layout="inline" items={items} />);
-    expect(inline.querySelector('ul')!.children).toHaveLength(2);
-  });
-
-  it('icons 只有图标：一张图，读屏念每一项完成没有', () => {
-    const icons = mount(() => <Checklist layout="icons" items={items} />).querySelector(
-      '[role="img"]',
-    )!;
-    expect(icons.getAttribute('aria-label')).toBe('方案确定已完成，验证完成未完成');
-    expect(icons.textContent).toBe('');
   });
 });
 

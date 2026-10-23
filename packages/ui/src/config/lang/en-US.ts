@@ -66,7 +66,6 @@ export const enUS: Lang = {
   chartLink: 'Link',
   chartDegree: (count) => `${count} ${count === 1 ? 'link' : 'links'}`,
   treeToggle: (row) => `Children of ${row}`,
-  checklistItemState: (label, done) => `${label}: ${done ? 'done' : 'not done'}`,
   splitterResize: 'Resize panes',
   splitterCollapse: 'Collapse',
   splitterExpand: 'Expand',

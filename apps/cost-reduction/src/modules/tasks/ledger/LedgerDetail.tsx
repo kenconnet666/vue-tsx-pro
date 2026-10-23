@@ -5,7 +5,8 @@
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Checklist, Flex, Icon, Link, Small } from '@vue-tsx-pro/ui';
+import { Flex, Icon, Link, Small } from '@vue-tsx-pro/ui';
+import { Checklist } from '../../../shared/Checklist';
 import type { VNodeChild } from 'vue';
 import { missingClosing } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';

@@ -1,5 +1,5 @@
 /**
- * 完成清单：每一项完成了没有（勾、虚线圈），带补充信息（日期、证据、超时）。里程碑、关闭材料、上线检查、引导任务。
+ * 完成清单（应用内用；组件库的 Checklist 已删除，等重新设计后再换回去）：每一项完成了没有（勾、虚线圈），带补充信息（日期、证据、超时）。里程碑、关闭材料、上线检查、引导任务。
  *
  *   <Checklist items={[{ label: '方案确定', done: true, extra: '2026-09-12' }, { label: '验证完成', done: false }]} />
  *   <Checklist layout="inline" items={…} />                 一行排开、放不下换行（详情行、卡片的一角）
@@ -11,12 +11,15 @@ import { CircleCheck, CircleDashed } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { Icon } from '../base/Icon';
-import { Text } from '../base/Text';
-import { useLang } from '../config/context';
-import { mergeAttrs, type PartProps } from '../utils/props';
-import type { TextSize } from '../utils/style/typography';
-import { ItemList, ItemListItem } from './ItemList';
+import {
+  Icon,
+  ItemList,
+  ItemListItem,
+  mergeAttrs,
+  Text,
+  type PartProps,
+  type TextSize,
+} from '@vue-tsx-pro/ui';
 
 /** 清单的一项 */
 export interface ChecklistItem {
@@ -76,10 +79,12 @@ export const checklistStyles = stylex.create({
 const keyOf = (item: ChecklistItem, index: number) =>
   item.key ?? (typeof item.label === 'string' ? item.label : String(index));
 
+/** 读屏念的一项：名称与完成没有 */
+const itemState = (label: string, done: boolean) => `${label}${done ? '已完成' : '未完成'}`;
+
 /** 完成清单 */
 export const Checklist = _component(
   ({ items, layout = 'list', size = 'sm', ...rest }: ChecklistProps) => {
-    const lang = useLang();
     const stateIcon = (done: boolean) => (
       <Icon
         icon={done ? CircleCheck : CircleDashed}
@@ -89,9 +94,7 @@ export const Checklist = _component(
     return () => {
       if (layout === 'icons') {
         const label = items
-          .map((item) =>
-            lang.checklistItemState(typeof item.label === 'string' ? item.label : '', item.done),
-          )
+          .map((item) => itemState(typeof item.label === 'string' ? item.label : '', item.done))
           .join('，');
         return (
           <span

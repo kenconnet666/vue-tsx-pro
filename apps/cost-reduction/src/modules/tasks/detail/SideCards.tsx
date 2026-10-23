@@ -6,7 +6,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import {
   Badge,
   Card,
-  Checklist,
   Descriptions,
   Flex,
   Grid,
@@ -17,6 +16,7 @@ import {
   Stat,
   useFormat,
 } from '@vue-tsx-pro/ui';
+import { Checklist } from '../../../shared/Checklist';
 import { dictLabel } from '../../../app/master';
 import { gapOf } from '../../../domain/task/benefit';
 import { missingClosing } from '../../../domain/task/status';

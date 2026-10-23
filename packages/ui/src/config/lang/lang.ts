@@ -169,8 +169,6 @@ export interface Lang {
   readonly chartDegree: (count: number) => string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
-  /** 完成清单只有图标时，一项的说明：`('方案确定', true)` → “方案确定已完成” */
-  readonly checklistItemState: (label: string, done: boolean) => string;
   /** 分栏的分隔条的名称，默认“调整分栏” */
   readonly splitterResize: string;
   /** 分栏收起一侧的按钮，默认“收起” */
