@@ -205,22 +205,34 @@ export function controlSx(
   ] as StyleXStyles;
 }
 
+/** 点在外壳的空白处（内边距、图标、标签上）：不是主元素本身，也不是框里的按钮 */
+function isShellBlank(target: Element, element: HTMLElement): boolean {
+  return target !== element && !element.contains(target) && !target.closest('button');
+}
+
 /**
- * 外壳的 onPointerdown：点在外壳的空白处（内边距、图标上）时把焦点交给主元素（input、触发按钮），
- * 不让浏览器把焦点放到别处；点在主元素或框里的按钮上时照常。afterFocus 在聚焦后调用（Select 据此切换打开）。
+ * 外壳的 onPointerdown：点在外壳的空白处时把焦点交给主元素（input、触发按钮），不让浏览器把焦点放到别处；
+ * 点在主元素或框里的按钮上时照常
  */
-export function focusOnShell(
-  main: () => HTMLElement | null,
-  afterFocus?: () => void,
-): (event: PointerEvent) => void {
+export function focusOnShell(main: () => HTMLElement | null): (event: PointerEvent) => void {
   return (event) => {
-    const target = event.target as Element;
     const element = main();
-    if (!element || target === element || element.contains(target) || target.closest('button')) {
-      return;
-    }
+    if (!element || !isShellBlank(event.target as Element, element)) return;
     event.preventDefault();
     element.focus();
-    afterFocus?.();
+  };
+}
+
+/**
+ * 外壳的 onClick：点在外壳的空白处时调用 action（Select、TreeSelect 据此切换打开，与点触发按钮一样）。
+ * 不在 pointerdown 里打开：原生 popover="auto" 在 pointerup 时把“按下时还没打开”的浮层当作点在外面关掉
+ */
+export function clickOnShell(
+  main: () => HTMLElement | null,
+  action: () => void,
+): (event: MouseEvent) => void {
+  return (event) => {
+    const element = main();
+    if (element && isShellBlank(event.target as Element, element)) action();
   };
 }

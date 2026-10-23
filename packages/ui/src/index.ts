@@ -775,6 +775,7 @@ export {
   type ChoiceOrientations,
 } from './input/choice-styles';
 export {
+  clickOnShell,
   controlAffix,
   controlClear,
   controlIcon,

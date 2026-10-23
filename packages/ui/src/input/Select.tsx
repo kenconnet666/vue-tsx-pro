@@ -6,9 +6,15 @@
  *   <Select items={users} toOption={(user) => ({ value: user.id, label: user.name })} value={_bind(id)} />
  *   <Select items={suppliers} searchable value={_bind(supplier)} />   选项多时：弹出层顶部带搜索框
  *
+ *   <Select items={tags} selectionMode="multiple" maxTagCount="responsive" creatable onCreate={(text) => tags.push(text)} … />
+ *
  * 组合已有的部件：外壳是输入框外壳（controlSx），弹出层用 useAnchoredPopover（与外壳同宽、最高到视口剩余空间），
- * 列表是 ListboxView（状态与键盘见 list-state.ts），多选时触发框里是 Tag。
- * 焦点一直在触发按钮上，高亮项经 aria-activedescendant 告诉读屏。
+ * 列表是 ListboxView（状态与键盘见 list-state.ts）。焦点一直在触发按钮上，高亮项经 aria-activedescendant 告诉读屏。
+ *
+ * 多选时已选的项是触发按钮前面的一排 Tag（不能放进 button 里：按钮里不能有按钮），各带移除按钮。
+ * 这排标签只给指针用（aria-hidden、移除按钮不进 Tab 顺序）：读屏从触发按钮里念出全部已选内容，
+ * 键盘在列表里取消勾选，或在触发按钮（及空的搜索框）里按 Backspace 移除最后一项（同 TagsInput）。
+ * maxTagCount 是数字时只显示前几个，'responsive' 时排成一行按宽度放（useOverflowItems），其余收进“+N”。
  *
  * 键盘：关闭时 ↓ / Enter / 空格打开（↑ 打开并高亮最后一项），单选时直接按字母选中以它开头的项（同原生 select）；
  * 打开时 ↑↓、Home / End、Page Up / Down 移动，Enter / 空格选中（单选随后关闭），Esc、Tab 关闭。
@@ -23,9 +29,12 @@
  *
  *   <Select searchable load={(q, signal) => http.get<User[]>('/users', { query: { q }, signal })} toOption={…} value={_bind(owner)} />
  *
- * 部件：Root（外壳）、Trigger（button，主元素）、Value、Tag（多选时）、Clear、Chevron、Popover、Search（TextField）、Listbox。
+ * creatable 时自带搜索框，输入的文字没有对应的选项时列表末尾多一项“新建“…””：选中后值就是这段文字，onCreate 报告它。
+ *
+ * 部件：Root（外壳）、Tags（多选时的那排标签）、Tag、Trigger（button，主元素）、Value、Clear、Chevron、Popover、
+ * Search（TextField）、Listbox。
  */
-import { ChevronDown, Search } from '@lucide/icons';
+import { ChevronDown, Plus, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
@@ -33,6 +42,8 @@ import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
+import { visuallyHiddenStyles } from '../base/VisuallyHidden';
+import { useOverflowItems } from '../utils/dom/overflow';
 import { useLang, useTextMatcher } from '../config/context';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { ListPopover } from './ListPopover';
@@ -42,6 +53,7 @@ import {
   controlClear,
   controlStyles,
   controlSx,
+  clickOnShell,
   focusOnShell,
   controlIcon,
   useControlAppearance,
@@ -99,6 +111,15 @@ export interface SelectBaseProps<T>
   search?: string;
   /** 远程选项：打开时与搜索词停下 300 ms 后调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止 */
   load?: OptionsLoader<T>;
+  /**
+   * 可以新建选项（自带搜索框）：输入的文字没有对应的选项时，列表末尾多一项“新建“…””，选中后值就是这段文字。
+   * 在 onCreate 里把它加进 items（或存到服务端）；不加时触发框里照样显示这段文字
+   */
+  creatable?: boolean;
+  /** 新建了一项（creatable 时）：参数是输入的文字，也就是选中的值 */
+  onCreate?: (text: string) => void;
+  /** 多选时触发框里最多显示几个标签，其余收进“+N”；'responsive' 时排成一行、按宽度放，放不下的收起 */
+  maxTagCount?: number | 'responsive';
   /** 表单提交时的 name（用隐藏的 input） */
   name?: string;
   /** 不可用 */
@@ -123,6 +144,8 @@ export interface SelectBaseProps<T>
   propsValue?: PartProps<'span'>;
   /** 多选时每个标签的部件属性 */
   propsTag?: Partial<TagProps>;
+  /** 多选时那排标签的部件属性 */
+  propsTags?: PartProps<'span'>;
   /** 清空按钮的部件属性 */
   propsClear?: Partial<PresetIconButtonProps>;
   /** 下拉箭头的部件属性 */
@@ -166,10 +189,40 @@ export const selectStyles = stylex.create({
   },
   // 是真正的文字（不是原生 placeholder），要满足 4.5:1：用 textMuted 而不是 textPlaceholder
   placeholder: { color: '_textMuted' },
+  // 多选的那排标签占剩余宽度；触发按钮里只剩读屏用的文字，不再占宽度
+  tags: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: '_xs',
+    flexGrow: 1,
+    minWidth: 0,
+    paddingBlock: '_xs',
+  },
+  // responsive：一行，放不下的移出排版（useOverflowItems 要求容器 position: relative）；
+  // contain: inline-size 让这一行不按内容撑宽外壳（不然按内容宽度排版的祖先会被整行标签撑开，永远“放得下”）
+  tagsLine: {
+    flexWrap: 'nowrap',
+    position: 'relative',
+    overflow: 'hidden',
+    contain: 'inline-size',
+  },
+  triggerBehindTags: { flexGrow: 0 },
   chevronOpen: { rotate: '180deg' },
   // 弹出层顶部的搜索框占满宽度
   search: { width: '_full' },
 });
+
+/** creatable 时列表末尾那一项“新建“…””：不是 items 里的数据 */
+class Creation {
+  readonly text: string;
+  constructor(text: string) {
+    this.text = text;
+  }
+}
+
+/** 标签的移除按钮：按下时不抢焦点（焦点留在触发按钮上） */
+const keepFocus = (event: PointerEvent) => event.preventDefault();
 
 /** 下拉选择：触发框 + 弹出的选项列表 */
 export const Select = _component(
@@ -186,6 +239,9 @@ export const Select = _component(
     filter,
     search = _bindable(''),
     load,
+    creatable = false,
+    onCreate,
+    maxTagCount,
     name,
     variant,
     size,
@@ -204,6 +260,7 @@ export const Select = _component(
     propsIcon,
     propsValue,
     propsTag,
+    propsTags,
     propsClear,
     propsChevron,
     propsPopover,
@@ -228,17 +285,42 @@ export const Select = _component(
     const localFilter = () => !load && filter !== false;
     const matches = (item: T, text: string) =>
       filter ? filter(item, text) : textMatcher()(optionOf(item).label, text);
-    const list = useListState({
+    // creatable 自带搜索框
+    const withSearch = () => searchable || creatable;
+    // creatable：输入的文字没有同名（或同值）的选项时，列表末尾多一项“新建”
+    const creation = () => {
+      const text = search.trim();
+      if (!creatable || !text) return undefined;
+      const exists = remote.items().some((item) => {
+        const option = optionOf(item);
+        return option.value === text || option.label.toLowerCase() === text.toLowerCase();
+      });
+      return exists ? undefined : new Creation(text);
+    };
+    const list = useListState<T | Creation>({
       items: () => {
         const all = remote.items();
-        return searchable && search && localFilter()
-          ? all.filter((item) => matches(item, search))
-          : all;
+        const shown =
+          withSearch() && search && localFilter()
+            ? all.filter((item) => matches(item, search))
+            : all;
+        const created = creation();
+        return created ? [...shown, created] : shown;
       },
-      toOption: optionOf,
+      toOption: (item) =>
+        item instanceof Creation
+          ? { value: item.text, label: lang.selectCreate(item.text), icon: Plus }
+          : optionOf(item),
       selected: () => selectedValues(value),
       mode: () => selectionMode,
-      onChange: (next) => (value = multiple() ? [...next] : (next[0] ?? null)),
+      onChange: (next) => {
+        const created = creation();
+        if (created && next.includes(created.text)) {
+          onCreate?.(created.text);
+          search = '';
+        }
+        value = multiple() ? [...next] : (next[0] ?? null);
+      },
       // 单选时再点已选的一项不取消（同原生 select）；要清空用清除按钮
       required: () => !multiple(),
     });
@@ -247,6 +329,22 @@ export const Select = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    let tagRow = _state.raw<HTMLElement | null>(null);
+    const overflow = useOverflowItems({
+      container: () => (maxTagCount === 'responsive' ? tagRow : null),
+      count: () => selectedValues(value).length,
+      min: () => 1,
+    });
+
+    /** 多选时移除一项（标签的移除按钮、Backspace） */
+    function remove(target: string) {
+      value = selectedValues(value).filter((item) => item !== target);
+    }
+
+    function removeLast() {
+      const last = selectedValues(value).at(-1);
+      if (last !== undefined) remove(last);
+    }
 
     function show(highlight: 'default' | 'last' = 'default') {
       search = '';
@@ -273,6 +371,11 @@ export const Select = _component(
 
     function onKeydown(event: KeyboardEvent) {
       if (control().disabled || control().readonly) return;
+      if (event.key === 'Backspace' && multiple()) {
+        event.preventDefault();
+        removeLast();
+        return;
+      }
       if (!open) {
         if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
@@ -296,10 +399,16 @@ export const Select = _component(
       }
     }
 
-    // 搜索框里：↑↓ 移动、Enter 选中（Home / End、空格留给输入），Tab 关闭后照常移到下一个
+    // 搜索框里：↑↓ 移动、Enter 选中（Home / End、空格留给输入），Tab 关闭后照常移到下一个；
+    // 多选时空的搜索框里按 Backspace 移除最后一项
     function onSearchKeydown(event: KeyboardEvent) {
       if (event.key === 'Tab') {
         open = false;
+        return;
+      }
+      if (event.key === 'Backspace' && !search && multiple()) {
+        event.preventDefault();
+        removeLast();
         return;
       }
       if (handleListKeydown(list, event, { homeEnd: false }, picked)) event.preventDefault();
@@ -325,7 +434,7 @@ export const Select = _component(
     // searchable：打开后焦点进搜索框；关闭时焦点还在弹层里（Esc、选中、点外面）就还给触发按钮
     function onPanelToggle(event: ToggleEvent) {
       onToggle(event);
-      if (!searchable) return;
+      if (!withSearch()) return;
       if (event.newState === 'open') {
         panel?.querySelector<HTMLInputElement>('input[type="search"]')?.focus();
         return;
@@ -341,26 +450,61 @@ export const Select = _component(
       const off = state.disabled;
       // 只读：能聚焦，不能打开、不能改
       const locked = off || state.readonly;
-      const shown =
-        renderValue?.(
+      // 多选的默认显示：触发按钮前面一排标签，按钮里只留给读屏的文字
+      const tagged = multiple() && !renderValue && selected.length > 0;
+      const shown = tagged ? (
+        <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+          {lang.selectSummary(selected.map((option) => option.label))}
+        </span>
+      ) : (
+        (renderValue?.(
           selected.flatMap((option) => (option.item === undefined ? [] : [option.item])),
         ) ??
         (selected.length === 0 ? (
           <span {...stylex.attrs(selectStyles.placeholder)}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
-        ) : multiple() ? (
-          selected.map((option) => (
+        ) : (
+          selected[0]!.label
+        )))
+      );
+      const responsive = maxTagCount === 'responsive';
+      const tagOptions =
+        typeof maxTagCount === 'number' ? selected.slice(0, Math.max(0, maxTagCount)) : selected;
+      const restCount = responsive ? overflow.hidden : selected.length - tagOptions.length;
+      const tags = tagged && (
+        <span
+          {...mergeAttrs<'span'>(
+            { sx: [selectStyles.tags, responsive && selectStyles.tagsLine] },
+            propsTags,
+            { ref: _toRef(tagRow), 'aria-hidden': 'true' },
+          )}
+        >
+          {tagOptions.map((option, index) => (
             <Tag
               key={option.value}
-              {...mergePartProps<TagProps>({ size: 'sm', variant: 'soft' }, propsTag)}
+              {...mergePartProps<TagProps>(
+                {
+                  size: 'sm',
+                  variant: 'soft',
+                  onRemove: locked ? undefined : () => remove(option.value),
+                  propsRemove: { tabindex: -1, onPointerdown: keepFocus },
+                },
+                propsTag,
+              )}
+              {...(responsive ? overflow.itemProps(index) : {})}
             >
               {option.label}
             </Tag>
-          ))
-        ) : (
-          selected[0]!.label
-        ));
+          ))}
+          {/* responsive 时“+N”一直在（没有折起的项时藏起来但仍要量它的宽度） */}
+          {(responsive || restCount > 0) && (
+            <Tag size="sm" variant="soft" {...(responsive ? overflow.restProps() : {})}>
+              {lang.selectMoreTags(restCount)}
+            </Tag>
+          )}
+        </span>
+      );
       return (
         <>
           <div
@@ -369,10 +513,14 @@ export const Select = _component(
               propsRoot,
               {
                 ref: _toRef(shell),
-                // 点在外壳空白处：焦点交给触发按钮并切换打开（只读时只聚焦）
-                onPointerdown: off
+                // 点在外壳空白处（含多选的标签）：焦点交给触发按钮，并与点触发按钮一样切换打开（只读时只聚焦）
+                onPointerdown: off ? undefined : focusOnShell(() => trigger),
+                onClick: locked
                   ? undefined
-                  : focusOnShell(() => trigger, state.readonly ? undefined : () => (open = !open)),
+                  : clickOnShell(
+                      () => trigger,
+                      () => (open ? (open = false) : show()),
+                    ),
               },
             )}
             data-state={open ? 'open' : 'closed'}
@@ -380,9 +528,16 @@ export const Select = _component(
             data-disabled={off || undefined}
           >
             {controlIcon(icon, propsIcon)}
+            {tags}
             <button
               {...mergeAttrs<'button'>(
-                { sx: [buttonBaseStyles.root, selectStyles.trigger] },
+                {
+                  sx: [
+                    buttonBaseStyles.root,
+                    selectStyles.trigger,
+                    tagged && selectStyles.triggerBehindTags,
+                  ],
+                },
                 rest,
                 {
                   ref: _toRef(trigger),
@@ -432,7 +587,7 @@ export const Select = _component(
             loading={loading || remote.loading()}
             onPick={picked}
             header={
-              searchable && (
+              withSearch() && (
                 <TextField
                   {...mergePartProps<TextFieldProps>(
                     {
@@ -456,10 +611,14 @@ export const Select = _component(
               list,
               id: listId,
               empty: remote.error() ? lang.listLoadFailed : search ? lang.selectNoMatch : empty,
-              renderOption: children,
+              renderOption:
+                children &&
+                ((item: T | Creation, state: OptionRenderState) =>
+                  item instanceof Creation ? lang.selectCreate(item.text) : children(item, state)),
               multiple: multiple(),
             }}
-            propsListbox={propsListbox}
+            // 使用方按 T 写列表的部件属性；creatable 时多出的“新建”那一项由上面的 renderOption 处理
+            propsListbox={propsListbox as Partial<ListboxViewProps<T | Creation>> | undefined}
             propsPopover={propsPopover}
           />
         </>

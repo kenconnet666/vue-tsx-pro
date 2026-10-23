@@ -11,6 +11,7 @@ import Appearance from './demo/Appearance.tsx?demo';
 import Assign from './demo/Assign.tsx?demo';
 import Members from './demo/Members.tsx?demo';
 import Searchable from './demo/Searchable.tsx?demo';
+import Tags from './demo/Tags.tsx?demo';
 
 export const meta = {
   title: 'Select 下拉选择',
@@ -27,7 +28,7 @@ export default _component(() => () => (
           <Code>items</Code>{' '}
           可以是字符串、ListboxOption（值、文字、图标、说明、分组、不可用），或任意数据加{' '}
           <Code>toOption</Code>；子节点是渲染函数时自定义选项内容，拿到的是原始数据。
-          <Code>selectionMode="multiple"</Code> 多选，已选的显示成标签。键盘同原生
+          <Code>selectionMode="multiple"</Code> 多选，已选的显示成可移除的标签。键盘同原生
           select：关闭时按字母直接选中以它开头的项。
         </Example>
         <Example id="appearance" title="图标、外观与状态" demo={Appearance}>
@@ -35,6 +36,14 @@ export default _component(() => () => (
           与其他输入框同一套。只读时能聚焦、能看到已选的内容，不能打开、不能清空；Field 上的{' '}
           <Code>required</Code>、<Code>readonly</Code>、<Code>disabled</Code>、<Code>error</Code>{' '}
           都交给里面的 Select。
+        </Example>
+        <Example id="tags" title="多选的标签：收起、移除与新建" demo={Tags}>
+          多选时已选的项是触发按钮前面的一排标签，点 × 移除（先淡出）。<Code>maxTagCount</Code>{' '}
+          是数字时只显示前几个，<Code>"responsive"</Code>{' '}
+          时排成一行、按宽度放，其余收进“+N”。这排标签只给指针用：读屏从触发按钮里念出全部已选内容，键盘在列表里取消勾选，或按
+          Backspace 移除最后一项。<Code>creatable</Code>{' '}
+          自带搜索框，输入的文字没有对应的选项时列表末尾多一项“新建”，选中后值就是这段文字，在{' '}
+          <Code>onCreate</Code> 里把它加进 items。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -67,6 +76,7 @@ export default _component(() => () => (
         ['Home / End / PageUp / PageDown', '打开时：移到第一项、最后一项，或按一屏移动'],
         ['Enter / Space', '打开时：选中高亮的项；单选随后关闭，多选切换勾选'],
         ['Esc / Tab', '关闭列表；焦点一直在触发按钮上'],
+        ['Backspace', '多选：移除最后一个已选项（触发按钮上，或空的搜索框里）'],
         [
           '输入（searchable）',
           '打开时焦点在搜索框里：输入过滤选项，↑↓、Enter 同上，Esc 关闭并回到触发按钮',

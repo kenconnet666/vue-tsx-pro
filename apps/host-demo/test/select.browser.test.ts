@@ -55,7 +55,8 @@ describe('Select', () => {
   });
 
   it('多选：高亮落在已选项上，空格切换后不关闭；Esc 关闭', async () => {
-    const trigger = $('.select-multiple-demo').querySelector('button')!;
+    const trigger =
+      $('.select-multiple-demo').querySelector<HTMLButtonElement>('button[role="combobox"]')!;
     trigger.focus();
     await userEvent.keyboard('{ArrowDown}');
     const popover = popoverOf(trigger);
@@ -66,6 +67,25 @@ describe('Select', () => {
     expect(popover.matches(':popover-open')).toBe(true);
     await userEvent.keyboard('{Escape}');
     await expect.poll(() => popover.matches(':popover-open')).toBe(false);
+  });
+
+  it('多选：点标签（外壳的空白处）打开并保持打开；点标签的移除按钮只移除、不打开', async () => {
+    const shell = $('.select-multiple-demo');
+    const trigger = shell.querySelector<HTMLButtonElement>('button[role="combobox"]')!;
+    const popover = popoverOf(trigger);
+    const tag = () => shell.querySelector<HTMLElement>('[aria-hidden="true"] > span')!;
+    // 在 pointerdown 里打开会被原生 popover 的 light dismiss 在 pointerup 时关掉
+    await userEvent.click(tag(), { position: { x: 4, y: 4 } });
+    await expect.poll(() => popover.matches(':popover-open')).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(popover.matches(':popover-open')).toBe(true);
+    expect(document.activeElement).toBe(trigger);
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => popover.matches(':popover-open')).toBe(false);
+    const before = trigger.textContent;
+    await userEvent.click(tag().querySelector('button')!);
+    await expect.poll(() => trigger.textContent).not.toBe(before);
+    expect(popover.matches(':popover-open')).toBe(false);
   });
 
   it('一万个选项只渲染看得见的几十个；End 跳到最后一项并滚到它', async () => {

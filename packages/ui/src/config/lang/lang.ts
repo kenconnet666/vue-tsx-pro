@@ -252,6 +252,12 @@ export interface Lang {
   readonly selectSearch: string;
   /** 下拉框搜索没有结果时的提示，默认“没有匹配的选项” */
   readonly selectNoMatch: string;
+  /** 下拉框可新建时的那一项：`('报废件')` → “新建“报废件”” */
+  readonly selectCreate: (text: string) => string;
+  /** 多选的已选内容，读屏念给用户：`(['A', 'B'])` → “A、B” */
+  readonly selectSummary: (labels: readonly string[]) => string;
+  /** 多选折起的标签数：`(3)` → “+3” */
+  readonly selectMoreTags: (count: number) => string;
   /** 分页的总条数，默认“共 1,286 条”（按语言加千分位） */
   readonly paginationTotal: (total: number) => string;
   /** 分页导航的无障碍名称，默认“分页” */

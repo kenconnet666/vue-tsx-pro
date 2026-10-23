@@ -1,13 +1,24 @@
-// Select：只读（自己的 readonly 或 Field 的）不能打开、不能清空；前置图标与其他输入框一样画在外壳里
-// （打开后的列表、键盘见浏览器测试）
+// Select：只读（自己的 readonly 或 Field 的）不能打开、不能清空；前置图标与其他输入框一样画在外壳里；
+// 多选的标签在触发按钮外（可移除、Backspace、maxTagCount），creatable 新建选项
 import { Globe } from '@lucide/icons';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
 import { Select } from '../Select';
 
 const cities = ['北京', '上海', '广州'];
+
+const flush = async () => {
+  for (let index = 0; index < 5; index++) await nextTick();
+};
+
+// happy-dom 没有 popover API
+beforeAll(() => {
+  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
+  proto.showPopover ??= () => {};
+  proto.hidePopover ??= () => {};
+});
 
 describe('Select', () => {
   it('只读：点击、按键都不打开，没有清空按钮，触发按钮带 aria-readonly；Field 的 readonly 同样生效', async () => {
@@ -88,5 +99,79 @@ describe('Select', () => {
     ));
     const icon = root.querySelector('.lead')!;
     expect(icon.nextElementSibling!.getAttribute('role')).toBe('combobox');
+  });
+
+  it('多选：标签在触发按钮外、对读屏隐藏，按钮里念全部已选；点移除按钮、Backspace 移除', async () => {
+    let picked = _state(['北京', '上海', '广州']);
+    const root = mount(() => (
+      <Select items={cities} selectionMode="multiple" value={_bind(picked)} aria-label="城市" />
+    ));
+    const trigger = root.querySelector<HTMLButtonElement>('button[role="combobox"]')!;
+    expect(trigger.querySelector('button')).toBeNull();
+    expect(trigger.textContent).toBe('北京、上海、广州');
+    const row = trigger.previousElementSibling as HTMLElement;
+    expect(row.getAttribute('aria-hidden')).toBe('true');
+    const removes = row.querySelectorAll<HTMLButtonElement>('button');
+    expect(removes).toHaveLength(3);
+    expect(removes[0]!.tabIndex).toBe(-1);
+    // 移除前先离场（测试环境没有动画，几个 tick 后结束）
+    removes[1]!.click();
+    await flush();
+    expect(picked).toEqual(['北京', '广州']);
+    trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
+    await nextTick();
+    expect(picked).toEqual(['北京']);
+  });
+
+  it('maxTagCount：只显示前几个标签，其余收进“+N”；只读时标签没有移除按钮', () => {
+    const root = mount(() => (
+      <Select
+        items={cities}
+        selectionMode="multiple"
+        value={['北京', '上海', '广州']}
+        maxTagCount={1}
+        readonly
+        aria-label="城市"
+      />
+    ));
+    const trigger = root.querySelector('button[role="combobox"]')!;
+    const row = trigger.previousElementSibling!;
+    expect([...row.children].map((tag) => tag.textContent)).toEqual(['北京', '+2']);
+    expect(row.querySelector('button')).toBeNull();
+    // 读屏照样念全部
+    expect(trigger.textContent).toBe('北京、上海、广州');
+  });
+
+  it('creatable：输入的文字没有对应选项时列表末尾多一项“新建”，选中后值就是这段文字并报告 onCreate', async () => {
+    let picked = _state<string[]>([]);
+    let search = _state('');
+    const created: string[] = [];
+    mount(() => (
+      <Select
+        items={cities}
+        selectionMode="multiple"
+        value={_bind(picked)}
+        search={_bind(search)}
+        open
+        creatable
+        onCreate={(text) => created.push(text)}
+        aria-label="城市"
+      />
+    ));
+    search = '上海';
+    await nextTick();
+    const options = () =>
+      [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(
+        (item) => item.textContent,
+      );
+    expect(options()).toEqual(['上海']);
+    search = '深圳';
+    await nextTick();
+    expect(options()).toEqual(['新建“深圳”']);
+    document.querySelector<HTMLElement>('[role="option"]')!.click();
+    await nextTick();
+    expect(picked).toEqual(['深圳']);
+    expect(created).toEqual(['深圳']);
+    expect(search).toBe('');
   });
 });

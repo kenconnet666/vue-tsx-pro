@@ -47,6 +47,7 @@ import {
   controlIcon,
   controlStyles,
   controlSx,
+  clickOnShell,
   focusOnShell,
   useControlAppearance,
   type ControlIconOptions,
@@ -384,12 +385,14 @@ export const TreeSelect = _component(
               propsRoot,
               {
                 ref: _toRef(shell),
-                onPointerdown: off
-                  ? undefined
-                  : focusOnShell(
-                      () => trigger,
-                      state.readonly ? undefined : () => (open ? (open = false) : show()),
-                    ),
+                onPointerdown: off ? undefined : focusOnShell(() => trigger),
+                onClick:
+                  off || state.readonly
+                    ? undefined
+                    : clickOnShell(
+                        () => trigger,
+                        () => (open ? (open = false) : show()),
+                      ),
               },
             )}
             data-state={open ? 'open' : 'closed'}

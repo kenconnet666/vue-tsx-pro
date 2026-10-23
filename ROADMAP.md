@@ -99,7 +99,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 阶段 3：选择与日期
 
-- [ ] Select 的 maxTagCount 与逐个删除、可新建选项
+- [x] Select 的 maxTagCount 与逐个删除、可新建选项
 - [ ] Cascader（级联：路径显示、只选叶子、远程加载）
 - [ ] TreeSelect 的勾选策略与 maxTagCount；Tree 的拖拽移动与搜索过滤
 - [ ] Transfer（穿梭框，含树形）
