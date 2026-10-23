@@ -23,6 +23,8 @@ export default defineConfig({
       enabled: true,
       headless: true,
       provider: playwright(),
+      // CI 的 Windows 机器上文档站与宿主的六个浏览器同时启动，Firefox 偶尔要一分多钟才连上（默认 60 秒就判失败）
+      connectTimeout: process.env.CI ? 180_000 : 60_000,
       instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }],
     },
   },
