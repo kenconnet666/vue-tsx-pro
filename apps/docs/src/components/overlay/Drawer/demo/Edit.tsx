@@ -18,8 +18,9 @@ import {
 export default _component(() => {
   const confirm = useConfirm();
   let open = _state(false);
-  let saved = _state({ name: '整流罩支架合并', note: '两件合并为一件，减少紧固件' });
-  let draft = _state({ ...saved });
+  const initial = { name: '整流罩支架合并', note: '两件合并为一件，减少紧固件' };
+  let saved = _state(initial);
+  let draft = _state({ ...initial });
   // 拖动后的宽度各人记住
   let width = _fromRef(usePersistentState('docs:edit-drawer-width', 560));
   const dirty = () => draft.name !== saved.name || draft.note !== saved.note;

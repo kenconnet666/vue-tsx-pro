@@ -209,15 +209,18 @@ export const KanbanBoard = _component(
       items: () => items,
       getKey: (item) => getKey(item),
       getLabel: labelOf,
-      onChange: onReorder && ((next) => onReorder(next)),
+      // 用时再读属性：写没写 onReorder 决定了列内能不能排序，父级后来才给也要跟上
+      get onChange() {
+        return onReorder && ((next: T[]) => onReorder(next));
+      },
       container: () => board,
       groups: {
         keys: () => columns.map((column) => column.key),
         of: (item) => getColumn(item),
         label: (key) => columns.find((column) => column.key === key)?.label ?? key,
-        canMove: canMove && ((item, to) => canMove(item, to)),
+        canMove: (item, to) => canMove?.(item, to),
         onMove: (item, to, index) => onMove(item, to, index),
-        onReject: onReject && ((item, to, reason) => onReject(item, to, reason)),
+        onReject: (item, to, reason) => onReject?.(item, to, reason),
       },
     });
 
