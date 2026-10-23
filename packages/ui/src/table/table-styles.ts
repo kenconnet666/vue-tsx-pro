@@ -194,6 +194,44 @@ export const dataTableStyles = stylex.create({
     // 触摸拖动时不滚动页面
     touchAction: 'none',
   },
+  // 单元格导航：聚焦的格画一圈内描边（不占位、不被相邻格盖住）
+  gridCell: {
+    outline: 'none',
+    boxShadow: {
+      default: null,
+      ':focus-visible': `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.focusRing}`,
+    },
+  },
+  // 编辑中的格：编辑器贴满格子，上下内边距收小
+  editingCell: { paddingBlock: '_none', overflow: 'visible' },
+  // 编辑器：贴着格子；提交被拒的原因浮在下面（不撑高这一行）
+  editor: { position: 'relative', minWidth: 0 },
+  editorControl: { width: '_full' },
+  editorError: {
+    position: 'absolute',
+    insetInlineStart: 0,
+    top: 'calc(100% + 2px)',
+    zIndex: 3,
+    // 按文字宽度，不被窄列挤成一字一行；靠起始边（数字列的格是靠结束边的）
+    width: 'max-content',
+    maxWidth: '20rem',
+    textAlign: 'start',
+    paddingBlock: '_xs',
+    paddingInline: '_sm',
+    borderRadius: '_sm',
+    backgroundColor: '_danger',
+    color: '_dangerContrast',
+    fontSize: '_sm',
+    whiteSpace: 'normal',
+    boxShadow: '_md',
+  },
+  // 校验没过的格：红色内描边；聚焦时仍是焦点环
+  invalidCell: {
+    boxShadow: {
+      default: `inset 0 0 0 ${t.borderWidths.xs} ${t.colors.danger}`,
+      ':focus-visible': `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.focusRing}`,
+    },
+  },
   // 正在拖动的行：浮在别的行上面
   rowDragging: { position: 'relative', zIndex: 1, boxShadow: '_md' },
   content: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' },

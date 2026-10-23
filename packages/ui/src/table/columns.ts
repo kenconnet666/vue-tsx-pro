@@ -82,6 +82,22 @@ export interface ColumnFilter<T> {
   match?: (row: T, values: readonly string[]) => boolean;
 }
 
+/** 自定义单元格编辑器拿到的 */
+export interface CellEditorContext<T> {
+  /** 这一行 */
+  row: T;
+  /** 正在编辑的值（草稿） */
+  value: unknown;
+  /** 改草稿 */
+  onChange: (value: unknown) => void;
+  /** 提交（校验通过后交给 onCellChange） */
+  commit: () => void;
+  /** 放弃，回到原来的值 */
+  cancel: () => void;
+  /** 校验没过的原因：编辑器用它标出错误（aria-invalid） */
+  error: string | undefined;
+}
+
 /** 一列 */
 export interface DataTableColumn<T> {
   /** 列的标识：同一表格里不能重复；不写 value 时也是取值的字段名 */
@@ -112,6 +128,15 @@ export interface DataTableColumn<T> {
   sortable?: boolean;
   /** 表头筛选：true 列出这一列出现过的值，也可以给选项或关键字筛选（见 ColumnFilter） */
   filter?: boolean | ColumnFilter<T>;
+  /** 可以编辑（DataTable 的 onCellChange 写回）：true 或按行判断；表格随之变成可以用方向键走格的网格 */
+  editable?: boolean | ((row: T) => boolean);
+  /**
+   * 编辑器：不写时按列选——状态列是 Select，数字类是 NumberField，其余是 TextField。
+   * 自己写时拿到草稿与提交、放弃（日期、下拉选人这类）
+   */
+  editor?: (context: CellEditorContext<T>) => VNodeChild;
+  /** 提交前校验这一格：返回原因就不提交，编辑器标红并说明 */
+  validate?: (value: unknown, row: T) => string | null | undefined;
   /** 固定在哪一侧 */
   sticky?: keyof ColumnStickies;
   /** 可以拖动调整宽度；不写时跟随表格的 resizable */
@@ -382,6 +407,11 @@ export function sortRows<T>(
     return [{ value, direction: state.direction }];
   });
   return keys.length ? sortByValues(rows, keys, locale) : rows;
+}
+
+/** 这一格能不能编辑 */
+export function isCellEditable<T>(column: DataTableColumn<T>, row: T): boolean {
+  return typeof column.editable === 'function' ? column.editable(row) : !!column.editable;
 }
 
 /** 列的筛选设置：没写或 false 时 undefined，true 是列出出现过的值 */

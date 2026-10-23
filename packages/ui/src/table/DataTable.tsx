@@ -17,6 +17,8 @@
  * - 排序：点可排序的列标题在 升序 → 降序 → 不排 之间切换；默认在本地排（createComparer：数字、日期、按语言的文字），
  *   manualSort 时只写回 sort，由调用方向服务端要排好序的数据。multiSort 时排序写在 sorts（几列），按住 Shift 点是追加一列。
  * - 表头筛选：列写 filter 时列标题上有筛选按钮，filters 是各列选中的值（可以双向绑定）；默认在本地筛，manualFilter 时只写回。
+ * - 编辑：列写 editable 时可以就地编辑（Enter / F2、双击或直接打字开始，Enter 提交、Tab 提交并到下一格、Esc 放弃），
+ *   列的 validate 与 validateRow 校验，onCellChange 写回；表格随之变成网格，方向键在格之间走（cellNavigation）。
  * - 行拖动：给了 onReorder 时第一个数据列前面有把手，拖动（或聚焦后空格拿起、↑↓ 移动）改变行的顺序；
  *   排序、筛选时显示的顺序不是数据的顺序，这时不能拖。
  * - 列菜单：columnMenu 时列标题结尾有 ⋮（排序、固定在开头 / 结尾、前后移动、隐藏），
@@ -33,11 +35,17 @@
  */
 import { GripVertical } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { useId } from 'vue';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { nextTick, useId, type VNodeChild } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
+import { NumberField } from '../input/NumberField';
+import { Select } from '../input/Select';
+import { TextField } from '../input/TextField';
+import { plainText } from '../utils/data/text';
 import { useLang } from '../config/context';
+import { focusFirst } from '../utils/dom/focus';
 import { useSortable } from '../utils/dom/sortable';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps } from '../utils/props';
@@ -46,19 +54,25 @@ import {
   sortList,
   arrangeColumns,
   columnFilter,
+  columnType,
+  columnValue,
+  isCellEditable,
   filterOptions,
   filterRows,
   nextSort,
   nextSorts,
   sortRows,
+  type CellEditorContext,
   type ColumnFilterOption,
   type ColumnStickies,
+  type DataTableColumn,
   type SortState,
 } from './columns';
 import type { ColumnMenuActions } from './ColumnHeaderActions';
 import {
   DataTableView,
   rowLabel,
+  type CellPosition,
   type DataTableRowModel,
   type DataTableViewProps,
 } from './DataTableView';
@@ -107,6 +121,13 @@ export interface DataTableProps<T> extends Omit<
   columnPins?: Record<string, keyof ColumnStickies | null>;
   /** 行拖动：给了它时每行前面有把手，拖完得到新的顺序（排序、筛选时不能拖） */
   onReorder?: (rows: T[]) => void;
+  /**
+   * 编辑了一格（列写了 editable）：写回数据。返回文字（或 resolve 成文字）是不接受的原因，编辑器留着并显示它；
+   * 返回 Promise 时等它完成
+   */
+  onCellChange?: (row: T, key: string, value: unknown) => unknown;
+  /** 行校验：返回各列的错误（列的 key → 原因），标在格上；如“结束日期早于开始日期” */
+  validateRow?: (row: T) => Readonly<Record<string, string>> | null | undefined;
   /** 已选行的 key：父级写 selected={_bind(keys)} */
   selected?: string[];
   /** 各列调整后的宽度（px）：父级可以写 columnWidths={_bind(x)} 保存起来 */
@@ -131,6 +152,9 @@ export const DataTable = _component(
     columnOrder = _bindable<string[]>([]),
     columnPins = _bindable<Record<string, keyof ColumnStickies | null>>({}),
     onReorder,
+    onCellChange,
+    validateRow,
+    cellNavigation,
     leading,
     propsRow,
     selectionMode,
@@ -169,6 +193,8 @@ export const DataTable = _component(
 
     // 行拖动：排序、筛选时显示的顺序不是数据的顺序，不能拖
     const tableMarker = useId();
+    const tableElement = () =>
+      document.querySelector<HTMLElement>(`table[data-table="${tableMarker}"]`);
     const reorderable = () =>
       !!onReorder &&
       sortList(activeSort()).length === 0 &&
@@ -178,9 +204,174 @@ export const DataTable = _component(
       getKey: (row) => row.key,
       getLabel: (row) => rowLabel(columns, row),
       onChange: (next) => onReorder?.(next.map((row) => row.data)),
-      container: () => document.querySelector(`[data-reorder="${tableMarker}"]`),
+      container: () => tableElement(),
       disabled: () => !reorderable(),
     });
+
+    // 编辑中的格：草稿、校验没过的原因、正在保存
+    let editing = _state<
+      (CellPosition & { draft: unknown; error?: string; saving?: boolean }) | null
+    >(null);
+    const columnOf = (key: string) => columns.find((column) => column.key === key);
+    const rowOf = (key: string) => models.find((row) => row.key === key);
+
+    const cellElement = (cell: CellPosition) =>
+      tableElement()?.querySelector<HTMLElement>(
+        `tr[data-key="${CSS.escape(cell.row)}"] td[data-column="${CSS.escape(cell.column)}"]`,
+      );
+
+    /** 编辑完、放弃后焦点回到格上（网格里键盘接着走） */
+    function focusCell(cell: CellPosition) {
+      void nextTick(() => cellElement(cell)?.focus());
+    }
+
+    function startEdit(cell: CellPosition, text?: string) {
+      const row = rowOf(cell.row);
+      const column = columnOf(cell.column);
+      if (!row || !column || !isCellEditable(column, row.data)) return;
+      const numeric = ['number', 'currency', 'percent'].includes(columnType(column, rows));
+      // 直接打字：用打的字替换原值（数字列只认数字）
+      const typed = text === undefined ? undefined : numeric ? Number(text) : text;
+      const draft =
+        typed === undefined || Number.isNaN(typed) ? columnValue(column, row.data) : typed;
+      editing = { ...cell, draft };
+      // 编辑器渲染出来后焦点移进去（autofocus 对后插入的元素不可靠，日期这类分段输入也没有 autofocus）
+      void nextTick(() => {
+        const element = cellElement(cell);
+        if (element) focusFirst(element);
+      });
+    }
+
+    function cancelEdit() {
+      if (!editing) return;
+      const cell = { row: editing.row, column: editing.column };
+      editing = null;
+      focusCell(cell);
+    }
+
+    /** 提交：列的 validate、onCellChange 都接受了才收起；step 是提交后去哪一格（Tab 往后、Shift + Tab 往前） */
+    async function commitEdit(step: 0 | 1 | -1 = 0) {
+      const current = editing;
+      const row = current && rowOf(current.row);
+      const column = current && columnOf(current.column);
+      if (!current || !row || !column || current.saving) return;
+      const invalid = column.validate?.(current.draft, row.data);
+      if (invalid) {
+        editing = { ...current, error: invalid };
+        return;
+      }
+      editing = { ...current, saving: true };
+      const result = await onCellChange?.(row.data, column.key, current.draft);
+      if (typeof result === 'string' && result) {
+        editing = { ...current, error: result, saving: false };
+        return;
+      }
+      editing = null;
+      const next = step === 0 ? undefined : neighbourEditable(current, step);
+      if (next) startEdit(next);
+      else focusCell(current);
+    }
+
+    /** 这一行里往后（往前）的下一个可编辑的格 */
+    function neighbourEditable(cell: CellPosition, step: 1 | -1): CellPosition | undefined {
+      const row = rowOf(cell.row);
+      if (!row) return undefined;
+      const hidden = new Set(hiddenColumns);
+      const visible = arranged.filter((column) => !hidden.has(column.key));
+      const from = visible.findIndex((column) => column.key === cell.column);
+      for (let index = from + step; index >= 0 && index < visible.length; index += step) {
+        const column = visible[index]!;
+        if (isCellEditable(column, row.data)) return { row: cell.row, column: column.key };
+      }
+      return undefined;
+    }
+
+    function onEditKeydown(event: KeyboardEvent) {
+      // 编辑器自己处理了的键（下拉框的 Enter 打开列表）不再当作提交
+      if (event.defaultPrevented) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelEdit();
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        void commitEdit();
+      } else if (event.key === 'Tab') {
+        event.preventDefault();
+        void commitEdit(event.shiftKey ? -1 : 1);
+      }
+    }
+
+    /** 正在编辑的格里的编辑器：列的 editor，或按列选的默认编辑器 */
+    function renderEditor(row: T, column: DataTableColumn<T>): VNodeChild {
+      const current = editing!;
+      const context: CellEditorContext<T> = {
+        row,
+        value: current.draft,
+        onChange: (value) => (editing = { ...current, draft: value, error: undefined }),
+        commit: () => void commitEdit(),
+        cancel: cancelEdit,
+        error: current.error,
+      };
+      const label = plainText(column.header) ?? column.key;
+      const common = {
+        size: 'sm',
+        invalid: !!current.error,
+        'aria-label': label,
+        // 编辑器占满格子
+        propsRoot: { sx: dataTableStyles.editorControl },
+      } as const;
+      const editor = column.editor ? (
+        column.editor(context)
+      ) : column.statuses ? (
+        // 状态：选了就提交
+        <Select
+          {...common}
+          items={column.statuses.options()}
+          value={typeof current.draft === 'string' ? current.draft : null}
+          {...{
+            'onUpdate:value': (value: string | null) => {
+              editing = { ...current, draft: value };
+              void commitEdit();
+            },
+          }}
+        />
+      ) : ['number', 'currency', 'percent'].includes(columnType(column, rows)) ? (
+        <NumberField
+          {...common}
+          stepper={false}
+          value={typeof current.draft === 'number' ? current.draft : null}
+          {...{ 'onUpdate:value': context.onChange }}
+        />
+      ) : (
+        <TextField
+          {...common}
+          value={
+            typeof current.draft === 'string' || typeof current.draft === 'number'
+              ? String(current.draft)
+              : ''
+          }
+          {...{ 'onUpdate:value': context.onChange }}
+        />
+      );
+      return (
+        <div
+          {...stylex.attrs(dataTableStyles.editor)}
+          // 焦点离开这一格（点了别处）：提交
+          onFocusout={(event: FocusEvent) => {
+            const cell = (event.currentTarget as HTMLElement).closest('td');
+            if (!cell?.contains(event.relatedTarget as Node | null)) void commitEdit();
+          }}
+        >
+          {editor}
+          {current.error && (
+            <div role="alert" {...stylex.attrs(dataTableStyles.editorError)}>
+              {current.error}
+            </div>
+          )}
+        </div>
+      );
+    }
 
     /** 第一个数据列前面：拖动的把手，再是使用方的 leading */
     function renderLeading(row: DataTableRowModel<T>, index: number) {
@@ -300,9 +491,13 @@ export const DataTable = _component(
                       }
                     : {},
                 ),
-              ...({ 'data-reorder': onReorder ? tableMarker : undefined } as Partial<
-                DataTableViewProps<T>
-              >),
+              ...({ 'data-table': tableMarker } as Partial<DataTableViewProps<T>>),
+              cellNavigation: cellNavigation ?? columns.some((column) => column.editable),
+              editing: editing && { row: editing.row, column: editing.column },
+              renderEditor,
+              rowErrors: validateRow,
+              onEditStart: startEdit,
+              onEditKeydown,
               selectionMode,
               isRowSelectable,
               selectedKeys: selected,

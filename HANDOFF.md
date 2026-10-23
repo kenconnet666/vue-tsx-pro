@@ -19,7 +19,7 @@
   - 导航：Toolbar、Tabs（可关闭、新建、拖动排序、溢出滚动与全部标签页）、Steps、Breadcrumbs、Pagination（PaginationBar、PageSizeSelect、PageJump、Pager）、NavList（紧凑时分组弹出、角标）、NavBar（横向导航）、TableOfContents、SkipLink
   - 输入：TextField、Textarea、NumberField / NumberRangeField、ColorField、Checkbox / Radio / Switch、Listbox、Select（标签可移除、maxTagCount、creatable）、Combobox、Autocomplete、OtpField、TreeSelect、Cascader、Transfer / TreeTransfer、TagsInput、FileDrop / Upload、Slider、Rating、ToggleGroup、ControlGroup
   - 日期：Calendar、RangeCalendar、QuarterCalendar、CalendarBoard（整页月历）、DateField、TimeField、DatePicker（年、季、月、周、日期时间，快捷选项）、TimePicker、DateRangePicker（月、季、年、周、日期时间区间）、RelativeTime、DateTime、Countdown（`@internationalized/date`，值可以是 ISO 字符串或 DateValue）
-  - 表格：Table 家族、DataTable（始终虚拟滚动；排序与多列排序、表头筛选、列菜单（固定、移动、隐藏）、行拖动（onReorder）、勾选、固定列、列宽、滚动加载、activeKey）、TreeDataTable、ColumnTable（按列定义的静态表格，合并单元格）、useTableQuery、tableToCsv
+  - 表格：Table 家族、DataTable（始终虚拟滚动；排序与多列排序、表头筛选、列菜单（固定、移动、隐藏）、行拖动（onReorder）、就地编辑（editable、validate、validateRow、onCellChange，网格方向键）、勾选、固定列、列宽、滚动加载、activeKey）、TreeDataTable、ColumnTable（按列定义的静态表格，合并单元格）、useTableQuery、tableToCsv
   - 表单（form/）：Field（labelHidden）、Label、Form、FormSection、FormValue、useForm（zod；decimalSchema / bigintSchema）、useLeaveConfirmation
   - 页面组合（子路径 `@vue-tsx-pro/ui/patterns`）：AppShell / AppShellBrand（顶部导航、页签区、页脚、可收起侧栏）、PageTabs（路由用 `vue-router` 子路径的 useRouteTabs）、ActionBar、FilterBar、NotificationCenter / NotificationList、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog；文案在 patternsMessages
   - 流程（子路径 `@vue-tsx-pro/ui/workflow`）：流程定义与校验、排布、运行时类型、FlowDiagram、ApprovalActions、useWorkflowTimeline（写成 Timeline 的各项）

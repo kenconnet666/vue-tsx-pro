@@ -11,6 +11,7 @@ import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Changes from './demo/Changes.tsx?demo';
 import Columns from './demo/Columns.tsx?demo';
+import Editable from './demo/Editable.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Infinite from './demo/Infinite.tsx?demo';
 import Ledger from './demo/Ledger.tsx?demo';
@@ -54,6 +55,16 @@ export default _component(() => () => (
       在列标题结尾放 ⋮：排序、固定在开头 / 结尾、前后移动、隐藏，写回 <Code>columnPins</Code>、
       <Code>columnOrder</Code>、<Code>hiddenColumns</Code>
       ，都能双向绑定、存起来（这里记在浏览器里，刷新后还在）。
+    </Example>
+    <Example id="editable" title="采购申请明细：就地编辑与校验" demo={Editable}>
+      列写 <Code>editable</Code>
+      （或按行判断的函数）时可以就地编辑，表格随之变成网格（role="grid"）：方向键在格之间走，只有一格能
+      Tab 进入；在可编辑的格上按 Enter、F2、双击或直接打字开始编辑，Enter 提交、Tab
+      提交并到下一个可编辑的格、Esc 放弃。默认编辑器按列选（状态列是 Select，数字类是
+      NumberField，其余是 TextField），<Code>editor</Code> 自己写（这里的交期是 DateField）。列的{' '}
+      <Code>validate</Code> 拦下不合理的值，<Code>onCellChange</Code>{' '}
+      写回，返回文字时是不接受的原因（接口拒绝），编辑器留着并显示它；<Code>validateRow</Code>{' '}
+      返回整行的问题，标在对应的格上（红框，悬停与读屏都能知道原因）。
     </Example>
     <Example id="reorder" title="需求排期：拖动行" demo={Priority}>
       给了 <Code>onReorder</Code> 时第一列前面有把手：按下拖动，或聚焦后空格拿起、↑↓

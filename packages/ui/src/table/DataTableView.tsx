@@ -11,6 +11,8 @@
  * - 排序：可排序的列标题是按钮，th 带 aria-sort（多列排序时只在第一排序列上，其余列的次序写给读屏）；
  *   勾选列用 Checkbox（表头的全选有部分选中状态）。
  * - 表头筛选（列定义的 filter）与列菜单（columnMenu）：列标题结尾的小按钮（ColumnHeaderActions），状态在外层。
+ * - 单元格导航（cellNavigation）：表格是 role="grid"，方向键在格之间走（gridFocus），只有一格能 Tab 进入；
+ *   可编辑的格按 Enter / F2、双击或直接打字开始编辑，编辑器由外层给（renderEditor），校验错误标在格上（rowErrors）。
  * - 列宽：表头结束边的 ColumnResizer（拖动或 ← / →）调整；固定列偏移与最小宽度的计算在 columns.ts。
  * - 详情行（renderDetail）：多一列展开按钮（aria-expanded、aria-controls），展开的行下面多一行跨全部列的详情，
  *   内容让过勾选列与展开列、和第一个数据列对齐；
@@ -39,6 +41,7 @@ import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils
 import { disclosureStyles } from '../utils/style/transitions';
 import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
+import { gridFocus } from '../utils/dom/roving-focus';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
 import {
@@ -51,6 +54,7 @@ import { useColumnDisplay } from './column-display';
 import {
   columnFilter,
   columnType,
+  isCellEditable,
   columnValue,
   headerLayout,
   sameStickyOffsets,
@@ -107,6 +111,18 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   columnMenu?: boolean;
   /** 选了列菜单里的一项；width 是这一列现在的宽度（固定没写宽度的列时，外层把它记成列宽） */
   onColumnAction?: (key: string, action: keyof ColumnMenuActions, width: number) => void;
+  /** 单元格导航：表格是 role="grid"，方向键在格之间走，只有一格能 Tab 进入；有可编辑的列时默认开 */
+  cellNavigation?: boolean;
+  /** 正在编辑的格 */
+  editing?: CellPosition | null;
+  /** 正在编辑的格里放的编辑器 */
+  renderEditor?: (row: T, column: DataTableColumn<T>) => VNodeChild;
+  /** 各行的校验错误：列的 key → 原因（行校验，如“结束日期早于开始日期”），标在格上 */
+  rowErrors?: (row: T) => Readonly<Record<string, string>> | null | undefined;
+  /** 在可编辑的格上按 Enter / F2、双击，或直接打字（text 是打的字，替换原值）：开始编辑 */
+  onEditStart?: (cell: CellPosition, text?: string) => void;
+  /** 编辑中的按键（Enter 提交、Tab 提交并到下一格、Esc 放弃），由外层处理 */
+  onEditKeydown?: (event: KeyboardEvent, cell: CellPosition) => void;
   /** 选择方式；不写时没有勾选列。多选时表头有全选 */
   selectionMode?: keyof SelectionModes;
   /** 已选行的 key */
@@ -221,6 +237,14 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsFoot?: PartProps<'tfoot'>;
   /** 合计行每个单元格的部件属性，可以按列计算 */
   propsSummaryCell?: PartProps<'td'> | ((column: DataTableColumn<T>) => PartProps<'td'>);
+}
+
+/** 一格的位置：行的 key 与列的 key */
+export interface CellPosition {
+  /** 行的 key */
+  row: string;
+  /** 列的 key */
+  column: string;
 }
 
 /** DataTable、TreeDataTable 的 handle 拿到的方法 */
@@ -383,6 +407,18 @@ export interface DataTableRowProps<T> {
   measure: (element: unknown) => void;
   /** 勾选或取消这一行 */
   onToggle?: (key: string) => void;
+  /** 单元格导航：数据格可以聚焦，可编辑的格响应 Enter / F2、双击、打字 */
+  cellNavigation?: boolean;
+  /** 这一行正在编辑的列 */
+  editingColumn?: string;
+  /** 正在编辑的格里放的编辑器 */
+  renderEditor?: DataTableViewProps<T>['renderEditor'];
+  /** 这一行的校验错误 */
+  rowErrors?: DataTableViewProps<T>['rowErrors'];
+  /** 开始编辑一格 */
+  onEditStart?: DataTableViewProps<T>['onEditStart'];
+  /** 编辑中的按键 */
+  onEditKeydown?: DataTableViewProps<T>['onEditKeydown'];
 }
 
 /**
@@ -424,8 +460,28 @@ export const DataTableRow = _component(
     propsContent,
     measure,
     onToggle,
+    cellNavigation = false,
+    editingColumn,
+    renderEditor,
+    rowErrors,
+    onEditStart,
+    onEditKeydown,
   }: DataTableRowProps<T>) => {
     const lang = useLang();
+
+    /** 数据格的按键：编辑中交给外层；可编辑的格按 Enter / F2 开始编辑，打一个字直接替换 */
+    function onCellKeydown(event: KeyboardEvent, column: DataTableColumn<T>) {
+      const cell = { row: row.key, column: column.key };
+      if (editingColumn === column.key) return onEditKeydown?.(event, cell);
+      if (event.target !== event.currentTarget || !isCellEditable(column, row.data)) return;
+      if (event.key === 'Enter' || event.key === 'F2') {
+        event.preventDefault();
+        onEditStart?.(cell);
+      } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        onEditStart?.(cell, event.key);
+      }
+    }
     return () => (
       <tr
         {...mergeAttrs<'tr'>(
@@ -458,6 +514,7 @@ export const DataTableRow = _component(
           },
         )}
         data-index={position}
+        data-key={row.key}
         data-state={selected ? 'selected' : undefined}
         data-tone={tone}
       >
@@ -546,9 +603,14 @@ export const DataTableRow = _component(
           </td>
         )}
         {columns.map((column, position) => {
-          const value = column.cell
-            ? column.cell(row.data, index)
-            : String(columnValue(column, row.data) ?? '');
+          const editing = editingColumn === column.key;
+          const value = editing
+            ? renderEditor?.(row.data, column)
+            : column.cell
+              ? column.cell(row.data, index)
+              : String(columnValue(column, row.data) ?? '');
+          const error = cellNavigation ? rowErrors?.(row.data)?.[column.key] : undefined;
+          const editable = cellNavigation && isCellEditable(column, row.data);
           return (
             <td
               key={column.key}
@@ -565,9 +627,25 @@ export const DataTableRow = _component(
                       !selectionMode &&
                       !detailColumn &&
                       dataTableStyles.activeEdge,
+                    cellNavigation && dataTableStyles.gridCell,
+                    editing && dataTableStyles.editingCell,
+                    !!error && dataTableStyles.invalidCell,
                   ],
                 },
                 typeof propsCell === 'function' ? propsCell(row.data, column) : propsCell,
+                cellNavigation
+                  ? ({
+                      'data-column': column.key,
+                      'aria-invalid': error ? 'true' : undefined,
+                      // 错误原因：悬停看，读屏随格一起念（aria-description）
+                      title: error,
+                      'aria-description': error,
+                      onKeydown: (event: KeyboardEvent) => onCellKeydown(event, column),
+                      onDblclick: editable
+                        ? () => onEditStart?.({ row: row.key, column: column.key })
+                        : undefined,
+                    } as PartProps<'td'>)
+                  : {},
               )}
             >
               {position === 0 && leading ? (
@@ -683,6 +761,12 @@ export const DataTableView = _component(
     filterOptionsOf,
     columnMenu = false,
     onColumnAction,
+    cellNavigation = false,
+    editing,
+    renderEditor,
+    rowErrors,
+    onEditStart,
+    onEditKeydown,
     selectionMode,
     selectedKeys = [],
     partialKeys,
@@ -779,6 +863,12 @@ export const DataTableView = _component(
     );
     let viewport = _state.raw<HTMLElement | null>(null);
     let body = _state.raw<HTMLElement | null>(null);
+    // 单元格导航：表体里的数据格之间用方向键走（虚拟滚动下聚焦的格滚进视口，后面的行随之渲染出来）
+    _effect(() =>
+      body && cellNavigation
+        ? gridFocus(body, { rows: 'tr[data-key]', cells: 'td[data-column]' })
+        : undefined,
+    );
     let head = _state.raw<HTMLElement | null>(null);
     let foot = _state.raw<HTMLElement | null>(null);
     // 骨架铺满表体到窗口底边（第一次加载时表格还没有高度，只放几行显得没铺开）；
@@ -1160,6 +1250,8 @@ export const DataTableView = _component(
                 'aria-rowcount':
                   bodyRowCount() + headerRows + (hasSummary && rows.length > 0 ? 1 : 0),
                 'aria-busy': loading || undefined,
+                // 单元格导航：读屏按网格念，方向键在格之间走
+                role: cellNavigation ? 'grid' : undefined,
               },
             )}
           >
@@ -1382,6 +1474,12 @@ export const DataTableView = _component(
                     propsContent={propsContent}
                     measure={virtual.measure}
                     onToggle={onToggleRow}
+                    cellNavigation={cellNavigation}
+                    editingColumn={editing?.row === row.key ? editing.column : undefined}
+                    renderEditor={renderEditor}
+                    rowErrors={rowErrors}
+                    onEditStart={onEditStart}
+                    onEditKeydown={onEditKeydown}
                   />
                 );
               })}
