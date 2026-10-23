@@ -5,7 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
-import { Examples } from '../../../site/Examples';
+import { ExampleColumn, Examples } from '../../../site/Examples';
 import Confirm from './demo/Confirm.tsx?demo';
 import Flow from './demo/Flow.tsx?demo';
 
@@ -19,18 +19,24 @@ export const meta = {
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { KanbanBoard } from '@vue-tsx-pro/ui/patterns';">
     <Examples>
-      <Example id="flow" title="只能挪到相邻的列" demo={Flow}>
-        看板不自己挪卡片：放下时报告 <Code>onMove</Code>，使用方改了数据卡片才换列。
-        <Code>
-          canMove
-        </Code> 返回不能放的原因：拖动经过时那一列标红并写出原因，放下时卡片弹回、报告{' '}
-        <Code>onReject</Code>。列名旁的计数用 <Code>tone</Code> 提示要注意的列。
-      </Example>
-      <Example id="confirm" title="放下后先确认" demo={Confirm}>
-        要填意见、要审批的移动：<Code>onMove</Code>{' '}
-        里打开对话框（或抽屉），确认后再改数据，取消就什么都不变。卡片的渲染函数拿到{' '}
-        <Code>dragging</Code>，拖动中可以换一种写法；空列显示 <Code>empty</Code>。
-      </Example>
+      <ExampleColumn wide>
+        <Example id="flow" title="只能挪到相邻的列" demo={Flow}>
+          看板不自己挪卡片：放下时报告 <Code>onMove</Code>，使用方改了数据卡片才换列。
+          <Code>canMove</Code>{' '}
+          返回不能放的原因：拖动经过时那一列标红并写出原因，放下时卡片弹回、报告{' '}
+          <Code>onReject</Code>。列名旁的计数用 <Code>tone</Code> 提示要注意的列。各列至少{' '}
+          <Code>columnWidth</Code> 宽，放得下时平分整行，放不下时横向滚动；<Code>columnHeight</Code>{' '}
+          是列的最大高度，卡片多时列里滚动。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn wide>
+        <Example id="confirm" title="放下后先确认" demo={Confirm}>
+          要填意见、要审批的移动：<Code>onMove</Code> 里打开对话框（这里是{' '}
+          <Code>useFormDialog</Code>
+          ，也可以是抽屉），确认后再改数据，取消就什么都不变。卡片的渲染函数拿到{' '}
+          <Code>dragging</Code>，拖动中可以换一种写法；空列显示 <Code>empty</Code>。
+        </Example>
+      </ExampleColumn>
     </Examples>
     <KeyboardReference
       keys={[

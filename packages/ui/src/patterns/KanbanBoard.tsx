@@ -75,7 +75,7 @@ export interface KanbanBoardProps<T> extends PartProps<'div'> {
   /** 放到了不能放的列：卡片已经弹回，可以在这里提示原因 */
   onReject?: (item: T, to: string, reason: string) => void;
   /**
-   * 列宽（CSS 长度）
+   * 每列至少多宽（CSS 长度）：放得下时各列平分整行，放不下时横向滚动
    * @default '16rem'
    */
   columnWidth?: string;
@@ -164,7 +164,8 @@ export const kanbanBoardStyles = stylex.create({
 
 /** KanbanBoard 的动态样式：列宽、列高、拖动的位移 */
 export const kanbanBoardDynamicStyles = stylex.create({
-  width: (width: string) => ({ width }),
+  // 至少这么宽，富余的空间各列平分（同 Jira 的看板），放不下时外层横向滚动
+  width: (width: string) => ({ flexBasis: width, flexGrow: 1, minWidth: width }),
   height: (height: string) => ({ maxHeight: height }),
   ghost: (left: number, top: number, width: number) => ({ left, top, width }),
 });
