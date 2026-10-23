@@ -781,7 +781,7 @@ apps/docs/src/components/base/Button/
 
 **Unovis 的坑**：每个 XYContainer 都插一个 id 固定为 `saturate` 的滤镜，一页多张图时 id 重复，创建后改成各自的 id（`useId`）；GroupedBar 默认给空值画 2px 的最小高度，设为 0；happy-dom 没有 SVG 的 `transform.baseVal.consolidate`，时长为 0 时不走 d3 的过渡，单元测试不受影响；绘制在动画帧里，页面在后台（标签页隐藏）时暂停，回到前台才画。
 
-**之后**：组合图、其余新图表与键盘逐点浏览见 ROADMAP.md §5。
+**之后**：组合图、其余新图表与键盘逐点浏览见 ROADMAP.md 阶段 7。
 
 ### 10.22 3D 与视觉效果（已完成）
 

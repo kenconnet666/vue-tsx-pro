@@ -1,30 +1,175 @@
 # 路线图
 
-目标：把组件库做到成熟可用（1.0）。达到的标准是 API 一致、基础设施完整、后台业务常用的组件齐全，每个组件都达到
+目标：把组件库做到成熟可用（1.0）。达到的标准是分层清楚、API 一致、基础设施完整、后台业务常用的组件齐全，每个组件都达到
 COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线程推进，每完成一块就提交、推送，并在这里勾掉。
-2026-10-22 的全站审查结果在 [.claude/reports/audit-2026-10-22.md](.claude/reports/audit-2026-10-22.md)，下面 §1 的条目都来自它。
+
+2026-10-23 起联合降本管理暂停（停在 D3），先按下面的阶段 0–8 把组件库做完。依据是当天的盘点：目录与依赖、各组件的使用情况、
+按 §8 的完成度、与 Ant Design（含 ProComponents）、Element Plus、Arco、Mantine、Radix / React Aria、Naive UI 的对照。
 
 ## 工作方式
 
 - **审核与整理随做随改**：碰到的代码先看它在整体里的位置。上层组件要用好基础设施与基础组件（ButtonBase、ListPopover、
   useHoverLayer、focusRingStyles、FormValue、NumericValue、hasContent、focusControl……）。同一个逻辑出现第三次就抽出来。
-  死代码、过时文件、命名不一致顺手改，整理与功能改动分开提交。
+  死代码、过时文件、命名不一致顺手改，整理与功能改动分开提交。整个仓库的基础设施（编译器、脚本、CI、文档站构建、各应用的接线）一起维护，
+  遇到问题直接改。
 - **架构意识**：同一个问题在多处出现时修根因；改公共 API 时调用方、类型、测试、文档、COMPONENTS.md 一起改，不留半截。
-- **宽屏优先**：在用户的宽屏 Chrome（Claude in Chrome）里看效果，先保证宽屏占满、好看，再顾窄屏。
+- **文档站同步**：动到哪个组件就在用户的 Chrome（Claude in Chrome，宽屏优先）里看它的文档页：示例饱满、贴近真实场景，
+  外观、交互与 API 的灵活性不够就一起改；示例里重复出现的写法抽成组件或工具。
 - **验证**：本地只跑与改动相关的检查与测试，放后台；全量测试、浏览器测试交给 CI。检查链用 `&&` 串起来，不用管道吞掉退出码。
   推送前看一眼上一次 CI。
 
 ## 现状
 
-- tsx 包：符文编译器、运行时、Vite 预设、StyleX 类型入口完整；日常修补（§1.5）。
-- ui 包：约 190 个组件，分基础、布局、展示、反馈、浮层、导航、输入、日期、表单、表格、图表（子路径）、3D（子路径）、配置。
-  另有 12 套主题、主题编辑器、设计令牌导出、语言包与格式化、路由适配。清单见 HANDOFF.md §1。
-- 文档站：每个组件一页（示例、API 表、键盘），指南（快速开始、主题定制、设计资源、演练场），降本管理整页案例。
-- 已完成的大块（细节见提交历史与 COMPONENTS.md §10）：主题定制页；文档两轮补齐；内置值类型（Decimal、bigint、日期）；
-  日期组件三层；3D 与效果；图表 P0–P2 前半（Bar、Line、Area、Scatter、Donut、Sankey、Chord）；开发体验与性能。
-  联合降本管理正式版按 apps/cost-reduction/DESIGN.md 重建，进度见 §4。
+- tsx 包：符文编译器、运行时、Vite 预设、StyleX 类型入口完整；类型检查用 TypeScript 7.1 beta（脚本与语言服务仍用 TS 6）。
+- ui 包：约 168 个组件、102 个文档页、343 个示例；12 套主题、主题编辑器、设计令牌导出、语言包与格式化、路由适配、请求层。
+  模块之间没有循环依赖。清单见 HANDOFF.md §1，各批的设计与取舍见 COMPONENTS.md §10。
+- 盘点出的问题（阶段 0 处理）：目录按文档分类而不是按层分，配置层里放着界面组件（ThemeSwitcher、ThemeCustomizer），
+  布局与反馈目录里放着依赖导航、浮层、输入的页面级组合（AppShell、PageHeader、NotificationCenter）；主入口混着通用组件、
+  页面级组合与领域 / 展示组件（流程、视觉效果、Marquee、SlideVerify）；子路径要在五处分别登记。
+- 完成度（阶段 8 补齐）：类型测试几乎没有；约 20 个有键盘逻辑的组件没有专属浏览器测试；输入法只测了 TextField；
+  ActionBar、FormSection、ModalCore 没有文档页。
 
-## 1. 审查整改
+## 分层
+
+```
+扩展（子路径：只依赖核心与基础设施，彼此不依赖，workflow → patterns 这类显式登记的除外）
+  /patterns  /workflow  /charts  /three  /effects  /xlsx  /theme-customize  /docs-kit  /shiki  /vue-router
+核心（主入口：按分类目录放，与文档站的分类一致；目录之间可以互相用，模块之间不能有环）
+  base  layout  display  feedback  overlay  navigation  input  date  form  table
+基础设施（不渲染界面）
+  utils/（data、dom、motion、style、virtual、request）  config/（context、defaults、theme、lang、query-state）
+```
+
+核心不强行再分层，同 Ant Design、Mantine、Element Plus 的核心包（平铺），页面级与领域组件放扩展（同 ProComponents、
+`@mantine/notifications` 这类扩展包）。`pnpm layers:check` 检查四条规则：
+
+1. 基础设施在运行时不导入组件（只导入类型可以：组件默认值、语言包的文案类型）
+2. 核心不导入任何扩展
+3. 扩展只依赖核心与基础设施，扩展之间的依赖要登记
+4. 模块之间没有环
+
+## 阶段 0：整理（只动结构与登记，不加功能）
+
+- [ ] 子路径只在 package.json 的 `exports` 里登记：Vite 的构建入口、`pnpm exports`、文档站的 API 表都从它读；
+      `pnpm exports` 同时生成各子路径的 index.ts（保留文件开头的说明），名字在所有入口里全局唯一
+- [ ] `pnpm layers:check`（进 `pnpm check` 与 CI）
+- [ ] `@vue-tsx-pro/ui/patterns`（页面组合）：AppShell（Brand 并入）、PageHeader、ActionBar、FilterBar、NotificationCenter、
+      KanbanBoard、DeadlineBadge（原 DeadlineTag，底层是 Badge）、ThemeSwitcher、useFormDialog；文档站加“页面组合”分类（表格之后）
+- [ ] `@vue-tsx-pro/ui/workflow`：流程定义、校验、排布、运行时与 FlowDiagram、WorkflowTimeline、ApprovalActions；
+      ApprovalActions 改用 useFormDialog（加上传字段），不再自己拼对话框
+- [ ] `@vue-tsx-pro/ui/effects`：BorderBeam、SpotlightCard、TiltCard、Marquee（不依赖 three，与 `/three` 分开）；
+      删除 SlideVerify（真正的验证在服务端，只有演示站在用）
+- [ ] ThemeCustomizer、ThemeThumbnail 进 `/theme-customize`；ColorSwatch 进 `/docs-kit`（只有主题文档在用）
+- [ ] 小合并：Collapsible 并入 Collapse（`trigger`）；Result 建在 Empty 上；StatusDot 挪到 base；`Modal.tsx` 改名 `ModalCore.tsx`
+- [ ] 测试按组件拆对（`Descriptions.test` 里的 Timeline、`Tabs.test` 里的 Steps / Toolbar / ToggleGroup），host-demo 的 `pilot.*` 改名
+- [ ] 文档页补齐 FormSection、ModalCore、ActionBar；挪过的组件逐页在 Chrome 里看示例、补示例
+- [ ] COMPONENTS.md §7 写上分层与目录、§8 完成标准按现状修订（宿主示例 → 文档站示例 + axe；类型测试只要求泛型与可绑定值的组件）；
+      PLAN §2、HANDOFF 同步；审查报告标上已修
+- [ ] 降本案例跟着改导入与用法，CI 通过
+
+## 阶段 1：基础设施（后面阶段要用的工具先铺好）
+
+- [ ] `useSortable` 多容器分组：列内排序 + 跨列（KanbanBoard 改建在它上面；Tree、Transfer、Tabs 的拖动也用）
+- [ ] `useOverflowItems`：量出放得下几项，其余折成 +N（Select / TreeSelect 的 maxTagCount、Tabs 溢出、横向导航、Toolbar）
+- [ ] `useIntersectionObserver`（ActionBar、3D、Affix、BackTop、图片懒加载）
+- [ ] 树工具：`filterTree`、`moveNode`、勾选策略（只返回父 / 子 / 全部）、路径收集
+- [ ] 表单：`form.validate(paths)` 局部校验、字段联动（改 A 时校验 B）
+- [ ] `usePanZoom`（建在 startMove 上）、二维方向键导航（表格网格、整页日历）、`ControlGroup` 上下文（组合输入的圆角与描边）
+- [ ] 拼音匹配：`createMatcher` 认拼音与首字母（选库后定，作可选依赖）
+- [ ] `useDismissible`：Tag、Alert、Banner 三处先离场再移除
+- [ ] 评估 TS 7.1 的 `typescript/sync`：能覆盖的脚本（docs:check、exports、文档站 API 表）从 TS 6 换过去
+
+## 阶段 2：小组件
+
+- [ ] 反馈：Popconfirm；Toast 的 `success()` / `error()` / `loading()`、去重的 id、关闭回调；Progress 的环形与目标刻度
+      （分段由 ProportionBar 负责）；Result 的 403 / 404 / 500；页面级的 Banner；`useConfirm` 的必填理由
+- [ ] 输入：Autocomplete（值就是文字）、OTP、InputGroup（币种 + 金额）、格式化输入（手机号、证件号）、
+      CheckboxGroup / RadioGroup 的 items、NumberField 与 Textarea 可清空、Rating
+- [ ] 展示与布局：Ellipsis（溢出才出提示、可展开）、Affix、BackTop、Watermark、LoadingBar（路由切换的进度条）
+
+## 阶段 3：选择与日期
+
+- [ ] Select 的 maxTagCount 与逐个删除、可新建选项
+- [ ] Cascader（级联：路径显示、只选叶子、远程加载）
+- [ ] TreeSelect 的勾选策略与 maxTagCount；Tree 的拖拽移动与搜索过滤
+- [ ] Transfer（穿梭框，含树形）
+- [ ] DatePicker 的季、周、快捷项与“今天”、禁用的时间段；DateRangePicker 的月、季、年与日期时间区间、自定义快捷区间
+- [ ] 整页 Calendar（单元格渲染：排班、节假日、日程）
+
+## 阶段 4：导航与外壳
+
+- [ ] Tabs 的溢出、可关闭、新增、拖动（路由页签）
+- [ ] NavList 收起成图标栏（悬停弹出子项）、条目角标；横向导航（顶部菜单，放不下收进“更多”）
+- [ ] AppShell（patterns）：页脚、可收起侧栏、顶部与混合布局、页签区
+- [ ] PaginationBar：总数 + 每页条数 + 页码 + 跳转（三处页面在手写这一组）
+- [ ] 命令式 `useDialog` / `useDrawer`；`onOpenChange(open, { reason })` 统一
+
+## 阶段 5：表格与表单
+
+- [ ] 表格：表头筛选、多列排序、列菜单（显隐、固定、拖动）、网格方向键与单元格编辑（行校验）、行拖动、
+      静态表格的合并单元格、列定义驱动的静态表格
+- [ ] QueryTable（patterns）：FilterBar + DataTable + 工具栏（密度、列设置、刷新、全屏）+ useTableQuery
+- [ ] 表单：错误汇总、跨字段联动校验、`form.Field` 自动绑定值；StepsForm（patterns）
+- [ ] Excel：子路径 `/xlsx`（分组表头导出成合并单元格；读多行表头、展开合并、单元格内换行拆行）；
+      DataImport（patterns：选文件、列对应、逐行校验、预览、确认）
+
+## 阶段 6：展示与协作
+
+- [ ] Image 与 Lightbox（缩放、旋转、拖动）→ Upload 的图片墙（预览、排序、粘贴）
+- [ ] Descriptions 的自适应列与复制
+- [ ] Timeline 升级：操作人、折叠、倒序、项里放字段差异
+- [ ] FieldCompare（建在 diffFields 上）、CommentThread 与 Mentions（patterns）
+- [ ] FlowDesigner（workflow：流程图上选节点，属性面板改处理人、时限、超时、提醒，校验后发布）
+
+## 阶段 7：图表
+
+- [ ] 标注、组合图（柱 + 线，双轴）、100% 堆叠
+- [ ] 热力图 / PivotTable、Gauge、Sparkline（Stat 里用）、TimelineChart
+- [ ] 雷达、矩形树图、缩放、导出图片与数据；地图（TopoJSON、Leaflet）排在最后
+- [ ] 浏览器测试补上 Area、Scatter、Donut、Sankey、Chord、Funnel、Graph、Waterfall；部件属性的示例
+
+## 阶段 8：质量与发布
+
+- [ ] §8 的矩阵进 COMPONENTS.md，逐个补齐：
+  - 有键盘逻辑、没有专属浏览器测试：Accordion、KanbanBoard、Splitter、ResizeHandle、ColorField、NumberField、
+    NumberRangeField、TreeSelect、NotificationCenter、Checkbox、Switch、ToggleGroup、Drawer 的拖宽与 beforeClose
+  - 输入法：Combobox、TagsInput、NumberField、Textarea、DateField、CommandPalette 的过滤框、Select 的按字母跳转
+  - 类型测试：选择类、表格、表单与可绑定值的组件
+  - 文档页没有键盘一节：AppShell、NotificationCenter、ResizeHandle、ModelViewer
+- [ ] 视觉回归进 CI（`docs:shot` 的截图对比）
+- [ ] 文档站：搜索 API 的属性名；每页一节无障碍说明（角色、键盘、读屏）；示例切换视口、从右到左、密度
+- [ ] 发布：放宽 Vite 的 peer 范围、changesets、发 0.x；API 稳定后 1.0（发布产物验证 `test:consumer` 已有）
+
+每个阶段新做的组件当场达到 §8；顺手动到的老组件一起补齐。
+
+## 联合降本管理（`apps/cost-reduction`，暂停）
+
+设计依据是 [apps/cost-reduction/DESIGN.md](apps/cost-reduction/DESIGN.md)。暂停期间它只跟着组件库改导入与用法，保证类型检查与 CI 通过，
+不加新页面。DESIGN.md §9 里还没做的组件已排进上面的阶段：Popconfirm、Result 403（2）、DataTable 单元格编辑、xlsx、DataImport（5）、
+Timeline 升级、FieldCompare、CommentThread、FlowDesigner（6）、useSortable 分组（1）。
+
+- [x] D0 设计规格与底座；D1 流程；D2 收件箱、工作台、通知；D3 任务池（任务列表、看板、详情、信息表编辑、计划调整、DMC 审批链）
+- [ ] D4 收益：收益认定、商务洽谈、一本账（时点）、差额分析；Excel 导入导出
+- [ ] D5 渠道一：建议列表、提交建议、建议详情、测算表单与版本对比、协商
+- [ ] D6 渠道二：方案列表、新需求、方案详情；供应商门户
+- [ ] D7 测算公式与参数、储备库与匹配推送、降本明细两页
+- [ ] D8 统计分析四页；基础数据、系统管理（流程配置、工作日历、分级授权、提醒、日志）
+- [ ] 降本的 Figma 界面：Figma MCP 的月度额度恢复后再画，以 DESIGN.md 与做好的页面为蓝本
+
+## 已知局限（有意的取舍，写在文档里）
+
+- VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
+- Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动
+- Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色）
+- 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出
+- 表格是 table 语义，不是 grid：没有单元格之间的方向键导航（阶段 5 排了）
+
+## 附：已完成
+
+2026-10-22 的全站审查在 [.claude/reports/audit-2026-10-22.md](.claude/reports/audit-2026-10-22.md)。下面保留当时每一项的做法与“决定保留”的理由，
+之后改到相关代码时先看这里。之前的“组件补齐”清单已并进阶段 2–6，图表并进阶段 7，质量与发布并进阶段 8。
+
+### A. 审查整改（2026-10-22）
 
 已修复（2026-10-22）：
 
@@ -34,7 +179,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - c6b5011：表格的合计与数字排序、基础设施。
 - e0944b8：死代码与过时注释。
 
-### 1.1 API 统一（公共契约，一类一次改完：调用方、文档、测试同步）
+#### A.1 API 统一（公共契约，一类一次改完：调用方、文档、测试同步）
 
 - [x] 色调：文字类的 `tone` 改用状态色调的六档再加文字专用的 `muted`（`default` → `neutral`）；Result 的 `status` 改成 `tone`
 - [x] 圆角：统一一个 `Radius`（none、xs–xl、full，对应 tokens，`radiusStyles`），各组件给默认值；Alert、Card、SpotlightCard、TiltCard、BorderBeam 补上
@@ -56,7 +201,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] PageSizeSelect 的 `onUpdate` 改名 `onSizeChange`（回调统一叫 onXxxChange）。决定保留 Drawer 的 `side`（四条边，
       与浮层的定位 placement 不是一回事）；Steps 的 current 可绑定并入 §4 M3 的 Steps 升级
 
-### 1.2 复用与整理
+#### A.2 复用与整理
 
 - [x] 浮层：Tour 与 ModalCore 共用打开流程 `openModalDialog`（utils/dom/overlay.ts），Tour 补上锁定页面滚动
 - [x] 选择类：日期面板、TreeSelect、ListPopover 共用 `anchoredPanelSx(size)`（定位、表面、字号、进出场），日期面板跟着 size。`SelectTrigger` 只有 Select 与 TreeSelect 两处，按三次再抽的约定暂不抽
@@ -84,7 +229,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 脚本：`scripts/lib/repo.mjs`（`root`、`requireFrom`、`parseSource`），十二个脚本不再各算根目录、各自建 require；
       没登记的三个登记成 `pnpm move`、`gen:globe-land`、`gen:trophy`（重跑结果与仓库里的一致）；五个已合并的旧 worktree 与分支删掉
 
-### 1.3 行为与无障碍
+#### A.3 行为与无障碍
 
 - [x] 按钮不可用时不响应悬停（按钮家族、itemStyles.hoverable）
 - [x] forced-colors（Windows 高对比）：Separator、Progress、Indicator、Skeleton 用边框或系统色
@@ -111,7 +256,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] reveal.ts：去掉默认淡入淡出的样式只对转场期间的根元素生效（不再关掉宿主自己的 View Transitions），跳过的转场不报错、
       时长用 parseDuration；主题定制的圆角按这套主题自己的取值缩放（`themeValues` 在页面里量，量不到时按默认值）
 
-### 1.4 编译器（tsx）
+#### A.4 编译器（tsx）
 
 - [x] `_effect` / `_effect.pre` 在服务端不执行（Vue 会立即执行 pre 的 watchEffect）；const 的状态在函数体里读取不再警告；
       `n++` 这类既读又写的不再出没有位置的警告
@@ -126,7 +271,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       语言判断（`languageOf`，含单文件组件的 lang 查询参数）与 StyleX 导入来源（`STYLEX_SOURCES`）各只定义一处，
       compile 总认官方包与本包入口，使用方的 importSources 加在后面（Vite 预设、演练场不再各写一份）
 
-### 1.5 文档与案例
+#### A.5 文档与案例
 
 - [x] 过时文档：COMPONENTS.md（目录与子路径、拖拽排序、图表与 3D 清单、演练场的编译、§10 各节的状态与“以后再加”）、
       RUNES.md（`_untrack`、函数绑定、运行时清单、编译期报错补上 `_derived` 与 token 写法）
@@ -138,7 +283,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@vue-tsx-pro/ui/vars.stylex`，主入口不再导出它）；看板用 Grid；
       图表示例的真实机型名换成“机型 A / B”
 
-### 1.6 审查余项
+#### A.6 审查余项
 
 - [x] 剪贴板：没有 Clipboard API（内网常见的 http 部署）时退回 execCommand，焦点还给按钮，模态对话框里也能复制（同 VueUse 的 legacy）
 - [x] `themeTransitionOrInstant` 只在读不到 token 时直接到位，token 格式写错照常报错（新增 `tokenValue`）；
@@ -148,7 +293,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       culori 按需注册颜色空间；date.ts 解析返回 null、运算抛 RangeError 的约定写进文件说明；floating、resize、hover-layer、
       pointer、reveal、sortable、use-virtualizer 由组件与浏览器测试覆盖，不另写
 
-## 2. 基础设施
+### B. 基础设施（2026-10-22）
 
 - [x] 请求层：`HttpClient` 接口（只有 request，axios、ky 包一层即可）经 createUi / Provider 的 `http` 给出，`useHttp()` 取它；
       `createHttpClient` 是原生 fetch 的薄封装（baseURL、query、JSON 体、超时与取消、`HttpError`、onRequest / onResponse 拆包）；
@@ -169,7 +314,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       决定不另做 useDeadline：纯函数加 useWorkCalendar 已经够用；降本案例的认定时限改用它
 - [x] 字段差异 `diffFields`：两份记录按字段比较（结构相等），数值字段给出精确的差（Decimal、bigint 不经过浮点）与变化率；
       字段与顺序由 keys 决定，FieldCompare 之后用它
-- [ ] 跨容器拖动：`useSortable` 加分组（看板的跨列移动已由 KanbanBoard 解决；列内排序 + 跨列的分组仍待做）
+- 跨容器拖动：`useSortable` 加分组移到阶段 1（看板的跨列移动已由 KanbanBoard 解决）
 - [x] 通知控制器：决定不另做 `createNotifications()`，NotificationCenter 只管显示，通知的存取、已读由应用决定（D2）
 - [x] 持久化状态 `usePersistentState`（参考 VueUse useStorage）：JSON、类型不对用默认值、对象按字段合并、存不了只在这次有效、
       别的标签页改了跟着变；文档站的侧栏与主题设置改用它（删掉 site/sidebar.ts），台账记住隐藏的列
@@ -184,69 +329,3 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       有改动时站内跳转弹确认对话框，注册示例与两个编辑器用 `form.dirty && !form.submitting`
 - [x] zod 的报错跟随语言包：useForm 按语言包给 zod 传错误文案，空值是 `lang.formRequired`，其余是 `lang.formIssues`（zod 自带的语言包）；
       createContext 在 setup 之外读取时直接用 fallback
-
-## 3. 组件补齐（后台常用）
-
-- **输入**：Cascader（级联，路径显示、只选叶子）、Transfer（穿梭框）、Autocomplete（值就是文字）、Select 的 `maxTagCount` 与逐个删除、
-  CheckboxGroup / RadioGroup 的 items、拼音匹配；Upload 的已有文件（名字与地址）、超出数量的提示、图片预览与排序；
-  InputGroup（币种 + 金额这类组合）、格式化输入（手机号、证件号）、OTP；NumberField、Textarea 可清空
-- **日期**：DateRangePicker 的月、季、年与日期时间区间，自定义快捷区间；DatePicker 的快捷项与“今天”；禁用的时间段
-- **表单**：错误汇总、跨字段联动校验、`form.Field` 自动绑定值
-- **反馈**：Popconfirm；Toast 的 `success()` / `error()` / `loading()` 与去重的 id、关闭回调；Progress 的环形、分段、步骤与目标刻度；
-  Result 的 403 / 404 / 500；页面级的 Banner；带必填理由的确认（`useConfirm` 的 reason）
-- **浮层**：Dialog 的 beforeClose；命令式的 `useDialog` / `useDrawer`；`onOpenChange(open, { reason })`；可拖动宽度的 Drawer
-- **导航**：Tabs 的溢出与可关闭（路由页签）；NavList 收起成图标栏（悬停弹出子项）；分页组合条（总数 + 每页条数 + 页码 + 跳转）
-- **布局**：Splitter（可拖动分栏、收起）、Affix、Watermark；AppShell 的可收起侧栏、页脚、尺寸属性
-- **展示**：图片与预览（Lightbox）、Descriptions 的自适应列与复制、迷你图（Stat 里用）、CommentThread、KanbanBoard、FieldCompare
-- **表格**：服务端模式（§2 的 useTableQuery）、多列排序、表头筛选、行点击与键盘、单元格编辑、列菜单（`DataTableColumnMenu`）、
-  导出、跨页全选、列的固定与拖动、行拖动、合并单元格、网格的方向键导航、列定义驱动的静态表格
-
-## 4. 联合降本管理（`apps/cost-reduction`，正式版前端）
-
-设计依据是 [apps/cost-reduction/DESIGN.md](apps/cost-reduction/DESIGN.md)（按《需求定义方案》《降本项目信息表》、
-C919 模板与 1013 原型重新设计；原来的一期页面只作参考，按设计逐页重建）。后端未接：假后端（MSW）按同一份业务规则
-与流程定义处理请求；流程的执行在后端自研引擎，前端只描述流程、显示进度、调用处理接口。演示数据一律虚构。
-
-- [x] D0 设计规格与底座：DESIGN.md；分层（app / domain / api / mock / modules / shared）、接口契约与金额编解码、
-      MSW 假后端（localStorage、可恢复）、演示身份切换、主数据缓存、路由表与外壳；组件库的流程定义模型（`workflow/`）
-- [x] D1 流程：五个流程定义、假后端的流转模拟（认领、退回、提级、会签、超时、轮次）、权限 `can()`；
-      FlowDiagram、ApprovalActions、WorkflowTimeline；任务详情的流程面板；新建、编辑在右侧抽屉里
-- [x] D2 收件箱（五个页签、分栏预览、批量认领、退回 / 改派 / 指定 / 催办）、工作台（按角色）、通知（按流转记录推出，
-      记已读）：Splitter、DeadlineTag、useFormDialog、NotificationCenter、DataTable 的 activeKey / onRowClick
-      （通知的存取由应用决定，不另做 createNotifications）
-- [x] D3 任务池：任务列表（当前环节与处理岗位）、任务看板（拖到下一列在抽屉里处理当前环节，不能拖的写明原因）、任务详情、
-      信息表编辑（计划完成、主办只能经计划调整改）、计划调整（task-change：PEMO 审批，同意后写回、记变更记录、环节转给新主办）、
-      DMC 审批链（建卡后发起，节点通过回填实施节点，跟着暂停 / 恢复 / 终止）：KanbanBoard（独立组件，不复用 useSortable：
-      跨列移动由使用方确认）、Upload 已有文件（existingUploadFile；ApprovalActions 被退回时带上次的附件）、useFormDialog 的日期字段
-- [ ] D4 收益：收益认定、商务洽谈、一本账（时点）、差额分析；Excel 导入导出：`@vue-tsx-pro/ui/xlsx`、DataImport
-- [ ] D5 渠道一：建议列表、提交建议、建议详情、测算表单与版本对比、协商：FieldCompare、CommentThread
-- [ ] D6 渠道二：方案列表、新需求、方案详情；供应商门户
-- [ ] D7 测算公式与参数、储备库与匹配推送、降本明细两页：DataTable 单元格编辑
-- [ ] D8 统计分析四页；基础数据、系统管理（流程配置 FlowDesigner、工作日历、分级授权、提醒、日志）（图表已备：WaterfallChart、FunnelChart、GraphChart、目标线、下钻；看板已用上）
-- [x] 设计资源：主题导出为设计令牌（DTCG JSON）；Figma 文件里的变量、样式、图标与组件；“设计资源”指南
-- [ ] 降本的 Figma 界面：Figma MCP 的月度额度恢复后再画，以 DESIGN.md 与做好的页面为蓝本
-
-## 5. 图表
-
-- [x] 点击与下钻：`onItemClick`（柱子按图形、折线面积按十字线所在的类目、环形图的扇区、漏斗的环节、网络图的节点）；统计看板的团队图、漏斗能点进筛好的台账
-- [x] 目标线：XY 图的 `targets`（Unovis Plotline，数值轴范围包含它）；图表颜色认语义色（success、danger…）
-- [ ] 标注、组合图（柱 + 线，双轴）、100% 堆叠
-- [x] 新图表：WaterfallChart（正负跨 0、合计柱、`fromZero`）、FunnelChart（主题 tokens 画，subgrid 对齐）、GraphChart（Unovis Graph：force / dagre / elk / parallel、分组框、选中高亮、缩放）
-- [ ] 新图表：热力图 / PivotTable、Gauge、Sparkline、TimelineChart
-- [ ] 其余：雷达、矩形树图、缩放、导出图片与数据；地图（TopoJSON、Leaflet）排在最后
-- [ ] 浏览器测试补上 Area、Scatter、Donut、Sankey、Chord；部件属性的示例
-
-## 6. 质量、文档站与发布
-
-- [ ] 逐个组件核对 COMPONENTS.md §8 的完成标准，列成表放进 COMPONENTS.md
-- [ ] 视觉回归进 CI（`docs:shot` 的截图对比）
-- [ ] 文档站：搜索 API 的属性名；每页一节无障碍说明（角色、键盘、读屏）；示例切换视口、从右到左、密度
-- [ ] 发布：放宽 Vite 的 peer 范围、changesets、发 0.x；API 稳定后 1.0（发布产物验证 `test:consumer` 已有）
-
-## 7. 已知局限（有意的取舍，写在文档里）
-
-- VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
-- Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动
-- Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色）
-- 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出
-- 表格是 table 语义，不是 grid：没有单元格之间的方向键导航（§3 表格里排了）
