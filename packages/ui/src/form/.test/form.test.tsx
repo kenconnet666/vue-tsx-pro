@@ -9,7 +9,8 @@ import { Checkbox } from '../../input/Checkbox';
 import { NumberField } from '../../input/NumberField';
 import { NumberRangeField } from '../../input/NumberRangeField';
 import { TextField } from '../../input/TextField';
-import { mount } from '../../utils/.test/mount';
+import { visuallyHiddenStyles } from '../../base/VisuallyHidden';
+import { hasStyles, mount } from '../../utils/.test/mount';
 import { Field } from '../Field';
 import { Form } from '../Form';
 import { useForm } from '../useForm';
@@ -317,6 +318,24 @@ describe('字段布局与整组状态（field-layout）', () => {
     expect(name!.dataset.labelPlacement).toBe('top');
     // 没有标签时控件列仍在第二列，只有一个子元素
     expect(remember!.children).toHaveLength(1);
+  });
+
+  it('labelHidden：标签视觉上隐藏、仍指向控件；不占标签列', () => {
+    const root = mount(() => (
+      <Field label="手机" labelHidden labelPlacement="start">
+        <TextField value="13800001234" />
+      </Field>
+    ));
+    const label = root.querySelector('label')!;
+    const input = root.querySelector('input')!;
+    expect(label.textContent).toBe('手机');
+    expect(label.htmlFor).toBe(input.id);
+    expect(hasStyles(label, visuallyHiddenStyles.hidden)).toBe(true);
+    expect(root.querySelector<HTMLElement>('[data-label-placement]')!.dataset.labelPlacement).toBe(
+      'start',
+    );
+    // 标签列不排：控件不包进控件列
+    expect(input.closest('div[data-label-placement]')!.children[1]!.tagName).not.toBe('LABEL');
   });
 
   it('Form 只读、不可用下发到字段与不在 Field 里的控件；控件上显式写的优先', async () => {

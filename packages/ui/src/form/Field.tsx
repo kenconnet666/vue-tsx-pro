@@ -22,6 +22,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
+import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { focusControl } from '../utils/dom/focus';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
@@ -222,6 +223,11 @@ export interface FieldProps extends PartProps<'div'> {
   labelWidth?: number | string;
   /** 标签在起始边时文字的对齐，默认 end（贴着控件） */
   labelAlign?: keyof FieldLabelAligns;
+  /**
+   * 标签只给读屏：视觉上隐藏，仍是控件的名称（表格式的重复行只在第一行显示列名、紧凑的筛选条）；
+   * 这时不占标签列，控件单独一列
+   */
+  labelHidden?: boolean;
   /** 标签的部件属性 */
   propsLabel?: Partial<LabelProps>;
   /** 控件列（标签在起始边时包住控件、说明与错误的 div）的部件属性 */
@@ -276,6 +282,7 @@ export const Field = _component(
     labelPlacement,
     labelWidth,
     labelAlign,
+    labelHidden = false,
     propsLabel,
     propsControl,
     propsDescription,
@@ -336,7 +343,7 @@ export const Field = _component(
 
     return () => {
       const placement = labelPlacement ?? layout?.labelPlacement ?? 'top';
-      const start = placement === 'start';
+      const start = placement === 'start' && !labelHidden;
       const width = labelWidth ?? layout?.labelWidth ?? DEFAULT_LABEL_WIDTH;
       const align = labelAlign ?? layout?.labelAlign ?? 'end';
       const hints = [
@@ -390,7 +397,9 @@ export const Field = _component(
                 {
                   required: isRequired(),
                   disabled: isDisabled(),
-                  sx: start && (align === 'end' ? fieldStyles.labelEnd : fieldStyles.labelStart),
+                  sx: labelHidden
+                    ? visuallyHiddenStyles.hidden
+                    : start && (align === 'end' ? fieldStyles.labelEnd : fieldStyles.labelStart),
                 },
                 propsLabel,
                 { id: ids.label, for: ids.control },
@@ -402,7 +411,9 @@ export const Field = _component(
           {start ? (
             <div
               {...mergeAttrs<'div'>(
-                { sx: [fieldStyles.control, label == null && fieldStyles.controlWithoutLabel] },
+                {
+                  sx: [fieldStyles.control, !hasContent(label) && fieldStyles.controlWithoutLabel],
+                },
                 propsControl,
               )}
             >
