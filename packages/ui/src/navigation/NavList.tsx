@@ -15,23 +15,31 @@
  * 用 vue-router 时 vueRouterAdapter(router, { match: 'prefix' }) 能让 /orders 在 /orders/42 页面也高亮。
  *
  * 紧凑（compact）：侧栏窄到只放得下图标时，各项只显示图标（文字留给读屏，悬停、聚焦时用 Tooltip 显示），
- * 小节标题换成它的图标（不能点）、分组的子项不缩进。AppShell 的抽屉式侧栏拖窄时自动进入（NavCompactContext），
+ * 小节标题换成它的图标（不能点）；分组也只剩图标，悬停、聚焦时子项从右边弹出来（HoverCard，完整的文字，
+ * Tab 进入），组里有当前页时图标高亮。AppShell 的抽屉式侧栏拖窄时自动进入（NavCompactContext），
  * 也可以直接写 <NavList compact>。
+ *
+ * NavItem 的 badge 是计数角标（待办、未读）：展开时在文字后面，紧凑时是图标右上角的小圆点（读屏照样念出数目）。
  */
 import { ChevronRight } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
+import { Badge } from '../base/Badge';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
+import { Indicator } from '../base/Indicator';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
+import { HoverCard } from '../overlay/HoverCard';
 import { Tooltip, type TooltipTriggerProps } from '../overlay/Tooltip';
+import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
+import type { StatusTone } from '../utils/style/tone-styles';
 import { FlexList, type FlexProps } from '../layout/Flex';
 import { t } from '../config/theme/tokens';
 
@@ -88,6 +96,8 @@ export const navListStyles = stylex.create({
     borderBlockStartColor: '_borderMuted',
   },
   compactNested: { paddingInlineStart: 0 },
+  // 紧凑分组弹出的卡片：比侧栏宽，放得下完整的文字
+  flyout: { padding: '_xs', minWidth: '12em' },
 });
 
 // ─────────────── NavList ───────────────
@@ -130,8 +140,12 @@ export interface NavItemProps extends PartProps<'a', NavItemManaged> {
   active?: boolean;
   /** 不可用：不能点、不能聚焦 */
   disabled?: boolean;
-  /** 文字后面的内容，如 Badge 计数 */
+  /** 文字后面的内容（自定义的标记）；只是计数时用 badge */
   end?: VNodeChild;
+  /** 计数角标（待办、未读）：展开时是文字后面的 Badge，紧凑时是图标右上角的小圆点；0 不显示 */
+  badge?: number;
+  /** 角标的色调，默认 danger */
+  badgeTone?: StatusTone;
   /** 按下时的波纹；不写时沿用全局配置 */
   ripple?: boolean;
   /** 外层 li 的部件属性 */
@@ -151,6 +165,8 @@ export const NavItem = _component(
     active,
     disabled = false,
     end,
+    badge = 0,
+    badgeTone = 'danger',
     ripple,
     propsItem,
     propsIcon,
@@ -158,6 +174,7 @@ export const NavItem = _component(
     children,
     ...rest
   }: NavItemProps) => {
+    const lang = useLang();
     const router = useRouterLink();
     const group = NavGroupContext.inject(null);
     const rippleHandlers = useRipple(() => ripple);
@@ -205,7 +222,15 @@ export const NavItem = _component(
         )}
         data-state={current ? 'active' : 'inactive'}
       >
-        {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
+        {icon &&
+          (iconOnly() && badge > 0 ? (
+            // 紧凑：图标右上角一个小圆点（图标太小，叠不下数字）；读屏照样念出数目
+            <Indicator dot tone={badgeTone} label={lang.indicatorCount(badge)}>
+              <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />
+            </Indicator>
+          ) : (
+            <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />
+          ))}
         <span
           {...mergeAttrs<'span'>(
             { sx: [itemStyles.label, iconOnly() && visuallyHiddenStyles.hidden] },
@@ -215,6 +240,11 @@ export const NavItem = _component(
           {children}
         </span>
         {!iconOnly() && end}
+        {!iconOnly() && badge > 0 && (
+          <Badge size="xs" variant="solid" tone={badgeTone} radius="full">
+            {badge > 99 ? '99+' : badge}
+          </Badge>
+        )}
       </a>
     );
 
@@ -273,72 +303,145 @@ export const NavGroup = _component(
     const compact = NavCompactContext.inject(() => false);
     const iconOnly = () => compact() && icon != null;
     const activeItems = new Set<symbol>();
+    // 组里有当前页：紧凑时分组的图标也高亮
+    let hasCurrent = _state(false);
     NavGroupContext.provide({
       report(item, active) {
         if (active) activeItems.add(item);
         else activeItems.delete(item);
+        hasCurrent = activeItems.size > 0;
         // 进入含当前页的分组时自动展开；离开时不自动收起（用户可能还想看）
         if (activeItems.size > 0) open = true;
       },
     });
 
-    return () => (
-      <li {...mergeAttrs<'li'>({}, rest)}>
-        <Collapsible
-          {...mergePartProps<CollapsibleProps>(
-            {
-              trigger: (props) => (
-                <ButtonBase
-                  {...mergePartProps<ButtonBaseProps>(
-                    {
-                      sx: [
-                        itemStyles.row,
-                        itemStyles.hoverable,
-                        navListStyles.row,
-                        iconOnly() && navListStyles.compactRow,
-                      ],
-                    },
-                    propsTrigger,
-                    props,
-                  )}
-                >
-                  {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
-                  <span
-                    {...mergeAttrs<'span'>(
-                      { sx: [itemStyles.label, iconOnly() && visuallyHiddenStyles.hidden] },
-                      propsLabel,
-                    )}
-                  >
-                    {label}
-                  </span>
-                  {!iconOnly() && (
-                    <Icon
-                      icon={ChevronRight}
-                      flipInRtl
-                      sx={[navListStyles.chevron, open && navListStyles.chevronOpen]}
-                    />
-                  )}
-                </ButtonBase>
-              ),
-            },
-            propsContent,
-          )}
-          open={_bind(open)}
-        >
-          <FlexList
-            {...mergePartProps<FlexProps<'ul'>>(
-              {
-                direction: 'column',
-                gap: 'xs',
-                sx: [navListStyles.nested, compact() && navListStyles.compactNested],
-              },
-              propsList,
+    /** 紧凑时：只剩图标，悬停、聚焦时子项从右边弹出来（完整的文字，不再紧凑） */
+    function renderFlyout() {
+      return (
+        <li {...mergeAttrs<'li'>({}, rest)}>
+          <HoverCard
+            placement="right-start"
+            delay={150}
+            // 子项一直渲染：它们要报告自己是不是当前页，分组的图标才知道要不要高亮
+            lazy={false}
+            sx={navListStyles.flyout}
+            trigger={(props) => (
+              <ButtonBase
+                {...mergePartProps<ButtonBaseProps>(
+                  {
+                    sx: [
+                      itemStyles.row,
+                      itemStyles.hoverable,
+                      navListStyles.row,
+                      navListStyles.compactRow,
+                      hasCurrent && [itemStyles.current, navListStyles.current],
+                    ],
+                  },
+                  propsTrigger,
+                  props as Partial<ButtonBaseProps>,
+                )}
+                data-state={hasCurrent ? 'active' : 'inactive'}
+              >
+                <Icon {...mergePartProps<IconProps>({ icon: icon! }, propsIcon)} />
+                <span {...mergeAttrs<'span'>({ sx: visuallyHiddenStyles.hidden }, propsLabel)}>
+                  {label}
+                </span>
+              </ButtonBase>
             )}
           >
-            {children}
-          </FlexList>
-        </Collapsible>
-      </li>
+            <NavFlyoutContent label={label} propsList={propsList}>
+              {children}
+            </NavFlyoutContent>
+          </HoverCard>
+        </li>
+      );
+    }
+
+    return () =>
+      iconOnly() ? (
+        renderFlyout()
+      ) : (
+        <li {...mergeAttrs<'li'>({}, rest)}>
+          <Collapsible
+            {...mergePartProps<CollapsibleProps>(
+              {
+                trigger: (props) => (
+                  <ButtonBase
+                    {...mergePartProps<ButtonBaseProps>(
+                      {
+                        sx: [
+                          itemStyles.row,
+                          itemStyles.hoverable,
+                          navListStyles.row,
+                          iconOnly() && navListStyles.compactRow,
+                        ],
+                      },
+                      propsTrigger,
+                      props,
+                    )}
+                  >
+                    {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
+                    <span
+                      {...mergeAttrs<'span'>(
+                        { sx: [itemStyles.label, iconOnly() && visuallyHiddenStyles.hidden] },
+                        propsLabel,
+                      )}
+                    >
+                      {label}
+                    </span>
+                    {!iconOnly() && (
+                      <Icon
+                        icon={ChevronRight}
+                        flipInRtl
+                        sx={[navListStyles.chevron, open && navListStyles.chevronOpen]}
+                      />
+                    )}
+                  </ButtonBase>
+                ),
+              },
+              propsContent,
+            )}
+            open={_bind(open)}
+          >
+            <FlexList
+              {...mergePartProps<FlexProps<'ul'>>(
+                {
+                  direction: 'column',
+                  gap: 'xs',
+                  sx: [navListStyles.nested, compact() && navListStyles.compactNested],
+                },
+                propsList,
+              )}
+            >
+              {children}
+            </FlexList>
+          </Collapsible>
+        </li>
+      );
+  },
+);
+
+/** 紧凑分组弹出来的内容：标题加完整的导航项（里面不再紧凑） */
+const NavFlyoutContent = _component(
+  ({
+    label,
+    propsList,
+    children,
+  }: {
+    label: VNodeChild;
+    propsList?: Partial<FlexProps<'ul'>>;
+    children?: VNodeChild;
+  }) => {
+    NavCompactContext.provide(() => false);
+    return () => (
+      <>
+        <span {...stylex.attrs(navListStyles.sectionLabel)}>{label}</span>
+        <FlexList
+          {...mergePartProps<FlexProps<'ul'>>({ direction: 'column', gap: 'xs' }, propsList)}
+        >
+          {children}
+        </FlexList>
+      </>
     );
   },
 );

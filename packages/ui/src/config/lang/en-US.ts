@@ -143,6 +143,7 @@ export const enUS: Lang = {
   treeEmpty: 'No data',
   tabClose: (label) => `Close ${label}`,
   tabAdd: 'New tab',
+  navBarMore: 'More',
   tabList: 'All tabs',
   tabScrollPrevious: 'Scroll back',
   tabScrollNext: 'Scroll forward',

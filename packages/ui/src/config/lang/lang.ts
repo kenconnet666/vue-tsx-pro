@@ -294,6 +294,8 @@ export interface Lang {
   readonly tabScrollNext: string;
   /** 移动了一个标签页（读屏播报）：`('订单', 2, 5)` → “订单移到第 2 个，共 5 个” */
   readonly tabMoved: (label: string, position: number, total: number) => string;
+  /** 横向导航里收起来的项的菜单按钮，默认“更多” */
+  readonly navBarMore: string;
   /** 树搜索没有匹配时的提示，默认“没有匹配的节点” */
   readonly treeNoMatch: string;
   /** 树里移动了一个节点（读屏播报）：`('测算组', '成本管理部', 2)` → “测算组移到成本管理部下第 2 位”；放到第一层时 parent 为 undefined */

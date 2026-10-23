@@ -551,6 +551,7 @@ export {
   type BreadcrumbItem,
   type BreadcrumbsProps,
 } from './navigation/Breadcrumbs';
+export { NavBar, navBarStyles, type NavBarItem, type NavBarProps } from './navigation/NavBar';
 export {
   NavCompactContext,
   NavGroup,

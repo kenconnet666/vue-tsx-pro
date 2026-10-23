@@ -16,7 +16,7 @@
   - 展示：Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat / StatGroup、Descriptions、Timeline（reverse）、Tree（搜索过滤、拖动移动）、Sortable、ItemList、ProportionBar、Ellipsis、Watermark
   - 反馈：Progress（条形 / 环形）、Skeleton、Alert、Banner、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay、LoadingBar（createLoadingBar；路由用 `vue-router` 子路径的 useRouteLoadingBar）
   - 浮层：Dialog / Drawer / AlertDialog（共用 ModalCore，onConfirm 给出“取消 / 确认”与等待；useConfirm，可带理由）、Popover、Popconfirm、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
-  - 导航：Toolbar、Tabs（可关闭、新建、拖动排序、溢出滚动与全部标签页）、Steps、Breadcrumbs、Pagination（PageSizeSelect、PageJump、Pager）、NavList、TableOfContents、SkipLink
+  - 导航：Toolbar、Tabs（可关闭、新建、拖动排序、溢出滚动与全部标签页）、Steps、Breadcrumbs、Pagination（PageSizeSelect、PageJump、Pager）、NavList（紧凑时分组弹出、角标）、NavBar（横向导航）、TableOfContents、SkipLink
   - 输入：TextField、Textarea、NumberField / NumberRangeField、ColorField、Checkbox / Radio / Switch、Listbox、Select（标签可移除、maxTagCount、creatable）、Combobox、Autocomplete、OtpField、TreeSelect、Cascader、Transfer / TreeTransfer、TagsInput、FileDrop / Upload、Slider、Rating、ToggleGroup、ControlGroup
   - 日期：Calendar、RangeCalendar、QuarterCalendar、CalendarBoard（整页月历）、DateField、TimeField、DatePicker（年、季、月、周、日期时间，快捷选项）、TimePicker、DateRangePicker（月、季、年、周、日期时间区间）、RelativeTime、DateTime、Countdown（`@internationalized/date`，值可以是 ISO 字符串或 DateValue）
   - 表格：Table 家族、DataTable（始终虚拟滚动；排序、勾选、固定列、列宽、滚动加载、activeKey）、TreeDataTable、useTableQuery、tableToCsv

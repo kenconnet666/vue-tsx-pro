@@ -39,7 +39,10 @@ export default _component(() => () => (
         <Example id="compact" title="窄侧栏：只显示图标" demo={Compact}>
           <Code>compact</Code> 时各项只剩图标，名称留给读屏、悬停或聚焦时用提示显示；NavSection 的{' '}
           <Code>icon</Code> 是小节标题前的标记（不能点），紧凑时代替标题。AppShell 的抽屉式侧栏拖到
-          160px 以下自动进入紧凑，不用写 <Code>compact</Code>。
+          160px 以下自动进入紧凑，不用写 <Code>compact</Code>。紧凑时 NavGroup
+          只剩图标，悬停、聚焦时子项从右边弹出来（完整的文字，Tab
+          进入），组里有当前页时图标高亮；NavItem 的 <Code>badge</Code>{' '}
+          是计数角标，展开时在文字后面，紧凑时叠在图标上。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
