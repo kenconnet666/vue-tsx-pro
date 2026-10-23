@@ -30,6 +30,7 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { disclosureStyles } from '../utils/style/transitions';
 import { layoutVars } from '../utils/style/vars.stylex';
 import { provideFieldLayout, type FieldLayout } from './field-layout';
+import { t } from '../config/theme/tokens';
 
 /** 角色与关联由组件管理；原生的 title 属性让给标题内容 */
 export type FormSectionManaged = 'role' | 'title' | 'aria-labelledby' | 'aria-describedby';
@@ -106,7 +107,7 @@ export const formSectionStyles = stylex.create({
     display: 'inline-flex',
     alignItems: 'center',
     gap: '_xs',
-    marginInline: 'calc(-1 * _space.xs)',
+    marginInline: `calc(-1 * ${t.space.xs})`,
     paddingInline: '_xs',
     borderRadius: '_sm',
     fontWeight: 'inherit',

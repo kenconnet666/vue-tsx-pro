@@ -1,14 +1,14 @@
 /**
- * 主题 tokens 的字符串写法（COMPONENTS.md §4）：stylex.create / stylex.keyframes 里的
- *   fontSize: '_xs'          短写，按对照表（stylex/token-map.ts）找组 → fontSizes.xs
+ * 主题 tokens 的两种写法（COMPONENTS.md §4），改写成 token 变量并补上 import：
+ *   fontSize: '_xs'          值整个是一个 token：短写，按对照表（stylex/token-map.ts）找组 → fontSizes.xs
  *   width: '_space.md'      带组名，任何属性都能用（跨组取值）→ space.md
- *   minHeight: 'max(_control, _minTarget)'  值里夹着 token → 模板字符串（拼接、计算、多值）
- * 改写成 token 变量并补上 import。在 StyleX 编译之前运行，StyleX 看到的就是手写 import 的变量；
- * 组件库构建不编译 StyleX，也要做这一步，产物里才不会留下字符串。
+ *   minHeight: `max(${t.sizes.control}, 24px)`  值里夹着 token：模板字符串里写 t.组.名 → sizes.control
+ * 在 StyleX 编译之前运行，StyleX 看到的就是手写 import 的变量（它只认从 .stylex 文件直接导入的变量）；
+ * 组件库构建不编译 StyleX，也要做这一步，产物里才不会留下字符串与 t。
  */
 import { transformAsync, types as t, type NodePath, type PluginObject } from '@babel/core';
 import { TOKEN_GROUP_OF } from '../stylex/token-map.ts';
-import { languageOf, parserPlugins, STYLEX_SOURCES } from './ast.ts';
+import { languageOf, parserPlugins, STYLEX_SOURCES, type Binding } from './ast.ts';
 import type { SourceMap } from './compile.ts';
 import { fail } from './errors.ts';
 
@@ -27,8 +27,8 @@ const STYLE_FUNCTIONS = new Set(['create', 'keyframes']);
 const TOKEN = /^_(?:(\w+)\.)?(\w+)$/;
 
 /**
- * 把 stylex.create / keyframes 里的 token 字符串（'_xs'、'_space.md'、'calc(-1 * _sm)'）改写成 token 变量，
- * 并补上 import；没有这种写法时返回 null，写错时抛出带代码帧的错误。
+ * 把 stylex.create / keyframes 里的 token 字符串（'_xs'、'_space.md'）与文件里的 t.组.名 改写成 token 变量，
+ * 并补上 import；没有这些写法时返回 null，写错时抛出带代码帧的错误。
  */
 export async function compileTokens(
   code: string,
@@ -49,9 +49,10 @@ export async function compileTokens(
   return { code: result.code ?? '', map: result.map ?? null };
 }
 
-/** 文件里可能有 token 写法（解析之前的快速判断）：有下划线开头的词，且导入了 StyleX */
+/** 文件里可能有 token 写法（解析之前的快速判断）：有下划线开头的词或 t.组.名，且导入了 StyleX */
 export const needsTokens = (code: string) =>
-  /(?<![\w$.-])_[A-Za-z]/.test(code) && STYLEX_SOURCES.some((source) => code.includes(source));
+  /(?<![\w$.-])_[A-Za-z]|(?<![\w$.])t\.\w+\.\w/.test(code) &&
+  STYLEX_SOURCES.some((source) => code.includes(source));
 
 /** token 写法的 Babel 插件；state.changed 记下有没有改写 */
 export function tokensBabelPlugin(
@@ -62,11 +63,10 @@ export function tokensBabelPlugin(
     name: 'vue-tsx-pro-tokens',
     visitor: {
       Program(program) {
-        const calls = styleCalls(program);
-        if (!calls.length) return;
         const rewriter = new TokenRewriter(program, load);
-        for (const call of calls) rewriter.rewriteCall(call);
-        state.changed = rewriter.insertImport();
+        const rewroteTokenObject = rewriter.rewriteTokenObject();
+        for (const call of styleCalls(program)) rewriter.rewriteCall(call);
+        state.changed = rewriter.insertImport() || rewroteTokenObject;
       },
     },
   };
@@ -118,6 +118,62 @@ class TokenRewriter {
   constructor(program: NodePath<t.Program>, load: TokenModuleLoader) {
     this.program = program;
     this.load = load;
+  }
+
+  /**
+   * 文件里所有的 t.组.名 → 组变量的成员访问（与字符串写法共用一份 import）。整个文件都改写，
+   * 写在 create 外面的常量 StyleX 也能求值；t 没有别的用处时删掉它的导入。返回有没有改写
+   */
+  rewriteTokenObject() {
+    let changed = false;
+    for (const binding of this.tokenObjectBindings()) {
+      const references = binding.referencePaths;
+      let rewritten = 0;
+      for (const reference of references) {
+        const group = reference.parentPath;
+        const token = group?.parentPath;
+        if (!group?.isMemberExpression({ object: reference.node })) continue;
+        if (!token?.isMemberExpression({ object: group.node })) continue;
+        const groupName = staticKey(group.node);
+        const name = staticKey(token.node);
+        if (groupName == null || name == null) continue;
+        token.replaceWith(
+          this.member(groupName, name, token, (owner, entry) => `t.${owner}.${entry}`),
+        );
+        rewritten++;
+      }
+      if (rewritten && rewritten === references.length) removeImportSpecifier(binding.path);
+      changed ||= rewritten > 0;
+    }
+    return changed;
+  }
+
+  /**
+   * 导入的 t：组件库包名（及其子路径）导入的，或在组件库自己的源码里相对路径导入的。
+   * 只认这些，应用里别的 t（如 i18n 的翻译函数）不受影响
+   */
+  private tokenObjectBindings() {
+    const bindings: Binding[] = [];
+    for (const statement of this.program.node.body) {
+      if (!t.isImportDeclaration(statement) || statement.importKind === 'type') continue;
+      for (const specifier of statement.specifiers) {
+        if (!t.isImportSpecifier(specifier) || importedName(specifier) !== 't') continue;
+        if (specifier.importKind === 'type' || !this.isTokenPackage(statement.source.value))
+          continue;
+        const binding = this.program.scope.getBinding(specifier.local.name);
+        if (binding?.referencePaths.length) bindings.push(binding);
+      }
+    }
+    return bindings;
+  }
+
+  private isTokenPackage(source: string) {
+    if (this.module === undefined) this.module = this.load();
+    const importPath = this.module?.importPath;
+    if (!importPath) return false;
+    if (importPath.startsWith('.')) return source.startsWith('.');
+    const name = packageName(importPath);
+    return source === name || source.startsWith(`${name}/`);
   }
 
   /** create({ 组: 样式 | (参数) => 样式 }) 与 keyframes({ from: 样式, '50%': 样式 }) */
@@ -197,36 +253,33 @@ class TokenRewriter {
   }
 
   /**
-   * 整个值是一个 token → 成员访问；值里夹着 token（`max(_control, _minTarget)`、`'_sm _md'`）
-   * → 模板字符串，与手写 `` `max(${sizes.control}, …)` `` 相同。没有 token 时返回 null，原样保留
+   * 整个值是一个 token → 成员访问。值里夹着 token（`'max(_control, 24px)'`）的字符串写法不支持：
+   * 拼在字符串中间的 token 编辑器没有类型提示，报错并给出改成 t 的模板字符串。没有 token 时返回 null，原样保留
    */
   private rewriteString(property: string, text: string, path: NodePath) {
     if (TOKEN.test(text)) return this.resolve(property, text, path);
     const references = embeddedTokens(text);
-    if (!references.length) {
-      if (!text.startsWith('_')) return null;
-      throw fail(path, `'${text}' 不是主题 token 的写法：短写 '_xs'，或带组名 '_space.md'`);
+    if (references.length) {
+      let template = '';
+      let last = 0;
+      for (const { token, start, end } of references) {
+        const [, explicitGroup, name] = parseToken(token);
+        const group = explicitGroup ?? TOKEN_GROUP_OF.get(property) ?? '组名';
+        template += `${escapeTemplate(text.slice(last, start))}\${t.${group}.${name}}`;
+        last = end;
+      }
+      template += escapeTemplate(text.slice(last));
+      throw fail(
+        path,
+        `值里夹着的 token 要写成模板字符串里的 t.组.名（import { t } from '@vue-tsx-pro/ui'）：\`${template}\``,
+      );
     }
-    const parts: string[] = [];
-    let last = 0;
-    for (const { start, end } of references) {
-      parts.push(text.slice(last, start));
-      last = end;
-    }
-    parts.push(text.slice(last));
-    const quasis = parts.map((cooked, index) =>
-      t.templateElement({ raw: escapeTemplate(cooked), cooked }, index === parts.length - 1),
-    );
-    const expressions = references.map(({ token }) => this.resolve(property, token, path));
-    return t.templateLiteral(quasis, expressions);
+    if (!text.startsWith('_')) return null;
+    throw fail(path, `'${text}' 不是主题 token 的写法：短写 '_xs'，或带组名 '_space.md'`);
   }
 
   private resolve(property: string, text: string, path: NodePath) {
-    const [, explicitGroup, name] = TOKEN.exec(text) as unknown as [
-      string,
-      string | undefined,
-      string,
-    ];
+    const [, explicitGroup, name] = parseToken(text);
     const group = explicitGroup ?? TOKEN_GROUP_OF.get(property);
     if (!group) {
       // 列出真正有这个 token 的组，直接给出能用的写法
@@ -236,6 +289,18 @@ class TokenRewriter {
       const suggestion = owners.length ? owners.join(' 或 ') : `'_组名.${name}'`;
       throw fail(path, `${property} 不在 token 对照表里，没有短写；请写带组名的 ${suggestion}`);
     }
+    return this.member(group, name, path, (owner, token) =>
+      explicitGroup ? `'_${owner}.${token}'` : `'_${token}'`,
+    );
+  }
+
+  /** 组变量的成员访问（`_space.md`）；组或 token 不存在时报错，按 spell 的写法列出可用的 */
+  private member(
+    group: string,
+    name: string,
+    path: NodePath,
+    spell: (group: string, token: string) => string,
+  ) {
     const module = this.tokenModule(path);
     const tokens = module.groups.get(group);
     if (!tokens) {
@@ -243,8 +308,7 @@ class TokenRewriter {
       throw fail(path, `没有名为 ${group} 的 token 组（可用：${available}）`);
     }
     if (!tokens.has(name)) {
-      const prefix = explicitGroup ? `_${group}.` : '_';
-      const available = [...tokens].map((token) => `'${prefix}${token}'`).join('、');
+      const available = [...tokens].map((token) => spell(group, token)).join('、');
       throw fail(path, `${group} 里没有 ${name}（可用：${available}）`);
     }
     return t.memberExpression(t.identifier(this.local(group).name), t.identifier(name));
@@ -336,10 +400,7 @@ function assertNoTokensLeft(argument: NodePath) {
     },
     TemplateLiteral(path) {
       if (path.node.quasis.some((quasi) => looksLikeToken(quasi.value.cooked ?? quasi.value.raw))) {
-        throw fail(
-          path,
-          "模板字符串里的 token 写法不会改写：改成普通字符串（值里可以夹 token，如 'calc(_sm + 2px)'），或直接写 token 变量",
-        );
+        throw fail(path, '模板字符串里的 token 要写成 ${t.组.名}，如 `calc(${t.space.sm} + 2px)`');
       }
     },
     Identifier(path) {
@@ -389,6 +450,30 @@ function embeddedTokens(text: string) {
     .filter((match) => !skipped.some(([from, to]) => match.index >= from! && match.index < to!))
     .map((match) => ({ token: match[0], start: match.index, end: match.index + match[0].length }));
 }
+
+const parseToken = (text: string) =>
+  TOKEN.exec(text) as unknown as [string, string | undefined, string];
+
+/** 不计算的成员名：`t.space` 的 space、`t['space']` 的 space */
+function staticKey(member: t.MemberExpression) {
+  if (!member.computed) return t.isIdentifier(member.property) ? member.property.name : null;
+  return t.isStringLiteral(member.property) ? member.property.value : null;
+}
+
+/** 删掉一个导入的名字；那条 import 只剩它时整条删掉 */
+function removeImportSpecifier(specifier: NodePath) {
+  const declaration = specifier.parentPath;
+  if (declaration?.isImportDeclaration() && declaration.node.specifiers.length === 1) {
+    declaration.remove();
+  } else specifier.remove();
+}
+
+/** '@vue-tsx-pro/ui/tokens.stylex' → '@vue-tsx-pro/ui' */
+const packageName = (specifier: string) =>
+  specifier
+    .split('/')
+    .slice(0, specifier.startsWith('@') ? 2 : 1)
+    .join('/');
 
 /** 模板字符串的原文：反斜杠、反引号与 ${ 要转义 */
 function escapeTemplate(text: string) {

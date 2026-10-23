@@ -173,7 +173,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 2. **多节点组件的每个内部节点都有 `propsXxx`**，合并顺序是 `mergeProps(组件默认, propsXxx, 受管)`；按项渲染的部件可以接受函数。
 3. **状态写成 data 属性**：`data-state`、`data-disabled`、`data-loading`、`data-orientation` 等。
 4. **图标一律用 `@lucide/icons` + `Icon`**。不手画 SVG，不用字符代替图标。
-5. **主题 tokens 用字符串写法，不写裸值**。`width`、`height` 里的短写取的是 `sizes`，要间距写 `'_space.lg'`。
+5. **主题 tokens 不写裸值**。值整个是一个 token 写字符串（`'_md'`、`'_space.lg'`），`width`、`height` 里的短写取的是 `sizes`；值里夹着 token 写模板字符串里的 `t.组.名`（`` `calc(-1 * ${t.space.xs})` ``），`t` 从 `@vue-tsx-pro/ui` 导入。
 6. **类型与注释**：`mergeProps` 写类型参数；`stylex.create` 的结果不标类型；所有导出、导出接口的每个字段都写 JSDoc；枚举类取值写成带注释接口的 `keyof`。
 7. **配置接入**：有外观档位的组件登记到 `ComponentDefaults`；可点击的组件接入波纹；链接用路由适配。
 8. **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`；文档与示例在 `apps/docs`。

@@ -24,6 +24,7 @@ import type { ProcessNodeStates, ProcessProgress } from './runtime';
 import type { ProcessProblem } from './validate';
 import { useMessages } from '../config/lang/messages';
 import { workflowMessages } from './messages';
+import { t } from '../config/theme/tokens';
 
 /** 流程图的尺寸档位 */
 export interface FlowDiagramSizes {
@@ -140,7 +141,7 @@ export const flowDiagramStyles = stylex.create({
   active: {
     borderColor: '_accent',
     backgroundColor: '_accentSoft',
-    boxShadow: '0 0 0 3px _colors.accentBorder',
+    boxShadow: `0 0 0 3px ${t.colors.accentBorder}`,
   },
   pending: { color: '_textMuted' },
   invalid: { borderColor: '_danger', color: '_dangerText' },

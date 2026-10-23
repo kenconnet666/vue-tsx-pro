@@ -22,6 +22,7 @@ import { useSortable, type SortableOrientations } from '../utils/dom/sortable';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { FlexList, type FlexProps } from '../layout/Flex';
 import { toElement } from '../utils/dom/element';
+import { t } from '../config/theme/tokens';
 
 /** 项的渲染状态 */
 export interface SortableItemState {
@@ -81,8 +82,8 @@ export const sortableStyles = stylex.create({
     display: 'grid',
     placeItems: 'center',
     flexShrink: 0,
-    width: 'max(1.75em, _sizes.minTarget)',
-    height: 'max(1.75em, _sizes.minTarget)',
+    width: `max(1.75em, ${t.sizes.minTarget})`,
+    height: `max(1.75em, ${t.sizes.minTarget})`,
     borderRadius: '_sm',
     backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
     color: '_textMuted',

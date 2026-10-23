@@ -1,7 +1,7 @@
 // 内容叠在极光上（children）；跟随指针、暂停；“关闭特效”用 quality="off"，显示自己给的 fallback
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Button, Card, Flex, H3, Paragraph, Switch } from '@vue-tsx-pro/ui';
+import { Button, Card, Flex, H3, Paragraph, Switch, t } from '@vue-tsx-pro/ui';
 import { AuroraBackground } from '@vue-tsx-pro/ui/three';
 
 const styles = stylex.create({
@@ -16,8 +16,7 @@ const styles = stylex.create({
   // 关闭特效时的静态画面：顶部一抹同色调的渐变
   fallback: {
     height: '100%',
-    backgroundImage:
-      'linear-gradient(to bottom, color-mix(in oklab, _colors.chart2 35%, transparent), transparent 60%)',
+    backgroundImage: `linear-gradient(to bottom, color-mix(in oklab, ${t.colors.chart2} 35%, transparent), transparent 60%)`,
   },
 });
 

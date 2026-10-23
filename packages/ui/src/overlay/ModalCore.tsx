@@ -29,6 +29,7 @@ import { useLazyContent, type LazyContentOptions } from '../utils/motion/presenc
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { transitions } from '../utils/style/transitions';
+import { t } from '../config/theme/tokens';
 
 /** 打开、关闭与无障碍关联由组件管理；原生的 title 属性（悬停提示）让给标题 */
 export type ModalManaged =
@@ -116,8 +117,8 @@ export const modalStyles = stylex.create({
   title: { flexGrow: 1, minWidth: 0, margin: 0 },
   close: {
     flexShrink: 0,
-    marginBlock: 'calc(-1 * _space.xs)',
-    marginInlineEnd: 'calc(-1 * _space.sm)',
+    marginBlock: `calc(-1 * ${t.space.xs})`,
+    marginInlineEnd: `calc(-1 * ${t.space.sm})`,
   },
   description: { marginBlockStart: '_xs', paddingInline: '_xl', color: '_textMuted' },
   body: { flexGrow: 1, minHeight: 0 },

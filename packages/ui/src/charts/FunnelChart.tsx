@@ -17,6 +17,7 @@ import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
 import { ChartFrame, type ChartFrameParts } from './frame';
 import { resolveColor, type ChartColor } from './series';
+import { t } from '../config/theme/tokens';
 
 /** 漏斗的一个环节 */
 export interface FunnelStage {
@@ -84,7 +85,7 @@ export const funnelChartStyles = stylex.create({
     height: '1.75rem',
     minWidth: '2px',
     borderRadius: '_sm',
-    transition: 'width _durations.md _easings.standard',
+    transition: `width ${t.durations.md} ${t.easings.standard}`,
   },
   value: { fontVariantNumeric: 'tabular-nums', fontWeight: '_medium', whiteSpace: 'nowrap' },
   // 环节之间：转化率写在中间那一列，小号的次要文字

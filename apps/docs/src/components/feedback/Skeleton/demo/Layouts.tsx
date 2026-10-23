@@ -17,6 +17,7 @@ import {
   Switch,
   Text,
   TextField,
+  t,
 } from '@vue-tsx-pro/ui';
 
 const styles = stylex.create({
@@ -24,10 +25,14 @@ const styles = stylex.create({
     display: 'block',
     aspectRatio: '16 / 9',
     borderRadius: '_md',
-    backgroundImage: 'linear-gradient(135deg, _colors.accentSoft, _colors.infoSoft)',
+    backgroundImage: `linear-gradient(135deg, ${t.colors.accentSoft}, ${t.colors.infoSoft})`,
   },
   fieldLabel: { width: '4em', height: '0.875em' },
-  field: { width: '_full', height: 'max(_sizes.control, _sizes.minTarget)', borderRadius: '_md' },
+  field: {
+    width: '_full',
+    height: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
+    borderRadius: '_md',
+  },
 });
 
 const messages = [

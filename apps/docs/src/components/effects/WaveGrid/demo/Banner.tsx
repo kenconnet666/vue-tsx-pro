@@ -1,13 +1,13 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Badge, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
+import { Badge, Flex, H2, Paragraph, t } from '@vue-tsx-pro/ui';
 import { WaveGrid } from '@vue-tsx-pro/ui/three';
 
 const styles = stylex.create({
   banner: {
     height: '22rem',
     borderRadius: '_lg',
-    backgroundImage: 'linear-gradient(to bottom, _colors.surfaceMuted, _colors.background)',
+    backgroundImage: `linear-gradient(to bottom, ${t.colors.surfaceMuted}, ${t.colors.background})`,
   },
   content: { padding: '_xl', textAlign: 'center' },
   lead: { color: '_textMuted', maxWidth: '30rem', marginInline: 'auto' },

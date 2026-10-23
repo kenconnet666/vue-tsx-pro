@@ -1,6 +1,6 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, Flex, Grid, Slider, Switch, Text } from '@vue-tsx-pro/ui';
+import { Card, Flex, Grid, Slider, Switch, Text, t } from '@vue-tsx-pro/ui';
 import { TiltCard } from '@vue-tsx-pro/ui/effects';
 
 const styles = stylex.create({
@@ -10,7 +10,7 @@ const styles = stylex.create({
     height: '12rem',
     display: 'grid',
     placeItems: 'center',
-    backgroundImage: 'linear-gradient(135deg, _colors.chart5, _colors.accent, _colors.chart6)',
+    backgroundImage: `linear-gradient(135deg, ${t.colors.chart5}, ${t.colors.accent}, ${t.colors.chart6})`,
     color: '_accentContrast',
     fontSize: '_xl',
     fontWeight: '_bold',

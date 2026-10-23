@@ -1,7 +1,7 @@
 /**
  * 一个文件的完整编译：解析一次、生成一次，中间两遍遍历，组合本包与官方的 Babel 插件。
  *
- *   第 1 遍：符文与 props（transform.ts）→ token 字符串写法（tokens.ts）→ StyleX
+ *   第 1 遍：符文与 props（transform.ts）→ token 写法（tokens.ts）→ StyleX
  *   第 2 遍：Vue JSX（@vue/babel-plugin-jsx）→ 去掉 TS 类型 → 调用方追加的插件（热更新标记、演练场的模块表）
  *
  * 以前每一步各自解析、生成一次，成本大头是每一遍的遍历与生成（含 source map），合并后编译快三四成。

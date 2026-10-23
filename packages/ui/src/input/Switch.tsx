@@ -19,6 +19,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
 import { choiceRootSx, choiceStyles, syncChecked, useChoiceAppearance } from './choice-styles';
+import { t } from '../config/theme/tokens';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
 export type SwitchManaged =
@@ -89,7 +90,7 @@ export const switchStyles = stylex.create({
     borderRadius: '_full',
     backgroundColor: '_background',
     boxShadow: '_sm',
-    transition: 'margin-inline-start _durations.sm _easings.standard',
+    transition: `margin-inline-start ${t.durations.sm} ${t.easings.standard}`,
   },
   // 移到结束边：百分比相对整条轨道，轨道随文字加宽时同样贴边
   thumbOn: { marginInlineStart: 'calc(100% - 1.0625em)', backgroundColor: 'var(--tone-on-fill)' },

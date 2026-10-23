@@ -14,6 +14,7 @@ import { nextTick } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { t } from '../config/theme/tokens';
 
 /** 勾选类控件的外观选项；可以用 createUi / Provider 的 defaults.Choice 统一改默认值 */
 export interface ChoiceOptions {
@@ -113,8 +114,7 @@ export const choiceStyles = stylex.create({
     borderColor: '_borderStrong',
     backgroundColor: '_surface',
     cursor: 'inherit',
-    transition:
-      'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard',
+    transition: `background-color ${t.durations.sm} ${t.easings.standard}, border-color ${t.durations.sm} ${t.easings.standard}`,
   },
   /** 已勾选（或部分勾选）：色调的实底色，见 choiceRootSx */
   checked: { borderColor: 'var(--tone-fill)', backgroundColor: 'var(--tone-fill)' },

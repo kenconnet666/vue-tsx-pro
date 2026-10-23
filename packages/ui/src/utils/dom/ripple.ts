@@ -11,6 +11,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useConfig } from '../../config/context';
 import { applyStyleAttrs } from '../props';
 import { afterTransitions } from '../style/transitions';
+import { t } from '../../config/theme/tokens';
 
 const expand = stylex.keyframes({
   from: { transform: 'scale(0)' },
@@ -34,7 +35,7 @@ export const rippleStyles = stylex.create({
     animationDuration: '_durations.lg',
     animationTimingFunction: '_easings.standard',
     animationFillMode: 'forwards',
-    transition: 'opacity _durations.md _easings.exit',
+    transition: `opacity ${t.durations.md} ${t.easings.exit}`,
   },
   fading: { opacity: 0 },
 });

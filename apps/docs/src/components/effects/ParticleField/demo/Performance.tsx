@@ -1,15 +1,14 @@
 // 不写 count 时粒子数按面积与画质决定（低画质少一半多）；渲染分辨率、暂停；off 时显示 fallback
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
 import { ParticleField, type ThreeQuality } from '@vue-tsx-pro/ui/three';
 
 const styles = stylex.create({
   stage: { height: '16rem', borderRadius: '_lg', backgroundColor: '_surfaceMuted' },
   fallback: {
     height: '100%',
-    backgroundImage:
-      'radial-gradient(_colors.accent 1.5px, transparent 1.5px), radial-gradient(_colors.chart5 1px, transparent 1px)',
+    backgroundImage: `radial-gradient(${t.colors.accent} 1.5px, transparent 1.5px), radial-gradient(${t.colors.chart5} 1px, transparent 1px)`,
     backgroundSize: '64px 64px, 40px 40px',
     backgroundPosition: '0 0, 20px 28px',
     opacity: 0.5,

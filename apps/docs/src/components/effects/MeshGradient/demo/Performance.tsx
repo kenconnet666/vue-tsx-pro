@@ -1,15 +1,14 @@
 // 画质、渲染分辨率（MeshGradient 默认 0.5：平滑的渐变降一半看不出差别）、跟随指针与暂停；off 时显示 fallback
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
 import { MeshGradient, type ThreeQuality } from '@vue-tsx-pro/ui/three';
 
 const styles = stylex.create({
   stage: { height: '16rem', borderRadius: '_lg' },
   fallback: {
     height: '100%',
-    backgroundImage:
-      'radial-gradient(circle at 25% 30%, _colors.accent, transparent 60%), radial-gradient(circle at 75% 70%, _colors.chart5, transparent 60%)',
+    backgroundImage: `radial-gradient(circle at 25% 30%, ${t.colors.accent}, transparent 60%), radial-gradient(circle at 75% 70%, ${t.colors.chart5}, transparent 60%)`,
     opacity: 0.5,
   },
 });

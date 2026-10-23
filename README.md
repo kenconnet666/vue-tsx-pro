@@ -43,22 +43,23 @@ app.use(
 );
 ```
 
-写样式从 `@vue-tsx-pro/tsx/stylex` 导入（运行时同 `@stylexjs/stylex`，属性悬停、补全、跳转都有中文说明）。主题 tokens 直接写成字符串，预设编译时换成 token 变量并补上导入：
+写样式从 `@vue-tsx-pro/tsx/stylex` 导入（运行时同 `@stylexjs/stylex`，属性悬停、补全、跳转都有中文说明）。主题 tokens 整个值是一个 token 时直接写成字符串，值里夹着 token 时在模板字符串里写 `t.组.名`；预设编译时都换成 token 变量并补上导入：
 
 ```ts
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { t } from '@vue-tsx-pro/ui';
 
 const styles = stylex.create({
   card: {
     padding: '_md',
     borderRadius: '_lg',
     color: '_text',
-    minHeight: 'max(_control, _minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
   },
 });
 ```
 
-短写按属性找 token 组（`padding` → space，`color` → colors），跨组写 `'_space.md'`；规则见 COMPONENTS.md §4。动态样式的参数等运行时才知道的值，从 `@vue-tsx-pro/ui/tokens.stylex` 导入 token 变量。
+短写按属性找 token 组（`padding` → space，`color` → colors），跨组写 `'_space.md'`；规则见 COMPONENTS.md §4。动态样式的参数等运行时才知道的值也可以从 `t` 取。
 
 构建时 StyleX 的 CSS 会追加到宿主产物里的 CSS 文件（宿主一般都有全局样式）；如果宿主一个 CSS 文件都没有，StyleX 会另写一个 `stylex.css` 但不会自动引用。
 

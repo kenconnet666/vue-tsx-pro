@@ -17,6 +17,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useIntersectionObserver } from '../utils/dom/intersection';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
+import { t } from '../config/theme/tokens';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ActionBarProps extends PartProps<'div'> {
@@ -48,10 +49,10 @@ export const actionBarStyles = stylex.create({
     borderBlockStartStyle: 'solid',
     borderBlockStartColor: '_borderMuted',
     backgroundColor: '_surface',
-    transition: 'box-shadow _durations.md _easings.standard',
+    transition: `box-shadow ${t.durations.md} ${t.easings.standard}`,
   },
   // 往下多出一条线宽：贴着底边时有 1px 在滚动区域外，交叉比例小于 1，据此判断“盖着下面的内容”
-  sticky: { position: 'sticky', insetBlockEnd: 'calc(-1 * _borderWidths.xs)', zIndex: 1 },
+  sticky: { position: 'sticky', insetBlockEnd: `calc(-1 * ${t.borderWidths.xs})`, zIndex: 1 },
   // 盖着下面的内容：阴影提示还能往下滚
   stuck: { boxShadow: '_md', borderBlockStartColor: '_border' },
   // 说明文字比所在文字小一档（0.93em ≈ 默认字号下的 sm）

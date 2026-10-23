@@ -13,6 +13,7 @@ import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { t } from '../config/theme/tokens';
 
 /** 输入框的样式 */
 export interface ControlVariants {
@@ -58,7 +59,7 @@ export const controlShellStyles = stylex.create({
     alignItems: 'center',
     gap: '_sm',
     minWidth: 0,
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     paddingInline: '_md',
     borderWidth: '_xs',
     borderStyle: 'solid',
@@ -68,7 +69,7 @@ export const controlShellStyles = stylex.create({
     color: '_text',
     lineHeight: '_normal',
     cursor: 'text',
-    transition: 'border-color _durations.sm _easings.standard',
+    transition: `border-color ${t.durations.sm} ${t.easings.standard}`,
   },
   soft: {
     borderColor: { default: 'transparent', ':hover': 'transparent' },
@@ -97,7 +98,7 @@ export const controlStyles = stylex.create({
     boxSizing: 'border-box',
     flexGrow: 1,
     minWidth: 0,
-    minHeight: 'calc(max(_sizes.control, _sizes.minTarget) - 2 * _borderWidths.xs)',
+    minHeight: `calc(max(${t.sizes.control}, ${t.sizes.minTarget}) - 2 * ${t.borderWidths.xs})`,
     margin: 0,
     paddingBlock: '_xs',
     paddingInline: 0,
@@ -116,9 +117,9 @@ export const controlStyles = stylex.create({
   /** 框里的小按钮：比独立的图标按钮紧凑，仍不小于 24px 的点击区域 */
   button: {
     flexShrink: 0,
-    width: 'max(1.5em, _sizes.minTarget)',
-    minHeight: 'max(1.5em, _sizes.minTarget)',
-    marginInline: 'calc(-1 * _space.xs)',
+    width: `max(1.5em, ${t.sizes.minTarget})`,
+    minHeight: `max(1.5em, ${t.sizes.minTarget})`,
+    marginInline: `calc(-1 * ${t.space.xs})`,
     color: '_textMuted',
   },
 });

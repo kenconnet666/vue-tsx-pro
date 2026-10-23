@@ -16,6 +16,7 @@ import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
+import { t } from '../config/theme/tokens';
 
 /** 后备内容（首字母、图标）的底色样式 */
 export interface AvatarVariants {
@@ -77,7 +78,7 @@ export const avatarStyles = stylex.create({
   fallback: { fontWeight: '_medium', lineHeight: 1, textTransform: 'uppercase' },
   // 头像组里：往前叠 0.5em，一圈页面底色的描边把相邻的分开
   grouped: {
-    boxShadow: '0 0 0 _borderWidths.sm _colors.background',
+    boxShadow: `0 0 0 ${t.borderWidths.sm} ${t.colors.background}`,
     marginInlineStart: { default: '-0.5em', ':first-child': 0 },
   },
 });

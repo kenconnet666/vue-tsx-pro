@@ -12,6 +12,7 @@ import {
   Switch,
   ToggleGroup,
   ToggleItem,
+  t,
 } from '@vue-tsx-pro/ui';
 import { ThreeCanvas, type ThreeQuality, type ThreeStatus } from '@vue-tsx-pro/ui/three';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
@@ -32,7 +33,7 @@ const styles = stylex.create({
     placeItems: 'center',
     height: '100%',
     color: '_textMuted',
-    backgroundImage: 'radial-gradient(circle, _colors.accentSoft, transparent 65%)',
+    backgroundImage: `radial-gradient(circle, ${t.colors.accentSoft}, transparent 65%)`,
   },
 });
 

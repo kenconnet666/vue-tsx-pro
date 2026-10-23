@@ -19,6 +19,7 @@ import {
   Tour,
   dataAttrs,
   type TourStep,
+  t,
 } from '@vue-tsx-pro/ui';
 
 const orders = [
@@ -34,7 +35,7 @@ const styles = stylex.create({
     display: 'grid',
     placeItems: 'center',
     height: '7rem',
-    backgroundImage: 'linear-gradient(135deg, _colors.accentSoft, _colors.fill)',
+    backgroundImage: `linear-gradient(135deg, ${t.colors.accentSoft}, ${t.colors.fill})`,
     color: '_accentText',
     fontSize: '3rem',
   },

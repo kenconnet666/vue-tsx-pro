@@ -113,13 +113,12 @@
 - 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。
 - 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；`stylex.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
-- tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
+- tokens 有两种写法，Vite 预设编译时都换成 token 变量并补上 import（StyleX 只认从 `.stylex` 文件直接导入的变量）：值整个就是一个 token 时在 `stylex.create`、`stylex.keyframes` 里写字符串；值里夹着 token 时写模板字符串加 `t`：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
   - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用；补全按属性接受的值类型列出相应的组（长度属性列出间距、尺寸、边框宽度、圆角等，颜色属性列出颜色），悬停显示 token 的说明；
   - 条件值、回退数组、伪元素、动态样式、覆盖变量（`[vars.x]: …`，只能写带组名的）里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
-  - 值里也能夹 token，用于计算、多值、简写：`minHeight: 'max(_control, _minTarget)'`、`outlineOffset: 'calc(-1 * _xs)'`、`padding: '_sm _md'`，编译成模板字符串；短写同样按属性找组，表外属性（如 `transition`）写带组名的 `'opacity _durations.md _easings.standard'`。token 前后不能紧挨字母、数字、`-`、`.`，引号里的文字与 `url()` 不处理。值中间的 token 没有补全；
-  - 注意短写按**属性**找组：`width`、`height` 属于 `sizes`，`'calc(_lg + _xs)'` 写在 `width` 里取的是 `sizes.lg`（64rem）而不是间距；尺寸里要用间距档位时写带组名的 `'calc(_space.lg + _space.xs)'`；
-  - 只有动态样式的参数、运行时算出的值才需要 import token 变量；
+  - 计算、多值、简写（值里夹着 token）用模板字符串里的 `t.组.名`：`` minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})` ``、`` transition: `opacity ${t.durations.md} ${t.easings.standard}` ``。`t` 从 `@vue-tsx-pro/ui` 导入（组件库内部从 `config/theme/tokens.ts` 相对导入），补全、悬停（说明与取值）、跳转、重命名都有；编译器把 `t.组.名` 改写成组变量，`t` 没有别的用处时删掉它的导入，组或 token 写错时编译报错。字符串中间夹着的 `_xx` 没有类型提示，编译报错并给出改好的模板字符串；
+  - 不经编译时 `t` 也能用（值是 `var(--…)`）：动态样式的参数、运行时算出的值、canvas 里用 `readToken` 取值时可以从 `t` 取，也可以从 `@vue-tsx-pro/ui/tokens.stylex` 导入各组；
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
@@ -136,7 +135,7 @@
 - 骨架统一用 Skeleton / SkeletonText 与 `utils/style/shimmer.ts`，不各写一份：
   - 形状预设 `variant`：text、heading、circle、button、image；多行用 SkeletonText（最后一行短）。按真实布局拼，不要一整块灰。
   - 扫光：光带从起始边扫到结束边，RTL 反向，减少动态效果时停（`animation-name: none`，静止的占位已经说明在加载）。多块骨架用 `delay`（`SHIMMER_STAGGER` 的整数倍）依次错开，像一道波从上往下推；表格、列表的骨架行按行号错开。
-  - 颜色：底色与光带都是半透明的正文色（`color-mix(… _colors.text 9%, transparent)`），叠在任何表面上都比表面深一档（暗色主题里浅一档），各主题不必单独调。
+  - 颜色：底色与光带都是半透明的正文色（`color-mix(… ${t.colors.text} 9%, transparent)`），叠在任何表面上都比表面深一档（暗色主题里浅一档），各主题不必单独调。
   - 骨架换成内容（或反过来）时用 `shimmerStyles.reveal` 淡入，不硬切；只在切换的那一刻加样式，一开始就有内容时不播。
 - 读屏：骨架一律 `aria-hidden`（受管，不进部件属性的类型）；整块区域加载时 `aria-busy` 由组件管理。视觉上的骨架、进度条用 `useDelayedLoading` 防闪烁，`aria-busy` 与点击拦截按真实的 `loading` 立即生效。
 
@@ -198,7 +197,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 | `durations`      | `none`、`xs`–`xl`（75/120/200/300/500ms）                                                                                                                                                                |
 | `easings`        | `standard`、`enter`、`exit`                                                                                                                                                                              |
 
-- 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `'calc(_md * 2)'`；只有运行时的值才 import 后写 `space.md`。
+- 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `` `calc(${t.space.md} * 2)` ``；运行时的值也可以从 `t` 取（`t.space.md`）。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
 - 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只在局部叠放时写层级：AppShell 的顶栏（10）与抽屉（9）、整页滚动条（20）、SkipLink（100）、Toast 的叠放、LoadingOverlay、Indicator 的角标、ActionBar、按钮组里悬停与聚焦的按钮。断点是编译期常量 `breakpoints`（`tokens.stylex.ts` 的 `defineConsts`，`sm` / `md` / `lg` / `xl` 与 `sizes` 的容器宽度一致：40/48/64/80rem）：媒体查询不能用 CSS 变量，常量在编译时内联，样式里写 `[breakpoints.lg]: …`，运行时去掉 `@media ` 前缀交给 `useMediaQuery`。同一个属性写几个断点时，除最后一档外用不重叠的 `smOnly` / `mdOnly` / `lgOnly`：常量写的媒体查询 StyleX 不按宽度排序（`defineConsts` 不支持 `enableMediaQueryOrder`），重叠时可能窄的那档盖住宽的。组件仍优先用容器查询；断点只给整页骨架（AppShell）、命令面板的触发器与页面级布局，不再各写各的数值。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）、`paper.ts`（纸张：米黄纸色、深棕墨色文字、墨蓝品牌色，覆盖颜色、阴影与字体，标题用衬线）。
@@ -452,6 +451,8 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - **编译**：`compiler/tokens.ts`（Babel），由 Vite 预设的 `vue-tsx-pro:tokens` 插件在 StyleX 之前运行；token 名从 token 模块的源码（或产物）读出，用来报错。与 `stylex` 选项无关，组件库构建也改写：同包的文件用相对路径导入，其他包用选项里的包名（默认 `@vue-tsx-pro/ui/tokens.stylex`）。
 - **与原计划的出入**：带组名的写法不进补全。原计划让不进表的组（当时的 controls）的带组名写法出现在所有属性的补全里，实际 `position`、`display` 的补全里也会出现 `_controls.height`，噪音太大。
   2026-10-23 改为按取值域进补全：属性的值语法里有长度才列长度类的组、有颜色才列颜色，`'_borderWidths.sm'` 也有悬停说明与跳转（每组一个 `QualifiedXxxTokens` 接口）。
+- **值里夹着 token（2026-10-24）**：原来也写字符串（`'calc(-1 * _xs)'`），编译成模板字符串，但拼在字符串中间的 token 没有补全、悬停与跳转。改成模板字符串里的 `t.组.名`：`t` 是 `config/theme/tokens.ts` 的模块常量（各组 defineVars 的结果，原来的 `tokenGroups` 并入），编译器把 `t.组.名` 改写成组变量的导入，`t` 没有别的用处时删掉导入；只认组件库包名或组件库自己的相对路径导入的 `t`，应用里别的 `t`（i18n）不受影响。字符串中间的 `_xx` 编译报错并给出改好的写法。不用 `useTheme()`：`stylex.create` 在模块顶层编译，取不到组件上下文。
+  同时修复：Vite 给的路径用 `/`、Node 解析出的用 `\`，判断 token 模块与导入方是不是同一个包时没有统一，Windows 上组件库自己的文件按包名导入了 tokens。
 - **顺手修复**：`KeywordValue` 里的 `string & {}` 在泛型实例化时被 TypeScript 6 化简成 `string`，取值含任意字符串的属性在 tsserver（VS Code）里一直没有关键字补全；改用具名别名 `OpenString`。
 
 ### 10.7 虚拟滚动（为表格准备）
@@ -765,7 +766,7 @@ apps/docs/src/components/base/Button/
 
 | 环节      | 做法                                                                                                                                                                                                                                                                               |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 字符串写法、StyleX、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                                 |
+| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 写法、StyleX、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                                       |
 | 样式      | StyleX 的规则从 metadata 取出转成 CSS，主线程写进一个 `<style data-playground>`；模块解析与站点构建用同一个规范名（`@vue-tsx-pro/ui:config/theme/tokens.stylex`），`'_md'` 与 `colors.accent` 编译出组件库的同一个 CSS 变量                                                        |
 | 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、stylex、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                                   |
 | Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）、StyleX 浏览器版要的 `@babel/standalone`（转交 parser/traverse/types）；依赖预构建见 vite.config.ts                                                           |

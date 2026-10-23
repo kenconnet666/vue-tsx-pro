@@ -31,6 +31,7 @@ import { shimmerStyles } from '../utils/style/shimmer';
 import { toneStyles, type Tone } from '../utils/style/typography';
 import type { NumericValue } from '../utils/data/numeric';
 import { AnimatedNumber, type AnimatedNumberProps } from './AnimatedNumber';
+import { t } from '../config/theme/tokens';
 
 /** 忙碌由组件按 loading 管理 */
 export type StatManaged = 'aria-busy';
@@ -335,7 +336,7 @@ export const statGroupStyles = stylex.create({
   root: { display: 'grid', rowGap: '_md', overflow: 'hidden' },
   item: {
     paddingInline: '_md',
-    marginInlineStart: 'calc(-1 * _borderWidths.xs)',
+    marginInlineStart: `calc(-1 * ${t.borderWidths.xs})`,
     borderInlineStartWidth: '_xs',
     borderInlineStartStyle: 'solid',
     borderInlineStartColor: '_borderMuted',

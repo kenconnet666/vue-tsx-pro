@@ -19,6 +19,7 @@ import { plainText } from '../utils/data/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
 import { Icon, type IconData, type IconProps } from './Icon';
+import { t } from '../config/theme/tokens';
 
 /** 未声明的属性落到 span 上 */
 export interface TagProps extends PartProps<'span'>, BadgeOptions {
@@ -39,20 +40,20 @@ export interface TagProps extends PartProps<'span'>, BadgeOptions {
 export const tagStyles = stylex.create({
   // 移除被拒绝（使用方没移除）时从离场状态过渡回来
   root: {
-    transition: 'opacity _durations.sm _easings.enter, scale _durations.sm _easings.enter',
+    transition: `opacity ${t.durations.sm} ${t.easings.enter}, scale ${t.durations.sm} ${t.easings.enter}`,
   },
   // 移除按钮紧贴右侧，比独立的图标按钮紧凑（标签之间留有间距，满足目标尺寸的间距例外）
   removable: { paddingInlineEnd: '_xs' },
   remove: {
     width: '1.5em',
     minHeight: '1.5em',
-    marginBlock: 'calc(-1 * _space.xs)',
+    marginBlock: `calc(-1 * ${t.space.xs})`,
     color: 'inherit',
   },
   removing: {
     opacity: 0,
     scale: 0.8,
-    transition: 'opacity _durations.sm _easings.exit, scale _durations.sm _easings.exit',
+    transition: `opacity ${t.durations.sm} ${t.easings.exit}, scale ${t.durations.sm} ${t.easings.exit}`,
   },
 });
 

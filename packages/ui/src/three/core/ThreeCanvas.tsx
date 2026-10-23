@@ -23,6 +23,7 @@ import { watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../../utils/props';
 import type { ThreeQuality } from './quality';
 import { useThree, type ThreeContext, type ThreeSceneHandle, type ThreeStatus } from './renderer';
+import { t } from '../../config/theme/tokens';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'> {
@@ -68,8 +69,7 @@ export const threeCanvasStyles = stylex.create({
   },
   fallback: { position: 'absolute', inset: 0 },
   fallbackGradient: {
-    backgroundImage:
-      'radial-gradient(circle at 20% 25%, color-mix(in oklab, _colors.accent 28%, transparent), transparent 55%), radial-gradient(circle at 80% 70%, color-mix(in oklab, _colors.chart3 24%, transparent), transparent 55%), radial-gradient(circle at 60% 15%, color-mix(in oklab, _colors.chart5 18%, transparent), transparent 50%)',
+    backgroundImage: `radial-gradient(circle at 20% 25%, color-mix(in oklab, ${t.colors.accent} 28%, transparent), transparent 55%), radial-gradient(circle at 80% 70%, color-mix(in oklab, ${t.colors.chart3} 24%, transparent), transparent 55%), radial-gradient(circle at 60% 15%, color-mix(in oklab, ${t.colors.chart5} 18%, transparent), transparent 50%)`,
   },
 });
 

@@ -17,6 +17,7 @@ import { focusRingStyles, radiusStyles, type Radius, type StyleTable } from '../
 import type { StatusTone } from '../utils/style/tone-styles';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { t } from '../config/theme/tokens';
 
 /** 按钮样式 */
 export interface ButtonVariants {
@@ -110,7 +111,7 @@ export const buttonStyles = stylex.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '_sm',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     paddingBlock: '_xs',
     paddingInline: '_lg',
     borderWidth: '_xs',
@@ -123,7 +124,7 @@ export const buttonStyles = stylex.create({
   // 图标按钮：宽高相等
   square: {
     paddingInline: 0,
-    width: 'max(_sizes.control, _sizes.minTarget)',
+    width: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     flexShrink: 0,
   },
   fullWidth: { display: 'flex', width: '_full' },
@@ -147,7 +148,7 @@ const solid = stylex.create({
     color: '_inverseText',
     backgroundColor: {
       default: '_inverseSurface',
-      ':hover': 'color-mix(in oklab, _colors.inverseSurface 85%, _colors.background)',
+      ':hover': `color-mix(in oklab, ${t.colors.inverseSurface} 85%, ${t.colors.background})`,
     },
   },
   accent: {
@@ -415,7 +416,7 @@ const attachedStyles = stylex.create({
   horizontal: {
     position: 'relative',
     zIndex: { default: null, ':hover': 1, ':focus-visible': 2 },
-    marginInlineStart: { default: 'calc(-1 * _borderWidths.xs)', ':first-child': 0 },
+    marginInlineStart: { default: `calc(-1 * ${t.borderWidths.xs})`, ':first-child': 0 },
     borderStartStartRadius: { default: 0, ':first-child': null },
     borderEndStartRadius: { default: 0, ':first-child': null },
     borderStartEndRadius: { default: 0, ':last-child': null },
@@ -424,7 +425,7 @@ const attachedStyles = stylex.create({
   vertical: {
     position: 'relative',
     zIndex: { default: null, ':hover': 1, ':focus-visible': 2 },
-    marginBlockStart: { default: 'calc(-1 * _borderWidths.xs)', ':first-child': 0 },
+    marginBlockStart: { default: `calc(-1 * ${t.borderWidths.xs})`, ':first-child': 0 },
     borderStartStartRadius: { default: 0, ':first-child': null },
     borderStartEndRadius: { default: 0, ':first-child': null },
     borderEndStartRadius: { default: 0, ':last-child': null },

@@ -19,6 +19,7 @@ import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils
 import type { TextSize } from '../utils/style/typography';
 import { clamp } from '../utils/data/number';
 import { FlexList, type FlexProps } from '../layout/Flex';
+import { t } from '../config/theme/tokens';
 
 /** 未声明的属性落到 nav 上；aria-label 默认取语言包（分页） */
 export interface PaginationProps extends PartProps<'nav'> {
@@ -60,12 +61,12 @@ export interface PaginationProps extends PartProps<'nav'> {
 export const paginationStyles = stylex.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_md' },
   // 页码按钮等宽，翻页时位置不晃
-  page: { minWidth: 'max(_sizes.control, _sizes.minTarget)', paddingInline: '_xs' },
+  page: { minWidth: `max(${t.sizes.control}, ${t.sizes.minTarget})`, paddingInline: '_xs' },
   ellipsis: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 'max(_sizes.control, _sizes.minTarget)',
+    minWidth: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     color: '_textMuted',
   },
   total: { color: '_textMuted' },

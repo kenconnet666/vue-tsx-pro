@@ -17,7 +17,8 @@ import type { StyleXVar } from '@vue-tsx-pro/tsx/stylex';
 import { formatHex } from 'culori/fn';
 import { parseColor } from '../utils/data/color';
 import { applyStyleAttrs } from '../utils/props';
-import { readToken, themeVariables, tokenGroups, type Theme } from '../config/theme/theme';
+import { readToken, themeVariables, type Theme } from '../config/theme/theme';
+import { t } from '../config/theme/tokens';
 import { tokenCatalog } from './token-catalog';
 
 /** 一个设计令牌 */
@@ -105,7 +106,7 @@ const number: Convert = (value) => {
 };
 
 /** 每组的类型；新增 token 组时这里必须补上 */
-const CONVERTERS: Record<keyof typeof tokenGroups, Convert> = {
+const CONVERTERS: Record<keyof typeof t, Convert> = {
   colors: (value) => ['color', toColor(value)],
   fonts: (value) => {
     const families = value.split(',').map((family) => family.trim().replace(/^["']|["']$/g, ''));
@@ -141,7 +142,7 @@ const CONVERTERS: Record<keyof typeof tokenGroups, Convert> = {
 export function designTokens(values: ThemeValues, bases: DesignTokenBases): DesignTokens {
   const result: DesignTokens = {};
   for (const group of tokenCatalog) {
-    const convert = CONVERTERS[group.name as keyof typeof tokenGroups];
+    const convert = CONVERTERS[group.name as keyof typeof t];
     const tokens: Record<string, DesignToken> = {};
     for (const token of group.tokens) {
       const value = values[group.name]?.[token.name];
@@ -161,10 +162,7 @@ export function designTokens(values: ThemeValues, bases: DesignTokenBases): Desi
 /** 元素上实际生效的各组 token 取值（CSS 文本，如 radii.md → '0.4em'）；元素要已挂载 */
 export function elementThemeValues(element: Element): ThemeValues {
   const read = (group: string, token: string) => {
-    const vars = tokenGroups[group as keyof typeof tokenGroups] as unknown as Record<
-      string,
-      StyleXVar<string>
-    >;
+    const vars = t[group as keyof typeof t] as unknown as Record<string, StyleXVar<string>>;
     return readToken(element, vars[token]!);
   };
   return Object.fromEntries(

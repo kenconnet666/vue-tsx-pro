@@ -41,6 +41,7 @@ import {
 import { useDateLocale } from './date-locale';
 import { useLang } from '../config/context';
 import type { CalendarDate } from '@internationalized/date';
+import { t } from '../config/theme/tokens';
 
 /** 角色由组件管理 */
 export type CalendarViewManaged = 'role';
@@ -114,18 +115,17 @@ export const calendarStyles = stylex.create({
   month: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   header: {
     display: 'grid',
-    gridTemplateColumns:
-      'max(_sizes.control, _sizes.minTarget) 1fr max(_sizes.control, _sizes.minTarget)',
+    gridTemplateColumns: `max(${t.sizes.control}, ${t.sizes.minTarget}) 1fr max(${t.sizes.control}, ${t.sizes.minTarget})`,
     alignItems: 'center',
     gap: '_xs',
   },
   // 占住按钮的位置：并排几个月时中间的月没有翻页按钮，标题仍居中
-  spacer: { width: 'max(_sizes.control, _sizes.minTarget)' },
+  spacer: { width: `max(${t.sizes.control}, ${t.sizes.minTarget})` },
   heading: {
     display: 'inline-flex',
     alignItems: 'center',
     justifySelf: 'center',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     paddingInline: '_sm',
     borderRadius: '_md',
     fontWeight: '_semibold',
@@ -137,7 +137,7 @@ export const calendarStyles = stylex.create({
   },
   grid: { borderCollapse: 'collapse', borderSpacing: 0 },
   // 月份、年份视图：一行 3 格，与日期网格同宽
-  periodGrid: { width: 'calc(7 * max(2.25em, _sizes.minTarget))' },
+  periodGrid: { width: `calc(7 * max(2.25em, ${t.sizes.minTarget}))` },
   weekday: {
     paddingBlock: '_xs',
     paddingInline: 0,
@@ -167,17 +167,17 @@ export const calendarStyles = stylex.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 'max(2.25em, _sizes.minTarget)',
-    height: 'max(2.25em, _sizes.minTarget)',
+    width: `max(2.25em, ${t.sizes.minTarget})`,
+    height: `max(2.25em, ${t.sizes.minTarget})`,
     borderRadius: '_md',
     fontVariantNumeric: 'tabular-nums',
     backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
   },
-  periodButton: { width: '_full', height: 'max(3em, _sizes.minTarget)' },
+  periodButton: { width: '_full', height: `max(3em, ${t.sizes.minTarget})` },
   outside: { color: '_textMuted' },
   today: {
     fontWeight: '_semibold',
-    boxShadow: 'inset 0 0 0 _borderWidths.xs _colors.accentBorder',
+    boxShadow: `inset 0 0 0 ${t.borderWidths.xs} ${t.colors.accentBorder}`,
   },
   selected: {
     backgroundColor: { default: '_accent', ':hover': '_accentHover' },

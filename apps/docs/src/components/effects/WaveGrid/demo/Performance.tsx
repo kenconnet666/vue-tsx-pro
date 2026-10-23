@@ -1,7 +1,7 @@
 // 画质（网格的细分随它变）、渲染分辨率、跟随指针与暂停；off 时显示 fallback
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
 import { WaveGrid, type ThreeQuality } from '@vue-tsx-pro/ui/three';
 
 const styles = stylex.create({
@@ -9,7 +9,7 @@ const styles = stylex.create({
   // 静态的替代画面：一层点阵
   fallback: {
     height: '100%',
-    backgroundImage: 'radial-gradient(_colors.borderStrong 1px, transparent 1px)',
+    backgroundImage: `radial-gradient(${t.colors.borderStrong} 1px, transparent 1px)`,
     backgroundSize: '18px 18px',
   },
 });

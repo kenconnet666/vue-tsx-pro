@@ -14,6 +14,7 @@ import type { VNodeChild } from 'vue';
 import { useLazyContent } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { afterTransitions } from '../utils/style/transitions';
+import { t } from '../config/theme/tokens';
 
 /** 未声明的属性落到外层的 div 上；要分区语义时在外面包 section */
 export interface CollapseProps extends PartProps<'div', 'hidden' | 'inert'> {
@@ -37,7 +38,7 @@ export const collapseStyles = stylex.create({
   root: {
     display: 'grid',
     gridTemplateRows: '0fr',
-    transition: 'grid-template-rows _durations.md _easings.standard',
+    transition: `grid-template-rows ${t.durations.md} ${t.easings.standard}`,
   },
   open: { gridTemplateRows: '1fr' },
   // 网格项默认的最小高度是内容高度，要设为 0 才能收到 0fr

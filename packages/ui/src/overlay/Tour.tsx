@@ -36,6 +36,7 @@ import { isEditable } from '../utils/dom/hotkeys';
 import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
 import { openModalDialog } from '../utils/dom/overlay';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { t } from '../config/theme/tokens';
 
 /** 引导的一步 */
 export interface TourStep {
@@ -109,10 +110,9 @@ export const tourStyles = stylex.create({
   spotlight: {
     position: 'fixed',
     borderRadius: '_md',
-    boxShadow: '0 0 0 100vmax _colors.overlay',
+    boxShadow: `0 0 0 100vmax ${t.colors.overlay}`,
     pointerEvents: 'none',
-    transition:
-      'left _durations.md _easings.standard, top _durations.md _easings.standard, width _durations.md _easings.standard, height _durations.md _easings.standard',
+    transition: `left ${t.durations.md} ${t.easings.standard}, top ${t.durations.md} ${t.easings.standard}, width ${t.durations.md} ${t.easings.standard}, height ${t.durations.md} ${t.easings.standard}`,
   },
   // 没有目标：整页遮罩
   dimmed: { inset: 0, borderRadius: 0, backgroundColor: '_overlay', boxShadow: 'none' },
@@ -128,8 +128,8 @@ export const tourStyles = stylex.create({
   cover: {
     display: 'grid',
     overflow: 'hidden',
-    marginBlockStart: 'calc(-1 * _space.lg)',
-    marginInline: 'calc(-1 * _space.lg)',
+    marginBlockStart: `calc(-1 * ${t.space.lg})`,
+    marginInline: `calc(-1 * ${t.space.lg})`,
     marginBlockEnd: '_xs',
     borderStartStartRadius: 'inherit',
     borderStartEndRadius: 'inherit',

@@ -17,6 +17,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { usePresence } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { presenceStyles } from '../utils/style/transitions';
+import { t } from '../config/theme/tokens';
 
 /** 忙碌由组件按 loading 管理 */
 export type LoadingOverlayManaged = 'aria-busy';
@@ -47,9 +48,9 @@ export const loadingOverlayStyles = stylex.create({
     display: 'grid',
     placeItems: 'center',
     borderRadius: 'inherit',
-    backgroundColor: 'color-mix(in srgb, _surface 70%, transparent)',
+    backgroundColor: `color-mix(in srgb, ${t.colors.surface} 70%, transparent)`,
     opacity: { default: 1, '@starting-style': 0 },
-    transition: 'opacity _durations.md _easings.enter',
+    transition: `opacity ${t.durations.md} ${t.easings.enter}`,
   },
   blur: { backdropFilter: 'blur(2px)' },
   spinner: { fontSize: '_xl', color: '_accent' },

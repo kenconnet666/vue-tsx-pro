@@ -23,6 +23,7 @@ import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-
 import { presenceStyles } from '../utils/style/transitions';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
+import { t } from '../config/theme/tokens';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
 export interface AlertVariants {
@@ -112,7 +113,7 @@ export const alertStyles = stylex.create({
   description: { color: '_text' },
   content: { minWidth: 0 },
   action: { flexShrink: 0, alignSelf: 'center' },
-  close: { flexShrink: 0, marginBlock: 'calc(-1 * _space.xs)', color: 'inherit' },
+  close: { flexShrink: 0, marginBlock: `calc(-1 * ${t.space.xs})`, color: 'inherit' },
 });
 
 const ROLES = { off: undefined, polite: 'status', assertive: 'alert' } as const;

@@ -11,7 +11,7 @@ import {
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, Flex, NavItem, NavList, NavSection, Switch } from '@vue-tsx-pro/ui';
+import { Card, Flex, NavItem, NavList, NavSection, Switch, t } from '@vue-tsx-pro/ui';
 
 const sections = [
   {
@@ -33,7 +33,7 @@ const sections = [
 ] as const;
 
 const styles = stylex.create({
-  nav: { width: '15rem', transition: 'width _durations.md _easings.standard' },
+  nav: { width: '15rem', transition: `width ${t.durations.md} ${t.easings.standard}` },
   compact: { width: '3.5rem' },
 });
 

@@ -10,6 +10,7 @@ import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
 import { ResizeHandle, type ResizeHandleProps } from '../layout/ResizeHandle';
 import { ModalCore, type ModalProps } from './ModalCore';
+import { t } from '../config/theme/tokens';
 
 /** 抽屉从哪一侧滑入；start / end 是逻辑方向，从右到左排版下左右互换 */
 export interface DrawerSides {
@@ -61,10 +62,8 @@ export const drawerStyles = stylex.create({
     // “减少动态效果”时时长为 0。打开时 translate 是 none 而不是 0 0：否则抽屉会成为 fixed 子元素
     // （移进来的 Toaster）的包含块；关闭时不显示，移到所在一侧之外没有这个问题
     transition: {
-      default:
-        'translate _durations.md _easings.exit, display _durations.md allow-discrete, overlay _durations.md allow-discrete',
-      ':modal':
-        'translate _durations.lg _easings.enter, display _durations.lg allow-discrete, overlay _durations.lg allow-discrete',
+      default: `translate ${t.durations.md} ${t.easings.exit}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
+      ':modal': `translate ${t.durations.lg} ${t.easings.enter}, display ${t.durations.lg} allow-discrete, overlay ${t.durations.lg} allow-discrete`,
     },
   },
   inline: { insetBlock: 0, width: '_full', height: '100dvh', overflow: 'hidden' },
@@ -116,11 +115,11 @@ export const drawerStyles = stylex.create({
 
 /** 抽屉（左右两侧）的宽度档位；sized 是给了 width 的（宽度写在行内，不受档位限制） */
 export const drawerSizeStyles = stylex.create({
-  xs: { maxWidth: 'min(_xs, 100vw)' },
-  sm: { maxWidth: 'min(_sm, 100vw)' },
-  md: { maxWidth: 'min(_md, 100vw)' },
-  lg: { maxWidth: 'min(_lg, 100vw)' },
-  xl: { maxWidth: 'min(_xl, 100vw)' },
+  xs: { maxWidth: `min(${t.sizes.xs}, 100vw)` },
+  sm: { maxWidth: `min(${t.sizes.sm}, 100vw)` },
+  md: { maxWidth: `min(${t.sizes.md}, 100vw)` },
+  lg: { maxWidth: `min(${t.sizes.lg}, 100vw)` },
+  xl: { maxWidth: `min(${t.sizes.xl}, 100vw)` },
 });
 
 /** 抽屉：贴着视口一侧滑入的模态面板 */

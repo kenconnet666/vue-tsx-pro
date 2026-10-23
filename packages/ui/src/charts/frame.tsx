@@ -30,6 +30,7 @@ import { Empty } from '../feedback/Empty';
 import type { NumericValue } from '../utils/data/numeric';
 import { themeTransition } from '../utils/motion/animation';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { t } from '../config/theme/tokens';
 
 /** 图例里的一项 */
 export interface ChartLegendItem {
@@ -119,7 +120,7 @@ export const chartStyles = stylex.create({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'flex-end',
-    gap: '_xs _md',
+    gap: `${t.space.xs} ${t.space.md}`,
     marginInlineStart: 'auto',
   },
   // 图例项：ButtonBase 给出焦点环与按下的反馈，这里只定文字

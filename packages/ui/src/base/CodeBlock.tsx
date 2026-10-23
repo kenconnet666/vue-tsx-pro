@@ -23,6 +23,7 @@ import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
 import { CopyButton, type CopyButtonProps } from './CopyButton';
 import { Icon, type IconProps } from './Icon';
+import { t } from '../config/theme/tokens';
 
 /** 行号的写法：`'1,3-5'` 或 `[1, 3, 4, 5]`（从 1 开始） */
 export type LineSpec = string | readonly number[];
@@ -108,7 +109,7 @@ export const codeBlockStyles = stylex.create({
     display: 'flex',
     alignItems: 'center',
     gap: '_sm',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     paddingInlineStart: '_lg',
     paddingInlineEnd: '_xs',
     borderBottomWidth: '_xs',
@@ -128,7 +129,9 @@ export const codeBlockStyles = stylex.create({
   },
   body: { position: 'relative' },
   // 给复制按钮留出位置，第一行的末尾不被盖住
-  withCopy: { paddingInlineEnd: 'calc(_space.md + max(_sizes.control, _sizes.minTarget))' },
+  withCopy: {
+    paddingInlineEnd: `calc(${t.space.md} + max(${t.sizes.control}, ${t.sizes.minTarget}))`,
+  },
   copy: { position: 'absolute', top: '_space.xs', insetInlineEnd: '_space.xs' },
   root: {
     boxSizing: 'border-box',
@@ -155,7 +158,7 @@ export const codeBlockStyles = stylex.create({
   line: {
     display: 'block',
     minHeight: '1lh',
-    marginInline: 'calc(-1 * _space.lg)',
+    marginInline: `calc(-1 * ${t.space.lg})`,
     paddingInline: '_lg',
   },
   highlighted: { backgroundColor: '_fill' },
@@ -175,7 +178,7 @@ export const codeBlockStyles = stylex.create({
     justifyContent: 'center',
     gap: '_xs',
     width: '_full',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     borderTopWidth: '_xs',
     borderTopStyle: 'solid',
     borderTopColor: '_borderMuted',

@@ -5,6 +5,7 @@
  *   sx: [itemStyles.row, itemStyles.hoverable, active && itemStyles.highlighted, disabled && itemStyles.disabled]
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { t } from '../../config/theme/tokens';
 
 /** 列表行的布局与各状态的颜色 */
 export const itemStyles = stylex.create({
@@ -15,7 +16,7 @@ export const itemStyles = stylex.create({
     alignItems: 'center',
     gap: '_sm',
     width: '_full',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     margin: 0,
     paddingBlock: '_xs',
     paddingInline: '_sm',
@@ -30,8 +31,7 @@ export const itemStyles = stylex.create({
     textDecoration: 'none',
     cursor: 'pointer',
     userSelect: 'none',
-    transition:
-      'background-color _durations.sm _easings.standard, color _durations.sm _easings.standard',
+    transition: `background-color ${t.durations.sm} ${t.easings.standard}, color ${t.durations.sm} ${t.easings.standard}`,
   },
   /** 指针悬停时浅色底 */
   hoverable: { backgroundColor: { default: 'transparent', ':hover': '_fillHover' } },

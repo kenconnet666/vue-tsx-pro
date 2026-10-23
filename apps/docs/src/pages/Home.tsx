@@ -31,6 +31,7 @@ import {
   Small,
   Text,
   type IconData,
+  t,
 } from '@vue-tsx-pro/ui';
 import { CodePreview } from '@vue-tsx-pro/ui/docs-kit';
 import Counter from './demo/Counter.tsx?demo';
@@ -57,7 +58,7 @@ const styles = stylex.create({
       zIndex: -1,
       insetInline: '10%',
       insetBlock: 0,
-      backgroundImage: 'radial-gradient(closest-side, _colors.accentSoft, transparent)',
+      backgroundImage: `radial-gradient(closest-side, ${t.colors.accentSoft}, transparent)`,
       filter: 'blur(24px)',
     },
   },
@@ -72,7 +73,7 @@ const styles = stylex.create({
   title: {
     fontSize: 'clamp(2.25rem, 5vw, 3.25rem)',
     letterSpacing: '_tighter',
-    backgroundImage: 'linear-gradient(120deg, _colors.text 30%, _colors.accentText)',
+    backgroundImage: `linear-gradient(120deg, ${t.colors.text} 30%, ${t.colors.accentText})`,
     backgroundClip: 'text',
     color: 'transparent',
   },
@@ -90,8 +91,7 @@ const styles = stylex.create({
   entry: {
     position: 'relative',
     height: '_full',
-    transition:
-      'transform _durations.md _easings.standard, box-shadow _durations.md _easings.standard, border-color _durations.md _easings.standard',
+    transition: `transform ${t.durations.md} ${t.easings.standard}, box-shadow ${t.durations.md} ${t.easings.standard}, border-color ${t.durations.md} ${t.easings.standard}`,
     transform: { default: 'none', ':hover': 'translateY(-2px)' },
     boxShadow: { default: 'none', ':hover': '_md' },
     borderColor: { default: null, ':hover': '_borderStrong' },

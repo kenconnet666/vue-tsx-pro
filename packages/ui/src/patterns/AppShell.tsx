@@ -53,6 +53,7 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { breakpoints } from '../config/theme/tokens.stylex';
 import { focusRingStyles } from '../utils/style/styles';
 import { layoutVars } from '../utils/style/vars.stylex';
+import { t } from '../config/theme/tokens';
 
 /** 顶栏高度：也是两侧栏粘住的位置、标题跳转时让开的距离 */
 const HEADER_HEIGHT = '3rem';
@@ -239,13 +240,13 @@ export const appShellStyles = stylex.create({
     // 收起：滑出去之后再隐藏（visibility 延迟到滑完）
     visibility: 'hidden',
     translate: { default: '-100% 0', ':dir(rtl)': '100% 0' },
-    transition: 'translate _durations.md _easings.exit, visibility 0s linear _durations.md',
+    transition: `translate ${t.durations.md} ${t.easings.exit}, visibility 0s linear ${t.durations.md}`,
   },
   // 打开：立刻可见，再滑进来
   overlayOpen: {
     visibility: 'visible',
     translate: 'none',
-    transition: 'translate _durations.lg _easings.enter, visibility 0s',
+    transition: `translate ${t.durations.lg} ${t.easings.enter}, visibility 0s`,
   },
   overlayScroll: { flexGrow: 1, minHeight: 0 },
   // overlay 时顶栏的品牌格：宽屏时按抽屉的初始宽度，“菜单”在它的结束边

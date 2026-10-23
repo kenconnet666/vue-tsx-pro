@@ -39,6 +39,7 @@ import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
+import { t } from '../config/theme/tokens';
 
 /** 看板的一列 */
 export interface KanbanColumn {
@@ -103,7 +104,7 @@ export const kanbanBoardStyles = stylex.create({
     outlineStyle: 'solid',
     outlineColor: 'transparent',
     outlineOffset: '-2px',
-    transition: 'outline-color _durations.sm _easings.standard',
+    transition: `outline-color ${t.durations.sm} ${t.easings.standard}`,
   },
   allowed: { outlineColor: '_accent' },
   denied: { outlineColor: '_danger' },
@@ -143,7 +144,7 @@ export const kanbanBoardStyles = stylex.create({
     backgroundColor: '_surfaceRaised',
     cursor: 'grab',
     touchAction: 'none',
-    transition: 'translate _durations.md _easings.standard',
+    transition: `translate ${t.durations.md} ${t.easings.standard}`,
   },
   // 指针拖动中：原位的卡片变淡，跟着指针走的是影子卡（画在滚动区域外面，不被列裁掉）
   placeholder: { opacity: 0.4 },

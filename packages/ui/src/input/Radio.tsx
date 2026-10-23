@@ -30,6 +30,7 @@ import {
   readonlyChoiceHandlers,
   syncChecked,
 } from './choice-styles';
+import { t } from '../config/theme/tokens';
 
 /** RadioGroup 交给组内 Radio 的状态 */
 export interface RadioGroupState {
@@ -181,7 +182,7 @@ export const radioStyles = stylex.create({
     borderRadius: '_full',
     backgroundColor: 'var(--tone-on-fill)',
     transform: 'scale(0)',
-    transition: 'transform _durations.sm _easings.standard',
+    transition: `transform ${t.durations.sm} ${t.easings.standard}`,
   },
   dotChecked: { transform: 'none' },
 });

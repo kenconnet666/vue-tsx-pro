@@ -1028,7 +1028,7 @@ export {
   type QueryCodecs,
 } from './config/query-state';
 
-// 主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
+// 主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens.stylex 直接导入各组
 export {
   builtinThemeBootColors,
   DEFAULT_THEME_STORAGE_KEY,
@@ -1077,7 +1077,6 @@ export {
   resolveTheme,
   themeAttrs,
   themeVariables,
-  tokenGroups,
   tokenValue,
   type ColorSchemes,
   type GroupTheme,
@@ -1086,6 +1085,7 @@ export {
   type ThemeOverrides,
 } from './config/theme/theme';
 import './config/theme/token-names';
+export { t } from './config/theme/tokens';
 
 // 语言与格式化
 export { enUS } from './config/lang/en-US';

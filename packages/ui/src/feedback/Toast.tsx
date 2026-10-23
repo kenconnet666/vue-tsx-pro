@@ -52,6 +52,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { Alert, type AlertProps } from './Alert';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
+import { t } from '../config/theme/tokens';
 
 /** 一条通知的内容与行为 */
 export interface ToastOptions {
@@ -330,13 +331,13 @@ export const toastStyles = stylex.create({
     // 纵向仍可滚动页面，横向交给滑动关闭
     touchAction: 'pan-y',
     opacity: { default: 1, '@starting-style': 0 },
-    transition: 'opacity _durations.md _easings.enter, translate _durations.md _easings.enter',
+    transition: `opacity ${t.durations.md} ${t.easings.enter}, translate ${t.durations.md} ${t.easings.enter}`,
   },
   itemFromBottom: { translate: { default: 'none', '@starting-style': '0 0.75em' } },
   itemFromTop: { translate: { default: 'none', '@starting-style': '0 -0.75em' } },
   itemClosing: {
     opacity: 0,
-    transition: 'opacity _durations.sm _easings.exit',
+    transition: `opacity ${t.durations.sm} ${t.easings.exit}`,
   },
   // 间距放在每一项里：离场收起高度时间距一起收掉；剩余时间条按它定位
   gap: { position: 'relative', paddingBlock: '_xs' },
@@ -345,10 +346,10 @@ export const toastStyles = stylex.create({
   countdown: {
     position: 'absolute',
     insetInline: '_md',
-    bottom: 'calc(_space.xs + _borderWidths.xs)',
+    bottom: `calc(${t.space.xs} + ${t.borderWidths.xs})`,
     height: '_borderWidths.sm',
     borderRadius: '_full',
-    backgroundColor: 'color-mix(in srgb, _textMuted 50%, transparent)',
+    backgroundColor: `color-mix(in srgb, ${t.colors.textMuted} 50%, transparent)`,
     transformOrigin: { default: 'left', ':dir(rtl)': 'right' },
     animationName: countdown,
     animationTimingFunction: 'linear',
@@ -359,8 +360,7 @@ export const toastStyles = stylex.create({
   // 叠放：每一项都定位、按深度排层叠顺序；最新的一条留在文档流里撑起高度，更早的绝对定位叠在它后面
   stacked: {
     position: 'relative',
-    transition:
-      'opacity _durations.md _easings.standard, translate _durations.md _easings.standard, scale _durations.md _easings.standard',
+    transition: `opacity ${t.durations.md} ${t.easings.standard}, translate ${t.durations.md} ${t.easings.standard}, scale ${t.durations.md} ${t.easings.standard}`,
   },
   stackedBehind: { position: 'absolute', insetInline: 0 },
   stackedHidden: { opacity: 0 },

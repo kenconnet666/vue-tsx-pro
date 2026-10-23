@@ -9,6 +9,7 @@ import {
   Text,
   themeTransition,
   useLayoutAnimation,
+  t,
 } from '@vue-tsx-pro/ui';
 import { animate } from 'animejs';
 
@@ -16,7 +17,7 @@ const styles = stylex.create({
   section: { display: 'grid', gap: '_md' },
   track: {
     // 小球的宽度加上移动的距离
-    width: 'calc(_control + 120px)',
+    width: `calc(${t.sizes.control} + 120px)`,
     padding: '_xs',
     borderRadius: '_full',
     backgroundColor: '_fill',

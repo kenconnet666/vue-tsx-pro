@@ -18,6 +18,7 @@ import { useScrollSpy, type HeadingEntry } from '../utils/dom/scroll-spy';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
+import { t } from '../config/theme/tokens';
 
 /** 未声明的属性落到 nav 上；原生的 title 属性（悬停提示）让给目录的标题 */
 export interface TableOfContentsProps extends PartProps<'nav', 'aria-labelledby' | 'title'> {
@@ -50,7 +51,7 @@ export const tableOfContentsStyles = stylex.create({
     insetBlockStart: 0,
     insetInlineStart: 0,
     // 盖住列表左边的细线
-    marginInlineStart: 'calc(-1 * _borderWidths.xs)',
+    marginInlineStart: `calc(-1 * ${t.borderWidths.xs})`,
     width: '_borderWidths.sm',
     borderRadius: '_full',
     backgroundColor: '_accent',
@@ -64,7 +65,7 @@ export const tableOfContentsStyles = stylex.create({
     fontSize: '_sm',
     lineHeight: '_snug',
     textDecoration: 'none',
-    transition: 'color _durations.sm _easings.standard',
+    transition: `color ${t.durations.sm} ${t.easings.standard}`,
   },
   current: { color: { default: '_accentText', ':hover': '_accentText' } },
   // 按级别缩进：2 级贴着细线留一档，往下每级多一档

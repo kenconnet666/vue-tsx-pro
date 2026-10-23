@@ -1,4 +1,4 @@
-// 主题 tokens 的字符串写法：'_xs'、'_space.md' → token 变量与 import
+// 主题 tokens 的写法：'_xs'、'_space.md'、t.组.名 → token 变量与 import
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { compileTokens, type TokenModule } from '../src/compiler/index';
@@ -46,35 +46,65 @@ describe('改写', () => {
     expect(code).toContain("':hover': {\n");
   });
 
-  it('值里夹着的 token 改写成模板字符串：计算、多值、跨组；引号与 url() 里的不动', async () => {
-    const code = await compile(`
+  it('t.组.名 改写成组变量，与字符串写法共用导入；t 没有别的用处时删掉它的导入', async () => {
+    const code = await compile(
+      String.raw`import { t } from '@vue-tsx-pro/ui';
+      const gap = t.space.sm;
       const s = stylex.create({
         a: {
-          minHeight: 'max(_control, 24px)',
-          padding: '_sm _md',
-          outlineOffset: 'calc(-1 * _space.sm)',
-          content: '"_text"',
-          backgroundImage: 'url(_a.png)',
-          transition: 'opacity 1s, color 1s',
+          fontSize: '_xs',
+          minHeight: ${'`'}max(${'$'}{t.sizes.control}, 24px)${'`'},
+          outlineOffset: ${'`'}calc(-1 * ${'$'}{t.space['md']})${'`'},
+          [vars.highlight]: ${'`'}color-mix(in oklab, ${'$'}{t.colors.text} 9%, transparent)${'`'},
+          margin: gap,
         },
-      });
-    `);
+      });`,
+      () => ({ ...module, importPath: '@vue-tsx-pro/ui/tokens.stylex' }),
+    );
+    expect(code).toContain(
+      'import { space as _space, sizes as _sizes, colors as _colors, fontSizes as _fontSizes } from "@vue-tsx-pro/ui/tokens.stylex";',
+    );
+    expect(code).toContain('const gap = _space.sm;');
     expect(code).toContain('minHeight: `max(${_sizes.control}, 24px)`');
-    expect(code).toContain('padding: `${_space.sm} ${_space.md}`');
-    expect(code).toContain('outlineOffset: `calc(-1 * ${_space.sm})`');
-    expect(code).toContain(`content: '"_text"'`);
-    expect(code).toContain("backgroundImage: 'url(_a.png)'");
-  });
-
-  it('覆盖变量（计算键）的值里同样改写', async () => {
-    const code = await compile(`
-      const s = stylex.create({
-        a: { [vars.highlight]: 'color-mix(in oklab, _colors.text 9%, transparent)' },
-      });
-    `);
+    expect(code).toContain('outlineOffset: `calc(-1 * ${_space.md})`');
     expect(code).toContain(
       '[vars.highlight]: `color-mix(in oklab, ${_colors.text} 9%, transparent)`',
     );
+    expect(code).not.toContain("'@vue-tsx-pro/ui'");
+  });
+
+  it('t 还有别的用处时保留导入；别的包导入的 t 不动', async () => {
+    const load = () => ({ ...module, importPath: '@vue-tsx-pro/ui/tokens.stylex' });
+    const kept = await compile(
+      `import { t } from '@vue-tsx-pro/ui';
+      const s = stylex.create({ a: { color: t.colors.text } });
+      console.log(t);`,
+      load,
+    );
+    expect(kept).toContain("import { t } from '@vue-tsx-pro/ui';");
+    expect(kept).toContain('color: _colors.text');
+    const other = await compile(
+      `import { t } from 'vue-i18n';
+      const s = stylex.create({ a: { color: '_text' } });
+      t.home.title;`,
+      load,
+    );
+    expect(other).toContain('t.home.title');
+  });
+
+  it('组件库自己的源码里相对路径导入的 t 也认', async () => {
+    const code = await compile(`import { t } from '../config/theme/tokens';
+      const s = stylex.create({ a: { color: t.colors.accent } });`);
+    expect(code).toContain('color: _colors.accent');
+    expect(code).not.toContain("'../config/theme/tokens'");
+  });
+
+  it('引号与 url() 里的下划线不是 token', async () => {
+    const code = await compile(
+      `const s = stylex.create({ a: { fontSize: '_xs', content: '"_text"', backgroundImage: 'url(_a.png)' } });`,
+    );
+    expect(code).toContain(`content: '"_text"'`);
+    expect(code).toContain("backgroundImage: 'url(_a.png)'");
   });
 
   it('具名导入的 create 也认；其他字符串、其他函数不动', async () => {
@@ -124,11 +154,26 @@ describe('报错', () => {
     ['带组名的 token 不存在', `{ width: '_sizes.width' }`, /'_sizes\.control'/],
     ['组不存在', `{ height: '_blurs.md' }`, /没有名为 blurs 的 token 组/],
     ['格式不对', `{ fontSize: '_x-s' }`, /不是主题 token 的写法/],
-    ['值里夹着的 token 不存在', `{ padding: '_sm _huge' }`, /space 里没有 huge/],
     [
-      '模板字符串里的 token 写法不会改写',
+      '值里夹着的 token：给出改成 t 的模板字符串',
+      `{ outlineOffset: 'calc(-1 * _space.sm)' }`,
+      /`calc\(-1 \* \$\{t\.space\.sm\}\)`/,
+    ],
+    [
+      '值里夹着的短写按对照表找组',
+      `{ padding: '_sm _md' }`,
+      /`\$\{t\.space\.sm\} \$\{t\.space\.md\}`/,
+    ],
+    [
+      't 的 token 不存在',
+      '{ padding: t.space.huge }',
+      /space 里没有 huge（可用：t\.space\.sm、t\.space\.md）/,
+    ],
+    ['t 的组不存在', '{ padding: t.blurs.md }', /没有名为 blurs 的 token 组/],
+    [
+      '模板字符串里的下划线 token',
       '{ padding: `_sm ${1}px` }',
-      /模板字符串里的 token 写法不会改写/,
+      /模板字符串里的 token 要写成 \$\{t\.组\.名\}/,
     ],
     [
       '覆盖变量用短写：没有属性可查表',
@@ -137,7 +182,9 @@ describe('报错', () => {
     ],
   ];
   it.each(cases)('%s', async (_, styles, message) => {
-    await expect(compile(`stylex.create({ a: ${styles} });`)).rejects.toThrow(message);
+    await expect(
+      compile(`import { t } from './tokens';\nstylex.create({ a: ${styles} });`),
+    ).rejects.toThrow(message);
   });
 
   it('写在 create 外面的样式对象里的 token 写法不会改写：报错，指出样式要直接写在里面', async () => {
@@ -171,6 +218,14 @@ describe('按导入方找 token 模块', () => {
     );
     expect(code).toContain('from "../config/theme/tokens.stylex"');
     expect(code).toContain('_fontSizes.xxxl');
+  });
+
+  it('Vite 给的 / 分隔路径同样认出是同一个包', async () => {
+    const code = await transform(
+      ui('src/base/X.tsx').replaceAll('\\', '/'),
+      `stylex.create({ a: { fontSize: '_md' } });`,
+    );
+    expect(code).toContain('from "../config/theme/tokens.stylex"');
   });
 
   it('其他包按包名导入', async () => {

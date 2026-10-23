@@ -5,6 +5,7 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import { t } from '../../config/theme/tokens';
 
 /*
  * 取值类型的写法（COMPONENTS.md §1）：写成带注释接口的 keyof，接口的每个键带注释，
@@ -138,7 +139,7 @@ export const focusRingStyles = stylex.create({
     outlineStyle: { default: 'none', ':focus-within': 'solid' },
     outlineWidth: '_sm',
     outlineColor: '_focusRing',
-    outlineOffset: 'calc(-1 * _xs)',
+    outlineOffset: `calc(-1 * ${t.borderWidths.xs})`,
   },
 });
 

@@ -16,6 +16,7 @@ import { useDefaults } from '../config/defaults';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { VisuallyHidden } from './VisuallyHidden';
+import { t } from '../config/theme/tokens';
 
 /** 角标在被标记元素的哪个角（按书写方向） */
 export interface IndicatorPlacements {
@@ -79,7 +80,7 @@ export const indicatorStyles = stylex.create({
     justifyContent: 'center',
     borderRadius: '_full',
     // 一圈页面底色，和被标记的元素分开
-    boxShadow: '0 0 0 _borderWidths.sm _colors.background',
+    boxShadow: `0 0 0 ${t.borderWidths.sm} ${t.colors.background}`,
     fontWeight: '_semibold',
     lineHeight: 1,
     fontVariantNumeric: 'tabular-nums',

@@ -38,7 +38,7 @@ const GROUPS = [
   ['config', '配置：Provider、createUi、组件默认值'],
   [
     'config/theme',
-    '主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）',
+    '主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens.stylex 直接导入各组',
   ],
   ['config/lang', '语言与格式化'],
   ['utils', '工具：部件属性的合并'],

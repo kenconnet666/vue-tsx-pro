@@ -9,6 +9,7 @@
  * 进场过渡各浏览器都有。属于渐进增强：不支持时少了离场动画，状态不受影响。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { t } from '../../config/theme/tokens';
 
 /** 顶层元素的进出场过渡：fade 淡入淡出、scale 缩放加淡入、backdrop 模态遮罩的淡入 */
 export const transitions = stylex.create({
@@ -20,12 +21,9 @@ export const transitions = stylex.create({
       ':modal': { default: 1, '@starting-style': 0 },
     },
     transition: {
-      default:
-        'opacity _durations.sm _easings.exit, display _durations.sm allow-discrete, overlay _durations.sm allow-discrete',
-      ':popover-open':
-        'opacity _durations.md _easings.enter, display _durations.md allow-discrete, overlay _durations.md allow-discrete',
-      ':modal':
-        'opacity _durations.md _easings.enter, display _durations.md allow-discrete, overlay _durations.md allow-discrete',
+      default: `opacity ${t.durations.sm} ${t.easings.exit}, display ${t.durations.sm} allow-discrete, overlay ${t.durations.sm} allow-discrete`,
+      ':popover-open': `opacity ${t.durations.md} ${t.easings.enter}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
+      ':modal': `opacity ${t.durations.md} ${t.easings.enter}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
     },
   },
   /** 淡入并从略小放大到原尺寸：弹出框、菜单、对话框；缩放原点按弹出方向设置 transformOrigin */
@@ -41,12 +39,9 @@ export const transitions = stylex.create({
       ':modal': { default: 'none', '@starting-style': 'scale(0.96)' },
     },
     transition: {
-      default:
-        'opacity _durations.sm _easings.exit, transform _durations.sm _easings.exit, display _durations.sm allow-discrete, overlay _durations.sm allow-discrete',
-      ':popover-open':
-        'opacity _durations.md _easings.enter, transform _durations.md _easings.enter, display _durations.md allow-discrete, overlay _durations.md allow-discrete',
-      ':modal':
-        'opacity _durations.md _easings.enter, transform _durations.md _easings.enter, display _durations.md allow-discrete, overlay _durations.md allow-discrete',
+      default: `opacity ${t.durations.sm} ${t.easings.exit}, transform ${t.durations.sm} ${t.easings.exit}, display ${t.durations.sm} allow-discrete, overlay ${t.durations.sm} allow-discrete`,
+      ':popover-open': `opacity ${t.durations.md} ${t.easings.enter}, transform ${t.durations.md} ${t.easings.enter}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
+      ':modal': `opacity ${t.durations.md} ${t.easings.enter}, transform ${t.durations.md} ${t.easings.enter}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
     },
   },
   /** 模态遮罩淡入淡出，颜色取 colors.overlay */
@@ -57,10 +52,8 @@ export const transitions = stylex.create({
         ':modal': { default: '_overlay', '@starting-style': 'transparent' },
       },
       transition: {
-        default:
-          'background-color _durations.sm _easings.exit, display _durations.sm allow-discrete, overlay _durations.sm allow-discrete',
-        ':modal':
-          'background-color _durations.md _easings.enter, display _durations.md allow-discrete, overlay _durations.md allow-discrete',
+        default: `background-color ${t.durations.sm} ${t.easings.exit}, display ${t.durations.sm} allow-discrete, overlay ${t.durations.sm} allow-discrete`,
+        ':modal': `background-color ${t.durations.md} ${t.easings.enter}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
       },
     },
   },
@@ -70,15 +63,14 @@ export const transitions = stylex.create({
 export const interactionTransitions = stylex.create({
   /** 背景色、边框色、文字色、阴影在 durations.sm 内过渡 */
   colors: {
-    transition:
-      'background-color _durations.sm _easings.standard, border-color _durations.sm _easings.standard, color _durations.sm _easings.standard, box-shadow _durations.sm _easings.standard',
+    transition: `background-color ${t.durations.sm} ${t.easings.standard}, border-color ${t.durations.sm} ${t.easings.standard}, color ${t.durations.sm} ${t.easings.standard}, box-shadow ${t.durations.sm} ${t.easings.standard}`,
   },
 });
 
 /** 展开指示（chevron）的旋转过渡；旋转角度由各组件给（右指向下 90°，下指向上 180°） */
 export const disclosureStyles = stylex.create({
   /** 旋转在 durations.sm 内过渡 */
-  icon: { transition: 'rotate _durations.sm _easings.standard' },
+  icon: { transition: `rotate ${t.durations.sm} ${t.easings.standard}` },
 });
 
 /**
@@ -87,9 +79,9 @@ export const disclosureStyles = stylex.create({
  */
 export const presenceStyles = stylex.create({
   /** 进场 */
-  fade: { transition: 'opacity _durations.sm _easings.enter' },
+  fade: { transition: `opacity ${t.durations.sm} ${t.easings.enter}` },
   /** 离场：淡出 */
-  leaving: { opacity: 0, transition: 'opacity _durations.sm _easings.exit' },
+  leaving: { opacity: 0, transition: `opacity ${t.durations.sm} ${t.easings.exit}` },
 });
 
 /**

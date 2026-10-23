@@ -33,6 +33,7 @@ import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { FlexList, type FlexProps } from '../layout/Flex';
+import { t } from '../config/theme/tokens';
 
 /** 分组向里面的项要的信息：哪些项是当前页（有当前页时自动展开） */
 export interface NavGroupState {
@@ -59,7 +60,7 @@ export const navListStyles = stylex.create({
   // 当前页的颜色来自 itemStyles.current；悬停时也保持品牌色
   current: { color: { default: '_accentText', ':hover': '_accentText' } },
   disabled: { pointerEvents: 'none' },
-  chevron: { transition: 'transform _durations.md _easings.standard' },
+  chevron: { transition: `transform ${t.durations.md} ${t.easings.standard}` },
   chevronOpen: { transform: 'rotate(90deg)' },
   // 小节之间留出间隔，第一节贴着顶部
   section: { marginBlockStart: { default: '_lg', ':first-child': 0 } },

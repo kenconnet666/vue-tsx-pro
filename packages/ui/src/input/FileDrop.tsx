@@ -18,6 +18,7 @@ import { useLang } from '../config/context';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { useFieldControl } from '../form/Field';
+import { t } from '../config/theme/tokens';
 
 /** 文件是否符合 accept（`image/*`、`.pdf`、`application/json` 这样的逗号分隔列表）；accept 为空时都符合 */
 export function matchesAccept(file: File, accept: string | undefined): boolean {
@@ -90,8 +91,7 @@ export const fileDropStyles = stylex.create({
     color: '_text',
     textAlign: 'center',
     cursor: 'pointer',
-    transition:
-      'border-color _durations.sm _easings.standard, background-color _durations.sm _easings.standard',
+    transition: `border-color ${t.durations.sm} ${t.easings.standard}, background-color ${t.durations.sm} ${t.easings.standard}`,
   },
   dragging: { borderColor: '_accent', backgroundColor: '_accentSoft' },
   disabled: { opacity: '_disabled', cursor: 'not-allowed' },

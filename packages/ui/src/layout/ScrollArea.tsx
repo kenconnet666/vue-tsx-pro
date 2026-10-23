@@ -21,6 +21,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import { isRtl } from '../utils/dom/direction';
 import { batchLayout } from '../utils/dom/layout-batch';
 import { useResizeObserver } from '../utils/dom/resize';
+import { t } from '../config/theme/tokens';
 
 /** 哪个方向可以滚动 */
 export interface ScrollAreaAxes {
@@ -80,7 +81,7 @@ export const scrollAreaStyles = stylex.create({
     scrollbarWidth: 'none',
     '::-webkit-scrollbar': { display: 'none' },
     // 焦点环画在里面：外层 overflow: hidden 会裁掉画在外面的
-    outlineOffset: 'calc(-1 * _borderWidths.sm)',
+    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
   },
   y: { overflowX: 'hidden', overflowY: 'auto' },
   x: { overflowX: 'auto', overflowY: 'hidden' },
@@ -97,7 +98,7 @@ export const scrollAreaBarStyles = stylex.create({
     boxSizing: 'border-box',
     touchAction: 'none',
     userSelect: 'none',
-    transition: 'opacity _durations.md _easings.standard',
+    transition: `opacity ${t.durations.md} ${t.easings.standard}`,
   },
   hidden: { opacity: 0, pointerEvents: 'none' },
   // 整页的滚动条：隐藏时仍接收指针，指针移到窗口边缘就显示出来
@@ -108,25 +109,25 @@ export const scrollAreaBarStyles = stylex.create({
   y: {
     insetBlock: 0,
     insetInlineEnd: 0,
-    width: 'calc(_space.sm + 2 * _borderWidths.sm)',
+    width: `calc(${t.space.sm} + 2 * ${t.borderWidths.sm})`,
   },
   x: {
     insetInline: 0,
     bottom: 0,
-    height: 'calc(_space.sm + 2 * _borderWidths.sm)',
+    height: `calc(${t.space.sm} + 2 * ${t.borderWidths.sm})`,
   },
   // 两个方向都有时让出右下角，两条滚动条不重叠
-  yCorner: { bottom: 'calc(_space.sm + 2 * _borderWidths.sm)' },
-  xCorner: { insetInlineEnd: 'calc(_space.sm + 2 * _borderWidths.sm)' },
+  yCorner: { bottom: `calc(${t.space.sm} + 2 * ${t.borderWidths.sm})` },
+  xCorner: { insetInlineEnd: `calc(${t.space.sm} + 2 * ${t.borderWidths.sm})` },
   thumb: {
     position: 'absolute',
     borderRadius: '_full',
     // 半透明：浮在内容上也不完全遮住下面的文字
     backgroundColor: {
-      default: 'color-mix(in srgb, _textMuted 50%, transparent)',
-      ':hover': 'color-mix(in srgb, _textMuted 75%, transparent)',
+      default: `color-mix(in srgb, ${t.colors.textMuted} 50%, transparent)`,
+      ':hover': `color-mix(in srgb, ${t.colors.textMuted} 75%, transparent)`,
     },
-    transition: 'background-color _durations.sm _easings.standard',
+    transition: `background-color ${t.durations.sm} ${t.easings.standard}`,
   },
   thumbY: { top: 0, insetInline: '_borderWidths.sm' },
   thumbX: { insetInlineStart: 0, insetBlock: '_borderWidths.sm' },

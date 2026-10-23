@@ -3,6 +3,7 @@
  * 单独一个模块：只用静态表格时不连带打包 DataTable 的视图（虚拟滚动、勾选、排序……）。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { t } from '../config/theme/tokens';
 
 /** 表格的密度（行高与字号） */
 export interface DataTableDensities {
@@ -112,8 +113,8 @@ export const dataTableStyles = stylex.create({
   active: { backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' } },
   activeEdge: {
     boxShadow: {
-      default: 'inset 3px 0 0 _colors.accent',
-      ':dir(rtl)': 'inset -3px 0 0 _colors.accent',
+      default: `inset 3px 0 0 ${t.colors.accent}`,
+      ':dir(rtl)': `inset -3px 0 0 ${t.colors.accent}`,
     },
   },
   // 整行能点（打开详情）：手形指针

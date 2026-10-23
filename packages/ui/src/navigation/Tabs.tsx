@@ -28,6 +28,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { t } from '../config/theme/tokens';
 
 /** 标签的排列方向 */
 export interface TabsOrientations {
@@ -247,7 +248,7 @@ export const tabListStyles = stylex.create({
     left: 'auto',
     bottom: 'auto',
     top: 0,
-    insetInlineEnd: 'calc(-1 * _borderWidths.xs)',
+    insetInlineEnd: `calc(-1 * ${t.borderWidths.xs})`,
     width: '_borderWidths.sm',
     height: 0,
   },
@@ -330,7 +331,7 @@ export const tabStyles = stylex.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '_sm',
-    minHeight: 'max(_sizes.control, _sizes.minTarget)',
+    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     paddingInline: '_md',
     color: '_textMuted',
     fontWeight: '_medium',
@@ -340,7 +341,7 @@ export const tabStyles = stylex.create({
   // 下划线：当前标签的底边（竖排时是结束边）一条 2px 的品牌色线，压在列表的分隔线上
   line: {
     borderRadius: '_sm',
-    marginBottom: 'calc(-1 * _borderWidths.xs)',
+    marginBottom: `calc(-1 * ${t.borderWidths.xs})`,
     borderBottomWidth: '_sm',
     borderBottomStyle: 'solid',
     borderBottomColor: 'transparent',
@@ -348,7 +349,7 @@ export const tabStyles = stylex.create({
   lineVertical: {
     justifyContent: 'flex-start',
     marginBottom: 0,
-    marginInlineEnd: 'calc(-1 * _borderWidths.xs)',
+    marginInlineEnd: `calc(-1 * ${t.borderWidths.xs})`,
     borderBottomWidth: 0,
     borderInlineEndWidth: '_sm',
     borderInlineEndStyle: 'solid',

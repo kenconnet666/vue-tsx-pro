@@ -1,7 +1,7 @@
 import { Circle, Eraser, Hand, MousePointer2, Pencil, Square, Type } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, Flex, IconButton, Small, Toolbar, Tooltip, type IconData } from '@vue-tsx-pro/ui';
+import { Card, Flex, IconButton, Small, Toolbar, Tooltip, type IconData, t } from '@vue-tsx-pro/ui';
 
 const tools: [string, string, IconData][] = [
   ['select', '选择', MousePointer2],
@@ -19,8 +19,7 @@ const styles = stylex.create({
     minHeight: '16rem',
     borderRadius: '_md',
     backgroundColor: '_fill',
-    backgroundImage:
-      'linear-gradient(_colors.borderMuted 1px, transparent 1px), linear-gradient(90deg, _colors.borderMuted 1px, transparent 1px)',
+    backgroundImage: `linear-gradient(${t.colors.borderMuted} 1px, transparent 1px), linear-gradient(90deg, ${t.colors.borderMuted} 1px, transparent 1px)`,
     backgroundSize: '24px 24px',
   },
 });

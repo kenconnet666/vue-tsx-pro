@@ -21,6 +21,7 @@ import { compareNumeric, toNumber, type NumericValue } from '../utils/data/numer
 import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
+import { t } from '../config/theme/tokens';
 
 /** 角色与取值由组件管理 */
 export type ProgressManaged =
@@ -84,7 +85,7 @@ export const progressStyles = stylex.create({
     position: 'relative',
     overflow: 'hidden',
     width: '_full',
-    height: 'calc(_space.xs * 1.5)',
+    height: `calc(${t.space.xs} * 1.5)`,
     backgroundColor: '_fill',
     // Windows 高对比下系统把背景色改掉：轨道画一圈系统的文字色，进度用系统的高亮色（见 progressToneStyles）
     outlineStyle: { default: null, '@media (forced-colors: active)': 'solid' },
@@ -95,7 +96,7 @@ export const progressStyles = stylex.create({
     height: '_full',
     borderRadius: 'inherit',
     forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
-    transition: 'width _durations.md _easings.standard',
+    transition: `width ${t.durations.md} ${t.easings.standard}`,
   },
   // 不确定进度：一段 40% 宽的色块从起始边到结束边循环；它本身就是信息，不随 durations 变为 0，减少动态效果时变慢
   indeterminate: {

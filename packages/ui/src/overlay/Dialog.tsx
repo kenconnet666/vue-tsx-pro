@@ -10,6 +10,7 @@ import type { ContainerSizes } from '../layout/Container';
 import { useDefaults } from '../config/defaults';
 import { transitions } from '../utils/style/transitions';
 import { ModalCore, type ModalProps } from './ModalCore';
+import { t } from '../config/theme/tokens';
 
 /** 对话框的宽度档位，与 Container 相同（30–80rem），另加 full 占满视口 */
 export interface DialogSizes extends ContainerSizes {
@@ -39,11 +40,11 @@ export const dialogStyles = stylex.create({
 
 /** 对话框的宽度档位：不超出视口 */
 export const dialogSizeStyles = stylex.create({
-  xs: { maxWidth: 'min(_xs, calc(100vw - 2em))' },
-  sm: { maxWidth: 'min(_sm, calc(100vw - 2em))' },
-  md: { maxWidth: 'min(_md, calc(100vw - 2em))' },
-  lg: { maxWidth: 'min(_lg, calc(100vw - 2em))' },
-  xl: { maxWidth: 'min(_xl, calc(100vw - 2em))' },
+  xs: { maxWidth: `min(${t.sizes.xs}, calc(100vw - 2em))` },
+  sm: { maxWidth: `min(${t.sizes.sm}, calc(100vw - 2em))` },
+  md: { maxWidth: `min(${t.sizes.md}, calc(100vw - 2em))` },
+  lg: { maxWidth: `min(${t.sizes.lg}, calc(100vw - 2em))` },
+  xl: { maxWidth: `min(${t.sizes.xl}, calc(100vw - 2em))` },
 });
 
 /** 居中对话框的外观（Dialog、AlertDialog 共用）：宽度档位、圆角、淡入放大 */

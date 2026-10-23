@@ -16,6 +16,7 @@ import {
   TabList,
   Tabs,
   type DataTableColumn,
+  t,
 } from '@vue-tsx-pro/ui';
 import { AppShell } from '@vue-tsx-pro/ui/patterns';
 
@@ -69,7 +70,7 @@ const styles = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     gap: '_sm',
-    height: 'calc(100dvh - 3rem - 2 * _space.md)',
+    height: `calc(100dvh - 3rem - 2 * ${t.space.md})`,
     minHeight: '20rem',
   },
   table: { flexGrow: 1, minHeight: 0, maxHeight: 'none' },

@@ -35,6 +35,7 @@ import {
   type TextWrap,
   type Tone,
 } from '../utils/style/typography';
+import { t } from '../config/theme/tokens';
 
 /** 标题组件可用的标签 */
 export type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -89,7 +90,7 @@ export const headingStyles = stylex.create({
       ':focus-visible': 1,
       [stylex.when.ancestor(':hover', headingMarker)]: 1,
     },
-    transition: 'opacity _durations.sm _easings.standard',
+    transition: `opacity ${t.durations.sm} ${t.easings.standard}`,
   },
 });
 

@@ -24,6 +24,7 @@ import { clamp, snapToStep } from '../utils/data/number';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
+import { t } from '../config/theme/tokens';
 
 /** 滑块方向 */
 export interface SliderOrientations {
@@ -114,14 +115,14 @@ export const sliderStyles = stylex.create({
   // 点击区域至少 24px（WCAG 2.5.8）。滑块的中心对准取值，两端各留半个滑块的外边距：
   // 滑块在最小、最大值时不伸出组件的盒子，不压到旁边的控件
   horizontal: {
-    width: 'calc(100% - _space.lg - _space.xs)',
-    marginInline: 'calc((_space.lg + _space.xs) / 2)',
+    width: `calc(100% - ${t.space.lg} - ${t.space.xs})`,
+    marginInline: `calc((${t.space.lg} + ${t.space.xs}) / 2)`,
     minHeight: '_minTarget',
   },
   vertical: {
     flexDirection: 'column',
     height: '10em',
-    marginBlock: 'calc((_space.lg + _space.xs) / 2)',
+    marginBlock: `calc((${t.space.lg} + ${t.space.xs}) / 2)`,
     minWidth: '_minTarget',
   },
   // 刻度文字放在轨道下方（纵向时右侧），给它留出位置
@@ -136,16 +137,16 @@ export const sliderStyles = stylex.create({
     backgroundColor: '_fill',
     overflow: 'hidden',
   },
-  trackHorizontal: { height: 'calc(_space.xs * 1.5)' },
-  trackVertical: { width: 'calc(_space.xs * 1.5)' },
+  trackHorizontal: { height: `calc(${t.space.xs} * 1.5)` },
+  trackVertical: { width: `calc(${t.space.xs} * 1.5)` },
   range: { position: 'absolute', backgroundColor: 'var(--tone-fill)' },
   rangeHorizontal: { insetBlock: 0 },
   rangeVertical: { insetInline: 0 },
   thumb: {
     position: 'absolute',
     boxSizing: 'border-box',
-    width: 'calc(_space.lg + _space.xs)',
-    height: 'calc(_space.lg + _space.xs)',
+    width: `calc(${t.space.lg} + ${t.space.xs})`,
+    height: `calc(${t.space.lg} + ${t.space.xs})`,
     borderWidth: '_sm',
     borderStyle: 'solid',
     borderColor: 'var(--tone-fill)',
@@ -155,8 +156,8 @@ export const sliderStyles = stylex.create({
     cursor: 'grab',
   },
   // 用逻辑方向的外边距把滑块的中心对准取值位置：从右到左排版时也对
-  thumbHorizontal: { marginInlineStart: 'calc((_space.lg + _space.xs) / -2)' },
-  thumbVertical: { marginBottom: 'calc((_space.lg + _space.xs) / -2)' },
+  thumbHorizontal: { marginInlineStart: `calc((${t.space.lg} + ${t.space.xs}) / -2)` },
+  thumbVertical: { marginBottom: `calc((${t.space.lg} + ${t.space.xs}) / -2)` },
   // 轨道里的小圆点；在已选范围里时换成反色
   mark: {
     position: 'absolute',
@@ -178,10 +179,10 @@ export const sliderStyles = stylex.create({
     pointerEvents: 'none',
   },
   markLabelHorizontal: {
-    top: 'calc(50% + _space.sm)',
+    top: `calc(50% + ${t.space.sm})`,
     translate: { default: '-50% -0.75em', ':dir(rtl)': '50% -0.75em' },
   },
-  markLabelVertical: { left: 'calc(50% + _space.md)', translate: '0 50%' },
+  markLabelVertical: { left: `calc(50% + ${t.space.md})`, translate: '0 50%' },
 });
 
 // 位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4

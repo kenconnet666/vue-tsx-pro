@@ -22,6 +22,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
+import { t } from '../config/theme/tokens';
 
 /** 步骤条方向 */
 export interface StepsOrientations {
@@ -129,8 +130,7 @@ export const stepsStyles = stylex.create({
     fontSize: '0.93em',
     fontWeight: '_semibold',
     // 走到下一步时圆圈换色、连接线变色都过渡，不是一下跳过去
-    transition:
-      'background-color _durations.md _easings.standard, border-color _durations.md _easings.standard, color _durations.md _easings.standard',
+    transition: `background-color ${t.durations.md} ${t.easings.standard}, border-color ${t.durations.md} ${t.easings.standard}, color ${t.durations.md} ${t.easings.standard}`,
   },
   text: { display: 'grid', gap: '_xs', paddingTop: '0.3em', minWidth: 0 },
   title: { fontWeight: '_medium' },
@@ -142,20 +142,20 @@ export const stepsStyles = stylex.create({
     minWidth: '_space.lg',
     height: '_borderWidths.xs',
     backgroundColor: '_border',
-    transition: 'background-color _durations.md _easings.standard',
+    transition: `background-color ${t.durations.md} ${t.easings.standard}`,
   },
   // 竖排：从圆圈下面一直连到下一步的圆圈（圆圈宽 2 × 0.93em，中线在 0.93em）
   connectorVertical: {
     position: 'absolute',
     insetInlineStart: '0.93em',
-    insetBlockStart: 'calc(1.86em + _space.xs)',
-    insetBlockEnd: 'calc(-1 * _space.lg + _space.xs)',
+    insetBlockStart: `calc(1.86em + ${t.space.xs})`,
+    insetBlockEnd: `calc(-1 * ${t.space.lg} + ${t.space.xs})`,
     width: '_borderWidths.xs',
     height: 'auto',
     minWidth: 0,
     // 两端都定了位置时按 align-self 对齐：横排的 center 会让空的 span 缩成 0 高，这里要拉伸
     alignSelf: 'stretch',
-    marginInlineStart: 'calc(_borderWidths.xs / -2)',
+    marginInlineStart: `calc(${t.borderWidths.xs} / -2)`,
   },
   connectorDone: { backgroundColor: '_accent' },
 });

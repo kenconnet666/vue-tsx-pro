@@ -1,7 +1,7 @@
 // 画质、渲染分辨率与暂停；quality="off" 时不创建 WebGL，显示 fallback（没有 WebGL 时也是它）
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
 import { ShaderBackground, type ThreeQuality } from '@vue-tsx-pro/ui/three';
 
 const PLASMA = /* glsl */ `
@@ -18,7 +18,7 @@ const styles = stylex.create({
   // 静态的替代画面：同样的色调，一层 CSS 渐变
   fallback: {
     height: '100%',
-    backgroundImage: 'linear-gradient(120deg, _colors.accent, _colors.chart5 55%, _colors.chart6)',
+    backgroundImage: `linear-gradient(120deg, ${t.colors.accent}, ${t.colors.chart5} 55%, ${t.colors.chart6})`,
     opacity: 0.6,
   },
 });

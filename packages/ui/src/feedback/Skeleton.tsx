@@ -16,6 +16,7 @@ import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
 import { shimmerVars } from '../utils/style/vars.stylex';
+import { t } from '../config/theme/tokens';
 
 /** 骨架的常用形状 */
 export interface SkeletonVariants {
@@ -60,7 +61,7 @@ export const skeletonStyles = stylex.create({
     borderRadius: '_sm',
     // 底色与光带都是半透明的正文色：叠在任何表面（页面、卡片、浮层）上都比表面深一档（暗色主题里浅一档），
     // 十二套主题不必各调一遍；光带叠在底色上，再深一档
-    [shimmerVars.highlight]: 'color-mix(in oklab, _colors.text 9%, transparent)',
+    [shimmerVars.highlight]: `color-mix(in oklab, ${t.colors.text} 9%, transparent)`,
     pointerEvents: 'none',
     userSelect: 'none',
   },
@@ -68,7 +69,7 @@ export const skeletonStyles = stylex.create({
   // Windows 高对比下系统把背景色改掉，占位块就看不见了：用系统的灰色文字色
   surface: {
     backgroundColor: {
-      default: 'color-mix(in oklab, _colors.text 9%, transparent)',
+      default: `color-mix(in oklab, ${t.colors.text} 9%, transparent)`,
       '@media (forced-colors: active)': 'GrayText',
     },
     forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
@@ -85,7 +86,7 @@ export const skeletonVariantStyles = stylex.create({
   circle: { width: '2.5em', height: '2.5em', flexShrink: 0, borderRadius: '_full' },
   button: {
     width: '6em',
-    height: 'max(_sizes.control, _sizes.minTarget)',
+    height: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     flexShrink: 0,
     borderRadius: '_md',
   },

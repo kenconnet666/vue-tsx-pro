@@ -14,6 +14,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { Tab, TabList, TabPanel, Tabs, type TabListProps } from '../navigation/Tabs';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { t } from '../config/theme/tokens';
 
 /** 一组代码里的一段 */
 export interface CodeGroupItem extends Omit<CodeBlockProps, 'title'> {
@@ -45,7 +46,7 @@ export const codeGroupStyles = stylex.create({
     overflow: 'hidden',
   },
   list: { paddingInline: '_sm', backgroundColor: '_surfaceMuted', fontSize: '_sm' },
-  panel: { outlineOffset: 'calc(-1 * _borderWidths.sm)' },
+  panel: { outlineOffset: `calc(-1 * ${t.borderWidths.sm})` },
   block: { borderWidth: 0, borderRadius: 0 },
 });
 

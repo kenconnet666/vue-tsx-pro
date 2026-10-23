@@ -20,6 +20,7 @@ import type { VNodeChild } from 'vue';
 import { clamp } from '../utils/data/number';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { t } from '../config/theme/tokens';
 
 /** 描述列表里的一项 */
 export interface DescriptionItem {
@@ -100,8 +101,8 @@ export const descriptionsStyles = stylex.create({
     alignItems: 'stretch',
     gap: 0,
     // 每格的上、起始边画线，外框由 dl 画；第一行、第一列的线被 dl 的边框盖住
-    marginBlockStart: 'calc(-1 * _borderWidths.xs)',
-    marginInlineStart: 'calc(-1 * _borderWidths.xs)',
+    marginBlockStart: `calc(-1 * ${t.borderWidths.xs})`,
+    marginInlineStart: `calc(-1 * ${t.borderWidths.xs})`,
     borderBlockStartWidth: '_xs',
     borderInlineStartWidth: '_xs',
     borderBlockStartStyle: 'solid',
