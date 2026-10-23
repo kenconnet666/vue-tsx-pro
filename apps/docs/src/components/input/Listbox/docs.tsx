@@ -15,7 +15,7 @@ export const meta = {
   title: 'Listbox 列表框',
   description:
     '常驻在页面上的选项列表：表格显示哪些列、穿梭框的一侧、设置里的单选。一千个选项也只渲染看得见的几十个。',
-  order: 8,
+  order: 9,
 };
 
 export default _component(() => () => (

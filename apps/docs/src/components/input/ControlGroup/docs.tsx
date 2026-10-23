@@ -12,7 +12,7 @@ export const meta = {
   title: 'ControlGroup 组合输入',
   description:
     '输入框、选择框、按钮连成一条、共用边框：币种 + 金额、搜索范围 + 关键词 + 搜索、协议 + 域名。',
-  order: 13,
+  order: 14,
 };
 
 export default _component(() => () => (

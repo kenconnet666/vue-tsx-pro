@@ -13,7 +13,7 @@ export const meta = {
   title: 'TreeSelect 树形选择',
   description:
     '触发框同 Select，弹出的是一棵树：组织机构、产品结构、物料分类。单选一个节点，或勾选多个（父子联动），可以搜索。',
-  order: 5,
+  order: 6,
 };
 
 export default _component(() => () => (

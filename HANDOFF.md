@@ -17,7 +17,7 @@
   - 反馈：Progress（条形 / 环形）、Skeleton、Alert、Banner、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay
   - 浮层：Dialog / Drawer / AlertDialog（共用 ModalCore，onConfirm 给出“取消 / 确认”与等待；useConfirm，可带理由）、Popover、Popconfirm、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
   - 导航：Toolbar、Tabs、Steps、Breadcrumbs、Pagination（PageSizeSelect、PageJump、Pager）、NavList、TableOfContents、SkipLink
-  - 输入：TextField、Textarea、NumberField / NumberRangeField、ColorField、Checkbox / Radio / Switch、Listbox、Select、Combobox、Autocomplete、TreeSelect、TagsInput、FileDrop / Upload、Slider、ToggleGroup、ControlGroup
+  - 输入：TextField、Textarea、NumberField / NumberRangeField、ColorField、Checkbox / Radio / Switch、Listbox、Select、Combobox、Autocomplete、OtpField、TreeSelect、TagsInput、FileDrop / Upload、Slider、ToggleGroup、ControlGroup
   - 日期：Calendar、RangeCalendar、DateField、TimeField、DatePicker（年、月、日期时间）、TimePicker、DateRangePicker、RelativeTime、DateTime、Countdown（`@internationalized/date`，值可以是 ISO 字符串或 DateValue）
   - 表格：Table 家族、DataTable（始终虚拟滚动；排序、勾选、固定列、列宽、滚动加载、activeKey）、TreeDataTable、useTableQuery、tableToCsv
   - 表单（form/）：Field（labelHidden）、Label、Form、FormSection、FormValue、useForm（zod；decimalSchema / bigintSchema）、useLeaveConfirmation

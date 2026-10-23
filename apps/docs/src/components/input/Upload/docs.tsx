@@ -16,7 +16,7 @@ export const meta = {
   title: 'Upload 上传',
   description:
     '选文件、看进度、失败重试：Upload 管列表与状态，怎么上传由 upload 函数决定；FileDrop 是只负责选文件的拖放区域。',
-  order: 12,
+  order: 13,
 };
 
 export default _component(() => () => (

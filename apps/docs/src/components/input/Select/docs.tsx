@@ -16,7 +16,7 @@ export const meta = {
   title: 'Select 下拉选择',
   description:
     '点开一列选项选一个或几个，同原生 select 的交互。要边输入边筛选用 Combobox，输入多个标签用 TagsInput，平铺在页面上用 Listbox。',
-  order: 4,
+  order: 5,
 };
 
 export default _component(() => () => (

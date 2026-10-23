@@ -13,7 +13,7 @@ export const meta = {
   title: 'Combobox 输入选择',
   description:
     '边输入边筛选的下拉框：选项多时先打几个字缩小范围；可以远程搜索，也可以允许输入选项之外的文字。',
-  order: 5,
+  order: 6,
 };
 
 export default _component(() => () => (

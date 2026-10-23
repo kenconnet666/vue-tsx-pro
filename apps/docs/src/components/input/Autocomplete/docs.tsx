@@ -13,7 +13,7 @@ export const meta = {
   title: 'Autocomplete 自动完成',
   description:
     '带建议的输入框：值就是输入的文字，列表只是建议（邮箱后缀、常用地址、供应商名称），选一项就是把它填进来。',
-  order: 6,
+  order: 7,
 };
 
 export default _component(() => () => (

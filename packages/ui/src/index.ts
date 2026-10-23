@@ -657,6 +657,13 @@ export {
   type NumberRangeFieldProps,
 } from './input/NumberRangeField';
 export {
+  OtpField,
+  otpFieldStyles,
+  type OtpCharsets,
+  type OtpFieldManaged,
+  type OtpFieldProps,
+} from './input/OtpField';
+export {
   Radio,
   RadioGroup,
   RadioGroupContext,

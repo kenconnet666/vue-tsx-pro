@@ -16,7 +16,7 @@ export const meta = {
   title: 'ColorField 颜色输入',
   description:
     '颜色输入：色块点开原生取色器，后面可以直接输入颜色值；ColorSwatch 列出一块颜色与它的名称、取值（调色板、设计 token）。',
-  order: 11,
+  order: 12,
 };
 
 export default _component(() => () => (
