@@ -1076,6 +1076,7 @@ export {
   DataTableRow,
   dataTableRowToneStyles,
   DataTableView,
+  rowLabel,
   type DataTableDetailRowProps,
   type DataTableHandle,
   type DataTableRowModel,

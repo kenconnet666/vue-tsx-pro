@@ -589,7 +589,10 @@ export const DataTableRow = _component(
 );
 
 /** 行的名称（展开按钮用）：第一列的文字，没有时用行的 key */
-function rowLabel<T>(columns: readonly DataTableColumn<T>[], row: DataTableRowModel<T>): string {
+export function rowLabel<T>(
+  columns: readonly DataTableColumn<T>[],
+  row: DataTableRowModel<T>,
+): string {
   const first = columns[0] ? columnValue(columns[0], row.data) : undefined;
   return first != null && first !== '' ? String(first) : row.key;
 }

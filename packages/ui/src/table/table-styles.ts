@@ -179,6 +179,23 @@ export const dataTableStyles = stylex.create({
   // 靠结束边的列（数字）：文字靠结束边，按钮仍在最后
   headerMainEnd: { textAlign: 'end' },
   leading: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
+  // 行拖动的把手：在第一个数据列的最前面，按下拖动，或聚焦后用键盘
+  rowHandle: {
+    display: 'grid',
+    placeItems: 'center',
+    flexShrink: 0,
+    width: '1.5em',
+    height: '1.5em',
+    marginBlock: '-0.25em',
+    borderRadius: '_sm',
+    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    color: '_textMuted',
+    cursor: { default: 'grab', ':active': 'grabbing' },
+    // 触摸拖动时不滚动页面
+    touchAction: 'none',
+  },
+  // 正在拖动的行：浮在别的行上面
+  rowDragging: { position: 'relative', zIndex: 1, boxShadow: '_md' },
   content: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' },
   spacer: { padding: 0, borderWidth: 0 },
   progressCell: { position: 'relative', height: 0, padding: 0, borderWidth: 0 },

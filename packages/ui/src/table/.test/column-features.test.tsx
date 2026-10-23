@@ -114,6 +114,43 @@ describe('多列排序与筛选的纯函数', () => {
   });
 });
 
+describe('DataTable 的行拖动', () => {
+  const key = (element: HTMLElement, name: string) =>
+    element.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true }));
+
+  it('把手在第一列前面：空格拿起、↓ 移动、空格放下，onReorder 得到新顺序；排序时没有把手', async () => {
+    let rows = _state(orders);
+    let sort = _state<SortState | null>(null);
+    const root = mount(() => (
+      <DataTable
+        rows={rows}
+        columns={columns}
+        getKey={(order) => order.id}
+        sort={_bind(sort)}
+        onReorder={(next) => (rows = next)}
+        aria-label="订单"
+      />
+    ));
+    await flush();
+    const handle = root.querySelector<HTMLButtonElement>('button[aria-label="移动 o1"]')!;
+    expect(
+      document.getElementById(handle.getAttribute('aria-describedby')!)!.textContent,
+    ).toContain('按空格拿起');
+    handle.focus();
+    key(handle, ' ');
+    await flush();
+    key(handle, 'ArrowDown');
+    await flush();
+    key(handle, ' ');
+    await flush();
+    expect(rows.map((order) => order.id)).toEqual(['o2', 'o1', 'o3', 'o4']);
+
+    sort = { key: 'amount', direction: 'ascending' };
+    await flush();
+    expect(root.querySelector('button[aria-label^="移动"]')).toBeNull();
+  });
+});
+
 describe('DataTable 的表头筛选、多列排序与列菜单', () => {
   const ids = (root: Element) =>
     [...root.querySelectorAll('tbody tr[aria-rowindex]')].map(

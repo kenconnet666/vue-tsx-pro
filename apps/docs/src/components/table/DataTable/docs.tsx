@@ -19,6 +19,7 @@ import MasterDetail from './demo/MasterDetail.tsx?demo';
 import Org from './demo/Org.tsx?demo';
 import Orders from './demo/Orders.tsx?demo';
 import Pick from './demo/Pick.tsx?demo';
+import Priority from './demo/Priority.tsx?demo';
 import Proposals from './demo/Proposals.tsx?demo';
 import States from './demo/States.tsx?demo';
 import { ExampleColumn, Examples } from '../../../site/Examples';
@@ -53,6 +54,10 @@ export default _component(() => () => (
       在列标题结尾放 ⋮：排序、固定在开头 / 结尾、前后移动、隐藏，写回 <Code>columnPins</Code>、
       <Code>columnOrder</Code>、<Code>hiddenColumns</Code>
       ，都能双向绑定、存起来（这里记在浏览器里，刷新后还在）。
+    </Example>
+    <Example id="reorder" title="需求排期：拖动行" demo={Priority}>
+      给了 <Code>onReorder</Code> 时第一列前面有把手：按下拖动，或聚焦后空格拿起、↑↓
+      移动、空格放下（每一步读屏都会播报），拖完得到新的顺序。排序、筛选时显示的顺序不是数据的顺序，把手收起，取消后又能拖。
     </Example>
     <Example id="ledger" title="降本台账：合计、状态与批量操作" demo={Ledger}>
       列的 <Code>summary</Code> 写 <Code>'sum'</Code> 时底部多一行吸底的合计（Decimal

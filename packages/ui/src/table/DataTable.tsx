@@ -17,6 +17,8 @@
  * - 排序：点可排序的列标题在 升序 → 降序 → 不排 之间切换；默认在本地排（createComparer：数字、日期、按语言的文字），
  *   manualSort 时只写回 sort，由调用方向服务端要排好序的数据。multiSort 时排序写在 sorts（几列），按住 Shift 点是追加一列。
  * - 表头筛选：列写 filter 时列标题上有筛选按钮，filters 是各列选中的值（可以双向绑定）；默认在本地筛，manualFilter 时只写回。
+ * - 行拖动：给了 onReorder 时第一个数据列前面有把手，拖动（或聚焦后空格拿起、↑↓ 移动）改变行的顺序；
+ *   排序、筛选时显示的顺序不是数据的顺序，这时不能拖。
  * - 列菜单：columnMenu 时列标题结尾有 ⋮（排序、固定在开头 / 结尾、前后移动、隐藏），
  *   写回 columnPins、columnOrder、hiddenColumns（都可以双向绑定，存起来记住各人的列设置）。
  * - 选择：selectionMode 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
@@ -29,12 +31,19 @@
  * - 状态列：列写 statuses（createStatusMap）时显示成 StatusBadge；rowTone 给整行着色（导入校验的错误行）。
  * - 工具栏（查询条件用 FilterBar、批量操作用 SelectionBar、分页用 PaginationBar）组合在外面，不内置。
  */
+import { GripVertical } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
+import { useId } from 'vue';
+import { ButtonBase } from '../base/ButtonBase';
+import { Icon } from '../base/Icon';
+import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
+import { useSortable } from '../utils/dom/sortable';
 import { useDefaults } from '../config/defaults';
-import { mergePartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps } from '../utils/props';
 import { toggleSelection } from '../utils/data/selection';
 import {
+  sortList,
   arrangeColumns,
   columnFilter,
   filterOptions,
@@ -47,7 +56,13 @@ import {
   type SortState,
 } from './columns';
 import type { ColumnMenuActions } from './ColumnHeaderActions';
-import { DataTableView, type DataTableRowModel, type DataTableViewProps } from './DataTableView';
+import {
+  DataTableView,
+  rowLabel,
+  type DataTableRowModel,
+  type DataTableViewProps,
+} from './DataTableView';
+import { dataTableStyles } from './table-styles';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
 export interface DataTableProps<T> extends Omit<
@@ -90,6 +105,8 @@ export interface DataTableProps<T> extends Omit<
   columnOrder?: string[];
   /** 固定的列：key → start / end（null 取消列定义里的固定），列菜单写回 */
   columnPins?: Record<string, keyof ColumnStickies | null>;
+  /** 行拖动：给了它时每行前面有把手，拖完得到新的顺序（排序、筛选时不能拖） */
+  onReorder?: (rows: T[]) => void;
   /** 已选行的 key：父级写 selected={_bind(keys)} */
   selected?: string[];
   /** 各列调整后的宽度（px）：父级可以写 columnWidths={_bind(x)} 保存起来 */
@@ -113,6 +130,9 @@ export const DataTable = _component(
     hiddenColumns = _bindable<string[]>([]),
     columnOrder = _bindable<string[]>([]),
     columnPins = _bindable<Record<string, keyof ColumnStickies | null>>({}),
+    onReorder,
+    leading,
+    propsRow,
     selectionMode,
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
@@ -146,6 +166,38 @@ export const DataTable = _component(
         ),
     );
     const arranged = _derived(arrangeColumns(columns, columnOrder, columnPins));
+
+    // 行拖动：排序、筛选时显示的顺序不是数据的顺序，不能拖
+    const tableMarker = useId();
+    const reorderable = () =>
+      !!onReorder &&
+      sortList(activeSort()).length === 0 &&
+      !Object.values(filters).some((values) => values.length > 0);
+    const sortable = useSortable<DataTableRowModel<T>>({
+      items: () => models,
+      getKey: (row) => row.key,
+      getLabel: (row) => rowLabel(columns, row),
+      onChange: (next) => onReorder?.(next.map((row) => row.data)),
+      container: () => document.querySelector(`[data-reorder="${tableMarker}"]`),
+      disabled: () => !reorderable(),
+    });
+
+    /** 第一个数据列前面：拖动的把手，再是使用方的 leading */
+    function renderLeading(row: DataTableRowModel<T>, index: number) {
+      return (
+        <>
+          <ButtonBase
+            sx={dataTableStyles.rowHandle}
+            ripple={false}
+            aria-label={lang.sortableHandle(rowLabel(columns, row))}
+            {...sortable.handleProps(row.key)}
+          >
+            <Icon icon={GripVertical} />
+          </ButtonBase>
+          {leading?.(row, index)}
+        </>
+      );
+    }
 
     function onSortClick(key: string, event: MouseEvent) {
       if (multiSort) sorts = nextSorts(sorts, key, event.shiftKey);
@@ -212,39 +264,67 @@ export const DataTable = _component(
     }
 
     return () => (
-      <DataTableView
-        {...mergePartProps<DataTableViewProps<T>>(
-          {
-            rows: models,
-            columns: arranged,
-            widths: columnWidths,
-            ...appearance(),
-          },
-          rest as Partial<DataTableViewProps<T>>,
-          {
-            rows: models,
-            columns: arranged,
-            sort: activeSort(),
-            onSortClick,
-            filters,
-            onFilterChange: (key: string, values: string[]) =>
-              (filters = { ...filters, [key]: values }),
-            filterOptionsOf: (column) => options.get(column.key) ?? ([] as ColumnFilterOption[]),
-            hiddenColumns,
-            onColumnAction,
-            selectionMode,
-            isRowSelectable,
-            selectedKeys: selected,
-            onToggleRow: toggleRow,
-            onToggleAll: toggleAll,
-            widths: columnWidths,
-            onResize: (key: string, width: number) =>
-              (columnWidths = { ...columnWidths, [key]: width }),
-            expandedRows,
-            onToggleDetail: toggleDetail,
-          },
+      <>
+        <DataTableView
+          {...mergePartProps<DataTableViewProps<T>>(
+            {
+              rows: models,
+              columns: arranged,
+              widths: columnWidths,
+              ...appearance(),
+            },
+            rest as Partial<DataTableViewProps<T>>,
+            {
+              rows: models,
+              columns: arranged,
+              sort: activeSort(),
+              onSortClick,
+              filters,
+              onFilterChange: (key: string, values: string[]) =>
+                (filters = { ...filters, [key]: values }),
+              filterOptionsOf: (column) => options.get(column.key) ?? ([] as ColumnFilterOption[]),
+              hiddenColumns,
+              onColumnAction,
+              leading: reorderable() ? renderLeading : leading,
+              propsRow: (row: T, index: number) =>
+                mergeAttrs<'tr'>(
+                  {},
+                  typeof propsRow === 'function' ? propsRow(row, index) : propsRow,
+                  reorderable()
+                    ? {
+                        ...sortable.itemProps(models[index]!.key),
+                        sx:
+                          sortable.active === models[index]!.key
+                            ? dataTableStyles.rowDragging
+                            : undefined,
+                      }
+                    : {},
+                ),
+              ...({ 'data-reorder': onReorder ? tableMarker : undefined } as Partial<
+                DataTableViewProps<T>
+              >),
+              selectionMode,
+              isRowSelectable,
+              selectedKeys: selected,
+              onToggleRow: toggleRow,
+              onToggleAll: toggleAll,
+              widths: columnWidths,
+              onResize: (key: string, width: number) =>
+                (columnWidths = { ...columnWidths, [key]: width }),
+              expandedRows,
+              onToggleDetail: toggleDetail,
+            },
+          )}
+        />
+        {onReorder && (
+          <>
+            <VisuallyHidden id={sortable.instructionsId}>
+              {lang.sortableInstructions}
+            </VisuallyHidden>
+            <VisuallyHidden aria-live="assertive">{sortable.announcement}</VisuallyHidden>
+          </>
         )}
-      />
+      </>
     );
   },
 );
