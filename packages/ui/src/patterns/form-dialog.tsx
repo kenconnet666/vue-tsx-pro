@@ -15,8 +15,7 @@
  * 对话框渲染在组件树之外，沿用调用处的主题、语言（同 useConfirm）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import type { VNodeChild } from 'vue';
-import { Button } from '../base/Button';
+import { useId, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { DatePicker } from '../date/DatePicker';
 import { Field } from '../form/Field';
@@ -103,8 +102,10 @@ const FormDialogBody = _component(
       ),
     );
     let errors = _state<Record<string, string>>({});
-    let pending = _state(false);
+    // 确认按钮是这个表单的提交按钮：在输入框里按 Enter 也是确认（浏览器的隐式提交会点它）
+    const formId = useId();
 
+    /** 对话框的确认：校验没过返回 false（对话框留着）；onSubmit 失败时对话框也留着 */
     async function confirm() {
       const trimmed = Object.fromEntries(
         Object.entries(values).map(([name, value]) => [name, value.trim()]),
@@ -119,17 +120,9 @@ const FormDialogBody = _component(
           })
           .filter(([, message]) => message),
       );
-      if (Object.keys(errors).length > 0) return;
-      pending = true;
-      try {
-        await options.onSubmit?.(trimmed);
-        onDone(trimmed);
-        open = false;
-      } catch {
-        // 失败时对话框留着：调用方在 onSubmit 里提示原因
-      } finally {
-        pending = false;
-      }
+      if (Object.keys(errors).length > 0) return false;
+      await options.onSubmit?.(trimmed);
+      onDone(trimmed);
     }
 
     const control = (field: FormDialogField, autofocus: boolean) => {
@@ -191,31 +184,12 @@ const FormDialogBody = _component(
         onClose={() => onClose()}
         title={options.title}
         description={options.description}
-        // 提交中不能关：结果还没回来
-        dismissible={!pending}
-        beforeClose={() => !pending}
-        footer={
-          <Flex justify="end" gap="sm">
-            <Button
-              variant="ghost"
-              tone="neutral"
-              disabled={pending}
-              onClick={() => (open = false)}
-            >
-              {lang.cancel}
-            </Button>
-            <Button tone={options.tone} loading={pending} onClick={() => void confirm()}>
-              {options.confirmText ?? lang.confirm}
-            </Button>
-          </Flex>
-        }
+        tone={options.tone}
+        confirmText={options.confirmText}
+        onConfirm={confirm}
+        propsConfirm={{ type: 'submit', form: formId }}
       >
-        <form
-          onSubmit={(event: Event) => {
-            event.preventDefault();
-            void confirm();
-          }}
-        >
+        <form id={formId} onSubmit={(event: Event) => event.preventDefault()}>
           <Flex direction="column" gap="md">
             {options.fields.map((field, index) => (
               <Field

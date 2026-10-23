@@ -6,21 +6,28 @@
  * （原生的 closedby="any" 到 2026 年 Safari 仍不支持，所以仍用 dismissOnBackdrop）。
  * 初始焦点：浏览器聚焦第一个可聚焦元素，有 autofocus 的优先（参考 Radix Dialog、React Aria Modal）。
  *
+ * 写了 onConfirm 时页脚有“取消 / 确认”两个按钮（在 footer 之后）：确认返回 Promise 时按钮加载中、这期间关不掉，
+ * 完成后关闭；返回 false 或失败时保持打开（同 Ant Design Modal 的 onOk）。表单在正文里时，确认按钮写
+ * propsConfirm={{ type: 'submit', form: 表单的 id }}，在输入框里按 Enter 也是确认。
+ *
  * 部件：Header（标题行，Flex）、Title（H2）、Close（CloseButton）、Description（Paragraph）、
- * Body（ScrollArea：内容长时只滚正文，标题与页脚固定）、Footer（Flex，靠结束边排列）。
+ * Body（ScrollArea：内容长时只滚正文，标题与页脚固定）、Footer（Flex，靠结束边排列）、Cancel、Confirm（Button，写了 onConfirm 时）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
+import { Button, type ButtonProps } from '../base/Button';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { H2, type HeadingProps } from '../base/Heading';
 import { Paragraph, type TextProps } from '../base/Text';
+import { useLang } from '../config/context';
 import { Flex, type FlexProps } from '../layout/Flex';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { openModalDialog } from '../utils/dom/overlay';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import type { StatusTone } from '../utils/style/tone-styles';
 import { transitions } from '../utils/style/transitions';
 
 /** 打开、关闭与无障碍关联由组件管理；原生的 title 属性（悬停提示）让给标题 */
@@ -46,6 +53,22 @@ export interface ModalProps extends PartProps<'dialog', ModalManaged>, LazyConte
    * 如表单有未保存的改动时先确认。父级把 open 改成 false 不经过它
    */
   beforeClose?: () => boolean | Promise<boolean>;
+  /**
+   * 确认：写了就在页脚（footer 之后）放“取消”与“确认”两个按钮。返回 Promise 时确认按钮加载中，
+   * 取消、Esc、遮罩、关闭按钮暂不可用，完成后关闭；返回 false（或 resolve 成 false）、失败（reject）时保持打开，
+   * 校验没过、提交失败由调用方提示原因
+   */
+  onConfirm?: () => unknown;
+  /** 确认按钮的文字，默认取语言包（确定） */
+  confirmText?: VNodeChild;
+  /** 取消按钮的文字，默认取语言包（取消） */
+  cancelText?: VNodeChild;
+  /** 确认按钮的色调，默认 accent；删除、驳回这类破坏性操作用 danger */
+  tone?: StatusTone;
+  /** 确认按钮的部件属性（表单的 type="submit" 与 form 写在这里） */
+  propsConfirm?: Partial<ButtonProps>;
+  /** 取消按钮的部件属性 */
+  propsCancel?: Partial<ButtonProps>;
   /** 标题行的部件属性 */
   propsHeader?: Partial<FlexProps>;
   /** 标题的部件属性 */
@@ -112,6 +135,12 @@ export const ModalCore = _component(
     closable = true,
     dismissible = true,
     beforeClose,
+    onConfirm,
+    confirmText,
+    cancelText,
+    tone = 'accent',
+    propsConfirm,
+    propsCancel,
     panelSx,
     role,
     propsHeader,
@@ -126,6 +155,7 @@ export const ModalCore = _component(
     children,
     ...rest
   }: ModalCoreProps) => {
+    const lang = useLang();
     const id = useId();
     const showContent = useLazyContent(
       () => open,
@@ -135,10 +165,27 @@ export const ModalCore = _component(
     const descriptionId = `${id}-description`;
     let dialog = _state.raw<HTMLDialogElement | null>(null);
     let release: (() => void) | undefined;
+    // 等确认的结果：这期间关不掉
+    let pending = _state(false);
 
     /** 用户要关闭：先问 beforeClose，同意了才关 */
     async function requestClose() {
-      if (beforeClose && !(await beforeClose())) return;
+      if (pending || (beforeClose && !(await beforeClose()))) return;
+      dialog?.close();
+    }
+
+    async function confirm() {
+      if (pending) return;
+      pending = true;
+      try {
+        if ((await onConfirm?.()) === false) return;
+      } catch (error) {
+        // 调用方负责提示失败原因；这里只保持打开，并留下记录
+        console.error('对话框的 onConfirm 失败，保持打开', error);
+        return;
+      } finally {
+        pending = false;
+      }
       dialog?.close();
     }
 
@@ -150,9 +197,9 @@ export const ModalCore = _component(
       });
     }
 
-    // Esc：原生 dialog 先发 cancel；有 beforeClose 时拦下来，问过再关
+    // Esc：原生 dialog 先发 cancel；等确认时不关，有 beforeClose 时拦下来，问过再关
     function onCancel(event: Event) {
-      if (!beforeClose) return;
+      if (!pending && !beforeClose) return;
       event.preventDefault();
       void requestClose();
     }
@@ -178,7 +225,7 @@ export const ModalCore = _component(
           ref: _toRef(dialog),
           role,
           'aria-labelledby': titleId,
-          'aria-describedby': description != null ? descriptionId : undefined,
+          'aria-describedby': hasContent(description) ? descriptionId : undefined,
           onClose,
           onCancel,
         })}
@@ -199,12 +246,13 @@ export const ModalCore = _component(
           {closable && (
             <CloseButton
               {...mergePartProps<PresetIconButtonProps>({ sx: modalStyles.close }, propsClose, {
+                disabled: pending,
                 onClick: () => void requestClose(),
               })}
             />
           )}
         </Flex>
-        {description != null && (
+        {hasContent(description) && (
           <Paragraph
             {...mergePartProps<TextProps>(
               { sx: [contentSx, modalStyles.description] },
@@ -225,7 +273,7 @@ export const ModalCore = _component(
         >
           {showContent() && children}
         </ScrollArea>
-        {footer != null && (
+        {(hasContent(footer) || onConfirm) && (
           <Flex
             {...mergePartProps<FlexProps>(
               { justify: 'end', gap: 'sm', wrap: true, sx: [contentSx, modalStyles.footer] },
@@ -233,6 +281,30 @@ export const ModalCore = _component(
             )}
           >
             {footer}
+            {onConfirm && (
+              <>
+                <Button
+                  {...mergePartProps<ButtonProps>(
+                    { variant: 'soft', tone: 'neutral' },
+                    propsCancel,
+                    {
+                      disabled: pending,
+                      onClick: () => void requestClose(),
+                    },
+                  )}
+                >
+                  {cancelText ?? lang.cancel}
+                </Button>
+                <Button
+                  {...mergePartProps<ButtonProps>({ tone }, propsConfirm, {
+                    loading: pending,
+                    onClick: () => void confirm(),
+                  })}
+                >
+                  {confirmText ?? lang.confirm}
+                </Button>
+              </>
+            )}
           </Flex>
         )}
         {edge}

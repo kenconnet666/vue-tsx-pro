@@ -23,6 +23,8 @@ const input = (element: HTMLInputElement | HTMLTextAreaElement, value: string) =
   element.value = value;
   element.dispatchEvent(new Event('input', { bubbles: true }));
 };
+/** 确认是异步的（对话框等 onConfirm 的结果）：等它走完再看 */
+const settle = () => new Promise((resolve) => setTimeout(resolve));
 const buttonOf = (dialog: Element, text: string) =>
   [...dialog.querySelectorAll('button')].find((button) => button.textContent === text)!;
 
@@ -46,7 +48,7 @@ describe('useFormDialog', () => {
     expect(dialog.querySelector('textarea')).not.toBeNull();
     expect(dialog.querySelectorAll('input')).toHaveLength(1);
     buttonOf(dialog, '退回').click();
-    await nextTick();
+    await settle();
     expect(dialog.textContent).toContain('必填');
     expect(onSubmit).not.toHaveBeenCalled();
   });
@@ -68,11 +70,11 @@ describe('useFormDialog', () => {
     const field = dialog.querySelector('input')!;
     input(field, ' 太忙 ');
     buttonOf(dialog, '确定').click();
-    await nextTick();
+    await settle();
     expect(dialog.textContent).toContain('至少写 4 个字');
     input(field, '  手上有三件超时的  ');
     buttonOf(dialog, '确定').click();
-    await nextTick();
+    await settle();
     expect(onSubmit).toHaveBeenCalledWith({ reason: '手上有三件超时的' });
   });
 
@@ -85,7 +87,7 @@ describe('useFormDialog', () => {
     });
     expect(dialog.querySelectorAll('[role="spinbutton"]').length).toBeGreaterThanOrEqual(3);
     buttonOf(dialog, '确定').click();
-    await nextTick();
+    await settle();
     expect(onSubmit).toHaveBeenCalledWith({ due: '2026-12-31' });
   });
 

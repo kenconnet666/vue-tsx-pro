@@ -1,3 +1,4 @@
+// 编辑表单：onConfirm 给出“取消 / 保存”，保存时按钮加载中、关不掉；姓名没填时返回 false，对话框留着
 import { Pencil } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
@@ -15,10 +16,11 @@ import {
 } from '@vue-tsx-pro/ui';
 
 const departments = ['设计中心', '研发部', '市场部', '财务部'];
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default _component(() => {
   let open = _state(false);
-  let saving = _state(false);
+  let nameError = _state('');
   let profile = _state({
     name: '周一航',
     department: '设计中心',
@@ -28,16 +30,15 @@ export default _component(() => {
 
   const edit = () => {
     draft = { ...profile };
+    nameError = '';
     open = true;
   };
-  const save = () => {
-    saving = true;
-    setTimeout(() => {
-      profile = { ...draft };
-      saving = false;
-      open = false;
-    }, 800);
-  };
+  async function save() {
+    nameError = draft.name.trim() ? '' : '请填写姓名';
+    if (nameError) return false;
+    await wait(800);
+    profile = { ...draft, name: draft.name.trim() };
+  }
 
   return () => (
     <Card>
@@ -57,19 +58,11 @@ export default _component(() => {
         open={_bind(open)}
         title="编辑资料"
         description="修改后立即对团队成员可见。"
-        footer={
-          <>
-            <Button variant="ghost" tone="neutral" onClick={() => (open = false)}>
-              取消
-            </Button>
-            <Button loading={saving} onClick={save}>
-              保存
-            </Button>
-          </>
-        }
+        confirmText="保存"
+        onConfirm={save}
       >
         <Flex direction="column" gap="lg">
-          <Field label="姓名" required>
+          <Field label="姓名" required error={nameError || undefined}>
             <TextField value={_bind(draft.name)} autofocus />
           </Field>
           <Field label="部门">

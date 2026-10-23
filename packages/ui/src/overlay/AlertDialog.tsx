@@ -20,71 +20,22 @@
  *   if (await confirm({ title: '删除这个项目？', tone: 'danger', confirmText: '删除' })) remove();
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import type { VNodeChild } from 'vue';
-import { Button, type ButtonProps } from '../base/Button';
-import { useLang } from '../config/context';
-import type { StatusTone } from '../utils/style/tone-styles';
 import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
 import { useDetachedDialog } from './detached';
 import { dialogPanelSx, type DialogProps } from './Dialog';
 import { ModalCore, type ModalCoreProps } from './Modal';
 
-/** 未声明的属性落到 dialog 上 */
-export interface AlertDialogProps extends Omit<DialogProps, 'footer' | 'closable' | 'dismissible'> {
-  /** 确认按钮的色调，默认 accent；删除等破坏性操作用 danger */
-  tone?: StatusTone;
-  /** 确认按钮的文字，默认取语言包（确定） */
-  confirmText?: VNodeChild;
-  /** 取消按钮的文字，默认取语言包（取消） */
-  cancelText?: VNodeChild;
-  /** 点击确认时调用；返回 Promise 时等它完成再关闭，失败（reject）时保持打开 */
-  onConfirm?: () => unknown;
-  /** 确认按钮的部件属性 */
-  propsConfirm?: Partial<ButtonProps>;
-  /** 取消按钮的部件属性 */
-  propsCancel?: Partial<ButtonProps>;
-}
+/** 未声明的属性落到 dialog 上；确认、取消按钮的属性（onConfirm、confirmText、tone、propsConfirm…）同 Dialog */
+export interface AlertDialogProps extends Omit<
+  DialogProps,
+  'footer' | 'closable' | 'dismissible'
+> {}
 
 /** 确认对话框：确认 / 取消两个按钮，焦点先落在取消上 */
 export const AlertDialog = _component(
-  ({
-    open = _bindable(false),
-    size,
-    tone = 'accent',
-    confirmText,
-    cancelText,
-    onConfirm,
-    propsConfirm,
-    propsCancel,
-    ...rest
-  }: AlertDialogProps) => {
-    const lang = useLang();
+  ({ open = _bindable(false), size, onConfirm, propsCancel, ...rest }: AlertDialogProps) => {
     const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
-    let pending = _state(false);
-
-    async function confirm() {
-      const result = onConfirm?.();
-      if (result instanceof Promise) {
-        pending = true;
-        try {
-          await result;
-        } catch (error) {
-          // 调用方负责提示失败原因；这里只保持打开，并留下记录
-          console.error('AlertDialog: onConfirm 失败，对话框保持打开', error);
-          return;
-        } finally {
-          pending = false;
-        }
-      }
-      open = false;
-    }
-
-    // 等待确认结果时 Esc 不关闭：原生 cancel 事件可以取消
-    function onCancel(event: Event) {
-      if (pending) event.preventDefault();
-    }
-
     return () => (
       <ModalCore
         {...mergePartProps<ModalCoreProps>(
@@ -94,31 +45,12 @@ export const AlertDialog = _component(
             role: 'alertdialog',
             closable: false,
             dismissible: false,
-            onCancel,
+            // 没写 onConfirm 也有确认按钮：点了就关
+            onConfirm: onConfirm ?? (() => {}),
+            propsCancel: { autofocus: true, ...propsCancel },
           },
         )}
         open={_bind(open)}
-        footer={
-          <>
-            <Button
-              {...mergePartProps<ButtonProps>(
-                { variant: 'soft', tone: 'neutral', autofocus: true },
-                propsCancel,
-                { disabled: pending, onClick: () => (open = false) },
-              )}
-            >
-              {cancelText ?? lang.cancel}
-            </Button>
-            <Button
-              {...mergePartProps<ButtonProps>({ tone }, propsConfirm, {
-                loading: pending,
-                onClick: () => void confirm(),
-              })}
-            >
-              {confirmText ?? lang.confirm}
-            </Button>
-          </>
-        }
       />
     );
   },
@@ -130,7 +62,7 @@ export type ConfirmOptions = Omit<AlertDialogProps, 'open'>;
 /**
  * 命令式确认：在组件 setup 里调用，返回 confirm(options)。对话框渲染到 body 末尾，
  * 沿用调用处的主题、语言等配置（ConfigScope）；关闭后自动卸载。
- * 确认（onConfirm 完成）时得到 true，取消、Esc 时得到 false；onConfirm 失败时对话框保持打开，可以再试或取消。
+ * 确认（onConfirm 完成）时得到 true，取消、Esc 时得到 false；onConfirm 返回 false 或失败时对话框保持打开，可以再试或取消。
  */
 export function useConfirm(): (options: ConfirmOptions) => Promise<boolean> {
   const mount = useDetachedDialog();
@@ -142,7 +74,7 @@ export function useConfirm(): (options: ConfirmOptions) => Promise<boolean> {
           {...options}
           open={_bind(host.open)}
           onConfirm={async () => {
-            await options.onConfirm?.();
+            if ((await options.onConfirm?.()) === false) return false;
             confirmed = true;
           }}
           onClose={(event: Event & { currentTarget: HTMLDialogElement }) => {

@@ -74,8 +74,6 @@ export interface WorkflowMessages {
   readonly commentRequired: string;
   /** 附件必传时的提示 */
   readonly attachmentsRequired: string;
-  /** 取消 */
-  readonly cancel: string;
   /** 处理按钮的说明（一组按钮的 aria-label） */
   readonly approvalActions: string;
 }
@@ -111,7 +109,6 @@ export const workflowMessages: MessageTable<WorkflowMessages> = {
     comment: '意见',
     commentRequired: '写明意见',
     attachmentsRequired: '要上传附件',
-    cancel: '取消',
     approvalActions: '处理',
   },
   'en-US': {
@@ -144,7 +141,6 @@ export const workflowMessages: MessageTable<WorkflowMessages> = {
     comment: 'Comment',
     commentRequired: 'A comment is required',
     attachmentsRequired: 'Attach at least one file',
-    cancel: 'Cancel',
     approvalActions: 'Actions',
   },
 };

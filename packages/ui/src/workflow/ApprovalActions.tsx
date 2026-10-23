@@ -1,7 +1,8 @@
 /**
  * 审批按钮：一个人工节点的处理结果排成一组按钮（通过是主按钮，否决、终止红色，退回、提级普通描边）。
  * 结果要求意见、附件或业务字段时，点了先弹对话框填写（必填的没填不能提交），填好再交给 onComplete；
- * 什么都不要求的直接提交。onComplete 返回 Promise 时按钮显示加载中，失败（reject）时对话框留着。
+ * 什么都不要求的直接提交。onComplete 返回 Promise 时按钮显示加载中，失败（reject）时对话框留着
+ * （对话框的取消、确认与等待用 Dialog 的 onConfirm）。
  *
  *   <ApprovalActions
  *     node="齐全性检查"
@@ -112,7 +113,6 @@ export const ApprovalActions = _component(
       running = outcome.key;
       try {
         await onComplete(input);
-        active = null;
       } finally {
         running = null;
       }
@@ -131,9 +131,10 @@ export const ApprovalActions = _component(
       active = outcome;
     }
 
-    function confirm() {
+    /** 对话框的确认：必填的没填返回 false（对话框留着）；提交失败时对话框也留着，由使用方提示原因 */
+    async function confirm() {
       const outcome = active;
-      if (!outcome) return;
+      if (!outcome) return false;
       const text = comment.trim();
       const attachments = files
         .filter((item) => item.status === 'done' || (!upload && item.status === 'selected'))
@@ -146,9 +147,8 @@ export const ApprovalActions = _component(
             : '',
         fields: validate?.(outcome) || '',
       };
-      if (errors.comment || errors.attachments || errors.fields) return;
-      // 失败时对话框留着、按钮恢复，由使用方提示原因
-      void submit(outcome, { outcome: outcome.key, comment: text, attachments }).catch(() => {});
+      if (errors.comment || errors.attachments || errors.fields) return false;
+      await submit(outcome, { outcome: outcome.key, comment: text, attachments });
     }
 
     return () => {
@@ -198,26 +198,13 @@ export const ApprovalActions = _component(
             open={_bind(
               () => current != null,
               (next: boolean) => {
-                if (!next && running == null) active = null;
+                if (!next) active = null;
               },
             )}
             title={current ? messages.approvalTitle(current.label, node ?? '') : ''}
-            footer={
-              current && (
-                <Flex justify="end" gap="sm">
-                  <Button variant="ghost" tone="neutral" onClick={() => (active = null)}>
-                    {messages.cancel}
-                  </Button>
-                  <Button
-                    {...buttonLook(current.kind ?? 'approve', true)}
-                    loading={running === current.key}
-                    onClick={confirm}
-                  >
-                    {current.label}
-                  </Button>
-                </Flex>
-              )
-            }
+            confirmText={current?.label}
+            onConfirm={confirm}
+            propsConfirm={current ? buttonLook(current.kind ?? 'approve', true) : undefined}
           >
             {current && (
               <Flex direction="column" gap="md">
