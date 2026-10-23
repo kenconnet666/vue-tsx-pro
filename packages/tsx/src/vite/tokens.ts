@@ -25,13 +25,17 @@ export function tokenModule(
 ): (TokenModule & { file: string }) | null {
   const file = isPath(specifier) ? resolve(root, specifier) : resolvePackage(specifier, importer);
   if (!file || !existsSync(file)) return null;
-  const samePackage = isPath(specifier) || packageRoot(file) === packageRoot(importer);
+  const samePackage = isPath(specifier) || samePath(packageRoot(file), packageRoot(importer));
   return {
     file,
     importPath: samePackage ? relativeImport(importer, file) : specifier,
     groups: readGroups(file),
   };
 }
+
+/** Vite 给的路径用 /，Node 解析出的用 \：比较前统一 */
+const samePath = (a: string | undefined, b: string | undefined) =>
+  a !== undefined && b !== undefined && resolve(a) === resolve(b);
 
 /** 优先找源码（exports 里的源码条件，仓库内开发时产物可能还没构建或已过期），没有再按 Node 规则找产物 */
 function resolvePackage(specifier: string, importer: string) {
