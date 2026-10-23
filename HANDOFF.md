@@ -14,7 +14,7 @@
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、List / OrderedList、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton、ButtonGroup）、Badge / StatusBadge、Indicator、Tag、StatusDot
   - 布局：Flex / Grid / Container（含 create* 工厂）、Separator、ScrollArea 与 PageScrollbar、Prose、Splitter、ResizeHandle、AsideLayout、ViewportFill
   - 展示：Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat / StatGroup、Descriptions、Timeline（reverse）、Tree、Sortable、ItemList、ProportionBar
-  - 反馈：Progress、Skeleton、Alert、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay
+  - 反馈：Progress（条形 / 环形）、Skeleton、Alert、Banner、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay
   - 浮层：Dialog / Drawer / AlertDialog（共用 ModalCore，onConfirm 给出“取消 / 确认”与等待；useConfirm）、Popover、Popconfirm、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
   - 导航：Toolbar、Tabs、Steps、Breadcrumbs、Pagination（PageSizeSelect、PageJump、Pager）、NavList、TableOfContents、SkipLink
   - 输入：TextField、Textarea、NumberField / NumberRangeField、ColorField、Checkbox / Radio / Switch、Listbox、Select、Combobox、TreeSelect、TagsInput、FileDrop / Upload、Slider、ToggleGroup、ControlGroup

@@ -14,7 +14,7 @@ export const meta = {
   title: 'Empty 空状态与结果',
   description:
     '没有内容时的说明（Empty）与操作完成后的整块反馈（Result）：图标、标题、说明、操作居中排列。',
-  order: 3,
+  order: 4,
 };
 
 export default _component(() => () => (

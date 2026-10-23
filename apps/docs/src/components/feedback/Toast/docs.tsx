@@ -15,7 +15,7 @@ export const meta = {
   title: 'Toast 通知',
   description:
     '操作结果的短暂提示，几秒后自动消失：控制器 createToaster 在组件内外都能用，Toaster 是显示区域；可撤销、可跟踪一个 Promise。',
-  order: 2,
+  order: 3,
 };
 
 export default _component(() => () => (

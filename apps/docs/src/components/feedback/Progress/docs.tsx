@@ -17,7 +17,7 @@ export const meta = {
   title: 'Progress 进度与加载',
   description:
     '进度条（Progress）、加载中的旋转指示（Spinner）与盖住一块区域的加载遮罩（LoadingOverlay）；内容还没来时的占位用 Skeleton。',
-  order: 1,
+  order: 2,
 };
 
 export default _component(() => () => (

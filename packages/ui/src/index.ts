@@ -355,6 +355,13 @@ export {
   type AlertProps,
   type AlertVariants,
 } from './feedback/Alert';
+export {
+  Banner,
+  bannerStyles,
+  type BannerManaged,
+  type BannerProps,
+  type BannerVariants,
+} from './feedback/Banner';
 export { Empty, emptyStyles, type EmptyOptions, type EmptyProps } from './feedback/Empty';
 export {
   LoadingOverlay,
