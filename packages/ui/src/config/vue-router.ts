@@ -7,6 +7,7 @@
  * （带 base 与 hash 模式的 #），当前页按路由判断。组件本身只依赖 config 里的 UiRouter 接口，换别的路由库时自己实现即可。
  */
 import type { LocationQueryRaw, Router } from 'vue-router';
+import type { LoadingBarController } from '../feedback/LoadingBar';
 import type { QueryPatch, UiRouter } from './context';
 
 /** 怎样算“当前页” */
@@ -70,4 +71,24 @@ export function vueRouterAdapter(
       return current.startsWith(target.endsWith('/') ? target : `${target}/`);
     },
   };
+}
+
+/**
+ * 路由切换时走顶部加载条：开始跳转时 start，跳完 finish，跳转失败（守卫抛错、懒加载的页面加载失败）时 error。
+ * 被守卫取消、重定向的不算失败。返回取消监听的函数。
+ *
+ *   useRouteLoadingBar(router, loadingBar)
+ */
+export function useRouteLoadingBar(
+  router: Router,
+  controller: Pick<LoadingBarController, 'start' | 'finish' | 'error'>,
+): () => void {
+  const removers = [
+    router.beforeEach((to, from) => {
+      if (to.fullPath !== from.fullPath) controller.start();
+    }),
+    router.afterEach(() => controller.finish()),
+    router.onError(() => controller.error()),
+  ];
+  return () => removers.forEach((remove) => remove());
 }

@@ -95,7 +95,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       （分段由 ProportionBar 负责）；Result 的 403 / 404 / 500；页面级的 Banner；`useConfirm` 的必填理由（`reason`，得到填的理由）
 - [x] 输入：Autocomplete（值就是文字）、OtpField、InputGroup（由阶段 1 的 ControlGroup 承担：币种 + 金额）、格式化输入（TextField 的 format：手机号、证件号、银行卡号；phoneSchema、idCardSchema）、
       CheckboxGroup / RadioGroup 的 items（Checkbox、Radio 加了 description）、NumberField 与 Textarea 可清空、Rating
-- [ ] 展示与布局：Ellipsis（溢出才出提示、可展开）、Affix、BackTop、Watermark、LoadingBar（路由切换的进度条）
+- [x] 展示与布局：Ellipsis（溢出才出提示、可展开）、Affix、BackTop、Watermark、LoadingBar（路由切换的进度条）
 
 ## 阶段 3：选择与日期
 

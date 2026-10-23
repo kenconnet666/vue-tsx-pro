@@ -10,7 +10,7 @@ import { Link } from '../../base/Link';
 import { LinkButton } from '../../base/LinkButton';
 import { Provider } from '../Provider';
 import { mount } from '../../utils/.test/mount';
-import { vueRouterAdapter } from '../vue-router';
+import { useRouteLoadingBar, vueRouterAdapter } from '../vue-router';
 
 const makeRouter = () =>
   createRouter({
@@ -90,5 +90,29 @@ describe('vueRouterAdapter', () => {
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve));
     expect(router.currentRoute.value.path).toBe('/orders');
+  });
+});
+
+describe('useRouteLoadingBar', () => {
+  it('跳转开始 start、跳完 finish；守卫抛错时 error；取消监听后不再调用', async () => {
+    const router = makeRouter();
+    await router.push('/');
+    const calls: string[] = [];
+    const stop = useRouteLoadingBar(router, {
+      start: () => calls.push('start'),
+      finish: () => calls.push('finish'),
+      error: () => calls.push('error'),
+    });
+    await router.push('/orders');
+    expect(calls).toEqual(['start', 'finish']);
+    const removeGuard = router.beforeEach((to) => {
+      if (to.path === '/broken') throw new Error('页面加载失败');
+    });
+    await router.push('/broken').catch(() => undefined);
+    expect(calls.slice(2)).toEqual(['start', 'error']);
+    removeGuard();
+    stop();
+    await router.push('/settings');
+    expect(calls).toHaveLength(4);
   });
 });

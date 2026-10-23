@@ -9,6 +9,7 @@ import {
   Container,
   Icon,
   IconLinkButton,
+  LoadingBar,
   NavItem,
   NavList,
   NavSection,
@@ -22,6 +23,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
+import { loadingBar } from './site/loading-bar';
 import { allPages, sectionOf, sections } from './site/nav';
 import { PropsPlaygroundButton } from './site/PropsPlaygroundButton';
 import { isFrame } from './router';
@@ -128,49 +130,60 @@ export const App = _component(() => {
     if (isFrame) return <RouterView />;
     const isHome = route.path === '/';
     return (
-      <AppShell
-        brand={
-          <RouterLink to="/" {...stylex.attrs(styles.brand)}>
-            <Icon icon={Box} sx={styles.brandMark} />
-            vue-tsx-pro
-          </RouterLink>
-        }
-        header={
-          <div {...stylex.attrs(styles.tools)}>
-            <CommandPalette items={searchItems} onAction={(item) => void router.push(item.value)} />
-            <PropsPlaygroundButton />
-            <ThemeSwitcher preference={preference} />
-            <IconLinkButton href={REPOSITORY} external icon={GithubIcon} aria-label="GitHub 仓库" />
+      <>
+        <LoadingBar controller={loadingBar} />
+        <AppShell
+          brand={
+            <RouterLink to="/" {...stylex.attrs(styles.brand)}>
+              <Icon icon={Box} sx={styles.brandMark} />
+              vue-tsx-pro
+            </RouterLink>
+          }
+          header={
+            <div {...stylex.attrs(styles.tools)}>
+              <CommandPalette
+                items={searchItems}
+                onAction={(item) => void router.push(item.value)}
+              />
+              <PropsPlaygroundButton />
+              <ThemeSwitcher preference={preference} />
+              <IconLinkButton
+                href={REPOSITORY}
+                external
+                icon={GithubIcon}
+                aria-label="GitHub 仓库"
+              />
+            </div>
+          }
+          sidebar={
+            <NavList aria-label="文档">
+              {sections.map((section) => (
+                <NavSection key={section.label} label={section.label}>
+                  {section.pages.map((page) => (
+                    <NavItem key={page.path} href={page.path}>
+                      {page.title}
+                    </NavItem>
+                  ))}
+                </NavSection>
+              ))}
+            </NavList>
+          }
+          aside={!isHome && headings.length > 0 && <TableOfContents items={headings} />}
+          propsMain={{ sx: styles.main }}
+        >
+          <div ref={_toRef(content)} {...stylex.attrs(styles.page)}>
+            {/* 按路由换 key：每次换页重新播放进场动画 */}
+            <div key={route.path} {...stylex.attrs(styles.enter)}>
+              <RouterView />
+            </div>
+            {!isHome && (
+              <Container size={route.path.startsWith('/components/') ? 'xl' : 'md'} padding="none">
+                <Pager {...neighbors()} sx={styles.pager} />
+              </Container>
+            )}
           </div>
-        }
-        sidebar={
-          <NavList aria-label="文档">
-            {sections.map((section) => (
-              <NavSection key={section.label} label={section.label}>
-                {section.pages.map((page) => (
-                  <NavItem key={page.path} href={page.path}>
-                    {page.title}
-                  </NavItem>
-                ))}
-              </NavSection>
-            ))}
-          </NavList>
-        }
-        aside={!isHome && headings.length > 0 && <TableOfContents items={headings} />}
-        propsMain={{ sx: styles.main }}
-      >
-        <div ref={_toRef(content)} {...stylex.attrs(styles.page)}>
-          {/* 按路由换 key：每次换页重新播放进场动画 */}
-          <div key={route.path} {...stylex.attrs(styles.enter)}>
-            <RouterView />
-          </div>
-          {!isHome && (
-            <Container size={route.path.startsWith('/components/') ? 'xl' : 'md'} padding="none">
-              <Pager {...neighbors()} sx={styles.pager} />
-            </Container>
-          )}
-        </div>
-      </AppShell>
+        </AppShell>
+      </>
     );
   };
 });

@@ -353,6 +353,12 @@ export {
   type VirtualListProps,
   type VirtualListScrolls,
 } from './display/VirtualList';
+export {
+  Watermark,
+  watermarkStyles,
+  watermarkTileStyles,
+  type WatermarkProps,
+} from './display/Watermark';
 
 // 反馈：进度、骨架、提示条、通知、空状态、结果
 export {
@@ -372,6 +378,16 @@ export {
   type BannerVariants,
 } from './feedback/Banner';
 export { Empty, emptyStyles, type EmptyOptions, type EmptyProps } from './feedback/Empty';
+export {
+  createLoadingBar,
+  LoadingBar,
+  loadingBarScaleStyles,
+  loadingBarStyles,
+  type LoadingBarController,
+  type LoadingBarOptions,
+  type LoadingBarProps,
+  type LoadingBarState,
+} from './feedback/LoadingBar';
 export {
   LoadingOverlay,
   loadingOverlayStyles,
