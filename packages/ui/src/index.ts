@@ -290,6 +290,7 @@ export {
   type DescriptionsLayouts,
   type DescriptionsProps,
 } from './display/Descriptions';
+export { Ellipsis, ellipsisStyles, type EllipsisProps } from './display/Ellipsis';
 export {
   ItemList,
   ItemListItem,

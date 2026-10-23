@@ -226,6 +226,10 @@ export interface Lang {
   readonly ratingStar: (value: number) => string;
   /** 只读评分的读法，默认“4.5 星，满分 5 星”；没有评分时 value 为 null，默认“未评分” */
   readonly ratingSummary: (value: number | null, count: number) => string;
+  /** 截断文字的展开按钮，默认“展开” */
+  readonly ellipsisExpand: string;
+  /** 截断文字的收起按钮，默认“收起” */
+  readonly ellipsisCollapse: string;
   /** 进度的目标值（读屏念在进度后面），默认“目标 80%” */
   readonly progressTarget: (value: string) => string;
   /** 引导的“上一步”按钮，默认“上一步” */

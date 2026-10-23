@@ -76,6 +76,8 @@ export const zhCN: Lang = {
   uploadRetry: (file) => `重新上传 ${file}`,
   uploadRemove: (file) => `移除 ${file}`,
   progressTarget: (value) => `目标 ${value}`,
+  ellipsisExpand: '展开',
+  ellipsisCollapse: '收起',
   ratingStar: (value) => `${value} 星`,
   ratingSummary: (value, count) => (value == null ? '未评分' : `${value} 星，满分 ${count} 星`),
   resultStatus: {
