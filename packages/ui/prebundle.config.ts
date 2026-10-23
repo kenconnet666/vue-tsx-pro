@@ -13,6 +13,7 @@ export const UI_DEPENDENCIES = [
   '@unovis/ts',
   'animejs',
   'culori/fn',
+  'pinyin-pro',
   'shiki/core',
   'shiki/engine/javascript',
   'shiki/langs',
