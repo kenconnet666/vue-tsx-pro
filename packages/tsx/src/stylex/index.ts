@@ -58,6 +58,41 @@ export interface ShadowsTokens {}
 export interface DurationsTokens {}
 /** 缓动 token */
 export interface EasingsTokens {}
+
+/*
+ * 带组名的写法（`width: '_space.md'`、`outlineWidth: '_borderWidths.sm'`）：任何属性都能用，同样由主题库填入。
+ * 生成的取值类型按属性接受的值类型并上相应的组：长度属性列出间距、尺寸、边框宽度、圆角等，颜色属性列出颜色
+ */
+/** 带组名的间距 token（`'_space.md'`） */
+export interface QualifiedSpaceTokens {}
+/** 带组名的颜色 token（`'_colors.accent'`） */
+export interface QualifiedColorsTokens {}
+/** 带组名的字体族 token */
+export interface QualifiedFontsTokens {}
+/** 带组名的字号 token */
+export interface QualifiedFontSizesTokens {}
+/** 带组名的字重 token */
+export interface QualifiedFontWeightsTokens {}
+/** 带组名的行高 token */
+export interface QualifiedLineHeightsTokens {}
+/** 带组名的字距 token */
+export interface QualifiedLetterSpacingsTokens {}
+/** 带组名的尺寸 token */
+export interface QualifiedSizesTokens {}
+/** 带组名的边框宽度 token（`'_borderWidths.sm'`） */
+export interface QualifiedBorderWidthsTokens {}
+/** 带组名的不透明度 token */
+export interface QualifiedOpacitiesTokens {}
+/** 带组名的描边宽度 token */
+export interface QualifiedStrokeWidthsTokens {}
+/** 带组名的圆角 token */
+export interface QualifiedRadiiTokens {}
+/** 带组名的阴影 token */
+export interface QualifiedShadowsTokens {}
+/** 带组名的时长 token */
+export interface QualifiedDurationsTokens {}
+/** 带组名的缓动 token */
+export interface QualifiedEasingsTokens {}
 export type { StyleValue } from './value';
 
 /** 动态样式：参数在运行时决定，编译为 CSS 变量与行内 style */

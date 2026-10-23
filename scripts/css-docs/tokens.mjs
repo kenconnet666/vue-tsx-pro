@@ -17,6 +17,9 @@ import { parseSource } from '../lib/repo.mjs';
  */
 export const tokenInterfaceName = (group) => `${group[0].toUpperCase()}${group.slice(1)}Tokens`;
 
+/** 带组名的写法（`'_space.md'`）的接口：space → QualifiedSpaceTokens */
+export const qualifiedTokenInterfaceName = (group) => `Qualified${tokenInterfaceName(group)}`;
+
 export function tokenNamesOutput(root) {
   return join(root, 'packages/ui/src/config/theme/token-names.ts');
 }
@@ -29,18 +32,27 @@ export function generateTokenNames(root) {
     throw new Error(`对照表里的 token 组在 tokens.stylex.ts 里没有定义：${missing.join('、')}`);
 
   const shortGroups = groups.filter((group) => mapped.has(group.name));
+  // 短写（'_xs'）与带组名的写法（'_fontSizes.xs'）各一个接口，键上的注释相同
+  const tokenInterface = (group, name, key) => [
+    group.doc,
+    `interface ${name} {`,
+    ...group.tokens.flatMap((token) => [
+      docWith(token.doc, `${group.name}.${token.name}`),
+      `${key(token.name)}: unknown;`,
+    ]),
+    '}',
+  ];
   return [
     '// 由 scripts/css-docs/generate.mjs 根据 tokens.stylex.ts 生成，请勿手改。',
-    '// 主题 tokens 字符串写法的类型（COMPONENTS.md §4）：每组一个接口',
+    '// 主题 tokens 字符串写法的类型（COMPONENTS.md §4）：每组一个短写的接口、一个带组名的接口',
     "declare module '@vue-tsx-pro/tsx/stylex' {",
     ...shortGroups.flatMap((group) => [
-      group.doc,
-      `interface ${tokenInterfaceName(group.name)} {`,
-      ...group.tokens.flatMap((token) => [
-        docWith(token.doc, `${group.name}.${token.name}`),
-        `_${token.name}: unknown;`,
-      ]),
-      '}',
+      ...tokenInterface(group, tokenInterfaceName(group.name), (name) => `_${name}`),
+      ...tokenInterface(
+        group,
+        qualifiedTokenInterfaceName(group.name),
+        (name) => `'_${group.name}.${name}'`,
+      ),
     ]),
     '}',
     '',

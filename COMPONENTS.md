@@ -115,7 +115,7 @@
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - tokens 在 `stylex.create`、`stylex.keyframes` 里用字符串写，不 import（Vite 预设编译时换成 token 变量并补上 import）：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
-  - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用，但没有补全；
+  - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用；补全按属性接受的值类型列出相应的组（长度属性列出间距、尺寸、边框宽度、圆角等，颜色属性列出颜色），悬停显示 token 的说明；
   - 条件值、回退数组、伪元素、动态样式、覆盖变量（`[vars.x]: …`，只能写带组名的）里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
   - 值里也能夹 token，用于计算、多值、简写：`minHeight: 'max(_control, _minTarget)'`、`outlineOffset: 'calc(-1 * _xs)'`、`padding: '_sm _md'`，编译成模板字符串；短写同样按属性找组，表外属性（如 `transition`）写带组名的 `'opacity _durations.md _easings.standard'`。token 前后不能紧挨字母、数字、`-`、`.`，引号里的文字与 `url()` 不处理。值中间的 token 没有补全；
   - 注意短写按**属性**找组：`width`、`height` 属于 `sizes`，`'calc(_lg + _xs)'` 写在 `width` 里取的是 `sizes.lg`（64rem）而不是间距；尺寸里要用间距档位时写带组名的 `'calc(_space.lg + _space.xs)'`；
@@ -357,7 +357,12 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 - 编译器（compile 与 Vite 预设）总是把新入口与 `@stylexjs/stylex` 一起当作 StyleX 的导入来源。写样式统一从这个入口导入。
 - **代价**：不再精确推导每个样式组用了哪些属性，`StyleXStyles<{ color?: … }>` 这类受限类型无法校验；本库的 `sx` 本来不加限制，确需受限类型时用原版 `create`。
 - **一致性测试**：同一组“应通过 / 应报错”的写法，分别用新入口与原版做类型检查，结果必须一致（受限类型一项除外）；StyleX 升级时先跑这组测试。
-- 属性值关键字：字面量联合成员上的注释不会显示，但 WebStorm 会把字符串字面量解析到 `keyof` 接口的键上。所以有关键字说明的属性，值类型写成 `KeywordValue<DisplayKeywords, CSSProperties['display']>`：`DisplayKeywords` 每个键带注释，整体接受的值与 StyleX 相同（含 `string` 时改写为 `string & {}`，避免关键字被吸收）。WebStorm 悬停 `'inline-flex'` 显示该值的说明；TypeScript 官方语言服务（VS Code）对字符串字面量不提供悬停，只能看属性注释正文里的“常用值”。生成器会校验每个关键字都被 StyleX 的类型接受，不接受的从数据里删掉，以免提示一个写了会报错的值。
+- 属性值关键字：字面量联合成员上的注释不会显示，但 WebStorm 会把字符串字面量解析到 `keyof` 接口的键上，悬停显示键上的注释。生成器从 mdn-data 的值语法展开每个属性能写的关键字（`scripts/css-docs/keywords.mjs`），按来源生成接口：共用的一段值语法一个（`CssLineStyle`、`CssNamedColor`，说明只写一份），属性自己的关键字一个（`ClearKeywords`），全局关键字一个（`CssWideKeywords`）。
+  - StyleX 取值类型含 `string` 的属性：`OpenValue<CSSProperties['outlineStyle']> | keyof CssWideKeywords | keyof CssOutlineLineStyle | …`。`OpenValue` 用具名的 `OpenString` 接受任意字符串，关键字不被 `string` 吸收。
+  - 只接受固定字面量的属性：`KeywordValue<DisplayValues, CSSProperties['display']>`，键与 StyleX 的字面量一一对应，接受的值完全相同。
+  - 主题 token 的短写与带组名的写法也并上 `keyof` 接口，悬停同样显示说明。
+  - 每个关键字都要有说明（`docs.json` 的 `keywords`，按来源归类）：缺了生成器报错，并把待写的清单写到 `node_modules/.cache/css-docs-missing.json`；没有属性用到的说明也报错。同族且值语法相同的属性（`marginTop`、`marginInlineStart`）共用一个来源，`keywordAliases` 可以手动指定。
+  - TypeScript 官方语言服务（VS Code、`tsc --lsp`）对字符串字面量不提供悬停，只能看属性注释正文里的“常用值”。
 
 ### 9.3 注释数据：理清来源，修订完善
 
@@ -446,6 +451,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - **类型**：`scripts/css-docs` 生成 `DocumentedStyles` 时给表里的属性加上 `keyof FontSizesTokens` 这类取值，每组一个接口；ui 的 `token-names.ts` 由同一脚本根据 tokens 生成，用 `declare module` 填入 token 名与注释。每组单独一个接口，而不是 `keyof 总接口[组名]`：后者在 WebStorm 里会把各组同名的 `_xs` 都列为跳转目标。
 - **编译**：`compiler/tokens.ts`（Babel），由 Vite 预设的 `vue-tsx-pro:tokens` 插件在 StyleX 之前运行；token 名从 token 模块的源码（或产物）读出，用来报错。与 `stylex` 选项无关，组件库构建也改写：同包的文件用相对路径导入，其他包用选项里的包名（默认 `@vue-tsx-pro/ui/tokens.stylex`）。
 - **与原计划的出入**：带组名的写法不进补全。原计划让不进表的组（当时的 controls）的带组名写法出现在所有属性的补全里，实际 `position`、`display` 的补全里也会出现 `_controls.height`，噪音太大。
+  2026-10-23 改为按取值域进补全：属性的值语法里有长度才列长度类的组、有颜色才列颜色，`'_borderWidths.sm'` 也有悬停说明与跳转（每组一个 `QualifiedXxxTokens` 接口）。
 - **顺手修复**：`KeywordValue` 里的 `string & {}` 在泛型实例化时被 TypeScript 6 化简成 `string`，取值含任意字符串的属性在 tsserver（VS Code）里一直没有关键字补全；改用具名别名 `OpenString`。
 
 ### 10.7 虚拟滚动（为表格准备）
