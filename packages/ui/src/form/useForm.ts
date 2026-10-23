@@ -24,6 +24,9 @@
  * - 单字段异步校验：`fields: { username: { validate: (name, values, signal) => api.taken(name, { signal }) } }`，
  *   这个字段变化时防抖运行、只采用最后一次的结果，提交时等它完成；`form.validating('username')` 显示校验中。
  * - 改动：`form.dirty` 是值与初始值（或上次 reset 的值）不同；未保存离开的提醒用 useLeaveConfirmation(() => form.dirty)。
+ * - 局部校验：`form.validate(['name', 'address'])` 只校验这些字段（含子路径）并显示它们的错误，分步表单进下一步前用。
+ * - 字段联动：`dependencies: { confirm: ['password'] }`，password 改了重新校验 confirm（confirm 填过或失焦过时显示它的错误），
+ *   confirm 的单字段校验也跟着重跑。
  */
 import type { TsxComponent } from '@vue-tsx-pro/tsx';
 import { computed, reactive, shallowReactive, toRaw, watch } from 'vue';
@@ -89,6 +92,10 @@ export interface FieldValidator<Value, Values> {
   debounce?: number;
 }
 
+/** 字段路径 path 是否在 scope 里：就是它，或是它的子路径（'address' 包含 'address.city'） */
+const inScope = (path: string, scope: readonly string[]) =>
+  scope.some((prefix) => path === prefix || path.startsWith(`${prefix}.`));
+
 /** 数组字段的操作：form.array(path) 的返回值 */
 export interface FieldArray<Item> {
   /** 当前的各项（就是 values 里的数组） */
@@ -130,6 +137,11 @@ export interface FormOptions<Values extends object, Output = Values> {
   fields?: NoInfer<{ [P in FieldPath<Values>]?: FieldValidator<PathValue<Values, P>, Values> }>;
   /** 什么时候开始校验，默认 blur；提交过一次之后总是随输入更新 */
   validateOn?: keyof FormValidateTimings;
+  /**
+   * 字段联动：字段 → 它依赖的字段。依赖的值改了就重新校验它（它填过或失焦过时显示错误），它的单字段校验也重跑。
+   * 如 `{ confirm: ['password'], endDate: ['startDate'] }`
+   */
+  dependencies?: NoInfer<{ [P in FieldPath<Values>]?: readonly FieldPath<Values>[] }>;
   /** 校验通过后调用，拿到 schema 解析后的值（转换、默认值、coerce 都已生效）；返回 Promise 时 submitting 一直为 true 直到完成 */
   onSubmit?: (values: Output) => unknown;
 }
@@ -154,8 +166,11 @@ export interface FormControllerBase {
   visibleError(path: string): string | undefined;
   /** 字段失焦：Field 在焦点离开字段时调用 */
   blur(path: string): void;
-  /** 校验整份表单，返回是否通过 */
-  validate(): Promise<boolean>;
+  /**
+   * 校验整份表单，返回是否通过。给了 paths 时只看这些字段（含子路径）：它们的错误立即显示，
+   * 返回它们是否都通过（分步表单进下一步前用）
+   */
+  validate(paths?: readonly string[]): Promise<boolean>;
   /** 提交：先校验，通过后调用 onSubmit；返回是否通过校验 */
   submit(): Promise<boolean>;
   /** 回到初始值，清空错误与失焦记录 */
@@ -172,6 +187,8 @@ export interface FormController<Values extends object> extends FormControllerBas
   reset(values?: Values): void;
   /** 字段与初始值不同 */
   isDirty(path: FieldPath<Values>): boolean;
+  /** 校验整份表单，或只校验 paths 里的字段（含子路径）并显示它们的错误；返回是否通过 */
+  validate(paths?: readonly FieldPath<Values>[]): Promise<boolean>;
   /** 数组字段的增删、插入、移动 */
   array<P extends ArrayPath<Values>>(
     path: P,
@@ -313,7 +330,11 @@ export function useForm<Values extends object, Output = Values>(
     const entry = fieldRuns.get(path) ?? {};
     fieldRuns.set(path, entry);
     clearTimeout(entry.timer);
-    const value = cloneValue(readPath(values, path));
+    // 依赖的字段也算进“这次校验的输入”：依赖变了，同一个值也要重新校验
+    const value = cloneValue([
+      readPath(values, path),
+      ...dependsOn(path).map((dep) => readPath(values, dep)),
+    ]);
     if (entry.running && sameValue(entry.running.value, value)) return entry.running.done;
     if (!entry.running && 'checked' in entry && sameValue(entry.checked, value)) {
       return Promise.resolve();
@@ -323,7 +344,7 @@ export function useForm<Values extends object, Output = Values>(
     setPending(path, true);
     const done = (async () => {
       try {
-        const message = await validator.validate(value, values, controller.signal);
+        const message = await validator.validate(value[0], values, controller.signal);
         if (controller.signal.aborted) return;
         entry.checked = value;
         state.fieldErrors = { ...state.fieldErrors, [path]: message };
@@ -351,11 +372,19 @@ export function useForm<Values extends object, Output = Values>(
     state.fieldErrors = {};
   }
 
+  /** 字段依赖的字段 */
+  const dependsOn = (path: string): readonly string[] =>
+    (options.dependencies as Partial<Record<string, readonly string[]>> | undefined)?.[path] ?? [];
+
   /**
-   * 校验整份值：schema 与 validate 的错误（errors）。full 时单字段校验也立刻跑完（提交、显式调用 validate），
-   * 结果在 state.fieldErrors；失焦、输入时只算 schema 与 validate，单字段校验照旧防抖、只在它自己的值变了时跑
+   * 校验整份值：schema 与 validate 的错误（errors）。full 时单字段校验也立刻跑完（提交、显式调用 validate；
+   * 给了 scope 时只跑 scope 里的），结果在 state.fieldErrors；失焦、输入时只算 schema 与 validate，
+   * 单字段校验照旧防抖、只在它自己（或它依赖的字段）的值变了时跑
    */
-  async function collect(full: boolean): Promise<{ errors: FormErrors; output: Output }> {
+  async function collect(
+    full: boolean,
+    scope?: readonly string[],
+  ): Promise<{ errors: FormErrors; output: Output }> {
     const errors: FormErrors = {};
     let output = values as unknown as Output;
     if (schema) {
@@ -372,7 +401,11 @@ export function useForm<Values extends object, Output = Values>(
     }
     // 单字段校验：不等防抖，立刻跑完（值没变的直接用上次结果）
     if (full) {
-      await Promise.all(fieldValidators.map(([path, validator]) => runField(path, validator)));
+      await Promise.all(
+        fieldValidators
+          .filter(([path]) => !scope || inScope(path, scope))
+          .map(([path, validator]) => runField(path, validator)),
+      );
     }
     return { errors, output };
   }
@@ -398,15 +431,38 @@ export function useForm<Values extends object, Output = Values>(
     return merged;
   }
 
-  /** 校验并记下结果（只采用最后一次）；返回是否通过：算出的、setError 给的、单字段校验的都没有错误 */
-  async function check(full: boolean): Promise<boolean> {
+  /**
+   * 校验并记下结果（只采用最后一次）；返回是否通过：算出的、setError 给的、单字段校验的都没有错误。
+   * 给了 scope 时只看 scope 里的字段，别的字段的错误保持原样
+   */
+  async function check(full: boolean, scope?: readonly string[]): Promise<boolean> {
     const current = ++run;
-    const { errors, output } = await collect(full);
-    if (current === run) {
-      state.errors = errors;
-      parsed = output;
+    const { errors, output } = await collect(full, scope);
+    if (!scope) {
+      if (current === run) {
+        state.errors = errors;
+        parsed = output;
+      }
+      return Object.keys(errors).length === 0 && Object.keys(mergedErrors()).length === 0;
     }
-    return Object.keys(errors).length === 0 && Object.keys(mergedErrors()).length === 0;
+    const scoped = (source: FormErrors) =>
+      Object.entries(source).filter(([path, message]) => message && inScope(path, scope));
+    if (current === run) {
+      state.errors = {
+        ...Object.fromEntries(
+          Object.entries(state.errors).filter(([path]) => !inScope(path, scope)),
+        ),
+        ...Object.fromEntries(scoped(errors)),
+      };
+    }
+    return scoped(errors).length === 0 && scoped(mergedErrors()).length === 0;
+  }
+
+  /** 把这些字段记为失焦过：它们的错误开始显示 */
+  function touch(paths: readonly string[]) {
+    const next = new Set(state.touched);
+    for (const path of paths) next.add(path);
+    if (next.size !== state.touched.size) state.touched = next;
   }
 
   /** 数组字段的下标变了：错误、失焦记录、单字段校验的结果跟着移 */
@@ -503,7 +559,8 @@ export function useForm<Values extends object, Output = Values>(
       return path === undefined ? state.pending.size > 0 : state.pending.has(path);
     },
     visibleError(path) {
-      if (state.submitCount === 0 && !state.touched.has(path)) return undefined;
+      // 失焦过的字段，或局部校验过的字段（含子路径：validate(['address']) 之后 address.city 也显示）
+      if (state.submitCount === 0 && !inScope(path, [...state.touched])) return undefined;
       return state.errors[path] ?? externalError(path) ?? state.fieldErrors[path];
     },
     blur(path) {
@@ -511,7 +568,11 @@ export function useForm<Values extends object, Output = Values>(
       state.touched = new Set(state.touched).add(path);
       if (validateOn !== 'submit') void check(false);
     },
-    validate: () => check(true),
+    validate(paths) {
+      if (!paths) return check(true);
+      touch(paths);
+      return check(true, paths);
+    },
     submit() {
       submission ??= (async () => {
         state.submitCount++;
@@ -569,10 +630,25 @@ export function useForm<Values extends object, Output = Values>(
     { deep: true },
   );
 
-  // 单字段校验：这个字段的值变了，防抖之后运行
+  // 字段联动：依赖的值改了，字段填过或失焦过就显示它的错误并重新校验（单字段校验由下面的监听跟着重跑）
+  for (const [path, deps] of Object.entries(options.dependencies ?? {}) as [string, string[]][]) {
+    watch(
+      () => deps.map((dep) => readPath(values, dep)),
+      () => {
+        const value = readPath(values, path);
+        const filled = !(value == null || value === '' || (Array.isArray(value) && !value.length));
+        if (!filled && !state.touched.has(path)) return;
+        touch([path]);
+        if (validateOn !== 'submit' || state.submitCount > 0) void check(false);
+      },
+      { deep: true },
+    );
+  }
+
+  // 单字段校验：这个字段（或它依赖的字段）的值变了，防抖之后运行
   for (const [path, validator] of fieldValidators) {
     watch(
-      () => readPath(values, path),
+      () => [readPath(values, path), ...dependsOn(path).map((dep) => readPath(values, dep))],
       () => {
         const entry = fieldRuns.get(path) ?? {};
         fieldRuns.set(path, entry);

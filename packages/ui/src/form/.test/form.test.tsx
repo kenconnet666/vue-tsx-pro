@@ -454,3 +454,76 @@ describe('数组字段、dirty、单字段异步校验', () => {
     }
   });
 });
+
+describe('局部校验与字段联动', () => {
+  const signup = z
+    .object({
+      name: z.string().min(1, '请填写名字'),
+      address: z.object({ city: z.string().min(1, '请填写城市') }),
+      password: z.string().min(6, '至少 6 位'),
+      confirm: z.string(),
+    })
+    .refine((values) => values.confirm === values.password, {
+      path: ['confirm'],
+      message: '两次输入的密码不一致',
+    });
+
+  it('validate(paths)：只看这些字段（含子路径），立即显示它们的错误，别的字段不显示', async () => {
+    const form = useForm({
+      initial: { name: '', address: { city: '' }, password: '', confirm: '' },
+      schema: signup,
+    });
+    expect(await form.validate(['name', 'address'])).toBe(false);
+    expect(form.visibleError('name')).toBe('请填写名字');
+    expect(form.visibleError('address.city')).toBe('请填写城市');
+    expect(form.visibleError('password')).toBeUndefined();
+    form.values.name = '林';
+    form.values.address.city = '杭州';
+    // 第一步的字段都填好了：通过，即使后面的字段还有错
+    expect(await form.validate(['name', 'address'])).toBe(true);
+    expect(await form.validate()).toBe(false);
+  });
+
+  it('dependencies：依赖的字段改了，填过的字段重新校验并显示错误；没填过的不打扰', async () => {
+    const form = useForm({
+      initial: { name: '林', address: { city: '杭州' }, password: '', confirm: '' },
+      schema: signup,
+      dependencies: { confirm: ['password'] },
+    });
+    form.values.password = 'secret1';
+    await flush();
+    // confirm 还空着、没失焦过：不显示
+    expect(form.visibleError('confirm')).toBeUndefined();
+    form.values.confirm = 'secret1';
+    await flush();
+    form.values.password = 'secret2';
+    await flush();
+    expect(form.visibleError('confirm')).toBe('两次输入的密码不一致');
+    form.values.password = 'secret1';
+    await flush();
+    expect(form.visibleError('confirm')).toBeUndefined();
+  });
+
+  it('dependencies：依赖的字段改了，单字段校验跟着重跑', async () => {
+    vi.useFakeTimers();
+    try {
+      const validate = vi.fn((end: string, values: { start: string }) =>
+        end && end < values.start ? '结束日期不能早于开始日期' : undefined,
+      );
+      const form = useForm({
+        initial: { start: '2026-10-01', end: '2026-10-05' },
+        fields: { end: { validate, debounce: 0 } },
+        dependencies: { end: ['start'] },
+      });
+      form.values.start = '2026-10-09';
+      await nextTick();
+      await vi.advanceTimersByTimeAsync(0);
+      await flush();
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(form.errors.end).toBe('结束日期不能早于开始日期');
+      expect(form.visibleError('end')).toBe('结束日期不能早于开始日期');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

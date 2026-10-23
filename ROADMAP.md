@@ -82,7 +82,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] `useOverflowItems`：量出放得下几项，其余折成 +N（Select / TreeSelect 的 maxTagCount、Tabs 溢出、横向导航、Toolbar 做的时候直接用）
 - [x] `useIntersectionObserver`（ActionBar、3D 画布已改用；Affix、BackTop、图片懒加载做的时候直接用）
 - [x] 树工具：`filterTree`、`moveNode`、勾选策略 `checkedByStrategy`（只返回父 / 子 / 全部）、路径 `treePath`；`flattenTree` 的第 4 个参数改成选项（`order`、`include`），getKey 的位置参数统一按数据里的位置
-- [ ] 表单：`form.validate(paths)` 局部校验、字段联动（改 A 时校验 B）
+- [x] 表单：`form.validate(paths)` 局部校验、字段联动 `dependencies`（改 A 时校验 B，B 的单字段校验也重跑）；文档站加了分步填写的示例
 - [ ] `usePanZoom`（建在 startMove 上）、二维方向键导航（表格网格、整页日历）、`ControlGroup` 上下文（组合输入的圆角与描边）
 - [ ] 拼音匹配：`createMatcher` 认拼音与首字母（选库后定，作可选依赖）
 - [ ] `useDismissible`：Tag、Alert、Banner 三处先离场再移除

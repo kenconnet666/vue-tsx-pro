@@ -12,6 +12,7 @@ import Layout from './demo/Layout.tsx?demo';
 import Native from './demo/Native.tsx?demo';
 import Quote from './demo/Quote.tsx?demo';
 import Signup from './demo/Signup.tsx?demo';
+import Wizard from './demo/Wizard.tsx?demo';
 import States from './demo/States.tsx?demo';
 
 export const meta = {
@@ -62,6 +63,13 @@ export default _component(() => () => (
           <Code>form.array('items')</Code> 增删、插入、移动，每项有稳定的
           key，错误跟着下标走。金额用 <Code>decimalSchema({'{ min: 0, scale: 2 }'})</Code>：值是
           Decimal，NumberField 自动拿到 min 0、step 0.01，合计不受浮点误差影响。
+        </Example>
+        <Example id="wizard" title="分步填写：局部校验与字段联动" demo={Wizard}>
+          <Code>{"form.validate(['company', 'contact', 'phone'])"}</Code>{' '}
+          只校验这一步的字段（含子路径），立即显示它们的错误，返回是否通过，通过才进下一步；别的步骤的错误不打扰。
+          <Code>{"dependencies: { confirm: ['password'] }"}</Code>
+          ：改了密码重新校验“确认密码”，改了预算下限重新校验上限；被依赖的字段填过或失焦过时才提示，没填过的不打扰。
+          字段的单字段异步校验也跟着依赖重跑。
         </Example>
         <Example id="native" title="原生提交" demo={Native}>
           不用 useForm 也可以：Select、NumberField、Slider、TagsInput 写了 <Code>name</Code>{' '}
