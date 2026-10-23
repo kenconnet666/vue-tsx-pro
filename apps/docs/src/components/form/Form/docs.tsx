@@ -68,8 +68,7 @@ export default _component(() => () => (
           <Code>{"form.validate(['company', 'contact', 'phone'])"}</Code>{' '}
           只校验这一步的字段（含子路径），立即显示它们的错误，返回是否通过，通过才进下一步；别的步骤的错误不打扰。
           <Code>{"dependencies: { confirm: ['password'] }"}</Code>
-          ：改了密码重新校验“确认密码”，改了预算下限重新校验上限；被依赖的字段填过或失焦过时才提示，没填过的不打扰。
-          字段的单字段异步校验也跟着依赖重跑。
+          ：改了密码重新校验“确认密码”，改了预算下限重新校验上限；被依赖的字段填过或失焦过时才提示，没填过的不打扰。字段的单字段异步校验也跟着依赖重跑。
         </Example>
         <Example id="native" title="原生提交" demo={Native}>
           不用 useForm 也可以：Select、NumberField、Slider、TagsInput 写了 <Code>name</Code>{' '}

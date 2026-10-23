@@ -1,6 +1,7 @@
 // ControlGroup：role="group"，里面的输入框外壳与按钮相连（横排时输入框分剩余宽度、选择框按内容宽），竖排换一组样式
 import { describe, expect, it } from 'vitest';
 import { Button } from '../../base/Button';
+import { Field } from '../../form/Field';
 import { attachedStyles } from '../../utils/style/attached';
 import { hasStyles, mount } from '../../utils/.test/mount';
 import { controlShellStyles } from '../control';
@@ -44,5 +45,23 @@ describe('ControlGroup', () => {
     expect(hasStyles(group!.firstElementChild!, attachedStyles.vertical)).toBe(true);
     expect(hasStyles(group!.firstElementChild!, controlShellStyles.grow)).toBe(false);
     expect(hasStyles(alone!, attachedStyles.horizontal)).toBe(false);
+  });
+
+  it('放在 Field 里：组接 Field 的标签与说明，里面的控件不重复拿 Field 的 id', () => {
+    const root = mount(() => (
+      <Field label="合同金额" description="按当天中间价换算">
+        <ControlGroup>
+          <Select items={['USD', 'CNY']} value="USD" aria-label="币种" />
+          <TextField value="" aria-label="金额" />
+        </ControlGroup>
+      </Field>
+    ));
+    const group = root.querySelector<HTMLElement>('[role="group"]')!;
+    const label = root.querySelector('label')!;
+    expect(label.htmlFor).toBe(group.id);
+    expect(group.getAttribute('aria-describedby')).toBeTruthy();
+    const ids = [...root.querySelectorAll('[id]')].map((element) => element.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(root.querySelector('input')!.id).not.toBe(group.id);
   });
 });

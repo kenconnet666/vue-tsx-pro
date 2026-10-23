@@ -20,11 +20,11 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="amount" title="币种与金额" demo={Amount}>
-          组里的输入框与按钮去掉相邻一侧的圆角、边框叠在一起，聚焦的那个浮到上面，焦点环完整。输入框分掉剩余宽度，
-          选择框与按钮按内容宽。每个控件写自己的 <Code>aria-label</Code>，组的名称写在{' '}
-          <Code>ControlGroup</Code> 上（role="group"）；放进 <Code>Field</Code>{' '}
-          时标签与说明照常显示。只有文字的单位、币种符号用输入框自己的 <Code>prefix</Code> /{' '}
-          <Code>suffix</Code>
+          组里的输入框与按钮去掉相邻一侧的圆角、边框叠在一起，聚焦的那个浮到上面，焦点环完整。输入框分掉剩余宽度，选择框与按钮按内容宽。每个控件写自己的{' '}
+          <Code>aria-label</Code>，组的名称写在 <Code>ControlGroup</Code> 上（role="group"）；放进{' '}
+          <Code>Field</Code> 时组接 Field 的标签与说明（经 aria-labelledby /
+          aria-describedby），点标签聚焦第一个控件。只有文字的单位、币种符号用输入框自己的{' '}
+          <Code>prefix</Code> / <Code>suffix</Code>
           ，不必拆成两个控件。
         </Example>
       </ExampleColumn>
