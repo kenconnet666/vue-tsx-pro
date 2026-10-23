@@ -37,6 +37,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { checkboxStyles } from '../input/Checkbox';
 import { choiceStyles } from '../input/choice-styles';
+import { toneFillStyles } from '../utils/style/tone-styles';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import {
@@ -468,7 +469,8 @@ export const Tree = _component(
           {checkable && (
             <span
               {...mergeAttrs<'span'>(
-                { sx: [choiceStyles.control, treeStyles.checkbox] },
+                // 勾选框的实底色取色调变量（同 Checkbox 的 choiceRootSx）
+                { sx: [choiceStyles.control, toneFillStyles.accent, treeStyles.checkbox] },
                 propsCheckbox,
                 {
                   'aria-hidden': true,
