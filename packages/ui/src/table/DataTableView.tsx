@@ -21,7 +21,6 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
-import { StatusBadge } from '../base/Badge';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -29,7 +28,6 @@ import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { clamp } from '../utils/data/number';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
-import { useFormat } from '../config/lang/format';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
@@ -49,12 +47,11 @@ import {
   type ColumnMenuActions,
 } from './ColumnHeaderActions';
 import { ColumnResizer, type ColumnResizerProps } from './ColumnResizer';
+import { useColumnDisplay } from './column-display';
 import {
-  columnAlign,
   columnFilter,
   columnType,
   columnValue,
-  formatCell,
   headerLayout,
   sameStickyOffsets,
   stickyOffsets,
@@ -743,7 +740,7 @@ export const DataTableView = _component(
     ...rest
   }: DataTableViewProps<T>) => {
     const lang = useLang();
-    const format = useFormat();
+    const columnDisplay = useColumnDisplay<T>();
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
@@ -867,29 +864,10 @@ export const DataTableView = _component(
         )
         .join('|'),
     );
-    /** 一个值的显示：空值显示 empty（默认 —），状态显示成 StatusBadge（外观跟随 defaults.Badge），其余按类型与 format 格式化 */
-    const display = (
-      column: DataTableColumn<T>,
-      type: keyof ColumnTypes,
-      value: ReturnType<typeof columnValue>,
-    ): VNodeChild => {
-      if (value == null || value === '') return column.empty ?? lang.emptyValue;
-      if (column.statuses) return <StatusBadge statuses={column.statuses} value={String(value)} />;
-      return formatCell(value, type, format, column.format);
-    };
-
     /** 补上默认对齐与格式化的列：没写 align、cell 的列按值类型来 */
-    const shown = _derived.by(() => {
-      const list = types.split('|') as (keyof ColumnTypes)[];
-      return visibleColumns.map((column, position): DataTableColumn<T> => {
-        const type = list[position]!;
-        return {
-          ...column,
-          align: column.align ?? (column.statuses ? 'start' : columnAlign(type)),
-          cell: column.cell ?? ((row) => display(column, type, columnValue(column, row))),
-        };
-      });
-    });
+    const shown = _derived.by(() =>
+      columnDisplay.columns(visibleColumns, types.split('|') as (keyof ColumnTypes)[]),
+    );
     const hasSummary = _derived(visibleColumns.some((column) => column.summary != null));
     // 有可见的分组时表头两行：第一行是分组标题与没分组的列（跨两行），第二行是组里的列
     const layout = _derived.by(() =>
@@ -910,7 +888,9 @@ export const DataTableView = _component(
       if (column.summary === 'sum') {
         const type = (types.split('|')[position] ?? 'number') as keyof ColumnTypes;
         const total = sums[position];
-        return total == null ? (column.empty ?? lang.emptyValue) : display(column, type, total);
+        return total == null
+          ? (column.empty ?? lang.emptyValue)
+          : columnDisplay.value(column, type, total);
       }
       if (column.summary) return column.summary(rowData);
       return position === 0 ? (summaryLabel ?? lang.tableSummary) : null;

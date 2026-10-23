@@ -1062,6 +1062,13 @@ export {
   type ColumnResizerManaged,
   type ColumnResizerProps,
 } from './table/ColumnResizer';
+export {
+  ColumnTable,
+  columnTableStyles,
+  repeatedRowSpans,
+  type CellSpan,
+  type ColumnTableProps,
+} from './table/ColumnTable';
 export { DataTable, type DataTableProps } from './table/DataTable';
 export {
   DataTableDetailRow,
@@ -1103,6 +1110,7 @@ export {
   treeDataTableStyles,
   type TreeDataTableProps,
 } from './table/TreeDataTable';
+export { useColumnDisplay, type ColumnDisplay } from './table/column-display';
 export {
   arrangeColumns,
   COLUMN_FLEX_MIN_WIDTH,

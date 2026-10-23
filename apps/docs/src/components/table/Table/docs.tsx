@@ -9,11 +9,13 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Invoice from './demo/Invoice.tsx?demo';
 import Plans from './demo/Plans.tsx?demo';
+import Quotes from './demo/Quotes.tsx?demo';
+import columnTableApi from 'virtual:api/ColumnTableProps';
 
 export const meta = {
   title: 'Table 表格',
   description:
-    '静态表格：原生 table 的各个元素各一个组件，内容直接写在 JSX 里（说明文字里的表格、对比表、明细）。要排序、勾选、虚拟滚动的用 DataTable。',
+    '静态表格：原生 table 的各个元素各一个组件，内容直接写在 JSX 里（说明文字里的表格、对比表、明细）；ColumnTable 按列定义渲染、可以合并单元格。要排序、勾选、虚拟滚动的用 DataTable。',
   order: 1,
 };
 
@@ -21,7 +23,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Table, TableBody, TableCaption, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from '@vue-tsx-pro/ui';"
+    imports="import { ColumnTable, Table, TableBody, TableCaption, TableCell, TableFoot, TableHead, TableHeaderCell, TableRow } from '@vue-tsx-pro/ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -39,6 +41,15 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, headerCellApi, cellApi]} />
+    <Example id="column-table" title="列定义与合并单元格：询价比价单" demo={Quotes}>
+      <Code>ColumnTable</Code> 按列定义渲染静态表格：列定义与 DataTable 相同（
+      <Code>type</Code>、<Code>format</Code>、<Code>statuses</Code>、<Code>empty</Code>、
+      <Code>summary</Code>），不虚拟滚动、列宽按内容，适合详情页的明细、打印与导出预览。
+      <Code>mergeRepeated</Code> 写列的
+      key：这几列里上下相邻、值相同的格合成一格，后一列只在前一列的同一格里合并（不同供应商下的同名品类不合）；
+      <Code>cellSpan</Code> 更灵活，返回 <Code>{'{ rowSpan, colSpan }'}</Code>，被合并掉的格返回
+      0（同 Ant Design 的 onCell）——这里没报价的行把“单价”“小计”合成一格写原因。
+    </Example>
+    <ApiReference api={[api, columnTableApi, headerCellApi, cellApi]} />
   </DocPage>
 ));
