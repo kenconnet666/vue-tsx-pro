@@ -282,6 +282,10 @@ export interface Lang {
   readonly pageLabel: (page: number) => string;
   /** 树没有节点时的提示，默认“暂无数据” */
   readonly treeEmpty: string;
+  /** 树搜索没有匹配时的提示，默认“没有匹配的节点” */
+  readonly treeNoMatch: string;
+  /** 树里移动了一个节点（读屏播报）：`('测算组', '成本管理部', 2)` → “测算组移到成本管理部下第 2 位”；放到第一层时 parent 为 undefined */
+  readonly treeMoved: (item: string, parent: string | undefined, position: number) => string;
   /** 面包屑导航的无障碍名称，默认“面包屑” */
   readonly breadcrumbs: string;
   /** 面包屑折叠按钮（打开被折叠各级的菜单）的名称，默认“显示被折叠的路径” */

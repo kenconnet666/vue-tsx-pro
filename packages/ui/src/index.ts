@@ -342,6 +342,7 @@ export {
   treeDynamicStyles,
   treeStyles,
   type TreeItemRenderState,
+  type TreeMove,
   type TreeProps,
 } from './display/Tree';
 export {

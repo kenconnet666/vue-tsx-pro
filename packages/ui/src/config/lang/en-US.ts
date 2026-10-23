@@ -141,6 +141,11 @@ export const enUS: Lang = {
   nextPage: 'Next page',
   pageLabel: (page) => `Page ${page}`,
   treeEmpty: 'No data',
+  treeNoMatch: 'No matching items',
+  treeMoved: (item, parent, position) =>
+    parent
+      ? `Moved ${item} into ${parent} at position ${position}`
+      : `Moved ${item} to the top level at position ${position}`,
   breadcrumbs: 'Breadcrumb',
   breadcrumbsExpand: 'Show hidden levels',
   stepState: (state) =>

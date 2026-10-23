@@ -9,6 +9,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Checkable from './demo/Checkable.tsx?demo';
 import Files from './demo/Files.tsx?demo';
 import Lazy from './demo/Lazy.tsx?demo';
+import Outline from './demo/Outline.tsx?demo';
 
 export const meta = {
   title: 'Tree 树',
@@ -25,6 +26,14 @@ export default _component(() => () => (
           <Code>getKey</Code>、<Code>getLabel</Code>、<Code>getChildren</Code>{' '}
           读你自己的数据结构，不用先转换；<Code>getIcon</Code> 按展开状态换图标。键盘 ↑↓ 移动，→
           展开，← 收起，Enter 选中，输入文字跳到匹配项。
+        </Example>
+        <Example id="outline" title="搜索与拖动" demo={Outline}>
+          <Code>filter</Code> 给字符串时按节点文字过滤（认拼音，同 createUi 的
+          textMatcher），给函数时自己判断：留下匹配的节点与它们的上级并展开上级，匹配的加粗；清空后回到原来的展开状态。写了{' '}
+          <Code>onMove</Code>{' '}
+          就能拖动节点：放在一项的上沿、下沿是放到它前后，放在中间是放进它里面，停在收起的节点上会展开它；键盘用
+          Alt + 方向键。<Code>onMove</Code> 报告 key 与目标（父节点、位置），交给{' '}
+          <Code>moveNode</Code> 生成新数据；<Code>canDrop</Code> 拦下不能放的位置。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -54,6 +63,9 @@ export default _component(() => () => (
         ['Enter', '选中节点；不能选中时展开或收起'],
         ['Space', '勾选（checkable 时），否则选中'],
         ['字母键', '移到下一个以它开头的节点'],
+        ['Alt + ↑ / ↓', '写了 onMove 时：在同级里上移、下移'],
+        ['Alt + →', '写了 onMove 时：放进上一个同级节点的最后（从右到左排版时用 ←）'],
+        ['Alt + ←', '写了 onMove 时：移到父节点后面（从右到左排版时用 →）'],
       ]}
     >
       整棵树只占一个 Tab 位置，当前项经 aria-activedescendant 告诉读屏；层级与位置经

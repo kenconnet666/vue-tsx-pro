@@ -34,7 +34,7 @@ import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import type { TagProps } from '../base/Tag';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
-import { useLang, useTextMatcher } from '../config/context';
+import { useLang } from '../config/context';
 import { Tree, type TreeProps } from '../display/Tree';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
@@ -197,7 +197,6 @@ export const TreeSelect = _component(
     ...rest
   }: TreeSelectProps<T>) => {
     const lang = useLang();
-    const textMatcher = useTextMatcher();
     const treeId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
@@ -236,38 +235,16 @@ export const TreeSelect = _component(
       { immediate: true },
     );
 
-    // 搜索：命中的节点与它们的祖先（为 null 时不过滤）
-    const visible = _derived.by(() => {
+    // 本地搜索交给 Tree 的 filter（命中的节点与祖先、展开祖先、命中的加粗）；
+    // 有 load 或 filter={false} 时结果已经是服务端筛好的，不再过滤
+    const treeFilter = () => {
       const text = search.trim();
-      // 有 load 或 filter={false} 时结果已经是服务端筛好的
-      if (!searchable || !text || load || filter === false) return null;
-      const match = textMatcher();
-      const hits = (node: T) => (filter ? filter(node, text) : match(getLabel(node), text));
-      const keys = new Set<string>();
-      for (const [key, { node }] of nodes) {
-        if (!hits(node)) continue;
-        for (let at: string | undefined = key; at !== undefined && !keys.has(at);) {
-          keys.add(at);
-          at = nodes.get(at)?.parent;
-        }
-      }
-      return keys;
-    });
-    const shownItems = () => {
-      const all = remote.items();
-      return visible ? all.filter((node) => visible.has(getKey(node))) : all;
+      if (!searchable || !text || load || filter === false) return undefined;
+      return filter ? (node: T) => filter(node, text) : text;
     };
-    const shownChildren = (node: T) => {
-      const children = getChildren(node);
-      return visible ? children?.filter((child) => visible.has(getKey(child))) : children;
-    };
-    // 搜索时展开命中节点的祖先；清空搜索回到自己展开的状态
-    const shownExpanded = () => {
-      if (visible) return [...visible].filter((key) => nodes.has(key));
-      // 服务端搜索的结果全部展开（只有命中的节点与它们的祖先）
-      if (load && search.trim()) return [...nodes.keys()];
-      return expanded;
-    };
+    // 服务端搜索的结果全部展开（只有命中的节点与它们的祖先）；清空搜索回到自己展开的状态
+    const remoteResults = () => !!load && !!search.trim();
+    const shownExpanded = () => (remoteResults() ? [...nodes.keys()] : expanded);
 
     const values = () => selectedValues(value);
     // 勾选联动要看到折叠着的节点
@@ -370,15 +347,16 @@ export const TreeSelect = _component(
       }
     }
 
-    /** 树的属性（单选、多选共用）：搜索时换成过滤后的节点 */
+    /** 树的属性（单选、多选共用）：本地搜索时带上 filter */
     const treeProps = (labelledBy: string | undefined) =>
       mergePartProps<TreeProps<T>>(
         {
-          items: shownItems(),
+          items: remote.items(),
           getKey,
           getLabel,
-          getChildren: shownChildren,
-          hasChildren: visible ? undefined : hasChildren,
+          getChildren,
+          hasChildren,
+          filter: treeFilter(),
           loadChildren,
           loading: remote.loading(),
           empty: remote.error()
@@ -550,7 +528,7 @@ export const TreeSelect = _component(
                   )}
                   expanded={_bind(
                     () => shownExpanded(),
-                    (next: string[]) => (expanded = visible ? expanded : next),
+                    (next: string[]) => (expanded = remoteResults() ? expanded : next),
                   )}
                 />
               ) : (
@@ -564,7 +542,7 @@ export const TreeSelect = _component(
                   )}
                   expanded={_bind(
                     () => shownExpanded(),
-                    (next: string[]) => (expanded = visible ? expanded : next),
+                    (next: string[]) => (expanded = remoteResults() ? expanded : next),
                   )}
                 />
               ))}

@@ -128,6 +128,9 @@ export const zhCN: Lang = {
   nextPage: '下一页',
   pageLabel: (page) => `第 ${page} 页`,
   treeEmpty: '暂无数据',
+  treeNoMatch: '没有匹配的节点',
+  treeMoved: (item, parent, position) =>
+    parent ? `${item}移到${parent}下第 ${position} 位` : `${item}移到第一层第 ${position} 位`,
   breadcrumbs: '面包屑',
   breadcrumbsExpand: '显示被折叠的路径',
   stepState: (state) => `（${{ complete: '已完成', upcoming: '未开始', error: '出错' }[state]}）`,

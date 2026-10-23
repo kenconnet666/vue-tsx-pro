@@ -27,10 +27,13 @@
 import { Check, ChevronRight, Minus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId, watch, type VNodeChild } from 'vue';
+import { onScopeDispose, useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
-import { useLang } from '../config/context';
+import { useLang, useTextMatcher } from '../config/context';
+import { t } from '../config/theme/tokens';
+import { announce } from '../utils/dom/announcer';
+import { startMove } from '../utils/dom/move';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
@@ -42,12 +45,14 @@ import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
 import {
   checkStates,
+  filterTree,
   flattenTree,
   indexTree,
   toggleChecked,
   useTreeExpansion,
   type CheckState,
   type TreeAccessors,
+  type TreeMoveTarget,
 } from '../utils/data/tree';
 import { createTypeahead } from '../utils/dom/typeahead';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
@@ -70,6 +75,22 @@ export interface TreeItemRenderState {
   checked: CheckState;
   /** 键盘所在的当前项 */
   active: boolean;
+}
+
+/** 一次移动：把 key 移到 target（交给 moveNode） */
+export interface TreeMove<T> {
+  /** 移动的节点的 key */
+  key: string;
+  /** 移动的节点 */
+  node: T;
+  /** 放到哪个节点下的第几位（按移走之后的同级算） */
+  target: TreeMoveTarget;
+}
+
+/** 拖动时的落点：放在 key 这一项的前面、后面或里面 */
+interface DropSpot {
+  key: string;
+  zone: 'before' | 'after' | 'inside';
 }
 
 /** 未声明的属性落到 div（role="tree"）上；aria-label 或 aria-labelledby 是树的名称 */
@@ -112,6 +133,18 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   indent?: number;
   /** 每项的估计高度（px），默认 32；渲染后以实际高度为准 */
   estimateSize?: number;
+  /**
+   * 搜索过滤：字符串时按节点文字匹配（忽略大小写与重音，或 createUi 的 textMatcher），函数时自己判断。
+   * 留下匹配的节点与它们的祖先并展开祖先，匹配的节点文字加粗；只看已加载的节点。清空后回到原来的展开状态
+   */
+  filter?: string | ((node: T) => boolean);
+  /**
+   * 拖动节点改变层级与顺序：放下（或 Alt + 方向键）时报告移动，用 moveNode 生成新数据交回 items；不写时不能拖。
+   * 指针拖动只用鼠标、笔（触摸时照常滚动）
+   */
+  onMove?: (move: TreeMove<T>) => void;
+  /** 能不能放到这里（如文件不能放进文件里）；不写时都能放（放进自己和自己的子孙里除外） */
+  canDrop?: (node: T, target: TreeMoveTarget) => boolean;
   /** 自定义文字部分的内容 */
   renderItem?: (node: T, state: TreeItemRenderState) => VNodeChild;
   /** 每一项的部件属性，可以按节点计算 */
@@ -158,6 +191,29 @@ export const treeStyles = stylex.create({
   checkbox: { marginInlineEnd: '_xs' },
   checkMark: { width: '0.875em', height: '0.875em', color: '_accentContrast' },
   hidden: { visibility: 'hidden' },
+  // 搜索时匹配的节点
+  matched: { fontWeight: '_semibold' },
+  // 拖动：被拖的那一项变淡；放进某一项里时它带品牌色的框；放在前后时画一条线
+  dragging: { opacity: 0.5 },
+  dropInside: {
+    outlineStyle: 'solid',
+    outlineWidth: '_borderWidths.sm',
+    outlineColor: '_accent',
+    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
+    backgroundColor: '_accentSoft',
+  },
+  dropLine: {
+    position: 'absolute',
+    insetInlineEnd: 0,
+    height: '_borderWidths.sm',
+    backgroundColor: '_accent',
+    borderRadius: '_full',
+    pointerEvents: 'none',
+  },
+  dropBefore: { top: `calc(-1 * ${t.borderWidths.xs})` },
+  dropAfter: { bottom: `calc(-1 * ${t.borderWidths.xs})` },
+  // 画线的那一项要作定位参照
+  positioned: { position: 'relative' },
 });
 
 // 缩进与位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -167,6 +223,8 @@ export const treeDynamicStyles = stylex.create({
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),
   width: (value: string) => ({ width: value }),
+  // 落点线从这一层的缩进处开始
+  lineStart: (em: number) => ({ insetInlineStart: `${em}em` }),
 });
 
 /** 加载中显示几行骨架 */
@@ -200,6 +258,9 @@ export const Tree = _component(
     empty,
     indent = 1.25,
     estimateSize = 32,
+    filter,
+    onMove,
+    canDrop,
     renderItem,
     propsItem,
     propsRow,
@@ -229,16 +290,37 @@ export const Tree = _component(
       getChildren,
       hasChildren,
     });
+
+    // 搜索过滤：匹配的节点与祖先；为 null 时不过滤
+    const textMatcher = useTextMatcher();
+    const filtering = _derived.by(() => {
+      const query = typeof filter === 'string' ? filter.trim() : filter;
+      if (!query) return null;
+      const match =
+        typeof query === 'string' ? (node: T) => textMatcher()(getLabel(node), query) : query;
+      return filterTree(items, accessors(), match);
+    });
+    // 过滤时的展开状态单独记：一开始展开匹配项的祖先，可以再收起；清空过滤后回到原来的 expanded
+    let filterExpanded = _state<string[]>([]);
+    watch(
+      () => filtering,
+      (result) => (filterExpanded = result ? [...result.expand] : []),
+      { immediate: true },
+    );
+    const shownExpanded = () => (filtering ? filterExpanded : expanded);
+
     const expansion = useTreeExpansion<T>({
-      expanded: () => expanded,
-      setExpanded: (keys) => (expanded = keys),
+      expanded: shownExpanded,
+      setExpanded: (keys) => (filtering ? (filterExpanded = keys) : (expanded = keys)),
       getChildren: (node) => getChildren(node),
       loadChildren: (node) => loadChildren?.(node),
       // 没给 onLoadError 时交给 useTreeExpansion 在控制台报错
       onLoadError: _untrack(onLoadError) && ((error, node) => onLoadError?.(error, node)),
     });
 
-    const rows = _derived.by(() => flattenTree(items, accessors(), new Set(expanded)));
+    const rows = _derived.by(() =>
+      flattenTree(items, accessors(), new Set(shownExpanded()), { include: filtering?.include }),
+    );
     const rowOf = _derived.by(() => new Map(rows.map((row, index) => [row.key, index])));
     // 勾选联动要看到折叠着的节点：只在联动勾选时建整棵树的索引
     const index = _derived.by(() =>
@@ -322,7 +404,163 @@ export const Tree = _component(
         void expansion.setOpen(row.node, row.key, !expansion.isExpanded(row.key));
     }
 
+    // —— 移动节点（onMove）：指针拖动，或 Alt + 方向键 ——
+    let dragging = _state<string | undefined>(undefined);
+    let drop = _state.raw<DropSpot | null>(null);
+    let expandTimer: ReturnType<typeof setTimeout> | undefined;
+    let stopDrag: (() => void) | undefined;
+    onScopeDispose(() => {
+      clearTimeout(expandTimer);
+      stopDrag?.();
+    });
+
+    const rowByKey = (key: string | undefined) =>
+      key === undefined ? undefined : rows[rowOf.get(key) ?? -1];
+
+    /** key 是不是 ancestor 自己或它的子孙（看得见的行里，祖先总是看得见的） */
+    function isWithin(key: string, ancestor: string) {
+      for (let at: string | undefined = key; at !== undefined; at = rowByKey(at)?.parent) {
+        if (at === ancestor) return true;
+      }
+      return false;
+    }
+
+    /** 落点换算成移动的目标（按移走之后的同级算）；放不下时 null */
+    function targetOf(key: string, spot: DropSpot): TreeMoveTarget | null {
+      const moving = rowByKey(key);
+      const row = rowByKey(spot.key);
+      if (!moving || !row || isWithin(spot.key, key)) return null;
+      let target: TreeMoveTarget;
+      if (spot.zone === 'inside') target = { parent: row.key, index: Number.MAX_SAFE_INTEGER };
+      else {
+        const offset = spot.zone === 'before' ? row.position - 1 : row.position;
+        // 同一层里从前面移过来：移走之后，后面的都往前挪了一位
+        const shift = moving.parent === row.parent && moving.position <= offset ? 1 : 0;
+        target = { parent: row.parent, index: offset - shift };
+      }
+      return canDrop && !canDrop(moving.node, target) ? null : target;
+    }
+
+    /** 报告移动，并告诉读屏移到了哪里 */
+    function emitMove(key: string, target: TreeMoveTarget) {
+      const row = rowByKey(key);
+      if (!row || !onMove) return;
+      const parent = rowByKey(target.parent);
+      // 移走之后的同级个数：同一层里移动时要去掉自己
+      const count =
+        (parent ? (getChildren(parent.node)?.length ?? 0) : items.length) -
+        (row.parent === target.parent ? 1 : 0);
+      onMove({ key, node: row.node, target });
+      announce(
+        lang.treeMoved(
+          getLabel(row.node),
+          parent && getLabel(parent.node),
+          Math.min(target.index, count) + 1,
+        ),
+      );
+    }
+
+    /** 指针下的落点：一项的上四分之一放在它前面，下四分之一放在后面，中间放进它里面 */
+    function spotAt(clientX: number, clientY: number): DropSpot | null {
+      const element = document
+        .elementFromPoint(clientX, clientY)
+        ?.closest<HTMLElement>('[data-index]');
+      if (!element || !root?.contains(element)) return null;
+      const row = rows[Number(element.dataset.index)];
+      if (!row) return null;
+      const rect = element.getBoundingClientRect();
+      const ratio = (clientY - rect.top) / rect.height;
+      return { key: row.key, zone: ratio < 0.25 ? 'before' : ratio > 0.75 ? 'after' : 'inside' };
+    }
+
+    /** 拖到靠近上下边缘时滚动 */
+    function autoScroll(clientY: number) {
+      if (!root) return;
+      const rect = root.getBoundingClientRect();
+      if (clientY < rect.top + 32) root.scrollTop -= 12;
+      else if (clientY > rect.bottom - 32) root.scrollTop += 12;
+    }
+
+    /** 拖到收起的节点里停一会儿：展开它，好放到更深的地方 */
+    function scheduleExpand(spot: DropSpot | null) {
+      clearTimeout(expandTimer);
+      const row = spot?.zone === 'inside' ? rowByKey(spot.key) : undefined;
+      if (!row?.expandable || expansion.isExpanded(row.key)) return;
+      expandTimer = setTimeout(() => void expansion.setOpen(row.node, row.key, true), 600);
+    }
+
+    function onItemPointerdown(event: PointerEvent, key: string) {
+      // 焦点留在树上
+      event.preventDefault();
+      // 触摸时照常滚动，不拖
+      if (!onMove || event.pointerType === 'touch' || !root) return;
+      stopDrag = startMove(event, {
+        threshold: 4,
+        // 虚拟滚动会换掉行元素：捕获在不动的树上
+        captureTarget: root,
+        onMove: ({ clientX, clientY }) => {
+          dragging = key;
+          // 先按当前的位置算落点，再滚动：滚动后指针下面换成了别的项
+          const spot = spotAt(clientX, clientY);
+          autoScroll(clientY);
+          const next = spot && targetOf(key, spot) ? spot : null;
+          if (next?.key === drop?.key && next?.zone === drop?.zone) return;
+          drop = next;
+          scheduleExpand(next);
+        },
+        onEnd: ({ moved, cancelled }) => {
+          const spot = drop;
+          dragging = undefined;
+          drop = null;
+          stopDrag = undefined;
+          clearTimeout(expandTimer);
+          if (!moved || cancelled || !spot) return;
+          const target = targetOf(key, spot);
+          if (target) emitMove(key, target);
+        },
+      });
+    }
+
+    /** Alt + ↑↓ 在同级里移动，Alt + → 放进上一个同级的最后，Alt + ← 移到父节点后面（从右到左时左右对调） */
+    function moveByKey(event: KeyboardEvent): boolean {
+      const row = rows[activeRow()];
+      if (!row) return false;
+      const { forward, backward } = inlineArrows(!!root && isRtl(root));
+      let target: TreeMoveTarget | undefined;
+      switch (event.key) {
+        case 'ArrowUp':
+          if (row.position > 1) target = { parent: row.parent, index: row.position - 2 };
+          break;
+        case 'ArrowDown':
+          if (row.position < row.setSize) target = { parent: row.parent, index: row.position };
+          break;
+        case forward: {
+          const previous = rows.find(
+            (item) => item.parent === row.parent && item.position === row.position - 1,
+          );
+          if (!previous) break;
+          target = { parent: previous.key, index: Number.MAX_SAFE_INTEGER };
+          // 展开新的父节点：移过去之后还看得见
+          void expansion.setOpen(previous.node, previous.key, true);
+          break;
+        }
+        case backward: {
+          const parent = rowByKey(row.parent);
+          if (parent) target = { parent: parent.parent, index: parent.position };
+          break;
+        }
+        default:
+          return false;
+      }
+      if (target && (!canDrop || canDrop(row.node, target))) emitMove(row.key, target);
+      return true;
+    }
+
     function onKeydown(event: KeyboardEvent) {
+      if (event.altKey && onMove && !event.ctrlKey && !event.metaKey) {
+        if (moveByKey(event)) event.preventDefault();
+        return;
+      }
       if (event.altKey || event.ctrlKey || event.metaKey || rows.length === 0) return;
       const position = Math.max(activeRow(), 0);
       const row = rows[position]!;
@@ -399,6 +637,7 @@ export const Tree = _component(
       const icon = getIcon?.(row.node, open);
       const loading = expansion.isLoading(row.key);
       const marked = state.checked !== 'unchecked';
+      const dropZone = drop?.key === row.key ? drop.zone : undefined;
       return (
         <div
           {...mergeAttrs<'div'>(
@@ -410,6 +649,9 @@ export const Tree = _component(
                 focused && state.active && itemStyles.highlighted,
                 state.selected && itemStyles.current,
                 disabled && itemStyles.disabled,
+                dragging === row.key && treeStyles.dragging,
+                dropZone === 'inside' && treeStyles.dropInside,
+                dropZone && dropZone !== 'inside' && treeStyles.positioned,
               ],
             },
             own,
@@ -424,8 +666,7 @@ export const Tree = _component(
               'aria-checked': checkable ? ARIA_CHECKED[state.checked] : undefined,
               'aria-disabled': disabled || undefined,
               'aria-busy': loading || undefined,
-              // 焦点留在树上
-              onPointerdown: (event: PointerEvent) => event.preventDefault(),
+              onPointerdown: (event: PointerEvent) => onItemPointerdown(event, row.key),
               onClick: () => {
                 active = row.key;
                 root?.focus({ preventScroll: true });
@@ -499,9 +740,24 @@ export const Tree = _component(
             </span>
           )}
           {icon && <Icon icon={icon} />}
-          <span {...mergeAttrs<'span'>({ sx: itemStyles.label }, propsLabel)}>
+          <span
+            {...mergeAttrs<'span'>(
+              { sx: [itemStyles.label, filtering?.matched.has(row.key) && treeStyles.matched] },
+              propsLabel,
+            )}
+          >
             {renderItem ? renderItem(row.node, state) : getLabel(row.node)}
           </span>
+          {dropZone && dropZone !== 'inside' && (
+            <span
+              aria-hidden="true"
+              {...stylex.attrs(
+                treeStyles.dropLine,
+                dropZone === 'before' ? treeStyles.dropBefore : treeStyles.dropAfter,
+                treeDynamicStyles.lineStart(row.depth * indent + 1.75),
+              )}
+            />
+          )}
         </div>
       );
     }
@@ -527,7 +783,11 @@ export const Tree = _component(
         empty ?? (
           <Empty
             {...mergePartProps<EmptyProps>(
-              { size: 'sm', icon: false, description: lang.treeEmpty },
+              {
+                size: 'sm',
+                icon: false,
+                description: filtering ? lang.treeNoMatch : lang.treeEmpty,
+              },
               propsEmpty,
             )}
           />
