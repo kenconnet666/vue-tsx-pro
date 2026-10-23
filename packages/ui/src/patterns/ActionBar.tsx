@@ -14,7 +14,8 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onScopeDispose, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
+import { useIntersectionObserver } from '../utils/dom/intersection';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到外层 div 上 */
@@ -69,21 +70,13 @@ export const ActionBar = _component(
   ({ start, sticky = true, propsStart, propsActions, children, ...rest }: ActionBarProps) => {
     let root = _state.raw<HTMLElement | null>(null);
     let stuck = _state(false);
-    let observer: IntersectionObserver | undefined;
 
     // 贴着底边时栏有一条线宽露在滚动区域外（见 sticky 样式）：没有完整可见就是盖着下面的内容
-    _effect(() => {
-      observer?.disconnect();
-      observer = undefined;
-      stuck = false;
-      if (!root || !sticky || typeof IntersectionObserver === 'undefined') return;
-      observer = new IntersectionObserver(
-        ([entry]) => (stuck = !!entry && entry.isIntersecting && entry.intersectionRatio < 1),
-        { threshold: [0, 1] },
-      );
-      observer.observe(root);
-    });
-    onScopeDispose(() => observer?.disconnect());
+    useIntersectionObserver(
+      () => (sticky ? root : null),
+      ([entry]) => (stuck = !!entry && entry.isIntersecting && entry.intersectionRatio < 1),
+      () => ({ threshold: [0, 1] }),
+    );
 
     return () => (
       <div
@@ -92,13 +85,13 @@ export const ActionBar = _component(
             sx: [
               actionBarStyles.root,
               sticky && actionBarStyles.sticky,
-              stuck && actionBarStyles.stuck,
+              sticky && stuck && actionBarStyles.stuck,
             ],
           },
           rest,
           { ref: _toRef(root) },
         )}
-        data-stuck={stuck || undefined}
+        data-stuck={(sticky && stuck) || undefined}
       >
         {hasContent(start) && (
           <div {...mergeAttrs<'div'>({ sx: actionBarStyles.start }, propsStart)}>{start}</div>

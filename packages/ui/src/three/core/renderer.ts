@@ -18,7 +18,9 @@ import { useConfig } from '../../config/context';
 import { readToken } from '../../config/theme/theme';
 import { durations } from '../../config/theme/tokens.stylex';
 import { useReducedMotion } from '../../utils/dom/media-query';
+import { useIntersectionObserver } from '../../utils/dom/intersection';
 import { usePageVisible } from '../../utils/dom/page-visibility';
+import { useResizeObserver } from '../../utils/dom/resize';
 import { disposeObject } from './dispose';
 import { clamp } from '../../utils/data/number';
 import { parseDuration } from '../../utils/motion/animation';
@@ -378,31 +380,14 @@ export function useThree(options: ThreeOptions): ThreeController {
     status.value = mode;
   }
 
-  watch(
-    options.canvas,
-    (canvas, _, onCleanup) => {
-      if (!canvas) return;
-      const observers: { disconnect(): void }[] = [];
-      if (typeof IntersectionObserver === 'undefined') {
-        visible.value = true;
-      } else {
-        const intersection = new IntersectionObserver(([entry]) => {
-          visible.value = entry!.isIntersecting;
-          lastSeen = performance.now();
-        });
-        intersection.observe(canvas);
-        observers.push(intersection);
-      }
-      if (typeof ResizeObserver !== 'undefined') {
-        const sizes = new ResizeObserver(() => instance && resize(instance));
-        sizes.observe(canvas);
-        observers.push(sizes);
-      }
-      start();
-      onCleanup(() => observers.forEach((observer) => observer.disconnect()));
-    },
-    { immediate: true, flush: 'post' },
-  );
+  // 没有 IntersectionObserver 的环境（服务端、旧测试环境）当作一直在视口里
+  if (typeof IntersectionObserver === 'undefined') visible.value = true;
+  useIntersectionObserver(options.canvas, ([entry]) => {
+    visible.value = entry!.isIntersecting;
+    lastSeen = performance.now();
+  });
+  useResizeObserver(options.canvas, () => instance && resize(instance));
+  watch(options.canvas, (canvas) => canvas && start(), { immediate: true, flush: 'post' });
 
   watch(visible, (shown) => {
     if (instance) update();

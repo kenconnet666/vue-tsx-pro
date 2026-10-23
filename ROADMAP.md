@@ -79,7 +79,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 - [ ] `useSortable` 多容器分组：列内排序 + 跨列（KanbanBoard 改建在它上面；Tree、Transfer、Tabs 的拖动也用）
 - [ ] `useOverflowItems`：量出放得下几项，其余折成 +N（Select / TreeSelect 的 maxTagCount、Tabs 溢出、横向导航、Toolbar）
-- [ ] `useIntersectionObserver`（ActionBar、3D、Affix、BackTop、图片懒加载）
+- [x] `useIntersectionObserver`（ActionBar、3D 画布已改用；Affix、BackTop、图片懒加载做的时候直接用）
 - [ ] 树工具：`filterTree`、`moveNode`、勾选策略（只返回父 / 子 / 全部）、路径收集
 - [ ] 表单：`form.validate(paths)` 局部校验、字段联动（改 A 时校验 B）
 - [ ] `usePanZoom`（建在 startMove 上）、二维方向键导航（表格网格、整页日历）、`ControlGroup` 上下文（组合输入的圆角与描边）
