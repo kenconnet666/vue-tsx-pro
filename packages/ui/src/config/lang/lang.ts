@@ -218,6 +218,8 @@ export interface Lang {
   readonly sortableGroupCancelled: (item: string, group: string, position: number) => string;
   /** 放到不能放的组、弹回时的播报 */
   readonly sortableRejected: (item: string, reason: string) => string;
+  /** 进度的目标值（读屏念在进度后面），默认“目标 80%” */
+  readonly progressTarget: (value: string) => string;
   /** 引导的“上一步”按钮，默认“上一步” */
   readonly tourPrevious: string;
   /** 引导的“下一步”按钮，默认“下一步” */

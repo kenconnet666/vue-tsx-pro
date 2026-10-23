@@ -9,6 +9,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Bars from './demo/Bars.tsx?demo';
 import Overlay from './demo/Overlay.tsx?demo';
+import Rings from './demo/Rings.tsx?demo';
 import Shapes from './demo/Shapes.tsx?demo';
 import Spinners from './demo/Spinners.tsx?demo';
 
@@ -37,6 +38,13 @@ export default _component(() => () => (
         <Example id="shapes" title="粗细与不确定进度" demo={Shapes}>
           <Code>size</Code> 跟字号档位缩放粗细，<Code>radius</Code> 改圆角；不写 <Code>value</Code>{' '}
           是不确定进度，循环滑动，减少动态效果时停下。
+        </Example>
+        <Example id="rings" title="环形与目标" demo={Rings}>
+          <Code>shape="circle"</Code> 是环形：中间显示数值，<Code>label</Code> 在下方，直径随{' '}
+          <Code>size</Code> 缩放，适合仪表盘与卡片里的完成率；不写 <Code>value</Code>{' '}
+          时一段弧一直转。
+          <Code>target</Code> 是目标值：条上画一条竖线、环上画一道刻度，读屏念成“60%，目标
+          80%”。分段的占比（各部门、各状态）用 ProportionBar。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

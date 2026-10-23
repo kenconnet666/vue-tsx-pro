@@ -65,6 +65,35 @@ describe('Progress', () => {
     expect(money.getAttribute('aria-valuetext')).toBe('100%');
   });
 
+  it('target：条上画目标线（按比例定位），读屏念在进度后面', () => {
+    const el = first(mount(() => <Progress value={60} target={80} aria-label="完成率" />));
+    expect(el.getAttribute('aria-valuetext')).toBe('60%，目标 80%');
+    const line = el.querySelector('[aria-hidden="true"]') as HTMLElement;
+    expect(line).not.toBeNull();
+  });
+
+  it('环形：根元素是 progressbar，中间显示百分比（对读屏隐藏）；有 label 时外层加标签、名称指向它', () => {
+    const ring = first(mount(() => <Progress shape="circle" value={72} aria-label="完成率" />));
+    expect(ring.getAttribute('role')).toBe('progressbar');
+    expect(ring.getAttribute('aria-valuenow')).toBe('72');
+    expect(ring.querySelectorAll('circle')).toHaveLength(2);
+    const center = ring.querySelector('[aria-hidden="true"]:not(svg)')!;
+    expect(center.textContent).toBe('72%');
+
+    const labelled = first(
+      mount(() => <Progress shape="circle" value={40} target={50} label="本月完成率" />),
+    );
+    const bar = labelled.querySelector('[role="progressbar"]')!;
+    expect(document.getElementById(bar.getAttribute('aria-labelledby')!)!.textContent).toBe(
+      '本月完成率',
+    );
+    expect(bar.querySelector('line')).not.toBeNull();
+
+    const spinning = first(mount(() => <Progress shape="circle" aria-label="加载中" />));
+    expect(spinning.dataset.state).toBe('indeterminate');
+    expect(spinning.hasAttribute('aria-valuenow')).toBe(false);
+  });
+
   it('label：上方的标签是名称，右侧默认显示百分比；valueLabel 换文字，showValueLabel 可以关掉', () => {
     const root = first(
       mount(() => (

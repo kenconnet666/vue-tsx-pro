@@ -76,6 +76,7 @@ export const enUS: Lang = {
   uploadDone: 'Uploaded',
   uploadRetry: (file) => `Retry uploading ${file}`,
   uploadRemove: (file) => `Remove ${file}`,
+  progressTarget: (value) => `target ${value}`,
   sortableHandle: (item) => `Move ${item}`,
   sortableInstructions:
     'Press Space to pick up, use the arrow keys to move, Space again to drop, Escape to cancel',

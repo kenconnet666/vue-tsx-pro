@@ -75,6 +75,7 @@ export const zhCN: Lang = {
   uploadDone: '已上传',
   uploadRetry: (file) => `重新上传 ${file}`,
   uploadRemove: (file) => `移除 ${file}`,
+  progressTarget: (value) => `目标 ${value}`,
   sortableHandle: (item) => `移动 ${item}`,
   sortableInstructions: '按空格拿起，用方向键移动，再按空格放下，Esc 取消',
   sortableGrabbed: (item, position, total) => `已拿起 ${item}，在第 ${position} 位，共 ${total} 项`,

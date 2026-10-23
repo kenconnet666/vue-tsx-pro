@@ -364,12 +364,17 @@ export {
 } from './feedback/LoadingOverlay';
 export {
   Progress,
+  progressCircleStyles,
+  progressStrokeStyles,
   progressStyles,
+  progressTargetPositionStyles,
+  progressTargetStyles,
   progressToneStyles,
   progressWidthStyles,
   type ProgressManaged,
   type ProgressOptions,
   type ProgressProps,
+  type ProgressShapes,
 } from './feedback/Progress';
 export {
   Result,
