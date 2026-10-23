@@ -12,13 +12,13 @@ import {
   Icon,
   Provider,
   Text,
-  ThemeSwitcher,
   ToggleGroup,
   ToggleItem,
   useLang,
   type BuiltinThemeName,
 } from '@vue-tsx-pro/ui';
 import { ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';
+import { ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
 
 const styles = stylex.create({
   // 主题卡片排成网格：宽屏一行六张

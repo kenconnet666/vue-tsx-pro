@@ -20,7 +20,6 @@ import {
   H2,
   processProgress,
   Small,
-  useFormDialog,
   useRequest,
   workItemOutcomes,
   WorkflowTimeline,
@@ -28,6 +27,7 @@ import {
   type ProcessOutcome,
   type WorkItem,
 } from '@vue-tsx-pro/ui';
+import { useFormDialog } from '@vue-tsx-pro/ui/patterns';
 import Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';
 import {

@@ -1,0 +1,54 @@
+/**
+ * 页面组合（子路径 `@vue-tsx-pro/ui/patterns`）：用核心组件拼好的页面级部件，后台应用直接拿来搭页面：
+ * 应用外壳 AppShell、页头 PageHeader、吸底操作栏 ActionBar、筛选条 FilterBar、通知中心 NotificationCenter、
+ * 看板 KanbanBoard、时限标记 DeadlineBadge、主题切换 ThemeSwitcher、命令式的表单对话框 useFormDialog。
+ *
+ *   import { AppShell, PageHeader } from '@vue-tsx-pro/ui/patterns';
+ *
+ * 它们只依赖主入口的组件与工具，不放在主入口：外观与交互更有主见（同 Ant Design 的 ProComponents），
+ * 文案自带中英文（messages.ts），别的语言在 Lang.messages.patterns 里补。
+ */
+export { ActionBar, actionBarStyles, type ActionBarProps } from './ActionBar';
+export {
+  AppShell,
+  AppShellBrand,
+  appShellBrandStyles,
+  appShellDynamicStyles,
+  appShellOffset,
+  appShellStyles,
+  type AppShellBrandProps,
+  type AppShellProps,
+  type AppShellSidebarModes,
+} from './AppShell';
+export { DeadlineBadge, type DeadlineBadgeProps } from './DeadlineBadge';
+export {
+  FilterBar,
+  filterBarColumnStyles,
+  filterBarStyles,
+  type FilterBarManaged,
+  type FilterBarProps,
+} from './FilterBar';
+export {
+  KanbanBoard,
+  kanbanBoardDynamicStyles,
+  kanbanBoardStyles,
+  type KanbanBoardProps,
+  type KanbanCardState,
+  type KanbanColumn,
+} from './KanbanBoard';
+export {
+  NotificationCenter,
+  notificationCenterStyles,
+  type NotificationCenterProps,
+  type NotificationItem,
+  type NotificationType,
+} from './NotificationCenter';
+export {
+  PageHeader,
+  pageHeaderStyles,
+  type PageHeaderManaged,
+  type PageHeaderProps,
+} from './PageHeader';
+export { ThemeSwitcher, type ThemeSwitcherProps } from './ThemeSwitcher';
+export { useFormDialog, type FormDialogField, type FormDialogOptions } from './form-dialog';
+export { patternsMessages, type PatternsMessages } from './messages';

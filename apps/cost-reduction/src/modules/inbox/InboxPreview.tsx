@@ -8,7 +8,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
-  DeadlineTag,
   Descriptions,
   Flex,
   H2,
@@ -19,6 +18,7 @@ import {
   useRequest,
   type WorkItem,
 } from '@vue-tsx-pro/ui';
+import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
 import { getTask } from '../../api/tasks';
 import { personName, shortTeam } from '../../app/master';
 import { paths } from '../../app/paths';
@@ -83,7 +83,7 @@ export const InboxPreview = _component(
               value:
                 item.state === 'open' ? (
                   item.dueOn ? (
-                    <DeadlineTag due={item.dueOn} today={TODAY} />
+                    <DeadlineBadge due={item.dueOn} today={TODAY} />
                   ) : (
                     '不限'
                   )

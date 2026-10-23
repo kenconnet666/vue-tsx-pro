@@ -8,6 +8,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
 import * as ui from '@vue-tsx-pro/ui';
+import * as patterns from '@vue-tsx-pro/ui/patterns';
 import {
   Alert,
   Button,
@@ -77,8 +78,16 @@ const styles = stylex.create({
 });
 
 /** 演练场里的一个组件 */
+/** 能在演练场里调的入口（图表、3D 这类重依赖的子路径不进）：导入路径 → 模块 */
+const MODULES: Readonly<Record<string, Record<string, unknown>>> = {
+  '@vue-tsx-pro/ui': ui,
+  '@vue-tsx-pro/ui/patterns': patterns,
+};
+
 interface Entry {
   name: string;
+  /** 从哪个入口导入 */
+  entry: string;
   category: string;
   description: string;
   props: readonly ApiProp[];
@@ -109,9 +118,10 @@ function isPlayable(entry: Entry): boolean {
 }
 
 const entries: Entry[] = catalog
-  .filter((item) => !HIDDEN.has(item.name))
+  .filter((item) => !HIDDEN.has(item.name) && item.entry in MODULES)
   .map((item) => ({
     name: item.name,
+    entry: item.entry,
     category: item.category,
     description: item.api.description,
     props: item.api.props,
@@ -293,7 +303,7 @@ export const PropsPlayground = _component(
     }
 
     function renderPreview(): VNodeChild {
-      const target = (ui as unknown as Record<string, Component>)[entry.name]!;
+      const target = MODULES[entry.entry]![entry.name] as Component;
       const props: Record<string, unknown> = {};
       for (const [name, item] of Object.entries(entry.preset.fixed ?? {})) props[name] = item.value;
       for (const prop of entry.props) {
@@ -317,6 +327,7 @@ export const PropsPlayground = _component(
       const { fixed = {}, children, imports, icons } = entry.preset;
       return componentCode({
         name: entry.name,
+        entry: entry.entry,
         controls,
         values,
         defaults,

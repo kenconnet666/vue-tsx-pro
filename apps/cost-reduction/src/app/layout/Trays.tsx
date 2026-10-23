@@ -7,13 +7,11 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Card,
-  DeadlineTag,
   IconButton,
   Indicator,
   ItemList,
   ItemListItem,
   Link,
-  NotificationCenter,
   Popover,
   Small,
   StatusBadge,
@@ -22,6 +20,7 @@ import {
   useRequest,
   type IconData,
 } from '@vue-tsx-pro/ui';
+import { DeadlineBadge, NotificationCenter } from '@vue-tsx-pro/ui/patterns';
 import { watch, type VNodeChild } from 'vue';
 import { getMyTasks, getNotifications, markNotificationsRead } from '../../api/session';
 import { listWorkItems } from '../../api/workflow';
@@ -115,7 +114,7 @@ export const InboxTray = _component(() => {
             }
             title={<Link href={paths.inbox({ item: item.id })}>{item.name}</Link>}
             description={`${item.businessKey} · ${processOf(item.processKey)?.name ?? item.processKey}`}
-            end={<DeadlineTag due={item.dueOn} today={TODAY} />}
+            end={<DeadlineBadge due={item.dueOn} today={TODAY} />}
           />
         ))}
       </Tray>
@@ -178,7 +177,7 @@ export const MyTasksTray = _component(() => {
           start={<StatusBadge statuses={taskStatuses} value={task.status} />}
           title={<Link href={paths.task(task.code)}>{task.name}</Link>}
           description={`${task.code} · 截止 ${task.due}`}
-          end={<DeadlineTag due={task.due} today={TODAY} soon={5} />}
+          end={<DeadlineBadge due={task.due} today={TODAY} soon={5} />}
         />
       ))}
     </Tray>

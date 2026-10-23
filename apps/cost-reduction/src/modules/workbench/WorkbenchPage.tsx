@@ -8,7 +8,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Card,
-  DeadlineTag,
   Flex,
   Grid,
   gridItemDynamicStyles,
@@ -27,6 +26,7 @@ import {
   workdaysBetween,
   type WorkItem,
 } from '@vue-tsx-pro/ui';
+import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
 import { getDashboard } from '../../api/benefit';
 import { getMyTasks, getNotifications } from '../../api/session';
 import { listWorkItems } from '../../api/workflow';
@@ -311,7 +311,7 @@ export default _component(() => {
                         end={
                           <>
                             <StatusBadge statuses={taskStatuses} value={task.status} />
-                            <DeadlineTag due={task.due} today={TODAY} soon={5} />
+                            <DeadlineBadge due={task.due} today={TODAY} soon={5} />
                           </>
                         }
                       />
@@ -344,7 +344,7 @@ export default _component(() => {
                           </Link>
                         }
                         description={`${processName(item.processKey)} · ${item.name} · ${handlerText(item)}`}
-                        end={<DeadlineTag due={item.dueOn} today={TODAY} />}
+                        end={<DeadlineBadge due={item.dueOn} today={TODAY} />}
                       />
                     ))}
                   </ItemList>

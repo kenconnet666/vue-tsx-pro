@@ -11,7 +11,6 @@ import {
   Badge,
   Button,
   DataTable,
-  DeadlineTag,
   Empty,
   queryCodecs,
   Select,
@@ -32,6 +31,7 @@ import {
   Text,
   ViewportFill,
 } from '@vue-tsx-pro/ui';
+import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
 import { claimWorkItem, listWorkItems } from '../../api/workflow';
 import { notifyError, toaster } from '../../app/feedback';
 import { PageNav } from '../../app/layout/PageNav';
@@ -198,7 +198,7 @@ export default _component(() => {
             value: (item: WorkItem) => item.dueOn ?? '9999',
             cell: (item: WorkItem) =>
               item.dueOn ? (
-                <DeadlineTag due={item.dueOn} today={TODAY} />
+                <DeadlineBadge due={item.dueOn} today={TODAY} />
               ) : (
                 <Small tone="muted">不限</Small>
               ),

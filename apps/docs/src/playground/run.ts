@@ -12,27 +12,37 @@ import type { Component } from 'vue';
 import type { TokenGroups } from './compile';
 import type { CompileRequest, CompileResponse } from './compile.worker';
 
-/** 体积大的模块：代码里用到时才加载（图标很多；图表、3D 带着 Unovis、three） */
+/** 一直在的模块：文档站本来就加载了 */
+const MODULES: Record<string, unknown> = {
+  vue,
+  '@vue-tsx-pro/tsx': tsx,
+  '@vue-tsx-pro/tsx/stylex': stylex,
+  '@stylexjs/stylex': stylex,
+  '@vue-tsx-pro/ui': ui,
+  '@vue-tsx-pro/ui/tokens.stylex': tokens,
+  '@vue-tsx-pro/ui/vars.stylex': vars,
+};
+
+/** 代码里用到时才加载的模块（图标很多；图表、3D 带着 Unovis、three；子路径不在文档站的首屏里） */
 const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@lucide/icons': () => import('@lucide/icons'),
   '@vue-tsx-pro/ui/charts': () => import('@vue-tsx-pro/ui/charts'),
+  '@vue-tsx-pro/ui/patterns': () => import('@vue-tsx-pro/ui/patterns'),
   '@vue-tsx-pro/ui/theme-customize': () => import('@vue-tsx-pro/ui/theme-customize'),
   '@vue-tsx-pro/ui/three': () => import('@vue-tsx-pro/ui/three'),
   '@vue-tsx-pro/ui/docs-kit': () => import('@vue-tsx-pro/ui/docs-kit'),
   three: () => import('three'),
 };
 
+/** 用户代码能导入的模块名（组件库的子路径都要在：pages 测试检查） */
+export const playgroundModuleNames: readonly string[] = [
+  ...Object.keys(MODULES),
+  ...Object.keys(LAZY_MODULES),
+];
+
 /** 用户代码能导入的模块；编译结果按 `__modules["名字"]` 取 */
 async function moduleTable(code: string): Promise<Record<string, unknown>> {
-  const table: Record<string, unknown> = {
-    vue,
-    '@vue-tsx-pro/tsx': tsx,
-    '@vue-tsx-pro/tsx/stylex': stylex,
-    '@stylexjs/stylex': stylex,
-    '@vue-tsx-pro/ui': ui,
-    '@vue-tsx-pro/ui/tokens.stylex': tokens,
-    '@vue-tsx-pro/ui/vars.stylex': vars,
-  };
+  const table: Record<string, unknown> = { ...MODULES };
   const used = Object.entries(LAZY_MODULES).filter(
     ([name]) => code.includes(JSON.stringify(name)) || code.includes(`'${name}'`),
   );

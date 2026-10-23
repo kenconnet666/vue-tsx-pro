@@ -1,10 +1,8 @@
-// 列表页：外壳的品牌（Brand）、占满到窗口底边（ViewportFill）、表格在里面滚动（DataTable flexible），分页贴着窗口底边
+// 列表页：外壳的品牌（AppShellBrand）、占满到窗口底边（ViewportFill）、表格在里面滚动（DataTable flexible），分页贴着窗口底边
 import { Plane, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
-  AppShell,
-  Brand,
   DataTable,
   Flex,
   Pagination,
@@ -13,6 +11,7 @@ import {
   ViewportFill,
   type DataTableColumn,
 } from '@vue-tsx-pro/ui';
+import { AppShellBrand, AppShell } from '@vue-tsx-pro/ui/patterns';
 
 interface Row {
   code: string;
@@ -42,9 +41,9 @@ export default _component(() => {
   return () => (
     <AppShell
       brand={
-        <Brand href="#" icon={Plane}>
+        <AppShellBrand href="#" icon={Plane}>
           联合降本管理
-        </Brand>
+        </AppShellBrand>
       }
       propsMain={{ sx: styles.main }}
     >

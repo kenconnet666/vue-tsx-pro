@@ -1,9 +1,7 @@
-// 页面布局：AsideLayout 的两栏与侧栏名称、Brand 的链接、ViewportFill 的竖排（高度在浏览器里量）
-import { Plane } from '@lucide/icons';
+// 页面布局：AsideLayout 的两栏与侧栏名称、ViewportFill 的竖排（高度在浏览器里量）
 import { describe, expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
 import { AsideLayout } from '../AsideLayout';
-import { Brand } from '../Brand';
 import { ViewportFill } from '../ViewportFill';
 
 describe('AsideLayout', () => {
@@ -18,19 +16,6 @@ describe('AsideLayout', () => {
     expect(aside.textContent).toBe('收益');
     expect(aside.previousElementSibling!.textContent).toBe('概览');
     expect(aside.parentElement!.getAttribute('style') ?? '').toContain('26rem');
-  });
-});
-
-describe('Brand', () => {
-  it('链到首页：图标是装饰，名字是链接的名称', () => {
-    const link = mount(() => (
-      <Brand href="/" icon={Plane}>
-        联合降本管理
-      </Brand>
-    )).querySelector('a')!;
-    expect(link.getAttribute('href')).toBe('/');
-    expect(link.textContent).toBe('联合降本管理');
-    expect(link.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
   });
 });
 

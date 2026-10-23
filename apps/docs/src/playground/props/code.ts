@@ -8,6 +8,8 @@ import type { Control } from './controls';
 export interface CodeInput {
   /** 组件名 */
   name: string;
+  /** 组件从哪个入口导入（@vue-tsx-pro/ui、@vue-tsx-pro/ui/patterns） */
+  entry: string;
   /** 有控件的属性与当前值 */
   controls: readonly Control[];
   values: Readonly<Record<string, unknown>>;
@@ -17,7 +19,7 @@ export interface CodeInput {
   fixed?: Readonly<Record<string, string>>;
   /** 内容的源码；没有时自闭合 */
   children?: string;
-  /** 内容里额外用到的组件库导出 */
+  /** 内容里额外用到的组件库导出（主入口的） */
   imports?: readonly string[];
   /** 内容里额外用到的图标 */
   icons?: readonly string[];
@@ -36,6 +38,7 @@ function attribute(control: Control, value: unknown, fallback: unknown): string 
 /** 生成代码 */
 export function componentCode({
   name,
+  entry,
   controls,
   values,
   defaults,
@@ -70,13 +73,15 @@ export function componentCode({
     : inline && (opening + children).length < 70
       ? `${opening}>${children}</${name}>`
       : `${opening}>\n    ${children.split('\n').join('\n    ')}\n  </${name}>`;
-  const uiImports = [...new Set([name, ...imports])].sort();
+  const main = '@vue-tsx-pro/ui';
+  const uiImports = [...new Set([...(entry === main ? [name] : []), ...imports])].sort();
   return [
     ...(icons.length
       ? [`import { ${[...new Set(icons)].sort().join(', ')} } from '@lucide/icons';`]
       : []),
     `import { _component } from '@vue-tsx-pro/tsx';`,
-    `import { ${uiImports.join(', ')} } from '@vue-tsx-pro/ui';`,
+    ...(uiImports.length ? [`import { ${uiImports.join(', ')} } from '${main}';`] : []),
+    ...(entry === main ? [] : [`import { ${name} } from '${entry}';`]),
     '',
     `export default _component(() => () => (`,
     `  ${element}`,

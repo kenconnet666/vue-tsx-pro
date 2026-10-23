@@ -31,6 +31,11 @@
       "types": "./dist/three/index.d.ts",
       "default": "./dist/three/index.js"
     },
+    "./patterns": {
+      "@vue-tsx-pro/source": "./src/patterns/index.ts",
+      "types": "./dist/patterns/index.d.ts",
+      "default": "./dist/patterns/index.js"
+    },
     "./vue-router": {
       "@vue-tsx-pro/source": "./src/config/vue-router.ts",
       "types": "./dist/config/vue-router.d.ts",

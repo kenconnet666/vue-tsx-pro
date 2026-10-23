@@ -12,6 +12,7 @@ import type { $ZodErrorMap } from 'zod/v4/core';
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
 import type { DocsKitMessages } from '../../docs-kit/messages';
+import type { PatternsMessages } from '../../patterns/messages';
 import type { ThemeCustomizerMessages } from '../../theme-customize/messages';
 import type { WorkflowMessages } from '../../workflow/messages';
 
@@ -73,18 +74,6 @@ export interface Lang {
   readonly copied: string;
   /** 没有值时显示的占位（表格单元格、图表提示、描述列表），默认“—” */
   readonly emptyValue: string;
-  /** 返回上一级的按钮名称（页头的返回），默认“返回” */
-  readonly back: string;
-  /** 查询栏的查询按钮，默认“查询” */
-  readonly filterSearch: string;
-  /** 查询栏的重置按钮，默认“重置” */
-  readonly filterReset: string;
-  /** 查询栏展开更多条件，默认“展开” */
-  readonly filterExpand: string;
-  /** 查询栏收起更多条件，默认“收起” */
-  readonly filterCollapse: string;
-  /** 收起的条件里已经填了几项：`(2)` → “已设 2 项” */
-  readonly filterActive: (count: number) => string;
   /** 表单里该填的没有填（null、undefined、空字符串、空数组）时的错误，默认“必填”；schema 里自己写的提示优先 */
   readonly formRequired: string;
   /** 其余校验错误的文案：取 zod 自带的语言包（`zod/v4/locales` 的 localeError）；schema 里自己写的提示优先 */
@@ -180,18 +169,6 @@ export interface Lang {
   readonly chartDegree: (count: number) => string;
   /** 树形表格展开按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的子项” */
   readonly treeToggle: (row: string) => string;
-  /** 时限标记：还剩几个工作日，默认“剩 n 个工作日” */
-  readonly deadlineRemaining: (workdays: number) => string;
-  /** 时限标记：今天到期，默认“今天到期” */
-  readonly deadlineDue: string;
-  /** 时限标记：超时几个工作日（0 时是周末、假日里刚过期），默认“超时 n 个工作日”“已超时” */
-  readonly deadlineOverdue: (workdays: number) => string;
-  /** 时限标记：按时完成，默认“按时完成” */
-  readonly deadlineDone: string;
-  /** 时限标记：超时完成，默认“超时 n 个工作日完成” */
-  readonly deadlineDoneLate: (workdays: number) => string;
-  /** 时限标记的完整说明（title 与读屏）：截止日，默认“截止 2026-10-23” */
-  readonly deadlineOn: (date: string) => string;
   /** 完成清单只有图标时，一项的说明：`('方案确定', true)` → “方案确定已完成” */
   readonly checklistItemState: (label: string, done: boolean) => string;
   /** 分栏的分隔条的名称，默认“调整分栏” */
@@ -200,20 +177,6 @@ export interface Lang {
   readonly splitterCollapse: string;
   /** 分栏展开一侧的按钮，默认“展开” */
   readonly splitterExpand: string;
-  /** 通知中心的标题与按钮名称，默认“通知” */
-  readonly notifications: string;
-  /** 通知中心按钮的名称（带未读数），默认“通知，未读 n 条” */
-  readonly notificationsUnread: (count: number) => string;
-  /** 通知中心：全部标为已读，默认“全部标为已读” */
-  readonly notificationsMarkAllRead: string;
-  /** 通知中心：不按类型筛选，默认“全部” */
-  readonly notificationsAll: string;
-  /** 通知中心：只看未读，默认“只看未读” */
-  readonly notificationsUnreadOnly: string;
-  /** 通知中心：没有通知，默认“没有通知” */
-  readonly notificationsEmpty: string;
-  /** 通知中心：一条未读的标记（读屏），默认“未读” */
-  readonly notificationUnreadMark: string;
   /** 选择文件区域的提示，默认“点击或拖放文件到这里” */
   readonly fileDrop: string;
   /** 文件超过大小上限时的错误，默认“文件不能超过 上限” */
@@ -240,18 +203,6 @@ export interface Lang {
   readonly sortableDropped: (item: string, position: number, total: number) => string;
   /** 取消时的播报，默认“已取消，项名 回到第 n 位” */
   readonly sortableCancelled: (item: string, position: number) => string;
-  /** 看板卡片把手的操作说明，默认“按空格拿起，用左右方向键换列，再按空格放下，Esc 取消” */
-  readonly kanbanInstructions: string;
-  /** 看板：拿起时的播报，默认“已拿起 项名，在 列名” */
-  readonly kanbanGrabbed: (item: string, column: string) => string;
-  /** 看板：换到一列时的播报；不能放时带上原因 */
-  readonly kanbanOver: (item: string, column: string, reason: string | null) => string;
-  /** 看板：放下时的播报，默认“已把 项名 移到 列名” */
-  readonly kanbanDropped: (item: string, column: string) => string;
-  /** 看板：取消或不能放、弹回时的播报 */
-  readonly kanbanCancelled: (item: string, column: string, reason: string | null) => string;
-  /** 看板：一列没有卡片时，默认“没有” */
-  readonly kanbanEmpty: string;
   /** 引导的“上一步”按钮，默认“上一步” */
   readonly tourPrevious: string;
   /** 引导的“下一步”按钮，默认“下一步” */
@@ -373,14 +324,6 @@ export interface Lang {
   readonly skipToContent: string;
   /** 页内目录的名称，默认“本页目录” */
   readonly tableOfContents: string;
-  /** 窄屏时收着侧边导航的抽屉的标题，默认“导航” */
-  readonly navigation: string;
-  /** 窄屏时打开侧边导航的按钮，默认“打开导航” */
-  readonly navigationOpen: string;
-  /** 抽屉式侧边导航的开关按钮上的文字，默认“菜单” */
-  readonly navigationMenu: string;
-  /** 抽屉式侧边导航的宽度调整手柄，默认“调整导航宽度” */
-  readonly navigationResize: string;
   /** 抽屉宽度调整手柄的名称，默认“调整抽屉宽度” */
   readonly drawerResize: string;
   /** 搜索面板与搜索按钮的名称，默认“搜索” */
@@ -389,12 +332,10 @@ export interface Lang {
   readonly searchPlaceholder: string;
   /** 搜索没有结果，默认“没有找到相关内容” */
   readonly searchEmpty: string;
-  /** 主题切换的名称，默认“主题” */
-  readonly themeLabel: string;
-  /** 主题：跟随系统，默认“跟随系统” */
-  readonly themeSystem: string;
   /** 主题：亮色，默认“亮色” */
   readonly themeLight: string;
+  /** 主题偏好：跟随系统（createThemePreference 的 'system'），默认“跟随系统” */
+  readonly themeSystem: string;
   /** 主题：暗色，默认“暗色” */
   readonly themeDark: string;
   /** 主题：纸张，默认“纸张” */
@@ -443,6 +384,8 @@ export interface LangMessages {
   readonly docsKit: DocsKitMessages;
   /** 流程组件 FlowDiagram、WorkflowTimeline、ApprovalActions */
   readonly workflow: WorkflowMessages;
+  /** 页面组合（@vue-tsx-pro/ui/patterns）：AppShell、PageHeader、FilterBar、NotificationCenter、KanbanBoard… */
+  readonly patterns: PatternsMessages;
 }
 
 /** 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })` */

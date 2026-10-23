@@ -2,7 +2,8 @@
  * 任务卡的操作：推进、调整计划（PEMO 审批）、暂停、终止、删除（可撤销）。台账的“更多”菜单与项目详情共用：
  * 破坏性的先确认，结果用全局提示告诉用户，失败时显示后端给的原因；成功后把新的任务卡交给 onChange
  */
-import { Button, useConfirm, useFormDialog } from '@vue-tsx-pro/ui';
+import { Button, useConfirm } from '@vue-tsx-pro/ui';
+import { useFormDialog } from '@vue-tsx-pro/ui/patterns';
 import {
   advanceTask,
   deleteTask,

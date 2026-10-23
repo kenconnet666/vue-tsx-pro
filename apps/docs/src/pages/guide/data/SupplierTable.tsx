@@ -4,7 +4,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import {
   DataTable,
   Field,
-  FilterBar,
   Flex,
   PageSizeSelect,
   Pagination,
@@ -14,6 +13,7 @@ import {
   useTableQuery,
   type DataTableColumn,
 } from '@vue-tsx-pro/ui';
+import { FilterBar } from '@vue-tsx-pro/ui/patterns';
 import type { Supplier, SupplierPage } from './fake-api';
 
 const columns: DataTableColumn<Supplier>[] = [

@@ -26,12 +26,17 @@ const src = join(ui, 'src').split('\\').join('/');
 /** 部件属性的通用部分（sx）声明在这里：不逐条列出 */
 const PART_PROPS_FILE = `${src}/utils/props.ts`;
 
-/** 组件库的全部入口（主入口与子路径，相对 src），登记在 package.json 的 exports */
-const ENTRIES = Object.values(
+/** 组件库的全部入口，登记在 package.json 的 exports：导入路径（@vue-tsx-pro/ui/patterns）与源码文件（相对 src） */
+const ENTRIES = Object.entries(
   JSON.parse(readFileSync(join(ui, 'package.json'), 'utf8')).exports as Record<string, unknown>,
-).flatMap((target) =>
+).flatMap(([key, target]) =>
   typeof target === 'object' && target !== null
-    ? [(target as Record<string, string>)['@vue-tsx-pro/source']!.replace(/^\.\/src\//, '')]
+    ? [
+        {
+          name: `@vue-tsx-pro/ui${key.slice(1)}`,
+          source: (target as Record<string, string>)['@vue-tsx-pro/source']!.replace('./src/', ''),
+        },
+      ]
     : [],
 );
 
@@ -80,7 +85,7 @@ function currentProgram(): ts.Program {
   )!;
   // 只从入口出发：tsconfig 里的测试文件会把 vitest、playwright 的类型也拉进来，程序大一倍
   program = ts.createProgram({
-    rootNames: ENTRIES.map((entry) => `${src}/${entry}`),
+    rootNames: ENTRIES.map((entry) => `${src}/${entry.source}`),
     options: config.options,
     host: compilerHost(config.options),
     oldProgram: program,
@@ -104,14 +109,16 @@ function componentSymbol(checker: ts.TypeChecker, name: string): ts.Symbol | und
 
 function exportedSymbol(checker: ts.TypeChecker, name: string): ts.Symbol {
   for (const entry of ENTRIES) {
-    const file = currentProgram().getSourceFile(`${src}/${entry}`)!;
+    const file = currentProgram().getSourceFile(`${src}/${entry.source}`)!;
     const module = checker.getSymbolAtLocation(file)!;
     const symbol = checker.getExportsOfModule(module).find((item) => item.name === name);
     if (symbol) {
       return symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
     }
   }
-  throw new Error(`@vue-tsx-pro/ui 的入口（${ENTRIES.join('、')}）都没有导出 ${name}`);
+  throw new Error(
+    `@vue-tsx-pro/ui 的入口（${ENTRIES.map((entry) => entry.name).join('、')}）都没有导出 ${name}`,
+  );
 }
 
 /** 档位类型展开成可选值：`keyof X` 取 X 的键与注释；类型别名顺着找；字面量联合直接列出 */
@@ -254,24 +261,35 @@ export function extractComponentApi(interfaceName: string): ComponentApi {
   };
 }
 
-/** 组件目录里的一项：组件名、所在分类（源码目录）与 API 数据 */
+/** 组件目录里的一项：组件名、从哪个入口导入、所在分类（源码目录）与 API 数据 */
 export interface CatalogEntry {
   name: string;
+  entry: string;
   category: string;
   api: ComponentApi;
 }
 
-/** 主入口导出的组件：同时导出了值 Xxx 与接口 XxxProps 的都算，按组件名排序 */
+/** 各入口导出的组件：同一个入口同时导出了值 Xxx 与接口 XxxProps 的都算，按组件名排序 */
 export function extractCatalog(): CatalogEntry[] {
   const checker = currentProgram().getTypeChecker();
-  const file = currentProgram().getSourceFile(`${src}/index.ts`)!;
-  const names = new Set(
-    checker.getExportsOfModule(checker.getSymbolAtLocation(file)!).map((symbol) => symbol.name),
-  );
+  /** 名字 → 导出它的入口 */
+  const entryOf = new Map<string, string>();
+  for (const entry of ENTRIES) {
+    const file = currentProgram().getSourceFile(`${src}/${entry.source}`)!;
+    for (const symbol of checker.getExportsOfModule(checker.getSymbolAtLocation(file)!)) {
+      entryOf.set(symbol.name, entry.name);
+    }
+  }
+  const names = new Set(entryOf.keys());
   const entries: CatalogEntry[] = [];
   for (const name of [...names].sort()) {
     const component = name.replace(/Props$/, '');
-    if (component === name || !/^[A-Z]/.test(component) || !names.has(component)) continue;
+    if (
+      component === name ||
+      !/^[A-Z]/.test(component) ||
+      entryOf.get(component) !== entryOf.get(name)
+    )
+      continue;
     const symbol = exportedSymbol(checker, component);
     const path = symbol.declarations?.[0]?.getSourceFile().fileName.split('\\').join('/');
     if (!path?.startsWith(src)) continue;
@@ -280,6 +298,7 @@ export function extractCatalog(): CatalogEntry[] {
     const props = api.props.filter((prop) => prop.kind === 'prop' || prop.kind === 'content');
     entries.push({
       name: component,
+      entry: entryOf.get(component)!,
       category: path.slice(src.length + 1).split('/')[0]!,
       api: { ...api, props },
     });

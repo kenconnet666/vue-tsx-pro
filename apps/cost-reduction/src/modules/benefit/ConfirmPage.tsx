@@ -9,7 +9,6 @@ import {
   Badge,
   Button,
   DataTable,
-  DeadlineTag,
   Link,
   Flex,
   Small,
@@ -22,13 +21,13 @@ import {
   ToggleItem,
   useConfirm,
   useFormat,
-  useFormDialog,
   useRequest,
   type DataTableColumn,
   queryCodecs,
   useQueryState,
   ViewportFill,
 } from '@vue-tsx-pro/ui';
+import { DeadlineBadge, useFormDialog } from '@vue-tsx-pro/ui/patterns';
 import Decimal from 'decimal.js';
 import { approveBenefit, listConfirmRows, returnBenefit } from '../../api/benefit';
 import { notifyError, toaster } from '../../app/feedback';
@@ -214,7 +213,7 @@ export default _component(() => {
             cell: (row: Row) => {
               const deadline = confirmDeadline(row.task);
               return deadline ? (
-                <DeadlineTag due={deadline.due} today={TODAY} soon={3} />
+                <DeadlineBadge due={deadline.due} today={TODAY} soon={3} />
               ) : (
                 <Small tone="muted">—</Small>
               );

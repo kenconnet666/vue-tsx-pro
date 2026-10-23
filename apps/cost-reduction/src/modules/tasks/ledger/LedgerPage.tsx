@@ -29,7 +29,6 @@ import {
   dataTableStyles,
   downloadFile,
   Field,
-  FilterBar,
   Flex,
   IconButton,
   Menu,
@@ -54,6 +53,7 @@ import {
   Text,
   ViewportFill,
 } from '@vue-tsx-pro/ui';
+import { FilterBar } from '@vue-tsx-pro/ui/patterns';
 import type Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';
 import { getTasks, listTasks } from '../../../api/tasks';

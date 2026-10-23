@@ -8,10 +8,8 @@ import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
-  DeadlineTag,
   Drawer,
   Flex,
-  KanbanBoard,
   queryCodecs,
   Select,
   Small,
@@ -25,9 +23,9 @@ import {
   usePersistentState,
   useQueryState,
   useRequest,
-  type KanbanColumn,
   type StatusTone,
 } from '@vue-tsx-pro/ui';
+import { DeadlineBadge, KanbanBoard, type KanbanColumn } from '@vue-tsx-pro/ui/patterns';
 import { getTaskBoard, type TaskBoardCard } from '../../../api/tasks';
 import { toaster } from '../../../app/feedback';
 import { master, ownerOptions, personName, shortTeam, teamNames } from '../../../app/master';
@@ -150,7 +148,7 @@ export default _component(() => {
           <Small tone="muted">
             {personName(task.owner)} · {shortTeam(task.team)}
           </Small>
-          {!isFinished(task) && <DeadlineTag due={task.due} today={TODAY} />}
+          {!isFinished(task) && <DeadlineBadge due={task.due} today={TODAY} />}
         </Flex>
       </Flex>
     );

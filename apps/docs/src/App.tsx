@@ -5,7 +5,6 @@
 import { Box } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
-  AppShell,
   CommandPalette,
   Container,
   Icon,
@@ -15,10 +14,10 @@ import {
   NavSection,
   Pager,
   TableOfContents,
-  ThemeSwitcher,
   collectHeadings,
   type HeadingEntry,
 } from '@vue-tsx-pro/ui';
+import { AppShell, ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';

@@ -10,11 +10,11 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  PageHeader,
   Small,
   StatusBadge,
   Text,
 } from '@vue-tsx-pro/ui';
+import { PageHeader } from '@vue-tsx-pro/ui/patterns';
 import type { VNodeChild } from 'vue';
 import { dictLabel, personName } from '../../../app/master';
 import { paths } from '../../../app/paths';

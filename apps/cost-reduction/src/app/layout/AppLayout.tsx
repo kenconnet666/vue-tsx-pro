@@ -7,18 +7,16 @@ import { Plane } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
-  AppShell,
-  Brand,
   Flex,
   NavItem,
   NavList,
   NavSection,
   Provider,
-  ThemeSwitcher,
   Toaster,
   usePersistentState,
   type ComponentDefaults,
 } from '@vue-tsx-pro/ui';
+import { AppShellBrand, AppShell, ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
 import { RouterView, useRoute } from 'vue-router';
 import { toaster } from '../feedback';
 import { paths } from '../paths';
@@ -56,9 +54,9 @@ export const AppLayout = _component(() => {
           sidebarWidth={_bind(sidebar.value.width)}
           propsMain={{ sx: styles.main }}
           brand={
-            <Brand href={paths.workbench()} icon={Plane}>
+            <AppShellBrand href={paths.workbench()} icon={Plane}>
               联合降本管理
-            </Brand>
+            </AppShellBrand>
           }
           header={
             <>

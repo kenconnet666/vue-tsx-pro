@@ -7,7 +7,6 @@
 import { Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
-  ActionBar,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -35,6 +34,7 @@ import {
   useForm,
   useLeaveConfirmation,
 } from '@vue-tsx-pro/ui';
+import { ActionBar } from '@vue-tsx-pro/ui/patterns';
 import Decimal from 'decimal.js';
 import { watch } from 'vue';
 import * as z from 'zod';

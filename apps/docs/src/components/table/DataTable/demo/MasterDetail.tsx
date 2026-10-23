@@ -4,12 +4,12 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Button,
   DataTable,
-  DeadlineTag,
   Descriptions,
   Empty,
   Splitter,
   type DataTableColumn,
 } from '@vue-tsx-pro/ui';
+import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
 
 interface Todo {
   id: string;
@@ -70,7 +70,7 @@ export default _component(() => {
       key: 'due',
       header: '剩余',
       width: 140,
-      cell: (row) => <DeadlineTag due={row.due} today={TODAY} />,
+      cell: (row) => <DeadlineBadge due={row.due} today={TODAY} />,
     },
   ];
   return () => {
