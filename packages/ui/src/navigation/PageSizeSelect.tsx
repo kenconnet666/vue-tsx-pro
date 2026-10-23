@@ -1,5 +1,5 @@
 /**
- * 每页条数选择：分页的配套组件，与 Pagination 并排放（各自独立，按需组合）。选项文字取语言包（“20 条/页”）。
+ * 每页条数选择：分页的配套组件，与 Pagination 并排放（各自独立，按需组合；三样都要时用 PaginationBar）。选项文字取语言包（“20 条/页”）。
  *
  *   <Flex gap="md" align="center">
  *     <Pagination page={_bind(page)} total={total} pageSize={size} />
@@ -7,8 +7,10 @@
  *   </Flex>
  *
  * 基于 Select：未声明的属性落到 Select 上（外壳用 propsRoot 等 Select 的部件），名称默认取语言包（每页条数）。
+ * 按钮按最长的选项定宽：换条数时不变宽窄，下拉（与按钮同宽）里的选项也不被截断。
  */
 import { _component } from '@vue-tsx-pro/tsx';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { Select, type SelectProps } from '../input/Select';
@@ -30,6 +32,14 @@ export interface PageSizeSelectProps extends Omit<
   /** 用户换了条数后调用（通常把页码回到第 1 页） */
   onSizeChange?: (size: number) => void;
 }
+
+/** PageSizeSelect 的样式：stack、option、hidden */
+export const pageSizeSelectStyles = stylex.create({
+  // 所有选项的文字叠在同一格，按最宽的那个撑开，只显示选中的
+  stack: { display: 'inline-grid' },
+  option: { gridArea: '1 / 1' },
+  hidden: { visibility: 'hidden' },
+});
 
 /** 每页条数选择（Select） */
 export const PageSizeSelect = _component(
@@ -67,6 +77,22 @@ export const PageSizeSelect = _component(
             selectionMode: 'single',
             'aria-label': lang.pageSizeLabel,
             size: 'sm',
+            renderValue: () => (
+              <span {...stylex.attrs(pageSizeSelectStyles.stack)}>
+                {options.map((size) => (
+                  <span
+                    key={size}
+                    aria-hidden={size !== value || undefined}
+                    {...stylex.attrs(
+                      pageSizeSelectStyles.option,
+                      size !== value && pageSizeSelectStyles.hidden,
+                    )}
+                  >
+                    {lang.pageSizeOption(size)}
+                  </span>
+                ))}
+              </span>
+            ),
           },
           rest,
         )}
