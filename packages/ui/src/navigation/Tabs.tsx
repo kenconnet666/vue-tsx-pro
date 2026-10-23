@@ -682,6 +682,7 @@ export const Tab = _component(
                 if (tabs.activation === 'automatic') tabs.select(value);
               },
               onKeydown,
+              'aria-keyshortcuts': onClose ? 'Delete' : undefined,
               // 鼠标中键关闭（同浏览器的标签页）
               onAuxclick: (event: MouseEvent) => {
                 if (event.button === 1 && onClose && !disabled) onClose();
@@ -695,7 +696,7 @@ export const Tab = _component(
         </ButtonBase>
       );
       if (!onClose) return tab;
-      // 关闭按钮不能放进标签按钮里（按钮里不能有按钮）：一起包在 role="presentation" 里，按钮本身只给指针用
+      // 关闭按钮不能放进标签按钮里（按钮里不能有按钮）：一起包在 role="presentation" 里，按钮本身只给指针用（对读屏隐藏）
       return (
         <span role="presentation" {...stylex.attrs(tabStyles.closeWrapper)}>
           {tab}
@@ -712,6 +713,8 @@ export const Tab = _component(
               propsClose,
               {
                 tabindex: -1,
+                // 只给指针用：tablist 里只能有标签；键盘、读屏用标签上的 Delete（aria-keyshortcuts）
+                'aria-hidden': true,
                 disabled,
                 // 按下时不把焦点挪到关闭按钮上
                 onPointerdown: (event: PointerEvent) => event.preventDefault(),
