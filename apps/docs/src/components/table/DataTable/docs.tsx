@@ -10,6 +10,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Changes from './demo/Changes.tsx?demo';
+import Columns from './demo/Columns.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Infinite from './demo/Infinite.tsx?demo';
 import Ledger from './demo/Ledger.tsx?demo';
@@ -43,6 +44,16 @@ export default _component(() => () => (
       <Code>columnWidths</Code>{' '}
       双向绑定可以存到本地设置里。工具栏（搜索、批量操作、分页）用现有组件组合，不内置。
     </Example>
+    <Example id="columns" title="采购单：表头筛选、多列排序与列菜单" demo={Columns}>
+      列定义写 <Code>filter</Code> 时列标题上有筛选按钮：<Code>true</Code>{' '}
+      列出这一列出现过的值（状态列按阶段顺序、显示状态名），也可以给 <Code>options</Code>，写{' '}
+      <Code>'text'</Code> 是输入关键字；<Code>filters</Code> 双向绑定各列选中的值，默认在本地筛，
+      <Code>manualFilter</Code> 时交给服务端。<Code>multiSort</Code> 时点列标题只按这一列排，按住
+      Shift 点是追加一列（列标题上标着次序），排序写在 <Code>sorts</Code>。<Code>columnMenu</Code>{' '}
+      在列标题结尾放 ⋮：排序、固定在开头 / 结尾、前后移动、隐藏，写回 <Code>columnPins</Code>、
+      <Code>columnOrder</Code>、<Code>hiddenColumns</Code>
+      ，都能双向绑定、存起来（这里记在浏览器里，刷新后还在）。
+    </Example>
     <Example id="ledger" title="降本台账：合计、状态与批量操作" demo={Ledger}>
       列的 <Code>summary</Code> 写 <Code>'sum'</Code> 时底部多一行吸底的合计（Decimal
       精确相加，按列的格式显示）；
@@ -50,8 +61,8 @@ export default _component(() => () => (
       <Code>empty</Code>
       （默认 —，这里是“待定价”）。<Code>isRowSelectable</Code>{' '}
       决定哪些行能勾选，全选跳过不能勾选的；勾选后上方的 <Code>SelectionBar</Code>{' '}
-      显示已选几项与批量操作。<Code>hiddenColumns</Code> 隐藏列，用 Menu 的 MenuCheckboxItem
-      做列显示设置；固定列与滚动的列之间有一条竖线。
+      显示已选几项与批量操作。<Code>hiddenColumns</Code> 隐藏列，这里用 Menu 的 MenuCheckboxItem
+      做列显示设置（也可以开 <Code>columnMenu</Code>）；固定列与滚动的列之间有一条竖线。
     </Example>
     <Example id="changes" title="零件更改对比：分组表头" demo={Changes}>
       <Code>columnGroups</Code> 写组标题与组里各列的

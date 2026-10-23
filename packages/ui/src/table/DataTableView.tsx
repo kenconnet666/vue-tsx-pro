@@ -8,7 +8,9 @@
  * - 分组表头（columnGroups）：相邻的几列上方共用一个标题，表头两行（th scope="colgroup"），没分组的列跨两行。
  * - 吸顶表头、固定列：position: sticky，固定列的偏移按列宽累加（逻辑方向，从右到左排版自动换边）；
  *   固定列的单元格继承行的底色，盖住滚过去的内容。
- * - 排序：可排序的列标题是按钮，th 带 aria-sort；勾选列用 Checkbox（表头的全选有部分选中状态）。
+ * - 排序：可排序的列标题是按钮，th 带 aria-sort（多列排序时只在第一排序列上，其余列的次序写给读屏）；
+ *   勾选列用 Checkbox（表头的全选有部分选中状态）。
+ * - 表头筛选（列定义的 filter）与列菜单（columnMenu）：列标题结尾的小按钮（ColumnHeaderActions），状态在外层。
  * - 列宽：表头结束边的 ColumnResizer（拖动或 ← / →）调整；固定列偏移与最小宽度的计算在 columns.ts。
  * - 详情行（renderDetail）：多一列展开按钮（aria-expanded、aria-controls），展开的行下面多一行跨全部列的详情，
  *   内容让过勾选列与展开列、和第一个数据列对齐；
@@ -41,17 +43,25 @@ import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
+import {
+  ColumnFilterButton,
+  ColumnMenuButton,
+  type ColumnMenuActions,
+} from './ColumnHeaderActions';
 import { ColumnResizer, type ColumnResizerProps } from './ColumnResizer';
 import {
   columnAlign,
+  columnFilter,
   columnType,
   columnValue,
   formatCell,
   headerLayout,
   sameStickyOffsets,
   stickyOffsets,
+  sortList,
   sumColumn,
   tableMinWidth,
+  type ColumnFilterOption,
   type ColumnTypes,
   type DataTableColumnGroup,
   type SortState,
@@ -86,10 +96,20 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   rows: readonly DataTableRowModel<T>[];
   /** 列 */
   columns: readonly DataTableColumn<T>[];
-  /** 当前排序 */
-  sort?: SortState | null;
-  /** 点了可排序的列标题 */
-  onSortClick?: (key: string) => void;
+  /** 当前排序：一列，或多列（前面的优先） */
+  sort?: SortState | readonly SortState[] | null;
+  /** 点了可排序的列标题（多列排序时按住 Shift 是追加） */
+  onSortClick?: (key: string, event: MouseEvent) => void;
+  /** 表头筛选：各列选中的值（列定义写了 filter 的列，列标题上有筛选按钮） */
+  filters?: Readonly<Record<string, readonly string[]>>;
+  /** 改了一列的筛选 */
+  onFilterChange?: (key: string, values: string[]) => void;
+  /** 表头筛选的选项（列出出现过的值时要看全部行，由外层给） */
+  filterOptionsOf?: (column: DataTableColumn<T>) => readonly ColumnFilterOption[];
+  /** 列菜单：列标题结尾多一个 ⋮，排序、固定、移动、隐藏，选了交给 onColumnAction */
+  columnMenu?: boolean;
+  /** 选了列菜单里的一项；width 是这一列现在的宽度（固定没写宽度的列时，外层把它记成列宽） */
+  onColumnAction?: (key: string, action: keyof ColumnMenuActions, width: number) => void;
   /** 选择方式；不写时没有勾选列。多选时表头有全选 */
   selectionMode?: keyof SelectionModes;
   /** 已选行的 key */
@@ -658,6 +678,11 @@ export const DataTableView = _component(
     columns,
     sort,
     onSortClick,
+    filters,
+    onFilterChange,
+    filterOptionsOf,
+    columnMenu = false,
+    onColumnAction,
     selectionMode,
     selectedKeys = [],
     partialKeys,
@@ -906,12 +931,90 @@ export const DataTableView = _component(
     });
     const minWidth = () => tableMinWidth(shown, widthOf, leadingWidth());
 
+    const sorts = _derived(sortList(sort));
+
+    /** 列标题结尾的筛选按钮与列菜单 */
+    function renderHeaderActions(
+      column: DataTableColumn<T>,
+      label: string,
+      cell: () => HTMLElement | null,
+    ) {
+      const filter = columnFilter(column);
+      if (!filter && !columnMenu) return null;
+      const position = shown.findIndex((item) => item.key === column.key);
+      const neighbour = (step: 1 | -1) => shown[position + step];
+      return (
+        <>
+          {filter && (
+            <ColumnFilterButton
+              label={label}
+              options={filter.options === 'text' ? 'text' : (filterOptionsOf?.(column) ?? [])}
+              values={filters?.[column.key] ?? []}
+              onChange={(values) => onFilterChange?.(column.key, values)}
+            />
+          )}
+          {columnMenu && (
+            <ColumnMenuButton
+              label={label}
+              sortable={!!column.sortable}
+              sorted={sorts.find((item) => item.key === column.key)?.direction}
+              pinned={column.sticky}
+              // 固定列与不固定的列各自一段，只在段内移动
+              canMove={{
+                backward: neighbour(-1)?.sticky === column.sticky,
+                forward: neighbour(1)?.sticky === column.sticky,
+              }}
+              canHide={shown.length > 1}
+              onAction={(action) => onColumnAction?.(column.key, action, cell()?.offsetWidth ?? 0)}
+            />
+          )}
+        </>
+      );
+    }
+
     /** 一个列标题；rowspan 是没分组的列在两行表头里跨两行，divider 是与分组相邻的竖线 */
     function renderHeaderCell(column: DataTableColumn<T>, rowspan = 1, divider = false) {
       const own = typeof propsHeaderCell === 'function' ? propsHeaderCell(column) : propsHeaderCell;
-      const sorted = sort?.key === column.key ? sort.direction : undefined;
-      const label = plainText(column.header);
+      const priority = sorts.findIndex((item) => item.key === column.key);
+      const sorted = priority >= 0 ? sorts[priority]!.direction : undefined;
+      const label = plainText(column.header) ?? column.key;
       const canResize = column.resizable ?? resizable;
+      let cell: HTMLElement | null = null;
+      const actions = renderHeaderActions(column, label, () => cell);
+      const sortButton = column.sortable && (
+        <ButtonBase
+          {...mergePartProps<ButtonBaseProps>({ sx: dataTableStyles.sortButton }, propsSortButton, {
+            onClick: (event: MouseEvent) => onSortClick?.(column.key, event),
+          })}
+        >
+          <span {...mergeAttrs<'span'>({ sx: dataTableStyles.sortLabel }, propsSortLabel)}>
+            {column.header}
+          </span>
+          <Icon
+            icon={
+              sorted === 'ascending' ? ArrowUp : sorted === 'descending' ? ArrowDown : ArrowUpDown
+            }
+            sx={[dataTableStyles.sortIcon, sorted && dataTableStyles.sortActive]}
+          />
+          {sorts.length > 1 && priority >= 0 && (
+            <>
+              <span {...stylex.attrs(dataTableStyles.sortPriority)} aria-hidden="true">
+                {priority + 1}
+              </span>
+              {/* aria-sort 只放在第一排序列上（ARIA 的要求），其余列的次序与方向写给读屏 */}
+              {priority > 0 && (
+                <VisuallyHidden>
+                  {lang.tableSortPriority(
+                    priority + 1,
+                    sorted === 'ascending' ? lang.tableSortAscending : lang.tableSortDescending,
+                  )}
+                </VisuallyHidden>
+              )}
+            </>
+          )}
+        </ButtonBase>
+      );
+      const content = sortButton || column.header;
       return (
         <th
           key={column.key}
@@ -927,43 +1030,34 @@ export const DataTableView = _component(
             },
             own,
             {
+              ref: (element: unknown) => (cell = element as HTMLElement | null),
               scope: 'col',
               rowspan: rowspan > 1 ? rowspan : undefined,
-              'aria-sort': column.sortable ? (sorted ?? 'none') : undefined,
+              'aria-sort': column.sortable ? (priority === 0 ? sorted : 'none') : undefined,
             },
           )}
           data-sticky={column.sticky}
         >
-          {column.sortable ? (
-            <ButtonBase
-              {...mergePartProps<ButtonBaseProps>(
-                { sx: dataTableStyles.sortButton },
-                propsSortButton,
-                { onClick: () => onSortClick?.(column.key) },
-              )}
-            >
-              <span {...mergeAttrs<'span'>({ sx: dataTableStyles.sortLabel }, propsSortLabel)}>
-                {column.header}
+          {actions ? (
+            <div {...stylex.attrs(dataTableStyles.headerContent)}>
+              <span
+                {...stylex.attrs(
+                  dataTableStyles.headerMain,
+                  column.align === 'end' && dataTableStyles.headerMainEnd,
+                )}
+              >
+                {content}
               </span>
-              <Icon
-                icon={
-                  sorted === 'ascending'
-                    ? ArrowUp
-                    : sorted === 'descending'
-                      ? ArrowDown
-                      : ArrowUpDown
-                }
-                sx={[dataTableStyles.sortIcon, sorted && dataTableStyles.sortActive]}
-              />
-            </ButtonBase>
+              {actions}
+            </div>
           ) : (
-            column.header
+            content
           )}
           {canResize && (
             <ColumnResizer
               {...mergePartProps<ColumnResizerProps>(
                 {
-                  label: label ?? column.key,
+                  label,
                   width: widthOf(column),
                   minWidth: column.minWidth,
                   onWidthChange: (width: number) => onResize?.(column.key, width),

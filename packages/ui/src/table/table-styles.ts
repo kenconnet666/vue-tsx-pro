@@ -171,6 +171,13 @@ export const dataTableStyles = stylex.create({
   sortLabel: { overflow: 'hidden', textOverflow: 'ellipsis' },
   sortIcon: { flexShrink: 0 },
   sortActive: { color: '_accentText' },
+  // 多列排序时的次序（1、2…）：小号数字跟在箭头后面
+  sortPriority: { fontSize: '0.75em', fontVariantNumeric: 'tabular-nums', color: '_accentText' },
+  // 有筛选、列菜单按钮的列标题：文字（或排序按钮）占满剩下的宽度，按钮在结尾
+  headerContent: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
+  headerMain: { flexGrow: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' },
+  // 靠结束边的列（数字）：文字靠结束边，按钮仍在最后
+  headerMainEnd: { textAlign: 'end' },
   leading: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   content: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' },
   spacer: { padding: 0, borderWidth: 0 },

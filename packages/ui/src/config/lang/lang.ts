@@ -135,6 +135,34 @@ export interface Lang {
   readonly tableDetails: string;
   /** 展开详情的按钮的名称（展开与否由 aria-expanded 表示），默认“行名 的详情” */
   readonly tableRowDetails: (row: string) => string;
+  /** 表头筛选按钮的名称：`('状态', true)` → “筛选“状态”（已筛选）” */
+  readonly tableFilterColumn: (column: string, active: boolean) => string;
+  /** 表头筛选里的搜索框、关键字输入框的名称，默认“搜索” */
+  readonly tableFilterSearch: string;
+  /** 表头筛选里清空这一列筛选的按钮，默认“清除筛选” */
+  readonly tableFilterClear: string;
+  /** 列菜单按钮的名称：`('金额')` → ““金额”列的操作” */
+  readonly tableColumnMenu: (column: string) => string;
+  /** 列菜单：升序，默认“升序” */
+  readonly tableSortAscending: string;
+  /** 列菜单：降序，默认“降序” */
+  readonly tableSortDescending: string;
+  /** 列菜单：取消这一列的排序，默认“取消排序” */
+  readonly tableSortClear: string;
+  /** 多列排序时列标题上的次序（只给读屏）：`(2, '升序')` → “第 2 排序，升序” */
+  readonly tableSortPriority: (priority: number, direction: string) => string;
+  /** 列菜单：固定在开头，默认“固定在开头” */
+  readonly tablePinStart: string;
+  /** 列菜单：固定在结尾，默认“固定在结尾” */
+  readonly tablePinEnd: string;
+  /** 列菜单：取消固定，默认“取消固定” */
+  readonly tableUnpin: string;
+  /** 列菜单：往前移一列，默认“向前移” */
+  readonly tableMoveBackward: string;
+  /** 列菜单：往后移一列，默认“向后移” */
+  readonly tableMoveForward: string;
+  /** 列菜单：隐藏这一列，默认“隐藏这一列” */
+  readonly tableHideColumn: string;
   /** 图表没有数据时的提示，默认“暂无数据” */
   readonly chartEmpty: string;
   /** 图表的数据表（给读屏）里类目那一列的表头，默认“类目” */

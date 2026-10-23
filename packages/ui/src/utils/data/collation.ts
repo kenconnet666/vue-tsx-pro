@@ -69,13 +69,35 @@ export function sortByValue<T>(
   direction: 'ascending' | 'descending',
   locale: string,
 ): T[] {
+  return sortByValues(rows, [{ value, direction }], locale);
+}
+
+/** sortByValues 的一个排序键 */
+export interface SortKey<T> {
+  /** 每行取出的值 */
+  value: (row: T) => SortValue;
+  /** 方向 */
+  direction: 'ascending' | 'descending';
+}
+
+/** 按几个键排序（多列排序）：前一个键相等时比下一个，都相等时保持原来的先后；空值总在最后，同 sortByValue */
+export function sortByValues<T>(
+  rows: readonly T[],
+  keys: readonly SortKey<T>[],
+  locale: string,
+): T[] {
   const compare = createComparer(locale);
-  const factor = direction === 'ascending' ? 1 : -1;
+  const factors = keys.map((key) => (key.direction === 'ascending' ? 1 : -1));
   return rows
-    .map((row, index) => ({ row, index, value: value(row) }))
+    .map((row, index) => ({ row, index, values: keys.map((key) => key.value(row)) }))
     .sort((a, b) => {
-      if (a.value == null || b.value == null) return compare(a.value, b.value) || a.index - b.index;
-      return compare(a.value, b.value) * factor || a.index - b.index;
+      for (let at = 0; at < keys.length; at++) {
+        const x = a.values[at];
+        const y = b.values[at];
+        const order = x == null || y == null ? compare(x, y) : compare(x, y) * factors[at]!;
+        if (order) return order;
+      }
+      return a.index - b.index;
     })
     .map((item) => item.row);
 }

@@ -1050,6 +1050,14 @@ export {
 
 // 表格
 export {
+  ColumnFilterButton,
+  columnHeaderActionStyles,
+  ColumnMenuButton,
+  type ColumnFilterButtonProps,
+  type ColumnMenuActions,
+  type ColumnMenuButtonProps,
+} from './table/ColumnHeaderActions';
+export {
   ColumnResizer,
   type ColumnResizerManaged,
   type ColumnResizerProps,
@@ -1096,20 +1104,28 @@ export {
   type TreeDataTableProps,
 } from './table/TreeDataTable';
 export {
+  arrangeColumns,
   COLUMN_FLEX_MIN_WIDTH,
   COLUMN_MIN_WIDTH,
   columnAlign,
+  columnFilter,
   columnType,
   columnValue,
+  filterOptions,
+  filterRows,
   formatCell,
   headerLayout,
   nextSort,
+  nextSorts,
   sameStickyOffsets,
+  sortList,
   sortRows,
   stickyOffsets,
   sumColumn,
   tableMinWidth,
   type ColumnAligns,
+  type ColumnFilter,
+  type ColumnFilterOption,
   type ColumnStickies,
   type ColumnTypes,
   type ColumnWidthOf,
@@ -1460,6 +1476,8 @@ export {
   createMatcher,
   isDateValue,
   sortByValue,
+  sortByValues,
+  type SortKey,
   type SortValue,
 } from './utils/data/collation';
 export {

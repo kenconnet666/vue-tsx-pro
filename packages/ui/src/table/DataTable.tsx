@@ -15,7 +15,10 @@
  *
  * - 高度：外层滚动区域默认最高 32em，用 propsRoot 的 sx 改；表头吸顶、固定列不随横向滚动。
  * - 排序：点可排序的列标题在 升序 → 降序 → 不排 之间切换；默认在本地排（createComparer：数字、日期、按语言的文字），
- *   manualSort 时只写回 sort，由调用方向服务端要排好序的数据。
+ *   manualSort 时只写回 sort，由调用方向服务端要排好序的数据。multiSort 时排序写在 sorts（几列），按住 Shift 点是追加一列。
+ * - 表头筛选：列写 filter 时列标题上有筛选按钮，filters 是各列选中的值（可以双向绑定）；默认在本地筛，manualFilter 时只写回。
+ * - 列菜单：columnMenu 时列标题结尾有 ⋮（排序、固定在开头 / 结尾、前后移动、隐藏），
+ *   写回 columnPins、columnOrder、hiddenColumns（都可以双向绑定，存起来记住各人的列设置）。
  * - 选择：selectionMode 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
  * - 列宽：resizable 时可以拖动或用键盘调整，columnWidths 记录调整后的宽度（可以双向绑定，保存到本地设置里）。
  * - 定位：handle 拿到 scrollToRow(key)，滚到那一行（停在吸顶表头之下）。
@@ -24,15 +27,26 @@
  * - 分组表头：columnGroups 写组标题与组里各列的 key，相邻的列上方共用一个标题。
  * - 合计：列写 summary（'sum' 精确相加，或函数）时底部多一行吸底的合计；空值显示列的 empty（默认 —）。
  * - 状态列：列写 statuses（createStatusMap）时显示成 StatusBadge；rowTone 给整行着色（导入校验的错误行）。
- * - 工具栏（筛选用 FilterBar、批量操作用 SelectionBar、分页用 Pagination）组合在外面，不内置；
- *   列显示设置用 Menu 的 MenuCheckboxItem 写回 hiddenColumns。
+ * - 工具栏（查询条件用 FilterBar、批量操作用 SelectionBar、分页用 PaginationBar）组合在外面，不内置。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
 import { toggleSelection } from '../utils/data/selection';
-import { nextSort, sortRows, type SortState } from './columns';
+import {
+  arrangeColumns,
+  columnFilter,
+  filterOptions,
+  filterRows,
+  nextSort,
+  nextSorts,
+  sortRows,
+  type ColumnFilterOption,
+  type ColumnStickies,
+  type SortState,
+} from './columns';
+import type { ColumnMenuActions } from './ColumnHeaderActions';
 import { DataTableView, type DataTableRowModel, type DataTableViewProps } from './DataTableView';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
@@ -48,6 +62,11 @@ export interface DataTableProps<T> extends Omit<
   | 'onResize'
   | 'expandedRows'
   | 'onToggleDetail'
+  | 'filters'
+  | 'onFilterChange'
+  | 'filterOptionsOf'
+  | 'onColumnAction'
+  | 'hiddenColumns'
 > {
   /** 数据 */
   rows: readonly T[];
@@ -55,8 +74,22 @@ export interface DataTableProps<T> extends Omit<
   getKey: (row: T, index: number) => string;
   /** 当前排序：父级可以写 sort={_bind(x)}；null 为不排序 */
   sort?: SortState | null;
-  /** 不在本地排序：只写回 sort，数据由调用方按 sort 取 */
+  /** 不在本地排序：只写回 sort（sorts），数据由调用方按它取 */
   manualSort?: boolean;
+  /** 多列排序：排序写在 sorts，按住 Shift 点列标题是追加一列（再点切换方向、降序时去掉） */
+  multiSort?: boolean;
+  /** 多列排序时的排序，前面的优先：父级可以写 sorts={_bind(x)} */
+  sorts?: SortState[];
+  /** 表头筛选：各列选中的值（关键字筛选时是 [关键字]），父级可以写 filters={_bind(x)} */
+  filters?: Record<string, string[]>;
+  /** 不在本地筛选：只写回 filters，数据由调用方按它取 */
+  manualFilter?: boolean;
+  /** 隐藏的列的 key：列菜单的“隐藏”写回这里，父级可以写 hiddenColumns={_bind(x)} */
+  hiddenColumns?: string[];
+  /** 列的顺序（列的 key）：列菜单、列设置里移动后写回，没列到的按定义的顺序排在后面 */
+  columnOrder?: string[];
+  /** 固定的列：key → start / end（null 取消列定义里的固定），列菜单写回 */
+  columnPins?: Record<string, keyof ColumnStickies | null>;
   /** 已选行的 key：父级写 selected={_bind(keys)} */
   selected?: string[];
   /** 各列调整后的宽度（px）：父级可以写 columnWidths={_bind(x)} 保存起来 */
@@ -73,6 +106,13 @@ export const DataTable = _component(
     columns,
     sort = _bindable<SortState | null>(null),
     manualSort = false,
+    multiSort = false,
+    sorts = _bindable<SortState[]>([]),
+    filters = _bindable<Record<string, string[]>>({}),
+    manualFilter = false,
+    hiddenColumns = _bindable<string[]>([]),
+    columnOrder = _bindable<string[]>([]),
+    columnPins = _bindable<Record<string, keyof ColumnStickies | null>>({}),
     selectionMode,
     selected = _bindable<string[]>([]),
     columnWidths = _bindable<Record<string, number>>({}),
@@ -90,10 +130,63 @@ export const DataTable = _component(
       striped: false,
     });
 
+    const activeSort = () => (multiSort ? sorts : sort);
     const models = _derived.by<DataTableRowModel<T>[]>(() => {
-      const ordered = manualSort ? rows : sortRows(rows, columns, sort, lang.code);
+      const kept = manualFilter ? rows : filterRows(rows, columns, filters, lang.code);
+      const ordered = manualSort ? kept : sortRows(kept, columns, activeSort(), lang.code);
       return ordered.map((row, index) => ({ key: getKey(row, index), data: row, depth: 0 }));
     });
+    // 筛选的选项要看全部行（不是筛过的）：行与列不变时不重算
+    const options = _derived.by(
+      () =>
+        new Map(
+          columns
+            .filter((column) => columnFilter(column))
+            .map((column) => [column.key, filterOptions(column, rows, lang.code)]),
+        ),
+    );
+    const arranged = _derived(arrangeColumns(columns, columnOrder, columnPins));
+
+    function onSortClick(key: string, event: MouseEvent) {
+      if (multiSort) sorts = nextSorts(sorts, key, event.shiftKey);
+      else sort = nextSort(sort, key);
+    }
+
+    function setSort(key: string, direction: SortState['direction'] | null) {
+      if (multiSort) {
+        const rest = sorts.filter((item) => item.key !== key);
+        sorts = direction ? [{ key, direction }, ...rest] : rest;
+      } else sort = direction ? { key, direction } : null;
+    }
+
+    /** 往前、往后移一列：与相邻的可见列交换位置 */
+    function move(key: string, step: 1 | -1) {
+      const hidden = new Set(hiddenColumns);
+      const keys = arranged.map((column) => column.key);
+      const visible = keys.filter((item) => !hidden.has(item));
+      const neighbour = visible[visible.indexOf(key) + step];
+      if (!neighbour) return;
+      const [from, to] = [keys.indexOf(key), keys.indexOf(neighbour)];
+      [keys[from], keys[to]] = [neighbour, key];
+      columnOrder = keys;
+    }
+
+    function onColumnAction(key: string, action: keyof ColumnMenuActions, width: number) {
+      if (action === 'sortAscending') setSort(key, 'ascending');
+      else if (action === 'sortDescending') setSort(key, 'descending');
+      else if (action === 'unsort') setSort(key, null);
+      else if (action === 'moveBackward') move(key, -1);
+      else if (action === 'moveForward') move(key, 1);
+      else if (action === 'hide') hiddenColumns = [...hiddenColumns, key];
+      else {
+        const side = action === 'pinStart' ? 'start' : action === 'pinEnd' ? 'end' : null;
+        columnPins = { ...columnPins, [key]: side };
+        // 固定列的偏移按列宽累加：没写宽度的列记下它现在的宽度
+        const column = columns.find((item) => item.key === key);
+        if (side && column?.width == null && columnWidths[key] == null && width > 0)
+          columnWidths = { ...columnWidths, [key]: width };
+      }
+    }
 
     function toggleRow(key: string) {
       selected = [...toggleSelection(selected, key, { mode: selectionMode ?? 'multiple' })];
@@ -123,15 +216,22 @@ export const DataTable = _component(
         {...mergePartProps<DataTableViewProps<T>>(
           {
             rows: models,
-            columns,
+            columns: arranged,
             widths: columnWidths,
             ...appearance(),
           },
           rest as Partial<DataTableViewProps<T>>,
           {
             rows: models,
-            sort,
-            onSortClick: (key: string) => (sort = nextSort(sort, key)),
+            columns: arranged,
+            sort: activeSort(),
+            onSortClick,
+            filters,
+            onFilterChange: (key: string, values: string[]) =>
+              (filters = { ...filters, [key]: values }),
+            filterOptionsOf: (column) => options.get(column.key) ?? ([] as ColumnFilterOption[]),
+            hiddenColumns,
+            onColumnAction,
             selectionMode,
             isRowSelectable,
             selectedKeys: selected,

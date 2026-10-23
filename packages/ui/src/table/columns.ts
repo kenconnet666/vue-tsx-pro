@@ -9,7 +9,13 @@
  */
 import type { VNodeChild } from 'vue';
 import type { NumericFormat, useFormat } from '../config/lang/format';
-import { isDateValue, sortByValue, type SortValue } from '../utils/data/collation';
+import {
+  createComparer,
+  createMatcher,
+  isDateValue,
+  sortByValues,
+  type SortValue,
+} from '../utils/data/collation';
 import {
   addNumeric,
   isDecimal,
@@ -57,6 +63,25 @@ export interface ColumnStickies {
   end: unknown;
 }
 
+/** 表头筛选里的一个选项 */
+export interface ColumnFilterOption {
+  /** 值：筛选状态里存它，默认与这一列的值（转成文字）比较 */
+  value: string;
+  /** 显示的文字；不写时用 value */
+  label?: VNodeChild;
+}
+
+/** 列的表头筛选 */
+export interface ColumnFilter<T> {
+  /**
+   * 选项（可以多选）：不写时列出这一列出现过的值（有 statuses 时显示状态的名称）；
+   * 'text' 是输入关键字，不列选项
+   */
+  options?: readonly (string | ColumnFilterOption)[] | 'text';
+  /** 这一行留不留：values 是选中的值（关键字筛选时是 [关键字]）；默认这一列的值在其中 / 文字包含关键字 */
+  match?: (row: T, values: readonly string[]) => boolean;
+}
+
 /** 一列 */
 export interface DataTableColumn<T> {
   /** 列的标识：同一表格里不能重复；不写 value 时也是取值的字段名 */
@@ -85,6 +110,8 @@ export interface DataTableColumn<T> {
   align?: keyof ColumnAligns;
   /** 可以点表头排序 */
   sortable?: boolean;
+  /** 表头筛选：true 列出这一列出现过的值，也可以给选项或关键字筛选（见 ColumnFilter） */
+  filter?: boolean | ColumnFilter<T>;
   /** 固定在哪一侧 */
   sticky?: keyof ColumnStickies;
   /** 可以拖动调整宽度；不写时跟随表格的 resizable */
@@ -305,26 +332,132 @@ export function nextSort(current: SortState | null | undefined, key: string): So
 }
 
 /**
- * 按当前排序排列（返回新数组，原数组不变）；没有排序、或排序列不存在时原样返回。
+ * 多列排序时点表头：additive（按住 Shift）时在已有的排序后面加上这一列、或切换它的方向（降序时再点去掉）；
+ * 否则只按这一列（同 nextSort）
+ */
+export function nextSorts(
+  current: readonly SortState[],
+  key: string,
+  additive: boolean,
+): SortState[] {
+  if (!additive) {
+    const own = current.length === 1 ? current[0] : undefined;
+    const next = nextSort(own, key);
+    return next ? [next] : [];
+  }
+  const existing = current.find((item) => item.key === key);
+  if (!existing) return [...current, { key, direction: 'ascending' }];
+  if (existing.direction === 'ascending')
+    return current.map((item) => (item.key === key ? { key, direction: 'descending' } : item));
+  return current.filter((item) => item.key !== key);
+}
+
+/** 排序状态统一成数组：单列排序是一个或零个 */
+export function sortList(
+  sort: SortState | readonly SortState[] | null | undefined,
+): readonly SortState[] {
+  if (!sort) return [];
+  return Array.isArray(sort) ? sort : [sort as SortState];
+}
+
+/**
+ * 按当前排序排列（返回新数组，原数组不变）；可以是几列（前一列相等时比下一列），没有排序、排序列都不存在时原样返回。
  * 比较用 createComparer：数字按大小、日期按时间、文字按语言（中文按拼音、“第2章”在“第10章”前），空值总在最后
  */
 export function sortRows<T>(
   rows: readonly T[],
   columns: readonly DataTableColumn<T>[],
-  sort: SortState | null | undefined,
+  sort: SortState | readonly SortState[] | null | undefined,
   locale: string,
 ): readonly T[] {
-  const column = sort && columns.find((item) => item.key === sort.key);
-  if (!sort || !column) return rows;
-  // 数字类的列里，十进制字符串（'2.5'、'2.10'）按数值排：按文字比较时 '2.5' 会排在 '2.10' 前面
-  const numeric = NUMERIC_TYPES.has(columnType(column, rows));
-  return sortByValue(
-    rows,
-    (row) => {
-      const value = columnValue(column, row);
-      return numeric && isNumericText(value) ? Number(value) : value;
-    },
-    sort.direction,
-    locale,
-  );
+  const keys = sortList(sort).flatMap((state) => {
+    const column = columns.find((item) => item.key === state.key);
+    if (!column) return [];
+    // 数字类的列里，十进制字符串（'2.5'、'2.10'）按数值排：按文字比较时 '2.5' 会排在 '2.10' 前面
+    const numeric = NUMERIC_TYPES.has(columnType(column, rows));
+    const value = (row: T) => {
+      const raw = columnValue(column, row);
+      return numeric && isNumericText(raw) ? Number(raw) : raw;
+    };
+    return [{ value, direction: state.direction }];
+  });
+  return keys.length ? sortByValues(rows, keys, locale) : rows;
+}
+
+/** 列的筛选设置：没写或 false 时 undefined，true 是列出出现过的值 */
+export function columnFilter<T>(column: DataTableColumn<T>): ColumnFilter<T> | undefined {
+  if (!column.filter) return undefined;
+  return column.filter === true ? {} : column.filter;
+}
+
+/** 表头筛选的选项：写了的原样（字符串转成选项），没写的列出这一列出现过的值（按语言排序，有 statuses 时用状态名） */
+export function filterOptions<T>(
+  column: DataTableColumn<T>,
+  rows: Iterable<T>,
+  locale: string,
+): ColumnFilterOption[] {
+  const options = columnFilter(column)?.options;
+  if (options === 'text') return [];
+  if (options)
+    return options.map((option) => (typeof option === 'string' ? { value: option } : option));
+  const seen = new Map<string, SortValue>();
+  for (const row of rows) {
+    const value = columnValue(column, row);
+    if (value == null || value === '') continue;
+    const text = String(value);
+    if (!seen.has(text)) seen.set(text, value);
+  }
+  const { statuses } = column;
+  // 状态按阶段的顺序，其余按语言排序
+  const compare = createComparer(locale);
+  const order = statuses
+    ? (a: string, b: string) => statuses.order(a) - statuses.order(b)
+    : (a: string, b: string) => compare(seen.get(a), seen.get(b));
+  return [...seen.keys()].sort(order).map((value) => ({ value, label: statuses?.label(value) }));
+}
+
+/** 按表头筛选留下的行：filters 是各列选中的值（关键字筛选时是 [关键字]），空的不算 */
+export function filterRows<T>(
+  rows: readonly T[],
+  columns: readonly DataTableColumn<T>[],
+  filters: Readonly<Record<string, readonly string[]>>,
+  locale: string,
+): readonly T[] {
+  const matchText = createMatcher(locale);
+  const tests = columns.flatMap((column) => {
+    const values = filters[column.key];
+    const filter = columnFilter(column);
+    if (!filter || !values?.length) return [];
+    const { match } = filter;
+    if (match) return [(row: T) => match(row, values)];
+    if (filter.options === 'text')
+      return [(row: T) => matchText(String(columnValue(column, row) ?? ''), values[0]!)];
+    const allowed = new Set(values);
+    return [(row: T) => allowed.has(String(columnValue(column, row) ?? ''))];
+  });
+  return tests.length ? rows.filter((row) => tests.every((test) => test(row))) : rows;
+}
+
+/**
+ * 列的位置调整（列菜单、列设置）：order 是列的 key 的顺序，没列到的按定义的顺序排在后面；
+ * pins 覆盖列的 sticky（null 取消固定）。固定在起始边的排到最前、结束边的排到最后：固定列要挨着表格的边
+ */
+export function arrangeColumns<T>(
+  columns: readonly DataTableColumn<T>[],
+  order: readonly string[] | undefined,
+  pins: Readonly<Record<string, keyof ColumnStickies | null>> | undefined,
+): DataTableColumn<T>[] {
+  const rank = new Map((order ?? []).map((key, index) => [key, index]));
+  const position = (column: DataTableColumn<T>) =>
+    rank.get(column.key) ?? rank.size + columns.indexOf(column);
+  const arranged = [...columns]
+    .sort((a, b) => position(a) - position(b))
+    .map((column) =>
+      pins && column.key in pins ? { ...column, sticky: pins[column.key] ?? undefined } : column,
+    );
+  return [
+    ...arranged.filter((column) => column.sticky === 'start'),
+    ...arranged.filter((column) => !column.sticky),
+    ...arranged.filter((column) => column.sticky === 'end'),
+  ];
 }
