@@ -18,7 +18,6 @@ import {
   Flex,
   Grid,
   H1,
-  Icon,
   IconButton,
   NavGroup,
   NavItem,
@@ -36,7 +35,7 @@ import {
   TableRow,
   TextField,
 } from '@vue-tsx-pro/ui';
-import { AppShell } from '@vue-tsx-pro/ui/patterns';
+import { AppShell, AppShellBrand } from '@vue-tsx-pro/ui/patterns';
 
 const pages = {
   overview: { label: '概览', icon: House },
@@ -57,16 +56,9 @@ const orders = [
 ] as const;
 
 const styles = stylex.create({
-  brand: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '_sm',
-    marginInlineEnd: 'auto',
-    fontWeight: '_semibold',
-    fontSize: '_lg',
-  },
-  brandMark: { color: '_accentText' },
   search: { width: '16rem' },
+  // 通知与头像靠顶栏的结束边
+  end: { marginInlineStart: 'auto' },
 });
 
 export default _component(() => {
@@ -91,20 +83,21 @@ export default _component(() => {
   return () => (
     <AppShell
       sidebarOpen={_bind(navOpen)}
+      brand={
+        <AppShellBrand href="#overview" icon={Box}>
+          小满商城后台
+        </AppShellBrand>
+      }
       header={
         <>
-          <span {...stylex.attrs(styles.brand)}>
-            <Icon icon={Box} sx={styles.brandMark} />
-            小满商城后台
-          </span>
           <TextField
             type="search"
             icon={Search}
             placeholder="搜索订单、客户"
             aria-label="搜索"
-            sx={styles.search}
+            propsRoot={{ sx: styles.search }}
           />
-          <IconButton icon={Bell} aria-label="通知" />
+          <IconButton icon={Bell} aria-label="通知" sx={styles.end} />
           <Avatar size="sm" name="林小满" />
         </>
       }

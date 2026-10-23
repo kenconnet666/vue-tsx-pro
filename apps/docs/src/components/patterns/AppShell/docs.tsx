@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/AppShellProps';
+import brandApi from 'virtual:api/AppShellBrandProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -40,6 +41,6 @@ export default _component(() => () => (
       都能双向绑定，存起来就能记住各人的设置（本站记在 localStorage）。焦点在抽屉里时按 Esc
       收起、焦点回到“菜单”；窄屏时点了链接也收起。
     </Example>
-    <ApiReference api={api} />
+    <ApiReference api={[api, brandApi]} />
   </DocPage>
 ));
