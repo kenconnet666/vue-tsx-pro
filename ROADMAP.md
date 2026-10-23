@@ -110,7 +110,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 - [x] Tabs 的溢出、可关闭、新增、拖动（路由页签）
 - [x] NavList 收起成图标栏（悬停弹出子项）、条目角标；横向导航（顶部菜单，放不下收进“更多”）：NavBar
-- [ ] AppShell（patterns）：页脚、可收起侧栏、顶部与混合布局、页签区
+- [x] AppShell（patterns）：页脚、可收起侧栏、顶部与混合布局、页签区（PageTabs；路由用 useRouteTabs）
 - [ ] PaginationBar：总数 + 每页条数 + 页码 + 跳转（三处页面在手写这一组）
 - [ ] 命令式 `useDialog` / `useDrawer`；`onOpenChange(open, { reason })` 统一
 

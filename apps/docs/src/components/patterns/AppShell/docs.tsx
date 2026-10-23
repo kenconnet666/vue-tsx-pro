@@ -6,6 +6,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Admin from './frames/Admin.tsx?demo';
+import Mixed from './frames/Mixed.tsx?demo';
 import Overlay from './frames/Overlay.tsx?demo';
 
 export const meta = {
@@ -40,6 +41,19 @@ export default _component(() => () => (
       <Code>sidebarOpen</Code>、<Code>sidebarWidth</Code>{' '}
       都能双向绑定，存起来就能记住各人的设置（本站记在 localStorage）。焦点在抽屉里时按 Esc
       收起、焦点回到“菜单”；窄屏时点了链接也收起。
+    </Example>
+    <Example id="mixed" title="混合布局与页签" demo={Mixed} frame="40rem">
+      顶栏放一级导航（<Code>nav</Code>，常用 <Code>NavBar</Code>
+      ，放不下的收进“更多”），侧栏放当前模块的二级导航，正文上面是打开过的页面（
+      <Code>tabs</Code>，常用 <Code>PageTabs</Code>），正文下面是页脚（<Code>footer</Code>
+      ）。只要顶部导航时不传 <Code>sidebar</Code> 即可。<Code>sidebarCollapsible</Code>{' '}
+      在侧栏底部加“收起侧栏”按钮，宽屏时把侧栏收成只有图标的窄栏（<Code>NavList</Code>{' '}
+      自动换成紧凑样式，分组悬停弹出子项），品牌格只剩标志；<Code>sidebarCollapsed</Code>{' '}
+      可以双向绑定，存起来记住各人的设置。页签可以关闭（关闭按钮、Delete、中键）、拖动排序，右键有“关闭其他”“关闭右侧”；接路由时用{' '}
+      <Code>useRouteTabs(router, &#123; home: '/' &#125;)</Code>（
+      <Code>@vue-tsx-pro/ui/vue-router</Code>）维护打开的页面，整个展开给{' '}
+      <Code>&lt;PageTabs &#123;...tabs&#125; /&gt;</Code>
+      ：换页自动加页签，切回来回到上次的完整地址，关掉当前页时跳到相邻的页。
     </Example>
     <ApiReference api={[api, brandApi]} />
   </DocPage>

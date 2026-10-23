@@ -1,5 +1,5 @@
 // AppShell：品牌格在顶栏最前面、header 的内容在它之后；没有侧栏时品牌格不与侧栏对齐；
-// overlay 的抽屉：不占正文的列，品牌格里的“菜单”开关、Esc、宽度手柄
+// overlay 的抽屉：不占正文的列，品牌格里的“菜单”开关、Esc、宽度手柄；顶栏的导航、页签区、页脚、侧栏收起成图标栏
 import { Plane } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
@@ -101,7 +101,7 @@ it('部件属性：header 内容格、主体、侧栏与右栏的滚动区域', 
     </AppShell>
   ));
   expect(root.querySelector('.header-content')!.textContent).toBe('页签');
-  expect(root.querySelector('.body > main')).not.toBeNull();
+  expect(root.querySelector('.body main')).not.toBeNull();
   expect(root.querySelector('.sidebar-scroll nav')).not.toBeNull();
   expect(root.querySelector('.aside-scroll')!.textContent).toContain('目录');
 });
@@ -116,5 +116,67 @@ describe('AppShellBrand', () => {
     expect(link.getAttribute('href')).toBe('/');
     expect(link.textContent).toBe('联合降本管理');
     expect(link.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
+  });
+});
+
+describe('AppShell 的导航、页签区、页脚与收起', () => {
+  it('nav 在品牌之后、工具之前；tabs 在正文上面、footer 在正文下面', () => {
+    const root = mount(() => (
+      <AppShell
+        brand={<span>品牌</span>}
+        nav={<span>顶部导航</span>}
+        header={<span>工具</span>}
+        tabs={<span>页签</span>}
+        footer={<span>版权</span>}
+      >
+        正文
+      </AppShell>
+    ));
+    const header = root.querySelector('header')!;
+    expect([...header.children].map((child) => child.textContent).filter(Boolean)).toEqual([
+      '品牌',
+      '顶部导航',
+      '工具',
+    ]);
+    const main = root.querySelector('main')!;
+    expect(main.previousElementSibling!.textContent).toBe('页签');
+    expect(main.nextElementSibling!.tagName).toBe('FOOTER');
+    expect(main.nextElementSibling!.textContent).toBe('版权');
+  });
+
+  it('sidebarCollapsible：宽屏时“收起侧栏”把侧栏收成图标栏，品牌只剩标志，写回 sidebarCollapsed', async () => {
+    const matchMedia = window.matchMedia;
+    // 宽屏
+    window.matchMedia = ((query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    })) as unknown as typeof window.matchMedia;
+    let collapsed = _state(false);
+    const root = mount(() => (
+      <AppShell
+        brand={
+          <AppShellBrand href="/" icon={Plane}>
+            联合降本管理
+          </AppShellBrand>
+        }
+        sidebar={<nav aria-label="导航" />}
+        sidebarCollapsible
+        sidebarCollapsed={_bind(collapsed)}
+      >
+        正文
+      </AppShell>
+    ));
+    await nextTick();
+    const toggle = root.querySelector<HTMLButtonElement>('button[aria-label="收起侧栏"]')!;
+    toggle.click();
+    await nextTick();
+    expect(collapsed).toBe(true);
+    expect(root.querySelector('button[aria-label="展开侧栏"]')).not.toBeNull();
+    const name = root.querySelector('header a span')!;
+    expect(name.textContent).toBe('联合降本管理');
+    expect(name.className).not.toBe('');
+    window.matchMedia = matchMedia;
   });
 });

@@ -264,10 +264,16 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
   children?: VNodeChild;
 }
 
-/** Tabs 的样式：root、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
+/** TabList 的样式：bar、barLine、root、scrollable、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
 export const tabListStyles = stylex.create({
   // 横排时包着标签列表与右边的按钮（滚动、全部标签页、新建）：列表按内容宽，放不下时收缩并滚动
   bar: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
+  // 横排 line 的分隔线画在整行上：标签少时也铺满（页签区、页面顶部的标签）
+  barLine: {
+    borderBottomWidth: '_xs',
+    borderBottomStyle: 'solid',
+    borderBottomColor: '_borderMuted',
+  },
   root: { display: 'flex', flexShrink: 0 },
   // 横排放不下时（顶栏、窄屏）在列表里横向滚动，不盖到旁边的内容上；滚动条藏起来，触控板、拖动照样能滚
   scrollable: {
@@ -278,17 +284,10 @@ export const tabListStyles = stylex.create({
     scrollbarWidth: 'none',
   },
   // 指示条按标签的 offsetLeft / offsetTop 定位，列表要是它的定位容器
-  line: {
-    position: 'relative',
-    gap: '_md',
-    borderBottomWidth: '_xs',
-    borderBottomStyle: 'solid',
-    borderBottomColor: '_borderMuted',
-  },
+  line: { position: 'relative', gap: '_md' },
   lineVertical: {
     flexDirection: 'column',
     gap: '_xs',
-    borderBottomWidth: 0,
     borderInlineEndWidth: '_xs',
     borderInlineEndStyle: 'solid',
     borderInlineEndColor: '_borderMuted',
@@ -539,7 +538,12 @@ export const TabList = _component(
           />
         );
       return (
-        <div {...mergeAttrs<'div'>({ sx: tabListStyles.bar }, propsBar)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: [tabListStyles.bar, tabs.variant === 'line' && tabListStyles.barLine] },
+            propsBar,
+          )}
+        >
           {scrollButton(-1)}
           {tablist}
           {scrollButton(1)}

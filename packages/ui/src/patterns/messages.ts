@@ -54,6 +54,20 @@ export interface PatternsMessages {
   readonly navigationMenu: string;
   /** 抽屉式侧边导航的宽度调整手柄，默认“调整导航宽度” */
   readonly navigationResize: string;
+  /** AppShell 侧栏底部收起成图标栏的按钮，默认“收起侧栏” */
+  readonly sidebarCollapse: string;
+  /** AppShell 侧栏收起后展开的按钮，默认“展开侧栏” */
+  readonly sidebarExpand: string;
+  /** 页签区的名称，默认“打开的页面” */
+  readonly pageTabsLabel: string;
+  /** 页签的右键菜单的名称，默认“页签操作” */
+  readonly pageTabsMenu: string;
+  /** 页签的右键菜单：关闭这一个，默认“关闭” */
+  readonly pageTabsClose: string;
+  /** 页签的右键菜单：关闭其他的，默认“关闭其他” */
+  readonly pageTabsCloseOthers: string;
+  /** 页签的右键菜单：关闭右边的，默认“关闭右侧” */
+  readonly pageTabsCloseRight: string;
   /** 主题切换的名称，默认“主题” */
   readonly themeLabel: string;
 }
@@ -85,6 +99,13 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     navigationOpen: '打开导航',
     navigationMenu: '菜单',
     navigationResize: '调整导航宽度',
+    sidebarCollapse: '收起侧栏',
+    sidebarExpand: '展开侧栏',
+    pageTabsLabel: '打开的页面',
+    pageTabsMenu: '页签操作',
+    pageTabsClose: '关闭',
+    pageTabsCloseOthers: '关闭其他',
+    pageTabsCloseRight: '关闭右侧',
     themeLabel: '主题',
   },
   'en-US': {
@@ -116,6 +137,13 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     navigationOpen: 'Open navigation',
     navigationMenu: 'Menu',
     navigationResize: 'Resize navigation',
+    sidebarCollapse: 'Collapse sidebar',
+    sidebarExpand: 'Expand sidebar',
+    pageTabsLabel: 'Open pages',
+    pageTabsMenu: 'Tab actions',
+    pageTabsClose: 'Close',
+    pageTabsCloseOthers: 'Close others',
+    pageTabsCloseRight: 'Close tabs to the right',
     themeLabel: 'Theme',
   },
 };
