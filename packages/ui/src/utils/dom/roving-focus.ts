@@ -1,6 +1,7 @@
 /**
  * 漫游焦点（WAI-ARIA 的 roving tabindex）：一组项里只有一个能用 Tab 进入（tabindex=0），其余为 -1；
  * 组内用方向键移动，Home / End 到两端。Tabs、Toolbar、Menu、ToggleGroup 共用（参考 Radix 的 RovingFocusGroup）。
+ * 二维的网格（表格的单元格、整页日历）用 gridFocus：方向键在行列之间移动。
  *
  * 直接管理容器里各项的 tabindex（组件渲染时不要再写 tabindex），所以项可以是任意可聚焦元素：
  * 工具栏里的按钮、标签页、链接都行。项增删、选中项变化时自动重新计算。
@@ -148,6 +149,104 @@ export function rovingFocus(container: HTMLElement, options: RovingFocusOptions)
 
   return () => {
     container.removeAttribute('data-roving-focus');
+    container.removeEventListener('keydown', onKeydown);
+    container.removeEventListener('focusin', onFocusin);
+    observer.disconnect();
+  };
+}
+
+/** gridFocus 的选项 */
+export interface GridFocusOptions {
+  /** 行的选择器，在容器内查找（如 `[role="row"]`） */
+  rows: string;
+  /** 行里可聚焦的格的选择器（格本身，或格里的按钮）；不可用、隐藏的格跳过 */
+  cells: string;
+  /** PageUp / PageDown 一次移动几行，默认 10 */
+  pageRows?: number;
+  /** Tab 进入时落在哪一格：默认是上次聚焦的格，其次是选中或当前的格，再其次是第一格 */
+  initial?: (cells: HTMLElement[]) => HTMLElement | undefined;
+}
+
+/**
+ * 网格的漫游焦点（WAI-ARIA 的 Grid 模式）：整个网格只有一格能用 Tab 进入，方向键在行列之间移动。
+ * ← → 在行内移动（从右到左排版时反过来），↑ ↓ 到上下一行的同一列（那一行短时到最后一格），
+ * Home / End 到行首、行尾，Ctrl + Home / End 到第一格、最后一格，PageUp / PageDown 跨几行。不循环。
+ * 表格的单元格导航、整页日历用它；行、格增删时自动重新计算。返回清理函数
+ *
+ *   _effect(() => (table ? gridFocus(table, { rows: 'tr', cells: '[role="gridcell"]' }) : undefined));
+ */
+export function gridFocus(container: HTMLElement, options: GridFocusOptions): () => void {
+  const pageRows = options.pageRows ?? 10;
+  let current: HTMLElement | undefined;
+
+  /** 各行里能停留的格（空行去掉） */
+  const grid = () =>
+    [...container.querySelectorAll<HTMLElement>(options.rows)]
+      .map((row) => [...row.querySelectorAll<HTMLElement>(options.cells)].filter(isEnabled))
+      .filter((cells) => cells.length > 0);
+  const allCells = () => [...container.querySelectorAll<HTMLElement>(options.cells)];
+
+  function sync() {
+    const cells = grid().flat();
+    const stop =
+      (current && cells.includes(current) ? current : undefined) ??
+      options.initial?.(cells) ??
+      cells.find(isMarked) ??
+      cells[0];
+    for (const cell of allCells()) {
+      const value = cell === stop ? '0' : '-1';
+      if (cell.getAttribute('tabindex') !== value) cell.setAttribute('tabindex', value);
+    }
+  }
+
+  function onKeydown(event: KeyboardEvent) {
+    if (event.defaultPrevented || event.altKey || event.metaKey) return;
+    const rows = grid();
+    const row = rows.findIndex((cells) => cells.includes(event.target as HTMLElement));
+    if (row < 0) return;
+    const column = rows[row]!.indexOf(event.target as HTMLElement);
+    const rtl = isRtl(container);
+    const last = rows.length - 1;
+    const at = (r: number, c: number) => {
+      const cells = rows[clamp(r, 0, last)]!;
+      return cells[clamp(c, 0, cells.length - 1)];
+    };
+    const ctrl = event.ctrlKey;
+    const targets: Record<string, (() => HTMLElement | undefined) | undefined> = {
+      ArrowRight: ctrl ? undefined : () => at(row, column + (rtl ? -1 : 1)),
+      ArrowLeft: ctrl ? undefined : () => at(row, column + (rtl ? 1 : -1)),
+      ArrowDown: ctrl ? undefined : () => at(row + 1, column),
+      ArrowUp: ctrl ? undefined : () => at(row - 1, column),
+      Home: () => (ctrl ? rows[0]![0] : rows[row]![0]),
+      End: () => (ctrl ? rows[last]!.at(-1) : rows[row]!.at(-1)),
+      PageDown: ctrl ? undefined : () => at(row + pageRows, column),
+      PageUp: ctrl ? undefined : () => at(row - pageRows, column),
+    };
+    const next = targets[event.key]?.();
+    if (!next) return;
+    event.preventDefault();
+    next.focus();
+  }
+
+  function onFocusin(event: FocusEvent) {
+    const target = event.target as HTMLElement;
+    if (!allCells().includes(target)) return;
+    current = target;
+    sync();
+  }
+
+  container.addEventListener('keydown', onKeydown);
+  container.addEventListener('focusin', onFocusin);
+  const observer = new MutationObserver(sync);
+  observer.observe(container, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['disabled', 'aria-disabled', 'aria-selected', 'aria-current', 'hidden'],
+  });
+  sync();
+
+  return () => {
     container.removeEventListener('keydown', onKeydown);
     container.removeEventListener('focusin', onFocusin);
     observer.disconnect();

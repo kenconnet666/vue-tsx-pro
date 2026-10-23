@@ -11,6 +11,11 @@ import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import {
+  AttachedContext,
+  attachedStyles,
+  type AttachedOrientations,
+} from '../utils/style/attached';
 import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -51,7 +56,7 @@ export interface ControlState {
   readonly?: boolean;
 }
 
-/** 输入框外壳 的样式：root、soft、invalid、disabled、readonly、multiline */
+/** 输入框外壳 的样式：root、soft、invalid、disabled、readonly、multiline、grow */
 export const controlShellStyles = stylex.create({
   root: {
     boxSizing: 'border-box',
@@ -86,6 +91,8 @@ export const controlShellStyles = stylex.create({
   },
   // 多行（Textarea）：内容从顶部开始，上下也留内边距
   multiline: { alignItems: 'stretch', paddingBlock: '_xs' },
+  // 在横排的 ControlGroup 里：输入框分掉剩余宽度（选择框按内容宽，见 selectStyles.root）
+  grow: { flexGrow: 1 },
 });
 
 /** 外壳里的各部分：原生输入元素、前后图标、前后缀文字、框里的小按钮（清除、显示密码、步进） */
@@ -163,21 +170,23 @@ export function controlAffix(
   );
 }
 
-/** 合并后的外观（默认值已填上） */
+/** 合并后的外观（默认值已填上）；在 ControlGroup 里时带上相连的方向 */
 export type ControlAppearance = Required<Pick<ControlOptions, 'variant' | 'radius'>> &
-  Pick<ControlOptions, 'size'>;
+  Pick<ControlOptions, 'size'> & { attached?: keyof AttachedOrientations };
 
 /**
  * 输入框的外观：显式写的 prop > createUi / Provider 的 defaults.Input > 默认（surface）。
  * 在 setup 里调用，返回的函数在渲染时调用
  */
 export function useControlAppearance(read: () => ControlOptions): () => ControlAppearance {
-  return useDefaults('Input', read, { variant: 'surface', radius: 'md' });
+  const group = AttachedContext.inject(null);
+  const appearance = useDefaults('Input', read, { variant: 'surface', radius: 'md' });
+  return () => ({ ...appearance(), attached: group?.orientation });
 }
 
 /** 外观与状态 → 外壳的样式；multiline 给 Textarea */
 export function controlSx(
-  { variant, size, radius }: ControlAppearance,
+  { variant, size, radius, attached }: ControlAppearance,
   { invalid, disabled, readonly }: ControlState,
   multiline = false,
 ): StyleXStyles {
@@ -186,6 +195,8 @@ export function controlSx(
     focusRingStyles.within,
     variant === 'soft' && controlShellStyles.soft,
     radiusStyles[radius],
+    attached && attachedStyles[attached],
+    attached === 'horizontal' && controlShellStyles.grow,
     size && fontSizeStyles[size],
     readonly && controlShellStyles.readonly,
     invalid && controlShellStyles.invalid,

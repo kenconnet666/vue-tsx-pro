@@ -141,7 +141,8 @@ export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps
 
 /** Select 的样式：root、trigger、value、placeholder、chevronOpen 等 */
 export const selectStyles = stylex.create({
-  root: { cursor: 'pointer' },
+  // 在 ControlGroup 里也按内容宽（输入框才分剩余宽度）
+  root: { cursor: 'pointer', flexGrow: 0 },
   // 去掉按钮默认外观用 buttonBaseStyles；像输入框一样没有自己的焦点环与波纹（焦点环画在外壳上）
   trigger: {
     display: 'flex',

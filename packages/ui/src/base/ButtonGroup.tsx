@@ -6,7 +6,7 @@
  *     <IconButton icon={AlignCenter} aria-label="居中" />
  *   </ButtonGroup>
  *
- * 组里的按钮家族（Button、LinkButton、IconButton…）经 ButtonGroupContext 得知自己在组里：去掉相邻一侧的圆角、边框叠在一起；
+ * 组里的按钮家族（Button、LinkButton、IconButton…）经 AttachedContext 得知自己在组里：去掉相邻一侧的圆角、边框叠在一起；
  * 组上写的 variant、tone、size、radius 是组里按钮的默认值，按钮自己写的优先。
  * 实底（solid）的相邻按钮之间没有分隔，连成一条时用 outline、surface 更清楚。
  * 只是排一排、不相连的按钮用 Flex。选中其中一项（单选、多选）用 ToggleGroup。
@@ -15,11 +15,8 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import {
-  ButtonGroupContext,
-  type ButtonGroupOrientations,
-  type ButtonOptions,
-} from './button-core';
+import { AttachedContext, type AttachedOrientations } from '../utils/style/attached';
+import { ButtonGroupContext, type ButtonOptions } from './button-core';
 
 /** 角色由组件管理 */
 export type ButtonGroupManaged = 'role';
@@ -33,7 +30,7 @@ export interface ButtonGroupProps
    * 排列方向
    * @default 'horizontal'
    */
-  orientation?: keyof ButtonGroupOrientations;
+  orientation?: keyof AttachedOrientations;
   /** 按钮 */
   children?: VNodeChild;
 }
@@ -59,6 +56,8 @@ export const ButtonGroup = _component(
       get appearance() {
         return { variant, tone, size, radius };
       },
+    });
+    AttachedContext.provide({
       get orientation() {
         return orientation;
       },

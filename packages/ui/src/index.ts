@@ -136,7 +136,6 @@ export {
   type ButtonBehaviorProps,
   type ButtonBehaviorState,
   type ButtonContentOptions,
-  type ButtonGroupOrientations,
   type ButtonGroupState,
   type ButtonOptions,
   type ButtonVariants,
@@ -606,6 +605,12 @@ export {
   type ComboboxManaged,
   type ComboboxProps,
 } from './input/Combobox';
+export {
+  ControlGroup,
+  controlGroupStyles,
+  type ControlGroupManaged,
+  type ControlGroupProps,
+} from './input/ControlGroup';
 export { FileDrop, fileDropStyles, matchesAccept, type FileDropProps } from './input/FileDrop';
 export {
   ListPopover,
@@ -1115,6 +1120,12 @@ export {
 } from './utils/props';
 
 // 工具：档位、字号、色调、过渡等共用样式
+export {
+  AttachedContext,
+  attachedStyles,
+  type AttachedOrientations,
+  type AttachedState,
+} from './utils/style/attached';
 export { itemStyles } from './utils/style/item-styles';
 export { headingMarker } from './utils/style/markers.stylex';
 export { SHIMMER_STAGGER, shimmerStyles } from './utils/style/shimmer';
@@ -1253,6 +1264,16 @@ export {
   type ModalDialogOptions,
 } from './utils/dom/overlay';
 export { usePageVisible } from './utils/dom/page-visibility';
+export {
+  clampPan,
+  usePanZoom,
+  zoomAround,
+  type PanZoom,
+  type PanZoomOptions,
+  type PanZoomState,
+  type PanZoomWheelModes,
+  type Point,
+} from './utils/dom/pan-zoom';
 export { useResizeObserver } from './utils/dom/resize';
 export {
   rippleHostStyles,
@@ -1263,7 +1284,9 @@ export {
   type RippleHandlers,
 } from './utils/dom/ripple';
 export {
+  gridFocus,
   rovingFocus,
+  type GridFocusOptions,
   type RovingFocusOptions,
   type RovingOrientations,
 } from './utils/dom/roving-focus';

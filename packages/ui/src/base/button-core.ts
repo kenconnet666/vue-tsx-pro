@@ -15,6 +15,11 @@ import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/r
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, radiusStyles, type Radius, type StyleTable } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
+import {
+  AttachedContext,
+  attachedStyles,
+  type AttachedOrientations,
+} from '../utils/style/attached';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -360,28 +365,18 @@ export const buttonVariantStyles: Readonly<Record<keyof ButtonVariants, StyleTab
   link,
 };
 
-/** 按钮组的排列方向 */
-export interface ButtonGroupOrientations {
-  /** 横排（默认） */
-  horizontal: unknown;
-  /** 竖排 */
-  vertical: unknown;
-}
-
-/** ButtonGroup 交给组里按钮的状态：统一的外观与排列方向 */
+/** ButtonGroup 交给组里按钮的状态：统一的外观（相连的方向经 AttachedContext 给出） */
 export interface ButtonGroupState {
   /** 组上写的外观，组里的按钮没写的项用它 */
   readonly appearance: Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>;
-  /** 排列方向：决定去掉哪一侧的圆角 */
-  readonly orientation: keyof ButtonGroupOrientations;
 }
 
 /** 按钮组的上下文：组里的按钮家族据此相连、共用外观 */
 export const ButtonGroupContext = createContext<ButtonGroupState>('ButtonGroup');
 
-/** 合并后的外观：每一项都有值（size 不写时继承字号）；在 ButtonGroup 里时带上相连的方向 */
+/** 合并后的外观：每一项都有值（size 不写时继承字号）；在 ButtonGroup、ControlGroup 里时带上相连的方向 */
 export type ButtonAppearance = Required<Pick<ButtonOptions, 'variant' | 'tone' | 'radius'>> &
-  Pick<ButtonOptions, 'size'> & { attached?: keyof ButtonGroupOrientations };
+  Pick<ButtonOptions, 'size'> & { attached?: keyof AttachedOrientations };
 
 /**
  * 按钮的外观：显式写的 prop > 所在 ButtonGroup 写的 > createUi / Provider 的 defaults.Button > 组件自己的默认样式。
@@ -393,6 +388,7 @@ export function useButtonAppearance(
   fallbackTone: StatusTone = 'accent',
 ): () => ButtonAppearance {
   const group = ButtonGroupContext.inject(null);
+  const attachedGroup = AttachedContext.inject(null);
   return useDefaults(
     'Button',
     () => {
@@ -403,35 +399,13 @@ export function useButtonAppearance(
         tone: tone ?? shared?.tone,
         size: size ?? shared?.size,
         radius: radius ?? shared?.radius,
-        attached: group?.orientation,
+        attached: attachedGroup?.orientation,
       };
     },
     // 组里的按钮外观要一致：不论有没有文字都按 Button 的默认色调（拆分按钮的两半同色）
     { variant: fallbackVariant, tone: group ? 'accent' : fallbackTone, radius: 'md' },
   );
 }
-
-// 组里相连的按钮：去掉相邻一侧的圆角，边框叠在一起（不显得加粗）；悬停、聚焦的那个浮到上面，边框与焦点环不被邻居盖住
-const attachedStyles = stylex.create({
-  horizontal: {
-    position: 'relative',
-    zIndex: { default: null, ':hover': 1, ':focus-visible': 2 },
-    marginInlineStart: { default: `calc(-1 * ${t.borderWidths.xs})`, ':first-child': 0 },
-    borderStartStartRadius: { default: 0, ':first-child': null },
-    borderEndStartRadius: { default: 0, ':first-child': null },
-    borderStartEndRadius: { default: 0, ':last-child': null },
-    borderEndEndRadius: { default: 0, ':last-child': null },
-  },
-  vertical: {
-    position: 'relative',
-    zIndex: { default: null, ':hover': 1, ':focus-visible': 2 },
-    marginBlockStart: { default: `calc(-1 * ${t.borderWidths.xs})`, ':first-child': 0 },
-    borderStartStartRadius: { default: 0, ':first-child': null },
-    borderStartEndRadius: { default: 0, ':first-child': null },
-    borderEndStartRadius: { default: 0, ':last-child': null },
-    borderEndEndRadius: { default: 0, ':last-child': null },
-  },
-});
 
 /** 外观（已合并默认值）与状态 → 按钮根元素的样式 */
 export function buttonSx(

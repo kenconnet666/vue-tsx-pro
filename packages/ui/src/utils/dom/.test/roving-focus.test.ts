@@ -1,6 +1,6 @@
-// 漫游焦点：Tab 进入点、方向键移动、跳过不可用项、选中项变化时更新
+// 漫游焦点：Tab 进入点、方向键移动、跳过不可用项、选中项变化时更新；网格（gridFocus）的行列移动
 import { afterEach, describe, expect, it } from 'vitest';
-import { rovingFocus, type RovingFocusOptions } from '../roving-focus';
+import { gridFocus, rovingFocus, type RovingFocusOptions } from '../roving-focus';
 
 const cleanups: (() => void)[] = [];
 afterEach(() => {
@@ -129,5 +129,70 @@ describe('嵌套的组', () => {
       '0',
       '-1',
     ]);
+  });
+});
+
+describe('gridFocus', () => {
+  function grid() {
+    const container = document.createElement('table');
+    // 第三行短一格；第二行第二格不可用
+    container.innerHTML = `
+      <tr><td><button>a1</button></td><td><button>a2</button></td><td><button>a3</button></td></tr>
+      <tr><td><button>b1</button></td><td><button disabled>b2</button></td><td><button>b3</button></td></tr>
+      <tr><td><button>c1</button></td><td><button aria-selected="true">c2</button></td></tr>`;
+    document.body.append(container);
+    cleanups.push(gridFocus(container, { rows: 'tr', cells: 'button', pageRows: 2 }));
+    const cell = (name: string) =>
+      [...container.querySelectorAll('button')].find((button) => button.textContent === name)!;
+    const press = (key: string, init: KeyboardEventInit = {}) =>
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }),
+      );
+    const focused = () => document.activeElement!.textContent;
+    return { container, cell, press, focused };
+  }
+
+  it('只有一格是 Tab 进入点：默认是选中的格；聚焦后跟着走', () => {
+    const { container, cell } = grid();
+    const stops = () =>
+      [...container.querySelectorAll('button')]
+        .filter((button) => button.getAttribute('tabindex') === '0')
+        .map((button) => button.textContent);
+    expect(stops()).toEqual(['c2']);
+    cell('a3').focus();
+    expect(stops()).toEqual(['a3']);
+  });
+
+  it('方向键在行列之间移动，跳过不可用的格，短行到最后一格；Home / End、Ctrl + Home / End、PageUp / PageDown', () => {
+    const { cell, press, focused } = grid();
+    cell('a1').focus();
+    press('ArrowRight');
+    expect(focused()).toBe('a2');
+    press('ArrowDown');
+    // b2 不可用：第二行能停的是 b1、b3，同一列（第 2 个）是 b3
+    expect(focused()).toBe('b3');
+    press('ArrowDown');
+    expect(focused()).toBe('c2');
+    press('ArrowDown');
+    expect(focused()).toBe('c2');
+    press('Home');
+    expect(focused()).toBe('c1');
+    press('End', { ctrlKey: true });
+    expect(focused()).toBe('c2');
+    press('Home', { ctrlKey: true });
+    expect(focused()).toBe('a1');
+    press('PageDown');
+    expect(focused()).toBe('c1');
+    press('PageUp');
+    expect(focused()).toBe('a1');
+  });
+
+  it('从右到左排版时左右键反过来', () => {
+    const { container, cell, press, focused } = grid();
+    container.dir = 'rtl';
+    container.style.direction = 'rtl';
+    cell('a2').focus();
+    press('ArrowLeft');
+    expect(focused()).toBe('a3');
   });
 });
