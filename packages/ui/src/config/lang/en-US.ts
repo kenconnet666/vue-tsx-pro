@@ -141,6 +141,12 @@ export const enUS: Lang = {
   nextPage: 'Next page',
   pageLabel: (page) => `Page ${page}`,
   treeEmpty: 'No data',
+  tabClose: (label) => `Close ${label}`,
+  tabAdd: 'New tab',
+  tabList: 'All tabs',
+  tabScrollPrevious: 'Scroll back',
+  tabScrollNext: 'Scroll forward',
+  tabMoved: (label, position, total) => `Moved ${label} to position ${position} of ${total}`,
   treeNoMatch: 'No matching items',
   treeMoved: (item, parent, position) =>
     parent

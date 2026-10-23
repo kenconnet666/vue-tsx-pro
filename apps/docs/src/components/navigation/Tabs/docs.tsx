@@ -12,6 +12,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Orders from './demo/Orders.tsx?demo';
 import Soft from './demo/Soft.tsx?demo';
 import Vertical from './demo/Vertical.tsx?demo';
+import Workspace from './demo/Workspace.tsx?demo';
 
 export const meta = {
   title: 'Tabs 标签页',
@@ -26,6 +27,13 @@ export default _component(() => () => (
     meta={meta}
     imports="import { Tab, TabList, TabPanel, Tabs } from '@vue-tsx-pro/ui';"
   >
+    <Example id="workspace" title="多页签：关闭、新建、拖动与全部标签页" demo={Workspace}>
+      <Code>Tab</Code> 写了 <Code>onClose</Code> 就有关闭按钮（不进 Tab 顺序，焦点在标签上时按
+      Delete，鼠标中键也关）；关掉的是当前标签时选它后面的一个，焦点跟过去。
+      <Code>TabList</Code> 的 <Code>onAdd</Code> 在标签栏末尾放“新建标签页”，<Code>onReorder</Code>{' '}
+      让标签能拖动排序（键盘：Alt + ← →），参数是新的顺序；<Code>showAllMenu</Code>{' '}
+      在右边放“全部标签页”的菜单。放不下时列表横向滚动，两端出现滚动按钮，切到的标签自己滚进来。
+    </Example>
     <Examples>
       <ExampleColumn>
         <Example id="line" title="订单状态" demo={Orders}>
@@ -52,6 +60,8 @@ export default _component(() => () => (
         ['→ / ←', '移到下一个 / 上一个标签（竖排时用 ↓ / ↑）；loop 时到头后循环'],
         ['Home / End', '移到第一个 / 最后一个标签'],
         ['Enter / Space', 'activation="manual" 时切换到聚焦的标签；默认焦点移到哪个就切换到哪个'],
+        ['Delete', '关闭聚焦的标签（写了 onClose 时）'],
+        ['Alt + → / ←', '把聚焦的标签往后 / 往前挪一位（写了 onReorder 时；从右到左排版时反过来）'],
       ]}
     />
     <ApiReference api={[api, tabListApi, tabApi, tabPanelApi]} />

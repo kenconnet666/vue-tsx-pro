@@ -1,4 +1,5 @@
-// Tabs 的结构、键盘与无障碍属性；真实焦点移动见 apps/host-demo 的浏览器测试
+// Tabs：WAI-ARIA 关系（tablist / tab / tabpanel）、选中与切换、手动激活、竖排、键盘移动；
+// 可关闭（Delete、关闭按钮，关掉当前标签时选旁边的）、新建、Alt + ←→ 排序
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
@@ -112,5 +113,69 @@ describe('Tabs', () => {
     tabs()[0]!.click();
     await nextTick();
     expect(panels().map((panel) => panel.textContent)).toEqual(['全部订单', '', '已完成的订单']);
+  });
+
+  it('可关闭：Delete 或关闭按钮关闭；关掉当前标签时选它后面的一个，焦点跟过去', async () => {
+    let tabs = _state(['a', 'b', 'c']);
+    let current = _state('b');
+    const root = mount(() => (
+      <Tabs value={_bind(current)}>
+        <TabList aria-label="页面">
+          {tabs.map((tab) => (
+            <Tab key={tab} value={tab} onClose={() => (tabs = tabs.filter((item) => item !== tab))}>
+              {tab.toUpperCase()}
+            </Tab>
+          ))}
+        </TabList>
+      </Tabs>
+    ));
+    const tab = (name: string) =>
+      [...root.querySelectorAll<HTMLElement>('[role="tab"]')].find(
+        (item) => item.textContent === name,
+      )!;
+    // 关闭按钮不在 Tab 顺序里，名称带上标签的文字
+    const close = tab('B').parentElement!.querySelector<HTMLButtonElement>('button[aria-label]')!;
+    expect(close.getAttribute('aria-label')).toBe('关闭 B');
+    expect(close.tabIndex).toBe(-1);
+    tab('B').focus();
+    tab('B').dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+    await nextTick();
+    await nextTick();
+    expect(tabs).toEqual(['a', 'c']);
+    expect(current).toBe('c');
+    expect(document.activeElement).toBe(tab('C'));
+    // 关掉最后一个：选前面的
+    tab('C').parentElement!.querySelector<HTMLButtonElement>('button[aria-label]')!.click();
+    await nextTick();
+    await nextTick();
+    expect(current).toBe('a');
+  });
+
+  it('新建按钮在标签栏里、tablist 外面；Alt + → 把标签往后挪一位并报告新顺序', async () => {
+    let order = _state(['a', 'b', 'c']);
+    let added = _state(0);
+    const root = mount(() => (
+      <Tabs>
+        <TabList aria-label="页面" onAdd={() => added++} onReorder={(next) => (order = next)}>
+          {order.map((tab) => (
+            <Tab key={tab} value={tab}>
+              {tab}
+            </Tab>
+          ))}
+        </TabList>
+      </Tabs>
+    ));
+    const list = root.querySelector<HTMLElement>('[role="tablist"]')!;
+    const add = root.querySelector<HTMLButtonElement>('button[aria-label="新建标签页"]')!;
+    expect(list.contains(add)).toBe(false);
+    add.click();
+    expect(added).toBe(1);
+    const first = list.querySelector<HTMLElement>('[role="tab"]')!;
+    first.focus();
+    first.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', altKey: true, bubbles: true }),
+    );
+    await nextTick();
+    expect(order).toEqual(['b', 'a', 'c']);
   });
 });

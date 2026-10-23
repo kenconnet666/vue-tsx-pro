@@ -282,6 +282,18 @@ export interface Lang {
   readonly pageLabel: (page: number) => string;
   /** 树没有节点时的提示，默认“暂无数据” */
   readonly treeEmpty: string;
+  /** 标签页的关闭按钮：`('订单')` → “关闭 订单” */
+  readonly tabClose: (label: string) => string;
+  /** 新建标签页的按钮，默认“新建标签页” */
+  readonly tabAdd: string;
+  /** 列出全部标签页的菜单按钮，默认“全部标签页” */
+  readonly tabList: string;
+  /** 标签栏往前滚的按钮，默认“往前滚” */
+  readonly tabScrollPrevious: string;
+  /** 标签栏往后滚的按钮，默认“往后滚” */
+  readonly tabScrollNext: string;
+  /** 移动了一个标签页（读屏播报）：`('订单', 2, 5)` → “订单移到第 2 个，共 5 个” */
+  readonly tabMoved: (label: string, position: number, total: number) => string;
   /** 树搜索没有匹配时的提示，默认“没有匹配的节点” */
   readonly treeNoMatch: string;
   /** 树里移动了一个节点（读屏播报）：`('测算组', '成本管理部', 2)` → “测算组移到成本管理部下第 2 位”；放到第一层时 parent 为 undefined */
