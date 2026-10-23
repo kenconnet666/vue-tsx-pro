@@ -762,6 +762,15 @@ export {
   type ToggleGroupState,
   type ToggleItemProps,
 } from './input/ToggleGroup';
+export {
+  Transfer,
+  transferStyles,
+  TreeTransfer,
+  type TransferBaseProps,
+  type TransferListProps,
+  type TransferProps,
+  type TreeTransferProps,
+} from './input/Transfer';
 export { TreeSelect, treeSelectStyles, type TreeSelectProps } from './input/TreeSelect';
 export {
   existingUploadFile,

@@ -131,6 +131,12 @@ export const zhCN: Lang = {
   treeNoMatch: '没有匹配的节点',
   treeMoved: (item, parent, position) =>
     parent ? `${item}移到${parent}下第 ${position} 位` : `${item}移到第一层第 ${position} 位`,
+  transferSource: '可选',
+  transferTarget: '已选',
+  transferMoveTo: (title) => `移到${title}`,
+  transferSelectAll: (title) => `全选${title}`,
+  transferCount: (checked, total) => `${checked} / ${total}`,
+  transferMoved: (count, title) => `已把 ${count} 项移到${title}`,
   breadcrumbs: '面包屑',
   breadcrumbsExpand: '显示被折叠的路径',
   stepState: (state) => `（${{ complete: '已完成', upcoming: '未开始', error: '出错' }[state]}）`,

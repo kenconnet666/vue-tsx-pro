@@ -286,6 +286,18 @@ export interface Lang {
   readonly treeNoMatch: string;
   /** 树里移动了一个节点（读屏播报）：`('测算组', '成本管理部', 2)` → “测算组移到成本管理部下第 2 位”；放到第一层时 parent 为 undefined */
   readonly treeMoved: (item: string, parent: string | undefined, position: number) => string;
+  /** 穿梭框左边的默认标题，默认“可选” */
+  readonly transferSource: string;
+  /** 穿梭框右边的默认标题，默认“已选” */
+  readonly transferTarget: string;
+  /** 移到另一边的按钮名称：`('已选')` → “移到已选” */
+  readonly transferMoveTo: (title: string) => string;
+  /** 一边的全选框名称：`('可选')` → “全选可选” */
+  readonly transferSelectAll: (title: string) => string;
+  /** 一边勾上了几项：`(2, 10)` → “2 / 10” */
+  readonly transferCount: (checked: number, total: number) => string;
+  /** 移动之后的播报：`(3, '已选')` → “已把 3 项移到已选” */
+  readonly transferMoved: (count: number, title: string) => string;
   /** 面包屑导航的无障碍名称，默认“面包屑” */
   readonly breadcrumbs: string;
   /** 面包屑折叠按钮（打开被折叠各级的菜单）的名称，默认“显示被折叠的路径” */

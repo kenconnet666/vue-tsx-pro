@@ -146,6 +146,12 @@ export const enUS: Lang = {
     parent
       ? `Moved ${item} into ${parent} at position ${position}`
       : `Moved ${item} to the top level at position ${position}`,
+  transferSource: 'Available',
+  transferTarget: 'Selected',
+  transferMoveTo: (title) => `Move to ${title}`,
+  transferSelectAll: (title) => `Select all in ${title}`,
+  transferCount: (checked, total) => `${checked} / ${total}`,
+  transferMoved: (count, title) => `Moved ${count} ${count === 1 ? 'item' : 'items'} to ${title}`,
   breadcrumbs: 'Breadcrumb',
   breadcrumbsExpand: 'Show hidden levels',
   stepState: (state) =>
