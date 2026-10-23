@@ -426,7 +426,9 @@ export {
   AlertDialog,
   useConfirm,
   type AlertDialogProps,
+  type Confirm,
   type ConfirmOptions,
+  type ConfirmReason,
 } from './overlay/AlertDialog';
 export {
   CommandPalette,

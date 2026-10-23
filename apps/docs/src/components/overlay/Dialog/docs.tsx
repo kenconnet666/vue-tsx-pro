@@ -39,8 +39,9 @@ export default _component(() => () => (
         <Example id="alert-dialog" title="确认操作" demo={Confirm}>
           AlertDialog 用于不可撤销的操作：role="alertdialog"，焦点先落在取消上，点遮罩不关闭。
           <Code>onConfirm</Code> 返回 Promise 时确认按钮显示加载中，完成才关。不想维护 open 状态时用{' '}
-          <Code>useConfirm()</Code>，await 得到 true / false。<Code>confirmText</Code> /{' '}
-          <Code>cancelText</Code>{' '}
+          <Code>useConfirm()</Code>，await 得到 true / false；给了 <Code>reason</Code>{' '}
+          时对话框里多一个多行输入框（驳回、作废要写理由），await 得到填的理由、取消时得到
+          null，必填没填时提示且不关闭。<Code>confirmText</Code> / <Code>cancelText</Code>{' '}
           改按钮文字，默认取语言包。要先填一两个字段的操作（退回写原因、改派选人）用页面组合里的{' '}
           <Code>useFormDialog</Code>。
         </Example>

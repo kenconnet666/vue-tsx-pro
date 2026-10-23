@@ -15,7 +15,7 @@
   - 布局：Flex / Grid / Container（含 create* 工厂）、Separator、ScrollArea 与 PageScrollbar、Prose、Splitter、ResizeHandle、AsideLayout、ViewportFill
   - 展示：Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat / StatGroup、Descriptions、Timeline（reverse）、Tree、Sortable、ItemList、ProportionBar
   - 反馈：Progress（条形 / 环形）、Skeleton、Alert、Banner、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay
-  - 浮层：Dialog / Drawer / AlertDialog（共用 ModalCore，onConfirm 给出“取消 / 确认”与等待；useConfirm）、Popover、Popconfirm、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
+  - 浮层：Dialog / Drawer / AlertDialog（共用 ModalCore，onConfirm 给出“取消 / 确认”与等待；useConfirm，可带理由）、Popover、Popconfirm、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
   - 导航：Toolbar、Tabs、Steps、Breadcrumbs、Pagination（PageSizeSelect、PageJump、Pager）、NavList、TableOfContents、SkipLink
   - 输入：TextField、Textarea、NumberField / NumberRangeField、ColorField、Checkbox / Radio / Switch、Listbox、Select、Combobox、TreeSelect、TagsInput、FileDrop / Upload、Slider、ToggleGroup、ControlGroup
   - 日期：Calendar、RangeCalendar、DateField、TimeField、DatePicker（年、月、日期时间）、TimePicker、DateRangePicker、RelativeTime、DateTime、Countdown（`@internationalized/date`，值可以是 ISO 字符串或 DateValue）

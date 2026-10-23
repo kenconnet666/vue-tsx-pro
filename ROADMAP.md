@@ -91,8 +91,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 阶段 2：小组件
 
-- [ ] 反馈：Popconfirm；Toast 的 `success()` / `error()` / `loading()`、去重的 id、关闭回调；Progress 的环形与目标刻度
-      （分段由 ProportionBar 负责）；Result 的 403 / 404 / 500；页面级的 Banner；`useConfirm` 的必填理由
+- [x] 反馈：Popconfirm；Toast 的 `success()` / `error()` / `loading()`、去重的 id、关闭回调；Progress 的环形与目标刻度
+      （分段由 ProportionBar 负责）；Result 的 403 / 404 / 500；页面级的 Banner；`useConfirm` 的必填理由（`reason`，得到填的理由）
 - [ ] 输入：Autocomplete（值就是文字）、OTP、InputGroup（币种 + 金额）、格式化输入（手机号、证件号）、
       CheckboxGroup / RadioGroup 的 items、NumberField 与 Textarea 可清空、Rating
 - [ ] 展示与布局：Ellipsis（溢出才出提示、可展开）、Affix、BackTop、Watermark、LoadingBar（路由切换的进度条）

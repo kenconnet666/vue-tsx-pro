@@ -1,4 +1,4 @@
-import { LogOut, Trash2 } from '@lucide/icons';
+import { LogOut, Trash2, Undo2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { AlertDialog, Button, Flex, Small, useConfirm } from '@vue-tsx-pro/ui';
 
@@ -25,6 +25,23 @@ export default _component(() => {
     result = ok ? '已退出登录' : '取消了退出';
   };
 
+  // 要填理由：得到填的理由，取消时是 null
+  const reject = async () => {
+    const reason = await confirm({
+      title: '驳回“10 月差旅报销”？',
+      tone: 'danger',
+      confirmText: '驳回',
+      reason: {
+        label: '驳回理由',
+        required: true,
+        description: '申请人会在通知里看到这段理由',
+        placeholder: '如：缺少 10 月 12 日的酒店发票',
+        maxlength: 200,
+      },
+    });
+    result = reason === null ? '取消了驳回' : `已驳回：${reason}`;
+  };
+
   return () => (
     <Flex direction="column" gap="md" align="start">
       <Flex gap="sm" wrap>
@@ -33,6 +50,9 @@ export default _component(() => {
         </Button>
         <Button variant="outline" tone="neutral" icon={LogOut} onClick={() => void signOut()}>
           退出登录（useConfirm）
+        </Button>
+        <Button variant="outline" tone="danger" icon={Undo2} onClick={() => void reject()}>
+          驳回（填理由）
         </Button>
       </Flex>
       <Small tone="muted">{result || '还没有操作'}</Small>
