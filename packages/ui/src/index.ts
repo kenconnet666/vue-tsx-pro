@@ -487,6 +487,7 @@ export {
   type ModalManaged,
   type ModalProps,
 } from './overlay/ModalCore';
+export { Popconfirm, popconfirmStyles, type PopconfirmProps } from './overlay/Popconfirm';
 export {
   Popover,
   popoverStyles,

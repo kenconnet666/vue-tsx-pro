@@ -14,7 +14,7 @@ export const meta = {
   title: 'CommandPalette 命令面板',
   description:
     '快捷键或按钮打开的搜索对话框：边输入边过滤，回车执行。站内搜索、后台的“跳转到…”、提及成员都用它；本站右上角的搜索就是。',
-  order: 4,
+  order: 5,
 };
 
 export default _component(() => () => (

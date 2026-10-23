@@ -11,7 +11,7 @@ export const meta = {
   title: 'Tour 新手引导',
   description:
     '一步一步高亮页面上的元素并说明：遮罩镂空出目标，卡片贴着目标显示步数、上一步、下一步与跳过。',
-  order: 5,
+  order: 6,
 };
 
 export default _component(() => () => (

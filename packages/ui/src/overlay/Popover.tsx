@@ -44,6 +44,11 @@ export interface PopoverProps
   placement?: FloatingPlacement;
   /** 显示指向触发器的箭头 */
   arrow?: boolean;
+  /**
+   * 弹出层的角色，默认 dialog；要用户在确认与取消之间选择时（Popconfirm）用 alertdialog
+   * @default 'dialog'
+   */
+  role?: 'dialog' | 'alertdialog';
   /** 触发器：`(props) => <Button {...props}>更多</Button>` */
   trigger: (props: PopoverTriggerProps) => VNodeChild;
   /** 箭头的部件属性 */
@@ -63,6 +68,7 @@ export const Popover = _component(
     placement = 'bottom-start',
     offset,
     arrow = false,
+    role = 'dialog',
     trigger,
     propsArrow,
     lazy = true,
@@ -107,7 +113,7 @@ export const Popover = _component(
               'aria-labelledby': defaultLabelledBy(rest, triggerId),
             },
             rest,
-            { ref: _toRef(panel), id, popover: 'auto', role: 'dialog', onToggle },
+            { ref: _toRef(panel), id, popover: 'auto', role, onToggle },
           )}
           data-state={open ? 'open' : 'closed'}
         >

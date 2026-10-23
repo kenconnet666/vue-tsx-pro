@@ -25,7 +25,7 @@ export const meta = {
   title: 'Menu 菜单',
   description:
     '按钮弹出的一列操作：普通项、复选项、单选组、子菜单、链接项；ContextMenu 是从指针位置弹出的同一套菜单。',
-  order: 3,
+  order: 4,
 };
 
 export default _component(() => () => (
