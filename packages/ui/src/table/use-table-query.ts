@@ -9,8 +9,7 @@
  *   );
  *   <FilterBar onSearch={() => tasks.search({ ...draft })} … />
  *   <DataTable rows={tasks.rows} loading={tasks.loading} sort={_bind(tasks.sort)} manualSort … />
- *   <Pagination page={_bind(tasks.page)} total={tasks.total} pageSize={tasks.pageSize} />
- *   <PageSizeSelect value={_bind(tasks.pageSize)} />
+ *   <PaginationBar page={_bind(tasks.page)} pageSize={_bind(tasks.pageSize)} total={tasks.total} />
  *
  * 换排序、每页条数、筛选条件或 params 时回到第一页；删掉数据后当前页空了，退到最后一页。
  * syncToUrl 把页码、条数、排序（sort=-amount 是倒序，同 JSON:API）、筛选条件放进地址的查询参数（见 useQueryState）。
@@ -85,7 +84,7 @@ const sortCodec: QueryCodec<SortState | null> = {
   serialize: (sort) => (sort ? (sort.direction === 'descending' ? '-' : '') + sort.key : ''),
 };
 
-/** useTableQuery 的返回值：page、pageSize、sort 可以直接 _bind 到 Pagination、PageSizeSelect、DataTable */
+/** useTableQuery 的返回值：page、pageSize、sort 可以直接 _bind 到 PaginationBar（或 Pagination、PageSizeSelect）、DataTable */
 export interface TableQueryState<Result extends TablePage<unknown>, Filters> {
   /** 第几页：改了立即请求 */
   page: number;

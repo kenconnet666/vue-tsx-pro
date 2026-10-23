@@ -117,6 +117,8 @@ export const zhCN: Lang = {
   selectSummary: (labels) => labels.join('、'),
   selectMoreTags: (count) => `+${count}`,
   paginationTotal: (total) => `共 ${total.toLocaleString('zh-CN')} 条`,
+  paginationRange: (from, to, total) =>
+    `第 ${from.toLocaleString('zh-CN')}–${to.toLocaleString('zh-CN')} 条，共 ${total.toLocaleString('zh-CN')} 条`,
   pagination: '分页',
   pageSizeOption: (size) => `${size} 条/页`,
   pageSizeLabel: '每页条数',

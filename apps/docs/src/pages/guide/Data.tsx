@@ -135,7 +135,7 @@ export default _component(() => () => (
         列表页的页码、每页条数、排序、已应用的筛选条件、总数、加载与出错交给{' '}
         <Code>useTableQuery</Code>
         （建在 useRequest 上）。<Code>page</Code>、<Code>pageSize</Code>、<Code>sort</Code> 直接{' '}
-        <Code>_bind</Code> 到 Pagination、PageSizeSelect、DataTable（加 <Code>manualSort</Code>
+        <Code>_bind</Code> 到 PaginationBar、DataTable（加 <Code>manualSort</Code>
         ，排序交给服务端）；查询栏点“查询”时调用 <Code>search(条件)</Code>
         。换排序、条数、条件或 <Code>params</Code>
         （当前页签这类）回到第一页，只请求一次；删掉数据后当前页空了，自动退到最后一页。

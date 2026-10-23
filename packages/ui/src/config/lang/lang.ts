@@ -260,6 +260,8 @@ export interface Lang {
   readonly selectMoreTags: (count: number) => string;
   /** 分页的总条数，默认“共 1,286 条”（按语言加千分位） */
   readonly paginationTotal: (total: number) => string;
+  /** 分页栏的当前范围：`(21, 40, 1286)` → “第 21–40 条，共 1,286 条” */
+  readonly paginationRange: (from: number, to: number, total: number) => string;
   /** 分页导航的无障碍名称，默认“分页” */
   readonly pagination: string;
   /** 每页条数选择里的一项：`(20)` → “20 条/页” */

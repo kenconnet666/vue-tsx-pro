@@ -568,9 +568,19 @@ export {
   type NavSectionProps,
 } from './navigation/NavList';
 export { PageJump, pageJumpStyles, type PageJumpProps } from './navigation/PageJump';
-export { PageSizeSelect, type PageSizeSelectProps } from './navigation/PageSizeSelect';
+export {
+  PageSizeSelect,
+  pageSizeSelectStyles,
+  type PageSizeSelectProps,
+} from './navigation/PageSizeSelect';
 export { Pager, pagerStyles, type PagerLink, type PagerProps } from './navigation/Pager';
 export { Pagination, paginationStyles, type PaginationProps } from './navigation/Pagination';
+export {
+  PaginationBar,
+  paginationBarStyles,
+  type PageRange,
+  type PaginationBarProps,
+} from './navigation/PaginationBar';
 export { SkipLink, skipLinkStyles, type SkipLinkProps } from './navigation/SkipLink';
 export {
   Steps,

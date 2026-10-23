@@ -5,9 +5,7 @@ import {
   DataTable,
   Field,
   Flex,
-  PageSizeSelect,
-  Pagination,
-  Small,
+  PaginationBar,
   TextField,
   useHttp,
   useTableQuery,
@@ -60,17 +58,13 @@ export default _component(() => {
         loading={suppliers.loading}
         aria-label="供应商"
       />
-      <Flex align="center" justify="between" gap="md" wrap>
-        <Small tone="muted">共 {suppliers.total} 家</Small>
-        <Flex align="center" gap="md" wrap>
-          <Pagination
-            page={_bind(suppliers.page)}
-            total={suppliers.total}
-            pageSize={suppliers.pageSize}
-          />
-          <PageSizeSelect value={_bind(suppliers.pageSize)} options={[5, 10, 20]} />
-        </Flex>
-      </Flex>
+      <PaginationBar
+        page={_bind(suppliers.page)}
+        pageSize={_bind(suppliers.pageSize)}
+        total={suppliers.total}
+        pageSizeOptions={[5, 10, 20]}
+        showTotal={({ total }) => `共 ${total} 家`}
+      />
     </Flex>
   );
 });

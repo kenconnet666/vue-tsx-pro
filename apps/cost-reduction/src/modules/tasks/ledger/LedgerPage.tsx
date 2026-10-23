@@ -33,8 +33,7 @@ import {
   Menu,
   MenuCheckboxItem,
   MenuItem,
-  PageSizeSelect,
-  Pagination,
+  PaginationBar,
   SelectionBar,
   Small,
   Tab,
@@ -406,7 +405,6 @@ export const LedgerPage = _component(
     }
 
     return () => {
-      const first = tasks.total ? (tasks.page - 1) * tasks.pageSize + 1 : 0;
       const bar = filters(query);
       return (
         <>
@@ -501,20 +499,13 @@ export const LedgerPage = _component(
                 aria-label={`${amount.label}台账`}
                 flexible
               />
-              <Flex align="center" justify="between" gap="md" wrap>
-                <Small tone="muted">
-                  第 {first}–{Math.min(tasks.page * tasks.pageSize, tasks.total)} 条 · 勾选跨页保留
-                </Small>
-                <Flex align="center" gap="md" wrap>
-                  <Pagination
-                    aria-label="台账分页"
-                    page={_bind(tasks.page)}
-                    total={tasks.total}
-                    pageSize={tasks.pageSize}
-                  />
-                  <PageSizeSelect value={_bind(tasks.pageSize)} />
-                </Flex>
-              </Flex>
+              <PaginationBar
+                page={_bind(tasks.page)}
+                pageSize={_bind(tasks.pageSize)}
+                total={tasks.total}
+                showTotal={({ from, to }) => `第 ${from}–${to} 条 · 勾选跨页保留`}
+                propsPagination={{ 'aria-label': '台账分页' }}
+              />
             </Flex>
           </ViewportFill>
           <TaskEditorDrawer target={_bind(editor)} onSaved={() => void tasks.refresh()} />

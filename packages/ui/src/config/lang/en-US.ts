@@ -130,6 +130,8 @@ export const enUS: Lang = {
   selectSummary: (labels) => labels.join(', '),
   selectMoreTags: (count) => `+${count}`,
   paginationTotal: (total) => `${total.toLocaleString('en-US')} items`,
+  paginationRange: (from, to, total) =>
+    `${from.toLocaleString('en-US')}–${to.toLocaleString('en-US')} of ${total.toLocaleString('en-US')} items`,
   pagination: 'Pagination',
   pageSizeOption: (size) => `${size} / page`,
   pageSizeLabel: 'Items per page',
