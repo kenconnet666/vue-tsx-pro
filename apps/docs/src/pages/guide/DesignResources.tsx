@@ -30,11 +30,10 @@ import {
   TableHeaderCell,
   TableRow,
   Text,
-  ThemeThumbnail,
   useLang,
   type BuiltinThemeName,
 } from '@vue-tsx-pro/ui';
-import { themeDesignTokens } from '@vue-tsx-pro/ui/theme-customize';
+import { ThemeThumbnail, themeDesignTokens } from '@vue-tsx-pro/ui/theme-customize';
 import { DocPage } from '../../site/DocPage';
 
 const meta = {

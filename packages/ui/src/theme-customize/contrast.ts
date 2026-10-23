@@ -2,7 +2,7 @@
  * 主题颜色要满足的对比度（WCAG 2.2 AA）：哪些文字放在哪些底色上、各要多少。
  * pnpm themes:check 按它检查全部内置主题；主题编辑器按它实时提示改出来的配色。
  */
-import { CONTRAST_AA, contrastRatio } from '../../utils/data/color';
+import { CONTRAST_AA, contrastRatio } from '../utils/data/color';
 
 /** 文字 4.5:1；大字、图形与界面部件（焦点环、选中的勾选框）3:1；占位文字按 3:1（同多数组件库） */
 const TEXT = CONTRAST_AA.text;

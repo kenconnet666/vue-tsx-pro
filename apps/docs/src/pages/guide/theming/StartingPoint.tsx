@@ -5,12 +5,12 @@ import {
   builtinThemeLabel,
   builtinThemes,
   Text,
-  ThemeThumbnail,
   ToggleGroup,
   ToggleItem,
   useLang,
   type BuiltinThemeName,
 } from '@vue-tsx-pro/ui';
+import { ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';
 import { preference } from '../../../site/theme';
 
 const styles = stylex.create({

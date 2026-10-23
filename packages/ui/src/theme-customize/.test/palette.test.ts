@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { contrastRatio } from '../../utils/data/color';
-import { paletteColors } from '../theme/palette';
+import { paletteColors } from '../palette';
 
 /**
  * 品牌色、中性色之外的 token → [亮色色阶, 暗色色阶]；品牌色与中性色按 palette.ts 的规则从 indigo、slate 生成。
@@ -99,7 +99,7 @@ function radixColor(step: string) {
 
 /** 读出源码里某个对象字面量的 `name: 'value'` 键值 */
 function literals(file: string, start: string) {
-  const source = readFileSync(join(import.meta.dirname, '../theme', file), 'utf8');
+  const source = readFileSync(join(import.meta.dirname, '../../config/theme', file), 'utf8');
   const block = source.slice(source.indexOf(start), source.indexOf('});', source.indexOf(start)));
   return Object.fromEntries(
     [...block.matchAll(/^\s+(\w+): '([^']+)',$/gm)].map((m) => [m[1], m[2]]),

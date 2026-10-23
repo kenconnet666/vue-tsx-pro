@@ -84,7 +84,7 @@ const themes = Object.fromEntries(
 
 // 要检查的组合与对比度计算都来自组件库：主题编辑器的实时提示用同一套
 const { CONTRAST_PAIRS, checkContrast } =
-  await import('../../packages/ui/src/config/theme/contrast.ts');
+  await import('../../packages/ui/src/theme-customize/contrast.ts');
 
 const failures = [];
 for (const [name, theme] of Object.entries(themes)) {

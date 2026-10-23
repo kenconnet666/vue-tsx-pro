@@ -2,9 +2,12 @@
  * 移动 packages/ui/src 里的文件，并改写所有受影响的相对导入（import、export from、import()、vi.mock，保留 ?raw 这类后缀）。
  * 用 git mv 移动，历史跟得上；移走后空下来的目录一并删掉。
  *
+ * 挪完重新生成入口（pnpm exports），再把应用里从包入口导入的名字改到它现在所在的入口（entry-imports.mjs）：
+ * 组件在主入口与子路径之间挪动时，应用的导入跟着改。
+ *
  * 用法：pnpm move <旧路径>=<新路径> …（路径相对 packages/ui/src）
  *   pnpm move display/Card.tsx=layout/Card.tsx display/.test/Card.test.tsx=layout/.test/Card.test.tsx
- * 之后运行 pnpm exports 重新生成入口，再跑类型检查与测试。
+ * 之后跑类型检查与测试；文档页 imports="…" 里的导入由文档站的 pages 测试检查。
  */
 import { execFileSync } from 'node:child_process';
 import {
@@ -18,6 +21,7 @@ import {
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { root } from '../lib/repo.mjs';
+import { fixEntryImports } from './entry-imports.mjs';
 
 const src = join(root, 'packages/ui/src');
 
@@ -93,3 +97,10 @@ console.log(
   `移动 ${moves.size} 个文件，改写 ${rewrites.size} 个文件的导入：\n` +
     [...moves].map(([from, to]) => `  ${relative(src, from)} → ${relative(src, to)}`).join('\n'),
 );
+
+execFileSync(process.execPath, ['scripts/exports/generate.mjs'], { cwd: root, stdio: 'inherit' });
+const apps = await fixEntryImports();
+if (apps.length) {
+  const list = apps.map((file) => `  ${relative(root, file)}`).join('\n');
+  console.log(`应用里改到新入口的导入（${apps.length} 个文件）：\n${list}`);
+}

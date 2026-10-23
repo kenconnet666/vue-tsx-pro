@@ -3,8 +3,8 @@ import { expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { ThemeCustomizer } from '../ThemeCustomizer';
-import type { ThemeSettings } from '../theme/customize';
-import { lightTheme } from '../theme/light';
+import type { ThemeSettings } from '../customize';
+import { lightTheme } from '../../config/theme/light';
 
 it('选品牌色、圆角写回设置；选“主题默认”清空；代码跟着变；恢复默认清空全部', async () => {
   let settings = _state<ThemeSettings>({});

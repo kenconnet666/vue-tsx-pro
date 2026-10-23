@@ -69,7 +69,7 @@ import {
   yellow,
   yellowDark,
 } from '@radix-ui/colors';
-import { readableText, withAlpha } from '../../utils/data/color';
+import { readableText, withAlpha } from '../utils/data/color';
 
 /** 一个 Radix 色阶：12 级，键是 `indigo1`…`indigo12` */
 type Scale = Record<string, string>;

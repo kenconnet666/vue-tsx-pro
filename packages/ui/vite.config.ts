@@ -13,18 +13,11 @@ const isExternal = (id: string) => externals.some((dep) => id === dep || id.star
 export default defineConfig({
   plugins: [workspaceSource(), ...vueTsxPro({ stylex: false })],
   build: {
-    // 子路径各是一个入口；可选依赖（shiki、@unovis/ts、three）只在它的子路径里导入
+    // 每个入口（主入口与各子路径）一份，登记在 package.json 的 exports；可选依赖（shiki、@unovis/ts、three）只在它的子路径里导入
     lib: {
-      entry: [
-        'src/index.ts',
-        'src/config/shiki.ts',
-        'src/charts/index.ts',
-        'src/three/index.ts',
-        'src/docs-kit/index.ts',
-        'src/config/vue-router.ts',
-        'src/config/theme/boot.ts',
-        'src/config/theme-customize.ts',
-      ],
+      entry: Object.values(pkg.exports).flatMap((target) =>
+        typeof target === 'object' ? [target['@vue-tsx-pro/source']] : [],
+      ),
       formats: ['es'],
     },
     rollupOptions: {

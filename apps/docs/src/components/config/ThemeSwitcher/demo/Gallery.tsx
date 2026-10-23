@@ -7,10 +7,10 @@ import {
   ButtonBase,
   GridList,
   Small,
-  ThemeThumbnail,
   useLang,
   type BuiltinThemeName,
 } from '@vue-tsx-pro/ui';
+import { ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';
 
 const names = Object.keys(builtinThemes) as BuiltinThemeName[];
 

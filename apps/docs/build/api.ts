@@ -26,8 +26,14 @@ const src = join(ui, 'src').split('\\').join('/');
 /** 部件属性的通用部分（sx）声明在这里：不逐条列出 */
 const PART_PROPS_FILE = `${src}/utils/props.ts`;
 
-/** 有组件的入口：主入口与子路径（图表、3D、文档站组件） */
-const ENTRIES = ['index.ts', 'charts/index.ts', 'three/index.ts', 'docs-kit/index.ts'];
+/** 组件库的全部入口（主入口与子路径，相对 src），登记在 package.json 的 exports */
+const ENTRIES = Object.values(
+  JSON.parse(readFileSync(join(ui, 'package.json'), 'utf8')).exports as Record<string, unknown>,
+).flatMap((target) =>
+  typeof target === 'object' && target !== null
+    ? [(target as Record<string, string>)['@vue-tsx-pro/source']!.replace(/^\.\/src\//, '')]
+    : [],
+);
 
 let program: ts.Program | undefined;
 let stale = true;

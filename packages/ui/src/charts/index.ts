@@ -9,7 +9,6 @@ export { AreaChart, type AreaChartProps } from './AreaChart';
 export { BarChart, type BarChartOrientations, type BarChartProps } from './BarChart';
 export { ChordChart, chordChartStyles, type ChordChartProps } from './ChordChart';
 export { DonutChart, donutChartStyles, type DonutChartProps } from './DonutChart';
-export { type FlowLink, type FlowNode } from './flow';
 export {
   FunnelChart,
   funnelChartDynamicStyles,
@@ -27,7 +26,6 @@ export {
   type GraphChartProps,
   type GraphChartShapes,
 } from './GraphChart';
-export { chartStyles, type ChartFrameParts, type ChartLegendItem } from './frame';
 export {
   CURVES,
   LineChart,
@@ -43,20 +41,57 @@ export {
 } from './SankeyChart';
 export { ScatterChart, type ScatterChartProps } from './ScatterChart';
 export {
-  resolveColor,
-  resolveSeries,
-  type ChartColor,
-  type ChartPaletteColor,
-  type ChartToneColor,
-  type ChartSeries,
-  type NumericKey,
-  type ResolvedSeries,
-} from './series';
-export {
   WaterfallChart,
   waterfallRows,
   type WaterfallChartProps,
   type WaterfallRow,
   type WaterfallStep,
 } from './WaterfallChart';
-export { xyChartStyles, type ChartSkeletons, type ChartTarget, type XYChartProps } from './XYChart';
+export {
+  XYChart,
+  xyChartStyles,
+  type ChartSkeletons,
+  type ChartTarget,
+  type XYChartContext,
+  type XYChartKind,
+  type XYChartProps,
+} from './XYChart';
+export {
+  flowData,
+  resolveFlowNodes,
+  type FlowLink,
+  type FlowNode,
+  type ResolvedFlowNode,
+} from './flow';
+export {
+  chartDuration,
+  ChartFrame,
+  chartStyles,
+  chartTooltip,
+  createChartInstances,
+  uniqueHighlightFilter,
+  useChartValueText,
+  type ChartFrameParts,
+  type ChartFrameProps,
+  type ChartLegendItem,
+  type ChartTable,
+  type ChartTooltipItem,
+} from './frame';
+export {
+  resolveColor,
+  resolveSeries,
+  seriesNumber,
+  seriesValue,
+  type ChartColor,
+  type ChartPaletteColor,
+  type ChartSeries,
+  type ChartToneColor,
+  type NumericKey,
+  type ResolvedSeries,
+} from './series';
+export {
+  useSingleChart,
+  type SingleChart,
+  type SingleChartBuild,
+  type SingleChartState,
+} from './single';

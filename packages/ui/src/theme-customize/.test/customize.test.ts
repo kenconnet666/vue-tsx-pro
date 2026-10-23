@@ -1,9 +1,9 @@
 // 主题定制：设置换算成 token 覆盖、套在主题上、生成可以粘贴的代码
 import * as radix from '@radix-ui/colors';
 import { describe, expect, it } from 'vitest';
-import { customizeTheme, themeSettingsCode, themeSettingsOverrides } from '../theme/customize';
-import { lemonTheme } from '../theme/lemon';
-import { lightTheme } from '../theme/light';
+import { customizeTheme, themeSettingsCode, themeSettingsOverrides } from '../customize';
+import { lemonTheme } from '../../config/theme/lemon';
+import { lightTheme } from '../../config/theme/light';
 
 describe('themeSettingsOverrides', () => {
   it('没有设置时什么都不覆盖，主题原样返回', () => {

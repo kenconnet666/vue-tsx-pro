@@ -5,7 +5,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
-import { Code, H2, ScrollArea, ThemeCustomizer } from '@vue-tsx-pro/ui';
+import { Code, H2, ScrollArea } from '@vue-tsx-pro/ui';
+import { ThemeCustomizer } from '@vue-tsx-pro/ui/theme-customize';
 import CustomBrand from '../demo/CustomBrand.tsx?demo';
 import FollowSystem from '../demo/FollowSystem.tsx?demo';
 import RuntimeSwitch from '../demo/RuntimeSwitch.tsx?demo';

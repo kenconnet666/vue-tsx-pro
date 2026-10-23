@@ -1,7 +1,7 @@
 // 设计令牌：主题取值换算成 Figma 变量能导入的 DTCG JSON
 import { describe, expect, it } from 'vitest';
-import { designTokens, type ThemeValues } from '../theme/design-tokens';
-import { tokenCatalog } from '../theme/token-catalog';
+import { designTokens, type ThemeValues } from '../design-tokens';
+import { tokenCatalog } from '../token-catalog';
 
 /** 亮色主题的取值：token 目录里的默认值 */
 const defaults: ThemeValues = Object.fromEntries(

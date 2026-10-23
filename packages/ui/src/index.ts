@@ -1173,19 +1173,7 @@ export {
   type ConfigScopeProps,
   type ProviderProps,
 } from './config/Provider';
-export {
-  ThemeCustomizer,
-  themeCustomizerCornerStyles,
-  themeCustomizerDynamicStyles,
-  themeCustomizerStyles,
-  type ThemeCustomizerProps,
-} from './config/ThemeCustomizer';
 export { ThemeSwitcher, type ThemeSwitcherProps } from './config/ThemeSwitcher';
-export {
-  ThemeThumbnail,
-  themeThumbnailStyles,
-  type ThemeThumbnailProps,
-} from './config/ThemeThumbnail';
 export {
   ConfigContext,
   defaultConfig,
@@ -1211,10 +1199,6 @@ export {
   type QueryCodec,
   type QueryCodecs,
 } from './config/query-state';
-export {
-  themeCustomizerMessages,
-  type ThemeCustomizerMessages,
-} from './config/theme-customizer-messages';
 
 // 主题；tokens 从 @vue-tsx-pro/ui/tokens.stylex 导入（StyleX 只认 .stylex 结尾的导入路径）
 export {

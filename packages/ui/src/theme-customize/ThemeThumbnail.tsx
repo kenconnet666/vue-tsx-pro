@@ -11,7 +11,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
-import { themeAttrs, type Theme } from './theme/theme';
+import { themeAttrs, type Theme } from '../config/theme/theme';
 
 /** 未声明的属性落到外层 span 上 */
 export interface ThemeThumbnailProps extends PartProps<'span', 'aria-hidden'> {

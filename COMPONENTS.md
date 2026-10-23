@@ -727,16 +727,16 @@ apps/docs/src/components/base/Button/
 
 **主题编辑器**：
 
-| 项         | 做法                                                                                                                                                                                                               |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                                         |
-| 色阶规则   | `config/theme/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                              |
-| 对比度规则 | `config/theme/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                                   |
-| token 清单 | `config/theme/token-catalog.ts`（`pnpm css-docs` 从 tokens.stylex.ts 生成）：每个 token 的默认值与说明                                                                                                             |
-| 定制逻辑   | `config/theme/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)`           |
-| 入口       | 色阶、对比度、token 清单、定制逻辑由子路径 `@vue-tsx-pro/ui/theme-customize`（`config/theme-customize.ts`）导出：它们要用 culori 与 Radix 色板，主入口不带，应用只在真要套用设置时导入；`ThemeCustomizer` 在主入口 |
-| 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                                         |
-| 文档站     | “主题定制”指南页：左边编辑器，右边样板间；设置记在本地，与明暗偏好叠加生效                                                                                                                                         |
+| 项         | 做法                                                                                                                                                                                                                              |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                                                        |
+| 色阶规则   | `theme-customize/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                                          |
+| 对比度规则 | `theme-customize/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                                               |
+| token 清单 | `theme-customize/token-catalog.ts`（`pnpm css-docs` 从 tokens.stylex.ts 生成）：每个 token 的默认值与说明                                                                                                                         |
+| 定制逻辑   | `theme-customize/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)`                       |
+| 入口       | 色阶、对比度、token 清单、定制逻辑与编辑界面 `ThemeCustomizer`、`ThemeThumbnail` 一起在子路径 `@vue-tsx-pro/ui/theme-customize`（目录 `theme-customize/`）：它们要用 culori 与 Radix 色板，主入口不带，应用只在真要套用设置时导入 |
+| 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                                                        |
+| 文档站     | “主题定制”指南页：左边编辑器，右边样板间；设置记在本地，与明暗偏好叠加生效                                                                                                                                                        |
 
 **取舍**：运行时覆盖写在根元素的行内样式上，会盖过“减少动态效果时为 0”的媒体查询，所以用户开启减少动态效果时动效旋钮不覆盖时长。中间亮度的色阶（如 crimson、teal）上白字与深色字都可能到不了 4.5:1，编辑器如实提示。逐个 token 编辑、任意颜色生成色阶（OKLCH）留到第二期。
 

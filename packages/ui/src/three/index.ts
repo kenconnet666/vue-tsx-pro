@@ -5,11 +5,34 @@
  *
  * 主入口不导入 three，没用到 3D 的应用不会打包它。不依赖 three 的效果（TiltCard、SpotlightCard、BorderBeam）在主入口。
  */
-export { disposeMaterial, disposeObject } from './core/dispose';
 export {
+  AURORA_PALETTE,
+  AuroraBackground,
+  type AuroraBackgroundProps,
+} from './background/AuroraBackground';
+export { MeshGradient, type MeshGradientProps } from './background/MeshGradient';
+export {
+  SHADER_PALETTE,
+  ShaderBackground,
+  type ShaderBackgroundProps,
+} from './background/ShaderBackground';
+export {
+  EffectSurface,
+  effectSurfaceStyles,
+  type EffectProps,
+  type EffectSurfaceProps,
+} from './core/EffectSurface';
+export { ThreeCanvas, threeCanvasStyles, type ThreeCanvasProps } from './core/ThreeCanvas';
+export { disposeMaterial, disposeObject } from './core/dispose';
+export { createOrbit, type Orbit, type OrbitOptions } from './core/orbit';
+export {
+  acquireContext,
   activeThreeContexts,
+  releaseContext,
   resolveThreeQuality,
+  retryWaiting,
   setMaxThreeContexts,
+  type ContextHolder,
   type ResolvedThreeQuality,
   type ThreeQualities,
   type ThreeQuality,
@@ -34,32 +57,20 @@ export {
   type ThemeColorSet,
   type ThemeColorSources,
 } from './core/theme-colors';
-export { ThreeCanvas, threeCanvasStyles, type ThreeCanvasProps } from './core/ThreeCanvas';
 export {
-  EffectSurface,
-  effectSurfaceStyles,
-  type EffectProps,
-  type EffectSurfaceProps,
-} from './core/EffectSurface';
-export {
-  AURORA_PALETTE,
-  AuroraBackground,
-  type AuroraBackgroundProps,
-} from './background/AuroraBackground';
-export { MeshGradient, type MeshGradientProps } from './background/MeshGradient';
-export {
-  SHADER_PALETTE,
-  ShaderBackground,
-  type ShaderBackgroundProps,
-} from './background/ShaderBackground';
-export {
-  CONFETTI_PALETTE,
   Confetti,
+  CONFETTI_PALETTE,
   confettiStyles,
   type ConfettiOrigin,
   type ConfettiProps,
 } from './effects/Confetti';
 export { PARTICLE_PALETTE, ParticleField, type ParticleFieldProps } from './effects/ParticleField';
+export {
+  WAVE_GRID_PALETTE,
+  WaveGrid,
+  type WaveGridProps,
+  type WaveGridVariants,
+} from './effects/WaveGrid';
 export {
   Globe,
   globeStyles,
@@ -69,16 +80,10 @@ export {
   type GlobeMarker,
   type GlobeProps,
 } from './globe/Globe';
+export { LAND_BITS, LAND_HEIGHT, LAND_WIDTH } from './globe/land';
 export {
   ModelViewer,
   modelViewerStyles,
   type ModelViewerProps,
   type ModelViewerStatuses,
 } from './model/ModelViewer';
-export { createOrbit, type Orbit, type OrbitOptions } from './core/orbit';
-export {
-  WAVE_GRID_PALETTE,
-  WaveGrid,
-  type WaveGridProps,
-  type WaveGridVariants,
-} from './effects/WaveGrid';

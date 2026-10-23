@@ -14,9 +14,12 @@ import {
   Small,
   Strong,
   Switch,
-  ThemeCustomizer,
 } from '@vue-tsx-pro/ui';
-import { customizeTheme, type ThemeSettings } from '@vue-tsx-pro/ui/theme-customize';
+import {
+  ThemeCustomizer,
+  customizeTheme,
+  type ThemeSettings,
+} from '@vue-tsx-pro/ui/theme-customize';
 
 const styles = stylex.create({ panel: { height: '26rem' } });
 

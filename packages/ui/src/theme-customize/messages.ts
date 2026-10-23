@@ -1,6 +1,6 @@
 /** 主题编辑器（ThemeCustomizer）自带的文案：不在 Lang 里，新增一种语言不必翻（见 config/lang/messages.ts） */
-import type { MessageTable } from './lang/messages';
-import type { AccentScale, NeutralScale } from './theme/palette';
+import type { MessageTable } from '../config/lang/messages';
+import type { AccentScale, NeutralScale } from './palette';
 
 /** ThemeCustomizer 的文案 */
 export interface ThemeCustomizerMessages {

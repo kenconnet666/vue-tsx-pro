@@ -15,9 +15,9 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXVar } from '@vue-tsx-pro/tsx/stylex';
 import { formatHex } from 'culori/fn';
-import { parseColor } from '../../utils/data/color';
-import { applyStyleAttrs } from '../../utils/props';
-import { readToken, themeVariables, tokenGroups, type Theme } from './theme';
+import { parseColor } from '../utils/data/color';
+import { applyStyleAttrs } from '../utils/props';
+import { readToken, themeVariables, tokenGroups, type Theme } from '../config/theme/theme';
 import { tokenCatalog } from './token-catalog';
 
 /** 一个设计令牌 */

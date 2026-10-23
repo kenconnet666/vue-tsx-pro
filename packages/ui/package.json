@@ -42,9 +42,9 @@
       "default": "./dist/config/theme/boot.js"
     },
     "./theme-customize": {
-      "@vue-tsx-pro/source": "./src/config/theme-customize.ts",
-      "types": "./dist/config/theme-customize.d.ts",
-      "default": "./dist/config/theme-customize.js"
+      "@vue-tsx-pro/source": "./src/theme-customize/index.ts",
+      "types": "./dist/theme-customize/index.d.ts",
+      "default": "./dist/theme-customize/index.js"
     },
     "./tokens.stylex": {
       "@vue-tsx-pro/source": "./src/config/theme/tokens.stylex.ts",

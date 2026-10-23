@@ -13,7 +13,6 @@ export {
   type CodePreviewAligns,
   type CodePreviewProps,
 } from './CodePreview';
-export { docsKitMessages, type DocsKitMessages } from './messages';
 export {
   PropsTable,
   propsTableStyles,
@@ -23,3 +22,4 @@ export {
   type ComponentApi,
   type PropsTableProps,
 } from './PropsTable';
+export { docsKitMessages, type DocsKitMessages } from './messages';

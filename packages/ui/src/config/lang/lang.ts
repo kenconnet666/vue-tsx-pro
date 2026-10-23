@@ -12,7 +12,7 @@ import type { $ZodErrorMap } from 'zod/v4/core';
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
 import type { DocsKitMessages } from '../../docs-kit/messages';
-import type { ThemeCustomizerMessages } from '../theme-customizer-messages';
+import type { ThemeCustomizerMessages } from '../../theme-customize/messages';
 import type { WorkflowMessages } from '../../workflow/messages';
 
 /** 文字方向 */

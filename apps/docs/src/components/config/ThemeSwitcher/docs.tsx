@@ -22,7 +22,10 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { ThemeCustomizer, ThemeSwitcher, ThemeThumbnail } from '@vue-tsx-pro/ui';"
+    imports={
+      "import { ThemeSwitcher } from '@vue-tsx-pro/ui';\n" +
+      "import { ThemeCustomizer, ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';"
+    }
   >
     <Examples>
       <ExampleColumn>

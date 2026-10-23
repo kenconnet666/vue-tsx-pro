@@ -12,7 +12,7 @@
  */
 import { themeValues } from './design-tokens';
 import { paletteColors, type AccentScale, type NeutralScale } from './palette';
-import { defineTheme, type Theme, type ThemeOverrides } from './theme';
+import { defineTheme, type Theme, type ThemeOverrides } from '../config/theme/theme';
 import { tokenCatalog } from './token-catalog';
 
 /** 圆角档位：默认圆角的倍数 */

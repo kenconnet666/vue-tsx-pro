@@ -24,28 +24,28 @@ import { downloadFile } from '../utils/dom/download';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { swatchStyles } from '../utils/style/swatch-styles';
-import { useFormat } from './lang/format';
-import { useMessages } from './lang/messages';
-import { themeCustomizerMessages } from './theme-customizer-messages';
-import { builtinThemes } from './theme/builtin';
-import { CONTRAST_PAIRS, checkContrast, type ContrastIssue } from './theme/contrast';
+import { useFormat } from '../config/lang/format';
+import { useMessages } from '../config/lang/messages';
+import { themeCustomizerMessages } from './messages';
+import { builtinThemes } from '../config/theme/builtin';
+import { CONTRAST_PAIRS, checkContrast, type ContrastIssue } from './contrast';
 import {
   themeSettingsCode,
   type FontPresets,
   type MotionPresets,
   type RadiusPresets,
   type ThemeSettings,
-} from './theme/customize';
-import { elementDesignTokens } from './theme/design-tokens';
+} from './customize';
+import { elementDesignTokens } from './design-tokens';
 import {
   ACCENT_SCALES,
   NEUTRAL_SCALES,
   scaleSwatch,
   type AccentScale,
   type NeutralScale,
-} from './theme/palette';
-import { readToken, type Theme } from './theme/theme';
-import { colors } from './theme/tokens.stylex';
+} from './palette';
+import { readToken, type Theme } from '../config/theme/theme';
+import { colors } from '../config/theme/tokens.stylex';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ThemeCustomizerProps extends PartProps<'div'> {

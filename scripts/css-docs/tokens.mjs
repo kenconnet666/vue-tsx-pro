@@ -137,11 +137,11 @@ function docText(doc) {
 }
 
 export function tokenCatalogOutput(root) {
-  return join(root, 'packages/ui/src/config/theme/token-catalog.ts');
+  return join(root, 'packages/ui/src/theme-customize/token-catalog.ts');
 }
 
 /**
- * 生成 packages/ui/src/config/theme/token-catalog.ts：每组每个 token 的默认值（亮色主题）与说明。
+ * 生成 packages/ui/src/theme-customize/token-catalog.ts：每组每个 token 的默认值（亮色主题）与说明。
  * 主题编辑器按默认值换算（圆角、缩放、动效速度），文档站的 token 表也读它
  */
 export function generateTokenCatalog(root) {

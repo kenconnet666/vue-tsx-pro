@@ -1,47 +1,29 @@
 /**
- * 生成组件库的入口 packages/ui/src/index.ts：逐个模块读出导出的声明，按目录分组写成 export 语句。
- * 组件库的工具都对外导出（方便使用方定制），模块里写了 export 的就进入口，不再手写。
+ * 生成组件库的入口：主入口 packages/ui/src/index.ts 与带目录的子路径的 index.ts（charts/、three/、docs-kit/…）。
+ * 逐个模块读出导出的声明写成 export 语句；组件库的工具都对外导出（方便使用方定制），模块里写了 export 的就进入口，不再手写。
  *
- * - 跳过测试（.test/）、子路径入口（shiki、vue-router、tokens.stylex、vars.stylex、theme-customize、charts/、three/、docs-kit/：
- *   它们在 package.json 的 exports 里单独暴露）与由子路径入口转出的模块；
- * - 没有导出、只有 declare module 的模块（token-names.ts）写成副作用导入，产物的类型声明才带上它；
- * - 两个模块导出了同一个名字时报错并列出位置：改成全局唯一的名字（COMPONENTS.md §4）；
- * - 新目录要在 GROUPS 里登记标题。
+ * - 有哪些入口以 packages/ui/package.json 的 exports 为准（唯一的登记处）：
+ *   - `<目录>/index.ts` 的子路径收这个目录里的全部模块：文件开头的说明保留，export 语句重新生成；
+ *   - 单个文件的子路径（shiki、vue-router、tokens.stylex、vars.stylex）就是模块本身，不进主入口（ALSO_IN_MAIN 除外）；
+ *   - 主入口收其余模块，按目录分组，新目录要在 GROUPS 里登记标题；
+ * - 跳过测试（.test/）；没有导出、只有 declare module 的模块（token-names.ts）写成副作用导入，产物的类型声明才带上它；
+ * - 两个模块导出了同一个名字时报错并列出位置（所有入口一起算）：改成全局唯一的名字（COMPONENTS.md §4）。
  *
  * 用法：node scripts/exports/generate.mjs [--check]
  *   --check 只比较不写入，生成结果与仓库里的文件不一致时以非零退出（CI 用）
  */
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import prettier from 'prettier';
 import ts from 'typescript';
-import { parseSource, root } from '../lib/repo.mjs';
+import { parseSource, root, uiEntries } from '../lib/repo.mjs';
 
 const src = join(root, 'packages/ui/src');
-const output = join(src, 'index.ts');
 
-/** 子路径入口：不进主入口 */
-const SUBPATH_ENTRIES = new Set([
-  'config/shiki.ts',
-  'config/vue-router.ts',
-  'config/theme/tokens.stylex.ts',
-  'utils/style/vars.stylex.ts',
-  'config/theme-customize.ts',
-]);
+/** 单个文件的子路径里，导出同时也进主入口的：theme-boot 另设子路径只是为了在 Node 里不经 StyleX 也能导入 */
+const ALSO_IN_MAIN = new Set(['config/theme/boot.ts']);
 
-/** 由子路径入口转出的模块（theme-customize：颜色库与 Radix 色板不进主入口）：也不进主入口 */
-const SUBPATH_MODULES = new Set([
-  'config/theme/contrast.ts',
-  'config/theme/customize.ts',
-  'config/theme/design-tokens.ts',
-  'config/theme/palette.ts',
-  'config/theme/token-catalog.ts',
-]);
-
-/** 自带 index.ts 的子路径目录（如图表依赖可选的 Unovis）：整个目录不进主入口 */
-const SUBPATH_DIRS = new Set(['charts', 'three', 'docs-kit']);
-
-/** 目录 → 分组标题，也是入口里各组的顺序 */
+/** 主入口的目录 → 分组标题，也是入口里各组的顺序 */
 const GROUPS = [
   ['base', '基础：文字、图标、链接、按钮家族、标记、代码、加载'],
   ['layout', '布局'],
@@ -73,15 +55,28 @@ const GROUPS = [
   ['utils/motion', '工具：JS 动画与动效'],
 ];
 
-function modules(dir = src) {
+const entries = uiEntries().filter((entry) => entry.source !== 'index.ts');
+/** 带目录的子路径：charts、three… */
+const subpathDirs = entries
+  .filter((entry) => entry.source.endsWith('/index.ts'))
+  .map((entry) => entry.source.slice(0, -'/index.ts'.length));
+/** 单个文件的子路径：不进主入口 */
+const subpathFiles = new Set(
+  entries
+    .map((entry) => entry.source)
+    .filter((source) => !source.endsWith('/index.ts') && !ALSO_IN_MAIN.has(source)),
+);
+
+const toPath = (file) => relative(src, file).split('\\').join('/');
+
+/** dir 下的模块（不含测试、入口文件与 skip 里的目录） */
+function modules(dir, skip = new Set()) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      const skip =
-        entry.name === '.test' || SUBPATH_DIRS.has(relative(src, path).split('\\').join('/'));
-      return skip ? [] : modules(path);
-    }
-    return /\.tsx?$/.test(entry.name) && !entry.name.endsWith('.d.ts') ? [path] : [];
+    if (entry.isDirectory())
+      return entry.name === '.test' || skip.has(toPath(path)) ? [] : modules(path, skip);
+    const isModule = /\.tsx?$/.test(entry.name) && !entry.name.endsWith('.d.ts');
+    return isModule && entry.name !== 'index.ts' ? [path] : [];
   });
 }
 
@@ -120,35 +115,41 @@ function exportsOf(file) {
 
 const byName = (a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }) || a.localeCompare(b);
 
-function generate() {
+/** 名字 → 导出它的模块：所有入口一起算，查重名 */
+const owners = new Map();
+
+/** 一个模块在入口里的那一行（入口在 entryDir 下）；没有导出时为 undefined */
+function exportLine(file, entryDir) {
+  const { values, types, declaresModule } = exportsOf(file);
+  for (const name of [...values, ...types]) {
+    owners.set(name, [...(owners.get(name) ?? []), toPath(file)]);
+  }
+  const specifier =
+    './' +
+    relative(entryDir, file)
+      .split('\\')
+      .join('/')
+      .replace(/\.tsx?$/, '');
+  if (values.length + types.length === 0) {
+    return declaresModule ? `import '${specifier}';` : undefined;
+  }
+  const names = [...values.sort(byName), ...types.sort(byName).map((name) => `type ${name}`)];
+  return `export { ${names.join(', ')} } from '${specifier}';`;
+}
+
+function mainEntry() {
   const groups = new Map(GROUPS.map(([dir]) => [dir, []]));
-  const owners = new Map();
-  for (const file of modules().sort()) {
-    const path = relative(src, file).split('\\').join('/');
-    if (path === 'index.ts' || SUBPATH_ENTRIES.has(path) || SUBPATH_MODULES.has(path)) continue;
+  const skip = new Set(subpathDirs);
+  for (const file of modules(src, skip).sort()) {
+    const path = toPath(file);
+    if (subpathFiles.has(path)) continue;
     const dir = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : '.';
     if (!groups.has(dir))
       throw new Error(
         `${path}：目录 ${dir} 没有在 scripts/exports/generate.mjs 的 GROUPS 里登记标题`,
       );
-    const { values, types, declaresModule } = exportsOf(file);
-    for (const name of [...values, ...types]) {
-      owners.set(name, [...(owners.get(name) ?? []), path]);
-    }
-    const specifier = './' + path.replace(/\.tsx?$/, '');
-    if (values.length + types.length === 0) {
-      if (declaresModule) groups.get(dir).push(`import '${specifier}';`);
-      continue;
-    }
-    const names = [...values.sort(byName), ...types.sort(byName).map((name) => `type ${name}`)];
-    groups.get(dir).push(`export { ${names.join(', ')} } from '${specifier}';`);
-  }
-  const duplicates = [...owners].filter(([, paths]) => paths.length > 1);
-  if (duplicates.length) {
-    const lines = duplicates.map(([name, paths]) => `  ${name}：${paths.join('、')}`);
-    throw new Error(
-      `这些名字被多个模块导出，改成全局唯一的名字（COMPONENTS.md §4）：\n${lines.join('\n')}`,
-    );
+    const line = exportLine(file, src);
+    if (line) groups.get(dir).push(line);
   }
   const body = GROUPS.filter(([dir]) => groups.get(dir).length)
     .map(([dir, title]) => `// ${title}\n${groups.get(dir).join('\n')}`)
@@ -156,14 +157,40 @@ function generate() {
   return `// 由 pnpm exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成\n\n${body}\n`;
 }
 
-const config = await prettier.resolveConfig(output);
-const code = await prettier.format(generate(), { ...config, filepath: output });
+/** 子路径目录的入口：保留文件开头的说明（写明子路径名、怎么导入、为什么不在主入口），export 语句重新生成 */
+function subpathEntry(dir) {
+  const output = join(src, dir, 'index.ts');
+  const header = readFileSync(output, 'utf8').match(/^\/\*\*[\s\S]*?\*\/\n/)?.[0];
+  if (!header)
+    throw new Error(`${dir}/index.ts：子路径的入口要以说明注释开头（子路径名、怎么导入）`);
+  const lines = modules(join(src, dir))
+    .sort()
+    .map((file) => exportLine(file, dirname(output)))
+    .filter(Boolean);
+  return `${header}${lines.join('\n')}\n`;
+}
+
+const outputs = [
+  [join(src, 'index.ts'), mainEntry()],
+  ...subpathDirs.map((dir) => [join(src, dir, 'index.ts'), subpathEntry(dir)]),
+];
+
+const duplicates = [...owners].filter(([, paths]) => paths.length > 1);
+if (duplicates.length) {
+  const lines = duplicates.map(([name, paths]) => `  ${name}：${paths.join('、')}`);
+  throw new Error(
+    `这些名字被多个模块导出，改成全局唯一的名字（COMPONENTS.md §4）：\n${lines.join('\n')}`,
+  );
+}
+
 const check = process.argv.includes('--check');
-if (check) {
-  if (readFileSync(output, 'utf8') !== code) {
-    console.error('packages/ui/src/index.ts 与生成结果不一致：运行 pnpm exports 重新生成');
+for (const [output, generated] of outputs) {
+  const config = await prettier.resolveConfig(output);
+  const code = await prettier.format(generated, { ...config, filepath: output });
+  if (!check) {
+    writeFileSync(output, code);
+  } else if (readFileSync(output, 'utf8') !== code) {
+    console.error(`${toPath(output)} 与生成结果不一致：运行 pnpm exports 重新生成`);
     process.exitCode = 1;
   }
-} else {
-  writeFileSync(output, code);
 }
