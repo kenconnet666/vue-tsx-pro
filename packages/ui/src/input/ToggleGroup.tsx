@@ -61,7 +61,7 @@ export interface ToggleGroupOrientations {
 export type ToggleGroupManaged = 'role';
 
 /** 两种选择方式共有的选项；未声明的属性落到 role="group" 的 div 上，aria-label 是这组的名称 */
-interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
+export interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManaged> {
   /** 必须有选中项：最后一项不能取消（分段控件通常要求）；在必填的 Field 里默认开启 */
   required?: boolean;
   /** 整组不可用 */

@@ -39,8 +39,12 @@ export {
 export {
   NotificationCenter,
   notificationCenterStyles,
+  NotificationList,
+  notificationListStyles,
   type NotificationCenterProps,
   type NotificationItem,
+  type NotificationListOptions,
+  type NotificationListProps,
   type NotificationType,
 } from './NotificationCenter';
 export { ThemeSwitcher, type ThemeSwitcherProps } from './ThemeSwitcher';

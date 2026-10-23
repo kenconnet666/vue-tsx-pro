@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Calendar from './demo/Calendar.tsx?demo';
 import States from './demo/States.tsx?demo';
+import Todos from './demo/Todos.tsx?demo';
 
 export const meta = {
   title: 'DeadlineBadge 时限标记',
@@ -27,6 +28,13 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
+        <Example id="todos" title="待办列表" demo={Todos}>
+          最常见的用法：列表每条的结束边（ItemList 的 <Code>end</Code>
+          ）放一个时限标记，超时、快到期的一眼看出来；已完成的写 <Code>done</Code>
+          ，显示按时还是超时完成。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn wide>
         <Example id="calendar" title="开始日加工作日、节假日" demo={Calendar}>
           <Code>start</Code> + <Code>workdays</Code> 算截止日。工作日按 createUi / Provider 的{' '}
           <Code>workCalendar</Code>（<Code>createWorkCalendar</Code>{' '}

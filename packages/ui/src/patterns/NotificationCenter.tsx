@@ -1,6 +1,7 @@
 /**
- * 通知中心：顶栏的铃铛，右上角是未读数，点开是通知列表（新的在前）。按类型筛选、只看未读、全部标为已读；
- * 点一条标为已读并去它的地址（走路由适配）。通知存在哪、何时算已读由应用决定：组件只报告 onRead。
+ * 通知：顶栏的铃铛 NotificationCenter（右上角是未读数，点开是通知列表），与列表本身 NotificationList
+ * （通知页面、侧边抽屉里直接放）。列表新的在前：按类型筛选、只看未读、全部标为已读；点一条标为已读并去它的地址（走路由适配）。
+ * 通知存在哪、何时算已读由应用决定：组件只报告 onRead。
  *
  *   <NotificationCenter
  *     items={notices}                                       // { id, title, description?, time, type?, read, href?, tone? }
@@ -8,31 +9,36 @@
  *     onRead={(ids) => markRead(ids)}
  *     footer={<Link href="/inbox">打开收件箱</Link>}
  *   />
+ *   <NotificationList items={notices} types={types} onRead={markRead} />    通知页面：同一份列表，不放进弹出层
  *
  * 时间写成相对现在（3 分钟前、昨天），悬停看完整时间。未读的前面一个色点（tone 决定颜色，默认 accent），
  * 读屏念“未读”。列表为空时显示 empty（默认“没有通知”）。和 Toast 的分工：Toast 是此刻发生的事、几秒后消失；
- * 通知中心是留着、可以回头看的。
+ * 通知是留着、可以回头看的。
+ *
+ * NotificationList 的部件：Root（div）、Head（div）、Title（span）、MarkAll（Button）、Filters（div）、Types（ToggleGroup）、
+ * UnreadOnly（Switch）、List（ul）、Item（a，可以按条计算）、Empty（div）、Footer（div）。
  */
 import { Bell } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { Button } from '../base/Button';
-import { useMessages } from '../config/lang/messages';
-import { patternsMessages } from './messages';
+import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Indicator } from '../base/Indicator';
+import { StatusDot } from '../base/StatusDot';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useFormat } from '../config/lang/format';
-import { Switch } from '../input/Switch';
-import { ToggleGroup, ToggleItem } from '../input/ToggleGroup';
+import { useMessages } from '../config/lang/messages';
+import { Empty } from '../feedback/Empty';
+import { Switch, type SwitchProps } from '../input/Switch';
+import { ToggleGroup, ToggleItem, type ToggleGroupBaseProps } from '../input/ToggleGroup';
 import { Popover, type PopoverProps } from '../overlay/Popover';
 import { useRouterLink } from '../utils/dom/link';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
+import type { SingleSelectionProps } from '../utils/data/selection';
 import type { StatusTone } from '../utils/style/tone-styles';
-import { StatusDot } from '../base/StatusDot';
-import { Empty } from '../feedback/Empty';
+import { patternsMessages } from './messages';
 
 /** 一条通知 */
 export interface NotificationItem {
@@ -62,8 +68,8 @@ export interface NotificationType {
   label: string;
 }
 
-/** 未声明的属性落到弹出层的面板上 */
-export interface NotificationCenterProps extends Omit<PopoverProps, 'trigger' | 'children'> {
+/** 通知列表的内容与回调：NotificationList 与 NotificationCenter 共用 */
+export interface NotificationListOptions {
   /** 通知：新的在前（组件不排序） */
   items: readonly NotificationItem[];
   /** 类型：写了时列表上方有按类型筛选的按钮 */
@@ -78,15 +84,35 @@ export interface NotificationCenterProps extends Omit<PopoverProps, 'trigger' | 
   empty?: VNodeChild;
   /** 相对时间以哪个时刻为现在（毫秒时间戳），默认此刻；演示数据固定日期时传 */
   now?: number;
-  /** 铃铛按钮的部件属性 */
-  propsTrigger?: Partial<IconButtonProps>;
-  /** 列表（ul）的部件属性 */
-  propsList?: PartProps<'ul'>;
 }
 
-/** NotificationCenter 的样式：panel、head、list、item、dot… */
-export const notificationCenterStyles = stylex.create({
-  panel: { width: 'min(24rem, calc(100vw - 2rem))', padding: 0 },
+/** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
+export interface NotificationListProps extends PartProps<'div', 'title'>, NotificationListOptions {
+  /** 标题，默认“通知”；false 不要标题行（“全部标为已读”挪到筛选那一行） */
+  title?: VNodeChild | false;
+  /** 标题行的部件属性 */
+  propsHead?: PartProps<'div'>;
+  /** “全部标为已读”按钮的部件属性 */
+  propsMarkAll?: Partial<ButtonProps>;
+  /** 筛选行的部件属性 */
+  propsFilters?: PartProps<'div'>;
+  /** 类型筛选按钮组的部件属性 */
+  propsTypes?: Partial<ToggleGroupBaseProps>;
+  /** “只看未读”开关的部件属性 */
+  propsUnreadOnly?: Partial<SwitchProps>;
+  /** 列表（ul）的部件属性 */
+  propsList?: PartProps<'ul'>;
+  /** 每一条（a）的部件属性，可以按条计算 */
+  propsItem?: PartProps<'a'> | ((item: NotificationItem) => PartProps<'a'>);
+  /** 列表为空时那一块的部件属性 */
+  propsEmpty?: PartProps<'div'>;
+  /** 列表下面那一行的部件属性 */
+  propsFooter?: PartProps<'div'>;
+}
+
+/** NotificationList 的样式：root、head、title、filters、list、item、dot… */
+export const notificationListStyles = stylex.create({
+  root: { display: 'flex', flexDirection: 'column', minWidth: 0 },
   head: {
     display: 'flex',
     alignItems: 'center',
@@ -109,12 +135,13 @@ export const notificationCenterStyles = stylex.create({
     paddingInline: '_md',
   },
   types: { flexWrap: 'wrap' },
-  unreadOnly: { marginInlineStart: 'auto' },
-  list: { listStyle: 'none', margin: 0, padding: 0, maxHeight: '24rem', overflowY: 'auto' },
+  end: { marginInlineStart: 'auto' },
+  list: { listStyle: 'none', margin: 0, padding: 0, overflowY: 'auto' },
   item: {
     display: 'grid',
-    gridTemplateColumns: '0.5rem minmax(0, 1fr)',
+    gridTemplateColumns: '0.5rem minmax(0, 1fr) auto',
     columnGap: '_sm',
+    alignItems: 'baseline',
     paddingBlock: '_sm',
     paddingInline: '_md',
     color: 'inherit',
@@ -126,11 +153,12 @@ export const notificationCenterStyles = stylex.create({
     cursor: 'pointer',
   },
   // 未读的色点贴着标题的第一行
-  dot: { display: 'flex', alignItems: 'center', height: '1lh' },
+  dot: { display: 'flex', alignItems: 'center', height: '1lh', alignSelf: 'start' },
   body: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
   itemTitle: { fontSize: '_sm' },
   itemTitleUnread: { fontWeight: '_semibold' },
   muted: { color: '_textMuted', fontSize: '_xs' },
+  time: { color: '_textMuted', fontSize: '_xs', whiteSpace: 'nowrap' },
   foot: {
     display: 'flex',
     justifyContent: 'center',
@@ -142,8 +170,8 @@ export const notificationCenterStyles = stylex.create({
   empty: { paddingBlock: '_lg' },
 });
 
-/** 通知中心 */
-export const NotificationCenter = _component(
+/** 通知列表：标题行、筛选、通知（新的在前）、底部；直接放在页面、抽屉里，或由 NotificationCenter 放进弹出层 */
+export const NotificationList = _component(
   ({
     items,
     types,
@@ -152,12 +180,18 @@ export const NotificationCenter = _component(
     footer,
     empty,
     now,
-    open = _bindable(false),
-    propsTrigger,
+    title,
+    propsHead,
+    propsMarkAll,
+    propsFilters,
+    propsTypes,
+    propsUnreadOnly,
     propsList,
-    sx,
+    propsItem,
+    propsEmpty,
+    propsFooter,
     ...rest
-  }: NotificationCenterProps) => {
+  }: NotificationListProps) => {
     const messages = useMessages('patterns', patternsMessages);
     const format = useFormat();
     const router = useRouterLink();
@@ -172,9 +206,172 @@ export const NotificationCenter = _component(
       if (!item.read) onRead?.([item.id]);
       onItemClick?.(item);
       if (item.href) router.onClick(event, item.href);
-      open = false;
     }
 
+    return () => {
+      const markAll = (
+        <Button
+          {...mergePartProps<ButtonProps>(
+            { size: 'xs', variant: 'ghost', sx: title === false && notificationListStyles.end },
+            propsMarkAll,
+            {
+              disabled: unread === 0,
+              onClick: () => onRead?.(items.filter((item) => !item.read).map((item) => item.id)),
+            },
+          )}
+        >
+          {messages.notificationsMarkAllRead}
+        </Button>
+      );
+      return (
+        <div {...mergeAttrs<'div'>({ sx: notificationListStyles.root }, rest)}>
+          {title !== false && (
+            <div {...mergeAttrs<'div'>({ sx: notificationListStyles.head }, propsHead)}>
+              <span {...stylex.attrs(notificationListStyles.title)}>
+                {title ?? messages.notifications}
+              </span>
+              {markAll}
+            </div>
+          )}
+          <div {...mergeAttrs<'div'>({ sx: notificationListStyles.filters }, propsFilters)}>
+            {types?.length ? (
+              <ToggleGroup
+                {...mergePartProps<ToggleGroupBaseProps & SingleSelectionProps>(
+                  {
+                    size: 'xs',
+                    sx: notificationListStyles.types,
+                    'aria-label': messages.notifications,
+                  },
+                  propsTypes,
+                )}
+                value={_bind(
+                  () => type || 'all',
+                  (next: string | null) => (type = !next || next === 'all' ? '' : next),
+                )}
+              >
+                <ToggleItem value="all">{messages.notificationsAll}</ToggleItem>
+                {types.map((item) => (
+                  <ToggleItem key={item.key} value={item.key}>
+                    {item.label}
+                  </ToggleItem>
+                ))}
+              </ToggleGroup>
+            ) : null}
+            <Switch
+              {...mergePartProps<SwitchProps>(
+                { size: 'sm', sx: notificationListStyles.end },
+                propsUnreadOnly,
+              )}
+              checked={_bind(unreadOnly)}
+            >
+              {messages.notificationsUnreadOnly}
+            </Switch>
+            {title === false && markAll}
+          </div>
+          {shown.length === 0 ? (
+            <div {...mergeAttrs<'div'>({ sx: notificationListStyles.empty }, propsEmpty)}>
+              {empty ?? <Empty size="sm" title={messages.notificationsEmpty} />}
+            </div>
+          ) : (
+            <ul {...mergeAttrs<'ul'>({ sx: notificationListStyles.list }, propsList)}>
+              {shown.map((item) => (
+                <li key={item.id}>
+                  <a
+                    {...mergeAttrs<'a'>(
+                      { sx: [notificationListStyles.item, focusRingStyles.visible] },
+                      typeof propsItem === 'function' ? propsItem(item) : propsItem,
+                      {
+                        href: item.href ? router.href(item.href) : undefined,
+                        role: item.href ? undefined : 'button',
+                        tabindex: 0,
+                        onClick: (event: MouseEvent) => select(item, event),
+                        onKeydown: (event: KeyboardEvent) => {
+                          if (!item.href && (event.key === 'Enter' || event.key === ' ')) {
+                            event.preventDefault();
+                            select(item, event as unknown as MouseEvent);
+                          }
+                        },
+                      },
+                    )}
+                    data-state={item.read ? 'read' : 'unread'}
+                  >
+                    <span {...stylex.attrs(notificationListStyles.dot)}>
+                      {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
+                    </span>
+                    <span {...stylex.attrs(notificationListStyles.body)}>
+                      <span
+                        {...stylex.attrs(
+                          notificationListStyles.itemTitle,
+                          !item.read && notificationListStyles.itemTitleUnread,
+                        )}
+                      >
+                        {!item.read && (
+                          <VisuallyHidden>{messages.notificationUnreadMark} </VisuallyHidden>
+                        )}
+                        {item.title}
+                      </span>
+                      {item.description && (
+                        <span {...stylex.attrs(notificationListStyles.muted)}>
+                          {item.description}
+                        </span>
+                      )}
+                    </span>
+                    <time
+                      datetime={item.time}
+                      title={format.date(item.time, { dateStyle: 'medium', timeStyle: 'short' })}
+                      {...stylex.attrs(notificationListStyles.time)}
+                    >
+                      {format.relative(item.time, { now })}
+                    </time>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+          {hasContent(footer) && (
+            <div {...mergeAttrs<'div'>({ sx: notificationListStyles.foot }, propsFooter)}>
+              {footer}
+            </div>
+          )}
+        </div>
+      );
+    };
+  },
+);
+
+/** 未声明的属性落到弹出层的面板上 */
+export interface NotificationCenterProps
+  extends Omit<PopoverProps, 'trigger' | 'children'>, NotificationListOptions {
+  /** 铃铛按钮的部件属性 */
+  propsTrigger?: Partial<IconButtonProps>;
+  /** 面板里的通知列表的部件属性 */
+  propsNotificationList?: Partial<NotificationListProps>;
+}
+
+/** NotificationCenter 的样式：panel（弹出层的宽度）、list（列表的最大高度） */
+export const notificationCenterStyles = stylex.create({
+  panel: { width: 'min(26rem, calc(100vw - 2rem))', padding: 0 },
+  list: { maxHeight: '24rem' },
+});
+
+/** 通知中心：顶栏的铃铛（带未读数），点开是 NotificationList；点了一条就收起 */
+export const NotificationCenter = _component(
+  ({
+    items,
+    types,
+    onRead,
+    onItemClick,
+    footer,
+    empty,
+    now,
+    open = _bindable(false),
+    propsTrigger,
+    propsNotificationList,
+    sx,
+    ...rest
+  }: NotificationCenterProps) => {
+    const messages = useMessages('patterns', patternsMessages);
+    const unread = _derived(items.filter((item) => !item.read).length);
     return () => (
       <Popover
         {...rest}
@@ -193,96 +390,23 @@ export const NotificationCenter = _component(
           </Indicator>
         )}
       >
-        <div {...stylex.attrs(notificationCenterStyles.head)}>
-          <span {...stylex.attrs(notificationCenterStyles.title)}>{messages.notifications}</span>
-          <Button
-            size="xs"
-            variant="ghost"
-            disabled={unread === 0}
-            onClick={() => onRead?.(items.filter((item) => !item.read).map((item) => item.id))}
-          >
-            {messages.notificationsMarkAllRead}
-          </Button>
-        </div>
-        <div {...stylex.attrs(notificationCenterStyles.filters)}>
-          {types?.length ? (
-            <ToggleGroup
-              size="xs"
-              sx={notificationCenterStyles.types}
-              aria-label={messages.notifications}
-              value={_bind(
-                () => type || 'all',
-                (next: string | null) => (type = !next || next === 'all' ? '' : next),
-              )}
-            >
-              <ToggleItem value="all">{messages.notificationsAll}</ToggleItem>
-              {types.map((item) => (
-                <ToggleItem key={item.key} value={item.key}>
-                  {item.label}
-                </ToggleItem>
-              ))}
-            </ToggleGroup>
-          ) : null}
-          <Switch size="sm" checked={_bind(unreadOnly)} sx={notificationCenterStyles.unreadOnly}>
-            {messages.notificationsUnreadOnly}
-          </Switch>
-        </div>
-        {shown.length === 0 ? (
-          <div {...stylex.attrs(notificationCenterStyles.empty)}>
-            {empty ?? <Empty size="sm" title={messages.notificationsEmpty} />}
-          </div>
-        ) : (
-          <ul {...mergeAttrs<'ul'>({ sx: notificationCenterStyles.list }, propsList)}>
-            {shown.map((item) => (
-              <li key={item.id}>
-                <a
-                  href={item.href ? router.href(item.href) : undefined}
-                  role={item.href ? undefined : 'button'}
-                  tabindex={0}
-                  {...stylex.attrs(notificationCenterStyles.item, focusRingStyles.visible)}
-                  data-state={item.read ? 'read' : 'unread'}
-                  onClick={(event: MouseEvent) => select(item, event)}
-                  onKeydown={(event: KeyboardEvent) => {
-                    if (!item.href && (event.key === 'Enter' || event.key === ' ')) {
-                      event.preventDefault();
-                      select(item, event as unknown as MouseEvent);
-                    }
-                  }}
-                >
-                  <span {...stylex.attrs(notificationCenterStyles.dot)}>
-                    {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
-                  </span>
-                  <span {...stylex.attrs(notificationCenterStyles.body)}>
-                    <span
-                      {...stylex.attrs(
-                        notificationCenterStyles.itemTitle,
-                        !item.read && notificationCenterStyles.itemTitleUnread,
-                      )}
-                    >
-                      {!item.read && (
-                        <VisuallyHidden>{messages.notificationUnreadMark} </VisuallyHidden>
-                      )}
-                      {item.title}
-                    </span>
-                    {item.description && (
-                      <span {...stylex.attrs(notificationCenterStyles.muted)}>
-                        {item.description}
-                      </span>
-                    )}
-                    <time
-                      datetime={item.time}
-                      title={format.date(item.time, { dateStyle: 'medium', timeStyle: 'short' })}
-                      {...stylex.attrs(notificationCenterStyles.muted)}
-                    >
-                      {format.relative(item.time, { now })}
-                    </time>
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-        {hasContent(footer) && <div {...stylex.attrs(notificationCenterStyles.foot)}>{footer}</div>}
+        <NotificationList
+          {...mergePartProps<NotificationListProps>(
+            { items, propsList: { sx: notificationCenterStyles.list } },
+            propsNotificationList,
+            {
+              types,
+              onRead,
+              footer,
+              empty,
+              now,
+              onItemClick: (item: NotificationItem) => {
+                onItemClick?.(item);
+                open = false;
+              },
+            },
+          )}
+        />
       </Popover>
     );
   },

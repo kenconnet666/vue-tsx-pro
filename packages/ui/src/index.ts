@@ -687,6 +687,7 @@ export {
   ToggleGroupContext,
   toggleGroupStyles,
   ToggleItem,
+  type ToggleGroupBaseProps,
   type ToggleGroupItemManaged,
   type ToggleGroupManaged,
   type ToggleGroupOrientations,
