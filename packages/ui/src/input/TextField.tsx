@@ -6,6 +6,8 @@
  *
  * 未声明的属性落到 input（主元素）上，外壳用 propsRoot（COMPONENTS.md §2）。
  * 双向绑定经 v-model：中文输入法组合输入期间不写回，组合结束才写回。
+ * format 让输入时自动分组显示（手机号 138 0000 1111、身份证号、银行卡号，见 text-format.ts）：值是去掉分隔的原文，
+ * 重新分组后光标留在刚输入的字符后面。
  * 在 Field 里时自动关联标签、说明、错误信息，并沿用 Field 的 invalid / required / disabled / readonly。
  *
  * 部件：Root（外壳）、Input、Icon、IconEnd、Prefix、Suffix（固定文字）、Clear（ClearButton）、Reveal（显示密码的 IconButton）、
@@ -19,6 +21,7 @@ import type { IconData, IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
+import { displayPosition, type TextFormat } from './text-format';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
@@ -52,6 +55,8 @@ export interface TextFieldProps
   extends PartProps<'input', TextFieldManaged>, ControlOptions, ControlIconOptions {
   /** 输入值：父级写 value={_bind(x)} 双向绑定 */
   value?: string;
+  /** 显示格式：输入时自动分组（phoneFormat、idCardFormat、bankCardFormat 或 createGroupedFormat），值是去掉分隔的原文 */
+  format?: TextFormat;
   /** 不可用 */
   disabled?: boolean;
   /** 只读：可以选中、复制，不能修改 */
@@ -90,6 +95,7 @@ export interface TextFieldProps
 export const TextField = _component(
   ({
     value = _bindable(''),
+    format,
     type,
     variant,
     size,
@@ -129,6 +135,21 @@ export const TextField = _component(
       input?.focus();
     }
 
+    /** 有 format 时的输入：取出原文写回，再按格式显示，光标放回刚才那个字符的后面 */
+    function onFormattedInput(event: Event) {
+      const element = event.target as HTMLInputElement;
+      const caret = element.selectionStart ?? element.value.length;
+      const before = format!.parse(element.value.slice(0, caret)).length;
+      const raw = format!.parse(element.value);
+      value = raw;
+      const shown = format!.format(raw);
+      if (element.value !== shown) {
+        element.value = shown;
+        const position = displayPosition(format!, raw, before);
+        element.setSelectionRange(position, position);
+      }
+    }
+
     return () => {
       const state = control();
       const editable = !state.disabled && !state.readonly;
@@ -139,6 +160,26 @@ export const TextField = _component(
       const limit = rest.maxlength ?? constraints.maxLength;
       const describedBy = [state.describedBy, showCount && countId].filter(Boolean).join(' ');
       const inputId = state.id ?? ownId;
+      const inputAttrs = mergeAttrs<'input'>(
+        {
+          sx: controlStyles.input,
+          // 有 format 时输入框里多了分隔，按原文的长度限制交给 format.parse 截断
+          minlength: format ? undefined : constraints.minLength,
+          maxlength: format ? undefined : constraints.maxLength,
+          inputmode: format?.inputmode,
+        },
+        rest,
+        {
+          ref: _toRef(input),
+          id: inputId,
+          type: password && revealed ? 'text' : inputType,
+          disabled: state.disabled,
+          readonly: state.readonly,
+          required: state.required,
+          'aria-invalid': state.invalid || undefined,
+          'aria-describedby': describedBy || undefined,
+        },
+      );
       return (
         <div
           {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
@@ -149,28 +190,12 @@ export const TextField = _component(
         >
           {controlIcon(icon, propsIcon)}
           {controlAffix(prefix, inputId, propsPrefix)}
-          {/* _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回 */}
-          <input
-            {...mergeAttrs<'input'>(
-              {
-                sx: controlStyles.input,
-                minlength: constraints.minLength,
-                maxlength: constraints.maxLength,
-              },
-              rest,
-              {
-                ref: _toRef(input),
-                id: inputId,
-                type: password && revealed ? 'text' : inputType,
-                disabled: state.disabled,
-                readonly: state.readonly,
-                required: state.required,
-                'aria-invalid': state.invalid || undefined,
-                'aria-describedby': describedBy || undefined,
-              },
-            )}
-            value={_bind(value)}
-          />
+          {format ? (
+            <input {...inputAttrs} value={format.format(value)} onInput={onFormattedInput} />
+          ) : (
+            // _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回
+            <input {...inputAttrs} value={_bind(value)} />
+          )}
           {controlAffix(suffix, inputId, propsSuffix)}
           {clearable && value && editable && controlClear(propsClear, clear)}
           {password && (

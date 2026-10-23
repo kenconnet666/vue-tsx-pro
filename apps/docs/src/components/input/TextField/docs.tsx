@@ -11,6 +11,7 @@ import Appearance from './demo/Appearance.tsx?demo';
 import Comment from './demo/Comment.tsx?demo';
 import Signup from './demo/Signup.tsx?demo';
 import Adornments from './demo/Adornments.tsx?demo';
+import Formats from './demo/Formats.tsx?demo';
 
 export const meta = {
   title: 'TextField 文本框',
@@ -50,6 +51,14 @@ export default _component(() => () => (
           有内容时显示清空按钮。Field 的 <Code>error</Code>{' '}
           让框标红并把错误作为说明。自己做的输入组件用 <Code>CharacterCount</Code>{' '}
           显示字数，超出上限时变成危险色，读屏念完整的句子。
+        </Example>
+        <Example id="formats" title="手机号、身份证号、银行卡号" demo={Formats}>
+          <Code>format</Code> 让输入时自动分组显示（<Code>phoneFormat</Code>、
+          <Code>idCardFormat</Code>、<Code>bankCardFormat</Code>，别的用{' '}
+          <Code>createGroupedFormat</Code>{' '}
+          写）：值是去掉分隔的原文，过滤掉不接受的字符、截到最长，在中间插字光标也不跳。只管显示，校验写在
+          schema 里：
+          <Code>phoneSchema</Code> 看号段，<Code>idCardSchema</Code> 看出生日期与校验码。
         </Example>
       </ExampleColumn>
     </Examples>

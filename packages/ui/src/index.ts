@@ -769,6 +769,15 @@ export {
   type SelectedOption,
 } from './input/list-state';
 export { useRemoteItems, type OptionsLoader } from './input/remote-items';
+export {
+  bankCardFormat,
+  createGroupedFormat,
+  displayPosition,
+  idCardFormat,
+  phoneFormat,
+  type GroupedFormatOptions,
+  type TextFormat,
+} from './input/text-format';
 
 // 日期：日历、分段输入、日期与时间选择
 export {
@@ -920,8 +929,12 @@ export { useLeaveConfirmation, type LeaveConfirmationOptions } from './form/leav
 export {
   bigintSchema,
   decimalSchema,
+  idCardSchema,
+  isValidIdCard,
+  phoneSchema,
   type BigIntSchemaOptions,
   type DecimalSchemaOptions,
+  type PatternSchemaOptions,
 } from './form/schemas';
 export {
   useForm,

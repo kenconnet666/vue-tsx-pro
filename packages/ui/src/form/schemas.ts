@@ -1,5 +1,6 @@
 /**
- * 内置值类型的 zod schema：Decimal（金额、精确小数）与 bigint（超过 2^53 的整数、ID）。
+ * 内置值类型的 zod schema：Decimal（金额、精确小数）与 bigint（超过 2^53 的整数、ID）；
+ * 常见的格式：手机号（phoneSchema）、居民身份证号（idCardSchema，校验出生日期与校验码）。
  *
  *   const schema = z.object({
  *     price: decimalSchema({ min: 0, scale: 2 }),         // Decimal，最小 0，最多两位小数
@@ -98,4 +99,44 @@ export function bigintSchema({ min, max }: BigIntSchemaOptions = {}) {
     ...(min != null && { minimum: Number(min) }),
     ...(max != null && { maximum: Number(max) }),
   });
+}
+
+/** phoneSchema、idCardSchema 的选项 */
+export interface PatternSchemaOptions {
+  /** 不符合时的提示；不写时用 zod 的“格式不对”（跟着语言包） */
+  message?: string;
+}
+
+/** 中国大陆手机号：1 开头、第二位 3–9、共 11 位数字（配 TextField 的 phoneFormat，值里没有空格） */
+export function phoneSchema({ message }: PatternSchemaOptions = {}) {
+  return z.string().regex(/^1[3-9]\d{9}$/, message === undefined ? undefined : { message });
+}
+
+const ID_WEIGHTS = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+const ID_CHECK_CODES = '10X98765432';
+
+/**
+ * 居民身份证号（GB 11643）是否有效：18 位，出生日期是真实的日期，最后一位校验码对得上（配 idCardFormat）
+ */
+export function isValidIdCard(value: string): boolean {
+  if (!/^\d{17}[\dX]$/.test(value)) return false;
+  const [year, month, day] = [value.slice(6, 10), value.slice(10, 12), value.slice(12, 14)].map(
+    Number,
+  ) as [number, number, number];
+  const birth = new Date(Date.UTC(year, month - 1, day));
+  if (
+    birth.getUTCFullYear() !== year ||
+    birth.getUTCMonth() !== month - 1 ||
+    birth.getUTCDate() !== day ||
+    year < 1900
+  ) {
+    return false;
+  }
+  const sum = ID_WEIGHTS.reduce((total, weight, index) => total + weight * Number(value[index]), 0);
+  return ID_CHECK_CODES[sum % 11] === value[17];
+}
+
+/** 居民身份证号的 schema：长度、出生日期与校验码（isValidIdCard） */
+export function idCardSchema({ message }: PatternSchemaOptions = {}) {
+  return z.string().refine(isValidIdCard, message === undefined ? undefined : { message });
 }
