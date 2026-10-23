@@ -1239,6 +1239,12 @@ export {
 export { useMediaQuery, usePrefersDark, useReducedMotion } from './utils/dom/media-query';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
+  fitCount,
+  useOverflowItems,
+  type OverflowItems,
+  type OverflowItemsOptions,
+} from './utils/dom/overflow';
+export {
   dismissOnBackdrop,
   lockScroll,
   openModalDialog,
@@ -1269,9 +1275,12 @@ export {
 } from './utils/dom/scroll-spy';
 export {
   useSortable,
+  type SortableGhost,
+  type SortableGroups,
   type SortableOptions,
   type SortableOrientations,
   type SortableState,
+  type SortableTarget,
 } from './utils/dom/sortable';
 export { usePersistentState, type PersistentStateOptions } from './utils/dom/storage';
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
