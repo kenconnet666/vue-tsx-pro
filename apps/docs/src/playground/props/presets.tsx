@@ -294,6 +294,7 @@ export const PRESETS: Record<string, Preset> = {
   Steps: { initial: { current: 1 }, fixed: { items: { value: steps, code: stepsCode } } },
   Pagination: { initial: { pageCount: 10 } },
   PageJump: { initial: { pageCount: 10 } },
+  PaginationBar: { initial: { total: 320 } },
   Tabs: {
     imports: ['Tab', 'TabList', 'TabPanel'],
     initial: { value: 'a' },
