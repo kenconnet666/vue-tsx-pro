@@ -3,6 +3,7 @@
  * 都没有时使用默认值（亮色主题 + 简体中文），组件单独使用也能工作。
  */
 import { createContext } from '@vue-tsx-pro/tsx';
+import { createMatcher } from '../utils/data/collation';
 import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
 import type { ComponentDefaults } from './defaults';
@@ -17,6 +18,12 @@ import type { Theme } from './theme/theme';
  * 返回的 HTML 直接写进页面，实现方负责转义代码里的文字。
  */
 export type Highlighter = (code: string, lang: string) => Promise<string>;
+
+/**
+ * 额外的文字匹配：选项过滤、命令面板、树的搜索在内置匹配（忽略大小写与重音的包含）之外再试它，任一命中就算。
+ * 拼音匹配见子路径 `@vue-tsx-pro/ui/pinyin` 的 createPinyinMatcher
+ */
+export type TextMatcher = (text: string, query: string) => boolean;
 
 /**
  * 路由适配（参考 React Aria 的 RouterProvider 与 useHref）：组件库不依赖具体的路由库。
@@ -63,6 +70,8 @@ export interface UiConfig {
   readonly lang: Lang;
   /** 代码高亮器；没有时 CodeBlock 显示纯文本 */
   readonly highlighter?: Highlighter;
+  /** 额外的文字匹配（拼音）；没有时只按字面匹配 */
+  readonly textMatcher?: TextMatcher;
   /** 组件默认值（见 defaults.ts） */
   readonly defaults: ComponentDefaults;
   /** 路由适配；没有时链接就是普通的页面跳转 */
@@ -107,4 +116,17 @@ export function useLang(): Lang {
       return descriptor && { ...descriptor, configurable: true };
     },
   });
+}
+
+/**
+ * 当前配置下的文字匹配：内置匹配（按当前语言忽略大小写与重音）或 textMatcher（拼音）任一命中。
+ * 在 setup 里调用，返回的函数在渲染、计算里调用（读到最新的语言与配置）
+ */
+export function useTextMatcher(): () => TextMatcher {
+  const config = useConfig();
+  return () => {
+    const builtin = createMatcher(config.lang.code);
+    const extra = config.textMatcher;
+    return extra ? (text, query) => builtin(text, query) || extra(text, query) : builtin;
+  };
 }

@@ -22,11 +22,10 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { useLang } from '../config/context';
+import { useLang, useTextMatcher } from '../config/context';
 import { isComposingKey } from '../utils/dom/hotkeys';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { ListPopover } from './ListPopover';
-import { createMatcher } from '../utils/data/collation';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   controlClear,
@@ -161,6 +160,7 @@ export const Combobox = _component(
     ...rest
   }: ComboboxProps<T>) => {
     const lang = useLang();
+    const textMatcher = useTextMatcher();
     const listId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
@@ -176,7 +176,7 @@ export const Combobox = _component(
 
     function matches(item: T, text: string) {
       if (!text) return true;
-      return filter ? filter(item, text) : createMatcher(lang.code)(optionOf(item).label, text);
+      return filter ? filter(item, text) : textMatcher()(optionOf(item).label, text);
     }
 
     const remote = useRemoteItems({

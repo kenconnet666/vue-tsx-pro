@@ -41,13 +41,14 @@ catalog:
   zod: 4.6.7
   # 动画引擎（MIT）：animate、timeline、spring、stagger、拖拽、布局动画、滚动观察
   animejs: 4.5.0
-  # 可选 peer 依赖（组件库开发时安装）：常规图表 Unovis、3D three.js、代码高亮 Shiki
+  # 可选 peer 依赖（组件库开发时安装）：常规图表 Unovis、3D three.js、代码高亮 Shiki、拼音匹配 pinyin-pro
   '@unovis/ts': 1.7.1
   three: 0.186.1
   '@types/three': 0.186.0
   shiki: 4.5.0
   # Shiki 的单个语言（@shikijs/langs/tsx）：仓库里的应用只加载用到的几种，与 shiki 同版本
   '@shikijs/langs': 4.5.0
+  pinyin-pro: 3.29.5
   # 样式
   '@stylexjs/stylex': 0.19.1
   # 预设把 StyleX 规则合成 CSS 时用的处理器与目标浏览器；预设要关掉它对 :dir() 的降级（见 tsx/src/vite/stylex.ts）

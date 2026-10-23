@@ -16,6 +16,11 @@
       "types": "./dist/config/shiki.d.ts",
       "default": "./dist/config/shiki.js"
     },
+    "./pinyin": {
+      "@vue-tsx-pro/source": "./src/config/pinyin.ts",
+      "types": "./dist/config/pinyin.d.ts",
+      "default": "./dist/config/pinyin.js"
+    },
     "./charts": {
       "@vue-tsx-pro/source": "./src/charts/index.ts",
       "types": "./dist/charts/index.d.ts",
@@ -100,7 +105,8 @@
     "@unovis/ts": "^1.7.0",
     "vue": "^3.5.0",
     "vue-router": "^5.0.0",
-    "zod": "^4.6.0"
+    "zod": "^4.6.0",
+    "pinyin-pro": "^3.20.0"
   },
   "peerDependenciesMeta": {
     "pinia": {
@@ -116,6 +122,9 @@
       "optional": true
     },
     "vue-router": {
+      "optional": true
+    },
+    "pinyin-pro": {
       "optional": true
     }
   },
@@ -134,6 +143,7 @@
     "vue": "catalog:",
     "vue-router": "catalog:",
     "zod": "catalog:",
-    "@types/culori": "catalog:"
+    "@types/culori": "catalog:",
+    "pinyin-pro": "catalog:"
   }
 }

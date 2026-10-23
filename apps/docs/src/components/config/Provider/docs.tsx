@@ -19,6 +19,7 @@ export const meta = {
 };
 
 const setup = `import { createUi, zhCN } from '@vue-tsx-pro/ui';
+import { createPinyinMatcher } from '@vue-tsx-pro/ui/pinyin';
 import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
 
 app.use(
@@ -27,6 +28,7 @@ app.use(
     lang: zhCN,
     defaults: { Button: { radius: 'full' } }, // 统一改组件的默认外观
     router: vueRouterAdapter(router),        // 站内链接不刷新页面
+    textMatcher: createPinyinMatcher(),      // 选项过滤、命令面板认拼音（可选依赖 pinyin-pro）
   }),
 );`;
 

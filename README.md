@@ -30,6 +30,7 @@ TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"
 // 宿主入口：应用级配置；页面内还可以用 <Provider> 局部覆盖
 import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
 import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki'; // 可选：代码高亮（需安装 shiki）
+import { createPinyinMatcher } from '@vue-tsx-pro/ui/pinyin'; // 可选：搜索认拼音（需安装 pinyin-pro）
 import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router'; // 可选：站内链接走路由、导航判断当前页
 
 app.use(
@@ -38,6 +39,7 @@ app.use(
     lang: { timeZone: 'Asia/Shanghai' },
     router: vueRouterAdapter(router),
     highlighter: createShikiHighlighter(),
+    textMatcher: createPinyinMatcher(),
     defaults: { Button: { variant: 'outline' } }, // 组件默认外观
   }),
 );

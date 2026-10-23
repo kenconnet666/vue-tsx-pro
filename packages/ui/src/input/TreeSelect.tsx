@@ -29,11 +29,10 @@ import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
-import { useLang } from '../config/context';
+import { useLang, useTextMatcher } from '../config/context';
 import { Tree, type TreeProps } from '../display/Tree';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
-import { createMatcher } from '../utils/data/collation';
 import { selectedValues, type SelectionModes } from '../utils/data/selection';
 import {
   anchoredPanelSx,
@@ -173,6 +172,7 @@ export const TreeSelect = _component(
     ...rest
   }: TreeSelectProps<T>) => {
     const lang = useLang();
+    const textMatcher = useTextMatcher();
     const treeId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
@@ -216,7 +216,7 @@ export const TreeSelect = _component(
       const text = search.trim();
       // 有 load 或 filter={false} 时结果已经是服务端筛好的
       if (!searchable || !text || load || filter === false) return null;
-      const match = createMatcher(lang.code);
+      const match = textMatcher();
       const hits = (node: T) => (filter ? filter(node, text) : match(getLabel(node), text));
       const keys = new Set<string>();
       for (const [key, { node }] of nodes) {

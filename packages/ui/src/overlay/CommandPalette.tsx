@@ -21,7 +21,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { Kbd } from '../base/Kbd';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
-import { useLang } from '../config/context';
+import { useLang, useTextMatcher } from '../config/context';
 import { controlStyles, controlSx, useControlAppearance } from '../input/control';
 import {
   ListboxView,
@@ -36,7 +36,6 @@ import {
   type OptionMapping,
   toListboxOption,
 } from '../input/list-state';
-import { createMatcher } from '../utils/data/collation';
 import { ariaKeyShortcut, formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { breakpoints } from '../config/theme/tokens.stylex';
@@ -153,6 +152,7 @@ export const CommandPalette = _component(
     ...rest
   }: CommandPaletteProps<T>) => {
     const lang = useLang();
+    const textMatcher = useTextMatcher();
     const listId = useId();
     const appearance = useControlAppearance(() => ({}));
     const optionOf = (item: T) => toListboxOption(item, toOption);
@@ -160,7 +160,7 @@ export const CommandPalette = _component(
     function matches(item: T, text: string) {
       if (filter === false) return true;
       if (filter) return filter(item, text);
-      const match = createMatcher(lang.code);
+      const match = textMatcher();
       const option = optionOf(item);
       return match(option.label, text) || match(option.description ?? '', text);
     }

@@ -18,9 +18,8 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { Tag, type TagProps } from '../base/Tag';
-import { useLang } from '../config/context';
+import { useTextMatcher } from '../config/context';
 import { isComposingKey } from '../utils/dom/hotkeys';
-import { createMatcher } from '../utils/data/collation';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { ListPopover } from './ListPopover';
 import { useLayoutAnimation } from '../utils/motion/layout';
@@ -163,7 +162,7 @@ export const TagsInput = _component(
     propsListbox,
     ...rest
   }: TagsInputProps<T>) => {
-    const lang = useLang();
+    const textMatcher = useTextMatcher();
     const listId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
@@ -184,7 +183,7 @@ export const TagsInput = _component(
       items: () => {
         const query = inputValue.trim();
         if (filter === false || !query) return items;
-        const matcher = createMatcher(lang.code);
+        const matcher = textMatcher();
         return items.filter((item) =>
           filter ? filter(item, query) : matcher(optionOf(item).label, query),
         );

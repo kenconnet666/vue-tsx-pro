@@ -33,11 +33,10 @@ import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import { Tag, type TagProps } from '../base/Tag';
-import { useLang } from '../config/context';
+import { useLang, useTextMatcher } from '../config/context';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { ListPopover } from './ListPopover';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { createMatcher } from '../utils/data/collation';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import {
   controlClear,
@@ -213,6 +212,7 @@ export const Select = _component(
     ...rest
   }: SelectProps<T>) => {
     const lang = useLang();
+    const textMatcher = useTextMatcher();
     const listId = useId();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
@@ -227,7 +227,7 @@ export const Select = _component(
     // 本地过滤：有 load 或 filter={false} 时交给服务端
     const localFilter = () => !load && filter !== false;
     const matches = (item: T, text: string) =>
-      filter ? filter(item, text) : createMatcher(lang.code)(optionOf(item).label, text);
+      filter ? filter(item, text) : textMatcher()(optionOf(item).label, text);
     const list = useListState({
       items: () => {
         const all = remote.items();

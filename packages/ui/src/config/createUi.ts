@@ -11,7 +11,13 @@ import {
   type Plugin,
 } from 'vue';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { ConfigContext, defaultConfig, type Highlighter, type UiRouter } from './context';
+import {
+  ConfigContext,
+  defaultConfig,
+  type Highlighter,
+  type TextMatcher,
+  type UiRouter,
+} from './context';
 import type { ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
@@ -27,6 +33,8 @@ export interface UiOptions {
   lang?: MaybeRefOrGetter<Partial<Lang>>;
   /** 代码高亮器（CodeBlock 用），如 `@vue-tsx-pro/ui/shiki` 的 createShikiHighlighter()；不写时显示纯文本 */
   highlighter?: Highlighter;
+  /** 额外的文字匹配，如 `@vue-tsx-pro/ui/pinyin` 的 createPinyinMatcher()：选项过滤、命令面板认拼音；不写时只按字面匹配 */
+  textMatcher?: TextMatcher;
   /** 组件默认值，如 `{ Button: { variant: 'outline' } }`（见 defaults.ts） */
   defaults?: ComponentDefaults;
   /** 路由适配：站内链接不刷新页面地跳转、导航组件判断当前页（见 UiRouter） */
@@ -84,6 +92,7 @@ export function createUi(options: UiOptions = {}): Plugin {
             return lang.value;
           },
           highlighter: options.highlighter,
+          textMatcher: options.textMatcher,
           defaults: options.defaults ?? {},
           router: options.router,
           http: options.http,

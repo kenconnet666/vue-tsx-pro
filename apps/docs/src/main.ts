@@ -1,4 +1,5 @@
 import { createUi } from '@vue-tsx-pro/ui';
+import { createPinyinMatcher } from '@vue-tsx-pro/ui/pinyin';
 import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki';
 import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
 import { createApp } from 'vue';
@@ -33,6 +34,8 @@ const app = createApp(App)
           html: () => import('@shikijs/langs/html'),
         },
       }),
+      // 选项过滤、站内搜索认拼音（“xlk”搜到“下拉框”）
+      textMatcher: createPinyinMatcher(),
       router: vueRouterAdapter(router),
     }),
   );

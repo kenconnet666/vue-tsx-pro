@@ -1,7 +1,13 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { ConfigContext, useConfig, type Highlighter, type UiRouter } from './context';
+import {
+  ConfigContext,
+  useConfig,
+  type Highlighter,
+  type TextMatcher,
+  type UiRouter,
+} from './context';
 import { mergeDefaults, type ComponentDefaults } from './defaults';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
@@ -17,6 +23,8 @@ export interface ProviderProps {
   lang?: Partial<Lang>;
   /** 代码高亮器（CodeBlock 用）；不写时沿用上层配置 */
   highlighter?: Highlighter;
+  /** 额外的文字匹配（拼音）；不写时沿用上层配置 */
+  textMatcher?: TextMatcher;
   /** 组件默认值：按组件逐个与上层合并，只写要改的 */
   defaults?: ComponentDefaults;
   /** 路由适配；不写时沿用上层配置 */
@@ -51,6 +59,7 @@ export const Provider = _component(
     theme,
     lang,
     highlighter,
+    textMatcher,
     defaults,
     router,
     http,
@@ -72,6 +81,9 @@ export const Provider = _component(
       },
       get highlighter() {
         return highlighter ?? parent.highlighter;
+      },
+      get textMatcher() {
+        return textMatcher ?? parent.textMatcher;
       },
       get defaults() {
         return currentDefaults;

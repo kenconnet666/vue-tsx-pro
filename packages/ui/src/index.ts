@@ -1012,9 +1012,11 @@ export {
   defaultConfig,
   useConfig,
   useLang,
+  useTextMatcher,
   type Highlighter,
   type QueryPatch,
   type QueryValues,
+  type TextMatcher,
   type UiConfig,
   type UiRouter,
 } from './config/context';

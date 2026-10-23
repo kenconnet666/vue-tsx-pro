@@ -41,7 +41,9 @@ export default _component(() => () => (
         <Example id="searchable" title="可搜索" demo={Searchable}>
           选项多（供应商、人员、件号）时写 <Code>searchable</Code>
           ：弹出层顶部是搜索框，打开后焦点就在里面，输入即按显示文字过滤（忽略大小写与重音，
-          <Code>filter</Code> 可以换规则），↑↓ 移动、Enter 选中，Esc
+          <Code>filter</Code> 可以换规则；createUi 配了{' '}
+          <Code>textMatcher: createPinyinMatcher()</Code>{' '}
+          时也认拼音与首字母，本站已开启，试试输入“xnyy”（西南液压），↑↓ 移动、Enter 选中，Esc
           关闭并把焦点还给触发按钮。已选的项被过滤掉、或 items
           换成了另一页的搜索结果时，触发框里照样显示它的文字。远程搜索给 <Code>load</Code>{' '}
           （见下一个示例）；自己管请求时用 <Code>search={'{_bind(keyword)}'}</Code> 拿到搜索词、

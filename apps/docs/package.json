@@ -29,6 +29,7 @@
     "@vue-tsx-pro/ui": "workspace:^",
     "animejs": "catalog:",
     "decimal.js": "catalog:",
+    "pinyin-pro": "catalog:",
     "shiki": "catalog:",
     "tabbable": "catalog:",
     "three": "catalog:",
