@@ -245,3 +245,59 @@ it('点 Field 的标签聚焦组里的第一个控件（for 指向的单选组�
   root.querySelector<HTMLLabelElement>('label[for]')!.click();
   expect(document.activeElement).toBe(root.querySelector('input[value="express"]'));
 });
+
+describe('items 与说明', () => {
+  it('CheckboxGroup 的 items：ListboxOption 或字符串生成各项，说明经 aria-describedby 关联，不可用的项', async () => {
+    let value: string[] = ['email'];
+    const root = mount(() => (
+      <CheckboxGroup
+        value={value}
+        onUpdate:value={(next: string[]) => (value = next)}
+        aria-label="通知方式"
+        items={[
+          { value: 'email', label: '邮件', description: '每天汇总一封' },
+          { value: 'sms', label: '短信', disabled: true },
+          { value: 'app', label: '站内信' },
+        ]}
+      />
+    ));
+    const inputs = [...root.querySelectorAll('input')];
+    expect(inputs.map((input) => input.value)).toEqual(['email', 'sms', 'app']);
+    expect(inputs[0]!.checked).toBe(true);
+    expect(inputs[1]!.disabled).toBe(true);
+    const description = document.getElementById(inputs[0]!.getAttribute('aria-describedby')!)!;
+    expect(description.textContent).toBe('每天汇总一封');
+    expect(inputs[2]!.hasAttribute('aria-describedby')).toBe(false);
+    inputs[2]!.click();
+    await nextTick();
+    expect(value).toEqual(['email', 'app']);
+  });
+
+  it('RadioGroup 的 items：字符串、任意数据加 toOption；写了 children 时用 children', () => {
+    const plain = mount(() => <RadioGroup items={['日', '周', '月']} aria-label="周期" />);
+    expect([...plain.querySelectorAll('label')].map((label) => label.textContent)).toEqual([
+      '日',
+      '周',
+      '月',
+    ]);
+    const plans = [
+      { id: 'basic', name: '基础版', price: '免费' },
+      { id: 'pro', name: '专业版', price: '¥99 / 月' },
+    ];
+    const mapped = mount(() => (
+      <RadioGroup
+        items={plans}
+        toOption={(plan) => ({ value: plan.id, label: plan.name, description: plan.price })}
+        aria-label="套餐"
+      />
+    ));
+    expect(mapped.querySelectorAll('input')[1]!.value).toBe('pro');
+    expect(mapped.textContent).toContain('¥99 / 月');
+    const custom = mount(() => (
+      <RadioGroup items={['忽略']} aria-label="自己写">
+        <Radio value="a">甲</Radio>
+      </RadioGroup>
+    ));
+    expect(custom.textContent).toBe('甲');
+  });
+});

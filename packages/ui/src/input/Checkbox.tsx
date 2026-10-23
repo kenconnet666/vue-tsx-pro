@@ -9,6 +9,7 @@
  *       <Checkbox value="sms">短信</Checkbox>
  *     </CheckboxGroup>
  *   </Field>
+ *   <CheckboxGroup value={_bind(channels)} items={[{ value: 'email', label: '邮件', description: '每天汇总一封' }, …]} />
  *
  * 部分勾选（indeterminate）是原生 input 的属性，读屏念“部分选中”。在 Field 里时关联说明与错误、沿用其状态；
  * 复选组用 role="group"，以 Field 的标签为名称（aria-labelledby）。
@@ -18,9 +19,10 @@
 import { Check, Minus } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { useFieldControl } from '../form/Field';
+import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
 import {
   hasContent,
   defaultLabelledBy,
@@ -93,6 +95,10 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
   propsIndicator?: Partial<IconProps>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
+  /** 文字下方的说明（aria-describedby） */
+  description?: VNodeChild;
+  /** 说明的部件属性 */
+  propsDescription?: PartProps<'span'>;
   /** 文字 */
   children?: VNodeChild;
 }
@@ -121,10 +127,13 @@ export const Checkbox = _component(
     propsControl,
     propsIndicator,
     propsLabel,
+    description,
+    propsDescription,
     children,
     ...rest
   }: CheckboxProps) => {
     const group = CheckboxGroupContext.inject(null);
+    const descriptionId = `${useId()}-description`;
     const appearance = useChoiceAppearance(() => ({ size, tone }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let input = _state.raw<HTMLInputElement | null>(null);
@@ -184,7 +193,10 @@ export const Checkbox = _component(
                   required: required ?? field?.required,
                   'aria-invalid': bad || undefined,
                   'aria-readonly': locked || undefined,
-                  'aria-describedby': field?.describedBy,
+                  'aria-describedby':
+                    [field?.describedBy, hasContent(description) && descriptionId]
+                      .filter(Boolean)
+                      .join(' ') || undefined,
                   onChange,
                   ...(locked && readonlyChoiceHandlers),
                 },
@@ -206,8 +218,19 @@ export const Checkbox = _component(
               )}
             />
           </span>
-          {hasContent(children) && (
-            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
+          {(hasContent(children) || hasContent(description)) && (
+            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>
+              {children}
+              {hasContent(description) && (
+                <span
+                  {...mergeAttrs<'span'>({ sx: choiceStyles.description }, propsDescription, {
+                    id: descriptionId,
+                  })}
+                >
+                  {description}
+                </span>
+              )}
+            </span>
           )}
         </label>
       );
@@ -216,7 +239,7 @@ export const Checkbox = _component(
 );
 
 /** 未声明的属性落到 div（role="group"）上 */
-export interface CheckboxGroupProps extends PartProps<'div', 'role'> {
+export interface CheckboxGroupBaseProps<T> extends PartProps<'div', 'role'> {
   /** 勾选的值：父级写 value={_bind(list)} */
   value?: string[];
   /** 表单提交时各项共用的 name */
@@ -229,13 +252,18 @@ export interface CheckboxGroupProps extends PartProps<'div', 'role'> {
   invalid?: boolean;
   /** 排列方向，默认 vertical */
   orientation?: keyof ChoiceOrientations;
-  /** Checkbox */
+  /** 各项：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加 toOption；写了 children 时不用 */
+  items?: readonly T[];
+  /** Checkbox；不写时按 items 生成 */
   children?: VNodeChild;
 }
 
+/** CheckboxGroup 的属性：items 是 ListboxOption、字符串时不用 toOption */
+export type CheckboxGroupProps<T = ListboxOption> = CheckboxGroupBaseProps<T> & OptionMapping<T>;
+
 /** 一组复选框：value 是勾选项的值的数组 */
 export const CheckboxGroup = _component(
-  ({
+  <T = ListboxOption,>({
     value = _bindable<string[]>([]),
     name,
     disabled,
@@ -243,9 +271,11 @@ export const CheckboxGroup = _component(
     invalid,
     orientation = 'vertical',
     id,
+    items,
+    toOption,
     children,
     ...rest
-  }: CheckboxGroupProps) => {
+  }: CheckboxGroupProps<T>) => {
     const control = useFieldControl(() => ({ id, disabled, readonly, invalid }));
     CheckboxGroupContext.provide({
       get value() {
@@ -282,7 +312,20 @@ export const CheckboxGroup = _component(
           data-disabled={state.disabled || undefined}
           data-readonly={state.readonly || undefined}
         >
-          {children}
+          {children ??
+            items?.map((item) => {
+              const option = toListboxOption(item, toOption);
+              return (
+                <Checkbox
+                  key={option.value}
+                  value={option.value}
+                  disabled={option.disabled || undefined}
+                  description={option.description}
+                >
+                  {option.label}
+                </Checkbox>
+              );
+            })}
         </div>
       );
     };

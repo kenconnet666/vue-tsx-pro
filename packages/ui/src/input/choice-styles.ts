@@ -121,8 +121,10 @@ export const choiceStyles = stylex.create({
   invalid: { borderColor: '_danger', outlineColor: '_danger' },
   /** 标记（对勾、圆点、开关滑块）：叠在 input 上，点击穿透到 input */
   mark: { gridArea: '1 / 1', pointerEvents: 'none' },
-  /** 文字 */
-  label: { minWidth: 0 },
+  /** 文字（有说明时文字在上、说明在下） */
+  label: { minWidth: 0, display: 'grid' },
+  /** 文字下方的说明：次要颜色、小一号 */
+  description: { color: '_textMuted', fontSize: '0.875em' },
 });
 
 /** 复选组、单选组的排列方向 */

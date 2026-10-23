@@ -17,6 +17,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
+import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
 import { hasContent, defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -58,7 +59,7 @@ export interface RadioGroupState {
 export const RadioGroupContext = createContext<RadioGroupState>('RadioGroup');
 
 /** 未声明的属性落到 div（role="radiogroup"）上 */
-export interface RadioGroupProps extends PartProps<'div', 'role'> {
+export interface RadioGroupBaseProps<T> extends PartProps<'div', 'role'> {
   /** 选中项的值：父级写 value={_bind(x)}；没有选中时是 null */
   value?: string | null;
   /** 表单提交时的 name；不写时自动生成（同组的 radio 要共用一个 name 才互斥） */
@@ -77,13 +78,18 @@ export interface RadioGroupProps extends PartProps<'div', 'role'> {
   tone?: StatusTone;
   /** 排列方向，默认 vertical */
   orientation?: keyof ChoiceOrientations;
-  /** Radio */
+  /** 各项：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加 toOption；写了 children 时不用 */
+  items?: readonly T[];
+  /** Radio；不写时按 items 生成 */
   children?: VNodeChild;
 }
 
+/** RadioGroup 的属性：items 是 ListboxOption、字符串时不用 toOption */
+export type RadioGroupProps<T = ListboxOption> = RadioGroupBaseProps<T> & OptionMapping<T>;
+
 /** 单选组：value 是选中项的值 */
 export const RadioGroup = _component(
-  ({
+  <T = ListboxOption,>({
     value = _bindable<string | null>(null),
     name,
     disabled,
@@ -94,9 +100,11 @@ export const RadioGroup = _component(
     tone,
     orientation = 'vertical',
     id,
+    items,
+    toOption,
     children,
     ...rest
-  }: RadioGroupProps) => {
+  }: RadioGroupProps<T>) => {
     const generatedName = useId();
     const control = useFieldControl(() => ({ id, disabled, readonly, required, invalid }));
     const appearance = useChoiceAppearance(() => ({ size, tone }));
@@ -145,7 +153,20 @@ export const RadioGroup = _component(
           data-disabled={state.disabled || undefined}
           data-readonly={state.readonly || undefined}
         >
-          {children}
+          {children ??
+            items?.map((item) => {
+              const option = toListboxOption(item, toOption);
+              return (
+                <Radio
+                  key={option.value}
+                  value={option.value}
+                  disabled={option.disabled || undefined}
+                  description={option.description}
+                >
+                  {option.label}
+                </Radio>
+              );
+            })}
         </div>
       );
     };
@@ -169,6 +190,10 @@ export interface RadioProps extends PartProps<'input', RadioManaged> {
   propsIndicator?: PartProps<'span'>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
+  /** 文字下方的说明（aria-describedby） */
+  description?: VNodeChild;
+  /** 说明的部件属性 */
+  propsDescription?: PartProps<'span'>;
   /** 文字 */
   children?: VNodeChild;
 }
@@ -196,10 +221,13 @@ export const Radio = _component(
     propsControl,
     propsIndicator,
     propsLabel,
+    description,
+    propsDescription,
     children,
     ...rest
   }: RadioProps) => {
     const group = RadioGroupContext.inject();
+    const descriptionId = `${useId()}-description`;
     return () => {
       const checked = group.value === value;
       const off = disabled ?? group.disabled;
@@ -230,6 +258,7 @@ export const Radio = _component(
                   checked,
                   disabled: off,
                   required: group.required,
+                  'aria-describedby': hasContent(description) ? descriptionId : undefined,
                   onChange: (event: Event) => {
                     group.select(value);
                     // 浏览器已经取消了同组原来选中的那个：整组一起对回父级的值
@@ -249,8 +278,19 @@ export const Radio = _component(
               )}
             />
           </span>
-          {hasContent(children) && (
-            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
+          {(hasContent(children) || hasContent(description)) && (
+            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>
+              {children}
+              {hasContent(description) && (
+                <span
+                  {...mergeAttrs<'span'>({ sx: choiceStyles.description }, propsDescription, {
+                    id: descriptionId,
+                  })}
+                >
+                  {description}
+                </span>
+              )}
+            </span>
           )}
         </label>
       );
