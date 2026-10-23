@@ -63,7 +63,7 @@ pnpm dev:docs        # 文档站开发服务器，端口 5174（.claude/launch.j
 
 ```bash
 pnpm typecheck                                   # 各包并行、增量，之后每次两三秒
-pnpm -C packages/ui exec vitest run src/input    # 只跑相关目录
+pnpm -C packages/ui test src/input               # 只跑相关目录（走包里的 test 脚本：exec vitest 会读到 tsx 包过时的构建产物）
 pnpm check                                       # 推送前必跑：lint、格式、生成文件、注释、导出、对比度、文字
 ```
 

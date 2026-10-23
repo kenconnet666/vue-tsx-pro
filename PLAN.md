@@ -86,7 +86,8 @@ M0 骨架、M1 tsx 包、M2 组件库基础、M3 文档站、M4 正式组件都�
 - **Babel 8**：符文编译器、Vue JSX 插件（3.0）与 StyleX 的 Babel 插件一起用 Babel 8，一个文件解析一次（compiler/compile.ts）。
 - **StyleX 不 fork**：只 fork 类型声明（`@vue-tsx-pro/tsx/stylex`），运行时与编译器用官方的。
 - **文档站不用 Markdown**：用 TSX 与本组件库写普通网站（Vite + vue-router 自建，已替换原来的 VitePress 冒烟页）。组件都能在 Node 里渲染成 HTML（试过演示页的服务端渲染），静态生成可行。
-- **TypeScript 6 与 7 并用**：类型检查、CI 与组件库的声明生成用 TS 7（别名包 `typescript7`，Go 重写、快）；
-  TS 7 移除了 `createLanguageService` 等 JS API，用到它们的脚本、语言服务与 IDE 留在 TS 6。
+- **TypeScript 6 与 7 并用**：类型检查、CI 与组件库的声明生成用 TS 7（别名包 `typescript7`，Go 重写、快；跟 7.1 的 beta）；
+  TS 7.0 没有 JS API，7.1 新加的 `typescript/sync` 只有程序与类型检查器、没有语言服务，所以用到 `createLanguageService`
+  等 API 的脚本、语言服务与 IDE 留在 TS 6，等 7.x 的 API 能覆盖时再整体切换。
 - **pnpm 12** 不再读 `package.json` 的 `pnpm` 字段，工作区设置写在 `pnpm-workspace.yaml`。
 - 组件库依赖（定位、图标、日期、精确数字、焦点、校验接口）用成熟库，组件自己写，见 COMPONENTS.md §7。

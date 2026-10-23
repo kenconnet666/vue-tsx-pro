@@ -89,10 +89,10 @@ export function createThemePreference<Name extends string>(
     get theme() {
       return options.themes[name.value];
     },
-    set(next, { origin } = {}) {
+    set(next, setOptions) {
       if (!isChoice(next)) throw new Error(`没有名为 ${String(next)} 的主题`);
       if (storageKey) safeStorage()?.setItem(storageKey, next);
-      return revealTransition(() => (preference.value = next), origin);
+      return revealTransition(() => (preference.value = next), setOptions?.origin);
     },
   };
 }
