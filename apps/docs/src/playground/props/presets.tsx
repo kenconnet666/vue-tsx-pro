@@ -206,7 +206,6 @@ export const PRESETS: Record<string, Preset> = {
     initial: { value: 12_345 },
     fixed: { label: { value: '本月访问', code: '"本月访问"' } },
   },
-  ColorSwatch: { initial: { color: '#3b82f6' } },
   Descriptions: {
     fixed: {
       items: {

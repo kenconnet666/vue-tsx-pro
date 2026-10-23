@@ -9,7 +9,7 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { ContainerSizes } from '../layout/Container';
 import { useDefaults } from '../config/defaults';
 import { transitions } from '../utils/style/transitions';
-import { ModalCore, type ModalProps } from './Modal';
+import { ModalCore, type ModalProps } from './ModalCore';
 
 /** 对话框的宽度档位，与 Container 相同（30–80rem），另加 full 占满视口 */
 export interface DialogSizes extends ContainerSizes {

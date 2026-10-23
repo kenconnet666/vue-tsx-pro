@@ -43,6 +43,7 @@ import { toElement } from '../utils/dom/element';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { childNodes } from '../utils/data/text';
 import {
+  hasContent,
   defaultLabelledBy,
   mergeAttrs,
   mergePartProps,
@@ -677,10 +678,10 @@ function renderGroup(
     <div
       {...mergeAttrs<'div'>({}, rest, {
         role: 'group',
-        'aria-labelledby': label != null ? labelId : undefined,
+        'aria-labelledby': hasContent(label) ? labelId : undefined,
       })}
     >
-      {label != null && (
+      {hasContent(label) && (
         <Text
           {...mergePartProps<TextProps>(
             { tone: 'muted', size: 'sm', sx: menuStyles.groupLabel },

@@ -8,7 +8,7 @@ import { Descriptions } from '../Descriptions';
 import { ItemList, ItemListItem } from '../ItemList';
 import { ProportionBar } from '../ProportionBar';
 import { Stat, StatGroup } from '../Stat';
-import { StatusDot } from '../StatusDot';
+import { StatusDot } from '../../base/StatusDot';
 
 describe('StatusDot', () => {
   it('没有 label 时是装饰（aria-hidden）；有 label 时是一张图，读屏念 label', () => {

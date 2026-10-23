@@ -15,7 +15,7 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { useFieldControl } from '../form/Field';
 
@@ -219,7 +219,7 @@ export const FileDrop = _component(
               <span {...mergeAttrs<'span'>({ sx: fileDropStyles.hint }, propsHint)}>
                 {lang.fileDrop}
               </span>
-              {description != null && (
+              {hasContent(description) && (
                 <span {...mergeAttrs<'span'>({ sx: fileDropStyles.description }, propsDescription)}>
                   {description}
                 </span>

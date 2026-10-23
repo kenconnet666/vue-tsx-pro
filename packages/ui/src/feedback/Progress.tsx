@@ -15,7 +15,7 @@ import { useId, type VNodeChild } from 'vue';
 import { Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
 import { useFormat } from '../config/lang/format';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/number';
 import { compareNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -189,7 +189,7 @@ export const Progress = _component(
                 // 有外层时字号档位放在外层，标签行一起缩放
                 !header && look.size && fontSizeStyles[look.size],
               ],
-              'aria-labelledby': label != null ? labelId : undefined,
+              'aria-labelledby': hasContent(label) ? labelId : undefined,
             },
             rest,
             {
@@ -237,7 +237,7 @@ export const Progress = _component(
               propsHeader,
             )}
           >
-            {label != null && (
+            {hasContent(label) && (
               <Text {...mergePartProps<TextProps>({}, propsLabel, { id: labelId })}>{label}</Text>
             )}
             {determinate && (showValueLabel ?? true) && (

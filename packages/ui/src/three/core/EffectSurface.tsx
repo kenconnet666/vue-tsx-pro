@@ -13,7 +13,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { mergeAttrs, mergePartProps, type PartProps } from '../../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../../utils/props';
 import type { ThreeQuality } from './quality';
 import type { ThreeContext, ThreeSceneHandle } from './renderer';
 import { ThreeCanvas, type ThreeCanvasProps } from './ThreeCanvas';
@@ -84,7 +84,7 @@ export const EffectSurface = _component(
             propsCanvas,
           )}
         />
-        {children != null && (
+        {hasContent(children) && (
           <div {...mergeAttrs<'div'>({ sx: effectSurfaceStyles.content }, propsContent)}>
             {children}
           </div>

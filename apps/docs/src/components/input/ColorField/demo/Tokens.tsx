@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { ColorSwatch, Grid } from '@vue-tsx-pro/ui';
+import { Grid } from '@vue-tsx-pro/ui';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { ColorSwatch } from '@vue-tsx-pro/ui/docs-kit';
 
 const tokens = [
   'accent',

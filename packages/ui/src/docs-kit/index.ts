@@ -14,6 +14,12 @@ export {
   type CodePreviewProps,
 } from './CodePreview';
 export {
+  ColorSwatch,
+  colorSwatchDynamicStyles,
+  colorSwatchStyles,
+  type ColorSwatchProps,
+} from './ColorSwatch';
+export {
   PropsTable,
   propsTableStyles,
   type ApiProp,

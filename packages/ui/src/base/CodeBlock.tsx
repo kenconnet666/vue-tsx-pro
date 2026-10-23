@@ -17,7 +17,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useConfig, useLang } from '../config/context';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
@@ -311,7 +311,7 @@ export const CodeBlock = _component(
       );
       return (
         <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.wrapper }, propsRoot)}>
-          {title != null && (
+          {hasContent(title) && (
             <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.header }, propsHeader)}>
               <span {...mergeAttrs<'span'>({ sx: codeBlockStyles.title }, propsTitle)}>
                 {title}

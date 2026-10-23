@@ -13,7 +13,7 @@
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { paddingInlineStyles, type Space } from '../utils/style/styles';
 
 /** 条目的疏密 */
@@ -155,14 +155,14 @@ export const ItemListItem = _component(
             rest,
           )}
         >
-          {start != null && (
+          {hasContent(start) && (
             <span {...stylex.attrs(align === 'start' && itemListStyles.startAligned)}>{start}</span>
           )}
           <span {...stylex.attrs(itemListStyles.body)}>
-            {title != null && (
+            {hasContent(title) && (
               <span {...mergeAttrs<'span'>({ sx: itemListStyles.title }, propsTitle)}>{title}</span>
             )}
-            {description != null && (
+            {hasContent(description) && (
               <span {...mergeAttrs<'span'>({ sx: itemListStyles.description }, propsDescription)}>
                 {description}
               </span>

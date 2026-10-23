@@ -24,7 +24,7 @@ import { useDefaults } from '../config/defaults';
 import { mergePartProps } from '../utils/props';
 import { useDetachedDialog } from './detached';
 import { dialogPanelSx, type DialogProps } from './Dialog';
-import { ModalCore, type ModalCoreProps } from './Modal';
+import { ModalCore, type ModalCoreProps } from './ModalCore';
 
 /** 未声明的属性落到 dialog 上；确认、取消按钮的属性（onConfirm、confirmText、tone、propsConfirm…）同 Dialog */
 export interface AlertDialogProps extends Omit<

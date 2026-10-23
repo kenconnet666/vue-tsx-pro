@@ -17,7 +17,7 @@ import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
-import { defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';
+import { hasContent, defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
@@ -248,7 +248,7 @@ export const Radio = _component(
               )}
             />
           </span>
-          {children != null && (
+          {hasContent(children) && (
             <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
           )}
         </label>

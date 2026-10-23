@@ -14,7 +14,7 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** Empty 的外观选项：可以在 ComponentDefaults 里统一设置 */
@@ -96,12 +96,12 @@ export const Empty = _component(
               )}
             />
           )}
-          {title != null && (
+          {hasContent(title) && (
             <Text {...mergePartProps<TextProps>({ sx: emptyStyles.title }, propsTitle)}>
               {title}
             </Text>
           )}
-          {description != null && (
+          {hasContent(description) && (
             <Paragraph
               {...mergePartProps<TextProps>({ sx: emptyStyles.description }, propsDescription)}
             >
@@ -109,7 +109,7 @@ export const Empty = _component(
             </Paragraph>
           )}
           {children}
-          {action != null && (
+          {hasContent(action) && (
             <div {...mergeAttrs<'div'>({ sx: emptyStyles.action }, propsAction)}>{action}</div>
           )}
         </div>

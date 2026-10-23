@@ -12,7 +12,7 @@ import type { StyleXVar } from '@vue-tsx-pro/tsx/stylex';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { useConfig } from '../config/context';
 import { readToken } from '../config/theme/theme';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 
 /** 未声明的属性落到外层 div 上 */
@@ -89,7 +89,7 @@ export const ColorSwatch = _component(
               })}
             />
           </div>
-          {label != null && (
+          {hasContent(label) && (
             <span {...mergeAttrs<'span'>({ sx: colorSwatchStyles.label })}>{label}</span>
           )}
           {shown !== false && shown !== '' && (

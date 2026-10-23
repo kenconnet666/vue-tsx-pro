@@ -18,7 +18,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { clamp } from '../utils/data/number';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 描述列表里的一项 */
@@ -154,7 +154,7 @@ export const Descriptions = _component(
         )}
         data-layout={layout}
       >
-        {title != null && (
+        {hasContent(title) && (
           <div {...mergeAttrs<'div'>({ sx: descriptionsStyles.title }, propsTitle)}>{title}</div>
         )}
         <dl

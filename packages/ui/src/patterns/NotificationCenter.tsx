@@ -28,10 +28,10 @@ import { Switch } from '../input/Switch';
 import { ToggleGroup, ToggleItem } from '../input/ToggleGroup';
 import { Popover, type PopoverProps } from '../overlay/Popover';
 import { useRouterLink } from '../utils/dom/link';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
-import { StatusDot } from '../display/StatusDot';
+import { StatusDot } from '../base/StatusDot';
 import { Empty } from '../feedback/Empty';
 
 /** 一条通知 */
@@ -282,7 +282,7 @@ export const NotificationCenter = _component(
             ))}
           </ul>
         )}
-        {footer != null && <div {...stylex.attrs(notificationCenterStyles.foot)}>{footer}</div>}
+        {hasContent(footer) && <div {...stylex.attrs(notificationCenterStyles.foot)}>{footer}</div>}
       </Popover>
     );
   },

@@ -20,7 +20,14 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ColorField, ColorSwatch } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports={
+      "import { ColorField } from '@vue-tsx-pro/ui';\n" +
+      "import { ColorSwatch } from '@vue-tsx-pro/ui/docs-kit';"
+    }
+  >
     <Examples>
       <ExampleColumn>
         <Example id="brand" title="品牌配色" demo={Brand}>

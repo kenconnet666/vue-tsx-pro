@@ -61,7 +61,7 @@ it('生成的代码：和默认值相同的不写，图标写导入名', () => {
 
 it('子路径的组件从它的入口导入，内容里用到的主入口组件另写一行', () => {
   const code = componentCode({
-    name: 'PageHeader',
+    name: 'FilterBar',
     entry: '@vue-tsx-pro/ui/patterns',
     controls: [],
     values: {},
@@ -70,5 +70,5 @@ it('子路径的组件从它的入口导入，内容里用到的主入口组件�
     imports: ['Button'],
   });
   expect(code).toContain("import { Button } from '@vue-tsx-pro/ui';");
-  expect(code).toContain("import { PageHeader } from '@vue-tsx-pro/ui/patterns';");
+  expect(code).toContain("import { FilterBar } from '@vue-tsx-pro/ui/patterns';");
 });

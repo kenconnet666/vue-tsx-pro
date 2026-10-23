@@ -95,6 +95,14 @@ export {
 } from './base/List';
 export { Mark, markStyles, type MarkProps } from './base/Mark';
 export { Spinner, spinnerStyles, type SpinnerProps } from './base/Spinner';
+export {
+  StatusDot,
+  statusDotDynamicStyles,
+  statusDotStyles,
+  statusDotToneStyles,
+  type StatusDotProps,
+  type StatusDotSizes,
+} from './base/StatusDot';
 export { Tag, tagStyles, type TagProps } from './base/Tag';
 export {
   createText,
@@ -283,12 +291,6 @@ export {
 export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 export {
-  ColorSwatch,
-  colorSwatchDynamicStyles,
-  colorSwatchStyles,
-  type ColorSwatchProps,
-} from './display/ColorSwatch';
-export {
   Descriptions,
   descriptionsGridStyles,
   descriptionsStyles,
@@ -327,14 +329,6 @@ export {
   type StatManaged,
   type StatProps,
 } from './display/Stat';
-export {
-  StatusDot,
-  statusDotDynamicStyles,
-  statusDotStyles,
-  statusDotToneStyles,
-  type StatusDotProps,
-  type StatusDotSizes,
-} from './display/StatusDot';
 export {
   Timeline,
   timelineStyles,
@@ -498,7 +492,7 @@ export {
   type ModalCoreProps,
   type ModalManaged,
   type ModalProps,
-} from './overlay/Modal';
+} from './overlay/ModalCore';
 export {
   Popover,
   popoverStyles,

@@ -13,7 +13,7 @@ import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { SkeletonText, type SkeletonTextProps } from '../feedback/SkeletonText';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
 import { radiusStyles, type Radius, type Space } from '../utils/style/styles';
 
@@ -188,7 +188,7 @@ export const Card = _component(
               children
             )}
           </div>
-          {footer != null && (
+          {hasContent(footer) && (
             <div {...mergeAttrs<'div'>({ sx: [cardStyles.footer, space] }, propsFooter)}>
               {footer}
             </div>

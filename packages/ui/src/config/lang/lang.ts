@@ -376,7 +376,7 @@ export interface LangMessages {
   readonly docsKit: DocsKitMessages;
   /** 流程组件 FlowDiagram、WorkflowTimeline、ApprovalActions */
   readonly workflow: WorkflowMessages;
-  /** 页面组合（@vue-tsx-pro/ui/patterns）：AppShell、PageHeader、FilterBar、NotificationCenter、KanbanBoard… */
+  /** 页面组合（@vue-tsx-pro/ui/patterns）：AppShell、FilterBar、NotificationCenter、KanbanBoard… */
   readonly patterns: PatternsMessages;
 }
 

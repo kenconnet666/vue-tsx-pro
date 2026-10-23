@@ -9,7 +9,7 @@ import type { ContainerSizes } from '../layout/Container';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
 import { ResizeHandle, type ResizeHandleProps } from '../layout/ResizeHandle';
-import { ModalCore, type ModalProps } from './Modal';
+import { ModalCore, type ModalProps } from './ModalCore';
 
 /** 抽屉从哪一侧滑入；start / end 是逻辑方向，从右到左排版下左右互换 */
 export interface DrawerSides {

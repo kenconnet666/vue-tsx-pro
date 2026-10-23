@@ -15,7 +15,7 @@ import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { compareNumeric, numericText, toNumber, type NumericValue } from '../utils/data/numeric';
 import { useTween, type TweenOptions } from '../utils/motion/tween';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toneStyles, type Tone } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 span 上；原生的 prefix 属性（RDFa）让给前缀内容 */
@@ -118,7 +118,7 @@ export const AnimatedNumber = _component(
           )}
           data-trend={trend ? direction : undefined}
         >
-          {prefix != null && <span {...mergeAttrs<'span'>({}, propsPrefix)}>{prefix}</span>}
+          {hasContent(prefix) && <span {...mergeAttrs<'span'>({}, propsPrefix)}>{prefix}</span>}
           <span
             {...mergeAttrs<'span'>({}, propsValue, {
               'aria-hidden': true,
@@ -130,7 +130,7 @@ export const AnimatedNumber = _component(
           <VisuallyHidden {...mergePartProps<VisuallyHiddenProps>({}, propsLabel)}>
             {text(value)}
           </VisuallyHidden>
-          {suffix != null && <span {...mergeAttrs<'span'>({}, propsSuffix)}>{suffix}</span>}
+          {hasContent(suffix) && <span {...mergeAttrs<'span'>({}, propsSuffix)}>{suffix}</span>}
         </span>
       );
     };

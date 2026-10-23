@@ -12,7 +12,7 @@ import type { VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { Code } from '../base/Code';
 import { useMessages } from '../config/lang/messages';
-import { mergeAttrs, mergePartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps } from '../utils/props';
 import {
   Table,
   TableBody,
@@ -115,7 +115,7 @@ export const PropsTable = _component(({ props, caption, ...rest }: PropsTablePro
   const messages = useMessages('docsKit', docsKitMessages);
   return () => (
     <Table {...mergePartProps<TableProps>({ density: 'compact' }, rest)}>
-      {caption != null && <TableCaption>{caption}</TableCaption>}
+      {hasContent(caption) && <TableCaption>{caption}</TableCaption>}
       <TableHead>
         <TableRow>
           <TableHeaderCell sx={propsTableStyles.head}>{messages.name}</TableHeaderCell>

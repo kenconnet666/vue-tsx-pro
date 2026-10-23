@@ -1,13 +1,11 @@
 /**
- * 页面组合（AppShell、PageHeader、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher）自带的文案：
+ * 页面组合（AppShell、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher）自带的文案：
  * 中文与英文各一份，可以在 createUi 的 lang.messages.patterns 里按字段改写（见 config/lang/messages.ts）
  */
 import type { MessageTable } from '../config/lang/messages';
 
 /** 页面组合的文案 */
 export interface PatternsMessages {
-  /** 返回上一级的按钮名称（页头的返回），默认“返回” */
-  readonly back: string;
   /** 查询栏的查询按钮，默认“查询” */
   readonly filterSearch: string;
   /** 查询栏的重置按钮，默认“重置” */
@@ -71,7 +69,6 @@ export interface PatternsMessages {
 /** 页面组合的文案表：中文与英文，别的语言先找同语种、再用英文 */
 export const patternsMessages: MessageTable<PatternsMessages> = {
   'zh-CN': {
-    back: '返回',
     filterSearch: '查询',
     filterReset: '重置',
     filterExpand: '展开',
@@ -105,7 +102,6 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     themeLabel: '主题',
   },
   'en-US': {
-    back: 'Back',
     filterSearch: 'Search',
     filterReset: 'Reset',
     filterExpand: 'More filters',

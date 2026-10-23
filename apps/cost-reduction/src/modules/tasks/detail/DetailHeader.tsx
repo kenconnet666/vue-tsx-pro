@@ -4,9 +4,11 @@
 import { CalendarClock, CircleX, Ellipsis, FilePen, Pause, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
+  Breadcrumbs,
   Button,
   Descriptions,
   Flex,
+  H1,
   IconButton,
   Menu,
   MenuItem,
@@ -14,7 +16,6 @@ import {
   StatusBadge,
   Text,
 } from '@vue-tsx-pro/ui';
-import { PageHeader } from '@vue-tsx-pro/ui/patterns';
 import type { VNodeChild } from 'vue';
 import { dictLabel, personName } from '../../../app/master';
 import { paths } from '../../../app/paths';
@@ -66,23 +67,24 @@ export const DetailHeader = _component(
       ];
 
       return (
-        <PageHeader
-          breadcrumbs={[
-            { label: `${amount.label}台账`, href: paths.ledger(task.kind) },
-            { label: task.code },
-          ]}
-          title={task.name}
-          meta={
-            <Flex inline align="center" gap="sm" wrap>
+        <Flex direction="column" gap="sm">
+          <Breadcrumbs
+            items={[
+              { label: `${amount.label}台账`, href: paths.ledger(task.kind) },
+              { label: task.code },
+            ]}
+          />
+          {/* 标题与状态在起始边，操作在结束边；放不下时操作换到下一行 */}
+          <Flex align="center" justify="between" gap="md" wrap>
+            <Flex align="center" gap="sm" wrap>
+              <H1 size="xxl">{task.name}</H1>
               <Text mono tone="muted">
                 {task.code}
               </Text>
               <StatusBadge statuses={taskStatuses} value={task.status} />
               <StatusBadge statuses={valueStates} value={task.valueState} />
             </Flex>
-          }
-          actions={
-            <>
+            <Flex align="center" gap="sm" wrap>
               {task.status === 'realized' && missing > 0 && (
                 <Small tone="muted">关闭三材料缺 {missing} 项，补齐后可以关闭</Small>
               )}
@@ -139,16 +141,15 @@ export const DetailHeader = _component(
                   </MenuItem>
                 )}
               </Menu>
-            </>
-          }
-        >
+            </Flex>
+          </Flex>
           {/* 关键信息：一行排开，放不下换行 */}
           <Descriptions
             layout="inline"
             size="sm"
             items={facts.map(([label, value]) => ({ label, value }))}
           />
-        </PageHeader>
+        </Flex>
       );
     },
 );

@@ -50,22 +50,27 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 阶段 0：整理（只动结构与登记，不加功能）
 
-- [ ] 子路径只在 package.json 的 `exports` 里登记：Vite 的构建入口、`pnpm exports`、文档站的 API 表都从它读；
-      `pnpm exports` 同时生成各子路径的 index.ts（保留文件开头的说明），名字在所有入口里全局唯一
-- [ ] `pnpm layers:check`（进 `pnpm check` 与 CI）
-- [ ] `@vue-tsx-pro/ui/patterns`（页面组合）：AppShell（Brand 并入）、PageHeader、ActionBar、FilterBar、NotificationCenter、
-      KanbanBoard、DeadlineBadge（原 DeadlineTag，底层是 Badge）、ThemeSwitcher、useFormDialog；文档站加“页面组合”分类（表格之后）
-- [ ] `@vue-tsx-pro/ui/workflow`：流程定义、校验、排布、运行时与 FlowDiagram、WorkflowTimeline、ApprovalActions；
-      ApprovalActions 改用 useFormDialog（加上传字段），不再自己拼对话框
-- [ ] `@vue-tsx-pro/ui/effects`：BorderBeam、SpotlightCard、TiltCard、Marquee（不依赖 three，与 `/three` 分开）；
-      删除 SlideVerify（真正的验证在服务端，只有演示站在用）
-- [ ] ThemeCustomizer、ThemeThumbnail 进 `/theme-customize`；ColorSwatch 进 `/docs-kit`（只有主题文档在用）
-- [ ] 小合并：Collapsible 并入 Collapse（`trigger`）；Result 建在 Empty 上；StatusDot 挪到 base；`Modal.tsx` 改名 `ModalCore.tsx`
+- [x] 子路径只在 package.json 的 `exports` 里登记：Vite 的构建入口、`pnpm exports`、文档站的 API 表与两个演练场都从它读
+      （演练场漏登记时 page-imports 测试报错）；`pnpm exports` 同时生成各子路径的 index.ts（保留开头的说明），名字在所有入口里全局唯一；
+      `pnpm move` 挪完自动改应用里的入口导入（entry-imports.mjs）；文档页顶部的导入文字由 page-imports 测试检查
+- [x] `pnpm layers:check`（进 `pnpm check` 与 CI）
+- [x] `@vue-tsx-pro/ui/patterns`（页面组合）：AppShell（Brand 并入为 AppShellBrand）、ActionBar、FilterBar、NotificationCenter、
+      KanbanBoard、DeadlineBadge（原 DeadlineTag）、ThemeSwitcher、useFormDialog；文案进 patternsMessages；文档站加“页面组合”分类。
+      PageHeader 删除（占一整块却没几项信息，页面里直接用 Breadcrumbs、标题与操作排）
+- [x] `@vue-tsx-pro/ui/workflow`：流程定义、校验、排布、运行时与 FlowDiagram、ApprovalActions、useWorkflowTimeline。
+      WorkflowTimeline 并进 Timeline：流转记录由 useWorkflowTimeline 写成 Timeline 的各项，Timeline 加 `reverse`（新的在前）
+- [x] 对话框的 onConfirm（Dialog、Drawer、AlertDialog 共用“取消 / 确认”、等待与失败留着）：AlertDialog、useFormDialog、
+      ApprovalActions 改用它（取代原计划的“ApprovalActions 改用 useFormDialog”：业务字段与附件放不进 useFormDialog 的字符串字段）
+- [x] `@vue-tsx-pro/ui/effects`：BorderBeam、SpotlightCard、TiltCard、Marquee；删除 SlideVerify
+- [x] ThemeCustomizer、ThemeThumbnail 与主题定制的工具收成 `theme-customize/` 目录；ColorSwatch 进 `/docs-kit`
+- [x] StatusDot 挪到 base；`Modal.tsx` 改名 `ModalCore.tsx`；内容判断统一用 hasContent（36 处 `!= null`）。
+      决定保留：Collapsible 不并入 Collapse（一个是动效原件、一个是 Disclosure 模式，合并后 Collapse 有两种根结构）；
+      Result 不建在 Empty 上（会吃到 defaults.Empty 的尺寸，重复的只是几十行排版）
 - [ ] 测试按组件拆对（`Descriptions.test` 里的 Timeline、`Tabs.test` 里的 Steps / Toolbar / ToggleGroup），host-demo 的 `pilot.*` 改名
-- [ ] 文档页补齐 FormSection、ModalCore、ActionBar；挪过的组件逐页在 Chrome 里看示例、补示例
+- [ ] 文档页补齐 FormSection、ModalCore（ActionBar、useFormDialog 已补）；挪过的组件逐页在 Chrome 里看示例、补示例
 - [ ] COMPONENTS.md §7 写上分层与目录、§8 完成标准按现状修订（宿主示例 → 文档站示例 + axe；类型测试只要求泛型与可绑定值的组件）；
       PLAN §2、HANDOFF 同步；审查报告标上已修
-- [ ] 降本案例跟着改导入与用法，CI 通过
+- [x] 降本案例跟着改导入与用法，不报错（暂停期间只保证这一点）
 
 ## 阶段 1：基础设施（后面阶段要用的工具先铺好）
 
@@ -117,7 +122,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 - [ ] Image 与 Lightbox（缩放、旋转、拖动）→ Upload 的图片墙（预览、排序、粘贴）
 - [ ] Descriptions 的自适应列与复制
-- [ ] Timeline 升级：操作人、折叠、倒序、项里放字段差异
+- [ ] Timeline 升级：操作人、折叠、项里放字段差异（倒序 `reverse` 已有）
 - [ ] FieldCompare（建在 diffFields 上）、CommentThread 与 Mentions（patterns）
 - [ ] FlowDesigner（workflow：流程图上选节点，属性面板改处理人、时限、超时、提醒，校验后发布）
 

@@ -26,7 +26,7 @@ import { Icon, type IconData } from '../base/Icon';
 import type { NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
 import { toneStyles, type Tone } from '../utils/style/typography';
 import type { NumericValue } from '../utils/data/numeric';
@@ -301,15 +301,15 @@ export const Stat = _component(
               )}
             </dd>
           )}
-          {description != null && (
+          {hasContent(description) && (
             <dd {...mergeAttrs<'dd'>({ sx: statStyles.description }, propsDescription)}>
               {description}
             </dd>
           )}
-          {children != null && (
+          {hasContent(children) && (
             <dd {...mergeAttrs<'dd'>({ sx: statStyles.body }, propsBody)}>{children}</dd>
           )}
-          {footer != null && (
+          {hasContent(footer) && (
             <dd {...mergeAttrs<'dd'>({ sx: statStyles.footer }, propsFooter)}>{footer}</dd>
           )}
         </dl>

@@ -202,7 +202,7 @@ export const Alert = _component(
               </div>
             )}
           </div>
-          {action != null && (
+          {hasContent(action) && (
             <div {...mergeAttrs<'div'>({ sx: alertStyles.action }, propsAction)}>{action}</div>
           )}
           {onClose && (

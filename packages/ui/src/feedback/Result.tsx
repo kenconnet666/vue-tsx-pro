@@ -13,7 +13,7 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import {
   fontSizeStyles,
@@ -130,7 +130,7 @@ export const Result = _component(
               )}
             />
           )}
-          {title != null && (
+          {hasContent(title) && (
             <Text
               {...mergePartProps<TextProps>(
                 { sx: [resultStyles.title, relativeFontSizeStyles.xl] },
@@ -140,7 +140,7 @@ export const Result = _component(
               {title}
             </Text>
           )}
-          {description != null && (
+          {hasContent(description) && (
             <Paragraph
               {...mergePartProps<TextProps>({ sx: resultStyles.description }, propsDescription)}
             >
@@ -148,7 +148,7 @@ export const Result = _component(
             </Paragraph>
           )}
           {children}
-          {action != null && (
+          {hasContent(action) && (
             <div {...mergeAttrs<'div'>({ sx: resultStyles.action }, propsAction)}>{action}</div>
           )}
         </div>

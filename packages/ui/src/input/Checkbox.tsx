@@ -21,7 +21,13 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { useFieldControl } from '../form/Field';
-import { defaultLabelledBy, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import {
+  hasContent,
+  defaultLabelledBy,
+  mergeAttrs,
+  mergePartProps,
+  type PartProps,
+} from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { toggleSelection } from '../utils/data/selection';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -200,7 +206,7 @@ export const Checkbox = _component(
               )}
             />
           </span>
-          {children != null && (
+          {hasContent(children) && (
             <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
           )}
         </label>

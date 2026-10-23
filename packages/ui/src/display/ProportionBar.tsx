@@ -20,7 +20,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
-import { StatusDot, statusDotToneStyles } from './StatusDot';
+import { StatusDot, statusDotToneStyles } from '../base/StatusDot';
 
 /** 比例条的一段 */
 export interface ProportionSegment {

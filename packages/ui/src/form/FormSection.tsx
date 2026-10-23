@@ -26,7 +26,7 @@ import { Text, type TextProps } from '../base/Text';
 import { space } from '../config/theme/tokens.stylex';
 import { Collapse, type CollapseProps } from '../display/Collapse';
 import { provideGridColumns } from '../layout/Grid';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import { layoutVars } from '../utils/style/vars.stylex';
 import { provideFieldLayout, type FieldLayout } from './field-layout';
@@ -220,22 +220,22 @@ export const FormSection = _component(
       return (
         <div
           {...mergeAttrs<'div'>({ sx: formSectionStyles.root }, rest, {
-            role: title != null ? 'group' : undefined,
-            'aria-labelledby': title != null ? ids.title : undefined,
-            'aria-describedby': description != null ? ids.description : undefined,
+            role: hasContent(title) ? 'group' : undefined,
+            'aria-labelledby': hasContent(title) ? ids.title : undefined,
+            'aria-describedby': hasContent(description) ? ids.description : undefined,
           })}
           data-state={collapsible ? state : undefined}
         >
           {(title != null || extra != null) && (
             <div {...mergeAttrs<'div'>({ sx: formSectionStyles.header }, propsHeader)}>
               <div {...stylex.attrs(formSectionStyles.headerText)}>
-                {title != null &&
+                {hasContent(title) &&
                   h(
                     `h${headingLevel}`,
                     mergeAttrs<'h3'>({ sx: formSectionStyles.heading }, propsHeading),
                     [titleContent],
                   )}
-                {description != null && (
+                {hasContent(description) && (
                   <Text
                     {...mergePartProps<TextProps>(
                       { tone: 'muted', sx: formSectionStyles.description },
@@ -247,7 +247,7 @@ export const FormSection = _component(
                   </Text>
                 )}
               </div>
-              {extra != null && (
+              {hasContent(extra) && (
                 <div {...mergeAttrs<'div'>({ sx: formSectionStyles.extra }, propsExtra)}>
                   {extra}
                 </div>

@@ -29,7 +29,7 @@ import {
   yearsOfDecade,
 } from '../utils/data/date';
 import { isRtl } from '../utils/dom/direction';
-import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -560,7 +560,7 @@ export const CalendarView = _component(
           {/* 翻页、换视图时播报新的标题；不放在标题按钮上，免得聚焦按钮时重复念 */}
           <VisuallyHidden aria-live="polite">{months.map(title).join('，')}</VisuallyHidden>
           {calendar.anchor && <VisuallyHidden id={hintId}>{lang.calendarPickEnd}</VisuallyHidden>}
-          {footer != null && (
+          {hasContent(footer) && (
             <div {...mergeAttrs<'div'>({ sx: calendarStyles.footer }, propsFooter)}>{footer}</div>
           )}
         </div>
