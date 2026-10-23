@@ -373,6 +373,16 @@ export const DataTable = _component(
       );
     }
 
+    /**
+     * 能拖动时行的属性：使用方的 propsRow 加上拖动要的属性。在 setup 里建一次（函数不变，行的 memo 才有效）；
+     * 里面读的拖动状态由各行的渲染跟踪，被拖的行照样更新
+     */
+    const rowPropsWithHandle = (row: T, index: number) =>
+      mergeAttrs<'tr'>({}, typeof propsRow === 'function' ? propsRow(row, index) : propsRow, {
+        ...sortable.itemProps(models[index]!.key),
+        sx: sortable.active === models[index]!.key ? dataTableStyles.rowDragging : undefined,
+      });
+
     /** 第一个数据列前面：拖动的把手，再是使用方的 leading */
     function renderLeading(row: DataTableRowModel<T>, index: number) {
       return (
@@ -477,20 +487,8 @@ export const DataTable = _component(
               hiddenColumns,
               onColumnAction,
               leading: reorderable() ? renderLeading : leading,
-              propsRow: (row: T, index: number) =>
-                mergeAttrs<'tr'>(
-                  {},
-                  typeof propsRow === 'function' ? propsRow(row, index) : propsRow,
-                  reorderable()
-                    ? {
-                        ...sortable.itemProps(models[index]!.key),
-                        sx:
-                          sortable.active === models[index]!.key
-                            ? dataTableStyles.rowDragging
-                            : undefined,
-                      }
-                    : {},
-                ),
+              // 不拖动时原样交给行：每次新建的函数会让各行的 memo 失效，勾选一行全部重渲染
+              propsRow: reorderable() ? rowPropsWithHandle : propsRow,
               ...({ 'data-table': tableMarker } as Partial<DataTableViewProps<T>>),
               cellNavigation: cellNavigation ?? columns.some((column) => column.editable),
               editing: editing && { row: editing.row, column: editing.column },
