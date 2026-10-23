@@ -59,7 +59,12 @@ export interface DateFieldProps<V extends DateInput = string>
   isTimeUnavailable?: (time: string, value: Time, date: string) => boolean;
 }
 
-const hasTime = (granularity: DateFieldGranularity) =>
+/** 粒度 → 日历的粒度：年、月照搬，到日及以下都按日（选日期、比较范围） */
+export const dateUnitOf = (granularity: DateFieldGranularity): DateUnit =>
+  granularity === 'year' || granularity === 'month' ? granularity : 'day';
+
+/** 精确到时、分、秒：值是日期加时间 */
+export const isTimeGranularity = (granularity: DateFieldGranularity) =>
   granularity === 'hour' || granularity === 'minute' || granularity === 'second';
 
 /** ISO 日期时间统一到秒（'2026-10-20T14:30' → '2026-10-20T14:30:00'），去掉时区后缀：按字符串比较就是按时间先后 */
@@ -70,15 +75,15 @@ const toSeconds = (iso: string) => (iso.length >= 19 ? iso.slice(0, 19) : `${iso
  * 那一整天都可选，只按日期比较
  */
 function timeBound(limit: DateInput | undefined, granularity: DateFieldGranularity) {
-  if (limit == null || !hasTime(granularity)) return null;
+  if (limit == null || !isTimeGranularity(granularity)) return null;
   if (typeof limit === 'string') return limit.includes('T') ? toSeconds(limit) : null;
   return 'hour' in limit ? toSeconds(valueToIso(limit, granularity)) : null;
 }
 
 /** 值 → 分段输入用的 ISO 字符串（形式随 granularity） */
-function valueToIso(value: DateInput, granularity: DateFieldGranularity): string {
+export function valueToIso(value: DateInput, granularity: DateFieldGranularity): string {
   if (typeof value === 'string') return value;
-  if (hasTime(granularity)) {
+  if (isTimeGranularity(granularity)) {
     return toIsoDateTime(toCalendarDateTime(value), granularity === 'second');
   }
   const day = toIsoDate(value);
@@ -86,14 +91,14 @@ function valueToIso(value: DateInput, granularity: DateFieldGranularity): string
 }
 
 /** 分段输入填好的 ISO 字符串 → 和 like 同一种类型的值 */
-function isoToValue(
+export function isoToValue(
   iso: string,
   like: DateInput | undefined,
   granularity: DateFieldGranularity,
   valueType: keyof DateValueTypes = 'iso',
 ): DateInput {
   if (typeof like === 'string' || (like == null && valueType === 'iso')) return iso;
-  const parsed: CalendarDate | CalendarDateTime = hasTime(granularity)
+  const parsed: CalendarDate | CalendarDateTime = isTimeGranularity(granularity)
     ? parseIsoDateTime(iso)!
     : parseIsoDate(fullIsoDay(iso))!;
   if (like == null) return parsed;
@@ -119,18 +124,16 @@ export const DateField = _component(
   }: DateFieldProps<V>) => {
     const locale = useDateLocale();
     const limits = _derived(toDateLimits(locale, { min, max, isDateUnavailable }));
-    const unit = (): DateUnit =>
-      granularity === 'year' || granularity === 'month' ? granularity : 'day';
     // 先按日期比较（含不可选的日期）；min / max 带时间时，同一天里再比时分秒
     const outOfRange = (iso: string) => {
       const date = locale.fromValue(fullIsoDay(iso));
       if (date == null) return false;
-      if (isDateDisabled(date, limits, unit())) return true;
+      if (isDateDisabled(date, limits, dateUnitOf(granularity))) return true;
       const low = timeBound(min, granularity);
       const high = timeBound(max, granularity);
-      const at = hasTime(granularity) ? toSeconds(iso) : '';
+      const at = isTimeGranularity(granularity) ? toSeconds(iso) : '';
       if ((low != null && at < low) || (high != null && at > high)) return true;
-      const time = hasTime(granularity) ? parseIsoTime(iso.slice(11)) : null;
+      const time = isTimeGranularity(granularity) ? parseIsoTime(iso.slice(11)) : null;
       return (
         time != null && (isTimeUnavailable?.(toIsoTime(time), time, iso.slice(0, 10)) ?? false)
       );

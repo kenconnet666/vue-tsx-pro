@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import { calendarKeys, pickerKeys, segmentKeys } from '../keyboard';
+import Periods from './demo/Periods.tsx?demo';
 import Report from './demo/Report.tsx?demo';
 import States from './demo/States.tsx?demo';
 
@@ -33,6 +34,12 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
+        <Example id="periods" title="按月、按年与日期时间" demo={Periods}>
+          <Code>granularity</Code> 同 DateField：<Code>month</Code>、<Code>year</Code> 时两端是{' '}
+          <Code>'2026-01'</Code>、<Code>'2026'</Code>，日历按月、按年选整段；快捷区间截成月、年。到{' '}
+          <Code>minute</Code> 时是日期时间区间：日历里选日期，开始补 00:00、结束补
+          23:59（已经填了的时间不变），选好后焦点去开始的“时”接着输入。
+        </Example>
         <Example id="states" title="跨过不可选的日期与状态" demo={States}>
           默认区间里不能夹着不可选的日期；<Code>allowsUnavailableInRange</Code>{' '}
           允许跨过它们（请假只能从工作日起止，但可以跨周末）。<Code>visibleMonths</Code>{' '}

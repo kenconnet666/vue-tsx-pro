@@ -7,6 +7,7 @@ import { todayIso } from '../../utils/data/date';
 import { mount } from '../../utils/.test/mount';
 import { DatePicker } from '../DatePicker';
 import { DateField } from '../DateField';
+import { RangeCalendar } from '../RangeCalendar';
 import { DateRangePicker } from '../DateRangePicker';
 import { TimeField } from '../TimeField';
 import { TimePicker } from '../TimePicker';
@@ -150,5 +151,68 @@ describe('不可选的时间', () => {
       '12:30:true',
       '13:00:false',
     ]);
+  });
+});
+
+describe('按月、按年与日期时间的区间', () => {
+  const cell = (date: string) =>
+    document.querySelector<HTMLButtonElement>(
+      `[role="dialog"] [data-date="${date}"], [data-date="${date}"]`,
+    )!;
+
+  it('RangeCalendar 按月选：写回整月（开始那月的 1 日到结束那月的最后一天）', async () => {
+    let range = _state<DateRange<string> | null>({ start: '2026-01-01', end: '2026-01-31' });
+    mount(() => <RangeCalendar value={_bind(range)} granularity="month" aria-label="预算期间" />);
+    await flush();
+    cell('2026-03-01').click();
+    await flush();
+    cell('2026-05-01').click();
+    await flush();
+    expect(range).toEqual({ start: '2026-03-01', end: '2026-05-31' });
+  });
+
+  it('DateRangePicker 按月：值是 YYYY-MM；快捷区间截成月', async () => {
+    let range = _state<DateRange<string> | null>(null);
+    let open = _state(true);
+    const root = mount(() => (
+      <DateRangePicker
+        value={_bind(range)}
+        open={_bind(open)}
+        granularity="month"
+        presets={[{ label: '上半年', value: { start: '2026-01-01', end: '2026-06-30' } }]}
+        aria-label="预算期间"
+      />
+    ));
+    await flush();
+    // 两组分段都只有年、月
+    expect(root.querySelectorAll('[data-type="day"]')).toHaveLength(0);
+    cell('2026-02-01').click();
+    await flush();
+    cell('2026-04-01').click();
+    await flush();
+    expect(range).toEqual({ start: '2026-02', end: '2026-04' });
+    open = true;
+    await flush();
+    button('上半年').click();
+    await flush();
+    expect(range).toEqual({ start: '2026-01', end: '2026-06' });
+  });
+
+  it('DateRangePicker 日期时间：日历选日期，开始补 00:00、结束补 23:59，已经填了的时间不变', async () => {
+    let range = _state<DateRange<string> | null>({
+      start: '2026-10-05T08:30',
+      end: '2026-10-06T18:00',
+    });
+    mount(() => (
+      <DateRangePicker value={_bind(range)} granularity="minute" open aria-label="维护窗口" />
+    ));
+    await flush();
+    cell('2026-10-10').click();
+    await flush();
+    cell('2026-10-12').click();
+    await flush();
+    expect(range).toEqual({ start: '2026-10-10T08:30', end: '2026-10-12T18:00' });
+    range = null;
+    await flush();
   });
 });

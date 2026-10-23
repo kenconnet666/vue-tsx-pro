@@ -20,12 +20,11 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
-import { fullIsoDay, isDateDisabled, todayIso, type DateUnit } from '../utils/data/date';
+import { fullIsoDay, isDateDisabled, todayIso } from '../utils/data/date';
 import { mergePartProps, type PartProps } from '../utils/props';
 import { Calendar, type CalendarBaseProps } from './Calendar';
-import { DateField, type DateFieldProps } from './DateField';
+import { DateField, dateUnitOf, isTimeGranularity, type DateFieldProps } from './DateField';
 import { toDateLimits, useDateLocale, type DateInput } from './date-locale';
-import type { DateFieldGranularity } from './date-segments';
 import {
   focusCalendar,
   renderPickerPresets,
@@ -77,12 +76,6 @@ export const datePickerStyles = stylex.create({
   },
 });
 
-const TIME_GRANULARITIES = new Set<DateFieldGranularity>(['hour', 'minute', 'second']);
-
-/** 选择器的粒度 → 日历的粒度：年、月照搬，到日及以下都是选日期 */
-const calendarUnit = (granularity: DateFieldGranularity): DateUnit =>
-  granularity === 'year' || granularity === 'month' ? granularity : 'day';
-
 /** 日期选择器：分段输入 + 弹出的日历 */
 export const DatePicker = _component(
   <V extends DateInput>({
@@ -116,7 +109,7 @@ export const DatePicker = _component(
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }), {
       delegate: true,
     });
-    const hasTime = () => TIME_GRANULARITIES.has(granularity);
+    const hasTime = () => isTimeGranularity(granularity);
     const picker = usePickerPopover(
       () => ({
         open,
@@ -139,7 +132,7 @@ export const DatePicker = _component(
       const day = locale.fromValue(typeof input === 'string' ? fullIsoDay(input) : input);
       if (!day) return false;
       const limits = toDateLimits(locale, { min, max, isDateUnavailable });
-      return !isDateDisabled(day, limits, calendarUnit(granularity));
+      return !isDateDisabled(day, limits, dateUnitOf(granularity));
     }
     const resolve = (preset: DatePreset<V>): V =>
       typeof preset.value === 'function' ? (preset.value as () => V)() : preset.value;
@@ -218,7 +211,7 @@ export const DatePicker = _component(
                 {...propsCalendar}
                 {...{ 'onUpdate:value': pickDay }}
                 value={calendarValue as V | null}
-                granularity={calendarUnit(granularity)}
+                granularity={dateUnitOf(granularity)}
                 valueType={valueType}
                 min={min}
                 max={max}

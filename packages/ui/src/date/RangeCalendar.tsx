@@ -6,9 +6,17 @@
  * 值是 `{ start, end }`（两端都含；ISO 字符串或 DateValue，写回时保持同一种类型）；反着点也会排好序。
  * 默认区间里不能夹着不可选的日期（订满的那天）：选了开始之后，越过不可选日期的那一侧都不能再选；
  * 允许时写 allowsUnavailableInRange。选到一半按 Esc 取消。键盘与部件同 Calendar（部件见 CalendarView）。
+ * granularity 是 month / year 时按月、按年选（季度报表、跨年的预算），写回的区间是整月、整年：开始那月的 1 日到结束那月的最后一天。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import type { DateRange } from '../utils/data/date';
+import {
+  endOfMonth,
+  endOfYear,
+  startOfMonth,
+  startOfYear,
+  type CalendarDate,
+} from '@internationalized/date';
+import type { DateRange, DateUnit } from '../utils/data/date';
 import { useCalendarState } from './calendar-state';
 import { CalendarView, type CalendarViewProps } from './CalendarView';
 import {
@@ -25,6 +33,8 @@ export interface RangeCalendarProps<V extends DateInput = string>
   extends Omit<CalendarViewProps, 'calendar'>, DateLimitProps {
   /** 选中的区间（两端都含）：父级写 value={_bind(x)}；没有时 null */
   value?: DateRange<V> | null;
+  /** 选择的粒度，默认 day；month、year 时选整月、整年（写回的仍是日期：月初到月末、年初到年末） */
+  granularity?: DateUnit;
   /** 并排显示几个月，默认 1；酒店、机票常用 2 */
   visibleMonths?: number;
   /** 区间里允许夹着不可选的日期，默认 false */
@@ -46,6 +56,7 @@ export const RangeCalendar = _component(
     min,
     max,
     isDateUnavailable,
+    granularity = 'day',
     visibleMonths = 1,
     allowsUnavailableInRange = false,
     defaultFocused,
@@ -57,6 +68,15 @@ export const RangeCalendar = _component(
     ...rest
   }: RangeCalendarProps<V>) => {
     const locale = useDateLocale(() => ({ firstDayOfWeek }));
+    // 按月、按年选时，两端扩到整月、整年
+    const periodStart = (date: CalendarDate) =>
+      granularity === 'year'
+        ? startOfYear(date)
+        : granularity === 'month'
+          ? startOfMonth(date)
+          : date;
+    const periodEnd = (date: CalendarDate) =>
+      granularity === 'year' ? endOfYear(date) : granularity === 'month' ? endOfMonth(date) : date;
     const selected = _derived.by(() => {
       const start = locale.fromValue(value?.start);
       const end = locale.fromValue(value?.end);
@@ -70,12 +90,13 @@ export const RangeCalendar = _component(
       selected: () => selected,
       onChange: ([start, end]) => {
         lastLike = value?.start ?? lastLike;
-        const write = (date: typeof start) => writeDateLike(date!, lastLike, valueType) as V;
-        const range = { start: write(start), end: write(end) };
+        const write = (date: CalendarDate) => writeDateLike(date, lastLike, valueType) as V;
+        const range = { start: write(periodStart(start!)), end: write(periodEnd(end!)) };
         value = range;
         onPick?.(range);
       },
       today: () => locale.today(),
+      unit: () => granularity,
       limits: () => limits,
       week: () => locale.week,
       visibleMonths: () => visibleMonths,

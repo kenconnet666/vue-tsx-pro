@@ -856,7 +856,14 @@ export {
   type CountdownPrecisions,
   type CountdownProps,
 } from './date/Countdown';
-export { DateField, type DateFieldProps } from './date/DateField';
+export {
+  DateField,
+  dateUnitOf,
+  isoToValue,
+  isTimeGranularity,
+  valueToIso,
+  type DateFieldProps,
+} from './date/DateField';
 export {
   DatePicker,
   datePickerStyles,
