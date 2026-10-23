@@ -1,5 +1,5 @@
 // 流程图的排布（列按最长路径、往回的边走上沿、泳道的高度）；FlowDiagram 的节点状态、连线种类、点选；
-// WorkflowTimeline 的文案、色调、隐藏到达、新的在前；ApprovalActions 不要求填写的直接提交、要求的不直接提交
+// useWorkflowTimeline 写成的 Timeline 各项：文案、隐藏到达、意见与附件，Timeline 的 reverse 新的在前；ApprovalActions 不要求填写的直接提交、要求的不直接提交
 import { _component } from '@vue-tsx-pro/tsx';
 import { nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
@@ -8,7 +8,8 @@ import { ApprovalActions } from '../ApprovalActions';
 import { FlowDiagram } from '../FlowDiagram';
 import { layoutProcess } from '../layout';
 import { processProgress, type WorkflowEvent } from '../runtime';
-import { WorkflowTimeline } from '../WorkflowTimeline';
+import { Timeline } from '../../display/Timeline';
+import { useWorkflowTimeline, type WorkflowTimelineOptions } from '../timeline';
 import { negotiation } from './fixtures';
 
 describe('layoutProcess', () => {
@@ -99,7 +100,13 @@ describe('FlowDiagram', () => {
   });
 });
 
-describe('WorkflowTimeline', () => {
+/** 用 useWorkflowTimeline 写成各项，交给 Timeline（新的在前） */
+const WorkflowRecords = _component(({ events, definition, actorName }: WorkflowTimelineOptions) => {
+  const records = useWorkflowTimeline(() => ({ events, definition, actorName }));
+  return () => <Timeline items={records.value} reverse />;
+});
+
+describe('useWorkflowTimeline', () => {
   const event = (partial: Partial<WorkflowEvent>): WorkflowEvent => ({
     id: partial.id ?? Math.random().toString(),
     instanceId: 'pi-1',
@@ -117,7 +124,7 @@ describe('WorkflowTimeline', () => {
 
   it('处理写成“谁 · 节点：结果”，退回类的着黄色；意见与附件在说明里；到达不显示；新的在前', () => {
     const root = mount(() => (
-      <WorkflowTimeline
+      <WorkflowRecords
         definition={negotiation}
         actorName={(id) => ({ E1: '王晴', S1: '供应商甲' })[id] ?? id}
         events={[

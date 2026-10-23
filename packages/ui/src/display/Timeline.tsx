@@ -10,6 +10,9 @@
  *     pending="正在派送"
  *   />
  *
+ * items 按时间先后给；reverse 时新的在前（操作记录、流转记录常这样看），进行中的一项也在最前。
+ * 流程的流转记录用 `@vue-tsx-pro/ui/workflow` 的 useWorkflowTimeline 写成 items。
+ *
  * 语义是有序列表；时间用 <time>（给了 dateTime 时写上机器可读的时间）。
  * 部件：Root（ol）、Item（li）、Rail（节点与连接线所在的列）、Marker、Line（连接线）、Content、Title、Time、Description。
  */
@@ -19,7 +22,7 @@ import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
@@ -44,10 +47,12 @@ export interface TimelineItem {
 
 /** 未声明的属性落到 ol 上 */
 export interface TimelineProps extends PartProps<'ol'> {
-  /** 各项，旧的在前 */
+  /** 各项，按时间先后（旧的在前） */
   items: readonly TimelineItem[];
   /** 还在进行中：最后多一项，节点是加载指示，内容是它 */
   pending?: VNodeChild;
+  /** 新的在前：倒过来显示（进行中的一项也在最前），ol 带 reversed */
+  reverse?: boolean;
   /** 左右交替排布（时间在对侧）；窄的容器里仍是单侧 */
   alternate?: boolean;
   /** 字号档位；不写时继承 */
@@ -148,6 +153,7 @@ export const Timeline = _component(
     pending,
     alternate = false,
     size,
+    reverse = false,
     propsItem,
     propsRail,
     propsMarker,
@@ -159,10 +165,13 @@ export const Timeline = _component(
     ...rest
   }: TimelineProps) =>
     () => {
-      const all: (TimelineItem & { pending?: true })[] = [
+      const chronological: (TimelineItem & { pending?: true })[] = [
         ...items,
-        ...(pending != null ? [{ key: 'pending', title: pending, pending: true as const }] : []),
+        ...(hasContent(pending)
+          ? [{ key: 'pending', title: pending, pending: true as const }]
+          : []),
       ];
+      const all = reverse ? chronological.toReversed() : chronological;
       return (
         <FlexOrderedList
           {...mergePartProps<FlexProps<'ol'>>(
@@ -170,6 +179,7 @@ export const Timeline = _component(
             rest,
           )}
           data-alternate={alternate || undefined}
+          reversed={reverse || undefined}
         >
           {all.map((item, index) => {
             const own = typeof propsItem === 'function' ? propsItem(item, index) : propsItem;
@@ -177,7 +187,7 @@ export const Timeline = _component(
             const end = alternate && index % 2 === 1;
             // 交替排布时时间放在对侧，占一格（没有时间也占，保持三列对齐）；窄的容器里改在内容里显示
             const time = (sx: StyleXStyles) =>
-              item.time != null ? (
+              hasContent(item.time) ? (
                 <time
                   {...mergeAttrs<'time'>({ sx: [timelineStyles.time, sx] }, propsTime, {
                     datetime: item.dateTime,
@@ -238,8 +248,10 @@ export const Timeline = _component(
                   <div {...mergeAttrs<'div'>({ sx: timelineStyles.title }, propsTitle)}>
                     {item.title}
                   </div>
-                  {alternate ? item.time != null && time(timelineStyles.timeInline) : time(null)}
-                  {item.description != null && (
+                  {alternate
+                    ? hasContent(item.time) && time(timelineStyles.timeInline)
+                    : time(null)}
+                  {hasContent(item.description) && (
                     <div
                       {...mergeAttrs<'div'>({ sx: timelineStyles.description }, propsDescription)}
                     >

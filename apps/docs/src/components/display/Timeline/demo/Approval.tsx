@@ -1,9 +1,9 @@
-// 采购申请的流转记录：认领、退回修改（意见）、重新提交（附件）、催办、超时自动处理、负责人指定；
+// 采购申请的流转记录：useWorkflowTimeline 把流程事件写成各项，reverse 新的在前；
 // actorName 把工号换成姓名，renderAttachment 把附件做成链接
 import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Link } from '@vue-tsx-pro/ui';
+import { Card, Link, Timeline } from '@vue-tsx-pro/ui';
 import {
-  WorkflowTimeline,
+  useWorkflowTimeline,
   type ProcessDefinition,
   type WorkflowEvent,
 } from '@vue-tsx-pro/ui/workflow';
@@ -105,13 +105,16 @@ const events: WorkflowEvent[] = [
   }),
 ];
 
-export default _component(() => () => (
-  <Card>
-    <WorkflowTimeline
-      definition={purchase}
-      events={events}
-      actorName={(id) => people[id] ?? id}
-      renderAttachment={(name) => <Link href="#">{name}</Link>}
-    />
-  </Card>
-));
+export default _component(() => {
+  const records = useWorkflowTimeline(() => ({
+    definition: purchase,
+    events,
+    actorName: (id) => people[id] ?? id,
+    renderAttachment: (name) => <Link href="#">{name}</Link>,
+  }));
+  return () => (
+    <Card>
+      <Timeline items={records.value} reverse />
+    </Card>
+  );
+});

@@ -10,14 +10,14 @@
  */
 import { BellRing, Hand, Undo2, UserCheck, UserRoundCog } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { Alert, Button, Card, Flex, H2, Small, useRequest } from '@vue-tsx-pro/ui';
+import { Alert, Button, Card, Flex, H2, Small, Timeline, useRequest } from '@vue-tsx-pro/ui';
 import { useFormDialog } from '@vue-tsx-pro/ui/patterns';
 import {
   ApprovalActions,
   FlowDiagram,
   processProgress,
   workItemOutcomes,
-  WorkflowTimeline,
+  useWorkflowTimeline,
   type ApprovalInput,
   type ProcessOutcome,
   type WorkItem,
@@ -94,6 +94,11 @@ export const WorkflowPanel = _component(
       { params: () => [businessKey, workflowVersion()] as [string, number] },
     );
     const prompt = useFormDialog();
+    const records = useWorkflowTimeline(() => ({
+      events: trace.data?.events ?? [],
+      definition: trace.data && processOf(trace.data.instance.key),
+      actorName: personName,
+    }));
     let values = _state<WorkflowValues>({});
     const me = currentUser();
     // 轮到我处理的待办换了：业务字段回到那个节点的初始值
@@ -400,12 +405,7 @@ export const WorkflowPanel = _component(
                       </Flex>
                     );
                   })}
-                  <WorkflowTimeline
-                    size="sm"
-                    definition={definition}
-                    events={events}
-                    actorName={personName}
-                  />
+                  <Timeline size="sm" items={records.value} reverse />
                 </Flex>
               );
             }}

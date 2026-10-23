@@ -15,7 +15,6 @@ export {
   type FlowDiagramSizes,
   type FlowNodeState,
 } from './FlowDiagram';
-export { WorkflowTimeline, type WorkflowTimelineProps } from './WorkflowTimeline';
 export {
   applyProcessEffects,
   evaluateProcessCondition,
@@ -74,4 +73,9 @@ export {
   type WorkItemAssignments,
   type WorkItemStates,
 } from './runtime';
+export {
+  useWorkflowTimeline,
+  workflowTimelineStyles,
+  type WorkflowTimelineOptions,
+} from './timeline';
 export { validateProcess, type ProcessProblem, type ProcessProblemSeverities } from './validate';
