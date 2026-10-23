@@ -11,6 +11,7 @@
  */
 import { computed, ref, shallowRef, watch } from 'vue';
 import type { HourCycles } from '../config/lang/lang';
+import { isoWeeksInYear } from '../utils/data/date';
 
 /** 可以输入的段 */
 export interface DateSegmentTypes {
@@ -20,6 +21,10 @@ export interface DateSegmentTypes {
   month: unknown;
   /** 日 */
   day: unknown;
+  /** 季度（1–4） */
+  quarter: unknown;
+  /** 一年里的第几周（ISO 8601：周一开始，含 1 月 4 日的那周是第 1 周） */
+  week: unknown;
   /** 时（内部总是 0–23，12 小时制时显示 1–12） */
   hour: unknown;
   /** 分 */
@@ -70,6 +75,8 @@ export interface DateSegmentsOptions {
   placeholderValue: () => DateFieldValues;
   /** 各段的占位文字（年、月、日 / yyyy、mm、dd） */
   placeholders: () => Partial<Record<DateSegmentType, string>>;
+  /** 季度、周这两种段的排法（Intl 不排它们），如 `'{year}年第{quarter}季度'`；不写时是 `'{year}-{quarter}'` */
+  periodPatterns?: () => Partial<Record<'quarter' | 'week', string>>;
   /** 只读或不可用：不响应输入 */
   readonly?: () => boolean;
   /** 焦点要越过这组的两端时（最后一段输入满了；第一段删空后再删）：DateRangePicker 把焦点交给另一组 */
@@ -111,6 +118,8 @@ const BIG_STEPS: Record<DateSegmentType, number> = {
   year: 5,
   month: 2,
   day: 7,
+  quarter: 2,
+  week: 4,
   hour: 2,
   minute: 15,
   second: 15,
@@ -163,11 +172,26 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
 
   /** 按语言的顺序排好的段（含分隔符）：只取格式化结果的结构，值另外填 */
   const layout = computed(() => {
+    // 季度、周：Intl 不排这两种段，按语言包的排法
+    const period = config.fields().find((field) => field === 'quarter' || field === 'week');
+    if (period) {
+      const pattern = config.periodPatterns?.()[period] ?? `{year}-{${period}}`;
+      return pattern
+        .split(/(\{(?:year|quarter|week)\})/)
+        .filter(Boolean)
+        .map((part) => {
+          const field = /^\{(year|quarter|week)\}$/.exec(part)?.[1];
+          return field
+            ? { type: field as DateSegment['type'], literal: '' }
+            : { type: 'literal' as const, literal: part };
+        });
+    }
     const options: Intl.DateTimeFormatOptions = {
       hourCycle: hour12.value ? 'h12' : 'h23',
       timeZone: 'UTC',
     };
-    for (const field of config.fields()) {
+    // 到这里的只有 Intl 认识的段（季度、周在上面已经返回了）
+    for (const field of config.fields() as readonly Exclude<ValueField, 'quarter' | 'week'>[]) {
       options[field] = field === 'year' ? 'numeric' : '2-digit';
     }
     const parts = new Intl.DateTimeFormat(config.locale(), options).formatToParts(SAMPLE);
@@ -189,7 +213,11 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
   const labels = computed(() => {
     const names = new Intl.DisplayNames(config.locale(), { type: 'dateTimeField' });
     return Object.fromEntries(
-      fields.value.map((field) => [field, names.of(field) ?? field]),
+      // Intl 的字段名里周叫 weekOfYear
+      fields.value.map((field) => [
+        field,
+        names.of(field === 'week' ? 'weekOfYear' : field) ?? field,
+      ]),
     ) as Record<DateSegmentType, string>;
   });
 
@@ -220,6 +248,10 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
         return [1, 12];
       case 'day':
         return [1, daysInMonth(draft.value.year, draft.value.month)];
+      case 'quarter':
+        return [1, 4];
+      case 'week':
+        return [1, draft.value.year == null ? 53 : isoWeeksInYear(draft.value.year)];
       case 'hour':
         return hour12.value ? [1, 12] : [0, 23];
       case 'minute':
@@ -243,7 +275,8 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
     if (buffer.value && focusedSegment.value === type)
       return digits.value[1].format(Number(buffer.value));
     if (value == null) return '';
-    const width = type === 'year' ? 4 : type === 'hour' && hour12.value ? 1 : 2;
+    const width =
+      type === 'year' ? 4 : type === 'quarter' || (type === 'hour' && hour12.value) ? 1 : 2;
     return digits.value[width].format(value);
   }
 
@@ -302,8 +335,10 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
     if (complete.value) config.onChange(constrained(draft.value));
   }
 
-  // 日超过了这个月的天数（先填了 31 再把月改成 2 月）：写回时取这个月的最后一天
+  // 日超过了这个月的天数（先填了 31 再把月改成 2 月）：写回时取这个月的最后一天；周同理（这一年只有 52 周时）
   function constrained(values: DateFieldValues): DateFieldValues {
+    if (values.week != null && values.year != null)
+      return { ...values, week: Math.min(values.week, isoWeeksInYear(values.year)) };
     if (values.day == null) return values;
     return { ...values, day: Math.min(values.day, daysInMonth(values.year, values.month)) };
   }
@@ -499,6 +534,10 @@ export interface DateFieldGranularities {
   month: unknown;
   /** 年月日（默认）：'2026-10-20' */
   day: unknown;
+  /** 年与季度：'2026-Q4' */
+  quarter: unknown;
+  /** 年与周（ISO 8601，周一开始）：'2026-W43'（同原生 input type="week"） */
+  week: unknown;
   /** 日期加时：'2026-10-20T14:00' */
   hour: unknown;
   /** 日期加时分：'2026-10-20T14:30'（同原生 input type="datetime-local"） */
@@ -516,6 +555,7 @@ const ALL_FIELDS: readonly ValueField[] = ['year', 'month', 'day', 'hour', 'minu
 
 /** 日期分段：从年到 granularity；time 时只取时间的部分（TimeField） */
 export function segmentFields(granularity: DateFieldGranularity, time = false): ValueField[] {
+  if (granularity === 'quarter' || granularity === 'week') return time ? [] : ['year', granularity];
   const fields = ALL_FIELDS.slice(0, ALL_FIELDS.indexOf(granularity) + 1);
   return time
     ? fields.filter((field) => field === 'hour' || field === 'minute' || field === 'second')
@@ -526,6 +566,8 @@ const pad = (value: number, width = 2) => String(value).padStart(width, '0');
 
 /** 各段的值 → ISO 字符串（按有哪些段：'2026'、'2026-10'、'2026-10-20'、'2026-10-20T14:30'、'14:30'） */
 export function fieldsToIso(values: DateFieldValues, fields: readonly ValueField[]): string {
+  if (fields.includes('quarter')) return `${pad(values.year ?? 0, 4)}-Q${values.quarter ?? 1}`;
+  if (fields.includes('week')) return `${pad(values.year ?? 0, 4)}-W${pad(values.week ?? 1)}`;
   const date = [
     values.year != null && pad(values.year, 4),
     fields.includes('month') && pad(values.month ?? 1),
@@ -550,6 +592,13 @@ export function isoToFields(
   fields: readonly ValueField[],
 ): DateFieldValues | null {
   if (!value) return null;
+  const period = /^(\d{4})-(?:Q([1-4])|W(\d{2}))$/.exec(value);
+  if (period) {
+    const parsed: DateFieldValues = { year: Number(period[1]) };
+    if (period[2] != null) parsed.quarter = Number(period[2]);
+    if (period[3] != null) parsed.week = Number(period[3]);
+    return fields.every((field) => parsed[field] != null) ? parsed : null;
+  }
   const match = /^(?:(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?)?(?:T?(\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(
     value,
   );

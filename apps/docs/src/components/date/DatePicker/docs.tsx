@@ -41,9 +41,12 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
-        <Example id="granularity" title="年份、月份与时间" demo={Granularity}>
+        <Example id="granularity" title="年份、季度、月份、周与时间" demo={Granularity}>
           <Code>granularity</Code> 是 <Code>year</Code>、<Code>month</Code>{' '}
-          时弹出年份、月份的选择（即 YearPicker、MonthPicker）；到 <Code>minute</Code>{' '}
+          时弹出年份、月份的选择（即 YearPicker、MonthPicker）；<Code>quarter</Code>{' '}
+          弹出季度面板（值 <Code>'2026-Q4'</Code>，QuarterCalendar 也可以单独用），<Code>week</Code>{' '}
+          按 ISO 8601 的周选（值 <Code>'2026-W43'</Code>
+          ，日历周一开始、行首是周数，点哪天都是它那一周）；到 <Code>minute</Code>{' '}
           时选完日期焦点落到“时”那一段接着输入（即 DateTimePicker），没有时间时先补 00:00。
         </Example>
         <Example id="values" title="值的类型与表单提交" demo={Values}>

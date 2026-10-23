@@ -244,4 +244,27 @@ describe('TimeField', () => {
     await press('Enter');
     expect(onSubmit).toHaveBeenCalledOnce();
   });
+
+  it('季度、周：按语言包的排法显示（“2026年第4季度”），逐段输入写回 ISO 形式', async () => {
+    let quarter = _state<string | null>('2026-Q4');
+    let week = _state<string | null>(null);
+    const root = mount(() => (
+      <>
+        <DateField granularity="quarter" value={_bind(quarter)} aria-label="季度" />
+        <DateField granularity="week" value={_bind(week)} aria-label="周" />
+      </>
+    ));
+    const [quarterGroup, weekGroup] = [...root.querySelectorAll<HTMLElement>('[role="group"]')];
+    expect(quarterGroup!.textContent).toBe('2026年第4季度');
+    expect(segment(quarterGroup!, 'quarter').getAttribute('aria-valuemax')).toBe('4');
+    segment(quarterGroup!, 'quarter').focus();
+    await type('2');
+    expect(quarter).toBe('2026-Q2');
+    segment(weekGroup!, 'year').focus();
+    await type('2026');
+    await type('43');
+    expect(week).toBe('2026-W43');
+    // 2026 年只有 53 周：输入 54 时从 5 重新开始
+    expect(segment(weekGroup!, 'week').getAttribute('aria-valuemax')).toBe('53');
+  });
 });

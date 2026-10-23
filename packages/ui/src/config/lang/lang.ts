@@ -315,6 +315,10 @@ export interface Lang {
   readonly calendarPreviousYear: string;
   /** 月份视图“下一年”按钮，默认“下一年” */
   readonly calendarNextYear: string;
+  /** 季度面板的标题：`(2026)` → “2026年” */
+  readonly calendarYear: (year: number) => string;
+  /** 季度面板里一格的文字：`(4)` → “四季度” / “Q4” */
+  readonly calendarQuarter: (quarter: number) => string;
   /** 年份视图“上一个十年”按钮，默认“上一个十年” */
   readonly calendarPreviousDecade: string;
   /** 年份视图“下一个十年”按钮，默认“下一个十年” */
@@ -343,6 +347,8 @@ export interface Lang {
   readonly dateRangePresets: string;
   /** 日期选择器旁边快捷选项那一组的名称，默认“快捷选项” */
   readonly datePickerPresets: string;
+  /** 选季度时日历下方“今天”按钮的文字，默认“本季度” */
+  readonly datePickerThisQuarter: string;
   /** 快捷区间的名字 */
   readonly dateRangePreset: Readonly<Record<DateRangePreset, string>>;
   /** 选“现在”的按钮（时间、日期时间选择器），默认“此刻” */
@@ -351,6 +357,8 @@ export interface Lang {
   readonly dateFieldEmpty: string;
   /** 分段的占位文字 */
   readonly dateFieldPlaceholders: Readonly<Partial<Record<DateSegmentType, string>>>;
+  /** 季度、周输入框的排法：`{year}`、`{quarter}`、`{week}` 是各段，其余是照原样显示的文字 */
+  readonly dateFieldPeriodPatterns: Readonly<{ quarter: string; week: string }>;
 
   // ───────── 3D ─────────
 

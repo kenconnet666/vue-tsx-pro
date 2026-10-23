@@ -27,6 +27,7 @@ import {
   type ControlIconOptions,
   type ControlOptions,
 } from '../input/control';
+import { isoWeekOf } from '../utils/data/date';
 import { toElement } from '../utils/dom/element';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { useDateLocale } from './date-locale';
@@ -99,16 +100,21 @@ export function useFieldSegments(
     onChange: (next) => onChange(next ? fieldsToIso(next, read().fields) : null),
     placeholderValue: () => {
       const current = now(locale.timeZone);
+      // 选周时从这一周所属的年起步（12 月底的那周可能已经算明年的第 1 周）
+      const week = isoWeekOf(current);
       return {
-        year: current.year,
+        year: read().fields.includes('week') ? week.year : current.year,
         month: current.month,
         day: current.day,
+        quarter: Math.ceil(current.month / 3),
+        week: week.week,
         hour: current.hour,
         minute: current.minute,
         second: 0,
       };
     },
     placeholders: () => lang.dateFieldPlaceholders,
+    periodPatterns: () => lang.dateFieldPeriodPatterns,
     readonly: () => read().readonly,
     onExit,
   });

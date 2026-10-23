@@ -46,9 +46,77 @@ export function parseIsoTime(value: string | null | undefined): Time | null {
   return tryParse(value, parseTime);
 }
 
-/** 补成完整的 ISO 日期：'2026' 与 '2026-10' 补成 1 日，日期时间取日期部分（DateField、DatePicker 的年、月粒度） */
-export const fullIsoDay = (iso: string): string =>
-  iso.length === 4 ? `${iso}-01-01` : iso.length === 7 ? `${iso}-01` : iso.slice(0, 10);
+/**
+ * 补成完整的 ISO 日期（这一段的第一天）：'2026' 与 '2026-10' 补成 1 日，'2026-Q4' 是 10 月 1 日，
+ * '2026-W43' 是那一周的周一，日期时间取日期部分（DateField、各种日期选择器的粒度）
+ */
+export function fullIsoDay(iso: string): string {
+  const period = parsePeriod(iso);
+  if (period) return period.start.toString();
+  return iso.length === 4 ? `${iso}-01-01` : iso.length === 7 ? `${iso}-01` : iso.slice(0, 10);
+}
+
+/** 这一段的最后一天：'2026' 是 12 月 31 日，'2026-10' 是 31 日，'2026-Q4' 是 12 月 31 日，'2026-W43' 是那周的周日 */
+export function lastIsoDay(iso: string): string {
+  const period = parsePeriod(iso);
+  if (period) return period.end.toString();
+  if (iso.length === 4) return `${iso}-12-31`;
+  if (iso.length === 7) return endOfMonth(parseDate(`${iso}-01`)).toString();
+  return iso.slice(0, 10);
+}
+
+// ───────── 季度与 ISO 周 ─────────
+
+const QUARTER_PATTERN = /^(\d{4})-Q([1-4])$/;
+const WEEK_PATTERN = /^(\d{4})-W(\d{2})$/;
+
+/** 日期所在的季度：'2026-Q4' */
+export function toIsoQuarter(date: DateValue): string {
+  const gregorian = toCalendar(date, GREGORIAN);
+  return `${String(gregorian.year).padStart(4, '0')}-Q${Math.ceil(gregorian.month / 3)}`;
+}
+
+/** ISO 8601 的周（周一开始，含 1 月 4 日的那周是第 1 周，跨年的周归周四所在的年）：所属的年与第几周 */
+export function isoWeekOf(date: DateValue): { year: number; week: number } {
+  const gregorian = toCalendar(date, GREGORIAN);
+  const day = new CalendarDate(gregorian.year, gregorian.month, gregorian.day);
+  const thursday = day.add({ days: 4 - isoWeekday(day) });
+  return {
+    year: thursday.year,
+    week: Math.floor(thursday.compare(new CalendarDate(thursday.year, 1, 1)) / 7) + 1,
+  };
+}
+
+/** 日期所在的 ISO 周：'2026-W43'（同原生 input type="week"） */
+export function toIsoWeek(date: DateValue): string {
+  const { year, week } = isoWeekOf(date);
+  return `${String(year).padStart(4, '0')}-W${String(week).padStart(2, '0')}`;
+}
+
+/** 一年有几个 ISO 周（52 或 53）：12 月 28 日总在最后一周里 */
+export const isoWeeksInYear = (year: number): number =>
+  isoWeekOf(new CalendarDate(year, 12, 28)).week;
+
+/** 周一是 1、周日是 7（与地区无关） */
+function isoWeekday(date: CalendarDate): number {
+  return date.toDate('UTC').getUTCDay() || 7;
+}
+
+/** '2026-Q4'、'2026-W43' → 这一段的第一天与最后一天；不是季度、周的形式时 null */
+function parsePeriod(iso: string): { start: CalendarDate; end: CalendarDate } | null {
+  const quarter = QUARTER_PATTERN.exec(iso);
+  if (quarter) {
+    const start = new CalendarDate(Number(quarter[1]), Number(quarter[2]) * 3 - 2, 1);
+    return { start, end: endOfMonth(start.add({ months: 2 })) };
+  }
+  const week = WEEK_PATTERN.exec(iso);
+  if (week) {
+    const january4 = new CalendarDate(Number(week[1]), 1, 4);
+    const start = january4.add({ days: 1 - isoWeekday(january4) + (Number(week[2]) - 1) * 7 });
+    return { start, end: start.add({ days: 6 }) };
+  }
+  return null;
+}
 
 /** 'YYYY-MM-DDTHH:mm[:ss]' → CalendarDateTime（公历）；空值或格式不对时为 null */
 export function parseIsoDateTime(value: string | null | undefined): CalendarDateTime | null {

@@ -2,6 +2,12 @@
 import { CalendarDate, CalendarDateTime, Time } from '@internationalized/date';
 import { describe, expect, it } from 'vitest';
 import {
+  fullIsoDay,
+  isoWeekOf,
+  isoWeeksInYear,
+  lastIsoDay,
+  toIsoQuarter,
+  toIsoWeek,
   calendarOf,
   clampDate,
   isDateDisabled,
@@ -166,5 +172,30 @@ describe('快捷区间', () => {
   it('本周按语言的一周第一天', () => {
     expect(presetRange('thisWeek', today, { locale: 'zh-CN' }).start.toString()).toBe('2026-10-19');
     expect(presetRange('thisWeek', today, { locale: 'en-US' }).start.toString()).toBe('2026-10-18');
+  });
+});
+
+describe('季度与 ISO 周', () => {
+  it('toIsoQuarter、toIsoWeek；跨年的周归周四所在的年', () => {
+    expect(toIsoQuarter(new CalendarDate(2026, 10, 24))).toBe('2026-Q4');
+    expect(toIsoQuarter(new CalendarDate(2026, 3, 31))).toBe('2026-Q1');
+    expect(toIsoWeek(new CalendarDate(2026, 10, 24))).toBe('2026-W43');
+    // 2024-12-30 是周一，那周的周四在 2025 年：算 2025 年第 1 周
+    expect(toIsoWeek(new CalendarDate(2024, 12, 30))).toBe('2025-W01');
+    // 2027-01-01 是周五，那周的周四在 2026 年：算 2026 年第 53 周
+    expect(isoWeekOf(new CalendarDate(2027, 1, 1))).toEqual({ year: 2026, week: 53 });
+    expect(isoWeeksInYear(2026)).toBe(53);
+    expect(isoWeeksInYear(2025)).toBe(52);
+  });
+
+  it('fullIsoDay、lastIsoDay：一段的第一天与最后一天', () => {
+    expect(fullIsoDay('2026-Q4')).toBe('2026-10-01');
+    expect(lastIsoDay('2026-Q4')).toBe('2026-12-31');
+    expect(fullIsoDay('2026-W43')).toBe('2026-10-19');
+    expect(lastIsoDay('2026-W43')).toBe('2026-10-25');
+    expect(fullIsoDay('2025-W01')).toBe('2024-12-30');
+    expect(lastIsoDay('2026-02')).toBe('2026-02-28');
+    expect(lastIsoDay('2026')).toBe('2026-12-31');
+    expect(lastIsoDay('2026-10-24T14:30')).toBe('2026-10-24');
   });
 });

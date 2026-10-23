@@ -9,6 +9,7 @@ import { DatePicker } from '../DatePicker';
 import { DateField } from '../DateField';
 import { RangeCalendar } from '../RangeCalendar';
 import { DateRangePicker } from '../DateRangePicker';
+import { QuarterCalendar } from '../QuarterCalendar';
 import { TimeField } from '../TimeField';
 import { TimePicker } from '../TimePicker';
 import type { DateRange } from '../../utils/data/date';
@@ -214,5 +215,114 @@ describe('按月、按年与日期时间的区间', () => {
     expect(range).toEqual({ start: '2026-10-10T08:30', end: '2026-10-12T18:00' });
     range = null;
     await flush();
+  });
+});
+
+describe('选季度、选周', () => {
+  it('DatePicker granularity="quarter"：季度面板选一格写回 YYYY-Qn，“本季度”', async () => {
+    let quarter = _state<string | null>('2026-Q2');
+    let open = _state(true);
+    mount(() => (
+      <DatePicker
+        value={_bind(quarter)}
+        open={_bind(open)}
+        granularity="quarter"
+        max="2026-08-15"
+        aria-label="考核季度"
+      />
+    ));
+    await flush();
+    const cell = (key: string) =>
+      document.querySelector<HTMLButtonElement>(`[data-quarter="${key}"]`)!;
+    expect(cell('2026-Q2').hasAttribute('data-selected')).toBe(true);
+    // 第四季度整段晚于 max：不可用
+    expect(cell('2026-Q4').getAttribute('aria-disabled')).toBe('true');
+    // 第三季度有一部分在范围内：可选
+    cell('2026-Q3').click();
+    await flush();
+    expect(quarter).toBe('2026-Q3');
+    expect(open).toBe(false);
+  });
+
+  it('DatePicker granularity="week"：日历按 ISO 周排（周一开始、有周数），点哪天都写回它那一周', async () => {
+    let week = _state<string | null>('2026-W43');
+    mount(() => <DatePicker value={_bind(week)} granularity="week" open aria-label="周报" />);
+    await flush();
+    const weekday = document.querySelector('[role="dialog"] thead th:not(:first-child)')!;
+    expect(weekday.textContent).toBe('一');
+    // 已选那一周的周一是已选的那一格
+    expect(
+      document
+        .querySelector('[role="dialog"] [data-date="2026-10-19"]')!
+        .hasAttribute('data-selected'),
+    ).toBe(true);
+    document.querySelector<HTMLButtonElement>('[role="dialog"] [data-date="2026-10-29"]')!.click();
+    await flush();
+    expect(week).toBe('2026-W44');
+  });
+});
+
+describe('季度、周的区间', () => {
+  const quarter = (key: string) =>
+    document.querySelector<HTMLButtonElement>(`[data-quarter="${key}"]`)!;
+
+  it('DateRangePicker granularity="quarter"：季度面板先选开始、再选结束（可以跨年翻页）', async () => {
+    let range = _state<DateRange<string> | null>(null);
+    let open = _state(true);
+    mount(() => (
+      <DateRangePicker
+        value={_bind(range)}
+        open={_bind(open)}
+        granularity="quarter"
+        aria-label="对比区间"
+      />
+    ));
+    await flush();
+    quarter(`${new Date().getFullYear()}-Q3`).click();
+    await flush();
+    // 翻到下一年再选结束
+    document
+      .querySelector<HTMLButtonElement>('[role="dialog"] button[aria-label="下一年"]')!
+      .click();
+    await flush();
+    const next = new Date().getFullYear() + 1;
+    quarter(`${next}-Q2`).click();
+    await flush();
+    expect(range).toEqual({ start: `${next - 1}-Q3`, end: `${next}-Q2` });
+    expect(open).toBe(false);
+  });
+
+  it('QuarterCalendar 的键盘：←→ 移动（到头换年）、Page Down 换年、Enter 选中', async () => {
+    let value = _state<string | null>('2026-Q4');
+    mount(() => <QuarterCalendar value={_bind(value)} aria-label="季度" />);
+    await flush();
+    const grid = document.querySelector<HTMLElement>('[role="grid"]')!;
+    quarter('2026-Q4').focus();
+    const press = async (key: string) => {
+      grid.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+      await flush();
+    };
+    await press('ArrowRight');
+    expect(document.activeElement).toBe(quarter('2027-Q1'));
+    await press('PageUp');
+    expect(document.activeElement).toBe(quarter('2026-Q1'));
+    (document.activeElement as HTMLButtonElement).click();
+    await flush();
+    expect(value).toBe('2026-Q1');
+  });
+
+  it('DateRangePicker granularity="week"：日历选两天，写回它们各自所在的周', async () => {
+    let range = _state<DateRange<string> | null>({ start: '2026-W40', end: '2026-W41' });
+    mount(() => (
+      <DateRangePicker value={_bind(range)} granularity="week" open aria-label="周区间" />
+    ));
+    await flush();
+    const day = (date: string) =>
+      document.querySelector<HTMLButtonElement>(`[role="dialog"] [data-date="${date}"]`)!;
+    day('2026-10-21').click();
+    await flush();
+    day('2026-10-29').click();
+    await flush();
+    expect(range).toEqual({ start: '2026-W43', end: '2026-W44' });
   });
 });

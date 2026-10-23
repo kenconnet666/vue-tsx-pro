@@ -23,20 +23,25 @@ import {
   type Time,
 } from '@internationalized/date';
 import {
+  compareDates,
   fullIsoDay,
-  isDateDisabled,
+  lastIsoDay,
   parseIsoDate,
   parseIsoDateTime,
   parseIsoTime,
   toIsoDate,
   toIsoDateTime,
+  toIsoQuarter,
   toIsoTime,
+  toIsoWeek,
+  type DateLimits,
   type DateUnit,
 } from '../utils/data/date';
 import {
   toDateLimits,
   useDateLocale,
   type DateInput,
+  type DateLocale,
   type DateLimitProps,
   type DateValueTypes,
 } from './date-locale';
@@ -80,12 +85,33 @@ function timeBound(limit: DateInput | undefined, granularity: DateFieldGranulari
   return 'hour' in limit ? toSeconds(valueToIso(limit, granularity)) : null;
 }
 
+/**
+ * 这一段（年、季度、月、周、日，按值的形式）能不能选：整段都在 min–max 之外，或（按日选时）是不可选的日期。
+ * DateField、DatePicker 的快捷选项与“今天”、DateRangePicker 的两端共用
+ */
+export function isPeriodDisabled(
+  iso: string,
+  granularity: DateFieldGranularity,
+  limits: DateLimits,
+  locale: DateLocale,
+): boolean {
+  const start = locale.fromValue(fullIsoDay(iso));
+  const end = locale.fromValue(lastIsoDay(iso));
+  if (start == null || end == null) return false;
+  if (limits.max != null && compareDates(start, limits.max) > 0) return true;
+  if (limits.min != null && compareDates(end, limits.min) < 0) return true;
+  const byDay = granularity === 'day' || isTimeGranularity(granularity);
+  return byDay && (limits.isUnavailable?.(start) ?? false);
+}
+
 /** 值 → 分段输入用的 ISO 字符串（形式随 granularity） */
 export function valueToIso(value: DateInput, granularity: DateFieldGranularity): string {
   if (typeof value === 'string') return value;
   if (isTimeGranularity(granularity)) {
     return toIsoDateTime(toCalendarDateTime(value), granularity === 'second');
   }
+  if (granularity === 'quarter') return toIsoQuarter(value);
+  if (granularity === 'week') return toIsoWeek(value);
   const day = toIsoDate(value);
   return granularity === 'year' ? day.slice(0, 4) : granularity === 'month' ? day.slice(0, 7) : day;
 }
@@ -126,9 +152,7 @@ export const DateField = _component(
     const limits = _derived(toDateLimits(locale, { min, max, isDateUnavailable }));
     // 先按日期比较（含不可选的日期）；min / max 带时间时，同一天里再比时分秒
     const outOfRange = (iso: string) => {
-      const date = locale.fromValue(fullIsoDay(iso));
-      if (date == null) return false;
-      if (isDateDisabled(date, limits, dateUnitOf(granularity))) return true;
+      if (isPeriodDisabled(iso, granularity, limits, locale)) return true;
       const low = timeBound(min, granularity);
       const high = timeBound(max, granularity);
       const at = isTimeGranularity(granularity) ? toSeconds(iso) : '';

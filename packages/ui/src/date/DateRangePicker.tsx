@@ -7,7 +7,8 @@
  *   <DateRangePicker granularity="minute" value={_bind(window)} aria-label="维护窗口" />   // '2026-10-24T22:00' – '2026-10-25T06:00'
  *
  * 值是 `{ start, end }`（两端都含；ISO 字符串或 DateValue，写回时保持同一种类型），两端都填好才写回，删掉一段写回 null。
- * granularity 同 DateField：month、year 按月、按年（日历选整月、整年），hour / minute / second 是日期时间区间
+ * granularity 同 DateField：month、year 按月、按年（日历选整月、整年），quarter 弹出季度面板选一段季度，
+ * week 按 ISO 周（日历周一开始、行首是周数），hour / minute / second 是日期时间区间
  * （日历里选日期，开始补 00:00、结束补 23:59，已经填了的时间不变）。
  * 结束早于开始、超出范围、是不可选的日期时外壳显示出错，值照样写回，由表单校验决定能不能提交。
  * 开始那组刚填全时焦点自动进结束那组；日历里点开始、再点结束后关闭，焦点回到按钮。Esc、点外部关闭，分段里 Alt + ↓ 打开。
@@ -17,7 +18,6 @@
 import { CalendarRange } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { endOfMonth } from '@internationalized/date';
 import { useId, watch } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
@@ -36,10 +36,12 @@ import {
 import {
   clampDate,
   fullIsoDay,
-  isDateDisabled,
+  lastIsoDay,
   parseIsoDate,
   presetIsoRange,
   toIsoDate,
+  toIsoQuarter,
+  toIsoWeek,
   type DateRange,
   type DateRangePreset,
 } from '../utils/data/date';
@@ -53,7 +55,13 @@ import {
   type DateValueTypes,
 } from './date-locale';
 import { segmentFields, type DateFieldGranularity } from './date-segments';
-import { dateUnitOf, isoToValue, isTimeGranularity, valueToIso } from './DateField';
+import {
+  dateUnitOf,
+  isoToValue,
+  isPeriodDisabled,
+  isTimeGranularity,
+  valueToIso,
+} from './DateField';
 import { DateSegmentGroup, type DateSegmentGroupProps } from './DateSegmentGroup';
 import {
   focusCalendar,
@@ -61,6 +69,7 @@ import {
   usePickerPopover,
   type PickerPopoverParts,
 } from './picker-popover';
+import { QuarterCalendar } from './QuarterCalendar';
 import { RangeCalendar, type RangeCalendarProps } from './RangeCalendar';
 import { firstSegmentOf, segmentedFieldStyles, useFieldSegments } from './SegmentedField';
 
@@ -250,10 +259,8 @@ export const DateRangePicker = _component(
       },
     );
 
-    const outOfRange = (iso: string | null) => {
-      const date = iso == null ? null : locale.fromValue(fullIsoDay(iso));
-      return date != null && isDateDisabled(date, limits, dateUnitOf(granularity));
-    };
+    const outOfRange = (iso: string | null) =>
+      iso != null && isPeriodDisabled(iso, granularity, limits, locale);
 
     /** 整天的区间 → 按 granularity 的形式：月、年截短；带时间时开始补 00:00、结束补 23:59（已经填了的时间不变） */
     function fromDays(range: DateRange<string>): DateRange<string> {
@@ -261,6 +268,13 @@ export const DateRangePicker = _component(
         return { start: range.start.slice(0, 4), end: range.end.slice(0, 4) };
       if (granularity === 'month')
         return { start: range.start.slice(0, 7), end: range.end.slice(0, 7) };
+      if (granularity === 'quarter' || granularity === 'week') {
+        const period = granularity === 'quarter' ? toIsoQuarter : toIsoWeek;
+        return {
+          start: period(parseIsoDate(range.start)!),
+          end: period(parseIsoDate(range.end)!),
+        };
+      }
       if (!isTimeGranularity(granularity)) return range;
       const timeOf = (iso: string | null, fallback: string) =>
         iso != null && iso.length > 10 ? iso.slice(10) : fallback;
@@ -271,18 +285,17 @@ export const DateRangePicker = _component(
       };
     }
 
-    // 区间日历用整天的 ISO 日期：按月、按年时是整月、整年
-    const calendarRange = (): DateRange<string> | null => {
-      if (start == null || end == null) return null;
-      const day = parseIsoDate(fullIsoDay(end));
-      const last =
-        granularity === 'year'
-          ? `${end}-12-31`
-          : granularity === 'month' && day
-            ? toIsoDate(endOfMonth(day))
-            : end.slice(0, 10);
-      return { start: fullIsoDay(start), end: last };
-    };
+    // 区间日历用整天的 ISO 日期：按月、按年、按周时是整段（开始那段的第一天到结束那段的最后一天）
+    const calendarRange = (): DateRange<string> | null =>
+      start == null || end == null ? null : { start: fullIsoDay(start), end: lastIsoDay(end) };
+
+    /** 季度面板选好了区间（'YYYY-Qn'） */
+    function pickQuarters(range: DateRange<string> | null) {
+      if (range == null) return;
+      start = range.start;
+      end = range.end;
+      commit();
+    }
 
     /** 日历选好了区间：换回 granularity 的形式；带时间时焦点去开始的“时”接着输入 */
     function pickRange(range: DateRange<string> | null) {
@@ -419,23 +432,37 @@ export const DateRangePicker = _component(
                 lang.dateRangePresets,
                 propsPresets,
               ),
-              <RangeCalendar
-                {...propsCalendar}
-                {...{ 'onUpdate:value': pickRange }}
-                value={calendarRange()}
-                granularity={dateUnitOf(granularity)}
-                min={min}
-                max={max}
-                isDateUnavailable={isDateUnavailable}
-                visibleMonths={visibleMonths}
-                allowsUnavailableInRange={allowsUnavailableInRange}
-                onPick={() => {
-                  open = false;
-                  // 带时间时接着输入时间：焦点去开始那组的“时”
-                  if (isTimeGranularity(granularity))
-                    startGroup?.querySelector<HTMLElement>('[data-type="hour"]')?.focus();
-                }}
-              />,
+              granularity === 'quarter' ? (
+                <QuarterCalendar
+                  mode="range"
+                  value={start != null && end != null ? { start, end } : null}
+                  {...{ 'onUpdate:value': pickQuarters }}
+                  min={min}
+                  max={max}
+                  aria-label={lang.datePickerOpen}
+                  onPick={() => (open = false)}
+                />
+              ) : (
+                <RangeCalendar
+                  {...propsCalendar}
+                  {...{ 'onUpdate:value': pickRange }}
+                  value={calendarRange()}
+                  granularity={dateUnitOf(granularity)}
+                  min={min}
+                  max={max}
+                  isDateUnavailable={isDateUnavailable}
+                  visibleMonths={visibleMonths}
+                  allowsUnavailableInRange={allowsUnavailableInRange}
+                  // 按周：按 ISO 8601 的周排（周一开始），行首是第几周
+                  {...(granularity === 'week' && { firstDayOfWeek: 1, showWeekNumbers: true })}
+                  onPick={() => {
+                    open = false;
+                    // 带时间时接着输入时间：焦点去开始那组的“时”
+                    if (isTimeGranularity(granularity))
+                      startGroup?.querySelector<HTMLElement>('[data-type="hour"]')?.focus();
+                  }}
+                />
+              ),
             ],
           )}
         </>

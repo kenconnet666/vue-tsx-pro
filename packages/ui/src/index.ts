@@ -860,6 +860,7 @@ export {
   DateField,
   dateUnitOf,
   isoToValue,
+  isPeriodDisabled,
   isTimeGranularity,
   valueToIso,
   type DateFieldProps,
@@ -890,6 +891,7 @@ export {
   type DateTimeInput,
   type DateTimeProps,
 } from './date/DateTime';
+export { QuarterCalendar, type QuarterCalendarProps } from './date/QuarterCalendar';
 export { RangeCalendar, type RangeCalendarProps } from './date/RangeCalendar';
 export { RelativeTime, type RelativeTimeProps } from './date/RelativeTime';
 export {
@@ -1445,7 +1447,10 @@ export {
   isoDayOfWeek,
   isOutOfRange,
   isOutsideDecade,
+  isoWeekOf,
+  isoWeeksInYear,
   isSameDate,
+  lastIsoDay,
   monthGrid,
   monthsOfYear,
   orderedRange,
@@ -1464,8 +1469,10 @@ export {
   toInstant,
   toIsoDate,
   toIsoDateTime,
+  toIsoQuarter,
   toIsoRange,
   toIsoTime,
+  toIsoWeek,
   truncateDate,
   weekdayNames,
   weekOfYear,
