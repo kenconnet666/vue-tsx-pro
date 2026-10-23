@@ -1386,18 +1386,27 @@ export {
 export { createStatusMap, type StatusDefinition, type StatusMap } from './utils/data/status';
 export { childNodes, plainText } from './utils/data/text';
 export {
+  checkedByStrategy,
   checkStates,
+  filterTree,
   flattenTree,
   indexTree,
   isExpandable,
+  moveNode,
   toggleChecked,
+  treePath,
   useTreeExpansion,
   type CheckState,
+  type CheckStrategies,
+  type FlattenTreeOptions,
   type FlatTreeNode,
   type TreeAccessors,
+  type TreeEditor,
   type TreeExpansion,
   type TreeExpansionOptions,
+  type TreeFilter,
   type TreeIndex,
+  type TreeMoveTarget,
 } from './utils/data/tree';
 export {
   addWorkdays,

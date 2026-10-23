@@ -1,11 +1,16 @@
 /**
- * 树状数据的共用逻辑：按展开状态展开成一列行、勾选的父子联动（含半选）、展开时懒加载子项。
- * TreeDataTable（层级行）与 Tree（独立的树）共用；数据形状不限，由 getKey / getChildren 读取。
+ * 树状数据的共用逻辑：按展开状态展开成一列行、勾选的父子联动（含半选）、展开时懒加载子项，
+ * 以及搜索过滤、勾选结果的取法（只要父 / 只要子 / 全部）、到某个节点的路径、移动节点。
+ * TreeDataTable（层级行）、Tree、TreeSelect、Cascader、Transfer 共用；数据形状不限，由 getKey / getChildren 读取。
  *
  *   const rows = flattenTree(roots, { getKey, getChildren }, new Set(expanded));
  *   const index = indexTree(roots, { getKey, getChildren });
  *   checked = toggleChecked(index, checked, key);        // 勾上 / 取消一项，子孙与祖先跟着变
  *   const states = checkStates(index, checked);           // key → checked / indeterminate / unchecked
+ *   const value = checkedByStrategy(index, checked, 'parent'); // 父节点全勾上时只要父节点
+ *   const { include, expand } = filterTree(roots, accessors, (node) => node.name.includes(query));
+ *   flattenTree(roots, accessors, new Set([...expanded, ...expand]), { include });
+ *   roots = moveNode(roots, { ...accessors, withChildren }, key, { parent: 'b', index: 0 });
  */
 import { shallowRef } from 'vue';
 
@@ -41,21 +46,28 @@ export interface FlatTreeNode<T> {
 export const isExpandable = <T>(node: T, { getChildren, hasChildren }: TreeAccessors<T>): boolean =>
   hasChildren?.(node) ?? (getChildren(node)?.length ?? 0) > 0;
 
-/**
- * 按展开状态深度优先展开成一列：只有展开了的节点的子节点出现在结果里。
- * order 改写每一层的顺序（TreeDataTable 按当前排序），不写时按数据顺序
- */
+/** flattenTree 的选项 */
+export interface FlattenTreeOptions<T> {
+  /** 改写每一层的顺序（TreeDataTable 按当前排序），不写时按数据顺序 */
+  order?: (level: readonly T[]) => readonly T[];
+  /** 只要这些节点（搜索过滤：filterTree 的 include），不写时全要 */
+  include?: ReadonlySet<string>;
+}
+
+/** 按展开状态深度优先展开成一列：只有展开了的节点的子节点出现在结果里 */
 export function flattenTree<T>(
   roots: readonly T[],
   accessors: TreeAccessors<T>,
   expanded: ReadonlySet<string>,
-  order: (level: readonly T[]) => readonly T[] = (level) => level,
+  { order = (level) => level, include }: FlattenTreeOptions<T> = {},
 ): FlatTreeNode<T>[] {
   const result: FlatTreeNode<T>[] = [];
   const visit = (level: readonly T[], depth: number, parent: string | undefined) => {
-    const sorted = order(level);
+    // 先按原位置取 key（getKey 的 index 是数据里的位置），再排序、过滤
+    const keyOf = new Map(level.map((node, index) => [node, accessors.getKey(node, index)]));
+    const sorted = order(level).filter((node) => !include || include.has(keyOf.get(node)!));
     sorted.forEach((node, index) => {
-      const key = accessors.getKey(node, index);
+      const key = keyOf.get(node)!;
       const expandable = isExpandable(node, accessors);
       result.push({
         node,
@@ -145,6 +157,150 @@ export function toggleChecked(index: TreeIndex, checked: readonly string[], key:
     parent = index.parents.get(parent);
   }
   return index.order.filter((item) => result.has(item));
+}
+
+/** 勾选结果的取法（同 Ant Design 的 showCheckedStrategy） */
+export interface CheckStrategies {
+  /** 勾上的全部节点（默认） */
+  all: unknown;
+  /** 父节点全勾上时只要父节点，不再列出它的子孙（提交“整个部门”而不是逐个成员） */
+  parent: unknown;
+  /** 只要叶子（没有已加载的子节点的节点） */
+  child: unknown;
+}
+
+/** 按取法给出勾上的节点（按树的顺序）；checked 可以是 toggleChecked 的结果，也可以是外部给的部分节点 */
+export function checkedByStrategy(
+  index: TreeIndex,
+  checked: readonly string[],
+  strategy: keyof CheckStrategies,
+): string[] {
+  const effective = effectiveChecked(index, checked);
+  return index.order.filter((key) => {
+    if (!effective.has(key)) return false;
+    if (strategy === 'child') return !index.children.get(key)?.length;
+    if (strategy === 'parent') {
+      const parent = index.parents.get(key);
+      return parent === undefined || !effective.has(parent);
+    }
+    return true;
+  });
+}
+
+/** 从第一层到 key 的各节点的 key（含 key 自己）；key 不在树里时为空数组。Cascader 的路径、面包屑用它 */
+export function treePath(index: TreeIndex, key: string): string[] {
+  if (!index.parents.has(key)) return [];
+  const path: string[] = [];
+  for (let current: string | undefined = key; current !== undefined;) {
+    path.unshift(current);
+    current = index.parents.get(current);
+  }
+  return path;
+}
+
+/** filterTree 的结果 */
+export interface TreeFilter {
+  /** 要显示的节点：匹配的节点与它们的祖先（交给 flattenTree 的 include） */
+  include: Set<string>;
+  /** 要展开的节点：匹配的节点的祖先，展开后才看得到匹配项 */
+  expand: Set<string>;
+  /** 匹配的节点（高亮用） */
+  matched: Set<string>;
+}
+
+/**
+ * 搜索过滤：留下匹配的节点与它们的祖先，并展开祖先（只看已加载的节点）。
+ * 匹配的节点的子孙不跟着留下（它们自己匹配才留下），同 Ant Design TreeSelect 的搜索
+ */
+export function filterTree<T>(
+  roots: readonly T[],
+  accessors: TreeAccessors<T>,
+  match: (node: T) => boolean,
+): TreeFilter {
+  const result: TreeFilter = { include: new Set(), expand: new Set(), matched: new Set() };
+  // 返回子树里有没有匹配的节点
+  const visit = (level: readonly T[]): boolean => {
+    let any = false;
+    level.forEach((node, index) => {
+      const key = accessors.getKey(node, index);
+      const self = match(node);
+      const below = visit(accessors.getChildren(node) ?? []);
+      if (self) result.matched.add(key);
+      if (below) result.expand.add(key);
+      if (self || below) {
+        result.include.add(key);
+        any = true;
+      }
+    });
+    return any;
+  };
+  visit(roots);
+  return result;
+}
+
+/** moveNode 要的读写方法：在读取之外，能用新的子节点生成一个节点 */
+export interface TreeEditor<T> extends TreeAccessors<T> {
+  /** 换掉子节点后的新节点（不改原节点），如 `(node, children) => ({ ...node, children })` */
+  withChildren: (node: T, children: T[]) => T;
+}
+
+/** 移动的目标：放到哪个节点下（undefined 是第一层）的第几位 */
+export interface TreeMoveTarget {
+  /** 新的父节点的 key；第一层时为 undefined */
+  parent: string | undefined;
+  /** 在新的同级里的位置（按移走之后的同级算），超出时放到最后 */
+  index: number;
+}
+
+/**
+ * 把 key 移到 target（不改原数据，返回新的第一层；沿途的节点用 withChildren 重建，其余节点原样复用）。
+ * key 不存在、目标是它自己或它的子孙时返回 null（拖到自己里面不成立）
+ */
+export function moveNode<T>(
+  roots: readonly T[],
+  editor: TreeEditor<T>,
+  key: string,
+  target: TreeMoveTarget,
+): T[] | null {
+  const index = indexTree(roots, editor);
+  if (!index.parents.has(key)) return null;
+  if (target.parent !== undefined) {
+    if (!index.parents.has(target.parent)) return null;
+    if (treePath(index, target.parent).includes(key)) return null;
+  }
+  let moving: T | undefined;
+  // 先摘下来：只重建 key 的祖先
+  const removePath = new Set(treePath(index, key).slice(0, -1));
+  const remove = (level: readonly T[]): T[] =>
+    level.flatMap((node, position) => {
+      const nodeKey = editor.getKey(node, position);
+      if (nodeKey === key) {
+        moving = node;
+        return [];
+      }
+      if (!removePath.has(nodeKey)) return [node];
+      return [editor.withChildren(node, remove(editor.getChildren(node) ?? []))];
+    });
+  const without = remove(roots);
+  const insert = (level: readonly T[]) => {
+    const next = [...level];
+    next.splice(Math.min(Math.max(target.index, 0), next.length), 0, moving!);
+    return next;
+  };
+  if (target.parent === undefined) return insert(without);
+  // 再插进去：只重建目标父节点的祖先（含它自己）
+  const insertPath = new Set(treePath(indexTree(without, editor), target.parent));
+  const add = (level: readonly T[]): T[] =>
+    level.map((node, position) => {
+      const nodeKey = editor.getKey(node, position);
+      if (!insertPath.has(nodeKey)) return node;
+      const children = editor.getChildren(node) ?? [];
+      return editor.withChildren(
+        node,
+        nodeKey === target.parent ? insert(children) : add(children),
+      );
+    });
+  return add(without);
 }
 
 /** 每个节点的勾选状态：子孙里有勾上的、但自己没有全勾上时是 indeterminate */

@@ -1,6 +1,17 @@
-// 树的展开成行、勾选的父子联动（半选、懒加载出来的子节点跟随父节点）
+// 树的展开成行、勾选的父子联动（半选、懒加载出来的子节点跟随父节点）、勾选结果的取法、路径、搜索过滤、移动节点
 import { describe, expect, it } from 'vitest';
-import { checkStates, flattenTree, indexTree, toggleChecked, type TreeAccessors } from '../tree';
+import {
+  checkedByStrategy,
+  checkStates,
+  filterTree,
+  flattenTree,
+  indexTree,
+  moveNode,
+  toggleChecked,
+  treePath,
+  type TreeAccessors,
+  type TreeEditor,
+} from '../tree';
 
 interface Node {
   id: string;
@@ -56,5 +67,77 @@ describe('勾选联动', () => {
     const next = indexTree(loaded, accessors);
     expect(checkStates(next, ['b']).get('b1')).toBe('checked');
     expect(toggleChecked(next, ['b'], 'b1')).toEqual(['b2']);
+  });
+});
+
+describe('勾选结果的取法', () => {
+  const index = indexTree(tree, accessors);
+  const checked = toggleChecked(index, [], 'a2');
+  it('all：勾上的全部；parent：父节点全勾上时只要父节点；child：只要叶子', () => {
+    expect(checkedByStrategy(index, checked, 'all')).toEqual(['a2', 'a2x']);
+    expect(checkedByStrategy(index, checked, 'parent')).toEqual(['a2']);
+    expect(checkedByStrategy(index, checked, 'child')).toEqual(['a2x']);
+    const all = toggleChecked(index, [], 'a');
+    expect(checkedByStrategy(index, all, 'parent')).toEqual(['a']);
+    expect(checkedByStrategy(index, all, 'child')).toEqual(['a1', 'a2x']);
+  });
+});
+
+describe('treePath', () => {
+  it('从第一层到节点的各个 key；不在树里时为空', () => {
+    const index = indexTree(tree, accessors);
+    expect(treePath(index, 'a2x')).toEqual(['a', 'a2', 'a2x']);
+    expect(treePath(index, 'b')).toEqual(['b']);
+    expect(treePath(index, 'nope')).toEqual([]);
+  });
+});
+
+describe('filterTree', () => {
+  it('留下匹配的节点与祖先、展开祖先；匹配节点的子孙不跟着留下', () => {
+    const result = filterTree(tree, accessors, (node) => node.id.startsWith('a2'));
+    expect([...result.include]).toEqual(expect.arrayContaining(['a', 'a2', 'a2x']));
+    expect(result.include.has('a1')).toBe(false);
+    expect([...result.expand].sort()).toEqual(['a', 'a2']);
+    const rows = flattenTree(tree, accessors, result.expand, { include: result.include });
+    expect(rows.map((row) => row.key)).toEqual(['a', 'a2', 'a2x']);
+    // 同级的总数与位置按过滤后的算
+    expect(rows[1]).toMatchObject({ setSize: 1, position: 1 });
+
+    const parentOnly = filterTree(tree, accessors, (node) => node.id === 'a');
+    expect([...parentOnly.include]).toEqual(['a']);
+  });
+});
+
+describe('moveNode', () => {
+  const editor: TreeEditor<Node> = {
+    ...accessors,
+    withChildren: (node, children) => ({ ...node, children }),
+  };
+  const keys = (nodes: Node[]): unknown =>
+    nodes.map((node) => (node.children?.length ? { [node.id]: keys(node.children) } : node.id));
+
+  it('移到别的父节点下的指定位置；不改原数据，没动到的节点原样复用', () => {
+    const moved = moveNode(tree, editor, 'a2x', { parent: 'a', index: 0 })!;
+    expect(keys(moved)).toEqual([{ a: ['a2x', 'a1', 'a2'] }, 'b']);
+    expect(keys(tree)).toEqual([{ a: ['a1', { a2: ['a2x'] }] }, 'b']);
+    expect(moved[1]).toBe(tree[1]);
+  });
+
+  it('移到第一层、同级里换位置（位置按移走之后算）', () => {
+    expect(keys(moveNode(tree, editor, 'a1', { parent: undefined, index: 2 })!)).toEqual([
+      { a: [{ a2: ['a2x'] }] },
+      'b',
+      'a1',
+    ]);
+    expect(keys(moveNode(tree, editor, 'b', { parent: undefined, index: 0 })!)).toEqual([
+      'b',
+      { a: ['a1', { a2: ['a2x'] }] },
+    ]);
+  });
+
+  it('移到自己或自己的子孙下面、key 不存在时返回 null', () => {
+    expect(moveNode(tree, editor, 'a', { parent: 'a2', index: 0 })).toBeNull();
+    expect(moveNode(tree, editor, 'a', { parent: 'a', index: 0 })).toBeNull();
+    expect(moveNode(tree, editor, 'zz', { parent: undefined, index: 0 })).toBeNull();
   });
 });

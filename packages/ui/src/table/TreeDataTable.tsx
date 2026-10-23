@@ -108,9 +108,9 @@ export const TreeDataTable = _component(
 
     /** 按展开状态深度优先展开成一列；同级之间按当前排序（manualSort 时按数据里的顺序） */
     const flat = _derived.by(() =>
-      flattenTree(rows, accessors(), new Set(expanded), (level) =>
-        manualSort ? level : sortRows(level, columns, sort, lang.code),
-      ),
+      flattenTree(rows, accessors(), new Set(expanded), {
+        order: (level) => (manualSort ? level : sortRows(level, columns, sort, lang.code)),
+      }),
     );
 
     // 多选联动：整棵树的索引（含折叠着的行），勾选状态按它推出；交给 DataTable 的是实际勾上的行与半选的父行

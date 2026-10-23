@@ -81,7 +81,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       顺手修复：指针捕获放在按下的项上，排序时 Vue 移动 DOM 让它失去捕获，向前拖动会被当成取消；`startMove` 加 `captureTarget`，排序改在容器上捕获
 - [x] `useOverflowItems`：量出放得下几项，其余折成 +N（Select / TreeSelect 的 maxTagCount、Tabs 溢出、横向导航、Toolbar 做的时候直接用）
 - [x] `useIntersectionObserver`（ActionBar、3D 画布已改用；Affix、BackTop、图片懒加载做的时候直接用）
-- [ ] 树工具：`filterTree`、`moveNode`、勾选策略（只返回父 / 子 / 全部）、路径收集
+- [x] 树工具：`filterTree`、`moveNode`、勾选策略 `checkedByStrategy`（只返回父 / 子 / 全部）、路径 `treePath`；`flattenTree` 的第 4 个参数改成选项（`order`、`include`），getKey 的位置参数统一按数据里的位置
 - [ ] 表单：`form.validate(paths)` 局部校验、字段联动（改 A 时校验 B）
 - [ ] `usePanZoom`（建在 startMove 上）、二维方向键导航（表格网格、整页日历）、`ControlGroup` 上下文（组合输入的圆角与描边）
 - [ ] 拼音匹配：`createMatcher` 认拼音与首字母（选库后定，作可选依赖）
