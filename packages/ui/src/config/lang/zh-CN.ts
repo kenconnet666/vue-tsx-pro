@@ -76,6 +76,14 @@ export const zhCN: Lang = {
   uploadRetry: (file) => `重新上传 ${file}`,
   uploadRemove: (file) => `移除 ${file}`,
   progressTarget: (value) => `目标 ${value}`,
+  resultStatus: {
+    403: { title: '没有访问权限', description: '这个页面需要更高的权限，可以联系管理员开通。' },
+    404: { title: '找不到这个页面', description: '地址可能写错了，或者页面已经移走。' },
+    500: {
+      title: '服务出错了',
+      description: '服务器暂时无法处理请求，请稍后重试；问题持续时请联系管理员。',
+    },
+  },
   sortableHandle: (item) => `移动 ${item}`,
   sortableInstructions: '按空格拿起，用方向键移动，再按空格放下，Esc 取消',
   sortableGrabbed: (item, position, total) => `已拿起 ${item}，在第 ${position} 位，共 ${total} 项`,

@@ -77,6 +77,21 @@ export const enUS: Lang = {
   uploadRetry: (file) => `Retry uploading ${file}`,
   uploadRemove: (file) => `Remove ${file}`,
   progressTarget: (value) => `target ${value}`,
+  resultStatus: {
+    403: {
+      title: 'Access denied',
+      description: 'You need more permissions to see this page. Ask an administrator for access.',
+    },
+    404: {
+      title: 'Page not found',
+      description: 'The address may be wrong, or the page has moved.',
+    },
+    500: {
+      title: 'Something went wrong',
+      description:
+        'The server could not handle the request. Try again later, and contact an administrator if it keeps happening.',
+    },
+  },
   sortableHandle: (item) => `Move ${item}`,
   sortableInstructions:
     'Press Space to pick up, use the arrow keys to move, Space again to drop, Escape to cancel',

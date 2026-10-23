@@ -3,14 +3,17 @@
  *
  *   <Result tone="success" title="提交成功" description="审核结果会通过邮件通知你。" action={<Button>返回列表</Button>} />
  *   <Result tone="danger" title="支付失败" action={<Button onClick={retry}>重试</Button>}>{details}</Result>
+ *   <Result status="404" action={<LinkButton href="/">回到首页</LinkButton>} />   常见状态：图标、色调、标题与说明都有默认值
  *
  * 只是展示，不带角色；操作后才出现、需要读屏播报时，由所在区域用 aria-live 或把焦点移到标题上。
- * 部件：Root（div）、Icon、Title（Text）、Description（Paragraph）、Action（div）。
+ * 部件：Root（div）、Icon、Code（状态码，status 时）、Title（Text）、Description（Paragraph）、Action（div）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { FileQuestionMark, ServerCrash, ShieldX } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
+import { useLang } from '../config/context';
 import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -34,6 +37,23 @@ export interface ResultTones {
   info: unknown;
 }
 
+/** 常见的出错状态：图标、色调、标题与说明都有默认值（标题与说明取语言包） */
+export interface ResultStatuses {
+  /** 没有权限 */
+  403: unknown;
+  /** 找不到页面 */
+  404: unknown;
+  /** 服务出错 */
+  500: unknown;
+}
+
+/** 各状态的图标与色调 */
+const STATUS_LOOKS: Record<keyof ResultStatuses, { icon: IconData; tone: keyof ResultTones }> = {
+  403: { icon: ShieldX, tone: 'warning' },
+  404: { icon: FileQuestionMark, tone: 'info' },
+  500: { icon: ServerCrash, tone: 'danger' },
+};
+
 /** Result 的外观选项：可以在 ComponentDefaults 里统一设置 */
 export interface ResultOptions {
   /** 字号档位，内部尺寸随之缩放；不写时继承上下文字号 */
@@ -42,7 +62,9 @@ export interface ResultOptions {
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性（悬停提示）让给标题 */
 export interface ResultProps extends PartProps<'div', 'title'>, ResultOptions {
-  /** 色调，默认 success */
+  /** 常见状态（403、404、500）：给出图标、色调、状态码与默认的标题、说明，显式写的优先 */
+  status?: `${keyof ResultStatuses}`;
+  /** 色调，默认 success（写了 status 时按状态） */
   tone?: keyof ResultTones;
   /** 图标；不写时按色调选，false 不显示 */
   icon?: IconData | false;
@@ -56,6 +78,8 @@ export interface ResultProps extends PartProps<'div', 'title'>, ResultOptions {
   action?: VNodeChild;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
+  /** 状态码的部件属性 */
+  propsCode?: Partial<TextProps>;
   /** 标题的部件属性 */
   propsTitle?: Partial<TextProps>;
   /** 说明的部件属性 */
@@ -66,7 +90,7 @@ export interface ResultProps extends PartProps<'div', 'title'>, ResultOptions {
   children?: VNodeChild;
 }
 
-/** Result 的样式：root、icon、title、description、action */
+/** Result 的样式：root、icon、code、title、description、action */
 export const resultStyles = stylex.create({
   root: {
     display: 'flex',
@@ -79,6 +103,15 @@ export const resultStyles = stylex.create({
     color: '_text',
   },
   icon: { width: '4em', height: '4em', marginBlockEnd: '_sm', strokeWidth: '_sm' },
+  // 状态码：大号（随字号缩放）、次要颜色、等宽数字，压在标题上方
+  code: {
+    fontSize: '2.5em',
+    fontWeight: '_bold',
+    lineHeight: 1,
+    color: '_textMuted',
+    fontVariantNumeric: 'tabular-nums',
+    letterSpacing: '_tight',
+  },
   title: { fontWeight: '_semibold', lineHeight: '_tight' },
   description: { maxWidth: '36em', color: '_textMuted' },
   action: {
@@ -93,7 +126,8 @@ export const resultStyles = stylex.create({
 /** 结果页：状态图标、标题、说明、操作，居中排列 */
 export const Result = _component(
   ({
-    tone = 'success',
+    status,
+    tone,
     icon,
     draw = true,
     title,
@@ -101,50 +135,69 @@ export const Result = _component(
     action,
     size,
     propsIcon,
+    propsCode,
     propsTitle,
     propsDescription,
     propsAction,
     children,
     ...rest
   }: ResultProps) => {
+    const lang = useLang();
     const appearance = useDefaults('Result', () => ({ size }));
     return () => {
       const textSize = appearance().size;
+      const preset = status && STATUS_LOOKS[Number(status) as keyof ResultStatuses];
+      const text = status && lang.resultStatus[status];
+      const shownTone = tone ?? preset?.tone ?? 'success';
+      const shownTitle = title ?? text?.title;
+      const shownDescription = description ?? text?.description;
       return (
         <div
           {...mergeAttrs<'div'>(
             { sx: [resultStyles.root, textSize && fontSizeStyles[textSize]] },
             rest,
           )}
-          data-tone={tone}
+          data-tone={shownTone}
         >
           {icon !== false && (
             <Icon
               {...mergePartProps<IconProps>(
                 {
-                  icon: icon ?? statusIcons[tone],
+                  icon: icon ?? preset?.icon ?? statusIcons[shownTone],
                   draw,
-                  sx: [resultStyles.icon, toneStyles[tone]],
+                  sx: [resultStyles.icon, toneStyles[shownTone]],
                 },
                 propsIcon,
               )}
             />
           )}
-          {hasContent(title) && (
+          {status && (
+            <Text
+              {...mergePartProps<TextProps>(
+                { sx: resultStyles.code },
+                propsCode,
+                // 标题已经说明了状态，状态码对读屏是重复的
+                { 'aria-hidden': true },
+              )}
+            >
+              {status}
+            </Text>
+          )}
+          {hasContent(shownTitle) && (
             <Text
               {...mergePartProps<TextProps>(
                 { sx: [resultStyles.title, relativeFontSizeStyles.xl] },
                 propsTitle,
               )}
             >
-              {title}
+              {shownTitle}
             </Text>
           )}
-          {hasContent(description) && (
+          {hasContent(shownDescription) && (
             <Paragraph
               {...mergePartProps<TextProps>({ sx: resultStyles.description }, propsDescription)}
             >
-              {description}
+              {shownDescription}
             </Paragraph>
           )}
           {children}

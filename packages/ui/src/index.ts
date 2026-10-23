@@ -381,6 +381,7 @@ export {
   resultStyles,
   type ResultOptions,
   type ResultProps,
+  type ResultStatuses,
   type ResultTones,
 } from './feedback/Result';
 export {

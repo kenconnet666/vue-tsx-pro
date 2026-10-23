@@ -31,3 +31,22 @@ it('图标可以换、可以去掉', () => {
   ));
   expect(root.querySelectorAll('svg')).toHaveLength(1);
 });
+
+it('status：状态码（读屏跳过）、语言包的标题与说明、按状态的色调；显式写的优先', () => {
+  const root = mount(() => (
+    <>
+      <Result status="404" />
+      <Result status="403" description="缺少财务查看权限" tone="danger" />
+    </>
+  ));
+  const [notFound, forbidden] = [...root.children] as HTMLElement[];
+  expect(notFound!.dataset.tone).toBe('info');
+  const code = notFound!.querySelector('[aria-hidden="true"]:not(svg)')!;
+  expect(code.textContent).toBe('404');
+  expect(notFound!.textContent).toContain('找不到这个页面');
+  expect(notFound!.textContent).toContain('地址可能写错了');
+  expect(forbidden!.dataset.tone).toBe('danger');
+  expect(forbidden!.textContent).toContain('没有访问权限');
+  expect(forbidden!.textContent).toContain('缺少财务查看权限');
+  expect(forbidden!.textContent).not.toContain('联系管理员开通');
+});
