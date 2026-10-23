@@ -8,6 +8,7 @@ import { KeyboardReference } from '../../../site/KeyboardReference';
 import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Remote from './demo/Remote.tsx?demo';
+import Strategy from './demo/Strategy.tsx?demo';
 
 export const meta = {
   title: 'TreeSelect 树形选择',
@@ -23,8 +24,16 @@ export default _component(() => () => (
       <Code>getLabel</Code>、<Code>getChildren</Code>（懒加载用 <Code>hasChildren</Code> 与{' '}
       <Code>loadChildren</Code>）。单选时点节点或 Enter 选中并关闭；
       <Code>selectionMode="multiple"</Code> 勾选，勾上父节点会勾上它的子孙，value
-      是勾上的全部节点，触发框里只列最上层的整枝。<Code>searchable</Code>{' '}
+      默认是勾上的全部节点，触发框里只列最上层的整枝。<Code>searchable</Code>{' '}
       按节点文字过滤，命中节点的上级一起显示并展开；打开时已选节点的上级自动展开。
+    </Example>
+    <Example id="strategy" title="勾选的取法与标签" demo={Strategy}>
+      <Code>checkedStrategy</Code> 决定多选的 value 放哪些勾上的节点（同 Ant Design 的
+      showCheckedStrategy）：<Code>all</Code> 全部；<Code>parent</Code>{' '}
+      整枝勾上时只放父节点（提交“整个中心”）；<Code>child</Code>{' '}
+      只放叶子（提交“具体的团队”）。标签同 <Link href="/components/select">Select</Link>
+      的多选：排在触发按钮前面，点 × 取消整枝，<Code>maxTagCount</Code> 按数量或宽度收起，Backspace
+      移除最后一个。
     </Example>
     <Example id="appearance" title="外观与状态" demo={Appearance}>
       <Code>isDisabled</Code>{' '}
@@ -45,6 +54,7 @@ export default _component(() => () => (
         ['Enter', '单选：选中并关闭'],
         ['Space', '多选：勾选或取消（父子联动）'],
         ['Esc', '关闭并把焦点还给触发按钮'],
+        ['Backspace', '多选（触发按钮上）：移除最后一个标签'],
       ]}
     >
       触发按钮是 role="combobox"、aria-haspopup="tree"；弹出的树同 Tree 的键盘与读屏。

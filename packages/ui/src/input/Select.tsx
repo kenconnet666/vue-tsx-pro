@@ -14,7 +14,7 @@
  * 多选时已选的项是触发按钮前面的一排 Tag（不能放进 button 里：按钮里不能有按钮），各带移除按钮。
  * 这排标签只给指针用（aria-hidden、移除按钮不进 Tab 顺序）：读屏从触发按钮里念出全部已选内容，
  * 键盘在列表里取消勾选，或在触发按钮（及空的搜索框）里按 Backspace 移除最后一项（同 TagsInput）。
- * maxTagCount 是数字时只显示前几个，'responsive' 时排成一行按宽度放（useOverflowItems），其余收进“+N”。
+ * maxTagCount 是数字时只显示前几个，'responsive' 时排成一行按宽度放，其余收进“+N”（SelectedTags，TreeSelect 共用）。
  *
  * 键盘：关闭时 ↓ / Enter / 空格打开（↑ 打开并高亮最后一项），单选时直接按字母选中以它开头的项（同原生 select）；
  * 打开时 ↑↓、Home / End、Page Up / Down 移动，Enter / 空格选中（单选随后关闭），Esc、Tab 关闭。
@@ -41,9 +41,8 @@ import { useId, watch, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
-import { Tag, type TagProps } from '../base/Tag';
+import type { TagProps } from '../base/Tag';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
-import { useOverflowItems } from '../utils/dom/overflow';
 import { useLang, useTextMatcher } from '../config/context';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { ListPopover } from './ListPopover';
@@ -74,6 +73,7 @@ import {
   toListboxOption,
 } from './list-state';
 import { useRemoteItems, type OptionsLoader } from './remote-items';
+import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
 import { TextField, type TextFieldProps } from './TextField';
 
 /** 角色、展开状态与可用性由组件管理 */
@@ -145,7 +145,7 @@ export interface SelectBaseProps<T>
   /** 多选时每个标签的部件属性 */
   propsTag?: Partial<TagProps>;
   /** 多选时那排标签的部件属性 */
-  propsTags?: PartProps<'span'>;
+  propsTags?: Partial<SelectedTagsProps>;
   /** 清空按钮的部件属性 */
   propsClear?: Partial<PresetIconButtonProps>;
   /** 下拉箭头的部件属性 */
@@ -189,24 +189,7 @@ export const selectStyles = stylex.create({
   },
   // 是真正的文字（不是原生 placeholder），要满足 4.5:1：用 textMuted 而不是 textPlaceholder
   placeholder: { color: '_textMuted' },
-  // 多选的那排标签占剩余宽度；触发按钮里只剩读屏用的文字，不再占宽度
-  tags: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: '_xs',
-    flexGrow: 1,
-    minWidth: 0,
-    paddingBlock: '_xs',
-  },
-  // responsive：一行，放不下的移出排版（useOverflowItems 要求容器 position: relative）；
-  // contain: inline-size 让这一行不按内容撑宽外壳（不然按内容宽度排版的祖先会被整行标签撑开，永远“放得下”）
-  tagsLine: {
-    flexWrap: 'nowrap',
-    position: 'relative',
-    overflow: 'hidden',
-    contain: 'inline-size',
-  },
+  // 多选时标签排在触发按钮前面（SelectedTags）占剩余宽度，触发按钮里只剩读屏用的文字
   triggerBehindTags: { flexGrow: 0 },
   chevronOpen: { rotate: '180deg' },
   // 弹出层顶部的搜索框占满宽度
@@ -220,9 +203,6 @@ class Creation {
     this.text = text;
   }
 }
-
-/** 标签的移除按钮：按下时不抢焦点（焦点留在触发按钮上） */
-const keepFocus = (event: PointerEvent) => event.preventDefault();
 
 /** 下拉选择：触发框 + 弹出的选项列表 */
 export const Select = _component(
@@ -329,12 +309,6 @@ export const Select = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
-    let tagRow = _state.raw<HTMLElement | null>(null);
-    const overflow = useOverflowItems({
-      container: () => (maxTagCount === 'responsive' ? tagRow : null),
-      count: () => selectedValues(value).length,
-      min: () => 1,
-    });
 
     /** 多选时移除一项（标签的移除按钮、Backspace） */
     function remove(target: string) {
@@ -468,42 +442,18 @@ export const Select = _component(
           selected[0]!.label
         )))
       );
-      const responsive = maxTagCount === 'responsive';
-      const tagOptions =
-        typeof maxTagCount === 'number' ? selected.slice(0, Math.max(0, maxTagCount)) : selected;
-      const restCount = responsive ? overflow.hidden : selected.length - tagOptions.length;
       const tags = tagged && (
-        <span
-          {...mergeAttrs<'span'>(
-            { sx: [selectStyles.tags, responsive && selectStyles.tagsLine] },
+        <SelectedTags
+          {...mergePartProps<SelectedTagsProps>(
+            {
+              tags: selected,
+              maxTagCount,
+              onRemove: locked ? undefined : remove,
+              propsTag,
+            },
             propsTags,
-            { ref: _toRef(tagRow), 'aria-hidden': 'true' },
           )}
-        >
-          {tagOptions.map((option, index) => (
-            <Tag
-              key={option.value}
-              {...mergePartProps<TagProps>(
-                {
-                  size: 'sm',
-                  variant: 'soft',
-                  onRemove: locked ? undefined : () => remove(option.value),
-                  propsRemove: { tabindex: -1, onPointerdown: keepFocus },
-                },
-                propsTag,
-              )}
-              {...(responsive ? overflow.itemProps(index) : {})}
-            >
-              {option.label}
-            </Tag>
-          ))}
-          {/* responsive 时“+N”一直在（没有折起的项时藏起来但仍要量它的宽度） */}
-          {(responsive || restCount > 0) && (
-            <Tag size="sm" variant="soft" {...(responsive ? overflow.restProps() : {})}>
-              {lang.selectMoreTags(restCount)}
-            </Tag>
-          )}
-        </span>
+        />
       );
       return (
         <>

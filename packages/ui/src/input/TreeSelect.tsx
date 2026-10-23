@@ -10,16 +10,20 @@
  *     searchable
  *   />
  *   <TreeSelect … selectionMode="multiple" value={_bind(teamIds)} />   勾选：勾上父节点就是整枝
+ *   <TreeSelect … selectionMode="multiple" checkedStrategy="child" maxTagCount="responsive" />
  *
  * - 单选：点节点或 Enter 选中并关闭；多选：空格或点勾选框，勾上父节点会勾上它的子孙，子节点全勾上时父节点也勾上。
- *   value 是勾上的全部节点；触发框里只显示最上层的整枝（勾上了“复合材料中心”就不再列它下面的每个组）。
+ *   value 按 checkedStrategy 放勾上的节点：全部（默认）、整枝时只放父节点、只放叶子（checkedByStrategy）。
+ * - 多选的标签同 Select（SelectedTags）：排在触发按钮前面，可移除（取消整枝），maxTagCount 收起，Backspace 移除最后一个。
+ *   标签只列最上层的整枝（勾上了“复合材料中心”就不再列它下面的每个组）；checkedStrategy="child" 时列叶子。
  * - searchable：弹出层顶部的搜索框，按节点文字过滤，命中节点的祖先一起显示并展开；↓ 从搜索框进到树里。
  *   给 load 时由服务端搜索：打开时与输入停下 300 ms 后按搜索词请求，返回命中的节点连同祖先，结果全部展开
  *   （remote-items.ts，同 Select）；自己管请求时写 search={_bind(keyword)}、filter={false}。
  * - 打开后焦点在树上（或搜索框里），键盘同 Tree；Esc 关闭并把焦点还给触发按钮。懒加载同 Tree 的 loadChildren。
  * - 已选节点的文字从已加载的树里找，远程搜索换掉的按见过的文字显示；从没见过的（懒加载还没取回来）显示成 key。
  *
- * 部件：Root（外壳）、Trigger（button，主元素）、Value、Tag（多选时）、Clear、Chevron、Popover、Search（TextField）、Tree。
+ * 部件：Root（外壳）、Tags（多选时的那排标签）、Tag、Trigger（button，主元素）、Value、Clear、Chevron、Popover、
+ * Search（TextField）、Tree。
  */
 import { ChevronDown, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -28,12 +32,19 @@ import { useId, watch } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
-import { Tag, type TagProps } from '../base/Tag';
+import type { TagProps } from '../base/Tag';
+import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang, useTextMatcher } from '../config/context';
 import { Tree, type TreeProps } from '../display/Tree';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import { selectedValues, type SelectionModes } from '../utils/data/selection';
+import {
+  checkedByStrategy,
+  indexTree,
+  toggleChecked,
+  type CheckStrategies,
+} from '../utils/data/tree';
 import {
   anchoredPanelSx,
   floatingStyles,
@@ -56,6 +67,7 @@ import {
 import { listPopoverStyles } from './ListPopover';
 import { useRemoteItems, type OptionsLoader } from './remote-items';
 import { selectStyles, type SelectManaged } from './Select';
+import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
 import { TextField, type TextFieldProps } from './TextField';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
@@ -77,8 +89,15 @@ export interface TreeSelectProps<T>
   isDisabled?: (node: T) => boolean;
   /** 单选（默认）或多选（勾选，父子联动） */
   selectionMode?: keyof SelectionModes;
-  /** 单选时是选中节点的 key（没有时 null），多选时是勾上的全部 key：父级写 value={_bind(x)} */
+  /** 单选时是选中节点的 key（没有时 null），多选时是勾上的节点（按 checkedStrategy）：父级写 value={_bind(x)} */
   value?: string | string[] | null;
+  /**
+   * 多选时 value 里放哪些勾上的节点（同 Ant Design 的 showCheckedStrategy）：all 全部（默认）；
+   * parent 父节点全勾上时只放父节点（提交“整个部门”）；child 只放叶子（提交“具体的人”）
+   */
+  checkedStrategy?: keyof CheckStrategies;
+  /** 多选时触发框里最多显示几个标签，其余收进“+N”；'responsive' 时排成一行、按宽度放 */
+  maxTagCount?: number | 'responsive';
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
   /** 是否打开：父级可以写 open={_bind(x)} */
@@ -111,6 +130,8 @@ export interface TreeSelectProps<T>
   propsValue?: PartProps<'span'>;
   /** 多选时每个标签的部件属性 */
   propsTag?: Partial<TagProps>;
+  /** 多选时那排标签的部件属性 */
+  propsTags?: Partial<SelectedTagsProps>;
   /** 清空按钮的部件属性 */
   propsClear?: Partial<PresetIconButtonProps>;
   /** 下拉箭头的部件属性 */
@@ -142,6 +163,8 @@ export const TreeSelect = _component(
     loadChildren,
     isDisabled,
     selectionMode = 'single',
+    checkedStrategy = 'all',
+    maxTagCount,
     value = _bindable<string | string[] | null>(null),
     open = _bindable(false),
     placeholder,
@@ -165,6 +188,7 @@ export const TreeSelect = _component(
     propsIcon,
     propsValue,
     propsTag,
+    propsTags,
     propsClear,
     propsChevron,
     propsPopover,
@@ -246,16 +270,30 @@ export const TreeSelect = _component(
     };
 
     const values = () => selectedValues(value);
-    /** 触发框里显示的节点：多选时只列最上层的整枝（父节点也勾上了的不重复列） */
-    const displayKeys = () => {
-      const keys = values();
-      if (!multiple()) return keys;
-      const set = new Set(keys);
-      return keys.filter((key) => {
-        const parent = nodes.get(key)?.parent;
-        return parent === undefined || !set.has(parent);
-      });
+    // 勾选联动要看到折叠着的节点
+    const index = _derived.by(() =>
+      indexTree(remote.items(), { getKey: (node) => getKey(node), getChildren }),
+    );
+    /** 按取法整理勾上的节点：已加载的按树的顺序与父子关系，还没加载（或远程搜索换掉了）的原样跟在后面 */
+    const byStrategy = (keys: readonly string[], strategy: keyof CheckStrategies) => [
+      ...checkedByStrategy(index, keys, strategy),
+      ...keys.filter((key) => !index.parents.has(key)),
+    ];
+    /** 勾选变了（树、移除标签）：按 checkedStrategy 写回，还没加载的已选节点保留 */
+    const setChecked = (checked: readonly string[]) => {
+      const unknown = values().filter((key) => !index.parents.has(key));
+      value = [...checkedByStrategy(index, checked, checkedStrategy), ...unknown];
     };
+    /** 触发框里显示的节点：多选时只列最上层的整枝（父节点也勾上了的不重复列），child 时列叶子 */
+    const displayKeys = () =>
+      multiple()
+        ? byStrategy(values(), checkedStrategy === 'child' ? 'child' : 'parent')
+        : values();
+
+    /** 移除一个标签：取消整枝 */
+    function remove(key: string) {
+      setChecked(toggleChecked(index, values(), key));
+    }
     const labelOf = (key: string) => {
       const found = nodes.get(key);
       return found ? getLabel(found.node) : (seenLabels.get(key) ?? key);
@@ -307,6 +345,13 @@ export const TreeSelect = _component(
     function onTriggerKeydown(event: KeyboardEvent) {
       const state = control();
       if (state.disabled || state.readonly) return;
+      // 多选：Backspace 移除最后一个标签（同 Select）
+      if (event.key === 'Backspace' && multiple()) {
+        event.preventDefault();
+        const last = displayKeys().at(-1);
+        if (last !== undefined) remove(last);
+        return;
+      }
       if (!open && (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault();
         show();
@@ -363,17 +408,17 @@ export const TreeSelect = _component(
       const off = state.disabled;
       const locked = off || state.readonly;
       const shownKeys = displayKeys();
+      // 多选：触发按钮前面一排标签，按钮里只留给读屏的文字（同 Select）
+      const tagged = multiple() && shownKeys.length > 0;
       const shown =
         shownKeys.length === 0 ? (
           <span {...stylex.attrs(selectStyles.placeholder)}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
-        ) : multiple() ? (
-          shownKeys.map((key) => (
-            <Tag key={key} {...mergePartProps<TagProps>({ size: 'sm', variant: 'soft' }, propsTag)}>
-              {labelOf(key)}
-            </Tag>
-          ))
+        ) : tagged ? (
+          <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+            {lang.selectSummary(shownKeys.map(labelOf))}
+          </span>
         ) : (
           labelOf(shownKeys[0]!)
         );
@@ -400,9 +445,28 @@ export const TreeSelect = _component(
             data-disabled={off || undefined}
           >
             {controlIcon(icon, propsIcon)}
+            {tagged && (
+              <SelectedTags
+                {...mergePartProps<SelectedTagsProps>(
+                  {
+                    tags: shownKeys.map((key) => ({ value: key, label: labelOf(key) })),
+                    maxTagCount,
+                    onRemove: locked ? undefined : remove,
+                    propsTag,
+                  },
+                  propsTags,
+                )}
+              />
+            )}
             <button
               {...mergeAttrs<'button'>(
-                { sx: [buttonBaseStyles.root, selectStyles.trigger] },
+                {
+                  sx: [
+                    buttonBaseStyles.root,
+                    selectStyles.trigger,
+                    tagged && selectStyles.triggerBehindTags,
+                  ],
+                },
                 rest,
                 {
                   ref: _toRef(trigger),
@@ -482,7 +546,7 @@ export const TreeSelect = _component(
                   checkable
                   checked={_bind(
                     () => [...values()],
-                    (next: string[]) => (value = next),
+                    (next: string[]) => setChecked(next),
                   )}
                   expanded={_bind(
                     () => shownExpanded(),

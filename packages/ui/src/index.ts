@@ -717,6 +717,12 @@ export {
   type SelectProps,
 } from './input/Select';
 export {
+  SelectedTags,
+  selectedTagsStyles,
+  type SelectedTag,
+  type SelectedTagsProps,
+} from './input/SelectedTags';
+export {
   Slider,
   sliderPositionStyles,
   sliderStyles,
