@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { WorkflowTimeline } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { WorkflowTimeline } from '@vue-tsx-pro/ui/workflow';">
     <Examples>
       <ExampleColumn>
         <Example id="records" title="审批记录" demo={Records}>

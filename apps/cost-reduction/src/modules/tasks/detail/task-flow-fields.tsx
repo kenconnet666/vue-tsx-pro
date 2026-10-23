@@ -11,8 +11,8 @@ import {
   Select,
   Textarea,
   TextField,
-  type ProcessOutcome,
 } from '@vue-tsx-pro/ui';
+import { type ProcessOutcome } from '@vue-tsx-pro/ui/workflow';
 import Decimal from 'decimal.js';
 import { dict, ownerOptions } from '../../../app/master';
 import { latestEstimate } from '../../../domain/task/benefit';

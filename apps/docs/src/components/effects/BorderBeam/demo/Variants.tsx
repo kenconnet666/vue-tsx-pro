@@ -1,7 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { BorderBeam, Card, Grid, Text } from '@vue-tsx-pro/ui';
+import { Card, Grid, Text } from '@vue-tsx-pro/ui';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { BorderBeam } from '@vue-tsx-pro/ui/effects';
 
 const styles = stylex.create({
   card: { position: 'relative', minHeight: '8rem', display: 'grid', placeItems: 'center' },

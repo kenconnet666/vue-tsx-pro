@@ -36,6 +36,16 @@
       "types": "./dist/patterns/index.d.ts",
       "default": "./dist/patterns/index.js"
     },
+    "./workflow": {
+      "@vue-tsx-pro/source": "./src/workflow/index.ts",
+      "types": "./dist/workflow/index.d.ts",
+      "default": "./dist/workflow/index.js"
+    },
+    "./effects": {
+      "@vue-tsx-pro/source": "./src/effects/index.ts",
+      "types": "./dist/effects/index.d.ts",
+      "default": "./dist/effects/index.js"
+    },
     "./vue-router": {
       "@vue-tsx-pro/source": "./src/config/vue-router.ts",
       "types": "./dist/config/vue-router.d.ts",

@@ -2,7 +2,8 @@
  * 渠道一：供应商建议（DESIGN.md §3.1）。齐全后技术评估与收益测算并行、不互为前置；协商最多 3 轮，
  * 第 3 次异议后提级 PEMO 裁决；协商超时视为无异议；产品团队退单只能退回 PEMO 重派
  */
-import type { ProcessDefinition } from '@vue-tsx-pro/ui';
+
+import type { ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
 
 /** 建议卡的状态 */
 export interface SuggestionStatuses {

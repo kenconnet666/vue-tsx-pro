@@ -1,7 +1,8 @@
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Badge, Button, Card, Flex, Grid, H3, Icon, Text, TiltCard } from '@vue-tsx-pro/ui';
+import { Badge, Button, Card, Flex, Grid, H3, Icon, Text } from '@vue-tsx-pro/ui';
+import { TiltCard } from '@vue-tsx-pro/ui/effects';
 
 const PLANS = [
   { name: '入门', price: '¥0', features: ['3 个项目', '社区支持', '基础统计'] },

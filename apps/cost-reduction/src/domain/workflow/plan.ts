@@ -2,7 +2,8 @@
  * 渠道二：项目团队方案（DESIGN.md §3.2）。预审不值得做直接终止，不进供应商评估、不占设计资源；
  * 供应商不接受则退回原编制人调整，第 2 次不接受后提级项目团队；方案需求归属不明由 PEMO 判断后派，不退回
  */
-import type { ProcessDefinition } from '@vue-tsx-pro/ui';
+
+import type { ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
 
 /** 方案卡的状态 */
 export interface PlanStatuses {

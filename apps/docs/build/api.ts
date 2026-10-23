@@ -26,20 +26,29 @@ const src = join(ui, 'src').split('\\').join('/');
 /** 部件属性的通用部分（sx）声明在这里：不逐条列出 */
 const PART_PROPS_FILE = `${src}/utils/props.ts`;
 
-/** 组件库的全部入口，登记在 package.json 的 exports：导入路径（@vue-tsx-pro/ui/patterns）与源码文件（相对 src） */
-const ENTRIES = Object.entries(
-  JSON.parse(readFileSync(join(ui, 'package.json'), 'utf8')).exports as Record<string, unknown>,
-).flatMap(([key, target]) =>
-  typeof target === 'object' && target !== null
-    ? [
-        {
-          name: `@vue-tsx-pro/ui${key.slice(1)}`,
-          source: (target as Record<string, string>)['@vue-tsx-pro/source']!.replace('./src/', ''),
-        },
-      ]
-    : [],
-);
+/** 组件库的 package.json：入口登记在它的 exports 里 */
+const MANIFEST = join(ui, 'package.json').split('\\').join('/');
 
+/** 组件库的全部入口：导入路径（@vue-tsx-pro/ui/patterns）与源码文件（相对 src） */
+function readEntries() {
+  const exports = JSON.parse(ts.sys.readFile(MANIFEST)!).exports as Record<string, unknown>;
+  return Object.entries(exports).flatMap(([key, target]) =>
+    typeof target === 'object' && target !== null
+      ? [
+          {
+            name: `@vue-tsx-pro/ui${key.slice(1)}`,
+            source: (target as Record<string, string>)['@vue-tsx-pro/source']!.replace(
+              './src/',
+              '',
+            ),
+          },
+        ]
+      : [],
+  );
+}
+
+/** 当前程序的入口：每次重建程序时重读，加了子路径不用重启开发服务器 */
+let entries = readEntries();
 let program: ts.Program | undefined;
 let stale = true;
 
@@ -84,8 +93,9 @@ function currentProgram(): ts.Program {
     },
   )!;
   // 只从入口出发：tsconfig 里的测试文件会把 vitest、playwright 的类型也拉进来，程序大一倍
+  entries = readEntries();
   program = ts.createProgram({
-    rootNames: ENTRIES.map((entry) => `${src}/${entry.source}`),
+    rootNames: entries.map((entry) => `${src}/${entry.source}`),
     options: config.options,
     host: compilerHost(config.options),
     oldProgram: program,
@@ -108,7 +118,7 @@ function componentSymbol(checker: ts.TypeChecker, name: string): ts.Symbol | und
 }
 
 function exportedSymbol(checker: ts.TypeChecker, name: string): ts.Symbol {
-  for (const entry of ENTRIES) {
+  for (const entry of entries) {
     const file = currentProgram().getSourceFile(`${src}/${entry.source}`)!;
     const module = checker.getSymbolAtLocation(file)!;
     const symbol = checker.getExportsOfModule(module).find((item) => item.name === name);
@@ -117,7 +127,7 @@ function exportedSymbol(checker: ts.TypeChecker, name: string): ts.Symbol {
     }
   }
   throw new Error(
-    `@vue-tsx-pro/ui 的入口（${ENTRIES.map((entry) => entry.name).join('、')}）都没有导出 ${name}`,
+    `@vue-tsx-pro/ui 的入口（${entries.map((entry) => entry.name).join('、')}）都没有导出 ${name}`,
   );
 }
 
@@ -274,14 +284,14 @@ export function extractCatalog(): CatalogEntry[] {
   const checker = currentProgram().getTypeChecker();
   /** 名字 → 导出它的入口 */
   const entryOf = new Map<string, string>();
-  for (const entry of ENTRIES) {
+  for (const entry of entries) {
     const file = currentProgram().getSourceFile(`${src}/${entry.source}`)!;
     for (const symbol of checker.getExportsOfModule(checker.getSymbolAtLocation(file)!)) {
       entryOf.set(symbol.name, entry.name);
     }
   }
   const names = new Set(entryOf.keys());
-  const entries: CatalogEntry[] = [];
+  const catalog: CatalogEntry[] = [];
   for (const name of [...names].sort()) {
     const component = name.replace(/Props$/, '');
     if (
@@ -296,14 +306,14 @@ export function extractCatalog(): CatalogEntry[] {
     const api = extractComponentApi(name);
     // 演练场只调属性与内容：部件属性、事件不进目录，数据小一半
     const props = api.props.filter((prop) => prop.kind === 'prop' || prop.kind === 'content');
-    entries.push({
+    catalog.push({
       name: component,
       entry: entryOf.get(component)!,
       category: path.slice(src.length + 1).split('/')[0]!,
       api: { ...api, props },
     });
   }
-  return entries;
+  return catalog;
 }
 
 const PREFIX = 'virtual:api/';
@@ -454,10 +464,11 @@ export function componentApi(): Plugin {
       // 当前源码已有缓存时不必预热：页面直接读缓存，源码改了才需要程序
       if (!cache?.has()) worker.warm();
       // 组件库源码在 docs 根目录之外：Vite 只监听页面加载过的文件，没打开过的入口（three/index.ts）改了收不到，
-      // API 数据就一直是旧的。整个源码目录都监听上
-      server.watcher.add(src);
+      // API 数据就一直是旧的。整个源码目录都监听上；package.json 改了 exports（加子路径）也要重建
+      server.watcher.add([src, MANIFEST]);
       server.watcher.on('change', (file) => {
-        if (!file.split('\\').join('/').startsWith(src)) return;
+        const path = file.split('\\').join('/');
+        if (!path.startsWith(src) && path !== MANIFEST) return;
         worker.invalidate();
         cache?.invalidate();
         for (const id of loaded) {

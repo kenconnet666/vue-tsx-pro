@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { TiltCard } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { TiltCard } from '@vue-tsx-pro/ui/effects';">
     <Examples>
       <ExampleColumn>
         <Example id="pricing" title="价格卡片" demo={Pricing}>

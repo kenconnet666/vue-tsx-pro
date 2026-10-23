@@ -2,7 +2,12 @@
  * 联合降本的流程定义：后端引擎按它们执行（现在是假后端的流转模拟），前端按它们画流程图、给出处理按钮。
  * 卡的状态由流程走到的节点决定：节点的 meta.status；实例挂起是“暂停”，被终止是“终止”
  */
-import { processGraph, type ProcessDefinition, type ProcessInstance } from '@vue-tsx-pro/ui';
+
+import {
+  processGraph,
+  type ProcessDefinition,
+  type ProcessInstance,
+} from '@vue-tsx-pro/ui/workflow';
 import { dmcProcess } from './dmc';
 import { planProcess } from './plan';
 import { suggestionProcess } from './suggestion';

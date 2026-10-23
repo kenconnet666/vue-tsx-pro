@@ -3,7 +3,8 @@
  * 从待认定退回方案设计；验证达标判断的依据是成本团队出具的验证窗结论；每个里程碑都要上传交付证据；
  * 关闭须验证窗结论、收益认定意见、商务谈定记录三项齐全。暂停、终止是流程实例的挂起与终止，不是节点
  */
-import type { ProcessDefinition, ProcessInstance, WorkItem } from '@vue-tsx-pro/ui';
+
+import type { ProcessDefinition, ProcessInstance, WorkItem } from '@vue-tsx-pro/ui/workflow';
 import type { TaskStatus } from '../task/types';
 
 /** 任务池的流程 */

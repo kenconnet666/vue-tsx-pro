@@ -1,5 +1,6 @@
 /** 任务卡（降本项目）的接口：台账查询、看板、读写、推进与异常状态 */
-import type { WorkItem } from '@vue-tsx-pro/ui';
+
+import type { WorkItem } from '@vue-tsx-pro/ui/workflow';
 import type { LedgerPage, LedgerRequest } from '../domain/task/query';
 import type { CostKind, CostTask, PlanChange, TaskStatus } from '../domain/task/types';
 import { apiPaths, fillPath, http } from './client';

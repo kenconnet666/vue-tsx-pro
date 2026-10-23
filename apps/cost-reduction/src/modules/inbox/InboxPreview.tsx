@@ -16,9 +16,9 @@ import {
   StatusBadge,
   useFormat,
   useRequest,
-  type WorkItem,
 } from '@vue-tsx-pro/ui';
 import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+import { type WorkItem } from '@vue-tsx-pro/ui/workflow';
 import { getTask } from '../../api/tasks';
 import { personName, shortTeam } from '../../app/master';
 import { paths } from '../../app/paths';

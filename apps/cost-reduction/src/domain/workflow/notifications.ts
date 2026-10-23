@@ -4,7 +4,8 @@
  * 近 14 天的，新的在前。后端引擎接上后由它在流转时写通知，接口的形状不变
  */
 import { shiftIsoDate } from '@vue-tsx-pro/ui';
-import type { ProcessInstance, WorkflowEvent, WorkItem } from '@vue-tsx-pro/ui';
+
+import type { ProcessInstance, WorkflowEvent, WorkItem } from '@vue-tsx-pro/ui/workflow';
 import type { InboxView, InboxViewer } from './inbox';
 
 /** 通知的类型（通知中心的筛选按钮） */

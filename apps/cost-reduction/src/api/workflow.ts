@@ -2,7 +2,13 @@
  * 流程的接口（后端自研引擎照这里实现）：流程定义、一张卡的流程轨迹、收件箱的页签，
  * 待办的认领、退回收件箱、指定、申请改派、处理、催办，流程实例的留言、暂停、恢复、终止
  */
-import type { ProcessDefinition, ProcessInstance, WorkflowEvent, WorkItem } from '@vue-tsx-pro/ui';
+
+import type {
+  ProcessDefinition,
+  ProcessInstance,
+  WorkflowEvent,
+  WorkItem,
+} from '@vue-tsx-pro/ui/workflow';
 import type { InboxView } from '../domain/workflow/inbox';
 import { apiPaths, fillPath, http } from './client';
 

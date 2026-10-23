@@ -305,14 +305,6 @@ export {
   type ItemListProps,
 } from './display/ItemList';
 export {
-  Marquee,
-  marqueeDynamicStyles,
-  marqueeStyles,
-  marqueeTrailStyles,
-  type MarqueeDirections,
-  type MarqueeProps,
-} from './display/Marquee';
-export {
   ProportionBar,
   proportionBarDynamicStyles,
   proportionBarStyles,
@@ -671,15 +663,6 @@ export {
   type SelectProps,
 } from './input/Select';
 export {
-  SlideVerify,
-  slideVerifyStyles,
-  type SlideVerifyPoint,
-  type SlideVerifyProps,
-  type SlideVerifyResult,
-  type SlideVerifyStatuses,
-  type SlideVerifyTargets,
-} from './input/SlideVerify';
-export {
   Slider,
   sliderPositionStyles,
   sliderStyles,
@@ -1022,108 +1005,6 @@ export {
   type TableQueryOptions,
   type TableQueryState,
 } from './table/use-table-query';
-
-// 流程：流程定义与校验、运行时的数据（流程的执行在后端引擎）
-export {
-  ApprovalActions,
-  type ApprovalActionsProps,
-  type ApprovalInput,
-} from './workflow/ApprovalActions';
-export {
-  FlowDiagram,
-  flowDiagramStyles,
-  type FlowDiagramProps,
-  type FlowDiagramSizes,
-  type FlowNodeState,
-} from './workflow/FlowDiagram';
-export { WorkflowTimeline, type WorkflowTimelineProps } from './workflow/WorkflowTimeline';
-export {
-  applyProcessEffects,
-  evaluateProcessCondition,
-  nextProcessEdge,
-  processGraph,
-  processOutcome,
-  resolveProcessValue,
-  type ProcessAssignee,
-  type ProcessCompareOp,
-  type ProcessCompareOps,
-  type ProcessCondition,
-  type ProcessDefinition,
-  type ProcessDue,
-  type ProcessEdge,
-  type ProcessEffect,
-  type ProcessEndNode,
-  type ProcessGatewayNode,
-  type ProcessGraph,
-  type ProcessLane,
-  type ProcessMultiInstance,
-  type ProcessNode,
-  type ProcessNodeBase,
-  type ProcessNodeType,
-  type ProcessOutcome,
-  type ProcessOutcomeKind,
-  type ProcessOutcomeKinds,
-  type ProcessOverdue,
-  type ProcessPoint,
-  type ProcessRequirement,
-  type ProcessStartNode,
-  type ProcessTaskNode,
-  type ProcessValue,
-  type ProcessVariableRef,
-  type ProcessVariables,
-} from './workflow/definition';
-export {
-  layoutProcess,
-  type FlowLayout,
-  type FlowLayoutEdge,
-  type FlowLayoutLane,
-  type FlowLayoutNode,
-  type FlowLayoutOptions,
-} from './workflow/layout';
-export {
-  workflowMessages,
-  type WorkflowEventText,
-  type WorkflowMessages,
-} from './workflow/messages';
-export {
-  processProgress,
-  workItemOutcomes,
-  type ProcessInstance,
-  type ProcessInstanceStatuses,
-  type ProcessNodeStates,
-  type ProcessProgress,
-  type WorkflowEvent,
-  type WorkflowEventTypes,
-  type WorkItem,
-  type WorkItemArrivals,
-  type WorkItemAssignments,
-  type WorkItemStates,
-} from './workflow/runtime';
-export {
-  validateProcess,
-  type ProcessProblem,
-  type ProcessProblemSeverities,
-} from './workflow/validate';
-
-// 效果：倾斜卡片、聚光卡片、流光边框（3D 与 WebGL 效果在子路径 @vue-tsx-pro/ui/three）
-export {
-  BorderBeam,
-  borderBeamDynamicStyles,
-  borderBeamStyles,
-  type BorderBeamProps,
-} from './effects/BorderBeam';
-export {
-  SpotlightCard,
-  spotlightCardDynamicStyles,
-  spotlightCardStyles,
-  type SpotlightCardProps,
-} from './effects/SpotlightCard';
-export {
-  TiltCard,
-  tiltCardDynamicStyles,
-  tiltCardStyles,
-  type TiltCardProps,
-} from './effects/TiltCard';
 
 // 配置：Provider、createUi、组件默认值
 export {

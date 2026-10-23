@@ -1,16 +1,8 @@
 // 设计器里用：节点可以点选（selected 双向绑定），右边显示选中节点的属性；validateProcess 查出的问题标红并列在下面
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import {
-  Alert,
-  Card,
-  Descriptions,
-  Flex,
-  FlowDiagram,
-  Small,
-  validateProcess,
-  type ProcessDefinition,
-} from '@vue-tsx-pro/ui';
+import { Alert, Card, Descriptions, Flex, Small } from '@vue-tsx-pro/ui';
+import { FlowDiagram, validateProcess, type ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
 
 // 报销审批：故意漏了“财务复核”的处理人（泳道没有岗位收件箱，也没写 assignee）
 const expense: ProcessDefinition = {

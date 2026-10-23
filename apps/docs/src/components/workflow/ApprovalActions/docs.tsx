@@ -19,7 +19,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { ApprovalActions, workItemOutcomes } from '@vue-tsx-pro/ui';"
+    imports="import { ApprovalActions, workItemOutcomes } from '@vue-tsx-pro/ui/workflow';"
   >
     <Examples>
       <ExampleColumn>

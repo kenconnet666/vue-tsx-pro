@@ -26,12 +26,12 @@ import {
   useQueryState,
   useRequest,
   type DataTableColumn,
-  type WorkItem,
   Flex,
   Text,
   ViewportFill,
 } from '@vue-tsx-pro/ui';
 import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+import { type WorkItem } from '@vue-tsx-pro/ui/workflow';
 import { claimWorkItem, listWorkItems } from '../../api/workflow';
 import { notifyError, toaster } from '../../app/feedback';
 import { PageNav } from '../../app/layout/PageNav';

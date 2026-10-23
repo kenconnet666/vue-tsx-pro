@@ -10,24 +10,18 @@
  */
 import { BellRing, Hand, Undo2, UserCheck, UserRoundCog } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
+import { Alert, Button, Card, Flex, H2, Small, useRequest } from '@vue-tsx-pro/ui';
+import { useFormDialog } from '@vue-tsx-pro/ui/patterns';
 import {
-  Alert,
   ApprovalActions,
-  Button,
-  Card,
-  Flex,
   FlowDiagram,
-  H2,
   processProgress,
-  Small,
-  useRequest,
   workItemOutcomes,
   WorkflowTimeline,
   type ApprovalInput,
   type ProcessOutcome,
   type WorkItem,
-} from '@vue-tsx-pro/ui';
-import { useFormDialog } from '@vue-tsx-pro/ui/patterns';
+} from '@vue-tsx-pro/ui/workflow';
 import Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';
 import {

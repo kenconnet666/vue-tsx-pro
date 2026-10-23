@@ -3,7 +3,8 @@
  * DMC 收益影响评估），完成日期回填到实施节点；之后是涉及供应商的并行会签（一家不同意就退回）、降本审核与财务确认。
  * 每个节点都能驳回到上一节点（落到原处理人），处理人在“流程配置”里可调
  */
-import type { ProcessDefinition, ProcessEdge, ProcessTaskNode } from '@vue-tsx-pro/ui';
+
+import type { ProcessDefinition, ProcessEdge, ProcessTaskNode } from '@vue-tsx-pro/ui/workflow';
 
 /** 审批链的一个节点：标识、名称、默认的收件箱、对应的完成形式 */
 const chain = [

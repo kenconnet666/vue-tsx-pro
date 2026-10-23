@@ -24,9 +24,9 @@ import {
   useFormat,
   useRequest,
   workdaysBetween,
-  type WorkItem,
 } from '@vue-tsx-pro/ui';
 import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+import { type WorkItem } from '@vue-tsx-pro/ui/workflow';
 import { getDashboard } from '../../api/benefit';
 import { getMyTasks, getNotifications } from '../../api/session';
 import { listWorkItems } from '../../api/workflow';

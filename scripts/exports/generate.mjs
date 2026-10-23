@@ -35,11 +35,6 @@ const GROUPS = [
   ['date', '日期：日历、分段输入、日期与时间选择'],
   ['form', '表单：字段、校验'],
   ['table', '表格'],
-  ['workflow', '流程：流程定义与校验、运行时的数据（流程的执行在后端引擎）'],
-  [
-    'effects',
-    '效果：倾斜卡片、聚光卡片、流光边框（3D 与 WebGL 效果在子路径 @vue-tsx-pro/ui/three）',
-  ],
   ['config', '配置：Provider、createUi、组件默认值'],
   [
     'config/theme',

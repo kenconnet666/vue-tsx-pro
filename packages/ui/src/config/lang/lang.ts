@@ -251,14 +251,6 @@ export interface Lang {
   readonly breadcrumbsExpand: string;
   /** 步骤的状态给读屏的文字，接在标题后面：`('complete')` → “（已完成）”；当前步骤由 aria-current 念出，不用它 */
   readonly stepState: (state: 'complete' | 'upcoming' | 'error') => string;
-  /** 拖动验证的提示，同时是滑块的无障碍名称，默认“拖动滑块完成验证” */
-  readonly slideVerifyHint: string;
-  /** 拖动验证：等待服务端判定，默认“验证中…” */
-  readonly slideVerifyChecking: string;
-  /** 拖动验证：通过，默认“验证通过” */
-  readonly slideVerifySuccess: string;
-  /** 拖动验证：没通过，默认“验证失败，请重试” */
-  readonly slideVerifyError: string;
 
   // ───────── 日期组件 ─────────
 

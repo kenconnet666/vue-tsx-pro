@@ -1,7 +1,8 @@
 import { Cpu, Gauge, Layers, Lock, Rocket, Sparkles } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, Flex, Grid, H3, Icon, Paragraph, SpotlightCard } from '@vue-tsx-pro/ui';
+import { Card, Flex, Grid, H3, Icon, Paragraph } from '@vue-tsx-pro/ui';
+import { SpotlightCard } from '@vue-tsx-pro/ui/effects';
 
 const FEATURES = [
   { icon: Rocket, title: '开箱即用', text: '一行 createUi 配好主题、语言与路由。' },

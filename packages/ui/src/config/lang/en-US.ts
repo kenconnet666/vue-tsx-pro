@@ -109,10 +109,6 @@ export const enUS: Lang = {
   breadcrumbsExpand: 'Show hidden levels',
   stepState: (state) =>
     ` (${{ complete: 'completed', upcoming: 'not started', error: 'error' }[state]})`,
-  slideVerifyHint: 'Slide to verify',
-  slideVerifyChecking: 'Verifying…',
-  slideVerifySuccess: 'Verified',
-  slideVerifyError: 'Verification failed, try again',
   calendarPreviousMonth: 'Previous month',
   calendarNextMonth: 'Next month',
   calendarPreviousYear: 'Previous year',

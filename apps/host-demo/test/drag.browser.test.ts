@@ -1,4 +1,4 @@
-// 拖动相关的组件在真实浏览器里的行为：ScrollArea 的浮层滚动条、Slider、SlideVerify（演示页 /base）
+// 拖动相关的组件在真实浏览器里的行为：ScrollArea 的浮层滚动条、Slider（演示页 /base）
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
@@ -161,37 +161,5 @@ describe('Slider', () => {
     slider().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
     await nextFrame();
     expect(slider().getAttribute('aria-valuenow')).toBe('99');
-  });
-});
-
-describe('SlideVerify：拖动验证', () => {
-  const verify = () => $('.verify-demo');
-  const handle = () => verify().querySelector<HTMLElement>('[role="slider"]')!;
-
-  it('没拖到头就松手：弹回起点', async () => {
-    const start = center(handle());
-    await drag(handle(), start, { x: start.x + 40, y: start.y });
-    await expect.poll(() => handle().getAttribute('aria-valuenow')).toBe('0');
-    expect(verify().dataset.status).toBe('idle');
-  });
-
-  it('拖到头松手：交给（模拟的）服务端判定，通过后锁定并播报', async () => {
-    const start = center(handle());
-    const width = verify().getBoundingClientRect().width;
-    await drag(handle(), start, { x: start.x + width, y: start.y });
-    expect(verify().dataset.status).toBe('verifying');
-    await expect.poll(() => verify().dataset.status, { timeout: 3000 }).toBe('success');
-    expect(handle().getAttribute('aria-disabled')).toBe('true');
-    expect(verify().querySelector('[aria-live]')!.textContent).toBe('验证通过');
-  });
-
-  it('拼图：任意位置松手，按位置判定；位置写回给拼图块', async () => {
-    const puzzle = $('.puzzle-verify');
-    const piece = $('.puzzle-demo').lastElementChild!;
-    const before = piece.getBoundingClientRect().left;
-    const start = center(puzzle.querySelector('[role="slider"]')!);
-    await drag(puzzle.querySelector('[role="slider"]')!, start, { x: start.x + 60, y: start.y });
-    expect(piece.getBoundingClientRect().left).toBeGreaterThan(before + 30);
-    expect(puzzle.dataset.status).toBe('verifying');
   });
 });

@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Marquee } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Marquee } from '@vue-tsx-pro/ui/effects';">
     <Examples>
       <ExampleColumn>
         <Example id="partners" title="合作伙伴与标签墙" demo={Partners}>

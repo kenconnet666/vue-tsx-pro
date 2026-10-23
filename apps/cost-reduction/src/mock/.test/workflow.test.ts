@@ -1,7 +1,8 @@
 // 流转模拟：五个流程定义校验通过；渠道一走完一遍（并行、汇合、派到产品团队、协商三轮后提级）；
 // 收件箱规则（认领、退回收件箱后不能再认领、负责人指定、申请改派、退回落到原处理人）；超时视为无异议；
 // 没人认领转负责人；会签与否决；暂停与终止；卡的状态由节点决定
-import { createWorkCalendar, validateProcess } from '@vue-tsx-pro/ui';
+import { createWorkCalendar } from '@vue-tsx-pro/ui';
+import { validateProcess } from '@vue-tsx-pro/ui/workflow';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { processDefinitions, statusOfInstance, suggestionProcess } from '../../domain/workflow';
 import { notificationsFor } from '../../domain/workflow/notifications';

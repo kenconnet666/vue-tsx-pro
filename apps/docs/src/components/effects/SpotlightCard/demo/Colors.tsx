@@ -1,7 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, Grid, Stat, SpotlightCard } from '@vue-tsx-pro/ui';
+import { Card, Grid, Stat } from '@vue-tsx-pro/ui';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { SpotlightCard } from '@vue-tsx-pro/ui/effects';
 
 const STATS = [
   { label: '新增用户', value: 12840, color: colors.chart2 },

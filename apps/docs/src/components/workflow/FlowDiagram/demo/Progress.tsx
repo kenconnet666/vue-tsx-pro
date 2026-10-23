@@ -1,11 +1,12 @@
 // 采购申请审批：泳道是岗位，按金额分两条路（排他网关），超过 5 万要总经理审批；流转记录推出的进度叠在图上
 import { _component } from '@vue-tsx-pro/tsx';
+
 import {
   FlowDiagram,
   processProgress,
   type ProcessDefinition,
   type WorkflowEvent,
-} from '@vue-tsx-pro/ui';
+} from '@vue-tsx-pro/ui/workflow';
 
 const purchase: ProcessDefinition = {
   key: 'purchase',

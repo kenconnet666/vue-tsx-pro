@@ -7,7 +7,8 @@
  *   正式页面里每个节点由各自的岗位处理；
  * - 种子数据：按里程碑的日期把每张任务回放一遍，流转记录是真实的先后
  */
-import { shiftIsoDate, type ProcessInstance, type WorkflowEvent } from '@vue-tsx-pro/ui';
+import { shiftIsoDate } from '@vue-tsx-pro/ui';
+import { type ProcessInstance, type WorkflowEvent } from '@vue-tsx-pro/ui/workflow';
 import { TODAY } from '../../domain/clock';
 import { latestEstimate, milestoneDone } from '../../domain/task/benefit';
 import { reached } from '../../domain/task/status';

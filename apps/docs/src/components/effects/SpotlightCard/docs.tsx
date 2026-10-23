@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { SpotlightCard } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { SpotlightCard } from '@vue-tsx-pro/ui/effects';">
     <Examples>
       <ExampleColumn>
         <Example id="features" title="特性网格" demo={Features}>

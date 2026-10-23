@@ -1,7 +1,8 @@
 // 流程暂停时不能处理（disabled）；紧凑尺寸放在表格行、收件箱的预览里；propsButton 按结果改某个按钮（加图标）
 import { Check, CornerUpLeft, X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import { ApprovalActions, Badge, Card, Flex, Small, type ProcessOutcome } from '@vue-tsx-pro/ui';
+import { Badge, Card, Flex, Small } from '@vue-tsx-pro/ui';
+import { ApprovalActions, type ProcessOutcome } from '@vue-tsx-pro/ui/workflow';
 
 const outcomes: ProcessOutcome[] = [
   { key: 'pass', label: '齐全' },

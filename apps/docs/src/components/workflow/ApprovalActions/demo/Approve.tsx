@@ -1,18 +1,8 @@
 // 一个人工节点的处理按钮：同意直接提交；退回要写意见；转交要选给谁（业务字段，fields 给出内容、validate 校验）；
 // 提交是异步的，按钮显示加载中，结果用提示告诉用户
 import { _component } from '@vue-tsx-pro/tsx';
-import {
-  ApprovalActions,
-  Card,
-  createToaster,
-  Field,
-  Flex,
-  Select,
-  Small,
-  Toaster,
-  type ApprovalInput,
-  type ProcessOutcome,
-} from '@vue-tsx-pro/ui';
+import { Card, createToaster, Field, Flex, Select, Small, Toaster } from '@vue-tsx-pro/ui';
+import { ApprovalActions, type ApprovalInput, type ProcessOutcome } from '@vue-tsx-pro/ui/workflow';
 
 const outcomes: ProcessOutcome[] = [
   { key: 'approve', label: '同意', comment: 'optional' },

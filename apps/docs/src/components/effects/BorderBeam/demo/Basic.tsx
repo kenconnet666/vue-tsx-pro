@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { BorderBeam, Button, Card, Flex, H3, Paragraph, TextField } from '@vue-tsx-pro/ui';
+import { Button, Card, Flex, H3, Paragraph, TextField } from '@vue-tsx-pro/ui';
+import { BorderBeam } from '@vue-tsx-pro/ui/effects';
 
 const styles = stylex.create({
   card: { position: 'relative', maxWidth: '24rem' },

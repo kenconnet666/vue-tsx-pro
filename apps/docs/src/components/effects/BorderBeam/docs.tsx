@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { BorderBeam } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { BorderBeam } from '@vue-tsx-pro/ui/effects';">
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="基础用法" demo={Basic}>

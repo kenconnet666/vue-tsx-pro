@@ -9,22 +9,20 @@
  * - 处理：处理结果要求的意见、附件、字段不全时拒绝；会签全部处理完才往下，否决一票即止。
  * 状态是一个可以存进 localStorage 的普通对象，命令直接改它
  */
+import { addWorkdays, shiftIsoDate, type WorkCalendar } from '@vue-tsx-pro/ui';
 import {
-  addWorkdays,
   applyProcessEffects,
   nextProcessEdge,
   processGraph,
   processOutcome,
   resolveProcessValue,
-  shiftIsoDate,
   type ProcessDefinition,
   type ProcessEdge,
   type ProcessInstance,
   type ProcessTaskNode,
-  type WorkCalendar,
   type WorkflowEvent,
   type WorkItem,
-} from '@vue-tsx-pro/ui';
+} from '@vue-tsx-pro/ui/workflow';
 
 /** 流转模拟的状态：可以原样存进 localStorage */
 export interface WorkflowState {

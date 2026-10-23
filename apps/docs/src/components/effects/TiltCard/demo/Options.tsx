@@ -1,6 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, Flex, Grid, Slider, Switch, Text, TiltCard } from '@vue-tsx-pro/ui';
+import { Card, Flex, Grid, Slider, Switch, Text } from '@vue-tsx-pro/ui';
+import { TiltCard } from '@vue-tsx-pro/ui/effects';
 
 const styles = stylex.create({
   label: { minWidth: '5em', color: '_textMuted' },

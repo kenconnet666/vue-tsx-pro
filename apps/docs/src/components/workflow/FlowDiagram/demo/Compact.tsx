@@ -2,7 +2,8 @@
 // nodeDetail 在节点名称下写处理人或完成日期；
 // 会签（供应商并行评估）、线下动作（商务洽谈，虚线框）与提级（黄色虚线）都画得出来
 import { _component } from '@vue-tsx-pro/tsx';
-import { Card, FlowDiagram, processProgress, type ProcessDefinition } from '@vue-tsx-pro/ui';
+import { Card } from '@vue-tsx-pro/ui';
+import { FlowDiagram, processProgress, type ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
 
 const contract: ProcessDefinition = {
   key: 'contract',

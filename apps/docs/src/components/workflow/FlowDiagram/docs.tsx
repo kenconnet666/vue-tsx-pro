@@ -20,7 +20,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { FlowDiagram, processProgress, validateProcess } from '@vue-tsx-pro/ui';"
+    imports="import { FlowDiagram, processProgress, validateProcess } from '@vue-tsx-pro/ui/workflow';"
   >
     <Examples>
       <ExampleColumn wide>

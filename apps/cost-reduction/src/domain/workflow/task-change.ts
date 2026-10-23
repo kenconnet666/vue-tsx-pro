@@ -2,7 +2,8 @@
  * 计划调整（DESIGN.md §3.5）：方案调整、延期须经 PEMO 同意，不得自行改日期。
  * 主办提交调整申请（调整项与原因写在流程变量里）→ PEMO 审批；同意后后端把调整写回任务卡并记变更记录
  */
-import type { ProcessDefinition } from '@vue-tsx-pro/ui';
+
+import type { ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
 
 /** 计划调整的流程 */
 export const taskChangeProcess: ProcessDefinition = {

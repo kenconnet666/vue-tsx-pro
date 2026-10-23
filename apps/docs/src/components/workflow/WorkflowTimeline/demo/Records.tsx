@@ -1,13 +1,12 @@
 // 采购申请的流转记录：认领、退回修改（意见）、重新提交（附件）、催办、超时自动处理、负责人指定；
 // actorName 把工号换成姓名，renderAttachment 把附件做成链接
 import { _component } from '@vue-tsx-pro/tsx';
+import { Card, Link } from '@vue-tsx-pro/ui';
 import {
-  Card,
-  Link,
   WorkflowTimeline,
   type ProcessDefinition,
   type WorkflowEvent,
-} from '@vue-tsx-pro/ui';
+} from '@vue-tsx-pro/ui/workflow';
 
 const purchase: ProcessDefinition = {
   key: 'purchase',

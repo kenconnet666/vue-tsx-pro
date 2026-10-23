@@ -1,6 +1,7 @@
 // 旧的在前（newestFirst={false}）、左右交替、小一号：放进详情页的侧栏；没给 definition 时节点与结果显示标识
 import { _component } from '@vue-tsx-pro/tsx';
-import { Card, WorkflowTimeline, type WorkflowEvent } from '@vue-tsx-pro/ui';
+import { Card } from '@vue-tsx-pro/ui';
+import { WorkflowTimeline, type WorkflowEvent } from '@vue-tsx-pro/ui/workflow';
 
 const base = {
   instanceId: 'C-77',
