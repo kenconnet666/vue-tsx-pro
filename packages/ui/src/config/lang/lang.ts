@@ -222,6 +222,10 @@ export interface Lang {
   readonly resultStatus: Readonly<
     Record<'403' | '404' | '500', { readonly title: string; readonly description: string }>
   >;
+  /** 评分的一档（单选项的名称），默认“3 星”“3.5 星” */
+  readonly ratingStar: (value: number) => string;
+  /** 只读评分的读法，默认“4.5 星，满分 5 星”；没有评分时 value 为 null，默认“未评分” */
+  readonly ratingSummary: (value: number | null, count: number) => string;
   /** 进度的目标值（读屏念在进度后面），默认“目标 80%” */
   readonly progressTarget: (value: string) => string;
   /** 引导的“上一步”按钮，默认“上一步” */

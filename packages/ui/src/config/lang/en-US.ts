@@ -77,6 +77,8 @@ export const enUS: Lang = {
   uploadRetry: (file) => `Retry uploading ${file}`,
   uploadRemove: (file) => `Remove ${file}`,
   progressTarget: (value) => `target ${value}`,
+  ratingStar: (value) => (value === 1 ? '1 star' : `${value} stars`),
+  ratingSummary: (value, count) => (value == null ? 'Not rated' : `${value} out of ${count} stars`),
   resultStatus: {
     403: {
       title: 'Access denied',
