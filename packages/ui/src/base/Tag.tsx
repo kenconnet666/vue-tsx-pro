@@ -12,8 +12,7 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
-import { focusAfterRemoval } from '../utils/dom/focus';
-import { usePresence } from '../utils/motion/presence';
+import { useDismissible } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/data/text';
 import { badgeSx, type BadgeOptions } from './badge-styles';
@@ -74,14 +73,8 @@ export const Tag = _component(
   }: TagProps) => {
     const lang = useLang();
     const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
-    let removing = _state(false);
-    // 离场结束才交给使用方移除；使用方没移除（如拒绝删除）时 removing 复位，标签重新出现
-    const presence = usePresence(() => !removing, {
-      onExited: () => {
-        removing = false;
-        onRemove?.();
-      },
-    });
+    // 离场结束才交给使用方移除；使用方没移除（如拒绝删除）时标签重新出现
+    const dismissible = useDismissible(() => onRemove?.());
     return () => {
       const text = plainText(children);
       const label = removeLabel ?? (text ? `${lang.remove} ${text}` : lang.remove);
@@ -93,13 +86,13 @@ export const Tag = _component(
                 badgeSx(appearance()),
                 tagStyles.root,
                 onRemove && tagStyles.removable,
-                removing && tagStyles.removing,
+                dismissible.dismissing && tagStyles.removing,
               ],
             },
             rest,
-            { ref: presence.ref },
+            { ref: dismissible.ref },
           )}
-          data-state={presence.state}
+          data-state={dismissible.state}
         >
           {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
           {children}
@@ -108,13 +101,7 @@ export const Tag = _component(
               {...mergeProps<PresetIconButtonProps>(
                 { sx: tagStyles.remove, 'aria-label': label, radius: 'full' },
                 propsRemove,
-                {
-                  onClick: (event: MouseEvent) => {
-                    if (removing) return;
-                    focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
-                    removing = true;
-                  },
-                },
+                { onClick: dismissible.dismiss },
               )}
             />
           )}

@@ -16,8 +16,7 @@ import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
-import { focusAfterRemoval } from '../utils/dom/focus';
-import { usePresence } from '../utils/motion/presence';
+import { useDismissible } from '../utils/motion/presence';
 import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
@@ -147,14 +146,8 @@ export const Alert = _component(
       variant: 'soft',
       radius: 'md',
     });
-    let closing = _state(false);
-    // 离场结束才交给使用方移除；使用方没移除时 closing 复位，提示条重新出现
-    const presence = usePresence(() => !closing, {
-      onExited: () => {
-        closing = false;
-        onClose?.();
-      },
-    });
+    // 离场结束才交给使用方移除；使用方没移除时提示条重新出现
+    const dismissible = useDismissible(() => onClose?.());
     return () => {
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       // 说明取 description，没有时取 children；两个都有时 children 放在说明下面
@@ -170,14 +163,14 @@ export const Alert = _component(
                 statusToneSx(appearance().variant, tone),
                 radiusStyles[appearance().radius],
                 size && fontSizeStyles[size],
-                closing && presenceStyles.leaving,
+                dismissible.dismissing && presenceStyles.leaving,
               ],
             },
             rest,
-            { ref: presence.ref, role: ROLES[live], 'aria-busy': loading || undefined },
+            { ref: dismissible.ref, role: ROLES[live], 'aria-busy': loading || undefined },
           )}
           data-tone={tone}
-          data-state={presence.state}
+          data-state={dismissible.state}
         >
           {loading ? (
             <Spinner {...mergePartProps<SpinnerProps>({ sx: alertStyles.icon }, propsSpinner)} />
@@ -211,13 +204,7 @@ export const Alert = _component(
               {...mergeProps<PresetIconButtonProps>(
                 { sx: [alertStyles.close, relativeFontSizeStyles.sm] },
                 propsClose,
-                {
-                  onClick: (event: MouseEvent) => {
-                    if (closing) return;
-                    focusAfterRemoval((event.currentTarget as HTMLElement).parentElement!);
-                    closing = true;
-                  },
-                },
+                { onClick: dismissible.dismiss },
               )}
             />
           )}

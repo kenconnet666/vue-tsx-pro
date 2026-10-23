@@ -87,7 +87,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       顺手修复：相连的组里首尾的外侧圆角一直是 0（StyleX 里条件值写 null 不会撤销 default），选择框的弹出面板是兄弟元素时首尾判断错位
 - [x] 拼音匹配：子路径 `@vue-tsx-pro/ui/pinyin` 的 `createPinyinMatcher()`（pinyin-pro，可选 peer 依赖），交给 createUi / Provider 的 `textMatcher`；
       Select、Combobox、TagsInput、TreeSelect、CommandPalette 经 `useTextMatcher()` 取用，文档站已开启
-- [ ] `useDismissible`：Tag、Alert、Banner 三处先离场再移除
+- [x] `useDismissible`：Tag、Alert 已改用（先离场、焦点移到相邻元素、离场后才报告），Banner 做的时候直接用
 
 ## 阶段 2：小组件
 

@@ -1507,8 +1507,10 @@ export {
 } from './utils/motion/layout';
 export { usePointer, type PointerOptions, type PointerState } from './utils/motion/pointer';
 export {
+  useDismissible,
   useLazyContent,
   usePresence,
+  type Dismissible,
   type LazyContentOptions,
   type Presence,
   type PresenceOptions,

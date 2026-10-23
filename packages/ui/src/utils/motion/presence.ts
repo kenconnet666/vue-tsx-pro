@@ -9,6 +9,7 @@
  */
 import { computed, nextTick, onScopeDispose, shallowRef, watch } from 'vue';
 import { toElement } from '../dom/element';
+import { focusAfterRemoval } from '../dom/focus';
 import { afterTransitions } from '../style/transitions';
 
 /** usePresence 的返回值 */
@@ -66,6 +67,54 @@ export function usePresence(
       return open.value ? 'open' : 'closed';
     },
     ref: (value) => (element = toElement(value)),
+  };
+}
+
+/** useDismissible 的返回值 */
+export interface Dismissible {
+  /** 正在离场：样式里写离场的终值与过渡 */
+  readonly dismissing: boolean;
+  /** 打开还是正在离场（写到 data-state） */
+  readonly state: 'open' | 'closed';
+  /** 根元素（或组件）的 ref */
+  ref: (element: unknown) => void;
+  /** 开始离场：焦点先移到相邻的可聚焦元素上（关闭按钮随它一起消失），离场结束调用 onDismiss；正在离场时什么也不做 */
+  readonly dismiss: () => void;
+}
+
+/**
+ * 先离场再移除：可关闭的标签、提示条、横幅共用（Tag、Alert、Banner）。数据由使用方控制：
+ * 离场结束才调用 onDismiss，使用方移除了就消失；没移除（如拒绝删除）时复位，元素重新出现。在 setup 里调用
+ *
+ *   const dismissible = useDismissible(() => onClose?.());
+ *   <div ref={dismissible.ref} data-state={dismissible.state} {...stylex.attrs(dismissible.dismissing && styles.leaving)}>
+ *     <CloseButton onClick={dismissible.dismiss} />
+ */
+export function useDismissible(onDismiss: () => void): Dismissible {
+  const dismissing = shallowRef(false);
+  let element: HTMLElement | null = null;
+  const presence = usePresence(() => !dismissing.value, {
+    onExited: () => {
+      dismissing.value = false;
+      onDismiss();
+    },
+  });
+  return {
+    get dismissing() {
+      return dismissing.value;
+    },
+    get state() {
+      return presence.state;
+    },
+    ref: (value) => {
+      element = toElement(value);
+      presence.ref(value);
+    },
+    dismiss: () => {
+      if (dismissing.value) return;
+      if (element) focusAfterRemoval(element);
+      dismissing.value = true;
+    },
   };
 }
 
