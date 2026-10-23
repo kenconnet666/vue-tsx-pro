@@ -45,6 +45,11 @@ export interface TimeFieldProps<V extends TimeInput = string> extends SegmentedF
   min?: TimeInput;
   /** 最晚的时间（'18:00' 或 Time）：晚于它显示出错 */
   max?: TimeInput;
+  /**
+   * 不可选的时间（午休、已约满的时段）：键入时显示出错，TimePicker 的列表里不可用。
+   * 第一个参数是 'HH:mm'，第二个是同一时刻的 Time：`(_, time) => time.hour === 12`
+   */
+  isTimeUnavailable?: (time: string, value: Time) => boolean;
 }
 
 /** 时间输入框：分段输入 */
@@ -55,15 +60,18 @@ export const TimeField = _component(
     valueType = 'iso',
     min,
     max,
+    isTimeUnavailable,
     ...rest
   }: TimeFieldProps<V>) => {
     const outOfRange = (iso: string) => {
       const time = parseIsoTime(iso);
+      if (time == null) return false;
       const low = toTime(min);
       const high = toTime(max);
       return (
-        time != null &&
-        ((low != null && time.compare(low) < 0) || (high != null && time.compare(high) > 0))
+        (low != null && time.compare(low) < 0) ||
+        (high != null && time.compare(high) > 0) ||
+        (isTimeUnavailable?.(toIsoTime(time), time) ?? false)
       );
     };
     const iso = _derived(

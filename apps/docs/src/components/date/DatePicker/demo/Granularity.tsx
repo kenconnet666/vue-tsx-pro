@@ -1,4 +1,4 @@
-// 选年份、月份、日期，或日期加时间：granularity 决定值的形式与弹出的选择
+// 选年份、月份、日期，或日期加时间：granularity 决定值的形式与弹出的选择；会议只能约在 9:00–18:00
 import { _component } from '@vue-tsx-pro/tsx';
 import { Code, DatePicker, Field, Grid } from '@vue-tsx-pro/ui';
 
@@ -14,8 +14,13 @@ export default _component(() => {
       <Field label="账期" description={<Code>{month ?? 'null'}</Code>}>
         <DatePicker granularity="month" value={_bind(month)} />
       </Field>
-      <Field label="会议开始" description={<Code>{start ?? 'null'}</Code>}>
-        <DatePicker granularity="minute" value={_bind(start)} />
+      <Field label="会议开始" description={start ? <Code>{start}</Code> : '只能约在 9:00–18:00'}>
+        <DatePicker
+          granularity="minute"
+          value={_bind(start)}
+          // 工作时间之外键入时显示出错
+          isTimeUnavailable={(time) => time < '09:00' || time >= '18:00'}
+        />
       </Field>
     </Grid>
   );

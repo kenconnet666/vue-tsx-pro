@@ -1,11 +1,15 @@
 // DatePicker 与 DateRangePicker 的快捷选项：点了写回并关闭、当前值对应的那一项按下、超出范围的不可用；
-// DatePicker 的“今天”（选月份时“本月”）；DateRangePicker 的自定义快捷区间（函数时按当时算）
+// DatePicker 的“今天”（选月份时“本月”）；DateRangePicker 的自定义快捷区间（函数时按当时算）；
+// 不可选的时间：TimeField、DateField 键入时出错，TimePicker 的列表里不可用
 import { beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { todayIso } from '../../utils/data/date';
 import { mount } from '../../utils/.test/mount';
 import { DatePicker } from '../DatePicker';
+import { DateField } from '../DateField';
 import { DateRangePicker } from '../DateRangePicker';
+import { TimeField } from '../TimeField';
+import { TimePicker } from '../TimePicker';
 import type { DateRange } from '../../utils/data/date';
 
 // happy-dom 没有 popover API
@@ -98,5 +102,53 @@ describe('DateRangePicker', () => {
     open = true;
     await flush();
     expect(button('第三季度').getAttribute('aria-pressed')).toBe('true');
+  });
+});
+
+describe('不可选的时间', () => {
+  it('TimeField、DateField：键入不可选的时刻时外壳出错；TimePicker 的列表里那几项不可用', async () => {
+    const lunch = (_: string, time: { hour: number }) => time.hour === 12;
+    const root = mount(() => (
+      <>
+        <TimeField value="12:30" isTimeUnavailable={lunch} aria-label="时间" />
+        <DateField
+          value="2026-10-24T12:15"
+          granularity="minute"
+          // 周六只上午营业
+          isTimeUnavailable={(_, time, date) => date === '2026-10-24' && time.hour >= 12}
+          aria-label="预约"
+        />
+        <DateField
+          value="2026-10-23T12:15"
+          granularity="minute"
+          isTimeUnavailable={(_, time, date) => date === '2026-10-24' && time.hour >= 12}
+          aria-label="预约"
+        />
+        <TimePicker
+          value="09:00"
+          min="11:00"
+          max="13:00"
+          step={30}
+          isTimeUnavailable={lunch}
+          open
+          aria-label="开会"
+        />
+      </>
+    ));
+    await flush();
+    // 各个外壳（前四个子元素）：只有周五那个预约不出错
+    expect(
+      [...root.children].slice(0, 4).map((shell) => shell.hasAttribute('data-invalid')),
+    ).toEqual([true, true, false, true]);
+    const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(
+      (option) => `${option.textContent}:${option.getAttribute('aria-disabled') ?? 'false'}`,
+    );
+    expect(options).toEqual([
+      '11:00:false',
+      '11:30:false',
+      '12:00:true',
+      '12:30:true',
+      '13:00:false',
+    ]);
   });
 });

@@ -24,7 +24,9 @@ export default _component(() => () => (
           列表从 <Code>min</Code> 到 <Code>max</Code> 每 <Code>step</Code> 分钟一项（默认
           30），按语言或 <Code>hourCycle</Code> 的小时制显示；打开时高亮当前的值，
           <Kbd>↑</Kbd> <Kbd>↓</Kbd> 移动、<Kbd>Enter</Kbd> 选中，“此刻”选当前时间。输入框就是
-          TimeField，列表之外的时间照样键入。
+          TimeField，列表之外的时间照样键入。<Code>isTimeUnavailable</Code>{' '}
+          标出不可选的时间（午休、已约满的时段）：列表里不可用，键入时显示出错；DateField、DatePicker
+          带时间时也有，参数多一个那一天的日期。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

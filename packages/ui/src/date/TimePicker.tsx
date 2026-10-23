@@ -6,7 +6,8 @@
  *   <TimePicker step={15} value={_bind(time)} aria-label="提醒时间" />
  *
  * 值同 TimeField（'HH:mm'，或 Time）。列表从 min（默认 00:00）起每 step 分钟一项，到 max 为止，按语言的 12 / 24 小时制显示；
- * 不在列表里的时间（14:47）照样能键入。列表下方“此刻”选当前时间。选好后关闭，焦点回到按钮；Esc、点外部关闭，分段里 Alt + ↓ 打开。
+ * 不在列表里的时间（14:47）照样能键入；isTimeUnavailable 的时间在列表里不可用、键入时显示出错。
+ * 列表下方“此刻”选当前时间（此刻不可选时不可用）。选好后关闭，焦点回到按钮；Esc、点外部关闭，分段里 Alt + ↓ 打开。
  *
  * 部件：同 TimeField，另有 Button（打开按钮）、Popover（弹层）、List（Listbox）、Now（“此刻”按钮）。
  */
@@ -59,6 +60,7 @@ export const TimePicker = _component(
     valueType = 'iso',
     min,
     max,
+    isTimeUnavailable,
     hourCycle,
     placement,
     id,
@@ -102,8 +104,13 @@ export const TimePicker = _component(
       const last = minutesOf(toTime(max) ?? new Time(23, 59));
       const result: ListboxOption[] = [];
       for (let minutes = first; minutes <= last; minutes += Math.max(step, 1)) {
-        const iso = toIsoTime(new Time(Math.floor(minutes / 60), minutes % 60));
-        result.push({ value: iso, label: format.date(iso, { timeStyle: 'short', hourCycle }) });
+        const time = new Time(Math.floor(minutes / 60), minutes % 60);
+        const iso = toIsoTime(time);
+        result.push({
+          value: iso,
+          label: format.date(iso, { timeStyle: 'short', hourCycle }),
+          disabled: isTimeUnavailable?.(iso, time) ?? false,
+        });
       }
       return result;
     });
@@ -121,9 +128,21 @@ export const TimePicker = _component(
       open = false;
     }
 
-    function pickNow() {
+    /** 此刻（精确到分） */
+    const nowTime = () => {
       const current = now(locale.timeZone);
-      write(new Time(current.hour, current.minute));
+      return new Time(current.hour, current.minute);
+    };
+    /** 此刻能不能选：在 min–max 之内，不是不可选的时间 */
+    function nowAvailable() {
+      const time = nowTime();
+      const low = toTime(min);
+      const high = toTime(max);
+      return !(
+        (low != null && time.compare(low) < 0) ||
+        (high != null && time.compare(high) > 0) ||
+        (isTimeUnavailable?.(toIsoTime(time), time) ?? false)
+      );
     }
 
     return () => (
@@ -136,6 +155,7 @@ export const TimePicker = _component(
           valueType={valueType}
           min={min}
           max={max}
+          isTimeUnavailable={isTimeUnavailable}
           hourCycle={hourCycle}
           id={id}
           disabled={disabled}
@@ -171,7 +191,7 @@ export const TimePicker = _component(
               {...mergePartProps<ButtonProps>(
                 { sx: timePickerStyles.now, variant: 'ghost', size: 'sm', fullWidth: true },
                 propsNow,
-                { onClick: pickNow },
+                { disabled: !nowAvailable(), onClick: () => write(nowTime()) },
               )}
             >
               {lang.timePickerNow}

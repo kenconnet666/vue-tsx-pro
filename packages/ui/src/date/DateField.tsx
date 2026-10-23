@@ -9,7 +9,7 @@
  * 值是 ISO 字符串，形式随 granularity：year 'YYYY'、month 'YYYY-MM'、day 'YYYY-MM-DD'，
  * hour / minute / second 是日期加时间 'YYYY-MM-DDTHH:mm[:ss]'（同原生 datetime-local）；
  * 也可以是 DateValue，写回时保持同一种类型（ZonedDateTime 的时区、CalendarDateTime 没显示的时间不丢）。
- * 值在 min–max 之外、或是不可选的日期时显示出错（aria-invalid），值照样写回，由表单校验决定能不能提交。
+ * 值在 min–max 之外、是不可选的日期或时刻（isTimeUnavailable）时显示出错（aria-invalid），值照样写回，由表单校验决定能不能提交。
  *
  * 键盘：数字逐段输入（满了自动跳段），↑↓ 加减，Page Up / Down 大步，Home / End 最小 / 最大，
  * Backspace 删一位（删空回到上一段），←→ 与 Tab 换段。部件见 SegmentedField。
@@ -20,14 +20,17 @@ import {
   toCalendarDateTime,
   type CalendarDate,
   type CalendarDateTime,
+  type Time,
 } from '@internationalized/date';
 import {
   fullIsoDay,
   isDateDisabled,
   parseIsoDate,
   parseIsoDateTime,
+  parseIsoTime,
   toIsoDate,
   toIsoDateTime,
+  toIsoTime,
   type DateUnit,
 } from '../utils/data/date';
 import {
@@ -49,6 +52,11 @@ export interface DateFieldProps<V extends DateInput = string>
   granularity?: DateFieldGranularity;
   /** 值为空、推不出类型时写回哪一种，默认 iso（字符串）；dateValue 写 CalendarDate（带时间时 CalendarDateTime） */
   valueType?: keyof DateValueTypes;
+  /**
+   * 带时间时不可选的时刻（午休、非营业时间）：键入时显示出错。参数是 'HH:mm'、同一时刻的 Time 与那一天的 ISO 日期，
+   * 周末与平日可以不一样：`(_, time, date) => time.hour < 9 || time.hour >= (isWeekend(…) ? 12 : 18)`
+   */
+  isTimeUnavailable?: (time: string, value: Time, date: string) => boolean;
 }
 
 const hasTime = (granularity: DateFieldGranularity) =>
@@ -106,6 +114,7 @@ export const DateField = _component(
     min,
     max,
     isDateUnavailable,
+    isTimeUnavailable,
     ...rest
   }: DateFieldProps<V>) => {
     const locale = useDateLocale();
@@ -120,7 +129,11 @@ export const DateField = _component(
       const low = timeBound(min, granularity);
       const high = timeBound(max, granularity);
       const at = hasTime(granularity) ? toSeconds(iso) : '';
-      return (low != null && at < low) || (high != null && at > high);
+      if ((low != null && at < low) || (high != null && at > high)) return true;
+      const time = hasTime(granularity) ? parseIsoTime(iso.slice(11)) : null;
+      return (
+        time != null && (isTimeUnavailable?.(toIsoTime(time), time, iso.slice(0, 10)) ?? false)
+      );
     };
     const iso = _derived(value == null ? null : valueToIso(value, granularity));
     // 值清空后再填：仍按清空前的类型写回
