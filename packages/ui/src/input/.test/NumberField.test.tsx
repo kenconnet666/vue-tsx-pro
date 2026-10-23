@@ -1,6 +1,6 @@
 // NumberField：提交时夹到范围并对齐步长、方向键与按钮加减（按语言解析见 utils/data/.test/number-parse.test.ts）
 import { describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, reactive } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import Decimal from 'decimal.js';
 import type { NumericValue } from '../../utils/data/numeric';
@@ -192,5 +192,23 @@ describe('NumberField 的值类型', () => {
     // 步长 100 元：123456.78 元对齐到 123500
     expect((value as Decimal).toFixed()).toBe('123500');
     expect(input.value).toBe('12.35');
+  });
+});
+
+describe('clearable', () => {
+  it('有值时显示清空按钮，清空后值是 null；没有值、只读时不显示', async () => {
+    const state = reactive<{ amount: NumericValue | null }>({ amount: 12 });
+    const root = mount(() => (
+      <>
+        <NumberField value={_bind(state.amount)} clearable aria-label="金额" />
+        <NumberField value={5} clearable readonly aria-label="只读" />
+      </>
+    ));
+    const clears = () => root.querySelectorAll<HTMLButtonElement>('button[aria-label="清空"]');
+    expect(clears()).toHaveLength(1);
+    clears()[0]!.click();
+    await nextTick();
+    expect(state.amount).toBeNull();
+    expect(clears()).toHaveLength(0);
   });
 });

@@ -21,6 +21,9 @@ export default _component(() => {
       <Field label="胶囊形">
         <NumberField value={_bind(value)} radius="full" />
       </Field>
+      <Field label="可清空" description="clearable：选填的数量，清空后值是 null">
+        <NumberField value={_bind(value)} clearable />
+      </Field>
       <Field label="不要加减按钮" description="stepper={false}，方向键照常可用">
         <NumberField value={_bind(value)} stepper={false} />
       </Field>

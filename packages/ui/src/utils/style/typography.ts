@@ -68,6 +68,8 @@ export interface Tones {
   warning: unknown;
   /** 信息 */
   info: unknown;
+  /** 跟随所在的文字颜色：放在有底色的通栏（Banner 的实底）、标记里时用，对比度由底色保证 */
+  inherit: unknown;
 }
 
 /** 文字色调 */
@@ -141,6 +143,7 @@ export const toneStyles = stylex.create({
   success: { color: '_successText' },
   warning: { color: '_warningText' },
   info: { color: '_infoText' },
+  inherit: { color: 'inherit' },
 });
 
 /** 水平对齐（按书写方向） */

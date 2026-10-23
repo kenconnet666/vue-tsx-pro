@@ -1,7 +1,7 @@
 // Checkbox / CheckboxGroup、RadioGroup / Radio、Switch：原生 input 的状态、写回与 Field 关联
 import { describe, expect, it } from 'vitest';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { nextTick } from 'vue';
+import { nextTick, reactive } from 'vue';
 import { Provider } from '../../config/Provider';
 import { toneFillStyles } from '../../utils/style/tone-styles';
 import { Field } from '../../form/Field';
@@ -248,11 +248,10 @@ it('点 Field 的标签聚焦组里的第一个控件（for 指向的单选组�
 
 describe('items 与说明', () => {
   it('CheckboxGroup 的 items：ListboxOption 或字符串生成各项，说明经 aria-describedby 关联，不可用的项', async () => {
-    let value: string[] = ['email'];
+    const state = reactive({ value: ['email'] });
     const root = mount(() => (
       <CheckboxGroup
-        value={value}
-        onUpdate:value={(next: string[]) => (value = next)}
+        value={_bind(state.value)}
         aria-label="通知方式"
         items={[
           { value: 'email', label: '邮件', description: '每天汇总一封' },
@@ -270,7 +269,7 @@ describe('items 与说明', () => {
     expect(inputs[2]!.hasAttribute('aria-describedby')).toBe(false);
     inputs[2]!.click();
     await nextTick();
-    expect(value).toEqual(['email', 'app']);
+    expect(state.value).toEqual(['email', 'app']);
   });
 
   it('RadioGroup 的 items：字符串、任意数据加 toOption；写了 children 时用 children', () => {

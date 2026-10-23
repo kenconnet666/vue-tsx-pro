@@ -28,8 +28,11 @@ export default _component(() => {
           </Flex>
         </Flex>
       </Card>
-      <Field label="固定高度（fixed）" description="不自动增高，右下角可以拖动调整">
-        <Textarea value={_bind(notes)} rows={3} fixed />
+      <Field
+        label="固定高度（fixed）"
+        description="不自动增高，右下角可以拖动调整；clearable 在右上角放清空按钮"
+      >
+        <Textarea value={_bind(notes)} rows={3} fixed clearable />
       </Field>
     </Flex>
   );

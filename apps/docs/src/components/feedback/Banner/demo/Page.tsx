@@ -14,7 +14,12 @@ export default _component(() => {
           tone="warning"
           icon={Wrench}
           title="系统维护"
-          action={<Link href="#maintenance">查看公告</Link>}
+          // 实底上的链接跟随横幅的文字颜色，对比度才够
+          action={
+            <Link href="#maintenance" tone="inherit" underline="always">
+              查看公告
+            </Link>
+          }
           onClose={() => (maintenanceClosed = true)}
         >
           今晚 22:00–23:00 暂停服务，请提前保存草稿

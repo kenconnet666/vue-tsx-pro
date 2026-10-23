@@ -14,7 +14,14 @@ import { nextTick, useId } from 'vue';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { controlStyles, controlSx, useControlAppearance, type ControlOptions } from './control';
+import type { PresetIconButtonProps } from '../base/CloseButton';
+import {
+  controlClear,
+  controlStyles,
+  controlSx,
+  useControlAppearance,
+  type ControlOptions,
+} from './control';
 
 /** 值与状态由组件管理 */
 export type TextareaManaged =
@@ -40,18 +47,24 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
   invalid?: boolean;
   /** 显示字数计数（右下角）；上限取 maxlength（含 zod 推出的约束），超出时用危险色 */
   showCount?: boolean;
+  /** 有内容时在右上角显示清空按钮 */
+  clearable?: boolean;
+  /** 清空按钮的部件属性 */
+  propsClear?: Partial<PresetIconButtonProps>;
   /** 外壳的部件属性 */
   propsRoot?: PartProps<'div'>;
   /** 字数计数的部件属性 */
   propsCount?: Partial<CharacterCountProps>;
 }
 
-/** Textarea 的样式：textarea、fixed、count */
+/** Textarea 的样式：textarea、fixed、count、clear */
 export const textareaStyles = stylex.create({
   textarea: { resize: 'none', overflowY: 'auto' },
   fixed: { resize: 'vertical' },
   // 计数贴在右下角
   count: { alignSelf: 'flex-end', paddingBlockEnd: '_xs' },
+  // 清空按钮贴在第一行（多行时不随内容居中）
+  clear: { alignSelf: 'flex-start', marginBlockStart: '_xs' },
 });
 
 // 行数是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -76,9 +89,11 @@ export const Textarea = _component(
     required,
     invalid,
     showCount = false,
+    clearable = false,
     id,
     propsRoot,
     propsCount,
+    propsClear,
     ...rest
   }: TextareaProps) => {
     const countId = useId();
@@ -134,6 +149,14 @@ export const Textarea = _component(
             )}
             value={_bind(value)}
           />
+          {clearable &&
+            value &&
+            !state.disabled &&
+            !state.readonly &&
+            controlClear({ sx: textareaStyles.clear, ...propsClear }, () => {
+              value = '';
+              textarea?.focus();
+            })}
           {showCount && (
             <CharacterCount
               {...mergePartProps<CharacterCountProps>(

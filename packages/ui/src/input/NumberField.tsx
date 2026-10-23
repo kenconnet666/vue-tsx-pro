@@ -20,6 +20,7 @@
  */
 import { Minus, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
+import type { PresetIconButtonProps } from '../base/CloseButton';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -42,6 +43,7 @@ import {
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   controlAffix,
+  controlClear,
   controlIcon,
   controlStyles,
   controlSx,
@@ -103,6 +105,8 @@ export interface NumberFieldProps
   suffix?: VNodeChild;
   /** 显示减少 / 增加按钮，默认 true；只读时不显示 */
   stepper?: boolean;
+  /** 有值时显示清空按钮：清空后值是 null（选填的数量、金额） */
+  clearable?: boolean;
   /** 不可用 */
   disabled?: boolean;
   /** 只读：能聚焦、选中复制，不能改；不显示加减按钮 */
@@ -121,6 +125,8 @@ export interface NumberFieldProps
   propsDecrement?: Partial<IconButtonProps>;
   /** 增加按钮的部件属性 */
   propsIncrement?: Partial<IconButtonProps>;
+  /** 清空按钮的部件属性 */
+  propsClear?: Partial<PresetIconButtonProps>;
 }
 
 /** 数字输入框：输入、方向键与按钮加减，提交时夹到范围并对齐步长 */
@@ -137,6 +143,7 @@ export const NumberField = _component(
     suffix,
     name,
     stepper = true,
+    clearable = false,
     variant,
     size,
     radius,
@@ -152,6 +159,7 @@ export const NumberField = _component(
     propsIcon,
     propsDecrement,
     propsIncrement,
+    propsClear,
     ...rest
   }: NumberFieldProps) => {
     const lang = useLang();
@@ -323,6 +331,14 @@ export const NumberField = _component(
             })}
           />
           {controlAffix(suffix, inputId, propsSuffix)}
+          {clearable &&
+            editable &&
+            (value != null || !!draft) &&
+            controlClear(propsClear, () => {
+              draft = null;
+              value = null;
+              input?.focus();
+            })}
           {stepper && !state.readonly && (
             <>
               <IconButton

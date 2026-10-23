@@ -1,6 +1,6 @@
 // TextField 与 Field：值的双向绑定、清空、显示密码、Field 的关联与状态
 import { describe, expect, it } from 'vitest';
-import { nextTick, shallowRef } from 'vue';
+import { nextTick, reactive, shallowRef } from 'vue';
 import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
 import { CharacterCount } from '../CharacterCount';
@@ -143,5 +143,17 @@ describe('前后缀与字数计数', () => {
     const value = root.querySelector('.value')!;
     expect([value.textContent, value.getAttribute('aria-hidden')]).toEqual(['2 / 3', 'true']);
     expect(root.querySelector('.label')!.textContent).toBe('已输入 2 个字符，最多 3 个');
+  });
+});
+
+describe('Textarea 的 clearable', () => {
+  it('有内容时显示清空按钮，清空后回到空字符串', async () => {
+    const state = reactive({ note: '第一行\n第二行' });
+    const root = mount(() => <Textarea value={_bind(state.note)} clearable aria-label="备注" />);
+    const clear = root.querySelector<HTMLButtonElement>('button[aria-label="清空"]')!;
+    clear.click();
+    await nextTick();
+    expect(state.note).toBe('');
+    expect(root.querySelector('button[aria-label="清空"]')).toBeNull();
   });
 });

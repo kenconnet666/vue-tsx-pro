@@ -42,8 +42,8 @@ export default _component(() => () => (
         </Example>
         <Example id="textarea" title="Textarea" demo={Comment}>
           高度随内容在 <Code>rows</Code> 与 <Code>maxRows</Code> 之间增长（父级改值也会跟着变）；
-          <Code>fixed</Code>{' '}
-          关掉自动增高、允许拖动调整。字数计数超出上限时变成危险色，读屏念完整的句子。
+          <Code>fixed</Code> 关掉自动增高、允许拖动调整，<Code>clearable</Code>{' '}
+          在右上角放清空按钮。字数计数超出上限时变成危险色，读屏念完整的句子。
         </Example>
         <Example id="adornments" title="图标、前后缀、清空与字数" demo={Adornments}>
           <Code>icon</Code> / <Code>iconEnd</Code> 放在框的两头，<Code>prefix</Code> /{' '}
