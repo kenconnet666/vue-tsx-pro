@@ -81,6 +81,15 @@ export const zhCN: Lang = {
   sortableMoved: (item, position, total) => `${item} 移到第 ${position} 位，共 ${total} 项`,
   sortableDropped: (item, position, total) => `已放下 ${item}，在第 ${position} 位，共 ${total} 项`,
   sortableCancelled: (item, position) => `已取消，${item} 回到第 ${position} 位`,
+  sortableGroupInstructions:
+    '按空格拿起，上下方向键在组内移动、左右方向键换组，再按空格放下，Esc 取消',
+  sortableGroupGrabbed: (item, group, position) => `已拿起 ${item}，在 ${group} 第 ${position} 位`,
+  sortableOver: (item, group, position, reason) =>
+    reason ? `${group}：不能放，${reason}` : `${item} 到了 ${group} 第 ${position} 位，按空格放下`,
+  sortableGroupDropped: (item, group, position) => `已把 ${item} 放到 ${group} 第 ${position} 位`,
+  sortableGroupCancelled: (item, group, position) =>
+    `已取消，${item} 回到 ${group} 第 ${position} 位`,
+  sortableRejected: (item, reason) => `不能移动：${reason}。${item} 回到原处`,
   tourPrevious: '上一步',
   tourNext: '下一步',
   tourFinish: '完成',

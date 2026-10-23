@@ -83,6 +83,19 @@ export const enUS: Lang = {
   sortableMoved: (item, position, total) => `${item} moved to position ${position} of ${total}`,
   sortableDropped: (item, position, total) => `Dropped ${item}, position ${position} of ${total}`,
   sortableCancelled: (item, position) => `Cancelled, ${item} returned to position ${position}`,
+  sortableGroupInstructions:
+    'Press space to pick up, use the up and down arrow keys to move within a group and the left and right arrow keys to change group, press space again to drop, Escape to cancel',
+  sortableGroupGrabbed: (item, group, position) =>
+    `Picked up ${item}, position ${position} in ${group}`,
+  sortableOver: (item, group, position, reason) =>
+    reason
+      ? `${group}: cannot drop, ${reason}`
+      : `${item} over ${group}, position ${position}, press space to drop`,
+  sortableGroupDropped: (item, group, position) =>
+    `Dropped ${item} in ${group}, position ${position}`,
+  sortableGroupCancelled: (item, group, position) =>
+    `Cancelled, ${item} returned to ${group}, position ${position}`,
+  sortableRejected: (item, reason) => `Cannot move: ${reason}. ${item} returned`,
   tourPrevious: 'Back',
   tourNext: 'Next',
   tourFinish: 'Done',

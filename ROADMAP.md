@@ -77,7 +77,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 整个仓库只用 TypeScript 7.1（去掉 TS 6）：解析源码的脚本、文档站的 API 表改用 7.1 的 API，语言服务 MCP 改接 TS 7 自带的语言服务器
       （API 表的属性改按源码声明顺序排；建程序从几秒降到约 1 秒）
 
-- [ ] `useSortable` 多容器分组：列内排序 + 跨列（KanbanBoard 改建在它上面；Tree、Transfer、Tabs 的拖动也用）
+- [x] `useSortable` 多容器分组：列内排序 + 跨列（KanbanBoard 已改建在它上面，加了列内排序 `onReorder` 与落点插入线；Tree、Transfer、Tabs 的拖动也用）。
+      顺手修复：指针捕获放在按下的项上，排序时 Vue 移动 DOM 让它失去捕获，向前拖动会被当成取消；`startMove` 加 `captureTarget`，排序改在容器上捕获
 - [ ] `useOverflowItems`：量出放得下几项，其余折成 +N（Select / TreeSelect 的 maxTagCount、Tabs 溢出、横向导航、Toolbar）
 - [x] `useIntersectionObserver`（ActionBar、3D 画布已改用；Affix、BackTop、图片懒加载做的时候直接用）
 - [ ] 树工具：`filterTree`、`moveNode`、勾选策略（只返回父 / 子 / 全部）、路径收集

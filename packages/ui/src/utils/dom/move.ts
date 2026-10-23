@@ -31,12 +31,17 @@ export interface MoveOptions {
   onEnd?: (point: MovePoint & { readonly moved: boolean; readonly cancelled: boolean }) => void;
   /** 位移超过多少 px 才算拖动，默认 0（按下即开始）；需要区分点击与拖动时设 3 左右 */
   threshold?: number;
+  /**
+   * 捕获指针、接收后续事件的元素，默认是按下的元素（event.currentTarget）。
+   * 拖动中会被移动的元素（排序时 Vue 重排 DOM）要换成不动的祖先：元素一离开文档就失去捕获，拖动会被当成取消
+   */
+  captureTarget?: Element;
 }
 
 /** 按下时调用：开始跟踪这个指针，返回提前结束的函数（组件卸载时调用）。不是主按钮时什么也不做 */
 export function startMove(event: PointerEvent, options: MoveOptions): () => void {
   if (event.button !== 0 || !(event.currentTarget instanceof Element)) return () => {};
-  const target = event.currentTarget;
+  const target = options.captureTarget ?? event.currentTarget;
   const { pointerId, clientX: startX, clientY: startY } = event;
   const threshold = options.threshold ?? 0;
   let moved = threshold === 0;

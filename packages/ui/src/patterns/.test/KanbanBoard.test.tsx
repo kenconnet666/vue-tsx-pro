@@ -76,7 +76,7 @@ describe('KanbanBoard', () => {
     expect(live()).toContain('处理中');
     key(handle('写文档'), 'Enter');
     await nextTick();
-    expect(onMove).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }), 'doing');
+    expect(onMove).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }), 'doing', 0);
   });
 
   it('不能放的列：经过时那一列标出原因，放下时弹回、报告 onReject 而不是 onMove', async () => {
@@ -97,6 +97,53 @@ describe('KanbanBoard', () => {
       '只能到下一列',
     );
     expect(live()).toContain('只能到下一列');
+  });
+
+  it('换到别的列后 ↑ / ↓ 调整落点：插入线跟着走，onMove 带上位置', async () => {
+    const { root, handle, live, onMove } = renderBoard();
+    key(handle('写文档'), ' ');
+    key(handle('写文档'), 'ArrowRight');
+    await nextTick();
+    const doing = () => root.querySelectorAll('section')[1]!;
+    const indicatorIndex = () =>
+      [...doing().querySelectorAll('li')].findIndex((li) => li.getAttribute('aria-hidden'));
+    expect(doing().dataset.drop).toBe('allowed');
+    expect(indicatorIndex()).toBe(0);
+    key(handle('写文档'), 'ArrowDown');
+    await nextTick();
+    expect(indicatorIndex()).toBe(1);
+    expect(live()).toContain('处理中 第 2 位');
+    key(handle('写文档'), ' ');
+    await nextTick();
+    expect(onMove).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }), 'doing', 1);
+    expect(doing().querySelector('li[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('给了 onReorder 时列内用 ↑ / ↓ 排序，写回整个数组', async () => {
+    let cards: Card[] = [
+      { id: 'a', title: '写文档', stage: 'todo' },
+      { id: 'b', title: '修 bug', stage: 'doing' },
+      { id: 'c', title: '发版', stage: 'todo' },
+    ];
+    const root = mount(() => (
+      <KanbanBoard
+        aria-label="看板"
+        columns={columns}
+        items={cards}
+        getKey={(card) => card.id}
+        getColumn={(card) => card.stage}
+        getLabel={(card) => card.title}
+        onMove={() => {}}
+        onReorder={(next) => (cards = next)}
+      >
+        {(card) => <span>{card.title}</span>}
+      </KanbanBoard>
+    ));
+    const handle = root.querySelector<HTMLButtonElement>('[aria-label="移动 写文档"]')!;
+    key(handle, ' ');
+    key(handle, 'ArrowDown');
+    await nextTick();
+    expect(cards.map((card) => card.id)).toEqual(['b', 'c', 'a']);
   });
 
   it('Esc 取消：不报告，卡片留在原来的列', async () => {

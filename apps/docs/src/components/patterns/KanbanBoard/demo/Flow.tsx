@@ -133,11 +133,16 @@ export default _component(() => {
             ? null
             : '只能挪到相邻的一列'
         }
-        onMove={(ticket, to) => {
-          // 看板不自己挪：改数据，卡片才换列（真实页面里是调接口、刷新）
-          tickets = tickets.map((item) => (item.id === ticket.id ? { ...item, stage: to } : item));
-          message = `${ticket.id} 移到了“${columns.find((column) => column.key === to)!.label}”`;
+        onMove={(ticket, to, index) => {
+          // 看板不自己挪：改数据，卡片才换列（真实页面里是调接口、刷新）。插到落点：目标列第 index 张的前面
+          const rest = tickets.filter((item) => item.id !== ticket.id);
+          const anchor = rest.filter((item) => item.stage === to)[index];
+          const at = anchor ? rest.indexOf(anchor) : rest.length;
+          tickets = [...rest.slice(0, at), { ...ticket, stage: to }, ...rest.slice(at)];
+          const label = columns.find((column) => column.key === to)!.label;
+          message = `${ticket.id} 移到了“${label}”第 ${index + 1} 位`;
         }}
+        onReorder={(next) => (tickets = next)}
         onReject={(ticket, _, reason) => (message = `${ticket.id} 没有移动：${reason}`)}
         columnWidth="14rem"
         columnHeight="32rem"

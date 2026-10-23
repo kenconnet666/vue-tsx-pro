@@ -42,16 +42,8 @@ export interface PatternsMessages {
   readonly notificationsEmpty: string;
   /** 通知中心：一条未读的标记（读屏），默认“未读” */
   readonly notificationUnreadMark: string;
-  /** 看板卡片把手的操作说明，默认“按空格拿起，用左右方向键换列，再按空格放下，Esc 取消” */
+  /** 看板卡片把手的操作说明，默认“按空格拿起，左右方向键换列、上下方向键调整位置，再按空格放下，Esc 取消” */
   readonly kanbanInstructions: string;
-  /** 看板：拿起时的播报，默认“已拿起 项名，在 列名” */
-  readonly kanbanGrabbed: (item: string, column: string) => string;
-  /** 看板：换到一列时的播报；不能放时带上原因 */
-  readonly kanbanOver: (item: string, column: string, reason: string | null) => string;
-  /** 看板：放下时的播报，默认“已把 项名 移到 列名” */
-  readonly kanbanDropped: (item: string, column: string) => string;
-  /** 看板：取消或不能放、弹回时的播报 */
-  readonly kanbanCancelled: (item: string, column: string, reason: string | null) => string;
   /** 看板：一列没有卡片时，默认“没有” */
   readonly kanbanEmpty: string;
   /** 窄屏时收着侧边导航的抽屉的标题，默认“导航” */
@@ -87,13 +79,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     notificationsUnreadOnly: '只看未读',
     notificationsEmpty: '没有通知',
     notificationUnreadMark: '未读',
-    kanbanInstructions: '按空格拿起，用左右方向键换列，再按空格放下，Esc 取消',
-    kanbanGrabbed: (item, column) => `已拿起 ${item}，在 ${column}`,
-    kanbanOver: (item, column, reason) =>
-      reason ? `${column}：不能放，${reason}` : `${item} 到了 ${column}，按空格放下`,
-    kanbanDropped: (item, column) => `已把 ${item} 移到 ${column}`,
-    kanbanCancelled: (item, column, reason) =>
-      reason ? `不能移动：${reason}。${item} 回到 ${column}` : `已取消，${item} 回到 ${column}`,
+    kanbanInstructions: '按空格拿起，左右方向键换列、上下方向键调整位置，再按空格放下，Esc 取消',
     kanbanEmpty: '没有',
     navigation: '导航',
     navigationOpen: '打开导航',
@@ -124,15 +110,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     notificationsEmpty: 'No notifications',
     notificationUnreadMark: 'Unread',
     kanbanInstructions:
-      'Press space to pick up, use the left and right arrow keys to change column, press space again to drop, Escape to cancel',
-    kanbanGrabbed: (item, column) => `Picked up ${item}, in ${column}`,
-    kanbanOver: (item, column, reason) =>
-      reason ? `${column}: cannot drop, ${reason}` : `${item} over ${column}, press space to drop`,
-    kanbanDropped: (item, column) => `Moved ${item} to ${column}`,
-    kanbanCancelled: (item, column, reason) =>
-      reason
-        ? `Cannot move: ${reason}. ${item} back in ${column}`
-        : `Cancelled, ${item} back in ${column}`,
+      'Press space to pick up, use the left and right arrow keys to change column and the up and down arrow keys to change position, press space again to drop, Escape to cancel',
     kanbanEmpty: 'None',
     navigation: 'Navigation',
     navigationOpen: 'Open navigation',

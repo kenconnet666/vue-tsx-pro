@@ -12,7 +12,7 @@ import Flow from './demo/Flow.tsx?demo';
 export const meta = {
   title: 'KanbanBoard 看板',
   description:
-    '卡片按状态分列，拖到别的列表示推进：能不能放由使用方判断并写明原因，放下后由使用方改数据；键盘、读屏都能操作。',
+    '卡片按状态分列，拖到别的列表示推进，列内可以排序：能不能放由使用方判断并写明原因，放下后由使用方改数据；键盘、读屏都能操作。',
   order: 7,
 };
 
@@ -20,8 +20,10 @@ export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { KanbanBoard } from '@vue-tsx-pro/ui/patterns';">
     <Examples>
       <ExampleColumn wide>
-        <Example id="flow" title="只能挪到相邻的列" demo={Flow}>
-          看板不自己挪卡片：放下时报告 <Code>onMove</Code>，使用方改了数据卡片才换列。
+        <Example id="flow" title="只能挪到相邻的列，列内排序" demo={Flow}>
+          看板不自己挪卡片：放下时报告 <Code>onMove</Code>
+          （带上在目标列里的位置，落点处有一条插入线），使用方改了数据卡片才换列。给了{' '}
+          <Code>onReorder</Code> 时列内也能拖动排序，数据立即重排。
           <Code>canMove</Code>{' '}
           返回不能放的原因：拖动经过时那一列标红并写出原因，放下时卡片弹回、报告{' '}
           <Code>onReject</Code>。列名旁的计数用 <Code>tone</Code> 提示要注意的列。各列至少{' '}
@@ -40,8 +42,9 @@ export default _component(() => () => (
     </Examples>
     <KeyboardReference
       keys={[
-        ['Space / Enter', '在卡片的把手上：拿起；拿起后再按：放到当前所在的列'],
+        ['Space / Enter', '在卡片的把手上：拿起；拿起后再按：放到落点'],
         ['← / →', '拿起后：换到左边 / 右边一列（跟随从右到左排版），播报那一列能不能放'],
+        ['↑ / ↓', '拿起后：在本列里排序（给了 onReorder 时）；在别的列里调整落点'],
         ['Esc', '取消，卡片留在原来的列'],
       ]}
     >

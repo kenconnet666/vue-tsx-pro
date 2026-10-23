@@ -201,6 +201,23 @@ export interface Lang {
   readonly sortableDropped: (item: string, position: number, total: number) => string;
   /** 取消时的播报，默认“已取消，项名 回到第 n 位” */
   readonly sortableCancelled: (item: string, position: number) => string;
+  /** 分组拖动排序把手的操作说明，默认“按空格拿起，上下方向键在组内移动、左右方向键换组，再按空格放下，Esc 取消” */
+  readonly sortableGroupInstructions: string;
+  /** 分组时拿起的播报，默认“已拿起 项名，在 组名 第 n 位” */
+  readonly sortableGroupGrabbed: (item: string, group: string, position: number) => string;
+  /** 分组时落点变了的播报；不能放时带上原因 */
+  readonly sortableOver: (
+    item: string,
+    group: string,
+    position: number,
+    reason: string | null,
+  ) => string;
+  /** 分组时放下的播报，默认“已把 项名 放到 组名 第 n 位” */
+  readonly sortableGroupDropped: (item: string, group: string, position: number) => string;
+  /** 分组时取消的播报，默认“已取消，项名 回到 组名 第 n 位” */
+  readonly sortableGroupCancelled: (item: string, group: string, position: number) => string;
+  /** 放到不能放的组、弹回时的播报 */
+  readonly sortableRejected: (item: string, reason: string) => string;
   /** 引导的“上一步”按钮，默认“上一步” */
   readonly tourPrevious: string;
   /** 引导的“下一步”按钮，默认“下一步” */
