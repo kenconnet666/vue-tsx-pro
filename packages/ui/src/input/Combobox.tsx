@@ -85,6 +85,13 @@ export interface ComboboxBaseProps<T>
   load?: OptionsLoader<T>;
   /** 允许输入不在选项里的文字：失焦时保留，value 为 null */
   allowCustomValue?: boolean;
+  /**
+   * 显示右侧的展开按钮；只当带建议的输入框用时（Autocomplete）关掉，列表随输入出现
+   * @default true
+   */
+  showToggle?: boolean;
+  /** 没有可选的项时不弹出列表（不显示“没有匹配的选项”）：只当带建议的输入框用时（Autocomplete） */
+  hideEmpty?: boolean;
   /** 正在取选项（异步搜索）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
   loading?: boolean;
   /** 弹出位置，默认 bottom-start */
@@ -136,6 +143,8 @@ export const Combobox = _component(
     filter,
     load,
     allowCustomValue = false,
+    showToggle = true,
+    hideEmpty = false,
     loading = false,
     placement = 'bottom-start',
     clearable = false,
@@ -283,10 +292,14 @@ export const Combobox = _component(
       if (handleListKeydown(list, event, { homeEnd: false }, pick)) event.preventDefault();
     }
 
+    // 列表是否真的弹出：hideEmpty 时没有可选的项（也不在加载）就不弹
+    const shown = () =>
+      open && (!hideEmpty || list.options.length > 0 || loading || remote.loading());
+
     // 弹层贴着外壳、与它同宽；焦点一直在输入框上，关闭时不用归还
     const { onToggle } = useAnchoredPopover(
       () => ({
-        open,
+        open: shown(),
         anchor: shell,
         panel,
         floating: { placement, matchWidth: true, fitHeight: true },
@@ -321,7 +334,7 @@ export const Combobox = _component(
                 readonly: state.readonly,
                 required: state.required,
                 'aria-autocomplete': 'list',
-                'aria-expanded': open,
+                'aria-expanded': shown(),
                 'aria-controls': listId,
                 'aria-activedescendant': open ? activeOptionId(list, listId) : undefined,
                 'aria-invalid': state.invalid || undefined,
@@ -339,34 +352,36 @@ export const Combobox = _component(
                 value = null;
                 input?.focus();
               })}
-            <IconButton
-              {...mergePartProps<IconButtonProps>(
-                {
-                  sx: [
-                    controlStyles.button,
-                    disclosureStyles.icon,
-                    open && comboboxStyles.chevronOpen,
-                  ],
-                  radius: 'full',
-                  icon: ChevronDown,
-                  'aria-label': lang.comboboxToggle,
-                },
-                propsChevron,
-                {
-                  tabindex: -1,
-                  disabled: !editable,
-                  'aria-expanded': open,
-                  'aria-controls': listId,
-                  // 不让输入框失焦（失焦会提交并关闭）
-                  onPointerdown: (event: PointerEvent) => event.preventDefault(),
-                  onClick: () => {
-                    if (open) open = false;
-                    else show();
-                    input?.focus();
+            {showToggle && (
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  {
+                    sx: [
+                      controlStyles.button,
+                      disclosureStyles.icon,
+                      open && comboboxStyles.chevronOpen,
+                    ],
+                    radius: 'full',
+                    icon: ChevronDown,
+                    'aria-label': lang.comboboxToggle,
                   },
-                },
-              )}
-            />
+                  propsChevron,
+                  {
+                    tabindex: -1,
+                    disabled: !editable,
+                    'aria-expanded': shown(),
+                    'aria-controls': listId,
+                    // 不让输入框失焦（失焦会提交并关闭）
+                    onPointerdown: (event: PointerEvent) => event.preventDefault(),
+                    onClick: () => {
+                      if (open) open = false;
+                      else show();
+                      input?.focus();
+                    },
+                  },
+                )}
+              />
+            )}
             <FormValue name={name} value={value} disabled={state.disabled} />
           </div>
           <ListPopover

@@ -594,6 +594,7 @@ export {
 } from './navigation/Toolbar';
 
 // 输入
+export { Autocomplete, type AutocompleteProps } from './input/Autocomplete';
 export {
   CharacterCount,
   characterCountStyles,

@@ -13,7 +13,7 @@ import Tags from './demo/Tags.tsx?demo';
 export const meta = {
   title: 'TagsInput 标签输入',
   description: '输入多个值，每个显示成可移除的标签：话题、关键词、收件人；可以带建议列表。',
-  order: 6,
+  order: 7,
 };
 
 export default _component(() => () => (
