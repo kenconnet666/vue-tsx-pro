@@ -2,15 +2,12 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Code, Kbd } from '@vue-tsx-pro/ui';
 import alertDialogApi from 'virtual:api/AlertDialogProps';
 import api from 'virtual:api/DialogProps';
-import drawerApi from 'virtual:api/DrawerProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Confirm from './demo/Confirm.tsx?demo';
-import Drawers from './demo/Drawers.tsx?demo';
-import EditDrawer from './demo/EditDrawer.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
 import Terms from './demo/Terms.tsx?demo';
@@ -18,7 +15,7 @@ import Terms from './demo/Terms.tsx?demo';
 export const meta = {
   title: 'Dialog 对话框',
   description:
-    '模态面板：居中的 Dialog、需要确认的 AlertDialog、从一侧滑入的 Drawer。建在原生 dialog 上，焦点、Esc、背景不可操作都由浏览器负责。',
+    '模态面板：居中的 Dialog 与需要确认的 AlertDialog（从一侧滑入的见 Drawer）。建在原生 dialog 上，焦点、Esc、背景不可操作都由浏览器负责。',
   order: 1,
 };
 
@@ -26,7 +23,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { AlertDialog, Dialog, Drawer, useConfirm } from '@vue-tsx-pro/ui';"
+    imports="import { AlertDialog, Dialog, useConfirm } from '@vue-tsx-pro/ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -47,29 +44,17 @@ export default _component(() => () => (
           改按钮文字，默认取语言包。要先填一两个字段的操作（退回写原因、改派选人）用页面组合里的{' '}
           <Code>useFormDialog</Code>。
         </Example>
-        <Example id="blocking" title="进行中的任务" demo={Import}>
-          <Code>closable={'{false}'}</Code> 去掉右上角的关闭按钮，
-          <Code>dismissible={'{false}'}</Code> 让点遮罩不关闭——任务进行中别被误关；<Kbd>Esc</Kbd>{' '}
-          仍然可以关（浏览器的约定），关闭时原生 dialog 发出 <Code>close</Code> 事件，在{' '}
-          <Code>onClose</Code> 里收尾。
-        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="long-content" title="宽度与长内容" demo={Terms}>
           <Code>size</Code> 与 Container 同档（xs–xl），另有 full
           占满视口。内容长时只滚正文（ScrollArea），标题与页脚一直看得见。
         </Example>
-        <Example id="drawer" title="抽屉" demo={Drawers}>
-          Drawer 与 Dialog 共用同一个内核，只是从一侧滑入：<Code>side</Code> 取
-          start、end、top、bottom，
-          <Code>size</Code> 控制宽度。筛选、详情、移动端导航都适合放在抽屉里。
-        </Example>
-        <Example id="edit-drawer" title="抽屉里编辑：拖宽度与关闭前确认" demo={EditDrawer}>
-          左右两侧的抽屉靠正文的一边默认可以拖动（也能聚焦后用方向键，双击回到初始宽度），一直拖到只剩一窄条、让出后面的页面，再拖回来接着填；内容不会挤成一列，多出的部分被裁掉。
-          <Code>width</Code> 双向绑定、交给 <Code>usePersistentState</Code> 记住；
-          <Code>{'resizable={false}'}</Code> 或 <Code>defaults.Drawer</Code> 关掉。
-          <Code>beforeClose</Code> 在关闭按钮、<Kbd>Esc</Kbd>、点遮罩时先问一次，返回 false
-          不关——表单有未保存的改动时用它确认。
+        <Example id="blocking" title="进行中的任务" demo={Import}>
+          <Code>closable={'{false}'}</Code> 去掉右上角的关闭按钮，
+          <Code>dismissible={'{false}'}</Code> 让点遮罩不关闭——任务进行中别被误关；<Kbd>Esc</Kbd>{' '}
+          仍然可以关（浏览器的约定），关闭时原生 dialog 发出 <Code>close</Code> 事件，在{' '}
+          <Code>onClose</Code> 里收尾。
         </Example>
       </ExampleColumn>
     </Examples>
@@ -85,6 +70,6 @@ export default _component(() => () => (
     >
       打开时焦点落在带 <Code>autofocus</Code> 的元素上，没有就是第一个可聚焦的元素。
     </KeyboardReference>
-    <ApiReference api={[api, alertDialogApi, drawerApi]} />
+    <ApiReference api={[api, alertDialogApi]} />
   </DocPage>
 ));
