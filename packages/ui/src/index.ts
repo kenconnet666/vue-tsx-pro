@@ -143,11 +143,19 @@ export {
 
 // 布局
 export {
+  Affix,
+  affixPositionStyles,
+  affixStyles,
+  type AffixManaged,
+  type AffixProps,
+} from './layout/Affix';
+export {
   AsideLayout,
   asideLayoutDynamicStyles,
   asideLayoutStyles,
   type AsideLayoutProps,
 } from './layout/AsideLayout';
+export { BackTop, backTopStyles, type BackTopProps } from './layout/BackTop';
 export {
   Container,
   containerPaddingStyles,

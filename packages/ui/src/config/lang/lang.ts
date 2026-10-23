@@ -226,6 +226,8 @@ export interface Lang {
   readonly ratingStar: (value: number) => string;
   /** 只读评分的读法，默认“4.5 星，满分 5 星”；没有评分时 value 为 null，默认“未评分” */
   readonly ratingSummary: (value: number | null, count: number) => string;
+  /** 回到顶部按钮的名称，默认“回到顶部” */
+  readonly backToTop: string;
   /** 截断文字的展开按钮，默认“展开” */
   readonly ellipsisExpand: string;
   /** 截断文字的收起按钮，默认“收起” */

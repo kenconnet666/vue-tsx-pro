@@ -77,6 +77,7 @@ export const enUS: Lang = {
   uploadRetry: (file) => `Retry uploading ${file}`,
   uploadRemove: (file) => `Remove ${file}`,
   progressTarget: (value) => `target ${value}`,
+  backToTop: 'Back to top',
   ellipsisExpand: 'More',
   ellipsisCollapse: 'Less',
   ratingStar: (value) => (value === 1 ? '1 star' : `${value} stars`),
