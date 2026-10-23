@@ -74,12 +74,9 @@ catalog:
   mdn-data: 2.37.2
   web-features: 3.43.0
   smol-toml: 1.9.1
-  typescript: 6.0.3
-  # 类型检查（各包的 typecheck、CI）用 TypeScript 7（Go 原生版，快 5–7 倍），跟 7.1 的 beta。7.1 才重新有程序化 API
-  # （typescript/sync，没有语言服务）：用 API 的脚本、语言服务与 IDE 仍用上面的 typescript 6；两者都提供 tsc 命令，脚本里按路径调用 7
-  typescript7: npm:typescript@7.1.0-beta
-  # Claude Code 原生 LSP（.claude/marketplace 里的 vue-tsx-pro-lsp 插件）用的语言服务器
-  typescript-language-server: 6.0.2
+  # 整个仓库只用 TypeScript 7（Go 原生版），跟 7.1 的 beta：类型检查、声明生成用 tsc；脚本与文档站的 API 表用它的
+  # typescript/sync、typescript/ast；语言服务（IDE、Claude Code 的 LSP 插件、语言服务 MCP）是 tsc --lsp
+  typescript: 7.1.0-beta
   '@types/node': 24.19.2
   oxlint: 1.88.0
   oxlint-tsgolint: 7.0.2004

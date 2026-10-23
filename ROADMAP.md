@@ -20,7 +20,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 现状
 
-- tsx 包：符文编译器、运行时、Vite 预设、StyleX 类型入口完整；类型检查用 TypeScript 7.1 beta（脚本与语言服务仍用 TS 6）。
+- tsx 包：符文编译器、运行时、Vite 预设、StyleX 类型入口完整；整个仓库只用 TypeScript 7.1 beta（类型检查、声明生成、脚本的 API、语言服务）。
 - ui 包：约 168 个组件、102 个文档页、343 个示例；12 套主题、主题编辑器、设计令牌导出、语言包与格式化、路由适配、请求层。
   模块之间没有循环依赖。清单见 HANDOFF.md §1，各批的设计与取舍见 COMPONENTS.md §10。
 - 盘点出的问题（阶段 0 处理）：目录按文档分类而不是按层分，配置层里放着界面组件（ThemeSwitcher、ThemeCustomizer），
@@ -74,7 +74,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 阶段 1：基础设施（后面阶段要用的工具先铺好）
 
-- [ ] 整个仓库只用 TypeScript 7.1（去掉 TS 6）：解析源码的脚本、文档站的 API 表改用 7.1 的 API，语言服务 MCP 改接 TS 7 自带的语言服务器
+- [x] 整个仓库只用 TypeScript 7.1（去掉 TS 6）：解析源码的脚本、文档站的 API 表改用 7.1 的 API，语言服务 MCP 改接 TS 7 自带的语言服务器
+      （API 表的属性改按源码声明顺序排；建程序从几秒降到约 1 秒）
 
 - [ ] `useSortable` 多容器分组：列内排序 + 跨列（KanbanBoard 改建在它上面；Tree、Transfer、Tabs 的拖动也用）
 - [ ] `useOverflowItems`：量出放得下几项，其余折成 +N（Select / TreeSelect 的 maxTagCount、Tabs 溢出、横向导航、Toolbar）

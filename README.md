@@ -99,7 +99,7 @@ pnpm format         # prettier
 
 ## 语言服务（MCP）
 
-项目级 MCP 服务器 `vue_tsx_pro_lsp` 把 TSX 语言服务提供给 Claude Code 与 Codex。它直接使用仓库固定的 TypeScript 6（有语言服务的 JS API；`pnpm typecheck` 用的 TypeScript 7 没有，两者结果一致）；诊断还会附带符文编译器的误用报错。只处理 `.ts`/`.tsx`，不涉及 Vue SFC。
+项目级 MCP 服务器 `vue_tsx_pro_lsp` 把 TSX 语言服务提供给 Claude Code 与 Codex。它是仓库固定的 TypeScript 7 语言服务器（`tsc --lsp`）的客户端，结果与 `pnpm typecheck` 一致；诊断还会附带符文编译器的误用报错。只处理 `.ts`/`.tsx`，不涉及 Vue SFC。
 
 | 工具          | 作用                                                     |
 | ------------- | -------------------------------------------------------- |
@@ -122,7 +122,7 @@ pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
 除上面的 MCP 外，Claude Code 还通过项目级插件 `vue-tsx-pro-lsp` 接入原生 LSP：编辑 `.ts`/`.tsx`/`.js` 等文件后自动推送诊断，并提供内置 `LSP` 工具（定义、引用、悬停、符号）。
 
 - 插件在仓库内的本地市场 `.claude/marketplace/`，`.claude/settings.json` 用 `extraKnownMarketplaces`（相对路径）声明并在 `enabledPlugins` 中启用；首次打开仓库时按提示信任即可。
-- 语言服务器是 catalog 里固定的 `typescript-language-server`，通过 `node` 直接启动 `node_modules` 里的入口（不依赖全局安装，也绕开 Windows 的 `.cmd` 包装），并自动使用仓库的 TypeScript。需先 `pnpm install`。
+- 语言服务器是 catalog 里固定的 TypeScript 7 自带的 `tsc --lsp --stdio`，通过 `node` 直接启动 `node_modules/typescript/bin/tsc`（不依赖全局安装，也绕开 Windows 的 `.cmd` 包装）。需先 `pnpm install`。
 - 改了 `.lsp.json` 后在新会话中生效；排查启动失败看 `/plugin` 的 **Errors** 页。
 
 ## 配置要点

@@ -312,13 +312,7 @@ catalogs:
       specifier: 0.23.1
       version: 0.23.1
     typescript:
-      specifier: 6.0.3
-      version: 6.0.3
-    typescript-language-server:
-      specifier: 6.0.2
-      version: 6.0.2
-    typescript7:
-      specifier: npm:typescript@7.1.0-beta
+      specifier: 7.1.0-beta
       version: 7.1.0-beta
     vite:
       specifier: 8.3.4
@@ -369,16 +363,10 @@ importers:
         version: 1.9.1
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
-      typescript-language-server:
-        specifier: 'catalog:'
-        version: 6.0.2
-      typescript7:
-        specifier: 'catalog:'
-        version: typescript@7.1.0-beta
+        version: 7.1.0-beta
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
       web-features:
         specifier: 'catalog:'
         version: 3.43.0
@@ -417,7 +405,7 @@ importers:
         version: 10.6.0
       msw:
         specifier: 'catalog:'
-        version: 3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2))
+        version: 3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2))
       shiki:
         specifier: 'catalog:'
         version: 4.5.0
@@ -429,10 +417,10 @@ importers:
         version: 0.186.1
       vue:
         specifier: 'catalog:'
-        version: 3.5.44(typescript@6.0.3)
+        version: 3.5.44(typescript@7.1.0-beta)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@7.1.0-beta))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -445,13 +433,13 @@ importers:
         version: 21.0.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.1.0-beta
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@24.19.2)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
 
   apps/docs:
     dependencies:
@@ -517,10 +505,10 @@ importers:
         version: 0.186.1
       vue:
         specifier: 'catalog:'
-        version: 3.5.44(typescript@6.0.3)
+        version: 3.5.44(typescript@7.1.0-beta)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@7.1.0-beta))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -548,7 +536,7 @@ importers:
         version: 0.186.0
       '@vitest/browser-playwright':
         specifier: 'catalog:'
-        version: 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
+        version: 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
       '@vue/babel-plugin-jsx':
         specifier: 'catalog:'
         version: 3.0.0(@babel/core@8.0.7)
@@ -566,13 +554,13 @@ importers:
         version: 1.64.1
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.1.0-beta
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@24.19.2)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
 
   apps/host-demo:
     dependencies:
@@ -599,7 +587,7 @@ importers:
         version: 4.5.0(@types/three@0.186.0)(three@0.186.1)
       pinia:
         specifier: 'catalog:'
-        version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3))
+        version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta))
       shiki:
         specifier: 'catalog:'
         version: 4.5.0
@@ -611,10 +599,10 @@ importers:
         version: 0.186.1
       vue:
         specifier: 'catalog:'
-        version: 3.5.44(typescript@6.0.3)
+        version: 3.5.44(typescript@7.1.0-beta)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@7.1.0-beta))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -624,10 +612,10 @@ importers:
         version: 0.186.0
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
-        version: 6.0.10(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3))
+        version: 6.0.10(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@7.1.0-beta))
       '@vitest/browser-playwright':
         specifier: 'catalog:'
-        version: 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
+        version: 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
       axe-core:
         specifier: 'catalog:'
         version: 4.14.0
@@ -639,13 +627,13 @@ importers:
         version: 1.64.1
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.1.0-beta
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@24.19.2)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
 
   packages/tsx:
     dependencies:
@@ -676,19 +664,19 @@ importers:
         version: 21.0.3
       tsdown:
         specifier: 'catalog:'
-        version: 0.23.1(typescript@6.0.3)
+        version: 0.23.1(typescript@7.1.0-beta)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.1.0-beta
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@24.19.2)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
       vue:
         specifier: 'catalog:'
-        version: 3.5.44(typescript@6.0.3)
+        version: 3.5.44(typescript@7.1.0-beta)
 
   packages/ui:
     dependencies:
@@ -737,7 +725,7 @@ importers:
         version: 21.0.3
       pinia:
         specifier: 'catalog:'
-        version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3))
+        version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta))
       shiki:
         specifier: 'catalog:'
         version: 4.5.0
@@ -746,19 +734,19 @@ importers:
         version: 0.186.1
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.1.0-beta
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@24.19.2)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
       vue:
         specifier: 'catalog:'
-        version: 3.5.44(typescript@6.0.3)
+        version: 3.5.44(typescript@7.1.0-beta)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@7.1.0-beta))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -3520,16 +3508,6 @@ packages:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
     engines: {node: '>= 18'}
 
-  typescript-language-server@6.0.2:
-    resolution: {integrity: sha512-Ph7Ql+xkUJvMamnkh1h+aKP6HxLR7lrWIYkPn9/LZBkJdJZgtIj7OoVhkDYtQ7zFPTPmqZHOVXaUKGyz9M2q1Q==}
-    engines: {node: '>=22.22.2'}
-    hasBin: true
-
-  typescript@6.0.3:
-    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@7.1.0-beta:
     resolution: {integrity: sha512-cjWjZAJDsmZzsNC5GwHNlW0YPM65jZa5oR0KyQcYX3KSVIfTvtBq//vewISyatKk4OLi5grZjHhIVE9fdrw1UQ==}
     engines: {node: '>=16.20.0'}
@@ -3709,20 +3687,6 @@ packages:
         optional: true
       jsdom:
         optional: true
-
-  vscode-jsonrpc@5.0.1:
-    resolution: {integrity: sha512-JvONPptw3GAQGXlVV2utDcHx0BiY34FupW/kI6mZ5x06ER5DdPG/tXWMVHjTNULF5uKPOUUD0SaXg5QaubJL0A==}
-    engines: {node: '>=8.0.0 || >=10.0.0'}
-
-  vscode-jsonrpc@9.0.3:
-    resolution: {integrity: sha512-qETYf9PCl1lVfwR+oBmMfc4vP2nqLNA35ABxorw3j06+xlKRgDVxbLgKm4Y/xPL0YWdeDjLoI4ImICIT3nB0zQ==}
-    engines: {node: '>=14.0.0'}
-
-  vscode-languageserver-protocol@3.18.4:
-    resolution: {integrity: sha512-CCXbyr99dafRJzJH/0Ryk7ly5T8XPmSR0//OuF2w4m+9JiOin7zcAT5iET8GRE7Z9taFBejb3GbM0a0mbjdbrg==}
-
-  vscode-languageserver-types@3.18.4:
-    resolution: {integrity: sha512-nQsacoiijvl0fRf2q28uFDrAVwRhdCa3QveiF7/CX0r18mLR5FU/1WskSsCKOjmEbtteKUnY8x8Yzxop+k0zwg==}
 
   vue-router@5.4.0:
     resolution: {integrity: sha512-pFvcYcxinDHjZUlf7AzFBrT8r8Xqvv4uMHoJnjc+EqPawXQvHTkF8S4tfSmQLpriVHUGfkaKlI7Et0KRjTMTdw==}
@@ -5058,36 +5022,36 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@6.0.10(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3))':
+  '@vitejs/plugin-vue@6.0.10(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@7.1.0-beta))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.4(@types/node@24.19.2)
-      vue: 3.5.44(typescript@6.0.3)
+      vue: 3.5.44(typescript@7.1.0-beta)
 
-  '@vitest/browser-playwright@5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)':
+  '@vitest/browser-playwright@5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)':
     dependencies:
-      '@vitest/browser': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
-      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+      '@vitest/browser': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
+      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
       playwright: 1.64.1
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
 
-  '@vitest/browser@5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)':
+  '@vitest/browser@5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)':
     dependencies:
       '@blazediff/core': 1.10.0
-      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
       '@vitest/ui': 5.0.5(vitest@5.0.5)
       '@vitest/utils': 5.0.5
       magic-string: 1.4.3
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
       ws: 8.22.0
     transitivePeerDependencies:
       - bufferutil
@@ -5095,14 +5059,14 @@ snapshots:
       - utf-8-validate
       - vite
 
-  '@vitest/mocker@5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))':
+  '@vitest/mocker@5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.5
       estree-walker: 3.0.3
       magic-string: 1.4.3
     optionalDependencies:
-      msw: 3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2))
+      msw: 3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2))
       vite: 8.3.4(@types/node@24.19.2)
 
   '@vitest/pretty-format@5.0.5':
@@ -5119,7 +5083,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
 
   '@vitest/utils@5.0.5':
     dependencies:
@@ -5127,7 +5091,7 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.2.0
 
-  '@vue-macros/common@3.1.4(vue@3.5.44(typescript@6.0.3))':
+  '@vue-macros/common@3.1.4(vue@3.5.44(typescript@7.1.0-beta))':
     dependencies:
       '@vue/compiler-sfc': 3.5.44
       ast-kit: 2.2.0
@@ -5135,7 +5099,7 @@ snapshots:
       magic-string-ast: 1.0.3
       unplugin-utils: 0.3.2
     optionalDependencies:
-      vue: 3.5.44(typescript@6.0.3)
+      vue: 3.5.44(typescript@7.1.0-beta)
 
   '@vue/babel-helper-vue-transform-on@3.0.0': {}
 
@@ -6110,7 +6074,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)):
+  msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)):
     dependencies:
       '@inquirer/confirm': 6.3.4(@types/node@24.19.2)
       '@msw/url': 0.1.2
@@ -6125,7 +6089,7 @@ snapshots:
       until-async: 3.0.2
       yargs: 18.2.0
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: 7.1.0-beta
       vite: 8.3.4(@types/node@24.19.2)
     transitivePeerDependencies:
       - '@types/node'
@@ -6261,13 +6225,13 @@ snapshots:
 
   picomatch@4.0.7: {}
 
-  pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)):
+  pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta)):
     dependencies:
       '@vue/devtools-api': 8.2.1
       nostics: 1.3.0
-      vue: 3.5.44(typescript@6.0.3)
+      vue: 3.5.44(typescript@7.1.0-beta)
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: 7.1.0-beta
 
   pkce-challenge@5.0.1: {}
 
@@ -6365,7 +6329,7 @@ snapshots:
 
   robust-predicates@3.0.3: {}
 
-  rolldown-plugin-dts@0.28.8(rolldown@1.2.14)(typescript@6.0.3):
+  rolldown-plugin-dts@0.28.8(rolldown@1.2.14)(typescript@7.1.0-beta):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.6
@@ -6375,7 +6339,7 @@ snapshots:
       yuku-codegen: 0.19.0
       yuku-parser: 0.19.0
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: 7.1.0-beta
     transitivePeerDependencies:
       - oxc-resolver
 
@@ -6591,7 +6555,7 @@ snapshots:
 
   trim-lines@3.0.1: {}
 
-  tsdown@0.23.1(typescript@6.0.3):
+  tsdown@0.23.1(typescript@7.1.0-beta):
     dependencies:
       cac: 7.1.0
       defu: 6.1.7
@@ -6601,14 +6565,14 @@ snapshots:
       obug: 3.0.0
       picomatch: 4.0.7
       rolldown: 1.2.14
-      rolldown-plugin-dts: 0.28.8(rolldown@1.2.14)(typescript@6.0.3)
+      rolldown-plugin-dts: 0.28.8(rolldown@1.2.14)(typescript@7.1.0-beta)
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
       verkit: 0.5.0
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: 7.1.0-beta
     transitivePeerDependencies:
       - '@typescript/native-preview'
       - '@volar/typescript'
@@ -6627,13 +6591,6 @@ snapshots:
       content-type: 2.1.0
       media-typer: 1.1.1
       mime-types: 3.0.2
-
-  typescript-language-server@6.0.2:
-    dependencies:
-      vscode-jsonrpc: 5.0.1
-      vscode-languageserver-protocol: 3.18.4
-
-  typescript@6.0.3: {}
 
   typescript@7.1.0-beta:
     optionalDependencies:
@@ -6740,10 +6697,10 @@ snapshots:
       '@types/node': 24.19.2
       fsevents: 2.3.3
 
-  vitest@5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2)):
+  vitest@5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
+      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(vite@8.3.4(@types/node@24.19.2))
       chai: 6.3.0
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -6758,26 +6715,15 @@ snapshots:
       why-is-node-running: 3.2.1
     optionalDependencies:
       '@types/node': 24.19.2
-      '@vitest/browser-playwright': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
+      '@vitest/browser-playwright': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)))(playwright@1.64.1)(vite@8.3.4(@types/node@24.19.2))(vitest@5.0.5)
       '@vitest/ui': 5.0.5(vitest@5.0.5)
       happy-dom: 21.0.3
     transitivePeerDependencies:
       - msw
 
-  vscode-jsonrpc@5.0.1: {}
-
-  vscode-jsonrpc@9.0.3: {}
-
-  vscode-languageserver-protocol@3.18.4:
+  vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@7.1.0-beta)):
     dependencies:
-      vscode-jsonrpc: 9.0.3
-      vscode-languageserver-types: 3.18.4
-
-  vscode-languageserver-types@3.18.4: {}
-
-  vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))(vue@3.5.44(typescript@6.0.3)):
-    dependencies:
-      '@vue-macros/common': 3.1.4(vue@3.5.44(typescript@6.0.3))
+      '@vue-macros/common': 3.1.4(vue@3.5.44(typescript@7.1.0-beta))
       '@vue/devtools-api': 8.2.1
       ast-walker-scope: 0.10.0
       chokidar: 5.0.0
@@ -6793,10 +6739,10 @@ snapshots:
       tinyglobby: 0.2.17
       unplugin: 3.4.0(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2))
       unplugin-utils: 0.3.2
-      vue: 3.5.44(typescript@6.0.3)
+      vue: 3.5.44(typescript@7.1.0-beta)
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.44
-      pinia: 4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3))
+      pinia: 4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta))
       vite: 8.3.4(@types/node@24.19.2)
     transitivePeerDependencies:
       - '@farmfe/core'
@@ -6809,7 +6755,7 @@ snapshots:
       - unloader
       - webpack
 
-  vue@3.5.44(typescript@6.0.3):
+  vue@3.5.44(typescript@7.1.0-beta):
     dependencies:
       '@vue/compiler-dom': 3.5.44
       '@vue/compiler-sfc': 3.5.44
@@ -6817,7 +6763,7 @@ snapshots:
       '@vue/server-renderer': 3.5.44
       '@vue/shared': 3.5.44
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: 7.1.0-beta
 
   w3c-keyname@2.2.8: {}
 

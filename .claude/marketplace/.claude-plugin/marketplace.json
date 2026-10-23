@@ -6,7 +6,7 @@
     {
       "name": "vue-tsx-pro-lsp",
       "source": "./vue-tsx-pro-lsp",
-      "description": "TS/TSX 原生 LSP：用仓库固定的 typescript-language-server 与 TypeScript"
+      "description": "TS/TSX 原生 LSP：仓库固定的 TypeScript 7 语言服务器（tsc --lsp）"
     }
   ]
 }

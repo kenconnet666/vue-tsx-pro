@@ -11,7 +11,7 @@
  */
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import ts from 'typescript';
+import * as ts from 'typescript/ast';
 import { parseSource, root, uiEntries } from '../lib/repo.mjs';
 
 const src = join(root, 'packages/ui/src');
@@ -85,7 +85,7 @@ function runtimeImports(file) {
     ) {
       specifiers.push(node.arguments[0].text);
     }
-    ts.forEachChild(node, visit);
+    node.forEachChild(visit);
   };
   visit(source);
   return specifiers

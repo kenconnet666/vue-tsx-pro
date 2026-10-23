@@ -40,7 +40,7 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "typecheck": "node ../../node_modules/typescript7/bin/tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
     "test": "vitest run --configLoader native"
   },
   "dependencies": {

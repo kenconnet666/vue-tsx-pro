@@ -17,7 +17,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import prettier from 'prettier';
-import ts from 'typescript';
+import * as ts from 'typescript/ast';
+import { API, TypeFlags } from 'typescript/sync';
 import { features } from 'web-features';
 import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
 import {
@@ -40,20 +41,29 @@ const docs = JSON.parse(readFileSync(join(root, 'scripts/css-docs/docs.json'), '
 
 function readStylexTypes() {
   const typesDir = join(stylexDir, 'lib/es/types');
-  const program = ts.createProgram([join(typesDir, 'StyleXTypes.d.ts')], { noEmit: true });
-  const checker = program.getTypeChecker();
+  const program = new API().createProgram([join(typesDir, 'StyleXTypes.d.ts')], { noEmit: true });
+  const { checker } = program.getProject();
   const findAlias = (file, name) =>
     program
       .getSourceFile(join(typesDir, file))
       .statements.find((node) => ts.isTypeAliasDeclaration(node) && node.name.text === name);
 
   const cssType = checker.getTypeAtLocation(findAlias('StyleXCSSTypes.d.ts', 'CSSProperties').name);
-  const properties = checker.getPropertiesOfType(cssType).map((symbol) => {
-    const type = checker.getTypeOfSymbol(symbol);
+  const symbols = checker.getPropertiesOfType(cssType);
+  const types = checker.getTypeOfSymbol(symbols);
+  const properties = symbols.map((symbol, index) => {
+    const members = unionMembers(types[index]);
+    const literals = new Set(
+      members
+        .filter((member) => member.flags & TypeFlags.StringLiteral)
+        .map((member) => member.value),
+    );
+    // StyleX 的取值类型只由 string、字符串字面量、数字和 null 组成，字面量能否赋给它不必问检查器
+    const open = members.some((member) => member.flags & TypeFlags.String);
     return {
       key: symbol.name,
-      acceptsNumber: acceptsNumber(type),
-      accepts: (keyword) => checker.isTypeAssignableTo(checker.getStringLiteralType(keyword), type),
+      acceptsNumber: members.some((member) => member.flags & TypeFlags.NumberLike),
+      accepts: (keyword) => open || literals.has(keyword),
     };
   });
 
@@ -61,22 +71,19 @@ function readStylexTypes() {
   const pseudoElements = [];
   const visit = (node) => {
     if (
-      ts.isPropertySignature(node) &&
+      ts.isPropertySignatureDeclaration(node) &&
       ts.isStringLiteral(node.name) &&
       node.name.text.startsWith('::')
     ) {
       pseudoElements.push(node.name.text);
     }
-    ts.forEachChild(node, visit);
+    node.forEachChild(visit);
   };
   visit(findAlias('StyleXTypes.d.ts', 'CSSPropertiesWithExtras'));
   return { properties, pseudoElements };
 }
 
-function acceptsNumber(type) {
-  const types = type.isUnion() ? type.types : [type];
-  return types.some((member) => member.flags & ts.TypeFlags.NumberLike);
-}
+const unionMembers = (type) => (type.flags & TypeFlags.Union ? type.getTypes() : [type]);
 
 /** 从 StyleX 编译器源码读出“不加单位”的属性与特殊单位，保证与编译行为一致 */
 function readNumberRules() {

@@ -7,7 +7,7 @@
 - **分支**：只有 `master`，已推送到 origin，工作区干净。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
 - **进度**：2026-10-23 起联合降本管理暂停，按 [ROADMAP.md](ROADMAP.md) 的阶段 0–8 做组件库。阶段 0（整理）已完成：分层与 `pnpm layers:check`、
   子路径只在 exports 登记、patterns / workflow / effects / theme-customize 子路径、删掉 SlideVerify、PageHeader、Checklist、
-  WorkflowTimeline 并进 Timeline、对话框的 onConfirm、Drawer 与页面组合的文档页重做。下一步是阶段 1（先把仓库统一到 TypeScript 7.1）。
+  WorkflowTimeline 并进 Timeline、对话框的 onConfirm、Drawer 与页面组合的文档页重做。阶段 1 进行中：仓库已只用 TypeScript 7.1。
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。编译是一次解析、两遍遍历、一次生成（`compiler/compile.ts`）。
 - **ui 包**：分基础设施、核心（主入口）、扩展（子路径）三层，见 [COMPONENTS.md](COMPONENTS.md) §7；各批的设计与取舍见 §10：
@@ -162,7 +162,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 **文档站**（`apps/docs`）：
 
 - `build/demo.ts`：`?demo` 导入示例时导出 `{ component, source, path }`，`source` 是异步取源码的函数（卡片显示时不加载源码）。
-- `build/api.ts`：`virtual:api/XxxProps` 从类型与 JSDoc 生成 API 表的数据（Worker 里增量建 TypeScript 程序）。
+- `build/api.ts`：`virtual:api/XxxProps` 从类型与 JSDoc 生成 API 表的数据（Worker 里用 TypeScript 7.1 的 `typescript/sync` 建程序，属性按源码声明顺序）。
 - `src/site/`：`DocPage`、`Examples` / `ExampleColumn`（两列写定）、`Example`、`ApiReference`、`KeyboardReference`（键盘一节）、`EditInPlayground`。
 - 示例文件开头一行注释说明演示了什么；示例只用公开的组件与工具，能原样复制走。
 
@@ -245,6 +245,8 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 | 单元测试里测不了对话框（useConfirm、AlertDialog）              | happy-dom 的 dialog 不完整：单元测试里 `vi.mock` 掉 `useConfirm` 只测接线，对话框本身在浏览器里验证                                                              |
 | 解构出来的方法触发 oxlint 的 unbound-method                    | 返回对象里写箭头函数属性（`read: (q) => …`），不写方法简写                                                                                                       |
 | `check.sh … \| tail` 显示 FAILED，退出码却是 0                 | 管道取的是 tail 的退出码：要看结果就重定向到文件再看，或者只用 `&&` 串                                                                                           |
+| IDEA 里悬停、跳转还是旧行为，设置里显示 TypeScript 6           | IDEA 的 TypeScript 指向 `node_modules/typescript`（7.1）后重启语言服务；仓库里已没有 TS 6                                                                        |
+| 脚本里查类型检查器很慢                                         | 7.1 的检查器在 tsc 子进程里，每次调用一次往返：成批的查询用 `api.batch(...xs.map((x) => checker.foo.gen(x)))`，能按程序缓存的就缓存                              |
 
 ## 8. 下一步
 

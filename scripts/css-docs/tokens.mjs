@@ -7,7 +7,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import ts from 'typescript';
+import * as ts from 'typescript/ast';
 import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
 import { parseSource } from '../lib/repo.mjs';
 
@@ -82,7 +82,7 @@ export function readTokenGroups(file) {
 
 /** 取值表达式的默认值：`'14px'` → 14px；`{ default: '120ms', [reduce]: '0ms' }` → 120ms */
 function defaultValue(node) {
-  if (ts.isStringLiteralLike(node)) return node.text;
+  if (ts.isStringLiteralLikeNode(node)) return node.text;
   if (!ts.isObjectLiteralExpression(node)) return undefined;
   const fallback = node.properties.find(
     (property) => ts.isPropertyAssignment(property) && property.name.getText() === 'default',

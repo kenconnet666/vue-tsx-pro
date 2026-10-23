@@ -10,7 +10,8 @@
  */
 import { globSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import ts from 'typescript';
+import * as ts from 'typescript/ast';
+import { API } from 'typescript/sync';
 import type { Plugin, ViteDevServer } from 'vite';
 
 const ID = 'virtual:doc-pages';
@@ -20,9 +21,19 @@ const PATTERN = 'src/components/*/*/docs.tsx';
 /** 路径统一成正斜杠：监听事件与 glob 给出的写法不同 */
 const normalize = (file: string) => file.split('\\').join('/');
 
+let api: API | undefined;
+
+/** 解析一个文档页：语法树传回本地后就不需要 tsc 子进程留着，立即释放 */
+function parse(file: string) {
+  api ??= new API();
+  const retained = api.createSourceFile(file, readFileSync(file, 'utf8'));
+  retained.dispose();
+  return retained.sourceFile;
+}
+
 /** meta 里允许的字段：只读字符串与数字字面量 */
 function readMeta(file: string): Record<string, string | number> {
-  const source = ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest);
+  const source = parse(file);
   for (const statement of source.statements) {
     if (!ts.isVariableStatement(statement)) continue;
     for (const declaration of statement.declarationList.declarations) {
@@ -33,7 +44,7 @@ function readMeta(file: string): Record<string, string | number> {
       for (const property of object.properties) {
         if (!ts.isPropertyAssignment(property)) continue;
         const value = property.initializer;
-        if (ts.isStringLiteralLike(value)) meta[property.name.getText(source)] = value.text;
+        if (ts.isStringLiteralLikeNode(value)) meta[property.name.getText(source)] = value.text;
         else if (ts.isNumericLiteral(value))
           meta[property.name.getText(source)] = Number(value.text);
       }

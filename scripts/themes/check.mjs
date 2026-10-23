@@ -7,7 +7,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import ts from 'typescript';
+import * as ts from 'typescript/ast';
 import { registerHooks } from 'node:module';
 import { parseSource, root } from '../lib/repo.mjs';
 
@@ -34,7 +34,7 @@ function readColors(file, group = 'colors') {
   const source = parseSource(file, text);
   let object;
   const visit = (node) => {
-    if (object || !ts.isCallExpression(node)) return ts.forEachChild(node, visit);
+    if (object || !ts.isCallExpression(node)) return node.forEachChild(visit);
     const callee = node.expression.getText(source);
     const [first, second] = node.arguments;
     if (callee.endsWith('createTheme') && first?.getText(source) === group) object = second;
@@ -44,7 +44,7 @@ function readColors(file, group = 'colors') {
       node.parent.name.getText(source) === group
     ) {
       object = first;
-    } else ts.forEachChild(node, visit);
+    } else node.forEachChild(visit);
   };
   visit(source);
   if (!object || !ts.isObjectLiteralExpression(object))

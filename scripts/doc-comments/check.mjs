@@ -7,7 +7,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import ts from 'typescript';
+import * as ts from 'typescript/ast';
 import { parseSource, root } from '../lib/repo.mjs';
 
 /** 检查范围：已发布的两个包 */
@@ -49,7 +49,7 @@ for (const file of files) {
   };
   const visit = (node) => {
     if (ts.isModuleDeclaration(node) || ts.isModuleBlock(node)) {
-      ts.forEachChild(node, visit);
+      node.forEachChild(visit);
       return;
     }
     const exported = isExported(node) || ts.isModuleBlock(node.parent);
@@ -80,7 +80,7 @@ for (const file of files) {
       }
     }
   };
-  ts.forEachChild(source, visit);
+  source.forEachChild(visit);
 }
 
 if (problems.length) {
