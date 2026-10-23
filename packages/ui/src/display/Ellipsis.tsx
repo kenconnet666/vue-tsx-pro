@@ -11,7 +11,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { watch, type VNodeChild } from 'vue';
+import { onMounted, onUpdated, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { Tooltip } from '../overlay/Tooltip';
 import { useResizeObserver } from '../utils/dom/resize';
@@ -93,8 +93,10 @@ export const Ellipsis = _component(
       });
     }
     useResizeObserver(() => text, measure);
-    // 挂载后量一次；内容、行数变了重新量（截断后的大小可能不变，ResizeObserver 不会通知）
-    watch(() => [children, lines, expanded], measure, { immediate: true, flush: 'post' });
+    // 挂载后量一次；每次重新渲染（内容、行数、展开变了）后再量：截断后的大小可能不变，ResizeObserver 不会通知。
+    // 不 watch children：在渲染函数外读 children 会调用插槽，Vue 会警告且不跟踪依赖
+    onMounted(measure);
+    onUpdated(measure);
 
     return () => {
       const clamped = !expanded;
