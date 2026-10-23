@@ -1,5 +1,5 @@
 /**
- * 日期、时间选择器共用的打开按钮与弹层（DatePicker、DateRangePicker、TimePicker）：
+ * 日期、时间选择器共用的打开按钮与弹层（DatePicker、DateRangePicker、TimePicker），以及日历旁边的快捷选项：
  * 输入框外壳是定位的锚点，后缀里的按钮打开，弹层是 role="dialog" 的原生 popover（Esc、点外部关闭）；
  * 关闭时焦点还给按钮（外壳不可聚焦）；分段里按 Alt + ↓ 打开（同原生 select）。在组件 setup 里调用。
  *
@@ -11,7 +11,8 @@
  *   {picker.panel(sx, propsPopover, open && <Calendar … />)}
  */
 import { useId, type VNodeChild } from 'vue';
-import type * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { Button } from '../base/Button';
 import type { IconData } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { controlStyles } from '../input/control';
@@ -132,4 +133,64 @@ export function focusCalendar(panel: HTMLElement): void {
   const cell = panel.querySelector<HTMLElement>('[role="grid"] [tabindex="0"]');
   if (cell) cell.focus();
   else focusFirst(panel);
+}
+
+/** 弹层里的一个快捷选项（“今天”“最近 7 天”） */
+export interface PickerPreset {
+  /** 列表里的 key */
+  key: string;
+  /** 按钮上的文字 */
+  label: string;
+  /** 当前值就是它：按钮按下（aria-pressed） */
+  active: boolean;
+  /** 超出可选范围：不可用 */
+  disabled?: boolean;
+  /** 点了 */
+  onPick: () => void;
+}
+
+/** 快捷选项的样式：presets（一列，靠日历那边有分隔线）、preset（按钮文字靠左） */
+export const pickerPresetStyles = stylex.create({
+  presets: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '_xs',
+    paddingInlineEnd: '_sm',
+    borderInlineEndWidth: '_xs',
+    borderInlineEndStyle: 'solid',
+    borderInlineEndColor: '_borderMuted',
+  },
+  preset: { justifyContent: 'flex-start' },
+});
+
+/** 日历旁边的一列快捷选项（DatePicker、DateRangePicker 共用）：一组按钮，当前值对应的那一项按下 */
+export function renderPickerPresets(
+  presets: readonly PickerPreset[],
+  label: string,
+  user?: PartProps<'div', 'role'>,
+): VNodeChild {
+  if (presets.length === 0) return null;
+  return (
+    <div
+      {...mergeAttrs<'div'>({ sx: pickerPresetStyles.presets }, user, {
+        role: 'group',
+        'aria-label': label,
+      })}
+    >
+      {presets.map((preset) => (
+        <Button
+          key={preset.key}
+          sx={pickerPresetStyles.preset}
+          size="sm"
+          variant={preset.active ? 'soft' : 'ghost'}
+          tone="neutral"
+          aria-pressed={preset.active}
+          disabled={preset.disabled}
+          onClick={preset.onPick}
+        >
+          {preset.label}
+        </Button>
+      ))}
+    </div>
+  );
 }

@@ -7,24 +7,39 @@
  *   <DatePicker granularity="minute" value={_bind(at)} aria-label="开始时间" />  // 日期加时间：'2026-10-20T14:30'
  *
  * granularity 决定值的形式（同 DateField）与弹出的选择：year、month 选年份、月份，其余选日期。
+ * 日历下方有“今天”（选月份时“本月”、选年份时“今年”；超出范围时不可用），旁边可以放快捷选项（presets）。
  * 选好后关闭，焦点回到按钮；带时间时焦点落到“时”那一段接着输入（没有时间时先补 00:00）。
  * Esc、点外部关闭；分段里按 Alt + ↓ 打开（同原生 select）。
  *
- * 部件：同 DateField，另有 Button（打开按钮）、Popover（弹层，role="dialog"）、Calendar。
+ * 部件：同 DateField，另有 Button（打开按钮）、Popover（弹层，role="dialog"）、Presets、Calendar、Today（“今天”按钮）。
  */
 import { CalendarDays } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { toCalendarDateTime } from '@internationalized/date';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
-import { fullIsoDay, type DateUnit } from '../utils/data/date';
+import { fullIsoDay, isDateDisabled, todayIso, type DateUnit } from '../utils/data/date';
 import { mergePartProps, type PartProps } from '../utils/props';
 import { Calendar, type CalendarBaseProps } from './Calendar';
 import { DateField, type DateFieldProps } from './DateField';
-import type { DateInput } from './date-locale';
+import { toDateLimits, useDateLocale, type DateInput } from './date-locale';
 import type { DateFieldGranularity } from './date-segments';
-import { focusCalendar, usePickerPopover, type PickerPopoverParts } from './picker-popover';
+import {
+  focusCalendar,
+  renderPickerPresets,
+  usePickerPopover,
+  type PickerPopoverParts,
+} from './picker-popover';
+
+/** 自定义的快捷选项（一周前、上个月末） */
+export interface DatePreset<V extends DateInput = string> {
+  /** 按钮上的文字 */
+  label: string;
+  /** 值（按 granularity 的形式）；函数时每次打开按当时算（跟着今天变） */
+  value: V | (() => V);
+}
 
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface DatePickerProps<V extends DateInput = string>
@@ -33,6 +48,14 @@ export interface DatePickerProps<V extends DateInput = string>
   open?: boolean;
   /** 日历并排显示几个月，默认 1 */
   visibleMonths?: number;
+  /** 日历旁边的快捷选项：`[{ label: '一周前', value: () => shiftIsoDate(todayIso(), { weeks: -1 }) }]` */
+  presets?: readonly DatePreset<V>[];
+  /** 日历下方的“今天”（选月份时“本月”、选年份时“今年”），默认 true */
+  showToday?: boolean;
+  /** 快捷选项那一列的部件属性 */
+  propsPresets?: PartProps<'div', 'role'>;
+  /** “今天”按钮的部件属性 */
+  propsToday?: Partial<ButtonProps>;
   /** 日历的部件属性（值、范围、粒度由选择器给出） */
   propsCalendar?: Omit<
     Partial<CalendarBaseProps<V>>,
@@ -40,9 +63,18 @@ export interface DatePickerProps<V extends DateInput = string>
   >;
 }
 
-/** DatePicker 的样式：popover */
+/** DatePicker 的样式：popover、main（日历与“今天”）、footer（快捷选项的样式见 pickerPresetStyles） */
 export const datePickerStyles = stylex.create({
-  popover: { padding: '_sm' },
+  popover: { display: 'flex', alignItems: 'flex-start', gap: '_sm', padding: '_sm' },
+  main: { display: 'flex', flexDirection: 'column', gap: '_xs' },
+  footer: {
+    display: 'flex',
+    justifyContent: 'center',
+    paddingBlockStart: '_xs',
+    borderBlockStartWidth: '_xs',
+    borderBlockStartStyle: 'solid',
+    borderBlockStartColor: '_borderMuted',
+  },
 });
 
 const TIME_GRANULARITIES = new Set<DateFieldGranularity>(['hour', 'minute', 'second']);
@@ -63,6 +95,10 @@ export const DatePicker = _component(
     isDateUnavailable,
     placement,
     visibleMonths = 1,
+    presets = [],
+    showToday = true,
+    propsPresets,
+    propsToday,
     id,
     disabled,
     readonly,
@@ -96,6 +132,19 @@ export const DatePicker = _component(
     const calendarValue = _derived.by((): DateInput | null => {
       return typeof value === 'string' ? fullIsoDay(value) : value;
     });
+
+    const locale = useDateLocale();
+    /** 能不能选：它那一天（选月份、年份时是那个月、那一年）在范围内、不是不可选的日期 */
+    function selectable(input: DateInput): boolean {
+      const day = locale.fromValue(typeof input === 'string' ? fullIsoDay(input) : input);
+      if (!day) return false;
+      const limits = toDateLimits(locale, { min, max, isDateUnavailable });
+      return !isDateDisabled(day, limits, calendarUnit(granularity));
+    }
+    const resolve = (preset: DatePreset<V>): V =>
+      typeof preset.value === 'function' ? (preset.value as () => V)() : preset.value;
+    // 字符串与 DateValue 都按 ISO 比（DateValue 的 toString 是 ISO）
+    const sameValue = (a: DateInput, b: DateInput | null) => b != null && String(a) === String(b);
 
     /** 日历选了一天：换回 granularity 的形式；带时间的保留原来的时间，没有时补 00:00 */
     function pickDay(day: DateInput | null) {
@@ -146,20 +195,58 @@ export const DatePicker = _component(
         {picker.panel(
           datePickerStyles.popover,
           propsPopover,
-          open && (
-            <Calendar<V>
-              {...propsCalendar}
-              {...{ 'onUpdate:value': pickDay }}
-              value={calendarValue as V | null}
-              granularity={calendarUnit(granularity)}
-              valueType={valueType}
-              min={min}
-              max={max}
-              isDateUnavailable={isDateUnavailable}
-              visibleMonths={visibleMonths}
-              onPick={picked}
-            />
-          ),
+          open && [
+            renderPickerPresets(
+              presets.map((preset) => {
+                const next = resolve(preset);
+                return {
+                  key: preset.label,
+                  label: preset.label,
+                  active: sameValue(next, value),
+                  disabled: !selectable(next),
+                  onPick: () => {
+                    value = next;
+                    picked();
+                  },
+                };
+              }),
+              lang.datePickerPresets,
+              propsPresets,
+            ),
+            <div {...stylex.attrs(datePickerStyles.main)}>
+              <Calendar<V>
+                {...propsCalendar}
+                {...{ 'onUpdate:value': pickDay }}
+                value={calendarValue as V | null}
+                granularity={calendarUnit(granularity)}
+                valueType={valueType}
+                min={min}
+                max={max}
+                isDateUnavailable={isDateUnavailable}
+                visibleMonths={visibleMonths}
+                onPick={picked}
+              />
+              {showToday && (
+                <div {...stylex.attrs(datePickerStyles.footer)}>
+                  <Button
+                    {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'ghost' }, propsToday, {
+                      disabled: !selectable(todayIso(locale.timeZone)),
+                      onClick: () => {
+                        pickDay(todayIso(locale.timeZone));
+                        picked();
+                      },
+                    })}
+                  >
+                    {granularity === 'year'
+                      ? lang.dateRangePreset.thisYear
+                      : granularity === 'month'
+                        ? lang.dateRangePreset.thisMonth
+                        : lang.dateRangePreset.today}
+                  </Button>
+                </div>
+              )}
+            </div>,
+          ],
         )}
       </>
     );

@@ -341,6 +341,8 @@ export interface Lang {
   readonly dateRangeEnd: string;
   /** 快捷选项那一组的名称，默认“快捷选项” */
   readonly dateRangePresets: string;
+  /** 日期选择器旁边快捷选项那一组的名称，默认“快捷选项” */
+  readonly datePickerPresets: string;
   /** 快捷区间的名字 */
   readonly dateRangePreset: Readonly<Record<DateRangePreset, string>>;
   /** 选“现在”的按钮（时间、日期时间选择器），默认“此刻” */

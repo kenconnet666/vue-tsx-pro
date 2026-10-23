@@ -9,6 +9,7 @@ import { KeyboardReference } from '../../../site/KeyboardReference';
 import { calendarKeys, pickerKeys, segmentKeys } from '../keyboard';
 import Booking from './demo/Booking.tsx?demo';
 import Granularity from './demo/Granularity.tsx?demo';
+import Presets from './demo/Presets.tsx?demo';
 import States from './demo/States.tsx?demo';
 import Values from './demo/Values.tsx?demo';
 
@@ -26,6 +27,11 @@ export default _component(() => () => (
           输入框就是 DateField，分段键入；按钮或 <Kbd>Alt</Kbd> + <Kbd>↓</Kbd>{' '}
           弹出日历，焦点落在已选（或今天）那一格，点选后关闭、焦点回到按钮。<Code>min</Code>、
           <Code>max</Code>、<Code>isDateUnavailable</Code> 同时作用于输入框与日历。
+        </Example>
+        <Example id="presets" title="快捷选项与“今天”" demo={Presets}>
+          <Code>presets</Code> 列在日历旁边：<Code>{'{ label, value }'}</Code>，value
+          是函数时每次打开按当时算；超出范围的不可用，当前值对应的那一项按下。日历下方的“今天”（选月份时“本月”、选年份时“今年”）不在范围内时不可用，
+          <Code>showToday={'{false}'}</Code> 去掉。
         </Example>
         <Example id="states" title="外观与状态" demo={States}>
           <Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>、<Code>icon</Code>{' '}

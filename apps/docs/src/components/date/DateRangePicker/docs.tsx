@@ -26,7 +26,9 @@ export default _component(() => () => (
           <Code>{'{ start, end }'}</Code>
           。按钮或 <Kbd>Alt</Kbd> + <Kbd>↓</Kbd> 弹出区间日历（默认并排两个月），
           <Code>presets</Code>{' '}
-          列在日历旁边（按今天与语言的一周第一天算，文字取语言包）。结束早于开始、超出范围时外壳显示出错；
+          列在日历旁边：内置的名字按今天与语言的一周第一天算、文字取语言包，也可以写自己的{' '}
+          <Code>{'{ label, value }'}</Code>（value 是函数时每次打开按当时算），都夹到 min–max
+          之内。结束早于开始、超出范围时外壳显示出错；
           <Code>startName</Code>、<Code>endName</Code> 随表单提交两端的 ISO 日期。
         </Example>
       </ExampleColumn>

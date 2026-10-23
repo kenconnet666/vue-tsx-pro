@@ -157,6 +157,7 @@ export const zhCN: Lang = {
   dateRangeStart: '开始日期',
   dateRangeEnd: '结束日期',
   dateRangePresets: '快捷选项',
+  datePickerPresets: '快捷选项',
   dateRangePreset: {
     today: '今天',
     yesterday: '昨天',

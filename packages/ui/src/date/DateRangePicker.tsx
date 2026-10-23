@@ -14,7 +14,6 @@ import { CalendarRange } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { useId, watch } from 'vue';
-import { Button } from '../base/Button';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
@@ -50,9 +49,22 @@ import {
 } from './date-locale';
 import { segmentFields } from './date-segments';
 import { DateSegmentGroup, type DateSegmentGroupProps } from './DateSegmentGroup';
-import { focusCalendar, usePickerPopover, type PickerPopoverParts } from './picker-popover';
+import {
+  focusCalendar,
+  renderPickerPresets,
+  usePickerPopover,
+  type PickerPopoverParts,
+} from './picker-popover';
 import { RangeCalendar, type RangeCalendarProps } from './RangeCalendar';
 import { firstSegmentOf, segmentedFieldStyles, useFieldSegments } from './SegmentedField';
+
+/** 自定义的快捷区间（财年、上个结算周期） */
+export interface DateRangeCustomPreset<V extends DateInput = string> {
+  /** 按钮上的文字 */
+  label: string;
+  /** 区间；函数时每次打开按当时算（跟着今天变） */
+  value: DateRange<V> | (() => DateRange<V>);
+}
 
 /** 未声明的属性落到外壳（role="group"）上 */
 export interface DateRangePickerProps<V extends DateInput = string>
@@ -68,8 +80,11 @@ export interface DateRangePickerProps<V extends DateInput = string>
   open?: boolean;
   /** 值为空、推不出类型时写回哪一种，默认 iso（字符串） */
   valueType?: keyof DateValueTypes;
-  /** 快捷区间，按今天与语言的一周第一天算、夹到 min–max 之内；显示在日历旁边 */
-  presets?: readonly DateRangePreset[];
+  /**
+   * 快捷区间，显示在日历旁边、夹到 min–max 之内：内置的名字（按今天与语言的一周第一天算），
+   * 或自己的 `{ label, value }`（value 可以是函数，每次打开时按当时算）
+   */
+  presets?: readonly (DateRangePreset | DateRangeCustomPreset<V>)[];
   /** 日历并排显示几个月，默认 2 */
   visibleMonths?: number;
   /** 区间里允许夹着不可选的日期，默认 false */
@@ -105,23 +120,23 @@ export interface DateRangePickerProps<V extends DateInput = string>
   >;
 }
 
-/** DateRangePicker 的样式：separator、popover、presets、preset */
+/** DateRangePicker 的样式：separator、popover（快捷区间的样式见 pickerPresetStyles） */
 export const dateRangePickerStyles = stylex.create({
   separator: { flexShrink: 0, paddingInline: '_xs', color: '_textMuted' },
   popover: { display: 'flex', alignItems: 'flex-start', gap: '_sm', padding: '_sm' },
-  presets: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_xs',
-    paddingInlineEnd: '_sm',
-    borderInlineEndWidth: '_xs',
-    borderInlineEndStyle: 'solid',
-    borderInlineEndColor: '_borderMuted',
-  },
-  preset: { justifyContent: 'flex-start' },
 });
 
 const DAY_FIELDS = segmentFields('day');
+
+/** 自定义快捷区间的值 → ISO 日期区间（DateValue 取年月日） */
+function isoRangeOf<V extends DateInput>(
+  value: DateRange<V> | (() => DateRange<V>),
+): DateRange<string> {
+  const range = typeof value === 'function' ? value() : value;
+  const iso = (input: DateInput) =>
+    typeof input === 'string' ? input.slice(0, 10) : toIsoDate(input);
+  return { start: iso(range.start), end: iso(range.end) };
+}
 
 /** 日期区间选择器：两组分段 + 弹出的区间日历与快捷区间 */
 export const DateRangePicker = _component(
@@ -247,13 +262,16 @@ export const DateRangePicker = _component(
       start == null ? firstSegmentOf(startGroup) : firstSegmentOf(endGroup);
 
     /** 快捷区间夹到 min–max 之内：今天之后不能选时，“本月”就是本月 1 日到今天 */
-    function presetValue(preset: DateRangePreset): DateRange<string> {
-      const range = presetIsoRange(preset, locale.week, locale.timeZone);
+    function presetValue(preset: DateRangePreset | DateRangeCustomPreset<V>): DateRange<string> {
+      const range =
+        typeof preset === 'string'
+          ? presetIsoRange(preset, locale.week, locale.timeZone)
+          : isoRangeOf(preset.value);
       const clamp = (iso: string) => toIsoDate(clampDate(parseIsoDate(iso)!, limits));
       return { start: clamp(range.start), end: clamp(range.end) };
     }
 
-    function pickPreset(preset: DateRangePreset) {
+    function pickPreset(preset: DateRangePreset | DateRangeCustomPreset<V>) {
       const range = presetValue(preset);
       start = range.start;
       end = range.end;
@@ -340,31 +358,18 @@ export const DateRangePicker = _component(
             dateRangePickerStyles.popover,
             propsPopover,
             open && [
-              presets && presets.length > 0 && (
-                <div
-                  {...mergeAttrs<'div'>({ sx: dateRangePickerStyles.presets }, propsPresets, {
-                    role: 'group',
-                    'aria-label': lang.dateRangePresets,
-                  })}
-                >
-                  {presets.map((preset) => {
-                    const range = presetValue(preset);
-                    const active = range.start === start && range.end === end;
-                    return (
-                      <Button
-                        key={preset}
-                        sx={dateRangePickerStyles.preset}
-                        size="sm"
-                        variant={active ? 'soft' : 'ghost'}
-                        tone="neutral"
-                        aria-pressed={active}
-                        onClick={() => pickPreset(preset)}
-                      >
-                        {lang.dateRangePreset[preset]}
-                      </Button>
-                    );
-                  })}
-                </div>
+              renderPickerPresets(
+                (presets ?? []).map((preset) => {
+                  const range = presetValue(preset);
+                  return {
+                    key: typeof preset === 'string' ? preset : preset.label,
+                    label: typeof preset === 'string' ? lang.dateRangePreset[preset] : preset.label,
+                    active: range.start === start && range.end === end,
+                    onPick: () => pickPreset(preset),
+                  };
+                }),
+                lang.dateRangePresets,
+                propsPresets,
               ),
               <RangeCalendar<V>
                 {...propsCalendar}

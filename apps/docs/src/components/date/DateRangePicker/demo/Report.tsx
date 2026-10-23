@@ -1,4 +1,4 @@
-// 报表的统计区间带快捷区间，今天之后不能选；酒店入住与离店，订满的日子不能夹在中间
+// 报表的统计区间带快捷区间（内置的与自己的结算周期），今天之后不能选；酒店入住与离店，订满的日子不能夹在中间
 import { _component } from '@vue-tsx-pro/tsx';
 import {
   Code,
@@ -10,6 +10,14 @@ import {
   useFormat,
   type DateRange,
 } from '@vue-tsx-pro/ui';
+
+/** 本结算周期：上月 26 日到本月 25 日（今天过了 25 日就是本月 26 日到下月 25 日） */
+function settlementPeriod(): DateRange<string> {
+  const today = todayIso();
+  const anchor = Number(today.slice(8)) > 25 ? today : shiftIsoDate(today, { months: -1 });
+  const start = `${anchor.slice(0, 7)}-26`;
+  return { start, end: shiftIsoDate(shiftIsoDate(start, { months: 1 }), { days: -1 }) };
+}
 
 export default _component(() => {
   const format = useFormat();
@@ -32,7 +40,16 @@ export default _component(() => {
         <DateRangePicker
           value={_bind(report)}
           max={today}
-          presets={['today', 'last7Days', 'last30Days', 'thisMonth', 'lastMonth', 'thisYear']}
+          presets={[
+            'today',
+            'last7Days',
+            'last30Days',
+            'thisMonth',
+            'lastMonth',
+            // 自己的快捷区间：结算周期是上月 26 日到本月 25 日
+            { label: '本结算周期', value: settlementPeriod },
+            'thisYear',
+          ]}
           startName="from"
           endName="to"
         />

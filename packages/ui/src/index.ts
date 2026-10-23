@@ -857,10 +857,16 @@ export {
   type CountdownProps,
 } from './date/Countdown';
 export { DateField, type DateFieldProps } from './date/DateField';
-export { DatePicker, datePickerStyles, type DatePickerProps } from './date/DatePicker';
+export {
+  DatePicker,
+  datePickerStyles,
+  type DatePickerProps,
+  type DatePreset,
+} from './date/DatePicker';
 export {
   DateRangePicker,
   dateRangePickerStyles,
+  type DateRangeCustomPreset,
   type DateRangePickerProps,
 } from './date/DateRangePicker';
 export {
@@ -933,10 +939,13 @@ export {
 } from './date/date-segments';
 export {
   focusCalendar,
+  pickerPresetStyles,
+  renderPickerPresets,
   usePickerPopover,
   type PickerPopoverEvents,
   type PickerPopoverParts,
   type PickerPopoverState,
+  type PickerPreset,
 } from './date/picker-popover';
 
 // 表单：字段、校验

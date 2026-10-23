@@ -173,6 +173,7 @@ export const enUS: Lang = {
   dateRangeStart: 'Start date',
   dateRangeEnd: 'End date',
   dateRangePresets: 'Presets',
+  datePickerPresets: 'Presets',
   dateRangePreset: {
     today: 'Today',
     yesterday: 'Yesterday',
