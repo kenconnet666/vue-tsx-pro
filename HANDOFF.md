@@ -2,31 +2,32 @@
 
 给接手这个仓库的人（或下一个会话、换了电脑的自己）：读完这一页就能接着做。细节以各自的规范文档为准，这里只讲现状、地图、做事方式和踩过的坑。路线图与勾选状态在 [ROADMAP.md](ROADMAP.md)。
 
-## 1. 现状（2026-10-22）
+## 1. 现状（2026-10-23）
 
 - **分支**：只有 `master`，已推送到 origin，工作区干净。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
-- **进度**：[ROADMAP.md](ROADMAP.md) §1 审查整改全部完成；§2 基础设施只剩“跨容器拖动”（Sortable 分组）；
-  §4 联合降本管理 D0–D3 已完成（D3：任务看板、计划调整、DMC 审批链、台账的当前环节），下一个是 D4 收益。
-  这一轮（2026-10-22）新加的基础设施：请求层（`createHttpClient`、`useHttp`、`useRequest`）、`useTableQuery`、远程选项
-  （Select / Combobox / TreeSelect 的 `load`）、工作日与时限（`createWorkCalendar`、`deadlineOf`）、`diffFields`、
-  `usePersistentState`、`tableToCsv`、`useEventListener`、快捷键的序列键与作用域、离开确认接路由守卫、地址里的状态
-  （`useQueryState`、`syncToUrl`）、文档站自用组件挪进 `@vue-tsx-pro/ui/docs-kit`。
+- **进度**：2026-10-23 起联合降本管理暂停，按 [ROADMAP.md](ROADMAP.md) 的阶段 0–8 做组件库。阶段 0（整理）已完成：分层与 `pnpm layers:check`、
+  子路径只在 exports 登记、patterns / workflow / effects / theme-customize 子路径、删掉 SlideVerify、PageHeader、Checklist、
+  WorkflowTimeline 并进 Timeline、对话框的 onConfirm、Drawer 与页面组合的文档页重做。下一步是阶段 1（先把仓库统一到 TypeScript 7.1）。
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。编译是一次解析、两遍遍历、一次生成（`compiler/compile.ts`）。
-- **ui 包**：组件与基础设施见 [COMPONENTS.md](COMPONENTS.md) §10：
-  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、List / OrderedList（可用图标代替圆点）、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮、复制、行号、diff、折叠）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton、ButtonGroup）、Badge、Indicator、Tag
-  - 布局：Flex / Grid / Container（含 create\* 工厂）、Separator、ScrollArea 与 PageScrollbar、Prose、AppShell、Brand、Splitter、ResizeHandle、AsideLayout、ViewportFill
-  - 展示：Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat、Descriptions、Timeline、Tree、Sortable、Marquee、CodeGroup、CodePreview、ColorSwatch、PropsTable、DeadlineTag、StatusDot、ItemList、Checklist、ProportionBar、StatGroup
-  - 反馈：Progress、Skeleton、Alert、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay、NotificationCenter
-  - 浮层：Dialog / Drawer / AlertDialog（含 useConfirm、useFormDialog，共用 useDetachedDialog）、Popover、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
+- **ui 包**：分基础设施、核心（主入口）、扩展（子路径）三层，见 [COMPONENTS.md](COMPONENTS.md) §7；各批的设计与取舍见 §10：
+  - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、List / OrderedList、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton、ButtonGroup）、Badge / StatusBadge、Indicator、Tag、StatusDot
+  - 布局：Flex / Grid / Container（含 create* 工厂）、Separator、ScrollArea 与 PageScrollbar、Prose、Splitter、ResizeHandle、AsideLayout、ViewportFill
+  - 展示：Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat / StatGroup、Descriptions、Timeline（reverse）、Tree、Sortable、ItemList、ProportionBar
+  - 反馈：Progress、Skeleton、Alert、Empty、Result、Toast（createToaster + Toaster）、LoadingOverlay
+  - 浮层：Dialog / Drawer / AlertDialog（共用 ModalCore，onConfirm 给出“取消 / 确认”与等待；useConfirm）、Popover、Tooltip、HoverCard、Menu、ContextMenu、Tour、CommandPalette
   - 导航：Toolbar、Tabs、Steps、Breadcrumbs、Pagination（PageSizeSelect、PageJump、Pager）、NavList、TableOfContents、SkipLink
-  - 输入：TextField、Textarea、NumberField、ColorField、Checkbox / Radio / Switch、Listbox、Select、Combobox、TagsInput、FileDrop / Upload、Slider、SlideVerify、ToggleGroup
+  - 输入：TextField、Textarea、NumberField / NumberRangeField、ColorField、Checkbox / Radio / Switch、Listbox、Select、Combobox、TreeSelect、TagsInput、FileDrop / Upload、Slider、ToggleGroup
   - 日期：Calendar、RangeCalendar、DateField、TimeField、DatePicker（年、月、日期时间）、TimePicker、DateRangePicker、RelativeTime、DateTime、Countdown（`@internationalized/date`，值可以是 ISO 字符串或 DateValue）
-  - 表格：Table 家族、DataTable（始终虚拟滚动；排序、勾选、固定列、列宽、滚动加载）、TreeDataTable
-  - 表单（form/）：Field、Label、Form、FormValue、useForm（zod；decimalSchema / bigintSchema）
-  - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart；XY 图的目标线（targets）、各图的下钻（onItemClick）
-  - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer；不依赖 three 的 TiltCard、SpotlightCard、BorderBeam 在主入口
-- **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher` 切换，`ThemeCustomizer` 定制（子路径 `@vue-tsx-pro/ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
+  - 表格：Table 家族、DataTable（始终虚拟滚动；排序、勾选、固定列、列宽、滚动加载、activeKey）、TreeDataTable、useTableQuery、tableToCsv
+  - 表单（form/）：Field（labelHidden）、Label、Form、FormSection、FormValue、useForm（zod；decimalSchema / bigintSchema）、useLeaveConfirmation
+  - 页面组合（子路径 `@vue-tsx-pro/ui/patterns`）：AppShell / AppShellBrand、ActionBar、FilterBar、NotificationCenter / NotificationList、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog；文案在 patternsMessages
+  - 流程（子路径 `@vue-tsx-pro/ui/workflow`）：流程定义与校验、排布、运行时类型、FlowDiagram、ApprovalActions、useWorkflowTimeline（写成 Timeline 的各项）
+  - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart；目标线（targets）、下钻（onItemClick）
+  - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
+  - 视觉效果（子路径 `@vue-tsx-pro/ui/effects`，不依赖 three）：TiltCard、SpotlightCard、BorderBeam、Marquee
+  - 主题定制（子路径 `@vue-tsx-pro/ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@vue-tsx-pro/ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch）
+- **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@vue-tsx-pro/ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
 - **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。联合降本管理已拆成独立子项目 `apps/cost-reduction`（`pnpm dev:cost`，端口 5175），文档站不再收案例页。
 - **联合降本管理**（`apps/cost-reduction`，正式版前端）：设计依据是 `apps/cost-reduction/DESIGN.md`（角色、流程、全部页面、口径、
   要补的组件、里程碑 D0–D8）。分层：`domain/`（纯业务规则，前端与假后端共用）、`api/`（接口契约与调用，金额是十进制字符串）、

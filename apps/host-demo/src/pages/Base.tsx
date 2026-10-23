@@ -465,8 +465,8 @@ export const Base = _component(() => {
             <NavItem href="/base" icon={LayoutGrid}>
               基础组件
             </NavItem>
-            <NavItem href="/pilot" icon={FlaskConical}>
-              试点
+            <NavItem href="/integration" icon={FlaskConical}>
+              集成验证
             </NavItem>
             <NavGroup label="个人主页" icon={UserRound}>
               <NavItem href="/profile/1">用户 1</NavItem>

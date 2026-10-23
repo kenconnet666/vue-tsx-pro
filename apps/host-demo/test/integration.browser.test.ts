@@ -1,4 +1,4 @@
-// 试点组件在真实浏览器里的行为：em 尺寸、主题变量、原生 popover 与焦点、输入法、无障碍
+// 宿主里的组件在真实浏览器里的行为：em 尺寸、主题变量、原生 popover 与焦点、输入法、无障碍（/integration 页）
 import axe from 'axe-core';
 import { afterEach, beforeEach, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
@@ -11,7 +11,7 @@ let root: HTMLElement;
 
 beforeEach(async () => {
   const host = createHostApp(createMemoryHistory());
-  await host.router.push('/pilot');
+  await host.router.push('/integration');
   await host.router.isReady();
   root = document.createElement('div');
   document.body.append(root);
@@ -128,7 +128,7 @@ it('无障碍：弹出层打开时 axe-core 也没有违规', async () => {
 });
 
 it('Dialog：打开时焦点进入并锁定页面滚动，焦点在两端循环', async () => {
-  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  const dialog = $<HTMLDialogElement>('.integration-dialog');
   await userEvent.click($('.dialog-trigger'));
   await expect.poll(() => dialog.open).toBe(true);
   expect(dialog.contains(document.activeElement)).toBe(true);
@@ -145,7 +145,7 @@ it('Dialog：打开时焦点进入并锁定页面滚动，焦点在两端循环'
 });
 
 it('Dialog：里面的弹层先关，再按 Esc 关对话框；关闭后写回、恢复滚动、焦点回到触发器', async () => {
-  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  const dialog = $<HTMLDialogElement>('.integration-dialog');
   const trigger = $('.dialog-trigger');
   await userEvent.click(trigger);
   await expect.poll(() => dialog.open).toBe(true);
@@ -169,7 +169,7 @@ it('Dialog：里面的弹层先关，再按 Esc 关对话框；关闭后写回�
 });
 
 it('Dialog：点击遮罩关闭；点击内容、内边距，或从内容拖到遮罩上松开都不关闭', async () => {
-  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  const dialog = $<HTMLDialogElement>('.integration-dialog');
   await userEvent.click($('.dialog-trigger'));
   await expect.poll(() => dialog.open).toBe(true);
   await userEvent.click(dialog.querySelector('h2')!);
@@ -190,7 +190,7 @@ it('Dialog：点击遮罩关闭；点击内容、内边距，或从内容拖到�
 });
 
 it('无障碍：对话框打开时 axe-core 也没有违规', async () => {
-  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  const dialog = $<HTMLDialogElement>('.integration-dialog');
   await userEvent.click($('.dialog-trigger'));
   await expect.poll(() => dialog.open).toBe(true);
   await settle();
@@ -222,7 +222,7 @@ it('进出场过渡：打开时淡入放大；关闭时支持 overlay 过渡的�
   await settle();
   expect(style(panel).opacity).toBe('1');
 
-  const dialog = $<HTMLDialogElement>('.pilot-dialog');
+  const dialog = $<HTMLDialogElement>('.integration-dialog');
   const dialogEntered = opacityTransition(dialog);
   await userEvent.click($('.dialog-trigger'));
   await dialogEntered;

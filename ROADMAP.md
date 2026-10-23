@@ -66,13 +66,15 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] StatusDot 挪到 base；`Modal.tsx` 改名 `ModalCore.tsx`；内容判断统一用 hasContent（36 处 `!= null`）。
       决定保留：Collapsible 不并入 Collapse（一个是动效原件、一个是 Disclosure 模式，合并后 Collapse 有两种根结构）；
       Result 不建在 Empty 上（会吃到 defaults.Empty 的尺寸，重复的只是几十行排版）
-- [ ] 测试按组件拆对（`Descriptions.test` 里的 Timeline、`Tabs.test` 里的 Steps / Toolbar / ToggleGroup），host-demo 的 `pilot.*` 改名
-- [ ] 文档页补齐 FormSection、ModalCore（ActionBar、useFormDialog 已补）；挪过的组件逐页在 Chrome 里看示例、补示例
-- [ ] COMPONENTS.md §7 写上分层与目录、§8 完成标准按现状修订（宿主示例 → 文档站示例 + axe；类型测试只要求泛型与可绑定值的组件）；
-      PLAN §2、HANDOFF 同步；审查报告标上已修
+- [x] 测试按组件拆对（Timeline、Toolbar、Steps 各自一个文件），host-demo 的 `/pilot` 与 `pilot.*` 改名 `/integration`、`integration.*`
+- [x] 文档页补齐：FormSection、ActionBar、useFormDialog、Drawer（之前只在 Dialog 页里）、NotificationList；挪过的页面组合逐页在 Chrome 里看过、示例重做成整行与真实数据。
+      ModalCore 是内核，不单独成页（Dialog、Drawer 的属性表里已有它的全部属性）
+- [x] COMPONENTS.md §7 写上分层与目录、§8 完成标准按现状修订；PLAN §2、HANDOFF 同步
 - [x] 降本案例跟着改导入与用法，不报错（暂停期间只保证这一点）
 
 ## 阶段 1：基础设施（后面阶段要用的工具先铺好）
+
+- [ ] 整个仓库只用 TypeScript 7.1（去掉 TS 6）：解析源码的脚本、文档站的 API 表改用 7.1 的 API，语言服务 MCP 改接 TS 7 自带的语言服务器
 
 - [ ] `useSortable` 多容器分组：列内排序 + 跨列（KanbanBoard 改建在它上面；Tree、Transfer、Tabs 的拖动也用）
 - [ ] `useOverflowItems`：量出放得下几项，其余折成 +N（Select / TreeSelect 的 maxTagCount、Tabs 溢出、横向导航、Toolbar）
@@ -82,7 +84,6 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [ ] `usePanZoom`（建在 startMove 上）、二维方向键导航（表格网格、整页日历）、`ControlGroup` 上下文（组合输入的圆角与描边）
 - [ ] 拼音匹配：`createMatcher` 认拼音与首字母（选库后定，作可选依赖）
 - [ ] `useDismissible`：Tag、Alert、Banner 三处先离场再移除
-- [ ] 评估 TS 7.1 的 `typescript/sync`：能覆盖的脚本（docs:check、exports、文档站 API 表）从 TS 6 换过去
 
 ## 阶段 2：小组件
 

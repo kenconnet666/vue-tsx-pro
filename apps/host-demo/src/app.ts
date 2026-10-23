@@ -8,7 +8,7 @@ import App from './App.vue';
 import Home from './pages/Home.vue';
 import { Base } from './pages/Base';
 import { DateDemo } from './pages/DateDemo';
-import { Pilot } from './pages/Pilot';
+import { Integration } from './pages/Integration';
 import { Profile } from './pages/Profile';
 import { siteNameKey } from './site';
 
@@ -31,7 +31,7 @@ export function createHostApp(history: RouterHistory = createWebHistory()) {
       // TSX 页面与 SFC 页面一样注册为路由组件
       { path: '/profile/:id', component: Profile },
       // 组件库试点（扫清障碍用，不是正式组件）
-      { path: '/pilot', component: Pilot },
+      { path: '/integration', component: Integration },
       // 组件库的基础组件演示（文档站暂缓）
       { path: '/base', component: Base },
       // 日期组件的演示

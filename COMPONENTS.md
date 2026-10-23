@@ -279,11 +279,23 @@ interface Lang {
 
 ## 7. 现状、依赖与待办
 
-**目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`（base、layout、display…；子路径入口 charts、three、docs-kit 各是一个目录，带自己的 index.ts），共用工具在 `utils/`，配置在 `config/`；测试集中在各目录下的 `.test/`（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
+**目录与分层**（`pnpm layers:check` 检查，规则见 ROADMAP.md“分层”）：
+
+| 层       | 目录                                                                                                                 | 入口                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| 基础设施 | `utils/`（data、dom、motion、style、virtual、request）、`config/`（context、defaults、theme、lang）                  | 主入口；tokens、vars、theme-boot、shiki、vue-router 各有子路径 |
+| 核心     | `base`、`layout`、`display`、`feedback`、`overlay`、`navigation`、`input`、`date`、`form`、`table`（同文档站的分类） | 主入口 `@vue-tsx-pro/ui`                                       |
+| 扩展     | `patterns`、`workflow`、`charts`、`three`、`effects`、`theme-customize`、`docs-kit`                                  | 子路径 `@vue-tsx-pro/ui/<目录名>`                              |
+
+组件平铺在 `packages/ui/src/<目录>/<Name>.tsx`。基础设施不在运行时导入组件，核心不导入扩展，扩展只依赖核心与基础设施（扩展之间的依赖要登记），模块之间没有环。
+子路径只在 `packages/ui/package.json` 的 `exports` 里登记：构建入口、`pnpm exports`（同时生成各子路径目录的 index.ts）、文档站的 API 表都从它读，代码演练场漏登记时文档站测试报错。
+挪文件用 `pnpm move 旧=新`：改写相对导入、重新生成入口，并把应用里从包入口导入的名字改到它现在所在的入口。
+页面组合、流程这类扩展的文案自带中英文的表（`patternsMessages`、`workflowMessages`），在 `Lang.messages` 里按字段改写；`Lang` 只放核心组件的文案。
+测试集中在各目录下的 `.test/`，一个组件一个测试文件（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
 **已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
-**试点组件**（原 `apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）已全部转正并删除，`/pilot` 页面改用正式组件。试点阶段在 Chromium、Firefox、WebKit 中验证过：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
+**试点组件**（原 `apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）已全部转正并删除，`/pilot` 页面改用正式组件（后改名 `/integration`，测试是 `integration.*`）。试点阶段在 Chromium、Firefox、WebKit 中验证过：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
 **StyleX 相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
 
@@ -321,14 +333,15 @@ interface Lang {
 
 **验证覆盖**：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
 
-## 8. 正式组件的完成标准（供之后使用）
+## 8. 正式组件的完成标准
 
-1. API 符合 §1、§2，部件名与键盘映射写进文档。
-2. 运行时测试（Vitest + happy-dom）覆盖受控、只传值、不传三种用法。
-3. 浏览器测试（Vitest 浏览器模式 + Playwright）覆盖键盘、焦点、输入法；axe-core 无违规。
-4. 类型测试：部件 props、`_bind` 的类型约束。
-5. 文档页：演示、部件列表、props 表（从 TS 类型生成）、键盘映射。
-6. 在宿主示例里能用；明暗主题、两种语言下截图核对。
+1. API 符合 §1、§2：每个内部节点有部件属性，状态写成 data 属性，有外观档位的登记 ComponentDefaults。
+2. 运行时测试（Vitest + happy-dom，一个组件一个测试文件）覆盖受控、只传值、不传三种用法与主要分支。
+3. 浏览器测试（Vitest 浏览器模式 + Playwright，三种浏览器）：有自己键盘逻辑、焦点管理或输入法处理的组件要有专属用例；
+   axe-core 无违规由文档站的通用测试覆盖（全部示例，亮、暗主题）。
+4. 类型测试（`*.test-d.tsx`）：带泛型或可绑定值的组件（选择类、表格、表单、看板）的 props 与 `_bind` 约束；其余靠文档站示例的类型检查。
+5. 文档页：示例饱满、贴近真实场景、占满宽度（宽的组件用整行示例），API 表（从类型生成）、键盘一节（有键盘操作时）。
+6. 在 Chrome 宽屏里看过亮、暗主题；文档站示例能原样复制运行（演练场“编辑”能打开）。
 
 ## 9. StyleX 的类型提示与注释
 

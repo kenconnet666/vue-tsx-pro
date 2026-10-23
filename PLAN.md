@@ -29,25 +29,29 @@ packages/
     src/vite/       Vite 预设：调用 compile、组件热更新、StyleX 的 CSS、编译缓存
     src/stylex/     StyleX 类型入口（属性中文注释，scripts/css-docs 生成）
     types/          符文全局类型、jsx-runtime 类型
-  ui/    @vue-tsx-pro/ui
-    src/base/         基础：文字、图标、链接、按钮家族、标记、代码块、加载
-    src/layout/       布局：Flex、Grid、Container、Separator、ScrollArea
-    src/display/      展示：折叠、虚拟列表、卡片、头像、树、时间线
-    src/table/        表格：DataTable、TreeDataTable（虚拟滚动）
+  ui/    @vue-tsx-pro/ui（分三层，见 COMPONENTS.md §7；pnpm layers:check 检查）
+    基础设施
+    src/utils/        部件 props 合并（props.ts）与按职责分的子目录：style/、dom/、motion/、data/、virtual/、request/
+    src/config/       Provider、createUi、组件默认值、theme/（tokens 与主题）、lang/（语言与格式化）、子路径 shiki、vue-router
+    核心（主入口，与文档站的分类一致）
+    src/base/         基础：文字、图标、链接、按钮家族、标记、状态点、代码块、加载
+    src/layout/       布局：Flex、Grid、Container、Separator、ScrollArea、Splitter、AsideLayout、ViewportFill
+    src/display/      展示：折叠、虚拟列表、卡片、头像、描述列表、树、时间线、统计数值
     src/feedback/     反馈：进度、骨架屏、提示条、通知、空状态、结果
-    src/overlay/      浮层：对话框、抽屉（共用 Modal 内核）、Popover、Tooltip、HoverCard、Menu、Tour
-    src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList
-    src/input/        输入：TextField、Textarea、NumberField、Checkbox、Radio、Switch、Listbox、Select、Combobox、Slider、SlideVerify、ToggleGroup、Upload
-    src/form/         表单结构与校验：Field、Label、Form、useForm（控件经 useFieldControl 接入）
-    src/config/       Provider、createUi、组件默认值、theme/（tokens 与明暗主题）、lang/（语言与格式化）、
-                      可选依赖的适配（子路径 shiki、vue-router）
-    src/utils/        部件 props 合并（props.ts）、JS 动画（animation.ts），以及按职责分的子目录：
-                      style/（档位、字号、色调、过渡样式）、dom/（焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、
-                      排版方向、尺寸监听）、motion/（动画、过渡、布局动画）、data/（比较与匹配、选择、分页、数值、树）、virtual/（虚拟滚动）
+    src/overlay/      浮层：对话框、抽屉、确认（共用 ModalCore）、Popover、Tooltip、HoverCard、Menu、Tour、CommandPalette
+    src/navigation/   导航：Tabs、Toolbar、Steps、Breadcrumbs、Pagination、NavList、TableOfContents
+    src/input/        输入：TextField、NumberField、选择类、勾选类、Slider、ToggleGroup、TagsInput、Upload、ColorField
+    src/date/         日期：日历、分段输入、日期与时间选择、区间
+    src/form/         表单结构与校验：Field、Label、Form、FormSection、useForm（控件经 useFieldControl 接入）
+    src/table/        表格：Table、DataTable、TreeDataTable（虚拟滚动）、useTableQuery
+    扩展（子路径）
+    src/patterns/     页面组合：AppShell、ActionBar、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog
+    src/workflow/     流程：流程定义与校验、FlowDiagram、ApprovalActions、useWorkflowTimeline
+    src/charts/       图表（Unovis）；src/three/ 3D（three）；src/effects/ 视觉效果；src/theme-customize/ 主题定制与编辑器；src/docs-kit/ 文档站组件
     （每个目录下的 .test/ 放测试）
 apps/
   docs/        文档站：TSX 与本组件库写的网站（Vite + vue-router）；组件页、示例与示例测试在 src/components/<分类>/<Name>/
-  host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面（/base 演示页、/pilot 集成验证页）
+  host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面（/base 演示页、/integration 集成验证页）
 scripts/
   css-docs/            StyleX 属性注释的数据与生成器
   language-services/   TSX 语言服务（MCP）

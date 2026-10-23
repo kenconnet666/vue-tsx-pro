@@ -43,7 +43,7 @@ const MenuContent = _component(({ onClose }: { onClose: () => void }) => {
 });
 
 /** 试点组件演示：主题与语言切换、em 尺寸、部件透传、输入法、弹出层 */
-export const Pilot = _component(() => {
+export const Integration = _component(() => {
   let dark = _state(false);
   let english = _state(false);
   let keyword = _state('');
@@ -119,7 +119,7 @@ export const Pilot = _component(() => {
           <Dialog
             open={_bind(dialogOpen)}
             title="编辑资料"
-            class="pilot-dialog"
+            class="integration-dialog"
             footer={
               <>
                 <Button
