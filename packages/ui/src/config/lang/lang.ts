@@ -319,6 +319,10 @@ export interface Lang {
   readonly calendarYear: (year: number) => string;
   /** 季度面板里一格的文字：`(4)` → “四季度” / “Q4” */
   readonly calendarQuarter: (quarter: number) => string;
+  /** 整页月历里一天有几项日程（读屏念在日期后面）：`(3)` → “3 项日程” */
+  readonly calendarBoardCount: (count: number) => string;
+  /** 整页月历里收起的日程：`(2)` → “还有 2 项” */
+  readonly calendarBoardMore: (count: number) => string;
   /** 年份视图“上一个十年”按钮，默认“上一个十年” */
   readonly calendarPreviousDecade: string;
   /** 年份视图“下一个十年”按钮，默认“下一个十年” */

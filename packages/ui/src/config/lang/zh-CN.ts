@@ -146,6 +146,8 @@ export const zhCN: Lang = {
   calendarNextYear: '下一年',
   calendarYear: (year) => `${year}年`,
   calendarQuarter: (quarter) => `${'一二三四'[quarter - 1]}季度`,
+  calendarBoardCount: (count) => `${count} 项日程`,
+  calendarBoardMore: (count) => `还有 ${count} 项`,
   calendarPreviousDecade: '上一个十年',
   calendarNextDecade: '下一个十年',
   calendarChooseMonth: (current) => `选择月份：${current}`,

@@ -162,6 +162,8 @@ export const enUS: Lang = {
   calendarNextYear: 'Next year',
   calendarYear: (year) => String(year),
   calendarQuarter: (quarter) => `Q${quarter}`,
+  calendarBoardCount: (count) => `${count} ${count === 1 ? 'event' : 'events'}`,
+  calendarBoardMore: (count) => `${count} more`,
   calendarPreviousDecade: 'Previous decade',
   calendarNextDecade: 'Next decade',
   calendarChooseMonth: (current) => `Choose month: ${current}`,

@@ -841,6 +841,12 @@ export {
   type SingleCalendarProps,
 } from './date/Calendar';
 export {
+  CalendarBoard,
+  calendarBoardStyles,
+  type CalendarBoardDayState,
+  type CalendarBoardProps,
+} from './date/CalendarBoard';
+export {
   calendarStyles,
   CalendarView,
   type CalendarItemProps,
