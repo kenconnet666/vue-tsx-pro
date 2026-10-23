@@ -18,6 +18,7 @@ import {
 } from '../utils/dom/floating';
 import { toElement } from '../utils/dom/element';
 import { focusFirst } from '../utils/dom/focus';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { defaultLabelledBy, mergeAttrs, type PartProps, type TriggerProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
@@ -37,7 +38,8 @@ export interface PopoverProps
   extends
     PartProps<'div', 'id' | 'popover' | 'role'>,
     Pick<FloatingOptions, 'offset'>,
-    LazyContentOptions {
+    LazyContentOptions,
+    OpenChangeProps {
   /** 是否打开：父级写 open={_bind(x)}；Esc 与点击外部会关闭并写回 */
   open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
@@ -65,6 +67,7 @@ export const popoverStyles = stylex.create({
 export const Popover = _component(
   ({
     open = _bindable(false),
+    onOpenChange,
     placement = 'bottom-start',
     offset,
     arrow = false,
@@ -84,17 +87,22 @@ export const Popover = _component(
     let anchor = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
     let arrowElement = _state.raw<HTMLElement | null>(null);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
     // 打开时焦点移入（等第一次定位、可见之后），Esc 与点击外部关闭后写回 open、焦点回到触发器
     const { onToggle } = useAnchoredPopover(
       () => ({ open, anchor, panel, floating: { placement, offset, arrow: arrowElement } }),
-      { close: () => (open = false), shown: focusFirst },
+      { close: (reason, event) => setOpen(false, reason, event), shown: focusFirst },
     );
 
     return () => (
       <>
         {trigger({
           ref: (value) => (anchor = toElement(value)),
-          onClick: () => (open = !open),
+          onClick: (event: MouseEvent) => setOpen(!open, 'trigger', event),
           'aria-expanded': open,
           id: triggerId,
           'aria-controls': id,

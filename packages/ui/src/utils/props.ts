@@ -29,7 +29,7 @@ export type PartProps<
  */
 export interface TriggerProps {
   /** 切换展开与收起 */
-  onClick: () => void;
+  onClick: (event: MouseEvent) => void;
   /** 当前是否展开，读屏据此播报“已展开 / 已折叠” */
   'aria-expanded': boolean;
   /** 被控制的内容区的 id */

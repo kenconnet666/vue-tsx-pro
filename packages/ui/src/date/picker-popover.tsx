@@ -4,7 +4,7 @@
  * 关闭时焦点还给按钮（外壳不可聚焦）；分段里按 Alt + ↓ 打开（同原生 select）。在组件 setup 里调用。
  *
  *   const picker = usePickerPopover(() => ({ open, editable, label: lang.datePickerOpen }), {
- *     toggle: (next) => (open = next),
+ *     toggle: setOpen,
  *     shown: (panel) => panel.querySelector('…')?.focus(),
  *   });
  *   <DateField propsRoot={{ ref: picker.anchorRef }} onKeydown={picker.onKeydown} suffix={picker.button(CalendarDays, propsButton)} />
@@ -18,6 +18,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { controlStyles } from '../input/control';
 import { anchoredPanelSx, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { focusFirst } from '../utils/dom/focus';
+import type { SetOpen } from '../utils/dom/open-change';
 import { toElement } from '../utils/dom/element';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
@@ -50,8 +51,8 @@ export interface PickerPopoverState {
 
 /** usePickerPopover 的回调 */
 export interface PickerPopoverEvents {
-  /** 打开或关闭（按钮、Alt + ↓、Esc、点外部）：写回组件的 open */
-  toggle: (open: boolean) => void;
+  /** 打开或关闭（按钮、Alt + ↓、Esc、点外部）：写回组件的 open 并通知 onOpenChange，一般是组件的 openSetter */
+  toggle: SetOpen;
   /** 打开后、第一次定位完成时：把焦点交给弹层里合适的元素 */
   shown: (panel: HTMLElement) => void;
 }
@@ -68,7 +69,7 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
       const { open, placement = 'bottom-start', matchWidth } = read();
       return { open, anchor, panel, floating: { placement, matchWidth }, restoreFocus: trigger };
     },
-    { close: () => events.toggle(false), shown: events.shown },
+    { close: (reason, event) => events.toggle(false, reason, event), shown: events.shown },
   );
 
   return {
@@ -84,7 +85,7 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
     onKeydown: (event: KeyboardEvent) => {
       if (!event.altKey || event.key !== 'ArrowDown' || !read().editable) return;
       event.preventDefault();
-      events.toggle(true);
+      events.toggle(true, 'trigger', event);
     },
     /** 输入框后缀里的打开按钮 */
     button(icon: IconData, user?: PickerPopoverParts['propsButton']) {
@@ -100,7 +101,7 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
               'aria-haspopup': 'dialog',
               'aria-expanded': open,
               'aria-controls': id,
-              onClick: () => events.toggle(!open),
+              onClick: (event: MouseEvent) => events.toggle(!open, 'trigger', event),
             },
           )}
         />

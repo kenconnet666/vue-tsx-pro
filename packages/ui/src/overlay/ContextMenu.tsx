@@ -12,11 +12,12 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { nextTick, watch, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Menu, type MenuProps } from './Menu';
 
 /** 未声明的属性落到区域的 div 上 */
-export interface ContextMenuProps extends PartProps<'div'> {
+export interface ContextMenuProps extends PartProps<'div'>, OpenChangeProps {
   /** 菜单是否打开：父级可以写 open={_bind(x)} */
   open?: boolean;
   /** 菜单项：同 Menu 的 children */
@@ -35,6 +36,7 @@ export interface ContextMenuProps extends PartProps<'div'> {
 export const ContextMenu = _component(
   ({
     open = _bindable(false),
+    onOpenChange,
     menu,
     label,
     disabled = false,
@@ -46,6 +48,11 @@ export const ContextMenu = _component(
     let point = _state.raw<{ x: number; y: number } | undefined>(undefined);
     // 打开前焦点所在的元素：关闭后还给它
     let origin: HTMLElement | null = null;
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     function onContextmenu(event: MouseEvent) {
       const target = event.target as HTMLElement;
@@ -58,11 +65,11 @@ export const ContextMenu = _component(
         const rect = target.getBoundingClientRect();
         point = { x: rect.left, y: rect.bottom };
       } else point = { x: event.clientX, y: event.clientY };
-      // 已经开着时先关再开，菜单换到新的位置
+      // 已经开着时先关再开，菜单换到新的位置（仍算开着，不通知）
       if (open) {
         open = false;
         void nextTick(() => (open = true));
-      } else open = true;
+      } else setOpen(true, 'trigger', event);
     }
 
     watch(
@@ -88,6 +95,7 @@ export const ContextMenu = _component(
             { point },
           )}
           open={_bind(open)}
+          onOpenChange={onOpenChange}
         >
           {menu}
         </Menu>

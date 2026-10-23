@@ -8,6 +8,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Confirm from './demo/Confirm.tsx?demo';
+import Imperative from './demo/Imperative.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
 import Terms from './demo/Terms.tsx?demo';
@@ -23,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { AlertDialog, Dialog, useConfirm } from '@vue-tsx-pro/ui';"
+    imports="import { AlertDialog, Dialog, useConfirm, useDialog } from '@vue-tsx-pro/ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -50,6 +51,16 @@ export default _component(() => () => (
         <Example id="long-content" title="宽度与长内容" demo={Terms}>
           <Code>size</Code> 与 Container 同档（xs–xl），另有 full
           占满视口。内容长时只滚正文（ScrollArea），标题与页脚一直看得见。
+        </Example>
+        <Example id="imperative" title="命令式与关闭的原因" demo={Imperative}>
+          <Code>useDialog()</Code>（setup 里调用）的 <Code>open(options)</Code>{' '}
+          不必在页面里放对话框、管 open：从列表的一行、回调里直接弹出，关上后自动卸载。属性同
+          Dialog，正文写在 <Code>content</Code>；给函数时拿到句柄，正文里的按钮可以{' '}
+          <Code>update</Code> 标题、<Code>close</Code> 关上。<Code>await handle.closed</Code>{' '}
+          得到关上的原因（确认是 confirm）。所有浮层的{' '}
+          <Code>onOpenChange(open, &#123; reason &#125;)</Code> 都报告原因：关闭按钮 close、
+          <Kbd>Esc</Kbd> escape、点遮罩 outside、确认 confirm、代码调用 imperative；父级直接改 open
+          时不报告。要在关闭前拦下用 <Code>beforeClose</Code>，它也拿到原因。
         </Example>
         <Example id="blocking" title="进行中的任务" demo={Import}>
           <Code>closable={'{false}'}</Code> 去掉右上角的关闭按钮，

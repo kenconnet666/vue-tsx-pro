@@ -1,12 +1,23 @@
 /**
- * 模态对话框：居中显示，淡入放大。内核见 Modal.tsx，贴着视口一侧滑入的见 Drawer。
+ * 模态对话框：居中显示，淡入放大。内核见 ModalCore.tsx，贴着视口一侧滑入的见 Drawer。
  *
  *   <Dialog open={_bind(editing)} title="编辑资料" footer={<Button onClick={save}>保存</Button>}>…</Dialog>
+ *
+ * 不想自己管 open（从表格的一行打开详情、在回调里弹出）时用命令式的 useDialog：
+ *
+ *   const dialog = useDialog();                    // setup 里
+ *   const handle = dialog.open({ title: '订单详情', size: 'md', content: () => <OrderDetail id={id} /> });
+ *   handle.update({ title: '订单详情（已发货）' }); handle.close(); await handle.closed;
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { ContainerSizes } from '../layout/Container';
+import {
+  useDetachedOverlay,
+  type DetachedOverlayHandle,
+  type DetachedOverlayOptions,
+} from './detached';
 import { useDefaults } from '../config/defaults';
 import { transitions } from '../utils/style/transitions';
 import { ModalCore, type ModalProps } from './ModalCore';
@@ -63,3 +74,22 @@ export const Dialog = _component(({ open = _bindable(false), size, ...rest }: Di
     <ModalCore {...rest} open={_bind(open)} panelSx={dialogPanelSx(appearance().size)} />
   );
 });
+
+/** useDialog 返回的：open 打开一个对话框 */
+export interface DialogApi {
+  /** 打开对话框：属性同 Dialog（open 由句柄管理），content 是正文；返回句柄 */
+  open(options: DetachedOverlayOptions<DialogProps>): DetachedOverlayHandle<DialogProps>;
+}
+
+/**
+ * 命令式对话框：在组件 setup 里调用。对话框渲染到 body 末尾，沿用调用处的主题、语言等配置，关上后自动卸载。
+ * 句柄的 closed 得到关上的原因（确认是 confirm）；只想问一句“确定吗”用 useConfirm。
+ */
+export function useDialog(): DialogApi {
+  const open = useDetachedOverlay<DialogProps>((props, host, children) => (
+    <Dialog {...props} open={_bind(host.open)}>
+      {children}
+    </Dialog>
+  ));
+  return { open };
+}

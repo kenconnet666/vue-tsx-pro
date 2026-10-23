@@ -12,7 +12,10 @@ import { focusOrigin, returnFocus, trapFocus } from './focus';
  * dialog 自己的内边距、以及在内容里按下再拖到遮罩上松开（选中文字）时，click 的目标也是 dialog。
  * 所以按坐标判断，而且按下与松开都要在 dialog 的边框之外。返回撤销函数。
  */
-export function dismissOnBackdrop(dialog: HTMLDialogElement, onDismiss: () => void): () => void {
+export function dismissOnBackdrop(
+  dialog: HTMLDialogElement,
+  onDismiss: (event: MouseEvent) => void,
+): () => void {
   const outside = (event: MouseEvent) => {
     if (event.target !== dialog) return false;
     const rect = dialog.getBoundingClientRect();
@@ -22,7 +25,7 @@ export function dismissOnBackdrop(dialog: HTMLDialogElement, onDismiss: () => vo
   let pressedOutside = false;
   const onPointerDown = (event: PointerEvent) => (pressedOutside = outside(event));
   const onClick = (event: MouseEvent) => {
-    if (pressedOutside && outside(event)) onDismiss();
+    if (pressedOutside && outside(event)) onDismiss(event);
     pressedOutside = false;
   };
   dialog.addEventListener('pointerdown', onPointerDown);
@@ -61,7 +64,7 @@ export interface ModalDialogOptions {
   /** 点遮罩（对话框外面）关闭，默认 false */
   dismissOnBackdrop?: boolean;
   /** 点遮罩时怎样关闭，默认直接 dialog.close()（要先确认时换成自己的） */
-  onDismiss?: () => void;
+  onDismiss?: (event: MouseEvent) => void;
 }
 
 /**

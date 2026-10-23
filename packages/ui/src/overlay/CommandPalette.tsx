@@ -39,12 +39,13 @@ import {
 import { ariaKeyShortcut, formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { breakpoints } from '../config/theme/tokens.stylex';
+import { openSetter } from '../utils/dom/open-change';
 import { Dialog, type DialogProps } from './Dialog';
 
 /** 交给触发器的属性：展开到按钮上 */
 export interface CommandPaletteTriggerProps {
   /** 打开面板 */
-  onClick: () => void;
+  onClick: (event: MouseEvent) => void;
   /** 告诉读屏这个按钮会打开对话框 */
   'aria-haspopup': 'dialog';
   /** 面板是否打开 */
@@ -134,6 +135,7 @@ export const commandPaletteStyles = stylex.create({
 export const CommandPalette = _component(
   <T,>({
     open = _bindable(false),
+    onOpenChange,
     inputValue = _bindable(''),
     items,
     toOption,
@@ -156,6 +158,11 @@ export const CommandPalette = _component(
     const listId = useId();
     const appearance = useControlAppearance(() => ({}));
     const optionOf = (item: T) => toListboxOption(item, toOption);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     function matches(item: T, text: string) {
       if (filter === false) return true;
@@ -186,21 +193,24 @@ export const CommandPalette = _component(
       flush: 'post',
     });
 
-    useHotkeys(() => (hotkey ? { [hotkey]: () => (open = !open) } : {}), { inInputs: true });
+    useHotkeys(() => (hotkey ? { [hotkey]: (event) => setOpen(!open, 'imperative', event) } : {}), {
+      inInputs: true,
+    });
 
-    function pick(value: string) {
+    function pick(value: string, event?: Event) {
       const entry = list.options[list.indexOf(value)];
       if (!entry || entry.disabled) return;
-      open = false;
+      setOpen(false, 'select', event);
       onAction(entry.item);
     }
 
     function onKeydown(event: KeyboardEvent) {
-      if (handleListKeydown(list, event, { homeEnd: false }, pick)) event.preventDefault();
+      if (handleListKeydown(list, event, { homeEnd: false }, (value) => pick(value, event)))
+        event.preventDefault();
     }
 
     const triggerProps = (): CommandPaletteTriggerProps => ({
-      onClick: () => (open = true),
+      onClick: (event: MouseEvent) => setOpen(true, 'trigger', event),
       'aria-haspopup': 'dialog',
       'aria-expanded': open,
     });
@@ -255,6 +265,7 @@ export const CommandPalette = _component(
             rest as Partial<DialogProps>,
           )}
           open={_bind(open)}
+          onOpenChange={onOpenChange}
         >
           <div {...mergeAttrs<'div'>({ sx: commandPaletteStyles.search })}>
             <Icon icon={Search} sx={controlStyles.icon} />

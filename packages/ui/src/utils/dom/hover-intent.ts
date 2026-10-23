@@ -4,11 +4,12 @@
  * 同一组（createHoverGroup）里同一时间只开一个；刚关掉一个（skipDelay 内）时下一个直接打开，在一排触发器上移动不用每次等。
  *
  *   const tooltips = createHoverGroup();              // 模块级：所有 Tooltip 一组
- *   const hover = useHoverIntent(tooltips, () => ({ delay, closeDelay: 100, disabled }), (next) => (open = next));
+ *   const hover = useHoverIntent(tooltips, () => ({ delay, closeDelay: 100, disabled }), setOpen);   // setOpen 见 openSetter
  *   trigger({ ...hover.trigger }) / <div {...hover.panel}>
  *   hover.opened() / hover.closed()                   // 浮层真的显示、隐藏时告诉组（关掉同组的另一个、记下关闭时间）
  */
 import { onScopeDispose } from 'vue';
+import type { OpenChangeReasons, SetOpen } from './open-change';
 
 /** 一组悬停浮层共用的状态：正在显示的那个与上次关闭的时间 */
 export interface HoverGroup {
@@ -40,42 +41,44 @@ export interface HoverIntent {
   /** 展开到触发器上的事件 */
   readonly trigger: {
     onPointerenter: (event: PointerEvent) => void;
-    onPointerleave: () => void;
-    onPointerdown: () => void;
+    onPointerleave: (event: PointerEvent) => void;
+    onPointerdown: (event: PointerEvent) => void;
     onFocus: (event: FocusEvent) => void;
-    onBlur: () => void;
+    onBlur: (event: FocusEvent) => void;
   };
   /** 展开到浮层上的事件：指针移到浮层上不关闭，离开浮层后再关闭 */
   readonly panel: {
     onPointerenter: () => void;
-    onPointerleave: () => void;
+    onPointerleave: (event: PointerEvent) => void;
   };
-  /** 立即关闭（Esc） */
-  closeNow(): void;
+  /** 立即关闭：Esc、焦点离开 */
+  closeNow(reason: keyof OpenChangeReasons, event?: Event): void;
   /** 浮层显示了：关掉同组正显示的另一个 */
   opened(): void;
   /** 浮层隐藏了：记下时间，供下一个跳过延迟 */
   closed(): void;
 }
 
-/** 悬停、聚焦打开的时机（在 setup 里调用）；setOpen 写组件的 open */
+/** 悬停、聚焦打开的时机（在 setup 里调用）；setOpen 写组件的 open 并带上原因（hover、focus、trigger） */
 export function useHoverIntent(
   group: HoverGroup,
   read: () => HoverIntentOptions,
-  setOpen: (open: boolean) => void,
+  setOpen: SetOpen,
 ): HoverIntent {
   let timer: ReturnType<typeof setTimeout> | undefined;
   let visible = false;
-  const self = { close: () => setOpen(false) };
+  // 同组的另一个打开了：算指针移走
+  const self = { close: () => setOpen(false, 'hover') };
 
-  function schedule(next: boolean, wait: number) {
+  function schedule(next: boolean, wait: number, reason: keyof OpenChangeReasons, event?: Event) {
     clearTimeout(timer);
-    if (wait <= 0) setOpen(next);
-    else timer = setTimeout(() => setOpen(next), wait);
+    if (wait <= 0) setOpen(next, reason, event);
+    else timer = setTimeout(() => setOpen(next, reason, event), wait);
   }
   const warm = () => group.shown != null || Date.now() - group.lastClosed < group.skipDelay;
-  const closeSoon = () => schedule(false, read().closeDelay);
-  const closeNow = () => schedule(false, 0);
+  const closeSoon = (event: PointerEvent) => schedule(false, read().closeDelay, 'hover', event);
+  const closeNow = (reason: keyof OpenChangeReasons, event?: Event) =>
+    schedule(false, 0, reason, event);
 
   onScopeDispose(() => {
     clearTimeout(timer);
@@ -86,16 +89,16 @@ export function useHoverIntent(
     trigger: {
       onPointerenter(event) {
         if (read().disabled || event.pointerType === 'touch') return;
-        schedule(true, warm() ? 0 : read().delay);
+        schedule(true, warm() ? 0 : read().delay, 'hover', event);
       },
       onPointerleave: closeSoon,
-      onPointerdown: closeNow,
+      onPointerdown: (event) => closeNow('trigger', event),
       onFocus(event) {
         if (read().disabled) return;
         // 只在键盘聚焦时打开；点击聚焦（按钮被按下）时不打开
-        if ((event.target as Element).matches(':focus-visible')) schedule(true, 0);
+        if ((event.target as Element).matches(':focus-visible')) schedule(true, 0, 'focus', event);
       },
-      onBlur: closeNow,
+      onBlur: (event) => closeNow('focus', event),
     },
     panel: {
       onPointerenter: () => clearTimeout(timer),

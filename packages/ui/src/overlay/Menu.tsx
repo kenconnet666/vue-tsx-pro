@@ -53,6 +53,7 @@ import {
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -62,8 +63,8 @@ import { transitions } from '../utils/style/transitions';
 export interface MenuState {
   /** 波纹；不写时沿用配置 */
   readonly ripple: boolean | undefined;
-  /** 关闭菜单，焦点回到触发器 */
-  close(): void;
+  /** 执行了一项：关闭菜单（onOpenChange 的原因是 select），焦点回到触发器 */
+  close(event?: Event): void;
 }
 
 /** Menu 的上下文：自定义菜单项用 useMenuItem 读取 */
@@ -97,7 +98,8 @@ export interface MenuProps
   extends
     PartProps<'div', 'id' | 'popover' | 'role'>,
     Pick<FloatingOptions, 'offset'>,
-    LazyContentOptions {
+    LazyContentOptions,
+    OpenChangeProps {
   /** 是否打开：父级可以写 open={_bind(x)}；Esc、点击外部、执行菜单项都会关闭并写回 */
   open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
@@ -155,6 +157,7 @@ export const menuStyles = stylex.create({
 export const Menu = _component(
   ({
     open = _bindable(false),
+    onOpenChange,
     placement = 'bottom-start',
     offset,
     size,
@@ -179,32 +182,37 @@ export const Menu = _component(
     let restoreFocus = true;
 
     const enabledItems = () => menuItemsOf(panel);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     MenuContext.provide({
       get ripple() {
         return ripple;
       },
 
-      close: () => (open = false),
+      close: (event) => setOpen(false, 'select', event),
     });
 
     function onTriggerKeydown(event: KeyboardEvent) {
       if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
       event.preventDefault();
       focusOnOpen = event.key === 'ArrowDown' ? 'first' : 'last';
-      open = true;
+      setOpen(true, 'trigger', event);
     }
 
     function onPanelKeydown(event: KeyboardEvent) {
       // Esc 也由原生 popover 关闭；这里显式关一次，不依赖各浏览器 close watcher 的细节（Firefox 偶尔不关）
       if (event.key === 'Escape') {
         event.preventDefault();
-        open = false;
+        setOpen(false, 'escape', event);
         return;
       }
       if (event.key !== 'Tab') return;
       restoreFocus = false;
-      open = false;
+      setOpen(false, 'focus', event);
     }
 
     const { onToggle } = useAnchoredPopover(
@@ -216,7 +224,7 @@ export const Menu = _component(
         restoreFocus,
       }),
       {
-        close: () => (open = false),
+        close: (reason, event) => setOpen(false, reason, event),
         // 打开后聚焦第一项（↑ 打开时最后一项），并为下一次打开恢复默认
         shown: () => {
           const items = enabledItems();
@@ -237,7 +245,7 @@ export const Menu = _component(
         {trigger({
           id: triggerId,
           ref: (value) => (anchor = toElement(value)),
-          onClick: () => (open = !open),
+          onClick: (event: MouseEvent) => setOpen(!open, 'trigger', event),
           onKeydown: onTriggerKeydown,
           'aria-haspopup': 'menu',
           'aria-expanded': open,
@@ -420,7 +428,11 @@ export function menuItemSx(tone: MenuItemTone, disabled: boolean): StyleXStyles 
 /** 菜单项共用的：所在的菜单、按下的波纹（链接项用；按钮项由 ButtonBase 给出）、执行后关闭菜单 */
 export function useMenuItem() {
   const menu = MenuContext.inject();
-  return { menu, ripple: useRipple(() => menu.ripple), close: () => menu.close() };
+  return {
+    menu,
+    ripple: useRipple(() => menu.ripple),
+    close: (event?: Event) => menu.close(event),
+  };
 }
 
 /** 按钮类菜单项这一次渲染的取值 */
@@ -470,9 +482,9 @@ function useButtonItem(
           'aria-checked': checked,
           ...menuItemDescribedBy(content.description, ids),
           // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
-          onClick: () => {
+          onClick: (event: MouseEvent) => {
             run();
-            if (closeOnSelect) item.close();
+            if (closeOnSelect) item.close(event);
           },
         },
       )}
@@ -584,7 +596,7 @@ export const MenuLinkItem = _component(
             // 不可用的项不响应点击：不跳转，也不关闭菜单
             if (disabled) return event.preventDefault();
             router.onClick(event, href);
-            item.close();
+            item.close(event);
           },
           ...item.ripple,
         })}
@@ -790,7 +802,8 @@ export interface MenuSubProps
       'button',
       'role' | 'type' | 'disabled' | 'aria-haspopup' | 'aria-expanded' | 'aria-controls'
     >,
-    Omit<MenuItemContentProps, 'shortcut' | 'propsShortcut' | 'children'> {
+    Omit<MenuItemContentProps, 'shortcut' | 'propsShortcut' | 'children'>,
+    OpenChangeProps {
   /** 这一项的文字 */
   label: VNodeChild;
   /** 不可用：不能打开子菜单 */
@@ -835,6 +848,7 @@ export const MenuSub = _component(
   ({
     label,
     open = _bindable(false),
+    onOpenChange,
     disabled = false,
     icon,
     propsIcon,
@@ -852,15 +866,20 @@ export const MenuSub = _component(
     let focusOnOpen = false;
     let openTimer: ReturnType<typeof setTimeout> | undefined;
     let stopGrace: (() => void) | undefined;
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     MenuContext.provide({
       get ripple() {
         return parent.ripple;
       },
 
-      close: () => {
-        open = false;
-        parent.close();
+      close: (event) => {
+        setOpen(false, 'select', event);
+        parent.close(event);
       },
     });
 
@@ -877,7 +896,7 @@ export const MenuSub = _component(
         },
       }),
       {
-        close: () => (open = false),
+        close: (reason, event) => setOpen(false, reason, event),
         shown: () => {
           if (focusOnOpen) menuItemsOf(panel)[0]?.focus();
           focusOnOpen = false;
@@ -896,18 +915,18 @@ export const MenuSub = _component(
 
     const rtl = () => !!trigger && isRtl(trigger);
 
-    function openWithFocus() {
+    function openWithFocus(event: Event) {
       if (disabled) return;
       focusOnOpen = true;
       // 已经开着（指针打开的）时直接把焦点移进去
       if (open) menuItemsOf(panel)[0]?.focus();
-      open = true;
+      setOpen(true, 'trigger', event);
     }
 
     function onTriggerKeydown(event: KeyboardEvent) {
       if (event.key !== inlineArrows(rtl()).forward) return;
       event.preventDefault();
-      openWithFocus();
+      openWithFocus(event);
     }
 
     function onPanelKeydown(event: KeyboardEvent) {
@@ -915,7 +934,7 @@ export const MenuSub = _component(
       if (event.key !== 'Escape' && event.key !== inlineArrows(rtl()).backward) return;
       event.preventDefault();
       event.stopPropagation();
-      open = false;
+      setOpen(false, 'escape', event);
     }
 
     // 指针离开这一项：朝子菜单移动（在离开点与子菜单近边组成的三角形里）时保持打开，否则关闭
@@ -928,7 +947,7 @@ export const MenuSub = _component(
       const start: Point = [event.clientX, event.clientY];
       const close = () => {
         stopGrace?.();
-        open = false;
+        setOpen(false, 'hover', event);
       };
       const onMove = (move: PointerEvent) => {
         const target = move.target as Node;
@@ -952,7 +971,7 @@ export const MenuSub = _component(
       if (disabled || event.pointerType === 'touch') return;
       stopGrace?.();
       clearTimeout(openTimer);
-      openTimer = setTimeout(() => (open = true), SUBMENU_OPEN_DELAY);
+      openTimer = setTimeout(() => setOpen(true, 'hover', event), SUBMENU_OPEN_DELAY);
     }
 
     return () => (

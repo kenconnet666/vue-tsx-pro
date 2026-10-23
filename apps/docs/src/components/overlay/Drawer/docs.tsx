@@ -9,6 +9,7 @@ import { KeyboardReference } from '../../../site/KeyboardReference';
 import Detail from './demo/Detail.tsx?demo';
 import Edit from './demo/Edit.tsx?demo';
 import Filters from './demo/Filters.tsx?demo';
+import Imperative from './demo/Imperative.tsx?demo';
 import Sides from './demo/Sides.tsx?demo';
 
 export const meta = {
@@ -19,7 +20,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Drawer } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Drawer, useDrawer } from '@vue-tsx-pro/ui';">
     <Examples>
       <ExampleColumn wide>
         <Example id="detail" title="详情：列表留在原处" demo={Detail}>
@@ -48,6 +49,13 @@ export default _component(() => () => (
           条件多、页面放不下时收进抽屉：改的是一份草稿，<Code>onConfirm</Code>
           （查看结果）时才生效，关掉就放弃；
           <Code>footer</Code> 里的“重置”排在取消、确认前面，确认按钮上写着已设几项。
+        </Example>
+        <Example id="imperative" title="命令式：从表格的一行打开" demo={Imperative}>
+          <Code>useDrawer()</Code> 的 <Code>open(options)</Code> 用法同
+          useDialog：每一行的“编辑”直接打开，页面里不放 Drawer。草稿留在这次打开里，
+          <Code>onConfirm</Code> 保存时写回表格；
+          <Code>await handle.closed</Code> 得到关上的原因（保存是 confirm，放弃是
+          escape、outside、close）。
         </Example>
       </ExampleColumn>
     </Examples>

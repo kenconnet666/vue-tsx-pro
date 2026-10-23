@@ -22,6 +22,7 @@ import { Button, type ButtonProps } from '../base/Button';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useLang } from '../config/context';
 import { Flex, type FlexProps } from '../layout/Flex';
+import { openSetter } from '../utils/dom/open-change';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons, type StatusTone } from '../utils/style/tone-styles';
 import { toneStyles } from '../utils/style/typography';
@@ -78,6 +79,7 @@ export const popconfirmStyles = stylex.create({
 export const Popconfirm = _component(
   ({
     open = _bindable(false),
+    onOpenChange,
     placement = 'top',
     trigger,
     title,
@@ -101,6 +103,11 @@ export const Popconfirm = _component(
     const titleId = `${id}-title`;
     const descriptionId = `${id}-description`;
     let pending = _state(false);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
     // 确认后关闭的不算取消；Esc、点击外部、取消按钮关闭的都是取消
     let confirmed = false;
     watch(
@@ -124,7 +131,7 @@ export const Popconfirm = _component(
         pending = false;
       }
       confirmed = true;
-      open = false;
+      setOpen(false, 'confirm');
     }
 
     return () => {
@@ -141,6 +148,7 @@ export const Popconfirm = _component(
           )}
           trigger={trigger}
           open={_bind(open)}
+          onOpenChange={onOpenChange}
         >
           <div {...stylex.attrs(popconfirmStyles.body)}>
             {shownIcon && (
@@ -176,7 +184,11 @@ export const Popconfirm = _component(
                   { size: 'sm', variant: 'soft', tone: 'neutral' },
                   propsCancel,
                   // 打开时焦点落在取消上：误按 Enter 不会执行
-                  { autofocus: true, disabled: pending, onClick: () => (open = false) },
+                  {
+                    autofocus: true,
+                    disabled: pending,
+                    onClick: (event: MouseEvent) => setOpen(false, 'close', event),
+                  },
                 )}
               >
                 {cancelText ?? lang.cancel}

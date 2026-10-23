@@ -21,6 +21,7 @@ import { Tag, type TagProps } from '../base/Tag';
 import { useTextMatcher } from '../config/context';
 import { isComposingKey } from '../utils/dom/hotkeys';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { ListPopover } from './ListPopover';
 import { useLayoutAnimation } from '../utils/motion/layout';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -64,7 +65,11 @@ export type TagsInputManaged =
 
 /** TagsInput 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
 export interface TagsInputBaseProps<T>
-  extends PartProps<'input', TagsInputManaged>, ControlOptions, ControlIconOptions {
+  extends
+    PartProps<'input', TagsInputManaged>,
+    ControlOptions,
+    ControlIconOptions,
+    OpenChangeProps {
   /** 已选的值：父级写 value={_bind(list)} */
   value?: string[];
   /** 建议：ListboxOption、字符串，或任意数据加 toOption；不给时是纯自由输入 */
@@ -139,6 +144,7 @@ export const TagsInput = _component(
     max,
     inputValue = _bindable(''),
     open = _bindable(false),
+    onOpenChange,
     filter,
     loading = false,
     placement = 'bottom-start',
@@ -172,6 +178,11 @@ export const TagsInput = _component(
     // 标签增删时其余的平移补位
     const layout = useLayoutAnimation(() => shell, { children: '[data-tag]' });
 
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
     const optionOf = (item: T) => toListboxOption(item, toOption);
     // 异步搜索（filter={false}）时结果可能还没回来：建议列表与 combobox 角色一直在，等待时显示加载中
     const suggestions = () => items.length > 0 || filter === false;
@@ -239,7 +250,7 @@ export const TagsInput = _component(
           return;
         }
         if (suggestions() && text && !control().readonly) {
-          open = true;
+          setOpen(true, 'trigger');
           list.move('first');
         }
       },
@@ -262,7 +273,7 @@ export const TagsInput = _component(
       } else if (event.key === 'ArrowDown' && suggestions()) {
         event.preventDefault();
         list.activateDefault();
-        open = true;
+        setOpen(true, 'trigger', event);
         return;
       }
       if (event.key === 'Enter' && inputValue.trim()) {
@@ -288,7 +299,7 @@ export const TagsInput = _component(
         floating: { placement, matchWidth: true, fitHeight: true },
         restoreFocus: false,
       }),
-      { close: () => (open = false) },
+      { close: (reason, event) => setOpen(false, reason, event) },
     );
 
     return () => {
@@ -344,8 +355,8 @@ export const TagsInput = _component(
                 'aria-describedby': state.describedBy,
                 onKeydown,
                 onPaste,
-                onBlur: () => {
-                  open = false;
+                onBlur: (event: FocusEvent) => {
+                  setOpen(false, 'focus', event);
                   if (acceptOnBlur && inputValue.trim() && !control().readonly && add([inputValue]))
                     inputValue = '';
                 },

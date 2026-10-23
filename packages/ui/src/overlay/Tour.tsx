@@ -34,6 +34,12 @@ import { clamp } from '../utils/data/number';
 import { isRtl } from '../utils/dom/direction';
 import { isEditable } from '../utils/dom/hotkeys';
 import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
+import {
+  openSetter,
+  type OpenChangeDetails,
+  type OpenChangeProps,
+  type OpenChangeReasons,
+} from '../utils/dom/open-change';
 import { openModalDialog } from '../utils/dom/overlay';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
@@ -53,10 +59,8 @@ export interface TourStep {
 }
 
 /** 打开、无障碍关联由组件管理；未声明的属性落到 dialog 上 */
-export interface TourProps extends PartProps<
-  'dialog',
-  'open' | 'aria-labelledby' | 'aria-describedby'
-> {
+export interface TourProps
+  extends PartProps<'dialog', 'open' | 'aria-labelledby' | 'aria-describedby'>, OpenChangeProps {
   /** 各步 */
   steps: readonly TourStep[];
   /** 是否显示：父级写 open={_bind(x)} */
@@ -164,6 +168,7 @@ export const Tour = _component(
   ({
     steps,
     open = _bindable(false),
+    onOpenChange,
     current = _bindable(0),
     padding = 6,
     onFinish,
@@ -189,6 +194,13 @@ export const Tour = _component(
     let rect = _state<{ left: number; top: number; width: number; height: number } | null>(null);
     let release: (() => void) | undefined;
     let stopFollow: (() => void) | undefined;
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
+    // 这次关闭的原因：跳过是 close、完成是 confirm，没记下的是 Esc
+    let closing: OpenChangeDetails | undefined;
 
     const step = () => steps[clamp(current, 0, steps.length - 1)];
     const last = () => current >= steps.length - 1;
@@ -236,7 +248,8 @@ export const Tour = _component(
       panel.focus({ preventScroll: true });
     }
 
-    function close() {
+    function close(reason: keyof OpenChangeReasons, event?: Event) {
+      closing = { reason, event };
       dialog?.close();
     }
 
@@ -246,15 +259,17 @@ export const Tour = _component(
       stopFollow = undefined;
       release?.();
       release = undefined;
-      open = false;
+      const { reason, event } = closing ?? { reason: 'escape' };
+      closing = undefined;
+      setOpen(false, reason, event);
     }
 
-    function next() {
+    function next(event?: Event) {
       if (!last()) {
         current++;
         return;
       }
-      close();
+      close('confirm', event);
       onFinish?.();
     }
 
@@ -264,7 +279,7 @@ export const Tour = _component(
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
       if (isEditable(event.target)) return;
       const forward = (event.key === 'ArrowRight') !== (panel !== null && isRtl(panel));
-      if (forward && !propsNext?.disabled) next();
+      if (forward && !propsNext?.disabled) next(event);
       else if (!forward && current > 0) current--;
       else return;
       event.preventDefault();
@@ -366,7 +381,7 @@ export const Tour = _component(
                     {...mergePartProps<ButtonProps>(
                       { variant: 'ghost', tone: 'neutral', size: 'sm' },
                       propsSkip,
-                      { onClick: close },
+                      { onClick: (event: MouseEvent) => close('close', event) },
                     )}
                   >
                     {lang.tourSkip}

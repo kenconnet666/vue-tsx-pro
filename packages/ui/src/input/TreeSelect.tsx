@@ -51,6 +51,7 @@ import {
   useAnchoredPopover,
   type FloatingPlacement,
 } from '../utils/dom/floating';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import {
@@ -72,7 +73,7 @@ import { TextField, type TextFieldProps } from './TextField';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 export interface TreeSelectProps<T>
-  extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions {
+  extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions, OpenChangeProps {
   /** 顶层节点；有 load 时是第一次加载之前的树（编辑页放上已选节点的那一枝） */
   items?: readonly T[];
   /** 节点的 key，整棵树里唯一：也是选中后写回的值 */
@@ -167,6 +168,7 @@ export const TreeSelect = _component(
     maxTagCount,
     value = _bindable<string | string[] | null>(null),
     open = _bindable(false),
+    onOpenChange,
     placeholder,
     placement = 'bottom-start',
     clearable = false,
@@ -211,6 +213,11 @@ export const TreeSelect = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     // 已加载的整棵树：key → 节点与父节点，查已选的文字、搜索时找祖先都用它
     const nodes = _derived.by(() => {
@@ -276,7 +283,7 @@ export const TreeSelect = _component(
       return found ? getLabel(found.node) : (seenLabels.get(key) ?? key);
     };
 
-    function show() {
+    function show(event?: Event) {
       search = '';
       // 打开时展开已选节点的祖先：已选的看得见
       const ancestors = new Set(expanded);
@@ -286,7 +293,7 @@ export const TreeSelect = _component(
         }
       }
       expanded = [...ancestors];
-      open = true;
+      setOpen(true, 'trigger', event);
     }
 
     function clear() {
@@ -302,7 +309,7 @@ export const TreeSelect = _component(
         floating: { placement, matchWidth: true, fitHeight: true },
         restoreFocus: false,
       }),
-      { close: () => (open = false) },
+      { close: (reason, event) => setOpen(false, reason, event) },
     );
 
     // 打开后焦点进搜索框或树；关闭时焦点还在弹层里（Esc、选中、点外面）就还给触发按钮
@@ -331,14 +338,14 @@ export const TreeSelect = _component(
       }
       if (!open && (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault();
-        show();
+        show(event);
       }
     }
 
     // 搜索框里 ↓ 进到树；Tab 关闭后照常移到下一个
     function onSearchKeydown(event: KeyboardEvent) {
       if (event.key === 'Tab') {
-        open = false;
+        setOpen(false, 'focus', event);
         return;
       }
       if (event.key === 'ArrowDown') {
@@ -373,7 +380,7 @@ export const TreeSelect = _component(
         { id: treeId },
       );
 
-    // 单选：选中就关闭
+    // 单选：选中就关闭（树的 selected 里已按 select 关过；父级改 value 时也关，不通知）
     watch(
       () => value,
       () => {
@@ -414,7 +421,7 @@ export const TreeSelect = _component(
                     ? undefined
                     : clickOnShell(
                         () => trigger,
-                        () => (open ? (open = false) : show()),
+                        (event) => (open ? setOpen(false, 'trigger', event) : show(event)),
                       ),
               },
             )}
@@ -459,11 +466,11 @@ export const TreeSelect = _component(
                   'aria-required': state.required || undefined,
                   'aria-readonly': state.readonly || undefined,
                   'aria-describedby': state.describedBy,
-                  onClick: () => {
+                  onClick: (event: MouseEvent) => {
                     trigger?.focus();
                     if (locked) return;
-                    if (open) open = false;
-                    else show();
+                    if (open) setOpen(false, 'trigger', event);
+                    else show(event);
                   },
                   onKeydown: onTriggerKeydown,
                 },
@@ -538,7 +545,10 @@ export const TreeSelect = _component(
                   selected={_bind(
                     () => [...values()],
                     // 再点已选的一项：不取消（同 Select 的单选），只是收起；要清空用清除按钮
-                    (next: string[]) => (next.length ? (value = next[0]) : (open = false)),
+                    (next: string[]) => {
+                      if (next.length) value = next[0];
+                      setOpen(false, 'select');
+                    },
                   )}
                   expanded={_bind(
                     () => shownExpanded(),

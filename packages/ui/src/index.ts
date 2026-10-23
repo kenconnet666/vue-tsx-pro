@@ -469,6 +469,8 @@ export {
   dialogPanelSx,
   dialogSizeStyles,
   dialogStyles,
+  useDialog,
+  type DialogApi,
   type DialogOptions,
   type DialogProps,
   type DialogSizes,
@@ -477,6 +479,8 @@ export {
   Drawer,
   drawerSizeStyles,
   drawerStyles,
+  useDrawer,
+  type DrawerApi,
   type DrawerOptions,
   type DrawerProps,
   type DrawerSides,
@@ -542,7 +546,13 @@ export {
   type TooltipTriggerProps,
 } from './overlay/Tooltip';
 export { Tour, tourDynamicStyles, tourStyles, type TourProps, type TourStep } from './overlay/Tour';
-export { useDetachedDialog, type DetachedDialogHost } from './overlay/detached';
+export {
+  useDetachedDialog,
+  useDetachedOverlay,
+  type DetachedDialogHost,
+  type DetachedOverlayHandle,
+  type DetachedOverlayOptions,
+} from './overlay/detached';
 
 // 导航
 export {
@@ -1378,6 +1388,13 @@ export {
 } from './utils/dom/link';
 export { useMediaQuery, usePrefersDark, useReducedMotion } from './utils/dom/media-query';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
+export {
+  openSetter,
+  type OpenChangeDetails,
+  type OpenChangeProps,
+  type OpenChangeReasons,
+  type SetOpen,
+} from './utils/dom/open-change';
 export {
   fitCount,
   useOverflowItems,

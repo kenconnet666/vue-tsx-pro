@@ -20,6 +20,7 @@ import {
   type FloatingPlacement,
 } from '../utils/dom/floating';
 import { createHoverGroup } from '../utils/dom/hover-intent';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { useHoverLayer } from '../utils/dom/hover-layer';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -32,9 +33,9 @@ export interface HoverCardTriggerProps {
   /** 指针进入：等 delay 后打开 */
   onPointerenter: (event: PointerEvent) => void;
   /** 指针离开：稍后关闭（可以移到卡片上） */
-  onPointerleave: () => void;
+  onPointerleave: (event: PointerEvent) => void;
   /** 按下（点击）触发器时关闭 */
-  onPointerdown: () => void;
+  onPointerdown: (event: PointerEvent) => void;
   /** 键盘聚焦时立即打开 */
   onFocus: (event: FocusEvent) => void;
   /** 焦点离开（不是移进卡片）时关闭 */
@@ -43,7 +44,11 @@ export interface HoverCardTriggerProps {
 
 /** 未声明的属性落到卡片的 div 上 */
 export interface HoverCardProps
-  extends PartProps<'div', 'id' | 'popover'>, Pick<FloatingOptions, 'offset'>, LazyContentOptions {
+  extends
+    PartProps<'div', 'id' | 'popover'>,
+    Pick<FloatingOptions, 'offset'>,
+    LazyContentOptions,
+    OpenChangeProps {
   /** 是否打开：父级可以写 open={_bind(x)} 控制或得知 */
   open?: boolean;
   /** 弹出位置，默认 bottom；空间不够时自动翻转 */
@@ -76,6 +81,7 @@ const hoverCards = createHoverGroup();
 export const HoverCard = _component(
   ({
     open = _bindable(false),
+    onOpenChange,
     placement = 'bottom',
     offset,
     delay = 700,
@@ -95,7 +101,11 @@ export const HoverCard = _component(
     const layer = useHoverLayer(
       hoverCards,
       () => ({ open, disabled, placement, offset, delay, closeDelay }),
-      (next) => (open = next),
+      openSetter(
+        () => open,
+        (next) => (open = next),
+        () => onOpenChange,
+      ),
     );
 
     return () => (
@@ -105,7 +115,7 @@ export const HoverCard = _component(
           ...layer.hover.trigger,
           // Tab 进卡片（下一个可聚焦元素）时不关
           onBlur: (event: FocusEvent) => {
-            if (!layer.contains(event.relatedTarget)) layer.hover.closeNow();
+            if (!layer.contains(event.relatedTarget)) layer.hover.closeNow('focus', event);
           },
         })}
         <div
@@ -126,7 +136,7 @@ export const HoverCard = _component(
               popover: 'manual',
               ...layer.hover.panel,
               onFocusout: (event: FocusEvent) => {
-                if (!layer.contains(event.relatedTarget)) layer.hover.closeNow();
+                if (!layer.contains(event.relatedTarget)) layer.hover.closeNow('focus', event);
               },
             },
           )}

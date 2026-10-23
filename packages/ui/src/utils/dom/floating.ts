@@ -330,8 +330,8 @@ export interface AnchoredPopoverState {
 
 /** useAnchoredPopover 的回调 */
 export interface AnchoredPopoverEvents {
-  /** 浏览器关掉了浮层（Esc、点击外部）：组件把 open 写回 false */
-  close: () => void;
+  /** 浏览器关掉了浮层：按了 Esc，或点了外面（别的浮层打开也算）；组件把 open 写回 false */
+  close: (reason: 'escape' | 'outside', event: Event) => void;
   /** 浮层打开并第一次定位完成（可见）：移入焦点等 */
   shown?: (panel: HTMLElement) => void;
 }
@@ -343,7 +343,7 @@ export interface AnchoredPopoverEvents {
  *
  *   const { onToggle } = useAnchoredPopover(
  *     () => ({ open, anchor, panel, floating: { placement } }),
- *     { close: () => (open = false), shown: focusFirst },
+ *     { close: (reason, event) => setOpen(false, reason, event), shown: focusFirst },
  *   );
  */
 export function useAnchoredPopover(
@@ -351,6 +351,7 @@ export function useAnchoredPopover(
   events: AnchoredPopoverEvents,
 ): { onToggle: (event: Event) => void } {
   const layer = createAnchoredLayer();
+  trackEscape();
 
   watchPostEffect(() => {
     const { open, anchor, panel, floating, restoreFocus = true } = read();
@@ -370,8 +371,24 @@ export function useAnchoredPopover(
     onToggle(event) {
       if ((event as ToggleEvent).newState === 'open') return;
       const state = read();
-      if (state.open) events.close();
+      if (state.open) events.close(closedByEscape(event) ? 'escape' : 'outside', event);
       layer.hide({ restoreFocus: state.restoreFocus ?? true });
     },
   };
 }
+
+// 最近一次按 Esc 的时间：light dismiss 的 toggle 事件不说原因，按时间判断是不是 Esc 关的
+let escapeAt = -Infinity;
+let trackingEscape = false;
+
+/** 开始记录 Esc（整页一个监听，第一个浮层组件 setup 时装上） */
+function trackEscape() {
+  if (trackingEscape || typeof window === 'undefined') return;
+  trackingEscape = true;
+  window.addEventListener('keydown', (key) => key.key === 'Escape' && (escapeAt = key.timeStamp), {
+    capture: true,
+  });
+}
+
+/** toggle 事件紧跟在 Esc 之后（浏览器在按键后排队派发）就是 Esc 关的 */
+const closedByEscape = (event: Event) => event.timeStamp - escapeAt < 250;

@@ -20,6 +20,7 @@ import {
   type FloatingPlacement,
 } from '../utils/dom/floating';
 import { createHoverGroup } from '../utils/dom/hover-intent';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { useHoverLayer } from '../utils/dom/hover-layer';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
@@ -35,16 +36,19 @@ export interface TooltipTriggerProps {
   /** 指针离开：稍后隐藏（可以移到提示上） */
   onPointerleave: (event: PointerEvent) => void;
   /** 按下（点击）触发器时隐藏 */
-  onPointerdown: () => void;
+  onPointerdown: (event: PointerEvent) => void;
   /** 键盘聚焦时立即显示 */
   onFocus: (event: FocusEvent) => void;
   /** 失焦时隐藏 */
-  onBlur: () => void;
+  onBlur: (event: FocusEvent) => void;
 }
 
 /** 未声明的属性落到提示的 div 上 */
 export interface TooltipProps
-  extends PartProps<'div', 'id' | 'popover' | 'role'>, Pick<FloatingOptions, 'offset'> {
+  extends
+    PartProps<'div', 'id' | 'popover' | 'role'>,
+    Pick<FloatingOptions, 'offset'>,
+    OpenChangeProps {
   /** 是否显示：父级可以写 open={_bind(x)} 控制或得知；一般不需要 */
   open?: boolean;
   /** 显示位置，默认 top；空间不够时自动翻转 */
@@ -90,6 +94,7 @@ export const tooltipStyles = stylex.create({
 export const Tooltip = _component(
   ({
     open = _bindable(false),
+    onOpenChange,
     placement = 'top',
     offset,
     delay = 500,
@@ -103,7 +108,11 @@ export const Tooltip = _component(
     const layer = useHoverLayer(
       tooltips,
       () => ({ open, disabled, placement, offset, delay, closeDelay: CLOSE_DELAY }),
-      (next) => (open = next),
+      openSetter(
+        () => open,
+        (next) => (open = next),
+        () => onOpenChange,
+      ),
     );
 
     return () => (

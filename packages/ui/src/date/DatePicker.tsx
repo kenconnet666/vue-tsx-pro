@@ -31,6 +31,7 @@ import {
   toIsoQuarter,
   toIsoWeek,
 } from '../utils/data/date';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergePartProps, type PartProps } from '../utils/props';
 import { Calendar, type CalendarBaseProps } from './Calendar';
 import {
@@ -61,7 +62,7 @@ export interface DatePreset<V extends DateInput = string> {
 
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface DatePickerProps<V extends DateInput = string>
-  extends DateFieldProps<V>, PickerPopoverParts {
+  extends DateFieldProps<V>, PickerPopoverParts, OpenChangeProps {
   /** 弹层是否打开：父级可写 open={_bind(x)} */
   open?: boolean;
   /** 日历并排显示几个月，默认 1 */
@@ -105,6 +106,7 @@ export const DatePicker = _component(
   <V extends DateInput>({
     value = _bindable<V | null>(null),
     open = _bindable(false),
+    onOpenChange,
     granularity = 'day',
     valueType,
     min,
@@ -133,6 +135,11 @@ export const DatePicker = _component(
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }), {
       delegate: true,
     });
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
     const hasTime = () => isTimeGranularity(granularity);
     const picker = usePickerPopover(
       () => ({
@@ -142,7 +149,7 @@ export const DatePicker = _component(
         label: lang.datePickerOpen,
         size: rest.size,
       }),
-      { toggle: (next) => (open = next), shown: focusCalendar },
+      { toggle: setOpen, shown: focusCalendar },
     );
 
     // 字符串值按 granularity 的形式（'2026'、'2026-10'、'2026-10-20T14:30'）：日历只认完整的日期
@@ -211,8 +218,8 @@ export const DatePicker = _component(
       return labels[granularity] ?? lang.dateRangePreset.today;
     }
 
-    function picked() {
-      open = false;
+    function picked(event?: Event) {
+      setOpen(false, 'select', event);
       // 带时间时接着输入时间：焦点去“时”那一段（关闭后的归还焦点只在焦点丢失时生效，不会抢回去）
       if (hasTime()) picker.anchor?.querySelector<HTMLElement>('[data-type="hour"]')?.focus();
     }
@@ -269,7 +276,7 @@ export const DatePicker = _component(
                   min={min}
                   max={max}
                   aria-label={lang.datePickerOpen}
-                  onPick={picked}
+                  onPick={() => picked()}
                 />
               ) : (
                 <Calendar<V>
@@ -288,7 +295,7 @@ export const DatePicker = _component(
                     showWeekNumbers: true,
                     propsCellButton: weekCellButton,
                   })}
-                  onPick={picked}
+                  onPick={() => picked()}
                 />
               )}
               {showToday && (
@@ -296,9 +303,9 @@ export const DatePicker = _component(
                   <Button
                     {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'ghost' }, propsToday, {
                       disabled: !selectable(periodOf(todayIso(locale.timeZone))),
-                      onClick: () => {
+                      onClick: (event: MouseEvent) => {
                         pickDay(todayIso(locale.timeZone));
-                        picked();
+                        picked(event);
                       },
                     })}
                   >

@@ -36,6 +36,7 @@ import {
   useAnchoredPopover,
   type FloatingPlacement,
 } from '../utils/dom/floating';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { t } from '../config/theme/tokens';
@@ -57,7 +58,7 @@ import { TextField, type TextFieldProps } from './TextField';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 export interface CascaderProps<T>
-  extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions {
+  extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions, OpenChangeProps {
   /** 第一级的节点 */
   items?: readonly T[];
   /** 节点的 key，同级里唯一；index 是它在同级里的位置 */
@@ -179,6 +180,7 @@ export const Cascader = _component(
     filter,
     placeholder,
     open = _bindable(false),
+    onOpenChange,
     placement = 'bottom-start',
     clearable = false,
     name,
@@ -217,6 +219,11 @@ export const Cascader = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     const columnId = (level: number) => `${baseId}-column-${level}`;
     const optionId = (level: number, index: number) => `${baseId}-${level}-${index}`;
@@ -291,17 +298,17 @@ export const Cascader = _component(
     }
 
     /** 选中一条路径；选到叶子（或从搜索结果里选）时关闭 */
-    function pick(keys: readonly string[], node: T, close: boolean) {
+    function pick(keys: readonly string[], node: T, close: boolean, event?: Event) {
       value = [...keys];
-      if (close || !expandable(node)) open = false;
+      if (close || !expandable(node)) setOpen(false, 'select', event);
     }
 
     /** 点一项：有下一级的展开（changeOnSelect 时同时选中），叶子选中 */
-    function onOptionClick(level: number, node: T, key: string) {
+    function onOptionClick(level: number, node: T, key: string, event: MouseEvent) {
       if (disabledNode(node)) return;
       focusedColumn = level;
-      if (!expandable(node)) return pick([...path.slice(0, level), key], node, true);
-      if (changeOnSelect) pick([...path.slice(0, level), key], node, false);
+      if (!expandable(node)) return pick([...path.slice(0, level), key], node, true, event);
+      if (changeOnSelect) pick([...path.slice(0, level), key], node, false, event);
       activate(level, key);
       void ensureChildren(node);
     }
@@ -309,7 +316,7 @@ export const Cascader = _component(
     function onColumnKeydown(level: number, event: KeyboardEvent) {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
       if (event.key === 'Tab') {
-        open = false;
+        setOpen(false, 'focus', event);
         return;
       }
       const list = columns[level]?.items ?? [];
@@ -341,9 +348,9 @@ export const Cascader = _component(
           break;
         case 'Enter':
           if (!node || disabledNode(node)) break;
-          if (!expandable(node)) pick(path.slice(0, level + 1), node, true);
+          if (!expandable(node)) pick(path.slice(0, level + 1), node, true, event);
           else {
-            if (changeOnSelect) pick(path.slice(0, level + 1), node, false);
+            if (changeOnSelect) pick(path.slice(0, level + 1), node, false, event);
             void enter(level, node, path[level]!);
           }
           break;
@@ -393,7 +400,7 @@ export const Cascader = _component(
     function onSearchKeydown(event: KeyboardEvent) {
       const list = hits;
       if (event.key === 'Tab') {
-        open = false;
+        setOpen(false, 'focus', event);
         return;
       }
       // 没有搜索词：↓ 进入第一列
@@ -410,16 +417,16 @@ export const Cascader = _component(
         hit = enabled.findLast((index) => index < hit) ?? enabled.at(-1) ?? 0;
       else if (event.key === 'Enter') {
         const chosen = list[hit];
-        if (chosen && !chosen.disabled) pick(chosen.keys, chosen.nodes.at(-1)!, true);
+        if (chosen && !chosen.disabled) pick(chosen.keys, chosen.nodes.at(-1)!, true, event);
       } else return;
       event.preventDefault();
     }
 
-    async function show() {
+    async function show(event?: Event) {
       search = '';
       hit = 0;
       path = [...(value ?? [])];
-      open = true;
+      setOpen(true, 'trigger', event);
       // 沿着已选的路径逐级取回来（懒加载），已选的那一列看得见
       for (const node of nodesAlong(path).slice(0, -1)) {
         if (!(await ensureChildren(node))) break;
@@ -439,7 +446,7 @@ export const Cascader = _component(
         floating: { placement, matchWidth: true, fitHeight: true },
         restoreFocus: false,
       }),
-      { close: () => (open = false) },
+      { close: (reason, event) => setOpen(false, reason, event) },
     );
 
     // 打开后焦点进搜索框或已选的那一列；关闭时焦点还在弹层里（Esc、选中、点外面）就还给触发按钮
@@ -460,13 +467,13 @@ export const Cascader = _component(
       if (state.disabled || state.readonly) return;
       if (!open && (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault();
-        void show();
+        void show(event);
       }
     }
 
-    function toggle() {
-      if (open) open = false;
-      else void show();
+    function toggle(event?: Event) {
+      if (open) setOpen(false, 'trigger', event);
+      else void show(event);
     }
 
     /** 一列选项 */
@@ -529,9 +536,9 @@ export const Cascader = _component(
                 )}
                 // 焦点留在列上
                 onPointerdown={(event: PointerEvent) => event.preventDefault()}
-                onClick={() => {
+                onClick={(event: MouseEvent) => {
                   panel?.querySelector<HTMLElement>(`#${CSS.escape(columnId(level))}`)?.focus();
-                  onOptionClick(level, node, key);
+                  onOptionClick(level, node, key, event);
                 }}
                 data-state={selected ? 'checked' : 'unchecked'}
                 data-active={active || undefined}
@@ -591,7 +598,9 @@ export const Cascader = _component(
                 )}
                 onPointerdown={(event: PointerEvent) => event.preventDefault()}
                 onPointermove={() => !item.disabled && (hit = index)}
-                onClick={() => !item.disabled && pick(item.keys, item.nodes.at(-1)!, true)}
+                onClick={(event: MouseEvent) =>
+                  !item.disabled && pick(item.keys, item.nodes.at(-1)!, true, event)
+                }
               >
                 <span {...stylex.attrs(itemStyles.label)}>{item.label}</span>
                 {selected && <Icon icon={Check} sx={cascaderStyles.check} />}
@@ -635,7 +644,12 @@ export const Cascader = _component(
               {
                 ref: _toRef(shell),
                 onPointerdown: off ? undefined : focusOnShell(() => trigger),
-                onClick: locked ? undefined : clickOnShell(() => trigger, toggle),
+                onClick: locked
+                  ? undefined
+                  : clickOnShell(
+                      () => trigger,
+                      (event) => toggle(event),
+                    ),
               },
             )}
             data-state={open ? 'open' : 'closed'}
@@ -660,9 +674,9 @@ export const Cascader = _component(
                   'aria-required': state.required || undefined,
                   'aria-readonly': state.readonly || undefined,
                   'aria-describedby': state.describedBy,
-                  onClick: () => {
+                  onClick: (event: MouseEvent) => {
                     trigger?.focus();
-                    if (!locked) toggle();
+                    if (!locked) toggle(event);
                   },
                   onKeydown: onTriggerKeydown,
                 },

@@ -45,6 +45,7 @@ import type { TagProps } from '../base/Tag';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang, useTextMatcher } from '../config/context';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { ListPopover } from './ListPopover';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
@@ -92,7 +93,7 @@ export type SelectManaged =
 
 /** 下拉选择共有的属性；未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 export interface SelectBaseProps<T>
-  extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions {
+  extends PartProps<'button', SelectManaged>, ControlOptions, ControlIconOptions, OpenChangeProps {
   /** 数据：ListboxOption、字符串，或任意数据加 toOption；有 load 时是第一次加载之前的选项（编辑页放上已选的那一项） */
   items?: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */
@@ -212,6 +213,7 @@ export const Select = _component(
     selectionMode = 'single',
     value = _bindable<string | string[] | null>(null),
     open = _bindable(false),
+    onOpenChange,
     placeholder,
     placement = 'bottom-start',
     clearable = false,
@@ -309,6 +311,11 @@ export const Select = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     /** 多选时移除一项（标签的移除按钮、Backspace） */
     function remove(target: string) {
@@ -320,11 +327,11 @@ export const Select = _component(
       if (last !== undefined) remove(last);
     }
 
-    function show(highlight: 'default' | 'last' = 'default') {
+    function show(highlight: 'default' | 'last' = 'default', event?: Event) {
       search = '';
       list.activateDefault();
       if (highlight === 'last' && selectedValues(value).length === 0) list.move('last');
-      open = true;
+      setOpen(true, 'trigger', event);
     }
 
     useResultAnnouncement(() => ({ query: search, count: list.options.length }));
@@ -336,8 +343,8 @@ export const Select = _component(
     );
 
     // 选中一项：单选时关闭
-    function picked() {
-      if (!multiple()) open = false;
+    function picked(event?: Event) {
+      if (!multiple()) setOpen(false, 'select', event);
     }
 
     /** Ctrl / Cmd / Alt 组合键是浏览器的（刷新、复制、查找），不做按字母跳转 */
@@ -353,10 +360,10 @@ export const Select = _component(
       if (!open) {
         if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          show();
+          show('default', event);
         } else if (event.key === 'ArrowUp') {
           event.preventDefault();
-          show('last');
+          show('last', event);
         } else if (!multiple() && !hasModifier(event) && list.typeahead(event.key)) {
           // 同原生 select：关闭时按字母直接选中
           event.preventDefault();
@@ -365,10 +372,10 @@ export const Select = _component(
         return;
       }
       if (event.key === 'Tab') {
-        open = false;
+        setOpen(false, 'focus', event);
         return;
       }
-      if (handleListKeydown(list, event, { space: true, typeahead: true }, picked)) {
+      if (handleListKeydown(list, event, { space: true, typeahead: true }, () => picked(event))) {
         event.preventDefault();
       }
     }
@@ -377,7 +384,7 @@ export const Select = _component(
     // 多选时空的搜索框里按 Backspace 移除最后一项
     function onSearchKeydown(event: KeyboardEvent) {
       if (event.key === 'Tab') {
-        open = false;
+        setOpen(false, 'focus', event);
         return;
       }
       if (event.key === 'Backspace' && !search && multiple()) {
@@ -385,7 +392,8 @@ export const Select = _component(
         removeLast();
         return;
       }
-      if (handleListKeydown(list, event, { homeEnd: false }, picked)) event.preventDefault();
+      if (handleListKeydown(list, event, { homeEnd: false }, () => picked(event)))
+        event.preventDefault();
     }
 
     function clear() {
@@ -402,7 +410,7 @@ export const Select = _component(
         floating: { placement, matchWidth: true, fitHeight: true },
         restoreFocus: false,
       }),
-      { close: () => (open = false) },
+      { close: (reason, event) => setOpen(false, reason, event) },
     );
 
     // searchable：打开后焦点进搜索框；关闭时焦点还在弹层里（Esc、选中、点外面）就还给触发按钮
@@ -469,7 +477,7 @@ export const Select = _component(
                   ? undefined
                   : clickOnShell(
                       () => trigger,
-                      () => (open ? (open = false) : show()),
+                      (event) => (open ? setOpen(false, 'trigger', event) : show('default', event)),
                     ),
               },
             )}
@@ -503,12 +511,12 @@ export const Select = _component(
                   'aria-required': state.required || undefined,
                   'aria-readonly': state.readonly || undefined,
                   'aria-describedby': state.describedBy,
-                  onClick: () => {
+                  onClick: (event: MouseEvent) => {
                     // Safari 点击按钮不会聚焦它：焦点要在触发按钮上，键盘与 aria-activedescendant 才有效
                     trigger?.focus();
                     if (locked) return;
-                    if (open) open = false;
-                    else show();
+                    if (open) setOpen(false, 'trigger', event);
+                    else show('default', event);
                   },
                   onKeydown,
                 },
@@ -535,7 +543,7 @@ export const Select = _component(
             labelledBy={state.labelledBy}
             label={rest['aria-label']}
             loading={loading || remote.loading()}
-            onPick={picked}
+            onPick={() => picked()}
             header={
               withSearch() && (
                 <TextField

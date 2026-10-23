@@ -1,7 +1,7 @@
 // Select：只读（自己的 readonly 或 Field 的）不能打开、不能清空；前置图标与其他输入框一样画在外壳里；
 // 多选的标签在触发按钮外（可移除、Backspace、maxTagCount），creatable 新建选项
 import { Globe } from '@lucide/icons';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
@@ -173,5 +173,31 @@ describe('Select', () => {
     expect(picked).toEqual(['深圳']);
     expect(created).toEqual(['深圳']);
     expect(search).toBe('');
+  });
+
+  it('onOpenChange：点触发按钮打开是 trigger，单选选中一项关闭是 select；父级改 open 不通知', async () => {
+    let open = _state(false);
+    const onOpenChange = vi.fn();
+    const root = mount(() => (
+      <Select items={cities} open={_bind(open)} onOpenChange={onOpenChange} aria-label="城市" />
+    ));
+    root.querySelector<HTMLButtonElement>('button[role="combobox"]')!.click();
+    await flush();
+    expect(open).toBe(true);
+    expect(onOpenChange).toHaveBeenLastCalledWith(
+      true,
+      expect.objectContaining({ reason: 'trigger' }),
+    );
+    expect(onOpenChange.mock.calls[0]![1].event).toBeInstanceOf(MouseEvent);
+    document.querySelector<HTMLElement>('[role="option"]')!.click();
+    await flush();
+    expect(open).toBe(false);
+    expect(onOpenChange).toHaveBeenLastCalledWith(
+      false,
+      expect.objectContaining({ reason: 'select' }),
+    );
+    open = true;
+    await flush();
+    expect(onOpenChange).toHaveBeenCalledTimes(2);
   });
 });

@@ -46,6 +46,7 @@ import {
   type DateRangePreset,
 } from '../utils/data/date';
 import { toElement } from '../utils/dom/element';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { defaultLabelledBy, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   toDateLimits,
@@ -88,7 +89,8 @@ export interface DateRangePickerProps<V extends DateInput = string>
     ControlOptions,
     ControlIconOptions,
     DateLimitProps,
-    PickerPopoverParts {
+    PickerPopoverParts,
+    OpenChangeProps {
   /** 区间（两端都含）：父级写 value={_bind(x)}；没填全时 null */
   value?: DateRange<V> | null;
   /** 弹层是否打开：父级可写 open={_bind(x)} */
@@ -158,6 +160,7 @@ export const DateRangePicker = _component(
   <V extends DateInput>({
     value = _bindable<DateRange<V> | null>(null),
     open = _bindable(false),
+    onOpenChange,
     valueType,
     granularity = 'day',
     min,
@@ -199,6 +202,11 @@ export const DateRangePicker = _component(
     const limits = _derived(toDateLimits(locale, { min, max, isDateUnavailable }));
     let startGroup = _state.raw<HTMLElement | null>(null);
     let endGroup = _state.raw<HTMLElement | null>(null);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     const picker = usePickerPopover(
       () => ({
@@ -208,7 +216,7 @@ export const DateRangePicker = _component(
         label: lang.datePickerOpen,
         size: appearance().size,
       }),
-      { toggle: (next) => (open = next), shown: focusCalendar },
+      { toggle: setOpen, shown: focusCalendar },
     );
 
     // 两端各自的 ISO 字符串（按 granularity 的形式）：只填了一端时值仍是 null，这里记着填了的那一端
@@ -334,7 +342,7 @@ export const DateRangePicker = _component(
       start = range.start;
       end = range.end;
       commit();
-      open = false;
+      setOpen(false, 'select');
     }
 
     return () => {
@@ -440,7 +448,7 @@ export const DateRangePicker = _component(
                   min={min}
                   max={max}
                   aria-label={lang.datePickerOpen}
-                  onPick={() => (open = false)}
+                  onPick={() => setOpen(false, 'select')}
                 />
               ) : (
                 <RangeCalendar
@@ -456,7 +464,7 @@ export const DateRangePicker = _component(
                   // 按周：按 ISO 8601 的周排（周一开始），行首是第几周
                   {...(granularity === 'week' && { firstDayOfWeek: 1, showWeekNumbers: true })}
                   onPick={() => {
-                    open = false;
+                    setOpen(false, 'select');
                     // 带时间时接着输入时间：焦点去开始那组的“时”
                     if (isTimeGranularity(granularity))
                       startGroup?.querySelector<HTMLElement>('[data-type="hour"]')?.focus();

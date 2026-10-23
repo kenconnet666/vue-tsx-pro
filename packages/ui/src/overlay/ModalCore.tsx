@@ -24,6 +24,12 @@ import { Paragraph, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
 import { Flex, type FlexProps } from '../layout/Flex';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
+import {
+  openSetter,
+  type OpenChangeDetails,
+  type OpenChangeProps,
+  type OpenChangeReasons,
+} from '../utils/dom/open-change';
 import { openModalDialog } from '../utils/dom/overlay';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -36,7 +42,8 @@ export type ModalManaged =
   'open' | 'role' | 'title' | 'aria-labelledby' | 'aria-describedby' | 'aria-modal';
 
 /** Dialog、Drawer、AlertDialog 共有的 props；未声明的属性落到 dialog 上 */
-export interface ModalProps extends PartProps<'dialog', ModalManaged>, LazyContentOptions {
+export interface ModalProps
+  extends PartProps<'dialog', ModalManaged>, LazyContentOptions, OpenChangeProps {
   /** 是否打开：父级写 open={_bind(x)}；Esc、点击遮罩、关闭按钮都会关闭并写回 */
   open?: boolean;
   /** 标题，同时是对话框的无障碍名称 */
@@ -50,10 +57,10 @@ export interface ModalProps extends PartProps<'dialog', ModalManaged>, LazyConte
   /** 点击遮罩是否关闭，默认 true；需要用户明确选择时设为 false（Esc 仍可关闭） */
   dismissible?: boolean;
   /**
-   * 用户要关闭时（关闭按钮、Esc、点遮罩）先问它：返回 false（或 resolve 成 false）就不关，
-   * 如表单有未保存的改动时先确认。父级把 open 改成 false 不经过它
+   * 用户要关闭时（关闭按钮、取消、Esc、点遮罩）先问它：返回 false（或 resolve 成 false）就不关，
+   * 如表单有未保存的改动时先确认；参数是关闭的原因。确认按钮与父级把 open 改成 false 不经过它
    */
-  beforeClose?: () => boolean | Promise<boolean>;
+  beforeClose?: (details: OpenChangeDetails) => boolean | Promise<boolean>;
   /**
    * 确认：写了就在页脚（footer 之后）放“取消”与“确认”两个按钮。返回 Promise 时确认按钮加载中，
    * 取消、Esc、遮罩、关闭按钮暂不可用，完成后关闭；返回 false（或 resolve 成 false）、失败（reject）时保持打开，
@@ -136,6 +143,7 @@ export const ModalCore = _component(
     closable = true,
     dismissible = true,
     beforeClose,
+    onOpenChange,
     onConfirm,
     confirmText,
     cancelText,
@@ -168,11 +176,23 @@ export const ModalCore = _component(
     let release: (() => void) | undefined;
     // 等确认的结果：这期间关不掉
     let pending = _state(false);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
+    // 这次关闭的原因：关之前记下，原生 close 事件里报告；没记下的是浏览器直接关的（Esc）
+    let closing: OpenChangeDetails | undefined;
+
+    function closeWith(reason: keyof OpenChangeReasons, event?: Event) {
+      closing = { reason, event };
+      dialog?.close();
+    }
 
     /** 用户要关闭：先问 beforeClose，同意了才关 */
-    async function requestClose() {
-      if (pending || (beforeClose && !(await beforeClose()))) return;
-      dialog?.close();
+    async function requestClose(reason: keyof OpenChangeReasons, event?: Event) {
+      if (pending || (beforeClose && !(await beforeClose({ reason, event })))) return;
+      closeWith(reason, event);
     }
 
     async function confirm() {
@@ -187,22 +207,25 @@ export const ModalCore = _component(
       } finally {
         pending = false;
       }
-      dialog?.close();
+      closeWith('confirm');
     }
 
     function show() {
       if (!dialog || dialog.open) return;
       release = openModalDialog(dialog, {
         dismissOnBackdrop: dismissible,
-        onDismiss: () => void requestClose(),
+        onDismiss: (event) => void requestClose('outside', event),
       });
     }
 
     // Esc：原生 dialog 先发 cancel；等确认时不关，有 beforeClose 时拦下来，问过再关
     function onCancel(event: Event) {
-      if (!pending && !beforeClose) return;
+      if (!pending && !beforeClose) {
+        closing = { reason: 'escape', event };
+        return;
+      }
       event.preventDefault();
-      void requestClose();
+      void requestClose('escape', event);
     }
 
     // 不论以什么方式关闭（Esc、遮罩、关闭按钮、open 改为 false），都会触发原生 close 事件；
@@ -210,7 +233,10 @@ export const ModalCore = _component(
     function onClose() {
       release?.();
       release = undefined;
-      open = false;
+      const { reason, event } = closing ?? { reason: 'escape' };
+      closing = undefined;
+      // 父级把 open 改成 false 时这里已经是 false，不再通知
+      setOpen(false, reason, event);
     }
 
     // DOM 更新后执行（首次在挂载后 dialog 已就位）
@@ -248,7 +274,7 @@ export const ModalCore = _component(
             <CloseButton
               {...mergePartProps<PresetIconButtonProps>({ sx: modalStyles.close }, propsClose, {
                 disabled: pending,
-                onClick: () => void requestClose(),
+                onClick: (event: MouseEvent) => void requestClose('close', event),
               })}
             />
           )}
@@ -290,7 +316,7 @@ export const ModalCore = _component(
                     propsCancel,
                     {
                       disabled: pending,
-                      onClick: () => void requestClose(),
+                      onClick: (event: MouseEvent) => void requestClose('close', event),
                     },
                   )}
                 >

@@ -229,10 +229,10 @@ export function focusOnShell(main: () => HTMLElement | null): (event: PointerEve
  */
 export function clickOnShell(
   main: () => HTMLElement | null,
-  action: () => void,
+  action: (event: MouseEvent) => void,
 ): (event: MouseEvent) => void {
   return (event) => {
     const element = main();
-    if (element && isShellBlank(event.target as Element, element)) action();
+    if (element && isShellBlank(event.target as Element, element)) action(event);
   };
 }

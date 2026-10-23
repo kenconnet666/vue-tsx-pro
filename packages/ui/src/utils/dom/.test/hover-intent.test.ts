@@ -1,4 +1,4 @@
-// useHoverIntent：停留 delay 后打开、离开 closeDelay 后关闭；同组只开一个，刚关掉一个时下一个直接打开
+// useHoverIntent：停留 delay 后打开、离开 closeDelay 后关闭（带原因）；同组只开一个，刚关掉一个时下一个直接打开
 import { effectScope } from 'vue';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { createHoverGroup, useHoverIntent } from '../hover-intent';
@@ -7,15 +7,19 @@ beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
 const enter = new PointerEvent('pointerenter', { pointerType: 'mouse' });
+const leave = new PointerEvent('pointerleave', { pointerType: 'mouse' });
 
 function create(group = createHoverGroup()) {
-  const state = { open: false };
+  const state = { open: false, reasons: [] as string[] };
   const scope = effectScope();
   const hover = scope.run(() =>
     useHoverIntent(
       group,
       () => ({ delay: 500, closeDelay: 100 }),
-      (next) => (state.open = next),
+      (next, reason) => {
+        state.open = next;
+        state.reasons.push(reason);
+      },
     ),
   )!;
   return { state, hover, group };
@@ -28,11 +32,16 @@ it('停留 delay 后打开；离开后 closeDelay 内移到浮层上不关', () 
   expect(state.open).toBe(false);
   vi.advanceTimersByTime(1);
   expect(state.open).toBe(true);
-  hover.trigger.onPointerleave();
+  hover.trigger.onPointerleave(leave);
   vi.advanceTimersByTime(50);
   hover.panel.onPointerenter();
   vi.advanceTimersByTime(1000);
   expect(state.open).toBe(true);
+  // 关闭的原因：离开浮层是 hover，Esc 是 escape
+  hover.panel.onPointerleave(leave);
+  vi.advanceTimersByTime(100);
+  hover.closeNow('escape');
+  expect(state.reasons).toEqual(['hover', 'hover', 'escape']);
 });
 
 it('触屏不打开；同组打开另一个时关掉前一个，刚关掉时下一个不用等', () => {

@@ -25,6 +25,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang, useTextMatcher } from '../config/context';
 import { isComposingKey } from '../utils/dom/hotkeys';
 import { useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { ListPopover } from './ListPopover';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
@@ -70,7 +71,7 @@ export type ComboboxManaged =
 
 /** Combobox 除 toOption 外的属性；未声明的属性落到 input（主元素）上，外壳用 propsRoot */
 export interface ComboboxBaseProps<T>
-  extends PartProps<'input', ComboboxManaged>, ControlOptions, ControlIconOptions {
+  extends PartProps<'input', ComboboxManaged>, ControlOptions, ControlIconOptions, OpenChangeProps {
   /** 数据：ListboxOption、字符串，或任意数据加 toOption；有 load 时是第一次加载之前的选项（编辑页放上已选的那一项） */
   items?: readonly T[];
   /** 选中项的值：父级写 value={_bind(x)}；没有选中时是 null */
@@ -140,6 +141,7 @@ export const Combobox = _component(
     value = _bindable<string | null>(null),
     inputValue = _bindable(''),
     open = _bindable(false),
+    onOpenChange,
     filter,
     load,
     allowCustomValue = false,
@@ -180,6 +182,11 @@ export const Combobox = _component(
     let shell = _state.raw<HTMLElement | null>(null);
     let input = _state.raw<HTMLInputElement | null>(null);
     let panel = _state.raw<HTMLElement | null>(null);
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
 
     const optionOf = (item: T) => toListboxOption(item, toOption);
 
@@ -230,7 +237,7 @@ export const Combobox = _component(
         }
         query = text;
         // 只在输入框聚焦时打开：父级把 inputValue 改掉（重置成空）不该弹出列表
-        if (!control().readonly && document.activeElement === input) open = true;
+        if (!control().readonly && document.activeElement === input) setOpen(true, 'trigger');
         list.move('first');
       },
     );
@@ -245,22 +252,22 @@ export const Combobox = _component(
       { immediate: true },
     );
 
-    function pick(choice: string) {
+    function pick(choice: string, event?: Event) {
       value = choice;
       setText(selectedLabel());
       query = '';
-      open = false;
+      setOpen(false, 'select', event);
     }
 
-    function show() {
+    function show(event?: Event) {
       query = '';
       list.activateDefault();
-      open = true;
+      setOpen(true, 'trigger', event);
     }
 
     // 失焦：文字不是选项时恢复（或清空选择）
-    function commit() {
-      open = false;
+    function commit(event: FocusEvent) {
+      setOpen(false, 'focus', event);
       if (allowCustomValue) {
         if (inputValue !== selectedLabel()) value = null;
         return;
@@ -285,11 +292,12 @@ export const Combobox = _component(
       if (!open) {
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
           event.preventDefault();
-          show();
+          show(event);
         }
         return;
       }
-      if (handleListKeydown(list, event, { homeEnd: false }, pick)) event.preventDefault();
+      if (handleListKeydown(list, event, { homeEnd: false }, (choice) => pick(choice, event)))
+        event.preventDefault();
     }
 
     // 列表是否真的弹出：hideEmpty 时没有可选的项（也不在加载）就不弹
@@ -305,7 +313,7 @@ export const Combobox = _component(
         floating: { placement, matchWidth: true, fitHeight: true },
         restoreFocus: false,
       }),
-      { close: () => (open = false) },
+      { close: (reason, event) => setOpen(false, reason, event) },
     );
 
     return () => {
@@ -373,9 +381,9 @@ export const Combobox = _component(
                     'aria-controls': listId,
                     // 不让输入框失焦（失焦会提交并关闭）
                     onPointerdown: (event: PointerEvent) => event.preventDefault(),
-                    onClick: () => {
-                      if (open) open = false;
-                      else show();
+                    onClick: (event: MouseEvent) => {
+                      if (open) setOpen(false, 'trigger', event);
+                      else show(event);
                       input?.focus();
                     },
                   },
@@ -391,7 +399,7 @@ export const Combobox = _component(
             labelledBy={state.labelledBy}
             label={rest['aria-label']}
             loading={loading || remote.loading()}
-            onPick={pick}
+            onPick={(choice) => pick(choice)}
             listbox={{
               list,
               id: listId,

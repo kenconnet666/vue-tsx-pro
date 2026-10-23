@@ -2,7 +2,7 @@
  * 悬停浮层的壳：Tooltip 与 HoverCard 共用。触发器、面板、箭头三个元素，停留后打开（useHoverIntent），
  * 打开时锚定到触发器（createAnchoredLayer），Esc 关闭，卸载时收起。在 setup 里调用。
  *
- *   const layer = useHoverLayer(tooltips, () => ({ open, disabled, placement, offset, delay, closeDelay }), (next) => (open = next));
+ *   const layer = useHoverLayer(tooltips, () => ({ open, disabled, placement, offset, delay, closeDelay }), setOpen);
  *   trigger({ ref: layer.anchorRef, ...layer.hover.trigger })
  *   <div {...mergeAttrs({ sx }, rest, { ref: layer.panelRef, id: layer.id, popover: 'manual', ...layer.hover.panel })}>
  *     {children}
@@ -15,6 +15,7 @@ import { onScopeDispose, shallowRef, useId, watchEffect } from 'vue';
 import { mergeAttrs, type PartProps } from '../props';
 import { createAnchoredLayer, floatingStyles, type FloatingPlacement } from './floating';
 import { useHoverIntent, type HoverGroup, type HoverIntent } from './hover-intent';
+import type { SetOpen } from './open-change';
 import { toElement } from './element';
 
 /** useHoverLayer 每次读取的选项 */
@@ -53,7 +54,7 @@ export interface HoverLayer {
 export function useHoverLayer(
   group: HoverGroup,
   read: () => HoverLayerOptions,
-  setOpen: (open: boolean) => void,
+  setOpen: SetOpen,
 ): HoverLayer {
   const id = useId();
   const anchor = shallowRef<HTMLElement | null>(null);
@@ -74,7 +75,7 @@ export function useHoverLayer(
     if (event.key !== 'Escape' || !read().open) return;
     event.preventDefault();
     event.stopPropagation();
-    hover.closeNow();
+    hover.closeNow('escape', event);
   }
 
   watchEffect(

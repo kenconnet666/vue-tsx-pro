@@ -9,6 +9,11 @@ import type { ContainerSizes } from '../layout/Container';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
 import { ResizeHandle, type ResizeHandleProps } from '../layout/ResizeHandle';
+import {
+  useDetachedOverlay,
+  type DetachedOverlayHandle,
+  type DetachedOverlayOptions,
+} from './detached';
 import { ModalCore, type ModalProps } from './ModalCore';
 import { t } from '../config/theme/tokens';
 
@@ -176,3 +181,24 @@ export const Drawer = _component(
     };
   },
 );
+
+/** useDrawer 返回的：open 打开一个抽屉 */
+export interface DrawerApi {
+  /** 打开抽屉：属性同 Drawer（open 由句柄管理），content 是正文；返回句柄 */
+  open(options: DetachedOverlayOptions<DrawerProps>): DetachedOverlayHandle<DrawerProps>;
+}
+
+/**
+ * 命令式抽屉：在组件 setup 里调用，用法同 useDialog。从表格的一行打开详情、编辑时不必在页面里放一个 Drawer 再管 open：
+ *
+ *   const drawer = useDrawer();
+ *   drawer.open({ title: `订单 ${row.id}`, size: 'md', content: (handle) => <OrderForm id={row.id} onSaved={handle.close} /> });
+ */
+export function useDrawer(): DrawerApi {
+  const open = useDetachedOverlay<DrawerProps>((props, host, children) => (
+    <Drawer {...props} open={_bind(host.open)}>
+      {children}
+    </Drawer>
+  ));
+  return { open };
+}

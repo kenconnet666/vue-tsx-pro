@@ -22,6 +22,7 @@ import { useFieldControl } from '../form/Field';
 import { Listbox, type ListboxProps } from '../input/Listbox';
 import type { ListboxOption } from '../input/list-state';
 import { parseIsoTime, toIsoTime } from '../utils/data/date';
+import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergePartProps, type PartProps } from '../utils/props';
 import { useDateLocale } from './date-locale';
 import { usePickerPopover, type PickerPopoverParts } from './picker-popover';
@@ -29,7 +30,7 @@ import { TimeField, toTime, type TimeFieldProps, type TimeInput } from './TimeFi
 
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface TimePickerProps<V extends TimeInput = string>
-  extends TimeFieldProps<V>, PickerPopoverParts {
+  extends TimeFieldProps<V>, PickerPopoverParts, OpenChangeProps {
   /** 列表是否打开：父级可写 open={_bind(x)} */
   open?: boolean;
   /** 列表里相邻两项相隔几分钟，默认 30 */
@@ -55,6 +56,7 @@ export const TimePicker = _component(
   <V extends TimeInput>({
     value = _bindable<V | null>(null),
     open = _bindable(false),
+    onOpenChange,
     step = 30,
     granularity = 'minute',
     valueType = 'iso',
@@ -83,6 +85,11 @@ export const TimePicker = _component(
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }), {
       delegate: true,
     });
+    const setOpen = openSetter(
+      () => open,
+      (next) => (open = next),
+      () => onOpenChange,
+    );
     const picker = usePickerPopover(
       () => ({
         open,
@@ -93,7 +100,7 @@ export const TimePicker = _component(
         size: rest.size,
       }),
       {
-        toggle: (next) => (open = next),
+        toggle: setOpen,
         shown: (panel) => panel.querySelector<HTMLElement>('[role="listbox"]')?.focus(),
       },
     );
@@ -122,10 +129,10 @@ export const TimePicker = _component(
     });
 
     /** 写回：和当前值同一种类型（Time 或字符串），精确到秒时补 :00 */
-    function write(time: Time) {
+    function write(time: Time, event?: Event) {
       const asTime = (value != null && typeof value !== 'string') || valueType === 'dateValue';
       value = (asTime ? time : toIsoTime(time, granularity === 'second')) as V;
-      open = false;
+      setOpen(false, 'select', event);
     }
 
     /** 此刻（精确到分） */
@@ -191,7 +198,10 @@ export const TimePicker = _component(
               {...mergePartProps<ButtonProps>(
                 { sx: timePickerStyles.now, variant: 'ghost', size: 'sm', fullWidth: true },
                 propsNow,
-                { disabled: !nowAvailable(), onClick: () => write(nowTime()) },
+                {
+                  disabled: !nowAvailable(),
+                  onClick: (event: MouseEvent) => write(nowTime(), event),
+                },
               )}
             >
               {lang.timePickerNow}
