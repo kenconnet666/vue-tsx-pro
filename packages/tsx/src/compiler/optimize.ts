@@ -55,6 +55,9 @@ type Summaries = WeakMap<t.Node, readonly (Binding | null)[]>;
 export function optimizeRender(program: NodePath<t.Program>, context: OptimizeContext) {
   const caches = new Map<NodePath<t.Function>, { id: t.Identifier; size: number }>();
   const summaries: Summaries = new WeakMap();
+  // 按位置生成的 key：同一个文件里各处不同
+  let sites = 0;
+  const siteKey = () => `__site${sites++}`;
 
   /** setup 里的缓存数组：用到时才声明 */
   const cacheSlot = (setup: NodePath<t.Function>, value: t.Expression) => {
@@ -82,7 +85,7 @@ export function optimizeRender(program: NodePath<t.Program>, context: OptimizeCo
         const external = externalReferences(path, summaries).filter(
           (binding) => binding === null || !declaredWithin(binding, path),
         );
-        stabilizeChildren(path, context, summaries);
+        stabilizeChildren(path, context, summaries, siteKey);
         summaries.set(path.node, external);
       },
     },
@@ -197,6 +200,7 @@ function stabilizeChildren(
   element: NodePath<t.JSXElement>,
   context: OptimizeContext,
   summaries: Summaries,
+  siteKey: () => string,
 ) {
   if (!isComponentElement(element)) return;
   if (element.node.children.some((child) => t.isJSXSpreadChild(child))) return;
@@ -246,8 +250,36 @@ function stabilizeChildren(
       t.objectProperty(t.identifier('default'), content),
       t.objectProperty(t.identifier('$stable'), stable),
     ]);
+    if (setup) keyBySite(element, setup, siteKey);
   }
   element.node.children = [t.jsxExpressionContainer(slots)];
+}
+
+/**
+ * 标了 $stable 的组件按 JSX 的位置给一个 key：两处同类型的组件出现在同一位置时（`cond ? <Grid>A</Grid> : <Grid>B</Grid>`、
+ * 分支里的第 n 个子元素），没有 key 会被当成同一个节点更新，稳定插槽又让子组件跳过重渲染，显示的还是另一处的内容。
+ * 模板编译器给 v-if 的各个分支加 key 是同样的道理。只给渲染函数里直接写的元素加：回调（map）、循环里的元素会重复出现，
+ * 同一位置的 key 相同会冲突；已经写了 key 的不动
+ */
+function keyBySite(
+  element: NodePath<t.JSXElement>,
+  setup: NodePath<t.Function>,
+  siteKey: () => string,
+) {
+  const attributes = element.node.openingElement.attributes;
+  if (attributes.some((attribute) => t.isJSXAttribute(attribute) && attribute.name.name === 'key'))
+    return;
+  const render = element.getFunctionParent();
+  if (!render || !isRenderFunction(render, setup)) return;
+  const stop = element.findParent((parent) => parent.node === render.node || parent.isLoop());
+  if (stop?.node !== render.node) return;
+  attributes.push(t.jsxAttribute(t.jsxIdentifier('key'), t.stringLiteral(siteKey())));
+}
+
+/** setup 返回的渲染函数：`return () => …`，或 setup 直接写成 `() => () => …` */
+function isRenderFunction(fn: NodePath<t.Function>, setup: NodePath<t.Function>) {
+  if (fn.parentPath?.node === setup.node) return true;
+  return fn.parentPath?.isReturnStatement() === true && fn.getFunctionParent()?.node === setup.node;
 }
 
 const isFunctionNode = (node: t.Node) =>

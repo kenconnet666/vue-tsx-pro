@@ -66,6 +66,21 @@ describe('哪些子节点标 $stable', () => {
     expect(out).toMatch(/default: \(row: number\) => <i>\{row\}<\/i>,\s*\$stable: true/);
   });
 
+  it('标了 $stable 的组件按位置加 key；回调、循环里的与写了 key 的不加', async () => {
+    const out = await compile(
+      component(
+        'const rows = [1]',
+        `<div>
+          <Box>a</Box>
+          <Box key="mine">b</Box>
+          {rows.map(() => <Box>c</Box>)}
+        </div>`,
+      ),
+    );
+    expect(out.match(/key="__site\d+"/g)).toHaveLength(1);
+    expect(out).toContain('key="mine"');
+  });
+
   it('Teleport、KeepAlive 与原生元素的子节点不动；关掉优化时都不动', async () => {
     const code = `import { Teleport } from 'vue'; ${component('', '<div><Teleport to="body"><b>x</b></Teleport><p>y</p></div>')}`;
     expect(await compile(code)).not.toContain('$stable');
@@ -174,6 +189,43 @@ describe('运行时', () => {
     await nextTick();
     expect(renders).toEqual({});
     expect(el.textContent).toBe('1保存');
+  });
+
+  it('两处同类型的组件轮流出现在同一位置：按位置加的 key 让它们不被当成同一个，内容不串', async () => {
+    let toggle = () => {};
+    const Page = _component(() => {
+      let first = _state(true);
+      toggle = () => (first = !first);
+      return () => (
+        <div>
+          {first ? (
+            <>
+              <Btn label="一" />
+              <Box>
+                <Btn label="甲" />
+              </Box>
+            </>
+          ) : (
+            <>
+              <Box>
+                <Btn label="乙" />
+              </Box>
+              <Box>
+                <Btn label="丙" />
+              </Box>
+            </>
+          )}
+        </div>
+      );
+    });
+    const el = mount(Page);
+    expect(el.textContent).toBe('一甲');
+    toggle();
+    await nextTick();
+    expect(el.textContent).toBe('乙丙');
+    toggle();
+    await nextTick();
+    expect(el.textContent).toBe('一甲');
   });
 
   it('内容里读的响应式数据变了，显示它的组件照常更新；用到渲染里变量的内容也照常更新', async () => {
