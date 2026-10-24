@@ -1,19 +1,9 @@
 // LineChart 在真实浏览器里：每个系列一条线、空心数据点，悬停时十字线与提示框，空值处断开
 import { expect, it } from 'vitest';
 import { mount } from '../../../../test/mount';
+import { until } from '../../../../test/until';
 import Basic from '../demo/Basic';
 import Gaps from '../demo/Gaps';
-
-/** 等到条件成立（Unovis 在动画帧里绘制），最多 3 秒 */
-async function until<T>(read: () => T | undefined | false): Promise<T> {
-  const deadline = performance.now() + 3000;
-  for (;;) {
-    const value = read();
-    if (value) return value;
-    if (performance.now() > deadline) throw new Error('等待超时');
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-  }
-}
 
 const lines = (root: Element) =>
   [...root.querySelectorAll<SVGPathElement>('[class*="line-component"] path')].filter((path) =>

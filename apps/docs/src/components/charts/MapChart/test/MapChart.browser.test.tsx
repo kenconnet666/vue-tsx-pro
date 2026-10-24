@@ -2,21 +2,11 @@
 // 滚轮不按 Ctrl 时滚动页面而不缩放、流向画成连线、地点的名字避让
 import { expect, it } from 'vitest';
 import { mount } from '../../../../test/mount';
+import { until } from '../../../../test/until';
 import Projections from '../demo/Projections';
 import Provinces from '../demo/Provinces';
 import Sites from '../demo/Sites';
 import SupplyChain from '../demo/SupplyChain';
-
-/** 等到条件成立（Unovis 在动画帧里绘制），最多 3 秒 */
-async function until<T>(read: () => T | undefined | false): Promise<T> {
-  const deadline = performance.now() + 3000;
-  for (;;) {
-    const value = read();
-    if (value) return value;
-    if (performance.now() > deadline) throw new Error('等待超时');
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-  }
-}
 
 const featuresOf = (root: Element) => [
   ...root.querySelectorAll<SVGPathElement>('svg path[class*="feature"]'),

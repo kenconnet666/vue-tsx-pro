@@ -2,18 +2,8 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../../../test/mount';
+import { until } from '../../../../test/until';
 import Zoom from '../demo/Zoom';
-
-/** 等到条件成立（Unovis 在动画帧里绘制），最多 3 秒 */
-async function until<T>(read: () => T | undefined | false): Promise<T> {
-  const deadline = performance.now() + 3000;
-  for (;;) {
-    const value = read();
-    if (value) return value;
-    if (performance.now() > deadline) throw new Error('等待超时');
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-  }
-}
 
 const tickLabels = (root: Element) =>
   [...root.querySelectorAll('svg text')].map((text) => text.textContent ?? '');

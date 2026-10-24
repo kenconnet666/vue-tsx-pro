@@ -5,19 +5,9 @@ import { BarChart } from '@vue-tsx-pro/ui/charts';
 import { expect, it } from 'vitest';
 import { h } from 'vue';
 import { mount } from '../../../../test/mount';
+import { until } from '../../../../test/until';
 import Annotations from '../../LineChart/demo/Annotations';
 import Savings from '../demo/Savings';
-
-/** 等到条件成立（Unovis 在动画帧里绘制），最多 3 秒 */
-async function until<T>(read: () => T | undefined | false): Promise<T> {
-  const deadline = performance.now() + 3000;
-  for (;;) {
-    const value = read();
-    if (value) return value;
-    if (performance.now() > deadline) throw new Error('等待超时');
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-  }
-}
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 600));
 
