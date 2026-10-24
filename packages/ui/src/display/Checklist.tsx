@@ -22,7 +22,7 @@
  */
 import { Ban, CircleAlert, CircleCheck, CircleDashed, CircleMinus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
@@ -96,7 +96,7 @@ export interface ChecklistProps extends PartProps<'div'> {
 }
 
 /** Checklist 的样式 */
-export const checklistStyles = stylex.create({
+export const checklistStyles = css.create({
   root: { display: 'grid', gap: '_sm' },
   summary: {
     display: 'grid',
@@ -163,7 +163,7 @@ export const checklistStyles = stylex.create({
 });
 
 /** 各状态的图标与颜色 */
-export const checklistStatusStyles = stylex.create({
+export const checklistStatusStyles = css.create({
   done: { color: '_successText' },
   todo: { color: '_textMuted' },
   overdue: { color: '_dangerText' },
@@ -208,14 +208,14 @@ export const Checklist = _component(
       const state = statusOf(item);
       if (!onCheckedChange)
         return (
-          <span {...stylex.attrs(checklistStyles.status)}>
+          <span {...css.attrs(checklistStyles.status)}>
             {statusIcon(item)}
             <VisuallyHidden>{lang.checklistStatus[state]}</VisuallyHidden>
           </span>
         );
       const done = state === 'done';
       return (
-        <span {...stylex.attrs(checklistStyles.status)}>
+        <span {...css.attrs(checklistStyles.status)}>
           <button
             type="button"
             role="checkbox"
@@ -224,7 +224,7 @@ export const Checklist = _component(
             aria-describedby={`${labelId}-status`}
             disabled={state === 'skipped' || state === 'blocked'}
             onClick={() => onCheckedChange(item, !done)}
-            {...stylex.attrs(checklistStyles.toggle, focusRingStyles.visible)}
+            {...css.attrs(checklistStyles.toggle, focusRingStyles.visible)}
           >
             {statusIcon(item)}
           </button>
@@ -286,14 +286,14 @@ export const Checklist = _component(
             {items.map((item, index) => {
               const labelId = `${id}-${index}`;
               return (
-                <li key={keyOf(item, index)} {...stylex.attrs(checklistStyles.inlineItem)}>
+                <li key={keyOf(item, index)} {...css.attrs(checklistStyles.inlineItem)}>
                   {status(item, labelId)}
-                  <span id={labelId} {...stylex.attrs(labelSx(item))}>
+                  <span id={labelId} {...css.attrs(labelSx(item))}>
                     {item.label}
                   </span>
                   {hasContent(item.date) && (
                     <span
-                      {...stylex.attrs(
+                      {...css.attrs(
                         checklistStyles.meta,
                         statusOf(item) === 'overdue' && checklistStyles.late,
                       )}
@@ -314,7 +314,7 @@ export const Checklist = _component(
           {...mergeAttrs<'div'>({ sx: [checklistStyles.root, size && fontSizeStyles[size]] }, rest)}
         >
           {summary && total > 0 && (
-            <div {...stylex.attrs(checklistStyles.summary)}>
+            <div {...css.attrs(checklistStyles.summary)}>
               <span>{lang.checklistSummary(doneCount(), total)}</span>
               <Progress
                 value={doneCount()}
@@ -325,7 +325,7 @@ export const Checklist = _component(
               />
             </div>
           )}
-          <ul {...stylex.attrs(checklistStyles.list)}>
+          <ul {...css.attrs(checklistStyles.list)}>
             {items.map((item, index) => {
               const own = typeof propsItem === 'function' ? propsItem(item) : propsItem;
               const labelId = `${id}-${index}`;
@@ -337,19 +337,19 @@ export const Checklist = _component(
                   data-status={statusOf(item)}
                 >
                   {status(item, labelId)}
-                  <div {...stylex.attrs(checklistStyles.body)}>
-                    <span id={labelId} {...stylex.attrs(labelSx(item))}>
+                  <div {...css.attrs(checklistStyles.body)}>
+                    <span id={labelId} {...css.attrs(labelSx(item))}>
                       {item.label}
                     </span>
                     {hasContent(item.description) && (
-                      <span {...stylex.attrs(checklistStyles.description)}>{item.description}</span>
+                      <span {...css.attrs(checklistStyles.description)}>{item.description}</span>
                     )}
                     {meta && (
-                      <span {...stylex.attrs(checklistStyles.meta)}>
+                      <span {...css.attrs(checklistStyles.meta)}>
                         {hasContent(item.owner) && <span>{item.owner}</span>}
                         {hasContent(item.date) && (
                           <span
-                            {...stylex.attrs(statusOf(item) === 'overdue' && checklistStyles.late)}
+                            {...css.attrs(statusOf(item) === 'overdue' && checklistStyles.late)}
                           >
                             {item.date}
                           </span>
@@ -359,7 +359,7 @@ export const Checklist = _component(
                     )}
                   </div>
                   {hasContent(item.action) ? (
-                    <div {...stylex.attrs(checklistStyles.action)}>{item.action}</div>
+                    <div {...css.attrs(checklistStyles.action)}>{item.action}</div>
                   ) : (
                     <span />
                   )}

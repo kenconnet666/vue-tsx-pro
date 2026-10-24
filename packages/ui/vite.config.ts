@@ -7,8 +7,8 @@ const externals = [...Object.keys(pkg.dependencies), ...Object.keys(pkg.peerDepe
 const isExternal = (id: string) => externals.some((dep) => id === dep || id.startsWith(`${dep}/`));
 
 /**
- * 组件库构建：TSX 与符文在这里编译掉；样式是运行时模式（预设的默认）：*.stylex.ts 编译好并在运行时注入，
- * stylex.create 留作运行时调用，由运行时引擎生成组合类。发布包是普通的 JS，使用方不必再编译，整个预构建。
+ * 组件库构建：TSX 与符文在这里编译掉；css.create 留作运行时调用，由运行时引擎在页面里生成组合类。
+ * 发布包是普通的 JS，使用方不必再编译，整个预构建。
  */
 export default defineConfig({
   plugins: [workspaceSource(), ...vueTsxPro()],

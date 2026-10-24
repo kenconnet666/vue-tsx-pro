@@ -19,7 +19,7 @@
  */
 import { ChevronDown, ChevronLeft, ChevronRight, Plus, X } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -135,7 +135,7 @@ export interface TabsProps extends PartProps<'div'>, TabsOptions {
 }
 
 /** Tabs 的样式：root、vertical */
-export const tabsStyles = stylex.create({
+export const tabsStyles = css.create({
   // 能收缩：放在顶栏这类一行里时，列表放不下就在列表里滚动
   root: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
   vertical: { flexDirection: 'row', alignItems: 'flex-start' },
@@ -265,7 +265,7 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
 }
 
 /** TabList 的样式：bar、barLine、root、scrollable、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
-export const tabListStyles = stylex.create({
+export const tabListStyles = css.create({
   // 横排时包着标签列表与右边的按钮（滚动、全部标签页、新建）：列表按内容宽，放不下时收缩并滚动
   bar: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   // 横排 line 的分隔线画在整行上：标签少时也铺满（页签区、页面顶部的标签）
@@ -590,7 +590,7 @@ export interface TabProps extends PartProps<'button', TabManaged> {
  * 标签的配方：状态（选中、禁用、拖动中）由 DOM 上的 aria-selected、disabled、data-dragging 决定，
  * 样式、方向、可关闭是档位
  */
-export const tabRecipe = stylex.recipe({
+export const tabRecipe = css.recipe({
   parts: ['root', 'closeWrapper', 'close'],
   base: {
     // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
@@ -717,7 +717,7 @@ export const Tab = _component(
       if (!onClose) return tab;
       // 关闭按钮不能放进标签按钮里（按钮里不能有按钮）：一起包在 role="presentation" 里，按钮本身只给指针用（对读屏隐藏）
       return (
-        <span role="presentation" {...stylex.attrs(styles.closeWrapper)}>
+        <span role="presentation" {...css.attrs(styles.closeWrapper)}>
           {tab}
           <IconButton
             {...mergePartProps<IconButtonProps>(
@@ -763,7 +763,7 @@ export interface TabPanelProps extends PartProps<'div', TabPanelManaged> {
 }
 
 /** Tabs 的样式：root */
-export const tabPanelStyles = stylex.create({
+export const tabPanelStyles = css.create({
   root: { flexGrow: 1, minWidth: 0, borderRadius: '_sm' },
 });
 

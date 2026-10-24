@@ -12,7 +12,7 @@
 import type { HighlighterCore } from 'shiki/core';
 import type { LanguageInput } from 'shiki/types';
 import type { Highlighter } from './context';
-import { colors } from './theme/tokens.stylex';
+import { colors } from './theme/tokens';
 
 /** createShikiHighlighter 的选项 */
 export interface ShikiHighlighterOptions {

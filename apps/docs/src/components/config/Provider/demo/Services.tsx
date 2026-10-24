@@ -10,7 +10,7 @@ import {
   Switch,
   type Highlighter,
 } from '@vue-tsx-pro/ui';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
 const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
 const escape = (text: string) => text.replace(/[&<>"]/g, (char) => ESCAPES[char]!);

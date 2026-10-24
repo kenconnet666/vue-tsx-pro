@@ -28,11 +28,11 @@ import {
   type XYComponentCore,
 } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { render, useId, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import { colors } from '../config/theme/tokens.stylex';
+import { colors } from '../config/theme/tokens';
 import { Skeleton } from '../feedback/Skeleton';
 import { Button } from '../base/Button';
 import { Slider } from '../input/Slider';
@@ -240,7 +240,7 @@ const SECONDARY_AXIS_WIDTH = 48;
 const SKELETON_BARS = [55, 80, 40, 70, 90, 50, 65];
 
 /** XYChart 的样式：hideCrosshairLine 与加载中的骨架（外层结构的样式见 chartStyles） */
-export const xyChartStyles = stylex.create({
+export const xyChartStyles = css.create({
   // 柱状图的十字线只用来定位提示框，不画竖线
   hideCrosshairLine: { '--vis-crosshair-line-stroke-opacity': '0' },
   skeleton: { display: 'block', width: '100%', height: '100%' },
@@ -269,10 +269,7 @@ function chartSkeleton({
   return (
     <div
       aria-hidden="true"
-      {...stylex.attrs(
-        xyChartStyles.skeletonBars,
-        horizontal && xyChartStyles.skeletonBarsHorizontal,
-      )}
+      {...css.attrs(xyChartStyles.skeletonBars, horizontal && xyChartStyles.skeletonBarsHorizontal)}
     >
       {SKELETON_BARS.map((percent, position) => (
         <Skeleton
@@ -358,7 +355,7 @@ export const XYChart = _component(
     const zoomBar = () => {
       const last = data.length - 1;
       return (
-        <div {...stylex.attrs(xyChartStyles.zoom)}>
+        <div {...css.attrs(xyChartStyles.zoom)}>
           <Slider
             value={zoomRange ?? [0, last]}
             {...{

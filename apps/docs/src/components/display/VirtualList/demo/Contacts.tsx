@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Avatar, Card, Flex, Small, Text, TextField, VirtualList } from '@vue-tsx-pro/ui';
 
 const surnames = '赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜';
@@ -13,7 +13,7 @@ const contacts = Array.from({ length: 10_000 }, (_, index) => ({
   phone: `138${String(index).padStart(8, '0')}`,
 }));
 
-const styles = stylex.create({
+const styles = css.create({
   list: { height: '22rem' },
   padded: { paddingBlock: '_sm', paddingInline: '_md' },
 });

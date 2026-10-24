@@ -1,13 +1,13 @@
 import { Code2, Eye, SplitSquareHorizontal } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { CodeBlock, Flex, Icon, Paragraph, Tab, TabList, TabPanel, Tabs } from '@vue-tsx-pro/ui';
 
 const source = `<Button tone="success" icon={Check}>
   保存
 </Button>`;
 
-const styles = stylex.create({
+const styles = css.create({
   preview: {
     padding: '_lg',
     borderRadius: '_md',

@@ -20,7 +20,7 @@ import {
   Points,
   ShaderMaterial,
 } from 'three';
-import { colors } from '../../config/theme/tokens.stylex';
+import { colors } from '../../config/theme/tokens';
 import { clamp } from '../../utils/data/number';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { THEME_PALETTE_SIZE } from '../core/shaders';

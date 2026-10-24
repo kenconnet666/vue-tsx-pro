@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Code, Flex, Grid, Paragraph, ScrollArea, Small } from '@vue-tsx-pro/ui';
 
 const types = [
@@ -8,7 +8,7 @@ const types = [
   ['always', '内容超出时一直显示'],
 ] as const;
 
-const styles = stylex.create({
+const styles = css.create({
   area: { height: '9rem' },
   content: { paddingInlineEnd: '_md' },
 });

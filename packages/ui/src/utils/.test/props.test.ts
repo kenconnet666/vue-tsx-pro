@@ -1,10 +1,10 @@
 // 部件 props 的合并规则
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { elementProps, mergeAttrs, mergeProps } from '../props';
 
-const styles = stylex.create({ box: { display: 'flex' }, red: { color: 'red' } });
+const styles = css.create({ box: { display: 'flex' }, red: { color: 'red' } });
 
 describe('mergeProps', () => {
   it('普通属性：受管 > 使用方 > 默认', () => {
@@ -91,14 +91,14 @@ describe('mergeAttrs', () => {
     );
     expect(attrs).toMatchObject({ id: 'a', role: 'group' });
     // Vue 会展开嵌套的 class 数组
-    expect(attrs.class).toEqual([['user'], stylex.attrs(styles.box).class]);
+    expect(attrs.class).toEqual([['user'], css.attrs(styles.box).class]);
     expect('sx' in attrs).toBe(false);
   });
 
-  it('单个样式的编译结果与 stylex.attrs 一致，数组照常合并', () => {
-    expect(mergeAttrs<'div'>({ sx: styles.box }).class).toBe(stylex.attrs(styles.box).class);
+  it('单个样式的编译结果与 css.attrs 一致，数组照常合并', () => {
+    expect(mergeAttrs<'div'>({ sx: styles.box }).class).toBe(css.attrs(styles.box).class);
     expect(mergeAttrs<'div'>({ sx: [styles.box, styles.red] }).class).toBe(
-      stylex.attrs(styles.box, styles.red).class,
+      css.attrs(styles.box, styles.red).class,
     );
   });
 });

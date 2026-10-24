@@ -11,7 +11,7 @@
  * （按 valueFormat 与当前语言格式化），label 写在前面。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
@@ -53,7 +53,7 @@ export interface SparklineProps extends PartProps<'span', SparklineManaged> {
 }
 
 /** Sparkline 的样式 */
-export const sparklineStyles = stylex.create({
+export const sparklineStyles = css.create({
   root: { position: 'relative', display: 'block', width: '100%' },
   svg: { display: 'block', width: '100%', height: '100%', overflow: 'visible' },
   line: {
@@ -141,7 +141,7 @@ export const Sparkline = _component(
           )}
         >
           <svg
-            {...stylex.attrs(sparklineStyles.svg)}
+            {...css.attrs(sparklineStyles.svg)}
             viewBox={`0 0 ${width} 100`}
             preserveAspectRatio="none"
             aria-hidden="true"
@@ -155,7 +155,7 @@ export const Sparkline = _component(
                       width={0.7}
                       y={Math.min(yOf(value), yOf(Math.max(low, 0)))}
                       height={Math.abs(yOf(value) - yOf(Math.max(low, 0)))}
-                      {...stylex.attrs(sparklineStyles.bar)}
+                      {...css.attrs(sparklineStyles.bar)}
                     />
                   ),
                 )
@@ -164,13 +164,13 @@ export const Sparkline = _component(
                     {variant === 'area' && points.length > 1 && (
                       <path
                         d={`${path(points)} L${points.at(-1)![0]} 100 L${points[0]![0]} 100 Z`}
-                        {...stylex.attrs(sparklineStyles.area)}
+                        {...css.attrs(sparklineStyles.area)}
                       />
                     )}
                     <path
                       d={path(points)}
                       vector-effect="non-scaling-stroke"
-                      {...stylex.attrs(sparklineStyles.line)}
+                      {...css.attrs(sparklineStyles.line)}
                     />
                   </g>
                 ))}
@@ -178,7 +178,7 @@ export const Sparkline = _component(
           {showLast && !bars && lastIndex >= 0 && (
             <span
               aria-hidden="true"
-              {...stylex.attrs(
+              {...css.attrs(
                 sparklineStyles.last,
                 sparklineStyles.position(
                   `${(lastIndex / width) * 100}%`,

@@ -21,7 +21,7 @@
  */
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
@@ -278,7 +278,7 @@ const ROW_HEIGHT: Record<keyof DataTableDensities, number> = {
 };
 
 /** DataTable、TreeDataTable 的样式：行的色调（不透明的浅色底，悬停加深） */
-export const dataTableRowToneStyles = stylex.create({
+export const dataTableRowToneStyles = css.create({
   info: { backgroundColor: { default: '_infoSoft', ':hover': '_infoSoftHover' } },
   success: { backgroundColor: { default: '_successSoft', ':hover': '_successSoftHover' } },
   warning: { backgroundColor: { default: '_warningSoft', ':hover': '_warningSoftHover' } },
@@ -287,7 +287,7 @@ export const dataTableRowToneStyles = stylex.create({
 
 // 列宽、偏移、占位高度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** DataTable、TreeDataTable 的样式：width、minWidth、height、start、end、percent */
-export const dataTableDynamicStyles = stylex.create({
+export const dataTableDynamicStyles = css.create({
   width: (px: number) => ({ width: px }),
   minWidth: (px: number) => ({ minWidth: px }),
   height: (px: number) => ({ height: px }),
@@ -729,9 +729,7 @@ export const DataTableDetailRow = _component(
             { id, colspan: span },
           )}
         >
-          <div
-            {...stylex.attrs(dataTableStyles.detailContent, dataTableDynamicStyles.indent(indent))}
-          >
+          <div {...css.attrs(dataTableStyles.detailContent, dataTableDynamicStyles.indent(indent))}>
             {renderDetail(row.data)}
           </div>
         </td>
@@ -1071,7 +1069,7 @@ export const DataTableView = _component(
           />
           {sorts.length > 1 && priority >= 0 && (
             <>
-              <span {...stylex.attrs(dataTableStyles.sortPriority)} aria-hidden="true">
+              <span {...css.attrs(dataTableStyles.sortPriority)} aria-hidden="true">
                 {priority + 1}
               </span>
               {/* aria-sort 只放在第一排序列上（ARIA 的要求），其余列的次序与方向写给读屏 */}
@@ -1112,9 +1110,9 @@ export const DataTableView = _component(
           data-sticky={column.sticky}
         >
           {actions ? (
-            <div {...stylex.attrs(dataTableStyles.headerContent)}>
+            <div {...css.attrs(dataTableStyles.headerContent)}>
               <span
-                {...stylex.attrs(
+                {...css.attrs(
                   dataTableStyles.headerMain,
                   column.align === 'end' && dataTableStyles.headerMainEnd,
                 )}
@@ -1256,18 +1254,14 @@ export const DataTableView = _component(
             )}
           >
             <colgroup>
-              {selectionMode && (
-                <col {...stylex.attrs(dataTableDynamicStyles.width(SELECT_WIDTH))} />
-              )}
-              {renderDetail && (
-                <col {...stylex.attrs(dataTableDynamicStyles.width(DETAIL_WIDTH))} />
-              )}
+              {selectionMode && <col {...css.attrs(dataTableDynamicStyles.width(SELECT_WIDTH))} />}
+              {renderDetail && <col {...css.attrs(dataTableDynamicStyles.width(DETAIL_WIDTH))} />}
               {shown.map((column) => {
                 const width = widthOf(column);
                 return (
                   <col
                     key={column.key}
-                    {...(width != null ? stylex.attrs(dataTableDynamicStyles.width(width)) : {})}
+                    {...(width != null ? css.attrs(dataTableDynamicStyles.width(width)) : {})}
                   />
                 );
               })}
@@ -1328,14 +1322,14 @@ export const DataTableView = _component(
                       { scope: 'col', rowspan: headerRows > 1 ? headerRows : undefined },
                     )}
                   >
-                    <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>{lang.tableDetails}</span>
+                    <span {...css.attrs(visuallyHiddenStyles.hidden)}>{lang.tableDetails}</span>
                   </th>
                 ),
               )}
               {indicator.value && rows.length > 0 && (
                 <tr aria-hidden="true">
-                  <td colspan={span} {...stylex.attrs(dataTableStyles.progressCell)}>
-                    <div {...stylex.attrs(dataTableStyles.progress)}>
+                  <td colspan={span} {...css.attrs(dataTableStyles.progressCell)}>
+                    <div {...css.attrs(dataTableStyles.progress)}>
                       <Progress
                         {...mergePartProps<ProgressProps>(
                           { size: 'xs', 'aria-label': lang.loading },
@@ -1354,24 +1348,20 @@ export const DataTableView = _component(
                   <tr
                     key={`skeleton-${index}`}
                     aria-hidden="true"
-                    {...stylex.attrs(
+                    {...css.attrs(
                       variant === 'ghost' ? dataTableStyles.rowGhost : dataTableStyles.row,
                     )}
                   >
                     {selectionMode && (
-                      <td
-                        {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
-                      />
+                      <td {...css.attrs(dataTableStyles.cell, dataTableDensityStyles[density])} />
                     )}
                     {renderDetail && (
-                      <td
-                        {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
-                      />
+                      <td {...css.attrs(dataTableStyles.cell, dataTableDensityStyles[density])} />
                     )}
                     {shown.map((column, position) => (
                       <td
                         key={column.key}
-                        {...stylex.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
+                        {...css.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
                       >
                         <Skeleton
                           {...mergePartProps<SkeletonProps>(
@@ -1416,7 +1406,7 @@ export const DataTableView = _component(
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
-                    {...stylex.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(top))}
+                    {...css.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(top))}
                   />
                 </tr>
               )}
@@ -1487,7 +1477,7 @@ export const DataTableView = _component(
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
-                    {...stylex.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(bottom))}
+                    {...css.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(bottom))}
                   />
                 </tr>
               )}
@@ -1501,7 +1491,7 @@ export const DataTableView = _component(
                 <tr aria-rowindex={bodyRowCount() + headerRows + 1}>
                   {selectionMode && (
                     <td
-                      {...stylex.attrs(
+                      {...css.attrs(
                         dataTableStyles.cell,
                         dataTableDensityStyles[density],
                         dataTableStyles.summaryCell,
@@ -1511,7 +1501,7 @@ export const DataTableView = _component(
                   )}
                   {renderDetail && (
                     <td
-                      {...stylex.attrs(
+                      {...css.attrs(
                         dataTableStyles.cell,
                         dataTableDensityStyles[density],
                         dataTableStyles.summaryCell,

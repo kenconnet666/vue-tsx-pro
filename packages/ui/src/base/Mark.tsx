@@ -4,7 +4,7 @@
  *   <Mark>vue-tsx-pro</Mark> 的组件
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
@@ -14,7 +14,7 @@ export interface MarkProps extends PartProps<'mark'> {
 }
 
 /** Mark 的样式 */
-export const markStyles = stylex.create({
+export const markStyles = css.create({
   root: {
     paddingInline: '0.15em',
     borderRadius: '_xs',

@@ -1,10 +1,10 @@
 // 画质（网格的细分随它变）、渲染分辨率、跟随指针与暂停；off 时显示 fallback
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
 import { WaveGrid, type ThreeQuality } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '16rem', borderRadius: '_lg', backgroundColor: '_surfaceMuted' },
   // 静态的替代画面：一层点阵
   fallback: {
@@ -50,7 +50,7 @@ export default _component(() => {
         resolution={resolution}
         interactive={interactive}
         paused={paused}
-        fallback={<div {...stylex.attrs(styles.fallback)} />}
+        fallback={<div {...css.attrs(styles.fallback)} />}
       />
     </Flex>
   );

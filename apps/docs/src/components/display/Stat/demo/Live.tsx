@@ -1,10 +1,10 @@
 import { Activity, Gauge, ShoppingCart, Users } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, Small, Stat, Switch, type IconData } from '@vue-tsx-pro/ui';
 import { onScopeDispose } from 'vue';
 
-const styles = stylex.create({
+const styles = css.create({
   // 迷你趋势：最近 12 次的柱，最新的一根用强调色
   trend: { display: 'flex', alignItems: 'flex-end', gap: '2px', height: '2rem' },
   bar: {
@@ -75,11 +75,11 @@ export default _component(() => {
                   changeLabel="较上次"
                   invertChange={label === '平均延迟'}
                 />
-                <div {...stylex.attrs(styles.trend)} aria-hidden="true">
+                <div {...css.attrs(styles.trend)} aria-hidden="true">
                   {history.map((point, index) => (
                     <span
                       key={index}
-                      {...stylex.attrs(
+                      {...css.attrs(
                         styles.bar,
                         index === history.length - 1 && styles.latest,
                         styles.height(`${25 + ((point - min) / (max - min || 1)) * 75}%`),

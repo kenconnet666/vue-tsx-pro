@@ -1,9 +1,9 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Button, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
 import { MeshGradient } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   hero: { borderRadius: '_lg', minHeight: '24rem', display: 'grid', placeItems: 'center' },
   panel: {
     maxWidth: '30rem',

@@ -9,7 +9,7 @@
  * 点击时直接把焦点移到目标上（不改地址栏的 hash，不经过路由）：之后再按 Tab 从正文继续。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -25,7 +25,7 @@ export interface SkipLinkProps extends PartProps<'a', 'href'> {
 }
 
 /** SkipLink 的样式：root */
-export const skipLinkStyles = stylex.create({
+export const skipLinkStyles = css.create({
   // 移出视口而不是 display: none：读屏照常能读到，Tab 能聚焦
   root: {
     position: 'fixed',

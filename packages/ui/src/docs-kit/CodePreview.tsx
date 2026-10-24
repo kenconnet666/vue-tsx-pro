@@ -15,7 +15,7 @@
  */
 import { Code as CodeIcon } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
@@ -70,7 +70,7 @@ export interface CodePreviewProps extends PartProps<'div'> {
 }
 
 /** CodePreview 的样式：preview、center、footer、toolbar、code */
-export const codePreviewStyles = stylex.create({
+export const codePreviewStyles = css.create({
   // 效果区：给了最小高度时，效果在里面上下居中
   preview: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
   // 效果的排布：靠起始边时示例占满宽度（里面的网格、卡片按整块宽度排），居中时按内容宽度居中；

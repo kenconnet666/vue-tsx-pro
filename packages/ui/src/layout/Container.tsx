@@ -6,7 +6,7 @@
  *   const Page = createContainer('main', 'Page');
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { LayoutTag, Space } from '../utils/style/styles';
@@ -38,12 +38,12 @@ export interface ContainerOptions {
 export type ContainerProps<Tag extends LayoutTag = 'div'> = PartProps<Tag> & ContainerOptions;
 
 /** Container 的样式：root */
-export const containerStyles = stylex.create({
+export const containerStyles = css.create({
   root: { boxSizing: 'border-box', width: '_full', marginInline: 'auto' },
 });
 
 /** Container 的样式：xs、sm、md、lg、xl */
-export const containerSizeStyles = stylex.create({
+export const containerSizeStyles = css.create({
   xs: { maxWidth: '_xs' },
   sm: { maxWidth: '_sm' },
   md: { maxWidth: '_md' },
@@ -52,7 +52,7 @@ export const containerSizeStyles = stylex.create({
 });
 
 /** Container 的样式：none、xs、sm、md、lg、xl */
-export const containerPaddingStyles = stylex.create({
+export const containerPaddingStyles = css.create({
   none: { paddingInline: '_none' },
   xs: { paddingInline: '_xs' },
   sm: { paddingInline: '_sm' },

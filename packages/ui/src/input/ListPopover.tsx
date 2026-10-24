@@ -10,7 +10,7 @@
  * 弹层渲染在顶层、不是输入框外壳的后代，不继承外壳的字号：按同一个 size 设置。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { Ref, VNodeChild } from 'vue';
 import { ScrollArea } from '../layout/ScrollArea';
 import { anchoredPanelSx, floatingStyles } from '../utils/dom/floating';
@@ -49,7 +49,7 @@ export interface ListPopoverProps<T> {
 }
 
 /** ListPopover 的样式：panel、header */
-export const listPopoverStyles = stylex.create({
+export const listPopoverStyles = css.create({
   panel: { maxWidth: 'calc(100vw - 2em)' },
   header: {
     flexShrink: 0,
@@ -87,7 +87,7 @@ export const ListPopover = _component(
         )}
       >
         {/* 使用方常写 cond && <…/>：false 同 undefined，不渲染带分隔线的空头部 */}
-        {hasContent(header) && <div {...stylex.attrs(listPopoverStyles.header)}>{header}</div>}
+        {hasContent(header) && <div {...css.attrs(listPopoverStyles.header)}>{header}</div>}
         <ScrollArea
           focusable={false}
           sx={floatingStyles.scrollArea}

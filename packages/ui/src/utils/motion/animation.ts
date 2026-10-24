@@ -21,7 +21,7 @@ import {
 } from 'animejs';
 import { onScopeDispose } from 'vue';
 import { readToken, tokenValue } from '../../config/theme/theme';
-import { durations, easings } from '../../config/theme/tokens.stylex';
+import { durations, easings } from '../../config/theme/tokens';
 
 /** themeTransition 的选项：取哪一档时长与缓动，或用弹簧 */
 export interface ThemeTransitionOptions {

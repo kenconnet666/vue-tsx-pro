@@ -11,7 +11,7 @@
  * 加 aria-busy，真正的“加载中”应当由页面内容区域（aria-busy、骨架）告诉读屏。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { shallowReactive } from 'vue';
 import { useLang } from '../config/context';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -108,7 +108,7 @@ export interface LoadingBarProps extends PartProps<'div', 'role'> {
 }
 
 /** LoadingBar 的样式：root、visible、bar、failed */
-export const loadingBarStyles = stylex.create({
+export const loadingBarStyles = css.create({
   root: {
     position: 'fixed',
     insetInline: 0,
@@ -131,7 +131,7 @@ export const loadingBarStyles = stylex.create({
 });
 
 /** 进度对应的缩放 */
-export const loadingBarScaleStyles = stylex.create({
+export const loadingBarScaleStyles = css.create({
   at: (progress: number) => ({ transform: `scaleX(${progress / 100})` }),
 });
 
@@ -158,7 +158,7 @@ export const LoadingBar = _component(({ controller, ...rest }: LoadingBarProps) 
       data-state={controller.failed ? 'error' : controller.visible ? 'loading' : 'idle'}
     >
       <div
-        {...stylex.attrs(
+        {...css.attrs(
           loadingBarStyles.bar,
           controller.failed && loadingBarStyles.failed,
           loadingBarScaleStyles.at(controller.progress),

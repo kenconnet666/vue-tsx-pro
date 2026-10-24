@@ -10,7 +10,7 @@
  * expandable 时展开后显示全部，再点“收起”。部件：Root（span）、Text（span，截断的那段）、Toggle（展开按钮）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onMounted, onUpdated, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { Tooltip } from '../overlay/Tooltip';
@@ -39,7 +39,7 @@ export interface EllipsisProps extends PartProps<'span'> {
 }
 
 /** Ellipsis 的样式：root、multiline、text、toggle */
-export const ellipsisStyles = stylex.create({
+export const ellipsisStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'baseline',

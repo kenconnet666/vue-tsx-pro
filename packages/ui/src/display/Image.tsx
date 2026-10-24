@@ -12,7 +12,7 @@
  */
 import { ImageOff } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useLang } from '../config/context';
@@ -70,7 +70,7 @@ export interface ImageProps extends PartProps<'img', 'src' | 'alt' | 'width' | '
 }
 
 /** Image 的样式：root、button、image、hidden、fallback */
-export const imageStyles = stylex.create({
+export const imageStyles = css.create({
   root: {
     position: 'relative',
     display: 'inline-flex',
@@ -104,7 +104,7 @@ export const imageStyles = stylex.create({
 });
 
 /** Image 的 object-fit：cover、contain、fill、none、scale-down */
-export const imageFitStyles = stylex.create({
+export const imageFitStyles = css.create({
   cover: { objectFit: 'cover' },
   contain: { objectFit: 'contain' },
   fill: { objectFit: 'fill' },
@@ -113,7 +113,7 @@ export const imageFitStyles = stylex.create({
 });
 
 /** Image 的动态样式：尺寸 */
-export const imageDynamicStyles = stylex.create({
+export const imageDynamicStyles = css.create({
   size: (width: string, height: string) => ({ width, height }),
 });
 
@@ -252,7 +252,7 @@ export interface ImageGroupProps extends PartProps<'div'> {
 }
 
 /** ImageGroup 的样式：root */
-export const imageGroupStyles = stylex.create({
+export const imageGroupStyles = css.create({
   root: { display: 'flex', flexWrap: 'wrap', gap: '_sm' },
 });
 

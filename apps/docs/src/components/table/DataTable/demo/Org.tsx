@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Avatar, Flex, Text, TreeDataTable, type DataTableColumn } from '@vue-tsx-pro/ui';
 
 interface Unit {
@@ -55,7 +55,7 @@ const columns: DataTableColumn<Unit>[] = [
   },
 ];
 
-const styles = stylex.create({ table: { maxHeight: '20rem' } });
+const styles = css.create({ table: { maxHeight: '20rem' } });
 
 export default _component(() => {
   let rows = _state(org);

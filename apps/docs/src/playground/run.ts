@@ -3,10 +3,10 @@
  * 用户代码里的 import 都从这张模块表取：复用文档站已经加载的 vue、组件库，不再下载一份。
  */
 import * as tsx from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import * as ui from '@vue-tsx-pro/ui';
-import * as tokens from '@vue-tsx-pro/ui/tokens.stylex';
-import * as vars from '@vue-tsx-pro/ui/vars.stylex';
+import * as tokens from '@vue-tsx-pro/ui/tokens';
+import * as vars from '@vue-tsx-pro/ui/vars';
 import * as vue from 'vue';
 import type { Component } from 'vue';
 import type { CompileRequest, CompileResponse } from './compile.worker';
@@ -15,10 +15,10 @@ import type { CompileRequest, CompileResponse } from './compile.worker';
 const MODULES: Record<string, unknown> = {
   vue,
   '@vue-tsx-pro/tsx': tsx,
-  '@vue-tsx-pro/tsx/stylex': stylex,
+  '@vue-tsx-pro/tsx/styles': css,
   '@vue-tsx-pro/ui': ui,
-  '@vue-tsx-pro/ui/tokens.stylex': tokens,
-  '@vue-tsx-pro/ui/vars.stylex': vars,
+  '@vue-tsx-pro/ui/tokens': tokens,
+  '@vue-tsx-pro/ui/vars': vars,
 };
 
 /** 代码里用到时才加载的模块（图标很多；图表、3D 带着 Unovis、three；子路径不在文档站的首屏里） */

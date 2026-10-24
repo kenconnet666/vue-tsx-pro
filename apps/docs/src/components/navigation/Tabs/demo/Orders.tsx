@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Empty,
@@ -30,7 +30,7 @@ const tabs = [
   { value: 'refund', label: '退款' },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   // 订单号、客户、金额三列对齐
   row: {
     display: 'grid',
@@ -67,7 +67,7 @@ export default _component(() => {
             <FlexList direction="column">
               {list(value).map((order) => (
                 <li key={order.id}>
-                  <div {...stylex.attrs(styles.row)}>
+                  <div {...css.attrs(styles.row)}>
                     <Strong>{order.id}</Strong>
                     <Text tone="muted">{order.customer}</Text>
                     <Text>{order.amount}</Text>

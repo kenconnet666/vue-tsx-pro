@@ -11,7 +11,7 @@
  * 部件：Root（div）、Total（span）、Controls（div）、Pagination、SizeSelect（PageSizeSelect）、Jump（PageJump）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { clamp } from '../utils/data/number';
@@ -62,7 +62,7 @@ export interface PaginationBarProps extends PartProps<'div'> {
 }
 
 /** PaginationBar 的样式：root、total、controls、jump */
-export const paginationBarStyles = stylex.create({
+export const paginationBarStyles = css.create({
   // 按自己的宽度决定显示什么：放在侧栏、卡片里时也合适
   root: {
     containerType: 'inline-size',

@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Code,
   Flex,
@@ -13,7 +13,7 @@ import {
 } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 
-const styles = stylex.create({
+const styles = css.create({
   label: { minWidth: '3.5em', color: '_textMuted' },
   stage: {
     minHeight: '11rem',
@@ -35,7 +35,7 @@ const styles = stylex.create({
 });
 
 // 高矮不一，才看得出 align 的差别；宽度差别小一点，两列排版时一行也放得下五个（不换行时不撑出卡片）
-const boxes = stylex.create({
+const boxes = css.create({
   size: (height: number) => ({ height: `${height}rem`, paddingInline: `${height / 4}rem` }),
 });
 const heights = [2, 3.5, 2.5, 4, 3];
@@ -107,7 +107,7 @@ export default _component(() => {
         sx={styles.stage}
       >
         {heights.map((height, index) => (
-          <div key={index} {...stylex.attrs(styles.box, boxes.size(height))}>
+          <div key={index} {...css.attrs(styles.box, boxes.size(height))}>
             {index + 1}
           </div>
         ))}

@@ -1,6 +1,6 @@
 // 叠加内容（children）、色板、时间流速与指针：内容照常排版、可以交互，画布在它下面
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -15,7 +15,7 @@ import {
   ToggleItem,
 } from '@vue-tsx-pro/ui';
 import { SHADER_PALETTE, ShaderBackground } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
 // 缓慢流动的色带：按噪声在色板里取色，指针附近提亮
 const FLOW = /* glsl */ `
@@ -34,7 +34,7 @@ const PALETTES = {
   ocean: [colors.chart2, colors.chart6, colors.accent],
 };
 
-const styles = stylex.create({
+const styles = css.create({
   hero: { minHeight: '20rem', borderRadius: '_lg', display: 'grid', placeItems: 'center' },
   content: { maxWidth: '28rem', padding: '_xl', textAlign: 'center' },
   lead: { color: '_textMuted' },

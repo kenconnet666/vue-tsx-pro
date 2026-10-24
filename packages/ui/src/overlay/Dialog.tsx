@@ -10,8 +10,8 @@
  *   handle.update({ title: '订单详情（已发货）' }); handle.close(); await handle.closed;
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import type { ContainerSizes } from '../layout/Container';
 import {
   useDetachedOverlay,
@@ -39,7 +39,7 @@ export interface DialogOptions {
 export interface DialogProps extends ModalProps, DialogOptions {}
 
 /** 居中对话框的面板样式：宽度占满可用空间、高度上限、圆角；full 占满视口 */
-export const dialogStyles = stylex.create({
+export const dialogStyles = css.create({
   panel: {
     width: '_full',
     // 原生 dialog 已限制 max-width / max-height 不超出视口；这里只把高度上限放到四周各留 1em
@@ -50,7 +50,7 @@ export const dialogStyles = stylex.create({
 });
 
 /** 对话框的宽度档位：不超出视口 */
-export const dialogSizeStyles = stylex.create({
+export const dialogSizeStyles = css.create({
   xs: { maxWidth: `min(${t.sizes.xs}, calc(100vw - 2em))` },
   sm: { maxWidth: `min(${t.sizes.sm}, calc(100vw - 2em))` },
   md: { maxWidth: `min(${t.sizes.md}, calc(100vw - 2em))` },
@@ -59,12 +59,12 @@ export const dialogSizeStyles = stylex.create({
 });
 
 /** 居中对话框的外观（Dialog、AlertDialog 共用）：宽度档位、圆角、淡入放大 */
-export function dialogPanelSx(size: keyof DialogSizes): StyleXStyles {
+export function dialogPanelSx(size: keyof DialogSizes): SxStyles {
   return [
     dialogStyles.panel,
     size === 'full' ? dialogStyles.full : dialogSizeStyles[size],
     transitions.scale,
-  ] as StyleXStyles;
+  ] as SxStyles;
 }
 
 /** 模态对话框：居中显示，淡入放大 */

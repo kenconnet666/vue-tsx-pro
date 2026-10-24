@@ -20,7 +20,7 @@
  */
 import { Asterisk } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { cloneVNode, Fragment, isVNode, useId, watch, type VNode, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
@@ -152,7 +152,7 @@ export interface LabelProps extends PartProps<'label'> {
 }
 
 /** Field 的样式：root、disabled、required */
-export const labelStyles = stylex.create({
+export const labelStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'baseline',
@@ -265,7 +265,7 @@ function soleControl(children: VNodeChild): VNode | undefined {
 const DEFAULT_LABEL_WIDTH = '8em';
 
 /** Field 的样式：root、start、label…、control、hint、error、errorIcon */
-export const fieldStyles = stylex.create({
+export const fieldStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
   // 标签一列、控件一列；第一行按基线对齐：标签与输入框里的文字、勾选项的文字在同一条线上
   start: {
@@ -285,7 +285,7 @@ export const fieldStyles = stylex.create({
 });
 
 /** Field 的动态样式：标签列的宽度 */
-export const fieldColumnStyles = stylex.create({
+export const fieldColumnStyles = css.create({
   columns: (labelWidth: string) => ({ gridTemplateColumns: `${labelWidth} minmax(0, 1fr)` }),
 });
 

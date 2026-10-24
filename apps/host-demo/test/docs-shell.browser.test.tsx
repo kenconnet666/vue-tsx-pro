@@ -15,7 +15,7 @@ import {
   paperTheme,
   type HeadingEntry,
 } from '@vue-tsx-pro/ui';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import { AppShell, ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
 import { ColorSwatch } from '@vue-tsx-pro/ui/docs-kit';
 import { page, userEvent } from 'vitest/browser';

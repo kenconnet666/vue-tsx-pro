@@ -22,7 +22,7 @@
  * Progress（步数）、Skip（跳过）、Previous（上一步）、Next（下一步 / 完成）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { autoUpdate } from '@floating-ui/dom';
 import { nextTick, onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
@@ -94,7 +94,7 @@ export interface TourProps
 }
 
 /** Tour 的样式：root、spotlight、dimmed、panel、cover、title、content、footer、progress */
-export const tourStyles = stylex.create({
+export const tourStyles = css.create({
   // 整屏透明的 dialog：遮罩由镂空的阴影画，原生 ::backdrop 不用
   root: {
     position: 'fixed',
@@ -146,7 +146,7 @@ export const tourStyles = stylex.create({
 
 // 镂空的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Tour 的样式：rect（镂空的位置与大小） */
-export const tourDynamicStyles = stylex.create({
+export const tourDynamicStyles = css.create({
   rect: (left: number, top: number, width: number, height: number) => ({
     left,
     top,

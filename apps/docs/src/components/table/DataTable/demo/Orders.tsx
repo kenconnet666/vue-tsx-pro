@@ -1,6 +1,6 @@
 import { Download, MoreHorizontal, Search, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -71,7 +71,7 @@ const columns: DataTableColumn<Order>[] = [
   },
 ];
 
-const styles = stylex.create({ table: { maxHeight: '26rem' }, search: { width: '16rem' } });
+const styles = css.create({ table: { maxHeight: '26rem' }, search: { width: '16rem' } });
 
 export default _component(() => {
   let keyword = _state('');

@@ -9,7 +9,7 @@
  */
 import { Donut } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -76,7 +76,7 @@ export interface DonutChartProps<T extends object>
 }
 
 /** DonutChart 的样式：skeleton */
-export const donutChartStyles = stylex.create({
+export const donutChartStyles = css.create({
   skeleton: {
     display: 'block',
     height: '100%',

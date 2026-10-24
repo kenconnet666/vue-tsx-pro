@@ -10,7 +10,7 @@
  * 页面加载时就在的提示不需要读屏打断；操作后才出现的用 live 让读屏播报。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -95,7 +95,7 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
 }
 
 /** Alert 的样式：root、icon、body、title、description、content、action、close */
-export const alertStyles = stylex.create({
+export const alertStyles = css.create({
   // 进场与离场的淡入淡出用 presenceStyles
   root: {
     boxSizing: 'border-box',

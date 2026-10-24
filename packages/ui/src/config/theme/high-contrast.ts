@@ -1,13 +1,13 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { defaultFonts } from './light';
 import type { Theme } from './theme';
-import { colors, radii, shadows } from './tokens.stylex';
+import { colors, radii, shadows } from './tokens';
 
 /**
  * 高对比主题的颜色：纯白底、纯黑字，文字与底色都到 7:1（WCAG AAA），边框到 3:1 以上，
  * 弱视、强光下、投影时也看得清；品牌色是深蓝，提示色都取深的一档
  */
-export const highContrastColors = stylex.createTheme(colors, {
+export const highContrastColors = css.createTheme(colors, {
   background: '#ffffff',
   surface: '#ffffff',
   surfaceMuted: '#f2f2f2',
@@ -85,7 +85,7 @@ export const highContrastColors = stylex.createTheme(colors, {
 });
 
 /** 高对比主题的阴影：边框已经足够分出层次，阴影收淡 */
-export const highContrastShadows = stylex.createTheme(shadows, {
+export const highContrastShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 2px rgba(0, 0, 0, 0.12)',
   sm: '0 1px 3px rgba(0, 0, 0, 0.16)',
@@ -95,7 +95,7 @@ export const highContrastShadows = stylex.createTheme(shadows, {
 });
 
 /** 高对比主题的圆角：收小，轮廓更利落 */
-export const highContrastRadii = stylex.createTheme(radii, {
+export const highContrastRadii = css.createTheme(radii, {
   none: '0',
   xs: '0.1em',
   sm: '0.15em',

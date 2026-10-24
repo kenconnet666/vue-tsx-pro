@@ -7,7 +7,7 @@
  */
 import { LoaderCircle } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
@@ -23,10 +23,10 @@ export interface SpinnerProps extends PartProps<'span', 'role'> {
   propsIcon?: Partial<IconProps>;
 }
 
-const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } });
+const spin = css.keyframes({ to: { transform: 'rotate(360deg)' } });
 
 /** Spinner 的样式：root、icon */
-export const spinnerStyles = stylex.create({
+export const spinnerStyles = css.create({
   root: { display: 'inline-flex', flexShrink: 0 },
   icon: {
     animationName: spin,

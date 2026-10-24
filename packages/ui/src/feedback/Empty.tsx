@@ -9,7 +9,7 @@
  */
 import { Inbox } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
@@ -46,7 +46,7 @@ export interface EmptyProps extends PartProps<'div', 'title'>, EmptyOptions {
 }
 
 /** Empty 的样式：root、icon、title、description、action */
-export const emptyStyles = stylex.create({
+export const emptyStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',

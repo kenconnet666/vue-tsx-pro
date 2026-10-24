@@ -28,7 +28,7 @@ describe('themeSettingsOverrides', () => {
   });
 
   it('套在主题上时圆角按这套主题自己的取值缩放：自带圆角的柠檬主题上小 < 默认 < 大', () => {
-    // 页面里量出来的柠檬圆角（单元测试没有 StyleX 的样式表，量不到时按默认值缩放、不出错）
+    // 页面里量出来的柠檬圆角（单元测试的 happy-dom 不按样式表计算变量，量不到时按默认值缩放、不出错）
     const radii = { xs: '0.25em', sm: '0.45em', md: '0.75em', lg: '1.1em', xl: '1.5em' };
     const radius = (setting: 'small' | 'large') =>
       customizeTheme(lemonTheme, { radius: setting }, { radii }).overrides.radii?.md;

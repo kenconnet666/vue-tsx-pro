@@ -16,7 +16,7 @@
  * 数量为 0 的段不画但留在图例里。颜色用 tone（状态色）或 color（任意 CSS 颜色，如图表色板）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -61,7 +61,7 @@ export interface ProportionBarProps extends PartProps<'div'> {
 const ORDER: readonly StatusTone[] = ['accent', 'info', 'success', 'warning', 'danger', 'neutral'];
 
 /** ProportionBar 的样式：root、bar、sm、md、legend、legendItem、value */
-export const proportionBarStyles = stylex.create({
+export const proportionBarStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   bar: { display: 'flex', gap: '2px', borderRadius: '_full', overflow: 'hidden' },
   sm: { height: '0.5rem' },
@@ -82,7 +82,7 @@ export const proportionBarStyles = stylex.create({
 });
 
 /** ProportionBar 的动态样式：段的份额、任意颜色 */
-export const proportionBarDynamicStyles = stylex.create({
+export const proportionBarDynamicStyles = css.create({
   share: (value: number) => ({ flexGrow: value, flexBasis: 0 }),
   color: (color: string) => ({ backgroundColor: color }),
 });
@@ -107,14 +107,14 @@ export const ProportionBar = _component(
           aria-label={`${label}：${segments
             .map((segment) => `${segment.label} ${segment.value}`)
             .join('，')}`}
-          {...stylex.attrs(proportionBarStyles.bar, proportionBarStyles[size])}
+          {...css.attrs(proportionBarStyles.bar, proportionBarStyles[size])}
         >
           {segments.map(
             (segment, index) =>
               segment.value > 0 && (
                 <span
                   key={segment.key}
-                  {...stylex.attrs(
+                  {...css.attrs(
                     proportionBarDynamicStyles.share(segment.value),
                     segment.color
                       ? proportionBarDynamicStyles.color(segment.color)
@@ -125,12 +125,12 @@ export const ProportionBar = _component(
           )}
         </div>
         {legend && (
-          <ul {...stylex.attrs(proportionBarStyles.legend)}>
+          <ul {...css.attrs(proportionBarStyles.legend)}>
             {segments.map((segment, index) => (
-              <li key={segment.key} {...stylex.attrs(proportionBarStyles.legendItem)}>
+              <li key={segment.key} {...css.attrs(proportionBarStyles.legendItem)}>
                 <StatusDot size="md" tone={toneOf(segment, index)} color={segment.color} />
                 <span>{segment.label}</span>
-                <span {...stylex.attrs(proportionBarStyles.value)}>{valueText(segment)}</span>
+                <span {...css.attrs(proportionBarStyles.value)}>{valueText(segment)}</span>
                 {legendExtra?.(segment)}
               </li>
             ))}

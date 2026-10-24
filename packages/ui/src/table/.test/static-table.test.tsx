@@ -1,7 +1,7 @@
 // 静态表格：原生 table 结构、列标题的 scope、标题、对齐与外层滚动容器
 import { describe, expect, it } from 'vitest';
 import { hasStyles, mount } from '../../utils/.test/mount';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ import {
   tableStyles,
 } from '../Table';
 
-const headerFill = stylex.create({ fill: { backgroundColor: '_fill' } });
+const headerFill = css.create({ fill: { backgroundColor: '_fill' } });
 
 describe('Table', () => {
   it('渲染原生 table 结构，列标题默认 scope="col"，标题是 caption', () => {

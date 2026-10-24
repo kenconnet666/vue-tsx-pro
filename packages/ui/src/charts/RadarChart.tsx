@@ -14,7 +14,7 @@
  * 悬停一个维度时那根轴加粗，各系列在这一维的数值标在顶点旁边；点图例隐藏系列。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -62,7 +62,7 @@ export interface RadarChartProps<T extends object>
 }
 
 /** RadarChart 的样式 */
-export const radarChartStyles = stylex.create({
+export const radarChartStyles = css.create({
   svg: { display: 'block', width: '100%', height: '100%', overflow: 'visible' },
   grid: { fill: 'none', stroke: '_borderMuted', strokeWidth: 1 },
   spoke: { stroke: '_borderMuted', strokeWidth: 1 },
@@ -153,7 +153,7 @@ export const RadarChart = _component(
       const plot =
         count < 3 ? null : (
           <svg
-            {...stylex.attrs(radarChartStyles.svg)}
+            {...css.attrs(radarChartStyles.svg)}
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
             aria-hidden="true"
             onPointerleave={() => (active = null)}
@@ -166,14 +166,10 @@ export const RadarChart = _component(
                   cx={CX}
                   cy={CY}
                   r={RADIUS * ratio}
-                  {...stylex.attrs(radarChartStyles.grid)}
+                  {...css.attrs(radarChartStyles.grid)}
                 />
               ) : (
-                <polygon
-                  key={level}
-                  points={ring(ratio)!}
-                  {...stylex.attrs(radarChartStyles.grid)}
-                />
+                <polygon key={level} points={ring(ratio)!} {...css.attrs(radarChartStyles.grid)} />
               );
             })}
             {data.map((row, position) => {
@@ -187,7 +183,7 @@ export const RadarChart = _component(
                     y1={CY}
                     x2={end.x}
                     y2={end.y}
-                    {...stylex.attrs(
+                    {...css.attrs(
                       radarChartStyles.spoke,
                       active === position && radarChartStyles.spokeActive,
                     )}
@@ -197,7 +193,7 @@ export const RadarChart = _component(
                     y={label.y}
                     text-anchor={Math.abs(cos) < 0.2 ? 'middle' : cos > 0 ? 'start' : 'end'}
                     dominant-baseline="middle"
-                    {...stylex.attrs(
+                    {...css.attrs(
                       radarChartStyles.label,
                       active === position && radarChartStyles.labelActive,
                     )}
@@ -213,7 +209,7 @@ export const RadarChart = _component(
                 x={CX + 3}
                 y={CY - (RADIUS * (level + 1)) / levels}
                 dominant-baseline="middle"
-                {...stylex.attrs(radarChartStyles.tick)}
+                {...css.attrs(radarChartStyles.tick)}
               >
                 {format.number((top * (level + 1)) / levels, valueFormat)}
               </text>
@@ -226,7 +222,7 @@ export const RadarChart = _component(
                 <g key={item.key}>
                   <polygon
                     points={points.map((p) => `${p.x},${p.y}`).join(' ')}
-                    {...stylex.attrs(radarChartStyles.area, radarChartStyles.stroke(item.color))}
+                    {...css.attrs(radarChartStyles.area, radarChartStyles.stroke(item.color))}
                   />
                   {points.map((p, position) => (
                     <circle
@@ -234,10 +230,7 @@ export const RadarChart = _component(
                       cx={p.x}
                       cy={p.y}
                       r={active === position ? 4 : 2.5}
-                      {...stylex.attrs(
-                        radarChartStyles.vertex,
-                        radarChartStyles.stroke(item.color),
-                      )}
+                      {...css.attrs(radarChartStyles.vertex, radarChartStyles.stroke(item.color))}
                     />
                   ))}
                   {active !== null && (
@@ -245,7 +238,7 @@ export const RadarChart = _component(
                       x={points[active]!.x}
                       y={points[active]!.y - 8}
                       text-anchor="middle"
-                      {...stylex.attrs(
+                      {...css.attrs(
                         radarChartStyles.value,
                         radarChartStyles.stroke(item.color),
                         radarChartStyles.surfaceStroke,
@@ -265,7 +258,7 @@ export const RadarChart = _component(
                 <path
                   key={`sector-${position}`}
                   d={`M${CX} ${CY} L${a.x} ${a.y} L${b.x} ${b.y} Z`}
-                  {...stylex.attrs(radarChartStyles.sector)}
+                  {...css.attrs(radarChartStyles.sector)}
                   onPointerenter={() => (active = position)}
                 />
               );

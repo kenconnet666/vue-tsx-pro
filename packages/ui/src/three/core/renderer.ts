@@ -16,7 +16,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer, type Camera, type Color } from
 import { onScopeDispose, shallowRef, watch } from 'vue';
 import { useConfig } from '../../config/context';
 import { readToken } from '../../config/theme/theme';
-import { durations } from '../../config/theme/tokens.stylex';
+import { durations } from '../../config/theme/tokens';
 import { useReducedMotion } from '../../utils/dom/media-query';
 import { useIntersectionObserver } from '../../utils/dom/intersection';
 import { usePageVisible } from '../../utils/dom/page-visibility';

@@ -9,11 +9,11 @@
  */
 import { FitMode, Sankey, SankeyNodeAlign } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import { colors, fontSizes } from '../config/theme/tokens.stylex';
+import { colors, fontSizes } from '../config/theme/tokens';
 import { Skeleton } from '../feedback/Skeleton';
 import type { PartProps } from '../utils/props';
 import { flowData, resolveFlowNodes, type FlowLink, type FlowNode } from './flow';
@@ -67,7 +67,7 @@ export interface SankeyChartProps extends PartProps<'div', 'role' | 'aria-busy'>
 }
 
 /** SankeyChart 的样式：root（--vis-sankey-* 主题变量）、skeleton */
-export const sankeyChartStyles = stylex.create({
+export const sankeyChartStyles = css.create({
   root: {
     '--vis-sankey-node-label-color': colors.text,
     '--vis-sankey-node-label-font-size': fontSizes.xs,

@@ -35,7 +35,7 @@
  */
 import { GripVertical } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
@@ -356,7 +356,7 @@ export const DataTable = _component(
       );
       return (
         <div
-          {...stylex.attrs(dataTableStyles.editor)}
+          {...css.attrs(dataTableStyles.editor)}
           // 焦点离开这一格（点了别处）：提交
           onFocusout={(event: FocusEvent) => {
             const cell = (event.currentTarget as HTMLElement).closest('td');
@@ -365,7 +365,7 @@ export const DataTable = _component(
         >
           {editor}
           {current.error && (
-            <div role="alert" {...stylex.attrs(dataTableStyles.editorError)}>
+            <div role="alert" {...css.attrs(dataTableStyles.editorError)}>
               {current.error}
             </div>
           )}

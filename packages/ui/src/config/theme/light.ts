@@ -1,11 +1,11 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { Theme } from './theme';
-import { colors, fonts, radii, shadows } from './tokens.stylex';
+import { colors, fonts, radii, shadows } from './tokens';
 
-// 取值与 tokens.stylex.ts 的默认值相同（pnpm themes:check 核对）。默认值本来不用再写一遍，但 Provider 套在别的主题里时，
+// 取值与 tokens.ts 的默认值相同（pnpm themes:check 核对）。默认值本来不用再写一遍，但 Provider 套在别的主题里时，
 // 只有显式写出的变量才能盖过外层继承下来的：每套内置主题都写全颜色、阴影、字体、圆角四组，没改的组用这里的默认值。
 /** 亮色主题的颜色（默认值） */
-export const lightColors = stylex.createTheme(colors, {
+export const lightColors = css.createTheme(colors, {
   background: '#fcfcfd',
   surface: '#fcfcfd',
   surfaceMuted: '#f9f9fb',
@@ -83,7 +83,7 @@ export const lightColors = stylex.createTheme(colors, {
 });
 
 /** 亮色主题的阴影（默认值） */
-export const lightShadows = stylex.createTheme(shadows, {
+export const lightShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 #00005506, 0 2px 1px -1px rgba(0, 0, 0, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.05)',
   sm: '0 2px 3px -2px #0000330f, 0 3px 12px -4px rgba(0, 0, 0, 0.1), 0 4px 16px -8px rgba(0, 0, 0, 0.1)',
@@ -93,7 +93,7 @@ export const lightShadows = stylex.createTheme(shadows, {
 });
 
 /** 默认字体：标题与正文都是无衬线 */
-export const defaultFonts = stylex.createTheme(fonts, {
+export const defaultFonts = css.createTheme(fonts, {
   sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
   mono: 'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
   serif: '"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, "SimSun", Georgia, serif',
@@ -102,7 +102,7 @@ export const defaultFonts = stylex.createTheme(fonts, {
 });
 
 /** 默认圆角 */
-export const defaultRadii = stylex.createTheme(radii, {
+export const defaultRadii = css.createTheme(radii, {
   none: '0',
   xs: '0.15em',
   sm: '0.25em',
@@ -112,7 +112,7 @@ export const defaultRadii = stylex.createTheme(radii, {
   full: '9999px',
 });
 
-/** 亮色主题（默认）：即 tokens.stylex.ts 里的默认值 */
+/** 亮色主题（默认）：即 tokens.ts 里的默认值 */
 export const lightTheme: Theme = {
   name: 'light',
   colorScheme: 'light',

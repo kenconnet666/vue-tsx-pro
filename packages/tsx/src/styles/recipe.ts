@@ -12,7 +12,7 @@
  *     defaults: { size: 'md' },
  *   });
  *   const s = button({ size, fullWidth });       // { root: [...样式], icon: [...] }，按档位组合缓存
- *   <button {...stylex.attrs(s.root, sx)} />
+ *   <button {...css.attrs(s.root, sx)} />
  *
  * 每个部件的样式是 create 的结果（片段，用到时才展开），合并时后者覆盖前者，
  * 所以“基础 < 档位 < 组合档位 < 调用方的 sx”的顺序由 attrs 的参数顺序保证。
@@ -21,7 +21,7 @@ import type { CompiledStyles } from './index';
 import { HOT, hotUpdate } from './hot';
 import { create } from './runtime';
 
-/** 一个部件的样式对象（同 stylex.create 的一组） */
+/** 一个部件的样式对象（同 css.create 的一组） */
 type PartStyle = Record<string, unknown>;
 /** 每个部件的样式（可以只写其中几个） */
 type PartStyles<P extends string> = Partial<Record<P, PartStyle>>;
@@ -52,7 +52,7 @@ export interface RecipeConfig<P extends string, V extends Variants<P>> {
 /** 编译后的样式（create 的结果） */
 type Compiled = CompiledStyles;
 
-/** 配方：传档位选择，返回每个部件的样式数组（交给 stylex.attrs） */
+/** 配方：传档位选择，返回每个部件的样式数组（交给 css.attrs） */
 export interface Recipe<P extends string, V> {
   (selection?: VariantSelection<V>): Readonly<Record<P, readonly Compiled[]>>;
   /** 部件名 */

@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, Slider, Text } from '@vue-tsx-pro/ui';
 import { ShaderBackground } from '@vue-tsx-pro/ui/three';
 
@@ -20,7 +20,7 @@ vec4 shade(vec2 uv) {
 }
 `;
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '18rem' },
   label: { color: '_textMuted' },
   slider: { flexGrow: 1, maxWidth: '20rem' },

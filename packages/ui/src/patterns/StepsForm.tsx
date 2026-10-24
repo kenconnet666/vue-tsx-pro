@@ -18,7 +18,7 @@
  * 部件：Root（Form）、Steps、Panel（这一步的内容，div）、Actions（Flex）、Previous、Next、Submit（Button）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useMessages } from '../config/lang/messages';
@@ -66,7 +66,7 @@ export interface StepsFormProps extends Omit<FormProps, 'controller' | 'children
 }
 
 /** StepsForm 的样式：root、panel */
-export const stepsFormStyles = stylex.create({
+export const stepsFormStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_lg' },
   // 换步后焦点在这里：不画焦点环（内容本身不是控件），读屏念出它的名称
   panel: { display: 'flex', flexDirection: 'column', gap: '_md', outline: 'none' },
@@ -131,7 +131,7 @@ export const StepsForm = _component(
       const last = current >= steps.length - 1;
       return (
         <Form {...rest} controller={form}>
-          <div {...stylex.attrs(stepsFormStyles.root)}>
+          <div {...css.attrs(stepsFormStyles.root)}>
             <Steps
               {...mergePartProps<StepsProps>({ items: items() }, propsSteps, {
                 items: items(),

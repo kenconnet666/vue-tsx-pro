@@ -8,7 +8,7 @@
  * 模态框打开时页面滚动被锁住（overflow: hidden），滚动条随之隐藏。从右到左排版时在左侧（插入边的逻辑属性）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onBeforeUnmount, onMounted } from 'vue';
 import type { PartProps } from '../utils/props';
 import { OverlayScrollbar, type ScrollbarTypes } from './ScrollArea';
@@ -26,7 +26,7 @@ export interface PageScrollbarProps {
 }
 
 /** PageScrollbar 的样式：document（写在页面根元素上，隐藏原生滚动条） */
-export const pageScrollbarStyles = stylex.create({
+export const pageScrollbarStyles = css.create({
   document: { scrollbarWidth: 'none', '::-webkit-scrollbar': { display: 'none' } },
 });
 
@@ -35,7 +35,7 @@ export const PageScrollbar = _component(
   ({ type = 'scroll', hideDelay = 800, propsScrollbar, propsThumb }: PageScrollbarProps) => {
     let viewport = _state.raw<HTMLElement | null>(null);
     let content = _state.raw<HTMLElement | null>(null);
-    const classes = (stylex.attrs(pageScrollbarStyles.document).class ?? '')
+    const classes = (css.attrs(pageScrollbarStyles.document).class ?? '')
       .split(' ')
       .filter(Boolean);
 

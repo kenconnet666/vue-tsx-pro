@@ -9,23 +9,23 @@
  *
  * 扫光只是装饰：减少动态效果时不扫（静止的占位已经说明在加载）；从右到左的语言里反向扫。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { shimmerVars } from './vars.stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import { shimmerVars } from './vars';
 
 /** 多行骨架相邻两行的扫光间隔（毫秒）：一屏七八行时整道波约一秒扫完 */
 export const SHIMMER_STAGGER = 120;
 
 // 光带与元素一样宽：从元素外的起始侧（-100%）扫到结束侧（100%）；后 30% 的时间停在外面，两次之间有个间隔
-const sweep = stylex.keyframes({
+const sweep = css.keyframes({
   '0%': { transform: 'translateX(-100%)' },
   '70%': { transform: 'translateX(100%)' },
   '100%': { transform: 'translateX(100%)' },
 });
 
-const fadeIn = stylex.keyframes({ from: { opacity: 0 } });
+const fadeIn = css.keyframes({ from: { opacity: 0 } });
 
 /** 骨架扫光：wave、delay、reveal */
-export const shimmerStyles = stylex.create({
+export const shimmerStyles = css.create({
   wave: {
     position: 'relative',
     // 用绘制包含裁掉移出去的光带（按圆角裁）：不用 overflow，行内的骨架仍按文字基线对齐

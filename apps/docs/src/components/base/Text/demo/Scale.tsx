@@ -1,12 +1,12 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, Grid, Text, type FontWeight, type TextSize } from '@vue-tsx-pro/ui';
 
 const sizes: TextSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
 const weights: FontWeight[] = ['light', 'normal', 'medium', 'semibold', 'bold'];
 
 // 左边一列是档位名：固定宽度，右边的样例对齐
-const styles = stylex.create({ name: { width: '5em', flexShrink: 0 } });
+const styles = css.create({ name: { width: '5em', flexShrink: 0 } });
 
 export default _component(() => () => (
   <Grid minItemWidth="18em" gap="xl">

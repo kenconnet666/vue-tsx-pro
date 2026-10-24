@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, FlexList, ScrollArea, Small, Strong } from '@vue-tsx-pro/ui';
 
 const playlists = [
@@ -13,7 +13,7 @@ const playlists = [
   ['电影原声', 36, 290],
 ] as const;
 
-const styles = stylex.create({
+const styles = css.create({
   item: { flexShrink: 0, width: '9rem' },
   // 封面色由每张歌单的色相决定
   cover: (hue: number) => ({
@@ -29,9 +29,9 @@ export default _component(() => () => (
   <ScrollArea axis="x" type="always" propsViewport={{ 'aria-label': '推荐歌单' }}>
     <FlexList gap="md" sx={styles.padded}>
       {playlists.map(([name, count, hue]) => (
-        <li key={name} {...stylex.attrs(styles.item)}>
+        <li key={name} {...css.attrs(styles.item)}>
           <Card padding="sm">
-            <div {...stylex.attrs(styles.cover(hue))} />
+            <div {...css.attrs(styles.cover(hue))} />
             <Flex direction="column">
               <Strong>{name}</Strong>
               <Small tone="muted">{count} 首</Small>

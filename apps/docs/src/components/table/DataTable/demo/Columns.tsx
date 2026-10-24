@@ -2,7 +2,7 @@
 // 列设置（顺序、固定、隐藏、宽度）记在浏览器里，下次打开还是这样；上方一行说明当前的筛选与排序，可以一键还原
 import { RotateCcw } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   createStatusMap,
@@ -58,7 +58,7 @@ const columns: DataTableColumn<PurchaseOrder>[] = [
   { key: 'orderedAt', header: '下单日期', width: 150, type: 'date', sortable: true },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   table: { height: '22rem' },
 });
 

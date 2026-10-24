@@ -1,6 +1,6 @@
 import { Cloud, Coffee, Gem, Leaf, Mountain, Rocket, Waves, Zap } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Flex, Icon, Marquee, Text } from '@vue-tsx-pro/ui';
 
 const partners = [
@@ -27,7 +27,7 @@ const tags = [
   '图表',
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   partner: { color: '_textMuted', fontSize: '_lg', whiteSpace: 'nowrap' },
 });
 

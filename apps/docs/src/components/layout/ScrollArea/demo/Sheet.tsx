@@ -1,11 +1,11 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, ScrollArea, VisuallyHidden } from '@vue-tsx-pro/ui';
 
 const columns = Array.from({ length: 14 }, (_, index) => String.fromCharCode(65 + index));
 const rows = Array.from({ length: 30 }, (_, index) => index + 1);
 
-const styles = stylex.create({
+const styles = css.create({
   area: { height: '18rem' },
   table: { borderCollapse: 'collapse', fontSize: '_sm', fontVariantNumeric: 'tabular-nums' },
   cell: {
@@ -37,14 +37,14 @@ const value = (row: number, column: number) => ((row * 7919 + column * 104_729) 
 export default _component(() => () => (
   <Card padding="none">
     <ScrollArea axis="both" sx={styles.area} propsViewport={{ 'aria-label': '销售明细表' }}>
-      <table {...stylex.attrs(styles.table)}>
+      <table {...css.attrs(styles.table)}>
         <thead>
           <tr>
-            <th {...stylex.attrs(styles.cell, styles.head, styles.rowHead, styles.corner)}>
+            <th {...css.attrs(styles.cell, styles.head, styles.rowHead, styles.corner)}>
               <VisuallyHidden>行号</VisuallyHidden>
             </th>
             {columns.map((column) => (
-              <th key={column} scope="col" {...stylex.attrs(styles.cell, styles.head)}>
+              <th key={column} scope="col" {...css.attrs(styles.cell, styles.head)}>
                 {column}
               </th>
             ))}
@@ -53,11 +53,11 @@ export default _component(() => () => (
         <tbody>
           {rows.map((row) => (
             <tr key={row}>
-              <th scope="row" {...stylex.attrs(styles.cell, styles.head, styles.rowHead)}>
+              <th scope="row" {...css.attrs(styles.cell, styles.head, styles.rowHead)}>
                 {row}
               </th>
               {columns.map((column, index) => (
-                <td key={column} {...stylex.attrs(styles.cell)}>
+                <td key={column} {...css.attrs(styles.cell)}>
                   {value(row, index).toFixed(2)}
                 </td>
               ))}

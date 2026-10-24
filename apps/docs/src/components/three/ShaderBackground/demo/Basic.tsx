@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { ShaderBackground } from '@vue-tsx-pro/ui/three';
 
 // 等离子：几组正弦叠加，按结果在主题色板里取色；uTime、uResolution、themePalette 都是自动提供的
@@ -13,7 +13,7 @@ vec4 shade(vec2 uv) {
 }
 `;
 
-const styles = stylex.create({ stage: { height: '18rem', borderRadius: '_lg' } });
+const styles = css.create({ stage: { height: '18rem', borderRadius: '_lg' } });
 
 export default _component(() => () => (
   <ShaderBackground sx={styles.stage} fragmentShader={PLASMA} />

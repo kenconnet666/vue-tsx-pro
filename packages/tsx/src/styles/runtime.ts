@@ -11,7 +11,7 @@
  *     其中的 null 表示“这个条件不改”（不会像 StyleX 那样把前面的默认值清掉）；顶层的 null 去掉该属性。
  *   - 动态样式（create 里的函数）：一直没变过的属性写进类里；值变过的属性永久转成变量（类里写 var(--x-属性)、
  *     值进元素的行内样式），之后值怎么变类名都不变、不插新规则。
- *   - 响应式绑定（stylex.bind，编译器把 JSX 里的 `styles.bar(item.width)` 自动改写成它）：渲染时只算类名、不追踪依赖，
+ *   - 响应式绑定（css.bind，编译器把 JSX 里的 `styles.bar(item.width)` 自动改写成它）：渲染时只算类名、不追踪依赖，
  *     元素挂上后由一个响应式 effect 直接改元素上的变量。值变化不重新渲染组件、不做 vdom 比对，只改那一个变量。
  *   - 状态样式用条件别名（_selected、_disabled…）跟着 DOM 上的 aria / data 属性走：状态变化只改属性，类名不变。
  *   - 主题（createTheme，vars.ts）是一个只改变量的类，换主题只换这个类，组件不用重新渲染。
@@ -64,7 +64,7 @@ export interface Attrs {
   ref?: (element: unknown) => void;
 }
 
-/** stylex.create：命名空间第一次被读时展开（惰性）；函数是动态样式 */
+/** css.create：命名空间第一次被读时展开（惰性）；函数是动态样式 */
 export function create<S extends Record<string, unknown>>(namespaces: S): S {
   const result: Record<string, unknown> = {};
   for (const [name, namespace] of Object.entries(namespaces)) {
@@ -164,7 +164,7 @@ function resolve(parts: readonly object[]): Attrs {
 
 /* ───────────────────────── 关键帧 ───────────────────────── */
 
-/** stylex.keyframes：返回动画名，规则第一次调用时插入 */
+/** css.keyframes：返回动画名，规则第一次调用时插入 */
 export function keyframes(frames: Record<string, StyleObject>): string {
   const body = Object.entries(frames)
     .map(

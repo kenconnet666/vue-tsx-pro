@@ -1,5 +1,5 @@
 /**
- * 动态样式（create 里写成函数的命名空间）与它的响应式绑定 stylex.bind。
+ * 动态样式（create 里写成函数的命名空间）与它的响应式绑定 css.bind。
  */
 import { eachLeaf, tableOf, type LeafEntry, type StyleObject } from './declarations';
 import {
@@ -100,7 +100,7 @@ function memoKey(args: readonly unknown[]): string | undefined {
 }
 
 /**
- * 动态样式的响应式绑定：`stylex.bind(styles.bar, () => [item.width])`。交给 attrs / sx 后，
+ * 动态样式的响应式绑定：`css.bind(styles.bar, () => [item.width])`。交给 attrs / sx 后，
  * 参数变化时只改元素上的变量，不重新渲染组件。JSX 里写 `styles.bar(item.width)` 时编译器自动改写成它
  */
 export function bind<Args extends unknown[]>(

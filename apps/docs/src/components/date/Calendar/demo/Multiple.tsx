@@ -1,9 +1,9 @@
 // 排班：多选这个月要值班的日子，右侧按日期列出，可以单独移除；并排两个月、显示周数
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Calendar, Card, Flex, Strong, Tag, Text, useFormat } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({ side: { flexGrow: 1, flexBasis: '14rem' } });
+const styles = css.create({ side: { flexGrow: 1, flexBasis: '14rem' } });
 
 export default _component(() => {
   const format = useFormat();

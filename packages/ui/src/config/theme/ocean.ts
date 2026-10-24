@@ -1,13 +1,13 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { defaultFonts } from './light';
 import type { Theme } from './theme';
-import { colors, radii, shadows } from './tokens.stylex';
+import { colors, radii, shadows } from './tokens';
 
 /**
  * 海洋主题的颜色：天空蓝的页面、深海蓝的品牌色。中性色按 slate 各级亮度换成蓝色相（oklch 235°），品牌色取 Radix blue 色阶、实色加深到深海蓝 `#0b5cad`。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
-export const oceanColors = stylex.createTheme(colors, {
+export const oceanColors = css.createTheme(colors, {
   background: '#f7fdff',
   surface: '#f7fdff',
   surfaceMuted: '#f4fafe',
@@ -85,7 +85,7 @@ export const oceanColors = stylex.createTheme(colors, {
 });
 
 /** 海洋主题的阴影：带主色调的投影 */
-export const oceanShadows = stylex.createTheme(shadows, {
+export const oceanShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 rgba(12, 42, 84, 0.04), 0 2px 1px -1px rgba(12, 42, 84, 0.05), 0 1px 3px 0 rgba(12, 42, 84, 0.05)',
   sm: '0 2px 3px -2px rgba(12, 42, 84, 0.06), 0 3px 12px -4px rgba(12, 42, 84, 0.1), 0 4px 16px -8px rgba(12, 42, 84, 0.1)',
@@ -95,7 +95,7 @@ export const oceanShadows = stylex.createTheme(shadows, {
 });
 
 /** 海洋主题的圆角：比默认更圆，像水波 */
-export const oceanRadii = stylex.createTheme(radii, {
+export const oceanRadii = css.createTheme(radii, {
   none: '0',
   xs: '0.2em',
   sm: '0.35em',

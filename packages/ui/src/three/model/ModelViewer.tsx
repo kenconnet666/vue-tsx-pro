@@ -12,7 +12,7 @@
  * 部件：Root（div）、Canvas（ThreeCanvas）、Content（加载中与出错的提示）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   ACESFilmicToneMapping,
   Box3,
@@ -82,7 +82,7 @@ export interface ModelViewerProps extends Omit<EffectProps, 'children' | 'onLoad
 }
 
 /** ModelViewer 的样式：root、interactive、dragging、content、overlay */
-export const modelViewerStyles = stylex.create({
+export const modelViewerStyles = css.create({
   root: { aspectRatio: '1', width: '100%', outlineStyle: 'none' },
   interactive: { cursor: 'grab', touchAction: 'pan-y' },
   dragging: { cursor: 'grabbing' },
@@ -253,7 +253,7 @@ export const ModelViewer = _component(
         }}
       >
         {status !== 'loaded' && (
-          <div {...stylex.attrs(modelViewerStyles.overlay)}>
+          <div {...css.attrs(modelViewerStyles.overlay)}>
             {status === 'loading' ? (
               <Spinner label={lang.modelViewerLoading} />
             ) : (

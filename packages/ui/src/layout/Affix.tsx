@@ -13,7 +13,7 @@
  * 部件：Root（div，sticky 的那层）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useIntersectionObserver } from '../utils/dom/intersection';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -38,7 +38,7 @@ export interface AffixProps extends PartProps<'div', AffixManaged> {
 }
 
 /** Affix 的样式：root、stuck、sentinel */
-export const affixStyles = stylex.create({
+export const affixStyles = css.create({
   root: {
     position: 'sticky',
     zIndex: 5,
@@ -50,7 +50,7 @@ export const affixStyles = stylex.create({
 });
 
 /** 贴住的位置 */
-export const affixPositionStyles = stylex.create({
+export const affixPositionStyles = css.create({
   top: (offset: number) => ({ top: offset }),
   bottom: (offset: number) => ({ bottom: offset }),
 });
@@ -90,7 +90,7 @@ export const Affix = _component(
         <div
           aria-hidden="true"
           ref={(element: unknown) => (sentinel = element instanceof HTMLElement ? element : null)}
-          {...stylex.attrs(affixStyles.sentinel)}
+          {...css.attrs(affixStyles.sentinel)}
         />
       );
       return (

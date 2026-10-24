@@ -7,7 +7,7 @@
  * 色调与 Badge 同名（neutral 是次要文字色）；color 给任意 CSS 颜色（图表的系列色）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 
@@ -38,14 +38,14 @@ export interface StatusDotProps extends PartProps<'span', 'role' | 'aria-hidden'
 }
 
 /** StatusDot 的样式：root、sm、md */
-export const statusDotStyles = stylex.create({
+export const statusDotStyles = css.create({
   root: { display: 'inline-block', flexShrink: 0, borderRadius: '_full' },
   sm: { width: '0.5rem', height: '0.5rem' },
   md: { width: '0.625rem', height: '0.625rem' },
 });
 
 /** StatusDot 的色调 */
-export const statusDotToneStyles = stylex.create({
+export const statusDotToneStyles = css.create({
   neutral: { backgroundColor: '_textMuted' },
   accent: { backgroundColor: '_accent' },
   info: { backgroundColor: '_info' },
@@ -55,7 +55,7 @@ export const statusDotToneStyles = stylex.create({
 });
 
 /** StatusDot 的动态样式：任意颜色 */
-export const statusDotDynamicStyles = stylex.create({
+export const statusDotDynamicStyles = css.create({
   color: (color: string) => ({ backgroundColor: color }),
 });
 

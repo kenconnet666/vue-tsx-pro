@@ -16,7 +16,7 @@
  * 部件：Root（Popover 的弹出层）、Icon、Title、Description、Footer（Flex）、Cancel、Confirm（Button）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -61,7 +61,7 @@ export interface PopconfirmProps extends Omit<PopoverProps, 'role' | 'children' 
 }
 
 /** Popconfirm 的样式：body、icon、title、description、footer */
-export const popconfirmStyles = stylex.create({
+export const popconfirmStyles = css.create({
   body: {
     display: 'grid',
     gridTemplateColumns: 'auto minmax(0, 1fr)',
@@ -150,7 +150,7 @@ export const Popconfirm = _component(
           open={_bind(open)}
           onOpenChange={onOpenChange}
         >
-          <div {...stylex.attrs(popconfirmStyles.body)}>
+          <div {...css.attrs(popconfirmStyles.body)}>
             {shownIcon && (
               <Icon
                 {...mergePartProps<IconProps>(

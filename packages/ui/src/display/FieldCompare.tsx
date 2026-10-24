@@ -14,7 +14,7 @@
  */
 import { ArrowRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
@@ -78,7 +78,7 @@ export interface FieldCompareProps<T> extends PartProps<'div'> {
 }
 
 /** FieldCompare 的样式：list、item、label、value、before、after、arrow、unchanged、changed */
-export const fieldCompareStyles = stylex.create({
+export const fieldCompareStyles = css.create({
   // 字段名一列、值一列：多项时字段名对齐
   list: {
     display: 'grid',
@@ -188,16 +188,14 @@ export const FieldCompare = _component(
             ? toneStyles.success
             : toneStyles.danger;
       return (
-        <span {...stylex.attrs(fieldCompareStyles.change, tone)}>
+        <span {...css.attrs(fieldCompareStyles.change, tone)}>
           {delta}
           {ratio && `（${ratio}）`}
         </span>
       );
     };
 
-    const none = () => (
-      <span {...stylex.attrs(fieldCompareStyles.none)}>{lang.fieldCompareNone}</span>
-    );
+    const none = () => <span {...css.attrs(fieldCompareStyles.none)}>{lang.fieldCompareNone}</span>;
 
     const table = (list: FieldCompareRow<T>[]) => {
       const [field, from, to, delta] = lang.fieldCompareHeaders;
@@ -208,9 +206,7 @@ export const FieldCompare = _component(
           key: 'before',
           align: 'start',
           header: from,
-          cell: (row) => (
-            <span {...stylex.attrs(fieldCompareStyles.unchanged)}>{shown(row, 0)}</span>
-          ),
+          cell: (row) => <span {...css.attrs(fieldCompareStyles.unchanged)}>{shown(row, 0)}</span>,
         },
         {
           key: 'after',
@@ -218,7 +214,7 @@ export const FieldCompare = _component(
           header: to,
           cell: (row) => (
             <span
-              {...stylex.attrs(
+              {...css.attrs(
                 row.changed ? fieldCompareStyles.changed : fieldCompareStyles.unchanged,
               )}
             >
@@ -257,12 +253,12 @@ export const FieldCompare = _component(
             <dd {...mergeAttrs<'dd'>({ sx: fieldCompareStyles.value }, propsValue)}>
               {before != null && (
                 <>
-                  <del {...stylex.attrs(fieldCompareStyles.before)}>{shown(row, 0)}</del>
+                  <del {...css.attrs(fieldCompareStyles.before)}>{shown(row, 0)}</del>
                   <Icon icon={ArrowRight} sx={fieldCompareStyles.arrow} />
                   <VisuallyHidden>{lang.fieldCompareTo}</VisuallyHidden>
                 </>
               )}
-              <ins {...stylex.attrs(fieldCompareStyles.after)}>{shown(row, 1)}</ins>
+              <ins {...css.attrs(fieldCompareStyles.after)}>{shown(row, 1)}</ins>
               {change(row)}
             </dd>
           </div>

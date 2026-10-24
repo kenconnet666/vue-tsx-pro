@@ -1,10 +1,10 @@
 // 不写 count 时粒子数按面积与画质决定（低画质少一半多）；渲染分辨率、暂停；off 时显示 fallback
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
 import { ParticleField, type ThreeQuality } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '16rem', borderRadius: '_lg', backgroundColor: '_surfaceMuted' },
   fallback: {
     height: '100%',
@@ -47,7 +47,7 @@ export default _component(() => {
         quality={quality}
         resolution={resolution}
         paused={paused}
-        fallback={<div {...stylex.attrs(styles.fallback)} />}
+        fallback={<div {...css.attrs(styles.fallback)} />}
       />
     </Flex>
   );

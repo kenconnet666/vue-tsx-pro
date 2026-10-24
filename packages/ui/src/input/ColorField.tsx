@@ -9,7 +9,7 @@
  * - 接入 Field（标签、说明、错误、必填、不可用），外观同 TextField（control.tsx）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
@@ -57,7 +57,7 @@ export interface ColorFieldProps extends PartProps<'input', ColorFieldManaged>, 
 }
 
 /** ColorField 的样式：swatch、fill、picker、input */
-export const colorFieldStyles = stylex.create({
+export const colorFieldStyles = css.create({
   // 色块：棋盘格垫底（swatchStyles），颜色铺在上面一层
   swatch: {
     position: 'relative',
@@ -87,7 +87,7 @@ export const colorFieldStyles = stylex.create({
 
 // 颜色是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** ColorField 的动态样式：色块里的颜色 */
-export const colorFieldDynamicStyles = stylex.create({
+export const colorFieldDynamicStyles = css.create({
   fill: (color: string) => ({ backgroundColor: color }),
 });
 
@@ -149,7 +149,7 @@ export const ColorField = _component(
             )}
           >
             <span
-              {...stylex.attrs(
+              {...css.attrs(
                 colorFieldStyles.fill,
                 swatchStyles.ring,
                 colorFieldDynamicStyles.fill(value),

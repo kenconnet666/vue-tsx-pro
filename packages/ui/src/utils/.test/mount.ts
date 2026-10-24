@@ -1,7 +1,7 @@
 // 组件测试的挂载工具：渲染到一个挂在 document 上的容器里，每个测试结束后自动卸载
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { afterEach } from 'vitest';
 import { createApp, type App, type VNodeChild } from 'vue';
 
@@ -38,8 +38,8 @@ export function styleOf(element: Element): Map<string, string> {
         let selector = style.selectorText;
         if (!patterns.some((pattern) => selector.match(pattern))) continue;
         for (const pattern of patterns) selector = selector.replace(pattern, '&');
-        // 同一个类重复几次（.c.c）、StyleX 抬特异性的 :not(#\#) 都不影响“是什么条件”
-        selector = selector.replace(/&+/g, '&').replace(/:not\(#\\#\)/g, '');
+        // 同一个类重复几次（.c.c）不影响“是什么条件”
+        selector = selector.replace(/&+/g, '&');
         for (let index = 0; index < style.style.length; index++) {
           const property = style.style[index]!;
           result.set(`${wrapper}${selector}|${property}`, style.style.getPropertyValue(property));
@@ -57,12 +57,12 @@ export function styleOf(element: Element): Map<string, string> {
 /**
  * 元素实际得到的样式文本：行内样式加上它的类的规则原文（其中的 var(--x…) 换成元素上的值）。动态样式的值可能写进了类里
  * （一直没变过的属性），也可能在行内变量里，断言取值时用它：`expect(styleTextOf(el)).toContain('repeat(3')`。
- * 用引擎记下的原文（stylex.styleText），不读 CSSOM：happy-dom 会丢掉它不认识的声明（-webkit-line-clamp、color-mix）
+ * 用引擎记下的原文（css.styleText），不读 CSSOM：happy-dom 会丢掉它不认识的声明（-webkit-line-clamp、color-mix）
  */
 export function styleTextOf(element: Element): string {
   const style = (element as HTMLElement).style;
   const patterns = [...element.classList].map((name) => new RegExp(`\\.${name}(?![\\w-])`));
-  const rules = stylex
+  const rules = css
     .styleText()
     .split('\n')
     .filter((rule) => patterns.some((pattern) => pattern.test(rule)))
@@ -76,9 +76,9 @@ export function styleTextOf(element: Element): string {
 }
 
 /** element 是否带着 styles 的全部声明（组件按状态加样式时用来断言） */
-export function hasStyles(element: Element, styles: StyleXStyles): boolean {
+export function hasStyles(element: Element, styles: SxStyles): boolean {
   const probe = document.createElement('div');
-  probe.className = stylex.attrs(styles).class ?? '';
+  probe.className = css.attrs(styles).class ?? '';
   const expected = styleOf(probe);
   const actual = styleOf(element);
   return expected.size > 0 && [...expected].every(([key, value]) => actual.get(key) === value);

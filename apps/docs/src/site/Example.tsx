@@ -10,7 +10,7 @@
  *   <Example id="admin" title="后台" demo={Admin} frame="36rem" />
  */
 import { _component, createContext } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { createFlex, dataAttrs, H2, Paragraph } from '@vue-tsx-pro/ui';
 import { CodePreview, type CodePreviewAligns } from '@vue-tsx-pro/ui/docs-kit';
 import { h, onBeforeUnmount, onMounted, type VNodeChild } from 'vue';
@@ -20,7 +20,7 @@ import { EditInPlayground } from './EditInPlayground';
 import { afterFirstPaint } from './idle';
 import type { Demo } from './types';
 
-const styles = stylex.create({
+const styles = css.create({
   canvas: { minHeight: '7rem' },
   // iframe 贴满效果区，不留内边距
   framed: { padding: 0 },
@@ -42,7 +42,7 @@ export const ExampleColumnContext = createContext<{ next(): number }>('ExampleCo
 /** 每列前几个示例立即渲染（宽屏的首屏大致放得下），其余在首帧之后补上 */
 const IMMEDIATE = 2;
 
-const frameHeight = stylex.create({ height: (height: string) => ({ height }) });
+const frameHeight = css.create({ height: (height: string) => ({ height }) });
 
 /** 每个示例是一个小节（section） */
 const Section = createFlex('section', 'ExampleSection');
@@ -99,11 +99,7 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
         {title}
       </H2>
       {children != null && <Paragraph sx={styles.description}>{children}</Paragraph>}
-      {ready ? (
-        renderCard()
-      ) : (
-        <div ref={_toRef(placeholder)} {...stylex.attrs(styles.placeholder)} />
-      )}
+      {ready ? renderCard() : <div ref={_toRef(placeholder)} {...css.attrs(styles.placeholder)} />}
     </Section>
   );
 
@@ -124,7 +120,7 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
             src={framePath(demo.path)}
             title={title}
             loading="lazy"
-            {...stylex.attrs(styles.frame, frameHeight.height(frame))}
+            {...css.attrs(styles.frame, frameHeight.height(frame))}
           />
         ) : (
           h(demo.component)

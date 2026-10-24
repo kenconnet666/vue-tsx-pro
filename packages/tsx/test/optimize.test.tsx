@@ -119,8 +119,8 @@ describe('哪些属性值缓存', () => {
 
   it('常量里面的东西可能会变：组合式函数的结果、导入的对象，读成员与展开都不缓存；样式表、命名空间导入的一层例外', async () => {
     const out = await compile(
-      `import * as stylex from '@vue-tsx-pro/tsx/stylex'; import * as icons from './icons'; import { settings } from './store';
-      const styles = stylex.create({ a: { color: 'red' } });
+      `import * as css from '@vue-tsx-pro/tsx/styles'; import * as icons from './icons'; import { settings } from './store';
+      const styles = css.create({ a: { color: 'red' } });
       ${component(
         'const store = useStore()',
         '<><Probe style={{ color: store.color }} /><Probe items={[...store.items]} /><Probe flag={[settings.dark]} /><Probe sx={[styles.a]} /><Probe icon={[icons.Plus]} /></>',

@@ -14,7 +14,7 @@
  * 图标是装饰（aria-hidden），读屏照常念“列表，几项”。参考 Mantine List 的 icon、Chakra 的 ListIcon。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { gapStyles, type Space } from '../utils/style/styles';
@@ -22,7 +22,7 @@ import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { Icon, type IconData, type IconProps } from './Icon';
 
 /** 正文列表的样式：缩进与项目之间的间距；嵌套的列表紧贴上一项；有图标时不要圆点、不缩进 */
-export const listStylesProse = stylex.create({
+export const listStylesProse = css.create({
   root: {
     display: 'grid',
     margin: 0,

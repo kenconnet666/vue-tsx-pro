@@ -27,7 +27,7 @@
  */
 import { ChevronDown, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
@@ -146,7 +146,7 @@ export interface TreeSelectProps<T>
 }
 
 /** TreeSelect 的样式：tree */
-export const treeSelectStyles = stylex.create({
+export const treeSelectStyles = css.create({
   // 树的滚动区域占满弹出层剩下的高度（最大高度由定位写在弹出层上）
   tree: { flexGrow: 1, minHeight: 0 },
   // 弹出层比触发框窄时也放得下几层缩进
@@ -397,11 +397,11 @@ export const TreeSelect = _component(
       const tagged = multiple() && shownKeys.length > 0;
       const shown =
         shownKeys.length === 0 ? (
-          <span {...stylex.attrs(selectStyles.placeholder)}>
+          <span {...css.attrs(selectStyles.placeholder)}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
         ) : tagged ? (
-          <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+          <span {...css.attrs(visuallyHiddenStyles.hidden)}>
             {lang.selectSummary(shownKeys.map(labelOf))}
           </span>
         ) : (
@@ -505,7 +505,7 @@ export const TreeSelect = _component(
             )}
           >
             {searchable && (
-              <div {...stylex.attrs(listPopoverStyles.header)}>
+              <div {...css.attrs(listPopoverStyles.header)}>
                 <TextField
                   {...mergePartProps<TextFieldProps>(
                     {

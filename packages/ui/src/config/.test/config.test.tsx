@@ -26,7 +26,7 @@ import {
   type MessageTable,
 } from '../..';
 import { docsKitMessages } from '../../docs-kit';
-import { colors } from '../theme/tokens.stylex';
+import { colors } from '../theme/tokens';
 
 const apps: App[] = [];
 afterEach(() => {

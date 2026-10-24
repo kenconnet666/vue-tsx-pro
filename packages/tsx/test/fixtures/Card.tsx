@@ -1,8 +1,8 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { _component } from '../../src';
 
-const styles = stylex.create({
+const styles = css.create({
   card: {
     display: 'grid',
     gap: 8,
@@ -31,7 +31,7 @@ export const Card = _component(({ title = '', width, header, children }: CardPro
   cardSetupCount++;
 
   return () => (
-    <section {...stylex.attrs(styles.card, width != null && styles.width(width))}>
+    <section {...css.attrs(styles.card, width != null && styles.width(width))}>
       <h2>{header ?? title}</h2>
       <div class="body">{children}</div>
     </section>

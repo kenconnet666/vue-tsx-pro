@@ -1,6 +1,6 @@
 // 画质档位（off 不创建 WebGL，显示 fallback）、渲染分辨率与暂停；onStatusChange 报告渲染状态
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Card,
@@ -15,7 +15,7 @@ import {
   t,
 } from '@vue-tsx-pro/ui';
 import { ThreeCanvas, type ThreeQuality, type ThreeStatus } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import { AdditiveBlending, BufferAttribute, BufferGeometry, Points, PointsMaterial } from 'three';
 
 const QUALITIES: { value: ThreeQuality; label: string }[] = [
@@ -26,7 +26,7 @@ const QUALITIES: { value: ThreeQuality; label: string }[] = [
   { value: 'off', label: '关' },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '18rem' },
   fallback: {
     display: 'grid',
@@ -98,7 +98,7 @@ export default _component(() => {
           resolution={resolution}
           paused={paused}
           onStatusChange={(next) => (status = next)}
-          fallback={<div {...stylex.attrs(styles.fallback)}>特效已关闭</div>}
+          fallback={<div {...css.attrs(styles.fallback)}>特效已关闭</div>}
           setup={({ scene, quality: resolved, size, themeColors }) => {
             const count = Math.round(12000 * resolved.density);
             const geometry = new BufferGeometry();

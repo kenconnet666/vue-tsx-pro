@@ -1,7 +1,7 @@
 // 注册转化：访问从哪些渠道来、多少人注册、最后有多少付费，每一步流失多少一目了然
 import { _component } from '@vue-tsx-pro/tsx';
 import { SankeyChart } from '@vue-tsx-pro/ui/charts';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
 const nodes = [
   { id: 'search', label: '搜索引擎' },

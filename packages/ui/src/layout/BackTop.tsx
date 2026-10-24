@@ -10,7 +10,7 @@
  */
 import { ArrowUp } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onMounted } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -28,7 +28,7 @@ export interface BackTopProps extends Partial<Omit<IconButtonProps, 'icon' | 'on
 }
 
 /** BackTop 的样式：root、hidden */
-export const backTopStyles = stylex.create({
+export const backTopStyles = css.create({
   root: {
     position: 'fixed',
     insetInlineEnd: '_lg',

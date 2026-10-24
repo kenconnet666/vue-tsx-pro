@@ -9,7 +9,7 @@
  * 整块对读屏隐藏；在外层加 aria-busy。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from './Skeleton';
@@ -31,7 +31,7 @@ export interface SkeletonTextProps extends PartProps<'div', 'aria-hidden'> {
 }
 
 /** SkeletonText 的样式：root、last */
-export const skeletonTextStyles = stylex.create({
+export const skeletonTextStyles = css.create({
   // 1em 高的行加 0.5em 间隔，接近正文 1.5 的行高
   root: { display: 'flex', flexDirection: 'column', gap: '_sm' },
   last: { width: '60%' },

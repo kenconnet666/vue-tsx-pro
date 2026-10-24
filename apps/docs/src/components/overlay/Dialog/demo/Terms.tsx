@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Checkbox,
@@ -25,7 +25,7 @@ const sections = [
 ];
 
 // 页脚本身靠结束边排；勾选框放在起始边，要让这一行撑满页脚
-const styles = stylex.create({ footer: { flexGrow: 1 } });
+const styles = css.create({ footer: { flexGrow: 1 } });
 
 export default _component(() => {
   let open = _state(false);

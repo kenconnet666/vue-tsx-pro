@@ -1,6 +1,6 @@
 // 主题缩略图：用主题自己的底色、表面、主色画一张小卡片，做“选主题”的网格（设置页、引导流程）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   builtinThemeLabel,
   builtinThemes,
@@ -14,7 +14,7 @@ import { ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';
 
 const names = Object.keys(builtinThemes) as BuiltinThemeName[];
 
-const styles = stylex.create({
+const styles = css.create({
   option: {
     display: 'grid',
     gap: '_xs',

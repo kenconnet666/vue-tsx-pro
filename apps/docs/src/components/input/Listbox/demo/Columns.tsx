@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Listbox, Small } from '@vue-tsx-pro/ui';
 
 // 一千个可选的列：Listbox 始终虚拟滚动
@@ -12,7 +12,7 @@ const fields = Array.from({ length: 1000 }, (_, index) => ({
   group: index < 6 ? '常用' : '自定义',
 }));
 
-const styles = stylex.create({ list: { height: '16rem' } });
+const styles = css.create({ list: { height: '16rem' } });
 
 export default _component(() => {
   let visible = _state(['field-0', 'field-1', 'field-2', 'field-3']);

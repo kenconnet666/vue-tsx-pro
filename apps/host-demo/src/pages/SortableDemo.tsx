@@ -1,6 +1,6 @@
 // /base 页上的拖动排序演示：竖排的待办（可以拖到滚动区域外，自动滚动）与横排的标签
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, ScrollArea, Sortable, Text } from '@vue-tsx-pro/ui';
 
 interface Task {
@@ -8,7 +8,7 @@ interface Task {
   title: string;
 }
 
-const styles = stylex.create({
+const styles = css.create({
   // 滚动交给 ScrollArea（浮层滚动条，和整页一致）；拖到边缘时 Sortable 找到它的视口自动滚动
   tasks: { width: '20rem', maxWidth: '100%', maxHeight: '14rem' },
 });

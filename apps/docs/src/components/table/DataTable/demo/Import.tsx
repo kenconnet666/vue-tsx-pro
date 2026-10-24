@@ -2,7 +2,7 @@
 // 校验结果放在前面：最要紧的一列不用横向滚动才看到
 import { CircleAlert, CircleCheck, TriangleAlert } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -95,7 +95,7 @@ const columns: DataTableColumn<Line>[] = [
   },
 ];
 
-const styles = stylex.create({ spacer: { flexGrow: 1 } });
+const styles = css.create({ spacer: { flexGrow: 1 } });
 
 export default _component(() => {
   let selected = _state<string[]>(['2', '3', '7']);
@@ -111,7 +111,7 @@ export default _component(() => {
           {warnings} 行提醒
         </Badge>
         <Small tone="muted">错误行改好后重新上传；提醒行可以照常导入</Small>
-        <span {...stylex.attrs(styles.spacer)} />
+        <span {...css.attrs(styles.spacer)} />
         <Button size="sm" disabled={selected.length === 0}>
           导入所选 {selected.length} 行
         </Button>

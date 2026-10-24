@@ -1,7 +1,7 @@
 // 动态列表：发生时间写相对时间，随时间自动更新，悬停看完整的日期；一周以前的直接写日期。
 // format 是详略：long “3 分钟前”、short、narrow（窄栏、移动端）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Avatar,
   Card,
@@ -13,7 +13,7 @@ import {
   ToggleItem,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   list: { display: 'flex', flexDirection: 'column', gap: '_md', margin: 0, padding: 0 },
   item: { display: 'flex', alignItems: 'flex-start', gap: '_sm', listStyle: 'none' },
 });
@@ -39,9 +39,9 @@ export default _component(() => {
         <ToggleItem value="narrow">narrow</ToggleItem>
       </ToggleGroup>
       <Card padding="md">
-        <ul {...stylex.attrs(styles.list)}>
+        <ul {...css.attrs(styles.list)}>
           {events.map((event) => (
-            <li key={event.who} {...stylex.attrs(styles.item)}>
+            <li key={event.who} {...css.attrs(styles.item)}>
               <Avatar size="sm" name={event.who} />
               <Flex direction="column">
                 <Text>

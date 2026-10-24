@@ -13,7 +13,7 @@
  */
 import { CurveType, Line, Scatter } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import { colors } from '../config/theme/tokens.stylex';
+import { colors } from '../config/theme/tokens';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
 /** 线的形状 */

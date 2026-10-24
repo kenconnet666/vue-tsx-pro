@@ -10,7 +10,7 @@ import {
   Users,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Avatar,
   Badge,
@@ -55,7 +55,7 @@ const orders = [
   ['#10231', '许悠', '¥659.00', ['success', '已完成']],
 ] as const;
 
-const styles = stylex.create({
+const styles = css.create({
   search: { width: '16rem' },
   // 通知与头像靠顶栏的结束边
   end: { marginInlineStart: 'auto' },

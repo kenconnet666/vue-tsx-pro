@@ -10,7 +10,7 @@
  * 按钮按最长的选项定宽：换条数时不变宽窄，下拉（与按钮同宽）里的选项也不被截断。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { Select, type SelectProps } from '../input/Select';
@@ -34,7 +34,7 @@ export interface PageSizeSelectProps extends Omit<
 }
 
 /** PageSizeSelect 的样式：stack、option、hidden */
-export const pageSizeSelectStyles = stylex.create({
+export const pageSizeSelectStyles = css.create({
   // 所有选项的文字叠在同一格，按最宽的那个撑开，只显示选中的
   stack: { display: 'inline-grid' },
   option: { gridArea: '1 / 1' },
@@ -78,12 +78,12 @@ export const PageSizeSelect = _component(
             'aria-label': lang.pageSizeLabel,
             size: 'sm',
             renderValue: () => (
-              <span {...stylex.attrs(pageSizeSelectStyles.stack)}>
+              <span {...css.attrs(pageSizeSelectStyles.stack)}>
                 {options.map((size) => (
                   <span
                     key={size}
                     aria-hidden={size !== value || undefined}
-                    {...stylex.attrs(
+                    {...css.attrs(
                       pageSizeSelectStyles.option,
                       size !== value && pageSizeSelectStyles.hidden,
                     )}

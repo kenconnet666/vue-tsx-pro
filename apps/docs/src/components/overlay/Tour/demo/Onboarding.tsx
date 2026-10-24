@@ -1,6 +1,6 @@
 import { Download, Filter, PackageCheck, Plus, Search, Sparkles } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -28,7 +28,7 @@ const orders = [
   ['#10232', '陈默', '¥4,299.00', 'info', '备货中'],
 ] as const;
 
-const styles = stylex.create({
+const styles = css.create({
   search: { flexGrow: 1 },
   // 第一步的封面：主题色的渐变上放一个大图标，换主题时跟着变
   cover: {
@@ -54,7 +54,7 @@ export default _component(() => {
       title: '欢迎使用订单中心',
       content: '花一分钟认识这几个常用功能。',
       cover: (
-        <div {...stylex.attrs(styles.cover)}>
+        <div {...css.attrs(styles.cover)}>
           <Icon icon={PackageCheck} />
         </div>
       ),

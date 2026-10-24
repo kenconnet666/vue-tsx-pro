@@ -14,7 +14,7 @@
  */
 import { Treemap, type TreemapNode } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -56,7 +56,7 @@ export interface TreemapChartProps<T extends object>
 }
 
 /** TreemapChart 的样式 */
-export const treemapChartStyles = stylex.create({
+export const treemapChartStyles = css.create({
   skeleton: { display: 'block', width: '100%', height: '100%' },
 });
 

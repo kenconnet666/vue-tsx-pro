@@ -19,7 +19,7 @@
  * 部件：Root（div）、Title、List（dl）、Item（div）、Label（dt）、Value（dd）、Copy（CopyButton）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { clamp } from '../utils/data/number';
 import { CopyButton, type CopyButtonProps } from '../base/CopyButton';
@@ -89,7 +89,7 @@ export interface DescriptionsProps extends PartProps<'div', 'title'> {
 }
 
 /** Descriptions 的样式：root、title、list、item、label、value 与各排列、边框 */
-export const descriptionsStyles = stylex.create({
+export const descriptionsStyles = css.create({
   // 容器查询的容器：dl 按它的宽度决定要不要排成一列
   root: { containerType: 'inline-size', display: 'grid', gap: '_md' },
   title: { fontWeight: '_semibold', fontSize: '_md' },
@@ -99,7 +99,7 @@ export const descriptionsStyles = stylex.create({
     rowGap: '_md',
     margin: 0,
   },
-  // 用长写：StyleX 里长写优先于简写，gap: 0 压不住 list 的 columnGap / rowGap
+  // 用长写：长写优先于简写（引擎把简写排在前面），gap: 0 压不住 list 的 columnGap / rowGap
   listBordered: {
     columnGap: 0,
     rowGap: 0,
@@ -139,7 +139,7 @@ export const descriptionsStyles = stylex.create({
 
 // 栏数与跨度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Descriptions 的样式：columns（栏数）、span（跨几栏） */
-export const descriptionsGridStyles = stylex.create({
+export const descriptionsGridStyles = css.create({
   // 容器不到 32em 时排成一列
   columns: (count: number) => ({
     gridTemplateColumns: {

@@ -27,7 +27,7 @@ import {
   X,
   CircleArrowUp,
 } from '@lucide/icons';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { computed, type ComputedRef, type VNodeChild } from 'vue';
 import type { IconData } from '../base/Icon';
 import { useMessages } from '../config/lang/messages';
@@ -59,7 +59,7 @@ export interface WorkflowTimelineOptions {
 }
 
 /** 流转记录的样式：comment（意见）、attachments、attachment */
-export const workflowTimelineStyles = stylex.create({
+export const workflowTimelineStyles = css.create({
   comment: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' },
   attachments: {
     display: 'flex',
@@ -166,14 +166,14 @@ export function useWorkflowTimeline(
           description:
             comment || event.attachments.length ? (
               <>
-                {comment && <div {...stylex.attrs(workflowTimelineStyles.comment)}>{comment}</div>}
+                {comment && <div {...css.attrs(workflowTimelineStyles.comment)}>{comment}</div>}
                 {event.attachments.length > 0 && (
                   <div
-                    {...stylex.attrs(workflowTimelineStyles.attachments)}
+                    {...css.attrs(workflowTimelineStyles.attachments)}
                     aria-label={messages.attachments}
                   >
                     {event.attachments.map((attachment) => (
-                      <span key={attachment} {...stylex.attrs(workflowTimelineStyles.attachment)}>
+                      <span key={attachment} {...css.attrs(workflowTimelineStyles.attachment)}>
                         {renderAttachment(attachment)}
                       </span>
                     ))}

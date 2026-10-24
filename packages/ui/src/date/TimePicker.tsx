@@ -14,7 +14,7 @@
 import { Clock } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { now, Time } from '@internationalized/date';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
@@ -42,7 +42,7 @@ export interface TimePickerProps<V extends TimeInput = string>
 }
 
 /** TimePicker 的样式：popover、list、now */
-export const timePickerStyles = stylex.create({
+export const timePickerStyles = css.create({
   popover: { display: 'flex', flexDirection: 'column', padding: '_xs' },
   // 弹层与输入框同宽，列表最多十来项高，其余滚动
   list: { maxHeight: '16em' },

@@ -18,7 +18,7 @@
  * 两列各自往下排，不按行对齐：展开代码、示例自己变高，只把同一列下面的示例往下推。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ExampleColumnContext } from './Example';
 
@@ -26,7 +26,7 @@ import { ExampleColumnContext } from './Example';
 const COLUMN_GAP = '2rem';
 const ROW_GAP = '3rem';
 
-const styles = stylex.create({
+const styles = css.create({
   root: { containerType: 'inline-size' },
   grid: {
     display: 'grid',
@@ -45,8 +45,8 @@ const styles = stylex.create({
 
 /** 一组示例：两个 ExampleColumn，宽屏时并排 */
 export const Examples = _component(({ children }: { children?: VNodeChild }) => () => (
-  <div {...stylex.attrs(styles.root)}>
-    <div {...stylex.attrs(styles.grid)}>{children}</div>
+  <div {...css.attrs(styles.root)}>
+    <div {...css.attrs(styles.grid)}>{children}</div>
   </div>
 ));
 
@@ -55,6 +55,6 @@ export const ExampleColumn = _component(
   ({ wide = false, children }: { wide?: boolean; children?: VNodeChild }) => {
     let count = 0;
     ExampleColumnContext.provide({ next: () => count++ });
-    return () => <div {...stylex.attrs(styles.column, wide && styles.wide)}>{children}</div>;
+    return () => <div {...css.attrs(styles.column, wide && styles.wide)}>{children}</div>;
   },
 );

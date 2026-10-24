@@ -1,10 +1,10 @@
 # CSS 注释数据的来源
 
-`generate.mjs` 用以下数据生成 `packages/tsx/src/stylex/styles.ts`（StyleX 各属性的中文注释）。
+`generate.mjs` 用以下数据生成 `packages/tsx/src/styles/documented.ts`（各 CSS 属性的中文注释）。
 
 | 内容                                      | 来源                                                                                                                           | 许可       |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------- |
-| 属性集合、伪元素、值类型、数字单位规则    | [StyleX](https://github.com/facebook/stylex)（`@stylexjs/stylex` 类型声明、`@stylexjs/babel-plugin`）                          | MIT        |
+| 属性集合、伪元素、值类型、数字单位规则    | [StyleX](https://github.com/facebook/stylex) 0.19.1 的类型声明，收录在 `packages/tsx/src/styles/css-properties.ts`             | MIT        |
 | 初始值、是否继承、标准状态、MDN 链接      | [mdn-data](https://github.com/mdn/data)                                                                                        | CC0-1.0    |
 | 浏览器支持（Baseline）                    | [web-features](https://github.com/web-platform-dx/web-features)                                                                | Apache-2.0 |
 | 中文说明、常用值、适用场景（`docs.json`） | 本仓库维护；起点是 [zerodep-js](https://github.com/kenconnet666/zerodep-js) 的 `scripts/css-author-docs.json`（同一作者，MIT） | MIT        |

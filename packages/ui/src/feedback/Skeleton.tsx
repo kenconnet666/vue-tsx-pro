@@ -11,11 +11,11 @@
  * 占位对读屏隐藏；整块区域在加载时在外层加 aria-busy。减少动态效果时不扫光。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
-import { shimmerVars } from '../utils/style/vars.stylex';
+import { shimmerVars } from '../utils/style/vars';
 import { t } from '../config/theme/tokens';
 
 /** 骨架的常用形状 */
@@ -55,7 +55,7 @@ export type SkeletonShapeProps = Omit<
 >;
 
 /** Skeleton 的样式：root、surface、wrapping、hidden */
-export const skeletonStyles = stylex.create({
+export const skeletonStyles = css.create({
   root: {
     display: 'inline-block',
     borderRadius: '_sm',
@@ -80,7 +80,7 @@ export const skeletonStyles = stylex.create({
 });
 
 /** Skeleton 的样式：text、heading、circle、button、image */
-export const skeletonVariantStyles = stylex.create({
+export const skeletonVariantStyles = css.create({
   text: { display: 'block', width: '_full', height: '1em' },
   heading: { display: 'block', width: '40%', height: '1.5em' },
   circle: { width: '2.5em', height: '2.5em', flexShrink: 0, borderRadius: '_full' },

@@ -1,6 +1,6 @@
 import { BookOpen, ChevronDown, CreditCard, LogOut, Palette, UserRound } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Avatar,
   ButtonBase,
@@ -15,7 +15,7 @@ import {
   Strong,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   trigger: {
     display: 'inline-flex',
     alignItems: 'center',

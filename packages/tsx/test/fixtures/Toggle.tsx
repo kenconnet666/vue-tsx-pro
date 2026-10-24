@@ -1,9 +1,9 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { _component } from '../../src';
 
-const styles = stylex.create({
+const styles = css.create({
   base: {
     // 布局
     display: 'inline-flex',
@@ -36,7 +36,7 @@ interface ToggleProps {
   /** 通知：普通函数 prop，取代 emit */
   onChange?: (checked: boolean) => void;
   /** 外部样式覆盖，取代 class 透传 */
-  sx?: StyleXStyles;
+  sx?: SxStyles;
   /** 内容：默认插槽映射而来 */
   children?: VNodeChild;
 }
@@ -56,7 +56,7 @@ export const Toggle = _component(
         type="button"
         disabled={disabled}
         aria-pressed={checked}
-        {...stylex.attrs(styles.base, checked && styles.on, sx)}
+        {...css.attrs(styles.base, checked && styles.on, sx)}
         onClick={toggle}
       >
         {children}

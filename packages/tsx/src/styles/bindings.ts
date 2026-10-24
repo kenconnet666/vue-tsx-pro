@@ -1,5 +1,5 @@
 /**
- * 元素上的响应式绑定（stylex.bind 交给 attrs 之后）：元素挂上时起一个 effect，参数变化时只改元素上的 CSS 变量，
+ * 元素上的响应式绑定（css.bind 交给 attrs 之后）：元素挂上时起一个 effect，参数变化时只改元素上的 CSS 变量，
  * 组件不重新渲染；组件因别的原因重新渲染时复用元素上的 effect，卸载时停掉。
  */
 import { getCurrentInstance, ReactiveEffect, type ComponentInternalInstance } from 'vue';

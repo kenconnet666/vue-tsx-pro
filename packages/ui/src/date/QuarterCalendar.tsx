@@ -13,7 +13,7 @@
  */
 import { ChevronLeft, ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId } from 'vue';
 import { buttonBaseStyles } from '../base/button-core';
 import { IconButton } from '../base/IconButton';
@@ -168,7 +168,7 @@ export const QuarterCalendar = _component(
           data-view="quarter"
           data-disabled={disabled || undefined}
         >
-          <div {...stylex.attrs(calendarStyles.header)}>
+          <div {...css.attrs(calendarStyles.header)}>
             <IconButton
               icon={ChevronLeft}
               aria-label={lang.calendarPreviousYear}
@@ -176,7 +176,7 @@ export const QuarterCalendar = _component(
               disabled={disabled}
               onClick={() => (year -= 1)}
             />
-            <span {...stylex.attrs(calendarStyles.heading, calendarStyles.headingStatic)}>
+            <span {...css.attrs(calendarStyles.heading, calendarStyles.headingStatic)}>
               {lang.calendarYear(year)}
             </span>
             <IconButton
@@ -188,7 +188,7 @@ export const QuarterCalendar = _component(
             />
           </div>
           <table
-            {...stylex.attrs(calendarStyles.grid, calendarStyles.periodGrid)}
+            {...css.attrs(calendarStyles.grid, calendarStyles.periodGrid)}
             role="grid"
             aria-label={lang.calendarYear(year)}
             aria-multiselectable={mode === 'range' || undefined}
@@ -209,7 +209,7 @@ export const QuarterCalendar = _component(
                       role="gridcell"
                       aria-selected={selected}
                       aria-disabled={disabledHere || undefined}
-                      {...stylex.attrs(
+                      {...css.attrs(
                         calendarStyles.cell,
                         inRange && calendarStyles.inRange,
                         preview != null && key === preview.start && calendarStyles.rangeStart,
@@ -221,7 +221,7 @@ export const QuarterCalendar = _component(
                         tabindex={isFocused ? 0 : -1}
                         aria-disabled={disabledHere || undefined}
                         aria-describedby={anchor ? hintId : undefined}
-                        {...stylex.attrs(
+                        {...css.attrs(
                           buttonBaseStyles.root,
                           interactionTransitions.colors,
                           calendarStyles.button,
@@ -240,7 +240,7 @@ export const QuarterCalendar = _component(
                         onFocus={() => (focused = key)}
                         onPointerenter={() => anchor && (hovered = key)}
                       >
-                        <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+                        <span {...css.attrs(visuallyHiddenStyles.hidden)}>
                           {lang.dateFieldPeriodPatterns.quarter
                             .replace('{year}', String(year))
                             .replace('{quarter}', String(quarter))}

@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Avatar,
   Button,
@@ -20,7 +20,7 @@ import {
   t,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   cover: {
     display: 'block',
     aspectRatio: '16 / 9',
@@ -58,7 +58,7 @@ export default _component(() => {
             </Flex>
           ) : (
             <Flex direction="column" gap="md" sx={shimmerStyles.reveal}>
-              <span {...stylex.attrs(styles.cover)} />
+              <span {...css.attrs(styles.cover)} />
               <H4>设计系统的第一年</H4>
               <Paragraph tone="muted">
                 从十几个按钮样式收敛到一套

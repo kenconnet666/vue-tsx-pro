@@ -12,8 +12,8 @@
  * - 阴影与缓动按 DTCG 的结构写出，Figma 变量没有这两种类型，导入时跳过。
  * 令牌按 token 组分组：colors/accent、space/md，与代码里的 `_accent`、`_space.md` 一一对应。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { CssVar } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { CssVar } from '@vue-tsx-pro/tsx/styles';
 import { formatHex } from 'culori/fn';
 import { parseColor } from '../utils/data/color';
 import { applyStyleAttrs } from '../utils/props';
@@ -184,7 +184,7 @@ export function elementDesignTokens(element: Element): DesignTokens {
 /** 在 container 里挂一个套着这套主题、不显示的空元素，读完就移除 */
 function probeTheme<T>(theme: Theme, container: Element, read: (probe: Element) => T): T {
   const probe = document.createElement('div');
-  applyStyleAttrs(probe, stylex.attrs(...theme.styles));
+  applyStyleAttrs(probe, css.attrs(...theme.styles));
   for (const [name, value] of Object.entries(themeVariables(theme))) {
     probe.style.setProperty(name, value);
   }

@@ -10,8 +10,8 @@
  * 部件：Root（滚动容器）、Canvas、Lane（泳道名称）、Node（每个节点）、EdgeLabel（连线的文字）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { useResizeObserver } from '../utils/dom/resize';
@@ -78,7 +78,7 @@ const sizes: Record<keyof FlowDiagramSizes, FlowLayoutOptions> = {
 };
 
 /** FlowDiagram 的样式：canvas、lane、node 与各状态、edge 与各种类、edgeLabel */
-export const flowDiagramStyles = stylex.create({
+export const flowDiagramStyles = css.create({
   root: { borderWidth: '_xs', borderStyle: 'solid', borderColor: '_border', borderRadius: '_md' },
   canvas: { position: 'relative', fontSize: '_sm', color: '_text' },
   canvasSm: { fontSize: '_xs' },
@@ -187,7 +187,7 @@ export const flowDiagramStyles = stylex.create({
 /** 连线的种类（决定颜色与箭头） */
 type EdgeTone = 'plain' | 'traversed' | 'return' | 'escalate' | 'invalid';
 
-const edgeStyles: Record<EdgeTone, readonly [StyleXStyles, StyleXStyles]> = {
+const edgeStyles: Record<EdgeTone, readonly [SxStyles, SxStyles]> = {
   plain: [null, flowDiagramStyles.arrow],
   traversed: [flowDiagramStyles.edgeTraversed, flowDiagramStyles.arrowTraversed],
   return: [flowDiagramStyles.edgeReturn, flowDiagramStyles.arrowReturn],
@@ -287,7 +287,7 @@ export const FlowDiagram = _component(
               )}
             >
               <svg
-                {...stylex.attrs(flowDiagramStyles.svg)}
+                {...css.attrs(flowDiagramStyles.svg)}
                 width={layout.width}
                 height={layout.height}
                 aria-hidden="true"
@@ -304,7 +304,7 @@ export const FlowDiagram = _component(
                       markerHeight="7"
                       orient="auto-start-reverse"
                     >
-                      <path d="M0 0 L10 5 L0 10 z" {...stylex.attrs(edgeStyles[tone][1])} />
+                      <path d="M0 0 L10 5 L0 10 z" {...css.attrs(edgeStyles[tone][1])} />
                     </marker>
                   ))}
                 </defs>
@@ -315,7 +315,7 @@ export const FlowDiagram = _component(
                       y={lane.y}
                       width={layout.width}
                       height={lane.height}
-                      {...stylex.attrs(
+                      {...css.attrs(
                         index % 2 ? flowDiagramStyles.laneBandAlt : flowDiagramStyles.laneBand,
                       )}
                     />
@@ -325,7 +325,7 @@ export const FlowDiagram = _component(
                         x2={layout.width}
                         y1={lane.y}
                         y2={lane.y}
-                        {...stylex.attrs(flowDiagramStyles.laneLine)}
+                        {...css.attrs(flowDiagramStyles.laneLine)}
                       />
                     )}
                   </g>
@@ -342,7 +342,7 @@ export const FlowDiagram = _component(
                       marker-end={`url(#${prefix}-${tone})`}
                       data-edge={item.id}
                       data-state={progress?.edges.has(item.id) ? 'traversed' : undefined}
-                      {...stylex.attrs(
+                      {...css.attrs(
                         flowDiagramStyles.edge,
                         edgeStyles[tone][0],
                         dim && flowDiagramStyles.edgeDim,
@@ -433,14 +433,14 @@ export const FlowDiagram = _component(
                   <>
                     {gateway && (
                       <svg
-                        {...stylex.attrs(flowDiagramStyles.gatewayShape)}
+                        {...css.attrs(flowDiagramStyles.gatewayShape)}
                         viewBox={`0 0 ${item.width} ${item.height}`}
                         preserveAspectRatio="none"
                         aria-hidden="true"
                       >
                         <polygon
                           points={`${item.width / 2},1 ${item.width - 1},${item.height / 2} ${item.width / 2},${item.height - 1} 1,${item.height / 2}`}
-                          {...stylex.attrs(
+                          {...css.attrs(
                             flowDiagramStyles.shape,
                             state === 'done' && flowDiagramStyles.shapeDone,
                             state === 'active' && flowDiagramStyles.shapeActive,
@@ -450,7 +450,7 @@ export const FlowDiagram = _component(
                       </svg>
                     )}
                     <span
-                      {...stylex.attrs(
+                      {...css.attrs(
                         flowDiagramStyles.name,
                         gateway && flowDiagramStyles.gatewayLabel,
                       )}
@@ -458,7 +458,7 @@ export const FlowDiagram = _component(
                       {node.name}
                     </span>
                     {detail != null && detail !== false && (
-                      <span {...stylex.attrs(flowDiagramStyles.detail)}>{detail}</span>
+                      <span {...css.attrs(flowDiagramStyles.detail)}>{detail}</span>
                     )}
                   </>
                 );

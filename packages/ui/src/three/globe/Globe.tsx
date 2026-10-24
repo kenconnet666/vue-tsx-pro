@@ -12,7 +12,7 @@
  * 部件：Root（div）、Canvas（ThreeCanvas）、Content（div，有内容时才有）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   BufferAttribute,
   BufferGeometry,
@@ -26,7 +26,7 @@ import {
   Vector3,
   type Color,
 } from 'three';
-import { colors } from '../../config/theme/tokens.stylex';
+import { colors } from '../../config/theme/tokens';
 import { clamp } from '../../utils/data/number';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { createOrbit } from '../core/orbit';
@@ -94,7 +94,7 @@ export interface GlobeProps extends EffectProps {
 }
 
 /** Globe 的样式：root、draggable、dragging */
-export const globeStyles = stylex.create({
+export const globeStyles = css.create({
   root: { aspectRatio: '1', width: '100%' },
   draggable: { cursor: 'grab', touchAction: 'pan-y' },
   dragging: { cursor: 'grabbing' },

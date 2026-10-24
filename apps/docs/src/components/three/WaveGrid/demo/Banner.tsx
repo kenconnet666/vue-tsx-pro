@@ -1,9 +1,9 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Flex, H2, Paragraph, t } from '@vue-tsx-pro/ui';
 import { WaveGrid } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   banner: {
     height: '22rem',
     borderRadius: '_lg',

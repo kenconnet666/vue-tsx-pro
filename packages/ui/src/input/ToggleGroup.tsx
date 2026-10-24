@@ -10,7 +10,7 @@
  *   <ToggleGroup selectionMode="multiple" value={_bind(marks)} aria-label="格式">…</ToggleGroup>
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
   buttonContent,
@@ -83,7 +83,7 @@ export interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManage
 export type ToggleGroupProps = ToggleGroupBaseProps & SelectionProps;
 
 /** ToggleGroup 的样式：root、vertical、indicator */
-export const toggleGroupStyles = stylex.create({
+export const toggleGroupStyles = css.create({
   root: {
     // 滑块按项的 offsetLeft / offsetTop 定位；isolation 让 zIndex: -1 的滑块压在项下、组的底色之上
     position: 'relative',

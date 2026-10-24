@@ -12,7 +12,7 @@
  * 部件：Root（div）、Icon、Content（div：标题与正文）、Title（strong）、Action、Close。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -68,7 +68,7 @@ export interface BannerProps extends PartProps<'div', BannerManaged> {
 }
 
 /** Banner 的样式：root、icon、content、title、action、close */
-export const bannerStyles = stylex.create({
+export const bannerStyles = css.create({
   // 内容居中、一行说完；窄屏时换行。关闭按钮贴在结束边，不参与居中
   root: {
     boxSizing: 'border-box',

@@ -7,7 +7,7 @@
  * 部件：Root（span）、Value（看得见的字数，对读屏隐藏）、Label（给读屏的句子）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -25,7 +25,7 @@ export interface CharacterCountProps extends PartProps<'span'> {
 }
 
 /** CharacterCount 的样式：root、over */
-export const characterCountStyles = stylex.create({
+export const characterCountStyles = css.create({
   root: {
     flexShrink: 0,
     fontSize: '_sm',

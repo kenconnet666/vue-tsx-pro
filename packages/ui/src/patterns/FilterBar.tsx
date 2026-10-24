@@ -16,7 +16,7 @@
  */
 import { ChevronDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { useMessages } from '../config/lang/messages';
@@ -65,7 +65,7 @@ export interface FilterBarProps
 }
 
 /** FilterBar 的样式：root、fields、more、actions、toggleIconOpen */
-export const filterBarStyles = stylex.create({
+export const filterBarStyles = css.create({
   // 条件栅格与按钮区并排；放不下时按钮区换行
   root: {
     display: 'flex',
@@ -97,7 +97,7 @@ export const filterBarStyles = stylex.create({
 });
 
 /** FilterBar 的样式：columns（每格的最小宽度；栅格本身至少放得下一格） */
-export const filterBarColumnStyles = stylex.create({
+export const filterBarColumnStyles = css.create({
   columns: (minWidth: string) => ({
     flexBasis: minWidth,
     gridTemplateColumns: `repeat(auto-fill, minmax(min(${minWidth}, 100%), 1fr))`,

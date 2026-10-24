@@ -1,24 +1,24 @@
 /**
  * 样式入口：运行时样式引擎（runtime.ts）加上中文注释的类型。
  *
- *   import * as stylex from '@vue-tsx-pro/tsx/stylex';
+ *   import * as css from '@vue-tsx-pro/tsx/styles';
  *
  * create 的参数只让样式组名参与推导，组内属性的上下文类型固定为带注释的 DocumentedStyles，
  * 悬停、补全、跳转都能看到说明（整个参数做泛型推导时，TypeScript 悬停只显示推导出的字面量）。
  */
 import * as runtime from './runtime';
-import type { DocumentedStyles } from './styles';
+import type { DocumentedStyles } from './documented';
 import type { StyleValue } from './value';
 import type { VAR_GROUP } from './vars';
 
 export type { CSSProperties } from './css-properties';
-export type { DocumentedStyles } from './styles';
+export type { DocumentedStyles } from './documented';
 export { recipe, type Recipe, type RecipeConfig, type VariantSelection } from './recipe';
 export { CONDITIONS as conditions, hotStyles, styleText } from './runtime';
 
 /*
  * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@vue-tsx-pro/ui 的 token-names.ts）用
- * declare module '@vue-tsx-pro/tsx/stylex' 填入以 `_` 开头的 token 名。接口必须声明在这个入口模块里：
+ * declare module '@vue-tsx-pro/tsx/styles' 填入以 `_` 开头的 token 名。接口必须声明在这个入口模块里：
  * 增补与声明在同一个模块，WebStorm 才能把 '_xs' 解析到唯一的那一组（跳转、悬停注释、补全都靠它）；
  * 声明在别的文件再转出时，它会列出所有同名的 token 让人选。
  */
@@ -117,7 +117,7 @@ export type InlineStyles = Readonly<Record<string, string>>;
 type StyleArray<T> = T | ReadonlyArray<StyleArray<T>>;
 
 /** sx 与 attrs 收的样式：样式组、动态样式的结果、假值（便于按条件组合），可以嵌套成数组 */
-export type StyleXStyles = StyleArray<
+export type SxStyles = StyleArray<
   null | undefined | boolean | CompiledStyles | Readonly<[CompiledStyles, InlineStyles]>
 >;
 
@@ -151,13 +151,13 @@ type MapStyles<S> = Readonly<{
     : CompiledStyles;
 }>;
 
-/** stylex.create 的类型：样式组名保留推导，组内属性值的上下文类型固定为带注释的 DocumentedStyles（COMPONENTS.md §9.2） */
+/** css.create 的类型：样式组名保留推导，组内属性值的上下文类型固定为带注释的 DocumentedStyles（COMPONENTS.md §9.2） */
 export interface Create {
   /**
    * 定义一组静态样式，用到时由运行时引擎合成类、插入规则；属性悬停可看到中文说明。
    *
    * ```ts
-   * const styles = stylex.create({
+   * const styles = css.create({
    *   base: { display: 'flex', gap: '0.5em' },
    *   active: { color: { default: 'black', ':hover': 'blue' } },
    * });
@@ -181,12 +181,12 @@ export const create: Create = runtime.create as never;
 /**
  * 把多个样式合并成元素属性 `{ class, style }`，后面的覆盖前面的；
  * 假值（false、null、undefined）会被忽略，便于按条件组合。Vue 的 JSX 用它：
- * `<div {...stylex.attrs(styles.base, active && styles.active, sx)} />`
+ * `<div {...css.attrs(styles.base, active && styles.active, sx)} />`
  */
-export const attrs: (...styles: readonly StyleXStyles[]) => StyleXAttrs = runtime.attrs as never;
+export const attrs: (...styles: readonly SxStyles[]) => StyleAttrs = runtime.attrs as never;
 
 /** attrs 的结果：交给元素的 class 与行内样式（动态样式的变量与值） */
-export interface StyleXAttrs {
+export interface StyleAttrs {
   /** 生成的类：一个组合类，加上主题、标记的类 */
   class?: string;
   /** 行内样式：动态样式写的 CSS 变量（名字原样）与值 */
@@ -229,7 +229,7 @@ export const keyframes: (frames: Readonly<Record<string, DocumentedStyles>>) => 
 /** 关系条件：被观察元素（标记）处于某伪类时，如 `':hover'`、`':focus-visible'` */
 type When = (pseudo: `:${string}`, marker: Marker) => `:where(${string})`;
 
-/** 按祖先、后代、兄弟（用 defineMarker 标记）的状态取样式：`[stylex.when.ancestor(':hover', marker)]: …` */
+/** 按祖先、后代、兄弟（用 defineMarker 标记）的状态取样式：`[css.when.ancestor(':hover', marker)]: …` */
 export const when: {
   /** 祖先处于某状态时 */
   readonly ancestor: When;
@@ -245,7 +245,7 @@ export const when: {
 
 /**
  * 动态样式的响应式绑定：参数变化时只改元素上的变量，不重新渲染组件。
- * JSX 里写 `styles.bar(item.width)` 时编译器自动改写成 `stylex.bind(styles.bar, () => [item.width])`，
+ * JSX 里写 `styles.bar(item.width)` 时编译器自动改写成 `css.bind(styles.bar, () => [item.width])`，
  * 一般不用手写；类型与直接调用动态样式的结果相同，能放进 attrs 与 sx
  */
 export const bind: <Args extends unknown[]>(

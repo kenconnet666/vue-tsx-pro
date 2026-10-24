@@ -11,7 +11,7 @@
  * 部件：Root（div，role="meter"）、Value（中间的数值）、Label（名称）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -64,7 +64,7 @@ export interface GaugeProps extends PartProps<'div', GaugeManaged> {
 }
 
 /** Gauge 的样式 */
-export const gaugeStyles = stylex.create({
+export const gaugeStyles = css.create({
   root: {
     display: 'inline-grid',
     justifyItems: 'center',
@@ -110,7 +110,7 @@ export const gaugeStyles = stylex.create({
  * 色调的实色：数值弧（--gauge-color）与外圈的区间。弧与区间只是辅助，数值以文字给出（中间与读屏），
  * 所以用明亮的实色而不是够文字对比度的深色
  */
-const gaugeToneStyles = stylex.create({
+const gaugeToneStyles = css.create({
   neutral: { '--gauge-color': '_colors.borderStrong' },
   accent: { '--gauge-color': '_colors.accent' },
   info: { '--gauge-color': '_colors.info' },
@@ -120,7 +120,7 @@ const gaugeToneStyles = stylex.create({
 });
 
 /** 外圈区间的颜色 */
-const bandColors = stylex.create({
+const bandColors = css.create({
   neutral: { stroke: '_borderStrong' },
   accent: { stroke: '_accent' },
   info: { stroke: '_info' },
@@ -202,11 +202,11 @@ export const Gauge = _component(
             },
           )}
         >
-          <div {...stylex.attrs(gaugeStyles.dial)}>
-            <svg {...stylex.attrs(gaugeStyles.svg)} viewBox="0 -4 200 108" aria-hidden="true">
-              <path d={arc(0, 1, RADIUS)} {...stylex.attrs(gaugeStyles.track)} />
+          <div {...css.attrs(gaugeStyles.dial)}>
+            <svg {...css.attrs(gaugeStyles.svg)} viewBox="0 -4 200 108" aria-hidden="true">
+              <path d={arc(0, 1, RADIUS)} {...css.attrs(gaugeStyles.track)} />
               {fraction > 0 && (
-                <path d={arc(0, fraction, RADIUS)} {...stylex.attrs(gaugeStyles.value)} />
+                <path d={arc(0, fraction, RADIUS)} {...css.attrs(gaugeStyles.value)} />
               )}
               {(bands ?? []).map((item, position) => {
                 const from = fractionOf(position === 0 ? min : bands![position - 1]!.to);
@@ -215,12 +215,12 @@ export const Gauge = _component(
                   <path
                     key={position}
                     d={arc(from, to, BAND_RADIUS)}
-                    {...stylex.attrs(gaugeStyles.band, bandColors[item.tone])}
+                    {...css.attrs(gaugeStyles.band, bandColors[item.tone])}
                   />
                 ) : null;
               })}
               {target !== undefined && (
-                <line {...tick(fractionOf(target))} {...stylex.attrs(gaugeStyles.target)} />
+                <line {...tick(fractionOf(target))} {...css.attrs(gaugeStyles.target)} />
               )}
             </svg>
             <span
@@ -231,7 +231,7 @@ export const Gauge = _component(
               {valueLabel ?? spoken}
             </span>
           </div>
-          <div {...stylex.attrs(gaugeStyles.ends)} aria-hidden="true">
+          <div {...css.attrs(gaugeStyles.ends)} aria-hidden="true">
             <span>{format.number(min, valueFormat)}</span>
             <span>{format.number(max, valueFormat)}</span>
           </div>

@@ -20,7 +20,7 @@
  */
 import { Bell } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -111,7 +111,7 @@ export interface NotificationListProps extends PartProps<'div', 'title'>, Notifi
 }
 
 /** NotificationList 的样式：root、head、title、filters、list、item、dot… */
-export const notificationListStyles = stylex.create({
+export const notificationListStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', minWidth: 0 },
   head: {
     display: 'flex',
@@ -227,7 +227,7 @@ export const NotificationList = _component(
         <div {...mergeAttrs<'div'>({ sx: notificationListStyles.root }, rest)}>
           {title !== false && (
             <div {...mergeAttrs<'div'>({ sx: notificationListStyles.head }, propsHead)}>
-              <span {...stylex.attrs(notificationListStyles.title)}>
+              <span {...css.attrs(notificationListStyles.title)}>
                 {title ?? messages.notifications}
               </span>
               {markAll}
@@ -295,12 +295,12 @@ export const NotificationList = _component(
                     )}
                     data-state={item.read ? 'read' : 'unread'}
                   >
-                    <span {...stylex.attrs(notificationListStyles.dot)}>
+                    <span {...css.attrs(notificationListStyles.dot)}>
                       {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
                     </span>
-                    <span {...stylex.attrs(notificationListStyles.body)}>
+                    <span {...css.attrs(notificationListStyles.body)}>
                       <span
-                        {...stylex.attrs(
+                        {...css.attrs(
                           notificationListStyles.itemTitle,
                           !item.read && notificationListStyles.itemTitleUnread,
                         )}
@@ -311,15 +311,13 @@ export const NotificationList = _component(
                         {item.title}
                       </span>
                       {item.description && (
-                        <span {...stylex.attrs(notificationListStyles.muted)}>
-                          {item.description}
-                        </span>
+                        <span {...css.attrs(notificationListStyles.muted)}>{item.description}</span>
                       )}
                     </span>
                     <time
                       datetime={item.time}
                       title={format.date(item.time, { dateStyle: 'medium', timeStyle: 'short' })}
-                      {...stylex.attrs(notificationListStyles.time)}
+                      {...css.attrs(notificationListStyles.time)}
                     >
                       {format.relative(item.time, { now })}
                     </time>
@@ -349,7 +347,7 @@ export interface NotificationCenterProps
 }
 
 /** NotificationCenter 的样式：panel（弹出层的宽度）、list（列表的最大高度） */
-export const notificationCenterStyles = stylex.create({
+export const notificationCenterStyles = css.create({
   panel: { width: 'min(26rem, calc(100vw - 2rem))', padding: 0 },
   list: { maxHeight: '24rem' },
 });

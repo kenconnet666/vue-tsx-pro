@@ -6,8 +6,8 @@
  */
 import { h, type VNodeChild } from 'vue';
 import { createContext } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
@@ -21,7 +21,7 @@ import {
   type AttachedOrientations,
 } from '../utils/style/attached';
 import { toneThemes } from '../utils/style/tone-themes';
-import { toneVars } from '../utils/style/tone.stylex';
+import { toneVars } from '../utils/style/tone-vars';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -88,7 +88,7 @@ export interface ButtonContentOptions {
 }
 
 /** 按钮的基础样式：去掉默认外观，继承文字样式，指针与触摸的反馈；Button 家族也用它 */
-export const buttonBaseStyles = stylex.create({
+export const buttonBaseStyles = css.create({
   root: {
     boxSizing: 'border-box',
     margin: 0,
@@ -111,7 +111,7 @@ export const buttonBaseStyles = stylex.create({
 });
 
 /** 按钮家族 的样式：root、square、fullWidth、disabled、content、hidden 等 */
-export const buttonStyles = stylex.create({
+export const buttonStyles = css.create({
   // 去掉默认外观、指针与触摸反馈、颜色过渡来自 buttonBaseStyles 与 interactionTransitions（buttonSx 里排在前面）
   root: {
     display: 'inline-flex',
@@ -155,7 +155,7 @@ const HOVER = ':hover:not(:disabled,[aria-disabled="true"])';
  * 按钮的样式（配方）：色调由 toneThemes[tone] 挂在按钮上，这里只引用 toneVars，每种样式写一遍。
  * 实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1
  */
-export const buttonRecipe = stylex.recipe({
+export const buttonRecipe = css.recipe({
   parts: ['root'],
   variants: {
     variant: {
@@ -251,7 +251,7 @@ export function useButtonAppearance(
 export function buttonSx(
   { variant, tone, size, radius, attached }: ButtonAppearance,
   state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
-): StyleXStyles {
+): SxStyles {
   return [
     buttonBaseStyles.root,
     interactionTransitions.colors,
@@ -266,7 +266,7 @@ export function buttonSx(
     state.square && buttonStyles.square,
     state.fullWidth && buttonStyles.fullWidth,
     state.disabled && buttonStyles.disabled,
-  ] as StyleXStyles;
+  ] as SxStyles;
 }
 
 /** 按钮内容：图标、文字、加载指示；加载中内容透明但保留宽度与无障碍名称 */

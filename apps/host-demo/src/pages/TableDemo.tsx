@@ -1,7 +1,7 @@
 // /base 页上的表格演示：DataTable（一万行、排序、勾选、固定列、列宽、搜索、列显示开关、刷新）与 TreeDataTable（懒加载）
 import { Columns3, RefreshCw, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -56,7 +56,7 @@ interface Unit {
   lazy?: boolean;
 }
 
-const styles = stylex.create({
+const styles = css.create({
   table: { height: '22em', maxHeight: 'none' },
   tree: { height: '16em', maxHeight: 'none' },
 });

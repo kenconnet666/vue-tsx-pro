@@ -1,11 +1,11 @@
 // 程序生成的对象：直接交给 object；金属度、粗糙度不同的材质在同一间摄影棚里；地址错了时显示提示
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, Small } from '@vue-tsx-pro/ui';
 import { ModelViewer } from '@vue-tsx-pro/ui/three';
 import { IcosahedronGeometry, Mesh, MeshPhysicalMaterial, TorusKnotGeometry } from 'three';
 
-const styles = stylex.create({
+const styles = css.create({
   viewer: { maxWidth: '16rem', marginInline: 'auto' },
 });
 

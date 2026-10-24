@@ -1,15 +1,15 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { darkShadows } from './dark';
 import { paperFonts } from './paper';
 import { defaultRadii } from './light';
 import type { Theme } from './theme';
-import { colors } from './tokens.stylex';
+import { colors } from './tokens';
 
 /**
  * 咖啡主题的颜色：浓缩咖啡色的页面、焦糖色的品牌色 `#c8915a`（配深色字）、奶泡色的文字。中性色按 slate 暗色各级亮度换成暖棕色相（oklch 55°），品牌色取 Radix brown 色阶。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
-export const coffeeColors = stylex.createTheme(colors, {
+export const coffeeColors = css.createTheme(colors, {
   background: '#180f0a',
   surface: '#201711',
   surfaceMuted: '#201711',

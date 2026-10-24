@@ -1,6 +1,6 @@
 /** 主题定制页：先选一套内置主题作为起点（就是站点的主题偏好），编辑器的设置叠在它上面 */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   builtinThemeLabel,
   builtinThemes,
@@ -13,7 +13,7 @@ import {
 import { ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';
 import { preference } from '../../../site/theme';
 
-const styles = stylex.create({
+const styles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm' },
   header: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   options: {
@@ -55,8 +55,8 @@ const styles = stylex.create({
 export const StartingPoint = _component(() => {
   const lang = useLang();
   return () => (
-    <div {...stylex.attrs(styles.root)}>
-      <div {...stylex.attrs(styles.header)}>
+    <div {...css.attrs(styles.root)}>
+      <div {...css.attrs(styles.header)}>
         <Text weight="semibold">起点</Text>
         <Text size="sm" tone="muted">
           选一套内置主题打底，下面的调整叠在它上面；也就是右上角的主题切换
@@ -83,7 +83,7 @@ export const StartingPoint = _component(() => {
               theme={builtinThemes[name]}
               sx={[styles.thumbnail, preference.name === name && styles.selected]}
             />
-            <span {...stylex.attrs(styles.label)}>{builtinThemeLabel(lang, name)}</span>
+            <span {...css.attrs(styles.label)}>{builtinThemeLabel(lang, name)}</span>
           </ToggleItem>
         ))}
       </ToggleGroup>

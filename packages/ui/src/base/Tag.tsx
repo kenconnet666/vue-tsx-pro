@@ -8,7 +8,7 @@
  *   <Tag onRemove={() => layout.change(() => remove(item))}>…</Tag>
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
@@ -36,7 +36,7 @@ export interface TagProps extends PartProps<'span'>, BadgeOptions {
 }
 
 /** Tag 的样式：root、removable、remove、removing */
-export const tagStyles = stylex.create({
+export const tagStyles = css.create({
   // 移除被拒绝（使用方没移除）时从离场状态过渡回来
   root: {
     transition: `opacity ${t.durations.sm} ${t.easings.enter}, scale ${t.durations.sm} ${t.easings.enter}`,

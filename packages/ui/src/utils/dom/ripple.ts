@@ -7,24 +7,24 @@
  *   const ripple = useRipple(() => props.ripple)
  *   mergeAttrs<'button'>(默认, rest, { ...ripple })
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useConfig } from '../../config/context';
 import { applyStyleAttrs } from '../props';
 import { afterTransitions } from '../style/transitions';
 import { t } from '../../config/theme/tokens';
 
-const expand = stylex.keyframes({
+const expand = css.keyframes({
   from: { transform: 'scale(0)' },
   to: { transform: 'scale(1)' },
 });
 
 /** 宿主元素需要的样式：波纹相对它定位，超出圆角的部分裁掉 */
-export const rippleHostStyles = stylex.create({
+export const rippleHostStyles = css.create({
   host: { position: 'relative', overflow: 'hidden' },
 });
 
 /** 波纹 的样式：ripple、fading */
-export const rippleStyles = stylex.create({
+export const rippleStyles = css.create({
   ripple: {
     position: 'absolute',
     borderRadius: '_full',
@@ -42,7 +42,7 @@ export const rippleStyles = stylex.create({
 
 // 位置与大小是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** 波纹 的样式：at */
-export const ripplePlacementStyles = stylex.create({
+export const ripplePlacementStyles = css.create({
   at: (x: number, y: number, size: number) => ({ left: x, top: y, width: size, height: size }),
 });
 
@@ -89,13 +89,13 @@ export function startRipple(event: PointerEvent | KeyboardEvent): void {
   ripple.setAttribute('aria-hidden', 'true');
   applyStyleAttrs(
     ripple,
-    stylex.attrs(rippleStyles.ripple, ripplePlacementStyles.at(x - radius, y - radius, radius * 2)),
+    css.attrs(rippleStyles.ripple, ripplePlacementStyles.at(x - radius, y - radius, radius * 2)),
   );
   host.append(ripple);
 
   const release = () => {
     for (const [type, target] of releaseEvents) target.removeEventListener(type, release);
-    ripple.classList.add(...(stylex.attrs(rippleStyles.fading).class ?? '').split(' '));
+    ripple.classList.add(...(css.attrs(rippleStyles.fading).class ?? '').split(' '));
     void afterTransitions(ripple).then(() => ripple.remove());
   };
   const releaseEvents: [string, EventTarget][] = keyboard

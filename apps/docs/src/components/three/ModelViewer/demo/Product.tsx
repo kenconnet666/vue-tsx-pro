@@ -1,10 +1,10 @@
 // 商品详情：模型可以拖动环绕、滚轮缩放，旁边是商品信息；加载完成前中间转圈
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Button, Card, Flex, Grid, H3, Paragraph, Small, Strong } from '@vue-tsx-pro/ui';
 import { ModelViewer } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   viewer: { maxWidth: '26rem', marginInline: 'auto', borderRadius: '_lg' },
 });
 

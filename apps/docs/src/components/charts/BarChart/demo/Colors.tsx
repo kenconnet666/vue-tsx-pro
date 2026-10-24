@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import { BarChart } from '@vue-tsx-pro/ui/charts';
 
 const months = [

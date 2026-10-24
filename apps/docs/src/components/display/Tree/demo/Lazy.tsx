@@ -2,7 +2,7 @@
 // renderItem 在名字后面加人数
 import { Building2, Users } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Card, Flex, Small, Tree } from '@vue-tsx-pro/ui';
 
 interface Department {
@@ -32,7 +32,7 @@ const fetchTeams = (parent: Department) =>
     ),
   );
 
-const styles = stylex.create({ tree: { height: '16rem' }, count: { marginInlineStart: '_xs' } });
+const styles = css.create({ tree: { height: '16rem' }, count: { marginInlineStart: '_xs' } });
 
 export default _component(() => {
   let departments = _state<Department[]>([

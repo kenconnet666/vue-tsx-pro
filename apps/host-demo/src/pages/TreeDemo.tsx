@@ -1,7 +1,7 @@
 // /base 页上的树演示：单选的目录树（文件夹图标随展开切换）与勾选的权限树（父子联动、懒加载）
 import { File, Folder, FolderOpen } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, Text, Tree } from '@vue-tsx-pro/ui';
 
 interface Entry {
@@ -32,7 +32,7 @@ const files: Entry[] = [
   { id: 'readme', name: 'README.md' },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   tree: {
     width: '18rem',
     maxHeight: '16rem',

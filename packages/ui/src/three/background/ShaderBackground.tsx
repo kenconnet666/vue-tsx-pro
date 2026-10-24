@@ -23,7 +23,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { Mesh, PlaneGeometry, ShaderMaterial, Vector2, Vector3, type IUniform } from 'three';
 import { useConfig } from '../../config/context';
-import { colors } from '../../config/theme/tokens.stylex';
+import { colors } from '../../config/theme/tokens';
 import { clamp } from '../../utils/data/number';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { shaderChunks, THEME_PALETTE_SIZE } from '../core/shaders';

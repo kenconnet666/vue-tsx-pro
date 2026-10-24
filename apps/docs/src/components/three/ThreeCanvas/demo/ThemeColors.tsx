@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Card,
   darkTheme,
@@ -13,7 +13,7 @@ import {
   ToggleItem,
 } from '@vue-tsx-pro/ui';
 import { ThreeCanvas } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import {
   AmbientLight,
   DirectionalLight,
@@ -43,7 +43,7 @@ const CHART = [
   colors.chart8,
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '22rem' },
   card: { backgroundColor: '_background', overflow: 'hidden' },
 });

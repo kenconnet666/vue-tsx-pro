@@ -15,7 +15,7 @@
  * 外壳与自动增高同 Textarea。部件：Root（外壳）、Textarea、Popover、Listbox。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId, watch, type VNodeChild } from 'vue';
 import { useLang, useTextMatcher } from '../config/context';
 import { caretAnchor } from '../utils/dom/caret';
@@ -128,7 +128,7 @@ export function mentionedValues(
 }
 
 /** MentionText 与 Mentions 的样式：mention、text、panel */
-export const mentionStyles = stylex.create({
+export const mentionStyles = css.create({
   // 提及：强调色的文字，浅底
   mention: {
     color: '_accentText',

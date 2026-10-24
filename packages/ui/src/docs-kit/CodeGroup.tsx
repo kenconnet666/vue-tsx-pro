@@ -10,7 +10,7 @@
  * 选中哪一个可以双向绑定（value={_bind(manager)}），几组代码绑同一个变量就一起切换。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { Tab, TabList, TabPanel, Tabs, type TabListProps } from '../navigation/Tabs';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
@@ -35,7 +35,7 @@ export interface CodeGroupProps extends PartProps<'div'> {
 }
 
 /** CodeGroup 的样式：外框与标签栏；代码块去掉自己的外框 */
-export const codeGroupStyles = stylex.create({
+export const codeGroupStyles = css.create({
   root: {
     minWidth: 0,
     borderWidth: '_xs',

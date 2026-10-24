@@ -14,7 +14,7 @@
  * 未声明的属性落到 input（主元素）上。部件：Root（外壳）、Tag、Input、Clear、Popover、Listbox。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { Tag, type TagProps } from '../base/Tag';
@@ -122,7 +122,7 @@ export interface TagsInputBaseProps<T>
 export type TagsInputProps<T = ListboxOption> = TagsInputBaseProps<T> & OptionMapping<T>;
 
 /** TagsInput 的样式：root、input、popover */
-export const tagsInputStyles = stylex.create({
+export const tagsInputStyles = css.create({
   // 标签多了换行；行与行之间留出间距
   root: { flexWrap: 'wrap', rowGap: '_xs', paddingBlock: '_xs' },
   // 输入框至少留出几个字的位置，放不下时换到下一行

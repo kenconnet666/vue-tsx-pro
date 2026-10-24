@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect } from 'vitest';
 import { createApp, nextTick, ref, type VNodeChild } from 'vue';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { _component } from '../src';
 import { Toggle } from './fixtures/Toggle';
 import { Card, cardSetupCount } from './fixtures/Card';
@@ -141,8 +141,8 @@ describe('原生输入', () => {
   });
 });
 
-describe('StyleX', () => {
-  const page = stylex.create({
+describe('样式', () => {
+  const page = css.create({
     danger: {
       color: { default: 'crimson', ':hover': 'white' },
       backgroundColor: { default: 'transparent', ':hover': 'crimson' },
@@ -177,7 +177,7 @@ describe('StyleX', () => {
       </>
     ));
     const [first, second, third] = el.querySelectorAll('section');
-    expect(stylex.styleText()).toMatch(new RegExp(`\\.${first!.className}\\{[^}]*width:120px`));
+    expect(css.styleText()).toMatch(new RegExp(`\\.${first!.className}\\{[^}]*width:120px`));
     expect(second!.getAttribute('style')).toContain('200px');
     expect(third!.getAttribute('style')).toContain('300px');
     expect(third!.className).toBe(second!.className);

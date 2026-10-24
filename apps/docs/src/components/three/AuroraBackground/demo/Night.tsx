@@ -1,9 +1,9 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Flex, H2, midnightTheme, Paragraph, Provider, Text } from '@vue-tsx-pro/ui';
 import { AuroraBackground } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   hero: {
     minHeight: '24rem',
     borderRadius: '_lg',

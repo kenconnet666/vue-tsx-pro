@@ -11,7 +11,7 @@
  * 里面的 ToggleGroup 不再自己管焦点，它的按钮和其他按钮一起用方向键移动（同 WAI-ARIA 的文字格式工具栏示例）。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
@@ -42,7 +42,7 @@ export interface ToolbarProps extends PartProps<'div', ToolbarManaged> {
 }
 
 /** Toolbar 的样式：root、vertical */
-export const toolbarStyles = stylex.create({
+export const toolbarStyles = css.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap' },
   vertical: { flexDirection: 'column', alignItems: 'stretch' },
 });

@@ -1,10 +1,10 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
 import { MeshGradient, ParticleField } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
-const styles = stylex.create({
+const styles = css.create({
   hero: { borderRadius: '_lg', height: '20rem' },
   // 粒子场作为渐变的内容，铺满整块
   field: { height: '20rem', display: 'grid', placeItems: 'center' },

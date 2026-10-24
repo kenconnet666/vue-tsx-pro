@@ -5,7 +5,7 @@
  * 用 :nth-child(1 of …)（各浏览器 2023 年起支持）。
  */
 import { createContext } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { t } from '../../config/theme/tokens';
 
 /** 相连的方向 */
@@ -31,7 +31,7 @@ export const AttachedContext = createContext<AttachedState>('Attached');
  * 只在“不是第一个 / 最后一个”时设值：两端不写，控件自己的圆角（radiusStyles）照常生效
  * （写成 default: 0 再在首尾设 null 时，null 只是不生成规则，0 仍然生效）
  */
-export const attachedStyles = stylex.create({
+export const attachedStyles = css.create({
   horizontal: {
     position: 'relative',
     zIndex: { default: null, ':hover': 1, ':focus-visible': 2, ':focus-within': 2 },

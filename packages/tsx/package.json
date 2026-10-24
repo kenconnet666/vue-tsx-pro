@@ -16,10 +16,10 @@
       "types": "./dist/vite.d.ts",
       "default": "./dist/vite.js"
     },
-    "./stylex": {
-      "@vue-tsx-pro/source": "./src/stylex/index.ts",
-      "types": "./dist/stylex.d.ts",
-      "default": "./dist/stylex.js"
+    "./styles": {
+      "@vue-tsx-pro/source": "./src/styles/index.ts",
+      "types": "./dist/styles.d.ts",
+      "default": "./dist/styles.js"
     },
     "./compiler": {
       "@vue-tsx-pro/source": "./src/compiler/index.ts",

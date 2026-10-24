@@ -1296,7 +1296,7 @@ export {
   type QueryCodecs,
 } from './config/query-state';
 
-// 主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens.stylex 直接导入各组
+// 主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens 直接导入各组
 export {
   builtinThemeBootColors,
   DEFAULT_THEME_STORAGE_KEY,
@@ -1390,7 +1390,7 @@ export {
   type AttachedState,
 } from './utils/style/attached';
 export { itemStyles } from './utils/style/item-styles';
-export { headingMarker } from './utils/style/markers.stylex';
+export { headingMarker } from './utils/style/markers';
 export { SHIMMER_STAGGER, shimmerStyles } from './utils/style/shimmer';
 export {
   columnGapStyles,
@@ -1421,7 +1421,7 @@ export {
   type StatusVariants,
 } from './utils/style/tone-styles';
 export { toneThemes } from './utils/style/tone-themes';
-export { toneVars } from './utils/style/tone.stylex';
+export { toneVars } from './utils/style/tone-vars';
 export {
   afterTransitions,
   disclosureStyles,

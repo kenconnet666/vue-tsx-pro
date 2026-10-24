@@ -12,7 +12,7 @@
  */
 import { Download, FileBraces, RotateCcw } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
@@ -45,7 +45,7 @@ import {
   type NeutralScale,
 } from './palette';
 import { readToken, type Theme } from '../config/theme/theme';
-import { colors } from '../config/theme/tokens.stylex';
+import { colors } from '../config/theme/tokens';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ThemeCustomizerProps extends PartProps<'div'> {
@@ -70,7 +70,7 @@ export interface ThemeCustomizerProps extends PartProps<'div'> {
 }
 
 /** ThemeCustomizer 的样式：root、group、groupHeader、field、fieldHeader、options、option、optionContent 等 */
-export const themeCustomizerStyles = stylex.create({
+export const themeCustomizerStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xl' },
   group: {
     display: 'flex',
@@ -127,7 +127,7 @@ export const themeCustomizerStyles = stylex.create({
 });
 
 /** ThemeCustomizer 的样式：圆角示意的四档（none、small、medium、large） */
-export const themeCustomizerCornerStyles = stylex.create({
+export const themeCustomizerCornerStyles = css.create({
   none: { borderStartStartRadius: 0 },
   small: { borderStartStartRadius: '0.2em' },
   medium: { borderStartStartRadius: '0.45em' },
@@ -136,7 +136,7 @@ export const themeCustomizerCornerStyles = stylex.create({
 
 // 色块颜色与示例字号是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** ThemeCustomizer 的动态样式：色块的颜色、缩放示例的字号 */
-export const themeCustomizerDynamicStyles = stylex.create({
+export const themeCustomizerDynamicStyles = css.create({
   fill: (color: string) => ({ backgroundColor: color }),
   scale: (factor: number) => ({ fontSize: `${factor}em` }),
 });
@@ -210,7 +210,7 @@ export const ThemeCustomizer = _component(
 
     const group = (title: string, hint: string, children: VNodeChild) => (
       <section {...mergeAttrs<'section'>({ sx: themeCustomizerStyles.group }, propsGroup)}>
-        <div {...stylex.attrs(themeCustomizerStyles.groupHeader)}>
+        <div {...css.attrs(themeCustomizerStyles.groupHeader)}>
           <Text weight="semibold">{title}</Text>
           <Text size="sm" tone="muted">
             {hint}
@@ -229,8 +229,8 @@ export const ThemeCustomizer = _component(
       onChange: (next: string) => void,
       layout: OptionLayout = 'list',
     ) => (
-      <div {...stylex.attrs(themeCustomizerStyles.field)}>
-        <div {...stylex.attrs(themeCustomizerStyles.fieldHeader)}>
+      <div {...css.attrs(themeCustomizerStyles.field)}>
+        <div {...css.attrs(themeCustomizerStyles.fieldHeader)}>
           <Text size="sm" weight="medium">
             {label}
           </Text>
@@ -265,9 +265,9 @@ export const ThemeCustomizer = _component(
                   <VisuallyHidden>{option.label}</VisuallyHidden>
                 </>
               ) : (
-                <span {...stylex.attrs(themeCustomizerStyles.optionContent)}>
+                <span {...css.attrs(themeCustomizerStyles.optionContent)}>
                   {option.preview}
-                  <span {...stylex.attrs(themeCustomizerStyles.optionLabel)}>{option.label}</span>
+                  <span {...css.attrs(themeCustomizerStyles.optionLabel)}>{option.label}</span>
                 </span>
               )}
             </ToggleItem>
@@ -288,7 +288,7 @@ export const ThemeCustomizer = _component(
         value: '',
         preview: (
           <span
-            {...stylex.attrs(
+            {...css.attrs(
               themeCustomizerStyles.swatch,
               themeCustomizerStyles.swatchLarge,
               themeCustomizerStyles.swatchDefault,
@@ -305,7 +305,7 @@ export const ThemeCustomizer = _component(
           title: `${messages.colorNames[scale]}（${scale}）${color}`,
           preview: (
             <span
-              {...stylex.attrs(
+              {...css.attrs(
                 themeCustomizerStyles.swatch,
                 themeCustomizerStyles.swatchLarge,
                 swatchStyles.ring,
@@ -379,10 +379,7 @@ export const ThemeCustomizer = _component(
                 label,
                 preview: (
                   <span
-                    {...stylex.attrs(
-                      themeCustomizerStyles.corner,
-                      themeCustomizerCornerStyles[value],
-                    )}
+                    {...css.attrs(themeCustomizerStyles.corner, themeCustomizerCornerStyles[value])}
                   />
                 ),
               })),
@@ -397,7 +394,7 @@ export const ThemeCustomizer = _component(
                 label: percent(factor),
                 preview: (
                   <span
-                    {...stylex.attrs(
+                    {...css.attrs(
                       themeCustomizerStyles.sample,
                       themeCustomizerDynamicStyles.scale(factor),
                     )}
@@ -419,7 +416,7 @@ export const ThemeCustomizer = _component(
                 label,
                 preview: (
                   <span
-                    {...stylex.attrs(
+                    {...css.attrs(
                       themeCustomizerStyles.sample,
                       value === 'sans' ? themeCustomizerStyles.sans : themeCustomizerStyles.serif,
                     )}

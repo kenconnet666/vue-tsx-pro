@@ -20,7 +20,7 @@
  */
 import { CircleAlert, CircleCheck, Download } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { shallowRef, type VNodeChild } from 'vue';
 import type { $ZodType } from 'zod/v4/core';
 import { safeParse } from 'zod/v4/core';
@@ -100,7 +100,7 @@ export interface DataImportProps<Row> extends PartProps<'div'> {
 }
 
 /** DataImport 的样式：root、previewTable、validIcon、invalidIcon */
-export const dataImportStyles = stylex.create({
+export const dataImportStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_lg', minWidth: 0 },
   previewTable: { maxHeight: '24rem' },
   validIcon: { color: '_successText' },

@@ -1,8 +1,8 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { darkShadows } from './dark';
 import { defaultFonts, defaultRadii } from './light';
 import type { Theme } from './theme';
-import { colors } from './tokens.stylex';
+import { colors } from './tokens';
 
 /**
  * 午夜主题的颜色：深海军蓝的页面、青色的品牌色。
@@ -10,7 +10,7 @@ import { colors } from './tokens.stylex';
  * 品牌色取 Radix cyan 暗色色阶：实色用 8 级（9 级太亮，白字不到 4.5:1，按钮悬停又会混黑加深），
  * 文字、浅底、边框按常规取 11、3–4、6 级；提示色、代码高亮沿用暗色主题
  */
-export const midnightColors = stylex.createTheme(colors, {
+export const midnightColors = css.createTheme(colors, {
   background: '#0d1321',
   surface: '#131b2c',
   surfaceMuted: '#131b2c',

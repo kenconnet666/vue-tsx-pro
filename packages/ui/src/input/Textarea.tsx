@@ -4,12 +4,12 @@
  *   <Field label="备注"><Textarea value={_bind(note)} rows={3} maxRows={8} /></Field>
  *
  * 自动增高：内容变化后（含父级改值）把高度设为 scrollHeight，上下限用 lh 单位（行高的倍数）由 CSS 夹住。
- * 没用 field-sizing: content：Firefox 还不支持，StyleX 的类型里也没有。中文输入法照常（v-model）。
+ * 没用 field-sizing: content：Firefox 还不支持，样式的类型表里也没有。中文输入法照常（v-model）。
  *
  * 未声明的属性落到 textarea（主元素）上，外壳用 propsRoot。部件：Root（外壳）、Textarea。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId } from 'vue';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from '../form/Field';
@@ -58,7 +58,7 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
 }
 
 /** Textarea 的样式：textarea、fixed、count、clear */
-export const textareaStyles = stylex.create({
+export const textareaStyles = css.create({
   textarea: { resize: 'none', overflowY: 'auto' },
   fixed: { resize: 'vertical' },
   // 计数贴在右下角
@@ -69,7 +69,7 @@ export const textareaStyles = stylex.create({
 
 // 行数是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Textarea 的样式：min、max */
-export const textareaRowStyles = stylex.create({
+export const textareaRowStyles = css.create({
   min: (rows: number) => ({ minHeight: `${rows}lh` }),
   max: (rows: number) => ({ maxHeight: `${rows}lh` }),
 });

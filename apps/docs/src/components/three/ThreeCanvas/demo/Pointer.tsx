@@ -1,7 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { ThreeCanvas } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import {
   AmbientLight,
   BoxGeometry,
@@ -16,7 +16,7 @@ const COLUMNS = 18;
 const ROWS = 9;
 const GAP = 0.36;
 
-const styles = stylex.create({ stage: { height: '20rem', cursor: 'crosshair' } });
+const styles = css.create({ stage: { height: '20rem', cursor: 'crosshair' } });
 
 export default _component(() => () => (
   <ThreeCanvas

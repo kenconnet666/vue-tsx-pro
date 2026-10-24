@@ -69,15 +69,15 @@
       "types": "./dist/theme-customize/index.d.ts",
       "default": "./dist/theme-customize/index.js"
     },
-    "./tokens.stylex": {
-      "@vue-tsx-pro/source": "./src/config/theme/tokens.stylex.ts",
-      "types": "./dist/config/theme/tokens.stylex.d.ts",
-      "default": "./dist/config/theme/tokens.stylex.js"
+    "./tokens": {
+      "@vue-tsx-pro/source": "./src/config/theme/tokens.ts",
+      "types": "./dist/config/theme/tokens.d.ts",
+      "default": "./dist/config/theme/tokens.js"
     },
-    "./vars.stylex": {
-      "@vue-tsx-pro/source": "./src/utils/style/vars.stylex.ts",
-      "types": "./dist/utils/style/vars.stylex.d.ts",
-      "default": "./dist/utils/style/vars.stylex.js"
+    "./vars": {
+      "@vue-tsx-pro/source": "./src/utils/style/vars.ts",
+      "types": "./dist/utils/style/vars.d.ts",
+      "default": "./dist/utils/style/vars.js"
     },
     "./package.json": "./package.json"
   },

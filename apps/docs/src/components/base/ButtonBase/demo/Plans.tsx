@@ -1,6 +1,6 @@
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { ButtonBase, Icon, Small, Strong } from '@vue-tsx-pro/ui';
 
 const plans = [
@@ -10,7 +10,7 @@ const plans = [
 ];
 
 // ButtonBase 只负责行为与焦点环，卡片外观全部由这里给出
-const styles = stylex.create({
+const styles = css.create({
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(13rem, 1fr))',
@@ -40,7 +40,7 @@ const styles = stylex.create({
 export default _component(() => {
   let plan = _state('team');
   return () => (
-    <div role="group" aria-label="套餐" {...stylex.attrs(styles.grid)}>
+    <div role="group" aria-label="套餐" {...css.attrs(styles.grid)}>
       {plans.map((item) => {
         const selected = item.id === plan;
         return (
@@ -50,11 +50,11 @@ export default _component(() => {
             sx={[styles.card, selected && styles.selected]}
             onClick={() => (plan = item.id)}
           >
-            <span {...stylex.attrs(styles.head)}>
+            <span {...css.attrs(styles.head)}>
               <Strong>{item.name}</Strong>
               {selected && <Icon icon={Check} tone="accent" />}
             </span>
-            <span {...stylex.attrs(styles.price)}>{item.price}</span>
+            <span {...css.attrs(styles.price)}>{item.price}</span>
             <Small tone="muted">{item.detail}</Small>
           </ButtonBase>
         );

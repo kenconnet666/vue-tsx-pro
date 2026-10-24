@@ -1,6 +1,6 @@
 // 可以拖宽的明细面板：手柄放在面板里、贴着它的结束边；拖动、聚焦后按 ← / →、双击回到初始宽度。数据是虚构的
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Descriptions, NavItem, NavList, ResizeHandle, Small, Text } from '@vue-tsx-pro/ui';
 
 const parts = [
@@ -10,7 +10,7 @@ const parts = [
   { no: 'C1H08-5547-101', name: '襟翼滑轨罩', material: 'T300/环氧', quantity: 6 },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   root: {
     display: 'flex',
     height: '12rem',
@@ -50,8 +50,8 @@ export default _component(() => {
   return () => {
     const part = parts.find((item) => item.no === current)!;
     return (
-      <div {...stylex.attrs(styles.root)}>
-        <div {...stylex.attrs(styles.panel, styles.width(width))}>
+      <div {...css.attrs(styles.root)}>
+        <div {...css.attrs(styles.panel, styles.width(width))}>
           <NavList aria-label="零件">
             {parts.map((item) => (
               <NavItem
@@ -76,7 +76,7 @@ export default _component(() => {
             onWidthChange={(px) => (width = px)}
           />
         </div>
-        <div {...stylex.attrs(styles.detail)}>
+        <div {...css.attrs(styles.detail)}>
           <Text weight="semibold">{part.name}</Text>
           <Descriptions
             columns={2}

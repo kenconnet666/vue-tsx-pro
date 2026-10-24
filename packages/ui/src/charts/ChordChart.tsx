@@ -9,11 +9,11 @@
  */
 import { ChordDiagram, ChordLabelAlignment } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import { colors, fontSizes } from '../config/theme/tokens.stylex';
+import { colors, fontSizes } from '../config/theme/tokens';
 import { Skeleton } from '../feedback/Skeleton';
 import type { NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
@@ -58,7 +58,7 @@ export interface ChordChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
 }
 
 /** ChordChart 的样式：root（--vis-chord-diagram-* 主题变量）、skeleton */
-export const chordChartStyles = stylex.create({
+export const chordChartStyles = css.create({
   root: {
     '--vis-chord-diagram-link-opacity': '0.45',
     '--vis-chord-diagram-link-stroke-color': colors.surface,

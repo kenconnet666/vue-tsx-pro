@@ -38,8 +38,7 @@
  */
 import { Menu as MenuIcon, PanelLeftClose, PanelLeftOpen } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useMessages } from '../config/lang/messages';
@@ -57,10 +56,9 @@ import { useMediaQuery } from '../utils/dom/media-query';
 import { toElement } from '../utils/dom/element';
 import { useRouterLink } from '../utils/dom/link';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { breakpoints } from '../config/theme/tokens.stylex';
+import { breakpoints, t } from '../config/theme/tokens';
 import { focusRingStyles } from '../utils/style/styles';
-import { layoutVars } from '../utils/style/vars.stylex';
-import { t } from '../config/theme/tokens';
+import { layoutVars } from '../utils/style/vars';
 
 /** 顶栏高度：也是两侧栏粘住的位置、标题跳转时让开的距离 */
 const HEADER_HEIGHT = '3rem';
@@ -167,10 +165,10 @@ export interface AppShellState {
 export const AppShellContext = createContext<AppShellState | null>('AppShell');
 
 /** 外壳把顶栏高度交给里面的标题与粘性侧栏 */
-export const appShellOffset = stylex.createTheme(layoutVars, { stickyOffset: HEADER_HEIGHT });
+export const appShellOffset = css.createTheme(layoutVars, { stickyOffset: HEADER_HEIGHT });
 
 /** AppShell 的样式：root、header、menuButton、body、sidebar、main、aside 等 */
-export const appShellStyles = stylex.create({
+export const appShellStyles = css.create({
   // 整页的界面基准文字（同 Provider）：没有 Provider 时页面是浏览器默认的 16px，与组件的 md 档位对不上
   root: {
     display: 'flex',
@@ -346,7 +344,7 @@ export const appShellStyles = stylex.create({
 });
 
 /** AppShell 的动态样式：抽屉的宽度、宽屏时品牌格的宽度（px） */
-export const appShellDynamicStyles = stylex.create({
+export const appShellDynamicStyles = css.create({
   width: (px: number) => ({ width: px }),
   brandWidth: (px: number) => ({ width: { default: null, [breakpoints.lg]: px } }),
 });
@@ -448,12 +446,7 @@ export const AppShell = _component(
     );
 
     return () => (
-      <div
-        {...mergeAttrs<'div'>(
-          { sx: [appShellStyles.root, appShellOffset as unknown as StyleXStyles] },
-          rest,
-        )}
-      >
+      <div {...mergeAttrs<'div'>({ sx: [appShellStyles.root, appShellOffset] }, rest)}>
         {skipLink && <SkipLink href={`#${mainId}`} />}
         {pageScrollbar && <PageScrollbar />}
         <header
@@ -577,7 +570,7 @@ export const AppShell = _component(
               </ScrollArea>
               {sidebarCollapsible && (
                 <div
-                  {...stylex.attrs(
+                  {...css.attrs(
                     appShellStyles.collapseBar,
                     collapsed() && appShellStyles.collapseBarCollapsed,
                   )}
@@ -601,7 +594,7 @@ export const AppShell = _component(
               )}
             </div>
           )}
-          <div {...stylex.attrs(appShellStyles.column)}>
+          <div {...css.attrs(appShellStyles.column)}>
             {hasContent(tabs) && (
               <div {...mergeAttrs<'div'>({ sx: appShellStyles.tabs }, propsTabs)}>{tabs}</div>
             )}
@@ -726,7 +719,7 @@ export interface AppShellBrandProps extends PartProps<'a', 'href'> {
 }
 
 /** AppShellBrand 的样式：root、mark */
-export const appShellBrandStyles = stylex.create({
+export const appShellBrandStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -763,7 +756,7 @@ export const AppShellBrand = _component(
             />
           ))}
         {/* 侧栏收起成图标栏时品牌格只放得下标志：产品名留给读屏（仍是链接的名称） */}
-        <span {...stylex.attrs(shell?.collapsed() && visuallyHiddenStyles.hidden)}>{children}</span>
+        <span {...css.attrs(shell?.collapsed() && visuallyHiddenStyles.hidden)}>{children}</span>
       </a>
     );
   },

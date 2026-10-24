@@ -1,8 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Container, Field, Flex, H3, Small, TextField } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   page: {
     paddingBlock: '_xl',
     borderRadius: '_md',
@@ -17,7 +17,7 @@ const styles = stylex.create({
 });
 
 export default _component(() => () => (
-  <div {...stylex.attrs(styles.page)}>
+  <div {...css.attrs(styles.page)}>
     <Container size="xs">
       <Flex direction="column" gap="md" sx={styles.form}>
         <H3 size="lg">登录</H3>

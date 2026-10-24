@@ -1,7 +1,7 @@
 // 限时抢购：自定义成一格一格的数字；待支付的订单：默认的“时:分:秒”；优惠券：precision="minute" 精确到分、每分钟更新；
 // 验证码：60 秒后才能重发，到点时 onEnd 恢复按钮
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import {
   TextField,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   digits: { display: 'flex', alignItems: 'center', gap: '_xs' },
   digit: {
     minWidth: '2.25em',
@@ -46,10 +46,10 @@ export default _component(() => {
           <Small tone="muted">双十一抢购距开始</Small>
           <Countdown to={saleStartsAt} aria-label="距抢购开始">
             {({ days, hours, minutes, seconds }) => (
-              <span {...stylex.attrs(styles.digits)}>
+              <span {...css.attrs(styles.digits)}>
                 {[days * 24 + hours, minutes, seconds].map((value, index) => [
                   index > 0 && <Strong key={`colon-${index}`}>:</Strong>,
-                  <span key={index} {...stylex.attrs(styles.digit)}>
+                  <span key={index} {...css.attrs(styles.digit)}>
                     {pad(value)}
                   </span>,
                 ])}

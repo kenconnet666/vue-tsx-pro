@@ -1,10 +1,10 @@
 // 内容叠在极光上（children）；跟随指针、暂停；“关闭特效”用 quality="off"，显示自己给的 fallback
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Card, Flex, H3, Paragraph, Switch, t } from '@vue-tsx-pro/ui';
 import { AuroraBackground } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   stage: {
     minHeight: '20rem',
     borderRadius: '_lg',
@@ -40,7 +40,7 @@ export default _component(() => {
         quality={effects ? 'auto' : 'off'}
         interactive={interactive}
         paused={paused}
-        fallback={<div {...stylex.attrs(styles.fallback)} />}
+        fallback={<div {...css.attrs(styles.fallback)} />}
       >
         <Card padding="lg" variant="elevated" sx={styles.card}>
           <Flex direction="column" gap="sm" align="center">

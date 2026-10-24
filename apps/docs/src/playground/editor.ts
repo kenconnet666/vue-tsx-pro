@@ -38,7 +38,7 @@ import {
   lineNumbers,
 } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
-import { colors, fonts, fontSizes, radii } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors, fonts, fontSizes, radii } from '@vue-tsx-pro/ui/tokens';
 
 // token 在运行时是 var(--哈希) 字符串
 const c = (token: unknown) => String(token);

@@ -13,7 +13,7 @@
  * 部件：Root（div）、Start、End（NumberField）、Separator（span）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import type { NumericFormat } from '../config/lang/format';
@@ -72,7 +72,7 @@ export interface NumberRangeFieldProps
 }
 
 /** NumberRangeField 的样式：root、field、separator */
-export const numberRangeFieldStyles = stylex.create({
+export const numberRangeFieldStyles = css.create({
   root: { display: 'flex', alignItems: 'center', gap: '_sm', minWidth: 0 },
   field: { flexGrow: 1, flexBasis: 0, minWidth: 0 },
   separator: { flexShrink: 0, color: '_textMuted' },

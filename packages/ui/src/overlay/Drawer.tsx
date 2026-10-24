@@ -4,7 +4,7 @@
  *   <Drawer open={_bind(filtering)} side="end" title="筛选">…</Drawer>
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { ContainerSizes } from '../layout/Container';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
@@ -57,7 +57,7 @@ export interface DrawerProps extends ModalProps, DrawerOptions {
 }
 
 /** 抽屉的面板样式：去掉居中、按所在一侧定位与滑入 */
-export const drawerStyles = stylex.create({
+export const drawerStyles = css.create({
   panel: {
     margin: 0,
     maxWidth: '100vw',
@@ -119,7 +119,7 @@ export const drawerStyles = stylex.create({
 });
 
 /** 抽屉（左右两侧）的宽度档位；sized 是给了 width 的（宽度写在行内，不受档位限制） */
-export const drawerSizeStyles = stylex.create({
+export const drawerSizeStyles = css.create({
   xs: { maxWidth: `min(${t.sizes.xs}, 100vw)` },
   sm: { maxWidth: `min(${t.sizes.sm}, 100vw)` },
   md: { maxWidth: `min(${t.sizes.md}, 100vw)` },

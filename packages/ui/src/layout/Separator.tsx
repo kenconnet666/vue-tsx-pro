@@ -12,7 +12,7 @@
  * 部件：Root（div）；带文字时还有 Label（span）与 Line（两段线，span）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
@@ -54,7 +54,7 @@ export interface SeparatorProps extends PartProps<'div', SeparatorManaged> {
 }
 
 /** Separator 的样式：root、horizontal、vertical、labelled、label、line */
-export const separatorStyles = stylex.create({
+export const separatorStyles = css.create({
   // Windows 高对比（forced-colors）下系统会把背景色改掉，线就看不见了：改用系统的文字色并保留它
   root: {
     flexShrink: 0,

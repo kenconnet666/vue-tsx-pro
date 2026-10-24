@@ -4,7 +4,7 @@
  *
  * - 有哪些入口以 packages/ui/package.json 的 exports 为准（唯一的登记处）：
  *   - `<目录>/index.ts` 的子路径收这个目录里的全部模块：文件开头的说明保留，export 语句重新生成；
- *   - 单个文件的子路径（shiki、vue-router、tokens.stylex、vars.stylex）就是模块本身，不进主入口（ALSO_IN_MAIN 除外）；
+ *   - 单个文件的子路径（shiki、vue-router、tokens、vars）就是模块本身，不进主入口（ALSO_IN_MAIN 除外）；
  *   - 主入口收其余模块，按目录分组，新目录要在 GROUPS 里登记标题；
  * - 跳过测试（.test/）；没有导出、只有 declare module 的模块（token-names.ts）写成副作用导入，产物的类型声明才带上它；
  * - 两个模块导出了同一个名字时报错并列出位置（所有入口一起算）：改成全局唯一的名字（COMPONENTS.md §4）。
@@ -20,8 +20,13 @@ import { parseSource, root, uiEntries } from '../lib/repo.mjs';
 
 const src = join(root, 'packages/ui/src');
 
-/** 单个文件的子路径里，导出同时也进主入口的：theme-boot 另设子路径只是为了在 Node 里不经 StyleX 也能导入 */
-const ALSO_IN_MAIN = new Set(['config/theme/boot.ts']);
+/** 单个文件的子路径里，导出也进主入口的：值是进主入口的名字，null 是全部 */
+const ALSO_IN_MAIN = new Map([
+  // theme-boot 另设子路径只是为了在 Node 里不带上样式引擎也能导入
+  ['config/theme/boot.ts', null],
+  // tokens 子路径收各组变量；主入口只要组合好的 t
+  ['config/theme/tokens.ts', ['t']],
+]);
 
 /** 主入口的目录 → 分组标题，也是入口里各组的顺序 */
 const GROUPS = [
@@ -38,7 +43,7 @@ const GROUPS = [
   ['config', '配置：Provider、createUi、组件默认值'],
   [
     'config/theme',
-    '主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens.stylex 直接导入各组',
+    '主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens 直接导入各组',
   ],
   ['config/lang', '语言与格式化'],
   ['utils', '工具：部件属性的合并'],
@@ -113,9 +118,13 @@ const byName = (a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }) || a.
 /** 名字 → 导出它的模块：所有入口一起算，查重名 */
 const owners = new Map();
 
-/** 一个模块在入口里的那一行（入口在 entryDir 下）；没有导出时为 undefined */
-function exportLine(file, entryDir) {
-  const { values, types, declaresModule } = exportsOf(file);
+/** 一个模块在入口里的那一行（入口在 entryDir 下），only 给了时只导出这些名字；没有导出时为 undefined */
+function exportLine(file, entryDir, only) {
+  const all = exportsOf(file);
+  const pick = (names) => (only ? names.filter((name) => only.includes(name)) : names);
+  const values = pick(all.values);
+  const types = pick(all.types);
+  const { declaresModule } = all;
   for (const name of [...values, ...types]) {
     owners.set(name, [...(owners.get(name) ?? []), toPath(file)]);
   }
@@ -143,7 +152,7 @@ function mainEntry() {
       throw new Error(
         `${path}：目录 ${dir} 没有在 scripts/exports/generate.mjs 的 GROUPS 里登记标题`,
       );
-    const line = exportLine(file, src);
+    const line = exportLine(file, src, ALSO_IN_MAIN.get(path));
     if (line) groups.get(dir).push(line);
   }
   const body = GROUPS.filter(([dir]) => groups.get(dir).length)

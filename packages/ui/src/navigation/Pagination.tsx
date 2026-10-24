@@ -7,7 +7,7 @@
  */
 import { ChevronLeft, ChevronRight, Ellipsis } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { Icon } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -58,7 +58,7 @@ export interface PaginationProps extends PartProps<'nav'> {
 }
 
 /** Pagination 的样式：root、list、page、ellipsis、total、tabular */
-export const paginationStyles = stylex.create({
+export const paginationStyles = css.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_md' },
   // 页码按钮等宽，翻页时位置不晃
   page: { minWidth: `max(${t.sizes.control}, ${t.sizes.minTarget})`, paddingInline: '_xs' },

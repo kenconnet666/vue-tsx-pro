@@ -10,7 +10,7 @@ import {
   Undo2,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Card,
   Flex,
@@ -23,7 +23,7 @@ import {
   Toolbar,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({ font: { width: '7rem' } });
+const styles = css.create({ font: { width: '7rem' } });
 
 export default _component(() => {
   let font = _state('正文');

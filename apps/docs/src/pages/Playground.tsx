@@ -7,8 +7,8 @@
  */
 import { RotateCcw } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import { breakpoints } from '@vue-tsx-pro/ui/tokens';
 import { Alert, Button, CopyButton, Flex, Text, useConfig } from '@vue-tsx-pro/ui';
 import { onBeforeUnmount, onMounted, watch, type Component } from 'vue';
 import { CodeEditor } from '../playground/CodeEditor';
@@ -24,7 +24,7 @@ const meta = {
     '在浏览器里改代码、立即看效果：符文、样式与主题 token、组件库、图标都能直接用。改动存在地址栏里，复制链接就能分享。',
 };
 
-const styles = stylex.create({
+const styles = css.create({
   layout: {
     display: 'grid',
     gap: '_xl',
@@ -201,13 +201,13 @@ export default _component(() => {
             <CopyButton value={() => location.href} aria-label="复制分享链接" size="sm" />
           </Flex>
         </Flex>
-        <div {...stylex.attrs(styles.layout)}>
+        <div {...css.attrs(styles.layout)}>
           {ready ? (
             <CodeEditor value={_bind(code)} aria-label="代码" sx={styles.editor} />
           ) : (
-            <div {...stylex.attrs(styles.editor, styles.placeholder)} />
+            <div {...css.attrs(styles.editor, styles.placeholder)} />
           )}
-          <div role="region" aria-label="效果" {...stylex.attrs(styles.preview)}>
+          <div role="region" aria-label="效果" {...css.attrs(styles.preview)}>
             {error && (
               <Alert
                 tone="danger"
@@ -228,7 +228,7 @@ export default _component(() => {
                   )
                 }
               >
-                <pre {...stylex.attrs(styles.error)}>{error.message}</pre>
+                <pre {...css.attrs(styles.error)}>{error.message}</pre>
               </Alert>
             )}
             <div key="preview" ref={_toRef(previewHost)} />

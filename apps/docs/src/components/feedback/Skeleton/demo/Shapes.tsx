@@ -1,8 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, Grid, Skeleton, SkeletonText, Small } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   // 同一行的格子一样高：形状在剩下的空间里居中，说明文字都落在格子底部
   stage: { flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' },
 });
@@ -19,7 +19,7 @@ export default _component(() => () => (
   <Grid minItemWidth="10em" gap="lg">
     {shapes.map(([variant, label]) => (
       <Flex key={variant} direction="column" gap="sm">
-        <div {...stylex.attrs(styles.stage)}>
+        <div {...css.attrs(styles.stage)}>
           <Skeleton variant={variant} />
         </div>
         <Small tone="muted">
@@ -28,7 +28,7 @@ export default _component(() => () => (
       </Flex>
     ))}
     <Flex direction="column" gap="sm">
-      <div {...stylex.attrs(styles.stage)}>
+      <div {...css.attrs(styles.stage)}>
         <SkeletonText lines={3} />
       </div>
       <Small tone="muted">段落 SkeletonText</Small>

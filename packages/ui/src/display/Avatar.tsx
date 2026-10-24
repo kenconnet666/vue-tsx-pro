@@ -8,7 +8,7 @@
  */
 import { User } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
@@ -59,7 +59,7 @@ export interface AvatarProps extends PartProps<'span', AvatarManaged>, AvatarOpt
 export const AvatarGroupContext = createContext<{ readonly grouped: true }>('AvatarGroup');
 
 /** Avatar 的样式：root、full、md、image、loading、fallback、grouped */
-export const avatarStyles = stylex.create({
+export const avatarStyles = css.create({
   root: {
     position: 'relative',
     display: 'inline-flex',

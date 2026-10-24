@@ -8,7 +8,7 @@
  */
 import { ArrowLeft, ArrowRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useLang } from '../config/context';
@@ -36,7 +36,7 @@ export interface PagerProps extends PartProps<'nav'> {
 }
 
 /** Pager 的样式：root、link、next、hint、label、arrow */
-export const pagerStyles = stylex.create({
+export const pagerStyles = css.create({
   // 够宽时两列；只有下一篇时它仍在结束边那一列
   root: {
     display: 'grid',

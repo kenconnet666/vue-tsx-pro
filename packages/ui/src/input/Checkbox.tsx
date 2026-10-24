@@ -18,7 +18,7 @@
  */
 import { Check, Minus } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { useFieldControl } from '../form/Field';
@@ -104,7 +104,7 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
 }
 
 /** Checkbox 的样式：box、indicator、hidden */
-export const checkboxStyles = stylex.create({
+export const checkboxStyles = css.create({
   box: { width: '1.125em', height: '1.125em', borderRadius: '_sm' },
   indicator: { width: '0.875em', height: '0.875em', color: 'var(--tone-on-fill)' },
   hidden: { visibility: 'hidden' },

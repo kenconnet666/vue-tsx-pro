@@ -3,7 +3,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { defineTheme, lightTheme, Provider, type Theme } from '@vue-tsx-pro/ui';
 import { activeThreeContexts, ThreeCanvas, type ThreeContext } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import type { Color, WebGLRenderer } from 'three';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, shallowRef, type App } from 'vue';

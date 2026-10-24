@@ -23,7 +23,7 @@
  */
 import { ChevronRight } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Badge } from '../base/Badge';
@@ -56,7 +56,7 @@ export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 export const NavCompactContext = createContext<() => boolean>('NavCompact');
 
 /** NavList 的样式：nested、row、current、disabled、chevron、section、sectionLabel 等 */
-export const navListStyles = stylex.create({
+export const navListStyles = css.create({
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
   // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
   row: {
@@ -435,7 +435,7 @@ const NavFlyoutContent = _component(
     NavCompactContext.provide(() => false);
     return () => (
       <>
-        <span {...stylex.attrs(navListStyles.sectionLabel)}>{label}</span>
+        <span {...css.attrs(navListStyles.sectionLabel)}>{label}</span>
         <FlexList
           {...mergePartProps<FlexProps<'ul'>>({ direction: 'column', gap: 'xs' }, propsList)}
         >
@@ -483,7 +483,7 @@ export const NavSection = _component(
               {...mergePartProps<IconProps>({ icon, sx: navListStyles.sectionIcon }, propsIcon)}
             />
           )}
-          <span id={labelId} {...stylex.attrs(iconOnly() && visuallyHiddenStyles.hidden)}>
+          <span id={labelId} {...css.attrs(iconOnly() && visuallyHiddenStyles.hidden)}>
             {label}
           </span>
         </span>

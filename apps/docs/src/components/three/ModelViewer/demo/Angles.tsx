@@ -1,10 +1,10 @@
 // 多角度展示：orbit 定起始角度，controls 关掉拖动与方向键；缩略图用低画质、降分辨率，paused 停住自转
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, Small, Switch } from '@vue-tsx-pro/ui';
 import { ModelViewer } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   viewer: { maxWidth: '12rem', marginInline: 'auto' },
   fallback: {
     display: 'grid',
@@ -38,7 +38,7 @@ export default _component(() => {
                 paused={paused}
                 quality="low"
                 resolution={0.75}
-                fallback={<div {...stylex.attrs(styles.fallback)}>预览不可用</div>}
+                fallback={<div {...css.attrs(styles.fallback)}>预览不可用</div>}
                 sx={styles.viewer}
               />
               <Small tone="muted">{view.label}</Small>

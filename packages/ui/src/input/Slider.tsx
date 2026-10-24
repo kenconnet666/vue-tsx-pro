@@ -11,7 +11,7 @@
  * 两个滑块的名称在 aria-label（或 Field 的标签）后面加上“最小值”“最大值”，取值范围互相限制（同 WAI-ARIA 多滑块）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
@@ -102,7 +102,7 @@ export interface SliderProps<V extends SliderValue = number> extends PartProps<
 }
 
 /** Slider 的样式：root、horizontal、vertical、disabled、readonly、track、range、thumb、mark、markLabel 等 */
-export const sliderStyles = stylex.create({
+export const sliderStyles = css.create({
   root: {
     position: 'relative',
     display: 'flex',
@@ -187,7 +187,7 @@ export const sliderStyles = stylex.create({
 
 // 位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
 /** Slider 的样式：inline（横向的起点）、size（横向的长度）、bottom、height（纵向） */
-export const sliderPositionStyles = stylex.create({
+export const sliderPositionStyles = css.create({
   inline: (percent: string) => ({ insetInlineStart: percent }),
   width: (percent: string) => ({ width: percent }),
   bottom: (percent: string) => ({ bottom: percent }),

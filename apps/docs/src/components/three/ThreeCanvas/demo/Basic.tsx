@@ -1,7 +1,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { ThreeCanvas } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import {
   AmbientLight,
   DirectionalLight,
@@ -14,7 +14,7 @@ import {
   WireframeGeometry,
 } from 'three';
 
-const styles = stylex.create({ stage: { height: '20rem' } });
+const styles = css.create({ stage: { height: '20rem' } });
 
 export default _component(() => () => (
   <ThreeCanvas

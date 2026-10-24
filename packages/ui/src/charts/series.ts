@@ -3,7 +3,7 @@
  * 颜色是 CSS 变量，切换主题、主题编辑器改品牌色都不用重画。
  * 值可以是 number、bigint 或 Decimal：画图时转成 number，提示框与数据表按原值格式化，不丢精度。
  */
-import { colors } from '../config/theme/tokens.stylex';
+import { colors } from '../config/theme/tokens';
 import { isDecimal, isNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 
 /** 图表色板里的一个颜色：第几个系列色 */

@@ -10,7 +10,7 @@ import {
   Trash2,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Card,
   Flex,
@@ -26,7 +26,7 @@ import {
 
 const folders = ['设计稿', '会议纪要', '归档 / 2025'];
 
-const styles = stylex.create({
+const styles = css.create({
   icon: { color: '_textMuted', fontSize: '1.5rem' },
 });
 

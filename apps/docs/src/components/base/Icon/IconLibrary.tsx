@@ -1,8 +1,8 @@
 /** Icon 文档页的“图标库”：搜索、点选图标，看大图；复制导入代码、复制或下载 SVG */
 import { Check, Copy, Download, FileCode } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import { breakpoints } from '@vue-tsx-pro/ui/tokens';
 import {
   Button,
   Card,
@@ -20,7 +20,7 @@ import { allIcons, IconGallery, iconSvg } from '../../../site/IconGallery';
 
 const STROKES = ['1', '1.5', '2', '2.5'] as const;
 
-const styles = stylex.create({
+const styles = css.create({
   layout: {
     display: 'grid',
     gap: '_lg',
@@ -55,11 +55,11 @@ export const IconLibrary = _component(() => {
     const svg = iconSvg(item.icon, Number(stroke));
     const usage = `import { ${item.name} } from '@lucide/icons';\n\n<Icon icon={${item.name}} />`;
     return (
-      <div {...stylex.attrs(styles.layout)}>
+      <div {...css.attrs(styles.layout)}>
         <IconGallery value={_bind(selected)} />
         <Card sx={styles.detail}>
           <Flex direction="column" gap="md">
-            <div {...stylex.attrs(styles.preview)}>
+            <div {...css.attrs(styles.preview)}>
               <Icon
                 icon={item.icon}
                 size={64}

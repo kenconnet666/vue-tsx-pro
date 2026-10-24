@@ -3,8 +3,8 @@
  * 右栏是一个小型应用页面的预览；调整立即作用在整个站点上
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import { breakpoints } from '@vue-tsx-pro/ui/tokens';
 import { Code, H2, ScrollArea } from '@vue-tsx-pro/ui';
 import { ThemeCustomizer } from '@vue-tsx-pro/ui/theme-customize';
 import CustomBrand from '../demo/CustomBrand.tsx?demo';
@@ -23,7 +23,7 @@ const meta = {
     '十二套内置主题，局部主题、跟随系统、运行时切换与自定义品牌色的用法；选一套主题作起点，再调品牌色、中性色、圆角、缩放、字体与动效，改动立即作用在整个站点上，满意后复制或下载代码。',
 };
 
-const styles = stylex.create({
+const styles = css.create({
   // 宽屏时控制栏在左、预览在右；窄屏上下排
   layout: {
     display: 'grid',
@@ -51,14 +51,14 @@ export default _component(() => () => (
     <H2 id="customize" size="xl" anchor>
       调整
     </H2>
-    <div {...stylex.attrs(styles.layout)}>
+    <div {...css.attrs(styles.layout)}>
       <ScrollArea sx={styles.controls} propsViewport={{ 'aria-label': '主题调整' }}>
-        <div {...stylex.attrs(styles.controlsInner)}>
+        <div {...css.attrs(styles.controlsInner)}>
           <StartingPoint />
           <ThemeCustomizer settings={_bind(themeSettings.value)} base={preference.theme} />
         </div>
       </ScrollArea>
-      <div {...stylex.attrs(styles.preview)}>
+      <div {...css.attrs(styles.preview)}>
         <Preview />
       </div>
     </div>

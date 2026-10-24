@@ -8,12 +8,12 @@
  *   ));
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { CodeBlock, Container, createFlex, Flex, H1, Paragraph } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 import type { PageMeta } from './types';
 
-const styles = stylex.create({
+const styles = css.create({
   // 长文阅读：比界面文字（14px）大一号、行距宽松；间距以 em 计，随之放大。示例的效果区会改回界面字号
   article: { gap: '3rem', fontSize: '15px', lineHeight: '_relaxed' },
   header: { gap: '_lg' },

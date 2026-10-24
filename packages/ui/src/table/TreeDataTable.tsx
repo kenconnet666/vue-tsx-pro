@@ -21,7 +21,7 @@
  */
 import { ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -62,7 +62,7 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'
 }
 
 /** TreeDataTable 的样式：toggle、chevronOpen、placeholder */
-export const treeDataTableStyles = stylex.create({
+export const treeDataTableStyles = css.create({
   toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
   chevronOpen: { rotate: '90deg' },
   // 叶子没有按钮，用同样宽的占位让文字对齐
@@ -71,7 +71,7 @@ export const treeDataTableStyles = stylex.create({
 
 // 缩进是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** TreeDataTable 的样式：depth */
-export const treeDataTableIndentStyles = stylex.create({
+export const treeDataTableIndentStyles = css.create({
   depth: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
 });
 
@@ -154,7 +154,7 @@ export const TreeDataTable = _component(
       const open = expansion.isExpanded(model.key);
       return (
         <>
-          {depth > 0 && <span {...stylex.attrs(treeDataTableIndentStyles.depth(depth * indent))} />}
+          {depth > 0 && <span {...css.attrs(treeDataTableIndentStyles.depth(depth * indent))} />}
           {item?.expandable ? (
             <IconButton
               {...mergePartProps<IconButtonProps>(
@@ -180,7 +180,7 @@ export const TreeDataTable = _component(
               )}
             />
           ) : (
-            <span {...stylex.attrs(treeDataTableStyles.placeholder)} />
+            <span {...css.attrs(treeDataTableStyles.placeholder)} />
           )}
         </>
       );

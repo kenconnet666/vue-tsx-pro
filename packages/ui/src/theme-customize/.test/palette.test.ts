@@ -11,14 +11,14 @@ import { paletteColors } from '../palette';
  * 危险色的实色上的文字（dangerContrast）是白色，不在色板里
  */
 const steps: Record<string, [string, string]> = {
-  // red 9 配白字不到 4.5:1，见 tokens.stylex.ts
+  // red 9 配白字不到 4.5:1，见 tokens.ts
   danger: ['red11', 'redDark8'],
   dangerHover: ['red10', 'redDark10'],
   dangerText: ['red11', 'redDark11'],
   dangerSoft: ['red3', 'redDark3'],
   dangerSoftHover: ['red4', 'redDark4'],
   dangerBorder: ['red7', 'redDark7'],
-  // 亮色 11 级在 3 级底色上不到 4.5:1，见 tokens.stylex.ts
+  // 亮色 11 级在 3 级底色上不到 4.5:1，见 tokens.ts
   successText: ['green12', 'greenDark11'],
   successSoft: ['green3', 'greenDark3'],
   successBorder: ['green7', 'greenDark7'],
@@ -46,7 +46,7 @@ const steps: Record<string, [string, string]> = {
   codeAttribute: ['brown11', 'brownDark11'],
   codeInserted: ['green3', 'greenDark3'],
   codeDeleted: ['red3', 'redDark3'],
-  // 图表系列（chart1 跟随品牌色）：取能在背景上到 3:1 的最浅一级，见 tokens.stylex.ts
+  // 图表系列（chart1 跟随品牌色）：取能在背景上到 3:1 的最浅一级，见 tokens.ts
   chart2: ['teal10', 'tealDark9'],
   chart3: ['orange10', 'orangeDark9'],
   chart4: ['crimson9', 'crimsonDark9'],
@@ -108,7 +108,7 @@ function literals(file: string, start: string) {
 }
 
 describe('颜色 token', () => {
-  const light = literals('tokens.stylex.ts', 'export const colors');
+  const light = literals('tokens.ts', 'export const colors');
   const dark = literals('dark.ts', 'const darkColors');
 
   it('亮色与暗色取值都与 Radix 色阶一致：品牌色、中性色按 paletteColors 生成（为对比度调整过的单独列出）', () => {

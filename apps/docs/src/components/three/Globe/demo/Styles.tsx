@@ -1,11 +1,11 @@
 // 外观：点的疏密、颜色、光晕与自转速度；不拖动、不自转时就是一张静止的地球
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, Small } from '@vue-tsx-pro/ui';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import { Globe } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   globe: { maxWidth: '16rem', marginInline: 'auto' },
 });
 

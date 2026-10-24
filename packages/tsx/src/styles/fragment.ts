@@ -6,15 +6,15 @@ import { merge, serialize, SELF, type Declarations } from './declarations';
 import { hash, insert, isInserted } from './sheet';
 
 /** 片段上的声明表 */
-export const FRAGMENT = Symbol('stylex fragment');
+export const FRAGMENT = Symbol('style fragment');
 /** 固定类（createTheme 的主题类、defineMarker 的标记类）上的 [去重键, 类名] */
-export const CLASS = Symbol('stylex class');
+export const CLASS = Symbol('style class');
 /** 动态样式的结果（[片段, 行内变量]）的标记 */
-export const DYNAMIC = Symbol('stylex dynamic');
-/** stylex.bind 的结果的标记 */
-export const BINDING = Symbol('stylex binding');
+export const DYNAMIC = Symbol('style dynamic');
+/** css.bind 的结果的标记 */
+export const BINDING = Symbol('style binding');
 /** 动态样式函数上的求值入口 */
-export const EVALUATE = Symbol('stylex evaluate');
+export const EVALUATE = Symbol('style evaluate');
 
 /** 动态样式算一次的结果：片段（只随形状变）与行内变量 */
 export interface Evaluated {

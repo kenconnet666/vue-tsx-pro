@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Text, type StatusTone, type StatusVariant } from '@vue-tsx-pro/ui';
 
 const variants: StatusVariant[] = ['solid', 'soft', 'surface', 'outline'];
@@ -12,7 +12,7 @@ const tones: [StatusTone, string][] = [
   ['danger', '已失败'],
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   // 一行一种样式、一列一种色调：第一列是样式名
   grid: {
     display: 'grid',
@@ -26,7 +26,7 @@ const styles = stylex.create({
 });
 
 export default _component(() => () => (
-  <div {...stylex.attrs(styles.grid)}>
+  <div {...css.attrs(styles.grid)}>
     {variants.map((variant) => [
       <Text key={variant} size="xs" tone="muted">
         {variant}

@@ -1,9 +1,9 @@
 // 上下排列：上面编辑、下面预览；上栏可以收起，比例范围 30%–70%
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Small, Splitter, Textarea } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   frame: {
     height: '18rem',
     borderWidth: '_xs',
@@ -28,14 +28,14 @@ export default _component(() => {
       maxSize={70}
       collapsible="start"
       start={
-        <div {...stylex.attrs(styles.pane)}>
+        <div {...css.attrs(styles.pane)}>
           <Textarea value={_bind(text)} aria-label="方案" sx={styles.editor} />
         </div>
       }
       end={
-        <div {...stylex.attrs(styles.pane)}>
+        <div {...css.attrs(styles.pane)}>
           <Small tone="muted">预览（上栏 {size}%）</Small>
-          <div {...stylex.attrs(styles.preview)}>{text}</div>
+          <div {...css.attrs(styles.preview)}>{text}</div>
         </div>
       }
     />

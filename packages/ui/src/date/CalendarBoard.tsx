@@ -25,7 +25,7 @@
 import { ChevronLeft, ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { isWeekend, type CalendarDate } from '@internationalized/date';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { buttonBaseStyles } from '../base/button-core';
@@ -96,7 +96,7 @@ export interface CalendarBoardProps<T = unknown> extends PartProps<'div', 'role'
 }
 
 /** CalendarBoard 的样式 */
-export const calendarBoardStyles = stylex.create({
+export const calendarBoardStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   header: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_sm' },
   title: { fontSize: '_lg', fontWeight: '_semibold', marginInlineEnd: 'auto' },
@@ -319,7 +319,7 @@ export const CalendarBoard = _component(
           data-today={state.today || undefined}
           data-outside={state.outside || undefined}
         >
-          <div {...stylex.attrs(calendarBoardStyles.dayHead)}>
+          <div {...css.attrs(calendarBoardStyles.dayHead)}>
             <button
               type="button"
               tabindex={state.focused && !state.outside ? 0 : -1}
@@ -330,7 +330,7 @@ export const CalendarBoard = _component(
                 .filter(Boolean)
                 .join('，')}
               aria-disabled={state.disabled || undefined}
-              {...stylex.attrs(
+              {...css.attrs(
                 buttonBaseStyles.root,
                 interactionTransitions.colors,
                 calendarBoardStyles.day,
@@ -349,19 +349,17 @@ export const CalendarBoard = _component(
             >
               {locale.dayNumber(day)}
             </button>
-            {getDayNote && (
-              <span {...stylex.attrs(calendarBoardStyles.note)}>{getDayNote(iso)}</span>
-            )}
+            {getDayNote && <span {...css.attrs(calendarBoardStyles.note)}>{getDayNote(iso)}</span>}
           </div>
           {shown.length > 0 && (
-            <ul {...stylex.attrs(calendarBoardStyles.events)}>
+            <ul {...css.attrs(calendarBoardStyles.events)}>
               {shown.map((event, index) => (
                 <li key={getEventKey?.(event) ?? index}>
                   {renderEvent ? (
                     renderEvent(event, iso)
                   ) : (
                     <span
-                      {...stylex.attrs(
+                      {...css.attrs(
                         calendarBoardStyles.event,
                         statusToneSx('soft', getEventTone?.(event) ?? 'accent'),
                       )}
@@ -375,7 +373,7 @@ export const CalendarBoard = _component(
                 <li>
                   <button
                     type="button"
-                    {...stylex.attrs(
+                    {...css.attrs(
                       buttonBaseStyles.root,
                       interactionTransitions.colors,
                       calendarBoardStyles.more,
@@ -412,8 +410,8 @@ export const CalendarBoard = _component(
             role: 'group',
           })}
         >
-          <div {...stylex.attrs(calendarBoardStyles.header)}>
-            <span id={titleId} {...stylex.attrs(calendarBoardStyles.title)}>
+          <div {...css.attrs(calendarBoardStyles.header)}>
+            <span id={titleId} {...css.attrs(calendarBoardStyles.title)}>
               {title}
             </span>
             {toolbar}
@@ -451,7 +449,7 @@ export const CalendarBoard = _component(
             />
           </div>
           <table
-            {...stylex.attrs(calendarBoardStyles.grid)}
+            {...css.attrs(calendarBoardStyles.grid)}
             role="grid"
             aria-labelledby={titleId}
             onKeydown={onKeydown}
@@ -460,7 +458,7 @@ export const CalendarBoard = _component(
             <thead>
               <tr>
                 {names.map((name) => (
-                  <th key={name} scope="col" {...stylex.attrs(calendarBoardStyles.weekday)}>
+                  <th key={name} scope="col" {...css.attrs(calendarBoardStyles.weekday)}>
                     {name}
                   </th>
                 ))}

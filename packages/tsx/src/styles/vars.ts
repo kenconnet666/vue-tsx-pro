@@ -8,7 +8,7 @@ import { CLASS, type ClassStyle } from './fragment';
 import { hash, insert, isInserted } from './sheet';
 
 /** 变量组上的组名（不可枚举：遍历 token 时不出现） */
-export const VAR_GROUP = Symbol('stylex var group');
+export const VAR_GROUP = Symbol('style var group');
 
 /** defineVars 的结果：token 名 → `var(--名字-token)`，带组名 */
 export type VarGroup = Readonly<Record<string, string>> & { readonly [VAR_GROUP]: string };

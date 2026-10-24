@@ -1,7 +1,7 @@
 // Button 的示例：文档里展示的用法本身就是被测对象
 import { afterEach, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button } from '@vue-tsx-pro/ui';
 import { mount } from '../../../../test/mount';
 import Disabled from '../demo/Disabled';
@@ -16,7 +16,7 @@ afterEach(() => vi.useRealTimers());
 const declarationsOf = (element: Element) =>
   new Set(
     [...element.classList].flatMap((name) =>
-      [...stylex.styleText().matchAll(new RegExp(`(?:^|\\n)\\.${name}\\{([^}]*)\\}`, 'g'))].flatMap(
+      [...css.styleText().matchAll(new RegExp(`(?:^|\\n)\\.${name}\\{([^}]*)\\}`, 'g'))].flatMap(
         (match) => match[1]!.split(';'),
       ),
     ),

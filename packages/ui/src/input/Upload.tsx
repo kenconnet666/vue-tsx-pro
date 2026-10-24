@@ -38,7 +38,7 @@ import {
   X,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onBeforeUnmount, watch } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { Image, ImageGroup } from '../display/Image';
@@ -159,7 +159,7 @@ export interface UploadProps extends PartProps<'div'> {
 }
 
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
-export const uploadStyles = stylex.create({
+export const uploadStyles = css.create({
   root: { display: 'grid', gap: '_sm' },
   item: {
     cursor: 'default',
@@ -244,7 +244,7 @@ export const uploadStyles = stylex.create({
 });
 
 /** Upload 的动态样式：缩略图的边长 */
-export const uploadDynamicStyles = stylex.create({
+export const uploadDynamicStyles = css.create({
   square: (size: number) => ({ width: `${size}px`, height: `${size}px` }),
 });
 
@@ -547,13 +547,13 @@ export const Upload = _component(
               preview={{ caption: item.name, download: item.name }}
             />
           ) : (
-            <div {...stylex.attrs(uploadStyles.placeholder)}>
+            <div {...css.attrs(uploadStyles.placeholder)}>
               <Icon icon={failed ? CircleAlert : FileIcon} sx={failed && uploadStyles.error} />
               {item.name}
             </div>
           )}
           {item.status === 'uploading' && (
-            <div {...stylex.attrs(uploadStyles.overlay)}>
+            <div {...css.attrs(uploadStyles.overlay)}>
               <Progress
                 {...mergePartProps<ProgressProps>({ size: 'xs' }, propsProgress, {
                   value: item.progress == null ? null : Math.round(item.progress * 100),
@@ -563,13 +563,13 @@ export const Upload = _component(
             </div>
           )}
           {failed && src && !item.rejected && (
-            <div {...stylex.attrs(uploadStyles.overlay)} title={item.error}>
+            <div {...css.attrs(uploadStyles.overlay)} title={item.error}>
               {item.error}
             </div>
           )}
           {item.status === 'done' && <VisuallyHidden>{lang.uploadDone}</VisuallyHidden>}
           {!state.readonly && (
-            <div {...stylex.attrs(uploadStyles.actions)}>
+            <div {...css.attrs(uploadStyles.actions)}>
               {sortable && (
                 <ButtonBase
                   sx={uploadStyles.handle}
@@ -666,14 +666,14 @@ export const Upload = _component(
                 role="list"
                 // 状态变化（失败、完成）由读屏播报
                 aria-live="polite"
-                {...stylex.attrs(uploadStyles.wallList)}
+                {...css.attrs(uploadStyles.wallList)}
               >
                 {value.map(renderCard)}
               </div>
               {renderDrop(true)}
             </ImageGroup>
             {pasteable && !state.readonly && (
-              <span {...stylex.attrs(uploadStyles.meta)}>
+              <span {...css.attrs(uploadStyles.meta)}>
                 {[description, description != null && ' · ', lang.uploadPasteHint]}
               </span>
             )}

@@ -13,7 +13,7 @@
  * 部件：Root（div）、Start（div）、Actions（div）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useIntersectionObserver } from '../utils/dom/intersection';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
@@ -37,7 +37,7 @@ export interface ActionBarProps extends PartProps<'div'> {
 }
 
 /** ActionBar 的样式：root、sticky、stuck、start、actions */
-export const actionBarStyles = stylex.create({
+export const actionBarStyles = css.create({
   root: {
     display: 'flex',
     alignItems: 'center',

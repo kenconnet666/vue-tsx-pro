@@ -11,7 +11,7 @@
  *   {picker.panel(sx, propsPopover, open && <Calendar … />)}
  */
 import { useId, type VNodeChild } from 'vue';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button } from '../base/Button';
 import type { IconData } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -108,7 +108,7 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
       );
     },
     /** 弹层：内容只在打开时渲染（由调用方按 open 给） */
-    panel(sx: stylex.StyleXStyles, user: PickerPopoverParts['propsPopover'], children: VNodeChild) {
+    panel(sx: css.SxStyles, user: PickerPopoverParts['propsPopover'], children: VNodeChild) {
       const { open, label, size } = read();
       return (
         <div
@@ -151,7 +151,7 @@ export interface PickerPreset {
 }
 
 /** 快捷选项的样式：presets（一列，靠日历那边有分隔线）、preset（按钮文字靠左） */
-export const pickerPresetStyles = stylex.create({
+export const pickerPresetStyles = css.create({
   presets: {
     display: 'flex',
     flexDirection: 'column',

@@ -10,11 +10,11 @@
  *   />
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Descriptions, Flex, H2, Kbd, Paragraph } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 
-const styles = stylex.create({
+const styles = css.create({
   // 按键一栏定宽（各行的作用对齐），长的组合在栏里换行；作用一栏占满
   label: { width: '15em', maxWidth: '45%' },
   keys: { display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.3em' },
@@ -32,10 +32,10 @@ export interface KeyboardReferenceProps {
 /** 一组按键画成键帽：' / ' 隔开的几种按法，每种按法是 '+' 连起来的组合 */
 function keycaps(keys: string) {
   return (
-    <span {...stylex.attrs(styles.keys)}>
+    <span {...css.attrs(styles.keys)}>
       {keys.split(' / ').map((combo, index) => [
         index > 0 && (
-          <span key={`or-${index}`} {...stylex.attrs(styles.joiner)}>
+          <span key={`or-${index}`} {...css.attrs(styles.joiner)}>
             或
           </span>
         ),
@@ -45,7 +45,7 @@ function keycaps(keys: string) {
             <span
               key={`plus-${index}-${keyIndex}`}
               aria-hidden="true"
-              {...stylex.attrs(styles.joiner)}
+              {...css.attrs(styles.joiner)}
             >
               +
             </span>

@@ -12,10 +12,10 @@
  * 未声明的属性落在这一层上。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
-import { borderWidths, colors, radii } from '../config/theme/tokens.stylex';
+import { borderWidths, colors, radii } from '../config/theme/tokens';
 import { SkeletonText, type SkeletonTextProps } from '../feedback/SkeletonText';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
@@ -88,7 +88,7 @@ export interface CardProps extends PartProps<'div', CardManaged>, CardOptions {
 }
 
 /** Card 的样式：root、header、footer */
-export const cardStyles = stylex.create({
+export const cardStyles = css.create({
   root: {
     boxSizing: 'border-box',
     display: 'flex',
@@ -123,13 +123,13 @@ export const cardStyles = stylex.create({
   },
 });
 
-const travel = stylex.keyframes({
+const travel = css.keyframes({
   from: { offsetDistance: '0%' },
   to: { offsetDistance: '100%' },
 });
 
 /** Card 效果的样式：frame（外层）、surface（卡片撑满外层）、layer、glare、ring、beamRing、beam */
-export const cardEffectStyles = stylex.create({
+export const cardEffectStyles = css.create({
   frame: { position: 'relative', display: 'flex', flexDirection: 'column', minWidth: 0 },
   tilt: { transformStyle: 'preserve-3d', willChange: 'transform' },
   surface: { flexGrow: 1 },
@@ -171,7 +171,7 @@ export const cardEffectStyles = stylex.create({
 
 // 倾斜角度、光的位置每帧变化，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Card 效果的样式：tiltTransform、glare（高光的位置与强度）、light（光斑）、beamPath（流光的路径） */
-export const cardEffectDynamicStyles = stylex.create({
+export const cardEffectDynamicStyles = css.create({
   tiltTransform: (rotateX: number, rotateY: number, scale: number) => ({
     transform: `perspective(60em) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`,
   }),
@@ -191,7 +191,7 @@ const TILT = 10;
 const TILT_SCALE = 1.02;
 
 /** Card 的样式：surface、outline、elevated、ghost */
-export const cardVariantStyles = stylex.create({
+export const cardVariantStyles = css.create({
   surface: { backgroundColor: '_surface', borderColor: '_border' },
   outline: { borderColor: '_border' },
   elevated: { backgroundColor: '_surfaceRaised', boxShadow: '_md' },
@@ -199,7 +199,7 @@ export const cardVariantStyles = stylex.create({
 });
 
 /** Card 的样式：none、xs、sm、md、lg、xl */
-export const cardPaddingStyles = stylex.create({
+export const cardPaddingStyles = css.create({
   none: { padding: '_none' },
   xs: { padding: '_xs' },
   sm: { padding: '_sm' },
@@ -249,7 +249,7 @@ export const Card = _component(
     function effectLayers() {
       const x = (pointer.x + 1) * 50;
       const y = (1 - pointer.y) * 50;
-      const layer = (sx: stylex.StyleXStyles[], child?: VNodeChild) => (
+      const layer = (sx: css.SxStyles[], child?: VNodeChild) => (
         <span
           {...mergeAttrs<'span'>({ sx: [cardEffectStyles.layer, ...sx] }, propsEffect, {
             'aria-hidden': true,
@@ -288,7 +288,7 @@ export const Card = _component(
       return layer(
         [cardEffectStyles.beamRing],
         <span
-          {...stylex.attrs(
+          {...css.attrs(
             cardEffectStyles.beam,
             cardEffectDynamicStyles.beamPath(radii[appearance().radius]),
           )}
@@ -337,7 +337,7 @@ export const Card = _component(
             { 'aria-busy': loading || undefined, ref: _toRef(frame) },
           )}
         >
-          <div {...stylex.attrs(surfaceStyles, cardEffectStyles.surface)}>{content}</div>
+          <div {...css.attrs(surfaceStyles, cardEffectStyles.surface)}>{content}</div>
           {effectLayers()}
         </div>
       );

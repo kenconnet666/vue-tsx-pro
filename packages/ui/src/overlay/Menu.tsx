@@ -23,8 +23,8 @@
  */
 import { Check, ChevronRight, Dot } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -129,7 +129,7 @@ function menuItemsOf(panel: HTMLElement | null): HTMLElement[] {
 }
 
 /** Menu 的样式：panel、content、label、indicator、hidden、shortcut、groupLabel */
-export const menuStyles = stylex.create({
+export const menuStyles = css.create({
   // 菜单项多时在 ScrollArea 里滚动（浮层滚动条）；内边距放在内容层上，滚动条贴着菜单边缘
   panel: {
     minWidth: '12em',
@@ -372,7 +372,7 @@ export function menuItemContent(
     description == null ? (
       <span {...mergeAttrs<'span'>({ sx: menuStyles.label }, propsLabel)}>{children}</span>
     ) : (
-      <span {...stylex.attrs(menuStyles.text)}>
+      <span {...css.attrs(menuStyles.text)}>
         <span {...mergeAttrs<'span'>({ id: ids?.label }, propsLabel)}>{children}</span>
         <Text
           {...mergePartProps<TextProps>(
@@ -415,14 +415,14 @@ function useItemShortcut(read: () => { shortcut?: string; disabled: boolean }, r
 export type MenuItemTone = 'neutral' | 'danger';
 
 /** 菜单项的外观：幽灵按钮，内容靠起始边排列 */
-export function menuItemSx(tone: MenuItemTone, disabled: boolean): StyleXStyles {
+export function menuItemSx(tone: MenuItemTone, disabled: boolean): SxStyles {
   return [
     itemStyles.row,
     tone === 'danger' ? itemStyles.danger : itemStyles.hoverable,
     focusRingStyles.visible,
     rippleHostStyles.host,
     disabled && itemStyles.disabled,
-  ] as StyleXStyles;
+  ] as SxStyles;
 }
 
 /** 菜单项共用的：所在的菜单、按下的波纹（链接项用；按钮项由 ButtonBase 给出）、执行后关闭菜单 */

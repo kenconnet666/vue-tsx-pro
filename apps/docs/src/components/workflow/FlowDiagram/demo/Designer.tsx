@@ -1,6 +1,6 @@
 // 设计器里用：节点可以点选（selected 双向绑定），右边显示选中节点的属性；validateProcess 查出的问题标红并列在下面
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Alert, Card, Descriptions, Flex, Small } from '@vue-tsx-pro/ui';
 import { FlowDiagram, validateProcess, type ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
 
@@ -48,7 +48,7 @@ const expense: ProcessDefinition = {
   ],
 };
 
-const styles = stylex.create({
+const styles = css.create({
   diagram: { flexGrow: 1, flexShrink: 1, flexBasis: '32rem', minWidth: 0 },
   panel: { flexGrow: 0, flexShrink: 1, flexBasis: '16rem' },
 });

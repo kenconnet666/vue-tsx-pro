@@ -1,6 +1,6 @@
 import { ChartColumn, ClipboardList, Download, JapaneseYen, TrendingUp } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -176,7 +176,7 @@ const SUPPLIERS = [
   { city: '名古屋', part: '复合材料', lat: 35.18, lng: 136.91, share: 7 },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   filters: { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '_md' },
   filter: { minWidth: '9em' },
   actions: { display: 'flex', gap: '_sm', marginInlineStart: 'auto' },
@@ -238,7 +238,7 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <Card>
-          <div {...stylex.attrs(styles.filters)}>
+          <div {...css.attrs(styles.filters)}>
             <Field label="统计年度" sx={styles.filter}>
               <Select items={YEARS} value={_bind(draft.year)} />
             </Field>
@@ -254,7 +254,7 @@ export default _component(() => {
                 value={_bind(draft.department)}
               />
             </Field>
-            <div {...stylex.attrs(styles.actions)}>
+            <div {...css.attrs(styles.actions)}>
               <Button onClick={() => (applied = { ...draft })}>查询</Button>
               <Button variant="outline" tone="neutral" onClick={reset}>
                 重置

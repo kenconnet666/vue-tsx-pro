@@ -1,7 +1,7 @@
 // 培训手册的目录：搜索过滤（匹配的加粗、上级展开），拖动调整层级与顺序（或 Alt + 方向键），附录不能再往下放
 import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Small, TextField, Tree, moveNode } from '@vue-tsx-pro/ui';
 
 interface Section {
@@ -46,7 +46,7 @@ const editor = {
   withChildren: (section: Section, children: Section[]) => ({ ...section, children }),
 };
 
-const styles = stylex.create({ tree: { height: '18rem' } });
+const styles = css.create({ tree: { height: '18rem' } });
 
 export default _component(() => {
   let sections = _state(outline);

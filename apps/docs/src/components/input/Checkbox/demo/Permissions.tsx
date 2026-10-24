@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Checkbox, CheckboxGroup, Field, Flex, Small } from '@vue-tsx-pro/ui';
 
 const permissions = [
@@ -9,7 +9,7 @@ const permissions = [
   ['reports', '导出报表'],
 ] as const;
 
-const styles = stylex.create({ group: { paddingInlineStart: '1.75em' } });
+const styles = css.create({ group: { paddingInlineStart: '1.75em' } });
 
 export default _component(() => {
   let granted = _state<string[]>(['orders:read', 'reports']);

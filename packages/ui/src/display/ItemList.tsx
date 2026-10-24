@@ -11,7 +11,7 @@
  * 卡片正文里时与容器的内边距对齐）。标题与说明默认单行省略不了时换行；align="start" 让起始边、结束边贴着第一行。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { paddingInlineStyles, type Space } from '../utils/style/styles';
@@ -75,7 +75,7 @@ export interface ItemListItemProps extends PartProps<'li', 'title'> {
 }
 
 /** ItemList 的样式：list、item、divided、hoverable、compact、standard、body、title、description… */
-export const itemListStyles = stylex.create({
+export const itemListStyles = css.create({
   list: { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' },
   item: {
     display: 'grid',
@@ -156,9 +156,9 @@ export const ItemListItem = _component(
           )}
         >
           {hasContent(start) && (
-            <span {...stylex.attrs(align === 'start' && itemListStyles.startAligned)}>{start}</span>
+            <span {...css.attrs(align === 'start' && itemListStyles.startAligned)}>{start}</span>
           )}
-          <span {...stylex.attrs(itemListStyles.body)}>
+          <span {...css.attrs(itemListStyles.body)}>
             {hasContent(title) && (
               <span {...mergeAttrs<'span'>({ sx: itemListStyles.title }, propsTitle)}>{title}</span>
             )}
@@ -169,7 +169,7 @@ export const ItemListItem = _component(
             )}
             {children}
           </span>
-          {end != null ? <span {...stylex.attrs(itemListStyles.end)}>{end}</span> : <span />}
+          {end != null ? <span {...css.attrs(itemListStyles.end)}>{end}</span> : <span />}
         </li>
       );
     };

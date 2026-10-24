@@ -1,10 +1,10 @@
 /**
  * 样式的热更新原地生效（开发服务器、运行时样式模式）：
  *
- *   const styles = stylex.create({ … })
- *   → const styles = __hotStyles("src/Button.tsx#styles", stylex.create({ … }))
+ *   const styles = css.create({ … })
+ *   → const styles = __hotStyles("src/Button.tsx#styles", css.create({ … }))
  *
- * 模块重新执行时 hotStyles 按 id 找到旧对象，把新声明写进旧片段、改写已插入的规则（stylex/runtime.ts），
+ * 模块重新执行时 hotStyles 按 id 找到旧对象，把新声明写进旧片段、改写已插入的规则（styles/hot.ts），
  * 类名不变，组件不用重新渲染。同时算出“骨架”：去掉这些调用的参数后的源码哈希，写进 file.metadata.styleSkeleton；
  * 热更新时骨架没变（只改了样式）就原地接住，变了才照常让导入方重新执行（vite/hmr.ts）。
  * 只认顶层声明里的 create、recipe：函数里的调用每次执行都是新对象，不能按 id 合并。

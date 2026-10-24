@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Card, NavItem, NavList, NavSection } from '@vue-tsx-pro/ui';
 
 const sections = [
@@ -8,7 +8,7 @@ const sections = [
   ['资源', ['更新日志', '设计资源']],
 ] as const;
 
-const styles = stylex.create({ nav: { width: '15rem' } });
+const styles = css.create({ nav: { width: '15rem' } });
 
 export default _component(() => {
   let current = _state('Dialog 对话框');

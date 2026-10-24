@@ -9,7 +9,7 @@
 要求 Vue 3.5+、Vite 8。组件库的 peer 依赖由宿主安装：
 
 ```bash
-pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @stylexjs/stylex @lucide/icons zod
+pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @lucide/icons zod
 ```
 
 `@lucide/icons` 是组件用的图标数据，`zod` 是表单（`useForm`）的校验库：字段的必填、长度、范围也从 zod schema 推出。
@@ -22,7 +22,7 @@ import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
 export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
 ```
 
-预设对每个文件只解析、生成一次：样式的响应式绑定与热更新 → 符文编译 → Vue JSX 与去类型，加上组件热更新；样式由运行时引擎在页面里生成（`packages/tsx/src/stylex`，见 STYLE-ENGINE.md），不需要 CSS 插件；重启开发服务器时没改过的文件直接取磁盘上的编译缓存；构建与开发服务器在工作线程里并行编译。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx`。
+预设对每个文件只解析、生成一次：样式的响应式绑定与热更新 → 符文编译 → Vue JSX 与去类型，加上组件热更新；样式由运行时引擎在页面里生成（`packages/tsx/src/styles`，见 STYLE-ENGINE.md），不需要 CSS 插件；重启开发服务器时没改过的文件直接取磁盘上的编译缓存；构建与开发服务器在工作线程里并行编译。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx`。
 
 TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
 
@@ -45,13 +45,13 @@ app.use(
 );
 ```
 
-写样式从 `@vue-tsx-pro/tsx/stylex` 导入（运行时同 `@stylexjs/stylex`，属性悬停、补全、跳转都有中文说明）。主题 tokens 整个值是一个 token 时直接写成字符串，值里夹着 token 时在模板字符串里写 `t.组.名`；预设编译时都换成 token 变量并补上导入：
+写样式从 `@vue-tsx-pro/tsx/styles` 导入（`import * as css`，写法像 StyleX；属性悬停、补全、跳转都有中文说明）。主题 tokens 整个值是一个 token 时直接写成字符串，值里夹着 token 时在模板字符串里写 `t.组.名`；预设编译时都换成 token 变量并补上导入：
 
 ```ts
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { t } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   card: {
     padding: '_md',
     borderRadius: '_lg',

@@ -14,7 +14,7 @@
  * 部件：Root（div）、Track（div，做动画的那一层）、Group（div，一份内容）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { useResizeObserver } from '../utils/dom/resize';
@@ -55,17 +55,17 @@ export interface MarqueeProps extends PartProps<'div'> {
   children?: VNodeChild;
 }
 
-const scrollX = stylex.keyframes({
+const scrollX = css.keyframes({
   from: { transform: 'none' },
   to: { transform: 'translateX(-50%)' },
 });
-const scrollY = stylex.keyframes({
+const scrollY = css.keyframes({
   from: { transform: 'none' },
   to: { transform: 'translateY(-50%)' },
 });
 
 /** Marquee 的样式：root、vertical、fade、track、trackVertical、reverse、pausable、paused、group */
-export const marqueeStyles = stylex.create({
+export const marqueeStyles = css.create({
   root: {
     display: 'flex',
     overflow: { default: 'hidden', '@media (prefers-reduced-motion: reduce)': 'auto' },
@@ -105,7 +105,7 @@ export const marqueeStyles = stylex.create({
 
 /** Marquee 的样式：每份内容后面的间距（横排时在行尾、竖排时在下方），与项之间的 gap 一样宽 */
 export const marqueeTrailStyles: Readonly<Record<'inline' | 'block', StyleTable<Space>>> = {
-  inline: stylex.create({
+  inline: css.create({
     none: { paddingInlineEnd: '_none' },
     xs: { paddingInlineEnd: '_xs' },
     sm: { paddingInlineEnd: '_sm' },
@@ -113,7 +113,7 @@ export const marqueeTrailStyles: Readonly<Record<'inline' | 'block', StyleTable<
     lg: { paddingInlineEnd: '_lg' },
     xl: { paddingInlineEnd: '_xl' },
   }),
-  block: stylex.create({
+  block: css.create({
     none: { paddingBlockEnd: '_none' },
     xs: { paddingBlockEnd: '_xs' },
     sm: { paddingBlockEnd: '_sm' },
@@ -125,7 +125,7 @@ export const marqueeTrailStyles: Readonly<Record<'inline' | 'block', StyleTable<
 
 // 时长是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Marquee 的样式：duration（一圈的时长） */
-export const marqueeDynamicStyles = stylex.create({
+export const marqueeDynamicStyles = css.create({
   duration: (seconds: number) => ({ animationDuration: `${seconds}s` }),
 });
 

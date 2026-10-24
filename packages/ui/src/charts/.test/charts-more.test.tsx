@@ -1,7 +1,7 @@
 // 瀑布图、漏斗图、网络图与语义色：画图前的数据换算、给读屏的数据表、下钻（绘图本身见文档站的截图）
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
-import { colors } from '../../config/theme/tokens.stylex';
+import { colors } from '../../config/theme/tokens';
 import { mount } from '../../utils/.test/mount';
 import { FunnelChart } from '../FunnelChart';
 import { GraphChart } from '../GraphChart';

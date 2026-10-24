@@ -18,7 +18,7 @@ const INCLUDE = [
   'packages/ui/src/**/*.tsx',
 ];
 /** 生成的文件（注释由生成器负责）与测试 */
-const EXCLUDE = [/\/\.test\//, /\/test\//, /stylex\/styles\.ts$/, /token-names\.ts$/];
+const EXCLUDE = [/\/\.test\//, /\/test\//, /styles\/documented\.ts$/, /token-names\.ts$/];
 
 const files = execFileSync('git', ['ls-files', ...INCLUDE], { cwd: root, encoding: 'utf8' })
   .split('\n')

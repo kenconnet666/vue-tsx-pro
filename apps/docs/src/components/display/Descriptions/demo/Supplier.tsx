@@ -1,7 +1,7 @@
 // 供应商档案：同一份详情（columns="auto"）放在窄的卡片与宽的区域里，各自按宽度排成一栏、两栏或三栏；
 // 拖动右边的手柄看栏数随宽度变化。信用代码、银行账号、地址可以一键复制（copyable），地址复制的是完整写法（copyText）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Card, Descriptions, Flex, Small, type DescriptionItem } from '@vue-tsx-pro/ui';
 
 const items: DescriptionItem[] = [
@@ -20,7 +20,7 @@ const items: DescriptionItem[] = [
   },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   narrow: { width: '20rem', flexShrink: 0 },
   // 可以拖宽窄的区域：原生的 resize 手柄
   resizable: {
@@ -44,7 +44,7 @@ export default _component(() => () => (
         <Descriptions title="抽屉里（窄）" items={items} columns="auto" minItemWidth={220} />
       </Card>
       <Flex direction="column" gap="xs">
-        <div {...stylex.attrs(styles.resizable)}>
+        <div {...css.attrs(styles.resizable)}>
           <Descriptions
             title="详情页（拖动右下角调宽）"
             items={items}

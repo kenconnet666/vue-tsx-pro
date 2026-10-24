@@ -1,8 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Grid } from '@vue-tsx-pro/ui';
 import { MeshGradient } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
 const PALETTES = [
   { label: '默认', palette: undefined },
@@ -13,7 +13,7 @@ const PALETTES = [
   { label: '单色', palette: [colors.accent, colors.accentSoft, colors.background] },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   tile: {
     height: '11rem',
     borderRadius: '_md',

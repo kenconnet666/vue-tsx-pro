@@ -26,7 +26,7 @@ import {
   Trash2,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Accordion,
   AccordionItem,
@@ -151,7 +151,7 @@ const rows = Array.from({ length: 10000 }, (_, index) => ({
       : `第 ${index + 1} 行`,
 }));
 
-const styles = stylex.create({
+const styles = css.create({
   page: {
     display: 'grid',
     alignContent: 'start',
@@ -200,7 +200,7 @@ const styles = stylex.create({
 const Section = _component(
   ({ title, children }: { title: string; children?: VNodeChild }) =>
     () => (
-      <section {...stylex.attrs(styles.section)}>
+      <section {...css.attrs(styles.section)}>
         <H2 size="lg">{title}</H2>
         {children}
       </section>
@@ -338,8 +338,8 @@ export const Base = _component(() => {
   }
   return () => (
     <Provider theme={themes[themeIndex]!}>
-      <main {...stylex.attrs(styles.page)}>
-        <div {...stylex.attrs(styles.row)}>
+      <main {...css.attrs(styles.page)}>
+        <div {...css.attrs(styles.row)}>
           <Button
             variant="outline"
             class="toggle-theme"
@@ -1034,7 +1034,7 @@ export const Base = _component(() => {
         </Section>
 
         <Section title="图标 Icon">
-          <div {...stylex.attrs(styles.row)}>
+          <div {...css.attrs(styles.row)}>
             <Icon icon={Star} size="xs" />
             <Icon icon={Star} size="sm" />
             <Icon icon={Star} size="md" />
@@ -1045,8 +1045,8 @@ export const Base = _component(() => {
         </Section>
 
         <Section title="读屏文字 VisuallyHidden">
-          <div {...stylex.attrs(styles.row)}>
-            <button type="button" class="icon-only" {...stylex.attrs(styles.iconButton)}>
+          <div {...css.attrs(styles.row)}>
+            <button type="button" class="icon-only" {...css.attrs(styles.iconButton)}>
               <Icon icon={Settings} />
               <VisuallyHidden>设置</VisuallyHidden>
             </button>
@@ -1066,7 +1066,7 @@ export const Base = _component(() => {
               </Text>
             ))}
           </Flex>
-          <Paragraph class="clamp-demo" lineClamp={2} {...stylex.attrs(styles.narrow)}>
+          <Paragraph class="clamp-demo" lineClamp={2} {...css.attrs(styles.narrow)}>
             多行截断：这是一段比较长的说明文字，超过两行之后会被截断并在末尾显示省略号，完整内容不会撑开布局。这一句话会被隐藏起来，用来确认截断确实生效。
           </Paragraph>
           <Paragraph>
@@ -1094,26 +1094,21 @@ export const Base = _component(() => {
 
         <Section title="布局 Flex · GridList · Container · Separator">
           <Flex class="flex-demo" gap="sm" align="center" wrap>
-            <span {...stylex.attrs(styles.card)}>一</span>
-            <span {...stylex.attrs(styles.card)}>二</span>
+            <span {...css.attrs(styles.card)}>一</span>
+            <span {...css.attrs(styles.card)}>二</span>
             <Separator class="separator-demo" orientation="vertical" decorative={false} />
-            <span {...stylex.attrs(styles.card)}>三</span>
+            <span {...css.attrs(styles.card)}>三</span>
           </Flex>
           <GridList class="grid-demo" minItemWidth="10em" gap="md">
             {['甲', '乙', '丙', '丁', '戊', '己'].map((name) => (
-              <li key={name} {...stylex.attrs(styles.card)}>
+              <li key={name} {...css.attrs(styles.card)}>
                 {name}
               </li>
             ))}
           </GridList>
           <Separator />
-          <Container
-            class="container-demo"
-            size="xs"
-            padding="md"
-            {...stylex.attrs(styles.outlined)}
-          >
-            <p {...stylex.attrs(styles.paragraph)}>最大宽度 30rem，水平居中</p>
+          <Container class="container-demo" size="xs" padding="md" {...css.attrs(styles.outlined)}>
+            <p {...css.attrs(styles.paragraph)}>最大宽度 30rem，水平居中</p>
           </Container>
         </Section>
 
@@ -1124,7 +1119,7 @@ export const Base = _component(() => {
             propsViewport={{ 'aria-label': '滚动区域演示' }}
           >
             {Array.from({ length: 30 }, (_, index) => (
-              <p key={index} {...stylex.attrs(styles.scrollLine)}>
+              <p key={index} {...css.attrs(styles.scrollLine)}>
                 第 {index + 1} 行：滚动条浮在内容上方，出现和消失都不改变布局
               </p>
             ))}
@@ -1137,7 +1132,7 @@ export const Base = _component(() => {
             propsViewport={{ 'aria-label': '两个方向都能滚动的演示' }}
           >
             {Array.from({ length: 12 }, (_, index) => (
-              <p key={index} {...stylex.attrs(styles.wide)}>
+              <p key={index} {...css.attrs(styles.wide)}>
                 横向也能滚动：这一行比容器宽，第 {index + 1} 行
               </p>
             ))}
@@ -1227,7 +1222,7 @@ export const Base = _component(() => {
             handle={(handle) => (listHandle = handle)}
             sx={styles.virtualList}
           >
-            {(row) => <div {...stylex.attrs(styles.virtualRow)}>{row.text}</div>}
+            {(row) => <div {...css.attrs(styles.virtualRow)}>{row.text}</div>}
           </VirtualList>
         </Section>
 
@@ -1354,7 +1349,7 @@ export const Base = _component(() => {
               </Button>
             )}
           >
-            <p {...stylex.attrs(styles.paragraph)}>
+            <p {...css.attrs(styles.paragraph)}>
               收起时内容带
               hidden=&quot;until-found&quot;：用浏览器的页内搜索找“隐藏的关键词”会自动展开。
             </p>

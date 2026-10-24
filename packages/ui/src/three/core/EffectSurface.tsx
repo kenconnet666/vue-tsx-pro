@@ -11,7 +11,7 @@
  * 部件：Root（div）、Canvas（ThreeCanvas）、Content（div，有内容时才有）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../../utils/props';
 import type { ThreeQuality } from './quality';
@@ -40,7 +40,7 @@ export interface EffectProps extends PartProps<'div'> {
 }
 
 /** EffectSurface 的样式：root、canvas、content */
-export const effectSurfaceStyles = stylex.create({
+export const effectSurfaceStyles = css.create({
   root: { position: 'relative', isolation: 'isolate', overflow: 'hidden' },
   canvas: {
     position: 'absolute',

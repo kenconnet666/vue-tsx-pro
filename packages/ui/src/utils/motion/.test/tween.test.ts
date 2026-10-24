@@ -2,7 +2,7 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import { h, nextTick, shallowRef } from 'vue';
 import { afterEach, describe, expect, it } from 'vitest';
-import { durations, easings } from '../../../config/theme/tokens.stylex';
+import { durations, easings } from '../../../config/theme/tokens';
 import { mount } from '../../.test/mount';
 import { useSpring, useTween, type Tweened } from '../tween';
 

@@ -3,7 +3,7 @@
  *
  * 与 Vite 预设是同一个编译函数（@vue-tsx-pro/tsx/compiler 的 compile）：动态样式的响应式绑定、符文、Vue JSX、
  * 去掉类型；最后把 import 改成从主线程给的模块表里取（见 run.ts），export default 改成交出组件。
- * 样式同站点一样走运行时引擎：stylex.create 在页面上执行时生成规则（token 短写也在那时换成变量）。
+ * 样式同站点一样走运行时引擎：css.create 在页面上执行时生成规则（token 短写也在那时换成变量）。
  */
 import { types as t, type PluginObject } from '@babel/core';
 import { compile } from '@vue-tsx-pro/tsx/compiler';

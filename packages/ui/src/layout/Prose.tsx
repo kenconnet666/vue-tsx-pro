@@ -1,6 +1,6 @@
 /**
  * 长文的容器（article）：段落、标题、列表、代码块、表格依次排下来时的间距、行长与行高。
- * StyleX 写不了“相邻元素之间”的选择器，间距用 flex 的 gap 统一给：子元素各自不带外边距（本库的组件都是这样）。
+ * 样式里不写“相邻元素之间”的选择器，间距用 flex 的 gap 统一给：子元素各自不带外边距（本库的组件都是这样）。
  *
  *   <Prose>
  *     <H1 id="intro" anchor>介绍</H1>
@@ -9,7 +9,7 @@
  *   </Prose>
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { gapStyles, type Space } from '../utils/style/styles';
@@ -24,7 +24,7 @@ export interface ProseProps extends PartProps<'article'> {
 }
 
 /** Prose 的样式 */
-export const proseStyles = stylex.create({
+export const proseStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',

@@ -1,6 +1,6 @@
 import { Monitor } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   builtinThemeLabel,
@@ -20,7 +20,7 @@ import {
 import { ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';
 import { ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
 
-const styles = stylex.create({
+const styles = css.create({
   // 主题卡片排成网格：宽屏一行六张
   options: {
     display: 'grid',
@@ -81,7 +81,7 @@ export default _component(() => {
             sx={styles.options}
           >
             <ToggleItem value="system" sx={styles.option} propsContent={{ sx: styles.content }}>
-              <span {...stylex.attrs(styles.system)}>
+              <span {...css.attrs(styles.system)}>
                 <Icon icon={Monitor} />
               </span>
               {lang.themeSystem}

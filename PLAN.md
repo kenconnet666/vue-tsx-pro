@@ -10,7 +10,7 @@
 | 项         | 决定                                                                                                                                                              |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 渲染       | 只做 Vue 3.5 虚拟 DOM；只写 TSX                                                                                                                                   |
-| 编译       | 一个 Vite 插件、每个文件解析一次：符文编译器与官方的 StyleX、Vue JSX Babel 插件组合（Babel 8）                                                                    |
+| 编译       | 一个 Vite 插件、每个文件解析一次：符文编译器、样式绑定与官方的 Vue JSX Babel 插件组合（Babel 8）                                                                  |
 | 文件范围   | 不按目录隔离：只有用到符文或 `_component` 的文件被改写，宿主其他代码原样交给后续插件                                                                              |
 | 响应式写法 | 下划线符文，语义对标 Svelte 5，编译为 Vue 原生 API（[RUNES.md](RUNES.md)）                                                                                        |
 | 组件       | 只有 props：参数解构即 props；内容用 `children`；通知用 `onXxx`；不用 slot / emit / expose                                                                        |
@@ -26,8 +26,8 @@ packages/
   tsx/   @vue-tsx-pro/tsx
     src/compiler/   编译器（纯函数，不依赖 Vite）：符文、token 写法，compile 组合全部步骤
     src/runtime/    _component、prop 访问器、overridable / snapshot / effect
-    src/vite/       Vite 预设：调用 compile、组件热更新、StyleX 的 CSS、编译缓存
-    src/stylex/     StyleX 类型入口（属性中文注释，scripts/css-docs 生成）
+    src/vite/       Vite 预设：调用 compile、组件热更新、编译缓存
+    src/styles/     运行时样式引擎与类型（属性中文注释由 scripts/css-docs 生成）
     types/          符文全局类型、jsx-runtime 类型
   ui/    @vue-tsx-pro/ui（分三层，见 COMPONENTS.md §7；pnpm layers:check 检查）
     基础设施
@@ -53,7 +53,7 @@ apps/
   docs/        文档站：TSX 与本组件库写的网站（Vite + vue-router）；组件页、示例与示例测试在 src/components/<分类>/<Name>/
   host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面（/base 演示页、/integration 集成验证页）
 scripts/
-  css-docs/            StyleX 属性注释的数据与生成器
+  css-docs/            CSS 属性注释的数据与生成器
   language-services/   TSX 语言服务（MCP）
 ```
 
@@ -69,14 +69,14 @@ scripts/
 
 ## 4. 测试分层
 
-| 层       | 测什么                                                                                            | 工具                                                        | 位置                |
-| -------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------- |
-| 编译     | 符文输入 → 输出；误用写法给出带位置的中文报错                                                     | Vitest                                                      | `packages/tsx/test` |
-| 运行时   | 符文、props、`_bindable`、`_effect`、children、与 Vue 互通                                        | Vitest + happy-dom                                          | `packages/*/test`   |
-| 类型     | 正确写法通过；错误写法用 `@ts-expect-error` 标注                                                  | `tsc`                                                       | `*.test-d.ts(x)`    |
-| 宿主集成 | 普通 Vue 3.5 项目里挂载 TSX 页面：路由、store、inject                                             | Vitest + happy-dom                                          | `apps/host-demo`    |
-| 组件交互 | 焦点、键盘、输入法、真实布局、原生弹层行为、axe 无障碍检查                                        | Vitest 浏览器模式 + Playwright（Chromium、Firefox、WebKit） | `apps/host-demo`    |
-| 发布产物 | `pnpm pack` 的包在仓库之外的独立应用里安装、类型检查、构建，并在浏览器里运行（StyleX 由应用编译） | `pnpm test:consumer`                                        | `tests/consumer`    |
+| 层       | 测什么                                                                                                                | 工具                                                        | 位置                |
+| -------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------- |
+| 编译     | 符文输入 → 输出；误用写法给出带位置的中文报错                                                                         | Vitest                                                      | `packages/tsx/test` |
+| 运行时   | 符文、props、`_bindable`、`_effect`、children、与 Vue 互通                                                            | Vitest + happy-dom                                          | `packages/*/test`   |
+| 类型     | 正确写法通过；错误写法用 `@ts-expect-error` 标注                                                                      | `tsc`                                                       | `*.test-d.ts(x)`    |
+| 宿主集成 | 普通 Vue 3.5 项目里挂载 TSX 页面：路由、store、inject                                                                 | Vitest + happy-dom                                          | `apps/host-demo`    |
+| 组件交互 | 焦点、键盘、输入法、真实布局、原生弹层行为、axe 无障碍检查                                                            | Vitest 浏览器模式 + Playwright（Chromium、Firefox、WebKit） | `apps/host-demo`    |
+| 发布产物 | `pnpm pack` 的包在仓库之外的独立应用里安装、类型检查、构建，并在浏览器里运行（组件库是编译好的 JS，样式在运行时生成） | `pnpm test:consumer`                                        | `tests/consumer`    |
 
 **本地只跑和改动相关的检查**（对应包的类型检查与测试文件，动到浏览器行为才跑浏览器测试），**全量交给 CI**。CI 是五个并行任务：静态检查（lint、格式、注释数据、类型检查，只在 Ubuntu）、单元测试、浏览器测试、文档站与宿主构建、发布产物验证（后四个在 Ubuntu 与 Windows 上各跑一份）。
 
@@ -87,8 +87,8 @@ M0 骨架、M1 tsx 包、M2 组件库基础、M3 文档站、M4 正式组件都�
 
 ## 6. 技术约束与退路
 
-- **Babel 8**：符文编译器、Vue JSX 插件（3.0）与 StyleX 的 Babel 插件一起用 Babel 8，一个文件解析一次（compiler/compile.ts）。
-- **StyleX 不 fork**：只 fork 类型声明（`@vue-tsx-pro/tsx/stylex`），运行时与编译器用官方的。
+- **Babel 8**：符文编译器、样式绑定与 Vue JSX 插件（3.0）一起用 Babel 8，一个文件解析一次（compiler/compile.ts）。
+- **不依赖 StyleX**：写法像 StyleX，运行时引擎与类型都是自己的（`@vue-tsx-pro/tsx/styles`，STYLE-ENGINE.md）。
 - **文档站不用 Markdown**：用 TSX 与本组件库写普通网站（Vite + vue-router 自建，已替换原来的 VitePress 冒烟页）。组件都能在 Node 里渲染成 HTML（试过演示页的服务端渲染），静态生成可行。
 - **只用 TypeScript 7**（Go 重写，跟 7.1 的 beta）：类型检查、CI、两个包的声明生成用 `tsc`；脚本与文档站的 API 表用 7.1 的
   程序化 API（`typescript/sync` 的程序与检查器、`typescript/ast` 的语法树）。检查器在 tsc 子进程里，每次调用都是一次跨进程往返，

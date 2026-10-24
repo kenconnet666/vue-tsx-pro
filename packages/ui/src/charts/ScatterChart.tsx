@@ -9,7 +9,7 @@
  */
 import { Scatter } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import { colors } from '../config/theme/tokens.stylex';
+import { colors } from '../config/theme/tokens';
 import { useFormat } from '../config/lang/format';
 import { seriesNumber, type NumericKey } from './series';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';

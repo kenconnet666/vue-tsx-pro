@@ -1,7 +1,7 @@
 // 滚动加载：onRangeChange 报告可见行的范围，离末尾不到 10 行时取下一页；取的时候 loading，表头下方一条进度条。
 // estimateRowHeight 是行高的估计（这里内容会换行，估高一些滚动条更准）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { DataTable, Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
 
 interface Event {
@@ -41,7 +41,7 @@ const columns: DataTableColumn<Event>[] = [
   { key: 'message', header: '事件', width: 280, wrap: true },
 ];
 
-const styles = stylex.create({ table: { height: '18rem' } });
+const styles = css.create({ table: { height: '18rem' } });
 
 export default _component(() => {
   let rows = _state.raw<Event[]>([]);

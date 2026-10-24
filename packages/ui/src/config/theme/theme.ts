@@ -2,8 +2,8 @@
  * 主题：一组 token 的取值。内置主题是 createTheme 生成的只改变量的类（第一次用到时插入规则，换主题只换这个类）；
  * defineTheme 的局部修改在运行时写成 CSS 变量，作用在 Provider 的容器上。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { CssVar, Theme as GroupThemeOf } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { CssVar, Theme as GroupThemeOf } from '@vue-tsx-pro/tsx/styles';
 import { t } from './tokens';
 
 type Groups = typeof t;
@@ -63,7 +63,7 @@ export function defineTheme(
 
 /** 主题落到容器元素上的属性：编译期主题的 class、运行时覆盖的 CSS 变量与配色方案 */
 export function themeAttrs(theme: Theme) {
-  const compiled = stylex.attrs(...theme.styles);
+  const compiled = css.attrs(...theme.styles);
   return {
     class: compiled.class,
     style: [compiled.style, themeVariables(theme)],

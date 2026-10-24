@@ -9,7 +9,7 @@
  *   <Text numeric tone="danger">超时 3 天</Text>       金额、计数：等宽数字，上下对齐
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
@@ -57,7 +57,7 @@ export interface TextOptions {
 export type TextProps<Tag extends TextTag = 'span'> = PartProps<Tag> & TextOptions;
 
 /** Text 系列 的样式：paragraph */
-export const textComponentStyles = stylex.create({
+export const textComponentStyles = css.create({
   // 段落之间的距离交给布局（Flex 的 gap），与标题一致
   paragraph: { margin: 0 },
 });

@@ -12,9 +12,9 @@
  * 窗口太矮时不小于 minHeight，整页滚动。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onMounted } from 'vue';
-import { space } from '../config/theme/tokens.stylex';
+import { space } from '../config/theme/tokens';
 import { useResizeObserver } from '../utils/dom/resize';
 import { toElement } from '../utils/dom/element';
 import { useEventListener } from '../utils/dom/event-listener';
@@ -36,12 +36,12 @@ export interface ViewportFillProps extends Omit<FlexProps, 'direction'> {
 }
 
 /** ViewportFill 的样式：root */
-export const viewportFillStyles = stylex.create({
+export const viewportFillStyles = css.create({
   root: { minWidth: 0 },
 });
 
 /** ViewportFill 的动态样式：高度 */
-export const viewportFillDynamicStyles = stylex.create({
+export const viewportFillDynamicStyles = css.create({
   size: (top: number, bottom: string, min: string) => ({
     height: `calc(100dvh - ${top}px - ${bottom})`,
     minHeight: min,

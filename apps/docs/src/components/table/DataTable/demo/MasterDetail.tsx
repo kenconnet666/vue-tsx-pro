@@ -1,6 +1,6 @@
 // 主从视图：点一行在旁边看详情（activeKey 高亮正在看的那一行，带 aria-current）；编号是按钮，键盘也能打开
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   DataTable,
@@ -39,7 +39,7 @@ const todos: Todo[] = [
   { id: 't4', code: 'FA-2026-0142', name: '密封件国产化', node: '方案评审', due: TODAY },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   frame: {
     height: '18rem',
     borderWidth: '_xs',
@@ -105,7 +105,7 @@ export default _component(() => {
               ]}
             />
           ) : (
-            <div {...stylex.attrs(styles.empty)}>
+            <div {...css.attrs(styles.empty)}>
               <Empty size="sm" title="选一条看详情" />
             </div>
           )

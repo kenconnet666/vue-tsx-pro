@@ -1,4 +1,4 @@
-// 正文排版在真实浏览器里：标题的锚点链接平时透明，悬停标题或聚焦链接时显示（StyleX 的 when.ancestor）
+// 正文排版在真实浏览器里：标题的锚点链接平时透明，悬停标题或聚焦链接时显示（样式的 when.ancestor）
 import { _component } from '@vue-tsx-pro/tsx';
 import { createUi, H2 } from '@vue-tsx-pro/ui';
 import { userEvent } from 'vitest/browser';

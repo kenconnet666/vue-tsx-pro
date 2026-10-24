@@ -6,7 +6,7 @@
 ## 1. 结论
 
 **写法像 StyleX，底层像 Emotion / zerodep-css，和响应式深度结合：状态变化只更新该更新的那一处。**
-入口仍是 `@vue-tsx-pro/tsx/stylex`（`create`、`attrs`、`createTheme`、`keyframes`、`when`、`sx` 写法不变）。
+入口仍是 `@vue-tsx-pro/tsx/styles`（`create`、`attrs`、`createTheme`、`keyframes`、`when`、`sx` 写法不变）。
 
 - **组合类**：`create` 只产出片段（声明表）；一个元素一次 `attrs` 把片段合成**一个类**，第一次出现时插入一条规则
   （含条件块）。按片段对象逐层缓存，命中时不拼字符串、不算哈希、返回同一个结果对象，Vue 比对 class 相同就不碰 DOM。
@@ -16,7 +16,7 @@
 - **状态样式走 DOM 属性**：条件别名（`_selected`、`_disabled`、`_open`…）跟着 aria / data 属性，状态变化只改属性；
   任意属性选择器也能当条件（`color: { default: null, '[data-hot]': … }`，包成 `:is(…)`）。aria / data 属性本来就要写时
   （无障碍、状态标记）用它，去掉重复的 `selected && styles.x`；只为样式加的布尔开关用条件类就行（实测不更快，§9.1）。
-- **动态值绕过组件渲染**：编译器把 JSX 里的 `styles.bar(item.width)` 改写成 `stylex.bind(styles.bar, () => [item.width])`；
+- **动态值绕过组件渲染**：编译器把 JSX 里的 `styles.bar(item.width)` 改写成 `css.bind(styles.bar, () => [item.width])`；
   渲染时只算类名（不追踪），元素上的响应式 effect 直接改那个 CSS 变量，组件不重新渲染。
   一直没变过的属性写死在类里（元素上不挂变量），变过的才转成变量（StyleX 一律转变量，重算更慢）；
   变量不注册 `@property`（引用变量的元素自己一定写着它，不会继承到祖先的值），重算再省 15–20%。
@@ -32,7 +32,7 @@
 
 | 场景                                        | 现在                                                        | 原因                                                                                                     |
 | ------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| 使用方开发服务器首次打开（10 个组件的页面） | 修预构建前 14–16 秒、2,500 个请求；修后 8–10 秒、302 个请求 | 组件库保留 `stylex.create` 源码，不能预构建，275 个模块逐个过 StyleX 的 Babel（单线程约 10 秒）          |
+| 使用方开发服务器首次打开（10 个组件的页面） | 修预构建前 14–16 秒、2,500 个请求；修后 8–10 秒、302 个请求 | 组件库保留 `css.create` 源码，不能预构建，275 个模块逐个过 StyleX 的 Babel（单线程约 10 秒）             |
 | 文档站改一个组件的样式值，到页面生效        | 约 2 秒                                                     | 组件文件导出了样式对象，热更新让导入方连锁重新执行（Badge → NavList、PropsTable → App、AppShell），见 §8 |
 | 改示例文件                                  | 约 0.5 秒                                                   | 正常                                                                                                     |
 | 使用方类型检查                              | 多 0.5 秒（TS 7）/ 1.9 秒（TS 5.9）                         | 读 280 个声明文件，可以接受                                                                              |
@@ -76,22 +76,22 @@
 ### 4.1 API：保持现在的写法，只放宽限制
 
 ```ts
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 
-const styles = stylex.create({
+const styles = css.create({
   root: { padding: '_md', color: { default: '_text', ':hover': '_accent' } },
   size: (width: string) => ({ width }), // 动态样式：同现在
 });
-<div {...stylex.attrs(styles.root, active && styles.active, sx)} />;
+<div {...css.attrs(styles.root, active && styles.active, sx)} />;
 ```
 
 - `create`、`attrs`、`keyframes`、`createTheme`、`when.*` 写法不变；`defineConsts` 换成普通常量。
-- `defineVars`、`defineMarker` 加一个显式的名字：`defineVars({ … }, 'vtp-colors')`（运行时没有导出名可哈希；名字放第二个参数，按第一个参数读 tokens 的脚本不用改）。
+- `defineVars`、`defineMarker` 加一个显式的名字：`defineVars('vtp-colors', { … })`（运行时没有导出名可哈希）。
 - `'_md'`、`'_colors.text'` 的 token 短写改在运行时按 `token-map.ts` 解析，不再需要编译期改写。
 
 ### 4.2 运行时机制
 
-> 下面 1–5 条是最初的原子类设计，已被 §1 的组合类取代（实现见 `packages/tsx/src/stylex/runtime.ts` 文件开头的说明），
+> 下面 1–5 条是最初的原子类设计，已被 §1 的组合类取代（实现见 `packages/tsx/src/styles/runtime.ts` 文件开头的说明），
 > 6、7 条仍然适用。
 
 1. **惰性**：`create` 返回的对象，每个命名空间第一次被读时才展开（Proxy 或 getter），结果缓存在对象上。
@@ -168,7 +168,7 @@ soft:  { color: '_tone.text', backgroundColor: { default: '_tone.soft', _hover: 
 **3. 配方（recipe）：部件 × 档位 × 默认值在一处**（借 Panda 的 `sva`、MUI 的主题覆盖）
 
 ```ts
-export const buttonRecipe = stylex.recipe({
+export const buttonRecipe = css.recipe({
   name: 'Button',                                   // 对应 useDefaults('Button')，也是 data-scope 的值
   parts: ['root', 'content', 'icon', 'spinner'],
   base: { root: { display: 'inline-flex', gap: '_xs', _focusVisible: focusRing, _disabled: { opacity: 0.6 } } },
@@ -198,7 +198,7 @@ return () => <button {...s().root}>{icon && <Icon {...s().icon} icon={icon} />}<
 
 **6. 性能**
 
-- 配方按“档位组合”缓存每个部件的类名串：渲染时是一次查表，比现在每次 `stylex.attrs` 拼几个数组还快；
+- 配方按“档位组合”缓存每个部件的类名串：渲染时是一次查表，比现在每次 `css.attrs` 拼几个数组还快；
 - 合并按参与者的序号缓存（Griffel 的做法），同一组 `sx` 反复渲染不再重算；
 - 规则只在第一次渲染出来时插入，没打开的页面的样式不进样式表；
 - 组件库构建时预计算配方（`__styles` 形态），运行时不解析样式对象。
@@ -207,7 +207,7 @@ return () => <button {...s().root}>{icon && <Icon {...s().icon} icon={icon} />}<
 
 ## 5. 实施步骤
 
-1. **原型**（约 3–5 天）：在 `@vue-tsx-pro/tsx/stylex` 后面实现运行时引擎（create、attrs、动态样式、token、伪类、
+1. **原型**（约 3–5 天）：在 `@vue-tsx-pro/tsx/styles` 后面实现运行时引擎（create、attrs、动态样式、token、伪类、
    at-rule、优先级、keyframes、defineVars、createTheme），文档站切过去跑；再用配方重写 Button、Tabs、Badge 三个组件，
    看新写法的代码量与渲染开销。指标：
    - 视觉：文档站全部示例与现在逐像素对比（借 `docs:shot`），差异为 0 或可解释；
@@ -253,7 +253,7 @@ Vue 3.5 的类型里没有 `popover`、`popovertarget`、`commandfor`、`command
 连锁到 NavList、PropsTable，再到 `App.tsx` 与 AppShell，整个外壳重新渲染。
 
 - 换运行时引擎后：样式对象原地替换，问题消失（已实现，见 §9.3）。
-- 不换的话：热更新单独识别 `stylex.create` 的导出，原地更新对象内容而不让导入方重新执行（约半天）。
+- 不换的话：热更新单独识别 `css.create` 的导出，原地更新对象内容而不让导入方重新执行（约半天）。
 
 ## 9. 实测（2026-10-24）
 
@@ -306,7 +306,7 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`），attr 组是 `data-hot
 
 - 每个绑定的元素一个响应式 effect（内存、挂载时的创建）；不稳定的绑定（读了渲染函数里的局部变量、map 回调的参数）
   在组件因别的原因重渲染时要重跑一次收集依赖。
-- 自动改写只认本文件顶层 `create` 里写成函数的命名空间；导入来的动态样式要手写 `stylex.bind`。
+- 自动改写只认本文件顶层 `create` 里写成函数的命名空间；导入来的动态样式要手写 `css.bind`。
 - 值变了但组件没渲染，Vue devtools 里看不到更新。
 - 热更新只认顶层 `create` / `recipe`；`createTheme`、`keyframes` 改了照旧连锁。注释也算骨架，改注释会连锁。
 - 测试环境（happy-dom）会丢掉它不认识的声明（`-webkit-line-clamp`、`color-mix`），测试按引擎记下的规则原文断言
@@ -317,7 +317,7 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`），attr 组是 `data-hot
 运行时引擎合并后，StyleX 只剩三处：`*.stylex.ts` 的 `defineVars` / `defineConsts` / `defineMarker` 仍过它的 Babel 插件，
 `attrs` 为兼容编译模式转交它的 `props`，类型建立在它的 `CSSProperties` 上。这三处都换成了自己的实现：
 
-- **变量组**：`defineVars(取值, 名字)` 在 `:root` 上声明 `--名字-token`，条件取值进对应的 @ 规则；同名再定义（热更新）换成新值。
+- **变量组**：`defineVars(名字, 取值)` 在 `:root` 上声明 `--名字-token`，条件取值进对应的 @ 规则；同名再定义（热更新）换成新值。
   变量名可读（`--vtp-colors-accent`），源码、产物、SSR 一致，不再需要“`src/` 与 `dist/` 规范成同一模块”的模块解析。
 - **token 短写**：`defineTokens({ 组名: 变量组 })` 登记，引擎展开声明时把整个值是 `'_md'` / `'_space.md'` 的换成变量；
   写错的 token、夹在值中间的短写在第一次用到那段样式时报错。编译期改写（要按导入关系找 token 模块、读源码或产物、
@@ -332,3 +332,16 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`），attr 组是 `data-hot
 - **顺带修复**：组件库 package.json 的 `vueTsxPro.optimizeDeps` 原来只有编译模式读，切到运行时后没人读了，
   按源码读组件库的应用（文档站的浏览器测试）跑到图表才发现 `@unovis/ts` 等依赖、重新预构建，正在初始化的测试页卡住
   （合并后那次 CI 的 ComboChart 超时）。改由 `workspaceSource()` 读它，按“包 > 依赖”预构建。
+
+### 9.6 改名（2026-10-24）
+
+不再依赖 StyleX 之后，名字也不再沿用它：
+
+| 原来                                                    | 现在                                         |
+| ------------------------------------------------------- | -------------------------------------------- |
+| 入口 `@vue-tsx-pro/tsx/stylex`，`import * as stylex`    | `@vue-tsx-pro/tsx/styles`，`import * as css` |
+| `StyleXStyles`、`StyleXAttrs`                           | `SxStyles`、`StyleAttrs`                     |
+| `packages/tsx/src/stylex/`，生成的 `styles.ts`          | `packages/tsx/src/styles/`，`documented.ts`  |
+| `@vue-tsx-pro/ui/tokens.stylex`、`vars.stylex`          | `@vue-tsx-pro/ui/tokens`、`vars`             |
+| `tokens.stylex.ts`（各组）+ `tokens.ts`（`t`）          | 合成 `tokens.ts`；主入口仍只导出 `t`         |
+| `tone.stylex.ts`、`vars.stylex.ts`、`markers.stylex.ts` | `tone-vars.ts`、`vars.ts`、`markers.ts`      |

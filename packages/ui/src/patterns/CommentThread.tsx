@@ -18,7 +18,7 @@
  */
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onMounted, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { Icon } from '../base/Icon';
@@ -110,7 +110,7 @@ export interface CommentComposerProps extends PartProps<'div'> {
 }
 
 /** CommentThread、CommentComposer 的样式 */
-export const commentStyles = stylex.create({
+export const commentStyles = css.create({
   root: { display: 'grid', gap: '_lg' },
   list: { display: 'grid', gap: '_lg', margin: 0, padding: 0, listStyle: 'none' },
   // 头像一列、内容一列
@@ -250,7 +250,7 @@ export const CommentComposer = _component(
         )}
       >
         {author && authorAvatar(author.name, author.avatar)}
-        <div {...stylex.attrs(commentStyles.composerMain)}>
+        <div {...css.attrs(commentStyles.composerMain)}>
           <Mentions
             {...mergePartProps<MentionsProps>(
               {
@@ -267,12 +267,12 @@ export const CommentComposer = _component(
           />
           {upload && attaching && <Upload value={_bind(files)} upload={upload} multiple />}
           {failed && (
-            <div role="alert" {...stylex.attrs(commentStyles.error)}>
+            <div role="alert" {...css.attrs(commentStyles.error)}>
               {messages.commentSendFailed}
             </div>
           )}
-          <div {...stylex.attrs(commentStyles.composerFooter)}>
-            <div {...stylex.attrs(commentStyles.composerTools)}>
+          <div {...css.attrs(commentStyles.composerFooter)}>
+            <div {...css.attrs(commentStyles.composerTools)}>
               {upload && (
                 <Button
                   variant="ghost"
@@ -287,9 +287,9 @@ export const CommentComposer = _component(
                     : messages.commentAttach}
                 </Button>
               )}
-              <span {...stylex.attrs(commentStyles.hint)}>{messages.commentSendHint}</span>
+              <span {...css.attrs(commentStyles.hint)}>{messages.commentSendHint}</span>
             </div>
-            <div {...stylex.attrs(commentStyles.composerTools)}>
+            <div {...css.attrs(commentStyles.composerTools)}>
               {onCancel && (
                 <Button variant="ghost" tone="neutral" size="sm" onClick={onCancel}>
                   {messages.commentCancel}
@@ -364,35 +364,33 @@ export const CommentThread = _component(
       return (
         <li key={comment.id} {...mergeAttrs<'li'>({ sx: commentStyles.item }, own)}>
           {authorAvatar(comment.author, comment.avatar)}
-          <article {...stylex.attrs(commentStyles.body)} aria-label={comment.author}>
-            <div {...stylex.attrs(commentStyles.header)}>
-              <span {...stylex.attrs(commentStyles.author)}>{comment.author}</span>
+          <article {...css.attrs(commentStyles.body)} aria-label={comment.author}>
+            <div {...css.attrs(commentStyles.header)}>
+              <span {...css.attrs(commentStyles.author)}>{comment.author}</span>
               {comment.role}
               <time
                 datetime={comment.time}
                 title={format.date(comment.time, { dateStyle: 'medium', timeStyle: 'short' })}
-                {...stylex.attrs(commentStyles.meta)}
+                {...css.attrs(commentStyles.meta)}
               >
                 {format.relative(comment.time, { now })}
               </time>
               {comment.edited && (
-                <span {...stylex.attrs(commentStyles.meta)}>{messages.commentEdited}</span>
+                <span {...css.attrs(commentStyles.meta)}>{messages.commentEdited}</span>
               )}
             </div>
             <MentionText text={comment.content} options={people} sx={commentStyles.content} />
             {comment.attachments && comment.attachments.length > 0 && (
               <ul
-                {...stylex.attrs(commentStyles.attachments)}
+                {...css.attrs(commentStyles.attachments)}
                 aria-label={messages.commentAttachments}
               >
                 {comment.attachments.map((file) => (
-                  <li key={file.name} {...stylex.attrs(commentStyles.attachment)}>
+                  <li key={file.name} {...css.attrs(commentStyles.attachment)}>
                     <Icon icon={Paperclip} />
                     {file.url ? <Link href={file.url}>{file.name}</Link> : file.name}
                     {file.size != null && (
-                      <span {...stylex.attrs(commentStyles.meta)}>
-                        {format.fileSize(file.size)}
-                      </span>
+                      <span {...css.attrs(commentStyles.meta)}>{format.fileSize(file.size)}</span>
                     )}
                   </li>
                 ))}
@@ -400,7 +398,7 @@ export const CommentThread = _component(
             )}
             {comment.extra}
             {(onSend || actions) && (
-              <div {...stylex.attrs(commentStyles.actions)}>
+              <div {...css.attrs(commentStyles.actions)}>
                 {onSend && (
                   <Button
                     variant="link"
@@ -429,7 +427,7 @@ export const CommentThread = _component(
         <>
           {list.length > 0 && (
             <ul
-              {...stylex.attrs(commentStyles.replies)}
+              {...css.attrs(commentStyles.replies)}
               aria-label={messages.commentReplies(list.length)}
             >
               {list.map((reply) => item(reply, thread))}

@@ -8,7 +8,7 @@
  * 弹出层是 role="dialog"，默认以触发器的文字作为名称（aria-labelledby）；内容有自己的标题时用 aria-labelledby 指向它。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import {
   floatingStyles,
@@ -59,7 +59,7 @@ export interface PopoverProps
 }
 
 /** Popover 的样式：panel */
-export const popoverStyles = stylex.create({
+export const popoverStyles = css.create({
   panel: { padding: '_md', maxWidth: 'calc(100vw - 2em)' },
 });
 

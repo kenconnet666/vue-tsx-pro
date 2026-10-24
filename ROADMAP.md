@@ -217,7 +217,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 已修复（2026-10-22）：
 
 - 29bf5f2：表单校验、数字输入、选择类控件、滚动区域、几处错误处理。
-- 584c4ed：编译器的渲染优化与解构赋值、stylex.attrs 的注入问题。
+- 584c4ed：编译器的渲染优化与解构赋值、css.attrs 的注入问题。
 - 60121f6：路由地址的解析与分页链接。
 - c6b5011：表格的合计与数字排序、基础设施。
 - e0944b8：死代码与过时注释。
@@ -323,7 +323,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
       DateRangePicker 补 valueType、必填、图标与圆角。决定不补：DataTableRow 这类渲染单元；PageSizeSelect 这类继承来的属性不逐个演示
 - [x] 案例：日期用组件库的 `shiftIsoDate`、`daysBetween`；两种降本类型的名称、编码表头、单位与格式合成 `costKinds`，台账只传类型；
       两个编辑页共用 `task-form.ts` 的字段与条件必填；DmcEditor 的实施节点用 `form.array`（删行时错误跟着移动）；
-      铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@vue-tsx-pro/ui/vars.stylex`，主入口不再导出它）；看板用 Grid；
+      铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@vue-tsx-pro/ui/vars`，主入口不再导出它）；看板用 Grid；
       图表示例的真实机型名换成“机型 A / B”
 
 #### A.6 审查余项
@@ -379,8 +379,8 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 不再依赖 StyleX：
 
 - [x] 一个元素一个组合类；合并语义修正 StyleX 条件里 `null` 清掉默认值的坑（Tabs 未选中文字恢复成弱化色）
-- [x] 动态值：没变过的属性写进类里，变过的转成变量；编译器把 JSX 里的动态样式调用改写成 `stylex.bind`，值变化只改元素上的变量、组件不重新渲染
-- [x] 条件别名（`_selected`、`_disabled`…）与属性选择器条件；Button、Badge、Tabs 改用配方 `stylex.recipe` 与色调变量 `toneVars`
+- [x] 动态值：没变过的属性写进类里，变过的转成变量；编译器把 JSX 里的动态样式调用改写成 `css.bind`，值变化只改元素上的变量、组件不重新渲染
+- [x] 条件别名（`_selected`、`_disabled`…）与属性选择器条件；Button、Badge、Tabs 改用配方 `css.recipe` 与色调变量 `toneVars`
 - [x] 热更新原地生效：改样式值不再连锁刷新整页（约 3 s → 0.23 s）
 - [x] 组件库发布编译好的 JS、整个预构建；预设按需载入 Babel 与 StyleX 插件、预热编译线程：新项目开发服务器就绪 8.3 s → 1.0 s，热启动打开页面 8.2 s → 0.78 s
 - [x] 测试按元素实际得到的声明断言（`styleOf`、`styleTextOf`），与引擎怎么生成类无关；文档站加样式更新基准（`/bench/style-updates`）与截图逐像素比对脚本

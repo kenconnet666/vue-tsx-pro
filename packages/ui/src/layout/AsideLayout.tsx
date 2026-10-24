@@ -10,12 +10,12 @@
  * 按容器宽度而不是窗口宽度决定叠不叠：放在抽屉、分栏里也对。两栏里的块按 gap 竖排。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { gapStyles, type Space } from '../utils/style/styles';
-import { space } from '../config/theme/tokens.stylex';
-import { layoutVars } from '../utils/style/vars.stylex';
+import { space } from '../config/theme/tokens';
+import { layoutVars } from '../utils/style/vars';
 
 /** 未声明的属性落到外层 div 上 */
 export interface AsideLayoutProps extends PartProps<'div'> {
@@ -47,7 +47,7 @@ export interface AsideLayoutProps extends PartProps<'div'> {
 }
 
 /** AsideLayout 的样式：root、grid、column、sticky */
-export const asideLayoutStyles = stylex.create({
+export const asideLayoutStyles = css.create({
   // 容器查询的容器：按自己的宽度决定叠不叠
   root: { containerType: 'inline-size', minWidth: 0 },
   grid: { display: 'grid', alignItems: 'start' },
@@ -59,7 +59,7 @@ export const asideLayoutStyles = stylex.create({
 });
 
 /** AsideLayout 的动态样式：侧栏的宽度 */
-export const asideLayoutDynamicStyles = stylex.create({
+export const asideLayoutDynamicStyles = css.create({
   columns: (asideWidth: string) => ({
     gridTemplateColumns: {
       default: 'minmax(0, 1fr)',
@@ -84,7 +84,7 @@ export const AsideLayout = _component(
     () => (
       <div {...mergeAttrs<'div'>({ sx: asideLayoutStyles.root }, rest)}>
         <div
-          {...stylex.attrs(
+          {...css.attrs(
             asideLayoutStyles.grid,
             gapStyles[gap],
             asideLayoutDynamicStyles.columns(asideWidth),

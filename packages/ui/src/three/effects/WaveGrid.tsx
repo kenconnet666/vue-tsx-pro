@@ -18,7 +18,7 @@ import {
   ShaderMaterial,
   Vector3,
 } from 'three';
-import { colors } from '../../config/theme/tokens.stylex';
+import { colors } from '../../config/theme/tokens';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { shaderChunks, THEME_PALETTE_SIZE } from '../core/shaders';
 

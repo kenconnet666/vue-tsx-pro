@@ -1,9 +1,9 @@
 import { Sparkles } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Field, Flex, Grid, Icon, Small, Strong, ColorField } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   preview: {
     display: 'flex',
     alignItems: 'center',
@@ -22,7 +22,7 @@ const styles = stylex.create({
 });
 
 // 颜色是任意值：动态样式单独一个 create
-const colorStyles = stylex.create({
+const colorStyles = css.create({
   surface: (background: string, foreground: string) => ({
     backgroundColor: background,
     color: foreground,
@@ -48,8 +48,8 @@ export default _component(() => {
         </Field>
       </Grid>
       <Card padding="none">
-        <div {...stylex.attrs(styles.preview, colorStyles.surface(background, text))}>
-          <span {...stylex.attrs(styles.badge, colorStyles.badge(brand))}>
+        <div {...css.attrs(styles.preview, colorStyles.surface(background, text))}>
+          <span {...css.attrs(styles.badge, colorStyles.badge(brand))}>
             <Icon icon={Sparkles} />
           </span>
           <Flex direction="column">

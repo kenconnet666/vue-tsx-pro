@@ -11,7 +11,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import { now } from '@internationalized/date';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { useLang } from '../config/context';
@@ -129,7 +129,7 @@ export const firstSegmentOf = (group: Element | null | undefined) =>
   null;
 
 /** SegmentedField 的样式：input */
-export const segmentedFieldStyles = stylex.create({
+export const segmentedFieldStyles = css.create({
   // 分段占满剩下的宽度：清空按钮、尾部内容贴着外壳的结束边
   input: { flexGrow: 1 },
 });

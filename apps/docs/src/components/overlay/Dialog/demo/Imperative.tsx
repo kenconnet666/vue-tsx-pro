@@ -1,7 +1,7 @@
 // 命令式对话框：不在页面里放 Dialog、不管 open，点哪张发票就弹出哪张的详情；正文拿到句柄，
 // “标记已核对”改标题后关上。右边记下每次 onOpenChange 的原因（关闭按钮、Esc、点遮罩、确认、代码调用）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -28,7 +28,7 @@ const invoices: Invoice[] = [
   { no: 'FP-20261015-007', vendor: '远山钣金', amount: '¥3,420.50', date: '2026-10-15' },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   list: { flex: '1 1 18rem' },
   log: { flex: '0 1 10rem' },
 });

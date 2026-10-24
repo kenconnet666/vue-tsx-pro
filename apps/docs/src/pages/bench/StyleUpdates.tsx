@@ -1,7 +1,7 @@
 /**
  * 样式更新基准（不进导航，scripts/docs/style-updates.mjs 驱动）：状态变化时样式层到底动了什么。
  *
- *   /bench/style-updates?mode=sx        1000 行连续值，stylex.create 的动态样式；hot 是条件类（item.hot && styles.hot）
+ *   /bench/style-updates?mode=sx        1000 行连续值，css.create 的动态样式；hot 是条件类（item.hot && styles.hot）
  *   /bench/style-updates?mode=attr      同 sx，但 hot 写在 DOM 属性上（data-hot + '[data-hot]' 条件），类固定
  *   /bench/style-updates?mode=emotion   同样的声明交给 Emotion（每个新值一个新类）
  *   /bench/style-updates?mode=vars      手写：固定的类 + 元素上的变量（理论下限）
@@ -11,7 +11,7 @@
  */
 import { css as emotion } from '@emotion/css';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
@@ -39,7 +39,7 @@ const mode = (new URLSearchParams(location.search).get('mode') ?? 'sx') as Mode;
 /** 行组件的渲染次数（每次渲染加一） */
 let renders = 0;
 
-const styles = stylex.create({
+const styles = css.create({
   row: { display: 'flex', alignItems: 'center', gap: 8, height: 14, fontSize: 11 },
   hot: { color: '_dangerText' },
   track: { flexGrow: 1, height: 6, backgroundColor: '_fill', borderRadius: 3 },
@@ -67,10 +67,10 @@ document.head.append(handStyle);
 const SxRow = _component(({ item }: { item: Item }) => () => {
   renders++;
   return (
-    <div {...stylex.attrs(styles.row, item.hot && styles.hot)}>
+    <div {...css.attrs(styles.row, item.hot && styles.hot)}>
       <span>{item.id}</span>
-      <div {...stylex.attrs(styles.track)}>
-        <div {...stylex.attrs(styles.bar(item.width))} />
+      <div {...css.attrs(styles.track)}>
+        <div {...css.attrs(styles.bar(item.width))} />
       </div>
     </div>
   );
@@ -79,10 +79,10 @@ const SxRow = _component(({ item }: { item: Item }) => () => {
 const AttrRow = _component(({ item }: { item: Item }) => () => {
   renders++;
   return (
-    <div {...stylex.attrs(styles.flaggedRow)} data-hot={item.hot || undefined}>
+    <div {...css.attrs(styles.flaggedRow)} data-hot={item.hot || undefined}>
       <span>{item.id}</span>
-      <div {...stylex.attrs(styles.track)}>
-        <div {...stylex.attrs(styles.bar(item.width))} />
+      <div {...css.attrs(styles.track)}>
+        <div {...css.attrs(styles.bar(item.width))} />
       </div>
     </div>
   );

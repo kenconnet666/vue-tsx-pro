@@ -10,7 +10,7 @@
  * role="timer" 默认不播报（aria-live 为 off），读屏用户需要时自己读；到点的提示放在 onEnd 里（Toast 等）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
@@ -56,7 +56,7 @@ export interface CountdownProps extends PartProps<'span', 'role'> {
 }
 
 /** Countdown 的样式：root */
-export const countdownStyles = stylex.create({
+export const countdownStyles = css.create({
   // 等宽数字：每秒跳动时宽度不变
   root: { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
 });

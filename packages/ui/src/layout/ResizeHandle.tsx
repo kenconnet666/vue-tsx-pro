@@ -7,7 +7,7 @@
  *   <aside style="position: relative; width: …">…<ResizeHandle aria-label="调整侧栏宽度" width={width} onWidthChange={(px) => (width = px)} /></aside>
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { clamp } from '../utils/data/number';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
@@ -37,7 +37,7 @@ export interface ResizeHandleProps extends PartProps<'span', ResizeHandleManaged
 }
 
 /** ResizeHandle 的样式：贴着父元素结束边的细线 */
-export const resizeHandleStyles = stylex.create({
+export const resizeHandleStyles = css.create({
   handle: {
     position: 'absolute',
     top: 0,

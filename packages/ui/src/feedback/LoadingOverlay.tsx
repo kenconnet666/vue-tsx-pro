@@ -9,7 +9,7 @@
  * 遮罩挡住指针操作；键盘仍可操作下面的内容，需要禁止时由内容自己处理（如表单的 disabled）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useLang } from '../config/context';
@@ -38,7 +38,7 @@ export interface LoadingOverlayProps extends PartProps<'div', LoadingOverlayMana
 }
 
 /** LoadingOverlay 的样式：root、overlay、blur、spinner */
-export const loadingOverlayStyles = stylex.create({
+export const loadingOverlayStyles = css.create({
   // 遮罩按外层定位
   root: { position: 'relative' },
   overlay: {

@@ -19,7 +19,7 @@
 import { CalendarDays } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import { toCalendarDateTime } from '@internationalized/date';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
@@ -83,7 +83,7 @@ export interface DatePickerProps<V extends DateInput = string>
 }
 
 /** DatePicker 的样式：popover、main（日历与“今天”）、footer（快捷选项的样式见 pickerPresetStyles） */
-export const datePickerStyles = stylex.create({
+export const datePickerStyles = css.create({
   popover: { display: 'flex', alignItems: 'flex-start', gap: '_sm', padding: '_sm' },
   main: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   // 选周时已选那一周的另外六天
@@ -268,7 +268,7 @@ export const DatePicker = _component(
               lang.datePickerPresets,
               propsPresets,
             ),
-            <div {...stylex.attrs(datePickerStyles.main)}>
+            <div {...css.attrs(datePickerStyles.main)}>
               {granularity === 'quarter' ? (
                 <QuarterCalendar
                   value={typeof value === 'string' || value == null ? value : toIsoQuarter(value)}
@@ -299,7 +299,7 @@ export const DatePicker = _component(
                 />
               )}
               {showToday && (
-                <div {...stylex.attrs(datePickerStyles.footer)}>
+                <div {...css.attrs(datePickerStyles.footer)}>
                   <Button
                     {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'ghost' }, propsToday, {
                       disabled: !selectable(periodOf(todayIso(locale.timeZone))),

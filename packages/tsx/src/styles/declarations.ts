@@ -77,7 +77,7 @@ export const isObject = (value: unknown): value is StyleObject =>
 function condition(property: string, key: string): string {
   const resolved = conditionOf(key);
   if (!resolved) {
-    throw new Error(`stylex: ${property} 的条件 "${key}" 不是伪类、属性选择器、@ 规则或已知的别名`);
+    throw new Error(`样式：${property} 的条件 "${key}" 不是伪类、属性选择器、@ 规则或已知的别名`);
   }
   return resolved;
 }

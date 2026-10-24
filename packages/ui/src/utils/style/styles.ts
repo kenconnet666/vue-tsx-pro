@@ -3,8 +3,8 @@
  * 组件的 size、gap 等 prop 直接用这些类型，取值一一对应到 token。
  * 样式表只放被多个组件复用的；只有一个组件用的写在组件里。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { t } from '../../config/theme/tokens';
 
 /*
@@ -34,7 +34,7 @@ export interface RadiusScale {
 export type Radius = keyof RadiusScale;
 
 /** 圆角档位的样式：none、xs、sm、md、lg、xl、full */
-export const radiusStyles = stylex.create({
+export const radiusStyles = css.create({
   none: { borderRadius: 0 },
   xs: { borderRadius: '_xs' },
   sm: { borderRadius: '_sm' },
@@ -65,12 +65,12 @@ export type Space = keyof SpaceScale;
 
 /**
  * 一组按名字取的样式（如按变体分组的色调表 Record<变体, StyleTable<色调>>）。
- * stylex.create 的结果不用写它：create 返回具名的 CompiledStyles，类型直接推导
+ * css.create 的结果不用写它：create 返回具名的 CompiledStyles，类型直接推导
  */
-export type StyleTable<Key extends string> = Readonly<Record<Key, StyleXStyles>>;
+export type StyleTable<Key extends string> = Readonly<Record<Key, SxStyles>>;
 
 /** 间距 gap：Flex、Grid */
-export const gapStyles = stylex.create({
+export const gapStyles = css.create({
   none: { gap: '_none' },
   xs: { gap: '_xs' },
   sm: { gap: '_sm' },
@@ -80,7 +80,7 @@ export const gapStyles = stylex.create({
 });
 
 /** 两侧的内边距：列表条目与所在容器（弹出层、卡片）的内边距对齐 */
-export const paddingInlineStyles = stylex.create({
+export const paddingInlineStyles = css.create({
   none: { paddingInline: '_none' },
   xs: { paddingInline: '_xs' },
   sm: { paddingInline: '_sm' },
@@ -90,7 +90,7 @@ export const paddingInlineStyles = stylex.create({
 });
 
 /** 行间距：Grid 单独指定时 */
-export const rowGapStyles = stylex.create({
+export const rowGapStyles = css.create({
   none: { rowGap: '_none' },
   xs: { rowGap: '_xs' },
   sm: { rowGap: '_sm' },
@@ -100,7 +100,7 @@ export const rowGapStyles = stylex.create({
 });
 
 /** 列间距：Grid 单独指定时 */
-export const columnGapStyles = stylex.create({
+export const columnGapStyles = css.create({
   none: { columnGap: '_none' },
   xs: { columnGap: '_xs' },
   sm: { columnGap: '_sm' },
@@ -116,7 +116,7 @@ export const columnGapStyles = stylex.create({
  * - hasVisible：里面的元素键盘聚焦时画在整块上（FileDrop：原生 input 视觉上隐藏）；
  * - within：里面的元素聚焦（含鼠标）时画在外壳上，往里收压住边框（输入框外壳）
  */
-export const focusRingStyles = stylex.create({
+export const focusRingStyles = css.create({
   visible: {
     outlineStyle: { default: 'none', ':focus-visible': 'solid' },
     outlineWidth: '_sm',
@@ -147,7 +147,7 @@ export const focusRingStyles = stylex.create({
  * 列表元素（ul、ol）当布局容器时去掉默认的圆点与缩进。
  * Safari 去掉圆点后会把它当成普通容器，读屏不再报“列表”，所以组件同时补上 role="list"（见 listRole）
  */
-export const listStyles = stylex.create({
+export const listStyles = css.create({
   reset: { margin: 0, paddingInlineStart: 0, listStyleType: 'none' },
 });
 

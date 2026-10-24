@@ -17,7 +17,7 @@
  */
 import { ChevronLeft, ChevronRight, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Small } from '../base/Text';
@@ -82,7 +82,7 @@ export interface TreeTransferProps<T> extends TransferBaseProps {
 }
 
 /** Transfer 的样式：root、panel、header、title、search、list、actions、actionIcon */
-export const transferStyles = stylex.create({
+export const transferStyles = css.create({
   // 窄屏时上下排，按钮换成上下箭头
   root: {
     display: 'grid',
@@ -158,7 +158,7 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
         'aria-labelledby': options.titleId,
       })}
     >
-      <div {...stylex.attrs(transferStyles.header)}>
+      <div {...css.attrs(transferStyles.header)}>
         <Checkbox
           checked={_bind(
             () => all,
@@ -171,13 +171,13 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
           disabled={options.disabled || options.selectable.length === 0}
           aria-label={lang.transferSelectAll(options.title)}
         />
-        <span id={options.titleId} {...stylex.attrs(transferStyles.title)}>
+        <span id={options.titleId} {...css.attrs(transferStyles.title)}>
           {options.title}
         </span>
         <Small tone="muted">{lang.transferCount(options.checked.length, options.total)}</Small>
       </div>
       {options.searchable && (
-        <div {...stylex.attrs(transferStyles.search)}>
+        <div {...css.attrs(transferStyles.search)}>
           <TextField
             {...mergePartProps<TextFieldProps>(
               {
@@ -210,7 +210,7 @@ function renderActions(
   propsAction: Partial<IconButtonProps> | undefined,
 ) {
   return (
-    <div {...stylex.attrs(transferStyles.actions)}>
+    <div {...css.attrs(transferStyles.actions)}>
       {([1, 0] as const).map((to) => (
         <IconButton
           key={to}

@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   DataTable,
@@ -29,7 +29,7 @@ const columns: DataTableColumn<Log>[] = [
 
 type Mode = 'data' | 'loading' | 'refreshing' | 'empty';
 
-const styles = stylex.create({ table: { height: '16rem' } });
+const styles = css.create({ table: { height: '16rem' } });
 
 export default _component(() => {
   let mode = _state<Mode>('loading');

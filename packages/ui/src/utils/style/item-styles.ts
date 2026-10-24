@@ -4,11 +4,11 @@
  *
  *   sx: [itemStyles.row, itemStyles.hoverable, active && itemStyles.highlighted, disabled && itemStyles.disabled]
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { t } from '../../config/theme/tokens';
 
 /** 列表行的布局与各状态的颜色 */
-export const itemStyles = stylex.create({
+export const itemStyles = css.create({
   /** 一行：图标、文字、尾部内容横排；按钮、链接、div 都能用（去掉了按钮与链接的默认外观） */
   row: {
     boxSizing: 'border-box',

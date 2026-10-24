@@ -1,14 +1,14 @@
 /**
  * 生成 packages/ui/src/config/theme/token-names.ts：主题 tokens 短写（`fontSize: '_xs'`）的类型。
  *
- * 读 tokens.stylex.ts 里每个 `export const 组 = stylex.defineVars({ … })` 的键与注释，
- * 用 declare module 填入 @vue-tsx-pro/tsx/stylex 里对照表各组的接口（FontSizesTokens 等）；
+ * 读 tokens.ts 里每个 `export const 组 = css.defineVars({ … })` 的键与注释，
+ * 用 declare module 填入 @vue-tsx-pro/tsx/styles 里对照表各组的接口（FontSizesTokens 等）；
  * 键上带着 token 原来的注释，悬停取值时就能看到说明。
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as ts from 'typescript/ast';
-import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
+import { TOKEN_GROUP_OF } from '../../packages/tsx/src/styles/token-map.ts';
 import { parseSource } from '../lib/repo.mjs';
 
 /**
@@ -25,11 +25,11 @@ export function tokenNamesOutput(root) {
 }
 
 export function generateTokenNames(root) {
-  const groups = readTokenGroups(join(root, 'packages/ui/src/config/theme/tokens.stylex.ts'));
+  const groups = readTokenGroups(join(root, 'packages/ui/src/config/theme/tokens.ts'));
   const mapped = new Set(TOKEN_GROUP_OF.values());
   const missing = [...mapped].filter((group) => !groups.some((item) => item.name === group));
   if (missing.length)
-    throw new Error(`对照表里的 token 组在 tokens.stylex.ts 里没有定义：${missing.join('、')}`);
+    throw new Error(`对照表里的 token 组在 tokens.ts 里没有定义：${missing.join('、')}`);
 
   const shortGroups = groups.filter((group) => mapped.has(group.name));
   // 短写（'_xs'）与带组名的写法（'_fontSizes.xs'）各一个接口，键上的注释相同
@@ -43,9 +43,9 @@ export function generateTokenNames(root) {
     '}',
   ];
   return [
-    '// 由 scripts/css-docs/generate.mjs 根据 tokens.stylex.ts 生成，请勿手改。',
+    '// 由 scripts/css-docs/generate.mjs 根据 tokens.ts 生成，请勿手改。',
     '// 主题 tokens 字符串写法的类型（COMPONENTS.md §4）：每组一个短写的接口、一个带组名的接口',
-    "declare module '@vue-tsx-pro/tsx/stylex' {",
+    "declare module '@vue-tsx-pro/tsx/styles' {",
     ...shortGroups.flatMap((group) => [
       ...tokenInterface(group, tokenInterfaceName(group.name), (name) => `_${name}`),
       ...tokenInterface(
@@ -62,7 +62,7 @@ export function generateTokenNames(root) {
     .join('\n');
 }
 
-/** export const 组 = stylex.defineVars('vtp-组', { … }) → 组名、注释与各 token 的名字、注释 */
+/** export const 组 = css.defineVars('vtp-组', { … }) → 组名、注释与各 token 的名字、注释 */
 export function readTokenGroups(file) {
   const text = readFileSync(file, 'utf8');
   const source = parseSource(file, text);
@@ -157,7 +157,7 @@ export function tokenCatalogOutput(root) {
  * 主题编辑器按默认值换算（圆角、缩放、动效速度），文档站的 token 表也读它
  */
 export function generateTokenCatalog(root) {
-  const groups = readTokenGroups(join(root, 'packages/ui/src/config/theme/tokens.stylex.ts'));
+  const groups = readTokenGroups(join(root, 'packages/ui/src/config/theme/tokens.ts'));
   const catalog = groups.map((group) => ({
     name: group.name,
     description: docText(group.doc),
@@ -166,7 +166,7 @@ export function generateTokenCatalog(root) {
       .map((token) => ({ name: token.name, value: token.value, description: docText(token.doc) })),
   }));
   return [
-    '// 由 scripts/css-docs/generate.mjs 根据 tokens.stylex.ts 生成，请勿手改。',
+    '// 由 scripts/css-docs/generate.mjs 根据 tokens.ts 生成，请勿手改。',
     '',
     '/** 一个主题 token */',
     'export interface TokenEntry {',

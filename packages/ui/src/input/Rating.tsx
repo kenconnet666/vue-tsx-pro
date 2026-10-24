@@ -11,8 +11,8 @@
  */
 import { Star } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { useId } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
@@ -54,7 +54,7 @@ export interface RatingProps extends PartProps<'div', RatingManaged> {
 }
 
 /** Rating 的样式：root、star、readonly、icon、empty、fill、clip、clipIcon、whole、startHalf、endHalf、disabled */
-export const ratingStyles = stylex.create({
+export const ratingStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'center', gap: '0.15em', lineHeight: 1 },
   // 每颗星：空心图标打底，填色的那层按比例裁出；radio 盖满（半星时左右各一半）
   star: {
@@ -84,7 +84,7 @@ export const ratingStyles = stylex.create({
 
 // 选中的颜色用各色调的实色（金黄的星、红色的心）：实心与空心靠形状区分，不只靠颜色；Windows 高对比下用系统高亮色
 /** Rating 的颜色：neutral、accent、info、success、warning、danger */
-export const ratingToneStyles = stylex.create({
+export const ratingToneStyles = css.create({
   neutral: { color: { default: '_textMuted', '@media (forced-colors: active)': 'Highlight' } },
   accent: { color: { default: '_accent', '@media (forced-colors: active)': 'Highlight' } },
   info: { color: { default: '_info', '@media (forced-colors: active)': 'Highlight' } },
@@ -94,7 +94,7 @@ export const ratingToneStyles = stylex.create({
 });
 
 /** 填色那层的宽度 */
-export const ratingClipStyles = stylex.create({
+export const ratingClipStyles = css.create({
   width: (percent: string) => ({ width: percent }),
 });
 
@@ -133,7 +133,7 @@ export const Rating = _component(
     const starIcon = (percent: number) => [
       <Icon icon={icon} sx={[ratingStyles.icon, ratingStyles.empty]} />,
       percent > 0 && (
-        <span {...stylex.attrs(ratingStyles.clip, ratingClipStyles.width(`${percent}%`))}>
+        <span {...css.attrs(ratingStyles.clip, ratingClipStyles.width(`${percent}%`))}>
           <Icon
             icon={icon}
             sx={[ratingStyles.clipIcon, ratingStyles.fill, ratingToneStyles[tone]]}
@@ -175,8 +175,8 @@ export const Rating = _component(
       }
 
       const shown = hover ?? value;
-      const radio = (score: number, sx: StyleXStyles) => (
-        <label {...stylex.attrs(sx)} onPointerenter={() => (hover = score)}>
+      const radio = (score: number, sx: SxStyles) => (
+        <label {...css.attrs(sx)} onPointerenter={() => (hover = score)}>
           <input
             type="radio"
             name={name ?? generatedName}
@@ -185,7 +185,7 @@ export const Rating = _component(
             disabled={state.disabled}
             aria-label={lang.ratingStar(score)}
             onClick={() => pick(score)}
-            {...stylex.attrs(visuallyHiddenStyles.hidden)}
+            {...css.attrs(visuallyHiddenStyles.hidden)}
           />
         </label>
       );

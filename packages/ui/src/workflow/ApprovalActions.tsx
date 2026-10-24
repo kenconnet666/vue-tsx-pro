@@ -14,7 +14,7 @@
  * 部件：Root（按钮组）、Button（每个结果的按钮，可以按结果计算）、Dialog。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useMessages } from '../config/lang/messages';
@@ -80,7 +80,7 @@ function buttonLook(kind: ProcessOutcomeKind, primary: boolean): Partial<ButtonP
   }
 }
 
-const styles = stylex.create({ error: { color: '_dangerText', fontSize: '_sm' } });
+const styles = css.create({ error: { color: '_dangerText', fontSize: '_sm' } });
 
 /** 审批按钮 */
 export const ApprovalActions = _component(
@@ -228,7 +228,7 @@ export const ApprovalActions = _component(
                   </Field>
                 )}
                 {errors.fields && (
-                  <div {...stylex.attrs(styles.error)} role="alert">
+                  <div {...css.attrs(styles.error)} role="alert">
                     {errors.fields}
                   </div>
                 )}

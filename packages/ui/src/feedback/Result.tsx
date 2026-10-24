@@ -9,7 +9,7 @@
  * 部件：Root（div）、Icon、Code（状态码，status 时）、Title（Text）、Description（Paragraph）、Action（div）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { FileQuestionMark, ServerCrash, ShieldX } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -91,7 +91,7 @@ export interface ResultProps extends PartProps<'div', 'title'>, ResultOptions {
 }
 
 /** Result 的样式：root、icon、code、title、description、action */
-export const resultStyles = stylex.create({
+export const resultStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',

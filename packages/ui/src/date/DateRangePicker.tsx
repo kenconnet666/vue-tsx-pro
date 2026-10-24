@@ -17,7 +17,7 @@
  */
 import { CalendarRange } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
@@ -140,7 +140,7 @@ export interface DateRangePickerProps<V extends DateInput = string>
 }
 
 /** DateRangePicker 的样式：separator、popover（快捷区间的样式见 pickerPresetStyles） */
-export const dateRangePickerStyles = stylex.create({
+export const dateRangePickerStyles = css.create({
   separator: { flexShrink: 0, paddingInline: '_xs', color: '_textMuted' },
   popover: { display: 'flex', alignItems: 'flex-start', gap: '_sm', padding: '_sm' },
 });

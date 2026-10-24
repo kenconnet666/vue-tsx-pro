@@ -18,7 +18,7 @@
  */
 import { ChevronDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -129,7 +129,7 @@ export interface ComboboxBaseProps<T>
 export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapping<T>;
 
 /** Combobox 的样式：chevronOpen */
-export const comboboxStyles = stylex.create({
+export const comboboxStyles = css.create({
   chevronOpen: { rotate: '180deg' },
 });
 

@@ -1,4 +1,4 @@
-// 由 scripts/css-docs/generate.mjs 根据 tokens.stylex.ts 生成，请勿手改。
+// 由 scripts/css-docs/generate.mjs 根据 tokens.ts 生成，请勿手改。
 
 /** 一个主题 token */
 export interface TokenEntry {

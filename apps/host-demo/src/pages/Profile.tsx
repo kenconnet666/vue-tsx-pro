@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { storeToRefs } from 'pinia';
 import { inject } from 'vue';
 import { useRoute } from 'vue-router';
@@ -7,7 +7,7 @@ import { NameField } from '../components/NameField';
 import { siteNameKey } from '../site';
 import { useUserStore } from '../stores/user';
 
-const styles = stylex.create({
+const styles = css.create({
   page: { display: 'grid', gap: '_sm', padding: '_lg' },
 });
 
@@ -20,7 +20,7 @@ export const Profile = _component(() => {
   const userId = _derived(String(route.params.id));
 
   return () => (
-    <section class="profile" {...stylex.attrs(styles.page)}>
+    <section class="profile" {...css.attrs(styles.page)}>
       <h1>用户 {userId}</h1>
       <p class="site-name">{siteName}</p>
       <NameField value={_bind(name)} />

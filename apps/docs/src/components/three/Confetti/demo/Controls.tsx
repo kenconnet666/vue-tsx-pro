@@ -1,10 +1,10 @@
 // 只在一块区域里放（fullscreen={false}）：方向、散开角度、数量、初速度与重力实时调整
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Card, Flex, Grid, Slider, Text } from '@vue-tsx-pro/ui';
 import { Confetti } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   stage: {
     position: 'relative',
     display: 'flex',
@@ -87,7 +87,7 @@ export default _component(() => {
         ))}
       </Grid>
       <Card padding="none">
-        <div {...stylex.attrs(styles.stage)}>
+        <div {...css.attrs(styles.stage)}>
           <Confetti
             fullscreen={false}
             trigger={fired}

@@ -14,8 +14,8 @@
  * Body（ScrollArea：内容长时只滚正文，标题与页脚固定）、Footer（Flex，靠结束边排列）、Cancel、Confirm（Button，写了 onConfirm 时）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
@@ -95,17 +95,17 @@ export interface ModalProps
 /** 内核额外需要的：外观由各组件给出；AlertDialog 改角色 */
 export interface ModalCoreProps extends ModalProps {
   /** dialog 的外观：尺寸、圆角、进出场过渡 */
-  panelSx: StyleXStyles;
+  panelSx: SxStyles;
   /** AlertDialog 改为 alertdialog；不写时是原生 dialog 的隐含角色 */
   role?: 'alertdialog';
   /** 直接放在 dialog 里、不随正文滚动的内容（抽屉边上的宽度调整手柄） */
   edge?: VNodeChild;
   /** 标题行、说明、正文、页脚共同的样式（抽屉拖窄时内容保持最小宽度、被裁掉而不是挤成一列） */
-  contentSx?: StyleXStyles;
+  contentSx?: SxStyles;
 }
 
 /** 模态面板共有的样式：面板、标题行、标题、关闭按钮、说明、正文、页脚 */
-export const modalStyles = stylex.create({
+export const modalStyles = css.create({
   panel: {
     boxSizing: 'border-box',
     // 只在模态打开时排版；关闭时回到 none，离场过渡由 display 的 allow-discrete 撑住

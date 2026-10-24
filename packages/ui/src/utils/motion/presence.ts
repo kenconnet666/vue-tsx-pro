@@ -87,7 +87,7 @@ export interface Dismissible {
  * 离场结束才调用 onDismiss，使用方移除了就消失；没移除（如拒绝删除）时复位，元素重新出现。在 setup 里调用
  *
  *   const dismissible = useDismissible(() => onClose?.());
- *   <div ref={dismissible.ref} data-state={dismissible.state} {...stylex.attrs(dismissible.dismissing && styles.leaving)}>
+ *   <div ref={dismissible.ref} data-state={dismissible.state} {...css.attrs(dismissible.dismissing && styles.leaving)}>
  *     <CloseButton onClick={dismissible.dismiss} />
  */
 export function useDismissible(onDismiss: () => void): Dismissible {

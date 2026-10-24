@@ -4,7 +4,7 @@ import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@vue-tsx-pro/tsx';
 import { Flex, Small } from '@vue-tsx-pro/ui';
 import { MapChart, resolveColor, type MapArea } from '@vue-tsx-pro/ui/charts';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { provinces } from './china';
 
 const regions = ['华北', '东北', '华东', '华中', '华南', '西南', '西北'];
@@ -16,7 +16,7 @@ const areas: MapArea[] = provinces.map((province) => ({
   color: palette[regions.indexOf(province.region)],
 }));
 
-const styles = stylex.create({
+const styles = css.create({
   swatch: { width: '0.75rem', height: '0.75rem', borderRadius: '2px' },
   color: (color: string) => ({ backgroundColor: color }),
 });
@@ -33,7 +33,7 @@ export default _component(() => () => (
     <Flex gap="md" wrap>
       {regions.map((region, index) => (
         <Flex key={region} gap="xs" align="center">
-          <span {...stylex.attrs(styles.swatch, styles.color(resolveColor(palette[index], 0)))} />
+          <span {...css.attrs(styles.swatch, styles.color(resolveColor(palette[index], 0)))} />
           <Small>{region}</Small>
         </Flex>
       ))}

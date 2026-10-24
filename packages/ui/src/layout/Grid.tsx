@@ -9,7 +9,7 @@
  * 一个元素一个组件（COMPONENTS.md §1）：Grid 是 div，GridList 是 ul；其他语义容器用 createGrid 生成。
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { inject, provide, type InjectionKey, type VNodeChild } from 'vue';
 import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -72,13 +72,13 @@ export interface GridOptions {
 }
 
 /** Grid 的样式：root */
-export const gridStyles = stylex.create({
+export const gridStyles = css.create({
   root: { display: 'grid' },
 });
 
 // 列数与最小宽度是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
 /** Grid 的样式：columns、minItemWidth */
-export const gridDynamicStyles = stylex.create({
+export const gridDynamicStyles = css.create({
   columns: (count: number) => ({ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }),
   // min(…, 100%)：容器比最小宽度还窄时不溢出
   minItemWidth: (width: string) => ({
@@ -87,7 +87,7 @@ export const gridDynamicStyles = stylex.create({
 });
 
 /** Grid 的样式：start、center、end、stretch */
-export const gridAlignStyles = stylex.create({
+export const gridAlignStyles = css.create({
   start: { alignItems: 'start' },
   center: { alignItems: 'center' },
   end: { alignItems: 'end' },
@@ -95,7 +95,7 @@ export const gridAlignStyles = stylex.create({
 });
 
 /** Grid 的样式：start、center、end、stretch */
-export const gridJustifyStyles = stylex.create({
+export const gridJustifyStyles = css.create({
   start: { justifyItems: 'start' },
   center: { justifyItems: 'center' },
   end: { justifyItems: 'end' },
@@ -103,7 +103,7 @@ export const gridJustifyStyles = stylex.create({
 });
 
 /** Grid 的样式：row、column、row dense、column dense */
-export const gridFlowStyles = stylex.create({
+export const gridFlowStyles = css.create({
   row: { gridAutoFlow: 'row' },
   column: { gridAutoFlow: 'column' },
   'row dense': { gridAutoFlow: 'row dense' },
@@ -233,12 +233,12 @@ export type GridItemTag = 'div' | 'li';
 export type GridItemProps<Tag extends GridItemTag = 'div'> = PartProps<Tag> & GridItemOptions;
 
 /** GridItem 的样式：full */
-export const gridItemStyles = stylex.create({
+export const gridItemStyles = css.create({
   full: { gridColumn: '1 / -1' },
 });
 
 /** GridItem 的样式：span、rowSpan */
-export const gridItemDynamicStyles = stylex.create({
+export const gridItemDynamicStyles = css.create({
   span: (count: number) => ({ gridColumn: `span ${count} / span ${count}` }),
   rowSpan: (count: number) => ({ gridRow: `span ${count} / span ${count}` }),
 });

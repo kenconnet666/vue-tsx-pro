@@ -1,6 +1,6 @@
 import { ChevronDown, SlidersHorizontal } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Card,
@@ -13,7 +13,7 @@ import {
   TextField,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   // Collapsible 不包外层元素：在纵向的 Flex 里触发按钮会被拉满整行，靠左放
   trigger: { alignSelf: 'flex-start' },
   chevron: { transitionProperty: 'rotate', transitionDuration: '_durations.md' },

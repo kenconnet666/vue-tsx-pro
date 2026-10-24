@@ -10,7 +10,7 @@ import {
   type MaybeRefOrGetter,
   type Plugin,
 } from 'vue';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   ConfigContext,
   defaultConfig,
@@ -54,7 +54,7 @@ export interface UiOptions {
 }
 
 /** paintDocument 时页面根元素的样式 */
-export const documentStyles = stylex.create({
+export const documentStyles = css.create({
   // 字号不设：根元素的字号是 rem 的基准，留给浏览器（用户的字号设置）
   page: {
     backgroundColor: '_background',
@@ -122,7 +122,7 @@ export function createUi(options: UiOptions = {}): Plugin {
           );
           if (options.paintDocument && document.body) {
             const body = document.body;
-            const classes = stylex.attrs(documentStyles.body).class?.split(' ') ?? [];
+            const classes = css.attrs(documentStyles.body).class?.split(' ') ?? [];
             body.classList.add(...classes);
             app.onUnmount(() => body.classList.remove(...classes));
           }
@@ -135,7 +135,7 @@ export function createUi(options: UiOptions = {}): Plugin {
 /** 把主题的 class、CSS 变量与 data-theme 写到元素上，返回撤销函数 */
 function applyTheme(element: HTMLElement, theme: Theme, paint: boolean) {
   const classes =
-    stylex
+    css
       .attrs(...theme.styles, paint && documentStyles.page)
       .class?.split(' ')
       .filter(Boolean) ?? [];

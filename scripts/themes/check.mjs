@@ -1,5 +1,5 @@
 /**
- * 主题颜色的对比度检查（WCAG 2.2 AA）：每套内置主题（从 builtin.ts 读出，亮色即 tokens.stylex.ts 的默认值）逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
+ * 主题颜色的对比度检查（WCAG 2.2 AA）：每套内置主题（从 builtin.ts 读出，亮色即 tokens.ts 的默认值）逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
  *
  * 用法：node scripts/themes/check.mjs（CI 的静态检查里跑；改颜色前后都跑一遍）
  *
@@ -26,8 +26,8 @@ registerHooks({
 const themeDir = join(root, 'packages/ui/src/config/theme');
 
 /**
- * 从源码里取出一组 token 的取值（默认是颜色）：tokens.stylex.ts 的 `colors = stylex.defineVars('vtp-colors', {...})`，
- * 或主题文件里 `stylex.createTheme(colors, {...})` 的第二个参数
+ * 从源码里取出一组 token 的取值（默认是颜色）：tokens.ts 的 `colors = css.defineVars('vtp-colors', {...})`，
+ * 或主题文件里 `css.createTheme(colors, {...})` 的第二个参数
  */
 function readColors(file, group = 'colors') {
   const text = readFileSync(join(themeDir, file), 'utf8');
@@ -58,7 +58,7 @@ function readColors(file, group = 'colors') {
   return values;
 }
 
-/** 内置主题名 → 主题文件：从 builtin.ts 的导入与 builtinThemes 读出来（亮色即 tokens.stylex.ts 的默认值） */
+/** 内置主题名 → 主题文件：从 builtin.ts 的导入与 builtinThemes 读出来（亮色即 tokens.ts 的默认值） */
 function builtinThemeFiles() {
   const text = readFileSync(join(themeDir, 'builtin.ts'), 'utf8');
   const files = Object.fromEntries(
@@ -72,12 +72,12 @@ function builtinThemeFiles() {
   return Object.fromEntries(
     [...body.matchAll(/^\s*'?([\w-]+)'?: (\w+),$/gm)].map(([, name, id]) => {
       if (!files[id]) throw new Error(`builtin.ts 的 ${name}（${id}）找不到对应的导入`);
-      return [name, name === 'light' ? 'tokens.stylex.ts' : files[id]];
+      return [name, name === 'light' ? 'tokens.ts' : files[id]];
     }),
   );
 }
 const themeFiles = builtinThemeFiles();
-const light = readColors('tokens.stylex.ts');
+const light = readColors('tokens.ts');
 const themes = Object.fromEntries(
   Object.entries(themeFiles).map(([name, file]) => [name, { ...light, ...readColors(file) }]),
 );
@@ -96,14 +96,14 @@ for (const [name, theme] of Object.entries(themes)) {
   }
 }
 
-// light.ts 把默认值再写了一遍（嵌套的 Provider 才能盖过外层主题），要与 tokens.stylex.ts 一致
+// light.ts 把默认值再写了一遍（嵌套的 Provider 才能盖过外层主题），要与 tokens.ts 一致
 for (const group of ['colors', 'shadows', 'fonts', 'radii']) {
-  const defaults = readColors('tokens.stylex.ts', group);
+  const defaults = readColors('tokens.ts', group);
   const written = readColors('light.ts', group);
   for (const token of new Set([...Object.keys(defaults), ...Object.keys(written)])) {
     if (defaults[token] !== written[token])
       failures.push(
-        `light.ts 的 ${group}.${token}（${written[token]}）与 tokens.stylex.ts 的默认值（${defaults[token]}）不一致`,
+        `light.ts 的 ${group}.${token}（${written[token]}）与 tokens.ts 的默认值（${defaults[token]}）不一致`,
       );
   }
 }

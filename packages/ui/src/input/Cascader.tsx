@@ -19,7 +19,7 @@
  */
 import { Check, ChevronDown, ChevronRight, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
@@ -122,7 +122,7 @@ export interface CascaderProps<T>
 }
 
 /** Cascader 的样式：columns、column、option、onPath、focused、chevron、results */
-export const cascaderStyles = stylex.create({
+export const cascaderStyles = css.create({
   // 各列横排；列多了在弹出层里横向滚动
   columns: { display: 'flex', minHeight: 0, flexGrow: 1, overflowX: 'auto' },
   column: {
@@ -507,7 +507,7 @@ export const Cascader = _component(
           })}
         >
           {parent && loading.has(parent) && list.length === 0 && (
-            <div {...stylex.attrs(cascaderStyles.empty)}>
+            <div {...css.attrs(cascaderStyles.empty)}>
               <Spinner label={lang.loading} />
             </div>
           )}
@@ -526,7 +526,7 @@ export const Cascader = _component(
                 aria-disabled={off || undefined}
                 aria-haspopup={branch ? 'listbox' : undefined}
                 aria-expanded={branch ? active && columns.length > level + 1 : undefined}
-                {...stylex.attrs(
+                {...css.attrs(
                   itemStyles.row,
                   itemStyles.hoverable,
                   active && cascaderStyles.onPath,
@@ -544,7 +544,7 @@ export const Cascader = _component(
                 data-active={active || undefined}
                 data-disabled={off || undefined}
               >
-                <span {...stylex.attrs(itemStyles.label)}>{getLabel(node)}</span>
+                <span {...css.attrs(itemStyles.label)}>{getLabel(node)}</span>
                 {branch ? (
                   loading.has(node) ? (
                     <Spinner size="sm" />
@@ -578,7 +578,7 @@ export const Cascader = _component(
           )}
         >
           {list.length === 0 && (
-            <div {...stylex.attrs(cascaderStyles.empty)}>{lang.selectNoMatch}</div>
+            <div {...css.attrs(cascaderStyles.empty)}>{lang.selectNoMatch}</div>
           )}
           {list.map((item, index) => {
             const selected = item.keys.join('\u0000') === chosen;
@@ -589,7 +589,7 @@ export const Cascader = _component(
                 role="option"
                 aria-selected={selected}
                 aria-disabled={item.disabled || undefined}
-                {...stylex.attrs(
+                {...css.attrs(
                   itemStyles.row,
                   itemStyles.hoverable,
                   index === hit && itemStyles.highlighted,
@@ -602,7 +602,7 @@ export const Cascader = _component(
                   !item.disabled && pick(item.keys, item.nodes.at(-1)!, true, event)
                 }
               >
-                <span {...stylex.attrs(itemStyles.label)}>{item.label}</span>
+                <span {...css.attrs(itemStyles.label)}>{item.label}</span>
                 {selected && <Icon icon={Check} sx={cascaderStyles.check} />}
               </div>
             );
@@ -621,7 +621,7 @@ export const Cascader = _component(
       const labels = keys.map((key, index) => (nodes[index] ? getLabel(nodes[index]) : key));
       const shown =
         keys.length === 0 ? (
-          <span {...stylex.attrs(selectStyles.placeholder)}>
+          <span {...css.attrs(selectStyles.placeholder)}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
         ) : (
@@ -710,7 +710,7 @@ export const Cascader = _component(
             )}
           >
             {searchable && (
-              <div {...stylex.attrs(listPopoverStyles.header)}>
+              <div {...css.attrs(listPopoverStyles.header)}>
                 <TextField
                   {...mergePartProps<TextFieldProps>(
                     {
@@ -737,7 +737,7 @@ export const Cascader = _component(
               </div>
             )}
             {open && (
-              <div {...stylex.attrs(cascaderStyles.columns)}>
+              <div {...css.attrs(cascaderStyles.columns)}>
                 {list
                   ? renderHits(list)
                   : columns.map((column, level) =>

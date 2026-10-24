@@ -1,6 +1,6 @@
 import { Megaphone, Pause, Play } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Icon, IconButton, Marquee, Text } from '@vue-tsx-pro/ui';
 
 const notices = [
@@ -10,7 +10,7 @@ const notices = [
   '客服热线工作时间调整为 8:00–22:00',
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   notice: { flexGrow: 1, height: '1.5em' },
   accent: { color: '_accentText' },
 });

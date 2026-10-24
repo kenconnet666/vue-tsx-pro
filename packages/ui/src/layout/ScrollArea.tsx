@@ -13,7 +13,7 @@
  *   <ScrollArea propsViewport={{ ref: (element) => (scroller = toElement(element)) }}>…</ScrollArea>
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -71,7 +71,7 @@ export interface ScrollAreaProps extends PartProps<'div'> {
 const MIN_THUMB = 20;
 
 /** ScrollArea 的样式：root、viewport、y、x、both、wideContent */
-export const scrollAreaStyles = stylex.create({
+export const scrollAreaStyles = css.create({
   // flex 纵向：使用方只给 max-height 时视口也能被限制住（视口 min-height: 0 可以收缩）
   root: { position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
   viewport: {
@@ -91,7 +91,7 @@ export const scrollAreaStyles = stylex.create({
 });
 
 /** OverlayScrollbar 的样式：track、hidden、y、x、yCorner、xCorner、thumb 等 */
-export const scrollAreaBarStyles = stylex.create({
+export const scrollAreaBarStyles = css.create({
   track: {
     position: 'absolute',
     zIndex: 1,

@@ -1,6 +1,6 @@
-// 由 scripts/css-docs/generate.mjs 根据 tokens.stylex.ts 生成，请勿手改。
+// 由 scripts/css-docs/generate.mjs 根据 tokens.ts 生成，请勿手改。
 // 主题 tokens 字符串写法的类型（COMPONENTS.md §4）：每组一个短写的接口、一个带组名的接口
-declare module '@vue-tsx-pro/tsx/stylex' {
+declare module '@vue-tsx-pro/tsx/styles' {
   /** 颜色：slate 中性色、indigo 品牌色、red 危险、green 成功、amber 警告、blue 信息 */
   interface ColorsTokens {
     /**

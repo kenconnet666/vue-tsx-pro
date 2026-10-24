@@ -2,7 +2,7 @@
  * 文字相关的共用样式表：Text、Heading、Icon、Button 等按同一套档位取字号、字重、色调。
  * 档位与主题 tokens 同名（COMPONENTS.md §6.2）。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 // 取值类型写成带注释接口的 keyof：补全与悬停能看到每个取值的效果（见 styles.ts）
 
 /** 界面文字的字号档位，对应主题的 fontSizes；组件的 size 档位也用它，括号里是默认主题的值 */
@@ -104,7 +104,7 @@ export interface TextWraps {
 export type TextWrap = keyof TextWraps;
 
 /** 字号档位 → fontSizes token */
-export const fontSizeStyles = stylex.create({
+export const fontSizeStyles = css.create({
   xs: { fontSize: '_xs' },
   sm: { fontSize: '_sm' },
   md: { fontSize: '_md' },
@@ -118,7 +118,7 @@ export const fontSizeStyles = stylex.create({
  * 相对所在字号的档位（em）：组件内部的小字、标题用它，跟着根上的 size 或所在文字一起缩放。
  * 比例取主题默认字号（md 14px）下与各档的比值：sm ≈ 13px、xs ≈ 12px、lg ≈ 16px、xl ≈ 18px
  */
-export const relativeFontSizeStyles = stylex.create({
+export const relativeFontSizeStyles = css.create({
   xs: { fontSize: '0.86em' },
   sm: { fontSize: '0.93em' },
   lg: { fontSize: '1.14em' },
@@ -126,7 +126,7 @@ export const relativeFontSizeStyles = stylex.create({
 });
 
 /** 字重档位 → fontWeights token */
-export const fontWeightStyles = stylex.create({
+export const fontWeightStyles = css.create({
   light: { fontWeight: '_light' },
   normal: { fontWeight: '_normal' },
   medium: { fontWeight: '_medium' },
@@ -135,7 +135,7 @@ export const fontWeightStyles = stylex.create({
 });
 
 /** 色调 → 文字颜色 token */
-export const toneStyles = stylex.create({
+export const toneStyles = css.create({
   neutral: { color: '_text' },
   muted: { color: '_textMuted' },
   accent: { color: '_accentText' },
@@ -147,14 +147,14 @@ export const toneStyles = stylex.create({
 });
 
 /** 水平对齐（按书写方向） */
-export const textAlignStyles = stylex.create({
+export const textAlignStyles = css.create({
   start: { textAlign: 'start' },
   center: { textAlign: 'center' },
   end: { textAlign: 'end' },
 });
 
 /** 换行方式（text-wrap） */
-export const textWrapStyles = stylex.create({
+export const textWrapStyles = css.create({
   wrap: { textWrap: 'wrap' },
   nowrap: { textWrap: 'nowrap' },
   // 标题：各行长度尽量均衡
@@ -164,7 +164,7 @@ export const textWrapStyles = stylex.create({
 });
 
 /** 截断：truncate 单行省略，clamp 多行截断（行数见 lineClampStyles） */
-export const textStyles = stylex.create({
+export const textStyles = css.create({
   // 单行省略：在块级元素或 flex 子项上生效
   truncate: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 },
   // 多行截断用带 -webkit- 前缀的写法（标准的 line-clamp 尚无浏览器支持），行数见 lineClampStyles
@@ -176,6 +176,6 @@ export const textStyles = stylex.create({
 });
 
 /** 多行截断的行数：任意值，用动态样式（编译为 CSS 变量），与 textStyles.clamp 一起用 */
-export const lineClampStyles = stylex.create({
+export const lineClampStyles = css.create({
   lines: (count: number) => ({ WebkitLineClamp: count }),
 });

@@ -2,7 +2,7 @@
 // 已关闭的任务不能勾选；勾选后上方出现批量操作栏；“列”菜单切换哪些列显示
 import { Columns3, Download, Ellipsis, FileText, Send } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   createStatusMap,
@@ -164,7 +164,7 @@ const columns: DataTableColumn<Task>[] = [
 // 可以隐藏的列（编码、名称、操作一直显示）
 const optional = columns.filter((column) => !['code', 'name', 'actions'].includes(column.key));
 
-const styles = stylex.create({ table: { maxHeight: '24rem' } });
+const styles = css.create({ table: { maxHeight: '24rem' } });
 
 export default _component(() => {
   let selected = _state<string[]>([]);

@@ -6,12 +6,12 @@
  * 高度由使用方给（sx），默认 20rem；未声明的属性落到外壳上。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { controlShellStyles, mergeAttrs, useConfig, type PartProps } from '@vue-tsx-pro/ui';
 import { onBeforeUnmount, onMounted, watch } from 'vue';
 import type { PlaygroundEditor } from './editor';
 
-const styles = stylex.create({
+const styles = css.create({
   // 输入框外壳是一行的 inline-flex：改成整块，内边距交给 CodeMirror
   root: {
     display: 'block',

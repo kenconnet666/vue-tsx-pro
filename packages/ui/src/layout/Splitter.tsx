@@ -13,7 +13,7 @@
  */
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -79,7 +79,7 @@ export interface SplitterProps extends PartProps<'div'> {
 const STEP = 5;
 
 /** Splitter 的样式：root、pane、handle、line、toggle… */
-export const splitterStyles = stylex.create({
+export const splitterStyles = css.create({
   root: { display: 'grid', minWidth: 0, minHeight: 0, height: '100%' },
   bordered: {
     borderWidth: '_xs',
@@ -110,7 +110,7 @@ export const splitterStyles = stylex.create({
 });
 
 /** Splitter 的动态样式：两栏与分隔条的轨道 */
-export const splitterDynamicStyles = stylex.create({
+export const splitterDynamicStyles = css.create({
   columns: (template: string) => ({ gridTemplateColumns: template }),
   rows: (template: string) => ({ gridTemplateRows: template }),
 });
@@ -225,7 +225,7 @@ export const Splitter = _component(
             {start}
           </div>
           <div
-            {...stylex.attrs(
+            {...css.attrs(
               splitterStyles.track,
               horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
             )}
@@ -256,7 +256,7 @@ export const Splitter = _component(
               )}
             >
               <span
-                {...stylex.attrs(
+                {...css.attrs(
                   splitterStyles.line,
                   horizontal() ? splitterStyles.lineHorizontal : splitterStyles.lineVertical,
                 )}

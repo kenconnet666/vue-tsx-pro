@@ -12,7 +12,7 @@
  * 只是排一排、不相连的按钮用 Flex。选中其中一项（单选、多选）用 ToggleGroup。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { AttachedContext, type AttachedOrientations } from '../utils/style/attached';
@@ -36,7 +36,7 @@ export interface ButtonGroupProps
 }
 
 /** ButtonGroup 的样式：root、vertical */
-export const buttonGroupStyles = stylex.create({
+export const buttonGroupStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'stretch' },
   vertical: { flexDirection: 'column' },
 });

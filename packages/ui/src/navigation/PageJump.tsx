@@ -7,7 +7,7 @@
  * 前后的“跳至”“页”只是视觉上的提示。部件：Root（div）、Before、Input（NumberField）、After。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { NumberField, type NumberFieldProps } from '../input/NumberField';
@@ -32,7 +32,7 @@ export interface PageJumpProps extends PartProps<'div'> {
 }
 
 /** PageJump 的样式：root、input、text */
-export const pageJumpStyles = stylex.create({
+export const pageJumpStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'center', gap: '_sm' },
   input: { width: '4.5em' },
   text: { color: '_textMuted', whiteSpace: 'nowrap' },

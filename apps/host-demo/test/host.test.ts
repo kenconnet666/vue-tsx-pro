@@ -23,7 +23,7 @@ it('TSX 页面作为路由组件渲染，读取路由参数与宿主 provide 的
   const { el } = await open('/profile/42');
   expect(text(el, 'h1')).toBe('用户 42');
   expect(text(el, '.site-name')).toBe('Host Demo');
-  expect(el.querySelector('.profile')!.className).not.toBe('profile'); // StyleX 类名已合并
+  expect(el.querySelector('.profile')!.className).not.toBe('profile'); // 样式类名已合并
   expect(text(el, '.greeting')).toBe('你好，Ada');
 });
 

@@ -1,8 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, Slider, Text, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
 import { AURORA_PALETTE, AuroraBackground } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
 const PALETTES = {
   default: AURORA_PALETTE,
@@ -10,7 +10,7 @@ const PALETTES = {
   brand: [colors.accent, colors.accentSoft, colors.chart5],
 };
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '18rem' },
   label: { minWidth: '4em', color: '_textMuted' },
   slider: { flexGrow: 1 },

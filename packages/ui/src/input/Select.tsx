@@ -36,7 +36,7 @@
  */
 import { ChevronDown, Plus, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';
@@ -163,7 +163,7 @@ export interface SelectBaseProps<T>
 export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
 
 /** Select 的样式：root、trigger、value、placeholder、chevronOpen 等 */
-export const selectStyles = stylex.create({
+export const selectStyles = css.create({
   // 在 ControlGroup 里也按内容宽（输入框才分剩余宽度）
   root: { cursor: 'pointer', flexGrow: 0 },
   // 去掉按钮默认外观用 buttonBaseStyles；像输入框一样没有自己的焦点环与波纹（焦点环画在外壳上）
@@ -435,7 +435,7 @@ export const Select = _component(
       // 多选的默认显示：触发按钮前面一排标签，按钮里只留给读屏的文字
       const tagged = multiple() && !renderValue && selected.length > 0;
       const shown = tagged ? (
-        <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+        <span {...css.attrs(visuallyHiddenStyles.hidden)}>
           {lang.selectSummary(selected.map((option) => option.label))}
         </span>
       ) : (
@@ -443,7 +443,7 @@ export const Select = _component(
           selected.flatMap((option) => (option.item === undefined ? [] : [option.item])),
         ) ??
         (selected.length === 0 ? (
-          <span {...stylex.attrs(selectStyles.placeholder)}>
+          <span {...css.attrs(selectStyles.placeholder)}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
         ) : (

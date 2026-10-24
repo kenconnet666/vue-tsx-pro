@@ -4,7 +4,7 @@
  */
 import { EllipsisVertical, Funnel } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -22,7 +22,7 @@ import type { ColumnFilterOption, ColumnStickies, SortState } from './columns';
 const SEARCH_THRESHOLD = 8;
 
 /** ColumnHeaderActions 的样式：trigger、active、panel、options、footer */
-export const columnHeaderActionStyles = stylex.create({
+export const columnHeaderActionStyles = css.create({
   // 比正文小一档，不撑高表头
   trigger: { flexShrink: 0, marginBlock: '-0.25em' },
   active: { color: '_accentText' },
@@ -95,7 +95,7 @@ export const ColumnFilterButton = _component(
               size="sm"
             />
           )}
-          <div {...stylex.attrs(columnHeaderActionStyles.options)} role="group" aria-label={label}>
+          <div {...css.attrs(columnHeaderActionStyles.options)} role="group" aria-label={label}>
             {shown().map((option) => (
               <Checkbox
                 key={option.value}
@@ -133,9 +133,9 @@ export const ColumnFilterButton = _component(
             />
           )}
         >
-          <div {...stylex.attrs(columnHeaderActionStyles.panel)}>
+          <div {...css.attrs(columnHeaderActionStyles.panel)}>
             {renderOptions()}
-            <div {...stylex.attrs(columnHeaderActionStyles.footer)}>
+            <div {...css.attrs(columnHeaderActionStyles.footer)}>
               <Button size="sm" variant="ghost" disabled={!active} onClick={() => onChange([])}>
                 {lang.tableFilterClear}
               </Button>

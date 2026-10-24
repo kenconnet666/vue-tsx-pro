@@ -19,7 +19,7 @@ import {
   type HeadingEntry,
 } from '@vue-tsx-pro/ui';
 import { AppShell, ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
@@ -29,12 +29,12 @@ import { PropsPlaygroundButton } from './site/PropsPlaygroundButton';
 import { isFrame } from './router';
 import { preference } from './site/theme';
 
-const pageEnter = stylex.keyframes({
+const pageEnter = css.keyframes({
   from: { opacity: 0, transform: 'translateY(6px)' },
   to: { opacity: 1, transform: 'none' },
 });
 
-const styles = stylex.create({
+const styles = css.create({
   brand: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -134,13 +134,13 @@ export const App = _component(() => {
         <LoadingBar controller={loadingBar} />
         <AppShell
           brand={
-            <RouterLink to="/" {...stylex.attrs(styles.brand)}>
+            <RouterLink to="/" {...css.attrs(styles.brand)}>
               <Icon icon={Box} sx={styles.brandMark} />
               vue-tsx-pro
             </RouterLink>
           }
           header={
-            <div {...stylex.attrs(styles.tools)}>
+            <div {...css.attrs(styles.tools)}>
               <CommandPalette
                 items={searchItems}
                 onAction={(item) => void router.push(item.value)}
@@ -171,9 +171,9 @@ export const App = _component(() => {
           aside={!isHome && headings.length > 0 && <TableOfContents items={headings} />}
           propsMain={{ sx: styles.main }}
         >
-          <div ref={_toRef(content)} {...stylex.attrs(styles.page)}>
+          <div ref={_toRef(content)} {...css.attrs(styles.page)}>
             {/* 按路由换 key：每次换页重新播放进场动画 */}
-            <div key={route.path} {...stylex.attrs(styles.enter)}>
+            <div key={route.path} {...css.attrs(styles.enter)}>
               <RouterView />
             </div>
             {!isHome && (

@@ -5,8 +5,8 @@
  */
 import { RotateCcw, X } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import { breakpoints } from '@vue-tsx-pro/ui/tokens';
 import * as ui from '@vue-tsx-pro/ui';
 import * as patterns from '@vue-tsx-pro/ui/patterns';
 import * as workflow from '@vue-tsx-pro/ui/workflow';
@@ -47,7 +47,7 @@ import { componentCode } from './code';
 import { controlOf, parseDefault, type Control } from './controls';
 import { HIDDEN, PRESETS, type Preset } from './presets';
 
-const styles = stylex.create({
+const styles = css.create({
   layout: {
     display: 'grid',
     gap: '_xl',
@@ -280,7 +280,7 @@ export const PropsPlayground = _component(
                   </Button>
                 )}
               >
-                <div {...stylex.attrs(styles.iconPanel)}>
+                <div {...css.attrs(styles.iconPanel)}>
                   <IconGallery
                     value={picked ?? ''}
                     onPick={(picked) => {
@@ -368,13 +368,10 @@ export const PropsPlayground = _component(
             </Button>
           </Flex>
           {entry.description && <Paragraph tone="muted">{entry.description}</Paragraph>}
-          <div {...stylex.attrs(styles.layout)}>
+          <div {...css.attrs(styles.layout)}>
             <Flex direction="column" gap="md">
-              <div {...stylex.attrs(canvasStyles.canvas, styles.canvas)}>
-                <div
-                  ref={_toRef(stage)}
-                  {...stylex.attrs(styles.stage, inline && styles.stageInline)}
-                >
+              <div {...css.attrs(canvasStyles.canvas, styles.canvas)}>
+                <div ref={_toRef(stage)} {...css.attrs(styles.stage, inline && styles.stageInline)}>
                   <PreviewBoundary key={entry.name}>{renderPreview()}</PreviewBoundary>
                 </div>
               </div>

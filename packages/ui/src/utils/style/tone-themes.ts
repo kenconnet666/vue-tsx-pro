@@ -1,15 +1,14 @@
 /**
  * 六种状态色调的主题类：挂在元素上，把 toneVars 换成这个色调的颜色；里面的样式只写一遍、引用 toneVars。
  *
- *   <span {...stylex.attrs(toneThemes[tone], styles.soft)} />     // styles.soft 里写 color: toneVars.text
+ *   <span {...css.attrs(toneThemes[tone], styles.soft)} />     // styles.soft 里写 color: toneVars.text
  *
  * 按色调名循环创建。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { t } from '../../config/theme/tokens';
-import { colors } from '../../config/theme/tokens.stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import { colors, t } from '../../config/theme/tokens';
 import type { StatusTone } from './tone-styles';
-import { toneVars } from './tone.stylex';
+import { toneVars } from './tone-vars';
 
 /** 中性：实底是反色表面，浅底是填充色，表面样式用表面色 */
 const neutral = {
@@ -38,11 +37,11 @@ const colored = (tone: Exclude<StatusTone, 'neutral'>) => ({
 });
 
 /** 色调 → 主题类 */
-export const toneThemes: Readonly<Record<StatusTone, stylex.Theme<typeof toneVars>>> = {
-  neutral: stylex.createTheme(toneVars, neutral),
-  accent: stylex.createTheme(toneVars, colored('accent')),
-  info: stylex.createTheme(toneVars, colored('info')),
-  success: stylex.createTheme(toneVars, colored('success')),
-  warning: stylex.createTheme(toneVars, colored('warning')),
-  danger: stylex.createTheme(toneVars, colored('danger')),
+export const toneThemes: Readonly<Record<StatusTone, css.Theme<typeof toneVars>>> = {
+  neutral: css.createTheme(toneVars, neutral),
+  accent: css.createTheme(toneVars, colored('accent')),
+  info: css.createTheme(toneVars, colored('info')),
+  success: css.createTheme(toneVars, colored('success')),
+  warning: css.createTheme(toneVars, colored('warning')),
+  danger: css.createTheme(toneVars, colored('danger')),
 };

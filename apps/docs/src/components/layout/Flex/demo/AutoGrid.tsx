@@ -1,6 +1,6 @@
 import { Armchair, BedDouble, Lamp, LampDesk, Sofa } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, GridList, Icon, Small, Strong, Text } from '@vue-tsx-pro/ui';
 
 const products = [
@@ -12,7 +12,7 @@ const products = [
   { icon: LampDesk, name: '护眼台灯', price: 329 },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   cover: {
     display: 'grid',
     placeItems: 'center',
@@ -30,7 +30,7 @@ export default _component(() => () => (
     {products.map((product) => (
       <li key={product.name}>
         <Card padding="sm">
-          <div {...stylex.attrs(styles.cover)}>
+          <div {...css.attrs(styles.cover)}>
             <Icon icon={product.icon} />
           </div>
           <Flex direction="column" gap="xs">

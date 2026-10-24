@@ -1,6 +1,6 @@
 // 色板（下一次放时生效）与收尾：onDone 在这几批都落完后调用；“关闭特效”时 quality="off"，不放、直接 onDone
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Card,
@@ -13,7 +13,7 @@ import {
   ToggleItem,
 } from '@vue-tsx-pro/ui';
 import { CONFETTI_PALETTE, Confetti } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
 const PALETTES = {
   default: CONFETTI_PALETTE,
@@ -21,7 +21,7 @@ const PALETTES = {
   brand: [colors.accent, colors.accentSoft, colors.chart5],
 };
 
-const styles = stylex.create({
+const styles = css.create({
   stage: {
     position: 'relative',
     display: 'flex',
@@ -54,7 +54,7 @@ export default _component(() => {
         <Switch checked={_bind(effects)}>动态特效</Switch>
       </Grid>
       <Card padding="none">
-        <div {...stylex.attrs(styles.stage)}>
+        <div {...css.attrs(styles.stage)}>
           <Confetti
             fullscreen={false}
             trigger={fired}

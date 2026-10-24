@@ -9,7 +9,7 @@
 import * as lucide from '@lucide/icons';
 import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   ButtonBase,
   Flex,
@@ -72,7 +72,7 @@ export function iconSvg(icon: IconData, strokeWidth = 2): string {
   ].join('\n');
 }
 
-const styles = stylex.create({
+const styles = css.create({
   // VirtualList 自己是滚动容器（内部是 ScrollArea，滚动条和整页一样）
   scroller: { height: '26rem' },
   // 行与行之间的间距：VirtualList 的每一项就是一行
@@ -181,7 +181,7 @@ export const IconGallery = _component(({ value = _bindable(''), onPick }: IconGa
                   }}
                 >
                   <Icon icon={item.icon} sx={styles.glyph} />
-                  <span {...stylex.attrs(styles.name)}>{item.name}</span>
+                  <span {...css.attrs(styles.name)}>{item.name}</span>
                 </ButtonBase>
               ))}
             </Grid>

@@ -8,7 +8,7 @@
  */
 import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
@@ -49,7 +49,7 @@ export interface LinkProps extends PartProps<'a', 'href'>, LinkOptions {
 }
 
 /** Link 的样式：root、always、hover、none、icon */
-export const linkStyles = stylex.create({
+export const linkStyles = css.create({
   root: {
     borderRadius: '_xs',
     textDecorationThickness: '_xs',

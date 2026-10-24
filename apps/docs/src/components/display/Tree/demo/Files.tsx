@@ -1,6 +1,6 @@
 import { FileCode, FileJson, FileText, Folder, FolderOpen } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Small, Tree, type IconData } from '@vue-tsx-pro/ui';
 
 interface Entry {
@@ -38,7 +38,7 @@ const iconOf = (entry: Entry, expanded: boolean): IconData => {
   return FileCode;
 };
 
-const styles = stylex.create({ tree: { height: '17rem' } });
+const styles = css.create({ tree: { height: '17rem' } });
 
 export default _component(() => {
   let expanded = _state(['/src', '/src/components']);

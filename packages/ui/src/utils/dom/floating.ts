@@ -24,9 +24,9 @@ import {
   type Placement,
   type VirtualElement,
 } from '@floating-ui/dom';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onScopeDispose, watchPostEffect } from 'vue';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { transitions } from '../style/transitions';
 import { fontSizeStyles, type TextSize } from '../style/typography';
 import { returnFocus } from './focus';
@@ -121,17 +121,17 @@ const ARROW_ROTATION: Record<Side, number> = { top: 45, right: 135, bottom: 225,
  * 弹出面板（选项列表、树、日期面板）共用的样式：锚定定位、浮起的表面、缩放进出场；
  * 面板渲染在顶层，不是输入框外壳的后代、不继承它的字号：按控件的 size 设置。ListPopover、TreeSelect、日期选择器用它
  */
-export function anchoredPanelSx(size?: TextSize): StyleXStyles {
+export function anchoredPanelSx(size?: TextSize): SxStyles {
   return [
     floatingStyles.anchored,
     floatingStyles.surface,
     size && fontSizeStyles[size],
     transitions.scale,
-  ] as StyleXStyles;
+  ] as SxStyles;
 }
 
 /** 锚定浮层的基础样式：定位与表面 */
-export const floatingStyles = stylex.create({
+export const floatingStyles = css.create({
   /** 原生 popover 默认居中显示、带外边距，改为由 anchorFloating 写入的 left / top 定位 */
   anchored: { position: 'fixed', inset: 'auto', margin: 0 },
   /** 浮起的表面：边框、圆角、阴影（Popover、Menu、选项列表）；内边距各自定 */

@@ -20,7 +20,7 @@
 import { GroupedBar, Line, Scatter, StackedBar, type XYComponentCore } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
 import type { NumericFormat } from '../config/lang/format';
-import { colors } from '../config/theme/tokens.stylex';
+import { colors } from '../config/theme/tokens';
 import { CURVES, type LineCurves, type LineDots } from './LineChart';
 import type { ChartSeries } from './series';
 import { seriesNumber } from './series';

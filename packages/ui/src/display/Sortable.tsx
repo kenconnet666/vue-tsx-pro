@@ -12,7 +12,7 @@
  */
 import { GripVertical } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
@@ -55,7 +55,7 @@ export interface SortableProps<T> extends PartProps<'ul'> {
 }
 
 /** Sortable 的样式：item、active、handle、content */
-export const sortableStyles = stylex.create({
+export const sortableStyles = css.create({
   // 方向、间距、去掉圆点由 FlexList 给
   item: {
     position: 'relative',

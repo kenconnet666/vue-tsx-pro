@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Card,
   Flex,
@@ -36,7 +36,7 @@ const pageOf = (start: number) =>
     };
   });
 
-const styles = stylex.create({
+const styles = css.create({
   list: { height: '22rem' },
   padded: { paddingBlock: '_xs', paddingInline: '_md' },
   // 级别定宽，消息才对得齐

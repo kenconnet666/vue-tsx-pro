@@ -1,6 +1,6 @@
 import { Circle, Eraser, Hand, MousePointer2, Pencil, Square, Type } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, IconButton, Small, Toolbar, Tooltip, type IconData, t } from '@vue-tsx-pro/ui';
 
 const tools: [string, string, IconData][] = [
@@ -13,7 +13,7 @@ const tools: [string, string, IconData][] = [
   ['eraser', '橡皮', Eraser],
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   canvas: {
     flexGrow: 1,
     minHeight: '16rem',

@@ -1,14 +1,14 @@
 /**
- * 生成 packages/tsx/src/stylex/styles.ts：每个 CSS 属性的中文注释，以及每个关键字取值的说明。
+ * 生成 packages/tsx/src/styles/documented.ts：每个 CSS 属性的中文注释，以及每个关键字取值的说明。
  *
  * 数据来源（见 NOTICE.md）：
- *   - 属性集合与值类型：packages/tsx/src/stylex/css-properties.ts（取自 StyleX 的类型声明；值类型以索引访问引用，不复制）
+ *   - 属性集合与值类型：packages/tsx/src/styles/css-properties.ts（取自 StyleX 的类型声明；值类型以索引访问引用，不复制）
  *   - 中文说明、常用值、适用场景、关键字说明：docs.json（本仓库维护）
  *   - 属性能写哪些关键字、接受哪类值：mdn-data 的值语法（见 keywords.mjs）
  *   - 初始值、是否继承、标准状态、MDN 链接：mdn-data
  *   - 浏览器支持（Baseline）：web-features
- *   - 数字值的单位规则：packages/tsx/src/stylex/units.ts（样式引擎补单位用的同一张表）
- *   - 主题 tokens 的短写：packages/tsx/src/stylex/token-map.ts 的对照表
+ *   - 数字值的单位规则：packages/tsx/src/styles/units.ts（样式引擎补单位用的同一张表）
+ *   - 主题 tokens 的短写：packages/tsx/src/styles/token-map.ts 的对照表
  *
  * 同时生成 ui 的主题 tokens 字符串写法的类型（见 tokens.mjs）。
  *
@@ -22,8 +22,8 @@ import prettier from 'prettier';
 import * as ts from 'typescript/ast';
 import { API, TypeFlags } from 'typescript/sync';
 import { features } from 'web-features';
-import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
-import { MILLISECONDS, UNITLESS } from '../../packages/tsx/src/stylex/units.ts';
+import { TOKEN_GROUP_OF } from '../../packages/tsx/src/styles/token-map.ts';
+import { MILLISECONDS, UNITLESS } from '../../packages/tsx/src/styles/units.ts';
 import {
   CSS_WIDE,
   createOrigins,
@@ -43,9 +43,9 @@ import {
 } from './tokens.mjs';
 import { root } from '../lib/repo.mjs';
 
-const output = join(root, 'packages/tsx/src/stylex/styles.ts');
+const output = join(root, 'packages/tsx/src/styles/documented.ts');
 const missingOutput = join(root, 'node_modules/.cache/css-docs-missing.json');
-const cssTypesFile = join(root, 'packages/tsx/src/stylex/css-properties.ts');
+const cssTypesFile = join(root, 'packages/tsx/src/styles/css-properties.ts');
 const docs = JSON.parse(readFileSync(join(root, 'scripts/css-docs/docs.json'), 'utf8'));
 
 // ───────────────────────── CSS 类型表：属性集合、伪元素 ─────────────────────────
@@ -335,12 +335,12 @@ function checkInputs(properties, pseudoElements) {
     throw new Error(`keywords.mjs 的 TOKEN_DOMAINS 缺少 token 组：${withoutDomain.join('、')}`);
 
   // 每组的接口要从入口按名导出，ui 的 declare module 才能合并进来（漏了就没有补全，类型检查也发现不了）
-  const entry = readFileSync(join(root, 'packages/tsx/src/stylex/index.ts'), 'utf8');
+  const entry = readFileSync(join(root, 'packages/tsx/src/styles/index.ts'), 'utf8');
   const unexported = groups
     .flatMap((group) => [tokenInterfaceName(group), qualifiedTokenInterfaceName(group)])
     .filter((name) => !new RegExp(`\\b${name}\\b`).test(entry));
   if (unexported.length)
-    throw new Error(`packages/tsx/src/stylex/index.ts 没有导出：${unexported.join('、')}`);
+    throw new Error(`packages/tsx/src/styles/index.ts 没有导出：${unexported.join('、')}`);
 }
 
 /** 缺说明时报错，并把待写的清单写到 node_modules/.cache，按来源列出语法与用到它的属性 */

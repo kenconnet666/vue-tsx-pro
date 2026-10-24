@@ -32,13 +32,13 @@ import {
 } from '@unovis/ts';
 import { Maximize, Minus, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { presimplify, simplify } from 'topojson-simplify';
 import type { VNodeChild } from 'vue';
 import { IconButton } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import { colors } from '../config/theme/tokens.stylex';
+import { colors } from '../config/theme/tokens';
 import { Skeleton } from '../feedback/Skeleton';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { useEventListener } from '../utils/dom/event-listener';
@@ -161,7 +161,7 @@ export interface MapChartProps extends PartProps<'div', 'role' | 'aria-busy'>, C
 }
 
 /** MapChart 的样式 */
-export const mapChartStyles = stylex.create({
+export const mapChartStyles = css.create({
   // 地图跟随主题：底色、边界是表面色，文字是正文色
   root: {
     '--vis-map-feature-color': colors.fill,
@@ -440,7 +440,7 @@ export const MapChart = _component(
       const layer =
         group.querySelector<SVGGElement>(':scope > [data-point-labels]') ?? svgElement('g');
       layer.setAttribute('data-point-labels', '');
-      layer.setAttribute('class', stylex.attrs(mapChartStyles.pointLabels).class ?? '');
+      layer.setAttribute('class', css.attrs(mapChartStyles.pointLabels).class ?? '');
       layer.style.fontSize = `${11 / zoom}px`;
       layer.style.strokeWidth = `${3 / zoom}px`;
       // 放在最后：之后加入的地点不会盖住标签
@@ -523,7 +523,7 @@ export const MapChart = _component(
       const toY = Math.min(Math.max(anchor.y, box.y), box.y + box.height);
       const length = Math.hypot(toX - anchor.x, toY - anchor.y) || 1;
       const line = svgElement('line');
-      line.setAttribute('class', stylex.attrs(mapChartStyles.leader).class ?? '');
+      line.setAttribute('class', css.attrs(mapChartStyles.leader).class ?? '');
       line.setAttribute(
         'x1',
         String((anchor.x + ((toX - anchor.x) / length) * anchor.radius) / zoom),
@@ -653,14 +653,14 @@ export const MapChart = _component(
       if (bins) {
         const step = (high - low) / bins;
         return (
-          <div {...stylex.attrs(mapChartStyles.legend)} aria-hidden="true">
+          <div {...css.attrs(mapChartStyles.legend)} aria-hidden="true">
             {Array.from({ length: bins }, (_, index) => {
               const from = low + step * index;
               const to = index === bins - 1 ? high : from + step;
               return (
-                <span key={index} {...stylex.attrs(mapChartStyles.bin)}>
+                <span key={index} {...css.attrs(mapChartStyles.bin)}>
                   <span
-                    {...stylex.attrs(
+                    {...css.attrs(
                       mapChartStyles.swatch,
                       mapChartStyles.swatchColor(colorOf((from + to) / 2)),
                     )}
@@ -677,10 +677,10 @@ export const MapChart = _component(
           ? [colorOf(low), colors.fill, colorOf(high)]
           : [colorOf(low), colorOf(high)];
       return (
-        <div {...stylex.attrs(mapChartStyles.legend)} aria-hidden="true">
+        <div {...css.attrs(mapChartStyles.legend)} aria-hidden="true">
           <span>{numberText(low)}</span>
           <span
-            {...stylex.attrs(
+            {...css.attrs(
               mapChartStyles.ramp,
               mapChartStyles.rampColors(`linear-gradient(to right, ${stops.join(', ')})`),
             )}
@@ -710,9 +710,9 @@ export const MapChart = _component(
 
     /** 缩放按钮：放大、缩小、复位；前面是滚轮的提示 */
     const zoomButtons = () => (
-      <span {...stylex.attrs(mapChartStyles.zoom)}>
+      <span {...css.attrs(mapChartStyles.zoom)}>
         {wheelHint && (
-          <span {...stylex.attrs(mapChartStyles.wheelHint)} role="status">
+          <span {...css.attrs(mapChartStyles.wheelHint)} role="status">
             {lang.chartZoomWheelHint}
           </span>
         )}

@@ -1,6 +1,6 @@
 import { Plus, Search, Settings, User } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   darkTheme,
@@ -15,7 +15,7 @@ import {
   zhCN,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   // Provider 不产生盒子、不画背景：主题区域自己铺底色
   page: {
     display: 'grid',
@@ -33,7 +33,7 @@ const styles = stylex.create({
 const MenuContent = _component(({ onClose }: { onClose: () => void }) => {
   const lang = useLang();
   return () => (
-    <div {...stylex.attrs(styles.row)}>
+    <div {...css.attrs(styles.row)}>
       <span class="menu-text">{lang.loading}</span>
       <Button variant="ghost" onClick={onClose}>
         {lang.close}
@@ -54,8 +54,8 @@ export const Integration = _component(() => {
 
   return () => (
     <Provider theme={dark ? darkTheme : lightTheme} lang={english ? enUS : zhCN}>
-      <main {...stylex.attrs(styles.page)}>
-        <div {...stylex.attrs(styles.row)}>
+      <main {...css.attrs(styles.page)}>
+        <div {...css.attrs(styles.row)}>
           <Button variant="outline" class="toggle-theme" onClick={() => (dark = !dark)}>
             {dark ? '亮色' : '暗色'}
           </Button>
@@ -64,7 +64,7 @@ export const Integration = _component(() => {
           </Button>
         </div>
 
-        <div {...stylex.attrs(styles.row)}>
+        <div {...css.attrs(styles.row)}>
           <Button size="sm" icon={Plus}>
             小
           </Button>
@@ -72,7 +72,7 @@ export const Integration = _component(() => {
           <Button size="lg" icon={Plus}>
             大
           </Button>
-          <span {...stylex.attrs(styles.large)}>
+          <span {...css.attrs(styles.large)}>
             <Button variant="ghost" icon={Settings} class="inherit-size">
               继承 24px
             </Button>
@@ -89,7 +89,7 @@ export const Integration = _component(() => {
           <Button loading>加载中</Button>
         </div>
 
-        <div {...stylex.attrs(styles.row)}>
+        <div {...css.attrs(styles.row)}>
           <TextField
             value={_bind(keyword)}
             clearable
@@ -101,7 +101,7 @@ export const Integration = _component(() => {
           <span class="keyword">{keyword}</span>
         </div>
 
-        <div {...stylex.attrs(styles.row)}>
+        <div {...css.attrs(styles.row)}>
           <Popover
             open={_bind(menuOpen)}
             trigger={(props) => (
@@ -135,7 +135,7 @@ export const Integration = _component(() => {
               </>
             }
           >
-            <div {...stylex.attrs(styles.row)}>
+            <div {...css.attrs(styles.row)}>
               <TextField
                 value={_bind(name)}
                 aria-label="名字"

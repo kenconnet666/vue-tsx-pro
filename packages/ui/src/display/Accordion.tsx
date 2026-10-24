@@ -13,7 +13,7 @@
  */
 import { ChevronDown } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { h, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
@@ -56,7 +56,7 @@ interface AccordionBaseProps extends PartProps<'div'> {
 export type AccordionProps = AccordionBaseProps & SelectionProps;
 
 /** Accordion 的样式：root、item、heading、trigger、chevron、chevronOpen、content */
-export const accordionStyles = stylex.create({
+export const accordionStyles = css.create({
   root: { display: 'flex', flexDirection: 'column' },
   item: {
     borderBottomWidth: '_xs',

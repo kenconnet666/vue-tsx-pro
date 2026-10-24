@@ -10,7 +10,7 @@
  */
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData } from '../base/Icon';
@@ -94,7 +94,7 @@ export interface StepsProps extends PartProps<'ol'> {
 }
 
 /** Steps 的样式：item、itemVertical、trigger、link、indicator、text、title、description、connector 等 */
-export const stepsStyles = stylex.create({
+export const stepsStyles = css.create({
   item: {
     display: 'flex',
     flexGrow: 1,
@@ -161,7 +161,7 @@ export const stepsStyles = stylex.create({
 });
 
 /** Steps 的样式：complete、current、upcoming、error */
-export const stepsStateStyles = stylex.create({
+export const stepsStateStyles = css.create({
   complete: { borderColor: '_accent', backgroundColor: '_accent', color: '_accentContrast' },
   current: { borderColor: '_accent', color: '_accentText' },
   upcoming: { borderColor: '_border', color: '_textMuted' },

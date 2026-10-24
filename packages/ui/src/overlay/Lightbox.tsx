@@ -23,7 +23,7 @@ import {
   ZoomOut,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, onBeforeUnmount, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { IconLinkButton, type IconLinkButtonProps } from '../base/IconLinkButton';
@@ -67,7 +67,7 @@ export interface LightboxProps
 }
 
 /** Lightbox 的样式：root、toolbar、counter、viewport、content、image、side、previous、next、caption、button */
-export const lightboxStyles = stylex.create({
+export const lightboxStyles = css.create({
   root: {
     // 占满视口：原生 dialog 默认有最大宽高与边框
     boxSizing: 'border-box',
@@ -150,7 +150,7 @@ export const lightboxStyles = stylex.create({
 });
 
 /** Lightbox 的动态样式：平移缩放、框的大小、图片的大小与旋转 */
-export const lightboxDynamicStyles = stylex.create({
+export const lightboxDynamicStyles = css.create({
   transform: (transform: string) => ({ transform }),
   box: (width: number, height: number) => ({ width: `${width}px`, height: `${height}px` }),
   image: (width: number, height: number, degrees: number) => ({
@@ -313,8 +313,8 @@ export const Lightbox = _component(
             onKeydown,
           })}
         >
-          <div {...stylex.attrs(lightboxStyles.toolbar)}>
-            <span {...stylex.attrs(lightboxStyles.counter)} aria-live="polite">
+          <div {...css.attrs(lightboxStyles.toolbar)}>
+            <span {...css.attrs(lightboxStyles.counter)} aria-live="polite">
               {total > 1 ? lang.lightboxCounter(index + 1, total) : ''}
             </span>
             <IconButton
@@ -324,7 +324,7 @@ export const Lightbox = _component(
                 onClick: () => view.zoomOut(),
               })}
             />
-            <span {...stylex.attrs(lightboxStyles.zoom)} aria-hidden="true">
+            <span {...css.attrs(lightboxStyles.zoom)} aria-hidden="true">
               {Math.round(view.scale * 100)}%
             </span>
             <IconButton
@@ -386,7 +386,7 @@ export const Lightbox = _component(
           >
             {item && (
               <div
-                {...stylex.attrs(
+                {...css.attrs(
                   lightboxStyles.content,
                   !view.interacting && lightboxStyles.smooth,
                   lightboxDynamicStyles.transform(view.transform),
@@ -399,7 +399,7 @@ export const Lightbox = _component(
                   alt=""
                   draggable={false}
                   onLoad={onLoad}
-                  {...stylex.attrs(
+                  {...css.attrs(
                     lightboxStyles.image,
                     natural && lightboxDynamicStyles.image(natural.width, natural.height, rotation),
                   )}

@@ -4,7 +4,7 @@ import { createApp } from 'vue';
 import { _component } from '@vue-tsx-pro/tsx';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readToken } from '../../../config/theme/theme';
-import { durations, easings } from '../../../config/theme/tokens.stylex';
+import { durations, easings } from '../../../config/theme/tokens';
 import { themeTransition, themeTransitionOrInstant, useAnimate } from '../animation';
 
 const variable = (token: unknown) => /^var\((--[\w-]+)\)$/.exec(String(token))![1]!;

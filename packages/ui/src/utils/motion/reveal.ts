@@ -7,7 +7,7 @@
  * 时长与缓动取主题 tokens（durations.lg、easings.standard）。
  */
 import { nextTick } from 'vue';
-import { durations, easings } from '../../config/theme/tokens.stylex';
+import { durations, easings } from '../../config/theme/tokens';
 import { readToken } from '../../config/theme/theme';
 import { parseDuration } from './animation';
 

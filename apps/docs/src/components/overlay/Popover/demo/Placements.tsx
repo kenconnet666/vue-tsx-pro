@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Tooltip, type FloatingPlacement } from '@vue-tsx-pro/ui';
 
 // 三行三列围着中间：每条边三个对齐方式
@@ -11,7 +11,7 @@ const rows: (FloatingPlacement | null)[][] = [
   [null, 'bottom-start', 'bottom', 'bottom-end', null],
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(5, max-content)',
@@ -21,7 +21,7 @@ const styles = stylex.create({
 });
 
 export default _component(() => () => (
-  <div {...stylex.attrs(styles.grid)}>
+  <div {...css.attrs(styles.grid)}>
     {rows.flat().map((placement, index) =>
       placement ? (
         <Tooltip

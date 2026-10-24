@@ -9,11 +9,11 @@
  *   - ref：各方都拿到元素
  *   - 其他属性：受管 > 使用方 > 默认
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { IntrinsicProps, JSX } from '@vue-tsx-pro/tsx/jsx-runtime';
 // 登记主题 tokens（样式里的 '_md' 靠它）：每个组件都经过这里合并属性，渲染之前一定登记过
 import '../config/theme/tokens';
-import type { StyleXAttrs, StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import type { StyleAttrs, SxStyles } from '@vue-tsx-pro/tsx/styles';
 import type { Ref, VNodeChild } from 'vue';
 
 /**
@@ -23,7 +23,7 @@ import type { Ref, VNodeChild } from 'vue';
 export type PartProps<
   Tag extends keyof JSX.IntrinsicElements,
   Managed extends string = never,
-> = Omit<IntrinsicProps<Tag>, Managed | 'children'> & { sx?: StyleXStyles };
+> = Omit<IntrinsicProps<Tag>, Managed | 'children'> & { sx?: SxStyles };
 
 /**
  * 展开收起类组件（Collapsible、Popover）交给触发器的属性：展开到任意可聚焦元素上，
@@ -154,7 +154,7 @@ export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'childr
   // 解构出的 rest 是新对象：之后直接往上写，不再复制一次（每个元素每次渲染都要走这里）
   const { sx, children: _children, ...rest } = props as P & Props;
   if (sx == null) return rest as Omit<P, 'sx' | 'children'>;
-  const compiled = compileSx(sx as StyleXStyles);
+  const compiled = compileSx(sx as SxStyles);
   const element = rest as Props;
   // 响应式绑定的 ref（元素挂上后改变量）与使用方的 ref 都要拿到元素
   if (compiled.ref && element.ref != null) {
@@ -176,14 +176,14 @@ export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'childr
 }
 
 /**
- * 编译好的样式是不变的常量：单个样式（不是数组）按对象缓存 stylex.attrs 的结果，
+ * 编译好的样式是不变的常量：单个样式（不是数组）按对象缓存 css.attrs 的结果，
  * 根元素、图标这类每次渲染都是同一个样式的部件不必重复合并
  */
-const compiledCache = new WeakMap<object, ReturnType<typeof stylex.attrs>>();
-function compileSx(sx: StyleXStyles) {
-  if (Array.isArray(sx) || typeof sx !== 'object' || sx === null) return stylex.attrs(sx);
+const compiledCache = new WeakMap<object, ReturnType<typeof css.attrs>>();
+function compileSx(sx: SxStyles) {
+  if (Array.isArray(sx) || typeof sx !== 'object' || sx === null) return css.attrs(sx);
   let compiled = compiledCache.get(sx);
-  if (!compiled) compiledCache.set(sx, (compiled = stylex.attrs(sx)));
+  if (!compiled) compiledCache.set(sx, (compiled = css.attrs(sx)));
   return compiled;
 }
 
@@ -255,10 +255,10 @@ export function hasContent(node: VNodeChild): boolean {
 }
 
 /**
- * 把 stylex.attrs 的结果写到命令式创建的元素上（波纹、量取主题的探针）：class 与行内样式，
+ * 把 css.attrs 的结果写到命令式创建的元素上（波纹、量取主题的探针）：class 与行内样式，
  * 自定义属性（动态样式的变量）名字原样、用 setProperty
  */
-export function applyStyleAttrs(element: HTMLElement, { class: className, style }: StyleXAttrs) {
+export function applyStyleAttrs(element: HTMLElement, { class: className, style }: StyleAttrs) {
   element.className = className ?? '';
   for (const [name, value] of Object.entries(style ?? {})) {
     const property = name.startsWith('--')

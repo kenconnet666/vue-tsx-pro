@@ -5,11 +5,11 @@
 import { FRAGMENT, isFragment, replaceFragment } from './fragment';
 
 /** 配方等自己管理状态的样式对象实现它：拿到同一 id 的新对象时把自己原地换成新的 */
-export const HOT = Symbol('stylex hot');
+export const HOT = Symbol('style hot');
 const hotObjects = new Map<string, object>();
 
 /**
- * 编译器包在顶层 `const 名 = stylex.create(…)` / `recipe(…)` 外面（开发服务器，compiler/style-hot.ts）：
+ * 编译器包在顶层 `const 名 = css.create(…)` / `recipe(…)` 外面（开发服务器，compiler/style-hot.ts）：
  * 第一次登记；模块热更新重新执行时把新内容写进旧对象并返回旧对象——导入方手里拿的还是它，
  * 已插入的规则按原类名改写，组件不用重新渲染
  */

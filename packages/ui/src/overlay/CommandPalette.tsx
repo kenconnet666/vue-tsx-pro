@@ -15,7 +15,7 @@
  */
 import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
@@ -38,7 +38,7 @@ import {
 } from '../input/list-state';
 import { ariaKeyShortcut, formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { breakpoints } from '../config/theme/tokens.stylex';
+import { breakpoints } from '../config/theme/tokens';
 import { openSetter } from '../utils/dom/open-change';
 import { Dialog, type DialogProps } from './Dialog';
 
@@ -93,7 +93,7 @@ export interface CommandPaletteBaseProps<T> extends Omit<
 export type CommandPaletteProps<T = ListboxOption> = CommandPaletteBaseProps<T> & OptionMapping<T>;
 
 /** CommandPalette 的样式：dialog、search、input、listbox、trigger、triggerText、triggerLabel */
-export const commandPaletteStyles = stylex.create({
+export const commandPaletteStyles = css.create({
   // 停在视口上部而不是正中：结果变多变少时输入框不跳
   dialog: { marginBlockStart: '12dvh' },
   search: {

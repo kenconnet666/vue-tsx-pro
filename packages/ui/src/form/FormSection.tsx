@@ -18,19 +18,18 @@
  */
 import { ChevronDown } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { h, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
-import { space } from '../config/theme/tokens.stylex';
+import { space, t } from '../config/theme/tokens';
 import { Collapse, type CollapseProps } from '../display/Collapse';
 import { provideGridColumns } from '../layout/Grid';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
-import { layoutVars } from '../utils/style/vars.stylex';
+import { layoutVars } from '../utils/style/vars';
 import { provideFieldLayout, type FieldLayout } from './field-layout';
-import { t } from '../config/theme/tokens';
 
 /** 角色与关联由组件管理；原生的 title 属性让给标题内容 */
 export type FormSectionManaged = 'role' | 'title' | 'aria-labelledby' | 'aria-describedby';
@@ -74,7 +73,7 @@ export interface FormSectionProps extends PartProps<'div', FormSectionManaged>, 
 }
 
 /** FormSection 的样式：root、header、headerText、heading、trigger、chevron、description、extra、body、singleColumn */
-export const formSectionStyles = stylex.create({
+export const formSectionStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -131,7 +130,7 @@ export const formSectionStyles = stylex.create({
 });
 
 /** FormSection 的样式：columns（最多几列、每列不窄于多少） */
-export const formSectionColumnStyles = stylex.create({
+export const formSectionColumnStyles = css.create({
   columns: (count: number, minWidth: string) => ({
     gridTemplateColumns: `repeat(auto-fill, minmax(max(min(${minWidth}, 100%), calc((100% - ${count - 1} * var(--form-section-column-gap)) / ${count})), 1fr))`,
   }),
@@ -229,7 +228,7 @@ export const FormSection = _component(
         >
           {(title != null || extra != null) && (
             <div {...mergeAttrs<'div'>({ sx: formSectionStyles.header }, propsHeader)}>
-              <div {...stylex.attrs(formSectionStyles.headerText)}>
+              <div {...css.attrs(formSectionStyles.headerText)}>
                 {hasContent(title) &&
                   h(
                     `h${headingLevel}`,

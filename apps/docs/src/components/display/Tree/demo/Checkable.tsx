@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Small, Tree } from '@vue-tsx-pro/ui';
 
 interface Region {
@@ -43,7 +43,7 @@ const regions: Region[] = [
   },
 ];
 
-const styles = stylex.create({ tree: { height: '17rem' } });
+const styles = css.create({ tree: { height: '17rem' } });
 
 export default _component(() => {
   let expanded = _state(['east', 'zj']);

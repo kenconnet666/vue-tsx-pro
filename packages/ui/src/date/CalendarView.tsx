@@ -15,7 +15,7 @@
  */
 import { ChevronLeft, ChevronRight } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { buttonBaseStyles } from '../base/button-core';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -102,7 +102,7 @@ export interface CalendarViewProps
 }
 
 /** CalendarView 的样式：root、months、month、header、heading、grid、weekday、cell、button 等 */
-export const calendarStyles = stylex.create({
+export const calendarStyles = css.create({
   root: {
     display: 'inline-flex',
     flexDirection: 'column',
@@ -345,7 +345,7 @@ export const CalendarView = _component(
             )}
           >
             {/* 每格一个：直接用样式，不多建几百个组件实例 */}
-            <span {...stylex.attrs(visuallyHiddenStyles.hidden)}>
+            <span {...css.attrs(visuallyHiddenStyles.hidden)}>
               {state.today ? lang.calendarToday(label) : label}
             </span>
             {kind === 'custom' ? content : <span aria-hidden="true">{content}</span>}
@@ -425,7 +425,7 @@ export const CalendarView = _component(
                   const outside = date.month !== month.month;
                   // 并排几个月时补齐的日期留空：同一天不在两张网格里重复出现
                   if (outside && !single)
-                    return <td key={date.toString()} {...stylex.attrs(calendarStyles.cell)} />;
+                    return <td key={date.toString()} {...css.attrs(calendarStyles.cell)} />;
                   return cell(
                     date,
                     month,
@@ -503,7 +503,7 @@ export const CalendarView = _component(
           )}
         />
       );
-      const spacer = <span {...stylex.attrs(calendarStyles.spacer)} />;
+      const spacer = <span {...css.attrs(calendarStyles.spacer)} />;
       return (
         <div
           {...mergeAttrs<'div'>({ sx: [calendarStyles.root, size && fontSizeStyles[size]] }, rest, {
@@ -517,7 +517,7 @@ export const CalendarView = _component(
             {months.map((month, index) => {
               const label = title(month);
               return (
-                <div key={month.toString()} {...stylex.attrs(calendarStyles.month)}>
+                <div key={month.toString()} {...css.attrs(calendarStyles.month)}>
                   <div {...mergeAttrs<'div'>({ sx: calendarStyles.header }, propsHeader)}>
                     {index === 0 ? previous : spacer}
                     {coarser && !disabled ? (
@@ -546,7 +546,7 @@ export const CalendarView = _component(
                       </button>
                     ) : (
                       // 已经是最粗的视图（或不可用）：标题只是文字
-                      <span {...stylex.attrs(calendarStyles.heading, calendarStyles.headingStatic)}>
+                      <span {...css.attrs(calendarStyles.heading, calendarStyles.headingStatic)}>
                         {label}
                       </span>
                     )}

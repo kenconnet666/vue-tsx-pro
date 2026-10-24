@@ -1,11 +1,11 @@
 /**
  * 动态样式的响应式绑定（运行时样式模式）：渲染函数的 JSX 里调用动态样式时，参数改成读取函数，
  *
- *   <div {...stylex.attrs(styles.bar(item.width))} />
- *   → <div {...stylex.attrs(stylex.bind(styles.bar, () => [item.width]))} />
+ *   <div {...css.attrs(styles.bar(item.width))} />
+ *   → <div {...css.attrs(css.bind(styles.bar, () => [item.width]))} />
  *
- * 渲染时只算类名、不追踪参数；参数变化时由元素上的 effect 只改那个 CSS 变量，组件不重新渲染（stylex/runtime.ts 的 bind）。
- * 只认本文件顶层 `const styles = stylex.create({ … })` 里写成函数的命名空间（能静态确定是动态样式）；
+ * 渲染时只算类名、不追踪参数；参数变化时由元素上的 effect 只改那个 CSS 变量，组件不重新渲染（styles/dynamic.ts 的 bind）。
+ * 只认本文件顶层 `const styles = css.create({ … })` 里写成函数的命名空间（能静态确定是动态样式）；
  * 参数全是字面量时不改（不会变，不值得起 effect）。
  */
 import { types as t, type NodePath, type PluginObject } from '@babel/core';
@@ -21,7 +21,7 @@ export function styleBindingsPlugin(): PluginObject {
     name: 'vue-tsx-pro-style-bindings',
     visitor: {
       Program(program) {
-        const imports = stylexImports(program);
+        const imports = styleImports(program);
         if (!imports) return;
         const dynamic = dynamicNamespaces(program, imports);
         if (!dynamic.size) return;
@@ -61,8 +61,8 @@ export function styleBindingsPlugin(): PluginObject {
   };
 }
 
-interface StylexImports {
-  /** 命名空间导入的本地名（import * as stylex） */
+interface StyleImports {
+  /** 命名空间导入的本地名（import * as css） */
   namespace?: string;
   /** 具名导入的 create 的本地名 */
   create?: string;
@@ -70,10 +70,10 @@ interface StylexImports {
   source: string;
 }
 
-function stylexImports(program: NodePath<t.Program>): StylexImports | undefined {
+function styleImports(program: NodePath<t.Program>): StyleImports | undefined {
   for (const statement of program.node.body) {
     if (!t.isImportDeclaration(statement) || statement.source.value !== STYLE_SOURCE) continue;
-    const found: StylexImports = { source: statement.source.value };
+    const found: StyleImports = { source: statement.source.value };
     for (const specifier of statement.specifiers) {
       if (t.isImportNamespaceSpecifier(specifier)) found.namespace = specifier.local.name;
       else if (
@@ -88,8 +88,8 @@ function stylexImports(program: NodePath<t.Program>): StylexImports | undefined 
   return undefined;
 }
 
-/** 顶层 `const 名 = stylex.create({ … })`：名字的声明节点 → 写成函数的命名空间 */
-function dynamicNamespaces(program: NodePath<t.Program>, imports: StylexImports) {
+/** 顶层 `const 名 = css.create({ … })`：名字的声明节点 → 写成函数的命名空间 */
+function dynamicNamespaces(program: NodePath<t.Program>, imports: StyleImports) {
   const result = new Map<t.Identifier, Set<string>>();
   for (const statement of program.node.body) {
     const declaration = t.isExportNamedDeclaration(statement) ? statement.declaration : statement;
@@ -119,7 +119,7 @@ function dynamicNamespaces(program: NodePath<t.Program>, imports: StylexImports)
 
 function isCreateCall(
   node: t.Node | null | undefined,
-  imports: StylexImports,
+  imports: StyleImports,
 ): node is t.CallExpression {
   if (!t.isCallExpression(node)) return false;
   const callee = node.callee;
@@ -134,7 +134,7 @@ function isCreateCall(
 
 /**
  * 参数只读渲染函数外面声明的东西（组件函数体里的状态、props、模块里的常量）：每次渲染生成的读取函数读的是同一批来源，
- * 运行时重新渲染时只换读取函数、不必重跑 effect 收集依赖（stylex.bind 的第三个参数）。
+ * 运行时重新渲染时只换读取函数、不必重跑 effect 收集依赖（css.bind 的第三个参数）。
  * 读了渲染函数里的局部变量、map 回调的参数时不算：它们每次渲染可能指向不同的响应式来源
  */
 function readsOutsideRender(call: NodePath<t.CallExpression>, render: NodePath<t.Function>) {
@@ -151,12 +151,12 @@ function readsOutsideRender(call: NodePath<t.CallExpression>, render: NodePath<t
   return stable;
 }
 
-/** 在 JSX 属性（sx={…}、{...stylex.attrs(…)}）里：渲染时用到的样式 */
+/** 在 JSX 属性（sx={…}、{...css.attrs(…)}）里：渲染时用到的样式 */
 const inJsxAttribute = (path: NodePath) =>
   !!path.findParent((parent) => parent.isJSXAttribute() || parent.isJSXSpreadAttribute());
 
-/** bind 的引用：有命名空间导入时用 stylex.bind，否则补一个具名导入 */
-function bindReference(program: NodePath<t.Program>, imports: StylexImports): t.Expression {
+/** bind 的引用：有命名空间导入时用 css.bind，否则补一个具名导入 */
+function bindReference(program: NodePath<t.Program>, imports: StyleImports): t.Expression {
   if (imports.namespace) {
     return t.memberExpression(t.identifier(imports.namespace), t.identifier('bind'));
   }

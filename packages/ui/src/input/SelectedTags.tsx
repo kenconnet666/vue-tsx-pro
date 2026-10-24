@@ -9,7 +9,7 @@
  * 未声明的属性落到这一排的 span 上。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { useOverflowItems } from '../utils/dom/overflow';
@@ -36,7 +36,7 @@ export interface SelectedTagsProps extends PartProps<'span', 'aria-hidden'> {
 }
 
 /** SelectedTags 的样式：root、line */
-export const selectedTagsStyles = stylex.create({
+export const selectedTagsStyles = css.create({
   // 占触发框里剩下的宽度；触发按钮里只剩读屏用的文字
   root: {
     display: 'flex',

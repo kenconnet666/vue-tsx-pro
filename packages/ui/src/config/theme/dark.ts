@@ -1,11 +1,11 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { defaultFonts, defaultRadii } from './light';
 import type { Theme } from './theme';
-import { colors, shadows } from './tokens.stylex';
+import { colors, shadows } from './tokens';
 
-// Radix Colors 的暗色色阶，各 token 对应的级别见 tokens.stylex.ts
+// Radix Colors 的暗色色阶，各 token 对应的级别见 tokens.ts
 /** 暗色主题的颜色（Radix Colors 暗色色阶） */
-export const darkColors = stylex.createTheme(colors, {
+export const darkColors = css.createTheme(colors, {
   background: '#111113',
   surface: '#18191b',
   surfaceMuted: '#18191b',
@@ -84,7 +84,7 @@ export const darkColors = stylex.createTheme(colors, {
 
 // Radix Themes 的暗色阴影：深色背景上阴影要更重才看得出层次
 /** 暗色主题的阴影 */
-export const darkShadows = stylex.createTheme(shadows, {
+export const darkShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 rgba(0, 0, 0, 0.4), 0 2px 1px -1px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
   sm: '0 2px 3px -2px rgba(0, 0, 0, 0.15), 0 3px 8px -2px rgba(0, 0, 0, 0.4), 0 4px 12px -4px rgba(0, 0, 0, 0.5)',

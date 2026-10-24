@@ -13,7 +13,7 @@
  * 里面的各个控件不再拿 Field 的 id（会重复），各自写 aria-label。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -36,7 +36,7 @@ export interface ControlGroupProps extends PartProps<'div', ControlGroupManaged>
 }
 
 /** ControlGroup 的样式：root、inline、vertical */
-export const controlGroupStyles = stylex.create({
+export const controlGroupStyles = css.create({
   // 输入框外壳（:not(button)）分掉剩余宽度；按钮、选择框的触发器按内容宽
   root: { display: 'flex', alignItems: 'stretch', width: '100%' },
   inline: { display: 'inline-flex', width: 'auto' },

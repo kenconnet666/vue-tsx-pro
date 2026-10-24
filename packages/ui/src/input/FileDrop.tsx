@@ -10,7 +10,7 @@
  */
 import { Upload as UploadIcon } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
@@ -72,7 +72,7 @@ export interface FileDropProps extends PartProps<
 }
 
 /** FileDrop 的样式：root、dragging、disabled、invalid、icon、hint、description */
-export const fileDropStyles = stylex.create({
+export const fileDropStyles = css.create({
   root: {
     boxSizing: 'border-box',
     display: 'flex',

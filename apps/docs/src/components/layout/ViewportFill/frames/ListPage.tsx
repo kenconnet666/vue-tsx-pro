@@ -1,7 +1,7 @@
 // 列表页：外壳的品牌（AppShellBrand）、占满到窗口底边（ViewportFill）、表格在里面滚动（DataTable flexible），分页贴着窗口底边
 import { Plane, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   DataTable,
   Flex,
@@ -34,7 +34,7 @@ const columns: DataTableColumn<Row>[] = [
   { key: 'amount', header: '预期（万元）', width: 120, align: 'end' },
 ];
 
-const styles = stylex.create({ main: { paddingBlock: '_md' } });
+const styles = css.create({ main: { paddingBlock: '_md' } });
 
 export default _component(() => {
   let page = _state(1);

@@ -1,10 +1,10 @@
 // 工作台的一排仪表盘：完成率（分三段，目标 90%）、产能利用率（越过 85% 就是提醒）、供应商风险分（越低越好，区间倒过来）。
 // 数值弧的颜色取它所在区间的色调；读屏按 meter 念数值与目标
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Gauge, Grid } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   // 仪表盘在卡片里居中
   center: { display: 'grid', justifyItems: 'center' },
 });

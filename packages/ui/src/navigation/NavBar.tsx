@@ -19,7 +19,7 @@
  */
 import { ChevronDown, Ellipsis } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge } from '../base/Badge';
 import { ButtonBase } from '../base/ButtonBase';
 import { Icon, type IconData } from '../base/Icon';
@@ -56,7 +56,7 @@ export interface NavBarProps extends PartProps<'nav'> {
 }
 
 /** NavBar 的样式：list、item、link、current、badge、more */
-export const navBarStyles = stylex.create({
+export const navBarStyles = css.create({
   // 一行：放不下的项由 useOverflowItems 移出排版（容器要 position: relative，间距用 column-gap）
   list: {
     position: 'relative',
@@ -157,7 +157,7 @@ export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) =>
     }
     return (
       <a
-        {...stylex.attrs(...sx)}
+        {...css.attrs(...sx)}
         href={item.disabled || item.href == null ? undefined : router.href(item.href)}
         aria-current={current ? 'page' : undefined}
         aria-disabled={item.disabled || undefined}
@@ -205,13 +205,13 @@ export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) =>
         {items.map((item, index) => (
           <li
             key={item.href ?? item.label}
-            {...stylex.attrs(navBarStyles.item)}
+            {...css.attrs(navBarStyles.item)}
             {...overflow.itemProps(index)}
           >
             {renderItem(item)}
           </li>
         ))}
-        <li {...stylex.attrs(navBarStyles.item)} {...overflow.restProps()}>
+        <li {...css.attrs(navBarStyles.item)} {...overflow.restProps()}>
           {renderMore()}
         </li>
       </ul>

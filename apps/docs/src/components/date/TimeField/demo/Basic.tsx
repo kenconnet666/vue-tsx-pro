@@ -1,6 +1,6 @@
 // 门店营业时间：每天一行开门、打烊，打烊不能早于开门；值是 24 小时制的 'HH:mm'，可以直接比较大小
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Flex, Small, Switch, Text, TimeField, useFormat } from '@vue-tsx-pro/ui';
 
 interface Day {
@@ -10,7 +10,7 @@ interface Day {
   closes: string | null;
 }
 
-const styles = stylex.create({
+const styles = css.create({
   // 一行一天：星期、是否营业、开门、打烊，四列对齐
   table: {
     display: 'grid',
@@ -32,7 +32,7 @@ export default _component(() => {
 
   return () => (
     <Flex direction="column" gap="md">
-      <div {...stylex.attrs(styles.table)}>
+      <div {...css.attrs(styles.table)}>
         <Small tone="muted">日期</Small>
         <Small tone="muted">营业</Small>
         <Small tone="muted">开门</Small>

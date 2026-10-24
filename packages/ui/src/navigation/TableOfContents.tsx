@@ -8,7 +8,7 @@
  * 当前节的链接带 aria-current="location"。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
@@ -37,7 +37,7 @@ export interface TableOfContentsProps extends PartProps<'nav', 'aria-labelledby'
 }
 
 /** TableOfContents 的样式：title、list、indicator、link、current */
-export const tableOfContentsStyles = stylex.create({
+export const tableOfContentsStyles = css.create({
   title: { display: 'block', marginBlockEnd: '_sm' },
   // 指示条按链接的 offsetTop 定位：列表是它的定位容器
   list: {

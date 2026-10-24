@@ -8,7 +8,7 @@
  */
 import type { LucideIconData } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { createDrawable, utils } from 'animejs';
 import { onMounted, watch } from 'vue';
 import { useAnimate } from '../utils/motion/animation';
@@ -49,7 +49,7 @@ export interface IconProps extends PartProps<'svg', IconManaged> {
 }
 
 /** Icon 的样式：icon、flip */
-export const iconStyles = stylex.create({
+export const iconStyles = css.create({
   icon: {
     width: '1em',
     height: '1em',

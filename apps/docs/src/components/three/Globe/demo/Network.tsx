@@ -1,6 +1,6 @@
 // 全球节点：各地的机房标注成光圈，上海到各地的专线画成弧线，旁边列出节点与延迟
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Card, Flex, Grid, H3, Small, Text } from '@vue-tsx-pro/ui';
 import { Globe, type GlobeArc, type GlobeMarker } from '@vue-tsx-pro/ui/three';
 
@@ -23,7 +23,7 @@ const arcs: GlobeArc[] = nodes
   .slice(1)
   .map(({ lat, lng }) => ({ from: [nodes[0]!.lat, nodes[0]!.lng], to: [lat, lng] }));
 
-const styles = stylex.create({
+const styles = css.create({
   globe: { maxWidth: '28rem', marginInline: 'auto' },
 });
 

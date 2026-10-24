@@ -4,8 +4,8 @@
  * 实底用各色调的实色与其上的字色（accent / accentContrast、success / successContrast…），主题检查保证 4.5:1。
  */
 import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import type { IconData } from '../../base/Icon';
 import type { StyleTable } from './styles';
 
@@ -42,7 +42,7 @@ export type StatusTone = keyof StatusTones;
 /** 标记与提示的样式 */
 export type StatusVariant = keyof StatusVariants;
 
-const solid = stylex.create({
+const solid = css.create({
   neutral: { color: '_inverseText', backgroundColor: '_inverseSurface' },
   accent: { color: '_accentContrast', backgroundColor: '_accent' },
   info: { color: '_infoContrast', backgroundColor: '_info' },
@@ -51,7 +51,7 @@ const solid = stylex.create({
   danger: { color: '_dangerContrast', backgroundColor: '_danger' },
 });
 
-const soft = stylex.create({
+const soft = css.create({
   neutral: { color: '_text', backgroundColor: '_fill' },
   accent: { color: '_accentText', backgroundColor: '_accentSoft' },
   info: { color: '_infoText', backgroundColor: '_infoSoft' },
@@ -60,7 +60,7 @@ const soft = stylex.create({
   danger: { color: '_dangerText', backgroundColor: '_dangerSoft' },
 });
 
-const surface = stylex.create({
+const surface = css.create({
   neutral: { color: '_text', backgroundColor: '_surface', borderColor: '_border' },
   accent: { color: '_accentText', backgroundColor: '_accentSoft', borderColor: '_accentBorder' },
   info: { color: '_infoText', backgroundColor: '_infoSoft', borderColor: '_infoBorder' },
@@ -77,7 +77,7 @@ const surface = stylex.create({
   danger: { color: '_dangerText', backgroundColor: '_dangerSoft', borderColor: '_dangerBorder' },
 });
 
-const outline = stylex.create({
+const outline = css.create({
   neutral: { color: '_text', borderColor: '_border' },
   accent: { color: '_accentText', borderColor: '_accentBorder' },
   info: { color: '_infoText', borderColor: '_infoBorder' },
@@ -87,7 +87,7 @@ const outline = stylex.create({
 });
 
 /** 状态色调 的样式：bordered */
-export const statusToneBorderStyles = stylex.create({
+export const statusToneBorderStyles = css.create({
   // 每种样式都留出边框的位置（实底、浅色底时透明），切换样式时尺寸不变
   bordered: { borderWidth: '_xs', borderStyle: 'solid', borderColor: 'transparent' },
 });
@@ -111,8 +111,8 @@ export const statusIcons: Readonly<Record<StatusTone, IconData>> = {
 };
 
 /** 样式 × 色调 → 颜色、底色与边框 */
-export function statusToneSx(variant: StatusVariant, tone: StatusTone): StyleXStyles {
-  return [statusToneBorderStyles.bordered, statusToneStyles[variant][tone]] as StyleXStyles;
+export function statusToneSx(variant: StatusVariant, tone: StatusTone): SxStyles {
+  return [statusToneBorderStyles.bordered, statusToneStyles[variant][tone]] as SxStyles;
 }
 
 /**
@@ -121,7 +121,7 @@ export function statusToneSx(variant: StatusVariant, tone: StatusTone): StyleXSt
  * 部件的选中样式不随色调再分六份。
  * 状态色用文字色而不是实色：黄、绿的实色在表面上不到 3:1，图形要的是与周围的对比；danger 同理（暗色主题里在轨道上不到 3:1）
  */
-export const toneFillStyles = stylex.create({
+export const toneFillStyles = css.create({
   neutral: { '--tone-fill': '_colors.inverseSurface', '--tone-on-fill': '_colors.inverseText' },
   accent: { '--tone-fill': '_colors.accent', '--tone-on-fill': '_colors.accentContrast' },
   info: { '--tone-fill': '_colors.infoText', '--tone-on-fill': '_colors.background' },

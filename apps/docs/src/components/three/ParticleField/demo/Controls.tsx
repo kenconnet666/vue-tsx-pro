@@ -1,9 +1,9 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, Slider, Switch, Text } from '@vue-tsx-pro/ui';
 import { ParticleField } from '@vue-tsx-pro/ui/three';
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '20rem' },
   label: { minWidth: '4em', color: '_textMuted' },
   slider: { flexGrow: 1 },

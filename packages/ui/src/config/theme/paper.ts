@@ -1,14 +1,14 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { defaultRadii } from './light';
 import type { Theme } from './theme';
-import { colors, fonts, shadows } from './tokens.stylex';
+import { colors, fonts, shadows } from './tokens';
 
 /**
  * 纸张主题的颜色：米黄纸色的页面、深棕墨色的文字、墨蓝的品牌色。
  * 中性色是自定的暖色 12 级（按 Radix 的用途约定：1–2 背景，3–5 填充，6–8 边框，11–12 文字），
  * 提示色在 Radix 色阶上往暖、往暗调过，都在纸色上满足 4.5:1（scripts/themes/check.mjs 校验）
  */
-export const paperColors = stylex.createTheme(colors, {
+export const paperColors = css.createTheme(colors, {
   background: '#f5efdf',
   surface: '#faf5e8',
   surfaceMuted: '#efe7d3',
@@ -87,7 +87,7 @@ export const paperColors = stylex.createTheme(colors, {
 });
 
 /** 纸张主题的阴影：暖棕色，比亮色更轻，像纸放在桌面上 */
-export const paperShadows = stylex.createTheme(shadows, {
+export const paperShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 rgba(80, 60, 30, 0.05), 0 1px 3px 0 rgba(80, 60, 30, 0.05)',
   sm: '0 2px 3px -2px rgba(80, 60, 30, 0.08), 0 3px 12px -4px rgba(80, 60, 30, 0.1)',
@@ -97,7 +97,7 @@ export const paperShadows = stylex.createTheme(shadows, {
 });
 
 /** 纸张主题的字体：标题用衬线，正文仍是无衬线（屏幕上长文更好读）；写全每个变量（嵌套在别的主题里时不继承外层的），正文与等宽与默认相同 */
-export const paperFonts = stylex.createTheme(fonts, {
+export const paperFonts = css.createTheme(fonts, {
   sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
   mono: 'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
   serif: '"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, "SimSun", Georgia, serif',

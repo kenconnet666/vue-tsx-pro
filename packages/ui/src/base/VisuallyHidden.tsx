@@ -3,7 +3,7 @@
  * 用于图标按钮的名称、“在新窗口打开”这类补充说明。渲染为 span（行内文字，与 Radix 一致）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
@@ -13,7 +13,7 @@ export interface VisuallyHiddenProps extends PartProps<'span'> {
 }
 
 /** VisuallyHidden 的样式：hidden */
-export const visuallyHiddenStyles = stylex.create({
+export const visuallyHiddenStyles = css.create({
   // 不用 display: none / visibility: hidden：那样读屏也读不到
   hidden: {
     position: 'absolute',

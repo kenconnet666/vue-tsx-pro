@@ -4,7 +4,7 @@
  */
 import { Download } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Alert,
   builtinThemeLabel,
@@ -44,7 +44,7 @@ const meta = {
 
 const FIGMA_FILE = 'https://www.figma.com/design/UTDP9KBNhelTIK1KoMlHYk';
 
-const styles = stylex.create({
+const styles = css.create({
   thumbnail: { width: '100%', height: 'auto', aspectRatio: '8 / 5' },
   themeCard: { display: 'flex', flexDirection: 'column', gap: '_sm' },
   // 类型只有两三个字，不跟着说明一起折行

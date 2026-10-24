@@ -20,7 +20,7 @@
  */
 import { TrendingDown, TrendingUp } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import type { NumericFormat } from '../config/lang/format';
@@ -104,7 +104,7 @@ const CHANGE_FORMAT: NumericFormat = {
 const StatGroupContext = createContext<boolean>('StatGroup');
 
 /** Stat 的样式：root、label、icon、value、number、unit、change、description、body、footer、skeleton… */
-export const statStyles = stylex.create({
+export const statStyles = css.create({
   // 两列：第一行是指标名与变化量（结束边），其余各行占满整行
   root: {
     display: 'grid',
@@ -284,7 +284,7 @@ export const Stat = _component(
                 <Skeleton sx={statStyles.changeSkeleton} />
               ) : (
                 <>
-                  <span {...stylex.attrs(toneStyles[changeTone])}>
+                  <span {...css.attrs(toneStyles[changeTone])}>
                     {direction !== 'flat' && (
                       <Icon
                         icon={direction === 'up' ? TrendingUp : TrendingDown}
@@ -331,7 +331,7 @@ export interface StatGroupProps extends PartProps<'div'> {
 }
 
 /** StatGroup 的样式：root、item */
-export const statGroupStyles = stylex.create({
+export const statGroupStyles = css.create({
   // 每个指标的起始边一条竖线；整组往起始方向挪一条线的位置，每行第一个的竖线藏到外面（overflow 裁掉）
   root: { display: 'grid', rowGap: '_md', overflow: 'hidden' },
   item: {
@@ -344,7 +344,7 @@ export const statGroupStyles = stylex.create({
 });
 
 /** StatGroup 的动态样式：列宽 */
-export const statGroupDynamicStyles = stylex.create({
+export const statGroupDynamicStyles = css.create({
   columns: (min: string) => ({
     gridTemplateColumns: `repeat(auto-fit, minmax(min(${min}, 100%), 1fr))`,
   }),

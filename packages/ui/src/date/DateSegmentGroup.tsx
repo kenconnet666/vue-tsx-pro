@@ -10,7 +10,7 @@
  * 部件：Root（div role="group"，主元素）、Segment（每段）、Literal（分隔符）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId } from 'vue';
 import { isRtl } from '../utils/dom/direction';
 import { defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';
@@ -68,7 +68,7 @@ export interface DateSegmentGroupProps extends PartProps<'div', DateSegmentGroup
 }
 
 /** DateSegmentGroup 的样式：root、segment、placeholder、literal */
-export const dateSegmentStyles = stylex.create({
+export const dateSegmentStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'center',

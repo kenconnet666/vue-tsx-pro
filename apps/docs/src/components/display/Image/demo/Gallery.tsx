@@ -1,18 +1,18 @@
 // 图纸相册：ImageGroup 里的图共用一个预览，点哪张从哪张开始；大图里缩放（滚轮、+ −、双击）、拖动、旋转（R）、
 // ← → 切换、下载；缩略图统一 4:3、圆角，名称在下面
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, Image, ImageGroup, Small } from '@vue-tsx-pro/ui';
 import { drawings } from './drawings';
 
-const styles = stylex.create({
+const styles = css.create({
   figure: { margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' },
 });
 
 export default _component(() => () => (
   <ImageGroup loop>
     {drawings.map((drawing) => (
-      <figure key={drawing.code} {...stylex.attrs(styles.figure)}>
+      <figure key={drawing.code} {...css.attrs(styles.figure)}>
         <Image
           src={drawing.src}
           alt={`${drawing.title}（${drawing.code}）`}

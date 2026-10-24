@@ -14,7 +14,7 @@ import {
   Zap,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Card,
@@ -45,7 +45,7 @@ const Particles = defineAsyncComponent(() =>
   import('@vue-tsx-pro/ui/three').then((module) => module.ParticleField),
 );
 
-const styles = stylex.create({
+const styles = css.create({
   // 标题后面一团很淡的品牌色光晕：亮色、暗色、纸张都取各自的浅品牌色
   hero: {
     position: 'relative',
@@ -170,12 +170,12 @@ function entry(page: NavPage, icon: IconData) {
   return (
     <Card key={page.path} variant="outline" sx={styles.entry}>
       <Flex gap="md" align="start">
-        <span {...stylex.attrs(styles.icon)}>
+        <span {...css.attrs(styles.icon)}>
           <Icon icon={icon} size="lg" />
         </span>
         <Flex direction="column" gap="xs">
           <H3 size="md">
-            <a href={page.path} {...stylex.attrs(styles.entryLink)}>
+            <a href={page.path} {...css.attrs(styles.entryLink)}>
               {page.title}
             </a>
           </H3>
@@ -206,7 +206,7 @@ export default _component(() => () => (
         </Flex>
       </Flex>
 
-      <section {...stylex.attrs(styles.section)} aria-labelledby="home-start">
+      <section {...css.attrs(styles.section)} aria-labelledby="home-start">
         <H2 id="home-start" size="lg">
           从这里开始
         </H2>
@@ -215,8 +215,8 @@ export default _component(() => () => (
         </Grid>
       </section>
 
-      <section {...stylex.attrs(styles.section)} aria-labelledby="home-components">
-        <div {...stylex.attrs(styles.sectionHead)}>
+      <section {...css.attrs(styles.section)} aria-labelledby="home-components">
+        <div {...css.attrs(styles.sectionHead)}>
           <H2 id="home-components" size="lg">
             组件目录
           </H2>
@@ -224,7 +224,7 @@ export default _component(() => () => (
             {components.length} 类、{componentCount} 个组件页；顶栏的搜索（Ctrl + K）可以直接跳
           </Small>
         </div>
-        <div {...stylex.attrs(styles.directory)}>
+        <div {...css.attrs(styles.directory)}>
           {components.map((section) => (
             <Card key={section.label} variant="outline" sx={styles.category}>
               <Flex direction="column" gap="sm">
@@ -232,7 +232,7 @@ export default _component(() => () => (
                   <Text weight="semibold">{section.label}</Text>
                   <Badge radius="full">{section.pages.length}</Badge>
                 </Flex>
-                <ul {...stylex.attrs(styles.pageList)}>
+                <ul {...css.attrs(styles.pageList)}>
                   {section.pages.map((page) => {
                     const { name, label } = splitTitle(page.title);
                     return (
@@ -255,7 +255,7 @@ export default _component(() => () => (
         {features.map((feature) => (
           <Card key={feature.title} variant="outline">
             <Flex gap="md" align="start">
-              <span {...stylex.attrs(styles.icon)}>
+              <span {...css.attrs(styles.icon)}>
                 <Icon icon={feature.icon} size="lg" />
               </span>
               <Flex direction="column" gap="xs">

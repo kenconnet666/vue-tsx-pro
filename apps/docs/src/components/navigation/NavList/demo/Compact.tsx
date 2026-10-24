@@ -11,7 +11,7 @@ import {
   Wrench,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, NavGroup, NavItem, NavList, NavSection, Switch, t } from '@vue-tsx-pro/ui';
 
 const sections = [
@@ -38,7 +38,7 @@ const approvals = [
   ['我发起的', 0],
 ] as const;
 
-const styles = stylex.create({
+const styles = css.create({
   nav: { width: '15rem', transition: `width ${t.durations.md} ${t.easings.standard}` },
   compact: { width: '3.5rem' },
 });

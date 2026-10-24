@@ -19,7 +19,7 @@
  */
 import { Maximize, Minimize, RefreshCw, Rows3 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { reactive, shallowRef, toRaw, type Ref, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useMessages } from '../config/lang/messages';
@@ -80,7 +80,7 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
 }
 
 /** QueryTable 的样式：root、panel、panelFullscreen、toolbar、title、tools */
-export const queryTableStyles = stylex.create({
+export const queryTableStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
   panel: {
     display: 'flex',
@@ -156,7 +156,7 @@ export const QueryTable = _component(
 
     function renderTools() {
       return (
-        <div {...stylex.attrs(queryTableStyles.tools)}>
+        <div {...css.attrs(queryTableStyles.tools)}>
           <IconButton
             {...toolButton({
               icon: RefreshCw,
@@ -242,7 +242,7 @@ export const QueryTable = _component(
           )}
         >
           <div {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbar }, propsToolbar)}>
-            <div {...stylex.attrs(queryTableStyles.title)}>{title}</div>
+            <div {...css.attrs(queryTableStyles.title)}>{title}</div>
             {toolbar}
             {renderTools()}
           </div>

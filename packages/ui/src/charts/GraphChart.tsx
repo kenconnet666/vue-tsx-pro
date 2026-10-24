@@ -21,11 +21,11 @@ import {
   GraphNodeShape,
 } from '@unovis/ts';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import { colors, fontSizes, opacities } from '../config/theme/tokens.stylex';
+import { colors, fontSizes, opacities } from '../config/theme/tokens';
 import { Skeleton } from '../feedback/Skeleton';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
@@ -161,7 +161,7 @@ export interface GraphChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
 }
 
 /** GraphChart 的样式：root（--vis-graph-* 主题变量）、skeleton */
-export const graphChartStyles = stylex.create({
+export const graphChartStyles = css.create({
   root: {
     '--vis-graph-node-stroke-color': colors.surface,
     '--vis-graph-node-label-text-color': colors.text,

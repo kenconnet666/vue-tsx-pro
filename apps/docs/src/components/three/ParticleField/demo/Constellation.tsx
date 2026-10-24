@@ -1,6 +1,6 @@
 import { Rocket, Sparkles, Zap } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, H3, Icon, Paragraph } from '@vue-tsx-pro/ui';
 import { ParticleField } from '@vue-tsx-pro/ui/three';
 
@@ -10,7 +10,7 @@ const FEATURES = [
   { icon: Rocket, title: '可组合', text: '叠在任何背景上，内容照常排版、交互。' },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   field: { borderRadius: '_lg', backgroundColor: '_surfaceMuted', padding: '_xl' },
   card: { backgroundColor: '_surfaceTranslucent', backdropFilter: 'blur(6px)' },
   icon: { color: '_accentText', fontSize: '1.5rem' },

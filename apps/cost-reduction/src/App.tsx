@@ -1,9 +1,9 @@
 // 占位页：应用待重做；整屏居中
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Empty } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   page: { boxSizing: 'border-box', minHeight: '100dvh', justifyContent: 'center' },
 });
 

@@ -4,7 +4,7 @@
  *   运行 <Code>pnpm install</Code> 安装依赖
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
@@ -14,7 +14,7 @@ export interface CodeProps extends PartProps<'code'> {
 }
 
 /** Code 的样式：root */
-export const codeStyles = stylex.create({
+export const codeStyles = css.create({
   root: {
     paddingInline: '_xs',
     borderRadius: '_sm',

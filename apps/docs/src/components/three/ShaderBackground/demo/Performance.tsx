@@ -1,6 +1,6 @@
 // 画质、渲染分辨率与暂停；quality="off" 时不创建 WebGL，显示 fallback（没有 WebGL 时也是它）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
 import { ShaderBackground, type ThreeQuality } from '@vue-tsx-pro/ui/three';
 
@@ -13,7 +13,7 @@ vec4 shade(vec2 uv) {
 }
 `;
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '16rem', borderRadius: '_lg' },
   // 静态的替代画面：同样的色调，一层 CSS 渐变
   fallback: {
@@ -55,7 +55,7 @@ export default _component(() => {
         quality={quality}
         resolution={resolution}
         paused={paused}
-        fallback={<div {...stylex.attrs(styles.fallback)} />}
+        fallback={<div {...css.attrs(styles.fallback)} />}
       />
     </Flex>
   );

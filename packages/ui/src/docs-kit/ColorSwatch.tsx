@@ -7,7 +7,7 @@
  * 半透明的颜色（如 surfaceTranslucent）下面垫棋盘格，看得出透明度。色块是装饰，名称与取值是文字，读屏都能读到。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { useConfig } from '../config/context';
 import { readToken } from '../config/theme/theme';
@@ -27,7 +27,7 @@ export interface ColorSwatchProps extends PartProps<'div'> {
 }
 
 /** ColorSwatch 的样式：root、swatch、fill、label、value */
-export const colorSwatchStyles = stylex.create({
+export const colorSwatchStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
   // 棋盘格垫底、内描边画出边界（swatchStyles）；大色块的格子放大一倍
   swatch: {
@@ -44,7 +44,7 @@ export const colorSwatchStyles = stylex.create({
 
 // 颜色是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** ColorSwatch 的动态样式：色块的颜色 */
-export const colorSwatchDynamicStyles = stylex.create({
+export const colorSwatchDynamicStyles = css.create({
   fill: (color: string) => ({ backgroundColor: color }),
 });
 

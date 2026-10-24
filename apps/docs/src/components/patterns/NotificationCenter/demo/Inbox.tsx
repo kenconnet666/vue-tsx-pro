@@ -1,10 +1,10 @@
 // 通知页面：NotificationList 直接放在卡片里，不进弹出层；时间在每行末尾，列表限高滚动；标题行换成卡片自己的标题
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Card, Flex, H3 } from '@vue-tsx-pro/ui';
 import { NotificationList, type NotificationItem } from '@vue-tsx-pro/ui/patterns';
 
-const styles = stylex.create({ list: { maxHeight: '22rem' } });
+const styles = css.create({ list: { maxHeight: '22rem' } });
 
 const NOW = Date.parse('2026-10-21T10:00:00+08:00');
 const at = (day: number, time: string) =>

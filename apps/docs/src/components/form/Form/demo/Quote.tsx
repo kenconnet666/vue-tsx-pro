@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Card,
@@ -31,7 +31,7 @@ const schema = z.object({
     .min(1, '至少一项'),
 });
 
-const styles = stylex.create({
+const styles = css.create({
   row: {
     display: 'grid',
     gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr) 6rem auto',
@@ -73,7 +73,7 @@ export default _component(() => {
             </form.Field>
             {/* 只有第一行显示列标题；每行的控件另有 aria-label，读屏知道是第几项 */}
             {items.items.map((_, index) => (
-              <div key={items.keys[index]} {...stylex.attrs(styles.row)}>
+              <div key={items.keys[index]} {...css.attrs(styles.row)}>
                 <form.Field name={`items.${index}.name`} label={index === 0 ? '品名' : undefined}>
                   <TextField
                     value={_bind(form.values.items[index]!.name)}

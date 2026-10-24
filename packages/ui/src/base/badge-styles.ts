@@ -2,9 +2,9 @@
  * Badge 与 Tag 共用的外观（配方版）：variant × tone 不再是一张矩阵——tone 挂一个色调类（toneThemes），
  * 四种样式各写一遍、引用 toneVars；字号、圆角是档位。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { toneThemes } from '../utils/style/tone-themes';
-import { toneVars } from '../utils/style/tone.stylex';
+import { toneVars } from '../utils/style/tone-vars';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
 import type { StatusTone, StatusVariant } from '../utils/style/tone-styles';
@@ -22,7 +22,7 @@ export interface BadgeOptions {
 }
 
 /** 标记的配方：部件 root（外层）、dot（圆点） */
-export const badgeRecipe = stylex.recipe({
+export const badgeRecipe = css.recipe({
   parts: ['root', 'dot'],
   base: {
     root: {
@@ -78,5 +78,5 @@ export function badgeSx({
   return {
     root: [toneThemes[tone], parts.root, fontSizeStyles[size], radiusStyles[radius]],
     dot: parts.dot,
-  } as const satisfies Record<string, stylex.StyleXStyles>;
+  } as const satisfies Record<string, css.SxStyles>;
 }

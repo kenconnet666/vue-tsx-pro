@@ -6,10 +6,10 @@
  *                        > span（Label，文字）
  *
  * 用原生 input：键盘（空格切换、单选组的方向键）、表单提交与重置、label 点击、读屏语义都是浏览器的；
- * 组件只画外观。勾选状态的样式由组件按自己的状态加（StyleX 不能写兄弟选择器）。尺寸用 em。
+ * 组件只画外观。勾选状态的样式由组件按自己的状态加（样式里不写兄弟选择器）。尺寸用 em。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { nextTick } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
@@ -40,14 +40,14 @@ export function choiceRootSx(
   { size, tone }: ChoiceAppearance,
   disabled: boolean,
   readonly = false,
-): StyleXStyles {
+): SxStyles {
   return [
     choiceStyles.root,
     toneFillStyles[tone],
     size && fontSizeStyles[size],
     readonly && choiceStyles.readonly,
     disabled && choiceStyles.disabled,
-  ] as StyleXStyles;
+  ] as SxStyles;
 }
 
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
@@ -81,7 +81,7 @@ export function syncChecked(
 }
 
 /** 勾选类控件各部分的样式 */
-export const choiceStyles = stylex.create({
+export const choiceStyles = css.create({
   /** 外层 label：控件与文字一行，整块可点；点击区域不小于 24px（WCAG 2.5.8） */
   root: {
     display: 'inline-flex',
@@ -136,7 +136,7 @@ export interface ChoiceOrientations {
 }
 
 /** 复选组、单选组的排列 */
-export const choiceGroupStyles = stylex.create({
+export const choiceGroupStyles = css.create({
   vertical: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   horizontal: { display: 'flex', flexWrap: 'wrap', columnGap: '_lg', rowGap: '_xs' },
 });

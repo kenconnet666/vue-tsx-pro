@@ -27,7 +27,7 @@
  */
 import { GripVertical } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { useMessages } from '../config/lang/messages';
@@ -95,7 +95,7 @@ export interface KanbanBoardProps<T> extends PartProps<'div'> {
 }
 
 /** KanbanBoard 的样式：board、column、header、list、card、handle… */
-export const kanbanBoardStyles = stylex.create({
+export const kanbanBoardStyles = css.create({
   board: { display: 'flex', gap: '_md', alignItems: 'flex-start', paddingBlockEnd: '_sm' },
   column: {
     display: 'flex',
@@ -175,7 +175,7 @@ export const kanbanBoardStyles = stylex.create({
 });
 
 /** KanbanBoard 的动态样式：列宽、列高、拖动的位移 */
-export const kanbanBoardDynamicStyles = stylex.create({
+export const kanbanBoardDynamicStyles = css.create({
   // 至少这么宽，富余的空间各列平分（同 Jira 的看板），放不下时外层横向滚动
   width: (width: string) => ({ flexBasis: width, flexGrow: 1, minWidth: width }),
   height: (height: string) => ({ maxHeight: height }),
@@ -243,7 +243,7 @@ export const KanbanBoard = _component(
           <ScrollArea axis="x">
             <div
               ref={(element: unknown) => (board = element instanceof HTMLElement ? element : null)}
-              {...stylex.attrs(kanbanBoardStyles.board)}
+              {...css.attrs(kanbanBoardStyles.board)}
             >
               {columns.map((column) => {
                 const cards = items.filter((item) => getColumn(item) === column.key);
@@ -255,7 +255,7 @@ export const KanbanBoard = _component(
                   <li
                     key="drop-indicator"
                     aria-hidden="true"
-                    {...stylex.attrs(
+                    {...css.attrs(
                       kanbanBoardStyles.indicator,
                       reason != null && kanbanBoardStyles.indicatorDenied,
                     )}
@@ -266,13 +266,13 @@ export const KanbanBoard = _component(
                     key={column.key}
                     aria-labelledby={headingId}
                     {...sortable.groupProps(column.key)}
-                    {...stylex.attrs(
+                    {...css.attrs(
                       kanbanBoardStyles.column,
                       kanbanBoardDynamicStyles.width(columnWidth),
                       over && (reason ? kanbanBoardStyles.denied : kanbanBoardStyles.allowed),
                     )}
                   >
-                    <div {...stylex.attrs(kanbanBoardStyles.header)}>
+                    <div {...css.attrs(kanbanBoardStyles.header)}>
                       <span id={headingId}>{column.label}</span>
                       <Badge
                         radius="full"
@@ -281,15 +281,15 @@ export const KanbanBoard = _component(
                         {cards.length}
                       </Badge>
                     </div>
-                    {reason && <div {...stylex.attrs(kanbanBoardStyles.reason)}>{reason}</div>}
+                    {reason && <div {...css.attrs(kanbanBoardStyles.reason)}>{reason}</div>}
                     <ul
-                      {...stylex.attrs(
+                      {...css.attrs(
                         kanbanBoardStyles.list,
                         kanbanBoardDynamicStyles.height(columnHeight),
                       )}
                     >
                       {cards.length === 0 && !over && (
-                        <li {...stylex.attrs(kanbanBoardStyles.empty)}>
+                        <li {...css.attrs(kanbanBoardStyles.empty)}>
                           {empty ?? messages.kanbanEmpty}
                         </li>
                       )}
@@ -301,7 +301,7 @@ export const KanbanBoard = _component(
                           <li
                             key={key}
                             {...sortable.itemProps(key)}
-                            {...stylex.attrs(
+                            {...css.attrs(
                               kanbanBoardStyles.card,
                               active && ghost && kanbanBoardStyles.placeholder,
                               active && !ghost && kanbanBoardStyles.lifted,
@@ -332,7 +332,7 @@ export const KanbanBoard = _component(
           {ghost && ghostItem !== undefined && (
             <div
               aria-hidden="true"
-              {...stylex.attrs(
+              {...css.attrs(
                 kanbanBoardStyles.card,
                 kanbanBoardStyles.ghost,
                 kanbanBoardDynamicStyles.ghost(ghost.left, ghost.top, ghost.width),

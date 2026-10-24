@@ -9,7 +9,7 @@
  */
 import { ChevronRight, Ellipsis } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Icon, type IconData } from '../base/Icon';
@@ -60,7 +60,7 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
 }
 
 /** Breadcrumbs 的样式：list、item、current、separator、label、expand */
-export const breadcrumbsStyles = stylex.create({
+export const breadcrumbsStyles = css.create({
   // 横排、换行、间距由 FlexOrderedList 给
   list: { fontSize: '_sm' },
   item: { display: 'inline-flex', alignItems: 'center', gap: '_xs', minWidth: 0 },

@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
   ConfigContext,
@@ -39,7 +39,7 @@ export interface ProviderProps {
 }
 
 /** Provider 的样式：root、themed */
-export const providerStyles = stylex.create({
+export const providerStyles = css.create({
   // 不产生盒子，不影响布局；主题变量与文字样式照常由子元素继承
   root: { display: 'contents' },
   themed: {
@@ -105,7 +105,7 @@ export const Provider = _component(
     return () => (
       <div
         {...(theme ? themeAttrs(currentTheme) : {})}
-        {...stylex.attrs(providerStyles.root, theme != null && providerStyles.themed)}
+        {...css.attrs(providerStyles.root, theme != null && providerStyles.themed)}
         lang={currentLang.code}
         dir={currentLang.direction}
       >
@@ -129,7 +129,7 @@ export const ConfigScope = _component(({ children }: ConfigScopeProps) => {
   return () => (
     <div
       {...themeAttrs(config.theme)}
-      {...stylex.attrs(providerStyles.root, providerStyles.themed)}
+      {...css.attrs(providerStyles.root, providerStyles.themed)}
       lang={config.lang.code}
       dir={config.lang.direction}
     >

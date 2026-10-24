@@ -1,10 +1,10 @@
 import { Eye, Send, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Card, Flex, Paragraph, Strong, Text } from '@vue-tsx-pro/ui';
 
 // 页脚默认靠右排；删除放到另一侧，离主要操作远一点
-const styles = stylex.create({ footer: { justifyContent: 'space-between', flexWrap: 'wrap' } });
+const styles = css.create({ footer: { justifyContent: 'space-between', flexWrap: 'wrap' } });
 
 export default _component(() => {
   let published = _state(false);

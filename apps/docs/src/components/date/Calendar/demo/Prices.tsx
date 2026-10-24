@@ -1,6 +1,6 @@
 // 酒店的价格日历：日期格里加上当天的房价，最低价用成功色标出；周五、周六更贵，售罄的日子不可选
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Calendar,
   Flex,
@@ -11,7 +11,7 @@ import {
   useFormat,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   // 格子放得下价格：比默认的 2.25em 宽、高一些
   cell: { width: '3.25em', height: '3.25em' },
   day: { lineHeight: '_tight' },
@@ -55,7 +55,7 @@ export default _component(() => {
                 <span aria-hidden="true">{Number(date.slice(8))}</span>
                 {!off && (
                   <span
-                    {...stylex.attrs(
+                    {...css.attrs(
                       styles.price,
                       price === lowest && styles.lowest,
                       cell.selected && styles.onSelected,

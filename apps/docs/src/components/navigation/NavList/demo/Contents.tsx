@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Card,
   H3,
@@ -24,7 +24,7 @@ const headings: HeadingEntry[] = [
 const filler =
   '组件库按需引入，样式在用到时才生成，页面只带用到的部分。每个组件都可以用 sx 覆盖样式，用 propsXxx 给内部的部件加属性。';
 
-const styles = stylex.create({
+const styles = css.create({
   layout: { display: 'grid', gridTemplateColumns: '1fr 9rem', gap: '_lg', alignItems: 'start' },
   article: { height: '18rem' },
   content: { display: 'grid', gap: '_md', paddingInlineEnd: '_md' },
@@ -34,7 +34,7 @@ export default _component(() => {
   let scroller = _state.raw<HTMLElement | null>(null);
   return () => (
     <Card>
-      <div {...stylex.attrs(styles.layout)}>
+      <div {...css.attrs(styles.layout)}>
         <ScrollArea
           sx={styles.article}
           propsViewport={{
@@ -42,7 +42,7 @@ export default _component(() => {
             'aria-label': '文章',
           }}
         >
-          <div {...stylex.attrs(styles.content)}>
+          <div {...css.attrs(styles.content)}>
             {headings.map((heading) => {
               const Heading = heading.level === 2 ? H3 : H4;
               return (

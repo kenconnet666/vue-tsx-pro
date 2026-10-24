@@ -22,8 +22,8 @@
  * Time、Description、Details（Collapsible）、Toggle（展开其余各项的按钮）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { ChevronDown, ChevronUp } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
@@ -102,7 +102,7 @@ export interface TimelineProps extends PartProps<'ol'> {
 }
 
 /** Timeline 的样式：root、item、marker、line、content、title、time、description 等 */
-export const timelineStyles = stylex.create({
+export const timelineStyles = css.create({
   // 竖排、去掉编号由 FlexOrderedList 给；交替排布按容器宽度切换
   root: { containerType: 'inline-size' },
   // 节点一列、内容一列；交替时三列：左内容、节点、右内容。
@@ -187,7 +187,7 @@ export const timelineStyles = stylex.create({
 });
 
 /** Timeline 的样式：节点的色调 */
-export const timelineToneStyles = stylex.create({
+export const timelineToneStyles = css.create({
   neutral: { color: '_borderStrong' },
   accent: { color: '_accent' },
   info: { color: '_infoText' },
@@ -223,11 +223,11 @@ export const Timeline = _component(
 
     /** 收起的那几项所在的位置：节点列一段虚线，内容是展开、收起的按钮 */
     const toggle = (hidden: number) => (
-      <li key="toggle" {...stylex.attrs(timelineStyles.item)}>
+      <li key="toggle" {...css.attrs(timelineStyles.item)}>
         <div {...mergeAttrs<'div'>({ sx: timelineStyles.rail }, propsRail)}>
-          <span {...stylex.attrs(timelineStyles.toggleLine)} aria-hidden="true" />
+          <span {...css.attrs(timelineStyles.toggleLine)} aria-hidden="true" />
         </div>
-        <div {...stylex.attrs(timelineStyles.toggleContent)}>
+        <div {...css.attrs(timelineStyles.toggleContent)}>
           <Button
             {...mergePartProps<ButtonProps>(
               {
@@ -272,7 +272,7 @@ export const Timeline = _component(
             const last = index === all.length - 1 && !toggleAtEnd;
             const end = alternate && index % 2 === 1;
             // 交替排布时时间放在对侧，占一格（没有时间也占，保持三列对齐）；窄的容器里改在内容里显示
-            const time = (sx: StyleXStyles) =>
+            const time = (sx: SxStyles) =>
               hasContent(item.time) ? (
                 <time
                   {...mergeAttrs<'time'>({ sx: [timelineStyles.time, sx] }, propsTime, {
@@ -282,7 +282,7 @@ export const Timeline = _component(
                   {item.time}
                 </time>
               ) : (
-                alternate && <span {...stylex.attrs(sx)} />
+                alternate && <span {...css.attrs(sx)} />
               );
             // 内容里的时间：交替排布时只在窄的容器里显示（宽时在对侧）
             const inlineTime = alternate
@@ -340,7 +340,7 @@ export const Timeline = _component(
                   </div>
                   {hasContent(item.actor) ? (
                     <div {...mergeAttrs<'div'>({ sx: timelineStyles.meta }, propsMeta)}>
-                      <span {...stylex.attrs(timelineStyles.actor)}>
+                      <span {...css.attrs(timelineStyles.actor)}>
                         {(item.avatar || typeof item.actor === 'string') && (
                           <Avatar
                             src={item.avatar}

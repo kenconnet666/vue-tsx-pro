@@ -12,7 +12,7 @@
  * 用 popover="manual" 渲染在顶层：它不是 auto，不会关掉正打开的菜单或弹出框。开关、定位、Esc 见 useHoverLayer（与 HoverCard 共用）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
   floatingStyles,
@@ -74,7 +74,7 @@ const CLOSE_DELAY = 100;
 const tooltips = createHoverGroup();
 
 /** Tooltip 的样式：panel */
-export const tooltipStyles = stylex.create({
+export const tooltipStyles = css.create({
   panel: {
     boxSizing: 'border-box',
     maxWidth: 'min(20em, calc(100vw - 2em))',

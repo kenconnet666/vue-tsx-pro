@@ -4,8 +4,8 @@
  * 外壳是包着原生 input 的 div：边框、悬停、焦点环（:focus-within）、出错、不可用、只读都画在外壳上，
  * input 本身透明无边框，所以图标、清除按钮、步进按钮可以放进框里。尺寸用 em，随 size 缩放（COMPONENTS.md §3）。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -57,7 +57,7 @@ export interface ControlState {
 }
 
 /** 输入框外壳 的样式：root、soft、invalid、disabled、readonly、multiline、grow */
-export const controlShellStyles = stylex.create({
+export const controlShellStyles = css.create({
   root: {
     boxSizing: 'border-box',
     display: 'inline-flex',
@@ -96,7 +96,7 @@ export const controlShellStyles = stylex.create({
 });
 
 /** 外壳里的各部分：原生输入元素、前后图标、前后缀文字、框里的小按钮（清除、显示密码、步进） */
-export const controlStyles = stylex.create({
+export const controlStyles = css.create({
   /** 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳 */
   // 参与基线对齐、高度撑满外壳：外壳（flex）的基线取输入框文字的基线，而不是排在前面的图标的底边，
   // 左标签（按基线对齐）才与输入的文字在同一条线上；原生输入框自己把文字竖直居中
@@ -189,7 +189,7 @@ export function controlSx(
   { variant, size, radius, attached }: ControlAppearance,
   { invalid, disabled, readonly }: ControlState,
   multiline = false,
-): StyleXStyles {
+): SxStyles {
   return [
     controlShellStyles.root,
     focusRingStyles.within,
@@ -202,7 +202,7 @@ export function controlSx(
     invalid && controlShellStyles.invalid,
     disabled && controlShellStyles.disabled,
     multiline && controlShellStyles.multiline,
-  ] as StyleXStyles;
+  ] as SxStyles;
 }
 
 /** 点在外壳的空白处（内边距、图标、标签上）：不是主元素本身，也不是框里的按钮 */

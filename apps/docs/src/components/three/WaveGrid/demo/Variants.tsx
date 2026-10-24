@@ -1,10 +1,10 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Grid, Text, t } from '@vue-tsx-pro/ui';
 import { WaveGrid } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 
-const styles = stylex.create({
+const styles = css.create({
   stage: { height: '14rem' },
   caption: { color: '_textMuted', padding: `${t.space.sm} ${t.space.md}` },
 });

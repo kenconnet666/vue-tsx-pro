@@ -16,7 +16,7 @@
  */
 import { CircleAlert, TriangleAlert, Upload } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { Button, type ButtonProps } from '../base/Button';
@@ -69,7 +69,7 @@ export interface FlowDesignerProps extends PartProps<'div', 'title'> {
 }
 
 /** FlowDesigner 的样式 */
-export const flowDesignerStyles = stylex.create({
+export const flowDesignerStyles = css.create({
   root: { display: 'grid', gap: '_md' },
   toolbar: {
     display: 'flex',
@@ -237,7 +237,7 @@ export const FlowDesigner = _component(
       const target = () => {
         if (assignee?.type === 'pool')
           return isVariable(assignee.group) ? (
-            <span {...stylex.attrs(flowDesignerStyles.hint)}>
+            <span {...css.attrs(flowDesignerStyles.hint)}>
               {messages.designerVariable(assignee.group.var)}
             </span>
           ) : (
@@ -247,7 +247,7 @@ export const FlowDesigner = _component(
           );
         if (assignee?.type === 'user')
           return isVariable(assignee.user) ? (
-            <span {...stylex.attrs(flowDesignerStyles.hint)}>
+            <span {...css.attrs(flowDesignerStyles.hint)}>
               {messages.designerVariable(assignee.user.var)}
             </span>
           ) : (
@@ -286,9 +286,7 @@ export const FlowDesigner = _component(
       if (due && 'var' in due)
         return field(
           messages.designerFields.due,
-          <span {...stylex.attrs(flowDesignerStyles.hint)}>
-            {messages.designerVariable(due.var)}
-          </span>,
+          <span {...css.attrs(flowDesignerStyles.hint)}>{messages.designerVariable(due.var)}</span>,
         );
       const unit: 'workdays' | 'days' = due && 'days' in due ? 'days' : 'workdays';
       const amount = due ? ('days' in due ? due.days : due.workdays) : null;
@@ -301,8 +299,8 @@ export const FlowDesigner = _component(
         });
       // 单位切换放在 Field 外面：一个 Field 只关联一个控件（标签、说明与 id 给数字输入框）
       return (
-        <div {...stylex.attrs(flowDesignerStyles.row)}>
-          <div {...stylex.attrs(flowDesignerStyles.grow)}>
+        <div {...css.attrs(flowDesignerStyles.row)}>
+          <div {...css.attrs(flowDesignerStyles.grow)}>
             {field(
               messages.designerFields.due,
               <NumberField
@@ -363,13 +361,12 @@ export const FlowDesigner = _component(
     );
 
     const panel = (node: ProcessNode | undefined) => {
-      if (!node)
-        return <p {...stylex.attrs(flowDesignerStyles.hint)}>{messages.designerPickNode}</p>;
+      if (!node) return <p {...css.attrs(flowDesignerStyles.hint)}>{messages.designerPickNode}</p>;
       const lanes = definition.lanes ?? [];
       return (
         <>
-          <div {...stylex.attrs(flowDesignerStyles.panelHead)}>
-            <span {...stylex.attrs(flowDesignerStyles.title)}>{node.name || node.id}</span>
+          <div {...css.attrs(flowDesignerStyles.panelHead)}>
+            <span {...css.attrs(flowDesignerStyles.title)}>{node.name || node.id}</span>
             <Badge size="sm">{messages.designerNodeTypes[node.type]}</Badge>
           </div>
           {field(
@@ -398,7 +395,7 @@ export const FlowDesigner = _component(
               {overdueFields(node)}
               {field(
                 messages.designerFields.outcomes,
-                <div {...stylex.attrs(flowDesignerStyles.outcomes)}>
+                <div {...css.attrs(flowDesignerStyles.outcomes)}>
                   {node.outcomes.map((outcome) => (
                     <Badge
                       key={outcome.key}
@@ -453,7 +450,7 @@ export const FlowDesigner = _component(
     };
 
     const problemList = (problems: readonly ProcessProblem[]) => (
-      <ul {...stylex.attrs(flowDesignerStyles.problems)} aria-label={messages.designerProblemList}>
+      <ul {...css.attrs(flowDesignerStyles.problems)} aria-label={messages.designerProblemList}>
         {problems.map((problem, index) => {
           const target =
             problem.node ?? definition.edges.find((edge) => edge.id === problem.edge)?.from;
@@ -461,7 +458,7 @@ export const FlowDesigner = _component(
             <li key={`${problem.code}-${index}`}>
               <button
                 type="button"
-                {...stylex.attrs(flowDesignerStyles.problem)}
+                {...css.attrs(flowDesignerStyles.problem)}
                 disabled={!target}
                 onClick={() => target && (selected = target)}
               >
@@ -489,19 +486,19 @@ export const FlowDesigner = _component(
       const dirty = snapshot() !== baseline;
       return (
         <div {...mergeAttrs<'div'>({ sx: flowDesignerStyles.root }, rest)}>
-          <div {...stylex.attrs(flowDesignerStyles.toolbar)}>
+          <div {...css.attrs(flowDesignerStyles.toolbar)}>
             {title ?? (
-              <span {...stylex.attrs(flowDesignerStyles.title)}>
+              <span {...css.attrs(flowDesignerStyles.title)}>
                 {definition.name} · v{definition.version}
               </span>
             )}
-            <div {...stylex.attrs(flowDesignerStyles.tools)}>
+            <div {...css.attrs(flowDesignerStyles.tools)}>
               {dirty && <Badge tone="info">{messages.designerDirty}</Badge>}
               <Badge tone={errors ? 'danger' : warnings ? 'warning' : 'success'} role="status">
                 {messages.designerProblems(errors, warnings)}
               </Badge>
               {failed && (
-                <span role="alert" {...stylex.attrs(flowDesignerStyles.failed)}>
+                <span role="alert" {...css.attrs(flowDesignerStyles.failed)}>
                   {messages.designerPublishFailed}
                 </span>
               )}
@@ -529,7 +526,7 @@ export const FlowDesigner = _component(
               )}
             </div>
           </div>
-          <div {...stylex.attrs(flowDesignerStyles.body)}>
+          <div {...css.attrs(flowDesignerStyles.body)}>
             <FlowDiagram
               {...mergePartProps<Partial<FlowDiagramProps>>(
                 { sx: flowDesignerStyles.diagram },

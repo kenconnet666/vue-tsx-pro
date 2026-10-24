@@ -14,7 +14,7 @@
  * 部件（Radio）：Root（label）、Control（叠放层）、Indicator（圆点）、Label（文字）；未声明的属性落到 input 上。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
@@ -199,7 +199,7 @@ export interface RadioProps extends PartProps<'input', RadioManaged> {
 }
 
 /** RadioGroup、Radio 的样式：circle、dot、dotChecked */
-export const radioStyles = stylex.create({
+export const radioStyles = css.create({
   circle: { width: '1.125em', height: '1.125em', borderRadius: '_full' },
   dot: {
     width: '0.45em',

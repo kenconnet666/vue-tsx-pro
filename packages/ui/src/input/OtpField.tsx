@@ -10,7 +10,7 @@
  * 部件：Root（div：格子的容器）、Input（主元素）、Slot（div，每格一个）、Separator（groups 之间）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -62,10 +62,10 @@ export interface OtpFieldProps extends PartProps<'input', OtpFieldManaged> {
   children?: VNodeChild;
 }
 
-const blink = stylex.keyframes({ '50%': { opacity: 0 } });
+const blink = css.keyframes({ '50%': { opacity: 0 } });
 
 /** OtpField 的样式：root、input、slot、active、invalid、disabled、caret、separator */
-export const otpFieldStyles = stylex.create({
+export const otpFieldStyles = css.create({
   root: {
     position: 'relative',
     display: 'inline-flex',
@@ -220,7 +220,7 @@ export const OtpField = _component(
                   ? mask
                     ? '•'
                     : char
-                  : active && <span {...stylex.attrs(otpFieldStyles.caret)} />}
+                  : active && <span {...css.attrs(otpFieldStyles.caret)} />}
               </div>,
               ends.has(index) && (
                 <span

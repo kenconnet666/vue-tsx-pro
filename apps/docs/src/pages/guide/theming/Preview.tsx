@@ -4,7 +4,7 @@
  */
 import { Bell, FolderKanban, Plus, Search, Settings, Users, Wallet } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Alert,
   Avatar,
@@ -43,7 +43,7 @@ import { BarChart } from '@vue-tsx-pro/ui/charts';
 import { customizeTheme } from '@vue-tsx-pro/ui/theme-customize';
 import { themeSettings } from '../../../site/theme';
 
-const styles = stylex.create({
+const styles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_md' },
   toolbar: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_sm' },
   // 一块“应用窗口”：自己画页面底色，套了局部主题时也是那套主题的底色
@@ -97,9 +97,9 @@ const MiniApp = _component(({ title }: { title?: string }) => {
   let notify = _state(true);
   let agreed = _state(false);
   return () => (
-    <div {...stylex.attrs(styles.frame)}>
-      <div {...stylex.attrs(styles.topbar)}>
-        <span {...stylex.attrs(styles.brand)}>{title ?? '控制台'}</span>
+    <div {...css.attrs(styles.frame)}>
+      <div {...css.attrs(styles.topbar)}>
+        <span {...css.attrs(styles.brand)}>{title ?? '控制台'}</span>
         <Tabs value={_bind(tab)}>
           <TabList aria-label={`${title ?? '控制台'}的分区`}>
             <Tab value="overview">概览</Tab>
@@ -107,13 +107,13 @@ const MiniApp = _component(({ title }: { title?: string }) => {
             <Tab value="members">成员</Tab>
           </TabList>
         </Tabs>
-        <span {...stylex.attrs(styles.spacer)} />
+        <span {...css.attrs(styles.spacer)} />
         <IconButton icon={Search} aria-label="搜索" />
         <IconButton icon={Bell} aria-label="通知" />
         <Avatar name="Ada Lovelace" size="sm" />
       </div>
 
-      <div {...stylex.attrs(styles.row)}>
+      <div {...css.attrs(styles.row)}>
         <Card sx={styles.small}>
           <Stat label="本月收入" value={88} unit="万元" change={0.205} icon={Wallet} />
         </Card>
@@ -125,7 +125,7 @@ const MiniApp = _component(({ title }: { title?: string }) => {
         </Card>
       </div>
 
-      <div {...stylex.attrs(styles.row)}>
+      <div {...css.attrs(styles.row)}>
         <Card sx={styles.wide} header={<H3 size="md">收支趋势</H3>}>
           <BarChart
             aria-label="近六个月收支"
@@ -190,7 +190,7 @@ const MiniApp = _component(({ title }: { title?: string }) => {
         </Table>
       </Card>
 
-      <div {...stylex.attrs(styles.row)}>
+      <div {...css.attrs(styles.row)}>
         <Flex direction="column" gap="sm" sx={styles.wide}>
           <Alert tone="info" title="新版本">
             支持按项目设置通知方式。
@@ -223,8 +223,8 @@ const MiniApp = _component(({ title }: { title?: string }) => {
 export const Preview = _component(() => {
   let mode = _state<'current' | 'compare'>('current');
   return () => (
-    <div {...stylex.attrs(styles.root)}>
-      <div {...stylex.attrs(styles.toolbar)}>
+    <div {...css.attrs(styles.root)}>
+      <div {...css.attrs(styles.toolbar)}>
         <Text weight="semibold">预览</Text>
         <ToggleGroup value={_bind(mode)} required size="sm" aria-label="预览方式">
           <ToggleItem value="current">当前主题</ToggleItem>

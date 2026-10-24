@@ -1,6 +1,6 @@
 import { Bell, KeyRound, User } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Checkbox,
   Field,
@@ -21,7 +21,7 @@ const sections: [string, string, IconData][] = [
   ['notifications', '通知', Bell],
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   list: { minWidth: '9rem' },
   panel: { flexGrow: 1, minWidth: 0 },
 });

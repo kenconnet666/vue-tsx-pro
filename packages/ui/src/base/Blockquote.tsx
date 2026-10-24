@@ -4,7 +4,7 @@
  *   <Blockquote cite="https://…">…</Blockquote>
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
@@ -14,7 +14,7 @@ export interface BlockquoteProps extends PartProps<'blockquote'> {
 }
 
 /** Blockquote 的样式 */
-export const blockquoteStyles = stylex.create({
+export const blockquoteStyles = css.create({
   root: {
     margin: 0,
     paddingBlock: '_xs',

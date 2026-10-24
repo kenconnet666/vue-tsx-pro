@@ -1,5 +1,5 @@
 /**
- * 条件键：伪类（':hover'、stylex.when.* 生成的键）、@ 规则（'@media (…)'、'@supports (…)'、'@container (…)'），
+ * 条件键：伪类（':hover'、css.when.* 生成的键）、@ 规则（'@media (…)'、'@supports (…)'、'@container (…)'），
  * 还可以写属性选择器（'[data-hot]'、'[data-state="open"]'）：状态写在 DOM 属性上，变化时只改属性
  */
 type Condition = `:${string}` | `@${string}` | `[${string}]`;

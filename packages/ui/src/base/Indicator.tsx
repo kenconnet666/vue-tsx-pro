@@ -9,7 +9,7 @@
  * count 为 0（且没有 showZero）、也没有 dot 时不显示角标。部件：Root（外层 span）、Badge（角标）、Count（计数文字）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
@@ -69,7 +69,7 @@ export interface IndicatorProps extends PartProps<'span'>, IndicatorOptions {
 }
 
 /** Indicator 的样式：root、badge、count、dot、各位置与 circular */
-export const indicatorStyles = stylex.create({
+export const indicatorStyles = css.create({
   root: { position: 'relative', display: 'inline-flex', verticalAlign: 'middle', flexShrink: 0 },
   badge: {
     position: 'absolute',

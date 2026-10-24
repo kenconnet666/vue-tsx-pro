@@ -1,8 +1,8 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Grid, GridItem, Small, Strong } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   // 卡片撑满格子：跨两行的格子里卡片也一样高
   cell: { minHeight: '4.5rem', height: '_full' },
 });

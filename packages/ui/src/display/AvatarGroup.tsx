@@ -10,7 +10,7 @@
  * 部件：Root（div）、More（+N）、MoreText（More 里的“+N”文字）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { childNodes } from '../utils/data/text';
@@ -39,7 +39,7 @@ export interface AvatarGroupProps extends PartProps<'div', AvatarGroupManaged> {
 }
 
 /** AvatarGroup 的样式：root、more、moreText */
-export const avatarGroupStyles = stylex.create({
+export const avatarGroupStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'center' },
   more: { backgroundColor: '_fill', color: '_text' },
   // 字号缩在文字上：“+N”的圆仍和头像一样大

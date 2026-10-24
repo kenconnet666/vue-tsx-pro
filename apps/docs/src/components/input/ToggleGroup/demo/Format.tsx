@@ -9,10 +9,10 @@ import {
   Underline,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Flex, Paragraph, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   bold: { fontWeight: '_bold' },
   italic: { fontStyle: 'italic' },
   underline: { textDecorationLine: 'underline' },
@@ -20,7 +20,7 @@ const styles = stylex.create({
   both: { textDecorationLine: 'underline line-through' },
 });
 
-const alignStyles = stylex.create({
+const alignStyles = css.create({
   left: { textAlign: 'left' },
   center: { textAlign: 'center' },
   right: { textAlign: 'right' },

@@ -27,7 +27,7 @@
  */
 import { utils } from 'animejs';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   nextTick,
   onBeforeUnmount,
@@ -354,13 +354,13 @@ export interface ToasterProps extends PartProps<'section', 'popover' | 'tabindex
   propsCollapse?: Partial<CollapseProps>;
 }
 
-const countdown = stylex.keyframes({
+const countdown = css.keyframes({
   from: { transform: 'scaleX(1)' },
   to: { transform: 'scaleX(0)' },
 });
 
 /** Toaster 的样式：region、list、listFromTop、item、itemFromBottom、itemFromTop 等 */
-export const toastStyles = stylex.create({
+export const toastStyles = css.create({
   region: {
     // 原生 popover 默认居中、带边框与底色，改为贴着视口的一角
     position: 'fixed',
@@ -421,18 +421,18 @@ export const toastStyles = stylex.create({
 
 // 深度是运行时的数，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Toaster 的样式：叠放时第 depth 层（0 是最新的）的位移、缩放与层叠顺序 */
-export const toastStackStyles = stylex.create({
+export const toastStackStyles = css.create({
   depth: (offset: string, scale: number, zIndex: number) => ({ translate: offset, scale, zIndex }),
 });
 
 // 时长来自每条通知，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Toaster 的样式：剩余时间条的时长 */
-export const toastCountdownStyles = stylex.create({
+export const toastCountdownStyles = css.create({
   duration: (ms: string) => ({ animationDuration: ms }),
 });
 
 /** Toaster 的样式：top-start、top、top-end、bottom-start、bottom、bottom-end */
-export const toastPlacementStyles = stylex.create({
+export const toastPlacementStyles = css.create({
   'top-start': { top: 0, insetInlineStart: 0 },
   top: { top: 0, insetInline: 0, marginInline: 'auto' },
   'top-end': { top: 0, insetInlineEnd: 0 },

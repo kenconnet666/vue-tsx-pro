@@ -1,7 +1,7 @@
 // 部件属性：每个节点都能单独加样式与属性。看板卡片里的柱状图：图例挪到左边、做成胶囊按钮，
 // 单位做成右边的小标签，绘图区上沿一条虚线；propsTable 落在给读屏的数据表上（看不见：给它一个名称）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Card, Paragraph, Strong } from '@vue-tsx-pro/ui';
 import { BarChart } from '@vue-tsx-pro/ui/charts';
 
@@ -12,7 +12,7 @@ const quarters = [
   { quarter: 'Q4', plan: 540, actual: 568 },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   // 单位在右、图例在左
   header: { flexDirection: 'row-reverse' },
   legend: { justifyContent: 'flex-start', marginInlineStart: 0, marginInlineEnd: 'auto' },

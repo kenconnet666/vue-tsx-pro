@@ -1,9 +1,9 @@
 import { ChartLine, House, Package, Settings, ShoppingCart, Users } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Card, NavGroup, NavItem, NavList, type IconData } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({ nav: { width: '15rem' } });
+const styles = css.create({ nav: { width: '15rem' } });
 
 export default _component(() => {
   // 示例里不真的换页：链接只写锚点，当前项由 active 指定

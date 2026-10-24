@@ -9,7 +9,7 @@
  * 部件：Root（label）、Control（叠放层）、Thumb（滑块）、Content（轨道里的文字）、ContentText（文字的字号层）、Spinner、Label（文字）；未声明的属性落到 input 上。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
@@ -74,7 +74,7 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
 }
 
 /** Switch 的样式：track、trackWide、trackOff、thumb、thumbOn、content、contentOn、contentOff、contentHidden、contentText、spinner */
-export const switchStyles = stylex.create({
+export const switchStyles = css.create({
   track: { width: '2.25em', height: '1.25em', borderRadius: '_full', borderColor: 'transparent' },
   // 轨道里有文字：宽度随文字（两份文字叠在同一格里，取较宽的，切换时宽度不跳）
   trackWide: { width: '_full', minWidth: '2.25em' },

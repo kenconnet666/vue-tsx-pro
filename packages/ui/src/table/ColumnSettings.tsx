@@ -9,7 +9,7 @@
  */
 import { Columns3 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -41,7 +41,7 @@ export interface ColumnSettingsProps<T> {
 }
 
 /** ColumnSettings 的样式：panel、list、header */
-export const columnSettingsStyles = stylex.create({
+export const columnSettingsStyles = css.create({
   panel: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: '14rem' },
   list: { maxHeight: '20rem', overflowY: 'auto' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_md' },
@@ -97,9 +97,9 @@ export const ColumnSettings = _component(
           />
         )}
       >
-        <div {...stylex.attrs(columnSettingsStyles.panel)}>
-          <div {...stylex.attrs(columnSettingsStyles.header)}>
-            <span {...stylex.attrs(columnSettingsStyles.title)}>{lang.tableColumnSettings}</span>
+        <div {...css.attrs(columnSettingsStyles.panel)}>
+          <div {...css.attrs(columnSettingsStyles.header)}>
+            <span {...css.attrs(columnSettingsStyles.title)}>{lang.tableColumnSettings}</span>
             <Button
               {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'ghost' }, propsReset, {
                 disabled: hidden.length === 0 && order.length === 0,

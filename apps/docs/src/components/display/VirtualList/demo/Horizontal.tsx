@@ -1,6 +1,6 @@
 // 横向的虚拟列表（一千张照片也只渲染看得见的几张）；handle 拿到滚动方法，跳到指定的一张
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Flex,
@@ -16,7 +16,7 @@ const photos = Array.from({ length: 1000 }, (_, index) => ({
   title: `第 ${index + 1} 张`,
 }));
 
-const styles = stylex.create({
+const styles = css.create({
   list: { width: '_full', height: '8.5rem' },
   photo: {
     display: 'grid',
@@ -33,7 +33,7 @@ const styles = stylex.create({
   },
 });
 
-const photoStyles = stylex.create({
+const photoStyles = css.create({
   hue: (hue: number) => ({
     backgroundImage: `linear-gradient(135deg, hsl(${hue} 70% 55%), hsl(${(hue + 40) % 360} 70% 40%))`,
   }),
@@ -55,7 +55,7 @@ export default _component(() => {
         sx={styles.list}
       >
         {(photo) => (
-          <div {...stylex.attrs(styles.photo, photoStyles.hue(photo.hue))}>{photo.title}</div>
+          <div {...css.attrs(styles.photo, photoStyles.hue(photo.hue))}>{photo.title}</div>
         )}
       </VirtualList>
       <Flex gap="sm" align="center" wrap>

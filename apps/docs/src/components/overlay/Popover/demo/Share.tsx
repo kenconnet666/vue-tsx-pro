@@ -1,6 +1,6 @@
 import { Filter, Share2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Checkbox,
@@ -16,7 +16,7 @@ import {
 
 const statuses = ['待付款', '备货中', '已发货', '已完成', '已退款'];
 
-const styles = stylex.create({ share: { width: '20rem' } });
+const styles = css.create({ share: { width: '20rem' } });
 
 export default _component(() => {
   let sharing = _state(false);

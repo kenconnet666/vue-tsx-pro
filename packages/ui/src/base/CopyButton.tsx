@@ -8,7 +8,7 @@
  */
 import { Check, Copy } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useLang } from '../config/context';
 import { announce } from '../utils/dom/announcer';
 import { useClipboard } from '../utils/dom/clipboard';
@@ -55,10 +55,10 @@ export interface CopyButtonProps
   propsIcon?: Partial<IconProps>;
 }
 
-const pop = stylex.keyframes({ from: { transform: 'scale(0.5)', opacity: 0 } });
+const pop = css.keyframes({ from: { transform: 'scale(0.5)', opacity: 0 } });
 
 /** CopyButton 的样式：copied（对勾弹出；减少动态效果时时长为 0） */
-export const copyButtonStyles = stylex.create({
+export const copyButtonStyles = css.create({
   copied: {
     animationName: pop,
     animationDuration: '_durations.md',

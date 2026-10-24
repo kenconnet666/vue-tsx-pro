@@ -1,7 +1,7 @@
 // 订酒店：并排两个月选入住与离店，订满的晚上不能被夹在中间；右侧算出几晚、总价
 import { BedDouble } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Card,
@@ -17,7 +17,7 @@ import {
   type DateRange,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({ side: { flexGrow: 1, flexBasis: '15rem' } });
+const styles = css.create({ side: { flexGrow: 1, flexBasis: '15rem' } });
 const NIGHTLY = 528;
 
 export default _component(() => {

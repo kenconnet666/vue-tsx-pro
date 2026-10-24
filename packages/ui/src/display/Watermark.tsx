@@ -11,7 +11,7 @@
  * 部件：Root（div：包着内容，position: relative）、Layer（div：水印那一层）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 
@@ -41,7 +41,7 @@ export interface WatermarkProps extends PartProps<'div'> {
 }
 
 /** Watermark 的样式：root、layer、fullscreen */
-export const watermarkStyles = stylex.create({
+export const watermarkStyles = css.create({
   root: { position: 'relative' },
   layer: {
     position: 'absolute',
@@ -56,7 +56,7 @@ export const watermarkStyles = stylex.create({
 });
 
 /** 水印那一层的背景（data URL 与一格的大小） */
-export const watermarkTileStyles = stylex.create({
+export const watermarkTileStyles = css.create({
   tile: (url: string, size: string) => ({ backgroundImage: url, backgroundSize: size }),
 });
 

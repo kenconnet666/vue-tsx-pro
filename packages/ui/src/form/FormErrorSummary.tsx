@@ -12,7 +12,7 @@
  * 部件：Root（div，role="alert" 之外可以聚焦）、Title（div）、List（ul）、Link（a）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useLang } from '../config/context';
@@ -35,7 +35,7 @@ export interface FormErrorSummaryProps extends PartProps<'div', 'title'> {
 }
 
 /** FormErrorSummary 的样式：root、title、list、link */
-export const formErrorSummaryStyles = stylex.create({
+export const formErrorSummaryStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',

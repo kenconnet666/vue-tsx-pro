@@ -10,7 +10,7 @@
  * 部件：Root（div）、Count（span）、Clear（Button）、Actions（div）。数目变化经共用的播报区（announce）念出。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
@@ -38,7 +38,7 @@ export interface SelectionBarProps extends PartProps<'div'> {
 }
 
 /** SelectionBar 的样式：root、count、actions */
-export const selectionBarStyles = stylex.create({
+export const selectionBarStyles = css.create({
   root: {
     display: 'flex',
     alignItems: 'center',

@@ -8,7 +8,7 @@ import {
   Trash2,
 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   ButtonBase,
   ContextMenu,
@@ -30,7 +30,7 @@ const files: [string, IconData][] = [
   ['预算.xlsx', FileSpreadsheet],
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   area: {
     padding: '_md',
     borderWidth: '_xs',

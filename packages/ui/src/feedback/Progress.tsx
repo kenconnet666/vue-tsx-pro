@@ -13,7 +13,7 @@
  * 环形：根元素是 progressbar，里面是 SVG（轨道、进度、目标刻度）与中间的 ValueLabel；有 label 时外层是 Root，标签在下方。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
@@ -79,19 +79,19 @@ export interface ProgressProps extends PartProps<'div', ProgressManaged>, Progre
   propsValueLabel?: Partial<TextProps>;
 }
 
-const slide = stylex.keyframes({
+const slide = css.keyframes({
   from: { transform: 'translateX(-100%)' },
   to: { transform: 'translateX(250%)' },
 });
 
 // 从右到左排版：色块在起始边（右边），从右往左扫
-const slideRtl = stylex.keyframes({
+const slideRtl = css.keyframes({
   from: { transform: 'translateX(100%)' },
   to: { transform: 'translateX(-250%)' },
 });
 
 /** Progress 的样式：shell、header、valueLabel、root、indicator、indeterminate */
-export const progressStyles = stylex.create({
+export const progressStyles = css.create({
   // 有标签行时的外层：标签行在上、进度条在下
   shell: { display: 'grid', gap: '_xs', minWidth: 0 },
   header: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '_sm' },
@@ -126,7 +126,7 @@ export const progressStyles = stylex.create({
 
 // 和轨道（fill）之间要有 3:1：中性色用次要文字色，accent 以外的状态色用各自的文字色
 /** Progress 的样式：neutral、accent、info、success、warning、danger */
-export const progressToneStyles = stylex.create({
+export const progressToneStyles = css.create({
   neutral: {
     backgroundColor: { default: '_textMuted', '@media (forced-colors: active)': 'Highlight' },
   },
@@ -147,10 +147,10 @@ export const progressToneStyles = stylex.create({
   },
 });
 
-const spin = stylex.keyframes({ to: { rotate: '1turn' } });
+const spin = css.keyframes({ to: { rotate: '1turn' } });
 
 /** 环形进度的样式：root、svg、track、indicator、indeterminate、target、center、shell */
-export const progressCircleStyles = stylex.create({
+export const progressCircleStyles = css.create({
   // 直径随字号缩放：5em 在默认字号下约 70px
   root: {
     position: 'relative',
@@ -186,7 +186,7 @@ export const progressCircleStyles = stylex.create({
 });
 
 /** 环形进度的颜色：neutral、accent、info、success、warning、danger（同条形，用 stroke） */
-export const progressStrokeStyles = stylex.create({
+export const progressStrokeStyles = css.create({
   neutral: { stroke: { default: '_textMuted', '@media (forced-colors: active)': 'Highlight' } },
   accent: { stroke: { default: '_accent', '@media (forced-colors: active)': 'Highlight' } },
   info: { stroke: { default: '_infoText', '@media (forced-colors: active)': 'Highlight' } },
@@ -196,7 +196,7 @@ export const progressStrokeStyles = stylex.create({
 });
 
 /** 条形进度的目标线 */
-export const progressTargetStyles = stylex.create({
+export const progressTargetStyles = css.create({
   // 竖线压在轨道上：正文色，与进度、轨道都有对比；位置按书写方向
   line: {
     position: 'absolute',
@@ -208,13 +208,13 @@ export const progressTargetStyles = stylex.create({
 });
 
 /** 条形进度目标线的位置 */
-export const progressTargetPositionStyles = stylex.create({
+export const progressTargetPositionStyles = css.create({
   at: (percent: string) => ({ insetInlineStart: percent }),
 });
 
 // 宽度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Progress 的样式：percent */
-export const progressWidthStyles = stylex.create({
+export const progressWidthStyles = css.create({
   percent: (percent: string) => ({ width: percent }),
 });
 
@@ -318,17 +318,13 @@ export const Progress = _component(
             )}
             data-state={state}
           >
-            <svg
-              viewBox="0 0 100 100"
-              aria-hidden="true"
-              {...stylex.attrs(progressCircleStyles.svg)}
-            >
+            <svg viewBox="0 0 100 100" aria-hidden="true" {...css.attrs(progressCircleStyles.svg)}>
               <circle
                 cx="50"
                 cy="50"
                 r={r}
                 stroke-width={stroke}
-                {...stylex.attrs(progressCircleStyles.track)}
+                {...css.attrs(progressCircleStyles.track)}
               />
               <circle
                 cx="50"
@@ -340,7 +336,7 @@ export const Progress = _component(
                 stroke-dashoffset={
                   determinate ? circumference * (1 - percent / 100) : circumference * 0.75
                 }
-                {...stylex.attrs(
+                {...css.attrs(
                   progressCircleStyles.indicator,
                   progressStrokeStyles[look.tone],
                   !determinate && progressCircleStyles.indeterminate,
@@ -353,7 +349,7 @@ export const Progress = _component(
                   x2={inner.x}
                   y2={inner.y}
                   stroke-width={2.5}
-                  {...stylex.attrs(progressCircleStyles.target)}
+                  {...css.attrs(progressCircleStyles.target)}
                 />
               )}
             </svg>
@@ -404,7 +400,7 @@ export const Progress = _component(
           {targetPercent !== undefined && (
             <div
               aria-hidden="true"
-              {...stylex.attrs(
+              {...css.attrs(
                 progressTargetStyles.line,
                 progressTargetPositionStyles.at(`${targetPercent}%`),
               )}

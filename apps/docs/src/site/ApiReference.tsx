@@ -5,7 +5,7 @@
  *   <ApiReference api={api} />
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, H2, H3, Paragraph } from '@vue-tsx-pro/ui';
 import { PropsTable, type ApiPropKinds, type ComponentApi } from '@vue-tsx-pro/ui/docs-kit';
 import { onBeforeUnmount, onMounted } from 'vue';
@@ -19,7 +19,7 @@ const KINDS: [keyof ApiPropKinds, string][] = [
   ['part', '部件属性'],
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   // API 表在页面底部，打开页面时在视口外：滚到附近才排版、绘制（大组件的几张表有几千个节点）。
   // auto 记住排过一次的高度，滚回来时滚动条不跳
   table: { contentVisibility: 'auto', containIntrinsicSize: 'auto 24rem' },
@@ -83,7 +83,7 @@ export const ApiReference = _component(({ api }: ApiReferenceProps) => {
             {tables.map(
               ({ kind, label, props }, index) =>
                 start + index < shown && (
-                  <div key={kind} {...stylex.attrs(styles.table)}>
+                  <div key={kind} {...css.attrs(styles.table)}>
                     <PropsTable props={props} caption={label} />
                   </div>
                 ),

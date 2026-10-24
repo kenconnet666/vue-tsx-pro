@@ -9,7 +9,7 @@
  * 切换主题、改品牌色都不用重画。绘图区对读屏隐藏，数据由同样内容的表格读出。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { shallowRef, watch, type VNodeChild } from 'vue';
 import { Download, FileSpreadsheet, ImageDown } from '@lucide/icons';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
@@ -29,14 +29,14 @@ import {
   radii,
   shadows,
   space,
-} from '../config/theme/tokens.stylex';
+  t,
+} from '../config/theme/tokens';
 import { Empty } from '../feedback/Empty';
 import type { NumericValue } from '../utils/data/numeric';
 import { themeTransition } from '../utils/motion/animation';
 import { useEventListener } from '../utils/dom/event-listener';
 import { useIntersectionObserver } from '../utils/dom/intersection';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { t } from '../config/theme/tokens';
 
 /** 图例里的一项 */
 export interface ChartLegendItem {
@@ -77,7 +77,7 @@ export interface ChartFrameParts {
 }
 
 /** 图表共用的样式：root（--vis-* 主题变量）、header、unit、legend、swatch、plot、tooltip… */
-export const chartStyles = stylex.create({
+export const chartStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -186,13 +186,13 @@ export interface ChartTooltipItem {
 /** 提示框的内容：标题（类目、扇区名）+ 每个系列一行；Unovis 定位，Vue 渲染 */
 export function chartTooltip(title: string, items: readonly ChartTooltipItem[]) {
   return (
-    <div {...stylex.attrs(chartStyles.tooltip)}>
-      {title && <div {...stylex.attrs(chartStyles.tooltipTitle)}>{title}</div>}
+    <div {...css.attrs(chartStyles.tooltip)}>
+      {title && <div {...css.attrs(chartStyles.tooltipTitle)}>{title}</div>}
       {items.map((item) => (
-        <div key={item.label} {...stylex.attrs(chartStyles.tooltipRow)}>
-          <span {...stylex.attrs(chartStyles.swatch, chartStyles.swatchColor(item.color))} />
-          <span {...stylex.attrs(chartStyles.tooltipLabel)}>{item.label}</span>
-          <span {...stylex.attrs(chartStyles.tooltipValue)}>{item.value}</span>
+        <div key={item.label} {...css.attrs(chartStyles.tooltipRow)}>
+          <span {...css.attrs(chartStyles.swatch, chartStyles.swatchColor(item.color))} />
+          <span {...css.attrs(chartStyles.tooltipLabel)}>{item.label}</span>
+          <span {...css.attrs(chartStyles.tooltipValue)}>{item.value}</span>
         </div>
       ))}
     </div>
@@ -402,7 +402,7 @@ export const ChartFrame = _component(
       const body = loading ? (
         skeleton
       ) : isEmpty ? (
-        <div {...stylex.attrs(chartStyles.center)}>
+        <div {...css.attrs(chartStyles.center)}>
           {empty ?? <Empty size="sm" title={lang.chartEmpty} />}
         </div>
       ) : null;
@@ -437,7 +437,7 @@ export const ChartFrame = _component(
                         )}
                       >
                         <span
-                          {...stylex.attrs(
+                          {...css.attrs(
                             chartStyles.swatch,
                             off
                               ? chartStyles.swatchHidden(item.color)
@@ -459,10 +459,7 @@ export const ChartFrame = _component(
           )}
           {/* key 不同：两种状态不复用同一个 div，否则 Unovis 画进去的 svg 会留在骨架、空状态里 */}
           {body ? (
-            <div
-              key="state"
-              {...stylex.attrs(chartStyles.plot, chartStyles.plotHeight(plotHeight))}
-            >
+            <div key="state" {...css.attrs(chartStyles.plot, chartStyles.plotHeight(plotHeight))}>
               {body}
             </div>
           ) : (

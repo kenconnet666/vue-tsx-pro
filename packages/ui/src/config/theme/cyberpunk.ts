@@ -1,12 +1,12 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { Theme } from './theme';
-import { colors, fonts, radii, shadows } from './tokens.stylex';
+import { colors, fonts, radii, shadows } from './tokens';
 
 /**
  * 赛博朋克主题的颜色：深紫黑的页面、霓虹品红的品牌色 `#ff2bd6`（配深色字）、霓虹青的焦点环与信息色。中性色按 slate 暗色各级亮度换成紫色相（oklch 290°）并加大色度；图表与代码高亮用荧光色。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
-export const cyberpunkColors = stylex.createTheme(colors, {
+export const cyberpunkColors = css.createTheme(colors, {
   background: '#110e20',
   surface: '#191628',
   surfaceMuted: '#191628',
@@ -84,7 +84,7 @@ export const cyberpunkColors = stylex.createTheme(colors, {
 });
 
 /** 赛博朋克主题的阴影：一圈霓虹光晕加深色投影，浮层像在发光 */
-export const cyberpunkShadows = stylex.createTheme(shadows, {
+export const cyberpunkShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 0 0 1px rgba(255, 43, 214, 0.18), 0 1px 3px 0 rgba(0, 0, 0, 0.5)',
   sm: '0 0 0 1px rgba(255, 43, 214, 0.22), 0 0 10px -2px rgba(255, 43, 214, 0.35), 0 4px 12px -4px rgba(0, 0, 0, 0.6)',
@@ -94,7 +94,7 @@ export const cyberpunkShadows = stylex.createTheme(shadows, {
 });
 
 /** 赛博朋克主题的字体：标题用等宽字体，像终端与仪表盘；写全每个变量（嵌套在别的主题里时不继承外层的），正文、等宽、衬线与默认相同 */
-export const cyberpunkFonts = stylex.createTheme(fonts, {
+export const cyberpunkFonts = css.createTheme(fonts, {
   sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
   mono: 'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
   serif: '"Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, "SimSun", Georgia, serif',
@@ -103,7 +103,7 @@ export const cyberpunkFonts = stylex.createTheme(fonts, {
 });
 
 /** 赛博朋克主题的圆角：几乎是直角，线条硬朗 */
-export const cyberpunkRadii = stylex.createTheme(radii, {
+export const cyberpunkRadii = css.createTheme(radii, {
   none: '0',
   xs: '0',
   sm: '0.1em',

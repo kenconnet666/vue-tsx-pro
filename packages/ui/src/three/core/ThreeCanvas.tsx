@@ -18,7 +18,7 @@
  * 部件：Root（div）、Canvas（canvas，重建时换新的一块）、Fallback（div，降级内容）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../../utils/props';
 import type { ThreeQuality } from './quality';
@@ -52,7 +52,7 @@ export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'
 }
 
 /** ThreeCanvas 的样式：root、canvas、fallback、fallbackGradient（默认的降级渐变） */
-export const threeCanvasStyles = stylex.create({
+export const threeCanvasStyles = css.create({
   root: {
     position: 'relative',
     display: 'block',

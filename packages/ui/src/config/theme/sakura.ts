@@ -1,13 +1,13 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { defaultFonts } from './light';
 import type { Theme } from './theme';
-import { colors, radii, shadows } from './tokens.stylex';
+import { colors, radii, shadows } from './tokens';
 
 /**
  * 樱花主题的颜色：淡粉的页面、樱粉的品牌色。中性色按 slate 各级亮度换成粉色相（oklch 355°），品牌色取 Radix pink 色阶，实色加深到白字够对比度。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
-export const sakuraColors = stylex.createTheme(colors, {
+export const sakuraColors = css.createTheme(colors, {
   background: '#fffafc',
   surface: '#fffafc',
   surfaceMuted: '#fef7f9',
@@ -85,7 +85,7 @@ export const sakuraColors = stylex.createTheme(colors, {
 });
 
 /** 樱花主题的阴影：带主色调的投影 */
-export const sakuraShadows = stylex.createTheme(shadows, {
+export const sakuraShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 rgba(90, 20, 50, 0.04), 0 2px 1px -1px rgba(90, 20, 50, 0.05), 0 1px 3px 0 rgba(90, 20, 50, 0.05)',
   sm: '0 2px 3px -2px rgba(90, 20, 50, 0.06), 0 3px 12px -4px rgba(90, 20, 50, 0.1), 0 4px 16px -8px rgba(90, 20, 50, 0.1)',
@@ -95,7 +95,7 @@ export const sakuraShadows = stylex.createTheme(shadows, {
 });
 
 /** 樱花主题的圆角：比默认更圆 */
-export const sakuraRadii = stylex.createTheme(radii, {
+export const sakuraRadii = css.createTheme(radii, {
   none: '0',
   xs: '0.2em',
   sm: '0.35em',

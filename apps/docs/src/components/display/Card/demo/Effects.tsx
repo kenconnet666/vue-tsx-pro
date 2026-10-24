@@ -2,7 +2,7 @@
 // 靠近边框时点亮边框（并排的几张光会在它们之间传递）；beam 一段光沿边框循环流动，用来突出推荐的那一张
 import { Gauge, Layers, Rocket } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Button, Card, Flex, Grid, Icon, Paragraph, Strong, Text } from '@vue-tsx-pro/ui';
 
 const features = [
@@ -11,7 +11,7 @@ const features = [
   { icon: Layers, title: '可组合', text: '每个内部节点都开放部件属性。' },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   icon: { color: '_accentText', fontSize: '1.25rem' },
   price: { fontSize: '1.75rem', fontWeight: '_semibold' },
 });

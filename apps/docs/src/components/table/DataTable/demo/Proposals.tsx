@@ -2,7 +2,7 @@
 // 详情是表格里跨全部列的一行，横向滚动时贴着可见区域的起始边；expandedRows 可以双向绑定
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   createStatusMap,
   DataTable,
@@ -83,7 +83,7 @@ const proposals: Proposal[] = [
   },
 ];
 
-const styles = stylex.create({ file: { color: '_textMuted' } });
+const styles = css.create({ file: { color: '_textMuted' } });
 
 const columns: DataTableColumn<Proposal>[] = [
   { key: 'code', header: '建议编号', width: 132, sticky: 'start' },

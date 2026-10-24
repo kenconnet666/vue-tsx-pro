@@ -1,7 +1,7 @@
 // 基础组件演示页在真实浏览器里的行为与无障碍检查；每加一批组件就在这里补对应的检查
 import axe from 'axe-core';
 import { afterTransitions, themeTransition } from '@vue-tsx-pro/ui';
-import { durations } from '@vue-tsx-pro/ui/tokens.stylex';
+import { durations } from '@vue-tsx-pro/ui/tokens';
 import { animate, cubicBezier } from 'animejs';
 import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -127,7 +127,7 @@ it('无障碍：演示页 axe-core 没有违规（亮色、暗色、纸张）', 
 });
 
 describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
-  it('选项读的是真实主题的取值（StyleX 生成的 CSS 变量）', () => {
+  it('选项读的是真实主题的取值（主题的 CSS 变量）', () => {
     const { duration, ease } = themeTransition($('.ball'));
     expect(duration).toBe(200);
     expect((ease as (t: number) => number)(0.4)).toBeCloseTo(cubicBezier(0.2, 0, 0, 1)(0.4));

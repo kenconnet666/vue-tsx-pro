@@ -2,7 +2,7 @@
  * 表格的外观：静态 Table 与 DataTable、TreeDataTable 共用的选项（密度、样式、斑马纹）与样式表。
  * 单独一个模块：只用静态表格时不连带打包 DataTable 的视图（虚拟滚动、勾选、排序……）。
  */
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { t } from '../config/theme/tokens';
 
 /** 表格的密度（行高与字号） */
@@ -34,7 +34,7 @@ export interface DataTableOptions {
 }
 
 /** Table、DataTable、TreeDataTable 的样式：root、surface、ghost、table、sm、md 等 */
-export const dataTableStyles = stylex.create({
+export const dataTableStyles = css.create({
   // contain: inline-size：宽表格不会把外层的 grid / flex 容器撑宽（它们的最小宽度默认等于内容宽度），
   // 宽度只由所在的容器决定，放不下的部分在表格里横向滚动
   // 也是容器查询的容器：详情的内容用 100cqi 限宽到视口，横向滚动时贴着起始边
@@ -243,7 +243,7 @@ export const dataTableStyles = stylex.create({
 });
 
 /** Table、DataTable、TreeDataTable 的样式：单元格按密度的上下内边距 */
-export const dataTableDensityStyles = stylex.create({
+export const dataTableDensityStyles = css.create({
   compact: { paddingBlock: '_xs' },
   standard: { paddingBlock: '_sm' },
   comfortable: { paddingBlock: '_md' },

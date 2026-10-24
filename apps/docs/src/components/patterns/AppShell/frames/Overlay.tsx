@@ -2,7 +2,7 @@
 // 顶栏里品牌格之后是“打开”，抽屉顶上一格是“收起”；拖动抽屉的结束边调整宽度，双击回到初始宽度。数据是虚构的
 import { Boxes, Gauge, Server, Settings, Siren, Wrench } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Avatar,
   createStatusMap,
@@ -59,7 +59,7 @@ const columns: DataTableColumn<Machine>[] = [
   { key: 'nextService', header: '下次保养', width: 120, sortable: true },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   brand: { display: 'inline-flex', alignItems: 'center', gap: '_sm', fontWeight: '_semibold' },
   brandMark: { color: '_accentText' },
   header: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
@@ -88,13 +88,13 @@ export default _component(() => {
       sidebarWidth={_bind(width)}
       propsMain={{ sx: styles.main }}
       brand={
-        <span {...stylex.attrs(styles.brand)}>
+        <span {...css.attrs(styles.brand)}>
           <Icon icon={Boxes} sx={styles.brandMark} />
           设备运维中心
         </span>
       }
       header={
-        <div {...stylex.attrs(styles.header)}>
+        <div {...css.attrs(styles.header)}>
           <Tabs value={_bind(line)} sx={styles.tabs}>
             <TabList aria-label="产线">
               <Tab value="all">全部产线</Tab>
@@ -132,7 +132,7 @@ export default _component(() => {
         </NavList>
       }
     >
-      <div {...stylex.attrs(styles.page)}>
+      <div {...css.attrs(styles.page)}>
         <Small tone="muted">
           导航{open ? '打开' : '收起'}，宽度 {width} px：表格的宽度不随侧栏变化
         </Small>

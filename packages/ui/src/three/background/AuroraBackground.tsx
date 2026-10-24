@@ -11,7 +11,7 @@
  * 部件：Root（div）、Canvas（ThreeCanvas）、Content（div）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import { colors } from '../../config/theme/tokens.stylex';
+import { colors } from '../../config/theme/tokens';
 import type { EffectProps } from '../core/EffectSurface';
 import { ShaderBackground } from './ShaderBackground';
 

@@ -149,7 +149,7 @@ const form = useForm({ name: '' });
 - `watch(x, cb)` 直接传响应式变量（对象会悄悄监听旧对象）
 - 组件函数体里直接读 `children`
 - `_derived` 里修改状态（派生值要是纯计算）；`_untrack(() => x)`（参数直接写变量）
-- token 写法写在 `stylex.create` 之外、或写进模板字符串（以前会静默留下 `'_lg'` 字符串）
+- token 写法写在 `css.create` 之外、或写进模板字符串（以前会静默留下 `'_lg'` 字符串）
 - Vue 指令 `v-model`、`v-show`、`v-html` 等，给出 TSX 写法
 
 **警告**：组件函数体里直接读 prop 或状态，只拿到当前值、之后不会更新。有意只要初始值时写 `_untrack(x)`。

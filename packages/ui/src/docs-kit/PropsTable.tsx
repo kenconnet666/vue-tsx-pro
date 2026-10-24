@@ -7,7 +7,7 @@
  * 必填的 prop 名称旁标“必填”，能 `_bind` 双向绑定的标“可绑定”（文案见 messages.ts）。外层是静态表格 Table，窄屏时横向滚动。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { Code } from '../base/Code';
@@ -86,7 +86,7 @@ export interface PropsTableProps extends TableProps {
 }
 
 /** PropsTable 的样式：name、nameCode、head、descriptionCell、type、muted、description、values、valueTerm、valueText */
-export const propsTableStyles = stylex.create({
+export const propsTableStyles = css.create({
   name: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_xs' },
   // 属性名不断开：Code 默认可以在任意位置换行，表格会按它把名称列压到最窄
   nameCode: { whiteSpace: 'nowrap' },

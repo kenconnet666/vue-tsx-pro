@@ -26,7 +26,7 @@
  */
 import { Check, ChevronRight, Minus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { onScopeDispose, useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
@@ -167,7 +167,7 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
 }
 
 /** Tree 的样式：root、sizer、row、item、toggle、checkbox、label 等 */
-export const treeStyles = stylex.create({
+export const treeStyles = css.create({
   // 树元素就是 ScrollArea 的视口（浮层滚动条）；焦点与 aria-activedescendant 在它上面
   root: {
     position: 'relative',
@@ -218,7 +218,7 @@ export const treeStyles = stylex.create({
 
 // 缩进与位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Tree 的样式：indent（缩进）、y、height */
-export const treeDynamicStyles = stylex.create({
+export const treeDynamicStyles = css.create({
   indent: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),
@@ -680,9 +680,7 @@ export const Tree = _component(
           data-active={state.active || undefined}
           data-disabled={disabled || undefined}
         >
-          {row.depth > 0 && (
-            <span {...stylex.attrs(treeDynamicStyles.indent(row.depth * indent))} />
-          )}
+          {row.depth > 0 && <span {...css.attrs(treeDynamicStyles.indent(row.depth * indent))} />}
           <span
             {...mergeAttrs<'span'>({ sx: treeStyles.toggle }, propsToggle, {
               'aria-hidden': true,
@@ -725,7 +723,7 @@ export const Tree = _component(
               )}
             >
               <span
-                {...stylex.attrs(
+                {...css.attrs(
                   choiceStyles.input,
                   focusRingStyles.tight,
                   checkboxStyles.box,
@@ -751,7 +749,7 @@ export const Tree = _component(
           {dropZone && dropZone !== 'inside' && (
             <span
               aria-hidden="true"
-              {...stylex.attrs(
+              {...css.attrs(
                 treeStyles.dropLine,
                 dropZone === 'before' ? treeStyles.dropBefore : treeStyles.dropAfter,
                 treeDynamicStyles.lineStart(row.depth * indent + 1.75),
@@ -820,7 +818,7 @@ export const Tree = _component(
           <div
             ref={_toRef(sizer)}
             role="presentation"
-            {...stylex.attrs(treeStyles.sizer, treeDynamicStyles.height(virtual.total))}
+            {...css.attrs(treeStyles.sizer, treeDynamicStyles.height(virtual.total))}
           >
             {virtual.items.map((item) => (
               <div

@@ -1,6 +1,6 @@
 // 左列表、右详情：拖分隔条调比例（双击回到初始比例），右栏可以收起；比例记在浏览器里
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Flex, Small, Splitter, Text, usePersistentState } from '@vue-tsx-pro/ui';
 
 const mails = [
@@ -14,7 +14,7 @@ const mails = [
   { id: 3, from: '商务', title: '洽谈超 60 天提醒', body: '整流罩支架的商务洽谈已经 62 天。' },
 ];
 
-const styles = stylex.create({
+const styles = css.create({
   frame: {
     height: '16rem',
     borderWidth: '_xs',
@@ -60,7 +60,7 @@ export default _component(() => {
           <button
             key={item.id}
             type="button"
-            {...stylex.attrs(styles.item, item.id === current && styles.active)}
+            {...css.attrs(styles.item, item.id === current && styles.active)}
             onClick={() => (current = item.id)}
           >
             <Text size="sm" weight="semibold">

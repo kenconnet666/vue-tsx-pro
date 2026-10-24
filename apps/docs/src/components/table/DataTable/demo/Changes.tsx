@@ -1,7 +1,7 @@
 // 零件更改对比：更改前、更改后各一组表头（件号、单价、单机数量），单机降本 = 更改前金额 − 更改后金额，底部合计。
 // 分组标题跨组里的几列，没分组的列跨两行；组与相邻的列之间有竖线
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { DataTable, type DataTableColumn, type DataTableColumnGroup } from '@vue-tsx-pro/ui';
 import Decimal from 'decimal.js';
 
@@ -39,7 +39,7 @@ const saving = (change: Change) => amount(change.before).minus(amount(change.aft
 const MONEY = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
 
 // 更改后反而更贵：单机降本是负数，标红
-const styles = stylex.create({ increase: { color: '_dangerText' } });
+const styles = css.create({ increase: { color: '_dangerText' } });
 
 const columns: DataTableColumn<Change>[] = [
   { key: 'no', header: '序号', width: 64, sticky: 'start' },

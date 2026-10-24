@@ -1,7 +1,7 @@
 // 机票的出发日期：今天之前不能选；旁边是选中日期的说明与几个快捷日期
 import { PlaneTakeoff } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   Calendar,
@@ -17,7 +17,7 @@ import {
   useFormat,
 } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({ side: { flexGrow: 1, flexBasis: '16rem' } });
+const styles = css.create({ side: { flexGrow: 1, flexBasis: '16rem' } });
 
 export default _component(() => {
   const format = useFormat();

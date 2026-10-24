@@ -7,7 +7,7 @@
  *   <FlexList direction="column" gap="xs">…</FlexList>   列表：去掉圆点并保留列表语义（有序的用 FlexOrderedList）
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
@@ -86,7 +86,7 @@ export interface FlexOptions {
 }
 
 /** Flex 的样式：root、inline、row、column、row-reverse、column-reverse、wrap、grow 等 */
-export const flexStyles = stylex.create({
+export const flexStyles = css.create({
   root: { display: 'flex' },
   inline: { display: 'inline-flex' },
   row: { flexDirection: 'row' },
@@ -100,7 +100,7 @@ export const flexStyles = stylex.create({
 });
 
 /** Flex 的样式：start、center、end、stretch、baseline */
-export const flexAlignStyles = stylex.create({
+export const flexAlignStyles = css.create({
   start: { alignItems: 'flex-start' },
   center: { alignItems: 'center' },
   end: { alignItems: 'flex-end' },
@@ -109,7 +109,7 @@ export const flexAlignStyles = stylex.create({
 });
 
 /** Flex 的样式：start、center、end、between、around、evenly */
-export const flexJustifyStyles = stylex.create({
+export const flexJustifyStyles = css.create({
   start: { justifyContent: 'flex-start' },
   center: { justifyContent: 'center' },
   end: { justifyContent: 'flex-end' },

@@ -9,7 +9,7 @@
  *   - 不支持的（Safari）加 inert：收起的内容不能被 Tab 聚焦，读屏也读不到
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLazyContent } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -34,7 +34,7 @@ const supportsUntilFound =
   typeof HTMLElement !== 'undefined' && 'onbeforematch' in HTMLElement.prototype;
 
 /** Collapse 的样式：root、open、content */
-export const collapseStyles = stylex.create({
+export const collapseStyles = css.create({
   root: {
     display: 'grid',
     gridTemplateRows: '0fr',

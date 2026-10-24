@@ -1,6 +1,6 @@
 import { CreditCard, MapPin, PackageCheck, ShoppingCart } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button, Card, Flex, Paragraph, Steps, type StepItem } from '@vue-tsx-pro/ui';
 
 // satisfies 而不是标注类型：title 保持字符串，下面拼进句子里
@@ -11,7 +11,7 @@ const items = [
   { title: '完成', icon: PackageCheck },
 ] satisfies StepItem[];
 
-const styles = stylex.create({ body: { minHeight: '4rem' } });
+const styles = css.create({ body: { minHeight: '4rem' } });
 
 export default _component(() => {
   let step = _state(1);

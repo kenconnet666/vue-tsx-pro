@@ -2,7 +2,7 @@
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
-import { colors } from '../../config/theme/tokens.stylex';
+import { colors } from '../../config/theme/tokens';
 import { mount } from '../../utils/.test/mount';
 import { AreaChart } from '../AreaChart';
 import { BarChart } from '../BarChart';

@@ -8,7 +8,7 @@
 - **进度**：联合降本管理 2026-10-24 清空为空项目、待重做，按 [ROADMAP.md](ROADMAP.md) 的阶段 0–8 做组件库。阶段 0（整理）已完成：分层与 `pnpm layers:check`、
   子路径只在 exports 登记、patterns / workflow / effects / theme-customize 子路径、删掉 SlideVerify、PageHeader、Checklist、
   WorkflowTimeline 并进 Timeline、对话框的 onConfirm、Drawer 与页面组合的文档页重做。阶段 1 进行中：仓库已只用 TypeScript 7.1。
-- **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
+- **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的组件库（运行时样式，写法像 StyleX）。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。编译是一次解析、两遍遍历、一次生成（`compiler/compile.ts`）。
 - **ui 包**：分基础设施、核心（主入口）、扩展（子路径）三层，见 [COMPONENTS.md](COMPONENTS.md) §7；各批的设计与取舍见 §10：
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、List / OrderedList、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton、ButtonGroup）、Badge / StatusBadge、Indicator、Tag、StatusDot
@@ -93,10 +93,10 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 
 **tsx 包**（`packages/tsx/src`）：
 
-- `compiler/`：Babel 8。`compile.ts` 是一个文件的完整编译（解析一次、两遍遍历、生成一次：符文、token、StyleX → Vue JSX、去类型），Vite 预设与演练场共用；符文转换五步，见 `compiler/index.ts` 开头。`tokens.ts` 把 `stylex.create` 里的 `'_xs'` 换成 token 变量。
+- `compiler/`：Babel 8。`compile.ts` 是一个文件的完整编译（解析一次、两遍遍历、生成一次：样式绑定与热更新、符文 → Vue JSX、去类型），Vite 预设与演练场共用；符文转换五步，见 `compiler/index.ts` 开头。token 短写 `'_xs'` 在运行时由样式引擎换成变量（`styles/tokens.ts`）。
 - `runtime/`：`_component`、prop 访问器（没写过的 prop 用只读的 `readonlyProp`，`children` 用不缓存的 `childrenProp`）、`overridable`、`snapshot`、`untrack`、`effect`、`createContext`。
-- `vite/`：预设是一个编译插件（`module.ts` 调用 `compile`，`hmr.ts` 登记组件热更新，`pool.ts` 把编译分到工作线程，`cache.ts` 是开发服务器的磁盘编译缓存）加 `stylex.ts`（收集规则合成 CSS）。仓库内专用的 `workspace.ts`（`workspaceSource()`）按源码解析各包，开发与测试时把桶文件的具名导入改成直接导入所在模块，热更新不经过桶文件。
-- `stylex/`：带中文注释的 StyleX 类型入口（`styles.ts` 由 `scripts/css-docs` 生成，不要手改）。
+- `vite/`：预设是一个编译插件（`module.ts` 调用 `compile`，`hmr.ts` 登记组件热更新，`pool.ts` 把编译分到工作线程，`cache.ts` 是开发服务器的磁盘编译缓存）加 `css.ts`（收集规则合成 CSS）。仓库内专用的 `workspace.ts`（`workspaceSource()`）按源码解析各包，开发与测试时把桶文件的具名导入改成直接导入所在模块，热更新不经过桶文件。
+- `styles/`：运行时样式引擎与带中文注释的类型（`documented.ts` 由 `scripts/css-docs` 生成，不要手改），设计见 STYLE-ENGINE.md。
 
 **ui 包**（`packages/ui/src`）的基础设施都在 `utils/` 与 `config/`。写新组件前先看有没有现成的：
 
@@ -128,7 +128,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 | 加载指示防闪烁                                                 | `useDelayedLoading(() => loading, { delay, minDuration })`；aria-busy 仍按真实的 loading                                                                                                                                                       |
 | 动效、视口与系统设置                                           | `useReducedMotion()`、`useMediaQuery('(min-width: 64rem)')`                                                                                                                                                                                    |
 | 滚动到哪一节、粘性顶栏的高度                                   | `useScrollSpy(…)`、`collectHeadings(container)`；`layoutVars.stickyOffset`                                                                                                                                                                     |
-| 子元素按祖先的悬停、聚焦取样式                                 | `stylex.when.ancestor(':hover', marker)`，标记在 `utils/style/markers.stylex.ts`                                                                                                                                                               |
+| 子元素按祖先的悬停、聚焦取样式                                 | `css.when.ancestor(':hover', marker)`，标记在 `utils/style/markers.ts`                                                                                                                                                                         |
 | 键盘快捷键、可编辑元素判断                                     | `useHotkeys(() => ({ 'Mod+K': open, 'G I': inbox }), { target })`（序列键、区域、模态打开时只认对话框里的按键）、`formatHotkey`、`isEditable`（`utils/dom/hotkeys.ts`）                                                                        |
 | 事件监听（随作用域移除、目标是 getter 时换绑）                 | `useEventListener(target, type, listener)`（`utils/dom/event-listener.ts`）；别再手写 add / removeEventListener                                                                                                                                |
 | 请求、列表查询、远程选项                                       | `useHttp()`（createUi / Provider 的 `http`）、`useRequest(fetcher, { params })`、`useTableQuery(fetcher, { filters, syncToUrl })`；选择类控件的 `load(搜索词, signal)`                                                                         |
@@ -154,7 +154,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 | 内容（插槽、标题、说明、错误）有没有东西                       | `hasContent(node)`：null、undefined、空字符串与布尔（`cond && …` 不成立时的 false）都算没有（`utils/props.ts`）                                                                                                                                |
 | 聚焦一个控件（它本身不能聚焦时聚焦里面第一个能聚焦的）         | `focusControl(element)`（`utils/dom/focus.ts`）：表单提交不通过时用                                                                                                                                                                            |
 | 输入法组合中的按键                                             | `isComposingKey(event)`（`utils/dom/hotkeys.ts`）：列表键盘操作、快捷键、TagsInput 都先排除它                                                                                                                                                  |
-| 命令式创建的元素写上样式                                       | `applyStyleAttrs(element, stylex.attrs(…))`（`utils/props.ts`）；`stylex.attrs` 的 style 是对象，不是字符串                                                                                                                                    |
+| 命令式创建的元素写上样式                                       | `applyStyleAttrs(element, css.attrs(…))`（`utils/props.ts`）；`css.attrs` 的 style 是对象，不是字符串                                                                                                                                          |
 | 能读成数字的文字（接口给的 '19.90'）                           | `isNumericText(value)`（`utils/data/numeric.ts`）：DataTable 的格式化、合计、数字列的排序用它                                                                                                                                                  |
 | 站内链接的地址与点击                                           | `useRouterLink()`：`href(href)` 渲染路由解析后的真实地址（带 base、hash 模式的 #），`onClick(event, href)` 把原文交给路由                                                                                                                      |
 | 主题导出为设计令牌（Figma 变量）                               | `themeDesignTokens(theme)`、`elementDesignTokens(element)`（`@vue-tsx-pro/ui/theme-customize`）：DTCG JSON                                                                                                                                     |
@@ -175,7 +175,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 3. **状态写成 data 属性**：`data-state`、`data-disabled`、`data-loading`、`data-orientation` 等。
 4. **图标一律用 `@lucide/icons` + `Icon`**。不手画 SVG，不用字符代替图标。
 5. **主题 tokens 不写裸值**。值整个是一个 token 写字符串（`'_md'`、`'_space.lg'`），`width`、`height` 里的短写取的是 `sizes`；值里夹着 token 写模板字符串里的 `t.组.名`（`` `calc(-1 * ${t.space.xs})` ``），`t` 从 `@vue-tsx-pro/ui` 导入。
-6. **类型与注释**：`mergeProps` 写类型参数；`stylex.create` 的结果不标类型；所有导出、导出接口的每个字段都写 JSDoc；枚举类取值写成带注释接口的 `keyof`。
+6. **类型与注释**：`mergeProps` 写类型参数；`css.create` 的结果不标类型；所有导出、导出接口的每个字段都写 JSDoc；枚举类取值写成带注释接口的 `keyof`。
 7. **配置接入**：有外观档位的组件登记到 `ComponentDefaults`；可点击的组件接入波纹；链接用路由适配。
 8. **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`；文档与示例在 `apps/docs`。
 9. **对比度**：所有内置主题满足 WCAG AA 4.5:1；文档站的 axe 测试跑亮色与暗色。
@@ -221,11 +221,10 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 | 和原生属性重名的 prop 出怪事                                   | 组件 props 继承了元素属性（`hidden`、`onToggle`、`color`、`onLoad`、`onError`、`onSelect` 都踩过）：改名或放进受管属性                                           |
 | `_bind(get, set)` 编译报错                                     | get 必须是行内的函数字面量；只要初始值时用 `_untrack`                                                                                                            |
 | 子组件显示旧内容                                               | `children` 用不缓存的 `childrenProp`（编译器生成）                                                                                                               |
-| 覆盖样式不生效（如 `borderColor`）                             | StyleX 里长属性总是优先于简写，要写同一个长属性                                                                                                                  |
+| 覆盖样式不生效（如 `borderColor`）                             | 长属性总是优先于简写（引擎把简写排在前面），要写同一个长属性                                                                                                     |
 | `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉。从右到左里混排的中文与数字会被双向算法重排，示例里别让数字打头                                            |
 | `width: '_lg'` 变成 64rem                                      | 短写按属性找组，`width` 属于 sizes；间距写 `'_space.lg'`                                                                                                         |
 | 构建报 TS2883（类型无法命名）                                  | 推导出的类型引用了没导出的类型：泛型组件需要的类型要从入口导出                                                                                                   |
-| StyleX 报 “Referenced constant is not defined”                 | 导入的样式直接传给 `stylex.attrs` 会编译期求值失败；经 `mergeAttrs({ sx })` 传                                                                                   |
 | axe 在暗色主题报对比度不足，背景是 #ffffff                     | 元素溢出到视口外，axe 取不到背景；容器里的滚动元素外层要 `minWidth: 0`                                                                                           |
 | Firefox / WebKit 里 axe 测试超时、过渡测试偶发失败             | 等动画结束要设上限并跳过无限循环的动画；WebKit 不一定在下一帧建好过渡，用 `expect.poll`                                                                          |
 | “ResizeObserver loop completed with undelivered notifications” | 不要在 ResizeObserver 回调里同步改布局                                                                                                                           |

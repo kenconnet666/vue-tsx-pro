@@ -2,7 +2,7 @@
 // 停在吸顶表头之下；找不到时 scrollToRow 返回 false
 import { LocateFixed } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Button,
   createStatusMap,
@@ -47,7 +47,7 @@ const columns: DataTableColumn<Task>[] = [
   { key: 'status', header: '状态', width: 104, statuses },
 ];
 
-const styles = stylex.create({ table: { maxHeight: '22rem' }, field: { width: '14rem' } });
+const styles = css.create({ table: { maxHeight: '22rem' }, field: { width: '14rem' } });
 
 export default _component(() => {
   let table: DataTableHandle | undefined;

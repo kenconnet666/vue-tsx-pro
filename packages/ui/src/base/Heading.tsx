@@ -11,14 +11,13 @@
  */
 import { Hash } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { space } from '../config/theme/tokens.stylex';
-import { headingMarker } from '../utils/style/markers.stylex';
-import { layoutVars } from '../utils/style/vars.stylex';
+import { space, t } from '../config/theme/tokens';
+import { headingMarker } from '../utils/style/markers';
+import { layoutVars } from '../utils/style/vars';
 import { focusRingStyles } from '../utils/style/styles';
 import { Icon } from './Icon';
 import {
@@ -35,7 +34,6 @@ import {
   type TextWrap,
   type Tone,
 } from '../utils/style/typography';
-import { t } from '../config/theme/tokens';
 
 /** 标题组件可用的标签 */
 export type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -64,7 +62,7 @@ export interface HeadingProps extends PartProps<HeadingTag> {
 }
 
 /** H1–H6 的样式：root、xxl、xxxl */
-export const headingStyles = stylex.create({
+export const headingStyles = css.create({
   // 字体取 fonts.heading：默认同正文，纸张主题换成衬线
   root: {
     margin: 0,
@@ -88,7 +86,7 @@ export const headingStyles = stylex.create({
     opacity: {
       default: 0,
       ':focus-visible': 1,
-      [stylex.when.ancestor(':hover', headingMarker)]: 1,
+      [css.when.ancestor(':hover', headingMarker)]: 1,
     },
     transition: `opacity ${t.durations.sm} ${t.easings.standard}`,
   },
@@ -123,8 +121,7 @@ export function createHeading(tag: HeadingTag, defaultSize: FontSize) {
           truncate && textStyles.truncate,
           lineClamp != null && [textStyles.clamp, lineClampStyles.lines(lineClamp)],
           wrap && textWrapStyles[wrap],
-          // 标记不是样式，类型上不在 StyleXStyles 里；StyleX 把它当作一个 class 合并
-          anchor && (headingMarker as unknown as StyleXStyles),
+          anchor && headingMarker,
         ];
         const id = rest.id;
         return (

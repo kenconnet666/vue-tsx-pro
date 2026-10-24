@@ -8,7 +8,7 @@
  * 外层结构（单位、加载与空状态、给读屏的数据表）同其他图表（见 ChartFrame）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -62,7 +62,7 @@ export interface FunnelChartProps extends PartProps<'div', 'role' | 'aria-busy'>
 }
 
 /** FunnelChart 的样式：list、row、label、track、bar、value、rate… */
-export const funnelChartStyles = stylex.create({
+export const funnelChartStyles = css.create({
   // 名称 | 居中的横条 | 数值：三列由整个列表定宽，各行用 subgrid 对齐
   list: {
     display: 'grid',
@@ -107,7 +107,7 @@ export const funnelChartStyles = stylex.create({
 
 // 横条的宽度与颜色随数据变：单独一个 create（见 COMPONENTS.md §4）
 /** FunnelChart 的样式：barSize、skeletonWidth */
-export const funnelChartDynamicStyles = stylex.create({
+export const funnelChartDynamicStyles = css.create({
   barSize: (width: string, color: string) => ({ width, backgroundColor: color }),
   skeletonWidth: (width: string) => ({ width }),
 });
@@ -150,7 +150,7 @@ export const FunnelChart = _component(
         onLegendToggle={() => {}}
         loading={loading}
         skeleton={
-          <div aria-hidden="true" {...stylex.attrs(funnelChartStyles.skeleton)}>
+          <div aria-hidden="true" {...css.attrs(funnelChartStyles.skeleton)}>
             {SKELETON_WIDTHS.map((width) => (
               <Skeleton
                 key={width}
@@ -178,27 +178,22 @@ export const FunnelChart = _component(
           })),
         }}
         plot={
-          <div {...stylex.attrs(funnelChartStyles.list)}>
+          <div {...css.attrs(funnelChartStyles.list)}>
             {stages.map((stage, index) => [
               index > 0 && rates && (
-                <div key={`rate-${index}`} {...stylex.attrs(funnelChartStyles.rate)}>
-                  <span {...stylex.attrs(funnelChartStyles.rateText)}>
-                    ↓ {rate(index, index - 1)}
-                  </span>
+                <div key={`rate-${index}`} {...css.attrs(funnelChartStyles.rate)}>
+                  <span {...css.attrs(funnelChartStyles.rateText)}>↓ {rate(index, index - 1)}</span>
                 </div>
               ),
               <div
                 key={`stage-${index}`}
-                {...stylex.attrs(
-                  funnelChartStyles.row,
-                  onItemClick && funnelChartStyles.rowClickable,
-                )}
+                {...css.attrs(funnelChartStyles.row, onItemClick && funnelChartStyles.rowClickable)}
                 onClick={onItemClick && (() => onItemClick(stage, index))}
               >
-                <span {...stylex.attrs(funnelChartStyles.label)}>{stage.label}</span>
-                <span {...stylex.attrs(funnelChartStyles.track)}>
+                <span {...css.attrs(funnelChartStyles.label)}>{stage.label}</span>
+                <span {...css.attrs(funnelChartStyles.track)}>
                   <span
-                    {...stylex.attrs(
+                    {...css.attrs(
                       funnelChartStyles.bar,
                       funnelChartDynamicStyles.barSize(
                         max ? `${(numbers[index]! / max) * 100}%` : '0%',
@@ -207,12 +202,12 @@ export const FunnelChart = _component(
                     )}
                   />
                 </span>
-                <span {...stylex.attrs(funnelChartStyles.value)}>{valueText(stage)}</span>
+                <span {...css.attrs(funnelChartStyles.value)}>{valueText(stage)}</span>
               </div>,
             ])}
             {rates && stages.length > 1 && (
-              <div {...stylex.attrs(funnelChartStyles.rate)}>
-                <span {...stylex.attrs(funnelChartStyles.overall)}>
+              <div {...css.attrs(funnelChartStyles.rate)}>
+                <span {...css.attrs(funnelChartStyles.overall)}>
                   {lang.chartOverallRate} {rate(stages.length - 1, 0)}
                 </span>
               </div>

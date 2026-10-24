@@ -19,7 +19,7 @@
  */
 import { Check } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, watch, withMemo, type VNode, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
@@ -114,7 +114,7 @@ type Row<T> =
 const SKELETON_ROWS = 4;
 
 /** Listbox 的样式：root、scroll、sizer、row、groupLabel、content 等 */
-export const listboxStyles = stylex.create({
+export const listboxStyles = css.create({
   root: { position: 'relative', padding: '_xs', lineHeight: '_normal', outlineStyle: 'none' },
   // 自己是滚动容器时（单独使用的 Listbox）：限制高度，滚动不传给页面
   scroll: { maxHeight: '20em', overflowY: 'auto', overscrollBehavior: 'contain' },
@@ -138,7 +138,7 @@ export const listboxStyles = stylex.create({
 
 // 行的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Listbox 的样式：y、height、width */
-export const listboxPositionStyles = stylex.create({
+export const listboxPositionStyles = css.create({
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),
   width: (percent: string) => ({ width: percent }),
@@ -318,8 +318,8 @@ export const ListboxView = _component(
           ) : (
             <>
               {option.icon && <Icon icon={option.icon} />}
-              <span {...stylex.attrs(listboxStyles.content)}>
-                <span {...stylex.attrs(itemStyles.label)}>{option.label}</span>
+              <span {...css.attrs(listboxStyles.content)}>
+                <span {...css.attrs(itemStyles.label)}>{option.label}</span>
                 {option.description && (
                   <Text size="sm" sx={listboxStyles.description}>
                     {option.description}
@@ -370,7 +370,7 @@ export const ListboxView = _component(
         <div
           ref={_toRef(sizer)}
           role="presentation"
-          {...stylex.attrs(listboxStyles.sizer, listboxPositionStyles.height(virtual.total))}
+          {...css.attrs(listboxStyles.sizer, listboxPositionStyles.height(virtual.total))}
         >
           {virtual.items.map((item) => {
             const row = rows[item.index]!;
@@ -380,7 +380,7 @@ export const ListboxView = _component(
                 ref={virtual.measure}
                 data-index={item.index}
                 role="presentation"
-                {...stylex.attrs(listboxStyles.row, listboxPositionStyles.y(item.start))}
+                {...css.attrs(listboxStyles.row, listboxPositionStyles.y(item.start))}
               >
                 {row.kind === 'group' ? (
                   <Text
@@ -419,7 +419,7 @@ export const ListboxView = _component(
       );
       const body = [
         indicator.value && rows.length > 0 && (
-          <div aria-hidden="true" {...stylex.attrs(listboxStyles.progress)}>
+          <div aria-hidden="true" {...css.attrs(listboxStyles.progress)}>
             <Progress size="xs" aria-label={lang.loading} />
           </div>
         ),

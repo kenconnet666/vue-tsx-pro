@@ -1,7 +1,7 @@
 // 运行时样式引擎：片段惰性、一次 attrs 合成一个类、合并语义、缓存命中返回同一个对象、动态样式只改变量、
 // 变量组、主题、标记、token 短写与关键帧；配方按档位组合缓存
 import { describe, expect, it } from 'vitest';
-import { recipe } from '../src/stylex/recipe';
+import { recipe } from '../src/styles/recipe';
 import {
   attrs,
   create,
@@ -12,7 +12,7 @@ import {
   keyframes,
   styleText,
   when,
-} from '../src/stylex/runtime';
+} from '../src/styles/runtime';
 
 /** 某个类的全部规则文本（每条规则压成一行） */
 const rulesOf = (className: string | undefined) =>
@@ -201,7 +201,7 @@ describe('recipe', () => {
 describe('bind', () => {
   it('属性第一次变化时组件重新渲染一次换成变量版的类，之后参数变化只改元素上的变量', async () => {
     const { createApp, h, nextTick, ref } = await import('vue');
-    const { bind } = await import('../src/stylex/runtime');
+    const { bind } = await import('../src/styles/runtime');
     const styles = create({ bar: (width: number) => ({ width, height: 6 }) });
     const width = ref(10);
     let renders = 0;
@@ -234,7 +234,7 @@ describe('bind', () => {
 describe('bind 与重新渲染', () => {
   it('组件因为别的状态重新渲染时复用元素上的 effect，不会越积越多；卸载后不再更新', async () => {
     const { createApp, h, nextTick, ref } = await import('vue');
-    const { bind } = await import('../src/stylex/runtime');
+    const { bind } = await import('../src/styles/runtime');
     const styles = create({ bar: (width: number) => ({ width }) });
     // 先让 width 转成变量：之后挂上的元素一开始就是变量版的类，不会因为换类重新渲染
     attrs(styles.bar(1));
@@ -278,7 +278,7 @@ describe('bind 与重新渲染', () => {
 describe('bind 与同一元素上的其他动态样式', () => {
   it('绑定的 effect 只改自己的变量，不动同一元素上普通动态样式写的变量', async () => {
     const { createApp, h, nextTick, ref } = await import('vue');
-    const { bind } = await import('../src/stylex/runtime');
+    const { bind } = await import('../src/styles/runtime');
     const styles = create({
       bottom: (value: string) => ({ bottom: value }),
       height: (value: string) => ({ height: value }),
@@ -309,7 +309,7 @@ describe('bind 与同一元素上的其他动态样式', () => {
 
 describe('hotStyles（热更新原地生效）', () => {
   it('同一 id 再登记：返回旧对象，已用过的组合类按原类名改写规则', async () => {
-    const { hotStyles } = await import('../src/stylex/runtime');
+    const { hotStyles } = await import('../src/styles/runtime');
     const first = hotStyles('hot.ts#styles', create({ box: { color: 'rgb(1, 1, 1)' } }));
     const name = attrs(first.box).class!;
     const second = hotStyles(
@@ -324,7 +324,7 @@ describe('hotStyles（热更新原地生效）', () => {
   });
 
   it('配方：同一段的片段不变、声明换新；新加的档位可用', async () => {
-    const { hotStyles } = await import('../src/stylex/runtime');
+    const { hotStyles } = await import('../src/styles/runtime');
     const make = (color: string) =>
       recipe({
         parts: ['root'],
@@ -351,7 +351,7 @@ describe('hotStyles（热更新原地生效）', () => {
 describe('稳定的绑定', () => {
   it('重新渲染时只换读取函数、不重跑 effect；之后参数变化照样只改变量', async () => {
     const { createApp, h, nextTick, ref } = await import('vue');
-    const { bind } = await import('../src/stylex/runtime');
+    const { bind } = await import('../src/styles/runtime');
     const styles = create({ bar: (width: number) => ({ width }) });
     attrs(styles.bar(1));
     attrs(styles.bar(2));

@@ -125,7 +125,7 @@ function cacheAttributeValue(
  * 函数：闭包读的都是活的绑定，只要不用到这次渲染才有的变量就能缓存。
  * 数组、对象：直接读到的值（不在函数里的）必须是不会变的常量；符文的值会变，不能缓存。
  * 常量本身不变，它里面的属性却可能变（组合式函数返回的 store、导入的 _state 对象）：
- * 读它的成员、把它展开都不缓存，只有 stylex.create 的样式表与命名空间导入的一层成员例外
+ * 读它的成员、把它展开都不缓存，只有 css.create 的样式表与命名空间导入的一层成员例外
  */
 function isCacheable(
   value: NodePath<t.Expression>,
@@ -168,7 +168,7 @@ function readsInside(reference: NodePath) {
 const STYLE_FACTORIES = new Set(['create', 'createTheme', 'defineVars', 'defineMarker', 'recipe']);
 
 /**
- * 读的成员不会变：同一文件里 stylex.create（等）的结果；命名空间导入（import * as icons）的一层成员。
+ * 读的成员不会变：同一文件里 css.create（等）的结果；命名空间导入（import * as icons）的一层成员。
  * 再往下一层（icons.X.y）、或别的常量的成员都可能会变
  */
 function isFrozenRead(reference: NodePath) {

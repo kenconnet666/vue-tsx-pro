@@ -1,7 +1,7 @@
 // 部门预算：arcWidth 为 0 画成饼图；金额是 Decimal，提示框与数据表按原值显示；颜色按语义单独给
 import { _component } from '@vue-tsx-pro/tsx';
 import { DonutChart } from '@vue-tsx-pro/ui/charts';
-import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
+import { colors } from '@vue-tsx-pro/ui/tokens';
 import Decimal from 'decimal.js';
 
 const budget = [

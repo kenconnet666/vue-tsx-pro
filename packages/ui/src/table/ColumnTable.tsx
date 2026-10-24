@@ -11,7 +11,7 @@
  * 部件：Root（Table）、HeaderCell（th）、Row（tr）、Cell（td）、SummaryCell（表尾的 td）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -67,7 +67,7 @@ export interface ColumnTableProps<T> extends Omit<TableProps, 'children'> {
 }
 
 /** ColumnTable 的样式：merged */
-export const columnTableStyles = stylex.create({
+export const columnTableStyles = css.create({
   // 合并的格跨了几行：内容垂直居中，下边线照常
   merged: { verticalAlign: 'middle' },
 });

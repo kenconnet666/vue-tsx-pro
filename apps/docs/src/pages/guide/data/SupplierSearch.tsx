@@ -2,7 +2,7 @@
 // 重新请求时上一页的结果留着、变淡；出错时显示原因与重试。http 由外层的 Provider 给出（应用里写在 createUi 里）
 import { Search, TriangleAlert } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Alert,
   Button,
@@ -25,7 +25,7 @@ import { failure, type SupplierPage } from './fake-api';
 
 const PAGE_SIZE = 6;
 
-const styles = stylex.create({
+const styles = css.create({
   search: { width: '16rem' },
   // 重新请求时旧结果留着、变淡，表格不闪成空的
   table: { transitionProperty: 'opacity', transitionDuration: '_md' },

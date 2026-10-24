@@ -8,7 +8,7 @@
  * 尺寸用 em，随字号缩放。部件：Root（span）、Card（卡片）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { themeAttrs, type Theme } from '../config/theme/theme';
@@ -22,7 +22,7 @@ export interface ThemeThumbnailProps extends PartProps<'span', 'aria-hidden'> {
 }
 
 /** ThemeThumbnail 的样式：root、card、title、line、button */
-export const themeThumbnailStyles = stylex.create({
+export const themeThumbnailStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'flex-end',
@@ -76,9 +76,9 @@ export const ThemeThumbnail = _component(({ theme, propsCard, ...rest }: ThemeTh
         data-theme={name}
       >
         <span {...mergeAttrs<'span'>({ sx: themeThumbnailStyles.card }, propsCard)}>
-          <span {...stylex.attrs(themeThumbnailStyles.title)} />
-          <span {...stylex.attrs(themeThumbnailStyles.line)} />
-          <span {...stylex.attrs(themeThumbnailStyles.button)} />
+          <span {...css.attrs(themeThumbnailStyles.title)} />
+          <span {...css.attrs(themeThumbnailStyles.line)} />
+          <span {...css.attrs(themeThumbnailStyles.button)} />
         </span>
       </span>
     );

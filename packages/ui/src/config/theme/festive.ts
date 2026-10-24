@@ -1,14 +1,14 @@
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { paperFonts } from './paper';
 import { defaultRadii } from './light';
 import type { Theme } from './theme';
-import { colors, shadows } from './tokens.stylex';
+import { colors, shadows } from './tokens';
 
 /**
  * 喜庆主题的颜色：暖白宣纸色的页面、中国红的品牌色 `#c8102e`、金色点缀（高亮、图表）。中性色按 slate 各级亮度换成暖色相（oklch 45°），品牌色取 Radix red 色阶；危险色换成 ruby，和品牌色区分开。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
-export const festiveColors = stylex.createTheme(colors, {
+export const festiveColors = css.createTheme(colors, {
   background: '#fffaf6',
   surface: '#fffaf6',
   surfaceMuted: '#fff7f3',
@@ -86,7 +86,7 @@ export const festiveColors = stylex.createTheme(colors, {
 });
 
 /** 喜庆主题的阴影：带主色调的投影 */
-export const festiveShadows = stylex.createTheme(shadows, {
+export const festiveShadows = css.createTheme(shadows, {
   none: 'none',
   xs: '0 1px 1px 0 rgba(110, 20, 10, 0.04), 0 2px 1px -1px rgba(110, 20, 10, 0.05), 0 1px 3px 0 rgba(110, 20, 10, 0.05)',
   sm: '0 2px 3px -2px rgba(110, 20, 10, 0.06), 0 3px 12px -4px rgba(110, 20, 10, 0.1), 0 4px 16px -8px rgba(110, 20, 10, 0.1)',

@@ -1,9 +1,9 @@
 import { CloudUpload, Download, Lock, Trash2 } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import { ButtonBase, Card, Icon, Small, Spinner, type IconData } from '@vue-tsx-pro/ui';
 
-const styles = stylex.create({
+const styles = css.create({
   list: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   row: {
     display: 'grid',
@@ -50,7 +50,7 @@ export default _component(() => {
 
   return () => (
     <Card padding="xs">
-      <div {...stylex.attrs(styles.list)}>
+      <div {...css.attrs(styles.list)}>
         <ButtonBase sx={styles.row}>
           {content({
             icon: Download,

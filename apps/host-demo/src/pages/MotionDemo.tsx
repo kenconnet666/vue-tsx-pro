@@ -1,6 +1,6 @@
 // /base 页上的动效演示：Anime.js 取主题时长的弹簧、数字滚动（AnimatedNumber）、描线（Result）、布局动画（useLayoutAnimation）
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   AnimatedNumber,
   Button,
@@ -13,7 +13,7 @@ import {
 } from '@vue-tsx-pro/ui';
 import { animate } from 'animejs';
 
-const styles = stylex.create({
+const styles = css.create({
   section: { display: 'grid', gap: '_md' },
   track: {
     // 小球的宽度加上移动的距离
@@ -73,13 +73,13 @@ export const MotionDemo = _component(() => {
   const removeFirst = () => void layout.change(() => (chips = chips.slice(1)));
 
   return () => (
-    <div {...stylex.attrs(styles.section)}>
+    <div {...css.attrs(styles.section)}>
       <Flex gap="md" align="center" wrap>
         <Button variant="outline" class="move-ball" onClick={move}>
           移动
         </Button>
-        <div {...stylex.attrs(styles.track)}>
-          <div class="ball" ref={_toRef(ball)} {...stylex.attrs(styles.ball)} />
+        <div {...css.attrs(styles.track)}>
+          <div class="ball" ref={_toRef(ball)} {...css.attrs(styles.ball)} />
         </div>
       </Flex>
       <Flex gap="md" align="center" wrap>
@@ -109,7 +109,7 @@ export const MotionDemo = _component(() => {
       </Flex>
       <Flex gap="sm" wrap class="layout-demo" ref={_toRef(chipList)}>
         {chips.map((chip) => (
-          <span key={chip} data-chip {...stylex.attrs(styles.chip)}>
+          <span key={chip} data-chip {...css.attrs(styles.chip)}>
             {chip}
           </span>
         ))}
