@@ -1,6 +1,6 @@
 /**
  * 流程（子路径 `@vue-tsx-pro/ui/workflow`）：流程定义（BPMN 2.0 的子集，纯 JSON）与校验、排布、后端流程实例的类型，
- * 以及流程图 FlowDiagram、流转记录 WorkflowTimeline、审批按钮 ApprovalActions。
+ * 以及流程图 FlowDiagram、流程设计器 FlowDesigner、流转记录 WorkflowTimeline、审批按钮 ApprovalActions。
  *
  *   import { FlowDiagram, validateProcess, type ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
  *
@@ -8,6 +8,7 @@
  * 文案自带中英文（messages.ts），别的语言在 Lang.messages.workflow 里补。
  */
 export { ApprovalActions, type ApprovalActionsProps, type ApprovalInput } from './ApprovalActions';
+export { FlowDesigner, flowDesignerStyles, type FlowDesignerProps } from './FlowDesigner';
 export {
   FlowDiagram,
   flowDiagramStyles,

@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { Code, Link } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/FlowDiagramProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -32,7 +32,9 @@ export default _component(() => () => (
         </Example>
         <Example id="designer" title="点选与校验" demo={Designer}>
           <Code>selectable</Code> 让节点成为按钮，<Code>selected</Code> 双向绑定选中的节点；
-          <Code>validateProcess</Code> 查出的问题传给 <Code>problems</Code>，有问题的节点标红。
+          <Code>validateProcess</Code> 查出的问题传给 <Code>problems</Code>
+          ，有问题的节点标红。现成的设计器（属性面板里改处理人、时限、超时，校验后发布）见{' '}
+          <Link href="/components/flow-designer">FlowDesigner</Link>。
         </Example>
         <Example id="compact" title="紧凑尺寸、缩放与节点说明" demo={Compact}>
           <Code>size="sm"</Code> 与 <Code>fit</Code>（放不下时按比例缩小到容器宽）放进卡片、侧栏；

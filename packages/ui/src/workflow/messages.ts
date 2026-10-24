@@ -1,5 +1,5 @@
 /**
- * 流程组件（FlowDiagram、WorkflowTimeline、ApprovalActions）自带的文案：中文与英文各一份，
+ * 流程组件（FlowDiagram、FlowDesigner、WorkflowTimeline、ApprovalActions）自带的文案：中文与英文各一份，
  * 可以在 createUi 的 lang.messages.workflow 里按字段改写（见 config/lang/messages.ts）
  */
 import type { MessageTable } from '../config/lang/messages';
@@ -76,6 +76,61 @@ export interface WorkflowMessages {
   readonly attachmentsRequired: string;
   /** 处理按钮的说明（一组按钮的 aria-label） */
   readonly approvalActions: string;
+  /** 设计器：还没选节点时属性面板的提示 */
+  readonly designerPickNode: string;
+  /** 设计器：属性面板的名称 */
+  readonly designerProperties: string;
+  /** 设计器的字段：名称、泳道、处理人、时限、超时、超时提醒、处理结果、说明、结束的结果、终止流程 */
+  readonly designerFields: {
+    readonly name: string;
+    readonly lane: string;
+    readonly assignee: string;
+    readonly due: string;
+    readonly overdue: string;
+    readonly remind: string;
+    readonly outcomes: string;
+    readonly description: string;
+    readonly result: string;
+    readonly terminate: string;
+  };
+  /** 设计器：处理人的方式 */
+  readonly designerAssignees: {
+    readonly lane: string;
+    readonly pool: string;
+    readonly user: string;
+    readonly initiator: string;
+    readonly sameAs: string;
+  };
+  /** 设计器：处理人取流程变量时的说明：`('team')` → “取流程变量 team” */
+  readonly designerVariable: (name: string) => string;
+  /** 设计器：时限的单位 */
+  readonly designerDueUnits: { readonly workdays: string; readonly days: string };
+  /** 设计器：时限留空的说明，默认“不填没有时限” */
+  readonly designerNoDue: string;
+  /** 设计器：超时只标出、不自动处理 */
+  readonly designerOverdueMark: string;
+  /** 设计器：超时自动按某个处理结果完成：`('同意')` → “自动按“同意”处理” */
+  readonly designerOverdueAuto: (outcome: string) => string;
+  /** 设计器：终止流程的说明 */
+  readonly designerTerminateHint: string;
+  /** 设计器：校验结果：`(1, 2)` → “1 个错误、2 个警告”；都为 0 时“校验通过” */
+  readonly designerProblems: (errors: number, warnings: number) => string;
+  /** 设计器：问题列表的名称 */
+  readonly designerProblemList: string;
+  /** 设计器：发布按钮：`(4)` → “发布 v4” */
+  readonly designerPublish: (version: number) => string;
+  /** 设计器：比上一个版本有改动，默认“有未发布的修改” */
+  readonly designerDirty: string;
+  /** 设计器：没有改动时发布按钮的说明，默认“和 v3 一样，没有要发布的修改” */
+  readonly designerClean: (version: number) => string;
+  /** 设计器：有错误时发布按钮的说明 */
+  readonly designerPublishBlocked: string;
+  /** 设计器：发布失败 */
+  readonly designerPublishFailed: string;
+  /** 设计器：节点的类型 */
+  readonly designerNodeTypes: Readonly<
+    Record<'start' | 'end' | 'task' | 'exclusive' | 'parallel', string>
+  >;
 }
 
 /** 流程组件的文案表 */
@@ -110,6 +165,52 @@ export const workflowMessages: MessageTable<WorkflowMessages> = {
     commentRequired: '写明意见',
     attachmentsRequired: '要上传附件',
     approvalActions: '处理',
+    designerPickNode: '点流程图上的一个节点，在这里改它的属性',
+    designerProperties: '节点属性',
+    designerFields: {
+      name: '名称',
+      lane: '泳道',
+      assignee: '处理人',
+      due: '时限',
+      overdue: '超时',
+      remind: '超时提醒处理人与岗位负责人',
+      outcomes: '处理结果',
+      description: '说明',
+      result: '结束的结果',
+      terminate: '终止流程',
+    },
+    designerAssignees: {
+      lane: '泳道的岗位收件箱',
+      pool: '指定岗位收件箱',
+      user: '指定的人',
+      initiator: '发起人',
+      sameAs: '同另一节点的处理人',
+    },
+    designerVariable: (name) => `取流程变量 ${name}`,
+    designerDueUnits: { workdays: '工作日', days: '自然日' },
+    designerNoDue: '不填没有时限',
+    designerOverdueMark: '只标出超时',
+    designerOverdueAuto: (outcome) => `自动按“${outcome}”处理`,
+    designerTerminateHint: '到这里结束整个流程，并行的其他分支一起取消',
+    designerProblems: (errors, warnings) =>
+      errors + warnings === 0
+        ? '校验通过'
+        : [errors && `${errors} 个错误`, warnings && `${warnings} 个警告`]
+            .filter(Boolean)
+            .join('、'),
+    designerProblemList: '校验问题',
+    designerPublish: (version) => `发布 v${version}`,
+    designerDirty: '有未发布的修改',
+    designerClean: (version) => `和 v${version} 一样，没有要发布的修改`,
+    designerPublishBlocked: '有错误，改完才能发布',
+    designerPublishFailed: '发布失败，请重试',
+    designerNodeTypes: {
+      start: '开始',
+      end: '结束',
+      task: '人工节点',
+      exclusive: '排他网关',
+      parallel: '并行网关',
+    },
   },
   'en-US': {
     diagram: 'flowchart',
@@ -142,5 +243,54 @@ export const workflowMessages: MessageTable<WorkflowMessages> = {
     commentRequired: 'A comment is required',
     attachmentsRequired: 'Attach at least one file',
     approvalActions: 'Actions',
+    designerPickNode: 'Select a node in the flowchart to edit it here',
+    designerProperties: 'Node properties',
+    designerFields: {
+      name: 'Name',
+      lane: 'Lane',
+      assignee: 'Assignee',
+      due: 'Due in',
+      overdue: 'When overdue',
+      remind: 'Remind the assignee and the lead when overdue',
+      outcomes: 'Outcomes',
+      description: 'Description',
+      result: 'Result',
+      terminate: 'Terminate the process',
+    },
+    designerAssignees: {
+      lane: "The lane's inbox",
+      pool: 'A specific inbox',
+      user: 'A specific person',
+      initiator: 'The initiator',
+      sameAs: 'Same as another node',
+    },
+    designerVariable: (name) => `From process variable ${name}`,
+    designerDueUnits: { workdays: 'Workdays', days: 'Days' },
+    designerNoDue: 'Leave empty for no deadline',
+    designerOverdueMark: 'Only mark as overdue',
+    designerOverdueAuto: (outcome) => `Complete as “${outcome}”`,
+    designerTerminateHint: 'Ends the whole process and cancels parallel branches',
+    designerProblems: (errors, warnings) =>
+      errors + warnings === 0
+        ? 'No problems'
+        : [
+            errors && `${errors} error${errors === 1 ? '' : 's'}`,
+            warnings && `${warnings} warning${warnings === 1 ? '' : 's'}`,
+          ]
+            .filter(Boolean)
+            .join(', '),
+    designerProblemList: 'Problems',
+    designerPublish: (version) => `Publish v${version}`,
+    designerDirty: 'Unpublished changes',
+    designerClean: (version) => `Same as v${version}, nothing to publish`,
+    designerPublishBlocked: 'Fix the errors before publishing',
+    designerPublishFailed: 'Could not publish, please try again',
+    designerNodeTypes: {
+      start: 'Start',
+      end: 'End',
+      task: 'User task',
+      exclusive: 'Exclusive gateway',
+      parallel: 'Parallel gateway',
+    },
   },
 };
