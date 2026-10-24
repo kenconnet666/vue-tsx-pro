@@ -280,9 +280,12 @@ export {
 } from './display/AvatarGroup';
 export {
   Card,
+  cardEffectDynamicStyles,
+  cardEffectStyles,
   cardPaddingStyles,
   cardStyles,
   cardVariantStyles,
+  type CardEffects,
   type CardManaged,
   type CardOptions,
   type CardProps,
@@ -342,6 +345,14 @@ export {
   type ItemListItemProps,
   type ItemListProps,
 } from './display/ItemList';
+export {
+  Marquee,
+  marqueeDynamicStyles,
+  marqueeStyles,
+  marqueeTrailStyles,
+  type MarqueeDirections,
+  type MarqueeProps,
+} from './display/Marquee';
 export {
   ProportionBar,
   proportionBarDynamicStyles,

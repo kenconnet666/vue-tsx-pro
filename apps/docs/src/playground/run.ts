@@ -29,7 +29,6 @@ const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@vue-tsx-pro/ui/charts': () => import('@vue-tsx-pro/ui/charts'),
   '@vue-tsx-pro/ui/patterns': () => import('@vue-tsx-pro/ui/patterns'),
   '@vue-tsx-pro/ui/workflow': () => import('@vue-tsx-pro/ui/workflow'),
-  '@vue-tsx-pro/ui/effects': () => import('@vue-tsx-pro/ui/effects'),
   '@vue-tsx-pro/ui/theme-customize': () => import('@vue-tsx-pro/ui/theme-customize'),
   '@vue-tsx-pro/ui/xlsx': () => import('@vue-tsx-pro/ui/xlsx'),
   '@vue-tsx-pro/ui/three': () => import('@vue-tsx-pro/ui/three'),

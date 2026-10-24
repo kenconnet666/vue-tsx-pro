@@ -1,8 +1,7 @@
 import { Cloud, Coffee, Gem, Leaf, Mountain, Rocket, Waves, Zap } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Badge, Flex, Icon, Text } from '@vue-tsx-pro/ui';
-import { Marquee } from '@vue-tsx-pro/ui/effects';
+import { Badge, Flex, Icon, Marquee, Text } from '@vue-tsx-pro/ui';
 
 const partners = [
   { icon: Cloud, name: '云杉科技' },

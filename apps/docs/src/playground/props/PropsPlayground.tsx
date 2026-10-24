@@ -8,7 +8,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { breakpoints } from '@vue-tsx-pro/ui/tokens.stylex';
 import * as ui from '@vue-tsx-pro/ui';
-import * as effects from '@vue-tsx-pro/ui/effects';
 import * as patterns from '@vue-tsx-pro/ui/patterns';
 import * as workflow from '@vue-tsx-pro/ui/workflow';
 import {
@@ -85,7 +84,6 @@ const MODULES: Readonly<Record<string, Record<string, unknown>>> = {
   '@vue-tsx-pro/ui': ui,
   '@vue-tsx-pro/ui/patterns': patterns,
   '@vue-tsx-pro/ui/workflow': workflow,
-  '@vue-tsx-pro/ui/effects': effects,
 };
 
 interface Entry {

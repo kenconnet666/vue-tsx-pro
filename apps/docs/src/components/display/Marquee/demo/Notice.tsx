@@ -1,8 +1,7 @@
 import { Megaphone, Pause, Play } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Card, Flex, Icon, IconButton, Text } from '@vue-tsx-pro/ui';
-import { Marquee } from '@vue-tsx-pro/ui/effects';
+import { Card, Flex, Icon, IconButton, Marquee, Text } from '@vue-tsx-pro/ui';
 
 const notices = [
   '10 月 25 日 02:00–04:00 系统维护，期间暂停下单',

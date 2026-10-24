@@ -805,7 +805,7 @@ apps/docs/src/components/base/Button/
 
 ### 10.22 3D 与视觉效果（已完成）
 
-子路径 `@vue-tsx-pro/ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的效果（TiltCard、SpotlightCard、BorderBeam）在主入口。
+子路径 `@vue-tsx-pro/ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的卡片效果是 Card 的 `effect`（tilt、spotlight、beam），跑马灯 Marquee 在主入口（展示）。
 
 | 项       | 做法                                                                                                                                                                                                            |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

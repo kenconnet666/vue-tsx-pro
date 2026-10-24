@@ -99,6 +99,7 @@ export {
   createChartInstances,
   uniqueHighlightFilter,
   useChartValueText,
+  usePlotSeen,
   type ChartFrameParts,
   type ChartFrameProps,
   type ChartLegendItem,

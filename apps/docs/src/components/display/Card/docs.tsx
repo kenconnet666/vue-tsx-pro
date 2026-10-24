@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Effects from './demo/Effects.tsx?demo';
 import Extra from './demo/Extra.tsx?demo';
 import Loading from './demo/Loading.tsx?demo';
 import Sections from './demo/Sections.tsx?demo';
@@ -12,7 +13,8 @@ import Variants from './demo/Variants.tsx?demo';
 
 export const meta = {
   title: 'Card 卡片',
-  description: '把一组相关内容放在一块表面上：四种样式，可选的页头与页脚，正文加载中换成骨架。',
+  description:
+    '把一组相关内容放在一块表面上：四种样式，可选的页头与页脚，正文加载中换成骨架，倾斜、聚光、流光三种装饰效果。',
   order: 0,
 };
 
@@ -39,6 +41,12 @@ export default _component(() => () => (
           <Code>padding</Code> 取间距档位；<Code>loading</Code>{' '}
           时正文换成扫光的骨架（SkeletonText），
           <Code>propsSkeleton</Code> 改行数。
+        </Example>
+        <Example id="effects" title="装饰效果" demo={Effects}>
+          <Code>effect</Code> 是纯 CSS 的装饰：<Code>tilt</Code> 跟着指针倾斜、带高光，
+          <Code>spotlight</Code> 一团光跟着指针、靠近边框时点亮边框，<Code>beam</Code>{' '}
+          一段光沿边框流动。光层对读屏隐藏、不接收指针；减少动态效果时不倾斜、流光不动。有效果时外面多一层定位用的
+          div，未声明的属性落在它上面；<Code>propsEffect</Code> 落在光层上。
         </Example>
       </ExampleColumn>
     </Examples>

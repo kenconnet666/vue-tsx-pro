@@ -62,6 +62,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 对话框的 onConfirm（Dialog、Drawer、AlertDialog 共用“取消 / 确认”、等待与失败留着）：AlertDialog、useFormDialog、
       ApprovalActions 改用它（取代原计划的“ApprovalActions 改用 useFormDialog”：业务字段与附件放不进 useFormDialog 的字符串字段）
 - [x] `@vue-tsx-pro/ui/effects`：BorderBeam、SpotlightCard、TiltCard、Marquee；删除 SlideVerify
+      （2026-10-24 取消这个子路径：三个卡片效果并进 Card 的 `effect`，Marquee 挪到主入口的展示类）
 - [x] ThemeCustomizer、ThemeThumbnail 与主题定制的工具收成 `theme-customize/` 目录；ColorSwatch 进 `/docs-kit`
 - [x] StatusDot 挪到 base；`Modal.tsx` 改名 `ModalCore.tsx`；内容判断统一用 hasContent（36 处 `!= null`）。
       决定保留：Collapsible 不并入 Collapse（一个是动效原件、一个是 Disclosure 模式，合并后 Collapse 有两种根结构）；
