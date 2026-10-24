@@ -42,6 +42,14 @@ export {
 } from './SankeyChart';
 export { ScatterChart, type ScatterChartProps } from './ScatterChart';
 export {
+  TimelineChart,
+  type TimelineChartItem,
+  type TimelineChartMarker,
+  type TimelineChartProps,
+  type TimelineChartSeries,
+  type TimelineTime,
+} from './TimelineChart';
+export {
   WaterfallChart,
   waterfallRows,
   type WaterfallChartProps,

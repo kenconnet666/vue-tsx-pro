@@ -113,6 +113,18 @@ export interface Lang {
   readonly checklistIconsLabel: (parts: readonly string[]) => string;
   /** 清单的汇总：`(2, 3)` → “已完成 2 / 3” */
   readonly checklistSummary: (done: number, total: number) => string;
+  /** 时间条图的数据表：系列的列名，默认“系列” */
+  readonly chartSeries: string;
+  /** 时间条图：开始的列名与提示框，默认“开始” */
+  readonly chartStart: string;
+  /** 时间条图：结束的列名与提示框，默认“结束” */
+  readonly chartEnd: string;
+  /** 时间条图的数据表：时长的列名，默认“时长” */
+  readonly chartDuration: string;
+  /** 时间条图：今天的标线，默认“今天” */
+  readonly chartToday: string;
+  /** 时间条图：一段的天数：`(12)` → “12 天” */
+  readonly chartDays: (days: number) => string;
   /** 迷你图给读屏的概括：`(12, '40', '360', '40', '360')` → “12 个值，从 40 到 360，最低 40，最高 360” */
   readonly sparklineSummary: (
     count: number,

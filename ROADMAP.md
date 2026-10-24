@@ -135,7 +135,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 ## 阶段 7：图表
 
 - [x] 标注、组合图（柱 + 线，双轴）、100% 堆叠
-- [ ] 热力图 / PivotTable、Gauge、Sparkline（Stat 里用）、TimelineChart
+- [x] 热力图 / PivotTable、Gauge、Sparkline（Stat 里用）、TimelineChart
 - [ ] 雷达、矩形树图、缩放、导出图片与数据；地图（TopoJSON、Leaflet）排在最后
 - [ ] 浏览器测试补上 Area、Scatter、Donut、Sankey、Chord、Funnel、Graph、Waterfall；部件属性的示例
 
