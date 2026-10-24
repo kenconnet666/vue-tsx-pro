@@ -187,8 +187,8 @@ export interface XYChartContext<T extends object> {
   y: (series: ResolvedSeries<T>) => (row: T) => number | undefined;
   /** 取一个跨渲染保留的组件实例：第一次调用时创建；Unovis 组件保留实例，更新时才有过渡动画 */
   instance: <C>(key: string, create: () => C) => C;
-  /** 点图形下钻的事件（写了 itemSelector 时）：并进组件的 events；没有 onItemClick 时是空的 */
-  events: Record<string, Record<string, (row: T) => void>>;
+  /** 点图形下钻的事件（写了 itemSelector 时）：并进组件的 events；没有 onItemClick 时是空的。参数同 Unovis：图形的数据、事件、位置 */
+  events: Record<string, Record<string, (row: T, event: Event, index: number) => void>>;
 }
 
 /** 一种图：画哪些组件，以及与坐标轴、十字线有关的差别 */
@@ -651,7 +651,12 @@ export const XYChart = _component(
             kind.itemSelector && onItemClick
               ? {
                   [kind.itemSelector]: {
-                    click: (row: T) => onItemClick(row, data.indexOf(row)),
+                    // 分组柱给的是原来的行；堆叠柱给的是拼出来的副本，第三个参数才是行的位置
+                    click: (row: T, _event: Event, index: number) => {
+                      const position = data.indexOf(row);
+                      const at = position >= 0 ? position : index;
+                      onItemClick(data[at] ?? row, at);
+                    },
                   },
                 }
               : {},
