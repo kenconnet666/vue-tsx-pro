@@ -88,6 +88,18 @@ export interface Lang {
   readonly lightboxCounter: (index: number, total: number) => string;
   /** 描述列表里复制一项的值的按钮：`('订单号')` → “复制订单号” */
   readonly descriptionsCopy: (label: string) => string;
+  /** 字段对比的表头：字段、原值、新值、变化 */
+  readonly fieldCompareHeaders: readonly [string, string, string, string];
+  /** 字段对比里“从 A 改为 B”的“改为”（给读屏；画面上是箭头），默认“改为” */
+  readonly fieldCompareTo: string;
+  /** 字段对比没有改动时，默认“没有改动” */
+  readonly fieldCompareNone: string;
+  /** 时间线收起时展开其余几项的按钮：`(5)` → “展开其余 5 条” */
+  readonly timelineShowMore: (count: number) => string;
+  /** 时间线收起其余各项的按钮，默认“收起” */
+  readonly timelineShowLess: string;
+  /** 时间线一项里展开详情的按钮，默认“查看详情” */
+  readonly timelineDetails: string;
   /** 清空输入的按钮，默认“清空” */
   readonly clear: string;
   /** 加载中提示，默认“加载中” */

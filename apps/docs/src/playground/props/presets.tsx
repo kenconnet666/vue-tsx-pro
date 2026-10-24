@@ -230,6 +230,26 @@ export const PRESETS: Record<string, Preset> = {
       },
     },
   },
+  FieldCompare: {
+    fixed: {
+      fields: {
+        value: [
+          { key: 'price', header: '单价', type: 'currency', better: 'lower' },
+          { key: 'quantity', header: '数量' },
+          { key: 'supplier', header: '供应商' },
+        ],
+        code: `{[\n  { key: 'price', header: '单价', type: 'currency', better: 'lower' },\n  { key: 'quantity', header: '数量' },\n  { key: 'supplier', header: '供应商' },\n]}`,
+      },
+      before: {
+        value: { price: 120, quantity: 10, supplier: '华辰' },
+        code: `{{ price: 120, quantity: 10, supplier: '华辰' }}`,
+      },
+      after: {
+        value: { price: 108, quantity: 12, supplier: '恒远' },
+        code: `{{ price: 108, quantity: 12, supplier: '恒远' }}`,
+      },
+    },
+  },
   Marquee: {
     imports: ['Tag'],
     children: {

@@ -300,6 +300,13 @@ export {
 } from './display/Descriptions';
 export { Ellipsis, ellipsisStyles, type EllipsisProps } from './display/Ellipsis';
 export {
+  FieldCompare,
+  fieldCompareStyles,
+  type CompareField,
+  type FieldCompareProps,
+  type FieldCompareRow,
+} from './display/FieldCompare';
+export {
   Image,
   imageDynamicStyles,
   imageFitStyles,
