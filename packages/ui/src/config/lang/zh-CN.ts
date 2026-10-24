@@ -23,6 +23,7 @@ export const zhCN: Lang = {
   lightboxPrevious: '上一张',
   lightboxNext: '下一张',
   lightboxCounter: (index, total) => `第 ${index} 张，共 ${total} 张`,
+  descriptionsCopy: (label) => `复制${label}`,
   clear: '清空',
   loading: '加载中',
   remove: '移除',

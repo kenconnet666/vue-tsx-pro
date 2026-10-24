@@ -23,6 +23,7 @@ export const enUS: Lang = {
   lightboxPrevious: 'Previous image',
   lightboxNext: 'Next image',
   lightboxCounter: (index, total) => `${index} of ${total}`,
+  descriptionsCopy: (label) => `Copy ${label}`,
   clear: 'Clear',
   loading: 'Loading',
   remove: 'Remove',

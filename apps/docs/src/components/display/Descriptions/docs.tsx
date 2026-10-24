@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Basic from './demo/Basic.tsx?demo';
 import Layouts from './demo/Layouts.tsx?demo';
+import Supplier from './demo/Supplier.tsx?demo';
 
 export const meta = {
   title: 'Descriptions 描述列表',
@@ -31,6 +32,13 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <Example id="auto" title="自适应栏数与复制：供应商档案" demo={Supplier}>
+      <Code>columns="auto"</Code> 时按容器的宽度定栏数：每栏不窄于 <Code>minItemWidth</Code>（默认
+      240px），最多 <Code>maxColumns</Code>（默认 4）栏，同一份详情放在抽屉、整页里各自合适；跨列（
+      <Code>span</Code>）按算出的栏数封顶。项写 <Code>copyable</Code> 时值后面有复制按钮（名称“复制
+      + 标签”），复制的是值的文字，值是图标、链接这类内容或要复制完整写法时用 <Code>copyText</Code>{' '}
+      指定。
+    </Example>
     <ApiReference api={api} />
   </DocPage>
 ));

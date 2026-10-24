@@ -86,6 +86,8 @@ export interface Lang {
   readonly lightboxNext: string;
   /** 图片预览的位置：`(2, 5)` → “第 2 张，共 5 张” */
   readonly lightboxCounter: (index: number, total: number) => string;
+  /** 描述列表里复制一项的值的按钮：`('订单号')` → “复制订单号” */
+  readonly descriptionsCopy: (label: string) => string;
   /** 清空输入的按钮，默认“清空” */
   readonly clear: string;
   /** 加载中提示，默认“加载中” */
