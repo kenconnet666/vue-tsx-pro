@@ -54,7 +54,8 @@
 
 ### 2.2 状态用 data 属性表达
 
-组件把状态写成主元素上的 data 属性，使用方用 `sx` 里的条件或宿主 CSS 选择器就能定制状态样式，不必等组件开新的 prop：
+组件把状态写成主元素上的 data 属性，使用方用 `sx` 里的条件或宿主 CSS 选择器就能定制状态样式，不必等组件开新的 prop。
+组件自己的状态样式也直接取 DOM 上的状态，不再写 `selected && styles.selected`：条件别名（`_selected`、`_disabled`、`_open`、`_checked`、`_expanded`、`_current`…，一个别名合并了原生、ARIA、data 几种写法，见 `packages/tsx/src/stylex/declarations.ts` 的 `CONDITIONS`）或属性选择器条件（`'[data-loading]': …`）。状态变化时只改属性、类名不变；只为样式加的布尔开关仍用条件样式（实测不更快，STYLE-ENGINE.md §9.1）。
 
 | 属性                            | 取值                                                            | 例                                            |
 | ------------------------------- | --------------------------------------------------------------- | --------------------------------------------- |
@@ -77,7 +78,7 @@
 
 | 属性                                                                                  | 规则                                                                                                                                                              |
 | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sx`                                                                                  | 内部在前、使用方在后；StyleX 后者覆盖前者，按 CSS 属性逐个生效                                                                                                    |
+| `sx`                                                                                  | 内部在前、使用方在后；后者覆盖前者：普通值整体替换该属性（连同它的条件值），条件对象按条件逐项合并（条件里的 `null` 表示这个条件不改）                            |
 | `class`                                                                               | 依次排列成数组交给 Vue 处理（可能是字符串、数组或对象）。只给宿主留后门（例如宿主用 Tailwind）；组件内部只用 `sx`                                                 |
 | 事件 `onXxx`                                                                          | **使用方先执行**；使用方调用了 `event.preventDefault()` 就跳过内部处理，可以完全接管交互；使用方传 `undefined` 不会盖掉内部的。组件不可用时先拿掉使用方的交互回调 |
 | `ref`                                                                                 | 内部与使用方都拿到元素                                                                                                                                            |
@@ -110,10 +111,11 @@
 
 ## 4. 样式
 
-- 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。
+- 样式由运行时引擎生成（`packages/tsx/src/stylex/`，设计与实测见 STYLE-ENGINE.md）：写法同 StyleX，一个元素一次 `stylex.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。`*.stylex.ts`（`defineVars`、`defineConsts`、`defineMarker`）仍由 StyleX 编译。
+- 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。部件 × 档位 × 默认值多的组件用 `stylex.recipe`（Button、Badge、Tabs）：一次调用拿到每个部件的样式，按档位组合缓存；色调用 `toneThemes[tone]` 换 `toneVars`，各样式只写一遍（`utils/style/tone-themes.ts`）。
 - 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；`stylex.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
-- tokens 有两种写法，Vite 预设编译时都换成 token 变量并补上 import（StyleX 只认从 `.stylex` 文件直接导入的变量）：值整个就是一个 token 时在 `stylex.create`、`stylex.keyframes` 里写字符串；值里夹着 token 时写模板字符串加 `t`：
+- tokens 有两种写法，Vite 预设编译时都换成 token 变量并补上 import（顺带校验 token 是否存在）：值整个就是一个 token 时在 `stylex.create`、`stylex.keyframes` 里写字符串；值里夹着 token 时写模板字符串加 `t`：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/stylex/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
   - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用；补全按属性接受的值类型列出相应的组（长度属性列出间距、尺寸、边框宽度、圆角等，颜色属性列出颜色），悬停显示 token 的说明；
   - 条件值、回退数组、伪元素、动态样式、覆盖变量（`[vars.x]: …`，只能写带组名的）里同样可用；token 不存在、表外属性用了短写时编译报错并指出位置（这些属性的类型接受任意字符串，类型上拦不住）；
@@ -124,6 +126,8 @@
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
 - 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `themeTransition(元素, { duration, ease, bounce })`；主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。已用在 Toast 的滑动、SlideVerify 的弹回与失败晃动。常见场景有现成的组合式函数（`utils/motion/`）：跟随数值用 `useTween` / `useSpring`，关闭后等离场再卸载用 `usePresence`，增删、换位置的平移用 `useLayoutAnimation`，跟着当前项走的指示条用 `useActiveIndicator`，加载指示防闪烁用 `useDelayedLoading`，装饰性动画看 `useReducedMotion`。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
 - 含动态样式函数的 `stylex.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
+- 动态样式：一直没变过的属性写进类里，值变过的属性转成元素上的 CSS 变量，之后值怎么变类都不变。JSX 里调用本文件顶层 `create` 的动态样式时，编译器自动改写成响应式绑定（`stylex.bind`）：参数变化只改元素上的变量，组件不重新渲染；参数只读 props、组件函数体里的状态、模块常量时最省（编译器标成稳定，组件因别的原因重渲染时不重新收集依赖）。从别的文件导入的动态样式要绑定时手写 `stylex.bind(styles.x, () => [参数])`。
+- 热更新：顶层的 `const 名 = stylex.create(…)` / `stylex.recipe(…)` 改了样式值时原地生效（按原类名改写规则，组件不重新渲染）；写在函数里的、`createTheme`、`keyframes` 以及样式以外的改动照常让导入方重新执行。
 - 标签名来自数据时 TSX 没有属性类型：要交互、要更新的用 Vue 的 `h()` 渲染；静态的（图标的 path、circle）拼成标记作 innerHTML（§2.6）。
 
 ### 4.1 加载状态：小组件用自己的动效，容器占位才用骨架
@@ -298,14 +302,14 @@ interface Lang {
 
 **StyleX 相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
 
-- StyleX 插件用 lightningcss 输出 CSS，默认按旧浏览器把 `:dir(rtl)` 降级成 `:lang(ar, he, …)`，镜像就只认 `lang` 属性；预设关掉了这项降级（`Features.DirSelector`），`dir="rtl"` 才生效。有方向的图标用 Icon 的 `flipInRtl`。
-- StyleX 里长属性总是优先于简写：`borderColor` 盖不过别处的 `borderBottomColor`，`gap: 0` 盖不过 `columnGap`，要覆盖就写同一个长属性。
+- 运行时引擎直接输出 `:dir(rtl)`（编译模式下预设关掉了 lightningcss 把它降级成 `:lang(…)` 的处理），`dir="rtl"` 就生效。有方向的图标用 Icon 的 `flipInRtl`。
+- 长属性总是优先于简写（运行时引擎在每条规则里把简写排在前面，同 StyleX）：`borderColor` 盖不过别处的 `borderBottomColor`，`gap: 0` 盖不过 `columnGap`，要覆盖就写同一个长属性。
 - 只画一两条边时，线型也写那几条边的长属性（`borderBlockStartStyle: 'solid'`）：写 `borderStyle: 'solid'` 会让没给宽度的边按默认的 medium（3px）画出来。
 
 - StyleX 只认以 `.stylex` 结尾的导入路径，所以 tokens 从 `@vue-tsx-pro/ui/tokens.stylex`、组件之间约定的变量（`layoutVars`、`shimmerVars`）从 `@vue-tsx-pro/ui/vars.stylex` 导入，主入口都不导出。
 - 变量名按“包名:文件路径”算哈希；预设用自定义模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
 - 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
-- `stylex.create` / `createTheme` 的结果必须赋给变量；只用一次的常量会被打包工具内联，使用方编译 dist 时报错，所以这类常量要么被多处使用，要么 `export`（`dark.ts` 就是这样）。`pnpm test:consumer` 会发现这类问题。
+- 编译模式时 `stylex.create` / `createTheme` 的结果必须赋给变量（使用方要编译 dist）；运行时模式下发布包不再由使用方编译，这条限制没有了。`pnpm test:consumer` 检查使用方能否正常构建与运行。
 
 **依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/src/utils/.test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
@@ -766,8 +770,8 @@ apps/docs/src/components/base/Button/
 
 | 环节      | 做法                                                                                                                                                                                                                                                                               |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 写法、StyleX、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                                       |
-| 样式      | StyleX 的规则从 metadata 取出转成 CSS，主线程写进一个 `<style data-playground>`；模块解析与站点构建用同一个规范名（`@vue-tsx-pro/ui:config/theme/tokens.stylex`），`'_md'` 与 `colors.accent` 编译出组件库的同一个 CSS 变量                                                        |
+| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 写法、动态样式的响应式绑定、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                         |
+| 样式      | 同站点走运行时样式：用户代码的 `stylex.create` 在页面上执行时由引擎生成规则，Worker 里不再跑 StyleX、不生成 CSS；`'_md'` 与 `colors.accent` 取的就是组件库的同一组 CSS 变量（模块表里给的 tokens）                                                                                 |
 | 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、stylex、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                                   |
 | Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）、StyleX 浏览器版要的 `@babel/standalone`（转交 parser/traverse/types）；依赖预构建见 vite.config.ts                                                           |
 | 编辑器    | `editor.ts`：CodeMirror 6 + TSX 语法（括号补全与匹配、折叠、搜索、撤销）；颜色、字体全取主题 token（`colors.code*` 与 Shiki 代码块同一套），明暗用 Compartment 切换。`CodeEditor.tsx` 挂载后才 `import()` 它，外壳复用输入框的 `controlShellStyles`；Tab 缩进，Esc 后 Tab 移出焦点 |
@@ -778,9 +782,9 @@ apps/docs/src/components/base/Button/
 
 **代价（生产构建，本机）**：Worker 2.2 MB，gzip 588 KB / brotli 413 KB，只在进入演练场时下载；页面块 66 KB（gzip，含整个组件库的模块表）；编辑器块 476 KB，gzip 160 KB，同样只在演练场加载。首次出效果约 0.8 s（含 Worker 下载、Babel 初始化与第一次编译约 135 ms），之后每次编译 5–15 ms，执行约 1 ms。
 
-**遇到的坑**：StyleX 浏览器版的运行时注入要插 import，它精简过的 Babel types 缺函数，改为从 metadata 取 CSS；它默认读 package.json 算调试路径，用 `debugFilePath` 跳过；替身源码改了要删 `node_modules/.vite` 重新预构建（替身被打进了预构建的依赖）。
+**遇到的坑**：（换运行时样式之前）StyleX 浏览器版的运行时注入要插 import，它精简过的 Babel types 缺函数，曾改为从 metadata 取 CSS；替身源码改了要删 `node_modules/.vite` 重新预构建（替身被打进了预构建的依赖）。
 
-**限制**：没有类型检查（`colors.typo` 这类写错的变量 StyleX 不报错，编译成一个不存在的 CSS 变量）；只能导入模块表里的包；单文件。预览与页面同一个线程、同一个文档：死循环会卡住页面，定时器与 Promise 里的错误不经过 Vue，只出现在控制台（真正的隔离要 iframe，代价是另加载一份 Vue 与组件库）。
+**限制**：没有类型检查（`colors.typo` 这类写错的变量不报错，取到 undefined）；只能导入模块表里的包；单文件。预览与页面同一个线程、同一个文档：死循环会卡住页面，定时器与 Promise 里的错误不经过 Vue，只出现在控制台（真正的隔离要 iframe，代价是另加载一份 Vue 与组件库）。
 
 **以后再定**：类型检查与补全（在 Worker 里跑 TypeScript，再多约 3 MB）；编辑器若别处也要用，再收进组件库（CodeMirror 作可选 peer 依赖，同 Shiki）。
 
