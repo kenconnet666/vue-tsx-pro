@@ -74,7 +74,7 @@ export const QuarterCalendar = _component(
     const chosen = () => (value == null ? null : typeof value === 'string' ? value : value.start);
     // 一开始显示已选（没有时是本季度）那一年，焦点也在它上面
     let focused = _state(chosen() ?? current());
-    let year = _state(yearOf(focused));
+    let year = _state(_untrack(yearOf(focused)));
     // 区间：选了开始、还没选结束时的开始，与悬停的季度（预览）
     let anchor = _state<string | null>(null);
     let hovered = _state<string | null>(null);

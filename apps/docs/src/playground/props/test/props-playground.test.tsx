@@ -33,6 +33,18 @@ it('默认值的源码转成值', () => {
   expect(parseDefault('defaultLabel()')).toBeUndefined();
 });
 
+it('字面量与基本类型的联合不当档位（Descriptions 的 columns）', () => {
+  const prop = {
+    name: 'columns',
+    kind: 'prop' as const,
+    type: "number | 'auto'",
+    required: false,
+    description: '',
+    values: [{ value: 'auto', description: '' }],
+  };
+  expect(controlOf(prop)).toBeUndefined();
+});
+
 it('生成的代码：和默认值相同的不写，图标写导入名', () => {
   const prop = (name: string, type: string, values?: string[]) => ({
     name,

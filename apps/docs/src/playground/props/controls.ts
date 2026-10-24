@@ -16,7 +16,8 @@ const SKIPPED = new Set(['id', 'name']);
 /** 属性 → 控件；没有合适控件时返回 undefined */
 export function controlOf(prop: ApiProp): Control | undefined {
   if (prop.kind !== 'prop' || SKIPPED.has(prop.name)) return undefined;
-  if (prop.values?.length) {
+  // 字面量与基本类型的联合（`number | 'auto'`）不是档位：分段按钮只能选出字面量，调不了数字
+  if (prop.values?.length && !hasPrimitiveMember(prop.type)) {
     return { kind: 'enum', prop, options: prop.values.map((item) => item.value) };
   }
   if (prop.type === 'boolean') return { kind: 'boolean', prop };
@@ -24,6 +25,11 @@ export function controlOf(prop: ApiProp): Control | undefined {
   if (prop.type === 'number' || prop.type === 'number | null') return { kind: 'number', prop };
   if (/^IconData\b/.test(prop.type)) return { kind: 'icon', prop };
   return undefined;
+}
+
+/** 联合类型里有 number、string 这类基本类型 */
+function hasPrimitiveMember(type: string): boolean {
+  return type.split('|').some((member) => /^(number|string|bigint|boolean)$/.test(member.trim()));
 }
 
 /** 默认值的源码（`'solid'`、`false`、`0.5`）→ 值；表达式（变量、调用）读不出时返回 undefined */
