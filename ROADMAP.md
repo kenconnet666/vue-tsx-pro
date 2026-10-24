@@ -20,7 +20,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 现状
 
-- tsx 包：符文编译器、运行时、Vite 预设、StyleX 类型入口完整；整个仓库只用 TypeScript 7.1 beta（类型检查、声明生成、脚本的 API、语言服务）。
+- tsx 包：符文编译器、运行时、Vite 预设、样式引擎完整；整个仓库只用 TypeScript 7.1 beta（类型检查、声明生成、脚本的 API、语言服务）。
 - ui 包：约 168 个组件、102 个文档页、343 个示例；12 套主题、主题编辑器、设计令牌导出、语言包与格式化、路由适配、请求层。
   模块之间没有循环依赖。清单见 HANDOFF.md §1，各批的设计与取舍见 COMPONENTS.md §10。
 - 盘点出的问题（阶段 0 处理）：目录按文档分类而不是按层分，配置层里放着界面组件（ThemeSwitcher、ThemeCustomizer），
@@ -180,7 +180,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 - [ ] 包的元数据：LICENSE（MIT）、两个包各自的 README（安装、最小例子、链到文档站）、repository / homepage / bugs、
       keywords、`sideEffects`（样式文件）、`engines`
-- [ ] peer 范围放宽到实际测过的区间（Vite、Vue、StyleX、各可选 peer），`test:consumer` 按区间的两端各跑一遍
+- [ ] peer 范围放宽到实际测过的区间（Vite、Vue、各可选 peer），`test:consumer` 按区间的两端各跑一遍
 - [ ] changesets：每次改动带一条变更说明，合并后自动开“版本 PR”，生成 CHANGELOG；npm 发布走 GitHub Actions（带 provenance）
 - [ ] 体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来
 - [ ] 文档站部署（每次推送 master 自动更新），README 与 npm 页链过去
@@ -376,7 +376,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 ### C. 样式引擎换成运行时（2026-10-24）
 
 设计、调研与实测见 [STYLE-ENGINE.md](STYLE-ENGINE.md)。写法同 StyleX（`create`、`attrs`、`sx`），底层换成运行时引擎，
-Vite 预设默认 `styles: 'runtime'`（编译模式保留为 `styles: 'compile'`）：
+不再依赖 StyleX：
 
 - [x] 一个元素一个组合类；合并语义修正 StyleX 条件里 `null` 清掉默认值的坑（Tabs 未选中文字恢复成弱化色）
 - [x] 动态值：没变过的属性写进类里，变过的转成变量；编译器把 JSX 里的动态样式调用改写成 `stylex.bind`，值变化只改元素上的变量、组件不重新渲染
@@ -384,3 +384,5 @@ Vite 预设默认 `styles: 'runtime'`（编译模式保留为 `styles: 'compile'
 - [x] 热更新原地生效：改样式值不再连锁刷新整页（约 3 s → 0.23 s）
 - [x] 组件库发布编译好的 JS、整个预构建；预设按需载入 Babel 与 StyleX 插件、预热编译线程：新项目开发服务器就绪 8.3 s → 1.0 s，热启动打开页面 8.2 s → 0.78 s
 - [x] 测试按元素实际得到的声明断言（`styleOf`、`styleTextOf`），与引擎怎么生成类无关；文档站加样式更新基准（`/bench/style-updates`）与截图逐像素比对脚本
+- [x] 完全去掉 StyleX：变量组、token 短写、主题、标记在运行时处理，类型用收录的 CSS 类型表；删掉编译模式与编译期的 token 改写（STYLE-ENGINE.md §9.5）
+- [ ] 有限状态也绕过组件渲染：`条件 && styles.x` 由元素上的绑定直接换组合类（1000 行切换 492 ms，手写 413 ms），形状变化也就地换类、不再强制重渲染；挂载时参数只算一次

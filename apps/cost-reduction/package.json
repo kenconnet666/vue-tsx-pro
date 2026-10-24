@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@lucide/icons": "catalog:",
-    "@stylexjs/stylex": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
     "@vue-tsx-pro/ui": "workspace:^",
     "vue": "catalog:",

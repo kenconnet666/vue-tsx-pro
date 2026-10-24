@@ -7,7 +7,9 @@ import { EVALUATE, type Binding, type Fragment } from './fragment';
 
 /** 一次渲染里的一个绑定：渲染时算出的片段，与它写在行内的变量（effect 只管这些，同一元素上别的动态样式的变量不碰） */
 export interface BindingEntry {
+  /** 绑定本身：动态样式与读参数的函数 */
   binding: Binding;
+  /** 渲染时算出的片段（参数让属性多出或消失时会变，effect 据此判断要不要重新渲染） */
   fragment: Fragment;
   /** 渲染时算出、交给 Vue 写进行内样式的变量 */
   initial: Readonly<Record<string, string>>;

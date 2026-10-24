@@ -1,7 +1,6 @@
 /**
- * 原子规则的优先级（注入顺序）：与 @stylexjs/shared 的 getPriority 结果相同（test/stylex-priority.test.ts 逐项对照），
- * 只是省掉了逻辑长属性那张 318 项的表——它们的优先级就是默认的 3000，查表与不查表结果一样。
- * 打包体积从 15 KB 降到 2 KB 左右。
+ * 组合类里声明与条件块的排序依据（declarations.ts 的 serialize）：沿用 StyleX 的 getPriority（@stylexjs/shared 0.19.1），
+ * 省掉了逻辑长属性那张 318 项的表——它们的优先级就是默认的 3000，查表与不查表结果一样。
  *
  * 规则：简写的简写 1000 < 简写 2000 < 长属性 3000 < 物理长属性 4000（后注入的压过先注入的）；
  * 条件加在属性上：@supports 30、@media 200、@container 300，伪类按表（:hover 130、:active 170…），伪元素 5000。

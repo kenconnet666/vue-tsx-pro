@@ -111,7 +111,7 @@
 
 ## 4. 样式
 
-- 样式由运行时引擎生成（`packages/tsx/src/stylex/`，设计与实测见 STYLE-ENGINE.md）：写法同 StyleX，一个元素一次 `stylex.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。`*.stylex.ts`（`defineVars`、`defineConsts`、`defineMarker`）仍由 StyleX 编译。
+- 样式由运行时引擎生成（`packages/tsx/src/stylex/`，设计与实测见 STYLE-ENGINE.md）：写法同 StyleX，一个元素一次 `stylex.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`defineVars(取值, 名字)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
 - 每个组件文件顶部一个 `stylex.create`，按布局、尺寸、文字、外观、状态分组。部件 × 档位 × 默认值多的组件用 `stylex.recipe`（Button、Badge、Tabs）：一次调用拿到每个部件的样式，按档位组合缓存；色调用 `toneThemes[tone]` 换 `toneVars`，各样式只写一遍（`utils/style/tone-themes.ts`）。
 - 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；`stylex.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
@@ -203,14 +203,14 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 - 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `` `calc(${t.space.md} * 2)` ``；运行时的值也可以从 `t` 取（`t.space.md`）。
 - 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
-- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只在局部叠放时写层级：AppShell 的顶栏（10）与抽屉（9）、整页滚动条（20）、SkipLink（100）、Toast 的叠放、LoadingOverlay、Indicator 的角标、ActionBar、按钮组里悬停与聚焦的按钮。断点是编译期常量 `breakpoints`（`tokens.stylex.ts` 的 `defineConsts`，`sm` / `md` / `lg` / `xl` 与 `sizes` 的容器宽度一致：40/48/64/80rem）：媒体查询不能用 CSS 变量，常量在编译时内联，样式里写 `[breakpoints.lg]: …`，运行时去掉 `@media ` 前缀交给 `useMediaQuery`。同一个属性写几个断点时，除最后一档外用不重叠的 `smOnly` / `mdOnly` / `lgOnly`：常量写的媒体查询 StyleX 不按宽度排序（`defineConsts` 不支持 `enableMediaQueryOrder`），重叠时可能窄的那档盖住宽的。组件仍优先用容器查询；断点只给整页骨架（AppShell）、命令面板的触发器与页面级布局，不再各写各的数值。
+- 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只在局部叠放时写层级：AppShell 的顶栏（10）与抽屉（9）、整页滚动条（20）、SkipLink（100）、Toast 的叠放、LoadingOverlay、Indicator 的角标、ActionBar、按钮组里悬停与聚焦的按钮。断点是普通常量 `breakpoints`（`tokens.stylex.ts`，`sm` / `md` / `lg` / `xl` 与 `sizes` 的容器宽度一致：40/48/64/80rem）：媒体查询不能用 CSS 变量，样式里写 `[breakpoints.lg]: …`，运行时去掉 `@media ` 前缀交给 `useMediaQuery`。同一个属性写几个断点时，除最后一档外用不重叠的 `smOnly` / `mdOnly` / `lgOnly`：样式引擎不按宽度给媒体查询排序，重叠时可能窄的那档盖住宽的。组件仍优先用容器查询；断点只给整页骨架（AppShell）、命令面板的触发器与页面级布局，不再各写各的数值。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）、`paper.ts`（纸张：米黄纸色、深棕墨色文字、墨蓝品牌色，覆盖颜色、阴影与字体，标题用衬线）。
-- 实现：tokens 用 StyleX `defineVars` 定义；内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 在编译期生成，运行时没有开销。
+- 实现：tokens 每组一个 `defineVars(取值, 'vtp-组名')`，在 `:root` 上声明 `--vtp-组名-token`；`config/theme/tokens.ts` 用 `defineTokens` 登记各组（样式里的 `'_md'` 靠它查到变量），`utils/props.ts` 导入它，组件渲染前一定登记过，package.json 的 `sideEffects` 也只把它列为有副作用。内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 生成只改变量的类，第一次用到时插入。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
 - 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。定制品牌色、中性色、圆角、缩放、字体、动效用 `customizeTheme(preference.theme, settings)`（子路径 `@vue-tsx-pro/ui/theme-customize`，要用颜色库，用到时再导入），界面是 `ThemeCustomizer`（§10.19）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
-- 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名经过 StyleX 哈希，不会和宿主冲突。
-- 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。StyleX 要求取值是字面量，色值写死在 tokens 里，`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
+- 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名带 `vtp-` 前缀，不会和宿主冲突。
+- 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。色值写死在 tokens 里（主题检查脚本按字面量读取），`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
 - 对比度：`pnpm themes:check`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把全部内置主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查跑亮色与暗色。改颜色前后都跑一遍。
 - 代码高亮用专门的一组颜色（`codeKeyword`、`codeString`、`codeNumber`、`codeFunction`、`codeType`、`codeComment`、`codeTag`、`codeAttribute`，diff 的 `codeInserted`、`codeDeleted`），Shiki 适配器映射到它们；另有选中文字的 `selection`、高亮标记的 `highlight`、吸顶顶栏用的 `surfaceTranslucent`；字体加了 `serif` 与 `heading`（标题，默认同正文）。
 
@@ -296,20 +296,19 @@ interface Lang {
 页面组合、流程这类扩展的文案自带中英文的表（`patternsMessages`、`workflowMessages`），在 `Lang.messages` 里按字段改写；`Lang` 只放核心组件的文案。
 测试集中在各目录下的 `.test/`，一个组件一个测试文件（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
-**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：StyleX 类型入口与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/stylex`）：样式入口的类型与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
 **试点组件**（原 `apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）已全部转正并删除，`/pilot` 页面改用正式组件（后改名 `/integration`，测试是 `integration.*`）。试点阶段在 Chromium、Firefox、WebKit 中验证过：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
-**StyleX 相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
+**样式相关的坑**（已在基础设施里解决，写新代码时仍要知道）：
 
-- 运行时引擎直接输出 `:dir(rtl)`（编译模式下预设关掉了 lightningcss 把它降级成 `:lang(…)` 的处理），`dir="rtl"` 就生效。有方向的图标用 Icon 的 `flipInRtl`。
+- 引擎原样输出 `:dir(rtl)`，`dir="rtl"` 就生效。有方向的图标用 Icon 的 `flipInRtl`。
 - 长属性总是优先于简写（运行时引擎在每条规则里把简写排在前面，同 StyleX）：`borderColor` 盖不过别处的 `borderBottomColor`，`gap: 0` 盖不过 `columnGap`，要覆盖就写同一个长属性。
 - 只画一两条边时，线型也写那几条边的长属性（`borderBlockStartStyle: 'solid'`）：写 `borderStyle: 'solid'` 会让没给宽度的边按默认的 medium（3px）画出来。
 
-- StyleX 只认以 `.stylex` 结尾的导入路径，所以 tokens 从 `@vue-tsx-pro/ui/tokens.stylex`、组件之间约定的变量（`layoutVars`、`shimmerVars`）从 `@vue-tsx-pro/ui/vars.stylex` 导入，主入口都不导出。
-- 变量名按“包名:文件路径”算哈希；预设用自定义模块解析，把 `src/` 与 `dist/` 下的同一模块规范成同一个名字。
-- 组件库构建保留源码文件结构（`preserveModules`），`*.stylex.ts` 不能被打进 index.js。
-- 编译模式时 `stylex.create` / `createTheme` 的结果必须赋给变量（使用方要编译 dist）；运行时模式下发布包不再由使用方编译，这条限制没有了。`pnpm test:consumer` 检查使用方能否正常构建与运行。
+- tokens 从 `@vue-tsx-pro/ui/tokens.stylex`、组件之间约定的变量（`layoutVars`、`shimmerVars`）从 `@vue-tsx-pro/ui/vars.stylex` 导入，主入口都不导出。
+- 变量名由 `defineVars` 的名字决定（`--vtp-colors-accent`），源码、产物、SSR 一致；新的变量组也要带 `vtp-` 前缀。
+- 组件库构建保留源码文件结构（`preserveModules`），使用方按文件摇树；`pnpm test:consumer` 检查使用方能否正常构建与运行。
 
 **依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/src/utils/.test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
@@ -346,23 +345,22 @@ interface Lang {
 5. 文档页：示例饱满、贴近真实场景、占满宽度（宽的组件用整行示例），API 表（从类型生成）、键盘一节（有键盘操作时）。
 6. 在 Chrome 宽屏里看过亮、暗主题；文档站示例能原样复制运行（演练场“编辑”能打开）。
 
-## 9. StyleX 的类型提示与注释
+## 9. 样式的类型提示与注释
 
 ### 9.1 原因（实测）
 
-StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；更关键的是 `stylex.create` 的参数整体是泛型。TypeScript 悬停时显示“实例化后的上下文类型”里的属性，参数整体泛型时就是字面量本身，所以写好的属性看不到注释，跳转也落到没有注释的声明。只要属性值所在的位置不参与泛型推导，悬停、补全、跳转就都显示注释——这是 TypeScript 的标准行为，**不自研 TS 插件**。
+CSS 类型表（取自 StyleX 的 `CSSProperties`）是类型别名，不能用声明合并补注释；更关键的是 `stylex.create` 的参数整体是泛型。TypeScript 悬停时显示“实例化后的上下文类型”里的属性，参数整体泛型时就是字面量本身，所以写好的属性看不到注释，跳转也落到没有注释的声明。只要属性值所在的位置不参与泛型推导，悬停、补全、跳转就都显示注释——这是 TypeScript 的标准行为，**不自研 TS 插件**。
 
-### 9.2 方案：fork 类型声明，运行时不动
+### 9.2 方案：自己的类型声明
 
-- 新入口 `@vue-tsx-pro/tsx/stylex`：运行时原样 `export * from '@stylexjs/stylex'`；类型上 fork StyleX 的公开声明，只改写 `create`（含动态样式函数）：**样式组名保留泛型推导，组内属性值的上下文类型固定为生成的 `DocumentedStyles`**。
-- `DocumentedStyles` 由脚本生成：属性集合读自 StyleX 的 `StyleXCSSTypes.d.ts`；每个属性的值类型用索引访问**直接引用 StyleX 自己的类型**，语义不变（`stylex.test-d.ts` 逐个属性校验与原版互相可赋值）；每个属性带中文 JSDoc；伪元素嵌套递归引用 `DocumentedStyles`。
-- StyleX API（`create`、`props`、`attrs`、`defineVars`、`createTheme`、`firstThatWorks`、`keyframes` 等）在 fork 的声明上写中文 JSDoc。
-- 编译器（compile 与 Vite 预设）总是把新入口与 `@stylexjs/stylex` 一起当作 StyleX 的导入来源。写样式统一从这个入口导入。
-- **代价**：不再精确推导每个样式组用了哪些属性，`StyleXStyles<{ color?: … }>` 这类受限类型无法校验；本库的 `sx` 本来不加限制，确需受限类型时用原版 `create`。
-- **一致性测试**：同一组“应通过 / 应报错”的写法，分别用新入口与原版做类型检查，结果必须一致（受限类型一项除外）；StyleX 升级时先跑这组测试。
+- 入口 `@vue-tsx-pro/tsx/stylex`：运行时是本仓库的引擎，类型也是自己写的（`src/stylex/index.ts`）；`create`（含动态样式函数）**样式组名保留泛型推导，组内属性值的上下文类型固定为生成的 `DocumentedStyles`**。
+- `DocumentedStyles` 由脚本生成：属性集合读自 `src/stylex/css-properties.ts`（StyleX 0.19.1 的 `StyleXCSSTypes.d.ts`，MIT，保留出处）；每个属性的值类型用索引访问**直接引用这张表**（`stylex.test-d.ts` 逐个属性校验互相可赋值）；每个属性带中文 JSDoc；伪元素嵌套递归引用 `DocumentedStyles`。
+- 各 API（`create`、`attrs`、`defineVars`、`defineTokens`、`createTheme`、`defineMarker`、`when`、`keyframes`、`bind`）都有中文 JSDoc；样式组、主题、标记的类型不透明，只能由这些函数产出。
+- 写样式统一从这个入口导入，编译器按它找 `create`（样式绑定、热更新）。
+- **代价**：不精确推导每个样式组用了哪些属性，受限的样式类型无法校验；本库的 `sx` 本来不加限制。
 - 属性值关键字：字面量联合成员上的注释不会显示，但 WebStorm 会把字符串字面量解析到 `keyof` 接口的键上，悬停显示键上的注释。生成器从 mdn-data 的值语法展开每个属性能写的关键字（`scripts/css-docs/keywords.mjs`），按来源生成接口：共用的一段值语法一个（`CssLineStyle`、`CssNamedColor`，说明只写一份），属性自己的关键字一个（`ClearKeywords`），全局关键字一个（`CssWideKeywords`）。
-  - StyleX 取值类型含 `string` 的属性：`OpenValue<CSSProperties['outlineStyle']> | keyof CssWideKeywords | keyof CssOutlineLineStyle | …`。`OpenValue` 用具名的 `OpenString` 接受任意字符串，关键字不被 `string` 吸收。
-  - 只接受固定字面量的属性：`KeywordValue<DisplayValues, CSSProperties['display']>`，键与 StyleX 的字面量一一对应，接受的值完全相同。
+  - 取值类型含 `string` 的属性：`OpenValue<CSSProperties['outlineStyle']> | keyof CssWideKeywords | keyof CssOutlineLineStyle | …`。`OpenValue` 用具名的 `OpenString` 接受任意字符串，关键字不被 `string` 吸收。
+  - 只接受固定字面量的属性：`KeywordValue<DisplayValues, CSSProperties['display']>`，键与类型表的字面量一一对应，接受的值完全相同。
   - 主题 token 的短写与带组名的写法也并上 `keyof` 接口，悬停同样显示说明。
   - 每个关键字都要有说明（`docs.json` 的 `keywords`，按来源归类）：缺了生成器报错，并把待写的清单写到 `node_modules/.cache/css-docs-missing.json`；没有属性用到的说明也报错。同族且值语法相同的属性（`marginTop`、`marginInlineStart`）共用一个来源，`keywordAliases` 可以手动指定。
   - TypeScript 官方语言服务（VS Code、`tsc --lsp`）对字符串字面量不提供悬停，只能看属性注释正文里的“常用值”。
@@ -371,14 +369,14 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 
 | 内容                                                 | 来源                                                            | 说明                                                        |
 | ---------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------- |
-| 覆盖哪些属性、值类型                                 | StyleX 类型声明（MIT）                                          | 决定注释范围                                                |
+| 覆盖哪些属性、值类型                                 | CSS 类型表（取自 StyleX 的类型声明，MIT）                       | 决定注释范围                                                |
 | 语法、初始值、是否继承、动画类型、适用元素、MDN 链接 | `mdn-data`（CC0）                                               | 一手数据，脚本填充，不手写                                  |
 | 浏览器支持（Baseline 等级与年份）                    | `web-features`（Apache-2.0）                                    | 新增                                                        |
 | 中文说明、常用值、适用场景                           | 以 zerodep-js 的 `css-author-docs.json` 为起点修订（自有，MIT） | 用自己的话写，不复制 MDN 正文（CC-BY-SA），只用 `@see` 链接 |
 
-- 修订与完善：事实字段改由脚本从数据包填充；新增 Baseline；新增 StyleX 专属说明（数字值是否自动加 px、简写规则、物理方向属性提示改用逻辑属性）；逐条复核中文说明，常用属性补“常用值”和“适用场景”。
-- 校验：StyleX 的每个属性都必须有中文说明；事实字段必须能在数据包中查到；升级数据包或 StyleX 时列出新增、删除、变化的属性。
-- 生成格式：说明 → 常用值 → StyleX 注意事项 → 初始值 / 继承 / Baseline → `@see` MDN。
+- 修订与完善：事实字段改由脚本从数据包填充；新增 Baseline；新增引擎相关的说明（数字值是否自动加 px、简写规则、物理方向属性提示改用逻辑属性）；逐条复核中文说明，常用属性补“常用值”和“适用场景”。
+- 校验：类型表的每个属性都必须有中文说明；事实字段必须能在数据包中查到；升级数据包或类型表时列出新增、删除、变化的属性。
+- 生成格式：说明 → 常用值 → 引擎相关的注意事项 → 初始值 / 继承 / Baseline → `@see` MDN。
 - 数据以本仓库 `scripts/css-docs/` 为唯一来源，以后需要时再抽成与 zerodep-js 共用的数据包。
 - 主题 tokens 用 `defineVars` 定义时每个变量写 JSDoc（用途 + 明暗取值），属性访问悬停即可看到。
 
@@ -388,15 +386,15 @@ StyleX 的 `CSSProperties` 是类型别名，不能用声明合并补注释；�
 
 ### 10.1 基础设施
 
-| 项           | 位置                            | 内容                                                                                                                                                                                                                 |
-| ------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 档位类型     | `utils/style/styles.ts`         | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                                                 |
-| 共享样式表   | `utils/style/styles.ts`         | “档位 → token”的 StyleX 样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                                                      |
-| 减少动态效果 | `config/theme/tokens.stylex.ts` | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                                                            |
-| 一元素一组件 | `base/Text.tsx`、`layout/*`     | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag`                              |
-| 过渡预设     | `utils/style/transitions.ts`    | `fade`、`scale`、`backdrop` 三套 StyleX 样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`await afterTransitions(元素)` 等元素与子元素的过渡结束（没有过渡、减少动态效果时立即完成） |
-| JS 动画      | `utils/motion/animation.ts`     | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                          |
-| 演示页       | `apps/host-demo` 的 `/base`     | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                                                      |
+| 项           | 位置                            | 内容                                                                                                                                                                                                         |
+| ------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 档位类型     | `utils/style/styles.ts`         | `Size = 'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'`、`Space = 'none' \| Size` 等，组件的档位 prop 都用它们                                                                                                         |
+| 共享样式表   | `utils/style/styles.ts`         | “档位 → token”的样式表（`gap`、`padding` 等），被多个组件复用的才放这里                                                                                                                                      |
+| 减少动态效果 | `config/theme/tokens.stylex.ts` | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                                                    |
+| 一元素一组件 | `base/Text.tsx`、`layout/*`     | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag`                      |
+| 过渡预设     | `utils/style/transitions.ts`    | `fade`、`scale`、`backdrop` 三套样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`await afterTransitions(元素)` 等元素与子元素的过渡结束（没有过渡、减少动态效果时立即完成） |
+| JS 动画      | `utils/motion/animation.ts`     | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                  |
+| 演示页       | `apps/host-demo` 的 `/base`     | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                                              |
 
 ### 10.2 组件
 
@@ -441,7 +439,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 - 高亮器通过配置注入：`createUi({ highlighter })` 或 `<Provider highlighter={…}>`，接口 `Highlighter` 是“代码 + 语言 → 行内 HTML”的异步函数（只含 span 与 br，外层的 pre、code 由 CodeBlock 渲染）。
 - 子路径 `@vue-tsx-pro/ui/shiki`（`src/config/shiki.ts`，构建时是单独的入口）提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
 - JavaScript 正则引擎（`forgiving`，不加载 wasm）；语言按需 `loadLanguage`，同一种语言只加载一次，下载失败不缓存；不认识的语言按 `text` 输出；`codeToHtml` 用 `structure: 'inline'`。
-- 颜色：Shiki 的 CSS 变量主题，`variableDefaults` 直接指向颜色 tokens（`var(--shiki-token-keyword, var(--accentText 的变量))`），切换明暗主题不需要重新高亮，使用方仍可用 `--shiki-*` 单独调整。没有在 CodeBlock 根元素上写 `--shiki-*`：StyleX 的类型不收自定义属性，默认值的写法也让高亮器脱离 CodeBlock 单独使用时颜色正确。
+- 颜色：Shiki 的 CSS 变量主题，`variableDefaults` 直接指向颜色 tokens（`var(--shiki-token-keyword, var(--accentText 的变量))`），切换明暗主题不需要重新高亮，使用方仍可用 `--shiki-*` 单独调整。没有在 CodeBlock 根元素上写 `--shiki-*`：默认值的写法让高亮器脱离 CodeBlock 单独使用时颜色也正确。
 - 高亮是异步的：先显示纯文本，结果到了再替换（等宽字体下排版相同）；代码或语言变了先回到纯文本，晚到的旧结果丢弃；高亮失败保留纯文本并 `console.error`。
 - 背景用 `surface` 加 `borderMuted` 边框而不是 `fill`：亮色主题的 `successText`、`infoText` 在 `fill` 上对比度不到 4.5:1。
 - 横向可滚动，`pre` 加 `tabindex=0` 与焦点环（键盘可滚动，axe 的 scrollable-region-focusable）；`wrap` 时长行自动换行。
@@ -452,11 +450,10 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 - **对照表**：`packages/tsx/src/stylex/token-map.ts`，属性 → token 组，覆盖全部 token 组。原来的 `controls` 单位与用途不统一，已拆进 `sizes`、`borderWidths`、`opacities`、`strokeWidths`。
 - **类型**：`scripts/css-docs` 生成 `DocumentedStyles` 时给表里的属性加上 `keyof FontSizesTokens` 这类取值，每组一个接口；ui 的 `token-names.ts` 由同一脚本根据 tokens 生成，用 `declare module` 填入 token 名与注释。每组单独一个接口，而不是 `keyof 总接口[组名]`：后者在 WebStorm 里会把各组同名的 `_xs` 都列为跳转目标。
-- **编译**：`compiler/tokens.ts`（Babel），由 Vite 预设的 `vue-tsx-pro:tokens` 插件在 StyleX 之前运行；token 名从 token 模块的源码（或产物）读出，用来报错。与 `stylex` 选项无关，组件库构建也改写：同包的文件用相对路径导入，其他包用选项里的包名（默认 `@vue-tsx-pro/ui/tokens.stylex`）。
+- **解析**（2026-10-24 起在运行时）：引擎展开声明时把整个值是 `'_md'` / `'_space.md'` 的换成 token 变量（`src/stylex/tokens.ts`），各组由主题库用 `defineTokens` 登记；写错的 token、夹在值中间的短写在第一次用到那段样式时报错。原来的编译期改写（`compiler/tokens.ts`，要按导入关系找 token 模块、读它的源码或产物）随 StyleX 一起删掉。
 - **与原计划的出入**：带组名的写法不进补全。原计划让不进表的组（当时的 controls）的带组名写法出现在所有属性的补全里，实际 `position`、`display` 的补全里也会出现 `_controls.height`，噪音太大。
   2026-10-23 改为按取值域进补全：属性的值语法里有长度才列长度类的组、有颜色才列颜色，`'_borderWidths.sm'` 也有悬停说明与跳转（每组一个 `QualifiedXxxTokens` 接口）。
-- **值里夹着 token（2026-10-24）**：原来也写字符串（`'calc(-1 * _xs)'`），编译成模板字符串，但拼在字符串中间的 token 没有补全、悬停与跳转。改成模板字符串里的 `t.组.名`：`t` 是 `config/theme/tokens.ts` 的模块常量（各组 defineVars 的结果，原来的 `tokenGroups` 并入），编译器把 `t.组.名` 改写成组变量的导入，`t` 没有别的用处时删掉导入；只认组件库包名或组件库自己的相对路径导入的 `t`，应用里别的 `t`（i18n）不受影响。字符串中间的 `_xx` 编译报错并给出改好的写法。不用 `useTheme()`：`stylex.create` 在模块顶层编译，取不到组件上下文。
-  同时修复：Vite 给的路径用 `/`、Node 解析出的用 `\`，判断 token 模块与导入方是不是同一个包时没有统一，Windows 上组件库自己的文件按包名导入了 tokens。
+- **值里夹着 token（2026-10-24）**：原来也写字符串（`'calc(-1 * _xs)'`），编译成模板字符串，但拼在字符串中间的 token 没有补全、悬停与跳转。改成模板字符串里的 `t.组.名`：`t` 是 `config/theme/tokens.ts` 的模块常量（各组 defineVars 的结果，原来的 `tokenGroups` 并入），`t.组.名` 取到的就是 `var(--vtp-组-名)`。字符串中间的 `_xx` 报错并给出改好的写法。不用 `useTheme()`：`stylex.create` 在模块顶层执行，取不到组件上下文。
 - **顺手修复**：`KeywordValue` 里的 `string & {}` 在泛型实例化时被 TypeScript 6 化简成 `string`，取值含任意字符串的属性在 tsserver（VS Code）里一直没有关键字补全；改用具名别名 `OpenString`。
 
 ### 10.7 虚拟滚动（为表格准备）
@@ -771,9 +768,9 @@ apps/docs/src/components/base/Button/
 | 环节      | 做法                                                                                                                                                                                                                                                                               |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 写法、动态样式的响应式绑定、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                         |
-| 样式      | 同站点走运行时样式：用户代码的 `stylex.create` 在页面上执行时由引擎生成规则，Worker 里不再跑 StyleX、不生成 CSS；`'_md'` 与 `colors.accent` 取的就是组件库的同一组 CSS 变量（模块表里给的 tokens）                                                                                 |
+| 样式      | 同站点走运行时样式：用户代码的 `stylex.create` 在页面上执行时由引擎生成规则，Worker 只编译符文与 JSX；`'_md'` 与 `colors.accent` 取的就是组件库的同一组 CSS 变量（组件库登记的 tokens）                                                                                            |
 | 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、stylex、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                                   |
-| Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）、StyleX 浏览器版要的 `@babel/standalone`（转交 parser/traverse/types）；依赖预构建见 vite.config.ts                                                           |
+| Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）；依赖预构建见 vite.config.ts                                                                                                                                  |
 | 编辑器    | `editor.ts`：CodeMirror 6 + TSX 语法（括号补全与匹配、折叠、搜索、撤销）；颜色、字体全取主题 token（`colors.code*` 与 Shiki 代码块同一套），明暗用 Compartment 切换。`CodeEditor.tsx` 挂载后才 `import()` 它，外壳复用输入框的 `controlShellStyles`；Tab 缩进，Esc 后 Tab 移出焦点 |
 | 预览隔离  | `preview.ts`：用户组件挂在独立的 Vue 应用里，与页面共用 `ConfigContext`（主题、语言跟着站点变）；根组件是错误边界（`onErrorCaptured`），setup、渲染、事件处理、侦听器里的错误只在预览区报“运行出错”，可“重新运行”；每次编译成功先卸载旧应用                                        |
 | 分享      | `share.ts`：代码 deflate-raw 压缩、base64url 后放进 hash（`/playground#code=…`），停止输入 300 ms 后 `history.replaceState` 写入（不新增历史记录）；起始示例不写 hash；链接损坏时提示并显示起始示例。路由的 `scrollBehavior` 遇到不是页内锚点的 hash 回到顶部                      |

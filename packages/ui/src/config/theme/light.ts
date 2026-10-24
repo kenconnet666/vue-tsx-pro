@@ -4,8 +4,6 @@ import { colors, fonts, radii, shadows } from './tokens.stylex';
 
 // 取值与 tokens.stylex.ts 的默认值相同（pnpm themes:check 核对）。默认值本来不用再写一遍，但 Provider 套在别的主题里时，
 // 只有显式写出的变量才能盖过外层继承下来的：每套内置主题都写全颜色、阴影、字体、圆角四组，没改的组用这里的默认值。
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /** 亮色主题的颜色（默认值） */
 export const lightColors = stylex.createTheme(colors, {
   background: '#fcfcfd',

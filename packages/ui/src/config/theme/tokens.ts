@@ -5,10 +5,10 @@
  *   transition: `opacity ${t.durations.md} ${t.easings.standard}`,
  *   marginInlineStart: `calc(-1 * ${t.borderWidths.xs})`,
  *
- * 值整个就是一个 token 时照旧写字符串 '_md'、'_space.md'（COMPONENTS.md §4）。
- * StyleX 只认从 .stylex 文件直接导入的变量，编译器把 t.组.名 改写成那样的导入（@vue-tsx-pro/tsx 的 compiler/tokens.ts）；
- * 不经编译时 t 也能用，取到的就是 `var(--…)`。
+ * 值整个就是一个 token 时照旧写字符串 '_md'、'_space.md'（COMPONENTS.md §4）：这里用 defineTokens 登记各组，
+ * 样式引擎展开样式时按组名查到 token 变量。utils/props.ts 导入这个模块，组件渲染之前一定登记过。
  */
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   borderWidths,
   colors,
@@ -27,8 +27,8 @@ import {
   strokeWidths,
 } from './tokens.stylex';
 
-/** 主题 tokens 的各组：组名 → 编译后的变量（`var(--x1abc)`），用法见文件说明 */
-export const t = {
+/** 主题 tokens 的各组：组名 → 变量（`var(--vtp-space-md)`），用法见文件说明 */
+export const t = stylex.defineTokens({
   /** 颜色：背景与表面、填充、文字、边框、品牌色与状态色、图表色 */
   colors,
   /** 字体族 */
@@ -59,4 +59,4 @@ export const t = {
   durations,
   /** 缓动曲线 */
   easings,
-} as const;
+});

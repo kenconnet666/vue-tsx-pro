@@ -3,7 +3,7 @@
  *
  * 组件给部件的属性分两层：可被使用方覆盖的默认属性（defaults），以及组件状态决定、
  * 不允许覆盖的受管属性（managed，如 role、aria-expanded）。合并规则：
- *   - sx：默认在前、使用方其次、受管最后，StyleX 后者覆盖前者
+ *   - sx：默认在前、使用方其次、受管最后，后者覆盖前者
  *   - class、style：依次排列成数组，交给 Vue 统一处理（它们也可能是数组或对象）
  *   - 事件 onXxx：使用方先执行，调用了 event.preventDefault() 就跳过组件自己的处理
  *   - ref：各方都拿到元素
@@ -11,6 +11,8 @@
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { IntrinsicProps, JSX } from '@vue-tsx-pro/tsx/jsx-runtime';
+// 登记主题 tokens（样式里的 '_md' 靠它）：每个组件都经过这里合并属性，渲染之前一定登记过
+import '../config/theme/tokens';
 import type { StyleXAttrs, StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
 import type { Ref, VNodeChild } from 'vue';
 
@@ -145,7 +147,7 @@ export function mergeAttrs<Tag extends keyof JSX.IntrinsicElements>(
 }
 
 /**
- * 原生元素部件：把 sx 换成 StyleX 生成的 class 与 style，再与已有的 class、style 合并。
+ * 原生元素部件：把 sx 换成样式引擎生成的 class 与 style，再与已有的 class、style 合并。
  * 去掉 children：它是内容不是元素属性（组件的 ...rest 里带着它，转交给子组件时要用）。
  */
 export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'children'> {

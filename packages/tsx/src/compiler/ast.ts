@@ -5,7 +5,7 @@ import { fail } from './errors.ts';
 /** 作用域里的一个绑定（@babel/traverse 的 Binding；本包只依赖 @babel/core，从 Scope 取它的类型） */
 export type Binding = NonNullable<ReturnType<Scope['getBinding']>>;
 
-export { languageOf, parserPlugins, STYLEX_SOURCES, type Language } from './detect.ts';
+export { languageOf, parserPlugins, STYLE_SOURCE, type Language } from './detect.ts';
 
 /** 组件边界：第一个参数是 setup 函数的调用 */
 const COMPONENT_CALLEES = new Set(['_component', 'defineComponent']);

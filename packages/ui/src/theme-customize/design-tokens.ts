@@ -13,7 +13,7 @@
  * 令牌按 token 组分组：colors/accent、space/md，与代码里的 `_accent`、`_space.md` 一一对应。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXVar } from '@vue-tsx-pro/tsx/stylex';
+import type { CssVar } from '@vue-tsx-pro/tsx/stylex';
 import { formatHex } from 'culori/fn';
 import { parseColor } from '../utils/data/color';
 import { applyStyleAttrs } from '../utils/props';
@@ -162,7 +162,7 @@ export function designTokens(values: ThemeValues, bases: DesignTokenBases): Desi
 /** 元素上实际生效的各组 token 取值（CSS 文本，如 radii.md → '0.4em'）；元素要已挂载 */
 export function elementThemeValues(element: Element): ThemeValues {
   const read = (group: string, token: string) => {
-    const vars = t[group as keyof typeof t] as unknown as Record<string, StyleXVar<string>>;
+    const vars = t[group as keyof typeof t] as unknown as Record<string, CssVar>;
     return readToken(element, vars[token]!);
   };
   return Object.fromEntries(

@@ -6,9 +6,9 @@ import { plugins } from './vite.config.ts';
 export default defineConfig({
   plugins,
   // 测试用到的依赖一开始就预构建：否则 Vite 跑到一半发现新依赖会重新预构建并刷新页面，
-  // 三个浏览器并行时正在初始化的测试页会卡住（CI 冷启动时出现过）。组件库的依赖由 vueTsxPro() 按它的声明加上
+  // 三个浏览器并行时正在初始化的测试页会卡住（CI 冷启动时出现过）。组件库按源码读，它的依赖由启动时的扫描发现
   optimizeDeps: {
-    include: ['vue', 'vue-router', 'pinia', 'axe-core', '@stylexjs/stylex', 'zod'],
+    include: ['vue', 'vue-router', 'pinia', 'axe-core', 'zod'],
   },
   test: {
     name: 'host-demo-browser',

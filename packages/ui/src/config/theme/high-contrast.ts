@@ -3,8 +3,6 @@ import { defaultFonts } from './light';
 import type { Theme } from './theme';
 import { colors, radii, shadows } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 高对比主题的颜色：纯白底、纯黑字，文字与底色都到 7:1（WCAG AAA），边框到 3:1 以上，
  * 弱视、强光下、投影时也看得清；品牌色是深蓝，提示色都取深的一档

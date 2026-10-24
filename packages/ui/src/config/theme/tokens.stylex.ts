@@ -1,13 +1,13 @@
 /**
  * 主题 tokens：组件里的颜色、字体、间距、圆角、阴影、动效都只从这里取，不写裸值。
- * StyleX 要求 defineVars 写在 *.stylex.ts 文件里并导出。这里的取值即亮色主题，暗色主题见 dark.ts。
+ * 每组一个 defineVars，变量名是 `--vtp-组名-token`。这里的取值即亮色主题，暗色主题见 dark.ts。
  *
  * 取舍参考：
  *   - 颜色与阴影取自 Radix Colors / Radix Themes，按 Radix 12 级的用途约定映射成语义 token
  *     （1–2 背景，3–5 交互填充，6–8 边框，9–10 实色，11–12 文字）
  *   - 尺寸、间距、圆角用 em，随组件字号等比缩放（字号即尺寸档位，见 COMPONENTS.md §3）；
  *     边框宽度用 px，容器宽度用 rem
- *   - 分组参考 Stitches / Chakra / Panda 的 token 分类，组名即 stylex.create 里短写的对照组（token-map.ts）
+ *   - 分组参考 Stitches / Chakra / Panda 的 token 分类，组名即样式里短写的对照组（@vue-tsx-pro/tsx 的 token-map.ts）
  *   - 动效时长与缓动参考 Material 3
  *   - 分档：一般 xs–xl 五档，需要时加 none（去掉）与 full（全圆）；颜色、行高、字间距、不透明度按语义命名
  *   - 不设 z-index：弹出层、对话框用原生 popover / dialog，渲染在顶层（top layer），不参与层叠顺序
@@ -15,7 +15,7 @@
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 
 /** 颜色：slate 中性色、indigo 品牌色、red 危险、green 成功、amber 警告、blue 信息 */
-export const colors = stylex.defineVars({
+export const colors = stylex.defineVars('vtp-colors', {
   // ───────── 背景与表面 ─────────
 
   /** 页面背景。slate 1：亮色 `#fcfcfd`，暗色 `#111113` */
@@ -223,7 +223,7 @@ export const colors = stylex.defineVars({
 });
 
 /** 字体族 */
-export const fonts = stylex.defineVars({
+export const fonts = stylex.defineVars('vtp-fonts', {
   /**
    * 正文字体：西文用系统界面字体；中文在 Windows 上优先“微软雅黑 UI”（界面字号下字距更紧凑），
    * Linux 上是思源黑体（Noto / Source Han Sans）
@@ -242,7 +242,7 @@ export const fonts = stylex.defineVars({
 });
 
 /** 字号：xs–xl 用于界面文字（也是组件 size 档位对应的字号），xxl、xxxl 用于标题 */
-export const fontSizes = stylex.defineVars({
+export const fontSizes = stylex.defineVars('vtp-font-sizes', {
   /** `12px`：辅助说明、标签 */
   xs: '12px',
   /** `13px`：紧凑控件 */
@@ -260,7 +260,7 @@ export const fontSizes = stylex.defineVars({
 });
 
 /** 字重 */
-export const fontWeights = stylex.defineVars({
+export const fontWeights = stylex.defineVars('vtp-font-weights', {
   /** `300` */
   light: '300',
   /** `400`：正文 */
@@ -274,7 +274,7 @@ export const fontWeights = stylex.defineVars({
 });
 
 /** 行高（不带单位，随字号缩放） */
-export const lineHeights = stylex.defineVars({
+export const lineHeights = stylex.defineVars('vtp-line-heights', {
   /** `1`：图标、单行徽标 */
   none: '1',
   /** `1.25`：按钮等单行控件、标题 */
@@ -288,7 +288,7 @@ export const lineHeights = stylex.defineVars({
 });
 
 /** 字间距（em，随字号缩放）：中文正文保持 normal，大字号标题可以略收紧 */
-export const letterSpacings = stylex.defineVars({
+export const letterSpacings = stylex.defineVars('vtp-letter-spacings', {
   /** `-0.02em`：大标题 */
   tighter: '-0.02em',
   /** `-0.01em`：小标题 */
@@ -302,7 +302,7 @@ export const letterSpacings = stylex.defineVars({
 });
 
 /** 间距：em，随组件字号缩放；页面级布局间距由宿主决定 */
-export const space = stylex.defineVars({
+export const space = stylex.defineVars('vtp-space', {
   /** `0` */
   none: '0',
   /** `0.25em`：图标与文字之间、控件的上下内边距 */
@@ -321,7 +321,7 @@ export const space = stylex.defineVars({
  * 尺寸：宽、高、最小最大尺寸。控件规格用 em 随字号缩放；
  * 容器宽度（Container 与页面内容的最大宽度）是页面级的，用 rem，跟随浏览器的字号设置
  */
-export const sizes = stylex.defineVars({
+export const sizes = stylex.defineVars('vtp-sizes', {
   /** `2.25em`：单行控件（按钮、输入框、下拉框）的高度 */
   control: '2.25em',
   /** `24px`：可点击区域的最小尺寸（WCAG 2.2 目标尺寸 24×24），与 control 取较大值 */
@@ -342,16 +342,16 @@ export const sizes = stylex.defineVars({
 
 /**
  * 响应式断点：视口不窄于对应的容器宽度（与 sizes 的 sm / md / lg / xl 一致）。
- * 媒体查询里不能用 CSS 变量，所以是编译期常量：
+ * 媒体查询里不能用 CSS 变量，所以是普通常量：
  *
  *   gridTemplateColumns: { default: 'minmax(0, 1fr)', [breakpoints.lg]: 'minmax(0, 1fr) 20rem' }
  *
- * 同一个属性上写了几个断点时，除最后一档外都用 xxOnly（只在这一档）：常量写的媒体查询，StyleX 不按宽度排序
- * （defineConsts 不支持 enableMediaQueryOrder），重叠的区间谁生效取决于规则的先后，可能是窄的那档盖住宽的：
+ * 同一个属性上写了几个断点时，除最后一档外都用 xxOnly（只在这一档）：样式引擎不按宽度给媒体查询排序，
+ * 重叠的区间谁生效取决于规则的先后，可能是窄的那档盖住宽的：
  *
  *   gridTemplateColumns: { default: null, [breakpoints.lgOnly]: '16rem 1fr', [breakpoints.xl]: '16rem 1fr 14rem' }
  */
-export const breakpoints = stylex.defineConsts({
+export const breakpoints = {
   /** 40rem（640px）以上：大屏手机横屏、小平板 */
   sm: '@media (min-width: 40rem)',
   /** 48rem（768px）以上：平板 */
@@ -366,11 +366,11 @@ export const breakpoints = stylex.defineConsts({
   mdOnly: '@media (min-width: 48rem) and (max-width: 63.99rem)',
   /** 64rem 到 80rem 之间 */
   lgOnly: '@media (min-width: 64rem) and (max-width: 79.99rem)',
-  // 字面量类型：StyleX 的类型要求 @media 键是具体的字符串
-} as const);
+  // 字面量类型：条件键的类型要求是 `@${string}`
+} as const;
 
 /** 圆角：em，随组件字号缩放；整体改成直角或更圆时覆盖这一组 */
-export const radii = stylex.defineVars({
+export const radii = stylex.defineVars('vtp-radii', {
   /** `0` */
   none: '0',
   /** `0.15em`：控件内的小元素 */
@@ -388,7 +388,7 @@ export const radii = stylex.defineVars({
 });
 
 /** 边框与描边宽度（px，不随字号缩放）：边框、分隔线、焦点环的宽度与间隔 */
-export const borderWidths = stylex.defineVars({
+export const borderWidths = stylex.defineVars('vtp-border-widths', {
   /** `0` */
   none: '0',
   /** `1px`：边框、分隔线 */
@@ -404,7 +404,7 @@ export const borderWidths = stylex.defineVars({
 });
 
 /** 阴影：取自 Radix Themes 的第 2–6 级，去掉了模拟边框的 1px 描边（组件自己画边框）；暗色主题另有一套 */
-export const shadows = stylex.defineVars({
+export const shadows = stylex.defineVars('vtp-shadows', {
   /** 无阴影 */
   none: 'none',
   /** 贴近表面：卡片 */
@@ -423,7 +423,7 @@ export const shadows = stylex.defineVars({
 const reduce = '@media (prefers-reduced-motion: reduce)';
 
 /** 动效时长（参考 Material 3）；开启“减少动态效果”时自动为 0 */
-export const durations = stylex.defineVars({
+export const durations = stylex.defineVars('vtp-durations', {
   /** `0ms` */
   none: '0ms',
   /** `75ms`：按下反馈 */
@@ -439,7 +439,7 @@ export const durations = stylex.defineVars({
 });
 
 /** 缓动曲线（参考 Material 3） */
-export const easings = stylex.defineVars({
+export const easings = stylex.defineVars('vtp-easings', {
   /** 标准：位置与尺寸变化 */
   standard: 'cubic-bezier(0.2, 0, 0, 1)',
   /** 进入：元素出现（先快后慢） */
@@ -449,13 +449,13 @@ export const easings = stylex.defineVars({
 });
 
 /** 不透明度 */
-export const opacities = stylex.defineVars({
+export const opacities = stylex.defineVars('vtp-opacities', {
   /** `0.5`：不可用的元素 */
   disabled: '0.5',
 });
 
 /** SVG 线宽（图标 24 格画布上的单位，不带单位）；Icon 默认 md，strokeWidth 可以逐个覆盖 */
-export const strokeWidths = stylex.defineVars({
+export const strokeWidths = stylex.defineVars('vtp-stroke-widths', {
   /** `1`：细线图标 */
   xs: '1',
   /** `1.5` */

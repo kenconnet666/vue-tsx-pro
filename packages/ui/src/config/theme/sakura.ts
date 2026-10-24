@@ -3,8 +3,6 @@ import { defaultFonts } from './light';
 import type { Theme } from './theme';
 import { colors, radii, shadows } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 樱花主题的颜色：淡粉的页面、樱粉的品牌色。中性色按 slate 各级亮度换成粉色相（oklch 355°），品牌色取 Radix pink 色阶，实色加深到白字够对比度。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）

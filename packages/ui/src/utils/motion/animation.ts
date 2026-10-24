@@ -26,9 +26,9 @@ import { durations, easings } from '../../config/theme/tokens.stylex';
 /** themeTransition 的选项：取哪一档时长与缓动，或用弹簧 */
 export interface ThemeTransitionOptions {
   /** 时长档位，默认 md */
-  duration?: keyof (typeof durations)['__tokens'];
+  duration?: keyof typeof durations & string;
   /** 缓动曲线，默认 standard；给了 bounce 时不用 */
-  ease?: keyof (typeof easings)['__tokens'];
+  ease?: keyof typeof easings & string;
   /** 弹簧的回弹程度（0 不回弹，越大越弹，建议不超过 0.5）：给了就用弹簧，时长档位作为弹簧的感知时长 */
   bounce?: number;
 }

@@ -137,7 +137,7 @@ function build<P extends string, V extends Variants<P>>(
 ): RecipeState<P> {
   const { parts, base = {}, variants = {} as V, compound = [], defaults = {} } = config;
   const compile = (styles: object) =>
-    create(styles as Record<string, PartStyle>) as Record<P, Compiled>;
+    create(styles as Record<string, PartStyle>) as unknown as Record<P, Compiled>;
   const segments = new Map<string, Record<P, Compiled>>([['base', compile(base)]]);
   for (const [name, values] of Object.entries(variants)) {
     for (const [value, styles] of Object.entries(values)) {

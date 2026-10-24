@@ -4,7 +4,10 @@
   "description": "vue-tsx-pro 组件库",
   "type": "module",
   "license": "MIT",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/config/theme/tokens.ts",
+    "./dist/config/theme/tokens.js"
+  ],
   "exports": {
     ".": {
       "@vue-tsx-pro/source": "./src/index.ts",
@@ -101,7 +104,6 @@
     "@lucide/icons": "^1.59.0",
     "pinia": "^4.0.0",
     "shiki": "^4.0.0",
-    "@stylexjs/stylex": "^0.19.1",
     "three": ">=0.170.0",
     "@unovis/ts": "^1.7.0",
     "vue": "^3.5.0",
@@ -167,7 +169,6 @@
     "@lucide/icons": "catalog:",
     "pinia": "catalog:",
     "shiki": "catalog:",
-    "@stylexjs/stylex": "catalog:",
     "three": "catalog:",
     "@types/three": "catalog:",
     "typescript": "catalog:",

@@ -5,11 +5,11 @@ import { expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../test/mount';
 import { compilePlayground } from './compile';
-import { evaluate, tokenGroups } from './run';
+import { evaluate } from './run';
 import { STARTER } from './starter';
 
 it('起始示例：编译、执行，符文与组件照常工作', async () => {
-  const { code } = await compilePlayground(STARTER, tokenGroups);
+  const { code } = await compilePlayground(STARTER);
   expect(code).not.toMatch(/^import /m);
   const root = mount(await evaluate(code));
   // 样式在页面上执行时由运行时引擎生成
@@ -25,30 +25,29 @@ it('组件把 children 原样转交给另一个组件：内容照常显示，不
 const Box = _component(({ children }: { children?: unknown }) => () => <section>{children}</section>);
 const Outer = _component(({ children }: { children?: unknown }) => () => <Box>{children}</Box>);
 export default _component(() => () => <Outer>转交的内容</Outer>);`;
-  const { code } = await compilePlayground(source, tokenGroups);
+  const { code } = await compilePlayground(source);
   const root = mount(await evaluate(code));
   expect(root.querySelector('section')!.textContent).toBe('转交的内容');
 });
 
-it('token 变量与组件库编译出同一个 CSS 变量，跟着主题走', async () => {
+it('token 变量、token 短写与组件库是同一个 CSS 变量，跟着主题走', async () => {
   const source = `import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 const styles = stylex.create({ box: { backgroundColor: colors.surfaceMuted, color: '_accent' } });
 export default () => <div {...stylex.attrs(styles.box)} />;`;
-  const { code } = await compilePlayground(source, tokenGroups);
+  const { code } = await compilePlayground(source);
   mount(await evaluate(code));
   expect(styleText()).toContain(`background-color:${colors.surfaceMuted}`);
   expect(styleText()).toContain(`color:${colors.accent}`);
 });
 
-it('写错时抛出带代码帧的错误', async () => {
-  await expect(compilePlayground('export default () => (<div>', tokenGroups)).rejects.toThrow(
+it('语法写错时编译抛出带代码帧的错误；token 写错时用到那段样式时报错', async () => {
+  await expect(compilePlayground('export default () => (<div>')).rejects.toThrow(
     /Playground\.tsx: .*\(1:\d+\)/,
   );
-  await expect(
-    compilePlayground(
-      `import * as stylex from '@vue-tsx-pro/tsx/stylex';\nstylex.create({ a: { color: '_nope' } });`,
-      tokenGroups,
-    ),
-  ).rejects.toThrow(/_nope/);
+  const { code } = await compilePlayground(`import * as stylex from '@vue-tsx-pro/tsx/stylex';
+const styles = stylex.create({ a: { color: '_nope' } });
+export default () => <div {...stylex.attrs(styles.a)} />;`);
+  const component = await evaluate(code);
+  expect(() => mount(component)).toThrow(/_nope/);
 });

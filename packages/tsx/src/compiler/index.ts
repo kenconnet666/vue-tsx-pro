@@ -2,9 +2,9 @@
  * 编译器入口。
  *
  * compile（compile.ts）是一个文件的完整编译，Vite 预设与文档站的代码演练场都用它：解析一次、生成一次，
- * 中间依次是符文、token 字符串写法、StyleX、Vue JSX 与去掉类型。
+ * 中间依次是样式的响应式绑定与热更新、符文、Vue JSX 与去掉类型。
  *
- * 其中本包自己的两个转换：
+ * 其中本包自己的转换：
  *   - 符文（transform.ts）：让本地响应式变量像普通变量一样读写，语义全部交给 Vue
  *     1. 把符文声明换成 Vue API：_state → ref，_derived → computed，_fromRef → 直接持有外部 Ref
  *     2. 把 _component 的参数解构换成实例内的 prop 访问器（参考 Svelte 5 的 $.prop），
@@ -14,9 +14,9 @@
  *     5. 对会悄悄失去响应性的写法、以及 TSX 里有更自然写法的 Vue 指令直接报错
  *     6. 渲染优化：组件子节点的插槽标 $stable，JSX 属性里的函数与常量每个实例只建一次（optimize.ts，可关）
  *     生成的代码就是手写 Vue 会写的代码，JSX 交给官方的 @vue/babel-plugin-jsx。
- *   - 主题 tokens 的字符串写法（tokens.ts）：stylex.create 里的 '_xs' → token 变量
+ *   - 样式（style-bindings.ts、style-hot.ts）：JSX 里的动态样式调用改成响应式绑定，顶层 create 包上热更新
  *
- * compileRunes、compileTokens 只做其中一步，测试与语言服务用。
+ * compileRunes 只编译符文，测试与语言服务用。
  *
  * 目录内的相对导入带 .ts 扩展名：语言服务（scripts/language-services）与 Vitest 配置在 Node 里直接加载这些源码。
  */
@@ -26,15 +26,8 @@ import type { SourceMap } from './compile.ts';
 import type { RunesWarning } from './errors.ts';
 import { needsRunes, runesBabelPlugin, type RunesOptions } from './transform.ts';
 
-export {
-  compile,
-  type CompileOptions,
-  type CompileResult,
-  type SourceMap,
-  type StylexRule,
-} from './compile.ts';
+export { compile, type CompileOptions, type CompileResult, type SourceMap } from './compile.ts';
 export type { RunesError, RunesWarning } from './errors.ts';
-export { compileTokens, type TokenModule, type TokenModuleLoader } from './tokens.ts';
 export { runesBabelPlugin, type RunesOptions } from './transform.ts';
 
 /**

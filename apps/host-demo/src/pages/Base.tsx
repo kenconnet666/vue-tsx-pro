@@ -1087,7 +1087,7 @@ export const Base = _component(() => {
           <div style={{ maxWidth: '16rem' }}>
             <CodeBlock
               class="codeblock-plain"
-              code="pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @stylexjs/stylex @lucide/icons zod shiki"
+              code="pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @lucide/icons zod shiki"
             />
           </div>
         </Section>
@@ -1322,11 +1322,9 @@ export const Base = _component(() => {
 
         <Section title="跑马灯 Marquee">
           <Marquee class="marquee-demo" fade paused={marqueePaused} aria-label="技术栈">
-            {['Vue', 'Vite', 'StyleX', 'Anime.js', 'Lucide', 'Zod', 'Vitest', 'Playwright'].map(
-              (name) => (
-                <Badge key={name}>{name}</Badge>
-              ),
-            )}
+            {['Vue', 'Vite', 'Anime.js', 'Lucide', 'Zod', 'Vitest', 'Playwright'].map((name) => (
+              <Badge key={name}>{name}</Badge>
+            ))}
           </Marquee>
           <Button
             variant="outline"

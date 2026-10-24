@@ -1,7 +1,7 @@
 /** 代码演练场的编译 Worker：编译（compile.ts）放在页面线程之外，打字时界面不卡 */
 // 必须是第一个导入：给 Babel 补上 process
 import './node-shims/globals';
-import { compilePlayground, type TokenGroups } from './compile';
+import { compilePlayground } from './compile';
 
 /** 发给 Worker 的消息 */
 export interface CompileRequest {
@@ -9,8 +9,6 @@ export interface CompileRequest {
   id: number;
   /** 用户写的 TSX */
   code: string;
-  /** 主题 token 的组名 → token 名 */
-  tokenGroups: TokenGroups;
 }
 
 /** Worker 的回复 */
@@ -18,10 +16,10 @@ export type CompileResponse =
   { id: number; code: string; ms: number } | { id: number; error: string; ms: number };
 
 self.onmessage = async (event: MessageEvent<CompileRequest>) => {
-  const { id, code, tokenGroups } = event.data;
+  const { id, code } = event.data;
   const start = performance.now();
   try {
-    const result = await compilePlayground(code, tokenGroups);
+    const result = await compilePlayground(code);
     self.postMessage({ id, ...result, ms: performance.now() - start });
   } catch (error) {
     self.postMessage({

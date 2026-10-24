@@ -5,10 +5,7 @@ import { CompilePool } from '../src/vite/pool';
 
 const setup: CompilerSetup = {
   optimize: true,
-  tokens: false,
   root: process.cwd(),
-  stylex: { dev: false },
-  styleBindings: false,
   jsx: undefined,
   hmr: true,
 };
@@ -24,13 +21,13 @@ const request = (code: string): ModuleRequest => ({
   ssr: false,
 });
 
-it('线程里的结果与主线程相同（符文、StyleX、JSX、热更新登记）', async () => {
-  const code = `import * as stylex from '@stylexjs/stylex';
+it('线程里的结果与主线程相同（符文、样式绑定与热更新、JSX、热更新登记）', async () => {
+  const code = `import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { _component } from '@vue-tsx-pro/tsx';
-const styles = stylex.create({ root: { color: 'red' } });
+const styles = stylex.create({ root: { color: 'red' }, bar: (width: number) => ({ width }) });
 export const Counter = _component(({ step = 1 }: { step?: number }) => {
   let count = _state(0);
-  return () => <button {...stylex.props(styles.root)} onClick={() => (count += step)}>{count}</button>;
+  return () => <button {...stylex.attrs(styles.root, styles.bar(step))} onClick={() => (count += step)}>{count}</button>;
 });`;
   const [inWorker, inMain] = await Promise.all([
     pool.run(request(code)),
@@ -38,7 +35,8 @@ export const Counter = _component(({ step = 1 }: { step?: number }) => {
   ]);
   expect(inWorker).toEqual(inMain);
   expect(inWorker!.code).toContain('__VUE_HMR_RUNTIME__.createRecord');
-  expect(inWorker!.stylex.length).toBeGreaterThan(0);
+  expect(inWorker!.code).toContain('stylex.bind(styles.bar');
+  expect(inWorker!.code).toContain('_hotStyles(');
 });
 
 it('写错时的报错带着位置与代码帧', async () => {

@@ -4,8 +4,6 @@ import { defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors, shadows } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 喜庆主题的颜色：暖白宣纸色的页面、中国红的品牌色 `#c8102e`、金色点缀（高亮、图表）。中性色按 slate 各级亮度换成暖色相（oklch 45°），品牌色取 Radix red 色阶；危险色换成 ruby，和品牌色区分开。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）

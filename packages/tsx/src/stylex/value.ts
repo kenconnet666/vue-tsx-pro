@@ -1,14 +1,14 @@
 /**
  * 条件键：伪类（':hover'、stylex.when.* 生成的键）、@ 规则（'@media (…)'、'@supports (…)'、'@container (…)'），
- * 运行时模式下还可以写属性选择器（'[data-hot]'、'[data-state="open"]'）：状态写在 DOM 属性上，变化时只改属性
+ * 还可以写属性选择器（'[data-hot]'、'[data-state="open"]'）：状态写在 DOM 属性上，变化时只改属性
  */
 type Condition = `:${string}` | `@${string}` | `[${string}]`;
 
 /**
- * 一个 CSS 属性的取值，与 StyleX 编译器接受的写法一致：
+ * 一个 CSS 属性的取值，同 StyleX：
  *   - 普通值：`padding: 8`
  *   - 按条件取值，必须有 default：`color: { default: 'black', ':hover': 'blue' }`，条件可以嵌套
- *   - 回退值数组：`display: ['grid', 'flex']`（推荐改用 stylex.firstThatWorks）
+ *   - 回退值数组：`display: ['grid', 'flex']`（浏览器用第一个支持的）
  */
 export type StyleValue<V> =
   | V

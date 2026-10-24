@@ -101,7 +101,7 @@ function runtimeImports(directory: string): Set<string> {
   );
 }
 
-it('package.json 的 vueTsxPro.optimizeDeps 列全了源码运行时导入的第三方依赖（Vite 预设按它预构建；漏了开发服务器会一个文件一个请求，打开某页才发现的依赖还会刷新页面）', () => {
+it('package.json 的 vueTsxPro.optimizeDeps 列全了源码运行时导入的第三方依赖（按源码读组件库的应用由 workspaceSource 按它预构建；漏了开发服务器会一个文件一个请求，打开某页才发现的依赖还会刷新页面）', () => {
   const imports = runtimeImports(join(import.meta.dirname, '../..'));
   const { include, exclude } = manifest.vueTsxPro.optimizeDeps;
   expect([...imports].sort()).toEqual([...include, ...exclude].sort());

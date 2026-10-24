@@ -166,8 +166,6 @@ export interface AppShellState {
 /** AppShell 的上下文：AppShellBrand 据此在侧栏收起时只显示标志；不在 AppShell 里时为 null */
 export const AppShellContext = createContext<AppShellState | null>('AppShell');
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 config/theme/dark.ts）。
-// 主题不是样式，类型上不在 StyleXStyles 里；StyleX 把它当作一个 class 合并
 /** 外壳把顶栏高度交给里面的标题与粘性侧栏 */
 export const appShellOffset = stylex.createTheme(layoutVars, { stickyOffset: HEADER_HEIGHT });
 

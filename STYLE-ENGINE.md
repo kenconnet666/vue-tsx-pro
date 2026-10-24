@@ -1,6 +1,6 @@
 # 样式引擎：从编译期 StyleX 换成运行时引擎（2026-10-24）
 
-> 状态：已实现并合并（2026-10-24），Vite 预设默认 `styles: 'runtime'`；实测见 §9。最初的“运行时原子类（复刻 StyleX）”原型已放弃，
+> 状态：已实现并合并（2026-10-24），同日完全去掉 StyleX 的依赖（§9.5）；实测见 §9。最初的“运行时原子类（复刻 StyleX）”原型已放弃，
 > 改为下面的组合类 + 响应式绑定；§3、§4.2 里原子类的部分保留作调研记录。
 
 ## 1. 结论
@@ -26,7 +26,7 @@
 - **热更新原地生效**：顶层 `create` / `recipe` 由编译器包上 `hotStyles(id, …)`，模块重新执行时把新声明写进旧片段、
   按原类名改写规则；只改了样式（“骨架”不变）就不连锁、不重载组件。
 - **组件库发布纯 JS**，使用方不需要 StyleX 的 Babel，开发服务器能预构建整个组件库。
-  `*.stylex.ts`（defineVars / defineConsts / defineMarker）暂时仍由 StyleX 编译（变量名要跨源码与产物一致）。
+  变量组、主题、标记、token 短写也都在运行时处理，仓库不再依赖任何 `@stylexjs/*` 包（§9.5）。
 
 ## 2. 现状的问题（实测）
 
@@ -85,8 +85,8 @@ const styles = stylex.create({
 <div {...stylex.attrs(styles.root, active && styles.active, sx)} />;
 ```
 
-- `create`、`attrs`、`keyframes`、`createTheme`、`defineConsts`、`when.*`、`defineMarker` 写法不变。
-- `defineVars` 加一个显式的名字：`defineVars('colors', { … })`（运行时没有导出名可哈希；两个文件改一下）。
+- `create`、`attrs`、`keyframes`、`createTheme`、`when.*` 写法不变；`defineConsts` 换成普通常量。
+- `defineVars`、`defineMarker` 加一个显式的名字：`defineVars({ … }, 'vtp-colors')`（运行时没有导出名可哈希；名字放第二个参数，按第一个参数读 tokens 的脚本不用改）。
 - `'_md'`、`'_colors.text'` 的 token 短写改在运行时按 `token-map.ts` 解析，不再需要编译期改写。
 
 ### 4.2 运行时机制
@@ -298,7 +298,7 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`），attr 组是 `data-hot
 | 改组件文件里的配方（Tabs）                  | 连锁                                                                     | 227 ms，一条 `hmr update`                                                        |
 | 改样式以外的代码                            | 连锁                                                                     | 照旧连锁（骨架变了），导入方拿到新代码                                           |
 | 自动绑定的编译开销                          | —                                                                        | 1024 个文件 12.75 s → 12.98 s（+1.8%）                                           |
-| 引擎体积（压缩 / gzip）                     | 原子类原型 25 KB / 8 KB                                                  | 17.1 KB / 6.9 KB（含兼容编译模式的 StyleX props）                                |
+| 引擎体积（压缩 / gzip）                     | 原子类原型 25 KB / 8 KB                                                  | 21.6 KB / 7.9 KB（去掉 StyleX 后，含原来在编译器里的 token 对照表与 recipe）     |
 | 新项目把组件库当 npm 依赖用：开发服务器就绪 | 8.3 s（载入预设就要 3.1 s：静态导入了 Babel 与 StyleX 插件）             | **1.0 s**（Babel、StyleX 插件、编译函数都按需载入）                              |
 | 同上：打开页面到画出（10 个组件的页面）     | 冷 10.2 s、热 8.2 s，302 个请求，组件库 275 个模块逐个过 StyleX 的 Babel | 冷 **1.95 s**（含第一次预构建）、热 **0.78 s**，11 个请求，组件库源文件请求 0 个 |
 
@@ -311,3 +311,24 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`），attr 组是 `data-hot
 - 热更新只认顶层 `create` / `recipe`；`createTheme`、`keyframes` 改了照旧连锁。注释也算骨架，改注释会连锁。
 - 测试环境（happy-dom）会丢掉它不认识的声明（`-webkit-line-clamp`、`color-mix`），测试按引擎记下的规则原文断言
   （`styleTextOf`、`styleOf`）。
+
+### 9.5 完全去掉 StyleX（2026-10-24）
+
+运行时引擎合并后，StyleX 只剩三处：`*.stylex.ts` 的 `defineVars` / `defineConsts` / `defineMarker` 仍过它的 Babel 插件，
+`attrs` 为兼容编译模式转交它的 `props`，类型建立在它的 `CSSProperties` 上。这三处都换成了自己的实现：
+
+- **变量组**：`defineVars(取值, 名字)` 在 `:root` 上声明 `--名字-token`，条件取值进对应的 @ 规则；同名再定义（热更新）换成新值。
+  变量名可读（`--vtp-colors-accent`），源码、产物、SSR 一致，不再需要“`src/` 与 `dist/` 规范成同一模块”的模块解析。
+- **token 短写**：`defineTokens({ 组名: 变量组 })` 登记，引擎展开声明时把整个值是 `'_md'` / `'_space.md'` 的换成变量；
+  写错的 token、夹在值中间的短写在第一次用到那段样式时报错。编译期改写（要按导入关系找 token 模块、读源码或产物、
+  算进编译缓存的键）整个删掉。组件库在 `utils/props.ts` 里导入登记 tokens 的模块，`sideEffects` 只列它。
+- **主题与标记**：`createTheme` 按变量组的名字去重（同组后者覆盖前者），`defineMarker(名字)` 就是一个类；
+  二者都是“固定类”，`attrs` 原样挂上。断点（原来的 `defineConsts`）是普通常量。
+- **类型**：`css-properties.ts` 收录 StyleX 0.19.1 的 CSS 类型表（MIT，保留出处），`units.ts` 是补单位的两张表，
+  引擎与 `scripts/css-docs` 共用；样式组、主题、标记的类型不透明，只能由对应的函数产出。生成的注释与之前逐字相同。
+- **删掉的**：Vite 预设的编译模式（`styles: 'compile'`、`stylex` 与 `tokens` 选项、合成 CSS 的插件、模块解析）、
+  编译器里的 StyleX 与 token 两步、优先级与 StyleX 逐项对照的测试、演练场的 `@babel/standalone` 替身与 token 名的传递，
+  以及 `@stylexjs/*`、`lightningcss`、`browserslist` 依赖。
+- **顺带修复**：组件库 package.json 的 `vueTsxPro.optimizeDeps` 原来只有编译模式读，切到运行时后没人读了，
+  按源码读组件库的应用（文档站的浏览器测试）跑到图表才发现 `@unovis/ts` 等依赖、重新预构建，正在初始化的测试页卡住
+  （合并后那次 CI 的 ComboChart 超时）。改由 `workspaceSource()` 读它，按“包 > 依赖”预构建。

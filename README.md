@@ -1,6 +1,6 @@
 # vue-tsx-pro
 
-更自然的 Vue TSX 写法：props 驱动的组件、下划线符文（`_state`、`_derived`、`_bindable`……）、StyleX 样式。
+更自然的 Vue TSX 写法：props 驱动的组件、下划线符文（`_state`、`_derived`、`_bindable`……）、写法像 StyleX 的运行时样式。
 
 定位：在**已有的 Vue 3.5 项目**里用这套写法构建独立页面，配合本仓库的组件库。与宿主共享同一份 Vue、响应式状态（pinia、组合式函数）与 `provide` / `inject`；只写 TSX，不兼容 SFC 模板。
 
@@ -22,7 +22,7 @@ import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
 export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
 ```
 
-预设对每个文件只解析、生成一次：符文编译 → token 字符串写法 → StyleX → Vue JSX 与去类型，加上组件热更新；StyleX 的 CSS 开发时由服务器按版本推送，构建时输出成 CSS 文件并在 HTML 里引用；重启开发服务器时没改过的文件直接取磁盘上的编译缓存；构建与开发服务器在工作线程里并行编译。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx` 或 StyleX 的打包插件。
+预设对每个文件只解析、生成一次：样式的响应式绑定与热更新 → 符文编译 → Vue JSX 与去类型，加上组件热更新；样式由运行时引擎在页面里生成（`packages/tsx/src/stylex`，见 STYLE-ENGINE.md），不需要 CSS 插件；重启开发服务器时没改过的文件直接取磁盘上的编译缓存；构建与开发服务器在工作线程里并行编译。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx`。
 
 TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
 
@@ -94,7 +94,7 @@ pnpm build:docs     # 构建文档站静态页面
 pnpm build:host     # 构建宿主示例
 pnpm test:consumer  # 发布产物验证：pnpm pack 的包在独立应用里安装、构建、浏览器运行
 pnpm test:browser   # 真实浏览器测试（首次先运行 pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium）
-pnpm css-docs       # 重新生成 StyleX 属性的中文注释（数据见 scripts/css-docs）
+pnpm css-docs       # 重新生成 CSS 属性的中文注释（数据见 scripts/css-docs）
 pnpm exports        # 重新生成组件库入口 packages/ui/src/index.ts（模块里加了导出后）
 pnpm lint           # oxlint（含类型感知规则）
 pnpm format         # prettier
@@ -134,7 +134,7 @@ pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
 - **源码条件**：各包 `exports` 带有 `@vue-tsx-pro/source` 条件。仓库内的 TypeScript（`customConditions`）和 Vite（`workspaceSource()`）据此直接读取源码，不必先构建；发布包的使用方不受影响。开发服务器与测试里，`workspaceSource()` 还把 `import { Button } from '@vue-tsx-pro/ui'` 改成直接导入所在模块：热更新不经过桶文件，改了组件库的样式、工具函数只更新用到它的组件，不整页刷新。
 - **仓库内不用先构建**：`pnpm-workspace.yaml` 的 `nodeOptions` 让 Node 按 `@vue-tsx-pro/source` 条件解析各包源码，脚本里的 Vite / Vitest 都用 `--configLoader native` 加载配置，编译器、预设与组件都直接用源码（文档站开发时热更新）。改了编译器或 Vite 预设要重启开发服务器。
 - **符文类型**：配置 `jsxImportSource: "@vue-tsx-pro/tsx"` 后即可直接使用 `_state` 等；只有 `.ts` 文件的包再在 `types` 里加 `"@vue-tsx-pro/tsx/runes"`。
-- **组件库构建**：编译 TSX 与符文，保留 `stylex.create`，由使用方应用的 StyleX 插件统一编译。
+- **组件库构建**：编译 TSX 与符文，发布普通的 JS；样式在运行时生成，使用方不再编译组件库，开发服务器整个预构建它。
 
 ## 文档
 

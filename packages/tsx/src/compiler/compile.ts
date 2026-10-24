@@ -1,12 +1,12 @@
 /**
  * 一个文件的完整编译：解析一次、生成一次，中间两遍遍历，组合本包与官方的 Babel 插件。
  *
- *   第 1 遍：符文与 props（transform.ts）→ token 写法（tokens.ts）→ StyleX
+ *   第 1 遍：样式的响应式绑定与热更新（style-bindings.ts、style-hot.ts）→ 符文与 props（transform.ts）
  *   第 2 遍：Vue JSX（@vue/babel-plugin-jsx）→ 去掉 TS 类型 → 调用方追加的插件（热更新标记、演练场的模块表）
  *
  * 以前每一步各自解析、生成一次，成本大头是每一遍的遍历与生成（含 source map），合并后编译快三四成。
- * 分成两遍而不是一遍：StyleX 在 Program 退出时才把 stylex.props(…) 换成对象，与 vue-jsx 同一遍的话
- * vue-jsx 先处理元素，展开的样式会变成运行时的 mergeProps。
+ * 分成两遍而不是一遍：第 1 遍的改写（符文换成 .value、样式调用换成绑定）要在 vue-jsx 处理元素之前完成，
+ * 同一遍里各插件的访问器按节点交错执行，vue-jsx 会先看到没改写的属性。
  * 第 2 遍开始时重建作用域：第 1 遍插入的 import 与声明没有全部登记，vue-jsx 与去类型插件要靠作用域里的绑定判断。
  *
  * Vite 预设（vite/）与文档站的代码演练场都用它，两处的结果一致。
@@ -20,17 +20,12 @@ import {
   type types as t,
 } from '@babel/core';
 import typescript from '@babel/plugin-transform-typescript';
-import type { Options as StylexOptions, Rule } from '@stylexjs/babel-plugin';
 import vueJsx, { type VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
-import { languageOf, parserPlugins, STYLEX_SOURCES, type Language } from './ast.ts';
+import { languageOf, parserPlugins, type Language } from './ast.ts';
 import type { RunesWarning } from './errors.ts';
 import { needsStyleBindings, styleBindingsPlugin } from './style-bindings.ts';
 import { styleHotPlugin } from './style-hot.ts';
-import { needsTokens, tokensBabelPlugin, type TokenModuleLoader } from './tokens.ts';
 import { needsRunes, runesBabelPlugin } from './transform.ts';
-
-/** StyleX 为一个文件生成的样式规则；收集全部文件的规则才能生成 CSS（processStylexRules） */
-export type StylexRule = Rule;
 
 /** 编译结果的 source map（Babel 生成的） */
 export type SourceMap = NonNullable<FileResult['map']>;
@@ -40,7 +35,7 @@ type TypeScriptOptions = Parameters<typeof typescript>[1];
 
 /** compile 的选项；没开的步骤不做 */
 export interface CompileOptions {
-  /** 文件路径（不带查询参数）：报错、source map 与 StyleX 的模块解析都用它 */
+  /** 文件路径（不带查询参数）：报错与 source map 用它 */
   filename: string;
   /** 文件的语言，默认按扩展名；Vue 单文件组件里 lang="tsx" 的脚本由调用方传 'tsx' */
   lang?: Language;
@@ -48,16 +43,9 @@ export interface CompileOptions {
   runes?: boolean;
   /** 渲染优化（optimize.ts），默认 true */
   optimize?: boolean;
-  /** token 字符串写法从哪里取 token；不传时不改写 */
-  tokens?: TokenModuleLoader;
-  /**
-   * StyleX 插件的选项；不传时保留 stylex.create 原样（组件库构建，由使用方统一编译）。
-   * importSources 总是认 @stylexjs/stylex 与 @vue-tsx-pro/tsx/stylex，这里给的加在后面
-   */
-  stylex?: Partial<StylexOptions>;
-  /** 运行时样式模式：JSX 里的动态样式调用改成响应式绑定（style-bindings.ts） */
+  /** JSX 里的动态样式调用改成响应式绑定（style-bindings.ts） */
   styleBindings?: boolean;
-  /** 运行时样式模式的开发服务器：样式热更新原地生效，值是模块 id（相对项目根目录，style-hot.ts） */
+  /** 开发服务器：样式热更新原地生效，值是模块 id（相对项目根目录，style-hot.ts） */
   styleHot?: string;
   /** Vue JSX 插件的选项 */
   jsx?: VueJSXPluginOptions;
@@ -79,14 +67,12 @@ export interface CompileResult {
   ast: t.File;
   /** 不影响正确性、但多半不是作者本意的写法（符文） */
   warnings: RunesWarning[];
-  /** 这个文件的 StyleX 规则 */
-  stylex: StylexRule[];
   /** 开了 styleHot 且文件里有顶层样式时：去掉样式参数后的源码哈希（style-hot.ts） */
   styleSkeleton?: string;
 }
 
 /**
- * 编译一个文件；什么都不用做（没有符文、token 写法、StyleX，也不是 JSX 文件）时返回 null。
+ * 编译一个文件；什么都不用做（没有符文、样式绑定与热更新，也不是 JSX 文件）时返回 null。
  * 写法错误时抛出带代码帧的错误。
  */
 export async function compile(
@@ -98,19 +84,7 @@ export async function compile(
   if (options.runes !== false && needsRunes(code)) {
     first.push([runesBabelPlugin, { optimize: options.optimize ?? true }]);
   }
-  const tokens = options.tokens;
-  if (tokens && needsTokens(code)) first.push(() => tokensBabelPlugin(tokens));
-  if (options.stylex) {
-    const importSources = [...STYLEX_SOURCES, ...(options.stylex.importSources ?? [])];
-    if (importsStylex(code, importSources)) {
-      // 用到时才载入（载入要近 2 秒，运行时样式模式下只有 *.stylex.ts 用它）；
-      // 官方插件的类型按 Babel 7 声明，运行时与 Babel 8 兼容
-      const stylexBabelPlugin = (await import('@stylexjs/babel-plugin')).default;
-      const plugin = stylexBabelPlugin.withOptions({ ...options.stylex, importSources });
-      first.push(plugin as unknown as PluginItem);
-    }
-  }
-  // 都在符文、token 改写之前：先认出原样的 create 调用与参数的位置；绑定的读取函数里的引用随后照常按符文改写
+  // 都在符文改写之前：先认出原样的 create 调用与参数的位置；绑定的读取函数里的引用随后照常按符文改写
   if (options.styleHot && needsStyleBindings(code)) {
     const moduleId = options.styleHot;
     first.unshift(() => styleHotPlugin(moduleId));
@@ -132,7 +106,6 @@ export async function compile(
   });
   const metadata: {
     runesWarnings?: RunesWarning[];
-    stylex?: StylexRule[];
     styleSkeleton?: string;
   } = {};
   for (const [index, plugins] of passes.entries()) {
@@ -155,7 +128,6 @@ export async function compile(
         map: result!.map,
         ast: ast!,
         warnings: metadata.runesWarnings ?? [],
-        stylex: metadata.stylex ?? [],
         styleSkeleton: metadata.styleSkeleton,
       };
     }
@@ -173,18 +145,4 @@ function rescope(): PluginObject {
       },
     },
   };
-}
-
-/** 文件里有没有从 StyleX 入口导入（静态、动态导入或 require），没有就不必交给 StyleX 插件 */
-function importsStylex(code: string, sources: NonNullable<StylexOptions['importSources']>) {
-  return sources.some((source) => {
-    const name = (typeof source === 'string' ? source : source.from).replace(
-      /[.*+?^${}()|[\]\\]/g,
-      '\\$&',
-    );
-    return new RegExp(
-      `from\\s*['"]${name}['"]|import\\s*\\(\\s*['"]${name}['"]\\s*\\)|require\\s*\\(\\s*['"]${name}['"]\\s*\\)|^\\s*import\\s*['"]${name}['"]`,
-      'm',
-    ).test(code);
-  });
 }

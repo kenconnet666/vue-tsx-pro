@@ -3,9 +3,6 @@ import { defaultFonts, defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors, shadows } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联进对象字面量
-// （只用一次的常量会被打包工具内联，使用方编译 dist 时 StyleX 就会报错）
-
 // Radix Colors 的暗色色阶，各 token 对应的级别见 tokens.stylex.ts
 /** 暗色主题的颜色（Radix Colors 暗色色阶） */
 export const darkColors = stylex.createTheme(colors, {

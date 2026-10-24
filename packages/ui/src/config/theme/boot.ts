@@ -1,11 +1,11 @@
 /**
- * 防闪烁脚本与内置主题的底色：生成 HTML 时（构建脚本、服务端模板）在 Node 里调用，所以这个模块不依赖 StyleX 与 Vue，
+ * 防闪烁脚本与内置主题的底色：生成 HTML 时（构建脚本、服务端模板）在 Node 里调用，所以这个模块不依赖样式引擎与 Vue，
  * 另有子路径入口 `@vue-tsx-pro/ui/theme-boot`。
  *
  *   import { builtinThemeBootColors, themeBootScript } from '@vue-tsx-pro/ui/theme-boot';
  *   const html = `<script>${themeBootScript({ themes: builtinThemeBootColors })}</script>`;
  */
-// 只取类型：这个模块要在 Node 里运行，不能带上主题文件（StyleX）
+// 只取类型：这个模块要在 Node 里运行，不能带上主题文件（样式引擎）
 import type { BuiltinThemeName } from './builtin';
 import type { ColorSchemes } from './theme';
 

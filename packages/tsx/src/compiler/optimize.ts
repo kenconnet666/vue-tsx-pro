@@ -15,7 +15,7 @@
  * 这类数据变了不会通知任何组件，以前靠父组件碰巧重新渲染才刷新。
  */
 import { types as t, type NodePath } from '@babel/core';
-import { isComponentSetup, prependToBody, type Binding } from './ast.ts';
+import { isComponentSetup, prependToBody, STYLE_SOURCE, type Binding } from './ast.ts';
 import type { RuntimeImports } from './imports.ts';
 import type { TrackedInfo } from './runes.ts';
 
@@ -164,7 +164,8 @@ function readsInside(reference: NodePath) {
   );
 }
 
-const STYLEX_FACTORIES = new Set(['create', 'createTheme', 'defineVars', 'defineConsts']);
+/** 样式入口里结果不再变的工厂 */
+const STYLE_FACTORIES = new Set(['create', 'createTheme', 'defineVars', 'defineMarker', 'recipe']);
 
 /**
  * 读的成员不会变：同一文件里 stylex.create（等）的结果；命名空间导入（import * as icons）的一层成员。
@@ -187,10 +188,10 @@ function isFrozenRead(reference: NodePath) {
   if (t.isObjectExpression(init) || t.isArrayExpression(init)) return true;
   if (!t.isCallExpression(init) || !t.isMemberExpression(init.callee)) return false;
   const { object, property } = init.callee;
-  if (!t.isIdentifier(property) || !STYLEX_FACTORIES.has(property.name)) return false;
+  if (!t.isIdentifier(property) || !STYLE_FACTORIES.has(property.name)) return false;
   if (!t.isIdentifier(object)) return false;
   const source = binding.scope.getBinding(object.name)?.path.parent;
-  return t.isImportDeclaration(source) && /stylex$/.test(source.source.value);
+  return t.isImportDeclaration(source) && source.source.value === STYLE_SOURCE;
 }
 
 // ───────────────────────── 稳定插槽 ─────────────────────────

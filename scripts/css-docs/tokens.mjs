@@ -62,7 +62,7 @@ export function generateTokenNames(root) {
     .join('\n');
 }
 
-/** export const 组 = stylex.defineVars({ … }) → 组名、注释与各 token 的名字、注释 */
+/** export const 组 = stylex.defineVars('vtp-组', { … }) → 组名、注释与各 token 的名字、注释 */
 export function readTokenGroups(file) {
   const text = readFileSync(file, 'utf8');
   const source = parseSource(file, text);
@@ -75,7 +75,7 @@ export function readTokenGroups(file) {
       const call = declaration.initializer;
       if (!call || !ts.isCallExpression(call) || !call.expression.getText().endsWith('defineVars'))
         continue;
-      const object = call.arguments[0];
+      const object = call.arguments[1];
       if (!object || !ts.isObjectLiteralExpression(object)) continue;
       groups.push({
         name: declaration.name.getText(),

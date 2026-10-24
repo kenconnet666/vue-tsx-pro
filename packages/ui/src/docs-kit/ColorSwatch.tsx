@@ -8,7 +8,6 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXVar } from '@vue-tsx-pro/tsx/stylex';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { useConfig } from '../config/context';
 import { readToken } from '../config/theme/theme';
@@ -18,7 +17,7 @@ import { swatchStyles } from '../utils/style/swatch-styles';
 /** 未声明的属性落到外层 div 上 */
 export interface ColorSwatchProps extends PartProps<'div'> {
   /** 颜色：任意 CSS 颜色，或主题 token（colors.accent） */
-  color: string | StyleXVar<string>;
+  color: string;
   /** 名称 */
   label?: VNodeChild;
   /** 显示的取值；不写时：普通颜色显示它本身，token 显示当前主题下的值；false 不显示 */
@@ -57,16 +56,16 @@ export const ColorSwatch = _component(
     let resolved = _state('');
 
     // token 在运行时是 var(--…)
-    const isToken = () => String(color).startsWith('var(');
+    const isToken = () => color.startsWith('var(');
     // token 的值随主题变：挂载后、换主题后从色块上读
     function resolve() {
-      if (swatch && isToken()) resolved = readToken(swatch, color as StyleXVar<string>);
+      if (swatch && isToken()) resolved = readToken(swatch, color);
     }
     onMounted(resolve);
     watch(() => [config.theme, color], resolve, { flush: 'post' });
 
     return () => {
-      const shown = value ?? (isToken() ? resolved : String(color));
+      const shown = value ?? (isToken() ? resolved : color);
       return (
         <div {...mergeAttrs<'div'>({ sx: colorSwatchStyles.root }, rest)}>
           <div

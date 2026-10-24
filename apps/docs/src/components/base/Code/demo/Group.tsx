@@ -20,17 +20,17 @@ export default _component(() => {
         items={[
           {
             label: 'pnpm',
-            code: 'pnpm add @vue-tsx-pro/ui @vue-tsx-pro/tsx @stylexjs/stylex',
+            code: 'pnpm add @vue-tsx-pro/ui @vue-tsx-pro/tsx',
             lang: 'bash',
           },
           {
             label: 'npm',
-            code: 'npm install @vue-tsx-pro/ui @vue-tsx-pro/tsx @stylexjs/stylex',
+            code: 'npm install @vue-tsx-pro/ui @vue-tsx-pro/tsx',
             lang: 'bash',
           },
           {
             label: 'yarn',
-            code: 'yarn add @vue-tsx-pro/ui @vue-tsx-pro/tsx @stylexjs/stylex',
+            code: 'yarn add @vue-tsx-pro/ui @vue-tsx-pro/tsx',
             lang: 'bash',
           },
         ]}

@@ -3,8 +3,6 @@ import { defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors, fonts, shadows } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 纸张主题的颜色：米黄纸色的页面、深棕墨色的文字、墨蓝的品牌色。
  * 中性色是自定的暖色 12 级（按 Radix 的用途约定：1–2 背景，3–5 填充，6–8 边框，11–12 文字），
@@ -98,7 +96,7 @@ export const paperShadows = stylex.createTheme(shadows, {
   xl: '0 12px 60px rgba(80, 60, 30, 0.16), 0 16px 36px -20px rgba(80, 60, 30, 0.24)',
 });
 
-/** 纸张主题的字体：标题用衬线，正文仍是无衬线（屏幕上长文更好读）；StyleX 的 createTheme 要给全每个变量，正文与等宽与默认相同 */
+/** 纸张主题的字体：标题用衬线，正文仍是无衬线（屏幕上长文更好读）；写全每个变量（嵌套在别的主题里时不继承外层的），正文与等宽与默认相同 */
 export const paperFonts = stylex.createTheme(fonts, {
   sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
   mono: 'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',

@@ -2,8 +2,6 @@ import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { Theme } from './theme';
 import { colors, fonts, radii, shadows } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 赛博朋克主题的颜色：深紫黑的页面、霓虹品红的品牌色 `#ff2bd6`（配深色字）、霓虹青的焦点环与信息色。中性色按 slate 暗色各级亮度换成紫色相（oklch 290°）并加大色度；图表与代码高亮用荧光色。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
@@ -95,7 +93,7 @@ export const cyberpunkShadows = stylex.createTheme(shadows, {
   xl: '0 0 0 1px rgba(255, 43, 214, 0.35), 0 0 60px -8px rgba(255, 43, 214, 0.45), 0 16px 36px -20px rgba(0, 0, 0, 0.9)',
 });
 
-/** 赛博朋克主题的字体：标题用等宽字体，像终端与仪表盘；StyleX 的 createTheme 要给全每个变量，正文、等宽、衬线与默认相同 */
+/** 赛博朋克主题的字体：标题用等宽字体，像终端与仪表盘；写全每个变量（嵌套在别的主题里时不继承外层的），正文、等宽、衬线与默认相同 */
 export const cyberpunkFonts = stylex.createTheme(fonts, {
   sans: 'system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", sans-serif',
   mono: 'ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',

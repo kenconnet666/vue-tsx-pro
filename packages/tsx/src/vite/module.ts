@@ -1,31 +1,19 @@
 /**
  * 编译一个模块：compile（compiler/compile.ts）加上组件的热更新、SSR 登记。
- * 主线程（index.ts）与编译线程（compile-worker.ts）共用；设置要能在线程之间复制，所以只放数据，
- * StyleX 的模块解析（含函数）没给时在这里按默认生成。
+ * 主线程（index.ts）与编译线程（compile-worker.ts）共用；设置要能在线程之间复制，所以只放数据。
  */
 import { relative } from 'node:path';
-import type { Options as StylexBabelOptions } from '@stylexjs/babel-plugin';
 import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import type { Language } from '../compiler/ast.ts';
-import { compile, type SourceMap, type StylexRule } from '../compiler/index.ts';
+import { compile, type SourceMap } from '../compiler/index.ts';
 import { componentMarkers, exportedComponents, hmrCode, ssrCode, styleHotCode } from './hmr.ts';
-import { stylexModuleResolution } from './stylex-resolution.ts';
-import { tokenModule } from './tokens.ts';
 
 /** 对所有模块都一样的设置 */
 export interface CompilerSetup {
   /** 渲染优化 */
   optimize: boolean;
-  /** token 模块（包名或相对项目根目录的路径），false 时不改写 token 写法 */
-  tokens: string | false;
   /** 项目根目录 */
   root: string;
-  /** StyleX 插件的选项；undefined 时不编译 StyleX。没给 unstable_moduleResolution 时用 stylex-resolution.ts 的 */
-  stylex: Partial<StylexBabelOptions> | undefined;
-  /** 只有路径匹配这个正则（源码）的文件过 StyleX（运行时模式只编译 *.stylex.ts）；不写时全部 */
-  stylexOnly?: string;
-  /** 运行时样式模式：项目自己的文件里，JSX 中的动态样式调用改成响应式绑定 */
-  styleBindings: boolean;
   /** Vue JSX 插件的选项 */
   jsx: VueJSXPluginOptions | undefined;
   /** 开发服务器：登记组件的热更新 */
@@ -42,7 +30,7 @@ export interface ModuleRequest {
   file: string;
   /** 语言 */
   lang: Language;
-  /** 项目自己的脚本文件：编译符文与 token 写法 */
+  /** 项目自己的脚本文件：编译符文与样式绑定 */
   own: boolean;
   /** SSR 环境 */
   ssr: boolean;
@@ -54,23 +42,8 @@ export interface ModuleResult {
   code: string;
   /** source map */
   map: SourceMap | null;
-  /** StyleX 规则 */
-  stylex: StylexRule[];
   /** 符文的警告（代码帧） */
   warnings: string[];
-}
-
-const resolutions = new WeakMap<object, Partial<StylexBabelOptions>>();
-
-/** 补上默认的模块解析（每份设置只生成一次） */
-function stylexOptions(stylex: Partial<StylexBabelOptions>) {
-  if (stylex.unstable_moduleResolution) return stylex;
-  let options = resolutions.get(stylex);
-  if (!options) {
-    options = { ...stylex, unstable_moduleResolution: stylexModuleResolution() as never };
-    resolutions.set(stylex, options);
-  }
-  return options;
 }
 
 /** 编译一个模块；什么都不用做时返回 null */
@@ -80,20 +53,14 @@ export async function compileModule(
 ): Promise<ModuleResult | null> {
   const { code, id, file, lang, own, ssr } = request;
   const jsx = lang === 'tsx' || lang === 'jsx';
-  const tokens = setup.tokens;
-  // 样式热更新原地生效：开发服务器、运行时样式模式、项目自己的文件
-  const styleHot = own && setup.hmr && setup.styleBindings && !ssr;
+  // 样式热更新原地生效：开发服务器、项目自己的文件
+  const styleHot = own && setup.hmr && !ssr;
   const result = await compile(code, {
     filename: file,
     lang,
     runes: own,
     optimize: setup.optimize,
-    tokens: own && tokens !== false ? () => tokenModule(tokens, file, setup.root) : undefined,
-    stylex:
-      setup.stylex && (!setup.stylexOnly || new RegExp(setup.stylexOnly).test(file))
-        ? stylexOptions(setup.stylex)
-        : undefined,
-    styleBindings: own && setup.styleBindings,
+    styleBindings: own,
     styleHot: styleHot ? relative(setup.root, file).split('\\').join('/') : undefined,
     jsx: setup.jsx,
     plugins: jsx ? [() => componentMarkers(setup.hmr || ssr)] : undefined,
@@ -114,7 +81,6 @@ export async function compileModule(
   return {
     code: output,
     map: result.map,
-    stylex: result.stylex,
     warnings: result.warnings.map((warning) => warning.frame),
   };
 }

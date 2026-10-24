@@ -1,8 +1,18 @@
 // 运行时样式引擎：片段惰性、一次 attrs 合成一个类、合并语义、缓存命中返回同一个对象、动态样式只改变量、
-// 主题与关键帧；配方按档位组合缓存
+// 变量组、主题、标记、token 短写与关键帧；配方按档位组合缓存
 import { describe, expect, it } from 'vitest';
 import { recipe } from '../src/stylex/recipe';
-import { attrs, create, createTheme, keyframes, styleText, when } from '../src/stylex/runtime';
+import {
+  attrs,
+  create,
+  createTheme,
+  defineMarker,
+  defineTokens,
+  defineVars,
+  keyframes,
+  styleText,
+  when,
+} from '../src/stylex/runtime';
 
 /** 某个类的全部规则文本（每条规则压成一行） */
 const rulesOf = (className: string | undefined) =>
@@ -86,8 +96,9 @@ describe('create 与 attrs', () => {
     expect(styleText()).toBe(text);
   });
 
-  it('when.ancestor 生成 :where 选择器，类名多重复一次', () => {
-    const marker = { xmarker: 'xmarker', $$css: true } as const;
+  it('when.ancestor 生成 :where 选择器，类名多重复一次；标记放进 attrs 挂上它的类', () => {
+    const marker = defineMarker('xmarker');
+    expect(attrs(marker).class).toBe('xmarker');
     const styles = create({
       link: { opacity: { default: 0, [when.ancestor(':hover', marker)]: 1 } },
     });
@@ -96,13 +107,59 @@ describe('create 与 attrs', () => {
   });
 });
 
-describe('createTheme 与 keyframes', () => {
+describe('变量组、主题、token 与关键帧', () => {
+  it('defineVars：变量名由组名与键决定，条件值进 @ 规则；同名再定义换成新值', () => {
+    const vars = defineVars('test-vars', {
+      textMuted: '#666',
+      speed: { default: '200ms', '@media (prefers-reduced-motion: reduce)': '0ms' },
+    });
+    expect(vars).toEqual({
+      textMuted: 'var(--test-vars-text-muted)',
+      speed: 'var(--test-vars-speed)',
+    });
+    expect(styleText()).toContain(':root{--test-vars-text-muted:#666;--test-vars-speed:200ms}');
+    expect(styleText()).toContain(
+      '@media (prefers-reduced-motion: reduce){:root{--test-vars-speed:0ms}}',
+    );
+    defineVars('test-vars', { textMuted: '#777', speed: '1ms' });
+    expect(styleText()).toContain(':root{--test-vars-text-muted:#777;--test-vars-speed:1ms}');
+    expect(styleText()).not.toContain('#666');
+  });
+
+  it('变量组的 token 作为键：设置那个变量', () => {
+    const vars = defineVars('test-glow', { glow: 'red' });
+    const styles = create({ box: { [vars.glow]: 'blue' } });
+    expect(rulesOf(attrs(styles.box).class)).toContain('--test-glow-glow: blue');
+  });
+
+  it('token 短写：按属性找组，带组名的任何属性都能用；写错时报错', () => {
+    defineTokens({
+      space: defineVars('test-space', { md: '1em' }),
+      colors: defineVars('test-colors', { fg: '#111' }),
+    });
+    const styles = create({
+      box: { padding: '_md', outlineColor: '_colors.fg', width: '_space.md' },
+      bad: { padding: '_nope' },
+      noGroup: { zIndex: '_md' },
+    });
+    const rules = rulesOf(attrs(styles.box).class);
+    expect(rules).toContain('padding: var(--test-space-md)');
+    expect(rules).toContain('outline-color: var(--test-colors-fg)');
+    expect(rules).toContain('width: var(--test-space-md)');
+    expect(() => styles.bad).toThrow(/找不到 token '_nope'/);
+    expect(() => styles.noGroup).toThrow(/带组名/);
+    expect(() => create({ calc: { margin: 'calc(-1 * _md)' } }).calc).toThrow(/t.组.md/);
+    expect(rulesOf(attrs(create({ font: { fontFamily: 'my_font, sans' } }).font).class)).toContain(
+      'my_font',
+    );
+  });
+
   it('主题类只改变量，和片段一起放进 attrs 时单独挂上；同一变量组后者覆盖前者', () => {
-    const vars = { accent: 'var(--xaccent)', __varGroupHash__: 'xgroup' };
+    const vars = defineVars('xaccent-group', { accent: 'black' });
     const green = createTheme(vars, { accent: 'rgb(0, 128, 0)' });
     const red = createTheme(vars, { accent: 'rgb(128, 0, 0)' });
-    expect(styleText()).toContain('--xaccent:rgb(0, 128, 0)');
-    const styles = create({ box: { color: 'var(--xaccent)' } });
+    expect(styleText()).toContain('--xaccent-group-accent:rgb(0, 128, 0)');
+    const styles = create({ box: { color: vars.accent } });
     const classes = attrs(green, styles.box, red).class!.split(' ');
     expect(classes).toHaveLength(2);
     expect(rulesOf(classes[1])).toContain('rgb(128, 0, 0)');

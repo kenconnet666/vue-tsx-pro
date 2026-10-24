@@ -1,15 +1,12 @@
 /**
  * 代码演练场的编译：把一段 TSX 编译成能直接执行的代码，在 Worker 里运行（compile.worker.ts）。
  *
- * 与 Vite 预设是同一个编译函数（@vue-tsx-pro/tsx/compiler 的 compile）：符文、token 字符串写法、动态样式的响应式绑定、
- * Vue JSX、去掉类型；最后把 import 改成从主线程给的模块表里取（见 run.ts），export default 改成交出组件。
- * 样式同站点一样走运行时引擎：stylex.create 在页面上执行时生成规则，不用在这里跑 StyleX 的 Babel、生成 CSS。
+ * 与 Vite 预设是同一个编译函数（@vue-tsx-pro/tsx/compiler 的 compile）：动态样式的响应式绑定、符文、Vue JSX、
+ * 去掉类型；最后把 import 改成从主线程给的模块表里取（见 run.ts），export default 改成交出组件。
+ * 样式同站点一样走运行时引擎：stylex.create 在页面上执行时生成规则（token 短写也在那时换成变量）。
  */
 import { types as t, type PluginObject } from '@babel/core';
 import { compile } from '@vue-tsx-pro/tsx/compiler';
-
-/** 主题 token 的组名 → token 名：'_md' 这类写法据此改写成 token 变量 */
-export type TokenGroups = Record<string, string[]>;
 
 const FILENAME = 'Playground.tsx';
 
@@ -66,18 +63,11 @@ function modulesToGlobals(): PluginObject {
   };
 }
 
-/** token 模块：用户代码与组件库从同一个包名导入 */
-const TOKENS = '@vue-tsx-pro/ui/tokens.stylex';
-
 /** 编译用户代码；语法或写法错误时抛出带代码帧的错误 */
-export async function compilePlayground(code: string, tokenGroups: TokenGroups) {
-  const groups = new Map(
-    Object.entries(tokenGroups).map(([group, names]) => [group, new Set(names)]),
-  );
+export async function compilePlayground(code: string) {
   const result = await compile(code, {
     filename: FILENAME,
-    tokens: () => ({ importPath: TOKENS, groups }),
-    // JSX 里的动态样式调用改成响应式绑定（同站点的运行时样式模式）
+    // JSX 里的动态样式调用改成响应式绑定（同站点）
     styleBindings: true,
     // 值的导入都留着：modulesToGlobals 把它们换成从模块表取
     typescript: { onlyRemoveTypeImports: true },

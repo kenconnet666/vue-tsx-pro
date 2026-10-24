@@ -9,7 +9,7 @@ export default defineConfig({
   // 三个浏览器并行时正在初始化的测试页会卡住（CI 上出现过“failed to find the current suite”）
   optimizeDeps: {
     ...optimizeDeps,
-    include: [...optimizeDeps.include, 'vue', 'vue-router', 'axe-core', '@stylexjs/stylex', 'zod'],
+    include: [...optimizeDeps.include, 'vue', 'vue-router', 'axe-core', 'zod'],
   },
   test: {
     name: 'docs-browser',

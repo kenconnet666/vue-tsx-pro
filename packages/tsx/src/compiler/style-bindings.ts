@@ -9,11 +9,11 @@
  * 参数全是字面量时不改（不会变，不值得起 effect）。
  */
 import { types as t, type NodePath, type PluginObject } from '@babel/core';
-import { renderFunctionOf, STYLEX_SOURCES } from './ast.ts';
+import { renderFunctionOf, STYLE_SOURCE } from './ast.ts';
 
-/** 粗筛：文件里有 StyleX 入口的导入、也有 create 调用 */
+/** 粗筛：文件里有样式入口的导入、也有 create 调用 */
 export const needsStyleBindings = (code: string) =>
-  STYLEX_SOURCES.some((source) => code.includes(source)) && /\bcreate\s*\(/.test(code);
+  code.includes(STYLE_SOURCE) && /\bcreate\s*\(/.test(code);
 
 /** 编译的第一遍、符文之前加的 Babel 插件（见文件开头） */
 export function styleBindingsPlugin(): PluginObject {
@@ -72,8 +72,7 @@ interface StylexImports {
 
 function stylexImports(program: NodePath<t.Program>): StylexImports | undefined {
   for (const statement of program.node.body) {
-    if (!t.isImportDeclaration(statement) || !STYLEX_SOURCES.includes(statement.source.value))
-      continue;
+    if (!t.isImportDeclaration(statement) || statement.source.value !== STYLE_SOURCE) continue;
     const found: StylexImports = { source: statement.source.value };
     for (const specifier of statement.specifiers) {
       if (t.isImportNamespaceSpecifier(specifier)) found.namespace = specifier.local.name;

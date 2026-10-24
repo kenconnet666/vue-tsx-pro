@@ -5,8 +5,6 @@ import { defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 咖啡主题的颜色：浓缩咖啡色的页面、焦糖色的品牌色 `#c8915a`（配深色字）、奶泡色的文字。中性色按 slate 暗色各级亮度换成暖棕色相（oklch 55°），品牌色取 Radix brown 色阶。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）

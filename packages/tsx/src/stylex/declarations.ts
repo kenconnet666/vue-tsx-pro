@@ -1,8 +1,10 @@
 /**
  * 样式对象 → 声明表 → 规则文本（运行时样式引擎的纯计算部分，不碰 DOM）：
- * 值补单位、条件别名与属性选择器、条件对象展开、按“属性 + 条件”合并、序列化成带条件块的规则。
+ * token 短写、值补单位、条件别名与属性选择器、条件对象展开、按“属性 + 条件”合并、序列化成带条件块的规则。
  */
 import { getPriority } from './priority';
+import { resolveToken } from './tokens';
+import { MILLISECONDS, UNITLESS } from './units';
 
 /** 样式里的一个值 */
 export type Leaf = string | number;
@@ -17,6 +19,7 @@ export interface StyleObject {
 export interface PropertyEntry {
   /** 普通值（或顶层 null）：合并时整体替换前面的同名属性；条件对象为 false，按条件逐项合并 */
   readonly replace: boolean;
+  /** 条件链 → CSS 文本（回退值数组是多条） */
   readonly values: ReadonlyMap<string, readonly string[]>;
 }
 /** 片段的声明表：属性（连字符写法）→ 取值 */
@@ -29,22 +32,9 @@ export const SELF = '\u0001';
 export const dashify = (property: string) =>
   property.startsWith('--') ? property : property.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
-// 数字不补 px 的属性、补 ms 的属性：同 StyleX（babel-plugin/src/shared/utils/transform-value.js）
-const UNITLESS = new Set(
-  'WebkitLineClamp animationIterationCount aspectRatio borderImageOutset borderImageSlice borderImageWidth counterSet counterReset columnCount flex flexGrow flexShrink flexOrder gridRow gridRowStart gridRowEnd gridColumn gridColumnStart gridColumnEnd gridArea fontWeight hyphenateLimitChars lineClamp lineHeight maskBorderOutset maskBorderSlice maskBorderWidth opacity order orphans tabSize widows zIndex fillOpacity floodOpacity rotate scale shapeImageThreshold stopOpacity strokeDasharray strokeDashoffset strokeMiterlimit strokeOpacity strokeWidth mathDepth zoom'.split(
-    ' ',
-  ),
-);
-const MILLISECONDS = new Set([
-  'animationDelay',
-  'animationDuration',
-  'transitionDelay',
-  'transitionDuration',
-]);
-
-/** 值转成 CSS 文本：数字按属性补单位（四位小数） */
+/** 值转成 CSS 文本：token 短写换成 token 变量（tokens.ts），数字按属性补单位（四位小数） */
 export function cssValue(property: string, value: Leaf): string {
-  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'string') return resolveToken(property, value.trim());
   const rounded = String(Math.round(value * 10000) / 10000);
   if (UNITLESS.has(property) || property.startsWith('--')) return rounded;
   return rounded + (MILLISECONDS.has(property) ? 'ms' : 'px');
@@ -105,9 +95,11 @@ function conditionOf(key: string): string | undefined {
 
 /** 命名空间展开后的一个叶子 */
 export interface LeafEntry {
+  /** 属性名（样式里的写法，camelCase 或 --变量） */
   property: string;
   /** 顶层的普通值（含 null）：合并时整体替换前面的同名属性 */
   replace: boolean;
+  /** 条件链：伪类、@ 规则按书写顺序 */
   chain: readonly string[];
   /** CSS 文本（回退值数组是多条）；顶层 null 是 null：去掉该属性 */
   texts: readonly string[] | null;
@@ -116,12 +108,17 @@ export interface LeafEntry {
 const texts = (property: string, value: Leaf | readonly Leaf[]) =>
   (Array.isArray(value) ? value : [value as Leaf]).map((v) => cssValue(property, v));
 
+/** 属性键：变量组的 token（`[shimmerVars.highlight]: …`，键是 var(--…)）设置的是那个变量 */
+const propertyOf = (key: string) => (key.startsWith('var(--') ? key.slice(4, -1) : key);
+
 /** 命名空间的每个叶子。顶层的条件块（'::before': {…}、':hover': {…}）展开成各属性的条件值 */
 export function eachLeaf(namespace: StyleObject, visit: (leaf: LeafEntry) => void) {
-  for (const [key, value] of Object.entries(namespace)) {
-    const resolved = conditionOf(key);
+  for (const [name, value] of Object.entries(namespace)) {
+    const resolved = conditionOf(name);
+    const key = propertyOf(name);
     if (resolved && isObject(value)) {
-      for (const [property, nested] of Object.entries(value)) {
+      for (const [nestedName, nested] of Object.entries(value)) {
+        const property = propertyOf(nestedName);
         walk(property, nested, [resolved], (chain, leaf) =>
           visit({ property, replace: false, chain, texts: texts(property, leaf) }),
         );

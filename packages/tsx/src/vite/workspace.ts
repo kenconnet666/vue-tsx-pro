@@ -6,8 +6,11 @@
  *     经过桶文件导入时，组件库里不是组件的模块（样式、状态、工具函数、主题、工厂函数做的组件）改了，
  *     热更新沿着桶文件 → main.ts 一路走到没人接受更新的地方，整页刷新；直接导入时停在用到它的组件上。
  *     构建时不改：lazyBarrel 本来就只编译用到的再导出。
+ *   - 按源码读的包，它自己导入的第三方依赖一开始就预构建（包在 package.json 的 vueTsxPro.optimizeDeps 里声明）
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
 import { normalizePath, parseSync, type Plugin, type Rollup } from 'vite';
 
 /** 桶文件：导出名 → 所在模块与那里的名字；副作用导入照样保留 */
@@ -33,13 +36,10 @@ export function workspaceSource(): Plugin {
   const barrels: Barrels = new Map();
   return {
     name: 'vue-tsx-pro:workspace-source',
-    config() {
+    config(user) {
       return {
         resolve: { conditions: [condition, 'module', 'browser', 'development|production'] },
-        // 按源码读 tsx 包时，它运行时导入的 @stylexjs/stylex 不会被启动时的扫描发现（发布包则会随包预构建）：
-        // 爬取时才发现会丢掉已经做完的预构建、整体重来，冷启动多等二十秒。
-        // 写不带前缀的名字：爬取时记下的就是这个名字，写成“@vue-tsx-pro/tsx > …”会被当成另一个依赖，照样重来
-        optimizeDeps: { include: ['@stylexjs/stylex'] },
+        optimizeDeps: sourceDependencies(user.root ?? process.cwd()),
         ssr: { resolve: { conditions: [condition, 'module', 'node', 'development|production'] } },
       };
     },
@@ -178,4 +178,63 @@ async function readBarrel(
     }
   }
   return barrel;
+}
+
+/** 本仓库按源码读的包：package.json 里声明的预构建依赖 */
+interface Manifest {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  /** include 写导入时的说法，可以带子路径（'zod/v4/core'）；exclude 是不要预构建的（只按需加载其中几个的语言表） */
+  vueTsxPro?: { optimizeDeps?: { include?: string[]; exclude?: string[] } };
+}
+
+/**
+ * 按源码读的 @vue-tsx-pro/* 包自己导入的第三方依赖：不声明的话 Vite 要等页面（或浏览器测试）用到才发现，
+ * 发现时重新预构建、刷新页面，正在初始化的测试页会卡住。写成“包 > 依赖”，从包的目录解析，应用不必自己安装；
+ * 没装的可选依赖（three、@unovis/ts 等）跳过，免得 Vite 报解析不到
+ */
+function sourceDependencies(root: string) {
+  const include: string[] = [];
+  const exclude: string[] = [];
+  const own = readManifest(join(root, 'package.json'));
+  if (!own) return { include, exclude };
+  const require = createRequire(join(root, 'package.json'));
+  for (const name of Object.keys({ ...own.dependencies, ...own.devDependencies })) {
+    if (!name.startsWith('@vue-tsx-pro/')) continue;
+    let manifest: string;
+    try {
+      manifest = require.resolve(`${name}/package.json`);
+    } catch {
+      continue; // exports 里没有 package.json
+    }
+    const declared = readManifest(manifest)?.vueTsxPro?.optimizeDeps;
+    for (const dependency of declared?.include ?? []) {
+      if (installed(packageName(dependency), dirname(manifest)))
+        include.push(`${name} > ${dependency}`);
+    }
+    exclude.push(...(declared?.exclude ?? []));
+  }
+  return { include, exclude };
+}
+
+/** 导入说法里的包名：'zod/v4/core' → 'zod'，'@lucide/icons/x' → '@lucide/icons' */
+function packageName(specifier: string) {
+  const parts = specifier.split('/');
+  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]!;
+}
+
+/** 从某个目录往上找得到这个包（Node 的解析方式；不经 exports，只看装没装） */
+function installed(name: string, from: string): boolean {
+  for (let directory = from; ; directory = dirname(directory)) {
+    if (existsSync(join(directory, 'node_modules', name, 'package.json'))) return true;
+    if (dirname(directory) === directory) return false;
+  }
+}
+
+function readManifest(path: string): Manifest | undefined {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8')) as Manifest;
+  } catch {
+    return undefined;
+  }
 }

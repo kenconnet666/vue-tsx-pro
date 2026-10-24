@@ -2,7 +2,7 @@
  * 发布产物验证：用 pnpm pack 打出的包，在仓库之外的独立应用（tests/consumer/app 的副本）里
  * 安装、类型检查、构建，再在真实浏览器里运行，确认使用方只靠 npm 产物就能用。
  *
- * 重点是 StyleX：组件库保留 stylex.create，由使用方编译；token 变量名在使用方必须对得上，
+ * 重点是样式：组件库发布编译好的 JS，样式由运行时引擎在页面里生成；主题 tokens 要在使用方登记上，
  * 否则颜色、间距全部失效。
  *
  * 用法：pnpm test:consumer（先构建 packages，失败时保留临时目录便于排查）
@@ -147,7 +147,7 @@ writeFileSync(
       dependencies: {
         '@vue-tsx-pro/tsx': pack('tsx'),
         '@vue-tsx-pro/ui': pack('ui'),
-        ...catalogVersions(['vue', '@stylexjs/stylex', '@lucide/icons', 'shiki', 'zod']),
+        ...catalogVersions(['vue', '@lucide/icons', 'shiki', 'zod']),
       },
       devDependencies: catalogVersions(['vite', 'typescript']),
     },

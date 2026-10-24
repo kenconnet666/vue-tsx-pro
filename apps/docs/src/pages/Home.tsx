@@ -160,7 +160,7 @@ const features: { icon: IconData; title: string; text: string }[] = [
   },
   {
     icon: Palette,
-    title: 'StyleX 与多套主题',
+    title: '运行时样式与多套主题',
     text: '原子化 CSS、类型安全的 token；亮色、暗色、纸张等主题，对比度逐对检查。',
   },
 ];
@@ -193,7 +193,7 @@ export default _component(() => () => (
         <Particles links count={70} linkDistance={140} speed={0.6} sx={styles.particles} />
         <H1 sx={styles.title}>更自然的 Vue TSX</H1>
         <Paragraph tone="muted" sx={styles.lead}>
-          props 驱动的组件、下划线符文与 StyleX，加上一套按无障碍规范写的组件库（{componentCount}{' '}
+          props 驱动的组件、下划线符文与运行时样式，加上一套按无障碍规范写的组件库（{componentCount}{' '}
           个组件页）。在已有的 Vue 项目里直接用。
         </Paragraph>
         <Flex gap="sm" wrap justify="center">

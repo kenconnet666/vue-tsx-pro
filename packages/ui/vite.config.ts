@@ -22,7 +22,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: isExternal,
-      // 保留源码的文件结构：StyleX 要求 defineVars 留在 *.stylex.js 文件里，使用方编译时才认得
+      // 保留源码的文件结构：使用方按文件摇树，有副作用的只有 config/theme/tokens.js（package.json 的 sideEffects）
       output: { preserveModules: true, preserveModulesRoot: 'src', entryFileNames: '[name].js' },
     },
     minify: false,

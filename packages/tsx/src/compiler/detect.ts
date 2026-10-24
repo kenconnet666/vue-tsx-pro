@@ -6,8 +6,8 @@
 /** 文件的语言：.tsx、.jsx 才编译 JSX，.tsx 才在编译时去掉类型（.ts 的类型由打包工具去掉） */
 export type Language = 'ts' | 'tsx' | 'js' | 'jsx';
 
-/** 认作 StyleX 的导入来源：官方包与本包带中文注释的入口（运行时相同，见 src/stylex） */
-export const STYLEX_SOURCES: readonly string[] = ['@stylexjs/stylex', '@vue-tsx-pro/tsx/stylex'];
+/** 样式入口（src/stylex）：编译器按从它导入的 create 找样式 */
+export const STYLE_SOURCE = '@vue-tsx-pro/tsx/stylex';
 
 /**
  * 模块的语言：Vue 单文件组件里的脚本（X.vue?vue&type=script&lang.tsx）看查询参数，其他看扩展名；
@@ -23,8 +23,3 @@ export function languageOf(id: string): Language | undefined {
 export function parserPlugins(lang: Language | undefined): ('jsx' | 'typescript')[] {
   return lang === 'ts' ? ['typescript'] : ['jsx', 'typescript'];
 }
-
-/** 文件里可能有 token 写法（解析之前的快速判断）：有下划线开头的词或 t.组.名，且导入了 StyleX */
-export const needsTokens = (code: string) =>
-  /(?<![\w$.-])_[A-Za-z]|(?<![\w$.])t\.\w+\.\w/.test(code) &&
-  STYLEX_SOURCES.some((source) => code.includes(source));

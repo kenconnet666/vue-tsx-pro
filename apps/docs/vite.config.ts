@@ -81,14 +81,10 @@ export default defineConfig({
   optimizeDeps,
   resolve: {
     // 代码演练场的 Worker 在浏览器里跑 Babel：它用到的几个 Node 模块换成浏览器版（src/playground/node-shims）。
-    // Babel 8 写的是 node:path 这种带前缀的名字，StyleX 插件（Babel 7 时代的）写的是不带前缀的
     alias: [
       { find: /^(?:node:)?path$/, replacement: 'pathe' },
       { find: /^(?:node:)?fs$/, replacement: shim('fs.ts') },
       { find: /^(?:node:)?assert$/, replacement: shim('assert.cjs') },
-      // StyleX 插件浏览器版要的 @babel/standalone：只转交解析器、遍历器、类型工具。演练场走运行时样式、执行时不载入它，
-      // 但编译函数里按需载入它的那一处打包时仍要能解析
-      { find: '@babel/standalone', replacement: shim('babel-standalone.ts') },
     ],
   },
   // Shiki 的每种语言语法单独成块、用到才下载（emacs-lisp、cpp 这类大语法不会被页面加载），不必为它们报警

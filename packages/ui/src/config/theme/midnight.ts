@@ -4,8 +4,6 @@ import { defaultFonts, defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 午夜主题的颜色：深海军蓝的页面、青色的品牌色。
  * 中性色按 Radix slate 暗色各级的亮度、换成蓝色相（oklch 265°）重新取色，层级用途与 slate 相同；

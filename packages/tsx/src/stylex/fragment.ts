@@ -7,8 +7,8 @@ import { hash, insert, isInserted } from './sheet';
 
 /** 片段上的声明表 */
 export const FRAGMENT = Symbol('stylex fragment');
-/** createTheme 的结果上的 [变量组, 主题类] */
-export const THEME = Symbol('stylex theme');
+/** 固定类（createTheme 的主题类、defineMarker 的标记类）上的 [去重键, 类名] */
+export const CLASS = Symbol('stylex class');
 /** 动态样式的结果（[片段, 行内变量]）的标记 */
 export const DYNAMIC = Symbol('stylex dynamic');
 /** stylex.bind 的结果的标记 */
@@ -18,30 +18,36 @@ export const EVALUATE = Symbol('stylex evaluate');
 
 /** 动态样式算一次的结果：片段（只随形状变）与行内变量 */
 export interface Evaluated {
+  /** 片段：值变过的属性写成 var(--x-属性)，没变过的写死 */
   readonly fragment: Fragment;
+  /** 行内变量：变量名 → 这次的值 */
   readonly inline: Readonly<Record<string, string>>;
 }
 /** create 里的函数：调用得到 [片段, 行内变量]；EVALUATE 给 attrs 与绑定用 */
 export interface DynamicStyle {
   (...args: never[]): readonly [Fragment, Readonly<Record<string, string>>];
+  /** 按参数求值（有记忆），attrs 与元素上的绑定用 */
   readonly [EVALUATE]: (args: readonly unknown[]) => Evaluated;
 }
 
-/** create 的一个命名空间（对外的类型是 CompiledStyles，$$css 让它能和编译版的样式一起传） */
+/** create 的一个命名空间（对外的类型是 CompiledStyles） */
 export interface Fragment {
-  readonly $$css: true;
+  /** 声明表；热更新时换成新的 */
   readonly [FRAGMENT]: Declarations;
 }
-/** createTheme 的结果：变量组 → 主题类 */
-export interface ThemeStyle {
-  readonly $$css: true;
-  readonly [THEME]: readonly [group: string, className: string];
+/** 固定类：同一去重键（主题的变量组、标记名）在一次 attrs 里后者覆盖前者 */
+export interface ClassStyle {
+  /** [去重键, 类名] */
+  readonly [CLASS]: readonly [key: string, className: string];
 }
 
 /** 一个响应式绑定：动态样式与读参数的函数 */
 export interface Binding {
+  /** 标记：attrs 据此认出绑定 */
   readonly [BINDING]: true;
+  /** 绑定的动态样式 */
   readonly style: DynamicStyle;
+  /** 读参数的函数：effect 里调用，读到的响应式值变化时重新求值 */
   readonly args: () => readonly unknown[];
   /** 读取函数只读渲染函数外面的来源（编译器判断）：重新渲染时换上新的读取函数即可，不必重跑 effect */
   readonly stable: boolean;
@@ -49,7 +55,7 @@ export interface Binding {
 
 /** 新的片段；声明表可写：热更新时换成新的（hotStyles），片段对象本身不变，用到它的缓存、已渲染的类照样有效 */
 export const fragment = (table: Declarations): Fragment =>
-  Object.defineProperty({ $$css: true }, FRAGMENT, { value: table, writable: true }) as Fragment;
+  Object.defineProperty({}, FRAGMENT, { value: table, writable: true }) as Fragment;
 
 /** 是 create 产出的片段 */
 export const isFragment = (value: unknown): value is Fragment =>

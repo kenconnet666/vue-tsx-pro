@@ -1,13 +1,13 @@
 /**
- * 生成 packages/tsx/src/stylex/styles.ts：StyleX 每个 CSS 属性的中文注释，以及每个关键字取值的说明。
+ * 生成 packages/tsx/src/stylex/styles.ts：每个 CSS 属性的中文注释，以及每个关键字取值的说明。
  *
  * 数据来源（见 NOTICE.md）：
- *   - 属性集合与值类型：StyleX 自己的类型声明（值类型以索引访问引用，不复制）
+ *   - 属性集合与值类型：packages/tsx/src/stylex/css-properties.ts（取自 StyleX 的类型声明；值类型以索引访问引用，不复制）
  *   - 中文说明、常用值、适用场景、关键字说明：docs.json（本仓库维护）
  *   - 属性能写哪些关键字、接受哪类值：mdn-data 的值语法（见 keywords.mjs）
  *   - 初始值、是否继承、标准状态、MDN 链接：mdn-data
  *   - 浏览器支持（Baseline）：web-features
- *   - 数字值的单位规则：StyleX 编译器源码
+ *   - 数字值的单位规则：packages/tsx/src/stylex/units.ts（样式引擎补单位用的同一张表）
  *   - 主题 tokens 的短写：packages/tsx/src/stylex/token-map.ts 的对照表
  *
  * 同时生成 ui 的主题 tokens 字符串写法的类型（见 tokens.mjs）。
@@ -23,6 +23,7 @@ import * as ts from 'typescript/ast';
 import { API, TypeFlags } from 'typescript/sync';
 import { features } from 'web-features';
 import { TOKEN_GROUP_OF } from '../../packages/tsx/src/stylex/token-map.ts';
+import { MILLISECONDS, UNITLESS } from '../../packages/tsx/src/stylex/units.ts';
 import {
   CSS_WIDE,
   createOrigins,
@@ -40,30 +41,27 @@ import {
   tokenInterfaceName,
   tokenNamesOutput,
 } from './tokens.mjs';
-import { requireFrom, root } from '../lib/repo.mjs';
+import { root } from '../lib/repo.mjs';
 
 const output = join(root, 'packages/tsx/src/stylex/styles.ts');
 const missingOutput = join(root, 'node_modules/.cache/css-docs-missing.json');
-const require = requireFrom('packages/tsx');
-const stylexDir = dirname(require.resolve('@stylexjs/stylex/package.json'));
-const compilerEntry = require.resolve('@stylexjs/babel-plugin');
+const cssTypesFile = join(root, 'packages/tsx/src/stylex/css-properties.ts');
 const docs = JSON.parse(readFileSync(join(root, 'scripts/css-docs/docs.json'), 'utf8'));
 
-// ───────────────────────── StyleX：属性集合、伪元素、数字单位 ─────────────────────────
+// ───────────────────────── CSS 类型表：属性集合、伪元素 ─────────────────────────
 
-function readStylexTypes() {
-  const typesDir = join(stylexDir, 'lib/es/types');
-  const program = new API().createProgram([join(typesDir, 'StyleXTypes.d.ts')], { noEmit: true });
+function readCssTypes() {
+  const program = new API().createProgram([cssTypesFile], { noEmit: true });
   const { checker } = program.getProject();
-  const findAlias = (file, name) =>
+  const findAlias = (name) =>
     program
-      .getSourceFile(join(typesDir, file))
+      .getSourceFile(cssTypesFile)
       .statements.find((node) => ts.isTypeAliasDeclaration(node) && node.name.text === name);
 
-  const cssType = checker.getTypeAtLocation(findAlias('StyleXCSSTypes.d.ts', 'CSSProperties').name);
+  const cssType = checker.getTypeAtLocation(findAlias('CSSProperties').name);
   const symbols = checker.getPropertiesOfType(cssType);
   const types = checker.getTypeOfSymbol(symbols);
-  // StyleX 的取值类型只由 string、字符串字面量、数字和 null 组成：含 string 的接受任意关键字，
+  // 取值类型只由 string、字符串字面量、数字和 null 组成：含 string 的接受任意关键字，
   // 不含的只接受列出的字面量
   const properties = symbols.map((symbol, index) => {
     const members = unionMembers(types[index]);
@@ -89,24 +87,17 @@ function readStylexTypes() {
     }
     node.forEachChild(visit);
   };
-  visit(findAlias('StyleXTypes.d.ts', 'CSSPropertiesWithExtras'));
+  visit(findAlias('CSSPropertiesWithExtras'));
   return { properties, pseudoElements };
 }
 
 const unionMembers = (type) => (type.flags & TypeFlags.Union ? type.getTypes() : [type]);
 
-/** 从 StyleX 编译器源码读出“不加单位”的属性与特殊单位，保证与编译行为一致 */
+/** 数字值的单位规则：样式引擎补单位用的同一张表（units.ts） */
 function readNumberRules() {
-  const source = readFileSync(compilerEntry, 'utf8');
-  const unitless = source.match(/const unitlessNumberProperties = new Set\(\[([^\]]+)\]\)/);
-  const suffixes = source.match(/const numberPropertySuffixes = \{([^}]+)\}/);
-  if (!unitless || !suffixes) throw new Error('StyleX 编译器源码结构变了，无法读取数字单位规则');
-  const names = (text) => [...text.matchAll(/'([\w-]+)'/g)].map((match) => match[1]);
   return {
-    unitless: new Set(names(unitless[1])),
-    suffixes: Object.fromEntries(
-      [...suffixes[1].matchAll(/(\w+): '(\w+)'/g)].map((m) => [m[1], m[2]]),
-    ),
+    unitless: UNITLESS,
+    suffixes: Object.fromEntries([...MILLISECONDS].map((property) => [property, 'ms'])),
   };
 }
 
@@ -144,7 +135,7 @@ const pascal = (name) => name.replace(/(^|-)([a-z])/g, (_, __, char) => char.toU
 
 /**
  * 每个属性的关键字：取值含任意字符串的属性（open）并上它语法里各个来源的接口，来源的说明所有属性共用；
- * 只接受固定字面量的属性（closed）单独一个接口，键与 StyleX 的字面量一一对应，说明按 属性 → 语法来源 → 全局 的顺序找。
+ * 只接受固定字面量的属性（closed）单独一个接口，键与类型表的字面量一一对应，说明按 属性 → 语法来源 → 全局 的顺序找。
  * 缺说明的记进 missing（按来源归类，写一份说明能覆盖所有用到它的属性）
  */
 function buildKeywords(properties) {
@@ -302,7 +293,7 @@ function propertyDoc({ key, acceptsNumber }, context) {
 }
 
 /**
- * 属性的取值类型：关键字（closed 用 KeywordValue 保证与 StyleX 完全相同，open 并上各来源的接口）、
+ * 属性的取值类型：关键字（closed 用 KeywordValue 保证与类型表完全相同，open 并上各来源的接口）、
  * 短写的 token 组，以及按取值域列出的带组名的 token（长度属性列出间距、尺寸、边框宽度……）
  */
 function valueType(property, keywords) {
@@ -331,16 +322,12 @@ function checkInputs(properties, pseudoElements) {
     ...pseudoElements.filter((key) => !docs.pseudoElements[key]),
   ];
   if (missing.length)
-    throw new Error(
-      `以下 StyleX 属性缺少中文说明（scripts/css-docs/docs.json）：\n${missing.join('\n')}`,
-    );
+    throw new Error(`以下属性缺少中文说明（scripts/css-docs/docs.json）：\n${missing.join('\n')}`);
 
   const known = new Set(properties.map(({ key }) => key));
   const unknown = [...TOKEN_GROUP_OF.keys()].filter((key) => !known.has(key));
   if (unknown.length)
-    throw new Error(
-      `token 对照表里有 StyleX 不认识的属性（token-map.ts）：\n${unknown.join('\n')}`,
-    );
+    throw new Error(`token 对照表里有类型表没有的属性（token-map.ts）：\n${unknown.join('\n')}`);
 
   const groups = [...new Set(TOKEN_GROUP_OF.values())];
   const withoutDomain = groups.filter((group) => !TOKEN_DOMAINS[group]);
@@ -377,7 +364,7 @@ function reportKeywordProblems({ missing, errors }) {
 }
 
 async function generate() {
-  const { properties, pseudoElements } = readStylexTypes();
+  const { properties, pseudoElements } = readCssTypes();
   checkInputs(properties, pseudoElements);
   const keywords = buildKeywords(properties);
   reportKeywordProblems(keywords);
@@ -418,13 +405,13 @@ async function generate() {
     '// 由 scripts/css-docs/generate.mjs 生成，请勿手改；数据来源见 scripts/css-docs/NOTICE.md。',
     '// 主题库填入 token 接口之前，`keyof FontSizesTokens` 这类 token 名都是 never（联合里多余、彼此重复）',
     '// oxlint-disable no-redundant-type-constituents, no-duplicate-type-constituents',
-    "import type { CSSProperties } from '@stylexjs/stylex';",
+    "import type { CSSProperties } from './css-properties';",
     "import type { KeywordValue, OpenValue, StyleValue } from './value';",
     // token 接口声明在入口 index.ts：主题库用 declare module 增补的就是入口模块，声明与增补在同一个模块里，
     // IDE 才能把 '_xs' 解析到唯一的那一组（声明在这里再转出时，WebStorm 会列出所有同名的 token）
     `import type { ${tokenInterfaces.join(', ')} } from './index';`,
     '',
-    '/** StyleX 样式对象：每个属性带中文说明，值类型直接引用 StyleX 自己的定义 */',
+    '/** 样式对象：每个属性带中文说明，值类型引用 CSS 类型表（css-properties.ts） */',
     'export interface DocumentedStyles {',
     ...members.flat(),
     '  /**',

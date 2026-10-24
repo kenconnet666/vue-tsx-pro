@@ -9,7 +9,6 @@ import * as tokens from '@vue-tsx-pro/ui/tokens.stylex';
 import * as vars from '@vue-tsx-pro/ui/vars.stylex';
 import * as vue from 'vue';
 import type { Component } from 'vue';
-import type { TokenGroups } from './compile';
 import type { CompileRequest, CompileResponse } from './compile.worker';
 
 /** 一直在的模块：文档站本来就加载了 */
@@ -17,7 +16,6 @@ const MODULES: Record<string, unknown> = {
   vue,
   '@vue-tsx-pro/tsx': tsx,
   '@vue-tsx-pro/tsx/stylex': stylex,
-  '@stylexjs/stylex': stylex,
   '@vue-tsx-pro/ui': ui,
   '@vue-tsx-pro/ui/tokens.stylex': tokens,
   '@vue-tsx-pro/ui/vars.stylex': vars,
@@ -52,14 +50,6 @@ async function moduleTable(code: string): Promise<Record<string, unknown>> {
   return table;
 }
 
-/** 各组 token 名（defineVars 的结果里还带着 __ 开头的内部字段，去掉） */
-export const tokenGroups: TokenGroups = Object.fromEntries(
-  Object.entries(tokens).map(([group, vars]) => [
-    group,
-    Object.keys(vars).filter((name) => !name.startsWith('__')),
-  ]),
-);
-
 let worker: Worker | undefined;
 let nextId = 0;
 const pending = new Map<number, (response: CompileResponse) => void>();
@@ -76,7 +66,7 @@ export async function compile(code: string): Promise<CompileResponse> {
   const id = nextId++;
   return new Promise((resolve) => {
     pending.set(id, resolve);
-    worker!.postMessage({ id, code, tokenGroups } satisfies CompileRequest);
+    worker!.postMessage({ id, code } satisfies CompileRequest);
   });
 }
 

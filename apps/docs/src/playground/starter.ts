@@ -1,4 +1,4 @@
-/** 代码演练场的起始示例：符文、StyleX 与主题 token、组件、图标各用到一点 */
+/** 代码演练场的起始示例：符文、样式与主题 token、组件、图标各用到一点 */
 export const STARTER = `import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { Button, Flex, Text } from '@vue-tsx-pro/ui';

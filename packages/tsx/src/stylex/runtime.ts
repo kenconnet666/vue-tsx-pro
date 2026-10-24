@@ -14,26 +14,20 @@
  *   - 响应式绑定（stylex.bind，编译器把 JSX 里的 `styles.bar(item.width)` 自动改写成它）：渲染时只算类名、不追踪依赖，
  *     元素挂上后由一个响应式 effect 直接改元素上的变量。值变化不重新渲染组件、不做 vdom 比对，只改那一个变量。
  *   - 状态样式用条件别名（_selected、_disabled…）跟着 DOM 上的 aria / data 属性走：状态变化只改属性，类名不变。
- *   - 主题（createTheme）是一个只改变量的类，换主题只换这个类，组件不用重新渲染。
+ *   - 主题（createTheme，vars.ts）是一个只改变量的类，换主题只换这个类，组件不用重新渲染。
  *   - 热更新（hotStyles，编译器包在顶层 create / recipe 外面）：模块重新执行时新声明写进旧片段，
  *     用到它的组合类按原类名改写规则，组件不重新渲染。
  *
  * 分成几个模块：declarations（样式对象 → 声明表 → 规则文本）、sheet（样式表）、fragment（片段与组合类）、
- * dynamic（动态样式与 bind）、bindings（元素上的响应式绑定）、hot（热更新）；这里是对外的入口。
- *
- * 编译模式（StyleX 在编译期把 create 换成原子类）产出的对象不是片段，attrs 交给 StyleX 的 props 处理，两种模式都能用。
- * `*.stylex.ts` 里的 defineVars、defineConsts、defineMarker 仍由 StyleX 编译（变量名要跨文件、跨源码与产物一致）。
+ * dynamic（动态样式与 bind）、bindings（元素上的响应式绑定）、vars（变量组、主题、标记）、tokens（主题 tokens 的短写）、
+ * hot（热更新）；这里是对外的入口。
  */
-import { props as stylexProps } from '@stylexjs/stylex';
 import { untrack } from '../runtime/state';
 import { watchBindings, type BindingEntry } from './bindings';
 import {
   cssValue,
   dashify,
   declarations,
-  isObject,
-  SELF,
-  walk,
   type Leaf,
   type StyleObject,
   type StyleValue,
@@ -41,15 +35,15 @@ import {
 import { dynamic } from './dynamic';
 import {
   BINDING,
+  CLASS,
   composite,
   DYNAMIC,
   EVALUATE,
   FRAGMENT,
   fragment,
-  THEME,
   type Binding,
+  type ClassStyle,
   type Fragment,
-  type ThemeStyle,
 } from './fragment';
 import { hash, insert, isInserted } from './sheet';
 
@@ -57,6 +51,8 @@ export { CONDITIONS } from './declarations';
 export { bind } from './dynamic';
 export { HOT, hotStyles, hotUpdate } from './hot';
 export { hash, styleText } from './sheet';
+export { defineTokens } from './tokens';
+export { createTheme, defineMarker, defineVars, when } from './vars';
 
 /** attrs 的结果 */
 export interface Attrs {
@@ -89,7 +85,7 @@ export function create<S extends Record<string, unknown>>(namespaces: S): S {
   return result as S;
 }
 
-/** 组合缓存：按参与的对象（片段、主题、编译版的样式）逐层索引 */
+/** 组合缓存：按参与的对象（片段、主题、标记）逐层索引 */
 interface CacheNode {
   next?: WeakMap<object, CacheNode>;
   result?: Attrs;
@@ -129,13 +125,6 @@ export function attrs(...styles: readonly AttrsArg[]): Attrs {
       if (DYNAMIC in value) {
         parts.push(value[0] as object);
         addInline(value[1] as Record<string, string>);
-      } else if (isCompiledDynamic(value)) {
-        // 编译模式：StyleX 编译期生成的动态样式也返回 [类名表, 行内变量]，变量值可能是数字或空
-        parts.push(value[0]);
-        const values: Record<string, string> = {};
-        for (const [name, v] of Object.entries(value[1]))
-          if (v != null) values[name] = String(v as string | number);
-        addInline(values);
       } else value.forEach(collect);
       return;
     }
@@ -157,41 +146,23 @@ export function attrs(...styles: readonly AttrsArg[]): Attrs {
   return result;
 }
 
-/**
- * StyleX 编译期的动态样式结果：[带 $$css 的类名表, 变量表]，变量表的键都是 --x… 变量名
- * （要和两个样式组成的数组 `[styles.a, stylex.bind(…)]` 区分开）
- */
-const isCompiledDynamic = (value: readonly unknown[]): value is [object, Record<string, unknown>] =>
-  value.length === 2 &&
-  isObject(value[0]) &&
-  '$$css' in value[0] &&
-  isObject(value[1]) &&
-  !('$$css' in value[1]) &&
-  !(BINDING in value[1]) &&
-  Object.keys(value[1]).every((key) => key.startsWith('--'));
-
-/** 缓存没命中：片段合成一个类；主题按变量组后者覆盖前者；编译版的样式交给 StyleX 的 props */
+/** 缓存没命中：片段合成一个类；固定类（主题、标记）按去重键后者覆盖前者 */
 function resolve(parts: readonly object[]): Attrs {
   const fragments: Fragment[] = [];
-  const themes = new Map<string, string>();
-  const compiled: object[] = [];
+  const fixed = new Map<string, string>();
   for (const part of parts) {
     if (FRAGMENT in part) fragments.push(part as Fragment);
-    else if (THEME in part) {
-      const [group, className] = (part as ThemeStyle)[THEME];
-      themes.delete(group);
-      themes.set(group, className);
-    } else compiled.push(part);
+    else if (CLASS in part) {
+      const [key, className] = (part as ClassStyle)[CLASS];
+      fixed.delete(key);
+      fixed.set(key, className);
+    } else throw new Error('attrs：不认识的样式，只收 create、createTheme、defineMarker 的结果');
   }
-  const classes = [
-    fragments.length ? composite(fragments) : '',
-    ...themes.values(),
-    compiled.length ? (stylexProps(compiled as never).className ?? '') : '',
-  ].filter(Boolean);
+  const classes = [fragments.length ? composite(fragments) : '', ...fixed.values()].filter(Boolean);
   return Object.freeze(classes.length ? { class: classes.join(' ') } : {});
 }
 
-/* ───────────────────────── 关键帧、主题、条件选择器 ───────────────────────── */
+/* ───────────────────────── 关键帧 ───────────────────────── */
 
 /** stylex.keyframes：返回动画名，规则第一次调用时插入 */
 export function keyframes(frames: Record<string, StyleObject>): string {
@@ -208,54 +179,3 @@ export function keyframes(frames: Record<string, StyleObject>): string {
   if (!isInserted(name)) insert(name, [`@keyframes ${name}{${body}}`]);
   return name;
 }
-
-/** 变量组（*.stylex.ts 里编译好的 defineVars）：值是 var(--x…) */
-type VarGroup = Record<string, string> & { __varGroupHash__: string };
-
-/**
- * stylex.createTheme：一个只改变量的类（`.t.t, .t.t:root { --变量: 值 }`，压过 :root 上的默认值），
- * 值可以是条件对象（{ default, '@media …' }）。同一变量组的主题在一次 attrs 里后者覆盖前者
- */
-export function createTheme(group: VarGroup, overrides: Record<string, StyleValue>): ThemeStyle {
-  const groupHash = group.__varGroupHash__;
-  const byAtRule = new Map<string, string[]>();
-  for (const [key, value] of Object.entries(overrides)) {
-    const variable = /var\((--[^)]+)\)/.exec(group[key] ?? '')?.[1];
-    if (!variable) continue;
-    walk(key, value, [], (chain, leaf) => {
-      const atRule = chain.join('');
-      let list = byAtRule.get(atRule);
-      if (!list) byAtRule.set(atRule, (list = []));
-      list.push(`${variable}:${cssValue('--', leaf as Leaf)}`);
-    });
-  }
-  const rules = [...byAtRule].map(([atRule, list]) => {
-    const rule = `.${SELF}.${SELF},.${SELF}.${SELF}:root{${list.join(';')}}`;
-    return atRule ? `${atRule}{${rule}}` : rule;
-  });
-  const name = `x${hash(groupHash + rules.join(''))}`;
-  if (!isInserted(name))
-    insert(
-      name,
-      rules.map((rule) => rule.replaceAll(SELF, name)),
-    );
-  return Object.freeze({ $$css: true, [THEME]: [groupHash, name] as const }) as ThemeStyle;
-}
-
-/** 标记（*.stylex.ts 里编译好的 defineMarker）的类名 */
-const markerClass = (marker: Record<string, unknown> | undefined) =>
-  marker ? Object.keys(marker).find((key) => key !== '$$css')! : 'x-default-marker';
-
-/** stylex.when.*：按祖先、后代、兄弟的状态取样式的条件键（同编译版的 :where(…) 选择器） */
-export const when = {
-  ancestor: (pseudo: string, marker?: Record<string, unknown>) =>
-    `:where(.${markerClass(marker)}${pseudo} *)`,
-  descendant: (pseudo: string, marker?: Record<string, unknown>) =>
-    `:where(:has(.${markerClass(marker)}${pseudo}))`,
-  siblingBefore: (pseudo: string, marker?: Record<string, unknown>) =>
-    `:where(.${markerClass(marker)}${pseudo} ~ *)`,
-  siblingAfter: (pseudo: string, marker?: Record<string, unknown>) =>
-    `:where(:has(~ .${markerClass(marker)}${pseudo}))`,
-  anySibling: (pseudo: string, marker?: Record<string, unknown>) =>
-    `:where(.${markerClass(marker)}${pseudo} ~ *, :has(~ .${markerClass(marker)}${pseudo}))`,
-};

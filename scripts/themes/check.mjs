@@ -26,7 +26,7 @@ registerHooks({
 const themeDir = join(root, 'packages/ui/src/config/theme');
 
 /**
- * 从源码里取出一组 token 的取值（默认是颜色）：tokens.stylex.ts 的 `colors = stylex.defineVars({...})`，
+ * 从源码里取出一组 token 的取值（默认是颜色）：tokens.stylex.ts 的 `colors = stylex.defineVars('vtp-colors', {...})`，
  * 或主题文件里 `stylex.createTheme(colors, {...})` 的第二个参数
  */
 function readColors(file, group = 'colors') {
@@ -43,7 +43,7 @@ function readColors(file, group = 'colors') {
       ts.isVariableDeclaration(node.parent) &&
       node.parent.name.getText(source) === group
     ) {
-      object = first;
+      object = second;
     } else node.forEachChild(visit);
   };
   visit(source);

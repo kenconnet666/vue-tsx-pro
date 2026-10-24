@@ -3,7 +3,7 @@
  *
  *   <span {...stylex.attrs(toneThemes[tone], styles.soft)} />     // styles.soft 里写 color: toneVars.text
  *
- * 运行时样式引擎生成：按色调名循环创建（编译期的 StyleX 做不到，它要求参数能静态求值）。
+ * 按色调名循环创建。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { t } from '../../config/theme/tokens';
@@ -37,19 +37,12 @@ const colored = (tone: Exclude<StatusTone, 'neutral'>) => ({
   surface: colors[`${tone}Soft`],
 });
 
-/**
- * 一个色调的主题类。运行时它和 create 的样式引用同形（{ 变量组哈希: 主题类, $$css: true }），
- * 这里按样式引用标类型，才能和别的样式一起放进 sx（StyleX 的 Theme 是 symbol 的交叉类型，StyleXStyles 不收）
- */
-const theme = (overrides: Parameters<typeof stylex.createTheme<typeof toneVars>>[1]) =>
-  stylex.createTheme(toneVars, overrides) as unknown as stylex.CompiledStyles;
-
 /** 色调 → 主题类 */
-export const toneThemes: Readonly<Record<StatusTone, stylex.CompiledStyles>> = {
-  neutral: theme(neutral),
-  accent: theme(colored('accent')),
-  info: theme(colored('info')),
-  success: theme(colored('success')),
-  warning: theme(colored('warning')),
-  danger: theme(colored('danger')),
+export const toneThemes: Readonly<Record<StatusTone, stylex.Theme<typeof toneVars>>> = {
+  neutral: stylex.createTheme(toneVars, neutral),
+  accent: stylex.createTheme(toneVars, colored('accent')),
+  info: stylex.createTheme(toneVars, colored('info')),
+  success: stylex.createTheme(toneVars, colored('success')),
+  warning: stylex.createTheme(toneVars, colored('warning')),
+  danger: stylex.createTheme(toneVars, colored('danger')),
 };

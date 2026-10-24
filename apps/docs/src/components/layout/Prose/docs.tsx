@@ -20,7 +20,7 @@ export default _component(() => () => (
     imports="import { List, ListItem, OrderedList, Prose } from '@vue-tsx-pro/ui';"
   >
     <Example id="article" title="一篇文章" demo={Article}>
-      StyleX 写不了“相邻元素之间”的选择器，块间距用 flex 的 <Code>gap</Code> 统一给（默认
+      样式引擎不写“相邻元素之间”的选择器，块间距用 flex 的 <Code>gap</Code> 统一给（默认
       lg），本库的组件都不带外边距。
       <Code>measure</Code> 默认把行长限制在约 70 个字宽，放在窄栏里时关掉。List、OrderedList
       保留圆点与编号（FlexList 是去掉它们的布局列表）。

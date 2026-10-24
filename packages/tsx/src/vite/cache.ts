@@ -2,15 +2,14 @@
  * 开发服务器的编译缓存：编译结果存在磁盘上（Vite 的 cacheDir 下），重启后没改过的文件直接取用、不再编译。
  * Vite 自己只缓存依赖预构建，每次重启都要把首页用到的几百个模块重新编译一遍。
  *
- * 键包含一切会影响结果的东西：编译器代码（compilerCacheKey）、Babel 与官方插件的版本、选项、模块 id 与代码，
- * 以及它导入的 .stylex 模块与 token 模块的内容——defineConsts 的值会内联进引用方，token 写法要读 token 的组名。
+ * 键包含一切会影响结果的东西：编译器代码（compilerCacheKey）、Babel 与官方插件的版本、选项、模块 id 与代码。
  * 每个模块一个文件，改了就覆盖，不会越积越多。读写失败都当作没有缓存。
  */
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import type { SourceMap, StylexRule } from '../compiler/index.ts';
+import type { SourceMap } from '../compiler/index.ts';
 import { compilerCacheKey } from './cache-key.ts';
 
 /** 一个模块的编译结果 */
@@ -19,8 +18,6 @@ export interface CachedResult {
   code: string;
   /** source map */
   map: SourceMap | null;
-  /** StyleX 规则 */
-  stylex: StylexRule[];
   /** 符文的警告（代码帧） */
   warnings: string[];
 }
@@ -29,7 +26,6 @@ export interface CachedResult {
 const COMPILER_PACKAGES = [
   '@babel/core',
   '@babel/plugin-transform-typescript',
-  '@stylexjs/babel-plugin',
   '@vue/babel-plugin-jsx',
 ];
 
@@ -48,23 +44,15 @@ export class CompileCache {
     mkdirSync(this.dir, { recursive: true });
   }
 
-  /** 模块的缓存键；dependencies 是它导入的 .stylex 模块与 token 模块的文件路径 */
-  key(id: string, code: string, dependencies: string[]) {
-    const hash = createHash('sha1')
+  /** 模块的缓存键 */
+  key(id: string, code: string) {
+    return createHash('sha1')
       .update(this.salt)
       .update('\0')
       .update(id)
       .update('\0')
-      .update(code);
-    for (const file of dependencies) {
-      hash.update('\0').update(file).update('\0');
-      try {
-        hash.update(readFileSync(file));
-      } catch {
-        hash.update('missing');
-      }
-    }
-    return hash.digest('hex');
+      .update(code)
+      .digest('hex');
   }
 
   /** 键对得上时返回缓存的结果 */

@@ -12,13 +12,13 @@ const meta = {
   description: '在已有的 Vue 3.5 项目里装上 vue-tsx-pro，写第一个 TSX 页面。',
 };
 
-const install = 'pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @stylexjs/stylex @lucide/icons zod';
+const install = 'pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @lucide/icons zod';
 
 const viteConfig = `import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
 
-// 原有的 @vitejs/plugin-vue 保留，再加上预设：符文、token 写法、StyleX 与 JSX 一次编译完
+// 原有的 @vitejs/plugin-vue 保留，再加上预设：符文、样式绑定与 JSX 一次编译完
 export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });`;
 
 const tsconfig = `{
@@ -59,7 +59,8 @@ export default _component(() => () => (
       <CodeBlock title="tsconfig.json" code={tsconfig} lang="json" />
       <Alert tone="info">
         只有用到符文或 <Code>_component</Code> 的文件会被改写，宿主的其他代码不受影响；不要再单独加{' '}
-        <Code>@vitejs/plugin-vue-jsx</Code> 或 StyleX 的打包插件，预设已经包含。
+        <Code>@vitejs/plugin-vue-jsx</Code>，预设已经包含。样式由运行时引擎在页面里生成，不需要 CSS
+        插件。
       </Alert>
     </Flex>
     <Flex direction="column" gap="md">

@@ -21,7 +21,7 @@ const stats = [
 export default _component(() => () => (
   <Card>
     <Flex direction="column" gap="md">
-      <H3 size="lg">用 StyleX 写一套主题系统</H3>
+      <H3 size="lg">用 CSS 变量写一套主题系统</H3>
       <Flex align="center" gap="sm" wrap>
         <Avatar size="xs" name="周一航" />
         <Small>周一航</Small>

@@ -8,7 +8,7 @@ import { createApp, h, type App, type Component } from 'vue';
 import { demoLoaders, loadDemos } from './demos';
 
 /**
- * 开发模式下 StyleX 的样式随模块编译异步注入：样式表的规则数一段时间不再变化，才算到齐。
+ * 开发模式下样式随模块加载、渲染陆续插入：样式表的规则数一段时间不再变化，才算到齐。
  * 没到齐就挂载会缺样式，比如虚拟列表的滚动容器没有高度，一万行全部渲染，页面卡死
  */
 async function stylesSettled() {

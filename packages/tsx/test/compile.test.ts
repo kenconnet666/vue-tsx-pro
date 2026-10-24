@@ -1,4 +1,4 @@
-// compile：模块的语言按扩展名或单文件组件脚本的 lang 查询参数；StyleX 的导入来源总认官方包与本包入口
+// compile：模块的语言按扩展名或单文件组件脚本的 lang 查询参数；样式的响应式绑定与热更新
 import { expect, it } from 'vitest';
 import { compile } from '../src/compiler';
 import { languageOf } from '../src/compiler/ast';
@@ -8,18 +8,6 @@ it('模块的语言：扩展名，或单文件组件脚本的 lang 查询参数�
   expect(languageOf('/src/A.tsx')).toBe('tsx');
   expect(languageOf('/src/A.vue?vue&type=script&setup=true&lang.tsx')).toBe('tsx');
   expect(languageOf('/src/A.vue?vue&type=style&index=0&lang.css')).toBeUndefined();
-});
-
-it('StyleX：另给了 importSources 时，官方包与本包入口照样编译', async () => {
-  for (const source of ['@stylexjs/stylex', '@vue-tsx-pro/tsx/stylex']) {
-    const code = `import * as stylex from '${source}';
-export const styles = stylex.create({ root: { color: 'red' } });`;
-    const result = await compile(code, {
-      filename: '/src/a.ts',
-      stylex: { importSources: ['my-stylex'] },
-    });
-    expect(result?.stylex.length, source).toBeGreaterThan(0);
-  }
 });
 
 it('运行时样式：渲染里的动态样式调用改成响应式绑定；字面量参数、渲染外、别处的函数不改', async () => {

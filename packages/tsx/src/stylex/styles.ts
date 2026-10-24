@@ -1,7 +1,7 @@
 // 由 scripts/css-docs/generate.mjs 生成，请勿手改；数据来源见 scripts/css-docs/NOTICE.md。
 // 主题库填入 token 接口之前，`keyof FontSizesTokens` 这类 token 名都是 never（联合里多余、彼此重复）
 // oxlint-disable no-redundant-type-constituents, no-duplicate-type-constituents
-import type { CSSProperties } from '@stylexjs/stylex';
+import type { CSSProperties } from './css-properties';
 import type { KeywordValue, OpenValue, StyleValue } from './value';
 import type {
   BorderWidthsTokens,
@@ -36,7 +36,7 @@ import type {
   StrokeWidthsTokens,
 } from './index';
 
-/** StyleX 样式对象：每个属性带中文说明，值类型直接引用 StyleX 自己的定义 */
+/** 样式对象：每个属性带中文说明，值类型引用 CSS 类型表（css-properties.ts） */
 export interface DocumentedStyles {
   /**
    * 非标准键：StyleX 类型中保留的名称，不对应任何 CSS 属性，不要使用。（theme）

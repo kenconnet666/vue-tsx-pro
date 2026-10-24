@@ -1,4 +1,4 @@
-// 颜色 token 取自 Radix Colors：StyleX 要求取值是字面量，所以写死在源码里，由这里对照色板
+// 颜色 token 取自 Radix Colors，写死在源码里（主题检查脚本按字面量读取），由这里对照色板
 import * as radix from '@radix-ui/colors';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -100,7 +100,8 @@ function radixColor(step: string) {
 /** 读出源码里某个对象字面量的 `name: 'value'` 键值 */
 function literals(file: string, start: string) {
   const source = readFileSync(join(import.meta.dirname, '../../config/theme', file), 'utf8');
-  const block = source.slice(source.indexOf(start), source.indexOf('});', source.indexOf(start)));
+  // 对象字面量到顶格的 } 为止（defineVars 的结尾是 `}, '组名');`，createTheme 的是 `});`）
+  const block = source.slice(source.indexOf(start), source.indexOf('\n}', source.indexOf(start)));
   return Object.fromEntries(
     [...block.matchAll(/^\s+(\w+): '([^']+)',$/gm)].map((m) => [m[1], m[2]]),
   );

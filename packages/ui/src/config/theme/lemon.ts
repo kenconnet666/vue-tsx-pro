@@ -3,8 +3,6 @@ import { defaultFonts } from './light';
 import type { Theme } from './theme';
 import { colors, radii, shadows } from './tokens.stylex';
 
-// StyleX 要求 createTheme 的结果赋给变量；导出是为了防止组件库构建时被内联（见 dark.ts）
-
 /**
  * 柠檬主题的颜色：奶油黄的页面、柠檬黄的浅底、金柠檬色的品牌色 `#aa9200`（配深色字）。中性色按 slate 各级亮度换成黄绿色相（oklch 100°），品牌色取 Radix yellow 色阶；亮柠檬黄在浅色表面上到不了图形要的 3:1，实色取到得了的最亮一档。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）

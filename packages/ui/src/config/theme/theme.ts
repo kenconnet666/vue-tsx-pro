@@ -3,17 +3,17 @@
  * defineTheme 的局部修改在运行时写成 CSS 变量，作用在 Provider 的容器上。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { Theme as CompiledTheme, StyleXVar } from '@vue-tsx-pro/tsx/stylex';
+import type { CssVar, Theme as GroupThemeOf } from '@vue-tsx-pro/tsx/stylex';
 import { t } from './tokens';
 
 type Groups = typeof t;
 
-/** 某一组 tokens 的编译期主题（createTheme 的结果） */
-export type GroupTheme = { [Group in keyof Groups]: CompiledTheme<Groups[Group]> }[keyof Groups];
+/** 某一组 tokens 的主题（createTheme 的结果） */
+export type GroupTheme = { [Group in keyof Groups]: GroupThemeOf<Groups[Group]> }[keyof Groups];
 
 /** 按分组覆盖部分 token：`{ colors: { accent: '#e5484d' }, fontSizes: { md: '16px' } }` */
 export type ThemeOverrides = {
-  -readonly [Group in keyof Groups]?: { [Token in keyof Groups[Group]['__tokens']]?: string };
+  -readonly [Group in keyof Groups]?: { [Token in keyof Groups[Group] & string]?: string };
 };
 
 /** 浏览器配色方案（color-scheme） */
@@ -84,7 +84,7 @@ export function themeVariables(theme: Theme): Record<string, string> {
 }
 
 /** token 在元素上的当前取值；元素不在主题范围里（没加载组件库的样式、还没挂载）时为空字符串 */
-export function tokenValue(element: Element, token: StyleXVar<string>): string {
+export function tokenValue(element: Element, token: CssVar): string {
   return getComputedStyle(element)
     .getPropertyValue(variableName(String(token)))
     .trim();
@@ -94,7 +94,7 @@ export function tokenValue(element: Element, token: StyleXVar<string>): string {
  * token 在元素上的当前取值，含主题覆盖与媒体查询：`readToken(el, colors.accent)` → `'#3e63dd'`；读不到时报错。
  * 给拿不到 CSS 变量的地方用：JS 动画的时长与缓动（utils/motion/animation 的 themeTransition、useAnimate）、canvas 图表与 3D 场景的颜色。
  */
-export function readToken(element: Element, token: StyleXVar<string>): string {
+export function readToken(element: Element, token: CssVar): string {
   const value = tokenValue(element, token);
   if (!value)
     throw new Error(
@@ -103,7 +103,7 @@ export function readToken(element: Element, token: StyleXVar<string>): string {
   return value;
 }
 
-/** 编译后的 token 在运行时是 `var(--x1abc)`，取出变量名 `--x1abc` 才能在行内覆盖 */
+/** token 是 `var(--vtp-colors-accent)`，取出变量名 `--vtp-colors-accent` 才能在行内覆盖 */
 function variableName(token: string) {
   const match = /^var\((--[\w-]+)\)$/.exec(token);
   if (!match) throw new Error(`无法识别的主题变量：${token}`);
