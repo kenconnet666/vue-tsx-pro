@@ -1,5 +1,6 @@
 /**
- * 表单（form）：把 useForm 的控制器交给里面的 Field。提交时先校验，没通过就把焦点移到第一个出错的控件上；
+ * 表单（form）：把 useForm 的控制器交给里面的 Field。提交时先校验，没通过就把焦点移到错误汇总（有 FormErrorSummary 时）
+ * 或第一个出错的控件上；
  * 原生的 reset（type="reset" 的按钮）回到初始值。
  *
  *   <Form controller={form}>
@@ -50,6 +51,9 @@ export const Form = _component(
       if (await controller.submit()) return;
       // 等错误渲染出来（aria-invalid 写到控件上）再移焦点
       await nextTick();
+      // 有错误汇总时先到它那里（读屏念出有几项、各是什么），从它的链接跳到字段
+      const summary = form?.querySelector<HTMLElement>('[data-form-error-summary]');
+      if (summary) return summary.focus();
       const invalid = form?.querySelector<HTMLElement>('[aria-invalid="true"]');
       // 出错的可能是一组控件（RadioGroup 的 radiogroup 本身不能聚焦）：聚焦它里面第一个能聚焦的
       if (invalid) focusControl(invalid);

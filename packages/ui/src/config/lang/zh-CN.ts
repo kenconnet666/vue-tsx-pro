@@ -18,6 +18,8 @@ export const zhCN: Lang = {
   copied: '已复制',
   emptyValue: '—',
   formRequired: '必填',
+  formErrorSummary: (count) => `有 ${count} 项需要修改`,
+  formErrorItem: (label, message) => `${label}：${message}`,
   formIssues: zodMessages().localeError,
   leaveTitle: '离开这个页面？',
   leaveDescription: '有未保存的修改，离开后会丢失。',

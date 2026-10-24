@@ -76,6 +76,10 @@ export interface Lang {
   readonly emptyValue: string;
   /** 表单里该填的没有填（null、undefined、空字符串、空数组）时的错误，默认“必填”；schema 里自己写的提示优先 */
   readonly formRequired: string;
+  /** 错误汇总的标题：`(3)` → “有 3 项需要修改” */
+  readonly formErrorSummary: (count: number) => string;
+  /** 错误汇总里的一项：`('邮箱', '格式不对')` → “邮箱：格式不对” */
+  readonly formErrorItem: (label: string, message: string) => string;
   /** 其余校验错误的文案：取 zod 自带的语言包（`zod/v4/locales` 的 localeError）；schema 里自己写的提示优先 */
   readonly formIssues: $ZodErrorMap;
   /** 未保存离开时确认对话框的标题，默认“离开这个页面？” */

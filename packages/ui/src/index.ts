@@ -1003,6 +1003,11 @@ export {
 } from './form/Field';
 export { Form, FormContext, type FormProps } from './form/Form';
 export {
+  FormErrorSummary,
+  formErrorSummaryStyles,
+  type FormErrorSummaryProps,
+} from './form/FormErrorSummary';
+export {
   FormSection,
   formSectionColumnStyles,
   formSectionStyles,
@@ -1043,6 +1048,7 @@ export {
   type FormController,
   type FormControllerBase,
   type FormErrors,
+  type FormFieldInfo,
   type FormOptions,
   type FormValidateTimings,
   type PathValue,

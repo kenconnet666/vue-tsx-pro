@@ -9,9 +9,14 @@
  *     onSubmit: (values) => api.signup(values), // 拿到解析后的输出（z.output）：age 已是数字
  *   });
  *   <Form controller={form}>
- *     <form.Field name="email" label="邮箱"><TextField value={_bind(form.values.email)} /></form.Field>
+ *     <FormErrorSummary />                        // 提交没通过时在顶上列出各项错误，点了跳到字段
+ *     <form.Field name="email" label="邮箱"><TextField /></form.Field>   // 只有一个控件时自动绑定值
  *     <Button type="submit" loading={form.submitting}>登录</Button>
  *   </Form>
+ *
+ * form.Field 里只有一个控件、控件上没写值时，自动绑定 form.values 的这个字段（同 Ant Design Form.Item 的 name）：
+ * 写回的是 value；声明了 checked 而没有 value 的控件（Switch、单个 Checkbox）写回 checked，也可以用 Field 的 valueProp 指定。
+ * 自己写了 value={_bind(form.values.email)} 时照旧。
  *
  * 何时显示错误（“迟一点批评、早一点肯定”）：字段失焦后才显示它的错误，之后它随输入实时更新；提交过一次之后，所有字段随输入实时更新。
  * 不属于哪个字段的错误（对象级 refine 没写 path、validate 返回的 '' 键、setError('', …)）是整份表单的错误，见 formError。
@@ -177,6 +182,22 @@ export interface FormControllerBase {
   reset(): void;
   /** 字段从 schema 推出的约束（必填、长度、范围…）；Field 交给控件，控件上显式写的优先 */
   constraints(path: string): FieldConstraints;
+  /** 字段的当前值（按点连接的路径）：Field 自动绑定值时用 */
+  getValue(path: string): unknown;
+  /** 写字段的值：中途是 null / undefined 时什么也不做 */
+  setValue(path: string, value: unknown): void;
+  /** 写了 name 的 Field 登记标签与控件的 id：错误汇总据此显示字段名、跳到控件。返回注销函数 */
+  register(path: string, field: FormFieldInfo): () => void;
+  /** 登记过的字段，按登记（渲染）的顺序 */
+  readonly fields: ReadonlyMap<string, FormFieldInfo>;
+}
+
+/** Field 登记的字段信息 */
+export interface FormFieldInfo {
+  /** 标签的文字 */
+  label: string;
+  /** 控件的 id：错误汇总的链接指向它 */
+  controlId: string;
 }
 
 /** 表单控制器：useForm 的返回值 */
@@ -216,6 +237,14 @@ function isBlankIssue({ code, input }: $ZodRawIssue): boolean {
   if (code === 'invalid_type') return input == null;
   if (code === 'too_small') return input === '' || (Array.isArray(input) && input.length === 0);
   return false;
+}
+
+/** 按点连接的路径写值；中途是 null / undefined 时什么也不做 */
+function writePath(target: unknown, path: string, value: unknown): void {
+  const keys = path.split('.');
+  const parent = readPath(target, keys.slice(0, -1).join('.'));
+  if (keys.length === 1) (target as Record<string, unknown>)[keys[0]!] = value;
+  else if (parent != null) (parent as Record<string, unknown>)[keys.at(-1)!] = value;
 }
 
 /** 按点连接的路径取值；中途是 null / undefined 时为 undefined */
@@ -310,6 +339,9 @@ export function useForm<Values extends object, Output = Values>(
   const dirty = computed(() => !sameValue(values, state.baseline));
   // 数组字段每项的 key，与数组等长；数组被外部整个换掉（长度不同）时重新生成
   const arrayKeys = new Map<string, string[]>();
+
+  // 写了 name 的 Field：错误汇总按它显示字段名、跳到控件
+  const fields = shallowReactive(new Map<string, FormFieldInfo>());
 
   /** 单字段校验的进行状态：每个字段一份 */
   const fieldRuns = new Map<string, FieldRun>();
@@ -615,6 +647,15 @@ export function useForm<Values extends object, Output = Values>(
     },
     constraints,
     Field,
+    getValue: (path) => readPath(values, path),
+    setValue: (path, value) => writePath(values, path, value),
+    register(path, field) {
+      fields.set(path, field);
+      return () => {
+        if (fields.get(path) === field) fields.delete(path);
+      };
+    },
+    fields,
   };
 
   // 输入时：change 模式一开始就校验；blur 模式在有字段失焦过之后（只显示失焦过的字段）；提交过之后总是

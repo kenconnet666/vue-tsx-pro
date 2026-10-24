@@ -8,7 +8,9 @@
  * Field 经上下文告诉里面的控件：控件的 id（标签的 for 指向它）、标签的 id（不是原生输入的控件用 aria-labelledby）、
  * 说明与错误的 id（aria-describedby），以及 invalid / required / disabled / readonly。
  * 控件上显式写的状态优先于 Field 的。控件用 useFieldControl 读取这些信息，单独使用（不在 Field 里）时照常工作。
- * 在 Form 里写了 name 时，错误信息取自表单控制器（useForm），焦点离开字段时报告失焦（何时显示错误见 useForm）。
+ * 在 Form 里写了 name 时，错误信息取自表单控制器（useForm），焦点离开字段时报告失焦（何时显示错误见 useForm）；
+ * 里面只有一个控件、控件上没写值时自动绑定表单的这个字段（valueProp 决定写 value 还是 checked），
+ * 标签与控件登记给表单，错误汇总（FormErrorSummary）据此列出字段名、跳到控件。
  *
  * 标签可以放在起始边（`labelPlacement="start"`）：标签一列、控件一列，标签与控件的第一行文字按基线对齐，
  * 多行文本框、勾选组也对得齐。通常在 Form、FormSection 上统一设置（见 field-layout），整组的只读、不可用同样从那里来。
@@ -19,10 +21,11 @@
 import { Asterisk } from '@lucide/icons';
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { useId, watch, type VNodeChild } from 'vue';
+import { cloneVNode, Fragment, isVNode, useId, watch, type VNode, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
+import { plainText } from '../utils/data/text';
 import { focusControl } from '../utils/dom/focus';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
@@ -201,8 +204,12 @@ export const Label = _component(
 
 /** 未声明的属性落到外层 div 上 */
 export interface FieldProps extends PartProps<'div'> {
-  /** 在 Form 里对应的字段路径（如 `email`、`address.city`）：错误取自表单控制器 */
+  /** 在 Form 里对应的字段路径（如 `email`、`address.city`）：错误取自表单控制器，只有一个控件时自动绑定它的值 */
   name?: string;
+  /**
+   * 自动绑定值时写到控件的哪个属性：默认 value；控件声明了 checked 而没有 value（Switch、单个 Checkbox）时是 checked
+   */
+  valueProp?: 'value' | 'checked';
   /** 标签 */
   label?: VNodeChild;
   /** 控件下方的说明 */
@@ -240,6 +247,20 @@ export interface FieldProps extends PartProps<'div'> {
   children?: VNodeChild;
 }
 
+/** 控件的组件声明了这个属性（运行时的 props 定义） */
+function declares(node: VNode, key: string): boolean {
+  const declared = (node.type as { props?: unknown }).props;
+  if (Array.isArray(declared)) return declared.includes(key);
+  return typeof declared === 'object' && declared !== null && key in declared;
+}
+
+/** Field 里唯一的控件：一个组件的 VNode（数组里只有一项也算）；不是时 undefined */
+function soleControl(children: VNodeChild): VNode | undefined {
+  const node = Array.isArray(children) && children.length === 1 ? children[0] : children;
+  if (!isVNode(node) || typeof node.type === 'string' || node.type === Fragment) return undefined;
+  return node;
+}
+
 /** 标签在起始边时默认的标签列宽度：放得下七八个汉字 */
 const DEFAULT_LABEL_WIDTH = '8em';
 
@@ -272,6 +293,7 @@ export const fieldColumnStyles = stylex.create({
 export const Field = _component(
   ({
     name,
+    valueProp,
     label,
     description,
     error,
@@ -333,6 +355,28 @@ export const Field = _component(
         return isReadonly();
       },
     });
+
+    // 登记给表单：错误汇总据此显示字段名、跳到控件
+    _effect(() =>
+      name != null && form
+        ? form.register(name, { label: plainText(label) ?? name, controlId: ids.control })
+        : undefined,
+    );
+
+    /** 只有一个控件、控件上没写值时，自动绑定表单的这个字段（同 Ant Design Form.Item 的 name） */
+    function bindValue(content: VNodeChild): VNodeChild {
+      const control = name != null && form ? soleControl(content) : undefined;
+      if (!control || !form) return content;
+      const key =
+        valueProp ??
+        (declares(control, 'checked') && !declares(control, 'value') ? 'checked' : 'value');
+      if (control.props && key in control.props) return content;
+      const path = name!;
+      return cloneVNode(control, {
+        [key]: form.getValue(path),
+        [`onUpdate:${key}`]: (value: unknown) => form.setValue(path, value),
+      });
+    }
 
     // 焦点离开整个字段（不是在字段内部移动）时报告失焦
     function onFocusout(event: FocusEvent) {
@@ -417,11 +461,11 @@ export const Field = _component(
                 propsControl,
               )}
             >
-              {children}
+              {bindValue(children)}
               {hints}
             </div>
           ) : (
-            [children, hints]
+            [bindValue(children), hints]
           )}
         </div>
       );

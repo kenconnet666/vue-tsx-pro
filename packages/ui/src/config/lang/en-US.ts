@@ -18,6 +18,8 @@ export const enUS: Lang = {
   copied: 'Copied',
   emptyValue: '—',
   formRequired: 'Required',
+  formErrorSummary: (count) => (count === 1 ? 'There is 1 problem' : `There are ${count} problems`),
+  formErrorItem: (label, message) => `${label}: ${message}`,
   formIssues: zodMessages().localeError,
   leaveTitle: 'Leave this page?',
   leaveDescription: 'You have unsaved changes that will be lost.',
