@@ -1,7 +1,7 @@
 /**
  * 样式更新基准（不进导航，scripts/docs/style-updates.mjs 驱动）：状态变化时样式层到底动了什么。
  *
- *   /bench/style-updates?mode=sx        1000 行连续值，css.create 的动态样式；hot 是条件类（item.hot && styles.hot）
+ *   /bench/style-updates?mode=sx        1000 行连续值，css.create 的动态样式；hot 是条件类（item.hot && styles.hot，编译成 css.select）
  *   /bench/style-updates?mode=attr      同 sx，但 hot 写在 DOM 属性上（data-hot + '[data-hot]' 条件），类固定
  *   /bench/style-updates?mode=emotion   同样的声明交给 Emotion（每个新值一个新类）
  *   /bench/style-updates?mode=vars      手写：固定的类 + 元素上的变量（理论下限）

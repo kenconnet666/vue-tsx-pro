@@ -52,3 +52,45 @@ ${extra}`;
     first!.styleSkeleton,
   );
 });
+
+it('按状态选样式：只读在样式里的状态改成 select；别处也读、渲染里算出的、不交给样式的不改', async () => {
+  const code = `import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@vue-tsx-pro/tsx';
+const styles = css.create({ row: { display: 'flex' }, hot: { color: 'red' }, on: { color: 'blue' }, off: { color: 'gray' } });
+const sizes = css.create({ sm: { fontSize: 12 }, md: { fontSize: 14 } });
+const DEBUG = false;
+export const Row = _component(({ item, size, active, shown, rows }: { item: { hot: boolean }; size: 'sm' | 'md'; active: boolean; shown: boolean; rows: { on: boolean }[] }) => {
+  let open = _state(false);
+  return () => {
+    const local = active;
+    return (
+      <div {...css.attrs(styles.row, item.hot && styles.hot, sizes[size])} data-shown={shown} onClick={() => (open = !open)}>
+        <i {...css.attrs(open ? styles.on : styles.off)} />
+        <i {...css.attrs(shown && styles.hot)} />
+        <i {...css.attrs(local && styles.hot)} />
+        <i {...css.attrs(DEBUG && styles.hot)} />
+        <Other extra={shown && styles.on} sx={[styles.row, item.hot && styles.on]} />
+        {rows.map((row) => <b {...css.attrs(row.on && styles.hot)} />)}
+      </div>
+    );
+  };
+});`;
+  const output = (await compile(code, { filename: '/src/Row.tsx', styleBindings: true }))!.code;
+  // 只在样式里读的 props、组件里的状态：稳定
+  expect(output).toMatch(/css\.select\(\(\) => item\.value\.hot && styles\.hot, true\)/);
+  // prop 整个值（size）：值变了 Vue 反正重新渲染子组件，不改
+  expect(output).toContain('sizes[size.value])');
+  expect(output).not.toMatch(/select\(\(\) => sizes/);
+  expect(output).toMatch(/css\.select\(\(\) => open\.value \? styles\.on : styles\.off, true\)/);
+  // 同一状态在两处样式里读：都改（样式里的读不算“别处”）
+  expect(output).toMatch(
+    /"sx": \[styles\.row, css\.select\(\(\) => item\.value\.hot && styles\.on, true\)\]/,
+  );
+  // map 回调的参数：不稳定
+  expect(output).toMatch(/css\.select\(\(\) => row\.on && styles\.hot\)/);
+  // 别处也读（data-shown）、渲染里算出的局部变量、模块常量、不交给样式的 prop：不改
+  expect(output).toContain('css.attrs(shown.value && styles.hot)');
+  expect(output).toContain('css.attrs(local && styles.hot)');
+  expect(output).toContain('css.attrs(DEBUG && styles.hot)');
+  expect(output).toMatch(/"extra": shown\.value && styles\.on/);
+});

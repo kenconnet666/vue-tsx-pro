@@ -13,13 +13,15 @@
  *     值进元素的行内样式），之后值怎么变类名都不变、不插新规则。
  *   - 响应式绑定（css.bind，编译器把 JSX 里的 `styles.bar(item.width)` 自动改写成它）：渲染时只算类名、不追踪依赖，
  *     元素挂上后由一个响应式 effect 直接改元素上的变量。值变化不重新渲染组件、不做 vdom 比对，只改那一个变量。
+ *   - 按状态选样式（css.select，编译器把 `item.hot && styles.hot` 这类只在样式里读的状态改写成它）：同样不追踪，
+ *     状态变化时 effect 换掉那一段样式、重新组合，就地换元素上的组合类（bindings.ts）。
  *   - 状态样式用条件别名（_selected、_disabled…）跟着 DOM 上的 aria / data 属性走：状态变化只改属性，类名不变。
  *   - 主题（createTheme，vars.ts）是一个只改变量的类，换主题只换这个类，组件不用重新渲染。
  *   - 热更新（hotStyles，编译器包在顶层 create / recipe 外面）：模块重新执行时新声明写进旧片段，
  *     用到它的组合类按原类名改写规则，组件不重新渲染。
  *
  * 分成几个模块：declarations（样式对象 → 声明表 → 规则文本）、sheet（样式表）、fragment（片段与组合类）、
- * dynamic（动态样式与 bind）、bindings（元素上的响应式绑定）、vars（变量组、主题、标记）、tokens（主题 tokens 的短写）、
+ * compose（一个元素的样式 → 类，带缓存）、dynamic（动态样式与 bind、select）、bindings（元素上的响应式绑定）、vars（变量组、主题、标记）、tokens（主题 tokens 的短写）、
  * hot（热更新）；这里是对外的入口。
  */
 import { untrack } from '../runtime/state';
@@ -32,23 +34,13 @@ import {
   type StyleObject,
   type StyleValue,
 } from './declarations';
+import { compose } from './compose';
 import { dynamic } from './dynamic';
-import {
-  BINDING,
-  CLASS,
-  composite,
-  DYNAMIC,
-  EVALUATE,
-  FRAGMENT,
-  fragment,
-  type Binding,
-  type ClassStyle,
-  type Fragment,
-} from './fragment';
+import { BINDING, DYNAMIC, EVALUATE, fragment, type Binding, type StylePart } from './fragment';
 import { hash, insert, isInserted } from './sheet';
 
 export { CONDITIONS } from './declarations';
-export { bind } from './dynamic';
+export { bind, select } from './dynamic';
 export { HOT, hotStyles, hotUpdate } from './hot';
 export { hash, styleText } from './sheet';
 export { defineTokens } from './tokens';
@@ -85,22 +77,15 @@ export function create<S extends Record<string, unknown>>(namespaces: S): S {
   return result as S;
 }
 
-/** 组合缓存：按参与的对象（片段、主题、标记）逐层索引 */
-interface CacheNode {
-  next?: WeakMap<object, CacheNode>;
-  result?: Attrs;
-}
-const cache: CacheNode = {};
-
 type AttrsArg = StyleValue | boolean | object | readonly AttrsArg[];
 
 /**
  * 合并样式成元素属性 `{ class, style }`，后面的覆盖前面的；假值忽略，可以嵌套成数组。
  * 只有静态片段时返回缓存的同一个对象；有动态样式时 class 走缓存，style 是这次的变量值；
- * 有响应式绑定（bind）时再带一个 ref：元素挂上后由 effect 改变量（见 watchBindings）
+ * 有响应式绑定（bind、select）时再带一个 ref：元素挂上后由 effect 改变量、换类（见 watchBindings）
  */
 export function attrs(...styles: readonly AttrsArg[]): Attrs {
-  const parts: object[] = [];
+  const parts: StylePart[] = [];
   let inline: Record<string, string> | undefined;
   let bindings: BindingEntry[] | undefined;
   const addInline = (values: Readonly<Record<string, string>>) => {
@@ -115,51 +100,31 @@ export function attrs(...styles: readonly AttrsArg[]): Attrs {
     if (BINDING in value) {
       // 渲染时只取这一次的值算类名与首屏的变量，不追踪：参数变化交给元素上的 effect，不让组件重新渲染
       const binding = value as Binding;
-      const { fragment, inline: values } = untrack(() => binding.style[EVALUATE](binding.args()));
-      parts.push(fragment);
+      let args: readonly unknown[] = [];
+      const { part, inline: values } = untrack(() =>
+        binding.style[EVALUATE]((args = binding.args())),
+      );
+      (bindings ??= []).push({ binding, index: parts.length, args, inline: values });
+      parts.push(part);
       addInline(values);
-      (bindings ??= []).push({ binding, fragment, initial: values });
       return;
     }
     if (Array.isArray(value)) {
       if (DYNAMIC in value) {
-        parts.push(value[0] as object);
+        parts.push(value[0] as StylePart);
         addInline(value[1] as Record<string, string>);
       } else value.forEach(collect);
       return;
     }
-    parts.push(value);
+    parts.push(value as StylePart);
   };
   styles.forEach(collect);
 
-  let node = cache;
-  for (const part of parts) {
-    node.next ??= new WeakMap();
-    let child = node.next.get(part);
-    if (!child) node.next.set(part, (child = {}));
-    node = child;
-  }
-  node.result ??= resolve(parts);
-  if (!inline && !bindings) return node.result;
-  const result: Attrs = inline ? { ...node.result, style: inline } : { ...node.result };
-  if (bindings) result.ref = watchBindings(bindings);
+  const composed = compose(parts);
+  if (!inline && !bindings) return composed;
+  const result: Attrs = inline ? { ...composed, style: inline } : { ...composed };
+  if (bindings) result.ref = watchBindings(bindings, parts, composed.class ?? '');
   return result;
-}
-
-/** 缓存没命中：片段合成一个类；固定类（主题、标记）按去重键后者覆盖前者 */
-function resolve(parts: readonly object[]): Attrs {
-  const fragments: Fragment[] = [];
-  const fixed = new Map<string, string>();
-  for (const part of parts) {
-    if (FRAGMENT in part) fragments.push(part as Fragment);
-    else if (CLASS in part) {
-      const [key, className] = (part as ClassStyle)[CLASS];
-      fixed.delete(key);
-      fixed.set(key, className);
-    } else throw new Error('attrs：不认识的样式，只收 create、createTheme、defineMarker 的结果');
-  }
-  const classes = [fragments.length ? composite(fragments) : '', ...fixed.values()].filter(Boolean);
-  return Object.freeze(classes.length ? { class: classes.join(' ') } : {});
 }
 
 /* ───────────────────────── 关键帧 ───────────────────────── */

@@ -199,7 +199,7 @@ describe('recipe', () => {
 });
 
 describe('bind', () => {
-  it('属性第一次变化时组件重新渲染一次换成变量版的类，之后参数变化只改元素上的变量', async () => {
+  it('属性第一次变化时就地换成变量版的类，之后参数变化只改元素上的变量；组件都不重新渲染', async () => {
     const { createApp, h, nextTick, ref } = await import('vue');
     const { bind } = await import('../src/styles/runtime');
     const styles = create({ bar: (width: number) => ({ width, height: 6 }) });
@@ -221,13 +221,93 @@ describe('bind', () => {
     expect(rulesOf(element.className)).toContain('width: var(--x-width)');
     expect(rulesOf(element.className)).toContain('height: 6px');
     expect(element.style.getPropertyValue('--x-width')).toBe('30px');
-    expect(renders).toBe(2);
+    expect(renders).toBe(1);
     for (const value of [12, 10, 50]) {
       width.value = value;
       await nextTick();
       expect(element.style.getPropertyValue('--x-width')).toBe(`${value}px`);
     }
-    expect(renders).toBe(2);
+    expect(renders).toBe(1);
+  });
+});
+
+describe('select', () => {
+  const mountWith = async (render: () => ReturnType<typeof import('vue').h>) => {
+    const { createApp } = await import('vue');
+    const host = document.createElement('div');
+    document.body.append(host);
+    const app = createApp({ render });
+    app.mount(host);
+    return { element: host.firstElementChild as HTMLElement, app };
+  };
+
+  it('状态变化时就地换组合类，组件不重新渲染；元素上别的类不动', async () => {
+    const { h, nextTick, ref } = await import('vue');
+    const { select } = await import('../src/styles/runtime');
+    const styles = create({ row: { display: 'flex' }, hot: { color: 'red' } });
+    const hot = ref(false);
+    let renders = 0;
+    const { element } = await mountWith(() => {
+      renders++;
+      const { class: className, ...rest } = attrs(
+        styles.row,
+        select(() => hot.value && styles.hot),
+      );
+      return h('div', { ...rest, class: ['mine', className] });
+    });
+    const plain = element.className;
+    expect(rulesOf(attrs(styles.row).class)).toEqual(rulesOf(plain.replace('mine ', '')));
+    hot.value = true;
+    await nextTick();
+    expect(element.classList.contains('mine')).toBe(true);
+    expect(element.className).toBe(`mine ${attrs(styles.row, styles.hot).class}`);
+    hot.value = false;
+    await nextTick();
+    expect(element.className).toBe(plain);
+    expect(renders).toBe(1);
+  });
+
+  it('换过类之后组件因别的原因重新渲染：按当时的状态算出类，与元素上的一致', async () => {
+    const { h, nextTick, ref } = await import('vue');
+    const { select } = await import('../src/styles/runtime');
+    const styles = create({
+      base: { display: 'block' },
+      on: { color: 'blue' },
+      off: { color: 'gray' },
+    });
+    const on = ref(false);
+    const other = ref(0);
+    const { element } = await mountWith(() => {
+      void other.value;
+      return h(
+        'div',
+        attrs(
+          styles.base,
+          select(() => (on.value ? styles.on : styles.off)),
+        ),
+      );
+    });
+    const onClass = attrs(styles.base, styles.on).class;
+    const offClass = attrs(styles.base, styles.off).class;
+    expect(element.className).toBe(offClass);
+    on.value = true;
+    await nextTick();
+    expect(element.className).toBe(onClass);
+    other.value++;
+    await nextTick();
+    expect(element.className).toBe(onClass);
+    on.value = false;
+    await nextTick();
+    expect(element.className).toBe(offClass);
+    // 渲染时的类（虚拟节点里记着的）与现在相同：Vue 不改，元素上仍是 effect 换的
+    other.value++;
+    await nextTick();
+    expect(element.className).toBe(offClass);
+  });
+
+  it('读取函数返回的不是样式时报错', async () => {
+    const { select } = await import('../src/styles/runtime');
+    expect(() => attrs(select(() => 'red' as never))).toThrow(/css.select/);
   });
 });
 

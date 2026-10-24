@@ -16,18 +16,21 @@ export const BINDING = Symbol('style binding');
 /** 动态样式函数上的求值入口 */
 export const EVALUATE = Symbol('style evaluate');
 
-/** 动态样式算一次的结果：片段（只随形状变）与行内变量 */
+/** 绑定算一次的结果：参与组合的一段样式（动态样式的片段只随形状变）与行内变量 */
 export interface Evaluated {
-  /** 片段：值变过的属性写成 var(--x-属性)，没变过的写死 */
-  readonly fragment: Fragment;
+  /** 这一段样式：动态样式的片段（值变过的属性写成 var(--x-属性)，没变过的写死），或 css.select 选中的样式 */
+  readonly part: StylePart;
   /** 行内变量：变量名 → 这次的值 */
   readonly inline: Readonly<Record<string, string>>;
 }
-/** create 里的函数：调用得到 [片段, 行内变量]；EVALUATE 给 attrs 与绑定用 */
-export interface DynamicStyle {
-  (...args: never[]): readonly [Fragment, Readonly<Record<string, string>>];
+/** 绑定求值的入口：动态样式、css.select 的选择 */
+export interface Evaluator {
   /** 按参数求值（有记忆），attrs 与元素上的绑定用 */
   readonly [EVALUATE]: (args: readonly unknown[]) => Evaluated;
+}
+/** create 里的函数：调用得到 [片段, 行内变量] */
+export interface DynamicStyle extends Evaluator {
+  (...args: never[]): readonly [StylePart, Readonly<Record<string, string>>];
 }
 
 /** create 的一个命名空间（对外的类型是 CompiledStyles） */
@@ -41,12 +44,15 @@ export interface ClassStyle {
   readonly [CLASS]: readonly [key: string, className: string];
 }
 
-/** 一个响应式绑定：动态样式与读参数的函数 */
+/** 参与组合的一段样式：片段，或固定类（主题、标记） */
+export type StylePart = Fragment | ClassStyle;
+
+/** 一个响应式绑定：动态样式（或 css.select 的选择）与读参数的函数 */
 export interface Binding {
   /** 标记：attrs 据此认出绑定 */
   readonly [BINDING]: true;
-  /** 绑定的动态样式 */
-  readonly style: DynamicStyle;
+  /** 绑定的动态样式，或 css.select 的选择 */
+  readonly style: Evaluator;
   /** 读参数的函数：effect 里调用，读到的响应式值变化时重新求值 */
   readonly args: () => readonly unknown[];
   /** 读取函数只读渲染函数外面的来源（编译器判断）：重新渲染时换上新的读取函数即可，不必重跑 effect */

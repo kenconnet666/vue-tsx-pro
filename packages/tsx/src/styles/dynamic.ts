@@ -1,16 +1,20 @@
 /**
- * 动态样式（create 里写成函数的命名空间）与它的响应式绑定 css.bind。
+ * 动态样式（create 里写成函数的命名空间）与响应式绑定：css.bind 绑定动态样式的参数，css.select 绑定选哪段样式。
  */
 import { eachLeaf, tableOf, type LeafEntry, type StyleObject } from './declarations';
 import {
   BINDING,
+  CLASS,
   DYNAMIC,
   EVALUATE,
+  FRAGMENT,
   fragment,
   type Binding,
   type DynamicStyle,
   type Evaluated,
+  type Evaluator,
   type Fragment,
+  type StylePart,
 } from './fragment';
 import { hash } from './sheet';
 
@@ -26,7 +30,7 @@ const dynamicVar = (property: string, chain: readonly string[]) =>
  * 值一旦和第一次不同，这个属性就永久转成变量（类里写 var(--x-属性)、值进行内样式）。
  * 一个动态命名空间最多产生“属性数 + 1”种类，不随取值增长；转成变量之后值怎么变类都不变。
  * StyleX 把动态命名空间的属性一律变成行内变量，每个元素多挂几个，样式重算更慢。
- * 响应式绑定遇到“这个属性刚开始变”（类还是写死的那种）时请组件重新渲染一次换类，之后只改变量
+ * 响应式绑定遇到“这个属性刚开始变”（类还是写死的那种）时就地换成变量版的类（bindings.ts），之后只改变量
  */
 export function dynamic(factory: (...args: never[]) => StyleObject): DynamicStyle {
   const first = new Map<string, string>();
@@ -67,11 +71,11 @@ export function dynamic(factory: (...args: never[]) => StyleObject): DynamicStyl
     });
     let shared = shapes.get(shape);
     if (!shared) shapes.set(shape, (shared = fragment(tableOf(leaves))));
-    return { fragment: shared, inline };
+    return { part: shared, inline };
   };
   const style = (...args: never[]) => {
-    const { fragment, inline } = evaluate(args);
-    const result = [fragment, inline] as const;
+    const { part, inline } = evaluate(args);
+    const result = [part, inline] as const;
     Object.defineProperty(result, DYNAMIC, { value: true });
     return result;
   };
@@ -109,4 +113,34 @@ export function bind<Args extends unknown[]>(
   stable = false,
 ): Binding {
   return { [BINDING]: true, style: style as unknown as DynamicStyle, args, stable };
+}
+
+const EMPTY: Readonly<Record<string, string>> = Object.freeze({});
+/** 没选中任何样式：空片段，参与组合但不产生声明 */
+const NONE: Evaluated = { part: fragment(new Map()), inline: EMPTY };
+const selected = new WeakMap<StylePart, Evaluated>();
+
+/** css.select 的求值：读到的样式原样参与组合，假值不选 */
+const SELECT: Evaluator = {
+  [EVALUATE]: ([style]) => {
+    if (!style) return NONE;
+    if (typeof style !== 'object' || !(FRAGMENT in style || CLASS in style)) {
+      throw new Error(
+        'css.select：读取函数要返回 create、createTheme、defineMarker 的结果，或假值',
+      );
+    }
+    let result = selected.get(style as StylePart);
+    if (!result)
+      selected.set(style as StylePart, (result = { part: style as StylePart, inline: EMPTY }));
+    return result;
+  },
+};
+
+/**
+ * 按状态选样式的响应式绑定：`css.select(() => item.hot && styles.hot)`。交给 attrs / sx 后，渲染时不追踪读到的状态，
+ * 状态变化时由元素上的 effect 就地换组合类，组件不重新渲染。JSX 里写 `item.hot && styles.hot`、
+ * `active ? styles.on : styles.off`、`sizeStyles[size]` 时编译器自动改写成它（只在状态没有别处读、换类能省下渲染时）
+ */
+export function select(read: () => unknown, stable = false): Binding {
+  return { [BINDING]: true, style: SELECT, args: () => [read()], stable };
 }

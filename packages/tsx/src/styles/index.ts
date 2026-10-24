@@ -191,7 +191,7 @@ export interface StyleAttrs {
   class?: string;
   /** 行内样式：动态样式写的 CSS 变量（名字原样）与值 */
   style?: InlineStyles;
-  /** 有响应式绑定（bind）时：元素挂上后由 effect 改变量，卸载时停掉 */
+  /** 有响应式绑定（bind、select）时：元素挂上后由 effect 改变量、换类，卸载时停掉 */
   ref?: (element: unknown) => void;
 }
 
@@ -254,3 +254,14 @@ export const bind: <Args extends unknown[]>(
   /** 读取函数只读渲染函数外面的来源（编译器判断后填 true）：重新渲染时不必重新收集依赖 */
   stable?: boolean,
 ) => Readonly<[CompiledStyles, InlineStyles]> = runtime.bind as never;
+
+/**
+ * 按状态选样式的响应式绑定：状态变化时由元素上的 effect 就地换类，不重新渲染组件。
+ * JSX 里写 `item.hot && styles.hot`、`active ? styles.on : styles.off`、`sizeStyles[size]`（本文件顶层 create 的样式）
+ * 且读到的状态在渲染里没有别处用到时，编译器自动改写成 `css.select(() => item.hot && styles.hot)`，一般不用手写
+ */
+export const select: (
+  read: () => CompiledStyles | null | undefined | false | '' | 0,
+  /** 读取函数只读渲染函数外面的来源（编译器判断后填 true）：重新渲染时不必重新收集依赖 */
+  stable?: boolean,
+) => CompiledStyles = runtime.select as never;

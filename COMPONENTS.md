@@ -127,6 +127,7 @@
 - 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `themeTransition(元素, { duration, ease, bounce })`；主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。已用在 Toast 的滑动、SlideVerify 的弹回与失败晃动。常见场景有现成的组合式函数（`utils/motion/`）：跟随数值用 `useTween` / `useSpring`，关闭后等离场再卸载用 `usePresence`，增删、换位置的平移用 `useLayoutAnimation`，跟着当前项走的指示条用 `useActiveIndicator`，加载指示防闪烁用 `useDelayedLoading`，装饰性动画看 `useReducedMotion`。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
 - 含动态样式函数的 `css.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
 - 动态样式：一直没变过的属性写进类里，值变过的属性转成元素上的 CSS 变量，之后值怎么变类都不变。JSX 里调用本文件顶层 `create` 的动态样式时，编译器自动改写成响应式绑定（`css.bind`）：参数变化只改元素上的变量，组件不重新渲染；参数只读 props、组件函数体里的状态、模块常量时最省（编译器标成稳定，组件因别的原因重渲染时不重新收集依赖）。从别的文件导入的动态样式要绑定时手写 `css.bind(styles.x, () => [参数])`。
+- 按状态选样式：交给 attrs、sx 的 `条件 && styles.x`、`条件 ? styles.a : styles.b`、`styles[键]`（本文件顶层 `create` 的样式），条件读到的状态在渲染里没有别处用到时，编译器改写成 `css.select`：状态变化由元素上的 effect 就地换类，组件不重新渲染。组件自己的 prop 整个值、普通常量不改（prop 变了 Vue 照样重新渲染子组件）；导入的样式表要这样做时手写 `css.select(() => 条件 && styles.x)`。
 - 热更新：顶层的 `const 名 = css.create(…)` / `css.recipe(…)` 改了样式值时原地生效（按原类名改写规则，组件不重新渲染）；写在函数里的、`createTheme`、`keyframes` 以及样式以外的改动照常让导入方重新执行。
 - 标签名来自数据时 TSX 没有属性类型：要交互、要更新的用 Vue 的 `h()` 渲染；静态的（图标的 path、circle）拼成标记作 innerHTML（§2.6）。
 
