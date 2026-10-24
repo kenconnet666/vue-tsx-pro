@@ -1,5 +1,5 @@
 /**
- * 柱状图：每个类目一组柱子，系列并排（分组）或叠成一根（堆叠），可以横向。
+ * 柱状图：每个类目一组柱子，系列并排（分组）或叠成一根（堆叠），可以横向；stacked="percent" 时每根叠满 100%（看构成）。
  *
  *   <BarChart
  *     aria-label="项目降本金额"
@@ -25,8 +25,8 @@ export interface BarChartOrientations {
 
 /** 未声明的属性落到外层 div（role="figure"）上；aria-label 是图表的名称 */
 export interface BarChartProps<T extends object> extends XYChartProps<T> {
-  /** 堆叠：同一类目的系列叠成一根柱子；默认并排 */
-  stacked?: boolean;
+  /** 堆叠：true 同一类目的系列叠成一根柱子，'percent' 按占比叠满 100%（数值轴是百分比）；默认并排 */
+  stacked?: boolean | 'percent';
   /** 方向，默认 vertical */
   orientation?: keyof BarChartOrientations;
   /** 柱子末端的圆角（px），默认 4 */
@@ -45,7 +45,8 @@ export const BarChart = _component(
     const kind = _derived<XYChartKind<T>>({
       horizontal: orientation === 'horizontal',
       skeleton: 'bars',
-      stacked,
+      stacked: stacked !== false,
+      percent: stacked === 'percent',
       itemSelector: stacked ? StackedBar.selectors.bar : GroupedBar.selectors.bar,
       components: ({ series, x, y, instance, events }) => {
         const common = {

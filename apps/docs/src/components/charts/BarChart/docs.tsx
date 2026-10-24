@@ -32,7 +32,9 @@ export default _component(() => () => (
           显示在数值轴上方，提示框里的数值也会带上；悬停一个类目时提示框列出这一组的全部系列。
         </Example>
         <Example id="stacked" title="堆叠" demo={Stacked}>
-          <Code>stacked</Code> 把同一类目的系列叠成一根柱子，看总量与构成。
+          <Code>stacked</Code> 把同一类目的系列叠成一根柱子，看总量与构成；
+          <Code>stacked="percent"</Code> 按占比叠满
+          100%（数值轴是百分比），只看构成的变化，提示框里同时有数值与占比。面积图同样支持。
         </Example>
         <Example id="horizontal" title="横向" demo={Horizontal}>
           类目名较长或类目较多时用 <Code>orientation="horizontal"</Code>，名称不用折行或倾斜。

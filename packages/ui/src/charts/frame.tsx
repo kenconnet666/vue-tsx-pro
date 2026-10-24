@@ -246,6 +246,8 @@ export function createChartInstances() {
 export interface ChartFrameProps extends PartProps<'div', 'role' | 'aria-busy'>, ChartFrameParts {
   /** 单位：显示在左上方 */
   unit?: string;
+  /** 第二数值轴的单位：显示在右上方（组合图） */
+  unitEnd?: string;
   /** 绘图区的高度 */
   height: number | string;
   /** 图例的各项；空数组时不显示图例 */
@@ -278,6 +280,7 @@ export interface ChartFrameProps extends PartProps<'div', 'role' | 'aria-busy'>,
 export const ChartFrame = _component(
   ({
     unit,
+    unitEnd,
     height,
     legend,
     hiddenKeys,
@@ -316,7 +319,7 @@ export const ChartFrame = _component(
             'aria-busy': loading || undefined,
           })}
         >
-          {(unit || legend.length > 0) && (
+          {(unit || unitEnd || legend.length > 0) && (
             <div {...mergeAttrs<'div'>({ sx: chartStyles.header }, propsHeader)}>
               {unit && (
                 <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unit}</span>
@@ -352,6 +355,9 @@ export const ChartFrame = _component(
                     );
                   })}
                 </div>
+              )}
+              {unitEnd && (
+                <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unitEnd}</span>
               )}
             </div>
           )}

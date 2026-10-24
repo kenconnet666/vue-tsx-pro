@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { Example } from '../../../site/Example';
+import Annotations from './demo/Annotations.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Curves from './demo/Curves.tsx?demo';
 import Gaps from './demo/Gaps.tsx?demo';
@@ -49,6 +50,13 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <Example id="annotations" title="标注与区间" demo={Annotations}>
+      <Code>annotations</Code> 的每一项标在一个类目（<Code>at</Code>，index
+      字段的值）上：只写文字时是一条竖线（换供应商、调价生效这类事件）；写了 <Code>series</Code>{' '}
+      时圈出这个系列在那里的值，文字在圈的上方。<Code>bands</Code> 是浅色的带：默认在类目轴上（
+      <Code>from</Code>、<Code>to</Code> 是类目，含两端），<Code>axis="value"</Code>{' '}
+      时在数值轴上（目标区间，数值轴的范围会包含它）。颜色可以写语义色或色板。柱状图、面积图、组合图同样支持，横向的柱状图只画竖线与区间。
+    </Example>
     <ApiReference api={api} />
   </DocPage>
 ));

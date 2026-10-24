@@ -8,6 +8,7 @@
 export { AreaChart, type AreaChartProps } from './AreaChart';
 export { BarChart, type BarChartOrientations, type BarChartProps } from './BarChart';
 export { ChordChart, chordChartStyles, type ChordChartProps } from './ChordChart';
+export { ComboChart, type ComboChartProps, type ComboSeries } from './ComboChart';
 export { DonutChart, donutChartStyles, type DonutChartProps } from './DonutChart';
 export {
   FunnelChart,
@@ -50,12 +51,16 @@ export {
 export {
   XYChart,
   xyChartStyles,
+  type ChartAnnotation,
+  type ChartBand,
+  type ChartSecondaryAxis,
   type ChartSkeletons,
   type ChartTarget,
   type XYChartContext,
   type XYChartKind,
   type XYChartProps,
 } from './XYChart';
+export { alignedTicks, niceStep, type AlignedAxes, type AxisTicks } from './axis-ticks';
 export {
   flowData,
   resolveFlowNodes,

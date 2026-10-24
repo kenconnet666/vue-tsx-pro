@@ -1,8 +1,10 @@
 /**
- * 面积图：每个系列一片面积，上沿描一条线；默认各系列重叠、半透明（看得出谁高谁低），stacked 时依次叠起（看总量与构成）。
+ * 面积图：每个系列一片面积，上沿描一条线；默认各系列重叠、半透明（看得出谁高谁低），stacked 时依次叠起（看总量与构成），
+ * stacked="percent" 时按占比叠满 100%（只看构成的变化）。
  *
  *   <AreaChart data={months} index="month" series={[{ key: 'visits', label: '访问量' }]} />
  *   <AreaChart stacked data={months} index="month" series={channels} unit="万次" />
+ *   <AreaChart stacked="percent" data={months} index="month" series={channels} />
  *
  * 坐标轴、十字线（带圆点）与提示框、图例、单位、加载与空状态、给读屏的数据表同 LineChart（见 XYChart）。
  */
@@ -13,8 +15,8 @@ import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
 /** 未声明的属性落到外层 div（role="figure"）上 */
 export interface AreaChartProps<T extends object> extends XYChartProps<T> {
-  /** 堆叠：各系列依次叠起；默认重叠、半透明 */
-  stacked?: boolean;
+  /** 堆叠：true 各系列依次叠起，'percent' 按占比叠满 100%（数值轴是百分比）；默认重叠、半透明 */
+  stacked?: boolean | 'percent';
   /**
    * 曲线的形状
    * @default 'monotone'
@@ -37,7 +39,8 @@ export const AreaChart = _component(
   }: AreaChartProps<T>) => {
     const kind = _derived<XYChartKind<T>>({
       crosshairDots: true,
-      stacked,
+      stacked: stacked !== false,
+      percent: stacked === 'percent',
       padding: { left: 12, right: 12, top: 8 },
       components: ({ series, x, y, instance }) => {
         const common = {

@@ -1,5 +1,7 @@
-// 各渠道的销售额依次叠起：上沿是总额，每一层是一个渠道的贡献；点图例隐藏一个渠道，总额跟着变
+// 各渠道的销售额依次叠起：上沿是总额，每一层是一个渠道的贡献；点图例隐藏一个渠道，总额跟着变。
+// 切到“占比”是 stacked="percent"：叠满 100%，看线上的份额怎样逐月变大
 import { _component } from '@vue-tsx-pro/tsx';
+import { Flex, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
 import { AreaChart } from '@vue-tsx-pro/ui/charts';
 
 const months = [
@@ -13,18 +15,27 @@ const months = [
   { month: '8月', online: 260, store: 110, partner: 92 },
 ];
 
-export default _component(() => () => (
-  <AreaChart
-    aria-label="各渠道销售额"
-    stacked
-    data={months}
-    index="month"
-    series={[
-      { key: 'online', label: '线上商城' },
-      { key: 'store', label: '门店' },
-      { key: 'partner', label: '合作渠道' },
-    ]}
-    unit="万元"
-    curve="linear"
-  />
-));
+export default _component(() => {
+  let mode = _state<'amount' | 'percent'>('amount');
+  return () => (
+    <Flex direction="column" gap="sm">
+      <ToggleGroup value={_bind(mode)} required size="sm" aria-label="显示方式">
+        <ToggleItem value="amount">金额</ToggleItem>
+        <ToggleItem value="percent">占比</ToggleItem>
+      </ToggleGroup>
+      <AreaChart
+        aria-label="各渠道销售额"
+        stacked={mode === 'percent' ? 'percent' : true}
+        data={months}
+        index="month"
+        series={[
+          { key: 'online', label: '线上商城' },
+          { key: 'store', label: '门店' },
+          { key: 'partner', label: '合作渠道' },
+        ]}
+        unit="万元"
+        curve="linear"
+      />
+    </Flex>
+  );
+});

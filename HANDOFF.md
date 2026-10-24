@@ -24,7 +24,7 @@
   - 页面组合（子路径 `@vue-tsx-pro/ui/patterns`）：AppShell / AppShellBrand（顶部导航、页签区、页脚、可收起侧栏）、PageTabs（路由用 `vue-router` 子路径的 useRouteTabs）、QueryTable（查询栏 + 工具栏 + 表格 + 分页，接 useTableQuery）、StepsForm（分步表单）、DataImport（导入：上传、对应列、逐行校验、就地改正）、CommentThread / CommentComposer（留言与回复、@、附件）、ActionBar、FilterBar、NotificationCenter / NotificationList、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog；文案在 patternsMessages
   - 流程（子路径 `@vue-tsx-pro/ui/workflow`）：流程定义与校验、排布、运行时类型、FlowDiagram、FlowDesigner（属性面板、校验、发布）、ApprovalActions、useWorkflowTimeline（写成 Timeline 的各项）
   - Excel（子路径 `@vue-tsx-pro/ui/xlsx`，可选 peer exceljs）：exportXlsx / tableToXlsx（列定义导出，分组表头合并、数字格式、合计）、readXlsx（展开合并、多行表头、换行拆行）；CSV 用主入口的 readCsvFile、parseCsv
-  - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart；目标线（targets）、下钻（onItemClick）
+  - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ComboChart（柱 + 线、对齐的第二数值轴）、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart；目标线（targets）、标注（annotations）、区间（bands）、百分比堆叠（stacked="percent"）、下钻（onItemClick）
   - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
   - 视觉效果（子路径 `@vue-tsx-pro/ui/effects`，不依赖 three）：TiltCard、SpotlightCard、BorderBeam、Marquee
   - 主题定制（子路径 `@vue-tsx-pro/ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@vue-tsx-pro/ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch）
