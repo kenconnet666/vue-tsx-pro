@@ -11,7 +11,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import browserslist from 'browserslist';
 import { browserslistToTargets, transform, type TransformOptions } from 'lightningcss';
@@ -112,13 +112,16 @@ export function stylexCss(rules: StylexRules): Plugin {
   let serving = false;
   return {
     name: 'vue-tsx-pro:stylex-css',
-    // 依赖 StyleX 的包（组件库的发布包）不预构建：它们的 stylex.create 要经过编译插件
+    // 依赖 StyleX 的包（组件库的发布包）不预构建：它们的 stylex.create 要经过编译插件。
+    // 它们的第三方依赖反过来要一开始就预构建（见 prebundledDependencies）
     config: (user) => {
       const packages = stylexPackages(user.root ?? process.cwd());
       if (!packages.length) return;
+      const names = packages.map((entry) => entry.name);
+      const { include, exclude } = prebundledDependencies(packages);
       return {
-        optimizeDeps: { exclude: packages },
-        ssr: { optimizeDeps: { exclude: packages } },
+        optimizeDeps: { include, exclude: [...names, ...exclude] },
+        ssr: { optimizeDeps: { exclude: names } },
       };
     },
     configResolved(resolved) {
@@ -248,8 +251,14 @@ import.meta.hot?.on(${JSON.stringify(UPDATE_EVENT)}, ({ version }) => stylexRead
 `;
 }
 
+/** 用到 StyleX 的包：名字与 package.json 的路径 */
+interface StylexPackage {
+  name: string;
+  manifest: string;
+}
+
 /** 项目依赖里用到 StyleX 的包：依赖或 peer 依赖里有 @stylexjs/stylex 或本包 */
-function stylexPackages(root: string) {
+function stylexPackages(root: string): StylexPackage[] {
   const manifest = readManifest(join(root, 'package.json'));
   if (!manifest) return [];
   const require = createRequire(join(root, 'package.json'));
@@ -259,25 +268,64 @@ function stylexPackages(root: string) {
     ...manifest.devDependencies,
     ...manifest.peerDependencies,
   });
-  return names.filter((name) => {
-    if (targets.has(name)) return false;
+  return names.flatMap((name) => {
+    if (targets.has(name)) return [];
     let path: string;
     try {
       path = require.resolve(`${name}/package.json`);
     } catch {
-      return false; // 没装，或 exports 里没有 package.json
+      return []; // 没装，或 exports 里没有 package.json
     }
     const dependency = readManifest(path);
-    return Object.keys({ ...dependency?.dependencies, ...dependency?.peerDependencies }).some(
-      (name) => targets.has(name),
-    );
+    const usesStylex = Object.keys({
+      ...dependency?.dependencies,
+      ...dependency?.peerDependencies,
+    }).some((name) => targets.has(name));
+    return usesStylex ? [{ name, manifest: path }] : [];
   });
+}
+
+/**
+ * 不预构建的包自己导入的第三方依赖：包在 package.json 的 vueTsxPro.optimizeDeps 里声明（include 写导入时的说法，
+ * 可以带子路径，如 'zod/v4/core'；exclude 是不要预构建的，如只按需加载其中几个的语言表）。
+ * 不声明的话，这些依赖跟着包一起不预构建，开发服务器一个文件一个请求（图标库就是上千个），首次打开页面要十几秒；
+ * 打开某页才发现的依赖还会重新预构建、刷新页面。写成“包 > 依赖”，从包的目录解析，使用方不必自己安装；
+ * 没装的可选依赖（three、@unovis/ts 等）跳过，免得 Vite 报解析不到
+ */
+function prebundledDependencies(packages: StylexPackage[]) {
+  const include: string[] = [];
+  const exclude: string[] = [];
+  for (const { name, manifest } of packages) {
+    const declared = readManifest(manifest)?.vueTsxPro?.optimizeDeps;
+    for (const dependency of declared?.include ?? []) {
+      if (installed(packageName(dependency), dirname(manifest)))
+        include.push(`${name} > ${dependency}`);
+    }
+    exclude.push(...(declared?.exclude ?? []));
+  }
+  return { include, exclude };
+}
+
+/** 导入说法里的包名：'zod/v4/core' → 'zod'，'@lucide/icons/x' → '@lucide/icons' */
+function packageName(specifier: string) {
+  const parts = specifier.split('/');
+  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]!;
+}
+
+/** 从某个目录往上找得到这个包（Node 的解析方式；不经 exports，只看装没装） */
+function installed(name: string, from: string): boolean {
+  for (let directory = from; ; directory = dirname(directory)) {
+    if (existsSync(join(directory, 'node_modules', name, 'package.json'))) return true;
+    if (dirname(directory) === directory) return false;
+  }
 }
 
 interface Manifest {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
+  /** 本预设读的声明（见 prebundledDependencies） */
+  vueTsxPro?: { optimizeDeps?: { include?: string[]; exclude?: string[] } };
 }
 
 function readManifest(path: string): Manifest | undefined {

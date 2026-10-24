@@ -10,7 +10,7 @@ import { animate, createDraggable, createLayout } from 'animejs';
 import { tabbable } from 'tabbable';
 import { z } from 'zod';
 import { safeParseAsync, toJSONSchema } from 'zod/v4/core';
-import { UI_DEPENDENCIES } from '../../../prebundle.config';
+import manifest from '../../../package.json' with { type: 'json' };
 
 it('decimal.js：十进制精确运算', () => {
   expect(new Decimal('0.1').plus('0.2').toString()).toBe('0.3');
@@ -101,7 +101,8 @@ function runtimeImports(directory: string): Set<string> {
   );
 }
 
-it('prebundle.config.ts 列全了源码运行时导入的第三方依赖（漏了浏览器测试会中途刷新）', () => {
+it('package.json 的 vueTsxPro.optimizeDeps 列全了源码运行时导入的第三方依赖（Vite 预设按它预构建；漏了开发服务器会一个文件一个请求，打开某页才发现的依赖还会刷新页面）', () => {
   const imports = runtimeImports(join(import.meta.dirname, '../..'));
-  expect([...imports].sort()).toEqual([...UI_DEPENDENCIES].sort());
+  const { include, exclude } = manifest.vueTsxPro.optimizeDeps;
+  expect([...imports].sort()).toEqual([...include, ...exclude].sort());
 });

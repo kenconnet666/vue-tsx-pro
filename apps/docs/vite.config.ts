@@ -2,8 +2,6 @@ import { fileURLToPath } from 'node:url';
 import { configDefaults, defineConfig, type Plugin } from 'vitest/config';
 import { vueTsxPro, workspaceSource } from '@vue-tsx-pro/tsx/vite';
 import { builtinThemeBootColors, themeBootScript } from '@vue-tsx-pro/ui/theme-boot';
-// 仓库内部的配置，不是组件库的公开接口：按相对路径引用
-import { uiPrebundle, uiPrebundleExclude } from '../../packages/ui/prebundle.config.ts';
 import { componentApi } from './build/api.ts';
 import { demoSource } from './build/demo.ts';
 import { iconImports } from './build/icons.ts';
@@ -41,10 +39,9 @@ export const plugins = [
 /** 预构建的依赖：开发服务器与浏览器测试共用（测试另加测试专用的几个） */
 export const optimizeDeps = {
   include: [
-    // 组件库源码里的依赖：一开始就预构建，打开某页才发现新依赖会重新预构建并刷新页面
-    ...uiPrebundle,
     // 示例里用到的（组件库源码不在运行时导入它）
     'decimal.js',
+    '@unovis/ts/maps',
     // 代码高亮的几种语言（main.ts 按需导入）：第一次出现代码块时才发现的话，会重新预构建并刷新页面
     '@shikijs/langs/css',
     '@shikijs/langs/html',
@@ -72,7 +69,6 @@ export const optimizeDeps = {
     '@codemirror/view',
     '@lezer/highlight',
   ],
-  exclude: uiPrebundleExclude,
 };
 
 export default defineConfig({

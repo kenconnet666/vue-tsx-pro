@@ -133,6 +133,35 @@
       "optional": true
     }
   },
+  "vueTsxPro": {
+    "optimizeDeps": {
+      "include": [
+        "@floating-ui/dom",
+        "@internationalized/date",
+        "@lucide/icons",
+        "@radix-ui/colors",
+        "@unovis/ts",
+        "animejs",
+        "culori/fn",
+        "exceljs",
+        "pinyin-pro",
+        "shiki/core",
+        "shiki/engine/javascript",
+        "tabbable",
+        "three",
+        "three/addons/environments/RoomEnvironment.js",
+        "three/addons/loaders/GLTFLoader.js",
+        "topojson-simplify",
+        "zod",
+        "zod/v4/core",
+        "zod/v4/locales/en.js",
+        "zod/v4/locales/zh-CN.js"
+      ],
+      "exclude": [
+        "shiki/langs"
+      ]
+    }
+  },
   "devDependencies": {
     "happy-dom": "catalog:",
     "@lucide/icons": "catalog:",
