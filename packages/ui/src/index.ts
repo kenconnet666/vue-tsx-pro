@@ -288,6 +288,15 @@ export {
   type CardProps,
   type CardVariants,
 } from './display/Card';
+export {
+  Checklist,
+  checklistStatusStyles,
+  checklistStyles,
+  type ChecklistItem,
+  type ChecklistLayouts,
+  type ChecklistProps,
+  type ChecklistStatuses,
+} from './display/Checklist';
 export { Collapse, collapseStyles, type CollapseProps } from './display/Collapse';
 export { Collapsible, type CollapsibleProps } from './display/Collapsible';
 export {

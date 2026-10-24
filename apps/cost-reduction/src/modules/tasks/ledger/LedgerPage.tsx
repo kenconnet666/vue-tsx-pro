@@ -23,6 +23,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import {
   Badge,
+  Checklist,
   Button,
   DataTable,
   dataTableStyles,
@@ -51,7 +52,6 @@ import {
   Text,
   ViewportFill,
 } from '@vue-tsx-pro/ui';
-import { Checklist } from '../../../shared/Checklist';
 import { FilterBar } from '@vue-tsx-pro/ui/patterns';
 import type Decimal from 'decimal.js';
 import { watch, type VNodeChild } from 'vue';
@@ -303,7 +303,10 @@ export const LedgerPage = _component(
         cell: (task) => (
           <Checklist
             layout="icons"
-            items={task.milestones.map((item) => ({ label: item.label, done: item.done != null }))}
+            items={task.milestones.map((item) => ({
+              label: item.label,
+              status: item.done ? 'done' : 'todo',
+            }))}
           />
         ),
       },

@@ -6,6 +6,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import {
   Badge,
   Card,
+  Checklist,
   Descriptions,
   Flex,
   Grid,
@@ -15,8 +16,8 @@ import {
   Small,
   Stat,
   useFormat,
+  type ChecklistItem,
 } from '@vue-tsx-pro/ui';
-import { Checklist } from '../../../shared/Checklist';
 import { dictLabel } from '../../../app/master';
 import { gapOf } from '../../../domain/task/benefit';
 import { missingClosing } from '../../../domain/task/status';
@@ -84,25 +85,34 @@ export const BenefitCard = _component(({ task }: { task: CostTask }) => {
 export const MilestonesCard = _component(({ task }: { task: CostTask }) => () => (
   <Card variant="outline" header={<H2 size="sm">里程碑与交付证据</H2>}>
     <Checklist
+      summary
       items={task.milestones.map((item) => ({
         label: item.label,
-        done: item.done != null,
-        extra: item.done ? (
-          <>
-            <Small tone="muted">{item.done}</Small>
-            {item.evidence && (
-              <Link href="#" title={item.evidence} aria-label={`交付证据：${item.evidence}`}>
-                <Icon icon={Paperclip} />
-              </Link>
-            )}
-          </>
-        ) : (
-          <Small tone="muted">未完成</Small>
+        status: item.done ? 'done' : 'todo',
+        date: item.done,
+        evidence: item.evidence && (
+          <Link href="#" title={item.evidence} aria-label={`交付证据：${item.evidence}`}>
+            <Icon icon={Paperclip} />
+          </Link>
         ),
       }))}
     />
   </Card>
 ));
+
+/** 关闭三材料的清单项：缺的写清由谁出具 */
+export const closingItems = (task: CostTask): ChecklistItem[] =>
+  (
+    [
+      ['验证窗结论', task.closing.verification, '验证负责人'],
+      ['收益认定意见', task.closing.benefit, '成本团队'],
+      ['商务谈定记录', task.closing.business, '采购部'],
+    ] as const
+  ).map(([label, done, owner]) => ({
+    label,
+    status: done ? 'done' : 'todo',
+    owner: done ? undefined : `由${owner}出具`,
+  }));
 
 /** 关闭三材料：验证窗结论、收益认定意见、商务谈定记录，缺一不得关闭 */
 export const ClosingCard = _component(({ task }: { task: CostTask }) => () => {
@@ -115,13 +125,7 @@ export const ClosingCard = _component(({ task }: { task: CostTask }) => () => {
         missing ? <Badge tone="warning">缺 {missing} 项</Badge> : <Badge tone="success">齐全</Badge>
       }
     >
-      <Checklist
-        items={[
-          { label: '验证窗结论', done: task.closing.verification },
-          { label: '收益认定意见', done: task.closing.benefit },
-          { label: '商务谈定记录', done: task.closing.business },
-        ]}
-      />
+      <Checklist items={closingItems(task)} />
     </Card>
   );
 });

@@ -9,6 +9,7 @@
  * 新增一种语言只翻这里的字段，它们没有这种语言时显示英文。
  */
 import type { $ZodErrorMap } from 'zod/v4/core';
+import type { ChecklistStatuses } from '../../display/Checklist';
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
 import type { DocsKitMessages } from '../../docs-kit/messages';
@@ -104,6 +105,14 @@ export interface Lang {
   readonly mentionsList: string;
   /** 提及没有匹配的人时，默认“没有匹配的人” */
   readonly mentionsEmpty: string;
+  /** 清单各项状态的文字（读屏、悬停说明） */
+  readonly checklistStatus: Readonly<Record<keyof ChecklistStatuses, string>>;
+  /** 清单一项的名称与状态：`('验证窗结论', '已完成')` → “验证窗结论已完成” */
+  readonly checklistItemState: (label: string, state: string) => string;
+  /** 清单只有图标时整组的说明：把各项连起来 */
+  readonly checklistIconsLabel: (parts: readonly string[]) => string;
+  /** 清单的汇总：`(2, 3)` → “已完成 2 / 3” */
+  readonly checklistSummary: (done: number, total: number) => string;
   /** 清空输入的按钮，默认“清空” */
   readonly clear: string;
   /** 加载中提示，默认“加载中” */

@@ -5,12 +5,12 @@
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { Flex, Icon, Link, Small } from '@vue-tsx-pro/ui';
-import { Checklist } from '../../../shared/Checklist';
+import { Checklist, Flex, Icon, Link, Small } from '@vue-tsx-pro/ui';
 import type { VNodeChild } from 'vue';
 import { missingClosing } from '../../../domain/task/status';
 import type { CostTask } from '../../../domain/task/types';
 import { DetailSection } from '../../../shared/DetailSection';
+import { closingItems } from '../detail/SideCards';
 
 const styles = stylex.create({
   // 描述占剩下的宽度（24 到 40rem），其余各段按内容宽
@@ -46,20 +46,12 @@ export const LedgerDetail = _component(
               layout="inline"
               items={task.milestones.map((item) => ({
                 label: item.label,
-                done: item.done != null,
-                extra: item.done && (
-                  <>
-                    <Small tone="muted">{item.done}</Small>
-                    {item.evidence && (
-                      <Link
-                        href="#"
-                        title={item.evidence}
-                        aria-label={`交付证据：${item.evidence}`}
-                      >
-                        <Icon icon={Paperclip} />
-                      </Link>
-                    )}
-                  </>
+                status: item.done ? 'done' : 'todo',
+                date: item.done,
+                evidence: item.evidence && (
+                  <Link href="#" title={item.evidence} aria-label={`交付证据：${item.evidence}`}>
+                    <Icon icon={Paperclip} />
+                  </Link>
                 ),
               }))}
             />
@@ -68,14 +60,7 @@ export const LedgerDetail = _component(
             title={`关闭三材料 · ${missing ? `缺 ${missing} 项，不能关闭` : '齐全，可以关闭'}`}
             tone={missing ? undefined : 'success'}
           >
-            <Checklist
-              layout="inline"
-              items={[
-                { label: '验证窗结论', done: task.closing.verification },
-                { label: '收益认定意见', done: task.closing.benefit },
-                { label: '商务谈定记录', done: task.closing.business },
-              ]}
-            />
+            <Checklist layout="inline" items={closingItems(task)} />
           </DetailSection>
         </Flex>
       );
