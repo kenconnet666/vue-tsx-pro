@@ -200,6 +200,9 @@ catalogs:
     '@codemirror/view':
       specifier: 6.43.14
       version: 6.43.14
+    '@emotion/css':
+      specifier: 11.13.5
+      version: 11.13.5
     '@floating-ui/dom':
       specifier: 1.8.0
       version: 1.8.0
@@ -513,6 +516,9 @@ importers:
       '@babel/types':
         specifier: 'catalog:'
         version: 8.0.6
+      '@emotion/css':
+        specifier: 'catalog:'
+        version: 11.13.5
       '@stylexjs/babel-plugin':
         specifier: 'catalog:'
         version: 0.19.1

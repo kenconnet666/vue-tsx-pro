@@ -81,6 +81,8 @@ catalog:
   smol-toml: 1.9.1
   # 文档站示例截图的逐像素比对（scripts/docs/shots-compare.mjs）
   pngjs: 7.0.0
+  # 文档站样式更新基准（/bench/style-updates）的对照组：同样的声明交给 Emotion
+  '@emotion/css': 11.13.5
   # 整个仓库只用 TypeScript 7（Go 原生版），跟 7.1 的 beta：类型检查、声明生成用 tsc；脚本与文档站的 API 表用它的
   # typescript/sync、typescript/ast；语言服务（IDE、Claude Code 的 LSP 插件、语言服务 MCP）是 tsc --lsp
   typescript: 7.1.0-beta

@@ -47,6 +47,12 @@ export function createDocsRouter(
         component: page.component,
         meta: { title: page.title },
       })),
+      // 样式更新基准：不进导航，scripts/docs/style-updates.mjs 打开它
+      {
+        path: '/bench/style-updates',
+        component: () => import('./pages/bench/StyleUpdates'),
+        meta: { title: '样式更新基准' },
+      },
       // 整页示例：示例卡片里的 iframe 打开它，不套站点外壳（见 isFrame）
       { path: '/frame/:path(.*)', component: () => import('./pages/Frame'), meta: { title: '' } },
       {
