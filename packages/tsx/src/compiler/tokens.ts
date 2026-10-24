@@ -9,6 +9,7 @@
 import { transformAsync, types as t, type NodePath, type PluginObject } from '@babel/core';
 import { TOKEN_GROUP_OF } from '../stylex/token-map.ts';
 import { languageOf, parserPlugins, STYLEX_SOURCES, type Binding } from './ast.ts';
+import { needsTokens } from './detect.ts';
 import type { SourceMap } from './compile.ts';
 import { fail } from './errors.ts';
 
@@ -49,10 +50,7 @@ export async function compileTokens(
   return { code: result.code ?? '', map: result.map ?? null };
 }
 
-/** 文件里可能有 token 写法（解析之前的快速判断）：有下划线开头的词或 t.组.名，且导入了 StyleX */
-export const needsTokens = (code: string) =>
-  /(?<![\w$.-])_[A-Za-z]|(?<![\w$.])t\.\w+\.\w/.test(code) &&
-  STYLEX_SOURCES.some((source) => code.includes(source));
+export { needsTokens };
 
 /** token 写法的 Babel 插件；state.changed 记下有没有改写 */
 export function tokensBabelPlugin(

@@ -40,6 +40,14 @@ export class CompilePool {
     });
   }
 
+  /**
+   * 先起 count 个线程（不超过上限）：线程启动时载入编译器（Babel 与各插件，约 1–2 秒），
+   * 开发服务器就绪后就在后台载入，浏览器第一次请求时不用再等
+   */
+  warm(count: number) {
+    while (this.workers.length < Math.min(count, this.size)) this.idle.push(this.spawn());
+  }
+
   /** 停掉全部线程（构建结束、服务器关闭） */
   close() {
     for (const worker of this.workers) void worker.terminate();

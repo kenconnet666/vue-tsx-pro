@@ -20,10 +20,7 @@ import {
   type types as t,
 } from '@babel/core';
 import typescript from '@babel/plugin-transform-typescript';
-import stylexBabelPlugin, {
-  type Options as StylexOptions,
-  type Rule,
-} from '@stylexjs/babel-plugin';
+import type { Options as StylexOptions, Rule } from '@stylexjs/babel-plugin';
 import vueJsx, { type VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { languageOf, parserPlugins, STYLEX_SOURCES, type Language } from './ast.ts';
 import type { RunesWarning } from './errors.ts';
@@ -106,7 +103,9 @@ export async function compile(
   if (options.stylex) {
     const importSources = [...STYLEX_SOURCES, ...(options.stylex.importSources ?? [])];
     if (importsStylex(code, importSources)) {
+      // 用到时才载入（载入要近 2 秒，运行时样式模式下只有 *.stylex.ts 用它）；
       // 官方插件的类型按 Babel 7 声明，运行时与 Babel 8 兼容
+      const stylexBabelPlugin = (await import('@stylexjs/babel-plugin')).default;
       const plugin = stylexBabelPlugin.withOptions({ ...options.stylex, importSources });
       first.push(plugin as unknown as PluginItem);
     }

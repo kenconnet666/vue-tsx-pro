@@ -12,8 +12,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
-import stylexBabelPlugin from '@stylexjs/babel-plugin';
-import browserslist from 'browserslist';
 import { browserslistToTargets, transform, type TransformOptions } from 'lightningcss';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { StylexRule } from '../compiler/index.ts';
@@ -45,10 +43,18 @@ export class StylexRules {
   private cache: { version: number; minify: boolean; css: string } | undefined;
   private listeners = new Set<() => void>();
   private targets: TransformOptions<never>['targets'] | undefined;
+  /** StyleX 的插件（合成 CSS 用）：编译模式开始构建时才载入，运行时模式用不到它 */
+  private plugin: typeof import('@stylexjs/babel-plugin').default | undefined;
   private readonly options: StylexCssOptions;
 
   constructor(options: StylexCssOptions) {
     this.options = options;
+  }
+
+  /** 载入合成 CSS 要用的 StyleX 插件与 browserslist（插件的 buildStart 里调用） */
+  async load() {
+    this.plugin ??= (await import('@stylexjs/babel-plugin')).default;
+    this.targets ??= browserslistToTargets((await import('browserslist')).default());
   }
 
   /** 模块编译后登记它的规则（没有规则时去掉）；内容没变就不算更新 */
@@ -88,11 +94,11 @@ export class StylexRules {
   }
 
   private process(rules: StylexRule[], minify: boolean) {
-    const css = stylexBabelPlugin.processStylexRules(rules, {
+    if (!this.plugin) throw new Error('StylexRules.load() 还没完成：插件的 buildStart 里会载入');
+    const css = this.plugin.processStylexRules(rules, {
       useLayers: this.options.useCSSLayers ?? false,
       enableLTRRTLComments: this.options.enableLTRRTLComments,
     });
-    this.targets ??= browserslistToTargets(browserslist());
     return transform({
       targets: this.targets,
       ...this.options.lightningcssOptions,
@@ -127,8 +133,9 @@ export function stylexCss(rules: StylexRules): Plugin {
     configResolved(resolved) {
       config = resolved;
     },
-    buildStart() {
+    async buildStart() {
       rules.clear();
+      await rules.load();
     },
     resolveId: (id) => (id === CLIENT_ID ? `\0${CLIENT_ID}` : undefined),
     load: (id) => (id === `\0${CLIENT_ID}` ? clientCode(config.base + CSS_PATH) : undefined),

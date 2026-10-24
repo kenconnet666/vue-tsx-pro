@@ -10,24 +10,10 @@
 import { hash } from 'node:crypto';
 import { relative } from 'node:path';
 import { types as t, type PluginObject } from '@babel/core';
+import { SSR_REGISTER_ID } from './ssr-register.ts';
 
 /** 组件边界：第一个参数是 setup 函数、结果是组件的调用 */
 const COMPONENT_FACTORIES = ['defineComponent', '_component'];
-
-/** SSR 时登记组件模块的虚拟模块 */
-export const SSR_REGISTER_ID = '/__vue-jsx-ssr-register-helper';
-
-/** SSR_REGISTER_ID 的代码：包一层 setup，渲染时把模块记进 ssrContext.modules */
-export const SSR_REGISTER_CODE = `import { useSSRContext } from "vue";
-export function ssrRegisterHelper(comp, filename) {
-  const setup = comp.setup;
-  comp.setup = (props, ctx) => {
-    const ssrContext = useSSRContext();
-    (ssrContext.modules || (ssrContext.modules = new Set())).add(filename);
-    if (setup) return setup(props, ctx);
-  };
-}
-`;
 
 /**
  * 编译的第 2 遍末尾加的 Babel 插件。

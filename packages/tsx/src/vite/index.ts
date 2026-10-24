@@ -16,15 +16,13 @@ import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { Features } from 'lightningcss';
 import { normalizePath, type Plugin, type Rollup } from 'vite';
 import { availableParallelism } from 'node:os';
-import { languageOf } from '../compiler/ast.ts';
-import { needsTokens } from '../compiler/tokens.ts';
+import { languageOf, needsTokens } from '../compiler/detect.ts';
 import { CompileCache } from './cache.ts';
 import { compilerCacheKey } from './cache-key.ts';
-import { SSR_REGISTER_CODE, SSR_REGISTER_ID } from './hmr.ts';
-import { compileModule, type CompilerSetup, type ModuleRequest } from './module.ts';
+import type { CompilerSetup, ModuleRequest } from './module.ts';
 import { CompilePool } from './pool.ts';
 import { stylexCss, StylexRules, type StylexCssOptions } from './stylex.ts';
-import { tokenModule } from './tokens.ts';
+import { SSR_REGISTER_CODE, SSR_REGISTER_ID } from './ssr-register.ts';
 
 export { workspaceSource } from './workspace.ts';
 
@@ -159,8 +157,9 @@ function compiler(
   let cache: CompileCache | undefined;
   let pool: CompilePool | undefined;
   let cacheDir = '';
-  const run = (request: ModuleRequest) =>
-    pool ? pool.run(request) : compileModule(request, setup);
+  // 编译函数（连同 Babel 与各插件）第一次编译时才载入：开发服务器启动时不必等它们（编译线程里同样按需载入）
+  const run = async (request: ModuleRequest) =>
+    pool ? pool.run(request) : (await import('./module.ts')).compileModule(request, setup);
   return {
     name: 'vue-tsx-pro',
     enforce: 'pre',
@@ -222,6 +221,10 @@ function compiler(
         pool = new CompilePool(setup, Math.max(1, Math.min(availableParallelism() - 1, 6)));
       }
     },
+    // 开发服务器：先起两个编译线程，在后台载入编译器，浏览器第一次请求时不用等
+    configureServer() {
+      pool?.warm(2);
+    },
     // 构建结束、服务器关闭时停掉编译线程
     closeBundle() {
       pool?.close();
@@ -244,7 +247,7 @@ function compiler(
         const dependencies = stylex?.rules ? await loadStylexModules(this, code, id) : [];
         const tokenFile =
           own && tokens !== false && needsTokens(code)
-            ? tokenModule(tokens, file, setup.root)?.file
+            ? (await import('./tokens.ts')).tokenModule(tokens, file, setup.root)?.file
             : undefined;
         if (tokenFile) {
           this.addWatchFile(tokenFile);
