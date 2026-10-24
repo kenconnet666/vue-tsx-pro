@@ -249,6 +249,10 @@ export interface Lang {
   readonly uploadRetry: (file: string) => string;
   /** 移除文件按钮的名称，默认“移除 文件名” */
   readonly uploadRemove: (file: string) => string;
+  /** 图片墙里选文件的那一格，默认“添加图片” */
+  readonly uploadAddImage: string;
+  /** 可以粘贴时的提示，默认“也可以粘贴图片” */
+  readonly uploadPasteHint: string;
   /** 拖动排序把手的名称，默认“移动 项名” */
   readonly sortableHandle: (item: string) => string;
   /** 拖动排序把手的操作说明（aria-describedby），默认“按空格拿起，用方向键移动，再按空格放下，Esc 取消” */

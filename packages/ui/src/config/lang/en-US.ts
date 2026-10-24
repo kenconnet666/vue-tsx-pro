@@ -106,6 +106,8 @@ export const enUS: Lang = {
   uploadDone: 'Uploaded',
   uploadRetry: (file) => `Retry uploading ${file}`,
   uploadRemove: (file) => `Remove ${file}`,
+  uploadAddImage: 'Add image',
+  uploadPasteHint: 'You can also paste images',
   progressTarget: (value) => `target ${value}`,
   backToTop: 'Back to top',
   ellipsisExpand: 'More',

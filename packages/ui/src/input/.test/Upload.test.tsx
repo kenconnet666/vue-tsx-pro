@@ -1,4 +1,4 @@
-// FileDrop：accept 的匹配、拖放过滤；Upload：上传进度与结果、失败重试、移除时中止、大小上限、单选替换
+// FileDrop：accept 的匹配、拖放过滤；Upload：上传进度与结果、失败重试、移除时中止、大小上限、单选替换；图片墙、粘贴、排序
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { Provider } from '../../config/Provider';
@@ -242,4 +242,67 @@ describe('Upload', () => {
     // 选择框照常从 Field 拿 id：标签指向它
     expect(empty.id).toBe(root.querySelectorAll('label[for]')[3]!.getAttribute('for'));
   });
+});
+
+describe('Upload 的图片墙', () => {
+  it('picture：图片是可以点开的缩略图（本地地址），别的文件是图标与文件名；选文件的区域是最后一格', async () => {
+    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
+    let files = _state<UploadFile[]>([]);
+    const root = mount(() => (
+      <Upload value={_bind(files)} listType="picture" multiple accept="image/*,.pdf" />
+    ));
+    drop(root, [file('支架.png', 'image/png'), file('报告.pdf', 'application/pdf')]);
+    await flush();
+    const cards = [...root.querySelectorAll('[role="listitem"]')];
+    expect(cards).toHaveLength(2);
+    expect(
+      cards[0]!.querySelector('button[aria-label="查看大图：支架.png"] img')!.getAttribute('src'),
+    ).toBe('blob:preview');
+    expect(cards[1]!.textContent).toContain('报告.pdf');
+    // 选文件的区域紧跟在列表后面（不是列表项），和缩略图排在一行
+    expect(root.querySelector('[role="list"] + label')!.textContent).toContain('添加图片');
+    createObjectURL.mockRestore();
+  });
+
+  it('pasteable：粘贴的图片加进来，不在 accept 里的列出、带错误；sortable：把手用键盘移动', async () => {
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
+    let files = _state<UploadFile[]>([]);
+    const root = mount(() => (
+      <Upload
+        value={_bind(files)}
+        listType="picture"
+        multiple
+        accept="image/*"
+        pasteable
+        sortable
+      />
+    ));
+    const paste = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, 'clipboardData', {
+      value: { files: [file('截图.png', 'image/png'), file('说明.txt')] },
+    });
+    root.querySelector('label')!.dispatchEvent(paste);
+    await flush();
+    expect(files.map((item) => [item.name, item.status])).toEqual([
+      ['截图.png', 'selected'],
+      ['说明.txt', 'error'],
+    ]);
+    expect(root.textContent).toContain('也可以粘贴图片');
+
+    const handle = root.querySelector<HTMLButtonElement>('button[aria-label="移动 截图.png"]')!;
+    handle.focus();
+    for (const key of [' ', 'ArrowRight', ' '])
+      handle.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    await flush();
+    expect(files.map((item) => item.name)).toEqual(['说明.txt', '截图.png']);
+    vi.restoreAllMocks();
+  });
+});
+
+it('列表模式的选择区域照常有图标与默认提示（不传子元素）', () => {
+  const root = mount(() => <Upload description="不超过 2 MB" />);
+  const label = root.querySelector('label')!;
+  expect(label.querySelector('svg')).not.toBeNull();
+  expect(label.textContent).toContain('不超过 2 MB');
+  expect(label.textContent!.length).toBeGreaterThan('不超过 2 MB'.length);
 });

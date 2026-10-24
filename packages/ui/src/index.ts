@@ -815,9 +815,11 @@ export { TreeSelect, treeSelectStyles, type TreeSelectProps } from './input/Tree
 export {
   existingUploadFile,
   Upload,
+  uploadDynamicStyles,
   uploadStyles,
   type UploadFile,
   type UploadHandler,
+  type UploadListTypes,
   type UploadProps,
 } from './input/Upload';
 export {

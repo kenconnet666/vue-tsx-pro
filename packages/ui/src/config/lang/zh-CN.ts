@@ -105,6 +105,8 @@ export const zhCN: Lang = {
   uploadDone: '已上传',
   uploadRetry: (file) => `重新上传 ${file}`,
   uploadRemove: (file) => `移除 ${file}`,
+  uploadAddImage: '添加图片',
+  uploadPasteHint: '也可以粘贴图片',
   progressTarget: (value) => `目标 ${value}`,
   backToTop: '回到顶部',
   ellipsisExpand: '展开',

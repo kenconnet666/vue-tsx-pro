@@ -21,13 +21,28 @@
  *   let files = _state([existingUploadFile({ name: '验证报告.pdf', url: '/files/123' })]);
  * - 在 Field 里时关联标签与错误；写了 name 时有一个隐藏的 file input 带着全部文件，原生提交（FormData）也拿得到。
  *
+ * - 图片墙（listType="picture"）：方形缩略图（选的文件用本地地址显示，不等上传），点开看大图（整面墙是一个 ImageGroup，
+ *   大图里左右切换）；上传中盖一层进度，失败标红；选文件的区域是墙上最后一格。sortable 时拖动把手（或聚焦后用键盘）调整顺序，
+ *   pasteable 时焦点在组件里按 Ctrl + V 把剪贴板里的图片加进来（截图、从别处复制的图）。
+ *
  * 部件：Root（div）、Drop（FileDrop）、List（ul）、Item（li）、Icon（文件图标）、Body（文件名与下一行）、Name、Meta（大小或错误）、
  * Progress、Retry（重试按钮）、Remove（移除按钮）。
  */
-import { CircleAlert, CircleCheck, File as FileIcon, RotateCw, X } from '@lucide/icons';
+import {
+  CircleAlert,
+  CircleCheck,
+  File as FileIcon,
+  GripVertical,
+  ImagePlus,
+  RotateCw,
+  X,
+} from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import { onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, watch } from 'vue';
+import { ButtonBase } from '../base/ButtonBase';
+import { Image, ImageGroup } from '../display/Image';
+import { useSortable } from '../utils/dom/sortable';
 import { Icon, type IconProps } from '../base/Icon';
 import { Link } from '../base/Link';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -39,7 +54,7 @@ import { useHttp } from '../utils/request/http';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
-import { FileDrop, type FileDropProps } from './FileDrop';
+import { FileDrop, matchesAccept, type FileDropProps } from './FileDrop';
 import { GridList, type GridProps } from '../layout/Grid';
 
 /** 列表里的一个文件 */
@@ -72,6 +87,14 @@ export type UploadHandler = (
   context: { onProgress: (fraction: number) => void; signal: AbortSignal },
 ) => Promise<unknown>;
 
+/** 列表的样子 */
+export interface UploadListTypes {
+  /** 一行一个文件：图标、文件名、大小或进度（默认） */
+  text: unknown;
+  /** 图片墙：方形缩略图，点开看大图 */
+  picture: unknown;
+}
+
 /** 未声明的属性落到外层 div 上 */
 export interface UploadProps extends PartProps<'div'> {
   /** 文件列表：父级写 value={_bind(list)} */
@@ -102,6 +125,14 @@ export interface UploadProps extends PartProps<'div'> {
   required?: boolean;
   /** 选择区域里提示文字下面的说明（大小、类型限制） */
   description?: FileDropProps['description'];
+  /** 列表的样子：text 一行一个文件（默认），picture 是图片墙 */
+  listType?: keyof UploadListTypes;
+  /** 图片墙里缩略图的边长（px），默认 104 */
+  thumbnailSize?: number;
+  /** 拖动把手（或聚焦后用键盘）调整文件的顺序（图片墙） */
+  sortable?: boolean;
+  /** 焦点在组件里时 Ctrl + V 把剪贴板里的图片、文件加进来 */
+  pasteable?: boolean;
   /** 选择区域（FileDrop）的部件属性 */
   propsDrop?: Partial<FileDropProps>;
   /** 列表的部件属性 */
@@ -145,6 +176,76 @@ export const uploadStyles = stylex.create({
   error: { color: '_dangerText' },
   done: { color: '_successText' },
   progress: { width: '_full' },
+  // 图片墙：缩略图与“添加图片”一样大，排成一行、放不下换行
+  wall: { display: 'flex', flexWrap: 'wrap', gap: '_sm' },
+  wallList: { display: 'contents' },
+  card: {
+    position: 'relative',
+    boxSizing: 'border-box',
+    flexShrink: 0,
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_borderMuted',
+    borderRadius: '_md',
+    overflow: 'hidden',
+    backgroundColor: '_fill',
+  },
+  cardError: { borderColor: '_danger' },
+  // 选文件的那一格：同样大小，图标与文字居中
+  addCard: { padding: '_xs', gap: '_xs', textAlign: 'center', fontSize: '_sm' },
+  // 上传中、失败：盖在缩略图上
+  overlay: {
+    position: 'absolute',
+    insetInline: 0,
+    bottom: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '_xs',
+    padding: '_xs',
+    backgroundColor: 'rgb(0 0 0 / 0.55)',
+    color: 'white',
+    fontSize: '_xs',
+  },
+  placeholder: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '_xs',
+    width: '_full',
+    height: '_full',
+    padding: '_xs',
+    boxSizing: 'border-box',
+    color: '_textMuted',
+    fontSize: '_xs',
+    textAlign: 'center',
+    overflowWrap: 'anywhere',
+  },
+  // 右上角的把手、重试、移除：浅色底上的小按钮
+  actions: {
+    position: 'absolute',
+    top: '_xs',
+    insetInlineEnd: '_xs',
+    display: 'flex',
+    gap: '2px',
+  },
+  action: { backgroundColor: { default: 'rgb(255 255 255 / 0.85)', ':hover': 'white' } },
+  handle: {
+    display: 'grid',
+    placeItems: 'center',
+    width: '1.75em',
+    height: '1.75em',
+    borderRadius: '_sm',
+    color: '_text',
+    backgroundColor: 'rgb(255 255 255 / 0.85)',
+    cursor: { default: 'grab', ':active': 'grabbing' },
+    touchAction: 'none',
+  },
+});
+
+/** Upload 的动态样式：缩略图的边长 */
+export const uploadDynamicStyles = stylex.create({
+  square: (size: number) => ({ width: `${size}px`, height: `${size}px` }),
 });
 
 let nextId = 0;
@@ -180,6 +281,10 @@ export const Upload = _component(
     invalid,
     required,
     description,
+    listType = 'text',
+    thumbnailSize = 104,
+    sortable = false,
+    pasteable = false,
     propsDrop,
     propsList,
     propsItem,
@@ -265,6 +370,52 @@ export const Upload = _component(
       const added = (multiple ? entries : entries.slice(-1)).slice(0, room);
       value = [...kept, ...added];
       added.filter((item) => item.status === 'selected').forEach((item) => void start(item));
+    }
+
+    // 图片墙里选的文件的本地地址：用完（移除、卸载）回收
+    const previews = new Map<string, string>();
+    const previewOf = (item: UploadFile) => {
+      if (item.url) return item.url;
+      if (!item.file || !item.file.type.startsWith('image/')) return undefined;
+      let url = previews.get(item.id);
+      if (!url) previews.set(item.id, (url = URL.createObjectURL(item.file)));
+      return url;
+    };
+    watch(
+      () => value,
+      (list) => {
+        const kept = new Set(list.map((item) => item.id));
+        for (const [id, url] of previews)
+          if (!kept.has(id)) {
+            URL.revokeObjectURL(url);
+            previews.delete(id);
+          }
+      },
+    );
+    onBeforeUnmount(() => previews.forEach((url) => URL.revokeObjectURL(url)));
+
+    let wall = _state.raw<HTMLElement | null>(null);
+    const sortableWall = useSortable<UploadFile>({
+      items: () => value,
+      getKey: (item) => item.id,
+      getLabel: (item) => item.name,
+      onChange: (next) => (value = next),
+      container: () => wall,
+      orientation: () => 'horizontal',
+      disabled: () => !sortable || control().readonly || control().disabled,
+    });
+
+    /** 粘贴：剪贴板里的文件（截图是 image/png）按 accept 分开，不符合的照常列出、带错误 */
+    function onPaste(event: ClipboardEvent) {
+      const state = control();
+      if (!pasteable || state.disabled || state.readonly) return;
+      const files = [...(event.clipboardData?.files ?? [])];
+      if (files.length === 0) return;
+      event.preventDefault();
+      const accepted = files.filter((file) => matchesAccept(file, accept));
+      const rejected = files.filter((file) => !matchesAccept(file, accept));
+      if (accepted.length) add(accepted);
+      if (rejected.length) add(rejected, true);
     }
 
     // 隐藏的 file input 带着全部可提交的文件：原生提交、FormData 拿得到
@@ -365,30 +516,191 @@ export const Upload = _component(
       );
     }
 
+    /** 图片墙的一格：缩略图（点开看大图）、上传进度或错误、把手、重试与移除 */
+    function renderCard(item: UploadFile) {
+      const state = control();
+      const failed = item.status === 'error';
+      const src = previewOf(item);
+      return (
+        <div
+          key={item.id}
+          {...mergeAttrs<'div'>(
+            {
+              sx: [
+                uploadStyles.card,
+                uploadDynamicStyles.square(thumbnailSize),
+                failed && uploadStyles.cardError,
+              ],
+            },
+            sortableWall.itemProps(item.id),
+            { role: 'listitem' },
+          )}
+          data-state={item.status}
+        >
+          {src && !item.rejected ? (
+            <Image
+              src={src}
+              alt={item.name}
+              width={thumbnailSize - 2}
+              height={thumbnailSize - 2}
+              radius="none"
+              preview={{ caption: item.name, download: item.name }}
+            />
+          ) : (
+            <div {...stylex.attrs(uploadStyles.placeholder)}>
+              <Icon icon={failed ? CircleAlert : FileIcon} sx={failed && uploadStyles.error} />
+              {item.name}
+            </div>
+          )}
+          {item.status === 'uploading' && (
+            <div {...stylex.attrs(uploadStyles.overlay)}>
+              <Progress
+                {...mergePartProps<ProgressProps>({ size: 'xs' }, propsProgress, {
+                  value: item.progress == null ? null : Math.round(item.progress * 100),
+                  'aria-label': item.name,
+                })}
+              />
+            </div>
+          )}
+          {failed && src && !item.rejected && (
+            <div {...stylex.attrs(uploadStyles.overlay)} title={item.error}>
+              {item.error}
+            </div>
+          )}
+          {item.status === 'done' && <VisuallyHidden>{lang.uploadDone}</VisuallyHidden>}
+          {!state.readonly && (
+            <div {...stylex.attrs(uploadStyles.actions)}>
+              {sortable && (
+                <ButtonBase
+                  sx={uploadStyles.handle}
+                  ripple={false}
+                  disabled={state.disabled}
+                  aria-label={lang.sortableHandle(item.name)}
+                  {...sortableWall.handleProps(item.id)}
+                >
+                  <Icon icon={GripVertical} />
+                </ButtonBase>
+              )}
+              {failed && uploader() && !item.rejected && (
+                <IconButton
+                  {...mergePartProps<IconButtonProps>(
+                    {
+                      icon: RotateCw,
+                      variant: 'ghost',
+                      size: 'xs',
+                      sx: uploadStyles.action,
+                      'aria-label': lang.uploadRetry(item.name),
+                    },
+                    propsRetry,
+                    { onClick: () => void start(item) },
+                  )}
+                />
+              )}
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  {
+                    icon: X,
+                    variant: 'ghost',
+                    size: 'xs',
+                    sx: uploadStyles.action,
+                    'aria-label': lang.uploadRemove(item.name),
+                  },
+                  propsRemove,
+                  { disabled: state.disabled, onClick: () => remove(item.id) },
+                )}
+              />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    /** 选文件的区域：列表模式在上方，图片墙模式是最后一格 */
+    function renderDrop(picture: boolean) {
+      const state = control();
+      const full = maxFiles != null && multiple && value.length >= maxFiles;
+      if (state.readonly || (picture && full)) return null;
+      const hint = pasteable ? lang.uploadPasteHint : undefined;
+      const props = mergePartProps<FileDropProps>(
+        {
+          accept,
+          multiple,
+          disabled: state.disabled,
+          invalid: state.invalid,
+          // 选好的文件不在这个输入框里（它选完就清空）：已有文件时不再原生必填，免得表单交不了
+          required: state.required && value.length === 0,
+          description: picture
+            ? undefined
+            : hint
+              ? [description, description != null && ' · ', hint]
+              : description,
+          propsRoot: picture
+            ? { sx: [uploadStyles.addCard, uploadDynamicStyles.square(thumbnailSize)] }
+            : undefined,
+        },
+        propsDrop,
+        {
+          onFiles: (files: File[]) => add(files),
+          onReject: (files: File[]) => add(files, true),
+        },
+      );
+      // 列表模式不传子元素：FileDrop 用默认的图标、提示与说明（写了 undefined 也算传了，会把默认内容换掉）
+      if (!picture) return <FileDrop {...props} />;
+      return (
+        <FileDrop {...props}>
+          <Icon icon={ImagePlus} />
+          {lang.uploadAddImage}
+        </FileDrop>
+      );
+    }
+
     return () => {
       const state = control();
+      if (listType === 'picture')
+        return (
+          <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest, { onPaste })}>
+            <ImageGroup sx={uploadStyles.wall}>
+              {/* 列表里只有缩略图（“添加图片”与预览不是列表项）；display: contents，缩略图仍和“添加图片”排在一行 */}
+              <div
+                ref={_toRef(wall)}
+                role="list"
+                // 状态变化（失败、完成）由读屏播报
+                aria-live="polite"
+                {...stylex.attrs(uploadStyles.wallList)}
+              >
+                {value.map(renderCard)}
+              </div>
+              {renderDrop(true)}
+            </ImageGroup>
+            {pasteable && !state.readonly && (
+              <span {...stylex.attrs(uploadStyles.meta)}>
+                {[description, description != null && ' · ', lang.uploadPasteHint]}
+              </span>
+            )}
+            {sortable && (
+              <>
+                <VisuallyHidden id={sortableWall.instructionsId}>
+                  {lang.sortableInstructions}
+                </VisuallyHidden>
+                <VisuallyHidden aria-live="assertive">{sortableWall.announcement}</VisuallyHidden>
+              </>
+            )}
+            {name != null && (
+              <input
+                ref={_toRef(hidden)}
+                type="file"
+                name={name}
+                multiple
+                hidden
+                tabindex={-1}
+                aria-hidden="true"
+              />
+            )}
+          </div>
+        );
       return (
-        <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest)}>
-          {!state.readonly && (
-            <FileDrop
-              {...mergePartProps<FileDropProps>(
-                {
-                  accept,
-                  multiple,
-                  disabled: state.disabled,
-                  invalid: state.invalid,
-                  // 选好的文件不在这个输入框里（它选完就清空）：已有文件时不再原生必填，免得表单交不了
-                  required: state.required && value.length === 0,
-                  description,
-                },
-                propsDrop,
-                {
-                  onFiles: (files) => add(files),
-                  onReject: (files) => add(files, true),
-                },
-              )}
-            />
-          )}
+        <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest, { onPaste })}>
+          {renderDrop(false)}
           {name != null && (
             <input
               ref={_toRef(hidden)}

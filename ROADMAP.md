@@ -125,7 +125,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 阶段 6：展示与协作
 
-- [ ] Image 与 Lightbox（缩放、旋转、拖动）→ Upload 的图片墙（预览、排序、粘贴）
+- [x] Image 与 Lightbox（缩放、旋转、拖动）→ Upload 的图片墙（预览、排序、粘贴）
 - [ ] Descriptions 的自适应列与复制
 - [ ] Timeline 升级：操作人、折叠、项里放字段差异（倒序 `reverse` 已有）
 - [ ] FieldCompare（建在 diffFields 上）、CommentThread 与 Mentions（patterns）
