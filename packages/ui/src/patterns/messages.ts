@@ -86,6 +86,14 @@ export interface PatternsMessages {
   readonly queryTablePagination: (title: string) => string;
   /** 查询表格的查询栏（search 地标）的名称：`('任务台账')` → “任务台账查询” */
   readonly queryTableSearch: (title: string) => string;
+  /** 分步表单：上一步，默认“上一步” */
+  readonly stepsFormPrevious: string;
+  /** 分步表单：下一步，默认“下一步” */
+  readonly stepsFormNext: string;
+  /** 分步表单：最后一步的提交，默认“提交” */
+  readonly stepsFormSubmit: string;
+  /** 分步表单这一步内容的名称：`(2, 3)` → “第 2 步，共 3 步” */
+  readonly stepsFormStep: (step: number, total: number) => string;
   /** 主题切换的名称，默认“主题” */
   readonly themeLabel: string;
 }
@@ -133,6 +141,10 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     queryTableExitFullscreen: '退出全屏',
     queryTablePagination: (title) => `${title}分页`,
     queryTableSearch: (title) => `${title}查询`,
+    stepsFormPrevious: '上一步',
+    stepsFormNext: '下一步',
+    stepsFormSubmit: '提交',
+    stepsFormStep: (step, total) => `第 ${step} 步，共 ${total} 步`,
     themeLabel: '主题',
   },
   'en-US': {
@@ -180,6 +192,10 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     queryTableExitFullscreen: 'Exit full screen',
     queryTablePagination: (title) => `${title} pagination`,
     queryTableSearch: (title) => `Search ${title}`,
+    stepsFormPrevious: 'Previous',
+    stepsFormNext: 'Next',
+    stepsFormSubmit: 'Submit',
+    stepsFormStep: (step, total) => `Step ${step} of ${total}`,
     themeLabel: 'Theme',
   },
 };
