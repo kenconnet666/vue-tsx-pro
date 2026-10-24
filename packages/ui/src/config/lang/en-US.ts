@@ -30,6 +30,8 @@ export const enUS: Lang = {
   timelineShowMore: (count) => `Show ${count} more`,
   timelineShowLess: 'Show less',
   timelineDetails: 'Details',
+  mentionsList: 'People to mention',
+  mentionsEmpty: 'No matching people',
   clear: 'Clear',
   loading: 'Loading',
   remove: 'Remove',

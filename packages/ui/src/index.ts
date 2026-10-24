@@ -723,6 +723,18 @@ export {
   type ListboxViewProps,
   type OptionRenderState,
 } from './input/Listbox';
+export {
+  mentionedValues,
+  Mentions,
+  mentionSegments,
+  mentionStyles,
+  MentionText,
+  type MentionsBaseProps,
+  type MentionSegment,
+  type MentionsManaged,
+  type MentionsProps,
+  type MentionTextProps,
+} from './input/Mentions';
 export { NumberField, type NumberFieldManaged, type NumberFieldProps } from './input/NumberField';
 export {
   NumberRangeField,
@@ -1404,6 +1416,7 @@ export {
 
 // 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板
 export { announce, type Politeness, type Politenesses } from './utils/dom/announcer';
+export { caretAnchor, caretRect } from './utils/dom/caret';
 export { useClipboard, type ClipboardOptions, type ClipboardState } from './utils/dom/clipboard';
 export { inlineArrows, isRtl, type InlineArrows } from './utils/dom/direction';
 export { downloadFile } from './utils/dom/download';

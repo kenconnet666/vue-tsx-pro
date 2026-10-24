@@ -30,6 +30,8 @@ export const zhCN: Lang = {
   timelineShowMore: (count) => `展开其余 ${count} 条`,
   timelineShowLess: '收起',
   timelineDetails: '查看详情',
+  mentionsList: '可以提及的人',
+  mentionsEmpty: '没有匹配的人',
   clear: '清空',
   loading: '加载中',
   remove: '移除',

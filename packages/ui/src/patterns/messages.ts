@@ -140,6 +140,32 @@ export interface PatternsMessages {
   readonly dataImportPreview: string;
   /** 主题切换的名称，默认“主题” */
   readonly themeLabel: string;
+  /** 留言：留言列表的名称，默认“留言” */
+  readonly comments: string;
+  /** 留言：没有留言时，默认“还没有留言” */
+  readonly commentsEmpty: string;
+  /** 留言：输入框的提示，默认“写下留言，输入 @ 提及相关的人” */
+  readonly commentPlaceholder: string;
+  /** 留言：回复按钮，默认“回复” */
+  readonly commentReply: string;
+  /** 留言：回复某人时输入框的名称：`('林小满')` → “回复 林小满” */
+  readonly commentReplyTo: (name: string) => string;
+  /** 留言：发送按钮，默认“发送” */
+  readonly commentSend: string;
+  /** 留言：取消回复，默认“取消” */
+  readonly commentCancel: string;
+  /** 留言：添加附件的按钮，默认“附件” */
+  readonly commentAttach: string;
+  /** 留言：发送的快捷键说明，默认“Ctrl + Enter 发送” */
+  readonly commentSendHint: string;
+  /** 留言：发送失败，默认“发送失败，内容已保留，请重试” */
+  readonly commentSendFailed: string;
+  /** 留言：改过的留言的标记，默认“已编辑” */
+  readonly commentEdited: string;
+  /** 留言：一条留言下面回复列表的名称：`(3)` → “3 条回复” */
+  readonly commentReplies: (count: number) => string;
+  /** 留言：附件列表的名称，默认“附件” */
+  readonly commentAttachments: string;
 }
 
 /** 页面组合的文案表：中文与英文，别的语言先找同语种、再用英文 */
@@ -213,6 +239,19 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportNotNumber: '不是数字',
     dataImportPreview: '导入预览',
     themeLabel: '主题',
+    comments: '留言',
+    commentsEmpty: '还没有留言',
+    commentPlaceholder: '写下留言，输入 @ 提及相关的人',
+    commentReply: '回复',
+    commentReplyTo: (name) => `回复 ${name}`,
+    commentSend: '发送',
+    commentCancel: '取消',
+    commentAttach: '附件',
+    commentSendHint: 'Ctrl + Enter 发送',
+    commentSendFailed: '发送失败，内容已保留，请重试',
+    commentEdited: '已编辑',
+    commentReplies: (count) => `${count} 条回复`,
+    commentAttachments: '附件',
   },
   'en-US': {
     filterSearch: 'Search',
@@ -287,5 +326,18 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportNotNumber: 'Not a number',
     dataImportPreview: 'Import preview',
     themeLabel: 'Theme',
+    comments: 'Comments',
+    commentsEmpty: 'No comments yet',
+    commentPlaceholder: 'Write a comment, type @ to mention someone',
+    commentReply: 'Reply',
+    commentReplyTo: (name) => `Reply to ${name}`,
+    commentSend: 'Send',
+    commentCancel: 'Cancel',
+    commentAttach: 'Attach',
+    commentSendHint: 'Ctrl + Enter to send',
+    commentSendFailed: 'Could not send. Your text is kept, please try again',
+    commentEdited: 'Edited',
+    commentReplies: (count) => (count === 1 ? '1 reply' : `${count} replies`),
+    commentAttachments: 'Attachments',
   },
 };

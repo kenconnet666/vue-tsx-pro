@@ -100,6 +100,10 @@ export interface Lang {
   readonly timelineShowLess: string;
   /** 时间线一项里展开详情的按钮，默认“查看详情” */
   readonly timelineDetails: string;
+  /** 提及的弹出列表的名称，默认“可以提及的人” */
+  readonly mentionsList: string;
+  /** 提及没有匹配的人时，默认“没有匹配的人” */
+  readonly mentionsEmpty: string;
   /** 清空输入的按钮，默认“清空” */
   readonly clear: string;
   /** 加载中提示，默认“加载中” */
