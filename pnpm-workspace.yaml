@@ -60,8 +60,6 @@ catalog:
   # 颜色解析、转换与对比度（主题编辑器、themes:check）；按函数引入（culori/fn）
   culori: 4.0.2
   '@types/culori': 4.0.1
-  # 接口模拟（apps/cost-reduction 的假后端）：在网络层拦截请求，页面照常走 fetch，接上后端时只去掉拦截
-  msw: 3.0.3
   # 构建与测试
   vite: 8.3.4
   vitest: 5.0.5

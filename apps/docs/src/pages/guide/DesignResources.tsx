@@ -184,9 +184,7 @@ export default _component(() => {
             在 Figma 里打开
           </LinkButton>
         </Flex>
-        <Alert tone="info">
-          降本管理的界面稿还在画；在那之前，以仓库里 apps/cost-reduction 的整页应用为蓝本。
-        </Alert>
+        <Alert tone="info">降本管理的界面稿会随应用重做一起画。</Alert>
       </Flex>
 
       <Flex direction="column" gap="md">

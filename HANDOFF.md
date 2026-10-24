@@ -5,7 +5,7 @@
 ## 1. 现状（2026-10-23）
 
 - **分支**：只有 `master`，已推送到 origin，工作区干净。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
-- **进度**：2026-10-23 起联合降本管理暂停，按 [ROADMAP.md](ROADMAP.md) 的阶段 0–8 做组件库。阶段 0（整理）已完成：分层与 `pnpm layers:check`、
+- **进度**：联合降本管理 2026-10-24 清空为空项目、待重做，按 [ROADMAP.md](ROADMAP.md) 的阶段 0–8 做组件库。阶段 0（整理）已完成：分层与 `pnpm layers:check`、
   子路径只在 exports 登记、patterns / workflow / effects / theme-customize 子路径、删掉 SlideVerify、PageHeader、Checklist、
   WorkflowTimeline 并进 Timeline、对话框的 onConfirm、Drawer 与页面组合的文档页重做。阶段 1 进行中：仓库已只用 TypeScript 7.1。
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的 StyleX 组件库。见 [PLAN.md](PLAN.md) §1。
@@ -29,12 +29,9 @@
   - 视觉效果（子路径 `@vue-tsx-pro/ui/effects`，不依赖 three）：TiltCard、SpotlightCard、BorderBeam、Marquee
   - 主题定制（子路径 `@vue-tsx-pro/ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@vue-tsx-pro/ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch）
 - **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@vue-tsx-pro/ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
-- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。联合降本管理已拆成独立子项目 `apps/cost-reduction`（`pnpm dev:cost`，端口 5175），文档站不再收案例页。
-- **联合降本管理**（`apps/cost-reduction`，正式版前端）：设计依据是 `apps/cost-reduction/DESIGN.md`（角色、流程、全部页面、口径、
-  要补的组件、里程碑 D0–D8）。分层：`domain/`（纯业务规则，前端与假后端共用）、`api/`（接口契约与调用，金额是十进制字符串）、
-  `mock/`（MSW 3 假后端，数据存 localStorage，`VITE_MOCK=false` 时直连后端）、`app/`（路由表、外壳与 PageNav、会话与演示身份、
-  主数据缓存、全局提示）、`modules/`（按模块的页面）、`shared/`（应用内共用的展示件）。流程的执行在后端自研引擎，
-  前端用组件库 `workflow/` 的流程定义（BPMN 子集）描述流程。单元测试是 vitest 项目 `cost-reduction`。
+- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。联合降本管理是独立子项目 `apps/cost-reduction`（`pnpm dev:cost`，端口 5175），文档站不收案例页。
+- **联合降本管理**（`apps/cost-reduction`）：2026-10-24 清空为空项目（只有一张占位页），待重做。旧版（D0–D3 的页面、DESIGN.md、
+  MSW 假后端）在提交 372d28e 及之前的历史里，需要时 `git show 372d28e:apps/cost-reduction/DESIGN.md` 取回。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
 - **CI**：GitHub Actions 五个并行任务：check（静态检查）、test（Ubuntu 与 Windows）、browser（三种浏览器的浏览器测试与文档站的 axe）、build、consumer（发布产物验证）。
 
@@ -257,8 +254,8 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 
 按 [ROADMAP.md](ROADMAP.md) 的顺序往下做（用户的总要求：持续执行、不必问，把组件库做到成熟可用）：
 
-1. 2026-10-23 起联合降本管理暂停（停在 D3），先把组件库做完：阶段 0 整理（分层、子路径、删减合并）→ 阶段 1 基础设施 →
-   阶段 2–6 组件补齐 → 阶段 7 图表 → 阶段 8 质量与发布。暂停期间降本只跟着改导入与用法，保证 CI 通过。
+1. 联合降本管理已清空、待重做（不在当前计划里），先把组件库做完：阶段 0 整理（分层、子路径、删减合并）→ 阶段 1 基础设施 →
+   阶段 2–6 组件补齐 → 阶段 7 图表 → 阶段 8 质量与发布。
 2. 每动一个组件，就在用户的 Chrome 里看它的文档页，补示例、改外观与 API 的灵活性。
 
 审查的细节在 `.claude/reports/audit-2026-10-22.md`（已修的已标出）。每做完一块：勾 ROADMAP、`check.sh`、分开提交（整理与功能）、
