@@ -46,6 +46,7 @@ import {
   createChartInstances,
   uniqueHighlightFilter,
   useChartValueText,
+  usePlotSeen,
   type ChartFrameParts,
   type ChartTable,
   type ChartTooltipItem,
@@ -425,6 +426,7 @@ export const XYChart = _component(
     }
 
     let plot = _state.raw<HTMLElement | null>(null);
+    const seen = usePlotSeen(() => plot);
     let container: XYContainer<T> | undefined;
     let containerElement: HTMLElement | undefined;
     _effect(() => () => {
@@ -437,7 +439,7 @@ export const XYChart = _component(
       const rows = range ? data.slice(range[0], range[1] + 1) : [...data];
       const shown = visible;
       const element = plot;
-      if (!element || loading || rows.length === 0) return;
+      if (!element || loading || rows.length === 0 || !seen()) return;
       // 绘图区换了元素：旧容器连同它的组件、坐标轴一起销毁，实例表清空后重新创建
       if (container && containerElement !== element) {
         container.destroy();

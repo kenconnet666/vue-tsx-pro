@@ -10,7 +10,7 @@
  */
 import { SingleContainer, Tooltip, type ComponentCore } from '@unovis/ts';
 import { render, useId, type VNode } from 'vue';
-import { chartDuration, createChartInstances, uniqueHighlightFilter } from './frame';
+import { chartDuration, createChartInstances, uniqueHighlightFilter, usePlotSeen } from './frame';
 
 /** 一次绘制要的东西 */
 export interface SingleChartBuild<D> {
@@ -49,6 +49,7 @@ export function useSingleChart<D>(read: () => SingleChartState<D>): SingleChart 
   let tooltipElement: HTMLElement | undefined;
   let container: SingleContainer<D> | undefined;
   let containerElement: HTMLElement | undefined;
+  const seen = usePlotSeen(() => read().element);
 
   _effect(() => () => {
     container?.destroy();
@@ -56,7 +57,7 @@ export function useSingleChart<D>(read: () => SingleChartState<D>): SingleChart 
   });
   _effect(() => {
     const { element, ready, tooltip, build } = read();
-    if (!element || !ready) return;
+    if (!element || !ready || !seen()) return;
     // 绘图区换了元素：旧容器连同组件、提示框一起销毁，实例表清空后重新创建
     if (container && containerElement !== element) {
       container.destroy();

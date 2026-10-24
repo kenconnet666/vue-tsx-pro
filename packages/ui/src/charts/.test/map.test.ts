@@ -3,7 +3,7 @@ import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { describe, expect, it } from 'vitest';
 import { simplifyTopology, topologyBounds } from '../MapChart';
 
-const pointCount = (topology: typeof ChinaTopoJSON) =>
+const pointCount = (topology: { arcs: readonly (readonly unknown[])[] }) =>
   topology.arcs.reduce((sum, arc) => sum + arc.length, 0);
 
 describe('simplifyTopology', () => {

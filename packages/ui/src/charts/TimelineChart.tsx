@@ -39,6 +39,7 @@ import {
   chartTooltip,
   createChartInstances,
   uniqueHighlightFilter,
+  usePlotSeen,
   type ChartFrameParts,
 } from './frame';
 import { resolveColor, type ChartColor } from './series';
@@ -221,6 +222,7 @@ export const TimelineChart = _component(
     const instances = createChartInstances();
     let tooltipElement: HTMLElement | undefined;
     let plot = _state.raw<HTMLElement | null>(null);
+    const seen = usePlotSeen(() => plot);
     let container: XYContainer<Segment> | undefined;
     let containerElement: HTMLElement | undefined;
     _effect(() => () => {
@@ -230,7 +232,7 @@ export const TimelineChart = _component(
     _effect(() => {
       const data = segments();
       const element = plot;
-      if (!element || loading || items.length === 0) return;
+      if (!element || loading || items.length === 0 || !seen()) return;
       if (container && containerElement !== element) {
         container.destroy();
         container = undefined;

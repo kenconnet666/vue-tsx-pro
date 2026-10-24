@@ -10,7 +10,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { VNodeChild } from 'vue';
+import { shallowRef, watch, type VNodeChild } from 'vue';
 import { Download, FileSpreadsheet, ImageDown } from '@lucide/icons';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton } from '../base/IconButton';
@@ -33,6 +33,8 @@ import {
 import { Empty } from '../feedback/Empty';
 import type { NumericValue } from '../utils/data/numeric';
 import { themeTransition } from '../utils/motion/animation';
+import { useEventListener } from '../utils/dom/event-listener';
+import { useIntersectionObserver } from '../utils/dom/intersection';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
 
@@ -209,6 +211,48 @@ export function useChartValueText(read: () => { valueFormat?: NumericFormat; uni
     const { valueFormat, unit } = read();
     return format.number(value, unit ? { ...valueFormat, suffix: unit } : valueFormat);
   };
+}
+
+/** 绘图区离视口多近就算看见了（px）：滚到之前先画好，进来时已经是画好的 */
+const SEEN_MARGIN = 200;
+
+/**
+ * 绘图区进入过视口：之前不画，进来之后一直算看见（滚出去不拆掉）。一页很多图表时先画看得见的，
+ * 其余的滚到附近再画（地图、网络图绘制很重）。在 setup 里调用，绘制的 effect 里读返回的函数。
+ * 挂上时就在视口附近的立即算看见（不等观察器的第一次回调；没有布局的测试环境里框都在原点，也算看见）；
+ * 打印前全部画上；没有 IntersectionObserver 的环境当作看见了。
+ */
+export function usePlotSeen(plot: () => HTMLElement | null | undefined): () => boolean {
+  const seen = shallowRef(typeof IntersectionObserver === 'undefined');
+  const near = (element: Element) => {
+    const box = element.getBoundingClientRect();
+    return (
+      box.top < window.innerHeight + SEEN_MARGIN &&
+      box.bottom > -SEEN_MARGIN &&
+      box.left < window.innerWidth + SEEN_MARGIN &&
+      box.right > -SEEN_MARGIN
+    );
+  };
+  watch(
+    plot,
+    (element) => {
+      if (element && !seen.value && near(element)) seen.value = true;
+    },
+    { immediate: true, flush: 'post' },
+  );
+  useIntersectionObserver(
+    () => (seen.value ? null : plot()),
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) seen.value = true;
+    },
+    () => ({ rootMargin: `${SEEN_MARGIN}px` }),
+  );
+  useEventListener(
+    () => window,
+    'beforeprint',
+    () => (seen.value = true),
+  );
+  return () => seen.value;
 }
 
 /** 主题的 lg 时长（毫秒），减少动态效果时为 0；读不到（元素不在主题范围内）时不要动画 */
