@@ -10,6 +10,7 @@ import Colors from './demo/Colors.tsx?demo';
 import Horizontal from './demo/Horizontal.tsx?demo';
 import Legend from './demo/Legend.tsx?demo';
 import Options from './demo/Options.tsx?demo';
+import Parts from './demo/Parts.tsx?demo';
 import Stacked from './demo/Stacked.tsx?demo';
 import Targets from './demo/Targets.tsx?demo';
 import States from './demo/States.tsx?demo';
@@ -67,6 +68,13 @@ export default _component(() => () => (
           <Code>loading</Code> 时绘图区显示一排高低不一的骨架柱并扫光（折线图是一整块），图表带{' '}
           <Code>aria-busy</Code>；没有数据时显示“暂无数据”，<Code>empty</Code>{' '}
           可以换成自己的内容（如带操作按钮的 Empty）。
+        </Example>
+        <Example id="parts" title="部件属性" demo={Parts}>
+          每个节点都能单独加样式与属性：<Code>propsHeader</Code>（单位与图例那一行）、
+          <Code>propsUnit</Code>、<Code>propsLegend</Code>、<Code>propsLegendItem</Code>
+          （图例的每个按钮）、
+          <Code>propsPlot</Code>（绘图区）、<Code>propsTable</Code>
+          （给读屏的数据表）。这里图例挪到左边做成胶囊，单位做成右边的小标签，绘图区上沿加一条虚线。所有图表（包括漏斗图、地图）都有这几个部件属性。
         </Example>
       </ExampleColumn>
     </Examples>

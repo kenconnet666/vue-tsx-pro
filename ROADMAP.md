@@ -138,7 +138,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 - [x] 热力图 / PivotTable、Gauge、Sparkline（Stat 里用）、TimelineChart
 - [x] 雷达、矩形树图、缩放、导出图片与数据；地图（TopoJSON、Leaflet）排在最后
       （Leaflet 瓦片地图不包装：要瓦片服务与 leaflet 的样式，需要时直接用 Unovis 的 LeafletMap；TopoJSON 的 MapChart 已有）
-- [ ] 浏览器测试补上 Area、Scatter、Donut、Sankey、Chord、Funnel、Graph、Waterfall；部件属性的示例
+- [x] 浏览器测试补上 Area、Scatter、Donut、Sankey、Chord、Funnel、Graph、Waterfall；部件属性的示例（柱状图页）
 
 ## 阶段 8：质量与发布
 
