@@ -21,6 +21,8 @@ export interface CompilerSetup {
   root: string;
   /** StyleX 插件的选项；undefined 时不编译 StyleX。没给 unstable_moduleResolution 时用 stylex-resolution.ts 的 */
   stylex: Partial<StylexBabelOptions> | undefined;
+  /** 只有路径匹配这个正则（源码）的文件过 StyleX（运行时模式只编译 *.stylex.ts）；不写时全部 */
+  stylexOnly?: string;
   /** Vue JSX 插件的选项 */
   jsx: VueJSXPluginOptions | undefined;
   /** 开发服务器：登记组件的热更新 */
@@ -82,7 +84,10 @@ export async function compileModule(
     runes: own,
     optimize: setup.optimize,
     tokens: own && tokens !== false ? () => tokenModule(tokens, file, setup.root) : undefined,
-    stylex: setup.stylex && stylexOptions(setup.stylex),
+    stylex:
+      setup.stylex && (!setup.stylexOnly || new RegExp(setup.stylexOnly).test(file))
+        ? stylexOptions(setup.stylex)
+        : undefined,
     jsx: setup.jsx,
     plugins: jsx ? [() => componentMarkers(setup.hmr || ssr)] : undefined,
   });

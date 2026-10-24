@@ -7,11 +7,11 @@ const externals = [...Object.keys(pkg.dependencies), ...Object.keys(pkg.peerDepe
 const isExternal = (id: string) => externals.some((dep) => id === dep || id.startsWith(`${dep}/`));
 
 /**
- * 组件库构建：TSX 与符文在这里编译掉；StyleX 保留 stylex.create 源码，
- * 由使用方应用的 StyleX 插件统一编译（原子类跨库去重，sx 覆盖才能正确合并）。
+ * 组件库构建：TSX 与符文在这里编译掉；样式用运行时模式（styles: 'runtime'）：*.stylex.ts 编译好并在运行时注入，
+ * stylex.create 留作运行时调用，第一次用到时生成原子类。发布包是普通的 JS，使用方不必再编译，可以预构建。
  */
 export default defineConfig({
-  plugins: [workspaceSource(), ...vueTsxPro({ stylex: false })],
+  plugins: [workspaceSource(), ...vueTsxPro({ styles: 'runtime' })],
   build: {
     // 每个入口（主入口与各子路径）一份，登记在 package.json 的 exports；可选依赖（shiki、@unovis/ts、three）只在它的子路径里导入
     lib: {

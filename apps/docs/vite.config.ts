@@ -29,7 +29,7 @@ function themeBoot(): Plugin {
 export const plugins = [
   workspaceSource(),
   iconImports(),
-  ...vueTsxPro(),
+  ...vueTsxPro({ styles: 'runtime' }),
   demoSource(),
   docPages(),
   componentApi(),

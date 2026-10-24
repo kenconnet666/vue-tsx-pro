@@ -30,19 +30,6 @@ export interface BadgeProps extends PartProps<'span'>, BadgeOptions {
   children?: VNodeChild;
 }
 
-/** Badge 的样式：dot */
-export const badgeDotStyles = stylex.create({
-  // 跟着文字色：soft、outline 是色调色，solid 是反白
-  dot: {
-    flexShrink: 0,
-    width: '0.5em',
-    height: '0.5em',
-    borderRadius: '_full',
-    backgroundColor: 'currentColor',
-  },
-});
-
-/** 标记（span）：状态色调 × 样式，字号默认 xs */
 export const Badge = _component(
   ({
     variant,
@@ -57,20 +44,23 @@ export const Badge = _component(
     ...rest
   }: BadgeProps) => {
     const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
-    return () => (
-      <span {...mergeAttrs<'span'>({ sx: badgeSx(appearance()) }, rest)}>
-        {icon ? (
-          <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />
-        ) : (
-          dot && (
-            <span
-              {...mergeAttrs<'span'>({ sx: badgeDotStyles.dot }, propsDot, { 'aria-hidden': true })}
-            />
-          )
-        )}
-        {children}
-      </span>
-    );
+    return () => {
+      const styles = badgeSx(appearance());
+      return (
+        <span {...mergeAttrs<'span'>({ sx: styles.root }, rest)}>
+          {icon ? (
+            <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />
+          ) : (
+            dot && (
+              <span
+                {...mergeAttrs<'span'>({ sx: styles.dot }, propsDot, { 'aria-hidden': true })}
+              />
+            )
+          )}
+          {children}
+        </span>
+      );
+    };
   },
 );
 

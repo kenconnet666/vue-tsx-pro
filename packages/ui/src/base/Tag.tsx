@@ -83,7 +83,7 @@ export const Tag = _component(
           {...mergeAttrs<'span'>(
             {
               sx: [
-                badgeSx(appearance()),
+                badgeSx(appearance()).root,
                 tagStyles.root,
                 onRemove && tagStyles.removable,
                 dismissible.dismissing && tagStyles.removing,

@@ -1,14 +1,15 @@
 /**
- * Badge 与 Tag 共用的外观：行内的小标记，字号默认比周围小一档，内部尺寸按 em 缩放。
- * 颜色取 utils/style/tone-styles.ts 的状态色调。
+ * Badge 与 Tag 共用的外观（配方版）：variant × tone 不再是一张矩阵——tone 挂一个色调类（toneThemes），
+ * 四种样式各写一遍、引用 toneVars；字号、圆角是档位。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
-import type { StyleXStyles } from '@vue-tsx-pro/tsx/stylex';
-import { statusToneSx, type StatusTone, type StatusVariant } from '../utils/style/tone-styles';
+import { toneThemes } from '../utils/style/tone-themes';
+import { toneVars } from '../utils/style/tone.stylex';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
+import type { StatusTone, StatusVariant } from '../utils/style/tone-styles';
 
-/** Badge、Tag 共用的外观选项；可以用 createUi / Provider 的 defaults.Badge 统一改默认值 */
+/** Badge、Tag 的外观选项 */
 export interface BadgeOptions {
   /** 样式，默认 soft */
   variant?: StatusVariant;
@@ -20,34 +21,62 @@ export interface BadgeOptions {
   radius?: Radius;
 }
 
-/** Badge、Tag 的样式：root */
-export const badgeStyles = stylex.create({
-  root: {
-    boxSizing: 'border-box',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '_xs',
-    paddingInline: '_sm',
-    // 一行的高度：不随内容的图标、按钮撑高
-    minHeight: '1.75em',
-    fontWeight: '_medium',
-    lineHeight: '_tight',
-    whiteSpace: 'nowrap',
-    verticalAlign: 'middle',
+/** 标记的配方：部件 root（外层）、dot（圆点） */
+export const badgeRecipe = stylex.recipe({
+  parts: ['root', 'dot'],
+  base: {
+    root: {
+      boxSizing: 'border-box',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '_xs',
+      paddingInline: '_sm',
+      // 一行的高度：不随内容的图标、按钮撑高
+      minHeight: '1.75em',
+      fontWeight: '_medium',
+      lineHeight: '_tight',
+      whiteSpace: 'nowrap',
+      verticalAlign: 'middle',
+      borderWidth: '_xs',
+      borderStyle: 'solid',
+      borderColor: 'transparent',
+    },
+    // 跟着文字色：soft、outline 是色调色，solid 是反白
+    dot: {
+      flexShrink: 0,
+      width: '0.5em',
+      height: '0.5em',
+      borderRadius: '_full',
+      backgroundColor: 'currentColor',
+    },
   },
+  variants: {
+    variant: {
+      solid: { root: { color: toneVars.contrast, backgroundColor: toneVars.solid } },
+      soft: { root: { color: toneVars.text, backgroundColor: toneVars.soft } },
+      surface: {
+        root: {
+          color: toneVars.text,
+          backgroundColor: toneVars.surface,
+          borderColor: toneVars.border,
+        },
+      },
+      outline: { root: { color: toneVars.text, borderColor: toneVars.border } },
+    },
+  },
+  defaults: { variant: 'soft' },
 });
 
-/** 合并后的外观 → 样式 */
+/** 标记的样式：色调类 + 配方 + 字号 + 圆角 */
 export function badgeSx({
   variant = 'soft',
   tone = 'neutral',
   size = 'xs',
   radius = 'sm',
-}: BadgeOptions): StyleXStyles {
-  return [
-    badgeStyles.root,
-    statusToneSx(variant, tone),
-    fontSizeStyles[size],
-    radiusStyles[radius],
-  ] as StyleXStyles;
+}: BadgeOptions) {
+  const parts = badgeRecipe({ variant });
+  return {
+    root: [toneThemes[tone], parts.root, fontSizeStyles[size], radiusStyles[radius]],
+    dot: parts.dot,
+  } as const satisfies Record<string, stylex.StyleXStyles>;
 }

@@ -17,10 +17,13 @@ import type {
   MapNamespaces,
   StyleXArray,
 } from '@stylexjs/stylex';
+import * as runtime from './runtime';
 import type { DocumentedStyles } from './styles';
 
 export * from '@stylexjs/stylex';
 export type { DocumentedStyles } from './styles';
+export { recipe, type Recipe, type RecipeConfig, type VariantSelection } from './recipe';
+export { CONDITIONS as conditions } from './runtime';
 
 /*
  * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@vue-tsx-pro/ui 的 token-names.ts）用
@@ -144,8 +147,11 @@ export interface Create {
   ): MapStyles<S>;
 }
 
-/** 定义样式，编译期生成原子类（见 {@link Create}）。 */
-export declare const create: Create;
+/**
+ * 定义样式（见 {@link Create}）：Vite 预设编译 StyleX 时在编译期换成原子类；运行时模式（styles: 'runtime'）
+ * 下第一次用到时生成原子类并注入（runtime.ts）
+ */
+export const create: Create = runtime.create as never;
 
 /**
  * 把多个样式合并成元素属性 `{ class, style }`，后面的覆盖前面的；
@@ -199,7 +205,7 @@ export declare const props: typeof stylex.props;
 export declare const defineVars: typeof stylex.defineVars;
 
 /** 基于 defineVars 定义的变量创建一套主题，作为样式应用在容器上即可覆盖内部的变量值。 */
-export declare const createTheme: typeof stylex.createTheme;
+export const createTheme: typeof stylex.createTheme = runtime.createTheme as never;
 
 /** 定义编译期常量（不生成 CSS 变量），同样必须写在 `*.stylex.ts` 文件中。 */
 export declare const defineConsts: typeof stylex.defineConsts;
@@ -208,7 +214,10 @@ export declare const defineConsts: typeof stylex.defineConsts;
 export declare const firstThatWorks: typeof stylex.firstThatWorks;
 
 /** 定义关键帧动画，返回动画名，作为 animationName 的值使用。 */
-export declare const keyframes: typeof stylex.keyframes;
+export const keyframes: typeof stylex.keyframes = runtime.keyframes as never;
+
+/** 按祖先、后代、兄弟（用 defineMarker 标记）的状态取样式：`[stylex.when.ancestor(':hover', marker)]: …` */
+export const when: typeof stylex.when = runtime.when as never;
 
 /** 定义锚点定位的备选位置，返回名称，作为 positionTryFallbacks 的值使用。 */
 export declare const positionTry: typeof stylex.positionTry;

@@ -23,7 +23,7 @@ export interface TokenModule {
 /** 按需取 token 模块（只有文件里真的用到字符串写法才去找）；找不到时返回 null */
 export type TokenModuleLoader = () => TokenModule | null;
 
-const STYLE_FUNCTIONS = new Set(['create', 'keyframes']);
+const STYLE_FUNCTIONS = new Set(['create', 'keyframes', 'recipe']);
 const TOKEN = /^_(?:(\w+)\.)?(\w+)$/;
 
 /**
@@ -180,9 +180,50 @@ class TokenRewriter {
   rewriteCall(call: NodePath<t.CallExpression>) {
     const argument = call.get('arguments')[0];
     if (!argument) return;
-    const groups = unwrapTypes(argument);
+    const callee = call.node.callee;
+    const name = t.isIdentifier(callee)
+      ? callee.name
+      : t.isMemberExpression(callee) && t.isIdentifier(callee.property)
+        ? callee.property.name
+        : '';
+    if (name === 'recipe') this.rewriteRecipe(unwrapTypes(argument));
+    else this.rewriteGroups(unwrapTypes(argument));
+    assertNoTokensLeft(argument);
+  }
+
+  /** recipe({ base, variants: { 档位: { 取值: … } }, compound: [{ when, … }] })：每处都是 { 部件: 样式 } */
+  private rewriteRecipe(config: NodePath) {
+    if (!config.isObjectExpression()) return;
+    for (const entry of config.get('properties')) {
+      if (!entry.isObjectProperty() || !t.isIdentifier(entry.node.key)) continue;
+      const value = unwrapTypes(entry.get('value'));
+      if (entry.node.key.name === 'base') this.rewriteGroups(value);
+      else if (entry.node.key.name === 'variants' && value.isObjectExpression()) {
+        for (const variant of value.get('properties')) {
+          if (!variant.isObjectProperty()) continue;
+          const values = unwrapTypes(variant.get('value'));
+          if (!values.isObjectExpression()) continue;
+          for (const option of values.get('properties')) {
+            if (option.isObjectProperty()) this.rewriteGroups(unwrapTypes(option.get('value')));
+          }
+        }
+      } else if (entry.node.key.name === 'compound' && value.isArrayExpression()) {
+        for (const item of value.get('elements'))
+          this.rewriteGroups(unwrapTypes(item as NodePath), ['when']);
+      }
+    }
+  }
+
+  /** { 组: 样式 | (参数) => 样式 }；skip 里的键不是样式（组合档位的 when） */
+  private rewriteGroups(groups: NodePath, skip: readonly string[] = []) {
     if (groups.isObjectExpression()) {
       for (const entry of groups.get('properties')) {
+        if (
+          entry.isObjectProperty() &&
+          t.isIdentifier(entry.node.key) &&
+          skip.includes(entry.node.key.name)
+        )
+          continue;
         if (!entry.isObjectProperty()) continue;
         const value = unwrapTypes(entry.get('value'));
         if (value.isObjectExpression()) this.rewriteStyles(value);
@@ -191,7 +232,6 @@ class TokenRewriter {
         }
       }
     }
-    assertNoTokensLeft(argument);
   }
 
   insertImport() {

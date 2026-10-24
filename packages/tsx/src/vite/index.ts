@@ -65,12 +65,20 @@ export interface VueTsxProOptions {
    * 选项里有函数（如自定义的 StyleX 模块解析）时不能复制到线程，自动在主线程编译
    */
   parallel?: boolean;
+  /**
+   * 样式在哪里生成，默认 'compile'：StyleX 在编译期把 stylex.create 换成原子类、提取成 CSS 文件。
+   * 'runtime'：只有 *.stylex.ts（defineVars、defineConsts、defineMarker）由 StyleX 编译并在运行时注入，
+   * 其余的 stylex.create 在运行时第一次用到时生成原子类（stylex/runtime.ts）；不用逐文件过 StyleX 的 Babel，
+   * 发布的组件库也不必由使用方再编译，可以预构建
+   */
+  styles?: 'compile' | 'runtime';
 }
 
 /**
  * Vite 预设：`plugins: [vueTsxPro()]`。组件库构建写 `vueTsxPro({ stylex: false })`，由使用方统一编译 StyleX。
  */
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
+  if (options.styles === 'runtime') return runtimeStyles(options);
   if (options.stylex === false) return [compiler(options, undefined)];
   const { useCSSLayers, enableLTRRTLComments, lightningcssOptions, ...babel } =
     options.stylex ?? {};
@@ -99,6 +107,32 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
 
 type StylexBabel = Partial<StylexBabelOptions>;
 
+/** 运行时模式（styles: 'runtime'）：只编译 *.stylex.ts，规则在运行时注入 */
+function runtimeStyles(options: VueTsxProOptions): Plugin[] {
+  const { useCSSLayers: _layers, lightningcssOptions: _css, ...babel } = options.stylex || {};
+  const stylex: StylexBabel = {
+    dev: process.env.NODE_ENV === 'development' || process.env.BABEL_ENV === 'development',
+    treeshakeCompensation: true,
+    ...babel,
+    runtimeInjection: true,
+  };
+  return [
+    compiler(options, { babel: stylex, rules: undefined, only: STYLEX_FILE }),
+    {
+      name: 'vue-tsx-pro:runtime-styles',
+      // 引擎的依赖一开始就预构建（StyleX 的注入是 CommonJS），免得打开页面才发现、重新预构建
+      config: () => ({
+        optimizeDeps: {
+          include: ['@stylexjs/stylex/lib/stylex-inject'],
+        },
+      }),
+    },
+  ];
+}
+
+/** *.stylex.ts：defineVars、defineConsts、defineMarker 只能写在这种文件里 */
+const STYLEX_FILE = /\.stylex\.[cm]?[jt]sx?(?:\?|$)/;
+
 /** Vitest 的插件钩子：只用到其中注册缓存键的部分，不依赖 vitest 的类型 */
 interface VitestHooks {
   configureVitest?: (context: {
@@ -117,7 +151,7 @@ const STYLEX_MODULE_IMPORT = /\bfrom\s*['"]([^'"]+\.stylex(?:\.[cm]?[jt]sx?)?)['
 /** 编译插件：每个文件一次 compile，加上组件的热更新、SSR 登记 */
 function compiler(
   options: VueTsxProOptions,
-  stylex: { babel: StylexBabel; rules: StylexRules } | undefined,
+  stylex: { babel: StylexBabel; rules: StylexRules | undefined; only?: RegExp } | undefined,
 ): Plugin & VitestHooks {
   const optimize = options.optimize ?? true;
   const tokens = options.tokens ?? '@vue-tsx-pro/ui/tokens.stylex';
@@ -167,7 +201,15 @@ function compiler(
     configResolved(config) {
       cacheDir = `${normalizePath(config.cacheDir)}/`;
       const hmr = config.command === 'serve' && !config.isProduction;
-      setup = { optimize, tokens, root: config.root, stylex: stylex?.babel, jsx: options.jsx, hmr };
+      setup = {
+        optimize,
+        tokens,
+        root: config.root,
+        stylex: stylex?.babel,
+        stylexOnly: stylex?.only?.source,
+        jsx: options.jsx,
+        hmr,
+      };
       if ((options.cache ?? true) && config.command === 'serve' && !process.env.VITEST) {
         const { stylex: _, ...rest } = options;
         cache = new CompileCache(
@@ -198,7 +240,7 @@ function compiler(
         const lang = languageOf(id);
         if (!lang) return;
         const ssr = transformOptions?.ssr === true;
-        const dependencies = stylex ? await loadStylexModules(this, code, id) : [];
+        const dependencies = stylex?.rules ? await loadStylexModules(this, code, id) : [];
         const tokenFile =
           own && tokens !== false && needsTokens(code)
             ? tokenModule(tokens, file, setup.root)?.file
@@ -211,13 +253,13 @@ function compiler(
         const key = cache?.key(ssr ? `${id}\0ssr` : id, code, dependencies);
         const cached = key ? cache!.read(ssr ? `${id}\0ssr` : id, key) : undefined;
         if (cached) {
-          stylex?.rules.set(id, cached.stylex);
+          stylex?.rules?.set(id, cached.stylex);
           for (const warning of cached.warnings) this.warn(warning);
           return { code: cached.code, map: cached.map as never };
         }
 
         const result = await run({ code, id, file, lang, own, ssr });
-        stylex?.rules.set(id, result?.stylex ?? []);
+        stylex?.rules?.set(id, result?.stylex ?? []);
         if (!result) return;
         for (const warning of result.warnings) this.warn(warning);
         if (key) cache!.write(ssr ? `${id}\0ssr` : id, key, result);
