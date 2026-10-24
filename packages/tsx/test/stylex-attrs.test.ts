@@ -10,6 +10,8 @@ const styles = stylex.create({
 });
 
 it('动态样式的变量名与类名里引用的一致（StyleX 的 attrs 会把它转成连字符）', () => {
+  // 运行时模式下第一次的值写进类里，值变过之后才进行内变量
+  stylex.attrs(styles.base, styles.columns(2));
   const { class: className, style } = stylex.attrs(styles.base, styles.columns(3));
   expect(className).toBeTruthy();
   const [[name, value]] = Object.entries(style!);
@@ -18,6 +20,7 @@ it('动态样式的变量名与类名里引用的一致（StyleX 的 attrs 会�
 });
 
 it('值里的分号不会带进别的声明：交出的是对象，Vue 逐项设置', () => {
+  stylex.attrs(styles.color('blue'));
   const { style } = stylex.attrs(styles.color('red; position: fixed'));
   expect(Object.keys(style!)).toHaveLength(1);
   expect(Object.values(style!)[0]).toBe('red; position: fixed');

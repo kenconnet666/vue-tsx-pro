@@ -8,6 +8,7 @@ const setup: CompilerSetup = {
   tokens: false,
   root: process.cwd(),
   stylex: { dev: false },
+  styleBindings: false,
   jsx: undefined,
   hmr: true,
 };

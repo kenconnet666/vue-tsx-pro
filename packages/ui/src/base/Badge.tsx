@@ -9,7 +9,6 @@
  * 部件：Root（span）、Icon、Dot（span，dot 时）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import type { StatusMap } from '../utils/data/status';
@@ -30,6 +29,7 @@ export interface BadgeProps extends PartProps<'span'>, BadgeOptions {
   children?: VNodeChild;
 }
 
+/** 标记（span）：状态色调 × 样式，字号默认 xs */
 export const Badge = _component(
   ({
     variant,

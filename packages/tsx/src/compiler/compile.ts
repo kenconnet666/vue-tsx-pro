@@ -27,6 +27,8 @@ import stylexBabelPlugin, {
 import vueJsx, { type VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { languageOf, parserPlugins, STYLEX_SOURCES, type Language } from './ast.ts';
 import type { RunesWarning } from './errors.ts';
+import { needsStyleBindings, styleBindingsPlugin } from './style-bindings.ts';
+import { styleHotPlugin } from './style-hot.ts';
 import { needsTokens, tokensBabelPlugin, type TokenModuleLoader } from './tokens.ts';
 import { needsRunes, runesBabelPlugin } from './transform.ts';
 
@@ -56,6 +58,10 @@ export interface CompileOptions {
    * importSources 总是认 @stylexjs/stylex 与 @vue-tsx-pro/tsx/stylex，这里给的加在后面
    */
   stylex?: Partial<StylexOptions>;
+  /** 运行时样式模式：JSX 里的动态样式调用改成响应式绑定（style-bindings.ts） */
+  styleBindings?: boolean;
+  /** 运行时样式模式的开发服务器：样式热更新原地生效，值是模块 id（相对项目根目录，style-hot.ts） */
+  styleHot?: string;
   /** Vue JSX 插件的选项 */
   jsx?: VueJSXPluginOptions;
   /** 去掉 TS 类型的插件的选项 */
@@ -78,6 +84,8 @@ export interface CompileResult {
   warnings: RunesWarning[];
   /** 这个文件的 StyleX 规则 */
   stylex: StylexRule[];
+  /** 开了 styleHot 且文件里有顶层样式时：去掉样式参数后的源码哈希（style-hot.ts） */
+  styleSkeleton?: string;
 }
 
 /**
@@ -103,6 +111,12 @@ export async function compile(
       first.push(plugin as unknown as PluginItem);
     }
   }
+  // 都在符文、token 改写之前：先认出原样的 create 调用与参数的位置；绑定的读取函数里的引用随后照常按符文改写
+  if (options.styleHot && needsStyleBindings(code)) {
+    const moduleId = options.styleHot;
+    first.unshift(() => styleHotPlugin(moduleId));
+  }
+  if (options.styleBindings && needsStyleBindings(code)) first.unshift(styleBindingsPlugin);
   const second: PluginItem[] = [];
   if (lang === 'tsx' || lang === 'jsx') {
     second.push([vueJsx, options.jsx ?? {}]);
@@ -117,7 +131,11 @@ export async function compile(
     ...shared,
     parserOpts: { plugins: parserPlugins(lang) },
   });
-  const metadata: { runesWarnings?: RunesWarning[]; stylex?: StylexRule[] } = {};
+  const metadata: {
+    runesWarnings?: RunesWarning[];
+    stylex?: StylexRule[];
+    styleSkeleton?: string;
+  } = {};
   for (const [index, plugins] of passes.entries()) {
     const last = index === passes.length - 1;
     const result = await transformFromAstAsync(ast!, code, {
@@ -139,6 +157,7 @@ export async function compile(
         ast: ast!,
         warnings: metadata.runesWarnings ?? [],
         stylex: metadata.stylex ?? [],
+        styleSkeleton: metadata.styleSkeleton,
       };
     }
   }

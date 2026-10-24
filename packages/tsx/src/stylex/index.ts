@@ -9,7 +9,6 @@
  * Vite 预设已让 StyleX 编译器识别这个入口。
  */
 import type * as stylex from '@stylexjs/stylex';
-import { props as stylexProps } from '@stylexjs/stylex';
 import type {
   CompiledStyles as StyleXCompiledStyles,
   CSSProperties,
@@ -23,7 +22,7 @@ import type { DocumentedStyles } from './styles';
 export * from '@stylexjs/stylex';
 export type { DocumentedStyles } from './styles';
 export { recipe, type Recipe, type RecipeConfig, type VariantSelection } from './recipe';
-export { CONDITIONS as conditions } from './runtime';
+export { CONDITIONS as conditions, hotStyles, styleText } from './runtime';
 
 /*
  * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@vue-tsx-pro/ui 的 token-names.ts）用
@@ -148,8 +147,8 @@ export interface Create {
 }
 
 /**
- * 定义样式（见 {@link Create}）：Vite 预设编译 StyleX 时在编译期换成原子类；运行时模式（styles: 'runtime'）
- * 下第一次用到时生成原子类并注入（runtime.ts）
+ * 定义样式（见 {@link Create}）：运行时模式（styles: 'runtime'）下产出片段，attrs 合成一个类时才插入规则（runtime.ts）；
+ * 编译模式下 StyleX 在编译期把它换成原子类
  */
 export const create: Create = runtime.create as never;
 
@@ -158,21 +157,10 @@ export const create: Create = runtime.create as never;
  * 假值（false、null、undefined）会被忽略，便于按条件组合。Vue 的 JSX 用它：
  * `<div {...stylex.attrs(styles.base, active && styles.active, sx)} />`
  */
-export const attrs = (...styles: AttrsArgs): StyleXAttrs => {
-  // 自己实现而不直接用 StyleX 的 attrs：它把行内样式拼成字符串，属性名一律转成连字符（自定义属性也不例外，
-  // 动态样式的变量 --x-gridTemplateColumns 就和类名里引用的对不上），值里的分号还会被当成声明的分隔，
-  // 动态的值就能带进别的声明。这里交出对象：Vue 逐项设置（自定义属性用 setProperty），名字与值都原样
-  const {
-    className,
-    style,
-    'data-style-src': source,
-  } = stylexProps(...styles) as ReturnType<typeof stylex.props> & { 'data-style-src'?: string };
-  const result: StyleXAttrs = {};
-  if (className != null) result.class = className;
-  if (style != null) result.style = style as Record<string, string | number>;
-  if (source != null) result['data-style-src'] = source;
-  return result;
-};
+// 不用 StyleX 的 attrs：它把行内样式拼成字符串，属性名一律转成连字符（动态样式的变量 --x-gridTemplateColumns
+// 就和类名里引用的对不上），值里的分号还会被当成声明的分隔。runtime.attrs 交出对象，Vue 逐项设置，名字与值都原样；
+// 编译版的样式（StyleX 在编译期换好的）它转交给 StyleX 的 props
+export const attrs: (...styles: AttrsArgs) => StyleXAttrs = runtime.attrs as never;
 
 /** attrs 的参数：同 StyleX 的 attrs（编译后的样式、动态样式的结果、假值，可以嵌套成数组） */
 type AttrsArgs = ReadonlyArray<
@@ -185,14 +173,14 @@ type AttrsArgs = ReadonlyArray<
   >
 >;
 
-/** attrs 的结果：交给元素的 class、行内样式（动态样式的变量与值）与开发时的源码位置 */
+/** attrs 的结果：交给元素的 class 与行内样式（动态样式的变量与值） */
 export interface StyleXAttrs {
-  /** 原子类 */
+  /** 生成的类（运行时模式是一个组合类，加上主题、标记的类） */
   class?: string;
   /** 行内样式：动态样式写的 CSS 变量（名字原样）与值 */
   style?: Readonly<Record<string, string | number>>;
-  /** 开发时样式所在的源码位置 */
-  'data-style-src'?: string;
+  /** 有响应式绑定（bind）时：元素挂上后由 effect 改变量，卸载时停掉 */
+  ref?: (element: unknown) => void;
 }
 
 /** 与 attrs 相同，但返回 React 风格的 `{ className, style }`；Vue 里请用 attrs。 */
@@ -218,6 +206,16 @@ export const keyframes: typeof stylex.keyframes = runtime.keyframes as never;
 
 /** 按祖先、后代、兄弟（用 defineMarker 标记）的状态取样式：`[stylex.when.ancestor(':hover', marker)]: …` */
 export const when: typeof stylex.when = runtime.when as never;
+
+/**
+ * 动态样式的响应式绑定（运行时模式）：参数变化时只改元素上的变量，不重新渲染组件。
+ * JSX 里写 `styles.bar(item.width)` 时编译器自动改写成 `stylex.bind(styles.bar, () => [item.width])`，
+ * 一般不用手写；类型与直接调用动态样式的结果相同，能放进 attrs 与 sx
+ */
+export const bind: <Args extends unknown[]>(
+  style: (...args: Args) => Readonly<[CompiledStyles, InlineStyles]>,
+  args: () => NoInfer<Args>,
+) => Readonly<[CompiledStyles, InlineStyles]> = runtime.bind as never;
 
 /** 定义锚点定位的备选位置，返回名称，作为 positionTryFallbacks 的值使用。 */
 export declare const positionTry: typeof stylex.positionTry;

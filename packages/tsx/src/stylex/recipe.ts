@@ -18,7 +18,7 @@
  * 所以“基础 < 档位 < 组合档位 < 调用方的 sx”的顺序由 attrs 的参数顺序保证。
  */
 import type { CompiledStyles } from './index';
-import { create } from './runtime';
+import { create, HOT, hotUpdate } from './runtime';
 
 /** 一个部件的样式对象（同 stylex.create 的一组） */
 type PartStyle = Record<string, unknown>;
@@ -62,28 +62,16 @@ export interface Recipe<P extends string, V> {
 export function recipe<const P extends string, const V extends Variants<P> = {}>(
   config: RecipeConfig<P, V>,
 ): Recipe<P, V> {
-  const { parts, base = {}, variants = {} as V, compound = [], defaults = {} } = config;
-  // 每段样式先 create 一次（惰性：第一次用到时才生成原子类），之后按档位组合查表
-  const compile = (styles: PartStyles<P>) =>
-    create(styles as Record<string, PartStyle>) as Record<P, Compiled>;
-  const baseStyles = compile(base);
-  const variantStyles = Object.fromEntries(
-    Object.entries(variants).map(([name, values]) => [
-      name,
-      Object.fromEntries(Object.entries(values).map(([value, styles]) => [value, compile(styles)])),
-    ]),
-  ) as Record<string, Record<string, Record<P, Compiled>>>;
-  const compoundStyles = compound.map(({ when, ...styles }) => ({
-    when: when as Record<string, unknown>,
-    styles: compile(styles as unknown as PartStyles<P>),
-  }));
+  let state = build(config);
   const cache = new Map<string, Record<P, Compiled[]>>();
-  const names = Object.keys(variants);
 
   const resolve = ((selection: Record<string, unknown> = {}) => {
+    const { parts, names, defaults, segments, compound } = state;
     const picked = names.map((name) => {
-      const value = selection[name] ?? (defaults as Record<string, unknown>)[name];
-      return value === undefined || value === null ? undefined : String(value);
+      const value = selection[name] ?? defaults[name];
+      return value === undefined || value === null
+        ? undefined
+        : String(value as string | number | boolean);
     });
     const key = picked.join('\0');
     const hit = cache.get(key);
@@ -96,20 +84,75 @@ export function recipe<const P extends string, const V extends Variants<P> = {}>
       if (!styles) return;
       for (const part of parts) if (part in styles) result[part].push(styles[part]);
     };
-    push(baseStyles);
+    push(segments.get('base'));
     names.forEach((name, index) => {
       const value = picked[index];
-      if (value !== undefined) push(variantStyles[name]![value]);
+      if (value !== undefined) push(segments.get(`variant\0${name}\0${value}`));
     });
-    for (const { when, styles } of compoundStyles) {
+    compound.forEach(({ when }, index) => {
       const matches = Object.entries(when).every(
         ([name, value]) => picked[names.indexOf(name)] === String(value),
       );
-      if (matches) push(styles);
-    }
+      if (matches) push(segments.get(`compound\0${index}`));
+    });
     cache.set(key, result);
     return result;
   }) as unknown as Recipe<P, V>;
-  Object.defineProperty(resolve, 'parts', { value: parts });
+  Object.defineProperty(resolve, 'parts', { get: () => state.parts });
+  // 热更新（runtime.ts 的 hotStyles）：同一段的样式原地换声明，片段对象不变，已渲染的类按原类名改写；
+  // 换上新的档位结构、清掉组合缓存
+  Object.defineProperty(resolve, HOT, {
+    value: (next: Recipe<P, V>) => {
+      const incoming = (next as unknown as { [STATE]: RecipeState<P> })[STATE];
+      for (const [path, styles] of incoming.segments) {
+        const previous = state.segments.get(path);
+        if (!previous) continue;
+        hotUpdate(previous, styles);
+        incoming.segments.set(path, previous);
+      }
+      state = incoming;
+      cache.clear();
+    },
+  });
+  Object.defineProperty(resolve, STATE, { get: () => state });
   return resolve;
+}
+
+const STATE = Symbol('recipe state');
+
+/** 配方展开后的状态：每段样式（create 的结果）按路径存，热更新时整体换成新的 */
+interface RecipeState<P extends string> {
+  parts: readonly P[];
+  names: readonly string[];
+  defaults: Readonly<Record<string, unknown>>;
+  /** 'base'、'variant\0档位\0取值'、'compound\0序号' → 这一段各部件的样式 */
+  segments: Map<string, Record<P, Compiled>>;
+  compound: readonly { when: Readonly<Record<string, unknown>> }[];
+}
+
+/** 每段样式各 create 一次（惰性：第一次用到时才展开），之后按档位组合查表 */
+function build<P extends string, V extends Variants<P>>(
+  config: RecipeConfig<P, V>,
+): RecipeState<P> {
+  const { parts, base = {}, variants = {} as V, compound = [], defaults = {} } = config;
+  const compile = (styles: object) =>
+    create(styles as Record<string, PartStyle>) as Record<P, Compiled>;
+  const segments = new Map<string, Record<P, Compiled>>([['base', compile(base)]]);
+  for (const [name, values] of Object.entries(variants)) {
+    for (const [value, styles] of Object.entries(values)) {
+      segments.set(`variant\0${name}\0${value}`, compile(styles));
+    }
+  }
+  compound.forEach((entry, index) => {
+    const { when, ...styles } = entry;
+    void when;
+    segments.set(`compound\0${index}`, compile(styles));
+  });
+  return {
+    parts,
+    names: Object.keys(variants),
+    defaults: defaults as Record<string, unknown>,
+    segments,
+    compound: compound.map(({ when }) => ({ when: when as Record<string, unknown> })),
+  };
 }

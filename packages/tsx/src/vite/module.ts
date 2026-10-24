@@ -3,11 +3,12 @@
  * 主线程（index.ts）与编译线程（compile-worker.ts）共用；设置要能在线程之间复制，所以只放数据，
  * StyleX 的模块解析（含函数）没给时在这里按默认生成。
  */
+import { relative } from 'node:path';
 import type { Options as StylexBabelOptions } from '@stylexjs/babel-plugin';
 import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import type { Language } from '../compiler/ast.ts';
 import { compile, type SourceMap, type StylexRule } from '../compiler/index.ts';
-import { componentMarkers, exportedComponents, hmrCode, ssrCode } from './hmr.ts';
+import { componentMarkers, exportedComponents, hmrCode, ssrCode, styleHotCode } from './hmr.ts';
 import { stylexModuleResolution } from './stylex-resolution.ts';
 import { tokenModule } from './tokens.ts';
 
@@ -23,6 +24,8 @@ export interface CompilerSetup {
   stylex: Partial<StylexBabelOptions> | undefined;
   /** 只有路径匹配这个正则（源码）的文件过 StyleX（运行时模式只编译 *.stylex.ts）；不写时全部 */
   stylexOnly?: string;
+  /** 运行时样式模式：项目自己的文件里，JSX 中的动态样式调用改成响应式绑定 */
+  styleBindings: boolean;
   /** Vue JSX 插件的选项 */
   jsx: VueJSXPluginOptions | undefined;
   /** 开发服务器：登记组件的热更新 */
@@ -78,6 +81,8 @@ export async function compileModule(
   const { code, id, file, lang, own, ssr } = request;
   const jsx = lang === 'tsx' || lang === 'jsx';
   const tokens = setup.tokens;
+  // 样式热更新原地生效：开发服务器、运行时样式模式、项目自己的文件
+  const styleHot = own && setup.hmr && setup.styleBindings && !ssr;
   const result = await compile(code, {
     filename: file,
     lang,
@@ -88,18 +93,24 @@ export async function compileModule(
       setup.stylex && (!setup.stylexOnly || new RegExp(setup.stylexOnly).test(file))
         ? stylexOptions(setup.stylex)
         : undefined,
+    styleBindings: own && setup.styleBindings,
+    styleHot: styleHot ? relative(setup.root, file).split('\\').join('/') : undefined,
     jsx: setup.jsx,
     plugins: jsx ? [() => componentMarkers(setup.hmr || ssr)] : undefined,
   });
   if (!result) return null;
   let output = result.code;
+  const skeleton = result.styleSkeleton;
+  let accepted = false;
   if (jsx && (setup.hmr || ssr)) {
     const { components, otherExports } = exportedComponents(result.ast, id);
     if (components.length && setup.hmr && !ssr && !/\?vue&type=script/.test(id)) {
-      output += hmrCode(components, otherExports);
+      output += hmrCode(components, otherExports, skeleton);
+      accepted = true;
     }
     if (components.length && ssr) output += ssrCode(components, id, setup.root);
   }
+  if (skeleton) output += styleHotCode(skeleton, accepted);
   return {
     code: output,
     map: result.map,

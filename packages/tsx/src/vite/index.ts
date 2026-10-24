@@ -207,6 +207,7 @@ function compiler(
         root: config.root,
         stylex: stylex?.babel,
         stylexOnly: stylex?.only?.source,
+        styleBindings: options.styles === 'runtime',
         jsx: options.jsx,
         hmr,
       };

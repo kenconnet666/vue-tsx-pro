@@ -166,8 +166,16 @@ describe('StyleX', () => {
     expect(bOnly.length).toBe(aOnly.length);
   });
 
-  it('动态值编译为 CSS 变量与行内 style', () => {
-    const el = mount(() => <Card width={120}>x</Card>);
-    expect(el.querySelector('section')!.getAttribute('style')).toContain('120px');
+  // 这里是编译模式：值一律进行内变量，类名不随值变（运行时模式见 stylex-runtime.test.ts）
+  it('动态值走行内的 CSS 变量，类名不随值变', () => {
+    const el = mount(() => (
+      <>
+        <Card width={120}>x</Card>
+        <Card width={200}>y</Card>
+      </>
+    ));
+    const [first, second] = el.querySelectorAll('section');
+    expect(second!.getAttribute('style')).toContain('200px');
+    expect(second!.className).toBe(first!.className);
   });
 });
