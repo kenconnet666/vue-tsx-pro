@@ -1,13 +1,7 @@
 // 由 pnpm exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成
 
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
-export {
-  Badge,
-  badgeDotStyles,
-  StatusBadge,
-  type BadgeProps,
-  type StatusBadgeProps,
-} from './base/Badge';
+export { Badge, StatusBadge, type BadgeProps, type StatusBadgeProps } from './base/Badge';
 export { Blockquote, blockquoteStyles, type BlockquoteProps } from './base/Blockquote';
 export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
 export { ButtonBase, type ButtonBaseManaged, type ButtonBaseProps } from './base/ButtonBase';
@@ -121,15 +115,14 @@ export {
   visuallyHiddenStyles,
   type VisuallyHiddenProps,
 } from './base/VisuallyHidden';
-export { badgeStyles, badgeSx, type BadgeOptions } from './base/badge-styles';
+export { badgeRecipe, badgeSx, type BadgeOptions } from './base/badge-styles';
 export {
   buttonBaseStyles,
   buttonContent,
   ButtonGroupContext,
-  buttonLinkStyles,
+  buttonRecipe,
   buttonStyles,
   buttonSx,
-  buttonVariantStyles,
   useButtonAppearance,
   useButtonBehavior,
   type ButtonAppearance,
@@ -673,10 +666,10 @@ export {
   tabListStyles,
   TabPanel,
   tabPanelStyles,
+  tabRecipe,
   Tabs,
   TabsContext,
   tabsStyles,
-  tabStyles,
   type TabListManaged,
   type TabListProps,
   type TabManaged,
@@ -1427,6 +1420,8 @@ export {
   type StatusVariant,
   type StatusVariants,
 } from './utils/style/tone-styles';
+export { toneThemes } from './utils/style/tone-themes';
+export { toneVars } from './utils/style/tone.stylex';
 export {
   afterTransitions,
   disclosureStyles,

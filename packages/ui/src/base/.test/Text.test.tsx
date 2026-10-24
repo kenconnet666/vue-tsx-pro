@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleOf, styleTextOf } from '../../utils/.test/mount';
 import { Em, Paragraph, Small, Strong, Text } from '../Text';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
-const classes = (el: Element) => (el.getAttribute('class') ?? '').split(' ').filter(Boolean).length;
+const classes = (el: Element) => styleOf(el).size;
 
 describe('Text', () => {
   it('span 且不加样式（全部继承上下文）', () => {
@@ -19,7 +19,7 @@ describe('Text', () => {
       </Text>
     ));
     expect(classes(el)).toBeGreaterThanOrEqual(5);
-    expect(el.getAttribute('style')).toContain('2');
+    expect(styleTextOf(el)).toContain('2');
   });
 });
 

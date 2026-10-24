@@ -586,48 +586,71 @@ export interface TabProps extends PartProps<'button', TabManaged> {
 }
 
 /** Tabs 的样式：root、hover、line、lineVertical、lineActive、soft 等 */
-export const tabStyles = stylex.create({
-  // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
-  root: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '_sm',
-    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
-    paddingInline: '_md',
-    color: '_textMuted',
-    fontWeight: '_medium',
-    whiteSpace: 'nowrap',
+/**
+ * 标签的配方：状态（选中、禁用、拖动中）由 DOM 上的 aria-selected、disabled、data-dragging 决定，
+ * 样式、方向、可关闭是档位
+ */
+export const tabRecipe = stylex.recipe({
+  parts: ['root', 'closeWrapper', 'close'],
+  base: {
+    // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
+    root: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '_sm',
+      minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
+      paddingInline: '_md',
+      color: { default: '_textMuted', _hover: '_text', _selected: '_text' },
+      fontWeight: '_medium',
+      whiteSpace: 'nowrap',
+      borderRadius: '_sm',
+      opacity: { default: null, _dragging: 0.6, _disabled: '_disabled' },
+    },
+    closeWrapper: { display: 'inline-grid', flexShrink: 0 },
+    close: { gridArea: '1 / 1', justifySelf: 'end', alignSelf: 'center', marginInlineEnd: '_xs' },
   },
-  hover: { color: { default: null, ':hover': '_text' } },
-  // 下划线：当前标签的底边（竖排时是结束边）一条 2px 的品牌色线，压在列表的分隔线上
-  line: {
-    borderRadius: '_sm',
-    marginBottom: `calc(-1 * ${t.borderWidths.xs})`,
-    borderBottomWidth: '_sm',
-    borderBottomStyle: 'solid',
-    borderBottomColor: 'transparent',
+  variants: {
+    variant: {
+      // 下划线：当前标签的底边（竖排时是结束边）一条 2px 的品牌色线，压在列表的分隔线上；
+      // 线由 TabList 的指示条画（切换时滑过去），标签自己只变文字颜色
+      line: {
+        root: {
+          marginBottom: `calc(-1 * ${t.borderWidths.xs})`,
+          borderBottomWidth: '_sm',
+          borderBottomStyle: 'solid',
+          borderBottomColor: 'transparent',
+        },
+      },
+      soft: {
+        root: {
+          // 未选中时同 ButtonBase 的透明底：条件对象按属性整体覆盖前面的值，default 写 null 会露出原生按钮底色
+          backgroundColor: { default: 'transparent', _selected: '_surface' },
+          boxShadow: { default: null, _selected: '_xs' },
+        },
+      },
+    },
+    orientation: { horizontal: {}, vertical: {} },
+    // 可关闭：标签与关闭按钮叠在同一个网格格子里，关闭按钮靠结束端，标签给它留出位置。
+    // 不用定位：标签的 offsetParent 还得是列表，下划线指示条按它的 offsetLeft 对齐
+    closable: {
+      true: { root: { gridArea: '1 / 1', paddingInlineEnd: `calc(${t.space.md} + 1.25em)` } },
+    },
   },
-  lineVertical: {
-    justifyContent: 'flex-start',
-    marginBottom: 0,
-    marginInlineEnd: `calc(-1 * ${t.borderWidths.xs})`,
-    borderBottomWidth: 0,
-    borderInlineEndWidth: '_sm',
-    borderInlineEndStyle: 'solid',
-    borderInlineEndColor: 'transparent',
-  },
-  // 下划线由 TabList 的指示条画（切换时滑过去），标签自己只变文字颜色
-  lineActive: { color: '_text' },
-  soft: { borderRadius: '_sm' },
-  softActive: { color: '_text', backgroundColor: '_surface', boxShadow: '_xs' },
-  disabled: { opacity: '_disabled' },
-  // 可关闭：标签与关闭按钮叠在同一个网格格子里，关闭按钮靠结束端，标签给它留出位置。
-  // 不用定位：标签的 offsetParent 还得是列表，下划线指示条按它的 offsetLeft 对齐
-  closable: { gridArea: '1 / 1', paddingInlineEnd: `calc(${t.space.md} + 1.25em)` },
-  closeWrapper: { display: 'inline-grid', flexShrink: 0 },
-  close: { gridArea: '1 / 1', justifySelf: 'end', alignSelf: 'center', marginInlineEnd: '_xs' },
-  dragging: { opacity: 0.6 },
+  compound: [
+    {
+      when: { variant: 'line', orientation: 'vertical' },
+      root: {
+        justifyContent: 'flex-start',
+        marginBottom: 0,
+        marginInlineEnd: `calc(-1 * ${t.borderWidths.xs})`,
+        borderBottomWidth: 0,
+        borderInlineEndWidth: '_sm',
+        borderInlineEndStyle: 'solid',
+        borderInlineEndColor: 'transparent',
+      },
+    },
+  ],
 });
 
 /** 标签（role="tab" 的 button） */
@@ -652,25 +675,16 @@ export const Tab = _component(
 
     return () => {
       const selected = tabs.value === value;
-      const vertical = tabs.orientation === 'vertical';
+      const styles = tabRecipe({
+        variant: tabs.variant,
+        orientation: tabs.orientation,
+        closable: !!onClose,
+      });
       const tab = (
         <ButtonBase
           {...mergePartProps<ButtonBaseProps>(
             {
-              sx: [
-                tabStyles.root,
-                tabStyles.hover,
-                tabs.variant === 'line'
-                  ? [
-                      tabStyles.line,
-                      vertical && tabStyles.lineVertical,
-                      selected && tabStyles.lineActive,
-                    ]
-                  : [tabStyles.soft, selected && tabStyles.softActive],
-                disabled && tabStyles.disabled,
-                onClose && tabStyles.closable,
-                tabs.dragging === value && tabStyles.dragging,
-              ],
+              sx: styles.root,
               ripple: tabs.ripple,
             },
             rest as Partial<ButtonBaseProps>,
@@ -695,6 +709,7 @@ export const Tab = _component(
           )}
           data-state={selected ? 'active' : 'inactive'}
           data-value={value}
+          data-dragging={tabs.dragging === value || undefined}
         >
           {children}
         </ButtonBase>
@@ -702,7 +717,7 @@ export const Tab = _component(
       if (!onClose) return tab;
       // 关闭按钮不能放进标签按钮里（按钮里不能有按钮）：一起包在 role="presentation" 里，按钮本身只给指针用（对读屏隐藏）
       return (
-        <span role="presentation" {...stylex.attrs(tabStyles.closeWrapper)}>
+        <span role="presentation" {...stylex.attrs(styles.closeWrapper)}>
           {tab}
           <IconButton
             {...mergePartProps<IconButtonProps>(
@@ -711,7 +726,7 @@ export const Tab = _component(
                 size: 'xs',
                 variant: 'ghost',
                 radius: 'full',
-                sx: tabStyles.close,
+                sx: styles.close,
                 'aria-label': lang.tabClose(plainText(children) || value),
               },
               propsClose,

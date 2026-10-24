@@ -85,12 +85,13 @@ describe('useAnimate', () => {
     expect(animation!.cancelled).toBe(true);
   });
 
-  it('读不到主题 token（没有加载样式）时直接到位，不抛错', () => {
+  // 运行时样式下 token 的默认值随模块导入注入到 :root，读不到的情形用一个不在文档里的 scope 模拟
+  it('scope 上读不到主题 token 时直接到位，不抛错', () => {
     const target = { value: 0 };
     let animation: JSAnimation | undefined;
     const app = createApp(
       _component(() => {
-        animation = useAnimate()(target, { value: 1 });
+        animation = useAnimate()(target, { value: 1 }, { scope: document.createElement('div') });
         return () => null;
       }),
     );

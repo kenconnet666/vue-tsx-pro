@@ -1,7 +1,7 @@
 // 拖动的实际比例见文档站；这里看分隔条的取值、键盘与收起
 import { describe, expect, it } from 'vitest';
 import { nextTick, shallowRef } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { Splitter } from '../Splitter';
 
 const key = (element: Element, name: string) =>
@@ -16,7 +16,7 @@ describe('Splitter', () => {
     expect(handle.getAttribute('aria-valuenow')).toBe('30');
     expect(handle.getAttribute('aria-valuemin')).toBe('20');
     expect(handle.getAttribute('aria-valuemax')).toBe('80');
-    expect(root.firstElementChild!.getAttribute('style')).toContain('minmax(0, 30fr)');
+    expect(styleTextOf(root.firstElementChild!)).toContain('minmax(0, 30fr)');
   });
 
   it('←/→ 每次 5%，Home / End 到最小、最大，写回 size', async () => {

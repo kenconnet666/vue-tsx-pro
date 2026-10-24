@@ -153,10 +153,21 @@ export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'childr
   const { sx, children: _children, ...rest } = props as P & Props;
   if (sx == null) return rest as Omit<P, 'sx' | 'children'>;
   const compiled = compileSx(sx as StyleXStyles);
-  if (rest.class == null && rest.style == null) {
-    return Object.assign(rest, compiled) as Omit<P, 'sx' | 'children'>;
-  }
   const element = rest as Props;
+  // 响应式绑定的 ref（元素挂上后改变量）与使用方的 ref 都要拿到元素
+  if (compiled.ref && element.ref != null) {
+    const own = element.ref as RefSetter;
+    const bound = compiled.ref;
+    element.ref = (target: unknown) => {
+      setRef(own, target);
+      bound(target);
+    };
+  } else if (compiled.ref) element.ref = compiled.ref;
+  if (rest.class == null && rest.style == null) {
+    if (compiled.class != null) element.class = compiled.class;
+    if (compiled.style != null) element.style = compiled.style;
+    return rest as Omit<P, 'sx' | 'children'>;
+  }
   element.class = present3(rest.class, compiled.class) ?? [];
   element.style = present3(compiled.style, rest.style) ?? [];
   return rest as Omit<P, 'sx' | 'children'>;

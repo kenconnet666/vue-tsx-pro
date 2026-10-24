@@ -1,7 +1,7 @@
 // 虚拟列表的渲染与无障碍属性；真实滚动、测量与 scrollToIndex 见 apps/host-demo/test/base.browser.test.ts
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { VirtualList, type VirtualListHandle } from '../VirtualList';
 
 // happy-dom 不排版：给滚动容器一个 200px 的视口
@@ -53,7 +53,7 @@ describe('VirtualList', () => {
     ));
     await nextTick();
     expect(listItems(root)).toHaveLength(3);
-    const spacer = () => root.querySelector('[role="presentation"]')!.getAttribute('style');
+    const spacer = () => styleTextOf(root.querySelector('[role="presentation"]')!);
     expect(spacer()).toContain('120');
     data = rows.slice(0, 5);
     await nextTick();

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { Field } from '../../form/Field';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleOf } from '../../utils/.test/mount';
 import { NumberField } from '../NumberField';
 import { NumberRangeField, type NumberRange } from '../NumberRangeField';
 
@@ -53,9 +53,11 @@ describe('NumberRangeField', () => {
       </>
     ));
     const shells = [...root.querySelectorAll('input')].map((input) =>
-      input.parentElement!.className.split(' '),
+      styleOf(input.parentElement!),
     );
     const alone = shells.pop()!;
-    for (const shell of shells) expect(shell).toEqual(expect.arrayContaining(alone));
+    for (const shell of shells) {
+      for (const [key, value] of alone) expect([key, shell.get(key)]).toEqual([key, value]);
+    }
   });
 });

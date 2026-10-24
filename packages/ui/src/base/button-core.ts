@@ -13,13 +13,15 @@ import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, radiusStyles, type Radius, type StyleTable } from '../utils/style/styles';
+import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import {
   AttachedContext,
   attachedStyles,
   type AttachedOrientations,
 } from '../utils/style/attached';
+import { toneThemes } from '../utils/style/tone-themes';
+import { toneVars } from '../utils/style/tone.stylex';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -146,224 +148,62 @@ export const buttonStyles = stylex.create({
   },
 });
 
-// 每种样式按色调各一组。中性色没有专门的实底色，用反色表面。
-// 实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1（品牌色配深色字的主题也成立，混黑加深则不一定）
-const solid = stylex.create({
-  neutral: {
-    color: '_inverseText',
-    backgroundColor: {
-      default: '_inverseSurface',
-      ':hover': `color-mix(in oklab, ${t.colors.inverseSurface} 85%, ${t.colors.background})`,
+/** 悬停变色只在可用时：原生 disabled 的按钮照样匹配 :hover，悬停变色会让人以为还能点 */
+const HOVER = ':hover:not(:disabled,[aria-disabled="true"])';
+
+/**
+ * 按钮的样式（配方）：色调由 toneThemes[tone] 挂在按钮上，这里只引用 toneVars，每种样式写一遍。
+ * 实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1
+ */
+export const buttonRecipe = stylex.recipe({
+  parts: ['root'],
+  variants: {
+    variant: {
+      solid: {
+        root: {
+          color: toneVars.contrast,
+          backgroundColor: { default: toneVars.solid, [HOVER]: toneVars.solidHover },
+        },
+      },
+      soft: {
+        root: {
+          color: toneVars.text,
+          backgroundColor: { default: toneVars.soft, [HOVER]: toneVars.softHover },
+        },
+      },
+      surface: {
+        root: {
+          color: toneVars.text,
+          borderColor: toneVars.border,
+          backgroundColor: { default: toneVars.surface, [HOVER]: toneVars.softHover },
+        },
+      },
+      outline: {
+        root: {
+          color: toneVars.text,
+          borderColor: toneVars.border,
+          backgroundColor: { default: 'transparent', [HOVER]: toneVars.wash },
+        },
+      },
+      ghost: {
+        root: {
+          color: toneVars.text,
+          backgroundColor: { default: 'transparent', [HOVER]: toneVars.wash },
+        },
+      },
+      link: {
+        root: {
+          color: toneVars.text,
+          minHeight: 0,
+          paddingInline: 0,
+          fontWeight: '_medium',
+          textUnderlineOffset: '0.2em',
+          textDecorationLine: { default: 'none', [HOVER]: 'underline' },
+        },
+      },
     },
   },
-  accent: {
-    color: '_accentContrast',
-    backgroundColor: { default: '_accent', ':hover': '_accentHover' },
-  },
-  info: {
-    color: '_infoContrast',
-    backgroundColor: { default: '_info', ':hover': '_infoHover' },
-  },
-  success: {
-    color: '_successContrast',
-    backgroundColor: { default: '_success', ':hover': '_successHover' },
-  },
-  warning: {
-    color: '_warningContrast',
-    backgroundColor: { default: '_warning', ':hover': '_warningHover' },
-  },
-  danger: {
-    color: '_dangerContrast',
-    backgroundColor: { default: '_danger', ':hover': '_dangerHover' },
-  },
 });
-
-const soft = stylex.create({
-  neutral: {
-    color: '_text',
-    backgroundColor: { default: '_fill', ':hover': '_fillHover' },
-  },
-  accent: {
-    color: '_accentText',
-    backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
-  },
-  info: {
-    color: '_infoText',
-    backgroundColor: { default: '_infoSoft', ':hover': '_infoSoftHover' },
-  },
-  success: {
-    color: '_successText',
-    backgroundColor: { default: '_successSoft', ':hover': '_successSoftHover' },
-  },
-  warning: {
-    color: '_warningText',
-    backgroundColor: { default: '_warningSoft', ':hover': '_warningSoftHover' },
-  },
-  danger: {
-    color: '_dangerText',
-    backgroundColor: { default: '_dangerSoft', ':hover': '_dangerSoftHover' },
-  },
-});
-
-const surface = stylex.create({
-  neutral: {
-    color: '_text',
-    borderColor: '_border',
-    backgroundColor: { default: '_surface', ':hover': '_fillHover' },
-  },
-  accent: {
-    color: '_accentText',
-    borderColor: '_accentBorder',
-    backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
-  },
-  info: {
-    color: '_infoText',
-    borderColor: '_infoBorder',
-    backgroundColor: { default: '_infoSoft', ':hover': '_infoSoftHover' },
-  },
-  success: {
-    color: '_successText',
-    borderColor: '_successBorder',
-    backgroundColor: { default: '_successSoft', ':hover': '_successSoftHover' },
-  },
-  warning: {
-    color: '_warningText',
-    borderColor: '_warningBorder',
-    backgroundColor: { default: '_warningSoft', ':hover': '_warningSoftHover' },
-  },
-  danger: {
-    color: '_dangerText',
-    borderColor: '_dangerBorder',
-    backgroundColor: { default: '_dangerSoft', ':hover': '_dangerSoftHover' },
-  },
-});
-
-const outline = stylex.create({
-  neutral: {
-    color: '_text',
-    borderColor: '_border',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
-  },
-  accent: {
-    color: '_accentText',
-    borderColor: '_accentBorder',
-    backgroundColor: { default: 'transparent', ':hover': '_accentSoft' },
-  },
-  info: {
-    color: '_infoText',
-    borderColor: '_infoBorder',
-    backgroundColor: { default: 'transparent', ':hover': '_infoSoft' },
-  },
-  success: {
-    color: '_successText',
-    borderColor: '_successBorder',
-    backgroundColor: { default: 'transparent', ':hover': '_successSoft' },
-  },
-  warning: {
-    color: '_warningText',
-    borderColor: '_warningBorder',
-    backgroundColor: { default: 'transparent', ':hover': '_warningSoft' },
-  },
-  danger: {
-    color: '_dangerText',
-    borderColor: '_dangerBorder',
-    backgroundColor: { default: 'transparent', ':hover': '_dangerSoft' },
-  },
-});
-
-const ghost = stylex.create({
-  neutral: {
-    color: '_text',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
-  },
-  accent: {
-    color: '_accentText',
-    backgroundColor: { default: 'transparent', ':hover': '_accentSoft' },
-  },
-  info: {
-    color: '_infoText',
-    backgroundColor: { default: 'transparent', ':hover': '_infoSoft' },
-  },
-  success: {
-    color: '_successText',
-    backgroundColor: { default: 'transparent', ':hover': '_successSoft' },
-  },
-  warning: {
-    color: '_warningText',
-    backgroundColor: { default: 'transparent', ':hover': '_warningSoft' },
-  },
-  danger: {
-    color: '_dangerText',
-    backgroundColor: { default: 'transparent', ':hover': '_dangerSoft' },
-  },
-});
-
-const link = stylex.create({
-  neutral: { color: '_text' },
-  accent: { color: '_accentText' },
-  info: { color: '_infoText' },
-  success: { color: '_successText' },
-  warning: { color: '_warningText' },
-  danger: { color: '_dangerText' },
-});
-
-/** 按钮家族 的样式：root */
-export const buttonLinkStyles = stylex.create({
-  root: {
-    minHeight: 0,
-    paddingInline: 0,
-    fontWeight: '_medium',
-    textUnderlineOffset: '0.2em',
-    textDecorationLine: { default: 'none', ':hover': 'underline' },
-  },
-});
-
-// 不可用时只留静止的底色：原生 disabled 的按钮照样匹配 :hover，悬停变色会让人以为还能点。
-// 加在 buttonVariantStyles 之后，同一个 backgroundColor 整个盖掉它的 :hover（StyleX 按属性合并）
-const resting = stylex.create({
-  transparent: { backgroundColor: 'transparent' },
-  inverse: { backgroundColor: '_inverseSurface' },
-  surface: { backgroundColor: '_surface' },
-  fill: { backgroundColor: '_fill' },
-  accent: { backgroundColor: '_accent' },
-  info: { backgroundColor: '_info' },
-  success: { backgroundColor: '_success' },
-  warning: { backgroundColor: '_warning' },
-  danger: { backgroundColor: '_danger' },
-  accentSoft: { backgroundColor: '_accentSoft' },
-  infoSoft: { backgroundColor: '_infoSoft' },
-  successSoft: { backgroundColor: '_successSoft' },
-  warningSoft: { backgroundColor: '_warningSoft' },
-  dangerSoft: { backgroundColor: '_dangerSoft' },
-  // 链接样式：去掉悬停时的下划线
-  link: { textDecorationLine: 'none' },
-});
-
-/** 不可用的按钮的静止外观：各样式 × 色调默认时的底色 */
-function restingSx(variant: keyof ButtonVariants, tone: StatusTone) {
-  switch (variant) {
-    case 'solid':
-      return tone === 'neutral' ? resting.inverse : resting[tone];
-    case 'soft':
-      return tone === 'neutral' ? resting.fill : resting[`${tone}Soft`];
-    case 'surface':
-      return tone === 'neutral' ? resting.surface : resting[`${tone}Soft`];
-    case 'link':
-      return resting.link;
-    default:
-      return resting.transparent;
-  }
-}
-
-/** 样式 × 色调 → 样式表：buttonVariantStyles[variant][tone] */
-export const buttonVariantStyles: Readonly<Record<keyof ButtonVariants, StyleTable<StatusTone>>> = {
-  solid,
-  soft,
-  surface,
-  outline,
-  ghost,
-  link,
-};
 
 /** ButtonGroup 交给组里按钮的状态：统一的外观（相连的方向经 AttachedContext 给出） */
 export interface ButtonGroupState {
@@ -418,14 +258,14 @@ export function buttonSx(
     buttonStyles.root,
     focusRingStyles.visible,
     rippleHostStyles.host,
-    buttonVariantStyles[variant][tone],
-    variant === 'link' && buttonLinkStyles.root,
+    toneThemes[tone],
+    buttonRecipe({ variant }).root,
     radiusStyles[radius],
     attached && attachedStyles[attached],
     size && fontSizeStyles[size],
     state.square && buttonStyles.square,
     state.fullWidth && buttonStyles.fullWidth,
-    state.disabled && [buttonStyles.disabled, restingSx(variant, tone)],
+    state.disabled && buttonStyles.disabled,
   ] as StyleXStyles;
 }
 

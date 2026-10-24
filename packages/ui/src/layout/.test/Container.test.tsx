@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleOf } from '../../utils/.test/mount';
 import { Container, createContainer } from '../Container';
 
 describe('Container', () => {
@@ -11,7 +11,7 @@ describe('Container', () => {
     )).firstElementChild as HTMLElement;
     expect(el.tagName).toBe('DIV');
     expect(el.dataset.x).toBe('1');
-    expect(el.getAttribute('class')!.split(' ').length).toBeGreaterThan(3);
+    expect(styleOf(el).size).toBeGreaterThan(3);
   });
 
   it('createContainer 生成 main 等语义容器', () => {

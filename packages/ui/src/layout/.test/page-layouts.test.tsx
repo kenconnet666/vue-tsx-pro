@@ -1,6 +1,6 @@
 // 页面布局：AsideLayout 的两栏与侧栏名称、ViewportFill 的竖排（高度在浏览器里量）
 import { describe, expect, it } from 'vitest';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { AsideLayout } from '../AsideLayout';
 import { ViewportFill } from '../ViewportFill';
 
@@ -15,7 +15,7 @@ describe('AsideLayout', () => {
     expect(aside.getAttribute('aria-label')).toBe('收益与关闭');
     expect(aside.textContent).toBe('收益');
     expect(aside.previousElementSibling!.textContent).toBe('概览');
-    expect(aside.parentElement!.getAttribute('style') ?? '').toContain('26rem');
+    expect(styleTextOf(aside.parentElement!)).toContain('26rem');
   });
 });
 
@@ -29,6 +29,6 @@ describe('ViewportFill', () => {
     ));
     const element = root.firstElementChild as HTMLElement;
     expect(element.children).toHaveLength(2);
-    expect(element.getAttribute('style') ?? '').toContain('100dvh');
+    expect(styleTextOf(element)).toContain('100dvh');
   });
 });

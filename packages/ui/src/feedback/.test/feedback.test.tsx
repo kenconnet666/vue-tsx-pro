@@ -1,7 +1,7 @@
 // Progress、Skeleton、SkeletonText、Alert
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { Alert } from '../Alert';
 import Decimal from 'decimal.js';
 import { Progress } from '../Progress';
@@ -172,7 +172,7 @@ describe('Skeleton', () => {
     const [plain, zero, delayed] = [...root.children] as HTMLElement[];
     expect(zero!.className).toBe(plain!.className);
     expect(zero!.hasAttribute('style')).toBe(false);
-    expect(delayed!.getAttribute('style')).toContain(`${SHIMMER_STAGGER}ms`);
+    expect(styleTextOf(delayed!)).toContain(`${SHIMMER_STAGGER}ms`);
   });
 });
 
@@ -185,7 +185,7 @@ describe('SkeletonText', () => {
     expect(lines[1]!.className).toBe(lines[2]!.className);
     expect(lines[3]!.className).not.toBe(lines[2]!.className);
     // 延迟写在内联的 CSS 变量里：从 delay 起，每行晚 SHIMMER_STAGGER
-    const delays = lines.map((line) => line.getAttribute('style'));
+    const delays = lines.map((line) => styleTextOf(line));
     expect(delays[0]).toContain('100ms');
     expect(delays[1]).toContain(`${100 + SHIMMER_STAGGER}ms`);
     expect(new Set(delays).size).toBe(4);
