@@ -1,5 +1,8 @@
-/** 条件键：伪类（':hover'、stylex.when.* 生成的键）或 @ 规则（'@media (…)'、'@supports (…)'、'@container (…)'） */
-type Condition = `:${string}` | `@${string}`;
+/**
+ * 条件键：伪类（':hover'、stylex.when.* 生成的键）、@ 规则（'@media (…)'、'@supports (…)'、'@container (…)'），
+ * 运行时模式下还可以写属性选择器（'[data-hot]'、'[data-state="open"]'）：状态写在 DOM 属性上，变化时只改属性
+ */
+type Condition = `:${string}` | `@${string}` | `[${string}]`;
 
 /**
  * 一个 CSS 属性的取值，与 StyleX 编译器接受的写法一致：

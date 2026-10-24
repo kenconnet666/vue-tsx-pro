@@ -48,19 +48,32 @@ export function overridable<T>(getter: () => T): Ref<T> {
   });
 }
 
+/** untrack 共用的读取 effect（第一次用时建在独立的作用域里，不随哪个组件停掉） */
+let reader: ReactiveEffect | undefined;
+/** 正在 untrack 里：嵌套的 untrack 直接执行（外层已经不追踪） */
+let reading = false;
+const noop = () => {};
+
 /**
- * 读取但不追踪（同 Svelte 的 untrack）：在一个临时的 effect 里执行，读到的响应式值记在它身上，
- * 外层的 _effect、_derived、渲染函数不会因此依赖它们。用 Vue 公开的 ReactiveEffect，不碰内部 API。
- * 临时的 effect 建在独立的作用域里、用完连同作用域停掉：不然它会留在当前组件的作用域上，调用一次多一个
+ * 读取但不追踪（同 Svelte 的 untrack）：在共用的读取 effect 里执行，读到的响应式值记在它身上、
+ * 变化时什么也不做，外层的 _effect、_derived、渲染函数不会因此依赖它们。用 Vue 公开的 ReactiveEffect，不碰内部 API。
+ * 渲染里会频繁调用（样式的响应式绑定每次渲染取一次值），所以复用同一个 effect，不每次新建作用域与 effect
  */
 export function untrack<T>(read: () => T): T {
-  const scope = effectScope(true);
-  const runner = scope.run(() => new ReactiveEffect(read))!;
+  if (reading) return read();
+  reader ??= effectScope(true).run(() => {
+    const effect = new ReactiveEffect(noop);
+    effect.scheduler = noop;
+    return effect;
+  })!;
+  reading = true;
+  reader.fn = read;
   try {
-    // 在作用域外执行：read 里创建的 computed、watch 照常属于当前组件
-    return runner.run();
+    // 不切换作用域：read 里创建的 computed、watch 照常属于当前组件
+    return reader.run() as T;
   } finally {
-    scope.stop();
+    reader.fn = noop;
+    reading = false;
   }
 }
 

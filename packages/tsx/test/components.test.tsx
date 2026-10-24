@@ -166,8 +166,20 @@ describe('StyleX', () => {
     expect(bOnly.length).toBe(aOnly.length);
   });
 
-  it('动态值编译为 CSS 变量与行内 style', () => {
-    const el = mount(() => <Card width={120}>x</Card>);
-    expect(el.querySelector('section')!.getAttribute('style')).toContain('120px');
+  // 运行时样式：第一张卡片的宽度写死在类里；第二张让宽度开始变化，宽度转成变量，
+  // 之后的卡片共用变量版的类、值在各自的行内变量里
+  it('动态值变过之后走行内的 CSS 变量，之后的卡片共用一个类', () => {
+    const el = mount(() => (
+      <>
+        <Card width={120}>x</Card>
+        <Card width={200}>y</Card>
+        <Card width={300}>z</Card>
+      </>
+    ));
+    const [first, second, third] = el.querySelectorAll('section');
+    expect(stylex.styleText()).toMatch(new RegExp(`\\.${first!.className}\\{[^}]*width:120px`));
+    expect(second!.getAttribute('style')).toContain('200px');
+    expect(third!.getAttribute('style')).toContain('300px');
+    expect(third!.className).toBe(second!.className);
   });
 });

@@ -12,6 +12,8 @@ catalog:
   '@vue/babel-plugin-jsx': 3.0.0
   # StyleX 官方插件仍声明 Babel 7（自带一份 7 的 traverse、types），在 Babel 8 下实测输出一致
   '@stylexjs/babel-plugin': 0.19.1
+  # 运行时样式的优先级表（tsx 的 stylex/priority.ts）逐项对照它的 getPriority，保证与编译版一致
+  '@stylexjs/shared': 0.19.1
   # 文档站的代码演练场在浏览器里编译用户代码（与 Vite 预设同一套插件）
   '@babel/parser': 8.0.7
   '@babel/traverse': 8.0.7
@@ -77,6 +79,10 @@ catalog:
   mdn-data: 2.37.2
   web-features: 3.43.0
   smol-toml: 1.9.1
+  # 文档站示例截图的逐像素比对（scripts/docs/shots-compare.mjs）
+  pngjs: 7.0.0
+  # 文档站样式更新基准（/bench/style-updates）的对照组：同样的声明交给 Emotion
+  '@emotion/css': 11.13.5
   # 整个仓库只用 TypeScript 7（Go 原生版），跟 7.1 的 beta：类型检查、声明生成用 tsc；脚本与文档站的 API 表用它的
   # typescript/sync、typescript/ast；语言服务（IDE、Claude Code 的 LSP 插件、语言服务 MCP）是 tsc --lsp
   typescript: 7.1.0-beta

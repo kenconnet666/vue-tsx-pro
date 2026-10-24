@@ -10,24 +10,10 @@
 import { hash } from 'node:crypto';
 import { relative } from 'node:path';
 import { types as t, type PluginObject } from '@babel/core';
+import { SSR_REGISTER_ID } from './ssr-register.ts';
 
 /** 组件边界：第一个参数是 setup 函数、结果是组件的调用 */
 const COMPONENT_FACTORIES = ['defineComponent', '_component'];
-
-/** SSR 时登记组件模块的虚拟模块 */
-export const SSR_REGISTER_ID = '/__vue-jsx-ssr-register-helper';
-
-/** SSR_REGISTER_ID 的代码：包一层 setup，渲染时把模块记进 ssrContext.modules */
-export const SSR_REGISTER_CODE = `import { useSSRContext } from "vue";
-export function ssrRegisterHelper(comp, filename) {
-  const setup = comp.setup;
-  comp.setup = (props, ctx) => {
-    const ssrContext = useSSRContext();
-    (ssrContext.modules || (ssrContext.modules = new Set())).add(filename);
-    if (setup) return setup(props, ctx);
-  };
-}
-`;
 
 /**
  * 编译的第 2 遍末尾加的 Babel 插件。
@@ -128,8 +114,16 @@ export function exportedComponents(
 const IS_COMPONENT =
   "const __isComponent = (c) => !!c && typeof c === 'object' && (typeof c.setup === 'function' || typeof c.render === 'function')";
 
-/** 登记到热更新运行时，文件更新时重新加载这些组件；还导出了别的值时让导入方重新执行 */
-export function hmrCode(components: readonly ComponentExport[], otherExports: boolean) {
+/**
+ * 登记到热更新运行时，文件更新时重新加载这些组件；还导出了别的值时让导入方重新执行。
+ * 有样式骨架（compiler/style-hot.ts）时：新模块的骨架没变说明只改了样式，新模块执行时已经原地改好规则，
+ * 不重新加载组件、也不让导入方重新执行
+ */
+export function hmrCode(
+  components: readonly ComponentExport[],
+  otherExports: boolean,
+  skeleton?: string,
+) {
   const records = components.map(({ local, id, maybe }) => {
     const record = `\n${local}.__hmrId = "${id}"\n__VUE_HMR_RUNTIME__.createRecord("${id}", ${local})`;
     return maybe ? `\nif (__isComponent(${local})) {${record}}` : record;
@@ -142,13 +136,27 @@ export function hmrCode(components: readonly ComponentExport[], otherExports: bo
   const parameters = components.map(({ exported }) => `${exported}: __${exported}`).join(',');
   const helper = components.some(({ maybe }) => maybe) ? `\n${IS_COMPONENT}` : '';
   // 导入方拿着旧模块里的函数、常量：交给 Vite 往上找能接住更新的模块重新执行
+  const styleOnly = skeleton
+    ? `\nif (__mod && __mod.__styleSkeleton === ${JSON.stringify(skeleton)}) return`
+    : '';
   return [
     helper,
     ...records,
-    `\nimport.meta.hot.accept(({${parameters}}) => {\nlet __other = ${otherExports}`,
+    `\nimport.meta.hot.accept((__mod) => {${styleOnly}\nconst {${parameters}} = __mod\nlet __other = ${otherExports}`,
     ...reloads,
     "\nif (__other) import.meta.hot.invalidate('还导出了组件以外的值，导入方重新执行')\n})",
   ].join('');
+}
+
+/**
+ * 有顶层样式的模块导出骨架（去掉样式参数后的源码哈希）；不是组件模块时再自己接住更新：
+ * 骨架没变就原地生效，变了（改了样式以外的代码）让导入方重新执行，同没有接住时一样
+ */
+export function styleHotCode(skeleton: string, accepted: boolean) {
+  const value = JSON.stringify(skeleton);
+  const code = `\nexport const __styleSkeleton = ${value}`;
+  if (accepted) return code;
+  return `${code}\nimport.meta.hot.accept((__mod) => {\nif (!__mod || __mod.__styleSkeleton !== ${value}) import.meta.hot.invalidate('改了样式以外的代码，导入方重新执行')\n})`;
 }
 
 /** SSR：组件渲染时把模块路径（相对项目根目录）记进 ssrContext */
