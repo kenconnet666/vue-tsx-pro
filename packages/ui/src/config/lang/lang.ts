@@ -62,6 +62,30 @@ export interface Lang {
   readonly cancel: string;
   /** 关闭按钮（弹层、标签）的无障碍名称，默认“关闭” */
   readonly close: string;
+  /** 可以点开看大图的图片的名称：`('支架照片')` → “查看大图：支架照片” */
+  readonly imagePreview: (alt: string) => string;
+  /** 图片加载失败时的文字，默认“图片加载失败” */
+  readonly imageError: string;
+  /** 图片预览（Lightbox）的名称，默认“图片预览” */
+  readonly lightboxLabel: string;
+  /** 图片预览：放大，默认“放大” */
+  readonly lightboxZoomIn: string;
+  /** 图片预览：缩小，默认“缩小” */
+  readonly lightboxZoomOut: string;
+  /** 图片预览：向左旋转，默认“向左旋转” */
+  readonly lightboxRotateLeft: string;
+  /** 图片预览：向右旋转，默认“向右旋转” */
+  readonly lightboxRotateRight: string;
+  /** 图片预览：回到初始的大小、位置与方向，默认“还原” */
+  readonly lightboxReset: string;
+  /** 图片预览：下载，默认“下载” */
+  readonly lightboxDownload: string;
+  /** 图片预览：上一张，默认“上一张” */
+  readonly lightboxPrevious: string;
+  /** 图片预览：下一张，默认“下一张” */
+  readonly lightboxNext: string;
+  /** 图片预览的位置：`(2, 5)` → “第 2 张，共 5 张” */
+  readonly lightboxCounter: (index: number, total: number) => string;
   /** 清空输入的按钮，默认“清空” */
   readonly clear: string;
   /** 加载中提示，默认“加载中” */

@@ -300,6 +300,18 @@ export {
 } from './display/Descriptions';
 export { Ellipsis, ellipsisStyles, type EllipsisProps } from './display/Ellipsis';
 export {
+  Image,
+  imageDynamicStyles,
+  imageFitStyles,
+  ImageGroup,
+  imageGroupStyles,
+  imageStyles,
+  type ImageFits,
+  type ImageGroupProps,
+  type ImagePreviewOptions,
+  type ImageProps,
+} from './display/Image';
+export {
   ItemList,
   ItemListItem,
   itemListStyles,
@@ -491,6 +503,13 @@ export {
   type HoverCardProps,
   type HoverCardTriggerProps,
 } from './overlay/HoverCard';
+export {
+  Lightbox,
+  lightboxDynamicStyles,
+  lightboxStyles,
+  type LightboxItem,
+  type LightboxProps,
+} from './overlay/Lightbox';
 export {
   Menu,
   MenuCheckboxItem,
