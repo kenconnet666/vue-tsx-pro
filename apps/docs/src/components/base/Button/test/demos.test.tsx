@@ -1,6 +1,7 @@
 // Button 的示例：文档里展示的用法本身就是被测对象
 import { afterEach, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
+import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { Button } from '@vue-tsx-pro/ui';
 import { mount } from '../../../../test/mount';
 import Disabled from '../demo/Disabled';
@@ -10,6 +11,16 @@ import Tones from '../demo/Tones';
 import Variants from '../demo/Variants';
 
 afterEach(() => vi.useRealTimers());
+
+/** 元素的类在默认状态下的声明：样式引擎记下的规则原文里 `.类{…}` 那一块 */
+const declarationsOf = (element: Element) =>
+  new Set(
+    [...element.classList].flatMap((name) =>
+      [...stylex.styleText().matchAll(new RegExp(`(?:^|\\n)\\.${name}\\{([^}]*)\\}`, 'g'))].flatMap(
+        (match) => match[1]!.split(';'),
+      ),
+    ),
+  );
 
 it('Variants：六种样式各不相同', () => {
   const buttons = [...mount(Variants).querySelectorAll('button')];
@@ -57,6 +68,7 @@ it('Group：组里的按钮相连，组上的外观是默认值', () => {
       x
     </Button>
   )).querySelector('button')!;
-  expect(page!.className.split(' ')).toEqual(expect.arrayContaining(outline.className.split(' ')));
+  const own = declarationsOf(page!);
+  expect([...declarationsOf(outline)].filter((declaration) => !own.has(declaration))).toEqual([]);
   expect(prev!.className).not.toBe(page!.className);
 });

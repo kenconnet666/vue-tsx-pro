@@ -80,14 +80,6 @@ export async function compile(code: string): Promise<CompileResponse> {
   });
 }
 
-/** 演练场代码的样式：一个 style 元素，每次编译后整体替换；离开演练场时传空字符串清掉 */
-let style: HTMLStyleElement | undefined;
-export function applyStyles(css: string) {
-  style ??= document.head.appendChild(document.createElement('style'));
-  style.dataset.playground = '';
-  style.textContent = css;
-}
-
 /** 执行编译结果，返回它默认导出的组件 */
 export async function evaluate(code: string): Promise<Component> {
   const exports: { default?: Component } = {};

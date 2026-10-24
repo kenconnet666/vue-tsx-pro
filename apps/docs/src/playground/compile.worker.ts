@@ -15,7 +15,7 @@ export interface CompileRequest {
 
 /** Worker 的回复 */
 export type CompileResponse =
-  { id: number; code: string; css: string; ms: number } | { id: number; error: string; ms: number };
+  { id: number; code: string; ms: number } | { id: number; error: string; ms: number };
 
 self.onmessage = async (event: MessageEvent<CompileRequest>) => {
   const { id, code, tokenGroups } = event.data;

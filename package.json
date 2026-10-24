@@ -47,6 +47,7 @@
     "mdn-data": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
+    "pngjs": "catalog:",
     "prettier": "catalog:",
     "smol-toml": "catalog:",
     "typescript": "catalog:",

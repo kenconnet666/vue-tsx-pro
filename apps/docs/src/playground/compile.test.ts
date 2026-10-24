@@ -1,4 +1,5 @@
 // 代码演练场的编译：在 Node 里跑与 Worker 相同的编译，再按页面的方式执行、挂载
+import { styleText } from '@vue-tsx-pro/tsx/stylex';
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 import { expect, it } from 'vitest';
 import { nextTick } from 'vue';
@@ -8,10 +9,11 @@ import { evaluate, tokenGroups } from './run';
 import { STARTER } from './starter';
 
 it('起始示例：编译、执行，符文与组件照常工作', async () => {
-  const { code, css } = await compilePlayground(STARTER, tokenGroups);
+  const { code } = await compilePlayground(STARTER, tokenGroups);
   expect(code).not.toMatch(/^import /m);
-  expect(css).toContain(`color:${colors.accent}`);
   const root = mount(await evaluate(code));
+  // 样式在页面上执行时由运行时引擎生成
+  expect(styleText()).toContain(`color:${colors.accent}`);
   expect(root.textContent).toContain('还没点过');
   root.querySelector('button')!.click();
   await nextTick();
@@ -33,9 +35,10 @@ it('token 变量与组件库编译出同一个 CSS 变量，跟着主题走', as
 import { colors } from '@vue-tsx-pro/ui/tokens.stylex';
 const styles = stylex.create({ box: { backgroundColor: colors.surfaceMuted, color: '_accent' } });
 export default () => <div {...stylex.attrs(styles.box)} />;`;
-  const { css } = await compilePlayground(source, tokenGroups);
-  expect(css).toContain(`background-color:${colors.surfaceMuted}`);
-  expect(css).toContain(`color:${colors.accent}`);
+  const { code } = await compilePlayground(source, tokenGroups);
+  mount(await evaluate(code));
+  expect(styleText()).toContain(`background-color:${colors.surfaceMuted}`);
+  expect(styleText()).toContain(`color:${colors.accent}`);
 });
 
 it('写错时抛出带代码帧的错误', async () => {

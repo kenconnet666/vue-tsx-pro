@@ -2,7 +2,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Card, Flex, Grid, Paragraph, Small, Strong, Text } from '@vue-tsx-pro/ui';
 
 const long =
-  '组件库按源码使用时，改了组件立刻热更新；发布的包是编译好的 ESM 与类型声明，使用方不需要任何额外配置就能按需引入、摇树优化，主题与样式在构建时生成原子类。';
+  '组件库按源码使用时，改了组件立刻热更新；发布的包是编译好的 ESM 与类型声明，使用方不需要任何额外配置就能按需引入、摇树优化，样式在用到时由运行时引擎生成，开发服务器把组件库整个预构建。';
 
 export default _component(() => () => (
   <Grid minItemWidth="18em" gap="md">
