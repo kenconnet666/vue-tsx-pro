@@ -1,8 +1,9 @@
 // 样式更新基准：打开文档站的 /bench/style-updates，逐个场景改状态，统计样式层动了什么。
 // 先开着文档站（pnpm dev:docs，端口 5174）。
 //
-//   node scripts/docs/style-updates.mjs                 三种写法（sx、emotion、vars）都跑
+//   node scripts/docs/style-updates.mjs                 四种写法（sx、attr、emotion、vars）都跑
 //   node scripts/docs/style-updates.mjs sx --json=out.json
+//   node scripts/docs/style-updates.mjs sx,vars --rounds=9     轮数（取中位数），默认 3
 //
 // 每个场景：耗时（含 Vue 调度与强制布局，三轮取中位数）、样式重算次数与耗时（CDP Performance 指标）、
 // DOM 改动（按属性名）、CSSOM 改动、行组件渲染次数、规则总数的变化
@@ -12,7 +13,12 @@ import { requireFrom } from '../lib/repo.mjs';
 const { chromium } = requireFrom('apps/host-demo')('playwright');
 const args = process.argv.slice(2);
 const option = (name) => args.find((arg) => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
-const modes = args.find((arg) => !arg.startsWith('--'))?.split(',') ?? ['sx', 'emotion', 'vars'];
+const modes = args.find((arg) => !arg.startsWith('--'))?.split(',') ?? [
+  'sx',
+  'attr',
+  'emotion',
+  'vars',
+];
 const origin = option('origin') ?? 'http://localhost:5174';
 
 // [场景, 每轮次数]
@@ -26,7 +32,7 @@ const SCENARIOS = [
   ['tone', 10],
   ['theme', 4],
 ];
-const ROUNDS = 3;
+const ROUNDS = Number(option('rounds') ?? 3);
 
 const median = (values) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
 

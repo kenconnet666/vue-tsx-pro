@@ -1,7 +1,8 @@
 /**
  * 样式更新基准（不进导航，scripts/docs/style-updates.mjs 驱动）：状态变化时样式层到底动了什么。
  *
- *   /bench/style-updates?mode=sx        1000 行连续值，stylex.create 的动态样式
+ *   /bench/style-updates?mode=sx        1000 行连续值，stylex.create 的动态样式；hot 是条件类（item.hot && styles.hot）
+ *   /bench/style-updates?mode=attr      同 sx，但 hot 写在 DOM 属性上（data-hot + '[data-hot]' 条件），类固定
  *   /bench/style-updates?mode=emotion   同样的声明交给 Emotion（每个新值一个新类）
  *   /bench/style-updates?mode=vars      手写：固定的类 + 元素上的变量（理论下限）
  *
@@ -25,7 +26,7 @@ import {
 } from '@vue-tsx-pro/ui';
 import { nextTick } from 'vue';
 
-type Mode = 'sx' | 'emotion' | 'vars';
+type Mode = 'sx' | 'attr' | 'emotion' | 'vars';
 interface Item {
   id: number;
   width: number;
@@ -43,6 +44,15 @@ const styles = stylex.create({
   hot: { color: '_dangerText' },
   track: { flexGrow: 1, height: 6, backgroundColor: '_fill', borderRadius: 3 },
   bar: (width: number) => ({ width, height: 6, backgroundColor: '_accent', borderRadius: 3 }),
+  // attr 组：hot 写在 DOM 属性上，类固定
+  flaggedRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    height: 14,
+    fontSize: 11,
+    color: { default: null, '[data-hot]': '_dangerText' },
+  },
 });
 
 // 手写对照：固定的类，宽度走元素上的变量。三组的颜色都用同样的主题变量，比的只是样式层
@@ -58,6 +68,18 @@ const SxRow = _component(({ item }: { item: Item }) => () => {
   renders++;
   return (
     <div {...stylex.attrs(styles.row, item.hot && styles.hot)}>
+      <span>{item.id}</span>
+      <div {...stylex.attrs(styles.track)}>
+        <div {...stylex.attrs(styles.bar(item.width))} />
+      </div>
+    </div>
+  );
+});
+
+const AttrRow = _component(({ item }: { item: Item }) => () => {
+  renders++;
+  return (
+    <div {...stylex.attrs(styles.flaggedRow)} data-hot={item.hot || undefined}>
       <span>{item.id}</span>
       <div {...stylex.attrs(styles.track)}>
         <div {...stylex.attrs(styles.bar(item.width))} />
@@ -108,7 +130,7 @@ const VarsRow = _component(({ item }: { item: Item }) => () => {
   );
 });
 
-const Row = { sx: SxRow, emotion: EmotionRow, vars: VarsRow }[mode];
+const Row = { sx: SxRow, attr: AttrRow, emotion: EmotionRow, vars: VarsRow }[mode];
 
 /** 一次场景的统计 */
 interface Probe {
