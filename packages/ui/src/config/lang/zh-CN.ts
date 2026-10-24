@@ -42,6 +42,8 @@ export const zhCN: Lang = {
   checklistItemState: (label, state) => `${label}${state}`,
   checklistIconsLabel: (parts) => parts.join('，'),
   checklistSummary: (done, total) => `已完成 ${done} / ${total}`,
+  sparklineSummary: (count, first, last, min, max) =>
+    `${count} 个值，从 ${first} 到 ${last}，最低 ${min}，最高 ${max}`,
   clear: '清空',
   loading: '加载中',
   remove: '移除',

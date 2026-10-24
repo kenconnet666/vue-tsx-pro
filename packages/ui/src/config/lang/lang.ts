@@ -113,6 +113,14 @@ export interface Lang {
   readonly checklistIconsLabel: (parts: readonly string[]) => string;
   /** 清单的汇总：`(2, 3)` → “已完成 2 / 3” */
   readonly checklistSummary: (done: number, total: number) => string;
+  /** 迷你图给读屏的概括：`(12, '40', '360', '40', '360')` → “12 个值，从 40 到 360，最低 40，最高 360” */
+  readonly sparklineSummary: (
+    count: number,
+    first: string,
+    last: string,
+    min: string,
+    max: string,
+  ) => string;
   /** 清空输入的按钮，默认“清空” */
   readonly clear: string;
   /** 加载中提示，默认“加载中” */

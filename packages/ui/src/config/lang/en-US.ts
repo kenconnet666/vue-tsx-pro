@@ -42,6 +42,8 @@ export const enUS: Lang = {
   checklistItemState: (label, state) => `${label}: ${state}`,
   checklistIconsLabel: (parts) => parts.join('; '),
   checklistSummary: (done, total) => `${done} of ${total} done`,
+  sparklineSummary: (count, first, last, min, max) =>
+    `${count} values, from ${first} to ${last}, low ${min}, high ${max}`,
   clear: 'Clear',
   loading: 'Loading',
   remove: 'Remove',

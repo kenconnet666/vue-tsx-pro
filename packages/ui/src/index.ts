@@ -316,6 +316,13 @@ export {
   type FieldCompareRow,
 } from './display/FieldCompare';
 export {
+  Gauge,
+  gaugeStyles,
+  type GaugeBand,
+  type GaugeManaged,
+  type GaugeProps,
+} from './display/Gauge';
+export {
   Image,
   imageDynamicStyles,
   imageFitStyles,
@@ -348,6 +355,13 @@ export {
   type SortableItemState,
   type SortableProps,
 } from './display/Sortable';
+export {
+  Sparkline,
+  sparklineStyles,
+  type SparklineManaged,
+  type SparklineProps,
+  type SparklineVariants,
+} from './display/Sparkline';
 export {
   Stat,
   StatGroup,
