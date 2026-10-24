@@ -62,6 +62,8 @@ export const zhCN: Lang = {
   tableMoveBackward: '向前移',
   tableMoveForward: '向后移',
   tableHideColumn: '隐藏这一列',
+  tableColumnSettings: '列设置',
+  tableColumnSettingsReset: '重置',
   chartEmpty: '暂无数据',
   chartCategory: '类目',
   chartValue: '数值',

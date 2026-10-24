@@ -1,0 +1,163 @@
+// 采购单列表：一个 QueryTable 拼好查询栏、工具栏（新建、导出、刷新、行高、列设置、全屏）、批量操作、表格与分页；
+// 数据来自假的服务端（300–600 ms 延迟、按条件筛、排序、分页），列设置与行高记在浏览器里
+import { Download, Plus } from '@lucide/icons';
+import { _component } from '@vue-tsx-pro/tsx';
+import {
+  Button,
+  createStatusMap,
+  Field,
+  Select,
+  TextField,
+  useTableQuery,
+  type DataTableColumn,
+  type SortState,
+  type TablePage,
+} from '@vue-tsx-pro/ui';
+import { QueryTable } from '@vue-tsx-pro/ui/patterns';
+
+interface PurchaseOrder {
+  id: string;
+  supplier: string;
+  category: string;
+  buyer: string;
+  status: 'draft' | 'approving' | 'ordered' | 'received';
+  amount: number;
+  orderedAt: string;
+}
+
+interface Filters {
+  keyword: string;
+  category: string | null;
+  status: string | null;
+  buyer: string;
+}
+
+const statuses = createStatusMap({
+  draft: { label: '草稿', tone: 'neutral' },
+  approving: { label: '审批中', tone: 'warning' },
+  ordered: { label: '已下单', tone: 'info' },
+  received: { label: '已到货', tone: 'success' },
+});
+const suppliers = ['华辰精密机加', '启航复材', '远山钣金', '恒通紧固件', '北辰电子', '青禾线缆'];
+const categories = ['机加件', '复材件', '钣金件', '标准件', '线缆'];
+const buyers = ['林小满', '周一航', '陈默', '许悠', '王晴', '赵浩然'];
+
+// 假的服务端数据：368 张采购单
+const all: PurchaseOrder[] = Array.from({ length: 368 }, (_, index) => ({
+  id: `PO-2026-${String(2000 + index)}`,
+  supplier: suppliers[(index * 5) % suppliers.length]!,
+  category: categories[(index * 7) % categories.length]!,
+  buyer: buyers[(index * 11) % buyers.length]!,
+  status: statuses.keys[(index * 3) % statuses.keys.length]!,
+  amount: ((index * 7919) % 90_000) + 1200,
+  orderedAt: new Date(Date.UTC(2026, 9, 21) - ((index * 13) % 90) * 86_400_000)
+    .toISOString()
+    .slice(0, 10),
+}));
+
+/** 假的查询接口：按条件筛、排序、分页，300–600 ms 后返回；取消时不返回 */
+function fetchOrders(
+  query: { page: number; pageSize: number; sort: SortState | null; filters: Filters },
+  signal: AbortSignal,
+): Promise<TablePage<PurchaseOrder>> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => {
+        const { keyword, category, status, buyer } = query.filters;
+        const matched = all.filter(
+          (order) =>
+            (!keyword || order.id.includes(keyword) || order.supplier.includes(keyword)) &&
+            (!category || order.category === category) &&
+            (!status || order.status === status) &&
+            (!buyer || order.buyer.includes(buyer)),
+        );
+        const sort = query.sort;
+        if (sort) {
+          const factor = sort.direction === 'ascending' ? 1 : -1;
+          const key = sort.key as keyof PurchaseOrder;
+          matched.sort((a, b) => (a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0) * factor);
+        }
+        const start = (query.page - 1) * query.pageSize;
+        resolve({ rows: matched.slice(start, start + query.pageSize), total: matched.length });
+      },
+      300 + Math.random() * 300,
+    );
+    signal.addEventListener('abort', () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    });
+  });
+}
+
+const columns: DataTableColumn<PurchaseOrder>[] = [
+  { key: 'id', header: '采购单号', width: 150, sticky: 'start', sortable: true },
+  { key: 'supplier', header: '供应商', minWidth: 160, sortable: true },
+  { key: 'category', header: '品类', width: 110 },
+  { key: 'buyer', header: '采购员', width: 110 },
+  { key: 'status', header: '状态', width: 110, statuses },
+  { key: 'amount', header: '金额', width: 140, type: 'currency', sortable: true },
+  { key: 'orderedAt', header: '下单日期', width: 140, type: 'date', sortable: true },
+];
+
+export default _component(() => {
+  const orders = useTableQuery(fetchOrders, {
+    filters: { keyword: '', category: null, status: null, buyer: '' } as Filters,
+    pageSize: 10,
+  });
+  let selected = _state<string[]>([]);
+
+  return () => (
+    <QueryTable
+      query={orders}
+      columns={columns}
+      getKey={(order) => order.id}
+      title="采购单"
+      persistKey="docs:query-table-orders"
+      filters={(draft) => (
+        <>
+          <Field label="关键字">
+            <TextField value={_bind(draft.keyword)} placeholder="单号或供应商" clearable />
+          </Field>
+          <Field label="品类">
+            <Select items={categories} value={_bind(draft.category)} placeholder="全部" clearable />
+          </Field>
+          <Field label="状态">
+            <Select
+              items={statuses.options()}
+              value={_bind(draft.status)}
+              placeholder="全部"
+              clearable
+            />
+          </Field>
+        </>
+      )}
+      moreFilters={(draft) => (
+        <Field label="采购员">
+          <TextField value={_bind(draft.buyer)} placeholder="姓名" clearable />
+        </Field>
+      )}
+      toolbar={
+        <>
+          <Button size="sm" icon={Plus}>
+            新建采购单
+          </Button>
+          <Button size="sm" variant="outline" tone="neutral" icon={Download}>
+            导出
+          </Button>
+        </>
+      }
+      selectionMode="multiple"
+      selected={_bind(selected)}
+      batchActions={(keys) => (
+        <>
+          <Button size="sm" variant="outline" tone="neutral">
+            批量催单（{keys.length}）
+          </Button>
+          <Button size="sm" variant="soft" tone="danger">
+            批量作废
+          </Button>
+        </>
+      )}
+    />
+  );
+});

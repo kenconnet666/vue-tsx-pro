@@ -118,7 +118,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 - [x] 表格：表头筛选、多列排序、列菜单（显隐、固定、拖动）、网格方向键与单元格编辑（行校验）、行拖动、
       静态表格的合并单元格、列定义驱动的静态表格
-- [ ] QueryTable（patterns）：FilterBar + DataTable + 工具栏（密度、列设置、刷新、全屏）+ useTableQuery
+- [x] QueryTable（patterns）：FilterBar + DataTable + 工具栏（密度、列设置、刷新、全屏）+ useTableQuery
 - [ ] 表单：错误汇总、跨字段联动校验、`form.Field` 自动绑定值；StepsForm（patterns）
 - [ ] Excel：子路径 `/xlsx`（分组表头导出成合并单元格；读多行表头、展开合并、单元格内换行拆行）；
       DataImport（patterns：选文件、列对应、逐行校验、预览、确认）

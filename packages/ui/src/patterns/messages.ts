@@ -68,6 +68,24 @@ export interface PatternsMessages {
   readonly pageTabsCloseOthers: string;
   /** 页签的右键菜单：关闭右边的，默认“关闭右侧” */
   readonly pageTabsCloseRight: string;
+  /** 查询表格：刷新，默认“刷新” */
+  readonly queryTableRefresh: string;
+  /** 查询表格：行高菜单，默认“行高” */
+  readonly queryTableDensity: string;
+  /** 行高：紧凑，默认“紧凑” */
+  readonly queryTableDensityCompact: string;
+  /** 行高：标准，默认“标准” */
+  readonly queryTableDensityStandard: string;
+  /** 行高：宽松，默认“宽松” */
+  readonly queryTableDensityComfortable: string;
+  /** 查询表格：全屏，默认“全屏” */
+  readonly queryTableFullscreen: string;
+  /** 查询表格：退出全屏，默认“退出全屏” */
+  readonly queryTableExitFullscreen: string;
+  /** 查询表格分页导航的名称：`('任务台账')` → “任务台账分页” */
+  readonly queryTablePagination: (title: string) => string;
+  /** 查询表格的查询栏（search 地标）的名称：`('任务台账')` → “任务台账查询” */
+  readonly queryTableSearch: (title: string) => string;
   /** 主题切换的名称，默认“主题” */
   readonly themeLabel: string;
 }
@@ -106,6 +124,15 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     pageTabsClose: '关闭',
     pageTabsCloseOthers: '关闭其他',
     pageTabsCloseRight: '关闭右侧',
+    queryTableRefresh: '刷新',
+    queryTableDensity: '行高',
+    queryTableDensityCompact: '紧凑',
+    queryTableDensityStandard: '标准',
+    queryTableDensityComfortable: '宽松',
+    queryTableFullscreen: '全屏',
+    queryTableExitFullscreen: '退出全屏',
+    queryTablePagination: (title) => `${title}分页`,
+    queryTableSearch: (title) => `${title}查询`,
     themeLabel: '主题',
   },
   'en-US': {
@@ -144,6 +171,15 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     pageTabsClose: 'Close',
     pageTabsCloseOthers: 'Close others',
     pageTabsCloseRight: 'Close tabs to the right',
+    queryTableRefresh: 'Refresh',
+    queryTableDensity: 'Row height',
+    queryTableDensityCompact: 'Compact',
+    queryTableDensityStandard: 'Standard',
+    queryTableDensityComfortable: 'Comfortable',
+    queryTableFullscreen: 'Full screen',
+    queryTableExitFullscreen: 'Exit full screen',
+    queryTablePagination: (title) => `${title} pagination`,
+    queryTableSearch: (title) => `Search ${title}`,
     themeLabel: 'Theme',
   },
 };

@@ -163,6 +163,10 @@ export interface Lang {
   readonly tableMoveForward: string;
   /** 列菜单：隐藏这一列，默认“隐藏这一列” */
   readonly tableHideColumn: string;
+  /** 列设置（显示哪些列、顺序）的按钮与弹层标题，默认“列设置” */
+  readonly tableColumnSettings: string;
+  /** 列设置里的“重置”：回到列定义，默认“重置” */
+  readonly tableColumnSettingsReset: string;
   /** 图表没有数据时的提示，默认“暂无数据” */
   readonly chartEmpty: string;
   /** 图表的数据表（给读屏）里类目那一列的表头，默认“类目” */

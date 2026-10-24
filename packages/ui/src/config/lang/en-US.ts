@@ -63,6 +63,8 @@ export const enUS: Lang = {
   tableMoveBackward: 'Move earlier',
   tableMoveForward: 'Move later',
   tableHideColumn: 'Hide column',
+  tableColumnSettings: 'Columns',
+  tableColumnSettingsReset: 'Reset',
   chartEmpty: 'No data',
   chartCategory: 'Category',
   chartValue: 'Value',

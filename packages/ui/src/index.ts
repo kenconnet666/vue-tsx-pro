@@ -1063,6 +1063,11 @@ export {
   type ColumnResizerProps,
 } from './table/ColumnResizer';
 export {
+  ColumnSettings,
+  columnSettingsStyles,
+  type ColumnSettingsProps,
+} from './table/ColumnSettings';
+export {
   ColumnTable,
   columnTableStyles,
   repeatedRowSpans,
@@ -1386,6 +1391,7 @@ export {
   returnFocus,
   trapFocus,
 } from './utils/dom/focus';
+export { useFullscreen, type Fullscreen } from './utils/dom/fullscreen';
 export {
   ariaKeyShortcut,
   formatHotkey,
