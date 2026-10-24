@@ -37,6 +37,7 @@ export {
 export {
   MapChart,
   mapChartStyles,
+  simplifyTopology,
   topologyBounds,
   type MapArea,
   type MapChartProps,

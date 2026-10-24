@@ -33,6 +33,7 @@ import {
 import { Maximize, Minus, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
+import { presimplify, simplify } from 'topojson-simplify';
 import type { VNodeChild } from 'vue';
 import { IconButton } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -216,6 +217,42 @@ const svgElement = <K extends keyof SVGElementTagNameMap>(name: K) =>
 const tint = (color: string, percent: number) =>
   `color-mix(in srgb, ${color} ${Math.round(percent)}%, transparent)`;
 
+type MapTopology = MapChartProps['topology'];
+
+/** 算好了各点权重的地理数据：同一份 TopoJSON 只算一次 */
+const presimplified = new WeakMap<MapTopology, MapTopology>();
+/**
+ * 简化过的地理数据放进这个类的实例：Unovis 的 setConfig 深拷贝配置，但跳过类的实例，
+ * 每次更新就不必把整份 TopoJSON 再拷一遍
+ */
+class SharedTopology {}
+
+/** 简化过的地理数据：TopoJSON → 档位 → 结果 */
+const simplified = new WeakMap<MapTopology, Map<number, MapTopology>>();
+
+/**
+ * 简化地理数据：去掉与前后两点围成的三角形面积不到 minArea（坐标单位的平方，经纬度是平方度）的点
+ * （Visvalingam，topojson-simplify）。相邻区域共用的边界一起简化，不会出现缝隙；各段弧的两端总保留。
+ * minArea 按 2 的整数次幂分档缓存：绘图区大小变一点不重算。
+ */
+export function simplifyTopology(topology: MapTopology, minArea: number): MapTopology {
+  if (!(minArea > 0) || !Number.isFinite(minArea)) return topology;
+  const level = 2 ** Math.floor(Math.log2(minArea));
+  let byLevel = simplified.get(topology);
+  if (!byLevel) simplified.set(topology, (byLevel = new Map()));
+  let result = byLevel.get(level);
+  if (!result) {
+    // topojson-simplify 的类型里要素属性不能是 null（GeoJSON 允许）：边界上转一下
+    type Input = Parameters<typeof presimplify>[0];
+    let weighted = presimplified.get(topology);
+    if (!weighted)
+      presimplified.set(topology, (weighted = presimplify(topology as Input) as MapTopology));
+    result = Object.assign(new SharedTopology(), simplify(weighted as Input, level)) as MapTopology;
+    byLevel.set(level, result);
+  }
+  return result;
+}
+
 /** TopoJSON 的经纬度范围 [西, 南, 东, 北]：有 bbox 用它，否则解出各段弧的坐标（量化的弧是逐点的差值） */
 export function topologyBounds(
   topology: MapChartProps['topology'],
@@ -349,6 +386,19 @@ export const MapChart = _component(
         mapKey = key;
         mapProjection = createProjection();
       }
+    }
+
+    // Unovis 每次绘制都把整份 TopoJSON 投影成路径：自带的中国省份有 3.5 万个点，画在几百像素里大多看不出来。
+    // 按绘图区里一像素对应的经纬度简化（三角形不到一平方像素的点去掉），绘制快一个数量级；
+    // 能缩放时留到放大一倍也看不出折角
+    function drawnTopology(): MapTopology {
+      const width = plot?.clientWidth ?? 0;
+      const height = plot?.clientHeight ?? 0;
+      if (!width || !height) return topology;
+      const [west, south, east, north] = bounds;
+      const degreesPerPixel =
+        Math.max((east - west) / width, (north - south) / height) / (zoomable ? 2 : 1);
+      return simplifyTopology(topology, degreesPerPixel ** 2);
     }
 
     const pointOf = (id: string) => points.find((point) => point.id === id);
@@ -512,7 +562,7 @@ export const MapChart = _component(
           return created;
         });
         map.setConfig({
-          topojson: topology,
+          topojson: drawnTopology(),
           mapFeatureName: feature,
           projection: mapProjection,
           disableZoom: !zoomable,

@@ -99,7 +99,8 @@
     "animejs": "catalog:",
     "culori": "catalog:",
     "decimal.js": "catalog:",
-    "tabbable": "catalog:"
+    "tabbable": "catalog:",
+    "topojson-simplify": "catalog:"
   },
   "peerDependencies": {
     "@lucide/icons": "^1.59.0",
@@ -154,6 +155,7 @@
     "zod": "catalog:",
     "@types/culori": "catalog:",
     "pinyin-pro": "catalog:",
-    "exceljs": "catalog:"
+    "exceljs": "catalog:",
+    "@types/topojson-simplify": "catalog:"
   }
 }

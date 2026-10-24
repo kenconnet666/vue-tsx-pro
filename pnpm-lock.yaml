@@ -239,6 +239,9 @@ catalogs:
     '@types/three':
       specifier: 0.186.0
       version: 0.186.0
+    '@types/topojson-simplify':
+      specifier: 3.0.3
+      version: 3.0.3
     '@unovis/ts':
       specifier: 1.7.1
       version: 1.7.1
@@ -311,6 +314,9 @@ catalogs:
     three:
       specifier: 0.186.1
       version: 0.186.1
+    topojson-simplify:
+      specifier: 3.0.3
+      version: 3.0.3
     tsdown:
       specifier: 0.23.1
       version: 0.23.1
@@ -674,6 +680,9 @@ importers:
       tabbable:
         specifier: 'catalog:'
         version: 6.5.0
+      topojson-simplify:
+        specifier: 'catalog:'
+        version: 3.0.3
     devDependencies:
       '@lucide/icons':
         specifier: 'catalog:'
@@ -687,6 +696,9 @@ importers:
       '@types/three':
         specifier: 'catalog:'
         version: 0.186.0
+      '@types/topojson-simplify':
+        specifier: 'catalog:'
+        version: 3.0.3
       '@unovis/ts':
         specifier: 'catalog:'
         version: 1.7.1
@@ -3931,6 +3943,10 @@ packages:
 
   topojson-client@3.1.0:
     resolution: {integrity: sha512-605uxS6bcYxGXw9qi62XyrV6Q3xwbndjachmNxu8HWTtVPxZfEJN9fd/SZS1Q54Sn2y0TMyMxFj/cJINqGHrKw==}
+    hasBin: true
+
+  topojson-simplify@3.0.3:
+    resolution: {integrity: sha512-V+pBjLVzSQ3+hSOxBiV01OVXgFiCmMO8ia3huxKEyIMTC1ApQHBcdXdOqcQ6U2JJJD31TZduwY6KyF15R8sUgg==}
     hasBin: true
 
   totalist@3.0.1:
@@ -7825,6 +7841,11 @@ snapshots:
   topojson-client@3.1.0:
     dependencies:
       commander: 2.20.3
+
+  topojson-simplify@3.0.3:
+    dependencies:
+      commander: 2.20.3
+      topojson-client: 3.1.0
 
   totalist@3.0.1: {}
 

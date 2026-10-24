@@ -22,6 +22,7 @@ export const UI_DEPENDENCIES = [
   'three',
   'three/addons/environments/RoomEnvironment.js',
   'three/addons/loaders/GLTFLoader.js',
+  'topojson-simplify',
   'zod',
   'zod/v4/core',
   'zod/v4/locales/en.js',
