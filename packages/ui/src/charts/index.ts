@@ -34,6 +34,7 @@ export {
   type LineCurves,
   type LineDots,
 } from './LineChart';
+export { RadarChart, radarChartStyles, type RadarChartProps } from './RadarChart';
 export {
   SankeyChart,
   sankeyChartStyles,
@@ -49,6 +50,7 @@ export {
   type TimelineChartSeries,
   type TimelineTime,
 } from './TimelineChart';
+export { TreemapChart, treemapChartStyles, type TreemapChartProps } from './TreemapChart';
 export {
   WaterfallChart,
   waterfallRows,
