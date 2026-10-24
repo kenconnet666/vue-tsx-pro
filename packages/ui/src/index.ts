@@ -1159,6 +1159,14 @@ export {
   type DataTableViewProps,
   type RowTone,
 } from './table/DataTableView';
+export {
+  PivotTable,
+  pivotTableStyles,
+  type PivotDimension,
+  type PivotRow,
+  type PivotTableProps,
+  type PivotValue,
+} from './table/PivotTable';
 export { SelectionBar, selectionBarStyles, type SelectionBarProps } from './table/SelectionBar';
 export {
   Table,
@@ -1223,6 +1231,7 @@ export {
   type StickyOffsets,
 } from './table/columns';
 export { tableToCsv, type CsvOptions } from './table/csv';
+export { pivot, type PivotAggregates, type PivotOptions, type PivotResult } from './table/pivot';
 export {
   parseCsv,
   readCsvFile,
