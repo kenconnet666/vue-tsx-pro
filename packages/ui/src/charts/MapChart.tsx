@@ -496,6 +496,8 @@ export const MapChart = _component(
         updateProjection();
         map = instance(`map-${generation}`, () => {
           const created = new TopoJSONMap<MapArea, MapPoint, MapLink>();
+          // 热力模式的滤镜是写死的 id="heatmapFilter"，一页多张地图时 id 重复；不用热力模式，去掉
+          created.g.select('filter#heatmapFilter').remove();
           // 缩放时 Unovis 把缩放级别写到 svg 的 style 上：跟着重排标签（拖动只是平移，标签随地点那一组走）
           const observer = new MutationObserver(scheduleLabels);
           queueMicrotask(() => {
