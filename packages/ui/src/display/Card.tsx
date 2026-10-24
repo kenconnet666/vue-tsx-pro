@@ -238,10 +238,11 @@ export const Card = _component(
     let revealing = false;
     const reducedMotion = useReducedMotion();
     let frame = _state.raw<HTMLElement | null>(null);
-    // 阻尼后的指针位置（-1 到 1，向上为正）；离开时位置不动、strength 淡出。倾斜要慢一点、带回弹
+    // 阻尼后的指针位置（-1 到 1，向上为正）；离开时位置不动、strength 淡出。倾斜要慢一点、带回弹；
+    // 阻尼参数按挂上时的效果定（效果一般不中途切换），跟踪的目标随 effect 变
     const pointer = usePointer(
       () => (effect === 'tilt' || effect === 'spotlight' ? frame : null),
-      effect === 'tilt' ? { bounce: 0.3, duration: 'lg' } : { duration: 'sm' },
+      _untrack(effect) === 'tilt' ? { bounce: 0.3, duration: 'lg' } : { duration: 'sm' },
     );
 
     /** 效果的光层：倾斜是一层高光，聚光是表面与边框两层，流光是边框一圈里走的光带 */
