@@ -81,4 +81,15 @@ describe('createUi 的 paintDocument', () => {
     expect(root.classList.length).toBeGreaterThan(0);
     app.unmount();
   });
+
+  it('不传主题时用默认主题，body 照样去掉外边距', async () => {
+    const app = createApp({ render: () => null });
+    app.use(createUi({ paintDocument: true }));
+    app.mount(document.createElement('div'));
+    await nextTick();
+    expect(document.documentElement.classList.length).toBeGreaterThan(0);
+    expect(document.body.classList.length).toBeGreaterThan(0);
+    app.unmount();
+    expect(document.body.classList.length).toBe(0);
+  });
 });

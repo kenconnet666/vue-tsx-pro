@@ -110,8 +110,9 @@ export function createUi(options: UiOptions = {}): Plugin {
           });
           app.onUnmount(() => Object.assign(root, previous));
         }
-        // 应用级没有容器元素，主题变量挂在页面根元素上；变量名经过 StyleX 哈希，不会与宿主冲突
-        if (options.theme && typeof document !== 'undefined') {
+        // 应用级没有容器元素，主题变量挂在页面根元素上；变量名经过 StyleX 哈希，不会与宿主冲突。
+        // 只开 paintDocument、不传主题时用默认主题（整页也要有底色、字体，body 去掉外边距）
+        if ((options.theme || options.paintDocument) && typeof document !== 'undefined') {
           const root = document.documentElement;
           // themeBootScript 在应用加载前写的行内颜色：交给主题的 class
           if (options.paintDocument) root.style.removeProperty('background-color');
