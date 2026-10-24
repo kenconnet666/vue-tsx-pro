@@ -71,6 +71,7 @@ export {
   type XYChartProps,
 } from './XYChart';
 export { alignedTicks, niceStep, type AlignedAxes, type AxisTicks } from './axis-ticks';
+export { exportChartData, exportChartImage, serializeChartSvg } from './export';
 export {
   flowData,
   resolveFlowNodes,

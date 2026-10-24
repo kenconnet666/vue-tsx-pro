@@ -10,6 +10,7 @@ import Basic from './demo/Basic.tsx?demo';
 import Curves from './demo/Curves.tsx?demo';
 import Gaps from './demo/Gaps.tsx?demo';
 import Palette from './demo/Palette.tsx?demo';
+import Zoom from './demo/Zoom.tsx?demo';
 import Options from './demo/Options.tsx?demo';
 
 export const meta = {
@@ -56,6 +57,16 @@ export default _component(() => () => (
       时圈出这个系列在那里的值，文字在圈的上方。<Code>bands</Code> 是浅色的带：默认在类目轴上（
       <Code>from</Code>、<Code>to</Code> 是类目，含两端），<Code>axis="value"</Code>{' '}
       时在数值轴上（目标区间，数值轴的范围会包含它）。颜色可以写语义色或色板。柱状图、面积图、组合图同样支持，横向的柱状图只画竖线与区间。
+    </Example>
+    <Example id="zoom" title="缩放与导出" demo={Zoom}>
+      <Code>zoom</Code>{' '}
+      在绘图区下面放一条区间滑块，选一段类目放大看（拖两端，或聚焦后用方向键），“显示全部”恢复；
+      <Code>zoomRange</Code> 可以双向绑定（类目的位置，含两端，<Code>null</Code>{' '}
+      是全部）。读屏的数据表仍是全部数据。
+      <Code>exportable</Code> 在右上角放导出菜单：绘图区存成
+      PNG（两倍分辨率，主题的颜色与字体照原样），数据表存成 CSV（带 BOM，Excel
+      打开中文不乱码）；文件名默认是图表的名称，<Code>exportName</Code>{' '}
+      可以改。柱状图、面积图、组合图同样支持；导出各种图表都有，直接用 HTML 画的漏斗图只能导出数据。
     </Example>
     <ApiReference api={api} />
   </DocPage>

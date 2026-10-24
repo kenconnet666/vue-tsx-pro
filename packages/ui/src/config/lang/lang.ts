@@ -113,6 +113,18 @@ export interface Lang {
   readonly checklistIconsLabel: (parts: readonly string[]) => string;
   /** 清单的汇总：`(2, 3)` → “已完成 2 / 3” */
   readonly checklistSummary: (done: number, total: number) => string;
+  /** 图表的导出菜单按钮，默认“导出” */
+  readonly chartExport: string;
+  /** 导出菜单：图片，默认“导出图片（PNG）” */
+  readonly chartExportImage: string;
+  /** 导出菜单：数据，默认“导出数据（CSV）” */
+  readonly chartExportData: string;
+  /** 图表没有名称时导出的文件名，默认“图表” */
+  readonly chartExportName: string;
+  /** 图表缩放的滑块的名称，默认“显示范围” */
+  readonly chartZoom: string;
+  /** 图表缩放后恢复全部，默认“显示全部” */
+  readonly chartZoomReset: string;
   /** 时间条图的数据表：系列的列名，默认“系列” */
   readonly chartSeries: string;
   /** 时间条图：开始的列名与提示框，默认“开始” */

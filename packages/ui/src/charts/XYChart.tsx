@@ -34,6 +34,8 @@ import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { colors } from '../config/theme/tokens.stylex';
 import { Skeleton } from '../feedback/Skeleton';
+import { Button } from '../base/Button';
+import { Slider } from '../input/Slider';
 import { alignedTicks, type AlignedAxes } from './axis-ticks';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
@@ -169,6 +171,10 @@ export interface XYChartProps<T extends object>
    * 点图是鼠标的捷径：同样的去处在页面上还要有链接或按钮，键盘与读屏才到得了（WCAG 2.1.1）
    */
   onItemClick?: (row: T, index: number) => void;
+  /** 缩放：绘图区下面一条区间滑块，选一段类目放大看（几年的月度数据）；读屏的数据表仍是全部 */
+  zoom?: boolean;
+  /** 缩放的区间 [起, 止]：类目的位置，含两端；父级可以写 zoomRange={_bind(range)}，null 是全部 */
+  zoomRange?: [number, number] | null;
 }
 
 /** 交给各种图的绘制上下文 */
@@ -237,6 +243,9 @@ export const xyChartStyles = stylex.create({
   // 柱状图的十字线只用来定位提示框，不画竖线
   hideCrosshairLine: { '--vis-crosshair-line-stroke-opacity': '0' },
   skeleton: { display: 'block', width: '100%', height: '100%' },
+  // 缩放：滑块占满，“显示全部”在结束边
+  zoom: { display: 'flex', alignItems: 'center', gap: '_md', paddingInline: '_sm' },
+  zoomSlider: { flexGrow: 1, minWidth: 0 },
   skeletonBars: {
     display: 'flex',
     alignItems: 'flex-end',
@@ -300,6 +309,8 @@ export const XYChart = _component(
     annotations,
     bands,
     onItemClick,
+    zoom = false,
+    zoomRange = _bindable<[number, number] | null>(null),
     kind,
     sx,
     ...rest
@@ -341,6 +352,34 @@ export const XYChart = _component(
         ? hiddenSeries.filter((item) => item !== key)
         : [...hiddenSeries, key];
     }
+
+    /** 缩放的滑块：两端是类目；缩小过时旁边有“显示全部” */
+    const zoomBar = () => {
+      const last = data.length - 1;
+      return (
+        <div {...stylex.attrs(xyChartStyles.zoom)}>
+          <Slider
+            value={zoomRange ?? [0, last]}
+            {...{
+              'onUpdate:value': (next: [number, number]) =>
+                (zoomRange = next[0] === 0 && next[1] === last ? null : next),
+            }}
+            min={0}
+            max={last}
+            step={1}
+            size="sm"
+            valueText={(position) => categoryText(data[position])}
+            aria-label={lang.chartZoom}
+            propsRoot={{ sx: xyChartStyles.zoomSlider }}
+          />
+          {zoomRange && (
+            <Button variant="link" size="sm" onClick={() => (zoomRange = null)}>
+              {lang.chartZoomReset}
+            </Button>
+          )}
+        </div>
+      );
+    };
 
     const instances = createChartInstances();
     let tooltipElement: HTMLElement | undefined;
@@ -393,7 +432,9 @@ export const XYChart = _component(
       if (tooltipElement) render(null, tooltipElement);
     });
     _effect(() => {
-      const rows = [...data];
+      // 缩放：只画选中的一段（散点图的横轴是连续的数值，不按类目缩放）
+      const range = zoom && !kind.continuousX ? zoomRange : null;
+      const rows = range ? data.slice(range[0], range[1] + 1) : [...data];
       const shown = visible;
       const element = plot;
       if (!element || loading || rows.length === 0) return;
@@ -748,6 +789,7 @@ export const XYChart = _component(
           }
         }
         plotRef={(element) => (plot = element)}
+        footer={zoom && !kind.continuousX && data.length > 2 ? zoomBar() : undefined}
       />
     );
   },

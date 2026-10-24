@@ -11,7 +11,11 @@
 import { _component } from '@vue-tsx-pro/tsx';
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import type { VNodeChild } from 'vue';
+import { Download, FileSpreadsheet, ImageDown } from '@lucide/icons';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
+import { IconButton } from '../base/IconButton';
+import { Menu, MenuItem } from '../overlay/Menu';
+import { exportChartData, exportChartImage } from './export';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -50,8 +54,12 @@ export interface ChartTable {
   rows: readonly { header: string; cells: readonly string[] }[];
 }
 
-/** 各种图表共有的部件属性 */
+/** 各种图表共有的选项与部件属性 */
 export interface ChartFrameParts {
+  /** 右上角的导出菜单：绘图区存成 PNG 图片、数据表存成 CSV */
+  exportable?: boolean;
+  /** 导出的文件名（不含扩展名）；不写时用图表的名称（aria-label） */
+  exportName?: string;
   /** 图表上方一行（单位与图例）的部件属性 */
   propsHeader?: PartProps<'div'>;
   /** 单位的部件属性 */
@@ -270,6 +278,8 @@ export interface ChartFrameProps extends PartProps<'div', 'role' | 'aria-busy'>,
   plotRef?: (element: HTMLElement | null) => void;
   /** 绘图区里直接渲染的内容（不用 Unovis 的图，如漏斗图）；同样对读屏隐藏 */
   plot?: VNodeChild;
+  /** 绘图区下面的内容（缩放的滑块） */
+  footer?: VNodeChild;
   /** 点了绘图区（下钻）：写了它时指针是手形 */
   onPlotClick?: () => void;
   /** 图里的项能点（手形指针），点击由图自己处理（环形图的扇区、网络图的节点） */
@@ -291,6 +301,7 @@ export const ChartFrame = _component(
     empty,
     table,
     plotRef,
+    footer,
     plot,
     onPlotClick,
     clickable = false,
@@ -300,9 +311,45 @@ export const ChartFrame = _component(
     propsLegendItem,
     propsPlot,
     propsTable,
+    exportable = false,
+    exportName,
     ...rest
   }: ChartFrameProps) => {
     const lang = useLang();
+    const format = useFormat();
+    let plotElement: HTMLElement | null = null;
+    const fileName = () => exportName ?? rest['aria-label'] ?? lang.chartExportName;
+    /** 导出菜单：图片要绘图区里有 SVG（漏斗图这类直接用 HTML 画的没有） */
+    const exportMenu = () => (
+      <Menu
+        trigger={(props) => (
+          <IconButton
+            {...props}
+            icon={Download}
+            variant="ghost"
+            tone="neutral"
+            size="sm"
+            aria-label={lang.chartExport}
+          />
+        )}
+      >
+        <MenuItem
+          icon={ImageDown}
+          onAction={() => {
+            const svg = plotElement?.querySelector('svg');
+            if (svg) void exportChartImage(svg, fileName());
+          }}
+        >
+          {lang.chartExportImage}
+        </MenuItem>
+        <MenuItem
+          icon={FileSpreadsheet}
+          onAction={() => exportChartData(table, format, fileName())}
+        >
+          {lang.chartExportData}
+        </MenuItem>
+      </Menu>
+    );
     return () => {
       const plotHeight = typeof height === 'number' ? `${height}px` : height;
       const body = loading ? (
@@ -319,7 +366,7 @@ export const ChartFrame = _component(
             'aria-busy': loading || undefined,
           })}
         >
-          {(unit || unitEnd || legend.length > 0) && (
+          {(unit || unitEnd || legend.length > 0 || exportable) && (
             <div {...mergeAttrs<'div'>({ sx: chartStyles.header }, propsHeader)}>
               {unit && (
                 <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unit}</span>
@@ -359,6 +406,7 @@ export const ChartFrame = _component(
               {unitEnd && (
                 <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unitEnd}</span>
               )}
+              {exportable && !isEmpty && !loading && exportMenu()}
             </div>
           )}
           {/* key 不同：两种状态不复用同一个 div，否则 Unovis 画进去的 svg 会留在骨架、空状态里 */}
@@ -383,8 +431,10 @@ export const ChartFrame = _component(
                 propsPlot,
                 {
                   'aria-hidden': true,
-                  ref: (element: unknown) =>
-                    plotRef?.(element instanceof HTMLElement ? element : null),
+                  ref: (element: unknown) => {
+                    plotElement = element instanceof HTMLElement ? element : null;
+                    plotRef?.(plotElement);
+                  },
                   onClick: onPlotClick,
                 },
               )}
@@ -392,6 +442,7 @@ export const ChartFrame = _component(
               {plot}
             </div>
           )}
+          {!body && footer}
           {!isEmpty && (
             <table {...mergeAttrs<'table'>({ sx: visuallyHiddenStyles.hidden }, propsTable)}>
               <thead>
