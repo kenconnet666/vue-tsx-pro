@@ -34,6 +34,17 @@ export {
   type LineCurves,
   type LineDots,
 } from './LineChart';
+export {
+  MapChart,
+  mapChartStyles,
+  topologyBounds,
+  type MapArea,
+  type MapChartProps,
+  type MapGeoProjection,
+  type MapLink,
+  type MapPoint,
+  type MapProjections,
+} from './MapChart';
 export { RadarChart, radarChartStyles, type RadarChartProps } from './RadarChart';
 export {
   SankeyChart,

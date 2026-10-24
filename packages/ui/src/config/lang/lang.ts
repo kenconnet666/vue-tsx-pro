@@ -125,6 +125,14 @@ export interface Lang {
   readonly chartZoom: string;
   /** 图表缩放后恢复全部，默认“显示全部” */
   readonly chartZoomReset: string;
+  /** 地图的放大按钮，默认“放大” */
+  readonly chartZoomIn: string;
+  /** 地图的缩小按钮，默认“缩小” */
+  readonly chartZoomOut: string;
+  /** 地图的复位按钮，默认“复位” */
+  readonly chartZoomFit: string;
+  /** 地图拦下没按 Ctrl 的滚轮时的提示，默认“按住 Ctrl 滚动缩放地图” */
+  readonly chartZoomWheelHint: string;
   /** 时间条图的数据表：系列的列名，默认“系列” */
   readonly chartSeries: string;
   /** 时间条图：开始的列名与提示框，默认“开始” */

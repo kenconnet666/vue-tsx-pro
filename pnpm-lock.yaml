@@ -488,6 +488,9 @@ importers:
       '@stylexjs/stylex':
         specifier: 'catalog:'
         version: 0.19.1
+      '@unovis/ts':
+        specifier: 'catalog:'
+        version: 1.7.1
       '@vue-tsx-pro/tsx':
         specifier: workspace:^
         version: link:../../packages/tsx

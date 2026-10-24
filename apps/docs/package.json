@@ -25,6 +25,7 @@
     "@lucide/icons": "catalog:",
     "@shikijs/langs": "catalog:",
     "@stylexjs/stylex": "catalog:",
+    "@unovis/ts": "catalog:",
     "@vue-tsx-pro/tsx": "workspace:^",
     "@vue-tsx-pro/ui": "workspace:^",
     "animejs": "catalog:",

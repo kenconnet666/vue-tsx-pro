@@ -278,8 +278,10 @@ export interface ChartFrameProps extends PartProps<'div', 'role' | 'aria-busy'>,
   plotRef?: (element: HTMLElement | null) => void;
   /** 绘图区里直接渲染的内容（不用 Unovis 的图，如漏斗图）；同样对读屏隐藏 */
   plot?: VNodeChild;
-  /** 绘图区下面的内容（缩放的滑块） */
+  /** 绘图区下面的内容（缩放的滑块、地图的色带） */
   footer?: VNodeChild;
+  /** 上方一行右端的操作（地图的缩放按钮），在导出菜单前面 */
+  actions?: VNodeChild;
   /** 点了绘图区（下钻）：写了它时指针是手形 */
   onPlotClick?: () => void;
   /** 图里的项能点（手形指针），点击由图自己处理（环形图的扇区、网络图的节点） */
@@ -302,6 +304,7 @@ export const ChartFrame = _component(
     table,
     plotRef,
     footer,
+    actions,
     plot,
     onPlotClick,
     clickable = false,
@@ -366,7 +369,7 @@ export const ChartFrame = _component(
             'aria-busy': loading || undefined,
           })}
         >
-          {(unit || unitEnd || legend.length > 0 || exportable) && (
+          {(unit || unitEnd || legend.length > 0 || exportable || actions) && (
             <div {...mergeAttrs<'div'>({ sx: chartStyles.header }, propsHeader)}>
               {unit && (
                 <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unit}</span>
@@ -406,6 +409,7 @@ export const ChartFrame = _component(
               {unitEnd && (
                 <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unitEnd}</span>
               )}
+              {!isEmpty && !loading && actions}
               {exportable && !isEmpty && !loading && exportMenu()}
             </div>
           )}
