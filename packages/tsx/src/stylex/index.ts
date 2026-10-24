@@ -125,7 +125,7 @@ type MapStyles<S> = Readonly<{
 /** stylex.create 的类型：样式组名保留推导，组内属性值的上下文类型固定为带注释的 DocumentedStyles（COMPONENTS.md §9.2） */
 export interface Create {
   /**
-   * 定义一组静态样式，编译期生成原子类；属性悬停可看到中文说明。
+   * 定义一组静态样式，用到时由运行时引擎合成类、插入规则；属性悬停可看到中文说明。
    *
    * ```ts
    * const styles = stylex.create({
@@ -147,8 +147,8 @@ export interface Create {
 }
 
 /**
- * 定义样式（见 {@link Create}）：运行时模式（styles: 'runtime'）下产出片段，attrs 合成一个类时才插入规则（runtime.ts）；
- * 编译模式下 StyleX 在编译期把它换成原子类
+ * 定义样式（见 {@link Create}）：产出片段，attrs 合成一个类时才插入规则（runtime.ts）；
+ * 编译模式（styles: 'compile'）下 StyleX 在编译期把它换成原子类
  */
 export const create: Create = runtime.create as never;
 

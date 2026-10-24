@@ -63,7 +63,7 @@ const styles = stylex.create({
 
 短写按属性找 token 组（`padding` → space，`color` → colors），跨组写 `'_space.md'`；规则见 COMPONENTS.md §4。动态样式的参数等运行时才知道的值也可以从 `t` 取。
 
-构建时 StyleX 的 CSS 会追加到宿主产物里的 CSS 文件（宿主一般都有全局样式）；如果宿主一个 CSS 文件都没有，StyleX 会另写一个 `stylex.css` 但不会自动引用。
+样式由运行时引擎在页面上生成（第一次用到时插入一张 `<style>`），宿主不需要引入任何 CSS 文件；组件库发布的是编译好的 JS，开发服务器整个预构建它，不再逐个编译。设计与实测见 STYLE-ENGINE.md。
 
 完整示例见 `apps/host-demo`：SFC 首页 + vue-router + pinia，加一个 TSX 页面读取路由参数、写入 store、inject 宿主提供的值。
 
@@ -72,7 +72,7 @@ const styles = stylex.create({
 | 路径             | 包                               | 说明                                                                          |
 | ---------------- | -------------------------------- | ----------------------------------------------------------------------------- |
 | `packages/tsx`   | `@vue-tsx-pro/tsx`               | `_component()`（Svelte 式 props 解构）、符文编译器、Vite 预设、JSX 与符文类型 |
-| `packages/ui`    | `@vue-tsx-pro/ui`                | 组件库（StyleX）                                                              |
+| `packages/ui`    | `@vue-tsx-pro/ui`                | 组件库（写法同 StyleX 的运行时样式引擎）                                      |
 | `apps/docs`      | `@vue-tsx-pro/docs`（私有）      | 文档站：用组件库自己写的 TSX 网站（Vite + vue-router），开发时热更新各包源码  |
 | `apps/host-demo` | `@vue-tsx-pro/host-demo`（私有） | 宿主示例：普通 Vue 3.5 项目里的 TSX 页面                                      |
 

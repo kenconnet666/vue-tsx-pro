@@ -22,7 +22,7 @@ const headings: HeadingEntry[] = [
 ];
 
 const filler =
-  '组件库按需引入，样式在构建时提取成原子类，页面只加载用到的部分。每个组件都可以用 sx 覆盖样式，用 propsXxx 给内部的部件加属性。';
+  '组件库按需引入，样式在用到时才生成，页面只带用到的部分。每个组件都可以用 sx 覆盖样式，用 propsXxx 给内部的部件加属性。';
 
 const styles = stylex.create({
   layout: { display: 'grid', gridTemplateColumns: '1fr 9rem', gap: '_lg', alignItems: 'start' },

@@ -64,19 +64,21 @@ export interface VueTsxProOptions {
    */
   parallel?: boolean;
   /**
-   * 样式在哪里生成，默认 'compile'：StyleX 在编译期把 stylex.create 换成原子类、提取成 CSS 文件。
-   * 'runtime'：只有 *.stylex.ts（defineVars、defineConsts、defineMarker）由 StyleX 编译并在运行时注入，
-   * 其余的 stylex.create 在运行时第一次用到时生成原子类（stylex/runtime.ts）；不用逐文件过 StyleX 的 Babel，
-   * 发布的组件库也不必由使用方再编译，可以预构建
+   * 样式在哪里生成，默认 'runtime'：stylex.create 由运行时引擎处理（stylex/runtime.ts，一个元素一个组合类，
+   * 动态值直接改元素上的变量），只有 *.stylex.ts（defineVars、defineConsts、defineMarker）由 StyleX 编译；
+   * 不用逐文件过 StyleX 的 Babel，发布的组件库也不必由使用方再编译，整个预构建。
+   * 'compile'：旧的方式，StyleX 在编译期把 stylex.create 换成原子类、提取成 CSS 文件；
+   * 按运行时模式构建的组件库（@vue-tsx-pro/ui 的发布包）不能交给它编译
    */
   styles?: 'compile' | 'runtime';
 }
 
 /**
- * Vite 预设：`plugins: [vueTsxPro()]`。组件库构建写 `vueTsxPro({ stylex: false })`，由使用方统一编译 StyleX。
+ * Vite 预设：`plugins: [vueTsxPro()]`，默认运行时样式（styles: 'runtime'）。
+ * 编译模式下组件库构建写 `vueTsxPro({ styles: 'compile', stylex: false })`，由使用方统一编译 StyleX。
  */
 export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
-  if (options.styles === 'runtime') return runtimeStyles(options);
+  if ((options.styles ?? 'runtime') === 'runtime') return runtimeStyles(options);
   if (options.stylex === false) return [compiler(options, undefined)];
   const { useCSSLayers, enableLTRRTLComments, lightningcssOptions, ...babel } =
     options.stylex ?? {};
@@ -206,7 +208,7 @@ function compiler(
         root: config.root,
         stylex: stylex?.babel,
         stylexOnly: stylex?.only?.source,
-        styleBindings: options.styles === 'runtime',
+        styleBindings: (options.styles ?? 'runtime') === 'runtime',
         jsx: options.jsx,
         hmr,
       };

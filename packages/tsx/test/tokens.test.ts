@@ -236,3 +236,20 @@ describe('按导入方找 token 模块', () => {
     expect(code).toContain('from "@vue-tsx-pro/ui/tokens.stylex"');
   });
 });
+
+describe('运行时样式模式构建的产物', () => {
+  it('defineVars 已编译成带 __varGroupHash__ 的对象：照样读出组名与 token 名', async () => {
+    const { mkdtempSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const root = mkdtempSync(join(tmpdir(), 'vtp-tokens-'));
+    writeFileSync(
+      join(root, 'tokens.stylex.js'),
+      `const space = { sm: "var(--xa)", md: "var(--xb)", __varGroupHash__: "xg1" };
+const colors = { text: "var(--xc)", __varGroupHash__: "xg2" };
+export { colors, space };`,
+    );
+    const found = tokenModule('./tokens.stylex.js', join(root, 'App.tsx'), root)!;
+    expect([...found.groups.get('space')!]).toEqual(['sm', 'md']);
+    expect([...found.groups.get('colors')!]).toEqual(['text']);
+  });
+});

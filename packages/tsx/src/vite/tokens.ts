@@ -75,15 +75,32 @@ function readGroups(file: string): TokenModule['groups'] {
     const declaration = t.isExportNamedDeclaration(statement) ? statement.declaration : statement;
     if (!t.isVariableDeclaration(declaration)) continue;
     for (const { id, init } of declaration.declarations) {
-      if (!t.isIdentifier(id) || !t.isCallExpression(init) || !isDefineVars(init.callee)) continue;
-      const tokens = init.arguments[0];
-      if (t.isObjectExpression(tokens))
-        groups.set(id.name, new Set(tokens.properties.flatMap(keyName)));
+      if (!t.isIdentifier(id)) continue;
+      const tokens = varGroup(init);
+      if (tokens) groups.set(id.name, new Set(tokens.properties.flatMap(keyName)));
     }
   }
   groupsCache.set(file, { mtime, groups });
   return groups;
 }
+
+/**
+ * 一组 token 的对象字面量：源码里是 `stylex.defineVars({ … })` 的参数；运行时样式模式构建的产物里
+ * defineVars 已由 StyleX 编译成 `{ 名: 'var(--x…)', …, __varGroupHash__: 'x…' }`
+ */
+function varGroup(init: t.Node | null | undefined): t.ObjectExpression | undefined {
+  if (t.isCallExpression(init) && isDefineVars(init.callee)) {
+    const tokens = init.arguments[0];
+    return t.isObjectExpression(tokens) ? tokens : undefined;
+  }
+  if (t.isObjectExpression(init) && init.properties.some((p) => keyName(p)[0] === VAR_GROUP_HASH)) {
+    return t.objectExpression(init.properties.filter((p) => keyName(p)[0] !== VAR_GROUP_HASH));
+  }
+  return undefined;
+}
+
+/** StyleX 编译后的变量组上记组哈希的键（不是 token） */
+const VAR_GROUP_HASH = '__varGroupHash__';
 
 function isDefineVars(callee: t.Node) {
   if (t.isIdentifier(callee)) return callee.name === 'defineVars';

@@ -14,11 +14,12 @@
  *   const s = button({ size, fullWidth });       // { root: [...样式], icon: [...] }，按档位组合缓存
  *   <button {...stylex.attrs(s.root, sx)} />
  *
- * 每个部件的样式是 create 的结果（运行时惰性生成原子类），合并时按属性键后者覆盖前者，
+ * 每个部件的样式是 create 的结果（片段，用到时才展开），合并时后者覆盖前者，
  * 所以“基础 < 档位 < 组合档位 < 调用方的 sx”的顺序由 attrs 的参数顺序保证。
  */
 import type { CompiledStyles } from './index';
-import { create, HOT, hotUpdate } from './runtime';
+import { HOT, hotUpdate } from './hot';
+import { create } from './runtime';
 
 /** 一个部件的样式对象（同 stylex.create 的一组） */
 type PartStyle = Record<string, unknown>;

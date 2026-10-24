@@ -3,7 +3,7 @@
  *
  *   <span {...stylex.attrs(toneThemes[tone], styles.soft)} />     // styles.soft 里写 color: toneVars.text
  *
- * 运行时生成（styles: 'runtime'）：按色调名循环创建，编译期的 StyleX 做不到（参数要能静态求值）。
+ * 运行时样式引擎生成：按色调名循环创建（编译期的 StyleX 做不到，它要求参数能静态求值）。
  */
 import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { t } from '../../config/theme/tokens';

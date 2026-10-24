@@ -29,7 +29,7 @@ function themeBoot(): Plugin {
 export const plugins = [
   workspaceSource(),
   iconImports(),
-  ...vueTsxPro({ styles: 'runtime' }),
+  ...vueTsxPro(),
   demoSource(),
   docPages(),
   componentApi(),
@@ -57,8 +57,6 @@ export const optimizeDeps = {
     '@babel/types',
     '@babel/plugin-transform-typescript',
     '@vue/babel-plugin-jsx',
-    '@stylexjs/babel-plugin',
-    '@stylexjs/babel-plugin > postcss-value-parser',
     // 演练场的编辑器：进入演练场才加载，预构建好免得那时才发现新依赖、重新预构建并刷新页面
     '@codemirror/autocomplete',
     '@codemirror/commands',
@@ -88,7 +86,8 @@ export default defineConfig({
       { find: /^(?:node:)?path$/, replacement: 'pathe' },
       { find: /^(?:node:)?fs$/, replacement: shim('fs.ts') },
       { find: /^(?:node:)?assert$/, replacement: shim('assert.cjs') },
-      // StyleX 插件浏览器版要的 @babel/standalone：只转交解析器、遍历器、类型工具
+      // StyleX 插件浏览器版要的 @babel/standalone：只转交解析器、遍历器、类型工具。演练场走运行时样式、执行时不载入它，
+      // 但编译函数里按需载入它的那一处打包时仍要能解析
       { find: '@babel/standalone', replacement: shim('babel-standalone.ts') },
     ],
   },

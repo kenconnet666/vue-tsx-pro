@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitest/config';
 import { vueTsxPro, workspaceSource } from '@vue-tsx-pro/tsx/vite';
 
-// 测试时完整编译，样式走运行时引擎（styles: 'runtime'），与组件库发布的产物一致
+// 测试时完整编译，样式走运行时引擎（预设的默认），与组件库发布的产物一致
 export default defineConfig({
-  plugins: [workspaceSource(), ...vueTsxPro({ styles: 'runtime' })],
+  plugins: [workspaceSource(), ...vueTsxPro()],
   // ExcelJS 的 Node 版（excel.js）在 VM 上下文里引 uuid 的 esm-node 出错；浏览器版自带依赖，与使用方的打包器取的一致（package.json 的 browser）
   resolve: { alias: { exceljs: 'exceljs/dist/exceljs.min.js' } },
   test: {

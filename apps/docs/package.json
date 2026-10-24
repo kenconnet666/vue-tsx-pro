@@ -45,7 +45,6 @@
     "@babel/traverse": "catalog:",
     "@babel/types": "catalog:",
     "@emotion/css": "catalog:",
-    "@stylexjs/babel-plugin": "catalog:",
     "@types/three": "catalog:",
     "@vitest/browser-playwright": "catalog:",
     "@vue/babel-plugin-jsx": "catalog:",

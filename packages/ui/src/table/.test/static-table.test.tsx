@@ -71,7 +71,7 @@ describe('Table', () => {
     const columnHeader = root.querySelector<HTMLElement>('thead th')!;
     const rowHeader = root.querySelector<HTMLElement>('tbody th')!;
     const footHeader = root.querySelector<HTMLElement>('tfoot th')!;
-    // 列标题有浅色底，行标题没有（原子类：同一属性同一取值就是同一个类）
+    // 列标题有浅色底，行标题没有（按元素实际得到的声明判断）
     expect(hasStyles(columnHeader!, headerFill.fill)).toBe(true);
     expect(hasStyles(rowHeader!, headerFill.fill)).toBe(false);
     expect(hasStyles(rowHeader!, tableStyles.rowHeader)).toBe(true);

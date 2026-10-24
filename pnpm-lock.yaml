@@ -519,9 +519,6 @@ importers:
       '@emotion/css':
         specifier: 'catalog:'
         version: 11.13.5
-      '@stylexjs/babel-plugin':
-        specifier: 'catalog:'
-        version: 0.19.1
       '@types/three':
         specifier: 'catalog:'
         version: 0.186.0

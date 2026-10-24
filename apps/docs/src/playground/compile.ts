@@ -1,13 +1,11 @@
 /**
- * 代码演练场的编译：把一段 TSX 编译成能直接执行的代码与它的 CSS，在 Worker 里运行（compile.worker.ts）。
+ * 代码演练场的编译：把一段 TSX 编译成能直接执行的代码，在 Worker 里运行（compile.worker.ts）。
  *
- * 与 Vite 预设是同一个编译函数（@vue-tsx-pro/tsx/compiler 的 compile）：符文、token 字符串写法、StyleX、Vue JSX、
- * 去掉类型；最后把 import 改成从主线程给的模块表里取（见 run.ts），export default 改成交出组件。
- * StyleX 生成的样式规则转成 CSS，由主线程插进页面（与打包工具的做法相同；
- * StyleX 浏览器版的“运行时注入”会插入 import 语句，它精简过的 Babel 类型工具里缺少需要的函数，用不了）。
+ * 与 Vite 预设是同一个编译函数（@vue-tsx-pro/tsx/compiler 的 compile）：符文、token 字符串写法、动态样式的响应式绑定、
+ * Vue JSX、去掉类型；最后把 import 改成从主线程给的模块表里取（见 run.ts），export default 改成交出组件。
+ * 样式同站点一样走运行时引擎：stylex.create 在页面上执行时生成规则，不用在这里跑 StyleX 的 Babel、生成 CSS。
  */
 import { types as t, type PluginObject } from '@babel/core';
-import stylex from '@stylexjs/babel-plugin';
 import { compile } from '@vue-tsx-pro/tsx/compiler';
 
 /** 主题 token 的组名 → token 名：'_md' 这类写法据此改写成 token 变量 */
@@ -71,23 +69,6 @@ function modulesToGlobals(): PluginObject {
 /** token 模块：用户代码与组件库从同一个包名导入 */
 const TOKENS = '@vue-tsx-pro/ui/tokens.stylex';
 
-/** 能导入的 .stylex 模块 → 站点构建时的规范路径 */
-const STYLEX_MODULES: Record<string, string | undefined> = {
-  [TOKENS]: '@vue-tsx-pro/ui:config/theme/tokens.stylex',
-  '@vue-tsx-pro/ui/vars.stylex': '@vue-tsx-pro/ui:utils/style/vars.stylex',
-};
-
-/**
- * StyleX 按“规范路径 + 导出名”给 defineVars 的变量算哈希。规范路径与站点构建时一致
- * （packages/tsx/src/vite/stylex-resolution.ts 的 包名:去掉 src/ 与扩展名的路径），
- * 用户代码里的 colors.accent 才会编译成与组件库相同的 CSS 变量，跟着主题走。
- */
-const moduleResolution = {
-  type: 'custom',
-  filePathResolver: (importPath: string) => STYLEX_MODULES[importPath],
-  getCanonicalFilePath: (filePath: string) => filePath,
-};
-
 /** 编译用户代码；语法或写法错误时抛出带代码帧的错误 */
 export async function compilePlayground(code: string, tokenGroups: TokenGroups) {
   const groups = new Map(
@@ -96,20 +77,12 @@ export async function compilePlayground(code: string, tokenGroups: TokenGroups) 
   const result = await compile(code, {
     filename: FILENAME,
     tokens: () => ({ importPath: TOKENS, groups }),
-    stylex: {
-      dev: true,
-      runtimeInjection: false,
-      unstable_moduleResolution: moduleResolution as never,
-      // 调试用的文件路径直接取文件名：默认会去找所在的包（读 package.json），浏览器里没有文件系统
-      debugFilePath: (file: string) => file,
-    },
+    // JSX 里的动态样式调用改成响应式绑定（同站点的运行时样式模式）
+    styleBindings: true,
     // 值的导入都留着：modulesToGlobals 把它们换成从模块表取
     typescript: { onlyRemoveTypeImports: true },
     plugins: [modulesToGlobals],
     sourceMaps: false,
   });
-  return {
-    code: result?.code ?? '',
-    css: result?.stylex.length ? stylex.processStylexRules(result.stylex, false) : '',
-  };
+  return { code: result?.code ?? '' };
 }

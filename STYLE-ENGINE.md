@@ -1,6 +1,6 @@
 # 样式引擎：从编译期 StyleX 换成运行时引擎（2026-10-24）
 
-> 状态：原型完成并实测（§9），在分支 `proto/runtime-styles`。最初的“运行时原子类（复刻 StyleX）”原型已放弃，
+> 状态：已实现并合并（2026-10-24），Vite 预设默认 `styles: 'runtime'`；实测见 §9。最初的“运行时原子类（复刻 StyleX）”原型已放弃，
 > 改为下面的组合类 + 响应式绑定；§3、§4.2 里原子类的部分保留作调研记录。
 
 ## 1. 结论
@@ -255,7 +255,7 @@ Vue 3.5 的类型里没有 `popover`、`popovertarget`、`commandfor`、`command
 - 换运行时引擎后：样式对象原地替换，问题消失（已实现，见 §9.3）。
 - 不换的话：热更新单独识别 `stylex.create` 的导出，原地更新对象内容而不让导入方重新执行（约半天）。
 
-## 9. 原型实测（2026-10-24，分支 `proto/runtime-styles`）
+## 9. 实测（2026-10-24）
 
 ### 9.1 状态变化时动了什么（`node scripts/docs/style-updates.mjs`，文档站 `/bench/style-updates`）
 

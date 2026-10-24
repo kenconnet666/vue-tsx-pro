@@ -13,7 +13,7 @@ import { Alert, Button, CopyButton, Flex, Text, useConfig } from '@vue-tsx-pro/u
 import { onBeforeUnmount, onMounted, watch, type Component } from 'vue';
 import { CodeEditor } from '../playground/CodeEditor';
 import { mountPreview } from '../playground/preview';
-import { applyStyles, compile, evaluate } from '../playground/run';
+import { compile, evaluate } from '../playground/run';
 import { decodeCode, encodeCode } from '../playground/share';
 import { STARTER } from '../playground/starter';
 import { DocPage } from '../site/DocPage';
@@ -123,7 +123,6 @@ export default _component(() => {
     try {
       const next = await evaluate(result.code);
       if (id !== latest) return;
-      applyStyles(result.css);
       component = next;
       error = null;
       showPreview();
@@ -174,7 +173,6 @@ export default _component(() => {
     window.removeEventListener('popstate', onPopstate);
     clearTimeout(timer);
     unmountPreview?.();
-    applyStyles('');
   });
 
   return () => (
