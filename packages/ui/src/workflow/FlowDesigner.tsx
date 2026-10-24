@@ -88,6 +88,8 @@ export const flowDesignerStyles = stylex.create({
     flexBasis: '20rem',
     minWidth: 0,
     display: 'grid',
+    // 列宽不被内容撑开：面板窄时输入框跟着收窄
+    gridTemplateColumns: 'minmax(0, 1fr)',
     gap: '_md',
     padding: '_md',
     borderWidth: '_xs',
@@ -297,16 +299,21 @@ export const FlowDesigner = _component(
               ? undefined
               : ((nextUnit === 'days' ? { days: next } : { workdays: next }) as ProcessDue),
         });
-      return field(
-        messages.designerFields.due,
+      // 单位切换放在 Field 外面：一个 Field 只关联一个控件（标签、说明与 id 给数字输入框）
+      return (
         <div {...stylex.attrs(flowDesignerStyles.row)}>
-          <NumberField
-            value={amount}
-            {...{ 'onUpdate:value': (next: number | null) => write(next) }}
-            min={1}
-            step={1}
-            sx={flowDesignerStyles.grow}
-          />
+          <div {...stylex.attrs(flowDesignerStyles.grow)}>
+            {field(
+              messages.designerFields.due,
+              <NumberField
+                value={amount}
+                {...{ 'onUpdate:value': (next: number | null) => write(next) }}
+                min={1}
+                step={1}
+              />,
+              messages.designerNoDue,
+            )}
+          </div>
           <ToggleGroup
             value={unit}
             {...{
@@ -319,8 +326,7 @@ export const FlowDesigner = _component(
             <ToggleItem value="workdays">{messages.designerDueUnits.workdays}</ToggleItem>
             <ToggleItem value="days">{messages.designerDueUnits.days}</ToggleItem>
           </ToggleGroup>
-        </div>,
-        messages.designerNoDue,
+        </div>
       );
     };
 
