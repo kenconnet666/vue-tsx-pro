@@ -19,9 +19,10 @@
  *
  * 着色：sequential（默认）按数值深浅；diverging 以 midpoint 为界两头两种颜色（同比的涨跌）；
  * bins 分成几档（分级着色，图例是几个色块），不写时连续着色（图例是色带）；区域写了 color 时按它（分类着色）。
- * 没有数据的区域是底色。地点：value 决定大小（面积按比例），color、shape 决定颜色与形状；
+ * 没有数据的区域是底色。地点：value 决定大小（面积按比例），color、shape 决定颜色与形状；名字自动避让
+ * （换方位、挤时往外退并画引线，数值大的先放，放不下的悬停看；压住名字、地点的区域名藏起来）；
  * links 是地点之间的流向，粗细按 value，flow 时有流动的粒子。
- * zoomable 时可以拖动、滚轮缩放，右上角有放大、缩小、复位的按钮。悬停看名称与数值；读屏的数据表列出各区域、地点与流向。
+ * zoomable 时可以拖动、按住 Ctrl 滚轮缩放，右上角有放大、缩小、复位的按钮。悬停看名称与数值；读屏的数据表列出各区域、地点与流向。
  */
 import {
   MapProjection,
@@ -42,6 +43,7 @@ import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { useEventListener } from '../utils/dom/event-listener';
 import type { PartProps } from '../utils/props';
 import { chartTooltip, ChartFrame, type ChartFrameParts } from './frame';
+import { placeLabels, rectsOverlap, type LabelRect } from './label-layout';
 import { resolveColor, type ChartColor } from './series';
 import { useSingleChart, type SingleChart } from './single';
 
@@ -165,8 +167,6 @@ export const mapChartStyles = stylex.create({
     '--vis-map-boundary-color': colors.surface,
     '--vis-map-point-label-text-color-dark': colors.text,
     '--vis-map-point-label-text-color-light': colors.text,
-    '--vis-map-point-bottom-label-text-color': colors.text,
-    '--vis-map-point-bottom-label-font-size': '11px',
     '--vis-map-area-label-text-color': colors.text,
     '--vis-map-area-label-font-size': '10px',
     '--vis-map-area-label-font-weight': '400',
@@ -174,6 +174,16 @@ export const mapChartStyles = stylex.create({
     '--vis-map-point-default-stroke-width': '1.5px',
   },
   skeleton: { display: 'block', width: '100%', height: '100%' },
+  // 地点的标签：描一圈表面色的边，压在区域、连线上也看得清；字号、描边宽度随缩放在行内设置
+  pointLabels: {
+    fontWeight: 600,
+    fill: colors.text,
+    stroke: colors.surface,
+    paintOrder: 'stroke',
+    strokeLinejoin: 'round',
+    pointerEvents: 'none',
+  },
+  leader: { stroke: colors.textMuted },
   // 缩放按钮：在标题行的结束边（导出菜单前面）
   zoom: { display: 'inline-flex', alignItems: 'center', gap: '2px', marginInlineStart: 'auto' },
   wheelHint: { marginInlineEnd: '_sm', color: '_textMuted', fontSize: '_xs' },
@@ -194,6 +204,13 @@ export const mapChartStyles = stylex.create({
   swatch: { width: '0.875rem', height: '0.625rem', borderRadius: '2px' },
   swatchColor: (color: string) => ({ backgroundColor: color }),
 });
+
+/** 地点的标签四周留的空（屏幕像素） */
+const labelPadding = 3;
+
+/** 新建一个 SVG 元素 */
+const svgElement = <K extends keyof SVGElementTagNameMap>(name: K) =>
+  document.createElementNS('http://www.w3.org/2000/svg', name);
 
 /** 混色：基色占 percent，其余透明（落在底色上） */
 const tint = (color: string, percent: number) =>
@@ -342,15 +359,156 @@ export const MapChart = _component(
     };
     let map: TopoJSONMap<MapArea, MapPoint, MapLink> | undefined;
     let plot = _state.raw<HTMLElement | null>(null);
+
+    const pointMax = _derived(largest(points));
+    // 面积按数值比例：半径 3–8 px
+    const radiusOf = (point: MapPoint) =>
+      point.value === undefined || pointMax === 0
+        ? 4
+        : 3 + Math.sqrt(toNumber(point.value) / pointMax) * 5;
+
+    let labelFrame = 0;
+    /** 画完、缩放之后，下一帧重排地点的标签 */
+    function scheduleLabels() {
+      cancelAnimationFrame(labelFrame);
+      labelFrame = requestAnimationFrame(layoutLabels);
+    }
+    _effect(() => () => cancelAnimationFrame(labelFrame));
+
+    /**
+     * 地点的标签：Unovis 的标签相撞时只会藏起来，这里用 placeLabels 挪到放得下的方位（挤时画引线），
+     * 画在地点那一组里（跟着缩放、拖动）；压在标签、地点上的区域名藏起来。
+     * 按屏幕像素算：地点那一组的坐标乘缩放级别
+     */
+    function layoutLabels() {
+      const root = map?.g.node();
+      const group = root?.querySelector<SVGGElement>(`.${TopoJSONMap.selectors.points}`);
+      const svg = group?.ownerSVGElement;
+      if (!root || !group || !svg || !mapProjection) return;
+      const projectionAt = mapProjection;
+      const zoom = Number(svg.style.getPropertyValue('--vis-map-current-zoom-level')) || 1;
+      const layer =
+        group.querySelector<SVGGElement>(':scope > [data-point-labels]') ?? svgElement('g');
+      layer.setAttribute('data-point-labels', '');
+      layer.setAttribute('class', stylex.attrs(mapChartStyles.pointLabels).class ?? '');
+      layer.style.fontSize = `${11 / zoom}px`;
+      layer.style.strokeWidth = `${3 / zoom}px`;
+      // 放在最后：之后加入的地点不会盖住标签
+      group.append(layer);
+
+      const items = points.flatMap((point) => {
+        const position = projectionAt([point.longitude, point.latitude]);
+        if (!position || !point.label) return [];
+        const text = svgElement('text');
+        text.textContent = point.label;
+        text.setAttribute('text-anchor', 'middle');
+        return [{ point, text, x: position[0] * zoom, y: position[1] * zoom }];
+      });
+      layer.replaceChildren(...items.map((item) => item.text));
+      // 在原点量字形的框：中文字体的行高、基线的位置各浏览器不同，摆放时按量到的上沿对齐
+      const glyphs = items.map((item) => item.text.getBBox());
+      const anchors = items.map((item, index) => {
+        const box = glyphs[index]!;
+        return {
+          x: item.x,
+          y: item.y,
+          radius: radiusOf(item.point),
+          // 四周留出描边（1.5 px）与一点空隙；Firefox 量到的框比字形的墨迹窄一点
+          width: box.width * zoom + labelPadding * 2,
+          height: box.height * zoom + labelPadding * 2,
+          priority: item.point.value === undefined ? 0 : toNumber(item.point.value),
+        };
+      });
+
+      const areaTexts = [
+        ...root.querySelectorAll<SVGTextElement>(`text.${TopoJSONMap.selectors.areaLabel}`),
+      ].filter((text) => text.getAttribute('visibility') !== 'hidden');
+      const areaBoxes = areaTexts.map((text): LabelRect => {
+        text.style.display = '';
+        const { e, f } = text.transform.baseVal.consolidate()?.matrix ?? { e: 0, f: 0 };
+        const box = text.getBBox();
+        return {
+          x: (e + box.x) * zoom,
+          y: (f + box.y) * zoom,
+          width: box.width * zoom,
+          height: box.height * zoom,
+        };
+      });
+      // 没放大时整张图在绘图区里：标签也不出界；放大后本来就只看得到一部分
+      const bounds =
+        zoom === 1 ? { x: 0, y: 0, width: svg.clientWidth, height: svg.clientHeight } : undefined;
+      const placements = placeLabels(anchors, { bounds, soft: areaBoxes });
+
+      const taken: LabelRect[] = anchors.map((anchor) => ({
+        x: anchor.x - anchor.radius,
+        y: anchor.y - anchor.radius,
+        width: anchor.radius * 2,
+        height: anchor.radius * 2,
+      }));
+      placements.forEach((placement, index) => {
+        const { text } = items[index]!;
+        if (!placement) {
+          text.remove();
+          return;
+        }
+        const { box, leader } = placement;
+        taken.push(box);
+        text.setAttribute('x', String((box.x + box.width / 2) / zoom));
+        text.setAttribute('y', String((box.y + labelPadding) / zoom - glyphs[index]!.y));
+        if (leader) layer.insertBefore(leaderLine(anchors[index]!, box, zoom), text);
+      });
+      areaTexts.forEach((text, index) => {
+        if (taken.some((rect) => rectsOverlap(rect, areaBoxes[index]!)))
+          text.style.display = 'none';
+      });
+    }
+
+    /** 引线：从标记的边到标签矩形上离标记最近的点 */
+    function leaderLine(
+      anchor: { x: number; y: number; radius: number },
+      box: LabelRect,
+      zoom: number,
+    ) {
+      const toX = Math.min(Math.max(anchor.x, box.x), box.x + box.width);
+      const toY = Math.min(Math.max(anchor.y, box.y), box.y + box.height);
+      const length = Math.hypot(toX - anchor.x, toY - anchor.y) || 1;
+      const line = svgElement('line');
+      line.setAttribute('class', stylex.attrs(mapChartStyles.leader).class ?? '');
+      line.setAttribute(
+        'x1',
+        String((anchor.x + ((toX - anchor.x) / length) * anchor.radius) / zoom),
+      );
+      line.setAttribute(
+        'y1',
+        String((anchor.y + ((toY - anchor.y) / length) * anchor.radius) / zoom),
+      );
+      line.setAttribute('x2', String(toX / zoom));
+      line.setAttribute('y2', String(toY / zoom));
+      line.style.strokeWidth = `${1 / zoom}px`;
+      return line;
+    }
     const chart: SingleChart = useSingleChart<MapGraphData<MapArea, MapPoint, MapLink>>(() => ({
       element: plot,
       ready: !loading,
       tooltip,
       build: (instance) => {
-        const pointMax = largest(points);
         const linkMax = largest(links);
         updateProjection();
-        map = instance(`map-${generation}`, () => new TopoJSONMap<MapArea, MapPoint, MapLink>());
+        map = instance(`map-${generation}`, () => {
+          const created = new TopoJSONMap<MapArea, MapPoint, MapLink>();
+          // 缩放时 Unovis 把缩放级别写到 svg 的 style 上：跟着重排标签（拖动只是平移，标签随地点那一组走）
+          const observer = new MutationObserver(scheduleLabels);
+          queueMicrotask(() => {
+            const svg = created.g.node()?.parentElement;
+            if (svg) observer.observe(svg, { attributes: true, attributeFilter: ['style'] });
+          });
+          const destroy = created.destroy.bind(created);
+          created.destroy = () => {
+            observer.disconnect();
+            destroy();
+          };
+          return created;
+        });
         map.setConfig({
           topojson: topology,
           mapFeatureName: feature,
@@ -364,16 +522,12 @@ export const MapChart = _component(
           longitude: (point) => point.longitude,
           latitude: (point) => point.latitude,
           pointColor: (point) => resolveColor(point.color ?? 'danger', 0),
-          // 面积按数值比例：半径 3–8 px
-          pointRadius: (point) =>
-            point.value === undefined || pointMax === 0
-              ? 4
-              : 3 + Math.sqrt(toNumber(point.value) / pointMax) * 5,
+          pointRadius: radiusOf,
           pointShape: (point) => point.shape ?? 'circle',
           pointCursor: onPointClick ? () => 'pointer' : undefined,
-          // 名字写在点的下方（pointLabel 是写在点里面的）
+          // 名字由 layoutLabels 自己画（pointLabel 写在点里面，pointBottomLabel 相撞时只会藏起来）
           pointLabel: () => '',
-          pointBottomLabel: (point) => point.label,
+          pointBottomLabel: () => '',
           // 两端给 id：Unovis 克隆了地点，按对象找不到
           linkSource: (link) => link.from,
           linkTarget: (link) => link.to,
@@ -406,6 +560,7 @@ export const MapChart = _component(
         });
         return {
           component: map,
+          onRender: scheduleLabels,
           data: {
             areas: [...areas],
             points: [...points],

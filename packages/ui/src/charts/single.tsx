@@ -20,6 +20,8 @@ export interface SingleChartBuild<D> {
   data: D;
   /** 提示框：选择器 → 悬停的数据 → 内容（Unovis 的 Tooltip triggers） */
   triggers?: NonNullable<Tooltip['config']['triggers']>;
+  /** 每次画完之后（容器的 onRenderComplete）：组件要在画好之后调整的（地图的标签避让） */
+  onRender?: () => void;
 }
 
 /** useSingleChart 每次读取的状态 */
@@ -61,7 +63,7 @@ export function useSingleChart<D>(read: () => SingleChartState<D>): SingleChart 
       container = undefined;
       instances.reset();
     }
-    const { component, data, triggers } = build(instances.get);
+    const { component, data, triggers, onRender } = build(instances.get);
     const tooltipBox = instances.get('tooltip', () => new Tooltip());
     tooltipBox.setConfig({ triggers: triggers ?? {} });
     const config = {
@@ -69,6 +71,7 @@ export function useSingleChart<D>(read: () => SingleChartState<D>): SingleChart 
       tooltip: tooltip ? tooltipBox : undefined,
       ariaLabel: null,
       duration: chartDuration(element),
+      onRenderComplete: onRender,
     };
     if (container) container.update(config, undefined, data);
     else {

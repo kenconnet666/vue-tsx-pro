@@ -61,7 +61,8 @@ export default _component(() => () => (
         </Example>
         <Example id="sites" title="只标地点" demo={Sites}>
           不给区域数值时区域是底色，只看 <Code>points</Code>：<Code>color</Code>{' '}
-          用语义色表示状态，大小按 <Code>value</Code>；<Code>onPointClick</Code> 看详情。
+          用语义色表示状态，大小按 <Code>value</Code>；<Code>onPointClick</Code>{' '}
+          看详情。地点的名字自动避让：挤在一起时换到放得下的方位，再挤就往外退、画引线连回地点，数值大的先挑位置，放不下的不显示（悬停看）；压在名字、地点上的区域名会藏起来。
         </Example>
       </ExampleColumn>
     </Examples>

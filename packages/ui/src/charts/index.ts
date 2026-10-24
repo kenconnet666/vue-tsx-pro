@@ -105,6 +105,14 @@ export {
   type ChartTooltipItem,
 } from './frame';
 export {
+  placeLabels,
+  rectsOverlap,
+  type LabelAnchor,
+  type LabelLayoutOptions,
+  type LabelPlacement,
+  type LabelRect,
+} from './label-layout';
+export {
   resolveColor,
   resolveSeries,
   seriesNumber,

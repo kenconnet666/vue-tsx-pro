@@ -1,4 +1,5 @@
 // 只标地点：区域不给数值时是底色；供应商按交付状态着色（color 用语义色），大小按年采购额；
+// 长三角的地点挤在一起：名字自动换到放得下的方位，再挤就退到外一圈画引线，放不下的悬停看；
 // 点一个地点在下面显示它（onPointClick）
 import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -12,6 +13,12 @@ const sites: (MapPoint & { color: keyof typeof status })[] = [
   { id: 'tj', label: '天津', longitude: 117.2, latitude: 39.13, value: 540, color: 'success' },
   { id: 'qd', label: '青岛', longitude: 120.38, latitude: 36.07, value: 280, color: 'warning' },
   { id: 'nj', label: '南京', longitude: 118.8, latitude: 32.06, value: 610, color: 'success' },
+  { id: 'sh', label: '上海', longitude: 121.47, latitude: 31.23, value: 820, color: 'success' },
+  { id: 'su', label: '苏州', longitude: 120.59, latitude: 31.3, value: 530, color: 'success' },
+  { id: 'wx', label: '无锡', longitude: 120.31, latitude: 31.49, value: 240, color: 'warning' },
+  { id: 'cz', label: '常州', longitude: 119.97, latitude: 31.81, value: 170, color: 'success' },
+  { id: 'hz', label: '杭州', longitude: 120.16, latitude: 30.27, value: 480, color: 'success' },
+  { id: 'jx', label: '嘉兴', longitude: 120.76, latitude: 30.75, value: 150, color: 'danger' },
   { id: 'nb', label: '宁波', longitude: 121.55, latitude: 29.87, value: 450, color: 'danger' },
   { id: 'xm', label: '厦门', longitude: 118.09, latitude: 24.48, value: 190, color: 'success' },
   { id: 'sz', label: '深圳', longitude: 114.06, latitude: 22.54, value: 720, color: 'warning' },
@@ -32,7 +39,7 @@ export default _component(() => {
         feature="provinces"
         points={sites}
         unit="万元"
-        height={320}
+        height={360}
         onPointClick={(point) => (picked = sites.find((site) => site.id === point.id) ?? null)}
       />
       <Small tone="muted">

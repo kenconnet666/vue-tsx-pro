@@ -1,9 +1,10 @@
 // MapChart 在真实浏览器里：分档着色与图例、地点的名字、地图撑满绘图区的宽或高（换投影之后也是）、
-// 滚轮不按 Ctrl 时滚动页面而不缩放、流向画成连线
+// 滚轮不按 Ctrl 时滚动页面而不缩放、流向画成连线、地点的名字避让
 import { expect, it } from 'vitest';
 import { mount } from '../../../../test/mount';
 import Projections from '../demo/Projections';
 import Provinces from '../demo/Provinces';
+import Sites from '../demo/Sites';
 import SupplyChain from '../demo/SupplyChain';
 
 /** 等到条件成立（Unovis 在动画帧里绘制），最多 3 秒 */
@@ -44,8 +45,11 @@ it('省份分 5 档着色，图例是 5 个色块，地点写上名字，地图�
     /^[\d,]+ – [\d,]+$/.test(span.textContent!),
   );
   expect(bins).toHaveLength(5);
-  const text = features[0]!.ownerSVGElement!.textContent!;
-  for (const label of ['上海总装', '西安机加', '成都复材']) expect(text).toContain(label);
+  // 地点的名字在画完之后的下一帧排好
+  const svg = features[0]!.ownerSVGElement!;
+  await until(() => svg.querySelector('[data-point-labels] text'));
+  for (const label of ['上海总装', '西安机加', '成都复材'])
+    expect(svg.textContent).toContain(label);
   // 区域的形状在第一帧之后才画出来
   await until(() => fillRatio(root) > 0.9);
 });
@@ -89,4 +93,32 @@ it('流向画成连线，每条一根', async () => {
     return paths.length > 0 && paths;
   });
   expect(links).toHaveLength(6);
+});
+
+it('挤在一起的地点：名字互不重叠、不压地点，挤的画引线', async () => {
+  const root = mount(Sites);
+  const labels = await until(() => {
+    const texts = [...root.querySelectorAll<SVGTextElement>('[data-point-labels] text')];
+    return texts.length > 0 && texts;
+  });
+  const boxes = labels.map((text) => text.getBoundingClientRect());
+  const markers = [...root.querySelectorAll('svg g[class*="point"] path')]
+    .map((path) => path.getBoundingClientRect())
+    .filter((box) => box.width);
+  const overlap = (a: DOMRect, b: DOMRect) =>
+    a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+  boxes.forEach((box, index) => {
+    const name = labels[index]!.textContent!;
+    boxes.slice(index + 1).forEach((other, offset) => {
+      const pair = `${name} / ${labels[index + 1 + offset]!.textContent} ${JSON.stringify([box, other])}`;
+      expect(overlap(box, other), pair).toBe(false);
+    });
+    for (const marker of markers) expect(overlap(box, marker), name).toBe(false);
+  });
+  // 长三角的 7 个地点大多标上了（绘图区窄时放不下的不显示），有几个退到外一圈
+  const delta = ['上海', '苏州', '无锡', '常州', '杭州', '嘉兴', '宁波'];
+  expect(labels.filter((text) => delta.includes(text.textContent!)).length).toBeGreaterThanOrEqual(
+    5,
+  );
+  expect(root.querySelectorAll('[data-point-labels] line').length).toBeGreaterThan(0);
 });
