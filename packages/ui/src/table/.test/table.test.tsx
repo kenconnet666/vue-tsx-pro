@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { CalendarDate } from '@internationalized/date';
 import Decimal from 'decimal.js';
-import { hasStyles, mount } from '../../utils/.test/mount';
+import { hasStyles, mount, styleTextOf } from '../../utils/.test/mount';
 import { createStatusMap } from '../../utils/data/status';
 import {
   COLUMN_FLEX_MIN_WIDTH,
@@ -534,7 +534,7 @@ describe('DataTable 的详情行', () => {
     // 内容让过勾选列（44）与展开列（40），和第一个数据列对齐
     const content = cell.firstElementChild!;
     expect(hasStyles(content, dataTableDynamicStyles.indent(84))).toBe(true);
-    expect(content.getAttribute('style')).toContain('84px');
+    expect(styleTextOf(content)).toContain('84px');
 
     expanded = [];
     await flush();

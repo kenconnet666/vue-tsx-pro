@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { TextField } from '../../input/TextField';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { Field } from '../Field';
 import { Form } from '../Form';
 import { FormSection } from '../FormSection';
@@ -36,8 +36,8 @@ describe('FormSection', () => {
     ));
     expect(root.querySelector('[role="group"]')).toBeNull();
     const body = root.firstElementChild!.lastElementChild!;
-    expect(body.getAttribute('style')).toContain('18em');
-    expect(body.getAttribute('style')).toContain('/ 2');
+    expect(styleTextOf(body)).toContain('18em');
+    expect(styleTextOf(body)).toContain('/ 2');
   });
 
   it('这一组的布局与只读覆盖 Form 的，其他组照旧', () => {

@@ -1,7 +1,7 @@
 import { Check } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import type { VNodeChild } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleOf } from '../../utils/.test/mount';
 import { Icon, iconMarkup, type IconData } from '../Icon';
 
 const render = (node: () => VNodeChild) => mount(node).querySelector('svg')!;
@@ -56,7 +56,7 @@ describe('Icon', () => {
   });
 
   it('尺寸档位与 flipInRtl 各自追加样式', () => {
-    const classes = (svg: SVGElement) => svg.getAttribute('class')!.split(' ').length;
+    const classes = (svg: SVGElement) => styleOf(svg).size;
     const plain = classes(render(() => <Icon icon={Check} />));
     expect(classes(render(() => <Icon icon={Check} size="lg" />))).toBeGreaterThan(plain);
     expect(classes(render(() => <Icon icon={Check} flipInRtl />))).toBeGreaterThan(plain);

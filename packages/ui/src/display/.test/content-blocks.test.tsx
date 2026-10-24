@@ -1,7 +1,7 @@
 // 内容块：StatusDot、ItemList、ProportionBar、StatGroup 与 Stat 的色调、Card 的 extra、Descriptions 的行内排列
 import { describe, expect, it } from 'vitest';
 import { Text } from '../../base/Text';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleOf } from '../../utils/.test/mount';
 import { Card } from '../Card';
 import { Descriptions } from '../Descriptions';
 import { ItemList, ItemListItem } from '../ItemList';
@@ -79,8 +79,8 @@ describe('Stat、StatGroup', () => {
     const stats = root.querySelectorAll('dl');
     expect(stats).toHaveLength(2);
     const solo = mount(() => <Stat label="超时" value="10" />).querySelector('dl')!;
-    // 组里的 Stat 比单独的多一个分隔的 class
-    expect(stats[1]!.className.split(' ').length).toBeGreaterThan(solo.className.split(' ').length);
+    // 组里的 Stat 比单独的多分隔的样式
+    expect(styleOf(stats[1]!).size).toBeGreaterThan(styleOf(solo).size);
     const danger = mount(() => <Stat label="超时" value="10" tone="danger" />).querySelector(
       'dd span',
     )!;
@@ -118,7 +118,7 @@ describe('Card、Descriptions、Text', () => {
         1
       </Text>
     )).querySelector('span')!;
-    const count = (element: Element) => element.className.split(' ').filter(Boolean).length;
+    const count = (element: Element) => styleOf(element).size;
     expect(count(both)).toBe(count(plain) + 2);
   });
 });

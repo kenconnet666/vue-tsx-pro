@@ -2,7 +2,7 @@
 // 聚光两层光随指针亮起、离开后熄灭；流光一条光带
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { Card } from '../Card';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -35,10 +35,10 @@ describe('Card 的 effect', () => {
     const frame = root.querySelector<HTMLElement>('.card')!;
     movePointer(frame, 200, 50);
     await nextTick();
-    expect(frame.getAttribute('style')).toContain('rotateY(10deg)');
+    expect(styleTextOf(frame)).toContain('rotateY(10deg)');
     movePointer(frame, 500, 500);
     await nextTick();
-    expect(frame.getAttribute('style')).toContain('rotateY(0deg)');
+    expect(styleTextOf(frame)).toContain('rotateY(0deg)');
 
     vi.stubGlobal('matchMedia', (query: string) => ({
       matches: query.includes('reduce'),
@@ -50,7 +50,7 @@ describe('Card 的 effect', () => {
     )!;
     movePointer(reduced, 200, 50);
     await nextTick();
-    expect(reduced.getAttribute('style')).toContain('rotateY(0deg)');
+    expect(styleTextOf(reduced)).toContain('rotateY(0deg)');
   });
 
   it('spotlight：表面与边框两层光，指针进入时亮起、离开后熄灭', async () => {
@@ -61,11 +61,11 @@ describe('Card 的 effect', () => {
     movePointer(frame, 40, 30);
     await nextTick();
     // 位置是百分比：40 / 200、30 / 100
-    expect(layers[0]!.getAttribute('style')).toContain('20% 30%');
-    expect(layers[0]!.getAttribute('style')).toMatch(/opacity: ?1/);
+    expect(styleTextOf(layers[0]!)).toContain('20% 30%');
+    expect(styleTextOf(layers[0]!)).toMatch(/opacity: ?1/);
     movePointer(frame, 500, 500);
     await nextTick();
-    expect(layers[0]!.getAttribute('style')).toMatch(/opacity: ?0/);
+    expect(styleTextOf(layers[0]!)).toMatch(/opacity: ?0/);
   });
 
   it('beam：边框一圈里一条光带，路径跟着卡片的圆角；propsEffect 落在光层上', () => {
@@ -74,8 +74,6 @@ describe('Card 的 effect', () => {
     ));
     const layer = root.querySelector<HTMLElement>('.card > .light')!;
     expect(layer.getAttribute('aria-hidden')).toBe('true');
-    expect(layer.querySelector('span')!.getAttribute('style')).toContain(
-      'rect(0 auto auto 0 round',
-    );
+    expect(styleTextOf(layer.querySelector('span')!)).toContain('rect(0 auto auto 0 round');
   });
 });

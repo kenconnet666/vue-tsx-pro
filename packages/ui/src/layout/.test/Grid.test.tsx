@@ -1,6 +1,6 @@
 // 实际列数、自动换列见 apps/host-demo/test/base.browser.test.ts
 import { describe, expect, it } from 'vitest';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { createGrid, Grid, GridItem, GridList, GridListItem } from '../Grid';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
@@ -9,10 +9,10 @@ describe('Grid', () => {
   it('列数与最小宽度是动态样式：取值写在行内的 CSS 变量里', () => {
     const fixed = render(() => <Grid columns={3}>a</Grid>);
     expect(fixed.tagName).toBe('DIV');
-    expect(fixed.getAttribute('style')).toContain('repeat(3, minmax(0, 1fr))');
+    expect(styleTextOf(fixed)).toContain('repeat(3, minmax(0, 1fr))');
     const auto = render(() => <Grid minItemWidth="14em">a</Grid>);
-    expect(auto.getAttribute('style')).toContain('auto-fit');
-    expect(auto.getAttribute('style')).toContain('14em');
+    expect(styleTextOf(auto)).toContain('auto-fit');
+    expect(styleTextOf(auto)).toContain('14em');
   });
 
   it('同时给 columns 与 minItemWidth 时以 minItemWidth 为准；GridList 是 ul 并补上 role="list"', () => {
@@ -22,7 +22,7 @@ describe('Grid', () => {
       </GridList>
     ));
     expect(grid.tagName).toBe('UL');
-    expect(grid.getAttribute('style')).toContain('auto-fit');
+    expect(styleTextOf(grid)).toContain('auto-fit');
     expect(grid.getAttribute('role')).toBe('list');
   });
 
@@ -44,8 +44,8 @@ describe('Grid', () => {
       </Grid>
     ));
     const [wide, full, single] = [...grid.children] as HTMLElement[];
-    expect(wide!.getAttribute('style')).toContain('span 2 / span 2');
-    expect(wide!.getAttribute('style')).toContain('span 3 / span 3');
+    expect(styleTextOf(wide!)).toContain('span 2 / span 2');
+    expect(styleTextOf(wide!)).toContain('span 3 / span 3');
     expect(full!.className).not.toBe('');
     expect(full!.hasAttribute('style')).toBe(false);
     // 跨一列等于不跨：不写多余的样式

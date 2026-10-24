@@ -1,10 +1,10 @@
 // 实际排版（间距、换行、对齐）见 apps/host-demo/test/base.browser.test.ts
 import { describe, expect, it } from 'vitest';
-import { hasStyles, mount } from '../../utils/.test/mount';
+import { hasStyles, mount, styleOf } from '../../utils/.test/mount';
 import { createFlex, Flex, FlexList, flexStyles } from '../Flex';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
-const classes = (el: Element) => el.getAttribute('class')!.split(' ').length;
+const classes = (el: Element) => styleOf(el).size;
 
 const Toolbar = createFlex('nav', 'Toolbar');
 const Steps = createFlex('ol', 'Steps');

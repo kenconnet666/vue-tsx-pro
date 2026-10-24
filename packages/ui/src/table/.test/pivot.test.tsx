@@ -1,7 +1,7 @@
 // pivot 与 PivotTable：多级行维度、列维度的顺序、各种聚合、合计；Decimal 精确求和；多级行合并、热力着色、空格子
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { pivot } from '../pivot';
 import { PivotTable } from '../PivotTable';
 
@@ -97,7 +97,7 @@ describe('PivotTable', () => {
     ));
     const cells = [...root.querySelectorAll('tbody tr')[0]!.querySelectorAll('td')];
     // 华东：Q1 0.2、Q2 1.6、合计
-    const styled = cells.map((td) => td.getAttribute('style') ?? '');
+    const styled = cells.map((td) => styleTextOf(td));
     expect(styled[1]).toContain('color-mix');
     expect(styled[2]).toContain('color-mix');
     expect(styled[3]).not.toContain('color-mix');

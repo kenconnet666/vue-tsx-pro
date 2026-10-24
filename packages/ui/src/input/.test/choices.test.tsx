@@ -1,11 +1,10 @@
 // Checkbox / CheckboxGroup、RadioGroup / Radio、Switch：原生 input 的状态、写回与 Field 关联
 import { describe, expect, it } from 'vitest';
-import * as stylex from '@vue-tsx-pro/tsx/stylex';
 import { nextTick, reactive } from 'vue';
 import { Provider } from '../../config/Provider';
 import { toneFillStyles } from '../../utils/style/tone-styles';
 import { Field } from '../../form/Field';
-import { mount } from '../../utils/.test/mount';
+import { hasStyles, mount } from '../../utils/.test/mount';
 import { Checkbox, CheckboxGroup } from '../Checkbox';
 import { Radio, RadioGroup } from '../Radio';
 import { Switch } from '../Switch';
@@ -176,10 +175,7 @@ describe('受控：父级不接受新值时，原生 input 回到父级的值', 
 
 describe('色调', () => {
   const hasTone = (element: Element, tone: keyof typeof toneFillStyles) =>
-    stylex
-      .props(toneFillStyles[tone])
-      .className!.split(' ')
-      .every((name) => element.classList.contains(name));
+    hasStyles(element, toneFillStyles[tone]);
 
   it('tone 加在外层 label 上；不写时 accent，defaults.Choice 统一改，显式写的优先', () => {
     const root = mount(() => (

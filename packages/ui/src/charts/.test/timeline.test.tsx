@@ -1,7 +1,7 @@
 // TimelineChart：读屏的数据表（行、系列、起止与天数，只有日期的结束含这一天）、图例隐藏系列、高度按行数
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { TimelineChart } from '../TimelineChart';
 
 const items = [
@@ -37,7 +37,10 @@ describe('TimelineChart', () => {
     expect(rows[1]![1]).toBe('实际');
     expect(rows[2]![0]).toBe('卡箍国产化');
     expect(rows[2]![4]).toBe('2 天');
-    expect(figure.innerHTML).toContain('height: 96px');
+    // 绘图区的高度（动态样式：可能写在类里，也可能在行内变量里）
+    expect(
+      [...figure.querySelectorAll('div')].some((el) => /height: ?96px/.test(styleTextOf(el))),
+    ).toBe(true);
   });
 
   it('点图例隐藏一个系列：数据表里只剩另一个系列', async () => {
