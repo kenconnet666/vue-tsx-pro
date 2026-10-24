@@ -1,0 +1,128 @@
+// 导出 Excel：表格怎么显示就怎么导——分组表头导出成两行、组标题合并，金额是真正的数值（按万元换算、带数字格式），
+// 状态写名字，底部合计；同一份列定义交给 DataTable 显示
+import { Download } from '@lucide/icons';
+import { _component } from '@vue-tsx-pro/tsx';
+import {
+  Button,
+  createStatusMap,
+  DataTable,
+  Flex,
+  type DataTableColumn,
+  type DataTableColumnGroup,
+} from '@vue-tsx-pro/ui';
+import { exportXlsx } from '@vue-tsx-pro/ui/xlsx';
+
+interface Saving {
+  code: string;
+  name: string;
+  team: string;
+  target: number;
+  actual: number | null;
+  status: 'designing' | 'verifying' | 'confirmed';
+}
+
+const statuses = createStatusMap({
+  designing: { label: '方案设计中', tone: 'info' },
+  verifying: { label: '验证中', tone: 'accent' },
+  confirmed: { label: '已认定', tone: 'success' },
+});
+
+const rows: Saving[] = [
+  {
+    code: 'JY-2026-0187',
+    name: '整流罩支架合并为一体成型',
+    team: '复合材料中心',
+    target: 174_752,
+    actual: 160_300,
+    status: 'verifying',
+  },
+  {
+    code: 'DJ-2026-FC-14',
+    name: '线束卡箍改用铝合金',
+    team: '机体结构',
+    target: 86_400,
+    actual: null,
+    status: 'designing',
+  },
+  {
+    code: 'DMC-2026-QY-3',
+    name: '舱门铰链第二货源',
+    team: '供应链管理',
+    target: 312_000,
+    actual: 335_800,
+    status: 'confirmed',
+  },
+  {
+    code: 'JY-2026-0203',
+    name: '检修口盖板减重',
+    team: '机体结构',
+    target: 52_600,
+    actual: 48_900,
+    status: 'confirmed',
+  },
+];
+
+const columns: DataTableColumn<Saving>[] = [
+  { key: 'code', header: '项目编码', width: 150, sticky: 'start' },
+  { key: 'name', header: '项目名称', minWidth: 220 },
+  { key: 'team', header: '责任团队', width: 130 },
+  {
+    key: 'target',
+    header: '目标',
+    width: 110,
+    type: 'currency',
+    summary: 'sum',
+    format: { scale: 10_000 },
+  },
+  {
+    key: 'actual',
+    header: '实际',
+    width: 110,
+    type: 'currency',
+    summary: 'sum',
+    format: { scale: 10_000 },
+    empty: '待认定',
+  },
+  { key: 'status', header: '状态', width: 120, statuses },
+];
+
+const groups: DataTableColumnGroup[] = [
+  { key: 'saving', header: '收益（万元）', columns: ['target', 'actual'] },
+];
+
+export default _component(() => {
+  let exporting = _state(false);
+
+  async function download() {
+    exporting = true;
+    try {
+      await exportXlsx('降本台账', [{ name: '台账', rows, columns, groups }]);
+    } finally {
+      exporting = false;
+    }
+  }
+
+  return () => (
+    <Flex direction="column" gap="sm">
+      <Flex justify="end">
+        <Button
+          size="sm"
+          variant="outline"
+          tone="neutral"
+          icon={Download}
+          loading={exporting}
+          onClick={() => void download()}
+        >
+          导出 Excel
+        </Button>
+      </Flex>
+      <DataTable
+        rows={rows}
+        columns={columns}
+        columnGroups={groups}
+        getKey={(row) => row.code}
+        aria-label="降本台账"
+      />
+    </Flex>
+  );
+});

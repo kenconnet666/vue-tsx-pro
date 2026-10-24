@@ -94,6 +94,50 @@ export interface PatternsMessages {
   readonly stepsFormSubmit: string;
   /** 分步表单这一步内容的名称：`(2, 3)` → “第 2 步，共 3 步” */
   readonly stepsFormStep: (step: number, total: number) => string;
+  /** 导入的四步：上传文件、对应列、校验与预览、完成 */
+  readonly dataImportSteps: readonly [string, string, string, string];
+  /** 导入：支持的格式说明：`('.xlsx, .csv')` → “支持 .xlsx, .csv” */
+  readonly dataImportAccept: (accept: string) => string;
+  /** 导入：下载模板按钮，默认“下载模板” */
+  readonly dataImportTemplate: string;
+  /** 导入：选工作表，默认“工作表” */
+  readonly dataImportSheet: string;
+  /** 导入：读文件失败：`('…')` → “读不了这个文件：…” */
+  readonly dataImportParseFailed: (reason: string) => string;
+  /** 导入：文件里没有数据行，默认“文件里没有数据行” */
+  readonly dataImportEmpty: string;
+  /** 导入：对应列表格的列标题“字段” */
+  readonly dataImportField: string;
+  /** 导入：对应列表格的列标题“文件中的列” */
+  readonly dataImportColumn: string;
+  /** 导入：对应列表格的列标题“示例” */
+  readonly dataImportSample: string;
+  /** 导入：不导入这个字段，默认“不导入” */
+  readonly dataImportSkip: string;
+  /** 导入：必填字段还没对应：`(['零件号'])` → “必填的字段还没对应：零件号” */
+  readonly dataImportUnmapped: (labels: readonly string[]) => string;
+  /** 导入：校验结果：`(120, 118, 2)` → “共 120 行，可以导入 118 行，2 行有错” */
+  readonly dataImportSummary: (total: number, valid: number, invalid: number) => string;
+  /** 导入：只看有错的行，默认“只看有错的行” */
+  readonly dataImportOnlyErrors: string;
+  /** 导入：预览表的“序号”列（第几行数据） */
+  readonly dataImportRow: string;
+  /** 导入：预览表的“校验”列 */
+  readonly dataImportStatus: string;
+  /** 导入：没有错的行，默认“可以导入” */
+  readonly dataImportValid: string;
+  /** 导入：改了格子之后的提示，默认“格子可以直接改，改完重新校验” */
+  readonly dataImportEditHint: string;
+  /** 导入：确认按钮：`(118)` → “导入 118 行” */
+  readonly dataImportSubmit: (count: number) => string;
+  /** 导入：完成：`(118)` → “已导入 118 行” */
+  readonly dataImportDone: (count: number) => string;
+  /** 导入：再导入一份，默认“再导入一份” */
+  readonly dataImportAgain: string;
+  /** 导入：数字列里不是数字，默认“不是数字” */
+  readonly dataImportNotNumber: string;
+  /** 导入：所在的预览表的名称，默认“导入预览” */
+  readonly dataImportPreview: string;
   /** 主题切换的名称，默认“主题” */
   readonly themeLabel: string;
 }
@@ -145,6 +189,29 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     stepsFormNext: '下一步',
     stepsFormSubmit: '提交',
     stepsFormStep: (step, total) => `第 ${step} 步，共 ${total} 步`,
+    dataImportSteps: ['上传文件', '对应列', '校验与预览', '完成'],
+    dataImportAccept: (accept) => `支持 ${accept}`,
+    dataImportTemplate: '下载模板',
+    dataImportSheet: '工作表',
+    dataImportParseFailed: (reason) => `读不了这个文件：${reason}`,
+    dataImportEmpty: '文件里没有数据行',
+    dataImportField: '字段',
+    dataImportColumn: '文件中的列',
+    dataImportSample: '示例',
+    dataImportSkip: '不导入',
+    dataImportUnmapped: (labels) => `必填的字段还没对应：${labels.join('、')}`,
+    dataImportSummary: (total, valid, invalid) =>
+      `共 ${total} 行，可以导入 ${valid} 行${invalid ? `，${invalid} 行有错` : ''}`,
+    dataImportOnlyErrors: '只看有错的行',
+    dataImportRow: '序号',
+    dataImportStatus: '校验',
+    dataImportValid: '可以导入',
+    dataImportEditHint: '有错的格子可以直接改，改完重新校验',
+    dataImportSubmit: (count) => `导入 ${count} 行`,
+    dataImportDone: (count) => `已导入 ${count} 行`,
+    dataImportAgain: '再导入一份',
+    dataImportNotNumber: '不是数字',
+    dataImportPreview: '导入预览',
     themeLabel: '主题',
   },
   'en-US': {
@@ -196,6 +263,29 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     stepsFormNext: 'Next',
     stepsFormSubmit: 'Submit',
     stepsFormStep: (step, total) => `Step ${step} of ${total}`,
+    dataImportSteps: ['Upload', 'Map columns', 'Review', 'Done'],
+    dataImportAccept: (accept) => `Supports ${accept}`,
+    dataImportTemplate: 'Download template',
+    dataImportSheet: 'Sheet',
+    dataImportParseFailed: (reason) => `Can't read this file: ${reason}`,
+    dataImportEmpty: 'The file has no data rows',
+    dataImportField: 'Field',
+    dataImportColumn: 'Column in file',
+    dataImportSample: 'Sample',
+    dataImportSkip: "Don't import",
+    dataImportUnmapped: (labels) => `Required fields not mapped: ${labels.join(', ')}`,
+    dataImportSummary: (total, valid, invalid) =>
+      `${total} rows, ${valid} ready to import${invalid ? `, ${invalid} with problems` : ''}`,
+    dataImportOnlyErrors: 'Only rows with problems',
+    dataImportRow: '#',
+    dataImportStatus: 'Check',
+    dataImportValid: 'Ready',
+    dataImportEditHint: 'Fix cells in place; they are checked again',
+    dataImportSubmit: (count) => `Import ${count} rows`,
+    dataImportDone: (count) => `Imported ${count} rows`,
+    dataImportAgain: 'Import another file',
+    dataImportNotNumber: 'Not a number',
+    dataImportPreview: 'Import preview',
     themeLabel: 'Theme',
   },
 };

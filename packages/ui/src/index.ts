@@ -1161,6 +1161,15 @@ export {
 } from './table/columns';
 export { tableToCsv, type CsvOptions } from './table/csv';
 export {
+  parseCsv,
+  readCsvFile,
+  sheetFromMatrix,
+  type SheetMatrixOptions,
+  type SheetRow,
+  type SheetTable,
+  type SheetValue,
+} from './table/sheet';
+export {
   dataTableDensityStyles,
   dataTableStyles,
   type DataTableDensities,

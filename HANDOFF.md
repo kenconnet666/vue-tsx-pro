@@ -21,8 +21,9 @@
   - 日期：Calendar、RangeCalendar、QuarterCalendar、CalendarBoard（整页月历）、DateField、TimeField、DatePicker（年、季、月、周、日期时间，快捷选项）、TimePicker、DateRangePicker（月、季、年、周、日期时间区间）、RelativeTime、DateTime、Countdown（`@internationalized/date`，值可以是 ISO 字符串或 DateValue）
   - 表格：Table 家族、DataTable（始终虚拟滚动；排序与多列排序、表头筛选、列菜单（固定、移动、隐藏）、行拖动（onReorder）、就地编辑（editable、validate、validateRow、onCellChange，网格方向键）、勾选、固定列、列宽、滚动加载、activeKey）、ColumnSettings（列设置：勾选显示、拖动排序）、TreeDataTable、ColumnTable（按列定义的静态表格，合并单元格）、useTableQuery、tableToCsv
   - 表单（form/）：Field（labelHidden；form.Field 只有一个控件时自动绑定值）、Label、Form、FormErrorSummary（错误汇总）、FormSection、FormValue、useForm（zod；decimalSchema / bigintSchema）、useLeaveConfirmation
-  - 页面组合（子路径 `@vue-tsx-pro/ui/patterns`）：AppShell / AppShellBrand（顶部导航、页签区、页脚、可收起侧栏）、PageTabs（路由用 `vue-router` 子路径的 useRouteTabs）、QueryTable（查询栏 + 工具栏 + 表格 + 分页，接 useTableQuery）、StepsForm（分步表单）、ActionBar、FilterBar、NotificationCenter / NotificationList、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog；文案在 patternsMessages
+  - 页面组合（子路径 `@vue-tsx-pro/ui/patterns`）：AppShell / AppShellBrand（顶部导航、页签区、页脚、可收起侧栏）、PageTabs（路由用 `vue-router` 子路径的 useRouteTabs）、QueryTable（查询栏 + 工具栏 + 表格 + 分页，接 useTableQuery）、StepsForm（分步表单）、DataImport（导入：上传、对应列、逐行校验、就地改正）、ActionBar、FilterBar、NotificationCenter / NotificationList、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog；文案在 patternsMessages
   - 流程（子路径 `@vue-tsx-pro/ui/workflow`）：流程定义与校验、排布、运行时类型、FlowDiagram、ApprovalActions、useWorkflowTimeline（写成 Timeline 的各项）
+  - Excel（子路径 `@vue-tsx-pro/ui/xlsx`，可选 peer exceljs）：exportXlsx / tableToXlsx（列定义导出，分组表头合并、数字格式、合计）、readXlsx（展开合并、多行表头、换行拆行）；CSV 用主入口的 readCsvFile、parseCsv
   - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart；目标线（targets）、下钻（onItemClick）
   - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
   - 视觉效果（子路径 `@vue-tsx-pro/ui/effects`，不依赖 three）：TiltCard、SpotlightCard、BorderBeam、Marquee

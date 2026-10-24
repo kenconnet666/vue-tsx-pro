@@ -4,6 +4,8 @@ import { vueTsxPro, workspaceSource } from '@vue-tsx-pro/tsx/vite';
 // 测试时完整编译（含 StyleX），与使用方应用的效果一致
 export default defineConfig({
   plugins: [workspaceSource(), ...vueTsxPro()],
+  // ExcelJS 的 Node 版（excel.js）在 VM 上下文里引 uuid 的 esm-node 出错；浏览器版自带依赖，与使用方的打包器取的一致（package.json 的 browser）
+  resolve: { alias: { exceljs: 'exceljs/dist/exceljs.min.js' } },
   test: {
     name: 'ui',
     environment: 'happy-dom',
