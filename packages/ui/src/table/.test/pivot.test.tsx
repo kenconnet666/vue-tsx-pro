@@ -19,6 +19,8 @@ describe('pivot', () => {
       rows: [(r) => r.region, (r) => r.supplier],
       columns: (r) => r.quarter,
       value: (r) => r.amount,
+      // 默认的比较跟着运行环境的区域设置：测试固定成中文
+      compare: (a, b) => a.localeCompare(b, 'zh-CN', { numeric: true }),
     });
     // 文字按拼音：恒（heng）在华（hua）前面
     expect(result.rowKeys).toEqual([
