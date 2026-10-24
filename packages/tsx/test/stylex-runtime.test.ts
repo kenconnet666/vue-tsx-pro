@@ -56,10 +56,16 @@ describe('create 与 attrs', () => {
     expect(rules).toContain(`.${name}.${name} { color: blue; }`);
   });
 
-  it('条件别名换成 aria / data 选择器；写错的条件直接报错', () => {
+  it('条件别名换成 aria / data 选择器；属性选择器包成 :is(…)，顶层条件块也行；写错的条件直接报错', () => {
     const styles = create({ tab: { color: { default: 'gray', _selected: 'black' } } });
     expect(rulesOf(attrs(styles.tab).class)).toContain('[aria-selected="true"]');
-    const wrong = create({ tab: { color: { default: 'gray', '[data-x]': 'black' } } });
+    const flags = create({
+      row: { color: { default: 'gray', '[data-hot]': 'red' }, '[data-dense]': { padding: 2 } },
+    });
+    const rules = rulesOf(attrs(flags.row).class);
+    expect(rules).toMatch(/:is\(\[data-hot\]\) \{ color: red/);
+    expect(rules).toMatch(/:is\(\[data-dense\]\) \{ padding: 2px/);
+    const wrong = create({ tab: { color: { default: 'gray', 'data-x': 'black' } } });
     expect(() => attrs(wrong.tab)).toThrow(/不是伪类/);
   });
 
@@ -282,5 +288,39 @@ describe('hotStyles（热更新原地生效）', () => {
     expect(attrs(second().root).class).toBe(name);
     expect(rulesOf(name)).toContain('rgb(4, 4, 4)');
     expect(rulesOf(attrs(second({ size: 'lg' } as never).root).class)).toContain('18px');
+  });
+});
+
+describe('稳定的绑定', () => {
+  it('重新渲染时只换读取函数、不重跑 effect；之后参数变化照样只改变量', async () => {
+    const { createApp, h, nextTick, ref } = await import('vue');
+    const { bind } = await import('../src/stylex/runtime');
+    const styles = create({ bar: (width: number) => ({ width }) });
+    attrs(styles.bar(1));
+    attrs(styles.bar(2));
+    const width = ref(10);
+    const other = ref(0);
+    let reads = 0;
+    const host = document.createElement('div');
+    document.body.append(host);
+    createApp({
+      render() {
+        void other.value;
+        const getter = () => {
+          reads++;
+          return [width.value] as [number];
+        };
+        return h('div', attrs(bind(styles.bar, getter, true)));
+      },
+    }).mount(host);
+    const element = host.firstElementChild as HTMLElement;
+    reads = 0;
+    other.value++;
+    await nextTick();
+    // 只有渲染时取的那一次
+    expect(reads).toBe(1);
+    width.value = 70;
+    await nextTick();
+    expect(element.style.getPropertyValue('--x-width')).toBe('70px');
   });
 });

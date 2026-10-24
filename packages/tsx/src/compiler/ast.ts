@@ -55,12 +55,17 @@ export function isPropsComponent(path: NodePath<t.Function>) {
  * 渲染函数每次更新都会重新执行，在里面创建的状态会被重置。
  */
 export function isInsideRender(path: NodePath): boolean {
+  return renderFunctionOf(path) !== null;
+}
+
+/** path 所在的渲染函数（组件函数体返回的那个函数）；不在渲染函数里时 null */
+export function renderFunctionOf(path: NodePath): NodePath<t.Function> | null {
   for (let fn = path.getFunctionParent(); fn; fn = fn.parentPath?.getFunctionParent() ?? null) {
     const parent = fn.parentPath;
     // _component(() => { ...; return () => <div /> })
     if (parent?.isReturnStatement()) {
       const owner = parent.getFunctionParent();
-      if (owner && isComponentSetup(owner)) return true;
+      if (owner && isComponentSetup(owner)) return fn;
     }
     // _component(() => () => <div />)
     if (
@@ -68,10 +73,10 @@ export function isInsideRender(path: NodePath): boolean {
       parent.node.body === fn.node &&
       isComponentSetup(parent)
     ) {
-      return true;
+      return fn;
     }
   }
-  return false;
+  return null;
 }
 
 /** 是否是组件元素（大写开头或 a.B 形式的标签）的直接子节点表达式 */

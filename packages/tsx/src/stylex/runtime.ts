@@ -10,7 +10,7 @@
  *   - 合并语义：后面的普通值整体替换该属性（同 StyleX，含它的条件值）；条件对象按条件逐项合并，
  *     其中的 null 表示“这个条件不改”（不会像 StyleX 那样把前面的默认值清掉）；顶层的 null 去掉该属性。
  *   - 动态样式（create 里的函数）：一直没变过的属性写进类里；值变过的属性永久转成变量（类里写 var(--x-属性)、
- *     值进元素的行内样式），之后值怎么变类名都不变、不插新规则。变量注册为不继承（@property inherits: false）。
+ *     值进元素的行内样式），之后值怎么变类名都不变、不插新规则。
  *   - 响应式绑定（stylex.bind，编译器把 JSX 里的 `styles.bar(item.width)` 自动改写成它）：渲染时只算类名、不追踪依赖，
  *     元素挂上后由一个响应式 effect 直接改元素上的变量。值变化不重新渲染组件、不做 vdom 比对，只改那一个变量。
  *   - 状态样式用条件别名（_selected、_disabled…）跟着 DOM 上的 aria / data 属性走：状态变化只改属性，类名不变。
@@ -114,7 +114,7 @@ function insert(name: string, texts: readonly string[]) {
   const rules: CSSRule[] = [];
   if (target) {
     for (const text of texts) {
-      // 浏览器不认的规则（老浏览器的 @property、测试环境的 DOM）跳过，同 StyleX 的 inject；样式表里写错的 CSS 本来也会被忽略
+      // 浏览器不认的规则（测试环境的 DOM 不认的语法）跳过，同 StyleX 的 inject；样式表里写错的 CSS 本来也会被忽略
       try {
         rules.push(target.cssRules[target.insertRule(text, target.cssRules.length)]!);
       } catch {}
@@ -218,11 +218,22 @@ const isObject = (value: unknown): value is StyleObject =>
 
 /** 条件键 → 选择器片段或 @ 规则；写错的别名、裸的属性选择器直接报错（否则会变成无条件样式） */
 function condition(property: string, key: string): string {
-  const resolved = CONDITIONS[key] ?? key;
-  if (!resolved.startsWith(':') && !resolved.startsWith('@')) {
-    throw new Error(`stylex: ${property} 的条件 "${key}" 不是伪类、@ 规则或已知的别名`);
+  const resolved = conditionOf(key);
+  if (!resolved) {
+    throw new Error(`stylex: ${property} 的条件 "${key}" 不是伪类、属性选择器、@ 规则或已知的别名`);
   }
   return resolved;
+}
+
+/**
+ * 条件键 → 选择器片段或 @ 规则；不是条件时 undefined。属性选择器（'[data-hot]'、'[data-state="open"]'）
+ * 包成 :is(…)：状态写在 DOM 属性上，状态变化只改属性、类名不变（同条件别名）
+ */
+function conditionOf(key: string): string | undefined {
+  const resolved = CONDITIONS[key] ?? key;
+  if (resolved.startsWith(':') || resolved.startsWith('@')) return resolved;
+  if (resolved.startsWith('[') && resolved.endsWith(']')) return `:is(${resolved})`;
+  return undefined;
 }
 
 /* ───────────────────────── 片段 ───────────────────────── */
@@ -243,8 +254,8 @@ const texts = (property: string, value: Leaf | readonly Leaf[]) =>
 /** 命名空间的每个叶子。顶层的条件块（'::before': {…}、':hover': {…}）展开成各属性的条件值 */
 function eachLeaf(namespace: StyleObject, visit: (leaf: LeafEntry) => void) {
   for (const [key, value] of Object.entries(namespace)) {
-    const resolved = CONDITIONS[key] ?? key;
-    if ((resolved.startsWith(':') || resolved.startsWith('@')) && isObject(value)) {
+    const resolved = conditionOf(key);
+    if (resolved && isObject(value)) {
       for (const [property, nested] of Object.entries(value)) {
         walk(property, nested, [resolved], (chain, leaf) =>
           visit({ property, replace: false, chain, texts: texts(property, leaf) }),
@@ -297,13 +308,12 @@ function walk(
 const fragment = (table: Declarations): Fragment =>
   Object.defineProperty({ $$css: true }, FRAGMENT, { value: table, writable: true }) as Fragment;
 
-/** 动态样式的变量名：按属性与条件（同 StyleX 的 --x-属性），注册为不继承 */
-function dynamicVar(property: string, chain: readonly string[]): string {
-  const name = chain.length ? `--x-${property}-${hash(chain.join(''))}` : `--x-${property}`;
-  // 不继承：子元素用同一个动态类却没设值时，不会拿到父元素的值
-  if (!inserted.has(name)) insert(name, [`@property ${name}{syntax:"*";inherits:false}`]);
-  return name;
-}
+/**
+ * 动态样式的变量名：按属性与条件（同 StyleX 的 --x-属性）。不注册 @property：类里引用变量的元素，
+ * 自己的行内一定写着这个变量（同一次求值产出类与值），不会用到祖先继承下来的值；注册反而让样式重算慢 15–20%
+ */
+const dynamicVar = (property: string, chain: readonly string[]) =>
+  chain.length ? `--x-${property}-${hash(chain.join(''))}` : `--x-${property}`;
 
 /**
  * 动态样式：一直没变过的属性直接写进类里（多半是常量，同手写，元素上不挂变量）；
@@ -316,7 +326,20 @@ function dynamic(factory: (...args: never[]) => StyleObject): DynamicStyle {
   const first = new Map<string, string>();
   const varying = new Set<string>();
   const shapes = new Map<string, Fragment>();
+  // 参数都是原始值时按参数记住结果：重新渲染、绑定的 effect 重跑时同样的参数不再调用工厂、展开声明。
+  // 有属性新转成变量时结果会变，清空；条目太多（连续变化的值）时也清空，不无限增长
+  const memo = new Map<string, Evaluated>();
   const evaluate = (args: readonly unknown[]): Evaluated => {
+    const key = memoKey(args);
+    const hit = key === undefined ? undefined : memo.get(key);
+    if (hit) return hit;
+    const before = varying.size;
+    const result = compute(args);
+    if (varying.size !== before || memo.size >= MEMO_LIMIT) memo.clear();
+    if (key !== undefined) memo.set(key, result);
+    return result;
+  };
+  const compute = (args: readonly unknown[]): Evaluated => {
     const inline: Record<string, string> = {};
     const leaves: LeafEntry[] = [];
     let shape = '';
@@ -349,11 +372,34 @@ function dynamic(factory: (...args: never[]) => StyleObject): DynamicStyle {
   return Object.assign(style, { [EVALUATE]: evaluate });
 }
 
+/** 每个动态样式最多记住多少组参数的结果 */
+const MEMO_LIMIT = 512;
+
+/** 参数都是原始值时的记忆键（带上类型，1 与 '1' 不同）；有对象参数时不记忆 */
+function memoKey(args: readonly unknown[]): string | undefined {
+  let key = '';
+  for (const arg of args) {
+    const type = typeof arg;
+    if (
+      arg !== null &&
+      type !== 'string' &&
+      type !== 'number' &&
+      type !== 'boolean' &&
+      type !== 'undefined'
+    )
+      return undefined;
+    key += `${type[0]}${String(arg)}\u0001`;
+  }
+  return key;
+}
+
 /** 一个响应式绑定：动态样式与读参数的函数 */
 interface Binding {
   readonly [BINDING]: true;
   readonly style: DynamicStyle;
   readonly args: () => readonly unknown[];
+  /** 读取函数只读渲染函数外面的来源（编译器判断）：重新渲染时换上新的读取函数即可，不必重跑 effect */
+  readonly stable: boolean;
 }
 
 /**
@@ -363,8 +409,9 @@ interface Binding {
 export function bind<Args extends unknown[]>(
   style: (...args: Args) => unknown,
   args: () => NoInfer<Args>,
+  stable = false,
 ): Binding {
-  return { [BINDING]: true, style: style as unknown as DynamicStyle, args };
+  return { [BINDING]: true, style: style as unknown as DynamicStyle, args, stable };
 }
 
 /** stylex.create：命名空间第一次被读时展开（惰性）；函数是动态样式 */
@@ -503,7 +550,7 @@ export function attrs(...styles: readonly AttrsArg[]): Attrs {
       const { fragment, inline: values } = untrack(() => binding.style[EVALUATE](binding.args()));
       parts.push(fragment);
       addInline(values);
-      (bindings ??= []).push({ binding, fragment, initial: Object.keys(values) });
+      (bindings ??= []).push({ binding, fragment, initial: values });
       return;
     }
     if (Array.isArray(value)) {
@@ -555,7 +602,8 @@ const isCompiledDynamic = (value: readonly unknown[]): value is [object, Record<
 interface BindingEntry {
   binding: Binding;
   fragment: Fragment;
-  initial: readonly string[];
+  /** 渲染时算出、交给 Vue 写进行内样式的变量 */
+  initial: Readonly<Record<string, string>>;
 }
 
 /** 一个元素上的响应式绑定：重新渲染时复用（只换读取函数），卸载时停掉 */
@@ -563,8 +611,8 @@ interface BoundElement {
   bindings: readonly BindingEntry[];
   /** 元素已卸载、effect 已停 */
   stopped: boolean;
-  /** 现在写在元素上的变量 */
-  applied: Set<string>;
+  /** 现在写在元素上的变量与值（比对用它，不读 DOM） */
+  applied: Map<string, string>;
   effect: ReactiveEffect;
   /** 形状变了时请它重新渲染 */
   instance: ComponentInternalInstance | null;
@@ -586,18 +634,18 @@ function flush() {
 
 /** 读绑定的参数、只改元素上变了的变量；形状变了（多出、少了属性）时类也要换，请组件重新渲染 */
 function apply(element: HTMLElement, bound: BoundElement) {
-  const next = new Set<string>();
+  const next = new Map<string, string>();
   let reshaped = false;
   for (const { binding, fragment } of bound.bindings) {
     const evaluated = binding.style[EVALUATE](binding.args());
     if (evaluated.fragment !== fragment) reshaped = true;
     for (const name in evaluated.inline) {
       const value = evaluated.inline[name]!;
-      next.add(name);
-      if (element.style.getPropertyValue(name) !== value) element.style.setProperty(name, value);
+      next.set(name, value);
+      if (bound.applied.get(name) !== value) element.style.setProperty(name, value);
     }
   }
-  for (const name of bound.applied) if (!next.has(name)) element.style.removeProperty(name);
+  for (const name of bound.applied.keys()) if (!next.has(name)) element.style.removeProperty(name);
   bound.applied = next;
   if (reshaped) bound.instance?.proxy?.$forceUpdate();
 }
@@ -625,16 +673,20 @@ function watchBindings(bindings: readonly BindingEntry[]) {
     current = element as HTMLElement;
     const existing = boundElements.get(current);
     if (existing) {
+      // Vue 刚按这次渲染算出的值写过行内样式。读取函数读的来源没变（稳定、同一个动态样式）时只换上新的读取函数，
+      // 否则重跑一次 effect 重新收集依赖（求值有记忆，值没变时不碰 DOM）
+      const same = sameSources(existing.bindings, bindings);
       existing.bindings = bindings;
       existing.instance = instance;
-      existing.effect.run();
+      existing.applied = initialValues(bindings);
+      if (!same) existing.effect.run();
       return;
     }
     const target = current as HTMLElement;
     const bound: BoundElement = {
       bindings,
       stopped: false,
-      applied: new Set(bindings.flatMap((entry) => entry.initial)),
+      applied: initialValues(bindings),
       instance,
       effect: new ReactiveEffect(() => apply(target, bound)),
     };
@@ -642,6 +694,22 @@ function watchBindings(bindings: readonly BindingEntry[]) {
     boundElements.set(target, bound);
     bound.effect.run();
   };
+}
+
+/** 两次渲染的绑定读的是同一批来源：个数、动态样式都相同，而且读取函数都是稳定的 */
+function sameSources(previous: readonly BindingEntry[], next: readonly BindingEntry[]) {
+  return (
+    previous.length === next.length &&
+    next.every(
+      ({ binding }, index) => binding.stable && previous[index]!.binding.style === binding.style,
+    )
+  );
+}
+
+function initialValues(bindings: readonly BindingEntry[]) {
+  const values = new Map<string, string>();
+  for (const { initial } of bindings) for (const name in initial) values.set(name, initial[name]!);
+  return values;
 }
 
 /** 缓存没命中：片段合成一个类；主题按变量组后者覆盖前者；编译版的样式交给 StyleX 的 props */

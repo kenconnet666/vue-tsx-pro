@@ -28,12 +28,22 @@ import { _component } from '@vue-tsx-pro/tsx';
 const styles = stylex.create({ bar: (width: number) => ({ width }), base: { color: 'red' } });
 const other = { bar: (width: number) => width };
 const outside = styles.bar(1 + 1);
-export const Bar = _component(({ width }: { width: number }) => () => (
-  <div {...stylex.attrs(styles.base, styles.bar(width), styles.bar(10))} data-x={other.bar(width)} />
-));`;
+export const Bar = _component(({ width, rows }: { width: number; rows: number[] }) => () => {
+  const double = width * 2;
+  return (
+    <div {...stylex.attrs(styles.base, styles.bar(width), styles.bar(10))} data-x={other.bar(width)}>
+      <i {...stylex.attrs(styles.bar(double))} />
+      {rows.map((row) => <b {...stylex.attrs(styles.bar(row))} />)}
+    </div>
+  );
+});`;
   const result = await compile(code, { filename: '/src/Bar.tsx', styleBindings: true });
   const output = result!.code;
-  expect(output).toMatch(/stylex\.bind\(styles\.bar, \(\) => \[width\.value\]\)/);
+  // 只读 props（渲染函数外面的来源）：稳定，第三个参数 true
+  expect(output).toMatch(/stylex\.bind\(styles\.bar, \(\) => \[width\.value\], true\)/);
+  // 读渲染函数里的局部变量、map 回调的参数：不稳定
+  expect(output).toMatch(/stylex\.bind\(styles\.bar, \(\) => \[double\]\)/);
+  expect(output).toMatch(/stylex\.bind\(styles\.bar, \(\) => \[row\]\)/);
   expect(output).toContain('styles.bar(10)');
   expect(output).toContain('const outside = styles.bar(1 + 1)');
   expect(output).toMatch(/other\.bar\(width\.value\)/);

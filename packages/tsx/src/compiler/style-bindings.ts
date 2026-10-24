@@ -9,12 +9,13 @@
  * 参数全是字面量时不改（不会变，不值得起 effect）。
  */
 import { types as t, type NodePath, type PluginObject } from '@babel/core';
-import { isInsideRender, STYLEX_SOURCES } from './ast.ts';
+import { renderFunctionOf, STYLEX_SOURCES } from './ast.ts';
 
 /** 粗筛：文件里有 StyleX 入口的导入、也有 create 调用 */
 export const needsStyleBindings = (code: string) =>
   STYLEX_SOURCES.some((source) => code.includes(source)) && /\bcreate\s*\(/.test(code);
 
+/** 编译的第一遍、符文之前加的 Babel 插件（见文件开头） */
 export function styleBindingsPlugin(): PluginObject {
   return {
     name: 'vue-tsx-pro-style-bindings',
@@ -38,15 +39,18 @@ export function styleBindingsPlugin(): PluginObject {
             const binding = path.scope.getBinding(callee.object.name);
             const names = binding && dynamic.get(binding.identifier);
             if (!names?.has(callee.property.name)) return;
-            if (!inJsxAttribute(path) || !isInsideRender(path)) return;
+            const render = inJsxAttribute(path) ? renderFunctionOf(path) : null;
+            if (!render) return;
             const args = path.node.arguments;
             if (args.every((arg) => t.isLiteral(arg) && !t.isTemplateLiteral(arg))) return;
             if (args.some((arg) => t.isSpreadElement(arg) || t.isArgumentPlaceholder(arg))) return;
+            const stable = readsOutsideRender(path, render);
             bind ??= bindReference(program, imports);
             path.replaceWith(
               t.callExpression(t.cloneNode(bind), [
                 callee,
                 t.arrowFunctionExpression([], t.arrayExpression(args as t.Expression[])),
+                ...(stable ? [t.booleanLiteral(true)] : []),
               ]),
             );
             path.skip();
@@ -127,6 +131,25 @@ function isCreateCall(
     t.isIdentifier(callee.object, { name: imports.namespace }) &&
     t.isIdentifier(callee.property, { name: 'create' })
   );
+}
+
+/**
+ * 参数只读渲染函数外面声明的东西（组件函数体里的状态、props、模块里的常量）：每次渲染生成的读取函数读的是同一批来源，
+ * 运行时重新渲染时只换读取函数、不必重跑 effect 收集依赖（stylex.bind 的第三个参数）。
+ * 读了渲染函数里的局部变量、map 回调的参数时不算：它们每次渲染可能指向不同的响应式来源
+ */
+function readsOutsideRender(call: NodePath<t.CallExpression>, render: NodePath<t.Function>) {
+  let stable = true;
+  for (const arg of call.get('arguments')) {
+    const check = (path: NodePath<t.Identifier>) => {
+      if (!path.isReferencedIdentifier()) return;
+      const binding = path.scope.getBinding(path.node.name);
+      if (binding && (binding.path === render || binding.path.isDescendant(render))) stable = false;
+    };
+    if (arg.isIdentifier()) check(arg);
+    else arg.traverse({ Identifier: check });
+  }
+  return stable;
 }
 
 /** 在 JSX 属性（sx={…}、{...stylex.attrs(…)}）里：渲染时用到的样式 */

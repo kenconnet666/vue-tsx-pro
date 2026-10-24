@@ -215,6 +215,8 @@ export const when: typeof stylex.when = runtime.when as never;
 export const bind: <Args extends unknown[]>(
   style: (...args: Args) => Readonly<[CompiledStyles, InlineStyles]>,
   args: () => NoInfer<Args>,
+  /** 读取函数只读渲染函数外面的来源（编译器判断后填 true）：重新渲染时不必重新收集依赖 */
+  stable?: boolean,
 ) => Readonly<[CompiledStyles, InlineStyles]> = runtime.bind as never;
 
 /** 定义锚点定位的备选位置，返回名称，作为 positionTryFallbacks 的值使用。 */

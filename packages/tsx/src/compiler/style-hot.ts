@@ -15,6 +15,7 @@ import { STYLEX_SOURCES } from './ast.ts';
 /** 能原地更新的样式函数 */
 const HOT_FUNCTIONS = new Set(['create', 'recipe']);
 
+/** 编译的第一遍、符文之前加的 Babel 插件；moduleId 是相对项目根目录的模块路径（见文件开头） */
 export function styleHotPlugin(moduleId: string): PluginObject<PluginPass> {
   return {
     name: 'vue-tsx-pro-style-hot',
