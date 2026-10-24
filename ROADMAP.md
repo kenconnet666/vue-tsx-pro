@@ -143,15 +143,54 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ## 阶段 8：质量与发布
 
-- [ ] §8 的矩阵进 COMPONENTS.md，逐个补齐：
-  - 有键盘逻辑、没有专属浏览器测试：Accordion、KanbanBoard、Splitter、ResizeHandle、ColorField、NumberField、
-    NumberRangeField、TreeSelect、NotificationCenter、Checkbox、Switch、ToggleGroup、Drawer 的拖宽与 beforeClose
-  - 输入法：Combobox、TagsInput、NumberField、Textarea、DateField、CommandPalette 的过滤框、Select 的按字母跳转
-  - 类型测试：选择类、表格、表单与可绑定值的组件
-  - 文档页没有键盘一节：AppShell、NotificationCenter、ResizeHandle、ModelViewer
-- [ ] 视觉回归进 CI（`docs:shot` 的截图对比）
-- [ ] 文档站：搜索 API 的属性名；每页一节无障碍说明（角色、键盘、读屏）；示例切换视口、从右到左、密度
-- [ ] 发布：放宽 Vite 的 peer 范围、changesets、发 0.x；API 稳定后 1.0（发布产物验证 `test:consumer` 已有）
+2026-10-24 盘点（脚本按文档页逐个对 §8）：文档页 130 个，有自己键盘逻辑的组件 28 个；类型测试只有 3 个文件
+（useForm、list-state、props），带泛型或可绑定值的组件基本没有；`docs:shot` 只在本地看；文档站搜索只搜标题与简介；
+两个包都是 0.0.0，没有 LICENSE、包级 README、repository 字段，没有 changesets 与发布工作流。
+
+顺序：先补测试与文档的缺口（8.1、8.2，发布前要有的底），再把视觉回归接进 CI（8.3，之后的改动有截图兜底），
+然后发 0.x（8.4），用一段时间、收集问题、冻结 API 后发 1.0（8.5）。每一步都按“补齐 → 勾掉 → 提交推送”推进。
+
+### 8.1 §8 的缺口：测试
+
+- [ ] §8 的达标矩阵进 COMPONENTS.md（每个组件：运行时测试、浏览器测试、类型测试、键盘一节），用脚本生成并进 `pnpm check`，
+      新组件缺项时报出来
+- [ ] 键盘的浏览器测试（三种浏览器）：Accordion、CalendarBoard、Cascader、ColorField、FieldCompare、KanbanBoard、
+      Mentions、NumberField 与 NumberRangeField、TreeSelect、ResizeHandle、Splitter、CommentThread、NotificationCenter、
+      Checkbox、Switch、ToggleGroup、Drawer 的拖宽与 beforeClose
+- [ ] 输入法的浏览器测试（组字中的回车、空格不触发提交、选择、跳转）：Combobox、TagsInput、Mentions、NumberField、Textarea、
+      DateField、CommandPalette 的过滤框、Select 的按字母跳转
+- [ ] 类型测试（`*.test-d.tsx`，§8 第 4 条）：值类型跟着数据走、`_bind` 的约束、事件参数。先做可绑定值与泛型最常用的：
+      Select、Combobox、Autocomplete、Cascader、TreeSelect、Transfer、ToggleGroup、Tabs、Slider、DatePicker、DateRangePicker、
+      DataTable、QueryTable、PivotTable、Tree、KanbanBoard、StepsForm、FilterBar、Pagination；图表的 data / series 键名约束
+
+### 8.2 §8 的缺口：文档站
+
+- [ ] 键盘一节补上：AppShell、NotificationCenter、ResizeHandle、ModelViewer、FieldCompare
+- [ ] 无障碍一节：KeyboardReference 扩成“无障碍”（角色与名称、键盘、读屏念什么、减少动态效果），有交互的组件页都写
+- [ ] 搜索：命令面板搜得到组件的属性名、示例标题（从 API 表与示例生成索引，结果直达对应小节）
+- [ ] 示例卡片的工具：切换视口宽度（手机、平板、桌面）、从右到左、紧凑密度，不用离开文档页
+
+### 8.3 视觉回归进 CI
+
+- [ ] 在固定的 Linux 容器里（Playwright 官方镜像，字体、渲染一致）截每个示例的亮、暗主题，与仓库里的基线比对；
+      只在 ubuntu 任务跑，差异图作为 CI 产物上传。基线更新用一条命令重拍（`pnpm docs:shot --update`），随改动一起提交
+- [ ] 先覆盖基础、输入、浮层、表格（最常被顺手改到的），稳定后扩到全部示例；动画、随机、时间相关的示例固定种子与时钟
+
+### 8.4 发布 0.x
+
+- [ ] 包的元数据：LICENSE（MIT）、两个包各自的 README（安装、最小例子、链到文档站）、repository / homepage / bugs、
+      keywords、`sideEffects`（样式文件）、`engines`
+- [ ] peer 范围放宽到实际测过的区间（Vite、Vue、StyleX、各可选 peer），`test:consumer` 按区间的两端各跑一遍
+- [ ] changesets：每次改动带一条变更说明，合并后自动开“版本 PR”，生成 CHANGELOG；npm 发布走 GitHub Actions（带 provenance）
+- [ ] 体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来
+- [ ] 文档站部署（每次推送 master 自动更新），README 与 npm 页链过去
+- [ ] 发 0.1.0
+
+### 8.5 1.0
+
+- [ ] API 冻结前的审计：全部公共 API 的命名、默认值、事件参数对一遍 COMPONENTS.md §1–§2，出一份清单逐条改完
+- [ ] 浏览器与环境的支持说明（Chrome、Edge、Firefox、Safari 的版本下限，SSR 的边界）、迁移说明（0.x 到 1.0 的破坏性改动）
+- [ ] 发 1.0.0，之后按语义化版本：破坏性改动只进大版本
 
 每个阶段新做的组件当场达到 §8；顺手动到的老组件一起补齐。
 
