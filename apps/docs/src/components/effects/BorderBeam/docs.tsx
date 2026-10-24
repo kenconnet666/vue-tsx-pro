@@ -12,7 +12,7 @@ export const meta = {
   title: 'BorderBeam 流光边框',
   description:
     '一段渐变的光沿着容器的边框循环流动，用来强调一张卡片、一个输入区。纯 CSS 动画，不依赖 WebGL。',
-  order: 12,
+  order: 3,
 };
 
 export default _component(() => () => (

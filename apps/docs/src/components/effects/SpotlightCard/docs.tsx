@@ -12,7 +12,7 @@ export const meta = {
   title: 'SpotlightCard 聚光卡片',
   description:
     '一团柔和的光跟着指针，靠近边框的地方把边框也点亮，离开后淡出。纯 CSS 与弹簧，不依赖 WebGL。',
-  order: 11,
+  order: 2,
 };
 
 export default _component(() => () => (

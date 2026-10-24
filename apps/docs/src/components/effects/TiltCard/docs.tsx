@@ -12,7 +12,7 @@ export const meta = {
   title: 'TiltCard 倾斜卡片',
   description:
     '指针在上面移动时整块向指针方向倾斜，带一层跟随指针的高光，离开后弹回。纯 CSS 与弹簧，不依赖 WebGL。',
-  order: 10,
+  order: 1,
 };
 
 export default _component(() => () => (

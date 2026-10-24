@@ -12,7 +12,7 @@ export const meta = {
   title: 'Marquee 跑马灯',
   description:
     '内容无缝循环滚动（合作伙伴、标签墙、公告）：纯 CSS 动画，四个方向，悬停暂停，减少动态效果时不滚动。',
-  order: 9,
+  order: 0,
 };
 
 export default _component(() => () => (
