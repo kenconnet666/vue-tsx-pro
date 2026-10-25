@@ -58,8 +58,20 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
   const modifiers = memberChain(call.node.callee)!.slice(1);
   const tag = (attribute.parent as t.JSXOpeningElement).name;
   if (t.isJSXIdentifier(tag) && /^[a-z]/.test(tag.name)) {
+    const native = NATIVE_BINDINGS[prop];
+    if (native && native.tag !== tag.name) {
+      throw fail(attribute, `${prop}={_bind(x)} 只能写在 <${native.tag}> 上`);
+    }
+    if (native) {
+      if (modifiers.length) throw fail(call, `${prop} 的绑定没有修饰符`);
+      bindNativeProperty(call, attribute, target, prop, native);
+      return;
+    }
     if (prop !== 'value' && prop !== 'checked') {
-      throw fail(attribute, `原生元素只能绑定 value 或 checked，不能绑定 ${prop}`);
+      throw fail(
+        attribute,
+        `原生元素能绑定 value、checked（多选组绑到数组）、<details> 的 open、文件输入的 files，不能绑定 ${prop}；单选组请用 RadioGroup，或 checked={x === 值} 加 onChange`,
+      );
     }
     attribute.node.name = t.jsxIdentifier(['v-model', ...modifiers].join('_'));
   } else {
@@ -77,6 +89,55 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
     );
   }
   call.replaceWith(target);
+}
+
+/** v-model 以外、原生元素能绑定的属性：只能写在哪个标签上，元素上哪个事件之后读回，读回时能不能写到元素上 */
+const NATIVE_BINDINGS: Record<string, { tag: string; event: string; readonly: boolean }> = {
+  // 展开收起：用户点开、代码设置都触发 toggle（同 Svelte 的 bind:open）
+  open: { tag: 'details', event: 'onToggle', readonly: false },
+  // 选中的文件：只读（文件列表只能由用户选，写回元素要借 DataTransfer，不做）
+  files: { tag: 'input', event: 'onChange', readonly: true },
+};
+
+/**
+ * 原生元素上 v-model 管不到的属性：值照常交给元素（只读的不交），元素的事件之后把属性读回变量：
+ *   <details open={_bind(expanded)} /> → <details open={expanded.value} onToggle={(e) => (expanded.value = e.currentTarget.open)} />
+ *   <input type="file" files={_bind(picked)} /> → <input type="file" onChange={(e) => (picked.value = e.currentTarget.files)} />
+ */
+function bindNativeProperty(
+  call: NodePath<t.CallExpression>,
+  attribute: NodePath<t.JSXAttribute>,
+  target: t.MemberExpression,
+  prop: string,
+  native: { event: string; readonly: boolean },
+) {
+  const opening = attribute.parent as t.JSXOpeningElement;
+  const taken = opening.attributes.some(
+    (other) => t.isJSXAttribute(other) && t.isJSXIdentifier(other.name, { name: native.event }),
+  );
+  if (taken) {
+    throw fail(
+      attribute,
+      `${prop}={_bind(x)} 要占用 ${native.event}：请去掉 ${native.event}，或不用 _bind、在 ${native.event} 里自己读回 ${prop}`,
+    );
+  }
+  const event = t.identifier('event');
+  const update = t.arrowFunctionExpression(
+    [event],
+    t.assignmentExpression(
+      '=',
+      t.cloneNode(target),
+      t.memberExpression(
+        t.memberExpression(event, t.identifier('currentTarget')),
+        t.identifier(prop),
+      ),
+    ),
+  );
+  attribute.insertAfter(
+    t.jsxAttribute(t.jsxIdentifier(native.event), t.jsxExpressionContainer(update)),
+  );
+  if (native.readonly) attribute.remove();
+  else call.replaceWith(target);
 }
 
 /**

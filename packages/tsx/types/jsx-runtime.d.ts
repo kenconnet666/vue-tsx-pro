@@ -109,5 +109,34 @@ declare module 'vue' {
     popovertarget?: string | undefined;
     /** 点击时对弹层做什么，默认 toggle */
     popovertargetaction?: 'toggle' | 'show' | 'hide' | undefined;
+    /** 点击时对哪个元素下命令（Invoker Commands）：目标元素的 id，配合 command */
+    commandfor?: string | undefined;
+    /**
+     * 下的命令：对话框 show-modal / close / request-close，弹层 toggle-popover / show-popover / hide-popover；
+     * 自定义命令以 -- 开头，目标元素在 command 事件里处理
+     */
+    command?:
+      | 'show-modal'
+      | 'close'
+      | 'request-close'
+      | 'toggle-popover'
+      | 'show-popover'
+      | 'hide-popover'
+      | `--${string}`
+      | undefined;
+  }
+  interface HTMLAttributes {
+    /** 收到按钮下的命令（Invoker Commands）：event.command 是命令，event.source 是按下的按钮 */
+    onCommand?: (
+      event: Event & { readonly command: string; readonly source: Element | null },
+    ) => void;
+  }
+  interface DialogHTMLAttributes {
+    /** 哪些操作能关闭对话框：any（Esc、点外面）、closerequest（只有 Esc）、none（只能代码关） */
+    closedby?: 'any' | 'closerequest' | 'none' | undefined;
+  }
+  interface InputHTMLAttributes {
+    /** 选中的文件：只用于 files={_bind(x)}（只读，用户选了文件后写回 x） */
+    files?: FileList | null | undefined;
   }
 }

@@ -99,6 +99,11 @@ export const Badge = _component(
 - **两边都要写**（同 Svelte 的 `$bindable` + `bind:`）：编译器逐文件工作，看不到子组件声明了什么。写成函数调用而不是 `bind:checked`，是因为带冒号的属性名在 TSX 里没有补全和跳转。
 - **受控语义同 Vue 的 `useModel`**：父级绑定时以父级为准，父级拒绝或修正新值时组件跟着回去；只传值时作为初始值；都不传就是组件自己的状态。
 - 可以绑对象属性：`value={_bind(form.name)}`；原生输入元素支持修饰符 `_bind.trim`、`_bind.number`、`_bind.lazy`，中文输入法组合期间不写回。
+- 原生元素能绑定的属性（2026-10-25 补全）：
+  - `value`、`checked` 走 v-model；多选组把 `checked` 绑到数组（`<input type="checkbox" value="a" checked={_bind(list)} />`，勾选增删其中的值）。单选组请用 RadioGroup，或 `checked={x === 值}` 加 `onChange`：Vue 的类型里 `checked` 只收布尔与数组。
+  - `<details open={_bind(expanded)} />`：代码设置会展开，用户展开收起后由 `toggle` 写回（同 Svelte 的 `bind:open`）。
+  - `<input type="file" files={_bind(picked)} />`：只读，用户选了文件后由 `change` 写回；不把值写到元素上。
+  - 占用的事件（`onToggle`、`onChange`）不能再手写，编译时报错。媒体播放状态、元素尺寸不做成绑定：用组合式函数更清楚。
 - **函数绑定**（同 Svelte 5 的 `bind:value={get, set}`）：写回时要顺带做别的事、或值要换算时，`value={_bind(() => status, (next) => switchTo(next))}`，编译为 `value={status} onUpdate:value={…}`。只用于组件；原生输入元素写 `value` 加 `onInput`。
 
 ## 7. 共享状态与暴露能力

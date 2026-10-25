@@ -91,7 +91,7 @@ const cases: [string, string, RegExp][] = [
   [
     '_bind 原生元素绑定其他属性',
     'let n = _state(""); <input title={_bind(n)} />',
-    /只能绑定 value 或 checked/,
+    /原生元素能绑定 value、checked/,
   ],
   [
     '_bind(get, set) 的参数不是函数',
