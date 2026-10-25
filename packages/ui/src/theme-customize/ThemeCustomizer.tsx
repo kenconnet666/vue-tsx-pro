@@ -76,8 +76,9 @@ export const themeCustomizerStyles = css.create({
     display: 'flex',
     flexDirection: 'column',
     gap: '_lg',
-    paddingBlockStart: '_lg',
-    borderBlockStartWidth: '_xs',
+    // 组与组之间一条分隔线；第一组上面不画
+    paddingBlockStart: { default: '_lg', ':first-child': 0 },
+    borderBlockStartWidth: { default: '_xs', ':first-child': 0 },
     borderBlockStartStyle: 'solid',
     borderBlockStartColor: '_borderMuted',
   },
@@ -92,6 +93,8 @@ export const themeCustomizerStyles = css.create({
   // 选项排成网格，窄栏里自动换行；每项左对齐，示意在前、名字在后
   options: {
     display: 'grid',
+    // ToggleGroup 默认按内容宽：这里占满整栏，auto-fill 才按栏宽排出几列
+    width: 'auto',
     gridTemplateColumns: 'repeat(auto-fill, minmax(6.5em, 1fr))',
   },
   option: { justifyContent: 'flex-start', minWidth: 0 },
