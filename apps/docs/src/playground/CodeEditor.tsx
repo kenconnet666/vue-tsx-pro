@@ -7,7 +7,7 @@
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
-import { controlShellStyles, mergeAttrs, useConfig, type PartProps } from '@vue-tsx-pro/ui';
+import { inputRecipe, mergeAttrs, useConfig, type PartProps } from '@vue-tsx-pro/ui';
 import { onBeforeUnmount, onMounted, watch } from 'vue';
 import type { PlaygroundEditor } from './editor';
 
@@ -61,7 +61,7 @@ export const CodeEditor = _component(
 
     return () => (
       <div
-        {...mergeAttrs<'div'>({ sx: [controlShellStyles.root, styles.root] }, rest, {
+        {...mergeAttrs<'div'>({ sx: [inputRecipe().root, styles.root] }, rest, {
           ref: _toRef(host),
         })}
       />

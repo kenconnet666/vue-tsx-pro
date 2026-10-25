@@ -39,7 +39,7 @@ export const shimmerStyles = css.create({
       inset: 0,
       backgroundImage: `linear-gradient(90deg, transparent 15%, ${shimmerVars.highlight} 50%, transparent 85%)`,
       transform: 'translateX(-100%)',
-      animationName: { default: sweep, '@media (prefers-reduced-motion: reduce)': 'none' },
+      animationName: { default: sweep, _reducedMotion: 'none' },
       // 循环的装饰动画不取 durations（那是一次性过渡的时长，减少动态效果时为 0）：
       // 2 秒一轮，其中 1.4 秒扫过、0.6 秒停顿，接近 Ant Design、MUI 的节奏，不催促也不显得卡住
       animationDuration: '2s',

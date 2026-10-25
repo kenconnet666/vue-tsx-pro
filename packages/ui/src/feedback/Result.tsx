@@ -16,6 +16,7 @@ import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useLang } from '../config/context';
 import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { statusIcons } from '../utils/style/tone-styles';
 import {
@@ -90,38 +91,48 @@ export interface ResultProps extends PartProps<'div', 'title'>, ResultOptions {
   children?: VNodeChild;
 }
 
-/** Result 的样式：root、icon、code、title、description、action */
-export const resultStyles = css.create({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '_sm',
-    paddingBlock: '_xl',
-    paddingInline: '_lg',
-    textAlign: 'center',
-    color: '_text',
-  },
-  icon: { width: '4em', height: '4em', marginBlockEnd: '_sm', strokeWidth: '_sm' },
-  // 状态码：大号（随字号缩放）、次要颜色、等宽数字，压在标题上方
-  code: {
-    fontSize: '2.5em',
-    fontWeight: '_bold',
-    lineHeight: 1,
-    color: '_textMuted',
-    fontVariantNumeric: 'tabular-nums',
-    letterSpacing: '_tight',
-  },
-  title: { fontWeight: '_semibold', lineHeight: '_tight' },
-  description: { maxWidth: '36em', color: '_textMuted' },
-  action: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: '_sm',
-    marginBlockStart: '_md',
+/**
+ * 结果页的配方：各部件的布局与颜色。图标的色调用共用的 toneStyles，排在配方之前，
+ * createUi / Provider 的 styles.Result 能盖过它；字号档位用共用的 fontSizeStyles 另外叠加
+ */
+export const resultRecipe = css.recipe({
+  name: 'Result',
+  parts: ['root', 'icon', 'code', 'title', 'description', 'action'],
+  base: {
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '_sm',
+      paddingBlock: '_xl',
+      paddingInline: '_lg',
+      textAlign: 'center',
+      color: '_text',
+    },
+    icon: { width: '4em', height: '4em', marginBlockEnd: '_sm', strokeWidth: '_sm' },
+    // 状态码：大号（随字号缩放）、次要颜色、等宽数字，压在标题上方
+    code: {
+      fontSize: '2.5em',
+      fontWeight: '_bold',
+      lineHeight: 1,
+      color: '_textMuted',
+      fontVariantNumeric: 'tabular-nums',
+      letterSpacing: '_tight',
+    },
+    title: { fontWeight: '_semibold', lineHeight: '_tight' },
+    description: { maxWidth: '36em', color: '_textMuted' },
+    action: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      gap: '_sm',
+      marginBlockStart: '_md',
+    },
   },
 });
+
+/** 结果页的部件（createUi / Provider 的 styles.Result 按它定制） */
+export type ResultPart = (typeof resultRecipe.parts)[number];
 
 /** 结果页：状态图标、标题、说明、操作，居中排列 */
 export const Result = _component(
@@ -144,6 +155,7 @@ export const Result = _component(
   }: ResultProps) => {
     const lang = useLang();
     const appearance = useDefaults('Result', () => ({ size }));
+    const recipe = useRecipe(resultRecipe);
     return () => {
       const textSize = appearance().size;
       const preset = status && STATUS_LOOKS[Number(status) as keyof ResultStatuses];
@@ -151,10 +163,11 @@ export const Result = _component(
       const shownTone = tone ?? preset?.tone ?? 'success';
       const shownTitle = title ?? text?.title;
       const shownDescription = description ?? text?.description;
+      const s = recipe({ tone: shownTone });
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [resultStyles.root, textSize && fontSizeStyles[textSize]] },
+            { ...s.root, sx: [s.root.sx, textSize && fontSizeStyles[textSize]] },
             rest,
           )}
           data-tone={shownTone}
@@ -163,9 +176,10 @@ export const Result = _component(
             <Icon
               {...mergePartProps<IconProps>(
                 {
+                  ...s.icon,
                   icon: icon ?? preset?.icon ?? statusIcons[shownTone],
                   draw,
-                  sx: [resultStyles.icon, toneStyles[shownTone]],
+                  sx: [toneStyles[shownTone], s.icon.sx],
                 },
                 propsIcon,
               )}
@@ -174,7 +188,7 @@ export const Result = _component(
           {status && (
             <Text
               {...mergePartProps<TextProps>(
-                { sx: resultStyles.code },
+                s.code,
                 propsCode,
                 // 标题已经说明了状态，状态码对读屏是重复的
                 { 'aria-hidden': true },
@@ -186,7 +200,7 @@ export const Result = _component(
           {hasContent(shownTitle) && (
             <Text
               {...mergePartProps<TextProps>(
-                { sx: [resultStyles.title, relativeFontSizeStyles.xl] },
+                { ...s.title, sx: [s.title.sx, relativeFontSizeStyles.xl] },
                 propsTitle,
               )}
             >
@@ -194,16 +208,12 @@ export const Result = _component(
             </Text>
           )}
           {hasContent(shownDescription) && (
-            <Paragraph
-              {...mergePartProps<TextProps>({ sx: resultStyles.description }, propsDescription)}
-            >
+            <Paragraph {...mergePartProps<TextProps>(s.description, propsDescription)}>
               {shownDescription}
             </Paragraph>
           )}
           {children}
-          {hasContent(action) && (
-            <div {...mergeAttrs<'div'>({ sx: resultStyles.action }, propsAction)}>{action}</div>
-          )}
+          {hasContent(action) && <div {...mergeAttrs<'div'>(s.action, propsAction)}>{action}</div>}
         </div>
       );
     };

@@ -45,8 +45,7 @@ import {
   clickOnShell,
   controlClear,
   controlIcon,
-  controlStyles,
-  controlSx,
+  controlParts,
   focusOnShell,
   useControlAppearance,
   type ControlIconOptions,
@@ -613,6 +612,7 @@ export const Cascader = _component(
 
     return () => {
       const state = control();
+      const s = controlParts(appearance(), state);
       const off = state.disabled;
       const locked = off || state.readonly;
       const keys = value ?? [];
@@ -638,25 +638,21 @@ export const Cascader = _component(
       return (
         <>
           <div
-            {...mergeAttrs<'div'>(
-              { sx: [controlSx(appearance(), state), selectStyles.root] },
-              propsRoot,
-              {
-                ref: _toRef(shell),
-                onPointerdown: off ? undefined : focusOnShell(() => trigger),
-                onClick: locked
-                  ? undefined
-                  : clickOnShell(
-                      () => trigger,
-                      (event) => toggle(event),
-                    ),
-              },
-            )}
+            {...mergeAttrs<'div'>({ ...s.root, sx: [s.root.sx, selectStyles.root] }, propsRoot, {
+              ref: _toRef(shell),
+              onPointerdown: off ? undefined : focusOnShell(() => trigger),
+              onClick: locked
+                ? undefined
+                : clickOnShell(
+                    () => trigger,
+                    (event) => toggle(event),
+                  ),
+            })}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={off || undefined}
           >
-            {controlIcon(icon, propsIcon)}
+            {controlIcon(s, icon, propsIcon)}
             <button
               {...mergeAttrs<'button'>(
                 { sx: [buttonBaseStyles.root, selectStyles.trigger] },
@@ -684,12 +680,13 @@ export const Cascader = _component(
             >
               <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
-            {clearable && keys.length > 0 && !locked && controlClear(propsClear, clear)}
+            {clearable && keys.length > 0 && !locked && controlClear(s, propsClear, clear)}
             <Icon
               {...mergePartProps<IconProps>(
                 {
+                  ...s.icon,
                   icon: ChevronDown,
-                  sx: [controlStyles.icon, disclosureStyles.icon, open && selectStyles.chevronOpen],
+                  sx: [s.icon.sx, disclosureStyles.icon, open && selectStyles.chevronOpen],
                 },
                 propsChevron,
               )}

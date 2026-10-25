@@ -15,13 +15,7 @@ import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { PresetIconButtonProps } from '../base/CloseButton';
-import {
-  controlClear,
-  controlStyles,
-  controlSx,
-  useControlAppearance,
-  type ControlOptions,
-} from './control';
+import { controlClear, controlParts, useControlAppearance, type ControlOptions } from './control';
 
 /** 值与状态由组件管理 */
 export type TextareaManaged =
@@ -114,19 +108,21 @@ export const Textarea = _component(
 
     return () => {
       const state = control();
+      const s = controlParts(appearance(), state, true);
       const limit = rest.maxlength ?? state.constraints.maxLength;
       const describedBy = [state.describedBy, showCount && countId].filter(Boolean).join(' ');
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state, true) }, propsRoot)}
+          {...mergeAttrs<'div'>(s.root, propsRoot)}
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
           <textarea
             {...mergeAttrs<'textarea'>(
               {
+                ...s.input,
                 sx: [
-                  controlStyles.input,
+                  s.input.sx,
                   textareaStyles.textarea,
                   fixed && textareaStyles.fixed,
                   textareaRowStyles.min(rows),
@@ -153,7 +149,8 @@ export const Textarea = _component(
             value &&
             !state.disabled &&
             !state.readonly &&
-            controlClear({ sx: textareaStyles.clear, ...propsClear }, () => {
+            // 使用方的 sx 接在贴顶的样式之后，不把它整个换掉
+            controlClear(s, { ...propsClear, sx: [textareaStyles.clear, propsClear?.sx] }, () => {
               value = '';
               textarea?.focus();
             })}

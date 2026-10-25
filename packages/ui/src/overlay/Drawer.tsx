@@ -8,13 +8,14 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import type { ContainerSizes } from '../layout/Container';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { ResizeHandle, type ResizeHandleProps } from '../layout/ResizeHandle';
 import {
   useDetachedOverlay,
   type DetachedOverlayHandle,
   type DetachedOverlayOptions,
 } from './detached';
-import { ModalCore, type ModalProps } from './ModalCore';
+import { ModalCore, modalPartStyles, type ModalProps } from './ModalCore';
 import { t } from '../config/theme/tokens';
 
 /** 抽屉从哪一侧滑入；start / end 是逻辑方向，从右到左排版下左右互换 */
@@ -56,76 +57,124 @@ export interface DrawerProps extends ModalProps, DrawerOptions {
   propsResizeHandle?: Partial<ResizeHandleProps>;
 }
 
-/** 抽屉的面板样式：去掉居中、按所在一侧定位与滑入 */
-export const drawerStyles = css.create({
-  panel: {
-    margin: 0,
-    maxWidth: '100vw',
-    maxHeight: '100dvh',
-    borderRadius: 0,
-    // 进场从所在一侧滑入（@starting-style），离场滑回去（allow-discrete，离场过渡目前只有 Chromium）；
-    // “减少动态效果”时时长为 0。打开时 translate 是 none 而不是 0 0：否则抽屉会成为 fixed 子元素
-    // （移进来的 Toaster）的包含块；关闭时不显示，移到所在一侧之外没有这个问题
-    transition: {
-      default: `translate ${t.durations.md} ${t.easings.exit}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
-      ':modal': `translate ${t.durations.lg} ${t.easings.enter}, display ${t.durations.lg} allow-discrete, overlay ${t.durations.lg} allow-discrete`,
-    },
-  },
-  inline: { insetBlock: 0, width: '_full', height: '100dvh', overflow: 'hidden' },
-  // 拖窄以后内容保持能读的最小宽度，多出来的被面板裁掉
-  content: { minWidth: 'min(20rem, 100vw - 3rem)' },
-  // 给了 width：行内写宽度，最多到视口宽
-  sized: { maxWidth: '100vw' },
-  block: { insetInline: 0, width: '100vw', height: 'auto' },
-  // 位置用逻辑属性，从右到左排版自动换边；translate 是物理方向，用 :dir() 区分
-  start: {
-    insetInlineStart: 0,
-    insetInlineEnd: 'auto',
-    borderInlineStartWidth: 0,
-    translate: {
-      default: '-100% 0',
-      ':dir(rtl)': '100% 0',
-      ':modal': {
-        default: 'none',
-        '@starting-style': { default: '-100% 0', ':dir(rtl)': '100% 0' },
+/**
+ * 抽屉的配方：部件同 ModalCore（base 并进了 modalPartStyles）；root 是 dialog 元素（去掉居中、按所在一侧定位与滑入），
+ * 能拖动调整宽度时标题行、说明、正文、页脚保持最小宽度
+ */
+export const drawerRecipe = css.recipe({
+  name: 'Drawer',
+  parts: ['root', 'header', 'title', 'close', 'description', 'body', 'bodyContent', 'footer'],
+  base: {
+    ...modalPartStyles,
+    root: {
+      ...modalPartStyles.root,
+      margin: 0,
+      // 给了 width 时宽度写在行内，最多到视口宽
+      maxWidth: '100vw',
+      maxHeight: '100dvh',
+      borderRadius: 0,
+      // 进场从所在一侧滑入（@starting-style），离场滑回去（allow-discrete，离场过渡目前只有 Chromium）；
+      // “减少动态效果”时时长为 0。打开时 translate 是 none 而不是 0 0：否则抽屉会成为 fixed 子元素
+      // （移进来的 Toaster）的包含块；关闭时不显示，移到所在一侧之外没有这个问题
+      transition: {
+        default: `translate ${t.durations.md} ${t.easings.exit}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
+        ':modal': `translate ${t.durations.lg} ${t.easings.enter}, display ${t.durations.lg} allow-discrete, overlay ${t.durations.lg} allow-discrete`,
       },
     },
   },
-  end: {
-    insetInlineStart: 'auto',
-    insetInlineEnd: 0,
-    borderInlineEndWidth: 0,
-    translate: {
-      default: '100% 0',
-      ':dir(rtl)': '-100% 0',
-      ':modal': {
-        default: 'none',
-        '@starting-style': { default: '100% 0', ':dir(rtl)': '-100% 0' },
+  variants: {
+    // 左右两侧占满视口高度、宽度看档位，上下两侧占满视口宽度、高度由内容决定。
+    // 位置用逻辑属性，从右到左排版自动换边；translate 是物理方向，用 :dir() 区分
+    side: {
+      start: {
+        root: {
+          insetBlock: 0,
+          width: '_full',
+          height: '100dvh',
+          overflow: 'hidden',
+          insetInlineStart: 0,
+          insetInlineEnd: 'auto',
+          borderInlineStartWidth: 0,
+          translate: {
+            default: '-100% 0',
+            ':dir(rtl)': '100% 0',
+            ':modal': {
+              default: 'none',
+              '@starting-style': { default: '-100% 0', ':dir(rtl)': '100% 0' },
+            },
+          },
+        },
+      },
+      end: {
+        root: {
+          insetBlock: 0,
+          width: '_full',
+          height: '100dvh',
+          overflow: 'hidden',
+          insetInlineStart: 'auto',
+          insetInlineEnd: 0,
+          borderInlineEndWidth: 0,
+          translate: {
+            default: '100% 0',
+            ':dir(rtl)': '-100% 0',
+            ':modal': {
+              default: 'none',
+              '@starting-style': { default: '100% 0', ':dir(rtl)': '-100% 0' },
+            },
+          },
+        },
+      },
+      top: {
+        root: {
+          insetInline: 0,
+          width: '100vw',
+          height: 'auto',
+          top: 0,
+          bottom: 'auto',
+          borderBlockStartWidth: 0,
+          translate: {
+            default: '0 -100%',
+            ':modal': { default: 'none', '@starting-style': '0 -100%' },
+          },
+        },
+      },
+      bottom: {
+        root: {
+          insetInline: 0,
+          width: '100vw',
+          height: 'auto',
+          top: 'auto',
+          bottom: 0,
+          borderBlockEndWidth: 0,
+          translate: {
+            default: '0 100%',
+            ':modal': { default: 'none', '@starting-style': '0 100%' },
+          },
+        },
       },
     },
-  },
-  top: {
-    top: 0,
-    bottom: 'auto',
-    borderBlockStartWidth: 0,
-    translate: { default: '0 -100%', ':modal': { default: 'none', '@starting-style': '0 -100%' } },
-  },
-  bottom: {
-    top: 'auto',
-    bottom: 0,
-    borderBlockEndWidth: 0,
-    translate: { default: '0 100%', ':modal': { default: 'none', '@starting-style': '0 100%' } },
+    // 左右两侧、没给 width 时的宽度档位
+    size: {
+      xs: { root: { maxWidth: `min(${t.sizes.xs}, 100vw)` } },
+      sm: { root: { maxWidth: `min(${t.sizes.sm}, 100vw)` } },
+      md: { root: { maxWidth: `min(${t.sizes.md}, 100vw)` } },
+      lg: { root: { maxWidth: `min(${t.sizes.lg}, 100vw)` } },
+      xl: { root: { maxWidth: `min(${t.sizes.xl}, 100vw)` } },
+    },
+    // 能拖动调整宽度（左右两侧）：拖窄以后内容保持能读的最小宽度，多出来的被面板裁掉
+    resizable: {
+      true: {
+        header: { minWidth: 'min(20rem, 100vw - 3rem)' },
+        description: { minWidth: 'min(20rem, 100vw - 3rem)' },
+        body: { minWidth: 'min(20rem, 100vw - 3rem)' },
+        footer: { minWidth: 'min(20rem, 100vw - 3rem)' },
+      },
+    },
   },
 });
 
-/** 抽屉（左右两侧）的宽度档位；sized 是给了 width 的（宽度写在行内，不受档位限制） */
-export const drawerSizeStyles = css.create({
-  xs: { maxWidth: `min(${t.sizes.xs}, 100vw)` },
-  sm: { maxWidth: `min(${t.sizes.sm}, 100vw)` },
-  md: { maxWidth: `min(${t.sizes.md}, 100vw)` },
-  lg: { maxWidth: `min(${t.sizes.lg}, 100vw)` },
-  xl: { maxWidth: `min(${t.sizes.xl}, 100vw)` },
-});
+/** 抽屉的部件（createUi / Provider 的 styles.Drawer 按它定制） */
+export type DrawerPart = (typeof drawerRecipe.parts)[number];
 
 /** 抽屉：贴着视口一侧滑入的模态面板 */
 export const Drawer = _component(
@@ -144,24 +193,24 @@ export const Drawer = _component(
       resizable: true,
     });
     const messages = useLang();
+    const recipe = useRecipe(drawerRecipe);
     // 双击回到打开时的宽度
     const initialWidth = _untrack(width);
     return () => {
       const inline = side === 'start' || side === 'end';
       const resizing = inline && appearance().resizable;
+      const s = recipe({
+        side,
+        size: inline && width == null ? appearance().size : undefined,
+        resizable: resizing,
+      });
       return (
         <ModalCore
           {...rest}
           open={_bind(open)}
-          panelSx={[
-            drawerStyles.panel,
-            inline ? drawerStyles.inline : drawerStyles.block,
-            drawerStyles[side],
-            inline && (width == null ? drawerSizeStyles[appearance().size] : drawerStyles.sized),
-          ]}
+          parts={s}
           style={inline && width != null ? { width: `${width}px` } : undefined}
           data-side={side}
-          contentSx={resizing ? drawerStyles.content : undefined}
           edge={
             resizing && (
               <ResizeHandle

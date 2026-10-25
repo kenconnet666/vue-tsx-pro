@@ -61,17 +61,19 @@ export {
 } from './base/IconLinkButton';
 export {
   Indicator,
-  indicatorStyles,
+  indicatorRecipe,
   type IndicatorOptions,
   type IndicatorOverlaps,
+  type IndicatorPart,
   type IndicatorPlacements,
   type IndicatorProps,
 } from './base/Indicator';
 export { Kbd, kbdStyles, type KbdProps } from './base/Kbd';
 export {
   Link,
-  linkStyles,
+  linkRecipe,
   type LinkOptions,
+  type LinkPart,
   type LinkProps,
   type LinkUnderlines,
 } from './base/Link';
@@ -260,10 +262,11 @@ export {
 export {
   Avatar,
   AvatarGroupContext,
-  avatarStyles,
+  avatarRecipe,
   initials,
   type AvatarManaged,
   type AvatarOptions,
+  type AvatarPart,
   type AvatarProps,
   type AvatarVariants,
 } from './display/Avatar';
@@ -276,13 +279,11 @@ export {
 export {
   Card,
   cardEffectDynamicStyles,
-  cardEffectStyles,
-  cardPaddingStyles,
-  cardStyles,
-  cardVariantStyles,
+  cardRecipe,
   type CardEffects,
   type CardManaged,
   type CardOptions,
+  type CardPart,
   type CardProps,
   type CardVariants,
 } from './display/Card';
@@ -427,7 +428,13 @@ export {
   type BannerProps,
   type BannerVariants,
 } from './feedback/Banner';
-export { Empty, emptyStyles, type EmptyOptions, type EmptyProps } from './feedback/Empty';
+export {
+  Empty,
+  emptyRecipe,
+  type EmptyOptions,
+  type EmptyPart,
+  type EmptyProps,
+} from './feedback/Empty';
 export {
   createLoadingBar,
   LoadingBar,
@@ -446,22 +453,20 @@ export {
 } from './feedback/LoadingOverlay';
 export {
   Progress,
-  progressCircleStyles,
-  progressStrokeStyles,
-  progressStyles,
+  progressRecipe,
   progressTargetPositionStyles,
-  progressTargetStyles,
-  progressToneStyles,
   progressWidthStyles,
   type ProgressManaged,
   type ProgressOptions,
+  type ProgressPart,
   type ProgressProps,
   type ProgressShapes,
 } from './feedback/Progress';
 export {
   Result,
-  resultStyles,
+  resultRecipe,
   type ResultOptions,
+  type ResultPart,
   type ResultProps,
   type ResultStatuses,
   type ResultTones,
@@ -515,22 +520,21 @@ export {
 export { ContextMenu, type ContextMenuProps } from './overlay/ContextMenu';
 export {
   Dialog,
-  dialogPanelSx,
-  dialogSizeStyles,
-  dialogStyles,
+  dialogRecipe,
   useDialog,
   type DialogApi,
   type DialogOptions,
+  type DialogPart,
   type DialogProps,
   type DialogSizes,
 } from './overlay/Dialog';
 export {
   Drawer,
-  drawerSizeStyles,
-  drawerStyles,
+  drawerRecipe,
   useDrawer,
   type DrawerApi,
   type DrawerOptions,
+  type DrawerPart,
   type DrawerProps,
   type DrawerSides,
 } from './overlay/Drawer';
@@ -583,9 +587,10 @@ export {
 } from './overlay/Menu';
 export {
   ModalCore,
-  modalStyles,
+  modalPartStyles,
   type ModalCoreProps,
   type ModalManaged,
+  type ModalPart,
   type ModalProps,
 } from './overlay/ModalCore';
 export { Popconfirm, popconfirmStyles, type PopconfirmProps } from './overlay/Popconfirm';
@@ -873,31 +878,34 @@ export {
   type UploadProps,
 } from './input/Upload';
 export {
-  choiceGroupStyles,
-  choiceRootSx,
-  choiceStyles,
+  choiceInputStyles,
+  choiceParts,
+  choiceRecipe,
   readonlyChoiceHandlers,
   syncChecked,
   useChoiceAppearance,
   type ChoiceAppearance,
   type ChoiceOptions,
   type ChoiceOrientations,
+  type ChoicePart,
+  type ChoiceParts,
 } from './input/choice-styles';
 export {
   clickOnShell,
   controlAffix,
   controlClear,
   controlIcon,
-  controlShellStyles,
-  controlStyles,
-  controlSx,
+  controlParts,
   focusOnShell,
+  inputRecipe,
   useControlAppearance,
   type ControlAppearance,
   type ControlIconOptions,
   type ControlOptions,
+  type ControlParts,
   type ControlState,
   type ControlVariants,
+  type InputPart,
 } from './input/control';
 export {
   handleListKeydown,
@@ -1186,12 +1194,13 @@ export {
   TableFoot,
   TableHead,
   TableHeaderCell,
+  tableRecipe,
   TableRow,
   TableSectionContext,
-  tableStyles,
   type TableAligns,
   type TableCellProps,
   type TableHeaderCellProps,
+  type TablePart,
   type TableProps,
   type TableSection,
   type TableState,
@@ -1250,10 +1259,11 @@ export {
   type SheetValue,
 } from './table/sheet';
 export {
-  dataTableDensityStyles,
-  dataTableStyles,
+  dataTableRecipe,
+  dataTableStateStyles,
   type DataTableDensities,
   type DataTableOptions,
+  type DataTablePart,
   type DataTableVariants,
 } from './table/table-styles';
 export {

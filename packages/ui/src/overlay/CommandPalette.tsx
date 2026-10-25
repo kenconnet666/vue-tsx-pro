@@ -22,7 +22,7 @@ import { Icon } from '../base/Icon';
 import { Kbd } from '../base/Kbd';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang, useTextMatcher } from '../config/context';
-import { controlStyles, controlSx, useControlAppearance } from '../input/control';
+import { controlParts, useControlAppearance, type ControlParts } from '../input/control';
 import {
   ListboxView,
   activeOptionId,
@@ -215,7 +215,8 @@ export const CommandPalette = _component(
       'aria-expanded': open,
     });
 
-    function renderTrigger() {
+    /** 默认的触发按钮：画成输入框外壳（只取样式，部件标记归面板自己） */
+    function renderTrigger(shell: ControlParts) {
       if (trigger === false) return null;
       if (trigger) return trigger(triggerProps());
       const text = placeholder ?? lang.searchPlaceholder;
@@ -223,10 +224,7 @@ export const CommandPalette = _component(
         <ButtonBase
           {...mergePartProps<ButtonBaseProps>(
             {
-              sx: [
-                controlSx(appearance(), { invalid: false, disabled: false, readonly: false }),
-                commandPaletteStyles.trigger,
-              ],
+              sx: [shell.root.sx, commandPaletteStyles.trigger],
               // 快捷键由 aria-keyshortcuts 告诉读屏，显示它的 Kbd 不算进名称
               'aria-keyshortcuts': hotkey ? ariaKeyShortcut(hotkey) : undefined,
             },
@@ -234,7 +232,7 @@ export const CommandPalette = _component(
             triggerProps(),
           )}
         >
-          <Icon icon={Search} sx={controlStyles.icon} />
+          <Icon icon={Search} sx={shell.icon.sx} />
           <span {...mergeAttrs<'span'>({ sx: commandPaletteStyles.triggerLabel })}>{text}</span>
           {hotkey && (
             <Kbd
@@ -248,67 +246,70 @@ export const CommandPalette = _component(
       );
     }
 
-    return () => (
-      <>
-        {renderTrigger()}
-        <Dialog
-          {...mergePartProps<DialogProps>(
-            {
-              title: label ?? lang.searchLabel,
-              sx: commandPaletteStyles.dialog,
-              size: 'sm',
-              closable: false,
-              // 标题只给读屏：面板的名称
-              propsHeader: { sx: visuallyHiddenStyles.hidden },
-              propsBody: { propsContent: { sx: commandPaletteStyles.body } },
-            },
-            rest as Partial<DialogProps>,
-          )}
-          open={_bind(open)}
-          onOpenChange={onOpenChange}
-        >
-          <div {...mergeAttrs<'div'>({ sx: commandPaletteStyles.search })}>
-            <Icon icon={Search} sx={controlStyles.icon} />
-            {/* _bind 编译为 v-model：输入法组合期间不过滤 */}
-            <input
-              {...mergeAttrs<'input'>(
-                { sx: [controlStyles.input, commandPaletteStyles.input] },
-                propsInput,
-                {
-                  role: 'combobox',
-                  type: 'search',
-                  autofocus: true,
-                  autocomplete: 'off',
-                  enterkeyhint: 'go',
-                  placeholder: placeholder ?? lang.searchPlaceholder,
-                  'aria-label': label ?? lang.searchLabel,
-                  'aria-autocomplete': 'list',
-                  'aria-expanded': true,
-                  'aria-controls': listId,
-                  'aria-activedescendant': activeOptionId(list, listId),
-                  onKeydown,
-                },
-              )}
-              value={_bind(inputValue)}
-            />
-          </div>
-          <ListboxView
-            {...mergePartProps<ListboxViewProps<T>>(
+    return () => {
+      const shell = controlParts(appearance(), {});
+      return (
+        <>
+          {renderTrigger(shell)}
+          <Dialog
+            {...mergePartProps<DialogProps>(
               {
-                sx: commandPaletteStyles.listbox,
-                list,
-                id: listId,
-                renderOption,
-                empty,
-                loading,
-                propsEmpty: { description: lang.searchEmpty },
+                title: label ?? lang.searchLabel,
+                sx: commandPaletteStyles.dialog,
+                size: 'sm',
+                closable: false,
+                // 标题只给读屏：面板的名称
+                propsHeader: { sx: visuallyHiddenStyles.hidden },
+                propsBody: { propsContent: { sx: commandPaletteStyles.body } },
               },
-              propsListbox,
-              { id: listId, 'aria-label': label ?? lang.searchLabel, onPick: pick },
+              rest as Partial<DialogProps>,
             )}
-          />
-        </Dialog>
-      </>
-    );
+            open={_bind(open)}
+            onOpenChange={onOpenChange}
+          >
+            <div {...mergeAttrs<'div'>({ sx: commandPaletteStyles.search })}>
+              <Icon icon={Search} sx={shell.icon.sx} />
+              {/* _bind 编译为 v-model：输入法组合期间不过滤 */}
+              <input
+                {...mergeAttrs<'input'>(
+                  { sx: [shell.input.sx, commandPaletteStyles.input] },
+                  propsInput,
+                  {
+                    role: 'combobox',
+                    type: 'search',
+                    autofocus: true,
+                    autocomplete: 'off',
+                    enterkeyhint: 'go',
+                    placeholder: placeholder ?? lang.searchPlaceholder,
+                    'aria-label': label ?? lang.searchLabel,
+                    'aria-autocomplete': 'list',
+                    'aria-expanded': true,
+                    'aria-controls': listId,
+                    'aria-activedescendant': activeOptionId(list, listId),
+                    onKeydown,
+                  },
+                )}
+                value={_bind(inputValue)}
+              />
+            </div>
+            <ListboxView
+              {...mergePartProps<ListboxViewProps<T>>(
+                {
+                  sx: commandPaletteStyles.listbox,
+                  list,
+                  id: listId,
+                  renderOption,
+                  empty,
+                  loading,
+                  propsEmpty: { description: lang.searchEmpty },
+                },
+                propsListbox,
+                { id: listId, 'aria-label': label ?? lang.searchLabel, onPick: pick },
+              )}
+            />
+          </Dialog>
+        </>
+      );
+    };
   },
 );

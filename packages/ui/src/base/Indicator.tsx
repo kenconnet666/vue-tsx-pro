@@ -13,6 +13,7 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -68,53 +69,83 @@ export interface IndicatorProps extends PartProps<'span'>, IndicatorOptions {
   children?: VNodeChild;
 }
 
-/** Indicator 的样式：root、badge、count、dot、各位置与 circular */
-export const indicatorStyles = css.create({
-  root: { position: 'relative', display: 'inline-flex', verticalAlign: 'middle', flexShrink: 0 },
-  badge: {
-    position: 'absolute',
-    zIndex: 1,
-    boxSizing: 'border-box',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '_full',
-    // 一圈页面底色，和被标记的元素分开
-    boxShadow: `0 0 0 ${t.borderWidths.sm} ${t.colors.background}`,
-    fontWeight: '_semibold',
-    lineHeight: 1,
-    fontVariantNumeric: 'tabular-nums',
-    whiteSpace: 'nowrap',
-    pointerEvents: 'none',
-    // 圆点只靠颜色表示“有新消息”：Windows 高对比下保留色调，不被系统改成背景色
-    forcedColorAdjust: 'none',
+/**
+ * 角标的配方：部件 root（外层）、badge（角标）、count（计数文字）；位置、形状、圆点是档位。
+ * 角标的实底色调来自共用的 statusToneSx，排在配方之前，createUi / Provider 的 styles.Indicator 能盖过它
+ */
+export const indicatorRecipe = css.recipe({
+  name: 'Indicator',
+  parts: ['root', 'badge', 'count'],
+  base: {
+    root: { position: 'relative', display: 'inline-flex', verticalAlign: 'middle', flexShrink: 0 },
+    badge: {
+      position: 'absolute',
+      zIndex: 1,
+      boxSizing: 'border-box',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '_full',
+      // 一圈页面底色，和被标记的元素分开
+      boxShadow: `0 0 0 ${t.borderWidths.sm} ${t.colors.background}`,
+      fontWeight: '_semibold',
+      lineHeight: 1,
+      fontVariantNumeric: 'tabular-nums',
+      whiteSpace: 'nowrap',
+      pointerEvents: 'none',
+      // 圆点只靠颜色表示“有新消息”：Windows 高对比下保留色调，不被系统改成背景色
+      forcedColorAdjust: 'none',
+    },
   },
-  count: { minWidth: '1.6em', height: '1.6em', paddingInline: '0.4em', fontSize: '0.75em' },
-  dot: { width: '0.625em', height: '0.625em' },
-  // 角标的中心对准角：按书写方向的位移
-  'top-end': {
-    top: 0,
-    insetInlineEnd: 0,
-    translate: { default: '50% -50%', ':dir(rtl)': '-50% -50%' },
+  variants: {
+    // 圆点或计数：角标的尺寸
+    dot: {
+      true: { badge: { width: '0.625em', height: '0.625em' } },
+      false: {
+        badge: { minWidth: '1.6em', height: '1.6em', paddingInline: '0.4em', fontSize: '0.75em' },
+      },
+    },
+    // 角标的中心对准角：按书写方向的位移
+    placement: {
+      'top-end': {
+        badge: {
+          top: 0,
+          insetInlineEnd: 0,
+          translate: { default: '50% -50%', ':dir(rtl)': '-50% -50%' },
+        },
+      },
+      'bottom-end': {
+        badge: {
+          bottom: 0,
+          insetInlineEnd: 0,
+          translate: { default: '50% 50%', ':dir(rtl)': '-50% 50%' },
+        },
+      },
+      'top-start': {
+        badge: {
+          top: 0,
+          insetInlineStart: 0,
+          translate: { default: '-50% -50%', ':dir(rtl)': '50% -50%' },
+        },
+      },
+      'bottom-start': {
+        badge: {
+          bottom: 0,
+          insetInlineStart: 0,
+          translate: { default: '-50% 50%', ':dir(rtl)': '50% 50%' },
+        },
+      },
+    },
+    overlap: {
+      rectangular: {},
+      // 圆形：角落到圆边的距离约是边长的 14.6%（1 - 1/√2 的一半），角标收进去这么多
+      circular: { badge: { margin: '14.6%' } },
+    },
   },
-  'bottom-end': {
-    bottom: 0,
-    insetInlineEnd: 0,
-    translate: { default: '50% 50%', ':dir(rtl)': '-50% 50%' },
-  },
-  'top-start': {
-    top: 0,
-    insetInlineStart: 0,
-    translate: { default: '-50% -50%', ':dir(rtl)': '50% -50%' },
-  },
-  'bottom-start': {
-    bottom: 0,
-    insetInlineStart: 0,
-    translate: { default: '-50% 50%', ':dir(rtl)': '50% 50%' },
-  },
-  // 圆形：角落到圆边的距离约是边长的 14.6%（1 - 1/√2 的一半），角标收进去这么多
-  circular: { margin: '14.6%' },
 });
+
+/** 角标的部件（createUi / Provider 的 styles.Indicator 按它定制） */
+export type IndicatorPart = (typeof indicatorRecipe.parts)[number];
 
 /** 角标：叠在被标记元素角上的计数或小圆点 */
 export const Indicator = _component(
@@ -134,30 +165,27 @@ export const Indicator = _component(
   }: IndicatorProps) => {
     const lang = useLang();
     const appearance = useDefaults('Indicator', () => ({ tone }), { tone: 'danger' });
+    const recipe = useRecipe(indicatorRecipe);
     return () => {
       const visible = dot || (count != null && (count > 0 || showZero));
       const text = count == null ? '' : count > max ? `${max}+` : String(count);
+      const shownTone = appearance().tone;
+      const s = recipe({ dot, placement, overlap, tone: shownTone });
       return (
-        <span {...mergeAttrs<'span'>({ sx: indicatorStyles.root }, rest)}>
+        <span {...mergeAttrs<'span'>(s.root, rest)}>
           {children}
           {visible && (
             <span
               {...mergeAttrs<'span'>(
-                {
-                  sx: [
-                    indicatorStyles.badge,
-                    statusToneSx('solid', appearance().tone),
-                    dot ? indicatorStyles.dot : indicatorStyles.count,
-                    indicatorStyles[placement],
-                    overlap === 'circular' && indicatorStyles.circular,
-                  ],
-                },
+                { ...s.badge, sx: [statusToneSx('solid', shownTone), s.badge.sx] },
                 propsBadge,
               )}
               data-placement={placement}
             >
               {!dot && (
-                <span {...mergeAttrs<'span'>({}, propsCount, { 'aria-hidden': true })}>{text}</span>
+                <span {...mergeAttrs<'span'>(s.count, propsCount, { 'aria-hidden': true })}>
+                  {text}
+                </span>
               )}
               <VisuallyHidden>
                 {label ?? (dot ? lang.indicatorDot : lang.indicatorCount(count ?? 0))}

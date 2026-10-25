@@ -4,10 +4,13 @@ import { Button } from '../../base/Button';
 import { Field } from '../../form/Field';
 import { attachedStyles } from '../../utils/style/attached';
 import { hasStyles, mount } from '../../utils/.test/mount';
-import { controlShellStyles } from '../control';
+import { inputRecipe } from '../control';
 import { ControlGroup } from '../ControlGroup';
 import { Select } from '../Select';
 import { TextField } from '../TextField';
+
+// 横排相连的档位给外壳加的样式（分掉剩余宽度）：配方结果里排在基础样式之后的那一段
+const grow = inputRecipe({ attached: 'horizontal' }).root.slice(1);
 
 describe('ControlGroup', () => {
   it('组里的输入框、选择框、按钮都相连；输入框分剩余宽度', () => {
@@ -28,7 +31,7 @@ describe('ControlGroup', () => {
     expect(
       [select!, field!, button!].map((part) => hasStyles(part, attachedStyles.horizontal)),
     ).toEqual([true, true, true]);
-    expect(hasStyles(field!, controlShellStyles.grow)).toBe(true);
+    expect(hasStyles(field!, grow)).toBe(true);
   });
 
   it('竖排：上下相连；不在组里的输入框不相连', () => {
@@ -43,7 +46,7 @@ describe('ControlGroup', () => {
     ));
     const [group, alone] = [...root.firstElementChild!.children] as HTMLElement[];
     expect(hasStyles(group!.firstElementChild!, attachedStyles.vertical)).toBe(true);
-    expect(hasStyles(group!.firstElementChild!, controlShellStyles.grow)).toBe(false);
+    expect(hasStyles(group!.firstElementChild!, grow)).toBe(false);
     expect(hasStyles(alone!, attachedStyles.horizontal)).toBe(false);
   });
 

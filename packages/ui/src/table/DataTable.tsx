@@ -35,7 +35,6 @@
  */
 import { GripVertical } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
@@ -48,6 +47,7 @@ import { useLang } from '../config/context';
 import { focusFirst } from '../utils/dom/focus';
 import { useSortable } from '../utils/dom/sortable';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { mergeAttrs, mergePartProps } from '../utils/props';
 import { toggleSelection } from '../utils/data/selection';
 import {
@@ -76,7 +76,7 @@ import {
   type DataTableRowModel,
   type DataTableViewProps,
 } from './DataTableView';
-import { dataTableStyles } from './table-styles';
+import { dataTableRecipe, dataTableStateStyles } from './table-styles';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
 export interface DataTableProps<T> extends Omit<
@@ -172,6 +172,12 @@ export const DataTable = _component(
       density: 'standard',
       variant: 'surface',
       striped: false,
+    });
+    const recipe = useRecipe(dataTableRecipe);
+    // 编辑器、拖动把手的部件层：与 DataTableView 的表头、表尾取同一组档位
+    const s = _derived.by(() => {
+      const { density: shownDensity, variant: shownVariant } = appearance();
+      return recipe({ density: shownDensity, variant: shownVariant });
     });
 
     const activeSort = () => (multiSort ? sorts : sort);
@@ -319,7 +325,7 @@ export const DataTable = _component(
         invalid: !!current.error,
         'aria-label': label,
         // 编辑器占满格子
-        propsRoot: { sx: dataTableStyles.editorControl },
+        propsRoot: s.editorControl,
       } as const;
       const editor = column.editor ? (
         column.editor(context)
@@ -356,7 +362,7 @@ export const DataTable = _component(
       );
       return (
         <div
-          {...css.attrs(dataTableStyles.editor)}
+          {...mergeAttrs<'div'>(s.editor)}
           // 焦点离开这一格（点了别处）：提交
           onFocusout={(event: FocusEvent) => {
             const cell = (event.currentTarget as HTMLElement).closest('td');
@@ -365,7 +371,7 @@ export const DataTable = _component(
         >
           {editor}
           {current.error && (
-            <div role="alert" {...css.attrs(dataTableStyles.editorError)}>
+            <div role="alert" {...mergeAttrs<'div'>(s.editorError)}>
               {current.error}
             </div>
           )}
@@ -380,7 +386,7 @@ export const DataTable = _component(
     const rowPropsWithHandle = (row: T, index: number) =>
       mergeAttrs<'tr'>({}, typeof propsRow === 'function' ? propsRow(row, index) : propsRow, {
         ...sortable.itemProps(models[index]!.key),
-        sx: sortable.active === models[index]!.key ? dataTableStyles.rowDragging : undefined,
+        sx: sortable.active === models[index]!.key ? dataTableStateStyles.rowDragging : undefined,
       });
 
     /** 第一个数据列前面：拖动的把手，再是使用方的 leading */
@@ -388,7 +394,7 @@ export const DataTable = _component(
       return (
         <>
           <ButtonBase
-            sx={dataTableStyles.rowHandle}
+            {...s.rowHandle}
             ripple={false}
             aria-label={lang.sortableHandle(rowLabel(columns, row))}
             {...sortable.handleProps(row.key)}

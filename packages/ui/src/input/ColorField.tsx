@@ -17,13 +17,7 @@ import { parseColor, toHex } from '../utils/data/color';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { focusRingStyles } from '../utils/style/styles';
-import {
-  controlStyles,
-  controlSx,
-  focusOnShell,
-  useControlAppearance,
-  type ControlOptions,
-} from './control';
+import { controlParts, focusOnShell, useControlAppearance, type ControlOptions } from './control';
 
 /** 值、状态与无障碍关联由组件管理 */
 export type ColorFieldManaged =
@@ -130,15 +124,12 @@ export const ColorField = _component(
       const state = control();
       const editable = !state.disabled && !state.readonly;
       const showInvalid = state.invalid || !parsed();
+      const s = controlParts(appearance(), { ...state, invalid: showInvalid });
       // 原生取色器只认 #rrggbb
       const opaque = toHex(value)?.slice(0, 7) ?? '#000000';
       return (
         <div
-          {...mergeAttrs<'div'>(
-            { sx: controlSx(appearance(), { ...state, invalid: showInvalid }) },
-            propsRoot,
-            { onPointerdown: focusOnShell(() => input) },
-          )}
+          {...mergeAttrs<'div'>(s.root, propsRoot, { onPointerdown: focusOnShell(() => input) })}
           data-invalid={showInvalid || undefined}
           data-disabled={state.disabled || undefined}
         >
@@ -170,22 +161,26 @@ export const ColorField = _component(
             />
           </label>
           <input
-            {...mergeAttrs<'input'>({ sx: [controlStyles.input, colorFieldStyles.input] }, rest, {
-              ref: _toRef(input),
-              id: state.id,
-              type: 'text',
-              spellcheck: false,
-              autocomplete: 'off',
-              disabled: state.disabled,
-              readonly: state.readonly,
-              required: state.required,
-              'aria-invalid': showInvalid || undefined,
-              'aria-describedby': state.describedBy,
-              onBlur: commit,
-              onKeydown: (event: KeyboardEvent) => {
-                if (event.key === 'Enter') commit();
+            {...mergeAttrs<'input'>(
+              { ...s.input, sx: [s.input.sx, colorFieldStyles.input] },
+              rest,
+              {
+                ref: _toRef(input),
+                id: state.id,
+                type: 'text',
+                spellcheck: false,
+                autocomplete: 'off',
+                disabled: state.disabled,
+                readonly: state.readonly,
+                required: state.required,
+                'aria-invalid': showInvalid || undefined,
+                'aria-describedby': state.describedBy,
+                onBlur: commit,
+                onKeydown: (event: KeyboardEvent) => {
+                  if (event.key === 'Enter') commit();
+                },
               },
-            })}
+            )}
             value={_bind(draft)}
           />
         </div>

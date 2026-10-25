@@ -18,6 +18,7 @@ import { useId, type VNodeChild } from 'vue';
 import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { useFormat } from '../config/lang/format';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { clamp } from '../utils/data/number';
@@ -90,122 +91,184 @@ const slideRtl = css.keyframes({
   to: { transform: 'translateX(-250%)' },
 });
 
-/** Progress 的样式：shell、header、valueLabel、root、indicator、indeterminate */
-export const progressStyles = css.create({
-  // 有标签行时的外层：标签行在上、进度条在下
-  shell: { display: 'grid', gap: '_xs', minWidth: 0 },
-  header: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '_sm' },
-  // 数值宽度不跳：等宽数字，不被标签挤压
-  valueLabel: { flexShrink: 0, fontVariantNumeric: 'tabular-nums' },
-  root: {
-    position: 'relative',
-    overflow: 'hidden',
-    width: '_full',
-    height: `calc(${t.space.xs} * 1.5)`,
-    backgroundColor: '_fill',
-    // Windows 高对比下系统把背景色改掉：轨道画一圈系统的文字色，进度用系统的高亮色（见 progressToneStyles）
-    outlineStyle: { default: null, '@media (forced-colors: active)': 'solid' },
-    outlineWidth: { default: null, '@media (forced-colors: active)': '_borderWidths.xs' },
-    outlineColor: { default: null, '@media (forced-colors: active)': 'CanvasText' },
-  },
-  indicator: {
-    height: '_full',
-    borderRadius: 'inherit',
-    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
-    transition: `width ${t.durations.md} ${t.easings.standard}`,
-  },
-  // 不确定进度：一段 40% 宽的色块从起始边到结束边循环；它本身就是信息，不随 durations 变为 0，减少动态效果时变慢
-  indeterminate: {
-    width: '40%',
-    animationName: { default: slide, ':dir(rtl)': slideRtl },
-    animationDuration: { default: '1.4s', '@media (prefers-reduced-motion: reduce)': '3s' },
-    animationTimingFunction: '_easings.standard',
-    animationIterationCount: 'infinite',
-  },
-});
-
-// 和轨道（fill）之间要有 3:1：中性色用次要文字色，accent 以外的状态色用各自的文字色
-/** Progress 的样式：neutral、accent、info、success、warning、danger */
-export const progressToneStyles = css.create({
-  neutral: {
-    backgroundColor: { default: '_textMuted', '@media (forced-colors: active)': 'Highlight' },
-  },
-  accent: {
-    backgroundColor: { default: '_accent', '@media (forced-colors: active)': 'Highlight' },
-  },
-  info: {
-    backgroundColor: { default: '_infoText', '@media (forced-colors: active)': 'Highlight' },
-  },
-  success: {
-    backgroundColor: { default: '_successText', '@media (forced-colors: active)': 'Highlight' },
-  },
-  warning: {
-    backgroundColor: { default: '_warningText', '@media (forced-colors: active)': 'Highlight' },
-  },
-  danger: {
-    backgroundColor: { default: '_dangerText', '@media (forced-colors: active)': 'Highlight' },
-  },
-});
-
 const spin = css.keyframes({ to: { rotate: '1turn' } });
 
-/** 环形进度的样式：root、svg、track、indicator、indeterminate、target、center、shell */
-export const progressCircleStyles = css.create({
-  // 直径随字号缩放：5em 在默认字号下约 70px
-  root: {
-    position: 'relative',
-    display: 'inline-grid',
-    placeItems: 'center',
-    width: '5em',
-    height: '5em',
-    flexShrink: 0,
+/**
+ * 进度的配方。条形的部件：root（有标签行时的外层）、header（标签行）、label、valueLabel、
+ * track（轨道，即 progressbar）、indicator（进度）、target（目标线）；环形的部件：root（有标签时的外层）、
+ * circle（progressbar）、circleSvg、circleTrack、circleIndicator、circleTarget、valueLabel（中间的数值）、label。
+ * 档位：shape、tone、indeterminate（不确定进度）。字号、圆角用共用的表另外叠加；
+ * 条形的进度宽度与目标线的位置是任意值，用下面的动态样式
+ */
+export const progressRecipe = css.recipe({
+  name: 'Progress',
+  parts: [
+    'root',
+    'header',
+    'label',
+    'valueLabel',
+    'track',
+    'indicator',
+    'target',
+    'circle',
+    'circleSvg',
+    'circleTrack',
+    'circleIndicator',
+    'circleTarget',
+  ],
+  base: {
+    header: {
+      display: 'flex',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      gap: '_sm',
+    },
+    track: {
+      position: 'relative',
+      overflow: 'hidden',
+      width: '_full',
+      height: `calc(${t.space.xs} * 1.5)`,
+      backgroundColor: '_fill',
+      // Windows 高对比下系统把背景色改掉：轨道画一圈系统的文字色，进度用系统的高亮色（见档位 tone）
+      outlineStyle: { default: null, _forcedColors: 'solid' },
+      outlineWidth: { default: null, _forcedColors: '_borderWidths.xs' },
+      outlineColor: { default: null, _forcedColors: 'CanvasText' },
+    },
+    indicator: {
+      height: '_full',
+      borderRadius: 'inherit',
+      forcedColorAdjust: { default: null, _forcedColors: 'none' },
+      transition: `width ${t.durations.md} ${t.easings.standard}`,
+    },
+    // 竖线压在轨道上：正文色，与进度、轨道都有对比；位置按书写方向
+    target: {
+      position: 'absolute',
+      insetBlock: 0,
+      width: '_borderWidths.sm',
+      marginInlineStart: `calc(-0.5 * ${t.borderWidths.sm})`,
+      backgroundColor: { default: '_text', _forcedColors: 'CanvasText' },
+    },
+    // 直径随字号缩放：5em 在默认字号下约 70px
+    circle: {
+      position: 'relative',
+      display: 'inline-grid',
+      placeItems: 'center',
+      width: '5em',
+      height: '5em',
+      flexShrink: 0,
+    },
+    circleSvg: { position: 'absolute', inset: 0, width: '100%', height: '100%', rotate: '-90deg' },
+    circleTrack: {
+      fill: 'none',
+      stroke: { default: '_fill', _forcedColors: 'CanvasText' },
+    },
+    circleIndicator: {
+      fill: 'none',
+      forcedColorAdjust: { default: null, _forcedColors: 'none' },
+      transition: `stroke-dashoffset ${t.durations.md} ${t.easings.standard}`,
+    },
+    circleTarget: { stroke: '_text', strokeLinecap: 'round' },
   },
-  svg: { position: 'absolute', inset: 0, width: '100%', height: '100%', rotate: '-90deg' },
-  track: {
-    fill: 'none',
-    stroke: { default: '_fill', '@media (forced-colors: active)': 'CanvasText' },
+  variants: {
+    shape: {
+      bar: {
+        // 有标签行时的外层：标签行在上、进度条在下
+        root: { display: 'grid', gap: '_xs', minWidth: 0 },
+        // 数值宽度不跳：等宽数字，不被标签挤压
+        valueLabel: { flexShrink: 0, fontVariantNumeric: 'tabular-nums' },
+      },
+      circle: {
+        // 有标签时：环在上、标签在下，居中
+        root: { display: 'inline-grid', justifyItems: 'center', gap: '_xs', textAlign: 'center' },
+        // 中间的数值：比上下文字号小一档，等宽数字
+        valueLabel: { fontVariantNumeric: 'tabular-nums', fontWeight: '_semibold', lineHeight: 1 },
+      },
+    },
+    // 和轨道（fill）之间要有 3:1：中性色用次要文字色，accent 以外的状态色用各自的文字色；条形用背景色，环形用 stroke
+    tone: {
+      neutral: {
+        indicator: {
+          backgroundColor: { default: '_textMuted', _forcedColors: 'Highlight' },
+        },
+        circleIndicator: {
+          stroke: { default: '_textMuted', _forcedColors: 'Highlight' },
+        },
+      },
+      accent: {
+        indicator: {
+          backgroundColor: { default: '_accent', _forcedColors: 'Highlight' },
+        },
+        circleIndicator: {
+          stroke: { default: '_accent', _forcedColors: 'Highlight' },
+        },
+      },
+      info: {
+        indicator: {
+          backgroundColor: { default: '_infoText', _forcedColors: 'Highlight' },
+        },
+        circleIndicator: {
+          stroke: { default: '_infoText', _forcedColors: 'Highlight' },
+        },
+      },
+      success: {
+        indicator: {
+          backgroundColor: {
+            default: '_successText',
+            _forcedColors: 'Highlight',
+          },
+        },
+        circleIndicator: {
+          stroke: { default: '_successText', _forcedColors: 'Highlight' },
+        },
+      },
+      warning: {
+        indicator: {
+          backgroundColor: {
+            default: '_warningText',
+            _forcedColors: 'Highlight',
+          },
+        },
+        circleIndicator: {
+          stroke: { default: '_warningText', _forcedColors: 'Highlight' },
+        },
+      },
+      danger: {
+        indicator: {
+          backgroundColor: {
+            default: '_dangerText',
+            _forcedColors: 'Highlight',
+          },
+        },
+        circleIndicator: {
+          stroke: { default: '_dangerText', _forcedColors: 'Highlight' },
+        },
+      },
+    },
+    indeterminate: {
+      true: {
+        // 条形：一段 40% 宽的色块从起始边到结束边循环；它本身就是信息，不随 durations 变为 0，减少动态效果时变慢
+        indicator: {
+          width: '40%',
+          animationName: { default: slide, ':dir(rtl)': slideRtl },
+          animationDuration: { default: '1.4s', _reducedMotion: '3s' },
+          animationTimingFunction: '_easings.standard',
+          animationIterationCount: 'infinite',
+        },
+        // 环形：四分之一圈的弧一直转；减少动态效果时变慢
+        circleIndicator: {
+          transformOrigin: 'center',
+          animationName: spin,
+          animationDuration: { default: '1s', _reducedMotion: '3s' },
+          animationTimingFunction: 'linear',
+          animationIterationCount: 'infinite',
+        },
+      },
+    },
   },
-  indicator: {
-    fill: 'none',
-    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
-    transition: `stroke-dashoffset ${t.durations.md} ${t.easings.standard}`,
-  },
-  // 不确定进度：四分之一圈的弧一直转；减少动态效果时变慢
-  indeterminate: {
-    transformOrigin: 'center',
-    animationName: spin,
-    animationDuration: { default: '1s', '@media (prefers-reduced-motion: reduce)': '3s' },
-    animationTimingFunction: 'linear',
-    animationIterationCount: 'infinite',
-  },
-  target: { stroke: '_text', strokeLinecap: 'round' },
-  // 中间的数值：比上下文字号小一档，等宽数字
-  center: { fontVariantNumeric: 'tabular-nums', fontWeight: '_semibold', lineHeight: 1 },
-  // 有标签时：环在上、标签在下，居中
-  shell: { display: 'inline-grid', justifyItems: 'center', gap: '_xs', textAlign: 'center' },
 });
 
-/** 环形进度的颜色：neutral、accent、info、success、warning、danger（同条形，用 stroke） */
-export const progressStrokeStyles = css.create({
-  neutral: { stroke: { default: '_textMuted', '@media (forced-colors: active)': 'Highlight' } },
-  accent: { stroke: { default: '_accent', '@media (forced-colors: active)': 'Highlight' } },
-  info: { stroke: { default: '_infoText', '@media (forced-colors: active)': 'Highlight' } },
-  success: { stroke: { default: '_successText', '@media (forced-colors: active)': 'Highlight' } },
-  warning: { stroke: { default: '_warningText', '@media (forced-colors: active)': 'Highlight' } },
-  danger: { stroke: { default: '_dangerText', '@media (forced-colors: active)': 'Highlight' } },
-});
-
-/** 条形进度的目标线 */
-export const progressTargetStyles = css.create({
-  // 竖线压在轨道上：正文色，与进度、轨道都有对比；位置按书写方向
-  line: {
-    position: 'absolute',
-    insetBlock: 0,
-    width: '_borderWidths.sm',
-    marginInlineStart: `calc(-0.5 * ${t.borderWidths.sm})`,
-    backgroundColor: { default: '_text', '@media (forced-colors: active)': 'CanvasText' },
-  },
-});
+/** 进度的部件（createUi / Provider 的 styles.Progress 按它定制） */
+export type ProgressPart = (typeof progressRecipe.parts)[number];
 
 /** 条形进度目标线的位置 */
 export const progressTargetPositionStyles = css.create({
@@ -257,12 +320,14 @@ export const Progress = _component(
       tone: 'accent',
       radius: 'full',
     });
+    const recipe = useRecipe(progressRecipe);
     const percentText = (percent: number) =>
       format.number(percent / 100, { style: 'percent', maximumFractionDigits: 0 });
 
     return () => {
       const look = appearance();
       const determinate = value != null;
+      const s = recipe({ shape, tone: look.tone, indeterminate: !determinate });
       // 夹在 0–max 之间、按原值比较；比例与读屏的 aria-valuenow 用浮点数就够
       const clamped: NumericValue = !determinate
         ? 0
@@ -310,7 +375,8 @@ export const Progress = _component(
           <div
             {...mergeAttrs<'div'>(
               {
-                sx: [progressCircleStyles.root, !wrapped && look.size && fontSizeStyles[look.size]],
+                ...s.circle,
+                sx: [s.circle.sx, !wrapped && look.size && fontSizeStyles[look.size]],
                 'aria-labelledby': hasContent(label) ? labelId : undefined,
               },
               rest,
@@ -318,13 +384,13 @@ export const Progress = _component(
             )}
             data-state={state}
           >
-            <svg viewBox="0 0 100 100" aria-hidden="true" {...css.attrs(progressCircleStyles.svg)}>
+            <svg viewBox="0 0 100 100" aria-hidden="true" {...mergeAttrs<'svg'>(s.circleSvg)}>
               <circle
                 cx="50"
                 cy="50"
                 r={r}
                 stroke-width={stroke}
-                {...css.attrs(progressCircleStyles.track)}
+                {...mergeAttrs<'circle'>(s.circleTrack)}
               />
               <circle
                 cx="50"
@@ -336,11 +402,7 @@ export const Progress = _component(
                 stroke-dashoffset={
                   determinate ? circumference * (1 - percent / 100) : circumference * 0.75
                 }
-                {...css.attrs(
-                  progressCircleStyles.indicator,
-                  progressStrokeStyles[look.tone],
-                  !determinate && progressCircleStyles.indeterminate,
-                )}
+                {...mergeAttrs<'circle'>(s.circleIndicator)}
               />
               {targetPercent !== undefined && (
                 <line
@@ -349,14 +411,14 @@ export const Progress = _component(
                   x2={inner.x}
                   y2={inner.y}
                   stroke-width={2.5}
-                  {...css.attrs(progressCircleStyles.target)}
+                  {...mergeAttrs<'line'>(s.circleTarget)}
                 />
               )}
             </svg>
             {determinate && (showValueLabel ?? true) && (
               <Text
                 {...mergePartProps<TextProps>(
-                  { sx: [progressCircleStyles.center, relativeFontSizeStyles.sm] },
+                  { ...s.valueLabel, sx: [s.valueLabel.sx, relativeFontSizeStyles.sm] },
                   propsValueLabel,
                   // 读屏从 aria-valuetext 得知数值，这里不重复念
                   { 'aria-hidden': true },
@@ -373,8 +435,9 @@ export const Progress = _component(
         <div
           {...mergeAttrs<'div'>(
             {
+              ...s.track,
               sx: [
-                progressStyles.root,
+                s.track.sx,
                 radiusStyles[look.radius],
                 // 有外层时字号档位放在外层，标签行一起缩放
                 !header && look.size && fontSizeStyles[look.size],
@@ -387,23 +450,17 @@ export const Progress = _component(
           data-state={state}
         >
           <div
-            {...mergeAttrs<'div'>(
-              { sx: [progressStyles.indicator, progressToneStyles[look.tone]] },
-              propsIndicator,
-              {
-                sx: determinate
-                  ? progressWidthStyles.percent(`${percent}%`)
-                  : progressStyles.indeterminate,
-              },
-            )}
+            {...mergeAttrs<'div'>(s.indicator, propsIndicator, {
+              sx: determinate ? progressWidthStyles.percent(`${percent}%`) : undefined,
+            })}
           />
           {targetPercent !== undefined && (
             <div
               aria-hidden="true"
-              {...css.attrs(
-                progressTargetStyles.line,
-                progressTargetPositionStyles.at(`${targetPercent}%`),
-              )}
+              {...mergeAttrs<'div'>({
+                ...s.target,
+                sx: [s.target.sx, progressTargetPositionStyles.at(`${targetPercent}%`)],
+              })}
             />
           )}
         </div>
@@ -414,14 +471,14 @@ export const Progress = _component(
         return (
           <div
             {...mergeAttrs<'div'>(
-              { sx: [progressCircleStyles.shell, look.size && fontSizeStyles[look.size]] },
+              { ...s.root, sx: [s.root.sx, look.size && fontSizeStyles[look.size]] },
               propsRoot,
             )}
           >
             {ring()}
             <Text
               {...mergePartProps<TextProps>(
-                { tone: 'muted', sx: relativeFontSizeStyles.sm },
+                { ...s.label, tone: 'muted', sx: [s.label.sx, relativeFontSizeStyles.sm] },
                 propsLabel,
                 { id: labelId },
               )}
@@ -435,23 +492,25 @@ export const Progress = _component(
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [progressStyles.shell, look.size && fontSizeStyles[look.size]] },
+            { ...s.root, sx: [s.root.sx, look.size && fontSizeStyles[look.size]] },
             propsRoot,
           )}
         >
           <div
             {...mergeAttrs<'div'>(
-              { sx: [progressStyles.header, relativeFontSizeStyles.sm] },
+              { ...s.header, sx: [s.header.sx, relativeFontSizeStyles.sm] },
               propsHeader,
             )}
           >
             {hasContent(label) && (
-              <Text {...mergePartProps<TextProps>({}, propsLabel, { id: labelId })}>{label}</Text>
+              <Text {...mergePartProps<TextProps>(s.label, propsLabel, { id: labelId })}>
+                {label}
+              </Text>
             )}
             {determinate && (showValueLabel ?? true) && (
               <Text
                 {...mergePartProps<TextProps>(
-                  { tone: 'muted', sx: progressStyles.valueLabel },
+                  { ...s.valueLabel, tone: 'muted' },
                   propsValueLabel,
                   // 读屏从进度条的 aria-valuetext 得知数值，这里不重复念
                   { 'aria-hidden': true },

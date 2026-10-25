@@ -380,3 +380,24 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
 | 挂载                  | 1040 ms                           | 1003 ms                            | 974 ms            |
 
 （两次测量之间机器的波动约 ±5%；宽度、挂载的差别在波动之内。）
+
+### 9.8 组件层补全（2026-10-25）
+
+§4.6 里计划的组件层，这一轮补齐并用到组件库里：
+
+- **配方带名字、可扩展**：`css.recipe({ name, … })`，调用时可以追加扩展（`base` 与档位的样式排在配方之后，扩展能给新的档位取值），
+  按扩展对象缓存。组件库的 `useRecipe(recipe)` 把 `createUi({ styles })` / `<Provider styles>` 的定制按层（外层在前）交给配方，
+  渲染时得到每个部件的默认层 `{ sx, data-scope, data-part }`，直接交给 `mergeAttrs`。组件的外观档位与部件都走配方：
+  Button、Badge / Tag、Tab、Alert、Link、Indicator、Avatar、Card、Progress、Empty、Result、Dialog / AlertDialog、Drawer、
+  输入框外壳、勾选类、表格。Dialog、Drawer 的配方并进了 ModalCore 的共有部件（标题行、标题、关闭按钮、说明、正文、页脚）。
+- **部件标记**：每个部件带 `data-scope`（组件名转连字符）与 `data-part`，宿主 CSS 与端到端测试按部件选中，不依赖生成的类名。
+- **直接写主题 token**：试过“色调变量”（`toneVars` + `toneThemes`，一个类换一组变量、样式只写一遍），读样式时看不到实际的
+  token，反而绕；改回在配方的组合档位里逐项写 `'_dangerText'` 这样的主题 token，`toneVars`、`toneThemes` 删除。
+  原则：样式值以字面量为主，不加变量间接层；值里夹着 token 才用模板字符串里的 `t.组.名`。
+- **条件别名进类型**：`_selected`、`_hover` 等作为条件键有补全与悬停说明（`ConditionAliases`），拼错的类型检查报错；
+  组件里的 `'@media (forced-colors: active)'`、`'@media (prefers-reduced-motion: reduce)'` 换成 `_forcedColors`、`_reducedMotion`。
+- **sx 直接写对象**：`sx={{ marginTop: '_md' }}`，同一个对象按对象、每次渲染新建的按内容缓存，属性与取值照样有类型检查。
+- **devtools 时间线**：元素上的绑定直接改 DOM、组件不渲染；开发模式下每次更新记到 Vue devtools 时间线的“样式绑定”一层。
+- **原生元素的 `_bind`**：补上 `<details open>` 与文件输入的 `files`（只读）；多选组（`checked` 绑到数组）照旧走 v-model。
+  评估过整套生成原生元素的属性类型：Vue 3.5 的类型已经覆盖绝大多数新属性，只补了 Invoker Commands 与 `<dialog closedby>`；
+  媒体播放状态、元素尺寸不做成绑定（组合式函数更清楚）。

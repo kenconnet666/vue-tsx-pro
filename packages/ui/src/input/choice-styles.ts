@@ -7,11 +7,13 @@
  *
  * 用原生 input：键盘（空格切换、单选组的方向键）、表单提交与重置、label 点击、读屏语义都是浏览器的；
  * 组件只画外观。勾选状态的样式由组件按自己的状态加（样式里不写兄弟选择器）。尺寸用 em。
+ * 部件与样式见 choiceRecipe（createUi / Provider 的 styles.Choice 按它定制）。
  */
 import * as css from '@vue-tsx-pro/tsx/styles';
 import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { nextTick } from 'vue';
 import { useDefaults } from '../config/defaults';
+import { useRecipe, type PartLayer } from '../config/styles';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -27,27 +29,114 @@ export interface ChoiceOptions {
   tone?: StatusTone;
 }
 
+/**
+ * 勾选类控件的配方：部件 root（外层 label，整块可点）、control（叠放层）、input（原生 input）、
+ * indicator（标记：对勾、圆点、开关滑块）、label（文字）、description（文字下方的说明）、group（复选组、单选组）。
+ * 档位是外层的只读、不可用与组的排列方向；勾选、出错见 choiceInputStyles
+ */
+export const choiceRecipe = css.recipe({
+  name: 'Choice',
+  parts: ['root', 'control', 'input', 'indicator', 'label', 'description', 'group'],
+  base: {
+    // 控件与文字一行，整块可点；点击区域不小于 24px（WCAG 2.5.8）
+    root: {
+      display: 'inline-flex',
+      alignItems: 'flex-start',
+      gap: '_sm',
+      minHeight: '_sizes.minTarget',
+      lineHeight: '_normal',
+      color: '_text',
+      cursor: 'pointer',
+      userSelect: 'none',
+    },
+    // input 与标记放在同一个网格格子里；与第一行文字垂直居中（行高 1.5em）
+    control: {
+      display: 'inline-grid',
+      placeItems: 'center',
+      flexShrink: 0,
+      minHeight: '1.5em',
+    },
+    // 去掉浏览器外观，由各组件给出形状；焦点环用 focusRingStyles.tight（排在它后面）
+    input: {
+      gridArea: '1 / 1',
+      appearance: 'none',
+      boxSizing: 'border-box',
+      margin: 0,
+      borderWidth: '_sm',
+      borderStyle: 'solid',
+      borderColor: '_borderStrong',
+      backgroundColor: '_surface',
+      cursor: 'inherit',
+      transition: `background-color ${t.durations.sm} ${t.easings.standard}, border-color ${t.durations.sm} ${t.easings.standard}`,
+    },
+    // 叠在 input 上，点击穿透到 input
+    indicator: { gridArea: '1 / 1', pointerEvents: 'none' },
+    // 有说明时文字在上、说明在下
+    label: { minWidth: 0, display: 'grid' },
+    // 次要颜色、小一号
+    description: { color: '_textMuted', fontSize: '0.875em' },
+  },
+  variants: {
+    // 只读：外观照常（看得清选了什么），只是不像能点
+    readonly: { true: { root: { cursor: 'default' } } },
+    disabled: { true: { root: { opacity: '_disabled', cursor: 'not-allowed' } } },
+    orientation: {
+      vertical: { group: { display: 'flex', flexDirection: 'column', gap: '_xs' } },
+      horizontal: {
+        group: { display: 'flex', flexWrap: 'wrap', columnGap: '_lg', rowGap: '_xs' },
+      },
+    },
+  },
+});
+
+/** 勾选类控件的部件（createUi / Provider 的 styles.Choice 按它定制） */
+export type ChoicePart = (typeof choiceRecipe.parts)[number];
+
+/**
+ * 原生 input 的勾选、出错样式：排在各组件的形状（方框、圆、轨道）之后，所以不放进配方——
+ * 开关的轨道把描边设成透明，出错的红色描边要盖过它
+ */
+export const choiceInputStyles = css.create({
+  /** 已勾选（或部分勾选）：色调的实底色，见 choiceParts */
+  checked: { borderColor: 'var(--tone-fill)', backgroundColor: 'var(--tone-fill)' },
+  invalid: { borderColor: '_danger', outlineColor: '_danger' },
+});
+
 /** 合并后的外观：tone 总有值，size 不写时继承字号 */
-export type ChoiceAppearance = Pick<ChoiceOptions, 'size'> & Required<Pick<ChoiceOptions, 'tone'>>;
+export type ChoiceAppearance = Pick<ChoiceOptions, 'size'> &
+  Required<Pick<ChoiceOptions, 'tone'>> & {
+    /** 勾选类控件的配方，带上 createUi / Provider 里 styles.Choice 的定制 */
+    recipe: ReturnType<typeof useRecipe<ChoicePart, unknown>>;
+  };
 
 /** 勾选类控件的外观：显式写的 > defaults.Choice > 默认。在 setup 里调用，返回的函数在渲染时调用 */
 export function useChoiceAppearance(read: () => ChoiceOptions): () => ChoiceAppearance {
-  return useDefaults('Choice', read, { tone: 'accent' });
+  const recipe = useRecipe(choiceRecipe);
+  const appearance = useDefaults('Choice', read, { tone: 'accent' });
+  return () => ({ ...appearance(), recipe });
 }
 
-/** 外层 label 的样式：字号、色调（经 toneFillStyles 的变量传给方框、圆点、轨道）、不可用、只读 */
-export function choiceRootSx(
-  { size, tone }: ChoiceAppearance,
-  disabled: boolean,
-  readonly = false,
-): SxStyles {
-  return [
-    choiceStyles.root,
-    toneFillStyles[tone],
-    size && fontSizeStyles[size],
-    readonly && choiceStyles.readonly,
-    disabled && choiceStyles.disabled,
-  ] as SxStyles;
+/** 各部件交给 mergeAttrs / mergeProps 的默认层：样式与部件标记（data-scope="choice"） */
+export type ChoiceParts = {
+  readonly [Part in ChoicePart]: Omit<PartLayer, 'sx'> & { readonly sx: SxStyles };
+};
+
+/**
+ * 外观与状态 → 各部件的默认层。外层 label 在配方之后叠上色调（经 toneFillStyles 的变量传给方框、圆点、轨道）
+ * 与字号
+ */
+export function choiceParts(
+  { size, tone, recipe }: ChoiceAppearance,
+  { disabled, readonly }: { disabled: boolean; readonly: boolean },
+): ChoiceParts {
+  const parts = recipe({ readonly, disabled });
+  return {
+    ...parts,
+    root: {
+      ...parts.root,
+      sx: [parts.root.sx, toneFillStyles[tone], size && fontSizeStyles[size]],
+    },
+  };
 }
 
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
@@ -80,53 +169,6 @@ export function syncChecked(
   });
 }
 
-/** 勾选类控件各部分的样式 */
-export const choiceStyles = css.create({
-  /** 外层 label：控件与文字一行，整块可点；点击区域不小于 24px（WCAG 2.5.8） */
-  root: {
-    display: 'inline-flex',
-    alignItems: 'flex-start',
-    gap: '_sm',
-    minHeight: '_sizes.minTarget',
-    lineHeight: '_normal',
-    color: '_text',
-    cursor: 'pointer',
-    userSelect: 'none',
-  },
-  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
-  /** 只读：外观照常（看得清选了什么），只是不像能点 */
-  readonly: { cursor: 'default' },
-  /** 叠放层：input 与标记放在同一个网格格子里；与第一行文字垂直居中（行高 1.5em） */
-  control: {
-    display: 'inline-grid',
-    placeItems: 'center',
-    flexShrink: 0,
-    minHeight: '1.5em',
-  },
-  /** 原生 input：去掉浏览器外观，由各组件给出形状；焦点环用 focusRingStyles.tight（排在它后面） */
-  input: {
-    gridArea: '1 / 1',
-    appearance: 'none',
-    boxSizing: 'border-box',
-    margin: 0,
-    borderWidth: '_sm',
-    borderStyle: 'solid',
-    borderColor: '_borderStrong',
-    backgroundColor: '_surface',
-    cursor: 'inherit',
-    transition: `background-color ${t.durations.sm} ${t.easings.standard}, border-color ${t.durations.sm} ${t.easings.standard}`,
-  },
-  /** 已勾选（或部分勾选）：色调的实底色，见 choiceRootSx */
-  checked: { borderColor: 'var(--tone-fill)', backgroundColor: 'var(--tone-fill)' },
-  invalid: { borderColor: '_danger', outlineColor: '_danger' },
-  /** 标记（对勾、圆点、开关滑块）：叠在 input 上，点击穿透到 input */
-  mark: { gridArea: '1 / 1', pointerEvents: 'none' },
-  /** 文字（有说明时文字在上、说明在下） */
-  label: { minWidth: 0, display: 'grid' },
-  /** 文字下方的说明：次要颜色、小一号 */
-  description: { color: '_textMuted', fontSize: '0.875em' },
-});
-
 /** 复选组、单选组的排列方向 */
 export interface ChoiceOrientations {
   /** 竖排（默认） */
@@ -134,9 +176,3 @@ export interface ChoiceOrientations {
   /** 横排，放不下时换行 */
   horizontal: unknown;
 }
-
-/** 复选组、单选组的排列 */
-export const choiceGroupStyles = css.create({
-  vertical: { display: 'flex', flexDirection: 'column', gap: '_xs' },
-  horizontal: { display: 'flex', flexWrap: 'wrap', columnGap: '_lg', rowGap: '_xs' },
-});

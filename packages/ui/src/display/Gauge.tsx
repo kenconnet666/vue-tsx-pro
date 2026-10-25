@@ -79,7 +79,7 @@ export const gaugeStyles = css.create({
     fill: 'none',
     stroke: 'var(--gauge-color)',
     strokeWidth: 14,
-    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
+    forcedColorAdjust: { default: null, _forcedColors: 'none' },
   },
   band: { fill: 'none', strokeWidth: 4 },
   target: { stroke: '_text', strokeWidth: 2.5, strokeLinecap: 'round' },

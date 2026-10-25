@@ -28,11 +28,13 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { shallowRef, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
+import { transitions } from '../utils/style/transitions';
 import { Field } from '../form/Field';
 import { Textarea } from '../input/Textarea';
 import { mergePartProps } from '../utils/props';
 import { useDetachedDialog } from './detached';
-import { dialogPanelSx, type DialogProps } from './Dialog';
+import { dialogRecipe, type DialogProps } from './Dialog';
 import { ModalCore, type ModalCoreProps } from './ModalCore';
 
 /** 未声明的属性落到 dialog 上；确认、取消按钮的属性（onConfirm、confirmText、tone、propsConfirm…）同 Dialog */
@@ -45,10 +47,15 @@ export interface AlertDialogProps extends Omit<
 export const AlertDialog = _component(
   ({ open = _bindable(false), size, onConfirm, propsCancel, ...rest }: AlertDialogProps) => {
     const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
+    const recipe = useRecipe(dialogRecipe);
     return () => (
       <ModalCore
         {...mergePartProps<ModalCoreProps>(
-          { title: rest.title, panelSx: dialogPanelSx(appearance().size) },
+          {
+            title: rest.title,
+            parts: recipe({ size: appearance().size }),
+            panelSx: transitions.scale,
+          },
           rest,
           {
             role: 'alertdialog',

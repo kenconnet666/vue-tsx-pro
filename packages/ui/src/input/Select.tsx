@@ -8,7 +8,7 @@
  *
  *   <Select items={tags} selectionMode="multiple" maxTagCount="responsive" creatable onCreate={(text) => tags.push(text)} … />
  *
- * 组合已有的部件：外壳是输入框外壳（controlSx），弹出层用 useAnchoredPopover（与外壳同宽、最高到视口剩余空间），
+ * 组合已有的部件：外壳是输入框外壳（controlParts），弹出层用 useAnchoredPopover（与外壳同宽、最高到视口剩余空间），
  * 列表是 ListboxView（状态与键盘见 list-state.ts）。焦点一直在触发按钮上，高亮项经 aria-activedescendant 告诉读屏。
  *
  * 多选时已选的项是触发按钮前面的一排 Tag（不能放进 button 里：按钮里不能有按钮），各带移除按钮。
@@ -51,8 +51,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import {
   controlClear,
-  controlStyles,
-  controlSx,
+  controlParts,
   clickOnShell,
   focusOnShell,
   controlIcon,
@@ -463,29 +462,26 @@ export const Select = _component(
           )}
         />
       );
+      const s = controlParts(appearance(), state);
       return (
         <>
           <div
-            {...mergeAttrs<'div'>(
-              { sx: [controlSx(appearance(), state), selectStyles.root] },
-              propsRoot,
-              {
-                ref: _toRef(shell),
-                // 点在外壳空白处（含多选的标签）：焦点交给触发按钮，并与点触发按钮一样切换打开（只读时只聚焦）
-                onPointerdown: off ? undefined : focusOnShell(() => trigger),
-                onClick: locked
-                  ? undefined
-                  : clickOnShell(
-                      () => trigger,
-                      (event) => (open ? setOpen(false, 'trigger', event) : show('default', event)),
-                    ),
-              },
-            )}
+            {...mergeAttrs<'div'>({ ...s.root, sx: [s.root.sx, selectStyles.root] }, propsRoot, {
+              ref: _toRef(shell),
+              // 点在外壳空白处（含多选的标签）：焦点交给触发按钮，并与点触发按钮一样切换打开（只读时只聚焦）
+              onPointerdown: off ? undefined : focusOnShell(() => trigger),
+              onClick: locked
+                ? undefined
+                : clickOnShell(
+                    () => trigger,
+                    (event) => (open ? setOpen(false, 'trigger', event) : show('default', event)),
+                  ),
+            })}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={off || undefined}
           >
-            {controlIcon(icon, propsIcon)}
+            {controlIcon(s, icon, propsIcon)}
             {tags}
             <button
               {...mergeAttrs<'button'>(
@@ -524,12 +520,13 @@ export const Select = _component(
             >
               <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
-            {clearable && values.length > 0 && !locked && controlClear(propsClear, clear)}
+            {clearable && values.length > 0 && !locked && controlClear(s, propsClear, clear)}
             <Icon
               {...mergePartProps<IconProps>(
                 {
+                  ...s.icon,
                   icon: ChevronDown,
-                  sx: [controlStyles.icon, disclosureStyles.icon, open && selectStyles.chevronOpen],
+                  sx: [s.icon.sx, disclosureStyles.icon, open && selectStyles.chevronOpen],
                 },
                 propsChevron,
               )}

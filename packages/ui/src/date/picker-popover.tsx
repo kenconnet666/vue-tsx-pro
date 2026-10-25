@@ -15,7 +15,8 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import { Button } from '../base/Button';
 import type { IconData } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { controlStyles } from '../input/control';
+import { useRecipe } from '../config/styles';
+import { inputRecipe } from '../input/control';
 import { anchoredPanelSx, useAnchoredPopover, type FloatingPlacement } from '../utils/dom/floating';
 import { focusFirst } from '../utils/dom/focus';
 import type { SetOpen } from '../utils/dom/open-change';
@@ -63,6 +64,8 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
   let anchor = _state.raw<HTMLElement | null>(null);
   let panel = _state.raw<HTMLElement | null>(null);
   let trigger = _state.raw<HTMLElement | null>(null);
+  // 打开按钮放在输入框外壳里：用外壳配方的 button 部件（带 styles.Input 的定制）
+  const shell = useRecipe(inputRecipe);
 
   const { onToggle } = useAnchoredPopover(
     () => {
@@ -93,7 +96,7 @@ export function usePickerPopover(read: () => PickerPopoverState, events: PickerP
       return (
         <IconButton
           {...mergePartProps<IconButtonProps>(
-            { sx: controlStyles.button, radius: 'full', icon, 'aria-label': label },
+            { ...shell().button, radius: 'full', icon, 'aria-label': label },
             user,
             {
               ref: (element: unknown) => (trigger = toElement(element)),

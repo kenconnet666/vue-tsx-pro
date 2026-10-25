@@ -68,7 +68,7 @@ const scrollY = css.keyframes({
 export const marqueeStyles = css.create({
   root: {
     display: 'flex',
-    overflow: { default: 'hidden', '@media (prefers-reduced-motion: reduce)': 'auto' },
+    overflow: { default: 'hidden', _reducedMotion: 'auto' },
   },
   vertical: { flexDirection: 'column' },
   fade: {
@@ -82,7 +82,7 @@ export const marqueeStyles = css.create({
     display: 'flex',
     flexShrink: 0,
     width: 'max-content',
-    animationName: { default: scrollX, '@media (prefers-reduced-motion: reduce)': 'none' },
+    animationName: { default: scrollX, _reducedMotion: 'none' },
     animationTimingFunction: 'linear',
     animationIterationCount: 'infinite',
   },
@@ -90,7 +90,7 @@ export const marqueeStyles = css.create({
     flexDirection: 'column',
     width: 'auto',
     height: 'max-content',
-    animationName: { default: scrollY, '@media (prefers-reduced-motion: reduce)': 'none' },
+    animationName: { default: scrollY, _reducedMotion: 'none' },
   },
   reverse: { animationDirection: 'reverse' },
   pausable: {
@@ -100,7 +100,7 @@ export const marqueeStyles = css.create({
   group: { display: 'flex', flexShrink: 0, alignItems: 'center' },
   groupVertical: { flexDirection: 'column' },
   // 不滚动时用不着复制的那份
-  copy: { display: { default: null, '@media (prefers-reduced-motion: reduce)': 'none' } },
+  copy: { display: { default: null, _reducedMotion: 'none' } },
 });
 
 /** Marquee 的样式：每份内容后面的间距（横排时在行尾、竖排时在下方），与项之间的 gap 一样宽 */

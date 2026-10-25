@@ -89,7 +89,7 @@ export type ResolvedDefaults<Own, Fallback> = {
  * 在 setup 里调用；返回的函数在渲染时调用，读到最新的 prop 与配置（Provider 切换后跟着变）。
  *
  *   const appearance = useDefaults('Card', () => ({ variant, padding }), { variant: 'surface', padding: 'lg' });
- *   cardVariantStyles[appearance().variant]
+ *   const s = recipe(appearance());   // recipe = useRecipe(cardRecipe)：档位交给配方（config/styles.ts）
  */
 export function useDefaults<
   Name extends keyof ComponentDefaults,

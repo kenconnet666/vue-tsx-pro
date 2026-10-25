@@ -22,10 +22,11 @@ import { hasContent, defaultLabelledBy, mergeAttrs, type PartProps } from '../ut
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
+import { useRecipe } from '../config/styles';
 import {
-  choiceGroupStyles,
-  choiceStyles,
-  choiceRootSx,
+  choiceInputStyles,
+  choiceParts,
+  choiceRecipe,
   useChoiceAppearance,
   type ChoiceOrientations,
   readonlyChoiceHandlers,
@@ -140,7 +141,7 @@ export const RadioGroup = _component(
       const state = control();
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
+          {...mergeAttrs<'div'>(appearance().recipe({ orientation }).group, rest, {
             id: state.id,
             role: 'radiogroup',
             'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
@@ -228,26 +229,32 @@ export const Radio = _component(
   }: RadioProps) => {
     const group = RadioGroupContext.inject();
     const descriptionId = `${useId()}-description`;
+    const recipe = useRecipe(choiceRecipe);
     return () => {
       const checked = group.value === value;
       const off = disabled ?? group.disabled;
+      const s = choiceParts(
+        { size: group.size, tone: group.tone, recipe },
+        { disabled: off, readonly: group.readonly },
+      );
       return (
         <label
-          {...mergeAttrs<'label'>({ sx: choiceRootSx(group, off, group.readonly) }, propsRoot)}
+          {...mergeAttrs<'label'>(s.root, propsRoot)}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
           data-readonly={group.readonly || undefined}
         >
-          <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
+          <span {...mergeAttrs<'span'>(s.control, propsControl)}>
             <input
               {...mergeAttrs<'input'>(
                 {
+                  ...s.input,
                   sx: [
-                    choiceStyles.input,
+                    s.input.sx,
                     focusRingStyles.tight,
                     radioStyles.circle,
-                    checked && choiceStyles.checked,
-                    group.invalid && choiceStyles.invalid,
+                    checked && choiceInputStyles.checked,
+                    group.invalid && choiceInputStyles.invalid,
                   ],
                 },
                 rest,
@@ -273,17 +280,20 @@ export const Radio = _component(
             />
             <span
               {...mergeAttrs<'span'>(
-                { sx: [choiceStyles.mark, radioStyles.dot, checked && radioStyles.dotChecked] },
+                {
+                  ...s.indicator,
+                  sx: [s.indicator.sx, radioStyles.dot, checked && radioStyles.dotChecked],
+                },
                 propsIndicator,
               )}
             />
           </span>
           {(hasContent(children) || hasContent(description)) && (
-            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>
+            <span {...mergeAttrs<'span'>(s.label, propsLabel)}>
               {children}
               {hasContent(description) && (
                 <span
-                  {...mergeAttrs<'span'>({ sx: choiceStyles.description }, propsDescription, {
+                  {...mergeAttrs<'span'>(s.description, propsDescription, {
                     id: descriptionId,
                   })}
                 >

@@ -18,7 +18,7 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
-import { choiceRootSx, choiceStyles, syncChecked, useChoiceAppearance } from './choice-styles';
+import { choiceInputStyles, choiceParts, syncChecked, useChoiceAppearance } from './choice-styles';
 import { t } from '../config/theme/tokens';
 
 /** 角色、勾选状态与可用性由组件管理；原生的 size 属性让给字号档位 */
@@ -154,6 +154,7 @@ export const Switch = _component(
     const spinner = useDelayedLoading(() => loading);
     return () => {
       const state = control();
+      const s = choiceParts(appearance(), { disabled: state.disabled, readonly: state.readonly });
       const wide = checkedContent != null || uncheckedContent != null;
       const content = (on: boolean, child: VNodeChild) => (
         <span
@@ -176,26 +177,24 @@ export const Switch = _component(
       );
       return (
         <label
-          {...mergeAttrs<'label'>(
-            { sx: choiceRootSx(appearance(), state.disabled, state.readonly) },
-            propsRoot,
-          )}
+          {...mergeAttrs<'label'>(s.root, propsRoot)}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={state.disabled || undefined}
           data-readonly={state.readonly || undefined}
           data-loading={loading || undefined}
         >
-          <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
+          <span {...mergeAttrs<'span'>(s.control, propsControl)}>
             <input
               {...mergeAttrs<'input'>(
                 {
+                  ...s.input,
                   sx: [
-                    choiceStyles.input,
+                    s.input.sx,
                     focusRingStyles.tight,
                     switchStyles.track,
                     wide && switchStyles.trackWide,
-                    checked ? choiceStyles.checked : switchStyles.trackOff,
-                    state.invalid && choiceStyles.invalid,
+                    checked ? choiceInputStyles.checked : switchStyles.trackOff,
+                    state.invalid && choiceInputStyles.invalid,
                   ],
                 },
                 rest,
@@ -226,7 +225,10 @@ export const Switch = _component(
             {wide && content(false, uncheckedContent)}
             <span
               {...mergeAttrs<'span'>(
-                { sx: [choiceStyles.mark, switchStyles.thumb, checked && switchStyles.thumbOn] },
+                {
+                  ...s.indicator,
+                  sx: [s.indicator.sx, switchStyles.thumb, checked && switchStyles.thumbOn],
+                },
                 propsThumb,
               )}
             >
@@ -241,7 +243,7 @@ export const Switch = _component(
             </span>
           </span>
           {hasContent(children) && (
-            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>{children}</span>
+            <span {...mergeAttrs<'span'>(s.label, propsLabel)}>{children}</span>
           )}
         </label>
       );

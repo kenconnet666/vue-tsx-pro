@@ -12,6 +12,7 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
@@ -48,20 +49,34 @@ export interface LinkProps extends PartProps<'a', 'href'>, LinkOptions {
   children?: VNodeChild;
 }
 
-/** Link 的样式：root、always、hover、none、icon */
-export const linkStyles = css.create({
-  root: {
-    borderRadius: '_xs',
-    textDecorationThickness: '_xs',
-    textUnderlineOffset: '0.2em',
-    cursor: 'pointer',
+/**
+ * 链接的配方：部件 root（a）、icon（外链图标），下划线是档位。色调的文字色来自共用的 toneStyles，
+ * 排在配方之前，createUi / Provider 的 styles.Link 能盖过它
+ */
+export const linkRecipe = css.recipe({
+  name: 'Link',
+  parts: ['root', 'icon'],
+  base: {
+    root: {
+      borderRadius: '_xs',
+      textDecorationThickness: '_xs',
+      textUnderlineOffset: '0.2em',
+      cursor: 'pointer',
+    },
+    // 图标跟随文字：不换行到下一行开头
+    icon: { marginInlineStart: '0.1em', verticalAlign: '-0.1em' },
   },
-  always: { textDecorationLine: 'underline' },
-  hover: { textDecorationLine: { default: 'none', ':hover': 'underline' } },
-  none: { textDecorationLine: 'none' },
-  // 图标跟随文字：不换行到下一行开头
-  icon: { marginInlineStart: '0.1em', verticalAlign: '-0.1em' },
+  variants: {
+    underline: {
+      always: { root: { textDecorationLine: 'underline' } },
+      hover: { root: { textDecorationLine: { default: 'none', ':hover': 'underline' } } },
+      none: { root: { textDecorationLine: 'none' } },
+    },
+  },
 });
+
+/** 链接的部件（createUi / Provider 的 styles.Link 按它定制） */
+export type LinkPart = (typeof linkRecipe.parts)[number];
 
 /** 文字链接（a）：品牌色、下划线与焦点环；external 时新窗口打开并带读屏提示 */
 export const Link = _component(
@@ -72,37 +87,33 @@ export const Link = _component(
       tone: 'accent',
       underline: 'always',
     });
-    return () => (
-      <a
-        {...mergeAttrs<'a'>(
-          {
-            sx: [
-              linkStyles.root,
-              focusRingStyles.visible,
-              toneStyles[appearance().tone],
-              linkStyles[appearance().underline],
-            ],
-          },
-          rest,
-          external
-            ? { href, ...externalLinkAttrs }
-            : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
-              {
-                href: router.href(href),
-                onClick: (event: MouseEvent) => router.onClick(event, href),
-              },
-        )}
-      >
-        {children}
-        {external && (
-          <>
-            <Icon
-              {...mergePartProps<IconProps>({ icon: ArrowUpRight, sx: linkStyles.icon }, propsIcon)}
-            />
-            <VisuallyHidden>{lang.linkNewWindow}</VisuallyHidden>
-          </>
-        )}
-      </a>
-    );
+    const recipe = useRecipe(linkRecipe);
+    return () => {
+      const { tone: shownTone, underline: shownUnderline } = appearance();
+      const s = recipe({ underline: shownUnderline, tone: shownTone });
+      return (
+        <a
+          {...mergeAttrs<'a'>(
+            { ...s.root, sx: [toneStyles[shownTone], s.root.sx, focusRingStyles.visible] },
+            rest,
+            external
+              ? { href, ...externalLinkAttrs }
+              : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
+                {
+                  href: router.href(href),
+                  onClick: (event: MouseEvent) => router.onClick(event, href),
+                },
+          )}
+        >
+          {children}
+          {external && (
+            <>
+              <Icon {...mergePartProps<IconProps>({ ...s.icon, icon: ArrowUpRight }, propsIcon)} />
+              <VisuallyHidden>{lang.linkNewWindow}</VisuallyHidden>
+            </>
+          )}
+        </a>
+      );
+    };
   },
 );

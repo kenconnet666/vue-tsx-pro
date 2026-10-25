@@ -31,7 +31,7 @@ export const spinnerStyles = css.create({
   icon: {
     animationName: spin,
     // 旋转本身就是“还在加载”的信息，不随 durations 变为 0；减少动态效果时转慢一些
-    animationDuration: { default: '0.8s', '@media (prefers-reduced-motion: reduce)': '1.6s' },
+    animationDuration: { default: '0.8s', _reducedMotion: '1.6s' },
     animationTimingFunction: 'linear',
     animationIterationCount: 'infinite',
   },

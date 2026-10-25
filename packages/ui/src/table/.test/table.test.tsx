@@ -18,7 +18,7 @@ import {
 } from '../columns';
 import { DataTable } from '../DataTable';
 import { dataTableDynamicStyles, type DataTableHandle } from '../DataTableView';
-import { dataTableStyles } from '../table-styles';
+import { dataTableStateStyles } from '../table-styles';
 import { TreeDataTable } from '../TreeDataTable';
 
 // happy-dom 不排版：给滚动容器一个 400px 的视口（行是虚拟滚动的）
@@ -152,10 +152,10 @@ describe('列的值类型', () => {
       '[加急]',
     ]);
     const headers = [...root.querySelectorAll('thead th')];
-    expect(hasStyles(headers[0]!, dataTableStyles.end)).toBe(true);
-    expect(hasStyles(cells[1]!, dataTableStyles.end)).toBe(true);
-    expect(hasStyles(cells[3]!, dataTableStyles.center)).toBe(true);
-    expect(hasStyles(cells[4]!, dataTableStyles.start)).toBe(true);
+    expect(hasStyles(headers[0]!, dataTableStateStyles.end)).toBe(true);
+    expect(hasStyles(cells[1]!, dataTableStateStyles.end)).toBe(true);
+    expect(hasStyles(cells[3]!, dataTableStateStyles.center)).toBe(true);
+    expect(hasStyles(cells[4]!, dataTableStateStyles.start)).toBe(true);
   });
 });
 

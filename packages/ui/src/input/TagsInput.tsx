@@ -27,8 +27,7 @@ import { useLayoutAnimation } from '../utils/motion/layout';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   controlClear,
-  controlStyles,
-  controlSx,
+  controlParts,
   focusOnShell,
   controlIcon,
   useControlAppearance,
@@ -304,25 +303,22 @@ export const TagsInput = _component(
 
     return () => {
       const state = control();
+      const s = controlParts(appearance(), state);
       const editable = !state.disabled && !state.readonly;
       return (
         <>
           <div
-            {...mergeAttrs<'div'>(
-              { sx: [controlSx(appearance(), state), tagsInputStyles.root] },
-              propsRoot,
-              {
-                ref: _toRef(shell),
-                // 外壳里的标签不是原生控件的一部分：不可用要写在外壳上，辅助技术才把它们一起当作不可用
-                'aria-disabled': state.disabled || undefined,
-                onPointerdown: focusOnShell(() => input),
-              },
-            )}
+            {...mergeAttrs<'div'>({ ...s.root, sx: [s.root.sx, tagsInputStyles.root] }, propsRoot, {
+              ref: _toRef(shell),
+              // 外壳里的标签不是原生控件的一部分：不可用要写在外壳上，辅助技术才把它们一起当作不可用
+              'aria-disabled': state.disabled || undefined,
+              onPointerdown: focusOnShell(() => input),
+            })}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={state.disabled || undefined}
           >
-            {controlIcon(icon, propsIcon)}
+            {controlIcon(s, icon, propsIcon)}
             {value.map((tag) => {
               const own = typeof propsTag === 'function' ? propsTag(tag) : propsTag;
               return (
@@ -338,35 +334,44 @@ export const TagsInput = _component(
               );
             })}
             <input
-              {...mergeAttrs<'input'>({ sx: [controlStyles.input, tagsInputStyles.input] }, rest, {
-                ref: _toRef(input),
-                id: state.id,
-                role: suggestions() ? 'combobox' : undefined,
-                autocomplete: 'off',
-                disabled: state.disabled,
-                readonly: state.readonly,
-                'aria-autocomplete': suggestions() ? 'list' : undefined,
-                'aria-expanded': suggestions() ? open : undefined,
-                'aria-controls': suggestions() ? listId : undefined,
-                'aria-activedescendant':
-                  open && suggestions() ? activeOptionId(list, listId) : undefined,
-                'aria-invalid': state.invalid || undefined,
-                'aria-required': state.required || undefined,
-                'aria-describedby': state.describedBy,
-                onKeydown,
-                onPaste,
-                onBlur: (event: FocusEvent) => {
-                  setOpen(false, 'focus', event);
-                  if (acceptOnBlur && inputValue.trim() && !control().readonly && add([inputValue]))
-                    inputValue = '';
+              {...mergeAttrs<'input'>(
+                { ...s.input, sx: [s.input.sx, tagsInputStyles.input] },
+                rest,
+                {
+                  ref: _toRef(input),
+                  id: state.id,
+                  role: suggestions() ? 'combobox' : undefined,
+                  autocomplete: 'off',
+                  disabled: state.disabled,
+                  readonly: state.readonly,
+                  'aria-autocomplete': suggestions() ? 'list' : undefined,
+                  'aria-expanded': suggestions() ? open : undefined,
+                  'aria-controls': suggestions() ? listId : undefined,
+                  'aria-activedescendant':
+                    open && suggestions() ? activeOptionId(list, listId) : undefined,
+                  'aria-invalid': state.invalid || undefined,
+                  'aria-required': state.required || undefined,
+                  'aria-describedby': state.describedBy,
+                  onKeydown,
+                  onPaste,
+                  onBlur: (event: FocusEvent) => {
+                    setOpen(false, 'focus', event);
+                    if (
+                      acceptOnBlur &&
+                      inputValue.trim() &&
+                      !control().readonly &&
+                      add([inputValue])
+                    )
+                      inputValue = '';
+                  },
                 },
-              })}
+              )}
               value={_bind(inputValue)}
             />
             {clearable &&
               value.length > 0 &&
               editable &&
-              controlClear(propsClear, () => {
+              controlClear(s, propsClear, () => {
                 void layout.change(() => (value = []));
                 input?.focus();
               })}

@@ -20,7 +20,7 @@ import { useFieldControl, useFormReset } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
   controlClear,
-  controlSx,
+  controlParts,
   focusOnShell,
   controlIcon,
   useControlAppearance,
@@ -185,19 +185,16 @@ export const SegmentedField = _component(
       const state = control();
       const bad = state.invalid || (value != null && (outOfRange?.(value) ?? false));
       const filled = value != null || segments.partial;
+      const s = controlParts(appearance(), { ...state, invalid: bad });
       return (
         <div
-          {...mergeAttrs<'div'>(
-            { sx: controlSx(appearance(), { ...state, invalid: bad }) },
-            propsRoot,
-            {
-              onPointerdown: state.disabled ? undefined : focusOnShell(firstSegment),
-            },
-          )}
+          {...mergeAttrs<'div'>(s.root, propsRoot, {
+            onPointerdown: state.disabled ? undefined : focusOnShell(firstSegment),
+          })}
           data-invalid={bad || undefined}
           data-disabled={state.disabled || undefined}
         >
-          {controlIcon(icon, propsIcon)}
+          {controlIcon(s, icon, propsIcon)}
           <DateSegmentGroup
             {...mergePartProps<DateSegmentGroupProps>(
               {
@@ -224,7 +221,7 @@ export const SegmentedField = _component(
             filled &&
             !state.disabled &&
             !state.readonly &&
-            controlClear(propsClear, clear)}
+            controlClear(s, propsClear, clear)}
           {suffix}
           <FormValue name={name} value={value} disabled={state.disabled} />
         </div>

@@ -122,7 +122,7 @@ export const loadingBarStyles = css.create({
   visible: { opacity: 1 },
   bar: {
     height: '100%',
-    backgroundColor: { default: '_accent', '@media (forced-colors: active)': 'Highlight' },
+    backgroundColor: { default: '_accent', _forcedColors: 'Highlight' },
     boxShadow: `0 0 8px ${t.colors.accent}`,
     transformOrigin: { default: 'left center', ':dir(rtl)': 'right center' },
     transition: `transform ${t.durations.md} ${t.easings.standard}`,

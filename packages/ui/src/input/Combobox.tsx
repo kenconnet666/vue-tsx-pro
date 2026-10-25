@@ -4,7 +4,7 @@
  *   <Field label="城市"><Combobox items={cities} value={_bind(city)} /></Field>
  *   <Combobox items={results} filter={false} loading={searching} inputValue={_bind(keyword)} aria-label="搜索用户" />
  *
- * 组合已有的部件：外壳同 TextField（controlSx），弹出层用 useAnchoredPopover（与外壳同宽），列表是 ListboxView。
+ * 组合已有的部件：外壳同 TextField（controlParts），弹出层用 useAnchoredPopover（与外壳同宽），列表是 ListboxView。
  * 焦点一直在输入框里，高亮项经 aria-activedescendant 告诉读屏。
  *
  * - 过滤：默认本地按显示文字包含输入（Intl.Collator，忽略大小写与重音）；filter={false} 时不过滤，
@@ -30,8 +30,7 @@ import { ListPopover } from './ListPopover';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   controlClear,
-  controlStyles,
-  controlSx,
+  controlParts,
   focusOnShell,
   controlIcon,
   useControlAppearance,
@@ -318,11 +317,12 @@ export const Combobox = _component(
 
     return () => {
       const state = control();
+      const s = controlParts(appearance(), state);
       const editable = !state.disabled && !state.readonly;
       return (
         <>
           <div
-            {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
+            {...mergeAttrs<'div'>(s.root, propsRoot, {
               ref: _toRef(shell),
               onPointerdown: focusOnShell(() => input),
             })}
@@ -330,10 +330,10 @@ export const Combobox = _component(
             data-invalid={state.invalid || undefined}
             data-disabled={state.disabled || undefined}
           >
-            {controlIcon(icon, propsIcon)}
+            {controlIcon(s, icon, propsIcon)}
             {/* _bind 编译为 v-model：输入法组合期间不写回 */}
             <input
-              {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {
+              {...mergeAttrs<'input'>(s.input, rest, {
                 ref: _toRef(input),
                 id: state.id,
                 role: 'combobox',
@@ -355,7 +355,7 @@ export const Combobox = _component(
             {clearable &&
               inputValue &&
               editable &&
-              controlClear(propsClear, () => {
+              controlClear(s, propsClear, () => {
                 setText('');
                 value = null;
                 input?.focus();
@@ -364,11 +364,8 @@ export const Combobox = _component(
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {
-                    sx: [
-                      controlStyles.button,
-                      disclosureStyles.icon,
-                      open && comboboxStyles.chevronOpen,
-                    ],
+                    ...s.button,
+                    sx: [s.button.sx, disclosureStyles.icon, open && comboboxStyles.chevronOpen],
                     radius: 'full',
                     icon: ChevronDown,
                     'aria-label': lang.comboboxToggle,

@@ -14,8 +14,7 @@
  * Body（ScrollArea：内容长时只滚正文，标题与页脚固定）、Footer（Flex，靠结束边排列）、Cancel、Confirm（Button，写了 onConfirm 时）。
  */
 import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import type { PartStyles, SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
@@ -33,6 +32,7 @@ import {
 import { openModalDialog } from '../utils/dom/overlay';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import type { PartLayer } from '../config/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { transitions } from '../utils/style/transitions';
 import { t } from '../config/theme/tokens';
@@ -92,21 +92,28 @@ export interface ModalProps
   children?: VNodeChild;
 }
 
-/** 内核额外需要的：外观由各组件给出；AlertDialog 改角色 */
+/** 模态面板的部件：dialog 元素、标题行、标题、关闭按钮、说明、正文（滚动区与里面的内容）、页脚 */
+export type ModalPart =
+  'root' | 'header' | 'title' | 'close' | 'description' | 'body' | 'bodyContent' | 'footer';
+
+/** 内核额外需要的：各部件的外观由各组件的配方给出；AlertDialog 改角色 */
 export interface ModalCoreProps extends ModalProps {
-  /** dialog 的外观：尺寸、圆角、进出场过渡 */
-  panelSx: SxStyles;
+  /** 各部件的默认层（样式 + 部件标记）：Dialog、Drawer 的配方算出（useRecipe），base 里并进了 modalPartStyles */
+  parts: Readonly<Record<ModalPart, PartLayer>>;
+  /** dialog 上另外加的样式（对话框的淡入放大） */
+  panelSx?: SxStyles;
   /** AlertDialog 改为 alertdialog；不写时是原生 dialog 的隐含角色 */
   role?: 'alertdialog';
   /** 直接放在 dialog 里、不随正文滚动的内容（抽屉边上的宽度调整手柄） */
   edge?: VNodeChild;
-  /** 标题行、说明、正文、页脚共同的样式（抽屉拖窄时内容保持最小宽度、被裁掉而不是挤成一列） */
-  contentSx?: SxStyles;
 }
 
-/** 模态面板共有的样式：面板、标题行、标题、关闭按钮、说明、正文、页脚 */
-export const modalStyles = css.create({
-  panel: {
+/**
+ * 模态面板共有的样式：Dialog、Drawer 的配方把它并进 base（各自的 root 再加上居中或贴边的样式），
+ * 所以 createUi / Provider 的 styles.Dialog、styles.Drawer 能定制标题行、正文、页脚
+ */
+export const modalPartStyles = {
+  root: {
     boxSizing: 'border-box',
     // 只在模态打开时排版；关闭时回到 none，离场过渡由 display 的 allow-discrete 撑住
     display: { default: 'none', ':modal': 'flex' },
@@ -131,7 +138,7 @@ export const modalStyles = css.create({
   body: { flexGrow: 1, minHeight: 0 },
   bodyContent: { paddingBlock: '_lg', paddingInline: '_xl' },
   footer: { paddingBlockEnd: '_xl', paddingInline: '_xl' },
-});
+} as const satisfies PartStyles<ModalPart>;
 
 /** Dialog、Drawer、AlertDialog 的内核：原生模态 dialog 的打开、关闭、焦点与滚动 */
 export const ModalCore = _component(
@@ -150,6 +157,7 @@ export const ModalCore = _component(
     tone = 'accent',
     propsConfirm,
     propsCancel,
+    parts,
     panelSx,
     role,
     propsHeader,
@@ -160,7 +168,6 @@ export const ModalCore = _component(
     propsFooter,
     lazy = true,
     edge,
-    contentSx,
     children,
     ...rest
   }: ModalCoreProps) => {
@@ -248,23 +255,27 @@ export const ModalCore = _component(
 
     return () => (
       <dialog
-        {...mergeAttrs<'dialog'>({ sx: [modalStyles.panel, panelSx, transitions.backdrop] }, rest, {
-          ref: _toRef(dialog),
-          role,
-          'aria-labelledby': titleId,
-          'aria-describedby': hasContent(description) ? descriptionId : undefined,
-          onClose,
-          onCancel,
-        })}
+        {...mergeAttrs<'dialog'>(
+          { ...parts.root, sx: [parts.root.sx, panelSx, transitions.backdrop] },
+          rest,
+          {
+            ref: _toRef(dialog),
+            role,
+            'aria-labelledby': titleId,
+            'aria-describedby': hasContent(description) ? descriptionId : undefined,
+            onClose,
+            onCancel,
+          },
+        )}
       >
         <Flex
           {...mergePartProps<FlexProps>(
-            { align: 'start', gap: 'md', sx: [contentSx, modalStyles.header] },
+            { ...parts.header, align: 'start', gap: 'md' },
             propsHeader,
           )}
         >
           <H2
-            {...mergePartProps<HeadingProps>({ size: 'lg', sx: modalStyles.title }, propsTitle, {
+            {...mergePartProps<HeadingProps>({ ...parts.title, size: 'lg' }, propsTitle, {
               id: titleId,
             })}
           >
@@ -272,7 +283,7 @@ export const ModalCore = _component(
           </H2>
           {closable && (
             <CloseButton
-              {...mergePartProps<PresetIconButtonProps>({ sx: modalStyles.close }, propsClose, {
+              {...mergePartProps<PresetIconButtonProps>(parts.close, propsClose, {
                 disabled: pending,
                 onClick: (event: MouseEvent) => void requestClose('close', event),
               })}
@@ -281,20 +292,16 @@ export const ModalCore = _component(
         </Flex>
         {hasContent(description) && (
           <Paragraph
-            {...mergePartProps<TextProps>(
-              { sx: [contentSx, modalStyles.description] },
-              propsDescription,
-              {
-                id: descriptionId,
-              },
-            )}
+            {...mergePartProps<TextProps>(parts.description, propsDescription, {
+              id: descriptionId,
+            })}
           >
             {description}
           </Paragraph>
         )}
         <ScrollArea
           {...mergePartProps<ScrollAreaProps>(
-            { sx: [contentSx, modalStyles.body], propsContent: { sx: modalStyles.bodyContent } },
+            { ...parts.body, propsContent: parts.bodyContent },
             propsBody,
           )}
         >
@@ -303,7 +310,7 @@ export const ModalCore = _component(
         {(hasContent(footer) || onConfirm) && (
           <Flex
             {...mergePartProps<FlexProps>(
-              { justify: 'end', gap: 'sm', wrap: true, sx: [contentSx, modalStyles.footer] },
+              { ...parts.footer, justify: 'end', gap: 'sm', wrap: true },
               propsFooter,
             )}
           >

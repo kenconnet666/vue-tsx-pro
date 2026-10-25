@@ -34,10 +34,11 @@ import { focusRingStyles } from '../utils/style/styles';
 import { toggleSelection } from '../utils/data/selection';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
+import { useRecipe } from '../config/styles';
 import {
-  choiceGroupStyles,
-  choiceStyles,
-  choiceRootSx,
+  choiceInputStyles,
+  choiceParts,
+  choiceRecipe,
   useChoiceAppearance,
   type ChoiceOrientations,
   readonlyChoiceHandlers,
@@ -162,23 +163,25 @@ export const Checkbox = _component(
       const locked = readonly ?? group?.readonly ?? field?.readonly ?? false;
       const bad = invalid ?? group?.invalid ?? field?.invalid ?? false;
       const marked = isChecked || indeterminate;
+      const s = choiceParts(appearance(), { disabled: off, readonly: locked });
       return (
         <label
-          {...mergeAttrs<'label'>({ sx: choiceRootSx(appearance(), off, locked) }, propsRoot)}
+          {...mergeAttrs<'label'>(s.root, propsRoot)}
           data-state={indeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
           data-readonly={locked || undefined}
         >
-          <span {...mergeAttrs<'span'>({ sx: choiceStyles.control }, propsControl)}>
+          <span {...mergeAttrs<'span'>(s.control, propsControl)}>
             <input
               {...mergeAttrs<'input'>(
                 {
+                  ...s.input,
                   sx: [
-                    choiceStyles.input,
+                    s.input.sx,
                     focusRingStyles.tight,
                     checkboxStyles.box,
-                    marked && choiceStyles.checked,
-                    bad && choiceStyles.invalid,
+                    marked && choiceInputStyles.checked,
+                    bad && choiceInputStyles.invalid,
                   ],
                 },
                 rest,
@@ -205,25 +208,22 @@ export const Checkbox = _component(
             <Icon
               {...mergePartProps<IconProps>(
                 {
+                  ...s.indicator,
                   icon: indeterminate ? Minus : Check,
                   draw: drawCheck && isChecked && !indeterminate,
                   strokeWidth: 3,
-                  sx: [
-                    choiceStyles.mark,
-                    checkboxStyles.indicator,
-                    !marked && checkboxStyles.hidden,
-                  ],
+                  sx: [s.indicator.sx, checkboxStyles.indicator, !marked && checkboxStyles.hidden],
                 },
                 propsIndicator,
               )}
             />
           </span>
           {(hasContent(children) || hasContent(description)) && (
-            <span {...mergeAttrs<'span'>({ sx: choiceStyles.label }, propsLabel)}>
+            <span {...mergeAttrs<'span'>(s.label, propsLabel)}>
               {children}
               {hasContent(description) && (
                 <span
-                  {...mergeAttrs<'span'>({ sx: choiceStyles.description }, propsDescription, {
+                  {...mergeAttrs<'span'>(s.description, propsDescription, {
                     id: descriptionId,
                   })}
                 >
@@ -277,6 +277,7 @@ export const CheckboxGroup = _component(
     ...rest
   }: CheckboxGroupProps<T>) => {
     const control = useFieldControl(() => ({ id, disabled, readonly, invalid }));
+    const recipe = useRecipe(choiceRecipe);
     CheckboxGroupContext.provide({
       get value() {
         return value;
@@ -302,7 +303,7 @@ export const CheckboxGroup = _component(
       const state = control();
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: choiceGroupStyles[orientation] }, rest, {
+          {...mergeAttrs<'div'>(recipe({ orientation }).group, rest, {
             id: state.id,
             role: 'group',
             'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),

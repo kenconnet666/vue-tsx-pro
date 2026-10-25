@@ -57,8 +57,7 @@ import { disclosureStyles } from '../utils/style/transitions';
 import {
   controlClear,
   controlIcon,
-  controlStyles,
-  controlSx,
+  controlParts,
   clickOnShell,
   focusOnShell,
   useControlAppearance,
@@ -390,6 +389,7 @@ export const TreeSelect = _component(
 
     return () => {
       const state = control();
+      const s = controlParts(appearance(), state);
       const off = state.disabled;
       const locked = off || state.readonly;
       const shownKeys = displayKeys();
@@ -410,26 +410,22 @@ export const TreeSelect = _component(
       return (
         <>
           <div
-            {...mergeAttrs<'div'>(
-              { sx: [controlSx(appearance(), state), selectStyles.root] },
-              propsRoot,
-              {
-                ref: _toRef(shell),
-                onPointerdown: off ? undefined : focusOnShell(() => trigger),
-                onClick:
-                  off || state.readonly
-                    ? undefined
-                    : clickOnShell(
-                        () => trigger,
-                        (event) => (open ? setOpen(false, 'trigger', event) : show(event)),
-                      ),
-              },
-            )}
+            {...mergeAttrs<'div'>({ ...s.root, sx: [s.root.sx, selectStyles.root] }, propsRoot, {
+              ref: _toRef(shell),
+              onPointerdown: off ? undefined : focusOnShell(() => trigger),
+              onClick:
+                off || state.readonly
+                  ? undefined
+                  : clickOnShell(
+                      () => trigger,
+                      (event) => (open ? setOpen(false, 'trigger', event) : show(event)),
+                    ),
+            })}
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={off || undefined}
           >
-            {controlIcon(icon, propsIcon)}
+            {controlIcon(s, icon, propsIcon)}
             {tagged && (
               <SelectedTags
                 {...mergePartProps<SelectedTagsProps>(
@@ -478,12 +474,13 @@ export const TreeSelect = _component(
             >
               <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
             </button>
-            {clearable && shownKeys.length > 0 && !locked && controlClear(propsClear, clear)}
+            {clearable && shownKeys.length > 0 && !locked && controlClear(s, propsClear, clear)}
             <Icon
               {...mergePartProps<IconProps>(
                 {
+                  ...s.icon,
                   icon: ChevronDown,
-                  sx: [controlStyles.icon, disclosureStyles.icon, open && selectStyles.chevronOpen],
+                  sx: [s.icon.sx, disclosureStyles.icon, open && selectStyles.chevronOpen],
                 },
                 propsChevron,
               )}

@@ -26,8 +26,7 @@ import { useFieldControl } from '../form/Field';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   controlClear,
-  controlStyles,
-  controlSx,
+  controlParts,
   focusOnShell,
   controlAffix,
   controlIcon,
@@ -152,6 +151,7 @@ export const TextField = _component(
 
     return () => {
       const state = control();
+      const s = controlParts(appearance(), state);
       const editable = !state.disabled && !state.readonly;
       const constraints = state.constraints;
       // 不写 type 时按 schema 的格式选：z.email() → email、z.url() → url
@@ -162,7 +162,7 @@ export const TextField = _component(
       const inputId = state.id ?? ownId;
       const inputAttrs = mergeAttrs<'input'>(
         {
-          sx: controlStyles.input,
+          ...s.input,
           // 有 format 时输入框里多了分隔，按原文的长度限制交给 format.parse 截断
           minlength: format ? undefined : constraints.minLength,
           maxlength: format ? undefined : constraints.maxLength,
@@ -182,27 +182,27 @@ export const TextField = _component(
       );
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot, {
+          {...mergeAttrs<'div'>(s.root, propsRoot, {
             onPointerdown: focusOnShell(() => input),
           })}
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
-          {controlIcon(icon, propsIcon)}
-          {controlAffix(prefix, inputId, propsPrefix)}
+          {controlIcon(s, icon, propsIcon)}
+          {controlAffix(s, prefix, inputId, propsPrefix)}
           {format ? (
             <input {...inputAttrs} value={format.format(value)} onInput={onFormattedInput} />
           ) : (
             // _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回
             <input {...inputAttrs} value={_bind(value)} />
           )}
-          {controlAffix(suffix, inputId, propsSuffix)}
-          {clearable && value && editable && controlClear(propsClear, clear)}
+          {controlAffix(s, suffix, inputId, propsSuffix)}
+          {clearable && value && editable && controlClear(s, propsClear, clear)}
           {password && (
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
-                  sx: controlStyles.button,
+                  ...s.button,
                   radius: 'full',
                   icon: revealed ? EyeOff : Eye,
                   // 名称不变、用 aria-pressed 表示状态：读屏念“显示密码，已按下”（名称跟着变会和按下状态打架）
@@ -226,7 +226,7 @@ export const TextField = _component(
               )}
             />
           )}
-          {controlIcon(iconEnd, propsIconEnd)}
+          {controlIcon(s, iconEnd, propsIconEnd)}
         </div>
       );
     };

@@ -11,18 +11,19 @@
  *     </TableBody>
  *   </Table>
  *
- * 外观（密度、样式、斑马纹）与 DataTable 相同，样式表也共用（dataTableStyles）；单元格默认可以换行，列宽按内容分配。
+ * 外观（密度、样式、斑马纹）与 DataTable 相同（配方 tableRecipe，对齐、换行与 DataTable 共用 dataTableStateStyles）；
+ * 单元格默认可以换行，列宽按内容分配。
  * 表格比容器宽时在外层横向滚动（ScrollArea：浮层滚动条，不占高度），不撑宽页面。
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
-  dataTableDensityStyles,
-  dataTableStyles,
+  dataTableStateStyles,
   type DataTableDensities,
   type DataTableOptions,
   type DataTableVariants,
@@ -61,32 +62,121 @@ export interface TableProps extends PartProps<'table'>, DataTableOptions {
   children?: VNodeChild;
 }
 
-/** 静态表格的样式：外层滚动容器、标题、列宽按内容、斑马纹、行标题、表尾（其余与 DataTable 共用 dataTableStyles） */
-export const tableStyles = css.create({
-  // contain: inline-size：宽表格不撑宽外层的 grid / flex 容器，放不下的在这里横向滚动
-  root: { minWidth: 0, contain: 'inline-size' },
-  caption: {
-    captionSide: 'top',
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-    color: '_textMuted',
-    fontSize: '_sm',
-    textAlign: 'start',
+/**
+ * 静态表格的配方：部件对应原生 table 的各个元素，密度、样式、斑马纹是档位。
+ * 表体、表尾里的行标题（th）是 `[s.cell.sx, s.rowHeader.sx]`，表尾的格再叠上 `s.footCell.sx`
+ */
+export const tableRecipe = css.recipe({
+  name: 'Table',
+  parts: [
+    'root',
+    'table',
+    'caption',
+    'head',
+    'body',
+    'foot',
+    'row',
+    'headerCell',
+    'rowHeader',
+    'cell',
+    'footCell',
+  ],
+  base: {
+    // contain: inline-size：宽表格不撑宽外层的 grid / flex 容器，放不下的在这里横向滚动
+    root: { minWidth: 0, contain: 'inline-size' },
+    // 列宽按内容分配：DataTable 为虚拟滚动与列宽拖动用固定布局，静态表格不需要
+    table: {
+      width: '_full',
+      tableLayout: 'auto',
+      borderCollapse: 'separate',
+      borderSpacing: 0,
+      color: '_text',
+      lineHeight: '_normal',
+    },
+    caption: {
+      captionSide: 'top',
+      paddingBlock: '_sm',
+      paddingInline: '_md',
+      color: '_textMuted',
+      fontSize: '_sm',
+      textAlign: 'start',
+    },
+    headerCell: {
+      position: 'relative',
+      boxSizing: 'border-box',
+      paddingInline: '_md',
+      borderBottomWidth: '_xs',
+      borderBottomStyle: 'solid',
+      borderBottomColor: '_border',
+      backgroundColor: '_fill',
+      color: '_textMuted',
+      fontSize: '_sm',
+      fontWeight: '_semibold',
+      textAlign: 'start',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+    // 表体、表尾里的行标题（scope=row）：和普通单元格一样的底色与字号，只是字重高一点
+    rowHeader: { fontWeight: '_medium', textAlign: 'start' },
+    // 数字等宽：金额、数量、日期上下对齐（文字不受影响）
+    cell: {
+      boxSizing: 'border-box',
+      fontVariantNumeric: 'tabular-nums',
+      paddingInline: '_md',
+      borderBottomWidth: '_xs',
+      borderBottomStyle: 'solid',
+      borderBottomColor: '_borderMuted',
+      backgroundColor: 'inherit',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      verticalAlign: 'middle',
+    },
+    // 表尾（合计行）：上面一条分隔线，文字加粗，th 与 td 一致
+    footCell: {
+      fontWeight: '_semibold',
+      borderTopWidth: '_xs',
+      borderTopStyle: 'solid',
+      borderTopColor: '_border',
+      borderBottomWidth: 0,
+    },
   },
-  // 列宽按内容分配：DataTable 为虚拟滚动与列宽拖动用固定布局，静态表格不需要
-  layout: { tableLayout: 'auto' },
-  stripedRow: { backgroundColor: { default: null, ':nth-child(even)': '_fill' } },
-  // 表体、表尾里的行标题（scope=row）：和普通单元格一样的底色与字号，只是字重高一点
-  rowHeader: { fontWeight: '_medium', textAlign: 'start' },
-  // 表尾（合计行）：上面一条分隔线，文字加粗，th 与 td 一致
-  footCell: {
-    fontWeight: '_semibold',
-    borderTopWidth: '_xs',
-    borderTopStyle: 'solid',
-    borderTopColor: '_border',
-    borderBottomWidth: 0,
+  variants: {
+    // 单元格的上下内边距；紧凑时字号也小一档
+    density: {
+      compact: {
+        table: { fontSize: '_sm' },
+        headerCell: { paddingBlock: '_xs' },
+        cell: { paddingBlock: '_xs' },
+      },
+      standard: { headerCell: { paddingBlock: '_sm' }, cell: { paddingBlock: '_sm' } },
+      comfortable: { headerCell: { paddingBlock: '_md' }, cell: { paddingBlock: '_md' } },
+    },
+    variant: {
+      surface: {
+        root: {
+          borderWidth: '_xs',
+          borderStyle: 'solid',
+          borderColor: '_border',
+          borderRadius: '_lg',
+          backgroundColor: '_surface',
+        },
+        row: { backgroundColor: { default: '_surface', ':hover': '_fillHover' } },
+      },
+      ghost: {
+        root: { backgroundColor: '_background' },
+        row: { backgroundColor: { default: '_background', ':hover': '_fillHover' } },
+      },
+    },
+    striped: {
+      true: { row: { backgroundColor: { default: null, ':nth-child(even)': '_fill' } } },
+    },
   },
 });
+
+/** 静态表格的部件（createUi / Provider 的 styles.Table 按它定制） */
+export type TablePart = (typeof tableRecipe.parts)[number];
 
 /** 静态表格的动态样式：列宽 */
 export const tableDynamicStyles = css.create({
@@ -99,6 +189,13 @@ export type TableSection = 'head' | 'body' | 'foot';
 /** 单元格所在区域的上下文：TableHead、TableBody、TableFoot 提供 */
 export const TableSectionContext = createContext<TableSection>('TableSection');
 
+/** 表格里的元素按所在 Table 的外观取部件层：在 setup 里调用，渲染时调用返回的函数 */
+function useTableParts() {
+  const table = TableContext.inject(standalone);
+  const recipe = useRecipe(tableRecipe);
+  return () => recipe(table);
+}
+
 /** 静态表格（table）：外层可横向滚动；外观经上下文交给行与单元格 */
 export const Table = _component(
   ({ density, variant, striped, propsRoot, children, ...rest }: TableProps) => {
@@ -107,6 +204,7 @@ export const Table = _component(
       variant: 'surface',
       striped: false,
     });
+    const recipe = useRecipe(tableRecipe);
     TableContext.provide({
       get density() {
         return appearance().density;
@@ -118,51 +216,31 @@ export const Table = _component(
         return appearance().striped;
       },
     });
-    return () => (
-      <ScrollArea
-        {...mergePartProps<ScrollAreaProps>(
-          {
-            axis: 'x',
-            sx: [
-              tableStyles.root,
-              appearance().variant === 'ghost' ? dataTableStyles.ghost : dataTableStyles.surface,
-            ],
-          },
-          propsRoot,
-        )}
-      >
-        <table
-          {...mergeAttrs<'table'>(
-            {
-              sx: [
-                dataTableStyles.table,
-                tableStyles.layout,
-                dataTableStyles[appearance().density],
-              ],
-            },
-            rest,
-          )}
-        >
-          {children}
-        </table>
-      </ScrollArea>
-    );
+    return () => {
+      const s = recipe(appearance());
+      return (
+        <ScrollArea {...mergePartProps<ScrollAreaProps>({ ...s.root, axis: 'x' }, propsRoot)}>
+          <table {...mergeAttrs<'table'>(s.table, rest)}>{children}</table>
+        </ScrollArea>
+      );
+    };
   },
 );
 
 /** 表格标题（caption）：同时是表格的名称；不想显示时包进 VisuallyHidden */
 export const TableCaption = _component(
-  ({ children, ...rest }: PartProps<'caption'> & { children?: VNodeChild }) =>
-    () => (
-      <caption {...mergeAttrs<'caption'>({ sx: tableStyles.caption }, rest)}>{children}</caption>
-    ),
+  ({ children, ...rest }: PartProps<'caption'> & { children?: VNodeChild }) => {
+    const parts = useTableParts();
+    return () => <caption {...mergeAttrs<'caption'>(parts().caption, rest)}>{children}</caption>;
+  },
 );
 
 /** 表头（thead） */
 export const TableHead = _component(
   ({ children, ...rest }: PartProps<'thead'> & { children?: VNodeChild }) => {
     TableSectionContext.provide('head');
-    return () => <thead {...mergeAttrs<'thead'>({}, rest)}>{children}</thead>;
+    const parts = useTableParts();
+    return () => <thead {...mergeAttrs<'thead'>(parts().head, rest)}>{children}</thead>;
   },
 );
 
@@ -170,7 +248,8 @@ export const TableHead = _component(
 export const TableBody = _component(
   ({ children, ...rest }: PartProps<'tbody'> & { children?: VNodeChild }) => {
     TableSectionContext.provide('body');
-    return () => <tbody {...mergeAttrs<'tbody'>({}, rest)}>{children}</tbody>;
+    const parts = useTableParts();
+    return () => <tbody {...mergeAttrs<'tbody'>(parts().body, rest)}>{children}</tbody>;
   },
 );
 
@@ -178,29 +257,16 @@ export const TableBody = _component(
 export const TableFoot = _component(
   ({ children, ...rest }: PartProps<'tfoot'> & { children?: VNodeChild }) => {
     TableSectionContext.provide('foot');
-    return () => <tfoot {...mergeAttrs<'tfoot'>({}, rest)}>{children}</tfoot>;
+    const parts = useTableParts();
+    return () => <tfoot {...mergeAttrs<'tfoot'>(parts().foot, rest)}>{children}</tfoot>;
   },
 );
 
 /** 行（tr）：底色随表格的样式，斑马纹时隔行浅色底 */
 export const TableRow = _component(
   ({ children, ...rest }: PartProps<'tr'> & { children?: VNodeChild }) => {
-    const table = TableContext.inject(standalone);
-    return () => (
-      <tr
-        {...mergeAttrs<'tr'>(
-          {
-            sx: [
-              table.variant === 'ghost' ? dataTableStyles.rowGhost : dataTableStyles.row,
-              table.striped && tableStyles.stripedRow,
-            ],
-          },
-          rest,
-        )}
-      >
-        {children}
-      </tr>
-    );
+    const parts = useTableParts();
+    return () => <tr {...mergeAttrs<'tr'>(parts().row, rest)}>{children}</tr>;
   },
 );
 
@@ -224,7 +290,7 @@ export interface TableHeaderCellProps extends PartProps<'th', 'align' | 'width'>
 /** 未声明的属性落到 td 上；对齐用 align prop */
 export interface TableCellProps extends PartProps<'td', 'align'>, TableCellOptions {}
 
-/** 表头单元格（th） */
+/** 表头单元格（th）：表头里是列标题，表体与表尾里是行标题 */
 export const TableHeaderCell = _component(
   ({
     align = 'start',
@@ -234,56 +300,60 @@ export const TableHeaderCell = _component(
     children,
     ...rest
   }: TableHeaderCellProps) => {
-    const table = TableContext.inject(standalone);
+    const parts = useTableParts();
     const section = TableSectionContext.inject('head');
-    return () => (
-      <th
-        {...mergeAttrs<'th'>(
-          {
-            sx: [
-              section === 'head'
-                ? dataTableStyles.headerCell
-                : [dataTableStyles.cell, tableStyles.rowHeader],
-              section === 'foot' && tableStyles.footCell,
-              dataTableDensityStyles[table.density],
-              dataTableStyles[align],
-              !nowrap && dataTableStyles.wrap,
-              width != null &&
-                tableDynamicStyles.width(typeof width === 'number' ? `${width}px` : width),
-            ],
-            scope,
-          },
-          rest,
-        )}
-      >
-        {children}
-      </th>
-    );
+    return () => {
+      const s = parts();
+      return (
+        <th
+          {...mergeAttrs<'th'>(
+            {
+              ...(section === 'head' ? s.headerCell : s.rowHeader),
+              sx: [
+                section === 'head' ? s.headerCell.sx : [s.cell.sx, s.rowHeader.sx],
+                section === 'foot' && s.footCell.sx,
+                dataTableStateStyles[align],
+                !nowrap && dataTableStateStyles.wrap,
+                width != null &&
+                  tableDynamicStyles.width(typeof width === 'number' ? `${width}px` : width),
+              ],
+              scope,
+            },
+            rest,
+          )}
+        >
+          {children}
+        </th>
+      );
+    };
   },
 );
 
 /** 单元格（td） */
 export const TableCell = _component(
   ({ align = 'start', nowrap = false, children, ...rest }: TableCellProps) => {
-    const table = TableContext.inject(standalone);
+    const parts = useTableParts();
     const section = TableSectionContext.inject('body');
-    return () => (
-      <td
-        {...mergeAttrs<'td'>(
-          {
-            sx: [
-              dataTableStyles.cell,
-              section === 'foot' && tableStyles.footCell,
-              dataTableDensityStyles[table.density],
-              dataTableStyles[align],
-              !nowrap && dataTableStyles.wrap,
-            ],
-          },
-          rest,
-        )}
-      >
-        {children}
-      </td>
-    );
+    return () => {
+      const s = parts();
+      return (
+        <td
+          {...mergeAttrs<'td'>(
+            {
+              ...(section === 'foot' ? s.footCell : s.cell),
+              sx: [
+                s.cell.sx,
+                section === 'foot' && s.footCell.sx,
+                dataTableStateStyles[align],
+                !nowrap && dataTableStateStyles.wrap,
+              ],
+            },
+            rest,
+          )}
+        >
+          {children}
+        </td>
+      );
+    };
   },
 );

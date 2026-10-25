@@ -39,7 +39,8 @@ import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedba
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { checkboxStyles } from '../input/Checkbox';
-import { choiceStyles } from '../input/choice-styles';
+import { choiceInputStyles, choiceRecipe } from '../input/choice-styles';
+import { useRecipe } from '../config/styles';
 import { toneFillStyles } from '../utils/style/tone-styles';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
@@ -284,6 +285,8 @@ export const Tree = _component(
     let active = _state<string | undefined>(undefined);
     let focused = _state(false);
     const typeahead = createTypeahead();
+    // 勾选框画成 Checkbox 的样子，跟着 styles.Choice 的定制
+    const choice = useRecipe(choiceRecipe);
 
     const accessors = (): TreeAccessors<T> => ({
       getKey: (node) => getKey(node),
@@ -637,6 +640,7 @@ export const Tree = _component(
       const icon = getIcon?.(row.node, open);
       const loading = expansion.isLoading(row.key);
       const marked = state.checked !== 'unchecked';
+      const box = choice();
       const dropZone = drop?.key === row.key ? drop.zone : undefined;
       return (
         <div
@@ -708,8 +712,8 @@ export const Tree = _component(
           {checkable && (
             <span
               {...mergeAttrs<'span'>(
-                // 勾选框的实底色取色调变量（同 Checkbox 的 choiceRootSx）
-                { sx: [choiceStyles.control, toneFillStyles.accent, treeStyles.checkbox] },
+                // 勾选框的实底色取色调变量（同 Checkbox 的 choiceParts）
+                { sx: [box.control.sx, toneFillStyles.accent, treeStyles.checkbox] },
                 propsCheckbox,
                 {
                   'aria-hidden': true,
@@ -724,16 +728,16 @@ export const Tree = _component(
             >
               <span
                 {...css.attrs(
-                  choiceStyles.input,
+                  box.input.sx,
                   focusRingStyles.tight,
                   checkboxStyles.box,
-                  marked && choiceStyles.checked,
+                  marked && choiceInputStyles.checked,
                 )}
               />
               <Icon
                 icon={state.checked === 'indeterminate' ? Minus : Check}
                 strokeWidth={3}
-                sx={[choiceStyles.mark, treeStyles.checkMark, !marked && treeStyles.hidden]}
+                sx={[box.indicator.sx, treeStyles.checkMark, !marked && treeStyles.hidden]}
               />
             </span>
           )}

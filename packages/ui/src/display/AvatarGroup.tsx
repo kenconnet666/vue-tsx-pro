@@ -13,11 +13,12 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
+import { useRecipe } from '../config/styles';
 import { childNodes } from '../utils/data/text';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { radiusStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import { AvatarGroupContext, avatarStyles } from './Avatar';
+import { AvatarGroupContext, avatarRecipe } from './Avatar';
 
 /** 角色由组件管理 */
 export type AvatarGroupManaged = 'role';
@@ -51,6 +52,8 @@ export const AvatarGroup = _component(
   ({ max, total, size, propsMore, propsMoreText, children, ...rest }: AvatarGroupProps) => {
     const lang = useLang();
     AvatarGroupContext.provide({ grouped: true });
+    // “+N”和组里的头像一样大、一样叠放：取头像配方（带主题定制）里组内头像的外层样式
+    const avatar = useRecipe(avatarRecipe);
     return () => {
       const avatars = childNodes(children);
       const shown = max != null && avatars.length > max ? avatars.slice(0, max) : avatars;
@@ -69,9 +72,8 @@ export const AvatarGroup = _component(
               {...mergeAttrs<'span'>(
                 {
                   sx: [
-                    avatarStyles.root,
+                    avatar({ grouped: true }).root.sx,
                     radiusStyles.full,
-                    avatarStyles.grouped,
                     avatarGroupStyles.more,
                   ],
                   'aria-label': lang.avatarMore(hidden),

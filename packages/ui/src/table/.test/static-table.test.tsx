@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
-  tableStyles,
+  tableRecipe,
 } from '../Table';
 
 const headerFill = css.create({ fill: { backgroundColor: '_fill' } });
@@ -74,8 +74,8 @@ describe('Table', () => {
     // 列标题有浅色底，行标题没有（按元素实际得到的声明判断）
     expect(hasStyles(columnHeader!, headerFill.fill)).toBe(true);
     expect(hasStyles(rowHeader!, headerFill.fill)).toBe(false);
-    expect(hasStyles(rowHeader!, tableStyles.rowHeader)).toBe(true);
-    expect(hasStyles(footHeader!, tableStyles.footCell)).toBe(true);
-    expect(hasStyles(root.querySelector('tfoot td')!, tableStyles.footCell)).toBe(true);
+    expect(hasStyles(rowHeader!, tableRecipe().rowHeader)).toBe(true);
+    expect(hasStyles(footHeader!, tableRecipe().footCell)).toBe(true);
+    expect(hasStyles(root.querySelector('tfoot td')!, tableRecipe().footCell)).toBe(true);
   });
 });

@@ -45,8 +45,7 @@ import {
   controlAffix,
   controlClear,
   controlIcon,
-  controlStyles,
-  controlSx,
+  controlParts,
   useControlAppearance,
   type ControlIconOptions,
   type ControlOptions,
@@ -289,6 +288,7 @@ export const NumberField = _component(
 
     return () => {
       const state = control();
+      const s = controlParts(appearance(), state);
       const inputId = state.id ?? ownId;
       const editable = !state.disabled && !state.readonly;
       const shown = draft ?? (value == null ? '' : formatter.number(value, format));
@@ -299,14 +299,14 @@ export const NumberField = _component(
       const atHighest = value != null && highest != null && compareNumeric(value, highest) >= 0;
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: controlSx(appearance(), state) }, propsRoot)}
+          {...mergeAttrs<'div'>(s.root, propsRoot)}
           data-invalid={state.invalid || undefined}
           data-disabled={state.disabled || undefined}
         >
-          {controlIcon(icon, propsIcon)}
-          {controlAffix(prefix, inputId, propsPrefix)}
+          {controlIcon(s, icon, propsIcon)}
+          {controlAffix(s, prefix, inputId, propsPrefix)}
           <input
-            {...mergeAttrs<'input'>({ sx: controlStyles.input }, rest, {
+            {...mergeAttrs<'input'>(s.input, rest, {
               ref: _toRef(input),
               id: inputId,
               type: 'text',
@@ -330,11 +330,11 @@ export const NumberField = _component(
               onKeydown,
             })}
           />
-          {controlAffix(suffix, inputId, propsSuffix)}
+          {controlAffix(s, suffix, inputId, propsSuffix)}
           {clearable &&
             editable &&
             (value != null || !!draft) &&
-            controlClear(propsClear, () => {
+            controlClear(s, propsClear, () => {
               draft = null;
               value = null;
               input?.focus();
@@ -344,7 +344,7 @@ export const NumberField = _component(
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {
-                    sx: controlStyles.button,
+                    ...s.button,
                     radius: 'full',
                     icon: Minus,
                     'aria-label': lang.numberDecrement,
@@ -361,7 +361,7 @@ export const NumberField = _component(
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {
-                    sx: controlStyles.button,
+                    ...s.button,
                     radius: 'full',
                     icon: Plus,
                     'aria-label': lang.numberIncrement,

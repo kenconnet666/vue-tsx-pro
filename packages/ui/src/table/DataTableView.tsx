@@ -30,6 +30,7 @@ import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { clamp } from '../utils/data/number';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
+import { useRecipe } from '../config/styles';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
@@ -70,8 +71,8 @@ import {
   type DataTableColumn,
 } from './columns';
 import {
-  dataTableDensityStyles,
-  dataTableStyles,
+  dataTableRecipe,
+  dataTableStateStyles,
   type DataTableDensities,
   type DataTableOptions,
   type DataTableVariants,
@@ -302,22 +303,22 @@ export const dataTableDynamicStyles = css.create({
 function stickyCellSx(column: DataTableColumn<never>, offsets: StickyOffsets) {
   if (column.sticky === 'start')
     return [
-      dataTableStyles.sticky,
+      dataTableStateStyles.sticky,
       dataTableDynamicStyles.start(offsets.start.get(column.key)!),
-      offsets.startEdge === column.key && dataTableStyles.stickyStartEdge,
+      offsets.startEdge === column.key && dataTableStateStyles.stickyStartEdge,
     ];
   if (column.sticky === 'end')
     return [
-      dataTableStyles.sticky,
+      dataTableStateStyles.sticky,
       dataTableDynamicStyles.end(offsets.end.get(column.key)!),
-      offsets.endEdge === column.key && dataTableStyles.stickyEndEdge,
+      offsets.endEdge === column.key && dataTableStateStyles.stickyEndEdge,
     ];
   return null;
 }
 
 /** 勾选列、详情列在有起始边固定列时也固定，偏移是它前面的列宽 */
 function leadingStickySx(sticky: boolean, offset: number) {
-  return sticky && [dataTableStyles.sticky, dataTableDynamicStyles.start(offset)];
+  return sticky && [dataTableStateStyles.sticky, dataTableDynamicStyles.start(offset)];
 }
 
 /** 分组标题的固定：组里的列都固定在同一侧时跟着固定，偏移取最靠外的一列；含挨着滚动列的那一列时也画竖线 */
@@ -328,14 +329,14 @@ function groupStickySx(columns: readonly DataTableColumn<never>[], offsets: Stic
     side === 'start' ? [columns[0]!, columns.at(-1)!] : [columns.at(-1)!, columns[0]!];
   return side === 'start'
     ? [
-        dataTableStyles.sticky,
+        dataTableStateStyles.sticky,
         dataTableDynamicStyles.start(offsets.start.get(outer.key)!),
-        offsets.startEdge === inner.key && dataTableStyles.stickyStartEdge,
+        offsets.startEdge === inner.key && dataTableStateStyles.stickyStartEdge,
       ]
     : [
-        dataTableStyles.sticky,
+        dataTableStateStyles.sticky,
         dataTableDynamicStyles.end(offsets.end.get(outer.key)!),
-        offsets.endEdge === inner.key && dataTableStyles.stickyEndEdge,
+        offsets.endEdge === inner.key && dataTableStateStyles.stickyEndEdge,
       ];
 }
 
@@ -468,6 +469,9 @@ export const DataTableRow = _component(
     onEditKeydown,
   }: DataTableRowProps<T>) => {
     const lang = useLang();
+    const recipe = useRecipe(dataTableRecipe);
+    // 各部件层按档位组合缓存：同一种行（奇偶、密度、样式）的各格拿到的是同一个对象
+    const s = _derived(recipe({ density, variant, striped: striped && index % 2 === 1 }));
 
     /** 数据格的按键：编辑中交给外层；可编辑的格按 Enter / F2 开始编辑，打一个字直接替换 */
     function onCellKeydown(event: KeyboardEvent, column: DataTableColumn<T>) {
@@ -486,13 +490,13 @@ export const DataTableRow = _component(
       <tr
         {...mergeAttrs<'tr'>(
           {
+            ...s.row,
             sx: [
-              variant === 'ghost' ? dataTableStyles.rowGhost : dataTableStyles.row,
-              striped && index % 2 === 1 && dataTableStyles.striped,
+              s.row.sx,
               tone && dataTableRowToneStyles[tone],
-              selected && dataTableStyles.selected,
-              active && dataTableStyles.active,
-              onRowClick && dataTableStyles.clickable,
+              selected && dataTableStateStyles.selected,
+              active && dataTableStateStyles.active,
+              onRowClick && dataTableStateStyles.clickable,
             ],
           },
           typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow,
@@ -522,12 +526,12 @@ export const DataTableRow = _component(
           <td
             {...mergeAttrs<'td'>(
               {
+                ...s.selectCell,
                 sx: [
-                  dataTableStyles.cell,
-                  dataTableDensityStyles[density],
-                  dataTableStyles.selectCell,
-                  offsets.start.size > 0 && dataTableStyles.stickySelect,
-                  active && dataTableStyles.activeEdge,
+                  s.cell.sx,
+                  s.selectCell.sx,
+                  offsets.start.size > 0 && dataTableStateStyles.stickySelect,
+                  active && dataTableStateStyles.activeEdge,
                 ],
               },
               propsSelectCell,
@@ -536,18 +540,17 @@ export const DataTableRow = _component(
             {selectionMode === 'single' ? (
               // 单选：同一个 name 的原生单选框，选中由 DataTableView 提供的 RadioGroupContext 决定
               <Radio
-                {...mergePartProps<Partial<RadioProps>>(
-                  { sx: dataTableStyles.cellControl },
-                  propsSelectRadio,
-                  { disabled: !selectable, 'aria-label': lang.tableSelectRow(index + 1) },
-                )}
+                {...mergePartProps<Partial<RadioProps>>(s.selectRadio, propsSelectRadio, {
+                  disabled: !selectable,
+                  'aria-label': lang.tableSelectRow(index + 1),
+                })}
                 value={row.key}
               />
             ) : (
               <Checkbox
                 {...mergePartProps<CheckboxProps>(
                   // 名称每行不同（选择第 N 行）：类型里不让使用方覆盖
-                  { 'aria-label': lang.tableSelectRow(index + 1), sx: dataTableStyles.cellControl },
+                  { ...s.selectCheckbox, 'aria-label': lang.tableSelectRow(index + 1) },
                   propsSelectCheckbox,
                   {
                     checked: selected,
@@ -564,12 +567,12 @@ export const DataTableRow = _component(
           <td
             {...mergeAttrs<'td'>(
               {
+                ...s.detailToggleCell,
                 sx: [
-                  dataTableStyles.cell,
-                  dataTableDensityStyles[density],
-                  dataTableStyles.selectCell,
+                  s.cell.sx,
+                  s.detailToggleCell.sx,
                   leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
-                  active && !selectionMode && dataTableStyles.activeEdge,
+                  active && !selectionMode && dataTableStateStyles.activeEdge,
                 ],
               },
               propsDetailToggleCell,
@@ -579,10 +582,10 @@ export const DataTableRow = _component(
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {
+                    ...s.detailToggle,
                     icon: ChevronRight,
                     size: 'sm',
                     radius: 'full',
-                    sx: [dataTableStyles.detailToggle, dataTableStyles.cellControl],
                     'aria-label': lang.tableRowDetails(rowLabel(columns, row)),
                   },
                   propsDetailToggle,
@@ -593,7 +596,7 @@ export const DataTableRow = _component(
                     propsIcon: mergeProps<IconProps>(
                       { flipInRtl: true, sx: disclosureStyles.icon },
                       propsDetailToggle?.propsIcon,
-                      expanded ? { sx: dataTableStyles.chevronOpen } : undefined,
+                      expanded ? { sx: dataTableStateStyles.chevronOpen } : undefined,
                     ),
                     onClick: () => onToggleDetail?.(row.key),
                   },
@@ -616,20 +619,20 @@ export const DataTableRow = _component(
               key={column.key}
               {...mergeAttrs<'td'>(
                 {
+                  ...s.cell,
                   sx: [
-                    dataTableStyles.cell,
-                    dataTableDensityStyles[density],
-                    dataTableStyles[column.align ?? 'start'],
-                    column.wrap && dataTableStyles.wrap,
+                    s.cell.sx,
+                    dataTableStateStyles[column.align ?? 'start'],
+                    column.wrap && dataTableStateStyles.wrap,
                     stickyCellSx(column, offsets),
                     active &&
                       position === 0 &&
                       !selectionMode &&
                       !detailColumn &&
-                      dataTableStyles.activeEdge,
-                    cellNavigation && dataTableStyles.gridCell,
-                    editing && dataTableStyles.editingCell,
-                    !!error && dataTableStyles.invalidCell,
+                      dataTableStateStyles.activeEdge,
+                    cellNavigation && dataTableStateStyles.gridCell,
+                    editing && dataTableStateStyles.editingCell,
+                    !!error && dataTableStateStyles.invalidCell,
                   ],
                 },
                 typeof propsCell === 'function' ? propsCell(row.data, column) : propsCell,
@@ -649,11 +652,9 @@ export const DataTableRow = _component(
               )}
             >
               {position === 0 && leading ? (
-                <div {...mergeAttrs<'div'>({ sx: dataTableStyles.leading }, propsLeading)}>
+                <div {...mergeAttrs<'div'>(s.leading, propsLeading)}>
                   {leading(row, index)}
-                  <div {...mergeAttrs<'div'>({ sx: dataTableStyles.content }, propsContent)}>
-                    {value}
-                  </div>
+                  <div {...mergeAttrs<'div'>(s.content, propsContent)}>{value}</div>
                 </div>
               ) : (
                 value
@@ -712,10 +713,13 @@ export const DataTableDetailRow = _component(
     propsDetailRow,
     propsDetailCell,
     measure,
-  }: DataTableDetailRowProps<T>) =>
-    () => (
+  }: DataTableDetailRowProps<T>) => {
+    const recipe = useRecipe(dataTableRecipe);
+    // 不选档位：详情的格不要按密度的上下内边距（内边距在内容上），行的底色也用不到
+    const s = _derived(recipe());
+    return () => (
       <tr
-        {...mergeAttrs<'tr'>({}, propsDetailRow, {
+        {...mergeAttrs<'tr'>(s.detailRow, propsDetailRow, {
           ref: measure,
           'aria-rowindex': position + headerRows + 1,
         })}
@@ -724,17 +728,23 @@ export const DataTableDetailRow = _component(
       >
         <td
           {...mergeAttrs<'td'>(
-            { sx: [dataTableStyles.cell, dataTableStyles.detailCell] },
+            { ...s.detailCell, sx: [s.cell.sx, s.detailCell.sx] },
             propsDetailCell,
             { id, colspan: span },
           )}
         >
-          <div {...css.attrs(dataTableStyles.detailContent, dataTableDynamicStyles.indent(indent))}>
+          <div
+            {...mergeAttrs<'div'>({
+              ...s.detailContent,
+              sx: [s.detailContent.sx, dataTableDynamicStyles.indent(indent)],
+            })}
+          >
             {renderDetail(row.data)}
           </div>
         </td>
       </tr>
-    ),
+    );
+  },
 );
 
 /** 表体里的一行：数据行，或某一行展开的详情 */
@@ -826,6 +836,9 @@ export const DataTableView = _component(
   }: DataTableViewProps<T>) => {
     const lang = useLang();
     const columnDisplay = useColumnDisplay<T>();
+    const recipe = useRecipe(dataTableRecipe);
+    // 表头、表尾、骨架、空状态的部件层：只随密度、样式与主题定制变（行各自按奇偶取，见 DataTableRow）
+    const s = _derived(recipe({ density, variant }));
     // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
@@ -1054,22 +1067,26 @@ export const DataTableView = _component(
       const actions = renderHeaderActions(column, label, () => cell);
       const sortButton = column.sortable && (
         <ButtonBase
-          {...mergePartProps<ButtonBaseProps>({ sx: dataTableStyles.sortButton }, propsSortButton, {
+          {...mergePartProps<ButtonBaseProps>(s.sortButton, propsSortButton, {
             onClick: (event: MouseEvent) => onSortClick?.(column.key, event),
           })}
         >
-          <span {...mergeAttrs<'span'>({ sx: dataTableStyles.sortLabel }, propsSortLabel)}>
-            {column.header}
-          </span>
+          <span {...mergeAttrs<'span'>(s.sortLabel, propsSortLabel)}>{column.header}</span>
           <Icon
-            icon={
-              sorted === 'ascending' ? ArrowUp : sorted === 'descending' ? ArrowDown : ArrowUpDown
-            }
-            sx={[dataTableStyles.sortIcon, sorted && dataTableStyles.sortActive]}
+            {...mergePartProps<IconProps>({
+              ...s.sortIcon,
+              icon:
+                sorted === 'ascending'
+                  ? ArrowUp
+                  : sorted === 'descending'
+                    ? ArrowDown
+                    : ArrowUpDown,
+              sx: [s.sortIcon.sx, sorted && dataTableStateStyles.sortActive],
+            })}
           />
           {sorts.length > 1 && priority >= 0 && (
             <>
-              <span {...css.attrs(dataTableStyles.sortPriority)} aria-hidden="true">
+              <span {...mergeAttrs<'span'>(s.sortPriority)} aria-hidden="true">
                 {priority + 1}
               </span>
               {/* aria-sort 只放在第一排序列上（ARIA 的要求），其余列的次序与方向写给读屏 */}
@@ -1091,12 +1108,12 @@ export const DataTableView = _component(
           key={column.key}
           {...mergeAttrs<'th'>(
             {
+              ...s.headerCell,
               sx: [
-                dataTableStyles.headerCell,
-                dataTableDensityStyles[density],
-                dataTableStyles[column.align ?? 'start'],
+                s.headerCell.sx,
+                dataTableStateStyles[column.align ?? 'start'],
                 stickyCellSx(column, offsets),
-                divider && dataTableStyles.groupDivider,
+                divider && dataTableStateStyles.groupDivider,
               ],
             },
             own,
@@ -1110,12 +1127,15 @@ export const DataTableView = _component(
           data-sticky={column.sticky}
         >
           {actions ? (
-            <div {...css.attrs(dataTableStyles.headerContent)}>
+            <div {...mergeAttrs<'div'>(s.headerContent)}>
               <span
-                {...css.attrs(
-                  dataTableStyles.headerMain,
-                  column.align === 'end' && dataTableStyles.headerMainEnd,
-                )}
+                {...mergeAttrs<'span'>({
+                  ...s.headerMain,
+                  sx: [
+                    s.headerMain.sx,
+                    column.align === 'end' && dataTableStateStyles.headerMainEnd,
+                  ],
+                })}
               >
                 {content}
               </span>
@@ -1153,12 +1173,12 @@ export const DataTableView = _component(
           key={key}
           {...mergeAttrs<'th'>(
             {
+              ...s.groupHeaderCell,
               sx: [
-                dataTableStyles.headerCell,
-                dataTableDensityStyles[density],
-                dataTableStyles.groupHeaderCell,
+                s.headerCell.sx,
+                s.groupHeaderCell.sx,
                 groupStickySx(members, offsets),
-                divider && dataTableStyles.groupDivider,
+                divider && dataTableStateStyles.groupDivider,
               ],
             },
             typeof propsGroupHeaderCell === 'function'
@@ -1177,7 +1197,7 @@ export const DataTableView = _component(
       const cells = layout;
       if (!cells || headerRows === 1)
         return (
-          <tr {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
+          <tr {...mergeAttrs<'tr'>(s.headRow, propsHeadRow, { 'aria-rowindex': 1 })}>
             {selectHeader}
             {detailHeader}
             {shown.map((column) => renderHeaderCell(column))}
@@ -1187,7 +1207,7 @@ export const DataTableView = _component(
         position > 0 &&
         (cells[position]!.kind === 'group' || cells[position - 1]!.kind === 'group');
       return [
-        <tr key="groups" {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 1 })}>
+        <tr key="groups" {...mergeAttrs<'tr'>(s.headRow, propsHeadRow, { 'aria-rowindex': 1 })}>
           {selectHeader}
           {detailHeader}
           {cells.map((cell, position) =>
@@ -1201,7 +1221,7 @@ export const DataTableView = _component(
               : renderHeaderCell(cell.column, 2, nextToGroup(position)),
           )}
         </tr>,
-        <tr key="columns" {...mergeAttrs<'tr'>({}, propsHeadRow, { 'aria-rowindex': 2 })}>
+        <tr key="columns" {...mergeAttrs<'tr'>(s.headRow, propsHeadRow, { 'aria-rowindex': 2 })}>
           {cells.flatMap((cell, position) =>
             cell.kind === 'group'
               ? cell.columns.map((column, index) =>
@@ -1222,12 +1242,9 @@ export const DataTableView = _component(
         <ScrollArea
           {...mergePartProps<ScrollAreaProps>(
             {
+              ...s.root,
               axis: 'both',
-              sx: [
-                dataTableStyles.root,
-                variant === 'ghost' ? dataTableStyles.ghost : dataTableStyles.surface,
-                flexible && dataTableStyles.flexible,
-              ],
+              sx: [s.root.sx, flexible && dataTableStateStyles.flexible],
             },
             propsRoot,
             { propsViewport: { ref: _toRef(viewport) } },
@@ -1235,13 +1252,7 @@ export const DataTableView = _component(
         >
           <table
             {...mergeAttrs<'table'>(
-              {
-                sx: [
-                  dataTableStyles.table,
-                  dataTableStyles[density],
-                  dataTableDynamicStyles.minWidth(minWidth()),
-                ],
-              },
+              { ...s.table, sx: [s.table.sx, dataTableDynamicStyles.minWidth(minWidth())] },
               rest,
               {
                 // 合计行只在有数据时渲染（见 tfoot），没渲染时不算进总行数
@@ -1266,21 +1277,17 @@ export const DataTableView = _component(
                 );
               })}
             </colgroup>
-            <thead
-              {...mergeAttrs<'thead'>({ sx: dataTableStyles.head }, propsHead, {
-                ref: _toRef(head),
-              })}
-            >
+            <thead {...mergeAttrs<'thead'>(s.head, propsHead, { ref: _toRef(head) })}>
               {renderHeaderRows(
                 selectionMode && (
                   <th
                     {...mergeAttrs<'th'>(
                       {
+                        ...s.selectHeaderCell,
                         sx: [
-                          dataTableStyles.headerCell,
-                          dataTableDensityStyles[density],
-                          dataTableStyles.selectCell,
-                          offsets.start.size > 0 && dataTableStyles.stickySelect,
+                          s.headerCell.sx,
+                          s.selectHeaderCell.sx,
+                          offsets.start.size > 0 && dataTableStateStyles.stickySelect,
                         ],
                       },
                       propsSelectHeaderCell,
@@ -1294,7 +1301,7 @@ export const DataTableView = _component(
                     {selectionMode === 'multiple' && (
                       <Checkbox
                         {...mergePartProps<CheckboxProps>(
-                          { 'aria-label': lang.tableSelectAll, sx: dataTableStyles.cellControl },
+                          { ...s.selectAll, 'aria-label': lang.tableSelectAll },
                           propsSelectAll,
                           {
                             checked: allSelected,
@@ -1311,10 +1318,10 @@ export const DataTableView = _component(
                   <th
                     {...mergeAttrs<'th'>(
                       {
+                        ...s.detailHeaderCell,
                         sx: [
-                          dataTableStyles.headerCell,
-                          dataTableDensityStyles[density],
-                          dataTableStyles.selectCell,
+                          s.headerCell.sx,
+                          s.detailHeaderCell.sx,
                           leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
                         ],
                       },
@@ -1328,8 +1335,8 @@ export const DataTableView = _component(
               )}
               {indicator.value && rows.length > 0 && (
                 <tr aria-hidden="true">
-                  <td colspan={span} {...css.attrs(dataTableStyles.progressCell)}>
-                    <div {...css.attrs(dataTableStyles.progress)}>
+                  <td colspan={span} {...mergeAttrs<'td'>(s.progressCell)}>
+                    <div {...mergeAttrs<'div'>(s.progress)}>
                       <Progress
                         {...mergePartProps<ProgressProps>(
                           { size: 'xs', 'aria-label': lang.loading },
@@ -1341,33 +1348,21 @@ export const DataTableView = _component(
                 </tr>
               )}
             </thead>
-            <tbody ref={_toRef(body)}>
+            <tbody {...mergeAttrs<'tbody'>(s.body)} ref={_toRef(body)}>
               {rows.length === 0 &&
                 indicator.value &&
                 Array.from({ length: skeletonRows }, (_, index) => (
-                  <tr
-                    key={`skeleton-${index}`}
-                    aria-hidden="true"
-                    {...css.attrs(
-                      variant === 'ghost' ? dataTableStyles.rowGhost : dataTableStyles.row,
-                    )}
-                  >
-                    {selectionMode && (
-                      <td {...css.attrs(dataTableStyles.cell, dataTableDensityStyles[density])} />
-                    )}
-                    {renderDetail && (
-                      <td {...css.attrs(dataTableStyles.cell, dataTableDensityStyles[density])} />
-                    )}
+                  <tr key={`skeleton-${index}`} aria-hidden="true" {...mergeAttrs<'tr'>(s.row)}>
+                    {selectionMode && <td {...mergeAttrs<'td'>(s.cell)} />}
+                    {renderDetail && <td {...mergeAttrs<'td'>(s.cell)} />}
                     {shown.map((column, position) => (
-                      <td
-                        key={column.key}
-                        {...css.attrs(dataTableStyles.cell, dataTableDensityStyles[density])}
-                      >
+                      <td key={column.key} {...mergeAttrs<'td'>(s.cell)}>
                         <Skeleton
                           {...mergePartProps<SkeletonProps>(
                             {
+                              ...s.skeleton,
                               sx: [
-                                dataTableStyles.skeleton,
+                                s.skeleton.sx,
                                 dataTableDynamicStyles.percent(
                                   `${90 - ((index + position) % 4) * 15}%`,
                                 ),
@@ -1386,7 +1381,7 @@ export const DataTableView = _component(
                 <tr>
                   <td
                     {...mergeAttrs<'td'>(
-                      { sx: [dataTableStyles.cell, dataTableStyles.emptyCell] },
+                      { ...s.emptyCell, sx: [s.cell.sx, s.emptyCell.sx] },
                       propsEmptyCell,
                       { colspan: span },
                     )}
@@ -1406,7 +1401,10 @@ export const DataTableView = _component(
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
-                    {...css.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(top))}
+                    {...mergeAttrs<'td'>({
+                      ...s.spacer,
+                      sx: [s.spacer.sx, dataTableDynamicStyles.height(top)],
+                    })}
                   />
                 </tr>
               )}
@@ -1477,36 +1475,39 @@ export const DataTableView = _component(
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
-                    {...css.attrs(dataTableStyles.spacer, dataTableDynamicStyles.height(bottom))}
+                    {...mergeAttrs<'td'>({
+                      ...s.spacer,
+                      sx: [s.spacer.sx, dataTableDynamicStyles.height(bottom)],
+                    })}
                   />
                 </tr>
               )}
             </tbody>
             {hasSummary && rows.length > 0 && (
-              <tfoot
-                {...mergeAttrs<'tfoot'>({ sx: dataTableStyles.foot }, propsFoot, {
-                  ref: _toRef(foot),
-                })}
-              >
+              <tfoot {...mergeAttrs<'tfoot'>(s.foot, propsFoot, { ref: _toRef(foot) })}>
                 <tr aria-rowindex={bodyRowCount() + headerRows + 1}>
                   {selectionMode && (
                     <td
-                      {...css.attrs(
-                        dataTableStyles.cell,
-                        dataTableDensityStyles[density],
-                        dataTableStyles.summaryCell,
-                        offsets.start.size > 0 && dataTableStyles.stickySelect,
-                      )}
+                      {...mergeAttrs<'td'>({
+                        ...s.summaryCell,
+                        sx: [
+                          s.cell.sx,
+                          s.summaryCell.sx,
+                          offsets.start.size > 0 && dataTableStateStyles.stickySelect,
+                        ],
+                      })}
                     />
                   )}
                   {renderDetail && (
                     <td
-                      {...css.attrs(
-                        dataTableStyles.cell,
-                        dataTableDensityStyles[density],
-                        dataTableStyles.summaryCell,
-                        leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
-                      )}
+                      {...mergeAttrs<'td'>({
+                        ...s.summaryCell,
+                        sx: [
+                          s.cell.sx,
+                          s.summaryCell.sx,
+                          leadingStickySx(offsets.start.size > 0, selectionMode ? SELECT_WIDTH : 0),
+                        ],
+                      })}
                     />
                   )}
                   {shown.map((column, position) => (
@@ -1514,11 +1515,11 @@ export const DataTableView = _component(
                       key={column.key}
                       {...mergeAttrs<'td'>(
                         {
+                          ...s.summaryCell,
                           sx: [
-                            dataTableStyles.cell,
-                            dataTableDensityStyles[density],
-                            dataTableStyles.summaryCell,
-                            dataTableStyles[column.align ?? 'start'],
+                            s.cell.sx,
+                            s.summaryCell.sx,
+                            dataTableStateStyles[column.align ?? 'start'],
                             stickyCellSx(column, offsets),
                           ],
                         },

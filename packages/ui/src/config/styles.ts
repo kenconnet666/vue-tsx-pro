@@ -20,6 +20,19 @@ import type { BadgePart } from '../base/badge-styles';
 import type { AlertPart } from '../feedback/Alert';
 import type { ButtonPart } from '../base/button-core';
 import type { TabPart } from '../navigation/Tabs';
+import type { DataTablePart } from '../table/table-styles';
+import type { TablePart } from '../table/Table';
+import type { ChoicePart } from '../input/choice-styles';
+import type { InputPart } from '../input/control';
+import type { IndicatorPart } from '../base/Indicator';
+import type { LinkPart } from '../base/Link';
+import type { AvatarPart } from '../display/Avatar';
+import type { CardPart } from '../display/Card';
+import type { EmptyPart } from '../feedback/Empty';
+import type { ProgressPart } from '../feedback/Progress';
+import type { ResultPart } from '../feedback/Result';
+import type { DialogPart } from '../overlay/Dialog';
+import type { DrawerPart } from '../overlay/Drawer';
 
 /** 可以定制样式的组件与它们的部件；新的配方组件在这里登记 */
 export interface ComponentStyles {
@@ -31,6 +44,32 @@ export interface ComponentStyles {
   Alert?: RecipeExtension<AlertPart>;
   /** Tabs 里的标签（Tab） */
   Tab?: RecipeExtension<TabPart>;
+  /** Link */
+  Link?: RecipeExtension<LinkPart>;
+  /** Indicator */
+  Indicator?: RecipeExtension<IndicatorPart>;
+  /** Avatar（AvatarGroup 的“+N”也取它的外层样式） */
+  Avatar?: RecipeExtension<AvatarPart>;
+  /** Card */
+  Card?: RecipeExtension<CardPart>;
+  /** Progress（条形与环形） */
+  Progress?: RecipeExtension<ProgressPart>;
+  /** Empty */
+  Empty?: RecipeExtension<EmptyPart>;
+  /** Result */
+  Result?: RecipeExtension<ResultPart>;
+  /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
+  Dialog?: RecipeExtension<DialogPart>;
+  /** Drawer：同 Dialog 的部件 */
+  Drawer?: RecipeExtension<DrawerPart>;
+  /** TextField、Textarea、NumberField、Select、Combobox、Cascader、TreeSelect、TagsInput、ColorField 与日期输入框的外壳共用 */
+  Input?: RecipeExtension<InputPart>;
+  /** Checkbox、Radio、Switch 与复选组、单选组共用 */
+  Choice?: RecipeExtension<ChoicePart>;
+  /** DataTable、TreeDataTable 共用 */
+  DataTable?: RecipeExtension<DataTablePart>;
+  /** 静态表格 Table 及其行、单元格 */
+  Table?: RecipeExtension<TablePart>;
 }
 
 /** 各层的定制：外层在前，组件按顺序交给配方（内层排在后面、盖过外层） */

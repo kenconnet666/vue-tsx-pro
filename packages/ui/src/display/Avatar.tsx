@@ -12,6 +12,7 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -58,30 +59,46 @@ export interface AvatarProps extends PartProps<'span', AvatarManaged>, AvatarOpt
 /** 在 AvatarGroup 里：Avatar 据此叠放（AvatarGroup 提供） */
 export const AvatarGroupContext = createContext<{ readonly grouped: true }>('AvatarGroup');
 
-/** Avatar 的样式：root、full、md、image、loading、fallback、grouped */
-export const avatarStyles = css.create({
-  root: {
-    position: 'relative',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    width: '2.5em',
-    height: '2.5em',
-    overflow: 'hidden',
-    verticalAlign: 'middle',
-    userSelect: 'none',
+/**
+ * 头像的配方：部件 root（外层）、image（图片）、fallback（后备内容）；在头像组里、图片加载中是档位。
+ * 后备内容的底色来自共用的 statusToneStyles，排在配方之前，createUi / Provider 的 styles.Avatar 能盖过它
+ */
+export const avatarRecipe = css.recipe({
+  name: 'Avatar',
+  parts: ['root', 'image', 'fallback'],
+  base: {
+    root: {
+      position: 'relative',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+      width: '2.5em',
+      height: '2.5em',
+      overflow: 'hidden',
+      verticalAlign: 'middle',
+      userSelect: 'none',
+    },
+    image: { width: '_full', height: '_full', objectFit: 'cover' },
+    fallback: { fontWeight: '_medium', lineHeight: 1, textTransform: 'uppercase' },
   },
-  image: { width: '_full', height: '_full', objectFit: 'cover' },
-  // 图片加载完之前先藏起来（仍在 DOM 里加载），后备内容垫在下面
-  loading: { position: 'absolute', opacity: 0 },
-  fallback: { fontWeight: '_medium', lineHeight: 1, textTransform: 'uppercase' },
-  // 头像组里：往前叠 0.5em，一圈页面底色的描边把相邻的分开
-  grouped: {
-    boxShadow: `0 0 0 ${t.borderWidths.sm} ${t.colors.background}`,
-    marginInlineStart: { default: '-0.5em', ':first-child': 0 },
+  variants: {
+    // 头像组里：往前叠 0.5em，一圈页面底色的描边把相邻的分开（AvatarGroup 的“+N”也用它）
+    grouped: {
+      true: {
+        root: {
+          boxShadow: `0 0 0 ${t.borderWidths.sm} ${t.colors.background}`,
+          marginInlineStart: { default: '-0.5em', ':first-child': 0 },
+        },
+      },
+    },
+    // 图片加载完之前先藏起来（仍在 DOM 里加载），后备内容垫在下面
+    loading: { true: { image: { position: 'absolute', opacity: 0 } } },
   },
 });
+
+/** 头像的部件（createUi / Provider 的 styles.Avatar 按它定制） */
+export type AvatarPart = (typeof avatarRecipe.parts)[number];
 
 /** 名字的首字母：中文取最后一个字（通常是名），其他语言取前两个词的首字母 */
 export function initials(name: string): string {
@@ -111,6 +128,7 @@ export const Avatar = _component(
       variant: 'soft',
       tone: 'accent',
     });
+    const recipe = useRecipe(avatarRecipe);
     const group = AvatarGroupContext.inject(null);
     // 图片状态：loading 加载中、loaded 已显示、error 失败（显示后备内容）
     let status = _state<'loading' | 'loaded' | 'error'>('loading');
@@ -122,16 +140,22 @@ export const Avatar = _component(
     return () => {
       const showFallback = !src || status !== 'loaded';
       const { size: fontSize, radius: corner, variant: fill, tone: color } = appearance();
+      const s = recipe({
+        variant: fill,
+        tone: color,
+        grouped: !!group,
+        loading: status === 'loading',
+      });
       return (
         <span
           {...mergeAttrs<'span'>(
             {
+              ...s.root,
               sx: [
-                avatarStyles.root,
                 statusToneStyles[fill][color],
+                s.root.sx,
                 radiusStyles[corner],
                 fontSize && fontSizeStyles[fontSize],
-                group && avatarStyles.grouped,
               ],
             },
             rest,
@@ -143,23 +167,15 @@ export const Avatar = _component(
             <img
               key={src}
               alt=""
-              {...mergeAttrs<'img'>(
-                { sx: [avatarStyles.image, status === 'loading' && avatarStyles.loading] },
-                propsImage,
-                {
-                  src,
-                  onLoad: () => (status = 'loaded'),
-                  onError: () => (status = 'error'),
-                },
-              )}
+              {...mergeAttrs<'img'>(s.image, propsImage, {
+                src,
+                onLoad: () => (status = 'loaded'),
+                onError: () => (status = 'error'),
+              })}
             />
           )}
           {showFallback && (
-            <span
-              {...mergeAttrs<'span'>({ sx: avatarStyles.fallback }, propsFallback, {
-                'aria-hidden': true,
-              })}
-            >
+            <span {...mergeAttrs<'span'>(s.fallback, propsFallback, { 'aria-hidden': true })}>
               {fallback ?? (name ? initials(name) : <Icon icon={User} />)}
             </span>
           )}

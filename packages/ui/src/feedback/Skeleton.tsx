@@ -70,9 +70,9 @@ export const skeletonStyles = css.create({
   surface: {
     backgroundColor: {
       default: `color-mix(in oklab, ${t.colors.text} 9%, transparent)`,
-      '@media (forced-colors: active)': 'GrayText',
+      _forcedColors: 'GrayText',
     },
-    forcedColorAdjust: { default: null, '@media (forced-colors: active)': 'none' },
+    forcedColorAdjust: { default: null, _forcedColors: 'none' },
   },
   // 包着内容时：内容决定大小但看不见
   wrapping: { color: 'transparent' },

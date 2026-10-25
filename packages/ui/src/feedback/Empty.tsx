@@ -14,6 +14,7 @@ import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -45,23 +46,30 @@ export interface EmptyProps extends PartProps<'div', 'title'>, EmptyOptions {
   children?: VNodeChild;
 }
 
-/** Empty 的样式：root、icon、title、description、action */
-export const emptyStyles = css.create({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '_sm',
-    paddingBlock: '_xl',
-    paddingInline: '_lg',
-    textAlign: 'center',
-    color: '_text',
+/** 空状态的配方：各部件的布局与颜色；字号档位用共用的 fontSizeStyles 另外叠加 */
+export const emptyRecipe = css.recipe({
+  name: 'Empty',
+  parts: ['root', 'icon', 'title', 'description', 'action'],
+  base: {
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '_sm',
+      paddingBlock: '_xl',
+      paddingInline: '_lg',
+      textAlign: 'center',
+      color: '_text',
+    },
+    icon: { width: '2.5em', height: '2.5em', color: '_textMuted', strokeWidth: '_sm' },
+    title: { fontWeight: '_semibold' },
+    description: { maxWidth: '32em', color: '_textMuted' },
+    action: { marginBlockStart: '_sm' },
   },
-  icon: { width: '2.5em', height: '2.5em', color: '_textMuted', strokeWidth: '_sm' },
-  title: { fontWeight: '_semibold' },
-  description: { maxWidth: '32em', color: '_textMuted' },
-  action: { marginBlockStart: '_sm' },
 });
+
+/** 空状态的部件（createUi / Provider 的 styles.Empty 按它定制） */
+export type EmptyPart = (typeof emptyRecipe.parts)[number];
 
 /** 空状态：图标、标题、说明、操作，居中排列 */
 export const Empty = _component(
@@ -79,39 +87,30 @@ export const Empty = _component(
     ...rest
   }: EmptyProps) => {
     const appearance = useDefaults('Empty', () => ({ size }));
+    const recipe = useRecipe(emptyRecipe);
     return () => {
       const textSize = appearance().size;
+      const s = recipe();
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [emptyStyles.root, textSize && fontSizeStyles[textSize]] },
+            { ...s.root, sx: [s.root.sx, textSize && fontSizeStyles[textSize]] },
             rest,
           )}
         >
           {icon !== false && (
-            <Icon
-              {...mergePartProps<IconProps>(
-                { icon: icon ?? Inbox, sx: emptyStyles.icon },
-                propsIcon,
-              )}
-            />
+            <Icon {...mergePartProps<IconProps>({ ...s.icon, icon: icon ?? Inbox }, propsIcon)} />
           )}
           {hasContent(title) && (
-            <Text {...mergePartProps<TextProps>({ sx: emptyStyles.title }, propsTitle)}>
-              {title}
-            </Text>
+            <Text {...mergePartProps<TextProps>(s.title, propsTitle)}>{title}</Text>
           )}
           {hasContent(description) && (
-            <Paragraph
-              {...mergePartProps<TextProps>({ sx: emptyStyles.description }, propsDescription)}
-            >
+            <Paragraph {...mergePartProps<TextProps>(s.description, propsDescription)}>
               {description}
             </Paragraph>
           )}
           {children}
-          {hasContent(action) && (
-            <div {...mergeAttrs<'div'>({ sx: emptyStyles.action }, propsAction)}>{action}</div>
-          )}
+          {hasContent(action) && <div {...mergeAttrs<'div'>(s.action, propsAction)}>{action}</div>}
         </div>
       );
     };

@@ -112,9 +112,9 @@
 ## 4. 样式
 
 - 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@vue-tsx-pro/tsx/styles` 导入（`import * as css`），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
-- 每个组件文件顶部一个 `css.create`，按布局、尺寸、文字、外观、状态分组。部件 × 档位 × 默认值多的组件用 `css.recipe`（Button、Badge、Tabs）：一次调用拿到每个部件的样式，按档位组合缓存；按色调变化的样式在组合档位里逐项写主题 token（`{ when: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`）。
+- 有部件或外观档位的组件写一个命名配方 `css.recipe({ name, parts, base, variants, compound })`（`name` 用组件名，同 `useDefaults` 的名字）：setup 里 `const recipe = useRecipe(xxxRecipe)`，渲染时 `const s = recipe(档位)` 得到每个部件的默认层（样式 + `data-scope` / `data-part`），直接交给部件的合并 `mergeAttrs<'div'>(s.title, propsTitle)`；这样组件能被 `createUi` / `Provider` 的 `styles` 定制（`config/styles.ts` 的 `ComponentStyles` 里登记 `Xxx?: RecipeExtension<XxxPart>`）。只有一两个元素、没有档位的组件照旧一个 `css.create`。按色调变化的样式在组合档位里逐项写主题 token（`{ when: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`），或用共用的 `statusToneSx`（排在 `s.root.sx` 之前，让定制能盖过它）。
 - 样式值以字面量为主，直接写主题 token（`'_accentText'`、`'_full'`）：不加“色调变量”这类中间变量层，也不在样式里引用 JS 变量，读样式时就看得到用的是哪个 token，悬停能看到取值。只有值里夹着 token（`calc`、`color-mix`、多值）才用模板字符串里的 `t.组.名`。
-- 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
+- 配方导出 `<组件>Recipe`（`alertRecipe`）与部件类型 `<组件>Part`；样式表导出，名字全局唯一：`<组件>Styles`，按部件或档位拆开的叫 `<组件><部件>Styles`（`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - tokens 有两种写法：值整个就是一个 token 时在 `css.create`、`css.keyframes` 里写字符串，引擎展开样式时换成 token 变量；值里夹着 token 时写模板字符串加 `t`：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/styles/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
@@ -548,7 +548,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 | 类型搜索       | `utils/dom/typeahead.ts`     | `createTypeahead`：连续输入拼词、同一字母轮换；`rovingFocus` 的 `typeahead` 选项用它，以后的 Listbox 也用                                                                                                                                            |
 | 步长对齐       | `utils/data/layout.ts`       | `snapToStep`：Slider、NumberField 共用，按 step 与 min 的小数位取整                                                                                                                                                                                  |
 | 传送内容的配置 | `config/Provider.tsx`        | `ConfigScope`：Teleport 出去的内容重新带上主题、lang、dir                                                                                                                                                                                            |
-| 输入框外壳     | `input/control.tsx`          | `controlSx` / `controlStyles` / `useControlAppearance` / `controlIcon`：surface / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                                                                      |
+| 输入框外壳     | `input/control.tsx`          | `inputRecipe`（部件 root、input、icon、affix、button）/ `useControlAppearance` / `controlParts` / `controlIcon`：surface / soft、em 尺寸、`:focus-within` 焦点环、出错 / 不可用 / 只读；`defaults.Input`                                             |
 | 勾选类控件     | `input/choice-styles.ts`     | label > 叠放层（原生 input 画成方框 / 圆 / 轨道 + 不接收指针的标记）> 文字；复选组、单选组的排列                                                                                                                                                     |
 | 字段           | `form/Field.tsx`             | `Field` 经上下文给控件 id、标签 id、说明与错误的 id 及状态，控件用 `useFieldControl` 读取（显式写的优先）；`Label`                                                                                                                                   |
 
@@ -584,7 +584,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 | 组件 | `Listbox`、`Select`、`Combobox`      | 各自决定焦点在哪：列表自己、触发按钮、输入框；高亮项都经 `aria-activedescendant` 告诉读屏                                                                                              |
 
 - 选项是数据：`{ value, label, disabled?, description?, icon?, group? }`，需要自定义内容时传渲染函数。虚拟化与过滤都需要数据，所以不做 `<Option>` 子组件。
-- **Select**（select-only combobox）：外壳用 `controlSx`，主元素是 `button role="combobox"`；弹出层 `useAnchoredPopover`（`floating: { matchWidth, fitHeight }`）；关闭时按字母直接选中（同原生 select）；多选时触发框里是 Tag；`name` 用隐藏的 input 随表单提交。占位文字是真正的文字（不是原生 placeholder），用 textMuted 满足 4.5:1。
+- **Select**（select-only combobox）：外壳用 `controlParts`（`inputRecipe` 的部件层），主元素是 `button role="combobox"`；弹出层 `useAnchoredPopover`（`floating: { matchWidth, fitHeight }`）；关闭时按字母直接选中（同原生 select）；多选时触发框里是 Tag；`name` 用隐藏的 input 随表单提交。占位文字是真正的文字（不是原生 placeholder），用 textMuted 满足 4.5:1。
 - **Combobox**：输入框是 `role="combobox"`、`aria-autocomplete="list"`；本地过滤用 `Intl.Collator`（忽略大小写与重音），`filter={false}` 时由调用方按 `inputValue` 换数据（配合 `loading`）；过滤跟着 v-model 的值走，输入法组合期间不会拿拼音过滤；失焦时文字不是选项则恢复（`allowCustomValue` 除外）；Home / End 留给光标。
 - **Empty**（feedback/）：图标 + 标题 + 说明 + 操作；ListboxView 的空状态用它，表格、VirtualList 也可以用。
 
@@ -767,17 +767,17 @@ apps/docs/src/components/base/Button/
 
 目标：用户在文档站改示例代码、立即看到效果，不打开 StackBlitz。页面 `/playground`（侧栏“指南”里），页面在 `apps/docs/src/pages/Playground.tsx`，其余代码在 `apps/docs/src/playground/`。先做试点验证可行，再正式化。
 
-| 环节      | 做法                                                                                                                                                                                                                                                                               |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 写法、动态样式的响应式绑定、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                         |
-| 样式      | 同站点走运行时样式：用户代码的 `css.create` 在页面上执行时由引擎生成规则，Worker 只编译符文与 JSX；`'_md'` 与 `colors.accent` 取的就是组件库的同一组 CSS 变量（组件库登记的 tokens）                                                                                               |
-| 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、styles、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                                   |
-| Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）；依赖预构建见 vite.config.ts                                                                                                                                  |
-| 编辑器    | `editor.ts`：CodeMirror 6 + TSX 语法（括号补全与匹配、折叠、搜索、撤销）；颜色、字体全取主题 token（`colors.code*` 与 Shiki 代码块同一套），明暗用 Compartment 切换。`CodeEditor.tsx` 挂载后才 `import()` 它，外壳复用输入框的 `controlShellStyles`；Tab 缩进，Esc 后 Tab 移出焦点 |
-| 预览隔离  | `preview.ts`：用户组件挂在独立的 Vue 应用里，与页面共用 `ConfigContext`（主题、语言跟着站点变）；根组件是错误边界（`onErrorCaptured`），setup、渲染、事件处理、侦听器里的错误只在预览区报“运行出错”，可“重新运行”；每次编译成功先卸载旧应用                                        |
-| 分享      | `share.ts`：代码 deflate-raw 压缩、base64url 后放进 hash（`/playground#code=…`），停止输入 300 ms 后 `history.replaceState` 写入（不新增历史记录）；起始示例不写 hash；链接损坏时提示并显示起始示例。路由的 `scrollBehavior` 遇到不是页内锚点的 hash 回到顶部                      |
-| 编辑按钮  | `CodePreview` 新增 `actions`（工具栏最前面的额外操作）；文档站的 `EditInPlayground` 是一个链接按钮，`Example` 与首页的示例卡片都带它，点开即带着源码进演练场                                                                                                                       |
-| 测试      | `compile.test.ts`：Node 里跑同一套编译，执行、挂载、点击；核对 token 变量与组件库一致；语法与 token 写错时报错带代码帧。`share.test.ts`：往返、损坏链接。`preview.test.tsx`：共用配置、渲染与事件里出错只报告                                                                      |
+| 环节      | 做法                                                                                                                                                                                                                                                                        |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 写法、动态样式的响应式绑定、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                  |
+| 样式      | 同站点走运行时样式：用户代码的 `css.create` 在页面上执行时由引擎生成规则，Worker 只编译符文与 JSX；`'_md'` 与 `colors.accent` 取的就是组件库的同一组 CSS 变量（组件库登记的 tokens）                                                                                        |
+| 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、styles、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                            |
+| Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）；依赖预构建见 vite.config.ts                                                                                                                           |
+| 编辑器    | `editor.ts`：CodeMirror 6 + TSX 语法（括号补全与匹配、折叠、搜索、撤销）；颜色、字体全取主题 token（`colors.code*` 与 Shiki 代码块同一套），明暗用 Compartment 切换。`CodeEditor.tsx` 挂载后才 `import()` 它，外壳复用输入框的 `inputRecipe`；Tab 缩进，Esc 后 Tab 移出焦点 |
+| 预览隔离  | `preview.ts`：用户组件挂在独立的 Vue 应用里，与页面共用 `ConfigContext`（主题、语言跟着站点变）；根组件是错误边界（`onErrorCaptured`），setup、渲染、事件处理、侦听器里的错误只在预览区报“运行出错”，可“重新运行”；每次编译成功先卸载旧应用                                 |
+| 分享      | `share.ts`：代码 deflate-raw 压缩、base64url 后放进 hash（`/playground#code=…`），停止输入 300 ms 后 `history.replaceState` 写入（不新增历史记录）；起始示例不写 hash；链接损坏时提示并显示起始示例。路由的 `scrollBehavior` 遇到不是页内锚点的 hash 回到顶部               |
+| 编辑按钮  | `CodePreview` 新增 `actions`（工具栏最前面的额外操作）；文档站的 `EditInPlayground` 是一个链接按钮，`Example` 与首页的示例卡片都带它，点开即带着源码进演练场                                                                                                                |
+| 测试      | `compile.test.ts`：Node 里跑同一套编译，执行、挂载、点击；核对 token 变量与组件库一致；语法与 token 写错时报错带代码帧。`share.test.ts`：往返、损坏链接。`preview.test.tsx`：共用配置、渲染与事件里出错只报告                                                               |
 
 **代价（生产构建，本机）**：Worker 2.2 MB，gzip 588 KB / brotli 413 KB，只在进入演练场时下载；页面块 66 KB（gzip，含整个组件库的模块表）；编辑器块 476 KB，gzip 160 KB，同样只在演练场加载。首次出效果约 0.8 s（含 Worker 下载、Babel 初始化与第一次编译约 135 ms），之后每次编译 5–15 ms，执行约 1 ms。
 

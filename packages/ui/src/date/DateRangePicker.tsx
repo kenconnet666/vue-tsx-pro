@@ -26,7 +26,7 @@ import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
   controlClear,
-  controlSx,
+  controlParts,
   focusOnShell,
   controlIcon,
   useControlAppearance,
@@ -385,12 +385,13 @@ export const DateRangePicker = _component(
           />
         );
       };
+      const s = controlParts(appearance(), { ...state, invalid: bad });
       return (
         <>
           <div
             {...mergeAttrs<'div'>(
               {
-                sx: controlSx(appearance(), { ...state, invalid: bad }),
+                ...s.root,
                 'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
               },
               rest,
@@ -404,7 +405,7 @@ export const DateRangePicker = _component(
             data-invalid={bad || undefined}
             data-disabled={state.disabled || undefined}
           >
-            {controlIcon(icon, propsIcon)}
+            {controlIcon(s, icon, propsIcon)}
             <VisuallyHidden id={ids.start}>{lang.dateRangeStart}</VisuallyHidden>
             <VisuallyHidden id={ids.end}>{lang.dateRangeEnd}</VisuallyHidden>
             {group('start')}
@@ -415,7 +416,7 @@ export const DateRangePicker = _component(
               –
             </span>
             {group('end')}
-            {clearable && filled && editable() && controlClear(propsClear, clear)}
+            {clearable && filled && editable() && controlClear(s, propsClear, clear)}
             {picker.button(CalendarRange, propsButton)}
             <FormValue name={startName} value={start} disabled={state.disabled} />
             <FormValue name={endName} value={end} disabled={state.disabled} />
