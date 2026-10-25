@@ -23,14 +23,14 @@ export default _component(() => () => (
         <Example id="basic" title="本地筛选与远程搜索" demo={Cities}>
           默认本地筛选（忽略大小写与重音），中文输入法组合期间不拿拼音去筛选。远程搜索给{' '}
           <Code>load(输入, signal)</Code>：输入停下 300 ms 后请求，只采用最后一次，被顶掉的请求经
-          signal 中止；自己管请求时写 <Code>filter={'{false}'}</Code>，按 <Code>inputValue</Code> 换{' '}
-          <Code>items</Code>、配合 <Code>loading</Code>。
+          signal 中止；自己管请求时写 <Code>filter={'{false}'}</Code>，按 <Code>_inputValue</Code>{' '}
+          换 <Code>items</Code>、配合 <Code>loading</Code>。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="freeform" title="自由输入、图标与状态" demo={Freeform}>
-          <Code>allowCustomValue</Code> 允许输入选项里没有的文字：失焦时保留，<Code>value</Code> 为
-          undefined、文字在 <Code>inputValue</Code> 里。<Code>icon</Code>、<Code>variant</Code>、
+          <Code>allowCustomValue</Code> 允许输入选项里没有的文字：失焦时保留，<Code>_value</Code> 为
+          undefined、文字在 <Code>_inputValue</Code> 里。<Code>icon</Code>、<Code>variant</Code>、
           <Code>radius</Code> 与只读、不可用同其他输入框。
         </Example>
       </ExampleColumn>

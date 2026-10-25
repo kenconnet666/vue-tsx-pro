@@ -35,7 +35,7 @@ export default _component(() => {
   let align = _state<keyof SankeyAligns>('justify');
   return () => (
     <Flex direction="column" gap="md">
-      <ToggleGroup value={_bind(align)} aria-label="节点的排法" size="sm" required>
+      <ToggleGroup _value={_bind(align)} aria-label="节点的排法" size="sm" required>
         <ToggleItem value="justify">两端对齐</ToggleItem>
         <ToggleItem value="left">靠左</ToggleItem>
         <ToggleItem value="right">靠右</ToggleItem>

@@ -54,7 +54,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="md" align="center" wrap>
-        <Switch checked={_bind(running)}>每 2 秒刷新</Switch>
+        <Switch _checked={_bind(running)}>每 2 秒刷新</Switch>
         <Small tone="muted">数值滚动到新值，变化量与上一次比较</Small>
       </Flex>
       <Grid minItemWidth="15em" gap="md">

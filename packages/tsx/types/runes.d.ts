@@ -14,7 +14,7 @@ interface Bind {
   <T>(target: T): T;
   /**
    * 函数绑定（同 Svelte 5 的 bind:x={get, set}）：写回时要做别的事、或值要换算时用，
-   * `value={_bind(() => status, (next) => switchTo(next))}`；只用于组件
+   * `_value={_bind(() => status, (next) => switchTo(next))}`；只用于组件
    */
   <T>(get: () => T, set: (value: T) => void): T;
   /** 去掉首尾空白（原生输入元素） */
@@ -65,12 +65,15 @@ declare global {
     function root(fn: () => void | (() => void)): () => void;
   }
 
-  /** 组件参数默认值：可双向绑定的 prop，父级写 属性={_bind(x)}；不绑定时就是组件自己的状态 */
+  /**
+   * 组件参数默认值：可双向绑定的 prop，键名以下划线开头、本地变量不带下划线：({ _checked: checked = _bindable(false) })；
+   * 父级写 _checked={_bind(x)}，不绑定时就是组件自己的状态
+   */
   function _bindable<T>(fallback?: T): T;
 
   /**
-   * 双向绑定，与 _bindable 成对：<Switch checked={_bind(on)} />、<input value={_bind.trim(name)} />
-   * 编译为 Vue 的 v-model；参数是 let 声明的响应式变量或对象属性
+   * 双向绑定，与 _bindable 成对：<Switch _checked={_bind(on)} />、<input _value={_bind.trim(name)} />
+   * 只能写在下划线开头的属性上（一眼看出哪些在绑定）；编译为 Vue 的 v-model，参数是 let 声明的响应式变量或对象属性
    */
   const _bind: Bind;
 

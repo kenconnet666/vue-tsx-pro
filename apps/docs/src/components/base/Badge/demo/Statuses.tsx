@@ -52,7 +52,7 @@ export default _component(() => {
         <Select
           items={taskStatuses.options()}
           selectionMode="multiple"
-          value={_bind(filter)}
+          _value={_bind(filter)}
           clearable
         />
       </Field>

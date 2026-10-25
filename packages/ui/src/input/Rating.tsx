@@ -1,9 +1,9 @@
 /**
  * 评分：几颗星（或别的图标）里选一个分数，供应商评价、满意度、优先级。可以半星，可以只读显示。
  *
- *   <Field label="交付质量"><Rating value={_bind(score)} /></Field>
+ *   <Field label="交付质量"><Rating _value={_bind(score)} /></Field>
  *   <Rating value={4.5} readonly />                         只读：一个 role="img"，读“4.5 星，满分 5 星”
- *   <Rating value={_bind(score)} allowHalf count={10} icon={Heart} tone="danger" />
+ *   <Rating _value={_bind(score)} allowHalf count={10} icon={Heart} tone="danger" />
  *
  * 可编辑时是单选组（role="radiogroup"）：每颗星是一个原生 radio（视觉上隐藏），方向键、表单提交、读屏都是原生的；
  * 名称是“3 星”这样的文字（lang.ratingStar）。指针悬停时预览将要选的分数；再点一次已选的分数清空（clearable，默认开）。
@@ -29,8 +29,8 @@ export type RatingManaged = 'role';
 
 /** 未声明的属性落到外层 div 上；名称写 aria-label，或放在 Field 里 */
 export interface RatingProps extends PartProps<'div', RatingManaged> {
-  /** 分数：父级写 value={_bind(score)}；没有评分时是 null */
-  value?: number | null;
+  /** 分数：父级写 _value={_bind(score)}；没有评分时是 null */
+  _value?: number | null;
   /** 一共几颗星，默认 5 */
   count?: number;
   /** 可以选半颗 */
@@ -101,7 +101,7 @@ export const ratingClipStyles = css.create({
 /** 评分：一排可以点的星 */
 export const Rating = _component(
   ({
-    value = _bindable<number | null>(null),
+    _value: value = _bindable<number | null>(null),
     count = 5,
     allowHalf = false,
     clearable = true,

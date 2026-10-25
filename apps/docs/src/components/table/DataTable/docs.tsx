@@ -134,7 +134,7 @@ export default _component(() => () => (
         <Example id="single" title="单选：选一家报价" demo={Pick}>
           <Code>selectionMode="single"</Code> 时每行是同一组的单选框（同一个
           name）：点击或方向键选中，选中的行带 aria-selected 并整行高亮；没有全选，取消选择用
-          SelectionBar 的清空或把 <Code>selected</Code> 设为空数组。
+          SelectionBar 的清空或把 <Code>_selected</Code> 设为空数组。
         </Example>
         <Example id="infinite" title="滚动加载" demo={Infinite}>
           <Code>onRangeChange</Code>{' '}

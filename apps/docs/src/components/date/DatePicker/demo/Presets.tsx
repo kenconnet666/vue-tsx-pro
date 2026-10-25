@@ -15,7 +15,7 @@ export default _component(() => {
     <Grid minItemWidth="16rem" gap="lg">
       <Field label="交货日期" description={delivery ? <Code>{delivery}</Code> : '今天之前不能选'}>
         <DatePicker
-          value={_bind(delivery)}
+          _value={_bind(delivery)}
           min={today}
           presets={[
             { label: '昨天', value: () => shiftIsoDate(todayIso(), { days: -1 }) },
@@ -27,7 +27,7 @@ export default _component(() => {
         />
       </Field>
       <Field label="账期" description={period ? <Code>{period}</Code> : '日历下方是“本月”'}>
-        <DatePicker value={_bind(period)} granularity="month" />
+        <DatePicker _value={_bind(period)} granularity="month" />
       </Field>
     </Grid>
   );

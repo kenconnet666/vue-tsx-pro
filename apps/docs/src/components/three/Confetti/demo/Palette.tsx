@@ -45,13 +45,13 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Grid minItemWidth="12rem" gap="lg" align="end">
         <Field label="色板">
-          <ToggleGroup value={_bind(palette)} required>
+          <ToggleGroup _value={_bind(palette)} required>
             <ToggleItem value="default">默认</ToggleItem>
             <ToggleItem value="gold">金色</ToggleItem>
             <ToggleItem value="brand">品牌色</ToggleItem>
           </ToggleGroup>
         </Field>
-        <Switch checked={_bind(effects)}>动态特效</Switch>
+        <Switch _checked={_bind(effects)}>动态特效</Switch>
       </Grid>
       <Card padding="none">
         <div {...css.attrs(styles.stage)}>

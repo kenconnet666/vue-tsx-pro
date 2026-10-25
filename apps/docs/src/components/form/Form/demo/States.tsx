@@ -10,22 +10,22 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="14rem" gap="md">
       <Field label="姓名" required description="和证件上的一致">
-        <TextField value={_bind(name)} />
+        <TextField _value={_bind(name)} />
       </Field>
       <Field label="工号" readonly description="入职时分配，不能修改">
-        <TextField value="E-10024" />
+        <TextField _value="E-10024" />
       </Field>
       <Field label="部门" disabled description="由管理员调整">
-        <Select items={['设计部', '研发部', '市场部']} value="设计部" />
+        <Select items={['设计部', '研发部', '市场部']} _value="设计部" />
       </Field>
       <Field
         label="邮箱"
         error={email.includes('.') ? undefined : '邮箱格式不对，例如 lin@example.com'}
       >
-        <TextField value={_bind(email)} type="email" />
+        <TextField _value={_bind(email)} type="email" />
       </Field>
       <Field label="座位数" invalid description="超出了场地容量（见上方汇总）">
-        <NumberField value={_bind(seats)} />
+        <NumberField _value={_bind(seats)} />
       </Field>
     </Grid>
   );

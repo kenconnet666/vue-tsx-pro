@@ -16,7 +16,7 @@ export default _component(() => {
       <Flex direction="column" gap="lg">
         <Flex direction="column" gap="xs">
           <Slider
-            value={_bind(position)}
+            _value={_bind(position)}
             max={duration}
             valueText={(value) => `${clock(value)} / ${clock(duration)}`}
             aria-label="播放进度"
@@ -34,7 +34,7 @@ export default _component(() => {
             onClick={() => (muted = !muted)}
           />
           <Slider
-            value={_bind(
+            _value={_bind(
               () => (muted ? 0 : volume),
               // 静音时拖动音量：取消静音
               (next) => {
@@ -49,7 +49,7 @@ export default _component(() => {
         <Flex align="center" gap="sm">
           <Icon icon={Sun} />
           <Slider
-            value={_bind(brightness)}
+            _value={_bind(brightness)}
             min={0}
             max={1}
             step={0.05}

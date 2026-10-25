@@ -6,9 +6,9 @@
  *     <MenuItem icon={Copy} shortcut="Ctrl+D" onAction={duplicate}>复制</MenuItem>
  *     <Separator decorative={false} />
  *     <MenuGroup label="视图">
- *       <MenuCheckboxItem checked={_bind(showGrid)}>显示网格</MenuCheckboxItem>
+ *       <MenuCheckboxItem _checked={_bind(showGrid)}>显示网格</MenuCheckboxItem>
  *     </MenuGroup>
- *     <MenuRadioGroup value={_bind(sort)} label="排序">
+ *     <MenuRadioGroup _value={_bind(sort)} label="排序">
  *       <MenuRadioItem value="name">名称</MenuRadioItem>
  *       <MenuRadioItem value="date">日期</MenuRadioItem>
  *     </MenuRadioGroup>
@@ -100,8 +100,8 @@ export interface MenuProps
     Pick<FloatingOptions, 'offset'>,
     LazyContentOptions,
     OpenChangeProps {
-  /** 是否打开：父级可以写 open={_bind(x)}；Esc、点击外部、执行菜单项都会关闭并写回 */
-  open?: boolean;
+  /** 是否打开：父级可以写 _open={_bind(x)}；Esc、点击外部、执行菜单项都会关闭并写回 */
+  _open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
   placement?: FloatingPlacement;
   /** 字号档位，菜单项随之缩放；不写时继承上下文字号 */
@@ -156,7 +156,7 @@ export const menuStyles = css.create({
 /** 菜单：触发器 + 弹出的一列菜单项 */
 export const Menu = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     placement = 'bottom-start',
     offset,
@@ -623,8 +623,8 @@ export const MenuLinkItem = _component(
 
 /** 未声明的属性落到 button（role="menuitemcheckbox"）上 */
 export interface MenuCheckboxItemProps extends MenuButtonItemProps {
-  /** 是否勾选：父级写 checked={_bind(x)} */
-  checked?: boolean;
+  /** 是否勾选：父级写 _checked={_bind(x)} */
+  _checked?: boolean;
   /** 勾选标记的部件属性 */
   propsIndicator?: Partial<IconProps>;
 }
@@ -632,7 +632,7 @@ export interface MenuCheckboxItemProps extends MenuButtonItemProps {
 /** 复选菜单项：切换一个开关；默认执行后不关闭菜单 */
 export const MenuCheckboxItem = _component(
   ({
-    checked = _bindable(false),
+    _checked: checked = _bindable(false),
     disabled = false,
     closeOnSelect = false,
     propsIndicator,
@@ -717,14 +717,14 @@ export const MenuGroup = _component(({ label, propsLabel, children, ...rest }: M
 
 /** 未声明的属性落到分组的 div（role="group"）上 */
 export interface MenuRadioGroupProps extends MenuGroupProps {
-  /** 选中项的值：父级写 value={_bind(x)} */
-  value?: string;
+  /** 选中项的值：父级写 _value={_bind(x)} */
+  _value?: string;
 }
 
 /** 一组单选菜单项：同一时间只选中一项 */
 export const MenuRadioGroup = _component(
   ({
-    value = _bindable<string | undefined>(undefined),
+    _value: value = _bindable<string | undefined>(undefined),
     label,
     propsLabel,
     children,
@@ -808,8 +808,8 @@ export interface MenuSubProps
   label: VNodeChild;
   /** 不可用：不能打开子菜单 */
   disabled?: boolean;
-  /** 子菜单是否打开：父级可以写 open={_bind(x)} */
-  open?: boolean;
+  /** 子菜单是否打开：父级可以写 _open={_bind(x)} */
+  _open?: boolean;
   /** 子菜单（role="menu" 的 div）的部件属性 */
   propsPanel?: PartProps<'div', 'id' | 'popover' | 'role'>;
   /** 右侧箭头的部件属性 */
@@ -847,7 +847,7 @@ function inTriangle(p: Point, a: Point, b: Point, c: Point) {
 export const MenuSub = _component(
   ({
     label,
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     disabled = false,
     icon,

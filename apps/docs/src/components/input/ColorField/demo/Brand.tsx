@@ -38,13 +38,13 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Grid minItemWidth="10rem" gap="md">
         <Field label="品牌色">
-          <ColorField value={_bind(brand)} />
+          <ColorField _value={_bind(brand)} />
         </Field>
         <Field label="卡片底色">
-          <ColorField value={_bind(background)} />
+          <ColorField _value={_bind(background)} />
         </Field>
         <Field label="文字色">
-          <ColorField value={_bind(text)} />
+          <ColorField _value={_bind(text)} />
         </Field>
       </Grid>
       <Card padding="none">

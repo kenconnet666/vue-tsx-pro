@@ -137,7 +137,7 @@ export default _component(() => {
       getKey={(proposal) => proposal.code}
       renderDetail={detail}
       hasDetail={(proposal) => proposal.content != null}
-      expandedRows={_bind(expanded)}
+      _expandedRows={_bind(expanded)}
       aria-label="供应商降本建议"
     />
   );

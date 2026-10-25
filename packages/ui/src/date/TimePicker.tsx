@@ -2,8 +2,8 @@
  * 时间选择器：TimeField 加一个打开时间列表的按钮，按 step 列出可选的时间（同 Google 日历的时间下拉）；可以直接键入，也可以点选。
  * 参考 Mantine TimePicker 的 presets、MUI 的 digital clock；列表是 Listbox（↑↓、Home / End、按数字跳转）。
  *
- *   <Field label="开会时间"><TimePicker value={_bind(time)} min="09:00" max="18:00" /></Field>
- *   <TimePicker step={15} value={_bind(time)} aria-label="提醒时间" />
+ *   <Field label="开会时间"><TimePicker _value={_bind(time)} min="09:00" max="18:00" /></Field>
+ *   <TimePicker step={15} _value={_bind(time)} aria-label="提醒时间" />
  *
  * 值同 TimeField（'HH:mm'，或 Time）。列表从 min（默认 00:00）起每 step 分钟一项，到 max 为止，按语言的 12 / 24 小时制显示；
  * 不在列表里的时间（14:47）照样能键入；isTimeUnavailable 的时间在列表里不可用、键入时显示出错。
@@ -31,12 +31,12 @@ import { TimeField, toTime, type TimeFieldProps, type TimeInput } from './TimeFi
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface TimePickerProps<V extends TimeInput = string>
   extends TimeFieldProps<V>, PickerPopoverParts, OpenChangeProps {
-  /** 列表是否打开：父级可写 open={_bind(x)} */
-  open?: boolean;
+  /** 列表是否打开：父级可写 _open={_bind(x)} */
+  _open?: boolean;
   /** 列表里相邻两项相隔几分钟，默认 30 */
   step?: number;
   /** 时间列表的部件属性 */
-  propsList?: Omit<Partial<ListboxProps>, 'items' | 'value' | 'onPick'>;
+  propsList?: Omit<Partial<ListboxProps>, 'items' | '_value' | 'onPick'>;
   /** “此刻”按钮的部件属性 */
   propsNow?: Omit<Partial<ButtonProps>, 'onClick'>;
 }
@@ -54,8 +54,8 @@ const minutesOf = (time: Time) => time.hour * 60 + time.minute;
 /** 时间选择器：分段输入 + 按步长列出的时间 */
 export const TimePicker = _component(
   <V extends TimeInput>({
-    value = _bindable<V | null>(null),
-    open = _bindable(false),
+    _value: value = _bindable<V | null>(null),
+    _open: open = _bindable(false),
     onOpenChange,
     step = 30,
     granularity = 'minute',
@@ -156,8 +156,8 @@ export const TimePicker = _component(
       <>
         <TimeField
           {...rest}
-          {...{ 'onUpdate:value': (next: V | null) => (value = next) }}
-          value={value}
+          {...{ 'onUpdate:_value': (next: V | null) => (value = next) }}
+          _value={value}
           granularity={granularity}
           valueType={valueType}
           min={min}
@@ -188,7 +188,7 @@ export const TimePicker = _component(
                 {
                   id: `${picker.id}-list`,
                   items: options,
-                  value: selected,
+                  _value: selected,
                   onPick: (iso) => write(parseIsoTime(iso)!),
                   required: true,
                 },

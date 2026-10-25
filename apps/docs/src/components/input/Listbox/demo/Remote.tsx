@@ -52,7 +52,7 @@ export default _component(() => {
       <Card padding="sm">
         <Flex direction="column" gap="xs">
           <TextField
-            value={_bind(query)}
+            _value={_bind(query)}
             icon={Search}
             variant="soft"
             placeholder="搜索成员"
@@ -61,7 +61,7 @@ export default _component(() => {
           <Listbox
             aria-label="成员"
             items={results}
-            value={_bind(picked)}
+            _value={_bind(picked)}
             loading={loading}
             onPick={(value) => (lastPick = `${value}（${new Date().toLocaleTimeString()}）`)}
             empty={

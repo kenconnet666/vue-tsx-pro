@@ -6,10 +6,10 @@
  *     getKey={(org) => org.id}
  *     getLabel={(org) => org.name}
  *     getChildren={(org) => org.children}
- *     value={_bind(orgId)}
+ *     _value={_bind(orgId)}
  *     searchable
  *   />
- *   <TreeSelect … selectionMode="multiple" value={_bind(teamIds)} />   勾选：勾上父节点就是整枝
+ *   <TreeSelect … selectionMode="multiple" _value={_bind(teamIds)} />   勾选：勾上父节点就是整枝
  *   <TreeSelect … selectionMode="multiple" checkedStrategy="child" maxTagCount="responsive" />
  *
  * - 单选：点节点或 Enter 选中并关闭；多选：空格或点勾选框，勾上父节点会勾上它的子孙，子节点全勾上时父节点也勾上。
@@ -18,7 +18,7 @@
  *   标签只列最上层的整枝（勾上了“复合材料中心”就不再列它下面的每个组）；checkedStrategy="child" 时列叶子。
  * - searchable：弹出层顶部的搜索框，按节点文字过滤，命中节点的祖先一起显示并展开；↓ 从搜索框进到树里。
  *   给 load 时由服务端搜索：打开时与输入停下 300 ms 后按搜索词请求，返回命中的节点连同祖先，结果全部展开
- *   （remote-items.ts，同 Select）；自己管请求时写 search={_bind(keyword)}、filter={false}。
+ *   （remote-items.ts，同 Select）；自己管请求时写 _search={_bind(keyword)}、filter={false}。
  * - 打开后焦点在树上（或搜索框里），键盘同 Tree；Esc 关闭并把焦点还给触发按钮。懒加载同 Tree 的 loadChildren。
  * - 已选节点的文字从已加载的树里找，远程搜索换掉的按见过的文字显示；从没见过的（懒加载还没取回来）显示成 key。
  *
@@ -89,8 +89,8 @@ export interface TreeSelectProps<T>
   isDisabled?: (node: T) => boolean;
   /** 单选（默认）或多选（勾选，父子联动） */
   selectionMode?: keyof SelectionModes;
-  /** 单选时是选中节点的 key（没有时 null），多选时是勾上的节点（按 checkedStrategy）：父级写 value={_bind(x)} */
-  value?: string | string[] | null;
+  /** 单选时是选中节点的 key（没有时 null），多选时是勾上的节点（按 checkedStrategy）：父级写 _value={_bind(x)} */
+  _value?: string | string[] | null;
   /**
    * 多选时 value 里放哪些勾上的节点（同 Ant Design 的 showCheckedStrategy）：all 全部（默认）；
    * parent 父节点全勾上时只放父节点（提交“整个部门”）；child 只放叶子（提交“具体的人”）
@@ -100,8 +100,8 @@ export interface TreeSelectProps<T>
   maxTagCount?: number | 'responsive';
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
-  /** 是否打开：父级可以写 open={_bind(x)} */
-  open?: boolean;
+  /** 是否打开：父级可以写 _open={_bind(x)} */
+  _open?: boolean;
   /** 弹出位置，默认 bottom-start */
   placement?: FloatingPlacement;
   /** 有选择时显示清空按钮 */
@@ -110,8 +110,8 @@ export interface TreeSelectProps<T>
   searchable?: boolean;
   /** 搜索时怎样算命中；默认节点文字包含输入（忽略大小写与重音）。false 时不在本地过滤（服务端按 search 过滤） */
   filter?: false | ((node: T, query: string) => boolean);
-  /** 搜索框里的文字：打开时清空；父级写 search={_bind(x)} 拿到它（自己发请求时） */
-  search?: string;
+  /** 搜索框里的文字：打开时清空；父级写 _search={_bind(x)} 拿到它（自己发请求时） */
+  _search?: string;
   /** 远程搜索：打开时与搜索词停下 300 ms 后调用，返回命中的节点连同祖先（顶层节点），结果代替 items */
   load?: OptionsLoader<T>;
   /** 表单提交时的 name（用隐藏的 input） */
@@ -165,15 +165,15 @@ export const TreeSelect = _component(
     selectionMode = 'single',
     checkedStrategy = 'all',
     maxTagCount,
-    value = _bindable<string | string[] | null>(null),
-    open = _bindable(false),
+    _value: value = _bindable<string | string[] | null>(null),
+    _open: open = _bindable(false),
     onOpenChange,
     placeholder,
     placement = 'bottom-start',
     clearable = false,
     searchable = false,
     filter,
-    search = _bindable(''),
+    _search: search = _bindable(''),
     load,
     name,
     variant,
@@ -515,7 +515,7 @@ export const TreeSelect = _component(
                     propsSearch,
                   )}
                   type="search"
-                  value={_bind(search)}
+                  _value={_bind(search)}
                   aria-controls={treeId}
                   onKeydown={onSearchKeydown}
                 />
@@ -526,11 +526,11 @@ export const TreeSelect = _component(
                 <Tree
                   {...treeProps(state.labelledBy)}
                   checkable
-                  checked={_bind(
+                  _checked={_bind(
                     () => [...values()],
                     (next: string[]) => setChecked(next),
                   )}
-                  expanded={_bind(
+                  _expanded={_bind(
                     () => shownExpanded(),
                     (next: string[]) => (expanded = remoteResults() ? expanded : next),
                   )}
@@ -539,7 +539,7 @@ export const TreeSelect = _component(
                 <Tree
                   {...treeProps(state.labelledBy)}
                   selectionMode="single"
-                  selected={_bind(
+                  _selected={_bind(
                     () => [...values()],
                     // 再点已选的一项：不取消（同 Select 的单选），只是收起；要清空用清除按钮
                     (next: string[]) => {
@@ -547,7 +547,7 @@ export const TreeSelect = _component(
                       setOpen(false, 'select');
                     },
                   )}
-                  expanded={_bind(
+                  _expanded={_bind(
                     () => shownExpanded(),
                     (next: string[]) => (expanded = remoteResults() ? expanded : next),
                   )}

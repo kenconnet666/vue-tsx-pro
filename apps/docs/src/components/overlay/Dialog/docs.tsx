@@ -29,7 +29,7 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="dialog" title="编辑表单" demo={Profile}>
-          <Code>open</Code> 双向绑定；<Code>title</Code> 与 <Code>description</Code>{' '}
+          <Code>_open</Code> 双向绑定；<Code>title</Code> 与 <Code>description</Code>{' '}
           是对话框的无障碍名称与描述。写了 <Code>onConfirm</Code> 页脚就有“取消 / 确认”：返回
           Promise 时确认按钮加载中、这期间关不掉，完成后关闭；返回 false
           或失败时对话框留着（校验没过、保存失败）。<Code>confirmText</Code>、<Code>tone</Code>、

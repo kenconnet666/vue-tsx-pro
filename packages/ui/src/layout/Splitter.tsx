@@ -2,7 +2,7 @@
  * 分栏：两栏并排（或上下），中间的分隔条可以拖动调整比例，一侧可以收起。收件箱（左列表、右预览）、
  * 主从视图、编辑器与预览这类“两块都要看、比例因人而异”的布局。
  *
- *   <Splitter size={_bind(listSize)} collapsible="end" collapsed={_bind(previewHidden)}
+ *   <Splitter _size={_bind(listSize)} collapsible="end" _collapsed={_bind(previewHidden)}
  *     start={<List />} end={<Preview />} />
  *
  * size 是起始一栏占的百分比（父级写 _bind 记住），拖动时夹在 minSize–maxSize 之间；双击分隔条回到初始比例。
@@ -43,10 +43,10 @@ export interface SplitterProps extends PartProps<'div'> {
    */
   orientation?: keyof SplitterOrientations;
   /**
-   * 起始一栏占的百分比：父级写 size={_bind(x)} 记住拖动后的比例
+   * 起始一栏占的百分比：父级写 _size={_bind(x)} 记住拖动后的比例
    * @default 50
    */
-  size?: number;
+  _size?: number;
   /**
    * 起始一栏最少占多少（百分比）
    * @default 20
@@ -59,8 +59,8 @@ export interface SplitterProps extends PartProps<'div'> {
   maxSize?: number;
   /** 哪一侧可以收起；不写时不能收起 */
   collapsible?: 'start' | 'end';
-  /** 可收起的那一侧收着：父级写 collapsed={_bind(x)} */
-  collapsed?: boolean;
+  /** 可收起的那一侧收着：父级写 _collapsed={_bind(x)} */
+  _collapsed?: boolean;
   /** 分隔条的名称（读屏），默认取语言包（调整分栏） */
   label?: string;
   /** 外面一圈边框、圆角与表面色：独立成块（收件箱的列表与预览） */
@@ -121,11 +121,11 @@ export const Splitter = _component(
     start,
     end,
     orientation = 'horizontal',
-    size = _bindable(50),
+    _size: size = _bindable(50),
     minSize = 20,
     maxSize = 80,
     collapsible,
-    collapsed = _bindable(false),
+    _collapsed: collapsed = _bindable(false),
     label,
     bordered = false,
     propsStart,

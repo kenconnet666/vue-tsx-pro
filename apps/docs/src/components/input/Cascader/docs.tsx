@@ -23,7 +23,7 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="region" title="省市区" demo={Region}>
           数据形状不限，<Code>getKey</Code>、<Code>getLabel</Code>、<Code>getChildren</Code>{' '}
-          读出层级（同 <Link href="/components/tree-select">TreeSelect</Link>）。<Code>value</Code>{' '}
+          读出层级（同 <Link href="/components/tree-select">TreeSelect</Link>）。<Code>_value</Code>{' '}
           是从第一级到选中节点的 key 路径，key
           只要在同级里唯一。默认只能选到叶子，点有下一级的项只是展开。
           <Code>searchable</Code> 时输入就换成一列匹配的完整路径（按已加载的节点，认拼音）；

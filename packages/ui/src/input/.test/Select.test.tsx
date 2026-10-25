@@ -27,14 +27,14 @@ describe('Select', () => {
       <>
         <Select
           items={cities}
-          value="上海"
+          _value="上海"
           readonly
           clearable
-          open={_bind(open)}
+          _open={_bind(open)}
           aria-label="城市"
         />
         <Field label="出发地" readonly>
-          <Select items={cities} value="北京" />
+          <Select items={cities} _value="北京" />
         </Field>
       </>
     ));
@@ -53,7 +53,7 @@ describe('Select', () => {
 
   it('单选的值是空字符串时算没有选中：显示占位文字，没有清空按钮', () => {
     const root = mount(() => (
-      <Select items={cities} value="" placeholder="全部" clearable aria-label="城市" />
+      <Select items={cities} _value="" placeholder="全部" clearable aria-label="城市" />
     ));
     expect(root.querySelector('button[role="combobox"]')!.textContent).toBe('全部');
     expect(root.querySelector('button[aria-label="清空"]')).toBeNull();
@@ -64,11 +64,11 @@ describe('Select', () => {
     let cityList = _state(['北京', '广州']);
     const root = mount(() => (
       <>
-        <Select items={cities} value={_bind(city)} clearable aria-label="城市" />
+        <Select items={cities} _value={_bind(city)} clearable aria-label="城市" />
         <Select
           items={cities}
           selectionMode="multiple"
-          value={_bind(cityList)}
+          _value={_bind(cityList)}
           clearable
           aria-label="途经"
         />
@@ -104,7 +104,7 @@ describe('Select', () => {
   it('多选：标签在触发按钮外、对读屏隐藏，按钮里念全部已选；点移除按钮、Backspace 移除', async () => {
     let picked = _state(['北京', '上海', '广州']);
     const root = mount(() => (
-      <Select items={cities} selectionMode="multiple" value={_bind(picked)} aria-label="城市" />
+      <Select items={cities} selectionMode="multiple" _value={_bind(picked)} aria-label="城市" />
     ));
     const trigger = root.querySelector<HTMLButtonElement>('button[role="combobox"]')!;
     expect(trigger.querySelector('button')).toBeNull();
@@ -128,7 +128,7 @@ describe('Select', () => {
       <Select
         items={cities}
         selectionMode="multiple"
-        value={['北京', '上海', '广州']}
+        _value={['北京', '上海', '广州']}
         maxTagCount={1}
         readonly
         aria-label="城市"
@@ -150,9 +150,9 @@ describe('Select', () => {
       <Select
         items={cities}
         selectionMode="multiple"
-        value={_bind(picked)}
-        search={_bind(search)}
-        open
+        _value={_bind(picked)}
+        _search={_bind(search)}
+        _open
         creatable
         onCreate={(text) => created.push(text)}
         aria-label="城市"
@@ -179,7 +179,7 @@ describe('Select', () => {
     let open = _state(false);
     const onOpenChange = vi.fn();
     const root = mount(() => (
-      <Select items={cities} open={_bind(open)} onOpenChange={onOpenChange} aria-label="城市" />
+      <Select items={cities} _open={_bind(open)} onOpenChange={onOpenChange} aria-label="城市" />
     ));
     root.querySelector<HTMLButtonElement>('button[role="combobox"]')!.click();
     await flush();

@@ -16,20 +16,20 @@ export default _component(() => {
         <Select
           items={people}
           selectionMode="multiple"
-          value={_bind(cc)}
+          _value={_bind(cc)}
           maxTagCount="responsive"
           searchable
           clearable
         />
       </Field>
       <Field label="适用车型" description="只显示前两个">
-        <Select items={models} selectionMode="multiple" value={_bind(fits)} maxTagCount={2} />
+        <Select items={models} selectionMode="multiple" _value={_bind(fits)} maxTagCount={2} />
       </Field>
       <Field label="工单标签" description="输入没有的标签，选“新建”加进选项">
         <Select
           items={labels}
           selectionMode="multiple"
-          value={_bind(picked)}
+          _value={_bind(picked)}
           creatable
           onCreate={(text) => (labels = [...labels, text])}
           placeholder="选择或新建标签"

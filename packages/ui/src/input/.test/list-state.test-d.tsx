@@ -10,7 +10,7 @@ interface User {
 export const plain: ListboxProps = { items: [{ value: 'a', label: 'A' }] };
 
 // 字符串列表不用 toOption：值与文字都是它
-export const strings: SelectProps<string> = { items: ['设计', '研发'], value: '设计' };
+export const strings: SelectProps<string> = { items: ['设计', '研发'], _value: '设计' };
 
 export const mapped: SelectProps<User> = {
   items: [{ id: 1, name: '张三' }],

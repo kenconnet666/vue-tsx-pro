@@ -30,7 +30,7 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="network" title="力导向与选中" demo={Network}>
           默认 <Code>layout="force"</Code>：相连的靠近、不相连的推开。连线写了 <Code>value</Code>{' '}
-          时按大小加粗，悬停看数值；点节点选中（<Code>selected</Code>{' '}
+          时按大小加粗，悬停看数值；点节点选中（<Code>_selected</Code>{' '}
           双向绑定），不相连的变淡，点空白处取消。能缩放、拖动画布，双击空白回到全图（
           <Code>{'zoom={false}'}</Code> 关掉）。
         </Example>

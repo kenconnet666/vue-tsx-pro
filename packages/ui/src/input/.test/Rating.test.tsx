@@ -28,7 +28,7 @@ describe('Rating', () => {
 
   it('点选写回分数；再点同一个清空；clearable={false} 时不清空', async () => {
     const state = reactive<{ score: number | null }>({ score: null });
-    const root = mount(() => <Rating value={_bind(state.score)} aria-label="评分" />);
+    const root = mount(() => <Rating _value={_bind(state.score)} aria-label="评分" />);
     const radio = (label: string) =>
       root.querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!;
     radio('4 星').click();
@@ -41,7 +41,7 @@ describe('Rating', () => {
 
     const kept = reactive<{ score: number | null }>({ score: 2 });
     const fixed = mount(() => (
-      <Rating value={_bind(kept.score)} clearable={false} aria-label="不清空" />
+      <Rating _value={_bind(kept.score)} clearable={false} aria-label="不清空" />
     ));
     fixed.querySelector<HTMLInputElement>('input[aria-label="2 星"]')!.click();
     await nextTick();
@@ -49,7 +49,7 @@ describe('Rating', () => {
   });
 
   it('半星：每颗星两个 radio；3.5 星时第四颗是半颗', () => {
-    const root = mount(() => <Rating value={3.5} allowHalf aria-label="评分" />);
+    const root = mount(() => <Rating _value={3.5} allowHalf aria-label="评分" />);
     expect(root.querySelectorAll('input')).toHaveLength(10);
     expect(root.querySelector<HTMLInputElement>('input[aria-label="3.5 星"]')!.checked).toBe(true);
     const states = [...root.querySelectorAll('[data-state]')].map((star) =>
@@ -59,7 +59,7 @@ describe('Rating', () => {
   });
 
   it('只读：一个 role="img"，读“4.5 星，满分 5 星”；没有 radio', () => {
-    const root = mount(() => <Rating value={4.5} readonly />);
+    const root = mount(() => <Rating _value={4.5} readonly />);
     const image = root.querySelector('[role="img"]')!;
     expect(image.getAttribute('aria-label')).toBe('4.5 星，满分 5 星');
     expect(root.querySelector('input')).toBeNull();

@@ -29,7 +29,7 @@ export default _component(() => () => (
           <Kbd>Home</Kbd> / <Kbd>End</Kbd> 到两端；点轨道任意位置直接跳过去并接着拖。
         </Example>
         <Example id="range" title="价格区间与刻度" demo={Price}>
-          <Code>value</Code> 是 <Code>[低, 高]</Code>{' '}
+          <Code>_value</Code> 是 <Code>[低, 高]</Code>{' '}
           时选一个范围：两个滑块各自可聚焦、不能交叉，读屏名称后面加上“最小值”“最大值”。
           <Code>marks</Code> 是刻度；拖动时实时写回，<Code>onValueCommit</Code>{' '}
           在松手时调用一次，适合去查询接口。
@@ -41,7 +41,7 @@ export default _component(() => () => (
           number：需要精确小数或超大整数的输入用 NumberField。
         </Example>
         <Example id="form" title="表单提交与不可用" demo={Form}>
-          <Code>name</Code> 用隐藏的 input 随表单提交当前值；拖动过程中 <Code>value</Code>{' '}
+          <Code>name</Code> 用隐藏的 input 随表单提交当前值；拖动过程中 <Code>_value</Code>{' '}
           一直在变，<Code>onValueCommit</Code> 只在松手（或键盘改完）时调用，适合保存到服务端。Field
           的 <Code>disabled</Code> 交给里面的滑块。
         </Example>

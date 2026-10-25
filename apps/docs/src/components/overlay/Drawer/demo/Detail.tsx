@@ -157,7 +157,7 @@ export default _component(() => {
           density="compact"
         />
         <Drawer
-          open={_bind(open)}
+          _open={_bind(open)}
           size="sm"
           title={current?.name ?? ''}
           description={current && `${current.code} · ${current.team}`}

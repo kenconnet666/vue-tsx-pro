@@ -1,7 +1,7 @@
 /**
  * 展开收起的内容区，带高度过渡。触发器另外写，或者用 Collapsible。
  *
- *   <Collapse open={_bind(open)}>内容</Collapse>
+ *   <Collapse _open={_bind(open)}>内容</Collapse>
  *
  * 高度过渡用 grid-template-rows 0fr ↔ 1fr，各浏览器都能动画（interpolate-size 只有 Chromium）。
  * 收起并且过渡结束后：
@@ -18,8 +18,8 @@ import { t } from '../config/theme/tokens';
 
 /** 未声明的属性落到外层的 div 上；要分区语义时在外面包 section */
 export interface CollapseProps extends PartProps<'div', 'hidden' | 'inert'> {
-  /** 是否展开：父级写 open={_bind(x)}；页内搜索命中收起的内容时自动展开并写回 */
-  open?: boolean;
+  /** 是否展开：父级写 _open={_bind(x)}；页内搜索命中收起的内容时自动展开并写回 */
+  _open?: boolean;
   children?: VNodeChild;
   /** 内容层：外层负责高度过渡，内容层裁掉溢出 */
   propsContent?: PartProps<'div'>;
@@ -47,7 +47,13 @@ export const collapseStyles = css.create({
 
 /** 展开收起的内容区（div），带高度过渡；收起后可被页内搜索找到并自动展开 */
 export const Collapse = _component(
-  ({ open = _bindable(false), children, propsContent, lazy = false, ...rest }: CollapseProps) => {
+  ({
+    _open: open = _bindable(false),
+    children,
+    propsContent,
+    lazy = false,
+    ...rest
+  }: CollapseProps) => {
     let root = _state.raw<HTMLElement | null>(null);
     // 完全收起（过渡已结束）：这时才隐藏内容，收起的过程中内容仍要可见
     let collapsed = _state(_untrack(!open));

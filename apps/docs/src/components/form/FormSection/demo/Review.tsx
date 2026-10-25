@@ -26,28 +26,28 @@ export default _component(() => {
           labelWidth="6.5em"
         >
           <Field label="项目">
-            <TextField value="整流罩支架合并为一体成型" />
+            <TextField _value="整流罩支架合并为一体成型" />
           </Field>
           <Field label="编号">
-            <TextField value="JY-2026-0187" />
+            <TextField _value="JY-2026-0187" />
           </Field>
           <Field label="预计年降本">
-            <NumberField value={174752} suffix="元" />
+            <NumberField _value={174752} suffix="元" />
           </Field>
           <Field label="说明">
-            <Textarea value="两件合并为一件，减少紧固件 36 个，单件减重 0.4 kg。" rows={2} />
+            <Textarea _value="两件合并为一件，减少紧固件 36 个，单件减重 0.4 kg。" rows={2} />
           </Field>
         </FormSection>
         <FormSection title="审批意见" labelPlacement="start" labelWidth="6.5em">
           <Field label="结论" required>
-            <RadioGroup value={_bind(decision)} orientation="horizontal">
+            <RadioGroup _value={_bind(decision)} orientation="horizontal">
               <Radio value="approve">同意</Radio>
               <Radio value="return">退回修改</Radio>
               <Radio value="reject">不同意</Radio>
             </RadioGroup>
           </Field>
           <Field label="意见" required={decision !== 'approve'}>
-            <Textarea value={_bind(note)} rows={3} placeholder="退回、不同意时写明原因" />
+            <Textarea _value={_bind(note)} rows={3} placeholder="退回、不同意时写明原因" />
           </Field>
         </FormSection>
         <Flex justify="end">

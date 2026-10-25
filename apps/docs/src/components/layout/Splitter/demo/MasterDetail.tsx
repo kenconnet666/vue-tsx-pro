@@ -47,12 +47,12 @@ export default _component(() => {
     return (
       <Splitter
         sx={styles.frame}
-        size={_bind(
+        _size={_bind(
           () => layout.value.size,
           (size: number) => (layout.value = { ...layout.value, size }),
         )}
         collapsible="end"
-        collapsed={_bind(
+        _collapsed={_bind(
           () => layout.value.hidden,
           (hidden: boolean) => (layout.value = { ...layout.value, hidden }),
         )}

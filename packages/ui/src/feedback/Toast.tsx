@@ -587,7 +587,7 @@ export const ToastItem = _component(
               { propsContent: { sx: toastStyles.gap } },
               propsCollapse,
             )}
-            open={!toast.closing}
+            _open={!toast.closing}
           >
             <Alert
               {...mergePartProps<AlertProps>(

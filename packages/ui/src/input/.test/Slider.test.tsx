@@ -11,7 +11,7 @@ const key = (element: HTMLElement, name: string) =>
 
 describe('Slider', () => {
   it('滑块是 role="slider"，带取值范围与名称；属性落到滑块上', () => {
-    const root = mount(() => <Slider value={30} aria-label="音量" valueText={(v) => `${v}%`} />);
+    const root = mount(() => <Slider _value={30} aria-label="音量" valueText={(v) => `${v}%`} />);
     const thumb = thumbOf(root);
     expect(thumb.getAttribute('aria-label')).toBe('音量');
     expect(thumb.getAttribute('aria-valuemin')).toBe('0');
@@ -26,7 +26,7 @@ describe('Slider', () => {
     let value = _state(50);
     const commit = vi.fn();
     const root = mount(() => (
-      <Slider value={_bind(value)} step={5} aria-label="x" onValueCommit={commit} />
+      <Slider _value={_bind(value)} step={5} aria-label="x" onValueCommit={commit} />
     ));
     const thumb = thumbOf(root);
     key(thumb, 'ArrowRight');
@@ -48,7 +48,7 @@ describe('Slider', () => {
   it('小数步长不带浮点误差', () => {
     let value = _state(0.1);
     const root = mount(() => (
-      <Slider value={_bind(value)} min={0} max={1} step={0.1} aria-label="x" />
+      <Slider _value={_bind(value)} min={0} max={1} step={0.1} aria-label="x" />
     ));
     key(thumbOf(root), 'ArrowRight');
     key(thumbOf(root), 'ArrowRight');
@@ -57,7 +57,7 @@ describe('Slider', () => {
 
   it('点击轨道跳到对应位置（按轨道的位置换算并对齐步长）', () => {
     let value = _state(0);
-    const root = mount(() => <Slider value={_bind(value)} step={10} aria-label="x" />);
+    const root = mount(() => <Slider _value={_bind(value)} step={10} aria-label="x" />);
     const track = thumbOf(root).previousElementSibling as HTMLElement;
     track.getBoundingClientRect = () =>
       ({ left: 0, width: 200, top: 0, bottom: 10, height: 10 }) as DOMRect;
@@ -69,7 +69,9 @@ describe('Slider', () => {
 
   it('不可用：不能聚焦，键盘与指针都不改值；同原生的不可用控件，不随表单提交', () => {
     let value = _state(20);
-    const root = mount(() => <Slider value={_bind(value)} disabled name="volume" aria-label="x" />);
+    const root = mount(() => (
+      <Slider _value={_bind(value)} disabled name="volume" aria-label="x" />
+    ));
     const thumb = thumbOf(root);
     expect(thumb.hasAttribute('tabindex')).toBe(false);
     expect(thumb.getAttribute('aria-disabled')).toBe('true');
@@ -83,7 +85,7 @@ describe('Slider 的部件属性', () => {
   it('轨道与已选范围都能加属性', () => {
     const root = mount(() => (
       <Slider
-        value={30}
+        _value={30}
         aria-label="x"
         propsTrack={{ class: 'track' }}
         propsRange={{ class: 'range' }}
@@ -95,7 +97,7 @@ describe('Slider 的部件属性', () => {
 
 describe('Slider 的边界情况', () => {
   it('父级传入超出范围的值时按范围内显示，滑块不跑出轨道', () => {
-    const root = mount(() => <Slider value={150} aria-label="x" />);
+    const root = mount(() => <Slider _value={150} aria-label="x" />);
     expect(thumbOf(root).getAttribute('aria-valuenow')).toBe('100');
   });
 });
@@ -106,7 +108,7 @@ describe('Slider 的范围选择', () => {
     const commit = vi.fn();
     const root = mount(() => (
       <Slider
-        value={_bind(range)}
+        _value={_bind(range)}
         step={10}
         aria-label="价格"
         name="price"
@@ -135,7 +137,7 @@ describe('Slider 的范围选择', () => {
 
   it('点击轨道移动离得近的那个滑块', () => {
     let range = _state<[number, number]>([20, 60]);
-    const root = mount(() => <Slider value={_bind(range)} aria-label="x" />);
+    const root = mount(() => <Slider _value={_bind(range)} aria-label="x" />);
     const track = root.querySelector<HTMLElement>('[role="slider"]')!
       .previousElementSibling as HTMLElement;
     track.getBoundingClientRect = () =>
@@ -149,7 +151,7 @@ describe('Slider 的范围选择', () => {
   it('在 Field 里：名称连上隐藏的“最小值 / 最大值”', () => {
     const root = mount(() => (
       <Field label="价格">
-        <Slider value={[1, 2]} />
+        <Slider _value={[1, 2]} />
       </Field>
     ));
     const [low] = root.querySelectorAll<HTMLElement>('[role="slider"]');
@@ -162,7 +164,7 @@ describe('Slider 的刻度', () => {
   it('每个刻度一个点，在已选范围里的点标记出来；有文字的刻度显示文字', () => {
     const root = mount(() => (
       <Slider
-        value={50}
+        _value={50}
         aria-label="x"
         marks={[0, { value: 50, label: '一半' }, 100]}
         propsMark={(mark) => ({ class: `mark-${mark.value}` })}

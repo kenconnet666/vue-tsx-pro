@@ -24,7 +24,7 @@ export default _component(() => {
           <Small tone="muted">{label}</Small>
           <Provider lang={lang}>
             <Calendar
-              value={today}
+              _value={today}
               firstDayOfWeek={firstDayOfWeek}
               showWeekNumbers={lang === german}
               aria-label={label}

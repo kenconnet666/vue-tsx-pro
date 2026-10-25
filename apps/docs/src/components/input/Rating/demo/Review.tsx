@@ -26,9 +26,9 @@ export default _component(() => {
           {aspects.map((aspect) => (
             <Field key={aspect.key} label={aspect.label} description={aspect.hint}>
               <Rating
-                value={scores[aspect.key]}
+                _value={scores[aspect.key]}
                 {...{
-                  'onUpdate:value': (next: number | null) =>
+                  'onUpdate:_value': (next: number | null) =>
                     (scores = { ...scores, [aspect.key]: next }),
                 }}
                 allowHalf
@@ -38,7 +38,7 @@ export default _component(() => {
         </Grid>
         <Flex align="center" gap="sm">
           <Small tone="muted">综合</Small>
-          <Rating value={average()} readonly allowHalf size="sm" />
+          <Rating _value={average()} readonly allowHalf size="sm" />
           <Small tone="muted">{average() ?? '还没打分'}</Small>
         </Flex>
       </Flex>

@@ -30,7 +30,7 @@ export default _component(() => () => (
         <Example id="expand" title="多行与展开" demo={Expand}>
           <Code>lines</Code> 是最多几行，<Code>expandable</Code>{' '}
           在截断时后面放“展开”，展开后显示全部、按钮换成“收起”（aria-expanded）；写了 expandable
-          时默认不再给提示。<Code>expanded</Code> 可以双向绑定，<Code>tooltip</Code>{' '}
+          时默认不再给提示。<Code>_expanded</Code> 可以双向绑定，<Code>tooltip</Code>{' '}
           换提示的内容或写 false 关掉。
         </Example>
       </ExampleColumn>

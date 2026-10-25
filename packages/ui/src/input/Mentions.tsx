@@ -1,8 +1,8 @@
 /**
  * 提及：多行文本框里输入 @ 弹出人员（或岗位、群组）列表，选中后写成“@名字 ”。留言、审批意见、协商回复里通知相关的人。
  *
- *   <Field label="留言"><Mentions value={_bind(text)} items={people} mentions={_bind(notified)} /></Field>
- *   <Mentions value={_bind(text)} load={(query, signal) => api.searchUsers(query, { signal })} toOption={…} />
+ *   <Field label="留言"><Mentions _value={_bind(text)} items={people} _mentions={_bind(notified)} /></Field>
+ *   <Mentions _value={_bind(text)} load={(query, signal) => api.searchUsers(query, { signal })} toOption={…} />
  *
  * 值仍是文字；mentions 是文字里提到的选项的值（工号、岗位编号），随文字增删——删掉“@名字”就不再算提及。
  * 显示提及过的文字用 MentionText（提及高亮），拆分用 mentionSegments。
@@ -46,14 +46,14 @@ export interface MentionsBaseProps<T>
   items?: readonly T[];
   /** 远程搜索：按 @ 后面的文字调用，停下 300 ms 后请求，只采用最后一次 */
   load?: OptionsLoader<T>;
-  /** 文字里提到的选项的值：父级写 mentions={_bind(x)}，随文字更新 */
-  mentions?: string[];
+  /** 文字里提到的选项的值：父级写 _mentions={_bind(x)}，随文字更新 */
+  _mentions?: string[];
   /** 触发的字符，默认 '@' */
   prefix?: string;
   /** 过滤：默认按显示文字包含 @ 后面的文字；false 不过滤（由调用方换 items） */
   filter?: false | ((item: T, query: string) => boolean);
-  /** 列表是否打开：父级可以写 open={_bind(x)} */
-  open?: boolean;
+  /** 列表是否打开：父级可以写 _open={_bind(x)} */
+  _open?: boolean;
   /** 正在取选项 */
   loading?: boolean;
   /** 自定义选项内容：`{(item, { active }) => …}`（头像、部门） */
@@ -177,14 +177,14 @@ export const MentionText = _component(
 /** 提及输入框：多行文本框 + 跟着 @ 弹出的人员列表 */
 export const Mentions = _component(
   <T,>({
-    value = _bindable(''),
-    mentions = _bindable<string[]>([]),
+    _value: value = _bindable(''),
+    _mentions: mentions = _bindable<string[]>([]),
     items = [],
     toOption,
     load,
     prefix = '@',
     filter,
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     loading = false,
     children,
@@ -372,7 +372,7 @@ export const Mentions = _component(
               onBlur: (event: FocusEvent) => open && setOpen(false, 'focus', event),
             },
           )}
-          value={_bind(value)}
+          _value={_bind(value)}
         />
         <ListPopover
           panelRef={_toRef(panel)}

@@ -21,8 +21,8 @@ function render(definition: ProcessDefinition, onPublish?: (flow: ProcessDefinit
   const state = reactive({ definition, selected: null as string | null });
   const root = mount(() => (
     <FlowDesigner
-      definition={_bind(state.definition)}
-      selected={_bind(state.selected)}
+      _definition={_bind(state.definition)}
+      _selected={_bind(state.selected)}
       onPublish={onPublish}
     />
   ));

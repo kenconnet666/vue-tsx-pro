@@ -36,7 +36,7 @@ describe('Tour', () => {
     const root = mount(() => (
       <Tour
         steps={steps}
-        current={_bind(step)}
+        _current={_bind(step)}
         propsSkip={{ class: 'skip', variant: 'outline' }}
         propsPrevious={{ class: 'previous' }}
         // 完成某个操作后才能继续
@@ -63,7 +63,7 @@ describe('Tour', () => {
     const root = mount(() => (
       <Tour
         steps={[{ ...steps[0]!, cover: <img alt="" src="cover.png" /> }, steps[1]!]}
-        current={_bind(step)}
+        _current={_bind(step)}
         propsCover={{ class: 'cover' }}
       />
     ));

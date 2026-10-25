@@ -17,15 +17,15 @@ interface PropsContext {
 /**
  * 参数解构 → 实例内的 prop 访问器（参考 Svelte 5 的 $.prop）：
  *
- *   _component(({ size = 'md', icon = pick(size), checked = _bindable(false), ...rest }) => …)
+ *   _component(({ size = 'md', icon = pick(size), _checked: checked = _bindable(false), ...rest }) => …)
  *   ↓
  *   _component((__props, __ctx) => {
  *     const size = prop(__props, 'size', () => 'md')
  *     const icon = prop(__props, 'icon', () => pick(size.value))
- *     const checked = bindable(__props, 'checked', () => false, __ctx.emit)
+ *     const checked = bindable(__props, '_checked', () => false, __ctx.emit)
  *     const rest = restProps(__props, __ctx, true)   // attrs 加上 children；已单独解构 children 时为 false
  *     …
- *   }, { name: 'Toggle', props: ['size', 'icon', 'checked', 'onUpdate:checked'] })
+ *   }, { name: 'Toggle', props: ['size', 'icon', '_checked', 'onUpdate:_checked'] })
  *
  * 默认值在实例内惰性求值：可以是任意表达式，也可以引用前面的 prop。
  */
@@ -139,9 +139,30 @@ function readPropPattern(property: NodePath) {
   if (!value.isIdentifier()) {
     throw fail(value, 'props 不支持嵌套解构：先解构出整个值，再在函数体里读取它的属性');
   }
+  // 可双向绑定的 prop 以下划线开头（_value、_open），父级一眼看出 _value={_bind(x)} 是绑定；
+  // 下划线只留给它们，本地变量也不用下划线开头（留给符文）
+  const local = value.node.name;
+  if (isBindable && !key.startsWith('_')) {
+    throw fail(
+      property,
+      `可双向绑定的 prop 以下划线开头：写成 { _${key}: ${local} = _bindable(…) }`,
+    );
+  }
+  if (!isBindable && key.startsWith('_')) {
+    throw fail(
+      property,
+      `下划线开头的 prop 留给可双向绑定的值：用 _bindable 声明（{ ${key}: ${key.slice(1)} = _bindable(…) }），或去掉下划线`,
+    );
+  }
+  if (local.startsWith('_')) {
+    throw fail(
+      property,
+      `本地变量不用下划线开头（留给符文）：写成 { ${key}: ${key.replace(/^_+/, '')} = _bindable(…) }`,
+    );
+  }
   // Vue 把声明的 prop 名与传入的属性名都转成驼峰：'aria-label' 要按 ariaLabel 读取
   const camelKey = key.replace(/-(\w)/g, (_, c: string) => c.toUpperCase());
-  return { key: camelKey, local: value.node.name, fallback, isBindable };
+  return { key: camelKey, local, fallback, isBindable };
 }
 
 /**

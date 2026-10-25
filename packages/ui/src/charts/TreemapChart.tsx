@@ -45,8 +45,8 @@ export interface TreemapChartProps<T extends object>
   height?: number | string;
   /** 外层分组也写名字（块够大时） */
   groupLabels?: boolean;
-  /** 隐藏的顶层分组：点图例时写回，父级可以写 hiddenGroups={_bind(keys)} */
-  hiddenGroups?: string[];
+  /** 隐藏的顶层分组：点图例时写回，父级可以写 _hiddenGroups={_bind(keys)} */
+  _hiddenGroups?: string[];
   /** 加载中：绘图区显示骨架 */
   loading?: boolean;
   /** 没有数据时显示的内容 */
@@ -70,7 +70,7 @@ export const TreemapChart = _component(
     unit,
     height = 300,
     groupLabels = false,
-    hiddenGroups = _bindable<string[]>([]),
+    _hiddenGroups: hiddenGroups = _bindable<string[]>([]),
     loading = false,
     empty,
     tooltip = true,

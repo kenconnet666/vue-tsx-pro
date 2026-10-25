@@ -69,8 +69,8 @@ const columns: DataTableColumn<Line>[] = [
     // 自定义编辑器：拿到草稿、提交与放弃
     editor: ({ value, onChange, error }) => (
       <DateField
-        value={(value as string | null) ?? null}
-        {...{ 'onUpdate:value': onChange }}
+        _value={(value as string | null) ?? null}
+        {...{ 'onUpdate:_value': onChange }}
         size="sm"
         invalid={!!error}
         aria-label="交期"

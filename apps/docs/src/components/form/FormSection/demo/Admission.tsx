@@ -52,20 +52,20 @@ export default _component(() => {
         <Flex direction="column" gap="xl">
           <FormSection id={sections[0].id} title="企业信息" columns={2} minColumnWidth="16em">
             <Field label="企业名称" required>
-              <TextField value={_bind(form.name)} />
+              <TextField _value={_bind(form.name)} />
             </Field>
             <Field label="统一社会信用代码" required>
-              <TextField value={_bind(form.code)} />
+              <TextField _value={_bind(form.code)} />
             </Field>
             <Field label="成立日期">
-              <DatePicker value={_bind(form.founded)} />
+              <DatePicker _value={_bind(form.founded)} />
             </Field>
             <Field label="员工人数">
-              <NumberField value={_bind(form.staff)} suffix="人" />
+              <NumberField _value={_bind(form.staff)} suffix="人" />
             </Field>
             <GridItem span="full">
               <Field label="注册地址">
-                <TextField value={_bind(form.address)} />
+                <TextField _value={_bind(form.address)} />
               </Field>
             </GridItem>
           </FormSection>
@@ -78,7 +78,7 @@ export default _component(() => {
           >
             <Field label="主营类别" required>
               <Select
-                value={_bind(form.category)}
+                _value={_bind(form.category)}
                 items={[
                   { value: 'machining', label: '机加件' },
                   { value: 'composite', label: '复合材料件' },
@@ -87,11 +87,11 @@ export default _component(() => {
               />
             </Field>
             <Field label="年产能">
-              <NumberField value={_bind(form.capacity)} suffix="件 / 年" />
+              <NumberField _value={_bind(form.capacity)} suffix="件 / 年" />
             </Field>
             <GridItem span="full">
               <Field label="零件类别">
-                <CheckboxGroup value={_bind(form.parts)} orientation="horizontal">
+                <CheckboxGroup _value={_bind(form.parts)} orientation="horizontal">
                   <Checkbox value="bracket">支架</Checkbox>
                   <Checkbox value="fastener">紧固件</Checkbox>
                   <Checkbox value="seal">密封件</Checkbox>
@@ -104,7 +104,7 @@ export default _component(() => {
           <FormSection id={sections[2].id} title="质量体系" columns={2} minColumnWidth="16em">
             <Field label="认证" required>
               <Select
-                value={_bind(form.cert)}
+                _value={_bind(form.cert)}
                 items={[
                   { value: 'as9100', label: 'AS9100D' },
                   { value: 'iso9001', label: 'ISO 9001' },
@@ -112,24 +112,24 @@ export default _component(() => {
               />
             </Field>
             <Field label="证书有效期至">
-              <DatePicker value={_bind(form.certExpire)} />
+              <DatePicker _value={_bind(form.certExpire)} />
             </Field>
             <GridItem span="full">
               <Field label="最近一次二方审核" description="时间、审核方、主要不符合项">
-                <Textarea value={_bind(form.audit)} rows={2} />
+                <Textarea _value={_bind(form.audit)} rows={2} />
               </Field>
             </GridItem>
           </FormSection>
           <FormSection id={sections[3].id} title="结算信息" columns={2} minColumnWidth="16em">
             <Field label="开户行" required>
-              <TextField value={_bind(form.bank)} />
+              <TextField _value={_bind(form.bank)} />
             </Field>
             <Field label="账号" required>
-              <TextField value={_bind(form.account)} />
+              <TextField _value={_bind(form.account)} />
             </Field>
             <Field label="账期">
               <Select
-                value={_bind(form.terms)}
+                _value={_bind(form.terms)}
                 items={[
                   { value: '30', label: '30 天' },
                   { value: '60', label: '60 天' },

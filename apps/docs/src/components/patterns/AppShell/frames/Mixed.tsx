@@ -140,7 +140,7 @@ export default _component(() => {
         </NavList>
       }
       sidebarCollapsible
-      sidebarCollapsed={_bind(collapsed)}
+      _sidebarCollapsed={_bind(collapsed)}
       tabs={
         <PageTabs
           pages={tabs}

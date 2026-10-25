@@ -271,8 +271,8 @@ export interface NavGroupProps extends PartProps<'li'> {
   label: VNodeChild;
   /** 标题前的图标 */
   icon?: IconData;
-  /** 是否展开：父级写 open={_bind(x)}；含当前页时自动展开 */
-  open?: boolean;
+  /** 是否展开：父级写 _open={_bind(x)}；含当前页时自动展开 */
+  _open?: boolean;
   /** 标题按钮的部件属性 */
   propsTrigger?: Omit<Partial<ButtonBaseProps>, 'aria-expanded' | 'aria-controls'>;
   /** 展开区（Collapsible）的部件属性 */
@@ -291,7 +291,7 @@ export const NavGroup = _component(
   ({
     label,
     icon,
-    open = _bindable(false),
+    _open: open = _bindable(false),
     propsTrigger,
     propsContent,
     propsList,
@@ -401,7 +401,7 @@ export const NavGroup = _component(
               },
               propsContent,
             )}
-            open={_bind(open)}
+            _open={_bind(open)}
           >
             <FlexList
               {...mergePartProps<FlexProps<'ul'>>(

@@ -4,7 +4,7 @@
  * 原生的 reset（type="reset" 的按钮）回到初始值。
  *
  *   <Form controller={form}>
- *     <form.Field name="email" label="邮箱"><TextField value={_bind(form.values.email)} /></form.Field>
+ *     <form.Field name="email" label="邮箱"><TextField _value={_bind(form.values.email)} /></form.Field>
  *     <Button type="submit" loading={form.submitting}>保存</Button>
  *   </Form>
  *

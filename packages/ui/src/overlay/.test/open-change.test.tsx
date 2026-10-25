@@ -27,7 +27,7 @@ describe('Dialog 的 onOpenChange', () => {
     let open = _state(true);
     const onOpenChange = vi.fn();
     const root = mount(() => (
-      <Dialog open={_bind(open)} title="编辑" onOpenChange={onOpenChange} onConfirm={() => {}}>
+      <Dialog _open={_bind(open)} title="编辑" onOpenChange={onOpenChange} onConfirm={() => {}}>
         正文
       </Dialog>
     ));
@@ -59,7 +59,7 @@ describe('Dialog 的 onOpenChange', () => {
     let open = _state(true);
     const beforeClose = vi.fn((_details: OpenChangeDetails) => false);
     const root = mount(() => (
-      <Dialog open={_bind(open)} title="编辑" beforeClose={beforeClose}>
+      <Dialog _open={_bind(open)} title="编辑" beforeClose={beforeClose}>
         正文
       </Dialog>
     ));
@@ -90,7 +90,7 @@ describe('Popover 与 Menu 的 onOpenChange', () => {
   it('Menu：执行一项是 select', async () => {
     const onOpenChange = vi.fn();
     const root = mount(() => (
-      <Menu open onOpenChange={onOpenChange} trigger={(props) => <button {...props}>操作</button>}>
+      <Menu _open onOpenChange={onOpenChange} trigger={(props) => <button {...props}>操作</button>}>
         <MenuItem onAction={() => {}}>重命名</MenuItem>
       </Menu>
     ));

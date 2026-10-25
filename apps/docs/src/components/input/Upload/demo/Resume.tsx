@@ -25,11 +25,11 @@ export default _component(() => {
     <form onSubmit={submit}>
       <Flex direction="column" gap="md">
         <Field label="姓名">
-          <TextField name="name" value="林小满" />
+          <TextField name="name" _value="林小满" />
         </Field>
         <Field label="简历" required description="PDF 或 Word，不超过 10 MB；提交时一起上传">
           <Upload
-            value={_bind(resume)}
+            _value={_bind(resume)}
             name="resume"
             accept=".pdf,.doc,.docx"
             maxSize={10_000_000}

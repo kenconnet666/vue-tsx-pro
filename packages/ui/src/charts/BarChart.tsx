@@ -39,7 +39,7 @@ export const BarChart = _component(
     stacked = false,
     orientation = 'vertical',
     radius = 4,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     ...rest
   }: BarChartProps<T>) => {
     const kind = _derived<XYChartKind<T>>({
@@ -74,6 +74,6 @@ export const BarChart = _component(
         return [bars];
       },
     });
-    return () => <XYChart {...rest} hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
+    return () => <XYChart {...rest} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
   },
 );

@@ -9,7 +9,7 @@ export default _component(() => {
     <Flex direction="column" gap="sm" align="start">
       <Card padding="sm">
         <Calendar
-          value={_bind(date)}
+          _value={_bind(date)}
           fixedWeeks
           defaultFocused="2026-12-01"
           onPick={() => picks++}

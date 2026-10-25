@@ -2,7 +2,7 @@
  * 图片预览（全屏的模态 dialog）：深色背景上看大图——缩放、拖动、旋转、还原、下载，几张图时左右切换。
  * Image 的 preview 打开它（同一个 ImageGroup 里的图共用一个），也可以单独用。参考 Ant Design Image 的预览、Element Plus 的 image-viewer。
  *
- *   <Lightbox open={_bind(viewing)} index={_bind(at)} items={[{ src: '/photos/1.jpg', alt: '支架正面' }, …]} />
+ *   <Lightbox _open={_bind(viewing)} _index={_bind(at)} items={[{ src: '/photos/1.jpg', alt: '支架正面' }, …]} />
  *
  * - 平移与缩放建在 usePanZoom 上：拖动平移，滚轮、触控板、捏合以指针为中心缩放，双击放大 / 还原；
  *   打开或换一张时整张图放进视口（不超过原大）。旋转以 90° 为一档，转完重新放进视口。
@@ -50,12 +50,12 @@ export interface LightboxItem {
 /** 打开、关联由组件管理；未声明的属性落到 dialog 上 */
 export interface LightboxProps
   extends PartProps<'dialog', 'open' | 'aria-label' | 'aria-labelledby'>, OpenChangeProps {
-  /** 是否打开：父级写 open={_bind(x)}；Esc、关闭按钮会关上并写回 */
-  open?: boolean;
+  /** 是否打开：父级写 _open={_bind(x)}；Esc、关闭按钮会关上并写回 */
+  _open?: boolean;
   /** 图片 */
   items: readonly LightboxItem[];
-  /** 当前第几张，从 0 开始：父级可以写 index={_bind(x)} */
-  index?: number;
+  /** 当前第几张，从 0 开始：父级可以写 _index={_bind(x)} */
+  _index?: number;
   /** 到头之后从另一头继续，默认 false */
   loop?: boolean;
   /** 工具栏按钮的部件属性 */
@@ -163,10 +163,10 @@ export const lightboxDynamicStyles = css.create({
 /** 图片预览：全屏 dialog，缩放、拖动、旋转、左右切换 */
 export const Lightbox = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     items,
-    index = _bindable(0),
+    _index: index = _bindable(0),
     loop = false,
     propsButton,
     propsViewport,

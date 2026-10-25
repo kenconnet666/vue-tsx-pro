@@ -30,10 +30,15 @@ export const DateDemo = _component(() => {
   return () => (
     <Flex direction="column" gap="lg">
       <Flex gap="lg" wrap align="start">
-        <Calendar class="calendar-demo" value={_bind(day)} aria-label="出发日期" min="2026-10-05" />
+        <Calendar
+          class="calendar-demo"
+          _value={_bind(day)}
+          aria-label="出发日期"
+          min="2026-10-05"
+        />
         <RangeCalendar
           class="range-calendar-demo"
-          value={_bind(stay)}
+          _value={_bind(stay)}
           visibleMonths={2}
           defaultFocused="2026-10-01"
           isDateUnavailable={(date) => booked.has(date)}
@@ -45,10 +50,10 @@ export const DateDemo = _component(() => {
       </Text>
       <Flex gap="lg" wrap>
         <Field label="生日" class="date-field-demo">
-          <DateField value={_bind(birthday)} clearable max="2026-10-20" name="birthday" />
+          <DateField _value={_bind(birthday)} clearable max="2026-10-20" name="birthday" />
         </Field>
         <Field label="提醒时间" class="time-field-demo">
-          <TimeField value={_bind(time)} />
+          <TimeField _value={_bind(time)} />
         </Field>
       </Flex>
       <Text class="field-summary">
@@ -56,17 +61,17 @@ export const DateDemo = _component(() => {
       </Text>
       <Flex gap="lg" wrap>
         <Field label="出发日期" class="date-picker-demo">
-          <DatePicker value={_bind(departure)} min="2026-10-05" />
+          <DatePicker _value={_bind(departure)} min="2026-10-05" />
         </Field>
         <Field label="会议开始" class="date-time-picker-demo">
-          <DatePicker granularity="minute" value={_bind(meeting)} />
+          <DatePicker granularity="minute" _value={_bind(meeting)} />
         </Field>
         <Field label="闹钟" class="time-picker-demo">
-          <TimePicker value={_bind(alarm)} min="09:00" max="18:00" />
+          <TimePicker _value={_bind(alarm)} min="09:00" max="18:00" />
         </Field>
         <Field label="统计区间" class="range-picker-demo">
           <DateRangePicker
-            value={_bind(period)}
+            _value={_bind(period)}
             max="2026-10-21"
             presets={['last7Days', 'thisMonth']}
           />

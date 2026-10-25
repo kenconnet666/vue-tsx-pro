@@ -33,7 +33,7 @@ export default _component(() => () => (
           值是 ISO 日期字符串（<Code>'2026-10-20'</Code>），和原生日期输入框、URL 参数、zod 的{' '}
           <Code>z.iso.date()</Code> 一致；<Code>todayIso</Code>、<Code>shiftIsoDate</Code>、
           <Code>daysBetween</Code> 直接在这种字符串上算，<Code>useFormat().date</Code>{' '}
-          也直接收它。用 @internationalized/date 的话，<Code>value</Code>、<Code>min</Code>、
+          也直接收它。用 @internationalized/date 的话，<Code>_value</Code>、<Code>min</Code>、
           <Code>max</Code> 也可以传
           CalendarDate、CalendarDateTime、ZonedDateTime，写回时保持同一种类型（时间、时区不丢），一开始为空时用{' '}
           <Code>valueType="dateValue"</Code> 指定。<Code>min</Code>{' '}

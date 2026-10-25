@@ -6,7 +6,7 @@
  *     events={meetings}
  *     getEventDate={(meeting) => meeting.date}
  *     getEventLabel={(meeting) => meeting.title}
- *     value={_bind(day)}
+ *     _value={_bind(day)}
  *     aria-label="会议日程"
  *   />
  *
@@ -59,10 +59,10 @@ export interface CalendarBoardDayState {
 
 /** 未声明的属性落到根元素上；aria-label 是整个月历的名称 */
 export interface CalendarBoardProps<T = unknown> extends PartProps<'div', 'role'>, DateLimitProps {
-  /** 选中的那一天（ISO 日期）：父级写 value={_bind(day)}；没有时 null */
-  value?: string | null;
-  /** 显示哪个月（'YYYY-MM'）：父级可写 month={_bind(m)}，翻页时写回；不写时从选中的那天（或今天）开始 */
-  month?: string;
+  /** 选中的那一天（ISO 日期）：父级写 _value={_bind(day)}；没有时 null */
+  _value?: string | null;
+  /** 显示哪个月（'YYYY-MM'）：父级可写 _month={_bind(m)}，翻页时写回；不写时从选中的那天（或今天）开始 */
+  _month?: string;
   /** 一周的第一天，0 是周日；不写时按语言 */
   firstDayOfWeek?: number;
   /** 按天放的数据：日程、排班、提醒 */
@@ -187,8 +187,8 @@ export const calendarBoardStyles = css.create({
 /** 整页的月历：每天一个大格子，放日程、排班、节假日 */
 export const CalendarBoard = _component(
   <T,>({
-    value = _bindable<string | null>(null),
-    month = _bindable<string | undefined>(undefined),
+    _value: value = _bindable<string | null>(null),
+    _month: month = _bindable<string | undefined>(undefined),
     firstDayOfWeek,
     min,
     max,

@@ -32,17 +32,17 @@ export default _component(() => {
       <Flex direction="column" gap="md">
         <Grid minItemWidth="12rem" gap="md">
           <Field label="城市">
-            <Select items={['北京', '上海', '深圳', '杭州']} value={_bind(city)} name="city" />
+            <Select items={['北京', '上海', '深圳', '杭州']} _value={_bind(city)} name="city" />
           </Field>
           <Field label="月租预算（元）">
-            <NumberField value={_bind(budget)} name="budget" step={100} />
+            <NumberField _value={_bind(budget)} name="budget" step={100} />
           </Field>
         </Grid>
         <Field label={`卧室：${rooms} 间`}>
-          <Slider value={_bind(rooms)} min={1} max={5} name="rooms" />
+          <Slider _value={_bind(rooms)} min={1} max={5} name="rooms" />
         </Field>
         <Field label="偏好">
-          <TagsInput value={_bind(tags)} name="tags" />
+          <TagsInput _value={_bind(tags)} name="tags" />
         </Field>
         <Flex justify="end">
           <Button type="submit">搜索房源</Button>

@@ -39,7 +39,7 @@ export const ScatterChart = _component(
     xLabel,
     xFormat,
     size = 9,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     ...rest
   }: ScatterChartProps<T>) => {
     const format = useFormat();
@@ -70,6 +70,6 @@ export const ScatterChart = _component(
           return points;
         }),
     });
-    return () => <XYChart {...rest} hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
+    return () => <XYChart {...rest} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
   },
 );

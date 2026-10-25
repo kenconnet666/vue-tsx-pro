@@ -31,14 +31,14 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Grid minItemWidth="12rem" gap="lg" align="end">
         <Field label="画质">
-          <ToggleGroup value={_bind(quality)} required>
+          <ToggleGroup _value={_bind(quality)} required>
             <ToggleItem value="auto">自动</ToggleItem>
             <ToggleItem value="low">低</ToggleItem>
             <ToggleItem value="high">高</ToggleItem>
             <ToggleItem value="off">关</ToggleItem>
           </ToggleGroup>
         </Field>
-        <Switch checked={_bind(paused)}>暂停</Switch>
+        <Switch _checked={_bind(paused)}>暂停</Switch>
       </Grid>
       <Globe
         sx={styles.globe}

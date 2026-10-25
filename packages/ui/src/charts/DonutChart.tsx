@@ -64,8 +64,8 @@ export interface DonutChartProps<T extends object>
    * @default false
    */
   loading?: boolean;
-  /** 隐藏的项（存名称）：点图例时写回，父级可以写 hiddenItems={_bind(names)} */
-  hiddenItems?: string[];
+  /** 隐藏的项（存名称）：点图例时写回，父级可以写 _hiddenItems={_bind(names)} */
+  _hiddenItems?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
   /**
@@ -111,7 +111,7 @@ export const DonutChart = _component(
     tooltip = true,
     loading = false,
     onItemClick,
-    hiddenItems = _bindable<string[]>([]),
+    _hiddenItems: hiddenItems = _bindable<string[]>([]),
     empty,
     ...rest
   }: DonutChartProps<T>) => {

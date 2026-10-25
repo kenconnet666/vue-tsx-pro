@@ -49,8 +49,8 @@ export interface HoverCardProps
     Pick<FloatingOptions, 'offset'>,
     LazyContentOptions,
     OpenChangeProps {
-  /** 是否打开：父级可以写 open={_bind(x)} 控制或得知 */
-  open?: boolean;
+  /** 是否打开：父级可以写 _open={_bind(x)} 控制或得知 */
+  _open?: boolean;
   /** 弹出位置，默认 bottom；空间不够时自动翻转 */
   placement?: FloatingPlacement;
   /** 指针停留多久后打开（毫秒），默认 700 */
@@ -80,7 +80,7 @@ const hoverCards = createHoverGroup();
 /** 悬停卡片：悬停或键盘聚焦时在触发器旁边显示富内容 */
 export const HoverCard = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     placement = 'bottom',
     offset,

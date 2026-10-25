@@ -59,7 +59,7 @@ export default _component(() => {
         <TextField
           type="search"
           icon={Search}
-          value={_bind(query)}
+          _value={_bind(query)}
           placeholder="搜索章节（试试“检验”“bj”）"
           aria-label="搜索章节"
         />
@@ -68,7 +68,7 @@ export default _component(() => {
           getKey={(section) => section.id}
           getLabel={(section) => section.title}
           getChildren={(section) => section.children}
-          expanded={_bind(expanded)}
+          _expanded={_bind(expanded)}
           filter={query}
           onMove={({ key, target }) => {
             sections = moveNode(sections, editor, key, target) ?? sections;

@@ -20,11 +20,11 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Grid minItemWidth="12rem" gap="lg" align="end">
         <Field label={`圆角：${radius}px`}>
-          <Slider value={_bind(radius)} min={0} max={12} />
+          <Slider _value={_bind(radius)} min={0} max={12} />
         </Field>
         <Flex gap="lg" wrap>
-          <Switch checked={_bind(grid)}>网格线</Switch>
-          <Switch checked={_bind(tooltip)}>提示框</Switch>
+          <Switch _checked={_bind(grid)}>网格线</Switch>
+          <Switch _checked={_bind(tooltip)}>提示框</Switch>
         </Flex>
       </Grid>
       <BarChart

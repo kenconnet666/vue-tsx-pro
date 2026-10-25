@@ -14,7 +14,7 @@ export default _component(() => {
   let loading = _state(true);
   return () => (
     <Flex direction="column" gap="md">
-      <Switch checked={_bind(loading)}>加载中</Switch>
+      <Switch _checked={_bind(loading)}>加载中</Switch>
       <Card style={{ maxWidth: '24rem' }}>
         <Flex gap="md" align="center">
           <Skeleton loading={loading} variant="circle">

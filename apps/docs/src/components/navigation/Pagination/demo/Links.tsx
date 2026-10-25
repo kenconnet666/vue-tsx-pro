@@ -7,7 +7,7 @@ export default _component(() => () => (
       <Small tone="muted">href：渲染为链接，可以分享、可以被收录</Small>
       <Pagination
         aria-label="文章分页"
-        page={3}
+        _page={3}
         pageCount={12}
         href={(page) => `#articles-page-${page}`}
       />

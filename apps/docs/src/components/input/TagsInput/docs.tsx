@@ -27,7 +27,7 @@ export default _component(() => () => (
           <Code>allowCustomValue={'{false}'}</Code> 只能从建议里选。
         </Example>
         <Example id="remote" title="异步建议" demo={Remote}>
-          <Code>inputValue</Code> 双向绑定输入框的文字，按它请求建议；
+          <Code>_inputValue</Code> 双向绑定输入框的文字，按它请求建议；
           <Code>filter={'{false}'}</Code> 不再本地过滤，<Code>loading</Code> 时建议列表显示加载中。
         </Example>
       </ExampleColumn>

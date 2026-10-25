@@ -26,7 +26,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <RangeCalendar
-        value={_bind(range)}
+        _value={_bind(range)}
         visibleMonths={2}
         max={today}
         aria-label="统计区间"

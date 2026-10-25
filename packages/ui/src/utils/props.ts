@@ -187,7 +187,7 @@ function compileSx(sx: SxStyles) {
   return compiled;
 }
 
-/** onClick、onUpdate:value：on 后面跟大写字母 */
+/** onClick、onUpdate:_value：on 后面跟大写字母 */
 function isHandlerKey(key: string) {
   const third = key.charCodeAt(2);
   return key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110 && third >= 65 && third <= 90;

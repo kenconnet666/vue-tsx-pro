@@ -26,8 +26,8 @@ export interface EllipsisProps extends PartProps<'span'> {
   lines?: number;
   /** 截断时后面放“展开”按钮，展开后显示全部 */
   expandable?: boolean;
-  /** 是否展开：父级可以写 expanded={_bind(x)} */
-  expanded?: boolean;
+  /** 是否展开：父级可以写 _expanded={_bind(x)} */
+  _expanded?: boolean;
   /** 截断时悬停、聚焦显示的提示，默认是 children；false 不提示（expandable 时默认不提示） */
   tooltip?: VNodeChild | false;
   /** 截断的那段文字的部件属性 */
@@ -69,7 +69,7 @@ export const Ellipsis = _component(
   ({
     lines = 1,
     expandable = false,
-    expanded = _bindable(false),
+    _expanded: expanded = _bindable(false),
     tooltip,
     propsText,
     propsToggle,

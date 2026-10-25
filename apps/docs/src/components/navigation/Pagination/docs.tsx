@@ -32,13 +32,13 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="bar" title="分页栏" demo={Bar}>
           表格、列表下方的一整行：起始边是“第 1–5 条，共 1,286 条”，结束边是页码、每页条数与跳页。
-          <Code>page</Code>、<Code>pageSize</Code> 都双向绑定（接 useTableQuery 时直接{' '}
+          <Code>_page</Code>、<Code>_pageSize</Code> 都双向绑定（接 useTableQuery 时直接{' '}
           <Code>_bind</Code> 它的同名字段），换每页条数回到第 1
           页；只有一页时不显示跳页。分页导航的名称用 <Code>propsPagination</Code> 的{' '}
           <Code>aria-label</Code> 区分。
         </Example>
         <Example id="full" title="自己组合" demo={Full}>
-          给了 <Code>total</Code> 与 <Code>pageSize</Code> 就自动算页数，也可以直接给{' '}
+          给了 <Code>total</Code> 与 <Code>_pageSize</Code> 就自动算页数，也可以直接给{' '}
           <Code>pageCount</Code>。<Code>showTotal</Code> 显示总条数；每页条数变了时，在
           PageSizeSelect 的 <Code>onSizeChange</Code> 里回到第 1
           页。三个组件各自独立，排法与分页栏不同时自己并排。

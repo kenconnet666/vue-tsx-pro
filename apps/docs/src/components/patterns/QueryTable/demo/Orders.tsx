@@ -125,15 +125,20 @@ export default _component(() => {
       filters={(draft) => (
         <>
           <Field label="关键字">
-            <TextField value={_bind(draft.keyword)} placeholder="单号或供应商" clearable />
+            <TextField _value={_bind(draft.keyword)} placeholder="单号或供应商" clearable />
           </Field>
           <Field label="品类">
-            <Select items={categories} value={_bind(draft.category)} placeholder="全部" clearable />
+            <Select
+              items={categories}
+              _value={_bind(draft.category)}
+              placeholder="全部"
+              clearable
+            />
           </Field>
           <Field label="状态">
             <Select
               items={statuses.options()}
-              value={_bind(draft.status)}
+              _value={_bind(draft.status)}
               placeholder="全部"
               clearable
             />
@@ -142,7 +147,7 @@ export default _component(() => {
       )}
       moreFilters={(draft) => (
         <Field label="采购员">
-          <TextField value={_bind(draft.buyer)} placeholder="姓名" clearable />
+          <TextField _value={_bind(draft.buyer)} placeholder="姓名" clearable />
         </Field>
       )}
       toolbar={
@@ -156,7 +161,7 @@ export default _component(() => {
         </>
       }
       selectionMode="multiple"
-      selected={_bind(selected)}
+      _selected={_bind(selected)}
       batchActions={(keys) => (
         <>
           <Button size="sm" variant="outline" tone="neutral">

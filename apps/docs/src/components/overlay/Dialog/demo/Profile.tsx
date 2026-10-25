@@ -55,7 +55,7 @@ export default _component(() => {
         </Button>
       </Flex>
       <Dialog
-        open={_bind(open)}
+        _open={_bind(open)}
         title="编辑资料"
         description="修改后立即对团队成员可见。"
         confirmText="保存"
@@ -63,13 +63,13 @@ export default _component(() => {
       >
         <Flex direction="column" gap="lg">
           <Field label="姓名" required error={nameError || undefined}>
-            <TextField value={_bind(draft.name)} autofocus />
+            <TextField _value={_bind(draft.name)} autofocus />
           </Field>
           <Field label="部门">
-            <Select items={departments} value={_bind(draft.department)} />
+            <Select items={departments} _value={_bind(draft.department)} />
           </Field>
           <Field label="简介" description="显示在个人主页，最多 80 字。">
-            <Textarea value={_bind(draft.bio)} rows={3} />
+            <Textarea _value={_bind(draft.bio)} rows={3} />
           </Field>
         </Flex>
       </Dialog>

@@ -37,7 +37,7 @@ export default _component(() => {
       </Button>
       <Small tone="muted">{result || '导入期间点遮罩不会关闭，也没有右上角的关闭按钮'}</Small>
       <Dialog
-        open={_bind(open)}
+        _open={_bind(open)}
         title="正在导入通讯录"
         description="完成后自动关闭；可以随时取消，已导入的联系人会保留。"
         closable={false}

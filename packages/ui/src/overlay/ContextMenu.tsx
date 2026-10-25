@@ -18,8 +18,8 @@ import { Menu, type MenuProps } from './Menu';
 
 /** 未声明的属性落到区域的 div 上 */
 export interface ContextMenuProps extends PartProps<'div'>, OpenChangeProps {
-  /** 菜单是否打开：父级可以写 open={_bind(x)} */
-  open?: boolean;
+  /** 菜单是否打开：父级可以写 _open={_bind(x)} */
+  _open?: boolean;
   /** 菜单项：同 Menu 的 children */
   menu: VNodeChild;
   /** 菜单的名称，默认取语言包（更多操作） */
@@ -35,7 +35,7 @@ export interface ContextMenuProps extends PartProps<'div'>, OpenChangeProps {
 /** 右键菜单：区域 + 从指针位置弹出的 Menu */
 export const ContextMenu = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     menu,
     label,
@@ -94,7 +94,7 @@ export const ContextMenu = _component(
             propsMenu,
             { point },
           )}
-          open={_bind(open)}
+          _open={_bind(open)}
           onOpenChange={onOpenChange}
         >
           {menu}

@@ -63,7 +63,7 @@ export default _component(() => () => (
       ，项里一个“查看详情”的按钮点开才显示（打开时才渲染）。
       <Code>maxVisible</Code> 只显示最新的几项，其余收起在“展开其余 N
       条”后面，按钮在旧的那一端（倒序时在最后），展开后变成“收起”；是否展开可以用{' '}
-      <Code>expanded</Code> 绑定。
+      <Code>_expanded</Code> 绑定。
     </Example>
     <ApiReference api={[api, itemApi, workflowApi]} />
   </DocPage>

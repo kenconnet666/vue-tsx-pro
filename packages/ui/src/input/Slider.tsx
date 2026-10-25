@@ -3,9 +3,9 @@
  * 方向键 ±step，Page Up / Page Down ±bigStep，Home / End 到两端；从右到左排版时横向的方向键反过来。
  * 点击轨道任意位置直接跳过去并接着拖动。参考 Radix Slider、React Aria useSlider。
  *
- *   <Slider value={_bind(volume)} aria-label="音量" />
- *   <Slider value={_bind(price)} min={0} max={1000} step={50} valueText={(v) => `${v} 元`} />
- *   <Slider value={_bind(range)} aria-label="价格" marks={[0, { value: 500, label: '500' }, 1000]} />   范围：[低, 高]
+ *   <Slider _value={_bind(volume)} aria-label="音量" />
+ *   <Slider _value={_bind(price)} min={0} max={1000} step={50} valueText={(v) => `${v} 元`} />
+ *   <Slider _value={_bind(range)} aria-label="价格" marks={[0, { value: 500, label: '500' }, 1000]} />   范围：[低, 高]
  *
  * value 是数组 [低, 高] 时是范围选择：两个滑块各自可聚焦、可拖动，不能交叉；点击轨道移动离得近的那个。
  * 两个滑块的名称在 aria-label（或 Field 的标签）后面加上“最小值”“最大值”，取值范围互相限制（同 WAI-ARIA 多滑块）。
@@ -61,8 +61,8 @@ export interface SliderProps<V extends SliderValue = number> extends PartProps<
   'div',
   SliderManaged
 > {
-  /** 当前值：父级写 value={_bind(x)} 双向绑定，拖动中实时写回；数组 [低, 高] 时是范围选择 */
-  value?: V;
+  /** 当前值：父级写 _value={_bind(x)} 双向绑定，拖动中实时写回；数组 [低, 高] 时是范围选择 */
+  _value?: V;
   /** 最小值，默认 0 */
   min?: number;
   /** 最大值，默认 100 */
@@ -197,7 +197,7 @@ export const sliderPositionStyles = css.create({
 /** 滑块：在 min–max 之间按 step 拖动或用键盘选值；value 为 [低, 高] 时选一个范围 */
 export const Slider = _component(
   <V extends SliderValue = number>({
-    value = _bindable<V>(0 as V),
+    _value: value = _bindable<V>(0 as V),
     min = 0,
     max = 100,
     step = 1,

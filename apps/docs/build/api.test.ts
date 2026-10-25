@@ -21,7 +21,7 @@ describe('extractComponentApi', () => {
 
   it('默认值里的类型断言不显示（_bindable(0 as V) 显示 0）', () => {
     const slider = extractComponentApi('SliderProps');
-    expect(slider.props.find((item) => item.name === 'value')!.default).toBe('0');
+    expect(slider.props.find((item) => item.name === '_value')!.default).toBe('0');
   });
 
   it('泛型组件的 XxxBaseProps：默认值从组件 Xxx 的参数里读', () => {
@@ -55,7 +55,7 @@ describe('extractComponentApi', () => {
     expect(prop('propsIcon').kind).toBe('part');
     expect(prop('children').kind).toBe('content');
     const collapse = extractComponentApi('CollapseProps');
-    expect(collapse.props.find((item) => item.name === 'open')!.bindable).toBe(true);
+    expect(collapse.props.find((item) => item.name === '_open')!.bindable).toBe(true);
   });
 
   it('组件自己重新声明的 prop 覆盖共用选项的默认值', () => {

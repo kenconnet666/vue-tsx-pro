@@ -53,8 +53,8 @@ export interface RadarChartProps<T extends object>
   height?: number | string;
   /** 图例：默认多于一个系列时显示 */
   legend?: boolean;
-  /** 隐藏的系列：点图例时写回，父级可以写 hiddenSeries={_bind(keys)} */
-  hiddenSeries?: string[];
+  /** 隐藏的系列：点图例时写回，父级可以写 _hiddenSeries={_bind(keys)} */
+  _hiddenSeries?: string[];
   /** 加载中：绘图区显示骨架 */
   loading?: boolean;
   /** 没有数据时显示的内容 */
@@ -118,7 +118,7 @@ export const RadarChart = _component(
     unit,
     height = 300,
     legend,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     loading = false,
     empty,
     ...rest

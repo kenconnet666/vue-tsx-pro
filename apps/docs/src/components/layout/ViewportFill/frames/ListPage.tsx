@@ -60,7 +60,7 @@ export default _component(() => {
           flexible
         />
         <Flex justify="end">
-          <Pagination aria-label="分页" page={_bind(page)} total={400} pageSize={40} />
+          <Pagination aria-label="分页" _page={_bind(page)} total={400} pageSize={40} />
         </Flex>
       </ViewportFill>
     </AppShell>

@@ -9,14 +9,14 @@ const text = ref('');
 
 // 双向绑定与普通 prop
 export const validModel = (
-  <Toggle checked={_bind(on.value)} disabled onChange={(value) => value.valueOf()}>
+  <Toggle _checked={_bind(on.value)} disabled onChange={(value) => value.valueOf()}>
     x
   </Toggle>
 );
-export const validOneWay = <Toggle checked={true}>x</Toggle>;
+export const validOneWay = <Toggle _checked={true}>x</Toggle>;
 // @ts-expect-error _bind 的值按 prop 类型检查：checked 需要 boolean
-export const invalidModel = <Toggle checked={_bind(text.value)} />;
-export const nativeModel = <input value={_bind.trim(text.value)} />;
+export const invalidModel = <Toggle _checked={_bind(text.value)} />;
+export const nativeModel = <input _value={_bind.trim(text.value)} />;
 
 // children 与具名内容
 export const validChildren = <Card title="t">正文</Card>;

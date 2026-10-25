@@ -29,8 +29,8 @@ export default _component(() => {
               { label: '#1024' },
             ]}
           />
-          <Steps current={1} items={[{ title: 'Cart' }, { title: 'Address' }, { title: 'Pay' }]} />
-          <Slider value={_bind(volume)} aria-label="Volume" />
+          <Steps _current={1} items={[{ title: 'Cart' }, { title: 'Address' }, { title: 'Pay' }]} />
+          <Slider _value={_bind(volume)} aria-label="Volume" />
         </Flex>
       </Provider>
     </Card>

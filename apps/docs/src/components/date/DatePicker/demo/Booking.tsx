@@ -32,7 +32,7 @@ export default _component(() => {
         }
       >
         <DatePicker
-          value={_bind(visit)}
+          _value={_bind(visit)}
           min={today}
           max={last}
           isDateUnavailable={unavailable}
@@ -40,7 +40,7 @@ export default _component(() => {
         />
       </Field>
       <Field label="出生日期" description="年份久远时直接键入比翻日历快">
-        <DatePicker value={_bind(birthday)} max={today} name="birthday" clearable />
+        <DatePicker _value={_bind(birthday)} max={today} name="birthday" clearable />
       </Field>
       <Text tone="muted" size="sm">
         提交的值：visit={visit ?? 'null'}，birthday={birthday ?? 'null'}

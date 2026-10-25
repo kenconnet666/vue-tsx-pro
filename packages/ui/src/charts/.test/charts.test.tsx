@@ -116,8 +116,8 @@ describe('BarChart、LineChart', () => {
         data={rows}
         index="name"
         series={[...series]}
-        hiddenSeries={hidden.value}
-        {...{ 'onUpdate:hiddenSeries': (next: string[]) => (hidden.value = next) }}
+        _hiddenSeries={hidden.value}
+        {...{ 'onUpdate:_hiddenSeries': (next: string[]) => (hidden.value = next) }}
       />
     ));
     const buttons = [...root.querySelectorAll<HTMLButtonElement>('[role="group"] button')];
@@ -293,8 +293,8 @@ describe('SankeyChart、ChordChart', () => {
         aria-label="往来"
         nodes={nodes}
         links={links.slice(0, 2)}
-        hiddenNodes={hidden.value}
-        {...{ 'onUpdate:hiddenNodes': (next: string[]) => (hidden.value = next) }}
+        _hiddenNodes={hidden.value}
+        {...{ 'onUpdate:_hiddenNodes': (next: string[]) => (hidden.value = next) }}
       />
     ));
     const buttons = root.querySelectorAll<HTMLButtonElement>('[role="group"] button');

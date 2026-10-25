@@ -47,7 +47,7 @@ export default _component(() => {
       </Provider>
       <Card padding="sm">
         <Flex align="center" gap="md" wrap>
-          <Switch checked={_bind(ripple)}>点击波纹</Switch>
+          <Switch _checked={_bind(ripple)}>点击波纹</Switch>
           <Provider ripple={ripple}>
             <Flex gap="sm">
               <Button>保存</Button>

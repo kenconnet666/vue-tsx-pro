@@ -31,7 +31,7 @@ export default _component(() => () => (
           从后端的流转记录推出进度：走过的节点、正在处理的节点、走过的连线；退回的连线画红色虚线。
         </Example>
         <Example id="designer" title="点选与校验" demo={Designer}>
-          <Code>selectable</Code> 让节点成为按钮，<Code>selected</Code> 双向绑定选中的节点；
+          <Code>selectable</Code> 让节点成为按钮，<Code>_selected</Code> 双向绑定选中的节点；
           <Code>validateProcess</Code> 查出的问题传给 <Code>problems</Code>
           ，有问题的节点标红。现成的设计器（属性面板里改处理人、时限、超时，校验后发布）见{' '}
           <Link href="/components/flow-designer">FlowDesigner</Link>。

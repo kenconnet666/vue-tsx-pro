@@ -16,12 +16,12 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="14rem" gap="lg">
       <Field label="界面语言">
-        <Select items={languages} value={_bind(language)} icon={Globe} />
+        <Select items={languages} _value={_bind(language)} icon={Globe} />
       </Field>
       <Field label='variant="soft" radius="full"'>
         <Select
           items={cities}
-          value={_bind(city)}
+          _value={_bind(city)}
           icon={MapPin}
           variant="soft"
           radius="full"
@@ -30,16 +30,16 @@ export default _component(() => {
         />
       </Field>
       <Field label="必填" required error={city ? undefined : '请选择城市'}>
-        <Select items={cities} value={_bind(city)} placeholder="选择城市" />
+        <Select items={cities} _value={_bind(city)} placeholder="选择城市" />
       </Field>
       <Field label='size="sm"'>
-        <Select items={languages} value={_bind(language)} size="sm" />
+        <Select items={languages} _value={_bind(language)} size="sm" />
       </Field>
       <Field label="只读" readonly description="能聚焦、能看，不能打开">
-        <Select items={languages} value="en-US" icon={Globe} />
+        <Select items={languages} _value="en-US" icon={Globe} />
       </Field>
       <Field label="不可用" disabled>
-        <Select items={languages} value="ja-JP" />
+        <Select items={languages} _value="ja-JP" />
       </Field>
     </Grid>
   );

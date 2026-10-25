@@ -15,7 +15,7 @@ export default _component(() => {
       <Flex direction="column" gap="sm">
         <Field label="单机降本目标" description="值是元，按万元输入；步长 100 元">
           <NumberField
-            value={_bind(unitSaving)}
+            _value={_bind(unitSaving)}
             format={{ scale: 10_000, maximumFractionDigits: 2 }}
             step={100}
             min={0}
@@ -30,7 +30,7 @@ export default _component(() => {
       <Flex direction="column" gap="sm">
         <Field label="降 DMC 目标">
           <NumberField
-            value={_bind(dmcSaving)}
+            _value={_bind(dmcSaving)}
             step={new Decimal('0.01')}
             min={0}
             format={{ minimumFractionDigits: 2 }}
@@ -45,12 +45,12 @@ export default _component(() => {
       </Flex>
       <Flex direction="column" gap="sm">
         <Field label="贯彻架次">
-          <NumberField value={_bind(flights)} min={0} suffix="架" />
+          <NumberField _value={_bind(flights)} min={0} suffix="架" />
         </Field>
         <Text size="sm" tone="muted">
           只读时不显示加减按钮：
         </Text>
-        <NumberField value={flights} suffix="架" readonly aria-label="贯彻架次（只读）" />
+        <NumberField _value={flights} suffix="架" readonly aria-label="贯彻架次（只读）" />
       </Flex>
     </Grid>
   );

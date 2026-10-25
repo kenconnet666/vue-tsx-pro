@@ -25,7 +25,7 @@ export default _component(() => {
             粒子数
           </Text>
           <Slider
-            value={_bind(count)}
+            _value={_bind(count)}
             min={20}
             max={400}
             step={10}
@@ -38,7 +38,7 @@ export default _component(() => {
             大小
           </Text>
           <Slider
-            value={_bind(size)}
+            _value={_bind(size)}
             min={1}
             max={8}
             step={0.5}
@@ -51,7 +51,7 @@ export default _component(() => {
             连线距离
           </Text>
           <Slider
-            value={_bind(linkDistance)}
+            _value={_bind(linkDistance)}
             min={40}
             max={200}
             step={5}
@@ -64,7 +64,7 @@ export default _component(() => {
             速度
           </Text>
           <Slider
-            value={_bind(speed)}
+            _value={_bind(speed)}
             min={0}
             max={4}
             step={0.1}
@@ -77,7 +77,7 @@ export default _component(() => {
             排开半径
           </Text>
           <Slider
-            value={_bind(repelRadius)}
+            _value={_bind(repelRadius)}
             min={40}
             max={300}
             step={10}
@@ -87,8 +87,8 @@ export default _component(() => {
           />
         </Flex>
         <Flex gap="lg" align="center">
-          <Switch checked={_bind(links)}>连线</Switch>
-          <Switch checked={_bind(interactive)}>指针排开</Switch>
+          <Switch _checked={_bind(links)}>连线</Switch>
+          <Switch _checked={_bind(interactive)}>指针排开</Switch>
         </Flex>
       </Grid>
       <Card padding="none">

@@ -38,18 +38,18 @@ export default _component(() => {
           <Separator orientation="vertical" />
           <Select
             items={['正文', '标题 1', '标题 2', '引用']}
-            value={_bind(font)}
+            _value={_bind(font)}
             size="sm"
             aria-label="段落样式"
             propsRoot={{ sx: styles.font }}
           />
           <Separator orientation="vertical" />
-          <ToggleGroup selectionMode="multiple" value={_bind(marks)} size="sm" aria-label="字形">
+          <ToggleGroup selectionMode="multiple" _value={_bind(marks)} size="sm" aria-label="字形">
             <ToggleItem value="bold" icon={Bold} aria-label="加粗" />
             <ToggleItem value="italic" icon={Italic} aria-label="斜体" />
             <ToggleItem value="underline" icon={Underline} aria-label="下划线" />
           </ToggleGroup>
-          <ToggleGroup value={_bind(align)} required size="sm" aria-label="对齐">
+          <ToggleGroup _value={_bind(align)} required size="sm" aria-label="对齐">
             <ToggleItem value="left" icon={AlignLeft} aria-label="左对齐" />
             <ToggleItem value="center" icon={AlignCenter} aria-label="居中" />
             <ToggleItem value="right" icon={AlignRight} aria-label="右对齐" />

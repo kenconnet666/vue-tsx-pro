@@ -6,17 +6,32 @@ import { memberChain } from './runes.ts';
 /** Vue 指令在 TSX 里都有更自然的写法 */
 const DIRECTIVE_HINTS: Record<string, string> = {
   model:
-    '双向绑定请写成 属性={_bind(x)}，例如 <Switch checked={_bind(on)} />、<input value={_bind.trim(name)} />',
+    '双向绑定请写成 _属性={_bind(x)}，例如 <Switch _checked={_bind(on)} />、<input _value={_bind.trim(name)} />',
   show: '显示与隐藏请用原生属性 hidden={!visible}，或条件渲染 {visible && <X />}',
   slots: '没有插槽：内容写成子节点（children），具名内容作为 JSX prop 传入',
   html: '请改用 innerHTML={html}',
   text: '请直接把文本写成子节点 {text}',
 };
 
-/** TSX 里有更自然写法的 Vue 指令属性（v-html、v-text…）直接报错，并给出替代写法 */
-export function rejectDirective(attribute: NodePath<t.JSXAttribute>) {
+/**
+ * 每个 JSX 属性的检查：TSX 里有更自然写法的 Vue 指令属性（v-html、v-text…）直接报错并给出替代写法；
+ * 原生元素上下划线开头的属性只用于双向绑定（_value={_bind(x)}），只给值时写元素自己的属性
+ */
+export function checkAttribute(attribute: NodePath<t.JSXAttribute>) {
   const { name } = attribute.node;
   const full = t.isJSXNamespacedName(name) ? `${name.namespace.name}:${name.name.name}` : name.name;
+  const tag = (attribute.parent as t.JSXOpeningElement).name;
+  if (
+    full.startsWith('_') &&
+    t.isJSXIdentifier(tag) &&
+    /^[a-z]/.test(tag.name) &&
+    !isBindCall(attribute.node.value)
+  ) {
+    throw fail(
+      attribute,
+      `原生元素的 ${full} 只用于双向绑定 ${full}={_bind(x)}；只给值时写 ${full.slice(1)}={…}`,
+    );
+  }
   if (!full.startsWith('v-')) return;
   const directive = full.slice(2).split(/[:_]/)[0]!;
   throw fail(
@@ -25,10 +40,18 @@ export function rejectDirective(attribute: NodePath<t.JSXAttribute>) {
   );
 }
 
+/** 属性值是不是 _bind(…)、_bind.trim(…) 这类调用 */
+function isBindCall(value: t.JSXAttribute['value']): boolean {
+  if (!t.isJSXExpressionContainer(value) || !t.isCallExpression(value.expression)) return false;
+  return memberChain(value.expression.callee)?.[0] === '_bind';
+}
+
 /**
- * 属性={_bind(x)} → Vue 的 v-model 协议（此时 x 已改写为 x.value）：
- *   <Switch checked={_bind(on)} />      → <Switch checked={on.value} onUpdate:checked={($event) => (on.value = $event)} />
- *   <input value={_bind.trim(name)} />  → <input v-model_trim={name.value} />
+ * _属性={_bind(x)} → Vue 的 v-model 协议（此时 x 已改写为 x.value）：
+ *   <Switch _checked={_bind(on)} />      → <Switch _checked={on.value} onUpdate:_checked={($event) => (on.value = $event)} />
+ *   <input _value={_bind.trim(name)} />  → <input v-model_trim={name.value} />
+ * 可双向绑定的属性一律以下划线开头（组件的 _bindable prop 本身就叫 _value、_open；原生元素的 _value、_checked、
+ * <details> 的 _open、文件输入的 _files 是绑定专用的写法），一眼看出哪些属性在双向绑定；写在别的属性上编译报错。
  * 组件直接写出值与更新回调（同 vue-jsx 对 v-model:x 的输出），回调就能被渲染优化缓存；
  * 原生输入框仍交给 vue-jsx 的 v-model 指令。属性名就是 prop 本身，补全、跳转、重命名都由 TypeScript 原生支持。
  */
@@ -40,7 +63,14 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
     !attribute?.isJSXAttribute() ||
     !t.isJSXIdentifier(attribute.node.name)
   ) {
-    throw fail(call, '_bind(x) 只能写在 JSX 属性的值里，例如 <Switch checked={_bind(on)} />');
+    throw fail(call, '_bind(x) 只能写在 JSX 属性的值里，例如 <Switch _checked={_bind(on)} />');
+  }
+  const name = attribute.node.name.name;
+  if (!name.startsWith('_')) {
+    throw fail(
+      attribute,
+      `可双向绑定的属性以下划线开头：写成 _${name}={_bind(…)}（组件的 prop 用 _bindable 声明为 _${name}）`,
+    );
   }
   if (call.node.arguments.length === 2) {
     rewriteFunctionBind(call, attribute);
@@ -54,23 +84,25 @@ export function rewriteBind(call: NodePath<t.CallExpression>) {
     );
   }
 
-  const prop = attribute.node.name.name;
+  const prop = name;
   const modifiers = memberChain(call.node.callee)!.slice(1);
   const tag = (attribute.parent as t.JSXOpeningElement).name;
   if (t.isJSXIdentifier(tag) && /^[a-z]/.test(tag.name)) {
-    const native = NATIVE_BINDINGS[prop];
+    // 原生元素：去掉下划线就是元素自己的属性
+    const property = prop.slice(1);
+    const native = NATIVE_BINDINGS[property];
     if (native && native.tag !== tag.name) {
       throw fail(attribute, `${prop}={_bind(x)} 只能写在 <${native.tag}> 上`);
     }
     if (native) {
       if (modifiers.length) throw fail(call, `${prop} 的绑定没有修饰符`);
-      bindNativeProperty(call, attribute, target, prop, native);
+      bindNativeProperty(call, attribute, target, property, native);
       return;
     }
-    if (prop !== 'value' && prop !== 'checked') {
+    if (property !== 'value' && property !== 'checked') {
       throw fail(
         attribute,
-        `原生元素能绑定 value、checked（多选组绑到数组）、<details> 的 open、文件输入的 files，不能绑定 ${prop}；单选组请用 RadioGroup，或 checked={x === 值} 加 onChange`,
+        `原生元素能绑定 _value、_checked（多选组绑到数组）、<details> 的 _open、文件输入的 _files，不能绑定 ${prop}；单选组请用 RadioGroup，或 checked={x === 值} 加 onChange`,
       );
     }
     attribute.node.name = t.jsxIdentifier(['v-model', ...modifiers].join('_'));
@@ -101,8 +133,8 @@ const NATIVE_BINDINGS: Record<string, { tag: string; event: string; readonly: bo
 
 /**
  * 原生元素上 v-model 管不到的属性：值照常交给元素（只读的不交），元素的事件之后把属性读回变量：
- *   <details open={_bind(expanded)} /> → <details open={expanded.value} onToggle={(e) => (expanded.value = e.currentTarget.open)} />
- *   <input type="file" files={_bind(picked)} /> → <input type="file" onChange={(e) => (picked.value = e.currentTarget.files)} />
+ *   <details _open={_bind(expanded)} /> → <details open={expanded.value} onToggle={(e) => (expanded.value = e.currentTarget.open)} />
+ *   <input type="file" _files={_bind(picked)} /> → <input type="file" onChange={(e) => (picked.value = e.currentTarget.files)} />
  */
 function bindNativeProperty(
   call: NodePath<t.CallExpression>,
@@ -118,7 +150,7 @@ function bindNativeProperty(
   if (taken) {
     throw fail(
       attribute,
-      `${prop}={_bind(x)} 要占用 ${native.event}：请去掉 ${native.event}，或不用 _bind、在 ${native.event} 里自己读回 ${prop}`,
+      `_${prop}={_bind(x)} 要占用 ${native.event}：请去掉 ${native.event}，或不用 _bind、在 ${native.event} 里自己读回 ${prop}`,
     );
   }
   const event = t.identifier('event');
@@ -137,13 +169,16 @@ function bindNativeProperty(
     t.jsxAttribute(t.jsxIdentifier(native.event), t.jsxExpressionContainer(update)),
   );
   if (native.readonly) attribute.remove();
-  else call.replaceWith(target);
+  else {
+    attribute.node.name = t.jsxIdentifier(prop);
+    call.replaceWith(target);
+  }
 }
 
 /**
- * 函数绑定 属性={_bind(get, set)}（同 Svelte 5）：值是 get 的结果，写回交给 set：
- *   <Select value={_bind(() => status, (next) => switchTo(next))} />
- *   → <Select value={status.value} onUpdate:value={(next) => switchTo(next)} />
+ * 函数绑定 _属性={_bind(get, set)}（同 Svelte 5）：值是 get 的结果，写回交给 set：
+ *   <Select _value={_bind(() => status, (next) => switchTo(next))} />
+ *   → <Select _value={status.value} onUpdate:_value={(next) => switchTo(next)} />
  * 原生输入元素走 v-model 指令，不支持。
  */
 function rewriteFunctionBind(

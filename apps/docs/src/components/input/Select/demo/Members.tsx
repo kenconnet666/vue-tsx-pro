@@ -37,7 +37,7 @@ export default _component(() => {
         load={fetchMembers}
         toOption={(member) => ({ value: member.id, label: member.name, group: member.role })}
         selectionMode="multiple"
-        value={_bind(picked)}
+        _value={_bind(picked)}
         clearable
         placeholder="添加成员"
         renderValue={(selected) =>

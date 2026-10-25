@@ -29,7 +29,7 @@ const Sample = _component(() => {
           { label: 'date', value: format.date('2026-10-21', { dateStyle: 'full' }) },
         ]}
       />
-      <Pagination total={1286} pageSize={20} page={3} showTotal size="sm" />
+      <Pagination total={1286} pageSize={20} _page={3} showTotal size="sm" />
     </Flex>
   );
 });

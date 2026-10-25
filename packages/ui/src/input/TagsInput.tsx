@@ -2,8 +2,8 @@
  * 标签输入（多选的组合框）：输入框里排着已选的 Tag，输入文字后回车（或输入逗号）加一个，可以从建议列表里选。
  * 关键词、收件人、标签、多个城市。参考 Mantine TagsInput、React Aria TagGroup + ComboBox。
  *
- *   <TagsInput value={_bind(keywords)} aria-label="关键词" />                          自由输入
- *   <TagsInput value={_bind(cities)} items={cityOptions} allowCustomValue={false} />   只能从建议里选
+ *   <TagsInput _value={_bind(keywords)} aria-label="关键词" />                          自由输入
+ *   <TagsInput _value={_bind(cities)} items={cityOptions} allowCustomValue={false} />   只能从建议里选
  *
  * - 回车、输入分隔符（默认 , ， ; ；）把文字加成标签；粘贴时按分隔符与换行拆成多个；重复的不加；
  * - 输入框为空时按退格删掉最后一个标签；每个标签有移除按钮（离场后其余的平移补位）；
@@ -69,8 +69,8 @@ export interface TagsInputBaseProps<T>
     ControlOptions,
     ControlIconOptions,
     OpenChangeProps {
-  /** 已选的值：父级写 value={_bind(list)} */
-  value?: string[];
+  /** 已选的值：父级写 _value={_bind(list)} */
+  _value?: string[];
   /** 建议：ListboxOption、字符串，或任意数据加 toOption；不给时是纯自由输入 */
   items?: readonly T[];
   /** 允许加入不在建议里的文字，默认 true */
@@ -81,10 +81,10 @@ export interface TagsInputBaseProps<T>
   delimiters?: readonly string[];
   /** 最多几个标签；到了上限不再加入 */
   max?: number;
-  /** 输入框里的文字：父级可以写 inputValue={_bind(x)}（异步取建议时据此搜索） */
-  inputValue?: string;
+  /** 输入框里的文字：父级可以写 _inputValue={_bind(x)}（异步取建议时据此搜索） */
+  _inputValue?: string;
   /** 建议列表是否打开 */
-  open?: boolean;
+  _open?: boolean;
   /** 过滤建议：默认按显示文字包含输入；false 不过滤（异步搜索） */
   filter?: false | ((item: T, query: string) => boolean);
   /** 正在取建议 */
@@ -134,15 +134,15 @@ const DELIMITERS = [',', '，', ';', '；'];
 /** 标签输入：输入框里排着 Tag，回车或分隔符加入，退格删最后一个 */
 export const TagsInput = _component(
   <T = ListboxOption,>({
-    value = _bindable<string[]>([]),
+    _value: value = _bindable<string[]>([]),
     items = [],
     toOption,
     allowCustomValue = true,
     acceptOnBlur = true,
     delimiters = DELIMITERS,
     max,
-    inputValue = _bindable(''),
-    open = _bindable(false),
+    _inputValue: inputValue = _bindable(''),
+    _open: open = _bindable(false),
     onOpenChange,
     filter,
     loading = false,
@@ -366,7 +366,7 @@ export const TagsInput = _component(
                   },
                 },
               )}
-              value={_bind(inputValue)}
+              _value={_bind(inputValue)}
             />
             {clearable &&
               value.length > 0 &&

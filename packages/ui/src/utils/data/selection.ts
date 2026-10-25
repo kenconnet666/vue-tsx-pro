@@ -15,16 +15,16 @@ export interface SelectionModes {
 export interface SingleSelectionProps {
   /** 选择方式，默认 single */
   selectionMode?: Extract<keyof SelectionModes, 'single'>;
-  /** 选中项：父级写 value={_bind(x)}；没有选中时是 null */
-  value?: string | null;
+  /** 选中项：父级写 _value={_bind(x)}；没有选中时是 null */
+  _value?: string | null;
 }
 
 /** 多选：value 是选中项的值的数组 */
 export interface MultipleSelectionProps {
   /** 选择方式 */
   selectionMode: Extract<keyof SelectionModes, 'multiple'>;
-  /** 选中项：父级写 value={_bind(list)} */
-  value?: string[];
+  /** 选中项：父级写 _value={_bind(list)} */
+  _value?: string[];
 }
 
 /** 单选或多选：按 selectionMode 区分 value 是一个值还是数组（Listbox、Select、ToggleGroup） */

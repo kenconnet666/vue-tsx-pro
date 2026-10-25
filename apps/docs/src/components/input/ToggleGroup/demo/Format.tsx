@@ -36,13 +36,13 @@ export default _component(() => {
       <Flex direction="column" gap="md">
         <Flex gap="sm" wrap>
           {/* 多选：每一项各自开关 */}
-          <ToggleGroup selectionMode="multiple" value={_bind(marks)} aria-label="字形">
+          <ToggleGroup selectionMode="multiple" _value={_bind(marks)} aria-label="字形">
             <ToggleItem value="bold" icon={Bold} aria-label="加粗" />
             <ToggleItem value="italic" icon={Italic} aria-label="斜体" />
             <ToggleItem value="underline" icon={Underline} aria-label="下划线" />
             <ToggleItem value="strike" icon={Strikethrough} aria-label="删除线" />
           </ToggleGroup>
-          <ToggleGroup value={_bind(align)} required aria-label="对齐">
+          <ToggleGroup _value={_bind(align)} required aria-label="对齐">
             <ToggleItem value="left" icon={AlignLeft} aria-label="左对齐" />
             <ToggleItem value="center" icon={AlignCenter} aria-label="居中" />
             <ToggleItem value="right" icon={AlignRight} aria-label="右对齐" />

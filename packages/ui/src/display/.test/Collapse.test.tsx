@@ -11,7 +11,7 @@ const isHidden = (el: Element) =>
 describe('Collapse', () => {
   it('收起时隐藏内容（until-found 或 inert），展开后去掉', async () => {
     let open = _state(false);
-    const root = mount(() => <Collapse open={_bind(open)}>内容</Collapse>).firstElementChild!;
+    const root = mount(() => <Collapse _open={_bind(open)}>内容</Collapse>).firstElementChild!;
     await nextTick();
     expect(isHidden(root)).toBe(true);
     expect(root.getAttribute('data-state')).toBe('closed');
@@ -24,7 +24,7 @@ describe('Collapse', () => {
 
   it('页内搜索命中（beforematch）时展开并写回 open', async () => {
     let open = _state(false);
-    const root = mount(() => <Collapse open={_bind(open)}>内容</Collapse>).firstElementChild!;
+    const root = mount(() => <Collapse _open={_bind(open)}>内容</Collapse>).firstElementChild!;
     root.dispatchEvent(new Event('beforematch'));
     await nextTick();
     expect(open).toBe(true);
@@ -33,7 +33,7 @@ describe('Collapse', () => {
 
   it('属性落到外层，propsContent 落到内容层', () => {
     const root = mount(() => (
-      <Collapse open data-x="1" propsContent={{ class: 'inner' }}>
+      <Collapse _open data-x="1" propsContent={{ class: 'inner' }}>
         内容
       </Collapse>
     )).firstElementChild!;
@@ -45,7 +45,7 @@ describe('Collapse', () => {
   it('lazy：第一次展开时才渲染内容，之后收起也保留', async () => {
     let open = _state(false);
     const root = mount(() => (
-      <Collapse open={_bind(open)} lazy>
+      <Collapse _open={_bind(open)} lazy>
         内容
       </Collapse>
     )).firstElementChild!;

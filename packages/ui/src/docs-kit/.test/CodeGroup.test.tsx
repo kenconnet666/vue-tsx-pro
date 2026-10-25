@@ -19,8 +19,8 @@ describe('CodeGroup', () => {
     const root = mount(() => (
       <CodeGroup
         items={items}
-        value={selected.value}
-        {...{ 'onUpdate:value': (next: string) => (selected.value = next) }}
+        _value={selected.value}
+        {...{ 'onUpdate:_value': (next: string) => (selected.value = next) }}
       />
     ));
     expect(visibleCode(root)).toEqual(['pnpm add x']);

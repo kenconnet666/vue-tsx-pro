@@ -17,7 +17,7 @@ const type = async (input: HTMLInputElement, text: string) => {
 describe('NumberRangeField', () => {
   it('两端各自写回；起比止大时自动对调；一端可以清空', async () => {
     let range = _state<NumberRange>([null, null]);
-    const root = mount(() => <NumberRangeField value={_bind(range)} aria-label="架次" />);
+    const root = mount(() => <NumberRangeField _value={_bind(range)} aria-label="架次" />);
     const [start, end] = root.querySelectorAll('input');
     await type(start!, '50');
     expect(range).toEqual([50, null]);

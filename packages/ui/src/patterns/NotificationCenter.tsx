@@ -244,7 +244,7 @@ export const NotificationList = _component(
                   },
                   propsTypes,
                 )}
-                value={_bind(
+                _value={_bind(
                   () => type || 'all',
                   (next: string | null) => (type = !next || next === 'all' ? '' : next),
                 )}
@@ -262,7 +262,7 @@ export const NotificationList = _component(
                 { size: 'sm', sx: notificationListStyles.end },
                 propsUnreadOnly,
               )}
-              checked={_bind(unreadOnly)}
+              _checked={_bind(unreadOnly)}
             >
               {messages.notificationsUnreadOnly}
             </Switch>
@@ -362,7 +362,7 @@ export const NotificationCenter = _component(
     footer,
     empty,
     now,
-    open = _bindable(false),
+    _open: open = _bindable(false),
     propsTrigger,
     propsNotificationList,
     sx,
@@ -375,7 +375,7 @@ export const NotificationCenter = _component(
         {...rest}
         placement={rest.placement ?? 'bottom-end'}
         sx={[notificationCenterStyles.panel, sx]}
-        open={_bind(open)}
+        _open={_bind(open)}
         trigger={(trigger) => (
           <Indicator count={unread} label={messages.notificationsUnread(unread)}>
             <IconButton

@@ -47,7 +47,7 @@ export default _component(() => {
             </Tooltip>
           ))}
         </Flex>
-        <Switch checked={_bind(hints)}>显示按钮提示</Switch>
+        <Switch _checked={_bind(hints)}>显示按钮提示</Switch>
       </Flex>
       <Flex gap="lg" align="center" wrap>
         <Tooltip

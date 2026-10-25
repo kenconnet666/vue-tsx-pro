@@ -2,7 +2,7 @@
  * 查询栏（form role="search"）：列表页上方的一排筛选条件，最后是“查询”“重置”；条件多时其余的收起来，点“展开”再显示。
  *
  *   <FilterBar onSearch={search} onReset={reset} more={<>…不常用的条件…</>} moreActive={2}>
- *     <Field label="项目名称"><TextField value={_bind(query.name)} /></Field>
+ *     <Field label="项目名称"><TextField _value={_bind(query.name)} /></Field>
  *     <Field label="任务类别"><Select … /></Field>
  *   </FilterBar>
  *
@@ -40,8 +40,8 @@ export interface FilterBarProps
   loading?: boolean;
   /** 不常用的条件：默认收起，点“展开”才显示 */
   more?: VNodeChild;
-  /** 是否展开了 more：父级写 expanded={_bind(x)} */
-  expanded?: boolean;
+  /** 是否展开了 more：父级写 _expanded={_bind(x)} */
+  _expanded?: boolean;
   /** 收起的条件里已经填了几项：大于 0 时显示在“展开”旁边 */
   moreActive?: number;
   /** 每个条件的最小宽度（CSS 长度），默认 `'16em'` */
@@ -111,7 +111,7 @@ export const FilterBar = _component(
     onReset,
     loading = false,
     more,
-    expanded = _bindable(false),
+    _expanded: expanded = _bindable(false),
     moreActive = 0,
     minFieldWidth = '16em',
     actions,

@@ -62,15 +62,15 @@ export default _component(() => {
         getEventKey={(meeting) => meeting.id}
         getEventLabel={(meeting) => meeting.title}
         getEventTone={(meeting) => kinds[meeting.kind].tone}
-        value={_bind(day)}
-        month={_bind(month)}
+        _value={_bind(day)}
+        _month={_bind(month)}
         toolbar={
           <Select
             items={[
               { value: 'all', label: '全部类型' },
               ...Object.entries(kinds).map(([value, { label }]) => ({ value, label })),
             ]}
-            value={_bind(kind)}
+            _value={_bind(kind)}
             size="sm"
             aria-label="日程类型"
           />

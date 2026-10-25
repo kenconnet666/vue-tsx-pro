@@ -23,7 +23,7 @@ describe('ToggleGroup', () => {
   it('单选：role="group"，aria-pressed 表示选中，点击写回；required 时不能取消', async () => {
     let view = _state<string | null>('list');
     const root = mount(() => (
-      <ToggleGroup value={_bind(view)} required aria-label="视图">
+      <ToggleGroup _value={_bind(view)} required aria-label="视图">
         <ToggleItem value="list">列表</ToggleItem>
         <ToggleItem value="grid">网格</ToggleItem>
       </ToggleGroup>
@@ -52,11 +52,11 @@ describe('ToggleGroup', () => {
     const root = mount(() => (
       <>
         <Field label="视图" required>
-          <ToggleGroup value={_bind(inField)}>
+          <ToggleGroup _value={_bind(inField)}>
             <ToggleItem value="list">列表</ToggleItem>
           </ToggleGroup>
         </Field>
-        <ToggleGroup value={_bind(alone)} aria-label="单独">
+        <ToggleGroup _value={_bind(alone)} aria-label="单独">
           <ToggleItem value="list">列表</ToggleItem>
         </ToggleGroup>
       </>
@@ -74,7 +74,7 @@ describe('ToggleGroup', () => {
     const root = mount(() => (
       <ToggleGroup
         selectionMode="multiple"
-        value={_bind(marks)}
+        _value={_bind(marks)}
         disabled={disabled}
         aria-label="格式"
       >

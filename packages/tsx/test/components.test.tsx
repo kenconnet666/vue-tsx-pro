@@ -41,7 +41,7 @@ describe('双向绑定（_bindable + _bind）', () => {
     const on = ref(false);
     const el = mount(() => (
       <>
-        <Toggle checked={_bind(on.value)}>x</Toggle>
+        <Toggle _checked={_bind(on.value)}>x</Toggle>
         <p>{String(on.value)}</p>
       </>
     ));
@@ -123,7 +123,7 @@ describe('原生输入', () => {
     const name = ref('a');
     const el = mount(() => (
       <>
-        <TextField value={_bind(name.value)} aria-label="名字" />
+        <TextField _value={_bind(name.value)} aria-label="名字" />
         <p>{name.value}</p>
       </>
     ));

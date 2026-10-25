@@ -63,8 +63,8 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md" align="start">
       <CommandPalette
-        open={_bind(open)}
-        inputValue={_bind(keyword)}
+        _open={_bind(open)}
+        _inputValue={_bind(keyword)}
         items={results}
         filter={false}
         loading={loading}

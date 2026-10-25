@@ -1,7 +1,7 @@
 /**
  * 抽屉：贴着视口一侧滑入的模态面板。内核见 Modal.tsx（与 Dialog、AlertDialog 共用）。
  *
- *   <Drawer open={_bind(filtering)} side="end" title="筛选">…</Drawer>
+ *   <Drawer _open={_bind(filtering)} side="end" title="筛选">…</Drawer>
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
@@ -46,8 +46,8 @@ export interface DrawerOptions {
 export interface DrawerProps extends ModalProps, DrawerOptions {
   /** 从哪一侧滑入，默认 end */
   side?: keyof DrawerSides;
-  /** 宽度（px，左右两侧）：写了就不按 size 的档位；父级写 width={_bind(x)} 记住拖动后的宽度 */
-  width?: number | null;
+  /** 宽度（px，左右两侧）：写了就不按 size 的档位；父级写 _width={_bind(x)} 记住拖动后的宽度 */
+  _width?: number | null;
   /**
    * 拖动时的最小宽度（px）：默认只留一窄条（几乎关上，还能拖回来）；比内容窄时内容被裁掉，不挤成一列
    * @default 48
@@ -179,10 +179,10 @@ export type DrawerPart = (typeof drawerRecipe.parts)[number];
 /** 抽屉：贴着视口一侧滑入的模态面板 */
 export const Drawer = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     side = 'end',
     size,
-    width = _bindable<number | null>(null),
+    _width: width = _bindable<number | null>(null),
     resizable,
     minWidth = 48,
     propsResizeHandle,
@@ -207,7 +207,7 @@ export const Drawer = _component(
       return (
         <ModalCore
           {...rest}
-          open={_bind(open)}
+          _open={_bind(open)}
           parts={s}
           style={inline && width != null ? { width: `${width}px` } : undefined}
           data-side={side}
@@ -245,7 +245,7 @@ export interface DrawerApi {
  */
 export function useDrawer(): DrawerApi {
   const open = useDetachedOverlay<DrawerProps>((props, host, children) => (
-    <Drawer {...props} open={_bind(host.open)}>
+    <Drawer {...props} _open={_bind(host.open)}>
       {children}
     </Drawer>
   ));

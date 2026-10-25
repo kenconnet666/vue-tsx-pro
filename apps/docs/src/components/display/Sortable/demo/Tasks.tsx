@@ -22,9 +22,9 @@ export default _component(() => {
   let locked = _state(false);
   return () => (
     <Flex direction="column" gap="md">
-      <Switch checked={_bind(locked)}>锁定顺序</Switch>
+      <Switch _checked={_bind(locked)}>锁定顺序</Switch>
       <Sortable
-        items={_bind(tasks)}
+        _items={_bind(tasks)}
         getKey={(task) => task.id}
         getLabel={(task) => task.title}
         disabled={locked}

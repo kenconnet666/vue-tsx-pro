@@ -76,7 +76,7 @@ export interface TimelineProps extends PartProps<'ol'> {
   /** 最多显示几项（不算进行中的一项）：只显示最新的这几项，其余收起在“展开其余 N 条”后面 */
   maxVisible?: number;
   /** 收起的各项展开了没有（可绑定） */
-  expanded?: boolean;
+  _expanded?: boolean;
   /** 每一项（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: TimelineItem, index: number) => PartProps<'li'>);
   /** 节点与连接线所在的列的部件属性 */
@@ -205,7 +205,7 @@ export const Timeline = _component(
     size,
     reverse = false,
     maxVisible,
-    expanded = _bindable(false),
+    _expanded: expanded = _bindable(false),
     propsItem,
     propsRail,
     propsMarker,

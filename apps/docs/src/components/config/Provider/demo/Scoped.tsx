@@ -31,7 +31,7 @@ const Sample = _component(() => () => (
     </Flex>
     <Flex gap="sm" align="center">
       <Badge tone="success">已发货</Badge>
-      <Switch checked>接收通知</Switch>
+      <Switch _checked>接收通知</Switch>
     </Flex>
     <Alert tone="info" icon={Bell} title="新版本可用" />
   </Flex>

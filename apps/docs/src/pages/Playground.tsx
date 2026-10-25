@@ -203,7 +203,7 @@ export default _component(() => {
         </Flex>
         <div {...css.attrs(styles.layout)}>
           {ready ? (
-            <CodeEditor value={_bind(code)} aria-label="代码" sx={styles.editor} />
+            <CodeEditor _value={_bind(code)} aria-label="代码" sx={styles.editor} />
           ) : (
             <div {...css.attrs(styles.editor, styles.placeholder)} />
           )}

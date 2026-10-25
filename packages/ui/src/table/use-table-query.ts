@@ -7,8 +7,8 @@
  *     { filters: blankFilters(), pageSize: 20 },
  *   );
  *   <FilterBar onSearch={() => tasks.search({ ...draft })} … />
- *   <DataTable rows={tasks.rows} loading={tasks.loading} sort={_bind(tasks.sort)} manualSort … />
- *   <PaginationBar page={_bind(tasks.page)} pageSize={_bind(tasks.pageSize)} total={tasks.total} />
+ *   <DataTable rows={tasks.rows} loading={tasks.loading} _sort={_bind(tasks.sort)} manualSort … />
+ *   <PaginationBar _page={_bind(tasks.page)} _pageSize={_bind(tasks.pageSize)} total={tasks.total} />
  *
  * 排序是几列（sorts，前面的优先）：单列排序的表格绑 sort（第一列），多列排序（DataTable 的 multiSort）绑 sorts。
  * 表头筛选（DataTable 的 filters，manualFilter）绑 columnFilters。换排序、每页条数、筛选条件或 params 时回到第一页；

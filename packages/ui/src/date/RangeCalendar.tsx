@@ -1,7 +1,7 @@
 /**
  * 区间日历：先点开始、再点结束，中间悬停时预览；酒店的入住与离店、报表的起止日期。参考 React Aria RangeCalendar。
  *
- *   <RangeCalendar value={_bind(stay)} visibleMonths={2} min={today} isDateUnavailable={booked} />
+ *   <RangeCalendar _value={_bind(stay)} visibleMonths={2} min={today} isDateUnavailable={booked} />
  *
  * 值是 `{ start, end }`（两端都含；ISO 字符串或 DateValue，写回时保持同一种类型）；反着点也会排好序。
  * 默认区间里不能夹着不可选的日期（订满的那天）：选了开始之后，越过不可选日期的那一侧都不能再选；
@@ -31,8 +31,8 @@ import {
 /** 未声明的属性落到根元素上 */
 export interface RangeCalendarProps<V extends DateInput = string>
   extends Omit<CalendarViewProps, 'calendar'>, DateLimitProps {
-  /** 选中的区间（两端都含）：父级写 value={_bind(x)}；没有时 null */
-  value?: DateRange<V> | null;
+  /** 选中的区间（两端都含）：父级写 _value={_bind(x)}；没有时 null */
+  _value?: DateRange<V> | null;
   /** 选择的粒度，默认 day；month、year 时选整月、整年（写回的仍是日期：月初到月末、年初到年末） */
   granularity?: DateUnit;
   /** 并排显示几个月，默认 1；酒店、机票常用 2 */
@@ -52,7 +52,7 @@ export interface RangeCalendarProps<V extends DateInput = string>
 /** 区间日历：选开始与结束 */
 export const RangeCalendar = _component(
   <V extends DateInput>({
-    value = _bindable<DateRange<V> | null>(null),
+    _value: value = _bindable<DateRange<V> | null>(null),
     min,
     max,
     isDateUnavailable,

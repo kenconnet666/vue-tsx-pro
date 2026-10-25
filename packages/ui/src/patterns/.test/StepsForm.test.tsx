@@ -36,7 +36,7 @@ function setup(onSubmit = vi.fn()) {
           return () => (
             <StepsForm
               form={form}
-              current={_bind(
+              _current={_bind(
                 () => current,
                 (next: number) => {
                   current = next;

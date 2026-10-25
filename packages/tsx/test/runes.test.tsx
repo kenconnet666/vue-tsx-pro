@@ -86,7 +86,7 @@ describe('符文', () => {
     const seen: boolean[] = [];
     const el = mount(
       _component(() => () => (
-        <Switch checked={_bind(on.value)} onChange={(value) => seen.push(value)}>
+        <Switch _checked={_bind(on.value)} onChange={(value) => seen.push(value)}>
           x
         </Switch>
       )),

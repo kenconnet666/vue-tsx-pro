@@ -10,7 +10,7 @@ export default _component(() => {
         label="任意格式"
         description="输入 rgb(255 99 71)、hsl(…)、颜色名（tomato）后回车或失焦，规范成 #hex 写回"
       >
-        <ColorField value={_bind(color)} />
+        <ColorField _value={_bind(color)} />
       </Field>
       <Small tone="muted">
         值：<Code>{color}</Code>
@@ -19,10 +19,10 @@ export default _component(() => {
         label="带透明度"
         description="#rrggbbaa；用原生取色器选色时透明度会去掉（它不支持透明度）"
       >
-        <ColorField value={_bind(overlay)} />
+        <ColorField _value={_bind(overlay)} />
       </Field>
       <Field label="只读" readonly>
-        <ColorField value="#16a34a" />
+        <ColorField _value="#16a34a" />
       </Field>
     </Flex>
   );

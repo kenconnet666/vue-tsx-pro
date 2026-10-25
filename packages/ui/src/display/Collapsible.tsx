@@ -21,7 +21,13 @@ export interface CollapsibleProps extends CollapseProps {
 
 /** 触发器 + 展开收起的内容区（Disclosure 模式），触发器自动带上 aria-expanded 与 aria-controls */
 export const Collapsible = _component(
-  ({ open = _bindable(false), trigger, disabled = false, id, ...rest }: CollapsibleProps) => {
+  ({
+    _open: open = _bindable(false),
+    trigger,
+    disabled = false,
+    id,
+    ...rest
+  }: CollapsibleProps) => {
     const generatedId = useId();
     const contentId = _derived(id ?? generatedId);
 
@@ -35,7 +41,7 @@ export const Collapsible = _component(
           'aria-controls': contentId,
           disabled: disabled || undefined,
         })}
-        <Collapse {...rest} id={contentId} open={_bind(open)} />
+        <Collapse {...rest} id={contentId} _open={_bind(open)} />
       </>
     );
   },

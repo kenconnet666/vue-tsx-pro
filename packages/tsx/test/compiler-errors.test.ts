@@ -83,34 +83,64 @@ const cases: [string, string, RegExp][] = [
   ],
   [
     '_bind 只读的 _derived',
-    'let a = _state(1); const d = _derived(a); <X v={_bind(d)} />',
+    'let a = _state(1); const d = _derived(a); <X _v={_bind(d)} />',
     /d 来自 _derived，是只读的，不能用 _bind/,
   ],
-  ['_bind 非响应式变量', 'let n = 1; <X v={_bind(n)} />', /_bind 的参数必须是/],
+  ['_bind 非响应式变量', 'let n = 1; <X _v={_bind(n)} />', /_bind 的参数必须是/],
+  [
+    '_bind 写在没有下划线的属性上',
+    'let n = _state(1); <X v={_bind(n)} />',
+    /可双向绑定的属性以下划线开头：写成 _v={_bind/,
+  ],
+  [
+    '原生元素的 _bind 也写在下划线属性上',
+    'let n = _state(""); <input value={_bind(n)} />',
+    /写成 _value={_bind/,
+  ],
+  [
+    '原生元素的下划线属性只给值',
+    'let n = _state(""); <input _value="a" />',
+    /原生元素的 _value 只用于双向绑定/,
+  ],
+  [
+    '_bindable 的 prop 名没有下划线',
+    '_component(({ v = _bindable(1) }) => () => v)',
+    /可双向绑定的 prop 以下划线开头：写成 { _v: v = _bindable/,
+  ],
+  [
+    '下划线开头的 prop 没用 _bindable',
+    '_component(({ _v: v = 1 }) => () => v)',
+    /下划线开头的 prop 留给可双向绑定的值/,
+  ],
+  [
+    '_bindable 的本地变量带下划线',
+    '_component(({ _v = _bindable(1) }) => () => _v)',
+    /本地变量不用下划线开头（留给符文）：写成 { _v: v = _bindable/,
+  ],
   ['_bind 不在 JSX 属性里', 'let n = _state(1); const r = _bind(n)', /只能写在 JSX 属性的值里/],
   [
     '_bind 原生元素绑定其他属性',
-    'let n = _state(""); <input title={_bind(n)} />',
-    /原生元素能绑定 value、checked/,
+    'let n = _state(""); <input _title={_bind(n)} />',
+    /原生元素能绑定 _value、_checked/,
   ],
   [
     '_bind(get, set) 的参数不是函数',
-    'let n = _state(1); <X v={_bind(n, (v) => {})} />',
+    'let n = _state(1); <X _v={_bind(n, (v) => {})} />',
     /get 是不带参数的函数/,
   ],
   [
     '_bind(get, set) 用在原生元素上',
-    'let n = _state(""); <input value={_bind(() => n, (v) => {})} />',
+    'let n = _state(""); <input _value={_bind(() => n, (v) => {})} />',
     /原生元素不支持 _bind\(get, set\)/,
   ],
   [
     '_bind 修饰符用在组件上',
-    'let n = _state(""); <X v={_bind.trim(n)} />',
+    'let n = _state(""); <X _v={_bind.trim(n)} />',
     /修饰符只用于原生输入元素/,
   ],
   [
     '_bind 未知修饰符',
-    'let n = _state(""); <input value={_bind.upper(n)} />',
+    'let n = _state(""); <input _value={_bind.upper(n)} />',
     /不支持 _bind.upper/,
   ],
   ['v-model 指令', 'let n = _state(""); <input v-model={n} />', /属性=\{_bind\(x\)\}/],
@@ -146,7 +176,7 @@ describe('误用在编译期报错', () => {
       '_component(({ a = 1, b = 2, c = 3, d = 4 }: any) => {',
       '  const bump = () => a++;',
       '  useThing(_toRef(b));',
-      '  return () => [<Input value={_bind(c)} />, d, bump];',
+      '  return () => [<Input _value={_bind(c)} />, d, bump];',
       '})',
     ].join('\n');
     const out = (await compileRunes(code))!.code;
@@ -179,14 +209,14 @@ describe('误用在编译期报错', () => {
     const code = [
       'let on = _state(false); let name = _state(""); const form = _state({ age: 1 });',
       '<>',
-      '  <Switch checked={_bind(on)} />',
-      '  <input value={_bind.lazy.trim(name)} />',
-      '  <input type="number" value={_bind.number(form.age)} />',
+      '  <Switch _checked={_bind(on)} />',
+      '  <input _value={_bind.lazy.trim(name)} />',
+      '  <input type="number" _value={_bind.number(form.age)} />',
       '</>',
     ].join('\n');
     const out = (await compileRunes(code, 'input.tsx', { optimize: false }))!.code;
     expect(out).toContain(
-      '<Switch checked={on.value} onUpdate:checked={$event => on.value = $event} />',
+      '<Switch _checked={on.value} onUpdate:_checked={$event => on.value = $event} />',
     );
     expect(out).toContain('<input v-model_lazy_trim={name.value} />');
     expect(out).toContain('<input type="number" v-model_number={form.value.age} />');
@@ -209,10 +239,10 @@ describe('误用在编译期报错', () => {
 
   it('普通 prop 可以写入（组件本地覆盖），_bind 也可以绑定它', async () => {
     const code =
-      '_component(({ v = 1 }: any) => { const reset = () => (v = 1); return () => <X v={_bind(v)} onReset={reset} /> })';
+      '_component(({ v = 1 }: any) => { const reset = () => (v = 1); return () => <X _v={_bind(v)} onReset={reset} /> })';
     const out = (await compileRunes(code, 'input.tsx', { optimize: false }))!.code;
     expect(out).toContain('v.value = 1');
-    expect(out).toContain('v={v.value} onUpdate:v={$event => v.value = $event}');
+    expect(out).toContain('_v={v.value} onUpdate:_v={$event => v.value = $event}');
   });
 
   it('watch 的监听源写成 getter 或 _toRef(x)', async () => {

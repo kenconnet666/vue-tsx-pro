@@ -5,7 +5,7 @@ export default _component(() => () => (
   <Steps
     orientation="vertical"
     size="sm"
-    current={2}
+    _current={2}
     items={[
       { title: '拉取代码', description: 'main@3f9c2e1 · 12 秒' },
       { title: '安装依赖', description: 'pnpm install · 41 秒' },

@@ -78,7 +78,7 @@ export default _component(() => {
     return (
       <Splitter
         sx={styles.frame}
-        size={55}
+        _size={55}
         start={
           <DataTable
             aria-label="待办"

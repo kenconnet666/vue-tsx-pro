@@ -34,7 +34,7 @@ export const AreaChart = _component(
     stacked = false,
     curve = 'monotone',
     opacity,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     ...rest
   }: AreaChartProps<T>) => {
     const kind = _derived<XYChartKind<T>>({
@@ -74,6 +74,6 @@ export const AreaChart = _component(
         });
       },
     });
-    return () => <XYChart {...rest} hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
+    return () => <XYChart {...rest} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
   },
 );

@@ -5,7 +5,7 @@
  *   const tasks = useTableQuery(fetchTasks, { filters: { keyword: '', status: '' }, pageSize: 20 });
  *   <QueryTable
  *     query={tasks} columns={columns} getKey={(task) => task.id} title="任务台账" persistKey="tasks"
- *     filters={(draft) => <Field label="关键字"><TextField value={_bind(draft.keyword)} /></Field>}
+ *     filters={(draft) => <Field label="关键字"><TextField _value={_bind(draft.keyword)} /></Field>}
  *     toolbar={<Button icon={Plus}>新建</Button>}
  *   />
  *
@@ -63,8 +63,8 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   multiSort?: boolean;
   /** 勾选行：多选时表格上方出现批量操作栏 */
   selectionMode?: DataTableProps<T>['selectionMode'];
-  /** 已选行的 key：父级写 selected={_bind(keys)} */
-  selected?: string[];
+  /** 已选行的 key：父级写 _selected={_bind(keys)} */
+  _selected?: string[];
   /** 批量操作栏里的按钮：拿到已选的 key */
   batchActions?: (keys: readonly string[]) => VNodeChild;
   /** 查询栏（FilterBar）的部件属性 */
@@ -119,7 +119,7 @@ export const QueryTable = _component(
     persistKey,
     multiSort = false,
     selectionMode,
-    selected = _bindable<string[]>([]),
+    _selected: selected = _bindable<string[]>([]),
     batchActions,
     propsFilterBar,
     propsPanel,
@@ -180,9 +180,9 @@ export const QueryTable = _component(
             )}
           >
             <MenuRadioGroup
-              value={density}
+              _value={density}
               {...{
-                'onUpdate:value': (value: string) => (density = value as keyof DataTableDensities),
+                'onUpdate:_value': (value: string) => (density = value as keyof DataTableDensities),
               }}
             >
               <MenuRadioItem value="compact">{messages.queryTableDensityCompact}</MenuRadioItem>
@@ -194,8 +194,8 @@ export const QueryTable = _component(
           </Menu>
           <ColumnSettings
             columns={columns}
-            hidden={_bind(hidden)}
-            order={_bind(order)}
+            _hidden={_bind(hidden)}
+            _order={_bind(order)}
             onReset={() => {
               pins = {};
               widths = {};
@@ -271,18 +271,18 @@ export const QueryTable = _component(
             getKey={getKey}
             manualSort
             multiSort={multiSort}
-            sort={_bind(query.sort)}
-            sorts={_bind(query.sorts)}
+            _sort={_bind(query.sort)}
+            _sorts={_bind(query.sorts)}
             manualFilter
-            filters={_bind(query.columnFilters)}
+            _filters={_bind(query.columnFilters)}
             loading={query.loading}
             density={density}
             selectionMode={selectionMode}
-            selected={_bind(selected)}
-            hiddenColumns={_bind(hidden)}
-            columnOrder={_bind(order)}
-            columnPins={_bind(pins)}
-            columnWidths={_bind(widths)}
+            _selected={_bind(selected)}
+            _hiddenColumns={_bind(hidden)}
+            _columnOrder={_bind(order)}
+            _columnPins={_bind(pins)}
+            _columnWidths={_bind(widths)}
             resizable
             columnMenu
           />
@@ -291,8 +291,8 @@ export const QueryTable = _component(
               { propsPagination: { 'aria-label': messages.queryTablePagination(title) } },
               propsPagination,
             )}
-            page={_bind(query.page)}
-            pageSize={_bind(query.pageSize)}
+            _page={_bind(query.page)}
+            _pageSize={_bind(query.pageSize)}
             total={query.total}
           />
         </div>

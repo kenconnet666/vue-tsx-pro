@@ -16,7 +16,7 @@ function mount(render: () => VNodeChild) {
   return el;
 }
 
-const Counter = _component(({ value = _bindable(0) }: { value?: number }) => {
+const Counter = _component(({ _value: value = _bindable(0) }: { _value?: number }) => {
   return () => (
     <button type="button" onClick={() => value++}>
       {value}
@@ -31,7 +31,7 @@ it('受控：父级修正写入的值时，组件回到父级的值', async () =
     get: () => count.value,
     set: (next: number) => (count.value = Math.min(next, 5)),
   });
-  const el = mount(() => <Counter value={_bind(clamped.value)} />);
+  const el = mount(() => <Counter _value={_bind(clamped.value)} />);
   const button = el.querySelector('button')!;
   button.click();
   await nextTick();
@@ -46,7 +46,7 @@ it('受控：写入后同步读取先拿到新值', () => {
   const seen: boolean[] = [];
   const on = ref(false);
   const el = mount(() => (
-    <Switch checked={_bind(on.value)} onChange={(value) => seen.push(value)}>
+    <Switch _checked={_bind(on.value)} onChange={(value) => seen.push(value)}>
       x
     </Switch>
   ));
@@ -59,7 +59,7 @@ it('函数绑定 _bind(get, set)：值取 get，写回交给 set（可以顺带�
   let writes = _state(0);
   const el = mount(() => (
     <Counter
-      value={_bind(
+      _value={_bind(
         () => count * 10,
         (next) => {
           count = next / 10;
@@ -82,7 +82,7 @@ it('函数绑定的 set 可以是函数名', async () => {
     seen.push(next);
     on = next;
   };
-  const el = mount(() => <Switch checked={_bind(() => on, toggle)}>x</Switch>);
+  const el = mount(() => <Switch _checked={_bind(() => on, toggle)}>x</Switch>);
   el.querySelector('button')!.click();
   await nextTick();
   expect([seen, on]).toEqual([[true], true]);
@@ -90,13 +90,13 @@ it('函数绑定的 set 可以是函数名', async () => {
 
 it('受控：父级值为 undefined 时使用默认值', () => {
   const value = ref<number | undefined>(undefined);
-  const el = mount(() => <Counter value={_bind(value.value)} />);
+  const el = mount(() => <Counter _value={_bind(value.value)} />);
   expect(el.textContent).toBe('0');
 });
 
 it('只传值：子组件可本地修改，父级值变化时以父级为准', async () => {
   const on = ref(true);
-  const el = mount(() => <Switch checked={on.value}>x</Switch>);
+  const el = mount(() => <Switch _checked={on.value}>x</Switch>);
   const button = el.querySelector('button')!;
   button.click();
   await nextTick();

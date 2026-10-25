@@ -70,7 +70,7 @@ describe('Upload', () => {
         onProgress(0.5);
         calls.push({ resolve, reject });
       });
-    const root = mount(() => <Upload value={_bind(list)} multiple upload={upload} />);
+    const root = mount(() => <Upload _value={_bind(list)} multiple upload={upload} />);
     drop(root, [file('a.txt'), file('b.txt')]);
     await flush();
     expect(list.map((item) => item.status)).toEqual(['uploading', 'uploading']);
@@ -102,7 +102,7 @@ describe('Upload', () => {
     };
     const root = mount(() => (
       <Provider http={http}>
-        <Upload value={_bind(list)} action="/files" fieldName="attachment" />
+        <Upload _value={_bind(list)} action="/files" fieldName="attachment" />
       </Provider>
     ));
     drop(root, [file('a.txt')]);
@@ -121,7 +121,7 @@ describe('Upload', () => {
       signal = context.signal;
       return new Promise(() => {});
     };
-    const root = mount(() => <Upload value={_bind(list)} upload={upload} />);
+    const root = mount(() => <Upload _value={_bind(list)} upload={upload} />);
     drop(root, [file('a.txt')]);
     await flush();
     root.querySelector<HTMLButtonElement>('[aria-label="移除 a.txt"]')!.click();
@@ -133,7 +133,7 @@ describe('Upload', () => {
   it('超过 maxSize 的文件列出错误、不上传；单选时新文件替换旧的', async () => {
     let list = _state<UploadFile[]>([]);
     const upload = vi.fn<UploadHandler>(() => Promise.resolve());
-    const root = mount(() => <Upload value={_bind(list)} maxSize={10} upload={upload} />);
+    const root = mount(() => <Upload _value={_bind(list)} maxSize={10} upload={upload} />);
     drop(root, [file('big.txt', 'text/plain', 2000)]);
     await flush();
     expect(list[0]).toMatchObject({ status: 'error', rejected: true });
@@ -152,7 +152,7 @@ describe('Upload', () => {
     ];
     const root = mount(() => (
       <Upload
-        value={items}
+        _value={items}
         propsBody={{ class: 'body' }}
         propsName={{ class: 'name' }}
         propsMeta={{ class: 'meta' }}
@@ -177,7 +177,7 @@ describe('Upload', () => {
     const upload = vi.fn<UploadHandler>(() => new Promise(() => {}));
     const root = mount(() => (
       <Upload
-        value={_bind(list)}
+        _value={_bind(list)}
         upload={upload}
         disabled
         propsIcon={{ class: 'icon' }}
@@ -201,7 +201,7 @@ describe('Upload', () => {
       existingUploadFile({ name: '评审纪要.pdf', size: 2048 }),
     ]);
     const upload = vi.fn<UploadHandler>();
-    const root = mount(() => <Upload value={_bind(list)} upload={upload} multiple />);
+    const root = mount(() => <Upload _value={_bind(list)} upload={upload} multiple />);
     const items = root.querySelectorAll('li');
     expect([...items].map((item) => item.dataset.state)).toEqual(['done', 'done']);
     expect(items[0]!.querySelector('a')!.getAttribute('href')).toBe('/files/7');
@@ -217,13 +217,13 @@ describe('Upload', () => {
     const root = mount(() => (
       <>
         <Field label="附件" readonly>
-          <Upload value={files} class="readonly" />
+          <Upload _value={files} class="readonly" />
         </Field>
         <Field label="附件" disabled>
-          <Upload value={files} class="disabled" />
+          <Upload _value={files} class="disabled" />
         </Field>
         <Field label="附件" required>
-          <Upload value={files} class="filled" />
+          <Upload _value={files} class="filled" />
         </Field>
         <Field label="附件" required>
           <Upload class="empty" />
@@ -249,7 +249,7 @@ describe('Upload 的图片墙', () => {
     const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
     let files = _state<UploadFile[]>([]);
     const root = mount(() => (
-      <Upload value={_bind(files)} listType="picture" multiple accept="image/*,.pdf" />
+      <Upload _value={_bind(files)} listType="picture" multiple accept="image/*,.pdf" />
     ));
     drop(root, [file('支架.png', 'image/png'), file('报告.pdf', 'application/pdf')]);
     await flush();
@@ -269,7 +269,7 @@ describe('Upload 的图片墙', () => {
     let files = _state<UploadFile[]>([]);
     const root = mount(() => (
       <Upload
-        value={_bind(files)}
+        _value={_bind(files)}
         listType="picture"
         multiple
         accept="image/*"

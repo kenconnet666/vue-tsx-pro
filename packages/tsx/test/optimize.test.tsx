@@ -135,10 +135,10 @@ describe('哪些属性值缓存', () => {
 
   it('组件上的 _bind 生成的更新回调也被缓存', async () => {
     const out = await compile(
-      component('let on = _state(false)', '<Switch checked={_bind(on)} />'),
+      component('let on = _state(false)', '<Switch _checked={_bind(on)} />'),
     );
     expect(out).toContain(
-      'onUpdate:checked={_cache[0] || (_cache[0] = $event => on.value = $event)}',
+      'onUpdate:_checked={_cache[0] || (_cache[0] = $event => on.value = $event)}',
     );
   });
 });
@@ -349,14 +349,15 @@ describe('运行时', () => {
   });
 
   it('组件上的 _bind：缓存的更新回调照常写回', async () => {
-    const Toggle = _component(({ checked = _bindable(false) }: { checked?: boolean }) => () => (
-      <button onClick={() => (checked = !checked)}>{checked ? '开' : '关'}</button>
-    ));
+    const Toggle = _component(
+      ({ _checked: checked = _bindable(false) }: { _checked?: boolean }) =>
+        () => <button onClick={() => (checked = !checked)}>{checked ? '开' : '关'}</button>,
+    );
     const Page = _component(() => {
       let on = _state(false);
       return () => (
         <p>
-          <Toggle checked={_bind(on)} />
+          <Toggle _checked={_bind(on)} />
           <b>{on ? 'on' : 'off'}</b>
         </p>
       );

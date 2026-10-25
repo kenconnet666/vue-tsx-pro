@@ -4,7 +4,7 @@
  *
  *   <StepsForm
  *     form={form}
- *     current={_bind(step)}
+ *     _current={_bind(step)}
  *     steps={[
  *       { title: '企业信息', fields: ['company', 'contact'], content: () => <>…form.Field…</> },
  *       { title: '账号', fields: ['password', 'confirm'], content: () => <>…</> },
@@ -47,8 +47,8 @@ export interface StepsFormProps extends Omit<FormProps, 'controller' | 'children
   form: FormControllerBase;
   /** 各步 */
   steps: readonly FormStep[];
-  /** 当前第几步，从 0 开始：父级可以写 current={_bind(x)} */
-  current?: number;
+  /** 当前第几步，从 0 开始：父级可以写 _current={_bind(x)} */
+  _current?: number;
   /** 提交按钮的文字，默认取文案（提交） */
   submitText?: VNodeChild;
   /** 步骤条（Steps）的部件属性 */
@@ -81,7 +81,7 @@ export const StepsForm = _component(
   ({
     form,
     steps,
-    current = _bindable(0),
+    _current: current = _bindable(0),
     submitText,
     propsSteps,
     propsPanel,
@@ -137,7 +137,7 @@ export const StepsForm = _component(
                 items: items(),
                 navigable: true,
               })}
-              current={_bind(
+              _current={_bind(
                 () => current,
                 (index: number) => go(index),
               )}

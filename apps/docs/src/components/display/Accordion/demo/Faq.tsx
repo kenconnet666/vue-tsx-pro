@@ -5,7 +5,7 @@ export default _component(() => {
   let open = _state('ship');
   return () => (
     <Card padding="none">
-      <Accordion value={_bind(open)} aria-label="常见问题">
+      <Accordion _value={_bind(open)} aria-label="常见问题">
         <AccordionItem value="ship" title="付款后多久发货？">
           <Paragraph>工作日 16:00 前付款当天发货，之后的次日发货；节假日顺延。</Paragraph>
         </AccordionItem>

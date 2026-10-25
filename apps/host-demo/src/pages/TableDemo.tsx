@@ -178,7 +178,7 @@ export const TableDemo = _component(() => {
       <Flex direction="column" gap="md">
         <Flex gap="sm" wrap align="center" class="table-toolbar">
           <TextField
-            value={_bind(keyword)}
+            _value={_bind(keyword)}
             type="search"
             icon={Search}
             clearable
@@ -198,7 +198,7 @@ export const TableDemo = _component(() => {
               .map((column) => (
                 <MenuCheckboxItem
                   key={column.key}
-                  checked={!hidden.includes(column.key)}
+                  _checked={!hidden.includes(column.key)}
                   onClick={() =>
                     (hidden = hidden.includes(column.key)
                       ? hidden.filter((key) => key !== column.key)
@@ -226,10 +226,10 @@ export const TableDemo = _component(() => {
           rows={filtered}
           columns={shown}
           getKey={(order) => order.id}
-          sort={_bind(sort)}
+          _sort={_bind(sort)}
           selectionMode="multiple"
-          selected={_bind(picked)}
-          columnWidths={_bind(widths)}
+          _selected={_bind(picked)}
+          _columnWidths={_bind(widths)}
           resizable
           striped
           loading={refreshing}
@@ -244,7 +244,7 @@ export const TableDemo = _component(() => {
           getChildren={(unit) => unit.children}
           hasChildren={(unit) => unit.lazy === true || (unit.children?.length ?? 0) > 0}
           loadChildren={loadUnit}
-          expanded={_bind(expanded)}
+          _expanded={_bind(expanded)}
           density="compact"
           aria-label="组织架构"
           class="tree-table-demo"

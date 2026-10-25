@@ -1,7 +1,7 @@
 /**
  * 颜色输入：前面是色块（点开浏览器原生的取色器），后面可以直接输入颜色值。主题编辑器、品牌色设置这类地方用。
  *
- *   <ColorField value={_bind(brand)} aria-label="品牌色" />
+ *   <ColorField _value={_bind(brand)} aria-label="品牌色" />
  *
  * - 值是 #rrggbb（有透明度时 #rrggbbaa）：输入 rgb()、颜色名也行，失焦或回车时规范成 #hex 写回；
  *   写不成颜色时外壳标为无效（aria-invalid），值不变，失焦后恢复成原来的值。
@@ -32,8 +32,8 @@ export type ColorFieldManaged =
 
 /** 未声明的属性落到文字输入框（input）上 */
 export interface ColorFieldProps extends PartProps<'input', ColorFieldManaged>, ControlOptions {
-  /** 颜色值（#rrggbb 或 #rrggbbaa）：父级写 value={_bind(x)} 双向绑定 */
-  value?: string;
+  /** 颜色值（#rrggbb 或 #rrggbbaa）：父级写 _value={_bind(x)} 双向绑定 */
+  _value?: string;
   /** 不可用 */
   disabled?: boolean;
   /** 只读：能看到颜色、复制取值，不能修改 */
@@ -88,7 +88,7 @@ export const colorFieldDynamicStyles = css.create({
 /** 颜色输入（色块 + 文字输入）：值是 #hex */
 export const ColorField = _component(
   ({
-    value = _bindable('#000000'),
+    _value: value = _bindable('#000000'),
     variant,
     size,
     radius,
@@ -181,7 +181,7 @@ export const ColorField = _component(
                 },
               },
             )}
-            value={_bind(draft)}
+            _value={_bind(draft)}
           />
         </div>
       );

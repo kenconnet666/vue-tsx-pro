@@ -25,7 +25,7 @@ export default _component(() => {
   let created = _state(0);
   return () => (
     <Card padding="sm">
-      <Tabs value={_bind(current)}>
+      <Tabs _value={_bind(current)}>
         <TabList
           aria-label="打开的页面"
           showAllMenu

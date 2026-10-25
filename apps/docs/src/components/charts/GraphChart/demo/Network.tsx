@@ -40,7 +40,7 @@ export default _component(() => {
         links={links}
         groups={groups}
         unit="项"
-        selected={_bind(selected)}
+        _selected={_bind(selected)}
         height={340}
       />
       <Small tone="muted">

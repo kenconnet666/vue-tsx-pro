@@ -84,7 +84,7 @@ describe('ImageGroup 与 Lightbox', () => {
   it('旋转一档：图片转 90°；关闭按钮关上并写回 open', async () => {
     let open = _state(true);
     const root = mount(() => (
-      <Lightbox open={_bind(open)} items={[{ src: '/1.jpg', alt: '图纸' }]} />
+      <Lightbox _open={_bind(open)} items={[{ src: '/1.jpg', alt: '图纸' }]} />
     ));
     await flush();
     const dialog = root.querySelector<HTMLDialogElement>('dialog')!;

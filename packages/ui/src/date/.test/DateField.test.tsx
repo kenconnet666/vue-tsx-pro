@@ -64,7 +64,7 @@ describe('DateField', () => {
 
   it('逐段输入：满了自动跳段、焦点跟过去；填全才写回 ISO', async () => {
     let value = _state<string | null>(null);
-    const root = mount(() => <DateField value={_bind(value)} aria-label="日期" />);
+    const root = mount(() => <DateField _value={_bind(value)} aria-label="日期" />);
     segment(root, 'year').focus();
     await type('2026');
     expect(document.activeElement).toBe(segment(root, 'month'));
@@ -78,7 +78,7 @@ describe('DateField', () => {
 
   it('↑↓ 加减并回绕；Backspace 删空后写回 null', async () => {
     let value = _state<string | null>('2026-12-31');
-    const root = mount(() => <DateField value={_bind(value)} aria-label="日期" />);
+    const root = mount(() => <DateField _value={_bind(value)} aria-label="日期" />);
     segment(root, 'month').focus();
     await press('ArrowUp');
     expect(value).toBe('2026-01-31');
@@ -91,7 +91,7 @@ describe('DateField', () => {
 
   it('外部改值时各段跟着变', async () => {
     let value = _state<string | null>('2026-10-20');
-    const root = mount(() => <DateField value={_bind(value)} aria-label="日期" />);
+    const root = mount(() => <DateField _value={_bind(value)} aria-label="日期" />);
     value = '2027-01-02';
     await nextTick();
     expect(text(root)).toBe('2027/01/02');
@@ -103,7 +103,7 @@ describe('DateField', () => {
   it('超出 min / max、不可选的日期：外壳显示出错，各段 aria-invalid', () => {
     const root = mount(() => (
       <DateField
-        value="2026-10-20"
+        _value="2026-10-20"
         max="2026-10-01"
         aria-label="日期"
         propsRoot={{ class: 'shell' }}
@@ -117,7 +117,7 @@ describe('DateField', () => {
     const shell = (props: { min?: string; max?: string }) =>
       mount(() => (
         <DateField
-          value="2026-10-20T08:30"
+          _value="2026-10-20T08:30"
           granularity="minute"
           aria-label="开始时间"
           propsRoot={{ class: 'shell' }}
@@ -135,7 +135,7 @@ describe('DateField', () => {
   it('清空按钮、隐藏的表单值', async () => {
     let value = _state<string | null>('2026-10-20');
     const root = mount(() => (
-      <DateField value={_bind(value)} clearable name="birthday" aria-label="生日" />
+      <DateField _value={_bind(value)} clearable name="birthday" aria-label="生日" />
     ));
     expect(root.querySelector<HTMLInputElement>('input[type=hidden]')!.value).toBe('2026-10-20');
     root.querySelector<HTMLButtonElement>('button')!.click();
@@ -147,9 +147,9 @@ describe('DateField', () => {
   it('en-US 月/日/年；granularity="month" 只有年月；"minute" 加上时分与上午下午', () => {
     const en = mount(() => (
       <Provider lang={enUS}>
-        <DateField value="2026-10-20" aria-label="Date" />
-        <DateField granularity="month" value="2026-10" aria-label="Month" />
-        <DateField granularity="minute" value="2026-10-20T14:30" aria-label="At" />
+        <DateField _value="2026-10-20" aria-label="Date" />
+        <DateField granularity="month" _value="2026-10" aria-label="Month" />
+        <DateField granularity="minute" _value="2026-10-20T14:30" aria-label="At" />
       </Provider>
     ));
     const groups = [...en.querySelectorAll('[role="group"]')].map((group) => group.textContent);
@@ -157,7 +157,7 @@ describe('DateField', () => {
   });
 
   it('zh-CN 的年月：结尾的“月”也是分隔符，要留着', () => {
-    const root = mount(() => <DateField granularity="month" value="2026-10" aria-label="账期" />);
+    const root = mount(() => <DateField granularity="month" _value="2026-10" aria-label="账期" />);
     expect(text(root)).toBe('2026年10月');
   });
 
@@ -183,7 +183,7 @@ describe('DateField', () => {
 describe('TimeField', () => {
   it('zh-CN 24 小时制：打 1430 得到 14:30', async () => {
     let value = _state<string | null>(null);
-    const root = mount(() => <TimeField value={_bind(value)} aria-label="时间" />);
+    const root = mount(() => <TimeField _value={_bind(value)} aria-label="时间" />);
     expect(text(root)).toBe('时:分');
     segment(root, 'hour').focus();
     await type('1430');
@@ -194,7 +194,7 @@ describe('TimeField', () => {
     let value = _state<string | null>('09:15');
     const root = mount(() => (
       <Provider lang={enUS}>
-        <TimeField value={_bind(value)} aria-label="Time" />
+        <TimeField _value={_bind(value)} aria-label="Time" />
       </Provider>
     ));
     expect(text(root)).toBe('9:15 AM');
@@ -207,7 +207,7 @@ describe('TimeField', () => {
     const root = mount(() => (
       <TimeField
         granularity="second"
-        value="18:30:05"
+        _value="18:30:05"
         max="18:00"
         aria-label="时间"
         propsRoot={{ class: 'shell' }}
@@ -222,7 +222,7 @@ describe('TimeField', () => {
     const root = mount(() => (
       <Form controller={form} onSubmit={(event: Event) => submitted.push(event)}>
         <form.Field name="due" label="截止">
-          <DateField value={_bind(form.values.due)} />
+          <DateField _value={_bind(form.values.due)} />
         </form.Field>
       </Form>
     ));
@@ -237,7 +237,7 @@ describe('TimeField', () => {
     const onSubmit = vi.fn();
     const plain = mount(() => (
       <form onSubmit={(event: Event) => (event.preventDefault(), onSubmit())}>
-        <DateField value="2026-10-20" aria-label="日期" />
+        <DateField _value="2026-10-20" aria-label="日期" />
       </form>
     ));
     segment(plain, 'day').focus();
@@ -250,8 +250,8 @@ describe('TimeField', () => {
     let week = _state<string | null>(null);
     const root = mount(() => (
       <>
-        <DateField granularity="quarter" value={_bind(quarter)} aria-label="季度" />
-        <DateField granularity="week" value={_bind(week)} aria-label="周" />
+        <DateField granularity="quarter" _value={_bind(quarter)} aria-label="季度" />
+        <DateField granularity="week" _value={_bind(week)} aria-label="周" />
       </>
     ));
     const [quarterGroup, weekGroup] = [...root.querySelectorAll<HTMLElement>('[role="group"]')];

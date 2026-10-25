@@ -39,7 +39,7 @@ const onDuty = (date: string) => {
 
 export default _component(() => () => (
   <CalendarBoard
-    month="2026-10"
+    _month="2026-10"
     getDayNote={(date) => notes[date]}
     renderDay={(date, { outside, weekend }) => {
       // 补齐的上下月、放假的日子、周末（调休上班的除外）不排班

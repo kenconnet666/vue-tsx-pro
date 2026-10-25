@@ -67,33 +67,33 @@ export default _component(() => {
           <Flex direction="column" gap="xl" sx={styles.body}>
             <FormSection title="基本信息" columns={2} minColumnWidth="15em">
               <form.Field name="name" label="供应商名称">
-                <TextField value={_bind(form.values.name)} />
+                <TextField _value={_bind(form.values.name)} />
               </form.Field>
               <form.Field name="code" label="统一社会信用代码">
-                <TextField value={_bind(form.values.code)} />
+                <TextField _value={_bind(form.values.code)} />
               </form.Field>
               <form.Field name="contact" label="联系人">
-                <TextField value={_bind(form.values.contact)} />
+                <TextField _value={_bind(form.values.contact)} />
               </form.Field>
               <form.Field name="phone" label="手机">
-                <TextField value={_bind(form.values.phone)} inputmode="numeric" />
+                <TextField _value={_bind(form.values.phone)} inputmode="numeric" />
               </form.Field>
               <GridItem span="full">
                 <form.Field name="address" label="地址">
-                  <TextField value={_bind(form.values.address)} />
+                  <TextField _value={_bind(form.values.address)} />
                 </form.Field>
               </GridItem>
             </FormSection>
             <FormSection title="结算信息" columns={2} minColumnWidth="15em">
               <form.Field name="bank" label="开户行">
-                <TextField value={_bind(form.values.bank)} />
+                <TextField _value={_bind(form.values.bank)} />
               </form.Field>
               <form.Field name="account" label="账号">
-                <TextField value={_bind(form.values.account)} />
+                <TextField _value={_bind(form.values.account)} />
               </form.Field>
               <form.Field name="invoice" label="发票类型">
                 <Select
-                  value={_bind(form.values.invoice)}
+                  _value={_bind(form.values.invoice)}
                   items={[
                     { value: 'special', label: '增值税专用发票' },
                     { value: 'normal', label: '增值税普通发票' },
@@ -102,7 +102,7 @@ export default _component(() => {
               </form.Field>
               <form.Field name="terms" label="账期">
                 <Select
-                  value={_bind(form.values.terms)}
+                  _value={_bind(form.values.terms)}
                   items={[
                     { value: '30', label: '30 天' },
                     { value: '60', label: '60 天' },
@@ -117,7 +117,7 @@ export default _component(() => {
                 label="为什么改"
                 description="审批人会看到，写清楚改了什么、依据是什么"
               >
-                <Textarea value={_bind(form.values.note)} rows={3} />
+                <Textarea _value={_bind(form.values.note)} rows={3} />
               </form.Field>
             </FormSection>
           </Flex>

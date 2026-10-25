@@ -39,7 +39,7 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <Calendar
-          value={_bind(night)}
+          _value={_bind(night)}
           propsCellButton={{ sx: styles.cell }}
           min={today}
           max={shiftIsoDate(today, { days: 34 })}

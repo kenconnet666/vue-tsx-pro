@@ -18,7 +18,7 @@ export default _component(() => {
         <Small tone="muted">放在 20rem 宽的卡片里：不显示跳页，总数单独一行</Small>
         <Card sx={styles.narrow}>
           <PaginationBar
-            page={_bind(narrow)}
+            _page={_bind(narrow)}
             total={86}
             showSizeSelect={false}
             propsPagination={{ 'aria-label': '窄分页', siblings: 0 }}
@@ -28,8 +28,8 @@ export default _component(() => {
       <Flex direction="column" gap="xs">
         <Small tone="muted">showTotal 给函数：自己写总数</Small>
         <PaginationBar
-          page={_bind(custom)}
-          pageSize={_bind(customSize)}
+          _page={_bind(custom)}
+          _pageSize={_bind(customSize)}
           total={342}
           showTotal={({ from, to, total }) => `供应商 ${from}–${to} / ${total} 家 · 勾选跨页保留`}
           propsPagination={{ 'aria-label': '供应商分页' }}
@@ -38,7 +38,7 @@ export default _component(() => {
       <Flex direction="column" gap="xs">
         <Small tone="muted">只要页码与总数：showSizeSelect、showJump 关掉</Small>
         <PaginationBar
-          page={_bind(simple)}
+          _page={_bind(simple)}
           total={48}
           showSizeSelect={false}
           showJump={false}

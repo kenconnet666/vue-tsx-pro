@@ -43,21 +43,21 @@ export default _component(() => {
         loading={suppliers.loading}
       >
         <Field label="关键字">
-          <TextField value={_bind(draft.keyword)} placeholder="名称或城市" clearable />
+          <TextField _value={_bind(draft.keyword)} placeholder="名称或城市" clearable />
         </Field>
       </FilterBar>
       <DataTable
         rows={suppliers.rows}
         columns={columns}
         getKey={(item) => item.id}
-        sort={_bind(suppliers.sort)}
+        _sort={_bind(suppliers.sort)}
         manualSort
         loading={suppliers.loading}
         aria-label="供应商"
       />
       <PaginationBar
-        page={_bind(suppliers.page)}
-        pageSize={_bind(suppliers.pageSize)}
+        _page={_bind(suppliers.page)}
+        _pageSize={_bind(suppliers.pageSize)}
         total={suppliers.total}
         pageSizeOptions={[5, 10, 20]}
         showTotal={({ total }) => `共 ${total} 家`}

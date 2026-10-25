@@ -15,7 +15,7 @@ export default _component(() => {
   let mode = _state<'amount' | 'percent'>('amount');
   return () => (
     <Flex direction="column" gap="sm">
-      <ToggleGroup value={_bind(mode)} required size="sm" aria-label="显示方式">
+      <ToggleGroup _value={_bind(mode)} required size="sm" aria-label="显示方式">
         <ToggleItem value="amount">金额</ToggleItem>
         <ToggleItem value="percent">占比</ToggleItem>
       </ToggleGroup>

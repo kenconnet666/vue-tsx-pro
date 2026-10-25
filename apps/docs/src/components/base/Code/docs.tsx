@@ -54,7 +54,7 @@ export default _component(() => () => (
         </Example>
         <Example id="group" title="一组代码" demo={Group}>
           <Code>CodeGroup</Code> 用标签页切换几段代码，标签栏就是代码块的标题栏；几组绑同一个{' '}
-          <Code>value</Code> 就一起切换。
+          <Code>_value</Code> 就一起切换。
         </Example>
         <Example id="preview" title="示例卡片" demo={Preview}>
           <Code>CodePreview</Code>{' '}

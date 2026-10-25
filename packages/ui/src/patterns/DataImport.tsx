@@ -351,8 +351,8 @@ export const DataImport = _component(
               <Small tone="muted">{messages.dataImportSheet}</Small>
               <Select
                 items={sheets.map((item) => item.name)}
-                value={sheetName}
-                {...{ 'onUpdate:value': changeSheet }}
+                _value={sheetName}
+                {...{ 'onUpdate:_value': changeSheet }}
                 aria-label={messages.dataImportSheet}
                 size="sm"
               />
@@ -380,9 +380,9 @@ export const DataImport = _component(
                 cell: (field) => (
                   <Select
                     items={headers}
-                    value={mapping[field.key] ?? null}
+                    _value={mapping[field.key] ?? null}
                     {...{
-                      'onUpdate:value': (header: string | null) =>
+                      'onUpdate:_value': (header: string | null) =>
                         (mapping = { ...mapping, [field.key]: header }),
                     }}
                     placeholder={messages.dataImportSkip}
@@ -417,8 +417,8 @@ export const DataImport = _component(
             <Small>{messages.dataImportSummary(total, valid, invalid)}</Small>
             {invalid > 0 && (
               <Switch
-                checked={onlyErrors}
-                {...{ 'onUpdate:checked': (value: boolean) => (onlyErrors = value) }}
+                _checked={onlyErrors}
+                {...{ 'onUpdate:_checked': (value: boolean) => (onlyErrors = value) }}
               >
                 {messages.dataImportOnlyErrors}
               </Switch>
@@ -455,7 +455,7 @@ export const DataImport = _component(
               propsSteps,
               { items: messages.dataImportSteps.map((title) => ({ title })) },
             )}
-            current={step}
+            _current={step}
           />
           {step === 0 && renderUpload()}
           {step === 1 && renderMapping()}

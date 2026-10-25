@@ -17,7 +17,7 @@ it('列出了大部分组件，内部部件不在其中', () => {
 });
 
 it.each([...playableNames])('%s：预览渲染不出错', async (name) => {
-  const root = mount(() => <PropsPlayground component={name} />);
+  const root = mount(() => <PropsPlayground _name={name} />);
   await nextTick();
   expect(root.textContent).not.toContain('预览出错');
   // 生成的代码里有这个组件（预览里也可能有 code 元素，按文字找）

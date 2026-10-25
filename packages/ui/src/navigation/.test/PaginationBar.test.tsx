@@ -19,11 +19,11 @@ describe('PaginationBar', () => {
   it('范围文字：第几到第几条、共几条；没有数据时只说共 0 条；showTotal 可以给函数', () => {
     const root = mount(() => (
       <>
-        <PaginationBar page={2} pageSize={20} total={1286} class="a" />
+        <PaginationBar _page={2} _pageSize={20} total={1286} class="a" />
         <PaginationBar total={0} class="b" />
         <PaginationBar
-          page={3}
-          pageSize={10}
+          _page={3}
+          _pageSize={10}
           total={25}
           showTotal={({ from, to }) => `${from}-${to} · 勾选跨页保留`}
           class="c"
@@ -41,10 +41,10 @@ describe('PaginationBar', () => {
     let pageSize = _state(10);
     const root = mount(() => (
       <PaginationBar
-        page={_bind(page)}
-        pageSize={_bind(pageSize)}
+        _page={_bind(page)}
+        _pageSize={_bind(pageSize)}
         total={320}
-        propsSizeSelect={{ open: true }}
+        propsSizeSelect={{ _open: true }}
       />
     ));
     root.querySelector<HTMLButtonElement>('button[aria-label="第 3 页"]')!.click();
@@ -65,7 +65,7 @@ describe('PaginationBar', () => {
     let page = _state(1);
     const root = mount(() => (
       <>
-        <PaginationBar page={_bind(page)} total={95} showSizeSelect={false} class="many" />
+        <PaginationBar _page={_bind(page)} total={95} showSizeSelect={false} class="many" />
         <PaginationBar total={8} class="single" />
       </>
     ));

@@ -27,10 +27,10 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" wrap>
-        <Switch checked={_bind(legend)}>图例</Switch>
-        <Switch checked={_bind(tooltip)}>提示框</Switch>
-        <Switch checked={_bind(loading)}>加载中</Switch>
-        <Switch checked={_bind(empty)}>没有数据</Switch>
+        <Switch _checked={_bind(legend)}>图例</Switch>
+        <Switch _checked={_bind(tooltip)}>提示框</Switch>
+        <Switch _checked={_bind(loading)}>加载中</Switch>
+        <Switch _checked={_bind(empty)}>没有数据</Switch>
       </Flex>
       <ChordChart
         aria-label="团队之间的交接"

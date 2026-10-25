@@ -1,7 +1,7 @@
 /**
  * 图标库：搜索并点选 @lucide/icons 里的图标。Icon 文档页的“图标库”与组件演练场的图标控件共用。
  *
- *   <IconGallery value={_bind(name)} />   // value 是导入名（Search），点选后更新
+ *   <IconGallery _value={_bind(name)} />   // value 是导入名（Search），点选后更新
  *
  * Lucide 没有随包提供分类与关键词，按名字搜：导入名（ArrowRight）与文件名（arrow-right）都能匹配。
  * 全部图标都能滚动看到：按行虚拟滚动（VirtualList），每行放几个按容器宽度算，只画看得见的几行。
@@ -112,87 +112,89 @@ const styles = css.create({
 
 /** IconGallery 的属性 */
 export interface IconGalleryProps {
-  /** 选中的图标（导入名）：父级可以写 value={_bind(x)} */
-  value?: string;
+  /** 选中的图标（导入名）：父级可以写 _value={_bind(x)} */
+  _value?: string;
   /** 点选了一个图标 */
   onPick?: (name: string) => void;
 }
 
 /** 图标库：搜索框与图标网格 */
-export const IconGallery = _component(({ value = _bindable(''), onPick }: IconGalleryProps) => {
-  let query = _state('');
-  const matches = _derived.by(() => {
-    const keyword = query
-      .trim()
-      .toLowerCase()
-      .replace(/[\s_]+/g, '-');
-    if (!keyword) return allIcons;
-    const compact = keyword.replace(/-/g, '');
-    return allIcons.filter(
-      (item) => item.slug.includes(keyword) || item.name.toLowerCase().includes(compact),
+export const IconGallery = _component(
+  ({ _value: value = _bindable(''), onPick }: IconGalleryProps) => {
+    let query = _state('');
+    const matches = _derived.by(() => {
+      const keyword = query
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_]+/g, '-');
+      if (!keyword) return allIcons;
+      const compact = keyword.replace(/-/g, '');
+      return allIcons.filter(
+        (item) => item.slug.includes(keyword) || item.name.toLowerCase().includes(compact),
+      );
+    });
+
+    // 每行放几个：随容器宽度变（窄屏、演练场的弹层里少，文档页里多）
+    let frame = _state.raw<HTMLElement | null>(null);
+    let columns = _state(6);
+    useResizeObserver(
+      () => frame,
+      ([entry]) => {
+        const width = entry?.contentRect.width ?? 0;
+        if (width > 0) columns = Math.max(1, Math.floor((width + GAP) / (CELL + GAP)));
+      },
     );
-  });
+    const rows = _derived.by(() => {
+      const result: IconEntry[][] = [];
+      for (let start = 0; start < matches.length; start += columns) {
+        result.push(matches.slice(start, start + columns));
+      }
+      return result;
+    });
 
-  // 每行放几个：随容器宽度变（窄屏、演练场的弹层里少，文档页里多）
-  let frame = _state.raw<HTMLElement | null>(null);
-  let columns = _state(6);
-  useResizeObserver(
-    () => frame,
-    ([entry]) => {
-      const width = entry?.contentRect.width ?? 0;
-      if (width > 0) columns = Math.max(1, Math.floor((width + GAP) / (CELL + GAP)));
-    },
-  );
-  const rows = _derived.by(() => {
-    const result: IconEntry[][] = [];
-    for (let start = 0; start < matches.length; start += columns) {
-      result.push(matches.slice(start, start + columns));
-    }
-    return result;
-  });
-
-  return () => (
-    <Flex direction="column" gap="sm">
-      <TextField
-        value={_bind(query)}
-        icon={Search}
-        clearable
-        placeholder={`搜索 ${allIcons.length} 个图标，如 arrow、user、chart`}
-        aria-label="搜索图标"
-      />
-      <div ref={_toRef(frame)}>
-        <VirtualList
-          items={rows}
-          getKey={(row) => row[0]!.name}
-          estimateSize={ROW}
-          sx={styles.scroller}
-        >
-          {(row) => (
-            <Grid columns={columns} gap="xs" sx={styles.row}>
-              {row.map((item) => (
-                <ButtonBase
-                  key={item.name}
-                  aria-pressed={item.name === value}
-                  title={item.name}
-                  sx={[styles.cell, item.name === value && styles.selected]}
-                  onClick={() => {
-                    value = item.name;
-                    onPick?.(item.name);
-                  }}
-                >
-                  <Icon icon={item.icon} sx={styles.glyph} />
-                  <span {...css.attrs(styles.name)}>{item.name}</span>
-                </ButtonBase>
-              ))}
-            </Grid>
-          )}
-        </VirtualList>
-      </div>
-      <Small tone="muted">
-        {matches.length === 0
-          ? '没有匹配的图标：换个英文关键词试试'
-          : `共 ${matches.length} 个，滚动查看全部`}
-      </Small>
-    </Flex>
-  );
-});
+    return () => (
+      <Flex direction="column" gap="sm">
+        <TextField
+          _value={_bind(query)}
+          icon={Search}
+          clearable
+          placeholder={`搜索 ${allIcons.length} 个图标，如 arrow、user、chart`}
+          aria-label="搜索图标"
+        />
+        <div ref={_toRef(frame)}>
+          <VirtualList
+            items={rows}
+            getKey={(row) => row[0]!.name}
+            estimateSize={ROW}
+            sx={styles.scroller}
+          >
+            {(row) => (
+              <Grid columns={columns} gap="xs" sx={styles.row}>
+                {row.map((item) => (
+                  <ButtonBase
+                    key={item.name}
+                    aria-pressed={item.name === value}
+                    title={item.name}
+                    sx={[styles.cell, item.name === value && styles.selected]}
+                    onClick={() => {
+                      value = item.name;
+                      onPick?.(item.name);
+                    }}
+                  >
+                    <Icon icon={item.icon} sx={styles.glyph} />
+                    <span {...css.attrs(styles.name)}>{item.name}</span>
+                  </ButtonBase>
+                ))}
+              </Grid>
+            )}
+          </VirtualList>
+        </div>
+        <Small tone="muted">
+          {matches.length === 0
+            ? '没有匹配的图标：换个英文关键词试试'
+            : `共 ${matches.length} 个，滚动查看全部`}
+        </Small>
+      </Flex>
+    );
+  },
+);

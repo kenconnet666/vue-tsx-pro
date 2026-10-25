@@ -16,7 +16,7 @@ export default _component(() => {
       {cases.map(([label, props]) => (
         <Flex key={label} direction="column" gap="xs">
           <Small tone="muted">{label}</Small>
-          <Calendar value={today} {...props} aria-label={label} />
+          <Calendar _value={today} {...props} aria-label={label} />
         </Flex>
       ))}
     </Grid>

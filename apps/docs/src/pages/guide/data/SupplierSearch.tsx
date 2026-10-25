@@ -66,7 +66,7 @@ export default _component(() => {
       <Flex direction="column" gap="md">
         <Flex align="center" gap="md" wrap>
           <TextField
-            value={_bind(keyword)}
+            _value={_bind(keyword)}
             icon={Search}
             clearable
             placeholder="名称或城市，如“复材”“西安”"
@@ -113,7 +113,7 @@ export default _component(() => {
           </TableBody>
         </Table>
         {data && data.total > PAGE_SIZE && (
-          <Pagination page={_bind(() => page, turnTo)} total={data.total} pageSize={PAGE_SIZE} />
+          <Pagination _page={_bind(() => page, turnTo)} total={data.total} pageSize={PAGE_SIZE} />
         )}
       </Flex>
     );

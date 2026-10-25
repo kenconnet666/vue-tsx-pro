@@ -40,7 +40,7 @@ export default _component(() => () => (
         <Example id="checkable" title="勾选" demo={Checkable}>
           <Code>checkable</Code>{' '}
           时每项前有勾选框：勾上父节点会勾上全部子孙，子节点全勾上时父节点也勾上，只勾一部分时父节点半选（读屏念“部分选中”）。
-          <Code>checked</Code> 里是全部勾上的节点。权限树里“只给这一级”时写{' '}
+          <Code>_checked</Code> 里是全部勾上的节点。权限树里“只给这一级”时写{' '}
           <Code>checkStrictly</Code>：父子不联动，各自勾选。
         </Example>
         <Example id="lazy" title="按需加载、不可用与自定义内容" demo={Lazy}>

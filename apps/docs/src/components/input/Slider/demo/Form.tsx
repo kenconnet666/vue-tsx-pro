@@ -15,13 +15,13 @@ export default _component(() => {
       <Flex direction="column" gap="lg">
         <Field label="提醒音量" description={`拖动中 ${volume}，松手后才保存：${committed}`}>
           <Slider
-            value={_bind(volume)}
+            _value={_bind(volume)}
             name="volume"
             onValueCommit={(value) => (committed = value)}
           />
         </Field>
         <Field label="系统音量" disabled description="由系统设置控制">
-          <Slider value={40} />
+          <Slider _value={40} />
         </Field>
         <Flex gap="sm" align="center" wrap>
           <Button type="submit" variant="outline" tone="neutral">

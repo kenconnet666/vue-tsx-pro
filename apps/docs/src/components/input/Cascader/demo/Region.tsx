@@ -71,7 +71,7 @@ export default _component(() => {
   let allLevels = _state(true);
   return () => (
     <Flex direction="column" gap="md">
-      <Switch checked={_bind(allLevels)}>显示整条路径</Switch>
+      <Switch _checked={_bind(allLevels)}>显示整条路径</Switch>
       <Grid minItemWidth="17rem" gap="md">
         <Field label="收货地址">
           <Cascader
@@ -79,7 +79,7 @@ export default _component(() => {
             getKey={(region) => region.code}
             getLabel={(region) => region.name}
             getChildren={(region) => region.children}
-            value={_bind(address)}
+            _value={_bind(address)}
             showAllLevels={allLevels}
             icon={MapPin}
             searchable
@@ -92,7 +92,7 @@ export default _component(() => {
             getKey={(region) => region.code}
             getLabel={(region) => region.name}
             getChildren={(region) => region.children}
-            value={_bind(invoice)}
+            _value={_bind(invoice)}
             showAllLevels={allLevels}
             placeholder="省 / 市 / 区"
             searchable

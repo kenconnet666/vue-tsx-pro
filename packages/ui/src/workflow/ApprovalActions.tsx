@@ -195,7 +195,7 @@ export const ApprovalActions = _component(
           <Dialog
             size="sm"
             {...propsDialog}
-            open={_bind(
+            _open={_bind(
               () => current != null,
               (next: boolean) => {
                 if (!next) active = null;
@@ -215,7 +215,7 @@ export const ApprovalActions = _component(
                     required={current.comment === 'required'}
                     error={errors.comment || undefined}
                   >
-                    <Textarea value={_bind(comment)} rows={3} autofocus />
+                    <Textarea _value={_bind(comment)} rows={3} autofocus />
                   </Field>
                 )}
                 {current.attachments != null && (
@@ -224,7 +224,7 @@ export const ApprovalActions = _component(
                     required={current.attachments === 'required'}
                     error={errors.attachments || undefined}
                   >
-                    <Upload value={_bind(files)} upload={upload} multiple />
+                    <Upload _value={_bind(files)} upload={upload} multiple />
                   </Field>
                 )}
                 {errors.fields && (

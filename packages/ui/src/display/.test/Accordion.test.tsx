@@ -11,7 +11,7 @@ const key = (element: HTMLElement, name: string) =>
 describe('Accordion', () => {
   it('标题是 heading 里的按钮，内容是以标题为名称的 region', () => {
     const root = mount(() => (
-      <Accordion value="a" headingLevel={4}>
+      <Accordion _value="a" headingLevel={4}>
         <AccordionItem value="a" title="多久发货">
           48 小时
         </AccordionItem>
@@ -28,7 +28,7 @@ describe('Accordion', () => {
   it('单开：点另一项时前一项收起；collapsible 为 false 时最后一项不能收起', async () => {
     let open = _state<string | null>('a');
     const root = mount(() => (
-      <Accordion value={_bind(open)} collapsible={false}>
+      <Accordion _value={_bind(open)} collapsible={false}>
         <AccordionItem value="a" title="A">
           1
         </AccordionItem>
@@ -49,7 +49,7 @@ describe('Accordion', () => {
   it('多开：各自切换；不可用的项点不动', () => {
     let open = _state<string[]>([]);
     const root = mount(() => (
-      <Accordion selectionMode="multiple" value={_bind(open)}>
+      <Accordion selectionMode="multiple" _value={_bind(open)}>
         <AccordionItem value="a" title="A">
           1
         </AccordionItem>
@@ -97,7 +97,7 @@ describe('Accordion', () => {
   it('页内搜索命中收起的内容（beforematch）时展开并写回', async () => {
     let open = _state<string | null>(null);
     const root = mount(() => (
-      <Accordion value={_bind(open)}>
+      <Accordion _value={_bind(open)}>
         <AccordionItem value="a" title="A">
           隐藏的关键词
         </AccordionItem>

@@ -32,13 +32,13 @@ export default _component(() => () => (
     </Grid>
     <Grid minItemWidth="11rem" gap="md">
       <Field label="不可用" disabled>
-        <TextField value="不能改" />
+        <TextField _value="不能改" />
       </Field>
       <Field label="只读" readonly>
-        <TextField value="可以选中复制" />
+        <TextField _value="可以选中复制" />
       </Field>
       <Field label="校验未通过" error="这个用户名已经被占用了">
-        <TextField value="admin" />
+        <TextField _value="admin" />
       </Field>
     </Grid>
   </Flex>

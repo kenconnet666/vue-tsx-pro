@@ -22,7 +22,7 @@ export default _component(() => () => (
       <Code>events</Code> 按 <Code>getEventDate</Code> 放进格子，给了 <Code>getEventEnd</Code>{' '}
       的跨天的每一天都有（出差）；默认显示带色调（<Code>getEventTone</Code>
       ）的一行文字，<Code>renderEvent</Code> 自定义。每天最多 <Code>maxEvents</Code>{' '}
-      条，其余收成“还有 N 项”，点了选中那一天，由页面在旁边列出全部。<Code>value</Code>{' '}
+      条，其余收成“还有 N 项”，点了选中那一天，由页面在旁边列出全部。<Code>_value</Code>{' '}
       是选中的那一天，<Code>month</Code> 是显示的月份（都可以双向绑定），<Code>toolbar</Code>{' '}
       放在页头（筛选、视图切换）。
     </Example>

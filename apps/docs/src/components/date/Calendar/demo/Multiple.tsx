@@ -15,7 +15,7 @@ export default _component(() => {
       <Flex gap="xl" wrap align="start">
         <Calendar
           selectionMode="multiple"
-          value={_bind(shifts)}
+          _value={_bind(shifts)}
           visibleMonths={2}
           showWeekNumbers
           aria-label="值班日期"

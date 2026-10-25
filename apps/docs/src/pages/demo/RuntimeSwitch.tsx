@@ -71,7 +71,7 @@ export default _component(() => {
             <ThemeSwitcher preference={preference} />
           </Flex>
           <ToggleGroup
-            value={_bind(
+            _value={_bind(
               () => preference.preference,
               (next) => void preference.set(next),
             )}

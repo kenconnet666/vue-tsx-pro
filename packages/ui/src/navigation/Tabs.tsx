@@ -2,7 +2,7 @@
  * 标签页（WAI-ARIA 的 Tabs 模式），复合组件：Tabs（状态）> TabList（role="tablist"）> Tab（role="tab"），
  * 加上与每个 Tab 对应的 TabPanel（role="tabpanel"）。各层都是独立的组件，可以自由排版、各自加属性。
  *
- *   <Tabs value={_bind(tab)}>
+ *   <Tabs _value={_bind(tab)}>
  *     <TabList aria-label="订单">
  *       <Tab value="all">全部</Tab>
  *       <Tab value="paid">已付款</Tab>
@@ -122,8 +122,8 @@ const idSafe = (value: string) => value.replace(/[^\w-]/g, '_');
 
 /** 未声明的属性落到外层 div 上 */
 export interface TabsProps extends PartProps<'div'>, TabsOptions {
-  /** 当前标签的 value：父级写 value={_bind(x)}；不写时默认第一个标签 */
-  value?: string;
+  /** 当前标签的 value：父级写 _value={_bind(x)}；不写时默认第一个标签 */
+  _value?: string;
   /** 方向，默认 horizontal */
   orientation?: keyof TabsOrientations;
   /** 焦点移动时是否同时切换，默认 automatic */
@@ -145,7 +145,7 @@ export const tabsStyles = css.create({
 /** 标签页的状态容器：管理当前值，并把它交给 TabList、Tab、TabPanel */
 export const Tabs = _component(
   ({
-    value = _bindable<string | undefined>(undefined),
+    _value: value = _bindable<string | undefined>(undefined),
     orientation = 'horizontal',
     activation = 'automatic',
     variant,
@@ -471,7 +471,7 @@ export const TabList = _component(
         >
           <MenuRadioGroup
             label={lang.tabList}
-            value={_bind(
+            _value={_bind(
               () => tabs.value ?? '',
               (next: string) => tabs.select(next),
             )}

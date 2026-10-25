@@ -11,19 +11,19 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="15rem" gap="lg">
       <Field label="年度" description={<Code>{year ?? 'null'}</Code>}>
-        <DateField granularity="year" value={_bind(year)} />
+        <DateField granularity="year" _value={_bind(year)} />
       </Field>
       <Field label="账期" description={<Code>{month ?? 'null'}</Code>}>
-        <DateField granularity="month" value={_bind(month)} />
+        <DateField granularity="month" _value={_bind(month)} />
       </Field>
       <Field label="发货日期" description={<Code>{day ?? 'null'}</Code>}>
-        <DateField value={_bind(day)} />
+        <DateField _value={_bind(day)} />
       </Field>
       <Field label="会议开始" description={<Code>{at ?? 'null'}</Code>}>
-        <DateField granularity="minute" value={_bind(at)} />
+        <DateField granularity="minute" _value={_bind(at)} />
       </Field>
       <Field label="日志时间" description={<Code>{precise ?? 'null'}</Code>}>
-        <DateField granularity="second" value={_bind(precise)} />
+        <DateField granularity="second" _value={_bind(precise)} />
       </Field>
     </Grid>
   );

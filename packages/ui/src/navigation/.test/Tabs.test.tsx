@@ -13,7 +13,7 @@ const key = (element: Element, name: string) =>
 function renderTabs(options: { activation?: 'automatic' | 'manual'; lazy?: boolean } = {}) {
   let value = _state<string | undefined>(undefined);
   const root = mount(() => (
-    <Tabs value={_bind(value)} activation={options.activation} lazy={options.lazy}>
+    <Tabs _value={_bind(value)} activation={options.activation} lazy={options.lazy}>
       <TabList aria-label="订单">
         <Tab value="all">全部</Tab>
         <Tab value="paid" disabled>
@@ -91,7 +91,7 @@ describe('Tabs', () => {
   it('使用方的 onClick 先执行，preventDefault 可以拦下切换', async () => {
     let value = _state('a');
     const root = mount(() => (
-      <Tabs value={_bind(value)}>
+      <Tabs _value={_bind(value)}>
         <TabList aria-label="x">
           <Tab value="a">A</Tab>
           <Tab value="b" onClick={(event) => event.preventDefault()}>
@@ -119,7 +119,7 @@ describe('Tabs', () => {
     let tabs = _state(['a', 'b', 'c']);
     let current = _state('b');
     const root = mount(() => (
-      <Tabs value={_bind(current)}>
+      <Tabs _value={_bind(current)}>
         <TabList aria-label="页面">
           {tabs.map((tab) => (
             <Tab key={tab} value={tab} onClose={() => (tabs = tabs.filter((item) => item !== tab))}>

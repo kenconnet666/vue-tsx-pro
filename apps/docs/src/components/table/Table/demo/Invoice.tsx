@@ -33,15 +33,15 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <Flex align="center" gap="md" wrap>
-          <ToggleGroup value={_bind(density)} required size="sm" aria-label="密度">
+          <ToggleGroup _value={_bind(density)} required size="sm" aria-label="密度">
             <ToggleItem value="compact">紧凑</ToggleItem>
             <ToggleItem value="standard">标准</ToggleItem>
             <ToggleItem value="comfortable">宽松</ToggleItem>
           </ToggleGroup>
-          <Switch checked={_bind(striped)} size="sm">
+          <Switch _checked={_bind(striped)} size="sm">
             斑马纹
           </Switch>
-          <Switch checked={_bind(ghost)} size="sm">
+          <Switch _checked={_bind(ghost)} size="sm">
             无外框（ghost）
           </Switch>
         </Flex>

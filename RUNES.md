@@ -26,8 +26,8 @@
 | `const stop = _effect.root(fn)`                           | 独立的 `effectScope`                       | 不随组件销毁，手动清理                                         |
 | 组件参数 `({ size = 'md' })`                              | `readonlyProp(__props, 'size', 'md')`      | 组件里没写过的 prop：只读访问器，字面量默认值直接传            |
 | 组件里写过的 prop（`size = 'lg'`、交给 `_toRef`/`_bind`） | `prop(__props, 'size', () => 'md')`        | 普通 prop：可以临时覆盖（只改本地）                            |
-| 组件参数 `({ checked = _bindable(false) })`               | `bindable(…, emit)`                        | 可双向绑定的 prop                                              |
-| `<Switch checked={_bind(on)} />`                          | `v-model:checked={on.value}`               | 父级声明双向绑定；原生元素支持 `_bind.trim/.number/.lazy`      |
+| 组件参数 `({ _checked: checked = _bindable(false) })`     | `bindable(…, emit)`                        | 可双向绑定的 prop：名字以下划线开头                            |
+| `<Switch _checked={_bind(on)} />`                         | `v-model:_checked={on.value}`              | 父级声明双向绑定；原生元素支持 `_bind.trim/.number/.lazy`      |
 | `let theme = _fromRef(useStorage(…))`                     | 直接持有这个 Ref                           | Ref → 变量；也支持解构 `const { x, y } = _fromRef(useMouse())` |
 | `_toRef(count)`                                           | `count`（背后的 Ref）                      | 变量 → Ref，交给需要可写 Ref 的 API                            |
 | `_untrack(x)`                                             | `untrack(() => x.value)`                   | 只取当前值、不追踪；组件函数体里写表示有意只要初始值，不警告   |
@@ -80,7 +80,13 @@ _effect(() => {
 
 ```tsx
 export const Badge = _component(
-  ({ size = 'md', icon = pick(size), checked = _bindable(false), children, ...rest }: Props) => {
+  ({
+    size = 'md',
+    icon = pick(size),
+    _checked: checked = _bindable(false),
+    children,
+    ...rest
+  }: Props) => {
     // 组件函数体只执行一次；return 的函数才是渲染
     return () => <span {...rest}>{children}</span>;
   },
@@ -95,24 +101,28 @@ export const Badge = _component(
 
 ## 6. 双向绑定 `_bindable` + `_bind`
 
-- 子组件用 `_bindable(默认值)` 声明“可以被双向绑定”，父组件用 `属性={_bind(x)}` 声明“这里要双向绑定”，编译成 Vue 的 v-model 协议：传的是值和更新回调，父级的 Ref 不会交给子组件。
+- 子组件用 `_bindable(默认值)` 声明“可以被双向绑定”，父组件用 `_属性={_bind(x)}` 声明“这里要双向绑定”，编译成 Vue 的 v-model 协议：传的是值和更新回调，父级的 Ref 不会交给子组件。
+- **可绑定的 prop 以下划线开头**（2026-10-25）：`_value`、`_checked`、`_open`、`_selected`……，与 `_state`、`_bind` 同一个标记，补全列表里一眼看出哪些属性能双向绑定。
+  声明写成 `({ _value: value = _bindable('') })`：键名带下划线，本地变量不带（下划线留给符文）。编译期检查三条：`_bindable` 的键没有下划线、
+  下划线开头的 prop 没用 `_bindable`、本地变量带下划线，都报错并给出写法；`_bind` 写在没有下划线的属性上也报错。
+  不绑定时同样写这个 prop：`<Select _value="a" />` 是受控或初始值。更新事件是 `onUpdate:_value`，Vue 模板里写 `v-model:_value`。
 - **两边都要写**（同 Svelte 的 `$bindable` + `bind:`）：编译器逐文件工作，看不到子组件声明了什么。写成函数调用而不是 `bind:checked`，是因为带冒号的属性名在 TSX 里没有补全和跳转。
 - **受控语义同 Vue 的 `useModel`**：父级绑定时以父级为准，父级拒绝或修正新值时组件跟着回去；只传值时作为初始值；都不传就是组件自己的状态。
-- 可以绑对象属性：`value={_bind(form.name)}`；原生输入元素支持修饰符 `_bind.trim`、`_bind.number`、`_bind.lazy`，中文输入法组合期间不写回。
-- 原生元素能绑定的属性（2026-10-25 补全）：
-  - `value`、`checked` 走 v-model；多选组把 `checked` 绑到数组（`<input type="checkbox" value="a" checked={_bind(list)} />`，勾选增删其中的值）。单选组请用 RadioGroup，或 `checked={x === 值}` 加 `onChange`：Vue 的类型里 `checked` 只收布尔与数组。
-  - `<details open={_bind(expanded)} />`：代码设置会展开，用户展开收起后由 `toggle` 写回（同 Svelte 的 `bind:open`）。
-  - `<input type="file" files={_bind(picked)} />`：只读，用户选了文件后由 `change` 写回；不把值写到元素上。
+- 可以绑对象属性：`_value={_bind(form.name)}`；原生输入元素支持修饰符 `_bind.trim`、`_bind.number`、`_bind.lazy`，中文输入法组合期间不写回。
+- 原生元素能绑定的属性（2026-10-25 补全），同样写下划线（类型里只为绑定加了这几个，只给值时写元素自己的属性，`<input _value="a" />` 编译报错）：
+  - `_value`、`_checked` 走 v-model；多选组把 `checked` 绑到数组（`<input type="checkbox" value="a" _checked={_bind(list)} />`，勾选增删其中的值）。单选组请用 RadioGroup，或 `checked={x === 值}` 加 `onChange`：Vue 的类型里 `checked` 只收布尔与数组。
+  - `<details _open={_bind(expanded)} />`：代码设置会展开，用户展开收起后由 `toggle` 写回（同 Svelte 的 `bind:open`）。
+  - `<input type="file" _files={_bind(picked)} />`：只读，用户选了文件后由 `change` 写回；不把值写到元素上。
   - 占用的事件（`onToggle`、`onChange`）不能再手写，编译时报错。媒体播放状态、元素尺寸不做成绑定：用组合式函数更清楚。
-- **函数绑定**（同 Svelte 5 的 `bind:value={get, set}`）：写回时要顺带做别的事、或值要换算时，`value={_bind(() => status, (next) => switchTo(next))}`，编译为 `value={status} onUpdate:value={…}`。只用于组件；原生输入元素写 `value` 加 `onInput`。
+- **函数绑定**（同 Svelte 5 的 `bind:value={get, set}`）：写回时要顺带做别的事、或值要换算时，`_value={_bind(() => status, (next) => switchTo(next))}`，编译为 `_value={status} onUpdate:_value={…}`。只用于组件；原生输入元素写 `value` 加 `onInput`。
 
 ## 7. 共享状态与暴露能力
 
 | 需求                       | 写法                                                                                       |
 | -------------------------- | ------------------------------------------------------------------------------------------ |
-| 子组件改父级的某个字段     | `value={_bind(form.name)}`                                                                 |
+| 子组件改父级的某个字段     | `_value={_bind(form.name)}`                                                                |
 | 子组件负责一组字段         | 把对象作为普通 prop 传入：`<AddressFields address={form.address} />`，子组件直接改它的属性 |
-| 子组件可能整体替换对象     | 子组件 `value = _bindable(…)`，父级用 `let` 声明并写 `value={_bind(filters)}`              |
+| 子组件可能整体替换对象     | 子组件 `_value: value = _bindable(…)`，父级用 `let` 声明并写 `_value={_bind(filters)}`     |
 | 父级要用子组件的状态或方法 | 控制器对象（见下），不用 expose                                                            |
 | 只是通知                   | 回调 prop：`onChange={(value) => …}`                                                       |
 | 层级很深                   | `createContext`                                                                            |
@@ -151,6 +161,7 @@ const form = useForm({ name: '' });
 - 把符文当普通值使用（`const make = _state`）、`_toRef(1)` 这类参数不是响应式变量
 - `var` 声明响应式变量；在渲染函数里声明 `_state` 或创建 `_effect`
 - `_bindable` 写在组件参数解构以外；`_bind` 写在 JSX 属性以外、或绑定只读的值
+- 可绑定的 prop 不以下划线开头、下划线开头的 prop 不是 `_bindable`、`_bind` 写在没有下划线的属性上、原生元素的下划线属性只给值（§6）
 - `watch(x, cb)` 直接传响应式变量（对象会悄悄监听旧对象）
 - 组件函数体里直接读 `children`
 - `_derived` 里修改状态（派生值要是纯计算）；`_untrack(() => x)`（参数直接写变量）
@@ -174,7 +185,7 @@ JSX 交给 vue-jsx 后，没有模板编译器的那几项优化：父组件一�
 - **非响应式的可变数据**：会被重新赋值的普通 `let`、`...rest`（Vue 的 attrs）、用对象或数组字面量初始化的 `const`。它们变了不会通知任何组件，以前靠父组件碰巧重新渲染才刷新，用到它们的内容不标稳定。
 - **界面要读响应式数据**：显示在界面上的值请用 `_state` / `_derived` / props；读别处可变数据的函数（例如 setup 里的函数读一个普通对象）在内容里调用时，数据变了不会刷新。
 - 原样转交 `<X>{children}</X>` 时，稳不稳定跟着上层：上层的内容每次都变，交出去的也每次都变（运行时判断）。
-- 组件上的 `_bind(x)` 直接写出值与 `onUpdate:x` 回调，回调同样被缓存；原生输入框仍走 v-model 指令。
+- 组件上的 `_bind(x)` 直接写出值与 `onUpdate:_x` 回调，回调同样被缓存；原生输入框仍走 v-model 指令。
 - 实测：父组件计数加一、下面有 Card > Flex > 200 个按钮，5.2ms / 203 个组件更新 → 0.1ms / 1 个；打开 30 项的菜单 32 个组件更新 → 2 个。
 - 怀疑哪里因此没更新时，`vueTsxPro({ optimize: false })` 对比。
 
@@ -188,7 +199,7 @@ JSX 交给 vue-jsx 后，没有模板编译器的那几项优化：父组件一�
 | `$effect` / `$effect.pre` / `$effect.root`     | `_effect` / `_effect.pre` / `_effect.root`  | 一致；底层是 watchEffect 与 effectScope       |
 | `untrack(fn)`                                  | `_untrack(x)`                               | 写成表达式；用 Vue 公开的 ReactiveEffect 实现 |
 | `$props()` 解构、普通 prop 可覆盖              | `_component` 参数解构                       | 我们的默认值可以引用前面的 prop               |
-| `$bindable` + `bind:x`                         | `_bindable` + `_bind(x)`                    | 编译为 v-model 协议                           |
+| `$bindable` + `bind:x`                         | `_bindable` + `_x={_bind(x)}`               | 编译为 v-model 协议；可绑定的 prop 带下划线   |
 | `$props.id()` / `$inspect`                     | Vue 的 `useId()` / Devtools                 | 不另造                                        |
 | 类字段 `done = $state(false)`                  | 暂不支持                                    | 写正式组件用到时再加                          |
 | `bind:value={get, set}`                        | `_bind(() => x, (next) => …)`               | 只用于组件，见 §6 函数绑定                    |

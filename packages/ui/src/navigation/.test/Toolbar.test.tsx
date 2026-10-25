@@ -35,7 +35,7 @@ describe('Toolbar', () => {
     const root = mount(() => (
       <Toolbar aria-label="格式">
         <button>撤销</button>
-        <ToggleGroup value="center" aria-label="对齐">
+        <ToggleGroup _value="center" aria-label="对齐">
           <ToggleItem value="left">左</ToggleItem>
           <ToggleItem value="center">中</ToggleItem>
         </ToggleGroup>

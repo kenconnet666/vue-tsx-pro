@@ -15,8 +15,8 @@
  *   </Form>
  *
  * form.Field 里只有一个控件、控件上没写值时，自动绑定 form.values 的这个字段（同 Ant Design Form.Item 的 name）：
- * 写回的是 value；声明了 checked 而没有 value 的控件（Switch、单个 Checkbox）写回 checked，也可以用 Field 的 valueProp 指定。
- * 自己写了 value={_bind(form.values.email)} 时照旧。
+ * 写回的是 _value；声明了 _checked 而没有 _value 的控件（Switch、单个 Checkbox）写回 _checked，也可以用 Field 的 valueProp 指定。
+ * 自己写了 _value={_bind(form.values.email)} 时照旧。
  *
  * 何时显示错误（“迟一点批评、早一点肯定”）：字段失焦后才显示它的错误，之后它随输入实时更新；提交过一次之后，所有字段随输入实时更新。
  * 不属于哪个字段的错误（对象级 refine 没写 path、validate 返回的 '' 键、setError('', …)）是整份表单的错误，见 formError。
@@ -202,7 +202,7 @@ export interface FormFieldInfo {
 
 /** 表单控制器：useForm 的返回值 */
 export interface FormController<Values extends object> extends FormControllerBase {
-  /** 当前值（响应式）：控件写 value={_bind(form.values.email)} */
+  /** 当前值（响应式）：控件写 _value={_bind(form.values.email)} */
   readonly values: Values;
   /** 回到初始值（或给定的值，之后 dirty 以它为准），清空错误与失焦记录；保存成功后写 reset(form.values) */
   reset(values?: Values): void;

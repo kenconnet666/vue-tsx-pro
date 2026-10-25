@@ -3,7 +3,7 @@
  * 沿用调用处的配置（主题、语言、默认值，经 ConfigScope）与应用上下文（全局组件）；关上后等离场过渡播完再卸载。
  *
  *   const mount = useDetachedDialog();          // setup 里
- *   mount((host) => <Dialog open={_bind(host.open)} onClose={host.closed}>…</Dialog>);
+ *   mount((host) => <Dialog _open={_bind(host.open)} onClose={host.closed}>…</Dialog>);
  *
  * useDetachedOverlay 在它上面加一层句柄（close、update、closed），useDialog、useDrawer 用它。
  */
@@ -16,7 +16,7 @@ import { afterTransitions } from '../utils/style/transitions';
 
 /** 交给对话框内容的控制：开着没有、关上了 */
 export interface DetachedDialogHost {
-  /** 对话框开着：对话框写 open={_bind(host.open)}，改成 false 就关上 */
+  /** 对话框开着：对话框写 _open={_bind(host.open)}，改成 false 就关上 */
   open: boolean;
   /** 对话框关上了（原生 close 事件里调用）：等离场过渡播完卸载 */
   closed: () => void;
@@ -64,8 +64,8 @@ export function useDetachedDialog(): (content: (host: DetachedDialogHost) => VNo
   };
 }
 
-/** 命令式浮层（useDialog、useDrawer）的选项：浮层的属性（open 由句柄管理），content 是正文 */
-export type DetachedOverlayOptions<P> = Omit<P, 'open' | 'children'> & {
+/** 命令式浮层（useDialog、useDrawer）的选项：浮层的属性（_open 由句柄管理），content 是正文 */
+export type DetachedOverlayOptions<P> = Omit<P, '_open' | 'children'> & {
   /** 正文；给函数时拿到句柄，正文里的按钮可以自己关上、改标题 */
   content?: VNodeChild | ((handle: DetachedOverlayHandle<P>) => VNodeChild);
 };
@@ -91,11 +91,11 @@ interface DetachedOverlayProps extends OpenChangeProps {
 /**
  * 命令式浮层：在 setup 里调用，返回 open(options)。renderOverlay 把属性、开关与正文交给具体的浮层（Dialog、Drawer）：
  *
- *   useDetachedOverlay<DialogProps>((props, host, children) => <Dialog {...props} open={_bind(host.open)}>{children}</Dialog>);
+ *   useDetachedOverlay<DialogProps>((props, host, children) => <Dialog {...props} _open={_bind(host.open)}>{children}</Dialog>);
  */
 export function useDetachedOverlay<P extends DetachedOverlayProps>(
   renderOverlay: (
-    props: Omit<P, 'open' | 'children'>,
+    props: Omit<P, '_open' | 'children'>,
     host: DetachedDialogHost,
     children: VNodeChild,
   ) => VNodeChild,
@@ -133,7 +133,7 @@ export function useDetachedOverlay<P extends DetachedOverlayProps>(
           queueMicrotask(() => resolveClosed(reason));
           current.closed();
         },
-      } as Omit<P, 'open' | 'children'> & DetachedOverlayProps;
+      } as Omit<P, '_open' | 'children'> & DetachedOverlayProps;
       return renderOverlay(
         overlayProps,
         current,

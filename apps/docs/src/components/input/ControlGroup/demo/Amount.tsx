@@ -18,8 +18,8 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Field label="合同金额" description="按当天中间价换算成人民币">
         <ControlGroup aria-label="合同金额">
-          <Select items={currencies} value={_bind(currency)} aria-label="币种" />
-          <NumberField value={_bind(amount)} min={0} aria-label="金额" />
+          <Select items={currencies} _value={_bind(currency)} aria-label="币种" />
+          <NumberField _value={_bind(amount)} min={0} aria-label="金额" />
           <Button variant="outline" tone="neutral" onClick={convert}>
             换算
           </Button>
@@ -30,14 +30,14 @@ export default _component(() => {
       </Small>
       <Field label="单价区间">
         <ControlGroup aria-label="单价区间">
-          <NumberField value={10} prefix="¥" aria-label="最低单价" />
-          <NumberField value={80} prefix="¥" aria-label="最高单价" />
+          <NumberField _value={10} prefix="¥" aria-label="最低单价" />
+          <NumberField _value={80} prefix="¥" aria-label="最高单价" />
           <Select
             items={[
               { value: 'piece', label: '每件' },
               { value: 'kg', label: '每千克' },
             ]}
-            value="piece"
+            _value="piece"
             aria-label="计价单位"
           />
         </ControlGroup>

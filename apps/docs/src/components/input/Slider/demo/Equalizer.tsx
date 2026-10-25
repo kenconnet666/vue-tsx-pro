@@ -17,7 +17,7 @@ export default _component(() => {
     <Card>
       <Flex direction="column" gap="lg">
         <ToggleGroup
-          value={_bind(
+          _value={_bind(
             () => preset,
             (next) => {
               preset = next;
@@ -38,7 +38,7 @@ export default _component(() => {
             <Flex key={band} direction="column" align="center" gap="xs">
               <Slider
                 orientation="vertical"
-                value={_bind(
+                _value={_bind(
                   () => gains[index]!,
                   (next) => (gains = gains.map((gain, i) => (i === index ? next : gain))),
                 )}

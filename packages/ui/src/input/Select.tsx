@@ -1,10 +1,10 @@
 /**
  * 下拉选择（WAI-ARIA 的 select-only combobox）：点触发框弹出选项列表，单选或多选。
  *
- *   <Field label="城市"><Select items={['北京', '上海', '广州']} value={_bind(city)} placeholder="选择城市" /></Field>
- *   <Select items={tags} selectionMode="multiple" value={_bind(picked)} clearable aria-label="标签" />
- *   <Select items={users} toOption={(user) => ({ value: user.id, label: user.name })} value={_bind(id)} />
- *   <Select items={suppliers} searchable value={_bind(supplier)} />   选项多时：弹出层顶部带搜索框
+ *   <Field label="城市"><Select items={['北京', '上海', '广州']} _value={_bind(city)} placeholder="选择城市" /></Field>
+ *   <Select items={tags} selectionMode="multiple" _value={_bind(picked)} clearable aria-label="标签" />
+ *   <Select items={users} toOption={(user) => ({ value: user.id, label: user.name })} _value={_bind(id)} />
+ *   <Select items={suppliers} searchable _value={_bind(supplier)} />   选项多时：弹出层顶部带搜索框
  *
  *   <Select items={tags} selectionMode="multiple" maxTagCount="responsive" creatable onCreate={(text) => tags.push(text)} … />
  *
@@ -25,9 +25,9 @@
  * 触发框里仍显示它的文字（useSelectedOptions）。
  *
  * 远程选项：给 load 时打开就按搜索词请求，输入停下 300 ms 再请求，只采用最后一次（remote-items.ts）；
- * 自己管请求时写 search={_bind(keyword)} 拿到搜索词、filter={false} 关掉本地过滤，items 与 loading 自己给。
+ * 自己管请求时写 _search={_bind(keyword)} 拿到搜索词、filter={false} 关掉本地过滤，items 与 loading 自己给。
  *
- *   <Select searchable load={(q, signal) => http.get<User[]>('/users', { query: { q }, signal })} toOption={…} value={_bind(owner)} />
+ *   <Select searchable load={(q, signal) => http.get<User[]>('/users', { query: { q }, signal })} toOption={…} _value={_bind(owner)} />
  *
  * creatable 时自带搜索框，输入的文字没有对应的选项时列表末尾多一项“新建“…””：选中后值就是这段文字，onCreate 报告它。
  *
@@ -97,8 +97,8 @@ export interface SelectBaseProps<T>
   items?: readonly T[];
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
-  /** 是否打开：父级可以写 open={_bind(x)} */
-  open?: boolean;
+  /** 是否打开：父级可以写 _open={_bind(x)} */
+  _open?: boolean;
   /** 弹出位置，默认 bottom-start */
   placement?: FloatingPlacement;
   /** 有选择时显示清空按钮 */
@@ -107,8 +107,8 @@ export interface SelectBaseProps<T>
   searchable?: boolean;
   /** 搜索时怎样算匹配；默认显示文字包含输入（忽略大小写与重音）。false 时不在本地过滤（服务端按 search 过滤） */
   filter?: false | ((item: T, query: string) => boolean);
-  /** 搜索框里的文字：打开时清空；父级写 search={_bind(x)} 拿到它（自己发请求时） */
-  search?: string;
+  /** 搜索框里的文字：打开时清空；父级写 _search={_bind(x)} 拿到它（自己发请求时） */
+  _search?: string;
   /** 远程选项：打开时与搜索词停下 300 ms 后调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止 */
   load?: OptionsLoader<T>;
   /**
@@ -210,15 +210,15 @@ export const Select = _component(
     items = [],
     toOption,
     selectionMode = 'single',
-    value = _bindable<string | string[] | null>(null),
-    open = _bindable(false),
+    _value: value = _bindable<string | string[] | null>(null),
+    _open: open = _bindable(false),
     onOpenChange,
     placeholder,
     placement = 'bottom-start',
     clearable = false,
     searchable = false,
     filter,
-    search = _bindable(''),
+    _search: search = _bindable(''),
     load,
     creatable = false,
     onCreate,
@@ -555,7 +555,7 @@ export const Select = _component(
                     propsSearch,
                   )}
                   type="search"
-                  value={_bind(search)}
+                  _value={_bind(search)}
                   aria-controls={listId}
                   aria-activedescendant={open ? activeOptionId(list, listId) : undefined}
                   onKeydown={onSearchKeydown}

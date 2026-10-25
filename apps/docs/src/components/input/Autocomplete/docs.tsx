@@ -21,7 +21,7 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="email" title="邮箱后缀" demo={Email}>
-          <Code>value</Code> 就是输入框里的文字，不选建议也行；要从固定的选项里选一个（值是选项的
+          <Code>_value</Code> 就是输入框里的文字，不选建议也行；要从固定的选项里选一个（值是选项的
           value）时用 Combobox。建议可以随输入算出来，配 <Code>filter={'{false}'}</Code>{' '}
           不再本地过滤；没有可选的建议时不弹出列表。写了 <Code>name</Code> 时表单提交的是文字。
         </Example>

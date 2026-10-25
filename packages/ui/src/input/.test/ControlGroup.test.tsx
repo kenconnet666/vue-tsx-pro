@@ -16,8 +16,8 @@ describe('ControlGroup', () => {
   it('组里的输入框、选择框、按钮都相连；输入框分剩余宽度', () => {
     const root = mount(() => (
       <ControlGroup aria-label="搜索">
-        <Select items={['全部', '标题']} value="全部" aria-label="范围" />
-        <TextField value="" aria-label="关键词" />
+        <Select items={['全部', '标题']} _value="全部" aria-label="范围" />
+        <TextField _value="" aria-label="关键词" />
         <Button>搜索</Button>
       </ControlGroup>
     ));
@@ -38,10 +38,10 @@ describe('ControlGroup', () => {
     const root = mount(() => (
       <div>
         <ControlGroup orientation="vertical" aria-label="地址">
-          <TextField value="" aria-label="省市区" />
-          <TextField value="" aria-label="详细地址" />
+          <TextField _value="" aria-label="省市区" />
+          <TextField _value="" aria-label="详细地址" />
         </ControlGroup>
-        <TextField value="" aria-label="备注" />
+        <TextField _value="" aria-label="备注" />
       </div>
     ));
     const [group, alone] = [...root.firstElementChild!.children] as HTMLElement[];
@@ -54,8 +54,8 @@ describe('ControlGroup', () => {
     const root = mount(() => (
       <Field label="合同金额" description="按当天中间价换算">
         <ControlGroup>
-          <Select items={['USD', 'CNY']} value="USD" aria-label="币种" />
-          <TextField value="" aria-label="金额" />
+          <Select items={['USD', 'CNY']} _value="USD" aria-label="币种" />
+          <TextField _value="" aria-label="金额" />
         </ControlGroup>
       </Field>
     ));

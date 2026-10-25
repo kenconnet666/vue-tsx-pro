@@ -46,7 +46,7 @@ export default _component(() => {
           getKey={(org) => org.id}
           getLabel={(org) => org.name}
           getChildren={(org) => org.children}
-          value={_bind(teams)}
+          _value={_bind(teams)}
           titles={['组织机构', '通知的团队']}
           searchable
         />

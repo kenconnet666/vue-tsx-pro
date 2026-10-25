@@ -3,7 +3,7 @@
  * 随改随校验（validateProcess），问题标在图上、列在下面；有改动、没有错误时发布新版本。
  *
  *   <FlowDesigner
- *     definition={_bind(draft)}                          // 草稿：每次修改写回一份新的流程定义
+ *     _definition={_bind(draft)}                          // 草稿：每次修改写回一份新的流程定义
  *     groups={[{ value: 'cost', label: '成本团队收件箱' }]}  // 岗位收件箱（处理人选“指定岗位收件箱”时）
  *     users={people}                                     // 人（处理人选“指定的人”时）
  *     onPublish={(flow) => api.publish(flow)}            // 收到版本加一的定义；返回 Promise 时按钮转圈
@@ -48,10 +48,10 @@ import { validateProcess, type ProcessProblem } from './validate';
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性让给工具栏的标题 */
 export interface FlowDesignerProps extends PartProps<'div', 'title'> {
-  /** 正在编辑的流程定义（草稿）：父级写 definition={_bind(draft)}，每次修改写回一份新的 */
-  definition?: ProcessDefinition;
-  /** 选中的节点：父级可以写 selected={_bind(x)} */
-  selected?: string | null;
+  /** 正在编辑的流程定义（草稿）：父级写 _definition={_bind(draft)}，每次修改写回一份新的 */
+  _definition?: ProcessDefinition;
+  /** 选中的节点：父级可以写 _selected={_bind(x)} */
+  _selected?: string | null;
   /** 岗位收件箱的选项（处理人选“指定岗位收件箱”时） */
   groups?: readonly ListboxOption[];
   /** 人的选项（处理人选“指定的人”时） */
@@ -141,14 +141,14 @@ const isVariable = (value: ProcessValue<string>): value is ProcessVariableRef =>
 /** 流程设计器：流程图 + 属性面板 + 校验 + 发布 */
 export const FlowDesigner = _component(
   ({
-    definition = _bindable<ProcessDefinition>({
+    _definition: definition = _bindable<ProcessDefinition>({
       key: '',
       name: '',
       version: 0,
       nodes: [],
       edges: [],
     }),
-    selected = _bindable<string | null>(null),
+    _selected: selected = _bindable<string | null>(null),
     groups = [],
     users = [],
     onPublish,
@@ -229,8 +229,8 @@ export const FlowDesigner = _component(
       ) => (
         <Select
           items={items}
-          value={value}
-          {...{ 'onUpdate:value': (next: string | null) => next != null && write(next) }}
+          _value={value}
+          {...{ 'onUpdate:_value': (next: string | null) => next != null && write(next) }}
           aria-label={messages.designerAssignees[mode]}
         />
       );
@@ -272,8 +272,8 @@ export const FlowDesigner = _component(
                 value: key,
                 label: messages.designerAssignees[key],
               }))}
-              value={mode}
-              {...{ 'onUpdate:value': (next: AssigneeMode | null) => next && setMode(next) }}
+              _value={mode}
+              {...{ 'onUpdate:_value': (next: AssigneeMode | null) => next && setMode(next) }}
             />,
           )}
           {target()}
@@ -304,8 +304,8 @@ export const FlowDesigner = _component(
             {field(
               messages.designerFields.due,
               <NumberField
-                value={amount}
-                {...{ 'onUpdate:value': (next: number | null) => write(next) }}
+                _value={amount}
+                {...{ 'onUpdate:_value': (next: number | null) => write(next) }}
                 min={1}
                 step={1}
               />,
@@ -313,9 +313,9 @@ export const FlowDesigner = _component(
             )}
           </div>
           <ToggleGroup
-            value={unit}
+            _value={unit}
             {...{
-              'onUpdate:value': (next: 'workdays' | 'days' | null) => next && write(amount, next),
+              'onUpdate:_value': (next: 'workdays' | 'days' | null) => next && write(amount, next),
             }}
             required
             size="sm"
@@ -337,9 +337,9 @@ export const FlowDesigner = _component(
               value: outcome.key,
               label: messages.designerOverdueAuto(outcome.label),
             }))}
-            value={node.overdue?.outcome ?? null}
+            _value={node.overdue?.outcome ?? null}
             {...{
-              'onUpdate:value': (outcome: string | null) =>
+              'onUpdate:_value': (outcome: string | null) =>
                 update(node.id, {
                   overdue: { ...node.overdue, outcome: outcome ?? undefined },
                 }),
@@ -349,9 +349,9 @@ export const FlowDesigner = _component(
           />,
         )}
         <Switch
-          checked={node.overdue?.remind ?? false}
+          _checked={node.overdue?.remind ?? false}
           {...{
-            'onUpdate:checked': (remind: boolean) =>
+            'onUpdate:_checked': (remind: boolean) =>
               update(node.id, { overdue: { ...node.overdue, remind } }),
           }}
         >
@@ -372,8 +372,8 @@ export const FlowDesigner = _component(
           {field(
             messages.designerFields.name,
             <TextField
-              value={node.name}
-              {...{ 'onUpdate:value': (name: string) => update(node.id, { name }) }}
+              _value={node.name}
+              {...{ 'onUpdate:_value': (name: string) => update(node.id, { name }) }}
             />,
           )}
           {lanes.length > 0 &&
@@ -381,9 +381,9 @@ export const FlowDesigner = _component(
               messages.designerFields.lane,
               <Select
                 items={lanes.map((lane) => ({ value: lane.id, label: lane.name }))}
-                value={node.lane ?? null}
+                _value={node.lane ?? null}
                 {...{
-                  'onUpdate:value': (lane: string | null) =>
+                  'onUpdate:_value': (lane: string | null) =>
                     update(node.id, { lane: lane ?? undefined }),
                 }}
               />,
@@ -414,18 +414,18 @@ export const FlowDesigner = _component(
               {field(
                 messages.designerFields.result,
                 <TextField
-                  value={node.result ?? ''}
+                  _value={node.result ?? ''}
                   {...{
-                    'onUpdate:value': (result: string) =>
+                    'onUpdate:_value': (result: string) =>
                       update(node.id, { result: result || undefined }),
                   }}
                 />,
               )}
               <Field description={messages.designerTerminateHint}>
                 <Switch
-                  checked={node.terminate ?? false}
+                  _checked={node.terminate ?? false}
                   {...{
-                    'onUpdate:checked': (terminate: boolean) =>
+                    'onUpdate:_checked': (terminate: boolean) =>
                       update(node.id, { terminate: terminate || undefined }),
                   }}
                 >
@@ -437,9 +437,9 @@ export const FlowDesigner = _component(
           {field(
             messages.designerFields.description,
             <Textarea
-              value={node.description ?? ''}
+              _value={node.description ?? ''}
               {...{
-                'onUpdate:value': (description: string) =>
+                'onUpdate:_value': (description: string) =>
                   update(node.id, { description: description || undefined }),
               }}
               rows={2}
@@ -535,7 +535,7 @@ export const FlowDesigner = _component(
               definition={definition}
               problems={problems}
               selectable
-              selected={_bind(selected)}
+              _selected={_bind(selected)}
             />
             <section
               {...mergeAttrs<'section'>({ sx: flowDesignerStyles.panel }, propsPanel, {

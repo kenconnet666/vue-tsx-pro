@@ -30,7 +30,7 @@ export default _component(() => {
     <Flex direction="column" gap="md" align="start">
       <Flex gap="sm" wrap>
         <Popover
-          open={_bind(sharing)}
+          _open={_bind(sharing)}
           placement="bottom-start"
           arrow
           trigger={(props) => (
@@ -42,14 +42,14 @@ export default _component(() => {
           <Flex direction="column" gap="md" sx={styles.share}>
             <Strong>分享“第三季度报告”</Strong>
             <Flex gap="xs">
-              <TextField value={link} readonly aria-label="分享链接" />
+              <TextField _value={link} readonly aria-label="分享链接" />
               <CopyButton value={link} />
             </Flex>
-            <Switch checked={_bind(comments)}>允许查看者评论</Switch>
+            <Switch _checked={_bind(comments)}>允许查看者评论</Switch>
           </Flex>
         </Popover>
         <Popover
-          open={_bind(filtering)}
+          _open={_bind(filtering)}
           placement="bottom-start"
           trigger={(props) => (
             <Button {...props} variant="outline" tone="neutral" icon={Filter}>
@@ -58,7 +58,7 @@ export default _component(() => {
           )}
         >
           <Flex direction="column" gap="md">
-            <CheckboxGroup value={_bind(picked)} aria-label="订单状态">
+            <CheckboxGroup _value={_bind(picked)} aria-label="订单状态">
               {statuses.map((status) => (
                 <Checkbox key={status} value={status}>
                   {status}

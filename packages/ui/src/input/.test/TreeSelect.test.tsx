@@ -30,7 +30,7 @@ const accessors = {
 describe('TreeSelect', () => {
   it('单选：显示节点的文字，触发按钮是 aria-haspopup="tree" 的 combobox', () => {
     const root = mount(() => (
-      <TreeSelect items={orgs} {...accessors} value="landing" aria-label="单位" />
+      <TreeSelect items={orgs} {...accessors} _value="landing" aria-label="单位" />
     ));
     const trigger = root.querySelector('button[role="combobox"]')!;
     expect(trigger.textContent).toBe('起落架团队');
@@ -45,7 +45,7 @@ describe('TreeSelect', () => {
           items={orgs}
           {...accessors}
           selectionMode="multiple"
-          value={_bind(value)}
+          _value={_bind(value)}
           name="orgs"
           clearable
           placeholder="全部"
@@ -80,7 +80,7 @@ describe('TreeSelect', () => {
           {...accessors}
           selectionMode="multiple"
           checkedStrategy="parent"
-          value={_bind(parents)}
+          _value={_bind(parents)}
           aria-label="单位"
         />
         <TreeSelect
@@ -88,7 +88,7 @@ describe('TreeSelect', () => {
           {...accessors}
           selectionMode="multiple"
           checkedStrategy="child"
-          value={_bind(leaves)}
+          _value={_bind(leaves)}
           aria-label="成员"
         />
       </>
@@ -115,7 +115,7 @@ describe('TreeSelect', () => {
         {...accessors}
         selectionMode="multiple"
         checkedStrategy="child"
-        value={['system', 'landing', 'purchase']}
+        _value={['system', 'landing', 'purchase']}
         maxTagCount={2}
         aria-label="成员"
       />

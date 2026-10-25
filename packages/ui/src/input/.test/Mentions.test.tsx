@@ -33,8 +33,8 @@ function render(initial = '') {
   const state = reactive({ text: initial, mentions: [] as string[] });
   const root = mount(() => (
     <Mentions
-      value={_bind(state.text)}
-      mentions={_bind(state.mentions)}
+      _value={_bind(state.text)}
+      _mentions={_bind(state.mentions)}
       items={people}
       aria-label="留言"
     />

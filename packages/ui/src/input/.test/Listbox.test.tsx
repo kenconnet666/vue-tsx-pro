@@ -74,7 +74,7 @@ describe('useListState', () => {
 describe('Listbox', () => {
   it('role="listbox"，组名经 aria-describedby 交给组里的选项；获得焦点后高亮已选项，方向键移动、Enter 选中', async () => {
     let value = _state<string | null>('cherry');
-    const root = mount(() => <Listbox items={fruits} value={_bind(value)} aria-label="水果" />);
+    const root = mount(() => <Listbox items={fruits} _value={_bind(value)} aria-label="水果" />);
     await nextTick();
     const listbox = root.querySelector<HTMLElement>('[role="listbox"]')!;
     const apple = root.querySelector<HTMLElement>('[role="option"]')!;
@@ -101,7 +101,7 @@ describe('Listbox', () => {
     let picked = _state<string[]>([]);
     const root = mount(() => (
       <>
-        <Listbox items={fruits} selectionMode="multiple" value={_bind(picked)} aria-label="水果" />
+        <Listbox items={fruits} selectionMode="multiple" _value={_bind(picked)} aria-label="水果" />
         <Listbox items={[]} aria-label="空" />
       </>
     ));
@@ -128,7 +128,7 @@ describe('Listbox', () => {
       <Listbox
         items={users}
         toOption={(user) => ({ value: String(user.id), label: user.name, disabled: !user.active })}
-        value={_bind(picked)}
+        _value={_bind(picked)}
         aria-label="成员"
       >
         {(user, { selected }) => `${user.name}#${user.id}${selected ? '✓' : ''}`}
@@ -147,7 +147,7 @@ describe('Listbox', () => {
   it('字符串列表：值与文字都是它，不用 toOption', async () => {
     let picked = _state<string | null>(null);
     const root = mount(() => (
-      <Listbox items={['设计', '研发']} value={_bind(picked)} aria-label="部门" />
+      <Listbox items={['设计', '研发']} _value={_bind(picked)} aria-label="部门" />
     ));
     await nextTick();
     const options = root.querySelectorAll<HTMLElement>('[role="option"]');
@@ -162,7 +162,7 @@ describe('Listbox', () => {
     const root = mount(() => (
       <Listbox
         items={['09:00', '09:30']}
-        value="09:00"
+        _value="09:00"
         required
         onPick={(value) => picks.push(value)}
         aria-label="时间"
@@ -210,7 +210,7 @@ describe('Select', () => {
       <Select
         items={items}
         selectionMode="multiple"
-        value={items.map((item) => item.value)}
+        _value={items.map((item) => item.value)}
         renderValue={(selected) => `已选 ${selected.length} 项`}
         aria-label="很多"
       />

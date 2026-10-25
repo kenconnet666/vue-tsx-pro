@@ -87,7 +87,7 @@ export default _component(() => {
       getChildren={(unit) => unit.children}
       hasChildren={(unit) => !!unit.children?.length || !!unit.lazy}
       loadChildren={loadChildren}
-      expanded={_bind(expanded)}
+      _expanded={_bind(expanded)}
       aria-label="组织架构"
       propsRoot={{ sx: styles.table }}
     />

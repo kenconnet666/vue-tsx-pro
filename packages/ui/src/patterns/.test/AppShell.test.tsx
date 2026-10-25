@@ -33,7 +33,7 @@ describe('AppShell', () => {
     const root = mount(() => (
       <AppShell
         sidebarMode="overlay"
-        sidebarOpen={_bind(open)}
+        _sidebarOpen={_bind(open)}
         brand={<span>品牌</span>}
         header={<span>页签</span>}
         sidebar={<a href="#a">导航项</a>}
@@ -66,7 +66,7 @@ describe('AppShell', () => {
   it('overlay：抽屉的宽度手柄用 ← / → 调整、夹在 16–480 之间，写回 sidebarWidth；双击回到初始宽度', async () => {
     let width = _state(256);
     const root = mount(() => (
-      <AppShell sidebarMode="overlay" sidebarOpen sidebarWidth={_bind(width)} sidebar={<nav />}>
+      <AppShell sidebarMode="overlay" _sidebarOpen _sidebarWidth={_bind(width)} sidebar={<nav />}>
         正文
       </AppShell>
     ));
@@ -163,7 +163,7 @@ describe('AppShell 的导航、页签区、页脚与收起', () => {
         }
         sidebar={<nav aria-label="导航" />}
         sidebarCollapsible
-        sidebarCollapsed={_bind(collapsed)}
+        _sidebarCollapsed={_bind(collapsed)}
       >
         正文
       </AppShell>

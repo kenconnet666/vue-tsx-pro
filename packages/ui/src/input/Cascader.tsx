@@ -1,7 +1,7 @@
 /**
  * 级联选择：一列一列往下选（省 / 市 / 区、产品大类 / 小类 / 型号、物料分类），触发框里显示整条路径“浙江 / 杭州 / 西湖区”。
  *
- *   <Cascader items={regions} getKey={(r) => r.code} getLabel={(r) => r.name} getChildren={(r) => r.children} value={_bind(path)} />
+ *   <Cascader items={regions} getKey={(r) => r.code} getLabel={(r) => r.name} getChildren={(r) => r.children} _value={_bind(path)} />
  *   <Cascader … changeOnSelect />                                      每一级都能选（选到市也行）
  *   <Cascader … hasChildren={(r) => !r.leaf} loadChildren={loadNext} />  展开时远程取下一级
  *   <Cascader … searchable />                                          按整条路径搜索（在已加载的节点里）
@@ -72,8 +72,8 @@ export interface CascaderProps<T>
   loadChildren?: (node: T) => Promise<unknown> | void;
   /** 不能选、不能进入的节点 */
   isDisabled?: (node: T) => boolean;
-  /** 选中的路径（第一级到选中节点的 key），没有时 null：父级写 value={_bind(x)} */
-  value?: readonly string[] | null;
+  /** 选中的路径（第一级到选中节点的 key），没有时 null：父级写 _value={_bind(x)} */
+  _value?: readonly string[] | null;
   /** 每一级都能选；默认只能选到叶子 */
   changeOnSelect?: boolean;
   /** 触发框里显示整条路径（默认），false 时只显示最后一级 */
@@ -88,8 +88,8 @@ export interface CascaderProps<T>
   filter?: (nodes: readonly T[], query: string) => boolean;
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
-  /** 是否打开：父级可以写 open={_bind(x)} */
-  open?: boolean;
+  /** 是否打开：父级可以写 _open={_bind(x)} */
+  _open?: boolean;
   /** 弹出位置，默认 bottom-start */
   placement?: FloatingPlacement;
   /** 有选择时显示清空按钮 */
@@ -170,7 +170,7 @@ export const Cascader = _component(
     hasChildren,
     loadChildren,
     isDisabled,
-    value = _bindable<readonly string[] | null>(null),
+    _value: value = _bindable<readonly string[] | null>(null),
     changeOnSelect = false,
     showAllLevels = true,
     separator = ' / ',
@@ -178,7 +178,7 @@ export const Cascader = _component(
     searchable = false,
     filter,
     placeholder,
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     placement = 'bottom-start',
     clearable = false,
@@ -720,7 +720,7 @@ export const Cascader = _component(
                     propsSearch,
                   )}
                   type="search"
-                  value={_bind(
+                  _value={_bind(
                     () => search,
                     (next: string) => {
                       search = next;

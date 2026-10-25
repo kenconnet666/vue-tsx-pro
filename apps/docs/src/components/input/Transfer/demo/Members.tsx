@@ -46,7 +46,7 @@ export default _component(() => {
             description: member.left ? `${member.team} · 已离职` : member.team,
             disabled: member.left,
           })}
-          value={_bind(joined)}
+          _value={_bind(joined)}
           titles={['全部成员', '项目成员']}
           searchable
         />

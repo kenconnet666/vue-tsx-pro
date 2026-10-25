@@ -33,7 +33,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Field label={`顶栏宽度：${width}%`}>
-        <Slider value={_bind(width)} min={30} max={100} />
+        <Slider _value={_bind(width)} min={30} max={100} />
       </Field>
       <Card padding="xs" style={{ width: `${width}%` }}>
         <NavBar items={items} aria-label="主导航" />

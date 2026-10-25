@@ -2,8 +2,8 @@
  * 输入时自动分组显示的格式：值是去掉分隔的原文（13800001111），输入框里显示分好组的文字（138 0000 1111），
  * 交给 TextField 的 format。手机号、身份证号、银行卡号有现成的，别的用 createGroupedFormat 写。
  *
- *   <TextField value={_bind(phone)} format={phoneFormat} />          // phone === '13800001111'
- *   <TextField value={_bind(card)} format={createGroupedFormat({ groups: [4, 4, 4, 4, 3] })} />
+ *   <TextField _value={_bind(phone)} format={phoneFormat} />          // phone === '13800001111'
+ *   <TextField _value={_bind(card)} format={createGroupedFormat({ groups: [4, 4, 4, 4, 3] })} />
  *
  * 只按位置分组、过滤字符，不校验内容（号段、校验位）：校验写在表单的 schema 里（phoneSchema、idCardSchema）。
  */

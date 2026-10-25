@@ -38,7 +38,7 @@ export default _component(() => {
         description={report ? <Code>{`${report.start} – ${report.end}`}</Code> : '选一个区间'}
       >
         <DateRangePicker
-          value={_bind(report)}
+          _value={_bind(report)}
           max={today}
           presets={[
             'today',
@@ -63,7 +63,7 @@ export default _component(() => {
         }
       >
         <DateRangePicker
-          value={_bind(stay)}
+          _value={_bind(stay)}
           min={today}
           isDateUnavailable={(date) => booked.has(date)}
           clearable

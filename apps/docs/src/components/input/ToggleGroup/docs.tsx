@@ -23,14 +23,14 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="segmented" title="视图切换" demo={Views}>
-          单选时 <Code>value</Code> 是字符串；<Code>required</Code> 时至少保留一项（分段控件）。
+          单选时 <Code>_value</Code> 是字符串；<Code>required</Code> 时至少保留一项（分段控件）。
           <Code>icon</Code>{' '}
           放在文字前；选中项的底色是一个指示条，切换时滑过去，减少动态效果时直接到位。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="multiple" title="多选的字形" demo={Format}>
-          <Code>selectionMode="multiple"</Code> 时 <Code>value</Code>{' '}
+          <Code>selectionMode="multiple"</Code> 时 <Code>_value</Code>{' '}
           是数组，每一项各自开关（aria-pressed）。只有图标的项要写 <Code>aria-label</Code>。放进
           Toolbar 时焦点交给工具栏统一管理。
         </Example>

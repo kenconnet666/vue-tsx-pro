@@ -10,25 +10,25 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="13rem" gap="lg">
       <Field label="图标与清空按钮">
-        <TimeField value={_bind(start)} icon={Clock} clearable />
+        <TimeField _value={_bind(start)} icon={Clock} clearable />
       </Field>
       <Field
         label='valueType="dateValue"'
         description={alarm ? `Time：${alarm.toString()}` : '值是 Time 对象'}
       >
-        <TimeField value={_bind(alarm)} valueType="dateValue" icon={AlarmClock} />
+        <TimeField _value={_bind(alarm)} valueType="dateValue" icon={AlarmClock} />
       </Field>
       <Field label='variant="soft" size="lg"'>
-        <TimeField value="18:00" variant="soft" size="lg" />
+        <TimeField _value="18:00" variant="soft" size="lg" />
       </Field>
       <Field label="必填" required error={start ? undefined : '请填写开始时间'}>
-        <TimeField value={_bind(start)} />
+        <TimeField _value={_bind(start)} />
       </Field>
       <Field label="只读" readonly>
-        <TimeField value="12:00" />
+        <TimeField _value="12:00" />
       </Field>
       <Field label="不可用" disabled>
-        <TimeField value="12:00" />
+        <TimeField _value="12:00" />
       </Field>
     </Grid>
   );

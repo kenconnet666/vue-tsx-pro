@@ -8,7 +8,7 @@ export default _component(() => {
   let status = _state<Status>('404');
   return () => (
     <Flex direction="column" gap="md">
-      <ToggleGroup value={_bind(status)} required size="sm" aria-label="状态">
+      <ToggleGroup _value={_bind(status)} required size="sm" aria-label="状态">
         <ToggleItem value="403">403 没有权限</ToggleItem>
         <ToggleItem value="404">404 找不到</ToggleItem>
         <ToggleItem value="500">500 服务出错</ToggleItem>

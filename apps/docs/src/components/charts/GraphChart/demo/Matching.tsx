@@ -37,12 +37,12 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="md" wrap>
-        <ToggleGroup value={_bind(layout)} aria-label="布局" size="sm" required>
+        <ToggleGroup _value={_bind(layout)} aria-label="布局" size="sm" required>
           <ToggleItem value="dagre">分层</ToggleItem>
           <ToggleItem value="parallel">分列</ToggleItem>
           <ToggleItem value="force">力导向</ToggleItem>
         </ToggleGroup>
-        <ToggleGroup value={_bind(direction)} aria-label="方向" size="sm" required>
+        <ToggleGroup _value={_bind(direction)} aria-label="方向" size="sm" required>
           <ToggleItem value="LR">从左到右</ToggleItem>
           <ToggleItem value="TB">从上到下</ToggleItem>
         </ToggleGroup>

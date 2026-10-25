@@ -30,7 +30,7 @@ export default _component(() => {
         ]}
         unit="单"
         zoom
-        zoomRange={_bind(range)}
+        _zoomRange={_bind(range)}
         exportable
       />
       <Small tone="muted">

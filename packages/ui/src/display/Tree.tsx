@@ -7,15 +7,15 @@
  *     getKey={(node) => node.id}
  *     getLabel={(node) => node.name}
  *     getChildren={(node) => node.children}
- *     expanded={_bind(open)}
+ *     _expanded={_bind(open)}
  *     selectionMode="single"
- *     selected={_bind(current)}
+ *     _selected={_bind(current)}
  *     aria-label="目录"
  *   />
  *
  * - 键盘：焦点在树上，当前项经 aria-activedescendant 告诉读屏。↑↓ 移动，→ 展开 / 进入第一个子节点，← 收起 / 回到父节点，
  *   Home / End，Enter 选中（没有选择时展开或收起），空格勾选（checkable 时）或选中，按字母跳到以它开头的节点。
- * - 勾选：checkable 时每项前有勾选框，checked={_bind(keys)} 是勾上的全部节点；勾上父节点会勾上它的子孙，
+ * - 勾选：checkable 时每项前有勾选框，_checked={_bind(keys)} 是勾上的全部节点；勾上父节点会勾上它的子孙，
  *   子节点全勾上时父节点也勾上，只勾了一部分时父节点半选（aria-checked="mixed"）。
  * - 懒加载：hasChildren 说有子节点、getChildren 还没有时，展开会调用 loadChildren（加载中显示加载指示）。
  * - 节点平铺渲染（虚拟滚动没法嵌套 role="group"），层级经 aria-level / aria-setsize / aria-posinset 告诉读屏。
@@ -114,18 +114,18 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   isDisabled?: (node: T) => boolean;
   /** 文字前的图标，可以按展开状态换（文件夹开 / 合） */
   getIcon?: (node: T, expanded: boolean) => IconData | undefined;
-  /** 展开的节点：父级写 expanded={_bind(keys)} */
-  expanded?: string[];
+  /** 展开的节点：父级写 _expanded={_bind(keys)} */
+  _expanded?: string[];
   /** 选择方式；不写时不能选中 */
   selectionMode?: keyof SelectionModes;
-  /** 选中的节点：父级写 selected={_bind(keys)} */
-  selected?: string[];
+  /** 选中的节点：父级写 _selected={_bind(keys)} */
+  _selected?: string[];
   /** 每项前显示勾选框，默认父子联动 */
   checkable?: boolean;
   /** 勾选父子不联动：每个节点各自勾选（权限树里“只给这一级”） */
   checkStrictly?: boolean;
-  /** 勾上的节点（联动时含勾上的父节点与子孙）：父级写 checked={_bind(keys)} */
-  checked?: string[];
+  /** 勾上的节点（联动时含勾上的父节点与子孙）：父级写 _checked={_bind(keys)} */
+  _checked?: string[];
   /** 正在取节点：还没有节点时显示骨架行，树带 aria-busy */
   loading?: boolean;
   /** 没有节点时显示的内容；默认是 Empty（文案取语言包） */
@@ -249,12 +249,12 @@ export const Tree = _component(
     onLoadError,
     isDisabled,
     getIcon,
-    expanded = _bindable<string[]>([]),
+    _expanded: expanded = _bindable<string[]>([]),
     selectionMode,
-    selected = _bindable<string[]>([]),
+    _selected: selected = _bindable<string[]>([]),
     checkable = false,
     checkStrictly = false,
-    checked = _bindable<string[]>([]),
+    _checked: checked = _bindable<string[]>([]),
     loading = false,
     empty,
     indent = 1.25,

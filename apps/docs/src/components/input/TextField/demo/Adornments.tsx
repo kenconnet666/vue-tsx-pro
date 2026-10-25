@@ -9,20 +9,20 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="16rem" gap="lg">
       <Field label="搜索">
-        <TextField value={_bind(keyword)} type="search" icon={Search} clearable radius="full" />
+        <TextField _value={_bind(keyword)} type="search" icon={Search} clearable radius="full" />
       </Field>
       <Field label="个人主页" description="prefix 是不算在值里的固定文字，iconEnd 在框尾">
-        <TextField value="github.com/linxiaoman" prefix="https://" iconEnd={Link2} />
+        <TextField _value="github.com/linxiaoman" prefix="https://" iconEnd={Link2} />
       </Field>
       <Field label="用户名" error="用户名已被占用，换一个试试">
-        <TextField value="xiaoman" icon={AtSign} />
+        <TextField _value="xiaoman" icon={AtSign} />
       </Field>
       <Field
         label="简介"
         description="自己的输入组件（富文本、代码编辑器）用 CharacterCount 显示字数"
       >
         <Flex direction="column" gap="xs">
-          <Textarea value={_bind(bio)} rows={3} />
+          <Textarea _value={_bind(bio)} rows={3} />
           <CharacterCount count={bio.length} max={30} />
         </Flex>
       </Field>

@@ -39,7 +39,7 @@ export default _component(() => {
             <Field label="转交给" required>
               <Select
                 items={['陆川', '方圆', '韩笑']}
-                value={_bind(assignee)}
+                _value={_bind(assignee)}
                 placeholder="选一位同事"
               />
             </Field>

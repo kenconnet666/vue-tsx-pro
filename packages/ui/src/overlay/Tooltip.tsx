@@ -49,8 +49,8 @@ export interface TooltipProps
     PartProps<'div', 'id' | 'popover' | 'role'>,
     Pick<FloatingOptions, 'offset'>,
     OpenChangeProps {
-  /** 是否显示：父级可以写 open={_bind(x)} 控制或得知；一般不需要 */
-  open?: boolean;
+  /** 是否显示：父级可以写 _open={_bind(x)} 控制或得知；一般不需要 */
+  _open?: boolean;
   /** 显示位置，默认 top；空间不够时自动翻转 */
   placement?: FloatingPlacement;
   /** 指针停留多久后显示（毫秒），默认 500 */
@@ -93,7 +93,7 @@ export const tooltipStyles = css.create({
 /** 文字提示：悬停或键盘聚焦时显示在触发器旁边 */
 export const Tooltip = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     placement = 'top',
     offset,

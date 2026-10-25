@@ -43,8 +43,8 @@ export const PropsPlaygroundButton = _component(() => {
       >
         组件演练场：点选属性组合样式
       </Tooltip>
-      <Drawer open={_bind(open)} size="xl" title="组件演练场">
-        {panel ? <panel.PropsPlayground component={_bind(component)} /> : <Spinner />}
+      <Drawer _open={_bind(open)} size="xl" title="组件演练场">
+        {panel ? <panel.PropsPlayground _name={_bind(component)} /> : <Spinner />}
       </Drawer>
     </>
   );

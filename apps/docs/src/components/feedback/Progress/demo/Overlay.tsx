@@ -24,17 +24,17 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex align="center" gap="sm">
-        <Switch checked={_bind(blur)}>模糊下面的内容</Switch>
+        <Switch _checked={_bind(blur)}>模糊下面的内容</Switch>
       </Flex>
       <LoadingOverlay loading={saving} blur={blur} label="正在保存">
         <Card>
           <Flex direction="column" gap="md">
             <Grid minItemWidth="12em" gap="md">
               <Field label="项目名称">
-                <TextField value={_bind(name)} disabled={saving} />
+                <TextField _value={_bind(name)} disabled={saving} />
               </Field>
               <Field label="负责人">
-                <TextField value={_bind(owner)} disabled={saving} />
+                <TextField _value={_bind(owner)} disabled={saving} />
               </Field>
             </Grid>
             <Flex justify="end">

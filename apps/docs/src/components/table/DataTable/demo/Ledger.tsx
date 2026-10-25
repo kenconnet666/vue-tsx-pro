@@ -187,7 +187,7 @@ export default _component(() => {
             {optional.map((column) => (
               <MenuCheckboxItem
                 key={column.key}
-                checked={_bind(
+                _checked={_bind(
                   () => !hidden.includes(column.key),
                   (on: boolean) => toggleColumn(column.key, on),
                 )}
@@ -211,9 +211,9 @@ export default _component(() => {
         columns={columns}
         getKey={(task) => task.code}
         selectionMode="multiple"
-        selected={_bind(selected)}
+        _selected={_bind(selected)}
         isRowSelectable={(task) => task.status !== 'closed'}
-        hiddenColumns={hidden}
+        _hiddenColumns={hidden}
         aria-label="降本台账"
         propsRoot={{ sx: styles.table }}
       />

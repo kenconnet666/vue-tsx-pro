@@ -22,7 +22,7 @@
  *
  * sidebarMode="overlay"：侧栏改为盖在页面上面的抽屉，开不开都不占正文的位置（正文总是整宽，布局不随侧栏变化）。
  * “菜单”按钮固定在顶栏品牌格的结束边，开关都是它（aria-expanded）；抽屉从顶栏下面弹出、盖在正文上。
- * 抽屉结束边可以拖动调整宽度（ResizeHandle，也能聚焦后用 ← / →，双击回到初始宽度），父级写 sidebarWidth={_bind(x)} 记住；
+ * 抽屉结束边可以拖动调整宽度（ResizeHandle，也能聚焦后用 ← / →，双击回到初始宽度），父级写 _sidebarWidth={_bind(x)} 记住；
  * 顶栏的品牌格按初始宽度，拖动时不变。焦点在抽屉里时按 Esc 收起、焦点回到“菜单”；窄屏时点了链接也收起。
  * 拖到比 160px 窄时侧栏变紧凑：里面的 NavList 只显示图标（名称在提示里），小节标题只剩图标（NavCompactContext）。
  *
@@ -32,7 +32,7 @@
  * - nav：顶栏里品牌后面的导航（NavBar）。只有 nav 时是顶部导航布局，和 sidebar 一起时是混合布局（顶栏一级、侧栏二级）。
  * - tabs：正文上面的页签区（PageTabs，和路由同步用 useRouteTabs）；footer：正文下面的页脚，内容少时也贴着底部。
  * - sidebarCollapsible：docked 侧栏底部有“收起侧栏”，收起后只剩图标栏（宽屏时；导航变紧凑、分组悬停弹出，
- *   品牌格只剩标志），父级写 sidebarCollapsed={_bind(x)} 记住。
+ *   品牌格只剩标志），父级写 _sidebarCollapsed={_bind(x)} 记住。
  *
  * 自带 SkipLink（跳到正文）；顶栏的高度经 layoutVars.stickyOffset 交给里面的标题，锚点跳转后不被顶栏挡住。
  */
@@ -102,17 +102,17 @@ export interface AppShellProps extends PartProps<'div'> {
   footer?: VNodeChild;
   /** docked 侧栏底部有“收起侧栏”按钮：收起后只剩图标栏（导航变紧凑，分组的子项悬停弹出） */
   sidebarCollapsible?: boolean;
-  /** docked 侧栏收起了：父级可以写 sidebarCollapsed={_bind(x)} 记住 */
-  sidebarCollapsed?: boolean;
+  /** docked 侧栏收起了：父级可以写 _sidebarCollapsed={_bind(x)} 记住 */
+  _sidebarCollapsed?: boolean;
   /** 左侧栏的形式，默认 docked */
   sidebarMode?: keyof AppShellSidebarModes;
-  /** 侧栏抽屉是否打开（docked 时只在窄屏有抽屉）：父级可以写 sidebarOpen={_bind(x)} */
-  sidebarOpen?: boolean;
+  /** 侧栏抽屉是否打开（docked 时只在窄屏有抽屉）：父级可以写 _sidebarOpen={_bind(x)} */
+  _sidebarOpen?: boolean;
   /**
    * overlay 抽屉的宽度（px），默认 256，范围 16–480（窄到几乎只剩滚动条；比 160 窄时导航只显示图标）：
-   * 父级写 sidebarWidth={_bind(x)} 记住拖动后的宽度
+   * 父级写 _sidebarWidth={_bind(x)} 记住拖动后的宽度
    */
-  sidebarWidth?: number;
+  _sidebarWidth?: number;
   /** 页面最前面的“跳到正文”链接，默认 true */
   skipLink?: boolean;
   /** 整页用浮层滚动条（PageScrollbar：不占宽度，滚动时出现），默认 true */
@@ -360,10 +360,10 @@ export const AppShell = _component(
     tabs,
     footer,
     sidebarMode = 'docked',
-    sidebarOpen = _bindable(false),
-    sidebarWidth = _bindable(OVERLAY_WIDTH),
+    _sidebarOpen: sidebarOpen = _bindable(false),
+    _sidebarWidth: sidebarWidth = _bindable(OVERLAY_WIDTH),
     sidebarCollapsible = false,
-    sidebarCollapsed = _bindable(false),
+    _sidebarCollapsed: sidebarCollapsed = _bindable(false),
     skipLink = true,
     pageScrollbar = true,
     propsHeader,
@@ -694,7 +694,7 @@ export const AppShell = _component(
                 onClick: closeOnNavigate,
               },
             )}
-            open={_bind(sidebarOpen)}
+            _open={_bind(sidebarOpen)}
           >
             {sidebar}
           </Drawer>

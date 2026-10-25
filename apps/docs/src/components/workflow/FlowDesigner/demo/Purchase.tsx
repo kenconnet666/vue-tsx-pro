@@ -104,8 +104,8 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="sm">
       <FlowDesigner
-        definition={_bind(draft)}
-        selected={_bind(selected)}
+        _definition={_bind(draft)}
+        _selected={_bind(selected)}
         groups={groups}
         users={users}
         onPublish={publish}

@@ -1,7 +1,7 @@
 /**
  * 验证码输入框：一格一个字符的短信验证码、动态口令、取件码。
  *
- *   <Field label="短信验证码"><OtpField value={_bind(code)} onComplete={verify} /></Field>
+ *   <Field label="短信验证码"><OtpField _value={_bind(code)} onComplete={verify} /></Field>
  *   <OtpField length={8} type="alphanumeric" groups={[4, 4]} aria-label="恢复码" />
  *
  * 参考 input-otp（shadcn 的 InputOTP）的做法：只有一个真正的 input（透明、盖在格子上面），格子只是显示。
@@ -31,8 +31,8 @@ export type OtpFieldManaged =
 
 /** 未声明的属性落到 input（主元素）上；格子的容器用 propsRoot */
 export interface OtpFieldProps extends PartProps<'input', OtpFieldManaged> {
-  /** 输入的字符：父级写 value={_bind(code)} */
-  value?: string;
+  /** 输入的字符：父级写 _value={_bind(code)} */
+  _value?: string;
   /** 几位，默认 6 */
   length?: number;
   /** 能输入的字符，默认 numeric */
@@ -140,7 +140,7 @@ const SANITIZE = {
 /** 验证码输入框：一个原生 input + 显示用的格子 */
 export const OtpField = _component(
   ({
-    value = _bindable(''),
+    _value: value = _bindable(''),
     length = 6,
     type = 'numeric',
     groups,

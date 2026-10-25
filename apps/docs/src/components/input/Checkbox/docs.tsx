@@ -32,7 +32,7 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="checkbox" title="复选框" demo={Permissions}>
-          单个复选框绑 <Code>checked</Code>；一组用 CheckboxGroup 绑值的数组，<Code>name</Code>{' '}
+          单个复选框绑 <Code>_checked</Code>；一组用 CheckboxGroup 绑值的数组，<Code>name</Code>{' '}
           随表单提交。全选框部分勾选时写 <Code>indeterminate</Code>，读屏念“部分选中”。放进 Field
           时组以标签为名称，并关联说明与错误。
         </Example>

@@ -62,7 +62,7 @@ export const LineChart = _component(
     curve = 'linear',
     dots = 'none',
     lineWidth = 2,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     ...rest
   }: LineChartProps<T>) => {
     const kind = _derived<XYChartKind<T>>({
@@ -94,6 +94,6 @@ export const LineChart = _component(
         return [line, ...points];
       },
     });
-    return () => <XYChart {...rest} hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
+    return () => <XYChart {...rest} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
   },
 );

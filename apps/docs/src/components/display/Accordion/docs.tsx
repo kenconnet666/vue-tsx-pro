@@ -35,7 +35,7 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="multiple" title="多开" demo={Settings}>
-          <Code>selectionMode="multiple"</Code> 时每项独立展开，<Code>value</Code> 是数组；
+          <Code>selectionMode="multiple"</Code> 时每项独立展开，<Code>_value</Code> 是数组；
           <Code>title</Code> 可以放图标、计数；<Code>headingLevel</Code> 按所在页面的大纲选。
         </Example>
         <Example id="collapsible" title="单个展开区域" demo={Disclosure}>

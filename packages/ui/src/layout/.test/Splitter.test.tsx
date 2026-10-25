@@ -9,7 +9,7 @@ const key = (element: Element, name: string) =>
 
 describe('Splitter', () => {
   it('分隔条是可聚焦的 separator，带当前比例与范围；两栏按比例分', () => {
-    const root = mount(() => <Splitter size={30} start="列表" end="预览" />);
+    const root = mount(() => <Splitter _size={30} start="列表" end="预览" />);
     const handle = root.querySelector('[role="separator"]')!;
     expect(handle.getAttribute('tabindex')).toBe('0');
     expect(handle.getAttribute('aria-orientation')).toBe('vertical');
@@ -23,8 +23,8 @@ describe('Splitter', () => {
     const size = shallowRef(50);
     const root = mount(() => (
       <Splitter
-        size={size.value}
-        {...{ 'onUpdate:size': (next: number) => (size.value = next) }}
+        _size={size.value}
+        {...{ 'onUpdate:_size': (next: number) => (size.value = next) }}
         start="a"
         end="b"
       />
@@ -47,8 +47,8 @@ describe('Splitter', () => {
     const root = mount(() => (
       <Splitter
         collapsible="end"
-        collapsed={collapsed.value}
-        {...{ 'onUpdate:collapsed': (next: boolean) => (collapsed.value = next) }}
+        _collapsed={collapsed.value}
+        {...{ 'onUpdate:_collapsed': (next: boolean) => (collapsed.value = next) }}
         start="a"
         end="b"
       />
@@ -80,8 +80,8 @@ describe('Splitter', () => {
     const root = mount(() => (
       <Splitter
         orientation="vertical"
-        size={size.value}
-        {...{ 'onUpdate:size': (next: number) => (size.value = next) }}
+        _size={size.value}
+        {...{ 'onUpdate:_size': (next: number) => (size.value = next) }}
         start="a"
         end="b"
       />

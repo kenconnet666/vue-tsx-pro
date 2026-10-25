@@ -54,7 +54,7 @@ export default _component(() => () => (
           <Code>color</Code> 可以指定色板里的一个，或任意 CSS 颜色，如表示“支出”的危险色。
         </Example>
         <Example id="legend" title="图例" demo={Legend}>
-          点图例隐藏、恢复系列；<Code>hiddenSeries</Code> 可以用 <Code>_bind</Code>{' '}
+          点图例隐藏、恢复系列；<Code>_hiddenSeries</Code> 可以用 <Code>_bind</Code>{' '}
           双向绑定，记住用户的选择或由外部控制。多于一个系列时才显示图例，<Code>legend</Code>{' '}
           可以强制显示或隐藏。
         </Example>

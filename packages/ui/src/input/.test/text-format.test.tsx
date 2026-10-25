@@ -34,7 +34,7 @@ describe('TextField 的 format', () => {
   it('显示分组的文字、值是原文；输入时重新分组，数字键盘', async () => {
     const state = reactive({ phone: '1380000' });
     const root = mount(() => (
-      <TextField value={_bind(state.phone)} format={phoneFormat} aria-label="手机号" />
+      <TextField _value={_bind(state.phone)} format={phoneFormat} aria-label="手机号" />
     ));
     const input = root.querySelector('input')!;
     expect(input.value).toBe('138 0000');

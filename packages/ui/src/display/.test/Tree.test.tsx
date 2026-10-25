@@ -57,7 +57,7 @@ function renderTree(props: Record<string, unknown> = {}) {
 
 describe('Tree', () => {
   it('treeitem 带层级、同级位置；可展开的带 aria-expanded', async () => {
-    const { root } = renderTree({ expanded: ['src'] });
+    const { root } = renderTree({ _expanded: ['src'] });
     await flush();
     const [src, main] = items(root);
     expect(src!.getAttribute('aria-expanded')).toBe('true');
@@ -75,7 +75,7 @@ describe('Tree', () => {
         getKey={(node) => node.id}
         getLabel={(node) => node.name}
         getChildren={(node) => node.children}
-        expanded={_bind(open)}
+        _expanded={_bind(open)}
         aria-label="文件"
       />
     ));
@@ -110,7 +110,7 @@ describe('Tree', () => {
         getLabel={(node) => node.name}
         getChildren={(node) => node.children}
         selectionMode="single"
-        selected={_bind(selected)}
+        _selected={_bind(selected)}
         aria-label="文件"
       />
     ));
@@ -132,9 +132,9 @@ describe('Tree', () => {
         getKey={(node) => node.id}
         getLabel={(node) => node.name}
         getChildren={(node) => node.children}
-        expanded={['src']}
+        _expanded={['src']}
         checkable
-        checked={_bind(checked)}
+        _checked={_bind(checked)}
         aria-label="文件"
       />
     ));
@@ -159,10 +159,10 @@ describe('Tree', () => {
         getKey={(node) => node.id}
         getLabel={(node) => node.name}
         getChildren={(node) => node.children}
-        expanded={['src']}
+        _expanded={['src']}
         checkable
         checkStrictly
-        checked={_bind(checked)}
+        _checked={_bind(checked)}
         aria-label="文件"
       />
     ));

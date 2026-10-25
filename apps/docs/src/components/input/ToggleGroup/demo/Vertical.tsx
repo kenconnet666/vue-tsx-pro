@@ -8,7 +8,7 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="12rem" gap="lg">
       <Field label="外观">
-        <ToggleGroup value={_bind(appearance)} orientation="vertical" required>
+        <ToggleGroup _value={_bind(appearance)} orientation="vertical" required>
           <ToggleItem value="light" icon={Sun}>
             亮色
           </ToggleItem>
@@ -22,13 +22,13 @@ export default _component(() => {
       </Field>
       <Flex direction="column" gap="md">
         <Field label="整组不可用">
-          <ToggleGroup value={_bind(density)} required disabled>
+          <ToggleGroup _value={_bind(density)} required disabled>
             <ToggleItem value="compact">紧凑</ToggleItem>
             <ToggleItem value="comfortable">适中</ToggleItem>
           </ToggleGroup>
         </Field>
         <Field label="单项不可用">
-          <ToggleGroup value={_bind(density)} required size="lg">
+          <ToggleGroup _value={_bind(density)} required size="lg">
             <ToggleItem value="compact">紧凑</ToggleItem>
             <ToggleItem value="comfortable">适中</ToggleItem>
             <ToggleItem value="spacious" disabled>

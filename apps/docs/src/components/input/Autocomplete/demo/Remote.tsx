@@ -27,7 +27,7 @@ export default _component(() => {
     <Flex direction="column" gap="xs">
       <Field label="供应商" description="输入“杭州”“液压”试试；选不到时直接写全称，提交后会新建">
         <Autocomplete
-          value={_bind(supplier)}
+          _value={_bind(supplier)}
           load={search}
           icon={Building2}
           clearable

@@ -78,7 +78,7 @@ export const popconfirmStyles = css.create({
 /** 气泡确认：Popover + 问题 + 取消 / 确认 */
 export const Popconfirm = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
     placement = 'top',
     trigger,
@@ -147,7 +147,7 @@ export const Popconfirm = _component(
             { placement, role: 'alertdialog' },
           )}
           trigger={trigger}
-          open={_bind(open)}
+          _open={_bind(open)}
           onOpenChange={onOpenChange}
         >
           <div {...css.attrs(popconfirmStyles.body)}>

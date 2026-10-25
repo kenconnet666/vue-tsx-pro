@@ -58,7 +58,7 @@ describe('Select 的 load', () => {
         load={api.load}
         toOption={toOption}
         searchable
-        open={_bind(open)}
+        _open={_bind(open)}
         aria-label="负责人"
       />
     ));
@@ -80,9 +80,9 @@ describe('Select 的 load', () => {
         load={api.load}
         toOption={toOption}
         searchable
-        open={_bind(open)}
-        search={_bind(search)}
-        value={_bind(owner)}
+        _open={_bind(open)}
+        _search={_bind(search)}
+        _value={_bind(owner)}
         aria-label="负责人"
       />
     ));
@@ -105,7 +105,7 @@ describe('Select 的 load', () => {
     const api = fakeLoad();
     api.failNext();
     const root = mount(() => (
-      <Select load={api.load} toOption={toOption} open aria-label="负责人" />
+      <Select load={api.load} toOption={toOption} _open aria-label="负责人" />
     ));
     await settle();
     expect(root.querySelector('[popover]')!.textContent).toContain('加载失败，请重试');
@@ -121,8 +121,8 @@ describe('Combobox 的 load', () => {
       <Combobox
         load={api.load}
         toOption={toOption}
-        open={_bind(open)}
-        inputValue={_bind(text)}
+        _open={_bind(open)}
+        _inputValue={_bind(text)}
         aria-label="负责人"
       />
     ));
@@ -164,8 +164,8 @@ describe('TreeSelect 的 load', () => {
         getLabel={(org) => org.name}
         getChildren={(org) => org.children}
         searchable
-        open
-        search={_bind(search)}
+        _open
+        _search={_bind(search)}
         aria-label="部门"
       />
     ));

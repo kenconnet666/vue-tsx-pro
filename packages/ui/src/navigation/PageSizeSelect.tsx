@@ -2,8 +2,8 @@
  * 每页条数选择：分页的配套组件，与 Pagination 并排放（各自独立，按需组合；三样都要时用 PaginationBar）。选项文字取语言包（“20 条/页”）。
  *
  *   <Flex gap="md" align="center">
- *     <Pagination page={_bind(page)} total={total} pageSize={size} />
- *     <PageSizeSelect value={_bind(size)} onSizeChange={() => (page = 1)} />
+ *     <Pagination _page={_bind(page)} total={total} pageSize={size} />
+ *     <PageSizeSelect _value={_bind(size)} onSizeChange={() => (page = 1)} />
  *   </Flex>
  *
  * 基于 Select：未声明的属性落到 Select 上（外壳用 propsRoot 等 Select 的部件），名称默认取语言包（每页条数）。
@@ -23,10 +23,10 @@ type SingleSelectProps = Extract<SelectProps, SingleSelectionProps>;
 /** 未声明的属性落到 Select 上 */
 export interface PageSizeSelectProps extends Omit<
   Partial<SelectProps>,
-  'value' | 'items' | 'selectionMode'
+  '_value' | 'items' | 'selectionMode'
 > {
-  /** 每页条数：父级写 value={_bind(size)} */
-  value?: number;
+  /** 每页条数：父级写 _value={_bind(size)} */
+  _value?: number;
   /** 可选的条数，默认 [10, 20, 50, 100] */
   options?: readonly number[];
   /** 用户换了条数后调用（通常把页码回到第 1 页） */
@@ -44,7 +44,7 @@ export const pageSizeSelectStyles = css.create({
 /** 每页条数选择（Select） */
 export const PageSizeSelect = _component(
   ({
-    value = _bindable(10),
+    _value: value = _bindable(10),
     options = [10, 20, 50, 100],
     onSizeChange,
     ...rest
@@ -96,7 +96,7 @@ export const PageSizeSelect = _component(
           },
           rest,
         )}
-        value={_bind(selected)}
+        _value={_bind(selected)}
       />
     );
   },

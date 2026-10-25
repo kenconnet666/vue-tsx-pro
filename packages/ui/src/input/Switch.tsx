@@ -2,7 +2,7 @@
  * 开关（原生 input type="checkbox" + role="switch"）：立即生效的开 / 关设置，如“接收通知”。
  * 需要提交才生效的选项用 Checkbox。结构与样式见 choice-styles.ts：input 画成轨道，滑块叠在上面。
  *
- *   <Switch checked={_bind(notify)}>接收通知</Switch>
+ *   <Switch _checked={_bind(notify)}>接收通知</Switch>
  *
  * 读屏念“开关，开 / 关”；空格切换（原生）。在 Field 里时关联说明与错误、沿用其状态。
  * 切换要等接口时用 loading：滑块里转圈、点击无效。轨道里可以放文字或图标（checkedContent / uncheckedContent），对读屏隐藏。
@@ -35,8 +35,8 @@ export type SwitchManaged =
 
 /** 未声明的属性落到 input 上；外层 label 用 propsRoot */
 export interface SwitchProps extends PartProps<'input', SwitchManaged> {
-  /** 是否打开：父级写 checked={_bind(x)} */
-  checked?: boolean;
+  /** 是否打开：父级写 _checked={_bind(x)} */
+  _checked?: boolean;
   /** 不可用 */
   disabled?: boolean;
   /** 只读：能聚焦、读屏念“只读”，不能切换（查看详情、审批时）；外观照常 */
@@ -127,7 +127,7 @@ export const switchStyles = css.create({
 /** 开关：立即生效的开 / 关 */
 export const Switch = _component(
   ({
-    checked = _bindable(false),
+    _checked: checked = _bindable(false),
     disabled,
     readonly,
     required,

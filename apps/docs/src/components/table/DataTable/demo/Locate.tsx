@@ -69,7 +69,7 @@ export default _component(() => {
     <Flex direction="column" gap="sm">
       <Flex align="center" gap="sm" wrap>
         <TextField
-          value={_bind(code)}
+          _value={_bind(code)}
           placeholder="任务编码"
           aria-label="任务编码"
           sx={styles.field}

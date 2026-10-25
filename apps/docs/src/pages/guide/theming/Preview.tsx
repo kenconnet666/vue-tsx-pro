@@ -100,7 +100,7 @@ const MiniApp = _component(({ title }: { title?: string }) => {
     <div {...css.attrs(styles.frame)}>
       <div {...css.attrs(styles.topbar)}>
         <span {...css.attrs(styles.brand)}>{title ?? '控制台'}</span>
-        <Tabs value={_bind(tab)}>
+        <Tabs _value={_bind(tab)}>
           <TabList aria-label={`${title ?? '控制台'}的分区`}>
             <Tab value="overview">概览</Tab>
             <Tab value="projects">项目</Tab>
@@ -152,13 +152,13 @@ const MiniApp = _component(({ title }: { title?: string }) => {
         >
           <Flex direction="column" gap="md">
             <Field label="项目名称" description="团队成员都能看到">
-              <TextField value="vue-tsx-pro" />
+              <TextField _value="vue-tsx-pro" />
             </Field>
             <Field label="所在城市">
-              <Select items={cities} value={_bind(city)} />
+              <Select items={cities} _value={_bind(city)} />
             </Field>
-            <Switch checked={_bind(notify)}>部署完成时通知我</Switch>
-            <Checkbox checked={_bind(agreed)}>我已阅读并同意服务条款</Checkbox>
+            <Switch _checked={_bind(notify)}>部署完成时通知我</Switch>
+            <Checkbox _checked={_bind(agreed)}>我已阅读并同意服务条款</Checkbox>
           </Flex>
         </Card>
       </div>
@@ -226,7 +226,7 @@ export const Preview = _component(() => {
     <div {...css.attrs(styles.root)}>
       <div {...css.attrs(styles.toolbar)}>
         <Text weight="semibold">预览</Text>
-        <ToggleGroup value={_bind(mode)} required size="sm" aria-label="预览方式">
+        <ToggleGroup _value={_bind(mode)} required size="sm" aria-label="预览方式">
           <ToggleItem value="current">当前主题</ToggleItem>
           <ToggleItem value="compare">亮暗对比</ToggleItem>
         </ToggleGroup>

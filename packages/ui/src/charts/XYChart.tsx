@@ -157,8 +157,8 @@ export interface XYChartProps<T extends object>
    * @default false
    */
   loading?: boolean;
-  /** 隐藏的系列（存系列的 key）：点图例时写回，父级可以写 hiddenSeries={_bind(keys)} */
-  hiddenSeries?: string[];
+  /** 隐藏的系列（存系列的 key）：点图例时写回，父级可以写 _hiddenSeries={_bind(keys)} */
+  _hiddenSeries?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
   /** 目标线、参考线：数值轴上的虚线（横向图是竖线），如年度降本指标；数值轴的范围会包含它 */
@@ -174,8 +174,8 @@ export interface XYChartProps<T extends object>
   onItemClick?: (row: T, index: number) => void;
   /** 缩放：绘图区下面一条区间滑块，选一段类目放大看（几年的月度数据）；读屏的数据表仍是全部 */
   zoom?: boolean;
-  /** 缩放的区间 [起, 止]：类目的位置，含两端；父级可以写 zoomRange={_bind(range)}，null 是全部 */
-  zoomRange?: [number, number] | null;
+  /** 缩放的区间 [起, 止]：类目的位置，含两端；父级可以写 _zoomRange={_bind(range)}，null 是全部 */
+  _zoomRange?: [number, number] | null;
 }
 
 /** 交给各种图的绘制上下文 */
@@ -301,14 +301,14 @@ export const XYChart = _component(
     valueDomain,
     tooltip = true,
     loading = false,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     empty,
     targets,
     annotations,
     bands,
     onItemClick,
     zoom = false,
-    zoomRange = _bindable<[number, number] | null>(null),
+    _zoomRange: zoomRange = _bindable<[number, number] | null>(null),
     kind,
     sx,
     ...rest
@@ -357,9 +357,9 @@ export const XYChart = _component(
       return (
         <div {...css.attrs(xyChartStyles.zoom)}>
           <Slider
-            value={zoomRange ?? [0, last]}
+            _value={zoomRange ?? [0, last]}
             {...{
-              'onUpdate:value': (next: [number, number]) =>
+              'onUpdate:_value': (next: [number, number]) =>
                 (zoomRange = next[0] === 0 && next[1] === last ? null : next),
             }}
             min={0}

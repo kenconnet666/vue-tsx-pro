@@ -22,7 +22,7 @@ export default _component(() => {
         <Listbox
           items={fields}
           selectionMode="multiple"
-          value={_bind(visible)}
+          _value={_bind(visible)}
           aria-label="显示的列"
           sx={styles.list}
         />

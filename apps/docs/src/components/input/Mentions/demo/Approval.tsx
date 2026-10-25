@@ -30,8 +30,8 @@ export default _component(() => {
       <Flex direction="column" gap="md">
         <Field label="审批意见" description="输入 @ 提及需要知会的人，提交后会通知他们">
           <Mentions
-            value={_bind(opinion)}
-            mentions={_bind(notified)}
+            _value={_bind(opinion)}
+            _mentions={_bind(notified)}
             items={people}
             rows={3}
             maxRows={8}

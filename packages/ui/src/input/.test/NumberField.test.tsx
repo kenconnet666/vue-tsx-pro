@@ -9,7 +9,7 @@ import { NumberField, type NumberFieldProps } from '../NumberField';
 describe('NumberField', () => {
   const setup = (props: { min?: number; max?: number; step?: number } = {}) => {
     let value = _state<number | null>(5);
-    const root = mount(() => <NumberField value={_bind(value)} aria-label="数量" {...props} />);
+    const root = mount(() => <NumberField _value={_bind(value)} aria-label="数量" {...props} />);
     const input = root.querySelector('input')!;
     const type = async (text: string) => {
       input.dispatchEvent(new FocusEvent('focus'));
@@ -58,7 +58,7 @@ describe('NumberField', () => {
   it('只是聚焦再离开不改值：不对齐步长、不夹到范围，表单不会变脏', async () => {
     let value = _state<number | null>(12.345);
     const root = mount(() => (
-      <NumberField value={_bind(value)} step={0.01} max={10} aria-label="单价" />
+      <NumberField _value={_bind(value)} step={0.01} max={10} aria-label="单价" />
     ));
     const input = root.querySelector('input')!;
     input.dispatchEvent(new FocusEvent('focus'));
@@ -106,7 +106,7 @@ describe('NumberField 的值类型', () => {
     props: Partial<Pick<NumberFieldProps, 'min' | 'max' | 'step' | 'valueType' | 'name'>> = {},
   ) => {
     let value = _state.raw<NumericValue | null>(initial);
-    const root = mount(() => <NumberField value={_bind(value)} aria-label="金额" {...props} />);
+    const root = mount(() => <NumberField _value={_bind(value)} aria-label="金额" {...props} />);
     const input = root.querySelector('input')!;
     const type = async (text: string) => {
       input.dispatchEvent(new FocusEvent('focus'));
@@ -156,7 +156,7 @@ describe('NumberField 的值类型', () => {
     const root = mount(() => (
       <form>
         <NumberField
-          value={_bind(value)}
+          _value={_bind(value)}
           name="price"
           format={{ style: 'currency', currency: 'CNY' }}
           aria-label="单价"
@@ -171,7 +171,7 @@ describe('NumberField 的值类型', () => {
     let value = _state.raw<NumericValue | null>(new Decimal('155353.2'));
     const root = mount(() => (
       <NumberField
-        value={_bind(value)}
+        _value={_bind(value)}
         format={{ scale: 10_000, maximumFractionDigits: 2 }}
         suffix="万元"
         step={100}
@@ -200,8 +200,8 @@ describe('clearable', () => {
     const state = reactive<{ amount: NumericValue | null }>({ amount: 12 });
     const root = mount(() => (
       <>
-        <NumberField value={_bind(state.amount)} clearable aria-label="金额" />
-        <NumberField value={5} clearable readonly aria-label="只读" />
+        <NumberField _value={_bind(state.amount)} clearable aria-label="金额" />
+        <NumberField _value={5} clearable readonly aria-label="只读" />
       </>
     ));
     const clears = () => root.querySelectorAll<HTMLButtonElement>('button[aria-label="清空"]');

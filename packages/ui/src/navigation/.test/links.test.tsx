@@ -81,7 +81,7 @@ describe('Pagination', () => {
 
   it('点页码、下一页写回 page；页码多时出现省略号', async () => {
     let page = _state(1);
-    const root = mount(() => <Pagination page={_bind(page)} pageCount={20} />);
+    const root = mount(() => <Pagination _page={_bind(page)} pageCount={20} />);
     const buttonFor = (label: string) =>
       [...root.querySelectorAll('button')].find((b) => b.getAttribute('aria-label') === label)!;
     buttonFor('下一页').click();
@@ -93,7 +93,7 @@ describe('Pagination', () => {
   });
 
   it('给了 href 时页码与上一页、下一页都是链接（rel=prev / next）', () => {
-    const root = mount(() => <Pagination page={2} pageCount={3} href={(n) => `?page=${n}`} />);
+    const root = mount(() => <Pagination _page={2} pageCount={3} href={(n) => `?page=${n}`} />);
     const href = (selector: string) => root.querySelector(selector)!.getAttribute('href');
     expect([href('a[rel="prev"]'), href('a[rel="next"]')]).toEqual(['?page=1', '?page=3']);
     expect([...root.querySelectorAll('a:not([rel])')].map((a) => a.getAttribute('href'))).toEqual([
@@ -167,7 +167,7 @@ describe('NavList', () => {
 
 describe('边界情况', () => {
   it('Pagination：父级的 page 超出总页数（筛选后变少）时按最后一页显示', () => {
-    const root = mount(() => <Pagination page={9} total={30} pageSize={10} />);
+    const root = mount(() => <Pagination _page={9} total={30} pageSize={10} />);
     expect(root.querySelector('[aria-current="page"]')!.textContent).toBe('3');
   });
 });

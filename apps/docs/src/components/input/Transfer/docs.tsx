@@ -21,7 +21,7 @@ export default _component(() => () => (
     <Example id="members" title="项目成员" demo={Members}>
       每一边是一个可多选的 <Link href="/components/listbox">Listbox</Link>
       （虚拟滚动，上千项也不卡）：上方是全选框、标题与“勾上 / 总数”，<Code>searchable</Code>{' '}
-      时带搜索框，全选只管搜索后留下的项。<Code>value</Code> 是右边的值，按移过去的先后排列；选项的{' '}
+      时带搜索框，全选只管搜索后留下的项。<Code>_value</Code> 是右边的值，按移过去的先后排列；选项的{' '}
       <Code>disabled</Code>{' '}
       勾不上也就移不动。移动后读屏播报移了几项。窄屏时两边上下排，按钮换成上下箭头。
     </Example>

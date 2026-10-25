@@ -2,7 +2,7 @@
  * 单选组（role="radiogroup"）与单选项（原生 input type="radio"）。结构与样式见 choice-styles.ts。
  *
  *   <Field label="配送方式">
- *     <RadioGroup value={_bind(shipping)}>
+ *     <RadioGroup _value={_bind(shipping)}>
  *       <Radio value="express">快递</Radio>
  *       <Radio value="pickup">自提</Radio>
  *     </RadioGroup>
@@ -61,8 +61,8 @@ export const RadioGroupContext = createContext<RadioGroupState>('RadioGroup');
 
 /** 未声明的属性落到 div（role="radiogroup"）上 */
 export interface RadioGroupBaseProps<T> extends PartProps<'div', 'role'> {
-  /** 选中项的值：父级写 value={_bind(x)}；没有选中时是 null */
-  value?: string | null;
+  /** 选中项的值：父级写 _value={_bind(x)}；没有选中时是 null */
+  _value?: string | null;
   /** 表单提交时的 name；不写时自动生成（同组的 radio 要共用一个 name 才互斥） */
   name?: string;
   /** 整组不可用 */
@@ -91,7 +91,7 @@ export type RadioGroupProps<T = ListboxOption> = RadioGroupBaseProps<T> & Option
 /** 单选组：value 是选中项的值 */
 export const RadioGroup = _component(
   <T = ListboxOption,>({
-    value = _bindable<string | null>(null),
+    _value: value = _bindable<string | null>(null),
     name,
     disabled,
     readonly,

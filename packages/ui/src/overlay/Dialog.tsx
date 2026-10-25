@@ -1,7 +1,7 @@
 /**
  * 模态对话框：居中显示，淡入放大。内核见 ModalCore.tsx，贴着视口一侧滑入的见 Drawer。
  *
- *   <Dialog open={_bind(editing)} title="编辑资料" footer={<Button onClick={save}>保存</Button>}>…</Dialog>
+ *   <Dialog _open={_bind(editing)} title="编辑资料" footer={<Button onClick={save}>保存</Button>}>…</Dialog>
  *
  * 不想自己管 open（从表格的一行打开详情、在回调里弹出）时用命令式的 useDialog：
  *
@@ -71,18 +71,20 @@ export const dialogRecipe = css.recipe({
 export type DialogPart = (typeof dialogRecipe.parts)[number];
 
 /** 模态对话框：居中显示，淡入放大 */
-export const Dialog = _component(({ open = _bindable(false), size, ...rest }: DialogProps) => {
-  const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
-  const recipe = useRecipe(dialogRecipe);
-  return () => (
-    <ModalCore
-      {...rest}
-      parts={recipe({ size: appearance().size })}
-      panelSx={transitions.scale}
-      open={_bind(open)}
-    />
-  );
-});
+export const Dialog = _component(
+  ({ _open: open = _bindable(false), size, ...rest }: DialogProps) => {
+    const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
+    const recipe = useRecipe(dialogRecipe);
+    return () => (
+      <ModalCore
+        {...rest}
+        parts={recipe({ size: appearance().size })}
+        panelSx={transitions.scale}
+        _open={_bind(open)}
+      />
+    );
+  },
+);
 
 /** useDialog 返回的：open 打开一个对话框 */
 export interface DialogApi {
@@ -96,7 +98,7 @@ export interface DialogApi {
  */
 export function useDialog(): DialogApi {
   const open = useDetachedOverlay<DialogProps>((props, host, children) => (
-    <Dialog {...props} open={_bind(host.open)}>
+    <Dialog {...props} _open={_bind(host.open)}>
       {children}
     </Dialog>
   ));

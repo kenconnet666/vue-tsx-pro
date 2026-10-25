@@ -9,7 +9,7 @@ describe('Steps', () => {
   const items = [{ title: '填写' }, { title: '确认', description: '核对信息' }, { title: '完成' }];
 
   it('ol 列表；当前步骤带 aria-current="step"；状态写在 data-state', () => {
-    const root = mount(() => <Steps items={items} current={1} aria-label="下单" />);
+    const root = mount(() => <Steps items={items} _current={1} aria-label="下单" />);
     const steps = [...root.querySelectorAll('li')];
     expect(steps.map((step) => step.dataset.state)).toEqual(['complete', 'current', 'upcoming']);
     expect(steps[1]!.getAttribute('aria-current')).toBe('step');
@@ -21,13 +21,13 @@ describe('Steps', () => {
 
   it('navigable 时已完成的步骤是按钮，点了写回 current；不写时不能点', async () => {
     let step = _state(2);
-    const root = mount(() => <Steps items={items} current={_bind(step)} navigable />);
+    const root = mount(() => <Steps items={items} _current={_bind(step)} navigable />);
     const buttons = root.querySelectorAll('button');
     expect(buttons).toHaveLength(2);
     buttons[0]!.click();
     await nextTick();
     expect(step).toBe(0);
-    expect(mount(() => <Steps items={items} current={2} />).querySelector('button')).toBeNull();
+    expect(mount(() => <Steps items={items} _current={2} />).querySelector('button')).toBeNull();
   });
 
   it('已完成且有 href 的步骤是链接；disabled 的不是', () => {
@@ -36,7 +36,7 @@ describe('Steps', () => {
       { title: '测算', href: '/task/1/calc', disabled: true },
       { title: '认定', href: '/task/1/confirm' },
     ];
-    const links = mount(() => <Steps items={linked} current={2} />).querySelectorAll('a');
+    const links = mount(() => <Steps items={linked} _current={2} />).querySelectorAll('a');
     expect([...links].map((link) => link.getAttribute('href'))).toEqual(['/task/1']);
   });
 
@@ -46,7 +46,7 @@ describe('Steps', () => {
       { title: '测算', status: 'error' as const },
       { title: '认定' },
     ];
-    const steps = [...mount(() => <Steps items={flow} current={1} />).querySelectorAll('li')];
+    const steps = [...mount(() => <Steps items={flow} _current={1} />).querySelectorAll('li')];
     expect(steps.map((step) => step.dataset.state)).toEqual(['complete', 'error', 'upcoming']);
     expect(steps.map((step) => step.textContent)).toEqual([
       '提出（已完成）',
@@ -58,14 +58,14 @@ describe('Steps', () => {
 
   it('竖排时最后一步之外都有连接线', () => {
     const root = mount(() => (
-      <Steps items={items} current={1} orientation="vertical" propsConnector={{ class: 'line' }} />
+      <Steps items={items} _current={1} orientation="vertical" propsConnector={{ class: 'line' }} />
     ));
     expect(root.querySelectorAll('.line')).toHaveLength(2);
   });
 
   it('步骤的 icon 代替序号；已完成的仍显示对勾', () => {
     const withIcons = items.map((item) => ({ ...item, icon: Star }));
-    const steps = [...mount(() => <Steps items={withIcons} current={1} />).querySelectorAll('li')];
+    const steps = [...mount(() => <Steps items={withIcons} _current={1} />).querySelectorAll('li')];
     expect(steps.map((step) => step.querySelector('svg') != null)).toEqual([true, true, true]);
     expect(steps[2]!.textContent).not.toContain('3');
   });

@@ -32,7 +32,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="sm">
       <Field label="交付证据" description="被退回后重新提交：上次的文件还在，可以删、可以补">
-        <Upload value={_bind(evidence)} upload={upload} multiple />
+        <Upload _value={_bind(evidence)} upload={upload} multiple />
       </Field>
       <Small tone="muted">
         提交的是：

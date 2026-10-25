@@ -2,8 +2,8 @@
  * 季度面板：一年一页的四个季度（季度报表、考核周期），翻页换年；选一个季度，或选一段区间（先开始、再结束）。
  * DatePicker、DateRangePicker 的 granularity="quarter" 弹出的就是它，也可以单独放在页面上。
  *
- *   <QuarterCalendar value={_bind(quarter)} aria-label="考核季度" />               // '2026-Q4'
- *   <QuarterCalendar mode="range" value={_bind(range)} aria-label="对比区间" />    // { start: '2026-Q1', end: '2026-Q3' }
+ *   <QuarterCalendar _value={_bind(quarter)} aria-label="考核季度" />               // '2026-Q4'
+ *   <QuarterCalendar mode="range" _value={_bind(range)} aria-label="对比区间" />    // { start: '2026-Q1', end: '2026-Q3' }
  *
  * 外观与 Calendar 的月份视图一致（同一套 calendarStyles）：一行四格，区间连成一条，本季度带描边。
  * 焦点在当前季度上（roving tabindex）：←→ 移动（到头时换年；从右到左排版时反过来），Home / End 到第一、第四季度，
@@ -32,8 +32,8 @@ import { toDateLimits, useDateLocale, type DateInput } from './date-locale';
 export interface QuarterCalendarProps extends PartProps<'div', 'role'> {
   /** 选一个季度（默认），或选一段区间 */
   mode?: 'single' | 'range';
-  /** 单选时是 'YYYY-Qn'，区间时是 `{ start, end }`：父级写 value={_bind(x)}；没有时 null */
-  value?: string | DateRange<string> | null;
+  /** 单选时是 'YYYY-Qn'，区间时是 `{ start, end }`：父级写 _value={_bind(x)}；没有时 null */
+  _value?: string | DateRange<string> | null;
   /** 最早可选的日期：整个季度都早于它时不可用 */
   min?: DateInput;
   /** 最晚可选的日期：整个季度都晚于它时不可用 */
@@ -58,7 +58,7 @@ const ordered = (a: string, b: string): DateRange<string> =>
 export const QuarterCalendar = _component(
   ({
     mode = 'single',
-    value = _bindable<string | DateRange<string> | null>(null),
+    _value: value = _bindable<string | DateRange<string> | null>(null),
     min,
     max,
     disabled = false,

@@ -22,7 +22,7 @@ export default _component(() => {
             速度
           </Text>
           <Slider
-            value={_bind(speed)}
+            _value={_bind(speed)}
             min={0}
             max={4}
             step={0.1}
@@ -35,7 +35,7 @@ export default _component(() => {
             扭曲
           </Text>
           <Slider
-            value={_bind(distortion)}
+            _value={_bind(distortion)}
             min={0}
             max={1.5}
             step={0.05}
@@ -48,7 +48,7 @@ export default _component(() => {
             颗粒
           </Text>
           <Slider
-            value={_bind(grain)}
+            _value={_bind(grain)}
             min={0}
             max={0.15}
             step={0.005}
@@ -56,7 +56,7 @@ export default _component(() => {
             propsRoot={{ sx: styles.slider }}
           />
         </Flex>
-        <Switch checked={_bind(paused)}>暂停</Switch>
+        <Switch _checked={_bind(paused)}>暂停</Switch>
       </Grid>
       <MeshGradient
         sx={styles.stage}

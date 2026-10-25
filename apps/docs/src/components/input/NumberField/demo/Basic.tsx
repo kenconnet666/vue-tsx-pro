@@ -11,11 +11,11 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="14em" gap="lg">
       <Field label="数量" description="1–99，↑ ↓ 加减 1，Page Up / Down 加减 10">
-        <NumberField value={_bind(quantity)} min={1} max={99} />
+        <NumberField _value={_bind(quantity)} min={1} max={99} />
       </Field>
       <Field label="重量" description="步长 0.1，提交时对齐，没有浮点误差">
         <NumberField
-          value={_bind(weight)}
+          _value={_bind(weight)}
           min={0}
           step={0.1}
           format={{ style: 'unit', unit: 'kilogram' }}
@@ -23,7 +23,7 @@ export default _component(() => {
       </Field>
       <Field label="折扣" description="存 0–1 的小数，显示成百分比">
         <NumberField
-          value={_bind(discount)}
+          _value={_bind(discount)}
           min={0}
           max={1}
           step={0.05}
@@ -32,14 +32,14 @@ export default _component(() => {
       </Field>
       <Field label="室外温度" description="可以是负数，Home / End 到两端">
         <NumberField
-          value={_bind(temperature)}
+          _value={_bind(temperature)}
           min={-40}
           max={60}
           format={{ style: 'unit', unit: 'celsius' }}
         />
       </Field>
       <Field label="评分" description="空着时为 null，按 ↑ 从 min 开始">
-        <NumberField value={_bind(rating)} min={1} max={5} placeholder="1–5" />
+        <NumberField _value={_bind(rating)} min={1} max={5} placeholder="1–5" />
       </Field>
     </Grid>
   );

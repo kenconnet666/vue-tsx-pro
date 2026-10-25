@@ -19,7 +19,7 @@ export default _component(() => {
       <Field label="承接团队" description="中心、部这一级不能选">
         <TreeSelect
           {...accessors}
-          value={_bind(team)}
+          _value={_bind(team)}
           isDisabled={(org) => !!org.children}
           icon={Users}
           placeholder="选择团队"
@@ -28,7 +28,7 @@ export default _component(() => {
       <Field label='variant="soft" radius="full"'>
         <TreeSelect
           {...accessors}
-          value={_bind(department)}
+          _value={_bind(department)}
           icon={Building2}
           variant="soft"
           radius="full"
@@ -36,16 +36,16 @@ export default _component(() => {
         />
       </Field>
       <Field label="必填" required error={team ? undefined : '请选择承接团队'}>
-        <TreeSelect {...accessors} value={_bind(team)} placeholder="选择团队" />
+        <TreeSelect {...accessors} _value={_bind(team)} placeholder="选择团队" />
       </Field>
       <Field label='size="sm"'>
-        <TreeSelect {...accessors} value={_bind(department)} size="sm" />
+        <TreeSelect {...accessors} _value={_bind(department)} size="sm" />
       </Field>
       <Field label="只读" readonly description="能聚焦、能看，不能打开">
-        <TreeSelect {...accessors} value="cost-ledger" icon={Building2} />
+        <TreeSelect {...accessors} _value="cost-ledger" icon={Building2} />
       </Field>
       <Field label="不可用" disabled>
-        <TreeSelect {...accessors} value="purchase" />
+        <TreeSelect {...accessors} _value="purchase" />
       </Field>
     </Grid>
   );

@@ -196,10 +196,10 @@ describe('Form + Field', () => {
     const root = mount(() => (
       <Form controller={form}>
         <Field name="email" label="邮箱">
-          <TextField value={_bind(form.values.email)} />
+          <TextField _value={_bind(form.values.email)} />
         </Field>
         <Field name="profile.name" label="名字">
-          <TextField value={_bind(form.values.profile.name)} />
+          <TextField _value={_bind(form.values.profile.name)} />
         </Field>
         <button type="submit">提交</button>
       </Form>
@@ -219,7 +219,7 @@ describe('Form + Field', () => {
     const root = mount(() => (
       <Form controller={form}>
         <form.Field name="email" label="邮箱">
-          <TextField value={_bind(form.values.email)} />
+          <TextField _value={_bind(form.values.email)} />
         </form.Field>
       </Form>
     ));
@@ -246,13 +246,13 @@ describe('Form + Field', () => {
     const root = mount(() => (
       <Form controller={form}>
         <form.Field name="email" label="邮箱">
-          <TextField value={_bind(form.values.email)} />
+          <TextField _value={_bind(form.values.email)} />
         </form.Field>
         <form.Field name="nickname" label="昵称">
-          <TextField value={_bind(form.values.nickname)} />
+          <TextField _value={_bind(form.values.nickname)} />
         </form.Field>
         <form.Field name="count" label="数量">
-          <NumberField value={_bind(form.values.count)} />
+          <NumberField _value={_bind(form.values.count)} />
         </form.Field>
       </Form>
     ));
@@ -300,10 +300,10 @@ describe('字段布局与整组状态（field-layout）', () => {
     const root = mount(() => (
       <Form controller={form} labelPlacement="start" labelWidth={96}>
         <Field label="邮箱" description="用于找回密码">
-          <TextField value={_bind(form.values.email)} />
+          <TextField _value={_bind(form.values.email)} />
         </Field>
         <Field label="名字" labelPlacement="top">
-          <TextField value={_bind(form.values.profile.name)} />
+          <TextField _value={_bind(form.values.profile.name)} />
         </Field>
         <Field>
           <Checkbox>记住我</Checkbox>
@@ -323,7 +323,7 @@ describe('字段布局与整组状态（field-layout）', () => {
   it('labelHidden：标签视觉上隐藏、仍指向控件；不占标签列', () => {
     const root = mount(() => (
       <Field label="手机" labelHidden labelPlacement="start">
-        <TextField value="13800001234" />
+        <TextField _value="13800001234" />
       </Field>
     ));
     const label = root.querySelector('label')!;
@@ -344,11 +344,11 @@ describe('字段布局与整组状态（field-layout）', () => {
     const root = mount(() => (
       <Form controller={form} readonly={state.readonly} disabled={state.disabled}>
         <Field label="邮箱">
-          <TextField value={_bind(form.values.email)} />
+          <TextField _value={_bind(form.values.email)} />
         </Field>
-        <Checkbox checked={_bind(form.values.agreed)}>同意</Checkbox>
+        <Checkbox _checked={_bind(form.values.agreed)}>同意</Checkbox>
         <Field label="备注" readonly={false}>
-          <TextField value="" />
+          <TextField _value="" />
         </Field>
       </Form>
     ));

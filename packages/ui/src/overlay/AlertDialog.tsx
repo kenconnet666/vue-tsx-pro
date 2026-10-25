@@ -4,7 +4,7 @@
  * 打开时焦点落在“取消”上，误按 Enter 不会执行破坏性操作（同 Radix AlertDialog）。
  *
  *   <AlertDialog
- *     open={_bind(confirming)}
+ *     _open={_bind(confirming)}
  *     tone="danger"
  *     title="删除这个项目？"
  *     description="删除后无法恢复。"
@@ -45,7 +45,7 @@ export interface AlertDialogProps extends Omit<
 
 /** 确认对话框：确认 / 取消两个按钮，焦点先落在取消上 */
 export const AlertDialog = _component(
-  ({ open = _bindable(false), size, onConfirm, propsCancel, ...rest }: AlertDialogProps) => {
+  ({ _open: open = _bindable(false), size, onConfirm, propsCancel, ...rest }: AlertDialogProps) => {
     const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
     const recipe = useRecipe(dialogRecipe);
     return () => (
@@ -66,7 +66,7 @@ export const AlertDialog = _component(
             propsCancel: { autofocus: true, ...propsCancel },
           },
         )}
-        open={_bind(open)}
+        _open={_bind(open)}
       />
     );
   },
@@ -87,7 +87,7 @@ export interface ConfirmReason {
 }
 
 /** confirm() 的选项：AlertDialog 的属性（open 由 confirm 管理） */
-export interface ConfirmOptions extends Omit<AlertDialogProps, 'open' | 'onConfirm'> {
+export interface ConfirmOptions extends Omit<AlertDialogProps, '_open' | 'onConfirm'> {
   /** 确认：拿到填的理由（没给 reason 时是空字符串）；返回 false 或失败时保持打开 */
   onConfirm?: (reason: string) => unknown;
   /** 要填理由：对话框里多一个多行输入框，confirm 得到填的理由 */
@@ -123,7 +123,7 @@ export function useConfirm(): Confirm {
           {...options}
           // 要填理由时焦点先进输入框；没有理由时落在取消上（误按 Enter 不会执行）
           propsCancel={reason ? { autofocus: false, ...options.propsCancel } : options.propsCancel}
-          open={_bind(host.open)}
+          _open={_bind(host.open)}
           onConfirm={async () => {
             tried.value = true;
             if (missing()) return false;
@@ -145,8 +145,8 @@ export function useConfirm(): Confirm {
               error={tried.value && missing() ? lang.formRequired : undefined}
             >
               <Textarea
-                value={text.value}
-                {...{ 'onUpdate:value': (next: string) => (text.value = next) }}
+                _value={text.value}
+                {...{ 'onUpdate:_value': (next: string) => (text.value = next) }}
                 placeholder={reason.placeholder}
                 maxlength={reason.maxlength}
                 showCount={reason.maxlength !== undefined}

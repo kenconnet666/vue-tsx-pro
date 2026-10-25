@@ -11,7 +11,12 @@ describe('TextField', () => {
   it('未声明的属性落到 input；外壳用 propsRoot；清空后写回并聚焦 input', async () => {
     let value = _state('vue');
     const root = mount(() => (
-      <TextField value={_bind(value)} clearable placeholder="搜索" propsRoot={{ class: 'shell' }} />
+      <TextField
+        _value={_bind(value)}
+        clearable
+        placeholder="搜索"
+        propsRoot={{ class: 'shell' }}
+      />
     ));
     const input = root.querySelector('input')!;
     expect(input.placeholder).toBe('搜索');
@@ -27,8 +32,8 @@ describe('TextField', () => {
   it('不可用、只读时不显示清空按钮', () => {
     const root = mount(() => (
       <>
-        <TextField value="x" clearable disabled />
-        <TextField value="x" clearable readonly />
+        <TextField _value="x" clearable disabled />
+        <TextField _value="x" clearable readonly />
       </>
     ));
     expect(root.querySelectorAll('button')).toHaveLength(0);
@@ -37,7 +42,7 @@ describe('TextField', () => {
   });
 
   it('密码框：切换按钮名称不变，用 aria-pressed 表示状态，切换 input 的 type', async () => {
-    const root = mount(() => <TextField type="password" value="secret" />);
+    const root = mount(() => <TextField type="password" _value="secret" />);
     const input = root.querySelector('input')!;
     const reveal = root.querySelector('button')!;
     expect([input.type, reveal.getAttribute('aria-label')]).toEqual(['password', '显示密码']);
@@ -51,7 +56,7 @@ describe('Field', () => {
   it('标签的 for 指向控件；说明与错误信息经 aria-describedby 关联；有错误时控件出错', () => {
     const root = mount(() => (
       <Field label="邮箱" description="用于找回密码" error="格式不对" required>
-        <TextField value="a@" />
+        <TextField _value="a@" />
       </Field>
     ));
     const label = root.querySelector('label')!;
@@ -69,7 +74,7 @@ describe('Field', () => {
   it('控件上显式写的状态优先于 Field；invalid={false} 时不显示错误', () => {
     const root = mount(() => (
       <Field label="名字" error="必填" invalid={false} disabled>
-        <TextField value="" disabled={false} />
+        <TextField _value="" disabled={false} />
       </Field>
     ));
     const input = root.querySelector('input')!;
@@ -83,7 +88,7 @@ describe('前后缀与字数计数', () => {
   it('TextField：前后缀是部件，不算在值里；是指向输入框的 label，在 Field 里念进名称', () => {
     const root = mount(() => (
       <TextField
-        value="example"
+        _value="example"
         prefix="https://"
         suffix=".com"
         propsPrefix={{ class: 'pre' }}
@@ -108,7 +113,7 @@ describe('前后缀与字数计数', () => {
   it('showCount：上限取 maxlength，读屏经 aria-describedby 念出；超出时标记 data-over', async () => {
     const value = shallowRef('你好');
     const root = mount(() => (
-      <TextField value={value.value} showCount maxlength={3} aria-label="昵称" />
+      <TextField _value={value.value} showCount maxlength={3} aria-label="昵称" />
     ));
     const input = root.querySelector('input')!;
     const count = document.getElementById(input.getAttribute('aria-describedby')!)!;
@@ -122,7 +127,7 @@ describe('前后缀与字数计数', () => {
   it('Textarea：showCount 没有上限时只显示字数；在 Field 里与说明一起关联', () => {
     const root = mount(() => (
       <Field label="简介" description="写点什么">
-        <Textarea value="abc" showCount />
+        <Textarea _value="abc" showCount />
       </Field>
     ));
     const textarea = root.querySelector('textarea')!;
@@ -149,7 +154,7 @@ describe('前后缀与字数计数', () => {
 describe('Textarea 的 clearable', () => {
   it('有内容时显示清空按钮，清空后回到空字符串', async () => {
     const state = reactive({ note: '第一行\n第二行' });
-    const root = mount(() => <Textarea value={_bind(state.note)} clearable aria-label="备注" />);
+    const root = mount(() => <Textarea _value={_bind(state.note)} clearable aria-label="备注" />);
     const clear = root.querySelector<HTMLButtonElement>('button[aria-label="清空"]')!;
     clear.click();
     await nextTick();

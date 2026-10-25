@@ -57,7 +57,7 @@ export default _component(() => {
       </Flex>
       <Small tone="muted">{result || '还没有操作'}</Small>
       <AlertDialog
-        open={_bind(open)}
+        _open={_bind(open)}
         tone="danger"
         title="删除项目“官网改版”？"
         description="项目里的 48 个文件和全部评论会一起删除，无法恢复。"

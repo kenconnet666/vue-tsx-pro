@@ -47,7 +47,7 @@ export default _component(() => {
           getLabel={(item) => item.name}
           getChildren={(item) => item.children}
           isDisabled={(item) => !!item.retired}
-          value={_bind(category)}
+          _value={_bind(category)}
           changeOnSelect
           separator=" › "
           clearable

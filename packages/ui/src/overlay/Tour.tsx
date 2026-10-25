@@ -2,8 +2,8 @@
  * 新手引导（原生模态 dialog）：一步一步高亮页面上的元素并说明。遮罩盖住整页，目标处镂空；步骤卡片贴着目标显示。
  *
  *   <Tour
- *     open={_bind(touring)}
- *     current={_bind(step)}
+ *     _open={_bind(touring)}
+ *     _current={_bind(step)}
  *     steps={[
  *       { target: '#search', title: '搜索', content: '按名称或编号查找订单' },
  *       { target: () => exportButton, title: '导出', content: '导出为 Excel', placement: 'left' },
@@ -63,10 +63,10 @@ export interface TourProps
   extends PartProps<'dialog', 'open' | 'aria-labelledby' | 'aria-describedby'>, OpenChangeProps {
   /** 各步 */
   steps: readonly TourStep[];
-  /** 是否显示：父级写 open={_bind(x)} */
-  open?: boolean;
-  /** 当前第几步，从 0 开始：父级写 current={_bind(n)} */
-  current?: number;
+  /** 是否显示：父级写 _open={_bind(x)} */
+  _open?: boolean;
+  /** 当前第几步，从 0 开始：父级写 _current={_bind(n)} */
+  _current?: number;
   /** 镂空比目标大出多少（px），默认 6 */
   padding?: number;
   /** 点了最后一步的“完成” */
@@ -167,9 +167,9 @@ function resolveTarget(target: TourStep['target']): HTMLElement | null {
 export const Tour = _component(
   ({
     steps,
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
-    current = _bindable(0),
+    _current: current = _bindable(0),
     padding = 6,
     onFinish,
     propsSpotlight,

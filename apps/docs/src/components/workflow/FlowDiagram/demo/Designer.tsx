@@ -74,7 +74,7 @@ export default _component(() => {
             definition={expense}
             problems={problems}
             selectable
-            selected={_bind(selected)}
+            _selected={_bind(selected)}
             sx={styles.diagram}
           />
           <Card sx={styles.panel} header={node?.name ?? '点一个节点'}>

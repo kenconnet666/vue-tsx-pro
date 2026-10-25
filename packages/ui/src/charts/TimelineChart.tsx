@@ -108,8 +108,8 @@ export interface TimelineChartProps
   dateFormat?: Intl.DateTimeFormatOptions;
   /** 加载中：绘图区显示骨架 */
   loading?: boolean;
-  /** 隐藏的系列：点图例时写回，父级可以写 hiddenSeries={_bind(keys)} */
-  hiddenSeries?: string[];
+  /** 隐藏的系列：点图例时写回，父级可以写 _hiddenSeries={_bind(keys)} */
+  _hiddenSeries?: string[];
   /** 没有数据时显示的内容 */
   empty?: VNodeChild;
   /** 悬停时的提示框，默认 true */
@@ -163,7 +163,7 @@ export const TimelineChart = _component(
     rowHeight = 32,
     dateFormat,
     loading = false,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     empty,
     tooltip = true,
     ...rest

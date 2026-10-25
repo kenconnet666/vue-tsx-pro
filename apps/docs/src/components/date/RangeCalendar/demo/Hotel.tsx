@@ -36,7 +36,7 @@ export default _component(() => {
     return (
       <Flex gap="xl" wrap align="start">
         <RangeCalendar
-          value={_bind(stay)}
+          _value={_bind(stay)}
           visibleMonths={2}
           min={today}
           isDateUnavailable={(date) => booked.has(date)}

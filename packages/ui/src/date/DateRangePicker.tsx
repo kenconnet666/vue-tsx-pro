@@ -2,9 +2,9 @@
  * 日期区间选择器：一个输入框里两组分段（开始 – 结束），按钮弹出区间日历，旁边可以放快捷区间（最近 7 天、本月……）。
  * 参考 React Aria DateRangePicker（同一个外壳里两组 DateInput）、Ant Design RangePicker 的 presets。
  *
- *   <Field label="统计区间"><DateRangePicker value={_bind(range)} max={today} presets={['last7Days', 'thisMonth']} /></Field>
- *   <DateRangePicker granularity="month" value={_bind(months)} aria-label="预算期间" />      // { start: '2026-01', end: '2026-06' }
- *   <DateRangePicker granularity="minute" value={_bind(window)} aria-label="维护窗口" />   // '2026-10-24T22:00' – '2026-10-25T06:00'
+ *   <Field label="统计区间"><DateRangePicker _value={_bind(range)} max={today} presets={['last7Days', 'thisMonth']} /></Field>
+ *   <DateRangePicker granularity="month" _value={_bind(months)} aria-label="预算期间" />      // { start: '2026-01', end: '2026-06' }
+ *   <DateRangePicker granularity="minute" _value={_bind(window)} aria-label="维护窗口" />   // '2026-10-24T22:00' – '2026-10-25T06:00'
  *
  * 值是 `{ start, end }`（两端都含；ISO 字符串或 DateValue，写回时保持同一种类型），两端都填好才写回，删掉一段写回 null。
  * granularity 同 DateField：month、year 按月、按年（日历选整月、整年），quarter 弹出季度面板选一段季度，
@@ -91,10 +91,10 @@ export interface DateRangePickerProps<V extends DateInput = string>
     DateLimitProps,
     PickerPopoverParts,
     OpenChangeProps {
-  /** 区间（两端都含）：父级写 value={_bind(x)}；没填全时 null */
-  value?: DateRange<V> | null;
-  /** 弹层是否打开：父级可写 open={_bind(x)} */
-  open?: boolean;
+  /** 区间（两端都含）：父级写 _value={_bind(x)}；没填全时 null */
+  _value?: DateRange<V> | null;
+  /** 弹层是否打开：父级可写 _open={_bind(x)} */
+  _open?: boolean;
   /** 值为空、推不出类型时写回哪一种，默认 iso（字符串） */
   valueType?: keyof DateValueTypes;
   /** 精确到哪一段（同 DateField），默认 day；month、year 按月、按年，hour / minute / second 是日期时间区间 */
@@ -158,8 +158,8 @@ function isoRangeOf<V extends DateInput>(
 /** 日期区间选择器：两组分段 + 弹出的区间日历与快捷区间 */
 export const DateRangePicker = _component(
   <V extends DateInput>({
-    value = _bindable<DateRange<V> | null>(null),
-    open = _bindable(false),
+    _value: value = _bindable<DateRange<V> | null>(null),
+    _open: open = _bindable(false),
     onOpenChange,
     valueType,
     granularity = 'day',
@@ -444,8 +444,8 @@ export const DateRangePicker = _component(
               granularity === 'quarter' ? (
                 <QuarterCalendar
                   mode="range"
-                  value={start != null && end != null ? { start, end } : null}
-                  {...{ 'onUpdate:value': pickQuarters }}
+                  _value={start != null && end != null ? { start, end } : null}
+                  {...{ 'onUpdate:_value': pickQuarters }}
                   min={min}
                   max={max}
                   aria-label={lang.datePickerOpen}
@@ -454,8 +454,8 @@ export const DateRangePicker = _component(
               ) : (
                 <RangeCalendar
                   {...propsCalendar}
-                  {...{ 'onUpdate:value': pickRange }}
-                  value={calendarRange()}
+                  {...{ 'onUpdate:_value': pickRange }}
+                  _value={calendarRange()}
                   granularity={dateUnitOf(granularity)}
                   min={min}
                   max={max}

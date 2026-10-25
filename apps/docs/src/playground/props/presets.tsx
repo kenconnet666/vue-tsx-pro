@@ -199,7 +199,7 @@ export const PRESETS: Record<string, Preset> = {
       code: '<AccordionItem value="a" title="怎么安装？">\n  pnpm add @vue-tsx-pro/ui\n</AccordionItem>\n<AccordionItem value="b" title="支持暗色吗？">\n  支持，三套内置主题。\n</AccordionItem>',
     },
   },
-  Collapse: { initial: { open: true }, children: paragraph },
+  Collapse: { initial: { _open: true }, children: paragraph },
   Collapsible: { fixed: { trigger: triggerButton('展开') }, children: paragraph },
   AnimatedNumber: { initial: { value: 12_345 } },
   Stat: {
@@ -311,13 +311,13 @@ export const PRESETS: Record<string, Preset> = {
       },
     },
   },
-  Steps: { initial: { current: 1 }, fixed: { items: { value: steps, code: stepsCode } } },
+  Steps: { initial: { _current: 1 }, fixed: { items: { value: steps, code: stepsCode } } },
   Pagination: { initial: { pageCount: 10 } },
   PageJump: { initial: { pageCount: 10 } },
   PaginationBar: { initial: { total: 320 } },
   Tabs: {
     imports: ['Tab', 'TabList', 'TabPanel'],
-    initial: { value: 'a' },
+    initial: { _value: 'a' },
     children: {
       render: () => [
         <TabList aria-label="示例">
@@ -360,7 +360,7 @@ export const PRESETS: Record<string, Preset> = {
   Switch: { children: '接收通知' },
   ToggleGroup: {
     imports: ['ToggleItem'],
-    initial: { value: 'day' },
+    initial: { _value: 'day' },
     children: {
       render: () => [
         <ToggleItem value="day">日</ToggleItem>,

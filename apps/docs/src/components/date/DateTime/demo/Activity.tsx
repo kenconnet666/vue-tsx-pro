@@ -33,7 +33,7 @@ export default _component(() => {
   let format = _state<Intl.RelativeTimeFormatStyle>('long');
   return () => (
     <Flex direction="column" gap="md">
-      <ToggleGroup value={_bind(format)} required aria-label="详略" size="sm">
+      <ToggleGroup _value={_bind(format)} required aria-label="详略" size="sm">
         <ToggleItem value="long">long</ToggleItem>
         <ToggleItem value="short">short</ToggleItem>
         <ToggleItem value="narrow">narrow</ToggleItem>

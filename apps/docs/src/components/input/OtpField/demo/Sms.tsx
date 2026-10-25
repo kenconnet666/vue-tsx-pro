@@ -40,12 +40,12 @@ export default _component(() => {
     <Card>
       <Flex direction="column" gap="md">
         <Field label="手机号">
-          <TextField value={_bind(phone)} type="tel" prefix="+86" />
+          <TextField _value={_bind(phone)} type="tel" prefix="+86" />
         </Field>
         <Field label="短信验证码" error={error} description="6 位数字，5 分钟内有效">
           <Flex align="center" gap="md" wrap>
             <OtpField
-              value={_bind(code)}
+              _value={_bind(code)}
               onComplete={(value) => void verify(value)}
               disabled={verifying}
             />

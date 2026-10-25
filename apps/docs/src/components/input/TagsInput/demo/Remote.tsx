@@ -46,8 +46,8 @@ export default _component(() => {
   return () => (
     <Field label="话题" description="输入“前端”“设计”试试">
       <TagsInput
-        value={_bind(tags)}
-        inputValue={_bind(query)}
+        _value={_bind(tags)}
+        _inputValue={_bind(query)}
         items={suggestions}
         filter={false}
         loading={loading}

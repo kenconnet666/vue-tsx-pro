@@ -26,8 +26,8 @@ export default _component(() => {
       >
         <Combobox
           items={titles}
-          value={_bind(title)}
-          inputValue={_bind(typed)}
+          _value={_bind(title)}
+          _inputValue={_bind(typed)}
           allowCustomValue
           icon={BriefcaseBusiness}
           clearable
@@ -44,10 +44,10 @@ export default _component(() => {
         />
       </Field>
       <Field label="只读" readonly>
-        <Combobox items={titles} value="前端工程师" />
+        <Combobox items={titles} _value="前端工程师" />
       </Field>
       <Field label="不可用" disabled>
-        <Combobox items={titles} value="测试工程师" />
+        <Combobox items={titles} _value="测试工程师" />
       </Field>
     </Grid>
   );

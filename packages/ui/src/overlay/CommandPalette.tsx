@@ -11,7 +11,7 @@
  * 结构是 Dialog（模态、焦点循环、Esc 关闭）里放一个 combobox 输入框与 ListboxView：
  * 焦点一直在输入框上，↑↓ / Page Up / Page Down 移动高亮（aria-activedescendant），Enter 选中；
  * 数据层与 Select、Combobox 相同（useListState），选项多时虚拟滚动。
- * 远程搜索与 Combobox 一样：inputValue={_bind(keyword)} 拿到输入，filter={false} 不再本地过滤，取数据时给 loading。
+ * 远程搜索与 Combobox 一样：_inputValue={_bind(keyword)} 拿到输入，filter={false} 不再本地过滤，取数据时给 loading。
  */
 import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -57,14 +57,14 @@ export interface CommandPaletteBaseProps<T> extends Omit<
   DialogProps,
   'open' | 'title' | 'description' | 'footer' | 'children' | 'onSelect'
 > {
-  /** 是否打开：父级可以写 open={_bind(x)}；快捷键、触发按钮、选中、Esc 都会改它 */
-  open?: boolean;
+  /** 是否打开：父级可以写 _open={_bind(x)}；快捷键、触发按钮、选中、Esc 都会改它 */
+  _open?: boolean;
   /** 数据：ListboxOption、字符串，或任意数据加 toOption */
   items: readonly T[];
   /** 执行了一项（回车或点击）：面板随即关闭 */
   onAction: (item: T) => void;
-  /** 输入框里的文字：父级可以写 inputValue={_bind(x)}（远程搜索时据此取数据）；每次打开清空 */
-  inputValue?: string;
+  /** 输入框里的文字：父级可以写 _inputValue={_bind(x)}（远程搜索时据此取数据）；每次打开清空 */
+  _inputValue?: string;
   /** 过滤：默认按选项文字与说明匹配（忽略大小写与重音）；函数自定义；false 不过滤（远程搜索，items 就是结果） */
   filter?: false | ((item: T, query: string) => boolean);
   /** 正在取结果（远程搜索）：没有结果时列表里是骨架行，已有结果时顶部显示进度条 */
@@ -134,9 +134,9 @@ export const commandPaletteStyles = css.create({
 /** 命令面板：快捷键打开的搜索对话框 */
 export const CommandPalette = _component(
   <T,>({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     onOpenChange,
-    inputValue = _bindable(''),
+    _inputValue: inputValue = _bindable(''),
     items,
     toOption,
     onAction,
@@ -264,7 +264,7 @@ export const CommandPalette = _component(
               },
               rest as Partial<DialogProps>,
             )}
-            open={_bind(open)}
+            _open={_bind(open)}
             onOpenChange={onOpenChange}
           >
             <div {...mergeAttrs<'div'>({ sx: commandPaletteStyles.search })}>
@@ -289,7 +289,7 @@ export const CommandPalette = _component(
                     onKeydown,
                   },
                 )}
-                value={_bind(inputValue)}
+                _value={_bind(inputValue)}
               />
             </div>
             <ListboxView

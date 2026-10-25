@@ -41,7 +41,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <ToggleGroup
-        value={_bind(
+        _value={_bind(
           () => strategy,
           (next: string) => {
             strategy = next as keyof CheckStrategies;
@@ -67,7 +67,7 @@ export default _component(() => {
           selectionMode="multiple"
           checkedStrategy={strategy}
           maxTagCount="responsive"
-          value={_bind(scope)}
+          _value={_bind(scope)}
           searchable
           clearable
         />

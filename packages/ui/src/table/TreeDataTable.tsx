@@ -8,7 +8,7 @@
  *     columns={columns}
  *     getKey={(row) => row.id}
  *     getChildren={(row) => row.children}
- *     expanded={_bind(open)}
+ *     _expanded={_bind(open)}
  *     aria-label="组织架构"
  *   />
  *
@@ -51,8 +51,8 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'
   loadChildren?: (row: T) => Promise<unknown> | void;
   /** 子项加载失败（loadChildren 的 Promise 被拒绝）：这一行收回去，再展开会重试；不写时在控制台报错 */
   onLoadError?: (error: unknown, row: T) => void;
-  /** 展开的行的 key：父级写 expanded={_bind(keys)} */
-  expanded?: string[];
+  /** 展开的行的 key：父级写 _expanded={_bind(keys)} */
+  _expanded?: string[];
   /** 每一层缩进多少（em），默认 1.25 */
   indent?: number;
   /** 多选时勾选父子不联动：每一行各自勾选；默认联动（勾上父行连带子孙，子行全勾上时父行也勾上，只勾一部分时父行半选） */
@@ -85,14 +85,14 @@ export const TreeDataTable = _component(
     hasChildren,
     loadChildren,
     onLoadError,
-    expanded = _bindable<string[]>([]),
+    _expanded: expanded = _bindable<string[]>([]),
     indent = 1.25,
     checkStrictly = false,
     propsToggle,
-    sort = _bindable<SortState | null>(null),
+    _sort: sort = _bindable<SortState | null>(null),
     manualSort = false,
-    selected = _bindable<string[]>([]),
-    columnWidths = _bindable<Record<string, number>>({}),
+    _selected: selected = _bindable<string[]>([]),
+    _columnWidths: columnWidths = _bindable<Record<string, number>>({}),
     ...rest
   }: TreeDataTableProps<T>) => {
     const lang = useLang();
@@ -193,10 +193,10 @@ export const TreeDataTable = _component(
         getKey={keyOf}
         columns={columns}
         manualSort
-        sort={_bind(sort)}
-        selected={_bind(() => checkedKeys as string[], writeSelected)}
+        _sort={_bind(sort)}
+        _selected={_bind(() => checkedKeys as string[], writeSelected)}
         partialKeys={partialKeys}
-        columnWidths={_bind(columnWidths)}
+        _columnWidths={_bind(columnWidths)}
         leading={leading}
       />
     );

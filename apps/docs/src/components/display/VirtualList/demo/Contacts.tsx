@@ -30,7 +30,7 @@ export default _component(() => {
       <Card padding="none">
         <Flex align="center" justify="between" gap="md" sx={styles.padded}>
           <TextField
-            value={_bind(keyword)}
+            _value={_bind(keyword)}
             type="search"
             clearable
             placeholder="姓名或电话"

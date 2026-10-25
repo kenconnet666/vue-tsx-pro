@@ -29,7 +29,7 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="18rem" gap="lg">
       <ScrollArea sx={styles.panel} aria-label="主题设置">
-        <ThemeCustomizer settings={_bind(settings)} base={lightTheme} />
+        <ThemeCustomizer _settings={_bind(settings)} base={lightTheme} />
       </ScrollArea>
       <Provider theme={customizeTheme(lightTheme, settings)}>
         <Card>
@@ -37,7 +37,7 @@ export default _component(() => {
             <Strong>预览</Strong>
             <Small tone="muted">左边改的设置只作用于这块</Small>
             <Progress value={64} label="本月目标" />
-            <Switch checked={_bind(on)}>自动续费</Switch>
+            <Switch _checked={_bind(on)}>自动续费</Switch>
             <Flex gap="sm">
               <Button size="sm">确定</Button>
               <Button size="sm" variant="outline" tone="neutral">

@@ -90,9 +90,9 @@ export const TreeDemo = _component(() => {
           getLabel={(entry) => entry.name}
           getChildren={(entry) => entry.children}
           getIcon={(entry, open) => (entry.children ? (open ? FolderOpen : Folder) : File)}
-          expanded={_bind(expanded)}
+          _expanded={_bind(expanded)}
           selectionMode="single"
-          selected={_bind(current)}
+          _selected={_bind(current)}
           aria-label="文件"
           class="tree-demo"
           sx={styles.tree}
@@ -109,9 +109,9 @@ export const TreeDemo = _component(() => {
           getChildren={(entry) => entry.children}
           hasChildren={(entry) => entry.lazy === true || (entry.children?.length ?? 0) > 0}
           loadChildren={loadPermission}
-          expanded={_bind(openPermissions)}
+          _expanded={_bind(openPermissions)}
           checkable
-          checked={_bind(granted)}
+          _checked={_bind(granted)}
           aria-label="权限"
           class="tree-check-demo"
           sx={styles.tree}

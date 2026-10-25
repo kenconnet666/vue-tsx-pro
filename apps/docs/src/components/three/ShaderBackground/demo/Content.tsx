@@ -48,16 +48,16 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Grid minItemWidth="12rem" gap="lg" align="end">
         <Field label="色板">
-          <ToggleGroup value={_bind(palette)} required>
+          <ToggleGroup _value={_bind(palette)} required>
             <ToggleItem value="default">默认</ToggleItem>
             <ToggleItem value="sunset">晚霞</ToggleItem>
             <ToggleItem value="ocean">海洋</ToggleItem>
           </ToggleGroup>
         </Field>
         <Field label="时间流速">
-          <Slider value={_bind(speed)} min={0} max={4} step={0.1} />
+          <Slider _value={_bind(speed)} min={0} max={4} step={0.1} />
         </Field>
-        <Switch checked={_bind(interactive)}>跟随指针</Switch>
+        <Switch _checked={_bind(interactive)}>跟随指针</Switch>
       </Grid>
       <ShaderBackground
         sx={styles.hero}

@@ -240,18 +240,18 @@ export default _component(() => {
         <Card>
           <div {...css.attrs(styles.filters)}>
             <Field label="统计年度" sx={styles.filter}>
-              <Select items={YEARS} value={_bind(draft.year)} />
+              <Select items={YEARS} _value={_bind(draft.year)} />
             </Field>
             <Field label="任务类别" sx={styles.filter}>
               <Select
                 items={choices(PROJECTS.map((project) => project.category))}
-                value={_bind(draft.category)}
+                _value={_bind(draft.category)}
               />
             </Field>
             <Field label="提出部门" sx={styles.filter}>
               <Select
                 items={choices(PROJECTS.map((project) => project.department))}
-                value={_bind(draft.department)}
+                _value={_bind(draft.department)}
               />
             </Field>
             <div {...css.attrs(styles.actions)}>

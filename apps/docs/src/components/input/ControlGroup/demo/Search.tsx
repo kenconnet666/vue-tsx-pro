@@ -37,9 +37,9 @@ export default _component(() => {
         }}
       >
         <ControlGroup aria-label="搜索任务">
-          <Select items={scopes} value={_bind(scope)} aria-label="搜索范围" />
+          <Select items={scopes} _value={_bind(scope)} aria-label="搜索范围" />
           <TextField
-            value={_bind(keyword)}
+            _value={_bind(keyword)}
             icon={SearchIcon}
             placeholder="任务名称、编号或负责人"
             aria-label="关键词"
@@ -54,15 +54,15 @@ export default _component(() => {
       )}
       <Field label="回调地址">
         <ControlGroup aria-label="回调地址">
-          <Select items={['https://', 'http://']} value={_bind(protocol)} aria-label="协议" />
-          <TextField value={_bind(host)} aria-label="域名" />
+          <Select items={['https://', 'http://']} _value={_bind(protocol)} aria-label="协议" />
+          <TextField _value={_bind(host)} aria-label="域名" />
           <CopyButton value={`${protocol}${host}`} variant="outline" aria-label="复制地址" />
         </ControlGroup>
       </Field>
       <Field label="收货地址" description='orientation="vertical"：上下相连'>
         <ControlGroup orientation="vertical" aria-label="收货地址">
-          <TextField value="浙江省杭州市西湖区" aria-label="省市区" />
-          <TextField value="文三路 90 号 3 幢 501" aria-label="详细地址" />
+          <TextField _value="浙江省杭州市西湖区" aria-label="省市区" />
+          <TextField _value="文三路 90 号 3 幢 501" aria-label="详细地址" />
         </ControlGroup>
       </Field>
     </Flex>

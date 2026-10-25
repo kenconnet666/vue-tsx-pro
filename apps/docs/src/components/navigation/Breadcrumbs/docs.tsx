@@ -27,7 +27,7 @@ export default _component(() => () => (
           Themes），不会把布局撑乱。分隔符从右到左排版时翻转。
         </Example>
         <Example id="steps" title="下单流程" demo={Checkout}>
-          <Code>current</Code> 是当前步骤的序号，可以双向绑定；写了 <Code>navigable</Code>{' '}
+          <Code>_current</Code> 是当前步骤的序号，可以双向绑定；写了 <Code>navigable</Code>{' '}
           时已完成的步骤可以点回去，有 <Code>href</Code>{' '}
           的已完成步骤是链接。已完成的显示对勾，当前步骤带
           aria-current="step"，其余的状态另有读屏文字；图标可以自定义，<Code>status</Code>{' '}

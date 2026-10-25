@@ -2,11 +2,11 @@
  * 日期选择器：DateField 加一个打开日历的按钮，日历弹在输入框下方；可以直接键入，也可以点选。
  * 参考 React Aria DatePicker（输入框可键入，按钮打开对话框里的 Calendar）、Mantine DatePickerInput。
  *
- *   <Field label="出发日期"><DatePicker value={_bind(date)} min={today} /></Field>
- *   <DatePicker granularity="month" value={_bind(month)} aria-label="账期" />     // 选月份：'2026-10'
- *   <DatePicker granularity="minute" value={_bind(at)} aria-label="开始时间" />  // 日期加时间：'2026-10-20T14:30'
+ *   <Field label="出发日期"><DatePicker _value={_bind(date)} min={today} /></Field>
+ *   <DatePicker granularity="month" _value={_bind(month)} aria-label="账期" />     // 选月份：'2026-10'
+ *   <DatePicker granularity="minute" _value={_bind(at)} aria-label="开始时间" />  // 日期加时间：'2026-10-20T14:30'
  *
- *   <DatePicker granularity="quarter" value={_bind(quarter)} aria-label="考核季度" /> // 季度：'2026-Q4'；week 是 '2026-W43'
+ *   <DatePicker granularity="quarter" _value={_bind(quarter)} aria-label="考核季度" /> // 季度：'2026-Q4'；week 是 '2026-W43'
  *
  * granularity 决定值的形式（同 DateField）与弹出的选择：year、month 选年份、月份，quarter 弹出季度面板（QuarterCalendar），
  * week 选周（日历按 ISO 周排、行首是周数，点哪天都是选它那一周），其余选日期。
@@ -63,8 +63,8 @@ export interface DatePreset<V extends DateInput = string> {
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface DatePickerProps<V extends DateInput = string>
   extends DateFieldProps<V>, PickerPopoverParts, OpenChangeProps {
-  /** 弹层是否打开：父级可写 open={_bind(x)} */
-  open?: boolean;
+  /** 弹层是否打开：父级可写 _open={_bind(x)} */
+  _open?: boolean;
   /** 日历并排显示几个月，默认 1 */
   visibleMonths?: number;
   /** 日历旁边的快捷选项：`[{ label: '一周前', value: () => shiftIsoDate(todayIso(), { weeks: -1 }) }]` */
@@ -104,8 +104,8 @@ export const datePickerStyles = css.create({
 /** 日期选择器：分段输入 + 弹出的日历 */
 export const DatePicker = _component(
   <V extends DateInput>({
-    value = _bindable<V | null>(null),
-    open = _bindable(false),
+    _value: value = _bindable<V | null>(null),
+    _open: open = _bindable(false),
     onOpenChange,
     granularity = 'day',
     valueType,
@@ -228,8 +228,8 @@ export const DatePicker = _component(
       <>
         <DateField
           {...rest}
-          {...{ 'onUpdate:value': (next: V | null) => (value = next) }}
-          value={value}
+          {...{ 'onUpdate:_value': (next: V | null) => (value = next) }}
+          _value={value}
           granularity={granularity}
           valueType={valueType}
           min={min}
@@ -271,8 +271,8 @@ export const DatePicker = _component(
             <div {...css.attrs(datePickerStyles.main)}>
               {granularity === 'quarter' ? (
                 <QuarterCalendar
-                  value={typeof value === 'string' || value == null ? value : toIsoQuarter(value)}
-                  {...{ 'onUpdate:value': pickPeriod }}
+                  _value={typeof value === 'string' || value == null ? value : toIsoQuarter(value)}
+                  {...{ 'onUpdate:_value': pickPeriod }}
                   min={min}
                   max={max}
                   aria-label={lang.datePickerOpen}
@@ -281,8 +281,8 @@ export const DatePicker = _component(
               ) : (
                 <Calendar<V>
                   {...propsCalendar}
-                  {...{ 'onUpdate:value': pickDay }}
-                  value={calendarValue as V | null}
+                  {...{ 'onUpdate:_value': pickDay }}
+                  _value={calendarValue as V | null}
                   granularity={dateUnitOf(granularity)}
                   valueType={valueType}
                   min={min}

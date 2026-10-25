@@ -51,20 +51,20 @@ export default _component(() => {
         <Flex direction="column" gap="md">
           <Field label="名称" required>
             <TextField
-              value={draft.name}
-              {...{ 'onUpdate:value': (next: string) => (draft.name = next) }}
+              _value={draft.name}
+              {...{ 'onUpdate:_value': (next: string) => (draft.name = next) }}
             />
           </Field>
           <Field label="联系人">
             <TextField
-              value={draft.contact}
-              {...{ 'onUpdate:value': (next: string) => (draft.contact = next) }}
+              _value={draft.contact}
+              {...{ 'onUpdate:_value': (next: string) => (draft.contact = next) }}
             />
           </Field>
           <Field label="电话">
             <TextField
-              value={draft.phone}
-              {...{ 'onUpdate:value': (next: string) => (draft.phone = next) }}
+              _value={draft.phone}
+              {...{ 'onUpdate:_value': (next: string) => (draft.phone = next) }}
             />
           </Field>
         </Flex>

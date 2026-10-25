@@ -165,12 +165,12 @@ const model = (key: string, value: unknown, set: (next: unknown) => void) => ({
 });
 
 export interface PropsPlaygroundProps {
-  /** 当前的组件名：父级可以写 component={_bind(x)} */
-  component?: string;
+  /** 当前的组件名：父级可以写 _name={_bind(x)} */
+  _name?: string;
 }
 
 export const PropsPlayground = _component(
-  ({ component = _bindable('Button') }: PropsPlaygroundProps) => {
+  ({ _name: component = _bindable('Button') }: PropsPlaygroundProps) => {
     let values = _state<Record<string, unknown>>({});
     // 正打开图标库的属性名：同一时间只开一个
     let iconPicking = _state<string | null>(null);
@@ -215,7 +215,7 @@ export const PropsPlayground = _component(
         case 'enum':
           return control.options.length <= 6 ? (
             <ToggleGroup
-              {...model('value', value, set(name))}
+              {...model('_value', value, set(name))}
               size="sm"
               required={defaults[name] !== undefined}
               aria-label={name}
@@ -232,7 +232,7 @@ export const PropsPlayground = _component(
             </ToggleGroup>
           ) : (
             <Select
-              {...model('value', value, set(name))}
+              {...model('_value', value, set(name))}
               items={control.options.map((option) => ({ value: option, label: option }))}
               size="sm"
               clearable={defaults[name] === undefined}
@@ -241,16 +241,16 @@ export const PropsPlayground = _component(
           );
         case 'boolean':
           return (
-            <Switch {...model('checked', value === true, set(name))} size="sm" aria-label={name} />
+            <Switch {...model('_checked', value === true, set(name))} size="sm" aria-label={name} />
           );
         case 'text':
           return (
-            <TextField {...model('value', value ?? '', set(name))} size="sm" aria-label={name} />
+            <TextField {...model('_value', value ?? '', set(name))} size="sm" aria-label={name} />
           );
         case 'number':
           return (
             <NumberField
-              {...model('value', value ?? null, set(name))}
+              {...model('_value', value ?? null, set(name))}
               size="sm"
               aria-label={name}
             />
@@ -262,7 +262,7 @@ export const PropsPlayground = _component(
             <Flex gap="xs" align="center">
               <Popover
                 {...model(
-                  'open',
+                  '_open',
                   iconPicking === name,
                   (open) => (iconPicking = open ? name : null),
                 )}
@@ -282,7 +282,7 @@ export const PropsPlayground = _component(
               >
                 <div {...css.attrs(styles.iconPanel)}>
                   <IconGallery
-                    value={picked ?? ''}
+                    _value={picked ?? ''}
                     onPick={(picked) => {
                       set(name)(picked);
                       iconPicking = null;
@@ -358,7 +358,7 @@ export const PropsPlayground = _component(
           <Flex gap="sm" align="center">
             <Combobox
               items={pickerItems}
-              value={_bind(component)}
+              _value={_bind(component)}
               placeholder="搜索组件"
               aria-label="组件"
               sx={styles.picker}
@@ -385,7 +385,7 @@ export const PropsPlayground = _component(
                 <Flex direction="column" gap="xs">
                   <Small sx={styles.label}>children</Small>
                   <TextField
-                    {...model('value', values.children ?? '', set('children'))}
+                    {...model('_value', values.children ?? '', set('children'))}
                     size="sm"
                     aria-label="内容"
                   />

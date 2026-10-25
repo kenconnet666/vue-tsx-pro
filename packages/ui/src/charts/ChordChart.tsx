@@ -51,8 +51,8 @@ export interface ChordChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
    * @default false
    */
   loading?: boolean;
-  /** 隐藏的节点（存 id）：点图例时写回，父级可以写 hiddenNodes={_bind(ids)} */
-  hiddenNodes?: string[];
+  /** 隐藏的节点（存 id）：点图例时写回，父级可以写 _hiddenNodes={_bind(ids)} */
+  _hiddenNodes?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
 }
@@ -93,7 +93,7 @@ export const ChordChart = _component(
     legend = true,
     tooltip = true,
     loading = false,
-    hiddenNodes = _bindable<string[]>([]),
+    _hiddenNodes: hiddenNodes = _bindable<string[]>([]),
     empty,
     sx,
     ...rest

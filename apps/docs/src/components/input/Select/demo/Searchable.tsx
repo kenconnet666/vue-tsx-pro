@@ -21,7 +21,7 @@ export default _component(() => {
     <Grid minItemWidth="16rem" gap="md">
       <Flex direction="column" gap="xs">
         <Field label="涉及供应商" description="六十个选项：打开后直接输入“密封”试试">
-          <Select items={suppliers} value={_bind(supplier)} searchable />
+          <Select items={suppliers} _value={_bind(supplier)} searchable />
         </Field>
         <Small tone="muted">值：{supplier || '—'}</Small>
       </Flex>
@@ -29,7 +29,7 @@ export default _component(() => {
         <Select
           items={suppliers}
           selectionMode="multiple"
-          value={_bind(partners)}
+          _value={_bind(partners)}
           searchable
           clearable
         />

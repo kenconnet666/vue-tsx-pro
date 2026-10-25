@@ -29,8 +29,8 @@ const styles = css.create({
 });
 
 interface ToggleProps {
-  /** 双向绑定：父级写 checked={_bind(x)}，不绑定时作为组件本地状态 */
-  checked?: boolean;
+  /** 双向绑定：父级写 _checked={_bind(x)}，不绑定时作为组件本地状态 */
+  _checked?: boolean;
   /** 单向配置：普通值即可，父级传 busy.value 也保持响应 */
   disabled?: boolean;
   /** 通知：普通函数 prop，取代 emit */
@@ -42,7 +42,13 @@ interface ToggleProps {
 }
 
 export const Toggle = _component(
-  ({ checked = _bindable(false), disabled = false, onChange, sx, children }: ToggleProps) => {
+  ({
+    _checked: checked = _bindable(false),
+    disabled = false,
+    onChange,
+    sx,
+    children,
+  }: ToggleProps) => {
     // 这里的代码只在创建时执行一次
     function toggle() {
       if (disabled) return;

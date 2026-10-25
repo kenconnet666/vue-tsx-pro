@@ -28,7 +28,7 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Field label="套餐">
         <RadioGroup
-          value={_bind(plan)}
+          _value={_bind(plan)}
           items={plans}
           // 任意数据：toOption 取出值、文字与说明
           toOption={(item) => ({
@@ -46,10 +46,10 @@ export default _component(() => {
           </>
         }
       >
-        <CheckboxGroup value={_bind(notify)} items={channels} />
+        <CheckboxGroup _value={_bind(notify)} items={channels} />
       </Field>
       <Field label="横排的字符串选项">
-        <RadioGroup items={['按日', '按周', '按月']} value="按周" orientation="horizontal" />
+        <RadioGroup items={['按日', '按周', '按月']} _value="按周" orientation="horizontal" />
       </Field>
     </Flex>
   );

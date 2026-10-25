@@ -122,7 +122,7 @@ export default _component(() => {
         getKey={(line) => String(line.row)}
         rowTone={toneOf}
         selectionMode="multiple"
-        selected={_bind(selected)}
+        _selected={_bind(selected)}
         isRowSelectable={(line) => line.issue?.level !== 'error'}
         density="compact"
         aria-label="导入校验结果"

@@ -13,7 +13,7 @@ import {
   replaceWithValue,
   writeTargets,
 } from './ast.ts';
-import { rejectDirective, rewriteBind } from './bind.ts';
+import { checkAttribute, rewriteBind } from './bind.ts';
 import { fail, warning, type RunesWarning } from './errors.ts';
 import { RuntimeImports } from './imports.ts';
 import { optimizeRender } from './optimize.ts';
@@ -105,7 +105,7 @@ export class RunesTransform {
           trackRest: (declarator) => this.pendingRest.add(declarator),
         });
       },
-      JSXAttribute: (path) => rejectDirective(path),
+      JSXAttribute: (path) => checkAttribute(path),
       CallExpression: (path) => {
         const rune = runeOf(path);
         switch (rune) {
@@ -121,7 +121,7 @@ export class RunesTransform {
           case '_bindable':
             throw fail(
               path,
-              '_bindable() 只能写在 _component 参数解构的默认值位置，例如 ({ checked = _bindable(false) })',
+              '_bindable() 只能写在 _component 参数解构的默认值位置，例如 ({ _checked: checked = _bindable(false) })',
             );
           default:
             this.declareState(path, rune);
@@ -470,7 +470,7 @@ export class RunesTransform {
           case '_bind':
             throw fail(
               path,
-              '_bind 只能在 JSX 属性的值里直接调用，例如 <Switch checked={_bind(on)} />',
+              '_bind 只能在 JSX 属性的值里直接调用，例如 <Switch _checked={_bind(on)} />',
             );
           default:
             throw fail(path, `${name} 只能按约定的位置直接调用，不能当作普通值使用`);

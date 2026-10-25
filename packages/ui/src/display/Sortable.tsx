@@ -1,7 +1,7 @@
 /**
  * 可拖动排序的列表（ul）：每项前有一个把手，拖动或用键盘改变顺序，数据双向绑定。
  *
- *   <Sortable items={_bind(tasks)} getKey={(task) => task.id} getLabel={(task) => task.title} aria-label="待办">
+ *   <Sortable _items={_bind(tasks)} getKey={(task) => task.id} getLabel={(task) => task.title} aria-label="待办">
  *     {(task) => <Text>{task.title}</Text>}
  *   </Sortable>
  *
@@ -34,8 +34,8 @@ export interface SortableItemState {
 
 /** 未声明的属性落到 ul 上；aria-label 或 aria-labelledby 是列表的名称 */
 export interface SortableProps<T> extends PartProps<'ul'> {
-  /** 各项：父级写 items={_bind(list)}，顺序变了写回新的数组 */
-  items?: T[];
+  /** 各项：父级写 _items={_bind(list)}，顺序变了写回新的数组 */
+  _items?: T[];
   /** 项的 key，同一列表里唯一 */
   getKey: (item: T) => string;
   /** 项的名称：把手的名称与读屏播报用它；默认是 key */
@@ -97,7 +97,7 @@ export const sortableStyles = css.create({
 /** 可拖动排序的列表：把手拖动或键盘移动 */
 export const Sortable = _component(
   <T,>({
-    items = _bindable<T[]>([]),
+    _items: items = _bindable<T[]>([]),
     getKey,
     getLabel,
     orientation = 'vertical',

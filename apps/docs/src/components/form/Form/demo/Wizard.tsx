@@ -69,18 +69,18 @@ export default _component(() => {
     <Card>
       <Form controller={form}>
         <Flex direction="column" gap="md">
-          <Steps current={step} items={steps} />
+          <Steps _current={step} items={steps} />
           {step === 0 ? (
             <>
               <form.Field name="company" label="企业名称">
-                <TextField value={_bind(form.values.company)} />
+                <TextField _value={_bind(form.values.company)} />
               </form.Field>
               <Grid minItemWidth="12rem" gap="md">
                 <form.Field name="contact" label="联系人">
-                  <TextField value={_bind(form.values.contact)} />
+                  <TextField _value={_bind(form.values.contact)} />
                 </form.Field>
                 <form.Field name="phone" label="手机号">
-                  <TextField value={_bind(form.values.phone)} type="tel" />
+                  <TextField _value={_bind(form.values.phone)} type="tel" />
                 </form.Field>
               </Grid>
             </>
@@ -88,18 +88,18 @@ export default _component(() => {
             <>
               <Grid minItemWidth="12rem" gap="md">
                 <form.Field name="password" label="登录密码">
-                  <TextField value={_bind(form.values.password)} type="password" />
+                  <TextField _value={_bind(form.values.password)} type="password" />
                 </form.Field>
                 <form.Field name="confirm" label="确认密码">
-                  <TextField value={_bind(form.values.confirm)} type="password" />
+                  <TextField _value={_bind(form.values.confirm)} type="password" />
                 </form.Field>
               </Grid>
               <Grid minItemWidth="12rem" gap="md">
                 <form.Field name="budgetMin" label="年度预算下限（万元）">
-                  <NumberField value={_bind(form.values.budgetMin)} />
+                  <NumberField _value={_bind(form.values.budgetMin)} />
                 </form.Field>
                 <form.Field name="budgetMax" label="年度预算上限（万元）">
-                  <NumberField value={_bind(form.values.budgetMax)} />
+                  <NumberField _value={_bind(form.values.budgetMax)} />
                 </form.Field>
               </Grid>
             </>

@@ -29,7 +29,7 @@ export default _component(() => () => (
                 <Badge tone="danger">失败</Badge>
               </Flex>
               <Progress value={64} aria-label={`${name} 主题的进度条`} />
-              <Switch checked>部署后通知</Switch>
+              <Switch _checked>部署后通知</Switch>
               <Flex gap="xs">
                 <Button size="sm">保存</Button>
                 <Button size="sm" variant="soft" tone="neutral">

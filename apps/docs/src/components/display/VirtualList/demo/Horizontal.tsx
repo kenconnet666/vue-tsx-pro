@@ -59,7 +59,7 @@ export default _component(() => {
         )}
       </VirtualList>
       <Flex gap="sm" align="center" wrap>
-        <NumberField value={_bind(target)} min={1} max={1000} aria-label="跳到第几张" size="sm" />
+        <NumberField _value={_bind(target)} min={1} max={1000} aria-label="跳到第几张" size="sm" />
         <Button
           size="sm"
           variant="outline"

@@ -2,8 +2,8 @@
  * 分页栏：表格、列表下方的一整行，起始边是“第 1–20 条，共 320 条”，结束边是页码、每页条数、跳页。
  * 拼的是 Pagination、PageSizeSelect、PageJump，换每页条数时回到第 1 页。
  *
- *   <PaginationBar page={_bind(page)} pageSize={_bind(size)} total={320} />
- *   <PaginationBar page={_bind(tasks.page)} pageSize={_bind(tasks.pageSize)} total={tasks.total} />   接 useTableQuery
+ *   <PaginationBar _page={_bind(page)} _pageSize={_bind(size)} total={320} />
+ *   <PaginationBar _page={_bind(tasks.page)} _pageSize={_bind(tasks.pageSize)} total={tasks.total} />   接 useTableQuery
  *
  * 占满所在的行；窄于 36em 时不显示跳页，窄于 24em 时总数单独一行。只要其中几样时用 showTotal / showSizeSelect / showJump 关掉，
  * 或者直接并排三个组件。
@@ -33,10 +33,10 @@ export interface PageRange {
 
 /** 未声明的属性落到外层 div 上；分页导航的名称用 propsPagination 的 aria-label */
 export interface PaginationBarProps extends PartProps<'div'> {
-  /** 当前页，从 1 开始：父级写 page={_bind(x)} */
-  page?: number;
-  /** 每页条数：父级写 pageSize={_bind(x)}，默认 10 */
-  pageSize?: number;
+  /** 当前页，从 1 开始：父级写 _page={_bind(x)} */
+  _page?: number;
+  /** 每页条数：父级写 _pageSize={_bind(x)}，默认 10 */
+  _pageSize?: number;
   /** 总条数 */
   total: number;
   /** 每页条数的选项，默认 [10, 20, 50, 100] */
@@ -92,8 +92,8 @@ export const paginationBarStyles = css.create({
 /** 分页栏：总数、页码、每页条数、跳页 */
 export const PaginationBar = _component(
   ({
-    page = _bindable(1),
-    pageSize = _bindable(10),
+    _page: page = _bindable(1),
+    _pageSize: pageSize = _bindable(10),
     total,
     pageSizeOptions,
     showTotal = true,
@@ -142,7 +142,7 @@ export const PaginationBar = _component(
         <div {...mergeAttrs<'div'>({ sx: paginationBarStyles.controls }, propsControls)}>
           <Pagination
             {...mergePartProps<PaginationProps>({ size }, propsPagination)}
-            page={_bind(page)}
+            _page={_bind(page)}
             total={total}
             pageSize={pageSize}
           />
@@ -153,7 +153,7 @@ export const PaginationBar = _component(
                 propsSizeSelect,
                 { onSizeChange: () => (page = 1) },
               )}
-              value={_bind(pageSize)}
+              _value={_bind(pageSize)}
             />
           )}
           {showJump && pageCount > 1 && (
@@ -162,7 +162,7 @@ export const PaginationBar = _component(
                 { pageCount, size, sx: paginationBarStyles.jump },
                 propsJump,
               )}
-              page={_bind(page)}
+              _page={_bind(page)}
             />
           )}
         </div>

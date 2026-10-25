@@ -16,19 +16,19 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Flex gap="lg" wrap>
         <Field label="喜欢程度" description='icon={Heart} tone="danger"'>
-          <Rating value={_bind(like)} icon={Heart} tone="danger" />
+          <Rating _value={_bind(like)} icon={Heart} tone="danger" />
         </Field>
         <Field label="紧急程度" description="count={3}，size=lg">
-          <Rating value={_bind(urgency)} icon={Flame} tone="accent" count={3} size="lg" />
+          <Rating _value={_bind(urgency)} icon={Flame} tone="accent" count={3} size="lg" />
         </Field>
         <Field label="不可用" disabled>
-          <Rating value={4} />
+          <Rating _value={4} />
         </Field>
       </Flex>
       <Flex direction="column" gap="xs">
         {reviews.map((review) => (
           <Flex key={review.name} align="center" gap="sm">
-            <Rating value={review.score} readonly allowHalf size="xs" />
+            <Rating _value={review.score} readonly allowHalf size="xs" />
             <Small>{review.name}</Small>
             <Small tone="muted">{review.text}</Small>
           </Flex>

@@ -1,9 +1,9 @@
 /**
  * 列表框（role="listbox"）：在一列选项里单选或多选。数据驱动，始终虚拟滚动（上万个选项也只渲染看得见的几十个）：
  *
- *   <Listbox items={cities} value={_bind(city)} aria-label="城市" />
- *   <Listbox items={tags} selectionMode="multiple" value={_bind(picked)}>{(tag) => <Badge>{tag.label}</Badge>}</Listbox>
- *   <Listbox items={users} toOption={(user) => ({ value: user.id, label: user.name })} value={_bind(id)} aria-label="成员" />
+ *   <Listbox items={cities} _value={_bind(city)} aria-label="城市" />
+ *   <Listbox items={tags} selectionMode="multiple" _value={_bind(picked)}>{(tag) => <Badge>{tag.label}</Badge>}</Listbox>
+ *   <Listbox items={users} toOption={(user) => ({ value: user.id, label: user.name })} _value={_bind(id)} aria-label="成员" />
  *
  * 选项是 { value, label, disabled?, description?, icon?, group? }（ListboxOption）；别的形状的数据用 toOption 转换，
  * 自定义内容的渲染函数拿到的仍是原始数据。
@@ -472,7 +472,7 @@ export const Listbox = _component(
     items,
     toOption,
     selectionMode = 'single',
-    value = _bindable<string | string[] | null>(null),
+    _value: value = _bindable<string | string[] | null>(null),
     required,
     disabled,
     id,

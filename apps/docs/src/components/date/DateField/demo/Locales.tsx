@@ -15,7 +15,7 @@ export default _component(() => () => (
     {cases.map(([label, lang]) => (
       <Provider key={label} lang={lang}>
         <Field label={label}>
-          <DateField granularity="minute" value="2026-10-20T14:30" />
+          <DateField granularity="minute" _value="2026-10-20T14:30" />
         </Field>
       </Provider>
     ))}

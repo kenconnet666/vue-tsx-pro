@@ -65,7 +65,7 @@ export const ComboChart = _component(
     curve = 'linear',
     dots = 'filled',
     radius = 4,
-    hiddenSeries = _bindable<string[]>([]),
+    _hiddenSeries: hiddenSeries = _bindable<string[]>([]),
     ...rest
   }: ComboChartProps<T>) => {
     const isLine = (key: string) => series.find((item) => item.key === key)?.type === 'line';
@@ -158,7 +158,7 @@ export const ComboChart = _component(
       },
     });
     return () => (
-      <XYChart {...rest} series={series} hiddenSeries={_bind(hiddenSeries)} kind={kind} />
+      <XYChart {...rest} series={series} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />
     );
   },
 );

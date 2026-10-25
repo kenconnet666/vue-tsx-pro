@@ -58,7 +58,7 @@ export default _component(() => {
         {countOf(applied) ? `已设 ${countOf(applied)} 项条件` : '没有筛选条件：显示全部 128 个项目'}
       </Small>
       <Drawer
-        open={_bind(open)}
+        _open={_bind(open)}
         size="xs"
         title="筛选降本项目"
         confirmText={`查看结果（已设 ${countOf(draft)} 项）`}
@@ -74,13 +74,13 @@ export default _component(() => {
         <Flex direction="column" gap="lg">
           <Field label="责任团队">
             <Select
-              value={_bind(draft.team)}
+              _value={_bind(draft.team)}
               placeholder="全部团队"
               items={['机体结构', '复合材料中心', '总体技术集成', '供应链管理']}
             />
           </Field>
           <Field label="状态">
-            <CheckboxGroup value={_bind(draft.status)}>
+            <CheckboxGroup _value={_bind(draft.status)}>
               <Checkbox value="designing">方案设计中</Checkbox>
               <Checkbox value="verifying">验证中</Checkbox>
               <Checkbox value="confirming">待认定</Checkbox>
@@ -88,10 +88,10 @@ export default _component(() => {
             </CheckboxGroup>
           </Field>
           <Field label="预计年降本（万元）">
-            <NumberRangeField value={_bind(draft.saving)} />
+            <NumberRangeField _value={_bind(draft.saving)} />
           </Field>
           <Field label="计划完成">
-            <DateRangePicker value={_bind(draft.period)} />
+            <DateRangePicker _value={_bind(draft.period)} />
           </Field>
         </Flex>
       </Drawer>

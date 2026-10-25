@@ -9,7 +9,7 @@ describe('CodePreview', () => {
   it('效果区是一组；源码默认收起，按钮切换并带 aria-expanded / aria-controls', async () => {
     let shown = _state(false);
     const root = mount(() => (
-      <CodePreview code="<Button>保存</Button>" showCode={_bind(shown)}>
+      <CodePreview code="<Button>保存</Button>" _showCode={_bind(shown)}>
         <button>保存</button>
       </CodePreview>
     ));

@@ -18,13 +18,13 @@ export default _component(() => {
         description="只能选工作日"
         error={workday && weekend(parseDate(workday)) ? '这天是周末，请换一个工作日' : undefined}
       >
-        <DateField value={_bind(workday)} isDateUnavailable={(_, day) => weekend(day)} />
+        <DateField _value={_bind(workday)} isDateUnavailable={(_, day) => weekend(day)} />
       </Field>
       <Field label="会议开始（12 小时制）" description={<Code>{meeting ?? 'null'}</Code>}>
         <DateField
           granularity="minute"
           hourCycle="h12"
-          value={_bind(meeting)}
+          _value={_bind(meeting)}
           suffix={<Icon icon={CalendarCheck} tone="muted" />}
         />
       </Field>
@@ -32,7 +32,7 @@ export default _component(() => {
         label="发货日期"
         description={<Code>{shipped ? `CalendarDate ${shipped.toString()}` : 'null'}</Code>}
       >
-        <DateField value={_bind(shipped)} valueType="dateValue" />
+        <DateField _value={_bind(shipped)} valueType="dateValue" />
       </Field>
     </Grid>
   );

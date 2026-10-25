@@ -20,7 +20,7 @@ export default _component(() => {
         }
       >
         <DateRangePicker
-          value={_bind(leave)}
+          _value={_bind(leave)}
           min={todayIso()}
           visibleMonths={1}
           isDateUnavailable={isWeekend}
@@ -36,20 +36,20 @@ export default _component(() => {
           trip ? `共 ${trip.end.compare(trip.start) + 1} 天` : '值是 CalendarDate，选好后算出天数'
         }
       >
-        <DateRangePicker value={_bind(trip)} valueType="dateValue" icon={Plane} radius="full" />
+        <DateRangePicker _value={_bind(trip)} valueType="dateValue" icon={Plane} radius="full" />
       </Field>
       <Field label='variant="soft" size="sm"'>
         <DateRangePicker
-          value={{ start: '2026-10-01', end: '2026-10-07' }}
+          _value={{ start: '2026-10-01', end: '2026-10-07' }}
           variant="soft"
           size="sm"
         />
       </Field>
       <Field label="只读" readonly>
-        <DateRangePicker value={{ start: '2026-10-01', end: '2026-10-07' }} />
+        <DateRangePicker _value={{ start: '2026-10-01', end: '2026-10-07' }} />
       </Field>
       <Field label="不可用" disabled>
-        <DateRangePicker value={{ start: '2026-10-01', end: '2026-10-07' }} />
+        <DateRangePicker _value={{ start: '2026-10-01', end: '2026-10-07' }} />
       </Field>
     </Grid>
   );

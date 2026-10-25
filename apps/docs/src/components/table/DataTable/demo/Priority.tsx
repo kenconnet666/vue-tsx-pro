@@ -61,7 +61,7 @@ export default _component(() => {
         rows={rows}
         columns={columns}
         getKey={(row) => row.id}
-        sort={_bind(sort)}
+        _sort={_bind(sort)}
         onReorder={(next) => (rows = next)}
         aria-label="需求排期"
       />

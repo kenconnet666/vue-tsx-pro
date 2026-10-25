@@ -56,9 +56,9 @@ export default _component(() => {
           getKey={(region) => region.code}
           getLabel={(region) => region.name}
           getChildren={(region) => region.children}
-          expanded={_bind(expanded)}
+          _expanded={_bind(expanded)}
           checkable
-          checked={_bind(checked)}
+          _checked={_bind(checked)}
           aria-label="配送范围"
           sx={styles.tree}
         />

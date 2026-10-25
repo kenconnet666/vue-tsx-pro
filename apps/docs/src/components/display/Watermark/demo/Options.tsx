@@ -29,28 +29,28 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="18rem" gap="lg">
       <Flex direction="column" gap="md">
-        <ToggleGroup value={_bind(kind)} size="sm" required aria-label="水印内容">
+        <ToggleGroup _value={_bind(kind)} size="sm" required aria-label="水印内容">
           <ToggleItem value="text">文字</ToggleItem>
           <ToggleItem value="image">图片</ToggleItem>
         </ToggleGroup>
         {kind === 'text' && (
           <>
             <Field label="文字">
-              <TextField value={_bind(text)} />
+              <TextField _value={_bind(text)} />
             </Field>
             <Field label={`字号：${fontSize}px`}>
-              <Slider value={_bind(fontSize)} min={10} max={28} />
+              <Slider _value={_bind(fontSize)} min={10} max={28} />
             </Field>
             <Field label="颜色">
-              <ColorField value={_bind(color)} />
+              <ColorField _value={_bind(color)} />
             </Field>
           </>
         )}
         <Field label={`角度：${rotate}°`}>
-          <Slider value={_bind(rotate)} min={-90} max={90} />
+          <Slider _value={_bind(rotate)} min={-90} max={90} />
         </Field>
         <Field label={`间距：${gap}px`}>
-          <Slider value={_bind(gap)} min={40} max={240} step={10} />
+          <Slider _value={_bind(gap)} min={40} max={240} step={10} />
         </Field>
       </Flex>
       <Watermark

@@ -37,7 +37,7 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="collapsible" title="可收起、标题栏的操作" demo={Collapsible}>
-          <Code>collapsible</Code> 时标题是展开收起的按钮（aria-expanded），<Code>open</Code>{' '}
+          <Code>collapsible</Code> 时标题是展开收起的按钮（aria-expanded），<Code>_open</Code>{' '}
           可以绑定；收起的字段不能被 Tab 到。<Code>extra</Code>{' '}
           放在标题栏的结束边：添加一行、查看关联明细。
         </Example>

@@ -4,7 +4,7 @@
  * 提级的连线黄色虚线，走过的连线用强调色。节点可以选中（selectable），选中的节点 selected 可以双向绑定。
  *
  *   <FlowDiagram definition={flow} progress={processProgress(instance, events)} aria-label="建议的流程" />
- *   <FlowDiagram definition={flow} problems={validateProcess(flow)} selectable selected={_bind(node)} />
+ *   <FlowDiagram definition={flow} problems={validateProcess(flow)} selectable _selected={_bind(node)} />
  *
  * 排布见 layoutProcess；连线画在 SVG 里，节点是叠在上面的 HTML（文字换行、焦点、主题都照常）。
  * 部件：Root（滚动容器）、Canvas、Lane（泳道名称）、Node（每个节点）、EdgeLabel（连线的文字）。
@@ -47,8 +47,8 @@ export interface FlowDiagramProps extends Partial<ScrollAreaProps> {
   problems?: readonly ProcessProblem[];
   /** 节点可以点选（设计器、点节点看那一步的记录） */
   selectable?: boolean;
-  /** 选中的节点：父级可以写 selected={_bind(x)} */
-  selected?: string | null;
+  /** 选中的节点：父级可以写 _selected={_bind(x)} */
+  _selected?: string | null;
   /** 尺寸，默认 md */
   size?: keyof FlowDiagramSizes;
   /** 容器放不下时按比例缩小到容器的宽（不放大）；默认 false：保持原大、横向滚动 */
@@ -204,7 +204,7 @@ export const FlowDiagram = _component(
     progress,
     problems = [],
     selectable = false,
-    selected = _bindable<string | null>(null),
+    _selected: selected = _bindable<string | null>(null),
     size = 'md',
     fit = false,
     nodeDetail,

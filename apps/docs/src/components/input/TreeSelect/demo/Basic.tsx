@@ -22,7 +22,7 @@ export default _component(() => {
     <Grid minItemWidth="16rem" gap="lg">
       <Flex direction="column" gap="xs">
         <Field label="提出单位" description="打开后输入“团队”试试：命中节点的上级一起展开">
-          <TreeSelect items={orgs} {...accessors} value={_bind(org)} searchable clearable />
+          <TreeSelect items={orgs} {...accessors} _value={_bind(org)} searchable clearable />
         </Field>
         <Small tone="muted">
           值：<Code>{org || '—'}</Code>
@@ -34,7 +34,7 @@ export default _component(() => {
             items={orgs}
             {...accessors}
             selectionMode="multiple"
-            value={_bind(teams)}
+            _value={_bind(teams)}
             searchable
             clearable
           />

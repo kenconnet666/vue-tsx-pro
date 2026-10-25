@@ -6,25 +6,25 @@ import { DateField, Field, Grid } from '@vue-tsx-pro/ui';
 export default _component(() => () => (
   <Grid minItemWidth="15rem" gap="lg">
     <Field label="surface（默认）">
-      <DateField value="2026-10-20" icon={CalendarDays} clearable />
+      <DateField _value="2026-10-20" icon={CalendarDays} clearable />
     </Field>
     <Field label="soft">
-      <DateField value="2026-10-20" variant="soft" icon={CalendarDays} />
+      <DateField _value="2026-10-20" variant="soft" icon={CalendarDays} />
     </Field>
     <Field label={'size="sm" · radius="full"'}>
-      <DateField value="2026-10-20" size="sm" radius="full" />
+      <DateField _value="2026-10-20" size="sm" radius="full" />
     </Field>
     <Field label={'size="lg"'}>
-      <DateField value="2026-10-20" size="lg" />
+      <DateField _value="2026-10-20" size="lg" />
     </Field>
     <Field label="只读">
-      <DateField value="2026-10-20" readonly />
+      <DateField _value="2026-10-20" readonly />
     </Field>
     <Field label="不可用">
-      <DateField value="2026-10-20" disabled />
+      <DateField _value="2026-10-20" disabled />
     </Field>
     <Field label="出错" error="早于开学日期">
-      <DateField value="2026-08-01" min="2026-09-01" />
+      <DateField _value="2026-08-01" min="2026-09-01" />
     </Field>
     <Field label="空着">
       <DateField />

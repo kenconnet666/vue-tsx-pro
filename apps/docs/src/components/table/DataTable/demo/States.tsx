@@ -37,13 +37,13 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="sm">
       <Flex gap="sm" wrap>
-        <ToggleGroup value={_bind(mode)} required size="sm" aria-label="状态">
+        <ToggleGroup _value={_bind(mode)} required size="sm" aria-label="状态">
           <ToggleItem value="data">有数据</ToggleItem>
           <ToggleItem value="loading">首次加载</ToggleItem>
           <ToggleItem value="refreshing">刷新中</ToggleItem>
           <ToggleItem value="empty">没有数据</ToggleItem>
         </ToggleGroup>
-        <ToggleGroup value={_bind(density)} required size="sm" aria-label="密度">
+        <ToggleGroup _value={_bind(density)} required size="sm" aria-label="密度">
           <ToggleItem value="compact">紧凑</ToggleItem>
           <ToggleItem value="standard">标准</ToggleItem>
           <ToggleItem value="comfortable">宽松</ToggleItem>

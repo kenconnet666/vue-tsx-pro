@@ -8,7 +8,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="lg">
       <Flex align="center" justify="between" gap="md" wrap>
-        <ToggleGroup value={_bind(view)} required aria-label="视图">
+        <ToggleGroup _value={_bind(view)} required aria-label="视图">
           <ToggleItem value="list" icon={List}>
             列表
           </ToggleItem>
@@ -22,7 +22,7 @@ export default _component(() => {
             日历
           </ToggleItem>
         </ToggleGroup>
-        <ToggleGroup value={_bind(period)} required size="sm" aria-label="时间范围">
+        <ToggleGroup _value={_bind(period)} required size="sm" aria-label="时间范围">
           <ToggleItem value="day">日</ToggleItem>
           <ToggleItem value="week">周</ToggleItem>
           <ToggleItem value="month">月</ToggleItem>

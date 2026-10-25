@@ -37,7 +37,7 @@ export default _component(() => {
       <Confetti trigger={corners} origin={{ x: 0, y: 1 }} angle={60} spread={50} count={120} />
       <Confetti trigger={corners} origin={{ x: 1, y: 1 }} angle={120} spread={50} count={120} />
       <Dialog
-        open={_bind(paid)}
+        _open={_bind(paid)}
         size="xs"
         title="支付成功"
         footer={<Button onClick={() => (paid = false)}>好的</Button>}

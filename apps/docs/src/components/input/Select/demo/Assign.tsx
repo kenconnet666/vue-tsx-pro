@@ -42,13 +42,13 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Grid minItemWidth="13rem" gap="md">
         <Field label="类型">
-          <Select items={types} value={_bind(type)} />
+          <Select items={types} _value={_bind(type)} />
         </Field>
         <Field label="负责人">
           <Select
             items={members}
             toOption={(member) => ({ value: member.id, label: member.name, group: member.team })}
-            value={_bind(assignee)}
+            _value={_bind(assignee)}
             placeholder="未分配"
             clearable
           >
@@ -62,7 +62,7 @@ export default _component(() => {
         </Field>
       </Grid>
       <Field label="标签" description="多选：已选的在触发框里显示成标签">
-        <Select items={labels} selectionMode="multiple" value={_bind(tags)} clearable />
+        <Select items={labels} selectionMode="multiple" _value={_bind(tags)} clearable />
       </Field>
       <Small tone="muted">
         {type} · {assignee ?? '未分配'} · {tags.join('、') || '无标签'}

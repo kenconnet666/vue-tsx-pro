@@ -35,7 +35,7 @@ export default _component(() => () => (
           <Code>valueFormat</Code> 是数值格式（这里是百分比），<Code>valueDomain</Code>{' '}
           固定数值轴的范围；<Code>grid</Code>、<Code>tooltip</Code> 可以关掉。加载中（
           <Code>loading</Code>）显示骨架，没有数据时显示 <Code>empty</Code>（默认“暂无数据”）。
-          <Code>hiddenSeries</Code> 双向绑定图例里隐藏的系列。
+          <Code>_hiddenSeries</Code> 双向绑定图例里隐藏的系列。
         </Example>
       </ExampleColumn>
     </Examples>

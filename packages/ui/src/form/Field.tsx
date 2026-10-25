@@ -2,14 +2,14 @@
  * 表单字段：标签 + 控件 + 说明 + 错误信息，并把它们关联起来（参考 Ark UI Field、React Aria 的 Label / Description / FieldError）。
  *
  *   <Field label="邮箱" description="用于找回密码" error={errors.email} required>
- *     <TextField value={_bind(form.email)} type="email" />
+ *     <TextField _value={_bind(form.email)} type="email" />
  *   </Field>
  *
  * Field 经上下文告诉里面的控件：控件的 id（标签的 for 指向它）、标签的 id（不是原生输入的控件用 aria-labelledby）、
  * 说明与错误的 id（aria-describedby），以及 invalid / required / disabled / readonly。
  * 控件上显式写的状态优先于 Field 的。控件用 useFieldControl 读取这些信息，单独使用（不在 Field 里）时照常工作。
  * 在 Form 里写了 name 时，错误信息取自表单控制器（useForm），焦点离开字段时报告失焦（何时显示错误见 useForm）；
- * 里面只有一个控件、控件上没写值时自动绑定表单的这个字段（valueProp 决定写 value 还是 checked），
+ * 里面只有一个控件、控件上没写值时自动绑定表单的这个字段（valueProp 决定写 _value 还是 _checked），
  * 标签与控件登记给表单，错误汇总（FormErrorSummary）据此列出字段名、跳到控件。
  *
  * 标签可以放在起始边（`labelPlacement="start"`）：标签一列、控件一列，标签与控件的第一行文字按基线对齐，
@@ -207,9 +207,9 @@ export interface FieldProps extends PartProps<'div'> {
   /** 在 Form 里对应的字段路径（如 `email`、`address.city`）：错误取自表单控制器，只有一个控件时自动绑定它的值 */
   name?: string;
   /**
-   * 自动绑定值时写到控件的哪个属性：默认 value；控件声明了 checked 而没有 value（Switch、单个 Checkbox）时是 checked
+   * 自动绑定值时写到控件的哪个属性：默认 _value；控件声明了 _checked 而没有 _value（Switch、单个 Checkbox）时是 _checked
    */
-  valueProp?: 'value' | 'checked';
+  valueProp?: '_value' | '_checked';
   /** 标签 */
   label?: VNodeChild;
   /** 控件下方的说明 */
@@ -369,7 +369,7 @@ export const Field = _component(
       if (!control || !form) return content;
       const key =
         valueProp ??
-        (declares(control, 'checked') && !declares(control, 'value') ? 'checked' : 'value');
+        (declares(control, '_checked') && !declares(control, '_value') ? '_checked' : '_value');
       if (control.props && key in control.props) return content;
       const path = name!;
       return cloneVNode(control, {

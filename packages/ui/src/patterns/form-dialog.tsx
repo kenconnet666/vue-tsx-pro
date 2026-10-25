@@ -83,12 +83,12 @@ export interface FormDialogOptions {
 const FormDialogBody = _component(
   ({
     options,
-    open = _bindable(true),
+    _open: open = _bindable(true),
     onDone,
     onClose,
   }: {
     options: FormDialogOptions;
-    open?: boolean;
+    _open?: boolean;
     /** 提交成功：带上值 */
     onDone: (values: Record<string, string>) => void;
     /** 对话框关上了（不论提交还是取消） */
@@ -130,7 +130,7 @@ const FormDialogBody = _component(
         case 'textarea':
           return (
             <Textarea
-              value={_bind(
+              _value={_bind(
                 () => values[field.name] ?? '',
                 (next: string) => (values[field.name] = next),
               )}
@@ -143,7 +143,7 @@ const FormDialogBody = _component(
         case 'date':
           return (
             <DatePicker
-              value={_bind(
+              _value={_bind(
                 () => values[field.name] || null,
                 (next: string | null) => (values[field.name] = next ?? ''),
               )}
@@ -155,7 +155,7 @@ const FormDialogBody = _component(
           return (
             <Select
               items={field.options ?? []}
-              value={_bind(
+              _value={_bind(
                 () => values[field.name] || null,
                 (next: string | null) => (values[field.name] = next ?? ''),
               )}
@@ -165,7 +165,7 @@ const FormDialogBody = _component(
         default:
           return (
             <TextField
-              value={_bind(
+              _value={_bind(
                 () => values[field.name] ?? '',
                 (next: string) => (values[field.name] = next),
               )}
@@ -180,7 +180,7 @@ const FormDialogBody = _component(
     return () => (
       <Dialog
         size={options.size ?? 'sm'}
-        open={_bind(open)}
+        _open={_bind(open)}
         onClose={() => onClose()}
         title={options.title}
         description={options.description}
@@ -223,7 +223,7 @@ export function useFormDialog(): (
       mount((host) => (
         <FormDialogBody
           options={options}
-          open={_bind(host.open)}
+          _open={_bind(host.open)}
           onDone={(values) => (result = values)}
           onClose={() => {
             resolve(result);

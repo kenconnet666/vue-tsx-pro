@@ -32,9 +32,10 @@ export default _component(() => () => (
   >
     <Example id="admission" title="供应商准入：自动绑定与错误汇总" demo={Admission}>
       <Code>form.Field</Code> 里只有一个控件、控件上没写值时，自动绑定 <Code>form.values</Code>{' '}
-      的这个字段（同 Ant Design Form.Item 的 name）：写回 <Code>value</Code>，声明了{' '}
-      <Code>checked</Code> 而没有 value 的控件（Switch、单个 Checkbox）写回 checked，也可以用{' '}
-      <Code>valueProp</Code> 指定；自己写了 <Code>value</Code> 的照旧。<Code>FormErrorSummary</Code>{' '}
+      的这个字段（同 Ant Design Form.Item 的 name）：写回 <Code>_value</Code>，声明了{' '}
+      <Code>_checked</Code> 而没有 _value 的控件（Switch、单个 Checkbox）写回 _checked，也可以用{' '}
+      <Code>valueProp</Code> 指定；自己写了 <Code>_value</Code> 的照旧。
+      <Code>FormErrorSummary</Code>{' '}
       放在表单顶上：提交没通过时列出显示着的错误（按字段在表单里的顺序、带字段名），焦点先到它上面，点哪一项跳到那个字段，改对一项就少一项（GOV.UK
       的 Error summary）。跨字段的规则写在 schema 的 <Code>refine</Code> 里，<Code>path</Code>{' '}
       指到要标错的字段；<Code>dependencies</Code> 让开始日期改了之后结束日期跟着重新校验。

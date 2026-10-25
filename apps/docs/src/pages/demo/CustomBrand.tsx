@@ -40,7 +40,7 @@ export default _component(() => () => (
               <Text weight="semibold">{label}</Text>
               <Badge tone="accent">品牌色</Badge>
             </Flex>
-            <Switch checked>自动保存</Switch>
+            <Switch _checked>自动保存</Switch>
             <Flex gap="xs">
               <Button size="sm">确定</Button>
               <Button size="sm" variant="outline">

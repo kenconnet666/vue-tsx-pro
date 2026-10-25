@@ -2,8 +2,8 @@
  * 时间输入框：分段输入时、分（可选秒），12 / 24 小时制跟随语言（zh-CN 24 小时，en-US 12 小时加 AM / PM），也可以用 hourCycle 指定。
  * 参考 React Aria TimeField、原生 input type="time"。要从按步长列出的时间里点选用 TimePicker。
  *
- *   <Field label="提醒时间"><TimeField value={_bind(time)} /></Field>
- *   <TimeField granularity="second" hourCycle="h12" value={_bind(at)} aria-label="打卡时间" />
+ *   <Field label="提醒时间"><TimeField _value={_bind(time)} /></Field>
+ *   <TimeField granularity="second" hourCycle="h12" _value={_bind(at)} aria-label="打卡时间" />
  *
  * 值是 'HH:mm'（granularity 为 second 时 'HH:mm:ss'），时总是 24 小时制，与原生 input type="time" 一致；
  * 也可以是 @internationalized/date 的 Time，写回时保持同一种类型。
@@ -35,8 +35,8 @@ export const toTime = (input: TimeInput | null | undefined): Time | null =>
 
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface TimeFieldProps<V extends TimeInput = string> extends SegmentedFieldOptions {
-  /** 值（'HH:mm' 或 'HH:mm:ss'，24 小时制；或 Time，写回时保持同一种类型）：父级写 value={_bind(x)}；没填全时 null */
-  value?: V | null;
+  /** 值（'HH:mm' 或 'HH:mm:ss'，24 小时制；或 Time，写回时保持同一种类型）：父级写 _value={_bind(x)}；没填全时 null */
+  _value?: V | null;
   /** 值为空、推不出类型时写回哪一种，默认 iso（字符串）；dateValue 写 Time */
   valueType?: keyof DateValueTypes;
   /** 精确到哪一段，默认 minute */
@@ -55,7 +55,7 @@ export interface TimeFieldProps<V extends TimeInput = string> extends SegmentedF
 /** 时间输入框：分段输入 */
 export const TimeField = _component(
   <V extends TimeInput>({
-    value = _bindable<V | null>(null),
+    _value: value = _bindable<V | null>(null),
     granularity = 'minute',
     valueType = 'iso',
     min,
@@ -89,8 +89,8 @@ export const TimeField = _component(
     return () => (
       <SegmentedField
         {...rest}
-        {...{ 'onUpdate:value': write }}
-        value={iso}
+        {...{ 'onUpdate:_value': write }}
+        _value={iso}
         fields={segmentFields(granularity, true)}
         outOfRange={outOfRange}
       />

@@ -72,7 +72,7 @@ describe('QueryTable', () => {
         title="采购单"
         filters={(draft) => (
           <Field label="关键字">
-            <TextField value={_bind(draft.keyword)} />
+            <TextField _value={_bind(draft.keyword)} />
           </Field>
         )}
       />
@@ -126,7 +126,7 @@ describe('QueryTable', () => {
         getKey={(order) => order.id}
         title="采购单"
         selectionMode="multiple"
-        selected={_bind(selected)}
+        _selected={_bind(selected)}
         batchActions={(keys) => <button>批量作废 {keys.join(',')}</button>}
       />
     ));

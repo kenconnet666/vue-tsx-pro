@@ -144,8 +144,8 @@ export interface GraphChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
    * @default true
    */
   tooltip?: boolean;
-  /** 选中的节点 id：点节点时写回，父级写 selected={_bind(x)}；点空白处变回 null */
-  selected?: string | null;
+  /** 选中的节点 id：点节点时写回，父级写 _selected={_bind(x)}；点空白处变回 null */
+  _selected?: string | null;
   /**
    * 加载中：绘图区显示骨架，带 aria-busy
    * @default false
@@ -230,7 +230,7 @@ export const GraphChart = _component(
     height = 360,
     zoom = true,
     tooltip = true,
-    selected = _bindable<string | null>(null),
+    _selected: selected = _bindable<string | null>(null),
     loading = false,
     empty,
     onItemClick,

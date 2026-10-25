@@ -44,8 +44,8 @@ export type ModalManaged =
 /** Dialog、Drawer、AlertDialog 共有的 props；未声明的属性落到 dialog 上 */
 export interface ModalProps
   extends PartProps<'dialog', ModalManaged>, LazyContentOptions, OpenChangeProps {
-  /** 是否打开：父级写 open={_bind(x)}；Esc、点击遮罩、关闭按钮都会关闭并写回 */
-  open?: boolean;
+  /** 是否打开：父级写 _open={_bind(x)}；Esc、点击遮罩、关闭按钮都会关闭并写回 */
+  _open?: boolean;
   /** 标题，同时是对话框的无障碍名称 */
   title: VNodeChild;
   /** 标题下的说明，读屏打开时一并念出（aria-describedby） */
@@ -143,7 +143,7 @@ export const modalPartStyles = {
 /** Dialog、Drawer、AlertDialog 的内核：原生模态 dialog 的打开、关闭、焦点与滚动 */
 export const ModalCore = _component(
   ({
-    open = _bindable(false),
+    _open: open = _bindable(false),
     title,
     description,
     footer,

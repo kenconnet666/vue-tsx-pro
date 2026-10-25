@@ -80,7 +80,7 @@ export default _component(() => () => (
       </Paragraph>
       <CodePreview
         code={Counter.source}
-        showCode
+        _showCode
         align="center"
         actions={<EditInPlayground code={Counter.source} />}
       >

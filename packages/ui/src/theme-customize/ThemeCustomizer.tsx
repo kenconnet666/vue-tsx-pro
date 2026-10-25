@@ -4,7 +4,7 @@
  *
  *   let settings = _state<ThemeSettings>({});
  *   app.use(createUi({ theme: () => customizeTheme(preference.theme, settings) }));
- *   <ThemeCustomizer settings={_bind(settings)} base={preference.theme} />
+ *   <ThemeCustomizer _settings={_bind(settings)} base={preference.theme} />
  *
  * 旋钮分成颜色、形状与尺寸、字体与动效、检查与导出四组；每个选项带示意（色块与名字、圆角的角、字号、字体），
  * 当前取值写在旋钮名称旁边。对比度按 CONTRAST_PAIRS 检查，读的是 contrastTarget（默认页面根元素）上实际生效的颜色，
@@ -49,8 +49,8 @@ import { colors } from '../config/theme/tokens';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ThemeCustomizerProps extends PartProps<'div'> {
-  /** 设置：父级写 settings={_bind(x)} */
-  settings?: ThemeSettings;
+  /** 设置：父级写 _settings={_bind(x)} */
+  _settings?: ThemeSettings;
   /** 设置套在哪套主题上：决定色块取亮色还是暗色色阶、导出代码里的基础主题 */
   base: Theme;
   /** 从哪个元素上读实际生效的颜色做对比度检查，默认页面根元素 */
@@ -163,7 +163,7 @@ type OptionLayout = 'list' | 'swatches';
 /** 主题编辑器：分组的旋钮、对比度检查与导出代码 */
 export const ThemeCustomizer = _component(
   ({
-    settings = _bindable<ThemeSettings>({}),
+    _settings: settings = _bindable<ThemeSettings>({}),
     base,
     contrastTarget,
     propsGroup,
@@ -239,8 +239,8 @@ export const ThemeCustomizer = _component(
           </Text>
         </div>
         <ToggleGroup
-          value={value}
-          {...{ 'onUpdate:value': onChange }}
+          _value={value}
+          {...{ 'onUpdate:_value': onChange }}
           required
           size="sm"
           aria-label={label}

@@ -49,7 +49,7 @@ export default _component(() => {
   const link = (page: string) => `#${encodeURIComponent(page)}`;
   return () => (
     <Flex direction="column" gap="md" align="start">
-      <Switch checked={_bind(compact)}>只显示图标</Switch>
+      <Switch _checked={_bind(compact)}>只显示图标</Switch>
       <Card padding="xs" sx={[styles.nav, compact && styles.compact]}>
         <NavList aria-label="降本管理" compact={compact}>
           <NavItem

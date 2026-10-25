@@ -23,7 +23,7 @@ export default _component(() => {
   let palette = _state<keyof typeof PALETTES>('default');
   return () => (
     <Flex direction="column" gap="md">
-      <ToggleGroup value={_bind(palette)} required aria-label="色板">
+      <ToggleGroup _value={_bind(palette)} required aria-label="色板">
         <ToggleItem value="default">极光</ToggleItem>
         <ToggleItem value="warm">晚霞</ToggleItem>
         <ToggleItem value="brand">品牌色</ToggleItem>
@@ -34,7 +34,7 @@ export default _component(() => {
             亮度
           </Text>
           <Slider
-            value={_bind(intensity)}
+            _value={_bind(intensity)}
             min={0}
             max={1.5}
             step={0.05}
@@ -47,7 +47,7 @@ export default _component(() => {
             高度
           </Text>
           <Slider
-            value={_bind(height)}
+            _value={_bind(height)}
             min={0.1}
             max={0.9}
             step={0.01}
@@ -60,7 +60,7 @@ export default _component(() => {
             速度
           </Text>
           <Slider
-            value={_bind(speed)}
+            _value={_bind(speed)}
             min={0}
             max={4}
             step={0.1}

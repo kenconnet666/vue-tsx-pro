@@ -8,19 +8,19 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="14rem" gap="lg">
       <Field label='variant="soft" radius="full"'>
-        <ColorField value={_bind(accent)} variant="soft" radius="full" />
+        <ColorField _value={_bind(accent)} variant="soft" radius="full" />
       </Field>
       <Field label='size="sm"'>
-        <ColorField value={_bind(accent)} size="sm" />
+        <ColorField _value={_bind(accent)} size="sm" />
       </Field>
       <Field label="背景色" required error={background ? undefined : '请填写背景色'}>
-        <ColorField value={_bind(background)} />
+        <ColorField _value={_bind(background)} />
       </Field>
       <Field label="只读" readonly>
-        <ColorField value="#30a46c" />
+        <ColorField _value="#30a46c" />
       </Field>
       <Field label="不可用" disabled>
-        <ColorField value="#e5484d" />
+        <ColorField _value="#e5484d" />
       </Field>
     </Grid>
   );

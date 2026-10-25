@@ -86,7 +86,7 @@ export default _component(() => {
       <Flex direction="column" gap="sm">
         <Flex align="center" justify="between" gap="md" wrap>
           <TextField
-            value={_bind(keyword)}
+            _value={_bind(keyword)}
             type="search"
             icon={Search}
             clearable
@@ -125,11 +125,11 @@ export default _component(() => {
           rows={rows}
           columns={columns}
           getKey={(order) => order.id}
-          sort={_bind(sort)}
+          _sort={_bind(sort)}
           selectionMode="multiple"
-          selected={_bind(selected)}
+          _selected={_bind(selected)}
           resizable
-          columnWidths={_bind(widths)}
+          _columnWidths={_bind(widths)}
           aria-label="订单"
           propsRoot={{ sx: styles.table }}
         />

@@ -31,7 +31,7 @@ export default _component(() => {
   return () => (
     <Flex gap="xl" wrap align="start">
       <Calendar
-        value={_bind(picked)}
+        _value={_bind(picked)}
         min={today}
         max={last}
         isDateUnavailable={(date) => reason(date) != null}

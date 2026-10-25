@@ -10,7 +10,7 @@ const props: ApiProp[] = [
     required: false,
     bindable: true,
     default: '0',
-    description: '当前评分，父级写 value={_bind(score)}',
+    description: '当前评分，父级写 _value={_bind(score)}',
   },
   {
     name: 'count',

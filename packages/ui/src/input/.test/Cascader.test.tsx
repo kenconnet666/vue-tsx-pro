@@ -62,11 +62,11 @@ describe('Cascader', () => {
   it('触发框显示整条路径；showAllLevels={false} 只显示最后一级', () => {
     const root = mount(() => (
       <>
-        <Cascader items={regions} {...accessors} value={['zj', 'hz', 'xh']} aria-label="地区" />
+        <Cascader items={regions} {...accessors} _value={['zj', 'hz', 'xh']} aria-label="地区" />
         <Cascader
           items={regions}
           {...accessors}
-          value={['zj', 'hz', 'xh']}
+          _value={['zj', 'hz', 'xh']}
           showAllLevels={false}
           aria-label="地区"
         />
@@ -84,8 +84,8 @@ describe('Cascader', () => {
       <Cascader
         items={regions}
         {...accessors}
-        value={_bind(path)}
-        open={_bind(open)}
+        _value={_bind(path)}
+        _open={_bind(open)}
         aria-label="地区"
       />
     ));
@@ -113,8 +113,8 @@ describe('Cascader', () => {
       <Cascader
         items={regions}
         {...accessors}
-        value={_bind(path)}
-        open={_bind(open)}
+        _value={_bind(path)}
+        _open={_bind(open)}
         changeOnSelect
         aria-label="地区"
       />
@@ -130,7 +130,7 @@ describe('Cascader', () => {
   it('键盘：↓ 移动并显示下一列，→ 进入下一级，Enter 选中叶子', async () => {
     let path = _state<readonly string[] | null>(null);
     mount(() => (
-      <Cascader items={regions} {...accessors} value={_bind(path)} open aria-label="地区" />
+      <Cascader items={regions} {...accessors} _value={_bind(path)} _open aria-label="地区" />
     ));
     await flush();
     const first = column(0);
@@ -171,7 +171,7 @@ describe('Cascader', () => {
             };
           });
         }}
-        open
+        _open
         aria-label="地区"
       />
     ));
@@ -191,8 +191,8 @@ describe('Cascader', () => {
       <Cascader
         items={regions}
         {...accessors}
-        value={_bind(path)}
-        open
+        _value={_bind(path)}
+        _open
         searchable
         aria-label="地区"
       />

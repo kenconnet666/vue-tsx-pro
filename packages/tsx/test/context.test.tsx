@@ -9,7 +9,7 @@ interface TabsState {
 const TabsContext = createContext<TabsState>('Tabs');
 
 const Tabs = _component(
-  ({ active = _bindable('a'), children }: { active?: string; children?: VNodeChild }) => {
+  ({ _active: active = _bindable('a'), children }: { _active?: string; children?: VNodeChild }) => {
     // 共享响应式 prop：提供 getter，子组件读取时总是最新值
     TabsContext.provide({
       get active() {
@@ -46,7 +46,7 @@ function mount(render: () => VNodeChild) {
 it('父组件提供、子组件读取，状态随父组件更新', async () => {
   let active = _state('a');
   const el = mount(() => (
-    <Tabs active={active}>
+    <Tabs _active={active}>
       <Tab name="a" />
       <Tab name="b" />
     </Tabs>

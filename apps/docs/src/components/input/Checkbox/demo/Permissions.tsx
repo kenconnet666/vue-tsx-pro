@@ -24,13 +24,13 @@ export default _component(() => {
           <Flex direction="column" gap="sm">
             {/* 全选：部分勾选时 indeterminate，读屏念“部分选中” */}
             <Checkbox
-              checked={all}
+              _checked={all}
               indeterminate={some}
               onChange={() => (granted = all ? [] : permissions.map(([value]) => value))}
             >
               订单管理员（全部权限）
             </Checkbox>
-            <CheckboxGroup value={_bind(granted)} aria-label="权限" sx={styles.group}>
+            <CheckboxGroup _value={_bind(granted)} aria-label="权限" sx={styles.group}>
               {permissions.map(([value, label]) => (
                 <Checkbox key={value} value={value}>
                   {label}
@@ -44,7 +44,7 @@ export default _component(() => {
           description="至少选一种"
           error={channels.length ? undefined : '请至少选一种'}
         >
-          <CheckboxGroup value={_bind(channels)} name="channels" orientation="horizontal">
+          <CheckboxGroup _value={_bind(channels)} name="channels" orientation="horizontal">
             <Checkbox value="email">邮件</Checkbox>
             <Checkbox value="sms">短信</Checkbox>
             <Checkbox value="push">App 推送</Checkbox>
@@ -54,7 +54,7 @@ export default _component(() => {
           </CheckboxGroup>
         </Field>
         <Flex direction="column" gap="xs">
-          <Checkbox checked={_bind(agreed)} tone="success">
+          <Checkbox _checked={_bind(agreed)} tone="success">
             我已阅读并同意《服务条款》
           </Checkbox>
           <Small tone="muted">已授予：{granted.join('、') || '无'}</Small>

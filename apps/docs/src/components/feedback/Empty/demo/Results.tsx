@@ -31,7 +31,7 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <ToggleGroup
-          value={_bind(
+          _value={_bind(
             () => tone,
             (next) => {
               tone = next;

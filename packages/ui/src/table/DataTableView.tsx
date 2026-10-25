@@ -553,7 +553,7 @@ export const DataTableRow = _component(
                   { ...s.selectCheckbox, 'aria-label': lang.tableSelectRow(index + 1) },
                   propsSelectCheckbox,
                   {
-                    checked: selected,
+                    _checked: selected,
                     indeterminate: partial,
                     disabled: !selectable,
                     onChange: () => onToggle?.(row.key),
@@ -1304,7 +1304,7 @@ export const DataTableView = _component(
                           { ...s.selectAll, 'aria-label': lang.tableSelectAll },
                           propsSelectAll,
                           {
-                            checked: allSelected,
+                            _checked: allSelected,
                             indeterminate: someSelected,
                             disabled: selectableRows.length === 0,
                             onChange: () => onToggleAll?.(),

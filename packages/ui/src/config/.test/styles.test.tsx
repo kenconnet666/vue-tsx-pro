@@ -44,7 +44,7 @@ describe('组件的主题定制', () => {
       <>
         <Button>按钮</Button>
         <Badge dot>标记</Badge>
-        <Tabs value="a">
+        <Tabs _value="a">
           <TabList aria-label="标签">
             <Tab value="a" onClose={() => {}}>
               A

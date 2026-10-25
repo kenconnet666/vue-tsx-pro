@@ -63,7 +63,7 @@ export const StartingPoint = _component(() => {
         </Text>
       </div>
       <ToggleGroup
-        value={_bind(
+        _value={_bind(
           () => preference.name,
           (next) => void preference.set(next),
         )}

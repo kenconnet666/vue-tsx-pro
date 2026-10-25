@@ -62,9 +62,9 @@ export default _component(() => {
           loadChildren={loadChildren}
           isDisabled={(node) => node.retired === true}
           getIcon={(node) => (node.hasTeams ? Building2 : Users)}
-          expanded={_bind(expanded)}
+          _expanded={_bind(expanded)}
           selectionMode="single"
-          selected={_bind(selected)}
+          _selected={_bind(selected)}
           indent={1.5}
           renderItem={(node) => (
             <>

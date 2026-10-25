@@ -113,7 +113,7 @@ export const PageTabs = _component(
       return (
         <Tabs
           {...rest}
-          value={_bind(
+          _value={_bind(
             () => current,
             (next: string | undefined) =>
               next !== undefined && next !== current && onNavigate(next),

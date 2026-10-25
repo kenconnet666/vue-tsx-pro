@@ -29,7 +29,7 @@ describe('Calendar', () => {
   it('CalendarDate 进、CalendarDate 出；min 也可以是 CalendarDate', async () => {
     let value = _state.raw<CalendarDate | null>(new CalendarDate(2026, 10, 20));
     const root = mount(() => (
-      <Calendar value={_bind(value)} min={new CalendarDate(2026, 10, 10)} />
+      <Calendar _value={_bind(value)} min={new CalendarDate(2026, 10, 10)} />
     ));
     expect(root.querySelector('[data-date="2026-10-05"]')!.getAttribute('aria-disabled')).toBe(
       'true',
@@ -41,7 +41,7 @@ describe('Calendar', () => {
 
   it('CalendarDateTime 选了另一天，时间不变', async () => {
     let value = _state.raw<CalendarDateTime | null>(new CalendarDateTime(2026, 10, 20, 9, 30));
-    const root = mount(() => <Calendar value={_bind(value)} />);
+    const root = mount(() => <Calendar _value={_bind(value)} />);
     await click(root, '2026-10-22');
     expect(value!.toString()).toBe('2026-10-22T09:30:00');
   });
@@ -52,10 +52,10 @@ describe('Calendar', () => {
     const root = mount(() => (
       <>
         <div class="a">
-          <Calendar value={_bind(object)} valueType="dateValue" defaultFocused="2026-10-01" />
+          <Calendar _value={_bind(object)} valueType="dateValue" defaultFocused="2026-10-01" />
         </div>
         <div class="b">
-          <Calendar value={_bind(text)} defaultFocused="2026-10-01" />
+          <Calendar _value={_bind(text)} defaultFocused="2026-10-01" />
         </div>
       </>
     ));
@@ -73,7 +73,7 @@ describe('RangeCalendar', () => {
       start: at('2026-10-01'),
       end: at('2026-10-02'),
     });
-    const root = mount(() => <RangeCalendar value={_bind(value)} />);
+    const root = mount(() => <RangeCalendar _value={_bind(value)} />);
     await click(root, '2026-10-05');
     await click(root, '2026-10-08');
     expect(value!.end.toString()).toBe('2026-10-08T15:00:00+09:00[Asia/Tokyo]');
@@ -85,7 +85,7 @@ describe('DateField、TimeField', () => {
     let value = _state.raw<ZonedDateTime | null>(
       parseZonedDateTime('2026-10-20T08:00[America/New_York]'),
     );
-    const root = mount(() => <DateField value={_bind(value)} aria-label="日期" />);
+    const root = mount(() => <DateField _value={_bind(value)} aria-label="日期" />);
     root.querySelector<HTMLElement>('[data-type="month"]')!.focus();
     await press('ArrowUp');
     expect(value!.toString()).toBe('2026-11-20T08:00:00-05:00[America/New_York]');
@@ -93,7 +93,7 @@ describe('DateField、TimeField', () => {
 
   it('TimeField：Time 进、Time 出', async () => {
     let value = _state.raw<Time | null>(new Time(9, 30));
-    const root = mount(() => <TimeField value={_bind(value)} aria-label="时间" />);
+    const root = mount(() => <TimeField _value={_bind(value)} aria-label="时间" />);
     expect(root.querySelector('[role="group"]')!.textContent).toBe('09:30');
     root.querySelector<HTMLElement>('[data-type="hour"]')!.focus();
     await press('ArrowUp');
