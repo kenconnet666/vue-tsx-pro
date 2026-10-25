@@ -213,6 +213,11 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 - **目标模式、不阻塞**：按 ROADMAP 持续往下做，不停下来征求确认；超过几十秒的命令放后台，等待时去读代码、查资料（context7、成熟实现）；
   拿不准的先搜，不凭印象。
 - **单线程**：主会话直接在 master 上做，不开并行子会话或 worktree（用户 2026-10-20 的决定；之前混提交、互等过）。
+  没有用户明确指示时也不派子代理，调研、读代码自己做。
+- **示例用已有组件**（2026-10-25）：示例少写原始标签与 `css.create`；示例里要手写一堆样式，说明组件库缺组件或属性，
+  先想能不能换现成组件演示，不能就把能力补进库里（如画布的 `DiagramNode`、`DiagramLanes`），再让示例用它。外观要和同页其他示例一样舒服。
+- **整体优化**（2026-10-25）：不必迁就旧组件的样式约定与写法，该重做就重做，改过的约定写回 COMPONENTS.md / RUNES.md。
+- **发布**：npm 由用户按 [RELEASE.md](RELEASE.md) 手动发布，不要替他发布；`flow` 仓库的流程引擎以发布的包为依赖。
 - **Figma**：M5 / M6 在 `UTDP9KBNhelTIK1KoMlHYk`（Starter，em 按 14px 换算成精确 px，indigo + slate，Noto Sans SC 与 JetBrains Mono）。
   2026-10-22 MCP 的月度额度用完，下个月恢复前不调用；旧的降本 Figma（`EXAYq8fZzavtUUfJm0w34M`、`cF46xK3IEPmw9ygh4Tl1Mg`）不参考、不改。
   示例一律用通用的虚构场景（采购、销售、门店、供应商甲），不用具体项目的业务名词与编号（2026-10-26 整理过一遍）。
@@ -280,3 +285,19 @@ Unovis 的选项先查 `.claude/reports/unovis-api.md` 和 `node_modules/.pnpm/@
 ## 9. 已知局限
 
 有意的取舍见 [ROADMAP.md](ROADMAP.md) §7；其余的缺口都排进了 ROADMAP 的各节。
+
+## 10. 换电脑
+
+`git clone` 后仓库里的东西就齐了（`.claude/` 下的启动配置、LSP 插件、调研报告都已提交）。三个仓库放在同一个目录下
+（原电脑是 `C:\Users\lionheart\IdeaProjects\`）：`vue-tsx-pro`、`query`（ORM）、`flow`（流程引擎，私有，交接文档在它的根目录 `HANDOFF.md`）。
+
+| 东西                                                    | 新电脑上怎么办                                                                                                                                                                                |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node 24、pnpm 12（`packageManager` 固定 12.14.0）、`gh` | 新装；`pnpm install` 之后按第 3 节跑一遍短检查                                                                                                                                                |
+| Playwright 的浏览器                                     | `pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium firefox webkit`（浏览器测试、`docs:shot`、`docs:review` 要用）                                                         |
+| 用户级环境变量                                          | `GITHUB_TOKEN`、`CONTEXT7_API_KEY`，发布用的 `NPM_TOKEN`（`~/.npmrc` 写 `${NPM_TOKEN}`，见 RELEASE.md）                                                                                       |
+| Claude 项目记忆                                         | 原电脑 `C:\Users\lionheart\.claude\projects\C--Users-lionheart-IdeaProjects-<仓库>\memory\`。长期要求已抄在第 5、6 节；记忆里还有真实业务项目的背景（不进仓库），需要时手动拷到新电脑对应目录 |
+| 用户级 CLAUDE.md                                        | 原电脑 `C:\Users\lionheart\.claude\CLAUDE.md`（语言、工作方式、PowerShell 7.6 的注意事项），手动拷过去                                                                                        |
+| IDEA                                                    | TypeScript 指向 `node_modules/typescript`（7.1）；MCP 的 `idea` 服务在新电脑重新配置                                                                                                          |
+
+接着做：先 `gh run list --branch master --limit 3` 确认 CI 是绿的（2026-10-26 最后一次全绿），再按第 8 节与 ROADMAP 往下做。
