@@ -24,7 +24,7 @@ const orgs: Org[] = [
     children: [
       {
         id: 'mfg-plant',
-        name: '总装厂',
+        name: '组装厂',
         children: [
           { id: 'mfg-plant-1', name: '一车间' },
           { id: 'mfg-plant-2', name: '二车间' },

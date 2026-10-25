@@ -1,4 +1,4 @@
-// 降本台账：金额以元保存、按万元显示并在底部合计；状态列取自状态映射；商务金额没谈定时显示“待定价”。
+// 销售台账：金额以元保存、按万元显示并在底部合计；状态列取自状态映射；商务金额没谈定时显示“待定价”。
 // 已关闭的任务不能勾选；勾选后上方出现批量操作栏；“列”菜单切换哪些列显示
 import { Columns3, Download, Ellipsis, FileText, Send } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -33,68 +33,50 @@ interface Task {
   team: string;
   /** 测算金额 A（元） */
   estimate: Decimal;
-  /** 商务谈定金额 B（元）；没谈定时为 null */
+  /** 合同签订金额 B（元）；没谈定时为 null */
   agreed: Decimal | null;
-  /** 降 DMC（美元/FH） */
+  /** 每单运费节省（元/单） */
   dmc: Decimal | null;
   status: string;
 }
 
 const tasks: Task[] = [
   [
-    'DJ-2026-FC-1',
-    '机型 A 平尾翼根整流罩设计优化',
+    'PO-2026-0301',
+    '华东门店陈列改造',
     '设计优化',
-    '复合材料结构',
+    '研发中心',
     '155353.20',
     null,
     null,
     'verifying',
   ],
   [
-    'DJ-2026-ZZ-2',
-    '机型 A 机身支架工艺优化',
+    'PO-2026-0302',
+    '仓库拣货流程优化',
     '工艺优化',
-    '总体技术集成',
+    '产品部',
     '109600.00',
     '98000.00',
     '3.20',
     'closed',
   ],
   [
-    'DJ-2026-CG-3',
-    '舱门密封件第二货源',
-    '多货源',
+    'PO-2026-0303',
+    '包装纸箱第二供应商',
+    '多供应商',
     '采购',
     '143000.00',
     '150500.00',
     null,
     'negotiating',
   ],
+  ['PO-2026-0304', '会员小程序改版', '设计优化', '研发中心', '178800.00', null, '1.75', 'awaiting'],
+  ['PO-2026-0305', '线束支架工艺优化', '工艺优化', '产品部', '217000.00', null, null, 'designing'],
   [
-    'DJ-2026-FC-4',
-    '客舱地板支撑件设计优化',
-    '设计优化',
-    '复合材料结构',
-    '178800.00',
-    null,
-    '1.75',
-    'awaiting',
-  ],
-  [
-    'DJ-2026-ZZ-5',
-    '线束支架工艺优化',
-    '工艺优化',
-    '总体技术集成',
-    '217000.00',
-    null,
-    null,
-    'designing',
-  ],
-  [
-    'DJ-2026-CG-6',
-    '内饰连接件多货源',
-    '多货源',
+    'PO-2026-0306',
+    '内饰连接件多供应商',
+    '多供应商',
     '采购',
     '257600.00',
     '240000.00',
@@ -116,7 +98,7 @@ const tasks: Task[] = [
 const WAN = { scale: 10_000, minimumFractionDigits: 2, maximumFractionDigits: 2 };
 
 const columns: DataTableColumn<Task>[] = [
-  { key: 'code', header: '降本项目编码', width: 132, sticky: 'start', sortable: true },
+  { key: 'code', header: '项目编码', width: 132, sticky: 'start', sortable: true },
   { key: 'name', header: '项目名称', width: 240, sortable: true },
   { key: 'category', header: '类别', width: 96 },
   { key: 'team', header: '责任团队', width: 120 },
@@ -136,7 +118,7 @@ const columns: DataTableColumn<Task>[] = [
     empty: '待定价',
     summary: 'sum',
   },
-  { key: 'dmc', header: '降 DMC（美元/FH）', width: 140, format: { minimumFractionDigits: 2 } },
+  { key: 'dmc', header: '运费节省（元/单）', width: 140, format: { minimumFractionDigits: 2 } },
   { key: 'status', header: '状态', width: 120, statuses },
   {
     key: 'actions',
@@ -212,7 +194,7 @@ export default _component(() => {
         _selected={selected}
         isRowSelectable={(task) => task.status !== 'closed'}
         _hiddenColumns={hidden}
-        aria-label="降本台账"
+        aria-label="销售台账"
         propsRoot={{ sx: styles.table }}
       />
     </Flex>

@@ -16,7 +16,7 @@ export default _component(() => () => (
         </Link>
       }
     >
-      <Small tone="muted">DJ-2026-ZT-76 液压管路卡箍设计优化 · 超时 15 天</Small>
+      <Small tone="muted">PO-2026-0276 线缆收纳夹设计优化 · 超时 15 天</Small>
     </Card>
     <Card
       variant="outline"
@@ -24,7 +24,7 @@ export default _component(() => () => (
       header="关闭三材料"
       extra={<Badge tone="warning">缺 2 项</Badge>}
     >
-      <Small tone="muted">验证窗结论、收益认定意见、商务谈定记录，缺一不得关闭</Small>
+      <Small tone="muted">验收报告、财务复核意见、合同签订记录，缺一不得关闭</Small>
     </Card>
   </Flex>
 ));

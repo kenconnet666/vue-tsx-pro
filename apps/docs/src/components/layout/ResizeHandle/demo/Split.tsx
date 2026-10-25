@@ -4,10 +4,10 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import { Descriptions, NavItem, NavList, ResizeHandle, Small, Text } from '@vue-tsx-pro/ui';
 
 const parts = [
-  { no: 'C1H02-5513-101', name: '平尾翼根整流罩', material: '7050-T7451', quantity: 2 },
-  { no: 'C1H04-5575-101', name: '液压管路卡箍', material: '2024-T351', quantity: 8 },
-  { no: 'C1H06-5530-102', name: '舱门密封件', material: 'T700/环氧', quantity: 4 },
-  { no: 'C1H08-5547-101', name: '襟翼滑轨罩', material: 'T300/环氧', quantity: 6 },
+  { no: 'SKU-0213', name: '显示器支架', material: '铝合金', quantity: 2 },
+  { no: 'SKU-0475', name: '线缆收纳夹', material: 'ABS', quantity: 8 },
+  { no: 'SKU-0630', name: '包装纸箱', material: '瓦楞纸', quantity: 4 },
+  { no: 'SKU-0847', name: '桌面挡板', material: '亚克力', quantity: 6 },
 ];
 
 const styles = css.create({
@@ -84,7 +84,7 @@ export default _component(() => {
             items={[
               { label: '件号', value: part.no },
               { label: '材料牌号', value: part.material },
-              { label: '单机数量', value: part.quantity },
+              { label: '数量', value: part.quantity },
               { label: '列表宽度', value: `${width} px` },
             ]}
           />

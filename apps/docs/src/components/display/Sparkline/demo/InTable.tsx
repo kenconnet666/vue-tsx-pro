@@ -12,12 +12,12 @@ interface Part {
 const parts: Part[] = [
   {
     code: 'C919-211-08',
-    name: '整流罩支架',
+    name: '显示器支架',
     prices: [128.6, 127.9, 126.2, 121.4, 119.4, 118.9, 116.8],
   },
   { code: 'C919-532-14', name: '线束卡箍', prices: [3.2, 3.2, 3.3, null, 3.6, 3.7, 3.9] },
   { code: 'C919-118-02', name: '座椅骨架', prices: [2150, 2120, 2080, 2075, 2060, 1990, 1985] },
-  { code: 'C919-704-31', name: '舱门密封条', prices: [86, 88, 85, 91, 89, 93, 95] },
+  { code: 'C919-704-31', name: '包装胶带', prices: [86, 88, 85, 91, 89, 93, 95] },
 ];
 
 const columns: DataTableColumn<Part>[] = [

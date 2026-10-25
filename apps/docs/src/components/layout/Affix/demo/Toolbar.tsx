@@ -5,7 +5,7 @@ import { Affix, BackTop, Badge, Button, Card, Flex, Small, Text } from '@vue-tsx
 
 const tasks = Array.from({ length: 30 }, (_, index) => ({
   code: `T-${String(101 + index).padStart(3, '0')}`,
-  title: ['来料检验报告补录', '模具保养计划确认', '供应商对账', '工艺变更评审', '月度降本复盘'][
+  title: ['来料检验报告补录', '模具保养计划确认', '供应商对账', '工艺变更评审', '月度销售复盘'][
     index % 5
   ],
   owner: ['林小满', '周一航', '许悠', '韩笑'][index % 4],

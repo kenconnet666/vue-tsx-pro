@@ -6,12 +6,17 @@ import { Flex, Small, Splitter, Text, usePersistentState } from '@vue-tsx-pro/ui
 const mails = [
   {
     id: 1,
-    from: '成本团队',
-    title: '收益测算待复核',
+    from: '财务部',
+    title: '费用核算待复核',
     body: '测算参数与报价不一致，请复核材料单价。',
   },
-  { id: 2, from: 'PEMO', title: '派单：舱门铰链第二货源', body: '请在 5 个工作日内完成方案设计。' },
-  { id: 3, from: '商务', title: '洽谈超 60 天提醒', body: '整流罩支架的商务洽谈已经 62 天。' },
+  {
+    id: 2,
+    from: 'PEMO',
+    title: '派单：机柜导轨第二供应商',
+    body: '请在 5 个工作日内完成方案设计。',
+  },
+  { id: 3, from: '商务', title: '洽谈超 60 天提醒', body: '显示器支架的商务洽谈已经 62 天。' },
 ];
 
 const styles = css.create({

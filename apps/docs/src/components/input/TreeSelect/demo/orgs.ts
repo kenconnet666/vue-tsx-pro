@@ -15,7 +15,7 @@ export const orgs: Org[] = [
         name: '项目管理办公室（PEMO）',
         children: [
           { id: 'pemo-plan', name: '计划组' },
-          { id: 'pemo-pool', name: '任务池管理组' },
+          { id: 'pemo-pool', name: '工单池管理组' },
         ],
       },
       {
@@ -30,19 +30,19 @@ export const orgs: Org[] = [
   },
   {
     id: 'composite',
-    name: '复合材料中心',
+    name: '研发中心',
     children: [
-      { id: 'composite-structure', name: '复合材料结构集成团队' },
-      { id: 'composite-process', name: '复材工艺团队' },
+      { id: 'composite-structure', name: '研发中心集成团队' },
+      { id: 'composite-process', name: '研发工艺团队' },
     ],
   },
   {
     id: 'assembly',
-    name: '总装制造中心',
+    name: '生产制造中心',
     children: [
-      { id: 'assembly-system', name: '总体技术集成团队' },
-      { id: 'assembly-landing', name: '起落架液压系统集成团队' },
-      { id: 'assembly-cabin', name: '客舱内饰团队' },
+      { id: 'assembly-system', name: '产品部团队' },
+      { id: 'assembly-landing', name: '运营团队' },
+      { id: 'assembly-cabin', name: '包装团队' },
     ],
   },
   { id: 'purchase', name: '采购部' },

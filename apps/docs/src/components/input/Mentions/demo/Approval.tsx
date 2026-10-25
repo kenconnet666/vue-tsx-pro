@@ -15,8 +15,8 @@ import {
 const people: ListboxOption[] = [
   { value: 'E1024', label: '周宁', description: '采购专员', group: '采购部' },
   { value: 'E1031', label: '陆川', description: '采购经理', group: '采购部' },
-  { value: 'E2007', label: '方圆', description: '成本工程师', group: '成本团队' },
-  { value: 'E2015', label: '韩笑', description: '成本团队负责人', group: '成本团队' },
+  { value: 'E2007', label: '方圆', description: '成本工程师', group: '财务部' },
+  { value: 'E2015', label: '韩笑', description: '财务部负责人', group: '财务部' },
   { value: 'E3002', label: '林小满', description: '质量工程师', group: '质量部' },
   { value: 'E3009', label: '吴悠', description: '供应商质量', group: '质量部' },
 ];

@@ -5,7 +5,7 @@ import { Autocomplete, Field, Flex, Small } from '@vue-tsx-pro/ui';
 
 const suppliers = [
   '杭州远山精密机械有限公司',
-  '杭州青禾复合材料有限公司',
+  '杭州青禾研发中心有限公司',
   '宁波海川液压件有限公司',
   '苏州明德电子科技有限公司',
   '无锡恒通密封件有限公司',

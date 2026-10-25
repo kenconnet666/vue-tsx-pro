@@ -9,8 +9,8 @@ export default _component(() => {
   let items = _state<NotificationItem[]>([
     {
       id: 'r1',
-      title: '催办：收益认定',
-      description: 'DMC-2026-QY-3 · 请今天内认定',
+      title: '催办：财务复核',
+      description: 'PO-2026-0233 · 请今天内认定',
       time: '2026-10-20T16:30:00+08:00',
       read: false,
       tone: 'danger',
@@ -18,7 +18,7 @@ export default _component(() => {
     {
       id: 'r2',
       title: '超时：商务洽谈已超过 60 天',
-      description: 'JY-2026-0102 · 供应商乙报价未回复',
+      description: 'PO-2026-0102 · 供应商乙报价未回复',
       time: '2026-10-20T09:00:00+08:00',
       read: false,
       tone: 'danger',
@@ -26,7 +26,7 @@ export default _component(() => {
     {
       id: 'r3',
       title: '今天到期：齐全性检查',
-      description: 'JY-2026-0187 · 整流罩支架材料替代',
+      description: 'PO-2026-0187 · 办公椅供应商切换',
       time: '2026-10-21T08:00:00+08:00',
       read: false,
       tone: 'warning',

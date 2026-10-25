@@ -1,5 +1,5 @@
 // 测算版本对比：选两个版本，字段、原值、新值、变化四列；金额是 Decimal，变化量精确计算。
-// 单价、年用量越低越好（better="lower"），降本率越高越好；没改的字段淡显，勾上“只看改动”只列改了的
+// 单价、年用量越低越好（better="lower"），利润率越高越好；没改的字段淡显，勾上“只看改动”只列改了的
 import { _component } from '@vue-tsx-pro/tsx';
 import Decimal from 'decimal.js';
 import {
@@ -74,7 +74,7 @@ const fields: CompareField<Estimate>[] = [
     value: (row) => row.unitPrice.times(row.annualVolume),
     better: 'lower',
   },
-  { key: 'savingRate', header: '降本率', type: 'percent', better: 'higher' },
+  { key: 'savingRate', header: '利润率', type: 'percent', better: 'higher' },
   { key: 'material', header: '材料' },
   { key: 'supplier', header: '供应商' },
   { key: 'validUntil', header: '报价有效期', type: 'date' },

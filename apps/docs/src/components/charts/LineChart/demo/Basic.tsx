@@ -18,12 +18,12 @@ const months = [
 
 export default _component(() => () => (
   <LineChart
-    aria-label="月度降本趋势"
+    aria-label="月度销售趋势"
     data={months}
     index="month"
     series={[
-      { key: 'planned', label: '预期降本' },
-      { key: 'actual', label: '实际降本' },
+      { key: 'planned', label: '预期销售' },
+      { key: 'actual', label: '实际销售' },
     ]}
     unit="万元"
     dots="hollow"

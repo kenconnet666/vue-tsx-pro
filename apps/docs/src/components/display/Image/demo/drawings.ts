@@ -54,9 +54,9 @@ function svg(code: string, title: string, shape: string, hue: number): string {
 
 /** 六张示例图纸 */
 export const drawings: Drawing[] = [
-  { code: 'DWG-1021', title: '整流罩支架', shape: 'bracket', hue: 215 },
+  { code: 'DWG-1021', title: '显示器支架', shape: 'bracket', hue: 215 },
   { code: 'DWG-1034', title: '检修口盖板', shape: 'plate', hue: 160 },
-  { code: 'DWG-1047', title: '舱门铰链', shape: 'hinge', hue: 25 },
+  { code: 'DWG-1047', title: '机柜导轨', shape: 'hinge', hue: 25 },
   { code: 'DWG-1052', title: '线束卡箍', shape: 'clamp', hue: 280 },
   { code: 'DWG-1066', title: '加强筋', shape: 'rib', hue: 350 },
   { code: 'DWG-1078', title: '端盖', shape: 'cover', hue: 190 },

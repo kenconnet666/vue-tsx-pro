@@ -9,7 +9,7 @@ import Pool from './demo/Pool.tsx?demo';
 export const meta = {
   title: 'ProportionBar 比例条',
   description:
-    '一根横条按各部分的数量分段，下面是图例：看一个总数由哪几块构成（任务池的三桶、存储空间）。',
+    '一根横条按各部分的数量分段，下面是图例：看一个总数由哪几块构成（工单的三种状态、存储空间）。',
   order: 15,
 };
 

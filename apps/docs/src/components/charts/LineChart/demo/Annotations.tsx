@@ -1,5 +1,5 @@
 // 标注与区间：单价走势上标出“换供应商”这类事件（竖线）、圈出最低点与异常值（圈出某个系列的值），
-// 验证窗是类目轴上的一段，目标单价区间是数值轴上的一段
+// 试运行期是类目轴上的一段，目标单价区间是数值轴上的一段
 import { _component } from '@vue-tsx-pro/tsx';
 import { LineChart } from '@vue-tsx-pro/ui/charts';
 
@@ -38,7 +38,7 @@ export default _component(() => () => (
       { at: '12月', series: 'price', label: '年内最低 114.9' },
     ]}
     bands={[
-      { from: '5月', to: '6月', label: '验证窗', color: 'info' },
+      { from: '5月', to: '6月', label: '试运行期', color: 'info' },
       { axis: 'value', from: 110, to: 116, label: '目标区间', color: 'success' },
     ]}
   />

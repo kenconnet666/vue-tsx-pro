@@ -1,4 +1,4 @@
-// 供应商降本建议：点行首的箭头展开详情（建议内容、影响评估、附件），草稿还没有内容，不能展开。
+// 供应商改进建议：点行首的箭头展开详情（建议内容、影响评估、附件），草稿还没有内容，不能展开。
 // 详情是表格里跨全部列的一行，横向滚动时贴着可见区域的起始边；expandedRows 可以双向绑定
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -27,7 +27,7 @@ interface Proposal {
   supplier: string;
   part: string;
   kind: string;
-  /** 预计单机降本（元） */
+  /** 预计单价（元） */
   saving: Decimal;
   status: string;
   content?: string;
@@ -40,7 +40,7 @@ const proposals: Proposal[] = [
   {
     code: 'GYS-2026-031',
     supplier: '供应商甲',
-    part: '整流罩支架',
+    part: '显示器支架',
     kind: '材料替代',
     saving: new Decimal('5600'),
     status: 'reviewing',
@@ -53,12 +53,12 @@ const proposals: Proposal[] = [
   {
     code: 'GYS-2026-034',
     supplier: '供应商乙',
-    part: '舱门密封件',
-    kind: '多货源',
+    part: '包装纸箱',
+    kind: '多供应商',
     saving: new Decimal('2380.5'),
     status: 'accepted',
-    content: '引入第二货源，年采购量 1,200 件分两家，单价由 186 元降到 162 元。',
-    impact: '新货源需完成首件鉴定，预计 8 周。',
+    content: '引入第二供应商，年采购量 1,200 件分两家，单价由 186 元降到 162 元。',
+    impact: '新供应商需完成样品验收，预计 8 周。',
     files: ['报价单.pdf'],
     submitted: '2026-09-21 李工',
   },
@@ -92,7 +92,7 @@ const columns: DataTableColumn<Proposal>[] = [
   { key: 'kind', header: '类型', width: 104 },
   {
     key: 'saving',
-    header: '预计单机降本（元）',
+    header: '预计单价（元）',
     width: 156,
     format: { minimumFractionDigits: 2, maximumFractionDigits: 2 },
   },
@@ -138,7 +138,7 @@ export default _component(() => {
       renderDetail={detail}
       hasDetail={(proposal) => proposal.content != null}
       _expandedRows={expanded}
-      aria-label="供应商降本建议"
+      aria-label="供应商改进建议"
     />
   );
 });

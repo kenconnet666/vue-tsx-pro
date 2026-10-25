@@ -7,8 +7,8 @@ import { CommentThread, type CommentDraft, type CommentItem } from '@vue-tsx-pro
 import { photo } from '../../../display/Avatar/demo/photos';
 
 const people: ListboxOption[] = [
-  { value: 'E2007', label: '方圆', description: '成本工程师', group: '成本团队' },
-  { value: 'E2015', label: '韩笑', description: '成本团队负责人', group: '成本团队' },
+  { value: 'E2007', label: '方圆', description: '成本工程师', group: '财务部' },
+  { value: 'E2015', label: '韩笑', description: '财务部负责人', group: '财务部' },
   { value: 'E1031', label: '陆川', description: '采购经理', group: '采购部' },
   { value: 'S0088', label: '华辰-李工', description: '供应商技术', group: '供应商' },
 ];
@@ -45,7 +45,7 @@ const initial: CommentItem[] = [
       {
         id: 'c3',
         author: '韩笑',
-        role: internal('成本团队负责人'),
+        role: internal('财务部负责人'),
         content: '@方圆 年用量按 Q4 排产补到 45,500，其余没问题。',
         time: '2026-10-22T10:05:00+08:00',
         edited: true,

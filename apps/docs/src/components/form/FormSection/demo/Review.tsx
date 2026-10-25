@@ -26,12 +26,12 @@ export default _component(() => {
           labelWidth="6.5em"
         >
           <Field label="项目">
-            <TextField _value="整流罩支架合并为一体成型" />
+            <TextField _value="显示器支架合并为一体成型" />
           </Field>
           <Field label="编号">
-            <TextField _value="JY-2026-0187" />
+            <TextField _value="PO-2026-0187" />
           </Field>
-          <Field label="预计年降本">
+          <Field label="预计年销售">
             <NumberField _value={174752} suffix="元" />
           </Field>
           <Field label="说明">

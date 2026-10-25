@@ -18,7 +18,7 @@ import {
 export default _component(() => {
   const confirm = useConfirm();
   let open = _state(false);
-  const initial = { name: '整流罩支架合并', note: '两件合并为一件，减少紧固件' };
+  const initial = { name: '显示器支架合并', note: '两件合并为一件，减少紧固件' };
   let saved = _state(initial);
   let draft = _state({ ...initial });
   // 拖动后的宽度各人记住

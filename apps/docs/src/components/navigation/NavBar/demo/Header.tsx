@@ -21,7 +21,7 @@ const items: NavBarItem[] = [
     label: '报表',
     icon: BarChart3,
     children: [
-      { label: '降本月报', href: '#monthly' },
+      { label: '销售月报', href: '#monthly' },
       { label: '季度复盘', href: '#quarterly' },
     ],
   },

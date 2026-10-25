@@ -31,7 +31,7 @@ it('悬停：提示框列出当月各系列的值', async () => {
   );
   const text = await until(() => {
     const content = root.querySelector('[role="figure"] [aria-hidden="true"]')!.textContent!;
-    return content.includes('实际降本') && content;
+    return content.includes('实际销售') && content;
   });
   expect(text).toContain('12月');
   // 数字与单位之间是不换行的空格

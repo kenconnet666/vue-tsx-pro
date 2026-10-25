@@ -1,11 +1,11 @@
-// 任务池的三桶：互斥、加起来是总数；图例后面可以补一句（“待定价”）
+// 工单的三种状态：互斥、加起来是总数；图例后面可以补一句（“待定价”）
 import { _component } from '@vue-tsx-pro/tsx';
 import { Flex, ProportionBar, Small } from '@vue-tsx-pro/ui';
 
 export default _component(() => () => (
   <Flex direction="column" gap="lg">
     <ProportionBar
-      aria-label="任务池构成"
+      aria-label="工单构成"
       segments={[
         { key: 'confirmed', label: '已确认收益', value: 25, tone: 'success' },
         { key: 'unpriced', label: '挂账待定', value: 4, tone: 'warning' },

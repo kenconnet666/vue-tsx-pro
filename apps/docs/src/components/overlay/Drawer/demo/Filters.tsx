@@ -60,7 +60,7 @@ export default _component(() => {
       <Drawer
         _open={open}
         size="xs"
-        title="筛选降本项目"
+        title="筛选项目"
         confirmText={`查看结果（已设 ${countOf(draft)} 项）`}
         onConfirm={() => {
           applied = _state.snapshot(draft);
@@ -76,7 +76,7 @@ export default _component(() => {
             <Select
               _value={draft.team}
               placeholder="全部团队"
-              items={['机体结构', '复合材料中心', '总体技术集成', '供应链管理']}
+              items={['机体结构', '研发中心', '产品部', '供应链管理']}
             />
           </Field>
           <Field label="状态">
@@ -87,7 +87,7 @@ export default _component(() => {
               <Checkbox value="realized">已兑现</Checkbox>
             </CheckboxGroup>
           </Field>
-          <Field label="预计年降本（万元）">
+          <Field label="预计年销售（万元）">
             <NumberRangeField _value={draft.saving} />
           </Field>
           <Field label="计划完成">

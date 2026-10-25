@@ -23,8 +23,8 @@ interface Invoice {
 }
 
 const invoices: Invoice[] = [
-  { no: 'FP-20261021-031', vendor: '华辰精密机加', amount: '¥48,210.00', date: '2026-10-21' },
-  { no: 'FP-20261019-118', vendor: '启航复材', amount: '¥12,860.00', date: '2026-10-19' },
+  { no: 'FP-20261021-031', vendor: '华辰精密生产', amount: '¥48,210.00', date: '2026-10-21' },
+  { no: 'FP-20261019-118', vendor: '启航研发', amount: '¥12,860.00', date: '2026-10-19' },
   { no: 'FP-20261015-007', vendor: '远山钣金', amount: '¥3,420.50', date: '2026-10-15' },
 ];
 

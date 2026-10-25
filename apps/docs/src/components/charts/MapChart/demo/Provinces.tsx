@@ -1,4 +1,4 @@
-// 各省的降本金额：默认的等积圆锥投影以中国为中心（正着、面积不失真），分成 5 档着色，图例是 5 个色块；
+// 各省的销售额：默认的等积圆锥投影以中国为中心（正着、面积不失真），分成 5 档着色，图例是 5 个色块；
 // 省名写在区域上（areaLabels），工厂的点按产值定大小；可以拖动、按住 Ctrl 滚轮缩放，右上角有放大、缩小、复位；
 // 点一个省份在下面显示它
 import { ChinaTopoJSON } from '@unovis/ts/maps';
@@ -18,15 +18,15 @@ export default _component(() => {
   return () => (
     <>
       <MapChart
-        aria-label="各省降本金额"
+        aria-label="各省销售额"
         topology={ChinaTopoJSON}
         feature="provinces"
         areas={areas}
         points={[
-          { id: 'sh', label: '上海总装', longitude: 121.47, latitude: 31.23, value: 860 },
+          { id: 'sh', label: '上海总仓', longitude: 121.47, latitude: 31.23, value: 860 },
           { id: 'sy', label: '沈阳部件', longitude: 123.43, latitude: 41.8, value: 310 },
-          { id: 'xa', label: '西安机加', longitude: 108.94, latitude: 34.34, value: 420 },
-          { id: 'cd', label: '成都复材', longitude: 104.07, latitude: 30.67, value: 260 },
+          { id: 'xa', label: '西安仓', longitude: 108.94, latitude: 34.34, value: 420 },
+          { id: 'cd', label: '成都仓', longitude: 104.07, latitude: 30.67, value: 260 },
           { id: 'gz', label: '广州航电', longitude: 113.26, latitude: 23.13, value: 180 },
         ]}
         bins={5}

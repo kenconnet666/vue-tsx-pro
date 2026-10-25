@@ -37,7 +37,7 @@ interface Machine {
   nextService: string;
 }
 
-const lines = ['一号总装线', '二号总装线', '复材成型线', '机加线'];
+const lines = ['一号组装线', '二号组装线', '研发成型线', '生产线'];
 const kinds = ['五轴加工中心', '自动钻铆机', '热压罐', '激光切割机', '涂装机器人'];
 const machines: Machine[] = Array.from({ length: 40 }, (_, index) => ({
   id: `EQ-${String(1001 + index)}`,

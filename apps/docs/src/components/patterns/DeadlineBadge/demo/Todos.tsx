@@ -5,17 +5,17 @@ import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
 
 const TODAY = '2026-10-21';
 const todos = [
-  { code: 'DMC-2026-QY-3', name: '收益认定', owner: '韩笑', due: '2026-10-16' },
-  { code: 'JY-2026-0187', name: '齐全性检查：整流罩支架材料替代', owner: '林小满', due: TODAY },
+  { code: 'PO-2026-0233', name: '财务复核', owner: '韩笑', due: '2026-10-16' },
+  { code: 'PO-2026-0187', name: '齐全性检查：办公椅供应商切换', owner: '林小满', due: TODAY },
   {
-    code: 'DJ-2026-FC-14',
-    name: '方案设计：验证窗结论补试验报告',
+    code: 'PO-2026-0214',
+    name: '方案设计：验收报告补试验报告',
     owner: '周宁',
     due: '2026-10-22',
   },
-  { code: 'JY-2026-0179', name: '收益测算：舱门密封件第二货源', owner: '陆川', due: '2026-10-30' },
+  { code: 'PO-2026-0179', name: '费用核算：包装纸箱第二供应商', owner: '陆川', due: '2026-10-30' },
   {
-    code: 'DJ-2026-FC-08',
+    code: 'PO-2026-0308',
     name: '验证实施：线束卡箍合并规格',
     owner: '方圆',
     due: '2026-10-19',

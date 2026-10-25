@@ -6,16 +6,16 @@ import Decimal from 'decimal.js';
 
 export default _component(() => {
   const format = useFormat();
-  let unitSaving = _state.raw<Decimal | null>(new Decimal('155353.2'));
-  let dmcSaving = _state.raw<Decimal | null>(new Decimal('12.5'));
+  let budget = _state.raw<Decimal | null>(new Decimal('155353.2'));
+  let freight = _state.raw<Decimal | null>(new Decimal('12.5'));
   let flights = _state<number | null>(40);
 
   return () => (
     <Grid minItemWidth="16em" gap="lg">
       <Flex direction="column" gap="sm">
-        <Field label="单机降本目标" description="值是元，按万元输入；步长 100 元">
+        <Field label="年度预算" description="值是元，按万元输入；步长 100 元">
           <NumberField
-            _value={unitSaving}
+            _value={budget}
             format={{ scale: 10_000, maximumFractionDigits: 2 }}
             step={100}
             min={0}
@@ -24,23 +24,23 @@ export default _component(() => {
           />
         </Field>
         <Text size="sm" tone="muted">
-          保存的值：<Code>{unitSaving ? `${unitSaving.toFixed()} 元` : 'null'}</Code>
+          保存的值：<Code>{budget ? `${budget.toFixed()} 元` : 'null'}</Code>
         </Text>
       </Flex>
       <Flex direction="column" gap="sm">
-        <Field label="降 DMC 目标">
+        <Field label="运费目标">
           <NumberField
-            _value={dmcSaving}
+            _value={freight}
             step={new Decimal('0.01')}
             min={0}
             format={{ minimumFractionDigits: 2 }}
-            suffix="美元/FH"
+            suffix="元/单"
             stepper={false}
           />
         </Field>
         <Text size="sm" tone="muted">
           每千飞行小时：
-          <Code>{dmcSaving ? format.number(dmcSaving.times(1000), { suffix: '美元' }) : '—'}</Code>
+          <Code>{freight ? format.number(freight.times(1000), { suffix: '美元' }) : '—'}</Code>
         </Text>
       </Flex>
       <Flex direction="column" gap="sm">

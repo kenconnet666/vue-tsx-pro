@@ -1,4 +1,4 @@
-// 降本项目的进度：计划是浅色的轨道，实际画在上面；拖期的一段标红（color），还在进行的实际到“今天”为止。
+// 项目的进度：计划是浅色的轨道，实际画在上面；拖期的一段标红（color），还在进行的实际到“今天”为止。
 // 里程碑（年度评审、预算截止）是竖线；点图例隐藏“计划”只看实际
 import { _component } from '@vue-tsx-pro/tsx';
 import { TimelineChart, type TimelineChartItem } from '@vue-tsx-pro/ui/charts';
@@ -6,28 +6,28 @@ import { TimelineChart, type TimelineChartItem } from '@vue-tsx-pro/ui/charts';
 const TODAY = '2026-10-24';
 
 const items: TimelineChartItem[] = [
-  { row: '整流罩支架换材', series: 'plan', start: '2026-03-01', end: '2026-06-30' },
-  { row: '整流罩支架换材', series: 'actual', start: '2026-03-10', end: '2026-06-30' },
+  { row: '官网首页改版', series: 'plan', start: '2026-03-01', end: '2026-06-30' },
+  { row: '官网首页改版', series: 'actual', start: '2026-03-10', end: '2026-06-30' },
   {
-    row: '整流罩支架换材',
+    row: '官网首页改版',
     series: 'actual',
     start: '2026-07-01',
     end: '2026-07-24',
     color: 'danger',
-    label: '整流罩支架换材（拖期）',
+    label: '官网首页改版（拖期）',
   },
   { row: '线束卡箍国产化', series: 'plan', start: '2026-05-01', end: '2026-09-30' },
   { row: '线束卡箍国产化', series: 'actual', start: '2026-05-06', end: '2026-09-12' },
   { row: '座椅骨架减重', series: 'plan', start: '2026-06-15', end: '2026-12-31' },
   { row: '座椅骨架减重', series: 'actual', start: '2026-07-01', end: TODAY },
-  { row: '舱门密封条复用', series: 'plan', start: '2026-09-01', end: '2027-01-31' },
-  { row: '舱门密封条复用', series: 'actual', start: '2026-09-20', end: TODAY },
+  { row: '包装材料复用', series: 'plan', start: '2026-09-01', end: '2027-01-31' },
+  { row: '包装材料复用', series: 'actual', start: '2026-09-20', end: TODAY },
   { row: '供应商年度议价', series: 'plan', start: '2026-11-01', end: '2026-12-15' },
 ];
 
 export default _component(() => () => (
   <TimelineChart
-    aria-label="降本项目进度"
+    aria-label="项目进度"
     items={items}
     series={[
       { key: 'plan', label: '计划', variant: 'track', color: 'chart1' },

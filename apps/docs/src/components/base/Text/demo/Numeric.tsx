@@ -3,9 +3,9 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Flex, Text } from '@vue-tsx-pro/ui';
 
 const rows = [
-  ['DJ-2026-ZT-76', '1,117.48'],
-  ['DMC-2026-QY-3', '9.10'],
-  ['DJ-2026-FC-114', '211.06'],
+  ['PO-2026-0276', '1,117.48'],
+  ['PO-2026-0233', '9.10'],
+  ['PO-2026-02114', '211.06'],
 ];
 
 export default _component(() => () => (

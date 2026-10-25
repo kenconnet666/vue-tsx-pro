@@ -30,7 +30,7 @@ export default _component(() => () => (
       "import { MapChart } from '@vue-tsx-pro/ui/charts';\nimport { ChinaTopoJSON } from '@unovis/ts/maps';"
     }
   >
-    <Example id="provinces" title="各省的降本金额：分级着色、省名、工厂" demo={Provinces}>
+    <Example id="provinces" title="各省的销售额：分级着色、省名、工厂" demo={Provinces}>
       <Code>topology</Code> 是 TopoJSON，<Code>feature</Code> 是要画的那组要素（中国省份是{' '}
       <Code>provinces</Code>）。
       <Code>areas</Code> 按要素的 <Code>id</Code> 给名称与数值；<Code>bins</Code>{' '}
@@ -69,7 +69,7 @@ export default _component(() => () => (
     <Example id="supply-chain" title="全球供应链：流向" demo={SupplyChain}>
       世界地图（<Code>WorldMap110mAlphaTopoJSON</Code>，ISO 两位国家代码）。<Code>links</Code>{' '}
       是地点之间的流向，粗细按 <Code>value</Code>，<Code>flow</Code> 时有流动的粒子；地点的{' '}
-      <Code>shape</Code> 与 <Code>color</Code> 区分供应商与总装厂；<Code>center</Code>{' '}
+      <Code>shape</Code> 与 <Code>color</Code> 区分供应商与组装厂；<Code>center</Code>{' '}
       把中央经线放在东经 110°，中国在中间。悬停看名称与数值；读屏的数据表列出各区域、地点与流向。
     </Example>
     <ApiReference api={[api, areaApi, pointApi, linkApi]} />

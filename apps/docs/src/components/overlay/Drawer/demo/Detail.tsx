@@ -40,9 +40,9 @@ const statuses = createStatusMap({
 const projects: Project[] = [
   {
     id: 'p1',
-    code: 'JY-2026-0187',
-    name: '整流罩支架合并为一体成型',
-    team: '复合材料中心',
+    code: 'PO-2026-0187',
+    name: '显示器支架合并为一体成型',
+    team: '研发中心',
     owner: '林小满',
     status: 'verifying',
     saving: 174752,
@@ -56,7 +56,7 @@ const projects: Project[] = [
   },
   {
     id: 'p2',
-    code: 'DJ-2026-FC-14',
+    code: 'PO-2026-0214',
     name: '线束卡箍改用铝合金',
     team: '机体结构',
     owner: '周宁',
@@ -70,8 +70,8 @@ const projects: Project[] = [
   },
   {
     id: 'p3',
-    code: 'DMC-2026-QY-3',
-    name: '舱门铰链第二货源',
+    code: 'PO-2026-0233',
+    name: '机柜导轨第二供应商',
     team: '供应链管理',
     owner: '韩笑',
     status: 'confirming',
@@ -79,14 +79,14 @@ const projects: Project[] = [
     due: '2026-10-30',
     records: [
       { title: '韩笑 发起', time: '08-12 15:00', tone: 'accent' },
-      { title: '方圆 · 收益测算：出测算', time: '09-30 10:30', tone: 'success' },
+      { title: '方圆 · 费用核算：出测算', time: '09-30 10:30', tone: 'success' },
     ],
   },
   {
     id: 'p4',
     code: 'FA-2026-0142',
     name: '密封件国产化',
-    team: '总体技术集成',
+    team: '产品部',
     owner: '陆川',
     status: 'verifying',
     saving: 128900,
@@ -95,7 +95,7 @@ const projects: Project[] = [
   },
   {
     id: 'p5',
-    code: 'JY-2026-0179',
+    code: 'PO-2026-0179',
     name: '地板梁紧固件减量',
     team: '机体结构',
     owner: '方圆',
@@ -134,7 +134,7 @@ export default _component(() => {
       width: 120,
       cell: (row) => <StatusBadge statuses={statuses} value={row.status} />,
     },
-    { key: 'saving', header: '预计年降本', width: 140, align: 'end', format: { currency: 'CNY' } },
+    { key: 'saving', header: '预计年销售', width: 140, align: 'end', format: { currency: 'CNY' } },
     {
       key: 'due',
       header: '当前环节时限',
@@ -148,7 +148,7 @@ export default _component(() => {
     return (
       <>
         <DataTable
-          aria-label="降本项目"
+          aria-label="项目"
           rows={projects}
           columns={columns}
           getKey={(row) => row.id}
@@ -179,7 +179,7 @@ export default _component(() => {
                   { label: '主办', value: current.owner },
                   { label: '责任团队', value: current.team },
                   {
-                    label: '预计年降本',
+                    label: '预计年销售',
                     value: <Text numeric>{money(current.saving)}</Text>,
                   },
                   { label: '当前环节截止', value: current.due },

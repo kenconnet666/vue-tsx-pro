@@ -15,7 +15,7 @@ export default _component(() => () => (
   <DocPage wide meta={meta}>
     {/* 只有一个示例：不放进两列的 Examples，占满整页宽度 */}
     <Example id="dashboard" title="统计分析" demo={Dashboard}>
-      选好条件点“查询”，指标卡（Stat）、柱状图（BarChart）与明细表（Table）按结果刷新，数值滚动到新值；折线图（LineChart）看全年趋势，地球（Globe）标出各地供应商与运往总装线的航线，“导出统计”下载
+      选好条件点“查询”，指标卡（Stat）、柱状图（BarChart）与明细表（Table）按结果刷新，数值滚动到新值；折线图（LineChart）看全年趋势，地球（Globe）标出各地供应商与运往组装厂的线路，“导出统计”下载
       CSV。<Code>Grid minItemWidth</Code> 让卡片按容器宽度自动换列，窄屏时单列。
     </Example>
   </DocPage>

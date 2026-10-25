@@ -12,10 +12,10 @@ const plan = [
 
 export default _component(() => () => (
   <RadarChart
-    aria-label="各类降本措施的金额"
+    aria-label="各类促销活动的销售额"
     data={plan}
     index="item"
-    series={[{ key: 'saving', label: '降本金额', color: 'chart3' }]}
+    series={[{ key: 'saving', label: '销售额', color: 'chart3' }]}
     grid="circle"
     levels={5}
     unit="万元"

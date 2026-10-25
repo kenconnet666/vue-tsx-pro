@@ -29,11 +29,11 @@ const milestones: ChecklistItem[] = [
     evidence: evidence('方案评审纪要.pdf'),
   },
   {
-    label: '首件验证',
+    label: '样品验收',
     status: 'done',
     owner: '林小满',
     date: '2026-09-20 完成',
-    evidence: evidence('首件检验报告.pdf'),
+    evidence: evidence('样品验收报告.pdf'),
   },
   {
     label: '批量切换',
@@ -50,11 +50,11 @@ const milestones: ChecklistItem[] = [
 ];
 
 const closing: ChecklistItem[] = [
-  { label: '验证窗结论', status: 'done', date: '2026-10-08', evidence: evidence('验证报告.pdf') },
+  { label: '验收报告', status: 'done', date: '2026-10-08', evidence: evidence('验证报告.pdf') },
   {
-    label: '收益认定意见',
+    label: '财务复核意见',
     description: '测算 A 锁定后出具',
-    owner: '由成本团队出具',
+    owner: '由财务部出具',
     action: (
       <Button size="sm" variant="surface" icon={Upload}>
         上传
@@ -62,9 +62,9 @@ const closing: ChecklistItem[] = [
     ),
   },
   {
-    label: '商务谈定记录',
+    label: '合同签订记录',
     status: 'blocked',
-    description: '等收益认定意见：谈定价格要按认定的金额',
+    description: '等财务复核意见：谈定价格要按认定的金额',
     owner: '由采购部出具',
   },
   { label: '海关备案', status: 'skipped', description: '国内供应商，不涉及' },

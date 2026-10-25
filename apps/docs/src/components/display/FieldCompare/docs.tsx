@@ -24,7 +24,7 @@ export default _component(() => () => (
       <Code>onlyChanged</Code> 只列改了的。两边都是数值时给出变化量（按字段的格式、带正负号，Decimal
       精确计算）与变化率；
       <Code>better</Code> 写 <Code>'lower'</Code>（成本、单价）或 <Code>'higher'</Code>
-      （降本率、产量）时按好坏着色。比较建在 <Code>diffFields</Code> 上，要自己排版时直接用它。
+      （利润率、产量）时按好坏着色。比较建在 <Code>diffFields</Code> 上，要自己排版时直接用它。
     </Example>
     <Example id="changes" title="编辑前后：列表" demo={Changes}>
       <Code>layout="list"</Code>{' '}

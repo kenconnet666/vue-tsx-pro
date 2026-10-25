@@ -40,7 +40,7 @@ export default _component(() => () => (
         ]}
       />
     </Card>
-    <Card variant="outline" header="降本明细">
+    <Card variant="outline" header="销售明细">
       卡箍改用铝合金，合并两件支架，减少紧固件。
     </Card>
   </AsideLayout>

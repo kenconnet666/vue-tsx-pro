@@ -80,8 +80,8 @@ export default _component(() => {
               <Select
                 _value={form.category}
                 items={[
-                  { value: 'machining', label: '机加件' },
-                  { value: 'composite', label: '复合材料件' },
+                  { value: 'machining', label: '生产件' },
+                  { value: 'composite', label: '研发中心件' },
                   { value: 'standard', label: '标准件' },
                 ]}
               />
@@ -96,7 +96,7 @@ export default _component(() => {
                   <Checkbox value="fastener">紧固件</Checkbox>
                   <Checkbox value="seal">密封件</Checkbox>
                   <Checkbox value="harness">线束卡箍</Checkbox>
-                  <Checkbox value="fairing">整流罩</Checkbox>
+                  <Checkbox value="packaging">包装</Checkbox>
                 </CheckboxGroup>
               </Field>
             </GridItem>

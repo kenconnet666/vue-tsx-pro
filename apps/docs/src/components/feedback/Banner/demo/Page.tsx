@@ -42,7 +42,7 @@ export default _component(() => {
         当前项目已归档，只能查看
       </Banner>
       <Flex direction="column" gap="xs" style={{ padding: '1em 1.25em' }}>
-        <Text weight="semibold">降本项目台账</Text>
+        <Text weight="semibold">项目台账</Text>
         <Small tone="muted">
           横幅占满宽度、一行说完，放在页面最上方；关掉的写进本地存储，下次不再出现。
         </Small>

@@ -38,8 +38,7 @@ it('省份分 5 档着色，图例是 5 个色块，地点写上名字，地图�
   // 地点的名字在画完之后的下一帧排好
   const svg = features[0]!.ownerSVGElement!;
   await until(() => svg.querySelector('[data-point-labels] text'));
-  for (const label of ['上海总装', '西安机加', '成都复材'])
-    expect(svg.textContent).toContain(label);
+  for (const label of ['上海总仓', '西安仓', '成都仓']) expect(svg.textContent).toContain(label);
   // 区域的形状在第一帧之后才画出来
   await until(() => fillRatio(root) > 0.9);
 });

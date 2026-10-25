@@ -15,23 +15,17 @@ const actual = new Decimal('9103600.35');
 export default _component(() => () => (
   <Grid minItemWidth="14em" gap="md">
     <Card>
-      <Stat label="降本项目总数" value={6} unit="项" icon={ClipboardList} />
+      <Stat label="项目总数" value={6} unit="项" icon={ClipboardList} />
+    </Card>
+    <Card>
+      <Stat label="预期销售额" value={expected} format={WAN_YUAN} unit="万元" icon={JapaneseYen} />
+    </Card>
+    <Card>
+      <Stat label="实际销售额" value={actual} format={WAN_YUAN} unit="万元" icon={ChartColumn} />
     </Card>
     <Card>
       <Stat
-        label="预期降本金额"
-        value={expected}
-        format={WAN_YUAN}
-        unit="万元"
-        icon={JapaneseYen}
-      />
-    </Card>
-    <Card>
-      <Stat label="实际降本金额" value={actual} format={WAN_YUAN} unit="万元" icon={ChartColumn} />
-    </Card>
-    <Card>
-      <Stat
-        label="降本达成率"
+        label="销售达成率"
         value={actual.div(expected)}
         format={{ style: 'percent', maximumFractionDigits: 1 }}
         icon={TrendingUp}

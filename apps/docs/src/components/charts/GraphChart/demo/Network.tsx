@@ -10,8 +10,8 @@ const groups = [
 
 const nodes = [
   { id: 'zt', label: '总体技术', group: 'team', size: 34 },
-  { id: 'fc', label: '复合材料', group: 'team', size: 30 },
-  { id: 'qy', label: '起落架液压', group: 'team', size: 30 },
+  { id: 'fc', label: '研发中心', group: 'team', size: 30 },
+  { id: 'qy', label: '运营部', group: 'team', size: 30 },
   { id: 'a', label: '供应商甲', group: 'supplier' },
   { id: 'b', label: '供应商乙', group: 'supplier' },
   { id: 'c', label: '供应商丙', group: 'supplier' },

@@ -69,7 +69,7 @@ export default _component(() => {
             _value={keyword}
             icon={Search}
             clearable
-            placeholder="名称或城市，如“复材”“西安”"
+            placeholder="名称或城市，如“研发”“西安”"
             aria-label="查询供应商"
             sx={styles.search}
           />

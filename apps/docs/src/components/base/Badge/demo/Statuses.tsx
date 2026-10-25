@@ -17,7 +17,7 @@ const taskStatuses = createStatusMap({
   pending: { label: '待启动', tone: 'neutral' },
   designing: { label: '方案设计中', tone: 'info' },
   verifying: { label: '验证中', tone: 'info' },
-  awaiting: { label: '待认定', tone: 'warning', description: '等成本团队出具验证窗结论' },
+  awaiting: { label: '待认定', tone: 'warning', description: '等财务部出具验收报告' },
   recognized: { label: '已认定', tone: 'accent' },
   negotiating: { label: '商务洽谈中', tone: 'warning', description: '线下洽谈，60 天内回填 B 值' },
   realized: { label: '已兑现', tone: 'success' },

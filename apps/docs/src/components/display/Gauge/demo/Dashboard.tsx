@@ -16,7 +16,7 @@ export default _component(() => () => (
         value={0.82}
         max={1}
         valueFormat={{ style: 'percent' }}
-        label="年度降本完成率"
+        label="年度销售完成率"
         target={0.9}
         bands={[
           { to: 0.6, tone: 'danger' },

@@ -173,10 +173,10 @@ export default _component(() => {
             样式：13 个文字样式（正文、标签、标题、等宽）与 5 档阴影；字号按 14px 的基准换成
             px，字体用 Noto Sans SC 与 JetBrains Mono。
           </ListItem>
-          <ListItem>图标：降本管理用到的 40 个 Lucide 图标，都是组件，描边颜色跟着变量。</ListItem>
+          <ListItem>图标：销售管理用到的 40 个 Lucide 图标，都是组件，描边颜色跟着变量。</ListItem>
           <ListItem>
             组件：Button、IconButton、Badge、StatusBadge、Checkbox、Avatar、Tab、NavItem、Input
-            与表格的表头、单元格；降本管理的顶栏品牌格、顶栏工具与分页。
+            与表格的表头、单元格；销售管理的顶栏品牌格、顶栏工具与分页。
           </ListItem>
         </List>
         <Flex>
@@ -184,7 +184,7 @@ export default _component(() => {
             在 Figma 里打开
           </LinkButton>
         </Flex>
-        <Alert tone="info">降本管理的界面稿会随应用重做一起画。</Alert>
+        <Alert tone="info">销售管理的界面稿会随应用重做一起画。</Alert>
       </Flex>
 
       <Flex direction="column" gap="md">

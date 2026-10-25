@@ -29,11 +29,11 @@ interface Task {
 }
 
 const owners = ['张工', '李工', '王工', '赵工', '刘工'];
-const parts = ['整流罩', '支架', '密封件', '线束', '口盖', '地板梁'];
+const parts = ['显示器', '支架', '纸箱', '线缆', '键盘', '鼠标'];
 
 const tasks: Task[] = Array.from({ length: 2000 }, (_, index) => ({
-  code: `DJ-2026-${String(index + 1).padStart(4, '0')}`,
-  name: `${parts[index % parts.length]}降本方案 ${index + 1}`,
+  code: `PO-2026-${String(index + 1).padStart(4, '0')}`,
+  name: `${parts[index % parts.length]}改进方案 ${index + 1}`,
   owner: owners[(index * 3) % owners.length]!,
   due: `2026-${String((index % 12) + 1).padStart(2, '0')}-${String((index % 28) + 1).padStart(2, '0')}`,
   status: index % 17 === 0 ? 'overdue' : index % 3 === 0 ? 'done' : 'doing',
@@ -51,7 +51,7 @@ const styles = css.create({ table: { maxHeight: '22rem' }, field: { width: '14re
 
 export default _component(() => {
   let table: DataTableHandle | undefined;
-  let code = _state('DJ-2026-1360');
+  let code = _state('PO-2026-1360');
   let flashing = _state<string | null>(null);
   let missing = _state(false);
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -93,7 +93,7 @@ export default _component(() => {
         rowTone={(task) => (task.code === flashing ? 'info' : undefined)}
         handle={(api) => (table = api)}
         density="compact"
-        aria-label="降本任务"
+        aria-label="销售任务"
         propsRoot={{ sx: styles.table }}
       />
     </Flex>

@@ -20,7 +20,7 @@ export interface SupplierPage {
 }
 
 const prefixes = ['华辰', '启航', '远图', '恒润', '青禾', '北辰', '云帆', '若水', '明川', '星屿'];
-const kinds = ['精密机加', '复材成型', '钣金', '标准件', '线束', '密封件'];
+const kinds = ['精密生产', '研发成型', '钣金', '标准件', '线束', '密封件'];
 const cities = ['上海', '苏州', '西安', '成都', '沈阳', '南昌'];
 
 const suppliers: Supplier[] = prefixes.flatMap((prefix, row) =>

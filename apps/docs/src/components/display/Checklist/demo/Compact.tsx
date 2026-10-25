@@ -24,33 +24,33 @@ const node = (label: string, status: ChecklistItem['status'], date?: string): Ch
 
 const projects: Project[] = [
   {
-    code: 'JY-2026-0187',
-    name: '整流罩支架换材',
+    code: 'PO-2026-0187',
+    name: '官网首页改版',
     nodes: [
       node('评审', 'done', '08-12'),
-      node('首件', 'done', '09-20'),
+      node('样品', 'done', '09-20'),
       node('切换', 'overdue', '计划 10-15'),
       node('关闭', 'todo'),
     ],
   },
   {
-    code: 'JY-2026-0203',
+    code: 'PO-2026-0203',
     name: '线束卡箍国产化',
     nodes: [
       node('评审', 'done', '09-02'),
-      node('首件', 'todo', '计划 11-05'),
+      node('样品', 'todo', '计划 11-05'),
       node('切换', 'todo'),
       node('关闭', 'todo'),
     ],
   },
   {
-    code: 'JY-2026-0211',
+    code: 'PO-2026-0211',
     name: '座椅骨架减重',
     nodes: [
       node('评审', 'done', '07-30'),
-      node('首件', 'done', '08-28'),
+      node('样品', 'done', '08-28'),
       node('切换', 'done', '09-30'),
-      node('关闭', 'blocked', '等收益认定'),
+      node('关闭', 'blocked', '等财务复核'),
     ],
   },
 ];
@@ -67,14 +67,9 @@ const columns: DataTableColumn<Project>[] = [
 
 export default _component(() => () => (
   <Flex direction="column" gap="lg">
-    <ColumnTable
-      rows={projects}
-      columns={columns}
-      getKey={(row) => row.code}
-      aria-label="降本项目"
-    />
+    <ColumnTable rows={projects} columns={columns} getKey={(row) => row.code} aria-label="项目" />
     <Flex direction="column" gap="xs">
-      <Small tone="muted">JY-2026-0187 的实施节点</Small>
+      <Small tone="muted">PO-2026-0187 的实施节点</Small>
       <Checklist layout="inline" items={projects[0]!.nodes} />
     </Flex>
   </Flex>

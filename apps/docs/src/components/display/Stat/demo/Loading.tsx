@@ -9,11 +9,11 @@ export default _component(() => {
       <Switch _checked={loading}>加载中</Switch>
       <Grid minItemWidth="12em" gap="md">
         <Card>
-          <Stat label="降本项目总数" value={6} unit="项" icon={ClipboardList} loading={loading} />
+          <Stat label="项目总数" value={6} unit="项" icon={ClipboardList} loading={loading} />
         </Card>
         <Card>
           <Stat
-            label="实际降本金额"
+            label="实际销售额"
             value={910.36}
             format={{ minimumFractionDigits: 2 }}
             unit="万元"
@@ -24,7 +24,7 @@ export default _component(() => {
           />
         </Card>
         <Card header="本月说明" loading={loading}>
-          实际降本金额按财务口径统计，每月 5 日更新上月数据。
+          实际销售额按财务口径统计，每月 5 日更新上月数据。
         </Card>
       </Grid>
     </Flex>

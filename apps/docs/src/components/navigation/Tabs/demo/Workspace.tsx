@@ -14,7 +14,7 @@ const initial: Page[] = [
   { id: 'po-2401', title: '采购单 PO-2401' },
   { id: 'po-2402', title: '采购单 PO-2402' },
   { id: 'supplier-17', title: '供应商：远山精密' },
-  { id: 'report-q3', title: '第三季度降本报表' },
+  { id: 'report-q3', title: '第三季度销售报表' },
   { id: 'inspect-88', title: '来料检验 IQC-88' },
   { id: 'contract-5', title: '合同审批 CT-5' },
 ];

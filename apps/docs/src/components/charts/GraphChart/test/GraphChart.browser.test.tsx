@@ -18,7 +18,7 @@ it('8 个节点、8 条连线，节点写名称', async () => {
   const root = mount(Network);
   await until(() => nodes(root).length === 8 && links(root).length === 8);
   const text = root.querySelector('svg')!.textContent!;
-  for (const label of ['总体技术', '复合材料', '供应商甲']) expect(text).toContain(label);
+  for (const label of ['总体技术', '研发中心', '供应商甲']) expect(text).toContain(label);
 });
 
 it('点“总体技术”选中它，点空白处取消', async () => {

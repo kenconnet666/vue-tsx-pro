@@ -24,8 +24,8 @@ interface Line {
 }
 
 const lines: Line[] = [
-  { row: 2, part: 'G26', name: '整流罩蒙皮', quantity: 2, price: '450.00' },
-  { row: 3, part: 'G29', name: '整流罩蒙皮（更改后）', quantity: 2, price: '480.00' },
+  { row: 2, part: 'G26', name: '笔记本电脑', quantity: 2, price: '450.00' },
+  { row: 3, part: 'G29', name: '笔记本电脑（更改后）', quantity: 2, price: '480.00' },
   {
     row: 4,
     part: '',
@@ -40,7 +40,7 @@ const lines: Line[] = [
     name: '支架',
     quantity: null,
     price: '96.00',
-    issue: { level: 'error', message: '单机数量必须大于 0' },
+    issue: { level: 'error', message: '数量必须大于 0' },
   },
   {
     row: 6,
@@ -85,7 +85,7 @@ const columns: DataTableColumn<Line>[] = [
   },
   { key: 'part', header: '件号', width: 96 },
   { key: 'name', header: '零件名称', width: 180 },
-  { key: 'quantity', header: '单机数量', width: 96 },
+  { key: 'quantity', header: '数量', width: 96 },
   {
     key: 'price',
     header: '材料单价（元）',

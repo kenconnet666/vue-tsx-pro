@@ -12,8 +12,8 @@ interface Quote {
 
 const quotes: Quote[] = [
   { id: 'q1', supplier: '青岩精密', price: 182_400, days: 45, rating: 'A' },
-  { id: 'q2', supplier: '北辰复材', price: 169_900, days: 60, rating: 'B' },
-  { id: 'q3', supplier: '远航机加', price: 175_000, days: 38, rating: 'A' },
+  { id: 'q2', supplier: '北辰研发', price: 169_900, days: 60, rating: 'B' },
+  { id: 'q3', supplier: '远航生产', price: 175_000, days: 38, rating: 'A' },
   { id: 'q4', supplier: '星河紧固件', price: 158_600, days: 75, rating: 'C' },
 ];
 

@@ -17,7 +17,7 @@ const styles = css.create({
 });
 
 export default _component(() => {
-  let text = _state('降本方案：\n1. 卡箍改用铝合金\n2. 合并两件支架，减少紧固件');
+  let text = _state('改进方案：\n1. 卡箍改用铝合金\n2. 合并两件支架，减少紧固件');
   let size = _state(50);
   return () => (
     <Splitter

@@ -25,14 +25,14 @@ export default _component(() => {
   let mode = _state<Mode>('readonly');
   const form = useForm({
     initial: {
-      name: '机型 A 平尾翼根整流罩设计优化',
+      name: '华东门店陈列改造',
       category: 'design',
       install: 'required',
       funding: ['quality', 'certification'],
       needSb: false,
       flights: 40,
       description:
-        '整流罩由两件合并为一件，减少紧固件 36 个；材料由 T300 换为 T700，单件减重 2.3 kg。',
+        '包装由两层合并为一层，减少胶带用量 36%；纸箱由五层瓦楞换为三层，单箱减重 0.3 kg。',
     },
   });
 
@@ -40,7 +40,7 @@ export default _component(() => {
     <Card
       header={
         <Flex align="center" justify="between" gap="md" wrap>
-          <strong>降本项目基本信息</strong>
+          <strong>项目基本信息</strong>
           <ToggleGroup _value={mode} required size="sm" aria-label="表单状态">
             <ToggleItem value="edit">编辑</ToggleItem>
             <ToggleItem value="readonly">只读</ToggleItem>
@@ -63,7 +63,7 @@ export default _component(() => {
           <Field label="任务类别" required>
             <RadioGroup _value={form.values.category} orientation="horizontal">
               <Radio value="design">设计优化</Radio>
-              <Radio value="source">多货源</Radio>
+              <Radio value="source">多供应商</Radio>
               <Radio value="process">工艺优化</Radio>
             </RadioGroup>
           </Field>
@@ -87,7 +87,7 @@ export default _component(() => {
           <Field label="SB 贯彻">
             <Switch _checked={form.values.needSb}>需要 SB 贯彻航线架次</Switch>
           </Field>
-          <Field label="简要描述" required description="说明更改内容与降本金额的计算依据">
+          <Field label="简要描述" required description="说明更改内容与节省金额的计算依据">
             <Textarea _value={form.values.description} rows={3} />
           </Field>
         </Flex>

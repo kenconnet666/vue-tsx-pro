@@ -70,7 +70,7 @@ export default _component(() => () => (
       给了 <Code>onReorder</Code> 时第一列前面有把手：按下拖动，或聚焦后空格拿起、↑↓
       移动、空格放下（每一步读屏都会播报），拖完得到新的顺序。排序、筛选时显示的顺序不是数据的顺序，把手收起，取消后又能拖。
     </Example>
-    <Example id="ledger" title="降本台账：合计、状态与批量操作" demo={Ledger}>
+    <Example id="ledger" title="销售台账：合计、状态与批量操作" demo={Ledger}>
       列的 <Code>summary</Code> 写 <Code>'sum'</Code> 时底部多一行吸底的合计（Decimal
       精确相加，按列的格式显示）；
       <Code>statuses</Code> 是状态映射，单元格显示成 StatusBadge；没有值时显示列的{' '}
@@ -80,11 +80,11 @@ export default _component(() => () => (
       显示已选几项与批量操作。<Code>hiddenColumns</Code> 隐藏列，这里用 Menu 的 MenuCheckboxItem
       做列显示设置（也可以开 <Code>columnMenu</Code>）；固定列与滚动的列之间有一条竖线。
     </Example>
-    <Example id="changes" title="零件更改对比：分组表头" demo={Changes}>
+    <Example id="changes" title="采购方案调整：分组表头" demo={Changes}>
       <Code>columnGroups</Code> 写组标题与组里各列的
       key：相邻的几列上方共用一个标题，表头变成两行，没分组的列跨两行；组与相邻的列之间有竖线，固定列照常固定。列定义仍是平铺的，排序、列宽、隐藏列都按列算，组里的列全隐藏时这一组也不显示。
     </Example>
-    <Example id="details" title="供应商降本建议：展开行" demo={Proposals}>
+    <Example id="details" title="供应商改进建议：展开行" demo={Proposals}>
       <Code>renderDetail</Code> 给出一行的详情：多一列展开按钮（aria-expanded，aria-controls
       指向详情），展开的行下面多一行跨全部列的详情，虚拟滚动按真实高度测量；<Code>hasDetail</Code>{' '}
       决定哪些行能展开，<Code>expandedRows</Code>{' '}

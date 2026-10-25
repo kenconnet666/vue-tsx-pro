@@ -29,15 +29,15 @@ const statuses = createStatusMap({
 
 const rows: Saving[] = [
   {
-    code: 'JY-2026-0187',
-    name: '整流罩支架合并为一体成型',
-    team: '复合材料中心',
+    code: 'PO-2026-0187',
+    name: '显示器支架合并为一体成型',
+    team: '研发中心',
     target: 174_752,
     actual: 160_300,
     status: 'verifying',
   },
   {
-    code: 'DJ-2026-FC-14',
+    code: 'PO-2026-0214',
     name: '线束卡箍改用铝合金',
     team: '机体结构',
     target: 86_400,
@@ -45,15 +45,15 @@ const rows: Saving[] = [
     status: 'designing',
   },
   {
-    code: 'DMC-2026-QY-3',
-    name: '舱门铰链第二货源',
+    code: 'PO-2026-0233',
+    name: '机柜导轨第二供应商',
     team: '供应链管理',
     target: 312_000,
     actual: 335_800,
     status: 'confirmed',
   },
   {
-    code: 'JY-2026-0203',
+    code: 'PO-2026-0203',
     name: '检修口盖板减重',
     team: '机体结构',
     target: 52_600,
@@ -96,7 +96,7 @@ export default _component(() => {
   async function download() {
     exporting = true;
     try {
-      await exportXlsx('降本台账', [{ name: '台账', rows, columns, groups }]);
+      await exportXlsx('销售台账', [{ name: '台账', rows, columns, groups }]);
     } finally {
       exporting = false;
     }
@@ -121,7 +121,7 @@ export default _component(() => {
         columns={columns}
         columnGroups={groups}
         getKey={(row) => row.code}
-        aria-label="降本台账"
+        aria-label="销售台账"
       />
     </Flex>
   );

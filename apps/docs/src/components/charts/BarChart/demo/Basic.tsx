@@ -12,12 +12,12 @@ const projects = [
 
 export default _component(() => () => (
   <BarChart
-    aria-label="项目降本金额"
+    aria-label="各项目销售额"
     data={projects}
     index="name"
     series={[
-      { key: 'planned', label: '预期降本' },
-      { key: 'actual', label: '实际降本' },
+      { key: 'planned', label: '预期销售' },
+      { key: 'actual', label: '实际销售' },
     ]}
     unit="万元"
     valueFormat={{ maximumFractionDigits: 2 }}

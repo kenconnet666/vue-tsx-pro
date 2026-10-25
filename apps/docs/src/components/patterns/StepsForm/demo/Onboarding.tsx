@@ -14,7 +14,7 @@ import {
 import { StepsForm } from '@vue-tsx-pro/ui/patterns';
 import * as z from 'zod';
 
-const categories = ['机加件', '复材件', '钣金件', '标准件', '线缆'];
+const categories = ['生产件', '研发件', '钣金件', '标准件', '线缆'];
 
 const schema = z
   .object({

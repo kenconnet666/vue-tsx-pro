@@ -32,8 +32,8 @@ const statuses = createStatusMap({
   received: { label: '已到货', tone: 'success' },
 });
 
-const suppliers = ['华辰精密机加', '启航复材', '远山钣金', '恒通紧固件', '北辰电子'];
-const categories = ['机加件', '复材件', '钣金件', '标准件', '线缆'];
+const suppliers = ['华辰精密生产', '启航研发', '远山钣金', '恒通紧固件', '北辰电子'];
+const categories = ['生产件', '研发件', '钣金件', '标准件', '线缆'];
 const buyers = ['林小满', '周一航', '陈默', '许悠', '王晴', '赵浩然'];
 const states = statuses.keys;
 const LATEST = new Date(2026, 9, 21).getTime();

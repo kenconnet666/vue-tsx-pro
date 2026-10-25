@@ -24,7 +24,7 @@ const seed = (): NotificationItem[] => [
   {
     id: '1',
     title: '新的待办：齐全性检查',
-    description: 'JY-2026-0187 · 整流罩支架材料替代',
+    description: 'PO-2026-0187 · 办公椅供应商切换',
     time: '2026-10-21T09:42:00+08:00',
     type: 'todo',
     read: false,
@@ -32,7 +32,7 @@ const seed = (): NotificationItem[] => [
   {
     id: '2',
     title: '被退回：方案设计',
-    description: 'DJ-2026-FC-14 · 验证窗结论缺少试验报告',
+    description: 'PO-2026-0214 · 验收报告缺少试验报告',
     time: '2026-10-21T08:10:00+08:00',
     type: 'returned',
     read: false,
@@ -40,8 +40,8 @@ const seed = (): NotificationItem[] => [
   },
   {
     id: '3',
-    title: '催办：收益认定',
-    description: 'DMC-2026-QY-3 · 请今天内认定',
+    title: '催办：财务复核',
+    description: 'PO-2026-0233 · 请今天内认定',
     time: '2026-10-20T16:30:00+08:00',
     type: 'remind',
     read: false,
@@ -49,8 +49,8 @@ const seed = (): NotificationItem[] => [
   },
   {
     id: '4',
-    title: '成本团队收件箱有新的待办：收益测算',
-    description: 'JY-2026-0179 · 舱门密封件第二货源',
+    title: '财务部收件箱有新的待办：费用核算',
+    description: 'PO-2026-0179 · 包装纸箱第二供应商',
     time: '2026-10-19T11:00:00+08:00',
     type: 'todo',
     read: true,
@@ -58,7 +58,7 @@ const seed = (): NotificationItem[] => [
   {
     id: '5',
     title: '计划调整已通过：地板梁紧固件减量',
-    description: 'DJ-2026-ZT-76 · 计划完成改为 2026-12-15',
+    description: 'PO-2026-0276 · 计划完成改为 2026-12-15',
     time: '2026-10-18T15:20:00+08:00',
     type: 'todo',
     read: true,
@@ -74,7 +74,7 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Flex align="center" gap="md" sx={styles.bar}>
         <Icon icon={Plane} sx={styles.brand} />
-        <Strong>联合降本管理</Strong>
+        <Strong>采购管理平台</Strong>
         <TextField icon={Search} size="sm" placeholder="搜索编号、名称" sx={styles.search} />
         <NotificationCenter
           items={items}

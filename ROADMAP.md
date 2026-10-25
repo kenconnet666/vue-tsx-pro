@@ -348,7 +348,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 案例：日期用组件库的 `shiftIsoDate`、`daysBetween`；两种降本类型的名称、编码表头、单位与格式合成 `costKinds`，台账只传类型；
       两个编辑页共用 `task-form.ts` 的字段与条件必填；DmcEditor 的实施节点用 `form.array`（删行时错误跟着移动）；
       铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@vue-tsx-pro/ui/vars`，主入口不再导出它）；看板用 Grid；
-      图表示例的真实机型名换成“机型 A / B”
+      图表示例的真实产品型号换成虚构的名字（2026-10-26 起示例改用通用场景）
 
 #### A.6 审查余项
 

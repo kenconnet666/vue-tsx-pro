@@ -38,7 +38,7 @@ const TODAY = '2026-10-21';
 
 const tasks = [
   // 跨国庆：放假的日子不算、10 月 10 日（周六）调休算，10 个工作日后是 10 月 21 日
-  { name: '收益认定', start: '2026-09-30', workdays: 10 },
+  { name: '财务复核', start: '2026-09-30', workdays: 10 },
   { name: '商务回填 B 值', start: '2026-10-09', workdays: 5 },
   { name: '工程评估', start: '2026-10-19', workdays: 4 },
   { name: '供应商报价', start: '2026-10-09', workdays: 3, done: '2026-10-12' },

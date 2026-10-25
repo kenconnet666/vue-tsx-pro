@@ -16,18 +16,18 @@ import { Card, Flex, NavGroup, NavItem, NavList, NavSection, Switch, t } from '@
 
 const sections = [
   {
-    label: '降本项目',
+    label: '项目',
     icon: FolderKanban,
     pages: [
-      ['单机降本台账', Wrench, 0],
-      ['降 DMC 台账', Gauge, 0],
+      ['单价台账', Wrench, 0],
+      ['库存台账', Gauge, 0],
     ],
   },
   {
     label: '收益',
     icon: CircleDollarSign,
     pages: [
-      ['收益认定', BadgeCheck, 12],
+      ['财务复核', BadgeCheck, 12],
       ['一本账', BookOpenText, 0],
     ],
   },
@@ -45,13 +45,13 @@ const styles = css.create({
 
 export default _component(() => {
   let compact = _state(true);
-  let current = _state('单机降本台账');
+  let current = _state('单价台账');
   const link = (page: string) => `#${encodeURIComponent(page)}`;
   return () => (
     <Flex direction="column" gap="md" align="start">
       <Switch _checked={compact}>只显示图标</Switch>
       <Card padding="xs" sx={[styles.nav, compact && styles.compact]}>
-        <NavList aria-label="降本管理" compact={compact}>
+        <NavList aria-label="销售管理" compact={compact}>
           <NavItem
             href="#home"
             icon={House}

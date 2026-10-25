@@ -29,7 +29,7 @@ export default _component(() => () => (
           size="sm"
           items={[
             { label: '件号', value: 'G26' },
-            { label: '材料', value: 'CFRP-T300' },
+            { label: '材料', value: '铝合金 6061' },
           ]}
         />
         <Separator labelAlign="start" decorative={false}>
@@ -40,7 +40,7 @@ export default _component(() => () => (
           size="sm"
           items={[
             { label: '件号', value: 'G29' },
-            { label: '材料', value: 'CFRP-T700' },
+            { label: '材料', value: '铝合金 7075' },
           ]}
         />
       </Flex>

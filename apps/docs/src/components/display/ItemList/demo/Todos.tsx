@@ -5,9 +5,9 @@ import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
 
 const TODAY = '2026-10-21';
 const todos = [
-  { id: 1, node: '齐全性检查', code: 'JY-2026-0187', due: '2026-10-23', returned: false },
-  { id: 2, node: '方案设计', code: 'DJ-2026-FC-14', due: '2026-10-16', returned: true },
-  { id: 3, node: '收益认定', code: 'DMC-2026-QY-3', due: '2026-11-04', returned: false },
+  { id: 1, node: '齐全性检查', code: 'PO-2026-0187', due: '2026-10-23', returned: false },
+  { id: 2, node: '方案设计', code: 'PO-2026-0214', due: '2026-10-16', returned: true },
+  { id: 3, node: '财务复核', code: 'PO-2026-0233', due: '2026-11-04', returned: false },
 ];
 
 export default _component(() => () => (

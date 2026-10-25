@@ -208,7 +208,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 - **单线程**：主会话直接在 master 上做，不开并行子会话或 worktree（用户 2026-10-20 的决定；之前混提交、互等过）。
 - **Figma**：M5 / M6 在 `UTDP9KBNhelTIK1KoMlHYk`（Starter，em 按 14px 换算成精确 px，indigo + slate，Noto Sans SC 与 JetBrains Mono）。
   2026-10-22 MCP 的月度额度用完，下个月恢复前不调用；旧的降本 Figma（`EXAYq8fZzavtUUfJm0w34M`、`cF46xK3IEPmw9ygh4Tl1Mg`）不参考、不改。
-  降本案例一律虚构数据（机型 A、供应商甲）。
+  示例一律用通用的虚构场景（采购、销售、门店、供应商甲），不用具体项目的业务名词与编号（2026-10-26 整理过一遍）。
 - **密钥**：`GITHUB_TOKEN`、`CONTEXT7_API_KEY` 放在用户级环境变量里，配置用 `${VAR}` 引用，绝不写进文件或提交；GitHub 走 `gh` 的 keyring 登录。
 
 ## 7. 踩过的坑

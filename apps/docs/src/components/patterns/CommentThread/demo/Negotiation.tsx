@@ -1,4 +1,4 @@
-// 协商的逐条回应（只读）：供应商每一条异议下面是成本团队的回应，回应的结论（采纳 / 不采纳）与改了的字段放在 extra；
+// 协商的逐条回应（只读）：供应商每一条异议下面是财务部的回应，回应的结论（采纳 / 不采纳）与改了的字段放在 extra；
 // 不给 onSend 时没有输入框与回复按钮
 import { _component } from '@vue-tsx-pro/tsx';
 import { Badge, Card, FieldCompare, Flex, type CompareField } from '@vue-tsx-pro/ui';
@@ -45,7 +45,7 @@ const comments: CommentItem[] = [
       {
         id: 'r1',
         author: '方圆',
-        role: <Badge size="sm">成本团队</Badge>,
+        role: <Badge size="sm">财务部</Badge>,
         content: '核对过统计表，按 2.5% 重新测算，单价随之调整。',
         time: '2026-10-20T15:02:00+08:00',
         extra: verdict(true, v2, v3),
@@ -66,7 +66,7 @@ const comments: CommentItem[] = [
       {
         id: 'r2',
         author: '方圆',
-        role: <Badge size="sm">成本团队</Badge>,
+        role: <Badge size="sm">财务部</Badge>,
         content: '该零件的项目寿命只有 3 年，摊销年限不能超过项目寿命，维持原测算。',
         time: '2026-10-20T15:10:00+08:00',
         extra: verdict(false),

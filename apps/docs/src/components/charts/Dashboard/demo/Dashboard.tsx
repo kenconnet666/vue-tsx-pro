@@ -42,7 +42,7 @@ interface Project {
 const PROJECTS: Project[] = [
   {
     code: '项目 01',
-    title: '机型 A 平尾翼梢整流罩设计优化',
+    title: '华东门店陈列改造',
     category: '设计优化',
     department: '结构设计部',
     year: 2026,
@@ -52,7 +52,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 02',
-    title: '机型 A 机身支架工艺优化',
+    title: '仓库拣货流程优化',
     category: '工艺优化',
     department: '工艺研究所',
     year: 2026,
@@ -64,8 +64,8 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 03',
-    title: '机型 A 舱门密封件多货源',
-    category: '多货源',
+    title: '包装纸箱多供应商',
+    category: '多供应商',
     department: '采购中心',
     year: 2026,
     plannedSorties: 30,
@@ -76,7 +76,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 04',
-    title: '机型 A 客舱地板支撑件设计优化',
+    title: '会员小程序改版',
     category: '设计优化',
     department: '结构设计部',
     year: 2026,
@@ -88,7 +88,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 05',
-    title: '机型 A 线束支架工艺优化',
+    title: '配送路线优化',
     category: '工艺优化',
     department: '工艺研究所',
     year: 2026,
@@ -98,8 +98,8 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 06',
-    title: '机型 A 内饰连接件多货源',
-    category: '多货源',
+    title: '办公耗材多供应商',
+    category: '多供应商',
     department: '采购中心',
     year: 2026,
     plannedSorties: 50,
@@ -108,7 +108,7 @@ const PROJECTS: Project[] = [
   },
   {
     code: '项目 07',
-    title: '机型 B 起落架舱门工艺优化',
+    title: '冷链仓温控改造',
     category: '工艺优化',
     department: '工艺研究所',
     year: 2025,
@@ -150,8 +150,8 @@ const STATUS: Record<Status, [label: string, tone: StatusTone]> = {
 };
 
 const SERIES = [
-  { key: 'planned', label: '预期降本' },
-  { key: 'actual', label: '实际降本' },
+  { key: 'planned', label: '预期销售' },
+  { key: 'actual', label: '实际销售' },
 ] as const;
 
 /** 下拉里“全部”的值 */
@@ -165,15 +165,15 @@ const YEARS = [
   { value: '2025', label: '2025' },
 ];
 
-/** 主要供应商：零部件运到上海的总装线 */
+/** 主要供应商：零部件运到上海的组装厂 */
 const ASSEMBLY = { city: '上海', lat: 31.23, lng: 121.47 };
 const SUPPLIERS = [
-  { city: '西安', part: '机身中段', lat: 34.34, lng: 108.94, share: 18 },
-  { city: '成都', part: '机头', lat: 30.57, lng: 104.07, share: 12 },
-  { city: '图卢兹', part: '航电系统', lat: 43.6, lng: 1.44, share: 15 },
-  { city: '辛辛那提', part: '发动机', lat: 39.1, lng: -84.51, share: 26 },
-  { city: '哈特福德', part: '起落架', lat: 41.76, lng: -72.68, share: 9 },
-  { city: '名古屋', part: '复合材料', lat: 35.18, lng: 136.91, share: 7 },
+  { city: '深圳', part: '主板', lat: 22.54, lng: 114.06, share: 26 },
+  { city: '东莞', part: '外壳', lat: 23.02, lng: 113.75, share: 12 },
+  { city: '苏州', part: '屏幕', lat: 31.3, lng: 120.62, share: 15 },
+  { city: '新竹', part: '芯片', lat: 24.8, lng: 120.97, share: 18 },
+  { city: '首尔', part: '存储', lat: 37.57, lng: 126.98, share: 9 },
+  { city: '大阪', part: '电池', lat: 34.69, lng: 135.5, share: 7 },
 ];
 
 const styles = css.create({
@@ -210,12 +210,12 @@ export default _component(() => {
 
   function exportCsv() {
     const header = [
-      '降本项目',
+      '项目',
       '任务类别',
       '计划架次',
       '实际架次',
-      '预期降本（万元）',
-      '实际降本（万元）',
+      '预期销售（万元）',
+      '实际销售（万元）',
       '状态',
     ];
     const lines = rows.map((project) => [
@@ -229,7 +229,7 @@ export default _component(() => {
     ]);
     // 开头的 BOM 让 Excel 按 UTF-8 打开，中文不乱码
     const csv = `\uFEFF${[header, ...lines].map((line) => line.join(',')).join('\n')}`;
-    downloadFile('降本统计.csv', csv, 'text/csv');
+    downloadFile('销售统计.csv', csv, 'text/csv');
   }
 
   return () => {
@@ -265,11 +265,11 @@ export default _component(() => {
 
         <Grid minItemWidth="12em" gap="md">
           <Card>
-            <Stat label="降本项目总数" value={rows.length} unit="项" icon={ClipboardList} />
+            <Stat label="项目总数" value={rows.length} unit="项" icon={ClipboardList} />
           </Card>
           <Card>
             <Stat
-              label="预期降本金额"
+              label="预期销售额"
               value={planned}
               format={{ minimumFractionDigits: 2 }}
               unit="万元"
@@ -278,7 +278,7 @@ export default _component(() => {
           </Card>
           <Card>
             <Stat
-              label="实际降本金额"
+              label="实际销售额"
               value={actual}
               format={{ minimumFractionDigits: 2 }}
               unit="万元"
@@ -287,7 +287,7 @@ export default _component(() => {
           </Card>
           <Card>
             <Stat
-              label="降本达成率"
+              label="销售达成率"
               value={planned ? actual / planned : 0}
               format={{ style: 'percent', maximumFractionDigits: 1 }}
               icon={TrendingUp}
@@ -296,9 +296,9 @@ export default _component(() => {
         </Grid>
 
         <Grid minItemWidth="22em" gap="md">
-          <Card header={<H3 size="md">项目降本金额</H3>}>
+          <Card header={<H3 size="md">各项目销售额</H3>}>
             <BarChart
-              aria-label="项目降本金额"
+              aria-label="各项目销售额"
               data={rows}
               index="code"
               series={[...SERIES]}
@@ -306,9 +306,9 @@ export default _component(() => {
               valueFormat={{ maximumFractionDigits: 2 }}
             />
           </Card>
-          <Card header={<H3 size="md">月度降本趋势</H3>}>
+          <Card header={<H3 size="md">月度销售趋势</H3>}>
             <LineChart
-              aria-label="月度降本趋势"
+              aria-label="月度销售趋势"
               data={MONTHS}
               index="month"
               series={[...SERIES]}
@@ -373,12 +373,12 @@ export default _component(() => {
           <Table aria-label="项目统计明细">
             <TableHead>
               <TableRow>
-                <TableHeaderCell>降本项目</TableHeaderCell>
+                <TableHeaderCell>项目</TableHeaderCell>
                 <TableHeaderCell>任务类别</TableHeaderCell>
                 <TableHeaderCell align="end">计划架次</TableHeaderCell>
                 <TableHeaderCell align="end">实际架次</TableHeaderCell>
-                <TableHeaderCell align="end">预期降本（万元）</TableHeaderCell>
-                <TableHeaderCell align="end">实际降本（万元）</TableHeaderCell>
+                <TableHeaderCell align="end">预期销售（万元）</TableHeaderCell>
+                <TableHeaderCell align="end">实际销售（万元）</TableHeaderCell>
                 <TableHeaderCell>状态</TableHeaderCell>
               </TableRow>
             </TableHead>

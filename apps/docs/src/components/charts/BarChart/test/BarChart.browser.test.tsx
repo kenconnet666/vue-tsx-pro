@@ -33,7 +33,7 @@ it('悬停一个类目：提示框列出这一组的各系列，数值带单位'
   );
   const text = await until(() => {
     const content = root.querySelector('[role="figure"] [aria-hidden="true"]')!.textContent!;
-    return content.includes('预期降本') && content;
+    return content.includes('预期销售') && content;
   });
   expect(text).toContain('项目 02');
   // 数字与单位之间是不换行的空格

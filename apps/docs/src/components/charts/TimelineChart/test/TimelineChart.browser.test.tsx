@@ -12,7 +12,7 @@ it('每段一条线；行标签、今天与里程碑的文字、按月的刻度�
   await new Promise((resolve) => setTimeout(resolve, 600));
   const text = root.querySelector('svg')!.textContent!;
   for (const label of [
-    '整流罩支架换材',
+    '官网首页改版',
     '供应商年度议价',
     '今天',
     '年中评审',

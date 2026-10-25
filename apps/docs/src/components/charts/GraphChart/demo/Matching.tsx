@@ -12,9 +12,9 @@ const groups = [
 const nodes = [
   { id: 'e1', label: '新供应商接入', group: 'event', shape: 'square' as const },
   { id: 'e2', label: '材料牌号归并', group: 'event', shape: 'square' as const },
-  { id: 'r1', label: '液压管路卡箍', sublabel: 'CB-0412', group: 'reserve' },
-  { id: 'r2', label: '襟翼滑轨罩', sublabel: 'CB-0388', group: 'reserve' },
-  { id: 'r3', label: '舱门铰链', sublabel: 'CB-0275', group: 'reserve' },
+  { id: 'r1', label: '线缆收纳夹', sublabel: 'CB-0412', group: 'reserve' },
+  { id: 'r2', label: '桌面挡板', sublabel: 'CB-0388', group: 'reserve' },
+  { id: 'r3', label: '机柜导轨', sublabel: 'CB-0275', group: 'reserve' },
   { id: 'p1', label: '成本工程师 甲', group: 'person' },
   { id: 'p2', label: '设计师 乙', group: 'person' },
   { id: 'p3', label: '设计师 丙', group: 'person' },

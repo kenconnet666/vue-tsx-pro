@@ -1,4 +1,4 @@
-// 测算两版之间的差异：从 V1 出发，各参数的影响一步步加减到 V2；降本金额变多是好事，所以往上是 success
+// 测算两版之间的差异：从 V1 出发，各参数的影响一步步加减到 V2；销售额变多是好事，所以往上是 success
 import { _component } from '@vue-tsx-pro/tsx';
 import { WaterfallChart } from '@vue-tsx-pro/ui/charts';
 import Decimal from 'decimal.js';

@@ -22,12 +22,12 @@ const holidays = createWorkCalendar({
 });
 
 const rows = [
-  { name: '齐全性检查', code: 'JY-2026-0187', start: '2026-09-28', workdays: 3 },
-  { name: '收益认定', code: 'DMC-2026-QY-3', start: '2026-09-28', workdays: 10 },
-  { name: '方案设计评审', code: 'DJ-2026-FC-14', start: '2026-09-25', workdays: 5 },
-  { name: '供应商报价回复', code: 'JY-2026-0102', start: '2026-09-30', workdays: 2 },
-  { name: '验证结论确认', code: 'DJ-2026-FC-08', start: '2026-10-09', workdays: 1 },
-  { name: '计划调整审批', code: 'DJ-2026-ZT-76', start: '2026-10-08', workdays: 5 },
+  { name: '齐全性检查', code: 'PO-2026-0187', start: '2026-09-28', workdays: 3 },
+  { name: '财务复核', code: 'PO-2026-0233', start: '2026-09-28', workdays: 10 },
+  { name: '方案设计评审', code: 'PO-2026-0214', start: '2026-09-25', workdays: 5 },
+  { name: '供应商报价回复', code: 'PO-2026-0102', start: '2026-09-30', workdays: 2 },
+  { name: '验证结论确认', code: 'PO-2026-0308', start: '2026-10-09', workdays: 1 },
+  { name: '计划调整审批', code: 'PO-2026-0276', start: '2026-10-08', workdays: 5 },
 ];
 
 export default _component(() => () => (

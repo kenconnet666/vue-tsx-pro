@@ -21,9 +21,9 @@ interface Row {
 }
 
 const rows: Row[] = Array.from({ length: 40 }, (_, index) => ({
-  code: `DJ-2026-ZT-${index + 1}`,
-  name: ['液压管路卡箍设计优化', '襟翼滑轨罩工艺优化', '舱门铰链第二货源'][index % 3]!,
-  team: ['总体技术', '复合材料', '起落架液压'][index % 3]!,
+  code: `PO-2026-${String(index + 1).padStart(4, '0')}`,
+  name: ['线缆收纳夹设计优化', '桌面挡板工艺优化', '机柜导轨第二供应商'][index % 3]!,
+  team: ['总体技术', '研发中心', '运营部'][index % 3]!,
   amount: 2 + ((index * 37) % 300) / 10,
 }));
 
@@ -42,7 +42,7 @@ export default _component(() => {
     <AppShell
       brand={
         <AppShellBrand href="#" icon={Plane}>
-          联合降本管理
+          采购管理平台
         </AppShellBrand>
       }
       propsMain={{ sx: styles.main }}

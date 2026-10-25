@@ -82,7 +82,7 @@ const columns: DataTableColumn<Line>[] = [
 
 export default _component(() => {
   let lines = _state<Line[]>([
-    { id: '1', part: '整流罩支架', quantity: 40, price: 128, due: '2026-11-05', status: 'ordered' },
+    { id: '1', part: '显示器支架', quantity: 40, price: 128, due: '2026-11-05', status: 'ordered' },
     { id: '2', part: '铰链底座', quantity: 80, price: 76.5, due: '2026-11-12', status: 'draft' },
     { id: '3', part: '检修口盖板', quantity: 24, price: 212, due: '2026-10-20', status: 'draft' },
     { id: '4', part: '线束卡箍', quantity: 300, price: 3.2, due: '2026-11-30', status: 'draft' },

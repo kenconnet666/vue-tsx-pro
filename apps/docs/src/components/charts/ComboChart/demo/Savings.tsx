@@ -1,4 +1,4 @@
-// 月度降本：计划与实际是柱（万元，左轴），完成率是线（百分比，右侧的第二数值轴），两条轴的刻度落在同一组网格线上；
+// 月度销售：计划与实际是柱（万元，左轴），完成率是线（百分比，右侧的第二数值轴），两条轴的刻度落在同一组网格线上；
 // 年度目标线在主轴上，“新供应商切换”是一条标注
 import { _component } from '@vue-tsx-pro/tsx';
 import { ComboChart } from '@vue-tsx-pro/ui/charts';
@@ -17,12 +17,12 @@ const months = [
 
 export default _component(() => () => (
   <ComboChart
-    aria-label="月度降本与完成率"
+    aria-label="月度销售与完成率"
     data={months}
     index="month"
     series={[
-      { key: 'planned', label: '计划降本', color: 'chart3' },
-      { key: 'actual', label: '实际降本' },
+      { key: 'planned', label: '计划销售', color: 'chart3' },
+      { key: 'actual', label: '实际销售' },
       { key: 'rate', label: '完成率', type: 'line', axis: 'secondary', color: 'warning' },
     ]}
     unit="万元"

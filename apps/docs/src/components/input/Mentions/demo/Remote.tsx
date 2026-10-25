@@ -11,7 +11,7 @@ interface Employee {
 
 const surnames = '王 李 张 刘 陈 杨 黄 赵 周 吴 徐 孙 马 朱 胡 郭 何 林 罗 高'.split(' ');
 const givenNames = ['小满', '一航', '思远', '可欣', '子墨', '雨桐', '浩然', '静怡', '宇轩', '梦洁'];
-const departments = ['采购部', '成本团队', '质量部', '工程部', '财务部'];
+const departments = ['采购部', '财务部', '质量部', '工程部', '财务部'];
 const employees: Employee[] = surnames.flatMap((surname, row) =>
   givenNames.map((given, column) => ({
     id: `E${String(row * 10 + column + 1).padStart(4, '0')}`,

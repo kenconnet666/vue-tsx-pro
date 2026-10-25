@@ -1,4 +1,4 @@
-// 降本任务的查询栏：常用的四个条件，不常用的收起；收起时“展开”旁提示已经填了几项。
+// 销售任务的查询栏：常用的四个条件，不常用的收起；收起时“展开”旁提示已经填了几项。
 // 在输入框里按回车就是查询；重置回到初始条件再查一次
 import { Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -27,33 +27,33 @@ const statuses = createStatusMap({
 
 const tasks = [
   {
-    name: '机型 A 平尾翼根整流罩设计优化',
+    name: '华东门店陈列改造',
     category: '设计优化',
-    team: '复合材料结构',
+    team: '研发中心',
     year: '2026',
     status: 'verifying',
     config: true,
   },
   {
-    name: '机型 A 机身支架工艺优化',
+    name: '仓库拣货流程优化',
     category: '工艺优化',
-    team: '总体技术集成',
+    team: '产品部',
     year: '2026',
     status: 'closed',
     config: false,
   },
   {
-    name: '舱门密封件第二货源',
-    category: '多货源',
-    team: '起落架液压系统',
+    name: '包装纸箱第二供应商',
+    category: '多供应商',
+    team: '运营部',
     year: '2026',
     status: 'awaiting',
     config: false,
   },
   {
-    name: '客舱地板支撑件设计优化',
+    name: '会员小程序改版',
     category: '设计优化',
-    team: '复合材料结构',
+    team: '研发中心',
     year: '2027',
     status: 'designing',
     config: true,
@@ -61,7 +61,7 @@ const tasks = [
   {
     name: '线束支架工艺优化',
     category: '工艺优化',
-    team: '总体技术集成',
+    team: '产品部',
     year: '2027',
     status: 'pending',
     config: false,
@@ -121,7 +121,7 @@ export default _component(() => {
               </Field>
               <Field label="责任团队">
                 <Select
-                  items={['复合材料结构', '总体技术集成', '起落架液压系统']}
+                  items={['研发中心', '产品部', '运营部']}
                   _value={query.team}
                   placeholder="全部"
                   clearable
@@ -142,7 +142,7 @@ export default _component(() => {
           </Field>
           <Field label="任务类别">
             <Select
-              items={['设计优化', '多货源', '工艺优化']}
+              items={['设计优化', '多供应商', '工艺优化']}
               _value={query.category}
               placeholder="全部"
               clearable

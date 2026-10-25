@@ -32,13 +32,13 @@ const meetings: Meeting[] = [
   { id: '2', title: '14:00 供应商比价评审', date: '2026-10-12', kind: 'review' },
   { id: '3', title: '杭州工厂审核', date: '2026-10-14', end: '2026-10-16', kind: 'trip' },
   { id: '4', title: '09:30 周会', date: '2026-10-19', kind: 'meeting' },
-  { id: '5', title: '10:30 降本方案对齐', date: '2026-10-19', kind: 'meeting' },
+  { id: '5', title: '10:30 改进方案对齐', date: '2026-10-19', kind: 'meeting' },
   { id: '6', title: '15:00 模具保养计划', date: '2026-10-19', kind: 'review' },
   { id: '7', title: '17:00 预算复盘', date: '2026-10-19', kind: 'meeting' },
   { id: '8', title: '季度报表提交', date: '2026-10-23', kind: 'deadline' },
   { id: '9', title: '09:30 周会', date: '2026-10-26', kind: 'meeting' },
   { id: '10', title: '工艺变更评审', date: '2026-10-28', kind: 'review' },
-  { id: '11', title: '月度降本复盘', date: '2026-10-30', kind: 'meeting' },
+  { id: '11', title: '月度销售复盘', date: '2026-10-30', kind: 'meeting' },
 ];
 
 export default _component(() => {

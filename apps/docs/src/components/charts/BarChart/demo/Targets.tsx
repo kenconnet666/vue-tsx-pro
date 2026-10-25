@@ -1,12 +1,12 @@
-// 目标线与下钻：各团队的实现降本对着年度指标；点一个团队（实际项目里跳到筛好条件的台账）
+// 目标线与下钻：各团队的实现销售对着年度指标；点一个团队（实际项目里跳到筛好条件的台账）
 import { _component } from '@vue-tsx-pro/tsx';
 import { Flex, Small } from '@vue-tsx-pro/ui';
 import { BarChart } from '@vue-tsx-pro/ui/charts';
 
 const teams = [
   { team: '总体技术', committed: 420, realized: 318 },
-  { team: '复合材料', committed: 260, realized: 274 },
-  { team: '起落架液压', committed: 310, realized: 196 },
+  { team: '研发中心', committed: 260, realized: 274 },
+  { team: '运营部', committed: 310, realized: 196 },
   { team: '航电', committed: 180, realized: 142 },
 ];
 
@@ -15,7 +15,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="sm">
       <BarChart
-        aria-label="各团队的降本对着指标"
+        aria-label="各团队的销售额对着指标"
         data={teams}
         index="team"
         series={[
