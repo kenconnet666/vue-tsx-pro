@@ -246,7 +246,8 @@ function matchesRule(rule: ConditionRule, actual: unknown): boolean {
 
 /**
  * 记录满不满足条件。字段的值默认按名字取属性，read 可以改（嵌套字段、计算字段）。
- * 空的 all 成立、空的 any 不成立（同数组的 every / some）
+ * 规则与 query 库的 conditionBy（后端写成 SQL，query 仓库的 0017）一致，同一份条件在两边筛出同样的行：
+ * 没填完整的比较（isRuleComplete）与空的组不加条件，组里只看加了条件的那几项；不等于、不在其中、不包含把空值算作满足
  */
 export function matchesCondition<T>(
   condition: Condition,
@@ -254,10 +255,27 @@ export function matchesCondition<T>(
   read: (record: T, field: string) => unknown = (item, field) =>
     (item as Record<string, unknown> | null)?.[field],
 ): boolean {
-  if ('all' in condition)
-    return condition.all.every((item) => matchesCondition(item, record, read));
-  if ('any' in condition) return condition.any.some((item) => matchesCondition(item, record, read));
-  if ('not' in condition) return !matchesCondition(condition.not, record, read);
+  return evaluate(condition, record, read) ?? true;
+}
+
+/** 求值；不加条件（没填完整的比较、空的组）时是 undefined，同 SQL 端丢掉空条件 */
+function evaluate<T>(
+  condition: Condition,
+  record: T,
+  read: (record: T, field: string) => unknown,
+): boolean | undefined {
+  if ('not' in condition) {
+    const inner = evaluate(condition.not, record, read);
+    return inner === undefined ? undefined : !inner;
+  }
+  if ('all' in condition || 'any' in condition) {
+    const results = ('all' in condition ? condition.all : condition.any)
+      .map((item) => evaluate(item, record, read))
+      .filter((result) => result !== undefined);
+    if (results.length === 0) return undefined;
+    return 'all' in condition ? results.every(Boolean) : results.some(Boolean);
+  }
+  if (!isRuleComplete(condition)) return undefined;
   return matchesRule(condition, read(record, condition.field));
 }
 

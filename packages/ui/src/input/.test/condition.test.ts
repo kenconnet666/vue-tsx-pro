@@ -45,7 +45,7 @@ describe('matchesCondition', () => {
     expect(yes({ field: 'tags', op: 'exists' })).toBe(false);
   });
 
-  it('组合：all / any / not 可以嵌套；空的 all 成立、空的 any 不成立；read 改取值的方式', () => {
+  it('组合：all / any / not 可以嵌套；没填完整的比较与空的组不加条件（同 query 的 conditionBy）；read 改取值的方式', () => {
     const condition: Condition = {
       all: [
         { field: 'amount', op: 'gte', value: 1000 },
@@ -54,7 +54,21 @@ describe('matchesCondition', () => {
     };
     expect(matchesCondition(condition, order)).toBe(true);
     expect(matchesCondition({ all: [] }, order)).toBe(true);
-    expect(matchesCondition({ any: [] }, order)).toBe(false);
+    expect(matchesCondition({ any: [] }, order)).toBe(true);
+    expect(matchesCondition({ not: { all: [] } }, order)).toBe(true);
+    // 没填完整的比较不算：any 只看填完整的那一条
+    expect(
+      matchesCondition(
+        {
+          any: [
+            { field: 'amount', op: 'gt', value: '' },
+            { field: 'amount', op: 'lt', value: 0 },
+          ],
+        },
+        order,
+      ),
+    ).toBe(false);
+    expect(matchesCondition({ field: 'category', op: 'in', value: [] }, order)).toBe(true);
     const nested = { head: { amount: 5 } };
     expect(
       matchesCondition(

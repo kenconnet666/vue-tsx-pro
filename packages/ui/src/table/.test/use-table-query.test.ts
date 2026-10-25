@@ -174,7 +174,7 @@ describe('tableParams', () => {
     { key: 'supplier', header: '供应商', filter: { options: 'text' } },
   ];
 
-  it('写成 query 库 parseTableRequest 认的参数：sort、total、filter.、search.，查询栏的条件按线上的文字平铺', () => {
+  it('写成 query 库 parseTableRequest 认的参数：sort、total、filter.、search.，查询栏的条件按线上的文字平铺，条件树写成 JSON', () => {
     const query: TableQuery<Record<string, unknown>, undefined> = {
       page: 2,
       pageSize: 20,
@@ -194,6 +194,7 @@ describe('tableParams', () => {
         blank: '',
         missing: undefined,
         categories: ['机加', '复材'],
+        condition: { any: [{ field: 'amount', op: 'gte', value: 1000 }] },
       },
       params: undefined,
     };
@@ -210,6 +211,8 @@ describe('tableParams', () => {
       created: ['2026-01-01', ''],
       amount: ['', '500'],
       categories: ['机加', '复材'],
+      // 条件树（FilterBar 的高级筛选）写成 JSON 文字，后端的 TableRequest 读 condition 参数（query 的 0017）
+      condition: '{"any":[{"field":"amount","op":"gte","value":1000}]}',
     });
   });
 

@@ -16,6 +16,8 @@
  * syncToUrl 把页码、条数、排序（sort=-amount,name：减号是倒序，同 JSON:API）、筛选条件放进地址的查询参数（见 useQueryState）。
  *
  * tableParams 把一次查询写成接口的参数，与 query 库的 parseTableRequest、Java 的 TableRequest.parse 一一对应（query 仓库的 0016）。
+ * 筛选条件里的条件树（FilterBar 的 _condition、ConditionBuilder 的值）写成 JSON 文字；键名用 condition 时，
+ * 后端的 TableRequest 读到它交给 conditionBy（query 仓库的 0017）。
  */
 import { shallowRef, watch, type Ref } from 'vue';
 import {
@@ -27,6 +29,7 @@ import {
 import type { QueryValue } from '../utils/request/http';
 import { useRequest } from '../utils/request/use-request';
 import { toWire, wireText, type WireScalar } from '../utils/request/wire';
+import { isConditionGroup, type Condition } from '../input/condition';
 import {
   columnFilter,
   formatSorts,
@@ -290,9 +293,10 @@ export function tableParams<Filters, Params>(
   return out;
 }
 
-/** 查询栏里一个条件写成参数：空值不写；数组、区间写成几个同名参数；其余是线上的文字 */
+/** 查询栏里一个条件写成参数：空值不写；条件树写成 JSON 文字；数组、区间写成几个同名参数；其余是线上的文字 */
 function filterParam(value: unknown): QueryValue | undefined {
   if (value === null || value === undefined || value === '') return undefined;
+  if (isConditionTree(value)) return JSON.stringify(value);
   const items = Array.isArray(value)
     ? (value as WireScalar[]).map(wireText)
     : isRange(value)
@@ -300,4 +304,14 @@ function filterParam(value: unknown): QueryValue | undefined {
       : undefined;
   if (items) return items.every((item) => item === '') ? undefined : items;
   return wireText(value as WireScalar);
+}
+
+/** 是条件树（ConditionBuilder 的值）：组合，或带 field 与 op 的比较 */
+function isConditionTree(value: unknown): value is Condition {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  const node = value as Record<string, unknown>;
+  return (
+    isConditionGroup(node as Condition) ||
+    (typeof node.field === 'string' && typeof node.op === 'string')
+  );
 }
