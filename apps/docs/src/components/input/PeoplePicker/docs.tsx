@@ -51,7 +51,7 @@ export default _component(() => () => (
         ['Space', '勾上或取消一行'],
       ]}
     >
-      {'每行的勾选框以名字为名，“下级”按钮的名称是“进入某部门”，进去后焦点落到列表上。'}
+      {'每行的勾选框以名字为名，“下级”按钮的名称是“下级：某部门”，进去后焦点落到列表上。'}
       {'面包屑的当前一级标 aria-current="location"。'}
     </KeyboardReference>
     <ApiReference api={[api, panelApi, sourceApi]} />
