@@ -26,6 +26,7 @@ const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@lucide/icons': () => import('@lucide/icons'),
   '@vue-tsx-pro/ui/charts': () => import('@vue-tsx-pro/ui/charts'),
   '@vue-tsx-pro/ui/patterns': () => import('@vue-tsx-pro/ui/patterns'),
+  '@vue-tsx-pro/ui/diagram': () => import('@vue-tsx-pro/ui/diagram'),
   '@vue-tsx-pro/ui/workflow': () => import('@vue-tsx-pro/ui/workflow'),
   '@vue-tsx-pro/ui/theme-customize': () => import('@vue-tsx-pro/ui/theme-customize'),
   '@vue-tsx-pro/ui/xlsx': () => import('@vue-tsx-pro/ui/xlsx'),

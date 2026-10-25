@@ -16,12 +16,7 @@ const visibleCode = (root: Element) =>
 describe('CodeGroup', () => {
   it('默认显示第一段，点标签切换，选中的值写回', async () => {
     const selected = ref<string>();
-    const root = mount(() => (
-      <CodeGroup
-        items={items}
-        _value={selected.value}
-      />
-    ));
+    const root = mount(() => <CodeGroup items={items} _value={selected.value} />);
     expect(visibleCode(root)).toEqual(['pnpm add x']);
     expect(root.querySelector('[role="tablist"]')!.getAttribute('aria-label')).toBe('pnpm / npm');
     root.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1]!.click();

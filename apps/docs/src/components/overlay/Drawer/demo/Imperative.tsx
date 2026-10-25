@@ -50,19 +50,13 @@ export default _component(() => {
       content: () => (
         <Flex direction="column" gap="md">
           <Field label="名称" required>
-            <TextField
-              _value={draft.name}
-            />
+            <TextField _value={draft.name} />
           </Field>
           <Field label="联系人">
-            <TextField
-              _value={draft.contact}
-            />
+            <TextField _value={draft.contact} />
           </Field>
           <Field label="电话">
-            <TextField
-              _value={draft.phone}
-            />
+            <TextField _value={draft.phone} />
           </Field>
         </Flex>
       ),

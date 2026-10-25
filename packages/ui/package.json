@@ -63,6 +63,11 @@
       "types": "./dist/patterns/index.d.ts",
       "default": "./dist/patterns/index.js"
     },
+    "./diagram": {
+      "@vue-tsx-pro/source": "./src/diagram/index.ts",
+      "types": "./dist/diagram/index.d.ts",
+      "default": "./dist/diagram/index.js"
+    },
     "./workflow": {
       "@vue-tsx-pro/source": "./src/workflow/index.ts",
       "types": "./dist/workflow/index.d.ts",

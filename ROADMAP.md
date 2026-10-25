@@ -37,7 +37,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ```
 扩展（子路径：只依赖核心与基础设施，彼此不依赖，workflow → patterns 这类显式登记的除外）
-  /patterns  /workflow  /charts  /three  /effects  /xlsx  /theme-customize  /docs-kit  /shiki  /vue-router
+  /patterns  /diagram  /workflow  /charts  /three  /effects  /xlsx  /theme-customize  /docs-kit  /shiki  /vue-router
 核心（主入口：按分类目录放，与文档站的分类一致；目录之间可以互相用，模块之间不能有环）
   base  layout  display  feedback  overlay  navigation  input  date  form  table
 基础设施（不渲染界面）
@@ -203,7 +203,10 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 方案与已定的细节见 [WORKFLOW.md](WORKFLOW.md) §5、§6。每步配文档页、饱满的示例、单元与浏览器测试，用到的老组件按 COMPONENTS.md §1–§2 对一遍 API。
 
-- [ ] 9.1 画布底座：`useHistory`（撤销重做）；子路径 `/diagram`：视口、选择、拖动、连线、正交路由、导出
+- [ ] 9.1 画布底座（COMPONENTS.md §10.24）
+  - [x] 撤销重做 `createHistory`（主入口，快照、合并输入、连续操作、保存点）
+  - [x] 子路径 `/diagram`：视口与控制器 `useDiagram`、节点与连线、点选与框选、键盘与读屏、`DiagramControls`、文档页
+  - [ ] 拖动节点（吸附、对齐线、自动平移）、从端口连线与改接、正交路由、导出 SVG / PNG、小地图
 - [ ] 9.2 通用输入：条件构造器、人员与组织选择器（核心的 input），FilterBar 的高级筛选接上条件构造器
 - [ ] 9.3 模型包（`flow` 仓库）与流程组件的接法（WORKFLOW.md §6 第 1 条，开工前定）
 - [ ] 9.4 FlowDiagram 重做（建在 `/diagram` 上），删除旧实现与 `layoutProcess`
