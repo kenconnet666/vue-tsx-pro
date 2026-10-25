@@ -29,8 +29,8 @@ const verdicts = { confirm: '已保存', escape: '按 Esc 放弃', outside: '点
 export default _component(() => {
   const drawer = useDrawer();
   let rows = _state<Supplier[]>([
-    { id: 'S001', name: '华辰精密生产', contact: '林小满', phone: '021-5566 1001' },
-    { id: 'S002', name: '启航研发', contact: '周一航', phone: '0512-6688 2002' },
+    { id: 'S001', name: '华辰精密', contact: '林小满', phone: '021-5566 1001' },
+    { id: 'S002', name: '启航塑胶', contact: '周一航', phone: '0512-6688 2002' },
     { id: 'S003', name: '远山钣金', contact: '陈默', phone: '029-8811 3003' },
   ]);
   let status = _state('');

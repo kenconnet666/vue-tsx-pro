@@ -12,7 +12,8 @@ const styles = css.create({
     borderRadius: '_md',
   },
   pane: { padding: '_sm', height: '100%', boxSizing: 'border-box' },
-  editor: { height: '100%' },
+  // 编辑框占满上栏：外壳撑满，文字区随外壳拉伸（fixed：高度不随内容变）
+  editor: { width: '100%', height: '100%' },
   preview: { whiteSpace: 'pre-wrap' },
 });
 
@@ -29,7 +30,7 @@ export default _component(() => {
       collapsible="start"
       start={
         <div {...css.attrs(styles.pane)}>
-          <Textarea _value={text} aria-label="方案" sx={styles.editor} />
+          <Textarea _value={text} aria-label="方案" fixed propsRoot={{ sx: styles.editor }} />
         </div>
       }
       end={

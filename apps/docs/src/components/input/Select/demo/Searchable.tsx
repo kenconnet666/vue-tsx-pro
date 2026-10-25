@@ -4,7 +4,7 @@ import { Field, Flex, Grid, Select, Small, type ListboxOption } from '@vue-tsx-p
 
 // 六十家虚构的供应商，按地区分组
 const regions = ['华东', '华北', '华南', '西南', '东北', '海外'];
-const kinds = ['研发', '生产', '钣金', '标准件', '密封件', '线束', '液压', '涂装', '铸锻', '电子'];
+const kinds = ['塑胶', '五金', '钣金', '标准件', '密封件', '线束', '液压', '涂装', '铸锻', '电子'];
 const suppliers: ListboxOption[] = regions.flatMap((region, r) =>
   kinds.map((kind, k) => ({
     value: `S${r}${k}`,

@@ -19,8 +19,8 @@ const statuses = createStatusMap({
 });
 
 const quotes: Quote[] = [
-  { supplier: '华辰', category: '生产件', part: '支架', price: 120, status: 'valid' },
-  { supplier: '华辰', category: '生产件', part: '底座', price: 80, status: 'valid' },
+  { supplier: '华辰', category: '机械件', part: '支架', price: 120, status: 'valid' },
+  { supplier: '华辰', category: '机械件', part: '底座', price: 80, status: 'valid' },
   { supplier: '华辰', category: '钣金件', part: '罩壳', price: null, status: 'expired' },
   { supplier: '启航', category: '钣金件', part: '盖板', price: 45.5, status: 'valid' },
 ];

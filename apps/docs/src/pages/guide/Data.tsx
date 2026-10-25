@@ -170,7 +170,7 @@ export default _component(() => () => (
         <Code>{"useQueryState('view', 'all')"}</Code>
         ，按初始值的类型读写，固定几个值的用 <Code>{'queryCodecs.oneOf([...])'}</Code>
         。需要路由适配给出 <Code>query</Code> 与 <Code>replaceQuery</Code>（vueRouterAdapter
-        有），没配路由时就是普通的状态。销售台账用的就是它。
+        有），没配路由时就是普通的状态。项目台账用的就是它。
       </Paragraph>
       <CodePreview code={SupplierTable.source}>
         {h(Provider, { http: demoHttp }, () => h(SupplierTable.component))}

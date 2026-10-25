@@ -5,7 +5,7 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import { Badge, Card, Descriptions, Flex, Small, type DescriptionItem } from '@vue-tsx-pro/ui';
 
 const items: DescriptionItem[] = [
-  { label: '供应商', value: '华辰精密生产有限公司' },
+  { label: '供应商', value: '华辰精密机械有限公司' },
   { label: '信用代码', value: '91310115MA1K4QXX2R', copyable: true },
   { label: '等级', value: <Badge tone="success">A 级</Badge> },
   { label: '联系人', value: '林小满 · 138 0013 8000' },

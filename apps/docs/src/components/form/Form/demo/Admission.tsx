@@ -17,7 +17,7 @@ import {
 } from '@vue-tsx-pro/ui';
 import * as z from 'zod';
 
-const categories = ['生产件', '研发件', '钣金件', '标准件', '线缆'];
+const categories = ['机械件', '塑料件', '钣金件', '标准件', '线缆'];
 
 const schema = z
   .object({

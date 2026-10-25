@@ -10,13 +10,13 @@ const accessors = {
 };
 
 export default _component(() => {
-  let org = _state('composite-structure');
+  let org = _state('rd-frontend');
   let teams = _state<string[]>([
-    'assembly',
-    'assembly-system',
-    'assembly-landing',
-    'assembly-cabin',
-    'cost-estimate',
+    'mfg',
+    'mfg-assembly',
+    'mfg-testing',
+    'mfg-packing',
+    'finance-budget',
   ]);
   return () => (
     <Grid minItemWidth="16rem" gap="lg">

@@ -13,7 +13,7 @@ const accessors = {
 
 export default _component(() => {
   let team = _state<string | null>(null);
-  let department = _state<string | null>('cost');
+  let department = _state<string | null>('finance');
   return () => (
     <Grid minItemWidth="20rem" gap="lg">
       <Field label="承接团队" description="中心、部这一级不能选">
@@ -42,7 +42,7 @@ export default _component(() => {
         <TreeSelect {...accessors} _value={department} size="sm" />
       </Field>
       <Field label="只读" readonly description="能聚焦、能看，不能打开">
-        <TreeSelect {...accessors} _value="cost-ledger" icon={Building2} />
+        <TreeSelect {...accessors} _value="finance-settle" icon={Building2} />
       </Field>
       <Field label="不可用" disabled>
         <TreeSelect {...accessors} _value="purchase" />

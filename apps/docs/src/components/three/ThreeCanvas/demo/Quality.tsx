@@ -62,7 +62,7 @@ export default _component(() => {
   let info = _state({ level: '', count: 0, pixelRatio: 1 });
   return () => (
     <Flex direction="column" gap="md">
-      <Grid minItemWidth="14rem" gap="lg" align="end">
+      <Grid minItemWidth="17rem" gap="lg" align="end">
         <Field label="画质">
           <ToggleGroup _value={quality} required>
             {QUALITIES.map((item) => (

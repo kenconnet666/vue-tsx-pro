@@ -2,7 +2,7 @@
  * 矩形树图：一个总量按层级分块（销售额按区域 → 供应商、费用按科目），块的面积是数值，一眼看出谁占得多。
  *
  *   <TreemapChart
- *     aria-label="销售额构成"
+ *     aria-label="采购额构成"
  *     data={savings}
  *     groups={['region', 'supplier']}     // 从外到内的层级
  *     value="amount"

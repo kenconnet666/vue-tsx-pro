@@ -1,4 +1,4 @@
-// 销售额按“区域 → 供应商”分块：面积是金额，同一个区域同一种颜色；悬停看路径、金额与占比，点图例隐藏一个区域
+// 采购额按“区域 → 供应商”分块：面积是金额，同一个区域同一种颜色；悬停看路径、金额与占比，点图例隐藏一个区域
 import { _component } from '@vue-tsx-pro/tsx';
 import { TreemapChart } from '@vue-tsx-pro/ui/charts';
 
@@ -15,7 +15,7 @@ const savings = [
 
 export default _component(() => () => (
   <TreemapChart
-    aria-label="销售额构成"
+    aria-label="采购额构成"
     data={savings}
     groups={['region', 'supplier']}
     value="amount"

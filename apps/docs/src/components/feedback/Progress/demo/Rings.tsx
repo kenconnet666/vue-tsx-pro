@@ -20,7 +20,7 @@ export default _component(() => () => (
               value={plant.done}
               target={plant.target}
               tone={plant.tone}
-              label={`${plant.name} 销售完成率`}
+              label={`${plant.name} 产量完成率`}
             />
             <Small tone="muted">目标 {plant.target}%</Small>
           </Flex>
@@ -28,7 +28,7 @@ export default _component(() => () => (
       ))}
     </Grid>
     <Flex direction="column" gap="md">
-      <Progress value={6.4} max={10} target={8} label="年度销售（亿元）" valueLabel="6.4 / 10" />
+      <Progress value={6.4} max={10} target={8} label="年度产量（万件）" valueLabel="6.4 / 10" />
       <Progress value={92} target={85} tone="success" label="交付准时率" />
     </Flex>
     <Flex align="center" gap="md">

@@ -31,7 +31,7 @@ export default _component(() => {
           <Field label="编号">
             <TextField _value="PO-2026-0187" />
           </Field>
-          <Field label="预计年销售">
+          <Field label="预计年节省">
             <NumberField _value={174752} suffix="元" />
           </Field>
           <Field label="说明">

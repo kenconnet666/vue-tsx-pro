@@ -1,4 +1,4 @@
-// 销售台账：金额以元保存、按万元显示并在底部合计；状态列取自状态映射；商务金额没谈定时显示“待定价”。
+// 项目台账：金额以元保存、按万元显示并在底部合计；状态列取自状态映射；合同没签时显示“待签约”。
 // 已关闭的任务不能勾选；勾选后上方出现批量操作栏；“列”菜单切换哪些列显示
 import { Columns3, Download, Ellipsis, FileText, Send } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
@@ -33,7 +33,7 @@ interface Task {
   team: string;
   /** 测算金额 A（元） */
   estimate: Decimal;
-  /** 合同签订金额 B（元）；没谈定时为 null */
+  /** 合同价（元）；还没签时为 null */
   agreed: Decimal | null;
   /** 每单运费节省（元/单） */
   dmc: Decimal | null;
@@ -112,10 +112,10 @@ const columns: DataTableColumn<Task>[] = [
   },
   {
     key: 'agreed',
-    header: '谈定 B（万元）',
+    header: '合同价（万元）',
     width: 128,
     format: WAN,
-    empty: '待定价',
+    empty: '待签约',
     summary: 'sum',
   },
   { key: 'dmc', header: '运费节省（元/单）', width: 140, format: { minimumFractionDigits: 2 } },
@@ -194,7 +194,7 @@ export default _component(() => {
         _selected={selected}
         isRowSelectable={(task) => task.status !== 'closed'}
         _hiddenColumns={hidden}
-        aria-label="销售台账"
+        aria-label="项目台账"
         propsRoot={{ sx: styles.table }}
       />
     </Flex>

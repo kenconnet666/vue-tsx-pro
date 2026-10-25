@@ -1,4 +1,4 @@
-// 工单的三种状态：互斥、加起来是总数；图例后面可以补一句（“待定价”）
+// 工单的三种状态：互斥、加起来是总数；图例后面可以补一句（“等外部回复”）
 import { _component } from '@vue-tsx-pro/tsx';
 import { Flex, ProportionBar, Small } from '@vue-tsx-pro/ui';
 
@@ -7,12 +7,12 @@ export default _component(() => () => (
     <ProportionBar
       aria-label="工单构成"
       segments={[
-        { key: 'confirmed', label: '已确认收益', value: 25, tone: 'success' },
-        { key: 'unpriced', label: '待排期', value: 4, tone: 'warning' },
-        { key: 'plan', label: '方案待定', value: 35, tone: 'info' },
+        { key: 'done', label: '已完成', value: 25, tone: 'success' },
+        { key: 'blocked', label: '受阻', value: 4, tone: 'warning' },
+        { key: 'open', label: '进行中', value: 35, tone: 'info' },
       ]}
       valueText={(segment) => `${segment.value} 项`}
-      legendExtra={(segment) => segment.key === 'unpriced' && <Small tone="muted">待定价</Small>}
+      legendExtra={(segment) => segment.key === 'blocked' && <Small tone="muted">等外部回复</Small>}
     />
     <ProportionBar
       aria-label="存储空间"

@@ -27,8 +27,8 @@ const searchOrgs = (query: string, signal: AbortSignal) =>
   });
 
 export default _component(() => {
-  let org = _state<string | null>('cost-ledger');
-  const selectedBranch = prune(orgs, (item) => item.id === 'cost-ledger');
+  let org = _state<string | null>('finance-settle');
+  const selectedBranch = prune(orgs, (item) => item.id === 'finance-settle');
   return () => (
     <Flex direction="column" gap="xs">
       <Field label="归口部门" description="打开后输入“团队”：服务端返回命中的节点与它们的上级">

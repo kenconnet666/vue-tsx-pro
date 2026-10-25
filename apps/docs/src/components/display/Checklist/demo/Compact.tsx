@@ -35,7 +35,7 @@ const projects: Project[] = [
   },
   {
     code: 'PO-2026-0203',
-    name: '线束卡箍国产化',
+    name: '线缆收纳夹国产化',
     nodes: [
       node('评审', 'done', '09-02'),
       node('样品', 'todo', '计划 11-05'),
@@ -45,7 +45,7 @@ const projects: Project[] = [
   },
   {
     code: 'PO-2026-0211',
-    name: '座椅骨架减重',
+    name: '门店照明改造',
     nodes: [
       node('评审', 'done', '07-30'),
       node('样品', 'done', '08-28'),

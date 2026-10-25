@@ -30,7 +30,7 @@ export default _component(() => () => (
       "import { MapChart } from '@vue-tsx-pro/ui/charts';\nimport { ChinaTopoJSON } from '@unovis/ts/maps';"
     }
   >
-    <Example id="provinces" title="各省的销售额：分级着色、省名、工厂" demo={Provinces}>
+    <Example id="provinces" title="各省的销售额：分级着色、省名、仓库" demo={Provinces}>
       <Code>topology</Code> 是 TopoJSON，<Code>feature</Code> 是要画的那组要素（中国省份是{' '}
       <Code>provinces</Code>）。
       <Code>areas</Code> 按要素的 <Code>id</Code> 给名称与数值；<Code>bins</Code>{' '}

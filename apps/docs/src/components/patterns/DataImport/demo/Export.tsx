@@ -96,7 +96,7 @@ export default _component(() => {
   async function download() {
     exporting = true;
     try {
-      await exportXlsx('销售台账', [{ name: '台账', rows, columns, groups }]);
+      await exportXlsx('项目台账', [{ name: '台账', rows, columns, groups }]);
     } finally {
       exporting = false;
     }
@@ -121,7 +121,7 @@ export default _component(() => {
         columns={columns}
         columnGroups={groups}
         getKey={(row) => row.code}
-        aria-label="销售台账"
+        aria-label="项目台账"
       />
     </Flex>
   );

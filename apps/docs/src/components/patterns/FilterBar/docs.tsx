@@ -16,7 +16,7 @@ export const meta = {
 
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { FilterBar } from '@vue-tsx-pro/ui/patterns';">
-    <Example id="tasks" title="销售任务的查询" demo={Tasks}>
+    <Example id="tasks" title="项目任务的查询" demo={Tasks}>
       条件是 Field，排成栅格：每格不窄于 <Code>minFieldWidth</Code>（默认
       16em），栅格多宽就放几格。按钮区在栅格的结束边，宽度随按钮、不折行，和条件的最后一行对齐；
       <Code>actions</Code>{' '}

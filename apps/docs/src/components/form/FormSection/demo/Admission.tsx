@@ -80,7 +80,7 @@ export default _component(() => {
               <Select
                 _value={form.category}
                 items={[
-                  { value: 'machining', label: '生产件' },
+                  { value: 'machining', label: '机械件' },
                   { value: 'composite', label: '研发中心件' },
                   { value: 'standard', label: '标准件' },
                 ]}

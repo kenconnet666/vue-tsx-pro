@@ -28,7 +28,7 @@ const sections = [
     icon: CircleDollarSign,
     pages: [
       ['财务复核', BadgeCheck, 12],
-      ['一本账', BookOpenText, 0],
+      ['总账', BookOpenText, 0],
     ],
   },
 ] as const;

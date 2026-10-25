@@ -435,7 +435,7 @@ export interface Lang {
   readonly navBarMore: string;
   /** 树搜索没有匹配时的提示，默认“没有匹配的节点” */
   readonly treeNoMatch: string;
-  /** 树里移动了一个节点（读屏播报）：`('测算组', '成本管理部', 2)` → “测算组移到成本管理部下第 2 位”；放到第一层时 parent 为 undefined */
+  /** 树里移动了一个节点（读屏播报）：`('预算团队', '财务部', 2)` → “预算团队移到财务部下第 2 位”；放到第一层时 parent 为 undefined */
   readonly treeMoved: (item: string, parent: string | undefined, position: number) => string;
   /** 穿梭框左边的默认标题，默认“可选” */
   readonly transferSource: string;

@@ -17,6 +17,7 @@ const styles = css.create({
   canvas: {
     flexGrow: 1,
     minHeight: '16rem',
+    padding: '_sm',
     borderRadius: '_md',
     backgroundColor: '_fill',
     backgroundImage: `linear-gradient(${t.colors.borderMuted} 1px, transparent 1px), linear-gradient(90deg, ${t.colors.borderMuted} 1px, transparent 1px)`,

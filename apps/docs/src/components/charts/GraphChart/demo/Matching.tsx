@@ -1,28 +1,28 @@
-// 储备库的匹配推送：触发事件 → 匹配到的储备件 → 推送给谁；分层布局，三组各框在一起，可以换方向与布局
+// 案例库的匹配推送：触发事件 → 匹配到的案例 → 推送给谁；分层布局，三组各框在一起，可以换方向与布局
 import { _component } from '@vue-tsx-pro/tsx';
 import { Flex, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
 import { GraphChart, type GraphChartLayouts } from '@vue-tsx-pro/ui/charts';
 
 const groups = [
   { id: 'event', label: '触发事件' },
-  { id: 'reserve', label: '储备件' },
+  { id: 'reserve', label: '案例' },
   { id: 'person', label: '推送对象' },
 ];
 
 const nodes = [
   { id: 'e1', label: '新供应商接入', group: 'event', shape: 'square' as const },
   { id: 'e2', label: '材料牌号归并', group: 'event', shape: 'square' as const },
-  { id: 'r1', label: '线缆收纳夹', sublabel: 'CB-0412', group: 'reserve' },
-  { id: 'r2', label: '桌面挡板', sublabel: 'CB-0388', group: 'reserve' },
-  { id: 'r3', label: '机柜导轨', sublabel: 'CB-0275', group: 'reserve' },
-  { id: 'p1', label: '成本工程师 甲', group: 'person' },
+  { id: 'r1', label: '线缆收纳夹', sublabel: 'KB-0412', group: 'reserve' },
+  { id: 'r2', label: '桌面挡板', sublabel: 'KB-0388', group: 'reserve' },
+  { id: 'r3', label: '机柜导轨', sublabel: 'KB-0275', group: 'reserve' },
+  { id: 'p1', label: '采购工程师 甲', group: 'person' },
   { id: 'p2', label: '设计师 乙', group: 'person' },
   { id: 'p3', label: '设计师 丙', group: 'person' },
 ];
 
 const links = [
   { source: 'e1', target: 'r1', label: '件号' },
-  { source: 'e1', target: 'r3', label: '工艺' },
+  { source: 'e1', target: 'r3' },
   { source: 'e2', target: 'r2', label: '材料' },
   { source: 'e2', target: 'r3', label: '材料' },
   { source: 'r1', target: 'p1' },
@@ -48,7 +48,7 @@ export default _component(() => {
         </ToggleGroup>
       </Flex>
       <GraphChart
-        aria-label="储备库的匹配推送"
+        aria-label="案例库的匹配推送"
         nodes={nodes}
         links={links}
         groups={groups}

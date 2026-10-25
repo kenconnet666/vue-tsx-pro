@@ -1,4 +1,4 @@
-// 通知范围：同样勾上“生产制造中心”整枝加一个测算组，三种取法提交的值不同；标签一行放不下时收进“+N”
+// 通知范围：同样勾上“生产中心”整枝加一个预算团队，三种取法提交的值不同；标签一行放不下时收进“+N”
 import { _component } from '@vue-tsx-pro/tsx';
 import {
   checkedByStrategy,
@@ -27,13 +27,7 @@ const accessors = {
 };
 
 // 勾上的全部节点；按取法整理后才是提交的值
-const initial = [
-  'assembly',
-  'assembly-system',
-  'assembly-landing',
-  'assembly-cabin',
-  'cost-estimate',
-];
+const initial = ['mfg', 'mfg-assembly', 'mfg-testing', 'mfg-packing', 'finance-budget'];
 
 export default _component(() => {
   let strategy = _state<keyof CheckStrategies>('parent');

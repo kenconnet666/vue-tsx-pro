@@ -14,7 +14,7 @@ interface Part {
   price: number;
 }
 
-const categories = ['生产件', '研发件', '钣金件', '标准件', '线缆'];
+const categories = ['机械件', '塑料件', '钣金件', '标准件', '线缆'];
 
 const schema = z.object({
   part: z.string('请填写零件号').regex(/^P-\d{3,}$/, '零件号是 P- 加数字'),
@@ -26,11 +26,11 @@ const schema = z.object({
 
 // 模板：表头与几行示例（故意留两处错，导入时能看到校验）
 const sample: Record<string, string | number | null>[] = [
-  { part: 'P-101', name: '显示器支架', category: '生产件', quantity: 40, price: 128 },
-  { part: 'P-102', name: '铰链底座', category: '生产件', quantity: 80, price: 76.5 },
+  { part: 'P-101', name: '显示器支架', category: '机械件', quantity: 40, price: 128 },
+  { part: 'P-102', name: '铰链底座', category: '机械件', quantity: 80, price: 76.5 },
   { part: null, name: '检修口盖板', category: '钣金件', quantity: 24, price: 212 },
   { part: 'P-104', name: '线束卡箍', category: '线缆', quantity: '三百', price: 3.2 },
-  { part: 'P-105', name: '加强筋', category: '研发件', quantity: 60, price: 45 },
+  { part: 'P-105', name: '加强筋', category: '塑料件', quantity: 60, price: 45 },
 ];
 const templateColumns: DataTableColumn<Record<string, string | number | null>>[] = [
   { key: 'part', header: '料号', width: 120 },

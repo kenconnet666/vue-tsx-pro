@@ -93,7 +93,7 @@ export default _component(() => {
         rowTone={(task) => (task.code === flashing ? 'info' : undefined)}
         handle={(api) => (table = api)}
         density="compact"
-        aria-label="销售任务"
+        aria-label="项目任务"
         propsRoot={{ sx: styles.table }}
       />
     </Flex>

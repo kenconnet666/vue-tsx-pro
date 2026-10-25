@@ -70,12 +70,12 @@ export default _component(() => () => (
       给了 <Code>onReorder</Code> 时第一列前面有把手：按下拖动，或聚焦后空格拿起、↑↓
       移动、空格放下（每一步读屏都会播报），拖完得到新的顺序。排序、筛选时显示的顺序不是数据的顺序，把手收起，取消后又能拖。
     </Example>
-    <Example id="ledger" title="销售台账：合计、状态与批量操作" demo={Ledger}>
+    <Example id="ledger" title="项目台账：合计、状态与批量操作" demo={Ledger}>
       列的 <Code>summary</Code> 写 <Code>'sum'</Code> 时底部多一行吸底的合计（Decimal
       精确相加，按列的格式显示）；
       <Code>statuses</Code> 是状态映射，单元格显示成 StatusBadge；没有值时显示列的{' '}
       <Code>empty</Code>
-      （默认 —，这里是“待定价”）。<Code>isRowSelectable</Code>{' '}
+      （默认 —，这里是“待签约”）。<Code>isRowSelectable</Code>{' '}
       决定哪些行能勾选，全选跳过不能勾选的；勾选后上方的 <Code>SelectionBar</Code>{' '}
       显示已选几项与批量操作。<Code>hiddenColumns</Code> 隐藏列，这里用 Menu 的 MenuCheckboxItem
       做列显示设置（也可以开 <Code>columnMenu</Code>）；固定列与滚动的列之间有一条竖线。

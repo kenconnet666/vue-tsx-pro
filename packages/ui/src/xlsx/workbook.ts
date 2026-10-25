@@ -2,7 +2,7 @@
  * Excel 读写（子路径 `@vue-tsx-pro/ui/xlsx`）：建在 ExcelJS 上（可选的 peer 依赖，用到这个子路径时安装 exceljs）。
  *
  *   import { exportXlsx, readXlsx } from '@vue-tsx-pro/ui/xlsx';
- *   await exportXlsx('销售台账', [{ name: '台账', rows, columns, groups: columnGroups }]);
+ *   await exportXlsx('项目台账', [{ name: '台账', rows, columns, groups: columnGroups }]);
  *   const [sheet] = await readXlsx(file, { headerRows: 2, splitLines: ['零件号'] });
  *
  * 导出（tableToXlsx / exportXlsx）用 DataTable 的列定义：

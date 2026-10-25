@@ -87,7 +87,7 @@ export default _component(() => {
               <Checkbox value="settled">已结算</Checkbox>
             </CheckboxGroup>
           </Field>
-          <Field label="预计年销售（万元）">
+          <Field label="预计年节省（万元）">
             <NumberRangeField _value={draft.saving} />
           </Field>
           <Field label="计划完成">

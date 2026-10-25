@@ -5,9 +5,9 @@
  *   <ProportionBar
  *     aria-label="工单构成"
  *     segments={[
- *       { key: 'confirmed', label: '已确认收益', value: 25, tone: 'success' },
- *       { key: 'unpriced', label: '待排期', value: 4, tone: 'warning' },
- *       { key: 'plan', label: '方案待定', value: 35, tone: 'info' },
+ *       { key: 'done', label: '已完成', value: 25, tone: 'success' },
+ *       { key: 'blocked', label: '受阻', value: 4, tone: 'warning' },
+ *       { key: 'open', label: '进行中', value: 35, tone: 'info' },
  *     ]}
  *     valueText={(segment) => `${segment.value} 项`}
  *   />

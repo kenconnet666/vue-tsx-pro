@@ -134,7 +134,7 @@ export default _component(() => {
       width: 120,
       cell: (row) => <StatusBadge statuses={statuses} value={row.status} />,
     },
-    { key: 'saving', header: '预计年销售', width: 140, align: 'end', format: { currency: 'CNY' } },
+    { key: 'saving', header: '预计年节省', width: 140, align: 'end', format: { currency: 'CNY' } },
     {
       key: 'due',
       header: '当前环节时限',
@@ -179,7 +179,7 @@ export default _component(() => {
                   { label: '主办', value: current.owner },
                   { label: '责任团队', value: current.team },
                   {
-                    label: '预计年销售',
+                    label: '预计年节省',
                     value: <Text numeric>{money(current.saving)}</Text>,
                   },
                   { label: '当前环节截止', value: current.due },

@@ -139,7 +139,7 @@ describe('TreeSelect 的 load', () => {
     children?: Org[];
   }
   const tree: Org[] = [
-    { id: 'hq', name: '总部', children: [{ id: 'cost', name: '成本管理部' }] },
+    { id: 'hq', name: '总部', children: [{ id: 'finance', name: '财务部' }] },
     { id: 'buy', name: '采购部' },
   ];
 
@@ -164,10 +164,10 @@ describe('TreeSelect 的 load', () => {
       />
     ));
     await settle();
-    search = '成本';
+    search = '财务';
     await nextTick();
     vi.advanceTimersByTime(300);
     await settle();
-    expect(calls).toEqual(['', '成本']);
+    expect(calls).toEqual(['', '财务']);
   });
 });

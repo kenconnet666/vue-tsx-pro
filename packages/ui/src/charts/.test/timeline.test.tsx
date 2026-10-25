@@ -7,7 +7,7 @@ import { TimelineChart } from '../TimelineChart';
 const items = [
   { row: '支架换材', series: 'plan', start: '2026-03-01', end: '2026-03-10' },
   { row: '支架换材', series: 'actual', start: '2026-03-03', end: '2026-03-12' },
-  { row: '卡箍国产化', series: 'actual', start: '2026-04-01T08:00', end: '2026-04-02T20:00' },
+  { row: '收纳夹国产化', series: 'actual', start: '2026-04-01T08:00', end: '2026-04-02T20:00' },
 ];
 const series = [
   { key: 'plan', label: '计划', variant: 'track' as const },
@@ -35,7 +35,7 @@ describe('TimelineChart', () => {
     expect(rows[0]![1]).toBe('计划');
     expect(rows[0]![4]).toBe('10 天');
     expect(rows[1]![1]).toBe('实际');
-    expect(rows[2]![0]).toBe('卡箍国产化');
+    expect(rows[2]![0]).toBe('收纳夹国产化');
     expect(rows[2]![4]).toBe('2 天');
     // 绘图区的高度（动态样式：可能写在类里，也可能在行内变量里）
     expect(
