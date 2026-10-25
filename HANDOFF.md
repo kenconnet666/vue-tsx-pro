@@ -2,12 +2,15 @@
 
 给接手这个仓库的人（或下一个会话、换了电脑的自己）：读完这一页就能接着做。细节以各自的规范文档为准，这里只讲现状、地图、做事方式和踩过的坑。路线图与勾选状态在 [ROADMAP.md](ROADMAP.md)。
 
-## 1. 现状（2026-10-23）
+## 1. 现状（2026-10-25）
 
-- **分支**：只有 `master`，已推送到 origin，工作区干净。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
-- **进度**：联合降本管理 2026-10-24 清空为空项目、待重做，按 [ROADMAP.md](ROADMAP.md) 的阶段 0–8 做组件库。阶段 0（整理）已完成：分层与 `pnpm layers:check`、
-  子路径只在 exports 登记、patterns / workflow / effects / theme-customize 子路径、删掉 SlideVerify、PageHeader、Checklist、
-  WorkflowTimeline 并进 Timeline、对话框的 onConfirm、Drawer 与页面组合的文档页重做。阶段 1 进行中：仓库已只用 TypeScript 7.1。
+- **分支**：`master` 已推送到 origin；进行中的功能在各自的 `feat/*` 分支上（阶段 9 的画布底座在 `feat/diagram`），合并后才进 master。
+  `proto/runtime-styles` 是样式引擎换成运行时之前的原型，已并入。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
+- **进度**：[ROADMAP.md](ROADMAP.md) 的阶段 0–7 已完成（整理、基础设施、小组件、选择与日期、导航与外壳、表格与表单、展示与协作、图表），
+  阶段 8（质量与发布）只补了包的元数据。2026-10-25 起做阶段 9：为流程引擎（`flow` 仓库）做前端，方案见 [WORKFLOW.md](WORKFLOW.md)，
+  顺序是画布底座 → 流程组件 → 运行时组件，每个组件开着文档站边做边看。联合降本管理 2026-10-24 清空为空项目、待重做。
+- **与 query 的配合**：表格请求（`useTableQuery` 的 `-amount,name` 排序、表头筛选、已知总数、`tableParams`）、线上的 typed JSON
+  （`utils/request/wire.ts`、`http` 的 `wire` 选项）、`buildTree` 对应 query 的 0015、0016，2026-10-25 合进 master。
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的组件库（运行时样式，写法像 StyleX）。见 [PLAN.md](PLAN.md) §1。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。编译是一次解析、两遍遍历、一次生成（`compiler/compile.ts`）。
 - **ui 包**：分基础设施、核心（主入口）、扩展（子路径）三层，见 [COMPONENTS.md](COMPONENTS.md) §7；各批的设计与取舍见 §10：

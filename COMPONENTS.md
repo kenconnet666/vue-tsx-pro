@@ -821,7 +821,7 @@ apps/docs/src/components/base/Button/
 | 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                                    |
 | 组件     | 画布 `ThreeCanvas`、`EffectSurface`；背景 `AuroraBackground`、`MeshGradient`、`ShaderBackground`；效果 `ParticleField`、`WaveGrid`、`Confetti`；`Globe`（陆地位图由 `pnpm gen:globe-land` 生成）；`ModelViewer` |
 
-### 10.23 流程（workflow/，进行中）
+### 10.23 流程（workflow/，重做中：方案见 WORKFLOW.md）
 
 流程引擎只做前端：组件库描述流程、校验、画图、给出审批的交互，流程的执行在后端自研引擎（没有后端时由应用的假后端按同一份定义推进）。
 主入口导出，没有新依赖。
