@@ -60,6 +60,12 @@ const guide: NavSection = {
       component: () => import('../pages/guide/GettingStarted'),
     },
     {
+      path: '/guide/styling',
+      title: 'Styling 写样式',
+      description: 'css.create、attrs 与 sx，主题 token，状态跟着 DOM 走，随状态变的样式与定制组件',
+      component: () => import('../pages/guide/Styling'),
+    },
+    {
       path: '/guide/theming',
       title: 'Theming 主题定制',
       description: '调品牌色、中性色、圆角、缩放、字体与动效，实时检查对比度，导出代码',
