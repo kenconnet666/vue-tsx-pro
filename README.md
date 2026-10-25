@@ -92,7 +92,7 @@ pnpm test           # 先构建 tsx，再运行各包测试
 pnpm dev:docs       # 启动文档站（http://localhost:5174，固定端口）
 pnpm build:docs     # 构建文档站静态页面
 pnpm build:host     # 构建宿主示例
-pnpm test:consumer  # 发布产物验证：pnpm pack 的包在独立应用里安装、构建、浏览器运行
+pnpm test:consumer  # 发布产物验证：pnpm pack 的包在独立应用里安装、构建、浏览器运行（发布步骤见 RELEASE.md）
 pnpm test:browser   # 真实浏览器测试（首次先运行 pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium）
 pnpm css-docs       # 重新生成 CSS 属性的中文注释（数据见 scripts/css-docs）
 pnpm exports        # 重新生成组件库入口 packages/ui/src/index.ts（模块里加了导出后）
