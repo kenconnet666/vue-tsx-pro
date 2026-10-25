@@ -793,6 +793,13 @@ export {
   type OtpFieldManaged,
   type OtpFieldProps,
 } from './input/OtpField';
+export { PeoplePicker, type PeoplePickerProps } from './input/PeoplePicker';
+export {
+  PeoplePickerPanel,
+  peoplePickerPanelDynamicStyles,
+  peoplePickerPanelStyles,
+  type PeoplePickerPanelProps,
+} from './input/PeoplePickerPanel';
 export {
   Radio,
   RadioGroup,
@@ -951,6 +958,16 @@ export {
   type OptionMapping,
   type SelectedOption,
 } from './input/list-state';
+export {
+  localPeopleSource,
+  peopleKey,
+  toPeopleValue,
+  type PeopleEntry,
+  type PeopleNode,
+  type PeopleSource,
+  type PeopleType,
+  type PeopleTypes,
+} from './input/people';
 export { useRemoteItems, type OptionsLoader } from './input/remote-items';
 export {
   bankCardFormat,

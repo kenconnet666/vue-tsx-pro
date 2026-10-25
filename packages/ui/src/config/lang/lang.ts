@@ -12,6 +12,7 @@ import type { $ZodErrorMap } from 'zod/v4/core';
 import type { ChecklistStatuses } from '../../display/Checklist';
 import type { ConditionFieldType, ConditionOp } from '../../input/condition';
 import type { ConditionMode } from '../../input/ConditionBuilder';
+import type { PeopleType } from '../../input/people';
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
 import type { DiagramMessages } from '../../diagram/messages';
@@ -498,6 +499,40 @@ export interface Lang {
   readonly conditionGroup: string;
   /** 一条比较的名称（读屏）：`(2)` → “条件 2” */
   readonly conditionRule: (index: number) => string;
+  /** 人员选择器的三种类型：人员、部门、岗位 */
+  readonly peopleTypes: Readonly<Record<PeopleType, string>>;
+  /** 选择器的搜索框占位与名称，默认“搜索人员、部门、岗位” */
+  readonly peopleSearch: string;
+  /** 切换组织架构、岗位、最近几页的那组按钮的名称，默认“浏览方式” */
+  readonly peoplePages: string;
+  /** “组织架构”页 */
+  readonly peopleOrg: string;
+  /** “岗位”页 */
+  readonly peoplePositions: string;
+  /** “最近”页：最近选过的 */
+  readonly peopleRecent: string;
+  /** 组织架构最上层在面包屑里的名字，默认“全部” */
+  readonly peopleRoot: string;
+  /** 部门的“下级”按钮 */
+  readonly peopleChildren: string;
+  /** “下级”按钮的完整名称：`('采购部')` → “进入采购部” */
+  readonly peopleOpen: (name: string) => string;
+  /** 已选几个：`(3)` → “已选 3”，有上限时 `(3, 5)` → “已选 3 / 5” */
+  readonly peopleCount: (count: number, max?: number) => string;
+  /** 已选列表的名称，默认“已选” */
+  readonly peopleSelected: string;
+  /** 移除一项的按钮名称：`('林晓')` → “移除林晓” */
+  readonly peopleRemove: (name: string) => string;
+  /** 全选当前列表 */
+  readonly peopleSelectAll: string;
+  /** 这一层没有内容、最近没有选过 */
+  readonly peopleEmpty: string;
+  /** 搜索没有结果 */
+  readonly peopleNoResult: string;
+  /** 还没有选的提示 */
+  readonly peopleNothingSelected: string;
+  /** 选择器字段的占位与对话框的标题，默认“选择人员” */
+  readonly peoplePlaceholder: string;
   /** 面包屑导航的无障碍名称，默认“面包屑” */
   readonly breadcrumbs: string;
   /** 面包屑折叠按钮（打开被折叠各级的菜单）的名称，默认“显示被折叠的路径” */

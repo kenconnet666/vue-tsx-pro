@@ -16,6 +16,25 @@ const trail = [
 ];
 
 describe('Breadcrumbs', () => {
+  it('onNavigate：没有 href 的各级是按钮，点了交给它；当前一级是 aria-current="location"', () => {
+    const onNavigate = vi.fn();
+    const root = mount(() => (
+      <Breadcrumbs
+        items={[
+          { key: 'all', label: '全部' },
+          { key: 'buy', label: '采购部' },
+          { key: 'src', label: '寻源组' },
+        ]}
+        onNavigate={onNavigate}
+      />
+    ));
+    const buttons = [...root.querySelectorAll('button')];
+    expect(buttons.map((button) => button.textContent)).toEqual(['全部', '采购部']);
+    buttons[1]!.click();
+    expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ key: 'buy' }), 1);
+    expect(root.querySelector('[aria-current]')!.getAttribute('aria-current')).toBe('location');
+  });
+
   it('nav > ol，名称取语言包；最后一项是当前页（不是链接），分隔符对读屏隐藏', () => {
     const root = mount(() => <Breadcrumbs items={trail} />);
     const nav = root.querySelector('nav')!;

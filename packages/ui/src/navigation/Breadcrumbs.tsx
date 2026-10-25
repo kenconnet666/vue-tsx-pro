@@ -6,11 +6,17 @@
  *
  * 路径太长时用 maxItems 折叠中间部分：折叠处是一个菜单按钮，被折叠的各级在菜单里（链接菜单项），
  * 同 Radix Themes / shadcn 的做法；展开整条路径会把布局撑乱，菜单不会。
+ *
+ * 应用内的层级（文件夹、组织架构的下钻）没有地址：给 onNavigate 时没有 href 的各级是链接样式的按钮，
+ * 点了交给它；当前一级标 aria-current="location"（是“在哪一级”，不是“哪一页”）。
+ *
+ *   <Breadcrumbs items={path.map((dept) => ({ key: dept.id, label: dept.name }))} onNavigate={(_, index) => (path = path.slice(0, index + 1))} />
  */
 import { ChevronRight, Ellipsis } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
+import { Button } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Icon, type IconData } from '../base/Icon';
 import { Link, type LinkProps } from '../base/Link';
@@ -57,6 +63,8 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   propsExpand?: Partial<IconButtonProps>;
   /** 被折叠各级的菜单的部件属性 */
   propsMenu?: Partial<MenuProps>;
+  /** 应用内的层级导航：给了时没有 href 的各级是按钮，点了调用它（index 是在 items 里的位置） */
+  onNavigate?: (item: BreadcrumbItem, index: number) => void;
 }
 
 /** Breadcrumbs 的样式：list、item、current、separator、label、expand */
@@ -85,6 +93,7 @@ export const Breadcrumbs = _component(
     propsSeparator,
     propsExpand,
     propsMenu,
+    onNavigate,
     ...rest
   }: BreadcrumbsProps) => {
     const lang = useLang();
@@ -151,7 +160,12 @@ export const Breadcrumbs = _component(
                             {hidden.label}
                           </MenuLinkItem>
                         ) : (
-                          <MenuItem key={offset} icon={hidden.icon} disabled>
+                          <MenuItem
+                            key={offset}
+                            icon={hidden.icon}
+                            disabled={!onNavigate}
+                            onAction={() => onNavigate?.(hidden, offset + 1)}
+                          >
                             {hidden.label}
                           </MenuItem>
                         ),
@@ -177,7 +191,7 @@ export const Breadcrumbs = _component(
                   {index === last ? (
                     <span
                       {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.current }, propsCurrent, {
-                        'aria-current': 'page',
+                        'aria-current': onNavigate ? 'location' : 'page',
                       })}
                     >
                       {label}
@@ -191,6 +205,10 @@ export const Breadcrumbs = _component(
                     >
                       {label}
                     </Link>
+                  ) : onNavigate ? (
+                    <Button variant="link" onClick={() => onNavigate(entry, index)}>
+                      {label}
+                    </Button>
                   ) : (
                     label
                   )}
