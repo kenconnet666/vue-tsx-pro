@@ -1,6 +1,6 @@
 // 选择与框选：dragMode="select" 时拖动空白处框选（按住空格拖动或滚轮平移），按住 Shift / Ctrl 点选加选；
 // _selected 双向绑定，侧栏列出选中的节点与连线。连线没给折线时画成两个节点之间的直线，edgeText 写月供货量。
-// 节点按类型换图标与色调（DiagramNode 的 start、tone）
+// 节点按类型换图标与色调（DiagramNode 的 start、tone），类型不再写成文字，只写进无障碍名称（getNodeLabel）
 import { Factory, Truck, Warehouse } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
@@ -128,7 +128,6 @@ export default _component(() => {
           <DiagramNode
             start={<Icon icon={kinds[item.kind].icon} size="lg" />}
             title={item.name}
-            description={item.kind}
             tone={kinds[item.kind].tone}
             align="start"
           />

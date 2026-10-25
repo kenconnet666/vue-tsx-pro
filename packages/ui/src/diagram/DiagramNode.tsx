@@ -136,15 +136,16 @@ export const DiagramNode = _component(
         {hasContent(start) && (
           <span {...css.attrs(diagramNodeStyles.start, startTones[tone])}>{start}</span>
         )}
-        <span
+        {/* 标题、说明是块级元素：读屏与无障碍检查从内容取文字时两段之间有停顿，不会连成一串 */}
+        <div
           {...css.attrs(diagramNodeStyles.body, align === 'start' && diagramNodeStyles.bodyStart)}
         >
-          {hasContent(title) && <span {...css.attrs(diagramNodeStyles.title)}>{title}</span>}
+          {hasContent(title) && <div {...css.attrs(diagramNodeStyles.title)}>{title}</div>}
           {hasContent(description) && (
-            <span {...css.attrs(diagramNodeStyles.description)}>{description}</span>
+            <div {...css.attrs(diagramNodeStyles.description)}>{description}</div>
           )}
           {children}
-        </span>
+        </div>
         {hasContent(end) && <span {...css.attrs(diagramNodeStyles.end)}>{end}</span>}
       </div>
     ),
