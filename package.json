@@ -28,6 +28,7 @@
     "css-docs:check": "node scripts/css-docs/generate.mjs --check",
     "docs:check": "node scripts/doc-comments/check.mjs",
     "docs:shot": "node scripts/docs/shot.mjs",
+    "docs:review": "node scripts/docs/review.mjs",
     "docs:coverage": "node scripts/docs/coverage.mjs",
     "exports": "node scripts/exports/generate.mjs",
     "exports:check": "node scripts/exports/generate.mjs --check",
