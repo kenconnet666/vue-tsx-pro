@@ -2,12 +2,12 @@
 // 先开着文档站的开发服务器（pnpm dev:docs，端口 5174）。结果在 node_modules/.cache/docs-review：report.md 与各示例的截图。
 //
 //   pnpm docs:review                         全部组件页，亮色主题截图
-//   pnpm docs:review menu,date-picker        只看某几页（页名或地址前缀，逗号分隔）
+//   pnpm docs:review menu,date-picker        只看某几页（页名或地址前缀，逗号分隔）：其他页的截图与报告条目保留
 //   pnpm docs:review --themes=light,dark --no-shots
 //
 // 溢出：示例区（[data-demo]）的内容比它宽（scrollWidth > clientWidth），或整页出现横向滚动条；手机宽度是 390px。
 
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireFrom, root } from '../lib/repo.mjs';
 
@@ -17,15 +17,19 @@ const args = process.argv.slice(2);
 const option = (name, fallback) =>
   args.find((arg) => arg.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback;
 // 页面写名字（button、date-picker）或地址；Git Bash 会把 / 开头的参数改写成 Windows 路径，所以只取 /components/ 之后的部分
-const prefixes = (args.find((arg) => !arg.startsWith('--')) ?? '')
+const only = args.find((arg) => !arg.startsWith('--'));
+const prefixes = (only ?? '')
   .split(',')
   .map((item) => `/components/${item.split('/components/').pop().replace(/^\//, '')}`);
 const themes = option('themes', 'light').split(',');
 const origin = option('origin', 'http://localhost:5174');
 const shots = !args.includes('--no-shots');
 const dir = join(root, 'node_modules/.cache/docs-review');
-rmSync(dir, { recursive: true, force: true });
+// 全量巡检从空目录开始；只看某几页时保留别的页，这几页的截图换新、报告条目替换
+if (!only) rmSync(dir, { recursive: true, force: true });
 mkdirSync(dir, { recursive: true });
+const reportFile = join(dir, 'report.json');
+const previous = only && existsSync(reportFile) ? JSON.parse(readFileSync(reportFile, 'utf8')) : [];
 
 const browser = await chromium.launch();
 
@@ -85,6 +89,10 @@ for (const [index, path] of paths.entries()) {
     await context.addInitScript((value) => localStorage.setItem('vue-tsx-pro-theme', value), theme);
     const { page, errors } = await open(context, path);
     if (theme === themes[0]) result.desktop = await overflow(page);
+    if (shots && theme === themes[0]) {
+      for (const file of readdirSync(dir))
+        if (file.startsWith(`${name}--`)) rmSync(join(dir, file));
+    }
     if (shots) {
       // 文档站的顶栏是粘性的，元素截图滚动拼接时会盖住卡片上沿；截图前让它随页面滚走
       await page.evaluate(() =>
@@ -140,5 +148,15 @@ for (const r of results) {
   if (problems.length) lines.push(`## ${r.path}`, '', ...problems, '');
 }
 writeFileSync(join(dir, 'report.md'), lines.join('\n'));
-writeFileSync(join(dir, 'report.json'), JSON.stringify(results, null, 2));
+writeFileSync(
+  reportFile,
+  JSON.stringify(
+    [
+      ...previous.map((entry) => results.find((result) => result.path === entry.path) ?? entry),
+      ...results.filter((result) => !previous.some((entry) => entry.path === result.path)),
+    ],
+    null,
+    2,
+  ),
+);
 console.log(`报告与截图在 ${dir}`);
