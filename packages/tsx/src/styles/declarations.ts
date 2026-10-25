@@ -4,6 +4,7 @@
  */
 import { getPriority } from './priority';
 import { resolveToken } from './tokens';
+import type { ConditionAliases } from './value';
 import { MILLISECONDS, UNITLESS } from './units';
 
 /** 样式里的一个值 */
@@ -45,7 +46,8 @@ export function cssValue(property: string, value: Leaf): string {
  * aria / data 属性走（COMPONENTS.md §2.2），组件不必再写 `selected && styles.selected`；
  * 一个别名合并了原生、ARIA、data 几种写法，使用方不必关心组件用的是哪一种
  */
-export const CONDITIONS: Readonly<Record<string, string>> = {
+export const CONDITIONS: Readonly<Record<keyof ConditionAliases, string>> &
+  Readonly<Record<string, string | undefined>> = {
   _hover: ':hover',
   _active: ':active',
   _focus: ':focus',

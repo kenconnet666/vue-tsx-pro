@@ -13,6 +13,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
+  buttonPart,
   buttonSx,
   useButtonAppearance,
   useButtonBehavior,
@@ -80,6 +81,7 @@ export const LinkButton = _component(
       <a
         {...mergeAttrs<'a'>(
           {
+            ...buttonPart,
             sx: buttonSx(appearance(), { disabled, fullWidth }),
             ...(external && externalLinkAttrs),
           },

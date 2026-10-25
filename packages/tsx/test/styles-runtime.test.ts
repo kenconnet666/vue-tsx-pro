@@ -1,7 +1,7 @@
 // 运行时样式引擎：片段惰性、一次 attrs 合成一个类、合并语义、缓存命中返回同一个对象、动态样式只改变量、
 // 变量组、主题、标记、token 短写与关键帧；配方按档位组合缓存
 import { describe, expect, it } from 'vitest';
-import { recipe } from '../src/styles/recipe';
+import { recipe, type RecipeExtension } from '../src/styles/recipe';
 import {
   attrs,
   create,
@@ -195,6 +195,24 @@ describe('recipe', () => {
     for (const text of ['display: inline-flex', 'font-size: 12px', 'width: 100%']) {
       expect(rules).toContain(text);
     }
+  });
+
+  it('扩展：基础与已有档位追加在配方之后，新的档位取值只用扩展的；同一组扩展结果有缓存', () => {
+    const theme: RecipeExtension<'root' | 'icon'> = {
+      base: { root: { display: 'flex' } },
+      variants: { size: { md: { root: { fontSize: 15 } }, xl: { root: { fontSize: 20 } } } },
+    };
+    const md = button({}, theme);
+    expect(md).toBe(button({}, theme));
+    expect(md).not.toBe(button());
+    const mdRules = rulesOf(attrs(md.root).class);
+    expect(mdRules).toContain('display: flex');
+    expect(mdRules).toContain('font-size: 15px');
+    expect(rulesOf(attrs(button({ size: 'xl' }, theme).root).class)).toContain('font-size: 20px');
+    // 两层扩展：后一层排在后面
+    const inner: RecipeExtension<'root'> = { base: { root: { display: 'grid' } } };
+    expect(rulesOf(attrs(button({}, theme, inner).root).class)).toContain('display: grid');
+    expect(button.parts).toEqual(['root', 'icon']);
   });
 });
 

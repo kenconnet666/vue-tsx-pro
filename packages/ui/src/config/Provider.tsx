@@ -9,6 +9,7 @@ import {
   type UiRouter,
 } from './context';
 import { mergeDefaults, type ComponentDefaults } from './defaults';
+import { mergeStyles, type ComponentStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
 import type { WorkCalendar } from '../utils/data/workdays';
@@ -27,6 +28,8 @@ export interface ProviderProps {
   textMatcher?: TextMatcher;
   /** 组件默认值：按组件逐个与上层合并，只写要改的 */
   defaults?: ComponentDefaults;
+  /** 组件的主题定制：追加在上层的定制之后（见 styles.ts） */
+  styles?: ComponentStyles;
   /** 路由适配；不写时沿用上层配置 */
   router?: UiRouter;
   /** 请求客户端；不写时沿用上层配置 */
@@ -61,6 +64,7 @@ export const Provider = _component(
     highlighter,
     textMatcher,
     defaults,
+    styles,
     router,
     http,
     workCalendar,
@@ -72,6 +76,7 @@ export const Provider = _component(
     const currentTheme = _derived(theme ? resolveTheme(theme, prefersDark.value) : parent.theme);
     const currentLang = _derived(lang ? defineLang(parent.lang, lang) : parent.lang);
     const currentDefaults = _derived(mergeDefaults(parent.defaults, defaults));
+    const currentStyles = _derived(mergeStyles(parent.styles, styles));
     ConfigContext.provide({
       get theme() {
         return currentTheme;
@@ -87,6 +92,9 @@ export const Provider = _component(
       },
       get defaults() {
         return currentDefaults;
+      },
+      get styles() {
+        return currentStyles;
       },
       get router() {
         return router ?? parent.router;

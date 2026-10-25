@@ -9,6 +9,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
+  buttonPart,
   buttonSx,
   useButtonAppearance,
   useButtonBehavior,
@@ -83,7 +84,7 @@ export const IconButton = _component(
     return () => (
       <button
         {...mergeAttrs<'button'>(
-          { sx: buttonSx(appearance(), { disabled, square: true }), type },
+          { ...buttonPart, sx: buttonSx(appearance(), { disabled, square: true }), type },
           rest,
           { ...behavior(), 'aria-label': label },
         )}

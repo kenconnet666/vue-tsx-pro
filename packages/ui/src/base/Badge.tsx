@@ -13,7 +13,8 @@ import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import type { StatusMap } from '../utils/data/status';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { badgeSx, type BadgeOptions } from './badge-styles';
+import { badgeParts, badgeRecipe, type BadgeOptions } from './badge-styles';
+import { useRecipe } from '../config/styles';
 import { Icon, type IconData, type IconProps } from './Icon';
 
 /** 未声明的属性落到 span 上 */
@@ -44,18 +45,15 @@ export const Badge = _component(
     ...rest
   }: BadgeProps) => {
     const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
+    const recipe = useRecipe(badgeRecipe);
     return () => {
-      const styles = badgeSx(appearance());
+      const styles = badgeParts(appearance(), recipe);
       return (
-        <span {...mergeAttrs<'span'>({ sx: styles.root }, rest)}>
+        <span {...mergeAttrs<'span'>(styles.root, rest)}>
           {icon ? (
             <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />
           ) : (
-            dot && (
-              <span
-                {...mergeAttrs<'span'>({ sx: styles.dot }, propsDot, { 'aria-hidden': true })}
-              />
-            )
+            dot && <span {...mergeAttrs<'span'>(styles.dot, propsDot, { 'aria-hidden': true })} />
           )}
           {children}
         </span>

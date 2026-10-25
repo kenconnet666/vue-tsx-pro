@@ -115,11 +115,12 @@ export {
   visuallyHiddenStyles,
   type VisuallyHiddenProps,
 } from './base/VisuallyHidden';
-export { badgeRecipe, badgeSx, type BadgeOptions } from './base/badge-styles';
+export { badgeParts, badgeRecipe, type BadgeOptions, type BadgePart } from './base/badge-styles';
 export {
   buttonBaseStyles,
   buttonContent,
   ButtonGroupContext,
+  buttonPart,
   buttonRecipe,
   buttonStyles,
   buttonSx,
@@ -131,6 +132,7 @@ export {
   type ButtonContentOptions,
   type ButtonGroupState,
   type ButtonOptions,
+  type ButtonPart,
   type ButtonVariants,
 } from './base/button-core';
 
@@ -675,6 +677,7 @@ export {
   type TabManaged,
   type TabPanelManaged,
   type TabPanelProps,
+  type TabPart,
   type TabProps,
   type TabsActivations,
   type TabsOptions,
@@ -1295,6 +1298,14 @@ export {
   type QueryCodec,
   type QueryCodecs,
 } from './config/query-state';
+export {
+  mergeStyles,
+  partAttrs,
+  useRecipe,
+  type ComponentStyles,
+  type PartAttrs,
+  type StyleLayers,
+} from './config/styles';
 
 // 主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens 直接导入各组
 export {

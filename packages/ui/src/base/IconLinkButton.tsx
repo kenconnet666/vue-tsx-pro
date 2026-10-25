@@ -10,6 +10,7 @@ import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
   buttonContent,
+  buttonPart,
   buttonSx,
   useButtonAppearance,
   useButtonBehavior,
@@ -87,6 +88,7 @@ export const IconLinkButton = _component(
       <a
         {...mergeAttrs<'a'>(
           {
+            ...buttonPart,
             sx: buttonSx(appearance(), { disabled, square: true }),
             ...(external && externalLinkAttrs),
           },

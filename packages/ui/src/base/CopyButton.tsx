@@ -15,6 +15,7 @@ import { useClipboard } from '../utils/dom/clipboard';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   buttonContent,
+  buttonPart,
   buttonSx,
   useButtonAppearance,
   useButtonBehavior,
@@ -123,6 +124,7 @@ export const CopyButton = _component(
       <button
         {...mergeAttrs<'button'>(
           {
+            ...buttonPart,
             sx: buttonSx(appearance(), { disabled, square: true }),
             'aria-label': label ?? lang.copy,
           },

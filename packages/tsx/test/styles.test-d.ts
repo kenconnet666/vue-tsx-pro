@@ -61,5 +61,9 @@ export const noDrift: [Drift] extends [never] ? true : Drift = true;
 css.create({ bad: { paddin: 8 } });
 // @ts-expect-error 值的类型不对
 css.create({ bad: { padding: true } });
+// 条件别名作键（悬停显示说明）
+css.create({ ok: { color: { default: 'black', _selected: 'blue', _hover: 'red' } } });
+// @ts-expect-error 拼错的条件别名
+css.create({ bad: { color: { default: 'black', _selectd: 'blue' } } });
 // @ts-expect-error 条件取值必须有 default
 css.create({ bad: { color: { ':hover': 'blue' } } });

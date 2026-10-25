@@ -19,6 +19,7 @@ import {
   type UiRouter,
 } from './context';
 import type { ComponentDefaults } from './defaults';
+import { mergeStyles, type ComponentStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
 import type { WorkCalendar } from '../utils/data/workdays';
@@ -37,6 +38,8 @@ export interface UiOptions {
   textMatcher?: TextMatcher;
   /** 组件默认值，如 `{ Button: { variant: 'outline' } }`（见 defaults.ts） */
   defaults?: ComponentDefaults;
+  /** 组件的主题定制：追加样式、新增档位，如 `{ Button: { base: { root: { letterSpacing: '0.02em' } } } }`（见 styles.ts） */
+  styles?: ComponentStyles;
   /** 路由适配：站内链接不刷新页面地跳转、导航组件判断当前页（见 UiRouter） */
   router?: UiRouter;
   /** 请求客户端：createHttpClient({ baseURL, onRequest, onResponse })，或包一层 axios、ky（见 HttpClient） */
@@ -94,6 +97,7 @@ export function createUi(options: UiOptions = {}): Plugin {
           highlighter: options.highlighter,
           textMatcher: options.textMatcher,
           defaults: options.defaults ?? {},
+          styles: mergeStyles({}, options.styles),
           router: options.router,
           http: options.http,
           workCalendar: options.workCalendar,

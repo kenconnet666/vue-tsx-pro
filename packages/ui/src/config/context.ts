@@ -7,6 +7,7 @@ import { createMatcher } from '../utils/data/collation';
 import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
 import type { ComponentDefaults } from './defaults';
+import type { StyleLayers } from './styles';
 import type { Lang } from './lang/lang';
 import { zhCN } from './lang/zh-CN';
 import { lightTheme } from './theme/light';
@@ -74,6 +75,8 @@ export interface UiConfig {
   readonly textMatcher?: TextMatcher;
   /** 组件默认值（见 defaults.ts） */
   readonly defaults: ComponentDefaults;
+  /** 组件的主题定制，外层在前（见 styles.ts） */
+  readonly styles: StyleLayers;
   /** 路由适配；没有时链接就是普通的页面跳转 */
   readonly router?: UiRouter;
   /** 请求客户端（远程选项、上传、列表查询用）；没有时 useHttp 给一个默认的 createHttpClient() */
@@ -92,6 +95,7 @@ export const defaultConfig: UiConfig = {
   theme: lightTheme,
   lang: zhCN,
   defaults: {},
+  styles: {},
   ripple: true,
 };
 

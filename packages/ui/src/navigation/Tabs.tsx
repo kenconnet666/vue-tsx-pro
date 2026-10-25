@@ -25,6 +25,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
+import { partAttrs, useRecipe } from '../config/styles';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { useLazyContent } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -591,6 +592,7 @@ export interface TabProps extends PartProps<'button', TabManaged> {
  * 样式、方向、可关闭是档位
  */
 export const tabRecipe = css.recipe({
+  name: 'Tab',
   parts: ['root', 'closeWrapper', 'close'],
   base: {
     // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
@@ -653,11 +655,15 @@ export const tabRecipe = css.recipe({
   ],
 });
 
+/** 标签的部件（createUi / Provider 的 styles.Tab 按它定制） */
+export type TabPart = (typeof tabRecipe.parts)[number];
+
 /** 标签（role="tab" 的 button） */
 export const Tab = _component(
   ({ value, disabled = false, onClose, propsClose, children, ...rest }: TabProps) => {
     const lang = useLang();
     const tabs = TabsContext.inject();
+    const recipe = useRecipe(tabRecipe);
     const unregister = tabs.register(_untrack(value), () => plainText(children) || value);
     onBeforeUnmount(() => {
       const element = document.getElementById(tabs.id('tab', value));
@@ -675,7 +681,7 @@ export const Tab = _component(
 
     return () => {
       const selected = tabs.value === value;
-      const styles = tabRecipe({
+      const styles = recipe({
         variant: tabs.variant,
         orientation: tabs.orientation,
         closable: !!onClose,
@@ -684,6 +690,7 @@ export const Tab = _component(
         <ButtonBase
           {...mergePartProps<ButtonBaseProps>(
             {
+              ...partAttrs(tabRecipe, 'root'),
               sx: styles.root,
               ripple: tabs.ripple,
             },
@@ -717,7 +724,11 @@ export const Tab = _component(
       if (!onClose) return tab;
       // 关闭按钮不能放进标签按钮里（按钮里不能有按钮）：一起包在 role="presentation" 里，按钮本身只给指针用（对读屏隐藏）
       return (
-        <span role="presentation" {...css.attrs(styles.closeWrapper)}>
+        <span
+          role="presentation"
+          {...partAttrs(tabRecipe, 'closeWrapper')}
+          {...css.attrs(styles.closeWrapper)}
+        >
           {tab}
           <IconButton
             {...mergePartProps<IconButtonProps>(
@@ -726,6 +737,7 @@ export const Tab = _component(
                 size: 'xs',
                 variant: 'ghost',
                 radius: 'full',
+                ...partAttrs(tabRecipe, 'close'),
                 sx: styles.close,
                 'aria-label': lang.tabClose(plainText(children) || value),
               },

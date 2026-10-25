@@ -11,6 +11,7 @@ import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
+import { partAttrs, useRecipe } from '../config/styles';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
@@ -156,6 +157,7 @@ const HOVER = ':hover:not(:disabled,[aria-disabled="true"])';
  * 实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1
  */
 export const buttonRecipe = css.recipe({
+  name: 'Button',
   parts: ['root'],
   variants: {
     variant: {
@@ -205,6 +207,12 @@ export const buttonRecipe = css.recipe({
   },
 });
 
+/** 按钮的部件（createUi / Provider 的 styles.Button 按它定制） */
+export type ButtonPart = (typeof buttonRecipe.parts)[number];
+
+/** 按钮根元素的部件标记：`data-scope="button" data-part="root"` */
+export const buttonPart = partAttrs(buttonRecipe, 'root');
+
 /** ButtonGroup 交给组里按钮的状态：统一的外观（相连的方向经 AttachedContext 给出） */
 export interface ButtonGroupState {
   /** 组上写的外观，组里的按钮没写的项用它 */
@@ -216,7 +224,11 @@ export const ButtonGroupContext = createContext<ButtonGroupState>('ButtonGroup')
 
 /** 合并后的外观：每一项都有值（size 不写时继承字号）；在 ButtonGroup、ControlGroup 里时带上相连的方向 */
 export type ButtonAppearance = Required<Pick<ButtonOptions, 'variant' | 'tone' | 'radius'>> &
-  Pick<ButtonOptions, 'size'> & { attached?: keyof AttachedOrientations };
+  Pick<ButtonOptions, 'size'> & {
+    attached?: keyof AttachedOrientations;
+    /** 按钮的配方，带上 createUi / Provider 里 styles.Button 的定制 */
+    recipe: ReturnType<typeof useRecipe<ButtonPart, unknown>>;
+  };
 
 /**
  * 按钮的外观：显式写的 prop > 所在 ButtonGroup 写的 > createUi / Provider 的 defaults.Button > 组件自己的默认样式。
@@ -229,6 +241,7 @@ export function useButtonAppearance(
 ): () => ButtonAppearance {
   const group = ButtonGroupContext.inject(null);
   const attachedGroup = AttachedContext.inject(null);
+  const recipe = useRecipe(buttonRecipe);
   return useDefaults(
     'Button',
     () => {
@@ -240,6 +253,7 @@ export function useButtonAppearance(
         size: size ?? shared?.size,
         radius: radius ?? shared?.radius,
         attached: attachedGroup?.orientation,
+        recipe,
       };
     },
     // 组里的按钮外观要一致：不论有没有文字都按 Button 的默认色调（拆分按钮的两半同色）
@@ -249,7 +263,7 @@ export function useButtonAppearance(
 
 /** 外观（已合并默认值）与状态 → 按钮根元素的样式 */
 export function buttonSx(
-  { variant, tone, size, radius, attached }: ButtonAppearance,
+  { variant, tone, size, radius, attached, recipe }: ButtonAppearance,
   state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
 ): SxStyles {
   return [
@@ -259,7 +273,7 @@ export function buttonSx(
     focusRingStyles.visible,
     rippleHostStyles.host,
     toneThemes[tone],
-    buttonRecipe({ variant }).root,
+    recipe({ variant }).root,
     radiusStyles[radius],
     attached && attachedStyles[attached],
     size && fontSizeStyles[size],

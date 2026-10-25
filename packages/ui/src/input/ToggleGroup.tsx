@@ -14,6 +14,7 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
   buttonContent,
+  buttonPart,
   buttonSx,
   useButtonAppearance,
   useButtonBehavior,
@@ -275,6 +276,7 @@ export const ToggleItem = _component(
         <button
           {...mergeAttrs<'button'>(
             {
+              ...buttonPart,
               sx: [
                 buttonSx(
                   {

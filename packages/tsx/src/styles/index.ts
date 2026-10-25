@@ -13,7 +13,14 @@ import type { VAR_GROUP } from './vars';
 
 export type { CSSProperties } from './css-properties';
 export type { DocumentedStyles } from './documented';
-export { recipe, type Recipe, type RecipeConfig, type VariantSelection } from './recipe';
+export {
+  recipe,
+  type PartStyles,
+  type Recipe,
+  type RecipeConfig,
+  type RecipeExtension,
+  type VariantSelection,
+} from './recipe';
 export { CONDITIONS as conditions, hotStyles, styleText } from './runtime';
 
 /*
@@ -87,7 +94,7 @@ export interface QualifiedShadowsTokens {}
 export interface QualifiedDurationsTokens {}
 /** 带组名的缓动 token */
 export interface QualifiedEasingsTokens {}
-export type { StyleValue } from './value';
+export type { ConditionAliases, StyleValue } from './value';
 
 /** 动态样式：参数在运行时决定，编译为 CSS 变量与行内 style */
 type DynamicStyles = (...args: never[]) => DocumentedStyles;

@@ -3,6 +3,7 @@
  * 四种样式各写一遍、引用 toneVars；字号、圆角是档位。
  */
 import * as css from '@vue-tsx-pro/tsx/styles';
+import { partAttrs } from '../config/styles';
 import { toneThemes } from '../utils/style/tone-themes';
 import { toneVars } from '../utils/style/tone-vars';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -23,6 +24,7 @@ export interface BadgeOptions {
 
 /** 标记的配方：部件 root（外层）、dot（圆点） */
 export const badgeRecipe = css.recipe({
+  name: 'Badge',
   parts: ['root', 'dot'],
   base: {
     root: {
@@ -67,16 +69,30 @@ export const badgeRecipe = css.recipe({
   defaults: { variant: 'soft' },
 });
 
-/** 标记的样式：色调类 + 配方 + 字号 + 圆角 */
-export function badgeSx({
-  variant = 'soft',
-  tone = 'neutral',
-  size = 'xs',
-  radius = 'sm',
-}: BadgeOptions) {
-  const parts = badgeRecipe({ variant });
+/** 标记的部件（createUi / Provider 的 styles.Badge 按它定制） */
+export type BadgePart = (typeof badgeRecipe.parts)[number];
+
+/**
+ * 标记的样式与部件标记：色调类 + 配方 + 字号 + 圆角。recipe 是 useRecipe(badgeRecipe) 的结果（带上主题定制），
+ * 结果直接作部件属性的默认层：`mergeAttrs<'span'>(styles.root, rest)`
+ */
+export function badgeParts(
+  { variant = 'soft', tone = 'neutral', size = 'xs', radius = 'sm' }: BadgeOptions,
+  recipe: (selection: {
+    variant: StatusVariant;
+  }) => Readonly<Record<BadgePart, readonly css.CompiledStyles[]>>,
+) {
+  const parts = recipe({ variant });
   return {
-    root: [toneThemes[tone], parts.root, fontSizeStyles[size], radiusStyles[radius]],
-    dot: parts.dot,
-  } as const satisfies Record<string, css.SxStyles>;
+    root: {
+      ...partAttrs(badgeRecipe, 'root'),
+      sx: [
+        toneThemes[tone],
+        parts.root,
+        fontSizeStyles[size],
+        radiusStyles[radius],
+      ] as css.SxStyles,
+    },
+    dot: { ...partAttrs(badgeRecipe, 'dot'), sx: parts.dot as css.SxStyles },
+  } as const;
 }
