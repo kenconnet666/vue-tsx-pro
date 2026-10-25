@@ -17,6 +17,7 @@
 import type { CompiledStyles, Recipe, RecipeExtension } from '@vue-tsx-pro/tsx/styles';
 import { useConfig } from './context';
 import type { BadgePart } from '../base/badge-styles';
+import type { AlertPart } from '../feedback/Alert';
 import type { ButtonPart } from '../base/button-core';
 import type { TabPart } from '../navigation/Tabs';
 
@@ -26,6 +27,8 @@ export interface ComponentStyles {
   Button?: RecipeExtension<ButtonPart>;
   /** Badge、Tag 共用 */
   Badge?: RecipeExtension<BadgePart>;
+  /** Alert */
+  Alert?: RecipeExtension<AlertPart>;
   /** Tabs 里的标签（Tab） */
   Tab?: RecipeExtension<TabPart>;
 }
@@ -45,20 +48,44 @@ export function mergeStyles(outer: StyleLayers, inner: ComponentStyles | undefin
   return merged as StyleLayers;
 }
 
+/** 一个部件交给 mergeAttrs / mergeProps 的默认层：样式与部件标记 */
+export type PartLayer = Readonly<{
+  sx: readonly CompiledStyles[];
+  'data-scope': string;
+  'data-part': string;
+}>;
+
+/** 配方算出的样式 → 各部件的默认层；同一组样式（配方按档位组合缓存）返回同一个对象，渲染里不新建 */
+const layerCache = new WeakMap<object, Readonly<Record<string, PartLayer>>>();
+
 /**
- * 配方加上 createUi / Provider 里这个组件的定制：在 setup 里调用，返回的函数在渲染时传档位选择。
+ * 配方加上 createUi / Provider 里这个组件的定制：在 setup 里调用，返回的函数在渲染时传档位选择，
+ * 得到每个部件的默认层（样式 + data-scope / data-part），直接交给部件的合并：
  *
- *   const button = useRecipe(buttonRecipe);
- *   return () => <button {...mergeAttrs<'button'>({ sx: button({ variant }).root, ...partAttrs(buttonRecipe, 'root') }, rest)} />
+ *   const recipe = useRecipe(alertRecipe);
+ *   return () => {
+ *     const s = recipe({ variant });
+ *     return <div {...mergeAttrs<'div'>(s.root, rest)}><div {...mergeAttrs<'div'>(s.title, propsTitle)} /></div>;
+ *   };
+ *
+ * 根元素还要加别的样式时：`{ ...s.root, sx: [s.root.sx, 别的] }`
  */
 export function useRecipe<P extends string, V>(
   recipe: Recipe<P, V>,
-): (selection?: Parameters<Recipe<P, V>>[0]) => Readonly<Record<P, readonly CompiledStyles[]>> {
+): (selection?: Parameters<Recipe<P, V>>[0]) => Readonly<Record<P, PartLayer>> {
   const config = useConfig();
   const name = recipe.name as keyof ComponentStyles | undefined;
   return (selection) => {
     const layers = name && (config.styles[name] as readonly RecipeExtension<P>[] | undefined);
-    return layers?.length ? recipe(selection, ...layers) : recipe(selection);
+    const styles = layers?.length ? recipe(selection, ...layers) : recipe(selection);
+    let result = layerCache.get(styles);
+    if (!result) {
+      result = Object.fromEntries(
+        recipe.parts.map((part) => [part, { sx: styles[part], ...partAttrs(recipe, part) }]),
+      );
+      layerCache.set(styles, result);
+    }
+    return result as Readonly<Record<P, PartLayer>>;
   };
 }
 

@@ -412,10 +412,11 @@ export {
 // 反馈：进度、骨架、提示条、通知、空状态、结果
 export {
   Alert,
-  alertStyles,
+  alertRecipe,
   type AlertLives,
   type AlertManaged,
   type AlertOptions,
+  type AlertPart,
   type AlertProps,
   type AlertVariants,
 } from './feedback/Alert';
@@ -1304,6 +1305,7 @@ export {
   useRecipe,
   type ComponentStyles,
   type PartAttrs,
+  type PartLayer,
   type StyleLayers,
 } from './config/styles';
 

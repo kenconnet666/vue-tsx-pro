@@ -16,6 +16,7 @@ import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDefaults } from '../config/defaults';
+import { useRecipe } from '../config/styles';
 import { useDismissible } from '../utils/motion/presence';
 import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
@@ -94,26 +95,36 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
   children?: VNodeChild;
 }
 
-/** Alert 的样式：root、icon、body、title、description、content、action、close */
-export const alertStyles = css.create({
-  // 进场与离场的淡入淡出用 presenceStyles
-  root: {
-    boxSizing: 'border-box',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '_sm',
-    padding: '_md',
-    lineHeight: '_normal',
+/**
+ * 提示条的配方：各部件的布局。样式 × 色调的颜色来自共用的 statusToneStyles（直接写主题 token 的表），
+ * 排在配方之前，createUi / Provider 的 styles.Alert 能盖过它
+ */
+export const alertRecipe = css.recipe({
+  name: 'Alert',
+  parts: ['root', 'icon', 'body', 'title', 'description', 'content', 'action', 'close'],
+  base: {
+    // 进场与离场的淡入淡出用 presenceStyles
+    root: {
+      boxSizing: 'border-box',
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '_sm',
+      padding: '_md',
+      lineHeight: '_normal',
+    },
+    // 图标与第一行文字对齐：行高 1.5em 里居中 1em 的图标
+    icon: { flexShrink: 0, marginBlock: '0.25em' },
+    body: { flexGrow: 1, minWidth: 0, display: 'grid', gap: '_xs' },
+    title: { fontWeight: '_semibold' },
+    description: { color: '_text' },
+    content: { minWidth: 0 },
+    action: { flexShrink: 0, alignSelf: 'center' },
+    close: { flexShrink: 0, marginBlock: `calc(-1 * ${t.space.xs})`, color: 'inherit' },
   },
-  // 图标与第一行文字对齐：行高 1.5em 里居中 1em 的图标
-  icon: { flexShrink: 0, marginBlock: '0.25em' },
-  body: { flexGrow: 1, minWidth: 0, display: 'grid', gap: '_xs' },
-  title: { fontWeight: '_semibold' },
-  description: { color: '_text' },
-  content: { minWidth: 0 },
-  action: { flexShrink: 0, alignSelf: 'center' },
-  close: { flexShrink: 0, marginBlock: `calc(-1 * ${t.space.xs})`, color: 'inherit' },
 });
+
+/** 提示条的部件（createUi / Provider 的 styles.Alert 按它定制） */
+export type AlertPart = (typeof alertRecipe.parts)[number];
 
 const ROLES = { off: undefined, polite: 'status', assertive: 'alert' } as const;
 
@@ -146,9 +157,12 @@ export const Alert = _component(
       variant: 'soft',
       radius: 'md',
     });
+    const recipe = useRecipe(alertRecipe);
     // 离场结束才交给使用方移除；使用方没移除时提示条重新出现
     const dismissible = useDismissible(() => onClose?.());
     return () => {
+      const { variant: shownVariant, radius: shownRadius } = appearance();
+      const s = recipe({ variant: shownVariant, tone });
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       // 说明取 description，没有时取 children；两个都有时 children 放在说明下面
       const extra = hasContent(description) && hasContent(children);
@@ -157,11 +171,12 @@ export const Alert = _component(
         <div
           {...mergeAttrs<'div'>(
             {
+              ...s.root,
               sx: [
-                alertStyles.root,
+                statusToneSx(shownVariant, tone),
+                s.root.sx,
                 presenceStyles.fade,
-                statusToneSx(appearance().variant, tone),
-                radiusStyles[appearance().radius],
+                radiusStyles[shownRadius],
                 size && fontSizeStyles[size],
                 dismissible.dismissing && presenceStyles.leaving,
               ],
@@ -173,36 +188,24 @@ export const Alert = _component(
           data-state={dismissible.state}
         >
           {loading ? (
-            <Spinner {...mergePartProps<SpinnerProps>({ sx: alertStyles.icon }, propsSpinner)} />
+            <Spinner {...mergePartProps<SpinnerProps>(s.icon, propsSpinner)} />
           ) : (
             shownIcon && (
-              <Icon
-                {...mergePartProps<IconProps>({ icon: shownIcon, sx: alertStyles.icon }, propsIcon)}
-              />
+              <Icon {...mergePartProps<IconProps>({ ...s.icon, icon: shownIcon }, propsIcon)} />
             )
           )}
-          <div {...mergeAttrs<'div'>({ sx: alertStyles.body }, propsBody)}>
-            {hasContent(title) && (
-              <div {...mergeAttrs<'div'>({ sx: alertStyles.title }, propsTitle)}>{title}</div>
-            )}
+          <div {...mergeAttrs<'div'>(s.body, propsBody)}>
+            {hasContent(title) && <div {...mergeAttrs<'div'>(s.title, propsTitle)}>{title}</div>}
             {hasContent(text) && (
-              <div {...mergeAttrs<'div'>({ sx: alertStyles.description }, propsDescription)}>
-                {text}
-              </div>
+              <div {...mergeAttrs<'div'>(s.description, propsDescription)}>{text}</div>
             )}
-            {extra && (
-              <div {...mergeAttrs<'div'>({ sx: alertStyles.content }, propsContent)}>
-                {children}
-              </div>
-            )}
+            {extra && <div {...mergeAttrs<'div'>(s.content, propsContent)}>{children}</div>}
           </div>
-          {hasContent(action) && (
-            <div {...mergeAttrs<'div'>({ sx: alertStyles.action }, propsAction)}>{action}</div>
-          )}
+          {hasContent(action) && <div {...mergeAttrs<'div'>(s.action, propsAction)}>{action}</div>}
           {onClose && (
             <CloseButton
               {...mergeProps<PresetIconButtonProps>(
-                { sx: [alertStyles.close, relativeFontSizeStyles.sm] },
+                { ...s.close, sx: [s.close.sx, relativeFontSizeStyles.sm] },
                 propsClose,
                 { onClick: dismissible.dismiss },
               )}

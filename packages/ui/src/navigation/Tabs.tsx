@@ -25,7 +25,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';
-import { partAttrs, useRecipe } from '../config/styles';
+import { useRecipe } from '../config/styles';
 import { useActiveIndicator } from '../utils/motion/active-indicator';
 import { useLazyContent } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -690,8 +690,7 @@ export const Tab = _component(
         <ButtonBase
           {...mergePartProps<ButtonBaseProps>(
             {
-              ...partAttrs(tabRecipe, 'root'),
-              sx: styles.root,
+              ...styles.root,
               ripple: tabs.ripple,
             },
             rest as Partial<ButtonBaseProps>,
@@ -724,11 +723,7 @@ export const Tab = _component(
       if (!onClose) return tab;
       // 关闭按钮不能放进标签按钮里（按钮里不能有按钮）：一起包在 role="presentation" 里，按钮本身只给指针用（对读屏隐藏）
       return (
-        <span
-          role="presentation"
-          {...partAttrs(tabRecipe, 'closeWrapper')}
-          {...css.attrs(styles.closeWrapper)}
-        >
+        <span role="presentation" {...mergeAttrs<'span'>(styles.closeWrapper)}>
           {tab}
           <IconButton
             {...mergePartProps<IconButtonProps>(
@@ -737,8 +732,7 @@ export const Tab = _component(
                 size: 'xs',
                 variant: 'ghost',
                 radius: 'full',
-                ...partAttrs(tabRecipe, 'close'),
-                sx: styles.close,
+                ...styles.close,
                 'aria-label': lang.tabClose(plainText(children) || value),
               },
               propsClose,

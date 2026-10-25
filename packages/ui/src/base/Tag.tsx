@@ -16,7 +16,7 @@ import { useDismissible } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/data/text';
 import { badgeParts, badgeRecipe, type BadgeOptions } from './badge-styles';
-import { partAttrs, useRecipe } from '../config/styles';
+import { useRecipe } from '../config/styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { t } from '../config/theme/tokens';
@@ -84,7 +84,7 @@ export const Tag = _component(
         <span
           {...mergeAttrs<'span'>(
             {
-              ...partAttrs(badgeRecipe, 'root'),
+              ...badgeParts(appearance(), recipe).root,
               sx: [
                 badgeParts(appearance(), recipe).root.sx,
                 tagStyles.root,

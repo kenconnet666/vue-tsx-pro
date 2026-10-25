@@ -470,7 +470,7 @@ export function buttonSx(
     buttonStyles.root,
     focusRingStyles.visible,
     rippleHostStyles.host,
-    recipe({ variant, tone }).root,
+    recipe({ variant, tone }).root.sx,
     radiusStyles[radius],
     attached && attachedStyles[attached],
     size && fontSizeStyles[size],
