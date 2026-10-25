@@ -1269,6 +1269,7 @@ export {
   type DataTableVariants,
 } from './table/table-styles';
 export {
+  tableParams,
   useTableQuery,
   type TablePage,
   type TableQuery,

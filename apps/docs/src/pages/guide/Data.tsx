@@ -87,6 +87,16 @@ export default _component(() => () => (
         <Code>onResponse</Code> 里拆开。
       </Paragraph>
       <CodeBlock title="main.ts" code={client} lang="ts" />
+      <Paragraph>
+        值按线上的 typed JSON 传（与 query 库同一套写法）：请求体里的 bigint、Decimal、CalendarDate
+        写成文字（Decimal 不用科学计数法，日期是 ISO），根上附一张 <Code>$types</Code>{' '}
+        记下它们的位置；地址栏参数写成同样的文字；响应带 <Code>$types</Code> 时先还原再交给{' '}
+        <Code>onResponse</Code>。默认 bigint 还原成 bigint，decimal 与日期留作文字（组件都认）；给{' '}
+        <Code>{'wire: { decimal: Decimal }'}</Code> 时 decimal 还原成 Decimal，
+        <Code>{"dates: 'objects'"}</Code> 时日期还原成 CalendarDate 等，<Code>wire: false</Code>{' '}
+        时按普通 JSON。<Code>toWire</Code>、<Code>fromWire</Code>、<Code>wireText</Code>{' '}
+        也可以单独用。
+      </Paragraph>
     </Flex>
     <Flex direction="column" gap="md">
       <H2 id="adapter" size="xl" anchor>
@@ -139,9 +149,20 @@ export default _component(() => () => (
         ，排序交给服务端；多列排序的表格加 <Code>multiSort</Code> 并绑 <Code>sorts</Code>
         ）；查询栏点“查询”时调用 <Code>search(条件)</Code>
         。换排序、条数、条件或 <Code>params</Code>
-        （当前页签这类）回到第一页，只请求一次；删掉数据后当前页空了，自动退到最后一页。交给接口的排序写成{' '}
-        <Code>formatSorts(sorts)</Code>，即 <Code>-amount,name</Code>（减号是倒序，同
-        JSON:API），query 库的 <Code>sortBy</Code> 直接认这种写法。
+        （当前页签这类）回到第一页，只请求一次；删掉数据后当前页空了，自动退到最后一页。表头筛选（DataTable
+        的 <Code>filters</Code> 加 <Code>manualFilter</Code>）绑 <Code>columnFilters</Code>
+        。只翻页、换排序或条数时，交给 fetcher 的 <Code>total</Code>{' '}
+        是上一次的总数，服务端可以不再数行数。
+      </Paragraph>
+      <Paragraph>
+        fetcher 用 <Code>tableParams(query, columns)</Code> 把一次查询写成接口的参数：
+        <Code>page</Code>、<Code>pageSize</Code>、<Code>sort=-amount,name</Code>（减号是倒序，同
+        JSON:API）、已知时的 <Code>total</Code>，表头多选写成 <Code>filter.列=值</Code>
+        ，关键字写成 <Code>search.列=关键字</Code>
+        ，查询栏的条件按字段名平铺（Decimal 不用科学计数法、日期是
+        ISO，区间写成两个同名参数）。query 库的 <Code>parseTableRequest</Code> 与{' '}
+        <Code>db.table(查询, 请求)</Code>
+        （Java 是 <Code>TableRequest.parse</Code>）读的就是这套参数：筛选、排序只认结果里的列。
       </Paragraph>
       <Paragraph>
         <Code>syncToUrl: true</Code> 把页码、条数、排序（<Code>sort=-amount,name</Code>{' '}

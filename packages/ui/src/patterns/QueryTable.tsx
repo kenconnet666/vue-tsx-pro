@@ -11,7 +11,8 @@
  *
  * - 查询栏的条件改的是草稿（draft），点“查询”（或回车）才交给 query.search；“重置”回到 blankFilters（不写时是一开始的条件）并查询。
  * - 表头排序交给服务端（manualSort，写回 query.sort；multiSort 时按住 Shift 追加一列，写回 query.sorts），
- *   分页栏绑定 query.page / pageSize / total。
+ *   表头筛选也交给服务端（manualFilter，写回 query.columnFilters；列的 filter 要写 options，否则只列出当前这页出现过的值），
+ *   分页栏绑定 query.page / pageSize / total。fetcher 用 tableParams(query, columns) 把这些写成接口的参数。
  * - persistKey：列设置（显示、顺序、固定、列宽）与行高记在浏览器里，下次打开还是这样。
  * - selectionMode 时勾选行，表格上方出现批量操作栏，batchActions 拿到已选的 key 给出按钮。
  *
@@ -272,6 +273,8 @@ export const QueryTable = _component(
             multiSort={multiSort}
             sort={_bind(query.sort)}
             sorts={_bind(query.sorts)}
+            manualFilter
+            filters={_bind(query.columnFilters)}
             loading={query.loading}
             density={density}
             selectionMode={selectionMode}

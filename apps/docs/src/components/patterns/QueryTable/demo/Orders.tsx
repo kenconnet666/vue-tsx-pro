@@ -1,5 +1,6 @@
 // 采购单列表：一个 QueryTable 拼好查询栏、工具栏（新建、导出、刷新、行高、列设置、全屏）、批量操作、表格与分页；
-// 数据来自假的服务端（300–600 ms 延迟、按条件筛、按几列排序、分页），按住 Shift 点列标题追加排序列，列设置与行高记在浏览器里
+// 数据来自假的服务端（300–600 ms 延迟、按条件筛、按几列排序、分页），按住 Shift 点列标题追加排序列，品类、供应商的表头筛选也交给服务端，
+// 列设置与行高记在浏览器里。真的接口用 tableParams(query, columns) 把这些写成参数（见“请求与数据”指南）
 import { Download, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
@@ -10,8 +11,8 @@ import {
   TextField,
   useTableQuery,
   type DataTableColumn,
-  type SortState,
   type TablePage,
+  type TableQuery,
 } from '@vue-tsx-pro/ui';
 import { QueryTable } from '@vue-tsx-pro/ui/patterns';
 
@@ -55,21 +56,26 @@ const all: PurchaseOrder[] = Array.from({ length: 368 }, (_, index) => ({
     .slice(0, 10),
 }));
 
-/** 假的查询接口：按条件筛、按几列排序（前面的优先）、分页，300–600 ms 后返回；取消时不返回 */
+/** 假的查询接口：按查询栏与表头的条件筛、按几列排序（前面的优先）、分页，300–600 ms 后返回；取消时不返回 */
 function fetchOrders(
-  query: { page: number; pageSize: number; sorts: readonly SortState[]; filters: Filters },
+  query: TableQuery<Filters, undefined>,
   signal: AbortSignal,
 ): Promise<TablePage<PurchaseOrder>> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(
       () => {
         const { keyword, category, status, buyer } = query.filters;
+        // 表头筛选：品类是多选（值在其中），供应商是关键字（文字包含）
+        const categoryIn = query.columnFilters.category ?? [];
+        const supplierHas = query.columnFilters.supplier?.[0]?.trim();
         const matched = all.filter(
           (order) =>
             (!keyword || order.id.includes(keyword) || order.supplier.includes(keyword)) &&
             (!category || order.category === category) &&
             (!status || order.status === status) &&
-            (!buyer || order.buyer.includes(buyer)),
+            (!buyer || order.buyer.includes(buyer)) &&
+            (categoryIn.length === 0 || categoryIn.includes(order.category)) &&
+            (!supplierHas || order.supplier.includes(supplierHas)),
         );
         matched.sort((a, b) => {
           for (const sort of query.sorts) {
@@ -93,8 +99,8 @@ function fetchOrders(
 
 const columns: DataTableColumn<PurchaseOrder>[] = [
   { key: 'id', header: '采购单号', width: 150, sticky: 'start', sortable: true },
-  { key: 'supplier', header: '供应商', minWidth: 160, sortable: true },
-  { key: 'category', header: '品类', width: 110 },
+  { key: 'supplier', header: '供应商', minWidth: 160, sortable: true, filter: { options: 'text' } },
+  { key: 'category', header: '品类', width: 110, filter: { options: categories } },
   { key: 'buyer', header: '采购员', width: 110 },
   { key: 'status', header: '状态', width: 110, statuses },
   { key: 'amount', header: '金额', width: 140, type: 'currency', sortable: true },

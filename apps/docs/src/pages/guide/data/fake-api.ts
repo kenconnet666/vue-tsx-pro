@@ -44,7 +44,7 @@ interface Envelope<T> {
 const respond = <T>(body: Envelope<T>) =>
   new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } });
 
-/** 假的 fetch：GET /api/suppliers?keyword=&page=&pageSize=&sort=-name,city */
+/** 假的 fetch：GET /api/suppliers?keyword=&page=&pageSize=&sort=-name,city（tableParams 写出的参数，同 query 库的 parseTableRequest） */
 async function fakeFetch(input: RequestInfo | URL): Promise<Response> {
   const request = input as Request;
   await new Promise<void>((resolve, reject) => {
