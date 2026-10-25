@@ -105,10 +105,11 @@ const StatGroupContext = createContext<boolean>('StatGroup');
 
 /** Stat 的样式：root、label、icon、value、number、unit、change、description、body、footer、skeleton… */
 export const statStyles = css.create({
-  // 两列：第一行是指标名与变化量（结束边），其余各行占满整行
+  // 第一行是指标名与变化量（结束边），其余各占一整行。可换行的弹性布局而不是两列网格：
+  // 卡片窄时变化量换到下一行，指标名不被挤成一字一行；DOM 顺序不变（读屏仍是名称、数值、变化量）
   root: {
-    display: 'grid',
-    gridTemplateColumns: 'minmax(0, 1fr) auto',
+    display: 'flex',
+    flexWrap: 'wrap',
     alignItems: 'center',
     columnGap: '_sm',
     rowGap: '_xs',
@@ -117,8 +118,8 @@ export const statStyles = css.create({
   },
   // dt 里放图标与指标名：dl 的子元素只能是 dt、dd
   label: {
-    gridRow: '1',
-    gridColumn: '1',
+    order: 0,
+    flexGrow: 1,
     display: 'flex',
     alignItems: 'center',
     gap: '_sm',
@@ -139,7 +140,8 @@ export const statStyles = css.create({
     color: '_accentText',
   },
   value: {
-    gridColumn: '1 / -1',
+    order: 2,
+    flexBasis: '100%',
     display: 'flex',
     alignItems: 'baseline',
     flexWrap: 'wrap',
@@ -156,8 +158,7 @@ export const statStyles = css.create({
   unit: { color: '_textMuted', fontSize: '_xs' },
   // 变化量在指标名那一行的结束边
   change: {
-    gridRow: '1',
-    gridColumn: '2',
+    order: 1,
     display: 'flex',
     alignItems: 'center',
     gap: '_xs',
@@ -166,11 +167,12 @@ export const statStyles = css.create({
     whiteSpace: 'nowrap',
   },
   changeLabel: { color: '_textMuted' },
-  description: { gridColumn: '1 / -1', color: '_textMuted', fontSize: '_xs', margin: 0 },
-  body: { gridColumn: '1 / -1', margin: 0, minWidth: 0 },
+  description: { order: 3, flexBasis: '100%', color: '_textMuted', fontSize: '_xs', margin: 0 },
+  body: { order: 3, flexBasis: '100%', margin: 0, minWidth: 0 },
   // 底栏：两项时分别靠两端，多了换行
   footer: {
-    gridColumn: '1 / -1',
+    order: 3,
+    flexBasis: '100%',
     display: 'flex',
     flexWrap: 'wrap',
     alignItems: 'baseline',

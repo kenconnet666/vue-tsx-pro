@@ -732,6 +732,7 @@ export const XYChart = _component(
           : (kind.padding ?? {}),
         ariaLabel: null,
         duration: chartDuration(element),
+        onRenderComplete: haloPlotlineLabels,
       };
       if (container) container.update(config, undefined, rows);
       else {
@@ -797,3 +798,16 @@ export const XYChart = _component(
     );
   },
 );
+
+/**
+ * 目标线、事件竖线的文字描一圈表面色的边（同地图上地点的名字）：压在柱子、折线上也看得清。
+ * Unovis 的 Plotline 文字没有描边的配置项，渲染完成后补在元素上；导出图片时按计算样式一并带走
+ */
+function haloPlotlineLabels(svg: SVGSVGElement) {
+  for (const label of svg.querySelectorAll<SVGTextElement>('text[class*="plotline-label"]')) {
+    label.style.setProperty('paint-order', 'stroke');
+    label.style.setProperty('stroke', colors.surface);
+    label.style.setProperty('stroke-width', '3px');
+    label.style.setProperty('stroke-linejoin', 'round');
+  }
+}

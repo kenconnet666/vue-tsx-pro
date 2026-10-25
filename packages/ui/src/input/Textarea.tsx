@@ -53,7 +53,8 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
 
 /** Textarea 的样式：textarea、fixed、count、clear */
 export const textareaStyles = css.create({
-  textarea: { resize: 'none', overflowY: 'auto' },
+  // 随外壳拉伸：外壳给了高度（propsRoot 的 height）时文字区占满，不停在基线上
+  textarea: { alignSelf: 'stretch', resize: 'none', overflowY: 'auto' },
   fixed: { resize: 'vertical' },
   // 计数贴在右下角
   count: { alignSelf: 'flex-end', paddingBlockEnd: '_xs' },
