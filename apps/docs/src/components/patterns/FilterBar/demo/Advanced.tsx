@@ -119,6 +119,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <FilterBar
+        aria-label="订单查询"
         onSearch={search}
         onReset={() => {
           keyword = '';

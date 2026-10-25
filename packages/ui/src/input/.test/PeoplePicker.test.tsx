@@ -91,7 +91,7 @@ describe('PeoplePickerPanel', () => {
     const { root } = panel();
     await flush();
     expect(rows(root).map((item) => item.textContent?.includes('采购部'))).toContain(true);
-    buttonNamed(root, '进入采购部').click();
+    buttonNamed(root, '下级：采购部').click();
     await flush();
     expect(root.querySelector('nav [aria-current="location"]')!.textContent).toBe('采购部');
     expect(row(root, '林晓')).toBeDefined();
@@ -110,7 +110,7 @@ describe('PeoplePickerPanel', () => {
   it('点行勾选、再点取消；全选只管这一页能勾的；右边移除、清空', async () => {
     const { root, names } = panel();
     await flush();
-    buttonNamed(root, '进入采购部').click();
+    buttonNamed(root, '下级：采购部').click();
     await flush();
     row(root, '林晓').click();
     await flush();
@@ -136,7 +136,7 @@ describe('PeoplePickerPanel', () => {
   it('max=1 勾一个就换掉原来的；max=2 勾满之后其余的勾选框不可用', async () => {
     const single = panel({ max: 1 });
     await flush();
-    buttonNamed(single.root, '进入采购部').click();
+    buttonNamed(single.root, '下级：采购部').click();
     await flush();
     row(single.root, '林晓').click();
     row(single.root, '吴昊').click();
@@ -196,7 +196,7 @@ describe('PeoplePicker', () => {
 
     trigger.click();
     await flush();
-    buttonNamed(dialog, '进入财务部').click();
+    buttonNamed(dialog, '下级：财务部').click();
     await flush();
     row(dialog, '王建国').click();
     await flush();

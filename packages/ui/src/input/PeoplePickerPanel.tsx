@@ -9,7 +9,7 @@
  * - types 决定能勾哪几种；max 限制个数，1 时勾一个就换掉原来的。勾过的记进“最近”（recentKey，存在浏览器里，最多 20 个）。
  * - 多选时列表上方有“全选”，只管这一页能勾的。
  *
- * 读屏：左右两个列表各有名称；每行的勾选框以名字为名；“下级”按钮的名称是“进入某部门”，进去后焦点落到列表上。
+ * 读屏：左右两个列表各有名称；每行的勾选框以名字为名；“下级”按钮的名称是“下级：某部门”，进去后焦点落到列表上。
  * 部件：Root（div）、Browse（左边）、Selected（右边）。
  */
 import { Building, BriefcaseBusiness, ChevronRight, Search, X } from '@lucide/icons';

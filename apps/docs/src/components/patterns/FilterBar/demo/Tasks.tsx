@@ -110,6 +110,7 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Card>
         <FilterBar
+          aria-label="项目任务查询"
           onSearch={() => void search()}
           onReset={reset}
           loading={loading}

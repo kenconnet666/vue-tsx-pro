@@ -267,7 +267,7 @@ export const zhCN: Lang = {
   peopleRecent: '最近',
   peopleRoot: '全部',
   peopleChildren: '下级',
-  peopleOpen: (name) => `进入${name}`,
+  peopleOpen: (name) => `下级：${name}`,
   peopleCount: (count, max) => (max ? `已选 ${count} / ${max}` : `已选 ${count}`),
   peopleSelected: '已选',
   peopleRemove: (name) => `移除${name}`,

@@ -515,7 +515,7 @@ export interface Lang {
   readonly peopleRoot: string;
   /** 部门的“下级”按钮 */
   readonly peopleChildren: string;
-  /** “下级”按钮的完整名称：`('采购部')` → “进入采购部” */
+  /** “下级”按钮的完整名称，要包含按钮上看得见的字（读屏与语音控制按它找按钮）：`('采购部')` → “下级：采购部” */
   readonly peopleOpen: (name: string) => string;
   /** 已选几个：`(3)` → “已选 3”，有上限时 `(3, 5)` → “已选 3 / 5” */
   readonly peopleCount: (count: number, max?: number) => string;

@@ -112,7 +112,7 @@ export default _component(() => {
       <Diagram
         nodes={sites}
         edges={lanes}
-        getNodeLabel={(item) => `${item.kind}：${item.name}`}
+        getNodeLabel={(item) => `${item.name}，${item.kind}`}
         edgeText={(lane) => `${lane.volume.toLocaleString()} 件/月`}
         selectable
         _selected={selection}

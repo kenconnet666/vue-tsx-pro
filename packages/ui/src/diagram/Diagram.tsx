@@ -177,7 +177,7 @@ export interface DiagramProps<
   edges?: readonly E[];
   /** 节点的内容：节点框（定位、选中、焦点）由画布画，里面画什么由这里给，内容拉伸到节点的大小。默认是标题为 getNodeLabel 的 DiagramNode */
   children?: (node: N, state: DiagramItemState) => VNodeChild;
-  /** 节点的无障碍名称（读屏念的；连线的默认名称“从 A 到 B”也用它） */
+  /** 节点的无障碍名称（读屏念的；连线的默认名称“从 A 到 B”也用它）。节点里画了文字时按同样的先后写进来（如“姓名，岗位”），语音控制才能按看得见的字找到它 */
   getNodeLabel: (node: N) => string;
   /** 连线的无障碍名称，默认“从 A 到 B” */
   getEdgeLabel?: (edge: E) => string;
