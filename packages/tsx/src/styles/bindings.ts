@@ -1,10 +1,11 @@
 /**
  * 元素上的响应式绑定（css.bind、css.select 交给 attrs 之后）：元素挂上时起一个 effect，参数变化时只改元素上的
  * CSS 变量；选中的样式或动态样式的形状变了时就地换组合类。组件不重新渲染；组件因别的原因重新渲染时复用元素上的
- * effect，卸载时停掉。
+ * effect，卸载时停掉。开发模式下每次更新记到 Vue devtools 的时间线（devtools.ts）。
  */
-import { ReactiveEffect } from 'vue';
+import { getCurrentInstance, ReactiveEffect, type ComponentInternalInstance } from 'vue';
 import { compose } from './compose';
+import { DEV, recordBindingUpdate, type BindingChange } from './devtools';
 import { CLASS, EVALUATE, FRAGMENT, type Binding, type StylePart } from './fragment';
 
 /** 一次渲染里的一个绑定：渲染时读到的参数与算出的结果（effect 只管这些，同一元素上别的动态样式的变量不碰） */
@@ -30,6 +31,8 @@ interface BoundElement {
   /** 元素已卸载、effect 已停 */
   stopped: boolean;
   effect: ReactiveEffect;
+  /** 开发模式：所在组件，devtools 时间线上记它的名字 */
+  instance: ComponentInternalInstance | null;
 }
 const boundElements = new WeakMap<Element, BoundElement>();
 
@@ -52,6 +55,7 @@ function flush() {
  */
 function apply(element: HTMLElement, bound: BoundElement) {
   let reshaped = false;
+  const change: BindingChange | undefined = DEV ? { variables: {} } : undefined;
   for (const entry of bound.bindings) {
     const args = entry.binding.args();
     if (sameArgs(args, entry.args)) continue;
@@ -64,14 +68,23 @@ function apply(element: HTMLElement, bound: BoundElement) {
     const previous = entry.inline;
     entry.inline = inline;
     for (const name in inline) {
-      if (previous[name] !== inline[name]) element.style.setProperty(name, inline[name]!);
+      if (previous[name] === inline[name]) continue;
+      element.style.setProperty(name, inline[name]!);
+      if (change) change.variables[name] = inline[name]!;
     }
     for (const name in previous) {
-      if (!(name in inline) && !ownedByOthers(bound, entry, name))
-        element.style.removeProperty(name);
+      if (name in inline || ownedByOthers(bound, entry, name)) continue;
+      element.style.removeProperty(name);
+      if (change) change.variables[name] = null;
     }
   }
-  if (reshaped) swapClass(element, bound, compose(bound.parts).class ?? '');
+  if (reshaped) {
+    const before = bound.className;
+    swapClass(element, bound, compose(bound.parts).class ?? '');
+    if (change && before !== bound.className) change.className = [before, bound.className];
+  }
+  if (change && (change.className || Object.keys(change.variables).length))
+    recordBindingUpdate(bound.instance, element, change);
 }
 
 /** 同一元素上别的绑定也写着这个变量（同一个动态样式绑了两次）：不删 */
@@ -121,6 +134,8 @@ function sameArgs(next: readonly unknown[], previous: readonly unknown[]) {
  */
 export function watchBindings(bindings: BindingEntry[], parts: StylePart[], className: string) {
   let current: Element | undefined;
+  // 渲染里调用（attrs 在渲染函数里）：取得到所在组件
+  const instance = DEV ? getCurrentInstance() : null;
   return (element: unknown) => {
     if (!element) {
       if (!current) return;
@@ -151,6 +166,7 @@ export function watchBindings(bindings: BindingEntry[], parts: StylePart[], clas
       className,
       stopped: false,
       effect: new ReactiveEffect(() => apply(target, bound)),
+      instance: DEV ? instance : null,
     };
     bound.effect.scheduler = () => schedule(bound);
     boundElements.set(target, bound);

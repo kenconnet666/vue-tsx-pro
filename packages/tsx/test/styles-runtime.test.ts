@@ -461,3 +461,15 @@ describe('稳定的绑定', () => {
     expect(element.style.getPropertyValue('--x-width')).toBe('70px');
   });
 });
+
+describe('直接写的样式对象', () => {
+  it('与 create 的样式一样参与合并；同样的内容每次渲染新建也得到同一个类，token 照样解析', () => {
+    const styles = create({ box: { display: 'block', color: 'red' } });
+    const first = attrs(styles.box, { color: 'blue', marginTop: 4 }).class!;
+    expect(attrs(styles.box, { color: 'blue', marginTop: 4 }).class).toBe(first);
+    expect(rulesOf(first)).toContain('color: blue');
+    expect(rulesOf(first)).toContain('margin-top: 4px');
+    expect(rulesOf(first)).not.toContain('color: red');
+    expect(attrs({ color: { default: 'black', ':hover': 'green' } }).class).toBeTruthy();
+  });
+});

@@ -36,7 +36,17 @@ import {
 } from './declarations';
 import { compose } from './compose';
 import { dynamic } from './dynamic';
-import { BINDING, DYNAMIC, EVALUATE, fragment, type Binding, type StylePart } from './fragment';
+import {
+  BINDING,
+  CLASS,
+  DYNAMIC,
+  EVALUATE,
+  FRAGMENT,
+  fragment,
+  type Binding,
+  type Fragment,
+  type StylePart,
+} from './fragment';
 import { hash, insert, isInserted } from './sheet';
 
 export { CONDITIONS } from './declarations';
@@ -79,8 +89,27 @@ export function create<S extends Record<string, unknown>>(namespaces: S): S {
 
 type AttrsArg = StyleValue | boolean | object | readonly AttrsArg[];
 
+/** 直接写的样式对象（`sx={{ marginTop: '_md' }}`）→ 片段：同一个对象按对象记住，每次渲染新建的按内容记住 */
+const literalByObject = new WeakMap<object, Fragment>();
+const literalByContent = new Map<string, Fragment>();
+/** 按内容最多记住多少个（值一直在变的写法会不断出新内容，不无限增长；记不住时重新展开，规则照旧只插一次） */
+const LITERAL_LIMIT = 512;
+
+function literal(value: object): Fragment {
+  let result = literalByObject.get(value);
+  if (result) return result;
+  const key = JSON.stringify(value);
+  result = literalByContent.get(key);
+  if (!result) {
+    if (literalByContent.size >= LITERAL_LIMIT) literalByContent.clear();
+    literalByContent.set(key, (result = fragment(declarations(value as StyleObject))));
+  }
+  literalByObject.set(value, result);
+  return result;
+}
+
 /**
- * 合并样式成元素属性 `{ class, style }`，后面的覆盖前面的；假值忽略，可以嵌套成数组。
+ * 合并样式成元素属性 `{ class, style }`，后面的覆盖前面的；假值忽略，可以嵌套成数组，也可以直接写样式对象。
  * 只有静态片段时返回缓存的同一个对象；有动态样式时 class 走缓存，style 是这次的变量值；
  * 有响应式绑定（bind、select）时再带一个 ref：元素挂上后由 effect 改变量、换类（见 watchBindings）
  */
@@ -116,7 +145,7 @@ export function attrs(...styles: readonly AttrsArg[]): Attrs {
       } else value.forEach(collect);
       return;
     }
-    parts.push(value as StylePart);
+    parts.push(FRAGMENT in value || CLASS in value ? (value as StylePart) : literal(value));
   };
   styles.forEach(collect);
 

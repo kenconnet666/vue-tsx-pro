@@ -116,9 +116,18 @@ export type InlineStyles = Readonly<Record<string, string>>;
 /** 可以嵌套的数组 */
 type StyleArray<T> = T | ReadonlyArray<StyleArray<T>>;
 
-/** sx 与 attrs 收的样式：样式组、动态样式的结果、假值（便于按条件组合），可以嵌套成数组 */
+/**
+ * sx 与 attrs 收的样式：样式组、动态样式的结果、假值（便于按条件组合），可以嵌套成数组；
+ * 一次性的覆盖可以直接写样式对象（`sx={{ marginTop: '_md' }}`，按内容缓存，不必先 create）。
+ * 值一直在变的（宽度、进度）别写成对象：每个新值一条新规则，用 create 里的动态样式
+ */
 export type SxStyles = StyleArray<
-  null | undefined | boolean | CompiledStyles | Readonly<[CompiledStyles, InlineStyles]>
+  | null
+  | undefined
+  | boolean
+  | CompiledStyles
+  | Readonly<[CompiledStyles, InlineStyles]>
+  | DocumentedStyles
 >;
 
 /** CSS 变量的引用 `var(--名字)`：变量组里的 token，直接作为属性值，或写进模板字符串 */

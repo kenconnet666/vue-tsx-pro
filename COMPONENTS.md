@@ -122,7 +122,7 @@
   - 计算、多值、简写（值里夹着 token）用模板字符串里的 `t.组.名`：`` minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})` ``、`` transition: `opacity ${t.durations.md} ${t.easings.standard}` ``。`t` 从 `@vue-tsx-pro/ui` 导入（组件库内部从 `config/theme/tokens.ts` 相对导入），补全、悬停（说明与取值）、跳转、重命名都有，组或 token 写错时类型检查报错。字符串中间夹着的 `_xx` 没有类型提示，引擎报错并给出改好的模板字符串；
   - `t.组.名` 的值就是 `var(--vtp-组-名)`：动态样式的参数、运行时算出的值、canvas 里用 `readToken` 取值时可以从 `t` 取，也可以从 `@vue-tsx-pro/ui/tokens` 导入各组；
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
-- 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。
+- 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。一次性的覆盖可以直接写对象：`sx={{ marginTop: '_md' }}`（属性与取值照样有类型检查，按内容缓存）；值一直在变的（宽度、进度）别写成对象，每个新值会多一条规则，用 `create` 里的动态样式。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
 - 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `themeTransition(元素, { duration, ease, bounce })`；主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。已用在 Toast 的滑动、SlideVerify 的弹回与失败晃动。常见场景有现成的组合式函数（`utils/motion/`）：跟随数值用 `useTween` / `useSpring`，关闭后等离场再卸载用 `usePresence`，增删、换位置的平移用 `useLayoutAnimation`，跟着当前项走的指示条用 `useActiveIndicator`，加载指示防闪烁用 `useDelayedLoading`，装饰性动画看 `useReducedMotion`。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
 - 含动态样式函数的 `css.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。

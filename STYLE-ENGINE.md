@@ -310,7 +310,8 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
   在组件因别的原因重渲染时要重跑一次收集依赖。
 - 自动改写只认本文件顶层 `create` 的样式；导入来的样式要绑定时手写 `css.bind`、`css.select`。
 - 换类时元素上的类与 Vue 虚拟节点里记的（渲染时的）不同；组件之后因别的原因重新渲染时按当时的状态算出类，两边又一致。
-- 值变了但组件没渲染，Vue devtools 里看不到更新。
+- 值变了但组件没渲染，devtools 的组件更新事件里没有它：开发模式下每次更新记到 devtools 时间线的“样式绑定”一层
+  （组件名、元素、换了什么类、改了哪些变量；`styles/devtools.ts`，只在装了 devtools 时载入 `@vue/devtools-api`，生产构建里整段去掉）。
 - 热更新只认顶层 `create` / `recipe`；`createTheme`、`keyframes` 改了照旧连锁。注释也算骨架，改注释会连锁。
 - 测试环境（happy-dom）会丢掉它不认识的声明（`-webkit-line-clamp`、`color-mix`），测试按引擎记下的规则原文断言
   （`styleTextOf`、`styleOf`）。

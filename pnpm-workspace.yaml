@@ -10,6 +10,8 @@ catalog:
   '@babel/core': 8.0.7
   '@babel/plugin-transform-typescript': 8.0.6
   '@vue/babel-plugin-jsx': 3.0.0
+  # 开发模式下样式绑定的更新记到 devtools 时间线（tsx 的 styles/devtools.ts；与 pinia 用的同一个）
+  '@vue/devtools-api': 8.2.1
   # 文档站的代码演练场在浏览器里编译用户代码（与 Vite 预设同一套插件）
   '@babel/parser': 8.0.7
   '@babel/traverse': 8.0.7

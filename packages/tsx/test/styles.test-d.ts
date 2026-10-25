@@ -26,6 +26,13 @@ const theme = css.createTheme(vars, { accent: 'red' });
 const marker = css.defineMarker('test-marker');
 export const merged = css.attrs(documented.plain, false, theme, marker, [documented.conditional]);
 export const asProp: css.SxStyles = [documented.plain, theme, marker];
+// 一次性的覆盖直接写对象，属性与取值照样检查
+export const literal: css.SxStyles = [
+  documented.plain,
+  { marginTop: 8, color: { default: 'red', ':hover': 'blue' } },
+];
+// @ts-expect-error 拼错的属性名
+export const badLiteral: css.SxStyles = { marginTo: 8 };
 export const related = css.create({
   link: { opacity: { default: 0, [css.when.ancestor(':hover', marker)]: 1 } },
 });
