@@ -46,8 +46,7 @@ export function cssValue(property: string, value: Leaf): string {
  * aria / data 属性走（COMPONENTS.md §2.2），组件不必再写 `selected && styles.selected`；
  * 一个别名合并了原生、ARIA、data 几种写法，使用方不必关心组件用的是哪一种
  */
-export const CONDITIONS: Readonly<Record<keyof ConditionAliases, string>> &
-  Readonly<Record<string, string | undefined>> = {
+const ALIASES = {
   _hover: ':hover',
   _active: ':active',
   _focus: ':focus',
@@ -69,7 +68,10 @@ export const CONDITIONS: Readonly<Record<keyof ConditionAliases, string>> &
   _forcedColors: '@media (forced-colors: active)',
   _reducedMotion: '@media (prefers-reduced-motion: reduce)',
   _rtl: ':dir(rtl)',
-};
+} as const satisfies Record<keyof ConditionAliases, string>;
+
+/** 条件别名表（见 ALIASES）；值保留字面量类型，伪类别名可以直接交给 `when.*`（它要 `:` 开头的选择器） */
+export const CONDITIONS: typeof ALIASES & Readonly<Record<string, string | undefined>> = ALIASES;
 
 /** 是普通对象（条件对象、命名空间），不是数组 */
 export const isObject = (value: unknown): value is StyleObject =>
