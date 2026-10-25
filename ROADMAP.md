@@ -173,6 +173,9 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [ ] 无障碍一节：KeyboardReference 扩成“无障碍”（角色与名称、键盘、读屏念什么、减少动态效果），有交互的组件页都写
 - [ ] 搜索：命令面板搜得到组件的属性名、示例标题（从 API 表与示例生成索引，结果直达对应小节）
 - [ ] 示例卡片的工具：切换视口宽度（手机、平板、桌面）、从右到左、紧凑密度，不用离开文档页
+- [x] 发布前的逐页巡检（2026-10-26）：`pnpm docs:review` 记控制台错误、桌面与手机宽度的溢出并截下每个示例，
+      `pnpm docs:sheets` 拼成联系表逐页看；修了 ColumnTable 部件样式没合成一个类（透视表热力着色被盖住）、Stat 窄卡片挤字、
+      Textarea 不随外壳拉伸、目标线文字压在柱子上看不清、ThemeCustomizer 色板竖成一列，示例用词换成通用场景
 
 ### 8.3 视觉回归进 CI
 
@@ -189,7 +192,8 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [ ] changesets：每次改动带一条变更说明，合并后自动开“版本 PR”，生成 CHANGELOG；npm 发布走 GitHub Actions（带 provenance）
 - [ ] 体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来
 - [ ] 文档站部署（每次推送 master 自动更新），README 与 npm 页链过去
-- [ ] 发 0.1.0
+- [x] 两个包的版本定为 0.1.0，[RELEASE.md](RELEASE.md) 写手动发布的步骤（预检、`pnpm test:consumer`、`pnpm publish`）
+- [ ] 发 0.1.0（用户手动发布）
 
 ### 8.5 1.0
 
@@ -212,7 +216,8 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
   - [x] 条件树 `Condition`、`matchesCondition`、`describeCondition` 与 `ConditionBuilder`（COMPONENTS.md §10.25）
   - [x] 人员与组织选择器 `PeoplePicker`、`PeoplePickerPanel`（COMPONENTS.md §10.26）
   - [x] FilterBar 的高级筛选：`conditionFields` + `_condition`，展开条件构造器、收起时写摘要、重置清空
-- [ ] 9.3 模型包（`flow` 仓库）与流程组件的接法（WORKFLOW.md §6 第 1 条，开工前定）
+- [x] 9.3 模型包（`flow` 仓库）与流程组件的接法：按 `flow` 的决定 0003 选 B，流程组件挪到 `flow` 仓库，以本库发布的包为依赖重做；
+      本库只留通用底座（画布、撤销重做、条件构造器、人员选择器）。下面 9.4–9.6 在 `flow` 仓库里做，做完后删掉本库的 `/workflow`
 - [ ] 9.4 FlowDiagram 重做（建在 `/diagram` 上），删除旧实现与 `layoutProcess`
 - [ ] 9.5 FlowDesigner 重做：结构编辑、属性面板、问题列表、版本对比
 - [ ] 9.6 运行时组件：收件箱表格、审批面板（替换 ApprovalActions）、进度卡、流转记录复审、实例详情的组合、`SchemaForm`

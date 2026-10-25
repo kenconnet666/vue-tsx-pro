@@ -2,13 +2,17 @@
 
 给接手这个仓库的人（或下一个会话、换了电脑的自己）：读完这一页就能接着做。细节以各自的规范文档为准，这里只讲现状、地图、做事方式和踩过的坑。路线图与勾选状态在 [ROADMAP.md](ROADMAP.md)。
 
-## 1. 现状（2026-10-25）
+## 1. 现状（2026-10-26）
 
-- **分支**：`master` 已推送到 origin；进行中的功能在各自的 `feat/*` 分支上（阶段 9 的画布底座在 `feat/diagram`），合并后才进 master。
+- **分支**：`master` 已推送到 origin；阶段 9 的画布底座与通用输入已合进 master。进行中的功能在各自的 `feat/*` 分支上，合并后才进 master。
   `proto/runtime-styles` 是样式引擎换成运行时之前的原型，已并入。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
 - **进度**：[ROADMAP.md](ROADMAP.md) 的阶段 0–7 已完成（整理、基础设施、小组件、选择与日期、导航与外壳、表格与表单、展示与协作、图表），
   阶段 8（质量与发布）只补了包的元数据。2026-10-25 起做阶段 9：为流程引擎（`flow` 仓库）做前端，方案见 [WORKFLOW.md](WORKFLOW.md)，
   顺序是画布底座 → 流程组件 → 运行时组件，每个组件开着文档站边做边看。联合降本管理 2026-10-24 清空为空项目、待重做。
+  2026-10-26：9.1 画布底座、9.2 通用输入（条件构造器、人员选择器、FilterBar 高级筛选）做完；按 `flow` 仓库的决定 0003（B），
+  流程组件（FlowDiagram、FlowDesigner、ApprovalActions、`/workflow` 子路径）以后在 `flow` 仓库重做，这里的旧实现届时删除，现在不动。
+- **发布**：两个包定为 0.1.0，由用户按 [RELEASE.md](RELEASE.md) 手动发布到 npm（CI 不发布）；`flow` 引擎以发布的包为依赖。
+  发布前做过一轮文档站巡检（`pnpm docs:review`、`pnpm docs:sheets` 逐页看截图，修外观、示例用词与几处组件的布局）。
 - **与 query 的配合**：表格请求（`useTableQuery` 的 `-amount,name` 排序、表头筛选、已知总数、`tableParams`）、线上的 typed JSON
   （`utils/request/wire.ts`、`http` 的 `wire` 选项）、`buildTree` 对应 query 的 0015、0016，2026-10-25 合进 master。
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的组件库（运行时样式，写法像 StyleX）。见 [PLAN.md](PLAN.md) §1。
@@ -78,6 +82,9 @@ pnpm check                                       # 推送前必跑：lint、格�
 ```bash
 pnpm docs:shot /components/select basic,states --themes=light,dark   # 示例截图，存到 node_modules/.cache/docs-shots
 pnpm docs:coverage input/                                            # 各页 API 里示例没用到的属性
+pnpm docs:review                                                     # 逐页巡检：控制台错误、桌面与手机宽度的溢出、每个示例的截图
+pnpm docs:review stat,splitter                                       # 只看几页（其他页的截图与报告保留）
+pnpm docs:sheets                                                     # 把巡检的截图拼成每页一张联系表，逐页过目
 ```
 
 `docs:shot` 的路径以 `/` 开头，Git Bash 会把它改写成 Windows 路径：在 PowerShell 里跑，或前面加 `MSYS_NO_PATHCONV=1`。
@@ -256,8 +263,8 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 
 按 [ROADMAP.md](ROADMAP.md) 的顺序往下做（用户的总要求：持续执行、不必问，把组件库做到成熟可用）：
 
-1. 联合降本管理已清空、待重做（不在当前计划里），先把组件库做完：阶段 0 整理（分层、子路径、删减合并）→ 阶段 1 基础设施 →
-   阶段 2–6 组件补齐 → 阶段 7 图表 → 阶段 8 质量与发布。
+1. 阶段 0–7 与阶段 9 的 9.1、9.2 已完成；两个包 0.1.0 待用户手动发布。之后按 ROADMAP：阶段 8 的测试与文档缺口（8.1–8.3）、
+   8.4 的发布自动化；流程组件（9.3–9.6）在 `flow` 仓库里以本库为依赖重做，本库的 `/workflow` 届时删除。
 2. 每动一个组件，就在用户的 Chrome 里看它的文档页，补示例、改外观与 API 的灵活性。
 
 审查的细节在 `.claude/reports/audit-2026-10-22.md`（已修的已标出）。每做完一块：勾 ROADMAP、`check.sh`、分开提交（整理与功能）、
