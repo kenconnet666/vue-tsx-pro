@@ -36,6 +36,11 @@ export interface MoveOptions {
    * 拖动中会被移动的元素（排序时 Vue 重排 DOM）要换成不动的祖先：元素一离开文档就失去捕获，拖动会被当成取消
    */
   captureTarget?: Element;
+  /**
+   * 拖过之后吞掉随后的 click，默认 threshold 大于 0 时吞（阈值为 0 时按下即拖动，吞了就没有单击了）。
+   * 捕获在祖先上时 click 落在祖先上（如画布的空白处），按下即拖、又不该算点击的要设 true
+   */
+  swallowClick?: boolean;
 }
 
 /** 按下时调用：开始跟踪这个指针，返回提前结束的函数（组件卸载时调用）。不是主按钮时什么也不做 */
@@ -44,6 +49,7 @@ export function startMove(event: PointerEvent, options: MoveOptions): () => void
   const target = options.captureTarget ?? event.currentTarget;
   const { pointerId, clientX: startX, clientY: startY } = event;
   const threshold = options.threshold ?? 0;
+  const swallowClick = options.swallowClick ?? threshold > 0;
   let moved = threshold === 0;
   let finished = false;
   let last: MovePoint = { clientX: startX, clientY: startY, deltaX: 0, deltaY: 0 };
@@ -77,8 +83,7 @@ export function startMove(event: PointerEvent, options: MoveOptions): () => void
     target.removeEventListener('lostpointercapture', onCancel as EventListener);
     root.style.userSelect = userSelect;
     if (target.hasPointerCapture?.(pointerId)) target.releasePointerCapture(pointerId);
-    // 拖过之后的 click 不算点击（阈值为 0 时按下即拖动，不吞）
-    if (moved && threshold > 0) {
+    if (moved && swallowClick) {
       const swallow = (click: Event) => click.stopPropagation();
       window.addEventListener('click', swallow, { capture: true, once: true });
       setTimeout(() => window.removeEventListener('click', swallow, { capture: true }));

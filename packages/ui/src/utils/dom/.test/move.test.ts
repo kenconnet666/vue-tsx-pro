@@ -61,6 +61,22 @@ describe('startMove', () => {
     expect(click).not.toHaveBeenCalled();
   });
 
+  it('阈值为 0 时默认不吞 click；swallowClick 时照样吞（捕获在祖先上、click 会落到祖先的情形）', () => {
+    const plain = press({ onMove: vi.fn() });
+    plain.element.dispatchEvent(pointer('pointerup', 10, 10));
+    const click = vi.fn();
+    plain.element.addEventListener('click', click);
+    plain.element.click();
+    expect(click).toHaveBeenCalledTimes(1);
+
+    const swallowed = press({ onMove: vi.fn(), swallowClick: true });
+    swallowed.element.dispatchEvent(pointer('pointerup', 10, 10));
+    const later = vi.fn();
+    swallowed.element.addEventListener('click', later);
+    swallowed.element.click();
+    expect(later).not.toHaveBeenCalled();
+  });
+
   it('pointercancel 与提前结束都按取消处理；其他指针的事件不理会', () => {
     const onEnd = vi.fn();
     const onMove = vi.fn();

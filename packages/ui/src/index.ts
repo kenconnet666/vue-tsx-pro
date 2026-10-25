@@ -1574,6 +1574,7 @@ export {
   type PanZoomWheelModes,
   type Point,
 } from './utils/dom/pan-zoom';
+export { backgroundOf, rasterizeSvg } from './utils/dom/rasterize';
 export { useResizeObserver } from './utils/dom/resize';
 export {
   rippleHostStyles,

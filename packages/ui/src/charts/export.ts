@@ -9,6 +9,7 @@
  */
 import type { useFormat } from '../config/lang/format';
 import { downloadFile } from '../utils/dom/download';
+import { backgroundOf, rasterizeSvg } from '../utils/dom/rasterize';
 import { tableToCsv } from '../table/csv';
 import type { ChartTable } from './frame';
 
@@ -59,37 +60,14 @@ export async function exportChartImage(
   background?: string,
 ): Promise<void> {
   const { width, height } = svg.getBoundingClientRect();
-  const scale = 2;
-  const url = URL.createObjectURL(
-    new Blob([serializeChartSvg(svg)], { type: 'image/svg+xml;charset=utf-8' }),
+  const blob = await rasterizeSvg(
+    serializeChartSvg(svg),
+    { width, height },
+    {
+      background: background ?? backgroundOf(svg),
+    },
   );
-  try {
-    const image = new Image();
-    image.src = url;
-    await image.decode();
-    const canvas = Object.assign(document.createElement('canvas'), {
-      width: Math.ceil(width * scale),
-      height: Math.ceil(height * scale),
-    });
-    const context = canvas.getContext('2d')!;
-    context.fillStyle = background ?? backgroundOf(svg);
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.scale(scale, scale);
-    context.drawImage(image, 0, 0, width, height);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-    if (blob) downloadFile(`${name}.png`, blob, 'image/png');
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
-
-/** 往外找第一个不透明的背景色；都没有时白色 */
-function backgroundOf(element: Element): string {
-  for (let current: Element | null = element; current; current = current.parentElement) {
-    const color = getComputedStyle(current).backgroundColor;
-    if (color && color !== 'transparent' && !/rgba\(.*,\s*0\)$/.test(color)) return color;
-  }
-  return '#fff';
+  downloadFile(`${name}.png`, blob, 'image/png');
 }
 
 /** 图表的数据表存成 CSV（表头一行，每行第一格是类目），开头带 BOM */

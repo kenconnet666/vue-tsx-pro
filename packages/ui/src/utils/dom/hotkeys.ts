@@ -21,7 +21,10 @@ import { topModal } from './overlay';
 export interface HotkeyOptions {
   /** 焦点在输入框、文本框、下拉框、可编辑区域里时也触发，默认 false */
   inInputs?: boolean;
-  /** 只在这个元素（或它里面）有焦点时生效；默认整个页面 */
+  /**
+   * 只在这个元素（或它里面）有焦点时生效；默认整个页面。getter 要读响应式的值（ref 存在 `_state.raw` 里），
+   * 元素挂上之后才会重新绑定：存在普通变量里时 getter 只在 setup 时读一次，拿到的是 null
+   */
   target?: () => HTMLElement | null | undefined;
 }
 
