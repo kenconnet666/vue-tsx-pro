@@ -5,6 +5,9 @@
  *
  *   createUi({ http: { request: (r) => axios.request({ ...r, params: r.query, data: r.body }).then((res) => res.data) } })
  *
+ * 值按线上的 typed JSON 传（见 wire.ts）：请求体里的 bigint、Decimal、CalendarDate 写成文字并附上 `$types`，
+ * 地址栏参数写成同样的文字，带 `$types` 的响应先还原再交给 onResponse；`wire: false` 时按普通 JSON。
+ *
  * 后端把数据包在 { code, data, message } 里时，在 onResponse 里拆开，业务错误抛 HttpError：
  *
  *   const http = createHttpClient({
@@ -17,13 +20,16 @@
  *   });
  */
 import { useConfig } from '../../config/context';
+import { fromWire, toWire, wireText, type WireReviveOptions, type WireScalar } from './wire';
 
 /** 请求方法 */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
 
-/** query 里的一个值：null、undefined 不写进地址，数组写成重复的键（a=1&a=2） */
-export type QueryValue =
-  string | number | boolean | null | undefined | readonly (string | number | boolean)[];
+/**
+ * query 里的一个值：null、undefined 不写进地址，数组写成重复的键（a=1&a=2，数组里的 null 是空字符串）；
+ * bigint、Decimal、日期等按线上的文字写（wireText：Decimal 不用科学计数法，日期是 ISO）
+ */
+export type QueryValue = WireScalar | readonly WireScalar[];
 
 /** 一次请求 */
 export interface HttpRequest {
@@ -101,6 +107,11 @@ export interface HttpClientOptions {
   onRequest?: (request: Request) => Request | void | Promise<Request | void>;
   /** 2xx 响应解析后的数据交给它：拆掉后端的包装、判定业务错误（抛 HttpError），返回值就是请求的结果 */
   onResponse?: (data: unknown, context: { request: HttpRequest; response: Response }) => unknown;
+  /**
+   * 线上的 typed JSON 怎样还原（见 wire.ts）：给 `{ decimal: Decimal }` 时 decimal 还原成 Decimal，`dates: 'objects'`
+   * 时日期还原成 CalendarDate 等；默认 `{}`（bigint 还原成 bigint，decimal 与日期留作文字）。false 时请求体按普通 JSON 发、响应不还原
+   */
+  wire?: WireReviveOptions | false;
   /** 换掉 fetch（测试、SSR、注入公共处理） */
   fetch?: typeof fetch;
 }
@@ -133,7 +144,13 @@ export interface FetchClient extends HttpClient {
 
 /** 原生 fetch 的薄封装（见文件开头） */
 export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
-  const { baseURL = '', timeout: defaultTimeout = 30_000, onRequest, onResponse } = options;
+  const {
+    baseURL = '',
+    timeout: defaultTimeout = 30_000,
+    onRequest,
+    onResponse,
+    wire = {},
+  } = options;
 
   async function request<T>(spec: HttpRequest): Promise<T> {
     const { method = 'GET', body, signal, timeout = defaultTimeout } = spec;
@@ -146,7 +163,9 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
     let prepared = new Request(buildUrl(baseURL, spec.url, spec.query), {
       method,
       headers,
-      body: json ? JSON.stringify(body) : (body as BodyInit | undefined),
+      body: json
+        ? JSON.stringify(wire === false ? body : toWire(body))
+        : (body as BodyInit | undefined),
       signal: signals.length > 1 ? AbortSignal.any(signals) : signals[0],
     });
     prepared = (await onRequest?.(prepared)) ?? prepared;
@@ -163,7 +182,8 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
         : `网络错误：${method} ${spec.url}`;
       throw new HttpError(message, { request: spec, cause });
     }
-    const data = await readBody(response, spec.responseType);
+    const raw = await readBody(response, spec.responseType);
+    const data = wire === false ? raw : fromWire(raw, wire);
     if (!response.ok) {
       const status = `${response.status}${response.statusText ? ` ${response.statusText}` : ''}`;
       throw new HttpError(`请求失败（${status}）：${method} ${spec.url}`, {
@@ -206,7 +226,8 @@ function buildUrl(baseURL: string, url: string, query: HttpRequest['query']): st
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query ?? {})) {
     if (value == null) continue;
-    for (const item of Array.isArray(value) ? value : [value]) params.append(key, String(item));
+    const items: readonly WireScalar[] = Array.isArray(value) ? value : [value as WireScalar];
+    for (const item of items) params.append(key, wireText(item));
   }
   const search = params.toString();
   if (search) full += `${full.includes('?') ? '&' : '?'}${search}`;

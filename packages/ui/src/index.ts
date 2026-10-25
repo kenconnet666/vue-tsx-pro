@@ -1784,6 +1784,15 @@ export {
   type QueryValue,
 } from './utils/request/http';
 export { useRequest, type RequestOptions, type RequestState } from './utils/request/use-request';
+export {
+  fromWire,
+  toWire,
+  wireText,
+  type WireReviveOptions,
+  type WireScalar,
+  type WireType,
+  type WireTypes,
+} from './utils/request/wire';
 
 // 工具：JS 动画与动效
 export {

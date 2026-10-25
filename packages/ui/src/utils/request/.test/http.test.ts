@@ -1,4 +1,6 @@
-// createHttpClient：地址与 query、JSON 请求体、按类型读响应、状态码与业务错误、超时、取消、钩子
+// createHttpClient：地址与 query、JSON 请求体、typed JSON、按类型读响应、状态码与业务错误、超时、取消、钩子
+import { CalendarDate } from '@internationalized/date';
+import Decimal from 'decimal.js';
 import { describe, expect, it, vi } from 'vitest';
 import { createHttpClient, HttpError, isAbortError } from '../http';
 
@@ -42,6 +44,50 @@ describe('地址与请求体', () => {
     expect(requests[0]!.headers.get('content-type')).toBe('application/json');
     expect(await requests[0]!.json()).toEqual({ name: '林小满' });
     expect(requests[1]!.headers.get('content-type')).not.toBe('application/json');
+  });
+
+  it('typed JSON：请求体里的 bigint、Decimal、日期写成文字并附上 $types，地址栏参数写成同样的文字', async () => {
+    const { fetch, requests } = fakeFetch(() => json({}));
+    const http = createHttpClient({ baseURL: 'https://example.test', fetch });
+    await http.post('/orders', {
+      id: 9007199254740993n,
+      amount: new Decimal('12.50'),
+      on: new CalendarDate(2024, 1, 31),
+    });
+    await http.get('/orders', {
+      query: { min: new Decimal('1e-7'), on: [new CalendarDate(2024, 1, 1), null], id: 5n },
+    });
+    expect(await requests[0]!.json()).toEqual({
+      id: '9007199254740993',
+      amount: '12.5',
+      on: '2024-01-31',
+      $types: { id: 'bigint', amount: 'decimal', on: 'date' },
+    });
+    expect(requests[1]!.url).toBe(
+      'https://example.test/orders?min=0.0000001&on=2024-01-01&on=&id=5',
+    );
+  });
+});
+
+describe('typed JSON 的响应', () => {
+  it('带 $types 的响应先还原再交给 onResponse；wire: false 时原样', async () => {
+    const body = {
+      code: 0,
+      data: { id: '9007199254740993', amount: '12.50' },
+      $types: { 'data.id': 'bigint', 'data.amount': 'decimal' },
+    };
+    const { fetch } = fakeFetch(() => json(body));
+    const http = createHttpClient({
+      baseURL: 'https://example.test',
+      fetch,
+      wire: { decimal: Decimal },
+      onResponse: (data) => (data as { data: unknown }).data,
+    });
+    const value = await http.get<{ id: bigint; amount: Decimal }>('/orders/1');
+    expect(value.id).toBe(9007199254740993n);
+    expect(value.amount.equals('12.5')).toBe(true);
+    const plain = createHttpClient({ baseURL: 'https://example.test', fetch, wire: false });
+    expect(await plain.get('/orders/1')).toEqual(body);
   });
 });
 
