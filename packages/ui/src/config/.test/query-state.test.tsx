@@ -100,7 +100,7 @@ describe('useQueryState', () => {
 
 describe('useTableQuery 的 syncToUrl', () => {
   it('页码、条数、排序、筛选条件从地址来，改了写回去；地址变了重新请求', async () => {
-    const router = await routerAt('/tasks?page=3&sort=-amount&keyword=泵');
+    const router = await routerAt('/tasks?page=3&sort=-amount,name&keyword=泵');
     const fetcher = vi.fn(async () => ({ rows: [1], total: 100 }));
     const tasks = setupWith(router, () =>
       useTableQuery(fetcher, { filters: { keyword: '' }, pageSize: 20, syncToUrl: true }),
@@ -110,13 +110,19 @@ describe('useTableQuery 的 syncToUrl', () => {
       expect.objectContaining({
         page: 3,
         pageSize: 20,
-        sort: { key: 'amount', direction: 'descending' },
+        sorts: [
+          { key: 'amount', direction: 'descending' },
+          { key: 'name', direction: 'ascending' },
+        ],
         filters: { keyword: '泵' },
       }),
       expect.anything(),
     );
 
     tasks.search({ keyword: '阀' });
+    tasks.sort = { key: 'due', direction: 'ascending' };
+    await settle();
+    expect(router.currentRoute.value.query).toEqual({ keyword: '阀', sort: 'due' });
     tasks.sort = null;
     await settle();
     expect(router.currentRoute.value.query).toEqual({ keyword: '阀' });
@@ -125,7 +131,7 @@ describe('useTableQuery 的 syncToUrl', () => {
     await settle();
     expect(tasks.page).toBe(2);
     expect(fetcher).toHaveBeenLastCalledWith(
-      expect.objectContaining({ page: 2, sort: null }),
+      expect.objectContaining({ page: 2, sorts: [] }),
       expect.anything(),
     );
   });

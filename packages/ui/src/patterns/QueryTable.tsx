@@ -10,7 +10,8 @@
  *   />
  *
  * - 查询栏的条件改的是草稿（draft），点“查询”（或回车）才交给 query.search；“重置”回到 blankFilters（不写时是一开始的条件）并查询。
- * - 表头排序交给服务端（manualSort，写回 query.sort），分页栏绑定 query.page / pageSize / total。
+ * - 表头排序交给服务端（manualSort，写回 query.sort；multiSort 时按住 Shift 追加一列，写回 query.sorts），
+ *   分页栏绑定 query.page / pageSize / total。
  * - persistKey：列设置（显示、顺序、固定、列宽）与行高记在浏览器里，下次打开还是这样。
  * - selectionMode 时勾选行，表格上方出现批量操作栏，batchActions 拿到已选的 key 给出按钮。
  *
@@ -57,6 +58,8 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   toolbar?: VNodeChild;
   /** 列设置与行高记在浏览器里的键（localStorage，自动加前缀）；不写时只在这次打开里有效 */
   persistKey?: string;
+  /** 多列排序：按住 Shift 点列标题追加一列（同 DataTable 的 multiSort），排序写在 query.sorts */
+  multiSort?: boolean;
   /** 勾选行：多选时表格上方出现批量操作栏 */
   selectionMode?: DataTableProps<T>['selectionMode'];
   /** 已选行的 key：父级写 selected={_bind(keys)} */
@@ -113,6 +116,7 @@ export const QueryTable = _component(
     blankFilters,
     toolbar,
     persistKey,
+    multiSort = false,
     selectionMode,
     selected = _bindable<string[]>([]),
     batchActions,
@@ -265,7 +269,9 @@ export const QueryTable = _component(
             columns={columns}
             getKey={getKey}
             manualSort
+            multiSort={multiSort}
             sort={_bind(query.sort)}
+            sorts={_bind(query.sorts)}
             loading={query.loading}
             density={density}
             selectionMode={selectionMode}

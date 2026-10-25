@@ -1,4 +1,4 @@
-// 表格的多列排序、表头筛选、列菜单：纯函数（nextSorts、sortRows 多列、filterOptions、filterRows、arrangeColumns）
+// 表格的多列排序、表头筛选、列菜单：纯函数（nextSorts、formatSorts / parseSorts、sortRows 多列、filterOptions、filterRows、arrangeColumns）
 // 与 DataTable 里的交互（Shift 点追加排序、筛选按钮写回 filters 并只留下匹配的行、列菜单的隐藏 / 固定 / 移动）
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
@@ -8,7 +8,9 @@ import {
   arrangeColumns,
   filterOptions,
   filterRows,
+  formatSorts,
   nextSorts,
+  parseSorts,
   sortRows,
   type ColumnStickies,
   type DataTableColumn,
@@ -73,6 +75,17 @@ describe('多列排序与筛选的纯函数', () => {
     expect(
       nextSorts([asc('team'), { key: 'amount', direction: 'descending' }], 'amount', true),
     ).toEqual([asc('team')]);
+  });
+
+  it('formatSorts / parseSorts：-amount,team 是两列，减号是倒序；空的项跳过', () => {
+    const sorts: SortState[] = [
+      { key: 'amount', direction: 'descending' },
+      { key: 'team', direction: 'ascending' },
+    ];
+    expect(formatSorts(sorts)).toBe('-amount,team');
+    expect(formatSorts(null)).toBe('');
+    expect(parseSorts('-amount, team,,-')).toEqual(sorts);
+    expect(parseSorts('')).toEqual([]);
   });
 
   it('sortRows 多列：前一列相等时比下一列', () => {

@@ -18,7 +18,8 @@ export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { QueryTable } from '@vue-tsx-pro/ui/patterns';">
     <Example id="orders" title="采购单列表" demo={Orders}>
       <Code>query</Code> 是 <Code>useTableQuery</Code> 的返回值：页码、每页条数、排序（
-      <Code>manualSort</Code>，交给服务端）、已应用的条件、总数与加载都在里面。
+      <Code>manualSort</Code>，交给服务端；<Code>multiSort</Code> 时按住 Shift
+      点列标题追加一列，写在 <Code>query.sorts</Code>）、已应用的条件、总数与加载都在里面。
       <Code>filters</Code> 拿到草稿，控件绑定它的字段，点“查询”（或在输入框里回车）才交给{' '}
       <Code>query.search</Code>；“重置”回到 <Code>blankFilters</Code>
       （不写时是一开始的条件）并查询；

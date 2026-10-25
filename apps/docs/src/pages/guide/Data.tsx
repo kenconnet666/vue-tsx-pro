@@ -136,13 +136,16 @@ export default _component(() => () => (
         <Code>useTableQuery</Code>
         （建在 useRequest 上）。<Code>page</Code>、<Code>pageSize</Code>、<Code>sort</Code> 直接{' '}
         <Code>_bind</Code> 到 PaginationBar、DataTable（加 <Code>manualSort</Code>
-        ，排序交给服务端）；查询栏点“查询”时调用 <Code>search(条件)</Code>
+        ，排序交给服务端；多列排序的表格加 <Code>multiSort</Code> 并绑 <Code>sorts</Code>
+        ）；查询栏点“查询”时调用 <Code>search(条件)</Code>
         。换排序、条数、条件或 <Code>params</Code>
-        （当前页签这类）回到第一页，只请求一次；删掉数据后当前页空了，自动退到最后一页。
+        （当前页签这类）回到第一页，只请求一次；删掉数据后当前页空了，自动退到最后一页。交给接口的排序写成{' '}
+        <Code>formatSorts(sorts)</Code>，即 <Code>-amount,name</Code>（减号是倒序，同
+        JSON:API），query 库的 <Code>sortBy</Code> 直接认这种写法。
       </Paragraph>
       <Paragraph>
-        <Code>syncToUrl: true</Code> 把页码、条数、排序（<Code>sort=-amount</Code>{' '}
-        是倒序）、筛选条件放进地址的查询参数：刷新、分享链接、从别的页带着条件点进来都是同一份列表；等于初始值的不写。页签这类单个的值用{' '}
+        <Code>syncToUrl: true</Code> 把页码、条数、排序（<Code>sort=-amount,name</Code>{' '}
+        先按金额倒序再按名称）、筛选条件放进地址的查询参数：刷新、分享链接、从别的页带着条件点进来都是同一份列表；等于初始值的不写。页签这类单个的值用{' '}
         <Code>{"useQueryState('view', 'all')"}</Code>
         ，按初始值的类型读写，固定几个值的用 <Code>{'queryCodecs.oneOf([...])'}</Code>
         。需要路由适配给出 <Code>query</Code> 与 <Code>replaceQuery</Code>（vueRouterAdapter

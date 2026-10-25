@@ -5,6 +5,7 @@ import {
   DataTable,
   Field,
   Flex,
+  formatSorts,
   PaginationBar,
   TextField,
   useHttp,
@@ -25,10 +26,10 @@ export default _component(() => {
   const http = useHttp();
   let draft = _state({ keyword: '' });
   const suppliers = useTableQuery(
-    ({ page, pageSize, sort, filters }, signal) =>
+    ({ page, pageSize, sorts, filters }, signal) =>
       http.request<SupplierPage>({
         url: '/suppliers',
-        query: { ...filters, page, pageSize, sort: sort?.key, order: sort?.direction },
+        query: { ...filters, page, pageSize, sort: formatSorts(sorts) },
         signal,
       }),
     { filters: { keyword: '' }, pageSize: 5 },

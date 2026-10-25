@@ -386,6 +386,29 @@ export function sortList(
 }
 
 /**
+ * 排序写成一段文字：逗号分隔的列 key，倒序的前面加减号（同 JSON:API），如 `-amount,name`；没有排序时是空字符串。
+ * 地址栏的 sort 参数与发给服务端的 sort 参数都是它，query 库的 `sortBy` 直接认
+ */
+export function formatSorts(sort: SortState | readonly SortState[] | null | undefined): string {
+  return sortList(sort)
+    .map((item) => (item.direction === 'descending' ? '-' : '') + item.key)
+    .join(',');
+}
+
+/** 读 formatSorts 写的文字：`-amount,name` 是两列排序；空的项跳过 */
+export function parseSorts(text: string): SortState[] {
+  return text
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part.replace(/^-/, '') !== '')
+    .map((part) =>
+      part.startsWith('-')
+        ? { key: part.slice(1), direction: 'descending' }
+        : { key: part, direction: 'ascending' },
+    );
+}
+
+/**
  * 按当前排序排列（返回新数组，原数组不变）；可以是几列（前一列相等时比下一列），没有排序、排序列都不存在时原样返回。
  * 比较用 createComparer：数字按大小、日期按时间、文字按语言（中文按拼音、“第2章”在“第10章”前），空值总在最后
  */

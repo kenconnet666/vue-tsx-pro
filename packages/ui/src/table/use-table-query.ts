@@ -3,16 +3,17 @@
  * alova 的 usePagination）。请求交给 useRequest：只采用最后一次、取消上一次、翻页时保留当前这页。
  *
  *   const tasks = useTableQuery(
- *     ({ page, pageSize, sort, filters }, signal) =>
- *       http.request<TablePage<Task>>({ url: '/tasks', query: { page, pageSize, ...filters, sort: sort?.key }, signal }),
+ *     ({ page, pageSize, sorts, filters }, signal) =>
+ *       http.request<TablePage<Task>>({ url: '/tasks', query: { page, pageSize, ...filters, sort: formatSorts(sorts) }, signal }),
  *     { filters: blankFilters(), pageSize: 20 },
  *   );
  *   <FilterBar onSearch={() => tasks.search({ ...draft })} … />
  *   <DataTable rows={tasks.rows} loading={tasks.loading} sort={_bind(tasks.sort)} manualSort … />
  *   <PaginationBar page={_bind(tasks.page)} pageSize={_bind(tasks.pageSize)} total={tasks.total} />
  *
+ * 排序是几列（sorts，前面的优先）：单列排序的表格绑 sort（第一列），多列排序（DataTable 的 multiSort）绑 sorts。
  * 换排序、每页条数、筛选条件或 params 时回到第一页；删掉数据后当前页空了，退到最后一页。
- * syncToUrl 把页码、条数、排序（sort=-amount 是倒序，同 JSON:API）、筛选条件放进地址的查询参数（见 useQueryState）。
+ * syncToUrl 把页码、条数、排序（sort=-amount,name：减号是倒序，同 JSON:API）、筛选条件放进地址的查询参数（见 useQueryState）。
  */
 import { shallowRef, watch, type Ref } from 'vue';
 import {
@@ -22,7 +23,7 @@ import {
   type QueryCodecs,
 } from '../config/query-state';
 import { useRequest } from '../utils/request/use-request';
-import type { SortState } from './columns';
+import { formatSorts, parseSorts, type SortState } from './columns';
 
 /** 一页结果；后端多给的字段（各页签的条数）照样留在 data 里 */
 export interface TablePage<T> {
@@ -38,8 +39,8 @@ export interface TableQuery<Filters, Params> {
   page: number;
   /** 每页条数 */
   pageSize: number;
-  /** 排序；null 是默认顺序 */
-  sort: SortState | null;
+  /** 排序，前面的优先；空数组是默认顺序。发给服务端时写成 formatSorts(sorts)（`-amount,name`） */
+  sorts: readonly SortState[];
   /** 已应用的筛选条件 */
   filters: Filters;
   /** options.params 的当前值 */
@@ -52,8 +53,8 @@ export interface TableQueryOptions<Filters, Params> {
   filters?: Filters;
   /** 每页条数，默认 10（同 Pagination、PageSizeSelect） */
   pageSize?: number;
-  /** 一开始的排序 */
-  sort?: SortState | null;
+  /** 一开始的排序，前面的优先 */
+  sorts?: readonly SortState[];
   /** 筛选条件之外也决定结果的值（当前页签、数据源）：变了回到第一页重新请求 */
   params?: () => Params;
   /**
@@ -72,26 +73,22 @@ const positiveInteger: QueryCodec<number> = {
   serialize: String,
 };
 
-/** 排序：sort=amount 正序，sort=-amount 倒序，sort= 是默认顺序 */
-const sortCodec: QueryCodec<SortState | null> = {
-  parse(value) {
-    const text = typeof value === 'string' ? value : (value[0] ?? '');
-    if (text === '') return null;
-    return text.startsWith('-')
-      ? { key: text.slice(1), direction: 'descending' }
-      : { key: text, direction: 'ascending' };
-  },
-  serialize: (sort) => (sort ? (sort.direction === 'descending' ? '-' : '') + sort.key : ''),
+/** 排序：sort=amount 正序，sort=-amount,name 先按 amount 倒序再按 name，sort= 是默认顺序 */
+const sortCodec: QueryCodec<readonly SortState[]> = {
+  parse: (value) => parseSorts(typeof value === 'string' ? value : (value[0] ?? '')),
+  serialize: formatSorts,
 };
 
-/** useTableQuery 的返回值：page、pageSize、sort 可以直接 _bind 到 PaginationBar（或 Pagination、PageSizeSelect）、DataTable */
+/** useTableQuery 的返回值：page、pageSize、sort（或 sorts）可以直接 _bind 到 PaginationBar（或 Pagination、PageSizeSelect）、DataTable */
 export interface TableQueryState<Result extends TablePage<unknown>, Filters> {
   /** 第几页：改了立即请求 */
   page: number;
   /** 每页条数：改了回到第一页 */
   pageSize: number;
-  /** 排序：改了回到第一页 */
+  /** 排序的第一列，给单列排序的表格绑定：改了回到第一页；设置时换掉全部排序，null 是默认顺序 */
   sort: SortState | null;
+  /** 全部排序，前面的优先，给多列排序（multiSort）的表格绑定：改了回到第一页 */
+  sorts: SortState[];
   /** 已应用的筛选条件 */
   readonly filters: Filters;
   /** 应用新的筛选条件（查询栏的“查询”）：回到第一页，条件没变也重新请求 */
@@ -124,9 +121,9 @@ export function useTableQuery<
   const pageSize = url
     ? useQueryState('pageSize', options.pageSize ?? 10, positiveInteger)
     : shallowRef(options.pageSize ?? 10);
-  const sort = url
-    ? useQueryState('sort', options.sort ?? null, sortCodec)
-    : shallowRef<SortState | null>(options.sort ?? null);
+  const sorts = url
+    ? useQueryState<readonly SortState[]>('sort', options.sorts ?? [], sortCodec)
+    : shallowRef<readonly SortState[]>(options.sorts ?? []);
   const filters: Ref<Filters> =
     url && options.filters
       ? (useQueryStates(options.filters, url.filters as QueryCodecs<object>) as Ref<Filters>)
@@ -137,7 +134,7 @@ export function useTableQuery<
     params: () => ({
       page: page.value,
       pageSize: pageSize.value,
-      sort: sort.value,
+      sorts: sorts.value,
       filters: filters.value,
       params: readParams(),
     }),
@@ -165,10 +162,17 @@ export function useTableQuery<
       page.value = 1;
     },
     get sort() {
-      return sort.value;
+      return sorts.value[0] ?? null;
     },
     set sort(value) {
-      sort.value = value;
+      sorts.value = value ? [value] : [];
+      page.value = 1;
+    },
+    get sorts() {
+      return [...sorts.value];
+    },
+    set sorts(value) {
+      sorts.value = value;
       page.value = 1;
     },
     get filters() {

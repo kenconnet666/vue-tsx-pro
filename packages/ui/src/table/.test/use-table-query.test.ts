@@ -45,7 +45,7 @@ describe('useTableQuery', () => {
     expect(api.queries[0]).toMatchObject({
       page: 1,
       pageSize: 10,
-      sort: null,
+      sorts: [],
       filters: { keyword: '' },
     });
     expect([table.rows.length, table.total, table.loading]).toEqual([10, 45, false]);
@@ -62,12 +62,27 @@ describe('useTableQuery', () => {
 
     table.sort = { key: 'due', direction: 'descending' };
     await flush();
-    expect(api.queries.at(-1)).toMatchObject({ page: 1, sort: { key: 'due' } });
+    expect(api.queries.at(-1)).toMatchObject({ page: 1, sorts: [{ key: 'due' }] });
     table.page = 2;
     await flush();
     table.pageSize = 20;
     await flush();
     expect(api.queries.at(-1)).toMatchObject({ page: 1, pageSize: 20 });
+    stop();
+  });
+
+  it('多列排序：sorts 前面的优先，sort 是第一列，设置 sort 换掉全部', async () => {
+    const { table, api, stop } = setup({ sorts: [{ key: 'due', direction: 'descending' }] });
+    await flush();
+    table.page = 2;
+    await flush();
+    table.sorts = [...table.sorts, { key: 'name', direction: 'ascending' }];
+    await flush();
+    expect(api.queries.at(-1)).toMatchObject({ page: 1, sorts: [{ key: 'due' }, { key: 'name' }] });
+    expect(table.sort).toEqual({ key: 'due', direction: 'descending' });
+    table.sort = null;
+    await flush();
+    expect(api.queries.at(-1)!.sorts).toEqual([]);
     stop();
   });
 

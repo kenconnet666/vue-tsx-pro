@@ -1,5 +1,5 @@
 // 采购单列表：一个 QueryTable 拼好查询栏、工具栏（新建、导出、刷新、行高、列设置、全屏）、批量操作、表格与分页；
-// 数据来自假的服务端（300–600 ms 延迟、按条件筛、排序、分页），列设置与行高记在浏览器里
+// 数据来自假的服务端（300–600 ms 延迟、按条件筛、按几列排序、分页），按住 Shift 点列标题追加排序列，列设置与行高记在浏览器里
 import { Download, Plus } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import {
@@ -55,9 +55,9 @@ const all: PurchaseOrder[] = Array.from({ length: 368 }, (_, index) => ({
     .slice(0, 10),
 }));
 
-/** 假的查询接口：按条件筛、排序、分页，300–600 ms 后返回；取消时不返回 */
+/** 假的查询接口：按条件筛、按几列排序（前面的优先）、分页，300–600 ms 后返回；取消时不返回 */
 function fetchOrders(
-  query: { page: number; pageSize: number; sort: SortState | null; filters: Filters },
+  query: { page: number; pageSize: number; sorts: readonly SortState[]; filters: Filters },
   signal: AbortSignal,
 ): Promise<TablePage<PurchaseOrder>> {
   return new Promise((resolve, reject) => {
@@ -71,12 +71,14 @@ function fetchOrders(
             (!status || order.status === status) &&
             (!buyer || order.buyer.includes(buyer)),
         );
-        const sort = query.sort;
-        if (sort) {
-          const factor = sort.direction === 'ascending' ? 1 : -1;
-          const key = sort.key as keyof PurchaseOrder;
-          matched.sort((a, b) => (a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0) * factor);
-        }
+        matched.sort((a, b) => {
+          for (const sort of query.sorts) {
+            const key = sort.key as keyof PurchaseOrder;
+            const order = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
+            if (order !== 0) return sort.direction === 'ascending' ? order : -order;
+          }
+          return 0;
+        });
         const start = (query.page - 1) * query.pageSize;
         resolve({ rows: matched.slice(start, start + query.pageSize), total: matched.length });
       },
@@ -113,6 +115,7 @@ export default _component(() => {
       getKey={(order) => order.id}
       title="采购单"
       persistKey="docs:query-table-orders"
+      multiSort
       filters={(draft) => (
         <>
           <Field label="关键字">
