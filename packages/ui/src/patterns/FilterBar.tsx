@@ -11,15 +11,30 @@
  * 默认标签在起始边、宽度随文字（labelWidth 为 auto：控件紧跟着标签，不留空白；要几行对齐时写固定宽度）。在输入框里按回车就是查询（原生表单提交）。
  * more 收起时不渲染；moreActive 是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。
  *
+ * 高级筛选：给了 conditionFields 时按钮区多一个“高级筛选”，展开后在查询栏下面用 ConditionBuilder 编辑条件树（_condition），
+ * 能表达固定条件表达不了的组合（任一满足、介于、不包含）；收起时有条件就在下面写成一句话，带“清空”。
+ * “重置”同时把条件清成 null。条件是纯 JSON：交给后端（query 的条件树转 SQL）或前端 matchesCondition 筛。
+ *
+ *   <FilterBar onSearch={search} onReset={reset} conditionFields={fields} _condition={condition}>…</FilterBar>
+ *
  * 部件：Root（form）、Fields（条件的栅格）、Field 们、More（收起的条件，display: contents）、Actions（div）、
- * Search、Reset（Button）、Toggle（展开收起的 Button）。
+ * Search、Reset（Button）、Toggle（展开收起的 Button）、AdvancedToggle（高级筛选的 Button）、Advanced（条件构造器那一行）。
  */
-import { ChevronDown } from '@lucide/icons';
+import { ChevronDown, ListFilter } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
+import { Small } from '../base/Text';
+import { useLang } from '../config/context';
 import { useMessages } from '../config/lang/messages';
+import {
+  describeCondition,
+  isConditionGroup,
+  type Condition,
+  type ConditionField,
+} from '../input/condition';
+import { ConditionBuilder, type ConditionBuilderProps } from '../input/ConditionBuilder';
 import { patternsMessages } from './messages';
 import { Button, type ButtonProps } from '../base/Button';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -60,6 +75,14 @@ export interface FilterBarProps
   propsToggle?: Partial<ButtonProps>;
   /** 收起的条件的外层（display: contents）的部件属性 */
   propsMore?: PartProps<'div'>;
+  /** 高级筛选的字段：给了时按钮区多一个“高级筛选” */
+  conditionFields?: readonly ConditionField[];
+  /** 高级筛选的条件：父级写 _condition={condition}；没有时是 null，“重置”时清成 null */
+  _condition?: Condition | null;
+  /** 高级筛选按钮的部件属性 */
+  propsAdvancedToggle?: Partial<ButtonProps>;
+  /** 高级筛选那一行（条件构造器）的部件属性 */
+  propsAdvanced?: Partial<ConditionBuilderProps>;
   /** 常用的条件：Field */
   children?: VNodeChild;
 }
@@ -94,6 +117,17 @@ export const filterBarStyles = css.create({
   },
   // 展开后箭头朝上
   toggleIconOpen: { rotate: '180deg' },
+  // 高级筛选与它的摘要各占一整行，排在条件与按钮下面
+  advanced: {
+    flexBasis: '100%',
+    padding: '_md',
+    backgroundColor: '_surfaceMuted',
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_borderMuted',
+    borderRadius: '_md',
+  },
+  summary: { flexBasis: '100%', display: 'flex', alignItems: 'baseline', gap: '_sm', minWidth: 0 },
 });
 
 /** FilterBar 的样式：columns（每格的最小宽度；栅格本身至少放得下一格） */
@@ -123,11 +157,29 @@ export const FilterBar = _component(
     propsReset,
     propsToggle,
     propsMore,
+    conditionFields,
+    _condition: condition = _bindable<Condition | null>(null),
+    propsAdvancedToggle,
+    propsAdvanced,
     children,
     ...rest
   }: FilterBarProps) => {
     const messages = useMessages('patterns', patternsMessages);
+    const lang = useLang();
     const moreId = useId();
+    const advancedId = useId();
+    let advancedOpen = _state(false);
+
+    /** 条件里有几条比较（按钮旁的计数） */
+    const countRules = (item: Condition): number =>
+      !isConditionGroup(item)
+        ? 1
+        : 'not' in item
+          ? countRules(item.not)
+          : ('all' in item ? item.all : item.any).reduce(
+              (sum, child) => sum + countRules(child),
+              0,
+            );
     provideFieldLayout(() => ({ labelPlacement, labelWidth }));
 
     function onSubmit(event: Event) {
@@ -182,11 +234,35 @@ export const FilterBar = _component(
               )}
             </Button>
           )}
+          {conditionFields && (
+            <Button
+              {...mergePartProps<ButtonProps>(
+                { variant: 'ghost', tone: 'neutral', icon: ListFilter },
+                propsAdvancedToggle,
+                {
+                  type: 'button',
+                  'aria-expanded': advancedOpen,
+                  'aria-controls': advancedOpen ? advancedId : undefined,
+                  onClick: () => (advancedOpen = !advancedOpen),
+                },
+              )}
+            >
+              {messages.filterAdvanced}
+              {!advancedOpen && condition && (
+                <Badge tone="accent" radius="full">
+                  {messages.filterActive(countRules(condition))}
+                </Badge>
+              )}
+            </Button>
+          )}
           {actions}
           <Button
             {...mergePartProps<ButtonProps>({ variant: 'outline', tone: 'neutral' }, propsReset, {
               type: 'button',
-              onClick: () => onReset?.(),
+              onClick: () => {
+                if (conditionFields) condition = null;
+                onReset?.();
+              },
             })}
           >
             {messages.filterReset}
@@ -195,6 +271,30 @@ export const FilterBar = _component(
             {messages.filterSearch}
           </Button>
         </div>
+        {conditionFields && advancedOpen && (
+          <ConditionBuilder
+            {...mergePartProps<ConditionBuilderProps>(
+              {
+                fields: conditionFields,
+                sx: filterBarStyles.advanced,
+                'aria-label': messages.filterAdvanced,
+              },
+              propsAdvanced,
+              { id: advancedId },
+            )}
+            _value={condition}
+          />
+        )}
+        {conditionFields && !advancedOpen && condition && (
+          <div {...css.attrs(filterBarStyles.summary)}>
+            <Small tone="muted">
+              {messages.filterAdvanced}：{describeCondition(condition, conditionFields, lang)}
+            </Small>
+            <Button variant="link" size="sm" type="button" onClick={() => (condition = null)}>
+              {lang.clear}
+            </Button>
+          </div>
+        )}
       </form>
     );
   },

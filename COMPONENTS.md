@@ -871,6 +871,7 @@ apps/docs/src/components/base/Button/
 | 编辑器   | `ConditionBuilder`：根总是一个组，表头选满足方式（全部、任一、都不、不全，后两种写成 not 包着 any / all）；`maxDepth` 限制嵌套。只写回填完整的比较，没填完的留在界面上；父级换了值（与上次写回的不同）才整棵重读                                                |
 | 值的输入 | 文字 TextField、数字 NumberField / NumberRangeField、日期 DatePicker / DateRangePicker、选项与是否 Select（是其中之一时多选）、文字与数字的一组值 TagsInput；字段的 `input` 换成自己的控件（人员选择器）                                                        |
 | 读屏     | 根与嵌套组是 role="group"，每条比较也是一组（“条件 2”），三个控件各有名称；加一条后焦点到它的字段，删掉后到所在组的“添加条件”                                                                                                                                   |
+| 高级筛选 | FilterBar 的 `conditionFields` 与 `_condition`：按钮区多一个“高级筛选”，展开后条件构造器单独占一行，收起时用 describeCondition 写摘要（带清空），“重置”同时清成 null                                                                                            |
 
 ### 10.26 人员与组织选择器（input/，ROADMAP 9.2）
 

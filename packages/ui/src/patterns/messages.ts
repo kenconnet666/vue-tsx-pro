@@ -16,6 +16,8 @@ export interface PatternsMessages {
   readonly filterCollapse: string;
   /** 收起的条件里已经填了几项：`(2)` → “已设 2 项” */
   readonly filterActive: (count: number) => string;
+  /** 查询栏的高级筛选（按钮、条件构造器的名称、摘要的开头），默认“高级筛选” */
+  readonly filterAdvanced: string;
   /** 时限标记：还剩几个工作日，默认“剩 n 个工作日” */
   readonly deadlineRemaining: (workdays: number) => string;
   /** 时限标记：今天到期，默认“今天到期” */
@@ -176,6 +178,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     filterExpand: '展开',
     filterCollapse: '收起',
     filterActive: (count) => `已设 ${count} 项`,
+    filterAdvanced: '高级筛选',
     deadlineRemaining: (workdays) => `剩 ${workdays} 个工作日`,
     deadlineDue: '今天到期',
     deadlineOverdue: (workdays) => (workdays > 0 ? `超时 ${workdays} 个工作日` : '已超时'),
@@ -259,6 +262,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     filterExpand: 'More filters',
     filterCollapse: 'Fewer filters',
     filterActive: (count) => `${count} set`,
+    filterAdvanced: 'Advanced filter',
     deadlineRemaining: (workdays) => `${workdays} ${workdays === 1 ? 'workday' : 'workdays'} left`,
     deadlineDue: 'Due today',
     deadlineOverdue: (workdays) =>
