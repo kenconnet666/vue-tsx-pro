@@ -23,7 +23,7 @@ export default _component(() => {
   let projection = _state<keyof MapProjections>('conic');
   return () => (
     <Flex direction="column" gap="sm">
-      <ToggleGroup _value={_bind(projection)} required size="sm" aria-label="投影">
+      <ToggleGroup _value={projection} required size="sm" aria-label="投影">
         {options.map((option) => (
           <ToggleItem key={option.value} value={option.value}>
             {option.label}

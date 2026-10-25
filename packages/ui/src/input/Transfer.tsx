@@ -1,8 +1,8 @@
 /**
  * 穿梭框：左边是可选的，右边是已选的，勾上之后点中间的按钮移过去（分配权限、指派成员、挑选导出的列）。
  *
- *   <Transfer items={users} toOption={(user) => ({ value: user.id, label: user.name })} _value={_bind(memberIds)} searchable />
- *   <TreeTransfer items={orgs} getKey={…} getLabel={…} getChildren={…} _value={_bind(teamIds)} />   左边是一棵树
+ *   <Transfer items={users} toOption={(user) => ({ value: user.id, label: user.name })} _value={memberIds} searchable />
+ *   <TreeTransfer items={orgs} getKey={…} getLabel={…} getChildren={…} _value={teamIds} />   左边是一棵树
  *
  * - 每一边是一个可多选的 Listbox（焦点、方向键、空格勾选、虚拟滚动同 Listbox），上方是全选框、标题与“勾上 / 总数”，
  *   searchable 时带搜索框（按选项文字，认 createUi 的 textMatcher）。全选只管当前看得见（搜索后留下）的项。
@@ -18,6 +18,7 @@
 import { ChevronLeft, ChevronRight, Search } from '@lucide/icons';
 import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
+import type { UpdateHandlers } from '@vue-tsx-pro/tsx/jsx-runtime';
 import { useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Small } from '../base/Text';
@@ -28,7 +29,7 @@ import { checkedByStrategy, indexTree } from '../utils/data/tree';
 import { announce } from '../utils/dom/announcer';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Checkbox } from './Checkbox';
-import { Listbox, type ListboxBaseProps } from './Listbox';
+import { Listbox, type ListboxBaseProps, type ListboxProps } from './Listbox';
 import type { MultipleSelectionProps } from '../utils/data/selection';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
 import { TextField, type TextFieldProps } from './TextField';
@@ -38,7 +39,7 @@ export type TransferListProps<T> = ListboxBaseProps<T> & MultipleSelectionProps 
 
 /** Transfer 与 TreeTransfer 共有的属性；未声明的属性落到外层 div（role="group"）上 */
 export interface TransferBaseProps extends PartProps<'div', 'role'> {
-  /** 右边（已选）的值，按移过去的先后排列：父级写 _value={_bind(keys)} */
+  /** 右边（已选）的值，按移过去的先后排列：父级写 _value={keys} */
   _value?: string[];
   /** 左右两边的标题，默认取语言包（可选、已选） */
   titles?: readonly [string, string];
@@ -160,13 +161,11 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
     >
       <div {...css.attrs(transferStyles.header)}>
         <Checkbox
-          _checked={_bind(
-            () => all,
-            (next: boolean) => {
-              const others = options.checked.filter((key) => !options.selectable.includes(key));
-              options.onCheckAll(next ? [...others, ...options.selectable] : others);
-            },
-          )}
+          _checked={all}
+          onUpdate:_checked={(next: boolean) => {
+            const others = options.checked.filter((key) => !options.selectable.includes(key));
+            options.onCheckAll(next ? [...others, ...options.selectable] : others);
+          }}
           indeterminate={!all && visibleChecked.length > 0}
           disabled={options.disabled || options.selectable.length === 0}
           aria-label={lang.transferSelectAll(options.title)}
@@ -191,7 +190,8 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
               options.propsSearch,
             )}
             type="search"
-            _value={_bind(() => options.search, options.onSearch)}
+            _value={options.search}
+            onUpdate:_value={options.onSearch}
             disabled={options.disabled}
           />
         </div>
@@ -299,7 +299,7 @@ export const Transfer = _component(
       const state = field();
       const list = (side: 0 | 1) => (
         <Listbox
-          {...mergePartProps<TransferListProps<T>>(
+          {...(mergePartProps<TransferListProps<T>>(
             {
               items: shownEntries(side).map((entry) => entry.item),
               toOption: (item: T) => toListboxOption(item, toOption),
@@ -316,11 +316,9 @@ export const Transfer = _component(
               id: `${baseId}-${side}`,
               'aria-labelledby': `${baseId}-title-${side}`,
             } as Partial<TransferListProps<T>>,
-          )}
-          _value={_bind(
-            () => checked[side],
-            (next: string[]) => setChecked(side, next),
-          )}
+          ) as ListboxProps<T> & UpdateHandlers<ListboxProps<T>>)}
+          _value={checked[side]}
+          onUpdate:_value={(next: string[]) => setChecked(side, next)}
         />
       );
       const panel = (side: 0 | 1) =>
@@ -457,15 +455,14 @@ export const TreeTransfer = _component(
             propsTree,
             { 'aria-labelledby': `${baseId}-title-0` },
           )}
-          _checked={_bind(
-            () => [...value, ...sourceChecked],
-            (next: string[]) =>
-              setChecked(
-                0,
-                checkedByStrategy(index, next, 'child').filter((key) => !chosen.has(key)),
-              ),
-          )}
-          _expanded={_bind(expanded)}
+          _checked={[...value, ...sourceChecked]}
+          onUpdate:_checked={(next: string[]) =>
+            setChecked(
+              0,
+              checkedByStrategy(index, next, 'child').filter((key) => !chosen.has(key)),
+            )
+          }
+          _expanded={expanded}
         />
       );
       const list = (
@@ -486,10 +483,8 @@ export const TreeTransfer = _component(
               'aria-labelledby': `${baseId}-title-1`,
             } as Partial<TransferListProps<ListboxOption>>,
           )}
-          _value={_bind(
-            () => checked[1],
-            (next: string[]) => setChecked(1, next),
-          )}
+          _value={checked[1]}
+          onUpdate:_value={(next: string[]) => setChecked(1, next)}
         />
       );
       const panel = (side: 0 | 1, selectable: string[], total: number, body: VNodeChild) =>

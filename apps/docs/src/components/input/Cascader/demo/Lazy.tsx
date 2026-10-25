@@ -69,7 +69,7 @@ export default _component(() => {
             requests++;
             item.children = await fetchChildren(item.id);
           }}
-          _value={_bind(unit)}
+          _value={unit}
         />
       </Field>
       <Small tone="muted">已请求 {requests} 次</Small>

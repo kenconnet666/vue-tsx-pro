@@ -244,10 +244,10 @@ export const NotificationList = _component(
                   },
                   propsTypes,
                 )}
-                _value={_bind(
-                  () => type || 'all',
-                  (next: string | null) => (type = !next || next === 'all' ? '' : next),
-                )}
+                _value={type || 'all'}
+                onUpdate:_value={(next: string | null) =>
+                  (type = !next || next === 'all' ? '' : next)
+                }
               >
                 <ToggleItem value="all">{messages.notificationsAll}</ToggleItem>
                 {types.map((item) => (
@@ -262,7 +262,7 @@ export const NotificationList = _component(
                 { size: 'sm', sx: notificationListStyles.end },
                 propsUnreadOnly,
               )}
-              _checked={_bind(unreadOnly)}
+              _checked={unreadOnly}
             >
               {messages.notificationsUnreadOnly}
             </Switch>
@@ -375,7 +375,7 @@ export const NotificationCenter = _component(
         {...rest}
         placement={rest.placement ?? 'bottom-end'}
         sx={[notificationCenterStyles.panel, sx]}
-        _open={_bind(open)}
+        _open={open}
         trigger={(trigger) => (
           <Indicator count={unread} label={messages.notificationsUnread(unread)}>
             <IconButton

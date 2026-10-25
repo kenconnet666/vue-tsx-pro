@@ -22,7 +22,7 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Grid minItemWidth="12rem" gap="lg" align="end">
         <Field label="画质">
-          <ToggleGroup _value={_bind(quality)} required>
+          <ToggleGroup _value={quality} required>
             <ToggleItem value="auto">自动</ToggleItem>
             <ToggleItem value="low">低</ToggleItem>
             <ToggleItem value="high">高</ToggleItem>
@@ -31,7 +31,7 @@ export default _component(() => {
         </Field>
         <Field label="渲染分辨率">
           <Slider
-            _value={_bind(resolution)}
+            _value={resolution}
             min={0.1}
             max={1}
             step={0.05}
@@ -39,8 +39,8 @@ export default _component(() => {
           />
         </Field>
         <Flex gap="lg" wrap>
-          <Switch _checked={_bind(interactive)}>跟随指针</Switch>
-          <Switch _checked={_bind(paused)}>暂停</Switch>
+          <Switch _checked={interactive}>跟随指针</Switch>
+          <Switch _checked={paused}>暂停</Switch>
         </Flex>
       </Grid>
       <MeshGradient

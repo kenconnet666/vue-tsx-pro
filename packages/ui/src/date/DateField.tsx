@@ -2,9 +2,9 @@
  * 日期输入框：分段输入年、月、日（不带弹层），段的顺序按语言（zh-CN 年/月/日，en-US 月/日/年）。
  * 参考 React Aria DateField、原生 input type="date"。要弹出日历用 DatePicker。
  *
- *   <Field label="生日"><DateField _value={_bind(birthday)} max={today} /></Field>
- *   <DateField granularity="minute" _value={_bind(at)} aria-label="开始时间" />   // '2026-10-20T14:30'
- *   <DateField granularity="month" _value={_bind(month)} aria-label="账期" />     // '2026-10'
+ *   <Field label="生日"><DateField _value={birthday} max={today} /></Field>
+ *   <DateField granularity="minute" _value={at} aria-label="开始时间" />   // '2026-10-20T14:30'
+ *   <DateField granularity="month" _value={month} aria-label="账期" />     // '2026-10'
  *
  * 值是 ISO 字符串，形式随 granularity：year 'YYYY'、month 'YYYY-MM'、day 'YYYY-MM-DD'，
  * hour / minute / second 是日期加时间 'YYYY-MM-DDTHH:mm[:ss]'（同原生 datetime-local）；
@@ -51,7 +51,7 @@ import { SegmentedField, type SegmentedFieldOptions } from './SegmentedField';
 /** 未声明的属性落到这组分段上（主元素）；外壳用 propsRoot */
 export interface DateFieldProps<V extends DateInput = string>
   extends SegmentedFieldOptions, DateLimitProps {
-  /** 值：ISO 字符串（形式随 granularity）或 DateValue，写回时保持同一种类型；父级写 _value={_bind(x)}；没填全时 null */
+  /** 值：ISO 字符串（形式随 granularity）或 DateValue，写回时保持同一种类型；父级写 _value={x}；没填全时 null */
   _value?: V | null;
   /** 精确到哪一段，默认 day；到 hour / minute / second 时是日期加时间 */
   granularity?: DateFieldGranularity;
@@ -172,7 +172,7 @@ export const DateField = _component(
     return () => (
       <SegmentedField
         {...rest}
-        {...{ 'onUpdate:_value': write }}
+        onUpdate:_value={write}
         _value={iso}
         fields={segmentFields(granularity)}
         outOfRange={outOfRange}

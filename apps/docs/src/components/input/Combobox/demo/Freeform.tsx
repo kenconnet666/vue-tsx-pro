@@ -26,8 +26,8 @@ export default _component(() => {
       >
         <Combobox
           items={titles}
-          _value={_bind(title)}
-          _inputValue={_bind(typed)}
+          _value={title}
+          _inputValue={typed}
           allowCustomValue
           icon={BriefcaseBusiness}
           clearable

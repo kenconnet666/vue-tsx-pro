@@ -25,14 +25,7 @@ describe('Select', () => {
     let open = _state(false);
     const root = mount(() => (
       <>
-        <Select
-          items={cities}
-          _value="上海"
-          readonly
-          clearable
-          _open={_bind(open)}
-          aria-label="城市"
-        />
+        <Select items={cities} _value="上海" readonly clearable _open={open} aria-label="城市" />
         <Field label="出发地" readonly>
           <Select items={cities} _value="北京" />
         </Field>
@@ -64,11 +57,11 @@ describe('Select', () => {
     let cityList = _state(['北京', '广州']);
     const root = mount(() => (
       <>
-        <Select items={cities} _value={_bind(city)} clearable aria-label="城市" />
+        <Select items={cities} _value={city} clearable aria-label="城市" />
         <Select
           items={cities}
           selectionMode="multiple"
-          _value={_bind(cityList)}
+          _value={cityList}
           clearable
           aria-label="途经"
         />
@@ -104,7 +97,7 @@ describe('Select', () => {
   it('多选：标签在触发按钮外、对读屏隐藏，按钮里念全部已选；点移除按钮、Backspace 移除', async () => {
     let picked = _state(['北京', '上海', '广州']);
     const root = mount(() => (
-      <Select items={cities} selectionMode="multiple" _value={_bind(picked)} aria-label="城市" />
+      <Select items={cities} selectionMode="multiple" _value={picked} aria-label="城市" />
     ));
     const trigger = root.querySelector<HTMLButtonElement>('button[role="combobox"]')!;
     expect(trigger.querySelector('button')).toBeNull();
@@ -150,8 +143,8 @@ describe('Select', () => {
       <Select
         items={cities}
         selectionMode="multiple"
-        _value={_bind(picked)}
-        _search={_bind(search)}
+        _value={picked}
+        _search={search}
         _open
         creatable
         onCreate={(text) => created.push(text)}
@@ -179,7 +172,7 @@ describe('Select', () => {
     let open = _state(false);
     const onOpenChange = vi.fn();
     const root = mount(() => (
-      <Select items={cities} _open={_bind(open)} onOpenChange={onOpenChange} aria-label="城市" />
+      <Select items={cities} _open={open} onOpenChange={onOpenChange} aria-label="城市" />
     ));
     root.querySelector<HTMLButtonElement>('button[role="combobox"]')!.click();
     await flush();

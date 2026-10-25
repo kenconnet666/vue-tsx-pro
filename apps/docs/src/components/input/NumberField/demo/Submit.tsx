@@ -21,14 +21,14 @@ export default _component(() => {
         <Grid minItemWidth="14em" gap="lg">
           <Field label="单价" description="显示 ¥12,345.60，提交 12345.6">
             <NumberField
-              _value={_bind(price)}
+              _value={price}
               name="price"
               step={new Decimal('0.01')}
               format={{ style: 'currency', currency: 'CNY' }}
             />
           </Field>
           <Field label="数量">
-            <NumberField _value={_bind(quantity)} name="quantity" min={1} />
+            <NumberField _value={quantity} name="quantity" min={1} />
           </Field>
         </Grid>
         <Flex align="center" gap="md" wrap>

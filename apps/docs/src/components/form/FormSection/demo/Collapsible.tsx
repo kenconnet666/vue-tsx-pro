@@ -42,13 +42,13 @@ export default _component(() => {
           {contacts.map((contact, index) => (
             <Flex key={index} align="end" gap="sm">
               <Field label="姓名" labelHidden={index > 0}>
-                <TextField _value={_bind(contact.name)} />
+                <TextField _value={contact.name} />
               </Field>
               <Field label="职务" labelHidden={index > 0}>
-                <TextField _value={_bind(contact.role)} />
+                <TextField _value={contact.role} />
               </Field>
               <Field label="手机" labelHidden={index > 0}>
-                <TextField _value={_bind(contact.phone)} inputmode="numeric" />
+                <TextField _value={contact.phone} inputmode="numeric" />
               </Field>
               <IconButton
                 icon={Trash2}
@@ -65,16 +65,16 @@ export default _component(() => {
           title="高级选项"
           description="通知方式、对接系统；不填时按默认"
           collapsible
-          _open={_bind(advancedOpen)}
+          _open={advancedOpen}
           columns={2}
           minColumnWidth="14em"
         >
           <Field label="状态变更时通知">
-            <Switch _checked={_bind(notify)}>通知联系人</Switch>
+            <Switch _checked={notify}>通知联系人</Switch>
           </Field>
           <Field label="通知方式">
             <Select
-              _value={_bind(channel)}
+              _value={channel}
               disabled={!notify}
               items={[
                 { value: 'email', label: '邮件' },

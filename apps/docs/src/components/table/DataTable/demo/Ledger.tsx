@@ -187,10 +187,8 @@ export default _component(() => {
             {optional.map((column) => (
               <MenuCheckboxItem
                 key={column.key}
-                _checked={_bind(
-                  () => !hidden.includes(column.key),
-                  (on: boolean) => toggleColumn(column.key, on),
-                )}
+                _checked={!hidden.includes(column.key)}
+                onUpdate:_checked={(on: boolean) => toggleColumn(column.key, on)}
               >
                 {column.header}
               </MenuCheckboxItem>
@@ -211,7 +209,7 @@ export default _component(() => {
         columns={columns}
         getKey={(task) => task.code}
         selectionMode="multiple"
-        _selected={_bind(selected)}
+        _selected={selected}
         isRowSelectable={(task) => task.status !== 'closed'}
         _hiddenColumns={hidden}
         aria-label="降本台账"

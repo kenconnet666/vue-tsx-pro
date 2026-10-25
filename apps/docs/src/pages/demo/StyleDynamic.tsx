@@ -73,17 +73,15 @@ export default _component(() => {
           aria-label="整体进度"
           min={-50}
           max={50}
-          _value={_bind(
-            () => shift,
-            (value: number) => {
-              shift = value;
-              tasks.forEach(
-                (task, index) =>
-                  (task.progress = Math.max(0, Math.min(100, 10 + index * 10 + value))),
-              );
-              refresh();
-            },
-          )}
+          _value={shift}
+          onUpdate:_value={(value: number) => {
+            shift = value;
+            tasks.forEach(
+              (task, index) =>
+                (task.progress = Math.max(0, Math.min(100, 10 + index * 10 + value))),
+            );
+            refresh();
+          }}
           sx={{ flexBasis: '14rem' }}
         />
         <Button

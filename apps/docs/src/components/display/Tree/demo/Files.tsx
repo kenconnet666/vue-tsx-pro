@@ -52,9 +52,9 @@ export default _component(() => {
           getLabel={(entry) => entry.name}
           getChildren={(entry) => entry.children}
           getIcon={iconOf}
-          _expanded={_bind(expanded)}
+          _expanded={expanded}
           selectionMode="single"
-          _selected={_bind(selected)}
+          _selected={selected}
           aria-label="项目文件"
           sx={styles.tree}
         />

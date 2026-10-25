@@ -14,8 +14,8 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" wrap>
-        <Switch _checked={_bind(loading)}>加载中</Switch>
-        <Switch _checked={_bind(empty)}>没有数据</Switch>
+        <Switch _checked={loading}>加载中</Switch>
+        <Switch _checked={empty}>没有数据</Switch>
       </Flex>
       <BarChart
         aria-label="示例数据"

@@ -14,11 +14,7 @@ export default _component(() => {
     <form onSubmit={onSubmit}>
       <Flex direction="column" gap="lg">
         <Field label="提醒音量" description={`拖动中 ${volume}，松手后才保存：${committed}`}>
-          <Slider
-            _value={_bind(volume)}
-            name="volume"
-            onValueCommit={(value) => (committed = value)}
-          />
+          <Slider _value={volume} name="volume" onValueCommit={(value) => (committed = value)} />
         </Field>
         <Field label="系统音量" disabled description="由系统设置控制">
           <Slider _value={40} />

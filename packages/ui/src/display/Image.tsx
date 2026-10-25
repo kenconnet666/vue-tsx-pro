@@ -234,7 +234,7 @@ export const Image = _component(
           >
             {content}
           </button>
-          {!membership && <Lightbox items={[item()]} _open={_bind(viewing)} />}
+          {!membership && <Lightbox items={[item()]} _open={viewing} />}
         </>
       );
     };
@@ -289,8 +289,8 @@ export const ImageGroup = _component(
         <Lightbox
           {...mergePartProps<Partial<LightboxProps>>({ loop }, propsLightbox)}
           items={items}
-          _open={_bind(open)}
-          _index={_bind(index)}
+          _open={open}
+          _index={index}
         />
       </div>
     );

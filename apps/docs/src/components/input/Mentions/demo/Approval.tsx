@@ -29,13 +29,7 @@ export default _component(() => {
     <Card>
       <Flex direction="column" gap="md">
         <Field label="审批意见" description="输入 @ 提及需要知会的人，提交后会通知他们">
-          <Mentions
-            _value={_bind(opinion)}
-            _mentions={_bind(notified)}
-            items={people}
-            rows={3}
-            maxRows={8}
-          />
+          <Mentions _value={opinion} _mentions={notified} items={people} rows={3} maxRows={8} />
         </Field>
         <Flex gap="xs" wrap align="center">
           <Small tone="muted">将通知：</Small>

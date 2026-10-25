@@ -22,7 +22,7 @@ function render() {
   const root = mount(() => (
     <form>
       <Autocomplete
-        _value={_bind(state.email)}
+        _value={state.email}
         // 建议随输入算出：@ 前的部分接上常用后缀
         items={state.email ? domains.map((domain) => `${state.email.split('@')[0]}@${domain}`) : []}
         filter={(item: string, text) => item.startsWith(text)}

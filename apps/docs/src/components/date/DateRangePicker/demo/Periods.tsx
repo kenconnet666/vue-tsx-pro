@@ -18,7 +18,7 @@ export default _component(() => {
     <Grid minItemWidth="20rem" gap="lg">
       <Field label="预算期间（按月）" description={show(budget)}>
         <DateRangePicker
-          _value={_bind(budget)}
+          _value={budget}
           granularity="month"
           presets={[
             { label: '上半年', value: { start: '2026-01-01', end: '2026-06-30' } },
@@ -28,16 +28,16 @@ export default _component(() => {
         />
       </Field>
       <Field label="对比区间（按年）" description={show(years)}>
-        <DateRangePicker _value={_bind(years)} granularity="year" />
+        <DateRangePicker _value={years} granularity="year" />
       </Field>
       <Field label="滚动四个季度" description={show(quarters)}>
-        <DateRangePicker _value={_bind(quarters)} granularity="quarter" />
+        <DateRangePicker _value={quarters} granularity="quarter" />
       </Field>
       <Field label="排班周（按 ISO 周）" description={show(weeks)}>
-        <DateRangePicker _value={_bind(weeks)} granularity="week" visibleMonths={1} />
+        <DateRangePicker _value={weeks} granularity="week" visibleMonths={1} />
       </Field>
       <Field label="维护窗口" description={show(maintenance)}>
-        <DateRangePicker _value={_bind(maintenance)} granularity="minute" visibleMonths={1} />
+        <DateRangePicker _value={maintenance} granularity="minute" visibleMonths={1} />
       </Field>
     </Grid>
   );

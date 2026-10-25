@@ -41,7 +41,7 @@ export default _component(() => {
       header={
         <Flex align="center" justify="between" gap="md" wrap>
           <strong>降本项目基本信息</strong>
-          <ToggleGroup _value={_bind(mode)} required size="sm" aria-label="表单状态">
+          <ToggleGroup _value={mode} required size="sm" aria-label="表单状态">
             <ToggleItem value="edit">编辑</ToggleItem>
             <ToggleItem value="readonly">只读</ToggleItem>
             <ToggleItem value="disabled">不可用</ToggleItem>
@@ -58,23 +58,23 @@ export default _component(() => {
       >
         <Flex direction="column" gap="md">
           <Field label="项目名称" required>
-            <TextField _value={_bind(form.values.name)} />
+            <TextField _value={form.values.name} />
           </Field>
           <Field label="任务类别" required>
-            <RadioGroup _value={_bind(form.values.category)} orientation="horizontal">
+            <RadioGroup _value={form.values.category} orientation="horizontal">
               <Radio value="design">设计优化</Radio>
               <Radio value="source">多货源</Radio>
               <Radio value="process">工艺优化</Radio>
             </RadioGroup>
           </Field>
           <Field label="安装类型" required>
-            <ToggleGroup _value={_bind(form.values.install)} required size="sm">
+            <ToggleGroup _value={form.values.install} required size="sm">
               <ToggleItem value="required">必装</ToggleItem>
               <ToggleItem value="optional">选装</ToggleItem>
             </ToggleGroup>
           </Field>
           <Field label="经费来源" description="可多选">
-            <CheckboxGroup _value={_bind(form.values.funding)} orientation="horizontal">
+            <CheckboxGroup _value={form.values.funding} orientation="horizontal">
               <Checkbox value="quality">精品工程</Checkbox>
               <Checkbox value="certification">适航取证</Checkbox>
               <Checkbox value="plateau">高原型项目</Checkbox>
@@ -82,13 +82,13 @@ export default _component(() => {
             </CheckboxGroup>
           </Field>
           <Field label="贯彻架次">
-            <NumberField _value={_bind(form.values.flights)} min={0} />
+            <NumberField _value={form.values.flights} min={0} />
           </Field>
           <Field label="SB 贯彻">
-            <Switch _checked={_bind(form.values.needSb)}>需要 SB 贯彻航线架次</Switch>
+            <Switch _checked={form.values.needSb}>需要 SB 贯彻航线架次</Switch>
           </Field>
           <Field label="简要描述" required description="说明更改内容与降本金额的计算依据">
-            <Textarea _value={_bind(form.values.description)} rows={3} />
+            <Textarea _value={form.values.description} rows={3} />
           </Field>
         </Flex>
       </Form>

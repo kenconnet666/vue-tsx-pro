@@ -74,6 +74,6 @@ export const BarChart = _component(
         return [bars];
       },
     });
-    return () => <XYChart {...rest} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
+    return () => <XYChart {...rest} _hiddenSeries={hiddenSeries} kind={kind} />;
   },
 );

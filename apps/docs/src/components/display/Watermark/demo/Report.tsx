@@ -17,7 +17,7 @@ export default _component(() => {
   let fullscreen = _state(false);
   return () => (
     <Flex direction="column" gap="md">
-      <Switch _checked={_bind(fullscreen)}>整页水印</Switch>
+      <Switch _checked={fullscreen}>整页水印</Switch>
       <Watermark content={['林小满 · 采购部', today, '内部资料 请勿外传']} fullscreen={fullscreen}>
         <Card>
           <Flex direction="column" gap="md">

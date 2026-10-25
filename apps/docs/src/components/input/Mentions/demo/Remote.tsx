@@ -43,8 +43,8 @@ export default _component(() => {
     <Flex direction="column" gap="sm">
       <Field label="留言" description={`共 ${employees.length} 人；试试输入 @林 或 @E001`}>
         <Mentions
-          _value={_bind(text)}
-          _mentions={_bind(mentioned)}
+          _value={text}
+          _mentions={mentioned}
           load={search}
           toOption={(employee: Employee) => ({
             value: employee.id,

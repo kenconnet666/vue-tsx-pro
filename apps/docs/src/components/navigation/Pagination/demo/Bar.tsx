@@ -67,8 +67,8 @@ export default _component(() => {
         </TableBody>
       </Table>
       <PaginationBar
-        _page={_bind(page)}
-        _pageSize={_bind(pageSize)}
+        _page={page}
+        _pageSize={pageSize}
         total={total}
         pageSizeOptions={[5, 10, 20, 50]}
         propsPagination={{ 'aria-label': '订单表格分页' }}

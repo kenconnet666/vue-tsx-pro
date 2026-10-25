@@ -113,11 +113,10 @@ export const PageTabs = _component(
       return (
         <Tabs
           {...rest}
-          _value={_bind(
-            () => current,
-            (next: string | undefined) =>
-              next !== undefined && next !== current && onNavigate(next),
-          )}
+          _value={current}
+          onUpdate:_value={(next: string | undefined) =>
+            next !== undefined && next !== current && onNavigate(next)
+          }
           activation="manual"
         >
           {onClose ? (

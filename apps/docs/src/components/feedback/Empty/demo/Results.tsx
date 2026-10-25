@@ -31,13 +31,11 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <ToggleGroup
-          _value={_bind(
-            () => tone,
-            (next) => {
-              tone = next;
-              round++;
-            },
-          )}
+          _value={tone}
+          onUpdate:_value={(next: Status) => {
+            tone = next;
+            round++;
+          }}
           required
           size="sm"
           aria-label="结果的色调"

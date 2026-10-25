@@ -127,7 +127,7 @@ export const ThemeSwitcher = _component(
         >
           <MenuRadioGroup
             _value={preference.preference}
-            {...{ 'onUpdate:_value': choose }}
+            onUpdate:_value={choose}
             aria-label={messages.themeLabel}
           >
             {choices.map((name) => (

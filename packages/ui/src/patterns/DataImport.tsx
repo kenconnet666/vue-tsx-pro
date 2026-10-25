@@ -352,7 +352,7 @@ export const DataImport = _component(
               <Select
                 items={sheets.map((item) => item.name)}
                 _value={sheetName}
-                {...{ 'onUpdate:_value': changeSheet }}
+                onUpdate:_value={changeSheet}
                 aria-label={messages.dataImportSheet}
                 size="sm"
               />
@@ -381,10 +381,9 @@ export const DataImport = _component(
                   <Select
                     items={headers}
                     _value={mapping[field.key] ?? null}
-                    {...{
-                      'onUpdate:_value': (header: string | null) =>
-                        (mapping = { ...mapping, [field.key]: header }),
-                    }}
+                    onUpdate:_value={(header: string | null) =>
+                      (mapping = { ...mapping, [field.key]: header })
+                    }
                     placeholder={messages.dataImportSkip}
                     clearable
                     size="sm"
@@ -418,7 +417,7 @@ export const DataImport = _component(
             {invalid > 0 && (
               <Switch
                 _checked={onlyErrors}
-                {...{ 'onUpdate:_checked': (value: boolean) => (onlyErrors = value) }}
+                onUpdate:_checked={(value: boolean) => (onlyErrors = value)}
               >
                 {messages.dataImportOnlyErrors}
               </Switch>

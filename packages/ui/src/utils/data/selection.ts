@@ -15,7 +15,7 @@ export interface SelectionModes {
 export interface SingleSelectionProps {
   /** 选择方式，默认 single */
   selectionMode?: Extract<keyof SelectionModes, 'single'>;
-  /** 选中项：父级写 _value={_bind(x)}；没有选中时是 null */
+  /** 选中项：父级写 _value={x}；没有选中时是 null */
   _value?: string | null;
 }
 
@@ -23,7 +23,7 @@ export interface SingleSelectionProps {
 export interface MultipleSelectionProps {
   /** 选择方式 */
   selectionMode: Extract<keyof SelectionModes, 'multiple'>;
-  /** 选中项：父级写 _value={_bind(list)} */
+  /** 选中项：父级写 _value={list} */
   _value?: string[];
 }
 

@@ -9,7 +9,7 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="16rem" gap="lg">
       <Field label="搜索">
-        <TextField _value={_bind(keyword)} type="search" icon={Search} clearable radius="full" />
+        <TextField _value={keyword} type="search" icon={Search} clearable radius="full" />
       </Field>
       <Field label="个人主页" description="prefix 是不算在值里的固定文字，iconEnd 在框尾">
         <TextField _value="github.com/linxiaoman" prefix="https://" iconEnd={Link2} />
@@ -22,7 +22,7 @@ export default _component(() => {
         description="自己的输入组件（富文本、代码编辑器）用 CharacterCount 显示字数"
       >
         <Flex direction="column" gap="xs">
-          <Textarea _value={_bind(bio)} rows={3} />
+          <Textarea _value={bio} rows={3} />
           <CharacterCount count={bio.length} max={30} />
         </Flex>
       </Field>

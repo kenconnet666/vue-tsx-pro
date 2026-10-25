@@ -69,7 +69,7 @@ export function childrenProp<T>(props: Props, fallback?: () => T): Ref<T> {
 }
 
 /**
- * 双向 prop，走标准 v-model 协议（父级 属性={_bind(x)} 编译为 key + onUpdate:key）。
+ * 双向 prop，走标准 v-model 协议（父级 _属性={可写的值} 编译为 key + onUpdate:key）。
  * 与 Vue 的 useModel 一样，父级同时传了值和 onUpdate:key 才算受控：
  *
  *   - 受控：值以父级为准。写入后同步读取先拿到新值，本轮更新结束时回到父级的值，

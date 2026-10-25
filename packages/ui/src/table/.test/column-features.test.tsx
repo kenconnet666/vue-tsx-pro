@@ -139,7 +139,7 @@ describe('DataTable 的行拖动', () => {
         rows={rows}
         columns={columns}
         getKey={(order) => order.id}
-        _sort={_bind(sort)}
+        _sort={sort}
         onReorder={(next) => (rows = next)}
         aria-label="订单"
       />
@@ -177,7 +177,7 @@ describe('DataTable 的表头筛选、多列排序与列菜单', () => {
         rows={orders}
         columns={columns}
         getKey={(order) => order.id}
-        _filters={_bind(filters)}
+        _filters={filters}
         aria-label="订单"
       />
     ));
@@ -203,7 +203,7 @@ describe('DataTable 的表头筛选、多列排序与列菜单', () => {
         columns={columns}
         getKey={(order) => order.id}
         multiSort
-        _sorts={_bind(sorts)}
+        _sorts={sorts}
         aria-label="订单"
       />
     ));
@@ -242,10 +242,10 @@ describe('DataTable 的表头筛选、多列排序与列菜单', () => {
         columns={columns}
         getKey={(order) => order.id}
         columnMenu
-        _hiddenColumns={_bind(hidden)}
-        _columnPins={_bind(pins)}
-        _columnOrder={_bind(order)}
-        _columnWidths={_bind(widths)}
+        _hiddenColumns={hidden}
+        _columnPins={pins}
+        _columnOrder={order}
+        _columnWidths={widths}
         aria-label="订单"
       />
     ));

@@ -165,7 +165,7 @@ const model = (key: string, value: unknown, set: (next: unknown) => void) => ({
 });
 
 export interface PropsPlaygroundProps {
-  /** 当前的组件名：父级可以写 _name={_bind(x)} */
+  /** 当前的组件名：父级可以写 _name={x} */
   _name?: string;
 }
 
@@ -358,7 +358,7 @@ export const PropsPlayground = _component(
           <Flex gap="sm" align="center">
             <Combobox
               items={pickerItems}
-              _value={_bind(component)}
+              _value={component}
               placeholder="搜索组件"
               aria-label="组件"
               sx={styles.picker}

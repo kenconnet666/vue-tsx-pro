@@ -178,7 +178,7 @@ export const TableDemo = _component(() => {
       <Flex direction="column" gap="md">
         <Flex gap="sm" wrap align="center" class="table-toolbar">
           <TextField
-            _value={_bind(keyword)}
+            _value={keyword}
             type="search"
             icon={Search}
             clearable
@@ -226,10 +226,10 @@ export const TableDemo = _component(() => {
           rows={filtered}
           columns={shown}
           getKey={(order) => order.id}
-          _sort={_bind(sort)}
+          _sort={sort}
           selectionMode="multiple"
-          _selected={_bind(picked)}
-          _columnWidths={_bind(widths)}
+          _selected={picked}
+          _columnWidths={widths}
           resizable
           striped
           loading={refreshing}
@@ -244,7 +244,7 @@ export const TableDemo = _component(() => {
           getChildren={(unit) => unit.children}
           hasChildren={(unit) => unit.lazy === true || (unit.children?.length ?? 0) > 0}
           loadChildren={loadUnit}
-          _expanded={_bind(expanded)}
+          _expanded={expanded}
           density="compact"
           aria-label="组织架构"
           class="tree-table-demo"

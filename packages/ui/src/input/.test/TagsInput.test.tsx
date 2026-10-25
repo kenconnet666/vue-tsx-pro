@@ -17,7 +17,7 @@ const tags = (root: Element) =>
 describe('TagsInput', () => {
   it('回车加入并清空输入；重复的不加；输入框为空时退格删掉最后一个', async () => {
     let value = _state<string[]>([]);
-    const root = mount(() => <TagsInput _value={_bind(value)} aria-label="关键词" />);
+    const root = mount(() => <TagsInput _value={value} aria-label="关键词" />);
     const input = root.querySelector('input')!;
     await type(input, ' vue ');
     press(input, 'Enter');
@@ -38,8 +38,8 @@ describe('TagsInput', () => {
     let kept = _state<string[]>([]);
     const root = mount(() => (
       <>
-        <TagsInput _value={_bind(value)} aria-label="关键词" />
-        <TagsInput _value={_bind(kept)} acceptOnBlur={false} aria-label="备注" />
+        <TagsInput _value={value} aria-label="关键词" />
+        <TagsInput _value={kept} acceptOnBlur={false} aria-label="备注" />
       </>
     ));
     const [accepting, keeping] = root.querySelectorAll('input');
@@ -55,7 +55,7 @@ describe('TagsInput', () => {
 
   it('输入分隔符时加入前面的部分；粘贴按分隔符与换行拆开；max 之外不加', async () => {
     let value = _state<string[]>([]);
-    const root = mount(() => <TagsInput _value={_bind(value)} max={3} aria-label="x" />);
+    const root = mount(() => <TagsInput _value={value} max={3} aria-label="x" />);
     const input = root.querySelector('input')!;
     await type(input, 'a，b');
     expect(value).toEqual(['a']);

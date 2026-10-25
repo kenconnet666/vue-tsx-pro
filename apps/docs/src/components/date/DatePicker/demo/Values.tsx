@@ -25,7 +25,7 @@ export default _component(() => {
                 : '值是 CalendarDate 对象，可以直接 add、compare'
             }
           >
-            <DatePicker _value={_bind(birthday)} valueType="dateValue" name="birthday" />
+            <DatePicker _value={birthday} valueType="dateValue" name="birthday" />
           </Field>
           <Field label="入职日期" description="name 随表单提交 ISO 字符串">
             <DatePicker _value="2021-03-15" name="joined" />

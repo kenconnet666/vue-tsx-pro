@@ -45,7 +45,7 @@ export interface TreemapChartProps<T extends object>
   height?: number | string;
   /** 外层分组也写名字（块够大时） */
   groupLabels?: boolean;
-  /** 隐藏的顶层分组：点图例时写回，父级可以写 _hiddenGroups={_bind(keys)} */
+  /** 隐藏的顶层分组：点图例时写回，父级可以写 _hiddenGroups={keys} */
   _hiddenGroups?: string[];
   /** 加载中：绘图区显示骨架 */
   loading?: boolean;

@@ -16,7 +16,7 @@ export default _component(() => {
       <Flex direction="column" gap="lg">
         <Flex direction="column" gap="xs">
           <Slider
-            _value={_bind(position)}
+            _value={position}
             max={duration}
             valueText={(value) => `${clock(value)} / ${clock(duration)}`}
             aria-label="播放进度"
@@ -34,14 +34,11 @@ export default _component(() => {
             onClick={() => (muted = !muted)}
           />
           <Slider
-            _value={_bind(
-              () => (muted ? 0 : volume),
-              // 静音时拖动音量：取消静音
-              (next) => {
-                volume = next;
-                muted = false;
-              },
-            )}
+            _value={muted ? 0 : volume}
+            onUpdate:_value={(next) => {
+              volume = next;
+              muted = false;
+            }}
             valueText={(value) => `音量 ${value}%`}
             aria-label="音量"
           />
@@ -49,7 +46,7 @@ export default _component(() => {
         <Flex align="center" gap="sm">
           <Icon icon={Sun} />
           <Slider
-            _value={_bind(brightness)}
+            _value={brightness}
             min={0}
             max={1}
             step={0.05}

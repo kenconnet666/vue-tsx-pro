@@ -2,14 +2,15 @@
  * 自动完成：值就是输入框里的文字，列表只是建议（邮箱后缀、常用地址、搜索历史、供应商名称）。
  * 选一项等于把它的文字填进来；不选也行，输入什么就是什么。要从固定的选项里选一个（值是选项的 value）时用 Combobox。
  *
- *   <Field label="邮箱"><Autocomplete _value={_bind(email)} items={suggestions(email)} filter={false} /></Field>
- *   <Autocomplete _value={_bind(keyword)} load={(text, signal) => api.suggest(text, { signal })} aria-label="搜索" />
+ *   <Field label="邮箱"><Autocomplete _value={email} items={suggestions(email)} filter={false} /></Field>
+ *   <Autocomplete _value={keyword} load={(text, signal) => api.suggest(text, { signal })} aria-label="搜索" />
  *
  * 建在 Combobox 上（allowCustomValue、不显示展开按钮）：没有可选的建议时不弹出列表；↓ 打开建议，↑↓ 移动，
  * Enter 填入，Esc 关闭（关闭时再按 Esc 清空）。写了 name 时表单提交的是输入框里的文字。
  * 部件同 Combobox：Root（外壳）、Input（主元素）、Clear、Popover、Listbox。
  */
 import { _component } from '@vue-tsx-pro/tsx';
+import type { UpdateHandlers } from '@vue-tsx-pro/tsx/jsx-runtime';
 import { Combobox, type ComboboxBaseProps, type ComboboxProps } from './Combobox';
 import { FormValue } from '../form/FormValue';
 import type { ListboxOption, OptionMapping } from './list-state';
@@ -21,7 +22,7 @@ export type AutocompleteProps<T = ListboxOption> = Omit<
   '_value' | '_inputValue' | 'allowCustomValue' | 'showToggle' | 'hideEmpty' | 'items' | 'load'
 > &
   OptionMapping<T> & {
-    /** 输入框里的文字：父级写 _value={_bind(x)}；选一项建议就是把它的文字填进来 */
+    /** 输入框里的文字：父级写 _value={x}；选一项建议就是把它的文字填进来 */
     _value?: string;
     /** 建议：ListboxOption、字符串，或任意数据加 toOption（直接写在这里，数据的类型才能从它推出来） */
     items?: readonly T[];
@@ -35,8 +36,8 @@ export const Autocomplete = _component(
     () => (
       <>
         <Combobox
-          {...(rest as ComboboxProps<T>)}
-          _inputValue={_bind(value)}
+          {...(rest as ComboboxProps<T> & UpdateHandlers<ComboboxProps<T>>)}
+          _inputValue={value}
           allowCustomValue
           showToggle={false}
           hideEmpty

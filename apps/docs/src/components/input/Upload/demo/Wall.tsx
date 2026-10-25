@@ -39,7 +39,7 @@ export default _component(() => {
     <Flex direction="column" gap="sm">
       <Field label="验收照片" description="最多 8 张，单张不超过 5 MB；第一张是封面">
         <Upload
-          _value={_bind(photos)}
+          _value={photos}
           upload={upload}
           listType="picture"
           multiple

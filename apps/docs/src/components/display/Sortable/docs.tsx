@@ -21,7 +21,7 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="tasks" title="待办排序" demo={Tasks}>
-          <Code>items={'{_bind(list)}'}</Code> 双向绑定，拖完直接得到新顺序。键盘：Tab 到把手，
+          <Code>_items={'{list}'}</Code> 双向绑定，拖完直接得到新顺序。键盘：Tab 到把手，
           <Kbd>Space</Kbd> 拿起，<Kbd>↑</Kbd> <Kbd>↓</Kbd> 移动，<Kbd>Space</Kbd> 放下，
           <Kbd>Esc</Kbd> 取消；读屏用 <Code>getLabel</Code> 的文字播报“移到第几位”。
           <Code>disabled</Code> 时把手不可用，列表照常显示。

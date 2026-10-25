@@ -195,12 +195,10 @@ export const ApprovalActions = _component(
           <Dialog
             size="sm"
             {...propsDialog}
-            _open={_bind(
-              () => current != null,
-              (next: boolean) => {
-                if (!next) active = null;
-              },
-            )}
+            _open={current != null}
+            onUpdate:_open={(next: boolean) => {
+              if (!next) active = null;
+            }}
             title={current ? messages.approvalTitle(current.label, node ?? '') : ''}
             confirmText={current?.label}
             onConfirm={confirm}
@@ -215,7 +213,7 @@ export const ApprovalActions = _component(
                     required={current.comment === 'required'}
                     error={errors.comment || undefined}
                   >
-                    <Textarea _value={_bind(comment)} rows={3} autofocus />
+                    <Textarea _value={comment} rows={3} autofocus />
                   </Field>
                 )}
                 {current.attachments != null && (
@@ -224,7 +222,7 @@ export const ApprovalActions = _component(
                     required={current.attachments === 'required'}
                     error={errors.attachments || undefined}
                   >
-                    <Upload _value={_bind(files)} upload={upload} multiple />
+                    <Upload _value={files} upload={upload} multiple />
                   </Field>
                 )}
                 {errors.fields && (

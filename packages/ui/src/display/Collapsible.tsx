@@ -41,7 +41,7 @@ export const Collapsible = _component(
           'aria-controls': contentId,
           disabled: disabled || undefined,
         })}
-        <Collapse {...rest} id={contentId} _open={_bind(open)} />
+        <Collapse {...rest} id={contentId} _open={open} />
       </>
     );
   },

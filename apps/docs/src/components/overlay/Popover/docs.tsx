@@ -55,8 +55,7 @@ export default _component(() => () => (
           Tooltip 的 <Code>delay</Code> 是指针停多久才显示（默认 500
           毫秒），工具栏这类连续的按钮可以设成 0；<Code>disabled</Code> 时只渲染触发器。HoverCard 的{' '}
           <Code>delay</Code> / <Code>closeDelay</Code> 分别控制打开与离开后关闭的等待，
-          <Code>offset</Code> 是与触发器的距离（像素）。三者都可以 <Code>open={'{_bind(x)}'}</Code>{' '}
-          受控。
+          <Code>offset</Code> 是与触发器的距离（像素）。三者都可以 <Code>_open={'{x}'}</Code> 受控。
         </Example>
       </ExampleColumn>
     </Examples>

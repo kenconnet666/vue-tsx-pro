@@ -19,7 +19,7 @@ describe('Checkbox', () => {
     let agreed = _state(false);
     const root = mount(() => (
       <>
-        <Checkbox _checked={_bind(agreed)} name="agree">
+        <Checkbox _checked={agreed} name="agree">
           同意
         </Checkbox>
         <Checkbox indeterminate>全选</Checkbox>
@@ -41,7 +41,7 @@ describe('Checkbox', () => {
     let channels = _state<string[]>(['email']);
     const root = mount(() => (
       <Field label="通知方式" description="至少选一项">
-        <CheckboxGroup _value={_bind(channels)} name="channels">
+        <CheckboxGroup _value={channels} name="channels">
           <Checkbox value="email">邮件</Checkbox>
           <Checkbox value="sms">短信</Checkbox>
         </CheckboxGroup>
@@ -66,7 +66,7 @@ describe('RadioGroup', () => {
     let shipping = _state<string | null>('express');
     let off = _state(false);
     const root = mount(() => (
-      <RadioGroup _value={_bind(shipping)} disabled={off} aria-label="配送">
+      <RadioGroup _value={shipping} disabled={off} aria-label="配送">
         <Radio value="express">快递</Radio>
         <Radio value="pickup">自提</Radio>
       </RadioGroup>
@@ -89,7 +89,7 @@ describe('Switch', () => {
     let on = _state(false);
     const root = mount(() => (
       <Field label="通知" error="需要打开">
-        <Switch _checked={_bind(on)} />
+        <Switch _checked={on} />
       </Field>
     ));
     const input = root.querySelector('input')!;
@@ -103,7 +103,7 @@ describe('Switch', () => {
   it('loading：aria-busy，点击不切换；轨道里的文字对读屏隐藏，只显示当前状态那份', async () => {
     let on = _state(false);
     const root = mount(() => (
-      <Switch _checked={_bind(on)} loading checkedContent="开" uncheckedContent="关">
+      <Switch _checked={on} loading checkedContent="开" uncheckedContent="关">
         自动保存
       </Switch>
     ));
@@ -146,8 +146,12 @@ describe('受控：父级不接受新值时，原生 input 回到父级的值', 
   it('Switch 与 Checkbox', async () => {
     const root = mount(() => (
       <>
-        <Switch _checked={_bind(() => false, ignore)}>开关</Switch>
-        <Checkbox _checked={_bind(() => true, ignore)}>勾选</Checkbox>
+        <Switch _checked={false} onUpdate:_checked={ignore}>
+          开关
+        </Switch>
+        <Checkbox _checked={true} onUpdate:_checked={ignore}>
+          勾选
+        </Checkbox>
       </>
     ));
     const [switchInput, checkbox] = root.querySelectorAll('input');
@@ -160,7 +164,7 @@ describe('受控：父级不接受新值时，原生 input 回到父级的值', 
 
   it('Radio：整组对回父级的值（浏览器已经取消了原来选中的那个）', async () => {
     const root = mount(() => (
-      <RadioGroup _value={_bind(() => 'a', ignore)} aria-label="选项">
+      <RadioGroup _value={'a'} onUpdate:_value={ignore} aria-label="选项">
         <Radio value="a">A</Radio>
         <Radio value="b">B</Radio>
       </RadioGroup>
@@ -247,7 +251,7 @@ describe('items 与说明', () => {
     const state = reactive({ value: ['email'] });
     const root = mount(() => (
       <CheckboxGroup
-        _value={_bind(state.value)}
+        _value={state.value}
         aria-label="通知方式"
         items={[
           { value: 'email', label: '邮件', description: '每天汇总一封' },

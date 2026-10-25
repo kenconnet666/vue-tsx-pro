@@ -66,13 +66,13 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Field label="城市" description="本地过滤：输入“州”试试">
-        <Combobox items={cities} _value={_bind(city)} clearable placeholder="输入或选择" />
+        <Combobox items={cities} _value={city} clearable placeholder="输入或选择" />
       </Field>
       <Field label="成员" description="远程搜索：load 在输入停下 300 ms 后请求，只采用最后一次">
         <Combobox
           load={searchUsers}
-          _inputValue={_bind(keyword)}
-          _value={_bind(user)}
+          _inputValue={keyword}
+          _value={user}
           placeholder="输入用户名"
           empty={keyword ? '没有匹配的成员' : '输入关键词开始搜索'}
         />

@@ -17,13 +17,11 @@ export default _component(() => {
     <Card>
       <Flex direction="column" gap="lg">
         <ToggleGroup
-          _value={_bind(
-            () => preset,
-            (next) => {
-              preset = next;
-              gains = [...presets[next]];
-            },
-          )}
+          _value={preset}
+          onUpdate:_value={(next: Preset) => {
+            preset = next;
+            gains = [...presets[next]];
+          }}
           required
           size="sm"
           aria-label="预设"
@@ -38,10 +36,10 @@ export default _component(() => {
             <Flex key={band} direction="column" align="center" gap="xs">
               <Slider
                 orientation="vertical"
-                _value={_bind(
-                  () => gains[index]!,
-                  (next) => (gains = gains.map((gain, i) => (i === index ? next : gain))),
-                )}
+                _value={gains[index]!}
+                onUpdate:_value={(next) =>
+                  (gains = gains.map((gain, i) => (i === index ? next : gain)))
+                }
                 min={-12}
                 max={12}
                 size="sm"

@@ -8,7 +8,7 @@
  *     columns={columns}
  *     getKey={(row) => row.id}
  *     getChildren={(row) => row.children}
- *     _expanded={_bind(open)}
+ *     _expanded={open}
  *     aria-label="组织架构"
  *   />
  *
@@ -51,7 +51,7 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'
   loadChildren?: (row: T) => Promise<unknown> | void;
   /** 子项加载失败（loadChildren 的 Promise 被拒绝）：这一行收回去，再展开会重试；不写时在控制台报错 */
   onLoadError?: (error: unknown, row: T) => void;
-  /** 展开的行的 key：父级写 _expanded={_bind(keys)} */
+  /** 展开的行的 key：父级写 _expanded={keys} */
   _expanded?: string[];
   /** 每一层缩进多少（em），默认 1.25 */
   indent?: number;
@@ -193,10 +193,11 @@ export const TreeDataTable = _component(
         getKey={keyOf}
         columns={columns}
         manualSort
-        _sort={_bind(sort)}
-        _selected={_bind(() => checkedKeys as string[], writeSelected)}
+        _sort={sort}
+        _selected={checkedKeys as string[]}
+        onUpdate:_selected={writeSelected}
         partialKeys={partialKeys}
-        _columnWidths={_bind(columnWidths)}
+        _columnWidths={columnWidths}
         leading={leading}
       />
     );

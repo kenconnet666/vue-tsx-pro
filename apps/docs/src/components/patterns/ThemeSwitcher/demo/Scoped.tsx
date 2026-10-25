@@ -41,7 +41,7 @@ export default _component(() => {
               <Strong>通知设置</Strong>
               <Small tone="muted">这块区域用的是上面选的主题</Small>
             </Flex>
-            <Switch _checked={_bind(notify)}>新评论时提醒我</Switch>
+            <Switch _checked={notify}>新评论时提醒我</Switch>
             <Flex gap="sm">
               <Button size="sm" icon={Bell}>
                 保存

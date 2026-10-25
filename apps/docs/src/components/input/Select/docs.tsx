@@ -55,7 +55,7 @@ export default _component(() => () => (
           时也认拼音与首字母，本站已开启，试试输入“xnyy”（西南液压），↑↓ 移动、Enter 选中，Esc
           关闭并把焦点还给触发按钮。已选的项被过滤掉、或 items
           换成了另一页的搜索结果时，触发框里照样显示它的文字。远程搜索给 <Code>load</Code>{' '}
-          （见下一个示例）；自己管请求时用 <Code>search={'{_bind(keyword)}'}</Code> 拿到搜索词、
+          （见下一个示例）；自己管请求时用 <Code>_search={'{keyword}'}</Code> 拿到搜索词、
           <Code>filter={'{false}'}</Code> 关掉本地过滤。
         </Example>
         <Example id="custom" title="异步加载与自定义显示" demo={Members}>

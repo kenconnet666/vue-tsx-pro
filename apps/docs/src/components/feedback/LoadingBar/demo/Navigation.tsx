@@ -60,7 +60,7 @@ export default _component(() => {
       <Card padding="none" style={{ position: 'relative', overflow: 'hidden' }}>
         <LoadingBar controller={bar} style={{ position: 'absolute' }} />
         <Flex direction="column" gap="md" style={{ padding: '1em' }}>
-          <Tabs _value={_bind(current)}>
+          <Tabs _value={current}>
             <TabList aria-label="页面">
               {pages.map((item) => (
                 <Tab key={item.id} value={item.id}>

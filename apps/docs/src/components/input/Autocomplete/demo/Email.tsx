@@ -26,7 +26,7 @@ export default _component(() => {
         }
       >
         <Autocomplete
-          _value={_bind(email)}
+          _value={email}
           items={suggest(email)}
           // 建议已经按输入算好，不再本地过滤
           filter={false}
@@ -37,7 +37,7 @@ export default _component(() => {
         />
       </Field>
       <Field label="抄送" description="已有值时照常显示；建议只在输入时出现">
-        <Autocomplete _value={_bind(cc)} items={suggest(cc)} filter={false} icon={Mail} />
+        <Autocomplete _value={cc} items={suggest(cc)} filter={false} icon={Mail} />
       </Field>
     </Grid>
   );

@@ -27,7 +27,7 @@ describe('Dialog 的 onOpenChange', () => {
     let open = _state(true);
     const onOpenChange = vi.fn();
     const root = mount(() => (
-      <Dialog _open={_bind(open)} title="编辑" onOpenChange={onOpenChange} onConfirm={() => {}}>
+      <Dialog _open={open} title="编辑" onOpenChange={onOpenChange} onConfirm={() => {}}>
         正文
       </Dialog>
     ));
@@ -59,7 +59,7 @@ describe('Dialog 的 onOpenChange', () => {
     let open = _state(true);
     const beforeClose = vi.fn((_details: OpenChangeDetails) => false);
     const root = mount(() => (
-      <Dialog _open={_bind(open)} title="编辑" beforeClose={beforeClose}>
+      <Dialog _open={open} title="编辑" beforeClose={beforeClose}>
         正文
       </Dialog>
     ));

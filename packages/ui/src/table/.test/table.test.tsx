@@ -167,7 +167,7 @@ describe('DataTable', () => {
         rows={people}
         columns={columns}
         getKey={(p) => p.id}
-        _sort={_bind(sort)}
+        _sort={sort}
         aria-label="人员"
       />
     ));
@@ -195,7 +195,7 @@ describe('DataTable', () => {
         columns={columns}
         getKey={(p) => p.id}
         selectionMode="multiple"
-        _selected={_bind(picked)}
+        _selected={picked}
         aria-label="人员"
       />
     ));
@@ -220,7 +220,7 @@ describe('DataTable', () => {
         columns={columns}
         getKey={(p) => p.id}
         selectionMode="single"
-        _selected={_bind(picked)}
+        _selected={picked}
         propsSelectRadio={{ class: 'pick' }}
         aria-label="人员"
       />
@@ -254,7 +254,7 @@ describe('DataTable', () => {
         columns={columns}
         getKey={(p) => p.id}
         selectionMode="multiple"
-        _selected={_bind(picked)}
+        _selected={picked}
         aria-label="很多"
       />
     ));
@@ -342,7 +342,7 @@ describe('DataTable', () => {
         columns={columns}
         getKey={(p) => p.id}
         selectionMode="multiple"
-        _selected={_bind(picked)}
+        _selected={picked}
         propsHeadRow={{ class: 'head-row', ...({ 'aria-rowindex': 9 } as object) }}
         propsSelectAll={{ class: 'all', 'aria-label': '全选人员' }}
         propsSelectCheckbox={{ class: 'box', ...({ checked: true } as object) }}
@@ -422,7 +422,7 @@ describe('DataTable 的台账能力', () => {
         getKey={(task) => task.id}
         columns={ledgerColumns}
         selectionMode="multiple"
-        _selected={_bind(picked)}
+        _selected={picked}
         isRowSelectable={(task) => task.status !== 'closed'}
         rowTone={(task) => (task.estimate == null ? 'danger' : undefined)}
         _hiddenColumns={['agreed']}
@@ -503,7 +503,7 @@ describe('DataTable 的详情行', () => {
         selectionMode="multiple"
         renderDetail={(person) => <p class="detail">{person.name} 的简历</p>}
         hasDetail={(person) => person.name !== 'Ada'}
-        _expandedRows={_bind(expanded)}
+        _expandedRows={expanded}
       />
     ));
     await flush();
@@ -635,7 +635,7 @@ describe('TreeDataTable', () => {
         getChildren={(p) => p.children}
         hasChildren={(p) => p.id === 'dept' || p.id === 'lazy'}
         loadChildren={(p) => void loaded.push(p.id)}
-        _expanded={_bind(open)}
+        _expanded={open}
         _sort={{ key: 'age', direction: 'ascending' }}
         aria-label="组织"
       />
@@ -666,7 +666,7 @@ describe('TreeDataTable', () => {
         columns={columns}
         getKey={(p) => p.id}
         getChildren={(p) => p.children}
-        _expanded={_bind(open)}
+        _expanded={open}
         propsToggle={{
           class: 'toggle',
           // 类型里已经去掉了受管属性：模拟 JS 使用方强行传入
@@ -701,7 +701,7 @@ describe('TreeDataTable', () => {
           getChildren={(p) => p.children}
           _expanded={['dept']}
           selectionMode="multiple"
-          _selected={_bind(picked)}
+          _selected={picked}
           aria-label="联动"
         />
         <TreeDataTable
@@ -713,7 +713,7 @@ describe('TreeDataTable', () => {
           _expanded={['dept']}
           selectionMode="multiple"
           checkStrictly
-          _selected={_bind(strict)}
+          _selected={strict}
           aria-label="各自"
         />
       </>
@@ -746,7 +746,7 @@ describe('TreeDataTable', () => {
         getChildren={(p) => p.children}
         _expanded={['dept']}
         manualSort
-        _sort={_bind(sort)}
+        _sort={sort}
         aria-label="组织"
       />
     ));

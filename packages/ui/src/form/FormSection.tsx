@@ -50,7 +50,7 @@ export interface FormSectionProps extends PartProps<'div', FormSectionManaged>, 
   minColumnWidth?: string;
   /** 可以展开收起：标题变成按钮 */
   collapsible?: boolean;
-  /** 是否展开（collapsible 时）：父级写 _open={_bind(x)}，默认展开 */
+  /** 是否展开（collapsible 时）：父级写 _open={x}，默认展开 */
   _open?: boolean;
   /** 标题栏的部件属性 */
   propsHeader?: PartProps<'div'>;
@@ -257,7 +257,7 @@ export const FormSection = _component(
           {collapsible ? (
             <Collapse
               {...mergePartProps<CollapseProps>({}, propsCollapse, { id: ids.body })}
-              _open={_bind(open)}
+              _open={open}
             >
               {body}
             </Collapse>

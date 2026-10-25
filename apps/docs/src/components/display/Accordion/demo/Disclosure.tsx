@@ -29,7 +29,7 @@ export default _component(() => {
     <Card>
       <Flex direction="column" gap="md">
         <Field label="搜索商品">
-          <TextField _value={_bind(keyword)} />
+          <TextField _value={keyword} />
         </Field>
         <Collapsible
           trigger={(props) => (
@@ -50,14 +50,14 @@ export default _component(() => {
         >
           <Grid minItemWidth="9em" gap="md">
             <Field label="最低价">
-              <NumberField _value={_bind(min)} min={0} />
+              <NumberField _value={min} min={0} />
             </Field>
             <Field label="最高价">
-              <NumberField _value={_bind(max)} min={0} />
+              <NumberField _value={max} min={0} />
             </Field>
             <Field label="排序">
               <Select
-                _value={_bind(sort)}
+                _value={sort}
                 items={[
                   { value: 'relevance', label: '综合' },
                   { value: 'sales', label: '销量' },

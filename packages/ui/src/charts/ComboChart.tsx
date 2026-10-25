@@ -157,8 +157,6 @@ export const ComboChart = _component(
         return components;
       },
     });
-    return () => (
-      <XYChart {...rest} series={series} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />
-    );
+    return () => <XYChart {...rest} series={series} _hiddenSeries={hiddenSeries} kind={kind} />;
   },
 );

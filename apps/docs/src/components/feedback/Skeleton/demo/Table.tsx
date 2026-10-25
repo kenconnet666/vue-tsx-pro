@@ -52,7 +52,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="md" align="center" wrap>
-        <Switch _checked={_bind(loading)}>加载中</Switch>
+        <Switch _checked={loading}>加载中</Switch>
         <Button variant="soft" size="sm" onClick={() => void reload()}>
           重新加载（1.8 秒）
         </Button>

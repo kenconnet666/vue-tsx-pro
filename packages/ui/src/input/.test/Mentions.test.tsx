@@ -32,12 +32,7 @@ const people = [
 function render(initial = '') {
   const state = reactive({ text: initial, mentions: [] as string[] });
   const root = mount(() => (
-    <Mentions
-      _value={_bind(state.text)}
-      _mentions={_bind(state.mentions)}
-      items={people}
-      aria-label="留言"
-    />
+    <Mentions _value={state.text} _mentions={state.mentions} items={people} aria-label="留言" />
   ));
   const textarea = root.querySelector('textarea')!;
   const type = async (text: string) => {

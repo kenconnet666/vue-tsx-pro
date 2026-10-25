@@ -54,13 +54,7 @@ describe('Select 的 load', () => {
     const api = fakeLoad();
     let open = _state(false);
     const root = mount(() => (
-      <Select
-        load={api.load}
-        toOption={toOption}
-        searchable
-        _open={_bind(open)}
-        aria-label="负责人"
-      />
+      <Select load={api.load} toOption={toOption} searchable _open={open} aria-label="负责人" />
     ));
     await settle();
     expect(api.calls).toHaveLength(0);
@@ -80,9 +74,9 @@ describe('Select 的 load', () => {
         load={api.load}
         toOption={toOption}
         searchable
-        _open={_bind(open)}
-        _search={_bind(search)}
-        _value={_bind(owner)}
+        _open={open}
+        _search={search}
+        _value={owner}
         aria-label="负责人"
       />
     ));
@@ -121,8 +115,8 @@ describe('Combobox 的 load', () => {
       <Combobox
         load={api.load}
         toOption={toOption}
-        _open={_bind(open)}
-        _inputValue={_bind(text)}
+        _open={open}
+        _inputValue={text}
         aria-label="负责人"
       />
     ));
@@ -165,7 +159,7 @@ describe('TreeSelect 的 load', () => {
         getChildren={(org) => org.children}
         searchable
         _open
-        _search={_bind(search)}
+        _search={search}
         aria-label="部门"
       />
     ));

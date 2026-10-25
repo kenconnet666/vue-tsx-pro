@@ -37,7 +37,7 @@ export default _component(() => {
           圆环数 {rings}
         </Text>
         <Slider
-          _value={_bind(rings)}
+          _value={rings}
           min={1}
           max={20}
           aria-label="圆环数"

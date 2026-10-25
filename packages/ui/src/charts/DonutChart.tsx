@@ -64,7 +64,7 @@ export interface DonutChartProps<T extends object>
    * @default false
    */
   loading?: boolean;
-  /** 隐藏的项（存名称）：点图例时写回，父级可以写 _hiddenItems={_bind(names)} */
+  /** 隐藏的项（存名称）：点图例时写回，父级可以写 _hiddenItems={names} */
   _hiddenItems?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;

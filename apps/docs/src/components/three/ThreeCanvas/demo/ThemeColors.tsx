@@ -52,7 +52,7 @@ export default _component(() => {
   let name = _state<keyof typeof THEMES>('midnight');
   return () => (
     <Flex direction="column" gap="md">
-      <ToggleGroup _value={_bind(name)} required aria-label="示例的主题">
+      <ToggleGroup _value={name} required aria-label="示例的主题">
         {Object.entries(THEMES).map(([value, item]) => (
           <ToggleItem key={value} value={value}>
             {item.label}

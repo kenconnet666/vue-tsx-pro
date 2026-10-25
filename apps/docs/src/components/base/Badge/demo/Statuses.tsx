@@ -49,12 +49,7 @@ export default _component(() => {
         ))}
       </Flex>
       <Field label="按状态筛选" description="选项来自同一份状态映射，带说明">
-        <Select
-          items={taskStatuses.options()}
-          selectionMode="multiple"
-          _value={_bind(filter)}
-          clearable
-        />
+        <Select items={taskStatuses.options()} selectionMode="multiple" _value={filter} clearable />
       </Field>
       <Text size="sm" tone="muted">
         “验证中”排在第 {taskStatuses.order('verifying') + 1} 个阶段；不认识的状态显示成：

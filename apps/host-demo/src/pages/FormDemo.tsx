@@ -66,31 +66,31 @@ export const FormDemo = _component(() => {
       <Flex direction="column" gap="md">
         <form.Field name="username" label="用户名" description="admin、root 已被占用">
           <TextField
-            _value={_bind(form.values.username)}
+            _value={form.values.username}
             suffix={form.validating('username') ? <Spinner aria-label="校验中" /> : undefined}
           />
         </form.Field>
         <form.Field name="email" label="邮箱">
-          <TextField _value={_bind(form.values.email)} />
+          <TextField _value={form.values.email} />
         </form.Field>
         <form.Field name="nickname" label="昵称" description="选填，最多 12 个字">
-          <TextField _value={_bind(form.values.nickname)} />
+          <TextField _value={form.values.nickname} />
         </form.Field>
         <form.Field name="age" label="年龄">
-          <NumberField _value={_bind(form.values.age)} />
+          <NumberField _value={form.values.age} />
         </form.Field>
         <form.Field name="city" label="城市">
           <Select
             items={cities}
             toOption={(city) => ({ value: city.code, label: city.name })}
-            _value={_bind(form.values.city)}
+            _value={form.values.city}
             placeholder="选择城市"
           />
         </form.Field>
         {contacts.items.map((contact, index) => (
           <Flex key={contacts.keys[index]} gap="sm" align="end" class="contact-row">
             <form.Field name={`contacts.${index}.name`} label={`联系人 ${index + 1}`}>
-              <TextField _value={_bind(contact.name)} />
+              <TextField _value={contact.name} />
             </form.Field>
             <IconButton
               icon={Trash2}

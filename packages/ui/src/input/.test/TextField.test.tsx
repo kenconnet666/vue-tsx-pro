@@ -11,12 +11,7 @@ describe('TextField', () => {
   it('未声明的属性落到 input；外壳用 propsRoot；清空后写回并聚焦 input', async () => {
     let value = _state('vue');
     const root = mount(() => (
-      <TextField
-        _value={_bind(value)}
-        clearable
-        placeholder="搜索"
-        propsRoot={{ class: 'shell' }}
-      />
+      <TextField _value={value} clearable placeholder="搜索" propsRoot={{ class: 'shell' }} />
     ));
     const input = root.querySelector('input')!;
     expect(input.placeholder).toBe('搜索');
@@ -154,7 +149,7 @@ describe('前后缀与字数计数', () => {
 describe('Textarea 的 clearable', () => {
   it('有内容时显示清空按钮，清空后回到空字符串', async () => {
     const state = reactive({ note: '第一行\n第二行' });
-    const root = mount(() => <Textarea _value={_bind(state.note)} clearable aria-label="备注" />);
+    const root = mount(() => <Textarea _value={state.note} clearable aria-label="备注" />);
     const clear = root.querySelector<HTMLButtonElement>('button[aria-label="清空"]')!;
     clear.click();
     await nextTick();

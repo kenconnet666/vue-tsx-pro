@@ -40,7 +40,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="sm">
       <Field label="套餐" required>
-        <Listbox items={plans} _value={_bind(plan)} />
+        <Listbox items={plans} _value={plan} />
       </Field>
       <Small tone="muted">
         选了：{plans.find((option) => option.value === plan)?.label ?? '无'}

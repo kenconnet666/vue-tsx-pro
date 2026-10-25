@@ -59,21 +59,21 @@ export default _component(() => {
         <Flex direction="column" gap="md">
           <form.Field name="username" label="用户名" description="admin、root、xiaoman 已被占用">
             <TextField
-              _value={_bind(form.values.username)}
+              _value={form.values.username}
               suffix={form.validating('username') ? <Spinner aria-label="校验中" /> : undefined}
             />
           </form.Field>
           <form.Field name="email" label="邮箱">
-            <TextField _value={_bind(form.values.email)} type="email" />
+            <TextField _value={form.values.email} type="email" />
           </form.Field>
           <form.Field name="password" label="密码">
-            <TextField _value={_bind(form.values.password)} type="password" />
+            <TextField _value={form.values.password} type="password" />
           </form.Field>
           <form.Field name="age" label="年龄">
-            <NumberField _value={_bind(form.values.age)} />
+            <NumberField _value={form.values.age} />
           </form.Field>
           <form.Field name="bio" label="一句话介绍">
-            <TextField _value={_bind(form.values.bio)} showCount />
+            <TextField _value={form.values.bio} showCount />
           </form.Field>
           <Flex align="center" justify="between" gap="md">
             <Small tone="muted">{result || (form.dirty ? '有未保存的改动' : '')}</Small>

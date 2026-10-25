@@ -34,7 +34,7 @@ export default _component(() => {
     const days = departure ? daysBetween(today, departure) : null;
     return (
       <Flex gap="xl" wrap align="start">
-        <Calendar _value={_bind(departure)} min={today} aria-label="出发日期" />
+        <Calendar _value={departure} min={today} aria-label="出发日期" />
         <Card sx={styles.side} header={<Strong>上海 → 成都</Strong>}>
           <Flex direction="column" gap="md">
             <Flex align="center" gap="sm">

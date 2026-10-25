@@ -27,11 +27,11 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" wrap>
-        <Switch _checked={_bind(effects)}>动态背景</Switch>
-        <Switch _checked={_bind(interactive)} disabled={!effects}>
+        <Switch _checked={effects}>动态背景</Switch>
+        <Switch _checked={interactive} disabled={!effects}>
           跟随指针
         </Switch>
-        <Switch _checked={_bind(paused)} disabled={!effects}>
+        <Switch _checked={paused} disabled={!effects}>
           暂停
         </Switch>
       </Flex>

@@ -81,13 +81,7 @@ describe('Cascader', () => {
     let path = _state<readonly string[] | null>(null);
     let open = _state(false);
     const root = mount(() => (
-      <Cascader
-        items={regions}
-        {...accessors}
-        _value={_bind(path)}
-        _open={_bind(open)}
-        aria-label="地区"
-      />
+      <Cascader items={regions} {...accessors} _value={path} _open={open} aria-label="地区" />
     ));
     root.querySelector<HTMLButtonElement>('button[role="combobox"]')!.click();
     await flush();
@@ -113,8 +107,8 @@ describe('Cascader', () => {
       <Cascader
         items={regions}
         {...accessors}
-        _value={_bind(path)}
-        _open={_bind(open)}
+        _value={path}
+        _open={open}
         changeOnSelect
         aria-label="地区"
       />
@@ -129,9 +123,7 @@ describe('Cascader', () => {
 
   it('键盘：↓ 移动并显示下一列，→ 进入下一级，Enter 选中叶子', async () => {
     let path = _state<readonly string[] | null>(null);
-    mount(() => (
-      <Cascader items={regions} {...accessors} _value={_bind(path)} _open aria-label="地区" />
-    ));
+    mount(() => <Cascader items={regions} {...accessors} _value={path} _open aria-label="地区" />);
     await flush();
     const first = column(0);
     first.dispatchEvent(new FocusEvent('focus'));
@@ -188,14 +180,7 @@ describe('Cascader', () => {
   it('searchable：按整条路径搜索，只列叶子；Enter 选中高亮的一条', async () => {
     let path = _state<readonly string[] | null>(null);
     mount(() => (
-      <Cascader
-        items={regions}
-        {...accessors}
-        _value={_bind(path)}
-        _open
-        searchable
-        aria-label="地区"
-      />
+      <Cascader items={regions} {...accessors} _value={path} _open searchable aria-label="地区" />
     ));
     await flush();
     const input = document.querySelector<HTMLInputElement>('input[type="search"]')!;

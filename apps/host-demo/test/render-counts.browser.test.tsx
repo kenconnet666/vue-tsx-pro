@@ -91,7 +91,7 @@ it('表格勾选一行：只更新那一行', async () => {
           columns={columns}
           getKey={(row) => row.id}
           selectionMode="multiple"
-          _selected={_bind(selected)}
+          _selected={selected}
           aria-label="客户"
         />
       );
@@ -120,7 +120,7 @@ it('调整非固定列的宽度：表头更新，各行不重渲染', async () =
           columns={columns}
           getKey={(row) => row.id}
           resizable
-          _columnWidths={_bind(widths)}
+          _columnWidths={widths}
           aria-label="客户"
         />
       );
@@ -139,7 +139,7 @@ it('Listbox 移动高亮：只重建前后两个选项', async () => {
   mount(
     _component(() => {
       let value = _state<string | null>(null);
-      return () => <Listbox items={options} _value={_bind(value)} aria-label="选项" />;
+      return () => <Listbox items={options} _value={value} aria-label="选项" />;
     }),
   );
   const listbox = root.querySelector<HTMLElement>('[role="listbox"]')!;

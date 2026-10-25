@@ -1,7 +1,7 @@
 /**
  * 跳页：分页的配套组件，“跳至 [  ] 页”，回车或失焦后跳过去（夹在 1–pageCount），输入框随后清空。
  *
- *   <PageJump _page={_bind(page)} pageCount={32} />
+ *   <PageJump _page={page} pageCount={32} />
  *
  * 基于 NumberField：未声明的属性落到外层 div 上；输入框用 propsInput。读屏念输入框的名称（语言包的“跳到第几页”），
  * 前后的“跳至”“页”只是视觉上的提示。部件：Root（div）、Before、Input（NumberField）、After。
@@ -17,7 +17,7 @@ import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 div 上 */
 export interface PageJumpProps extends PartProps<'div'> {
-  /** 当前页：父级写 _page={_bind(page)}，跳页时写回 */
+  /** 当前页：父级写 _page={page}，跳页时写回 */
   _page?: number;
   /** 总页数：输入的页码夹在 1–pageCount */
   pageCount: number;
@@ -82,7 +82,7 @@ export const PageJump = _component(
             },
             propsInput,
           )}
-          _value={_bind(draft)}
+          _value={draft}
         />
         {lang.pageJumpAfter && (
           <span

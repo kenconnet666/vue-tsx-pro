@@ -23,13 +23,13 @@ export default _component(() => {
     <Splitter
       sx={styles.frame}
       orientation="vertical"
-      _size={_bind(size)}
+      _size={size}
       minSize={30}
       maxSize={70}
       collapsible="start"
       start={
         <div {...css.attrs(styles.pane)}>
-          <Textarea _value={_bind(text)} aria-label="方案" sx={styles.editor} />
+          <Textarea _value={text} aria-label="方案" sx={styles.editor} />
         </div>
       }
       end={

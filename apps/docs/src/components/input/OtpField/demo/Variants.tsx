@@ -11,7 +11,7 @@ export default _component(() => {
         label="支付密码"
         description={pin.length === 6 ? '已输入 6 位' : '6 位数字，显示成圆点'}
       >
-        <OtpField _value={_bind(pin)} mask />
+        <OtpField _value={pin} mask />
       </Field>
       <Field
         label="恢复码"
@@ -21,7 +21,7 @@ export default _component(() => {
           </>
         }
       >
-        <OtpField _value={_bind(recovery)} length={8} type="alphanumeric" groups={[4, 4]} />
+        <OtpField _value={recovery} length={8} type="alphanumeric" groups={[4, 4]} />
       </Field>
       <Flex gap="lg" wrap>
         <Field label='size="sm"'>

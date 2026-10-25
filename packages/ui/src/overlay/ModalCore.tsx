@@ -44,7 +44,7 @@ export type ModalManaged =
 /** Dialog、Drawer、AlertDialog 共有的 props；未声明的属性落到 dialog 上 */
 export interface ModalProps
   extends PartProps<'dialog', ModalManaged>, LazyContentOptions, OpenChangeProps {
-  /** 是否打开：父级写 _open={_bind(x)}；Esc、点击遮罩、关闭按钮都会关闭并写回 */
+  /** 是否打开：父级写 _open={x}；Esc、点击遮罩、关闭按钮都会关闭并写回 */
   _open?: boolean;
   /** 标题，同时是对话框的无障碍名称 */
   title: VNodeChild;

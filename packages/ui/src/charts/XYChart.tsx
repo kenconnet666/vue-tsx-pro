@@ -157,7 +157,7 @@ export interface XYChartProps<T extends object>
    * @default false
    */
   loading?: boolean;
-  /** 隐藏的系列（存系列的 key）：点图例时写回，父级可以写 _hiddenSeries={_bind(keys)} */
+  /** 隐藏的系列（存系列的 key）：点图例时写回，父级可以写 _hiddenSeries={keys} */
   _hiddenSeries?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
@@ -174,7 +174,7 @@ export interface XYChartProps<T extends object>
   onItemClick?: (row: T, index: number) => void;
   /** 缩放：绘图区下面一条区间滑块，选一段类目放大看（几年的月度数据）；读屏的数据表仍是全部 */
   zoom?: boolean;
-  /** 缩放的区间 [起, 止]：类目的位置，含两端；父级可以写 _zoomRange={_bind(range)}，null 是全部 */
+  /** 缩放的区间 [起, 止]：类目的位置，含两端；父级可以写 _zoomRange={range}，null 是全部 */
   _zoomRange?: [number, number] | null;
 }
 
@@ -358,10 +358,9 @@ export const XYChart = _component(
         <div {...css.attrs(xyChartStyles.zoom)}>
           <Slider
             _value={zoomRange ?? [0, last]}
-            {...{
-              'onUpdate:_value': (next: [number, number]) =>
-                (zoomRange = next[0] === 0 && next[1] === last ? null : next),
-            }}
+            onUpdate:_value={(next: [number, number]) =>
+              (zoomRange = next[0] === 0 && next[1] === last ? null : next)
+            }
             min={0}
             max={last}
             step={1}

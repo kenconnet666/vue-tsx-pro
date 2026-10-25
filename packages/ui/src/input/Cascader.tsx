@@ -1,7 +1,7 @@
 /**
  * 级联选择：一列一列往下选（省 / 市 / 区、产品大类 / 小类 / 型号、物料分类），触发框里显示整条路径“浙江 / 杭州 / 西湖区”。
  *
- *   <Cascader items={regions} getKey={(r) => r.code} getLabel={(r) => r.name} getChildren={(r) => r.children} _value={_bind(path)} />
+ *   <Cascader items={regions} getKey={(r) => r.code} getLabel={(r) => r.name} getChildren={(r) => r.children} _value={path} />
  *   <Cascader … changeOnSelect />                                      每一级都能选（选到市也行）
  *   <Cascader … hasChildren={(r) => !r.leaf} loadChildren={loadNext} />  展开时远程取下一级
  *   <Cascader … searchable />                                          按整条路径搜索（在已加载的节点里）
@@ -72,7 +72,7 @@ export interface CascaderProps<T>
   loadChildren?: (node: T) => Promise<unknown> | void;
   /** 不能选、不能进入的节点 */
   isDisabled?: (node: T) => boolean;
-  /** 选中的路径（第一级到选中节点的 key），没有时 null：父级写 _value={_bind(x)} */
+  /** 选中的路径（第一级到选中节点的 key），没有时 null：父级写 _value={x} */
   _value?: readonly string[] | null;
   /** 每一级都能选；默认只能选到叶子 */
   changeOnSelect?: boolean;
@@ -88,7 +88,7 @@ export interface CascaderProps<T>
   filter?: (nodes: readonly T[], query: string) => boolean;
   /** 没有选择时显示的文字，默认取语言包（请选择） */
   placeholder?: string;
-  /** 是否打开：父级可以写 _open={_bind(x)} */
+  /** 是否打开：父级可以写 _open={x} */
   _open?: boolean;
   /** 弹出位置，默认 bottom-start */
   placement?: FloatingPlacement;
@@ -720,13 +720,11 @@ export const Cascader = _component(
                     propsSearch,
                   )}
                   type="search"
-                  _value={_bind(
-                    () => search,
-                    (next: string) => {
-                      search = next;
-                      hit = 0;
-                    },
-                  )}
+                  _value={search}
+                  onUpdate:_value={(next: string) => {
+                    search = next;
+                    hit = 0;
+                  }}
                   aria-controls={columnId(0)}
                   aria-activedescendant={list?.length ? optionId(0, hit) : undefined}
                   onKeydown={onSearchKeydown}

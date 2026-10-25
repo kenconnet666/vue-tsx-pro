@@ -23,16 +23,16 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" align="center" wrap>
-        <ToggleGroup _value={_bind(firstDay)} required size="sm" aria-label="一周的第一天">
+        <ToggleGroup _value={firstDay} required size="sm" aria-label="一周的第一天">
           <ToggleItem value="1">周一开始</ToggleItem>
           <ToggleItem value="0">周日开始</ToggleItem>
         </ToggleGroup>
-        <Switch _checked={_bind(weekNumbers)}>周数</Switch>
-        <Switch _checked={_bind(fixedWeeks)}>固定 6 行</Switch>
-        <Switch _checked={_bind(readonly)}>只读</Switch>
+        <Switch _checked={weekNumbers}>周数</Switch>
+        <Switch _checked={fixedWeeks}>固定 6 行</Switch>
+        <Switch _checked={readonly}>只读</Switch>
       </Flex>
       <RangeCalendar
-        _value={_bind(range)}
+        _value={range}
         valueType="dateValue"
         defaultFocused={nextMonth}
         firstDayOfWeek={Number(firstDay)}

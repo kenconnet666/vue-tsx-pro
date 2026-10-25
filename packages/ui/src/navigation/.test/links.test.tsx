@@ -81,7 +81,7 @@ describe('Pagination', () => {
 
   it('点页码、下一页写回 page；页码多时出现省略号', async () => {
     let page = _state(1);
-    const root = mount(() => <Pagination _page={_bind(page)} pageCount={20} />);
+    const root = mount(() => <Pagination _page={page} pageCount={20} />);
     const buttonFor = (label: string) =>
       [...root.querySelectorAll('button')].find((b) => b.getAttribute('aria-label') === label)!;
     buttonFor('下一页').click();

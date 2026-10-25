@@ -21,7 +21,7 @@ describe('Steps', () => {
 
   it('navigable 时已完成的步骤是按钮，点了写回 current；不写时不能点', async () => {
     let step = _state(2);
-    const root = mount(() => <Steps items={items} _current={_bind(step)} navigable />);
+    const root = mount(() => <Steps items={items} _current={step} navigable />);
     const buttons = root.querySelectorAll('button');
     expect(buttons).toHaveLength(2);
     buttons[0]!.click();

@@ -24,7 +24,7 @@ describe('Splitter', () => {
     const root = mount(() => (
       <Splitter
         _size={size.value}
-        {...{ 'onUpdate:_size': (next: number) => (size.value = next) }}
+        onUpdate:_size={(next: number) => (size.value = next)}
         start="a"
         end="b"
       />
@@ -48,7 +48,7 @@ describe('Splitter', () => {
       <Splitter
         collapsible="end"
         _collapsed={collapsed.value}
-        {...{ 'onUpdate:_collapsed': (next: boolean) => (collapsed.value = next) }}
+        onUpdate:_collapsed={(next: boolean) => (collapsed.value = next)}
         start="a"
         end="b"
       />
@@ -81,7 +81,7 @@ describe('Splitter', () => {
       <Splitter
         orientation="vertical"
         _size={size.value}
-        {...{ 'onUpdate:_size': (next: number) => (size.value = next) }}
+        onUpdate:_size={(next: number) => (size.value = next)}
         start="a"
         end="b"
       />

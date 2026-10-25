@@ -12,7 +12,7 @@ export default _component(() => {
           <Flex direction="column" gap="sm" grow>
             <Field label="发表评论" description="随内容自动增高，最多 6 行后出现滚动条">
               <Textarea
-                _value={_bind(comment)}
+                _value={comment}
                 rows={2}
                 maxRows={6}
                 maxlength={200}
@@ -32,7 +32,7 @@ export default _component(() => {
         label="固定高度（fixed）"
         description="不自动增高，右下角可以拖动调整；clearable 在右上角放清空按钮"
       >
-        <Textarea _value={_bind(notes)} rows={3} fixed clearable />
+        <Textarea _value={notes} rows={3} fixed clearable />
       </Field>
     </Flex>
   );

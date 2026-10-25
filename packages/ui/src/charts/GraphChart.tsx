@@ -144,7 +144,7 @@ export interface GraphChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
    * @default true
    */
   tooltip?: boolean;
-  /** 选中的节点 id：点节点时写回，父级写 _selected={_bind(x)}；点空白处变回 null */
+  /** 选中的节点 id：点节点时写回，父级写 _selected={x}；点空白处变回 null */
   _selected?: string | null;
   /**
    * 加载中：绘图区显示骨架，带 aria-busy

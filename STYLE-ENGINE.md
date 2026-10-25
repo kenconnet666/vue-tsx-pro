@@ -240,7 +240,7 @@ Vue 3.5 的类型里没有 `popover`、`popovertarget`、`commandfor`、`command
 1. 照 zerodep-js 的思路生成原生元素类型，替换 Vue 的 IntrinsicElements：补上新属性、按标签给出准确的取值，
    保留我们的 currentTarget 与多标签共用逻辑。
 2. 扩充原生元素的 `_bind`（仍是 `属性={_bind(x)}` 的写法，补全与跳转不受影响）：`open`（details、dialog）、
-   单选与多选组（`_checked={_bind(list)}` 配 `value`，写清语义）、`files`（文件输入，只读）、
+   单选与多选组（`_checked={list}` 配 `value`，写清语义）、`files`（文件输入，只读）、
    媒体的 `currentTime`、`paused`、`volume`、`muted`、`playbackRate`，以及只读的尺寸 `clientWidth`、`clientHeight`
    （ResizeObserver，同 Svelte）。
 

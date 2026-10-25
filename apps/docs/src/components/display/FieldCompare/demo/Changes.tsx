@@ -64,26 +64,24 @@ export default _component(() => {
         <Flex direction="column" gap="sm">
           <H3 size="md">编辑订单 SO-1024</H3>
           <Field label="客户">
-            <TextField _value={_bind(draft.customer)} />
+            <TextField _value={draft.customer} />
           </Field>
           <Grid columns={2} gap="sm">
             <Field label="数量">
               <NumberField
                 _value={draft.quantity}
-                {...{
-                  'onUpdate:_value': (quantity: number | null) =>
-                    (draft = withAmount({ ...draft, quantity: quantity ?? 0 })),
-                }}
+                onUpdate:_value={(quantity: number | null) =>
+                  (draft = withAmount({ ...draft, quantity: quantity ?? 0 }))
+                }
                 min={0}
               />
             </Field>
             <Field label="折扣">
               <NumberField
                 _value={draft.discount}
-                {...{
-                  'onUpdate:_value': (discount: number | null) =>
-                    (draft = withAmount({ ...draft, discount: discount ?? 0 })),
-                }}
+                onUpdate:_value={(discount: number | null) =>
+                  (draft = withAmount({ ...draft, discount: discount ?? 0 }))
+                }
                 min={0}
                 max={0.5}
                 step={0.01}
@@ -92,7 +90,7 @@ export default _component(() => {
             </Field>
           </Grid>
           <Field label="优先级">
-            <Select _value={_bind(draft.priority)} items={priorities.options()} />
+            <Select _value={draft.priority} items={priorities.options()} />
           </Field>
           <Flex justify="end">
             <Button variant="surface" onClick={() => (draft = { ...saved })}>

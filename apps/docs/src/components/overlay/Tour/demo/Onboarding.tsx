@@ -139,12 +139,7 @@ export default _component(() => {
             </Table>
           </Flex>
         </Card>
-        <Tour
-          _open={_bind(touring)}
-          _current={_bind(step)}
-          steps={steps}
-          onFinish={() => (finished = true)}
-        />
+        <Tour _open={touring} _current={step} steps={steps} onFinish={() => (finished = true)} />
       </Flex>
     </div>
   );

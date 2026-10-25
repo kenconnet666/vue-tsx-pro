@@ -20,7 +20,7 @@ function render(onConfirm: () => unknown, onCancel = vi.fn()) {
   const state = reactive({ open: true });
   const root = mount(() => (
     <Popconfirm
-      _open={_bind(state.open)}
+      _open={state.open}
       lazy={false}
       title="删除这条记录？"
       description="删除后无法恢复"

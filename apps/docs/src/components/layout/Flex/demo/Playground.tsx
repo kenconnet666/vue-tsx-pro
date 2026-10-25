@@ -61,14 +61,14 @@ export default _component(() => {
       <Flex direction="column" gap="sm">
         {control(
           'direction',
-          <ToggleGroup _value={_bind(direction)} required size="sm" aria-label="direction">
+          <ToggleGroup _value={direction} required size="sm" aria-label="direction">
             <ToggleItem value="row">row</ToggleItem>
             <ToggleItem value="column">column</ToggleItem>
           </ToggleGroup>,
         )}
         {control(
           'gap',
-          <ToggleGroup _value={_bind(gap)} required size="sm" aria-label="gap">
+          <ToggleGroup _value={gap} required size="sm" aria-label="gap">
             {(['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const).map((value) => (
               <ToggleItem key={value} value={value}>
                 {value}
@@ -78,7 +78,7 @@ export default _component(() => {
         )}
         {control(
           'align',
-          <ToggleGroup _value={_bind(align)} required size="sm" aria-label="align">
+          <ToggleGroup _value={align} required size="sm" aria-label="align">
             {(['start', 'center', 'end', 'stretch', 'baseline'] as const).map((value) => (
               <ToggleItem key={value} value={value}>
                 {value}
@@ -88,7 +88,7 @@ export default _component(() => {
         )}
         {control(
           'justify',
-          <ToggleGroup _value={_bind(justify)} required size="sm" aria-label="justify">
+          <ToggleGroup _value={justify} required size="sm" aria-label="justify">
             {(['start', 'center', 'end', 'between', 'evenly'] as const).map((value) => (
               <ToggleItem key={value} value={value}>
                 {value}
@@ -96,7 +96,7 @@ export default _component(() => {
             ))}
           </ToggleGroup>,
         )}
-        {control('wrap', <Switch _checked={_bind(wrap)} aria-label="wrap" />)}
+        {control('wrap', <Switch _checked={wrap} aria-label="wrap" />)}
       </Flex>
       <Flex
         direction={direction}

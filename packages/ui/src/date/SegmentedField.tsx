@@ -2,7 +2,7 @@
  * 分段输入框：输入框外壳（同 TextField）里放一组日期分段、可选的前置图标、清空按钮与尾部内容。
  * DateField、TimeField 是它的两种用法（只差有哪些段与怎样校验）；日期选择器把打开日历的按钮放在 suffix 里。
  *
- *   <SegmentedField fields={['hour', 'minute']} _value={_bind(time)} />
+ *   <SegmentedField fields={['hour', 'minute']} _value={time} />
  *
  * 值是 ISO 字符串（fieldsToIso）；所有段都填了才写回，删掉一段写回 null。写了 name 时用隐藏的 input 随表单提交。
  * 点外壳的空白处时焦点进第一个没填的段。
@@ -68,7 +68,7 @@ export interface SegmentedFieldOptions
 
 /** 未声明的属性落到这组分段上 */
 export interface SegmentedFieldProps extends SegmentedFieldOptions {
-  /** 值（ISO 字符串）：父级写 _value={_bind(x)}；没填全时 null */
+  /** 值（ISO 字符串）：父级写 _value={x}；没填全时 null */
   _value?: string | null;
   /** 有哪些段，按年 → 秒的顺序（显示顺序按语言） */
   fields: readonly Exclude<DateSegmentType, 'dayPeriod'>[];

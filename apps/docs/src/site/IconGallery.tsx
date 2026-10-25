@@ -1,7 +1,7 @@
 /**
  * 图标库：搜索并点选 @lucide/icons 里的图标。Icon 文档页的“图标库”与组件演练场的图标控件共用。
  *
- *   <IconGallery _value={_bind(name)} />   // value 是导入名（Search），点选后更新
+ *   <IconGallery _value={name} />   // value 是导入名（Search），点选后更新
  *
  * Lucide 没有随包提供分类与关键词，按名字搜：导入名（ArrowRight）与文件名（arrow-right）都能匹配。
  * 全部图标都能滚动看到：按行虚拟滚动（VirtualList），每行放几个按容器宽度算，只画看得见的几行。
@@ -112,7 +112,7 @@ const styles = css.create({
 
 /** IconGallery 的属性 */
 export interface IconGalleryProps {
-  /** 选中的图标（导入名）：父级可以写 _value={_bind(x)} */
+  /** 选中的图标（导入名）：父级可以写 _value={x} */
   _value?: string;
   /** 点选了一个图标 */
   onPick?: (name: string) => void;
@@ -155,7 +155,7 @@ export const IconGallery = _component(
     return () => (
       <Flex direction="column" gap="sm">
         <TextField
-          _value={_bind(query)}
+          _value={query}
           icon={Search}
           clearable
           placeholder={`搜索 ${allIcons.length} 个图标，如 arrow、user、chart`}

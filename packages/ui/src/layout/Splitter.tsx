@@ -2,7 +2,7 @@
  * 分栏：两栏并排（或上下），中间的分隔条可以拖动调整比例，一侧可以收起。收件箱（左列表、右预览）、
  * 主从视图、编辑器与预览这类“两块都要看、比例因人而异”的布局。
  *
- *   <Splitter _size={_bind(listSize)} collapsible="end" _collapsed={_bind(previewHidden)}
+ *   <Splitter _size={listSize} collapsible="end" _collapsed={previewHidden}
  *     start={<List />} end={<Preview />} />
  *
  * size 是起始一栏占的百分比（父级写 _bind 记住），拖动时夹在 minSize–maxSize 之间；双击分隔条回到初始比例。
@@ -43,7 +43,7 @@ export interface SplitterProps extends PartProps<'div'> {
    */
   orientation?: keyof SplitterOrientations;
   /**
-   * 起始一栏占的百分比：父级写 _size={_bind(x)} 记住拖动后的比例
+   * 起始一栏占的百分比：父级写 _size={x} 记住拖动后的比例
    * @default 50
    */
   _size?: number;
@@ -59,7 +59,7 @@ export interface SplitterProps extends PartProps<'div'> {
   maxSize?: number;
   /** 哪一侧可以收起；不写时不能收起 */
   collapsible?: 'start' | 'end';
-  /** 可收起的那一侧收着：父级写 _collapsed={_bind(x)} */
+  /** 可收起的那一侧收着：父级写 _collapsed={x} */
   _collapsed?: boolean;
   /** 分隔条的名称（读屏），默认取语言包（调整分栏） */
   label?: string;

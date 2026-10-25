@@ -14,7 +14,7 @@ export default _component(() => {
         description="拖动时实时写回；松手（或键盘改完）时 onValueCommit 才去查询"
       >
         <Slider
-          _value={_bind(price)}
+          _value={price}
           min={0}
           max={5000}
           step={100}
@@ -33,7 +33,7 @@ export default _component(() => {
       </Small>
       <Field label="最低评分">
         <Slider
-          _value={_bind(rating)}
+          _value={rating}
           min={1}
           max={5}
           marks={[1, 2, 3, 4, 5].map((value) => ({ value, label: `${value} 星` }))}

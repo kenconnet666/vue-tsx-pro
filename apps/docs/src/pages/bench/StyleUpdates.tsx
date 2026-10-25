@@ -224,7 +224,7 @@ export default _component(() => {
       <div ref={(element) => (root = element as HTMLElement)}>
         <Flex gap="md" align="center">
           <span>无关状态 {unrelated}</span>
-          <Tabs _value={_bind(tab)}>
+          <Tabs _value={tab}>
             <TabList aria-label="基准">
               <Tab value="a">甲</Tab>
               <Tab value="b">乙</Tab>

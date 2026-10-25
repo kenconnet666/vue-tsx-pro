@@ -40,8 +40,8 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="switch" title="开关" demo={Settings}>
           Switch 是立即生效的设置（需要提交才生效的用 Checkbox）。切换要等接口时写{' '}
-          <Code>loading</Code>：滑块里转圈、点击无效，配合 <Code>_bind(get, set)</Code>{' '}
-          在接口回来后再写回。轨道里可以放图标或文字，对读屏隐藏。
+          <Code>loading</Code>：滑块里转圈、点击无效，配合 <Code>onUpdate:_checked</Code>{' '}
+          在接口回来后再改值。轨道里可以放图标或文字，对读屏隐藏。
         </Example>
         <Example id="radio" title="单选" demo={Shipping}>
           同一组的原生 radio 共用 <Code>name</Code>：Tab

@@ -45,7 +45,7 @@ describe('TreeSelect', () => {
           items={orgs}
           {...accessors}
           selectionMode="multiple"
-          _value={_bind(value)}
+          _value={value}
           name="orgs"
           clearable
           placeholder="全部"
@@ -80,7 +80,7 @@ describe('TreeSelect', () => {
           {...accessors}
           selectionMode="multiple"
           checkedStrategy="parent"
-          _value={_bind(parents)}
+          _value={parents}
           aria-label="单位"
         />
         <TreeSelect
@@ -88,7 +88,7 @@ describe('TreeSelect', () => {
           {...accessors}
           selectionMode="multiple"
           checkedStrategy="child"
-          _value={_bind(leaves)}
+          _value={leaves}
           aria-label="成员"
         />
       </>

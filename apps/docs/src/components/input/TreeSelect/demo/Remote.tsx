@@ -40,7 +40,7 @@ export default _component(() => {
           getChildren={(item) => item.children}
           searchable
           clearable
-          _value={_bind(org)}
+          _value={org}
         />
       </Field>
       <Small tone="muted">

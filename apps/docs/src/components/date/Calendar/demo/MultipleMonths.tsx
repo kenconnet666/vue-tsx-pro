@@ -7,7 +7,7 @@ export default _component(() => {
   let launch = _state<string | null>(todayIso());
   return () => (
     <Flex direction="column" gap="md">
-      <Calendar _value={_bind(launch)} visibleMonths={3} aria-label="上线日期" />
+      <Calendar _value={launch} visibleMonths={3} aria-label="上线日期" />
       <Text tone="muted">
         上线日期：{launch ? format.date(launch, { dateStyle: 'full' }) : '未定'}
       </Text>

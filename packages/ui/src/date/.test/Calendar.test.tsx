@@ -35,7 +35,7 @@ const focused = (root: HTMLElement) =>
 describe('Calendar', () => {
   it('网格：星期表头取自 Intl（zh-CN 周一开始）；格子的读屏名称是完整日期，今天加前缀', async () => {
     let value = _state<string | null>('2026-10-20');
-    const root = mount(() => <Calendar _value={_bind(value)} aria-label="出发日期" />);
+    const root = mount(() => <Calendar _value={value} aria-label="出发日期" />);
     const grid = root.querySelector('[role="grid"]')!;
     expect(grid.getAttribute('aria-label')).toBe('2026年10月');
     const weekdays = [...root.querySelectorAll('thead th')].map((th) => th.textContent);
@@ -89,7 +89,7 @@ describe('Calendar', () => {
     let value = _state<string | null>(null);
     const root = mount(() => (
       <Calendar
-        _value={_bind(value)}
+        _value={value}
         defaultFocused="2026-10-15"
         min="2026-10-10"
         max="2026-10-25"
@@ -120,7 +120,7 @@ describe('Calendar', () => {
   it('多选：每天独立切换；网格 aria-multiselectable', async () => {
     let value = _state<string[]>([]);
     const root = mount(() => (
-      <Calendar selectionMode="multiple" _value={_bind(value)} defaultFocused="2026-10-01" />
+      <Calendar selectionMode="multiple" _value={value} defaultFocused="2026-10-01" />
     ));
     expect(root.querySelector('[role="grid"]')!.getAttribute('aria-multiselectable')).toBe('true');
     button(root, '2026-10-02').click();
@@ -157,7 +157,7 @@ describe('Calendar', () => {
 
   it('标题切到月份视图、再到年份视图；点年份、月份逐级回到日期', async () => {
     let value = _state<string | null>('2026-10-20');
-    const root = mount(() => <Calendar _value={_bind(value)} />);
+    const root = mount(() => <Calendar _value={value} />);
     const heading = () => root.querySelector<HTMLButtonElement>('[aria-label^="选择"]');
     expect(heading()!.getAttribute('aria-label')).toBe('选择月份：2026年10月');
     heading()!.click();
@@ -182,7 +182,7 @@ describe('Calendar', () => {
   it('granularity="month"：直接是月份视图，点一个月就选中', async () => {
     let value = _state<string | null>(null);
     const root = mount(() => (
-      <Calendar granularity="month" _value={_bind(value)} defaultFocused="2026-10-01" />
+      <Calendar granularity="month" _value={value} defaultFocused="2026-10-01" />
     ));
     button(root, '2026-04-01').click();
     await nextTick();
@@ -196,7 +196,7 @@ describe('RangeCalendar', () => {
     const picks: DateRange<string>[] = [];
     const root = mount(() => (
       <RangeCalendar
-        _value={_bind(value)}
+        _value={value}
         defaultFocused="2026-10-01"
         onPick={(range) => picks.push(range)}
       />
@@ -219,7 +219,7 @@ describe('RangeCalendar', () => {
     let value = _state<DateRange<string> | null>(null);
     const root = mount(() => (
       <RangeCalendar
-        _value={_bind(value)}
+        _value={value}
         defaultFocused="2026-10-01"
         isDateUnavailable={(date) => date === '2026-10-18'}
       />

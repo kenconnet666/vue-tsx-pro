@@ -3,11 +3,11 @@
  * 单选像分段控件（视图切换、对齐方式），多选像格式按钮（加粗、斜体）。整组一个 Tab 位置，组内方向键移动（漫游焦点）。
  * 参考 Radix ToggleGroup、Ark UI SegmentGroup。
  *
- *   <ToggleGroup _value={_bind(view)} aria-label="视图" required>
+ *   <ToggleGroup _value={view} aria-label="视图" required>
  *     <ToggleItem value="list" icon={List} aria-label="列表" />
  *     <ToggleItem value="grid" icon={LayoutGrid} aria-label="网格" />
  *   </ToggleGroup>
- *   <ToggleGroup selectionMode="multiple" _value={_bind(marks)} aria-label="格式">…</ToggleGroup>
+ *   <ToggleGroup selectionMode="multiple" _value={marks} aria-label="格式">…</ToggleGroup>
  */
 import { createContext, _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';

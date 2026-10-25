@@ -36,13 +36,11 @@ function setup(onSubmit = vi.fn()) {
           return () => (
             <StepsForm
               form={form}
-              _current={_bind(
-                () => current,
-                (next: number) => {
-                  current = next;
-                  step = next;
-                },
-              )}
+              _current={current}
+              onUpdate:_current={(next: number) => {
+                current = next;
+                step = next;
+              }}
               steps={[
                 {
                   title: '企业信息',

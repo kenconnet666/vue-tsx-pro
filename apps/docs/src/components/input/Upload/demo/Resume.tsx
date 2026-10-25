@@ -28,12 +28,7 @@ export default _component(() => {
           <TextField name="name" _value="林小满" />
         </Field>
         <Field label="简历" required description="PDF 或 Word，不超过 10 MB；提交时一起上传">
-          <Upload
-            _value={_bind(resume)}
-            name="resume"
-            accept=".pdf,.doc,.docx"
-            maxSize={10_000_000}
-          />
+          <Upload _value={resume} name="resume" accept=".pdf,.doc,.docx" maxSize={10_000_000} />
         </Field>
         <Flex justify="end">
           <Button type="submit" disabled={!resume.some((file) => !file.rejected)}>

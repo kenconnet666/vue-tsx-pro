@@ -47,15 +47,15 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Grid minItemWidth="10rem" gap="md">
         <Field label="位置">
-          <Select items={placements} _value={_bind(placement)} />
+          <Select items={placements} _value={placement} />
         </Field>
         <Field label="最多同时显示">
-          <NumberField _value={_bind(max)} min={1} max={6} />
+          <NumberField _value={max} min={1} max={6} />
         </Field>
       </Grid>
       <Flex gap="lg" wrap>
-        <Switch _checked={_bind(stack)}>叠成一摞</Switch>
-        <Switch _checked={_bind(progress)}>剩余时间条</Switch>
+        <Switch _checked={stack}>叠成一摞</Switch>
+        <Switch _checked={progress}>剩余时间条</Switch>
       </Flex>
       <Flex gap="sm" wrap>
         <Button icon={BellRing} onClick={notify}>

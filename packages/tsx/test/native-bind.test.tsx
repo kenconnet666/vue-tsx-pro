@@ -15,8 +15,8 @@ describe('原生元素的 _bind', () => {
     const picked = ref<string[]>(['a']);
     const el = mount(() => (
       <>
-        <input type="checkbox" value="a" _checked={_bind(picked.value)} />
-        <input type="checkbox" value="b" _checked={_bind(picked.value)} />
+        <input type="checkbox" value="a" _checked={picked.value} />
+        <input type="checkbox" value="b" _checked={picked.value} />
       </>
     ));
     const [a, b] = el.querySelectorAll('input');
@@ -32,7 +32,7 @@ describe('原生元素的 _bind', () => {
   it('<details> 的 open：代码设置会展开，用户展开收起后写回', async () => {
     const open = ref(false);
     const el = mount(() => (
-      <details _open={_bind(open.value)}>
+      <details _open={open.value}>
         <summary>标题</summary>内容
       </details>
     ));
@@ -46,7 +46,7 @@ describe('原生元素的 _bind', () => {
   });
 
   it('文件输入的 files 只读：编译成 change 时读回，不把值写到元素上', async () => {
-    const code = `export const F = () => <input type="file" _files={_bind(picked.value)} />;`;
+    const code = `export const F = () => <input type="file" _files={picked.value} />;`;
     const output = (await compile(code, { filename: '/src/F.tsx', sourceMaps: false }))!.code;
     expect(output).toContain('"onChange": event => picked.value = event.currentTarget.files');
     expect(output).not.toContain('"files"');
@@ -54,11 +54,11 @@ describe('原生元素的 _bind', () => {
 
   it('写错的地方报错：open 只认 <details>；已有同名事件时不覆盖', async () => {
     const run = (code: string) => compile(code, { filename: '/src/F.tsx', sourceMaps: false });
-    await expect(run(`export const F = () => <div _open={_bind(o.value)} />;`)).rejects.toThrow(
+    await expect(run(`export const F = () => <div _open={o.value} />;`)).rejects.toThrow(
       /只能写在 <details> 上/,
     );
     await expect(
-      run(`export const F = () => <details _open={_bind(o.value)} onToggle={() => {}} />;`),
+      run(`export const F = () => <details _open={o.value} onToggle={() => {}} />;`),
     ).rejects.toThrow(/要占用 onToggle/);
   });
 });

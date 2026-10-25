@@ -70,7 +70,7 @@ const columns: DataTableColumn<Line>[] = [
     editor: ({ value, onChange, error }) => (
       <DateField
         _value={(value as string | null) ?? null}
-        {...{ 'onUpdate:_value': onChange }}
+        onUpdate:_value={onChange}
         size="sm"
         invalid={!!error}
         aria-label="交期"

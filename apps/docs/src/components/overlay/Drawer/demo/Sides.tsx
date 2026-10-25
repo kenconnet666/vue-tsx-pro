@@ -30,7 +30,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Field label="宽度档位（左右两侧）">
-        <ToggleGroup _value={_bind(size)} required size="sm">
+        <ToggleGroup _value={size} required size="sm">
           {(Object.keys(sizes) as Size[]).map((key) => (
             <ToggleItem key={key} value={key}>
               {key} · {sizes[key]}
@@ -54,7 +54,7 @@ export default _component(() => {
           </Button>
         ))}
       </Flex>
-      <Drawer _open={_bind(open)} side={side} size={size} title={`side="${side}" size="${size}"`}>
+      <Drawer _open={open} side={side} size={size} title={`side="${side}" size="${size}"`}>
         <Paragraph>
           start / end 是逻辑方向：从右到左排版时左右互换。左右两侧按 size 的档位定宽（与 Container
           同档），靠正文的一边可以拖动调宽；顶部、底部的抽屉高度随内容，最多到视口高度。

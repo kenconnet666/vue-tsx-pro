@@ -46,12 +46,12 @@ describe('FormSection', () => {
       <Form controller={form} labelPlacement="start">
         <FormSection title="可编辑">
           <Field label="甲">
-            <TextField _value={_bind(form.values.a)} />
+            <TextField _value={form.values.a} />
           </Field>
         </FormSection>
         <FormSection title="审批意见" readonly labelPlacement="top">
           <Field label="乙">
-            <TextField _value={_bind(form.values.b)} />
+            <TextField _value={form.values.b} />
           </Field>
         </FormSection>
       </Form>
@@ -67,7 +67,7 @@ describe('FormSection', () => {
   it('collapsible：标题是按钮，aria-expanded 跟着展开收起，open 双向绑定', async () => {
     let open = _state(true);
     const root = mount(() => (
-      <FormSection title="经费及项目依据" collapsible _open={_bind(open)}>
+      <FormSection title="经费及项目依据" collapsible _open={open}>
         内容
       </FormSection>
     ));

@@ -36,7 +36,7 @@ describe('CalendarBoard', () => {
         getEventDate={(item) => item.date}
         getEventEnd={(item) => item.end ?? item.date}
         getEventLabel={(item) => item.title}
-        _value={_bind(day)}
+        _value={day}
         _month="2026-10"
         maxEvents={3}
         aria-label="日程"
@@ -58,7 +58,7 @@ describe('CalendarBoard', () => {
   it('键盘：→ 移到下一天，Page Down 翻到下个月并写回 month', async () => {
     let month = _state('2026-10');
     const root = mount(() => (
-      <CalendarBoard _value="2026-10-30" _month={_bind(month)} aria-label="日程" />
+      <CalendarBoard _value="2026-10-30" _month={month} aria-label="日程" />
     ));
     await flush();
     const focused = () => root.querySelector<HTMLElement>('[data-day][data-focused]')!;

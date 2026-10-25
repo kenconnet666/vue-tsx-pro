@@ -33,7 +33,7 @@ export default _component(() => {
   let agreed = _state(false);
   return () => (
     <Flex direction="column" gap="md" align="start">
-      <ToggleGroup _value={_bind(size)} required size="sm" aria-label="宽度">
+      <ToggleGroup _value={size} required size="sm" aria-label="宽度">
         {(['xs', 'sm', 'md', 'lg', 'full'] as const).map((value) => (
           <ToggleItem key={value} value={value}>
             {value}
@@ -44,13 +44,13 @@ export default _component(() => {
         阅读用户协议（size="{size}"）
       </Button>
       <Dialog
-        _open={_bind(open)}
+        _open={open}
         size={size}
         title="用户协议"
         description="更新于 2026 年 10 月 1 日"
         footer={
           <Flex align="center" justify="between" gap="md" wrap sx={styles.footer}>
-            <Checkbox _checked={_bind(agreed)}>我已阅读并同意</Checkbox>
+            <Checkbox _checked={agreed}>我已阅读并同意</Checkbox>
             <Button disabled={!agreed} onClick={() => (open = false)}>
               继续
             </Button>

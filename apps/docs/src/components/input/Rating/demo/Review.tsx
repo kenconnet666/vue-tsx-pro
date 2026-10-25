@@ -27,10 +27,9 @@ export default _component(() => {
             <Field key={aspect.key} label={aspect.label} description={aspect.hint}>
               <Rating
                 _value={scores[aspect.key]}
-                {...{
-                  'onUpdate:_value': (next: number | null) =>
-                    (scores = { ...scores, [aspect.key]: next }),
-                }}
+                onUpdate:_value={(next: number | null) =>
+                  (scores = { ...scores, [aspect.key]: next })
+                }
                 allowHalf
               />
             </Field>

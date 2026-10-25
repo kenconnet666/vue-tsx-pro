@@ -97,14 +97,14 @@ export default _component(() => {
     <Card>
       <Flex direction="column" gap="md">
         <Flex gap="md" wrap align="center">
-          <ToggleGroup _value={_bind(from)} aria-label="原版本" required size="sm">
+          <ToggleGroup _value={from} aria-label="原版本" required size="sm">
             {versionItems()}
           </ToggleGroup>
           <span aria-hidden="true">→</span>
-          <ToggleGroup _value={_bind(to)} aria-label="对比版本" required size="sm">
+          <ToggleGroup _value={to} aria-label="对比版本" required size="sm">
             {versionItems()}
           </ToggleGroup>
-          <Checkbox _checked={_bind(onlyChanged)}>只看改动</Checkbox>
+          <Checkbox _checked={onlyChanged}>只看改动</Checkbox>
         </Flex>
         <FieldCompare
           fields={fields}

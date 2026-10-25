@@ -2,7 +2,7 @@
  * 表单字段：标签 + 控件 + 说明 + 错误信息，并把它们关联起来（参考 Ark UI Field、React Aria 的 Label / Description / FieldError）。
  *
  *   <Field label="邮箱" description="用于找回密码" error={errors.email} required>
- *     <TextField _value={_bind(form.email)} type="email" />
+ *     <TextField _value={form.email} type="email" />
  *   </Field>
  *
  * Field 经上下文告诉里面的控件：控件的 id（标签的 for 指向它）、标签的 id（不是原生输入的控件用 aria-labelledby）、

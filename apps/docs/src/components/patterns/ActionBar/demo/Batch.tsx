@@ -27,7 +27,7 @@ export default _component(() => {
 
   return () => (
     <Card padding="none">
-      <CheckboxGroup _value={_bind(selected)} aria-label="待认领的建议">
+      <CheckboxGroup _value={selected} aria-label="待认领的建议">
         <Flex direction="column" gap="sm" sx={styles.list}>
           {ITEMS.map((item) => (
             <Checkbox key={item.id} value={item.id}>

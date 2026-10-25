@@ -12,15 +12,9 @@ export default _component(() => {
     return (
       <Flex direction="column" gap="md">
         <Flex align="center" gap="md" wrap>
-          <Pagination
-            aria-label="订单分页"
-            _page={_bind(page)}
-            total={total}
-            pageSize={size}
-            showTotal
-          />
-          <PageSizeSelect _value={_bind(size)} onSizeChange={() => (page = 1)} />
-          <PageJump _page={_bind(page)} pageCount={pageCount} />
+          <Pagination aria-label="订单分页" _page={page} total={total} pageSize={size} showTotal />
+          <PageSizeSelect _value={size} onSizeChange={() => (page = 1)} />
+          <PageJump _page={page} pageCount={pageCount} />
         </Flex>
         <Small tone="muted">
           第 {first}–{Math.min(first + size - 1, total)} 条，共 {total.toLocaleString()} 条

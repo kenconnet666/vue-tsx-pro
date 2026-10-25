@@ -18,7 +18,7 @@ import { Menu, type MenuProps } from './Menu';
 
 /** 未声明的属性落到区域的 div 上 */
 export interface ContextMenuProps extends PartProps<'div'>, OpenChangeProps {
-  /** 菜单是否打开：父级可以写 _open={_bind(x)} */
+  /** 菜单是否打开：父级可以写 _open={x} */
   _open?: boolean;
   /** 菜单项：同 Menu 的 children */
   menu: VNodeChild;
@@ -94,7 +94,7 @@ export const ContextMenu = _component(
             propsMenu,
             { point },
           )}
-          _open={_bind(open)}
+          _open={open}
           onOpenChange={onOpenChange}
         >
           {menu}

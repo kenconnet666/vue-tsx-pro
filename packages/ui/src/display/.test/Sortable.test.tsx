@@ -23,7 +23,7 @@ function renderList() {
   ]);
   const root = mount(() => (
     <Sortable
-      _items={_bind(tasks)}
+      _items={tasks}
       getKey={(task) => task.id}
       getLabel={(task) => task.title}
       aria-label="待办"

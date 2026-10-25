@@ -4,7 +4,7 @@
  * 打开时焦点落在“取消”上，误按 Enter 不会执行破坏性操作（同 Radix AlertDialog）。
  *
  *   <AlertDialog
- *     _open={_bind(confirming)}
+ *     _open={confirming}
  *     tone="danger"
  *     title="删除这个项目？"
  *     description="删除后无法恢复。"
@@ -66,7 +66,7 @@ export const AlertDialog = _component(
             propsCancel: { autofocus: true, ...propsCancel },
           },
         )}
-        _open={_bind(open)}
+        _open={open}
       />
     );
   },
@@ -123,7 +123,7 @@ export function useConfirm(): Confirm {
           {...options}
           // 要填理由时焦点先进输入框；没有理由时落在取消上（误按 Enter 不会执行）
           propsCancel={reason ? { autofocus: false, ...options.propsCancel } : options.propsCancel}
-          _open={_bind(host.open)}
+          _open={host.open}
           onConfirm={async () => {
             tried.value = true;
             if (missing()) return false;
@@ -146,7 +146,7 @@ export function useConfirm(): Confirm {
             >
               <Textarea
                 _value={text.value}
-                {...{ 'onUpdate:_value': (next: string) => (text.value = next) }}
+                onUpdate:_value={(next: string) => (text.value = next)}
                 placeholder={reason.placeholder}
                 maxlength={reason.maxlength}
                 showCount={reason.maxlength !== undefined}

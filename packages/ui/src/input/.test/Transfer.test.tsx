@@ -29,7 +29,7 @@ describe('Transfer', () => {
     let value = _state(['grape']);
     const root = mount(() => (
       <Field label="水果">
-        <Transfer items={fruits} _value={_bind(value)} />
+        <Transfer items={fruits} _value={value} />
       </Field>
     ));
     await flush();
@@ -59,7 +59,7 @@ describe('Transfer', () => {
 
   it('全选只勾看得见、能勾的项；双击一项直接移过去', async () => {
     let value = _state<string[]>([]);
-    const root = mount(() => <Transfer items={fruits} _value={_bind(value)} searchable />);
+    const root = mount(() => <Transfer items={fruits} _value={value} searchable />);
     await flush();
     const search = root.querySelector<HTMLInputElement>('input[type="search"]')!;
     search.value = '葡';

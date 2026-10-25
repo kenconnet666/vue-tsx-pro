@@ -12,9 +12,9 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" wrap>
-        <Switch _checked={_bind(wrap)}>自动换行</Switch>
-        <Switch _checked={_bind(copyable)}>复制按钮</Switch>
-        <Switch _checked={_bind(highlight)}>语法高亮</Switch>
+        <Switch _checked={wrap}>自动换行</Switch>
+        <Switch _checked={copyable}>复制按钮</Switch>
+        <Switch _checked={highlight}>语法高亮</Switch>
       </Flex>
       <CodeBlock code={source} lang="bash" wrap={wrap} copyable={copyable} highlight={highlight} />
     </Flex>

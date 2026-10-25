@@ -30,7 +30,7 @@ export default _component(() => {
             ]}
           />
           <Steps _current={1} items={[{ title: 'Cart' }, { title: 'Address' }, { title: 'Pay' }]} />
-          <Slider _value={_bind(volume)} aria-label="Volume" />
+          <Slider _value={volume} aria-label="Volume" />
         </Flex>
       </Provider>
     </Card>

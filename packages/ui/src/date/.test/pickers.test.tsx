@@ -35,8 +35,8 @@ describe('DatePicker', () => {
     let open = _state(true);
     mount(() => (
       <DatePicker
-        _value={_bind(value)}
-        _open={_bind(open)}
+        _value={value}
+        _open={open}
         max="2026-12-31"
         presets={[
           { label: '国庆', value: '2026-10-01' },
@@ -60,8 +60,8 @@ describe('DatePicker', () => {
     let month = _state<string | null>(null);
     mount(() => (
       <>
-        <DatePicker _value={_bind(day)} granularity="minute" _open aria-label="开始时间" />
-        <DatePicker _value={_bind(month)} granularity="month" _open aria-label="账期" />
+        <DatePicker _value={day} granularity="minute" _open aria-label="开始时间" />
+        <DatePicker _value={month} granularity="month" _open aria-label="账期" />
       </>
     ));
     await flush();
@@ -85,8 +85,8 @@ describe('DateRangePicker', () => {
     let open = _state(true);
     mount(() => (
       <DateRangePicker
-        _value={_bind(range)}
-        _open={_bind(open)}
+        _value={range}
+        _open={open}
         presets={[
           'today',
           { label: '第三季度', value: { start: '2026-07-01', end: '2026-09-30' } },
@@ -163,7 +163,7 @@ describe('按月、按年与日期时间的区间', () => {
 
   it('RangeCalendar 按月选：写回整月（开始那月的 1 日到结束那月的最后一天）', async () => {
     let range = _state<DateRange<string> | null>({ start: '2026-01-01', end: '2026-01-31' });
-    mount(() => <RangeCalendar _value={_bind(range)} granularity="month" aria-label="预算期间" />);
+    mount(() => <RangeCalendar _value={range} granularity="month" aria-label="预算期间" />);
     await flush();
     cell('2026-03-01').click();
     await flush();
@@ -177,8 +177,8 @@ describe('按月、按年与日期时间的区间', () => {
     let open = _state(true);
     const root = mount(() => (
       <DateRangePicker
-        _value={_bind(range)}
-        _open={_bind(open)}
+        _value={range}
+        _open={open}
         granularity="month"
         presets={[{ label: '上半年', value: { start: '2026-01-01', end: '2026-06-30' } }]}
         aria-label="预算期间"
@@ -205,7 +205,7 @@ describe('按月、按年与日期时间的区间', () => {
       end: '2026-10-06T18:00',
     });
     mount(() => (
-      <DateRangePicker _value={_bind(range)} granularity="minute" _open aria-label="维护窗口" />
+      <DateRangePicker _value={range} granularity="minute" _open aria-label="维护窗口" />
     ));
     await flush();
     cell('2026-10-10').click();
@@ -224,8 +224,8 @@ describe('选季度、选周', () => {
     let open = _state(true);
     mount(() => (
       <DatePicker
-        _value={_bind(quarter)}
-        _open={_bind(open)}
+        _value={quarter}
+        _open={open}
         granularity="quarter"
         max="2026-08-15"
         aria-label="考核季度"
@@ -246,7 +246,7 @@ describe('选季度、选周', () => {
 
   it('DatePicker granularity="week"：日历按 ISO 周排（周一开始、有周数），点哪天都写回它那一周', async () => {
     let week = _state<string | null>('2026-W43');
-    mount(() => <DatePicker _value={_bind(week)} granularity="week" _open aria-label="周报" />);
+    mount(() => <DatePicker _value={week} granularity="week" _open aria-label="周报" />);
     await flush();
     const weekday = document.querySelector('[role="dialog"] thead th:not(:first-child)')!;
     expect(weekday.textContent).toBe('一');
@@ -270,12 +270,7 @@ describe('季度、周的区间', () => {
     let range = _state<DateRange<string> | null>(null);
     let open = _state(true);
     mount(() => (
-      <DateRangePicker
-        _value={_bind(range)}
-        _open={_bind(open)}
-        granularity="quarter"
-        aria-label="对比区间"
-      />
+      <DateRangePicker _value={range} _open={open} granularity="quarter" aria-label="对比区间" />
     ));
     await flush();
     quarter(`${new Date().getFullYear()}-Q3`).click();
@@ -294,7 +289,7 @@ describe('季度、周的区间', () => {
 
   it('QuarterCalendar 的键盘：←→ 移动（到头换年）、Page Down 换年、Enter 选中', async () => {
     let value = _state<string | null>('2026-Q4');
-    mount(() => <QuarterCalendar _value={_bind(value)} aria-label="季度" />);
+    mount(() => <QuarterCalendar _value={value} aria-label="季度" />);
     await flush();
     const grid = document.querySelector<HTMLElement>('[role="grid"]')!;
     quarter('2026-Q4').focus();
@@ -313,9 +308,7 @@ describe('季度、周的区间', () => {
 
   it('DateRangePicker granularity="week"：日历选两天，写回它们各自所在的周', async () => {
     let range = _state<DateRange<string> | null>({ start: '2026-W40', end: '2026-W41' });
-    mount(() => (
-      <DateRangePicker _value={_bind(range)} granularity="week" _open aria-label="周区间" />
-    ));
+    mount(() => <DateRangePicker _value={range} granularity="week" _open aria-label="周区间" />);
     await flush();
     const day = (date: string) =>
       document.querySelector<HTMLButtonElement>(`[role="dialog"] [data-date="${date}"]`)!;

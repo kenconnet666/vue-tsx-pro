@@ -94,6 +94,6 @@ export const LineChart = _component(
         return [line, ...points];
       },
     });
-    return () => <XYChart {...rest} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
+    return () => <XYChart {...rest} _hiddenSeries={hiddenSeries} kind={kind} />;
   },
 );

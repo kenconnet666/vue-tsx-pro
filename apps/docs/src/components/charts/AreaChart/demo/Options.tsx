@@ -24,11 +24,11 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" wrap>
-        <Switch _checked={_bind(legend)}>图例</Switch>
-        <Switch _checked={_bind(grid)}>网格线</Switch>
-        <Switch _checked={_bind(tooltip)}>提示框</Switch>
-        <Switch _checked={_bind(loading)}>加载中</Switch>
-        <Switch _checked={_bind(empty)}>没有数据</Switch>
+        <Switch _checked={legend}>图例</Switch>
+        <Switch _checked={grid}>网格线</Switch>
+        <Switch _checked={tooltip}>提示框</Switch>
+        <Switch _checked={loading}>加载中</Switch>
+        <Switch _checked={empty}>没有数据</Switch>
       </Flex>
       <AreaChart
         aria-label="每周转化率"
@@ -45,7 +45,7 @@ export default _component(() => {
         grid={grid}
         tooltip={tooltip}
         loading={loading}
-        _hiddenSeries={_bind(hidden)}
+        _hiddenSeries={hidden}
         empty="这段时间还没有数据"
         height={240}
       />

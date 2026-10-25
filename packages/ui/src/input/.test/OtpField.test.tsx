@@ -26,7 +26,7 @@ describe('OtpField', () => {
     const onComplete = vi.fn();
     const state = reactive({ code: '' });
     const root = mount(() => (
-      <OtpField _value={_bind(state.code)} onComplete={onComplete} aria-label="验证码" />
+      <OtpField _value={state.code} onComplete={onComplete} aria-label="验证码" />
     ));
     const input = root.querySelector('input')!;
     input.value = '12a3';
@@ -48,7 +48,7 @@ describe('OtpField', () => {
     const state = reactive({ code: '' });
     const root = mount(() => (
       <OtpField
-        _value={_bind(state.code)}
+        _value={state.code}
         length={4}
         type="alphanumeric"
         groups={[2, 2]}

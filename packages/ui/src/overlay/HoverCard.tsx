@@ -49,7 +49,7 @@ export interface HoverCardProps
     Pick<FloatingOptions, 'offset'>,
     LazyContentOptions,
     OpenChangeProps {
-  /** 是否打开：父级可以写 _open={_bind(x)} 控制或得知 */
+  /** 是否打开：父级可以写 _open={x} 控制或得知 */
   _open?: boolean;
   /** 弹出位置，默认 bottom；空间不够时自动翻转 */
   placement?: FloatingPlacement;

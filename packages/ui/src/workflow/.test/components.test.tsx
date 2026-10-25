@@ -81,7 +81,7 @@ describe('FlowDiagram', () => {
           <FlowDiagram
             definition={negotiation}
             selectable
-            _selected={_bind(picked)}
+            _selected={picked}
             problems={[{ severity: 'error', code: 'x', message: '坏了', node: 'arbitrate' }]}
           />
           <output>{picked}</output>

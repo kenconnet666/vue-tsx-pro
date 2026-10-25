@@ -23,7 +23,7 @@ export default _component(() => {
           { key: 'y2026', label: '2026 年' },
         ]}
         unit="万元"
-        _hiddenSeries={_bind(hidden)}
+        _hiddenSeries={hidden}
       />
       <Flex gap="sm" align="center" wrap>
         <Text tone="muted" size="sm">

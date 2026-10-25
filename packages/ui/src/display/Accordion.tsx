@@ -3,11 +3,11 @@
  * 每个标题是 heading 里的 button（aria-expanded、aria-controls），内容是 role="region"、以标题为名称；
  * 标题都在 Tab 顺序里，另外 ↑ / ↓ 在标题之间移动（到头后循环），Home / End 到第一个、最后一个。参考 Radix Accordion。
  *
- *   <Accordion _value={_bind(open)} aria-label="常见问题">
+ *   <Accordion _value={open} aria-label="常见问题">
  *     <AccordionItem value="ship" title="多久发货？">付款后 48 小时内。</AccordionItem>
  *     <AccordionItem value="refund" title="怎么退款？">…</AccordionItem>
  *   </Accordion>
- *   <Accordion selectionMode="multiple" _value={_bind(openList)}>…</Accordion>
+ *   <Accordion selectionMode="multiple" _value={openList}>…</Accordion>
  *
  * 展开收起的动画同 Collapsible（Collapse 的 CSS 过渡）。部件见 AccordionItemProps。
  */
@@ -256,7 +256,7 @@ export const AccordionItem = _component(
               propsContent,
               { id: contentId, role: 'region', 'aria-labelledby': triggerId },
             )}
-            _open={_bind(model.open)}
+            _open={model.open}
           >
             {children}
           </Collapse>

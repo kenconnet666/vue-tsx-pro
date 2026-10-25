@@ -9,10 +9,10 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="15rem" gap="lg">
       <Field label='variant="soft" size="sm"'>
-        <DatePicker _value={_bind(due)} variant="soft" size="sm" />
+        <DatePicker _value={due} variant="soft" size="sm" />
       </Field>
       <Field label='radius="full" size="lg" 加图标'>
-        <DatePicker _value={_bind(due)} radius="full" size="lg" icon={CalendarClock} />
+        <DatePicker _value={due} radius="full" size="lg" icon={CalendarClock} />
       </Field>
       <Field label="只读" readonly description="能聚焦、能复制，不能改，也不弹日历">
         <DatePicker _value="2026-10-01" />
@@ -26,7 +26,7 @@ export default _component(() => {
         error={delivery ? undefined : '请选择交付日期'}
         description="必填；选好后错误消失"
       >
-        <DatePicker _value={_bind(delivery)} clearable />
+        <DatePicker _value={delivery} clearable />
       </Field>
       <Field label="日历弹在上方、并排两个月">
         <DatePicker placement="top-start" visibleMonths={2} />

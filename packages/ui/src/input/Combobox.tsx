@@ -1,8 +1,8 @@
 /**
  * 组合框（WAI-ARIA Combobox，aria-autocomplete="list"）：边输入边从列表里选，或者只当带建议的输入框用。
  *
- *   <Field label="城市"><Combobox items={cities} _value={_bind(city)} /></Field>
- *   <Combobox items={results} filter={false} loading={searching} _inputValue={_bind(keyword)} aria-label="搜索用户" />
+ *   <Field label="城市"><Combobox items={cities} _value={city} /></Field>
+ *   <Combobox items={results} filter={false} loading={searching} _inputValue={keyword} aria-label="搜索用户" />
  *
  * 组合已有的部件：外壳同 TextField（controlParts），弹出层用 useAnchoredPopover（与外壳同宽），列表是 ListboxView。
  * 焦点一直在输入框里，高亮项经 aria-activedescendant 告诉读屏。
@@ -73,11 +73,11 @@ export interface ComboboxBaseProps<T>
   extends PartProps<'input', ComboboxManaged>, ControlOptions, ControlIconOptions, OpenChangeProps {
   /** 数据：ListboxOption、字符串，或任意数据加 toOption；有 load 时是第一次加载之前的选项（编辑页放上已选的那一项） */
   items?: readonly T[];
-  /** 选中项的值：父级写 _value={_bind(x)}；没有选中时是 null */
+  /** 选中项的值：父级写 _value={x}；没有选中时是 null */
   _value?: string | null;
-  /** 输入框里的文字：父级可以写 _inputValue={_bind(x)}（异步搜索时据此取数据） */
+  /** 输入框里的文字：父级可以写 _inputValue={x}（异步搜索时据此取数据） */
   _inputValue?: string;
-  /** 是否打开：父级可以写 _open={_bind(x)} */
+  /** 是否打开：父级可以写 _open={x} */
   _open?: boolean;
   /** 过滤：默认按显示文字包含输入（忽略大小写与重音）；函数自定义；false 不过滤（异步搜索） */
   filter?: false | ((item: T, query: string) => boolean);
@@ -350,7 +350,7 @@ export const Combobox = _component(
                 onKeydown,
                 onBlur: commit,
               })}
-              _value={_bind(inputValue)}
+              _value={inputValue}
             />
             {clearable &&
               inputValue &&

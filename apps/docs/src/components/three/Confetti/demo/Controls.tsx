@@ -76,7 +76,8 @@ export default _component(() => {
               {item.label}
             </Text>
             <Slider
-              _value={_bind(() => item.get(), item.set)}
+              _value={item.get()}
+              onUpdate:_value={item.set}
               min={item.min}
               max={item.max}
               step={item.step}

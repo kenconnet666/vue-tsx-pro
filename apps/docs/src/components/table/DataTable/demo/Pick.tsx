@@ -38,7 +38,7 @@ export default _component(() => {
         columns={columns}
         getKey={(quote) => quote.id}
         selectionMode="single"
-        _selected={_bind(picked)}
+        _selected={picked}
         density="compact"
         aria-label="供应商报价"
       />

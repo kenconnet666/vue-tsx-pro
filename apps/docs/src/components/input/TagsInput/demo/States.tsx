@@ -9,10 +9,10 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="16rem" gap="lg">
       <Field label="话题" description={`最多 3 个，已有 ${topics.length} 个`}>
-        <TagsInput _value={_bind(topics)} max={3} icon={Hash} clearable placeholder="输入后回车" />
+        <TagsInput _value={topics} max={3} icon={Hash} clearable placeholder="输入后回车" />
       </Field>
       <Field label="关键词" required error={keywords.length ? undefined : '至少填一个关键词'}>
-        <TagsInput _value={_bind(keywords)} variant="soft" placeholder="逗号或分号分隔" />
+        <TagsInput _value={keywords} variant="soft" placeholder="逗号或分号分隔" />
       </Field>
       <Field label="只读" readonly>
         <TagsInput _value={['设计', '前端']} />

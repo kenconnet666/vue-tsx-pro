@@ -21,18 +21,12 @@ export default _component(() => {
     <Grid minItemWidth="16rem" gap="md">
       <Flex direction="column" gap="xs">
         <Field label="涉及供应商" description="六十个选项：打开后直接输入“密封”试试">
-          <Select items={suppliers} _value={_bind(supplier)} searchable />
+          <Select items={suppliers} _value={supplier} searchable />
         </Field>
         <Small tone="muted">值：{supplier || '—'}</Small>
       </Flex>
       <Field label="第二货源（多选）">
-        <Select
-          items={suppliers}
-          selectionMode="multiple"
-          _value={_bind(partners)}
-          searchable
-          clearable
-        />
+        <Select items={suppliers} selectionMode="multiple" _value={partners} searchable clearable />
       </Field>
     </Grid>
   );

@@ -20,16 +20,16 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" align="center" wrap>
-        <ToggleGroup _value={_bind(width)} required size="sm" aria-label="线宽">
+        <ToggleGroup _value={width} required size="sm" aria-label="线宽">
           <ToggleItem value="1">细</ToggleItem>
           <ToggleItem value="2">中</ToggleItem>
           <ToggleItem value="4">粗</ToggleItem>
         </ToggleGroup>
-        <Switch _checked={_bind(legend)}>图例</Switch>
-        <Switch _checked={_bind(grid)}>网格线</Switch>
-        <Switch _checked={_bind(tooltip)}>提示框</Switch>
-        <Switch _checked={_bind(loading)}>加载中</Switch>
-        <Switch _checked={_bind(empty)}>没有数据</Switch>
+        <Switch _checked={legend}>图例</Switch>
+        <Switch _checked={grid}>网格线</Switch>
+        <Switch _checked={tooltip}>提示框</Switch>
+        <Switch _checked={loading}>加载中</Switch>
+        <Switch _checked={empty}>没有数据</Switch>
       </Flex>
       <LineChart
         aria-label="每小时请求量"
@@ -46,7 +46,7 @@ export default _component(() => {
         grid={grid}
         tooltip={tooltip}
         loading={loading}
-        _hiddenSeries={_bind(hidden)}
+        _hiddenSeries={hidden}
         height={240}
       />
       <Flex gap="sm" align="center">

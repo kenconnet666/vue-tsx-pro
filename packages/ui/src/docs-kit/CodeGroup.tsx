@@ -7,7 +7,7 @@
  *     { label: 'npm', code: 'npm i @vue-tsx-pro/ui', lang: 'bash' },
  *   ]} />
  *
- * 选中哪一个可以双向绑定（_value={_bind(manager)}），几组代码绑同一个变量就一起切换。
+ * 选中哪一个可以双向绑定（_value={manager}），几组代码绑同一个变量就一起切换。
  */
 import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
@@ -28,7 +28,7 @@ export interface CodeGroupItem extends Omit<CodeBlockProps, 'title'> {
 export interface CodeGroupProps extends PartProps<'div'> {
   /** 各段代码 */
   items: readonly CodeGroupItem[];
-  /** 选中的那一段的值：父级可以写 _value={_bind(x)}；默认第一段 */
+  /** 选中的那一段的值：父级可以写 _value={x}；默认第一段 */
   _value?: string;
   /** 标签栏的部件属性；名称（aria-label）默认是各段标签连起来 */
   propsList?: Partial<TabListProps>;
@@ -67,7 +67,7 @@ export const CodeGroup = _component(
           <Tabs
             _value={selected}
             // 默认选第一段时 value 是 undefined，不能直接 _bind：选中时写回
-            {...{ 'onUpdate:_value': (next: string) => (value = next) }}
+            onUpdate:_value={(next: string) => (value = next)}
             size="sm"
           >
             <TabList

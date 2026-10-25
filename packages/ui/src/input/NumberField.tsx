@@ -1,10 +1,10 @@
 /**
  * 数字输入框（role="spinbutton"）：外壳同 TextField，右侧带减少 / 增加按钮。参考 React Aria NumberField、WAI-ARIA Spinbutton。
  *
- *   <Field label="数量"><NumberField _value={_bind(count)} min={1} max={99} /></Field>
- *   <NumberField _value={_bind(price)} step={0.01} format={{ style: 'currency', currency: 'CNY' }} aria-label="单价" />
- *   <NumberField _value={_bind(amount)} valueType={Decimal} step={new Decimal('0.01')} />   // 金额：Decimal 精确运算
- *   <NumberField _value={_bind(yuan)} format={{ scale: 10_000, maximumFractionDigits: 2 }} suffix="万元" />  // 值是元，按万元输入
+ *   <Field label="数量"><NumberField _value={count} min={1} max={99} /></Field>
+ *   <NumberField _value={price} step={0.01} format={{ style: 'currency', currency: 'CNY' }} aria-label="单价" />
+ *   <NumberField _value={amount} valueType={Decimal} step={new Decimal('0.01')} />   // 金额：Decimal 精确运算
+ *   <NumberField _value={yuan} format={{ scale: 10_000, maximumFractionDigits: 2 }} suffix="万元" />  // 值是元，按万元输入
  *
  * - 值可以是 number、bigint 或 decimal.js 的 Decimal，写回时保持传入的类型（一开始为空时按 valueType）；
  *   bigint 与 Decimal 的加减、对齐步长都精确运算，不经过浮点数。表单提交的是十进制文本（FormValue），不是显示的格式。
@@ -76,7 +76,7 @@ export type NumberFieldManaged =
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
 export interface NumberFieldProps
   extends PartProps<'input', NumberFieldManaged>, ControlOptions, ControlIconOptions {
-  /** 当前值：number、bigint 或 Decimal，父级写 _value={_bind(x)}；空着时为 null。写回时保持传入的类型 */
+  /** 当前值：number、bigint 或 Decimal，父级写 _value={x}；空着时为 null。写回时保持传入的类型 */
   _value?: NumericValue | null;
   /**
    * 值一开始为空时写回的类型：'number'（默认）、'bigint'，或 Decimal 构造函数（`valueType={Decimal}`，

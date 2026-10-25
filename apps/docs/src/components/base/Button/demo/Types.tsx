@@ -23,7 +23,7 @@ export default _component(() => {
     >
       <Flex direction="column" gap="sm">
         <Field label="昵称">
-          <TextField _value={_bind(nickname)} name="nickname" />
+          <TextField _value={nickname} name="nickname" />
         </Field>
         <Flex gap="sm" align="center" wrap>
           <Button type="submit">保存</Button>

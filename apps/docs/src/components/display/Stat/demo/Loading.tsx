@@ -6,7 +6,7 @@ export default _component(() => {
   let loading = _state(true);
   return () => (
     <Flex direction="column" gap="md">
-      <Switch _checked={_bind(loading)}>加载中</Switch>
+      <Switch _checked={loading}>加载中</Switch>
       <Grid minItemWidth="12em" gap="md">
         <Card>
           <Stat label="降本项目总数" value={6} unit="项" icon={ClipboardList} loading={loading} />

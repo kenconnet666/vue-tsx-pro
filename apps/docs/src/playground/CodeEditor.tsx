@@ -1,7 +1,7 @@
 /**
  * 代码演练场的编辑器组件：外壳与输入框相同（边框、悬停、焦点环），里面是 CodeMirror（editor.ts，挂载后才加载）。
  *
- *   <CodeEditor _value={_bind(code)} aria-label="代码" sx={styles.editor} />
+ *   <CodeEditor _value={code} aria-label="代码" sx={styles.editor} />
  *
  * 高度由使用方给（sx），默认 20rem；未声明的属性落到外壳上。
  */
@@ -23,7 +23,7 @@ const styles = css.create({
 
 /** CodeEditor 的属性 */
 export interface CodeEditorProps extends PartProps<'div'> {
-  /** 代码：父级写 _value={_bind(x)} 双向绑定 */
+  /** 代码：父级写 _value={x} 双向绑定 */
   _value?: string;
   /** 编辑区的无障碍名称 */
   'aria-label': string;

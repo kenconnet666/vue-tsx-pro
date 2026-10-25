@@ -9,23 +9,17 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Flex direction="column" gap="xs">
         <Small tone="muted">默认：当前页两侧各 1 个，首尾各 1 个</Small>
-        <Pagination aria-label="默认页码数" _page={_bind(compact)} pageCount={20} />
+        <Pagination aria-label="默认页码数" _page={compact} pageCount={20} />
       </Flex>
       <Flex direction="column" gap="xs">
         <Small tone="muted">
           siblings={'{2}'} boundaries={'{2}'}：页码多显示几个
         </Small>
-        <Pagination
-          aria-label="更多页码"
-          _page={_bind(wide)}
-          pageCount={20}
-          siblings={2}
-          boundaries={2}
-        />
+        <Pagination aria-label="更多页码" _page={wide} pageCount={20} siblings={2} boundaries={2} />
       </Flex>
       <Flex direction="column" gap="xs">
         <Small tone="muted">size="sm"，页数少时不出现省略号</Small>
-        <Pagination aria-label="小号分页" _page={_bind(small)} pageCount={5} size="sm" />
+        <Pagination aria-label="小号分页" _page={small} pageCount={5} size="sm" />
       </Flex>
     </Flex>
   );

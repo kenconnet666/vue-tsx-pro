@@ -37,9 +37,9 @@ export default _component(() => {
         }}
       >
         <ControlGroup aria-label="搜索任务">
-          <Select items={scopes} _value={_bind(scope)} aria-label="搜索范围" />
+          <Select items={scopes} _value={scope} aria-label="搜索范围" />
           <TextField
-            _value={_bind(keyword)}
+            _value={keyword}
             icon={SearchIcon}
             placeholder="任务名称、编号或负责人"
             aria-label="关键词"
@@ -54,8 +54,8 @@ export default _component(() => {
       )}
       <Field label="回调地址">
         <ControlGroup aria-label="回调地址">
-          <Select items={['https://', 'http://']} _value={_bind(protocol)} aria-label="协议" />
-          <TextField _value={_bind(host)} aria-label="域名" />
+          <Select items={['https://', 'http://']} _value={protocol} aria-label="协议" />
+          <TextField _value={host} aria-label="域名" />
           <CopyButton value={`${protocol}${host}`} variant="outline" aria-label="复制地址" />
         </ControlGroup>
       </Field>

@@ -17,7 +17,7 @@ export default _component(() => {
   let step = _state(1);
   return () => (
     <Flex direction="column" gap="lg">
-      <Steps items={items} _current={_bind(step)} navigable />
+      <Steps items={items} _current={step} navigable />
       <Card>
         <Paragraph sx={styles.body}>
           {step < items.length - 1

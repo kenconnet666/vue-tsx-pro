@@ -3,7 +3,7 @@
  * 已完成的步骤显示对勾（Lucide 的 Check），出错的步骤显示警示图标；已完成、未开始、出错另有读屏文字，不只靠颜色。
  *
  *   <Steps current={1} items={[{ title: '填写信息' }, { title: '确认订单' }, { title: '完成' }]} />
- *   <Steps _current={_bind(step)} items={items} navigable />               已完成的步骤可以点回去
+ *   <Steps _current={step} items={items} navigable />               已完成的步骤可以点回去
  *   <Steps current={2} items={[{ title: '概览', href: '/task/1' }, …]} />   已完成的步骤是链接
  *
  * 每一步的状态默认按 current 推出（之前已完成、当前、之后未开始），item 的 status 可以改：出错的一步、非线性的流程。
@@ -69,7 +69,7 @@ export interface StepItem {
 export interface StepsProps extends PartProps<'ol'> {
   /** 步骤 */
   items: readonly StepItem[];
-  /** 当前步骤的序号，从 0 开始：父级可以写 _current={_bind(x)}，配合 navigable 点回已完成的步骤 */
+  /** 当前步骤的序号，从 0 开始：父级可以写 _current={x}，配合 navigable 点回已完成的步骤 */
   _current?: number;
   /** 方向，默认 horizontal */
   orientation?: keyof StepsOrientations;

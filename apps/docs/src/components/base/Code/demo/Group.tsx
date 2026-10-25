@@ -8,7 +8,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <CodeGroup
-        _value={_bind(manager)}
+        _value={manager}
         items={[
           { label: 'pnpm', code: 'pnpm add @vue-tsx-pro/ui @vue-tsx-pro/tsx', lang: 'bash' },
           { label: 'npm', code: 'npm install @vue-tsx-pro/ui @vue-tsx-pro/tsx', lang: 'bash' },
@@ -16,7 +16,7 @@ export default _component(() => {
         ]}
       />
       <CodeGroup
-        _value={_bind(manager)}
+        _value={manager}
         items={[
           {
             label: 'pnpm',

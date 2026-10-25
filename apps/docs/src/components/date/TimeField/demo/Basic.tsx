@@ -44,20 +44,16 @@ export default _component(() => {
             <Text key={`${day.name}-name`} weight="medium">
               {day.name}
             </Text>,
-            <Switch
-              key={`${day.name}-open`}
-              _checked={_bind(day.open)}
-              aria-label={`${day.name}营业`}
-            />,
+            <Switch key={`${day.name}-open`} _checked={day.open} aria-label={`${day.name}营业`} />,
             <TimeField
               key={`${day.name}-opens`}
-              _value={_bind(day.opens)}
+              _value={day.opens}
               disabled={!day.open}
               aria-label={`${day.name}开门时间`}
             />,
             <TimeField
               key={`${day.name}-closes`}
-              _value={_bind(day.closes)}
+              _value={day.closes}
               min={day.opens ?? undefined}
               invalid={wrong}
               disabled={!day.open}

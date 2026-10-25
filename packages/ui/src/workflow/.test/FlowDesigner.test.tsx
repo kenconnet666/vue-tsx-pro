@@ -20,11 +20,7 @@ const flush = async () => {
 function render(definition: ProcessDefinition, onPublish?: (flow: ProcessDefinition) => unknown) {
   const state = reactive({ definition, selected: null as string | null });
   const root = mount(() => (
-    <FlowDesigner
-      _definition={_bind(state.definition)}
-      _selected={_bind(state.selected)}
-      onPublish={onPublish}
-    />
+    <FlowDesigner _definition={state.definition} _selected={state.selected} onPublish={onPublish} />
   ));
   const panel = () => root.querySelector('section[aria-label="节点属性"]')!;
   const node = (id: string) => root.querySelector<HTMLButtonElement>(`button[data-node="${id}"]`)!;

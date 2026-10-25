@@ -17,8 +17,8 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="lg" wrap>
-        <Switch _checked={_bind(rates)}>转化率</Switch>
-        <Switch _checked={_bind(loading)}>加载中</Switch>
+        <Switch _checked={rates}>转化率</Switch>
+        <Switch _checked={loading}>加载中</Switch>
       </Flex>
       <FunnelChart
         aria-label="收益的四个口径"

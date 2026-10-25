@@ -11,21 +11,21 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="15rem" gap="lg">
       <Field label="财年" description={<Code>{year ?? 'null'}</Code>}>
-        <DatePicker granularity="year" _value={_bind(year)} />
+        <DatePicker granularity="year" _value={year} />
       </Field>
       <Field label="考核季度" description={<Code>{quarter ?? 'null'}</Code>}>
-        <DatePicker granularity="quarter" _value={_bind(quarter)} />
+        <DatePicker granularity="quarter" _value={quarter} />
       </Field>
       <Field label="账期" description={<Code>{month ?? 'null'}</Code>}>
-        <DatePicker granularity="month" _value={_bind(month)} />
+        <DatePicker granularity="month" _value={month} />
       </Field>
       <Field label="周报" description={<Code>{week ?? 'null'}</Code>}>
-        <DatePicker granularity="week" _value={_bind(week)} />
+        <DatePicker granularity="week" _value={week} />
       </Field>
       <Field label="会议开始" description={start ? <Code>{start}</Code> : '只能约在 9:00–18:00'}>
         <DatePicker
           granularity="minute"
-          _value={_bind(start)}
+          _value={start}
           // 工作时间之外键入时显示出错
           isTimeUnavailable={(time) => time < '09:00' || time >= '18:00'}
         />

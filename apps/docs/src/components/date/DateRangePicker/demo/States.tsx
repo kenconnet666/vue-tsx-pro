@@ -20,7 +20,7 @@ export default _component(() => {
         }
       >
         <DateRangePicker
-          _value={_bind(leave)}
+          _value={leave}
           min={todayIso()}
           visibleMonths={1}
           isDateUnavailable={isWeekend}
@@ -36,7 +36,7 @@ export default _component(() => {
           trip ? `共 ${trip.end.compare(trip.start) + 1} 天` : '值是 CalendarDate，选好后算出天数'
         }
       >
-        <DateRangePicker _value={_bind(trip)} valueType="dateValue" icon={Plane} radius="full" />
+        <DateRangePicker _value={trip} valueType="dateValue" icon={Plane} radius="full" />
       </Field>
       <Field label='variant="soft" size="sm"'>
         <DateRangePicker

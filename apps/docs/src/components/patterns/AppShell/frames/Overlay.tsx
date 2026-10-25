@@ -84,8 +84,8 @@ export default _component(() => {
   return () => (
     <AppShell
       sidebarMode="overlay"
-      _sidebarOpen={_bind(open)}
-      _sidebarWidth={_bind(width)}
+      _sidebarOpen={open}
+      _sidebarWidth={width}
       propsMain={{ sx: styles.main }}
       brand={
         <span {...css.attrs(styles.brand)}>
@@ -95,7 +95,7 @@ export default _component(() => {
       }
       header={
         <div {...css.attrs(styles.header)}>
-          <Tabs _value={_bind(line)} sx={styles.tabs}>
+          <Tabs _value={line} sx={styles.tabs}>
             <TabList aria-label="产线">
               <Tab value="all">全部产线</Tab>
               {lines.map((item) => (

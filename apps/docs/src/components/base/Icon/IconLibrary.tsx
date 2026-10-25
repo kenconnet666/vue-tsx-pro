@@ -56,7 +56,7 @@ export const IconLibrary = _component(() => {
     const usage = `import { ${item.name} } from '@lucide/icons';\n\n<Icon icon={${item.name}} />`;
     return (
       <div {...css.attrs(styles.layout)}>
-        <IconGallery _value={_bind(selected)} />
+        <IconGallery _value={selected} />
         <Card sx={styles.detail}>
           <Flex direction="column" gap="md">
             <div {...css.attrs(styles.preview)}>
@@ -73,7 +73,7 @@ export const IconLibrary = _component(() => {
             </Flex>
             <Flex align="center" justify="between" gap="sm">
               <Small tone="muted">线宽</Small>
-              <ToggleGroup _value={_bind(stroke)} size="sm" required aria-label="线宽">
+              <ToggleGroup _value={stroke} size="sm" required aria-label="线宽">
                 {STROKES.map((width) => (
                   <ToggleItem key={width} value={width}>
                     {width}

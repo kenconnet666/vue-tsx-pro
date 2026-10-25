@@ -52,19 +52,16 @@ export default _component(() => {
           <Field label="名称" required>
             <TextField
               _value={draft.name}
-              {...{ 'onUpdate:_value': (next: string) => (draft.name = next) }}
             />
           </Field>
           <Field label="联系人">
             <TextField
               _value={draft.contact}
-              {...{ 'onUpdate:_value': (next: string) => (draft.contact = next) }}
             />
           </Field>
           <Field label="电话">
             <TextField
               _value={draft.phone}
-              {...{ 'onUpdate:_value': (next: string) => (draft.phone = next) }}
             />
           </Field>
         </Flex>

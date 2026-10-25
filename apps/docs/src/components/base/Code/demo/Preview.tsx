@@ -14,7 +14,7 @@ export default _component(() => {
   let showCode = _state(false);
   return () => (
     <Flex direction="column" gap="sm">
-      <CodePreview code={source} lang="tsx" align="center" _showCode={_bind(showCode)}>
+      <CodePreview code={source} lang="tsx" align="center" _showCode={showCode}>
         <Flex align="center" gap="md">
           <IconButton icon={Minus} variant="surface" aria-label="减少" onClick={() => count--} />
           <AnimatedNumber value={count} />

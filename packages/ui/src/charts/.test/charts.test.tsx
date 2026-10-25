@@ -117,7 +117,6 @@ describe('BarChart、LineChart', () => {
         index="name"
         series={[...series]}
         _hiddenSeries={hidden.value}
-        {...{ 'onUpdate:_hiddenSeries': (next: string[]) => (hidden.value = next) }}
       />
     ));
     const buttons = [...root.querySelectorAll<HTMLButtonElement>('[role="group"] button')];
@@ -294,7 +293,6 @@ describe('SankeyChart、ChordChart', () => {
         nodes={nodes}
         links={links.slice(0, 2)}
         _hiddenNodes={hidden.value}
-        {...{ 'onUpdate:_hiddenNodes': (next: string[]) => (hidden.value = next) }}
       />
     ));
     const buttons = root.querySelectorAll<HTMLButtonElement>('[role="group"] button');

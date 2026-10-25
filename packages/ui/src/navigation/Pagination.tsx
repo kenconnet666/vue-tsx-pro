@@ -2,7 +2,7 @@
  * 分页（nav > ul）：上一页、页码、省略号、下一页，当前页带 aria-current="page"。
  * 页码序列用 utils/data/pagination.ts（项数固定，翻页时按钮不跳动）；按钮用 Button / IconButton，文案取语言包。
  *
- *   <Pagination _page={_bind(page)} total={320} pageSize={20} />
+ *   <Pagination _page={page} total={320} pageSize={20} />
  *   <Pagination page={page} pageCount={12} href={(n) => `/articles?page=${n}`} />   渲染为链接（可分享、可被收录）
  */
 import { ChevronLeft, ChevronRight, Ellipsis } from '@lucide/icons';
@@ -23,7 +23,7 @@ import { t } from '../config/theme/tokens';
 
 /** 未声明的属性落到 nav 上；aria-label 默认取语言包（分页） */
 export interface PaginationProps extends PartProps<'nav'> {
-  /** 当前页，从 1 开始：父级写 _page={_bind(x)} */
+  /** 当前页，从 1 开始：父级写 _page={x} */
   _page?: number;
   /** 总页数；不写时按 total 与 pageSize 算 */
   pageCount?: number;

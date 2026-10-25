@@ -71,10 +71,10 @@ export default _component(() => {
             <ThemeSwitcher preference={preference} />
           </Flex>
           <ToggleGroup
-            _value={_bind(
-              () => preference.preference,
-              (next) => void preference.set(next),
-            )}
+            _value={preference.preference}
+            onUpdate:_value={(next: Parameters<typeof preference.set>[0]) =>
+              void preference.set(next)
+            }
             required
             size="sm"
             aria-label="主题"

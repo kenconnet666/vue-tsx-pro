@@ -23,7 +23,7 @@ const Page = _component(() => {
   return () => (
     <Provider lang={{ direction: 'rtl' }}>
       <Slider
-        _value={_bind(value)}
+        _value={value}
         aria-label="音量"
         onValueCommit={(next) => (volume = next)}
         propsRoot={{ class: 'slider' }}

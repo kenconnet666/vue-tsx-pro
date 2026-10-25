@@ -16,8 +16,8 @@ describe('CommandPalette', () => {
     const results = ['订单 A-10200', '订单 A-10207'];
     const root = mount(() => (
       <CommandPalette
-        _open={_bind(open)}
-        _inputValue={_bind(keyword)}
+        _open={open}
+        _inputValue={keyword}
         items={results}
         filter={false}
         loading={loading}
@@ -46,8 +46,8 @@ describe('CommandPalette', () => {
     let keyword = _state('');
     const root = mount(() => (
       <CommandPalette
-        _open={_bind(open)}
-        _inputValue={_bind(keyword)}
+        _open={open}
+        _inputValue={keyword}
         items={['新建文档', '打开设置', '新建表格']}
         hotkey={false}
         trigger={false}

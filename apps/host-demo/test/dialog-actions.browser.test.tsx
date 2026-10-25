@@ -28,7 +28,7 @@ function mountDialog(results: ('false' | 'fail' | 'ok')[]) {
         );
       });
     return () => (
-      <Dialog _open={_bind(open)} title="编辑资料" confirmText="保存" onConfirm={confirm}>
+      <Dialog _open={open} title="编辑资料" confirmText="保存" onConfirm={confirm}>
         正文
       </Dialog>
     );

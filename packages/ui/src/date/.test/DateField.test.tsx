@@ -64,7 +64,7 @@ describe('DateField', () => {
 
   it('逐段输入：满了自动跳段、焦点跟过去；填全才写回 ISO', async () => {
     let value = _state<string | null>(null);
-    const root = mount(() => <DateField _value={_bind(value)} aria-label="日期" />);
+    const root = mount(() => <DateField _value={value} aria-label="日期" />);
     segment(root, 'year').focus();
     await type('2026');
     expect(document.activeElement).toBe(segment(root, 'month'));
@@ -78,7 +78,7 @@ describe('DateField', () => {
 
   it('↑↓ 加减并回绕；Backspace 删空后写回 null', async () => {
     let value = _state<string | null>('2026-12-31');
-    const root = mount(() => <DateField _value={_bind(value)} aria-label="日期" />);
+    const root = mount(() => <DateField _value={value} aria-label="日期" />);
     segment(root, 'month').focus();
     await press('ArrowUp');
     expect(value).toBe('2026-01-31');
@@ -91,7 +91,7 @@ describe('DateField', () => {
 
   it('外部改值时各段跟着变', async () => {
     let value = _state<string | null>('2026-10-20');
-    const root = mount(() => <DateField _value={_bind(value)} aria-label="日期" />);
+    const root = mount(() => <DateField _value={value} aria-label="日期" />);
     value = '2027-01-02';
     await nextTick();
     expect(text(root)).toBe('2027/01/02');
@@ -135,7 +135,7 @@ describe('DateField', () => {
   it('清空按钮、隐藏的表单值', async () => {
     let value = _state<string | null>('2026-10-20');
     const root = mount(() => (
-      <DateField _value={_bind(value)} clearable name="birthday" aria-label="生日" />
+      <DateField _value={value} clearable name="birthday" aria-label="生日" />
     ));
     expect(root.querySelector<HTMLInputElement>('input[type=hidden]')!.value).toBe('2026-10-20');
     root.querySelector<HTMLButtonElement>('button')!.click();
@@ -183,7 +183,7 @@ describe('DateField', () => {
 describe('TimeField', () => {
   it('zh-CN 24 小时制：打 1430 得到 14:30', async () => {
     let value = _state<string | null>(null);
-    const root = mount(() => <TimeField _value={_bind(value)} aria-label="时间" />);
+    const root = mount(() => <TimeField _value={value} aria-label="时间" />);
     expect(text(root)).toBe('时:分');
     segment(root, 'hour').focus();
     await type('1430');
@@ -194,7 +194,7 @@ describe('TimeField', () => {
     let value = _state<string | null>('09:15');
     const root = mount(() => (
       <Provider lang={enUS}>
-        <TimeField _value={_bind(value)} aria-label="Time" />
+        <TimeField _value={value} aria-label="Time" />
       </Provider>
     ));
     expect(text(root)).toBe('9:15 AM');
@@ -222,7 +222,7 @@ describe('TimeField', () => {
     const root = mount(() => (
       <Form controller={form} onSubmit={(event: Event) => submitted.push(event)}>
         <form.Field name="due" label="截止">
-          <DateField _value={_bind(form.values.due)} />
+          <DateField _value={form.values.due} />
         </form.Field>
       </Form>
     ));
@@ -250,8 +250,8 @@ describe('TimeField', () => {
     let week = _state<string | null>(null);
     const root = mount(() => (
       <>
-        <DateField granularity="quarter" _value={_bind(quarter)} aria-label="季度" />
-        <DateField granularity="week" _value={_bind(week)} aria-label="周" />
+        <DateField granularity="quarter" _value={quarter} aria-label="季度" />
+        <DateField granularity="week" _value={week} aria-label="周" />
       </>
     ));
     const [quarterGroup, weekGroup] = [...root.querySelectorAll<HTMLElement>('[role="group"]')];

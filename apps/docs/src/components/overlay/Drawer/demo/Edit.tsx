@@ -50,10 +50,10 @@ export default _component(() => {
         </Button>
       </Flex>
       <Drawer
-        _open={_bind(open)}
+        _open={open}
         title="编辑项目"
         description="改了没保存时关闭会先确认；左边的竖线可以拖动调宽，往右拖到底只剩一窄条"
-        _width={_bind(width)}
+        _width={width}
         beforeClose={mayClose}
         confirmText="保存"
         onConfirm={save}
@@ -61,10 +61,10 @@ export default _component(() => {
       >
         <Flex direction="column" gap="md">
           <Field label="项目名称" required>
-            <TextField _value={_bind(draft.name)} />
+            <TextField _value={draft.name} />
           </Field>
           <Field label="简要描述">
-            <Textarea _value={_bind(draft.note)} rows={4} />
+            <Textarea _value={draft.note} rows={4} />
           </Field>
         </Flex>
       </Drawer>

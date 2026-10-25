@@ -31,9 +31,9 @@ export default _component(() => {
           )}
         >
           <MenuGroup label="视图">
-            <MenuCheckboxItem _checked={_bind(grid)}>网格视图</MenuCheckboxItem>
-            <MenuCheckboxItem _checked={_bind(hidden)}>显示隐藏文件</MenuCheckboxItem>
-            <MenuCheckboxItem _checked={_bind(extensions)}>显示扩展名</MenuCheckboxItem>
+            <MenuCheckboxItem _checked={grid}>网格视图</MenuCheckboxItem>
+            <MenuCheckboxItem _checked={hidden}>显示隐藏文件</MenuCheckboxItem>
+            <MenuCheckboxItem _checked={extensions}>显示扩展名</MenuCheckboxItem>
           </MenuGroup>
         </Menu>
         <Menu
@@ -43,14 +43,14 @@ export default _component(() => {
             </Button>
           )}
         >
-          <MenuRadioGroup _value={_bind(sort)} label="排序依据">
+          <MenuRadioGroup _value={sort} label="排序依据">
             {(Object.keys(sorts) as Sort[]).map((key) => (
               <MenuRadioItem key={key} value={key}>
                 {sorts[key]}
               </MenuRadioItem>
             ))}
           </MenuRadioGroup>
-          <MenuRadioGroup _value={_bind(order)} label="顺序">
+          <MenuRadioGroup _value={order} label="顺序">
             <MenuRadioItem value="asc">升序</MenuRadioItem>
             <MenuRadioItem value="desc">降序</MenuRadioItem>
           </MenuRadioGroup>

@@ -6,9 +6,9 @@
  *     <MenuItem icon={Copy} shortcut="Ctrl+D" onAction={duplicate}>复制</MenuItem>
  *     <Separator decorative={false} />
  *     <MenuGroup label="视图">
- *       <MenuCheckboxItem _checked={_bind(showGrid)}>显示网格</MenuCheckboxItem>
+ *       <MenuCheckboxItem _checked={showGrid}>显示网格</MenuCheckboxItem>
  *     </MenuGroup>
- *     <MenuRadioGroup _value={_bind(sort)} label="排序">
+ *     <MenuRadioGroup _value={sort} label="排序">
  *       <MenuRadioItem value="name">名称</MenuRadioItem>
  *       <MenuRadioItem value="date">日期</MenuRadioItem>
  *     </MenuRadioGroup>
@@ -100,7 +100,7 @@ export interface MenuProps
     Pick<FloatingOptions, 'offset'>,
     LazyContentOptions,
     OpenChangeProps {
-  /** 是否打开：父级可以写 _open={_bind(x)}；Esc、点击外部、执行菜单项都会关闭并写回 */
+  /** 是否打开：父级可以写 _open={x}；Esc、点击外部、执行菜单项都会关闭并写回 */
   _open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
   placement?: FloatingPlacement;
@@ -623,7 +623,7 @@ export const MenuLinkItem = _component(
 
 /** 未声明的属性落到 button（role="menuitemcheckbox"）上 */
 export interface MenuCheckboxItemProps extends MenuButtonItemProps {
-  /** 是否勾选：父级写 _checked={_bind(x)} */
+  /** 是否勾选：父级写 _checked={x} */
   _checked?: boolean;
   /** 勾选标记的部件属性 */
   propsIndicator?: Partial<IconProps>;
@@ -717,7 +717,7 @@ export const MenuGroup = _component(({ label, propsLabel, children, ...rest }: M
 
 /** 未声明的属性落到分组的 div（role="group"）上 */
 export interface MenuRadioGroupProps extends MenuGroupProps {
-  /** 选中项的值：父级写 _value={_bind(x)} */
+  /** 选中项的值：父级写 _value={x} */
   _value?: string;
 }
 
@@ -808,7 +808,7 @@ export interface MenuSubProps
   label: VNodeChild;
   /** 不可用：不能打开子菜单 */
   disabled?: boolean;
-  /** 子菜单是否打开：父级可以写 _open={_bind(x)} */
+  /** 子菜单是否打开：父级可以写 _open={x} */
   _open?: boolean;
   /** 子菜单（role="menu" 的 div）的部件属性 */
   propsPanel?: PartProps<'div', 'id' | 'popover' | 'role'>;

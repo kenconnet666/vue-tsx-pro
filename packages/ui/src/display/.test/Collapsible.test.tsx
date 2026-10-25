@@ -7,7 +7,7 @@ describe('Collapsible', () => {
   it('触发器拿到 aria-expanded 与指向内容区的 aria-controls，点击切换并写回', async () => {
     let open = _state(false);
     const host = mount(() => (
-      <Collapsible _open={_bind(open)} trigger={(props) => <button {...props}>更多</button>}>
+      <Collapsible _open={open} trigger={(props) => <button {...props}>更多</button>}>
         内容
       </Collapsible>
     ));
@@ -45,7 +45,7 @@ describe('Collapsible', () => {
   it('disabled：触发器带上 disabled，点击不切换', async () => {
     let open = _state(false);
     const host = mount(() => (
-      <Collapsible _open={_bind(open)} disabled trigger={(props) => <span {...props}>更多</span>}>
+      <Collapsible _open={open} disabled trigger={(props) => <span {...props}>更多</span>}>
         内容
       </Collapsible>
     ));

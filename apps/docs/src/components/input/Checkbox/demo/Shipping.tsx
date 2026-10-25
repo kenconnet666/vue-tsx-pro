@@ -13,7 +13,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="lg">
       <Field label="配送方式">
-        <RadioGroup _value={_bind(shipping)} name="shipping">
+        <RadioGroup _value={shipping} name="shipping">
           {options.map(([value, title, time, price]) => (
             <Radio key={value} value={value}>
               <Flex justify="between" gap="lg">
@@ -28,7 +28,7 @@ export default _component(() => {
         </RadioGroup>
       </Field>
       <Field label="发票" required error={invoice ? undefined : '请选择发票类型'}>
-        <RadioGroup _value={_bind(invoice)} name="invoice" orientation="horizontal">
+        <RadioGroup _value={invoice} name="invoice" orientation="horizontal">
           <Radio value="none">不开发票</Radio>
           <Radio value="personal">个人</Radio>
           <Radio value="company">企业</Radio>

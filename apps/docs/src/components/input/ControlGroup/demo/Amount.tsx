@@ -18,8 +18,8 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Field label="合同金额" description="按当天中间价换算成人民币">
         <ControlGroup aria-label="合同金额">
-          <Select items={currencies} _value={_bind(currency)} aria-label="币种" />
-          <NumberField _value={_bind(amount)} min={0} aria-label="金额" />
+          <Select items={currencies} _value={currency} aria-label="币种" />
+          <NumberField _value={amount} min={0} aria-label="金额" />
           <Button variant="outline" tone="neutral" onClick={convert}>
             换算
           </Button>

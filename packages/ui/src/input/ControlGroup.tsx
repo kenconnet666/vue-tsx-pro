@@ -2,8 +2,8 @@
  * 组合输入（div，role="group"）：输入框、选择框、按钮连成一条，共用边框：币种 + 金额、协议 + 域名、搜索框 + 搜索按钮。
  *
  *   <ControlGroup aria-label="金额">
- *     <Select items={currencies} _value={_bind(currency)} aria-label="币种" style="width: 6rem" />
- *     <NumberField _value={_bind(amount)} aria-label="金额" />
+ *     <Select items={currencies} _value={currency} aria-label="币种" style="width: 6rem" />
+ *     <NumberField _value={amount} aria-label="金额" />
  *   </ControlGroup>
  *
  * 里面的输入框外壳与按钮家族经 AttachedContext 得知自己在组里：去掉相邻一侧的圆角、边框叠在一起，

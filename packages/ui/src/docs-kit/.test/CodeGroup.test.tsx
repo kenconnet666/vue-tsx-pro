@@ -20,7 +20,6 @@ describe('CodeGroup', () => {
       <CodeGroup
         items={items}
         _value={selected.value}
-        {...{ 'onUpdate:_value': (next: string) => (selected.value = next) }}
       />
     ));
     expect(visibleCode(root)).toEqual(['pnpm add x']);

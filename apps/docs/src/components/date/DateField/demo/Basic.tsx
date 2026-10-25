@@ -13,7 +13,7 @@ export default _component(() => {
         label="生日"
         description={birthday ? format.date(birthday, { dateStyle: 'full' }) : '年 / 月 / 日'}
       >
-        <DateField _value={_bind(birthday)} max={today} name="birthday" clearable />
+        <DateField _value={birthday} max={today} name="birthday" clearable />
       </Field>
       <Field
         label="证件有效期至"
@@ -21,7 +21,7 @@ export default _component(() => {
         invalid={expires != null && expires < today}
         error={expires != null && expires < today ? '证件已过期' : undefined}
       >
-        <DateField _value={_bind(expires)} min={today} name="expires" />
+        <DateField _value={expires} min={today} name="expires" />
       </Field>
       <Text tone="muted" size="sm">
         提交的值：birthday={birthday ?? 'null'}，expires={expires ?? 'null'}

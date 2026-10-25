@@ -69,14 +69,14 @@ export default _component(() => {
         <Form controller={form}>
           <Flex direction="column" gap="md">
             <form.Field name="customer" label="客户">
-              <TextField _value={_bind(form.values.customer)} />
+              <TextField _value={form.values.customer} />
             </form.Field>
             {/* 只有第一行显示列标题；每行的控件另有 aria-label，读屏知道是第几项 */}
             {items.items.map((_, index) => (
               <div key={items.keys[index]} {...css.attrs(styles.row)}>
                 <form.Field name={`items.${index}.name`} label={index === 0 ? '品名' : undefined}>
                   <TextField
-                    _value={_bind(form.values.items[index]!.name)}
+                    _value={form.values.items[index]!.name}
                     aria-label={`第 ${index + 1} 项品名`}
                   />
                 </form.Field>
@@ -85,7 +85,7 @@ export default _component(() => {
                   label={index === 0 ? '单价（元）' : undefined}
                 >
                   <NumberField
-                    _value={_bind(form.values.items[index]!.price)}
+                    _value={form.values.items[index]!.price}
                     aria-label={`第 ${index + 1} 项单价`}
                   />
                 </form.Field>
@@ -94,7 +94,7 @@ export default _component(() => {
                   label={index === 0 ? '数量' : undefined}
                 >
                   <NumberField
-                    _value={_bind(form.values.items[index]!.quantity)}
+                    _value={form.values.items[index]!.quantity}
                     aria-label={`第 ${index + 1} 项数量`}
                   />
                 </form.Field>

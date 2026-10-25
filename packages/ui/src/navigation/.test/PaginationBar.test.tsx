@@ -41,8 +41,8 @@ describe('PaginationBar', () => {
     let pageSize = _state(10);
     const root = mount(() => (
       <PaginationBar
-        _page={_bind(page)}
-        _pageSize={_bind(pageSize)}
+        _page={page}
+        _pageSize={pageSize}
         total={320}
         propsSizeSelect={{ _open: true }}
       />
@@ -65,7 +65,7 @@ describe('PaginationBar', () => {
     let page = _state(1);
     const root = mount(() => (
       <>
-        <PaginationBar _page={_bind(page)} total={95} showSizeSelect={false} class="many" />
+        <PaginationBar _page={page} total={95} showSizeSelect={false} class="many" />
         <PaginationBar total={8} class="single" />
       </>
     ));

@@ -1,7 +1,7 @@
 /**
  * 多行文本框：外壳与 TextField 相同（control），高度随内容增长，在 rows 与 maxRows 之间。
  *
- *   <Field label="备注"><Textarea _value={_bind(note)} rows={3} maxRows={8} /></Field>
+ *   <Field label="备注"><Textarea _value={note} rows={3} maxRows={8} /></Field>
  *
  * 自动增高：内容变化后（含父级改值）把高度设为 scrollHeight，上下限用 lh 单位（行高的倍数）由 CSS 夹住。
  * 没用 field-sizing: content：Firefox 还不支持，样式的类型表里也没有。中文输入法照常（v-model）。
@@ -23,7 +23,7 @@ export type TextareaManaged =
 
 /** 未声明的属性落到 textarea（主元素）上；外壳用 propsRoot */
 export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, ControlOptions {
-  /** 输入值：父级写 _value={_bind(x)} 双向绑定 */
+  /** 输入值：父级写 _value={x} 双向绑定 */
   _value?: string;
   /** 最少显示几行，默认 3 */
   rows?: number;
@@ -143,7 +143,7 @@ export const Textarea = _component(
                 'aria-describedby': describedBy || undefined,
               },
             )}
-            _value={_bind(value)}
+            _value={value}
           />
           {clearable &&
             value &&

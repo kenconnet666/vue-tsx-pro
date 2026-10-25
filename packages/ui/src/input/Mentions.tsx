@@ -1,8 +1,8 @@
 /**
  * 提及：多行文本框里输入 @ 弹出人员（或岗位、群组）列表，选中后写成“@名字 ”。留言、审批意见、协商回复里通知相关的人。
  *
- *   <Field label="留言"><Mentions _value={_bind(text)} items={people} _mentions={_bind(notified)} /></Field>
- *   <Mentions _value={_bind(text)} load={(query, signal) => api.searchUsers(query, { signal })} toOption={…} />
+ *   <Field label="留言"><Mentions _value={text} items={people} _mentions={notified} /></Field>
+ *   <Mentions _value={text} load={(query, signal) => api.searchUsers(query, { signal })} toOption={…} />
  *
  * 值仍是文字；mentions 是文字里提到的选项的值（工号、岗位编号），随文字增删——删掉“@名字”就不再算提及。
  * 显示提及过的文字用 MentionText（提及高亮），拆分用 mentionSegments。
@@ -46,13 +46,13 @@ export interface MentionsBaseProps<T>
   items?: readonly T[];
   /** 远程搜索：按 @ 后面的文字调用，停下 300 ms 后请求，只采用最后一次 */
   load?: OptionsLoader<T>;
-  /** 文字里提到的选项的值：父级写 _mentions={_bind(x)}，随文字更新 */
+  /** 文字里提到的选项的值：父级写 _mentions={x}，随文字更新 */
   _mentions?: string[];
   /** 触发的字符，默认 '@' */
   prefix?: string;
   /** 过滤：默认按显示文字包含 @ 后面的文字；false 不过滤（由调用方换 items） */
   filter?: false | ((item: T, query: string) => boolean);
-  /** 列表是否打开：父级可以写 _open={_bind(x)} */
+  /** 列表是否打开：父级可以写 _open={x} */
   _open?: boolean;
   /** 正在取选项 */
   loading?: boolean;
@@ -372,7 +372,7 @@ export const Mentions = _component(
               onBlur: (event: FocusEvent) => open && setOpen(false, 'focus', event),
             },
           )}
-          _value={_bind(value)}
+          _value={value}
         />
         <ListPopover
           panelRef={_toRef(panel)}

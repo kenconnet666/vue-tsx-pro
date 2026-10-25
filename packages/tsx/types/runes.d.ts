@@ -9,20 +9,19 @@ import type { Ref } from 'vue';
  */
 type UnwrapRefs<T> = { [K in keyof T]: T[K] extends Ref<infer V> ? V : never };
 
-/** _bind 与它的修饰符（可以连写：_bind.lazy.trim）；类型上就是传入的值本身 */
-interface Bind {
+/** 原生输入框绑定的修饰符（可以连写：_bind.lazy.trim）；类型上就是传入的值本身 */
+interface BindModifiers {
+  /** 去掉首尾空白 */
+  readonly trim: BindModifier;
+  /** 转成数字（<input type="number"> 与 type="range" 不用写，自动按数字） */
+  readonly number: BindModifier;
+  /** change 时才同步，而不是每次输入 */
+  readonly lazy: BindModifier;
+}
+
+/** 一个修饰符：_value={_bind.trim(name)}，参数是可写的变量或对象属性 */
+interface BindModifier extends BindModifiers {
   <T>(target: T): T;
-  /**
-   * 函数绑定（同 Svelte 5 的 bind:x={get, set}）：写回时要做别的事、或值要换算时用，
-   * `_value={_bind(() => status, (next) => switchTo(next))}`；只用于组件
-   */
-  <T>(get: () => T, set: (value: T) => void): T;
-  /** 去掉首尾空白（原生输入元素） */
-  readonly trim: Bind;
-  /** 转成数字（原生输入元素） */
-  readonly number: Bind;
-  /** change 时才同步，而不是每次输入（原生输入元素） */
-  readonly lazy: Bind;
 }
 
 declare global {
@@ -67,15 +66,15 @@ declare global {
 
   /**
    * 组件参数默认值：可双向绑定的 prop，键名以下划线开头、本地变量不带下划线：({ _checked: checked = _bindable(false) })；
-   * 父级写 _checked={_bind(x)}，不绑定时就是组件自己的状态
+   * 父级传可写的变量或对象属性就双向绑定（_checked={on}），传别的值只是初始值或受控值，都不传就是组件自己的状态
    */
   function _bindable<T>(fallback?: T): T;
 
   /**
-   * 双向绑定，与 _bindable 成对：<Switch _checked={_bind(on)} />、<input _value={_bind.trim(name)} />
-   * 只能写在下划线开头的属性上（一眼看出哪些在绑定）；编译为 Vue 的 v-model，参数是 let 声明的响应式变量或对象属性
+   * 原生输入框绑定的修饰符：<input _value={_bind.trim(name)} />、<input _value={_bind.lazy(note)} />。
+   * 一般的双向绑定不用它：下划线属性的值是可写的变量或对象属性时自动绑定（<Switch _checked={on} />）
    */
-  const _bind: Bind;
+  const _bind: BindModifiers;
 
   /**
    * Ref → 变量：持有外部 Ref（组合式函数、storeToRefs 的返回值），之后像普通变量一样读写，写入直接落到原 Ref。

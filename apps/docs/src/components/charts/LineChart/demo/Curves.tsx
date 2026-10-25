@@ -16,7 +16,7 @@ export default _component(() => {
   let curve = _state<keyof LineCurves>('monotone');
   return () => (
     <Flex direction="column" gap="md">
-      <ToggleGroup _value={_bind(curve)} aria-label="线的形状" size="sm" required>
+      <ToggleGroup _value={curve} aria-label="线的形状" size="sm" required>
         <ToggleItem value="linear">折线</ToggleItem>
         <ToggleItem value="monotone">平滑</ToggleItem>
         <ToggleItem value="step">阶梯</ToggleItem>

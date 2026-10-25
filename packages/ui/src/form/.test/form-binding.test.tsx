@@ -43,7 +43,7 @@ function setup() {
               <form.Field name="email" label="邮箱">
                 <TextField
                   _value={explicit || form.values.email}
-                  {...{ 'onUpdate:_value': (value: string) => (explicit = value) }}
+                  onUpdate:_value={(value: string) => (explicit = value)}
                 />
               </form.Field>
               <form.Field name="agree" label="同意协议">

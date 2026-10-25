@@ -91,7 +91,7 @@ export const Integration = _component(() => {
 
         <div {...css.attrs(styles.row)}>
           <TextField
-            _value={_bind(keyword)}
+            _value={keyword}
             clearable
             icon={Search}
             placeholder="搜索"
@@ -103,7 +103,7 @@ export const Integration = _component(() => {
 
         <div {...css.attrs(styles.row)}>
           <Popover
-            _open={_bind(menuOpen)}
+            _open={menuOpen}
             trigger={(props) => (
               <Button {...props} class="menu-trigger">
                 更多
@@ -117,7 +117,7 @@ export const Integration = _component(() => {
             打开对话框
           </Button>
           <Dialog
-            _open={_bind(dialogOpen)}
+            _open={dialogOpen}
             title="编辑资料"
             class="integration-dialog"
             footer={
@@ -136,13 +136,9 @@ export const Integration = _component(() => {
             }
           >
             <div {...css.attrs(styles.row)}>
-              <TextField
-                _value={_bind(name)}
-                aria-label="名字"
-                propsRoot={{ class: 'dialog-field' }}
-              />
+              <TextField _value={name} aria-label="名字" propsRoot={{ class: 'dialog-field' }} />
               <Popover
-                _open={_bind(nestedOpen)}
+                _open={nestedOpen}
                 trigger={(props) => (
                   <Button {...props} variant="outline" class="nested-trigger">
                     选项

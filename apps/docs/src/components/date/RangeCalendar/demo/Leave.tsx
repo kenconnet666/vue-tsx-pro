@@ -26,7 +26,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <RangeCalendar
-        _value={_bind(leave)}
+        _value={leave}
         visibleMonths={2}
         isDateUnavailable={weekend}
         allowsUnavailableInRange

@@ -4,7 +4,7 @@
  *
  *   let settings = _state<ThemeSettings>({});
  *   app.use(createUi({ theme: () => customizeTheme(preference.theme, settings) }));
- *   <ThemeCustomizer _settings={_bind(settings)} base={preference.theme} />
+ *   <ThemeCustomizer _settings={settings} base={preference.theme} />
  *
  * 旋钮分成颜色、形状与尺寸、字体与动效、检查与导出四组；每个选项带示意（色块与名字、圆角的角、字号、字体），
  * 当前取值写在旋钮名称旁边。对比度按 CONTRAST_PAIRS 检查，读的是 contrastTarget（默认页面根元素）上实际生效的颜色，
@@ -49,7 +49,7 @@ import { colors } from '../config/theme/tokens';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ThemeCustomizerProps extends PartProps<'div'> {
-  /** 设置：父级写 _settings={_bind(x)} */
+  /** 设置：父级写 _settings={x} */
   _settings?: ThemeSettings;
   /** 设置套在哪套主题上：决定色块取亮色还是暗色色阶、导出代码里的基础主题 */
   base: Theme;
@@ -240,7 +240,7 @@ export const ThemeCustomizer = _component(
         </div>
         <ToggleGroup
           _value={value}
-          {...{ 'onUpdate:_value': onChange }}
+          onUpdate:_value={onChange}
           required
           size="sm"
           aria-label={label}

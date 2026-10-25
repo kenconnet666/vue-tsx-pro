@@ -147,7 +147,7 @@ export const Popconfirm = _component(
             { placement, role: 'alertdialog' },
           )}
           trigger={trigger}
-          _open={_bind(open)}
+          _open={open}
           onOpenChange={onOpenChange}
         >
           <div {...css.attrs(popconfirmStyles.body)}>

@@ -2,7 +2,7 @@
  * 数值区间（div role="group"）：两个 NumberField，最小到最大。预期收益量级、金额范围、数量区间的录入与筛选。
  *
  *   <Field label="预期收益量级">
- *     <NumberRangeField _value={_bind(range)} format={{ scale: 10_000 }} suffix="万元" min={0} />
+ *     <NumberRangeField _value={range} format={{ scale: 10_000 }} suffix="万元" min={0} />
  *   </Field>
  *
  * value 是 [起, 止]，任一端可以为空（null，“10 万元以上”）。两端都填了、起比止大时自动对调，不用报错。
@@ -33,7 +33,7 @@ export type NumberRangeFieldManaged = 'role' | 'placeholder' | 'prefix';
 /** 未声明的属性落到外层 div 上 */
 export interface NumberRangeFieldProps
   extends PartProps<'div', NumberRangeFieldManaged>, ControlOptions {
-  /** [起, 止]：父级写 _value={_bind(range)}；任一端可以为 null */
+  /** [起, 止]：父级写 _value={range}；任一端可以为 null */
   _value?: NumberRange;
   /** 两端共同的最小值 */
   min?: NumericValue;
@@ -162,10 +162,8 @@ export const NumberRangeField = _component(
                 'aria-label': lang.sliderMin,
               },
             )}
-            _value={_bind(
-              () => value[0],
-              (next: NumericValue | null) => set(0, next),
-            )}
+            _value={value[0]}
+            onUpdate:_value={(next: NumericValue | null) => set(0, next)}
           />
           <span
             {...mergeAttrs<'span'>({ sx: numberRangeFieldStyles.separator }, propsSeparator, {
@@ -184,10 +182,8 @@ export const NumberRangeField = _component(
                 'aria-label': lang.sliderMax,
               },
             )}
-            _value={_bind(
-              () => value[1],
-              (next: NumericValue | null) => set(1, next),
-            )}
+            _value={value[1]}
+            onUpdate:_value={(next: NumericValue | null) => set(1, next)}
           />
         </div>
       );

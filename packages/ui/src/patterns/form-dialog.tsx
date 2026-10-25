@@ -130,10 +130,8 @@ const FormDialogBody = _component(
         case 'textarea':
           return (
             <Textarea
-              _value={_bind(
-                () => values[field.name] ?? '',
-                (next: string) => (values[field.name] = next),
-              )}
+              _value={values[field.name] ?? ''}
+              onUpdate:_value={(next: string) => (values[field.name] = next)}
               rows={3}
               placeholder={field.placeholder}
               maxlength={field.maxlength}
@@ -143,10 +141,8 @@ const FormDialogBody = _component(
         case 'date':
           return (
             <DatePicker
-              _value={_bind(
-                () => values[field.name] || null,
-                (next: string | null) => (values[field.name] = next ?? ''),
-              )}
+              _value={values[field.name] || null}
+              onUpdate:_value={(next: string | null) => (values[field.name] = next ?? '')}
               min={field.min}
               max={field.max}
             />
@@ -155,20 +151,16 @@ const FormDialogBody = _component(
           return (
             <Select
               items={field.options ?? []}
-              _value={_bind(
-                () => values[field.name] || null,
-                (next: string | null) => (values[field.name] = next ?? ''),
-              )}
+              _value={values[field.name] || null}
+              onUpdate:_value={(next: string | null) => (values[field.name] = next ?? '')}
               placeholder={field.placeholder}
             />
           );
         default:
           return (
             <TextField
-              _value={_bind(
-                () => values[field.name] ?? '',
-                (next: string) => (values[field.name] = next),
-              )}
+              _value={values[field.name] ?? ''}
+              onUpdate:_value={(next: string) => (values[field.name] = next)}
               placeholder={field.placeholder}
               maxlength={field.maxlength}
               autofocus={autofocus}
@@ -180,7 +172,7 @@ const FormDialogBody = _component(
     return () => (
       <Dialog
         size={options.size ?? 'sm'}
-        _open={_bind(open)}
+        _open={open}
         onClose={() => onClose()}
         title={options.title}
         description={options.description}
@@ -223,7 +215,7 @@ export function useFormDialog(): (
       mount((host) => (
         <FormDialogBody
           options={options}
-          _open={_bind(host.open)}
+          _open={host.open}
           onDone={(values) => (result = values)}
           onClose={() => {
             resolve(result);

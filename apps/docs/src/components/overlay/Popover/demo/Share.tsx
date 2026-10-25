@@ -30,7 +30,7 @@ export default _component(() => {
     <Flex direction="column" gap="md" align="start">
       <Flex gap="sm" wrap>
         <Popover
-          _open={_bind(sharing)}
+          _open={sharing}
           placement="bottom-start"
           arrow
           trigger={(props) => (
@@ -45,11 +45,11 @@ export default _component(() => {
               <TextField _value={link} readonly aria-label="分享链接" />
               <CopyButton value={link} />
             </Flex>
-            <Switch _checked={_bind(comments)}>允许查看者评论</Switch>
+            <Switch _checked={comments}>允许查看者评论</Switch>
           </Flex>
         </Popover>
         <Popover
-          _open={_bind(filtering)}
+          _open={filtering}
           placement="bottom-start"
           trigger={(props) => (
             <Button {...props} variant="outline" tone="neutral" icon={Filter}>
@@ -58,7 +58,7 @@ export default _component(() => {
           )}
         >
           <Flex direction="column" gap="md">
-            <CheckboxGroup _value={_bind(picked)} aria-label="订单状态">
+            <CheckboxGroup _value={picked} aria-label="订单状态">
               {statuses.map((status) => (
                 <Checkbox key={status} value={status}>
                   {status}

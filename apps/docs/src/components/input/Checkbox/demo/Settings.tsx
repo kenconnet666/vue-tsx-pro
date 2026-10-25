@@ -32,23 +32,19 @@ export default _component(() => {
   return () => (
     <Card>
       <Flex direction="column" gap="md">
-        {row(
-          '接收通知',
-          '订单状态变化时推送',
-          <Switch _checked={_bind(notify)} aria-label="接收通知" />,
-        )}
+        {row('接收通知', '订单状态变化时推送', <Switch _checked={notify} aria-label="接收通知" />)}
         <Separator />
         {row(
           '每周摘要',
           '每周一早上发送上周数据',
-          <Switch _checked={_bind(digest)} disabled={!notify} aria-label="每周摘要" />,
+          <Switch _checked={digest} disabled={!notify} aria-label="每周摘要" />,
         )}
         <Separator />
         {row(
           '暗色模式',
           '轨道里可以放图标或文字',
           <Switch
-            _checked={_bind(dark)}
+            _checked={dark}
             checkedContent={<Icon icon={Moon} />}
             uncheckedContent={<Icon icon={Sun} />}
             size="lg"
@@ -60,7 +56,8 @@ export default _component(() => {
           '云端同步',
           syncing ? '正在保存…' : '在所有设备上保持一致',
           <Switch
-            _checked={_bind(() => sync, toggleSync)}
+            _checked={sync}
+            onUpdate:_checked={toggleSync}
             loading={syncing}
             tone="success"
             aria-label="云端同步"

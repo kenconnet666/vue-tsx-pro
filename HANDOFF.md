@@ -222,7 +222,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 | axe 报不可用控件的标签对比度不足                               | 标签的 `for` 指向的元素没有 `aria-disabled`（分段的日期框是 `role="group"`，TagsInput 的标签在外壳里），axe 不知道整个控件不可用；在那个元素上写 `aria-disabled` |
 | `onCopied?.(await copy(text))` 什么也没复制                    | 可选调用在函数不存在时连参数都不求值：有副作用的表达式先算出来再传                                                                                               |
 | 和原生属性重名的 prop 出怪事                                   | 组件 props 继承了元素属性（`hidden`、`onToggle`、`color`、`onLoad`、`onError`、`onSelect` 都踩过）：改名或放进受管属性                                           |
-| `_bind(get, set)` 编译报错                                     | get 必须是行内的函数字面量；只要初始值时用 `_untrack`                                                                                                            |
+| `_value={…}` 没有双向绑定                                      | 值要是可写的位置（let 声明的响应式变量、`_bindable` 的 prop、对象属性）；表达式只传值。自己处理更新写 `onUpdate:_value`                                          |
 | 子组件显示旧内容                                               | `children` 用不缓存的 `childrenProp`（编译器生成）                                                                                                               |
 | 覆盖样式不生效（如 `borderColor`）                             | 长属性总是优先于简写（引擎把简写排在前面），要写同一个长属性                                                                                                     |
 | `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉。从右到左里混排的中文与数字会被双向算法重排，示例里别让数字打头                                            |

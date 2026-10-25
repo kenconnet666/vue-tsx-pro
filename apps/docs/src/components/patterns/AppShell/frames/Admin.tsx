@@ -82,7 +82,7 @@ export default _component(() => {
 
   return () => (
     <AppShell
-      _sidebarOpen={_bind(navOpen)}
+      _sidebarOpen={navOpen}
       brand={
         <AppShellBrand href="#overview" icon={Box}>
           小满商城后台

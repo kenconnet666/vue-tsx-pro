@@ -2,15 +2,15 @@
  * 上传（div）：FileDrop 选文件，下面列出文件、上传进度、失败重试与移除。只负责界面与状态，怎样上传由 upload 决定：
  *
  *   <Upload
- *     _value={_bind(files)}
+ *     _value={files}
  *     multiple
  *     accept="image/*"
  *     maxSize={5_000_000}
  *     upload={(file, { onProgress, signal }) => api.upload(file, { onProgress, signal })}
  *   />
- *   <Upload _value={_bind(files)} action="/files" />   用应用配置的请求客户端（http）上传
+ *   <Upload _value={files} action="/files" />   用应用配置的请求客户端（http）上传
  *
- * - value 是 UploadFile 的数组（文件、状态、进度、错误、upload 的结果），父级写 _value={_bind(list)}；
+ * - value 是 UploadFile 的数组（文件、状态、进度、错误、upload 的结果），父级写 _value={list}；
  * - 给了 upload 或 action 时选到文件就开始上传，否则停在 selected（等提交时一起上传）；移除正在上传的文件会中止（signal）；
  * - action：经 createUi / Provider 的 http 把文件 POST 过去（multipart，字段名 fieldName），与其他请求共用 baseURL、令牌与拆包；
  *   fetch 拿不到上传的字节进度，进度条是不确定的，要进度时写 upload（XMLHttpRequest 的 upload.onprogress）；
@@ -97,7 +97,7 @@ export interface UploadListTypes {
 
 /** 未声明的属性落到外层 div 上 */
 export interface UploadProps extends PartProps<'div'> {
-  /** 文件列表：父级写 _value={_bind(list)} */
+  /** 文件列表：父级写 _value={list} */
   _value?: UploadFile[];
   /** 怎样上传一个文件；不写时用 action，都没有时只选文件、不上传 */
   upload?: UploadHandler;

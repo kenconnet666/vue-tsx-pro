@@ -31,7 +31,7 @@ it('受控：父级修正写入的值时，组件回到父级的值', async () =
     get: () => count.value,
     set: (next: number) => (count.value = Math.min(next, 5)),
   });
-  const el = mount(() => <Counter _value={_bind(clamped.value)} />);
+  const el = mount(() => <Counter _value={clamped.value} />);
   const button = el.querySelector('button')!;
   button.click();
   await nextTick();
@@ -46,7 +46,7 @@ it('受控：写入后同步读取先拿到新值', () => {
   const seen: boolean[] = [];
   const on = ref(false);
   const el = mount(() => (
-    <Switch _checked={_bind(on.value)} onChange={(value) => seen.push(value)}>
+    <Switch _checked={on.value} onChange={(value) => seen.push(value)}>
       x
     </Switch>
   ));
@@ -54,18 +54,16 @@ it('受控：写入后同步读取先拿到新值', () => {
   expect(seen).toEqual([true]);
 });
 
-it('函数绑定 _bind(get, set)：值取 get，写回交给 set（可以顺带做别的事）', async () => {
+it('自己处理更新：另写 onUpdate:_value 时不再自动写回，值可以是表达式（可以顺带做别的事）', async () => {
   let count = _state(1);
   let writes = _state(0);
   const el = mount(() => (
     <Counter
-      _value={_bind(
-        () => count * 10,
-        (next) => {
-          count = next / 10;
-          writes++;
-        },
-      )}
+      _value={count * 10}
+      onUpdate:_value={(next) => {
+        count = next / 10;
+        writes++;
+      }}
     />
   ));
   const button = el.querySelector('button')!;
@@ -75,28 +73,49 @@ it('函数绑定 _bind(get, set)：值取 get，写回交给 set（可以顺带�
   expect([count, writes, button.textContent]).toEqual([1.1, 1, '11']);
 });
 
-it('函数绑定的 set 可以是函数名', async () => {
+it('onUpdate:_checked 可以是函数名：由它决定改不改', async () => {
   let on = _state(false);
   const seen: boolean[] = [];
   const toggle = (next: boolean) => {
     seen.push(next);
     on = next;
   };
-  const el = mount(() => <Switch _checked={_bind(() => on, toggle)}>x</Switch>);
+  const el = mount(() => (
+    <Switch _checked={on} onUpdate:_checked={toggle}>
+      x
+    </Switch>
+  ));
   el.querySelector('button')!.click();
   await nextTick();
   expect([seen, on]).toEqual([[true], true]);
 });
 
+it('可写的值自动双向绑定：let 声明的 _state 与对象属性', async () => {
+  let on = _state(false);
+  const form = _state({ count: 2 });
+  const el = mount(() => (
+    <div>
+      <Switch _checked={on}>x</Switch>
+      <Counter _value={form.count} />
+    </div>
+  ));
+  const [toggle, counter] = el.querySelectorAll('button');
+  toggle!.click();
+  counter!.click();
+  await nextTick();
+  expect([on, form.count]).toEqual([true, 3]);
+});
+
 it('受控：父级值为 undefined 时使用默认值', () => {
   const value = ref<number | undefined>(undefined);
-  const el = mount(() => <Counter _value={_bind(value.value)} />);
+  const el = mount(() => <Counter _value={value.value} />);
   expect(el.textContent).toBe('0');
 });
 
-it('只传值：子组件可本地修改，父级值变化时以父级为准', async () => {
+it('只传值（值是表达式，不是可写的位置）：子组件可本地修改，父级值变化时以父级为准', async () => {
   const on = ref(true);
-  const el = mount(() => <Switch _checked={on.value}>x</Switch>);
+  const initial = () => on.value;
+  const el = mount(() => <Switch _checked={initial()}>x</Switch>);
   const button = el.querySelector('button')!;
   button.click();
   await nextTick();

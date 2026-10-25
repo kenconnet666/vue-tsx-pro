@@ -108,7 +108,7 @@ export interface TimelineChartProps
   dateFormat?: Intl.DateTimeFormatOptions;
   /** 加载中：绘图区显示骨架 */
   loading?: boolean;
-  /** 隐藏的系列：点图例时写回，父级可以写 _hiddenSeries={_bind(keys)} */
+  /** 隐藏的系列：点图例时写回，父级可以写 _hiddenSeries={keys} */
   _hiddenSeries?: string[];
   /** 没有数据时显示的内容 */
   empty?: VNodeChild;

@@ -38,7 +38,7 @@ export default _component(() => {
         </Card>
       )}
       <Flex align="center" gap="sm">
-        <TextField _value={_bind(keyword)} aria-label="搜索关键词" />
+        <TextField _value={keyword} aria-label="搜索关键词" />
         <ClearButton disabled={!keyword} onClick={() => (keyword = '')} />
       </Flex>
       <Card variant="surface">

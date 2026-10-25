@@ -34,7 +34,7 @@ export const UploadDemo = _component(() => {
     <Flex direction="column" gap="md">
       <Upload
         class="upload-demo"
-        _value={_bind(files)}
+        _value={files}
         multiple
         maxSize={2_000_000}
         upload={upload}

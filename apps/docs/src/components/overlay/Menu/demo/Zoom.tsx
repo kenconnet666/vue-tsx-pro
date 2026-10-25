@@ -19,7 +19,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md" align="start">
       <Flex gap="md" align="center" wrap>
-        <ToggleGroup _value={_bind(size)} required aria-label="菜单尺寸">
+        <ToggleGroup _value={size} required aria-label="菜单尺寸">
           <ToggleItem value="sm">sm</ToggleItem>
           <ToggleItem value="md">md</ToggleItem>
           <ToggleItem value="lg">lg</ToggleItem>

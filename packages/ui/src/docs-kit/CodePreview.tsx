@@ -41,7 +41,7 @@ export interface CodePreviewProps extends PartProps<'div'> {
   code: string | (() => Promise<string>);
   /** 源码的语言，默认 tsx */
   lang?: string;
-  /** 是否显示源码：父级可以写 _showCode={_bind(x)}；默认收起 */
+  /** 是否显示源码：父级可以写 _showCode={x}；默认收起 */
   _showCode?: boolean;
   /** 效果区的排列，默认 start */
   align?: keyof CodePreviewAligns;
@@ -188,7 +188,7 @@ export const CodePreview = _component(
             </div>
             <Collapse
               {...mergePartProps<CollapseProps>({}, propsCollapse, { id: codeId })}
-              _open={_bind(showCode)}
+              _open={showCode}
             >
               <CodeBlock
                 {...mergePartProps<CodeBlockProps>(

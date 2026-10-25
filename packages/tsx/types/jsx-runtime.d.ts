@@ -7,8 +7,8 @@
  *      其他 Vue 组件（Transition、Teleport 等内置组件）的子节点照常走默认插槽
  *   3. 原生元素的事件参数带上具体的 currentTarget：<input onInput={(e) => e.currentTarget.value} />
  *
- * 双向绑定写成 _属性={_bind(x)}：组件的可绑定 prop 本身以下划线开头（_value、_open），补全、跳转、重命名都由
- * TypeScript 原生支持；原生元素另有绑定专用的 _value、_checked、_open、_files（见文件末尾）。
+ * 双向绑定写在下划线属性上：组件的可绑定 prop 本身以下划线开头（_value、_open），值是可写的变量或对象属性时
+ * 自动绑定，onUpdate:_value 按 prop 的类型检查；原生元素另有绑定专用的 _value、_checked、_open、_files（见文件末尾）。
  */
 // 顺带加载符文的全局类型：只要配置了 jsxImportSource，就能直接使用 _state 等
 import type {} from './runes';
@@ -55,6 +55,20 @@ type ValuePerTag<Tag, Name> = Tag extends VueTag
   ? [VueJSX.IntrinsicElements[Tag][Name & keyof VueJSX.IntrinsicElements[Tag]]]
   : never;
 
+/**
+ * 可绑定的 prop（下划线开头）的更新回调：写了 onUpdate:_value 就由它处理更新，不再自动写回。
+ * 回调写成方法签名（参数双向协变，同 React 类型里事件回调的做法）：值的类型是几种形态的联合时
+ * （单选是字符串、区间是对象），只处理其中一种的回调也能传。
+ * 泛型组件里把 props 原样转交给另一个泛型组件时，TypeScript 推不动依赖类型参数的这一层：展开的对象写成
+ * `{...(rest as ComboboxProps<T> & UpdateHandlers<ComboboxProps<T>>)}`
+ */
+export type UpdateHandlers<P> = {
+  // Extract<keyof P, string> 而不是 keyof P：不在联合上分配，单选 / 多选两种形态的值并成一个参数类型（分配后回调推不出参数）
+  [K in Extract<keyof P, string> as K extends `_${string}` ? `onUpdate:${K}` : never]?: {
+    bivarianceHack(value: Exclude<P[K], undefined>): void;
+  }['bivarianceHack'];
+};
+
 /** 几个标签共有的属性，每个属性取所有标签都接受的值：<a> 与 <button> 的 type 取 'button' | 'submit' | 'reset' */
 type SharedAttributes<Tag extends VueTag> = {
   [Name in keyof VueJSX.IntrinsicElements[Tag]]: UnionToIntersection<ValuePerTag<Tag, Name>>[0];
@@ -91,8 +105,8 @@ export declare namespace JSX {
   type LibraryManagedAttributes<C, P> = C extends string
     ? P
     : IsTsxComponent<C> extends true
-      ? // _component：setup 参数就是全部属性（子节点即 children prop）
-        P
+      ? // _component：setup 参数就是全部属性（子节点即 children prop），加上可绑定 prop 的 onUpdate:_x
+        P & UpdateHandlers<P>
       : // 其他 Vue 组件：内容走默认插槽
         P & { children?: unknown };
 }
@@ -136,21 +150,21 @@ declare module 'vue' {
     /** 哪些操作能关闭对话框：any（Esc、点外面）、closerequest（只有 Esc）、none（只能代码关） */
     closedby?: 'any' | 'closerequest' | 'none' | undefined;
   }
-  // 原生元素的双向绑定：_value={_bind(x)} 编译成 v-model，其余在元素事件之后读回（见 compiler/bind.ts）
+  // 原生元素的双向绑定：_value={x} 编译成 v-model，其余在元素事件之后读回（见 compiler/bind.ts）
   interface InputHTMLAttributes {
-    /** 双向绑定输入的值：_value={_bind(x)}，可加修饰符 _bind.trim / .number / .lazy */
+    /** 双向绑定输入的值：_value={x}，type="number" / "range" 自动按数字；修饰符写 _value={_bind.trim(x)} */
     _value?: unknown;
     /** 双向绑定勾选：复选框绑布尔，或绑数组（多选组：勾选时把 value 加进数组） */
     _checked?: unknown;
-    /** 选中的文件（文件输入）：_files={_bind(x)}，只读，用户选了文件后写回 x */
+    /** 选中的文件（文件输入）：_files={x}，只读，用户选了文件后写回 x */
     _files?: FileList | null | undefined;
   }
   interface TextareaHTMLAttributes {
-    /** 双向绑定输入的值：_value={_bind(x)} */
+    /** 双向绑定输入的值：_value={x} */
     _value?: unknown;
   }
   interface SelectHTMLAttributes {
-    /** 双向绑定选中的值：_value={_bind(x)}（多选时绑数组） */
+    /** 双向绑定选中的值：_value={x}（多选时绑数组） */
     _value?: unknown;
   }
   interface DetailsHTMLAttributes {

@@ -75,7 +75,7 @@ describe('Tree', () => {
         getKey={(node) => node.id}
         getLabel={(node) => node.name}
         getChildren={(node) => node.children}
-        _expanded={_bind(open)}
+        _expanded={open}
         aria-label="文件"
       />
     ));
@@ -110,7 +110,7 @@ describe('Tree', () => {
         getLabel={(node) => node.name}
         getChildren={(node) => node.children}
         selectionMode="single"
-        _selected={_bind(selected)}
+        _selected={selected}
         aria-label="文件"
       />
     ));
@@ -134,7 +134,7 @@ describe('Tree', () => {
         getChildren={(node) => node.children}
         _expanded={['src']}
         checkable
-        _checked={_bind(checked)}
+        _checked={checked}
         aria-label="文件"
       />
     ));
@@ -162,7 +162,7 @@ describe('Tree', () => {
         _expanded={['src']}
         checkable
         checkStrictly
-        _checked={_bind(checked)}
+        _checked={checked}
         aria-label="文件"
       />
     ));

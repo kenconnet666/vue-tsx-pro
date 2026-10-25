@@ -75,7 +75,7 @@ export const ColumnFilterButton = _component(
         return (
           <TextField
             _value={values[0] ?? ''}
-            {...{ 'onUpdate:_value': (text: string) => onChange(text ? [text] : []) }}
+            onUpdate:_value={(text: string) => onChange(text ? [text] : [])}
             aria-label={lang.tableFilterSearch}
             placeholder={lang.tableFilterSearch}
             clearable
@@ -88,7 +88,7 @@ export const ColumnFilterButton = _component(
           {options.length > SEARCH_THRESHOLD && (
             <TextField
               _value={search}
-              {...{ 'onUpdate:_value': (text: string) => (search = text) }}
+              onUpdate:_value={(text: string) => (search = text)}
               aria-label={lang.tableFilterSearch}
               placeholder={lang.tableFilterSearch}
               clearable
@@ -100,7 +100,7 @@ export const ColumnFilterButton = _component(
               <Checkbox
                 key={option.value}
                 _checked={values.includes(option.value)}
-                {...{ 'onUpdate:_checked': (checked: boolean) => toggle(option.value, checked) }}
+                onUpdate:_checked={(checked: boolean) => toggle(option.value, checked)}
               >
                 {option.label ?? option.value}
               </Checkbox>

@@ -47,15 +47,11 @@ export default _component(() => {
     return (
       <Splitter
         sx={styles.frame}
-        _size={_bind(
-          () => layout.value.size,
-          (size: number) => (layout.value = { ...layout.value, size }),
-        )}
+        _size={layout.value.size}
+        onUpdate:_size={(size: number) => (layout.value = { ...layout.value, size })}
         collapsible="end"
-        _collapsed={_bind(
-          () => layout.value.hidden,
-          (hidden: boolean) => (layout.value = { ...layout.value, hidden }),
-        )}
+        _collapsed={layout.value.hidden}
+        onUpdate:_collapsed={(hidden: boolean) => (layout.value = { ...layout.value, hidden })}
         start={mails.map((item) => (
           <button
             key={item.id}

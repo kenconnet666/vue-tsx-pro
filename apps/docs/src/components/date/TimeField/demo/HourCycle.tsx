@@ -7,14 +7,14 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="13rem" gap="lg">
       <Field label="简体中文（24 小时制）" description={<Code>{time ?? 'null'}</Code>}>
-        <TimeField _value={_bind(time)} />
+        <TimeField _value={time} />
       </Field>
       <Field label='hourCycle="h12"' description="中文的上午 / 下午">
-        <TimeField _value={_bind(time)} hourCycle="h12" />
+        <TimeField _value={time} hourCycle="h12" />
       </Field>
       <Provider lang={enUS}>
         <Field label="English (US)" description="Type a / p in the last segment">
-          <TimeField _value={_bind(time)} />
+          <TimeField _value={time} />
         </Field>
       </Provider>
       <Field label='granularity="second"'>

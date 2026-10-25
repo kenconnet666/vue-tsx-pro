@@ -23,7 +23,7 @@ export const Profile = _component(() => {
     <section class="profile" {...css.attrs(styles.page)}>
       <h1>用户 {userId}</h1>
       <p class="site-name">{siteName}</p>
-      <NameField _value={_bind(name)} />
+      <NameField _value={name} />
       <p class="greeting">你好，{name}</p>
       <button type="button" class="reset" onClick={() => (name = 'Ada')}>
         重置

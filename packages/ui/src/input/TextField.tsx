@@ -1,8 +1,8 @@
 /**
  * 单行文本框：外壳（div）里放原生 input，前后可以带图标，可以一键清空；type="password" 时带显示 / 隐藏密码的按钮。
  *
- *   <TextField _value={_bind(keyword)} type="search" icon={Search} clearable aria-label="搜索" />
- *   <Field label="密码" error={errors.password}><TextField _value={_bind(password)} type="password" /></Field>
+ *   <TextField _value={keyword} type="search" icon={Search} clearable aria-label="搜索" />
+ *   <Field label="密码" error={errors.password}><TextField _value={password} type="password" /></Field>
  *
  * 未声明的属性落到 input（主元素）上，外壳用 propsRoot（COMPONENTS.md §2）。
  * 双向绑定经 v-model：中文输入法组合输入期间不写回，组合结束才写回。
@@ -52,7 +52,7 @@ const FORMAT_TYPES: Readonly<Record<string, 'email' | 'url'>> = { email: 'email'
 /** 未声明的属性落到 input（主元素）上；外壳用 propsRoot */
 export interface TextFieldProps
   extends PartProps<'input', TextFieldManaged>, ControlOptions, ControlIconOptions {
-  /** 输入值：父级写 _value={_bind(x)} 双向绑定 */
+  /** 输入值：父级写 _value={x} 双向绑定 */
   _value?: string;
   /** 显示格式：输入时自动分组（phoneFormat、idCardFormat、bankCardFormat 或 createGroupedFormat），值是去掉分隔的原文 */
   format?: TextFormat;
@@ -194,7 +194,7 @@ export const TextField = _component(
             <input {...inputAttrs} value={format.format(value)} onInput={onFormattedInput} />
           ) : (
             // _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回
-            <input {...inputAttrs} _value={_bind(value)} />
+            <input {...inputAttrs} _value={value} />
           )}
           {controlAffix(s, suffix, inputId, propsSuffix)}
           {clearable && value && editable && controlClear(s, propsClear, clear)}

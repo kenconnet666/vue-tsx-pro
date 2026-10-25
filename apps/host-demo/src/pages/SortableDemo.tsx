@@ -32,7 +32,7 @@ export const SortableDemo = _component(() => {
       <ScrollArea sx={styles.tasks}>
         <Sortable
           class="sortable-demo"
-          _items={_bind(tasks)}
+          _items={tasks}
           getKey={(task) => task.id}
           getLabel={(task) => task.title}
           aria-label="待办"
@@ -46,7 +46,7 @@ export const SortableDemo = _component(() => {
       <Sortable
         class="sortable-tags"
         orientation="horizontal"
-        _items={_bind(tags)}
+        _items={tags}
         getKey={(tag) => tag}
         aria-label="标签顺序"
       >

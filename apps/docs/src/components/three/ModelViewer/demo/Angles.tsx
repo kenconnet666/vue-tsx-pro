@@ -25,7 +25,7 @@ export default _component(() => {
   let paused = _state(false);
   return () => (
     <Flex direction="column" gap="md">
-      <Switch _checked={_bind(paused)}>暂停自转</Switch>
+      <Switch _checked={paused}>暂停自转</Switch>
       <Grid minItemWidth="10rem" gap="md">
         {views.map((view) => (
           <Card key={view.label} padding="sm">

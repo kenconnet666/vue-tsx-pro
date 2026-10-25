@@ -18,7 +18,7 @@ export default _component(() => {
       <Flex direction="column" gap="sm">
         <Field label="单价（Decimal）" description="按两次 ↑：0.1 → 0.3，精确">
           <NumberField
-            _value={_bind(price)}
+            _value={price}
             step={new Decimal('0.1')}
             format={{ style: 'currency', currency: 'CNY' }}
           />
@@ -30,7 +30,7 @@ export default _component(() => {
       <Flex direction="column" gap="sm">
         <Field label="合计（valueType={Decimal}）" description="一开始为空，写回的也是 Decimal">
           <NumberField
-            _value={_bind(total)}
+            _value={total}
             valueType={Decimal}
             step={new Decimal('0.01')}
             min={0}
@@ -43,7 +43,7 @@ export default _component(() => {
       </Flex>
       <Flex direction="column" gap="sm">
         <Field label="播放量（bigint）" description="超过 2⁵³ 的整数，加减不丢位">
-          <NumberField _value={_bind(views)} />
+          <NumberField _value={views} />
         </Field>
         <Text size="sm" tone="muted">
           值：<Code>{describe(views)}</Code>
@@ -51,7 +51,7 @@ export default _component(() => {
       </Flex>
       <Flex direction="column" gap="sm">
         <Field label="对照：number" description="步长 0.1 也能对齐，但大数、长小数会丢精度">
-          <NumberField _value={_bind(float)} step={0.1} />
+          <NumberField _value={float} step={0.1} />
         </Field>
         <Text size="sm" tone="muted">
           值：<Code>{describe(float)}</Code>

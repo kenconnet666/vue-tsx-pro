@@ -13,16 +13,19 @@ import {
   replaceWithValue,
   writeTargets,
 } from './ast.ts';
-import { checkAttribute, rewriteBind } from './bind.ts';
+import { checkAttribute, checkBindCall, rewriteBind, wrapAutoBinds } from './bind.ts';
 import { fail, warning, type RunesWarning } from './errors.ts';
 import { RuntimeImports } from './imports.ts';
 import { optimizeRender } from './optimize.ts';
 import { declareProps } from './props.ts';
 import { RUNE_GLOBALS, runeOf, type Rune, type TrackedInfo } from './runes.ts';
 
-/** 用到符文，或定义了 _component（需要编译 props 解构）的文件才需要编译；宿主项目的其他文件原样放过 */
+/**
+ * 用到符文、定义了 _component（需要编译 props 解构）、或写了下划线属性（_value={x} 可能要双向绑定）的文件才需要编译；
+ * 宿主项目的其他文件原样放过
+ */
 const NEEDS_COMPILE =
-  /\b_(?:state|derived|bindable|bind|effect|untrack|fromRef|toRef)\b|\b_component\s*\(/;
+  /\b_(?:state|derived|bindable|bind|effect|untrack|fromRef|toRef)\b|\b_component\s*\(|\s_[a-zA-Z]\w*=\{/;
 
 /** 文件里有没有要编译的符文（解析之前的快速判断） */
 export const needsRunes = (code: string) => NEEDS_COMPILE.test(code);
@@ -76,6 +79,10 @@ export class RunesTransform {
   run() {
     this.declareRunes(); //       1. 符文与 props 解构 → Vue API
     this.program.scope.crawl(); //   改写后重建作用域
+    //                               下划线属性的值可写时包成 _bind(x)（bind.ts），包过再重建作用域
+    if (wrapAutoBinds(this.program, (identifier) => this.isWritableRune(identifier))) {
+      this.program.scope.crawl();
+    }
     this.resolveBindings(); //    2. 声明节点 → 作用域里的绑定
     this.narrowReadonlyProps(); //   没被写过的 prop 用只读访问器
     this.rewriteAccesses(); //    3. 读写 → .value
@@ -109,9 +116,11 @@ export class RunesTransform {
       CallExpression: (path) => {
         const rune = runeOf(path);
         switch (rune) {
+          case '_bind':
+            checkBindCall(path);
+            return;
           case null:
           case '_toRef': // 这些不是声明，在第 3、4 步随引用一起处理
-          case '_bind':
           case '_state.snapshot':
           case '_untrack':
           case '_effect':
@@ -266,6 +275,16 @@ export class RunesTransform {
     return writable
       ? this.imports.runtime('overridable', [getter])
       : this.imports.vue('computed', [getter]);
+  }
+
+  /**
+   * 能整体赋值的响应式变量：let 声明的 _state / _derived / _fromRef 与 _bindable 的 prop（还没建立绑定，按声明节点查）。
+   * 普通 prop 不算：往下绑定要声明成 _bindable
+   */
+  private isWritableRune(identifier: NodePath<t.Identifier>): boolean {
+    const declarator = identifier.scope.getBinding(identifier.node.name)?.path.node;
+    const info = declarator && this.pending.get(declarator as t.VariableDeclarator);
+    return !!info && info.writable && info.source !== 'prop';
   }
 
   // ───────────────────────── 2. 绑定 ─────────────────────────
@@ -470,7 +489,7 @@ export class RunesTransform {
           case '_bind':
             throw fail(
               path,
-              '_bind 只能在 JSX 属性的值里直接调用，例如 <Switch _checked={_bind(on)} />',
+              '_bind 的修饰符只能在 JSX 属性的值里直接调用，例如 <input _value={_bind.trim(name)} />',
             );
           default:
             throw fail(path, `${name} 只能按约定的位置直接调用，不能当作普通值使用`);

@@ -117,15 +117,15 @@ export default _component(() => {
         rows={orders}
         columns={columns}
         getKey={(row) => row.id}
-        _filters={_bind(filters)}
+        _filters={filters}
         multiSort
-        _sorts={_bind(sorts)}
+        _sorts={sorts}
         columnMenu
         resizable
-        _hiddenColumns={_bind(hidden)}
-        _columnOrder={_bind(order)}
-        _columnPins={_bind(pins)}
-        _columnWidths={_bind(widths)}
+        _hiddenColumns={hidden}
+        _columnOrder={order}
+        _columnPins={pins}
+        _columnWidths={widths}
         aria-label="采购单"
         propsRoot={{ sx: styles.table }}
       />

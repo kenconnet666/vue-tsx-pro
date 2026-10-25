@@ -117,18 +117,18 @@ export default _component(() => {
           more={
             <>
               <Field label="完成年度">
-                <DatePicker granularity="year" _value={_bind(query.year)} />
+                <DatePicker granularity="year" _value={query.year} />
               </Field>
               <Field label="责任团队">
                 <Select
                   items={['复合材料结构', '总体技术集成', '起落架液压系统']}
-                  _value={_bind(query.team)}
+                  _value={query.team}
                   placeholder="全部"
                   clearable
                 />
               </Field>
               <Field label="涉构型更改">
-                <RadioGroup _value={_bind(query.config)} orientation="horizontal">
+                <RadioGroup _value={query.config} orientation="horizontal">
                   <Radio value="any">不限</Radio>
                   <Radio value="yes">是</Radio>
                   <Radio value="no">否</Radio>
@@ -138,12 +138,12 @@ export default _component(() => {
           }
         >
           <Field label="项目名称">
-            <TextField _value={_bind(query.keyword)} icon={Search} placeholder="名称或编码" />
+            <TextField _value={query.keyword} icon={Search} placeholder="名称或编码" />
           </Field>
           <Field label="任务类别">
             <Select
               items={['设计优化', '多货源', '工艺优化']}
-              _value={_bind(query.category)}
+              _value={query.category}
               placeholder="全部"
               clearable
             />
@@ -152,7 +152,7 @@ export default _component(() => {
             <Select
               items={statuses.options()}
               selectionMode="multiple"
-              _value={_bind(query.status)}
+              _value={query.status}
               placeholder="全部"
               clearable
             />

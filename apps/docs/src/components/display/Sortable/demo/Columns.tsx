@@ -21,7 +21,7 @@ export default _component(() => {
       {/* 项多、放不下时横向滚动；拖到边缘会自动滚动 */}
       <ScrollArea axis="x">
         <Sortable
-          _items={_bind(columns)}
+          _items={columns}
           orientation="horizontal"
           getKey={(column) => column.key}
           getLabel={(column) => column.label}

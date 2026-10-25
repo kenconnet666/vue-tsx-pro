@@ -30,7 +30,7 @@ export default _component(() => {
     <Flex direction="column" gap="sm">
       <Field label="商品图片" description="最多 6 张，每张不超过 2 MB">
         <Upload
-          _value={_bind(photos)}
+          _value={photos}
           multiple
           accept="image/*"
           maxSize={2_000_000}

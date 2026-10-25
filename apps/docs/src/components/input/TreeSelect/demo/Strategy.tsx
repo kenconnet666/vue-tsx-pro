@@ -41,14 +41,12 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <ToggleGroup
-        _value={_bind(
-          () => strategy,
-          (next: string) => {
-            strategy = next as keyof CheckStrategies;
-            // 换取法后按新的取法整理同一批勾选（演示用；实际表单里取法是固定的）
-            scope = checkedByStrategy(indexTree(orgs, accessors), initial, strategy);
-          },
-        )}
+        _value={strategy}
+        onUpdate:_value={(next: string) => {
+          strategy = next as keyof CheckStrategies;
+          // 换取法后按新的取法整理同一批勾选（演示用；实际表单里取法是固定的）
+          scope = checkedByStrategy(indexTree(orgs, accessors), initial, strategy);
+        }}
         size="sm"
         required
         aria-label="checkedStrategy"
@@ -67,7 +65,7 @@ export default _component(() => {
           selectionMode="multiple"
           checkedStrategy={strategy}
           maxTagCount="responsive"
-          _value={_bind(scope)}
+          _value={scope}
           searchable
           clearable
         />

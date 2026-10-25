@@ -95,12 +95,12 @@ describe('rest 与组件信息', () => {
       _value?: string;
       placeholder?: string;
     }) =>
-      () => <input {...rest} placeholder={placeholder} _value={_bind(value)} />,
+      () => <input {...rest} placeholder={placeholder} _value={value} />,
   );
 
   it('...rest 只包含未声明的属性，不含 prop 与双向绑定的更新回调', () => {
     const text = ref('a');
-    const el = mount(() => <Field _value={_bind(text.value)} placeholder="p" aria-label="名字" />);
+    const el = mount(() => <Field _value={text.value} placeholder="p" aria-label="名字" />);
     const input = el.querySelector('input')!;
     expect(input.getAttribute('aria-label')).toBe('名字');
     expect(input.getAttribute('placeholder')).toBe('p');
@@ -170,7 +170,7 @@ describe('rest 与组件信息', () => {
         ),
     );
     const text = ref('a');
-    const el = mount(() => <Labeled aria-label="名字" _model-value={_bind(text.value)} />);
+    const el = mount(() => <Labeled aria-label="名字" _model-value={text.value} />);
     expect(el.textContent).toBe('名字/a');
     el.querySelector('button')!.click();
     await nextTick();

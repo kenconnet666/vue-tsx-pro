@@ -45,7 +45,7 @@ export default _component(() => {
   let loading = _state(true);
   return () => (
     <Flex direction="column" gap="md">
-      <Switch _checked={_bind(loading)}>加载中</Switch>
+      <Switch _checked={loading}>加载中</Switch>
       {/* 整块区域加载时带 aria-busy（骨架本身对读屏隐藏）；内容出现时淡入，不硬切 */}
       <Grid minItemWidth="16em" gap="md" align="start" aria-busy={loading || undefined}>
         {/* 文章：配图、标题、段落，自上而下依次扫过 */}

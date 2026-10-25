@@ -23,7 +23,7 @@ export default _component(() => {
       <Flex direction="column" gap="xs">
         <Field label="预期收益量级" description="填 50 和 10 试试：失焦后自动对调">
           <NumberRangeField
-            _value={_bind(saving)}
+            _value={saving}
             valueType={Decimal}
             format={{ scale: 10_000, maximumFractionDigits: 2 }}
             suffix="万元"
@@ -36,7 +36,7 @@ export default _component(() => {
       </Flex>
       <Flex direction="column" gap="xs">
         <Field label="贯彻架次" description="只填起：20 架以上">
-          <NumberRangeField _value={_bind(flights)} min={0} suffix="架" separator="至" />
+          <NumberRangeField _value={flights} min={0} suffix="架" separator="至" />
         </Field>
         <Small tone="muted">
           值：<Code>{JSON.stringify(flights)}</Code>
@@ -45,7 +45,7 @@ export default _component(() => {
       <Flex direction="column" gap="xs">
         <Field label="单价" description="筛选栏里常用：浅底、小号、胶囊形">
           <NumberRangeField
-            _value={_bind(price)}
+            _value={price}
             min={0}
             prefix="$"
             variant="soft"

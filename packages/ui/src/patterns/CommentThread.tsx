@@ -262,10 +262,10 @@ export const CommentComposer = _component(
               propsMentions,
               { items: people, onKeydown },
             )}
-            _value={_bind(text)}
-            _mentions={_bind(mentions)}
+            _value={text}
+            _mentions={mentions}
           />
-          {upload && attaching && <Upload _value={_bind(files)} upload={upload} multiple />}
+          {upload && attaching && <Upload _value={files} upload={upload} multiple />}
           {failed && (
             <div role="alert" {...css.attrs(commentStyles.error)}>
               {messages.commentSendFailed}

@@ -14,7 +14,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Field label={`列表宽度：${width}rem`}>
-        <Slider _value={_bind(width)} min={10} max={30} />
+        <Slider _value={width} min={10} max={30} />
       </Field>
       <Card padding="sm" style={{ width: `${width}rem`, maxWidth: '100%' }}>
         <Flex direction="column" gap="sm">

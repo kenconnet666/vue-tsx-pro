@@ -48,7 +48,7 @@ export default _component(() => {
   const list = (status: string) =>
     status === 'all' ? orders : orders.filter((order) => order.status === status);
   return () => (
-    <Tabs _value={_bind(tab)}>
+    <Tabs _value={tab}>
       <TabList aria-label="订单状态">
         {tabs.map(({ value, label }) => (
           <Tab key={value} value={value}>

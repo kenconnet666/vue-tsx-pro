@@ -5,9 +5,9 @@
  *     rows={orders}
  *     columns={columns}
  *     getKey={(order) => order.id}
- *     _sort={_bind(sort)}
+ *     _sort={sort}
  *     selectionMode="multiple"
- *     _selected={_bind(picked)}
+ *     _selected={picked}
  *     loading={loading}
  *     aria-label="订单"
  *     propsRoot={{ sx: styles.tableHeight }}
@@ -101,19 +101,19 @@ export interface DataTableProps<T> extends Omit<
   rows: readonly T[];
   /** 行的 key：稳定且唯一（选择、测量都按它） */
   getKey: (row: T, index: number) => string;
-  /** 当前排序：父级可以写 _sort={_bind(x)}；null 为不排序 */
+  /** 当前排序：父级可以写 _sort={x}；null 为不排序 */
   _sort?: SortState | null;
   /** 不在本地排序：只写回 sort（sorts），数据由调用方按它取 */
   manualSort?: boolean;
   /** 多列排序：排序写在 sorts，按住 Shift 点列标题是追加一列（再点切换方向、降序时去掉） */
   multiSort?: boolean;
-  /** 多列排序时的排序，前面的优先：父级可以写 _sorts={_bind(x)} */
+  /** 多列排序时的排序，前面的优先：父级可以写 _sorts={x} */
   _sorts?: SortState[];
-  /** 表头筛选：各列选中的值（关键字筛选时是 [关键字]），父级可以写 _filters={_bind(x)} */
+  /** 表头筛选：各列选中的值（关键字筛选时是 [关键字]），父级可以写 _filters={x} */
   _filters?: Record<string, string[]>;
   /** 不在本地筛选：只写回 filters，数据由调用方按它取 */
   manualFilter?: boolean;
-  /** 隐藏的列的 key：列菜单的“隐藏”写回这里，父级可以写 _hiddenColumns={_bind(x)} */
+  /** 隐藏的列的 key：列菜单的“隐藏”写回这里，父级可以写 _hiddenColumns={x} */
   _hiddenColumns?: string[];
   /** 列的顺序（列的 key）：列菜单、列设置里移动后写回，没列到的按定义的顺序排在后面 */
   _columnOrder?: string[];
@@ -128,11 +128,11 @@ export interface DataTableProps<T> extends Omit<
   onCellChange?: (row: T, key: string, value: unknown) => unknown;
   /** 行校验：返回各列的错误（列的 key → 原因），标在格上；如“结束日期早于开始日期” */
   validateRow?: (row: T) => Readonly<Record<string, string>> | null | undefined;
-  /** 已选行的 key：父级写 _selected={_bind(keys)} */
+  /** 已选行的 key：父级写 _selected={keys} */
   _selected?: string[];
-  /** 各列调整后的宽度（px）：父级可以写 _columnWidths={_bind(x)} 保存起来 */
+  /** 各列调整后的宽度（px）：父级可以写 _columnWidths={x} 保存起来 */
   _columnWidths?: Record<string, number>;
-  /** 展开了详情的行的 key（有 renderDetail 时）：父级可以写 _expandedRows={_bind(x)} */
+  /** 展开了详情的行的 key（有 renderDetail 时）：父级可以写 _expandedRows={x} */
   _expandedRows?: string[];
 }
 
@@ -335,11 +335,9 @@ export const DataTable = _component(
           {...common}
           items={column.statuses.options()}
           _value={typeof current.draft === 'string' ? current.draft : null}
-          {...{
-            'onUpdate:_value': (value: string | null) => {
-              editing = { ...current, draft: value };
-              void commitEdit();
-            },
+          onUpdate:_value={(value: string | null) => {
+            editing = { ...current, draft: value };
+            void commitEdit();
           }}
         />
       ) : ['number', 'currency', 'percent'].includes(columnType(column, rows)) ? (
@@ -347,7 +345,7 @@ export const DataTable = _component(
           {...common}
           stepper={false}
           _value={typeof current.draft === 'number' ? current.draft : null}
-          {...{ 'onUpdate:_value': context.onChange }}
+          onUpdate:_value={context.onChange}
         />
       ) : (
         <TextField
@@ -357,7 +355,7 @@ export const DataTable = _component(
               ? String(current.draft)
               : ''
           }
-          {...{ 'onUpdate:_value': context.onChange }}
+          onUpdate:_value={context.onChange}
         />
       );
       return (

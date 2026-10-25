@@ -60,7 +60,7 @@ export default _component(() => {
     <Card>
       <StepsForm
         form={form}
-        _current={_bind(step)}
+        _current={step}
         submitText="确认开户"
         steps={[
           {

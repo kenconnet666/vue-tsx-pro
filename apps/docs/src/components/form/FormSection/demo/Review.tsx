@@ -40,14 +40,14 @@ export default _component(() => {
         </FormSection>
         <FormSection title="审批意见" labelPlacement="start" labelWidth="6.5em">
           <Field label="结论" required>
-            <RadioGroup _value={_bind(decision)} orientation="horizontal">
+            <RadioGroup _value={decision} orientation="horizontal">
               <Radio value="approve">同意</Radio>
               <Radio value="return">退回修改</Radio>
               <Radio value="reject">不同意</Radio>
             </RadioGroup>
           </Field>
           <Field label="意见" required={decision !== 'approve'}>
-            <Textarea _value={_bind(note)} rows={3} placeholder="退回、不同意时写明原因" />
+            <Textarea _value={note} rows={3} placeholder="退回、不同意时写明原因" />
           </Field>
         </FormSection>
         <Flex justify="end">

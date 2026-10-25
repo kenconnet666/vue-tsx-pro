@@ -8,7 +8,7 @@ import { lightTheme } from '../../config/theme/light';
 
 it('选品牌色、圆角写回设置；选“主题默认”清空；代码跟着变；恢复默认清空全部', async () => {
   let settings = _state<ThemeSettings>({});
-  const root = mount(() => <ThemeCustomizer _settings={_bind(settings)} base={lightTheme} />);
+  const root = mount(() => <ThemeCustomizer _settings={settings} base={lightTheme} />);
   const button = (label: string) =>
     [...root.querySelectorAll<HTMLButtonElement>('button')].find(
       (item) => item.getAttribute('aria-label') === label || item.textContent === label,

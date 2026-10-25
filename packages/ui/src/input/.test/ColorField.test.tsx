@@ -6,7 +6,7 @@ import { ColorField } from '../ColorField';
 
 it('输入颜色名、rgb() 后失焦写回 #hex；写不成颜色时无效、值不变，失焦后恢复', async () => {
   let color = _state('#3e63dd');
-  const root = mount(() => <ColorField _value={_bind(color)} aria-label="品牌色" />);
+  const root = mount(() => <ColorField _value={color} aria-label="品牌色" />);
   const text = root.querySelector<HTMLInputElement>('input[type="text"]')!;
   expect(text.getAttribute('aria-label')).toBe('品牌色');
 
@@ -29,7 +29,7 @@ it('输入颜色名、rgb() 后失焦写回 #hex；写不成颜色时无效、�
 
 it('原生取色器选色写回 value；它的名称取语言包', async () => {
   let color = _state('#000000');
-  const root = mount(() => <ColorField _value={_bind(color)} aria-label="颜色" />);
+  const root = mount(() => <ColorField _value={color} aria-label="颜色" />);
   const picker = root.querySelector<HTMLInputElement>('input[type="color"]')!;
   expect(picker.getAttribute('aria-label')).toBe('选择颜色');
   picker.value = '#12a594';

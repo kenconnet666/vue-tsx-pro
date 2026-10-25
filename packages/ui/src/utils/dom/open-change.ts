@@ -2,7 +2,7 @@
  * 浮层开关的原因：Dialog、Drawer、Popover、Menu、Tooltip、Select、DatePicker 等的 onOpenChange(open, { reason, event })
  * 都用这一套（参考 Base UI 的 eventDetails.reason）。只报告用户的操作与命令式调用；父级直接改 open 时不调用。
  *
- *   <Dialog _open={_bind(open)} onOpenChange={(open, { reason }) => reason === 'escape' && track('esc')} …>
+ *   <Dialog _open={open} onOpenChange={(open, { reason }) => reason === 'escape' && track('esc')} …>
  */
 
 /** onOpenChange 的原因 */

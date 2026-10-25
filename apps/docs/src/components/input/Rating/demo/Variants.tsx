@@ -16,10 +16,10 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Flex gap="lg" wrap>
         <Field label="喜欢程度" description='icon={Heart} tone="danger"'>
-          <Rating _value={_bind(like)} icon={Heart} tone="danger" />
+          <Rating _value={like} icon={Heart} tone="danger" />
         </Field>
         <Field label="紧急程度" description="count={3}，size=lg">
-          <Rating _value={_bind(urgency)} icon={Flame} tone="accent" count={3} size="lg" />
+          <Rating _value={urgency} icon={Flame} tone="accent" count={3} size="lg" />
         </Field>
         <Field label="不可用" disabled>
           <Rating _value={4} />

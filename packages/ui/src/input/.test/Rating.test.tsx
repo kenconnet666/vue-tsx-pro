@@ -28,7 +28,7 @@ describe('Rating', () => {
 
   it('点选写回分数；再点同一个清空；clearable={false} 时不清空', async () => {
     const state = reactive<{ score: number | null }>({ score: null });
-    const root = mount(() => <Rating _value={_bind(state.score)} aria-label="评分" />);
+    const root = mount(() => <Rating _value={state.score} aria-label="评分" />);
     const radio = (label: string) =>
       root.querySelector<HTMLInputElement>(`input[aria-label="${label}"]`)!;
     radio('4 星').click();
@@ -40,9 +40,7 @@ describe('Rating', () => {
     expect(state.score).toBeNull();
 
     const kept = reactive<{ score: number | null }>({ score: 2 });
-    const fixed = mount(() => (
-      <Rating _value={_bind(kept.score)} clearable={false} aria-label="不清空" />
-    ));
+    const fixed = mount(() => <Rating _value={kept.score} clearable={false} aria-label="不清空" />);
     fixed.querySelector<HTMLInputElement>('input[aria-label="2 星"]')!.click();
     await nextTick();
     expect(kept.score).toBe(2);

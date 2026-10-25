@@ -3,7 +3,7 @@
  * 原生 popover="auto" 负责顶层渲染、Esc、点击外部与嵌套顺序，floating-ui 负责定位（utils/dom/floating）。
  * 打开时焦点移到第一个可聚焦元素（有 autofocus 的优先），关闭后回到触发器。参考 Radix Popover。
  *
- *   <Popover _open={_bind(open)} trigger={(props) => <Button {...props}>筛选</Button>}>…</Popover>
+ *   <Popover _open={open} trigger={(props) => <Button {...props}>筛选</Button>}>…</Popover>
  *
  * 弹出层是 role="dialog"，默认以触发器的文字作为名称（aria-labelledby）；内容有自己的标题时用 aria-labelledby 指向它。
  */
@@ -40,7 +40,7 @@ export interface PopoverProps
     Pick<FloatingOptions, 'offset'>,
     LazyContentOptions,
     OpenChangeProps {
-  /** 是否打开：父级写 _open={_bind(x)}；Esc 与点击外部会关闭并写回 */
+  /** 是否打开：父级写 _open={x}；Esc 与点击外部会关闭并写回 */
   _open?: boolean;
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
   placement?: FloatingPlacement;

@@ -20,14 +20,14 @@ export default _component(() => {
           required
           error={submitted && channels.length === 0 ? '至少选一种通知方式' : undefined}
         >
-          <CheckboxGroup _value={_bind(channels)} orientation="horizontal">
+          <CheckboxGroup _value={channels} orientation="horizontal">
             <Checkbox value="email">邮件</Checkbox>
             <Checkbox value="sms">短信</Checkbox>
             <Checkbox value="inbox">站内信</Checkbox>
           </CheckboxGroup>
         </Field>
         <Field error={submitted && !agreed ? '请先同意服务条款' : undefined}>
-          <Checkbox _checked={_bind(agreed)} required>
+          <Checkbox _checked={agreed} required>
             我已阅读并同意服务条款
           </Checkbox>
         </Field>

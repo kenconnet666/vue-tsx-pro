@@ -39,18 +39,18 @@ export default _component(() => {
             </>
           }
         >
-          <TextField _value={_bind(form.values.phone)} format={phoneFormat} icon={Smartphone} />
+          <TextField _value={form.values.phone} format={phoneFormat} icon={Smartphone} />
         </form.Field>
         <form.Field
           name="idCard"
           label="身份证号"
           description="18 位，最后一位可以是 X（自动转大写）"
         >
-          <TextField _value={_bind(form.values.idCard)} format={idCardFormat} icon={IdCard} />
+          <TextField _value={form.values.idCard} format={idCardFormat} icon={IdCard} />
         </form.Field>
         <form.Field name="bankCard" label="银行卡号" description="每 4 位一组，最长 19 位">
           <TextField
-            _value={_bind(form.values.bankCard)}
+            _value={form.values.bankCard}
             format={bankCardFormat}
             icon={CreditCard}
             clearable

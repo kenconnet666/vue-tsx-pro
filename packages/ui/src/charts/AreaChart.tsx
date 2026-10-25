@@ -74,6 +74,6 @@ export const AreaChart = _component(
         });
       },
     });
-    return () => <XYChart {...rest} _hiddenSeries={_bind(hiddenSeries)} kind={kind} />;
+    return () => <XYChart {...rest} _hiddenSeries={hiddenSeries} kind={kind} />;
   },
 );

@@ -1,15 +1,15 @@
 /**
  * 复选框（原生 input type="checkbox"）与复选组。结构与样式见 choice-styles.ts。
  *
- *   <Checkbox _checked={_bind(agreed)}>我已阅读并同意</Checkbox>
+ *   <Checkbox _checked={agreed}>我已阅读并同意</Checkbox>
  *   <Checkbox checked={allChecked} indeterminate={someChecked} onChange={toggleAll}>全选</Checkbox>
  *   <Field label="通知方式">
- *     <CheckboxGroup _value={_bind(channels)} name="channels">
+ *     <CheckboxGroup _value={channels} name="channels">
  *       <Checkbox value="email">邮件</Checkbox>
  *       <Checkbox value="sms">短信</Checkbox>
  *     </CheckboxGroup>
  *   </Field>
- *   <CheckboxGroup _value={_bind(channels)} items={[{ value: 'email', label: '邮件', description: '每天汇总一封' }, …]} />
+ *   <CheckboxGroup _value={channels} items={[{ value: 'email', label: '邮件', description: '每天汇总一封' }, …]} />
  *
  * 部分勾选（indeterminate）是原生 input 的属性，读屏念“部分选中”。在 Field 里时关联说明与错误、沿用其状态；
  * 复选组用 role="group"，以 Field 的标签为名称（aria-labelledby）。
@@ -70,7 +70,7 @@ export type CheckboxManaged =
 
 /** 未声明的属性落到 input 上；外层 label 用 propsRoot */
 export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
-  /** 是否勾选：父级写 _checked={_bind(x)}；在复选组里时由组决定 */
+  /** 是否勾选：父级写 _checked={x}；在复选组里时由组决定 */
   _checked?: boolean;
   /** 部分勾选（“全选”下面只选了一部分）：显示横线，读屏念“部分选中” */
   indeterminate?: boolean;
@@ -240,7 +240,7 @@ export const Checkbox = _component(
 
 /** 未声明的属性落到 div（role="group"）上 */
 export interface CheckboxGroupBaseProps<T> extends PartProps<'div', 'role'> {
-  /** 勾选的值：父级写 _value={_bind(list)} */
+  /** 勾选的值：父级写 _value={list} */
   _value?: string[];
   /** 表单提交时各项共用的 name */
   name?: string;

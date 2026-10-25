@@ -11,16 +11,16 @@ export default _component(() => {
   return () => (
     <Grid minItemWidth="14rem" gap="lg">
       <Field label='granularity="second"' description={<Code>{lap ?? 'null'}</Code>}>
-        <TimePicker _value={_bind(lap)} granularity="second" step={5} icon={Timer} />
+        <TimePicker _value={lap} granularity="second" step={5} icon={Timer} />
       </Field>
       <Field label='granularity="hour"' description={<Code>{shift ?? 'null'}</Code>}>
-        <TimePicker _value={_bind(shift)} granularity="hour" step={60} min="06:00" max="22:00" />
+        <TimePicker _value={shift} granularity="hour" step={60} min="06:00" max="22:00" />
       </Field>
       <Field
         label='valueType="dateValue"'
         description={alarm ? `Time 对象：${alarm.hour} 时 ${alarm.minute} 分` : '值是 Time 对象'}
       >
-        <TimePicker _value={_bind(alarm)} valueType="dateValue" clearable />
+        <TimePicker _value={alarm} valueType="dateValue" clearable />
       </Field>
       <Field label='variant="soft" radius="full"'>
         <TimePicker _value="13:30" variant="soft" radius="full" size="sm" />
