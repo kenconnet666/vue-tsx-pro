@@ -153,7 +153,7 @@ tab: {
 `_readonly`、`_highlighted`、`_dragging`、`_focusVisible`，以及环境条件 `_forcedColors`、`_reducedMotion`、`_rtl`。
 组件不再写 `selected && styles.active`，渲染时少算一次；使用方的 `sx` 也能写 `{ color: { _selected: 'red' } }`，只改选中时。
 
-**2. 色调是一组变量，不是一张矩阵**
+**2. 色调是一组变量，不是一张矩阵**（2026-10-25 改回：见下）
 
 `tone` 只挂一个类，设置 `--tone`、`--tone-contrast`、`--tone-soft`、`--tone-text`、`--tone-border`、`--tone-hover` 等变量；
 各样式只写一遍，引用 `_tone.*`：
@@ -164,6 +164,10 @@ soft:  { color: '_tone.text', backgroundColor: { default: '_tone.soft', _hover: 
 ```
 
 6 × 6 的矩阵变成 6 段；`tone` 还可以是自定义的颜色（运行时用 `color-mix` 推出其余几级），品牌色以外的业务色不必改主题。
+
+> 2026-10-25 改回直接写主题 token：试过 `toneVars` + `toneThemes`（Button、Badge），读样式时看不到实际的 token，
+> 反而绕。现在按色调变化的样式写成配方的组合档位，每项直接写 `'_dangerText'` 这样的主题 token；运行时引擎不要求
+> 静态求值，配方的组合档位本身就是这张表，不必再拆成六份 `create`。`toneVars`、`toneThemes` 已删除。
 
 **3. 配方（recipe）：部件 × 档位 × 默认值在一处**（借 Panda 的 `sva`、MUI 的主题覆盖）
 
@@ -341,14 +345,14 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
 
 不再依赖 StyleX 之后，名字也不再沿用它：
 
-| 原来                                                    | 现在                                         |
-| ------------------------------------------------------- | -------------------------------------------- |
-| 入口 `@vue-tsx-pro/tsx/stylex`，`import * as stylex`    | `@vue-tsx-pro/tsx/styles`，`import * as css` |
-| `StyleXStyles`、`StyleXAttrs`                           | `SxStyles`、`StyleAttrs`                     |
-| `packages/tsx/src/stylex/`，生成的 `styles.ts`          | `packages/tsx/src/styles/`，`documented.ts`  |
-| `@vue-tsx-pro/ui/tokens.stylex`、`vars.stylex`          | `@vue-tsx-pro/ui/tokens`、`vars`             |
-| `tokens.stylex.ts`（各组）+ `tokens.ts`（`t`）          | 合成 `tokens.ts`；主入口仍只导出 `t`         |
-| `tone.stylex.ts`、`vars.stylex.ts`、`markers.stylex.ts` | `tone-vars.ts`、`vars.ts`、`markers.ts`      |
+| 原来                                                    | 现在                                               |
+| ------------------------------------------------------- | -------------------------------------------------- |
+| 入口 `@vue-tsx-pro/tsx/stylex`，`import * as stylex`    | `@vue-tsx-pro/tsx/styles`，`import * as css`       |
+| `StyleXStyles`、`StyleXAttrs`                           | `SxStyles`、`StyleAttrs`                           |
+| `packages/tsx/src/stylex/`，生成的 `styles.ts`          | `packages/tsx/src/styles/`，`documented.ts`        |
+| `@vue-tsx-pro/ui/tokens.stylex`、`vars.stylex`          | `@vue-tsx-pro/ui/tokens`、`vars`                   |
+| `tokens.stylex.ts`（各组）+ `tokens.ts`（`t`）          | 合成 `tokens.ts`；主入口仍只导出 `t`               |
+| `tone.stylex.ts`、`vars.stylex.ts`、`markers.stylex.ts` | 色调变量已删除（见 §4.6）；`vars.ts`、`markers.ts` |
 
 ### 9.7 有限状态绕过组件渲染（2026-10-24）
 

@@ -21,8 +21,6 @@ import {
   attachedStyles,
   type AttachedOrientations,
 } from '../utils/style/attached';
-import { toneThemes } from '../utils/style/tone-themes';
-import { toneVars } from '../utils/style/tone-vars';
 import { interactionTransitions } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -153,7 +151,7 @@ export const buttonStyles = css.create({
 const HOVER = ':hover:not(:disabled,[aria-disabled="true"])';
 
 /**
- * 按钮的样式（配方）：色调由 toneThemes[tone] 挂在按钮上，这里只引用 toneVars，每种样式写一遍。
+ * 按钮的样式（配方）：样式 × 色调逐项写主题 token（组合档位）。中性色没有专门的实底色，用反色表面。
  * 实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1
  */
 export const buttonRecipe = css.recipe({
@@ -161,41 +159,13 @@ export const buttonRecipe = css.recipe({
   parts: ['root'],
   variants: {
     variant: {
-      solid: {
-        root: {
-          color: toneVars.contrast,
-          backgroundColor: { default: toneVars.solid, [HOVER]: toneVars.solidHover },
-        },
-      },
-      soft: {
-        root: {
-          color: toneVars.text,
-          backgroundColor: { default: toneVars.soft, [HOVER]: toneVars.softHover },
-        },
-      },
-      surface: {
-        root: {
-          color: toneVars.text,
-          borderColor: toneVars.border,
-          backgroundColor: { default: toneVars.surface, [HOVER]: toneVars.softHover },
-        },
-      },
-      outline: {
-        root: {
-          color: toneVars.text,
-          borderColor: toneVars.border,
-          backgroundColor: { default: 'transparent', [HOVER]: toneVars.wash },
-        },
-      },
-      ghost: {
-        root: {
-          color: toneVars.text,
-          backgroundColor: { default: 'transparent', [HOVER]: toneVars.wash },
-        },
-      },
+      solid: {},
+      soft: {},
+      surface: {},
+      outline: {},
+      ghost: {},
       link: {
         root: {
-          color: toneVars.text,
           minHeight: 0,
           paddingInline: 0,
           fontWeight: '_medium',
@@ -204,7 +174,235 @@ export const buttonRecipe = css.recipe({
         },
       },
     },
+    tone: { neutral: {}, accent: {}, info: {}, success: {}, warning: {}, danger: {} },
   },
+  compound: [
+    {
+      when: { variant: 'solid', tone: 'neutral' },
+      root: {
+        color: '_inverseText',
+        backgroundColor: {
+          default: '_inverseSurface',
+          [HOVER]: `color-mix(in oklab, ${t.colors.inverseSurface} 85%, ${t.colors.background})`,
+        },
+      },
+    },
+    {
+      when: { variant: 'solid', tone: 'accent' },
+      root: {
+        color: '_accentContrast',
+        backgroundColor: { default: '_accent', [HOVER]: '_accentHover' },
+      },
+    },
+    {
+      when: { variant: 'solid', tone: 'info' },
+      root: {
+        color: '_infoContrast',
+        backgroundColor: { default: '_info', [HOVER]: '_infoHover' },
+      },
+    },
+    {
+      when: { variant: 'solid', tone: 'success' },
+      root: {
+        color: '_successContrast',
+        backgroundColor: { default: '_success', [HOVER]: '_successHover' },
+      },
+    },
+    {
+      when: { variant: 'solid', tone: 'warning' },
+      root: {
+        color: '_warningContrast',
+        backgroundColor: { default: '_warning', [HOVER]: '_warningHover' },
+      },
+    },
+    {
+      when: { variant: 'solid', tone: 'danger' },
+      root: {
+        color: '_dangerContrast',
+        backgroundColor: { default: '_danger', [HOVER]: '_dangerHover' },
+      },
+    },
+    {
+      when: { variant: 'soft', tone: 'neutral' },
+      root: { color: '_text', backgroundColor: { default: '_fill', [HOVER]: '_fillHover' } },
+    },
+    {
+      when: { variant: 'soft', tone: 'accent' },
+      root: {
+        color: '_accentText',
+        backgroundColor: { default: '_accentSoft', [HOVER]: '_accentSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'soft', tone: 'info' },
+      root: {
+        color: '_infoText',
+        backgroundColor: { default: '_infoSoft', [HOVER]: '_infoSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'soft', tone: 'success' },
+      root: {
+        color: '_successText',
+        backgroundColor: { default: '_successSoft', [HOVER]: '_successSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'soft', tone: 'warning' },
+      root: {
+        color: '_warningText',
+        backgroundColor: { default: '_warningSoft', [HOVER]: '_warningSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'soft', tone: 'danger' },
+      root: {
+        color: '_dangerText',
+        backgroundColor: { default: '_dangerSoft', [HOVER]: '_dangerSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'neutral' },
+      root: {
+        color: '_text',
+        borderColor: '_border',
+        backgroundColor: { default: '_surface', [HOVER]: '_fillHover' },
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'accent' },
+      root: {
+        color: '_accentText',
+        borderColor: '_accentBorder',
+        backgroundColor: { default: '_accentSoft', [HOVER]: '_accentSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'info' },
+      root: {
+        color: '_infoText',
+        borderColor: '_infoBorder',
+        backgroundColor: { default: '_infoSoft', [HOVER]: '_infoSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'success' },
+      root: {
+        color: '_successText',
+        borderColor: '_successBorder',
+        backgroundColor: { default: '_successSoft', [HOVER]: '_successSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'warning' },
+      root: {
+        color: '_warningText',
+        borderColor: '_warningBorder',
+        backgroundColor: { default: '_warningSoft', [HOVER]: '_warningSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'danger' },
+      root: {
+        color: '_dangerText',
+        borderColor: '_dangerBorder',
+        backgroundColor: { default: '_dangerSoft', [HOVER]: '_dangerSoftHover' },
+      },
+    },
+    {
+      when: { variant: 'outline', tone: 'neutral' },
+      root: {
+        color: '_text',
+        borderColor: '_border',
+        backgroundColor: { default: 'transparent', [HOVER]: '_fillHover' },
+      },
+    },
+    {
+      when: { variant: 'outline', tone: 'accent' },
+      root: {
+        color: '_accentText',
+        borderColor: '_accentBorder',
+        backgroundColor: { default: 'transparent', [HOVER]: '_accentSoft' },
+      },
+    },
+    {
+      when: { variant: 'outline', tone: 'info' },
+      root: {
+        color: '_infoText',
+        borderColor: '_infoBorder',
+        backgroundColor: { default: 'transparent', [HOVER]: '_infoSoft' },
+      },
+    },
+    {
+      when: { variant: 'outline', tone: 'success' },
+      root: {
+        color: '_successText',
+        borderColor: '_successBorder',
+        backgroundColor: { default: 'transparent', [HOVER]: '_successSoft' },
+      },
+    },
+    {
+      when: { variant: 'outline', tone: 'warning' },
+      root: {
+        color: '_warningText',
+        borderColor: '_warningBorder',
+        backgroundColor: { default: 'transparent', [HOVER]: '_warningSoft' },
+      },
+    },
+    {
+      when: { variant: 'outline', tone: 'danger' },
+      root: {
+        color: '_dangerText',
+        borderColor: '_dangerBorder',
+        backgroundColor: { default: 'transparent', [HOVER]: '_dangerSoft' },
+      },
+    },
+    {
+      when: { variant: 'ghost', tone: 'neutral' },
+      root: { color: '_text', backgroundColor: { default: 'transparent', [HOVER]: '_fillHover' } },
+    },
+    {
+      when: { variant: 'ghost', tone: 'accent' },
+      root: {
+        color: '_accentText',
+        backgroundColor: { default: 'transparent', [HOVER]: '_accentSoft' },
+      },
+    },
+    {
+      when: { variant: 'ghost', tone: 'info' },
+      root: {
+        color: '_infoText',
+        backgroundColor: { default: 'transparent', [HOVER]: '_infoSoft' },
+      },
+    },
+    {
+      when: { variant: 'ghost', tone: 'success' },
+      root: {
+        color: '_successText',
+        backgroundColor: { default: 'transparent', [HOVER]: '_successSoft' },
+      },
+    },
+    {
+      when: { variant: 'ghost', tone: 'warning' },
+      root: {
+        color: '_warningText',
+        backgroundColor: { default: 'transparent', [HOVER]: '_warningSoft' },
+      },
+    },
+    {
+      when: { variant: 'ghost', tone: 'danger' },
+      root: {
+        color: '_dangerText',
+        backgroundColor: { default: 'transparent', [HOVER]: '_dangerSoft' },
+      },
+    },
+    { when: { variant: 'link', tone: 'neutral' }, root: { color: '_text' } },
+    { when: { variant: 'link', tone: 'accent' }, root: { color: '_accentText' } },
+    { when: { variant: 'link', tone: 'info' }, root: { color: '_infoText' } },
+    { when: { variant: 'link', tone: 'success' }, root: { color: '_successText' } },
+    { when: { variant: 'link', tone: 'warning' }, root: { color: '_warningText' } },
+    { when: { variant: 'link', tone: 'danger' }, root: { color: '_dangerText' } },
+  ],
 });
 
 /** 按钮的部件（createUi / Provider 的 styles.Button 按它定制） */
@@ -272,8 +470,7 @@ export function buttonSx(
     buttonStyles.root,
     focusRingStyles.visible,
     rippleHostStyles.host,
-    toneThemes[tone],
-    recipe({ variant }).root,
+    recipe({ variant, tone }).root,
     radiusStyles[radius],
     attached && attachedStyles[attached],
     size && fontSizeStyles[size],

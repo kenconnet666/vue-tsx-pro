@@ -1431,8 +1431,6 @@ export {
   type StatusVariant,
   type StatusVariants,
 } from './utils/style/tone-styles';
-export { toneThemes } from './utils/style/tone-themes';
-export { toneVars } from './utils/style/tone-vars';
 export {
   afterTransitions,
   disclosureStyles,

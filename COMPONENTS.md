@@ -112,7 +112,8 @@
 ## 4. 样式
 
 - 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@vue-tsx-pro/tsx/styles` 导入（`import * as css`），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
-- 每个组件文件顶部一个 `css.create`，按布局、尺寸、文字、外观、状态分组。部件 × 档位 × 默认值多的组件用 `css.recipe`（Button、Badge、Tabs）：一次调用拿到每个部件的样式，按档位组合缓存；色调用 `toneThemes[tone]` 换 `toneVars`，各样式只写一遍（`utils/style/tone-themes.ts`）。
+- 每个组件文件顶部一个 `css.create`，按布局、尺寸、文字、外观、状态分组。部件 × 档位 × 默认值多的组件用 `css.recipe`（Button、Badge、Tabs）：一次调用拿到每个部件的样式，按档位组合缓存；按色调变化的样式在组合档位里逐项写主题 token（`{ when: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`）。
+- 样式值以字面量为主，直接写主题 token（`'_accentText'`、`'_full'`）：不加“色调变量”这类中间变量层，也不在样式里引用 JS 变量，读样式时就看得到用的是哪个 token，悬停能看到取值。只有值里夹着 token（`calc`、`color-mix`、多值）才用模板字符串里的 `t.组.名`。
 - 样式表导出，名字全局唯一：`<组件>Styles`（`cardStyles`），按部件或档位拆开的叫 `<组件><部件>Styles`（`cardVariantStyles`、`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - tokens 有两种写法：值整个就是一个 token 时在 `css.create`、`css.keyframes` 里写字符串，引擎展开样式时换成 token 变量；值里夹着 token 时写模板字符串加 `t`：

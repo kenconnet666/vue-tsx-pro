@@ -380,7 +380,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 - [x] 一个元素一个组合类；合并语义修正 StyleX 条件里 `null` 清掉默认值的坑（Tabs 未选中文字恢复成弱化色）
 - [x] 动态值：没变过的属性写进类里，变过的转成变量；编译器把 JSX 里的动态样式调用改写成 `css.bind`，值变化只改元素上的变量、组件不重新渲染
-- [x] 条件别名（`_selected`、`_disabled`…）与属性选择器条件；Button、Badge、Tabs 改用配方 `css.recipe` 与色调变量 `toneVars`
+- [x] 条件别名（`_selected`、`_disabled`…）与属性选择器条件；Button、Badge、Tabs 改用配方 `css.recipe`（色调后来改回直接写主题 token，见 STYLE-ENGINE.md §4.6）
 - [x] 热更新原地生效：改样式值不再连锁刷新整页（约 3 s → 0.23 s）
 - [x] 组件库发布编译好的 JS、整个预构建；预设按需载入 Babel 与 StyleX 插件、预热编译线程：新项目开发服务器就绪 8.3 s → 1.0 s，热启动打开页面 8.2 s → 0.78 s
 - [x] 测试按元素实际得到的声明断言（`styleOf`、`styleTextOf`），与引擎怎么生成类无关；文档站加样式更新基准（`/bench/style-updates`）与截图逐像素比对脚本

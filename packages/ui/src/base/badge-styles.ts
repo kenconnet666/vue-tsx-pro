@@ -1,11 +1,8 @@
 /**
- * Badge 与 Tag 共用的外观（配方版）：variant × tone 不再是一张矩阵——tone 挂一个色调类（toneThemes），
- * 四种样式各写一遍、引用 toneVars；字号、圆角是档位。
+ * Badge 与 Tag 共用的外观（配方）：样式 × 色调逐项写主题 token（组合档位）；字号、圆角另外叠加。
  */
 import * as css from '@vue-tsx-pro/tsx/styles';
 import { partAttrs } from '../config/styles';
-import { toneThemes } from '../utils/style/tone-themes';
-import { toneVars } from '../utils/style/tone-vars';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, type Radius } from '../utils/style/styles';
 import type { StatusTone, StatusVariant } from '../utils/style/tone-styles';
@@ -53,45 +50,138 @@ export const badgeRecipe = css.recipe({
     },
   },
   variants: {
-    variant: {
-      solid: { root: { color: toneVars.contrast, backgroundColor: toneVars.solid } },
-      soft: { root: { color: toneVars.text, backgroundColor: toneVars.soft } },
-      surface: {
-        root: {
-          color: toneVars.text,
-          backgroundColor: toneVars.surface,
-          borderColor: toneVars.border,
-        },
-      },
-      outline: { root: { color: toneVars.text, borderColor: toneVars.border } },
-    },
+    variant: { solid: {}, soft: {}, surface: {}, outline: {} },
+    tone: { neutral: {}, accent: {}, info: {}, success: {}, warning: {}, danger: {} },
   },
-  defaults: { variant: 'soft' },
+  // 样式 × 色调逐项写主题 token；中性色的实底是反色表面
+  compound: [
+    {
+      when: { variant: 'solid', tone: 'neutral' },
+      root: { color: '_inverseText', backgroundColor: '_inverseSurface' },
+    },
+    {
+      when: { variant: 'solid', tone: 'accent' },
+      root: { color: '_accentContrast', backgroundColor: '_accent' },
+    },
+    {
+      when: { variant: 'solid', tone: 'info' },
+      root: { color: '_infoContrast', backgroundColor: '_info' },
+    },
+    {
+      when: { variant: 'solid', tone: 'success' },
+      root: { color: '_successContrast', backgroundColor: '_success' },
+    },
+    {
+      when: { variant: 'solid', tone: 'warning' },
+      root: { color: '_warningContrast', backgroundColor: '_warning' },
+    },
+    {
+      when: { variant: 'solid', tone: 'danger' },
+      root: { color: '_dangerContrast', backgroundColor: '_danger' },
+    },
+    {
+      when: { variant: 'soft', tone: 'neutral' },
+      root: { color: '_text', backgroundColor: '_fill' },
+    },
+    {
+      when: { variant: 'soft', tone: 'accent' },
+      root: { color: '_accentText', backgroundColor: '_accentSoft' },
+    },
+    {
+      when: { variant: 'soft', tone: 'info' },
+      root: { color: '_infoText', backgroundColor: '_infoSoft' },
+    },
+    {
+      when: { variant: 'soft', tone: 'success' },
+      root: { color: '_successText', backgroundColor: '_successSoft' },
+    },
+    {
+      when: { variant: 'soft', tone: 'warning' },
+      root: { color: '_warningText', backgroundColor: '_warningSoft' },
+    },
+    {
+      when: { variant: 'soft', tone: 'danger' },
+      root: { color: '_dangerText', backgroundColor: '_dangerSoft' },
+    },
+    {
+      when: { variant: 'surface', tone: 'neutral' },
+      root: { color: '_text', backgroundColor: '_surface', borderColor: '_border' },
+    },
+    {
+      when: { variant: 'surface', tone: 'accent' },
+      root: { color: '_accentText', backgroundColor: '_accentSoft', borderColor: '_accentBorder' },
+    },
+    {
+      when: { variant: 'surface', tone: 'info' },
+      root: { color: '_infoText', backgroundColor: '_infoSoft', borderColor: '_infoBorder' },
+    },
+    {
+      when: { variant: 'surface', tone: 'success' },
+      root: {
+        color: '_successText',
+        backgroundColor: '_successSoft',
+        borderColor: '_successBorder',
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'warning' },
+      root: {
+        color: '_warningText',
+        backgroundColor: '_warningSoft',
+        borderColor: '_warningBorder',
+      },
+    },
+    {
+      when: { variant: 'surface', tone: 'danger' },
+      root: { color: '_dangerText', backgroundColor: '_dangerSoft', borderColor: '_dangerBorder' },
+    },
+    {
+      when: { variant: 'outline', tone: 'neutral' },
+      root: { color: '_text', borderColor: '_border' },
+    },
+    {
+      when: { variant: 'outline', tone: 'accent' },
+      root: { color: '_accentText', borderColor: '_accentBorder' },
+    },
+    {
+      when: { variant: 'outline', tone: 'info' },
+      root: { color: '_infoText', borderColor: '_infoBorder' },
+    },
+    {
+      when: { variant: 'outline', tone: 'success' },
+      root: { color: '_successText', borderColor: '_successBorder' },
+    },
+    {
+      when: { variant: 'outline', tone: 'warning' },
+      root: { color: '_warningText', borderColor: '_warningBorder' },
+    },
+    {
+      when: { variant: 'outline', tone: 'danger' },
+      root: { color: '_dangerText', borderColor: '_dangerBorder' },
+    },
+  ],
+  defaults: { variant: 'soft', tone: 'neutral' },
 });
 
 /** 标记的部件（createUi / Provider 的 styles.Badge 按它定制） */
 export type BadgePart = (typeof badgeRecipe.parts)[number];
 
 /**
- * 标记的样式与部件标记：色调类 + 配方 + 字号 + 圆角。recipe 是 useRecipe(badgeRecipe) 的结果（带上主题定制），
+ * 标记的样式与部件标记：配方（样式 × 色调）+ 字号 + 圆角。recipe 是 useRecipe(badgeRecipe) 的结果（带上主题定制），
  * 结果直接作部件属性的默认层：`mergeAttrs<'span'>(styles.root, rest)`
  */
 export function badgeParts(
   { variant = 'soft', tone = 'neutral', size = 'xs', radius = 'sm' }: BadgeOptions,
   recipe: (selection: {
     variant: StatusVariant;
+    tone: StatusTone;
   }) => Readonly<Record<BadgePart, readonly css.CompiledStyles[]>>,
 ) {
-  const parts = recipe({ variant });
+  const parts = recipe({ variant, tone });
   return {
     root: {
       ...partAttrs(badgeRecipe, 'root'),
-      sx: [
-        toneThemes[tone],
-        parts.root,
-        fontSizeStyles[size],
-        radiusStyles[radius],
-      ] as css.SxStyles,
+      sx: [parts.root, fontSizeStyles[size], radiusStyles[radius]] as css.SxStyles,
     },
     dot: { ...partAttrs(badgeRecipe, 'dot'), sx: parts.dot as css.SxStyles },
   } as const;
