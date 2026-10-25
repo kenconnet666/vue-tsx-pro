@@ -736,6 +736,13 @@ export {
   type ComboboxProps,
 } from './input/Combobox';
 export {
+  ConditionBuilder,
+  conditionBuilderStyles,
+  type ConditionBuilderProps,
+  type ConditionMode,
+  type ConditionModes,
+} from './input/ConditionBuilder';
+export {
   ControlGroup,
   controlGroupStyles,
   type ControlGroupManaged,
@@ -890,6 +897,29 @@ export {
   type ChoicePart,
   type ChoiceParts,
 } from './input/choice-styles';
+export {
+  conditionOperators,
+  describeCondition,
+  formatConditionValue,
+  isConditionGroup,
+  isRuleComplete,
+  matchesCondition,
+  needsValue,
+  operatorLabel,
+  operatorsOf,
+  toText,
+  valueShape,
+  type Condition,
+  type ConditionField,
+  type ConditionFieldType,
+  type ConditionFieldTypes,
+  type ConditionInputContext,
+  type ConditionOp,
+  type ConditionOps,
+  type ConditionOption,
+  type ConditionRule,
+  type ConditionValueShape,
+} from './input/condition';
 export {
   clickOnShell,
   controlAffix,

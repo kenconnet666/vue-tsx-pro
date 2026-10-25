@@ -209,6 +209,9 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
   - [x] 拖动节点（吸附、对齐线、自动平移）、从端口连线与改接、正交路由、导出 SVG / PNG、小地图
   - [x] 标准节点 `DiagramNode`、泳道 `DiagramLanes`、连线的 `tone` / `dashed`：示例不再自己写节点与泳道的样式
 - [ ] 9.2 通用输入：条件构造器、人员与组织选择器（核心的 input），FilterBar 的高级筛选接上条件构造器
+  - [x] 条件树 `Condition`、`matchesCondition`、`describeCondition` 与 `ConditionBuilder`（COMPONENTS.md §10.25）
+  - [ ] 人员与组织选择器
+  - [ ] FilterBar 的高级筛选
 - [ ] 9.3 模型包（`flow` 仓库）与流程组件的接法（WORKFLOW.md §6 第 1 条，开工前定）
 - [ ] 9.4 FlowDiagram 重做（建在 `/diagram` 上），删除旧实现与 `layoutProcess`
 - [ ] 9.5 FlowDesigner 重做：结构编辑、属性面板、问题列表、版本对比

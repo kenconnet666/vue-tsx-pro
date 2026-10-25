@@ -1,0 +1,126 @@
+// 条件树：各种比较方式的求值（数字文字与数字相等、介于的开放端、文字不分大小写、空值），组合与空组，
+// 自定义取值；写成一句话（嵌套加括号、取反、选项与是否的文字、数字按语言格式化、只有一端的范围）
+import { describe, expect, it } from 'vitest';
+import { zhCN } from '../../config/lang/zh-CN';
+import {
+  describeCondition,
+  isRuleComplete,
+  matchesCondition,
+  valueShape,
+  type Condition,
+  type ConditionField,
+} from '../condition';
+
+const order = {
+  amount: 1200,
+  code: 'PO-17',
+  category: 'steel',
+  note: '',
+  tags: [],
+  due: '2026-11-03',
+};
+
+describe('matchesCondition', () => {
+  it('比较：大小按数值（数字文字也算），日期按文字先后，介于含两端、空的一端不限', () => {
+    const yes = (condition: Condition) => matchesCondition(condition, order);
+    expect(yes({ field: 'amount', op: 'eq', value: '1200' })).toBe(true);
+    expect(yes({ field: 'amount', op: 'gt', value: 999 })).toBe(true);
+    expect(yes({ field: 'amount', op: 'lte', value: 1000 })).toBe(false);
+    expect(yes({ field: 'due', op: 'lt', value: '2026-12-01' })).toBe(true);
+    expect(yes({ field: 'amount', op: 'between', value: [1000, 1200] })).toBe(true);
+    expect(yes({ field: 'amount', op: 'between', value: [null, 1000] })).toBe(false);
+    expect(yes({ field: 'amount', op: 'between', value: [1000, null] })).toBe(true);
+    // 没有这个字段：大小比较都不成立
+    expect(yes({ field: 'missing', op: 'gt', value: 0 })).toBe(false);
+  });
+
+  it('选项与文字：in / notIn，包含与开头不分大小写；exists / empty 把空字符串、空数组算作空', () => {
+    const yes = (condition: Condition) => matchesCondition(condition, order);
+    expect(yes({ field: 'category', op: 'in', value: ['aluminum', 'steel'] })).toBe(true);
+    expect(yes({ field: 'category', op: 'notIn', value: ['steel'] })).toBe(false);
+    expect(yes({ field: 'code', op: 'contains', value: 'po' })).toBe(true);
+    expect(yes({ field: 'code', op: 'startsWith', value: 'PO-1' })).toBe(true);
+    expect(yes({ field: 'code', op: 'notContains', value: '17' })).toBe(false);
+    expect(yes({ field: 'note', op: 'empty' })).toBe(true);
+    expect(yes({ field: 'tags', op: 'exists' })).toBe(false);
+  });
+
+  it('组合：all / any / not 可以嵌套；空的 all 成立、空的 any 不成立；read 改取值的方式', () => {
+    const condition: Condition = {
+      all: [
+        { field: 'amount', op: 'gte', value: 1000 },
+        { not: { any: [{ field: 'category', op: 'eq', value: 'service' }] } },
+      ],
+    };
+    expect(matchesCondition(condition, order)).toBe(true);
+    expect(matchesCondition({ all: [] }, order)).toBe(true);
+    expect(matchesCondition({ any: [] }, order)).toBe(false);
+    const nested = { head: { amount: 5 } };
+    expect(
+      matchesCondition(
+        { field: 'amount', op: 'eq', value: 5 },
+        nested,
+        (row, field) => (row.head as Record<string, unknown>)[field],
+      ),
+    ).toBe(true);
+  });
+
+  it('值的形状与“填完整”：介于至少一端有值，exists 不要值', () => {
+    expect(valueShape('between')).toBe('range');
+    expect(valueShape('notIn')).toBe('list');
+    expect(valueShape('empty')).toBe('none');
+    expect(isRuleComplete({ field: 'a', op: 'between', value: [null, 3] })).toBe(true);
+    expect(isRuleComplete({ field: 'a', op: 'between', value: [null, null] })).toBe(false);
+    expect(isRuleComplete({ field: 'a', op: 'in', value: [] })).toBe(false);
+    expect(isRuleComplete({ field: 'a', op: 'exists' })).toBe(true);
+  });
+});
+
+describe('describeCondition', () => {
+  const fields: ConditionField[] = [
+    { name: 'amount', label: '金额', type: 'number' },
+    { name: 'due', label: '交货日期', type: 'date' },
+    {
+      name: 'category',
+      label: '品类',
+      type: 'select',
+      options: [
+        { value: 'steel', label: '钢材' },
+        { value: 'aluminum', label: '铝材' },
+      ],
+    },
+    { name: 'urgent', label: '加急', type: 'boolean' },
+  ];
+
+  it('嵌套的组加括号，取反写“不满足：”；选项写文字、是否写“是 / 否”、数字按语言格式化；不认识的字段写字段名', () => {
+    const condition: Condition = {
+      all: [
+        { field: 'amount', op: 'gte', value: 100000 },
+        {
+          any: [
+            { field: 'category', op: 'in', value: ['steel', 'aluminum'] },
+            { field: 'urgent', op: 'eq', value: true },
+          ],
+        },
+        { not: { field: 'due', op: 'lt', value: '2026-11-01' } },
+        { field: 'owner', op: 'exists' },
+      ],
+    };
+    expect(describeCondition(condition, fields, zhCN)).toBe(
+      '金额 大于等于 100,000，且 （品类 是其中之一 钢材、铝材，或 加急 为 是），且 不满足：交货日期 早于 2026-11-01，且 owner 不为空',
+    );
+  });
+
+  it('只有一端的介于写成“以上”“以下”', () => {
+    expect(
+      describeCondition({ field: 'amount', op: 'between', value: [500, null] }, fields, zhCN),
+    ).toBe('金额 介于 500 以上');
+    expect(
+      describeCondition(
+        { field: 'due', op: 'between', value: ['2026-11-01', '2026-11-30'] },
+        fields,
+        zhCN,
+      ),
+    ).toBe('交货日期 介于 2026-11-01 至 2026-11-30');
+  });
+});

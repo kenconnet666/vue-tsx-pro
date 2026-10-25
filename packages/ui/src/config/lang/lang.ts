@@ -10,6 +10,8 @@
  */
 import type { $ZodErrorMap } from 'zod/v4/core';
 import type { ChecklistStatuses } from '../../display/Checklist';
+import type { ConditionFieldType, ConditionOp } from '../../input/condition';
+import type { ConditionMode } from '../../input/ConditionBuilder';
 import type { DateSegmentType } from '../../date/date-segments';
 import type { DateRangePreset } from '../../utils/data/date';
 import type { DiagramMessages } from '../../diagram/messages';
@@ -446,6 +448,56 @@ export interface Lang {
   readonly transferCount: (checked: number, total: number) => string;
   /** 移动之后的播报：`(3, '已选')` → “已把 3 项移到已选” */
   readonly transferMoved: (count: number, title: string) => string;
+  /** 条件组的满足方式：全部满足、任一满足、都不满足、不全满足 */
+  readonly conditionModes: Readonly<Record<ConditionMode, string>>;
+  /** 满足方式选择框的名称，默认“满足方式” */
+  readonly conditionMode: string;
+  /** 组里第二条起的连接词：全部满足时默认“且” */
+  readonly conditionAnd: string;
+  /** 组里第二条起的连接词：任一满足时默认“或” */
+  readonly conditionOr: string;
+  /** 比较方式的文字：eq → “等于”、between → “介于” */
+  readonly conditionOperators: Readonly<Record<ConditionOp, string>>;
+  /** 按字段类型改说法的比较方式：日期的 lt → “早于”，选项的 in → “是其中之一” */
+  readonly conditionTypeOperators: Readonly<
+    Partial<Record<ConditionFieldType, Readonly<Partial<Record<ConditionOp, string>>>>>
+  >;
+  /** 是否型字段的“是” */
+  readonly conditionTrue: string;
+  /** 是否型字段的“否” */
+  readonly conditionFalse: string;
+  /** 介于的两个输入框之间的字，默认“至” */
+  readonly conditionTo: string;
+  /** 摘要里的范围：`('1', '9')` → “1 至 9”，只有一端时“1 以上”“9 以下” */
+  readonly conditionRange: (low: string, high: string) => string;
+  /** 摘要里几个值之间的分隔，默认“、” */
+  readonly conditionValueSeparator: string;
+  /** 摘要里全部满足的连接，默认“，且 ” */
+  readonly conditionAndJoiner: string;
+  /** 摘要里任一满足的连接，默认“，或 ” */
+  readonly conditionOrJoiner: string;
+  /** 摘要里取反的前缀，默认“不满足：” */
+  readonly conditionNotPrefix: string;
+  /** 字段选择框的名称与占位，默认“字段” */
+  readonly conditionField: string;
+  /** 比较方式选择框的名称，默认“比较方式” */
+  readonly conditionOperator: string;
+  /** 值输入的名称：`('金额')` → “金额的值” */
+  readonly conditionValue: (field: string) => string;
+  /** 添加一条比较的按钮，默认“添加条件” */
+  readonly conditionAddRule: string;
+  /** 添加一组的按钮，默认“添加条件组” */
+  readonly conditionAddGroup: string;
+  /** 删除一条比较的按钮名称，默认“删除条件” */
+  readonly conditionRemoveRule: string;
+  /** 删除一组的按钮名称，默认“删除条件组” */
+  readonly conditionRemoveGroup: string;
+  /** 一条条件也没有时的提示，默认“还没有条件” */
+  readonly conditionEmpty: string;
+  /** 组的名称（读屏），默认“条件组” */
+  readonly conditionGroup: string;
+  /** 一条比较的名称（读屏）：`(2)` → “条件 2” */
+  readonly conditionRule: (index: number) => string;
   /** 面包屑导航的无障碍名称，默认“面包屑” */
   readonly breadcrumbs: string;
   /** 面包屑折叠按钮（打开被折叠各级的菜单）的名称，默认“显示被折叠的路径” */
