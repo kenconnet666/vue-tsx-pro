@@ -11,6 +11,7 @@
  *   const { include, expand } = filterTree(roots, accessors, (node) => node.name.includes(query));
  *   flattenTree(roots, accessors, new Set([...expanded, ...expand]), { include });
  *   roots = moveNode(roots, { ...accessors, withChildren }, key, { parent: 'b', index: 0 });
+ *   roots = buildTree(flatRows, { getKey: (r) => r.id, getParent: (r) => r.parentId }); // 平铺的行（服务端搜索的结果）组装成树
  */
 import { shallowRef } from 'vue';
 
@@ -236,6 +237,49 @@ export function filterTree<T>(
   };
   visit(roots);
   return result;
+}
+
+/** buildTree 怎样读平铺的行 */
+export interface TreeRows<T> {
+  /** 行的 key，这批行里唯一 */
+  getKey: (row: T) => string;
+  /** 父行的 key；根行是 null / undefined，父行不在这批行里的也当作根 */
+  getParent: (row: T) => string | null | undefined;
+  /** 用子节点生成一个节点（不改原行），同 TreeEditor；不写时是 `{ ...row, children }` */
+  withChildren?: (row: T, children: T[]) => T;
+}
+
+/**
+ * 平铺的行（每行带父 key）组装成树，返回第一层；同级保持 rows 里的顺序，叶子的 children 是空数组。
+ * 服务端搜索懒加载的树时回“匹配的节点和它们的祖先”（query 库的 withAncestors），组装后再用 filterTree 得到要展开、高亮的节点。
+ * key 重复或父子成环时报错（环上的行到不了第一层）
+ */
+export function buildTree<T>(
+  rows: readonly T[],
+  { getKey, getParent, withChildren }: TreeRows<T>,
+): T[] {
+  const make = withChildren ?? ((row: T, children: T[]) => ({ ...row, children }) as T);
+  const keys = new Set<string>();
+  for (const row of rows) {
+    const key = getKey(row);
+    if (keys.has(key)) throw new Error(`buildTree：key ${key} 出现了两次`);
+    keys.add(key);
+  }
+  const roots: T[] = [];
+  const childrenOf = new Map<string, T[]>();
+  for (const row of rows) {
+    const parent = getParent(row);
+    if (parent == null || parent === getKey(row) || !keys.has(parent)) roots.push(row);
+    else childrenOf.set(parent, [...(childrenOf.get(parent) ?? []), row]);
+  }
+  let built = 0;
+  const node = (row: T): T => {
+    built++;
+    return make(row, (childrenOf.get(getKey(row)) ?? []).map(node));
+  };
+  const tree = roots.map(node);
+  if (built < rows.length) throw new Error('buildTree：有的行的父子关系成了环，到不了第一层');
+  return tree;
 }
 
 /** moveNode 要的读写方法：在读取之外，能用新的子节点生成一个节点 */

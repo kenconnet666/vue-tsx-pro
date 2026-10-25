@@ -1,6 +1,7 @@
 // 树的展开成行、勾选的父子联动（半选、懒加载出来的子节点跟随父节点）、勾选结果的取法、路径、搜索过滤、移动节点
 import { describe, expect, it } from 'vitest';
 import {
+  buildTree,
   checkedByStrategy,
   checkStates,
   filterTree,
@@ -139,5 +140,51 @@ describe('moveNode', () => {
     expect(moveNode(tree, editor, 'a', { parent: 'a2', index: 0 })).toBeNull();
     expect(moveNode(tree, editor, 'a', { parent: 'a', index: 0 })).toBeNull();
     expect(moveNode(tree, editor, 'zz', { parent: undefined, index: 0 })).toBeNull();
+  });
+});
+
+describe('buildTree：平铺的行组装成树', () => {
+  interface Row {
+    id: string;
+    parentId: string | null;
+    name: string;
+  }
+  const rows: Row[] = [
+    { id: 'b1', parentId: 'b', name: '小组' },
+    { id: 'a', parentId: null, name: '研发' },
+    { id: 'b', parentId: null, name: '采购' },
+    { id: 'a1', parentId: 'a', name: '前端' },
+    { id: 'x', parentId: 'gone', name: '父行不在这批里' },
+  ];
+  const read = { getKey: (r: Row) => r.id, getParent: (r: Row) => r.parentId };
+
+  it('同级保持原来的顺序，父行不在这批里的当作根，叶子的 children 是空数组', () => {
+    const tree = buildTree(rows, read) as (Row & { children: Row[] })[];
+    const shape = (nodes: (Row & { children: Row[] })[]): unknown[] =>
+      nodes.map((n) => (n.children.length ? { [n.id]: shape(n.children as never) } : n.id));
+    expect(shape(tree)).toEqual([{ a: ['a1'] }, { b: ['b1'] }, 'x']);
+    expect(rows[1]).not.toHaveProperty('children');
+  });
+
+  it('withChildren 决定节点的样子；搜索结果组装后交给 filterTree', () => {
+    const tree = buildTree(rows, {
+      ...read,
+      withChildren: (r, children) => ({ ...r, kids: children }) as Row,
+    });
+    const accessors = {
+      getKey: (r: Row) => r.id,
+      getChildren: (r: Row) => (r as Row & { kids: Row[] }).kids,
+    };
+    const { expand, matched } = filterTree(tree, accessors, (r) => r.name === '前端');
+    expect([...expand, ...matched]).toEqual(['a', 'a1']);
+  });
+
+  it('key 重复或父子成环时报错', () => {
+    expect(() => buildTree([rows[1]!, rows[1]!], read)).toThrow(/出现了两次/);
+    const loop: Row[] = [
+      { id: 'p', parentId: 'q', name: '' },
+      { id: 'q', parentId: 'p', name: '' },
+    ];
+    expect(() => buildTree(loop, read)).toThrow(/成了环/);
   });
 });

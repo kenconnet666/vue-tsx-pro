@@ -1714,6 +1714,7 @@ export {
 export { createStatusMap, type StatusDefinition, type StatusMap } from './utils/data/status';
 export { childNodes, plainText } from './utils/data/text';
 export {
+  buildTree,
   checkedByStrategy,
   checkStates,
   filterTree,
@@ -1735,6 +1736,7 @@ export {
   type TreeFilter,
   type TreeIndex,
   type TreeMoveTarget,
+  type TreeRows,
 } from './utils/data/tree';
 export {
   addWorkdays,

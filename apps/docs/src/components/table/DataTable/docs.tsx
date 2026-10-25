@@ -114,9 +114,13 @@ export default _component(() => () => (
           <Code>manualSort</Code>{' '}
           时按数据的顺序）。多选默认父子联动：勾父行连带子孙，只勾一部分时父行半选；
           <Code>checkStrictly</Code> 时各自勾选。
-          <Code>
-            loadChildren
-          </Code> 懒加载：展开时取回子项放进数据，期间按钮显示加载中。数字列的 <Code>format</Code>{' '}
+          <Code>loadChildren</Code>{' '}
+          懒加载：展开时取回子项放进数据，期间按钮显示加载中；服务端在每行带上{' '}
+          <Code>hasChildren</Code>（query 库里是 <Code>{'bool(() => d.children.any())'}</Code>
+          ），交给同名的属性。懒加载的树要在服务端搜索：服务端回“匹配的节点和它们的祖先”的平铺行（query
+          库的 <Code>db.withAncestors</Code>，PostgreSQL、MySQL 上是一条递归查询），
+          <Code>buildTree</Code> 组装成树，再用 <Code>filterTree</Code>{' '}
+          得到要展开、高亮的节点。数字列的 <Code>format</Code>{' '}
           与类型的默认格式合并，金额按万元显示写 <Code>{'{ scale: 10_000 }'}</Code>
           ，单位放在表头里。
         </Example>
