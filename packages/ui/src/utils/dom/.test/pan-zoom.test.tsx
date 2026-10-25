@@ -102,7 +102,34 @@ describe('usePanZoom', () => {
     expect(view().scale).toBe(1);
     Object.defineProperty(element, 'clientWidth', { value: 200 });
     Object.defineProperty(element, 'clientHeight', { value: 100 });
-    expect(view().fit(400, 100)).toBe(0.5);
+    expect(view().fit({ width: 400, height: 100 })).toBe(0.5);
     expect(view()).toMatchObject({ x: 0, y: 25, scale: 0.5 });
+    // 内容不从原点开始：平移把它的左上角挪进来
+    expect(view().fit({ x: 100, y: -40, width: 100, height: 50 }, 10)).toBe(1);
+    expect(view()).toMatchObject({ x: -50, y: 65, scale: 1 });
+  });
+
+  it('filter 挑掉的事件不处理：按住 Shift 拖动、按键都不平移', async () => {
+    const { element, view } = render({ wheel: 'pan', filter: (event) => !event.shiftKey });
+    await nextTick();
+    element.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        clientX: 0,
+        clientY: 0,
+        pointerId: 1,
+        button: 0,
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+    element.dispatchEvent(pointer('pointermove', 50, 40));
+    element.dispatchEvent(pointer('pointerup', 50, 40));
+    expect(view()).toMatchObject({ x: 0, y: 0 });
+    element.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowLeft', shiftKey: true, bubbles: true }),
+    );
+    expect(view().x).toBe(0);
+    element.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    expect(view().x).toBe(40);
   });
 });

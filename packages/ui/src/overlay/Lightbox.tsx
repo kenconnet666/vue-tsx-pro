@@ -208,8 +208,7 @@ export const Lightbox = _component(
     /** 整张图放进视口（不超过原大）：打开、换一张、旋转之后 */
     function fitImage() {
       if (!natural) return;
-      const { width, height } = box();
-      view.fit(width, height, 24);
+      view.fit(box(), 24);
     }
 
     function go(step: 1 | -1) {

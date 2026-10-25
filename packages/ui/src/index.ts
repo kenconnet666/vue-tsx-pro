@@ -1564,9 +1564,11 @@ export {
 export { usePageVisible } from './utils/dom/page-visibility';
 export {
   clampPan,
+  fitTransform,
   usePanZoom,
   zoomAround,
   type PanZoom,
+  type PanZoomContent,
   type PanZoomOptions,
   type PanZoomState,
   type PanZoomWheelModes,
@@ -1677,6 +1679,13 @@ export {
 } from './utils/data/date';
 export { diffFields, type FieldDiff } from './utils/data/diff';
 export { sameValue } from './utils/data/equality';
+export {
+  createHistory,
+  type History,
+  type HistoryCommitOptions,
+  type HistoryGesture,
+  type HistoryOptions,
+} from './utils/data/history';
 export { cachedIntl } from './utils/data/intl-cache';
 export { normalizeNumber, parseNumber } from './utils/data/number-parse';
 export { clamp, snapToStep } from './utils/data/number';

@@ -15,6 +15,7 @@
  *   触控板的双指缩放在浏览器里就是按着 Ctrl 的滚轮，两种模式下都是缩放。
  * - 键盘（视口要能聚焦）：+ / − 缩放，0 回到初始，方向键平移。
  * - bounds 给出内容的大小时限制平移：内容比视口大就不露出边外的空白，比视口小就居中。
+ * - filter 挑出要处理的事件（同 d3-zoom 的 filter）：画布里按在节点上、按着 Shift 框选时返回 false，平移让给它们。
  * 视口要设 touch-action: none（viewportProps 里已带），否则触屏拖动会被当成页面滚动。
  */
 import { shallowRef } from 'vue';
@@ -58,6 +59,20 @@ export interface PanZoomOptions {
   bounds?: () => { width: number; height: number } | undefined;
   /** 不可用：不响应拖动、滚轮与键盘 */
   disabled?: () => boolean;
+  /** 只处理返回 true 的事件（按下、滚轮、双击、按键）；默认都处理。返回 false 的事件原样留给页面与别的处理函数 */
+  filter?: (event: PointerEvent | WheelEvent | MouseEvent | KeyboardEvent) => boolean;
+}
+
+/** fit 要放进视口的内容：缩放前的位置与大小，x、y 不写时从 0 开始 */
+export interface PanZoomContent {
+  /** 内容左边的横坐标，默认 0 */
+  x?: number;
+  /** 内容上边的纵坐标，默认 0 */
+  y?: number;
+  /** 宽 */
+  width: number;
+  /** 高 */
+  height: number;
 }
 
 /** usePanZoom 的返回值 */
@@ -82,8 +97,8 @@ export interface PanZoom {
   panTo(x: number, y: number): void;
   /** 回到初始状态 */
   reset(): void;
-  /** 把 width × height 的内容整个放进视口并居中（不超过原大），返回用到的缩放 */
-  fit(width: number, height: number, padding?: number): number;
+  /** 把内容整个放进视口并居中（不超过原大），四周留出 padding（px），返回用到的缩放 */
+  fit(content: PanZoomContent, padding?: number): number;
   /** 视口的属性：展开到视口元素上 */
   readonly viewportProps: Record<string, unknown>;
 }
@@ -118,6 +133,32 @@ export function clampPan(
     x: axis(state.x, viewport.width, content.width * state.scale),
     y: axis(state.y, viewport.height, content.height * state.scale),
     scale: state.scale,
+  };
+}
+
+/**
+ * 把内容整个放进视口并居中的状态：缩放取放得下的最大值（不超过原大，再限制在 min–max），四周留出 padding（px）。
+ * 视口或内容的宽高为 0 时缩放按 1 算
+ */
+export function fitTransform(
+  viewport: { width: number; height: number },
+  { x = 0, y = 0, width, height }: PanZoomContent,
+  { padding = 0, min = 0, max = Infinity }: { padding?: number; min?: number; max?: number } = {},
+): PanZoomState {
+  const fits = (room: number, size: number) => (size > 0 && room > 0 ? room / size : 1);
+  const scale = clamp(
+    Math.min(
+      fits(viewport.width - padding * 2, width),
+      fits(viewport.height - padding * 2, height),
+      1,
+    ),
+    min,
+    max,
+  );
+  return {
+    x: (viewport.width - width * scale) / 2 - x * scale,
+    y: (viewport.height - height * scale) / 2 - y * scale,
+    scale,
   };
 }
 
@@ -165,8 +206,12 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
     apply(zoomAround(state.value, next, origin));
   }
 
+  /** 这个事件要不要处理：不可用时都不处理，filter 挑掉的也不处理 */
+  const handles = (event: PointerEvent | WheelEvent | MouseEvent | KeyboardEvent) =>
+    !options.disabled?.() && (options.filter?.(event) ?? true);
+
   function onWheel(event: WheelEvent) {
-    if (options.disabled?.()) return;
+    if (!handles(event)) return;
     const zoom = options.wheel !== 'pan' || event.ctrlKey || event.metaKey;
     event.preventDefault();
     if (!zoom) {
@@ -181,7 +226,7 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
   useEventListener(viewport, 'wheel', onWheel, { passive: false });
 
   function onPointerdown(event: PointerEvent) {
-    if (options.disabled?.() || event.button !== 0) return;
+    if (event.button !== 0 || !handles(event)) return;
     pointers.set(event.pointerId, local(event));
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()] as [Point, Point];
@@ -221,13 +266,13 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
   }
 
   function onDblclick(event: MouseEvent) {
-    if (options.disabled?.()) return;
+    if (!handles(event)) return;
     if (state.value.scale > initial().scale) apply(initial());
     else zoomTo(state.value.scale * step * step, local(event));
   }
 
   function onKeydown(event: KeyboardEvent) {
-    if (options.disabled?.() || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || !handles(event)) return;
     const { x, y } = state.value;
     const actions: Record<string, () => void> = {
       '+': () => zoomTo(state.value.scale * step),
@@ -277,19 +322,9 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
     zoomTo,
     panTo: (x, y) => apply({ ...state.value, x, y }),
     reset: () => apply(initial()),
-    fit(width, height, padding = 0) {
-      const view = viewportSize();
-      const scale = clamp(
-        Math.min((view.width - padding * 2) / width, (view.height - padding * 2) / height, 1),
-        min,
-        max,
-      );
-      state.value = {
-        x: (view.width - width * scale) / 2,
-        y: (view.height - height * scale) / 2,
-        scale,
-      };
-      return scale;
+    fit(content, padding = 0) {
+      state.value = fitTransform(viewportSize(), content, { padding, min, max });
+      return state.value.scale;
     },
     viewportProps,
   };
