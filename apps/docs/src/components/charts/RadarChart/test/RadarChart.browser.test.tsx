@@ -27,8 +27,8 @@ it('矩形树图：每条明细一块，外层分组写上名字', async () => {
   const root = mount(Treemap);
   const text = await until(() => {
     const content = root.querySelector('svg')?.textContent ?? '';
-    return content.includes('蓉城紧固件') && content;
+    return content.includes('渝州电子') && content;
   });
-  for (const label of ['华东', '华南', '华北', '华辰精密', '粤海机电'])
+  for (const label of ['华东', '华南', '华北', '西南', '华辰精密', '蓉城五金'])
     expect(text).toContain(label);
 });

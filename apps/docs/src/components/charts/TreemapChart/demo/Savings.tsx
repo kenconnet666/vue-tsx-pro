@@ -8,9 +8,10 @@ const savings = [
   { region: '华东', supplier: '江南铸造', amount: 118.4 },
   { region: '华南', supplier: '粤海机电', amount: 285.2 },
   { region: '华南', supplier: '南方物流', amount: 48.3 },
-  { region: '华北', supplier: '京津航材', amount: 170.2 },
+  { region: '华北', supplier: '京津新材', amount: 170.2 },
   { region: '华北', supplier: '燕山精工', amount: 92.6 },
-  { region: '西南', supplier: '蓉城紧固件', amount: 66.1 },
+  { region: '西南', supplier: '蓉城五金', amount: 146.1 },
+  { region: '西南', supplier: '渝州电子', amount: 98.5 },
 ];
 
 export default _component(() => () => (
