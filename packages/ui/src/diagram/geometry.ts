@@ -171,3 +171,74 @@ export function trimEnd(points: readonly DiagramPoint[], length: number): Diagra
   if (segment <= length) return [...points];
   return [...points.slice(0, -1), towards(tip, before, length)];
 }
+
+/** 对齐线：拖动时与别的节点对齐的那条线（画布坐标的线段） */
+export interface DiagramGuide {
+  /** 起点 */
+  from: DiagramPoint;
+  /** 终点 */
+  to: DiagramPoint;
+}
+
+/**
+ * 拖动中的矩形向别的矩形对齐：左、中、右任一条竖线与别人的左、中、右相差不到 tolerance 时吸过去，横向同理（上、中、下）。
+ * 返回吸附后的位置与要画的对齐线（每个方向取差得最少的那一条，线从两个矩形里靠外的一端画到另一端）
+ */
+export function alignToGuides(
+  rect: DiagramRect,
+  others: readonly DiagramRect[],
+  tolerance: number,
+): { x: number; y: number; guides: DiagramGuide[] } {
+  const lines = (start: number, size: number) => [start, start + size / 2, start + size];
+  let best: { axis: 'x' | 'y'; diff: number; at: number; other: DiagramRect }[] = [];
+  for (const axis of ['x', 'y'] as const) {
+    const own = axis === 'x' ? lines(rect.x, rect.width) : lines(rect.y, rect.height);
+    let found: { diff: number; at: number; other: DiagramRect } | undefined;
+    for (const other of others) {
+      const theirs = axis === 'x' ? lines(other.x, other.width) : lines(other.y, other.height);
+      for (const mine of own) {
+        for (const line of theirs) {
+          const diff = line - mine;
+          if (Math.abs(diff) <= tolerance && (!found || Math.abs(diff) < Math.abs(found.diff))) {
+            found = { diff, at: line, other };
+          }
+        }
+      }
+    }
+    if (found) best = [...best, { axis, ...found }];
+  }
+  const x = rect.x + (best.find((item) => item.axis === 'x')?.diff ?? 0);
+  const y = rect.y + (best.find((item) => item.axis === 'y')?.diff ?? 0);
+  const placed = { ...rect, x, y };
+  const guides = best.map(({ axis, at, other }) =>
+    axis === 'x'
+      ? {
+          from: { x: at, y: Math.min(placed.y, other.y) },
+          to: { x: at, y: Math.max(placed.y + placed.height, other.y + other.height) },
+        }
+      : {
+          from: { x: Math.min(placed.x, other.x), y: at },
+          to: { x: Math.max(placed.x + placed.width, other.x + other.width), y: at },
+        },
+  );
+  return { x, y, guides };
+}
+
+/** 点落在哪个矩形里：后面的在上层，先找后面的 */
+export function rectAt<T extends DiagramRect>(
+  rects: readonly T[],
+  point: DiagramPoint,
+): T | undefined {
+  for (let index = rects.length - 1; index >= 0; index--) {
+    const rect = rects[index]!;
+    if (
+      point.x >= rect.x &&
+      point.x <= rect.x + rect.width &&
+      point.y >= rect.y &&
+      point.y <= rect.y + rect.height
+    ) {
+      return rect;
+    }
+  }
+  return undefined;
+}

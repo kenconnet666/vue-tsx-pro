@@ -836,21 +836,27 @@ apps/docs/src/components/base/Button/
 | 文案     | 页面级组件的文案表 `workflowMessages`（中英），语言包 `messages.workflow` 按字段改写                                                                                                              |
 | 以后再加 | `FlowDesigner`（属性面板改处理人、时限、超时，校验后发布）；节点的拖动与连线编辑                                                                                                                  |
 
-### 10.24 画布（diagram/，进行中）
+### 10.24 画布（diagram/）
 
 流程图、设计器、组织架构图、关系图共用的底座（WORKFLOW.md §3.1、ROADMAP 阶段 9.1）。交互参考 React Flow（视口、选择、框选的写法与默认键位），
 只借鉴设计、不依赖它。主入口另有不依赖界面的撤销重做 `createHistory`。
 
-| 项         | 做法                                                                                                                                                                                            |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 分层       | 视口（`div`，平移缩放）里一层随视口变换的 World：backdrop（HTML）→ 节点（HTML，z 2）→ 连线（SVG，z 1）→ 连线文字；最上面是框选框与 overlay（视口坐标）。节点在 DOM 里排在连线前面，Tab 先走节点 |
-| 视口       | 控制器 `useDiagram` 建在 `usePanZoom` 上（为它加了 `filter`、`fit` 收内容矩形、纯函数 `fitTransform`）；平移缩放与网格走动态样式绑定，画布不重新渲染；回到初始就是适应内容                      |
-| 节点与连线 | 位置与大小由使用方给（排布或用户摆的位置），内容是渲染函数；连线给折线或画直线，`currentColor` 画线与箭头，按连线的 `sx` 改色、虚线                                                             |
-| 选择       | `_selected` 是 `{ nodes, edges }`（两类标识分开，设计器按选中的对象切换属性面板）；点选、Shift / Ctrl 加选、框选（full / partial）、Esc、Ctrl+A；框到的没变时不写，画布只在选择变化时渲染       |
-| 拖动方式   | `dragMode`：看图为主是 pan（Shift 拖动框选），编辑为主是 select（空格拖动平移），同 Figma、React Flow 的两种习惯                                                                                |
-| 读屏       | 视口 `role="group"` + `aria-roledescription="画布"`；可选择时节点、连线是 `role="button"` + `aria-pressed`，连线默认名称“从 A 到 B”；不可选择时节点 `role="img"`                                |
-| 范围       | `extent` 声明内容范围（backdrop 比节点大时），适应画布按它算；适应时四周留 48px，角上的 DiagramControls 不压住节点                                                                              |
-| 以后再加   | 拖动节点（吸附、对齐线、拖到边缘自动平移）、从端口连线与改接、正交路由、导出 SVG / PNG、小地图（ROADMAP 9.1 的剩余部分）                                                                        |
+| 项         | 做法                                                                                                                                                                                                                                                                                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 分层       | 视口（`div`，平移缩放）里一层随视口变换的 World：backdrop（HTML）→ 节点（HTML，z 2）→ 连线（SVG，z 1）→ 连线文字 → 临时层（SVG，z 3：对齐线、拖出来的连线、改接把手，导出时去掉）；最上面是框选框与 overlay（视口坐标）。节点在 DOM 里排在连线前面，Tab 先走节点                                                                        |
+| 视口       | 控制器 `useDiagram` 建在 `usePanZoom` 上（为它加了 `filter`、`fit` 收内容矩形、纯函数 `fitTransform`）；平移缩放与网格走动态样式绑定，画布不重新渲染；回到初始就是适应内容                                                                                                                                                              |
+| 节点与连线 | 位置与大小由使用方给（排布或用户摆的位置）；节点默认是 `DiagramNode`（标题、说明、起始边、色调、rect / pill），要别的样子时 children 给渲染函数，选中描边按 `data-diagram-shape` 跟着形状走。连线给折线或按 `routing` 画，`tone`、`dashed` 改颜色、画虚线；泳道是 backdrop 里的 `DiagramLanes`（虚线、透明，`lanesExtent` 给出 extent） |
+| 选择       | `_selected` 是 `{ nodes, edges }`（两类标识分开，设计器按选中的对象切换属性面板）；点选、Shift / Ctrl 加选、框选（full / partial）、Esc、Ctrl+A；框到的没变时不写，画布只在选择变化时渲染                                                                                                                                               |
+| 拖动方式   | `dragMode`：看图为主是 pan（Shift 拖动框选），编辑为主是 select（空格拖动平移），同 Figma、React Flow 的两种习惯                                                                                                                                                                                                                        |
+| 读屏       | 视口 `role="group"` + `aria-roledescription="画布"`；可选择时节点、连线是 `role="button"` + `aria-pressed`，连线默认名称“从 A 到 B”；不可选择时节点 `role="img"`                                                                                                                                                                        |
+| 范围       | `extent` 声明内容范围（backdrop 比节点大时），适应画布按它算；适应时四周留 48px，角上的 DiagramControls 不压住节点                                                                                                                                                                                                                      |
+| 渲染       | 节点、连线、连线文字各是一个内部组件，属性都是原始值，事件处理是 setup 里建一次的 actions 对象：拖动、悬停时只有变了的节点与线重新渲染；不动的线一直是同一个折线数组                                                                                                                                                                    |
+| 拖动       | `draggable`（可按节点判断）：过 3px 才开始、选中的一起拖，`snapToGrid` 吸附网格，`guides` 与别的节点的边、中线差不到 6 屏幕像素就吸过去并画对齐线，拖到离视口边 32px 内自动平移，Esc 取消；相连的线按 `routing` 实时重画。位置受控：松开后 `onNodesMove` 给新位置，方向键挪一格（Shift 五格）同样经它                                   |
+| 连线       | `connectable`：悬停或选中的节点四边出现端口，拖到别的节点上 `onConnect`（含进出的边）；选中的连线两端有把手，拖去改接 `onReconnect`。端口、把手拖动中会消失，指针捕获放在视口上（startMove 的 `captureTarget`），松开后的 click 也落在视口上，用 `swallowClick` 吞掉，不当成点空白处。`canConnect` 决定能连的节点（只高亮能连的）       |
+| 路由       | `routing="orthogonal"`（`routeEdges`）：节点外扩 16 后的边线做稀疏网格，A* 加拐弯代价；同一条边上的几条线按另一端的位置排开端口；`fromSide` / `toSide` 固定进出的边；找不到路时退回简单折线                                                                                                                                             |
+| 导出       | `diagramToSvg` / `diagramToPng`：复制 World，算出来的样式只写会变的（不继承的与这种元素的默认值比，默认值在 `all: initial` 的沙盒里读；继承的与父元素比），放进 foreignObject。PNG 经 `rasterizeSvg` 用 data: 地址载入（blob: 载入的 foreignObject 会让 canvas 不能导出），与图表的导出共用                                             |
+| 小地图     | `DiagramMinimap`：节点方块与视口框，点或拖动把视口移过去；只是指针用户的便利，读屏不念                                                                                                                                                                                                                                                  |
+| 以后再加   | 节点改大小、对齐与分布、复制粘贴（FlowDesigner 重做时按需要加，ROADMAP 9.5）                                                                                                                                                                                                                                                            |
 
 ### 10.6 顺序
 

@@ -1,11 +1,12 @@
-// 组织架构：只看不改。节点的内容自己画（头像、姓名、岗位），连线是排好的折线；fitView 第一次就把整张图放进视口，
-// 右下角的缩放按钮来自 DiagramControls。拖动空白处平移，滚轮平移，按住 Ctrl 滚轮或触控板捏合缩放
+// 组织架构：只看不改。节点是名片式的 DiagramNode（起始边放头像，标题是姓名、说明是岗位，总经理用强调色），
+// 连线是排好的折线；fitView 第一次就把整张图放进视口，右下角的缩放按钮来自 DiagramControls。
+// 拖动空白处平移，滚轮平移，按住 Ctrl 滚轮或触控板捏合缩放
 import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Avatar, Small, Strong } from '@vue-tsx-pro/ui';
+import { Avatar } from '@vue-tsx-pro/ui';
 import {
   Diagram,
   DiagramControls,
+  DiagramNode,
   type DiagramEdgeItem,
   type DiagramNodeItem,
 } from '@vue-tsx-pro/ui/diagram';
@@ -83,42 +84,24 @@ function layout(list: readonly Person[]) {
 
 const { nodes, edges } = layout(people);
 
-const styles = css.create({
-  diagram: { height: '22rem' },
-  card: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_space.sm',
-    paddingInline: '_space.sm',
-    backgroundColor: '_surfaceRaised',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_md',
-    boxShadow: '_xs',
-  },
-  lead: { borderColor: '_accentBorder', backgroundColor: '_accentSoft' },
-  text: { display: 'flex', flexDirection: 'column', minWidth: 0 },
-});
-
 export default _component(() => () => (
   <Diagram
     nodes={nodes}
     edges={edges}
     getNodeLabel={(person) => `${person.name}，${person.title}`}
     fitView
+    height="22rem"
     overlay={<DiagramControls />}
-    sx={styles.diagram}
     aria-label="组织架构"
   >
     {(person) => (
-      <div {...css.attrs(styles.card, !person.manager && styles.lead)}>
-        <Avatar name={person.name} size="sm" />
-        <div {...css.attrs(styles.text)}>
-          <Strong size="sm">{person.name}</Strong>
-          <Small tone="muted">{person.title}</Small>
-        </div>
-      </div>
+      <DiagramNode
+        start={<Avatar name={person.name} size="sm" />}
+        title={person.name}
+        description={person.title}
+        tone={person.manager ? 'neutral' : 'accent'}
+        align="start"
+      />
     )}
   </Diagram>
 ));

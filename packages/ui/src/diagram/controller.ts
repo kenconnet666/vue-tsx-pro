@@ -52,12 +52,16 @@ export interface DiagramController {
   toDiagram(clientX: number, clientY: number): DiagramPoint;
 }
 
-/** Diagram 接上控制器用的内部接口：不在公开类型里 */
+/** 画布的内部接口：Diagram 接上控制器，小地图、导出这类画布部件经它读画布的状态（diagramInternals 取得） */
 export interface DiagramInternals {
   /** 视口元素：Diagram 挂载后写入 */
   readonly element: { value: HTMLElement | null };
+  /** 视口的大小（px）：Diagram 量到后写入，响应式 */
+  readonly size: { value: { width: number; height: number } };
   /** 读内容的边界（画布坐标）：Diagram 交进来 */
   content: () => DiagramRect | undefined;
+  /** 读节点当前的位置与大小（拖动中的按拖到的位置）：Diagram 交进来 */
+  nodes: () => readonly DiagramRect[];
   /** 挑出视口要处理的事件：Diagram 按拖动方式、点在哪里交进来 */
   filter: (event: PointerEvent | WheelEvent | MouseEvent | KeyboardEvent) => boolean;
   /** 视口的事件属性：展开到视口元素上 */
@@ -68,7 +72,7 @@ export interface DiagramInternals {
 
 const internals = new WeakMap<DiagramController, DiagramInternals>();
 
-/** 控制器的内部接口（只给 Diagram 与本目录的部件用） */
+/** 控制器的内部接口：Diagram 与画布部件（DiagramMinimap、导出）用；自己写画布部件时也从这里读 */
 export function diagramInternals(controller: DiagramController): DiagramInternals {
   const found = internals.get(controller);
   if (!found) throw new Error('Diagram: controller 要用 useDiagram() 创建');
@@ -88,7 +92,9 @@ export function useDiagram(options: DiagramOptions = {}): DiagramController {
 
   const own: Omit<DiagramInternals, 'view'> = {
     element,
+    size: shallowRef({ width: 0, height: 0 }),
     content: () => undefined,
+    nodes: () => [],
     filter: () => true,
     fitted() {
       const content = own.content();
