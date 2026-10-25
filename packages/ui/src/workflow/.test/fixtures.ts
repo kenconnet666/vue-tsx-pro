@@ -8,7 +8,7 @@ export const negotiation: ProcessDefinition = {
   version: 1,
   lanes: [
     { id: 'supplier', name: '供应商' },
-    { id: 'cost', name: '成本团队', group: 'cost' },
+    { id: 'cost', name: '财务部', group: 'cost' },
     { id: 'pemo', name: 'PEMO', group: 'pemo' },
   ],
   nodes: [
@@ -16,9 +16,9 @@ export const negotiation: ProcessDefinition = {
     {
       id: 'estimate',
       type: 'task',
-      name: '收益测算',
+      name: '费用核算',
       lane: 'cost',
-      outcomes: [{ key: 'done', label: '出测算' }],
+      outcomes: [{ key: 'done', label: '出核算' }],
     },
     {
       id: 'review',

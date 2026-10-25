@@ -2,10 +2,10 @@
  * 折线图：每个系列一条线，类目（通常是时间）沿横轴排开；悬停时十字线在各条线上标出当前点，提示框列出各系列的值。
  *
  *   <LineChart
- *     aria-label="月度降本趋势"
+ *     aria-label="月度销售趋势"
  *     data={months}
  *     index="month"
- *     series={[{ key: 'planned', label: '预期降本' }, { key: 'actual', label: '实际降本' }]}
+ *     series={[{ key: 'planned', label: '预期销售' }, { key: 'actual', label: '实际销售' }]}
  *     dots="hollow"
  *   />
  *

@@ -2,8 +2,8 @@
  * 统计数值（dl）：指标名、数值与单位、可选的图标与环比变化。仪表盘顶部的一排卡片、详情页的关键指标。
  * 外观只是内容，放进 Card、Grid 里组合：
  *
- *   <Card><Stat label="实际降本金额" value={910.36} unit="万元" icon={Wallet} change={0.123} changeLabel="较上月" /></Card>
- *   <Stat label="测算降本" value={a} format={wan} unit="万元" footer={<><span>年度目标 2,000 万元</span><span>完成 81%</span></>}>
+ *   <Card><Stat label="实际销售额" value={910.36} unit="万元" icon={Wallet} change={0.123} changeLabel="较上月" /></Card>
+ *   <Stat label="测算销售" value={a} format={wan} unit="万元" footer={<><span>年度目标 2,000 万元</span><span>完成 81%</span></>}>
  *     <Progress value={81} size="xs" aria-label="年度目标完成度" />
  *   </Stat>
  *

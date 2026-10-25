@@ -43,10 +43,10 @@ describe('TagsInput', () => {
       </>
     ));
     const [accepting, keeping] = root.querySelectorAll('input');
-    await type(accepting!, '降本');
+    await type(accepting!, '销售');
     accepting!.dispatchEvent(new FocusEvent('blur'));
     await nextTick();
-    expect([value, accepting!.value]).toEqual([['降本'], '']);
+    expect([value, accepting!.value]).toEqual([['销售'], '']);
     await type(keeping!, '草稿');
     keeping!.dispatchEvent(new FocusEvent('blur'));
     await nextTick();

@@ -9,7 +9,7 @@ const items: NotificationItem[] = [
   {
     id: '1',
     title: '新的待办：齐全性检查',
-    description: 'JY-2026-0012',
+    description: 'PO-2026-0012',
     time: '2026-10-21T09:30:00+08:00',
     type: 'todo',
     read: false,

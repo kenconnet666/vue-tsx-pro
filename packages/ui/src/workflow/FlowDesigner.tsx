@@ -4,7 +4,7 @@
  *
  *   <FlowDesigner
  *     _definition={draft}                          // 草稿：每次修改写回一份新的流程定义
- *     groups={[{ value: 'cost', label: '成本团队收件箱' }]}  // 岗位收件箱（处理人选“指定岗位收件箱”时）
+ *     groups={[{ value: 'cost', label: '财务部收件箱' }]}  // 岗位收件箱（处理人选“指定岗位收件箱”时）
  *     users={people}                                     // 人（处理人选“指定的人”时）
  *     onPublish={(flow) => api.publish(flow)}            // 收到版本加一的定义；返回 Promise 时按钮转圈
  *   />

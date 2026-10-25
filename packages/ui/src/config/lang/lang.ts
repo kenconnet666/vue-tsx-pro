@@ -111,7 +111,7 @@ export interface Lang {
   readonly mentionsEmpty: string;
   /** 清单各项状态的文字（读屏、悬停说明） */
   readonly checklistStatus: Readonly<Record<keyof ChecklistStatuses, string>>;
-  /** 清单一项的名称与状态：`('验证窗结论', '已完成')` → “验证窗结论已完成” */
+  /** 清单一项的名称与状态：`('验收报告', '已完成')` → “验收报告已完成” */
   readonly checklistItemState: (label: string, state: string) => string;
   /** 清单只有图标时整组的说明：把各项连起来 */
   readonly checklistIconsLabel: (parts: readonly string[]) => string;

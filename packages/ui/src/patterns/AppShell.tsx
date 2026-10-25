@@ -2,7 +2,7 @@
  * 应用外壳：粘性顶栏、左侧栏（导航）、正文、右侧栏（本页目录），文档站与后台的整页骨架。
  *
  *   <AppShell
- *     brand={<AppShellBrand href="/" icon={Plane}>联合降本管理</AppShellBrand>}
+ *     brand={<AppShellBrand href="/" icon={Boxes}>采购管理平台</AppShellBrand>}
  *     header={<><CommandPalette … /><ThemeSwitcher preference={preference} /></>}
  *     sidebar={<NavList aria-label="文档">…</NavList>}
  *     aside={<TableOfContents items={headings} />}

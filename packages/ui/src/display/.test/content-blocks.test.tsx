@@ -29,7 +29,7 @@ describe('ItemList', () => {
         <ItemListItem
           start={<StatusDot />}
           title="齐全性检查"
-          description="JY-2026-0187"
+          description="PO-2026-0187"
           end="剩 2 天"
         />
         <ItemListItem title="只有标题" />
@@ -37,7 +37,7 @@ describe('ItemList', () => {
     ));
     const items = root.querySelectorAll('ul > li');
     expect(items).toHaveLength(2);
-    expect(items[0]!.textContent).toBe('齐全性检查JY-2026-0187剩 2 天');
+    expect(items[0]!.textContent).toBe('齐全性检查PO-2026-0187剩 2 天');
     expect(items[0]!.children).toHaveLength(3);
     // 第二条没有起始边：主体 + 结束边的占位
     expect(items[1]!.children).toHaveLength(2);
@@ -48,7 +48,7 @@ describe('ProportionBar', () => {
   it('横条的名称带上各段的数量；数量为 0 的段不画但留在图例里', () => {
     const root = mount(() => (
       <ProportionBar
-        aria-label="任务池"
+        aria-label="工单池"
         segments={[
           { key: 'a', label: '已确认', value: 25, tone: 'success' },
           { key: 'b', label: '挂账', value: 0 },
@@ -58,7 +58,7 @@ describe('ProportionBar', () => {
       />
     ));
     const bar = root.querySelector('[role="img"]')!;
-    expect(bar.getAttribute('aria-label')).toBe('任务池：已确认 25，挂账 0，待定 35');
+    expect(bar.getAttribute('aria-label')).toBe('工单池：已确认 25，挂账 0，待定 35');
     expect(bar.children).toHaveLength(2);
     expect([...root.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
       '已确认25 项',

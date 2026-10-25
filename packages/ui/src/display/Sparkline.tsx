@@ -2,7 +2,7 @@
  * 迷你图：没有坐标轴的小折线、面积或柱，嵌在指标卡（Stat 的 children）、表格的格子、列表的一行里看走势。
  * 纯 SVG，不依赖图表库；宽度占满容器，高度默认 2em（随字号缩放）。
  *
- *   <Stat label="实际降本" value={910.36} unit="万元">
+ *   <Stat label="实际销售" value={910.36} unit="万元">
  *     <Sparkline data={monthly} variant="area" label="近 12 个月" />
  *   </Stat>
  *   <Sparkline data={[3, 5, null, 4, 8]} variant="bar" tone="success" />
@@ -48,7 +48,7 @@ export interface SparklineProps extends PartProps<'span', SparklineManaged> {
   domain?: readonly [number | undefined, number | undefined];
   /** 读屏念的数值格式 */
   valueFormat?: NumericFormat;
-  /** 名称：读屏先念它（“近 12 个月实际降本”） */
+  /** 名称：读屏先念它（“近 12 个月实际销售”） */
   label?: string;
 }
 

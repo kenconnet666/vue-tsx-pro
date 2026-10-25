@@ -25,8 +25,8 @@ const rows: Row[] = [
   { name: '项目 02', planned: 280.5, actual: null },
 ];
 const series = [
-  { key: 'planned', label: '预期降本' },
-  { key: 'actual', label: '实际降本' },
+  { key: 'planned', label: '预期销售' },
+  { key: 'actual', label: '实际销售' },
 ] as const;
 
 describe('系列', () => {
@@ -84,7 +84,7 @@ describe('BarChart、LineChart', () => {
   it('外层是带名称的 figure；单位显示在上方；读屏的数据表按语言格式化，空值写“—”', () => {
     const root = mount(() => (
       <BarChart
-        aria-label="项目降本金额"
+        aria-label="各项目销售额"
         data={rows}
         index="name"
         series={[...series]}
@@ -92,13 +92,13 @@ describe('BarChart、LineChart', () => {
       />
     ));
     const figure = root.querySelector('[role="figure"]')!;
-    expect(figure.getAttribute('aria-label')).toBe('项目降本金额');
+    expect(figure.getAttribute('aria-label')).toBe('各项目销售额');
     expect(figure.textContent).toContain('万元');
     const table = figure.querySelector('table')!;
     expect([...table.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual([
       '类目',
-      '预期降本（万元）',
-      '实际降本（万元）',
+      '预期销售（万元）',
+      '实际销售（万元）',
     ]);
     expect([...table.querySelectorAll('tbody tr')].map((tr) => tr.textContent)).toEqual([
       '项目 01272438.4',
@@ -123,8 +123,8 @@ describe('BarChart、LineChart', () => {
     expect(
       buttons.map((button) => [button.textContent, button.getAttribute('aria-pressed')]),
     ).toEqual([
-      ['预期降本', 'true'],
-      ['实际降本', 'true'],
+      ['预期销售', 'true'],
+      ['实际销售', 'true'],
     ]);
     buttons[1]!.click();
     await nextTick();
@@ -136,7 +136,7 @@ describe('BarChart、LineChart', () => {
   });
 
   it('只有一个系列时不显示图例；legend 可以强制显示', () => {
-    const one = [{ key: 'planned', label: '预期降本' }] as const;
+    const one = [{ key: 'planned', label: '预期销售' }] as const;
     const root = mount(() => (
       <>
         <BarChart aria-label="a" data={rows} index="name" series={[...one]} />

@@ -1,10 +1,10 @@
 /**
- * 地图：按区域着色（分省的降本金额、各国的采购额），标出地点（工厂、供应商）与它们之间的流向。
+ * 地图：按区域着色（分省的销售额、各国的采购额），标出地点（工厂、供应商）与它们之间的流向。
  * 地理数据是 TopoJSON：Unovis 自带中国省份、世界、美国等（`@unovis/ts/maps`），也可以用自己的。
  *
  *   import { ChinaTopoJSON } from '@unovis/ts/maps';
  *   <MapChart
- *     aria-label="各省降本金额"
+ *     aria-label="各省销售额"
  *     topology={ChinaTopoJSON}
  *     feature="provinces"
  *     areas={[{ id: 'CN-JS', label: '江苏', value: 623 }, …]}   // id 是地图要素的 id

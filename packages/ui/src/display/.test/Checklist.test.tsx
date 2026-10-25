@@ -5,9 +5,9 @@ import { hasStyles, mount } from '../../utils/.test/mount';
 import { Checklist, checklistStyles, type ChecklistItem } from '../Checklist';
 
 const items: ChecklistItem[] = [
-  { label: '验证窗结论', status: 'done', date: '10-12', evidence: <a href="/r">验证报告.pdf</a> },
-  { label: '收益认定意见', status: 'overdue', owner: '成本团队', date: '计划 10-20' },
-  { label: '商务谈定记录', description: '谈定价格与生效日期', owner: '采购部' },
+  { label: '验收报告', status: 'done', date: '10-12', evidence: <a href="/r">验证报告.pdf</a> },
+  { label: '财务复核意见', status: 'overdue', owner: '财务部', date: '计划 10-20' },
+  { label: '合同签订记录', description: '谈定价格与生效日期', owner: '采购部' },
   { label: '海关备案', status: 'skipped' },
 ];
 
@@ -21,7 +21,7 @@ describe('Checklist', () => {
       'todo',
       'skipped',
     ]);
-    expect(rows[0]!.textContent).toBe('已完成验证窗结论10-12验证报告.pdf');
+    expect(rows[0]!.textContent).toBe('已完成验收报告10-12验证报告.pdf');
     expect(rows[2]!.textContent).toContain('谈定价格与生效日期');
     const late = [...rows[1]!.querySelectorAll('span')].find(
       (span) => span.textContent === '计划 10-20',
@@ -46,7 +46,7 @@ describe('Checklist', () => {
       'false',
     ]);
     const name = document.getElementById(boxes[1]!.getAttribute('aria-labelledby')!)!;
-    expect(name.textContent).toBe('收益认定意见');
+    expect(name.textContent).toBe('财务复核意见');
     expect(boxes[3]!.disabled).toBe(true);
     boxes[1]!.click();
     expect(onCheckedChange).toHaveBeenCalledWith(items[1], true);
@@ -59,7 +59,7 @@ describe('Checklist', () => {
     expect(inline.querySelector('ul')!.children).toHaveLength(2);
     const icons = mount(() => <Checklist layout="icons" items={items.slice(0, 3)} />);
     expect(icons.querySelector('[role="img"]')!.getAttribute('aria-label')).toBe(
-      '验证窗结论已完成，收益认定意见已超时，商务谈定记录未完成',
+      '验收报告已完成，财务复核意见已超时，合同签订记录未完成',
     );
   });
 });

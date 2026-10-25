@@ -58,7 +58,7 @@ describe('Descriptions 的自适应栏数与复制', () => {
         maxColumns={3}
         items={[
           { label: '编号', value: 'A-1' },
-          { label: '团队', value: '复材' },
+          { label: '团队', value: '研发' },
           { label: '地址', value: '上海', span: 5 },
         ]}
       />

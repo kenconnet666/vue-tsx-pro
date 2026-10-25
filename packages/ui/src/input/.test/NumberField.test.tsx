@@ -173,7 +173,7 @@ describe('NumberField 的值类型', () => {
         format={{ scale: 10_000, maximumFractionDigits: 2 }}
         suffix="万元"
         step={100}
-        aria-label="单机降本"
+        aria-label="单价"
       />
     ));
     const input = root.querySelector('input')!;

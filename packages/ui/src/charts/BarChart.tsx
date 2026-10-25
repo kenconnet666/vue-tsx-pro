@@ -2,10 +2,10 @@
  * 柱状图：每个类目一组柱子，系列并排（分组）或叠成一根（堆叠），可以横向；stacked="percent" 时每根叠满 100%（看构成）。
  *
  *   <BarChart
- *     aria-label="项目降本金额"
+ *     aria-label="各项目销售额"
  *     data={projects}
  *     index="name"
- *     series={[{ key: 'planned', label: '预期降本' }, { key: 'actual', label: '实际降本' }]}
+ *     series={[{ key: 'planned', label: '预期销售' }, { key: 'actual', label: '实际销售' }]}
  *     unit="万元"
  *   />
  *

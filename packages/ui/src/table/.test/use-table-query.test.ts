@@ -98,11 +98,11 @@ describe('useTableQuery', () => {
     table.page = 2;
     await flush();
     const before = api.queries.length;
-    table.search({ keyword: '复材' });
+    table.search({ keyword: '研发' });
     await flush();
-    expect(api.queries.at(-1)).toMatchObject({ page: 1, filters: { keyword: '复材' } });
+    expect(api.queries.at(-1)).toMatchObject({ page: 1, filters: { keyword: '研发' } });
     expect(api.queries.length).toBe(before + 1);
-    table.search({ keyword: '复材' });
+    table.search({ keyword: '研发' });
     await flush();
     expect(api.queries.length).toBe(before + 2);
     stop();
@@ -193,7 +193,7 @@ describe('tableParams', () => {
         none: { start: null, end: null },
         blank: '',
         missing: undefined,
-        categories: ['机加', '复材'],
+        categories: ['生产', '研发'],
         condition: { any: [{ field: 'amount', op: 'gte', value: 1000 }] },
       },
       params: undefined,
@@ -210,7 +210,7 @@ describe('tableParams', () => {
       id: '9007199254740993',
       created: ['2026-01-01', ''],
       amount: ['', '500'],
-      categories: ['机加', '复材'],
+      categories: ['生产', '研发'],
       // 条件树（FilterBar 的高级筛选）写成 JSON 文字，后端的 TableRequest 读 condition 参数（query 的 0017）
       condition: '{"any":[{"field":"amount","op":"gte","value":1000}]}',
     });

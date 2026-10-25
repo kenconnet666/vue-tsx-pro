@@ -83,7 +83,7 @@ export interface ChartAnnotation {
   color?: ChartColor;
 }
 
-/** 区间：类目轴上的一段（验证窗、促销期），或数值轴上的一段（目标区间） */
+/** 区间：类目轴上的一段（试运行期、促销期），或数值轴上的一段（目标区间） */
 export interface ChartBand {
   /** 在哪条轴上，默认 index（类目轴） */
   axis?: 'index' | 'value';
@@ -161,7 +161,7 @@ export interface XYChartProps<T extends object>
   _hiddenSeries?: string[];
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
-  /** 目标线、参考线：数值轴上的虚线（横向图是竖线），如年度降本指标；数值轴的范围会包含它 */
+  /** 目标线、参考线：数值轴上的虚线（横向图是竖线），如年度销售指标；数值轴的范围会包含它 */
   targets?: readonly ChartTarget[];
   /** 标注：类目上的事件（竖线），或圈出某个系列的值（横向图只画竖线） */
   annotations?: readonly ChartAnnotation[];

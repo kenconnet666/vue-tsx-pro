@@ -2,12 +2,12 @@
  * 组合图：同一组类目上既有柱又有线（金额与比率、数量与单价），单位不同的系列画在右侧的第二数值轴上。
  *
  *   <ComboChart
- *     aria-label="月度降本与完成率"
+ *     aria-label="月度销售与完成率"
  *     data={months}
  *     index="month"
  *     series={[
- *       { key: 'planned', label: '计划降本' },
- *       { key: 'actual', label: '实际降本' },
+ *       { key: 'planned', label: '计划销售' },
+ *       { key: 'actual', label: '实际销售' },
  *       { key: 'rate', label: '完成率', type: 'line', axis: 'secondary' },
  *     ]}
  *     unit="万元"

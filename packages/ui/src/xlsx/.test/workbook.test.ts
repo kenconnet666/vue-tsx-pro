@@ -23,8 +23,8 @@ const statuses = createStatusMap({
 });
 
 const rows: Saving[] = [
-  { code: 'JY-01', team: '复材', target: 155_353.2, actual: 120_000, status: 'verifying' },
-  { code: 'JY-02', team: '机加', target: 86_400, actual: 90_000, status: 'done' },
+  { code: 'PO-01', team: '研发', target: 155_353.2, actual: 120_000, status: 'verifying' },
+  { code: 'JY-02', team: '生产', target: 86_400, actual: 90_000, status: 'done' },
 ];
 
 const columns: DataTableColumn<Saving>[] = [

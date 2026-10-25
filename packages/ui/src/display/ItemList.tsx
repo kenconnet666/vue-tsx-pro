@@ -4,7 +4,7 @@
  *
  *   <ItemList divided>
  *     <ItemListItem start={<StatusDot />} title={<Link href="/inbox">齐全性检查</Link>}
- *       description="JY-2026-0187 · 整流罩支架" end={<DeadlineBadge due="2026-10-23" />} />
+ *       description="PO-2026-0187 · 官网改版" end={<DeadlineBadge due="2026-10-23" />} />
  *   </ItemList>
  *
  * divided 在条目之间画线；hoverable 悬停时着底色（整条可点时）；inset 是条目两侧的内边距（放在弹出层、

@@ -15,7 +15,7 @@
  * - 单选：点节点或 Enter 选中并关闭；多选：空格或点勾选框，勾上父节点会勾上它的子孙，子节点全勾上时父节点也勾上。
  *   value 按 checkedStrategy 放勾上的节点：全部（默认）、整枝时只放父节点、只放叶子（checkedByStrategy）。
  * - 多选的标签同 Select（SelectedTags）：排在触发按钮前面，可移除（取消整枝），maxTagCount 收起，Backspace 移除最后一个。
- *   标签只列最上层的整枝（勾上了“复合材料中心”就不再列它下面的每个组）；checkedStrategy="child" 时列叶子。
+ *   标签只列最上层的整枝（勾上了“研发中心”就不再列它下面的每个组）；checkedStrategy="child" 时列叶子。
  * - searchable：弹出层顶部的搜索框，按节点文字过滤，命中节点的祖先一起显示并展开；↓ 从搜索框进到树里。
  *   给 load 时由服务端搜索：打开时与输入停下 300 ms 后按搜索词请求，返回命中的节点连同祖先，结果全部展开
  *   （remote-items.ts，同 Select）；自己管请求时写 _search={keyword}、filter={false}。

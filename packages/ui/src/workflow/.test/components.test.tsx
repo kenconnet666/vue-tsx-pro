@@ -148,7 +148,7 @@ describe('useWorkflowTimeline', () => {
     expect(items[1]).toContain('供应商甲 · 协商与认可：提出异议');
     expect(items[1]).toContain('单价偏高');
     expect(items[1]).toContain('报价单.pdf');
-    expect(items[2]).toContain('王晴 · 收益测算：出测算');
+    expect(items[2]).toContain('王晴 · 费用核算：出核算');
     expect(items[2]).toContain('10-20 10:00');
   });
 });

@@ -7,7 +7,7 @@
  *   <Progress value={uploaded} max={total} label="上传" valueLabel={`${uploaded} / ${total}`} />
  *   <Progress value={60} aria-label="上传进度" />  只有进度条
  *   <Progress aria-label="正在加载" />               不确定进度
- *   <Progress shape="circle" value={72} target={80} label="本月降本完成率" />
+ *   <Progress shape="circle" value={72} target={80} label="本月销售完成率" />
  *
  * 部件：有标签行时外层是 Root（propsRoot），里面是 Label、ValueLabel 与进度条；没有时进度条就是根元素。
  * 环形：根元素是 progressbar，里面是 SVG（轨道、进度、目标刻度）与中间的 ValueLabel；有 label 时外层是 Root，标签在下方。

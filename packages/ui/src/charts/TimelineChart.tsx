@@ -3,10 +3,10 @@
  * 计划画成宽而浅的轨道、实际画在上面，一眼看出提前还是拖期。可以标出“今天”与里程碑。
  *
  *   <TimelineChart
- *     aria-label="降本项目进度"
+ *     aria-label="项目进度"
  *     items={[
- *       { row: '整流罩支架', series: 'plan', start: '2026-03-01', end: '2026-06-30' },
- *       { row: '整流罩支架', series: 'actual', start: '2026-03-10', end: '2026-07-20' },
+ *       { row: '官网改版', series: 'plan', start: '2026-03-01', end: '2026-06-30' },
+ *       { row: '官网改版', series: 'actual', start: '2026-03-10', end: '2026-07-20' },
  *     ]}
  *     series={[{ key: 'plan', label: '计划', variant: 'track' }, { key: 'actual', label: '实际' }]}
  *     today

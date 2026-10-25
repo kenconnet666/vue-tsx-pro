@@ -17,7 +17,7 @@
  *
  *   const flow: ProcessDefinition = {
  *     key: 'suggestion', name: '供应商建议', version: 1,
- *     lanes: [{ id: 'supplier', name: '供应商' }, { id: 'cost', name: '成本团队', group: 'cost' }],
+ *     lanes: [{ id: 'supplier', name: '供应商' }, { id: 'cost', name: '财务部', group: 'cost' }],
  *     nodes: [
  *       { id: 'start', type: 'start', name: '提交', lane: 'supplier' },
  *       { id: 'check', type: 'task', name: '齐全性检查', lane: 'cost', due: { workdays: 2 },
@@ -57,7 +57,7 @@ export interface ProcessDefinition {
 export interface ProcessLane {
   /** 标识 */
   id: string;
-  /** 名称（“成本团队”） */
+  /** 名称（“财务部”） */
   name: string;
   /** 岗位收件箱（候选组）：泳道里的人工节点没写 assignee 时进这个收件箱，岗位里的人认领 */
   group?: string;

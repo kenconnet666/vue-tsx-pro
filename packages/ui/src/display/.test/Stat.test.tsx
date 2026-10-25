@@ -8,7 +8,7 @@ import { Stat } from '../Stat';
 it('指标名是 dt、数值与单位是 dd；数字按语言格式化，图标对读屏隐藏', () => {
   const root = mount(() => (
     <Stat
-      label="预期降本金额"
+      label="预期销售额"
       value={1087.5}
       format={{ minimumFractionDigits: 2 }}
       unit="万元"
@@ -20,7 +20,7 @@ it('指标名是 dt、数值与单位是 dd；数字按语言格式化，图标�
     'DT',
     'DD',
   ]);
-  expect(root.querySelector('dt')!.textContent).toBe('预期降本金额');
+  expect(root.querySelector('dt')!.textContent).toBe('预期销售额');
   const value = root.querySelector('dd')!;
   expect(value.querySelector('[aria-hidden="true"]')!.textContent).toBe('1,087.50');
   expect(value.textContent).toContain('万元');
@@ -30,7 +30,7 @@ it('指标名是 dt、数值与单位是 dd；数字按语言格式化，图标�
 it('图标在指标名前；children 是数值下面的补充内容，footer 是底栏，都是 dd', () => {
   const root = mount(() => (
     <Stat
-      label="测算降本"
+      label="测算销售"
       value={81}
       unit="万元"
       icon={ClipboardList}

@@ -2,7 +2,7 @@
  * 仪表盘（role="meter"）：半圆的刻度上显示一个量落在哪个区间——完成率、利用率、风险分。外圈是分段的区间
  * （危险、提醒、良好），里面的弧是当前值（颜色取它所在区间的色调），中间是数值，下面是名称。
  *
- *   <Gauge value={0.82} max={1} valueFormat={{ style: 'percent' }} label="降本完成率"
+ *   <Gauge value={0.82} max={1} valueFormat={{ style: 'percent' }} label="销售完成率"
  *     bands={[{ to: 0.6, tone: 'danger' }, { to: 0.9, tone: 'warning' }, { to: 1, tone: 'success' }]} target={0.9} />
  *
  * 和 Progress 的分工：Progress 是做到哪了（上传、步骤）；Gauge 是一个量处在好坏的哪一段（有区间、有目标）。

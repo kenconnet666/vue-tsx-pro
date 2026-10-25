@@ -9,14 +9,14 @@ import { AppShell, AppShellBrand, appShellStyles } from '../AppShell';
 describe('AppShell', () => {
   it('brand 在顶栏的内容之前；有侧栏时品牌格与侧栏同宽对齐', () => {
     const root = mount(() => (
-      <AppShell brand={<span>联合降本管理</span>} header={<span>页签</span>} sidebar={<nav />}>
+      <AppShell brand={<span>采购管理平台</span>} header={<span>页签</span>} sidebar={<nav />}>
         正文
       </AppShell>
     ));
     const header = root.querySelector('header')!;
     const texts = [...header.children].map((child) => child.textContent).filter(Boolean);
-    expect(texts).toEqual(['联合降本管理', '页签']);
-    const brand = [...header.children].find((child) => child.textContent === '联合降本管理')!;
+    expect(texts).toEqual(['采购管理平台', '页签']);
+    const brand = [...header.children].find((child) => child.textContent === '采购管理平台')!;
     expect(hasStyles(brand, appShellStyles.brandRail)).toBe(true);
     expect(hasStyles(header, appShellStyles.headerWithBrand)).toBe(true);
   });
@@ -110,11 +110,11 @@ describe('AppShellBrand', () => {
   it('链到首页：图标是装饰，名字是链接的名称', () => {
     const link = mount(() => (
       <AppShellBrand href="/" icon={Plane}>
-        联合降本管理
+        采购管理平台
       </AppShellBrand>
     )).querySelector('a')!;
     expect(link.getAttribute('href')).toBe('/');
-    expect(link.textContent).toBe('联合降本管理');
+    expect(link.textContent).toBe('采购管理平台');
     expect(link.querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
   });
 });
@@ -158,7 +158,7 @@ describe('AppShell 的导航、页签区、页脚与收起', () => {
       <AppShell
         brand={
           <AppShellBrand href="/" icon={Plane}>
-            联合降本管理
+            采购管理平台
           </AppShellBrand>
         }
         sidebar={<nav aria-label="导航" />}
@@ -175,7 +175,7 @@ describe('AppShell 的导航、页签区、页脚与收起', () => {
     expect(collapsed).toBe(true);
     expect(root.querySelector('button[aria-label="展开侧栏"]')).not.toBeNull();
     const name = root.querySelector('header a span')!;
-    expect(name.textContent).toBe('联合降本管理');
+    expect(name.textContent).toBe('采购管理平台');
     expect(name.className).not.toBe('');
     window.matchMedia = matchMedia;
   });

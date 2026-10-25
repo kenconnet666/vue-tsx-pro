@@ -1,8 +1,8 @@
 /**
  * 图表的导出：绘图区的 SVG 存成 PNG 图片，读屏的数据表存成 CSV。ChartFrame 的导出菜单用它，也可以自己调。
  *
- *   await exportChartImage(svg, '月度降本');          // 下载“月度降本.png”
- *   exportChartData(table, format, '月度降本');       // 下载“月度降本.csv”
+ *   await exportChartImage(svg, '月度销售');          // 下载“月度销售.png”
+ *   exportChartData(table, format, '月度销售');       // 下载“月度销售.csv”
  *
  * 图片：复制一份 SVG，把每个元素算出来的样式（颜色、线宽、字体，主题的 CSS 变量已经解析）写到它自己身上，
  * 画进两倍大小的 canvas，底色取图表外层的背景色。叠在 SVG 上面的 HTML（提示框）不在图里。

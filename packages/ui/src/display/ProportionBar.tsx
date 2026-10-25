@@ -1,9 +1,9 @@
 /**
  * 比例条：一根横条按各部分的数量分段，下面是图例（色点、名称、数量），看一个总数由哪几块构成
- * （任务池的三桶、各状态的占比、存储空间）。部分之间互斥、加起来是总数时用它；要比较趋势用图表。
+ * （工单的三种状态、各状态的占比、存储空间）。部分之间互斥、加起来是总数时用它；要比较趋势用图表。
  *
  *   <ProportionBar
- *     aria-label="任务池构成"
+ *     aria-label="工单构成"
  *     segments={[
  *       { key: 'confirmed', label: '已确认收益', value: 25, tone: 'success' },
  *       { key: 'unpriced', label: '挂账待定', value: 4, tone: 'warning' },

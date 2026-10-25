@@ -38,11 +38,11 @@ describe('ComboChart', () => {
   it('数据表按各自的轴：第二轴的系列用它的格式与单位；第二轴的单位写在右上方', () => {
     const root = mount(() => (
       <ComboChart
-        aria-label="降本与完成率"
+        aria-label="销售与完成率"
         data={months}
         index="month"
         series={[
-          { key: 'planned', label: '计划降本' },
+          { key: 'planned', label: '计划销售' },
           { key: 'rate', label: '完成率', type: 'line', axis: 'secondary' },
         ]}
         unit="万元"
@@ -53,7 +53,7 @@ describe('ComboChart', () => {
     const figure = root.querySelector('[role="figure"]')!;
     expect([...figure.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual([
       '类目',
-      '计划降本（万元）',
+      '计划销售（万元）',
       '完成率（比率）',
     ]);
     expect([...figure.querySelectorAll('tbody tr')].map((tr) => tr.textContent)).toEqual([

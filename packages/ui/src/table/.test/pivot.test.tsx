@@ -55,7 +55,7 @@ describe('PivotTable', () => {
   it('表头是行维度、各列与合计；相同的上级合并；合计行与合计列；空格子是 —', () => {
     const root = mount(() => (
       <PivotTable
-        aria-label="降本"
+        aria-label="销售"
         data={records}
         rows={[
           { key: 'region', header: '区域' },
@@ -87,7 +87,7 @@ describe('PivotTable', () => {
   it('heatmap：有值的格子按比例着色，空格子与合计不着色', () => {
     const root = mount(() => (
       <PivotTable
-        aria-label="降本"
+        aria-label="销售"
         data={records}
         rows={[{ key: 'region', header: '区域' }]}
         columns={{ key: 'quarter', header: '季度' }}

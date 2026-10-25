@@ -6,9 +6,9 @@
  *     data={records}
  *     rows={[{ key: 'region', header: '区域' }, { key: 'supplier', header: '供应商' }]}
  *     columns={{ key: 'quarter', header: '季度', order: ['Q1', 'Q2', 'Q3', 'Q4'] }}
- *     value={{ key: 'amount', header: '降本金额', type: 'currency' }}
+ *     value={{ key: 'amount', header: '销售额', type: 'currency' }}
  *     heatmap
- *     aria-label="各区域、供应商的季度降本"
+ *     aria-label="各区域、门店的季度销售额"
  *   />
  *
  * 数值的格式同表格的列（type、format）；aggregate 是 sum（默认）、count、avg、min、max。

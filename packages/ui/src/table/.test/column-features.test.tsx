@@ -46,10 +46,10 @@ const statuses = createStatusMap({
 });
 
 const orders: Order[] = [
-  { id: 'o1', team: '机加', status: 'paid', amount: 300 },
-  { id: 'o2', team: '复材', status: 'draft', amount: 100 },
-  { id: 'o3', team: '机加', status: 'draft', amount: 200 },
-  { id: 'o4', team: '复材', status: 'paid', amount: 400 },
+  { id: 'o1', team: '生产', status: 'paid', amount: 300 },
+  { id: 'o2', team: '采购', status: 'draft', amount: 100 },
+  { id: 'o3', team: '生产', status: 'draft', amount: 200 },
+  { id: 'o4', team: '采购', status: 'paid', amount: 400 },
 ];
 
 const columns: DataTableColumn<Order>[] = [
@@ -98,14 +98,14 @@ describe('多列排序与筛选的纯函数', () => {
       ],
       'zh-CN',
     );
-    // 复材（f）在机加（j）前；同一团队里金额从大到小
+    // 采购（c）在生产（s）前；同一团队里金额从大到小
     expect(sorted.map((order) => order.id)).toEqual(['o4', 'o2', 'o1', 'o3']);
   });
 
   it('filterOptions 列出出现过的值（状态按阶段顺序、用状态名）；filterRows 按选中的值与关键字筛', () => {
     expect(filterOptions(columns[1]!, orders, 'zh-CN').map((option) => option.value)).toEqual([
-      '复材',
-      '机加',
+      '采购',
+      '生产',
     ]);
     expect(filterOptions(columns[2]!, orders, 'zh-CN')).toEqual([
       { value: 'draft', label: '草稿' },
@@ -114,7 +114,7 @@ describe('多列排序与筛选的纯函数', () => {
     const kept = filterRows(
       orders,
       columns,
-      { team: ['机加'], amount: ['0'], status: [] },
+      { team: ['生产'], amount: ['0'], status: [] },
       'zh-CN',
     );
     expect(kept.map((order) => order.id)).toEqual(['o1', 'o3']);

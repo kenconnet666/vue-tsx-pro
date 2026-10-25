@@ -6,9 +6,9 @@
  *     title="关闭三材料"
  *     summary
  *     items={[
- *       { label: '验证窗结论', status: 'done', date: '10-12', evidence: <Link href={url}>验证报告.pdf</Link> },
- *       { label: '收益认定意见', status: 'overdue', owner: '成本团队', date: '计划 10-20', action: <Button>催办</Button> },
- *       { label: '商务谈定记录', description: '谈定价格与生效日期，采购经理签字', owner: '采购部' },
+ *       { label: '验收报告', status: 'done', date: '10-12', evidence: <Link href={url}>验证报告.pdf</Link> },
+ *       { label: '财务复核意见', status: 'overdue', owner: '财务部', date: '计划 10-20', action: <Button>催办</Button> },
+ *       { label: '合同签订记录', description: '谈定价格与生效日期，采购经理签字', owner: '采购部' },
  *     ]}
  *   />
  *   <Checklist layout="inline" items={…} />                    一行排开、放不下换行（详情行、卡片的一角）

@@ -5,7 +5,7 @@
  *
  *   <Text tone="muted" size="sm">更新于 3 分钟前</Text>
  *   <Paragraph lineClamp={2}>很长的描述…</Paragraph>
- *   <Text mono size="sm">DJ-2026-FC-14</Text>         编号、件号：等宽字体
+ *   <Text mono size="sm">PO-2026-0187</Text>         编号、件号：等宽字体
  *   <Text numeric tone="danger">超时 3 天</Text>       金额、计数：等宽数字，上下对齐
  */
 import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
