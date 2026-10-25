@@ -86,6 +86,10 @@ for (const [index, path] of paths.entries()) {
     const { page, errors } = await open(context, path);
     if (theme === themes[0]) result.desktop = await overflow(page);
     if (shots) {
+      // 文档站的顶栏是粘性的，元素截图滚动拼接时会盖住卡片上沿；截图前让它随页面滚走
+      await page.evaluate(() =>
+        document.querySelector('header')?.style.setProperty('position', 'relative'),
+      );
       const ids = await page.evaluate(() =>
         [...document.querySelectorAll('main section > h2[id]')]
           .filter((heading) => heading.parentElement.querySelector('[data-demo]'))
