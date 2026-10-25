@@ -145,7 +145,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 2026-10-24 盘点（脚本按文档页逐个对 §8）：文档页 130 个，有自己键盘逻辑的组件 28 个；类型测试只有 3 个文件
 （useForm、list-state、props），带泛型或可绑定值的组件基本没有；`docs:shot` 只在本地看；文档站搜索只搜标题与简介；
-两个包都是 0.0.0，没有 LICENSE、包级 README、repository 字段，没有 changesets 与发布工作流。
+两个包都是 0.0.0，没有 changesets 与发布工作流（LICENSE、包级 README 与元数据 2026-10-25 补上）。
 
 顺序：先补测试与文档的缺口（8.1、8.2，发布前要有的底），再把视觉回归接进 CI（8.3，之后的改动有截图兜底），
 然后发 0.x（8.4），用一段时间、收集问题、冻结 API 后发 1.0（8.5）。每一步都按“补齐 → 勾掉 → 提交推送”推进。
@@ -178,8 +178,9 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 
 ### 8.4 发布 0.x
 
-- [ ] 包的元数据：LICENSE（MIT）、两个包各自的 README（安装、最小例子、链到文档站）、repository / homepage / bugs、
-      keywords、`sideEffects`（样式文件）、`engines`
+- [x] 包的元数据：LICENSE（MIT）、两个包各自的 README（安装、最小例子、链到文档站）、repository / homepage / bugs、
+      keywords、`sideEffects`（样式文件）、`publishConfig.access`；`engines` 只写在 tsx 包（Vite 预设跑在 Node 里，
+      与 Vite 8 一致），ui 包跑在浏览器里不写
 - [ ] peer 范围放宽到实际测过的区间（Vite、Vue、各可选 peer），`test:consumer` 按区间的两端各跑一遍
 - [ ] changesets：每次改动带一条变更说明，合并后自动开“版本 PR”，生成 CHANGELOG；npm 发布走 GitHub Actions（带 provenance）
 - [ ] 体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来

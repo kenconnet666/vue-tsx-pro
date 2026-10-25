@@ -4,6 +4,25 @@
   "description": "vue-tsx-pro 组件库",
   "type": "module",
   "license": "MIT",
+  "author": "kenconnet666",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenconnet666/vue-tsx-pro.git",
+    "directory": "packages/ui"
+  },
+  "homepage": "https://github.com/kenconnet666/vue-tsx-pro#readme",
+  "bugs": {
+    "url": "https://github.com/kenconnet666/vue-tsx-pro/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "components",
+    "ui-library",
+    "tsx",
+    "accessibility",
+    "design-system"
+  ],
   "sideEffects": [
     "./src/config/theme/tokens.ts",
     "./dist/config/theme/tokens.js"
@@ -182,5 +201,8 @@
     "pinyin-pro": "catalog:",
     "exceljs": "catalog:",
     "@types/topojson-simplify": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
