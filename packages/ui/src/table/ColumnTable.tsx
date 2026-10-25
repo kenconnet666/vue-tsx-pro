@@ -14,7 +14,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import * as css from '@vue-tsx-pro/tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeProps, type PartProps } from '../utils/props';
 import { useColumnDisplay } from './column-display';
 import { columnType, columnValue, sumColumn, type DataTableColumn } from './columns';
 import {
@@ -174,7 +174,7 @@ export const ColumnTable = _component(
           {rows.map((row, index) => (
             <TableRow
               key={getKey?.(row, index) ?? index}
-              {...mergeAttrs<'tr'>(
+              {...mergeProps<'tr'>(
                 {},
                 typeof propsRow === 'function' ? propsRow(row, index) : propsRow,
               )}
@@ -186,7 +186,7 @@ export const ColumnTable = _component(
                 return (
                   <TableCell
                     key={column.key}
-                    {...mergeAttrs<'td'>(
+                    {...mergeProps<'td'>(
                       { sx: span?.rowSpan ? columnTableStyles.merged : undefined },
                       own,
                       { rowspan: span?.rowSpan, colspan: span?.colSpan },

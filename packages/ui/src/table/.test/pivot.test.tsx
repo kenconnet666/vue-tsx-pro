@@ -101,5 +101,8 @@ describe('PivotTable', () => {
     expect(styled[1]).toContain('color-mix');
     expect(styled[2]).toContain('color-mix');
     expect(styled[3]).not.toContain('color-mix');
+    // 着色与单元格自己的样式合成一个类：不靠样式表里规则的先后，单元格的 background-color: inherit 盖不住它
+    expect(cells[1]!.classList).toHaveLength(1);
+    expect(styled[1]).not.toMatch(/background-color:\s*inherit/);
   });
 });
