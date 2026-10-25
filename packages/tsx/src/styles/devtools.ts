@@ -6,6 +6,9 @@
  */
 import type { App, ComponentInternalInstance } from 'vue';
 
+// 模块内声明：运行时代码不依赖 Node 的类型，也不与使用方装的 @types/node 冲突
+declare const process: { env: Record<string, string | undefined> };
+
 /** 开发模式（打包工具把 process.env.NODE_ENV 换成字面量，生产构建里这段代码被去掉） */
 export const DEV = process.env.NODE_ENV !== 'production';
 
