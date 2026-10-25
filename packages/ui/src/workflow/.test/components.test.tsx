@@ -30,7 +30,7 @@ describe('layoutProcess', () => {
   });
 
   it('泳道按定义的先后，节点落在自己的泳道里（没写泳道的网关跟着上游）；往右的边从右边出、左边进', () => {
-    expect(layout.lanes.map((lane) => lane.id)).toEqual(['supplier', 'cost', 'pemo']);
+    expect(layout.lanes.map((lane) => lane.id)).toEqual(['supplier', 'cost', 'pmo']);
     expect(node('rounds').lane).toBe('supplier');
     for (const item of layout.nodes) {
       const lane = layout.lanes.find((band) => band.id === item.lane)!;

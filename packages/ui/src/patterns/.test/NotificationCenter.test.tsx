@@ -8,7 +8,7 @@ const NOW = Date.parse('2026-10-21T10:00:00+08:00');
 const items: NotificationItem[] = [
   {
     id: '1',
-    title: '新的待办：齐全性检查',
+    title: '新的待办：资料审核',
     description: 'PO-2026-0012',
     time: '2026-10-21T09:30:00+08:00',
     type: 'todo',
@@ -49,7 +49,7 @@ describe('NotificationCenter', () => {
     expect(bell.getAttribute('aria-label')).toBe('通知，未读 2 条');
     const panel = document.body;
     expect(titles(panel)).toEqual(['unread', 'unread', 'read']);
-    expect(panel.textContent).toContain('未读 新的待办：齐全性检查');
+    expect(panel.textContent).toContain('未读 新的待办：资料审核');
     expect(panel.querySelector('time')!.textContent).toBe('30分钟前');
     root.remove();
   });

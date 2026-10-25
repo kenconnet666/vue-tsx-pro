@@ -23,7 +23,7 @@ export default _component(() => {
   let keyword = _state('');
   let searched = _state('');
   let protocol = _state('https://');
-  let host = _state('cost.example.com');
+  let host = _state('hooks.example.com');
 
   return () => (
     <Flex direction="column" gap="lg">

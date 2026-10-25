@@ -3,6 +3,7 @@ import { _component } from '@vue-tsx-pro/tsx';
 import {
   addWorkdays,
   createWorkCalendar,
+  Flex,
   Provider,
   Small,
   Table,
@@ -22,11 +23,11 @@ const holidays = createWorkCalendar({
 });
 
 const rows = [
-  { name: '齐全性检查', code: 'PO-2026-0187', start: '2026-09-28', workdays: 3 },
+  { name: '资料审核', code: 'PO-2026-0187', start: '2026-09-28', workdays: 3 },
   { name: '财务复核', code: 'PO-2026-0233', start: '2026-09-28', workdays: 10 },
-  { name: '方案设计评审', code: 'PO-2026-0214', start: '2026-09-25', workdays: 5 },
+  { name: '方案评审', code: 'PO-2026-0214', start: '2026-09-25', workdays: 5 },
   { name: '供应商报价回复', code: 'PO-2026-0102', start: '2026-09-30', workdays: 2 },
-  { name: '验证结论确认', code: 'PO-2026-0308', start: '2026-10-09', workdays: 1 },
+  { name: '验收结论确认', code: 'PO-2026-0308', start: '2026-10-09', workdays: 1 },
   { name: '计划调整审批', code: 'PO-2026-0276', start: '2026-10-08', workdays: 5 },
 ];
 
@@ -45,19 +46,22 @@ export default _component(() => () => (
       {rows.map((row) => (
         <TableRow key={row.code}>
           <TableCell>
-            <Text>{row.name}</Text> <Small tone="muted">{row.code}</Small>
+            <Flex direction="column">
+              <Text>{row.name}</Text>
+              <Small tone="muted">{row.code}</Small>
+            </Flex>
           </TableCell>
-          <TableCell>
+          <TableCell nowrap>
             <Text numeric>{row.start}</Text>
           </TableCell>
-          <TableCell align="end">
+          <TableCell align="end" nowrap>
             <Text numeric>{row.workdays} 个工作日</Text>
           </TableCell>
-          <TableCell>
+          <TableCell nowrap>
             <Small tone="muted">{addWorkdays(row.start, row.workdays)}</Small>{' '}
             <DeadlineBadge start={row.start} workdays={row.workdays} today={TODAY} />
           </TableCell>
-          <TableCell>
+          <TableCell nowrap>
             <Provider workCalendar={holidays}>
               <Small tone="muted">{addWorkdays(row.start, row.workdays, holidays)}</Small>{' '}
               <DeadlineBadge start={row.start} workdays={row.workdays} today={TODAY} />

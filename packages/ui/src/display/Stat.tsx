@@ -13,7 +13,7 @@
  *
  * 一排几个指标用 StatGroup：按宽度换行，指标之间一条竖线（同一行里）：
  *
- *   <StatGroup><Stat label="超时" value={10} tone="danger" /><Stat label="待认定" value={5} /></StatGroup>
+ *   <StatGroup><Stat label="超时" value={10} tone="danger" /><Stat label="待验收" value={5} /></StatGroup>
  *
  * 数值变化时滚动过渡（AnimatedNumber），读屏只读终值；变化量按正负着色并带箭头，
  * 成本、耗时这类“越低越好”的指标写 invertChange。加载中（loading）数值与变化量换成扫光的骨架，指标名照常显示。

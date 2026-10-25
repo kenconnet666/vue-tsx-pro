@@ -12,7 +12,7 @@ export default _component(() => () => (
         <Card variant="outline" header="收益（万元）">
           <Grid columns={2} gap="sm">
             <Stat label="预期" value={17.48} />
-            <Stat label="测算 A" value="—" />
+            <Stat label="测算" value="—" />
           </Grid>
         </Card>
         <Card variant="outline" header="里程碑">
@@ -33,14 +33,14 @@ export default _component(() => () => (
         columns={2}
         size="sm"
         items={[
-          { label: '任务类别', value: '设计优化' },
-          { label: '责任团队', value: '总体技术' },
+          { label: '任务类别', value: '产品改进' },
+          { label: '责任团队', value: '技术部' },
           { label: '主办', value: '宋知行' },
           { label: '计划完成', value: '2026-10-06' },
         ]}
       />
     </Card>
-    <Card variant="outline" header="销售明细">
+    <Card variant="outline" header="改进明细">
       卡箍改用铝合金，合并两件支架，减少紧固件。
     </Card>
   </AsideLayout>

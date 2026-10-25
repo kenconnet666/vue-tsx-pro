@@ -2,7 +2,7 @@
  * 流程定义的校验：设计器保存、发布前检查，流程图上标出有问题的节点与连线。只查结构，不执行流程。
  *
  *   validateProcess(flow)
- *   // → [{ severity: 'error', code: 'outcome-unrouted', node: 'check', message: '“齐全性检查”的处理结果“退回补充”没有出边' }]
+ *   // → [{ severity: 'error', code: 'outcome-unrouted', node: 'check', message: '“资料审核”的处理结果“退回补充”没有出边' }]
  *
  * 错误（error）的流程不能发布：引擎会走不下去；警告（warning）可以发布，但多半是画漏了。
  */

@@ -19,16 +19,16 @@ import { FilterBar } from '@vue-tsx-pro/ui/patterns';
 
 const statuses = createStatusMap({
   pending: { label: '待启动', tone: 'neutral' },
-  designing: { label: '方案设计中', tone: 'info' },
-  verifying: { label: '验证中', tone: 'info' },
-  awaiting: { label: '待认定', tone: 'warning' },
+  designing: { label: '设计中', tone: 'info' },
+  verifying: { label: '测试中', tone: 'info' },
+  awaiting: { label: '待验收', tone: 'warning' },
   closed: { label: '关闭', tone: 'success' },
 });
 
 const tasks = [
   {
     name: '华东门店陈列改造',
-    category: '设计优化',
+    category: '产品改进',
     team: '研发中心',
     year: '2026',
     status: 'verifying',
@@ -36,7 +36,7 @@ const tasks = [
   },
   {
     name: '仓库拣货流程优化',
-    category: '工艺优化',
+    category: '流程优化',
     team: '产品部',
     year: '2026',
     status: 'closed',
@@ -44,7 +44,7 @@ const tasks = [
   },
   {
     name: '包装纸箱第二供应商',
-    category: '多供应商',
+    category: '供应商切换',
     team: '运营部',
     year: '2026',
     status: 'awaiting',
@@ -52,15 +52,15 @@ const tasks = [
   },
   {
     name: '会员小程序改版',
-    category: '设计优化',
+    category: '产品改进',
     team: '研发中心',
     year: '2027',
     status: 'designing',
     config: true,
   },
   {
-    name: '线束支架工艺优化',
-    category: '工艺优化',
+    name: '仓库盘点流程优化',
+    category: '流程优化',
     team: '产品部',
     year: '2027',
     status: 'pending',
@@ -142,7 +142,7 @@ export default _component(() => {
           </Field>
           <Field label="任务类别">
             <Select
-              items={['设计优化', '多供应商', '工艺优化']}
+              items={['产品改进', '供应商切换', '流程优化']}
               _value={query.category}
               placeholder="全部"
               clearable

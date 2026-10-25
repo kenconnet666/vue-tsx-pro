@@ -19,7 +19,7 @@ interface Saving {
 
 const statuses = createStatusMap({
   verifying: { label: '验证中', tone: 'accent' },
-  done: { label: '已认定', tone: 'success' },
+  done: { label: '已验收', tone: 'success' },
 });
 
 const rows: Saving[] = [

@@ -24,10 +24,10 @@ export default _component(() => {
         areas={areas}
         points={[
           { id: 'sh', label: '上海总仓', longitude: 121.47, latitude: 31.23, value: 860 },
-          { id: 'sy', label: '沈阳部件', longitude: 123.43, latitude: 41.8, value: 310 },
+          { id: 'sy', label: '沈阳仓', longitude: 123.43, latitude: 41.8, value: 310 },
           { id: 'xa', label: '西安仓', longitude: 108.94, latitude: 34.34, value: 420 },
           { id: 'cd', label: '成都仓', longitude: 104.07, latitude: 30.67, value: 260 },
-          { id: 'gz', label: '广州航电', longitude: 113.26, latitude: 23.13, value: 180 },
+          { id: 'gz', label: '广州仓', longitude: 113.26, latitude: 23.13, value: 180 },
         ]}
         bins={5}
         areaLabels

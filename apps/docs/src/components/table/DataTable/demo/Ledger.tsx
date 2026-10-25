@@ -19,10 +19,10 @@ import {
 import Decimal from 'decimal.js';
 
 const statuses = createStatusMap({
-  designing: { label: '方案设计中', tone: 'info' },
-  verifying: { label: '验证中', tone: 'info' },
-  awaiting: { label: '待认定', tone: 'warning' },
-  negotiating: { label: '商务洽谈中', tone: 'warning' },
+  designing: { label: '设计中', tone: 'info' },
+  verifying: { label: '测试中', tone: 'info' },
+  awaiting: { label: '待验收', tone: 'warning' },
+  settling: { label: '结算中', tone: 'warning' },
   closed: { label: '关闭', tone: 'success' },
 });
 
@@ -44,7 +44,7 @@ const tasks: Task[] = [
   [
     'PO-2026-0301',
     '华东门店陈列改造',
-    '设计优化',
+    '产品改进',
     '研发中心',
     '155353.20',
     null,
@@ -54,7 +54,7 @@ const tasks: Task[] = [
   [
     'PO-2026-0302',
     '仓库拣货流程优化',
-    '工艺优化',
+    '流程优化',
     '产品部',
     '109600.00',
     '98000.00',
@@ -64,19 +64,19 @@ const tasks: Task[] = [
   [
     'PO-2026-0303',
     '包装纸箱第二供应商',
-    '多供应商',
+    '供应商切换',
     '采购',
     '143000.00',
     '150500.00',
     null,
     'negotiating',
   ],
-  ['PO-2026-0304', '会员小程序改版', '设计优化', '研发中心', '178800.00', null, '1.75', 'awaiting'],
-  ['PO-2026-0305', '线束支架工艺优化', '工艺优化', '产品部', '217000.00', null, null, 'designing'],
+  ['PO-2026-0304', '会员小程序改版', '产品改进', '研发中心', '178800.00', null, '1.75', 'awaiting'],
+  ['PO-2026-0305', '仓库盘点流程优化', '流程优化', '产品部', '217000.00', null, null, 'designing'],
   [
     'PO-2026-0306',
-    '内饰连接件多供应商',
-    '多供应商',
+    '门店物料供应商切换',
+    '供应商切换',
     '采购',
     '257600.00',
     '240000.00',
@@ -104,7 +104,7 @@ const columns: DataTableColumn<Task>[] = [
   { key: 'team', header: '责任团队', width: 120 },
   {
     key: 'estimate',
-    header: '测算 A（万元）',
+    header: '测算（万元）',
     width: 128,
     format: WAN,
     sortable: true,
@@ -136,7 +136,7 @@ const columns: DataTableColumn<Task>[] = [
           )}
         >
           <MenuItem icon={FileText}>任务卡</MenuItem>
-          <MenuItem icon={Send}>提交认定</MenuItem>
+          <MenuItem icon={Send}>提交验收</MenuItem>
         </Menu>
       </Flex>
     ),
@@ -183,7 +183,7 @@ export default _component(() => {
           导出所选
         </Button>
         <Button size="sm" icon={Send}>
-          批量提交认定
+          批量提交验收
         </Button>
       </SelectionBar>
       <DataTable

@@ -76,15 +76,15 @@ export default _component(() => {
             <Select
               _value={draft.team}
               placeholder="全部团队"
-              items={['机体结构', '研发中心', '产品部', '供应链管理']}
+              items={['生产部', '研发中心', '产品部', '供应链管理']}
             />
           </Field>
           <Field label="状态">
             <CheckboxGroup _value={draft.status}>
-              <Checkbox value="designing">方案设计中</Checkbox>
-              <Checkbox value="verifying">验证中</Checkbox>
-              <Checkbox value="confirming">待认定</Checkbox>
-              <Checkbox value="realized">已兑现</Checkbox>
+              <Checkbox value="designing">设计中</Checkbox>
+              <Checkbox value="verifying">测试中</Checkbox>
+              <Checkbox value="confirming">待验收</Checkbox>
+              <Checkbox value="settled">已结算</Checkbox>
             </CheckboxGroup>
           </Field>
           <Field label="预计年销售（万元）">

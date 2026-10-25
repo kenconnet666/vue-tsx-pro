@@ -20,7 +20,7 @@ export interface WorkflowEventText {
 export interface WorkflowMessages {
   /** 流程图的角色说明（aria-roledescription） */
   readonly diagram: string;
-  /** 流程图的说明里正在处理的节点：`，正在处理：齐全性检查` */
+  /** 流程图的说明里正在处理的节点：`，正在处理：资料审核` */
   readonly diagramActive: (nodes: string) => string;
   /** 节点状态：已完成 */
   readonly nodeDone: string;
@@ -66,7 +66,7 @@ export interface WorkflowMessages {
   readonly eventEnded: (text: WorkflowEventText) => string;
   /** 附件列表的说明 */
   readonly attachments: string;
-  /** 处理对话框的标题：`退回补充 · 齐全性检查` */
+  /** 处理对话框的标题：`退回补充 · 资料审核` */
   readonly approvalTitle: (outcome: string, node: string) => string;
   /** 意见 */
   readonly comment: string;

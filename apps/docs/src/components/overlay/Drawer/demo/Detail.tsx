@@ -32,9 +32,9 @@ interface Project {
 
 const TODAY = '2026-10-21';
 const statuses = createStatusMap({
-  designing: { label: '方案设计中', tone: 'info' },
-  verifying: { label: '验证中', tone: 'accent' },
-  confirming: { label: '待认定', tone: 'warning' },
+  designing: { label: '设计中', tone: 'info' },
+  verifying: { label: '测试中', tone: 'accent' },
+  confirming: { label: '待验收', tone: 'warning' },
 });
 
 const projects: Project[] = [
@@ -49,7 +49,7 @@ const projects: Project[] = [
     due: '2026-10-23',
     records: [
       { title: '林小满 发起', time: '09-02 10:12', tone: 'accent' },
-      { title: '王晴 · 齐全性检查：通过', time: '09-05 14:30', tone: 'success' },
+      { title: '王晴 · 资料审核：通过', time: '09-05 14:30', tone: 'success' },
       { title: '周宁 · 方案设计：提交方案', time: '09-28 16:05', tone: 'success' },
       { title: '到达 验证实施', time: '10-08 09:00' },
     ],
@@ -58,7 +58,7 @@ const projects: Project[] = [
     id: 'p2',
     code: 'PO-2026-0214',
     name: '线束卡箍改用铝合金',
-    team: '机体结构',
+    team: '生产部',
     owner: '周宁',
     status: 'designing',
     saving: 86400,
@@ -96,8 +96,8 @@ const projects: Project[] = [
   {
     id: 'p5',
     code: 'PO-2026-0179',
-    name: '地板梁紧固件减量',
-    team: '机体结构',
+    name: '货架紧固件减量',
+    team: '生产部',
     owner: '方圆',
     status: 'designing',
     saving: 52600,

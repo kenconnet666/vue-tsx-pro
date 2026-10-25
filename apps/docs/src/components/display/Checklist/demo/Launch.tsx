@@ -11,7 +11,7 @@ export default _component(() => {
       description: '上线前全量备份，保留 7 天',
       status: 'done',
     },
-    { key: 'migration', label: '执行迁移脚本', description: 'V42__add_benefit_lock.sql' },
+    { key: 'migration', label: '执行迁移脚本', description: 'V42__add_order_index.sql' },
     { key: 'config', label: '核对生产配置', description: '对照配置清单逐项确认', owner: '运维' },
     { key: 'smoke', label: '冒烟测试', owner: '测试', status: 'blocked', date: '等迁移完成' },
     { key: 'cdn', label: '刷新 CDN', status: 'skipped', description: '这次没有静态资源改动' },

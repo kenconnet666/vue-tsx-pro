@@ -35,7 +35,7 @@ export interface NumericFormat extends Intl.NumberFormatOptions {
    * 10 的整数次幂按十进制移动小数点，Decimal 与大整数不丢精度；其他值按浮点数相除
    */
   scale?: number;
-  /** 跟在数字后面的单位文字，如“万元”“美元/FH”；与数字之间是不换行的空格 */
+  /** 跟在数字后面的单位文字，如“万元”“元/件”；与数字之间是不换行的空格 */
   suffix?: string;
 }
 

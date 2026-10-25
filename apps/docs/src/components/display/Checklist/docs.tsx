@@ -19,7 +19,7 @@ export const meta = {
 
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { Checklist } from '@vue-tsx-pro/ui';">
-    <Example id="closing" title="里程碑与关闭材料" demo={Closing}>
+    <Example id="closing" title="里程碑与结项材料" demo={Closing}>
       每项的 <Code>status</Code> 决定图标与颜色：<Code>done</Code> 完成、<Code>todo</Code>{' '}
       待办（默认）、<Code>overdue</Code> 超时（日期标红）、<Code>blocked</Code> 受阻、
       <Code>skipped</Code> 不适用（划掉，不算进进度）。名称下面是 <Code>description</Code> 与一行{' '}

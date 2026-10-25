@@ -13,10 +13,10 @@ interface Org {
 const orgs: Org[] = [
   {
     id: 'assembly',
-    name: '总装制造中心',
+    name: '生产制造中心',
     children: [
-      { id: 'system', name: '总体技术集成团队' },
-      { id: 'landing', name: '起落架团队' },
+      { id: 'system', name: '技术集成团队' },
+      { id: 'testing', name: '测试团队' },
     ],
   },
   { id: 'purchase', name: '采购部' },
@@ -30,15 +30,15 @@ const accessors = {
 describe('TreeSelect', () => {
   it('单选：显示节点的文字，触发按钮是 aria-haspopup="tree" 的 combobox', () => {
     const root = mount(() => (
-      <TreeSelect items={orgs} {...accessors} _value="landing" aria-label="单位" />
+      <TreeSelect items={orgs} {...accessors} _value="testing" aria-label="单位" />
     ));
     const trigger = root.querySelector('button[role="combobox"]')!;
-    expect(trigger.textContent).toBe('起落架团队');
+    expect(trigger.textContent).toBe('测试团队');
     expect(trigger.getAttribute('aria-haspopup')).toBe('tree');
   });
 
   it('多选：父节点勾上时只列父节点；清空后显示占位；表单提交勾上的全部', async () => {
-    let value = _state(['assembly', 'system', 'landing', 'purchase']);
+    let value = _state(['assembly', 'system', 'testing', 'purchase']);
     const root = mount(() => (
       <form>
         <TreeSelect
@@ -56,12 +56,12 @@ describe('TreeSelect', () => {
     const trigger = root.querySelector('button[role="combobox"]')!;
     // 标签排在触发按钮前面；按钮里念全部
     const tags = () => [...trigger.previousElementSibling!.children].map((tag) => tag.textContent);
-    expect(tags()).toEqual(['总装制造中心', '采购部']);
-    expect(trigger.textContent).toBe('总装制造中心、采购部');
+    expect(tags()).toEqual(['生产制造中心', '采购部']);
+    expect(trigger.textContent).toBe('生产制造中心、采购部');
     expect(new FormData(root.querySelector('form')!).getAll('orgs')).toEqual([
       'assembly',
       'system',
-      'landing',
+      'testing',
       'purchase',
     ]);
     root.querySelector<HTMLButtonElement>('button[aria-label="清空"]')!.click();
@@ -72,7 +72,7 @@ describe('TreeSelect', () => {
 
   it('checkedStrategy：移除标签取消整枝，value 按取法写回（parent 只放父节点、child 只放叶子）', async () => {
     let parents = _state<string[]>(['assembly', 'purchase']);
-    let leaves = _state<string[]>(['system', 'landing', 'purchase']);
+    let leaves = _state<string[]>(['system', 'testing', 'purchase']);
     const root = mount(() => (
       <>
         <TreeSelect
@@ -96,12 +96,12 @@ describe('TreeSelect', () => {
     const [parentTrigger, childTrigger] =
       root.querySelectorAll<HTMLButtonElement>('button[role="combobox"]');
     // child：标签列叶子
-    expect(childTrigger!.textContent).toBe('总体技术集成团队、起落架团队、采购部');
+    expect(childTrigger!.textContent).toBe('技术集成团队、测试团队、采购部');
     // Backspace 移除最后一个标签
     parentTrigger!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
     await nextTick();
     expect(parents).toEqual(['assembly']);
-    // 移除叶子“起落架团队”：只剩它的兄弟
+    // 移除叶子“测试团队”：只剩它的兄弟
     const remove = [...childTrigger!.previousElementSibling!.querySelectorAll('button')][1]!;
     remove.click();
     for (let index = 0; index < 5; index++) await nextTick();
@@ -115,15 +115,15 @@ describe('TreeSelect', () => {
         {...accessors}
         selectionMode="multiple"
         checkedStrategy="child"
-        _value={['system', 'landing', 'purchase']}
+        _value={['system', 'testing', 'purchase']}
         maxTagCount={2}
         aria-label="成员"
       />
     ));
     const row = root.querySelector('button[role="combobox"]')!.previousElementSibling!;
     expect([...row.children].map((tag) => tag.textContent)).toEqual([
-      '总体技术集成团队',
-      '起落架团队',
+      '技术集成团队',
+      '测试团队',
       '+1',
     ]);
   });

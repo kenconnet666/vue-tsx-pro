@@ -34,7 +34,7 @@ export default _component(() => {
     category: 'machining' as string | null,
     parts: ['bracket', 'fastener'],
     capacity: 12000 as number | null,
-    cert: 'as9100' as string | null,
+    cert: 'iso9001' as string | null,
     certExpire: '2027-03-31',
     audit: '',
     bank: '某银行上海浦东支行',
@@ -106,8 +106,8 @@ export default _component(() => {
               <Select
                 _value={form.cert}
                 items={[
-                  { value: 'as9100', label: 'AS9100D' },
                   { value: 'iso9001', label: 'ISO 9001' },
+                  { value: 'iso14001', label: 'ISO 14001' },
                 ]}
               />
             </Field>

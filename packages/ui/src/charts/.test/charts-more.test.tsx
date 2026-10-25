@@ -81,7 +81,7 @@ describe('FunnelChart', () => {
   const stages = [
     { label: '提交', value: 200 },
     { label: '立项', value: 50 },
-    { label: '兑现', value: new Decimal(10) },
+    { label: '复购', value: new Decimal(10) },
   ];
 
   it('数据表列出数值、比上一环节与比第一环节的转化率', () => {
@@ -89,7 +89,7 @@ describe('FunnelChart', () => {
     expect(cells(root)).toEqual([
       ['提交', '200', '—', '—'],
       ['立项', '50', '25%', '25%'],
-      ['兑现', '10', '20%', '5%'],
+      ['复购', '10', '20%', '5%'],
     ]);
     expect(root.textContent).toContain('总转化 5%');
   });
@@ -120,7 +120,7 @@ describe('GraphChart', () => {
     const root = mount(() => (
       <GraphChart
         aria-label="协作"
-        nodes={[{ id: 'a', label: '总体技术' }, { id: 'b', label: '供应商甲' }, { id: 'c' }]}
+        nodes={[{ id: 'a', label: '技术部' }, { id: 'b', label: '供应商甲' }, { id: 'c' }]}
         links={[
           { source: 'a', target: 'b', value: 12, label: '主力' },
           { source: 'a', target: 'c' },
@@ -134,8 +134,8 @@ describe('GraphChart', () => {
       '数值（项）',
     ]);
     expect(cells(root)).toEqual([
-      ['总体技术 → 供应商甲', '12 · 主力'],
-      ['总体技术 → c', '—'],
+      ['技术部 → 供应商甲', '12 · 主力'],
+      ['技术部 → c', '—'],
     ]);
   });
 });

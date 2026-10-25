@@ -16,7 +16,7 @@ const text = (range: NumberRange) =>
 
 export default _component(() => {
   let saving = _state.raw<NumberRange>([new Decimal('100000'), new Decimal('500000')]);
-  let flights = _state<NumberRange>([20, null]);
+  let stores = _state<NumberRange>([20, null]);
   let price = _state<NumberRange>([null, 1200]);
   return () => (
     <Grid minItemWidth="16rem" gap="lg">
@@ -35,11 +35,11 @@ export default _component(() => {
         </Small>
       </Flex>
       <Flex direction="column" gap="xs">
-        <Field label="贯彻架次" description="只填起：20 架以上">
-          <NumberRangeField _value={flights} min={0} suffix="架" separator="至" />
+        <Field label="门店数量" description="只填起：20 家以上">
+          <NumberRangeField _value={stores} min={0} suffix="家" separator="至" />
         </Field>
         <Small tone="muted">
-          值：<Code>{JSON.stringify(flights)}</Code>
+          值：<Code>{JSON.stringify(stores)}</Code>
         </Small>
       </Flex>
       <Flex direction="column" gap="xs">

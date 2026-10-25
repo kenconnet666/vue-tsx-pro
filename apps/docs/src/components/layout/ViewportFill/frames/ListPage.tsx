@@ -22,8 +22,8 @@ interface Row {
 
 const rows: Row[] = Array.from({ length: 40 }, (_, index) => ({
   code: `PO-2026-${String(index + 1).padStart(4, '0')}`,
-  name: ['线缆收纳夹设计优化', '桌面挡板工艺优化', '机柜导轨第二供应商'][index % 3]!,
-  team: ['总体技术', '研发中心', '运营部'][index % 3]!,
+  name: ['线缆收纳夹改版', '桌面挡板流程优化', '机柜导轨第二供应商'][index % 3]!,
+  team: ['技术部', '研发中心', '运营部'][index % 3]!,
   amount: 2 + ((index * 37) % 300) / 10,
 }));
 

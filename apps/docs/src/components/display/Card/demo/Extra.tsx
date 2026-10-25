@@ -16,15 +16,15 @@ export default _component(() => () => (
         </Link>
       }
     >
-      <Small tone="muted">PO-2026-0276 线缆收纳夹设计优化 · 超时 15 天</Small>
+      <Small tone="muted">PO-2026-0276 线缆收纳夹改版 · 超时 15 天</Small>
     </Card>
     <Card
       variant="outline"
       padding="md"
-      header="关闭三材料"
+      header="结项材料"
       extra={<Badge tone="warning">缺 2 项</Badge>}
     >
-      <Small tone="muted">验收报告、财务复核意见、合同签订记录，缺一不得关闭</Small>
+      <Small tone="muted">验收报告、财务复核意见、合同签订记录，缺一不能结项</Small>
     </Card>
   </Flex>
 ));

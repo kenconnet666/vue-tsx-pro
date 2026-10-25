@@ -13,7 +13,7 @@ const at = (day: number, time: string) =>
 const seed = (): NotificationItem[] => [
   {
     id: 'a',
-    title: '新的待办：齐全性检查',
+    title: '新的待办：资料审核',
     description: 'PO-2026-0187 · 办公椅供应商切换',
     time: at(21, '09:42'),
     type: 'todo',
@@ -31,7 +31,7 @@ const seed = (): NotificationItem[] => [
   {
     id: 'c',
     title: '催办：财务复核',
-    description: 'PO-2026-0233 · 请今天内认定',
+    description: 'PO-2026-0233 · 请今天内验收',
     time: at(20, '16:30'),
     type: 'remind',
     read: false,
@@ -39,8 +39,8 @@ const seed = (): NotificationItem[] => [
   },
   {
     id: 'd',
-    title: '超时：商务洽谈已超过 60 天',
-    description: 'PO-2026-0102 · 供应商乙报价未回复',
+    title: '超时：结算已超过 30 天',
+    description: 'PO-2026-0102 · 供应商乙对账未回复',
     time: at(20, '09:00'),
     type: 'remind',
     read: false,
@@ -73,7 +73,7 @@ const seed = (): NotificationItem[] => [
   },
   {
     id: 'h',
-    title: '计划调整已通过：地板梁紧固件减量',
+    title: '计划调整已通过：货架紧固件减量',
     description: 'PO-2026-0276 · 计划完成改为 2026-12-15',
     time: at(18, '15:20'),
     type: 'todo',

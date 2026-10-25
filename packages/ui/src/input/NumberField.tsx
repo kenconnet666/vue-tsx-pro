@@ -100,7 +100,7 @@ export interface NumberFieldProps
   format?: NumericFormat;
   /** 输入框里文字前的内容（币种符号、图标） */
   prefix?: VNodeChild;
-  /** 输入框里文字后的内容：单位，如“万元”“美元/FH” */
+  /** 输入框里文字后的内容：单位，如“万元”“元/件” */
   suffix?: VNodeChild;
   /** 显示减少 / 增加按钮，默认 true；只读时不显示 */
   stepper?: boolean;

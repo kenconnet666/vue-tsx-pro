@@ -50,7 +50,7 @@ export default _component(() => () => (
       Date、DateValue 或 ISO 字符串，按语言包的时区与日历换算。
     </Example>
     <Example id="deadlines" title="工作日时限" demo={Deadlines}>
-      “验证完成后 10 个工作日内认定”这类时限：<Code>deadlineOf</Code>{' '}
+      “验收完成后 10 个工作日内付款”这类时限：<Code>deadlineOf</Code>{' '}
       由开始日加工作日（或直接给截止日）算出截止日、剩余工作日与状态（还早、快到期、今天到期、超期、已完成）。工作日按{' '}
       <Code>createUi</Code> 的 <Code>workCalendar</Code> 算：<Code>createWorkCalendar</Code>{' '}
       带上法定节假日与调休补班，组件经 <Code>useWorkCalendar()</Code> 取用；不配置时只按周末。

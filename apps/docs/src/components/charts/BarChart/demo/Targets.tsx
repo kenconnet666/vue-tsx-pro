@@ -4,10 +4,10 @@ import { Flex, Small } from '@vue-tsx-pro/ui';
 import { BarChart } from '@vue-tsx-pro/ui/charts';
 
 const teams = [
-  { team: '总体技术', committed: 420, realized: 318 },
-  { team: '研发中心', committed: 260, realized: 274 },
-  { team: '运营部', committed: 310, realized: 196 },
-  { team: '航电', committed: 180, realized: 142 },
+  { team: '华东大区', committed: 420, realized: 318 },
+  { team: '华南大区', committed: 260, realized: 274 },
+  { team: '华北大区', committed: 310, realized: 196 },
+  { team: '西南大区', committed: 180, realized: 142 },
 ];
 
 export default _component(() => {

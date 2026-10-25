@@ -3,7 +3,7 @@
  * 还早 neutral、完成 success 或超时完成 danger）。用在收件箱、待办、各种有时限的列表里。
  *
  *   <DeadlineBadge due="2026-10-23" />                           截止日直接给
- *   <DeadlineBadge start={verifiedOn} workdays={10} />           开始日加几个工作日（验证完成后 10 个工作日内认定）
+ *   <DeadlineBadge start={verifiedOn} workdays={10} />           开始日加几个工作日（验收完成后 10 个工作日内付款）
  *   <DeadlineBadge due={item.dueOn} done={item.completedOn} />   完成了按完成那天算
  *
  * 工作日按 createUi / Provider 的 workCalendar（法定节假日与调休），没给时只按周末。今天默认按浏览器，

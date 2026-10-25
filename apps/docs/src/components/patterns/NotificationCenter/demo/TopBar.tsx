@@ -23,7 +23,7 @@ const NOW = Date.parse('2026-10-21T10:00:00+08:00');
 const seed = (): NotificationItem[] => [
   {
     id: '1',
-    title: '新的待办：齐全性检查',
+    title: '新的待办：资料审核',
     description: 'PO-2026-0187 · 办公椅供应商切换',
     time: '2026-10-21T09:42:00+08:00',
     type: 'todo',
@@ -41,7 +41,7 @@ const seed = (): NotificationItem[] => [
   {
     id: '3',
     title: '催办：财务复核',
-    description: 'PO-2026-0233 · 请今天内认定',
+    description: 'PO-2026-0233 · 请今天内验收',
     time: '2026-10-20T16:30:00+08:00',
     type: 'remind',
     read: false,
@@ -57,7 +57,7 @@ const seed = (): NotificationItem[] => [
   },
   {
     id: '5',
-    title: '计划调整已通过：地板梁紧固件减量',
+    title: '计划调整已通过：货架紧固件减量',
     description: 'PO-2026-0276 · 计划完成改为 2026-12-15',
     time: '2026-10-18T15:20:00+08:00',
     type: 'todo',

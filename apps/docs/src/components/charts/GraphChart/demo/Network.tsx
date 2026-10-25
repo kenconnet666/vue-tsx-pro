@@ -9,7 +9,7 @@ const groups = [
 ];
 
 const nodes = [
-  { id: 'zt', label: '总体技术', group: 'team', size: 34 },
+  { id: 'zt', label: '技术部', group: 'team', size: 34 },
   { id: 'fc', label: '研发中心', group: 'team', size: 30 },
   { id: 'qy', label: '运营部', group: 'team', size: 30 },
   { id: 'a', label: '供应商甲', group: 'supplier' },

@@ -32,8 +32,8 @@ interface Project {
   category: string;
   department: string;
   year: number;
-  plannedSorties?: number;
-  actualSorties?: number;
+  plannedStores?: number;
+  actualStores?: number;
   planned?: number;
   actual?: number;
   status: Status;
@@ -43,7 +43,7 @@ const PROJECTS: Project[] = [
   {
     code: '项目 01',
     title: '华东门店陈列改造',
-    category: '设计优化',
+    category: '产品改进',
     department: '结构设计部',
     year: 2026,
     planned: 272,
@@ -53,23 +53,23 @@ const PROJECTS: Project[] = [
   {
     code: '项目 02',
     title: '仓库拣货流程优化',
-    category: '工艺优化',
+    category: '流程优化',
     department: '工艺研究所',
     year: 2026,
-    plannedSorties: 40,
-    actualSorties: 40,
+    plannedStores: 40,
+    actualStores: 40,
     planned: 280,
     actual: 438.4,
     status: 'done',
   },
   {
     code: '项目 03',
-    title: '包装纸箱多供应商',
-    category: '多供应商',
+    title: '包装纸箱供应商切换',
+    category: '供应商切换',
     department: '采购中心',
     year: 2026,
-    plannedSorties: 30,
-    actualSorties: 18,
+    plannedStores: 30,
+    actualStores: 18,
     planned: 246,
     actual: 257.4,
     status: 'approved',
@@ -77,11 +77,11 @@ const PROJECTS: Project[] = [
   {
     code: '项目 04',
     title: '会员小程序改版',
-    category: '设计优化',
+    category: '产品改进',
     department: '结构设计部',
     year: 2026,
-    plannedSorties: 20,
-    actualSorties: 12,
+    plannedStores: 20,
+    actualStores: 12,
     planned: 252,
     actual: 214.56,
     status: 'approved',
@@ -89,31 +89,31 @@ const PROJECTS: Project[] = [
   {
     code: '项目 05',
     title: '配送路线优化',
-    category: '工艺优化',
+    category: '流程优化',
     department: '工艺研究所',
     year: 2026,
-    plannedSorties: 35,
+    plannedStores: 35,
     planned: 157.5,
     status: 'pending',
   },
   {
     code: '项目 06',
-    title: '办公耗材多供应商',
-    category: '多供应商',
+    title: '办公耗材供应商切换',
+    category: '供应商切换',
     department: '采购中心',
     year: 2026,
-    plannedSorties: 50,
+    plannedStores: 50,
     planned: 160,
     status: 'rejected',
   },
   {
     code: '项目 07',
     title: '冷链仓温控改造',
-    category: '工艺优化',
+    category: '流程优化',
     department: '工艺研究所',
     year: 2025,
-    plannedSorties: 24,
-    actualSorties: 24,
+    plannedStores: 24,
+    actualStores: 24,
     planned: 190,
     actual: 205.3,
     status: 'done',
@@ -212,8 +212,8 @@ export default _component(() => {
     const header = [
       '项目',
       '任务类别',
-      '计划架次',
-      '实际架次',
+      '计划门店',
+      '实际门店',
       '预期销售（万元）',
       '实际销售（万元）',
       '状态',
@@ -221,8 +221,8 @@ export default _component(() => {
     const lines = rows.map((project) => [
       `${project.code} ${project.title}`,
       project.category,
-      project.plannedSorties ?? '',
-      project.actualSorties ?? '',
+      project.plannedStores ?? '',
+      project.actualStores ?? '',
       project.planned ?? '',
       project.actual ?? '',
       STATUS[project.status][0],
@@ -375,8 +375,8 @@ export default _component(() => {
               <TableRow>
                 <TableHeaderCell>项目</TableHeaderCell>
                 <TableHeaderCell>任务类别</TableHeaderCell>
-                <TableHeaderCell align="end">计划架次</TableHeaderCell>
-                <TableHeaderCell align="end">实际架次</TableHeaderCell>
+                <TableHeaderCell align="end">计划门店</TableHeaderCell>
+                <TableHeaderCell align="end">实际门店</TableHeaderCell>
                 <TableHeaderCell align="end">预期销售（万元）</TableHeaderCell>
                 <TableHeaderCell align="end">实际销售（万元）</TableHeaderCell>
                 <TableHeaderCell>状态</TableHeaderCell>
@@ -387,8 +387,8 @@ export default _component(() => {
                 <TableRow key={project.code}>
                   <TableCell>{`${project.code} · ${project.title}`}</TableCell>
                   <TableCell nowrap>{project.category}</TableCell>
-                  <TableCell align="end">{project.plannedSorties ?? '—'}</TableCell>
-                  <TableCell align="end">{project.actualSorties ?? '—'}</TableCell>
+                  <TableCell align="end">{project.plannedStores ?? '—'}</TableCell>
+                  <TableCell align="end">{project.actualStores ?? '—'}</TableCell>
                   <TableCell align="end">{money(project.planned)}</TableCell>
                   <TableCell align="end">{money(project.actual)}</TableCell>
                   <TableCell nowrap>

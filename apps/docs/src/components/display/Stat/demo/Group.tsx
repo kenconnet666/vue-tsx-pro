@@ -6,7 +6,7 @@ import { Card, Link, Small, Stat, StatGroup } from '@vue-tsx-pro/ui';
 const items = [
   { label: '超时', icon: AlarmClock, value: 10, urgent: true },
   { label: '7 天内到期', icon: CalendarClock, value: 6, urgent: false },
-  { label: '待认定', icon: BadgeCheck, value: 5, urgent: false },
+  { label: '待验收', icon: BadgeCheck, value: 5, urgent: false },
   { label: '可关闭', icon: PackageCheck, value: 0, urgent: false },
 ];
 

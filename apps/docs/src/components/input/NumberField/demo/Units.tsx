@@ -8,7 +8,7 @@ export default _component(() => {
   const format = useFormat();
   let budget = _state.raw<Decimal | null>(new Decimal('155353.2'));
   let freight = _state.raw<Decimal | null>(new Decimal('12.5'));
-  let flights = _state<number | null>(40);
+  let stores = _state<number | null>(40);
 
   return () => (
     <Grid minItemWidth="16em" gap="lg">
@@ -39,18 +39,18 @@ export default _component(() => {
           />
         </Field>
         <Text size="sm" tone="muted">
-          每千飞行小时：
-          <Code>{freight ? format.number(freight.times(1000), { suffix: '美元' }) : '—'}</Code>
+          每千单：
+          <Code>{freight ? format.number(freight.times(1000), { suffix: '元' }) : '—'}</Code>
         </Text>
       </Flex>
       <Flex direction="column" gap="sm">
-        <Field label="贯彻架次">
-          <NumberField _value={flights} min={0} suffix="架" />
+        <Field label="门店数量">
+          <NumberField _value={stores} min={0} suffix="家" />
         </Field>
         <Text size="sm" tone="muted">
           只读时不显示加减按钮：
         </Text>
-        <NumberField _value={flights} suffix="架" readonly aria-label="贯彻架次（只读）" />
+        <NumberField _value={stores} suffix="家" readonly aria-label="门店数量（只读）" />
       </Flex>
     </Grid>
   );

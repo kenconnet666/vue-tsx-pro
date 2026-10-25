@@ -34,7 +34,7 @@ describe('Steps', () => {
     const linked = [
       { title: '概览', href: '/task/1' },
       { title: '测算', href: '/task/1/calc', disabled: true },
-      { title: '认定', href: '/task/1/confirm' },
+      { title: '验收', href: '/task/1/confirm' },
     ];
     const links = mount(() => <Steps items={linked} _current={2} />).querySelectorAll('a');
     expect([...links].map((link) => link.getAttribute('href'))).toEqual(['/task/1']);
@@ -44,14 +44,14 @@ describe('Steps', () => {
     const flow = [
       { title: '提出' },
       { title: '测算', status: 'error' as const },
-      { title: '认定' },
+      { title: '验收' },
     ];
     const steps = [...mount(() => <Steps items={flow} _current={1} />).querySelectorAll('li')];
     expect(steps.map((step) => step.dataset.state)).toEqual(['complete', 'error', 'upcoming']);
     expect(steps.map((step) => step.textContent)).toEqual([
       '提出（已完成）',
       expect.stringContaining('测算（出错）'),
-      expect.stringContaining('认定（未开始）'),
+      expect.stringContaining('验收（未开始）'),
     ]);
     expect(steps[1]!.hasAttribute('aria-current')).toBe(false);
   });

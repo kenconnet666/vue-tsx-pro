@@ -28,7 +28,7 @@ describe('ItemList', () => {
       <ItemList divided>
         <ItemListItem
           start={<StatusDot />}
-          title="齐全性检查"
+          title="资料审核"
           description="PO-2026-0187"
           end="剩 2 天"
         />
@@ -37,7 +37,7 @@ describe('ItemList', () => {
     ));
     const items = root.querySelectorAll('ul > li');
     expect(items).toHaveLength(2);
-    expect(items[0]!.textContent).toBe('齐全性检查PO-2026-0187剩 2 天');
+    expect(items[0]!.textContent).toBe('资料审核PO-2026-0187剩 2 天');
     expect(items[0]!.children).toHaveLength(3);
     // 第二条没有起始边：主体 + 结束边的占位
     expect(items[1]!.children).toHaveLength(2);
@@ -51,18 +51,18 @@ describe('ProportionBar', () => {
         aria-label="工单池"
         segments={[
           { key: 'a', label: '已确认', value: 25, tone: 'success' },
-          { key: 'b', label: '挂账', value: 0 },
+          { key: 'b', label: '暂缓', value: 0 },
           { key: 'c', label: '待定', value: 35 },
         ]}
         valueText={(segment) => `${segment.value} 项`}
       />
     ));
     const bar = root.querySelector('[role="img"]')!;
-    expect(bar.getAttribute('aria-label')).toBe('工单池：已确认 25，挂账 0，待定 35');
+    expect(bar.getAttribute('aria-label')).toBe('工单池：已确认 25，暂缓 0，待定 35');
     expect(bar.children).toHaveLength(2);
     expect([...root.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
       '已确认25 项',
-      '挂账0 项',
+      '暂缓0 项',
       '待定35 项',
     ]);
   });
@@ -73,7 +73,7 @@ describe('Stat、StatGroup', () => {
     const root = mount(() => (
       <StatGroup>
         <Stat label="超时" value="10" tone="danger" />
-        <Stat label="待认定" value="5" />
+        <Stat label="待验收" value="5" />
       </StatGroup>
     ));
     const stats = root.querySelectorAll('dl');

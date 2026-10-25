@@ -1,9 +1,9 @@
 /**
  * 完成清单：一组要做完的事，每项的状态（完成、待办、超时、不适用、受阻）与它的上下文——怎么做、谁负责、哪天、证据、去处理。
- * 里程碑与交付证据、关闭材料、上线检查、新用户的引导任务。参考 Shopify Polaris 的 Setup guide、GitHub 的任务列表。
+ * 里程碑与交付证据、结项材料、上线检查、新用户的引导任务。参考 Shopify Polaris 的 Setup guide、GitHub 的任务列表。
  *
  *   <Checklist
- *     title="关闭三材料"
+ *     title="结项材料"
  *     summary
  *     items={[
  *       { label: '验收报告', status: 'done', date: '10-12', evidence: <Link href={url}>验证报告.pdf</Link> },

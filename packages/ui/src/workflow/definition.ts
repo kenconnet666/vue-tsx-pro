@@ -20,7 +20,7 @@
  *     lanes: [{ id: 'supplier', name: '供应商' }, { id: 'cost', name: '财务部', group: 'cost' }],
  *     nodes: [
  *       { id: 'start', type: 'start', name: '提交', lane: 'supplier' },
- *       { id: 'check', type: 'task', name: '齐全性检查', lane: 'cost', due: { workdays: 2 },
+ *       { id: 'check', type: 'task', name: '资料审核', lane: 'cost', due: { workdays: 2 },
  *         outcomes: [{ key: 'pass', label: '齐全' }, { key: 'back', label: '退回补充', kind: 'return', comment: 'required' }] },
  *       { id: 'supplement', type: 'task', name: '补充材料', lane: 'supplier', assignee: { type: 'initiator' },
  *         outcomes: [{ key: 'resubmit', label: '重新提交' }] },
@@ -67,13 +67,13 @@ export interface ProcessLane {
 export interface ProcessNodeBase {
   /** 标识，流程内唯一 */
   id: string;
-  /** 名称（“齐全性检查”） */
+  /** 名称（“资料审核”） */
   name: string;
   /** 所在泳道 */
   lane?: string;
   /** 说明：流程图的提示、设计器里的备注 */
   description?: string;
-  /** 线下动作（如商务洽谈）：流程图画成虚线框；平台上仍要有人回填结果 */
+  /** 线下动作（如线下签约）：流程图画成虚线框；平台上仍要有人回填结果 */
   offline?: boolean;
   /** 在流程图上的位置（设计器拖动后记下，单位 px）；没有时自动排布 */
   position?: ProcessPoint;

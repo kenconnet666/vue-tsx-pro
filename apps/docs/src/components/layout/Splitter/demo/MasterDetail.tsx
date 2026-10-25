@@ -12,11 +12,11 @@ const mails = [
   },
   {
     id: 2,
-    from: 'PEMO',
+    from: 'PMO',
     title: '派单：机柜导轨第二供应商',
     body: '请在 5 个工作日内完成方案设计。',
   },
-  { id: 3, from: '商务', title: '洽谈超 60 天提醒', body: '显示器支架的商务洽谈已经 62 天。' },
+  { id: 3, from: '财务', title: '结算超 30 天提醒', body: '显示器支架的结算已经 32 天。' },
 ];
 
 const styles = css.create({

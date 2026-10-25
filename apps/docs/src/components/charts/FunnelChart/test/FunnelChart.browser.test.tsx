@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { mount } from '../../../../test/mount';
 import Channel from '../demo/Channel';
 
-const stages = ['提交建议', '通过初审', '立项', '转入任务', '收益兑现'];
+const stages = ['访问', '注册', '加购', '下单', '复购'];
 const values = [186, 121, 64, 52, 23];
 
 /** 各环节的一行：名称、轨道（里面是横条）、数值 */
@@ -25,7 +25,7 @@ it('横条的长度与数值成比例，第一环节占满轨道', () => {
   });
 });
 
-it('环节之间写比上一环节的转化率，末尾写总转化；点“立项”下钻', async () => {
+it('环节之间写比上一环节的转化率，末尾写总转化；点“加购”下钻', async () => {
   const root = mount(Channel);
   const text = root.querySelector('[role="figure"]')!.textContent!;
   // 121 / 186、23 / 186
@@ -33,5 +33,5 @@ it('环节之间写比上一环节的转化率，末尾写总转化；点“立�
   expect(text).toContain('12.4%');
   rows(root)[2]!.click();
   await new Promise((resolve) => setTimeout(resolve));
-  expect(root.textContent).toContain('点了：立项');
+  expect(root.textContent).toContain('点了：加购');
 });

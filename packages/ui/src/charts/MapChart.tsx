@@ -8,7 +8,7 @@
  *     topology={ChinaTopoJSON}
  *     feature="provinces"
  *     areas={[{ id: 'CN-JS', label: '江苏', value: 623 }, …]}   // id 是地图要素的 id
- *     points={[{ id: 'sh', label: '上海总装', longitude: 121.47, latitude: 31.23, value: 860 }]}
+ *     points={[{ id: 'sh', label: '上海组装', longitude: 121.47, latitude: 31.23, value: 860 }]}
  *     links={[{ from: 'xa', to: 'sh', value: 120 }]}
  *     bins={5}
  *     areaLabels

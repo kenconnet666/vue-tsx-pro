@@ -3,7 +3,7 @@
  *
  *   <KanbanBoard
  *     aria-label="任务看板"
- *     columns={[{ key: 'designing', label: '方案设计中' }, { key: 'verifying', label: '验证中' }]}
+ *     columns={[{ key: 'designing', label: '设计中' }, { key: 'verifying', label: '测试中' }]}
  *     items={tasks}
  *     getKey={(task) => task.code}
  *     getColumn={(task) => task.status}

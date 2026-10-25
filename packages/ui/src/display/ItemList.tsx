@@ -3,7 +3,7 @@
  * 待办、通知、我负责的任务、清单这类“界面里的列表”（正文里的列表用 List）。参考 Ant Design 的 List.Item.Meta。
  *
  *   <ItemList divided>
- *     <ItemListItem start={<StatusDot />} title={<Link href="/inbox">齐全性检查</Link>}
+ *     <ItemListItem start={<StatusDot />} title={<Link href="/inbox">资料审核</Link>}
  *       description="PO-2026-0187 · 官网改版" end={<DeadlineBadge due="2026-10-23" />} />
  *   </ItemList>
  *

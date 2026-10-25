@@ -22,7 +22,7 @@ export default _component(() => () => (
       </Text>
       <Avatar name="吴悠" />
       <Avatar name="Zhao Qing" />
-      <Avatar name="图片加载失败" src="/not-found.png" />
+      <Avatar name="陈默" src="/not-found.png" />
       <Avatar />
       <Avatar name="设计中心" radius="md" fallback={<Icon icon={Building2} />} />
     </Flex>

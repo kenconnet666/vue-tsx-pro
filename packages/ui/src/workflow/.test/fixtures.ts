@@ -9,7 +9,7 @@ export const negotiation: ProcessDefinition = {
   lanes: [
     { id: 'supplier', name: '供应商' },
     { id: 'cost', name: '财务部', group: 'cost' },
-    { id: 'pemo', name: 'PEMO', group: 'pemo' },
+    { id: 'pmo', name: 'PMO', group: 'pmo' },
   ],
   nodes: [
     { id: 'start', type: 'start', name: '开始', lane: 'cost' },
@@ -38,7 +38,7 @@ export const negotiation: ProcessDefinition = {
       id: 'arbitrate',
       type: 'task',
       name: '提级裁决',
-      lane: 'pemo',
+      lane: 'pmo',
       outcomes: [{ key: 'decide', label: '裁决' }],
     },
     { id: 'end', type: 'end', name: '锁定 A', result: 'locked' },

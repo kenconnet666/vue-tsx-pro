@@ -22,9 +22,9 @@ interface Saving {
 }
 
 const statuses = createStatusMap({
-  designing: { label: '方案设计中', tone: 'info' },
-  verifying: { label: '验证中', tone: 'accent' },
-  confirmed: { label: '已认定', tone: 'success' },
+  designing: { label: '设计中', tone: 'info' },
+  verifying: { label: '测试中', tone: 'accent' },
+  confirmed: { label: '已验收', tone: 'success' },
 });
 
 const rows: Saving[] = [
@@ -39,7 +39,7 @@ const rows: Saving[] = [
   {
     code: 'PO-2026-0214',
     name: '线束卡箍改用铝合金',
-    team: '机体结构',
+    team: '生产部',
     target: 86_400,
     actual: null,
     status: 'designing',
@@ -55,7 +55,7 @@ const rows: Saving[] = [
   {
     code: 'PO-2026-0203',
     name: '检修口盖板减重',
-    team: '机体结构',
+    team: '生产部',
     target: 52_600,
     actual: 48_900,
     status: 'confirmed',
@@ -81,7 +81,7 @@ const columns: DataTableColumn<Saving>[] = [
     type: 'currency',
     summary: 'sum',
     format: { scale: 10_000 },
-    empty: '待认定',
+    empty: '待验收',
   },
   { key: 'status', header: '状态', width: 120, statuses },
 ];

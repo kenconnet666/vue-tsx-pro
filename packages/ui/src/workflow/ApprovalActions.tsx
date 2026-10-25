@@ -5,12 +5,12 @@
  * （对话框的取消、确认与等待用 Dialog 的 onConfirm）。
  *
  *   <ApprovalActions
- *     node="齐全性检查"
+ *     node="资料审核"
  *     outcomes={workItemOutcomes(flow, item)}
  *     onComplete={(input) => completeWorkItem(item.id, input)}
  *   />
  *
- * 业务字段（派单选产品团队、认定填金额）由 fields 给出对话框里的内容，validate 校验，变量由使用方随 onComplete 一起提交。
+ * 业务字段（派单选处理团队、验收填金额）由 fields 给出对话框里的内容，validate 校验，变量由使用方随 onComplete 一起提交。
  * 部件：Root（按钮组）、Button（每个结果的按钮，可以按结果计算）、Dialog。
  */
 import { _component } from '@vue-tsx-pro/tsx';

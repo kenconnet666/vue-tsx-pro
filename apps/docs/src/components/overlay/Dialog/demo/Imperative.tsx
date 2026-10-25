@@ -5,12 +5,12 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import {
   Badge,
   Button,
+  Card,
   Descriptions,
   Flex,
-  List,
-  ListItem,
+  ItemList,
+  ItemListItem,
   Small,
-  Strong,
   useDialog,
   type OpenChangeDetails,
 } from '@vue-tsx-pro/ui';
@@ -87,27 +87,26 @@ export default _component(() => {
   }
 
   return () => (
-    <Flex gap="lg" wrap>
-      <List sx={styles.list}>
-        {invoices.map((invoice) => (
-          <ListItem key={invoice.no}>
-            <Flex align="center" justify="between" gap="md">
-              <Flex direction="column">
-                <Strong>{invoice.vendor}</Strong>
-                <Small tone="muted">
-                  {invoice.no} · {invoice.amount}
-                </Small>
-              </Flex>
-              <Flex align="center" gap="sm">
-                {checked.includes(invoice.no) && <Badge tone="success">已核对</Badge>}
-                <Button size="sm" variant="ghost" onClick={() => show(invoice)}>
-                  查看
-                </Button>
-              </Flex>
-            </Flex>
-          </ListItem>
-        ))}
-      </List>
+    <Flex gap="lg" align="start" wrap>
+      <Card padding="none" sx={styles.list}>
+        <ItemList divided inset="md">
+          {invoices.map((invoice) => (
+            <ItemListItem
+              key={invoice.no}
+              title={invoice.vendor}
+              description={`${invoice.no} · ${invoice.amount}`}
+              end={
+                <Flex align="center" gap="sm">
+                  {checked.includes(invoice.no) && <Badge tone="success">已核对</Badge>}
+                  <Button size="sm" variant="ghost" onClick={() => show(invoice)}>
+                    查看
+                  </Button>
+                </Flex>
+              }
+            />
+          ))}
+        </ItemList>
+      </Card>
       <Flex direction="column" gap="xs" sx={styles.log}>
         <Small tone="muted">onOpenChange</Small>
         {log.length === 0 && <Small tone="muted">（还没有）</Small>}

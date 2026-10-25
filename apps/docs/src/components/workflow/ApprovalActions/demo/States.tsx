@@ -17,15 +17,15 @@ export default _component(() => () => (
     <Flex direction="column" gap="lg">
       <Flex direction="column" gap="xs">
         <Flex align="center" gap="sm">
-          <Small>齐全性检查</Small>
+          <Small>资料审核</Small>
           <Badge tone="warning">流程已暂停</Badge>
         </Flex>
-        <ApprovalActions node="齐全性检查" outcomes={outcomes} disabled onComplete={() => {}} />
+        <ApprovalActions node="资料审核" outcomes={outcomes} disabled onComplete={() => {}} />
       </Flex>
       <Flex direction="column" gap="xs">
         <Small tone="muted">紧凑尺寸，按结果加图标</Small>
         <ApprovalActions
-          node="齐全性检查"
+          node="资料审核"
           size="sm"
           outcomes={outcomes}
           propsButton={(outcome) => ({ icon: icons[outcome.key as keyof typeof icons] })}

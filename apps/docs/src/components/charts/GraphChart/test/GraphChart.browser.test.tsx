@@ -18,17 +18,17 @@ it('8 个节点、8 条连线，节点写名称', async () => {
   const root = mount(Network);
   await until(() => nodes(root).length === 8 && links(root).length === 8);
   const text = root.querySelector('svg')!.textContent!;
-  for (const label of ['总体技术', '研发中心', '供应商甲']) expect(text).toContain(label);
+  for (const label of ['技术部', '研发中心', '供应商甲']) expect(text).toContain(label);
 });
 
-it('点“总体技术”选中它，点空白处取消', async () => {
+it('点“技术部”选中它，点空白处取消', async () => {
   const root = mount(Network);
   const all = await until(() => nodes(root).length === 8 && nodes(root));
   // 布局是异步算的：画出来之后才绑上点击
   await new Promise((resolve) => setTimeout(resolve, 500));
-  const node = all.find((item) => item.textContent!.includes('总体技术'))!;
+  const node = all.find((item) => item.textContent!.includes('技术部'))!;
   click(node);
-  await until(() => root.textContent!.includes('选中：总体技术'));
+  await until(() => root.textContent!.includes('选中：技术部'));
   click(root.querySelector('[class*="graph-component"] rect[class*="background"]')!);
   await until(() => root.textContent!.includes('点一个节点'));
   expect(root.textContent).not.toContain('选中：');

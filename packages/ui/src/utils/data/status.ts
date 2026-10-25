@@ -4,7 +4,7 @@
  *
  *   export const taskStatuses = createStatusMap({
  *     pending: { label: '待启动', tone: 'neutral' },
- *     designing: { label: '方案设计中', tone: 'info' },
+ *     designing: { label: '设计中', tone: 'info' },
  *     closed: { label: '关闭', tone: 'success' },
  *   });
  *   <StatusBadge statuses={taskStatuses} value={task.status} />

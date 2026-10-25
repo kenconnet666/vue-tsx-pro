@@ -26,13 +26,13 @@ export default _component(() => {
   const form = useForm({
     initial: {
       name: '华东门店陈列改造',
-      category: 'design',
-      install: 'required',
-      funding: ['quality', 'certification'],
-      needSb: false,
-      flights: 40,
+      category: 'display',
+      scope: 'all',
+      funding: ['budget', 'special'],
+      notify: false,
+      stores: 40,
       description:
-        '包装由两层合并为一层，减少胶带用量 36%；纸箱由五层瓦楞换为三层，单箱减重 0.3 kg。',
+        '收银台移到入口一侧，高频商品移到视线高度；货架由五层减为四层，单店节省陈列物料约 3000 元。',
     },
   });
 
@@ -60,34 +60,34 @@ export default _component(() => {
           <Field label="项目名称" required>
             <TextField _value={form.values.name} />
           </Field>
-          <Field label="任务类别" required>
+          <Field label="改造类型" required>
             <RadioGroup _value={form.values.category} orientation="horizontal">
-              <Radio value="design">设计优化</Radio>
-              <Radio value="source">多供应商</Radio>
-              <Radio value="process">工艺优化</Radio>
+              <Radio value="display">陈列调整</Radio>
+              <Radio value="device">设备更新</Radio>
+              <Radio value="process">流程优化</Radio>
             </RadioGroup>
           </Field>
-          <Field label="安装类型" required>
-            <ToggleGroup _value={form.values.install} required size="sm">
-              <ToggleItem value="required">必装</ToggleItem>
-              <ToggleItem value="optional">选装</ToggleItem>
+          <Field label="执行范围" required>
+            <ToggleGroup _value={form.values.scope} required size="sm">
+              <ToggleItem value="all">全部门店</ToggleItem>
+              <ToggleItem value="pilot">试点门店</ToggleItem>
             </ToggleGroup>
           </Field>
           <Field label="经费来源" description="可多选">
             <CheckboxGroup _value={form.values.funding} orientation="horizontal">
-              <Checkbox value="quality">精品工程</Checkbox>
-              <Checkbox value="certification">适航取证</Checkbox>
-              <Checkbox value="plateau">高原型项目</Checkbox>
+              <Checkbox value="budget">年度预算</Checkbox>
+              <Checkbox value="special">专项资金</Checkbox>
+              <Checkbox value="brand">品牌合作</Checkbox>
               <Checkbox value="self">其他自筹</Checkbox>
             </CheckboxGroup>
           </Field>
-          <Field label="贯彻架次">
-            <NumberField _value={form.values.flights} min={0} />
+          <Field label="涉及门店">
+            <NumberField _value={form.values.stores} min={0} suffix="家" />
           </Field>
-          <Field label="SB 贯彻">
-            <Switch _checked={form.values.needSb}>需要 SB 贯彻航线架次</Switch>
+          <Field label="通知门店">
+            <Switch _checked={form.values.notify}>开工前三天通知店长</Switch>
           </Field>
-          <Field label="简要描述" required description="说明更改内容与节省金额的计算依据">
+          <Field label="简要描述" required description="说明改造内容与节省金额的计算依据">
             <Textarea _value={form.values.description} rows={3} />
           </Field>
         </Flex>

@@ -11,11 +11,11 @@ export const orgs: Org[] = [
     name: '总部',
     children: [
       {
-        id: 'pemo',
-        name: '项目管理办公室（PEMO）',
+        id: 'pmo',
+        name: '项目管理办公室（PMO）',
         children: [
-          { id: 'pemo-plan', name: '计划组' },
-          { id: 'pemo-pool', name: '工单池管理组' },
+          { id: 'pmo-plan', name: '计划组' },
+          { id: 'pmo-pool', name: '工单池管理组' },
         ],
       },
       {

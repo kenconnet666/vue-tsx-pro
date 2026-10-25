@@ -1,6 +1,6 @@
 // 紧凑的尺寸（size="sm"）与 fit（放不下时按比例缩小到容器宽）：放进卡片、侧栏、收件箱的预览；
 // nodeDetail 在节点名称下写处理人或完成日期；
-// 会签（供应商并行评估）、线下动作（商务洽谈，虚线框）与提级（黄色虚线）都画得出来
+// 会签（供应商并行评估）、线下动作（线下签约，虚线框）与提级（黄色虚线）都画得出来
 import { _component } from '@vue-tsx-pro/tsx';
 import { Card } from '@vue-tsx-pro/ui';
 import { FlowDiagram, processProgress, type ProcessDefinition } from '@vue-tsx-pro/ui/workflow';
@@ -38,7 +38,7 @@ const contract: ProcessDefinition = {
     {
       id: 'negotiate',
       type: 'task',
-      name: '商务洽谈',
+      name: '线下签约',
       lane: 'sales',
       offline: true,
       outcomes: [{ key: 'record', label: '回填结果' }],

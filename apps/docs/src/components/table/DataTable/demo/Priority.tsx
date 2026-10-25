@@ -36,7 +36,7 @@ export default _component(() => {
     { id: 'R-198', title: '供应商报价单批量导入', owner: '周一航', hours: 24, status: 'todo' },
     { id: 'R-205', title: '审批流超时自动提醒', owner: '陈默', hours: 8, status: 'review' },
     { id: 'R-187', title: '移动端看板只读视图', owner: '许悠', hours: 32, status: 'todo' },
-    { id: 'R-210', title: '销售认定单打印模板', owner: '王晴', hours: 6, status: 'todo' },
+    { id: 'R-210', title: '销售验收单打印模板', owner: '王晴', hours: 6, status: 'todo' },
     { id: 'R-193', title: '项目编码规则可配置', owner: '赵浩然', hours: 12, status: 'doing' },
   ]);
   let sort = _state<SortState | null>(null);
