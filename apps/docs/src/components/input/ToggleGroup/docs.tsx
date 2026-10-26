@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ToggleGroupProps';
 import itemApi from 'virtual:api/ToggleItemProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -19,7 +19,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="segmented" title="视图切换" demo={Views}>

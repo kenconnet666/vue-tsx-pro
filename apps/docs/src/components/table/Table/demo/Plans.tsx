@@ -1,5 +1,5 @@
 import { Check, Minus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Icon,
@@ -11,7 +11,7 @@ import {
   TableHeaderCell,
   TableRow,
   VisuallyHidden,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plans = ['免费版', '团队版', '企业版'] as const;
 const features: [string, (boolean | string)[]][] = [

@@ -1,6 +1,6 @@
 import { Bell, Inbox, ListTodo, MessageCircle } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Button, Flex, IconButton, Indicator, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, Button, Flex, IconButton, Indicator, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import { members } from './photos';
 
 export default _component(() => {

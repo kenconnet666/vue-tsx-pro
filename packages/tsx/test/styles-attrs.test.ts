@@ -1,7 +1,7 @@
 // attrs 是 Vue 用的入口：行内样式交出对象，自定义属性（动态样式的变量）名字原样，值不会被拆成别的声明
 import { expect, it } from 'vitest';
 // 用包名导入：编译器按导入路径找样式（vitest 配置把它指向源码）
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 
 const styles = css.create({
   columns: (count: number) => ({ gridTemplateColumns: `repeat(${count}, 1fr)` }),

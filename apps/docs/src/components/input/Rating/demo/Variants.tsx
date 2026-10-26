@@ -1,7 +1,7 @@
 // 图标、颜色、数量与尺寸；不可用；只读的列表
 import { Flame, Heart } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Rating, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Rating, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const reviews = [
   { name: '林小满', score: 5, text: '交货快，包装很仔细' },

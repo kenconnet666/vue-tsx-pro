@@ -1,6 +1,6 @@
 import { Monitor } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   builtinThemeLabel,
@@ -16,9 +16,9 @@ import {
   ToggleItem,
   useLang,
   type BuiltinThemeName,
-} from '@vue-tsx-pro/ui';
-import { ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';
-import { ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { ThemeThumbnail } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
+import { ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const styles = css.create({
   // 主题卡片排成网格：宽屏一行六张

@@ -1,6 +1,6 @@
 // 约会议：工作时间内每半小时一档，午休 12:00–13:30 不可选；提醒每 15 分钟一档，12 小时制；不在列表里的时间也能直接键入
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Grid, TimePicker } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Grid, TimePicker } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let start = _state<string | null>('10:30');

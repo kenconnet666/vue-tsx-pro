@@ -8,8 +8,8 @@
  * 图例、单位、加载与空状态、给读屏的数据表（类目、数值、占比）同其他图表（见 ChartFrame）。
  */
 import { Donut } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';

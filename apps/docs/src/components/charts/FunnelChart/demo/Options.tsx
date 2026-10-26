@@ -1,7 +1,7 @@
 // 颜色、金额、不写转化率；加载中与没有数据
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Switch } from '@vue-tsx-pro/ui';
-import { FunnelChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { FunnelChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import Decimal from 'decimal.js';
 
 const stages = [

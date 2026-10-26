@@ -1,6 +1,6 @@
 // 成员列表：移出成员前问一句；确认后等接口返回再关闭，失败时保持打开并提示
 import { Trash2, UserMinus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Avatar,
   Badge,
@@ -12,7 +12,7 @@ import {
   Small,
   Text,
   Toaster,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Member {
   id: string;

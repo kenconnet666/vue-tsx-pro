@@ -1,6 +1,12 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Avatar, Flex, Text, TreeDataTable, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Avatar,
+  Flex,
+  Text,
+  TreeDataTable,
+  type DataTableColumn,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Unit {
   id: string;

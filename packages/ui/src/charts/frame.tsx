@@ -8,8 +8,8 @@
  * 外观全走主题：Unovis 的样式由 --vis-* 变量控制，这里把它们指到 tokens 上；系列颜色是 CSS 变量，
  * 切换主题、改品牌色都不用重画。绘图区对读屏隐藏，数据由同样内容的表格读出。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shallowRef, watch, type VNodeChild } from 'vue';
 import { Download, FileSpreadsheet, ImageDown } from '@lucide/icons';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';

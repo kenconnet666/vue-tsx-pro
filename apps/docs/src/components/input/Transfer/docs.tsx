@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Link } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Link } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/TransferBaseProps';
 import treeApi from 'virtual:api/TreeTransferProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Transfer, TreeTransfer } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { Transfer, TreeTransfer } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Example id="members" title="项目成员" demo={Members}>
       每一边是一个可多选的 <Link href="/components/listbox">Listbox</Link>
       （虚拟滚动，上千项也不卡）：上方是全选框、标题与“勾上 / 总数”，<Code>searchable</Code>{' '}

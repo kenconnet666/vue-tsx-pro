@@ -1,9 +1,9 @@
 /**
- * 画布（子路径 `@vue-tsx-pro/ui/diagram`）：能平移、缩放的视口里摆放 HTML 节点与 SVG 连线，选择、框选、拖动、连线、键盘与读屏；
+ * 画布（子路径 `@zerodep-dev/vue-tsx-pro-ui/diagram`）：能平移、缩放的视口里摆放 HTML 节点与 SVG 连线，选择、框选、拖动、连线、键盘与读屏；
  * 标准节点 DiagramNode、泳道 DiagramLanes、控制器 useDiagram、缩放按钮 DiagramControls、小地图 DiagramMinimap、
  * 导出 diagramToSvg / diagramToPng 与几何、路由工具。流程图、组织架构图、关系图都建在它上面。
  *
- *   import { Diagram, DiagramControls, DiagramNode, useDiagram } from '@vue-tsx-pro/ui/diagram';
+ *   import { Diagram, DiagramControls, DiagramNode, useDiagram } from '@zerodep-dev/vue-tsx-pro-ui/diagram';
  *
  * 不放在主入口：只有画图的页面用得到；文案自带中英文（messages.ts），别的语言在 Lang.messages.diagram 里补。
  */

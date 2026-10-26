@@ -3,8 +3,8 @@
 // 开始、结束是胶囊形的 DiagramNode，退回的连线 tone="danger"、dashed 画成红色虚线。
 // useDiagram() 建的控制器交给画布，画布外的按钮用它缩放、适应画布，“定位到”选一个节点就平移过去并选中它
 import { Maximize2, ZoomIn, ZoomOut } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, IconButton, Select, Toolbar } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, IconButton, Select, Toolbar } from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   Diagram,
   DiagramLanes,
@@ -14,7 +14,7 @@ import {
   type DiagramEdgeItem,
   type DiagramNodeItem,
   type DiagramSelection,
-} from '@vue-tsx-pro/ui/diagram';
+} from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 
 const LANE = 96;
 const HEADER = 80;

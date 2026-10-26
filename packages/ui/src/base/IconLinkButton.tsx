@@ -4,7 +4,7 @@
  *
  *   <IconLinkButton href="https://github.com/…" external icon={Github} aria-label="GitHub 仓库" />
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useLang } from '../config/context';
 import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, type PartProps } from '../utils/props';

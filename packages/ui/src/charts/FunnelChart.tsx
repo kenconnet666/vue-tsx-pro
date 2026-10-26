@@ -7,8 +7,8 @@
  * 横条默认同一个颜色（chart1），环节可以单独给 color。Unovis 没有漏斗图：这里用主题 tokens 直接画，
  * 外层结构（单位、加载与空状态、给读屏的数据表）同其他图表（见 ChartFrame）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';

@@ -1,7 +1,7 @@
 // 页头结束边的操作：extra 和 header 排在一行，放不下时换行
 import { ArrowUpRight } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Card, Flex, Icon, Link, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Badge, Card, Flex, Icon, Link, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Flex direction="column" gap="md">

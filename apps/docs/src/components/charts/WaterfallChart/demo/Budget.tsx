@@ -1,8 +1,8 @@
 // 预算到实际的差异：成本超支是坏事，对调颜色（增加用 danger、减少用 success）；
 // 中间插一根小计柱（total 不写 value：画到当时的累计）；目标线标出预算上限；点一步看明细
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small } from '@vue-tsx-pro/ui';
-import { WaterfallChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { WaterfallChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const steps = [
   { label: '预算', value: 860, total: true },

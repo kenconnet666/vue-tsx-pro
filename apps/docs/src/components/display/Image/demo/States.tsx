@@ -1,6 +1,6 @@
 // 尺寸与填充：fit 决定图片在框里怎么放（cover 裁、contain 留白）；圆角档位；地址错了时显示占位与 alt（也可以自己给 fallback）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Image, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Image, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { drawings } from './drawings';
 
 const sample = drawings[0]!;

@@ -4,8 +4,8 @@
  * 外壳是包着原生 input 的 div：边框、悬停、焦点环（:focus-within）、出错、不可用、只读都画在外壳上，
  * input 本身透明无边框，所以图标、清除按钮、步进按钮可以放进框里。尺寸用 em，随 size 缩放（COMPONENTS.md §3）。
  */
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';

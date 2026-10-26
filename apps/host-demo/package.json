@@ -21,8 +21,8 @@
     "three": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:",
-    "@vue-tsx-pro/tsx": "workspace:^",
-    "@vue-tsx-pro/ui": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
     "zod": "catalog:"
   },
   "devDependencies": {

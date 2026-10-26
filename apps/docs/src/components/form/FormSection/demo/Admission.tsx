@@ -1,5 +1,5 @@
 // 供应商准入申请：长表单按主题分成几组，每组最多两列（容器窄时自动单列）；分组带 id，旁边的目录跳到各组
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   AsideLayout,
   Button,
@@ -15,7 +15,7 @@ import {
   TableOfContents,
   Textarea,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const sections = [
   { id: 'admission-basic', label: '企业信息', level: 2 },

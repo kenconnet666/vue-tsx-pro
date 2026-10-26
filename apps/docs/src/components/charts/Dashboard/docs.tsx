@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Dashboard from './demo/Dashboard.tsx?demo';

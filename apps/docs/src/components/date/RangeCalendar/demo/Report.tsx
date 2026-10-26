@@ -1,5 +1,5 @@
 // 报表的统计区间：页脚放快捷区间（presetRange 按今天与语言的一周第一天算），今天之后不能选
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Flex,
@@ -11,7 +11,7 @@ import {
   useLang,
   type DateRange,
   type DateRangePreset,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 快捷区间的名字取语言包（lang.dateRangePreset）；输入框加弹层的写法见 DateRangePicker 的 presets
 const PRESETS: DateRangePreset[] = ['today', 'last7Days', 'last30Days', 'thisMonth', 'lastMonth'];

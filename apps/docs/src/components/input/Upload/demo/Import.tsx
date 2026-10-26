@@ -1,6 +1,6 @@
 import { FileSpreadsheet } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Alert, FileDrop, Flex, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Alert, FileDrop, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let imported = _state('');

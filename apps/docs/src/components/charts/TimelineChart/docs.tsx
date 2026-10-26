@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/TimelineChartProps';
 import itemApi from 'virtual:api/TimelineChartItem';
 import seriesApi from 'virtual:api/TimelineChartSeries';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { TimelineChart } from '@vue-tsx-pro/ui/charts';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { TimelineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';"
+  >
     <Example id="projects" title="项目进度：计划与实际" demo={Projects}>
       <Code>items</Code> 的每一项是一段：所在的行（<Code>row</Code>）、开始与结束（Date、时间戳或
       ISO 字符串，只有日期的结束含这一天）、系列。<Code>series</Code> 的{' '}

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ComboChartProps';
 import seriesApi from 'virtual:api/ComboSeries';
 import { ApiReference } from '../../../site/ApiReference';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ComboChart } from '@vue-tsx-pro/ui/charts';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { ComboChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="savings" title="金额与完成率" demo={Savings}>

@@ -13,8 +13,8 @@
  * 部件：Header（标题行，Flex）、Title（H2）、Close（CloseButton）、Description（Paragraph）、
  * Body（ScrollArea：内容长时只滚正文，标题与页脚固定）、Footer（Flex，靠结束边排列）、Cancel、Confirm（Button，写了 onConfirm 时）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import type { PartStyles, SxStyles } from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import type { PartStyles, SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';

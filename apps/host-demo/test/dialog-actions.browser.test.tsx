@@ -1,6 +1,6 @@
 // 对话框的 onConfirm（Dialog、Drawer、AlertDialog 共用）：等待时加载中、关不掉；返回 false 或失败时留着，成功才关
-import { _component } from '@vue-tsx-pro/tsx';
-import { createUi, Dialog } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { createUi, Dialog } from '@zerodep-dev/vue-tsx-pro-ui';
 import { userEvent } from 'vitest/browser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createApp, type App } from 'vue';

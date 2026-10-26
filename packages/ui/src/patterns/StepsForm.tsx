@@ -17,8 +17,8 @@
  *
  * 部件：Root（Form）、Steps、Panel（这一步的内容，div）、Actions（Flex）、Previous、Next、Submit（Button）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useMessages } from '../config/lang/messages';

@@ -1,5 +1,14 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Grid, H3, Paragraph, Small, Switch, type Space } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Card,
+  Flex,
+  Grid,
+  H3,
+  Paragraph,
+  Small,
+  Switch,
+  type Space,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const paddings: Space[] = ['sm', 'md', 'lg'];
 

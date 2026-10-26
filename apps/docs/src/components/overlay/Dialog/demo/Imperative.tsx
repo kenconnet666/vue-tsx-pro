@@ -1,7 +1,7 @@
 // 命令式对话框：不在页面里放 Dialog、不管 open，点哪张发票就弹出哪张的详情；正文拿到句柄，
 // “标记已核对”改标题后关上。右边记下每次 onOpenChange 的原因（关闭按钮、Esc、点遮罩、确认、代码调用）
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,
@@ -13,7 +13,7 @@ import {
   Small,
   useDialog,
   type OpenChangeDetails,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Invoice {
   no: string;

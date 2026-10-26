@@ -8,7 +8,7 @@
  *
  * 部件：Root（span）、Icon、Dot（span，dot 时）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import type { StatusMap } from '../utils/data/status';

@@ -1,7 +1,7 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Grid } from '@vue-tsx-pro/ui';
-import { colors } from '@vue-tsx-pro/ui/tokens';
-import { ColorSwatch } from '@vue-tsx-pro/ui/docs-kit';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Grid } from '@zerodep-dev/vue-tsx-pro-ui';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
+import { ColorSwatch } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 
 const tokens = [
   'accent',

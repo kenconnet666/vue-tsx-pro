@@ -10,8 +10,8 @@
  * value 是数组 [低, 高] 时是范围选择：两个滑块各自可聚焦、可拖动，不能交叉；点击轨道移动离得近的那个。
  * 两个滑块的名称在 aria-label（或 Field 的标签）后面加上“最小值”“最大值”，取值范围互相限制（同 WAI-ARIA 多滑块）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';

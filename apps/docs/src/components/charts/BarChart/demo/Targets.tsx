@@ -1,7 +1,7 @@
 // 目标线与下钻：各团队的实现销售对着年度指标；点一个团队（实际项目里跳到筛好条件的台账）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small } from '@vue-tsx-pro/ui';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const teams = [
   { team: '华东大区', committed: 420, realized: 318 },

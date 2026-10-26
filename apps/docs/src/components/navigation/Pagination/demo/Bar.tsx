@@ -1,5 +1,5 @@
 // 表格下方的分页栏：页码、每页条数、跳页都写回同一份 page / pageSize，表格跟着显示那一页
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Flex,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const customers = ['林小满', '周一航', '陈默', '许悠', '宋知远', '顾青', '沈遥', '韩笑'];
 const statuses = [

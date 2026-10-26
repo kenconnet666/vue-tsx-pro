@@ -1,5 +1,5 @@
 /**
- * vue-router 的路由适配（子路径 `@vue-tsx-pro/ui/vue-router`；vue-router 是可选的 peer 依赖）：
+ * vue-router 的路由适配（子路径 `@zerodep-dev/vue-tsx-pro-ui/vue-router`；vue-router 是可选的 peer 依赖）：
  *
  *   app.use(router).use(createUi({ router: vueRouterAdapter(router) }))
  *

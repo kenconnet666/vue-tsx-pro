@@ -1,6 +1,6 @@
 // 多选的标签：抄送人多时按宽度收起（拖窄窗口看“+N”变化）；车型只显示前两个；工单标签可以现场新建
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Select, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Select, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const people = ['周一航', '许悠', '林小满', '赵浩然', '陈默', '韩笑', '宋知遥', '顾北辰', '沈清禾'];
 const models = ['X3 标准版', 'X3 长续航', 'X5 四驱', 'X5 越野', 'M7 商务', 'M7 豪华'];

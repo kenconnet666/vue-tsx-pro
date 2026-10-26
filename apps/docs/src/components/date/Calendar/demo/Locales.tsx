@@ -1,6 +1,15 @@
 // 跟随语言：月份名、星期名、读屏念的完整日期都来自 Intl；一周从哪天开始按地区惯例，也可以用 firstDayOfWeek 指定
-import { _component } from '@vue-tsx-pro/tsx';
-import { Calendar, defineLang, enUS, Flex, Grid, Provider, Small, todayIso } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Calendar,
+  defineLang,
+  enUS,
+  Flex,
+  Grid,
+  Provider,
+  Small,
+  todayIso,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const german = defineLang(enUS, { code: 'de-DE' });
 const japanese = defineLang(enUS, { code: 'ja-JP' });

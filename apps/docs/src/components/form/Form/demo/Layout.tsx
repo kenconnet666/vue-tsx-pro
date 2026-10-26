@@ -1,6 +1,6 @@
 // 标签放在起始边：Form 上统一设置，标签一列右对齐、控件一列，按第一行文字的基线对齐；
 // readonly / disabled 写在 Form 上，所有字段与控件（含勾选、开关、滑块、分段）一起只读或不可用
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   Checkbox,
@@ -17,7 +17,7 @@ import {
   ToggleGroup,
   ToggleItem,
   useForm,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 type Mode = 'edit' | 'readonly' | 'disabled';
 

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import countApi from 'virtual:api/CharacterCountProps';
 import textareaApi from 'virtual:api/TextareaProps';
 import api from 'virtual:api/TextFieldProps';
@@ -24,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { CharacterCount, TextField, Textarea } from '@vue-tsx-pro/ui';"
+    imports="import { CharacterCount, TextField, Textarea } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

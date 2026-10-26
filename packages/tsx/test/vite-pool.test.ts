@@ -22,8 +22,8 @@ const request = (code: string): ModuleRequest => ({
 });
 
 it('线程里的结果与主线程相同（符文、样式绑定与热更新、JSX、热更新登记）', async () => {
-  const code = `import * as css from '@vue-tsx-pro/tsx/styles';
-import { _component } from '@vue-tsx-pro/tsx';
+  const code = `import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 const styles = css.create({ root: { color: 'red' }, bar: (width: number) => ({ width }) });
 export const Counter = _component(({ step = 1 }: { step?: number }) => {
   let count = _state(0);

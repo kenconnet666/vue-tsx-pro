@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ControlGroupProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage meta={meta} imports="import { ControlGroup } from '@vue-tsx-pro/ui';">
+  <DocPage meta={meta} imports="import { ControlGroup } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="amount" title="币种与金额" demo={Amount}>

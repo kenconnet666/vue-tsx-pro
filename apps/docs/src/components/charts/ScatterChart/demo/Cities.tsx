@@ -1,6 +1,6 @@
 // 城市的人均 GDP 与平均通勤时间：每座城市一个点，横纵轴都是数值；悬停看城市名与两个值
-import { _component } from '@vue-tsx-pro/tsx';
-import { ScatterChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { ScatterChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const cities = [
   { name: '北京', gdp: 20.0, commute: 47 },

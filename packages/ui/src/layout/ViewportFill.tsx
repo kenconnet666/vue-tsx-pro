@@ -11,8 +11,8 @@
  * 顶边的位置量出来（上面的页头、页签、查询栏换行变高都跟着变），不用手算“视口高度减顶栏减内边距”。
  * 窗口太矮时不小于 minHeight，整页滚动。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted } from 'vue';
 import { space } from '../config/theme/tokens';
 import { useResizeObserver } from '../utils/dom/resize';

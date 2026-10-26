@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Slider, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Slider, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const yuan = (value: number) => `¥${value.toLocaleString()}`;
 

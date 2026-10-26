@@ -7,8 +7,8 @@
  * 自定义图标按同一格式写 `{ size?, node: [[标签, 属性, 子节点?], …] }` 即可。
  */
 import type { LucideIconData } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { createDrawable, utils } from 'animejs';
 import { onMounted, watch } from 'vue';
 import { useAnimate } from '../utils/motion/animation';

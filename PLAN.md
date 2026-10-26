@@ -15,7 +15,7 @@
 | 响应式写法 | 下划线符文，语义对标 Svelte 5，编译为 Vue 原生 API（[RUNES.md](RUNES.md)）                                                                                        |
 | 组件       | 只有 props：参数解构即 props；内容用 `children`；通知用 `onXxx`；不用 slot / emit / expose                                                                        |
 | 样式       | 写法同 StyleX（类型安全、`sx` 覆盖），底层是运行时引擎：一个元素一个组合类、动态值直接改元素上的变量，组件库发布编译好的 JS（STYLE-ENGINE.md）；外部覆盖只走 `sx` |
-| 包         | pnpm workspace；`@vue-tsx-pro/tsx`（编译器、运行时、Vite 预设、类型）与 `@vue-tsx-pro/ui`（组件库）                                                               |
+| 包         | pnpm workspace；`@zerodep-dev/vue-tsx-pro-tsx`（编译器、运行时、Vite 预设、类型）与 `@zerodep-dev/vue-tsx-pro-ui`（组件库）                                       |
 
 **明确不做**：具名插槽映射、SFC 里写符文、不解构的整体 props、SSR。
 
@@ -23,13 +23,13 @@
 
 ```
 packages/
-  tsx/   @vue-tsx-pro/tsx
+  tsx/   @zerodep-dev/vue-tsx-pro-tsx
     src/compiler/   编译器（纯函数，不依赖 Vite）：符文、token 写法，compile 组合全部步骤
     src/runtime/    _component、prop 访问器、overridable / snapshot / effect
     src/vite/       Vite 预设：调用 compile、组件热更新、编译缓存
     src/styles/     运行时样式引擎与类型（属性中文注释由 scripts/css-docs 生成）
     types/          符文全局类型、jsx-runtime 类型
-  ui/    @vue-tsx-pro/ui（分三层，见 COMPONENTS.md §7；pnpm layers:check 检查）
+  ui/    @zerodep-dev/vue-tsx-pro-ui（分三层，见 COMPONENTS.md §7；pnpm layers:check 检查）
     基础设施
     src/utils/        部件 props 合并（props.ts）与按职责分的子目录：style/、dom/、motion/、data/、virtual/、request/
     src/config/       Provider、createUi、组件默认值、theme/（tokens 与主题）、lang/（语言与格式化）、子路径 shiki、vue-router
@@ -88,7 +88,7 @@ M0 骨架、M1 tsx 包、M2 组件库基础、M3 文档站、M4 正式组件都�
 ## 6. 技术约束与退路
 
 - **Babel 8**：符文编译器、样式绑定与 Vue JSX 插件（3.0）一起用 Babel 8，一个文件解析一次（compiler/compile.ts）。
-- **不依赖 StyleX**：写法像 StyleX，运行时引擎与类型都是自己的（`@vue-tsx-pro/tsx/styles`，STYLE-ENGINE.md）。
+- **不依赖 StyleX**：写法像 StyleX，运行时引擎与类型都是自己的（`@zerodep-dev/vue-tsx-pro-tsx/styles`，STYLE-ENGINE.md）。
 - **文档站不用 Markdown**：用 TSX 与本组件库写普通网站（Vite + vue-router 自建，已替换原来的 VitePress 冒烟页）。组件都能在 Node 里渲染成 HTML（试过演示页的服务端渲染），静态生成可行。
 - **只用 TypeScript 7**（Go 重写，跟 7.1 的 beta）：类型检查、CI、两个包的声明生成用 `tsc`；脚本与文档站的 API 表用 7.1 的
   程序化 API（`typescript/sync` 的程序与检查器、`typescript/ast` 的语法树）。检查器在 tsc 子进程里，每次调用都是一次跨进程往返，

@@ -10,8 +10,8 @@
  * 再强制布局，统计耗时、DOM 改动（按属性名）、CSSOM 改动（insertRule / deleteRule / 改规则文本）与行组件的渲染次数。
  */
 import { css as emotion } from '@emotion/css';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,
@@ -23,7 +23,7 @@ import {
   Tab,
   TabList,
   Tabs,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { nextTick } from 'vue';
 
 type Mode = 'sx' | 'attr' | 'emotion' | 'vars';

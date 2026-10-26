@@ -1,7 +1,7 @@
 // 月度销售：计划与实际是柱（万元，左轴），完成率是线（百分比，右侧的第二数值轴），两条轴的刻度落在同一组网格线上；
 // 年度目标线在主轴上，“新供应商切换”是一条标注
-import { _component } from '@vue-tsx-pro/tsx';
-import { ComboChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { ComboChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const months = [
   { month: '1月', planned: 120, actual: 86, rate: 0.72 },

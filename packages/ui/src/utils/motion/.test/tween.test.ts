@@ -1,5 +1,5 @@
 // useTween / useSpring：目标变化时 current 过渡过去；时长为 0（减少动态效果、读不到主题）时当场到位
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { h, nextTick, shallowRef } from 'vue';
 import { afterEach, describe, expect, it } from 'vitest';
 import { durations, easings } from '../../../config/theme/tokens';

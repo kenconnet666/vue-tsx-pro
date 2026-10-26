@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/SkeletonProps';
 import textApi from 'virtual:api/SkeletonTextProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Skeleton, SkeletonText } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { Skeleton, SkeletonText } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="shapes" title="形状" demo={Shapes}>

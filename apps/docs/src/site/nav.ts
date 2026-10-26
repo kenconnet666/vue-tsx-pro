@@ -38,7 +38,7 @@ const CATEGORIES: [string, string][] = [
   ['patterns', '页面组合'],
   ['diagram', '画布'],
   // 依赖第三方库的子路径单独成组，组名写明库名（都是可选 peer，用到才装）：
-  // 图表是 @vue-tsx-pro/ui/charts（基于 Unovis），3D 是 @vue-tsx-pro/ui/three（基于 three.js）
+  // 图表是 @zerodep-dev/vue-tsx-pro-ui/charts（基于 Unovis），3D 是 @zerodep-dev/vue-tsx-pro-ui/three（基于 three.js）
   ['charts', '图表 · @unovis/ts'],
   ['three', '3D · three.js'],
   ['config', '配置'],

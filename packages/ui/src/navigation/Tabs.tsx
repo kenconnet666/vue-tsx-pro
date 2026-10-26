@@ -18,8 +18,8 @@
  * 切换时用 Anime.js 滑过去，时长取主题，减少动态效果时直接到位；尺寸变化时直接对齐）。
  */
 import { ChevronDown, ChevronLeft, ChevronRight, Plus, X } from '@lucide/icons';
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton, type IconButtonProps } from '../base/IconButton';

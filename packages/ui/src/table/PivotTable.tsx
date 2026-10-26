@@ -14,8 +14,8 @@
  * 数值的格式同表格的列（type、format）；aggregate 是 sum（默认）、count、avg、min、max。
  * 热力图的颜色是强调色按比例混进底色（最深不超过 45%，文字照常够对比），读屏照常读数字。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';

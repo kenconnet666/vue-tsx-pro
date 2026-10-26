@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import groupApi from 'virtual:api/NavGroupProps';
 import itemApi from 'virtual:api/NavItemProps';
 import api from 'virtual:api/NavListProps';
@@ -26,7 +26,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { NavGroup, NavItem, NavList, NavSection, SkipLink, TableOfContents } from '@vue-tsx-pro/ui';"
+    imports="import { NavGroup, NavItem, NavList, NavSection, SkipLink, TableOfContents } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

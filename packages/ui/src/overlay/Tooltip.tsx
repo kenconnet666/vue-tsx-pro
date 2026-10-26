@@ -11,8 +11,8 @@
  *
  * 用 popover="manual" 渲染在顶层：它不是 auto，不会关掉正打开的菜单或弹出框。开关、定位、Esc 见 useHoverLayer（与 HoverCard 共用）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
   floatingStyles,

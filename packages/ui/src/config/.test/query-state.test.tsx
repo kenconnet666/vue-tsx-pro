@@ -1,5 +1,5 @@
 // useQueryState：从地址读初始值、改了写回去（等于初始值时删掉）、地址变了跟着变；同一轮的几次写入合并成一次
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { effectScope, nextTick, type Ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { describe, expect, it, vi } from 'vitest';

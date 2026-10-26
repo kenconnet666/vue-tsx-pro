@@ -1,7 +1,7 @@
 // 团队与供应商的协作：连线粗细是合作的项目数；点一个节点选中它，不相连的变淡，点空白处取消
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small } from '@vue-tsx-pro/ui';
-import { GraphChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { GraphChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const groups = [
   { id: 'team', label: '责任团队', color: 'chart1' },

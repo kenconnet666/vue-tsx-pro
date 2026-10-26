@@ -1,5 +1,5 @@
 // 同一个时刻的几种写法，跟着语言变：dateStyle / timeStyle 定详略，options 逐项指定
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { VNodeChild } from 'vue';
 import {
   Card,
@@ -14,7 +14,7 @@ import {
   TableHeaderCell,
   TableRow,
   zhCN,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const at = '2026-10-20T14:30';
 

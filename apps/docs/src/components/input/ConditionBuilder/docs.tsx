@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ConditionBuilderProps';
 import fieldApi from 'virtual:api/ConditionField';
 import { ApiReference } from '../../../site/ApiReference';
@@ -21,7 +21,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { ConditionBuilder, describeCondition, matchesCondition, type Condition, type ConditionField } from '@vue-tsx-pro/ui';"
+    imports="import { ConditionBuilder, describeCondition, matchesCondition, type Condition, type ConditionField } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="approval" title="审批条件" demo={Approval}>
       <Code>fields</Code> 给出字段的名字、显示名与类型（文字、数字、日期、选项、是否）。

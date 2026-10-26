@@ -20,7 +20,7 @@ import {
   Tag,
   TextField,
   ToggleItem,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import type { VNodeChild } from 'vue';
 
 /** 一个组件的预设 */
@@ -116,7 +116,7 @@ export const PRESETS: Record<string, Preset> = {
   LinkButton: { initial: { href: '#' }, children: '链接按钮' },
   IconButton: { initial: { icon: 'Settings', 'aria-label': '设置' } },
   IconLinkButton: { initial: { href: '#', icon: 'Settings', 'aria-label': '设置' } },
-  CopyButton: { initial: { value: 'pnpm add @vue-tsx-pro/ui' } },
+  CopyButton: { initial: { value: 'pnpm add @zerodep-dev/vue-tsx-pro-ui' } },
   Icon: { initial: { icon: 'Heart' } },
   Link: { initial: { href: '#' }, children: '查看详情' },
   Badge: { children: '新功能' },
@@ -126,7 +126,7 @@ export const PRESETS: Record<string, Preset> = {
   Mark: { children: '高亮的文字' },
   Text: { children: '一段文字' },
   Blockquote: { children: paragraph },
-  CodeBlock: { initial: { code: "import { Button } from '@vue-tsx-pro/ui';" } },
+  CodeBlock: { initial: { code: "import { Button } from '@zerodep-dev/vue-tsx-pro-ui';" } },
   ButtonGroup: {
     imports: ['Button'],
     children: {
@@ -190,13 +190,13 @@ export const PRESETS: Record<string, Preset> = {
     children: {
       render: () => [
         <AccordionItem value="a" title="怎么安装？">
-          pnpm add @vue-tsx-pro/ui
+          pnpm add @zerodep-dev/vue-tsx-pro-ui
         </AccordionItem>,
         <AccordionItem value="b" title="支持暗色吗？">
           支持，三套内置主题。
         </AccordionItem>,
       ],
-      code: '<AccordionItem value="a" title="怎么安装？">\n  pnpm add @vue-tsx-pro/ui\n</AccordionItem>\n<AccordionItem value="b" title="支持暗色吗？">\n  支持，三套内置主题。\n</AccordionItem>',
+      code: '<AccordionItem value="a" title="怎么安装？">\n  pnpm add @zerodep-dev/vue-tsx-pro-ui\n</AccordionItem>\n<AccordionItem value="b" title="支持暗色吗？">\n  支持，三套内置主题。\n</AccordionItem>',
     },
   },
   Collapse: { initial: { _open: true }, children: paragraph },

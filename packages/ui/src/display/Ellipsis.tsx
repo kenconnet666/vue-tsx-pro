@@ -9,8 +9,8 @@
  * 截断时文字能用 Tab 聚焦（键盘用户也能看全文），提示的内容默认是 children，tooltip 可以换成别的；
  * expandable 时展开后显示全部，再点“收起”。部件：Root（span）、Text（span，截断的那段）、Toggle（展开按钮）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, onUpdated, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { Tooltip } from '../overlay/Tooltip';

@@ -13,8 +13,8 @@
  * 里面的块按亮度区分；点图例隐藏一个顶层分组，占比按剩下的算。悬停看路径、数值与占比；读屏的数据表列出每一块。
  */
 import { Treemap, type TreemapNode } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';

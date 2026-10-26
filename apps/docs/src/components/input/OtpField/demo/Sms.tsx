@@ -1,6 +1,6 @@
 // 短信登录：获取验证码后倒计时；填满 6 位自动校验，错了标红并清空重填
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Field, Flex, OtpField, Small, TextField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Card, Field, Flex, OtpField, Small, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
 import { onScopeDispose } from 'vue';
 
 export default _component(() => {

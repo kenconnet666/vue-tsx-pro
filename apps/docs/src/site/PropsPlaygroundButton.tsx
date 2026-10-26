@@ -4,8 +4,8 @@
  * 面板与组件目录的数据第一次打开时才加载。
  */
 import { SlidersHorizontal } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Drawer, IconButton, Spinner, Tooltip } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Drawer, IconButton, Spinner, Tooltip } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useRoute } from 'vue-router';
 
 type PanelModule = typeof import('../playground/props/PropsPlayground');

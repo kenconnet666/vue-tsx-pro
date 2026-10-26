@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/MapChartProps';
 import areaApi from 'virtual:api/MapArea';
 import pointApi from 'virtual:api/MapPoint';
@@ -27,7 +27,7 @@ export default _component(() => () => (
     wide
     meta={meta}
     imports={
-      "import { MapChart } from '@vue-tsx-pro/ui/charts';\nimport { ChinaTopoJSON } from '@unovis/ts/maps';"
+      "import { MapChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';\nimport { ChinaTopoJSON } from '@unovis/ts/maps';"
     }
   >
     <Example id="provinces" title="各省的销售额：分级着色、省名、仓库" demo={Provinces}>

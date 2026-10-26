@@ -1,8 +1,8 @@
 // 堆叠：同一季度的成本叠成一根柱子看总量；切到“占比”是 stacked="percent"，每根叠满 100%，只看构成的变化，
 // 提示框里同时有金额与占比
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const quarters = [
   { quarter: '一季度', material: 120, labor: 80, overhead: 40 },

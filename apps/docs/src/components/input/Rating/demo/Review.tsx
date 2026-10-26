@@ -1,6 +1,6 @@
 // 供应商评价：三项打分（可半星），综合分只读显示
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Field, Flex, Grid, Rating, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Field, Flex, Grid, Rating, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const aspects = [
   { key: 'quality', label: '质量', hint: '来料合格率、返工次数' },

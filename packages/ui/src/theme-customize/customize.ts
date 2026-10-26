@@ -184,7 +184,7 @@ export function themeSettingsCode(
   appearance: 'light' | 'dark',
 ): string {
   const body = toCode(themeSettingsOverrides(settings, appearance), '');
-  return `import { defineTheme, ${baseName} } from '@vue-tsx-pro/ui';\n\nexport const myTheme = defineTheme(${baseName}, ${body});\n`;
+  return `import { defineTheme, ${baseName} } from '@zerodep-dev/vue-tsx-pro-ui';\n\nexport const myTheme = defineTheme(${baseName}, ${body});\n`;
 }
 
 /** 对象写成代码：键不加引号（都是合法标识符），字符串用单引号（字体名里的双引号原样保留） */

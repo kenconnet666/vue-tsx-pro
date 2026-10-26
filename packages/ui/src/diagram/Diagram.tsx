@@ -26,8 +26,8 @@
  * 部件：Root（视口）、World（随视口平移缩放的一层）、Node（节点框）、Port（端口）、Edge（每条连线的 g）、EdgeText（连线上的文字）、
  * Marquee（框选框）、Guide（对齐线）。
  */
-import { _component, createContext } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useMessages } from '../config/lang/messages';
 import { t } from '../config/theme/tokens';

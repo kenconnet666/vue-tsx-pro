@@ -1,7 +1,7 @@
 // 主题编辑器：调品牌色、中性色、圆角、缩放、字体，实时检查对比度、导出代码；
 // 设置交给 customizeTheme 生成新主题，这里只作用于右边的预览（完整的页面见“主题定制”指南）
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,
@@ -14,12 +14,12 @@ import {
   Small,
   Strong,
   Switch,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   ThemeCustomizer,
   customizeTheme,
   type ThemeSettings,
-} from '@vue-tsx-pro/ui/theme-customize';
+} from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 
 const styles = css.create({ panel: { height: '26rem' } });
 

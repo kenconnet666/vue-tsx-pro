@@ -1,5 +1,5 @@
 import { Eye, MessageSquare, ThumbsUp } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Avatar,
   Card,
@@ -10,7 +10,7 @@ import {
   Paragraph,
   Separator,
   Small,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const stats = [
   { icon: Eye, label: '阅读', value: '3.2 万' },

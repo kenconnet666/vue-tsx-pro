@@ -1,6 +1,6 @@
 /**
  * 页签区（后台的多页签）：打开过的页面各一个标签，点了切过去，可以关闭、拖动排序，右键有“关闭其他”“关闭右侧”。
- * 放在 AppShell 的 tabs 里；和路由同步交给 useRouteTabs（@vue-tsx-pro/ui/vue-router），也可以自己维护 pages。
+ * 放在 AppShell 的 tabs 里；和路由同步交给 useRouteTabs（@zerodep-dev/vue-tsx-pro-ui/vue-router），也可以自己维护 pages。
  *
  *   const tabs = useRouteTabs(router, { home: '/' });
  *   <AppShell tabs={<PageTabs {...tabs} />} …>
@@ -10,7 +10,7 @@
  *
  * 部件：Root（Tabs）、List（TabList）、Tab、Menu（右键菜单）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useMessages } from '../config/lang/messages';
 import { Tab, TabList, Tabs, type TabListProps } from '../navigation/Tabs';
 import { ContextMenu } from '../overlay/ContextMenu';

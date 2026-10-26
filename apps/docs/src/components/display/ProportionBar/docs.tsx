@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ProportionBarProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage meta={meta} imports="import { ProportionBar } from '@vue-tsx-pro/ui';">
+  <DocPage meta={meta} imports="import { ProportionBar } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="pool" title="构成" demo={Pool}>
       <Code>segments</Code> 互斥、加起来是总数；颜色用 <Code>tone</Code>（状态色）或{' '}
       <Code>color</Code>

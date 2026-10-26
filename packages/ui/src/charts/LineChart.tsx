@@ -12,7 +12,7 @@
  * 空值（null、undefined）处断开；颜色、坐标轴、提示框、图例、读屏的数据表见 XYChart。
  */
 import { CurveType, Line, Scatter } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { colors } from '../config/theme/tokens';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 

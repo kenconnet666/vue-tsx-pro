@@ -1,7 +1,7 @@
 // 邮箱：输入 @ 之前的部分，建议接上常用后缀；不选也行，输入什么就是什么
 import { Mail } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Autocomplete, Code, Field, Grid } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Autocomplete, Code, Field, Grid } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const domains = ['qq.com', '163.com', 'foxmail.com', 'gmail.com', 'outlook.com', 'company.cn'];
 

@@ -3,8 +3,8 @@
  * 看调整对整套界面的影响。可以只看当前主题，也可以把同样的设置套在亮色、暗色上并排对比。
  */
 import { Bell, FolderKanban, Plus, Search, Settings, Users, Wallet } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Alert,
   Avatar,
@@ -38,9 +38,9 @@ import {
   ToggleGroup,
   ToggleItem,
   type StatusTone,
-} from '@vue-tsx-pro/ui';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
-import { customizeTheme } from '@vue-tsx-pro/ui/theme-customize';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
+import { customizeTheme } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 import { themeSettings } from '../../../site/theme';
 
 const styles = css.create({

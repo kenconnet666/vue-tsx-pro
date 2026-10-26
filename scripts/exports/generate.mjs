@@ -43,7 +43,7 @@ const GROUPS = [
   ['config', '配置：Provider、createUi、组件默认值'],
   [
     'config/theme',
-    '主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens 直接导入各组',
+    '主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @zerodep-dev/vue-tsx-pro-ui/tokens 直接导入各组',
   ],
   ['config/lang', '语言与格式化'],
   ['utils', '工具：部件属性的合并'],

@@ -1,6 +1,6 @@
 import { Trash2, Upload } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, createToaster, Flex, Toaster, type StatusTone } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, createToaster, Flex, Toaster, type StatusTone } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 应用里一般在单独的 toaster.ts 里创建一次，组件内外都能导入；这里只给这个示例用
 const toaster = createToaster();

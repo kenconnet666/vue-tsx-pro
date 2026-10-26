@@ -1,5 +1,13 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Flex, Small, Spinner, Text, type TextSize } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Card,
+  Flex,
+  Small,
+  Spinner,
+  Text,
+  type TextSize,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const sizes: TextSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
 

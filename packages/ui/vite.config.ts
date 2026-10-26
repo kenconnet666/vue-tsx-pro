@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { vueTsxPro, workspaceSource } from '@vue-tsx-pro/tsx/vite';
+import { vueTsxPro, workspaceSource } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 import pkg from './package.json' with { type: 'json' };
 
 /** 依赖与 peer 依赖（含子路径，如 @lucide/icons/icons/x）都不打进产物，由使用方安装 */

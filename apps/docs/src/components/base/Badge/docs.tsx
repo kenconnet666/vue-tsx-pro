@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/BadgeProps';
 import statusBadgeApi from 'virtual:api/StatusBadgeProps';
 import tagApi from 'virtual:api/TagProps';
@@ -25,7 +25,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Badge, createStatusMap, StatusBadge, Tag } from '@vue-tsx-pro/ui';"
+    imports="import { Badge, createStatusMap, StatusBadge, Tag } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

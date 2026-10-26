@@ -3,7 +3,7 @@
  * 回应带 300–800 ms 的随机延迟、遵守取消，数据包在 { code, data, message } 里，与常见后端一致；
  * failure.next 让下一次请求返回业务错误，演示出错与重试。
  */
-import { createHttpClient, HttpError, parseSorts } from '@vue-tsx-pro/ui';
+import { createHttpClient, HttpError, parseSorts } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 一家供应商 */
 export interface Supplier {

@@ -2,9 +2,9 @@
  * 应用（apps/、tests/consumer）里从组件库入口导入的名字，改到真正导出它的入口：组件在主入口与子路径之间挪动后用。
  * 名字在所有入口里全局唯一（pnpm exports 保证），所以按名字就能找到它现在属于哪个入口。
  *
- *   import { AppShell, Button } from '@vue-tsx-pro/ui';
- *   → import { Button } from '@vue-tsx-pro/ui';
- *     import { AppShell } from '@vue-tsx-pro/ui/patterns';
+ *   import { AppShell, Button } from '@zerodep-dev/vue-tsx-pro-ui';
+ *   → import { Button } from '@zerodep-dev/vue-tsx-pro-ui';
+ *     import { AppShell } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
  *
  * 只改 import 声明；文档页 `imports="…"` 这类字符串里的导入由文档站的 pages 测试检查，手动改。
  * pnpm move 挪完文件后会自动调用；也可以单独运行：node scripts/structure/entry-imports.mjs
@@ -56,7 +56,7 @@ export async function fixEntryImports() {
   const files = [...appSources(join(root, 'apps')), ...appSources(join(root, 'tests'))];
   for (const file of files) {
     const text = readFileSync(file, 'utf8');
-    if (!text.includes('@vue-tsx-pro/ui')) continue;
+    if (!text.includes('@zerodep-dev/vue-tsx-pro-ui')) continue;
     const source = parseSource(file, text);
     const declarations = source.statements.flatMap((node) => {
       const bindings = node.importClause?.namedBindings;

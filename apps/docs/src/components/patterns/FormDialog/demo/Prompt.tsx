@@ -1,8 +1,8 @@
 // 命令式的小表单对话框：退回要写原因（必填、至少 6 个字），改派从名单里选；提交失败时对话框留着
 import { UserRoundCog, Undo2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Small } from '@vue-tsx-pro/ui';
-import { useFormDialog } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

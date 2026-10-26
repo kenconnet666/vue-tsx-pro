@@ -1,7 +1,7 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Flex, Slider, Text } from '@vue-tsx-pro/ui';
-import { ShaderBackground } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Flex, Slider, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ShaderBackground } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 // 同心圆环从指针处荡开：uRings 是自己加的 uniform，uPointer 自动提供（z 是指针在区域内的程度）
 const RIPPLES = /* glsl */ `

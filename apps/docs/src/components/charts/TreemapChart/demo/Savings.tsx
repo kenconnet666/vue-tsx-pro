@@ -1,6 +1,6 @@
 // 采购额按“区域 → 供应商”分块：面积是金额，同一个区域同一种颜色；悬停看路径、金额与占比，点图例隐藏一个区域
-import { _component } from '@vue-tsx-pro/tsx';
-import { TreemapChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { TreemapChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const savings = [
   { region: '华东', supplier: '华辰精密', amount: 623.2 },

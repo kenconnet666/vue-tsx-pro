@@ -6,8 +6,8 @@
  *   <Pagination page={page} pageCount={12} href={(n) => `/articles?page=${n}`} />   渲染为链接（可分享、可被收录）
  */
 import { ChevronLeft, ChevronRight, Ellipsis } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { Icon } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';

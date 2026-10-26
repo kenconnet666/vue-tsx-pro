@@ -11,8 +11,8 @@
  * 光要画在卡片的边框上，而卡片裁掉了边框以内之外的内容，所以有 effect 时外面多一层定位用的 div，
  * 未声明的属性落在这一层上。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { useRecipe, type PartLayer } from '../config/styles';

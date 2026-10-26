@@ -1,6 +1,6 @@
 /**
  * 主题 tokens 的短写：样式里整个值写 '_xs'（按属性查 token-map.ts 的对照表找组）或 '_space.md'（带组名），
- * 展开声明时换成 token 变量 `var(--…)`。tokens 由主题库用 defineTokens 登记（@vue-tsx-pro/ui 的 config/theme/tokens.ts）。
+ * 展开声明时换成 token 变量 `var(--…)`。tokens 由主题库用 defineTokens 登记（@zerodep-dev/vue-tsx-pro-ui 的 config/theme/tokens.ts）。
  * 补全、悬停靠类型（主题库用 declare module 填入的 token 接口）；写错的 token 在第一次用到时报错。
  */
 import { TOKEN_GROUP_OF } from './token-map';

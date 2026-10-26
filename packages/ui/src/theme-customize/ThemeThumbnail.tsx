@@ -7,8 +7,8 @@
  * 颜色来自套在它上面的主题变量（themeAttrs），换主题不用重画；纯装饰，对读屏隐藏，名字由使用方写在旁边。
  * 尺寸用 em，随字号缩放。部件：Root（span）、Card（卡片）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { themeAttrs, type Theme } from '../config/theme/theme';

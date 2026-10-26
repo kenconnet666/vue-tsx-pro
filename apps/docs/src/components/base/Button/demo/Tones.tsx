@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const tones = [
   ['neutral', '取消'],

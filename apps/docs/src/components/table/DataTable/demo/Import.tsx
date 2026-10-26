@@ -1,8 +1,8 @@
 // 导入校验：错误行整行浅红、提醒行浅黄（rowTone），不透明的底色盖得住固定列；只有没有错误的行能勾选导入。
 // 校验结果放在前面：最要紧的一列不用横向滚动才看到
 import { CircleAlert, CircleCheck, TriangleAlert } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,
@@ -12,7 +12,7 @@ import {
   Small,
   type DataTableColumn,
   type RowTone,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Line {
   row: number;

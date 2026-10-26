@@ -11,8 +11,8 @@
  *
  * 部件：Root（div）、Canvas（ThreeCanvas）、Content（加载中与出错的提示）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   ACESFilmicToneMapping,
   Box3,

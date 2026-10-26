@@ -7,8 +7,8 @@
  *
  * 弹出层是 role="dialog"，默认以触发器的文字作为名称（aria-labelledby）；内容有自己的标题时用 aria-labelledby 指向它。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import {
   floatingStyles,

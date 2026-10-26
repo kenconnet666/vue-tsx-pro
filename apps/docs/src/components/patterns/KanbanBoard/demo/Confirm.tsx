@@ -1,7 +1,11 @@
 // 招聘看板：放下后先确认（useFormDialog 填意见），确认了才改数据，取消就什么都不变；拖动中卡片换一种写法
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Badge, Flex, Small, Text } from '@vue-tsx-pro/ui';
-import { KanbanBoard, useFormDialog, type KanbanColumn } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, Badge, Flex, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  KanbanBoard,
+  useFormDialog,
+  type KanbanColumn,
+} from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 interface Candidate {
   id: string;

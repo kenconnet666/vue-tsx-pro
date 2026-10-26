@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/AffixProps';
 import backTopApi from 'virtual:api/BackTopProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -15,7 +15,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage meta={meta} imports="import { Affix, BackTop } from '@vue-tsx-pro/ui';">
+  <DocPage meta={meta} imports="import { Affix, BackTop } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="affix" title="滚动面板里的操作条" demo={Toolbar}>
       <Code>Affix</Code> 用 CSS 的 <Code>position: sticky</Code>
       ：在所在的那一层里贴住，不脱离文档流（不用占位、不用量宽度），那一层滚出去时跟着走。

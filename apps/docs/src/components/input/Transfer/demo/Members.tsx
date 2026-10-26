@@ -1,6 +1,6 @@
 // 项目成员：从全部成员里挑人加入项目，可搜索（认拼音），离职的人不能选；双击一项直接移过去
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Small, Transfer } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Small, Transfer } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Member {
   id: string;

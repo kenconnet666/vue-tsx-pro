@@ -20,8 +20,8 @@
  * Table（DataTable）、SelectionBar、Pagination（PaginationBar）。
  */
 import { Maximize, Minimize, RefreshCw, Rows3 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { reactive, shallowRef, toRaw, type Ref, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useMessages } from '../config/lang/messages';

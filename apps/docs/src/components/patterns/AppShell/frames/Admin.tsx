@@ -9,8 +9,8 @@ import {
   ShoppingCart,
   Users,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   Badge,
@@ -34,8 +34,8 @@ import {
   TableHeaderCell,
   TableRow,
   TextField,
-} from '@vue-tsx-pro/ui';
-import { AppShell, AppShellBrand } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const pages = {
   overview: { label: '概览', icon: House },

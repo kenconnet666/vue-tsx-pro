@@ -1,7 +1,7 @@
 // 命令式抽屉：表格每一行的“编辑”直接 drawer.open(...)，页面里不放 Drawer、不管 open；
 // 保存（onConfirm）后改回表格，await handle.closed 得到关上的原因，下面一行告诉用户刚才是保存还是放弃
 import { Pencil } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   DataTable,
   Field,
@@ -11,7 +11,7 @@ import {
   TextField,
   useDrawer,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { reactive } from 'vue';
 
 interface Supplier {

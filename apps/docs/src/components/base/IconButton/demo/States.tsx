@@ -1,8 +1,8 @@
 // 加载中（loading：图标换成转圈，点击无效）；不可用但可聚焦（focusableWhenDisabled，配 Tooltip 说明原因）；
 // CopyButton 的 value 给异步函数时点击才生成（等待时转圈），timeout 是对勾停留的时长，onCopied 拿到结果
 import { RefreshCw, Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, CopyButton, Flex, IconButton, Small, Tooltip } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, CopyButton, Flex, IconButton, Small, Tooltip } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 模拟向服务端申请一条一次性的邀请链接 */
 const createInvite = () =>

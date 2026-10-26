@@ -1,7 +1,7 @@
 // useRequest：只采用最后一次、取消上一次、参数防抖与去重、保留旧数据、出错与取消、乐观更新；useHttp 取配置里的客户端
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope, nextTick, ref } from 'vue';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Provider } from '../../../config/Provider';
 import { mount } from '../../.test/mount';
 import { useHttp, type HttpClient } from '../http';

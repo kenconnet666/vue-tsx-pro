@@ -1,6 +1,6 @@
 import { CircleCheck, Heart, Rocket, Signature } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Icon } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Icon } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let done = _state(true);

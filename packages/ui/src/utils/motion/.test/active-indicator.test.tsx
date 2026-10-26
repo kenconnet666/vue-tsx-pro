@@ -1,6 +1,6 @@
 // useActiveIndicator：挂载时对齐到当前项，换方向时清掉旧方向的尺寸（滑动的终态见浏览器测试）。
 // 量与写合并在同一轮的微任务里（batchLayout），断言前等一下
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick, shallowRef } from 'vue';
 import { expect, it } from 'vitest';
 import { mount } from '../../.test/mount';

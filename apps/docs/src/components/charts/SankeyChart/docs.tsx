@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/SankeyChartProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { SankeyChart } from '@vue-tsx-pro/ui/charts';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { SankeyChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="funnel" title="转化漏斗" demo={Funnel}>

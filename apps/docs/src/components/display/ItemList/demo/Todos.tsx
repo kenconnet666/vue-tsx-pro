@@ -1,7 +1,7 @@
 // 待办、通知这类界面列表：起始边色点（StatusDot），标题是链接，说明是编号与流程，结束边是时限
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, ItemList, ItemListItem, Link, StatusDot } from '@vue-tsx-pro/ui';
-import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, ItemList, ItemListItem, Link, StatusDot } from '@zerodep-dev/vue-tsx-pro-ui';
+import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const TODAY = '2026-10-21';
 const todos = [

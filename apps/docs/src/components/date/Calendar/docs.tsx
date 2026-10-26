@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/CalendarProps';
 import calendarViewApi from 'virtual:api/CalendarViewProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -26,7 +26,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Calendar } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Calendar } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="基础用法" demo={Basic}>

@@ -14,8 +14,8 @@
  * 远程搜索与 Combobox 一样：_inputValue={keyword} 拿到输入，filter={false} 不再本地过滤，取数据时给 loading。
  */
 import { Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';

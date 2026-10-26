@@ -1,6 +1,6 @@
 // 会议室预约：只能约今天起 30 天内的工作日，节假日与已约满的日子不可选（仍能用方向键经过，读屏念“不可用”）
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Calendar,
@@ -12,7 +12,7 @@ import {
   Text,
   todayIso,
   useFormat,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({ side: { flexGrow: 1, flexBasis: '16rem' } });
 

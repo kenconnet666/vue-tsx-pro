@@ -1,6 +1,6 @@
 // 商品的价格、评分与销量：size 给成销量字段，点的大小随销量变（气泡图）；两个系列是两个品类
-import { _component } from '@vue-tsx-pro/tsx';
-import { ScatterChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { ScatterChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const products = [
   { name: '入门耳机', price: 199, earphone: 4.2, sales: 3200 },

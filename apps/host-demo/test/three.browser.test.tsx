@@ -1,9 +1,13 @@
 // 3D 底座在真实浏览器里：渲染、主题换色、卸载释放、减少动态效果时只画一帧。
 // 无头的 Firefox、WebKit 可能没有 WebGL：那时检查降级层
-import { _component } from '@vue-tsx-pro/tsx';
-import { defineTheme, lightTheme, Provider, type Theme } from '@vue-tsx-pro/ui';
-import { activeThreeContexts, ThreeCanvas, type ThreeContext } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { defineTheme, lightTheme, Provider, type Theme } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  activeThreeContexts,
+  ThreeCanvas,
+  type ThreeContext,
+} from '@zerodep-dev/vue-tsx-pro-ui/three';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import type { Color, WebGLRenderer } from 'three';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, shallowRef, type App } from 'vue';

@@ -1,7 +1,7 @@
 import { Check } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { ButtonBase, Icon, Small, Strong } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { ButtonBase, Icon, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plans = [
   { id: 'free', name: '个人版', price: '免费', detail: '3 个项目 · 1 GB 存储' },

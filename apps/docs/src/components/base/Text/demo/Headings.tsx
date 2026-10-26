@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Grid, H1, H2, H3, H4, H5, H6, Paragraph, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Grid, H1, H2, H3, H4, H5, H6, Paragraph, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Grid minItemWidth="20em" gap="xl">

@@ -4,7 +4,7 @@
  *   <DataImport
  *     fields={[{ key: 'part', label: '零件号', required: true, aliases: ['料号'] }, { key: 'quantity', label: '数量', type: 'number' }]}
  *     schema={z.object({ part: z.string().min(1), quantity: z.number().int().positive() })}
- *     parse={readXlsx}                 // 读 Excel：@vue-tsx-pro/ui/xlsx；不写时读 CSV
+ *     parse={readXlsx}                 // 读 Excel：@zerodep-dev/vue-tsx-pro-ui/xlsx；不写时读 CSV
  *     accept=".xlsx,.csv"
  *     onImport={(rows) => api.importParts(rows)}
  *   />
@@ -19,8 +19,8 @@
  * 部件：Root（div）、Steps、Drop（FileDrop）、Mapping（ColumnTable）、Preview（DataTable）、Actions（Flex）。
  */
 import { CircleAlert, CircleCheck, Download } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shallowRef, type VNodeChild } from 'vue';
 import type { $ZodType } from 'zod/v4/core';
 import { safeParse } from 'zod/v4/core';
@@ -79,7 +79,7 @@ export interface DataImportProps<Row> extends PartProps<'div'> {
   schema?: $ZodType<Row>;
   /** 没有 schema 时的逐行校验：返回字段名 → 原因（在 required、type 的检查之后） */
   validate?: (row: Record<string, unknown>) => Record<string, string> | null | undefined;
-  /** 读文件：返回各工作表；默认读 CSV（readCsvFile），读 Excel 传 @vue-tsx-pro/ui/xlsx 的 readXlsx */
+  /** 读文件：返回各工作表；默认读 CSV（readCsvFile），读 Excel 传 @zerodep-dev/vue-tsx-pro-ui/xlsx 的 readXlsx */
   parse?: (file: File) => Promise<SheetTable[]>;
   /** 能选的文件类型，默认 .csv */
   accept?: string;

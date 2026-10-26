@@ -1,6 +1,14 @@
 import { AtSign, UserPlus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Button, CommandPalette, Empty, Flex, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Avatar,
+  Button,
+  CommandPalette,
+  Empty,
+  Flex,
+  Small,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Person {
   id: string;

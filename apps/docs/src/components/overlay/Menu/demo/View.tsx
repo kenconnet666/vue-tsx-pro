@@ -1,5 +1,5 @@
 import { ArrowDownUp, Eye } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Flex,
@@ -9,7 +9,7 @@ import {
   MenuRadioGroup,
   MenuRadioItem,
   Small,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const sorts = { name: '名称', modified: '修改时间', size: '大小' } as const;
 type Sort = keyof typeof sorts;

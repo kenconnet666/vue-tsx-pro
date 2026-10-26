@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import pageScrollbarApi from 'virtual:api/PageScrollbarProps';
 import overlayApi from 'virtual:api/OverlayScrollbarProps';
 import api from 'virtual:api/ScrollAreaProps';
@@ -20,7 +20,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { PageScrollbar, ScrollArea } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { PageScrollbar, ScrollArea } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="vertical" title="纵向滚动" demo={Inbox}>

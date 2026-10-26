@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/PropsTableProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { PropsTable } from '@vue-tsx-pro/ui/docs-kit';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { PropsTable } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';"
+  >
     <Example id="handwritten" title="给自己的组件写 API 表" demo={Handwritten}>
       数据类型是 <Code>ApiProp</Code>
       ：名称、种类（属性、事件、内容、部件属性）、类型、必填、默认值、能否 <Code>_bind</Code>

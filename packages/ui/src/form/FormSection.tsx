@@ -17,8 +17,8 @@
  * Description（Text）、Extra（div）、Body（div，字段的栅格）、Collapse（collapsible 时包住 Body）。
  */
 import { ChevronDown } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { h, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';

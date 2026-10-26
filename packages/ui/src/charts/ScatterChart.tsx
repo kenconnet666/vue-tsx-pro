@@ -8,7 +8,7 @@
  * 纵轴不强制从 0 起（按数据取）；图例、单位、加载与空状态、给读屏的数据表同其他图表（见 XYChart）。
  */
 import { Scatter } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { colors } from '../config/theme/tokens';
 import { useFormat } from '../config/lang/format';
 import { seriesNumber, type NumericKey } from './series';

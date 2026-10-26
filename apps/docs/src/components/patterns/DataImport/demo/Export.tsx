@@ -1,7 +1,7 @@
 // 导出 Excel：表格怎么显示就怎么导——分组表头导出成两行、组标题合并，金额是真正的数值（按万元换算、带数字格式），
 // 状态写名字，底部合计；同一份列定义交给 DataTable 显示
 import { Download } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   createStatusMap,
@@ -9,8 +9,8 @@ import {
   Flex,
   type DataTableColumn,
   type DataTableColumnGroup,
-} from '@vue-tsx-pro/ui';
-import { exportXlsx } from '@vue-tsx-pro/ui/xlsx';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { exportXlsx } from '@zerodep-dev/vue-tsx-pro-ui/xlsx';
 
 interface Saving {
   code: string;

@@ -13,8 +13,8 @@
  * 部件：Root（div）、Browse（左边）、Selected（右边）。
  */
 import { Building, BriefcaseBusiness, ChevronRight, Search, X } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, ref, watch, type Ref, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { Icon } from '../base/Icon';

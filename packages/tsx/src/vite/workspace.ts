@@ -1,8 +1,8 @@
 /**
  * 仅供本仓库使用，发布包的使用方不需要：
- *   - 解析 @vue-tsx-pro/* 时直接读源码（exports 里的 @vue-tsx-pro/source 条件），改了组件库不用先构建
+ *   - 解析 @zerodep-dev/vue-tsx-pro-* 时直接读源码（exports 里的 @vue-tsx-pro/source 条件），改了组件库不用先构建
  *   - 开发服务器与测试里，包入口（桶文件）的具名导入改成直接导入所在模块：
- *     `import { Button } from '@vue-tsx-pro/ui'` → `import { Button } from '<ui>/src/base/Button.tsx'`。
+ *     `import { Button } from '@zerodep-dev/vue-tsx-pro-ui'` → `import { Button } from '<ui>/src/base/Button.tsx'`。
  *     经过桶文件导入时，组件库里不是组件的模块（样式、状态、工具函数、主题、工厂函数做的组件）改了，
  *     热更新沿着桶文件 → main.ts 一路走到没人接受更新的地方，整页刷新；直接导入时停在用到它的组件上。
  *     构建时不改：lazyBarrel 本来就只编译用到的再导出。
@@ -28,7 +28,7 @@ function statements(filename: string, code: string): Node[] | undefined {
   return result.errors.length ? undefined : result.program.body;
 }
 
-/** 解析 @vue-tsx-pro/* 用源码；开发与测试时桶文件的具名导入改成直接导入（见文件开头） */
+/** 解析 @zerodep-dev/vue-tsx-pro-* 用源码；开发与测试时桶文件的具名导入改成直接导入（见文件开头） */
 export function workspaceSource(): Plugin {
   const condition = '@vue-tsx-pro/source';
   let serve = false;
@@ -56,7 +56,7 @@ export function workspaceSource(): Plugin {
       // 普通插件：在编译插件（enforce: 'pre'）与 Vite 去掉 .ts 的类型之后，拿到的是 JS
       filter: {
         id: { include: /\.(?:[cm]?[jt]sx?|vue)(?:\?|$)/, exclude: /\/node_modules\// },
-        code: '@vue-tsx-pro/',
+        code: '@zerodep-dev/vue-tsx-pro-',
       },
       handler(code, id) {
         if (!serve || id.startsWith('\0')) return;
@@ -81,7 +81,7 @@ export async function directImports(
     if (node.type !== 'ImportDeclaration' || node.importKind === 'type') continue;
     const source = node.source.value;
     // 默认导入、命名空间导入、副作用导入要的就是整个入口
-    if (!source.startsWith('@vue-tsx-pro/') || !node.specifiers.length) continue;
+    if (!source.startsWith('@zerodep-dev/vue-tsx-pro-') || !node.specifiers.length) continue;
     if (!node.specifiers.every((specifier) => specifier.type === 'ImportSpecifier')) continue;
     const resolved = await context.resolve(source, id);
     if (!resolved || resolved.external) continue;
@@ -189,7 +189,7 @@ interface Manifest {
 }
 
 /**
- * 按源码读的 @vue-tsx-pro/* 包自己导入的第三方依赖：不声明的话 Vite 要等页面（或浏览器测试）用到才发现，
+ * 按源码读的 @zerodep-dev/vue-tsx-pro-* 包自己导入的第三方依赖：不声明的话 Vite 要等页面（或浏览器测试）用到才发现，
  * 发现时重新预构建、刷新页面，正在初始化的测试页会卡住。写成“包 > 依赖”，从包的目录解析，应用不必自己安装；
  * 没装的可选依赖（three、@unovis/ts 等）跳过，免得 Vite 报解析不到
  */
@@ -200,7 +200,7 @@ function sourceDependencies(root: string) {
   if (!own) return { include, exclude };
   const require = createRequire(join(root, 'package.json'));
   for (const name of Object.keys({ ...own.dependencies, ...own.devDependencies })) {
-    if (!name.startsWith('@vue-tsx-pro/')) continue;
+    if (!name.startsWith('@zerodep-dev/vue-tsx-pro-')) continue;
     let manifest: string;
     try {
       manifest = require.resolve(`${name}/package.json`);

@@ -1369,7 +1369,7 @@ export {
   type StyleLayers,
 } from './config/styles';
 
-// 主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @vue-tsx-pro/ui/tokens 直接导入各组
+// 主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @zerodep-dev/vue-tsx-pro-ui/tokens 直接导入各组
 export {
   builtinThemeBootColors,
   DEFAULT_THEME_STORAGE_KEY,

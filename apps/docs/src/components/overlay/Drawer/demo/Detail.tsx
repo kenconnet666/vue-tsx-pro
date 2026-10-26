@@ -1,7 +1,7 @@
 // 详情抽屉：列表留在原处，点一行（或编号）从结束边滑出详情——关键信息、时限、流转记录；关上后焦点回到那一行的编号，
 // 正在看的那一行一直高亮（activeKey）
 import { ExternalLink } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   DataTable,
@@ -15,8 +15,8 @@ import {
   Timeline,
   createStatusMap,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
-import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 interface Project {
   id: string;

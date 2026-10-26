@@ -6,7 +6,7 @@
  *   <LinkButton href="https://example.com" external variant="outline">文档</LinkButton>
  */
 import { ArrowUpRight } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useLang } from '../config/context';
 import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';

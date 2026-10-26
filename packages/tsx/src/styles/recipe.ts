@@ -20,7 +20,7 @@
  *
  * 扩展（主题定制）：调用时追加 `button(selection, 扩展…)`，扩展里的 base 与各档位的样式排在配方自己的之后；
  * 扩展可以给配方没有的档位取值（`variants: { size: { xl: { root: {…} } } }`）。组件库把 createUi / Provider 的
- * styles 配置交给这里（@vue-tsx-pro/ui 的 useRecipe）。
+ * styles 配置交给这里（@zerodep-dev/vue-tsx-pro-ui 的 useRecipe）。
  */
 import type { DocumentedStyles } from './documented';
 import { HOT, hotUpdate } from './hot';

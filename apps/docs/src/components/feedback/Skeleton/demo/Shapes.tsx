@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Flex, Grid, Skeleton, SkeletonText, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Flex, Grid, Skeleton, SkeletonText, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   // 同一行的格子一样高：形状在剩下的空间里居中，说明文字都落在格子底部

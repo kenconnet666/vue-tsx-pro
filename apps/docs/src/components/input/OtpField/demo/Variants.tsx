@@ -1,6 +1,6 @@
 // 支付密码（遮罩）、恢复码（字母数字、分组）、尺寸与状态
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Flex, OtpField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Flex, OtpField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let pin = _state('');

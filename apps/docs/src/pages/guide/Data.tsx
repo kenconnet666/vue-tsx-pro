@@ -2,7 +2,7 @@
  * 指南：请求与数据。配置请求客户端（拆后端的包装、加令牌）、换成 axios 或 ky、useRequest 的行为（演示连着内存里的假接口）、
  * 出错与取消
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Alert,
   Code,
@@ -13,8 +13,8 @@ import {
   ListItem,
   Paragraph,
   Provider,
-} from '@vue-tsx-pro/ui';
-import { CodePreview } from '@vue-tsx-pro/ui/docs-kit';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { CodePreview } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { h } from 'vue';
 import { DocPage } from '../../site/DocPage';
 import { demoHttp } from './data/fake-api';
@@ -27,7 +27,7 @@ const meta = {
     '组件只依赖 HttpClient 接口：默认是原生 fetch 的薄封装，也可以换成 axios、ky；useRequest 管加载、出错、防抖与取消。',
 };
 
-const client = `import { createHttpClient, createUi, HttpError } from '@vue-tsx-pro/ui';
+const client = `import { createHttpClient, createUi, HttpError } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 后端的包装：{ code: 0, data: …, message: '' } */
 interface Envelope { code: number; data: unknown; message: string }
@@ -52,7 +52,7 @@ const user = await http.get<User>('/users/42');
 await http.post('/users', { name: '林小满' }); // 普通对象按 JSON 发送`;
 
 const adapter = `import axios from 'axios';
-import type { HttpClient } from '@vue-tsx-pro/ui';
+import type { HttpClient } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 组件只调用 request：把字段对上就行（query → params，body → data）
 const http: HttpClient = {
@@ -62,7 +62,7 @@ const http: HttpClient = {
 
 app.use(createUi({ http }));`;
 
-const errors = `import { HttpError, isAbortError } from '@vue-tsx-pro/ui';
+const errors = `import { HttpError, isAbortError } from '@zerodep-dev/vue-tsx-pro-ui';
 
 try {
   await http.post('/tasks', values);

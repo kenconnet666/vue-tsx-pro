@@ -1,8 +1,8 @@
 // 项目台账：金额以元保存、按万元显示并在底部合计；状态列取自状态映射；合同没签时显示“待签约”。
 // 已关闭的任务不能勾选；勾选后上方出现批量操作栏；“列”菜单切换哪些列显示
 import { Columns3, Download, Ellipsis, FileText, Send } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   createStatusMap,
@@ -15,7 +15,7 @@ import {
   SelectionBar,
   Small,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 const statuses = createStatusMap({

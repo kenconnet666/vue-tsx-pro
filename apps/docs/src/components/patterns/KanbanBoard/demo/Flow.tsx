@@ -1,7 +1,11 @@
 // 工单看板：只能挪到相邻的列（canMove 写出原因），放下时报告 onMove，使用方改了数据卡片才换列；卡片带优先级、处理人与时限
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Badge, Flex, Small, Text } from '@vue-tsx-pro/ui';
-import { DeadlineBadge, KanbanBoard, type KanbanColumn } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, Badge, Flex, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  DeadlineBadge,
+  KanbanBoard,
+  type KanbanColumn,
+} from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 interface Ticket {
   id: string;

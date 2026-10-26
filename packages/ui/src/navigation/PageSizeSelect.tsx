@@ -9,8 +9,8 @@
  * 基于 Select：未声明的属性落到 Select 上（外壳用 propsRoot 等 Select 的部件），名称默认取语言包（每页条数）。
  * 按钮按最长的选项定宽：换条数时不变宽窄，下拉（与按钮同宽）里的选项也不被截断。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { Select, type SelectProps } from '../input/Select';

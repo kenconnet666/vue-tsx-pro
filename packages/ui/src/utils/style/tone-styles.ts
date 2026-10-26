@@ -4,8 +4,8 @@
  * 实底用各色调的实色与其上的字色（accent / accentContrast、success / successContrast…），主题检查保证 4.5:1。
  */
 import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { IconData } from '../../base/Icon';
 import type { StyleTable } from './styles';
 

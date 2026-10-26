@@ -1,8 +1,8 @@
 // 精确到哪一段（granularity）、值的类型（valueType），以及与其他输入框同一套的外观与状态
 import type { Time } from '@internationalized/date';
 import { Timer } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Grid, TimePicker } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Grid, TimePicker } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let lap = _state<string | null>('00:42:15');

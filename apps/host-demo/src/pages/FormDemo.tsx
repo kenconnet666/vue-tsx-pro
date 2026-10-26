@@ -1,7 +1,7 @@
 // 表单演示：一份 zod schema 同时负责校验、值的类型与字段约束（必填标记、maxlength、NumberField 的范围）；
 // 用户名的异步校验（模拟接口）、联系人的数组字段、未保存离开提醒
 import { Plus, Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Flex,
@@ -14,7 +14,7 @@ import {
   TextField,
   useForm,
   useLeaveConfirmation,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import * as z from 'zod';
 import { toaster } from '../toaster';
 

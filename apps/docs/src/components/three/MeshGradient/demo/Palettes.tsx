@@ -1,8 +1,8 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Grid } from '@vue-tsx-pro/ui';
-import { MeshGradient } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Grid } from '@zerodep-dev/vue-tsx-pro-ui';
+import { MeshGradient } from '@zerodep-dev/vue-tsx-pro-ui/three';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 
 const PALETTES = [
   { label: '默认', palette: undefined },

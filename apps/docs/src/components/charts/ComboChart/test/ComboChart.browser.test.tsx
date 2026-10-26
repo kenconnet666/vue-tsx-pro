@@ -1,7 +1,7 @@
 // 组合图、标注与百分比堆叠在真实浏览器里：右侧的刻度与左侧的刻度同高、柱与线都画出；
 // 标注的竖线、圈与区间画出；百分比堆叠的每根柱子一样高
-import { _component } from '@vue-tsx-pro/tsx';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { expect, it } from 'vitest';
 import { h } from 'vue';
 import { mount } from '../../../../test/mount';

@@ -1,7 +1,7 @@
 // 组件测试的挂载工具：渲染到一个挂在 document 上的容器里，每个测试结束后自动卸载
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { afterEach } from 'vitest';
 import { createApp, type App, type VNodeChild } from 'vue';
 

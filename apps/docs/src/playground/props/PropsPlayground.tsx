@@ -4,11 +4,11 @@
  * 预览直接渲染组件库里的组件（不经过编译）；代码可以复制，也可以带进代码演练场继续改。
  */
 import { RotateCcw, X } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens';
-import * as ui from '@vue-tsx-pro/ui';
-import * as patterns from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
+import * as ui from '@zerodep-dev/vue-tsx-pro-ui';
+import * as patterns from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import {
   Alert,
   Button,
@@ -26,8 +26,8 @@ import {
   TextField,
   ToggleGroup,
   ToggleItem,
-} from '@vue-tsx-pro/ui';
-import { type ApiProp } from '@vue-tsx-pro/ui/docs-kit';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { type ApiProp } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import catalog from 'virtual:api-catalog';
 import {
   h,
@@ -80,8 +80,8 @@ const styles = css.create({
 /** 演练场里的一个组件 */
 /** 能在演练场里调的入口（图表、3D 这类重依赖的子路径不进）：导入路径 → 模块 */
 const MODULES: Readonly<Record<string, Record<string, unknown>>> = {
-  '@vue-tsx-pro/ui': ui,
-  '@vue-tsx-pro/ui/patterns': patterns,
+  '@zerodep-dev/vue-tsx-pro-ui': ui,
+  '@zerodep-dev/vue-tsx-pro-ui/patterns': patterns,
 };
 
 interface Entry {

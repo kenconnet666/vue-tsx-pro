@@ -3,7 +3,7 @@
 // 位置与连线存在自己的状态里，每次改动 createHistory 记一步：Ctrl+Z 撤销、Ctrl+Shift+Z 重做，Delete 删除选中的。
 // 没给 children：节点画成标题为 getNodeLabel 的 DiagramNode。右下是小地图，工具栏还能把整张图导出成 SVG、PNG
 import { Download, Redo2, Trash2, Undo2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   createHistory,
@@ -14,7 +14,7 @@ import {
   toElement,
   Toolbar,
   useHotkeys,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   Diagram,
   DiagramControls,
@@ -28,7 +28,7 @@ import {
   type DiagramNodeMove,
   type DiagramReconnection,
   type DiagramSelection,
-} from '@vue-tsx-pro/ui/diagram';
+} from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 
 interface Step extends DiagramNodeItem {
   name: string;

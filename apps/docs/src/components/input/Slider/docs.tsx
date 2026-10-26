@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/SliderProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -19,7 +19,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Slider } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Slider } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="player" title="播放器" demo={Player}>

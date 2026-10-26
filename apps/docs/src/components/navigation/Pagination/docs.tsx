@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import pageJumpApi from 'virtual:api/PageJumpProps';
 import pageSizeApi from 'virtual:api/PageSizeSelectProps';
 import pagerApi from 'virtual:api/PagerProps';
@@ -26,7 +26,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { PageJump, PageSizeSelect, Pager, Pagination, PaginationBar } from '@vue-tsx-pro/ui';"
+    imports="import { PageJump, PageSizeSelect, Pager, Pagination, PaginationBar } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

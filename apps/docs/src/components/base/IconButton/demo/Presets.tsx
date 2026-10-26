@@ -1,5 +1,5 @@
 import { KeyRound } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   ClearButton,
@@ -11,7 +11,7 @@ import {
   Strong,
   Text,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let keyword = _state('vue-tsx-pro');

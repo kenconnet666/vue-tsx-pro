@@ -1,8 +1,18 @@
 // 内部报表：铺上“查看人 + 日期 + 内部资料”，截图外传时能看出是谁、什么时候看的；文字照常能选中、按钮照常能点。
 // 打开“整页”后水印盖住整个窗口（position: fixed），离开示例页前记得关掉
 import { Download } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Flex, H4, Small, Stat, Switch, Text, Watermark } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Card,
+  Flex,
+  H4,
+  Small,
+  Stat,
+  Switch,
+  Text,
+  Watermark,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 本地日期（toISOString 是 UTC，凌晨会差一天）
 const today = new Date().toLocaleDateString('sv-SE');

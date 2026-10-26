@@ -1,7 +1,7 @@
 import { Armchair, BedDouble, Lamp, LampDesk, Sofa } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, GridList, Icon, Small, Strong, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Flex, GridList, Icon, Small, Strong, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const products = [
   { icon: Sofa, name: '云朵三人沙发', price: 4299 },

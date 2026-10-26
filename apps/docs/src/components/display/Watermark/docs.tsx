@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/WatermarkProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage meta={meta} imports="import { Watermark } from '@vue-tsx-pro/ui';">
+  <DocPage meta={meta} imports="import { Watermark } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="report" title="内部报表" demo={Report}>
       <Code>content</Code> 写数组就是多行（查看人、日期、密级）。水印是盖在内容上的一层：
       <Code>pointer-events: none</Code>，不挡点击与选择；<Code>aria-hidden</Code>

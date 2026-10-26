@@ -1,8 +1,8 @@
 // 通知页面：NotificationList 直接放在卡片里，不进弹出层；时间在每行末尾，列表限高滚动；标题行换成卡片自己的标题
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Card, Flex, H3 } from '@vue-tsx-pro/ui';
-import { NotificationList, type NotificationItem } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Card, Flex, H3 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { NotificationList, type NotificationItem } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const styles = css.create({ list: { maxHeight: '22rem' } });
 

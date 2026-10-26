@@ -1,6 +1,6 @@
 // 供应商准入申请：form.Field 里只放控件（不写 value，自动绑定 form.values）；提交没通过时顶上的 FormErrorSummary
 // 列出各项错误，焦点先到它上面，点哪一项跳到那个字段；报价有效期的起止互相依赖（dependencies），改了开始日期结束日期跟着重新校验
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   DateField,
@@ -14,7 +14,7 @@ import {
   Textarea,
   TextField,
   useForm,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import * as z from 'zod';
 
 const categories = ['机械件', '塑料件', '钣金件', '标准件', '线缆'];

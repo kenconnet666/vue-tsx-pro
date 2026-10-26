@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/RatingProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage meta={meta} imports="import { Rating } from '@vue-tsx-pro/ui';">
+  <DocPage meta={meta} imports="import { Rating } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="review" title="供应商评价" demo={Review}>

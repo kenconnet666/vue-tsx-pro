@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import fieldApi from 'virtual:api/FormDialogField';
 import api from 'virtual:api/FormDialogOptions';
 import { ApiReference } from '../../../site/ApiReference';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { useFormDialog } from '@vue-tsx-pro/ui/patterns';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="prompt" title="退回与改派" demo={Prompt}>

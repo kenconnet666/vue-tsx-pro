@@ -1,8 +1,8 @@
 // 采购单：表头筛选（列出出现过的值、状态、关键字）、多列排序（Shift 点追加）、列菜单（固定、前后移动、隐藏）；
 // 列设置（顺序、固定、隐藏、宽度）记在浏览器里，下次打开还是这样；上方一行说明当前的筛选与排序，可以一键还原
 import { RotateCcw } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   createStatusMap,
@@ -13,7 +13,7 @@ import {
   type ColumnStickies,
   type DataTableColumn,
   type SortState,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface PurchaseOrder {
   id: string;

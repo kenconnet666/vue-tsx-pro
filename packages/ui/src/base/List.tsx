@@ -13,8 +13,8 @@
  *
  * 图标是装饰（aria-hidden），读屏照常念“列表，几项”。参考 Mantine List 的 icon、Chakra 的 ListIcon。
  */
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { gapStyles, type Space } from '../utils/style/styles';

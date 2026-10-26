@@ -9,7 +9,7 @@
  * Button、IconButton、LinkButton 不包这一层（页面上按钮最多，少一层组件实例），
  * 但共用同一套样式（buttonBaseStyles）与行为（useButtonBehavior）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { VNodeChild } from 'vue';
 import { rippleHostStyles } from '../utils/dom/ripple';
 import { mergeAttrs, type PartProps } from '../utils/props';

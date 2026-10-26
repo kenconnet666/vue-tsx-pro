@@ -6,8 +6,8 @@
  *
  * 必填的 prop 名称旁标“必填”，能 `_bind` 双向绑定的标“可绑定”（文案见 messages.ts）。外层是静态表格 Table，窄屏时横向滚动。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { Code } from '../base/Code';

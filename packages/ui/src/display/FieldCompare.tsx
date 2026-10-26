@@ -13,8 +13,8 @@
  * 部件：Root（div）、Table（ColumnTable，表格时）、List（dl，列表时）、Item（div）、Label（dt）、Value（dd）。
  */
 import { ArrowRight } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';

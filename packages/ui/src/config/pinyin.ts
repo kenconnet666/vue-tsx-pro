@@ -1,5 +1,5 @@
 /**
- * 拼音匹配（子路径 `@vue-tsx-pro/ui/pinyin`；pinyin-pro 是可选的 peer 依赖，用到才安装）：
+ * 拼音匹配（子路径 `@zerodep-dev/vue-tsx-pro-ui/pinyin`；pinyin-pro 是可选的 peer 依赖，用到才安装）：
  * 选项过滤、命令面板、树的搜索除了按字面匹配，还认全拼、首字母与两者混写（“bj”“beijing”“beij”都能搜到“北京”）。
  *
  *   app.use(createUi({ textMatcher: createPinyinMatcher() }))

@@ -34,7 +34,7 @@
  * - 工具栏（查询条件用 FilterBar、批量操作用 SelectionBar、分页用 PaginationBar）组合在外面，不内置。
  */
 import { GripVertical } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';

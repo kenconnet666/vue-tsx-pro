@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Flex, Grid, NumberField, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Flex, Grid, NumberField, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 /** 值的类型与内容：Decimal(0.3)、BigInt(9007199254740993)、Number(0.1) */

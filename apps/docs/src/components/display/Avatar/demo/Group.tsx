@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, AvatarGroup, Card, Flex, Small, Strong } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, AvatarGroup, Card, Flex, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 import { members } from './photos';
 
 export default _component(() => () => (

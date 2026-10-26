@@ -1,6 +1,6 @@
 // 输入时自动分组：手机号、身份证号、银行卡号；值是去掉空格的原文，校验写在 schema 里
 import { CreditCard, IdCard, Smartphone } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   bankCardFormat,
   Code,
@@ -12,7 +12,7 @@ import {
   phoneSchema,
   TextField,
   useForm,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import * as z from 'zod';
 
 const schema = z.object({

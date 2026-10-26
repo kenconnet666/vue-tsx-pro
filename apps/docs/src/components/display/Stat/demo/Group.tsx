@@ -1,7 +1,7 @@
 // 一排指标：按宽度换行，同一行里之间一条竖线；要引起注意的数用 tone 标红
 import { AlarmClock, BadgeCheck, CalendarClock, PackageCheck } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Link, Small, Stat, StatGroup } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Link, Small, Stat, StatGroup } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const items = [
   { label: '超时', icon: AlarmClock, value: 10, urgent: true },

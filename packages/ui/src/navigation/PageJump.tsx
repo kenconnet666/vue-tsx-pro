@@ -6,8 +6,8 @@
  * 基于 NumberField：未声明的属性落到外层 div 上；输入框用 propsInput。读屏念输入框的名称（语言包的“跳到第几页”），
  * 前后的“跳至”“页”只是视觉上的提示。部件：Root（div）、Before、Input（NumberField）、After。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { NumberField, type NumberFieldProps } from '../input/NumberField';

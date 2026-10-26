@@ -119,7 +119,7 @@ describe('哪些属性值缓存', () => {
 
   it('常量里面的东西可能会变：组合式函数的结果、导入的对象，读成员与展开都不缓存；样式表、命名空间导入的一层例外', async () => {
     const out = await compile(
-      `import * as css from '@vue-tsx-pro/tsx/styles'; import * as icons from './icons'; import { settings } from './store';
+      `import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles'; import * as icons from './icons'; import { settings } from './store';
       const styles = css.create({ a: { color: 'red' } });
       ${component(
         'const store = useStore()',

@@ -6,10 +6,10 @@
  * - 代码压缩后存在地址栏的 hash 里（playground/share.ts），复制链接就能分享；示例卡片的“编辑”也是这样带代码进来
  */
 import { RotateCcw } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens';
-import { Alert, Button, CopyButton, Flex, Text, useConfig } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
+import { Alert, Button, CopyButton, Flex, Text, useConfig } from '@zerodep-dev/vue-tsx-pro-ui';
 import { onBeforeUnmount, onMounted, watch, type Component } from 'vue';
 import { CodeEditor } from '../playground/CodeEditor';
 import { mountPreview } from '../playground/preview';

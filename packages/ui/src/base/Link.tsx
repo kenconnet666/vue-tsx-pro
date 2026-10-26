@@ -7,8 +7,8 @@
  * 按钮样式的链接用 LinkButton。站内链接经 createUi 的 router 不刷新页面地跳转（utils/dom/link.ts）。
  */
 import { ArrowUpRight } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';

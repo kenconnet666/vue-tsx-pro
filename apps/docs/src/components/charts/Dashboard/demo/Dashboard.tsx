@@ -1,6 +1,6 @@
 import { ChartColumn, ClipboardList, Download, JapaneseYen, TrendingUp } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,
@@ -20,9 +20,9 @@ import {
   downloadFile,
   useFormat,
   type StatusTone,
-} from '@vue-tsx-pro/ui';
-import { BarChart, LineChart } from '@vue-tsx-pro/ui/charts';
-import { Globe } from '@vue-tsx-pro/ui/three';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart, LineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
+import { Globe } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 type Status = 'draft' | 'done' | 'approved' | 'pending' | 'rejected';
 

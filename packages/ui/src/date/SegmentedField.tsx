@@ -9,9 +9,9 @@
  *
  * 部件：Root（外壳）、Input（DateSegmentGroup，主元素）、Segment、Literal、Icon、Clear。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { now } from '@internationalized/date';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { useLang } from '../config/context';

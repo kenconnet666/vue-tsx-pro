@@ -1,6 +1,6 @@
 import { CalendarDays, Columns3, LayoutGrid, List } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let view = _state('board');

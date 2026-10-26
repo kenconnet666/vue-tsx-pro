@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 
 interface NameFieldProps {
   /** 双向绑定：父级写 _value={x} */

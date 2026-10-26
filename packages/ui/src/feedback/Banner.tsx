@@ -11,8 +11,8 @@
  * 页面加载时就在的横幅不播报；运行中才出现的用 live（同 Alert）。
  * 部件：Root（div）、Icon、Content（div：标题与正文）、Title（strong）、Action、Close。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';

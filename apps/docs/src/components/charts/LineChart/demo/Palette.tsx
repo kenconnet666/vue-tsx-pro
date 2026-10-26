@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { LineChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { LineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const weeks = Array.from({ length: 10 }, (_, index) => ({
   week: `第 ${index + 1} 周`,

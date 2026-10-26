@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const projects = [
   { name: '项目 01', planned: 272, actual: 438.4 },

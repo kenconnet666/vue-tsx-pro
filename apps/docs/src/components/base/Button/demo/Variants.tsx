@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Grid, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Grid, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const variants = [
   ['solid', '主要操作，每组最多一个'],

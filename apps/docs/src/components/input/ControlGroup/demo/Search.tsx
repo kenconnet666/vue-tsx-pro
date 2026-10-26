@@ -1,6 +1,6 @@
 // 搜索范围 + 关键词 + 搜索；协议 + 域名 + 复制；竖排的地址
 import { Search as SearchIcon } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   ControlGroup,
@@ -10,7 +10,7 @@ import {
   Select,
   Small,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const scopes = [
   { value: 'all', label: '全部' },

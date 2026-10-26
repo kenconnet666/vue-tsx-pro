@@ -1,8 +1,8 @@
 // 抽屉式侧栏（sidebarMode="overlay"）：导航盖在页面上面，开不开正文都是整宽；数据为主的工作台用它，表格不随侧栏变窄。
 // 顶栏里品牌格之后是“打开”，抽屉顶上一格是“收起”；拖动抽屉的结束边调整宽度，双击回到初始宽度。数据是虚构的
 import { Boxes, Gauge, Server, Settings, Siren, Wrench } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   createStatusMap,
@@ -17,8 +17,8 @@ import {
   Tabs,
   type DataTableColumn,
   t,
-} from '@vue-tsx-pro/ui';
-import { AppShell } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { AppShell } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const states = createStatusMap({
   running: { label: '运行中', tone: 'success' },

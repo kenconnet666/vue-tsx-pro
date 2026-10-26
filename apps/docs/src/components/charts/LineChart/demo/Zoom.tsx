@@ -1,8 +1,8 @@
 // 三年的月度数据：zoom 在下面放一条区间滑块，拖两端（或聚焦后用方向键）只看其中一段，“显示全部”恢复；
 // exportable 在右上角放导出菜单：绘图区存成 PNG，数据存成 CSV（文件名用图表的名称）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Small } from '@vue-tsx-pro/ui';
-import { LineChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { LineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 // 按月份算出一组有季节起伏、逐年增长的数据
 const months = Array.from({ length: 36 }, (_, i) => {

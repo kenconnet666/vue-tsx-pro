@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Grid, Paragraph, Strong } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Grid, Paragraph, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const variants = [
   ['surface', '表面色加描边（默认）：页面上最常见的卡片'],

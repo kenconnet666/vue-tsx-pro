@@ -1,6 +1,14 @@
 // 币种 + 金额 + 换算：选择框按内容宽，金额框分掉剩余宽度，按钮贴在末尾
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, ControlGroup, Field, Flex, NumberField, Select, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  ControlGroup,
+  Field,
+  Flex,
+  NumberField,
+  Select,
+  Small,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const rates: Record<string, number> = { CNY: 1, USD: 7.12, EUR: 7.71, JPY: 0.047 };
 const currencies = Object.keys(rates).map((code) => ({ value: code, label: code }));

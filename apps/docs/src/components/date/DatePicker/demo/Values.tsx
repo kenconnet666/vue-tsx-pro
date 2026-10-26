@@ -1,8 +1,16 @@
 // 值的类型：默认 ISO 字符串；valueType="dateValue" 写回 @internationalized/date 的对象，能直接做日期运算。
 // name 让原生表单提交 ISO 字符串
 import type { CalendarDate } from '@internationalized/date';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Code, DatePicker, Field, Flex, Grid, useFormat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Code,
+  DatePicker,
+  Field,
+  Flex,
+  Grid,
+  useFormat,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const format = useFormat();

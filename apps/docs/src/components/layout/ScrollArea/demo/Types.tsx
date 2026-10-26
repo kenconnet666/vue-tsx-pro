@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Code, Flex, Grid, Paragraph, ScrollArea, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Code, Flex, Grid, Paragraph, ScrollArea, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const types = [
   ['hover', '指针在上面或正在滚动时显示（默认）'],

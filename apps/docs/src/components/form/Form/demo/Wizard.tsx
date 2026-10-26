@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Card,
@@ -10,7 +10,7 @@ import {
   Steps,
   TextField,
   useForm,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import * as z from 'zod';
 
 // 开户申请分两步：第一步的字段校验通过才能进第二步，最后整份提交

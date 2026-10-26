@@ -1,5 +1,13 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Code, Flex, Result, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Card,
+  Code,
+  Flex,
+  Result,
+  ToggleGroup,
+  ToggleItem,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 type Status = 'success' | 'danger' | 'warning' | 'info';
 

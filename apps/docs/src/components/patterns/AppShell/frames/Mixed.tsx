@@ -12,7 +12,7 @@ import {
   Truck,
   Users,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Avatar,
   Card,
@@ -26,8 +26,13 @@ import {
   Small,
   Stat,
   type NavBarItem,
-} from '@vue-tsx-pro/ui';
-import { AppShell, AppShellBrand, PageTabs, type PageTab } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  AppShell,
+  AppShellBrand,
+  PageTabs,
+  type PageTab,
+} from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const sidePages = {
   po: { title: '采购单', icon: ReceiptText },

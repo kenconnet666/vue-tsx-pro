@@ -1,6 +1,6 @@
 // 样式入口的类型：合法写法通过，拼错的属性、类型不对的值、缺 default 的条件值报错；
 // 每个属性接受的值与 CSS 类型表（css-properties.ts）一个不多、一个不少
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CSSProperties } from '../src/styles/css-properties';
 
 const vars = css.defineVars('vars', {

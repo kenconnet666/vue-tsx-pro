@@ -1,5 +1,5 @@
 // 示例分两列（代码里写定）：每列前两个示例的卡片立即渲染，靠后的先占位、首帧之后补上；标题一开始就在（目录、锚点照常）
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { expect, it, vi } from 'vitest';
 import { Example } from '../site/Example';
 import { ExampleColumn, Examples } from '../site/Examples';

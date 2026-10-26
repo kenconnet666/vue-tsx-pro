@@ -1,7 +1,7 @@
 /**
- * 3D 与 WebGL 效果（子路径 `@vue-tsx-pro/ui/three`；three 是可选的 peer 依赖，用到才安装）：
+ * 3D 与 WebGL 效果（子路径 `@zerodep-dev/vue-tsx-pro-ui/three`；three 是可选的 peer 依赖，用到才安装）：
  *
- *   import { ThreeCanvas, useThemeColors } from '@vue-tsx-pro/ui/three';
+ *   import { ThreeCanvas, useThemeColors } from '@zerodep-dev/vue-tsx-pro-ui/three';
  *
  * 主入口不导入 three，没用到 3D 的应用不会打包它。不依赖 three 的卡片效果是 Card 的 effect（倾斜、聚光、流光）。
  */

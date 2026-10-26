@@ -1,5 +1,5 @@
 // 文档站外壳在真实浏览器里：AppShell 的响应式与抽屉、SkipLink、本页目录的滚动高亮、命令面板、主题切换、色块
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   CommandPalette,
   H2,
@@ -14,10 +14,10 @@ import {
   lightTheme,
   paperTheme,
   type HeadingEntry,
-} from '@vue-tsx-pro/ui';
-import { colors } from '@vue-tsx-pro/ui/tokens';
-import { AppShell, ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
-import { ColorSwatch } from '@vue-tsx-pro/ui/docs-kit';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
+import { AppShell, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import { ColorSwatch } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { page, userEvent } from 'vitest/browser';
 import { afterAll, afterEach, beforeAll, expect, it } from 'vitest';
 import { createApp, nextTick, type App, type VNodeChild } from 'vue';

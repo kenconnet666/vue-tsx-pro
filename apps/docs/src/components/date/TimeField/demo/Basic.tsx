@@ -1,7 +1,15 @@
 // 门店营业时间：每天一行开门、打烊，打烊不能早于开门；值是 24 小时制的 'HH:mm'，可以直接比较大小
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Flex, Small, Switch, Text, TimeField, useFormat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Badge,
+  Flex,
+  Small,
+  Switch,
+  Text,
+  TimeField,
+  useFormat,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Day {
   name: string;

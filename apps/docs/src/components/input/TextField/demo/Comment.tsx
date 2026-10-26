@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Button, Card, Field, Flex, Textarea } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, Button, Card, Field, Flex, Textarea } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let comment = _state('');

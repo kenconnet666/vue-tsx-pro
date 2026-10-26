@@ -12,9 +12,9 @@
  * 部件：同 TimeField，另有 Button（打开按钮）、Popover（弹层）、List（Listbox）、Now（“此刻”按钮）。
  */
 import { Clock } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { now, Time } from '@internationalized/date';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';

@@ -1,6 +1,6 @@
 import { ChevronDown, SlidersHorizontal } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,
@@ -11,7 +11,7 @@ import {
   NumberField,
   Select,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   // Collapsible 不包外层元素：在纵向的 Flex 里触发按钮会被拉满整行，靠左放

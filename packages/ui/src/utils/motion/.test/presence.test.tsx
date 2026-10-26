@@ -1,5 +1,5 @@
 // usePresence：关闭后保持挂载等离场结束；离场中又打开就不卸载。useLazyContent：第一次打开前不渲染
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick, shallowRef } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 import { mount } from '../../.test/mount';

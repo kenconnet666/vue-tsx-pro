@@ -5,9 +5,9 @@
  *
  * 高度由使用方给（sx），默认 20rem；未声明的属性落到外壳上。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { inputRecipe, mergeAttrs, useConfig, type PartProps } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { inputRecipe, mergeAttrs, useConfig, type PartProps } from '@zerodep-dev/vue-tsx-pro-ui';
 import { onBeforeUnmount, onMounted, watch } from 'vue';
 import type { PlaygroundEditor } from './editor';
 

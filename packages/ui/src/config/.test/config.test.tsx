@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { CalendarDate } from '@internationalized/date';
 import Decimal from 'decimal.js';
 import { createApp, nextTick, ref, type App, type VNodeChild } from 'vue';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   createUi,
   darkTheme,

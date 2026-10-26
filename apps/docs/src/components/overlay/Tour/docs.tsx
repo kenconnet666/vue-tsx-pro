@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/TourProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -15,7 +15,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Tour } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Tour } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="onboarding" title="订单中心的引导" demo={Onboarding}>
       每一步的 <Code>target</Code>{' '}
       是选择器、元素或返回元素的函数（这里限定在示例里找）；没有目标的步骤卡片居中。切换步骤时目标滚到视口中间，滚动、缩放时镂空跟着动。

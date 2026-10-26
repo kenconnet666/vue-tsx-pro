@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Card,
   H3,
@@ -9,7 +9,7 @@ import {
   TableOfContents,
   toElement,
   type HeadingEntry,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // id 带前缀：页面上的锚点不能重名
 const headings: HeadingEntry[] = [

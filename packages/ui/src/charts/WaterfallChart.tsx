@@ -19,7 +19,7 @@
  * 坐标轴、目标线、下钻、加载与空状态同 BarChart（见 XYChart）。
  */
 import { StackedBar } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { toNumber, type NumericValue } from '../utils/data/numeric';

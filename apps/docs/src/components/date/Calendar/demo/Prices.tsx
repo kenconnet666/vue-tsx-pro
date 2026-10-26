@@ -1,6 +1,6 @@
 // 酒店的价格日历：日期格里加上当天的房价，最低价用成功色标出；周五、周六更贵，售罄的日子不可选
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Calendar,
   Flex,
@@ -9,7 +9,7 @@ import {
   Text,
   todayIso,
   useFormat,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   // 格子放得下价格：比默认的 2.25em 宽、高一些

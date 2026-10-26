@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, Grid, GridItem, Small, Strong } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Flex, Grid, GridItem, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   // 卡片撑满格子：跨两行的格子里卡片也一样高

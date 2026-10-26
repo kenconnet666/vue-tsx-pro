@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Grid, NumberField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Grid, NumberField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let quantity = _state<number | null>(2);

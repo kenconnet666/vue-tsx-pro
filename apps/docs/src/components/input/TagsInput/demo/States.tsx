@@ -1,7 +1,7 @@
 // 前置图标、个数上限、外观与状态；Field 的 required、readonly、disabled 交给里面的输入框
 import { Hash } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Grid, TagsInput } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Grid, TagsInput } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let topics = _state<string[]>(['vue', 'tsx']);

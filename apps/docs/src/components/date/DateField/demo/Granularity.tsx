@@ -1,6 +1,6 @@
 // 精确到哪一段：年、年月、年月日、日期加时分（同原生的 month、date、datetime-local），值的格式跟着变
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, DateField, Field, Grid } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, DateField, Field, Grid } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let year = _state<string | null>('2026');

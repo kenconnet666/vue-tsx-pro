@@ -311,7 +311,7 @@ API differences vs XYContainer:
   - Graph: core is moderate; layouts are **dynamic imports**: force → `d3-force`, dagre → `@unovis/graphlibrary` + `@unovis/dagre-layout`, elk → `elkjs/lib/elk.bundled.js` (1.6 MB raw; only loaded for `GraphLayoutType.Elk`).
   - LeafletMap / LeafletFlowMap (not in scope): `leaflet` and `maplibre-gl` (~2.4 MB) are dynamic imports inside the component; barrel still lists them but unused ones tree-shake. `three` is listed in package.json but no wrapped component imports it.
   - Brush/FreeBrush: `d3-brush`. Treemap/NestedDonut: `d3-hierarchy`. Everything: `d3-selection/transition/scale/shape/array/zoom/drag/axis`, `@emotion/css`, `@juggle/resize-observer`.
-- Our charts entry (`@vue-tsx-pro/ui/charts`) keeps Unovis as optional peer; keep new components in the same subpath, and ideally split graph/map into separate subpaths (e.g. `/charts/graph`, `/charts/map`) or lazy-load `@unovis/ts/maps`.
+- Our charts entry (`@zerodep-dev/vue-tsx-pro-ui/charts`) keeps Unovis as optional peer; keep new components in the same subpath, and ideally split graph/map into separate subpaths (e.g. `/charts/graph`, `/charts/map`) or lazy-load `@unovis/ts/maps`.
 
 ---
 ## 6. Existing wrapper patterns (packages/ui/src/charts)

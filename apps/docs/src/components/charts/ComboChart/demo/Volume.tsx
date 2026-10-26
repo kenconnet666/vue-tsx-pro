@@ -1,7 +1,7 @@
 // 采购量与单价：两个供应商的采购量叠成一根柱子（件，左轴），加权单价是平滑的线（元，右轴）；
 // 点图例隐藏一个供应商，柱子与左轴跟着变，右轴不动
-import { _component } from '@vue-tsx-pro/tsx';
-import { ComboChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { ComboChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const quarters = [
   { quarter: '2025 Q1', huachen: 9_800, hengyuan: 0, price: 128.6 },

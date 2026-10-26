@@ -12,7 +12,7 @@ const sources = import.meta.glob<string>('../components/*/*/docs.tsx', {
 
 const entryNames = Object.keys(pkg.exports)
   .filter((key) => key !== './package.json')
-  .map((key) => `@vue-tsx-pro/ui${key.slice(1)}`);
+  .map((key) => `@zerodep-dev/vue-tsx-pro-ui${key.slice(1)}`);
 
 const modules = new Map<string, Record<string, unknown>>();
 
@@ -24,7 +24,7 @@ describe('文档页的导入语句', () => {
 
   it.each(Object.entries(sources))('%s', (_path, source) => {
     for (const [, names, entry] of source.matchAll(
-      /import\s*\{([^}]*)\}\s*from\s*'(@vue-tsx-pro\/ui[^']*)'/g,
+      /import\s*\{([^}]*)\}\s*from\s*'(@zerodep-dev\/vue-tsx-pro-ui[^']*)'/g,
     )) {
       const module = modules.get(entry!);
       expect(module, `没有入口 ${entry}`).toBeDefined();
@@ -42,7 +42,7 @@ describe('文档页的导入语句', () => {
 it('代码演练场能导入组件库带组件的入口（主入口与带目录的子路径）', () => {
   const componentEntries = Object.entries(pkg.exports).flatMap(([key, target]) =>
     typeof target === 'object' && target['@vue-tsx-pro/source'].endsWith('index.ts')
-      ? [`@vue-tsx-pro/ui${key.slice(1)}`]
+      ? [`@zerodep-dev/vue-tsx-pro-ui${key.slice(1)}`]
       : [],
   );
   expect(componentEntries.filter((entry) => !playgroundModuleNames.includes(entry))).toEqual([]);

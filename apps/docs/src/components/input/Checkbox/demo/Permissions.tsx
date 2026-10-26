@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Checkbox, CheckboxGroup, Field, Flex, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Checkbox, CheckboxGroup, Field, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const permissions = [
   ['orders:read', '查看订单'],

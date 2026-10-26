@@ -1,6 +1,6 @@
 // 表单字段：抄送可以选人员与部门，触发框里是已选的标签；点开对话框，按组织架构一层层找或搜索，右边是已选的，
 // 按“确定”才写回。recentKey 记下最近选过的（“最近”页）。经办人 max={1} 只选一个，触发框里直接是名字
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Field,
   Flex,
@@ -8,7 +8,7 @@ import {
   PeoplePicker,
   Small,
   type PeopleEntry,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { org, positions } from './org';
 
 const source = localPeopleSource(org, positions);

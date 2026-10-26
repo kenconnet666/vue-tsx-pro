@@ -10,8 +10,8 @@
  *
  * 部件：Root（div）、Canvas（ThreeCanvas）、Content（div，有内容时才有）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../../utils/props';
 import type { ThreeQuality } from './quality';

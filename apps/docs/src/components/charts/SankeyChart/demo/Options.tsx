@@ -1,7 +1,7 @@
 // 提示框、加载与空状态
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Switch } from '@vue-tsx-pro/ui';
-import { SankeyChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { SankeyChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const nodes = [
   { id: 'cart', label: '加入购物车' },

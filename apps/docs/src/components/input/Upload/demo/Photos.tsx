@@ -1,5 +1,12 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Small, Upload, type UploadFile, type UploadHandler } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Field,
+  Flex,
+  Small,
+  Upload,
+  type UploadFile,
+  type UploadHandler,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 假的上传：每 120ms 进 8%，三分之一的概率在中途失败；移除时经 signal 中止 */
 const fakeUpload: UploadHandler = (file, { onProgress, signal }) =>

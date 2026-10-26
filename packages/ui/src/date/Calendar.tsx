@@ -14,7 +14,7 @@
  * 键盘：←→ 一天、↑↓ 一周，Page Up / Down 一个月、加 Shift 一年，Home / End 到这周两端，Enter / 空格选中。
  * 部件见 CalendarView。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { CalendarDate } from '@internationalized/date';
 import { isSameDate, type DateUnit } from '../utils/data/date';
 import { useCalendarState } from './calendar-state';

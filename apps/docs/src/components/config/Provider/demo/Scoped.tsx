@@ -1,5 +1,5 @@
 import { Bell, Check } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Alert,
   Badge,
@@ -12,7 +12,7 @@ import {
   Small,
   Switch,
   type ComponentDefaults,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 一处统一改组件的默认外观：显式写的 prop 仍然优先
 const rounded: ComponentDefaults = {

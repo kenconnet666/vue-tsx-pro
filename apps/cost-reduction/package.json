@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@lucide/icons": "catalog:",
-    "@vue-tsx-pro/tsx": "workspace:^",
-    "@vue-tsx-pro/ui": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
     "vue": "catalog:",
     "zod": "catalog:"
   },

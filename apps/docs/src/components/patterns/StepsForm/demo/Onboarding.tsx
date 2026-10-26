@@ -1,6 +1,6 @@
 // 供应商开户：三步——企业信息、联系人与账号、确认提交。“下一步”只校验这一步的字段；第三步是只读的汇总，
 // 提交没通过（第一步的信用代码被改坏）时跳回出错的那一步；字段里只放控件，form.Field 自动绑定值
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   Descriptions,
@@ -10,8 +10,8 @@ import {
   Small,
   TextField,
   useForm,
-} from '@vue-tsx-pro/ui';
-import { StepsForm } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { StepsForm } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import * as z from 'zod';
 
 const categories = ['机械件', '塑料件', '钣金件', '标准件', '线缆'];

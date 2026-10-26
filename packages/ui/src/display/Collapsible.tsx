@@ -6,7 +6,7 @@
  * 触发器用渲染函数而不是原生 <summary>：<summary> 必须是 <details> 的第一个子元素，触发器不能放在别处。
  * 键盘操作由触发器元素自己提供（按钮的 Enter、空格）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useId, type VNodeChild } from 'vue';
 import type { TriggerProps } from '../utils/props';
 import { Collapse, type CollapseProps } from './Collapse';

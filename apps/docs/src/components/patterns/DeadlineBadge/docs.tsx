@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/DeadlineBadgeProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="states" title="状态" demo={States}>

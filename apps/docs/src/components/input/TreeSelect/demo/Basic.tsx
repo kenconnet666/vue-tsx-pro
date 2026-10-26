@@ -1,6 +1,6 @@
 // 单选：从组织机构树里选提出单位，可搜索；多选：勾选责任团队，勾上一个中心就是整枝，触发框里只列最上层
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Flex, Grid, Small, TreeSelect } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Flex, Grid, Small, TreeSelect } from '@zerodep-dev/vue-tsx-pro-ui';
 import { orgs, type Org } from './orgs';
 
 const accessors = {

@@ -3,8 +3,8 @@
  * DataTableView 在列定义写了 filter、或表格开了 columnMenu 时放进列标题；状态都在外层（DataTable），这里只管画与报告。
  */
 import { EllipsisVertical, Funnel } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';

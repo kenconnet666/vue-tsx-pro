@@ -8,7 +8,7 @@
  * 值同 DateTime。单位按相差多久自动取（45 秒以内用秒，45 分钟以内用分……），措辞用 numeric: 'auto'（“昨天”而不是“1 天前”）。
  * 更新的频率随单位变：秒级每秒，分钟级每 10 秒，小时级每分钟，更远的每小时；页面隐藏时不更新。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { DateTimeDuration } from '@internationalized/date';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';

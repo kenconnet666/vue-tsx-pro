@@ -1,7 +1,7 @@
 // 单选：选项带图标、说明与分组，不可用的项跳过；required 时再点已选项不会取消
 import { Building2, Rocket, Sprout, Users } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Listbox, Small, type ListboxOption } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Listbox, Small, type ListboxOption } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plans: ListboxOption[] = [
   {

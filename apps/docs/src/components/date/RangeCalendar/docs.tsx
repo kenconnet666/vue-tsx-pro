@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/RangeCalendarProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -19,7 +19,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { RangeCalendar } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { RangeCalendar } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="hotel" title="入住与离店" demo={Hotel}>

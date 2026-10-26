@@ -8,8 +8,8 @@
  */
 import * as lucide from '@lucide/icons';
 import { Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   ButtonBase,
   Flex,
@@ -21,7 +21,7 @@ import {
   useResizeObserver,
   VirtualList,
   type IconData,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 一格的最小宽度与格间距（px，同 gap 的 xs 档）：据此算每行放几个 */
 const CELL = 88;

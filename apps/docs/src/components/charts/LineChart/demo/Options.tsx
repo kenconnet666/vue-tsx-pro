@@ -1,7 +1,7 @@
 // 线宽、图例、网格线、提示框、加载与空状态；indexFormat 把类目换成显示文字；hiddenSeries 双向绑定，按钮也能切换
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Switch, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { LineChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Switch, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
+import { LineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const hours = [8, 10, 12, 14, 16, 18, 20, 22].map((hour, index) => ({
   hour,

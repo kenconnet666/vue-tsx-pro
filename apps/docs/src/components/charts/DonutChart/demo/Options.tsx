@@ -1,7 +1,7 @@
 // 高度、图例、提示框、加载与空状态；hiddenItems 双向绑定（点图例隐藏一块，占比按剩下的重算）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small, Switch } from '@vue-tsx-pro/ui';
-import { DonutChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { DonutChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const devices = [
   { device: '手机', users: 6420 },

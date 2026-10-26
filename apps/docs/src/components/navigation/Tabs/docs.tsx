@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import tabApi from 'virtual:api/TabProps';
 import tabListApi from 'virtual:api/TabListProps';
 import tabPanelApi from 'virtual:api/TabPanelProps';
@@ -25,7 +25,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Tab, TabList, TabPanel, Tabs } from '@vue-tsx-pro/ui';"
+    imports="import { Tab, TabList, TabPanel, Tabs } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="workspace" title="多页签：关闭、新建、拖动与全部标签页" demo={Workspace}>
       <Code>Tab</Code> 写了 <Code>onClose</Code> 就有关闭按钮（不进 Tab 顺序，焦点在标签上时按

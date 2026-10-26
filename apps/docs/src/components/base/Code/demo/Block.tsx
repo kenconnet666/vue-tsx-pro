@@ -1,8 +1,8 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { CodeBlock } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const source = `import { createApp } from 'vue';
-import { createUi, oceanTheme } from '@vue-tsx-pro/ui';
+import { createUi, oceanTheme } from '@zerodep-dev/vue-tsx-pro-ui';
 import App from './App';
 
 createApp(App)

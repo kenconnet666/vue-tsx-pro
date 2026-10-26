@@ -9,8 +9,8 @@
  * 读屏：role="list"，每项带 aria-setsize / aria-posinset，未渲染的项也算在总数里；没有数据时是 role="group"（空状态、骨架不是列表项）。
  * loading：没有数据时显示骨架行（按 estimateSize 的高度），已有数据（刷新、加载更多）时顶部显示进度条；带 aria-busy。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';

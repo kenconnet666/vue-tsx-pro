@@ -1,6 +1,6 @@
 // 主从视图：点一行在旁边看详情（activeKey 高亮正在看的那一行，带 aria-current）；编号是按钮，键盘也能打开
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   DataTable,
@@ -8,8 +8,8 @@ import {
   Empty,
   Splitter,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
-import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 interface Todo {
   id: string;

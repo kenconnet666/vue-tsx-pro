@@ -2,8 +2,8 @@
 // hourCycle 固定 12 / 24 小时制；suffix 放在框里最后；valueType="dateValue" 一开始为空时写回 CalendarDate
 import { isWeekend, parseDate, type DateValue } from '@internationalized/date';
 import { CalendarCheck } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, DateField, Field, Grid, Icon, useLang } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, DateField, Field, Grid, Icon, useLang } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const lang = useLang();

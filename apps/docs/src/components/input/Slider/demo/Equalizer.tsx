@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Slider, Small, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Slider, Small, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const bands = ['60', '150', '400', '1k', '2.4k', '6k', '15k'];
 const presets = {

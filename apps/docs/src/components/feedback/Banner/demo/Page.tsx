@@ -1,7 +1,7 @@
 // 页面顶部的横幅：维护公告（实底、最醒目）、试用到期（可关闭，关掉后记住）、只读模式
 import { Lock, Wrench } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Banner, Button, Card, Flex, Link, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Banner, Button, Card, Flex, Link, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let trialClosed = _state(false);

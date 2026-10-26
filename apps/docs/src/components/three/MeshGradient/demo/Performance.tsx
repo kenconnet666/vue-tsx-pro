@@ -1,8 +1,17 @@
 // 画质、渲染分辨率（MeshGradient 默认 0.5：平滑的渐变降一半看不出差别）、跟随指针与暂停；off 时显示 fallback
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
-import { MeshGradient, type ThreeQuality } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Field,
+  Flex,
+  Grid,
+  Slider,
+  Switch,
+  ToggleGroup,
+  ToggleItem,
+  t,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { MeshGradient, type ThreeQuality } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   stage: { height: '16rem', borderRadius: '_lg' },

@@ -10,8 +10,8 @@ import {
   UserPlus,
   Users,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { CommandPalette, Flex, Kbd, Small, type ListboxOption } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { CommandPalette, Flex, Kbd, Small, type ListboxOption } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const commands: ListboxOption[] = [
   { value: 'home', label: '概览', icon: House, group: '页面' },

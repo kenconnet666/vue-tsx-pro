@@ -1,8 +1,17 @@
 // 画质、渲染分辨率与暂停；quality="off" 时不创建 WebGL，显示 fallback（没有 WebGL 时也是它）
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
-import { ShaderBackground, type ThreeQuality } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Field,
+  Flex,
+  Grid,
+  Slider,
+  Switch,
+  ToggleGroup,
+  ToggleItem,
+  t,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { ShaderBackground, type ThreeQuality } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const PLASMA = /* glsl */ `
 vec4 shade(vec2 uv) {

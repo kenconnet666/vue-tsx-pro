@@ -1,7 +1,7 @@
 // allowCustomValue：可以输入选项里没有的文字（职位名称常有新的）；前置图标、外观与状态同其他输入框
 import { BriefcaseBusiness, Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Combobox, Field, Grid } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Combobox, Field, Grid } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const titles = ['产品经理', '交互设计师', '视觉设计师', '前端工程师', '后端工程师', '测试工程师'];
 

@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Code,
@@ -8,7 +8,7 @@ import {
   TextField,
   Upload,
   type UploadFile,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let resume = _state<UploadFile[]>([]);

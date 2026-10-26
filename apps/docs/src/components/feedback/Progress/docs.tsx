@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import overlayApi from 'virtual:api/LoadingOverlayProps';
 import api from 'virtual:api/ProgressProps';
 import spinnerApi from 'virtual:api/SpinnerProps';
@@ -24,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Progress, Spinner, LoadingOverlay } from '@vue-tsx-pro/ui';"
+    imports="import { Progress, Spinner, LoadingOverlay } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

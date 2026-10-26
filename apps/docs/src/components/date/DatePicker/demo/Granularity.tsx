@@ -1,6 +1,6 @@
 // 选年份、季度、月份、周、日期，或日期加时间：granularity 决定值的形式与弹出的选择；会议只能约在 9:00–18:00
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, DatePicker, Field, Grid } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, DatePicker, Field, Grid } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let year = _state<string | null>('2026');

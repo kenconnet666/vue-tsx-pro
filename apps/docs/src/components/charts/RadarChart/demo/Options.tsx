@@ -1,6 +1,6 @@
 // 圆形网格、5 圈，最大值按数据自动取整（不写 max）；只有一个系列时没有图例
-import { _component } from '@vue-tsx-pro/tsx';
-import { RadarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { RadarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const plan = [
   { item: '材料', saving: 320 },

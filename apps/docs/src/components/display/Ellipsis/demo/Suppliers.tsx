@@ -1,6 +1,6 @@
 // 列表里的长名称：拖动滑块改宽度，真的截断了的名称才能悬停、聚焦看全文
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Card, Ellipsis, Field, Flex, Slider, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Badge, Card, Ellipsis, Field, Flex, Slider, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const suppliers = [
   { name: '杭州远山精密机械有限公司（萧山二厂）', city: '杭州', grade: 'A' },

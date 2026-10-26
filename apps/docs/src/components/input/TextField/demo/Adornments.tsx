@@ -1,7 +1,14 @@
 // 框里的图标、前后缀、清空按钮；出错的样子；自己的输入组件用 CharacterCount 显示字数
 import { AtSign, Link2, Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { CharacterCount, Field, Flex, Grid, Textarea, TextField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  CharacterCount,
+  Field,
+  Flex,
+  Grid,
+  Textarea,
+  TextField,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let keyword = _state('设计规范');

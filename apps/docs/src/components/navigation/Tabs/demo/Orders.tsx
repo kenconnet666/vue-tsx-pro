@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Empty,
@@ -12,7 +12,7 @@ import {
   TabPanel,
   Tabs,
   Text,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const orders = [
   { id: '#10234', customer: '林小满', amount: '¥1,280.00', status: 'shipped' },

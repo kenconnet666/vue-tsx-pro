@@ -1,5 +1,5 @@
 // 通知范围：同样勾上“生产中心”整枝加一个预算团队，三种取法提交的值不同；标签一行放不下时收进“+N”
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   checkedByStrategy,
   Code,
@@ -11,7 +11,7 @@ import {
   TreeSelect,
   indexTree,
   type CheckStrategies,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { orgs, type Org } from './orgs';
 
 const strategies: [keyof CheckStrategies, string][] = [

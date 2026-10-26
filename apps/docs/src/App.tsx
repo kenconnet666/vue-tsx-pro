@@ -3,7 +3,7 @@
  * 正文是当前路由的页面，末尾是上一篇 / 下一篇。
  */
 import { Box } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   CommandPalette,
   Container,
@@ -17,9 +17,9 @@ import {
   TableOfContents,
   collectHeadings,
   type HeadingEntry,
-} from '@vue-tsx-pro/ui';
-import { AppShell, ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
-import * as css from '@vue-tsx-pro/tsx/styles';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { AppShell, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';

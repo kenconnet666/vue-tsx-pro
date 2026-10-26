@@ -1,6 +1,6 @@
 // 访问来源：每个来源一个扇区，中间是合计；悬停看数值与占比，点图例隐藏一项后合计与占比重新算
-import { _component } from '@vue-tsx-pro/tsx';
-import { DonutChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { DonutChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const sources = [
   { name: '搜索引擎', visits: 4820 },

@@ -13,8 +13,8 @@ import {
   SwatchBook,
   Zap,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Card,
@@ -32,8 +32,8 @@ import {
   Text,
   type IconData,
   t,
-} from '@vue-tsx-pro/ui';
-import { CodePreview } from '@vue-tsx-pro/ui/docs-kit';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { CodePreview } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import Counter from './demo/Counter.tsx?demo';
 import { defineAsyncComponent, h } from 'vue';
 import { PLAYGROUND_PATH } from '../playground/share';
@@ -42,7 +42,7 @@ import { sections, type NavPage } from '../site/nav';
 
 // 标题后面的粒子星座：three 体积大，异步加载，加载完之前只有光晕，不挡首屏
 const Particles = defineAsyncComponent(() =>
-  import('@vue-tsx-pro/ui/three').then((module) => module.ParticleField),
+  import('@zerodep-dev/vue-tsx-pro-ui/three').then((module) => module.ParticleField),
 );
 
 const styles = css.create({

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/PeoplePickerProps';
 import panelApi from 'virtual:api/PeoplePickerPanelProps';
 import sourceApi from 'virtual:api/PeopleSource';
@@ -22,7 +22,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { localPeopleSource, PeoplePicker, PeoplePickerPanel, type PeopleEntry, type PeopleSource } from '@vue-tsx-pro/ui';"
+    imports="import { localPeopleSource, PeoplePicker, PeoplePickerPanel, type PeopleEntry, type PeopleSource } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="field" title="表单字段" demo={FieldDemo}>
       <Code>PeoplePicker</Code> 的触发框里是已选的标签，点开对话框挑选，按“确定”才写回。

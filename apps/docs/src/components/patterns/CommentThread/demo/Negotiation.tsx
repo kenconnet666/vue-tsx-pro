@@ -1,8 +1,8 @@
 // 协商的逐条回应（只读）：供应商每一条异议下面是财务部的回应，回应的结论（采纳 / 不采纳）与改了的字段放在 extra；
 // 不给 onSend 时没有输入框与回复按钮
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Card, FieldCompare, Flex, type CompareField } from '@vue-tsx-pro/ui';
-import { CommentThread, type CommentItem } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Badge, Card, FieldCompare, Flex, type CompareField } from '@zerodep-dev/vue-tsx-pro-ui';
+import { CommentThread, type CommentItem } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 interface Estimate {
   unitPrice: number;

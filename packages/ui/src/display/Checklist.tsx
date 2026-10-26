@@ -21,8 +21,8 @@
  * 部件：Root（div）、Summary（汇总行）、List（ul）、Item（li，可以按项计算）、Status（状态图标，可勾选时是按钮）、Label、Meta。
  */
 import { Ban, CircleAlert, CircleCheck, CircleDashed, CircleMinus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';

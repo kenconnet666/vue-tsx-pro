@@ -1,5 +1,5 @@
 // 示例用的组织架构：公司下面三个部门，采购部再分两个组；另有四个岗位
-import type { PeopleEntry, PeopleNode } from '@vue-tsx-pro/ui';
+import type { PeopleEntry, PeopleNode } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const person = (id: string, name: string, description: string): PeopleNode => ({
   id,

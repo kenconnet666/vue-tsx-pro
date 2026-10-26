@@ -21,8 +21,8 @@
  * 部件：Root（dialog，整屏透明）、Spotlight（镂空）、Panel（卡片）、Cover（封面）、Title、Content、Footer、
  * Progress（步数）、Skip（跳过）、Previous（上一步）、Next（下一步 / 完成）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { autoUpdate } from '@floating-ui/dom';
 import { nextTick, onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';

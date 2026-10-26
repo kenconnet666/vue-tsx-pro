@@ -19,8 +19,8 @@
  * Description（Text）、Error（Text，带警示图标）。
  */
 import { Asterisk } from '@lucide/icons';
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { cloneVNode, Fragment, isVNode, useId, watch, type VNode, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';

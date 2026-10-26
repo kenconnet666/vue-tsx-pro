@@ -9,7 +9,7 @@
  *
  * 扫光只是装饰：减少动态效果时不扫（静止的占位已经说明在加载）；从右到左的语言里反向扫。
  */
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shimmerVars } from './vars';
 
 /** 多行骨架相邻两行的扫光间隔（毫秒）：一屏七八行时整道波约一秒扫完 */

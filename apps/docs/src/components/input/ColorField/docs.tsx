@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ColorFieldProps';
 import swatchApi from 'virtual:api/ColorSwatchProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -24,8 +24,8 @@ export default _component(() => () => (
     wide
     meta={meta}
     imports={
-      "import { ColorField } from '@vue-tsx-pro/ui';\n" +
-      "import { ColorSwatch } from '@vue-tsx-pro/ui/docs-kit';"
+      "import { ColorField } from '@zerodep-dev/vue-tsx-pro-ui';\n" +
+      "import { ColorSwatch } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';"
     }
   >
     <Examples>

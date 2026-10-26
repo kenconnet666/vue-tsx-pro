@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, PageJump, PageSizeSelect, Pagination, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, PageJump, PageSizeSelect, Pagination, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const total = 1286;
 

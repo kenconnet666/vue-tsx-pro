@@ -1,9 +1,16 @@
 // 零件批量导入：Excel 或 CSV。“下载模板”用 exportXlsx 生成带表头与示例行的 .xlsx（料号一列故意空着一行、数量写错一格）；
 // 导入时按名称与别名对上列，zod 逐行校验，有错的格子就地改；导入的行显示在下面的清单里
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, readCsvFile, Small, Tag, type DataTableColumn } from '@vue-tsx-pro/ui';
-import { DataImport } from '@vue-tsx-pro/ui/patterns';
-import { exportXlsx, readXlsx } from '@vue-tsx-pro/ui/xlsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Card,
+  Flex,
+  readCsvFile,
+  Small,
+  Tag,
+  type DataTableColumn,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { DataImport } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import { exportXlsx, readXlsx } from '@zerodep-dev/vue-tsx-pro-ui/xlsx';
 import * as z from 'zod';
 
 interface Part {

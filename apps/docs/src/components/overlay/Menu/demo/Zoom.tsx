@@ -1,5 +1,5 @@
 import { ChevronDown, Maximize, ZoomIn, ZoomOut } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Flex,
@@ -10,7 +10,7 @@ import {
   ToggleGroup,
   ToggleItem,
   type TextSize,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let zoom = _state(100);

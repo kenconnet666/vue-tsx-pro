@@ -12,8 +12,8 @@
  * 展开收起的动画同 Collapsible（Collapse 的 CSS 过渡）。部件见 AccordionItemProps。
  */
 import { ChevronDown } from '@lucide/icons';
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { h, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';

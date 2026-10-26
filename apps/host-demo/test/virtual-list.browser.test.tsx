@@ -1,6 +1,6 @@
 // VirtualList 随页面滚动（scroll="window"）：列表上方有其他内容时，滚动位置要减去它（scrollMargin）
-import { _component } from '@vue-tsx-pro/tsx';
-import { VirtualList, type VirtualListHandle } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { VirtualList, type VirtualListHandle } from '@zerodep-dev/vue-tsx-pro-ui';
 import { afterEach, beforeEach, expect, it } from 'vitest';
 import { createApp, type App } from 'vue';
 

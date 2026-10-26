@@ -26,8 +26,8 @@
  * - 横向滑动（触摸、鼠标拖动）超过宽度的 35% 就关闭，否则弹回（startMove；同 Sonner、Radix Toast 的滑动关闭）。
  */
 import { utils } from 'animejs';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   nextTick,
   onBeforeUnmount,

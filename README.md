@@ -9,7 +9,7 @@
 要求 Vue 3.5+、Vite 8。组件库的 peer 依赖由宿主安装：
 
 ```bash
-pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @lucide/icons zod
+pnpm add @zerodep-dev/vue-tsx-pro-tsx @zerodep-dev/vue-tsx-pro-ui @lucide/icons zod
 ```
 
 `@lucide/icons` 是组件用的图标数据，`zod` 是表单（`useForm`）的校验库：字段的必填、长度、范围也从 zod schema 推出。
@@ -17,21 +17,21 @@ pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @lucide/icons zod
 ```ts
 // vite.config.ts：宿主原有的 @vitejs/plugin-vue 保留，再加上预设
 import vue from '@vitejs/plugin-vue';
-import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
+import { vueTsxPro } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 
 export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });
 ```
 
 预设对每个文件只解析、生成一次：样式的响应式绑定与热更新 → 符文编译 → Vue JSX 与去类型，加上组件热更新；样式由运行时引擎在页面里生成（`packages/tsx/src/styles`，见 STYLE-ENGINE.md），不需要 CSS 插件；重启开发服务器时没改过的文件直接取磁盘上的编译缓存；构建与开发服务器在工作线程里并行编译。只有用到符文或 `_component` 的文件会被符文编译改写，宿主的其他代码不受影响；宿主不要再单独加 `@vitejs/plugin-vue-jsx`。
 
-TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@vue-tsx-pro/tsx"`，之后即可直接使用 `_state` 等符文。
+TypeScript 需要 `"jsx": "preserve"` 与 `"jsxImportSource": "@zerodep-dev/vue-tsx-pro-tsx"`，之后即可直接使用 `_state` 等符文。
 
 ```ts
 // 宿主入口：应用级配置；页面内还可以用 <Provider> 局部覆盖
-import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
-import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki'; // 可选：代码高亮（需安装 shiki）
-import { createPinyinMatcher } from '@vue-tsx-pro/ui/pinyin'; // 可选：搜索认拼音（需安装 pinyin-pro）
-import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router'; // 可选：站内链接走路由、导航判断当前页
+import { createUi, darkTheme, lightTheme } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createShikiHighlighter } from '@zerodep-dev/vue-tsx-pro-ui/shiki'; // 可选：代码高亮（需安装 shiki）
+import { createPinyinMatcher } from '@zerodep-dev/vue-tsx-pro-ui/pinyin'; // 可选：搜索认拼音（需安装 pinyin-pro）
+import { vueRouterAdapter } from '@zerodep-dev/vue-tsx-pro-ui/vue-router'; // 可选：站内链接走路由、导航判断当前页
 
 app.use(
   createUi({
@@ -45,11 +45,11 @@ app.use(
 );
 ```
 
-写样式从 `@vue-tsx-pro/tsx/styles` 导入（`import * as css`，写法像 StyleX；属性悬停、补全、跳转都有中文说明）。主题 tokens 整个值是一个 token 时直接写成字符串，值里夹着 token 时在模板字符串里写 `t.组.名`；预设编译时都换成 token 变量并补上导入：
+写样式从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import * as css`，写法像 StyleX；属性悬停、补全、跳转都有中文说明）。主题 tokens 整个值是一个 token 时直接写成字符串，值里夹着 token 时在模板字符串里写 `t.组.名`；预设编译时都换成 token 变量并补上导入：
 
 ```ts
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { t } from '@vue-tsx-pro/ui';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { t } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   card: {
@@ -71,8 +71,8 @@ const styles = css.create({
 
 | 路径             | 包                               | 说明                                                                          |
 | ---------------- | -------------------------------- | ----------------------------------------------------------------------------- |
-| `packages/tsx`   | `@vue-tsx-pro/tsx`               | `_component()`（Svelte 式 props 解构）、符文编译器、Vite 预设、JSX 与符文类型 |
-| `packages/ui`    | `@vue-tsx-pro/ui`                | 组件库（写法同 StyleX 的运行时样式引擎）                                      |
+| `packages/tsx`   | `@zerodep-dev/vue-tsx-pro-tsx`   | `_component()`（Svelte 式 props 解构）、符文编译器、Vite 预设、JSX 与符文类型 |
+| `packages/ui`    | `@zerodep-dev/vue-tsx-pro-ui`    | 组件库（写法同 StyleX 的运行时样式引擎）                                      |
 | `apps/docs`      | `@vue-tsx-pro/docs`（私有）      | 文档站：用组件库自己写的 TSX 网站（Vite + vue-router），开发时热更新各包源码  |
 | `apps/host-demo` | `@vue-tsx-pro/host-demo`（私有） | 宿主示例：普通 Vue 3.5 项目里的 TSX 页面                                      |
 
@@ -131,9 +131,9 @@ pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
 ## 配置要点
 
 - **版本**：共享依赖的精确版本集中在 `pnpm-workspace.yaml` 的 `catalog`，各包写 `"catalog:"`。升级只改这一处。
-- **源码条件**：各包 `exports` 带有 `@vue-tsx-pro/source` 条件。仓库内的 TypeScript（`customConditions`）和 Vite（`workspaceSource()`）据此直接读取源码，不必先构建；发布包的使用方不受影响。开发服务器与测试里，`workspaceSource()` 还把 `import { Button } from '@vue-tsx-pro/ui'` 改成直接导入所在模块：热更新不经过桶文件，改了组件库的样式、工具函数只更新用到它的组件，不整页刷新。
+- **源码条件**：各包 `exports` 带有 `@vue-tsx-pro/source` 条件。仓库内的 TypeScript（`customConditions`）和 Vite（`workspaceSource()`）据此直接读取源码，不必先构建；发布包的使用方不受影响。开发服务器与测试里，`workspaceSource()` 还把 `import { Button } from '@zerodep-dev/vue-tsx-pro-ui'` 改成直接导入所在模块：热更新不经过桶文件，改了组件库的样式、工具函数只更新用到它的组件，不整页刷新。
 - **仓库内不用先构建**：`pnpm-workspace.yaml` 的 `nodeOptions` 让 Node 按 `@vue-tsx-pro/source` 条件解析各包源码，脚本里的 Vite / Vitest 都用 `--configLoader native` 加载配置，编译器、预设与组件都直接用源码（文档站开发时热更新）。改了编译器或 Vite 预设要重启开发服务器。
-- **符文类型**：配置 `jsxImportSource: "@vue-tsx-pro/tsx"` 后即可直接使用 `_state` 等；只有 `.ts` 文件的包再在 `types` 里加 `"@vue-tsx-pro/tsx/runes"`。
+- **符文类型**：配置 `jsxImportSource: "@zerodep-dev/vue-tsx-pro-tsx"` 后即可直接使用 `_state` 等；只有 `.ts` 文件的包再在 `types` 里加 `"@zerodep-dev/vue-tsx-pro-tsx/runes"`。
 - **组件库构建**：编译 TSX 与符文，发布普通的 JS；样式在运行时生成，使用方不再编译组件库，开发服务器整个预构建它。
 
 ## 文档

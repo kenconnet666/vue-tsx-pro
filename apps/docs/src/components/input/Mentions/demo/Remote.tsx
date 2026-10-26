@@ -1,7 +1,7 @@
 // 全公司的人太多，按 @ 后面的文字远程搜索（load，停下 300 ms 后请求，只采用最后一次）；
 // 选项自己渲染（children）：头像、姓名与部门。数据是任意结构，用 toOption 映射成选项
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Field, Flex, Mentions, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, Field, Flex, Mentions, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Employee {
   id: string;

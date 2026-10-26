@@ -1,7 +1,15 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Button, Flex, H2, midnightTheme, Paragraph, Provider, Text } from '@vue-tsx-pro/ui';
-import { AuroraBackground } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Button,
+  Flex,
+  H2,
+  midnightTheme,
+  Paragraph,
+  Provider,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { AuroraBackground } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   hero: {

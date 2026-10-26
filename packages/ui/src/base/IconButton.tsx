@@ -4,7 +4,7 @@
  *
  *   <IconButton icon={Settings} aria-label="设置" />
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {

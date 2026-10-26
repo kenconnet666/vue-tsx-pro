@@ -1,7 +1,7 @@
 // 上线检查：可以勾选（onCheckedChange），状态图标是复选按钮，名称就是这一项；不适用、受阻的不能勾。
 // 勾完全部，进度条变成成功色
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Checklist, type ChecklistItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Checklist, type ChecklistItem } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let items = _state<ChecklistItem[]>([

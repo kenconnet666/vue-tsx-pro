@@ -1,7 +1,7 @@
 /** 指南：在已有的 Vue 项目里装上 vue-tsx-pro，写第一个 TSX 页面 */
-import { _component } from '@vue-tsx-pro/tsx';
-import { Alert, Code, CodeBlock, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
-import { CodePreview } from '@vue-tsx-pro/ui/docs-kit';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Alert, Code, CodeBlock, Flex, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { CodePreview } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { h } from 'vue';
 import Counter from '../demo/Counter.tsx?demo';
 import { DocPage } from '../../site/DocPage';
@@ -12,11 +12,12 @@ const meta = {
   description: '在已有的 Vue 3.5 项目里装上 vue-tsx-pro，写第一个 TSX 页面。',
 };
 
-const install = 'pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @lucide/icons zod';
+const install =
+  'pnpm add @zerodep-dev/vue-tsx-pro-tsx @zerodep-dev/vue-tsx-pro-ui @lucide/icons zod';
 
 const viteConfig = `import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import { vueTsxPro } from '@vue-tsx-pro/tsx/vite';
+import { vueTsxPro } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 
 // 原有的 @vitejs/plugin-vue 保留，再加上预设：符文、样式绑定与 JSX 一次编译完
 export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });`;
@@ -24,13 +25,13 @@ export default defineConfig({ plugins: [vue(), ...vueTsxPro()] });`;
 const tsconfig = `{
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxImportSource": "@vue-tsx-pro/tsx",
-    "types": ["@vue-tsx-pro/tsx/runes"]
+    "jsxImportSource": "@zerodep-dev/vue-tsx-pro-tsx",
+    "types": ["@zerodep-dev/vue-tsx-pro-tsx/runes"]
   }
 }`;
 
-const entry = `import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
-import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
+const entry = `import { createUi, darkTheme, lightTheme } from '@zerodep-dev/vue-tsx-pro-ui';
+import { vueRouterAdapter } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';
 
 app.use(
   createUi({

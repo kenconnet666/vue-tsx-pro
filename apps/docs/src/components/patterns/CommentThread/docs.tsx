@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/CommentThreadProps';
 import itemApi from 'virtual:api/CommentItem';
 import composerApi from 'virtual:api/CommentComposerProps';
@@ -22,7 +22,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { CommentThread, CommentComposer } from '@vue-tsx-pro/ui/patterns';"
+    imports="import { CommentThread, CommentComposer } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
   >
     <Examples>
       <ExampleColumn wide>

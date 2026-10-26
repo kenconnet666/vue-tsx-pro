@@ -8,7 +8,7 @@ import type { Control } from './controls';
 export interface CodeInput {
   /** 组件名 */
   name: string;
-  /** 组件从哪个入口导入（@vue-tsx-pro/ui、@vue-tsx-pro/ui/patterns） */
+  /** 组件从哪个入口导入（@zerodep-dev/vue-tsx-pro-ui、@zerodep-dev/vue-tsx-pro-ui/patterns） */
   entry: string;
   /** 有控件的属性与当前值 */
   controls: readonly Control[];
@@ -73,13 +73,13 @@ export function componentCode({
     : inline && (opening + children).length < 70
       ? `${opening}>${children}</${name}>`
       : `${opening}>\n    ${children.split('\n').join('\n    ')}\n  </${name}>`;
-  const main = '@vue-tsx-pro/ui';
+  const main = '@zerodep-dev/vue-tsx-pro-ui';
   const uiImports = [...new Set([...(entry === main ? [name] : []), ...imports])].sort();
   return [
     ...(icons.length
       ? [`import { ${[...new Set(icons)].sort().join(', ')} } from '@lucide/icons';`]
       : []),
-    `import { _component } from '@vue-tsx-pro/tsx';`,
+    `import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';`,
     ...(uiImports.length ? [`import { ${uiImports.join(', ')} } from '${main}';`] : []),
     ...(entry === main ? [] : [`import { ${name} } from '${entry}';`]),
     '',

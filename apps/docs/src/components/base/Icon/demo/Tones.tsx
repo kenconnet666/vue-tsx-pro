@@ -1,6 +1,6 @@
 import { CircleAlert, CircleCheck, CircleUser, Info, Sparkles, TriangleAlert } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Grid, Icon, Text, type IconData, type IconProps } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Grid, Icon, Text, type IconData, type IconProps } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const tones: [IconProps['tone'], IconData, string][] = [
   ['neutral', CircleUser, '中性：正文色'],

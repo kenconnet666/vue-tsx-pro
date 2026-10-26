@@ -4,7 +4,7 @@
  *
  *   <th>…<ColumnResizer label="金额" width={widths.amount} onWidthChange={(px) => …} /></th>
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useLang } from '../config/context';
 import {
   ResizeHandle,

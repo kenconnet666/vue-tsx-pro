@@ -17,9 +17,9 @@
  * 部件：同 DateField，另有 Button（打开按钮）、Popover（弹层，role="dialog"）、Presets、Calendar、Today（“今天”按钮）。
  */
 import { CalendarDays } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { toCalendarDateTime } from '@internationalized/date';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';

@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import Decimal from 'decimal.js';
 import {
   Card,
@@ -11,7 +11,7 @@ import {
   useFormat,
   zhCN,
   type Lang,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 在 Provider 里面调用 useFormat：拿到的是这一层的语言
 const Sample = _component(() => {

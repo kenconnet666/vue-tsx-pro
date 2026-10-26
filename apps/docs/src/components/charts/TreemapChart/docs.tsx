@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/TreemapChartProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { TreemapChart } from '@vue-tsx-pro/ui/charts';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { TreemapChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';"
+  >
     <Example id="savings" title="采购额构成" demo={Savings}>
       <Code>data</Code> 是扁平的明细，<Code>groups</Code> 是从外到内分组的字段，<Code>value</Code>{' '}
       是面积的数值字段。同一个顶层分组同一种颜色（按色板），里面的块按亮度区分；

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Code, Field, Flex, Grid, NumberField, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Code, Field, Flex, Grid, NumberField, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 export default _component(() => {

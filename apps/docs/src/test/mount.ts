@@ -1,6 +1,6 @@
 // 示例测试的挂载工具：和文档站一样装上 createUi，渲染到挂在 document 上的容器里，每个测试结束后自动卸载
-import { _component } from '@vue-tsx-pro/tsx';
-import { createUi } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { createUi } from '@zerodep-dev/vue-tsx-pro-ui';
 import { afterEach } from 'vitest';
 import { createApp, h, type App, type Component } from 'vue';
 

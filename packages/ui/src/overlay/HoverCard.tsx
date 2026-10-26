@@ -11,8 +11,8 @@
  * 键盘聚焦触发器打开后按 Tab 进入卡片，焦点离开触发器与卡片时关闭；Esc 关闭。
  * 用 popover="manual" 渲染在顶层，不会关掉正打开的菜单或弹出框。开关、定位、Esc 见 useHoverLayer（与 Tooltip 共用）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
   floatingStyles,

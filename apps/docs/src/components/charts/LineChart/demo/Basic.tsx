@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { LineChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { LineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const months = [
   { month: '1月', planned: 120, actual: 40 },

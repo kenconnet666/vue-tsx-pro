@@ -1,6 +1,6 @@
 // 环形进度与目标：仪表盘里的完成率，目标线标出要达到的位置
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Grid, Progress, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Grid, Progress, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plants = [
   { name: '一车间', done: 86, target: 80, tone: 'success' as const },

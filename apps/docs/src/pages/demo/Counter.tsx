@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let count = _state(0);

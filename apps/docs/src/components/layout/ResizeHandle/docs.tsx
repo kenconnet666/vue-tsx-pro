@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ResizeHandleProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ResizeHandle } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { ResizeHandle } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="split" title="可以拖宽的列表" demo={Split}>
       手柄放在要调整的元素里（它要有 <Code>position: relative</Code> 或
       fixed），宽度从这个元素量起；

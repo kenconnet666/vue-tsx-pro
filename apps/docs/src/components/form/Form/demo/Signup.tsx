@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Card,
@@ -10,7 +10,7 @@ import {
   TextField,
   useForm,
   useLeaveConfirmation,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import * as z from 'zod';
 
 // 假的“用户名已占用”接口：400ms 后返回；新的输入到来时经 signal 中止

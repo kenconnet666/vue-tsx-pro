@@ -2,7 +2,7 @@
  * 组件库配置（主题与语言）的上下文：应用级由 createUi 提供，局部由 <Provider> 覆盖；
  * 都没有时使用默认值（亮色主题 + 简体中文），组件单独使用也能工作。
  */
-import { createContext } from '@vue-tsx-pro/tsx';
+import { createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { createMatcher } from '../utils/data/collation';
 import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
@@ -15,14 +15,14 @@ import type { Theme } from './theme/theme';
 
 /**
  * 代码高亮器：代码 + 语言 → 高亮后的行内 HTML（只含 span 与换行的 br，不含 pre、code），交给 CodeBlock。
- * 组件库不依赖具体实现；Shiki 的实现见子路径 `@vue-tsx-pro/ui/shiki` 的 createShikiHighlighter。
+ * 组件库不依赖具体实现；Shiki 的实现见子路径 `@zerodep-dev/vue-tsx-pro-ui/shiki` 的 createShikiHighlighter。
  * 返回的 HTML 直接写进页面，实现方负责转义代码里的文字。
  */
 export type Highlighter = (code: string, lang: string) => Promise<string>;
 
 /**
  * 额外的文字匹配：选项过滤、命令面板、树的搜索在内置匹配（忽略大小写与重音的包含）之外再试它，任一命中就算。
- * 拼音匹配见子路径 `@vue-tsx-pro/ui/pinyin` 的 createPinyinMatcher
+ * 拼音匹配见子路径 `@zerodep-dev/vue-tsx-pro-ui/pinyin` 的 createPinyinMatcher
  */
 export type TextMatcher = (text: string, query: string) => boolean;
 

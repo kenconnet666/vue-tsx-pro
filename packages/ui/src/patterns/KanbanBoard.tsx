@@ -26,8 +26,8 @@
  * 列多时整块横向滚动（ScrollArea），每列里的卡片多时列自己竖向滚动。
  */
 import { GripVertical } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { useMessages } from '../config/lang/messages';

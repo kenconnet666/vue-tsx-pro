@@ -1,5 +1,5 @@
 // 请假：周末不可选，但请假区间可以跨过周末（allowsUnavailableInRange），只算工作日
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Flex,
@@ -8,7 +8,7 @@ import {
   shiftIsoDate,
   Text,
   type DateRange,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const weekend = (date: string) => isoDayOfWeek(date) % 6 === 0;
 

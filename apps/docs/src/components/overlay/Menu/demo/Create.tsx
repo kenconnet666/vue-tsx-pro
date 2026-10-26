@@ -1,6 +1,14 @@
 import { FileSpreadsheet, FileText, FolderPlus, Plus, Presentation, Upload } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Menu, MenuGroup, MenuItem, Separator, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Flex,
+  Menu,
+  MenuGroup,
+  MenuItem,
+  Separator,
+  Small,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let created = _state('');

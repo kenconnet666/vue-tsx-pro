@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/AsideLayoutProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { AsideLayout } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { AsideLayout } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="detail" title="详情页" demo={Detail}>
       子元素是主栏，<Code>aside</Code> 是侧栏（<Code>asideWidth</Code> 定宽，默认
       26rem），两栏里的块按 <Code>gap</Code> 竖排。按容器宽度决定叠不叠（不到 56rem

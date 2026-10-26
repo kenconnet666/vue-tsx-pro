@@ -1,7 +1,7 @@
-import { createUi } from '@vue-tsx-pro/ui';
-import { createPinyinMatcher } from '@vue-tsx-pro/ui/pinyin';
-import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki';
-import { useRouteLoadingBar, vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
+import { createUi } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createPinyinMatcher } from '@zerodep-dev/vue-tsx-pro-ui/pinyin';
+import { createShikiHighlighter } from '@zerodep-dev/vue-tsx-pro-ui/shiki';
+import { useRouteLoadingBar, vueRouterAdapter } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';
 import { createApp } from 'vue';
 import { App } from './App';
 import { createDocsRouter, prefetchOnIntent } from './router';

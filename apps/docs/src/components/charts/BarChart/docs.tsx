@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/BarChartProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -23,7 +23,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { BarChart } from '@vue-tsx-pro/ui/charts';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="基础用法" demo={Basic}>

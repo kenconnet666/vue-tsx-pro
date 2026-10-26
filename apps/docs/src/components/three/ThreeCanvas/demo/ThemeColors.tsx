@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Card,
   darkTheme,
@@ -11,9 +11,9 @@ import {
   Provider,
   ToggleGroup,
   ToggleItem,
-} from '@vue-tsx-pro/ui';
-import { ThreeCanvas } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { ThreeCanvas } from '@zerodep-dev/vue-tsx-pro-ui/three';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import {
   AmbientLight,
   DirectionalLight,

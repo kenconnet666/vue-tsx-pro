@@ -1,6 +1,6 @@
 import { Download, Filter, PackageCheck, Plus, Search, Sparkles } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,
@@ -20,7 +20,7 @@ import {
   dataAttrs,
   type TourStep,
   t,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const orders = [
   ['#10234', '林小满', '¥1,280.00', 'success', '已发货'],

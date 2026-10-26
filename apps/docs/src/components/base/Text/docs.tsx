@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import blockquoteApi from 'virtual:api/BlockquoteProps';
 import headingApi from 'virtual:api/HeadingProps';
 import kbdApi from 'virtual:api/KbdProps';
@@ -29,7 +29,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Text, Paragraph, Strong, Em, Small, Link, Mark, Kbd, Blockquote, H1, H2 } from '@vue-tsx-pro/ui';"
+    imports="import { Text, Paragraph, Strong, Em, Small, Link, Mark, Kbd, Blockquote, H1, H2 } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

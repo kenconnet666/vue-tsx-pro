@@ -1,6 +1,6 @@
 // 审批意见里 @ 相关的人：输入 @ 弹出人员（按部门分组、带岗位说明），接着输入按名字过滤，Enter 或 Tab 选中；
 // mentions 是文字里提到的人的工号——删掉“@名字”就不再通知他。下面的预览用 MentionText 高亮提及
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   Field,
@@ -10,7 +10,7 @@ import {
   Small,
   Tag,
   type ListboxOption,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const people: ListboxOption[] = [
   { value: 'E1024', label: '周宁', description: '采购专员', group: '采购部' },

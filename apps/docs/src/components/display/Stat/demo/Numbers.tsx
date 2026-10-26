@@ -1,6 +1,6 @@
 import { RefreshCw, Star } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { AnimatedNumber, Button, Descriptions, Flex, Icon } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { AnimatedNumber, Button, Descriptions, Flex, Icon } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 const random = (min: number, max: number) => min + Math.random() * (max - min);

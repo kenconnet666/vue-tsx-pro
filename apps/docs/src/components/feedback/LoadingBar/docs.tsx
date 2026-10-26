@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, CodeBlock } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/LoadingBarProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -25,7 +25,7 @@ export default _component(() => () => (
   <DocPage
     meta={meta}
     imports={
-      "import { LoadingBar, createLoadingBar } from '@vue-tsx-pro/ui';\nimport { useRouteLoadingBar } from '@vue-tsx-pro/ui/vue-router';"
+      "import { LoadingBar, createLoadingBar } from '@zerodep-dev/vue-tsx-pro-ui';\nimport { useRouteLoadingBar } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';"
     }
   >
     <Example id="navigation" title="换页时的加载" demo={Navigation}>
@@ -36,8 +36,9 @@ export default _component(() => () => (
       <Code>aria-busy</Code> 与“正在加载”的文字。示例把加载条放进了框里（
       <Code>position: absolute</Code>
       ），平时它贴在窗口顶部。
-      <Code>useRouteLoadingBar</Code>（子路径 <Code>@vue-tsx-pro/ui/vue-router</Code>）在开始跳转时
-      start、跳完 finish，守卫抛错或懒加载的页面加载失败时 error，被取消、重定向的不算失败。
+      <Code>useRouteLoadingBar</Code>（子路径 <Code>@zerodep-dev/vue-tsx-pro-ui/vue-router</Code>
+      ）在开始跳转时 start、跳完 finish，守卫抛错或懒加载的页面加载失败时
+      error，被取消、重定向的不算失败。
     </Example>
     <CodeBlock code={routerCode} lang="tsx" title="接上路由（本文档站就是这样接的）" />
     <ApiReference api={api} />

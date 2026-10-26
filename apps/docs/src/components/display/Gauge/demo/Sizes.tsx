@@ -1,6 +1,6 @@
 // 大小随字号：size 档位或外层的字号；中间的文字可以用 valueLabel 换成自己的（“82 / 100 分”）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Gauge } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Gauge } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const bands = [
   { to: 60, tone: 'danger' as const },

@@ -1,7 +1,7 @@
 // 柱子的圆角、类目的显示文字（indexFormat）、数值格式与范围；网格线与提示框的开关
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Grid, Slider, Switch } from '@vue-tsx-pro/ui';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Grid, Slider, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const months = [
   { month: '2026-04', target: 0.85, actual: 0.78 },

@@ -1,9 +1,9 @@
 // 组织架构：子部门展开时才向“服务端”取（loadChildren，加载中显示指示）；已停用的部门可以展开、不能选中；
 // renderItem 在名字后面加人数
 import { Building2, Users } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Card, Flex, Small, Tree } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Card, Flex, Small, Tree } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Department {
   id: string;

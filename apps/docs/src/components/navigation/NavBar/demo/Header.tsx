@@ -1,7 +1,15 @@
 // 后台的顶栏导航：有子项的是下拉菜单，待办带角标；拖动滑块把顶栏变窄，放不下的项收进“更多”
 import { BarChart3, Boxes, House, ShoppingCart, Truck, Users, Wrench } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Field, Flex, NavBar, Slider, Small, type NavBarItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Card,
+  Field,
+  Flex,
+  NavBar,
+  Slider,
+  Small,
+  type NavBarItem,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const items: NavBarItem[] = [
   { label: '工作台', href: '#home', icon: House },

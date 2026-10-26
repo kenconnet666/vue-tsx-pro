@@ -1,4 +1,4 @@
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { darkShadows } from './dark';
 import { paperFonts } from './paper';
 import { defaultRadii } from './light';

@@ -8,8 +8,8 @@
  * 读屏：角标里的数字对读屏隐藏，另有一句完整的说明（label，默认取语言包的“N 条新消息”“有新消息”），念在被标记的元素之后。
  * count 为 0（且没有 showZero）、也没有 dot 时不显示角标。部件：Root（外层 span）、Badge（角标）、Count（计数文字）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';

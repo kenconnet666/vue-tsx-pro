@@ -1,5 +1,12 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Button, DataTable, Flex, Switch, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Badge,
+  Button,
+  DataTable,
+  Flex,
+  Switch,
+  type DataTableColumn,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Order {
   id: string;

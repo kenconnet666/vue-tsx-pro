@@ -1,7 +1,7 @@
 // 组织架构按级取回：进入一个部门时才请求它的下级（模拟 600 ms 的接口）。
 // 编辑页把已选的那一枝放进初始数据（后端随表单一起返回），触发框一开始就显示得出文字
-import { _component } from '@vue-tsx-pro/tsx';
-import { Cascader, Field, Flex, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Cascader, Field, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { reactive } from 'vue';
 
 interface Unit {

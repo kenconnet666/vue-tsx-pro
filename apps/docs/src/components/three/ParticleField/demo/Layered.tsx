@@ -1,8 +1,8 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
-import { MeshGradient, ParticleField } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Flex, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { MeshGradient, ParticleField } from '@zerodep-dev/vue-tsx-pro-ui/three';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 
 const styles = css.create({
   hero: { borderRadius: '_lg', height: '20rem' },

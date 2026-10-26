@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Blockquote,
   Code,
@@ -20,9 +20,9 @@ import {
   TableHead,
   TableHeaderCell,
   TableRow,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
-const install = `pnpm add @vue-tsx-pro/ui @vue-tsx-pro/tsx
+const install = `pnpm add @zerodep-dev/vue-tsx-pro-ui @zerodep-dev/vue-tsx-pro-tsx
 pnpm add -D vite @vitejs/plugin-vue`;
 
 export default _component(() => () => (

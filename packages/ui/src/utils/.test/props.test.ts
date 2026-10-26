@@ -1,7 +1,7 @@
 // 部件 props 的合并规则
 import { describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { elementProps, mergeAttrs, mergeProps } from '../props';
 
 const styles = css.create({ box: { display: 'flex' }, red: { color: 'red' } });

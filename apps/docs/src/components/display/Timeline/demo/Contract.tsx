@@ -1,7 +1,7 @@
 // 合同协商的流转记录：旧的在前、左右交替、小一号；留言、暂停、恢复各有图标
 import { CircleCheck, CirclePlay, MessageSquare, Pause } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Timeline, type TimelineItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Timeline, type TimelineItem } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const records: TimelineItem[] = [
   {

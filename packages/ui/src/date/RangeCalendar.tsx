@@ -8,7 +8,7 @@
  * 允许时写 allowsUnavailableInRange。选到一半按 Esc 取消。键盘与部件同 Calendar（部件见 CalendarView）。
  * granularity 是 month / year 时按月、按年选（季度报表、跨年的预算），写回的区间是整月、整年：开始那月的 1 日到结束那月的最后一天。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   endOfMonth,
   endOfYear,

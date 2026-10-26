@@ -1,6 +1,6 @@
 // 正文排版在真实浏览器里：标题的锚点链接平时透明，悬停标题或聚焦链接时显示（样式的 when.ancestor）
-import { _component } from '@vue-tsx-pro/tsx';
-import { createUi, H2 } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { createUi, H2 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { userEvent } from 'vitest/browser';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, type App } from 'vue';

@@ -18,7 +18,7 @@
  * 它的单位写在右上方，提示框、数据表里按各自的格式与单位显示。其余（图例、目标线、标注、区间、下钻）同 XYChart。
  */
 import { GroupedBar, Line, Scatter, StackedBar, type XYComponentCore } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { NumericFormat } from '../config/lang/format';
 import { colors } from '../config/theme/tokens';
 import { CURVES, type LineCurves, type LineDots } from './LineChart';

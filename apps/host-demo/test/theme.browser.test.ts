@@ -5,7 +5,7 @@ import {
   darkTheme,
   lightTheme,
   paperTheme,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, type App } from 'vue';
 

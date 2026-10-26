@@ -1,7 +1,7 @@
 // 图例、提示框、加载与空状态
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Switch } from '@vue-tsx-pro/ui';
-import { ChordChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ChordChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const teams = [
   { id: 'design', label: '设计' },

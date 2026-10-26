@@ -2,9 +2,9 @@
 // 长三角的地点挤在一起：名字自动换到放得下的方位，再挤就退到外一圈画引线，放不下的悬停看；
 // 点一个地点在下面显示它（onPointClick）
 import { ChinaTopoJSON } from '@unovis/ts/maps';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small } from '@vue-tsx-pro/ui';
-import { MapChart, type MapPoint } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { MapChart, type MapPoint } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const status = { success: '准时', warning: '延误', danger: '断供风险' } as const;
 

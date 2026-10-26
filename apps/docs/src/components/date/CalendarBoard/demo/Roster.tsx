@@ -1,6 +1,6 @@
 // 车间排班：每天早、中、夜三个班的值班人（renderDay），节假日与调休写在日期旁边（getDayNote），休息日不排班
-import { _component } from '@vue-tsx-pro/tsx';
-import { CalendarBoard, Flex, Small, Text, type Tone } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { CalendarBoard, Flex, Small, Text, type Tone } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 2026 年 10 月的节假日与调休（演示数据） */
 const notes: Record<string, string> = {

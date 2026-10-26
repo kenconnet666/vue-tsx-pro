@@ -1,7 +1,7 @@
 // 远程搜索：load 按搜索词请求，服务端返回命中的节点连同它们的上级，结果全部展开；
 // items 放上已选节点的那一枝（编辑页从详情接口拿到），触发框一开始就有文字
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Flex, Small, TreeSelect } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Flex, Small, TreeSelect } from '@zerodep-dev/vue-tsx-pro-ui';
 import { orgs, type Org } from './orgs';
 
 /** 只留命中的节点与它们的上级（裁掉没有命中的分枝） */

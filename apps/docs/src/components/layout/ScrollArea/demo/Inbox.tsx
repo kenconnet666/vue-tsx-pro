@@ -1,6 +1,15 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Avatar, Card, Flex, FlexList, ScrollArea, Small, Strong, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Avatar,
+  Card,
+  Flex,
+  FlexList,
+  ScrollArea,
+  Small,
+  Strong,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const senders = ['林小满', '周一航', '陈默', '许悠', '王晴', '赵浩然', '孙思远', '李雨桐'];
 const subjects = [

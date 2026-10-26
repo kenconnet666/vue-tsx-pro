@@ -1,5 +1,5 @@
 // 开始日加几个工作日，按工作日历跳过节假日：国庆前后开始的几件事，只按周末算与按工作日历（放假、调休补班）对照
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   addWorkdays,
   createWorkCalendar,
@@ -13,8 +13,8 @@ import {
   TableHeaderCell,
   TableRow,
   Text,
-} from '@vue-tsx-pro/ui';
-import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const TODAY = '2026-10-09';
 const holidays = createWorkCalendar({

@@ -2,8 +2,8 @@
  * 只给读屏器看的内容：视觉上不占位，读屏照常朗读。
  * 用于图标按钮的名称、“在新窗口打开”这类补充说明。渲染为 span（行内文字，与 Radix 一致）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 

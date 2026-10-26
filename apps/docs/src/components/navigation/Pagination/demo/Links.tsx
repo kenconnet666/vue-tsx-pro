@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Pager, Pagination, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Pager, Pagination, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Flex direction="column" gap="lg">

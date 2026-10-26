@@ -673,11 +673,11 @@ export interface Lang {
 export interface LangMessages {
   /** 主题编辑器 ThemeCustomizer */
   readonly themeCustomizer: ThemeCustomizerMessages;
-  /** 文档站组件 CodePreview、PropsTable（@vue-tsx-pro/ui/docs-kit） */
+  /** 文档站组件 CodePreview、PropsTable（@zerodep-dev/vue-tsx-pro-ui/docs-kit） */
   readonly docsKit: DocsKitMessages;
-  /** 画布（@vue-tsx-pro/ui/diagram）：Diagram、DiagramControls */
+  /** 画布（@zerodep-dev/vue-tsx-pro-ui/diagram）：Diagram、DiagramControls */
   readonly diagram: DiagramMessages;
-  /** 页面组合（@vue-tsx-pro/ui/patterns）：AppShell、FilterBar、NotificationCenter、KanbanBoard… */
+  /** 页面组合（@zerodep-dev/vue-tsx-pro-ui/patterns）：AppShell、FilterBar、NotificationCenter、KanbanBoard… */
   readonly patterns: PatternsMessages;
 }
 

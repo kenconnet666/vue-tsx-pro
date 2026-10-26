@@ -14,7 +14,7 @@
  * 合并顺序：组件的基础 < 档位 < 组合档位 < createUi 的定制 < 外层 Provider < 内层 Provider < 使用方的 sx。
  * 用配方写的组件（css.recipe 给了 name）才认这里的定制；部件上的 data-scope / data-part 也来自配方（partAttrs）。
  */
-import type { CompiledStyles, Recipe, RecipeExtension } from '@vue-tsx-pro/tsx/styles';
+import type { CompiledStyles, Recipe, RecipeExtension } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useConfig } from './context';
 import type { BadgePart } from '../base/badge-styles';
 import type { AlertPart } from '../feedback/Alert';

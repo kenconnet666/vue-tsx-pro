@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Link } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Link } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/NavBarProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -13,7 +13,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage meta={meta} imports="import { NavBar } from '@vue-tsx-pro/ui';">
+  <DocPage meta={meta} imports="import { NavBar } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="header" title="后台顶栏" demo={Header}>
       <Code>items</Code> 里有 <Code>href</Code> 的是链接，有 <Code>children</Code>{' '}
       的是下拉菜单（Menu，菜单项是链接）。当前页按路由适配判断（同{' '}

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import copyApi from 'virtual:api/CopyButtonProps';
 import api from 'virtual:api/IconButtonProps';
 import linkApi from 'virtual:api/IconLinkButtonProps';
@@ -23,7 +23,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { IconButton, CloseButton, ClearButton, CopyButton, IconLinkButton } from '@vue-tsx-pro/ui';"
+    imports="import { IconButton, CloseButton, ClearButton, CopyButton, IconLinkButton } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

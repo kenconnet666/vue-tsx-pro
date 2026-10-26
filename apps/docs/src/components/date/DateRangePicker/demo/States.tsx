@@ -2,8 +2,15 @@
 // valueType="dateValue" 一开始为空时也写回 CalendarDate，能直接算天数；以及外观与状态
 import type { CalendarDate } from '@internationalized/date';
 import { Plane } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, DateRangePicker, Field, Grid, todayIso, type DateRange } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Code,
+  DateRangePicker,
+  Field,
+  Grid,
+  todayIso,
+  type DateRange,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** ISO 日期是不是周末 */
 const isWeekend = (iso: string) => [0, 6].includes(new Date(`${iso}T00:00`).getDay());

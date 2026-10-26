@@ -1,7 +1,14 @@
 // 可以拖宽的明细面板：手柄放在面板里、贴着它的结束边；拖动、聚焦后按 ← / →、双击回到初始宽度。数据是虚构的
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Descriptions, NavItem, NavList, ResizeHandle, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Descriptions,
+  NavItem,
+  NavList,
+  ResizeHandle,
+  Small,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const parts = [
   { no: 'SKU-0213', name: '显示器支架', material: '铝合金', quantity: 2 },

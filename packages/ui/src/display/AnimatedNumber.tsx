@@ -8,8 +8,8 @@
  * 读屏只读终值：滚动中的数字对读屏隐藏，旁边有一份隐藏的终值文字。需要播报变化时在外层加 aria-live。
  * 值可以是 number、bigint 或 Decimal：过渡的中间帧按浮点数算，停下时与读屏的终值按原值格式化，不丢精度。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden';
 import { useFormat, type NumericFormat } from '../config/lang/format';

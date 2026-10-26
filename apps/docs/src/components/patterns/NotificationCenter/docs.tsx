@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/NotificationCenterProps';
 import itemApi from 'virtual:api/NotificationItem';
 import listApi from 'virtual:api/NotificationListProps';
@@ -22,7 +22,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { NotificationCenter, NotificationList } from '@vue-tsx-pro/ui/patterns';"
+    imports="import { NotificationCenter, NotificationList } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
   >
     <Examples>
       <ExampleColumn wide>

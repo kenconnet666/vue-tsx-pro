@@ -1,6 +1,6 @@
 import { AtSign, Globe, Mail, Phone } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Field, Flex, Grid, TextField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Card, Field, Flex, Grid, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let email = _state('');

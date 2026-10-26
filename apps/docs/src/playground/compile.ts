@@ -1,12 +1,12 @@
 /**
  * 代码演练场的编译：把一段 TSX 编译成能直接执行的代码，在 Worker 里运行（compile.worker.ts）。
  *
- * 与 Vite 预设是同一个编译函数（@vue-tsx-pro/tsx/compiler 的 compile）：动态样式的响应式绑定、符文、Vue JSX、
+ * 与 Vite 预设是同一个编译函数（@zerodep-dev/vue-tsx-pro-tsx/compiler 的 compile）：动态样式的响应式绑定、符文、Vue JSX、
  * 去掉类型；最后把 import 改成从主线程给的模块表里取（见 run.ts），export default 改成交出组件。
  * 样式同站点一样走运行时引擎：css.create 在页面上执行时生成规则（token 短写也在那时换成变量）。
  */
 import { types as t, type PluginObject } from '@babel/core';
-import { compile } from '@vue-tsx-pro/tsx/compiler';
+import { compile } from '@zerodep-dev/vue-tsx-pro-tsx/compiler';
 
 const FILENAME = 'Playground.tsx';
 

@@ -2,11 +2,11 @@
  * 指南：主题定制。左栏先选一套内置主题作起点、再用编辑器微调（宽屏时粘在顶栏下面，自己滚动），
  * 右栏是一个小型应用页面的预览；调整立即作用在整个站点上
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens';
-import { Code, H2, ScrollArea } from '@vue-tsx-pro/ui';
-import { ThemeCustomizer } from '@vue-tsx-pro/ui/theme-customize';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
+import { Code, H2, ScrollArea } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ThemeCustomizer } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 import CustomBrand from '../demo/CustomBrand.tsx?demo';
 import FollowSystem from '../demo/FollowSystem.tsx?demo';
 import RuntimeSwitch from '../demo/RuntimeSwitch.tsx?demo';
@@ -86,7 +86,7 @@ export default _component(() => () => (
       色阶整组换品牌色与中性色；
       <Code>customizeTheme</Code>{' '}
       是上面主题编辑器的旋钮，品牌色、中性色、圆角、缩放、字体、动效一次给出。它们要用颜色库，在子路径{' '}
-      <Code>@vue-tsx-pro/ui/theme-customize</Code>：本站只在访客改过主题设置时才加载。
+      <Code>@zerodep-dev/vue-tsx-pro-ui/theme-customize</Code>：本站只在访客改过主题设置时才加载。
     </Example>
   </DocPage>
 ));

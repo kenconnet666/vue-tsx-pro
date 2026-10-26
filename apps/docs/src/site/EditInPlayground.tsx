@@ -7,8 +7,8 @@
  * 点得比算得快时等算好再跳转。
  */
 import { SquarePen } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { LinkButton } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { LinkButton } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useRouter } from 'vue-router';
 import { PLAYGROUND_PATH, playgroundHref } from '../playground/share';
 

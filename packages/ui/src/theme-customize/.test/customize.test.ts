@@ -52,7 +52,7 @@ describe('themeSettingsOverrides', () => {
 
 it('生成代码：defineTheme(基础主题, 覆盖)，字体名里的双引号原样保留在单引号字符串里', () => {
   const code = themeSettingsCode('lightTheme', { accent: 'teal', font: 'serifHeadings' }, 'light');
-  expect(code).toContain("import { defineTheme, lightTheme } from '@vue-tsx-pro/ui';");
+  expect(code).toContain("import { defineTheme, lightTheme } from '@zerodep-dev/vue-tsx-pro-ui';");
   expect(code).toContain('export const myTheme = defineTheme(lightTheme, {');
   expect(code).toContain(`accent: '${radix.teal.teal9}',`);
   expect(code).toMatch(/heading: '"Noto Serif SC", [^']+',/);

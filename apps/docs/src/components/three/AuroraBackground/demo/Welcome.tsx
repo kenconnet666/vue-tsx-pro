@@ -1,8 +1,8 @@
 // 内容叠在极光上（children）；跟随指针、暂停；“关闭特效”用 quality="off"，显示自己给的 fallback
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Button, Card, Flex, H3, Paragraph, Switch, t } from '@vue-tsx-pro/ui';
-import { AuroraBackground } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Button, Card, Flex, H3, Paragraph, Switch, t } from '@zerodep-dev/vue-tsx-pro-ui';
+import { AuroraBackground } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   stage: {

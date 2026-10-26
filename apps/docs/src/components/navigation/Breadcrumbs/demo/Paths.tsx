@@ -1,6 +1,6 @@
 import { Folder, House, Slash } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Breadcrumbs, Flex, Icon, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Breadcrumbs, Flex, Icon, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 示例里的链接只写锚点：点了不离开文档
 const deep = [

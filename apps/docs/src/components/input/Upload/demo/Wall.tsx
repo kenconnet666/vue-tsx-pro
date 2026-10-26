@@ -1,6 +1,6 @@
 // 验收照片墙：listType="picture" 是方形缩略图，点开看大图（墙上的图左右切换）；拖动把手调整顺序（第一张是封面），
 // 截图后在这里按 Ctrl + V 也能加进来；上传中盖一层进度，名字里带“失败”的图会上传失败、可以重试
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   existingUploadFile,
   Field,
@@ -9,7 +9,7 @@ import {
   Upload,
   type UploadFile,
   type UploadHandler,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { drawings } from '../../../display/Image/demo/drawings';
 
 const upload: UploadHandler = (file, { onProgress, signal }) =>

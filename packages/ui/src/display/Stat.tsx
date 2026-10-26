@@ -19,8 +19,8 @@
  * 成本、耗时这类“越低越好”的指标写 invertChange。加载中（loading）数值与变化量换成扫光的骨架，指标名照常显示。
  */
 import { TrendingDown, TrendingUp } from '@lucide/icons';
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import type { NumericFormat } from '../config/lang/format';

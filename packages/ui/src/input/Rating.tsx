@@ -10,9 +10,9 @@
  * 半星：每颗星左右各一半，各是一个 radio。部件：Root（div）、Star（span，每颗星）、Icon。
  */
 import { Star } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';

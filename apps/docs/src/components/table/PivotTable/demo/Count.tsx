@@ -1,7 +1,7 @@
 // 任务按主办人与状态计数（aggregate="count"，不需要数值字段）；状态按流程的先后排（order），显示成中文（format）。
 // 下面一张是按主办人求平均处理天数（aggregate="avg"），只有行维度、没有列维度
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, PivotTable } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, PivotTable } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Task {
   owner: string;

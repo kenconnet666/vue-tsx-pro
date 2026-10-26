@@ -1,7 +1,7 @@
 // 异步建议：inputValue 双向绑定输入框的文字，据此请求；filter={false} 不再本地过滤，loading 时建议列表显示加载中。
 // 输入的话题不在建议里也能加（默认允许自定义值）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, TagsInput } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, TagsInput } from '@zerodep-dev/vue-tsx-pro-ui';
 import { onBeforeUnmount, watch } from 'vue';
 
 const topics = [

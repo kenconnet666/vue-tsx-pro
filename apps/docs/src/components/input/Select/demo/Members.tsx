@@ -1,7 +1,7 @@
 // 打开时才去取选项（load：请求期间列表里是骨架行）；renderValue 自定义触发框里的已选内容，
 // 子节点渲染函数自定义每个选项
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, AvatarGroup, Field, Flex, Select, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, AvatarGroup, Field, Flex, Select, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Member {
   id: string;

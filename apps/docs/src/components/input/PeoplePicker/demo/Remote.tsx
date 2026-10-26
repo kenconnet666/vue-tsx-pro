@@ -1,13 +1,13 @@
 // 远程数据：source 的三个函数按自己的接口实现（这里用延时模拟请求），signal 在换了部门、改了搜索词、关掉对话框时中止；
 // 加载中显示转圈。真实接口常是 GET /org/children?parent=…、GET /org/search?q=…
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Field,
   localPeopleSource,
   PeoplePicker,
   type PeopleEntry,
   type PeopleSource,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { org, positions } from './org';
 
 const local = localPeopleSource(org, positions);

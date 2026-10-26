@@ -1,5 +1,5 @@
 // 命令式的小表单对话框：字段、必填与校验、提交的值（关闭、离场过渡见浏览器测试）
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';

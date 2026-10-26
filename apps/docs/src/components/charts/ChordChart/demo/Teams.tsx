@@ -1,6 +1,6 @@
 // 部门协作：一年里各部门之间互相提了多少需求；弧越长往来越多，悬停弦看两个部门之间的量
-import { _component } from '@vue-tsx-pro/tsx';
-import { ChordChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { ChordChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const teams = [
   { id: 'product', label: '产品' },

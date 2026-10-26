@@ -1,7 +1,7 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, Grid, Slider, Switch, Text } from '@vue-tsx-pro/ui';
-import { ParticleField } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Flex, Grid, Slider, Switch, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ParticleField } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   stage: { height: '20rem' },

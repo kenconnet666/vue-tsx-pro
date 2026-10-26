@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/AvatarProps';
 import groupApi from 'virtual:api/AvatarGroupProps';
 import indicatorApi from 'virtual:api/IndicatorProps';
@@ -22,7 +22,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Avatar, AvatarGroup, Indicator } from '@vue-tsx-pro/ui';"
+    imports="import { Avatar, AvatarGroup, Indicator } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

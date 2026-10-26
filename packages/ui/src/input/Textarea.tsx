@@ -8,8 +8,8 @@
  *
  * 未声明的属性落到 textarea（主元素）上，外壳用 propsRoot。部件：Root（外壳）、Textarea。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId } from 'vue';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from '../form/Field';

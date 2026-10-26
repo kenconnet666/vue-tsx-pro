@@ -2,8 +2,8 @@
 // center 把中央经线放在东经 110°（中国在中间，欧洲在左、美洲在右）；
 // 供应商是方形的点、组装厂是圆点，流向连到上海，粗细按年采购额，flow 时有流动的粒子
 import { WorldMap110mAlphaTopoJSON } from '@unovis/ts/maps';
-import { _component } from '@vue-tsx-pro/tsx';
-import { MapChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { MapChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 /** 国家代码 → 名称 */
 const countries: Record<string, string> = {

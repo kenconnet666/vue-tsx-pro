@@ -1,7 +1,7 @@
 // 项目结项前的清单：里程碑带完成日期与交付证据，超时的标红并给“催办”；结项材料写清缺的由谁出具。
 // summary 在上面显示完成数与进度条，不适用的不算
 import { BellRing, Paperclip, Upload } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Button,
@@ -12,7 +12,7 @@ import {
   Icon,
   Link,
   type ChecklistItem,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const evidence = (name: string) => (
   <Link href="#">

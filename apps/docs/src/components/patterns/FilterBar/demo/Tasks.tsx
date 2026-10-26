@@ -1,7 +1,7 @@
 // 项目任务的查询栏：常用的四个条件，不常用的收起；收起时“展开”旁提示已经填了几项。
 // 在输入框里按回车就是查询；重置回到初始条件再查一次
 import { Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   createStatusMap,
@@ -14,8 +14,8 @@ import {
   Small,
   StatusBadge,
   TextField,
-} from '@vue-tsx-pro/ui';
-import { FilterBar } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const statuses = createStatusMap({
   pending: { label: '待启动', tone: 'neutral' },

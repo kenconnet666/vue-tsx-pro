@@ -1,7 +1,7 @@
 // 案例库的匹配推送：触发事件 → 匹配到的案例 → 推送给谁；分层布局，三组各框在一起，可以换方向与布局
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { GraphChart, type GraphChartLayouts } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
+import { GraphChart, type GraphChartLayouts } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const groups = [
   { id: 'event', label: '触发事件' },

@@ -1,7 +1,7 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Button, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
-import { MeshGradient } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Button, Flex, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { MeshGradient } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   hero: { borderRadius: '_lg', minHeight: '24rem', display: 'grid', placeItems: 'center' },

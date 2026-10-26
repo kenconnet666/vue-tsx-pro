@@ -2,7 +2,7 @@
 // 数据来自假的服务端（300–600 ms 延迟、按条件筛、按几列排序、分页），按住 Shift 点列标题追加排序列，品类、供应商的表头筛选也交给服务端，
 // 列设置与行高记在浏览器里。真的接口用 tableParams(query, columns) 把这些写成参数（见“请求与数据”指南）
 import { Download, Plus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   createStatusMap,
@@ -13,8 +13,8 @@ import {
   type DataTableColumn,
   type TablePage,
   type TableQuery,
-} from '@vue-tsx-pro/ui';
-import { QueryTable } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { QueryTable } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 interface PurchaseOrder {
   id: string;

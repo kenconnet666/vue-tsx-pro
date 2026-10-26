@@ -1,6 +1,6 @@
 // 自己画值的输入：经办人字段的 input 换成带搜索的 Select（真实场景接人员选择器），类型仍是 select，
 // 比较方式（是、不是、是其中之一）与摘要照旧；format 决定摘要里值的写法。字段的 group 把字段列表分成两组
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   ConditionBuilder,
   describeCondition,
@@ -10,7 +10,7 @@ import {
   useLang,
   type Condition,
   type ConditionField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const people = [
   { id: 'u01', name: '林晓', dept: '采购部' },

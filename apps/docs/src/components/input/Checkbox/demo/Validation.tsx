@@ -1,6 +1,6 @@
 // 必选与出错：提交时才显示错误；Field 的 error 让整组标红，读屏把错误作为说明念出
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Checkbox, CheckboxGroup, Field, Flex, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Checkbox, CheckboxGroup, Field, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let channels = _state<string[]>([]);

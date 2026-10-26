@@ -1,7 +1,7 @@
 // flipInRtl：从右到左排版（dir="rtl"）时水平翻转。箭头、chevron、“返回”这类有方向的图标要翻，时钟、勾号这类不翻
 import { ArrowRight, Check, ChevronLeft, Clock } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Grid, Icon, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Grid, Icon, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const directions = [
   { dir: 'ltr', label: '从左到右（中文、英文）' },

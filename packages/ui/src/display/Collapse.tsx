@@ -8,8 +8,8 @@
  *   - 支持 hidden="until-found" 的浏览器加上它：页内搜索、锚点命中时浏览器自动展开，这里把 open 写回
  *   - 不支持的（Safari）加 inert：收起的内容不能被 Tab 聚焦，读屏也读不到
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLazyContent } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';

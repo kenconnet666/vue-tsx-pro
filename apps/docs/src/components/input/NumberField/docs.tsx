@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/NumberFieldProps';
 import rangeApi from 'virtual:api/NumberRangeFieldProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -24,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { NumberField, NumberRangeField } from '@vue-tsx-pro/ui';"
+    imports="import { NumberField, NumberRangeField } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

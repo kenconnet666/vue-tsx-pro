@@ -1,7 +1,7 @@
 // 工作台上的一张卡片：只放要我处理的提醒（应用自己筛出来），自定义标题、没有类型筛选，底部链到收件箱
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Link } from '@vue-tsx-pro/ui';
-import { NotificationList, type NotificationItem } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Link } from '@zerodep-dev/vue-tsx-pro-ui';
+import { NotificationList, type NotificationItem } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const NOW = Date.parse('2026-10-21T10:00:00+08:00');
 

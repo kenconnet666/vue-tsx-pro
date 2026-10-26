@@ -22,9 +22,9 @@
  * 原生 popover="auto" 负责顶层、点击外部关闭与嵌套顺序，定位与焦点进出见 utils/dom/floating。
  */
 import { Check, ChevronRight, Dot } from '@lucide/icons';
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';

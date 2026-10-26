@@ -9,10 +9,10 @@
  *   import Admin from './frames/Admin.tsx?demo';
  *   <Example id="admin" title="后台" demo={Admin} frame="36rem" />
  */
-import { _component, createContext } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { createFlex, dataAttrs, H2, Paragraph } from '@vue-tsx-pro/ui';
-import { CodePreview, type CodePreviewAligns } from '@vue-tsx-pro/ui/docs-kit';
+import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { createFlex, dataAttrs, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { CodePreview, type CodePreviewAligns } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { h, onBeforeUnmount, onMounted, type VNodeChild } from 'vue';
 import { framePath } from '../router';
 import { canvasStyles } from './canvas';

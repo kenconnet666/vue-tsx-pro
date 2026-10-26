@@ -1,15 +1,15 @@
 // 组织架构：只看不改。节点是名片式的 DiagramNode（起始边放头像，标题是姓名、说明是岗位，总经理用强调色），
 // 连线是排好的折线；fitView 第一次就把整张图放进视口，右下角的缩放按钮来自 DiagramControls。
 // 拖动空白处平移，滚轮平移，按住 Ctrl 滚轮或触控板捏合缩放
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar } from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   Diagram,
   DiagramControls,
   DiagramNode,
   type DiagramEdgeItem,
   type DiagramNodeItem,
-} from '@vue-tsx-pro/ui/diagram';
+} from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 
 interface Person {
   id: string;
