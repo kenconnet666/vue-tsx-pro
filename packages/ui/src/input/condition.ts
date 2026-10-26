@@ -16,6 +16,7 @@
  */
 import type { VNodeChild } from 'vue';
 import type { Lang } from '../config/lang/lang';
+import { compareDecimalText, decimalTextOf, isDecimal } from '../utils/data/numeric';
 
 /** 比较的方式 */
 export interface ConditionOps {
@@ -184,30 +185,33 @@ export function isRuleComplete(rule: ConditionRule): boolean {
   }
 }
 
-/** 两个值按大小比：数字与能读成数字的文字按数值，其余按文字（ISO 日期按文字比就是先后） */
+/**
+ * 两个值按大小比：数字、大整数、Decimal、十进制写法的文字按精确的数值（不经过浮点数，长小数、大整数不丢精度），
+ * 其余写成文字后按编码顺序（不按语言环境；ISO 日期按文字比就是先后）。与流程引擎模型包（flow 的 values.ts）同一套规则
+ */
 function compare(a: unknown, b: unknown): number {
-  const numeric = (value: unknown) =>
-    typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))
-      ? Number(value)
-      : typeof value === 'bigint'
-        ? Number(value)
-        : value;
-  const x = numeric(a);
-  const y = numeric(b);
-  if (typeof x === 'number' && typeof y === 'number') return x - y;
-  return toText(x).localeCompare(toText(y));
+  const x = decimalTextOf(a);
+  const y = decimalTextOf(b);
+  if (x !== undefined && y !== undefined) return compareDecimalText(x, y);
+  const left = toText(a);
+  const right = toText(b);
+  return left === right ? 0 : left < right ? -1 : 1;
 }
 
-/** 等于：数字与数字文字视为相等（表单里的 '5' 与数据里的 5） */
+/** 等于：数字与数字文字视为相等（表单里的 '5' 与数据里的 5）；对象只有 Decimal 参与比较 */
 const same = (a: unknown, b: unknown) =>
-  a === b || (a != null && b != null && typeof a !== 'object' && compare(a, b) === 0);
+  a === b ||
+  (a != null &&
+    b != null &&
+    (typeof a !== 'object' || isDecimal(a)) &&
+    (typeof b !== 'object' || isDecimal(b)) &&
+    compare(a, b) === 0);
 
-const text = (value: unknown) => toText(value).toLocaleLowerCase();
+const text = (value: unknown) => toText(value).toLowerCase();
 
-/** 一条比较成不成立；read 取记录里字段的值，默认按字段名取属性 */
-function matchesRule(rule: ConditionRule, actual: unknown): boolean {
-  const { value } = rule;
-  switch (rule.op) {
+/** 对一个（不是数组的）值，这条比较成不成立 */
+function matchesOne(op: ConditionOp, actual: unknown, value: unknown): boolean {
+  switch (op) {
     case 'eq':
       return same(actual, value);
     case 'ne':
@@ -244,9 +248,24 @@ function matchesRule(rule: ConditionRule, actual: unknown): boolean {
   }
 }
 
+/** "没有一项满足"的比较 */
+const NEGATIVE: ReadonlySet<ConditionOp> = new Set(['ne', 'notIn', 'notContains']);
+
+/**
+ * 一条比较成不成立。字段的值是数组时（多选、人员的编号列表）对每一项比：等于、是其中之一、包含、大小这些是"有一项满足"，
+ * 不等于、不在其中、不包含是"没有一项满足"；有值、没有值看数组是不是空的
+ */
+function matchesRule(rule: ConditionRule, actual: unknown): boolean {
+  if (rule.op === 'exists' || rule.op === 'empty' || !Array.isArray(actual))
+    return matchesOne(rule.op, actual, rule.value);
+  return NEGATIVE.has(rule.op)
+    ? actual.every((item) => matchesOne(rule.op, item, rule.value))
+    : actual.some((item) => matchesOne(rule.op, item, rule.value));
+}
+
 /**
  * 记录满不满足条件。字段的值默认按名字取属性，read 可以改（嵌套字段、计算字段）。
- * 规则与 query 库的 conditionBy（后端写成 SQL，query 仓库的 0017）一致，同一份条件在两边筛出同样的行：
+ * 规则与 query 库的 conditionBy（后端写成 SQL，query 仓库的 0017）、流程引擎的模型包（flow 仓库）一致，同一份条件在各处筛出同样的行：
  * 没填完整的比较（isRuleComplete）与空的组不加条件，组里只看加了条件的那几项；不等于、不在其中、不包含把空值算作满足
  */
 export function matchesCondition<T>(

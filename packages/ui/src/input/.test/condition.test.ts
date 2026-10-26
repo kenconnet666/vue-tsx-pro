@@ -1,5 +1,6 @@
-// 条件树：各种比较方式的求值（数字文字与数字相等、介于的开放端、文字不分大小写、空值），组合与空组，
+// 条件树：各种比较方式的求值（数字文字与数字相等、精确的十进制、编码顺序、数组字段、介于的开放端、文字不分大小写、空值），组合与空组，
 // 自定义取值；写成一句话（嵌套加括号、取反、选项与是否的文字、数字按语言格式化、只有一端的范围）
+import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 import { zhCN } from '../../config/lang/zh-CN';
 import {
@@ -32,6 +33,34 @@ describe('matchesCondition', () => {
     expect(yes({ field: 'amount', op: 'between', value: [1000, null] })).toBe(true);
     // 没有这个字段：大小比较都不成立
     expect(yes({ field: 'missing', op: 'gt', value: 0 })).toBe(false);
+  });
+
+  it('数值按精确的十进制比（与流程引擎的模型包同一套规则）：长小数、大整数、Decimal 不丢精度；文字按编码顺序', () => {
+    const row = {
+      big: '123456789012345678901234567890.01',
+      id: 12345678901234567890n,
+      price: new Decimal('19.90'),
+      code: 'b',
+    };
+    const yes = (condition: Condition) => matchesCondition(condition, row);
+    expect(yes({ field: 'big', op: 'gt', value: '123456789012345678901234567890' })).toBe(true);
+    expect(yes({ field: 'big', op: 'lt', value: '123456789012345678901234567890.02' })).toBe(true);
+    expect(yes({ field: 'id', op: 'eq', value: '12345678901234567890' })).toBe(true);
+    expect(yes({ field: 'id', op: 'gt', value: '12345678901234567889' })).toBe(true);
+    expect(yes({ field: 'price', op: 'eq', value: '19.9' })).toBe(true);
+    expect(yes({ field: 'price', op: 'between', value: ['19.89', '1.99e1'] })).toBe(true);
+    // 编码顺序：大写字母排在小写前面，不随语言环境变
+    expect(yes({ field: 'code', op: 'gt', value: 'B' })).toBe(true);
+  });
+
+  it('字段的值是数组：等于、是其中之一是"有一项满足"，不等于、不在其中是"没有一项满足"', () => {
+    const row = { reviewers: ['u1', 'u2'] };
+    const yes = (condition: Condition) => matchesCondition(condition, row);
+    expect(yes({ field: 'reviewers', op: 'eq', value: 'u2' })).toBe(true);
+    expect(yes({ field: 'reviewers', op: 'ne', value: 'u2' })).toBe(false);
+    expect(yes({ field: 'reviewers', op: 'in', value: ['u3', 'u1'] })).toBe(true);
+    expect(yes({ field: 'reviewers', op: 'notIn', value: ['u3'] })).toBe(true);
+    expect(yes({ field: 'reviewers', op: 'exists' })).toBe(true);
   });
 
   it('选项与文字：in / notIn，包含与开头不分大小写；exists / empty 把空字符串、空数组算作空', () => {

@@ -91,6 +91,66 @@ export function compareNumeric(a: NumericValue, b: NumericValue): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
+/** 十进制写法（可带指数）：'19.90'、'-.5'、'1e3' */
+const DECIMAL_TEXT =
+  /^([+-]?)(\d+)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$|^([+-]?)\.(\d+)(?:[eE]([+-]?\d+))?$/;
+
+/** 拆开的十进制数：符号、去掉前导零的整数位、去掉末尾零的小数位 */
+interface DecimalParts {
+  negative: boolean;
+  int: string;
+  frac: string;
+}
+
+function decimalParts(text: string): DecimalParts | undefined {
+  const match = DECIMAL_TEXT.exec(text);
+  if (!match) return undefined;
+  const [, sign1, int1, frac1, exp1, sign2, frac2, exp2] = match;
+  const intDigits = int1 ?? '';
+  const digits = intDigits + (frac1 ?? frac2 ?? '');
+  // 小数点按指数移动后，再拆成整数位与小数位
+  const point = intDigits.length + Number(exp1 ?? exp2 ?? 0);
+  const padded =
+    point < 0
+      ? '0'.repeat(-point) + digits
+      : point > digits.length
+        ? digits + '0'.repeat(point - digits.length)
+        : digits;
+  const at = Math.max(point, 0);
+  const int = padded.slice(0, at).replace(/^0+/, '');
+  const frac = padded.slice(at).replace(/0+$/, '');
+  return { negative: (sign1 ?? sign2) === '-' && (int !== '' || frac !== ''), int, frac };
+}
+
+/**
+ * 能精确比较的值 → 十进制文本：number（NaN、Infinity 不算）、bigint、Decimal、十进制写法的文字；其余是 undefined。
+ * 条件比较（input/condition.ts）用它：与流程引擎模型包的规则一致，长小数、大整数不丢精度
+ */
+export function decimalTextOf(value: unknown): string | undefined {
+  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : undefined;
+  if (typeof value === 'bigint' || isDecimal(value)) return numericText(value);
+  if (typeof value === 'string' && DECIMAL_TEXT.test(value.trim())) return value.trim();
+  return undefined;
+}
+
+/** 两段十进制文本（decimalTextOf 给出的）按数值比：负数、0、正数；不经过浮点数 */
+export function compareDecimalText(a: string, b: string): number {
+  const x = decimalParts(a);
+  const y = decimalParts(b);
+  if (!x || !y) return a === b ? 0 : a < b ? -1 : 1;
+  if (x.negative !== y.negative) return x.negative ? -1 : 1;
+  let magnitude = 0;
+  if (x.int.length !== y.int.length) magnitude = x.int.length < y.int.length ? -1 : 1;
+  else if (x.int !== y.int) magnitude = x.int < y.int ? -1 : 1;
+  else {
+    const width = Math.max(x.frac.length, y.frac.length);
+    const left = x.frac.padEnd(width, '0');
+    const right = y.frac.padEnd(width, '0');
+    magnitude = left === right ? 0 : left < right ? -1 : 1;
+  }
+  return x.negative ? -magnitude : magnitude;
+}
+
 /** 两个数值是否相等（1 与 1n、Decimal('1.0') 与 1 都算相等） */
 export const sameNumeric = (a: NumericValue, b: NumericValue) => compareNumeric(a, b) === 0;
 
