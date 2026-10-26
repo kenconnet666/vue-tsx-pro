@@ -6,7 +6,7 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 2026-10-23 起联合降本管理暂停（停在 D3），先按下面的阶段 0–8 把组件库做完（2026-10-24 降本清空为空项目、待重做）。依据是当天的盘点：目录与依赖、各组件的使用情况、
 按 §8 的完成度、与 Ant Design（含 ProComponents）、Element Plus、Arco、Mantine、Radix / React Aria、Naive UI 的对照。
 
-2026-10-25 起为流程引擎（`flow` 仓库）做前端，即下面的阶段 9，方案见 [WORKFLOW.md](WORKFLOW.md)。阶段 8 的缺口在动到的组件上随做随补，
+2026-10-25 起为流程引擎（`flow` 仓库）做前端的底座，即下面的阶段 9；流程组件的方案在 `flow` 的 `docs/frontend.md`。阶段 8 的缺口在动到的组件上随做随补，
 API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ## 工作方式
@@ -36,8 +36,8 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 ## 分层
 
 ```
-扩展（子路径：只依赖核心与基础设施，彼此不依赖，workflow → patterns 这类显式登记的除外）
-  /patterns  /diagram  /workflow  /charts  /three  /effects  /xlsx  /theme-customize  /docs-kit  /shiki  /vue-router
+扩展（子路径：只依赖核心与基础设施，彼此不依赖，要依赖时在 layers 检查里显式登记）
+  /patterns  /diagram  /charts  /three  /effects  /xlsx  /theme-customize  /docs-kit  /shiki  /vue-router
 核心（主入口：按分类目录放，与文档站的分类一致；目录之间可以互相用，模块之间不能有环）
   base  layout  display  feedback  overlay  navigation  input  date  form  table
 基础设施（不渲染界面）
@@ -61,7 +61,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] `@vue-tsx-pro/ui/patterns`（页面组合）：AppShell（Brand 并入为 AppShellBrand）、ActionBar、FilterBar、NotificationCenter、
       KanbanBoard、DeadlineBadge（原 DeadlineTag）、ThemeSwitcher、useFormDialog；文案进 patternsMessages；文档站加“页面组合”分类。
       PageHeader 删除（占一整块却没几项信息，页面里直接用 Breadcrumbs、标题与操作排）
-- [x] `@vue-tsx-pro/ui/workflow`：流程定义、校验、排布、运行时与 FlowDiagram、ApprovalActions、useWorkflowTimeline。
+- [x] `@vue-tsx-pro/ui/workflow`：流程定义、校验、排布、运行时与 FlowDiagram、ApprovalActions、useWorkflowTimeline（2026-10-26 整个删除，见阶段 9）。
       WorkflowTimeline 并进 Timeline：流转记录由 useWorkflowTimeline 写成 Timeline 的各项，Timeline 加 `reverse`（新的在前）
 - [x] 对话框的 onConfirm（Dialog、Drawer、AlertDialog 共用“取消 / 确认”、等待与失败留着）：AlertDialog、useFormDialog、
       ApprovalActions 改用它（取代原计划的“ApprovalActions 改用 useFormDialog”：业务字段与附件放不进 useFormDialog 的字符串字段）
@@ -135,7 +135,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] Timeline 升级：操作人、折叠、项里放字段差异（倒序 `reverse` 已有）
 - [x] FieldCompare（建在 diffFields 上）、CommentThread 与 Mentions（patterns）
 - [x] 完成清单重新设计（原 Checklist 删除：只有勾与日期，信息太少；降本案例暂用 shared/Checklist 的副本）
-- [x] FlowDesigner（workflow：流程图上选节点，属性面板改处理人、时限、超时、提醒，校验后发布）
+- [x] FlowDesigner（workflow：流程图上选节点，属性面板改处理人、时限、超时、提醒，校验后发布；2026-10-26 随 `/workflow` 删除）
 
 ## 阶段 7：图表
 
@@ -205,7 +205,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ## 阶段 9：流程引擎的前端
 
-方案与已定的细节见 [WORKFLOW.md](WORKFLOW.md) §5、§6。每步配文档页、饱满的示例、单元与浏览器测试，用到的老组件按 COMPONENTS.md §1–§2 对一遍 API。
+方案与已定的细节见 `flow` 仓库的 `docs/frontend.md`（原本库的 WORKFLOW.md）§5、§6。每步配文档页、饱满的示例、单元与浏览器测试，用到的老组件按 COMPONENTS.md §1–§2 对一遍 API。
 
 - [x] 9.1 画布底座（COMPONENTS.md §10.24）
   - [x] 撤销重做 `createHistory`（主入口，快照、合并输入、连续操作、保存点）
@@ -217,10 +217,13 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
   - [x] 人员与组织选择器 `PeoplePicker`、`PeoplePickerPanel`（COMPONENTS.md §10.26）
   - [x] FilterBar 的高级筛选：`conditionFields` + `_condition`，展开条件构造器、收起时写摘要、重置清空
 - [x] 9.3 模型包（`flow` 仓库）与流程组件的接法：按 `flow` 的决定 0003 选 B，流程组件挪到 `flow` 仓库，以本库发布的包为依赖重做；
-      本库只留通用底座（画布、撤销重做、条件构造器、人员选择器）。下面 9.4–9.6 在 `flow` 仓库里做，做完后删掉本库的 `/workflow`
-- [ ] 9.4 FlowDiagram 重做（建在 `/diagram` 上），删除旧实现与 `layoutProcess`
-- [ ] 9.5 FlowDesigner 重做：结构编辑、属性面板、问题列表、版本对比
-- [ ] 9.6 运行时组件：收件箱表格、审批面板（替换 ApprovalActions）、进度卡、流转记录复审、实例详情的组合、`SchemaForm`
+      本库只留通用底座（画布、撤销重做、条件构造器、人员选择器）。下面 9.4–9.6 在 `flow` 仓库里做
+- [x] 删除本库的 `/workflow` 子路径与文档站的“流程”分类（2026-10-26，用户要求流程图要么建在画布上、要么删掉单独的演示）：
+      FlowDiagram、FlowDesigner、ApprovalActions、layoutProcess、流程定义与校验、运行时类型、useWorkflowTimeline 一起删，
+      Timeline 的两个流转记录示例改成普通的 items；旧实现在提交 `f7bfdc2e`，流程风格的画布示例见 Diagram 页的泳道示例
+- [ ] 9.4 流程图重做（`flow` 仓库，建在 `/diagram` 上）
+- [ ] 9.5 流程设计器重做（`flow` 仓库）：结构编辑、属性面板、问题列表、版本对比
+- [ ] 9.6 运行时组件（`flow` 仓库）：收件箱表格、审批面板、进度卡、流转记录、实例详情的组合、`SchemaForm`
 - [ ] 9.7 契约扩展：随 `flow` 的表设计一起定
 
 ## 联合降本管理（`apps/cost-reduction`，待重做）

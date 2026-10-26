@@ -24,7 +24,7 @@ export default _component(() => () => (
           一层层排开、连线带箭头，适合有上下游的关系；
           <Code>groups</Code> 把同组的节点框在一起、取同一个颜色（分层、分列布局）。连线的{' '}
           <Code>label</Code> 写在线上，<Code>dashed</Code> 是弱关系。布局异步算好再画；elk
-          布局较大（elkjs），用到时才加载。画审批流程用 FlowDiagram（泳道、节点状态）。
+          布局较大（elkjs），用到时才加载。画带泳道、能编辑的流程图用 Diagram（画布）。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

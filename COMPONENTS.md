@@ -290,12 +290,12 @@ interface Lang {
 | -------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | 基础设施 | `utils/`（data、dom、motion、style、virtual、request）、`config/`（context、defaults、theme、lang）                  | 主入口；tokens、vars、theme-boot、shiki、vue-router 各有子路径 |
 | 核心     | `base`、`layout`、`display`、`feedback`、`overlay`、`navigation`、`input`、`date`、`form`、`table`（同文档站的分类） | 主入口 `@vue-tsx-pro/ui`                                       |
-| 扩展     | `patterns`、`workflow`、`charts`、`three`、`effects`、`theme-customize`、`docs-kit`                                  | 子路径 `@vue-tsx-pro/ui/<目录名>`                              |
+| 扩展     | `patterns`、`diagram`、`charts`、`three`、`effects`、`theme-customize`、`docs-kit`                                   | 子路径 `@vue-tsx-pro/ui/<目录名>`                              |
 
 组件平铺在 `packages/ui/src/<目录>/<Name>.tsx`。基础设施不在运行时导入组件，核心不导入扩展，扩展只依赖核心与基础设施（扩展之间的依赖要登记），模块之间没有环。
 子路径只在 `packages/ui/package.json` 的 `exports` 里登记：构建入口、`pnpm exports`（同时生成各子路径目录的 index.ts）、文档站的 API 表都从它读，代码演练场漏登记时文档站测试报错。
 挪文件用 `pnpm move 旧=新`：改写相对导入、重新生成入口，并把应用里从包入口导入的名字改到它现在所在的入口。
-页面组合、流程这类扩展的文案自带中英文的表（`patternsMessages`、`workflowMessages`），在 `Lang.messages` 里按字段改写；`Lang` 只放核心组件的文案。
+页面组合、画布这类扩展的文案自带中英文的表（`patternsMessages`、`diagramMessages`），在 `Lang.messages` 里按字段改写；`Lang` 只放核心组件的文案。
 测试集中在各目录下的 `.test/`，一个组件一个测试文件（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
 **已完成的基础设施**（`packages/ui`、`packages/tsx/src/styles`）：样式入口的类型与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
@@ -821,24 +821,16 @@ apps/docs/src/components/base/Button/
 | 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                                    |
 | 组件     | 画布 `ThreeCanvas`、`EffectSurface`；背景 `AuroraBackground`、`MeshGradient`、`ShaderBackground`；效果 `ParticleField`、`WaveGrid`、`Confetti`；`Globe`（陆地位图由 `pnpm gen:globe-land` 生成）；`ModelViewer` |
 
-### 10.23 流程（workflow/，重做中：方案见 WORKFLOW.md）
+### 10.23 流程（已删除）
 
-流程引擎只做前端：组件库描述流程、校验、画图、给出审批的交互，流程的执行在后端自研引擎（没有后端时由应用的假后端按同一份定义推进）。
-主入口导出，没有新依赖。
-
-| 项       | 做法                                                                                                                                                                                              |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 数据模型 | `ProcessDefinition`：BPMN 2.0 的子集（泳道、人工节点、排他与并行网关、开始与结束、带条件的连线、会签），纯 JSON；条件是可序列化的表达式树（不写脚本），前后端各自求值，`evaluateProcessCondition` |
-| 校验     | `validateProcess`：走不下去的是错误（处理结果没有出边、没有处理人、走不到结束……），多半画漏的是警告；问题带上节点或连线，FlowDiagram 直接标红                                                     |
-| 运行时   | 后端返回的流程实例、待办（岗位收件箱、认领、指定、退回、提级）、流转记录的类型；`processProgress` 推出流程图的进度，`workItemOutcomes` 取审批按钮                                                 |
-| 排布     | `layoutProcess`：泳道是行，节点按最长路径分列；往回的连线走泳道上沿的空白通道；没写泳道的网关跟着上游；节点写了 `position` 时用它                                                                 |
-| 组件     | `FlowDiagram`（SVG 画泳道与连线、HTML 节点叠在上面；进度、问题、点选、`fit` 缩放）、`WorkflowTimeline`（建在 Timeline 上）、`ApprovalActions`（按结果种类的按钮，要求填写的先弹对话框）           |
-| 文案     | 页面级组件的文案表 `workflowMessages`（中英），语言包 `messages.workflow` 按字段改写                                                                                                              |
-| 以后再加 | `FlowDesigner`（属性面板改处理人、时限、超时，校验后发布）；节点的拖动与连线编辑                                                                                                                  |
+原来的子路径 `@vue-tsx-pro/ui/workflow`（流程定义与校验、排布、运行时类型、FlowDiagram、FlowDesigner、ApprovalActions、
+useWorkflowTimeline）2026-10-26 删除：按 `flow` 仓库的决定 0003（B），流程组件在 `flow` 仓库按模型包、建在本库的画布上重做，
+方案在 `flow` 的 `docs/frontend.md`。旧实现在提交 `f7bfdc2e` 的 `packages/ui/src/workflow/`。本库只留通用底座：
+画布（§10.24）、条件构造器（§10.25）、人员与组织选择器（§10.26）。
 
 ### 10.24 画布（diagram/）
 
-流程图、设计器、组织架构图、关系图共用的底座（WORKFLOW.md §3.1、ROADMAP 阶段 9.1）。交互参考 React Flow（视口、选择、框选的写法与默认键位），
+流程图、设计器、组织架构图、关系图共用的底座（ROADMAP 阶段 9.1；流程图与设计器在 `flow` 仓库里建在它上面）。交互参考 React Flow（视口、选择、框选的写法与默认键位），
 只借鉴设计、不依赖它。主入口另有不依赖界面的撤销重做 `createHistory`。
 
 | 项         | 做法                                                                                                                                                                                                                                                                                                                                    |
@@ -856,11 +848,11 @@ apps/docs/src/components/base/Button/
 | 路由       | `routing="orthogonal"`（`routeEdges`）：节点外扩 16 后的边线做稀疏网格，A* 加拐弯代价；同一条边上的几条线按另一端的位置排开端口；`fromSide` / `toSide` 固定进出的边；找不到路时退回简单折线                                                                                                                                             |
 | 导出       | `diagramToSvg` / `diagramToPng`：复制 World，算出来的样式只写会变的（不继承的与这种元素的默认值比，默认值在 `all: initial` 的沙盒里读；继承的与父元素比），放进 foreignObject。PNG 经 `rasterizeSvg` 用 data: 地址载入（blob: 载入的 foreignObject 会让 canvas 不能导出），与图表的导出共用                                             |
 | 小地图     | `DiagramMinimap`：节点方块与视口框，点或拖动把视口移过去；只是指针用户的便利，读屏不念                                                                                                                                                                                                                                                  |
-| 以后再加   | 节点改大小、对齐与分布、复制粘贴（FlowDesigner 重做时按需要加，ROADMAP 9.5）                                                                                                                                                                                                                                                            |
+| 以后再加   | 节点改大小、对齐与分布、复制粘贴（流程设计器在 `flow` 仓库重做时按需要加，ROADMAP 9.5）                                                                                                                                                                                                                                                 |
 
 ### 10.25 条件构造器（input/，ROADMAP 9.2）
 
-流程连线的条件、列表的高级筛选共用一种条件树与一个编辑器（WORKFLOW.md §5 的“条件构造器”）。交互参考 react-querybuilder（字段带类型、比较方式随字段、值的输入随比较方式）
+流程连线的条件、列表的高级筛选共用一种条件树与一个编辑器（ROADMAP 9.2）。交互参考 react-querybuilder（字段带类型、比较方式随字段、值的输入随比较方式）
 与 Notion、Airtable 的筛选（组里第二条起写连接词），只借鉴设计。
 
 | 项       | 做法                                                                                                                                                                                                                                                                                      |

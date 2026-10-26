@@ -1,5 +1,5 @@
 import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Link } from '@vue-tsx-pro/ui';
+import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/DiagramProps';
 import controlsApi from 'virtual:api/DiagramControlsProps';
 import lanesApi from 'virtual:api/DiagramLanesProps';
@@ -67,8 +67,7 @@ export default _component(() => () => (
           画开始与结束，选中的描边也是胶囊形；连线的 <Code>tone</Code> 改线与文字的颜色，
           <Code>dashed</Code> 画虚线。<Code>useDiagram()</Code>{' '}
           建的控制器交给画布，画布外的按钮也能缩放、适应画布，<Code>reveal</Code>{' '}
-          把一个节点平移到看得见。流程图的重做见{' '}
-          <Link href="/components/flow-diagram">FlowDiagram</Link>。
+          把一个节点平移到看得见。
         </Example>
       </ExampleColumn>
     </Examples>

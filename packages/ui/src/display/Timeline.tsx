@@ -11,7 +11,7 @@
  *   />
  *
  * items 按时间先后给；reverse 时新的在前（操作记录、流转记录常这样看），进行中的一项也在最前。
- * 流程的流转记录用 `@vue-tsx-pro/ui/workflow` 的 useWorkflowTimeline 写成 items。
+ * 流程的流转记录每条事件一项：actor 是处理人，处理结果按种类换 icon 与 tone。
  *
  * 操作记录：项写 actor（操作人，可以带 avatar 头像）显示在时间前面；description 里可以放 FieldCompare 列出改了哪些字段；
  * 长的内容（完整的字段对比、附件、原文）放 details，项里一个“查看详情”的按钮点开才显示。

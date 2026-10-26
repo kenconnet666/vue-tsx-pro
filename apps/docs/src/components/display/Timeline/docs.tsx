@@ -2,7 +2,6 @@ import { _component } from '@vue-tsx-pro/tsx';
 import { Code } from '@vue-tsx-pro/ui';
 import api from 'virtual:api/TimelineProps';
 import itemApi from 'virtual:api/TimelineItem';
-import workflowApi from 'virtual:api/WorkflowTimelineOptions';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -21,22 +20,14 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage
-    wide
-    meta={meta}
-    imports={
-      "import { Timeline } from '@vue-tsx-pro/ui';\n" +
-      "import { useWorkflowTimeline } from '@vue-tsx-pro/ui/workflow';"
-    }
-  >
+  <DocPage wide meta={meta} imports="import { Timeline } from '@vue-tsx-pro/ui';">
     <Examples>
       <ExampleColumn>
         <Example id="approval" title="审批流转记录" demo={Approval}>
-          流程的流转事件用 <Code>useWorkflowTimeline</Code>{' '}
-          写成各项：谁、在哪个节点、做了什么，处理结果按种类着色，认领、指定、催办、超时自动处理各有图标。
-          <Code>definition</Code> 给出节点与结果的名称，<Code>actorName</Code> 把工号换成姓名，
-          <Code>renderAttachment</Code> 把附件做成链接，默认不显示“到达节点”（
-          <Code>hide</Code>）。<Code>reverse</Code> 新的在前，items 仍按时间先后给。
+          流程的流转事件每条一项：<Code>actor</Code>{' '}
+          是处理人，标题写在哪个节点做了什么，处理结果按种类换 <Code>icon</Code> 与{' '}
+          <Code>tone</Code>（同意、退回、催办、超时自动处理），意见写在 <Code>description</Code>
+          ，附件做成链接。<Code>reverse</Code> 新的在前，items 仍按时间先后给。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -49,9 +40,7 @@ export default _component(() => () => (
           给节点着色；容器窄时自动排回一侧。
         </Example>
         <Example id="contract" title="流转记录：交替、小一号" demo={Contract}>
-          流转记录也是普通的 items，<Code>alternate</Code>、<Code>size</Code>、部件属性照常用；没给{' '}
-          <Code>definition</Code> 时节点与结果显示标识。文案在语言包的{' '}
-          <Code>messages.workflow</Code> 里可以改写。
+          流转记录也是普通的 items，<Code>alternate</Code>、<Code>size</Code>、部件属性照常用。
         </Example>
       </ExampleColumn>
     </Examples>
@@ -65,6 +54,6 @@ export default _component(() => () => (
       条”后面，按钮在旧的那一端（倒序时在最后），展开后变成“收起”；是否展开可以用{' '}
       <Code>_expanded</Code> 绑定。
     </Example>
-    <ApiReference api={[api, itemApi, workflowApi]} />
+    <ApiReference api={[api, itemApi]} />
   </DocPage>
 ));

@@ -7,10 +7,11 @@
 - **分支**：`master` 已推送到 origin；阶段 9 的画布底座与通用输入已合进 master。进行中的功能在各自的 `feat/*` 分支上，合并后才进 master。
   `proto/runtime-styles` 是样式引擎换成运行时之前的原型，已并入。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
 - **进度**：[ROADMAP.md](ROADMAP.md) 的阶段 0–7 已完成（整理、基础设施、小组件、选择与日期、导航与外壳、表格与表单、展示与协作、图表），
-  阶段 8（质量与发布）只补了包的元数据。2026-10-25 起做阶段 9：为流程引擎（`flow` 仓库）做前端，方案见 [WORKFLOW.md](WORKFLOW.md)，
+  阶段 8（质量与发布）只补了包的元数据。2026-10-25 起做阶段 9：为流程引擎（`flow` 仓库）做前端的底座（流程组件的方案在 `flow` 的 `docs/frontend.md`），
   顺序是画布底座 → 流程组件 → 运行时组件，每个组件开着文档站边做边看。联合降本管理 2026-10-24 清空为空项目、待重做。
   2026-10-26：9.1 画布底座、9.2 通用输入（条件构造器、人员选择器、FilterBar 高级筛选）做完；按 `flow` 仓库的决定 0003（B），
-  流程组件（FlowDiagram、FlowDesigner、ApprovalActions、`/workflow` 子路径）以后在 `flow` 仓库重做，这里的旧实现届时删除，现在不动。
+  流程组件在 `flow` 仓库重做；本库的 `/workflow` 子路径（FlowDiagram、FlowDesigner、ApprovalActions、流程定义与校验）与文档站的
+  “流程”分类 2026-10-26 已删除，旧实现在提交 `f7bfdc2e`。
 - **发布**：两个包定为 0.1.0，由用户按 [RELEASE.md](RELEASE.md) 手动发布到 npm（CI 不发布）；`flow` 引擎以发布的包为依赖。
   发布前做过一轮文档站巡检（`pnpm docs:review`、`pnpm docs:sheets` 逐页看截图，修外观、示例用词与几处组件的布局）。
 - **与 query 的配合**：表格请求（`useTableQuery` 的 `-amount,name` 排序、表头筛选、已知总数、`tableParams`）、线上的 typed JSON
@@ -29,7 +30,7 @@
   - 表格：Table 家族、DataTable（始终虚拟滚动；排序与多列排序、表头筛选、列菜单（固定、移动、隐藏）、行拖动（onReorder）、就地编辑（editable、validate、validateRow、onCellChange，网格方向键）、勾选、固定列、列宽、滚动加载、activeKey）、ColumnSettings（列设置：勾选显示、拖动排序）、TreeDataTable、ColumnTable（按列定义的静态表格，合并单元格）、PivotTable / pivot（透视、合计、热力着色）、useTableQuery、tableToCsv
   - 表单（form/）：Field（labelHidden；form.Field 只有一个控件时自动绑定值）、Label、Form、FormErrorSummary（错误汇总）、FormSection、FormValue、useForm（zod；decimalSchema / bigintSchema）、useLeaveConfirmation
   - 页面组合（子路径 `@vue-tsx-pro/ui/patterns`）：AppShell / AppShellBrand（顶部导航、页签区、页脚、可收起侧栏）、PageTabs（路由用 `vue-router` 子路径的 useRouteTabs）、QueryTable（查询栏 + 工具栏 + 表格 + 分页，接 useTableQuery）、StepsForm（分步表单）、DataImport（导入：上传、对应列、逐行校验、就地改正）、CommentThread / CommentComposer（留言与回复、@、附件）、ActionBar、FilterBar、NotificationCenter / NotificationList、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog；文案在 patternsMessages
-  - 流程（子路径 `@vue-tsx-pro/ui/workflow`）：流程定义与校验、排布、运行时类型、FlowDiagram、FlowDesigner（属性面板、校验、发布）、ApprovalActions、useWorkflowTimeline（写成 Timeline 的各项）
+  - 画布（子路径 `@vue-tsx-pro/ui/diagram`）：Diagram（视口、点选与框选、拖动、连线与改接、正交路由、键盘与读屏）、DiagramNode、DiagramLanes、DiagramControls、小地图、导出 SVG / PNG；撤销重做 `createHistory` 在主入口
   - Excel（子路径 `@vue-tsx-pro/ui/xlsx`，可选 peer exceljs）：exportXlsx / tableToXlsx（列定义导出，分组表头合并、数字格式、合计）、readXlsx（展开合并、多行表头、换行拆行）；CSV 用主入口的 readCsvFile、parseCsv
   - 图表（子路径 `@vue-tsx-pro/ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ComboChart（柱 + 线、对齐的第二数值轴）、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart、TimelineChart（计划与实际、今天、里程碑）、RadarChart、TreemapChart、MapChart（TopoJSON 分区着色与地点）；缩放（zoom）、导出图片与数据（exportable）、目标线（targets）、标注（annotations）、区间（bands）、百分比堆叠（stacked="percent"）、下钻（onItemClick）
   - 3D（子路径 `@vue-tsx-pro/ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
@@ -270,7 +271,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 按 [ROADMAP.md](ROADMAP.md) 的顺序往下做（用户的总要求：持续执行、不必问，把组件库做到成熟可用）：
 
 1. 阶段 0–7 与阶段 9 的 9.1、9.2 已完成；两个包 0.1.0 待用户手动发布。之后按 ROADMAP：阶段 8 的测试与文档缺口（8.1–8.3）、
-   8.4 的发布自动化；流程组件（9.3–9.6）在 `flow` 仓库里以本库为依赖重做，本库的 `/workflow` 届时删除。
+   8.4 的发布自动化；流程组件（9.4–9.6）在 `flow` 仓库里以本库为依赖重做。
 2. 每动一个组件，就在用户的 Chrome 里看它的文档页，补示例、改外观与 API 的灵活性。
 
 审查的细节在 `.claude/reports/audit-2026-10-22.md`（已修的已标出）。每做完一块：勾 ROADMAP、`check.sh`、分开提交（整理与功能）、

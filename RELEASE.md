@@ -3,10 +3,10 @@
 发布由维护者在本机手动执行，CI 不发布（changesets 与带 provenance 的发布工作流见 ROADMAP 8.4，还没做）。
 发布的两个包都在 npm 组织 `vue-tsx-pro` 下，版本号一起走：
 
-| 包                 | 内容                                                                                                       |
-| ------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `@vue-tsx-pro/tsx` | TSX 编译器（符文、组件边界）、运行时样式引擎、Vite 预设；`dist` 与 `types`                                 |
-| `@vue-tsx-pro/ui`  | 组件库与各子路径（`/diagram`、`/charts`、`/patterns`、`/workflow`…），编译好的 JS；依赖 `@vue-tsx-pro/tsx` |
+| 包                 | 内容                                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------- |
+| `@vue-tsx-pro/tsx` | TSX 编译器（符文、组件边界）、运行时样式引擎、Vite 预设；`dist` 与 `types`                              |
+| `@vue-tsx-pro/ui`  | 组件库与各子路径（`/diagram`、`/charts`、`/patterns`、`/three`…），编译好的 JS；依赖 `@vue-tsx-pro/tsx` |
 
 `ui` 对 `tsx` 的依赖写成 `workspace:^`，`pnpm publish` 发布时换成实际版本号，所以必须用 pnpm 发布，不能用 `npm publish`。
 

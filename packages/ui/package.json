@@ -68,11 +68,6 @@
       "types": "./dist/diagram/index.d.ts",
       "default": "./dist/diagram/index.js"
     },
-    "./workflow": {
-      "@vue-tsx-pro/source": "./src/workflow/index.ts",
-      "types": "./dist/workflow/index.d.ts",
-      "default": "./dist/workflow/index.js"
-    },
     "./vue-router": {
       "@vue-tsx-pro/source": "./src/config/vue-router.ts",
       "types": "./dist/config/vue-router.d.ts",

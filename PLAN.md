@@ -46,7 +46,7 @@ packages/
     src/table/        表格：Table、DataTable、TreeDataTable（虚拟滚动）、useTableQuery
     扩展（子路径）
     src/patterns/     页面组合：AppShell、ActionBar、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog
-    src/workflow/     流程：流程定义与校验、FlowDiagram、ApprovalActions、useWorkflowTimeline
+    src/diagram/      画布：节点、连线、泳道、撤销重做、小地图、导出（流程图、设计器在 flow 仓库建在它上面）
     src/charts/       图表（Unovis）；src/three/ 3D（three）；src/effects/ 视觉效果；src/theme-customize/ 主题定制与编辑器；src/docs-kit/ 文档站组件
     （每个目录下的 .test/ 放测试）
 apps/

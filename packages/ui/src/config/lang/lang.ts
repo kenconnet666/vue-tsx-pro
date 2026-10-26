@@ -19,7 +19,6 @@ import type { DiagramMessages } from '../../diagram/messages';
 import type { DocsKitMessages } from '../../docs-kit/messages';
 import type { PatternsMessages } from '../../patterns/messages';
 import type { ThemeCustomizerMessages } from '../../theme-customize/messages';
-import type { WorkflowMessages } from '../../workflow/messages';
 
 /** 文字方向 */
 export interface Directions {
@@ -676,8 +675,6 @@ export interface LangMessages {
   readonly themeCustomizer: ThemeCustomizerMessages;
   /** 文档站组件 CodePreview、PropsTable（@vue-tsx-pro/ui/docs-kit） */
   readonly docsKit: DocsKitMessages;
-  /** 流程组件 FlowDiagram、WorkflowTimeline、ApprovalActions */
-  readonly workflow: WorkflowMessages;
   /** 画布（@vue-tsx-pro/ui/diagram）：Diagram、DiagramControls */
   readonly diagram: DiagramMessages;
   /** 页面组合（@vue-tsx-pro/ui/patterns）：AppShell、FilterBar、NotificationCenter、KanbanBoard… */

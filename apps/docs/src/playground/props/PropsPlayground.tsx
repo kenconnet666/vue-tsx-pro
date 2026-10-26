@@ -9,7 +9,6 @@ import * as css from '@vue-tsx-pro/tsx/styles';
 import { breakpoints } from '@vue-tsx-pro/ui/tokens';
 import * as ui from '@vue-tsx-pro/ui';
 import * as patterns from '@vue-tsx-pro/ui/patterns';
-import * as workflow from '@vue-tsx-pro/ui/workflow';
 import {
   Alert,
   Button,
@@ -83,7 +82,6 @@ const styles = css.create({
 const MODULES: Readonly<Record<string, Record<string, unknown>>> = {
   '@vue-tsx-pro/ui': ui,
   '@vue-tsx-pro/ui/patterns': patterns,
-  '@vue-tsx-pro/ui/workflow': workflow,
 };
 
 interface Entry {
