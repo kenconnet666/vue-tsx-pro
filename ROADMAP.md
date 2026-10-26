@@ -3,7 +3,7 @@
 目标：把组件库做到成熟可用（1.0）。达到的标准是分层清楚、API 一致、基础设施完整、后台业务常用的组件齐全，每个组件都达到
 COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线程推进，每完成一块就提交、推送，并在这里勾掉。
 
-2026-10-23 起联合降本管理暂停（停在 D3），先按下面的阶段 0–8 把组件库做完（2026-10-24 降本清空为空项目、待重做）。依据是当天的盘点：目录与依赖、各组件的使用情况、
+2026-10-23 起先按下面的阶段 0–8 把组件库做完。依据是当天的盘点：目录与依赖、各组件的使用情况、
 按 §8 的完成度、与 Ant Design（含 ProComponents）、Element Plus、Arco、Mantine、Radix / React Aria、Naive UI 的对照。
 
 2026-10-25 起为流程引擎（`flow` 仓库）做前端的底座，即下面的阶段 9；流程组件的方案在 `flow` 的 `docs/frontend.md`。阶段 8 的缺口在动到的组件上随做随补，
@@ -75,7 +75,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 文档页补齐：FormSection、ActionBar、useFormDialog、Drawer（之前只在 Dialog 页里）、NotificationList；挪过的页面组合逐页在 Chrome 里看过、示例重做成整行与真实数据。
       ModalCore 是内核，不单独成页（Dialog、Drawer 的属性表里已有它的全部属性）
 - [x] COMPONENTS.md §7 写上分层与目录、§8 完成标准按现状修订；PLAN §2、HANDOFF 同步
-- [x] 降本案例跟着改导入与用法，不报错（暂停期间只保证这一点）
+- [x] 案例应用跟着改导入与用法，不报错（暂停期间只保证这一点）
 
 ## 阶段 1：基础设施（后面阶段要用的工具先铺好）
 
@@ -134,7 +134,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] Descriptions 的自适应列与复制
 - [x] Timeline 升级：操作人、折叠、项里放字段差异（倒序 `reverse` 已有）
 - [x] FieldCompare（建在 diffFields 上）、CommentThread 与 Mentions（patterns）
-- [x] 完成清单重新设计（原 Checklist 删除：只有勾与日期，信息太少；降本案例暂用 shared/Checklist 的副本）
+- [x] 完成清单重新设计（原 Checklist 删除：只有勾与日期，信息太少；案例应用暂用 shared/Checklist 的副本）
 - [x] FlowDesigner（workflow：流程图上选节点，属性面板改处理人、时限、超时、提醒，校验后发布；2026-10-26 随 `/workflow` 删除）
 
 ## 阶段 7：图表
@@ -230,11 +230,6 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
   - [ ] `@zerodep-dev/vue-tsx-pro-ui/code-editor`：`CodeEditor`（现在文档站的 CodeMirror 编辑器），语言由使用方传，对外给出编辑器状态
 - [ ] 9.9 人员选择器的标准类型改成用户、部门、角色（用户 2026-10-26：标准组织模型是用户、部门、角色加权限、菜单、按钮控制，"岗位"不是标准名词）：
       `PeopleTypes` 的 `position` 换成 `role`（`PeopleSource.positions` 跟着改名），岗位这类由使用方经接口合并（declaration merging）自己加类型；文档页与示例同步
-
-## 联合降本管理（`apps/cost-reduction`，待重做）
-
-2026-10-24 清空为空项目（只有一张占位页），之后重新设计、重做。旧版停在 D3（流程、收件箱、工作台、通知、任务池），
-连同 DESIGN.md 与 MSW 假后端都在提交 372d28e 及之前的历史里。
 
 ## 已知局限（有意的取舍，写在文档里）
 
@@ -358,7 +353,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 组合用的底层组件补上 API 表（CalendarView、DateSegmentGroup、SegmentedField、DataTableView、ColumnResizer、EffectSurface、
       Label、ListPopover、ListboxView），API 表的说明改取组件自己的注释；TreeSelect 补“外观与状态”（isDisabled、图标、外观、必填、只读），
       DateRangePicker 补 valueType、必填、图标与圆角。决定不补：DataTableRow 这类渲染单元；PageSizeSelect 这类继承来的属性不逐个演示
-- [x] 案例：日期用组件库的 `shiftIsoDate`、`daysBetween`；两种降本类型的名称、编码表头、单位与格式合成 `costKinds`，台账只传类型；
+- [x] 案例：日期用组件库的 `shiftIsoDate`、`daysBetween`；两种业务类型的名称、编码表头、单位与格式合成 `costKinds`，台账只传类型；
       两个编辑页共用 `task-form.ts` 的字段与条件必填；DmcEditor 的实施节点用 `form.array`（删行时错误跟着移动）；
       铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@zerodep-dev/vue-tsx-pro-ui/vars`，主入口不再导出它）；看板用 Grid；
       图表示例的真实产品型号换成虚构的名字（2026-10-26 起示例改用通用场景）
@@ -381,17 +376,17 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
       `sameValue`（结构相等）从 useForm 挪到 utils/data/equality.ts 共用
 - [x] 列表查询 `useTableQuery`：页码、条数、排序、已应用的条件、总数、加载与出错一起管（建在 useRequest 上）；page、pageSize、sort
       直接 _bind 到 Pagination、PageSizeSelect、DataTable；换排序、条数、条件、params 回到第一页且只请求一次，当前页空了退到最后一页；
-      降本台账改用它（删掉手写的请求编号与侦听）
+      台账页改用它（删掉手写的请求编号与侦听）
 - [x] 地址里的状态：`UiRouter.query` / `replaceQuery`（vueRouterAdapter 实现，同一轮的写入合并成一次 replace）；
       `useQueryState`、`useQueryStates`（本地为准、双向同步、等于初始值不写、按初始值类型读写，`queryCodecs`）；
-      useTableQuery 的 `syncToUrl`（page、pageSize、`sort=-key`、筛选条件）。降本台账、收益确认、价值台账、详情与编辑页改用它，
+      useTableQuery 的 `syncToUrl`（page、pageSize、`sort=-key`、筛选条件）。台账页、收益确认、价值台账、详情与编辑页改用它，
       删掉文档站自写的 useCaseQuery，useCaseNavigate 改走路由适配
 - [x] 远程选项：Select、Combobox、TreeSelect 的 `load(搜索词, signal)`（打开时请求、输入停下 300 ms 再请求、只采用最后一次，
       共用 remote-items.ts）；Select、TreeSelect 的 `search` 可绑定、`filter={false}`；Upload 的 `action` 走 createUi 的 http；
       useRequest 加 `enabled`
 - [x] 工作日与时限：`createWorkCalendar`（周末、节假日、调休补班）经 createUi / Provider 的 `workCalendar` 给出，
       `useWorkCalendar()` 取用；`workdaysBetween`、`addWorkdays`、`deadlineOf`（截止日、剩余工作日、五种状态）。
-      决定不另做 useDeadline：纯函数加 useWorkCalendar 已经够用；降本案例的认定时限改用它
+      决定不另做 useDeadline：纯函数加 useWorkCalendar 已经够用；案例应用的认定时限改用它
 - [x] 字段差异 `diffFields`：两份记录按字段比较（结构相等），数值字段给出精确的差（Decimal、bigint 不经过浮点）与变化率；
       字段与顺序由 keys 决定，FieldCompare 之后用它
 - 跨容器拖动：`useSortable` 加分组移到阶段 1（看板的跨列移动已由 KanbanBoard 解决）

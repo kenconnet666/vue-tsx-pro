@@ -8,7 +8,7 @@
   `proto/runtime-styles` 是样式引擎换成运行时之前的原型，已并入。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。
 - **进度**：[ROADMAP.md](ROADMAP.md) 的阶段 0–7 已完成（整理、基础设施、小组件、选择与日期、导航与外壳、表格与表单、展示与协作、图表），
   阶段 8（质量与发布）只补了包的元数据。2026-10-25 起做阶段 9：为流程引擎（`flow` 仓库）做前端的底座（流程组件的方案在 `flow` 的 `docs/frontend.md`），
-  顺序是画布底座 → 流程组件 → 运行时组件，每个组件开着文档站边做边看。联合降本管理 2026-10-24 清空为空项目、待重做。
+  顺序是画布底座 → 流程组件 → 运行时组件，每个组件开着文档站边做边看。
   2026-10-26：9.1 画布底座、9.2 通用输入（条件构造器、人员选择器、FilterBar 高级筛选）做完；按 `flow` 仓库的决定 0003（B），
   流程组件在 `flow` 仓库重做；本库的 `/workflow` 子路径（FlowDiagram、FlowDesigner、ApprovalActions、流程定义与校验）与文档站的
   “流程”分类 2026-10-26 已删除，旧实现在提交 `f7bfdc2e`。
@@ -37,9 +37,7 @@
   - 卡片的装饰效果是 Card 的 `effect`（tilt 倾斜、spotlight 聚光、beam 流光边框，纯 CSS）；跑马灯 Marquee 在主入口（展示）。原 `@zerodep-dev/vue-tsx-pro-ui/effects` 子路径 2026-10-24 取消
   - 主题定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch）
 - **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
-- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。联合降本管理是独立子项目 `apps/cost-reduction`（`pnpm dev:cost`，端口 5175），文档站不收案例页。
-- **联合降本管理**（`apps/cost-reduction`）：2026-10-24 清空为空项目（只有一张占位页），待重做。旧版（D0–D3 的页面、DESIGN.md、
-  MSW 假后端）在提交 372d28e 及之前的历史里，需要时 `git show 372d28e:apps/cost-reduction/DESIGN.md` 取回。
+- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。文档站不收案例页。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
 - **CI**：GitHub Actions 五个并行任务：check（静态检查）、test（Ubuntu 与 Windows）、browser（三种浏览器的浏览器测试与文档站的 axe）、build、consumer（发布产物验证）。
 
@@ -220,7 +218,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 - **整体优化**（2026-10-25）：不必迁就旧组件的样式约定与写法，该重做就重做，改过的约定写回 COMPONENTS.md / RUNES.md。
 - **发布**：npm 由用户按 [RELEASE.md](RELEASE.md) 手动发布，不要替他发布；`flow` 仓库的流程引擎以发布的包为依赖。
 - **Figma**：M5 / M6 在 `UTDP9KBNhelTIK1KoMlHYk`（Starter，em 按 14px 换算成精确 px，indigo + slate，Noto Sans SC 与 JetBrains Mono）。
-  2026-10-22 MCP 的月度额度用完，下个月恢复前不调用；旧的降本 Figma（`EXAYq8fZzavtUUfJm0w34M`、`cF46xK3IEPmw9ygh4Tl1Mg`）不参考、不改。
+  2026-10-22 MCP 的月度额度用完，下个月恢复前不调用。
   示例一律用通用的虚构场景（采购、销售、门店、供应商甲），不用具体项目的业务名词与编号（2026-10-26 整理过一遍）。
 - **密钥**：`GITHUB_TOKEN`、`CONTEXT7_API_KEY` 放在用户级环境变量里，配置用 `${VAR}` 引用，绝不写进文件或提交；GitHub 走 `gh` 的 keyring 登录。
 

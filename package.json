@@ -13,8 +13,6 @@
     "build:tsx": "pnpm --filter @zerodep-dev/vue-tsx-pro-tsx build",
     "dev:docs": "pnpm --filter @vue-tsx-pro/docs dev",
     "build:docs": "pnpm --filter @vue-tsx-pro/docs build",
-    "dev:cost": "pnpm --filter @vue-tsx-pro/cost-reduction dev",
-    "build:cost": "pnpm --filter @vue-tsx-pro/cost-reduction build",
     "build:host": "pnpm --filter @vue-tsx-pro/host-demo build",
     "typecheck": "pnpm -r --parallel typecheck",
     "test": "vitest run --configLoader native",

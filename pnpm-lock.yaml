@@ -383,31 +383,6 @@ importers:
         specifier: 'catalog:'
         version: 4.6.7
 
-  apps/cost-reduction:
-    dependencies:
-      '@lucide/icons':
-        specifier: 'catalog:'
-        version: 1.59.0
-      '@zerodep-dev/vue-tsx-pro-tsx':
-        specifier: workspace:^
-        version: link:../../packages/tsx
-      '@zerodep-dev/vue-tsx-pro-ui':
-        specifier: workspace:^
-        version: link:../../packages/ui
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.44(typescript@7.1.0-beta)
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.7
-    devDependencies:
-      typescript:
-        specifier: 'catalog:'
-        version: 7.1.0-beta
-      vite:
-        specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)
-
   apps/docs:
     dependencies:
       '@codemirror/autocomplete':
