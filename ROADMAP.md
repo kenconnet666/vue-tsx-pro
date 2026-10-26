@@ -228,6 +228,8 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [ ] 9.8 浏览器里编译与代码编辑器改成公开入口（`flow` 的决定 0004 第 7 节，用户 2026-10-26 同意），文档站改用它们、删掉自己那份：
   - [ ] `@zerodep-dev/vue-tsx-pro-tsx/browser-compile`：Worker 里的编译（带好 Babel 要的 Node 模块空壳）、把 `import` 改成"接收模块表的模块"的插件、设计时直接执行的辅助函数
   - [ ] `@zerodep-dev/vue-tsx-pro-ui/code-editor`：`CodeEditor`（现在文档站的 CodeMirror 编辑器），语言由使用方传，对外给出编辑器状态
+- [ ] 9.9 人员选择器的标准类型改成用户、部门、角色（用户 2026-10-26：标准组织模型是用户、部门、角色加权限、菜单、按钮控制，"岗位"不是标准名词）：
+      `PeopleTypes` 的 `position` 换成 `role`（`PeopleSource.positions` 跟着改名），岗位这类由使用方经接口合并（declaration merging）自己加类型；文档页与示例同步
 
 ## 联合降本管理（`apps/cost-reduction`，待重做）
 
