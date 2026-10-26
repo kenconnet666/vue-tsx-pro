@@ -79,6 +79,23 @@ export const HTTP_ERROR_CODES = [
 /** 请求层的错误码 */
 export type HttpErrorCode = (typeof HTTP_ERROR_CODES)[number];
 
+/**
+ * 错误明细的一项（0008）：按字段的（表单校验：field、code），或按位置的（流程定义的问题：node、edge）；没有的部分省掉。
+ * 后端只给说明、不给代号时有 message
+ */
+export interface ApiErrorDetail {
+  /** 问题的代号（required、max……） */
+  readonly code?: string;
+  /** 字段路径（`email`、`lines[0].price`） */
+  readonly field?: string;
+  /** 后端给的说明，只作兜底 */
+  readonly message?: string;
+  /** 文案里要填的参数 */
+  readonly params?: Readonly<Record<string, unknown>>;
+  /** 别的位置信息（节点、连线……） */
+  readonly [key: string]: unknown;
+}
+
 /** 后端回的响应体（0008 第 1 节）：成功的 code 是 `ok`，失败是业务错误码 */
 export interface ApiEnvelope<T = unknown> {
   /** `ok` 或业务错误码 */
@@ -87,8 +104,8 @@ export interface ApiEnvelope<T = unknown> {
   readonly message?: string;
   /** 文案里要填的参数 */
   readonly params?: Readonly<Record<string, unknown>>;
-  /** 按字段、按问题的明细（表单校验）：`{ field, code?, message? }` */
-  readonly errors?: readonly unknown[];
+  /** 按字段、按问题的明细（表单校验） */
+  readonly errors?: readonly ApiErrorDetail[];
   /** 成功时的数据 */
   readonly data?: T;
 }
@@ -100,7 +117,7 @@ export interface HttpErrorContext {
   /** 文案里要填的参数 */
   params?: Readonly<Record<string, unknown>>;
   /** 按字段、按问题的明细 */
-  errors?: readonly unknown[];
+  errors?: readonly ApiErrorDetail[];
   /** 出错的请求 */
   request: HttpRequest;
   /** 响应；网络错误、超时时没有 */
@@ -120,7 +137,7 @@ export class HttpError extends Error {
   /** 文案里要填的参数 */
   readonly params: Readonly<Record<string, unknown>>;
   /** 按字段、按问题的明细；useForm 的 submit 据此标到字段上 */
-  readonly errors: readonly unknown[];
+  readonly errors: readonly ApiErrorDetail[];
   /** 出错的请求 */
   readonly request: HttpRequest;
   /** 响应；网络错误、超时时没有 */

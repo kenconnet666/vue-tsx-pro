@@ -211,6 +211,24 @@ describe('useFormat', () => {
     expect(english.textContent).toBe('1,234.5|$0.30|October 18, 2026');
   });
 
+  it('后端给的时刻（带 Z、带毫秒）按语言的时区显示；认不出的原样返回', () => {
+    const Instant = _component(() => {
+      const format = useFormat();
+      return () => (
+        <i>
+          {format.date('2026-10-26T17:40:27.19Z', { dateStyle: 'short', timeStyle: 'short' })}|
+          {format.date('昨天')}
+        </i>
+      );
+    });
+    const shanghai = mount(() => (
+      <Provider lang={{ ...enUS, timeZone: 'Asia/Shanghai' }}>
+        <Instant />
+      </Provider>
+    ));
+    expect(shanghai.textContent).toBe('10/27/26, 1:40 AM|昨天');
+  });
+
   it('数字可以缩放、带单位文字；金额不写币种时用语言的币种', () => {
     const Amounts = _component(() => {
       const format = useFormat();

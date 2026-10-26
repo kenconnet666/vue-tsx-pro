@@ -1848,6 +1848,7 @@ export {
   OK_CODE,
   useHttp,
   type ApiEnvelope,
+  type ApiErrorDetail,
   type FetchClient,
   type HttpClient,
   type HttpClientOptions,

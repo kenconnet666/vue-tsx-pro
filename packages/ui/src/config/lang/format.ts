@@ -66,7 +66,8 @@ export function useFormat() {
     },
     /**
      * 日期时间，带上语言的时区、日历与小时制；DateValue 按语言时区换算。
-     * 也接受日期组件的 ISO 值：'2026-10-20'、'2026-10-20T14:30'、'14:30'（只有时间时配 timeStyle），格式不对时原样返回
+     * 也接受日期组件的 ISO 值：'2026-10-20'、'2026-10-20T14:30'、'14:30'（只有时间时配 timeStyle），
+     * 以及后端给的时刻（带 Z 或时差：'2026-10-20T06:30:00.19Z'，按语言的时区显示）；格式不对时原样返回
      */
     date: (
       value: Date | DateValue | string,
@@ -151,8 +152,15 @@ function toIntl(value: NumberInput): number | bigint | Intl.StringNumericLiteral
   return typeof value === 'string' ? (value as Intl.StringNumericLiteral) : value;
 }
 
-/** 日期组件的 ISO 值 → DateValue：日期、日期时间，或只有时间（放在任意一天上） */
-function parseIsoValue(value: string): DateValue | null {
+/** 带 Z 或时差的 ISO 时刻（后端给的 timestamptz） */
+const ABSOLUTE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/;
+
+/** 日期组件的 ISO 值 → DateValue：日期、日期时间，或只有时间（放在任意一天上）；带时差的时刻 → Date */
+function parseIsoValue(value: string): DateValue | Date | null {
+  if (ABSOLUTE.test(value)) {
+    const instant = new Date(value);
+    return Number.isNaN(instant.getTime()) ? null : instant;
+  }
   const time = parseIsoTime(value);
   if (time) return new CalendarDateTime(2000, 1, 1, time.hour, time.minute, time.second);
   return parseIsoDateTime(value) ?? parseIsoDate(value);
