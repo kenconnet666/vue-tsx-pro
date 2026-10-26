@@ -72,6 +72,8 @@ export interface PatternsMessages {
   readonly pageTabsCloseRight: string;
   /** 查询表格：刷新，默认“刷新” */
   readonly queryTableRefresh: string;
+  /** 查询表格：加载失败的提示条上的重试按钮，默认“重试” */
+  readonly queryTableRetry: string;
   /** 查询表格：行高菜单，默认“行高” */
   readonly queryTableDensity: string;
   /** 行高：紧凑，默认“紧凑” */
@@ -206,6 +208,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     pageTabsCloseOthers: '关闭其他',
     pageTabsCloseRight: '关闭右侧',
     queryTableRefresh: '刷新',
+    queryTableRetry: '重试',
     queryTableDensity: '行高',
     queryTableDensityCompact: '紧凑',
     queryTableDensityStandard: '标准',
@@ -294,6 +297,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     pageTabsCloseOthers: 'Close others',
     pageTabsCloseRight: 'Close tabs to the right',
     queryTableRefresh: 'Refresh',
+    queryTableRetry: 'Retry',
     queryTableDensity: 'Row height',
     queryTableDensityCompact: 'Compact',
     queryTableDensityStandard: 'Standard',

@@ -401,7 +401,7 @@ export const Combobox = _component(
               list,
               id: listId,
               renderOption: children,
-              empty: remote.error() ? lang.listLoadFailed : empty,
+              empty: remote.failure() ?? empty,
             }}
             propsListbox={propsListbox}
             propsPopover={propsPopover}

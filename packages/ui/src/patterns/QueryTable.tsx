@@ -23,8 +23,11 @@ import { Maximize, Minimize, RefreshCw, Rows3 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { reactive, shallowRef, toRaw, type Ref, type VNodeChild } from 'vue';
+import { Button } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
+import { useLang } from '../config/context';
 import { useMessages } from '../config/lang/messages';
+import { Alert, type AlertProps } from '../feedback/Alert';
 import { PaginationBar, type PaginationBarProps } from '../navigation/PaginationBar';
 import { Menu, MenuRadioGroup, MenuRadioItem } from '../overlay/Menu';
 import { ColumnSettings } from '../table/ColumnSettings';
@@ -36,6 +39,7 @@ import type { TablePage, TableQueryState } from '../table/use-table-query';
 import { useFullscreen } from '../utils/dom/fullscreen';
 import { usePersistentState } from '../utils/dom/storage';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { errorMessage } from '../utils/request/error-message';
 import { FilterBar, type FilterBarProps } from './FilterBar';
 import { patternsMessages } from './messages';
 
@@ -79,6 +83,8 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   propsSelectionBar?: Partial<SelectionBarProps>;
   /** 分页栏的部件属性 */
   propsPagination?: Partial<PaginationBarProps>;
+  /** 加载失败时表格上方的提示条（Alert）的部件属性 */
+  propsError?: Partial<AlertProps>;
   /** 工具栏内置按钮（刷新、行高、全屏）的部件属性 */
   propsToolbarButton?: Partial<IconButtonProps>;
 }
@@ -127,10 +133,12 @@ export const QueryTable = _component(
     propsTable,
     propsSelectionBar,
     propsPagination,
+    propsError,
     propsToolbarButton,
     ...rest
   }: QueryTableProps<T, Filters>) => {
     const messages = useMessages('patterns', patternsMessages);
+    const lang = useLang();
     // 查询栏改的是草稿：点“查询”才交给 query
     const initial = structuredClone(toRaw(_untrack(query.filters)));
     const draft = reactive({ ...initial }) as Filters;
@@ -258,6 +266,30 @@ export const QueryTable = _component(
             >
               {batchActions?.(selected)}
             </SelectionBar>
+          )}
+          {/* 加载失败：按错误码说明原因（网络、权限、条件写错），保留上一次的行，给一个重试 */}
+          {query.error !== undefined && (
+            <Alert
+              {...mergePartProps<Partial<AlertProps>>(
+                {
+                  tone: 'danger',
+                  live: 'assertive',
+                  action: (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      tone="danger"
+                      onClick={() => void query.refresh()}
+                    >
+                      {messages.queryTableRetry}
+                    </Button>
+                  ),
+                },
+                propsError,
+              )}
+            >
+              {errorMessage(query.error, lang)}
+            </Alert>
           )}
           <DataTable
             {...mergePartProps<Partial<DataTableProps<T>>>(

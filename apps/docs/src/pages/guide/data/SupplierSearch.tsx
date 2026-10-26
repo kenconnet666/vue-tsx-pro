@@ -1,5 +1,5 @@
 // 供应商查询：关键字停下 300 ms 再请求，翻页立即请求；新请求取消上一次，晚到的旧结果不会覆盖；
-// 重新请求时上一页的结果留着、变淡；出错时显示原因与重试。http 由外层的 Provider 给出（应用里写在 createUi 里）
+// 重新请求时上一页的结果留着、变淡；出错时按错误码显示原因（useErrorMessage）与重试。http 由外层的 Provider 给出（应用里写在 createUi 里）
 import { Search, TriangleAlert } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
@@ -17,6 +17,7 @@ import {
   TableHeaderCell,
   TableRow,
   TextField,
+  useErrorMessage,
   useHttp,
   useRequest,
 } from '@zerodep-dev/vue-tsx-pro-ui';
@@ -36,6 +37,7 @@ export default _component(() => {
   const http = useHttp();
   let keyword = _state('');
   let page = _state(1);
+  const describe = useErrorMessage();
   const suppliers = useRequest(
     ({ keyword, page }, signal) =>
       http.request<SupplierPage>({
@@ -89,7 +91,7 @@ export default _component(() => {
               </Button>
             }
           >
-            {error instanceof Error ? error.message : '请稍后重试'}
+            {describe(error)}
           </Alert>
         )}
         <Table sx={[styles.table, loading && styles.stale]} aria-busy={loading}>

@@ -4,6 +4,8 @@
  * 第一次结果回来之前用 items：编辑页把已选的那一项放进 items，触发框一开始就有文字。
  */
 import { watch } from 'vue';
+import { useLang } from '../config/context';
+import { errorCodeText } from '../utils/request/error-message';
 import { useRequest } from '../utils/request/use-request';
 
 /** 远程选项的加载函数：搜索词 → 选项；signal 在被后来的请求顶掉、组件卸载时中止 */
@@ -23,6 +25,7 @@ export function useRemoteItems<T>(read: {
   /** 本地的选项（有 load 时是第一次结果之前的选项） */
   items: () => readonly T[];
 }) {
+  const lang = useLang();
   const request = useRequest((query: string, signal) => read.load()!(query, signal), {
     params: () => read.query(),
     debounce: DEBOUNCE,
@@ -44,7 +47,12 @@ export function useRemoteItems<T>(read: {
     items: (): readonly T[] => (read.load() ? (request.data ?? read.items()) : read.items()),
     /** 正在请求 */
     loading: () => request.loading,
-    /** 最后一次请求失败的原因 */
-    error: () => request.error,
+    /**
+     * 最后一次请求失败时列表里的提示：错误码有文案时用它（网络断了、没有权限），否则是笼统的“加载失败，请重试”；没失败时为 undefined
+     */
+    failure: (): string | undefined =>
+      request.error === undefined
+        ? undefined
+        : (errorCodeText(request.error, lang) ?? lang.listLoadFailed),
   };
 }

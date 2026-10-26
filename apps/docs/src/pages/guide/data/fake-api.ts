@@ -1,9 +1,9 @@
 /**
  * “请求与数据”指南的假接口：内存里的供应商（虚构），经一个假的 fetch 交给 createHttpClient。
- * 回应带 300–800 ms 的随机延迟、遵守取消，数据包在 { code, data, message } 里，与常见后端一致；
+ * 回应带 300–800 ms 的随机延迟、遵守取消，数据包在 { code: 'ok', data } 里（业务错误码的约定，createHttpClient 自己拆）；
  * failure.next 让下一次请求返回业务错误，演示出错与重试。
  */
-import { createHttpClient, HttpError, parseSorts } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createHttpClient, parseSorts, type ApiEnvelope } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 一家供应商 */
 export interface Supplier {
@@ -35,13 +35,7 @@ const suppliers: Supplier[] = prefixes.flatMap((prefix, row) =>
 /** 让下一次请求失败（演示出错与重试） */
 export const failure = { next: false };
 
-interface Envelope<T> {
-  code: number;
-  data: T;
-  message: string;
-}
-
-const respond = <T>(body: Envelope<T>) =>
+const respond = <T>(body: ApiEnvelope<T>) =>
   new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } });
 
 /** 假的 fetch：GET /api/suppliers?keyword=&page=&pageSize=&sort=-name,city（tableParams 写出的参数，同 query 库的 parseTableRequest） */
@@ -56,7 +50,10 @@ async function fakeFetch(input: RequestInfo | URL): Promise<Response> {
   });
   if (failure.next) {
     failure.next = false;
-    return respond({ code: 50001, data: null, message: '供应商服务暂时不可用，请稍后重试' });
+    return respond({
+      code: 'demo.supplier-unavailable',
+      message: '供应商服务暂时不可用，请稍后重试',
+    });
   }
   const url = new URL(request.url);
   if (url.pathname !== '/api/suppliers') return new Response(null, { status: 404 });
@@ -76,16 +73,8 @@ async function fakeFetch(input: RequestInfo | URL): Promise<Response> {
     return 0;
   });
   const rows = matched.slice((page - 1) * pageSize, page * pageSize);
-  return respond({ code: 0, data: { rows, total: matched.length }, message: '' });
+  return respond({ code: 'ok', data: { rows, total: matched.length } });
 }
 
-/** 演示用的客户端：拆掉 { code, data, message }，code 不是 0 时抛 HttpError */
-export const demoHttp = createHttpClient({
-  baseURL: '/api',
-  fetch: fakeFetch,
-  onResponse: (body, context) => {
-    const envelope = body as Envelope<unknown>;
-    if (envelope.code !== 0) throw new HttpError(envelope.message, { ...context, data: body });
-    return envelope.data;
-  },
-});
+/** 演示用的客户端：code 是 ok 时交出 data，否则抛带这个码的 HttpError（demo. 的码语言包里没有，显示后端的 message） */
+export const demoHttp = createHttpClient({ baseURL: '/api', fetch: fakeFetch });

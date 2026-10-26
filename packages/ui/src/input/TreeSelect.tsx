@@ -365,11 +365,7 @@ export const TreeSelect = _component(
           filter: treeFilter(),
           loadChildren,
           loading: remote.loading(),
-          empty: remote.error()
-            ? lang.listLoadFailed
-            : search.trim()
-              ? lang.selectNoMatch
-              : undefined,
+          empty: remote.failure() ?? (search.trim() ? lang.selectNoMatch : undefined),
           isDisabled,
           propsScrollArea: { sx: treeSelectStyles.tree },
           'aria-labelledby': labelledBy,

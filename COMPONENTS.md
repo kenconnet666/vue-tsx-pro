@@ -276,6 +276,8 @@ interface Lang {
 | `highlighter` | 代码高亮（CodeBlock 用），如 `@zerodep-dev/vue-tsx-pro-ui/shiki` 的 `createShikiHighlighter()`                    |
 | `ripple`      | 按下时的波纹效果，默认开                                                                                          |
 
+请求失败按业务错误码显示（flow 仓库 docs/decisions/0008：HTTP 一律 200，响应体 `{ code, message, params, errors, data }`）：`createHttpClient` 拆开响应体，失败的码抛 `HttpError`（`code`、`params`、`errors`），请求层自己的错是 `http.network`、`http.timeout`、`http.status`、`http.parse`；语言包的 `errorCodes` 给 `http.`、`query.` 的文案，应用与 flow-ui 用 `defineLang` 补自己的命名空间。组件都经 `errorMessage` / `errorCodeText` 取文案：QueryTable 加载失败时表格上方给原因与重试，远程选项的列表、Upload 失败的文件按码说明，`useForm` 的 `submit` 把 `errors` 里按字段的明细标到字段、其余写进 `formError` 并返回 false。
+
 弹层用原生的 Popover API 与 `<dialog>`（浏览器最顶层），不需要挂载容器与层级的配置。
 
 尺寸基准属于主题（基准字号），不单独设配置项。

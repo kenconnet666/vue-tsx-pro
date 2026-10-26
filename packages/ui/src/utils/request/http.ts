@@ -1,20 +1,24 @@
 /**
  * 请求层：组件（远程选项、上传、列表查询）只依赖 HttpClient 接口，应用经 createUi / Provider 的 http 给出实现。
  * 默认实现 createHttpClient 是原生 fetch 的薄封装（参考 ky、ofetch）：baseURL、query、JSON 请求体、超时与取消、
- * 状态码错误（HttpError）、请求与响应钩子。用 axios、ky 时只要写一个 request：
+ * 拆响应体、带码的错误（HttpError）、请求与响应钩子。用 axios、ky 时只要写一个 request：
  *
  *   createUi({ http: { request: (r) => axios.request({ ...r, params: r.query, data: r.body }).then((res) => res.data) } })
  *
  * 值按线上的 typed JSON 传（见 wire.ts）：请求体里的 bigint、Decimal、CalendarDate 写成文字并附上 `$types`，
  * 地址栏参数写成同样的文字，带 `$types` 的响应先还原再交给 onResponse；`wire: false` 时按普通 JSON。
  *
- * 后端把数据包在 { code, data, message } 里时，在 onResponse 里拆开，业务错误抛 HttpError：
+ * 响应体按业务错误码的约定拆开（flow 仓库 docs/decisions/0008，query、flow 的后端都这样回）：HTTP 一律 200，
+ * `{ code: 'ok', data }` 交出 data，`{ code: 'flow.work-item-not-open', message, params, errors }` 抛带这个码的 HttpError；
+ * 请求层自己出的错也带码：`http.network`、`http.timeout`、`http.status`（网关回了非 2xx）、`http.parse`（响应读不懂）。
+ * 组件按码从语言包取文案（见 error-message.ts）。后端用别的包装（`{ code: 0, data }`）时关掉 envelope，在 onResponse 里拆：
  *
  *   const http = createHttpClient({
  *     baseURL: '/api',
+ *     envelope: false,
  *     onRequest: (request) => request.headers.set('Authorization', `Bearer ${token()}`),
  *     onResponse: (body: Envelope, context) => {
- *       if (body.code !== 0) throw new HttpError(body.message, { ...context, data: body });
+ *       if (body.code !== 0) throw new HttpError(body.message, { ...context, code: `app.${body.code}`, data: body });
  *       return body.data;
  *     },
  *   });
@@ -57,8 +61,46 @@ export interface HttpClient {
   request<T = unknown>(request: HttpRequest): Promise<T>;
 }
 
-/** 请求失败时的上下文：发生在哪个请求、拿到的响应 */
+/** 成功的码 */
+export const OK_CODE = 'ok';
+
+/**
+ * 请求层自己出的错的码（0008 的 `http.` 命名空间，只在前端产生）。取消不当作错误，仍以 AbortError 拒绝，
+ * errorCodeOf 把它认作 `http.aborted`
+ */
+export const HTTP_ERROR_CODES = [
+  'http.network',
+  'http.timeout',
+  'http.aborted',
+  'http.status',
+  'http.parse',
+] as const;
+
+/** 请求层的错误码 */
+export type HttpErrorCode = (typeof HTTP_ERROR_CODES)[number];
+
+/** 后端回的响应体（0008 第 1 节）：成功的 code 是 `ok`，失败是业务错误码 */
+export interface ApiEnvelope<T = unknown> {
+  /** `ok` 或业务错误码 */
+  readonly code: string;
+  /** 后端给的说明，只作兜底：界面按 code 取文案 */
+  readonly message?: string;
+  /** 文案里要填的参数 */
+  readonly params?: Readonly<Record<string, unknown>>;
+  /** 按字段、按问题的明细（表单校验）：`{ field, code?, message? }` */
+  readonly errors?: readonly unknown[];
+  /** 成功时的数据 */
+  readonly data?: T;
+}
+
+/** 请求失败时的上下文：业务错误码、发生在哪个请求、拿到的响应 */
 export interface HttpErrorContext {
+  /** 业务错误码：后端回的（`flow.`、`query.`、应用自己的）或请求层的（`http.`） */
+  code: string;
+  /** 文案里要填的参数 */
+  params?: Readonly<Record<string, unknown>>;
+  /** 按字段、按问题的明细 */
+  errors?: readonly unknown[];
   /** 出错的请求 */
   request: HttpRequest;
   /** 响应；网络错误、超时时没有 */
@@ -69,10 +111,16 @@ export interface HttpErrorContext {
   cause?: unknown;
 }
 
-/** 请求失败：状态码不是 2xx、网络错误、超时，或 onResponse 判定的业务错误 */
+/** 请求失败：后端回了业务错误码、状态码不是 2xx、网络错误、超时、响应读不懂，或 onResponse 判定的业务错误 */
 export class HttpError extends Error {
   /** 错误名，同类名：日志与 instanceof 之外的判断用 */
   override readonly name = 'HttpError';
+  /** 业务错误码（见 HttpErrorContext.code）；界面按它取文案 */
+  readonly code: string;
+  /** 文案里要填的参数 */
+  readonly params: Readonly<Record<string, unknown>>;
+  /** 按字段、按问题的明细；useForm 的 submit 据此标到字段上 */
+  readonly errors: readonly unknown[];
   /** 出错的请求 */
   readonly request: HttpRequest;
   /** 响应；网络错误、超时时没有 */
@@ -82,8 +130,14 @@ export class HttpError extends Error {
   /** 响应体（错误详情） */
   readonly data?: unknown;
 
-  constructor(message: string, { request, response, data, cause }: HttpErrorContext) {
+  constructor(
+    message: string,
+    { code, params, errors, request, response, data, cause }: HttpErrorContext,
+  ) {
     super(message, { cause });
+    this.code = code;
+    this.params = params ?? {};
+    this.errors = errors ?? [];
     this.request = request;
     this.response = response;
     this.status = response?.status ?? 0;
@@ -105,7 +159,12 @@ export interface HttpClientOptions {
   timeout?: number;
   /** 发出之前改请求（加令牌、追踪编号）；可以返回一个新的 Request */
   onRequest?: (request: Request) => Request | void | Promise<Request | void>;
-  /** 2xx 响应解析后的数据交给它：拆掉后端的包装、判定业务错误（抛 HttpError），返回值就是请求的结果 */
+  /**
+   * 按 0008 的约定拆响应体（见文件开头），默认 true：键都在 code、message、params、errors、data 里、code 是文字的对象
+   * 才当作包装，其余原样交出。后端用别的包装时给 false，在 onResponse 里拆
+   */
+  envelope?: boolean;
+  /** 成功的响应（拆包之后）的数据交给它：再加工、判定别的业务错误（抛 HttpError），返回值就是请求的结果 */
   onResponse?: (data: unknown, context: { request: HttpRequest; response: Response }) => unknown;
   /**
    * 线上的 typed JSON 怎样还原（见 wire.ts）：给 `{ decimal: Decimal }` 时 decimal 还原成 Decimal，`dates: 'objects'`
@@ -150,7 +209,9 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
     onRequest,
     onResponse,
     wire = {},
+    envelope: unwrap = true,
   } = options;
+  const revive = (value: unknown) => (wire === false ? value : fromWire(value, wire));
 
   async function request<T>(spec: HttpRequest): Promise<T> {
     const { method = 'GET', body, signal, timeout = defaultTimeout } = spec;
@@ -180,19 +241,56 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
       const message = timedOut
         ? `请求超时（${timeout / 1000} 秒）：${method} ${spec.url}`
         : `网络错误：${method} ${spec.url}`;
-      throw new HttpError(message, { request: spec, cause });
-    }
-    const raw = await readBody(response, spec.responseType);
-    const data = wire === false ? raw : fromWire(raw, wire);
-    if (!response.ok) {
-      const status = `${response.status}${response.statusText ? ` ${response.statusText}` : ''}`;
-      throw new HttpError(`请求失败（${status}）：${method} ${spec.url}`, {
+      throw new HttpError(message, {
+        code: timedOut ? 'http.timeout' : 'http.network',
+        params: timedOut ? { seconds: timeout / 1000 } : undefined,
         request: spec,
-        response,
+        cause,
+      });
+    }
+    const context = { request: spec, response };
+    const { body: raw, malformed } = await readBody(response, spec.responseType);
+    let data: unknown;
+    try {
+      data = malformed ? raw : revive(raw);
+    } catch (cause) {
+      throw new HttpError(`响应读不懂：${method} ${spec.url}`, {
+        ...context,
+        code: 'http.parse',
+        data: raw,
+        cause,
+      });
+    }
+    const envelope = unwrap && isEnvelope(data) ? data : undefined;
+    // 业务错误以响应体的码为准：网关原样转发非 2xx 的业务响应时也认得出
+    if (envelope && envelope.code !== OK_CODE) {
+      throw new HttpError(envelope.message || envelope.code, {
+        ...context,
+        code: envelope.code,
+        params: envelope.params,
+        errors: envelope.errors,
         data,
       });
     }
-    return (onResponse ? onResponse(data, { request: spec, response }) : data) as T;
+    if (!response.ok) {
+      const status = `${response.status}${response.statusText ? ` ${response.statusText}` : ''}`;
+      throw new HttpError(`请求失败（${status}）：${method} ${spec.url}`, {
+        ...context,
+        code: 'http.status',
+        params: { status: response.status },
+        data,
+      });
+    }
+    if (malformed) {
+      throw new HttpError(`响应不是 JSON：${method} ${spec.url}`, {
+        ...context,
+        code: 'http.parse',
+        data,
+      });
+    }
+    // 包装里的 data 自己带 $types 时（后端先 toWire 数据再包），再还原一次；已还原过的不再有 $types
+    const result = envelope ? revive(envelope.data) : data;
+    return (onResponse ? onResponse(result, context) : result) as T;
   }
 
   const withBody =
@@ -234,6 +332,17 @@ function buildUrl(baseURL: string, url: string, query: HttpRequest['query']): st
   return full;
 }
 
+const ENVELOPE_KEYS = new Set(['code', 'message', 'params', 'errors', 'data']);
+
+/** 是不是 0008 的响应体：code 是文字、没有别的键（不把恰好有 code 字段的业务对象当成包装） */
+function isEnvelope(value: unknown): value is ApiEnvelope {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    typeof record.code === 'string' && Object.keys(record).every((key) => ENVELOPE_KEYS.has(key))
+  );
+}
+
 /** 普通对象与数组按 JSON 发送 */
 function isJsonBody(body: unknown): boolean {
   if (body == null || typeof body !== 'object') return false;
@@ -241,26 +350,29 @@ function isJsonBody(body: unknown): boolean {
   return Array.isArray(body) || prototype === Object.prototype || prototype === null;
 }
 
-async function readBody(response: Response, type: HttpRequest['responseType']): Promise<unknown> {
+/** 读响应体；声明是 JSON 却解析不了（网关的 HTML 错误页）时交出原文并标上 malformed */
+async function readBody(
+  response: Response,
+  type: HttpRequest['responseType'],
+): Promise<{ body: unknown; malformed?: boolean }> {
   if (
     response.status === 204 ||
     response.status === 205 ||
     response.headers.get('content-length') === '0'
   ) {
-    return undefined;
+    return { body: undefined };
   }
   const contentType = response.headers.get('content-type') ?? '';
   const kind =
     type ??
     (/[/+]json\b/.test(contentType) ? 'json' : contentType.startsWith('text/') ? 'text' : 'blob');
-  if (kind === 'blob') return response.blob();
+  if (kind === 'blob') return { body: await response.blob() };
   const text = await response.text();
-  if (kind === 'text') return text;
-  if (text === '') return undefined;
+  if (kind === 'text') return { body: text };
+  if (text === '') return { body: undefined };
   try {
-    return JSON.parse(text);
+    return { body: JSON.parse(text) };
   } catch {
-    // 声明是 JSON 却解析不了（网关的 HTML 错误页）：交出原文，状态码错误里还能看到
-    return text;
+    return { body: text, malformed: true };
   }
 }

@@ -27,23 +27,18 @@ const meta = {
     '组件只依赖 HttpClient 接口：默认是原生 fetch 的薄封装，也可以换成 axios、ky；useRequest 管加载、出错、防抖与取消。',
 };
 
-const client = `import { createHttpClient, createUi, HttpError } from '@zerodep-dev/vue-tsx-pro-ui';
+const client = `import { createHttpClient, createUi } from '@zerodep-dev/vue-tsx-pro-ui';
 
-/** 后端的包装：{ code: 0, data: …, message: '' } */
-interface Envelope { code: number; data: unknown; message: string }
-
+// 后端回 { code: 'ok', data } 或 { code: 'flow.forbidden', message, params, errors }：客户端自己拆，失败的码抛 HttpError
 const http = createHttpClient({
   baseURL: '/api',
   timeout: 15_000, // 默认 30 秒
   // 发出之前：加令牌
   onRequest: (request) => request.headers.set('Authorization', \`Bearer \${auth.token}\`),
-  // 2xx 之后：拆掉包装，业务错误变成 HttpError
-  onResponse: (body, context) => {
-    const envelope = body as Envelope;
-    if (envelope.code !== 0) throw new HttpError(envelope.message, { ...context, data: body });
-    return envelope.data;
-  },
 });
+
+// 后端用别的包装（{ code: 0, data }）时关掉 envelope，在 onResponse 里自己拆：
+// createHttpClient({ envelope: false, onResponse: (body, context) => { …; throw new HttpError(message, { ...context, code }) } })
 
 app.use(createUi({ http }));
 
@@ -62,15 +57,23 @@ const http: HttpClient = {
 
 app.use(createUi({ http }));`;
 
-const errors = `import { HttpError, isAbortError } from '@zerodep-dev/vue-tsx-pro-ui';
+const errors = `import { defineLang, HttpError, isAbortError, useErrorMessage, zhCN } from '@zerodep-dev/vue-tsx-pro-ui';
 
+// 语言包补上自己命名空间的码（与自带的 http.、query. 合并）
+createUi({ lang: defineLang(zhCN, { errorCodes: { 'app.code-taken': ({ code }) => \`编号 \${String(code)} 已经被占用\` } }) });
+
+// 页面里按码显示
+const describe = useErrorMessage();
 try {
   await http.post('/tasks', values);
 } catch (error) {
   if (isAbortError(error)) return; // 主动取消的，不是错误
-  if (error instanceof HttpError && error.status === 409) form.setError('code', '编号已经被占用');
-  else throw error;
-}`;
+  if (error instanceof HttpError && error.code === 'app.code-taken') form.setError('code', describe(error));
+  else toast.danger(describe(error));
+}
+
+// 表单：onSubmit 里直接请求；后端回的 errors 明细（{ field, code, message }）自动标到字段上，其余是 formError
+const form = useForm({ schema, initial, onSubmit: (values) => http.post('/tasks', values) });`;
 
 export default _component(() => () => (
   <DocPage meta={meta}>
@@ -82,9 +85,9 @@ export default _component(() => () => (
         远程选项、上传、列表查询这些组件都通过 <Code>useHttp()</Code> 拿到请求客户端，客户端在{' '}
         <Code>createUi</Code>（或局部的 <Code>Provider</Code>）的 <Code>http</Code> 里给出。默认实现{' '}
         <Code>createHttpClient</Code> 是原生 fetch 的薄封装：baseURL、query（null 与 undefined
-        不写进地址，数组写成重复的键）、普通对象按 JSON 发送、超时与取消、状态码不是 2xx 时抛{' '}
-        <Code>HttpError</Code>。后端把数据包在 <Code>{'{ code, data, message }'}</Code> 里时，在{' '}
-        <Code>onResponse</Code> 里拆开。
+        不写进地址，数组写成重复的键）、普通对象按 JSON
+        发送、超时与取消。响应按业务错误码的约定拆开：HTTP 一律 200，
+        <Code>{"{ code: 'ok', data }"}</Code> 交出 data，别的码抛带这个码的 <Code>HttpError</Code>。
       </Paragraph>
       <CodeBlock title="main.ts" code={client} lang="ts" />
       <Paragraph>
@@ -181,15 +184,17 @@ export default _component(() => () => (
         出错与取消
       </H2>
       <Paragraph>
-        <Code>HttpError</Code> 带着 <Code>status</Code>（网络错误、超时为 0）、<Code>data</Code>
-        （错误详情）、<Code>request</Code> 与 <Code>response</Code>
+        <Code>HttpError</Code> 带着 <Code>code</Code>（后端回的业务错误码，或请求层的{' '}
+        <Code>http.network</Code>、<Code>http.timeout</Code>、<Code>http.status</Code>、
+        <Code>http.parse</Code>）、<Code>params</Code>、<Code>errors</Code>（按字段的明细）、
+        <Code>status</Code>、<Code>data</Code>、<Code>request</Code> 与 <Code>response</Code>
         。调用方取消的请求原样交出 AbortError，用 <Code>isAbortError</Code> 判断，不当作错误显示。
       </Paragraph>
       <CodeBlock code={errors} lang="ts" />
       <Alert tone="info">
-        HttpError
-        的说明是给开发者看的（带着请求方法与地址）；给用户看的文案按状态码或业务码在页面里写，或者在
-        onResponse 里换成后端返回的 message。
+        组件自己按码取文案：QueryTable
+        加载失败时在表格上方说明原因并给重试，远程选项的列表、上传失败的文件、表单提交都一样；语言包里没有这个码时用后端给的
+        message。HttpError 自己的 message 是给开发者看的（带着请求方法与地址）。
       </Alert>
     </Flex>
   </DocPage>

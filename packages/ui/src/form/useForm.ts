@@ -40,6 +40,7 @@ import { useLang } from '../config/context';
 import { Field, type FieldProps } from './Field';
 import { createConstraints, type FieldConstraints } from './form-constraints';
 import { sameValue } from '../utils/data/equality';
+import { codeText, errorCodeOf, errorMessage } from '../utils/request/error-message';
 
 /** 字段路径 → 错误信息；路径用点连接（`address.city`、`items.0.name`） */
 export type FormErrors = Partial<Record<string, string>>;
@@ -176,7 +177,10 @@ export interface FormControllerBase {
    * 返回它们是否都通过（分步表单进下一步前用）
    */
   validate(paths?: readonly string[]): Promise<boolean>;
-  /** 提交：先校验，通过后调用 onSubmit；返回是否通过校验 */
+  /**
+   * 提交：先校验，通过后调用 onSubmit；返回是否提交成功。校验没通过，或 onSubmit 抛了带业务错误码的错误（后端回的
+   * 校验失败、数据已被修改等，按字段的明细标到字段上，其余是 formError）时为 false；别的错误原样抛出
+   */
   submit(): Promise<boolean>;
   /** 回到初始值，清空错误与失焦记录 */
   reset(): void;
@@ -294,6 +298,20 @@ function cloneValue<T>(value: T): T {
   const prototype = Object.getPrototypeOf(raw);
   if (prototype !== Object.prototype && prototype !== null) return raw;
   return Object.fromEntries(Object.entries(raw).map(([key, item]) => [key, cloneValue(item)])) as T;
+}
+
+/** 业务错误明细里按字段的一项（0008 的 errors：表单校验的问题） */
+interface FieldIssue {
+  readonly field: string;
+  readonly code?: string;
+  readonly message?: string;
+  readonly params?: Readonly<Record<string, unknown>>;
+}
+
+function isFieldIssue(item: unknown): item is FieldIssue {
+  return (
+    typeof item === 'object' && item !== null && typeof (item as FieldIssue).field === 'string'
+  );
 }
 
 /**
@@ -441,6 +459,34 @@ export function useForm<Values extends object, Output = Values>(
     }
     return { errors, output };
   }
+
+  /**
+   * onSubmit 抛的带业务错误码的错误（后端回的、请求层的，见 utils/request/error-message.ts）标到表单上：
+   * errors 明细里带 field 的标到字段（文案按明细的码取，没有时用它的 message），一项都没有时整份表单的错误是错误的文案。
+   * 和 setError 一样，值改了就不再显示；下一次提交开始时清掉（交给后端重新判断：网络断了之后不改值也能再提交）。
+   * 认不出的错误返回 false，由 submit 原样抛出
+   */
+  function markSubmitError(error: unknown): boolean {
+    if (errorCodeOf(error) === undefined) return false;
+    const details = (error as { errors?: unknown }).errors;
+    let marked = false;
+    for (const item of Array.isArray(details) ? (details as unknown[]) : []) {
+      if (!isFieldIssue(item)) continue;
+      const text =
+        (item.code && codeText(item.code, item.params, lang)) || item.message || item.code;
+      controller.setError(item.field as FieldPath<Values>, text ?? lang.requestFailed);
+      submitErrorPaths.add(item.field);
+      marked = true;
+    }
+    if (!marked) {
+      controller.setError('', errorMessage(error, lang));
+      submitErrorPaths.add('');
+    }
+    return true;
+  }
+
+  /** 上一次提交失败时标上的路径 */
+  const submitErrorPaths = new Set<string>();
 
   /** setError 给的错误，值改过就不算了；'' 是整份表单的错误，任一字段改了都不算 */
   function externalError(path: string): string | undefined {
@@ -608,11 +654,17 @@ export function useForm<Values extends object, Output = Values>(
     submit() {
       submission ??= (async () => {
         state.submitCount++;
+        for (const path of submitErrorPaths)
+          controller.setError(path as FieldPath<Values>, undefined);
+        submitErrorPaths.clear();
         const valid = await check(true);
         if (!valid || !onSubmit) return valid;
         state.submitting = true;
         try {
           await onSubmit(parsed as Output);
+        } catch (error) {
+          if (!markSubmitError(error)) throw error;
+          return false;
         } finally {
           state.submitting = false;
         }

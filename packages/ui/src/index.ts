@@ -1434,6 +1434,7 @@ export { useFormat, type NumericFormat, type RelativeFormatOptions } from './con
 export {
   defineLang,
   type Directions,
+  type ErrorCodeText,
   type HourCycles,
   type Lang,
   type LangMessages,
@@ -1739,7 +1740,9 @@ export { normalizeNumber, parseNumber } from './utils/data/number-parse';
 export { clamp, snapToStep } from './utils/data/number';
 export {
   addNumeric,
+  compareDecimalText,
   compareNumeric,
+  decimalTextOf,
   isDecimal,
   isNumeric,
   isNumericText,
@@ -1831,13 +1834,24 @@ export {
 
 // 工具：请求（HttpClient、createHttpClient、useRequest）
 export {
+  codeText,
+  errorCodeOf,
+  errorCodeText,
+  errorMessage,
+  useErrorMessage,
+} from './utils/request/error-message';
+export {
   createHttpClient,
+  HTTP_ERROR_CODES,
   HttpError,
   isAbortError,
+  OK_CODE,
   useHttp,
+  type ApiEnvelope,
   type FetchClient,
   type HttpClient,
   type HttpClientOptions,
+  type HttpErrorCode,
   type HttpErrorContext,
   type HttpMethod,
   type HttpRequest,

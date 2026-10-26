@@ -385,7 +385,7 @@ export const Mentions = _component(
             list,
             id: listId,
             renderOption: children,
-            empty: remote.error() ? lang.listLoadFailed : (empty ?? lang.mentionsEmpty),
+            empty: remote.failure() ?? empty ?? lang.mentionsEmpty,
           }}
           propsListbox={propsListbox}
           propsPopover={mergePartProps<PartProps<'div', 'id' | 'popover'>>(

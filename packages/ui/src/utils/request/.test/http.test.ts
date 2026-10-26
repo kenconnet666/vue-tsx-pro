@@ -1,4 +1,4 @@
-// createHttpClient：地址与 query、JSON 请求体、typed JSON、按类型读响应、状态码与业务错误、超时、取消、钩子
+// createHttpClient：地址与 query、JSON 请求体、typed JSON、按类型读响应、拆响应体与业务错误码、状态码、超时、取消、钩子
 import { CalendarDate } from '@internationalized/date';
 import Decimal from 'decimal.js';
 import { describe, expect, it, vi } from 'vitest';
@@ -112,7 +112,9 @@ describe('响应', () => {
     const http = createHttpClient({ baseURL: 'https://example.test', fetch });
     const error = (await http.get('/admin').catch((caught: unknown) => caught)) as HttpError;
     expect(error).toBeInstanceOf(HttpError);
-    expect([error.status, error.data, error.request.url]).toEqual([
+    expect([error.code, error.params, error.status, error.data, error.request.url]).toEqual([
+      'http.status',
+      { status: 403 },
       403,
       { message: '没有权限' },
       '/admin',
@@ -120,7 +122,7 @@ describe('响应', () => {
     expect(error.message).toBe('请求失败（403 Forbidden）：GET /admin');
   });
 
-  it('onRequest 改请求头，onResponse 拆掉 { code, data, message }、把业务错误变成 HttpError', async () => {
+  it('envelope: false 时 onRequest 改请求头，onResponse 自己拆 { code: 0, data }、把业务错误变成 HttpError', async () => {
     const { fetch, requests } = fakeFetch((request) =>
       request.url.endsWith('/ok')
         ? json({ code: 0, data: [1, 2], message: '' })
@@ -129,17 +131,23 @@ describe('响应', () => {
     const http = createHttpClient({
       baseURL: 'https://example.test',
       fetch,
+      envelope: false,
       onRequest: (request) => request.headers.set('authorization', 'Bearer t'),
       onResponse: (body, context) => {
         const envelope = body as { code: number; data: unknown; message: string };
-        if (envelope.code !== 0) throw new HttpError(envelope.message, { ...context, data: body });
+        if (envelope.code !== 0)
+          throw new HttpError(envelope.message, {
+            ...context,
+            code: `app.${envelope.code}`,
+            data: body,
+          });
         return envelope.data;
       },
     });
     expect(await http.get('/ok')).toEqual([1, 2]);
     expect(requests[0]!.headers.get('authorization')).toBe('Bearer t');
     const error = (await http.get('/bad').catch((caught: unknown) => caught)) as HttpError;
-    expect([error.message, error.status]).toEqual(['名称重复', 200]);
+    expect([error.message, error.code, error.status]).toEqual(['名称重复', 'app.40001', 200]);
   });
 });
 
@@ -159,7 +167,12 @@ describe('超时、取消与网络错误', () => {
     const http = createHttpClient({ baseURL: 'https://example.test', fetch, timeout: 20 });
     const error = (await http.get('/slow').catch((caught: unknown) => caught)) as HttpError;
     expect(error).toBeInstanceOf(HttpError);
-    expect([error.status, error.message]).toEqual([0, '请求超时（0.02 秒）：GET /slow']);
+    expect([error.code, error.params, error.status, error.message]).toEqual([
+      'http.timeout',
+      { seconds: 0.02 },
+      0,
+      '请求超时（0.02 秒）：GET /slow',
+    ]);
   });
 
   it('调用方取消：原样交出 AbortError，不当作 HttpError', async () => {
@@ -182,6 +195,84 @@ describe('超时、取消与网络错误', () => {
       fetch: () => Promise.reject(cause),
     });
     const error = (await http.get('/x').catch((caught: unknown) => caught)) as HttpError;
-    expect([error.status, error.message, error.cause]).toEqual([0, '网络错误：GET /x', cause]);
+    expect([error.code, error.status, error.message, error.cause]).toEqual([
+      'http.network',
+      0,
+      '网络错误：GET /x',
+      cause,
+    ]);
+  });
+});
+
+describe('业务错误码的响应体（0008）', () => {
+  const client = (body: unknown, init?: Omit<ResponseInit, 'headers'>) =>
+    createHttpClient({
+      baseURL: 'https://example.test',
+      fetch: fakeFetch(() => json(body, init)).fetch,
+    });
+
+  it('{ code: "ok", data } 交出 data，data 里的 $types 照样还原', async () => {
+    expect(await client({ code: 'ok', data: [1, 2] }).get('/a')).toEqual([1, 2]);
+    const page = await client({
+      code: 'ok',
+      data: { total: '9007199254740993', $types: { total: 'bigint' } },
+    }).get('/b');
+    expect(page).toEqual({ total: 9007199254740993n });
+    expect(await client({ code: 'ok' }).get('/c')).toBeUndefined();
+  });
+
+  it('失败的码抛 HttpError，带 message、params、errors；非 2xx 时也以响应体的码为准', async () => {
+    const body = {
+      code: 'flow.validation-failed',
+      message: '表单校验不通过',
+      errors: [{ field: 'amount', code: 'max' }],
+    };
+    const error = (await client(body)
+      .post('/submit')
+      .catch((caught: unknown) => caught)) as HttpError;
+    expect(error).toBeInstanceOf(HttpError);
+    expect([error.code, error.message, error.errors, error.status]).toEqual([
+      'flow.validation-failed',
+      '表单校验不通过',
+      [{ field: 'amount', code: 'max' }],
+      200,
+    ]);
+    const proxied = (await client(
+      { code: 'flow.forbidden', params: { action: 'claim' } },
+      { status: 403 },
+    )
+      .get('/x')
+      .catch((caught: unknown) => caught)) as HttpError;
+    expect([proxied.code, proxied.params, proxied.message]).toEqual([
+      'flow.forbidden',
+      { action: 'claim' },
+      'flow.forbidden',
+    ]);
+  });
+
+  it('不是包装的对象原样交出：有别的键、code 不是文字', async () => {
+    expect(await client({ code: 'PO-1', amount: 3 }).get('/order')).toEqual({
+      code: 'PO-1',
+      amount: 3,
+    });
+    expect(await client({ code: 0, data: 1 }).get('/legacy')).toEqual({ code: 0, data: 1 });
+  });
+
+  it('声明是 JSON 却解析不了：2xx 是 http.parse，非 2xx 仍是 http.status', async () => {
+    const html = (status: number) =>
+      createHttpClient({
+        baseURL: 'https://example.test',
+        fetch: fakeFetch(
+          () => new Response('<html>', { status, headers: { 'content-type': 'application/json' } }),
+        ).fetch,
+      });
+    const parse = (await html(200)
+      .get('/x')
+      .catch((caught: unknown) => caught)) as HttpError;
+    expect([parse.code, parse.data]).toEqual(['http.parse', '<html>']);
+    const status = (await html(502)
+      .get('/x')
+      .catch((caught: unknown) => caught)) as HttpError;
+    expect([status.code, status.data]).toEqual(['http.status', '<html>']);
   });
 });

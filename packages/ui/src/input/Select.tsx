@@ -565,7 +565,7 @@ export const Select = _component(
             listbox={{
               list,
               id: listId,
-              empty: remote.error() ? lang.listLoadFailed : search ? lang.selectNoMatch : empty,
+              empty: remote.failure() ?? (search ? lang.selectNoMatch : empty),
               renderOption:
                 children &&
                 ((item: T | Creation, state: OptionRenderState) =>

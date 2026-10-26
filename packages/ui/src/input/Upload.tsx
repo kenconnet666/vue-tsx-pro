@@ -51,6 +51,7 @@ import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { useFieldControl } from '../form/Field';
 import { useHttp } from '../utils/request/http';
+import { errorCodeText } from '../utils/request/error-message';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
@@ -339,7 +340,10 @@ export const Upload = _component(
         if (!controller.signal.aborted) patch(item.id, { status: 'done', progress: 1, response });
       } catch (error) {
         if (controller.signal.aborted) return;
-        const message = error instanceof Error && error.message ? error.message : lang.uploadFailed;
+        // 码有文案时按码（网络断了、后端拒绝），否则是上传函数自己的说明，再没有是笼统的“上传失败”
+        const message =
+          errorCodeText(error, lang) ??
+          (error instanceof Error && error.message ? error.message : lang.uploadFailed);
         patch(item.id, { status: 'error', error: message });
       } finally {
         if (controllers.get(item.id) === controller) controllers.delete(item.id);

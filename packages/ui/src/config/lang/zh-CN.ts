@@ -13,6 +13,30 @@ export const zhCN: Lang = {
   close: '关闭',
   imagePreview: (alt) => `查看大图：${alt}`,
   imageError: '图片加载失败',
+  requestFailed: '请求失败，请稍后重试',
+  errorCodes: {
+    'http.network': '网络连接失败，请检查网络后重试',
+    'http.timeout': ({ seconds }) =>
+      typeof seconds === 'number'
+        ? `请求超时（${seconds} 秒），请稍后重试`
+        : '请求超时，请稍后重试',
+    'http.aborted': '请求已取消',
+    'http.status': ({ status }) =>
+      typeof status === 'number'
+        ? `服务暂时不可用（${status}），请稍后重试`
+        : '服务暂时不可用，请稍后重试',
+    'http.parse': '服务返回的内容无法识别，请稍后重试',
+    'query.request-invalid': '查询条件有误，请检查后重试',
+    'query.empty-result': '数据不存在或已被删除',
+    'query.too-many-rows': '找到了多条数据，无法确定是哪一条',
+    'query.unexpected-row-count': '数据已被他人修改或删除，请刷新后重试',
+    'query.statement-timeout': '查询超时，请缩小范围后重试',
+    'query.execution-failed': '数据操作失败，请稍后重试',
+    'query.invalid-row': '数据不完整，无法保存',
+    'query.batch-write-failed': '部分数据无法保存，本次全部未保存',
+    'query.transaction-closed': '保存被中断，请重试',
+    'query.quota-exceeded': '浏览器存储空间不足，请清理后重试',
+  },
   lightboxLabel: '图片预览',
   lightboxZoomIn: '放大',
   lightboxZoomOut: '缩小',

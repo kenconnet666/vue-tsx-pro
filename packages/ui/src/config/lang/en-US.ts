@@ -13,6 +13,31 @@ export const enUS: Lang = {
   close: 'Close',
   imagePreview: (alt) => `View larger: ${alt}`,
   imageError: 'Image failed to load',
+  requestFailed: 'Request failed. Try again later.',
+  errorCodes: {
+    'http.network': 'Network connection failed. Check your network and try again.',
+    'http.timeout': ({ seconds }) =>
+      typeof seconds === 'number'
+        ? `The request timed out after ${seconds} s. Try again later.`
+        : 'The request timed out. Try again later.',
+    'http.aborted': 'The request was canceled.',
+    'http.status': ({ status }) =>
+      typeof status === 'number'
+        ? `The service is unavailable (${status}). Try again later.`
+        : 'The service is unavailable. Try again later.',
+    'http.parse': 'The service returned a response that could not be read. Try again later.',
+    'query.request-invalid': 'The query is not valid. Check it and try again.',
+    'query.empty-result': 'The record does not exist or was deleted.',
+    'query.too-many-rows': 'More than one record matched, so none was chosen.',
+    'query.unexpected-row-count':
+      'Someone else changed or deleted this record. Refresh and try again.',
+    'query.statement-timeout': 'The query timed out. Narrow it down and try again.',
+    'query.execution-failed': 'The data operation failed. Try again later.',
+    'query.invalid-row': 'The record is incomplete and cannot be saved.',
+    'query.batch-write-failed': 'Some records could not be saved, so none were.',
+    'query.transaction-closed': 'Saving was interrupted. Try again.',
+    'query.quota-exceeded': 'Browser storage is full. Free up space and try again.',
+  },
   lightboxLabel: 'Image viewer',
   lightboxZoomIn: 'Zoom in',
   lightboxZoomOut: 'Zoom out',

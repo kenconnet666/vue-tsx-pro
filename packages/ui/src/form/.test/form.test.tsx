@@ -13,6 +13,7 @@ import { visuallyHiddenStyles } from '../../base/VisuallyHidden';
 import { hasStyles, mount } from '../../utils/.test/mount';
 import { Field } from '../Field';
 import { Form } from '../Form';
+import { HttpError } from '../../utils/request/http';
 import { useForm } from '../useForm';
 
 const schema = z.object({
@@ -98,6 +99,36 @@ describe('useForm', () => {
     expect(await submitted).toBe(true);
     expect(form.submitting).toBe(false);
     expect(onSubmit).toHaveBeenCalledWith(form.values);
+  });
+
+  it('onSubmit 抛带码的错误：明细标到字段，没有明细时是 formError，submit 返回 false；别的错误原样抛出', async () => {
+    const request = { url: '/signup' };
+    let failure: unknown = new HttpError('表单校验不通过', {
+      code: 'flow.validation-failed',
+      errors: [
+        { field: 'email', code: 'app.email-taken' },
+        { field: 'profile.name', message: '名字已被占用' },
+        { code: 'x' },
+      ],
+      request,
+    });
+    const form = useForm({
+      initial: { email: 'ada@example.com', profile: { name: 'Ada' } },
+      schema,
+      onSubmit: () => Promise.reject(failure),
+    });
+    expect(await form.submit()).toBe(false);
+    // 码没有文案时用码本身：至少能看出是哪条规则
+    expect([form.errors.email, form.errors['profile.name'], form.formError]).toEqual([
+      'app.email-taken',
+      '名字已被占用',
+      undefined,
+    ]);
+    failure = new HttpError('stale', { code: 'query.unexpected-row-count', request });
+    expect(await form.submit()).toBe(false);
+    expect(form.formError).toBe('数据已被他人修改或删除，请刷新后重试');
+    failure = new TypeError('bug');
+    await expect(form.submit()).rejects.toBe(failure);
   });
 
   it('自定义 validate 与 schema 合并；setError 写入服务端错误；reset 回到初始值并清空', async () => {

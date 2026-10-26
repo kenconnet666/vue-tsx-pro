@@ -36,6 +36,9 @@ export interface HourCycles {
   h23: unknown;
 }
 
+/** 一个错误码的文案：固定的文字，或按错误带的参数（params）写出 */
+export type ErrorCodeText = string | ((params: Readonly<Record<string, unknown>>) => string);
+
 /** 一种语言的全部配置：地区格式与界面文案平铺在一个对象里（COMPONENTS.md §6.3） */
 export interface Lang {
   // ───────── 地区与格式 ─────────
@@ -70,6 +73,14 @@ export interface Lang {
   readonly imagePreview: (alt: string) => string;
   /** 图片加载失败时的文字，默认“图片加载失败” */
   readonly imageError: string;
+  /** 请求失败、又没有可用的错误文案时的文字，默认“请求失败，请稍后重试” */
+  readonly requestFailed: string;
+  /**
+   * 业务错误码的文案（见 utils/request/error-message.ts）：码 → 文字，要填参数的写成函数。自带请求层（`http.`）与
+   * query（`query.`）的；flow-ui、应用按自己的命名空间补，defineLang 与自带的合并：
+   * `defineLang(zhCN, { errorCodes: { 'app.quota-exceeded': '额度不足' } })`
+   */
+  readonly errorCodes: Readonly<Record<string, ErrorCodeText>>;
   /** 图片预览（Lightbox）的名称，默认“图片预览” */
   readonly lightboxLabel: string;
   /** 图片预览：放大，默认“放大” */
@@ -681,13 +692,17 @@ export interface LangMessages {
   readonly patterns: PatternsMessages;
 }
 
-/** 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })` */
+/**
+ * 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })`。
+ * errorCodes 与 messages 合并而不是整个替换：只写要加、要改的码和字段
+ */
 export function defineLang(base: Lang, overrides: Partial<Lang>): Lang {
-  if (!base.messages || !overrides.messages) return { ...base, ...overrides };
+  const errorCodes = { ...base.errorCodes, ...overrides.errorCodes };
+  if (!base.messages || !overrides.messages) return { ...base, ...overrides, errorCodes };
   // 页面级组件的文案按组件合并：两边各改了同一个组件的不同字段时都保留
   const messages: Record<string, object | undefined> = { ...base.messages };
   for (const [name, fields] of Object.entries(overrides.messages)) {
     messages[name] = { ...messages[name], ...fields };
   }
-  return { ...base, ...overrides, messages };
+  return { ...base, ...overrides, errorCodes, messages };
 }
