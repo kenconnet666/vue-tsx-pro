@@ -1,0 +1,10 @@
+# 文档站；部署步骤见同目录的 README.txt
+services:
+  docs:
+    image: vue-tsx-pro-docs:latest
+    container_name: vue-tsx-pro-docs
+    restart: unless-stopped
+    ports:
+      - "19080:80"
+    mem_limit: 64m
+    memswap_limit: 64m

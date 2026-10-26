@@ -1,0 +1,13 @@
+# 只留构建需要的源码，不把本机的依赖、构建产物、测试结果送进构建上下文
+**/node_modules
+**/dist
+**/test-results
+**/coverage
+**/.vitest
+**/playwright-report
+**/*.tsbuildinfo
+**/*.log
+.git
+.idea
+.claude
+.codex
