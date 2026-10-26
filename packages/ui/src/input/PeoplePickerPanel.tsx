@@ -174,7 +174,10 @@ export const PeoplePickerPanel = _component(
     const shown = (): { items: readonly PeopleEntry[]; loading: boolean } => {
       // 防抖等待时请求还没发出：没有结果也没出错就算加载中，不先显示"没有找到"
       if (searching()) {
-        return { items: found.data ?? [], loading: found.loading || (found.data === undefined && !found.error) };
+        return {
+          items: found.data ?? [],
+          loading: found.loading || (found.data === undefined && !found.error),
+        };
       }
       if (page === 'roles') return { items: roles.data ?? [], loading: roles.loading };
       if (page === 'recent') return { items: recent, loading: false };
