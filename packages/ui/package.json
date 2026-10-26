@@ -78,6 +78,11 @@
       "types": "./dist/xlsx/index.d.ts",
       "default": "./dist/xlsx/index.js"
     },
+    "./code-editor": {
+      "@vue-tsx-pro/source": "./src/code-editor/index.ts",
+      "types": "./dist/code-editor/index.d.ts",
+      "default": "./dist/code-editor/index.js"
+    },
     "./theme-boot": {
       "@vue-tsx-pro/source": "./src/config/theme/boot.ts",
       "types": "./dist/config/theme/boot.d.ts",
@@ -129,7 +134,15 @@
     "vue-router": "^5.0.0",
     "zod": "^4.6.0",
     "pinyin-pro": "^3.20.0",
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "@codemirror/autocomplete": "^6.20.0",
+    "@codemirror/commands": "^6.11.0",
+    "@codemirror/lang-javascript": "^6.2.0",
+    "@codemirror/language": "^6.13.0",
+    "@codemirror/search": "^6.7.0",
+    "@codemirror/state": "^6.7.0",
+    "@codemirror/view": "^6.43.0",
+    "@lezer/highlight": "^1.2.0"
   },
   "peerDependenciesMeta": {
     "pinia": {
@@ -152,13 +165,45 @@
     },
     "exceljs": {
       "optional": true
+    },
+    "@codemirror/autocomplete": {
+      "optional": true
+    },
+    "@codemirror/commands": {
+      "optional": true
+    },
+    "@codemirror/lang-javascript": {
+      "optional": true
+    },
+    "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/search": {
+      "optional": true
+    },
+    "@codemirror/state": {
+      "optional": true
+    },
+    "@codemirror/view": {
+      "optional": true
+    },
+    "@lezer/highlight": {
+      "optional": true
     }
   },
   "vueTsxPro": {
     "optimizeDeps": {
       "include": [
+        "@codemirror/autocomplete",
+        "@codemirror/commands",
+        "@codemirror/lang-javascript",
+        "@codemirror/language",
+        "@codemirror/search",
+        "@codemirror/state",
+        "@codemirror/view",
         "@floating-ui/dom",
         "@internationalized/date",
+        "@lezer/highlight",
         "@lucide/icons",
         "@radix-ui/colors",
         "@unovis/ts",
@@ -200,7 +245,15 @@
     "@types/culori": "catalog:",
     "pinyin-pro": "catalog:",
     "exceljs": "catalog:",
-    "@types/topojson-simplify": "catalog:"
+    "@types/topojson-simplify": "catalog:",
+    "@codemirror/autocomplete": "catalog:",
+    "@codemirror/commands": "catalog:",
+    "@codemirror/lang-javascript": "catalog:",
+    "@codemirror/language": "catalog:",
+    "@codemirror/search": "catalog:",
+    "@codemirror/state": "catalog:",
+    "@codemirror/view": "catalog:",
+    "@lezer/highlight": "catalog:"
   },
   "publishConfig": {
     "access": "public"

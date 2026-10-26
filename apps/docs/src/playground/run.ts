@@ -1,5 +1,5 @@
 /**
- * 代码演练场的主线程部分：把代码交给 Worker 编译，执行结果拿到组件。
+ * 代码演练场的主线程部分：把代码交给 Worker 编译、执行结果拿到组件（组件库的 browser-compile 入口）。
  * 用户代码里的 import 都从这张模块表取：复用文档站已经加载的 vue、组件库，不再下载一份。
  */
 import * as tsx from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -9,7 +9,13 @@ import * as tokens from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import * as vars from '@zerodep-dev/vue-tsx-pro-ui/vars';
 import * as vue from 'vue';
 import type { Component } from 'vue';
-import type { CompileRequest, CompileResponse } from './compile.worker';
+import {
+  createCompileClient,
+  evaluateModule,
+  importedModules,
+  type CompileResult,
+} from '@zerodep-dev/vue-tsx-pro-tsx/browser-compile';
+import CompileWorker from '@zerodep-dev/vue-tsx-pro-tsx/browser-compile/worker?worker';
 
 /** 一直在的模块：文档站本来就加载了 */
 const MODULES: Record<string, unknown> = {
@@ -30,6 +36,8 @@ const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@zerodep-dev/vue-tsx-pro-ui/theme-customize': () =>
     import('@zerodep-dev/vue-tsx-pro-ui/theme-customize'),
   '@zerodep-dev/vue-tsx-pro-ui/xlsx': () => import('@zerodep-dev/vue-tsx-pro-ui/xlsx'),
+  '@zerodep-dev/vue-tsx-pro-ui/code-editor': () =>
+    import('@zerodep-dev/vue-tsx-pro-ui/code-editor'),
   '@zerodep-dev/vue-tsx-pro-ui/three': () => import('@zerodep-dev/vue-tsx-pro-ui/three'),
   '@zerodep-dev/vue-tsx-pro-ui/docs-kit': () => import('@zerodep-dev/vue-tsx-pro-ui/docs-kit'),
   three: () => import('three'),
@@ -41,41 +49,26 @@ export const playgroundModuleNames: readonly string[] = [
   ...Object.keys(LAZY_MODULES),
 ];
 
-/** 用户代码能导入的模块；编译结果按 `__modules["名字"]` 取 */
+/** 用户代码能导入的模块：一直在的，加上代码里用到的按需模块 */
 async function moduleTable(code: string): Promise<Record<string, unknown>> {
   const table: Record<string, unknown> = { ...MODULES };
-  const used = Object.entries(LAZY_MODULES).filter(
-    ([name]) => code.includes(JSON.stringify(name)) || code.includes(`'${name}'`),
-  );
-  for (const [name, load] of used) table[name] = await load();
+  for (const name of importedModules(code)) {
+    const load = LAZY_MODULES[name];
+    if (load) table[name] = await load();
+  }
   return table;
 }
 
-let worker: Worker | undefined;
-let nextId = 0;
-const pending = new Map<number, (response: CompileResponse) => void>();
+const compiler = createCompileClient(() => new CompileWorker());
 
 /** 编译一段代码（第一次调用时启动 Worker） */
-export async function compile(code: string): Promise<CompileResponse> {
-  if (!worker) {
-    worker = new Worker(new URL('./compile.worker.ts', import.meta.url), { type: 'module' });
-    worker.onmessage = (event: MessageEvent<CompileResponse>) => {
-      pending.get(event.data.id)?.(event.data);
-      pending.delete(event.data.id);
-    };
-  }
-  const id = nextId++;
-  return new Promise((resolve) => {
-    pending.set(id, resolve);
-    worker!.postMessage({ id, code } satisfies CompileRequest);
-  });
+export function compile(code: string): Promise<CompileResult> {
+  return compiler.compile(code, { filename: 'Playground.tsx' });
 }
 
 /** 执行编译结果，返回它默认导出的组件 */
 export async function evaluate(code: string): Promise<Component> {
-  const exports: { default?: Component } = {};
-  // oxlint-disable-next-line no-implied-eval -- 演练场就是要执行用户自己在页面上写的代码，只在用户自己的浏览器里执行
-  new Function('__modules', '__exports', code)(await moduleTable(code), exports);
+  const exports = evaluateModule<{ default?: Component }>(code, await moduleTable(code));
   if (!exports.default) throw new Error('代码要 export default 一个组件');
   return exports.default;
 }

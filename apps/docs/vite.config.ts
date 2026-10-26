@@ -1,15 +1,10 @@
-import { fileURLToPath } from 'node:url';
 import { configDefaults, defineConfig, type Plugin } from 'vitest/config';
-import { vueTsxPro, workspaceSource } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
+import { browserCompile, vueTsxPro, workspaceSource } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 import { builtinThemeBootColors, themeBootScript } from '@zerodep-dev/vue-tsx-pro-ui/theme-boot';
 import { componentApi } from './build/api.ts';
 import { demoSource } from './build/demo.ts';
 import { iconImports } from './build/icons.ts';
 import { docPages } from './build/pages.ts';
-
-/** 代码演练场 Worker 用的 Node 模块替身 */
-const shim = (name: string) =>
-  fileURLToPath(new URL(`./src/playground/node-shims/${name}`, import.meta.url));
 
 /** 应用加载前按记住的主题设好页面底色，不先闪一下亮色 */
 function themeBoot(): Plugin {
@@ -30,6 +25,8 @@ export const plugins = [
   workspaceSource(),
   iconImports(),
   ...vueTsxPro(),
+  // 代码演练场在浏览器里编译 TSX：Babel 的 Node 模块替身与预构建
+  browserCompile(),
   demoSource(),
   docPages(),
   componentApi(),
@@ -50,13 +47,6 @@ export const optimizeDeps = {
     '@shikijs/langs/shellscript',
     '@shikijs/langs/tsx',
     '@shikijs/langs/typescript',
-    // 代码演练场的 Worker 在浏览器里跑 Babel：这些 CommonJS 包要预构建成 ES 模块
-    '@babel/core',
-    '@babel/parser',
-    '@babel/traverse',
-    '@babel/types',
-    '@babel/plugin-transform-typescript',
-    '@vue/babel-plugin-jsx',
     // 演练场的编辑器：进入演练场才加载，预构建好免得那时才发现新依赖、重新预构建并刷新页面
     '@codemirror/autocomplete',
     '@codemirror/commands',
@@ -79,14 +69,6 @@ export default defineConfig({
     warmup: { clientFiles: ['./src/main.ts'] },
   },
   optimizeDeps,
-  resolve: {
-    // 代码演练场的 Worker 在浏览器里跑 Babel：它用到的几个 Node 模块换成浏览器版（src/playground/node-shims）。
-    alias: [
-      { find: /^(?:node:)?path$/, replacement: 'pathe' },
-      { find: /^(?:node:)?fs$/, replacement: shim('fs.ts') },
-      { find: /^(?:node:)?assert$/, replacement: shim('assert.cjs') },
-    ],
-  },
   // Shiki 的每种语言语法单独成块、用到才下载（emacs-lisp、cpp 这类大语法不会被页面加载），不必为它们报警
   build: {
     chunkSizeWarningLimit: 1000,

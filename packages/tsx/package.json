@@ -23,7 +23,11 @@
     "stylex",
     "vite-plugin"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./shims/process.js",
+    "./src/browser-compile/worker.ts",
+    "./dist/browser-compile-worker.js"
+  ],
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
@@ -48,6 +52,19 @@
       "types": "./dist/compiler.d.ts",
       "default": "./dist/compiler.js"
     },
+    "./browser-compile": {
+      "@vue-tsx-pro/source": "./src/browser-compile/index.ts",
+      "types": "./dist/browser-compile.d.ts",
+      "default": "./dist/browser-compile.js"
+    },
+    "./browser-compile/worker": {
+      "@vue-tsx-pro/source": "./src/browser-compile/worker.ts",
+      "types": "./dist/browser-compile-worker.d.ts",
+      "default": "./dist/browser-compile-worker.js"
+    },
+    "./shims/fs": "./shims/fs.js",
+    "./shims/assert": "./shims/assert.cjs",
+    "./shims/process": "./shims/process.js",
     "./jsx-runtime": {
       "types": "./types/jsx-runtime.d.ts"
     },
@@ -58,7 +75,8 @@
   },
   "files": [
     "dist",
-    "types"
+    "types",
+    "shims"
   ],
   "scripts": {
     "build": "tsdown",
@@ -69,7 +87,8 @@
     "@babel/core": "catalog:",
     "@babel/plugin-transform-typescript": "catalog:",
     "@vue/babel-plugin-jsx": "catalog:",
-    "@vue/devtools-api": "catalog:"
+    "@vue/devtools-api": "catalog:",
+    "pathe": "catalog:"
   },
   "peerDependencies": {
     "vite": "^8.0.0",

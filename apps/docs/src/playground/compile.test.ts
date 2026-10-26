@@ -1,12 +1,16 @@
-// 代码演练场的编译：在 Node 里跑与 Worker 相同的编译，再按页面的方式执行、挂载
+// 代码演练场的编译：在 Node 里跑与 Worker 相同的编译（compileInThread），再按页面的方式执行、挂载
 import { styleText } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { expect, it } from 'vitest';
 import { nextTick } from 'vue';
+import { compileInThread } from '@zerodep-dev/vue-tsx-pro-tsx/browser-compile';
 import { mount } from '../test/mount';
-import { compilePlayground } from './compile';
 import { evaluate } from './run';
 import { STARTER } from './starter';
+
+const compilePlayground = async (source: string) => ({
+  code: await compileInThread(source, { filename: 'Playground.tsx' }),
+});
 
 it('起始示例：编译、执行，符文与组件照常工作', async () => {
   const { code } = await compilePlayground(STARTER);

@@ -1,4 +1,4 @@
-// 示例用的组织架构：公司下面三个部门，采购部再分两个组；另有四个岗位
+// 示例用的组织架构：公司下面三个部门，采购部再分两个组；另有四个角色
 import type { PeopleEntry, PeopleNode } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const person = (id: string, name: string, description: string): PeopleNode => ({
@@ -38,9 +38,9 @@ export const org: PeopleNode[] = [
   ]),
 ];
 
-export const positions: PeopleEntry[] = [
-  { id: 'p-buyer', type: 'position', name: '采购专员', description: '采购部' },
-  { id: 'p-buy-manager', type: 'position', name: '采购经理', description: '采购部' },
-  { id: 'p-qa', type: 'position', name: '质量工程师', description: '质量部' },
-  { id: 'p-cashier', type: 'position', name: '出纳', description: '财务部' },
+export const roles: PeopleEntry[] = [
+  { id: 'r-buyer', type: 'role', name: '采购专员', description: '采购部' },
+  { id: 'r-buy-manager', type: 'role', name: '采购经理', description: '采购部' },
+  { id: 'r-qa', type: 'role', name: '质量工程师', description: '质量部' },
+  { id: 'r-cashier', type: 'role', name: '出纳', description: '财务部' },
 ];

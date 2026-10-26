@@ -38,18 +38,11 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@babel/core": "catalog:",
-    "@babel/parser": "catalog:",
-    "@babel/plugin-transform-typescript": "catalog:",
-    "@babel/traverse": "catalog:",
-    "@babel/types": "catalog:",
     "@emotion/css": "catalog:",
     "@types/three": "catalog:",
     "@vitest/browser-playwright": "catalog:",
-    "@vue/babel-plugin-jsx": "catalog:",
     "axe-core": "catalog:",
     "happy-dom": "catalog:",
-    "pathe": "catalog:",
     "playwright": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

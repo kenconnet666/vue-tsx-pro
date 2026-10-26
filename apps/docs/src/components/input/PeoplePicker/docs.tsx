@@ -14,7 +14,7 @@ import Remote from './demo/Remote.tsx?demo';
 export const meta = {
   title: 'PeoplePicker 人员与组织选择器',
   description:
-    '选人员、部门、岗位：按组织架构一层层找、搜索、看最近选过的，右边是已选的。数据由接入方的 source 提供，表单字段或直接放面板。',
+    '选人员、部门、角色：按组织架构一层层找、搜索、看最近选过的，右边是已选的。数据由接入方的 source 提供，表单字段或直接放面板。',
   order: 18,
 };
 
@@ -32,10 +32,10 @@ export default _component(() => () => (
     </Example>
     <Example id="panel" title="直接放面板" demo={Panel}>
       <Code>PeoplePickerPanel</Code> 可以直接放在页面、抽屉里，改动立即写回。
-      <Code>source.positions</Code> 给了时有“岗位”页；<Code>max</Code> 勾满之后其余的勾选框不可用。
+      <Code>source.roles</Code> 给了时有“角色”页；<Code>max</Code> 勾满之后其余的勾选框不可用。
     </Example>
     <Example id="remote" title="远程数据" demo={Remote}>
-      <Code>source</Code> 的 <Code>children</Code>、<Code>search</Code>、<Code>positions</Code>{' '}
+      <Code>source</Code> 的 <Code>children</Code>、<Code>search</Code>、<Code>roles</Code>{' '}
       按自己的接口实现，<Code>signal</Code> 在换了部门、改了搜索词时中止。
       {'搜索在输入停下 300 ms 后进行，只采用最后一次。'}
       整棵组织架构已经在前端时用 <Code>localPeopleSource</Code>。

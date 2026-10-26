@@ -8,9 +8,9 @@ import {
   type PeopleEntry,
   type PeopleSource,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { org, positions } from './org';
+import { org, roles } from './org';
 
-const local = localPeopleSource(org, positions);
+const local = localPeopleSource(org, roles);
 
 /** 等一会儿再给结果；被中止时报 AbortError（同 fetch） */
 function later<T>(result: () => Promise<T>, signal: AbortSignal): Promise<T> {

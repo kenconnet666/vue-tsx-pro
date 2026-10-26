@@ -20,6 +20,7 @@ import type { CompilerSetup, ModuleRequest } from './module.ts';
 import { CompilePool } from './pool.ts';
 import { SSR_REGISTER_CODE, SSR_REGISTER_ID } from './ssr-register.ts';
 
+export { browserCompile } from './browser-compile.ts';
 export { workspaceSource } from './workspace.ts';
 
 /** vueTsxPro() 的选项；都不写就是应用的默认配置 */

@@ -1,5 +1,6 @@
 /**
- * 代码演练场的编辑器：CodeMirror 6 + TSX 语法。由 CodeEditor.tsx 按需加载，只在进入演练场时下载。
+ * 代码编辑器的内核：CodeMirror 6。CodeEditor.tsx 挂载时建一个；不用 Vue 时也可以直接调 createEditor。
+ * 语言由使用方传（CodeMirror 的语言扩展，如 json()、java()），默认 TSX。
  *
  * 颜色、字体全部取主题 token（colors.code* 与 Shiki 代码块同一套），切换主题、主题编辑器调色都跟着变；
  * 明暗只影响 CodeMirror 自带的少量默认样式，用 Compartment 切换。
@@ -28,7 +29,7 @@ import {
   syntaxHighlighting,
 } from '@codemirror/language';
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
-import { Annotation, Compartment, EditorState } from '@codemirror/state';
+import { Annotation, Compartment, EditorState, type Extension } from '@codemirror/state';
 import {
   drawSelection,
   EditorView,
@@ -38,7 +39,7 @@ import {
   lineNumbers,
 } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
-import { colors, fonts, fontSizes, radii } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
+import { colors, fonts, fontSizes, radii } from '../config/theme/tokens';
 
 // token 在运行时是 var(--哈希) 字符串
 const c = (token: unknown) => String(token);
@@ -115,22 +116,29 @@ const theme = EditorView.theme({
 });
 
 /** 编辑器实例的操作 */
-export interface PlaygroundEditor {
+export interface CodeEditorHandle {
+  /** CodeMirror 的视图：读状态（view.state）、派发修改、做撤销等更细的操作 */
+  readonly view: EditorView;
   /** 换掉全部代码（与当前内容相同时什么都不做） */
   setCode(code: string): void;
   /** 跟随站点主题的明暗 */
   setDark(dark: boolean): void;
+  /** 拆掉编辑器（组件卸载时） */
   destroy(): void;
 }
 
 /** createEditor 的选项 */
-export interface EditorOptions {
+export interface CodeEditorOptions {
   /** 初始代码 */
   code: string;
   /** 当前是不是暗色主题 */
   dark: boolean;
   /** 编辑区的无障碍名称 */
   label: string;
+  /** 语言扩展；不给时是 TSX */
+  language?: Extension;
+  /** 只读：能选中、复制、搜索，不能改 */
+  readonly?: boolean;
   /** 用户改了代码 */
   onChange: (code: string) => void;
 }
@@ -138,8 +146,8 @@ export interface EditorOptions {
 /** 在 parent 里创建编辑器 */
 export function createEditor(
   parent: HTMLElement,
-  { code, dark, label, onChange }: EditorOptions,
-): PlaygroundEditor {
+  { code, dark, label, language, readonly, onChange }: CodeEditorOptions,
+): CodeEditorHandle {
   const darkMode = new Compartment();
   const view = new EditorView({
     parent,
@@ -157,7 +165,8 @@ export function createEditor(
         autocompletion(),
         highlightActiveLine(),
         highlightSelectionMatches(),
-        javascript({ jsx: true, typescript: true }),
+        language ?? javascript({ jsx: true, typescript: true }),
+        EditorState.readOnly.of(readonly === true),
         syntaxHighlighting(highlightStyle),
         EditorState.tabSize.of(2),
         theme,
@@ -182,6 +191,7 @@ export function createEditor(
     }),
   });
   return {
+    view,
     setCode(next) {
       if (next === view.state.doc.toString()) return;
       view.dispatch({

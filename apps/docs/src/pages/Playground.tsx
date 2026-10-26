@@ -1,7 +1,7 @@
 /**
  * 代码演练场：左边改代码，右边实时看效果。
  *
- * - 编译在 Web Worker 里（playground/compile.ts），停止输入 300ms 后重新编译；执行与样式见 playground/run.ts
+ * - 编译在 Web Worker 里（组件库的 browser-compile 入口，接法见 playground/run.ts），停止输入 300ms 后重新编译
  * - 预览是独立的 Vue 应用（playground/preview.ts）：用户代码出错只在预览区报错，不影响页面
  * - 代码压缩后存在地址栏的 hash 里（playground/share.ts），复制链接就能分享；示例卡片的“编辑”也是这样带代码进来
  */
@@ -10,8 +10,8 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { Alert, Button, CopyButton, Flex, Text, useConfig } from '@zerodep-dev/vue-tsx-pro-ui';
+import { CodeEditor } from '@zerodep-dev/vue-tsx-pro-ui/code-editor';
 import { onBeforeUnmount, onMounted, watch, type Component } from 'vue';
-import { CodeEditor } from '../playground/CodeEditor';
 import { mountPreview } from '../playground/preview';
 import { compile, evaluate } from '../playground/run';
 import { decodeCode, encodeCode } from '../playground/share';

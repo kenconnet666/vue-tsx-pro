@@ -1,5 +1,5 @@
 /**
- * 人员与组织选择面板：左边按组织架构一层层找（面包屑回到上层），或搜索、看岗位与最近选过的，勾选；右边是已选的，可以移除、清空。
+ * 人员与组织选择面板：左边按组织架构一层层找（面包屑回到上层），或搜索、看角色与最近选过的，勾选；右边是已选的，可以移除、清空。
  * PeoplePicker 把它放进对话框；也可以直接放在页面、抽屉里。数据见 people.ts（source）。
  *
  *   <PeoplePickerPanel source={source} _value={members} types={['user', 'department']} recentKey="project-members" />
@@ -61,7 +61,7 @@ export interface PeoplePickerPanelProps extends PartProps<'div'> {
   propsSearch?: Partial<TextFieldProps>;
 }
 
-type Page = 'org' | 'positions' | 'recent';
+type Page = 'org' | 'roles' | 'recent';
 
 /** “最近”最多记几个 */
 const RECENT_LIMIT = 20;
@@ -147,33 +147,33 @@ export const PeoplePickerPanel = _component(
       keepPrevious: false,
       enabled: searching,
     });
-    const positions = useRequest((_: undefined, signal) => source.positions!(signal), {
+    const roles = useRequest((_: undefined, signal) => source.roles!(signal), {
       immediate: false,
     });
     watch(
       () => page,
       (next) => {
-        if (next === 'positions' && positions.data == null && !positions.loading) {
-          void positions.refresh();
+        if (next === 'roles' && roles.data == null && !roles.loading) {
+          void roles.refresh();
         }
       },
     );
 
     const pages = (): Page[] => [
       'org',
-      ...(source.positions ? (['positions'] as const) : []),
+      ...(source.roles ? (['roles'] as const) : []),
       ...(key ? (['recent'] as const) : []),
     ];
     const pageLabel: Record<Page, () => string> = {
       org: () => lang.peopleOrg,
-      positions: () => lang.peoplePositions,
+      roles: () => lang.peopleRoles,
       recent: () => lang.peopleRecent,
     };
 
     /** 现在列出的：搜索结果，或当前页 */
     const shown = (): { items: readonly PeopleEntry[]; loading: boolean } => {
       if (searching()) return { items: found.data ?? [], loading: found.loading };
-      if (page === 'positions') return { items: positions.data ?? [], loading: positions.loading };
+      if (page === 'roles') return { items: roles.data ?? [], loading: roles.loading };
       if (page === 'recent') return { items: recent, loading: false };
       return { items: level.data ?? [], loading: level.loading };
     };
@@ -232,7 +232,7 @@ export const PeoplePickerPanel = _component(
       else if (drillable(entry)) open(entry);
     }
 
-    /** 行首的圆形标记：人员是头像，部门、岗位是图标 */
+    /** 行首的圆形标记：人员是头像，部门、角色是图标 */
     const badge = (entry: PeopleEntry): VNodeChild =>
       entry.type === 'user' ? (
         <Avatar name={entry.name} src={entry.avatar} size="sm" />
@@ -322,7 +322,10 @@ export const PeoplePickerPanel = _component(
             <Breadcrumbs
               items={[
                 { key: '', label: lang.peopleRoot },
-                ...path.map((department) => ({ key: department.id, label: department.name })),
+                ...path.map((department) => ({
+                  key: peopleKey(department),
+                  label: department.name,
+                })),
               ]}
               onNavigate={(_, index) => (path = path.slice(0, index))}
             />

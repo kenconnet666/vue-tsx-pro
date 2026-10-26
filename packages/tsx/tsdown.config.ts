@@ -16,6 +16,9 @@ export default defineConfig({
     vite: 'src/vite/index.ts',
     styles: 'src/styles/index.ts',
     compiler: 'src/compiler/index.ts',
+    // 浏览器里编译：入口不带 Babel，Worker 才带
+    'browser-compile': 'src/browser-compile/index.ts',
+    'browser-compile-worker': 'src/browser-compile/worker.ts',
     // 编译线程：vite/pool.ts 按 dist/compile-worker.js 启动它
     'compile-worker': 'src/vite/compile-worker.ts',
   },

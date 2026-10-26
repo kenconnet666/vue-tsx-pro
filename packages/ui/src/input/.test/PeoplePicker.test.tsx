@@ -1,4 +1,4 @@
-// 人员与组织选择器：localPeopleSource（下级、搜索、岗位）；面板的下钻与面包屑、点行勾选、不能选的部门点行进去、
+// 人员与组织选择器：localPeopleSource（下级、搜索、角色）；面板的下钻与面包屑、点行勾选、不能选的部门点行进去、
 // 全选、max 换掉或勾满、移除与清空、搜索、“最近”；字段的对话框（确定写回、取消放弃）、Backspace、只选一个时显示名字
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
@@ -37,8 +37,8 @@ const org: PeopleNode[] = [
     children: [user('wang', '王建国', '财务部 · 经理')],
   },
 ];
-const positions: PeopleEntry[] = [{ id: 'buyer', type: 'position', name: '采购专员' }];
-const source = localPeopleSource(org, positions);
+const roles: PeopleEntry[] = [{ id: 11, type: 'role', name: '采购专员' }];
+const source = localPeopleSource(org, roles);
 
 const flush = async () => {
   for (let index = 0; index < 6; index++) await nextTick();
@@ -67,7 +67,7 @@ function panel(props: Record<string, unknown> = {}) {
 }
 
 describe('localPeopleSource', () => {
-  it('下级：最上层与部门的下级，部门带 hasChildren；搜索按名字与说明；岗位单独给', async () => {
+  it('下级：最上层与部门的下级，部门带 hasChildren；搜索按名字与说明；角色单独给', async () => {
     const signal = new AbortController().signal;
     const top = await source.children(null, signal);
     expect(top.map((entry) => [entry.name, entry.hasChildren])).toEqual([
@@ -82,7 +82,7 @@ describe('localPeopleSource', () => {
       '王建国',
     ]);
     expect((await source.search!('采购', signal)).map((entry) => entry.name)).toContain('采购专员');
-    expect(await source.positions!(signal)).toEqual(positions);
+    expect(await source.roles!(signal)).toEqual(roles);
   });
 });
 
@@ -156,7 +156,7 @@ describe('PeoplePickerPanel', () => {
     const { root, names } = panel({ recentKey: 'test' });
     await flush();
     const search = root.querySelector<HTMLInputElement>(
-      'input[aria-label="搜索人员、部门、岗位"]',
+      'input[aria-label="搜索人员、部门、角色"]',
     )!;
     search.value = '王';
     search.dispatchEvent(new Event('input', { bubbles: true }));

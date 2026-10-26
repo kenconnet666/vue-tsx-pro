@@ -1,10 +1,11 @@
 /**
- * 人员与组织选择器（PeoplePicker、PeoplePickerPanel）的数据：选的是人员、部门、岗位三种，数据由接入方的 source 提供。
+ * 人员与组织选择器（PeoplePicker、PeoplePickerPanel）的数据：标准的是人员、部门、角色三种（标准的组织模型），数据由接入方的 source 提供。
+ * 岗位、项目组这类由接入方给 PeopleTypes 加类型（接口合并），名字写进语言包的 peopleTypes。
  *
  *   const source: PeopleSource = {
  *     children: (parent, signal) => http.get('/org/children', { query: { parent: parent?.id }, signal }),
  *     search: (query, signal) => http.get('/org/search', { query: { q: query }, signal }),
- *     positions: (signal) => http.get('/org/positions', { signal }),
+ *     roles: (signal) => http.get('/org/roles', { signal }),
  *   };
  *   <PeoplePicker source={source} _value={owners} />
  *
@@ -18,22 +19,25 @@ export interface PeopleTypes {
   user: unknown;
   /** 部门：选中就是部门里的人（怎么展开由后端定） */
   department: unknown;
-  /** 岗位（角色）：流程的岗位收件箱 */
-  position: unknown;
+  /** 角色：流程的角色收件箱 */
+  role: unknown;
 }
+
+// 接入方加类型（岗位）：
+//   declare module '@zerodep-dev/vue-tsx-pro-ui' { interface PeopleTypes { position: unknown } }
 
 /** 能选的类型 */
 export type PeopleType = keyof PeopleTypes;
 
-/** 一个人员、部门或岗位 */
+/** 一个人员、部门或角色 */
 export interface PeopleEntry {
-  /** 标识：同一种类型里唯一（工号、部门编码、岗位编码） */
-  id: string;
+  /** 标识：同一种类型里唯一。一般是接入方组织表的自增主键（数字），用工号、编码这类文字也行 */
+  id: string | number;
   /** 类型 */
   type: PeopleType;
   /** 名字 */
   name: string;
-  /** 说明：人员的部门与岗位、部门的上级路径；搜索结果里分辨同名的 */
+  /** 说明：人员的部门与角色、部门的上级路径；搜索结果里分辨同名的 */
   description?: string;
   /** 头像地址（人员）；没有时显示名字的头一个字 */
   avatar?: string;
@@ -45,10 +49,10 @@ export interface PeopleEntry {
 export interface PeopleSource {
   /** 一个部门下的子部门与人员（部门在前）；parent 为 null 时是最上层 */
   children(parent: PeopleEntry | null, signal: AbortSignal): Promise<readonly PeopleEntry[]>;
-  /** 按关键字搜，人员、部门、岗位都可以返回；不写时没有搜索框 */
+  /** 按关键字搜，人员、部门、角色都可以返回；不写时没有搜索框 */
   search?(query: string, signal: AbortSignal): Promise<readonly PeopleEntry[]>;
-  /** 全部岗位；不写时没有“岗位”页 */
-  positions?(signal: AbortSignal): Promise<readonly PeopleEntry[]>;
+  /** 全部角色；不写时没有“角色”页 */
+  roles?(signal: AbortSignal): Promise<readonly PeopleEntry[]>;
 }
 
 /** 组织架构的一个节点：部门带着下级 */
@@ -57,7 +61,7 @@ export interface PeopleNode extends PeopleEntry {
   children?: readonly PeopleNode[];
 }
 
-/** 同一个人员、部门、岗位的键：类型加标识 */
+/** 同一个人员、部门、角色的键：类型加标识 */
 export const peopleKey = (entry: Pick<PeopleEntry, 'type' | 'id'>) => `${entry.type}:${entry.id}`;
 
 /** 去掉下级、只留这一项本身（写进选中的值、最近选过的） */
@@ -72,11 +76,11 @@ const plain = ({ id, type, name, description, avatar, hasChildren }: PeopleEntry
 
 /**
  * 整棵在前端的组织架构做成数据来源：示例、测试与规模不大的系统直接用。
- * 搜索按名字与说明（不分大小写），岗位单独给；部门的 hasChildren 按有没有 children 填上
+ * 搜索按名字与说明（不分大小写），角色单独给；部门的 hasChildren 按有没有 children 填上
  */
 export function localPeopleSource(
   tree: readonly PeopleNode[],
-  positions: readonly PeopleEntry[] = [],
+  roles: readonly PeopleEntry[] = [],
 ): PeopleSource {
   const byKey = new Map<string, PeopleNode>();
   const all: PeopleNode[] = [];
@@ -99,10 +103,10 @@ export function localPeopleSource(
     search: (query) => {
       const text = query.trim().toLocaleLowerCase();
       return Promise.resolve(
-        [...all.map(view), ...positions.map(plain)].filter((entry) => matches(entry, text)),
+        [...all.map(view), ...roles.map(plain)].filter((entry) => matches(entry, text)),
       );
     },
-    ...(positions.length > 0 ? { positions: () => Promise.resolve(positions.map(plain)) } : {}),
+    ...(roles.length > 0 ? { roles: () => Promise.resolve(roles.map(plain)) } : {}),
   };
 }
 

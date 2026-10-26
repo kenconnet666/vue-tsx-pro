@@ -509,16 +509,16 @@ export interface Lang {
   readonly conditionGroup: string;
   /** 一条比较的名称（读屏）：`(2)` → “条件 2” */
   readonly conditionRule: (index: number) => string;
-  /** 人员选择器的三种类型：人员、部门、岗位 */
+  /** 人员选择器的类型：人员、部门、角色，加上接入方扩展的（PeopleTypes） */
   readonly peopleTypes: Readonly<Record<PeopleType, string>>;
-  /** 选择器的搜索框占位与名称，默认“搜索人员、部门、岗位” */
+  /** 选择器的搜索框占位与名称，默认“搜索人员、部门、角色” */
   readonly peopleSearch: string;
-  /** 切换组织架构、岗位、最近几页的那组按钮的名称，默认“浏览方式” */
+  /** 切换组织架构、角色、最近几页的那组按钮的名称，默认“浏览方式” */
   readonly peoplePages: string;
   /** “组织架构”页 */
   readonly peopleOrg: string;
-  /** “岗位”页 */
-  readonly peoplePositions: string;
+  /** “角色”页 */
+  readonly peopleRoles: string;
   /** “最近”页：最近选过的 */
   readonly peopleRecent: string;
   /** 组织架构最上层在面包屑里的名字，默认“全部” */

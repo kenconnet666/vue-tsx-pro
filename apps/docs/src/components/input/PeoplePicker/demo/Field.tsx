@@ -9,9 +9,9 @@ import {
   Small,
   type PeopleEntry,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { org, positions } from './org';
+import { org, roles } from './org';
 
-const source = localPeopleSource(org, positions);
+const source = localPeopleSource(org, roles);
 
 export default _component(() => {
   let cc = _state<readonly PeopleEntry[]>([
