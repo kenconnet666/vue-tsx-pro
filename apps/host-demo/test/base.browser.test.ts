@@ -1,7 +1,7 @@
 // 基础组件演示页在真实浏览器里的行为与无障碍检查；每加一批组件就在这里补对应的检查
 import axe from 'axe-core';
-import { afterTransitions, themeTransition } from '@vue-tsx-pro/ui';
-import { durations } from '@vue-tsx-pro/ui/tokens';
+import { afterTransitions, themeTransition } from '@zerodep-dev/vue-tsx-pro-ui';
+import { durations } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { animate, cubicBezier } from 'animejs';
 import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';

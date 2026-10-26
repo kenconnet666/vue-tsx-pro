@@ -1,6 +1,6 @@
 // 正文里的列表：无序（圆点）、有序（编号，start 等原生属性照常用）、嵌套
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Grid, List, ListItem, OrderedList, Strong } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Grid, List, ListItem, OrderedList, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Grid minItemWidth="16rem" gap="lg">
@@ -17,7 +17,7 @@ export default _component(() => () => (
     </List>
     <OrderedList>
       <ListItem>
-        安装 <Code>@vue-tsx-pro/ui</Code>
+        安装 <Code>@zerodep-dev/vue-tsx-pro-ui</Code>
       </ListItem>
       <ListItem>
         在 Vite 配置里加上 <Code>vueTsxPro()</Code>

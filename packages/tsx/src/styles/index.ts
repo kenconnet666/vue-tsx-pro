@@ -1,7 +1,7 @@
 /**
  * 样式入口：运行时样式引擎（runtime.ts）加上中文注释的类型。
  *
- *   import * as css from '@vue-tsx-pro/tsx/styles';
+ *   import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
  *
  * create 的参数只让样式组名参与推导，组内属性的上下文类型固定为带注释的 DocumentedStyles，
  * 悬停、补全、跳转都能看到说明（整个参数做泛型推导时，TypeScript 悬停只显示推导出的字面量）。
@@ -24,8 +24,8 @@ export {
 export { CONDITIONS as conditions, hotStyles, styleText } from './runtime';
 
 /*
- * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@vue-tsx-pro/ui 的 token-names.ts）用
- * declare module '@vue-tsx-pro/tsx/styles' 填入以 `_` 开头的 token 名。接口必须声明在这个入口模块里：
+ * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@zerodep-dev/vue-tsx-pro-ui 的 token-names.ts）用
+ * declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' 填入以 `_` 开头的 token 名。接口必须声明在这个入口模块里：
  * 增补与声明在同一个模块，WebStorm 才能把 '_xs' 解析到唯一的那一组（跳转、悬停注释、补全都靠它）；
  * 声明在别的文件再转出时，它会列出所有同名的 token 让人选。
  */

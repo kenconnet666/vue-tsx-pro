@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, CodeBlock } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
 import scopeApi from 'virtual:api/ConfigScopeProps';
 import api from 'virtual:api/ProviderProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -18,9 +18,9 @@ export const meta = {
   order: 1,
 };
 
-const setup = `import { createUi, zhCN } from '@vue-tsx-pro/ui';
-import { createPinyinMatcher } from '@vue-tsx-pro/ui/pinyin';
-import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
+const setup = `import { createUi, zhCN } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createPinyinMatcher } from '@zerodep-dev/vue-tsx-pro-ui/pinyin';
+import { vueRouterAdapter } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';
 
 app.use(
   createUi({
@@ -36,7 +36,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { ConfigScope, createUi, Provider, useFormat } from '@vue-tsx-pro/ui';"
+    imports="import { ConfigScope, createUi, Provider, useFormat } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <CodeBlock code={setup} lang="ts" title="main.ts" />
     <Example id="scoped" title="局部主题与默认值" demo={Scoped}>

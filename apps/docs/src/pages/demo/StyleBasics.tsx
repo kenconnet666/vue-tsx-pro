@@ -1,7 +1,7 @@
 import { Sparkles, Zap, ShieldCheck } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Button, Icon, t, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Button, Icon, t, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plans = [
   { name: '入门', price: 0, icon: Sparkles, features: ['3 个项目', '社区支持'] },

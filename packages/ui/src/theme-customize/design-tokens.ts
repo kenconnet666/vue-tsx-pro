@@ -12,8 +12,8 @@
  * - 阴影与缓动按 DTCG 的结构写出，Figma 变量没有这两种类型，导入时跳过。
  * 令牌按 token 组分组：colors/accent、space/md，与代码里的 `_accent`、`_space.md` 一一对应。
  */
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { CssVar } from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { CssVar } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { formatHex } from 'culori/fn';
 import { parseColor } from '../utils/data/color';
 import { applyStyleAttrs } from '../utils/props';

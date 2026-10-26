@@ -1,8 +1,8 @@
 // 供应商改进建议：点行首的箭头展开详情（建议内容、影响评估、附件），草稿还没有内容，不能展开。
 // 详情是表格里跨全部列的一行，横向滚动时贴着可见区域的起始边；expandedRows 可以双向绑定
 import { Paperclip } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   createStatusMap,
   DataTable,
@@ -12,7 +12,7 @@ import {
   Link,
   Small,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 const statuses = createStatusMap({

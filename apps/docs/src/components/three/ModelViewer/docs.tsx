@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ModelViewerProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -16,7 +16,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ModelViewer } from '@vue-tsx-pro/ui/three';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { ModelViewer } from '@zerodep-dev/vue-tsx-pro-ui/three';"
+  >
     <Example id="product" title="商品详情" demo={Product}>
       <Code>src</Code> 是 glTF / GLB
       的地址，模型按外接球居中、缩放到占满画面。拖动环绕（松手带惯性），获得焦点后

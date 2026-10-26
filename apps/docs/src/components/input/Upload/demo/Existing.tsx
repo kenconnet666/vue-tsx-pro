@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   existingUploadFile,
   Field,
@@ -7,7 +7,7 @@ import {
   Upload,
   type UploadFile,
   type UploadHandler,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 演示用的上传：一秒后完成
 const upload: UploadHandler = (file, { onProgress }) =>

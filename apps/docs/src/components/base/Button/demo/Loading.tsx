@@ -1,6 +1,6 @@
 import { RefreshCw, Send, Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, IconButton, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, IconButton, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 模拟一次请求：ms 毫秒后完成 */
 const request = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

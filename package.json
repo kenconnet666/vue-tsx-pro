@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "pnpm --filter \"./packages/**\" build",
-    "build:tsx": "pnpm --filter @vue-tsx-pro/tsx build",
+    "build:tsx": "pnpm --filter @zerodep-dev/vue-tsx-pro-tsx build",
     "dev:docs": "pnpm --filter @vue-tsx-pro/docs dev",
     "build:docs": "pnpm --filter @vue-tsx-pro/docs build",
     "dev:cost": "pnpm --filter @vue-tsx-pro/cost-reduction dev",

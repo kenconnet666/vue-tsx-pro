@@ -6,8 +6,8 @@
  * 只是指针用户的便利：键盘用户用视口的方向键平移，读屏不念它（aria-hidden）。
  * 部件：Root（div）、Node（每个节点的方块）、Viewport（视口的框）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { diagramInternals } from './controller';

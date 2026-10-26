@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Radio, RadioGroup, Small, Strong } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Radio, RadioGroup, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const options = [
   ['standard', '标准快递', '3–5 天送达', '免运费'],

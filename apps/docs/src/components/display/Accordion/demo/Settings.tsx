@@ -1,6 +1,15 @@
 import { Bell, Lock, Palette } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Accordion, AccordionItem, Badge, Flex, Icon, Small, Switch, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Accordion,
+  AccordionItem,
+  Badge,
+  Flex,
+  Icon,
+  Small,
+  Switch,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const title = (icon: typeof Bell, label: string, count?: number) => (
   <Flex align="center" gap="sm">

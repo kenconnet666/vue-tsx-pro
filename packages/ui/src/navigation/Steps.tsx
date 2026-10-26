@@ -9,8 +9,8 @@
  * 每一步的状态默认按 current 推出（之前已完成、当前、之后未开始），item 的 status 可以改：出错的一步、非线性的流程。
  */
 import { Check } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData } from '../base/Icon';

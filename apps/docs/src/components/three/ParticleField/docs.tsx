@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ParticleFieldProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -18,7 +18,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ParticleField } from '@vue-tsx-pro/ui/three';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { ParticleField } from '@zerodep-dev/vue-tsx-pro-ui/three';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="constellation" title="星座连线" demo={Constellation}>

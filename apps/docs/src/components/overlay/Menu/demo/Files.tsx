@@ -7,8 +7,8 @@ import {
   Pencil,
   Trash2,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   ButtonBase,
   ContextMenu,
@@ -19,7 +19,7 @@ import {
   Separator,
   Small,
   type IconData,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const files: [string, IconData][] = [
   ['报价单.xlsx', FileSpreadsheet],

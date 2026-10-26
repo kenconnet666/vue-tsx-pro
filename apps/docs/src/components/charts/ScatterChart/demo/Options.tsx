@@ -1,7 +1,7 @@
 // 数值轴的范围与单位、类目的显示文字、高度；图例、网格线、提示框、加载与空状态；hiddenSeries 双向绑定
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small, Switch } from '@vue-tsx-pro/ui';
-import { ScatterChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ScatterChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 // 每次会话只属于一个系列：另一个字段留空，那个系列上就不画点
 interface Session {

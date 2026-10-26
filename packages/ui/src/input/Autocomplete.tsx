@@ -9,8 +9,8 @@
  * Enter 填入，Esc 关闭（关闭时再按 Esc 清空）。写了 name 时表单提交的是输入框里的文字。
  * 部件同 Combobox：Root（外壳）、Input（主元素）、Clear、Popover、Listbox。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import type { UpdateHandlers } from '@vue-tsx-pro/tsx/jsx-runtime';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import type { UpdateHandlers } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runtime';
 import { Combobox, type ComboboxBaseProps, type ComboboxProps } from './Combobox';
 import { FormValue } from '../form/FormValue';
 import type { ListboxOption, OptionMapping } from './list-state';

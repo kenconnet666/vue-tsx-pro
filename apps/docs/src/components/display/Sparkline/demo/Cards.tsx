@@ -1,7 +1,7 @@
 // 指标卡里的迷你图：Stat 的 children 占满数值下面的一行；折线看走势、面积看总量的起伏、柱看每月的多少。
 // 读屏念成一句话（几个值、从哪到哪、最低最高），label 写在前面
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Grid, Sparkline, Stat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Grid, Sparkline, Stat } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const savings = [40, 70, 150, 205, 180, 150, 185, 150, 190, 205, 270, 360];
 const visits = [820, 932, 901, 934, 1290, 1330, 1320, 1180, 1420, 1510, 1490, 1680];

@@ -1,6 +1,6 @@
 import { RefreshCw } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Alert, Button, Flex } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Alert, Button, Flex } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let state = _state<'idle' | 'checking' | 'latest'>('idle');

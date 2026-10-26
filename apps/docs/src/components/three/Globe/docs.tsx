@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/GlobeProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Globe } from '@vue-tsx-pro/ui/three';">
+  <DocPage wide meta={meta} imports="import { Globe } from '@zerodep-dev/vue-tsx-pro-ui/three';">
     <Example id="network" title="标注与弧线" demo={Network}>
       <Code>markers</Code> 是经纬度（北纬、东经为正），画成向外扩散的光圈；<Code>arcs</Code>{' '}
       沿大圆抬离地面，两地越远抬得越高，光点从起点流向终点。拖动转动地球，松手后带着惯性回到自转；

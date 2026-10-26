@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Link } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Link } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/GaugeProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -15,7 +15,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Gauge } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Gauge } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="dashboard" title="工作台的一排仪表盘" demo={Dashboard}>
       <Code>value</Code> 在 <Code>min</Code>–<Code>max</Code>（默认 0–100）之间；<Code>bands</Code>{' '}
       是外圈的区间（每段到 <Code>to</Code> 为止，带色调），数值弧取它所在区间的色调（

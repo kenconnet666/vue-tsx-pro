@@ -1,6 +1,6 @@
 // 代码演练场的预览：独立的 Vue 应用，用户代码出错只报告，不往外抛
-import { _component } from '@vue-tsx-pro/tsx';
-import { darkTheme, defaultConfig, useConfig } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { darkTheme, defaultConfig, useConfig } from '@zerodep-dev/vue-tsx-pro-ui';
 import { afterEach, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mountPreview } from './preview';

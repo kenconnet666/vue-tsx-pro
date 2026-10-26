@@ -7,7 +7,7 @@
  *   <ClearButton size="sm" onClick={() => (value = '')} />
  */
 import { CircleX, X } from '@lucide/icons';
-import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
+import { _component, type TsxComponent } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useLang } from '../config/context';
 import type { Lang } from '../config/lang/lang';
 import { IconButton, type IconButtonProps } from './IconButton';

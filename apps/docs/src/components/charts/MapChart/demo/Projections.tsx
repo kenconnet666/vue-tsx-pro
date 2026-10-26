@@ -1,9 +1,9 @@
 // 投影对比：同一份中国地图换投影。conic（默认）以中国为中心，正着；mercator 北方被放大；
 // naturalEarth 是世界地图的投影，中国的北边偏扁；orthographic 是从正上方看地球
 import { ChinaTopoJSON } from '@unovis/ts/maps';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { MapChart, type MapArea, type MapProjections } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
+import { MapChart, type MapArea, type MapProjections } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { provinces, sampleValue } from './china';
 
 const areas: MapArea[] = provinces.map((province, index) => ({

@@ -1,7 +1,7 @@
 // 重渲染次数的回归测试：组件库与编译器的渲染优化（RUNES §9、COMPONENTS §10.16）不要退化。
 // 只数组件更新的次数（确定的），不量时间
 import { Copy } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Card,
@@ -13,7 +13,7 @@ import {
   DataTable,
   type ListboxOption,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, nextTick, type App, type Component } from 'vue';
 

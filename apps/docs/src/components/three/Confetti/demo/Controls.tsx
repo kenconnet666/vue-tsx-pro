@@ -1,8 +1,8 @@
 // 只在一块区域里放（fullscreen={false}）：方向、散开角度、数量、初速度与重力实时调整
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Button, Card, Flex, Grid, Slider, Text } from '@vue-tsx-pro/ui';
-import { Confetti } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Button, Card, Flex, Grid, Slider, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Confetti } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   stage: {

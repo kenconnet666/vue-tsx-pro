@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import { vueTsxPro, workspaceSource } from '@vue-tsx-pro/tsx/vite';
+import { vueTsxPro, workspaceSource } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 
 // 测试时完整编译，样式走运行时引擎（预设的默认），与组件库发布的产物一致
 export default defineConfig({

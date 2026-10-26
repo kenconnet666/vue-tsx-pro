@@ -58,14 +58,14 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
       （演练场漏登记时 page-imports 测试报错）；`pnpm exports` 同时生成各子路径的 index.ts（保留开头的说明），名字在所有入口里全局唯一；
       `pnpm move` 挪完自动改应用里的入口导入（entry-imports.mjs）；文档页顶部的导入文字由 page-imports 测试检查
 - [x] `pnpm layers:check`（进 `pnpm check` 与 CI）
-- [x] `@vue-tsx-pro/ui/patterns`（页面组合）：AppShell（Brand 并入为 AppShellBrand）、ActionBar、FilterBar、NotificationCenter、
+- [x] `@zerodep-dev/vue-tsx-pro-ui/patterns`（页面组合）：AppShell（Brand 并入为 AppShellBrand）、ActionBar、FilterBar、NotificationCenter、
       KanbanBoard、DeadlineBadge（原 DeadlineTag）、ThemeSwitcher、useFormDialog；文案进 patternsMessages；文档站加“页面组合”分类。
       PageHeader 删除（占一整块却没几项信息，页面里直接用 Breadcrumbs、标题与操作排）
-- [x] `@vue-tsx-pro/ui/workflow`：流程定义、校验、排布、运行时与 FlowDiagram、ApprovalActions、useWorkflowTimeline（2026-10-26 整个删除，见阶段 9）。
+- [x] `@zerodep-dev/vue-tsx-pro-ui/workflow`：流程定义、校验、排布、运行时与 FlowDiagram、ApprovalActions、useWorkflowTimeline（2026-10-26 整个删除，见阶段 9）。
       WorkflowTimeline 并进 Timeline：流转记录由 useWorkflowTimeline 写成 Timeline 的各项，Timeline 加 `reverse`（新的在前）
 - [x] 对话框的 onConfirm（Dialog、Drawer、AlertDialog 共用“取消 / 确认”、等待与失败留着）：AlertDialog、useFormDialog、
       ApprovalActions 改用它（取代原计划的“ApprovalActions 改用 useFormDialog”：业务字段与附件放不进 useFormDialog 的字符串字段）
-- [x] `@vue-tsx-pro/ui/effects`：BorderBeam、SpotlightCard、TiltCard、Marquee；删除 SlideVerify
+- [x] `@zerodep-dev/vue-tsx-pro-ui/effects`：BorderBeam、SpotlightCard、TiltCard、Marquee；删除 SlideVerify
       （2026-10-24 取消这个子路径：三个卡片效果并进 Card 的 `effect`，Marquee 挪到主入口的展示类）
 - [x] ThemeCustomizer、ThemeThumbnail 与主题定制的工具收成 `theme-customize/` 目录；ColorSwatch 进 `/docs-kit`
 - [x] StatusDot 挪到 base；`Modal.tsx` 改名 `ModalCore.tsx`；内容判断统一用 hasContent（36 处 `!= null`）。
@@ -90,7 +90,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 表单：`form.validate(paths)` 局部校验、字段联动 `dependencies`（改 A 时校验 B，B 的单字段校验也重跑）；文档站加了分步填写的示例
 - [x] `usePanZoom`（建在 startMove 上）、二维方向键导航 `gridFocus`（表格网格、整页日历）、`ControlGroup` 组合输入（`AttachedContext` 与 ButtonGroup 共用）。
       顺手修复：相连的组里首尾的外侧圆角一直是 0（StyleX 里条件值写 null 不会撤销 default），选择框的弹出面板是兄弟元素时首尾判断错位
-- [x] 拼音匹配：子路径 `@vue-tsx-pro/ui/pinyin` 的 `createPinyinMatcher()`（pinyin-pro，可选 peer 依赖），交给 createUi / Provider 的 `textMatcher`；
+- [x] 拼音匹配：子路径 `@zerodep-dev/vue-tsx-pro-ui/pinyin` 的 `createPinyinMatcher()`（pinyin-pro，可选 peer 依赖），交给 createUi / Provider 的 `textMatcher`；
       Select、Combobox、TagsInput、TreeSelect、CommandPalette 经 `useTextMatcher()` 取用，文档站已开启
 - [x] `useDismissible`：Tag、Alert 已改用（先离场、焦点移到相邻元素、离场后才报告），Banner 做的时候直接用
 
@@ -299,7 +299,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
       四类图表的公共属性说明里带着各自的默认高度、骨架形状与格式的用处，不合成 `ChartCommonProps`
 - [x] Lang 只留通用组件的文案；主题编辑器与文档站组件各带中英文的文案表，`useMessages` 按语言代码取、退到同语种再退到英文
       （同 React Aria），改写或补语言写在 `lang.messages`，`defineLang` 按组件合并
-- [x] CodePreview、PropsTable、CodeGroup 挪到子路径 `@vue-tsx-pro/ui/docs-kit`。决定保留在主入口：CodeBlock、
+- [x] CodePreview、PropsTable、CodeGroup 挪到子路径 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`。决定保留在主入口：CodeBlock、
       TableOfContents、Pager（帮助中心、文章页也用）；顺手把 SelectionBar 里有意只取初始值的读取写成 `_untrack`
 - [x] 脚本：`scripts/lib/repo.mjs`（`root`、`requireFrom`、`parseSource`），十二个脚本不再各算根目录、各自建 require；
       没登记的三个登记成 `pnpm move`、`gen:globe-land`、`gen:trophy`（重跑结果与仓库里的一致）；五个已合并的旧 worktree 与分支删掉
@@ -355,7 +355,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
       DateRangePicker 补 valueType、必填、图标与圆角。决定不补：DataTableRow 这类渲染单元；PageSizeSelect 这类继承来的属性不逐个演示
 - [x] 案例：日期用组件库的 `shiftIsoDate`、`daysBetween`；两种降本类型的名称、编码表头、单位与格式合成 `costKinds`，台账只传类型；
       两个编辑页共用 `task-form.ts` 的字段与条件必填；DmcEditor 的实施节点用 `form.array`（删行时错误跟着移动）；
-      铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@vue-tsx-pro/ui/vars`，主入口不再导出它）；看板用 Grid；
+      铺满视口的高度读 `layoutVars.stickyOffset`（新子路径 `@zerodep-dev/vue-tsx-pro-ui/vars`，主入口不再导出它）；看板用 Grid；
       图表示例的真实产品型号换成虚构的名字（2026-10-26 起示例改用通用场景）
 
 #### A.6 审查余项

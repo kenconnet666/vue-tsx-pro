@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ProseProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -17,7 +17,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { List, ListItem, OrderedList, Prose } from '@vue-tsx-pro/ui';"
+    imports="import { List, ListItem, OrderedList, Prose } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="article" title="一篇文章" demo={Article}>
       样式引擎不写“相邻元素之间”的选择器，块间距用 flex 的 <Code>gap</Code> 统一给（默认

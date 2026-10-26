@@ -1,6 +1,6 @@
 // 填写个人信息：生日（不能晚于今天）、证件有效期（不能早于今天），段的顺序按语言，填全了才有值
-import { _component } from '@vue-tsx-pro/tsx';
-import { DateField, Field, Grid, Text, todayIso, useFormat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { DateField, Field, Grid, Text, todayIso, useFormat } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const format = useFormat();

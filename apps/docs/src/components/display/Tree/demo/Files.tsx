@@ -1,7 +1,7 @@
 import { FileCode, FileJson, FileText, Folder, FolderOpen } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, Small, Tree, type IconData } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Flex, Small, Tree, type IconData } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Entry {
   path: string;

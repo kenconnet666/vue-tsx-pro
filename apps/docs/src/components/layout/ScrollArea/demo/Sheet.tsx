@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, ScrollArea, VisuallyHidden } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, ScrollArea, VisuallyHidden } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const columns = Array.from({ length: 14 }, (_, index) => String.fromCharCode(65 + index));
 const rows = Array.from({ length: 30 }, (_, index) => index + 1);

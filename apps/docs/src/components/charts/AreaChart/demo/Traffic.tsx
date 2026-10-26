@@ -1,6 +1,6 @@
 // 网站一周的访问：新访客与回访访客两片面积重叠、半透明，看得出谁多谁少
-import { _component } from '@vue-tsx-pro/tsx';
-import { AreaChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { AreaChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const days = [
   { day: '周一', fresh: 3200, returning: 2100 },

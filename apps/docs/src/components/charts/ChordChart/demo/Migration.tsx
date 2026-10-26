@@ -1,7 +1,7 @@
 // 人口流动：几个地区之间一年迁入迁出的人数；点图例隐藏一个地区，下面列出当前隐藏了哪些
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Text } from '@vue-tsx-pro/ui';
-import { ChordChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ChordChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const regions = [
   { id: 'north', label: '华北' },

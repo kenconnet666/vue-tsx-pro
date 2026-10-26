@@ -13,8 +13,8 @@
  *
  * 部件（Radio）：Root（label）、Control（叠放层）、Indicator（圆点）、Label（文字）；未声明的属性落到 input 上。
  */
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';

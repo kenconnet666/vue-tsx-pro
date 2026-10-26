@@ -1,6 +1,6 @@
 import { LogOut, Trash2, Undo2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { AlertDialog, Button, Flex, Small, useConfirm } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { AlertDialog, Button, Flex, Small, useConfirm } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let open = _state(false);

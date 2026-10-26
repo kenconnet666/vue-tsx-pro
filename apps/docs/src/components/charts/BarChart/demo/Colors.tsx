@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { colors } from '@vue-tsx-pro/ui/tokens';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const months = [
   { month: '7月', income: 82, expense: 64 },

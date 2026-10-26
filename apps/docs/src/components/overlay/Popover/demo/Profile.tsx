@@ -1,5 +1,5 @@
 import { CalendarDays, MapPin } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Avatar,
   Button,
@@ -10,7 +10,7 @@ import {
   Paragraph,
   Small,
   Strong,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const people = {
   yihang: {

@@ -1,6 +1,6 @@
 // 尺寸与状态：size 改字号，格子按 em 等比缩放；只读能翻页、不能改；不可用整个变淡
-import { _component } from '@vue-tsx-pro/tsx';
-import { Calendar, Flex, Grid, Small, todayIso } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Calendar, Flex, Grid, Small, todayIso } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const today = todayIso();

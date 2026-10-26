@@ -1,8 +1,8 @@
 // 培训手册的目录：搜索过滤（匹配的加粗、上级展开），拖动调整层级与顺序（或 Alt + 方向键），附录不能再往下放
 import { Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, Small, TextField, Tree, moveNode } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Flex, Small, TextField, Tree, moveNode } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Section {
   id: string;

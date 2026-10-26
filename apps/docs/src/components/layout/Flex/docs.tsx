@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import containerApi from 'virtual:api/ContainerProps';
 import flexApi from 'virtual:api/FlexProps';
 import gridItemApi from 'virtual:api/GridItemProps';
@@ -28,7 +28,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Container, Flex, FlexList, Grid, GridItem, GridList, Separator } from '@vue-tsx-pro/ui';"
+    imports="import { Container, Flex, FlexList, Grid, GridItem, GridList, Separator } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

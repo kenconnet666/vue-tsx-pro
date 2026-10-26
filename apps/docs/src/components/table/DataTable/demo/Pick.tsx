@@ -1,6 +1,6 @@
 // 单选：从几家报价里选一家。每行是同一组的单选框，方向键在行之间移动并选中；选中的行整行高亮
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, DataTable, Flex, Small, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, DataTable, Flex, Small, type DataTableColumn } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Quote {
   id: string;

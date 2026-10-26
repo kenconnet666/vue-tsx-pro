@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import countdownApi from 'virtual:api/CountdownProps';
 import api from 'virtual:api/DateTimeProps';
 import relativeApi from 'virtual:api/RelativeTimeProps';
@@ -23,7 +23,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Countdown, DateTime, RelativeTime } from '@vue-tsx-pro/ui';"
+    imports="import { Countdown, DateTime, RelativeTime } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

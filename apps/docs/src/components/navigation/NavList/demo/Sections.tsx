@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Card, NavItem, NavList, NavSection } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Card, NavItem, NavList, NavSection } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const sections = [
   ['指南', ['快速开始', '主题定制', '国际化']],

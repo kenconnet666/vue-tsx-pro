@@ -1,6 +1,6 @@
 // API 小节：标题与说明先渲染（本页目录、锚点照常），表格在首帧之后空闲时一张一张补上，最终全部出现
-import { _component } from '@vue-tsx-pro/tsx';
-import type { ComponentApi } from '@vue-tsx-pro/ui/docs-kit';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import type { ComponentApi } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { expect, it, vi } from 'vitest';
 import { ApiReference } from '../site/ApiReference';
 import { mount } from './mount';

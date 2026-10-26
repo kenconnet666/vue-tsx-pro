@@ -14,7 +14,7 @@
  * Count（字数计数 CharacterCount）。
  */
 import { Eye, EyeOff } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useId, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import type { IconData, IconProps } from '../base/Icon';

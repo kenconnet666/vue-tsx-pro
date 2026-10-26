@@ -1,7 +1,7 @@
 // 远程建议：输入停下 300ms 后按输入取供应商名称，只采用最后一次；也可以填一个还不在系统里的新供应商
 import { Building2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Autocomplete, Field, Flex, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Autocomplete, Field, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const suppliers = [
   '杭州远山精密机械有限公司',

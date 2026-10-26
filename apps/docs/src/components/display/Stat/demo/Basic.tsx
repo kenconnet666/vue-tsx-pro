@@ -1,6 +1,6 @@
 import { ChartColumn, ClipboardList, JapaneseYen, TrendingUp } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Grid, Stat, type NumericFormat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Grid, Stat, type NumericFormat } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 // 接口给的金额以元为单位（Decimal 不丢精度），卡片上按万元显示

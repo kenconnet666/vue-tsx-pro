@@ -16,8 +16,8 @@ import {
   User,
   Zap,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Grid, Icon, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Grid, Icon, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const icons = {
   Search,

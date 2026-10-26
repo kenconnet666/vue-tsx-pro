@@ -8,8 +8,8 @@ import {
   usePersistentState,
   useReducedMotion,
   type Theme,
-} from '@vue-tsx-pro/ui';
-import type { customizeTheme, ThemeSettings } from '@vue-tsx-pro/ui/theme-customize';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import type { customizeTheme, ThemeSettings } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 import { effectScope, shallowRef, watch } from 'vue';
 
 export const preference = createThemePreference({ themes: builtinThemes });
@@ -22,7 +22,7 @@ const customize = shallowRef<typeof customizeTheme>();
 let loading: Promise<void> | undefined;
 
 function loadCustomize(): Promise<void> {
-  loading ??= import('@vue-tsx-pro/ui/theme-customize').then((module) => {
+  loading ??= import('@zerodep-dev/vue-tsx-pro-ui/theme-customize').then((module) => {
     customize.value = module.customizeTheme;
   });
   return loading;

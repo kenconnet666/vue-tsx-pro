@@ -2,7 +2,7 @@
  * 生成 packages/ui/src/config/theme/token-names.ts：主题 tokens 短写（`fontSize: '_xs'`）的类型。
  *
  * 读 tokens.ts 里每个 `export const 组 = css.defineVars({ … })` 的键与注释，
- * 用 declare module 填入 @vue-tsx-pro/tsx/styles 里对照表各组的接口（FontSizesTokens 等）；
+ * 用 declare module 填入 @zerodep-dev/vue-tsx-pro-tsx/styles 里对照表各组的接口（FontSizesTokens 等）；
  * 键上带着 token 原来的注释，悬停取值时就能看到说明。
  */
 import { readFileSync } from 'node:fs';
@@ -45,7 +45,7 @@ export function generateTokenNames(root) {
   return [
     '// 由 scripts/css-docs/generate.mjs 根据 tokens.ts 生成，请勿手改。',
     '// 主题 tokens 字符串写法的类型（COMPONENTS.md §4）：每组一个短写的接口、一个带组名的接口',
-    "declare module '@vue-tsx-pro/tsx/styles' {",
+    "declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {",
     ...shortGroups.flatMap((group) => [
       ...tokenInterface(group, tokenInterfaceName(group.name), (name) => `_${name}`),
       ...tokenInterface(

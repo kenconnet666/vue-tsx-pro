@@ -3,8 +3,8 @@
  * Figma 设计文件里有什么、图标从哪里来
  */
 import { Download } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Alert,
   builtinThemeLabel,
@@ -32,8 +32,8 @@ import {
   Text,
   useLang,
   type BuiltinThemeName,
-} from '@vue-tsx-pro/ui';
-import { ThemeThumbnail, themeDesignTokens } from '@vue-tsx-pro/ui/theme-customize';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { ThemeThumbnail, themeDesignTokens } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 import { DocPage } from '../../site/DocPage';
 
 const meta = {

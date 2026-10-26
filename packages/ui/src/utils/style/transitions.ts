@@ -8,7 +8,7 @@
  * 离场过渡依赖 CSS 的 overlay，目前只有 Chromium 支持；Firefox、Safari 关闭后立即隐藏（三大浏览器实测），
  * 进场过渡各浏览器都有。属于渐进增强：不支持时少了离场动画，状态不受影响。
  */
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '../../config/theme/tokens';
 
 /** 顶层元素的进出场过渡：fade 淡入淡出、scale 缩放加淡入、backdrop 模态遮罩的淡入 */

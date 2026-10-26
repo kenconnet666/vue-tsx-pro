@@ -4,12 +4,12 @@
  *
  *   export const meta = { title: 'Button 按钮', description: '触发一个操作', order: 1 };
  *   export default _component(() => () => (
- *     <DocPage meta={meta} imports="import { Button } from '@vue-tsx-pro/ui';">…</DocPage>
+ *     <DocPage meta={meta} imports="import { Button } from '@zerodep-dev/vue-tsx-pro-ui';">…</DocPage>
  *   ));
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { CodeBlock, Container, createFlex, Flex, H1, Paragraph } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { CodeBlock, Container, createFlex, Flex, H1, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import type { VNodeChild } from 'vue';
 import type { PageMeta } from './types';
 

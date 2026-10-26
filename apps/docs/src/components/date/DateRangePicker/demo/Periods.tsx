@@ -1,6 +1,6 @@
 // 按月的预算期间、按年的对比区间、滚动四个季度、排班周、精确到分钟的维护窗口：granularity 决定两端的形式与日历选什么
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, DateRangePicker, Field, Grid, type DateRange } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, DateRangePicker, Field, Grid, type DateRange } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const show = (range: DateRange<string> | null) =>
   range ? <Code>{`${range.start} – ${range.end}`}</Code> : 'null';

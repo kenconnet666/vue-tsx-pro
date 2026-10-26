@@ -1,8 +1,8 @@
 // 庆祝：从点的按钮处喷出；支付成功的对话框打开时从两个下角斜着喷，彩纸在顶层，盖得住对话框
 import { PartyPopper } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Dialog, Flex, Paragraph } from '@vue-tsx-pro/ui';
-import { Confetti, type ConfettiOrigin } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Dialog, Flex, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Confetti, type ConfettiOrigin } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 export default _component(() => {
   let fromButton = _state(0);

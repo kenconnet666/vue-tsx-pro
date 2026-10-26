@@ -10,8 +10,8 @@
  * 很快完成的（200ms 内）不显示，免得每次切换都闪一下。加载条只是视觉提示：对读屏是 role="progressbar"
  * 加 aria-busy，真正的“加载中”应当由页面内容区域（aria-busy、骨架）告诉读屏。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shallowReactive } from 'vue';
 import { useLang } from '../config/context';
 import { mergeAttrs, type PartProps } from '../utils/props';

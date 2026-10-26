@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   createStatusMap,
@@ -11,7 +11,7 @@ import {
   TableHeaderCell,
   TableRow,
   Text,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 状态写在一处：表格、筛选、详情里都是同一个名字与颜色
 const orderStatuses = createStatusMap({

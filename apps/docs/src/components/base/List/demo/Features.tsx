@@ -1,7 +1,7 @@
 // 功能清单：图标代替圆点；ListItem 可以逐项换图标与颜色。size、spacing 调字号与间距
 import { Check, Minus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Grid, List, ListItem, Strong, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Grid, List, ListItem, Strong, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plans: [name: string, price: string, features: [string, boolean][]][] = [
   [

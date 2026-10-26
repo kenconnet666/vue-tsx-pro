@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/SparklineProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -15,7 +15,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Sparkline } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Sparkline } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="cards" title="指标卡里" demo={Cards}>
       放进 Stat 的 children：占满数值下面的一行。<Code>variant</Code> 是 <Code>line</Code>
       （默认）、<Code>area</Code>（下面填一层浅色）或 <Code>bar</Code>（每个值一根柱，从 0 起），

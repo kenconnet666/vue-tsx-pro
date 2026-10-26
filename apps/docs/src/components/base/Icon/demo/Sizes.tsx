@@ -1,6 +1,6 @@
 import { Star } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Icon, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Icon, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import type { VNodeChild } from 'vue';
 
 const sizes = ['xs', 'sm', 'md', 'lg', 'xl'] as const;

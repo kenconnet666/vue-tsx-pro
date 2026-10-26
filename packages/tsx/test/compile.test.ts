@@ -11,8 +11,8 @@ it('模块的语言：扩展名，或单文件组件脚本的 lang 查询参数�
 });
 
 it('运行时样式：渲染里的动态样式调用改成响应式绑定；字面量参数、渲染外、别处的函数不改', async () => {
-  const code = `import * as css from '@vue-tsx-pro/tsx/styles';
-import { _component } from '@vue-tsx-pro/tsx';
+  const code = `import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 const styles = css.create({ bar: (width: number) => ({ width }), base: { color: 'red' } });
 const other = { bar: (width: number) => width };
 const outside = styles.bar(1 + 1);
@@ -38,7 +38,10 @@ export const Bar = _component(({ width, rows }: { width: number; rows: number[] 
 });
 
 it('样式热更新：顶层 create 包上 hotStyles；只改样式参数时骨架不变，改了别的代码骨架变', async () => {
-  const source = (color: string, extra = '') => `import * as css from '@vue-tsx-pro/tsx/styles';
+  const source = (
+    color: string,
+    extra = '',
+  ) => `import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 export const styles = css.create({ root: { color: '${color}' } });
 function local() { return css.create({ a: { color: 'red' } }); }
 ${extra}`;
@@ -54,8 +57,8 @@ ${extra}`;
 });
 
 it('按状态选样式：只读在样式里的状态改成 select；别处也读、渲染里算出的、不交给样式的不改', async () => {
-  const code = `import * as css from '@vue-tsx-pro/tsx/styles';
-import { _component } from '@vue-tsx-pro/tsx';
+  const code = `import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 const styles = css.create({ row: { display: 'flex' }, hot: { color: 'red' }, on: { color: 'blue' }, off: { color: 'gray' } });
 const sizes = css.create({ sm: { fontSize: 12 }, md: { fontSize: 14 } });
 const DEBUG = false;

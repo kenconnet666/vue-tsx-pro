@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Progress, Strong, type StatusTone } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Progress, Strong, type StatusTone } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const quotas: [name: string, used: number, total: number, unit: string][] = [
   ['存储空间', 38.6, 50, 'GB'],

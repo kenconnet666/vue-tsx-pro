@@ -1,5 +1,5 @@
 import { MoreHorizontal, Truck } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Button,
@@ -10,7 +10,7 @@ import {
   IconButton,
   Small,
   Text,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Card

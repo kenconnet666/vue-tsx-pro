@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { vueTsxPro, workspaceSource } from '@vue-tsx-pro/tsx/vite';
+import { vueTsxPro, workspaceSource } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 
 export default defineConfig({
   plugins: [workspaceSource(), ...vueTsxPro()],

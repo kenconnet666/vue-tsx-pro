@@ -1,9 +1,9 @@
 // 顶栏的铃铛：未读数、按类型筛选、只看未读、点一条标为已读、全部标为已读；读过的状态由使用方保存
 import { Plane, Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Avatar, Button, Flex, Icon, Small, Strong, TextField } from '@vue-tsx-pro/ui';
-import { NotificationCenter, type NotificationItem } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Avatar, Button, Flex, Icon, Small, Strong, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
+import { NotificationCenter, type NotificationItem } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const styles = css.create({
   bar: {

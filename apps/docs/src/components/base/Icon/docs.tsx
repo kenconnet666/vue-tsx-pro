@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Flex, H2, Paragraph } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Flex, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/IconProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -25,7 +25,9 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports={"import { Icon } from '@vue-tsx-pro/ui';\nimport { Search } from '@lucide/icons';"}
+    imports={
+      "import { Icon } from '@zerodep-dev/vue-tsx-pro-ui';\nimport { Search } from '@lucide/icons';"
+    }
   >
     <Examples>
       <ExampleColumn>

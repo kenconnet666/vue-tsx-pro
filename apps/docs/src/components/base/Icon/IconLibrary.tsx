@@ -1,8 +1,8 @@
 /** Icon 文档页的“图标库”：搜索、点选图标，看大图；复制导入代码、复制或下载 SVG */
 import { Check, Copy, Download, FileCode } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { breakpoints } from '@vue-tsx-pro/ui/tokens';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import {
   ToggleGroup,
   ToggleItem,
   useClipboard,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { allIcons, IconGallery, iconSvg } from '../../../site/IconGallery';
 
 const STROKES = ['1', '1.5', '2', '2.5'] as const;

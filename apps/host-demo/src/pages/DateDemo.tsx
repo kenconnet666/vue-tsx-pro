@@ -1,5 +1,5 @@
 // /date 页：日期组件的演示（浏览器测试的对象）：日历、区间日历、日期与时间的分段输入、日期与时间选择器
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Calendar,
   DateField,
@@ -12,7 +12,7 @@ import {
   TimeField,
   TimePicker,
   type DateRange,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 订满的日子：区间里不能夹着它们 */
 const booked = new Set(['2026-10-18', '2026-10-19']);

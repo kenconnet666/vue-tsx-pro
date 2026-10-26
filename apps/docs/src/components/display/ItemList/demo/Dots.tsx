@@ -1,6 +1,6 @@
 // 状态色点：六种色调、两种大小；点本身就是信息时写 label（读屏念），否则只是装饰
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small, StatusDot } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small, StatusDot } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const tones = ['accent', 'info', 'success', 'warning', 'danger', 'neutral'] as const;
 

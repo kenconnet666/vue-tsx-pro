@@ -1,7 +1,7 @@
 // 收货地址：省 / 市 / 区三级，只能选到区；可搜索（本站开了拼音匹配，试试“bj”“hz”），可清空
 import { MapPin } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Cascader, Field, Flex, Grid, Small, Switch } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Cascader, Field, Flex, Grid, Small, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Region {
   code: string;

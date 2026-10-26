@@ -1,5 +1,5 @@
 // 从右到左排版（lang.direction = 'rtl'）：方向键反过来，有方向的图标镜像
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Breadcrumbs,
   Pagination,
@@ -9,7 +9,7 @@ import {
   TabList,
   TabPanel,
   Tabs,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createApp, type App } from 'vue';

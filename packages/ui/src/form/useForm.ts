@@ -33,7 +33,7 @@
  * - 字段联动：`dependencies: { confirm: ['password'] }`，password 改了重新校验 confirm（confirm 填过或失焦过时显示它的错误），
  *   confirm 的单字段校验也跟着重跑。
  */
-import type { TsxComponent } from '@vue-tsx-pro/tsx';
+import type { TsxComponent } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { computed, reactive, shallowReactive, toRaw, watch } from 'vue';
 import { safeParseAsync, type $ZodIssue, type $ZodRawIssue, type $ZodType } from 'zod/v4/core';
 import { useLang } from '../config/context';

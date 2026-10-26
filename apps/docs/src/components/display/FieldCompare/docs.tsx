@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/FieldCompareProps';
 import fieldApi from 'virtual:api/CompareField';
 import { ApiReference } from '../../../site/ApiReference';
@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { FieldCompare } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { FieldCompare } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="versions" title="版本对比：表格" demo={Versions}>
       <Code>fields</Code> 的写法与表格的列相同（<Code>key</Code>、<Code>header</Code>、
       <Code>type</Code>、<Code>format</Code>、<Code>statuses</Code>、<Code>value</Code>

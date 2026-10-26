@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   DataTable,
@@ -7,7 +7,7 @@ import {
   ToggleGroup,
   ToggleItem,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Log {
   id: number;

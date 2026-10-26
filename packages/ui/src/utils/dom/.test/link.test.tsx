@@ -1,5 +1,5 @@
 // 路由适配：只拦普通左键点击的站内链接
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { describe, expect, it, vi } from 'vitest';
 import { Provider } from '../../../config/Provider';
 import { useRouterLink } from '../link';

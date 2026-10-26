@@ -9,7 +9,7 @@
  * 工作日按 createUi / Provider 的 workCalendar（法定节假日与调休），没给时只按周末。今天默认按浏览器，
  * 业务以服务器的日期为准时传 today。悬停与读屏有完整说明（截止日）。算法见 utils/data/workdays 的 deadlineOf。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Badge, type BadgeProps } from '../base/Badge';
 import { useMessages } from '../config/lang/messages';
 import { patternsMessages } from './messages';

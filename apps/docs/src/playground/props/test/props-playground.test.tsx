@@ -61,7 +61,7 @@ it('生成的代码：和默认值相同的不写，图标写导入名', () => {
   ].map((item) => controlOf(item)!);
   const code = componentCode({
     name: 'Button',
-    entry: '@vue-tsx-pro/ui',
+    entry: '@zerodep-dev/vue-tsx-pro-ui',
     controls,
     values: { variant: 'solid', disabled: true, icon: 'Plus' },
     defaults: { variant: 'solid', disabled: false },
@@ -74,13 +74,13 @@ it('生成的代码：和默认值相同的不写，图标写导入名', () => {
 it('子路径的组件从它的入口导入，内容里用到的主入口组件另写一行', () => {
   const code = componentCode({
     name: 'FilterBar',
-    entry: '@vue-tsx-pro/ui/patterns',
+    entry: '@zerodep-dev/vue-tsx-pro-ui/patterns',
     controls: [],
     values: {},
     defaults: {},
     children: '<Button>新建</Button>',
     imports: ['Button'],
   });
-  expect(code).toContain("import { Button } from '@vue-tsx-pro/ui';");
-  expect(code).toContain("import { FilterBar } from '@vue-tsx-pro/ui/patterns';");
+  expect(code).toContain("import { Button } from '@zerodep-dev/vue-tsx-pro-ui';");
+  expect(code).toContain("import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';");
 });

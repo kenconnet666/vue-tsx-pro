@@ -1,6 +1,6 @@
 import { Plus, Search, Settings, User } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   darkTheme,
@@ -13,7 +13,7 @@ import {
   TextField,
   useLang,
   zhCN,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   // Provider 不产生盒子、不画背景：主题区域自己铺底色

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Link } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Link } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/CalendarBoardProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -17,7 +17,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { CalendarBoard } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { CalendarBoard } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="schedule" title="日程" demo={Schedule}>
       <Code>events</Code> 按 <Code>getEventDate</Code> 放进格子，给了 <Code>getEventEnd</Code>{' '}
       的跨天的每一天都有（出差）；默认显示带色调（<Code>getEventTone</Code>

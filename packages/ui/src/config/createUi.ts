@@ -10,7 +10,7 @@ import {
   type MaybeRefOrGetter,
   type Plugin,
 } from 'vue';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   ConfigContext,
   defaultConfig,
@@ -32,9 +32,9 @@ export interface UiOptions {
   theme?: MaybeRefOrGetter<ThemeInput>;
   /** 只写要改的字段，其余用简体中文的默认值 */
   lang?: MaybeRefOrGetter<Partial<Lang>>;
-  /** 代码高亮器（CodeBlock 用），如 `@vue-tsx-pro/ui/shiki` 的 createShikiHighlighter()；不写时显示纯文本 */
+  /** 代码高亮器（CodeBlock 用），如 `@zerodep-dev/vue-tsx-pro-ui/shiki` 的 createShikiHighlighter()；不写时显示纯文本 */
   highlighter?: Highlighter;
-  /** 额外的文字匹配，如 `@vue-tsx-pro/ui/pinyin` 的 createPinyinMatcher()：选项过滤、命令面板认拼音；不写时只按字面匹配 */
+  /** 额外的文字匹配，如 `@zerodep-dev/vue-tsx-pro-ui/pinyin` 的 createPinyinMatcher()：选项过滤、命令面板认拼音；不写时只按字面匹配 */
   textMatcher?: TextMatcher;
   /** 组件默认值，如 `{ Button: { variant: 'outline' } }`（见 defaults.ts） */
   defaults?: ComponentDefaults;

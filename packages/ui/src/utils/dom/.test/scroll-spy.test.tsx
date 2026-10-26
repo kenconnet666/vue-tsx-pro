@@ -1,6 +1,6 @@
 // useScrollSpy：越过阅读线的最后一节是当前节；滚动容器挂载后才传入时按新容器重新算
 import { afterEach, expect, it } from 'vitest';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick, ref } from 'vue';
 import { mount } from '../../.test/mount';
 import { useScrollSpy } from '../scroll-spy';

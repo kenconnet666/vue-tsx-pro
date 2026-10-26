@@ -6,7 +6,7 @@
  *   <Button variant="outline" tone="neutral" icon={Plus}>新建</Button>
  *   <Button type="submit" loading={saving}>提交</Button>
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {

@@ -1,6 +1,6 @@
 // 编辑前后：layout="list" 一行一个字段，只列改了的——原值划掉、箭头、新值，数值字段跟着变化量。
 // 放在保存前的确认、审批意见、通知这类地方；没有原记录（新建）时只列新值，点“还原”后什么都没改，显示“没有改动”
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Card,
@@ -14,7 +14,7 @@ import {
   Select,
   TextField,
   type CompareField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Order {
   customer: string;

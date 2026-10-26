@@ -1,5 +1,5 @@
 // useLeaveConfirmation：有修改时 beforeunload 被拦住，没有时不注册；站内跳转先确认；作用域结束后解除
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { effectScope, nextTick, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { describe, expect, it, vi } from 'vitest';

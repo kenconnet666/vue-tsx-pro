@@ -1,6 +1,6 @@
 // 测算版本对比：选两个版本，字段、原值、新值、变化四列；金额是 Decimal，变化量精确计算。
 // 单价、年用量越低越好（better="lower"），利润率越高越好；没改的字段淡显，勾上“只看改动”只列改了的
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import Decimal from 'decimal.js';
 import {
   Card,
@@ -11,7 +11,7 @@ import {
   ToggleGroup,
   ToggleItem,
   type CompareField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Estimate {
   version: string;

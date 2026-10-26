@@ -8,8 +8,8 @@
  * maxTagCount 是数字时只显示前几个，'responsive' 时排成一行按宽度放（useOverflowItems），其余收进“+N”。
  * 未声明的属性落到这一排的 span 上。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { useOverflowItems } from '../utils/dom/overflow';

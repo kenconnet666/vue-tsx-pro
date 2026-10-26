@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Accordion, AccordionItem, Card, Link, Paragraph } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Accordion, AccordionItem, Card, Link, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let open = _state('ship');

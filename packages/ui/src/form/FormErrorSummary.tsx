@@ -11,8 +11,8 @@
  * 整份表单的错误（不属于哪个字段）排在最前，不带链接。字段名取自 Field 的标签。
  * 部件：Root（div，role="alert" 之外可以聚焦）、Title（div）、List（ul）、Link（a）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useLang } from '../config/context';

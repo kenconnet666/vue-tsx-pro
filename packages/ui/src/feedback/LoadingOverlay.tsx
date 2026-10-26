@@ -8,8 +8,8 @@
  * 外层带 aria-busy；遮罩防闪烁（useDelayedLoading：很快完成时不出现，出现后至少显示一会儿），淡入淡出（usePresence）。
  * 遮罩挡住指针操作；键盘仍可操作下面的内容，需要禁止时由内容自己处理（如表单的 disabled）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useLang } from '../config/context';

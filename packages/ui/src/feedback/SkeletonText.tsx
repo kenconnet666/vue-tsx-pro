@@ -8,8 +8,8 @@
  *
  * 整块对读屏隐藏；在外层加 aria-busy。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from './Skeleton';

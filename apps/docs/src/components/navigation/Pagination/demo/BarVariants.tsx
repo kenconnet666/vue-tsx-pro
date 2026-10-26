@@ -1,7 +1,7 @@
 // 分页栏按自己的宽度取舍：窄时跳页先收起、总数换到单独一行；也可以自己写总数、只留其中几样
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, PaginationBar, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Flex, PaginationBar, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   narrow: { maxWidth: '20rem' },

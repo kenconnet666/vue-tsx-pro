@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/FormSectionProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -17,7 +17,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { FormSection } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { FormSection } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn wide>
         <Example id="admission" title="长表单分组与目录" demo={Admission}>

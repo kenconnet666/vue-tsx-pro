@@ -2,7 +2,7 @@
 import { types as t, type NodePath } from '@babel/core';
 
 /** 编译产物里 prop / bindable 等运行时函数的来源 */
-const RUNTIME_MODULE = '@vue-tsx-pro/tsx';
+const RUNTIME_MODULE = '@zerodep-dev/vue-tsx-pro-tsx';
 
 type VueHelper = 'ref' | 'shallowRef' | 'reactive' | 'computed' | 'unref';
 type RuntimeHelper =

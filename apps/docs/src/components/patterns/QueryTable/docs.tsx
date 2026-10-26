@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/QueryTableProps';
 import settingsApi from 'virtual:api/ColumnSettingsProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -15,7 +15,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { QueryTable } from '@vue-tsx-pro/ui/patterns';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { QueryTable } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
+  >
     <Example id="orders" title="采购单列表" demo={Orders}>
       <Code>query</Code> 是 <Code>useTableQuery</Code> 的返回值：页码、每页条数、排序（
       <Code>manualSort</Code>，交给服务端；<Code>multiSort</Code> 时按住 Shift

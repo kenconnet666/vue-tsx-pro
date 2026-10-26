@@ -1,6 +1,6 @@
 // 筛选抽屉：条件多、页面放不下时收进抽屉；onConfirm 是“查看结果”，footer 里的“重置”排在它前面，按钮上带已设几项
 import { Filter } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Button,
@@ -13,7 +13,7 @@ import {
   NumberRangeField,
   Select,
   Small,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Filters {
   team: string | null;

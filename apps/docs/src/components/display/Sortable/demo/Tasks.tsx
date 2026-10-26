@@ -1,5 +1,13 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Flex, Small, Sortable, Switch, Text, type StatusTone } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Badge,
+  Flex,
+  Small,
+  Sortable,
+  Switch,
+  Text,
+  type StatusTone,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Task {
   id: string;

@@ -1,6 +1,6 @@
 // 多行的描述：超过两行时后面有“展开”；短的没有按钮
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Ellipsis, Flex, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Ellipsis, Flex, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const items = [
   {

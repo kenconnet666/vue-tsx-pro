@@ -1,7 +1,7 @@
 // 表格里的一列走势：每行一条迷你图，高度跟行高；有缺的月份时折线在这里断开。
 // tone 按走势选：单价降了是好事（success），涨了标危险色
-import { _component } from '@vue-tsx-pro/tsx';
-import { ColumnTable, Sparkline, type DataTableColumn } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { ColumnTable, Sparkline, type DataTableColumn } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Part {
   code: string;

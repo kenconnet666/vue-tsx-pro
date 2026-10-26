@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,
@@ -13,7 +13,7 @@ import {
   Strong,
   TextField,
   useForm,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 import * as z from 'zod';
 

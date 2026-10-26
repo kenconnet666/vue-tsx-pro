@@ -2,9 +2,9 @@
 // 省名写在区域上（areaLabels），工厂的点按产值定大小；可以拖动、按住 Ctrl 滚轮缩放，右上角有放大、缩小、复位；
 // 点一个省份在下面显示它
 import { ChinaTopoJSON } from '@unovis/ts/maps';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Small } from '@vue-tsx-pro/ui';
-import { MapChart, type MapArea } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { MapChart, type MapArea } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { provinces, sampleValue } from './china';
 
 const areas: MapArea[] = provinces.map((province, index) => ({

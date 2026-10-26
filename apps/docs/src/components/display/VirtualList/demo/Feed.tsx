@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Card,
   Flex,
@@ -8,7 +8,7 @@ import {
   VirtualList,
   type Tone,
   type VisibleRange,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const levels = ['INFO', 'WARN', 'INFO', 'ERROR', 'INFO', 'DEBUG'] as const;
 const levelTones: Record<(typeof levels)[number], Tone> = {

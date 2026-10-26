@@ -1,7 +1,7 @@
 import { Bell, Inbox, Send, Star, Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Icon, IconButton } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Icon, IconButton } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const folders = [
   { id: 'inbox', label: '收件箱', icon: Inbox, count: 12 },

@@ -12,8 +12,8 @@
  * 部件：Root（div，role="group"）、Header、Previous、Next（IconButton）、Heading、Grid（table）、Cell、CellButton。
  */
 import { ChevronLeft, ChevronRight } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId } from 'vue';
 import { buttonBaseStyles } from '../base/button-core';
 import { IconButton } from '../base/IconButton';

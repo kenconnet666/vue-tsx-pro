@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/DataImportProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -10,7 +10,7 @@ import Parts from './demo/Parts.tsx?demo';
 export const meta = {
   title: 'DataImport 数据导入',
   description:
-    '批量导入：上传 Excel 或 CSV、对应列、逐行校验与预览（有错的格子就地改）、确认导入；Excel 的读写在 @vue-tsx-pro/ui/xlsx（分组表头导出成合并单元格、读取时展开合并）。',
+    '批量导入：上传 Excel 或 CSV、对应列、逐行校验与预览（有错的格子就地改）、确认导入；Excel 的读写在 @zerodep-dev/vue-tsx-pro-ui/xlsx（分组表头导出成合并单元格、读取时展开合并）。',
   order: 6,
 };
 
@@ -19,7 +19,7 @@ export default _component(() => () => (
     wide
     meta={meta}
     imports={
-      "import { DataImport } from '@vue-tsx-pro/ui/patterns';\nimport { exportXlsx, readXlsx } from '@vue-tsx-pro/ui/xlsx';"
+      "import { DataImport } from '@zerodep-dev/vue-tsx-pro-ui/patterns';\nimport { exportXlsx, readXlsx } from '@zerodep-dev/vue-tsx-pro-ui/xlsx';"
     }
   >
     <Example id="parts" title="零件批量导入" demo={Parts}>
@@ -30,7 +30,7 @@ export default _component(() => () => (
       对象，逐行解析，错误标在对应的格子上（悬停、读屏都能知道原因）；有错的格子可以直接改，改完重新校验，“只看有错的行”筛出要处理的。
       <Code>onImport</Code> 拿到通过校验的行（schema 解析后的值）。<Code>parse</Code>{' '}
       读文件：不写时读 CSV（组件库自带的 <Code>readCsvFile</Code>），Excel 用{' '}
-      <Code>@vue-tsx-pro/ui/xlsx</Code> 的 <Code>readXlsx</Code>
+      <Code>@zerodep-dev/vue-tsx-pro-ui/xlsx</Code> 的 <Code>readXlsx</Code>
       ：合并单元格展开到每一格、多行表头连成“组 / 列”（
       <Code>headerRows</Code>）、单元格里有换行的可以拆成几行（<Code>splitLines</Code>）。
     </Example>
@@ -41,7 +41,7 @@ export default _component(() => () => (
       Excel 的数字格式（按列的 <Code>format.scale</Code> 换算成万元），状态写名字，
       <Code>summary: 'sum'</Code> 的列底部多一行合计。<Code>tableToXlsx</Code>{' '}
       只生成文件内容（上传到服务器、存附件）。ExcelJS 是可选的 peer 依赖：用到{' '}
-      <Code>@vue-tsx-pro/ui/xlsx</Code> 时安装 <Code>exceljs</Code>。
+      <Code>@zerodep-dev/vue-tsx-pro-ui/xlsx</Code> 时安装 <Code>exceljs</Code>。
     </Example>
     <ApiReference api={api} />
   </DocPage>

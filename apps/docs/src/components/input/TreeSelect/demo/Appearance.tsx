@@ -1,7 +1,7 @@
 // 前置图标、外观与状态：与 Select 同一套；isDisabled 让中心、部这一级不能选，只能选到团队
 import { Building2, Users } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Grid, TreeSelect } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Grid, TreeSelect } from '@zerodep-dev/vue-tsx-pro-ui';
 import { orgs, type Org } from './orgs';
 
 const accessors = {

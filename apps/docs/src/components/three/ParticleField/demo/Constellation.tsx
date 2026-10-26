@@ -1,8 +1,8 @@
 import { Rocket, Sparkles, Zap } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, Grid, H3, Icon, Paragraph } from '@vue-tsx-pro/ui';
-import { ParticleField } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Card, Flex, Grid, H3, Icon, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ParticleField } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const FEATURES = [
   { icon: Zap, title: '即时', text: '粒子在独立的动画帧里更新，滚出视口自动停下。' },

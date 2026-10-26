@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/EmptyProps';
 import resultApi from 'virtual:api/ResultProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -18,7 +18,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Empty, Result } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Empty, Result } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="empty" title="空状态" demo={Empties}>

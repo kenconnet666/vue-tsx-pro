@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Flex, Small, ColorField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Flex, Small, ColorField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let color = _state('#0ea5e9');

@@ -62,7 +62,7 @@ it('zod（peer 依赖）：useForm 用 zod/v4/core 的校验与 JSON Schema 转�
   expect(toJSONSchema(schema, { io: 'input' })).toMatchObject({ required: ['name'] });
 });
 
-// 可选 peer 依赖：路由适配（子路径 @vue-tsx-pro/ui/vue-router）与以后需要共享状态的组件
+// 可选 peer 依赖：路由适配（子路径 @zerodep-dev/vue-tsx-pro-ui/vue-router）与以后需要共享状态的组件
 it('vue-router、pinia：按需导入可以解析', async () => {
   const [{ createRouter, createMemoryHistory }, { createPinia, defineStore }] = await Promise.all([
     import('vue-router'),
@@ -95,7 +95,7 @@ function runtimeImports(directory: string): Set<string> {
       (specifier) =>
         !specifier.startsWith('.') &&
         !specifier.startsWith('node:') &&
-        !specifier.startsWith('@vue-tsx-pro/') &&
+        !specifier.startsWith('@zerodep-dev/vue-tsx-pro-') &&
         specifier !== 'vue',
     ),
   );

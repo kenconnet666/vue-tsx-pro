@@ -5,7 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
-    "jsxImportSource": "@vue-tsx-pro/tsx",
+    "jsxImportSource": "@zerodep-dev/vue-tsx-pro-tsx",
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,

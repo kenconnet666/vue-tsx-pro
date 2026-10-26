@@ -9,9 +9,9 @@
  *     ]}
  *   />
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Descriptions, Flex, H2, Kbd, Paragraph } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Descriptions, Flex, H2, Kbd, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import type { VNodeChild } from 'vue';
 
 const styles = css.create({

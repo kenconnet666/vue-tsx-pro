@@ -14,7 +14,7 @@
  * 键盘：数字逐段输入（满了自动跳段），↑↓ 加减，Page Up / Down 大步，Home / End 最小 / 最大，
  * Backspace 删一位（删空回到上一段），←→ 与 Tab 换段。部件见 SegmentedField。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   toCalendar,
   toCalendarDateTime,

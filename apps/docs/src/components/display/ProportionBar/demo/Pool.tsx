@@ -1,6 +1,6 @@
 // 工单的三种状态：互斥、加起来是总数；图例后面可以补一句（“等外部回复”）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, ProportionBar, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, ProportionBar, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Flex direction="column" gap="lg">

@@ -5,8 +5,8 @@
  *   <Container size="md">…</Container>
  *   const Page = createContainer('main', 'Page');
  */
-import { _component, type TsxComponent } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component, type TsxComponent } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { LayoutTag, Space } from '../utils/style/styles';

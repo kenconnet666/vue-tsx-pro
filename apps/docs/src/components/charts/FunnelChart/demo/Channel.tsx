@@ -1,7 +1,7 @@
 // 渠道转化：访问 → 注册 → 加购 → 下单 → 复购；环节之间写转化率，末尾写总转化；点一个环节下钻
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small } from '@vue-tsx-pro/ui';
-import { FunnelChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { FunnelChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const stages = [
   { label: '访问', value: 186 },

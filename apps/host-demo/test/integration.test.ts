@@ -3,7 +3,7 @@ import { afterEach, expect, it } from 'vitest';
 import { createApp, h, nextTick, type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
 import { createHostApp } from '../src/app';
-import { Button, LinkButton } from '@vue-tsx-pro/ui';
+import { Button, LinkButton } from '@zerodep-dev/vue-tsx-pro-ui';
 
 let mounted: App | undefined;
 afterEach(() => mounted?.unmount());

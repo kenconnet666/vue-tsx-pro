@@ -24,9 +24,9 @@ import {
   type Placement,
   type VirtualElement,
 } from '@floating-ui/dom';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onScopeDispose, watchPostEffect } from 'vue';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { transitions } from '../style/transitions';
 import { fontSizeStyles, type TextSize } from '../style/typography';
 import { returnFocus } from './focus';

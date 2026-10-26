@@ -6,8 +6,8 @@
  *   <Spinner label="正在加载订单" />   单独出现：role="status"，读屏会念出 label
  */
 import { LoaderCircle } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';

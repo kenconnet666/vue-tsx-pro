@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Breadcrumbs,
   Card,
@@ -9,7 +9,7 @@ import {
   Slider,
   Small,
   Steps,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 从右到左的语言：只改方向，文字仍用英文（示例里不放阿拉伯文、希伯来文）
 const rtl = defineLang(enUS, { code: 'ar', direction: 'rtl' });

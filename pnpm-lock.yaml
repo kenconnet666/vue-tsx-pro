@@ -388,10 +388,10 @@ importers:
       '@lucide/icons':
         specifier: 'catalog:'
         version: 1.59.0
-      '@vue-tsx-pro/tsx':
+      '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../../packages/tsx
-      '@vue-tsx-pro/ui':
+      '@zerodep-dev/vue-tsx-pro-ui':
         specifier: workspace:^
         version: link:../../packages/ui
       vue:
@@ -449,10 +449,10 @@ importers:
       '@unovis/ts':
         specifier: 'catalog:'
         version: 1.7.1
-      '@vue-tsx-pro/tsx':
+      '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../../packages/tsx
-      '@vue-tsx-pro/ui':
+      '@zerodep-dev/vue-tsx-pro-ui':
         specifier: workspace:^
         version: link:../../packages/ui
       animejs:
@@ -543,10 +543,10 @@ importers:
       '@shikijs/langs':
         specifier: 'catalog:'
         version: 4.5.0
-      '@vue-tsx-pro/tsx':
+      '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../../packages/tsx
-      '@vue-tsx-pro/ui':
+      '@zerodep-dev/vue-tsx-pro-ui':
         specifier: workspace:^
         version: link:../../packages/ui
       animejs:
@@ -647,7 +647,7 @@ importers:
       '@radix-ui/colors':
         specifier: 'catalog:'
         version: 3.0.0
-      '@vue-tsx-pro/tsx':
+      '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../tsx
       animejs:

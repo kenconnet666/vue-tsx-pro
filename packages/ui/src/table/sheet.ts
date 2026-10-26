@@ -1,6 +1,6 @@
 /**
  * 读进来的表格（CSV、Excel 的一张工作表）统一成 SheetTable：表头是各列的标题文字，每行是“标题 → 值”。
- * 导入（DataImport）、@vue-tsx-pro/ui/xlsx 的 readXlsx 都产出它；CSV 由这里的 readCsvFile 读，不依赖别的库。
+ * 导入（DataImport）、@zerodep-dev/vue-tsx-pro-ui/xlsx 的 readXlsx 都产出它；CSV 由这里的 readCsvFile 读，不依赖别的库。
  *
  *   const [sheet] = await readCsvFile(file);
  *   sheet.headers   // ['零件号', '名称', '数量']

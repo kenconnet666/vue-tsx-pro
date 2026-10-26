@@ -1,6 +1,6 @@
 // /base 页上的动效演示：Anime.js 取主题时长的弹簧、数字滚动（AnimatedNumber）、描线（Result）、布局动画（useLayoutAnimation）
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   AnimatedNumber,
   Button,
@@ -10,7 +10,7 @@ import {
   themeTransition,
   useLayoutAnimation,
   t,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { animate } from 'animejs';
 
 const styles = css.create({

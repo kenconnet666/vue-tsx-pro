@@ -1,7 +1,7 @@
 // 年度预算：收入按来源汇总，再分到各部门与具体用途；金额用 Decimal，按货币格式显示
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { SankeyChart, type SankeyAligns } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
+import { SankeyChart, type SankeyAligns } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import Decimal from 'decimal.js';
 
 const nodes = [

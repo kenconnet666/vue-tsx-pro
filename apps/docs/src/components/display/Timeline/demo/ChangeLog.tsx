@@ -1,14 +1,14 @@
 // 报价单的操作记录：新的在前，每项有操作人（头像或首字母）与时间，改了哪些字段用 FieldCompare 列在项里；
 // 完整的字段对比收在“查看详情”里。记录多，只显示最新的 4 条，其余在“展开其余 N 条”后面
 import { FilePlus2, Pencil, Send, ShieldCheck, Undo2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   FieldCompare,
   Timeline,
   type CompareField,
   type TimelineItem,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { photo } from '../../Avatar/demo/photos';
 
 /** 陆川有头像，其他人显示首字母 */

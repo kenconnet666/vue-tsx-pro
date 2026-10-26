@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { Provider } from '../../../config/Provider';
 import { mount } from '../../.test/mount';
 import { startRipple, useRipple } from '../ripple';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 
 const down = (x = 5, y = 5) =>
   new PointerEvent('pointerdown', { clientX: x, clientY: y, button: 0, bubbles: true });

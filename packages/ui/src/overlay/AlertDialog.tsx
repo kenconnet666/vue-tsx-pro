@@ -24,7 +24,7 @@
  *   const reason = await confirm({ title: '驳回这个申请？', tone: 'danger', reason: { label: '驳回理由', required: true } });
  *   if (reason !== null) await api.reject(id, reason);
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { shallowRef, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';

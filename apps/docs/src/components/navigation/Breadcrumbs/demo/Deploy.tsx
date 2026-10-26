@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Steps } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Steps } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Steps

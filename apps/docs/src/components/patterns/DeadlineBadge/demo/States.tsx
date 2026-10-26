@@ -1,7 +1,7 @@
 // 各种状态：今天固定在 2026-10-21（周三），截止日不同；完成了的按完成那天算
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small } from '@vue-tsx-pro/ui';
-import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const TODAY = '2026-10-21';
 const rows = [

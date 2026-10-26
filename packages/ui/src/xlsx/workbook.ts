@@ -1,7 +1,7 @@
 /**
- * Excel 读写（子路径 `@vue-tsx-pro/ui/xlsx`）：建在 ExcelJS 上（可选的 peer 依赖，用到这个子路径时安装 exceljs）。
+ * Excel 读写（子路径 `@zerodep-dev/vue-tsx-pro-ui/xlsx`）：建在 ExcelJS 上（可选的 peer 依赖，用到这个子路径时安装 exceljs）。
  *
- *   import { exportXlsx, readXlsx } from '@vue-tsx-pro/ui/xlsx';
+ *   import { exportXlsx, readXlsx } from '@zerodep-dev/vue-tsx-pro-ui/xlsx';
  *   await exportXlsx('项目台账', [{ name: '台账', rows, columns, groups: columnGroups }]);
  *   const [sheet] = await readXlsx(file, { headerRows: 2, splitLines: ['零件号'] });
  *

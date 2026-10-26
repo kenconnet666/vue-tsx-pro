@@ -1,6 +1,6 @@
 // 工作日时限：开始日加 N 个工作日得出截止日，按工作日历跳过周末与法定节假日、算上调休补班；
 // deadlineOf 给出剩余工作日与状态（还早、快到期、今天到期、超期、已完成），名字与色调来自状态映射
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   createStatusMap,
   createWorkCalendar,
@@ -17,7 +17,7 @@ import {
   TableRow,
   useWorkCalendar,
   type DeadlineStates,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 国庆放假与调休（应用里写在 createUi 的 workCalendar，所有页面共用） */
 const workCalendar = createWorkCalendar({

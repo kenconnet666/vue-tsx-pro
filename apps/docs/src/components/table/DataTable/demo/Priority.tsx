@@ -1,6 +1,6 @@
 // 需求排期：拖动把手（或聚焦后空格拿起、↑↓ 移动、空格放下）调整优先级，序号跟着变；
 // 点“预计工时”排序时显示的不是排期顺序，把手收起，取消排序后又能拖
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   createStatusMap,
   DataTable,
@@ -8,7 +8,7 @@ import {
   Small,
   type DataTableColumn,
   type SortState,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Requirement {
   id: string;

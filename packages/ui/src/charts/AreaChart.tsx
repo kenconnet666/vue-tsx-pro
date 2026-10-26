@@ -9,7 +9,7 @@
  * 坐标轴、十字线（带圆点）与提示框、图例、单位、加载与空状态、给读屏的数据表同 LineChart（见 XYChart）。
  */
 import { Area } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { CURVES, type LineCurves } from './LineChart';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 

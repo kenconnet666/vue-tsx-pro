@@ -1,6 +1,6 @@
 import { BookOpen, ChevronDown, CreditCard, LogOut, Palette, UserRound } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   ButtonBase,
@@ -13,7 +13,7 @@ import {
   Separator,
   Small,
   Strong,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   trigger: {

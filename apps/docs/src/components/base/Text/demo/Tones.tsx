@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Grid, Paragraph, Strong, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Grid, Paragraph, Strong, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Grid minItemWidth="16em" gap="md">

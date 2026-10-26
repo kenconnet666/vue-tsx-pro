@@ -1,6 +1,14 @@
 // 常见的出错页：status 给出图标、色调、状态码与默认文案，显式写的优先
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Flex, LinkButton, Result, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Card,
+  Flex,
+  LinkButton,
+  Result,
+  ToggleGroup,
+  ToggleItem,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 type Status = '403' | '404' | '500';
 

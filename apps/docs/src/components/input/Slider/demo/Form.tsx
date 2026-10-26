@@ -1,6 +1,6 @@
 // 表单提交（name）、松手时才提交的 onValueCommit、不可用
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Code, Field, Flex, Slider, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Code, Field, Flex, Slider, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let volume = _state(60);

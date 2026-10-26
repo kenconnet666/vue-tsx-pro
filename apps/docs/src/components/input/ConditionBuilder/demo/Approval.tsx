@@ -1,7 +1,7 @@
 // 审批条件：金额、品类、供应商、加急、交货日期五个字段，比较方式随字段类型（数字有大小与介于，日期是早于、晚于，
 // 选项是“是其中之一”），值的输入也随之换（数字框、日期选择、多选）。组里还能加组，表头选全部、任一、都不、不全满足。
 // 下面是 describeCondition 写成的一句话，与写回的 JSON
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   CodeBlock,
   ConditionBuilder,
@@ -11,7 +11,7 @@ import {
   useLang,
   type Condition,
   type ConditionField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const fields: ConditionField[] = [
   { name: 'amount', label: '金额', type: 'number' },

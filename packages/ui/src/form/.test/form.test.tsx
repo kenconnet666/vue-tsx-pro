@@ -1,6 +1,6 @@
 // useForm + Form + Field：zod 校验、何时显示错误、提交、重置、聚焦第一个出错的控件、schema 推出的字段约束
 import { describe, expect, it, vi } from 'vitest';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick } from 'vue';
 import * as z from 'zod';
 import { Provider } from '../../config/Provider';

@@ -1,8 +1,12 @@
 // 采购方案调整：调整前、调整后各一组表头（型号、单价、数量），节省 = 调整前金额 − 调整后金额，底部合计。
 // 分组标题跨组里的几列，没分组的列跨两行；组与相邻的列之间有竖线
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { DataTable, type DataTableColumn, type DataTableColumnGroup } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  DataTable,
+  type DataTableColumn,
+  type DataTableColumnGroup,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 interface Change {

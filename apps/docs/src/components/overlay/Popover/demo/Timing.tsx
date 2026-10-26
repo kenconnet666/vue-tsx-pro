@@ -1,5 +1,5 @@
 import { Bold, Italic, Underline } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Avatar,
   Button,
@@ -14,7 +14,7 @@ import {
   Switch,
   Tooltip,
   type IconData,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const marks: [IconData, string, string][] = [
   [Bold, '加粗', 'Mod+B'],

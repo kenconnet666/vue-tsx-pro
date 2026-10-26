@@ -1,6 +1,6 @@
 // form.Field 自动绑定值（value、checked、写了值的照旧）与错误汇总（提交失败后列出、按字段顺序、点了跳到控件、改对就消失）
 import { describe, expect, it } from 'vitest';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { defineComponent, h, nextTick } from 'vue';
 import * as z from 'zod';
 import { Switch } from '../../input/Switch';

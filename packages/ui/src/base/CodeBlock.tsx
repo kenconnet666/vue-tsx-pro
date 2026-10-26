@@ -13,8 +13,8 @@
  * - 长代码：maxLines 之外折叠，底部的按钮展开或收起。
  */
 import { ChevronDown } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useConfig, useLang } from '../config/context';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/StepsFormProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { StepsForm } from '@vue-tsx-pro/ui/patterns';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { StepsForm } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
+  >
     <Example id="onboarding" title="供应商开户" demo={Onboarding}>
       整份是一个 <Code>useForm</Code>：<Code>steps</Code> 每一步写标题、<Code>fields</Code>
       （这一步的字段路径）与 <Code>content</Code>。“下一步”只校验这一步的字段（

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const departments = [
   { name: '结构设计部', count: 18 },

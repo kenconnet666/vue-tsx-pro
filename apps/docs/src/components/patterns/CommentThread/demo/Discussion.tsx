@@ -1,9 +1,19 @@
 // 建议详情的沟通：留言与回复、身份标记（供应商 / 内部岗位）、@ 提及、附件。发出去的留言直接加进列表（乐观更新），
 // 内容里写“失败”会模拟接口出错：内容保留并提示。自己的留言可以删除（actions）
 import { Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Button, Card, type ListboxOption, type UploadHandler } from '@vue-tsx-pro/ui';
-import { CommentThread, type CommentDraft, type CommentItem } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Badge,
+  Button,
+  Card,
+  type ListboxOption,
+  type UploadHandler,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  CommentThread,
+  type CommentDraft,
+  type CommentItem,
+} from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { photo } from '../../../display/Avatar/demo/photos';
 
 const people: ListboxOption[] = [

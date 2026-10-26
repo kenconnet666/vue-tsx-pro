@@ -1,7 +1,7 @@
 // 外观（variant、size、radius、图标）与状态（只读、不可用、出错、必填）：与其他输入框同一套
 import { CalendarClock } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { DatePicker, Field, Grid } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { DatePicker, Field, Grid } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let due = _state<string | null>('2026-10-30');

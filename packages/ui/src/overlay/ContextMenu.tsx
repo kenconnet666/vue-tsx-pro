@@ -9,7 +9,7 @@
  * 键盘打开时（contextmenu 事件不带指针坐标）从获得焦点的元素左下角弹出；关闭后焦点回到打开前的元素。
  * 区域本身不可聚焦：键盘用户要能打开，里面得有可聚焦的元素（同 Radix ContextMenu）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick, watch, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';

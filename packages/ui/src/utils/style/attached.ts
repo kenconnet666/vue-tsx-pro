@@ -4,8 +4,8 @@
  * 外壳要是组的直接子元素。判断首尾时跳过不占位的兄弟（选择框的弹出面板、表单的隐藏 input），
  * 用 :nth-child(1 of …)（各浏览器 2023 年起支持）。
  */
-import { createContext } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '../../config/theme/tokens';
 
 /** 相连的方向 */

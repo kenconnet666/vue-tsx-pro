@@ -19,7 +19,7 @@
  * 未声明的属性落到 input（主元素）上，外壳用 propsRoot。部件：Root、Prefix、Input、Suffix、Decrement、Increment（IconButton）。
  */
 import { Minus, Plus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';

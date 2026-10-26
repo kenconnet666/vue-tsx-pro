@@ -1,5 +1,5 @@
 // 审批时：申请内容整组只读（readonly 写在分组上），只有最后一组“审批意见”能填；标签放在起始边，两组用同一个宽度
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Field,
@@ -10,7 +10,7 @@ import {
   Radio,
   Textarea,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let decision = _state<string | null>(null);

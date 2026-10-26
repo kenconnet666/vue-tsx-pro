@@ -1,6 +1,6 @@
 // 模拟一个后台系统换页：点导航后加载条走起来，数据回来时走满淡出；“财务报表”那页会加载失败（危险色）。
 // 加载条本来贴在窗口顶部（position: fixed），这里放进示例框的顶部，免得和文档站自己的加载条重叠
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { onScopeDispose, watch } from 'vue';
 import {
   Badge,
@@ -14,7 +14,7 @@ import {
   Tabs,
   Text,
   createLoadingBar,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const pages = [
   {

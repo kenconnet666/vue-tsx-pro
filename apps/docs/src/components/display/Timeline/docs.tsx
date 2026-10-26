@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/TimelineProps';
 import itemApi from 'virtual:api/TimelineItem';
 import { ApiReference } from '../../../site/ApiReference';
@@ -20,7 +20,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Timeline } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Timeline } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="approval" title="审批流转记录" demo={Approval}>

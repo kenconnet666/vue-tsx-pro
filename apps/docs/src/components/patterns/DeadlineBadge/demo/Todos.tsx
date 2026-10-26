@@ -1,7 +1,7 @@
 // 待办列表：每条结束边一个时限标记，超时、快到期的一眼看出来；完成的按完成那天显示按时或超时
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Card, ItemList, ItemListItem, Link } from '@vue-tsx-pro/ui';
-import { DeadlineBadge } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Avatar, Card, ItemList, ItemListItem, Link } from '@zerodep-dev/vue-tsx-pro-ui';
+import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const TODAY = '2026-10-21';
 const todos = [

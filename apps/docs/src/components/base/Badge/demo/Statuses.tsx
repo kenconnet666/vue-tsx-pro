@@ -1,7 +1,7 @@
 // 状态映射：任务的八个阶段与三个异常状态写在一处，定义顺序就是阶段顺序；
 // StatusBadge 按它显示名字与色调，筛选的下拉选项也从它来
 import { ChevronRight, CirclePause, CircleSlash, Hourglass } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   createStatusMap,
   Field,
@@ -11,7 +11,7 @@ import {
   Small,
   StatusBadge,
   Text,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const taskStatuses = createStatusMap({
   pending: { label: '待启动', tone: 'neutral' },

@@ -48,7 +48,7 @@ function timeline(app: App): TimelineApi | Promise<TimelineApi | null> | null {
             {
               id: LAYER,
               label: 'vue-tsx-pro 样式',
-              packageName: '@vue-tsx-pro/tsx',
+              packageName: '@zerodep-dev/vue-tsx-pro-tsx',
               app,
               enableEarlyProxy: true,
             },

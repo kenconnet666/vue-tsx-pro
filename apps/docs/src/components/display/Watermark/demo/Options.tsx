@@ -1,5 +1,5 @@
 // 调整水印：文字或图片、角度、间距、字号、颜色
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   ColorField,
@@ -12,7 +12,7 @@ import {
   ToggleGroup,
   ToggleItem,
   Watermark,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 示例自带的标志图（data URL，不跨域）
 const logo = `data:image/svg+xml,${encodeURIComponent(

@@ -19,8 +19,8 @@
  * 部件：Root（div）、Group（每个组）、Rule（每条比较）。
  */
 import { Plus, Trash2, X } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, watch, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { IconButton } from '../base/IconButton';

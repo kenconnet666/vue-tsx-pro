@@ -1,6 +1,6 @@
 // 代码演练场的编译：在 Node 里跑与 Worker 相同的编译，再按页面的方式执行、挂载
-import { styleText } from '@vue-tsx-pro/tsx/styles';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+import { styleText } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../test/mount';
@@ -21,7 +21,7 @@ it('起始示例：编译、执行，符文与组件照常工作', async () => {
 });
 
 it('组件把 children 原样转交给另一个组件：内容照常显示，不是插槽对象', async () => {
-  const source = `import { _component } from '@vue-tsx-pro/tsx';
+  const source = `import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 const Box = _component(({ children }: { children?: unknown }) => () => <section>{children}</section>);
 const Outer = _component(({ children }: { children?: unknown }) => () => <Box>{children}</Box>);
 export default _component(() => () => <Outer>转交的内容</Outer>);`;
@@ -31,8 +31,8 @@ export default _component(() => () => <Outer>转交的内容</Outer>);`;
 });
 
 it('token 变量、token 短写与组件库是同一个 CSS 变量，跟着主题走', async () => {
-  const source = `import * as css from '@vue-tsx-pro/tsx/styles';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+  const source = `import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 const styles = css.create({ box: { backgroundColor: colors.surfaceMuted, color: '_accent' } });
 export default () => <div {...css.attrs(styles.box)} />;`;
   const { code } = await compilePlayground(source);
@@ -45,7 +45,8 @@ it('语法写错时编译抛出带代码帧的错误；token 写错时用到那�
   await expect(compilePlayground('export default () => (<div>')).rejects.toThrow(
     /Playground\.tsx: .*\(1:\d+\)/,
   );
-  const { code } = await compilePlayground(`import * as css from '@vue-tsx-pro/tsx/styles';
+  const { code } =
+    await compilePlayground(`import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 const styles = css.create({ a: { color: '_nope' } });
 export default () => <div {...css.attrs(styles.a)} />;`);
   const component = await evaluate(code);

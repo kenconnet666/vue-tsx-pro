@@ -1,4 +1,4 @@
-import type { IconData } from '@vue-tsx-pro/ui';
+import type { IconData } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 仓库地址 */
 export const REPOSITORY = 'https://github.com/kenconnet666/vue-tsx-pro';

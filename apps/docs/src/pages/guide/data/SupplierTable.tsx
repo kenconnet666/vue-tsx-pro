@@ -1,6 +1,6 @@
 // 服务端分页：查询栏的条件点“查询”才应用；翻页、改每页条数、点表头排序立即请求；换条件、排序、条数回到第一页。
 // 筛选、排序、分页都在“服务端”（假接口）做，页面只管把条件交出去
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   DataTable,
   Field,
@@ -11,8 +11,8 @@ import {
   useHttp,
   useTableQuery,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
-import { FilterBar } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import type { Supplier, SupplierPage } from './fake-api';
 
 const columns: DataTableColumn<Supplier>[] = [

@@ -1,6 +1,6 @@
 import { Filter, Share2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Checkbox,
@@ -12,7 +12,7 @@ import {
   Strong,
   Switch,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const statuses = ['待付款', '备货中', '已发货', '已完成', '已退款'];
 

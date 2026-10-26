@@ -1,7 +1,7 @@
 // Field 上的状态交给里面的控件：required 加星号与 aria-required，readonly、disabled 同步给控件；
 // 给了 error 就算出错（标红、关联错误信息），只写 invalid 时只标红，错误在别处汇总
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Grid, NumberField, Select, TextField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Grid, NumberField, Select, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let name = _state('');

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/DataTableProps';
 import selectionBarApi from 'virtual:api/SelectionBarProps';
 import treeApi from 'virtual:api/TreeDataTableProps';
@@ -33,7 +33,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { DataTable, TreeDataTable } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { DataTable, TreeDataTable } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Example id="orders" title="一万条订单" demo={Orders}>
       列定义里 <Code>type</Code>{' '}
       决定默认的格式与对齐（number、currency、percent、fileSize、date、dateTime，跟随语言；不写时按第一个值推断，数字靠右），

@@ -1,6 +1,6 @@
 import { Sun, Volume1, Volume2, VolumeX } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Icon, IconButton, Slider, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Icon, IconButton, Slider, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const duration = 245;
 const clock = (seconds: number) =>

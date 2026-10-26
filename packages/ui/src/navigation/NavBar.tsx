@@ -18,8 +18,8 @@
  * 部件：Root（nav）、List（ul）、Item（li）、Link（a）、Trigger（有子项时的按钮）、More（“更多”按钮）。
  */
 import { ChevronDown, Ellipsis } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Badge } from '../base/Badge';
 import { ButtonBase } from '../base/ButtonBase';
 import { Icon, type IconData } from '../base/Icon';

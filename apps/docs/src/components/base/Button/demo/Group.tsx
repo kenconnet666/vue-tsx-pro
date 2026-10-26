@@ -16,8 +16,8 @@ import {
   Underline,
   Undo2,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, ButtonGroup, Flex, IconButton, Toolbar } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, ButtonGroup, Flex, IconButton, Toolbar } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let page = _state(3);

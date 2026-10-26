@@ -1,5 +1,5 @@
 import { Download, Plus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Button,
@@ -9,7 +9,7 @@ import {
   Text,
   type ComponentDefaults,
   type ComponentStyles,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /**
  * 一块区域里的组件统一换个样子：不必包一层组件，也不必每处写 sx。

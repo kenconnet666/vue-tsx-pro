@@ -1,7 +1,7 @@
 // 在抽屉里编辑、列表留在原处：靠正文的一边可以拖宽、拖到几乎关上（width 双向绑定，记在浏览器里）；
 // 有没保存的改动时，取消、关闭按钮、Esc、点遮罩都先经过 beforeClose 确认；保存用 onConfirm（保存时加载中、关不掉）
 import { Pencil } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Card,
@@ -13,7 +13,7 @@ import {
   TextField,
   useConfirm,
   usePersistentState,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const confirm = useConfirm();

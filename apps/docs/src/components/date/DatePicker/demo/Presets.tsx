@@ -1,6 +1,6 @@
 // 交货日期：日历旁边是常用的快捷选项（按今天算），日历下方的“今天”；今天之前不能选，所以“昨天”不可用
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, DatePicker, Field, Grid, shiftIsoDate, todayIso } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, DatePicker, Field, Grid, shiftIsoDate, todayIso } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 下个月的 1 日 */
 const nextMonthStart = () => `${shiftIsoDate(todayIso(), { months: 1 }).slice(0, 7)}-01`;

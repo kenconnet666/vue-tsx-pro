@@ -9,8 +9,8 @@
  * “+N”读屏念“还有 N 人”（语言包的 avatarMore）；total 给了时按它算 N（列表只拿到了一部分时）。
  * 部件：Root（div）、More（+N）、MoreText（More 里的“+N”文字）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useRecipe } from '../config/styles';

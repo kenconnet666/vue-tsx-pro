@@ -37,8 +37,8 @@ import {
   RotateCw,
   X,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, watch } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { Image, ImageGroup } from '../display/Image';

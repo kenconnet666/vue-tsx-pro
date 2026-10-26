@@ -10,8 +10,8 @@ import {
   Hourglass,
   UserCheck,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Link, Timeline, type TimelineItem } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Link, Timeline, type TimelineItem } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 一条流转事件：时间写成“月-日 时:分”，机器可读的完整时间进 dateTime */
 const at = (dateTime: string) => ({ dateTime, time: dateTime.slice(5, 16).replace('T', ' ') });

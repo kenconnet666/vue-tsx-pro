@@ -1,6 +1,6 @@
 // 通知范围：左边是组织机构树，勾上部门就是它下面的全部团队；移过去的是团队（叶子），已经移过去的在树上勾上且不能再勾
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Small, TreeTransfer } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Small, TreeTransfer } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Org {
   id: string;

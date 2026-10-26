@@ -8,8 +8,8 @@
  * 单位、加载与空状态、给读屏的数据表（每条流向一行）同其他图表（见 ChartFrame）。
  */
 import { FitMode, Sankey, SankeyNodeAlign } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';

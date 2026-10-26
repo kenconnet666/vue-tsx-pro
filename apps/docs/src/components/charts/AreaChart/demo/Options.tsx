@@ -1,8 +1,8 @@
 // 格式与坐标：类目的显示文字（indexFormat）、数值格式（百分比）、数值轴的范围；
 // 图例、网格线、提示框、加载中、没有数据的开关；hiddenSeries 双向绑定，点图例时写回
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Small, Switch } from '@vue-tsx-pro/ui';
-import { AreaChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Small, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { AreaChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const weeks = [
   { date: '2026-08-03', paid: 0.021, trial: 0.048 },

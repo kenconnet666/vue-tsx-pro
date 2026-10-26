@@ -8,8 +8,8 @@
  * 泳道从 (x, y) 开始往下排，每条的高是它的 size，没写时用 laneSize；节点的纵坐标落在哪条泳道的范围里由使用方排。
  * 部件：Root（div）、Lane（每条泳道）、Header（泳道名）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { DiagramRect } from './geometry';

@@ -1,7 +1,7 @@
 // 项目的进度：计划是浅色的轨道，实际画在上面；拖期的一段标红（color），还在进行的实际到“今天”为止。
 // 里程碑（年度评审、预算截止）是竖线；点图例隐藏“计划”只看实际
-import { _component } from '@vue-tsx-pro/tsx';
-import { TimelineChart, type TimelineChartItem } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { TimelineChart, type TimelineChartItem } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const TODAY = '2026-10-24';
 

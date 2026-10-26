@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ChecklistProps';
 import itemApi from 'virtual:api/ChecklistItem';
 import { ApiReference } from '../../../site/ApiReference';
@@ -18,7 +18,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Checklist } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { Checklist } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="closing" title="里程碑与结项材料" demo={Closing}>
       每项的 <Code>status</Code> 决定图标与颜色：<Code>done</Code> 完成、<Code>todo</Code>{' '}
       待办（默认）、<Code>overdue</Code> 超时（日期标红）、<Code>blocked</Code> 受阻、

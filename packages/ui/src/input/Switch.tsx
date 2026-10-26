@@ -8,8 +8,8 @@
  * 切换要等接口时用 loading：滑块里转圈、点击无效。轨道里可以放文字或图标（checkedContent / uncheckedContent），对读屏隐藏。
  * 部件：Root（label）、Control（叠放层）、Thumb（滑块）、Content（轨道里的文字）、ContentText（文字的字号层）、Spinner、Label（文字）；未声明的属性落到 input 上。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { Spinner, type SpinnerProps } from '../base/Spinner';

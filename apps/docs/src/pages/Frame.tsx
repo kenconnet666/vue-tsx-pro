@@ -2,7 +2,7 @@
  * 整页示例：/frame/<分类>/<组件>/frames/<名字> 单独渲染 frames 目录里的一个示例，不套站点外壳。
  * 示例卡片用 iframe 打开它（Example 的 frame）：AppShell 这类按视口排版、占整页的组件在卡片里也能如实展示。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { h, watch, type Component } from 'vue';
 import { useRoute } from 'vue-router';
 

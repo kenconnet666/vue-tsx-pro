@@ -1,6 +1,6 @@
 // 详情页：主栏放概览与明细，侧栏放金额与里程碑；容器窄了（不到 56rem）叠成一列
-import { _component } from '@vue-tsx-pro/tsx';
-import { AsideLayout, Card, Descriptions, Grid, Stat, Timeline } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { AsideLayout, Card, Descriptions, Grid, Stat, Timeline } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <AsideLayout

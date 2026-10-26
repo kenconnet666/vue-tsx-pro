@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Button,
@@ -9,8 +9,8 @@ import {
   Provider,
   Switch,
   Text,
-} from '@vue-tsx-pro/ui';
-import { customizeTheme, paletteColors } from '@vue-tsx-pro/ui/theme-customize';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { customizeTheme, paletteColors } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 
 // 直接改 token：品牌色、中性色整组换成 Radix 的 plum、mauve，再把圆角调大
 const plum = defineTheme(

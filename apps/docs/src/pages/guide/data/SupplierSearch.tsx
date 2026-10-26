@@ -1,8 +1,8 @@
 // 供应商查询：关键字停下 300 ms 再请求，翻页立即请求；新请求取消上一次，晚到的旧结果不会覆盖；
 // 重新请求时上一页的结果留着、变淡；出错时显示原因与重试。http 由外层的 Provider 给出（应用里写在 createUi 里）
 import { Search, TriangleAlert } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Alert,
   Button,
@@ -19,7 +19,7 @@ import {
   TextField,
   useHttp,
   useRequest,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { watch } from 'vue';
 import { failure, type SupplierPage } from './fake-api';
 

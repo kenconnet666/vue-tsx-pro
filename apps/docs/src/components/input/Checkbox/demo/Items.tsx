@@ -1,6 +1,6 @@
 // items：选项来自数据（字典、接口），不用一个个写 Checkbox / Radio；说明写在 description
-import { _component } from '@vue-tsx-pro/tsx';
-import { CheckboxGroup, Code, Field, Flex, RadioGroup } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { CheckboxGroup, Code, Field, Flex, RadioGroup } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Plan {
   id: string;

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/DiagramProps';
 import controlsApi from 'virtual:api/DiagramControlsProps';
 import lanesApi from 'virtual:api/DiagramLanesProps';
@@ -26,7 +26,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Diagram, DiagramControls, DiagramLanes, DiagramMinimap, DiagramNode, useDiagram } from '@vue-tsx-pro/ui/diagram';"
+    imports="import { Diagram, DiagramControls, DiagramLanes, DiagramMinimap, DiagramNode, useDiagram } from '@zerodep-dev/vue-tsx-pro-ui/diagram';"
   >
     <Examples>
       <ExampleColumn wide>

@@ -59,7 +59,8 @@ function catalogVersions(names) {
 
 function pack(pkg) {
   run('pnpm', ['pack', '--pack-destination', work], join(root, 'packages', pkg));
-  const file = readdirSync(work).find((name) => name.startsWith(`vue-tsx-pro-${pkg}-`));
+  const file = readdirSync(work).find((name) => name.startsWith(`zerodep-dev-vue-tsx-pro-${pkg}-`));
+  if (!file) throw new Error(`pnpm pack 没有在 ${work} 里打出 ${pkg} 的包`);
   return `file:../${file}`;
 }
 
@@ -145,8 +146,8 @@ writeFileSync(
       private: true,
       type: 'module',
       dependencies: {
-        '@vue-tsx-pro/tsx': pack('tsx'),
-        '@vue-tsx-pro/ui': pack('ui'),
+        '@zerodep-dev/vue-tsx-pro-tsx': pack('tsx'),
+        '@zerodep-dev/vue-tsx-pro-ui': pack('ui'),
         ...catalogVersions(['vue', '@lucide/icons', 'shiki', 'zod']),
       },
       devDependencies: catalogVersions(['vite', 'typescript']),

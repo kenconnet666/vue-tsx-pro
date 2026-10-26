@@ -1,6 +1,6 @@
 // 选项多时：searchable 在弹出层顶部放搜索框，输入就过滤；已选的项被过滤掉了，触发框里照样显示
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, Grid, Select, Small, type ListboxOption } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, Grid, Select, Small, type ListboxOption } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 六十家虚构的供应商，按地区分组
 const regions = ['华东', '华北', '华南', '西南', '东北', '海外'];

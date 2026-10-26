@@ -1,7 +1,7 @@
 // 单位与缩放：值以元保存，输入框里按万元显示与输入（format.scale），写回时按十进制移位、不丢精度；
 // 单位文字用 suffix / prefix 放在输入框里
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Field, Flex, Grid, NumberField, Text, useFormat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Field, Flex, Grid, NumberField, Text, useFormat } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 export default _component(() => {

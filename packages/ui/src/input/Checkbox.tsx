@@ -17,8 +17,8 @@
  * 部件：Root（label）、Control（叠放层）、Indicator（对勾 / 横线图标）、Label（文字）；未声明的属性落到 input 上。
  */
 import { Check, Minus } from '@lucide/icons';
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { useFieldControl } from '../form/Field';

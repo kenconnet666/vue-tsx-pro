@@ -1,8 +1,17 @@
 // 不写 count 时粒子数按面积与画质决定（低画质少一半多）；渲染分辨率、暂停；off 时显示 fallback
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Field, Flex, Grid, Slider, Switch, ToggleGroup, ToggleItem, t } from '@vue-tsx-pro/ui';
-import { ParticleField, type ThreeQuality } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Field,
+  Flex,
+  Grid,
+  Slider,
+  Switch,
+  ToggleGroup,
+  ToggleItem,
+  t,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { ParticleField, type ThreeQuality } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   stage: { height: '16rem', borderRadius: '_lg', backgroundColor: '_surfaceMuted' },

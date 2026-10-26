@@ -7,7 +7,7 @@
 export type Language = 'ts' | 'tsx' | 'js' | 'jsx';
 
 /** 样式入口（src/styles）：编译器按从它导入的 create 找样式 */
-export const STYLE_SOURCE = '@vue-tsx-pro/tsx/styles';
+export const STYLE_SOURCE = '@zerodep-dev/vue-tsx-pro-tsx/styles';
 
 /**
  * 模块的语言：Vue 单文件组件里的脚本（X.vue?vue&type=script&lang.tsx）看查询参数，其他看扩展名；

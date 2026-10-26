@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Text } from '@vue-tsx-pro/ui';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const regions = [
   { region: '华东', y2024: 320, y2025: 380, y2026: 410 },

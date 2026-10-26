@@ -1,9 +1,19 @@
 // 装饰效果：effect 给官网、活动页的卡片加一点动感。tilt 跟着指针倾斜、带高光；spotlight 一团光跟着指针、
 // 靠近边框时点亮边框（并排的几张光会在它们之间传递）；beam 一段光沿边框循环流动，用来突出推荐的那一张
 import { Gauge, Layers, Rocket } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Button, Card, Flex, Grid, Icon, Paragraph, Strong, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Badge,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Icon,
+  Paragraph,
+  Strong,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const features = [
   { icon: Rocket, title: '开箱即用', text: '一行 createUi 配好主题、语言与路由。' },

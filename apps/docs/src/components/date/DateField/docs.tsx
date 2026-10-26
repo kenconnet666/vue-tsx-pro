@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/DateFieldProps';
 import segmentGroupApi from 'virtual:api/DateSegmentGroupProps';
 import segmentedFieldApi from 'virtual:api/SegmentedFieldProps';
@@ -23,7 +23,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { DateField } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { DateField } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="基础用法" demo={Basic}>

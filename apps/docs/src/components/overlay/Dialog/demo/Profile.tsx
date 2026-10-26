@@ -1,6 +1,6 @@
 // 编辑表单：onConfirm 给出“取消 / 保存”，保存时按钮加载中、关不掉；姓名没填时返回 false，对话框留着
 import { Pencil } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Avatar,
   Button,
@@ -13,7 +13,7 @@ import {
   Strong,
   Textarea,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const departments = ['设计中心', '研发部', '市场部', '财务部'];
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

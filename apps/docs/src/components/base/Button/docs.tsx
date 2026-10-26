@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ButtonProps';
 import groupApi from 'virtual:api/ButtonGroupProps';
 import linkApi from 'virtual:api/LinkButtonProps';
@@ -30,7 +30,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Button, ButtonGroup, LinkButton } from '@vue-tsx-pro/ui';"
+    imports="import { Button, ButtonGroup, LinkButton } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

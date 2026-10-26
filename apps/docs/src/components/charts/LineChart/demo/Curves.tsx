@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { LineChart, type LineCurves } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, ToggleGroup, ToggleItem } from '@zerodep-dev/vue-tsx-pro-ui';
+import { LineChart, type LineCurves } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const days = [
   { day: '周一', visits: 820 },

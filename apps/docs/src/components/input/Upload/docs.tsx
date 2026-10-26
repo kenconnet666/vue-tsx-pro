@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import dropApi from 'virtual:api/FileDropProps';
 import api from 'virtual:api/UploadProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -21,7 +21,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { FileDrop, Upload } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { FileDrop, Upload } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Example id="wall" title="图片墙：预览、排序与粘贴" demo={Wall}>
       <Code>listType="picture"</Code> 时文件是方形缩略图（<Code>thumbnailSize</Code>，默认 104
       px）：选的图片用本地地址马上显示，不等上传；点开看大图（墙上的图共用一个预览，左右切换），别的文件显示图标与文件名。上传中盖一层进度，失败标红、可以重试；选文件的区域是墙上最后一格，到了{' '}

@@ -12,7 +12,7 @@
  * 颜色、坐标轴、提示框、图例、读屏的数据表见 XYChart；悬停一个类目时提示框列出这一组的全部系列。
  */
 import { GroupedBar, StackedBar } from '@unovis/ts';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
 /** 柱子的方向 */

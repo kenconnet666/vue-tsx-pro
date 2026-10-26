@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import animatedNumberApi from 'virtual:api/AnimatedNumberProps';
 import statApi from 'virtual:api/StatProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -24,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { AnimatedNumber, Stat, StatGroup } from '@vue-tsx-pro/ui';"
+    imports="import { AnimatedNumber, Stat, StatGroup } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

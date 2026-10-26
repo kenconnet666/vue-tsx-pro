@@ -1,5 +1,5 @@
 // 预约门诊：只能约今天起 30 天内的工作日，已约满的日子不可选；可以直接键入，也可以点按钮翻日历
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   DatePicker,
   Field,
@@ -9,7 +9,7 @@ import {
   Text,
   todayIso,
   useFormat,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const format = useFormat();

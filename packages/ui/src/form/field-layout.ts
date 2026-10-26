@@ -5,7 +5,7 @@
  *   <Form controller={form} labelPlacement="start" labelWidth="8em">…</Form>
  *   <Form controller={form} readonly>…</Form>   // 整张表单只读（查看详情）
  */
-import { createContext } from '@vue-tsx-pro/tsx';
+import { createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 
 /** 标签放在哪 */
 export interface FieldLabelPlacements {

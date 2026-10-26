@@ -9,7 +9,7 @@
  * 原生 Date 是 ISO 时间（UTC），@internationalized/date 的日期值是它自己的 ISO 文本（2026-10-20、2026-10-20T14:30:00）。
  * 没有 name、值为 null / undefined、或控件不可用（disabled，同原生的不可用控件不随表单提交）时不渲染。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { DateValue } from '@internationalized/date';
 import { isNumeric, numericText, type NumericValue } from '../utils/data/numeric';
 

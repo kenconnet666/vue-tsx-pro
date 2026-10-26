@@ -1,6 +1,6 @@
 // 三种视图：点标题从日期切到月份、再到年份，跨年份找日期很快；granularity 让选择停在月份或年份（账期、入学年份）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Calendar, Flex, Grid, Small, Text, useFormat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Calendar, Flex, Grid, Small, Text, useFormat } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const format = useFormat();

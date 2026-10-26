@@ -1,6 +1,6 @@
 // 色板（下一次放时生效）与收尾：onDone 在这几批都落完后调用；“关闭特效”时 quality="off"，不放、直接 onDone
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,
@@ -11,9 +11,9 @@ import {
   Switch,
   ToggleGroup,
   ToggleItem,
-} from '@vue-tsx-pro/ui';
-import { CONFETTI_PALETTE, Confetti } from '@vue-tsx-pro/ui/three';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { CONFETTI_PALETTE, Confetti } from '@zerodep-dev/vue-tsx-pro-ui/three';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 
 const PALETTES = {
   default: CONFETTI_PALETTE,

@@ -1,7 +1,7 @@
 // 示例自己的主题偏好：不记进 localStorage，只作用于下面这块（整站的切换在右上角）。
 // 应用里通常把 preference.theme 交给 createUi 或最外层的 Provider
 import { Bell } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Card,
@@ -14,8 +14,8 @@ import {
   Small,
   Strong,
   Switch,
-} from '@vue-tsx-pro/ui';
-import { ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const preference = createThemePreference({
   themes: { light: lightTheme, dark: darkTheme, paper: paperTheme },

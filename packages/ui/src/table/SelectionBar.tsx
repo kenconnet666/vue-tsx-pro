@@ -9,8 +9,8 @@
  * count 为 0 时不显示（淡出）；已选的数目在读屏的播报区里，勾选变化时念出来。
  * 部件：Root（div）、Count（span）、Clear（Button）、Actions（div）。数目变化经共用的播报区（announce）念出。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';

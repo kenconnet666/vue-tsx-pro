@@ -1,6 +1,6 @@
-import { createUi } from '@vue-tsx-pro/ui';
-import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki';
-import { vueRouterAdapter } from '@vue-tsx-pro/ui/vue-router';
+import { createUi } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createShikiHighlighter } from '@zerodep-dev/vue-tsx-pro-ui/shiki';
+import { vueRouterAdapter } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import { createRouter, createWebHistory, type RouterHistory } from 'vue-router';

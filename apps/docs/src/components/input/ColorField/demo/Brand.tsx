@@ -1,7 +1,16 @@
 import { Sparkles } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Field, Flex, Grid, Icon, Small, Strong, ColorField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Card,
+  Field,
+  Flex,
+  Grid,
+  Icon,
+  Small,
+  Strong,
+  ColorField,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   preview: {

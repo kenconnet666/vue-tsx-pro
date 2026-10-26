@@ -2,7 +2,7 @@
 // _selected 双向绑定，侧栏列出选中的节点与连线。连线没给折线时画成两个节点之间的直线，edgeText 写月供货量。
 // 节点按类型换图标与色调（DiagramNode 的 start、tone），类型不再写成文字，只写进无障碍名称（getNodeLabel）
 import { Factory, Truck, Warehouse } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   AsideLayout,
   Button,
@@ -12,7 +12,7 @@ import {
   ItemList,
   ItemListItem,
   Small,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   Diagram,
   DiagramControls,
@@ -20,7 +20,7 @@ import {
   type DiagramEdgeItem,
   type DiagramNodeItem,
   type DiagramSelection,
-} from '@vue-tsx-pro/ui/diagram';
+} from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 
 interface Site extends DiagramNodeItem {
   name: string;

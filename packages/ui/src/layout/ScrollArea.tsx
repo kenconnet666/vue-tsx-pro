@@ -12,8 +12,8 @@
  * 要在外面拿到真正滚动的元素（虚拟滚动、自己控制滚动）时用 propsViewport 的 ref：
  *   <ScrollArea propsViewport={{ ref: (element) => (scroller = toElement(element)) }}>…</ScrollArea>
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, type PartProps } from '../utils/props';

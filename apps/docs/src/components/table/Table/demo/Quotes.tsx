@@ -1,13 +1,13 @@
 // 询价比价单：列定义与 DataTable 相同（金额按语言、状态、空值），供应商与品类上下相同的格合并（mergeRepeated，层层分组）；
 // 没报价的行用 cellSpan 把“单价”“小计”合成一格写原因；底部合计（sum 精确相加）
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   ColumnTable,
   createStatusMap,
   Small,
   useFormat,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface QuoteLine {
   supplier: string;

@@ -1,7 +1,7 @@
 // 标注与区间：单价走势上标出“换供应商”这类事件（竖线）、圈出最低点与异常值（圈出某个系列的值），
 // 试运行期是类目轴上的一段，目标单价区间是数值轴上的一段
-import { _component } from '@vue-tsx-pro/tsx';
-import { LineChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { LineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const months = [
   { month: '1月', price: 128.6, market: 131 },

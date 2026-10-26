@@ -1,5 +1,5 @@
 // 项目日程：会议、评审、出差（跨天）铺在格子里，每天最多三条；点一天，右边列出那天的全部日程
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   CalendarBoard,
@@ -10,7 +10,7 @@ import {
   Text,
   useFormat,
   type StatusTone,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Meeting {
   id: string;

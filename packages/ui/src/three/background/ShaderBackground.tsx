@@ -20,7 +20,7 @@
  * - palette 的颜色（uColors、uColorCount）与 themePalette(t)、snoise、fbm（shaderChunks）。
  * 颜色在线性空间里计算，输出时按渲染器的色彩空间转换。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Mesh, PlaneGeometry, ShaderMaterial, Vector2, Vector3, type IUniform } from 'three';
 import { useConfig } from '../../config/context';
 import { colors } from '../../config/theme/tokens';

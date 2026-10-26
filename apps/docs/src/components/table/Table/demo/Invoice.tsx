@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Flex,
   Small,
@@ -12,7 +12,7 @@ import {
   TableRow,
   ToggleGroup,
   ToggleItem,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const lines = [
   ['UI 设计（首页、列表、详情）', 3, 1200],

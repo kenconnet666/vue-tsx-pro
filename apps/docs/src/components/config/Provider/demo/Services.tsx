@@ -1,5 +1,5 @@
 // Provider 也能局部换掉代码高亮器（highlighter）、关掉点击波纹（ripple）；不写的配置沿用上一层
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Card,
@@ -9,8 +9,8 @@ import {
   Small,
   Switch,
   type Highlighter,
-} from '@vue-tsx-pro/ui';
-import { colors } from '@vue-tsx-pro/ui/tokens';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 
 const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
 const escape = (text: string) => text.replace(/[&<>"]/g, (char) => ESCAPES[char]!);

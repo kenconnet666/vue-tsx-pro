@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import alertDialogApi from 'virtual:api/AlertDialogProps';
 import api from 'virtual:api/DialogProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -24,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { AlertDialog, Dialog, useConfirm, useDialog } from '@vue-tsx-pro/ui';"
+    imports="import { AlertDialog, Dialog, useConfirm, useDialog } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

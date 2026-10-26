@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Icon, type IconData } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Icon, type IconData } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 自己的图标：按 Lucide 的格式写节点，画布默认 24 */
 const logo: IconData = {

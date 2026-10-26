@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   builtinThemes,
@@ -10,7 +10,7 @@ import {
   Provider,
   Switch,
   Text,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 每张卡片套一层 Provider：主题只作用在这一块，页面其余部分不变
 export default _component(() => () => (

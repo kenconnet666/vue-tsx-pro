@@ -1,5 +1,5 @@
 // 3D 底座：happy-dom 没有 WebGL，降级与无障碍直接测；生命周期（创建、循环、静止、回收、上下文丢失、释放）用假的渲染器测
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { BufferGeometry, Color, Mesh, MeshBasicMaterial, Points, Texture } from 'three';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, shallowRef } from 'vue';

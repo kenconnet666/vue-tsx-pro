@@ -1,7 +1,7 @@
 // 工作区的页签（同后台系统的多页签）：打开的单据各占一个标签，可以关闭、新建、拖动排序；放不下时两端有滚动按钮，
 // 右边“全部标签页”一眼找到并切过去。首页固定，不能关
-import { _component } from '@vue-tsx-pro/tsx';
-import { Card, Flex, Small, Tab, TabList, TabPanel, Tabs, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Card, Flex, Small, Tab, TabList, TabPanel, Tabs, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Page {
   id: string;

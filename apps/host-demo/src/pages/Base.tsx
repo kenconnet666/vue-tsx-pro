@@ -25,8 +25,8 @@ import {
   Star,
   Trash2,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Accordion,
   AccordionItem,
@@ -124,7 +124,7 @@ import {
   VirtualList,
   type VirtualListHandle,
   VisuallyHidden,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import type { VNodeChild } from 'vue';
 import { toaster } from '../toaster';
 import { FormDemo } from './FormDemo';
@@ -399,7 +399,7 @@ export const Base = _component(() => {
             <IconButton icon={Trash2} aria-label="删除" tone="danger" variant="soft" />
             <IconButton icon={Plus} aria-label="添加" variant="solid" radius="full" />
             <CloseButton />
-            <CopyButton value="npm i @vue-tsx-pro/ui" class="copy-button-demo" />
+            <CopyButton value="npm i @zerodep-dev/vue-tsx-pro-ui" class="copy-button-demo" />
             <ClearButton size="sm" />
           </Flex>
         </Section>
@@ -1073,7 +1073,7 @@ export const Base = _component(() => {
           <div style={{ maxWidth: '16rem' }}>
             <CodeBlock
               class="codeblock-plain"
-              code="pnpm add @vue-tsx-pro/tsx @vue-tsx-pro/ui @lucide/icons zod shiki"
+              code="pnpm add @zerodep-dev/vue-tsx-pro-tsx @zerodep-dev/vue-tsx-pro-ui @lucide/icons zod shiki"
             />
           </div>
         </Section>

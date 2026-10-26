@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import hoverCardApi from 'virtual:api/HoverCardProps';
 import api from 'virtual:api/PopoverProps';
 import tooltipApi from 'virtual:api/TooltipProps';
@@ -25,7 +25,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { HoverCard, Popover, Tooltip } from '@vue-tsx-pro/ui';"
+    imports="import { HoverCard, Popover, Tooltip } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

@@ -4,8 +4,8 @@
  * 交给 onError 由页面在预览区显示，出错的组件不再渲染；文档站本身照常工作。
  * 定时器、Promise 里的错误不经过 Vue，只出现在控制台。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import { ConfigContext, type UiConfig } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { ConfigContext, type UiConfig } from '@zerodep-dev/vue-tsx-pro-ui';
 import { createApp, h, onErrorCaptured, type Component } from 'vue';
 
 /** mountPreview 的选项 */

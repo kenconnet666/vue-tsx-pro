@@ -1,5 +1,5 @@
 // 数值区间：预期收益量级（以元保存、按万元输入），一端可以空着；起比止大时自动对调；外观同其他输入框
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Code,
   Field,
@@ -8,7 +8,7 @@ import {
   NumberRangeField,
   Small,
   type NumberRange,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 const text = (range: NumberRange) =>

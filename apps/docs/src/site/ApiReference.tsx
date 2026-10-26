@@ -4,10 +4,14 @@
  *   import api from 'virtual:api/ButtonProps';
  *   <ApiReference api={api} />
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Flex, H2, H3, Paragraph } from '@vue-tsx-pro/ui';
-import { PropsTable, type ApiPropKinds, type ComponentApi } from '@vue-tsx-pro/ui/docs-kit';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Flex, H2, H3, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  PropsTable,
+  type ApiPropKinds,
+  type ComponentApi,
+} from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { onBeforeUnmount, onMounted } from 'vue';
 import { afterFirstPaint, whenIdle } from './idle';
 

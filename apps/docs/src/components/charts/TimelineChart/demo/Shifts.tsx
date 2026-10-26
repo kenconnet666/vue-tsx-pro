@@ -1,7 +1,7 @@
 // 设备的排班（按小时）：时间是 ISO 日期时间，刻度写成“时:分”；每个系列一种用途（生产、换模、保养），
 // 同一台设备一天里排几段
-import { _component } from '@vue-tsx-pro/tsx';
-import { TimelineChart, type TimelineChartItem } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { TimelineChart, type TimelineChartItem } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const at = (time: string) => `2026-10-24T${time}`;
 const items: TimelineChartItem[] = [

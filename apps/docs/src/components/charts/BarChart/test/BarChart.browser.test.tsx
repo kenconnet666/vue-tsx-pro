@@ -1,7 +1,7 @@
 // BarChart 在真实浏览器里：Unovis 画出柱子，悬停出提示框，图例隐藏系列，颜色与坐标轴跟随主题
-import { _component } from '@vue-tsx-pro/tsx';
-import { createUi, darkTheme } from '@vue-tsx-pro/ui';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { createUi, darkTheme } from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { afterEach, expect, it } from 'vitest';
 import { createApp, h, type App } from 'vue';
 import { mount } from '../../../../test/mount';

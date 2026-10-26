@@ -14,7 +14,7 @@
  * 值都是字符串（去掉首尾空白）。onSubmit 返回 Promise 时确认按钮显示加载中，失败（reject）时对话框留着，由调用方提示原因。
  * 对话框渲染在组件树之外，沿用调用处的主题、语言（同 useConfirm）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useId, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { DatePicker } from '../date/DatePicker';

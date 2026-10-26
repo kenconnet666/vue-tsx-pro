@@ -1,7 +1,15 @@
 // 带文字的分隔线：居中的“或者”分开两种登录方式；文字靠起始边时像一节的小标题，线在后面伸展
 import { MessageSquareText, Smartphone } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Descriptions, Flex, Grid, Separator, TextField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Card,
+  Descriptions,
+  Flex,
+  Grid,
+  Separator,
+  TextField,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Grid minItemWidth="16rem" gap="md">

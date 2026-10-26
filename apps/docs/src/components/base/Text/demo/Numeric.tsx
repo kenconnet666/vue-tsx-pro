@@ -1,6 +1,6 @@
 // 编号用等宽字体（mono），金额、计数用等宽数字（numeric）：上下对齐，变化时不跳动
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const rows = [
   ['PO-2026-0276', '1,117.48'],

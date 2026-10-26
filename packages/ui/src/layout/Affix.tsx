@@ -12,8 +12,8 @@
  * 祖先里有 overflow 不是 visible 的元素时，sticky 相对的是它（不是视口）：这时把它作为 target 传进来。
  * 部件：Root（div，sticky 的那层）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useIntersectionObserver } from '../utils/dom/intersection';
 import { mergeAttrs, type PartProps } from '../utils/props';

@@ -1,7 +1,7 @@
 // 前置图标、外观与状态：与 TextField、日期输入框同一套
 import { Globe, MapPin } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Grid, Select, type ListboxOption } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Grid, Select, type ListboxOption } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const languages: ListboxOption[] = [
   { value: 'zh-CN', label: '简体中文' },

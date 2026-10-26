@@ -25,8 +25,8 @@
  * Checkbox（勾选框，只是外观，状态在 treeitem 的 aria-checked 上）、Label、ScrollArea（外层的滚动区域）。
  */
 import { Check, ChevronRight, Minus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onScopeDispose, useId, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { Spinner } from '../base/Spinner';

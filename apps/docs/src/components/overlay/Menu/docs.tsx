@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import contextMenuApi from 'virtual:api/ContextMenuProps';
 import checkboxItemApi from 'virtual:api/MenuCheckboxItemProps';
 import groupApi from 'virtual:api/MenuGroupProps';
@@ -32,7 +32,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { ContextMenu, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuLinkItem, MenuRadioGroup, MenuRadioItem, MenuSub } from '@vue-tsx-pro/ui';"
+    imports="import { ContextMenu, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuLinkItem, MenuRadioGroup, MenuRadioItem, MenuSub } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

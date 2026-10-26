@@ -9,7 +9,7 @@
  * 也可以是 @internationalized/date 的 Time，写回时保持同一种类型。
  * 键盘同 DateField；12 小时制时在上午 / 下午那段打 a、p 切换。部件见 SegmentedField。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { Time } from '@internationalized/date';
 import { parseIsoTime, toIsoTime } from '../utils/data/date';
 import type { DateValueTypes } from './date-locale';

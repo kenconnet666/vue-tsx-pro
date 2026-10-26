@@ -16,8 +16,8 @@
  * 部件：Root（外壳，role="group"，主元素）、Start / End（两组分段）、Separator、Clear、Button、Popover、Presets、Calendar。
  */
 import { CalendarRange } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, watch } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';

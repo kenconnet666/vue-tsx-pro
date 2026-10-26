@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Link } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Link } from '@zerodep-dev/vue-tsx-pro-ui';
 import customizerApi from 'virtual:api/ThemeCustomizerProps';
 import api from 'virtual:api/ThemeSwitcherProps';
 import thumbnailApi from 'virtual:api/ThemeThumbnailProps';
@@ -23,8 +23,8 @@ export default _component(() => () => (
     wide
     meta={meta}
     imports={
-      "import { ThemeSwitcher } from '@vue-tsx-pro/ui/patterns';\n" +
-      "import { ThemeCustomizer, ThemeThumbnail } from '@vue-tsx-pro/ui/theme-customize';"
+      "import { ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';\n" +
+      "import { ThemeCustomizer, ThemeThumbnail } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';"
     }
   >
     <Examples>
@@ -44,7 +44,7 @@ export default _component(() => () => (
         <Example id="customizer" title="主题编辑器" demo={Customizer}>
           <Code>ThemeCustomizer</Code>{' '}
           调品牌色、中性色、圆角、缩放、字体与动效，实时检查对比度，可以导出代码；设置交给{' '}
-          <Code>customizeTheme</Code>（<Code>@vue-tsx-pro/ui/theme-customize</Code>
+          <Code>customizeTheme</Code>（<Code>@zerodep-dev/vue-tsx-pro-ui/theme-customize</Code>
           ）生成新主题。完整的用法见<Link href="/guide/theming">主题定制</Link>。
         </Example>
       </ExampleColumn>

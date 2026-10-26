@@ -1,6 +1,6 @@
 // 12 / 24 小时制：默认跟随语言（中文 24 小时、美国 12 小时加 AM / PM），hourCycle 可以指定；值总是 24 小时制
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, enUS, Field, Grid, Provider, TimeField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, enUS, Field, Grid, Provider, TimeField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let time = _state<string | null>('19:45');

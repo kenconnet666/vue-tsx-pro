@@ -1,5 +1,5 @@
 // useLayoutAnimation：时长为 0（减少动态效果、读不到主题）时只改数据；容器没挂载时也照样改（位移动画见浏览器测试）
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { shallowRef } from 'vue';
 import { expect, it } from 'vitest';
 import { mount } from '../../.test/mount';

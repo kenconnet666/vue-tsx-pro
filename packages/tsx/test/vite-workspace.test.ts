@@ -21,8 +21,8 @@ const barrel = file(
 );
 const tokens = file('tokens.ts', "export const colors = { text: 'red' };");
 const packages: Record<string, string> = {
-  '@vue-tsx-pro/ui': barrel,
-  '@vue-tsx-pro/ui/tokens': tokens,
+  '@zerodep-dev/vue-tsx-pro-ui': barrel,
+  '@zerodep-dev/vue-tsx-pro-ui/tokens': tokens,
 };
 const context = {
   resolve: async (source: string, importer?: string) => {
@@ -37,7 +37,7 @@ const rewrite = async (code: string) =>
 
 it('具名导入改成直接导入所在模块；改名、default 再导出照样对得上；入口的副作用导入保留', async () => {
   const code = await rewrite(
-    "import { Button as B, styles, Card } from '@vue-tsx-pro/ui';\nconsole.log(B, styles, Card);",
+    "import { Button as B, styles, Card } from '@zerodep-dev/vue-tsx-pro-ui';\nconsole.log(B, styles, Card);",
   );
   expect(code).toBe(
     [
@@ -50,19 +50,19 @@ it('具名导入改成直接导入所在模块；改名、default 再导出照�
 
 it('多行的导入改写后行数不变；入口里没有的名字留给入口', async () => {
   const code = (await rewrite(
-    "import {\n  Button,\n  Missing,\n} from '@vue-tsx-pro/ui';\nfoo();",
+    "import {\n  Button,\n  Missing,\n} from '@zerodep-dev/vue-tsx-pro-ui';\nfoo();",
   ))!;
   expect(code.split('\n')).toHaveLength(5);
-  expect(code).toContain('import { Missing } from "@vue-tsx-pro/ui";');
+  expect(code).toContain('import { Missing } from "@zerodep-dev/vue-tsx-pro-ui";');
   expect(code.endsWith('\n\n\n\nfoo();')).toBe(true);
 });
 
 it('字符串里的导入语句、命名空间导入、默认导入、不是桶文件的入口都不动', async () => {
   for (const code of [
-    'const sample = "import { Button } from \'@vue-tsx-pro/ui\'";',
-    "import * as ui from '@vue-tsx-pro/ui';",
-    "import ui, { Button } from '@vue-tsx-pro/ui';",
-    "import { colors } from '@vue-tsx-pro/ui/tokens';",
+    'const sample = "import { Button } from \'@zerodep-dev/vue-tsx-pro-ui\'";',
+    "import * as ui from '@zerodep-dev/vue-tsx-pro-ui';",
+    "import ui, { Button } from '@zerodep-dev/vue-tsx-pro-ui';",
+    "import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';",
     "import { thing } from 'other';",
   ]) {
     expect(await rewrite(code)).toBeUndefined();

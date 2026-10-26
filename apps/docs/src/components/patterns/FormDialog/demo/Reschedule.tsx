@@ -1,8 +1,8 @@
 // 申请调整计划日期：日期字段限定范围，原因从带说明的选项里选，“其他”时说明必填（跨字段校验）；推迟超过 30 天时提交被拒、对话框留着
 import { CalendarClock } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, daysBetween, Flex, shiftIsoDate, Small } from '@vue-tsx-pro/ui';
-import { useFormDialog } from '@vue-tsx-pro/ui/patterns';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, daysBetween, Flex, shiftIsoDate, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const PLANNED = '2026-11-20';
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

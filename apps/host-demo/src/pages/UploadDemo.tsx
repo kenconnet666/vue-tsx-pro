@@ -1,6 +1,13 @@
 // /base 页上的上传演示：模拟的上传函数（进度一点点涨，文件名带 fail 的失败一次，重试后成功）与只选不传的 FileDrop
-import { _component } from '@vue-tsx-pro/tsx';
-import { FileDrop, Flex, Text, Upload, type UploadFile, type UploadHandler } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  FileDrop,
+  Flex,
+  Text,
+  Upload,
+  type UploadFile,
+  type UploadHandler,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /**
  * 模拟上传：每 120ms 涨 20%；文件名带 fail 的第一次失败。

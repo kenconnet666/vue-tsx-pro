@@ -9,8 +9,8 @@
     // tsx 包的 compiler/ 与 vite/ 相对导入带 .ts：语言服务、Vitest 配置在 Node 里直接加载它们
     "allowImportingTsExtensions": true,
     "jsx": "preserve",
-    "jsxImportSource": "@vue-tsx-pro/tsx",
-    "types": ["@vue-tsx-pro/tsx/runes"],
+    "jsxImportSource": "@zerodep-dev/vue-tsx-pro-tsx",
+    "types": ["@zerodep-dev/vue-tsx-pro-tsx/runes"],
 
     "strict": true,
     "noImplicitOverride": true,

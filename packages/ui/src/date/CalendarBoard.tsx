@@ -23,9 +23,9 @@
  * DayButton（日期数字）、Note、Events（ul）、Event、More。
  */
 import { ChevronLeft, ChevronRight } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { isWeekend, type CalendarDate } from '@internationalized/date';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { buttonBaseStyles } from '../base/button-core';

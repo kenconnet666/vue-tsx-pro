@@ -1,6 +1,6 @@
 // 物料分类：选到哪一级都行（changeOnSelect），停用的分类不能选；路径用“›”分隔
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Cascader, Field, Flex, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Badge, Cascader, Field, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Category {
   id: string;

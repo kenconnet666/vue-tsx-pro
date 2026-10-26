@@ -1,6 +1,6 @@
 // 页脚放快捷操作；fixedWeeks 让每个月都是六行，翻页时高度不跳；onPick 在每次点选时调用（再点已选的那天也会）
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Calendar, Card, Flex, Small, todayIso } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Calendar, Card, Flex, Small, todayIso } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let date = _state<string | null>(null);

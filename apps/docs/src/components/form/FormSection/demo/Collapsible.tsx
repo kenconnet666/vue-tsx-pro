@@ -1,7 +1,7 @@
 // 可收起的分组：不常填的“高级选项”默认收起；标题栏结束边放这一组的操作（添加一行）；
 // 重复的行只在第一行显示列名，其余行 labelHidden（读屏照样念）
 import { Plus, Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Field,
@@ -11,7 +11,7 @@ import {
   Select,
   Switch,
   TextField,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let contacts = _state([

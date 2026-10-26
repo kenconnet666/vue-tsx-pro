@@ -1,6 +1,6 @@
 import { Download, MoreHorizontal, Search, Trash2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,
@@ -12,7 +12,7 @@ import {
   type DataTableColumn,
   type SortState,
   type StatusTone,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Order {
   id: string;

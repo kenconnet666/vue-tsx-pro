@@ -1,6 +1,6 @@
 // 筛选本地数据：matchesCondition 按条件筛表格的行（同一份条件也能交给后端，结果一致）；
 // maxDepth={1} 不能加组，只有一层“全部满足 / 任一满足”的条件，size="sm" 用小一档的控件
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   ConditionBuilder,
   DataTable,
@@ -10,7 +10,7 @@ import {
   type Condition,
   type ConditionField,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Order {
   id: string;

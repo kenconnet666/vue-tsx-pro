@@ -1,8 +1,18 @@
 // grow：在父级的 flex 里占满剩余空间、可以收缩（里面的长文字才能截断）；inline：行内的 flex；
 // Grid 的 rowGap / columnGap 分别覆盖 gap
 import { CircleCheck, FileText } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Badge, Card, Flex, Grid, Icon, Small, Strong, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Avatar,
+  Badge,
+  Card,
+  Flex,
+  Grid,
+  Icon,
+  Small,
+  Strong,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Flex direction="column" gap="lg">

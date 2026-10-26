@@ -1,7 +1,7 @@
 /**
- * 图表（子路径 `@vue-tsx-pro/ui/charts`；@unovis/ts 是可选的 peer 依赖，用到图表才安装）：
+ * 图表（子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`；@unovis/ts 是可选的 peer 依赖，用到图表才安装）：
  *
- *   import { BarChart, LineChart } from '@vue-tsx-pro/ui/charts';
+ *   import { BarChart, LineChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
  *
  * 主入口不导入图表，没用到图表的应用不会打包 Unovis。
  */

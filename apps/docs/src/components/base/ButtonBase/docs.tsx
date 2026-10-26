@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, CodeBlock } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ButtonBaseProps';
 import hiddenApi from 'virtual:api/VisuallyHiddenProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -17,7 +17,7 @@ export const meta = {
   order: 20,
 };
 
-const shared = `import { buttonBaseStyles, focusRingStyles, useButtonBehavior } from '@vue-tsx-pro/ui';
+const shared = `import { buttonBaseStyles, focusRingStyles, useButtonBehavior } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 不想多一层组件时（比如渲染成 a 或 div[role=button]），直接用同一套样式与行为
 const behavior = useButtonBehavior(
@@ -27,7 +27,11 @@ const behavior = useButtonBehavior(
 <a sx={[buttonBaseStyles.root, focusRingStyles.visible]} {...behavior()} />`;
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ButtonBase, VisuallyHidden } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { ButtonBase, VisuallyHidden } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Example id="plans" title="自定义外观的按钮" demo={Plans}>
       ButtonBase 去掉浏览器的默认样式，给出焦点环、按下的波纹、颜色过渡，默认{' '}
       <Code>type="button"</Code>（不会意外提交表单）；外观全部经 <Code>sx</Code> 给出。选中状态用{' '}

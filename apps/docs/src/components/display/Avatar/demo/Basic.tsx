@@ -1,6 +1,13 @@
 import { Building2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Avatar, Flex, Icon, Text, type StatusTone, type TextSize } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Avatar,
+  Flex,
+  Icon,
+  Text,
+  type StatusTone,
+  type TextSize,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { members } from './photos';
 
 const sizes: TextSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];

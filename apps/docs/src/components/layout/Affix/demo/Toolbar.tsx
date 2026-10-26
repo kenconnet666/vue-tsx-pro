@@ -1,7 +1,16 @@
 // 长列表上方的操作条：在滚动面板里往下滚时贴在顶部，贴住时有阴影；滚下去后右下角出现“回到顶部”
 import { Download, Plus } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Affix, BackTop, Badge, Button, Card, Flex, Small, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Affix,
+  BackTop,
+  Badge,
+  Button,
+  Card,
+  Flex,
+  Small,
+  Text,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const tasks = Array.from({ length: 30 }, (_, index) => ({
   code: `T-${String(101 + index).padStart(3, '0')}`,

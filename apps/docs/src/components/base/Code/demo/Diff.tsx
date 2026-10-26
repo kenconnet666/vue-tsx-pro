@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { CodeBlock, Flex } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { CodeBlock, Flex } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const change = `export const Counter = _component(() => {
   const count = ref(0);

@@ -1,6 +1,6 @@
 // 采购申请明细：就地编辑。零件、数量、单价、交期可以改（交期用自定义编辑器 DateField），小计跟着算；
 // 列的 validate 拦下不合理的值，validateRow 标出整行的问题（交期早于今天），onCellChange 模拟保存（已下单的行不能改数量）
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   createStatusMap,
   DataTable,
@@ -8,7 +8,7 @@ import {
   Flex,
   Small,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Line {
   id: string;

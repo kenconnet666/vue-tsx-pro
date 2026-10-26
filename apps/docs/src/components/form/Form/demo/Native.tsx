@@ -1,4 +1,4 @@
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Code,
@@ -10,7 +10,7 @@ import {
   Slider,
   Small,
   TagsInput,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 // 不用 useForm 也行：控件写了 name，就有隐藏的 input 随表单提交（FormValue），FormData 直接拿到

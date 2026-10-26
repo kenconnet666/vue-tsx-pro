@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code, Kbd } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ImageProps';
 import groupApi from 'virtual:api/ImageGroupProps';
 import lightboxApi from 'virtual:api/LightboxProps';
@@ -21,7 +21,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Image, ImageGroup, Lightbox } from '@vue-tsx-pro/ui';"
+    imports="import { Image, ImageGroup, Lightbox } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="gallery" title="图纸相册：预览、缩放、旋转" demo={Gallery}>
       写了 <Code>preview</Code> 的图片是按钮（名称“查看大图：alt”），点了（或 Enter）打开

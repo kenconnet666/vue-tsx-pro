@@ -1,6 +1,6 @@
 // 排期总览：并排三个月，翻页一次翻三个月；并排时补齐的日期留空，同一天不会出现两次
-import { _component } from '@vue-tsx-pro/tsx';
-import { Calendar, Flex, Text, todayIso, useFormat } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Calendar, Flex, Text, todayIso, useFormat } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const format = useFormat();

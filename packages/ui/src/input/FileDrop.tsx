@@ -9,8 +9,8 @@
  * 在 Field 里时关联标签、说明与错误。部件：Root（label）、Input（input）、Icon、Hint（提示文字）、Description（说明）。
  */
 import { Upload as UploadIcon } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';

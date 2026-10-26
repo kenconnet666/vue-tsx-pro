@@ -1,6 +1,6 @@
 // 供应商的六项评分：每个供应商连成一个多边形，悬停一个维度看各家在这一项的分数；点图例隐藏一家
-import { _component } from '@vue-tsx-pro/tsx';
-import { RadarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { RadarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const scores = [
   { dimension: '质量', huachen: 92, hengyuan: 78, yuehai: 85 },

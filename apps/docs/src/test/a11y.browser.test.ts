@@ -1,8 +1,8 @@
 // 示例按分类放在页面上，亮、暗两套主题下 axe-core 都没有违规；整页示例（frames）各自单独检查。
 // 其余内置主题的对比度由 themes:check 逐对 token 静态检查，不在浏览器里把全部示例再挂一遍（WebKit 上一套主题就要三分多钟）
 import axe from 'axe-core';
-import { _component } from '@vue-tsx-pro/tsx';
-import { createUi, darkTheme, lightTheme } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { createUi, darkTheme, lightTheme } from '@zerodep-dev/vue-tsx-pro-ui';
 import { afterEach, beforeAll, expect, it } from 'vitest';
 import { createApp, h, type App, type Component } from 'vue';
 import { demoLoaders, loadDemos } from './demos';

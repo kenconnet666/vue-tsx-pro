@@ -26,13 +26,18 @@ export function parseSource(file, text = readFileSync(file, 'utf8')) {
 
 /**
  * 组件库的入口：packages/ui/package.json 的 exports 是唯一的登记处，构建、导出生成、分层检查、文档站都从这里读。
- * `name` 是导入路径（`@vue-tsx-pro/ui/charts`），`source` 是源码文件（相对 packages/ui/src，`charts/index.ts`）。
+ * `name` 是导入路径（`@zerodep-dev/vue-tsx-pro-ui/charts`），`source` 是源码文件（相对 packages/ui/src，`charts/index.ts`）。
  */
 export function uiEntries() {
   const pkg = JSON.parse(readFileSync(join(root, 'packages/ui/package.json'), 'utf8'));
   return Object.entries(pkg.exports).flatMap(([key, target]) => {
     const source = typeof target === 'object' ? target['@vue-tsx-pro/source'] : undefined;
     if (!source) return [];
-    return [{ name: `@vue-tsx-pro/ui${key.slice(1)}`, source: source.replace(/^\.\/src\//, '') }];
+    return [
+      {
+        name: `@zerodep-dev/vue-tsx-pro-ui${key.slice(1)}`,
+        source: source.replace(/^\.\/src\//, ''),
+      },
+    ];
   });
 }

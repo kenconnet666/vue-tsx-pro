@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import groupApi from 'virtual:api/CheckboxGroupProps';
 import api from 'virtual:api/CheckboxProps';
 import radioGroupApi from 'virtual:api/RadioGroupProps';
@@ -27,7 +27,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Checkbox, CheckboxGroup, Radio, RadioGroup, Switch } from '@vue-tsx-pro/ui';"
+    imports="import { Checkbox, CheckboxGroup, Radio, RadioGroup, Switch } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>

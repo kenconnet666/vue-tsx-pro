@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Flex, Switch } from '@vue-tsx-pro/ui';
-import { BarChart } from '@vue-tsx-pro/ui/charts';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Flex, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
+import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const data = [
   { name: 'A', value: 40 },

@@ -1,7 +1,7 @@
 import './style.css';
 import { createApp } from 'vue';
-import { createUi } from '@vue-tsx-pro/ui';
-import { createShikiHighlighter } from '@vue-tsx-pro/ui/shiki';
+import { createUi } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createShikiHighlighter } from '@zerodep-dev/vue-tsx-pro-ui/shiki';
 import { App } from './App';
 
 createApp(App)

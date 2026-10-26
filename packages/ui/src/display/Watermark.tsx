@@ -10,8 +10,8 @@
  * 只是提示性的：前端的水印删得掉，真正的保密要靠服务端（导出时打水印、权限）。
  * 部件：Root（div：包着内容，position: relative）、Layer（div：水印那一层）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 

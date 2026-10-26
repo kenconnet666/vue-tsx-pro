@@ -1,6 +1,14 @@
 import { RotateCcw } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Card, Flex, Strong, Tag, Text, type StatusTone } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  Button,
+  Card,
+  Flex,
+  Strong,
+  Tag,
+  Text,
+  type StatusTone,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const initial: [string, StatusTone][] = [
   ['价格：100–500 元', 'accent'],

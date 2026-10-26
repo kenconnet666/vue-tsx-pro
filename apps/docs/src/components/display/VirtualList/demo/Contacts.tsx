@@ -1,6 +1,14 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Avatar, Card, Flex, Small, Text, TextField, VirtualList } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Avatar,
+  Card,
+  Flex,
+  Small,
+  Text,
+  TextField,
+  VirtualList,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const surnames = '赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜';
 const givenNames = ['小满', '一航', '默', '悠', '晴', '浩然', '思远', '雨桐', '子墨', '若溪', '安'];

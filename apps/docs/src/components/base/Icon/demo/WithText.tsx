@@ -1,6 +1,6 @@
 import { ArrowRight, Clock, ExternalLink, MapPin, Plus, Star, Users } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Button, Flex, Icon, Link, Paragraph, Text } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Badge, Button, Flex, Icon, Link, Paragraph, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Flex direction="column" gap="md">

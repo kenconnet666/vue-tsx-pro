@@ -1,6 +1,6 @@
 // 紧凑的排法：表格的格子里用 layout="icons"（只有一排状态图标，悬停与读屏有每一项的说明），
 // 详情行、卡片的一角用 layout="inline"（一行排开、放不下换行）
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Checklist,
   ColumnTable,
@@ -8,7 +8,7 @@ import {
   Small,
   type ChecklistItem,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Project {
   code: string;

@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { ShaderBackground } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { ShaderBackground } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 // 等离子：几组正弦叠加，按结果在主题色板里取色；uTime、uResolution、themePalette 都是自动提供的
 const PLASMA = /* glsl */ `

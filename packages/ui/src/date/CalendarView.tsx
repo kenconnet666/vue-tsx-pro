@@ -14,8 +14,8 @@
  * Weekday（星期表头）、WeekNumber（周数）、Cell（td）、CellButton（日期 / 月份 / 年份按钮）、Footer。
  */
 import { ChevronLeft, ChevronRight } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import { buttonBaseStyles } from '../base/button-core';
 import { IconButton, type IconButtonProps } from '../base/IconButton';

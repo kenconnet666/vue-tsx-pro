@@ -1,6 +1,6 @@
 // 段的顺序与分隔符取自 Intl：中文 年/月/日，美国 月/日/年，德国 日.月.年，英国 日/月/年；时间部分 12 / 24 小时制也跟着语言
-import { _component } from '@vue-tsx-pro/tsx';
-import { DateField, defineLang, enUS, Field, Grid, Provider } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { DateField, defineLang, enUS, Field, Grid, Provider } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const cases = [
   ['简体中文', undefined],

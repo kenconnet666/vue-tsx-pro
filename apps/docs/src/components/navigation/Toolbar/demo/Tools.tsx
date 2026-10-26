@@ -1,7 +1,16 @@
 import { Circle, Eraser, Hand, MousePointer2, Pencil, Square, Type } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Card, Flex, IconButton, Small, Toolbar, Tooltip, type IconData, t } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Card,
+  Flex,
+  IconButton,
+  Small,
+  Toolbar,
+  Tooltip,
+  type IconData,
+  t,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const tools: [string, string, IconData][] = [
   ['select', '选择', MousePointer2],

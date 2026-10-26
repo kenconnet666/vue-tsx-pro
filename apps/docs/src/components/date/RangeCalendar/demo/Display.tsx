@@ -1,7 +1,7 @@
 // 显示与只读：firstDayOfWeek 一周从哪天开始、showWeekNumbers 周数、fixedWeeks={false} 按实际行数；readonly 能翻页不能改。
 // valueType="dateValue" 一开始为空时写回 CalendarDate；defaultFocused 没有值时先显示哪个月；onPick 每选完一个区间调用
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Flex,
   RangeCalendar,
@@ -10,7 +10,7 @@ import {
   ToggleGroup,
   ToggleItem,
   type DateRange,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   const nextMonth = today(getLocalTimeZone()).add({ months: 1 }).set({ day: 1 });

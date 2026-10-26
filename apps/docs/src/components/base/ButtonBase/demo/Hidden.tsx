@@ -1,5 +1,5 @@
 import { ShoppingCart, Star } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   ButtonBase,
@@ -14,7 +14,7 @@ import {
   TableHeaderCell,
   TableRow,
   VisuallyHidden,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { onMounted, type VNodeChild } from 'vue';
 
 // 粗略模拟读屏读出的文字：跳过 aria-hidden，有 aria-label 时读 aria-label

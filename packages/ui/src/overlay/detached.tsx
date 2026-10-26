@@ -7,7 +7,7 @@
  *
  * useDetachedOverlay 在它上面加一层句柄（close、update、closed），useDialog、useDrawer 用它。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { getCurrentInstance, h, render, shallowRef, type VNodeChild } from 'vue';
 import { ConfigContext, useConfig } from '../config/context';
 import { ConfigScope } from '../config/Provider';

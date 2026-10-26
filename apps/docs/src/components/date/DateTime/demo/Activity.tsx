@@ -1,7 +1,7 @@
 // 动态列表：发生时间写相对时间，随时间自动更新，悬停看完整的日期；一周以前的直接写日期。
 // format 是详略：long “3 分钟前”、short、narrow（窄栏、移动端）
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   Card,
@@ -11,7 +11,7 @@ import {
   Text,
   ToggleGroup,
   ToggleItem,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
   list: { display: 'flex', flexDirection: 'column', gap: '_md', margin: 0, padding: 0 },

@@ -7,7 +7,7 @@
     "emitDeclarationOnly": true,
     "rootDir": "src",
     "outDir": "dist",
-    "types": ["@vue-tsx-pro/tsx/runes"]
+    "types": ["@zerodep-dev/vue-tsx-pro-tsx/runes"]
   },
   "include": ["src"],
   // 测试集中在各分类的 .test 目录

@@ -1,7 +1,16 @@
 import { Code2, Eye, SplitSquareHorizontal } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { CodeBlock, Flex, Icon, Paragraph, Tab, TabList, TabPanel, Tabs } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  CodeBlock,
+  Flex,
+  Icon,
+  Paragraph,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const source = `<Button tone="success" icon={Check}>
   保存

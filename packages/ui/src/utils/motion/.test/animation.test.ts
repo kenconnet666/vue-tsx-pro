@@ -1,7 +1,7 @@
 // JS 动画参数取主题 tokens 的当前值；useAnimate 取主题并在卸载时取消（真实浏览器里的效果见 apps/host-demo/test）
 import { cubicBezier, type JSAnimation } from 'animejs';
 import { createApp } from 'vue';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readToken } from '../../../config/theme/theme';
 import { durations, easings } from '../../../config/theme/tokens';

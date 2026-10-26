@@ -1,7 +1,7 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Flex, Grid, Slider, Switch, Text } from '@vue-tsx-pro/ui';
-import { MeshGradient } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Flex, Grid, Slider, Switch, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { MeshGradient } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   stage: { height: '18rem', borderRadius: '_md' },

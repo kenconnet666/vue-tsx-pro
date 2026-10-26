@@ -1,5 +1,5 @@
 import { BellRing } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   createToaster,
@@ -12,7 +12,7 @@ import {
   Toaster,
   type StatusTone,
   type ToastPlacements,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 这个示例自己的控制器与显示区域：位置、叠放这些设置不影响页面上别的示例
 const toaster = createToaster({ duration: 6000 });

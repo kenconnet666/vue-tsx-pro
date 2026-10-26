@@ -1,9 +1,18 @@
 // 画质（陆地点数随它缩放）与暂停；off 时显示 fallback；子元素叠在地球上（这里是底部的说明）
 import { Globe as GlobeIcon } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Field, Flex, Grid, Icon, Switch, ToggleGroup, ToggleItem } from '@vue-tsx-pro/ui';
-import { Globe, type ThreeQuality } from '@vue-tsx-pro/ui/three';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import {
+  Badge,
+  Field,
+  Flex,
+  Grid,
+  Icon,
+  Switch,
+  ToggleGroup,
+  ToggleItem,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { Globe, type ThreeQuality } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
   globe: { maxWidth: '18rem', marginInline: 'auto', display: 'flex', alignItems: 'flex-end' },

@@ -26,7 +26,7 @@ import {
   XYContainer,
 } from '@unovis/ts';
 import { getLocalTimeZone } from '@internationalized/date';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { render, useId, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';

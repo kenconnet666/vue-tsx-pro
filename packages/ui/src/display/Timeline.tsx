@@ -21,9 +21,9 @@
  * 部件：Root（ol）、Item（li）、Rail（节点与连接线所在的列）、Marker、Line（连接线）、Content、Title、Meta（操作人与时间）、
  * Time、Description、Details（Collapsible）、Toggle（展开其余各项的按钮）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import type { SxStyles } from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { ChevronDown, ChevronUp } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';

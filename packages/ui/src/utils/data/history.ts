@@ -14,7 +14,7 @@
  * 保存点：markSaved() 记下当前这一步，dirty 表示现在与保存时不同（撤销回保存点时又变回 false）。
  * 不在 setup 里也能用（只用 Vue 的 shallowRef），快捷键（Mod+Z、Mod+Shift+Z）由使用方接上 useHotkeys。
  */
-import { snapshot } from '@vue-tsx-pro/tsx';
+import { snapshot } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { shallowRef } from 'vue';
 import { sameValue } from './equality';
 

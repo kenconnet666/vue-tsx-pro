@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ViewportFillProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { ViewportFill } from '@vue-tsx-pro/ui';">
+  <DocPage wide meta={meta} imports="import { ViewportFill } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="list-page" title="列表页" demo={ListPage} frame="32rem">
       顶边的位置是量出来的：上面的页头、页签、查询栏换行变高都跟着变，不用手算“视口高度减顶栏减内边距”。
       <Code>bottom</Code> 是离窗口底边留的间距（与外壳正文的内边距一致），窗口太矮时不小于{' '}

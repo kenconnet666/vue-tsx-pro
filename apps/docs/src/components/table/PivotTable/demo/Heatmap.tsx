@@ -1,7 +1,7 @@
 // 采购明细按“区域 → 供应商”与季度透视：相同区域合并成一格，每格是采购额之和（万元），带合计行与合计列；
 // heatmap 按金额给格子着色，一眼看出哪个供应商、哪个季度贡献大。金额是 Decimal，合计精确相加
-import { _component } from '@vue-tsx-pro/tsx';
-import { PivotTable } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { PivotTable } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
 interface Saving {

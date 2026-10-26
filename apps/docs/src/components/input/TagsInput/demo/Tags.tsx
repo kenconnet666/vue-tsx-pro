@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Flex, TagsInput } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Flex, TagsInput } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const team = [
   { value: 'yihang@example.com', label: '周一航', description: 'yihang@example.com' },

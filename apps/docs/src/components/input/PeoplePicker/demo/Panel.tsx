@@ -1,7 +1,11 @@
 // 直接放在页面里的面板：流程节点的处理人选岗位（岗位收件箱），types={['position', 'user']} 时岗位与人员都能勾，
 // 最多 3 个；勾满之后其余的勾选框不可用。“岗位”页列出全部岗位，“全选”只管这一页能勾的
-import { _component } from '@vue-tsx-pro/tsx';
-import { localPeopleSource, PeoplePickerPanel, type PeopleEntry } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import {
+  localPeopleSource,
+  PeoplePickerPanel,
+  type PeopleEntry,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { org, positions } from './org';
 
 const source = localPeopleSource(org, positions);

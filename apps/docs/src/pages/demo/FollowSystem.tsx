@@ -1,5 +1,5 @@
 import { CloudSun, MoonStar, Sun } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
   Button,
@@ -12,7 +12,7 @@ import {
   Provider,
   Text,
   type IconData,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 同一张卡片：在哪套主题下都一样写，颜色全来自主题 */
 const Sample = _component(({ icon, title }: { icon: IconData; title: string }) => () => (

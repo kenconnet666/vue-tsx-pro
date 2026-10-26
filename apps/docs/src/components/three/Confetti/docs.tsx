@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ConfettiProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -16,7 +16,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Confetti } from '@vue-tsx-pro/ui/three';">
+  <DocPage wide meta={meta} imports="import { Confetti } from '@zerodep-dev/vue-tsx-pro-ui/three';">
     <Example id="celebrate" title="庆祝" demo={Celebrate}>
       <Code>trigger</Code>{' '}
       每变一次放一批（写成计数就行），挂载时的初始值不放。默认铺满视口、放在顶层，盖得住打开着的对话框，指针穿透；

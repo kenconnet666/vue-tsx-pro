@@ -1,7 +1,7 @@
 // 高级筛选：常用的关键字之外，conditionFields 给出能组合的字段，“高级筛选”展开条件构造器（_condition），
 // 能写“金额介于、品类是其中之一、或者加急”这类固定条件写不出的组合；收起时下面是一句话的摘要，带“清空”。
 // 这里点“查询”时用 matchesCondition 在前端筛，接后端时把同一份条件交给接口
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   DataTable,
   Field,
@@ -12,8 +12,8 @@ import {
   type Condition,
   type ConditionField,
   type DataTableColumn,
-} from '@vue-tsx-pro/ui';
-import { FilterBar } from '@vue-tsx-pro/ui/patterns';
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 interface Order {
   id: string;

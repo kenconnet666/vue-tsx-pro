@@ -1,6 +1,6 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Badge, Text, type StatusTone, type StatusVariant } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Badge, Text, type StatusTone, type StatusVariant } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const variants: StatusVariant[] = ['solid', 'soft', 'surface', 'outline'];
 const tones: [StatusTone, string][] = [

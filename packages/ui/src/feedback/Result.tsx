@@ -8,8 +8,8 @@
  * 只是展示，不带角色；操作后才出现、需要读屏播报时，由所在区域用 aria-live 或把焦点移到标题上。
  * 部件：Root（div）、Icon、Code（状态码，status 时）、Title（Text）、Description（Paragraph）、Action（div）。
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { FileQuestionMark, ServerCrash, ShieldX } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';

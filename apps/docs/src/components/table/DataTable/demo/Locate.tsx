@@ -1,8 +1,8 @@
 // 定位到行：从通知、搜索结果跳过来时滚到那一行并闪一下。两千行里还没渲染的行也能滚到，
 // 停在吸顶表头之下；找不到时 scrollToRow 返回 false
 import { LocateFixed } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   createStatusMap,
@@ -12,7 +12,7 @@ import {
   TextField,
   type DataTableColumn,
   type DataTableHandle,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const statuses = createStatusMap({
   doing: { label: '进行中', tone: 'info' },

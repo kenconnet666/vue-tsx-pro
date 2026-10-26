@@ -9,7 +9,7 @@ import {
   Strikethrough,
   Underline,
 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   Flex,
@@ -23,7 +23,7 @@ import {
   type IconData,
   type MenuTriggerProps,
   type TooltipTriggerProps,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const groups: [IconData, string, string?][][] = [
   [

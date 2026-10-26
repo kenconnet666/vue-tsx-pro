@@ -12,7 +12,7 @@
  *
  * 整张表单的标签布局（labelPlacement、labelWidth、labelAlign）与只读、不可用在这里统一设置，见 field-layout。
  */
-import { createContext, _component } from '@vue-tsx-pro/tsx';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick, type VNodeChild } from 'vue';
 import { focusControl } from '../utils/dom/focus';
 import { mergeAttrs, type PartProps } from '../utils/props';

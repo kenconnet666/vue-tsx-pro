@@ -8,7 +8,7 @@
  * 值是 Date、DateValue 或 ISO 字符串（同 useFormat().date）。不写格式时：只有日期的值显示日期，带时间的再加上时分。
  * 要“3 分钟前”这样的写法用 RelativeTime。
  */
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { DateValue } from '@internationalized/date';
 import { useFormat } from '../config/lang/format';
 import { mergeAttrs, type PartProps } from '../utils/props';

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import blockApi from 'virtual:api/CodeBlockProps';
 import groupApi from 'virtual:api/CodeGroupProps';
 import api from 'virtual:api/CodeProps';
@@ -27,7 +27,7 @@ export default _component(() => () => (
     wide
     meta={meta}
     imports={
-      "import { Code, CodeBlock } from '@vue-tsx-pro/ui';\nimport { CodeGroup, CodePreview } from '@vue-tsx-pro/ui/docs-kit';"
+      "import { Code, CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';\nimport { CodeGroup, CodePreview } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';"
     }
   >
     <Examples>

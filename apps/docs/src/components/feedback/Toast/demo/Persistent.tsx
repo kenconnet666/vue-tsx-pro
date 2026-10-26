@@ -1,6 +1,6 @@
 import { Wifi, WifiOff } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, createToaster, Flex, Toaster } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, createToaster, Flex, Toaster } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const toaster = createToaster();
 

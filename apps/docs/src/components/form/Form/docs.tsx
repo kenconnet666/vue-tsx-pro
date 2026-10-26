@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import fieldApi from 'virtual:api/FieldProps';
 import api from 'virtual:api/FormProps';
 import formValueApi from 'virtual:api/FormValueProps';
@@ -28,7 +28,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { bigintSchema, decimalSchema, Field, Form, FormErrorSummary, FormValue, useForm, useLeaveConfirmation } from '@vue-tsx-pro/ui';"
+    imports="import { bigintSchema, decimalSchema, Field, Form, FormErrorSummary, FormValue, useForm, useLeaveConfirmation } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="admission" title="供应商准入：自动绑定与错误汇总" demo={Admission}>
       <Code>form.Field</Code> 里只有一个控件、控件上没写值时，自动绑定 <Code>form.values</Code>{' '}

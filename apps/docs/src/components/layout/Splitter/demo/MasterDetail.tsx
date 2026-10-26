@@ -1,7 +1,7 @@
 // 左列表、右详情：拖分隔条调比例（双击回到初始比例），右栏可以收起；比例记在浏览器里
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
-import { Flex, Small, Splitter, Text, usePersistentState } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { Flex, Small, Splitter, Text, usePersistentState } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const mails = [
   {

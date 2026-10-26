@@ -18,8 +18,8 @@
  * 部件：Root（外壳）、Trigger（button，主元素）、Value、Clear、Chevron、Popover、Search（TextField）、Column（每一列）、Option。
  */
 import { Check, ChevronDown, ChevronRight, Search } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { buttonBaseStyles } from '../base/button-core';

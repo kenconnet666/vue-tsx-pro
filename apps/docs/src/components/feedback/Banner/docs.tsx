@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/BannerProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -14,7 +14,7 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage meta={meta} imports="import { Banner } from '@vue-tsx-pro/ui';">
+  <DocPage meta={meta} imports="import { Banner } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="page" title="页面顶部" demo={Page}>
       横幅占满宽度、内容居中，<Code>title</Code> 是加粗的开头，<Code>action</Code>{' '}
       跟在正文后面（链接或小按钮）。<Code>variant="solid"</Code>{' '}

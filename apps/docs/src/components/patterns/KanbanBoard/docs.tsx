@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/KanbanBoardProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -17,7 +17,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { KanbanBoard } from '@vue-tsx-pro/ui/patterns';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { KanbanBoard } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
+  >
     <Examples>
       <ExampleColumn wide>
         <Example id="flow" title="只能挪到相邻的列，列内排序" demo={Flow}>

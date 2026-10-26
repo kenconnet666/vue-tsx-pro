@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Combobox, Field, Flex, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Combobox, Field, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const cities = [
   '北京',

@@ -1,6 +1,6 @@
 # 组件库规范
 
-适用于 `@vue-tsx-pro/ui`。写法基础见 [RUNES.md](RUNES.md)，工程规划见 [PLAN.md](PLAN.md)。
+适用于 `@zerodep-dev/vue-tsx-pro-ui`。写法基础见 [RUNES.md](RUNES.md)，工程规划见 [PLAN.md](PLAN.md)。
 
 > 状态：基础设施与 §10 各批组件已完成；之后的目标、执行顺序与待办都在 [ROADMAP.md](ROADMAP.md)。
 
@@ -111,7 +111,7 @@
 
 ## 4. 样式
 
-- 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@vue-tsx-pro/tsx/styles` 导入（`import * as css`），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
+- 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import * as css`），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
 - 有部件或外观档位的组件写一个命名配方 `css.recipe({ name, parts, base, variants, compound })`（`name` 用组件名，同 `useDefaults` 的名字）：setup 里 `const recipe = useRecipe(xxxRecipe)`，渲染时 `const s = recipe(档位)` 得到每个部件的默认层（样式 + `data-scope` / `data-part`），直接交给部件的合并 `mergeAttrs<'div'>(s.title, propsTitle)`；这样组件能被 `createUi` / `Provider` 的 `styles` 定制（`config/styles.ts` 的 `ComponentStyles` 里登记 `Xxx?: RecipeExtension<XxxPart>`）。只有一两个元素、没有档位的组件照旧一个 `css.create`。按色调变化的样式在组合档位里逐项写主题 token（`{ when: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`），或用共用的 `statusToneSx`（排在 `s.root.sx` 之前，让定制能盖过它）。
 - 样式值以字面量为主，直接写主题 token（`'_accentText'`、`'_full'`）：不加“色调变量”这类中间变量层，也不在样式里引用 JS 变量，读样式时就看得到用的是哪个 token，悬停能看到取值。只有值里夹着 token（`calc`、`color-mix`、多值）才用模板字符串里的 `t.组.名`。
 - 配方导出 `<组件>Recipe`（`alertRecipe`）与部件类型 `<组件>Part`；样式表导出，名字全局唯一：`<组件>Styles`，按部件或档位拆开的叫 `<组件><部件>Styles`（`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
@@ -120,8 +120,8 @@
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/styles/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；
   - 带组名 `width: '_space.xl'`：表外属性或跨组取值，任何属性都能用；补全按属性接受的值类型列出相应的组（长度属性列出间距、尺寸、边框宽度、圆角等，颜色属性列出颜色），悬停显示 token 的说明；
   - 条件值、回退数组、伪元素、动态样式、覆盖变量（`[vars.x]: …`，只能写带组名的）里同样可用；token 不存在、表外属性用了短写时，第一次用到那段样式就报错并指出属性与 token（这些属性的类型接受任意字符串，类型上拦不住）；
-  - 计算、多值、简写（值里夹着 token）用模板字符串里的 `t.组.名`：`` minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})` ``、`` transition: `opacity ${t.durations.md} ${t.easings.standard}` ``。`t` 从 `@vue-tsx-pro/ui` 导入（组件库内部从 `config/theme/tokens.ts` 相对导入），补全、悬停（说明与取值）、跳转、重命名都有，组或 token 写错时类型检查报错。字符串中间夹着的 `_xx` 没有类型提示，引擎报错并给出改好的模板字符串；
-  - `t.组.名` 的值就是 `var(--vtp-组-名)`：动态样式的参数、运行时算出的值、canvas 里用 `readToken` 取值时可以从 `t` 取，也可以从 `@vue-tsx-pro/ui/tokens` 导入各组；
+  - 计算、多值、简写（值里夹着 token）用模板字符串里的 `t.组.名`：`` minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})` ``、`` transition: `opacity ${t.durations.md} ${t.easings.standard}` ``。`t` 从 `@zerodep-dev/vue-tsx-pro-ui` 导入（组件库内部从 `config/theme/tokens.ts` 相对导入），补全、悬停（说明与取值）、跳转、重命名都有，组或 token 写错时类型检查报错。字符串中间夹着的 `_xx` 没有类型提示，引擎报错并给出改好的模板字符串；
+  - `t.组.名` 的值就是 `var(--vtp-组-名)`：动态样式的参数、运行时算出的值、canvas 里用 `readToken` 取值时可以从 `t` 取，也可以从 `@zerodep-dev/vue-tsx-pro-ui/tokens` 导入各组；
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。一次性的覆盖可以直接写对象：`sx={{ marginTop: '_md' }}`（属性与取值照样有类型检查，按内容缓存）；值一直在变的（宽度、进度）别写成对象，每个新值会多一条规则，用 `create` 里的动态样式。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
@@ -183,7 +183,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 
 ### 6.2 主题 `theme`
 
-主题是一组设计 tokens，定义在 `packages/ui/src/config/theme/tokens.ts`，使用方从 `@vue-tsx-pro/ui/tokens` 导入。分组参考 Radix Themes（取值）、Ant Design（语义分层）、Material 3（动效）取舍：
+主题是一组设计 tokens，定义在 `packages/ui/src/config/theme/tokens.ts`，使用方从 `@zerodep-dev/vue-tsx-pro-ui/tokens` 导入。分组参考 Radix Themes（取值）、Ant Design（语义分层）、Material 3（动效）取舍：
 
 | 组               | 档位                                                                                                                                                                                                     |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -210,7 +210,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 实现：tokens 每组一个 `defineVars('vtp-组名', 取值)`，在 `:root` 上声明 `--vtp-组名-token`；`config/theme/tokens.ts` 用 `defineTokens` 登记各组（样式里的 `'_md'` 靠它查到变量），`utils/props.ts` 导入它，组件渲染前一定登记过，package.json 的 `sideEffects` 也只把它列为有副作用。内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 生成只改变量的类，第一次用到时插入。
 - 自定义主题：`defineTheme(lightTheme, { colors: { brand: … } })` 基于已有主题局部修改；运行时把差异写成 CSS 变量，设在 Provider 的容器上（编译后的 token 在运行时是 `var(--x…)`，取出变量名即可覆盖），应用级配置则设在页面根元素上。
 - 跟随系统：`theme={{ light: lightTheme, dark: darkTheme }}` 按 `prefers-color-scheme` 切换；宿主自己控制明暗时，直接传当前主题即可（响应式）。
-- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。定制品牌色、中性色、圆角、缩放、字体、动效用 `customizeTheme(preference.theme, settings)`（子路径 `@vue-tsx-pro/ui/theme-customize`，要用颜色库，用到时再导入），界面是 `ThemeCustomizer`（§10.19）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
+- 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。定制品牌色、中性色、圆角、缩放、字体、动效用 `customizeTheme(preference.theme, settings)`（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`，要用颜色库，用到时再导入），界面是 `ThemeCustomizer`（§10.19）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名带 `vtp-` 前缀，不会和宿主冲突。
 - 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。色值写死在 tokens 里（主题检查脚本按字面量读取），`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
 - 对比度：`pnpm themes:check`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把全部内置主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查跑亮色与暗色。改颜色前后都跑一遍。
@@ -262,7 +262,7 @@ interface Lang {
 - **命名**：通用文案不加前缀（`confirm`、`cancel`）；组件文案用组件名作前缀（`selectEmpty`、`datePickerToday`），键入 `lang.select` 即可筛出；同一接口内重名由 TypeScript 直接报错。需要插值的文案写成函数。
 - **注释**：每个键都写 JSDoc（用途 + 中文默认值）；`lang.xxx` 是属性访问，悬停能正常显示。
 - **合并**：扁平结构只需浅合并：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })`；嵌套的 Provider 同样按字段浅合并，`messages` 按组件再合并一层。
-- **核心与页面级组件**：`Lang` 只放业务界面里随处会用到的组件的文案，新增一种语言只翻它。主题编辑器（ThemeCustomizer）与文档站组件（`@vue-tsx-pro/ui/docs-kit`）各带一张中英文的文案表，用 `useMessages(名字, 表)` 按当前语言取：先找同一代码，再找同一语种（zh-TW 用 zh-CN 的），都没有用英文（同 React Aria 各包自带文案）。要改写或补一种语言写在 `lang.messages` 里，如 `{ messages: { docsKit: { name: '名前' } } }`。
+- **核心与页面级组件**：`Lang` 只放业务界面里随处会用到的组件的文案，新增一种语言只翻它。主题编辑器（ThemeCustomizer）与文档站组件（`@zerodep-dev/vue-tsx-pro-ui/docs-kit`）各带一张中英文的文案表，用 `useMessages(名字, 表)` 按当前语言取：先找同一代码，再找同一语种（zh-TW 用 zh-CN 的），都没有用英文（同 React Aria 各包自带文案）。要改写或补一种语言写在 `lang.messages` 里，如 `{ messages: { docsKit: { name: '名前' } } }`。
 - **预设**：`zhCN`、`enUS` 从主入口导出；包是纯 ESM 且 `sideEffects: false`，没用到的语言会被摇树去掉，不再单独开入口。
 - **格式化**：`useFormat()` 从当前 `lang` 派生：数字与金额（`Intl.NumberFormat`，精确运算用 decimal.js）、日期时间（`@internationalized/date` 的 `DateFormatter`，带上时区与日历），格式化器按语言缓存。一周第一天、小时制等地区惯例由 `@internationalized/date` 提供。
 
@@ -271,9 +271,9 @@ interface Lang {
 | 配置          | 说明                                                                                                              |
 | ------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `defaults`    | 组件默认值（`{ Button: { variant: 'outline' } }`），按组件逐个与上层合并                                          |
-| `router`      | 路由适配 `UiRouter`：站内链接不刷新页面地跳转、导航组件判断当前页（`@vue-tsx-pro/ui/vue-router`）                 |
+| `router`      | 路由适配 `UiRouter`：站内链接不刷新页面地跳转、导航组件判断当前页（`@zerodep-dev/vue-tsx-pro-ui/vue-router`）     |
 | `http`        | 请求客户端 `HttpClient`（远程选项、上传、列表查询用）：`createHttpClient(…)` 或包一层 axios、ky；`useHttp()` 取它 |
-| `highlighter` | 代码高亮（CodeBlock 用），如 `@vue-tsx-pro/ui/shiki` 的 `createShikiHighlighter()`                                |
+| `highlighter` | 代码高亮（CodeBlock 用），如 `@zerodep-dev/vue-tsx-pro-ui/shiki` 的 `createShikiHighlighter()`                    |
 | `ripple`      | 按下时的波纹效果，默认开                                                                                          |
 
 弹层用原生的 Popover API 与 `<dialog>`（浏览器最顶层），不需要挂载容器与层级的配置。
@@ -289,8 +289,8 @@ interface Lang {
 | 层       | 目录                                                                                                                 | 入口                                                           |
 | -------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | 基础设施 | `utils/`（data、dom、motion、style、virtual、request）、`config/`（context、defaults、theme、lang）                  | 主入口；tokens、vars、theme-boot、shiki、vue-router 各有子路径 |
-| 核心     | `base`、`layout`、`display`、`feedback`、`overlay`、`navigation`、`input`、`date`、`form`、`table`（同文档站的分类） | 主入口 `@vue-tsx-pro/ui`                                       |
-| 扩展     | `patterns`、`diagram`、`charts`、`three`、`effects`、`theme-customize`、`docs-kit`                                   | 子路径 `@vue-tsx-pro/ui/<目录名>`                              |
+| 核心     | `base`、`layout`、`display`、`feedback`、`overlay`、`navigation`、`input`、`date`、`form`、`table`（同文档站的分类） | 主入口 `@zerodep-dev/vue-tsx-pro-ui`                           |
+| 扩展     | `patterns`、`diagram`、`charts`、`three`、`effects`、`theme-customize`、`docs-kit`                                   | 子路径 `@zerodep-dev/vue-tsx-pro-ui/<目录名>`                  |
 
 组件平铺在 `packages/ui/src/<目录>/<Name>.tsx`。基础设施不在运行时导入组件，核心不导入扩展，扩展只依赖核心与基础设施（扩展之间的依赖要登记），模块之间没有环。
 子路径只在 `packages/ui/package.json` 的 `exports` 里登记：构建入口、`pnpm exports`（同时生成各子路径目录的 index.ts）、文档站的 API 表都从它读，代码演练场漏登记时文档站测试报错。
@@ -298,7 +298,7 @@ interface Lang {
 页面组合、画布这类扩展的文案自带中英文的表（`patternsMessages`、`diagramMessages`），在 `Lang.messages` 里按字段改写；`Lang` 只放核心组件的文案。
 测试集中在各目录下的 `.test/`，一个组件一个测试文件（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
 
-**已完成的基础设施**（`packages/ui`、`packages/tsx/src/styles`）：样式入口的类型与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@vue-tsx-pro/ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
+**已完成的基础设施**（`packages/ui`、`packages/tsx/src/styles`）：样式入口的类型与注释数据、tokens 与明暗主题、tokens 的字符串写法（§4）、Provider / createUi、语言与 useFormat、mergeProps 与部件类型、弹层工具（`utils/dom/overlay`）、过渡与 JS 动画（`utils/style/transitions`、`utils/motion/animation`）、虚拟滚动核心（`utils/virtual/virtualizer`）、代码高亮注入（`highlighter` 与 `@zerodep-dev/vue-tsx-pro-ui/shiki`）、注释检查（`scripts/doc-comments`）；正式组件见 §10.2。
 
 **试点组件**（原 `apps/host-demo/src/pilot`：Button、TextField、Popover、Dialog）已全部转正并删除，`/pilot` 页面改用正式组件（后改名 `/integration`，测试是 `integration.*`）。试点阶段在 Chromium、Firefox、WebKit 中验证过：em 尺寸缩放、部件与主元素透传、受控 `_bind`、Provider 嵌套与切换、原生 popover + floating-ui 定位与焦点进出、模态对话框（焦点循环、锁定滚动、对话框里再开弹层的 Esc 顺序）、中文输入法、axe 无违规。
 
@@ -308,30 +308,30 @@ interface Lang {
 - 长属性总是优先于简写（运行时引擎在每条规则里把简写排在前面，同 StyleX）：`borderColor` 盖不过别处的 `borderBottomColor`，`gap: 0` 盖不过 `columnGap`，要覆盖就写同一个长属性。
 - 只画一两条边时，线型也写那几条边的长属性（`borderBlockStartStyle: 'solid'`）：写 `borderStyle: 'solid'` 会让没给宽度的边按默认的 medium（3px）画出来。
 
-- tokens 从 `@vue-tsx-pro/ui/tokens`、组件之间约定的变量（`layoutVars`、`shimmerVars`）从 `@vue-tsx-pro/ui/vars` 导入，主入口都不导出。
+- tokens 从 `@zerodep-dev/vue-tsx-pro-ui/tokens`、组件之间约定的变量（`layoutVars`、`shimmerVars`）从 `@zerodep-dev/vue-tsx-pro-ui/vars` 导入，主入口都不导出。
 - 变量名由 `defineVars` 的名字决定（`--vtp-colors-accent`），源码、产物、SSR 一致；新的变量组也要带 `vtp-` 前缀。
 - 组件库构建保留源码文件结构（`preserveModules`），使用方按文件摇树；`pnpm test:consumer` 检查使用方能否正常构建与运行。
 
 **依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/src/utils/.test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
-| 用途     | 选择                                | 说明                                                                                                                                               |
-| -------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                                  |
-| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                                     |
-| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                                               |
-| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                                     |
-| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                                   |
-| 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`）                   |
-| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                                                |
-| 图表     | `@unovis/ts`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/charts`（Bar、Line、Area、Scatter、Donut、Sankey、Chord，§10.21）；SVG，外观靠 `--vis-*` 变量接到 tokens，明暗切换不用重画 |
-| 3D       | `three`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式                       |
-| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@vue-tsx-pro/ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                                       |
-| 路由     | `vue-router`（可选 peer）           | 子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                                             |
-| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                                   |
-| 色板     | `@radix-ui/colors`                  | 主题定制按色阶换品牌色、中性色（palette.ts，子路径 theme-customize）；测试里也用它校验 tokens 取值                                                 |
-| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                                               |
-| 拖拽排序 | 自己实现                            | `utils/dom/sortable`（Sortable、DataTable 的行拖动）；键盘拿起放下与读屏播报参考 dnd-kit                                                           |
-| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                                          |
+| 用途     | 选择                                | 说明                                                                                                                                                           |
+| -------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                                              |
+| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                                                 |
+| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                                                           |
+| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                                                 |
+| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                                               |
+| 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`）                               |
+| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                                                            |
+| 图表     | `@unovis/ts`（可选 peer）           | 子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`（Bar、Line、Area、Scatter、Donut、Sankey、Chord，§10.21）；SVG，外观靠 `--vis-*` 变量接到 tokens，明暗切换不用重画 |
+| 3D       | `three`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式                       |
+| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                                       |
+| 路由     | `vue-router`（可选 peer）           | 子路径 `@zerodep-dev/vue-tsx-pro-ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                                             |
+| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                                               |
+| 色板     | `@radix-ui/colors`                  | 主题定制按色阶换品牌色、中性色（palette.ts，子路径 theme-customize）；测试里也用它校验 tokens 取值                                                             |
+| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                                                           |
+| 拖拽排序 | 自己实现                            | `utils/dom/sortable`（Sortable、DataTable 的行拖动）；键盘拿起放下与读屏播报参考 dnd-kit                                                                       |
+| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                                                      |
 
 **待办**都在 [ROADMAP.md](ROADMAP.md)。双指缩放、旋转等手势等图片预览组件出现时在 `utils/dom/move.ts` 旁边加。
 
@@ -355,7 +355,7 @@ CSS 类型表（取自 StyleX 的 `CSSProperties`）是类型别名，不能用�
 
 ### 9.2 方案：自己的类型声明
 
-- 入口 `@vue-tsx-pro/tsx/styles`：运行时是本仓库的引擎，类型也是自己写的（`src/styles/index.ts`）；`create`（含动态样式函数）**样式组名保留泛型推导，组内属性值的上下文类型固定为生成的 `DocumentedStyles`**。
+- 入口 `@zerodep-dev/vue-tsx-pro-tsx/styles`：运行时是本仓库的引擎，类型也是自己写的（`src/styles/index.ts`）；`create`（含动态样式函数）**样式组名保留泛型推导，组内属性值的上下文类型固定为生成的 `DocumentedStyles`**。
 - `DocumentedStyles` 由脚本生成：属性集合读自 `src/styles/css-properties.ts`（StyleX 0.19.1 的 `StyleXCSSTypes.d.ts`，MIT，保留出处）；每个属性的值类型用索引访问**直接引用这张表**（`styles.test-d.ts` 逐个属性校验互相可赋值）；每个属性带中文 JSDoc；伪元素嵌套递归引用 `DocumentedStyles`。
 - 各 API（`create`、`attrs`、`defineVars`、`defineTokens`、`createTheme`、`defineMarker`、`when`、`keyframes`、`bind`）都有中文 JSDoc；样式组、主题、标记的类型不透明，只能由这些函数产出。
 - 写样式统一从这个入口导入，编译器按它找 `create`（样式绑定、热更新）。
@@ -439,7 +439,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 - `CodeBlock` 本身不依赖 Shiki：没有高亮器、或没给 `lang` 时渲染普通的 `<pre><code>`。
 - 高亮器通过配置注入：`createUi({ highlighter })` 或 `<Provider highlighter={…}>`，接口 `Highlighter` 是“代码 + 语言 → 行内 HTML”的异步函数（只含 span 与 br，外层的 pre、code 由 CodeBlock 渲染）。
-- 子路径 `@vue-tsx-pro/ui/shiki`（`src/config/shiki.ts`，构建时是单独的入口）提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
+- 子路径 `@zerodep-dev/vue-tsx-pro-ui/shiki`（`src/config/shiki.ts`，构建时是单独的入口）提供 `createShikiHighlighter()`。只有它导入 `shiki`，主入口不导入；`shiki` 是可选的 peer 依赖，不用高亮的使用方不需要安装。
 - JavaScript 正则引擎（`forgiving`，不加载 wasm）；语言按需 `loadLanguage`，同一种语言只加载一次，下载失败不缓存；不认识的语言按 `text` 输出；`codeToHtml` 用 `structure: 'inline'`。
 - 颜色：Shiki 的 CSS 变量主题，`variableDefaults` 直接指向颜色 tokens（`var(--shiki-token-keyword, var(--accentText 的变量))`），切换明暗主题不需要重新高亮，使用方仍可用 `--shiki-*` 单独调整。没有在 CodeBlock 根元素上写 `--shiki-*`：默认值的写法让高亮器脱离 CodeBlock 单独使用时颜色也正确。
 - 高亮是异步的：先显示纯文本，结果到了再替换（等宽字体下排版相同）；代码或语言变了先回到纯文本，晚到的旧结果丢弃；高亮失败保留纯文本并 `console.error`。
@@ -503,7 +503,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - 部件：`propsContent`、`propsIcon`、`propsIconEnd`、`propsSpinner`。
   - 实底按钮悬停时混入黑色加深（不用 accentHover / dangerHover），白字对比度只升不降。
 - **组件默认值** `config/defaults.ts`：`createUi({ defaults })` / `<Provider defaults>`，优先级：显式 prop > 最近的 Provider > createUi > 组件自己的默认；只收外观类选项。按钮家族经 `useButtonAppearance` 统一合并。
-- **路由适配** `UiRouter`（参考 React Aria 的 RouterProvider）：`navigate(href)`、`isActive(href)`；组件渲染真正的 `<a href>`，只拦普通左键点击的同源链接（`utils/dom/link.ts` 的 `useRouterLink`）。vue-router 用子路径 `@vue-tsx-pro/ui/vue-router` 的 `vueRouterAdapter(router, { match })`。
+- **路由适配** `UiRouter`（参考 React Aria 的 RouterProvider）：`navigate(href)`、`isActive(href)`；组件渲染真正的 `<a href>`，只拦普通左键点击的同源链接（`utils/dom/link.ts` 的 `useRouterLink`）。vue-router 用子路径 `@zerodep-dev/vue-tsx-pro-ui/vue-router` 的 `vueRouterAdapter(router, { match })`。
 - **波纹** `utils/dom/ripple.ts`：按下处扩散、松开淡出，键盘 Enter / 空格从中心扩散，纯 CSS 动画，时长取 durations（减少动态效果时没有扩散过程）。默认开启，`createUi({ ripple })` / `<Provider ripple>` 全局开关，组件的 `ripple` prop 单独覆盖（`useRipple`）。
 - **Spinner**：Lucide 的 LoaderCircle 加旋转；有 `label` 时 `role="status"`。旋转不随 durations 变为 0（它本身就是信息），减少动态效果时转慢。
 - **分页计算** `utils/data/pagination.ts`：`paginationItems`（算法同 MUI），页数够多时项数固定。
@@ -719,7 +719,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 ```
 apps/docs/src/components/base/Button/
   docs.tsx          文档页：export const meta = { title, description, order } 与页面组件
-  demo/Basic.tsx …  示例：完整的小组件，从 '@vue-tsx-pro/ui' 导入，源码原样显示
+  demo/Basic.tsx …  示例：完整的小组件，从 '@zerodep-dev/vue-tsx-pro-ui' 导入，源码原样显示
   test/demos.test.tsx  用示例测：文档里展示的用法本身就是被测对象
 ```
 
@@ -733,7 +733,7 @@ apps/docs/src/components/base/Button/
 
 **写注释就是写文档**：API 表直接来自 JSDoc，prop、档位接口的每个键都要有注释；默认值来自 `useDefaults` 或共用选项、不在参数解构里的，写 `@default` 标签（共用选项的默认值因组件而异时，在组件自己的 Props 里重新声明并写 `@default`，如 IconButton 的 `variant`）。
 
-**顺手的组件库改动**：`PropsTable`（API 表格，数据类型 `ComponentApi`、`ApiProp`、`ApiValue`；后来与 CodePreview、CodeGroup 一起挪到子路径 `@vue-tsx-pro/ui/docs-kit`）、`IconLinkButton`（只有图标的链接）、Icon 的 `tone`、`@vue-tsx-pro/ui/theme-boot`（Node 可用的防闪烁脚本与内置主题底色）、静态 Table 的列宽按内容分配（`table-layout: auto`）、`scripts/structure/move.mjs`（移动文件并改写导入）。
+**顺手的组件库改动**：`PropsTable`（API 表格，数据类型 `ComponentApi`、`ApiProp`、`ApiValue`；后来与 CodePreview、CodeGroup 一起挪到子路径 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`）、`IconLinkButton`（只有图标的链接）、Icon 的 `tone`、`@zerodep-dev/vue-tsx-pro-ui/theme-boot`（Node 可用的防闪烁脚本与内置主题底色）、静态 Table 的列宽按内容分配（`table-layout: auto`）、`scripts/structure/move.mjs`（移动文件并改写导入）。
 
 ### 10.19 浮层滚动条铺开与主题编辑器（已完成）
 
@@ -750,16 +750,16 @@ apps/docs/src/components/base/Button/
 
 **主题编辑器**：
 
-| 项         | 做法                                                                                                                                                                                                                              |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                                                        |
-| 色阶规则   | `theme-customize/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                                          |
-| 对比度规则 | `theme-customize/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                                               |
-| token 清单 | `theme-customize/token-catalog.ts`（`pnpm css-docs` 从 tokens.ts 生成）：每个 token 的默认值与说明                                                                                                                                |
-| 定制逻辑   | `theme-customize/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)`                       |
-| 入口       | 色阶、对比度、token 清单、定制逻辑与编辑界面 `ThemeCustomizer`、`ThemeThumbnail` 一起在子路径 `@vue-tsx-pro/ui/theme-customize`（目录 `theme-customize/`）：它们要用 culori 与 Radix 色板，主入口不带，应用只在真要套用设置时导入 |
-| 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                                                        |
-| 文档站     | “主题定制”指南页：左边编辑器，右边样板间；设置记在本地，与明暗偏好叠加生效                                                                                                                                                        |
+| 项         | 做法                                                                                                                                                                                                                                          |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                                                                    |
+| 色阶规则   | `theme-customize/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                                                      |
+| 对比度规则 | `theme-customize/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                                                           |
+| token 清单 | `theme-customize/token-catalog.ts`（`pnpm css-docs` 从 tokens.ts 生成）：每个 token 的默认值与说明                                                                                                                                            |
+| 定制逻辑   | `theme-customize/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)`                                   |
+| 入口       | 色阶、对比度、token 清单、定制逻辑与编辑界面 `ThemeCustomizer`、`ThemeThumbnail` 一起在子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`（目录 `theme-customize/`）：它们要用 culori 与 Radix 色板，主入口不带，应用只在真要套用设置时导入 |
+| 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                                                                    |
+| 文档站     | “主题定制”指南页：左边编辑器，右边样板间；设置记在本地，与明暗偏好叠加生效                                                                                                                                                                    |
 
 **取舍**：运行时覆盖写在根元素的行内样式上，会盖过“减少动态效果时为 0”的媒体查询，所以用户开启减少动态效果时动效旋钮不覆盖时长。中间亮度的色阶（如 crimson、teal）上白字与深色字都可能到不了 4.5:1，编辑器如实提示。逐个 token 编辑、任意颜色生成色阶（OKLCH）留到第二期。
 
@@ -769,7 +769,7 @@ apps/docs/src/components/base/Button/
 
 | 环节      | 做法                                                                                                                                                                                                                                                                        |
 | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@vue-tsx-pro/tsx/compiler` 的 `compile`，解析一次：符文、token 写法、动态样式的响应式绑定、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                                  |
+| 编译      | `compile.ts`：与 Vite 预设同一个编译函数（`@zerodep-dev/vue-tsx-pro-tsx/compiler` 的 `compile`，解析一次：符文、token 写法、动态样式的响应式绑定、Vue JSX、去类型），最后把 import 改成从模块表取；在 Worker 里跑（`compile.worker.ts`），打字不卡页面                      |
 | 样式      | 同站点走运行时样式：用户代码的 `css.create` 在页面上执行时由引擎生成规则，Worker 只编译符文与 JSX；`'_md'` 与 `colors.accent` 取的就是组件库的同一组 CSS 变量（组件库登记的 tokens）                                                                                        |
 | 执行      | `run.ts`：`new Function` 执行，import 从模块表取（vue、tsx、styles、ui、tokens、按需加载的图标），复用页面已加载的模块，不再下载                                                                                                                                            |
 | Node 替身 | `node-shims/`：`process`、`path` → pathe、`fs`（不存在）、`assert`（CommonJS 写法，调用方 `require` 要直接拿到函数）；依赖预构建见 vite.config.ts                                                                                                                           |
@@ -789,7 +789,7 @@ apps/docs/src/components/base/Button/
 
 ### 10.21 图表与统计数值（已完成）
 
-子路径 `@vue-tsx-pro/ui/charts` 封装 `@unovis/ts`（可选 peer），主入口不导入：没用到图表的应用不打包 Unovis。柱状 + 折线按需打包约 77 KB（gzip，含 d3 与 emotion）。
+子路径 `@zerodep-dev/vue-tsx-pro-ui/charts` 封装 `@unovis/ts`（可选 peer），主入口不导入：没用到图表的应用不打包 Unovis。柱状 + 折线按需打包约 77 KB（gzip，含 d3 与 emotion）。
 
 | 项         | 做法                                                                                                                                                                                                                                                                                                                                                                             |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -808,7 +808,7 @@ apps/docs/src/components/base/Button/
 
 ### 10.22 3D 与视觉效果（已完成）
 
-子路径 `@vue-tsx-pro/ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的卡片效果是 Card 的 `effect`（tilt、spotlight、beam），跑马灯 Marquee 在主入口（展示）。
+子路径 `@zerodep-dev/vue-tsx-pro-ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的卡片效果是 Card 的 `effect`（tilt、spotlight、beam），跑马灯 Marquee 在主入口（展示）。
 
 | 项       | 做法                                                                                                                                                                                                            |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -823,7 +823,7 @@ apps/docs/src/components/base/Button/
 
 ### 10.23 流程（已删除）
 
-原来的子路径 `@vue-tsx-pro/ui/workflow`（流程定义与校验、排布、运行时类型、FlowDiagram、FlowDesigner、ApprovalActions、
+原来的子路径 `@zerodep-dev/vue-tsx-pro-ui/workflow`（流程定义与校验、排布、运行时类型、FlowDiagram、FlowDesigner、ApprovalActions、
 useWorkflowTimeline）2026-10-26 删除：按 `flow` 仓库的决定 0003（B），流程组件在 `flow` 仓库按模型包、建在本库的画布上重做，
 方案在 `flow` 的 `docs/frontend.md`。旧实现在提交 `f7bfdc2e` 的 `packages/ui/src/workflow/`。本库只留通用底座：
 画布（§10.24）、条件构造器（§10.25）、人员与组织选择器（§10.26）。

@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Tooltip } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Tooltip } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const variants = ['solid', 'soft', 'surface', 'outline', 'ghost', 'link'] as const;
 

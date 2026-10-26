@@ -1,6 +1,6 @@
 import { CircleCheck, Clock, Flame, Sparkles, TriangleAlert } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Badge, Flex, Text, type TextSize } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Badge, Flex, Text, type TextSize } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const sizes: TextSize[] = ['xs', 'sm', 'md', 'lg'];
 

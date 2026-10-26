@@ -3,8 +3,8 @@
  *
  *   <Drawer _open={filtering} side="end" title="筛选">…</Drawer>
  */
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { ContainerSizes } from '../layout/Container';
 import { useLang } from '../config/context';
 import { useDefaults } from '../config/defaults';

@@ -1,8 +1,8 @@
 // 外观、图标、清空按钮、值的类型与状态：与其他输入框同一套
 import type { Time } from '@internationalized/date';
 import { AlarmClock, Clock } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Field, Grid, TimeField } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Field, Grid, TimeField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let start = _state<string | null>('09:30');

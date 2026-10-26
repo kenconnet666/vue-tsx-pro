@@ -14,12 +14,12 @@
  *     （1–2 背景，3–5 交互填充，6–8 边框，9–10 实色，11–12 文字）
  *   - 尺寸、间距、圆角用 em，随组件字号等比缩放（字号即尺寸档位，见 COMPONENTS.md §3）；
  *     边框宽度用 px，容器宽度用 rem
- *   - 分组参考 Stitches / Chakra / Panda 的 token 分类，组名即样式里短写的对照组（@vue-tsx-pro/tsx 的 token-map.ts）
+ *   - 分组参考 Stitches / Chakra / Panda 的 token 分类，组名即样式里短写的对照组（@zerodep-dev/vue-tsx-pro-tsx 的 token-map.ts）
  *   - 动效时长与缓动参考 Material 3
  *   - 分档：一般 xs–xl 五档，需要时加 none（去掉）与 full（全圆）；颜色、行高、字间距、不透明度按语义命名
  *   - 不设 z-index：弹出层、对话框用原生 popover / dialog，渲染在顶层（top layer），不参与层叠顺序
  */
-import * as css from '@vue-tsx-pro/tsx/styles';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 
 /** 颜色：slate 中性色、indigo 品牌色、red 危险、green 成功、amber 警告、blue 信息 */
 export const colors = css.defineVars('vtp-colors', {

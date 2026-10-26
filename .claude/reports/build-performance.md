@@ -21,11 +21,11 @@
 | 运行时热点             | 无头 Chromium 剖析：prop 访问器直读 Vue props、字面量默认值直接传、合并属性少分配；Button 58 → 43 µs/实例，Checkbox 158 → 129 µs，1000 个 Button 更新 30 → 21 ms |
 | 编译线程池             | `vite/pool.ts`：构建与开发服务器在工作线程里并行编译（Vitest 不用）；冷启动首页约 -30%，文档站构建 20–27 s → 9 s（含 API 缓存）       |
 | prettier 缓存          | `pnpm check` 约 40 s → 15 s                                                                                                              |
-| 主题定制子路径         | 色阶、对比度、token 清单、`customizeTheme` 移到 `@vue-tsx-pro/ui/theme-customize`；文档站只在访客改过主题设置时加载，挂载前等它免得闪：首屏 JS（入口块及其静态导入）gzip 170.0 → 152.9 KB |
+| 主题定制子路径         | 色阶、对比度、token 清单、`customizeTheme` 移到 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`；文档站只在访客改过主题设置时加载，挂载前等它免得闪：首屏 JS（入口块及其静态导入）gzip 170.0 → 152.9 KB |
 
 试过但不做的：
 
-- 开发时把 `@vue-tsx-pro/ui` 入口的具名导入改成直接导入所在模块：首页模块 247 → 160 个，但依赖链变深、往返层数变多，命中编译缓存时反而略慢（2.3 s → 2.5 s），撤掉。
+- 开发时把 `@zerodep-dev/vue-tsx-pro-ui` 入口的具名导入改成直接导入所在模块：首页模块 247 → 160 个，但依赖链变深、往返层数变多，命中编译缓存时反而略慢（2.3 s → 2.5 s），撤掉。
   后来为了热更新又做了（见“开发体验：热更新与重启”），有了编译线程池与磁盘缓存之后重启并不变慢。
 - 按入口分组合并首页那十几个一两百字节的图标小块（`codeSplitting` 的 `entriesAware`）：阈值稍大就把整套图标并回首屏，太脆弱。
 - Vitest 的 `isolate: false`：环境创建与模块导入占测试时间的四分之三，但测试之间会共享全局状态，不值得冒串扰的风险。
@@ -139,7 +139,7 @@ DataTable 页的 h1；再在 Button 页上依次改组件、样式模块、工�
 | ----------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
 | 每个文件过四遍 Babel    | 自己的 Vite 插件：**一次解析 → 两次遍历 → 一次生成**，组合官方的 Babel 插件，不 fork 编译器本体              | 编译 CPU **-35%~45%**（实测），输出与现在逐字等价（587/587）                 |
 | 升级到 Babel 8          | 与上一条一起做：jsx 3.0 只支持 Babel 8，官方的 `@vitejs/plugin-vue-jsx` 还绑着 Babel 7，自己的插件正好不需要它 | 速度与 Babel 7 持平；输出与现在等价（587/587）                               |
-| StyleX 换社区 Rust 版   | **不换**：不支持我们的自定义模块解析、不认 `@vue-tsx-pro/tsx/stylex`，233/242 个文件的类名不同                | 合并后 StyleX 的边际成本只剩零点几秒，换了也省不了多少                       |
+| StyleX 换社区 Rust 版   | **不换**：不支持我们的自定义模块解析、不认 `@zerodep-dev/vue-tsx-pro-tsx/stylex`，233/242 个文件的类名不同                | 合并后 StyleX 的边际成本只剩零点几秒，换了也省不了多少                       |
 | 重启后第一页慢          | 持久化转换缓存（内容哈希 + 编译器版本 + `.stylex` 文件纪元）；API Worker 的结果也落盘                        | 首页可达的模块图：12.9–18.3 s → 5.3–6.3 s（四个 Babel 插件命中缓存，模拟实测） |
 | 类型检查慢              | `typecheck` 改用 **TypeScript 7.0.2**（Go 原生版）；JS API 的使用方（脚本、语言服务、IDE）留在 TS 6           | 每个包 **5.5–7 倍**：ui 22.3 s → 3.3 s，docs 17.0 s → 3.0 s，结果一致        |
 | 热更新时 CSS 重算两遍   | 自己的 StyleX 集成里按规则版本缓存 CSS，只在 StyleX 文件变化时通知                                            | 每次保存少一到两遍全量 LightningCSS（现在每遍约 100 ms，同步阻塞）           |
@@ -178,7 +178,7 @@ Babel 自身各阶段的成本（同样 587 个文件，5 轮取最好）：
 
 ### 1.2 重启与页面加载（开发服务器）
 
-- 重启后打开首页：约 **8 s**。首页加载 250+ 个模块，其中 219 个是组件库源码（`@vue-tsx-pro/ui` 的入口把整个库都导入了）。
+- 重启后打开首页：约 **8 s**。首页加载 250+ 个模块，其中 219 个是组件库源码（`@zerodep-dev/vue-tsx-pro-ui` 的入口把整个库都导入了）。
 - 首页还没编译完时换到 DataTable 页：再等 3.7 s，其中包括 API Worker 用 TS 6 建整个组件库的类型程序（`apps/docs/build/api.ts`）。
 - 模拟重启（同一进程里先起一个服务器编译首页可达的整个模块图 982 个模块，再起一个空模块图的新服务器）：冷启动 12.9–18.3 s；四个 Babel 插件命中内存缓存后 **5.3–6.3 s**。剩下的时间主要在 `docs:component-api` 等 Worker 建程序，以及 Vite 自身。
 - 热重载后的刷新（服务器有缓存）约 0.4 s，不是问题。
@@ -275,7 +275,7 @@ B 只差一点：StyleX 在 Program 退出时才替换 `stylex.attrs(…)`，一
 - 速度：同样 242 个用到 StyleX 的文件，单独跑 0.65–0.77 s，官方 Babel 版单独跑 3.3–4.6 s，约快 5 倍。
 - 但在我们的配置下用不了：
   - `unstable_moduleResolution` 只有 `type / rootDir / themeFileExtension`，**没有 `custom`**。我们靠 `custom` 的 `filePathResolver` / `getCanonicalFilePath` 让 src 与 dist 算出同一个变量名（`stylex-resolution.ts`）。
-  - `importSources` 不接受带子路径的包名，`@vue-tsx-pro/tsx/stylex` 直接报 “Import path does not match required pattern”。
+  - `importSources` 不接受带子路径的包名，`@zerodep-dev/vue-tsx-pro-tsx/stylex` 直接报 “Import path does not match required pattern”。
   - 换成能接受的写法后，**242 个文件里 233 个的类名与官方不同**（凡是引用 token 变量的样式都不同，README 自己也说 exports 字段“只部分支持”）。
 - 合并编译后 StyleX 在共享遍历里的边际成本只有零点几秒（实测噪声内），换 Rust 还要多一次“生成 → Rust 解析 → Rust 生成 → 再解析”，得不偿失。
 - 演练场在浏览器里只能用 Babel 版，换 Rust 等于维护两套 StyleX 实现。
@@ -295,7 +295,7 @@ B 只差一点：StyleX 在 Program 退出时才替换 `stylex.attrs(…)`，一
 - 热更新注册（`__hmrId`、`createRecord`、`accept`，取自 `@vitejs/plugin-vue-jsx`，约 60 行）；
 - StyleX 规则收集与 CSS（开发时的 CSS 端点与更新通知、构建时输出 CSS；`@stylexjs/babel-plugin` 自带 `processStylexRules`）。这样也删掉现在为绕开 unplugin 问题写的两个包装（`skipDevServerWithoutHttp`、`loadStylexModulesOnly`），但要保留“先加载导入的 `.stylex` 模块”的行为。
 
-编译核心做成一个与 Vite 无关的函数（`@vue-tsx-pro/tsx/compiler` 导出），Vite 插件、演练场 Worker、测试共用，三处不再各写一份插件列表。
+编译核心做成一个与 Vite 无关的函数（`@zerodep-dev/vue-tsx-pro-tsx/compiler` 导出），Vite 插件、演练场 Worker、测试共用，三处不再各写一份插件列表。
 
 ---
 
@@ -317,7 +317,7 @@ Vite 没有跨重启的转换缓存（每次重启全部重编），Vitest 有 f
 
 ### 3.3 开发时的桶文件
 
-`import { … } from '@vue-tsx-pro/ui'` 让首页加载整个库（219 个模块）。可以在开发时把具名导入改写成直接导入所在模块（`pnpm exports` 生成的入口就是现成的映射表），首页只加载用到的部分。等 3.1 做完再测还值不值得做：有缓存后多出的模块只是请求数。
+`import { … } from '@zerodep-dev/vue-tsx-pro-ui'` 让首页加载整个库（219 个模块）。可以在开发时把具名导入改写成直接导入所在模块（`pnpm exports` 生成的入口就是现成的映射表），首页只加载用到的部分。等 3.1 做完再测还值不值得做：有缓存后多出的模块只是请求数。
 
 Vite 8.3 的 `experimental.bundledDev`（开发时也打包，带懒打包）能减少请求数，但官方标注 “highly experimental”，热更新语义不同，我们的 StyleX 开发集成也要适配，暂不采用。
 
@@ -385,7 +385,7 @@ Vue 3.6（当前 3.6.0-rc.12）的 Vapor 不用虚拟 DOM，模板编译成克�
 
 ## 附：本次修复
 
-1. **Windows 上按正斜杠路径解析包的自引用失败**（`packages/tsx/src/vite/stylex-resolution.ts`、`tokens.ts`）。Vite 给的路径是正斜杠，Node 在 Windows 上从这种路径找不到所在的包，组件库源码导入 `@vue-tsx-pro/ui/tokens.stylex` 时，token 插件报“找不到主题 tokens 模块”。平时没出事，是因为 StyleX 插件内部恰好先用反斜杠路径解析过一次、填上了 Node 的缓存——依赖调用顺序，基准脚本先编译组件库文件时 105 个文件全部报错。改为解析前用 `path.resolve` 规范成本机分隔符（`requireFrom`）；测试在缓存为空的新进程里跑。
+1. **Windows 上按正斜杠路径解析包的自引用失败**（`packages/tsx/src/vite/stylex-resolution.ts`、`tokens.ts`）。Vite 给的路径是正斜杠，Node 在 Windows 上从这种路径找不到所在的包，组件库源码导入 `@zerodep-dev/vue-tsx-pro-ui/tokens.stylex` 时，token 插件报“找不到主题 tokens 模块”。平时没出事，是因为 StyleX 插件内部恰好先用反斜杠路径解析过一次、填上了 Node 的缓存——依赖调用顺序，基准脚本先编译组件库文件时 105 个文件全部报错。改为解析前用 `path.resolve` 规范成本机分隔符（`requireFrom`）；测试在缓存为空的新进程里跑。
 2. **代码演练场里转交的 children 显示成 `[object Object]`**（`packages/tsx/src/compiler/optimize.ts`）。组件写 `<Box>{children}</Box>` 转交内容时，编译器生成的 `forwardChildren(...)` 没有源码位置，vue-jsx 不对它做插槽判断，把插槽对象当成内容再包一层。Vite 那条路因为“重新生成再解析”补上了位置所以没出错，演练场是一遍编译就出错了。生成的调用借用元素的位置；演练场的编译测试加了这个场景。
 
 ## 附：怎么测的

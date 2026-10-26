@@ -8,7 +8,7 @@ declare module '*?demo' {
 
 /** `import api from 'virtual:api/ButtonProps'`：从类型与 JSDoc 生成的 API 数据（build/api.ts） */
 declare module 'virtual:api/*' {
-  const api: import('@vue-tsx-pro/ui/docs-kit').ComponentApi;
+  const api: import('@zerodep-dev/vue-tsx-pro-ui/docs-kit').ComponentApi;
   export default api;
 }
 
@@ -18,7 +18,7 @@ declare module 'virtual:api-catalog' {
     name: string;
     entry: string;
     category: string;
-    api: import('@vue-tsx-pro/ui/docs-kit').ComponentApi;
+    api: import('@zerodep-dev/vue-tsx-pro-ui/docs-kit').ComponentApi;
   }[];
   export default catalog;
 }

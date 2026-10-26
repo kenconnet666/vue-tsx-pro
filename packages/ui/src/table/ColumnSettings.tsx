@@ -8,8 +8,8 @@
  * 只剩一列可见时不能再隐藏。部件：Trigger（IconButton）、Panel（Popover 的弹出层）、List（Sortable）、Reset（Button）。
  */
 import { Columns3 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';

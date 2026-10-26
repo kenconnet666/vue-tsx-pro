@@ -1,5 +1,5 @@
 /**
- * Shiki 代码高亮器（子路径 `@vue-tsx-pro/ui/shiki`；shiki 是可选的 peer 依赖，用到才安装）：
+ * Shiki 代码高亮器（子路径 `@zerodep-dev/vue-tsx-pro-ui/shiki`；shiki 是可选的 peer 依赖，用到才安装）：
  *
  *   app.use(createUi({ highlighter: createShikiHighlighter() }))
  *

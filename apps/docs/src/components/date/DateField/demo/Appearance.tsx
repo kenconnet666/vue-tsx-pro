@@ -1,7 +1,7 @@
 // 外观与状态：和 TextField 同一个输入框外壳（样式、尺寸、圆角、图标、清空），只读、不可用、出错
 import { CalendarDays } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { DateField, Field, Grid } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { DateField, Field, Grid } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Grid minItemWidth="15rem" gap="lg">

@@ -1,7 +1,7 @@
 // 色调与图标、位置与箭头、取消回调
 import { Archive, Send, Undo2 } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import { Button, Flex, Popconfirm, Small } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Button, Flex, Popconfirm, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => {
   let last = _state('');

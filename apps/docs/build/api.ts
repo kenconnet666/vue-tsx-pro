@@ -21,7 +21,12 @@ import { version as typescriptVersion } from 'typescript';
 import * as ts from 'typescript/ast';
 import { API, SymbolFlags, type Checker, type Program, type Symbol } from 'typescript/sync';
 import type { Plugin } from 'vite';
-import type { ApiProp, ApiPropKinds, ApiValue, ComponentApi } from '@vue-tsx-pro/ui/docs-kit';
+import type {
+  ApiProp,
+  ApiPropKinds,
+  ApiValue,
+  ComponentApi,
+} from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 
 // vite.config 把 fs 映射成浏览器里的替身（演练场的 Babel 要用），测试加载本文件时也会被映射：直接取 Node 的内置模块
 const { existsSync, globSync, mkdirSync, readFileSync, rmSync, writeFileSync } =
@@ -35,14 +40,14 @@ const PART_PROPS_FILE = `${src}/utils/props.ts`;
 /** 组件库的 package.json：入口登记在它的 exports 里 */
 const MANIFEST = join(ui, 'package.json').split('\\').join('/');
 
-/** 组件库的全部入口：导入路径（@vue-tsx-pro/ui/patterns）与源码文件（相对 src） */
+/** 组件库的全部入口：导入路径（@zerodep-dev/vue-tsx-pro-ui/patterns）与源码文件（相对 src） */
 function readEntries() {
   const exports = JSON.parse(readFileSync(MANIFEST, 'utf8')).exports as Record<string, unknown>;
   return Object.entries(exports).flatMap(([key, target]) =>
     typeof target === 'object' && target !== null
       ? [
           {
-            name: `@vue-tsx-pro/ui${key.slice(1)}`,
+            name: `@zerodep-dev/vue-tsx-pro-ui${key.slice(1)}`,
             source: (target as Record<string, string>)['@vue-tsx-pro/source']!.replace(
               './src/',
               '',
@@ -184,7 +189,7 @@ function exportedSymbol(name: string): Symbol {
   const symbol = componentSymbol(name);
   if (symbol) return symbol;
   throw new Error(
-    `@vue-tsx-pro/ui 的入口（${entries.map((entry) => entry.name).join('、')}）都没有导出 ${name}`,
+    `@zerodep-dev/vue-tsx-pro-ui 的入口（${entries.map((entry) => entry.name).join('、')}）都没有导出 ${name}`,
   );
 }
 

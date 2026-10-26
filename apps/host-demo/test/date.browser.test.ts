@@ -1,6 +1,6 @@
 // 日期组件在真实浏览器里：日历的键盘与焦点、区间的悬停预览、分段输入的真实键盘输入（beforeinput）、axe（演示页 /date）
 import axe from 'axe-core';
-import { afterTransitions } from '@vue-tsx-pro/ui';
+import { afterTransitions } from '@zerodep-dev/vue-tsx-pro-ui';
 import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type App } from 'vue';

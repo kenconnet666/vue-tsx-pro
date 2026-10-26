@@ -1,6 +1,6 @@
 // 四个方向与宽度档位：start / end 是逻辑方向（从右到左排版时左右互换），上下两侧的高度随内容
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
   Drawer,
@@ -10,7 +10,7 @@ import {
   ToggleGroup,
   ToggleItem,
   type DrawerSides,
-} from '@vue-tsx-pro/ui';
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const sides = [
   ['start', ArrowRight, '起始边'],

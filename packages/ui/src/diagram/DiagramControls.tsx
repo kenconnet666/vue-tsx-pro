@@ -7,8 +7,8 @@
  * 部件：Root（Toolbar）、Button（每个图标按钮）、Level（比例按钮）。
  */
 import { Scan, ZoomIn, ZoomOut } from '@lucide/icons';
-import { _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useMessages } from '../config/lang/messages';

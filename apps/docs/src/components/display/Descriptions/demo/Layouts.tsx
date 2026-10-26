@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Descriptions, Flex } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Descriptions, Flex } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const items = [
   { label: '姓名', value: '周一航' },

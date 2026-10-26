@@ -1,5 +1,5 @@
-import { _component } from '@vue-tsx-pro/tsx';
-import { Code } from '@vue-tsx-pro/ui';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/PivotTableProps';
 import dimensionApi from 'virtual:api/PivotDimension';
 import valueApi from 'virtual:api/PivotValue';
@@ -18,7 +18,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { PivotTable, pivot } from '@vue-tsx-pro/ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { PivotTable, pivot } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Examples>
       <ExampleColumn wide>
         <Example id="heatmap" title="热力图：区域、供应商 × 季度" demo={Heatmap}>

@@ -9,8 +9,8 @@
  *   </ToggleGroup>
  *   <ToggleGroup selectionMode="multiple" _value={marks} aria-label="格式">…</ToggleGroup>
  */
-import { createContext, _component } from '@vue-tsx-pro/tsx';
-import * as css from '@vue-tsx-pro/tsx/styles';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
   buttonContent,
