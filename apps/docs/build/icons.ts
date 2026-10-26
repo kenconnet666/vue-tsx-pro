@@ -13,7 +13,6 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 
-const IMPORT = /import\s*\{([^}]*)\}\s*from\s*['"]@lucide\/icons['"];?/g;
 const BARREL = /[\\/]@lucide[\\/]icons[\\/]dist[\\/]esm[\\/]lucide-icons\.mjs$/;
 
 /**
@@ -66,8 +65,23 @@ export function iconImports(): Plugin {
       handler(code, id) {
         if (id.includes('/node_modules/')) return;
         files ??= iconFiles();
-        const known = files;
-        return code.replace(IMPORT, (_, list: string) => rewrite(list, known));
+        // 按语法树找真正的导入语句：字符串里的示例代码（演练场的起始示例、文档里的用法）长得一样，不能改
+        const { body } = this.parse(code, { lang: 'tsx' });
+        const imports = body.filter(
+          (node) =>
+            node.type === 'ImportDeclaration' &&
+            node.source.value === '@lucide/icons' &&
+            node.importKind !== 'type' &&
+            node.specifiers.length > 0 &&
+            node.specifiers.every((specifier) => specifier.type === 'ImportSpecifier'),
+        );
+        let result = code;
+        for (const node of imports.reverse()) {
+          const statement = code.slice(node.start, node.end);
+          const list = statement.slice(statement.indexOf('{') + 1, statement.lastIndexOf('}'));
+          result = result.slice(0, node.start) + rewrite(list, files) + result.slice(node.end);
+        }
+        return result;
       },
     },
     generateBundle() {
