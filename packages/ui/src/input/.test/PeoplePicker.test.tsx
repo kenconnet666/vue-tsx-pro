@@ -160,6 +160,9 @@ describe('PeoplePickerPanel', () => {
     )!;
     search.value = '王';
     search.dispatchEvent(new Event('input', { bubbles: true }));
+    await flush();
+    // 防抖等待中请求还没发出：不先说"没有找到"
+    expect(root.textContent).not.toContain('没有找到');
     await new Promise((resolve) => setTimeout(resolve, 350));
     await flush();
     expect(root.querySelector('nav')).toBeNull();
