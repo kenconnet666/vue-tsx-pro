@@ -61,12 +61,13 @@ export function createCompileClient(createWorker: () => Worker): CompileClient {
   };
   return {
     compile(source, options = {}) {
-      worker ??= start();
       const id = nextId++;
       return new Promise((resolve) => {
+        // 在 Promise 里启动：环境里没有 Worker（服务端渲染、测试）时是一次失败的编译，调用方的 catch 接得住
+        worker ??= start();
         // 回复里的 id 只用来找到这个请求，交给调用方的是结果本身
         pending.set(id, ({ id: _replyId, ...result }) => resolve(result));
-        worker!.postMessage({ id, source, filename: options.filename } satisfies CompileRequest);
+        worker.postMessage({ id, source, filename: options.filename } satisfies CompileRequest);
       });
     },
     dispose() {
