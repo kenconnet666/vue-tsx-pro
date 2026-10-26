@@ -87,6 +87,8 @@ export async function compileInThread(
   source: string,
   options?: CompileModuleOptions,
 ): Promise<string> {
+  // 页面线程里同样要先补上 Babel 读的 process（Worker 的入口自己补；Node 里本来就有，补的是空缺）
+  await import('../../shims/process.js');
   const { compileModule } = await import('./compile.ts');
   return compileModule(source, options);
 }
