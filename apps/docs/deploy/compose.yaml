@@ -5,6 +5,6 @@ services:
     container_name: vue-tsx-pro-docs
     restart: unless-stopped
     ports:
-      - "19080:80"
+      - '19080:80'
     mem_limit: 64m
     memswap_limit: 64m
