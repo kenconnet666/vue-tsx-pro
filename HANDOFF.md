@@ -12,7 +12,7 @@
   2026-10-26：9.1 画布底座、9.2 通用输入（条件构造器、人员选择器、FilterBar 高级筛选）做完；按 `flow` 仓库的决定 0003（B），
   流程组件在 `flow` 仓库重做；本库的 `/workflow` 子路径（FlowDiagram、FlowDesigner、ApprovalActions、流程定义与校验）与文档站的
   “流程”分类 2026-10-26 已删除，旧实现在提交 `f7bfdc2e`。
-- **发布**：两个包定为 0.1.0，由用户按 [RELEASE.md](RELEASE.md) 手动发布到 npm（CI 不发布）；`flow` 引擎以发布的包为依赖。
+- **发布**：0.1.0 已于 2026-10-26 发布到 npm（`@zerodep-dev/vue-tsx-pro-tsx`、`@zerodep-dev/vue-tsx-pro-ui`，标签 `v0.1.0`），现在的版本是 0.2.0-dev；之后按 [RELEASE.md](RELEASE.md) 手动发布（CI 不发布）；`flow` 引擎以发布的包为依赖。
   发布前做过一轮文档站巡检（`pnpm docs:review`、`pnpm docs:sheets` 逐页看截图，修外观、示例用词与几处组件的布局）。
 - **与 query 的配合**：表格请求（`useTableQuery` 的 `-amount,name` 排序、表头筛选、已知总数、`tableParams`）、线上的 typed JSON
   （`utils/request/wire.ts`、`http` 的 `wire` 选项）、`buildTree` 对应 query 的 0015、0016，2026-10-25 合进 master。
@@ -270,7 +270,7 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 
 按 [ROADMAP.md](ROADMAP.md) 的顺序往下做（用户的总要求：持续执行、不必问，把组件库做到成熟可用）：
 
-1. 阶段 0–7 与阶段 9 的 9.1、9.2 已完成；两个包 0.1.0 待用户手动发布。之后按 ROADMAP：阶段 8 的测试与文档缺口（8.1–8.3）、
+1. 阶段 0–7 与阶段 9 的 9.1、9.2 已完成；两个包 0.1.0 已发布。之后按 ROADMAP：阶段 8 的测试与文档缺口（8.1–8.3）、
    8.4 的发布自动化；流程组件（9.4–9.6）在 `flow` 仓库里以本库为依赖重做。
 2. 每动一个组件，就在用户的 Chrome 里看它的文档页，补示例、改外观与 API 的灵活性。
 

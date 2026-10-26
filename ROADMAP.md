@@ -193,7 +193,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [ ] 体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来
 - [ ] 文档站部署（每次推送 master 自动更新），README 与 npm 页链过去
 - [x] 两个包的版本定为 0.1.0，[RELEASE.md](RELEASE.md) 写手动发布的步骤（预检、`pnpm test:consumer`、`pnpm publish`）
-- [ ] 发 0.1.0（用户手动发布）
+- [x] 发 0.1.0（2026-10-26 已发布；包名是 `@zerodep-dev/vue-tsx-pro-tsx`、`@zerodep-dev/vue-tsx-pro-ui`）
 
 ### 8.5 1.0
 
