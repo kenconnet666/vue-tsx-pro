@@ -139,6 +139,8 @@ export interface CodeEditorHandle {
   /** 撤销、重做一步；没有可撤销、重做的时返回 false */
   undo(): boolean;
   redo(): boolean;
+  /** 光标移到第几行第几列（都从 1 起，超出时取最近的）、滚进视野并聚焦：编译错误列表点一条跳过去 */
+  goTo(line: number, column?: number): void;
   /** 跟随站点主题的明暗 */
   setDark(dark: boolean): void;
   /** 拆掉编辑器（组件卸载时） */
@@ -226,6 +228,13 @@ export function createEditor(
     },
     undo: () => undo(view),
     redo: () => redo(view),
+    goTo(line, column = 1) {
+      const doc = view.state.doc;
+      const target = doc.line(Math.min(Math.max(line, 1), doc.lines));
+      const pos = target.from + Math.min(Math.max(column - 1, 0), target.length);
+      view.dispatch({ selection: { anchor: pos }, effects: EditorView.scrollIntoView(pos, { y: 'center' }) });
+      view.focus();
+    },
     setDark(next) {
       view.dispatch({ effects: darkMode.reconfigure(EditorView.darkTheme.of(next)) });
     },

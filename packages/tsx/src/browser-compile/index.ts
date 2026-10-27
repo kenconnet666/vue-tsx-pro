@@ -19,6 +19,13 @@ import type { CompileModuleOptions } from './compile.ts';
 
 export type { CompileModuleOptions } from './compile.ts';
 
+/**
+ * 编译结果的格式版本：编译结果与执行它的运行时（evaluateModule、TSX 的运行时帮手）之间的约定。
+ * 存下编译结果的（表单发布时存的前端代码）连同它存，执行前比一下，不一样时按源码重新编译。
+ * 改了编译插件的输出或运行时帮手、使旧的编译结果不能再执行时加一。
+ */
+export const COMPILER_VERSION = 'vue-tsx-pro/1';
+
 /** 编译的结果：成功时是代码，失败时是带代码帧的错误消息；ms 是编译用的毫秒数 */
 export type CompileResult = { code: string; ms: number } | { error: string; ms: number };
 
