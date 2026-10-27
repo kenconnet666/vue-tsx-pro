@@ -1428,6 +1428,21 @@ export {
 import './config/theme/token-names';
 export { t } from './config/theme/tokens';
 
+// 布局偏好：侧栏的形式、抽屉的方向与尺寸（createLayoutPreference）
+export {
+  createLayoutPreference,
+  DEFAULT_LAYOUT_HEIGHT,
+  DEFAULT_LAYOUT_STORAGE_KEY,
+  DEFAULT_LAYOUT_WIDTH,
+  LAYOUT_MODES,
+  LAYOUT_SIDES,
+  type LayoutMode,
+  type LayoutPreference,
+  type LayoutPreferenceOptions,
+  type LayoutSide,
+  type LayoutState,
+} from './config/layout/preference';
+
 // 语言与格式化
 export { enUS } from './config/lang/en-US';
 export { useFormat, type NumericFormat, type RelativeFormatOptions } from './config/lang/format';

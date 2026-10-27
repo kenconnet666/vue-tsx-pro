@@ -71,7 +71,8 @@ export const navListStyles = css.create({
   chevron: { transition: `transform ${t.durations.md} ${t.easings.standard}` },
   chevronOpen: { transform: 'rotate(90deg)' },
   // 小节之间留出间隔，第一节贴着顶部
-  section: { marginBlockStart: { default: '_lg', ':first-child': 0 } },
+  // 多栏排版（AppShell 的上下抽屉）时一个小节不被拆到两栏
+  section: { marginBlockStart: { default: '_lg', ':first-child': 0 }, breakInside: 'avoid' },
   sectionLabel: {
     display: 'flex',
     alignItems: 'center',

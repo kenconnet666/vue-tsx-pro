@@ -56,6 +56,8 @@ export interface PatternsMessages {
   readonly navigationMenu: string;
   /** 抽屉式侧边导航的宽度调整手柄，默认“调整导航宽度” */
   readonly navigationResize: string;
+  /** 上下抽屉的高度手柄的名称，默认“调整导航高度” */
+  readonly navigationResizeHeight: string;
   /** AppShell 侧栏底部收起成图标栏的按钮，默认“收起侧栏” */
   readonly sidebarCollapse: string;
   /** AppShell 侧栏收起后展开的按钮，默认“展开侧栏” */
@@ -144,6 +146,24 @@ export interface PatternsMessages {
   readonly dataImportPreview: string;
   /** 主题切换的名称，默认“主题” */
   readonly themeLabel: string;
+  /** 布局切换的名称，默认“布局” */
+  readonly layoutLabel: string;
+  /** 布局切换：侧栏形式一组的标题，默认“侧栏形式” */
+  readonly layoutMode: string;
+  /** 布局切换：固定侧栏，默认“固定” */
+  readonly layoutModeDocked: string;
+  /** 布局切换：抽屉式侧栏，默认“抽屉” */
+  readonly layoutModeOverlay: string;
+  /** 布局切换：抽屉位置一组的标题，默认“抽屉位置” */
+  readonly layoutSide: string;
+  /** 布局切换：抽屉在起始边，默认“左侧” */
+  readonly layoutSideStart: string;
+  /** 布局切换：抽屉在结束边，默认“右侧” */
+  readonly layoutSideEnd: string;
+  /** 布局切换：抽屉在顶部，默认“顶部” */
+  readonly layoutSideTop: string;
+  /** 布局切换：抽屉在底部，默认“底部” */
+  readonly layoutSideBottom: string;
   /** 留言：留言列表的名称，默认“留言” */
   readonly comments: string;
   /** 留言：没有留言时，默认“还没有留言” */
@@ -200,6 +220,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     navigationOpen: '打开导航',
     navigationMenu: '菜单',
     navigationResize: '调整导航宽度',
+    navigationResizeHeight: '调整导航高度',
     sidebarCollapse: '收起侧栏',
     sidebarExpand: '展开侧栏',
     pageTabsLabel: '打开的页面',
@@ -245,6 +266,15 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportNotNumber: '不是数字',
     dataImportPreview: '导入预览',
     themeLabel: '主题',
+    layoutLabel: '布局',
+    layoutMode: '侧栏形式',
+    layoutModeDocked: '固定',
+    layoutModeOverlay: '抽屉',
+    layoutSide: '抽屉位置',
+    layoutSideStart: '左侧',
+    layoutSideEnd: '右侧',
+    layoutSideTop: '顶部',
+    layoutSideBottom: '底部',
     comments: '留言',
     commentsEmpty: '还没有留言',
     commentPlaceholder: '写下留言，输入 @ 提及相关的人',
@@ -289,6 +319,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     navigationOpen: 'Open navigation',
     navigationMenu: 'Menu',
     navigationResize: 'Resize navigation',
+    navigationResizeHeight: 'Resize navigation height',
     sidebarCollapse: 'Collapse sidebar',
     sidebarExpand: 'Expand sidebar',
     pageTabsLabel: 'Open pages',
@@ -334,6 +365,15 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportNotNumber: 'Not a number',
     dataImportPreview: 'Import preview',
     themeLabel: 'Theme',
+    layoutLabel: 'Layout',
+    layoutMode: 'Sidebar',
+    layoutModeDocked: 'Docked',
+    layoutModeOverlay: 'Drawer',
+    layoutSide: 'Drawer position',
+    layoutSideStart: 'Left',
+    layoutSideEnd: 'Right',
+    layoutSideTop: 'Top',
+    layoutSideBottom: 'Bottom',
     comments: 'Comments',
     commentsEmpty: 'No comments yet',
     commentPlaceholder: 'Write a comment, type @ to mention someone',
