@@ -21,8 +21,10 @@ export interface AutosaveOptions<Saved> {
   save: (content: string) => Promise<Saved>;
   /** 改完停多久再存（毫秒），默认 2000 */
   delay?: number;
-  /** 认出冲突（别人先存过）：之后不再自动存，直到 reset */
+  /** 认出冲突（别人先存过）：之后不再自动存，直到再 start */
   isConflict?: (error: unknown) => boolean;
+  /** 现在能不能存（比如还没填标识）；不给时总能存 */
+  enabled?: () => boolean;
 }
 
 /** 自动保存现在怎样 */
@@ -58,7 +60,7 @@ export function useAutosave<Saved>(options: AutosaveOptions<Saved>): Autosave<Sa
   async function flush() {
     clearTimeout(timer);
     const content = options.content();
-    if (baseline === null || content === baseline || status.state === 'conflict') return;
+    if (baseline === null || content === baseline || status.state === 'conflict' || options.enabled?.() === false) return;
     status.state = 'saving';
     try {
       status.saved = await options.save(content);
