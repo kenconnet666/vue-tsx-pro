@@ -34,11 +34,12 @@
  *   confirm 的单字段校验也跟着重跑。
  */
 import type { TsxComponent } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { computed, reactive, shallowReactive, toRaw, watch } from 'vue';
+import { computed, reactive, shallowReactive, watch } from 'vue';
 import { safeParseAsync, type $ZodIssue, type $ZodRawIssue, type $ZodType } from 'zod/v4/core';
 import { useLang } from '../config/context';
 import { Field, type FieldProps } from './Field';
 import { createConstraints, type FieldConstraints } from './form-constraints';
+import { cloneValue } from '../utils/data/clone';
 import { sameValue } from '../utils/data/equality';
 import { codeText, errorCodeOf, errorMessage } from '../utils/request/error-message';
 
@@ -284,20 +285,6 @@ interface FieldRun {
   running?: { value: unknown; controller: AbortController; done: Promise<void> };
   /** 上次校验完成时的值 */
   checked?: unknown;
-}
-
-/**
- * 复制表单的值：普通对象与数组逐层复制（各份互不影响），其余值原样保留。
- * 不用 structuredClone：Decimal、@internationalized/date 的日期这些带方法的值克隆不了（会抛错），
- * 它们本身不可变，共用同一个实例没有问题
- */
-function cloneValue<T>(value: T): T {
-  const raw = toRaw(value);
-  if (Array.isArray(raw)) return raw.map(cloneValue) as T;
-  if (raw === null || typeof raw !== 'object') return raw;
-  const prototype = Object.getPrototypeOf(raw);
-  if (prototype !== Object.prototype && prototype !== null) return raw;
-  return Object.fromEntries(Object.entries(raw).map(([key, item]) => [key, cloneValue(item)])) as T;
 }
 
 /** 业务错误明细里按字段的一项（0008 的 errors：表单校验的问题） */

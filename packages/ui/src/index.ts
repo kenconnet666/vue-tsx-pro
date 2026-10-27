@@ -1658,6 +1658,7 @@ export { usePersistentState, type PersistentStateOptions } from './utils/dom/sto
 export { createTypeahead, type Typeahead } from './utils/dom/typeahead';
 
 // 工具：比较与匹配、相等、选择、分页、文字、数值、日期
+export { cloneValue } from './utils/data/clone';
 export {
   createComparer,
   createMatcher,
@@ -1679,6 +1680,7 @@ export {
   calendarOf,
   clampDate,
   compareDates,
+  dayRangeBounds,
   daysBetween,
   fullIsoDay,
   isDateDisabled,
@@ -1699,7 +1701,6 @@ export {
   parseIsoTime,
   presetIsoRange,
   presetRange,
-  dayRangeBounds,
   rangeDays,
   rangeHasUnavailable,
   relativeUnit,
@@ -1860,7 +1861,12 @@ export {
   type HttpRequest,
   type QueryValue,
 } from './utils/request/http';
-export { useAutosave, type Autosave, type AutosaveOptions, type AutosaveStatus } from './utils/request/use-autosave';
+export {
+  useAutosave,
+  type Autosave,
+  type AutosaveOptions,
+  type AutosaveStatus,
+} from './utils/request/use-autosave';
 export { useRequest, type RequestOptions, type RequestState } from './utils/request/use-request';
 export {
   fromWire,

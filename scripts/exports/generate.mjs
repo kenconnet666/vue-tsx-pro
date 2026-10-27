@@ -51,7 +51,7 @@ const GROUPS = [
   ['utils/dom', '工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板'],
   ['utils/data', '工具：比较与匹配、相等、选择、分页、文字、数值、日期'],
   ['utils/virtual', '工具：虚拟滚动'],
-  ['utils/request', '工具：请求（HttpClient、createHttpClient、useRequest）'],
+  ['utils/request', '工具：请求（HttpClient、createHttpClient、scopeHttp、useRequest）'],
   ['utils/motion', '工具：JS 动画与动效'],
 ];
 

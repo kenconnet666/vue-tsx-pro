@@ -78,6 +78,13 @@ export {
   type DiagramPoint,
   type DiagramRect,
 } from './geometry';
+export {
+  layoutLayers,
+  type LayerEdge,
+  type LayerNode,
+  type LayerOptions,
+  type PlacedLayerNode,
+} from './layout';
 export { diagramMessages, type DiagramMessages } from './messages';
 export {
   chooseSides,
@@ -93,4 +100,3 @@ export {
   type RouteEnd,
   type RouteOptions,
 } from './route';
-export { layoutLayers, type LayerEdge, type LayerNode, type LayerOptions, type PlacedLayerNode } from './layout';

@@ -22,7 +22,7 @@
 import { Maximize, Minimize, RefreshCw, Rows3 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { reactive, shallowRef, toRaw, type Ref, type VNodeChild } from 'vue';
+import { reactive, shallowRef, type Ref, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -36,6 +36,7 @@ import { DataTable, type DataTableProps } from '../table/DataTable';
 import { SelectionBar, type SelectionBarProps } from '../table/SelectionBar';
 import type { DataTableDensities } from '../table/table-styles';
 import type { TablePage, TableQueryState } from '../table/use-table-query';
+import { cloneValue } from '../utils/data/clone';
 import { useFullscreen } from '../utils/dom/fullscreen';
 import { usePersistentState } from '../utils/dom/storage';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -140,7 +141,8 @@ export const QueryTable = _component(
     const messages = useMessages('patterns', patternsMessages);
     const lang = useLang();
     // 查询栏改的是草稿：点“查询”才交给 query
-    const initial = structuredClone(toRaw(_untrack(query.filters)));
+    // 用 cloneValue 不用 structuredClone：条件里的日期（CalendarDate）、Decimal 要保持原样
+    const initial = cloneValue(_untrack(query.filters));
     const draft = reactive({ ...initial }) as Filters;
     const key = _untrack(persistKey);
     let hidden = _fromRef(settingRef<string[]>(key, 'hidden', []));
@@ -152,11 +154,11 @@ export const QueryTable = _component(
     const fullscreen = useFullscreen(() => panel);
 
     function search() {
-      query.search(structuredClone(toRaw(draft)) as Filters);
+      query.search(cloneValue(draft) as Filters);
     }
 
     function reset() {
-      Object.assign(draft, structuredClone(toRaw(blankFilters ?? initial)));
+      Object.assign(draft, cloneValue(blankFilters ?? initial));
       search();
     }
 
