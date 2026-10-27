@@ -1,6 +1,6 @@
-// downloadFile：按类型建 Blob 地址，点一个带文件名的链接，过一会儿再回收地址
+// downloadFile：按类型建 Blob 地址，点一个带文件名的链接，过一会儿再回收地址；pickFile：点一个文件输入框，挑了给文件，取消给 null
 import { afterEach, expect, it, vi } from 'vitest';
-import { downloadFile } from '../download';
+import { downloadFile, pickFile } from '../download';
 
 afterEach(() => vi.useRealTimers());
 
@@ -30,4 +30,24 @@ it('点带 download 文件名的链接；地址在点击之后过一会儿才回
   expect(revoke).toHaveBeenCalledWith('blob:test');
 
   for (const spy of [create, revoke, click]) spy.mockRestore();
+});
+
+it('pickFile 按 accept 弹选文件框：挑了得到文件，取消得到 null', async () => {
+  const inputs: HTMLInputElement[] = [];
+  const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
+    inputs.push(this);
+  });
+
+  const picked = pickFile('.json');
+  const file = new File(['{}'], 'leave.json', { type: 'application/json' });
+  Object.defineProperty(inputs[0]!, 'files', { value: [file] });
+  inputs[0]!.dispatchEvent(new Event('change'));
+  expect(inputs[0]!.accept).toBe('.json');
+  expect(await picked).toBe(file);
+
+  const canceled = pickFile();
+  inputs[1]!.dispatchEvent(new Event('cancel'));
+  expect(await canceled).toBeNull();
+
+  click.mockRestore();
 });
