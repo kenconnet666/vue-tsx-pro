@@ -351,6 +351,20 @@ describe('字段布局与整组状态（field-layout）', () => {
     expect(remember!.children).toHaveLength(1);
   });
 
+  it('一个 Field 里几个控件：只有第一个拿 Field 的 id 与标签，其余留着自己的名字，id 不重复', () => {
+    const root = mount(() => (
+      <Field label="允许的操作">
+        <Checkbox>转办</Checkbox>
+        <Checkbox>委派</Checkbox>
+      </Field>
+    ));
+    const label = root.querySelector('label')!;
+    const [first, second] = root.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+    expect(label.htmlFor).toBe(first!.id);
+    expect(second!.id).not.toBe(first!.id);
+    expect(second!.getAttribute('aria-labelledby')).toBeNull();
+  });
+
   it('labelHidden：标签视觉上隐藏、仍指向控件；不占标签列', () => {
     const root = mount(() => (
       <Field label="手机" labelHidden labelPlacement="start">

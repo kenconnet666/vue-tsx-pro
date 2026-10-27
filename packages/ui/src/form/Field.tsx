@@ -21,7 +21,7 @@
 import { Asterisk } from '@lucide/icons';
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { cloneVNode, Fragment, isVNode, useId, watch, type VNode, type VNodeChild } from 'vue';
+import { cloneVNode, Fragment, isVNode, onBeforeUnmount, useId, watch, type VNode, type VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
@@ -57,6 +57,13 @@ export interface FieldState {
   readonly readonly: boolean;
   /** 从表单 schema 推出的约束（在 Form 里写了 name 时）；控件据此加 maxlength、min / max 等 */
   readonly constraints: FieldConstraints;
+  /**
+   * 认领 Field 的 id 与标签：Field 里有几个控件时（一组勾选框），只有第一个控件拿 Field 的 id、用它的标签当名字，
+   * 其余控件留着自己的名字（勾选框自己的文字），id 也不重复。认领到了返回 true
+   */
+  claim?(token: symbol): boolean;
+  /** 认领的控件卸载了：下一个控件可以认领 */
+  release?(token: symbol): void;
 }
 
 /** Field 的上下文：自定义控件用 useFieldControl 接入，一般不直接读它；null 表示子树不属于任何 Field */
@@ -125,11 +132,15 @@ export function useFieldControl(
   const field = FieldContext.inject(null);
   if (!delegate) FieldContext.provide(null);
   const layout = field ? null : FieldLayoutContext.inject(null);
+  // 把输入交给里面控件的（delegate）不认领：由里面那个控件认领；它自己仍用 Field 的标签
+  const token = Symbol('field-control');
+  const owns = field == null ? false : delegate || (field.claim?.(token) ?? true);
+  if (field && !delegate) onBeforeUnmount(() => field.release?.(token));
   return () => {
     const own = read();
     return {
-      id: own.id ?? field?.controlId,
-      labelledBy: field?.labelId,
+      id: own.id ?? (owns ? field?.controlId : undefined),
+      labelledBy: owns ? field?.labelId : undefined,
       describedBy: field?.describedBy,
       invalid: own.invalid ?? field?.invalid ?? false,
       required: own.required ?? field?.required ?? false,
@@ -330,7 +341,16 @@ export const Field = _component(
     const isDisabled = () => disabled ?? layout?.disabled ?? false;
     const isReadonly = () => readonly ?? layout?.readonly ?? false;
 
+    // 第一个接入的控件认领 id 与标签（见 FieldState.claim）
+    let owner: symbol | null = null;
     FieldContext.provide({
+      claim: (token) => {
+        owner ??= token;
+        return owner === token;
+      },
+      release: (token) => {
+        if (owner === token) owner = null;
+      },
       controlId: ids.control,
       get labelId() {
         return hasContent(label) ? ids.label : undefined;
