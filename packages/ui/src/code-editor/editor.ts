@@ -17,7 +17,10 @@ import {
   history,
   historyKeymap,
   indentWithTab,
+  isolateHistory,
+  redo,
   temporarilySetTabFocusMode,
+  undo,
 } from '@codemirror/commands';
 import { javascript } from '@codemirror/lang-javascript';
 import {
@@ -29,7 +32,7 @@ import {
   syntaxHighlighting,
 } from '@codemirror/language';
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
-import { Annotation, Compartment, EditorState, type Extension } from '@codemirror/state';
+import { Annotation, Compartment, EditorState, Transaction, type Extension } from '@codemirror/state';
 import {
   drawSelection,
   EditorView,
@@ -115,12 +118,27 @@ const theme = EditorView.theme({
   '.cm-panels-bottom': { borderTop: `1px solid ${c(colors.border)}` },
 });
 
+/** 一处修改：把 [from, to) 换成 insert */
+export interface CodeChange {
+  readonly from: number;
+  readonly to: number;
+  readonly insert: string;
+}
+
 /** 编辑器实例的操作 */
 export interface CodeEditorHandle {
   /** CodeMirror 的视图：读状态（view.state）、派发修改、做撤销等更细的操作 */
   readonly view: EditorView;
   /** 换掉全部代码（与当前内容相同时什么都不做） */
   setCode(code: string): void;
+  /**
+   * 改几段代码（位置都按改之前的），当作用户的修改：进撤销历史、回传 onChange。
+   * 默认单独成一步撤销（可视化编辑器的一次操作）；merge 为 true 时像打字一样，与紧挨着的上一次修改合成一步（属性面板里逐字输入）
+   */
+  edit(changes: readonly CodeChange[], options?: { merge?: boolean }): void;
+  /** 撤销、重做一步；没有可撤销、重做的时返回 false */
+  undo(): boolean;
+  redo(): boolean;
   /** 跟随站点主题的明暗 */
   setDark(dark: boolean): void;
   /** 拆掉编辑器（组件卸载时） */
@@ -199,6 +217,15 @@ export function createEditor(
         annotations: external.of(true),
       });
     },
+    edit(changes, { merge = false } = {}) {
+      if (changes.length === 0) return;
+      view.dispatch({
+        changes: [...changes],
+        annotations: merge ? Transaction.userEvent.of('input.type') : isolateHistory.of('full'),
+      });
+    },
+    undo: () => undo(view),
+    redo: () => redo(view),
     setDark(next) {
       view.dispatch({ effects: darkMode.reconfigure(EditorView.darkTheme.of(next)) });
     },

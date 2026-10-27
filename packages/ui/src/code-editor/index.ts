@@ -6,4 +6,4 @@
  *   <CodeEditor _value={source} aria-label="表单源码" />
  */
 export { CodeEditor, type CodeEditorProps } from './CodeEditor';
-export { createEditor, type CodeEditorHandle, type CodeEditorOptions } from './editor';
+export { createEditor, type CodeChange, type CodeEditorHandle, type CodeEditorOptions } from './editor';
