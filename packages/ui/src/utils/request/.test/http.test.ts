@@ -1,8 +1,8 @@
-// createHttpClient：地址与 query、JSON 请求体、typed JSON、按类型读响应、拆响应体与业务错误码、状态码、超时、取消、钩子
+// createHttpClient：地址与 query、JSON 请求体、typed JSON、按类型读响应、拆响应体与业务错误码、状态码、超时、取消、钩子；scopeHttp：前缀与简写
 import { CalendarDate } from '@internationalized/date';
 import Decimal from 'decimal.js';
 import { describe, expect, it, vi } from 'vitest';
-import { createHttpClient, HttpError, isAbortError } from '../http';
+import { createHttpClient, HttpError, isAbortError, scopeHttp, type HttpRequest } from '../http';
 
 /** 记下发出的请求，按给的函数回应 */
 function fakeFetch(respond: (request: Request) => Response | Promise<Response>) {
@@ -274,5 +274,22 @@ describe('业务错误码的响应体（0008）', () => {
       .get('/x')
       .catch((caught: unknown) => caught)) as HttpError;
     expect([status.code, status.data]).toEqual(['http.status', '<html>']);
+  });
+});
+
+describe('scopeHttp', () => {
+  it('相对地址拼上前缀（斜杠不重复），完整地址原样，简写方法照常带上参数', async () => {
+    const seen: HttpRequest[] = [];
+    const api = scopeHttp({ request: async <T,>(spec: HttpRequest) => (seen.push(spec), undefined as T) }, '/flow/');
+    await api.get('/queries/todo', { query: { page: 1 } });
+    await api.post('commands/claim', { workItemId: 1n });
+    await api.get('https://example.com/x');
+    expect(seen.map((s) => [s.method, s.url])).toEqual([
+      ['GET', '/flow/queries/todo'],
+      ['POST', '/flow/commands/claim'],
+      ['GET', 'https://example.com/x'],
+    ]);
+    expect(seen[0]!.query).toEqual({ page: 1 });
+    expect(seen[1]!.body).toEqual({ workItemId: 1n });
   });
 });

@@ -310,6 +310,20 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
     return (onResponse ? onResponse(result, context) : result) as T;
   }
 
+  return scopeHttp({ request });
+}
+
+/**
+ * 在任意请求客户端上加常用方法的简写，相对地址前面拼上 prefix（斜杠不重复；完整地址原样）。
+ * 一个模块的接口都在同一个前缀下时用它，不必每次写全地址；useHttp() 拿到的客户端也能这样包：
+ *
+ *   const api = scopeHttp(useHttp(), '/flow');
+ *   api.get('/queries/todo', { query: { page: 1 }, signal });   // GET /flow/queries/todo?page=1
+ *   api.post('/commands/claim', { workItemId });
+ */
+export function scopeHttp(client: HttpClient, prefix = ''): FetchClient {
+  const at = (url: string) => (!prefix || isAbsolute(url) ? url : joinPath(prefix, url));
+  const request = <T>(spec: HttpRequest) => client.request<T>({ ...spec, url: at(spec.url) });
   const withBody =
     (method: HttpMethod) =>
     <T>(url: string, body?: unknown, rest?: Omit<HttpRequest, 'url' | 'method' | 'body'>) =>
@@ -324,6 +338,12 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
   };
 }
 
+/** 完整地址（https://…、//host/…）：不拼 baseURL、前缀 */
+const isAbsolute = (url: string) => /^[a-z][a-z\d+.-]*:/i.test(url) || url.startsWith('//');
+
+/** 两段路径接起来，中间只留一个斜杠 */
+const joinPath = (base: string, path: string) => `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+
 let fallback: FetchClient | undefined;
 
 /**
@@ -335,9 +355,7 @@ export function useHttp(): HttpClient {
 
 /** 地址 + query：相对地址拼在 baseURL 后面（斜杠不重复），null、undefined 的参数跳过 */
 function buildUrl(baseURL: string, url: string, query: HttpRequest['query']): string {
-  const absolute = /^[a-z][a-z\d+.-]*:/i.test(url) || url.startsWith('//');
-  let full =
-    absolute || !baseURL ? url : `${baseURL.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`;
+  let full = isAbsolute(url) || !baseURL ? url : joinPath(baseURL, url);
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(query ?? {})) {
     if (value == null) continue;

@@ -374,6 +374,16 @@ export interface DateRange<T = CalendarDate> {
   end: T;
 }
 
+/**
+ * 日期区间换成一对时刻，交给按时刻查的接口：从开始那天的零点起（含），到结束那天的第二天零点前（不含）。
+ * 一天按 timeZone 算（默认浏览器的时区），所以"10 月 27 日"在东八区是 26 日 16:00Z 到 27 日 16:00Z。
+ *
+ *   const { from, to } = dayRangeBounds(range);   // 发成 ISO：from.toISOString()
+ */
+export function dayRangeBounds(range: DateRange, timeZone: string = getLocalTimeZone()): { from: Date; to: Date } {
+  return { from: range.start.toDate(timeZone), to: range.end.add({ days: 1 }).toDate(timeZone) };
+}
+
 /** 两个日期排成区间：先的在前 */
 export function orderedRange(a: CalendarDate, b: CalendarDate): DateRange {
   return a.compare(b) <= 0 ? { start: a, end: b } : { start: b, end: a };

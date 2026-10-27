@@ -1699,6 +1699,7 @@ export {
   parseIsoTime,
   presetIsoRange,
   presetRange,
+  dayRangeBounds,
   rangeDays,
   rangeHasUnavailable,
   relativeUnit,
@@ -1832,7 +1833,7 @@ export {
   type VisibleRange,
 } from './utils/virtual/virtualizer';
 
-// 工具：请求（HttpClient、createHttpClient、useRequest）
+// 工具：请求（HttpClient、createHttpClient、scopeHttp、useRequest）
 export {
   codeText,
   errorCodeOf,
@@ -1846,6 +1847,7 @@ export {
   HttpError,
   isAbortError,
   OK_CODE,
+  scopeHttp,
   useHttp,
   type ApiEnvelope,
   type ApiErrorDetail,
@@ -1858,6 +1860,7 @@ export {
   type HttpRequest,
   type QueryValue,
 } from './utils/request/http';
+export { useAutosave, type Autosave, type AutosaveOptions, type AutosaveStatus } from './utils/request/use-autosave';
 export { useRequest, type RequestOptions, type RequestState } from './utils/request/use-request';
 export {
   fromWire,
