@@ -22,6 +22,7 @@ import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { defaultLabelledBy, mergeAttrs, type PartProps, type TriggerProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
+import { useMounted } from '../utils/dom/mounted';
 
 /** 交给触发器的属性：展开收起的通用属性，加上弹层需要的 id、ref 与 aria-haspopup */
 export interface PopoverTriggerProps extends TriggerProps {
@@ -78,6 +79,8 @@ export const Popover = _component(
     children,
     ...rest
   }: PopoverProps) => {
+    // 面板挂载后才渲染：关着时本来就看不见；服务端渲染时也不输出，触发器在 <p> 里时 <div> 不会把段落提前截断，水合对得上
+    const mounted = useMounted();
     const id = useId();
     const showContent = useLazyContent(
       () => open,
@@ -108,33 +111,35 @@ export const Popover = _component(
           'aria-controls': id,
           'aria-haspopup': 'dialog',
         })}
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [
-                floatingStyles.anchored,
-                floatingStyles.surface,
-                popoverStyles.panel,
-                transitions.scale,
-                arrow && floatingStyles.withArrow,
-              ],
-              'aria-labelledby': defaultLabelledBy(rest, triggerId),
-            },
-            rest,
-            { ref: _toRef(panel), id, popover: 'auto', role, onToggle },
-          )}
-          data-state={open ? 'open' : 'closed'}
-        >
-          {showContent() && children}
-          {arrow && (
-            <span
-              {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
-                ref: _toRef(arrowElement),
-                'aria-hidden': true,
-              })}
-            />
-          )}
-        </div>
+        {mounted.value && (
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  floatingStyles.surface,
+                  popoverStyles.panel,
+                  transitions.scale,
+                  arrow && floatingStyles.withArrow,
+                ],
+                'aria-labelledby': defaultLabelledBy(rest, triggerId),
+              },
+              rest,
+              { ref: _toRef(panel), id, popover: 'auto', role, onToggle },
+            )}
+            data-state={open ? 'open' : 'closed'}
+          >
+            {showContent() && children}
+            {arrow && (
+              <span
+                {...mergeAttrs<'span'>({ sx: floatingStyles.arrow }, propsArrow, {
+                  ref: _toRef(arrowElement),
+                  'aria-hidden': true,
+                })}
+              />
+            )}
+          </div>
+        )}
       </>
     );
   },

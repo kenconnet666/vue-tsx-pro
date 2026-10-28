@@ -199,7 +199,12 @@ export function useDateSegments(config: DateSegmentsOptions): DateSegmentsState 
     return (
       parts
         .filter((part) => part.type === 'literal' || wanted.has(part.type as DateSegmentType))
-        .map((part) => ({ type: part.type as DateSegment['type'], literal: part.value }))
+        // 分隔符里的各种空白（不换行空格、窄不换行空格）统一成普通空格：各平台的 Intl 给的不一样，
+        // 服务端渲染与浏览器的文字对不上；显示上没有区别
+        .map((part) => ({
+          type: part.type as DateSegment['type'],
+          literal: part.type === 'literal' ? part.value.replace(/[   ]/g, ' ') : part.value,
+        }))
         // 首尾只有空白的分隔符没有意义；“2026年10月”结尾的“月”要留着
         .filter(
           (part, index, all) =>

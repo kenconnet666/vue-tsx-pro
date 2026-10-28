@@ -16,7 +16,7 @@ const flush = async () => {
   for (let i = 0; i < 4; i++) await nextTick();
 };
 
-function render(onConfirm: () => unknown, onCancel = vi.fn()) {
+async function render(onConfirm: () => unknown, onCancel = vi.fn()) {
   const state = reactive({ open: true });
   const root = mount(() => (
     <Popconfirm
@@ -31,6 +31,8 @@ function render(onConfirm: () => unknown, onCancel = vi.fn()) {
       trigger={(props) => <Button {...props}>删除</Button>}
     />
   ));
+  // 面板挂载后的下一次渲染才出现
+  await nextTick();
   const panel = root.querySelector<HTMLElement>('[role="alertdialog"]')!;
   const button = (text: string) =>
     [...panel.querySelectorAll('button')].find((item) => item.textContent === text)!;
@@ -38,8 +40,8 @@ function render(onConfirm: () => unknown, onCancel = vi.fn()) {
 }
 
 describe('Popconfirm', () => {
-  it('alertdialog 以标题为名称、说明为描述；取消在确认之前且自动聚焦', () => {
-    const { panel } = render(() => {});
+  it('alertdialog 以标题为名称、说明为描述；取消在确认之前且自动聚焦', async () => {
+    const { panel } = await render(() => {});
     const title = document.getElementById(panel.getAttribute('aria-labelledby')!)!;
     expect(title.textContent).toBe('删除这条记录？');
     const description = document.getElementById(panel.getAttribute('aria-describedby')!)!;
@@ -51,7 +53,7 @@ describe('Popconfirm', () => {
 
   it('确认返回 Promise：等它完成再关闭，不算取消', async () => {
     let finish!: () => void;
-    const { button, isOpen, onCancel } = render(
+    const { button, isOpen, onCancel } = await render(
       () => new Promise<void>((resolve) => (finish = resolve)),
     );
     button('删除').click();
@@ -66,12 +68,12 @@ describe('Popconfirm', () => {
 
   it('确认返回 false 或失败时保持打开；点取消关闭并报告 onCancel', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const refuse = render(() => false);
+    const refuse = await render(() => false);
     refuse.button('删除').click();
     await flush();
     expect(refuse.isOpen()).toBe(true);
 
-    const failing = render(() => Promise.reject(new Error('网络错误')));
+    const failing = await render(() => Promise.reject(new Error('网络错误')));
     failing.button('删除').click();
     await flush();
     expect(failing.isOpen()).toBe(true);

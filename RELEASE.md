@@ -10,6 +10,17 @@
 
 `ui` 对 `tsx` 的依赖写成 `workspace:^`，`pnpm publish` 发布时换成实际版本号，所以必须用 pnpm 发布，不能用 `npm publish`。
 
+## 下一版对使用方的变化
+
+发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
+
+- 组件库支持服务端渲染（ROADMAP 阶段 12）：样式 `renderStyleTag`、首屏主题 `createUi(...).documentAttrs()`、只在浏览器里画的 `ClientOnly` / `useMounted`。
+- Popover、HoverCard、Tooltip 的面板挂载后的下一次渲染才出现（关着时本来看不见）：测试里挂载完立刻找面板的，先 `await nextTick()`。
+- `useFullscreen().supported` 挂载前总是 `false`，挂载后才按浏览器判断（全屏按钮挂载后才出现）。
+- `useRequest` 一开始就请求时（默认），`loading` 从 `true` 开始，不再先是 `false`。
+- LoadingBar 挂载前按空闲画；Gauge、RadarChart、Progress 的 SVG 坐标保留三位小数；日期分段里本地化格式带的窄空格、不换行空格统一成普通空格。
+- JSX 展开属性与 `ref` 一起写时两个 ref 都生效（`mergeJsxProps`），之前展开里的 ref 会被覆盖。
+
 ## 一次性准备
 
 1. npm 账号开启 2FA，建一个范围是 `@zerodep-dev`、勾选 Bypass 2FA 的 Granular Access Token，放进用户级环境变量 `NPM_TOKEN`。

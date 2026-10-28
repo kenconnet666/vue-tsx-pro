@@ -82,7 +82,7 @@ describe('段的顺序与显示', () => {
       'dayPeriod',
     ]);
     // en-US 的时间与 AM / PM 之间是窄不换行空格（U+202F）
-    expect(en.texts()).toBe('2:05 PM');
+    expect(en.texts()).toBe('2:05 PM');
     const h12 = setup({
       fields: ['hour', 'minute'],
       hourCycle: 'h12',

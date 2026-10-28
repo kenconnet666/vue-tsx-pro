@@ -14,6 +14,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shallowReactive } from 'vue';
 import { useLang } from '../config/context';
+import { useMounted } from '../utils/dom/mounted';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
 
@@ -138,32 +139,39 @@ export const loadingBarScaleStyles = css.create({
 /** 加载条：显示控制器的进度 */
 export const LoadingBar = _component(({ controller, ...rest }: LoadingBarProps) => {
   const lang = useLang();
-  return () => (
-    <div
-      {...mergeAttrs<'div'>(
-        {
-          sx: [loadingBarStyles.root, controller.visible && loadingBarStyles.visible],
-          'aria-label': lang.loading,
-        },
-        rest,
-        {
-          role: 'progressbar',
-          'aria-valuemin': 0,
-          'aria-valuemax': 100,
-          'aria-valuenow': Math.round(controller.progress),
-          'aria-busy': controller.visible && controller.progress < 100,
-          'aria-hidden': controller.visible ? undefined : true,
-        },
-      )}
-      data-state={controller.failed ? 'error' : controller.visible ? 'loading' : 'idle'}
-    >
+  // 控制器是整个应用共用的：服务端渲染时它没在加载，浏览器里水合时可能正在加载第一页。挂载前按没在加载渲染，两边一致
+  const mounted = useMounted();
+  return () => {
+    const visible = mounted.value && controller.visible;
+    const progress = mounted.value ? controller.progress : 0;
+    const failed = mounted.value && controller.failed;
+    return (
       <div
-        {...css.attrs(
-          loadingBarStyles.bar,
-          controller.failed && loadingBarStyles.failed,
-          loadingBarScaleStyles.at(controller.progress),
+        {...mergeAttrs<'div'>(
+          {
+            sx: [loadingBarStyles.root, visible && loadingBarStyles.visible],
+            'aria-label': lang.loading,
+          },
+          rest,
+          {
+            role: 'progressbar',
+            'aria-valuemin': 0,
+            'aria-valuemax': 100,
+            'aria-valuenow': Math.round(progress),
+            'aria-busy': visible && progress < 100,
+            'aria-hidden': visible ? undefined : true,
+          },
         )}
-      />
-    </div>
-  );
+        data-state={failed ? 'error' : visible ? 'loading' : 'idle'}
+      >
+        <div
+          {...css.attrs(
+            loadingBarStyles.bar,
+            failed && loadingBarStyles.failed,
+            loadingBarScaleStyles.at(progress),
+          )}
+        />
+      </div>
+    );
+  };
 });

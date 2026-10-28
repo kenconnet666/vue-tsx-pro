@@ -24,3 +24,11 @@ export function snapToStep(value: number, step: number, min = -Infinity, max = I
   const places = Math.max(decimals(step), Number.isFinite(min) ? decimals(min) : 0);
   return Number(clamp(stepped, min, max).toFixed(places));
 }
+
+/**
+ * SVG 里的坐标保留三位小数：三角函数在不同的 JS 引擎、平台上末几位可能不同，服务端渲染与浏览器算出的路径就对不上（水合不一致）；
+ * 千分之一个单位看不出差别，HTML 也短一些
+ */
+export function svgNumber(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}

@@ -21,7 +21,7 @@ import { useDefaults } from '../config/defaults';
 import { useRecipe } from '../config/styles';
 import { useFormat } from '../config/lang/format';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { clamp } from '../utils/data/number';
+import { clamp, svgNumber } from '../utils/data/number';
 import { compareNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -366,8 +366,8 @@ export const Progress = _component(
         // 目标刻度：从轨道外缘到内缘的一道线，按比例转到对应角度（SVG 整体转了 -90°，0 在正上方）
         const angle = ((targetPercent ?? 0) / 100) * 2 * Math.PI;
         const tick = (distance: number) => ({
-          x: 50 + distance * Math.cos(angle),
-          y: 50 + distance * Math.sin(angle),
+          x: svgNumber(50 + distance * Math.cos(angle)),
+          y: svgNumber(50 + distance * Math.sin(angle)),
         });
         const outer = tick(r + stroke / 2 + 2);
         const inner = tick(r - stroke / 2 - 2);

@@ -24,6 +24,7 @@ import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { useHoverLayer } from '../utils/dom/hover-layer';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
+import { useMounted } from '../utils/dom/mounted';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
 export interface TooltipTriggerProps {
@@ -105,6 +106,8 @@ export const Tooltip = _component(
     children,
     ...rest
   }: TooltipProps) => {
+    // 面板挂载后才渲染：关着时本来就看不见；服务端渲染时也不输出，触发器在 <p> 里时 <div> 不会把段落提前截断，水合对得上
+    const mounted = useMounted();
     const layer = useHoverLayer(
       tooltips,
       () => ({ open, disabled, placement, offset, delay, closeDelay: CLOSE_DELAY }),
@@ -122,31 +125,33 @@ export const Tooltip = _component(
           'aria-describedby': layer.id,
           ...layer.hover.trigger,
         })}
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [
-                floatingStyles.anchored,
-                tooltipStyles.panel,
-                transitions.fade,
-                arrow && floatingStyles.withArrow,
-              ],
-            },
-            rest,
-            {
-              ref: layer.panelRef,
-              id: layer.id,
-              popover: 'manual',
-              role: 'tooltip',
-              // 指针移到提示上不消失，离开提示后再隐藏
-              ...layer.hover.panel,
-            },
-          )}
-          data-state={open && !disabled ? 'open' : 'closed'}
-        >
-          {children}
-          {arrow && <span {...layer.arrowProps(propsArrow)} />}
-        </div>
+        {mounted.value && (
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  tooltipStyles.panel,
+                  transitions.fade,
+                  arrow && floatingStyles.withArrow,
+                ],
+              },
+              rest,
+              {
+                ref: layer.panelRef,
+                id: layer.id,
+                popover: 'manual',
+                role: 'tooltip',
+                // 指针移到提示上不消失，离开提示后再隐藏
+                ...layer.hover.panel,
+              },
+            )}
+            data-state={open && !disabled ? 'open' : 'closed'}
+          >
+            {children}
+            {arrow && <span {...layer.arrowProps(propsArrow)} />}
+          </div>
+        )}
       </>
     );
   },

@@ -10,6 +10,7 @@
  *   users.data?.rows; users.loading; users.error; users.refresh();
  *
  * 只在浏览器里自动请求：服务端渲染时 data 留空，等页面在浏览器里接管后再请求。
+ * 一开始就请求时 loading 从 true 开始，服务端也按“加载中”渲染：水合时两边一致，浏览器接着发请求。
  */
 import { onScopeDispose, shallowRef, watch } from 'vue';
 import { sameValue } from '../data/equality';
@@ -60,7 +61,8 @@ export function useRequest<T, P = undefined>(
   const { params, debounce = 0, immediate = true, keepPrevious = true } = options;
   const data = shallowRef<T>();
   const error = shallowRef<unknown>();
-  const loading = shallowRef(false);
+  const starts = immediate && options.enabled?.() !== false;
+  const loading = shallowRef(starts);
   let controller: AbortController | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
   // 每次请求一个编号：结果回来时不是最后一次的就丢掉（fetcher 没理会 signal 时也不会覆盖）
@@ -114,7 +116,7 @@ export function useRequest<T, P = undefined>(
       else void run(next);
     });
   }
-  if (immediate && options.enabled?.() !== false && typeof window !== 'undefined') {
+  if (starts && typeof window !== 'undefined') {
     void run(readParams());
   }
   onScopeDispose(cancel);

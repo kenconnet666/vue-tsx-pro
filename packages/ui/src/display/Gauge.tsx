@@ -15,7 +15,7 @@ import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import { clamp } from '../utils/data/number';
+import { clamp, svgNumber } from '../utils/data/number';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -137,7 +137,7 @@ const BAND_RADIUS = 94;
 /** 比例 fraction（0–1）在半径 r 上的点 */
 function point(fraction: number, r: number) {
   const angle = Math.PI * (1 - fraction);
-  return { x: CENTER + r * Math.cos(angle), y: CENTER - r * Math.sin(angle) };
+  return { x: svgNumber(CENTER + r * Math.cos(angle)), y: svgNumber(CENTER - r * Math.sin(angle)) };
 }
 
 /** 从 from 到 to（比例）的弧 */

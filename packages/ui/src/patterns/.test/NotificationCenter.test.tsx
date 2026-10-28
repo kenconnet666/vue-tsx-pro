@@ -41,10 +41,12 @@ beforeAll(() => {
 });
 
 describe('NotificationCenter', () => {
-  it('铃铛的名称带未读数；打开后新的在前，未读的给读屏标“未读”，时间写成相对现在', () => {
+  it('铃铛的名称带未读数；打开后新的在前，未读的给读屏标“未读”，时间写成相对现在', async () => {
     const root = mount(() => (
       <NotificationCenter items={items} types={types} lazy={false} now={NOW} />
     ));
+    // 弹出层的面板挂载后的下一次渲染才出现
+    await nextTick();
     const bell = document.querySelector('button[aria-label^="通知"]')!;
     expect(bell.getAttribute('aria-label')).toBe('通知，未读 2 条');
     const panel = document.body;
@@ -66,6 +68,7 @@ describe('NotificationCenter', () => {
         onItemClick={onItemClick}
       />
     ));
+    await nextTick();
     document.querySelector<HTMLElement>('li [data-state="unread"]')!.click();
     expect(onRead).toHaveBeenCalledWith(['1']);
     expect(onItemClick).toHaveBeenCalledWith(items[0]);
@@ -80,6 +83,7 @@ describe('NotificationCenter', () => {
   it('按类型筛选、只看未读；筛完没有时显示“没有通知”', async () => {
     document.body.innerHTML = '';
     mount(() => <NotificationCenter items={items} types={types} lazy={false} now={NOW} />);
+    await nextTick();
     const button = (text: string) =>
       [...document.querySelectorAll('button')].find((item) => item.textContent === text)!;
     button('催办').click();

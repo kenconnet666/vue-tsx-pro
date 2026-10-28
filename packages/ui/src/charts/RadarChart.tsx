@@ -23,6 +23,7 @@ import type { PartProps } from '../utils/props';
 import { niceStep } from './axis-ticks';
 import { ChartFrame, type ChartFrameParts } from './frame';
 import { resolveSeries, seriesNumber, seriesValue, type ChartSeries } from './series';
+import { svgNumber } from '../utils/data/number';
 
 /** 未声明的属性落到外层 div（role="figure"）上；aria-label 是图表的名称 */
 export interface RadarChartProps<T extends object>
@@ -99,8 +100,8 @@ const LABEL_RADIUS = 124;
 function polar(index: number, count: number, ratio: number) {
   const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
   return {
-    x: CX + Math.cos(angle) * RADIUS * ratio,
-    y: CY + Math.sin(angle) * RADIUS * ratio,
+    x: svgNumber(CX + Math.cos(angle) * RADIUS * ratio),
+    y: svgNumber(CY + Math.sin(angle) * RADIUS * ratio),
     angle,
   };
 }

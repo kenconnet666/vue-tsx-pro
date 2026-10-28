@@ -1748,7 +1748,7 @@ export {
 } from './utils/data/history';
 export { cachedIntl } from './utils/data/intl-cache';
 export { normalizeNumber, parseNumber } from './utils/data/number-parse';
-export { clamp, snapToStep } from './utils/data/number';
+export { clamp, snapToStep, svgNumber } from './utils/data/number';
 export {
   addNumeric,
   compareDecimalText,

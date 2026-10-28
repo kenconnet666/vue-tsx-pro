@@ -153,7 +153,7 @@ describe('DateField', () => {
       </Provider>
     ));
     const groups = [...en.querySelectorAll('[role="group"]')].map((group) => group.textContent);
-    expect(groups).toEqual(['10/20/2026', '10/2026', '10/20/2026, 2:30 PM']);
+    expect(groups).toEqual(['10/20/2026', '10/2026', '10/20/2026, 2:30 PM']);
   });
 
   it('zh-CN 的年月：结尾的“月”也是分隔符，要留着', () => {
@@ -197,7 +197,7 @@ describe('TimeField', () => {
         <TimeField _value={value} aria-label="Time" />
       </Provider>
     ));
-    expect(text(root)).toBe('9:15 AM');
+    expect(text(root)).toBe('9:15 AM');
     segment(root, 'dayPeriod').focus();
     await type('p');
     expect(value).toBe('21:15');

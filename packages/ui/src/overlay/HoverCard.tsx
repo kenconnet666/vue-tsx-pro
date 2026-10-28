@@ -25,6 +25,7 @@ import { useHoverLayer } from '../utils/dom/hover-layer';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
+import { useMounted } from '../utils/dom/mounted';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
 export interface HoverCardTriggerProps {
@@ -94,6 +95,8 @@ export const HoverCard = _component(
     children,
     ...rest
   }: HoverCardProps) => {
+    // 面板挂载后才渲染：关着时本来就看不见；服务端渲染时也不输出，触发器在 <p> 里时 <div> 不会把段落提前截断，水合对得上
+    const mounted = useMounted();
     const showContent = useLazyContent(
       () => open,
       () => lazy,
@@ -118,33 +121,35 @@ export const HoverCard = _component(
             if (!layer.contains(event.relatedTarget)) layer.hover.closeNow('focus', event);
           },
         })}
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [
-                floatingStyles.anchored,
-                floatingStyles.surface,
-                hoverCardStyles.panel,
-                transitions.scale,
-                arrow && floatingStyles.withArrow,
-              ],
-            },
-            rest,
-            {
-              ref: layer.panelRef,
-              id: layer.id,
-              popover: 'manual',
-              ...layer.hover.panel,
-              onFocusout: (event: FocusEvent) => {
-                if (!layer.contains(event.relatedTarget)) layer.hover.closeNow('focus', event);
+        {mounted.value && (
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  floatingStyles.anchored,
+                  floatingStyles.surface,
+                  hoverCardStyles.panel,
+                  transitions.scale,
+                  arrow && floatingStyles.withArrow,
+                ],
               },
-            },
-          )}
-          data-state={open && !disabled ? 'open' : 'closed'}
-        >
-          {showContent() && children}
-          {arrow && <span {...layer.arrowProps(propsArrow)} />}
-        </div>
+              rest,
+              {
+                ref: layer.panelRef,
+                id: layer.id,
+                popover: 'manual',
+                ...layer.hover.panel,
+                onFocusout: (event: FocusEvent) => {
+                  if (!layer.contains(event.relatedTarget)) layer.hover.closeNow('focus', event);
+                },
+              },
+            )}
+            data-state={open && !disabled ? 'open' : 'closed'}
+          >
+            {showContent() && children}
+            {arrow && <span {...layer.arrowProps(propsArrow)} />}
+          </div>
+        )}
       </>
     );
   },
