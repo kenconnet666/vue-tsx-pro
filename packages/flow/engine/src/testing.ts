@@ -47,3 +47,11 @@ export async function createTestEngine(
   await engine.createTables();
   return { engine, clock };
 }
+
+export {
+  simulate,
+  type OpenItem,
+  type SimulationInput,
+  type SimulationResult,
+  type SimulationStep,
+} from './simulate.ts';

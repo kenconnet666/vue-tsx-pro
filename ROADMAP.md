@@ -397,7 +397,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 14.5 场景：`spec/scenarios` 的 37 个场景写适配器按新接口跑，删减的写明原因
       （`packages/flow/engine/test/scenarios.test.ts`：37 个场景里 18 个整个跑通、会签跑到票签之前；其余列出缺的命令或不做的原因：
       表单（清单校验、草稿、发起页）在 14.8，自定义节点、票签、调用流程的 forEach 与异步、撤回这一步、指定承办人是边角）
-- [ ] 14.6 模拟器 `simulate(process, steps)` 与 `createTestEngine()`（内存库、假时钟），设计器的试运行与单测共用
+- [x] 14.6 模拟器 `simulate(process, steps)` 与 `createTestEngine()`（内存库、假时钟），设计器的试运行与单测共用
+      （`@zerodep-dev/flow-ts-engine/testing` 的 `simulate(definition, { variables, steps })`：与真实引擎同一套规则，设计器经接口调用；出错放在结果里）
 - [ ] 14.7 接 Nitro：命令作为 action、作业用 Nitro 的定时任务、当前用户与权限
 - [ ] 14.8 界面 `packages/flow/ui`：流程图、设计器（定义 ↔ 代码来回编辑、节点逻辑写 TS、试运行）、审批面板、表单（先做 flow-demo 用到的）
 - [ ] 14.8a 设计器像低代码一样简单好懂（用户 2026-10-28：现在的操作还是有点复杂）：从模板起步（请假、采购、报销……一键生成再改）、
