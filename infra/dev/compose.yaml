@@ -1,0 +1,120 @@
+# 本仓库自己的开发与实库测试数据库（easy-query TS、流程引擎、示例应用用），运行在 WSL Debian 的 Docker 里。
+# compose 项目名与端口都和 easy-query 仓库的 easy-query-dev 错开，两边可以同时存在。
+# HANA 体积大、启动慢（首次约 4 分钟、要 12 GB 内存），放在 hana profile 里按需启动；启动它即按镜像的说明接受 SAP 的许可。
+#
+# 用法：在仓库根目录执行（Windows 下前面加 `wsl -d Debian --`）
+#   bash infra/dev/db.sh up -d                 # MySQL 8.0.18（PolarDB 基线）、MySQL 8.4、PG 17
+#   bash infra/dev/db.sh --profile hana up -d  # 再加 HANA
+#   bash infra/dev/db.sh stop
+# 密码与连接串在 .local/（不提交），首次由 db.sh 生成；实库测试从 .local/db.env 里的 EQTS_* 环境变量读连接。
+name: vue-tsx-pro-dev
+
+x-mysql: &mysql
+  restart: unless-stopped
+  mem_limit: 1g
+  environment:
+    MYSQL_ROOT_PASSWORD: ${VTP_MYSQL_PASSWORD:?run infra/dev/db.sh to create .local/db.env}
+    MYSQL_DATABASE: eqts
+    TZ: Asia/Shanghai
+  healthcheck:
+    test:
+      [
+        CMD-SHELL,
+        'MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysql --protocol=TCP -h 127.0.0.1 -u root -e "SELECT 1" >/dev/null',
+      ]
+    interval: 3s
+    timeout: 3s
+    retries: 40
+    start_period: 20s
+
+services:
+  # 生产 PolarDB MySQL 版报告的内核是 8.0.18：MySQL 方言与流程引擎在这里验证不用到 8.0.19+ 的写法
+  mysql8018:
+    <<: *mysql
+    image: mysql:8.0.18@sha256:e1b0fd480a11e5c37425a2591b6fbd32af886bfc6d6f404bd362be5e50a2e632
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --max-connections=200
+    ports:
+      - '23318:3306'
+    volumes:
+      - mysql8018-data:/var/lib/mysql
+
+  mysql84:
+    <<: *mysql
+    image: mysql:8.4.11@sha256:1f8411cc085d2f2f92060fca926746cbf97f87b76c3008e9741ad62e604c4ffa
+    command:
+      - --mysql-native-password=ON
+      - --authentication-policy=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --max-connections=200
+    ports:
+      - '23306:3306'
+    volumes:
+      - mysql84-data:/var/lib/mysql
+
+  postgres:
+    image: postgres:17.11-bookworm@sha256:66aafa11cf15800a3c94763f7e11d1e7b2e37e5e84bc4ce027cb6e1e4bfaf4df
+    restart: unless-stopped
+    mem_limit: 1g
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${VTP_PG_PASSWORD:?run infra/dev/db.sh to create .local/db.env}
+      POSTGRES_DB: eqts
+      TZ: Asia/Shanghai
+    command: [postgres, -c, max_connections=200]
+    ports:
+      - '25432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, postgres]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  hana:
+    profiles: [hana]
+    build: ./hana
+    image: vue-tsx-pro-dev/hana:2.00.088
+    platform: linux/amd64
+    hostname: hxehost
+    restart: unless-stopped
+    # SAP 公布的最低内存是 8g；HANA 把 cgroup 上限当物理内存，不要靠调大掩盖失败
+    mem_limit: 12g
+    memswap_limit: 12g
+    shm_size: 2g
+    stop_grace_period: 2m
+    environment:
+      EQ_HANA_PASSWORD: ${VTP_HANA_PASSWORD:?run infra/dev/db.sh to create .local/db.env}
+      TZ: Asia/Shanghai
+    ports:
+      - '29041:39041'
+      - '29017:39017'
+    volumes:
+      - hana-data:/hana/mounts
+    tmpfs:
+      - /run/eq:size=1m,mode=0700,uid=12000,gid=79
+    entrypoint: [/bin/bash, /eq/start.sh]
+    ulimits:
+      nofile:
+        soft: 1048576
+        hard: 1048576
+    sysctls:
+      kernel.shmmax: 1073741824
+      kernel.shmmni: 32768
+      kernel.shmall: 8388608
+      net.ipv4.ip_local_port_range: '40000 60999'
+    healthcheck:
+      test: [CMD, /bin/bash, /eq/health.sh]
+      interval: 5s
+      timeout: 5s
+      retries: 180
+      start_period: 2m
+
+volumes:
+  mysql8018-data:
+  mysql84-data:
+  postgres-data:
+  hana-data:

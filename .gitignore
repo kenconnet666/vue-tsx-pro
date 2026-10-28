@@ -16,3 +16,6 @@ vue-tsx-pro.iml
 # 本机配置：Codex 由 pnpm lsp:setup 生成；Claude Code 的本机设置
 .codex/config.toml
 .claude/settings.local.json
+
+# 本机的数据库密码与连接（infra/dev/db.sh 生成）
+/.local/

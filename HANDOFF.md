@@ -68,6 +68,15 @@ pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium firefox we
 pnpm dev:docs        # 文档站开发服务器，端口 5174（.claude/launch.json 里的 docs）
 ```
 
+实库测试用本仓库自己的数据库（WSL Debian 的 Docker，compose 项目 `vue-tsx-pro-dev`，端口与 easy-query 仓库的错开）：
+
+```bash
+wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro && bash infra/dev/db.sh up -d --wait'   # MySQL 8.0.18（23318）、8.4（23306）、PG 17（25432）
+wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro && bash infra/dev/db.sh --profile hana up -d'   # 按需加 HANA（29041，要 12 GB 内存）
+```
+
+密码、连接说明与实库测试的环境变量（`EQTS_*`）在不提交的 `.local/db.env`、`.local/connections.md`，首次运行 `db.sh` 时生成。
+
 常用的短检查（改了哪个包就跑哪个）：
 
 ```bash
