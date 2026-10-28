@@ -46,6 +46,40 @@ export interface RendererOptions<C extends object> extends AppDefinition {
   session?: (context: C) => SessionData;
   /** 'csr' 时整站改成浏览器渲染（服务端渲染出问题时的总开关，部署时用环境变量切换）；默认按各页的 mode */
   renderMode?: 'auto' | 'csr';
+  /** 模块：各自带来的 loader、action 并进来，start 在服务端第一次处理请求前执行一次（作业轮询这类常驻的事） */
+  modules?: readonly KitModule[];
+}
+
+/**
+ * 框架的模块（ROADMAP 15.3）：一块能力（流程引擎的命令与查询、某个业务域）自带的 loader、action 与启动时要做的事。
+ * 和应用自己的 loader、action 合在一起；名字重复时报错，免得一个悄悄盖掉另一个
+ *
+ *   createRenderer({ ...app, assets, loaders, actions, modules: [flowModule] });
+ */
+export interface KitModule {
+  readonly name: string;
+  readonly loaders?: Loaders;
+  readonly actions?: Actions;
+  readonly start?: () => void;
+}
+
+/** 把几份登记表并成一份，名字重复时报错 */
+function mergeNamed<T>(
+  what: string,
+  own: Readonly<Record<string, T>>,
+  modules: readonly KitModule[],
+  pick: (m: KitModule) => Readonly<Record<string, T>> | undefined,
+) {
+  const merged: Record<string, T> = { ...own };
+  for (const module of modules) {
+    for (const [name, value] of Object.entries(pick(module) ?? {})) {
+      if (Object.hasOwn(merged, name)) {
+        throw new Error(`模块 ${module.name} 的 ${what} ${name} 与已有的重名`);
+      }
+      merged[name] = value;
+    }
+  }
+  return merged;
 }
 
 const ANONYMOUS: SessionData = { user: null, permissions: [] };
@@ -61,7 +95,10 @@ const attributes = (record: Record<string, string>) =>
 export function createRenderer<C extends object>(
   options: RendererOptions<C>,
 ): (request: Request) => Promise<Response> {
-  const { loaders = {}, actions = {} } = options;
+  const modules = options.modules ?? [];
+  const loaders = mergeNamed('loader', options.loaders ?? {}, modules, (m) => m.loaders);
+  const actions = mergeNamed('action', options.actions ?? {}, modules, (m) => m.actions);
+  let started = false;
   const patterns = Object.keys(loaders);
 
   /** 地址解析成路由，找到它的 loader */
@@ -82,6 +119,10 @@ export function createRenderer<C extends object>(
   }
 
   return async (request) => {
+    if (!started) {
+      started = true;
+      for (const module of modules) module.start?.();
+    }
     const context = (await options.createContext?.(request)) ?? {};
     const sessionData = options.session?.(context as C) ?? ANONYMOUS;
     const session = createSession(sessionData);

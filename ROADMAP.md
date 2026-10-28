@@ -49,6 +49,9 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ### 待决
 
+- （2026-10-29）打成包、拿来就用的流程模块（命令与查询的 action、loader）：kit 的 action 与 loader 的辅助函数经主入口导入 vue，
+  引擎这一层不能导入 vue。要么把 kit 的 `defineAction`、`defineLoaders` 拆到不带 vue 的子路径，要么模块放在应用里（现在的做法）。
+
 （执行中遇到的停顿点记在这里：日期、项号、卡在哪、需要用户决定什么。）
 
 ## 工作方式
@@ -420,7 +423,9 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
       （两个应用的 src/framework 一字不差，八个文件）
 - [x] 15.2 抽成 `packages/kit`（`@zerodep-dev/vue-tsx-pro-kit`）（主入口两端通用，子路径 `./vite`、`./server`），两个应用改用它，行为不变（两种模式的端到端测试照样绿）
       （`packages/kit`：主入口两端通用，`./server`、`./vite`，另有 `./page`（nitro.config 在 Node 里加载）、`./context`（server/api 也能用）；两个应用的端到端测试照样绿。还没发布：要先定构建方式）
-- [ ] 15.3 组件库、ORM、流程引擎各做成框架的模块，模块接口在三个都写完后再定
+- [x] 15.3 组件库、ORM、流程引擎各做成框架的模块，模块接口在三个都写完后再定
+      （kit 的 `KitModule`：`{ name, loaders, actions, start }`，`createRenderer({ modules })` 并进来、名字重复报错、start 在第一次处理请求前执行；
+      flow-demo 的作业轮询改成流程模块的 start，不再是导入时的副作用。打成包的流程模块见“待决”）
 - [x] 15.4 `fullstack-demo` 整理成新项目模板；文档站加框架分区
       （文档站的“全栈”分区：Framework 全栈框架；新项目模板先用 apps/fullstack-demo）
 

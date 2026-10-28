@@ -5,6 +5,7 @@ import assets from './entry-client.ts?assets=client';
 import { createRenderer } from '@zerodep-dev/vue-tsx-pro-kit/server';
 import { loaders } from './loaders.ts';
 import { createContext, sessionOf } from './server/context.ts';
+import { flowModule } from './server/flow.ts';
 
 // RENDER_MODE=csr：整站改成浏览器渲染
 const renderMode = process.env.RENDER_MODE === 'csr' ? 'csr' : 'auto';
@@ -18,5 +19,6 @@ export default {
     createContext,
     session: sessionOf,
     renderMode,
+    modules: [flowModule],
   }),
 };
