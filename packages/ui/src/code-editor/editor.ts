@@ -32,7 +32,13 @@ import {
   syntaxHighlighting,
 } from '@codemirror/language';
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
-import { Annotation, Compartment, EditorState, Transaction, type Extension } from '@codemirror/state';
+import {
+  Annotation,
+  Compartment,
+  EditorState,
+  Transaction,
+  type Extension,
+} from '@codemirror/state';
 import {
   drawSelection,
   EditorView,
@@ -120,8 +126,11 @@ const theme = EditorView.theme({
 
 /** 一处修改：把 [from, to) 换成 insert */
 export interface CodeChange {
+  /** 开始位置（字符偏移，含） */
   readonly from: number;
+  /** 结束位置（不含）；等于 from 时是插入 */
   readonly to: number;
+  /** 换上的文字；空串是删除 */
   readonly insert: string;
 }
 
@@ -136,8 +145,9 @@ export interface CodeEditorHandle {
    * 默认单独成一步撤销（可视化编辑器的一次操作）；merge 为 true 时像打字一样，与紧挨着的上一次修改合成一步（属性面板里逐字输入）
    */
   edit(changes: readonly CodeChange[], options?: { merge?: boolean }): void;
-  /** 撤销、重做一步；没有可撤销、重做的时返回 false */
+  /** 撤销一步；没有可撤销的时返回 false */
   undo(): boolean;
+  /** 重做一步；没有可重做的时返回 false */
   redo(): boolean;
   /** 光标移到第几行第几列（都从 1 起，超出时取最近的）、滚进视野并聚焦：编译错误列表点一条跳过去 */
   goTo(line: number, column?: number): void;
@@ -232,7 +242,10 @@ export function createEditor(
       const doc = view.state.doc;
       const target = doc.line(Math.min(Math.max(line, 1), doc.lines));
       const pos = target.from + Math.min(Math.max(column - 1, 0), target.length);
-      view.dispatch({ selection: { anchor: pos }, effects: EditorView.scrollIntoView(pos, { y: 'center' }) });
+      view.dispatch({
+        selection: { anchor: pos },
+        effects: EditorView.scrollIntoView(pos, { y: 'center' }),
+      });
       view.focus();
     },
     setDark(next) {

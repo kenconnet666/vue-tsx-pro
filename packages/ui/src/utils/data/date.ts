@@ -380,7 +380,10 @@ export interface DateRange<T = CalendarDate> {
  *
  *   const { from, to } = dayRangeBounds(range);   // 发成 ISO：from.toISOString()
  */
-export function dayRangeBounds(range: DateRange, timeZone: string = getLocalTimeZone()): { from: Date; to: Date } {
+export function dayRangeBounds(
+  range: DateRange,
+  timeZone: string = getLocalTimeZone(),
+): { from: Date; to: Date } {
   return { from: range.start.toDate(timeZone), to: range.end.add({ days: 1 }).toDate(timeZone) };
 }
 

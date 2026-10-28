@@ -34,7 +34,9 @@ it('点带 download 文件名的链接；地址在点击之后过一会儿才回
 
 it('pickFile 按 accept 弹选文件框：挑了得到文件，取消得到 null', async () => {
   const inputs: HTMLInputElement[] = [];
-  const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (this: HTMLInputElement) {
+  const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(function (
+    this: HTMLInputElement,
+  ) {
     inputs.push(this);
   });
 

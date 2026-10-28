@@ -12,25 +12,37 @@
 
 /** 要排的一个节点：大小，已有的位置 */
 export interface LayerNode {
+  /** 节点的标识，连线按它连 */
   readonly id: string;
+  /** 宽 */
   readonly width: number;
+  /** 高 */
   readonly height: number;
+  /** 已有的横坐标（左上角）；没有时排出来 */
   readonly x?: number | null;
+  /** 已有的纵坐标（左上角）；没有时排出来 */
   readonly y?: number | null;
 }
 
 /** 一条连线：从哪到哪 */
 export interface LayerEdge {
+  /** 起点节点的标识 */
   readonly from: string;
+  /** 终点节点的标识 */
   readonly to: string;
 }
 
 /** 排好的一个节点（画布坐标） */
 export interface PlacedLayerNode {
+  /** 节点的标识 */
   readonly id: string;
+  /** 横坐标（左上角） */
   readonly x: number;
+  /** 纵坐标（左上角） */
   readonly y: number;
+  /** 宽 */
   readonly width: number;
+  /** 高 */
   readonly height: number;
 }
 
@@ -95,7 +107,9 @@ export function layoutLayers(
     members.forEach((id, i) => {
       const node = byId.get(id)!;
       const x = node.x ?? margin + c * columnGap + (cellWidth - node.width) / 2;
-      const y = node.y ?? margin + (i + (tallest - members.length) / 2) * rowGap + (cellHeight - node.height) / 2;
+      const y =
+        node.y ??
+        margin + (i + (tallest - members.length) / 2) * rowGap + (cellHeight - node.height) / 2;
       placed.set(id, { id, x, y, width: node.width, height: node.height });
     });
   }

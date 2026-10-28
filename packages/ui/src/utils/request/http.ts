@@ -342,7 +342,8 @@ export function scopeHttp(client: HttpClient, prefix = ''): FetchClient {
 const isAbsolute = (url: string) => /^[a-z][a-z\d+.-]*:/i.test(url) || url.startsWith('//');
 
 /** 两段路径接起来，中间只留一个斜杠 */
-const joinPath = (base: string, path: string) => `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+const joinPath = (base: string, path: string) =>
+  `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 
 let fallback: FetchClient | undefined;
 

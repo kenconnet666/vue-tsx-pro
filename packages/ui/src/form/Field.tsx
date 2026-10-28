@@ -21,7 +21,16 @@
 import { Asterisk } from '@lucide/icons';
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { cloneVNode, Fragment, isVNode, onBeforeUnmount, useId, watch, type VNode, type VNodeChild } from 'vue';
+import {
+  cloneVNode,
+  Fragment,
+  isVNode,
+  onBeforeUnmount,
+  useId,
+  watch,
+  type VNode,
+  type VNodeChild,
+} from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';

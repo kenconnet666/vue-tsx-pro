@@ -52,7 +52,11 @@ export interface Autosave<Saved> {
 /** 内容改了停一会儿就存（在 setup 里调用；组件卸载时停下） */
 export function useAutosave<Saved>(options: AutosaveOptions<Saved>): Autosave<Saved> {
   const delay = options.delay ?? 2000;
-  const status = shallowReactive<AutosaveStatus<Saved>>({ state: 'idle', saved: null, error: null });
+  const status = shallowReactive<AutosaveStatus<Saved>>({
+    state: 'idle',
+    saved: null,
+    error: null,
+  });
   // 和这份内容一样时不用存：载入时的、刚存过的；null 是还没开始
   let baseline: string | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -60,7 +64,13 @@ export function useAutosave<Saved>(options: AutosaveOptions<Saved>): Autosave<Sa
   async function flush() {
     clearTimeout(timer);
     const content = options.content();
-    if (baseline === null || content === baseline || status.state === 'conflict' || options.enabled?.() === false) return;
+    if (
+      baseline === null ||
+      content === baseline ||
+      status.state === 'conflict' ||
+      options.enabled?.() === false
+    )
+      return;
     status.state = 'saving';
     try {
       status.saved = await options.save(content);

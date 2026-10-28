@@ -1,6 +1,6 @@
 /**
  * 浏览器里存文件、挑文件：导出代码、CSV、SVG；导入一份 JSON、一张表。
- * 内容原样写入：给 Excel 打开的 CSV 要由调用方在开头加 BOM（`'﻿' + csv`），中文才不乱码。
+ * 内容原样写入：给 Excel 打开的 CSV 要由调用方在开头加 BOM（`'\uFEFF' + csv`），中文才不乱码。
  *
  *   downloadFile('theme.ts', code, 'text/typescript');
  *   const file = await pickFile('.json');
@@ -20,7 +20,10 @@ export function downloadFile(name: string, content: BlobPart, type: string): voi
  */
 export function pickFile(accept?: string): Promise<File | null> {
   return new Promise((resolve) => {
-    const input = Object.assign(document.createElement('input'), { type: 'file', ...(accept ? { accept } : {}) });
+    const input = Object.assign(document.createElement('input'), {
+      type: 'file',
+      ...(accept ? { accept } : {}),
+    });
     input.addEventListener('change', () => resolve(input.files?.[0] ?? null), { once: true });
     input.addEventListener('cancel', () => resolve(null), { once: true });
     input.click();

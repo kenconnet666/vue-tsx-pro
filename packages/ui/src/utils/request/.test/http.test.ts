@@ -280,7 +280,10 @@ describe('业务错误码的响应体（0008）', () => {
 describe('scopeHttp', () => {
   it('相对地址拼上前缀（斜杠不重复），完整地址原样，简写方法照常带上参数', async () => {
     const seen: HttpRequest[] = [];
-    const api = scopeHttp({ request: async <T,>(spec: HttpRequest) => (seen.push(spec), undefined as T) }, '/flow/');
+    const api = scopeHttp(
+      { request: async <T>(spec: HttpRequest) => (seen.push(spec), undefined as T) },
+      '/flow/',
+    );
     await api.get('/queries/todo', { query: { page: 1 } });
     await api.post('commands/claim', { workItemId: 1n });
     await api.get('https://example.com/x');
