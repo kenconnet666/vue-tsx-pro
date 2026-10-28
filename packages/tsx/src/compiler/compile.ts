@@ -2,7 +2,8 @@
  * 一个文件的完整编译：解析一次、生成一次，中间两遍遍历，组合本包与官方的 Babel 插件。
  *
  *   第 1 遍：样式的响应式绑定与热更新（style-bindings.ts、style-hot.ts）→ 符文与 props（transform.ts）
- *   第 2 遍：Vue JSX（@vue/babel-plugin-jsx）→ 去掉 TS 类型 → 调用方追加的插件（热更新标记、演练场的模块表）
+ *   第 2 遍：Vue JSX（@vue/babel-plugin-jsx）→ 属性合并换成会合并 ref 的版本（merge-props.ts）→ 去掉 TS 类型
+ *           → 调用方追加的插件（热更新标记、演练场的模块表）
  *
  * 以前每一步各自解析、生成一次，成本大头是每一遍的遍历与生成（含 source map），合并后编译快三四成。
  * 分成两遍而不是一遍：第 1 遍的改写（符文换成 .value、样式调用换成绑定）要在 vue-jsx 处理元素之前完成，
@@ -23,6 +24,7 @@ import typescript from '@babel/plugin-transform-typescript';
 import vueJsx, { type VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { languageOf, parserPlugins, type Language } from './ast.ts';
 import type { RunesWarning } from './errors.ts';
+import { mergePropsPlugin } from './merge-props.ts';
 import { needsStyleBindings, styleBindingsPlugin } from './style-bindings.ts';
 import { styleHotPlugin } from './style-hot.ts';
 import { needsRunes, runesBabelPlugin } from './transform.ts';
@@ -92,7 +94,7 @@ export async function compile(
   if (options.styleBindings && needsStyleBindings(code)) first.unshift(styleBindingsPlugin);
   const second: PluginItem[] = [];
   if (lang === 'tsx' || lang === 'jsx') {
-    second.push([vueJsx, options.jsx ?? {}]);
+    second.push([vueJsx, options.jsx ?? {}], mergePropsPlugin);
     if (lang === 'tsx') second.push([typescript, options.typescript ?? {}]);
   }
   if (!first.length && !second.length) return null;

@@ -281,7 +281,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] **P0 SSR 登记的虚拟模块在 Windows 上加载失败**：预设的 `/__vue-jsx-ssr-register-helper` 在 Vite 的模块运行器（Vitest 的 node 环境、Vite 的服务端开发）里变成
       `file:///__vue-jsx-ssr-register-helper`，Windows 上不是合法的绝对路径，`createRequire` 抛错，服务端加载任何 TSX 组件都失败（文档站 449 个示例全挂）。
       改成 `\0` 开头的虚拟 id 后实测 437 个示例服务端渲染无警告（其余见 P2）
-- [ ] **P1 展开 attrs 与手写 ref 互相覆盖**：JSX 编译成 Vue 的 `mergeProps`，`ref` 后者盖前者——ref 写在后面，样式绑定失效（状态变了类不变，组件也不重渲染）；
+- [x] **P1 展开 attrs 与手写 ref 互相覆盖**：JSX 编译成 Vue 的 `mergeProps`，`ref` 后者盖前者——ref 写在后面，样式绑定失效（状态变了类不变，组件也不重渲染）；
       写在前面，使用方的 ref 拿不到元素。扫描全部 TSX 的编译产物，实际命中两处：Tree 的 `sizer`（一直是 null，虚拟滚动的 scrollMargin 恒为 0）、
       文档站 PropsPlayground 的 `stage`（居中判断失效）。修根因：编译器把 JSX 的 `mergeProps` 换成会合并 ref 的版本（组件库的 `mergeAttrs` 已经这样做）
 - [ ] **P1 样式绑定换类晚于 Vue 的 post 回调**：`_effect`、`watch(…, { flush: 'post' })` 四种情形里三种读到旧类（实测）。改走 Vue 的调度（pre 任务），

@@ -14,7 +14,8 @@ import type { IntrinsicProps, JSX } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runti
 // 登记主题 tokens（样式里的 '_md' 靠它）：每个组件都经过这里合并属性，渲染之前一定登记过
 import '../config/theme/tokens';
 import type { StyleAttrs, SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { Ref, VNodeChild } from 'vue';
+import { mergeRefs, type RefSetter } from '@zerodep-dev/vue-tsx-pro-tsx';
+import type { VNodeChild } from 'vue';
 
 /**
  * 原生元素部件的 props：该元素的属性加上 sx；去掉组件管理的属性与 children（内容走组件自己的 prop）。
@@ -51,7 +52,6 @@ export const dataAttrs = (attrs: Record<`data-${string}`, string | number | bool
 
 type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => unknown;
-type RefSetter = ((element: unknown) => void) | Ref<unknown>;
 
 /**
  * 一层属性：Target 是标签名（'svg'）时为该元素的属性加 sx，是 props 类型（IconProps）时就是它。
@@ -86,9 +86,7 @@ export function mergeProps<Target = Props>(
   }
 
   const refs = present3(base.ref, own?.ref, fixed?.ref) as RefSetter[] | undefined;
-  if (refs && refs.length > 1) {
-    merged.ref = (element: unknown) => refs.forEach((ref) => setRef(ref, element));
-  }
+  if (refs && refs.length > 1) merged.ref = mergeRefs(refs);
 
   // 同名事件：使用方的与组件的（默认层、受管层）合并；只有组件两层都有时也要合并
   if (own) {
@@ -157,14 +155,10 @@ export function elementProps<P extends object>(props: P): Omit<P, 'sx' | 'childr
   const compiled = compileSx(sx as SxStyles);
   const element = rest as Props;
   // 响应式绑定的 ref（元素挂上后改变量）与使用方的 ref 都要拿到元素
-  if (compiled.ref && element.ref != null) {
-    const own = element.ref as RefSetter;
-    const bound = compiled.ref;
-    element.ref = (target: unknown) => {
-      setRef(own, target);
-      bound(target);
-    };
-  } else if (compiled.ref) element.ref = compiled.ref;
+  if (compiled.ref) {
+    element.ref =
+      element.ref != null ? mergeRefs([element.ref as RefSetter, compiled.ref]) : compiled.ref;
+  }
   if (rest.class == null && rest.style == null) {
     if (compiled.class != null) element.class = compiled.class;
     if (compiled.style != null) element.style = compiled.style;
@@ -212,11 +206,6 @@ function mergeHandlers(user: Handler | undefined, internal: unknown[]): Handler 
     if (event instanceof Event && event.defaultPrevented) return;
     own.forEach((handler) => handler(...args));
   };
-}
-
-function setRef(ref: RefSetter, element: unknown) {
-  if (typeof ref === 'function') ref(element);
-  else ref.value = element;
 }
 
 const present = <T>(values: readonly (T | null | undefined)[]) =>

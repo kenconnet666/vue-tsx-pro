@@ -10,3 +10,4 @@ export { prop, readonlyProp, childrenProp, bindable } from './runtime/props';
 export { restProps, childrenStable, forwardChildren } from './runtime/component';
 export { overridable, snapshot, untrack } from './runtime/state';
 export { effect, effectRoot } from './runtime/effect';
+export { mergeJsxProps, mergeRefs, setRef, type RefSetter } from './runtime/refs';
