@@ -28,6 +28,8 @@ const pages = globSync('**/*.html', { cwd: dist })
 const server = spawn(
   process.execPath,
   [
+    // 与 pnpm 跑脚本时一样（pnpm-workspace.yaml 的 nodeOptions）：配置按源码解析各包，不要求先构建出 dist
+    '--conditions=@vue-tsx-pro/source',
     join(root, 'apps/docs/node_modules/vite/bin/vite.js'),
     'preview',
     '--configLoader',
