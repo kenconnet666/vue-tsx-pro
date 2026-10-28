@@ -92,6 +92,31 @@ const guide: NavSection = {
   ],
 };
 
+/** 全栈：ORM、框架、流程引擎（不在组件库里，仓库里的另外几个包） */
+const stack: NavSection = {
+  label: '全栈',
+  pages: [
+    {
+      path: '/stack/orm',
+      title: 'ORM easy-query TS',
+      description: '实体与导航、lambda 条件、隐式 join 与子查询、对象树结果，接表格、事务与锁',
+      component: () => import('../pages/stack/Orm'),
+    },
+    {
+      path: '/stack/framework',
+      title: 'Framework 全栈框架',
+      description: '按页面选渲染模式，loader 与 action，请求上下文、会话与权限',
+      component: () => import('../pages/stack/Framework'),
+    },
+    {
+      path: '/stack/flow',
+      title: 'Flow 流程引擎',
+      description: '定义、一个命令入口、扩展点、试运行、流程图与低代码设计器',
+      component: () => import('../pages/stack/Flow'),
+    },
+  ],
+};
+
 const componentSections: NavSection[] = CATEGORIES.map(([category, label]) => ({
   label,
   pages: componentPages
@@ -108,7 +133,7 @@ const componentSections: NavSection[] = CATEGORIES.map(([category, label]) => ({
 })).filter((section) => section.pages.length > 0);
 
 /** 侧栏的各组 */
-export const sections: NavSection[] = [guide, ...componentSections];
+export const sections: NavSection[] = [guide, stack, ...componentSections];
 
 /** 所有页面，按侧栏顺序：翻页与搜索用 */
 export const allPages: NavPage[] = sections.flatMap((section) => section.pages);

@@ -25,6 +25,8 @@
     "@lucide/icons": "catalog:",
     "@shikijs/langs": "catalog:",
     "@unovis/ts": "catalog:",
+    "@zerodep-dev/flow-ts-model": "workspace:^",
+    "@zerodep-dev/flow-ts-ui": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
     "animejs": "catalog:",

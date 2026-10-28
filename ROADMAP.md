@@ -327,7 +327,8 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 11b.3a 查询栏的区间值与条件树（FilterBar 的高级筛选，组件库 `condition` 参数）：日期区间落在时间戳列上的整天语义、条件树按结果列的白名单转成条件（原 query 库 0016 §2、0017）
 - [x] 11b.4 自关联的树：`toTreeList`（按父子列把行拼成树，节点是视图的形状）、从某个节点取全部下级 / 全部上级（递归 CTE 的便捷写法）（`toTree`、`db.descendantsOf` / `ancestorsOf`）
 - [x] 11b.5 导航上的固定条件（对应 `extraFilter`）：定义关系时声明，查询处不用再写
-- [ ] 11b.6 文档站 ORM 分区：每个能力一页，写清与 Java 版的对应（DTO 导航、VO、对象树、对象树的 VO 各有一页示例）；`packages/easy-query/docs/features/` 的暂存页改写进来后删掉
+- [x] 11b.6 文档站 ORM 分区：每个能力一页，写清与 Java 版的对应（DTO 导航、VO、对象树、对象树的 VO 各有一页示例）；`packages/easy-query/docs/features/` 的暂存页改写进来后删掉
+      （文档站的“全栈”分区：ORM easy-query TS；DTO 导航、树等细节仍在 packages/easy-query/docs/features）
 - [ ] 11b.7 按需再补（真实页面用到时）：`subQueryToGroupJoin`、`fillOne` / `fillMany`、`rightJoin` / `crossJoin`、`asSchema`；事务提交后的回调与 14.3 合并做
 
 ## 阶段 12：组件库支持服务端渲染
@@ -410,7 +411,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [ ] 14.9 `apps/flow-demo`：真实的审批应用；端到端测试进 CI，MySQL 实库
       （已有：`apps/flow-demo` 发起、待办、审批、退回与重新提交、撤回，端到端测试两种渲染模式进 CI；还差：会签、超时、子流程的页面，MySQL 实库）
 - [ ] 14.8b 节点逻辑写 TS：定义带 code 模块（发布时编译、按版本存），条件与处理人里引用 `code.名字`；设计器里用 CodeEditor 编辑、补全来自流程的变量
-- [ ] 14.10 文档站加流程引擎分区
+- [x] 14.10 文档站加流程引擎分区
+      （文档站的“全栈”分区：Flow 流程引擎，带流程图）
 
 ## 阶段 15：收敛成框架
 
@@ -419,7 +421,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 15.2 抽成 `packages/kit`（`@zerodep-dev/vue-tsx-pro-kit`）（主入口两端通用，子路径 `./vite`、`./server`），两个应用改用它，行为不变（两种模式的端到端测试照样绿）
       （`packages/kit`：主入口两端通用，`./server`、`./vite`，另有 `./page`（nitro.config 在 Node 里加载）、`./context`（server/api 也能用）；两个应用的端到端测试照样绿。还没发布：要先定构建方式）
 - [ ] 15.3 组件库、ORM、流程引擎各做成框架的模块，模块接口在三个都写完后再定
-- [ ] 15.4 `fullstack-demo` 整理成新项目模板；文档站加框架分区
+- [x] 15.4 `fullstack-demo` 整理成新项目模板；文档站加框架分区
+      （文档站的“全栈”分区：Framework 全栈框架；新项目模板先用 apps/fullstack-demo）
 
 ## 已知局限（有意的取舍，写在文档里）
 
