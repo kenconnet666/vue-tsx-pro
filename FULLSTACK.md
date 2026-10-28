@@ -49,7 +49,7 @@ packages/
   tsx/  ui/                现有，位置不动（脚本、CI、分层检查里写死了这两个路径）
   easy-query/              ← easy-query 仓库的 ts/packages/*，按"一个包族一个目录"收拢
     core/ sqlite/ mysql/ pg/ hana/ decimal/ date/ test/
-  app/                     新：全栈框架，一个包：主入口（路由的渲染模式、load、action、权限声明，两端通用）
+  kit/                     新：全栈框架 @zerodep-dev/vue-tsx-pro-kit，一个包：主入口（路由的渲染模式、load、action、权限声明，两端通用）
                            + 子路径 ./vite（预设）、./server（Nitro 运行时）
   flow/                    新：纯 TS 流程引擎
     model/                 两端通用：定义、校验、条件、选边、模拟器；只依赖 zod
@@ -63,14 +63,14 @@ apps/
   flow-demo/               新：真实的审批应用，驱动框架与引擎
 ```
 
-`pnpm-workspace.yaml` 逐个写出包族（`packages/tsx`、`packages/ui`、`packages/easy-query/*`、`packages/app`、`packages/flow/*`、`apps/*`），
+`pnpm-workspace.yaml` 逐个写出包族（`packages/tsx`、`packages/ui`、`packages/easy-query/*`、`packages/kit`、`packages/flow/*`、`apps/*`），
 不用 `packages/*/*` 这种会把任意子目录都扫一遍的通配。
 
 ### 3.1 分包的规则
 
 - **按依赖集合与运行环境分包，不按功能分**：一个包只有一种运行环境（两端通用 / 只在服务端 / 只在浏览器），依赖重的（数据库驱动）单独成包。
   可选的集成用子路径加可选的 peer 依赖（组件库的 `/charts`、`/three` 已是这个做法），不为一个可选功能多发一个包。
-- **只在服务端的代码进不了浏览器的包**：`flow/model` 与 `app` 主入口不能导入 `node:*`、easy-query、Nitro；`layers:check` 扩到包这一级检查。
+- **只在服务端的代码进不了浏览器的包**：`flow/model` 与 `kit` 主入口不能导入 `node:*`、easy-query、Nitro；`layers:check` 扩到包这一级检查。
 - **已发布的包名不改**（`@zerodep-dev/vue-tsx-pro-*`、`@zerodep-dev/easy-query-ts*`），新包沿用各自的前缀：`@zerodep-dev/flow-model`、`flow-engine`、`flow-ui`；框架的包名等仓库定位定了再起（§8 第 1 条）。
   easy-query 的 `decimal`、`date` 改成 core 的子路径会少两个包，但它们已发布，先不动。
 - **新应用先放 `apps/`**，不另开 `examples/`：只有一个地方放能跑的东西。
