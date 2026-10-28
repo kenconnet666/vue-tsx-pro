@@ -522,10 +522,22 @@ export class Execution {
     const action = this.options.extensions?.actions?.[node.action];
     if (!action)
       throw new FlowError('invalid-definition', `没有注册动作 ${node.action}`, { node: nodeId });
-    const result = (await action({ ...this.context(node.args ?? {}), node: nodeId })) ?? undefined;
+    let result: Awaited<ReturnType<typeof action>>;
+    try {
+      result = await action({ ...this.context(node.args ?? {}), node: nodeId });
+    } catch (error) {
+      // 同步的动作出错整个命令失败；异步的由作业重试（作业那边按普通错误处理）
+      if ((node.mode ?? 'async') === 'sync') {
+        throw new FlowError('extension-failed', `动作 ${node.action} 出错：${String(error)}`, {
+          node: nodeId,
+        });
+      }
+      throw error;
+    }
+
     if (result?.variables) this.setVariables(result.variables);
     this.addEvent('service.done', { node: nodeId, outcome: result?.outcome ?? null });
-    return result;
+    return result ?? undefined;
   }
 
   /** 定时等待：到点的作业 */

@@ -54,6 +54,11 @@ const SUPPORTED = new Set([
   'cc',
   'ccList',
   'readCc',
+  'incidents',
+  'retryJob',
+  'skipJob',
+  'reassign',
+  'jump',
 ]);
 
 /** Java 版的错误代号 → 这里的 */
@@ -67,7 +72,7 @@ const ERROR_CODES: Record<string, string> = {
   'flow.guard-rejected': 'guard-rejected',
   'flow.definition-invalid': 'invalid-definition',
   'flow.validation-failed': 'invalid-input',
-  'flow.extension-failed': 'invalid-definition',
+  'flow.extension-failed': 'extension-failed',
 };
 
 /** 整个不跑的场景：用到第一版不做的能力（docs/decisions/0001 第 2 节） */
@@ -97,6 +102,7 @@ const COMPARED = new Set([
   'claimable',
   'completable',
   'read',
+  'revived',
 ]);
 
 const files = readdirSync(DIR)
@@ -175,7 +181,7 @@ function testExtensions() {
         }
       },
       explode: () => {
-        throw new Error('boom');
+        throw new Error('ERP 不可用');
       },
     },
   };
@@ -195,7 +201,7 @@ async function runScenario(scenario: Scenario): Promise<void> {
       name: a.name,
       roles: (a.roles ?? []).map(String),
       departments: (a.departments ?? []).map(String),
-      admin: a.id === 1000,
+      admin: a.id === 1000 || name === 'admin',
     };
     actors.set(name, actor);
     for (const role of actor.roles ?? [])
@@ -329,6 +335,29 @@ async function runStep(
         users: (args['users'] as unknown[]).map((user) => String(user as number)),
         message: args['message'],
       });
+    case 'incidents': {
+      const rows = await engine.query.incidents(
+        args['instance'] !== undefined ? Number(args['instance']) : undefined,
+      );
+      return { total: rows.length, rows };
+    }
+    case 'retryJob':
+      return { revived: await engine.retryJob(Number(args['job']), actor) };
+    case 'skipJob':
+      return run({
+        type: 'skipJob',
+        job: Number(args['job']),
+        ...(args['outcome'] !== undefined ? { outcome: args['outcome'] } : {}),
+        ...(args['reason'] !== undefined ? { reason: args['reason'] } : {}),
+      });
+    case 'reassign':
+      return run({
+        type: 'reassign',
+        workItem: Number(args['workItem']),
+        to: String(args['user']),
+      });
+    case 'jump':
+      return run({ type: 'jump', instance: Number(args['instance']), node: args['node'] });
     case 'readCc':
       return { read: await engine.readCc(Number(args['instance']), actor) };
     case 'ccList': {
@@ -438,13 +467,20 @@ function resolveRefs(value: unknown, results: Map<string, unknown>, previous: un
   return value;
 }
 
-/** `workItems[0]` → 那个待办的编号；`instance` → 实例编号 */
+/** `workItems[0]` → 那个待办的编号；`instance` → 实例编号；其余按路径一段段取（`rows[0].jobId`、`timeline[3].data.jobId`） */
 function readPath(base: unknown, path: string): unknown {
   const object = base as Record<string, any>;
   if (path === 'instance') return object['instanceId'];
-  const match = /^(\w+)\[(\d+)\]$/.exec(path);
-  if (match) return object[match[1]!]?.[Number(match[2])]?.id;
-  return object[path];
+  const only = /^(workItems)\[(\d+)\]$/.exec(path);
+  if (only) return object[only[1]!]?.[Number(only[2])]?.id;
+  let current: any = object;
+  for (const part of path.split('.')) {
+    const match = /^(\w+)(?:\[(\d+)\])?$/.exec(part);
+    if (!match) return undefined;
+    current = current?.[match[1]!];
+    if (match[2] !== undefined) current = current?.[Number(match[2])];
+  }
+  return current;
 }
 
 /**

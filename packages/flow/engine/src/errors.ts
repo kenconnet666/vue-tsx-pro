@@ -21,7 +21,9 @@ export type FlowErrorCode =
   /** 处理人解析不出来，且节点要求报错 */
   | 'no-assignee'
   /** 守卫拒绝了这次提交 */
-  | 'guard-rejected';
+  | 'guard-rejected'
+  /** 接入方的扩展（同步的动作）出错 */
+  | 'extension-failed';
 
 /** 引擎的错误 */
 export class FlowError extends Error {

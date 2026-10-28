@@ -393,7 +393,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 14.4 引擎核心 `packages/flow/engine`：命令联合加一个 `run`、推进、各种节点、作业（抢占与重试）；SQLite 内存库的测试
       （`createFlowEngine`：发布、发起、认领、处理、转办、撤回、终止、暂停恢复、催办、留言、抄送、外部事件（`engine.signal`）、命令拦截；
       网关、会签（全部、任一、比例、依次）、退回与重新提交、时限与提醒、定时、同步与异步的自动节点、同步调用流程；查询待办、已办、我发起的、抄送、实例与待办详情）
-- [ ] 14.4a 第一版还差的常用命令：加签、管理员改派与跳转、失败作业的列表、重试与跳过（场景 incidents、purchase-collaboration、batch-reassign-change）
+- [x] 14.4a 第一版还差的常用命令：管理员改派与跳转、失败作业的列表、重试与跳过（场景 incidents、extensions-and-service 跑通，共 20 个）；加签挪到边角
 - [x] 14.5 场景：`spec/scenarios` 的 37 个场景写适配器按新接口跑，删减的写明原因
       （`packages/flow/engine/test/scenarios.test.ts`：37 个场景里 18 个整个跑通、会签跑到票签之前；其余列出缺的命令或不做的原因：
       表单（清单校验、草稿、发起页）在 14.8，自定义节点、票签、调用流程的 forEach 与异步、撤回这一步、指定承办人是边角）

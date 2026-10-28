@@ -169,6 +169,25 @@ export type FlowCommand =
       readonly workItem?: number;
       readonly message?: string;
     }
+  /** 管理员改派、跳转、跳过失败的异步动作 */
+  | {
+      readonly type: 'reassign';
+      readonly workItem: number;
+      readonly to: string;
+      readonly comment?: string;
+    }
+  | {
+      readonly type: 'jump';
+      readonly instance: number;
+      readonly node: string;
+      readonly comment?: string;
+    }
+  | {
+      readonly type: 'skipJob';
+      readonly job: number;
+      readonly outcome?: string;
+      readonly reason?: string;
+    }
   /** 留言：记进流转记录 */
   | { readonly type: 'comment'; readonly instance: number; readonly text: string }
   /** 手动抄送 */

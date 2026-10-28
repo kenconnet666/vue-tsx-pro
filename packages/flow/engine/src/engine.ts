@@ -33,7 +33,13 @@ import {
   type FlowDb,
 } from './entities.ts';
 import { FlowError } from './errors.ts';
-import { Execution, workItemSummary, type InstanceRow, type WorkItemRow } from './execution.ts';
+import {
+  dueAt,
+  Execution,
+  workItemSummary,
+  type InstanceRow,
+  type WorkItemRow,
+} from './execution.ts';
 import { emptyRunState } from './state.ts';
 import type {
   Actor,
@@ -83,6 +89,22 @@ export interface CcItem {
   readonly status: InstanceRow['status'];
 }
 
+/** 失败的作业（异常） */
+export interface Incident {
+  readonly jobId: number;
+  readonly instanceId: number;
+  readonly instanceTitle: string | null;
+  readonly kind: string;
+  readonly node: string | null;
+  readonly nodeName: string | null;
+  readonly attempts: number;
+  readonly error: string | null;
+  /** 异步动作能跳过（按选的结果往下走） */
+  readonly skippable: boolean;
+  /** 跳过时能选的结果 */
+  readonly outcomes: readonly string[];
+}
+
 /** 实例详情 */
 export interface InstanceDetail {
   readonly instance: InstanceRow;
@@ -115,7 +137,11 @@ export interface FlowEngine {
     started(actor: Actor): Promise<InstanceRow[]>;
     /** 抄送给我的，没读的在前 */
     cc(actor: Actor): Promise<CcItem[]>;
+    /** 失败的作业（异常）；给实例时只看这个实例的 */
+    incidents(instance?: number): Promise<Incident[]>;
   };
+  /** 重试失败的作业 */
+  retryJob(job: number, actor: Actor): Promise<boolean>;
   /** 把抄送给我的这个实例标成已读，返回标了几条 */
   readCc(instance: number, actor: Actor): Promise<number>;
   readonly jobs: {
@@ -616,6 +642,68 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     });
   }
 
+  /** 管理员改派：把开着的待办交给另一个人 */
+  async function reassign(
+    command: Extract<FlowCommand, { type: 'reassign' }>,
+    actor: Actor,
+  ): Promise<RunResult> {
+    if (!actor.admin) throw new FlowError('forbidden', '只有管理员能改派');
+    return withInstance(await instanceOfItem(command.workItem), actor, async (exec, tx) => {
+      const item = await openItem(exec, tx, command.workItem);
+      await tx
+        .update(FlowWorkItem)
+        .set({
+          state: 'canceled',
+          completedAt: exec.now,
+          completedBy: actor.id,
+          comment: command.comment ?? null,
+        })
+        .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+        .execute();
+      const node = exec.node(item.node) as TaskNode;
+      await exec.insertItem(node, item.round, 'reassign', {
+        assignee: command.to,
+        assignment: 'direct',
+        state: 'open',
+        signGroup: item.signGroup,
+        signSeq: item.signSeq,
+      });
+      exec.addEvent('workItem.reassigned', {
+        workItemId: item.id,
+        node: node.id,
+        comment: command.comment ?? null,
+        data: { to: command.to },
+      });
+    });
+  }
+
+  /** 管理员跳转：取消所有开着的待办、清掉等待状态，从指定节点重新走 */
+  async function jump(
+    command: Extract<FlowCommand, { type: 'jump' }>,
+    actor: Actor,
+  ): Promise<RunResult> {
+    if (!actor.admin) throw new FlowError('forbidden', '只有管理员能跳转');
+    return withInstance(command.instance, actor, async (exec) => {
+      if (exec.status !== 'active') {
+        throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
+      }
+      const target = exec.graph.node(command.node);
+      if (!target || target.type === 'start') {
+        throw new FlowError('invalid-input', `不能跳到 ${command.node}`, { field: 'node' });
+      }
+      await exec.cancelWhere(() => []);
+      exec.current.clear();
+      exec.state.waiting = {};
+      exec.state.queues = {};
+      exec.addEvent('instance.jumped', {
+        comment: command.comment ?? null,
+        data: { to: command.node },
+      });
+      await exec.enter(command.node, 'jump');
+    });
+  }
+
   async function suspendOrResume(
     command: Extract<FlowCommand, { type: 'suspend' | 'resume' }>,
     actor: Actor,
@@ -742,6 +830,12 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       case 'suspend':
       case 'resume':
         return suspendOrResume(command, actor);
+      case 'skipJob':
+        return skipJob(command, actor);
+      case 'reassign':
+        return reassign(command, actor);
+      case 'jump':
+        return jump(command, actor);
       case 'remind':
         return remind(command, actor);
       case 'comment':
@@ -810,6 +904,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   }
 
   const query: FlowEngine['query'] = {
+    incidents: (instance) => incidents(instance),
     workItem: async (id, actor) => {
       const workItem = await db.queryable(FlowWorkItem).find(id);
       if (!workItem) throw new FlowError('not-found', `没有待办 ${id}`);
@@ -940,10 +1035,10 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
             .execute();
           await runJob(exec, job);
         });
-        ran++;
       } catch (error) {
         await jobFailed(job, error, at);
       }
+      ran++;
     }
     return ran;
   }
@@ -1012,15 +1107,25 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   }
 
   /** 作业失败：回滚了它的事务，这里记次数与错误，按 n² 分钟重试，用完标失败 */
-  async function jobFailed(
-    job: { id: number; attempts: number; instanceId: number; node: string | null },
-    error: unknown,
-    at: Date,
-  ) {
+  /**
+   * 作业失败：它的事务已经回滚，这里另开事务记次数与错误。异步的自动节点按 retry.times 重试（间隔 retry.backoff，
+   * 不写时 n² 分钟），其余作业试 MAX_ATTEMPTS 次；用完标 failed、记 job.failed（data 里有作业编号），
+   * 自动节点写了 onFailure: 'error' 时同时暂停实例
+   */
+  async function jobFailed(job: Row<typeof FlowJob>, error: unknown, at: Date) {
     const attempts = job.attempts + 1;
     const message = error instanceof Error ? error.message : String(error);
-    const gaveUp = attempts >= MAX_ATTEMPTS;
     await db.transaction(async (tx) => {
+      const instance = await tx.queryable(FlowInstance).find(job.instanceId);
+      const definition = instance ? await definitionOf(tx, instance.definitionId) : undefined;
+      const node = job.node ? definition?.nodes.find((n) => n.id === job.node) : undefined;
+      const service = job.kind === 'action' && node?.type === 'service' ? node : undefined;
+      const maxAttempts = service ? (service.retry?.times ?? 0) + 1 : MAX_ATTEMPTS;
+      const gaveUp = attempts >= maxAttempts;
+      const backoff = service?.retry?.backoff;
+      const delay = backoff
+        ? dueAt(backoff, at, () => undefined, options).getTime() - at.getTime()
+        : attempts * attempts * 60_000;
       await tx
         .update(FlowJob)
         .set({
@@ -1029,27 +1134,108 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           lockedBy: null,
           lockedUntil: null,
           state: gaveUp ? 'failed' : 'pending',
-          dueAt: new Date(at.getTime() + attempts * attempts * 60_000),
+          dueAt: new Date(at.getTime() + delay),
         })
         .where((j) => j.id.eq(job.id))
         .execute();
-      if (gaveUp) {
-        await tx
-          .insert(FlowEvent)
-          .values({
-            instanceId: job.instanceId,
-            workItemId: null,
-            type: 'job.failed',
-            at,
-            actor: null,
-            node: job.node,
-            edge: null,
-            outcome: null,
-            comment: null,
-            data: { error: message.slice(0, 500) },
-          })
-          .execute();
+      if (!gaveUp || !instance || !definition) return;
+      await tx.lock(FlowInstance, instance.id);
+      const row = await tx.queryable(FlowInstance).findOrThrow(instance.id);
+      const exec = execution(tx, definition, row, null);
+      exec.addEvent('job.failed', {
+        node: job.node,
+        actor: null,
+        data: { jobId: job.id, kind: job.kind, error: message.slice(0, 500) },
+      });
+      if (service?.onFailure === 'error' && exec.status === 'active') {
+        exec.status = 'suspended';
+        exec.addEvent('instance.suspended', { actor: null, data: { reason: 'job.failed' } });
       }
+      await exec.flush();
+    });
+  }
+
+  /** 失败的作业（异常）：带节点、能不能跳过、能选的结果 */
+  async function incidents(instance?: number): Promise<Incident[]> {
+    const jobs = await db
+      .queryable(FlowJob)
+      .where((j) => [
+        j.state.eq('failed'),
+        ...(instance !== undefined ? [j.instanceId.eq(instance)] : []),
+      ])
+      .orderBy((j) => j.id)
+      .toList();
+    const rows: Incident[] = [];
+    for (const job of jobs) {
+      const row = await db.queryable(FlowInstance).findOrThrow(job.instanceId);
+      const definition = await definitionOf(db, row.definitionId);
+      const node = job.node ? definition.nodes.find((n) => n.id === job.node) : undefined;
+      rows.push({
+        jobId: job.id,
+        instanceId: job.instanceId,
+        instanceTitle: row.title,
+        kind: job.kind,
+        node: job.node,
+        nodeName: node?.name ?? null,
+        attempts: job.attempts,
+        error: job.lastError,
+        skippable: job.kind === 'action',
+        outcomes: skipOutcomes(definition, job.node),
+      });
+    }
+    return rows;
+  }
+
+  /** 重试失败的作业：回到待执行，马上到点（谁能重试由接入方在接口层或 intercept 里管） */
+  async function retryJob(id: number, _actor: Actor): Promise<boolean> {
+    const revived = await db
+      .update(FlowJob)
+      .set({ state: 'pending', attempts: 0, dueAt: now(), lockedBy: null, lockedUntil: null })
+      .where((j) => [j.id.eq(id), j.state.eq('failed')])
+      .execute();
+    if (revived === 0) throw new FlowError('not-found', `没有失败的作业 ${id}`);
+    return true;
+  }
+
+  /** 管理员跳过失败的异步动作：按指定的结果往下走（结果要是这个节点出边上写的） */
+  async function skipJob(
+    command: Extract<FlowCommand, { type: 'skipJob' }>,
+    actor: Actor,
+  ): Promise<RunResult> {
+    if (!actor.admin) throw new FlowError('forbidden', '只有管理员能跳过作业');
+    const job = await db.queryable(FlowJob).find(command.job);
+    if (!job || job.state !== 'failed' || job.kind !== 'action' || !job.node) {
+      throw new FlowError('not-found', `没有能跳过的失败作业 ${command.job}`);
+    }
+    const node = job.node;
+    return withInstance(job.instanceId, actor, async (exec, tx) => {
+      if (exec.status !== 'active') {
+        throw new FlowError('instance-not-active', `实例 ${job.instanceId} 不在进行中`);
+      }
+      const outcomes = skipOutcomes(exec.definition, node);
+      if (!command.outcome && outcomes.length > 0) {
+        throw new FlowError('invalid-input', '跳过要选结果', {
+          field: 'outcome',
+          code: 'required',
+        });
+      }
+      if (command.outcome && !outcomes.includes(command.outcome)) {
+        throw new FlowError('invalid-input', `${node} 的出边上没有结果 ${command.outcome}`, {
+          field: 'outcome',
+          code: 'unknown-outcome',
+        });
+      }
+      await tx
+        .delete(FlowJob)
+        .where((j) => j.id.eq(job.id))
+        .execute();
+      exec.current.delete(node);
+      exec.addEvent('job.skipped', {
+        node,
+        outcome: command.outcome ?? null,
+        comment: command.reason ?? null,
+      });
+      await exec.leave(node, command.outcome ?? null);
     });
   }
 
@@ -1063,6 +1249,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   return {
     db,
     signal,
+    retryJob,
     readCc,
     createTables: () => db.createTables(),
     publish,
@@ -1147,6 +1334,15 @@ export function returnTargets(exec: Execution, from: string): string[] {
 
 /** 定义里写的变量名：`form.字段` 就是流程变量里的“字段” */
 const variableName = (name: string): string => (name.startsWith('form.') ? name.slice(5) : name);
+
+/** 跳过失败的自动节点时能选的结果：它的出边上写的结果 */
+function skipOutcomes(definition: ProcessDefinition, node: string | null): string[] {
+  if (!node) return [];
+  const outcomes = definition.edges
+    .filter((e) => e.from === node && e.outcome)
+    .map((e) => e.outcome!);
+  return [...new Set(outcomes)];
+}
 
 /** 时刻写成 ISO 文字，整秒时不带毫秒（同线上的写法） */
 const isoSeconds = (at: Date): string => at.toISOString().replace('.000Z', 'Z');
