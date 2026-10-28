@@ -325,7 +325,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 11b.2 按主键查与查不到就抛错：`find(id)`（含复合主键）、`firstOrThrow(message)` / `singleOrThrow`
 - [x] 11b.3 列表页的动态筛选与排序（对应 `whereObject` / `orderByObject`）：对接组件库 `useTableQuery` 的筛选与 `-amount,name` 排序参数，只放行声明过的列（`parseTableRequest` + `Queryable.table(request)`）
 - [ ] 11b.3a 查询栏的区间值与条件树（FilterBar 的高级筛选，组件库 `condition` 参数）：日期区间落在时间戳列上的整天语义、条件树按结果列的白名单转成条件（原 query 库 0016 §2、0017）
-- [ ] 11b.4 自关联的树：`toTreeList`（按父子列把行拼成树，节点是视图的形状）、从某个节点取全部下级 / 全部上级（递归 CTE 的便捷写法）
+- [x] 11b.4 自关联的树：`toTreeList`（按父子列把行拼成树，节点是视图的形状）、从某个节点取全部下级 / 全部上级（递归 CTE 的便捷写法）（`toTree`、`db.descendantsOf` / `ancestorsOf`）
 - [ ] 11b.5 导航上的固定条件（对应 `extraFilter`）：定义关系时声明，查询处不用再写
 - [ ] 11b.6 文档站 ORM 分区：每个能力一页，写清与 Java 版的对应（DTO 导航、VO、对象树、对象树的 VO 各有一页示例）；`packages/easy-query/docs/features/` 的暂存页改写进来后删掉
 - [ ] 11b.7 按需再补（真实页面用到时）：`subQueryToGroupJoin`、`fillOne` / `fillMany`、`rightJoin` / `crossJoin`、`asSchema`；事务提交后的回调与 14.3 合并做
