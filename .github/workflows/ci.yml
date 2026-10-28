@@ -5,9 +5,10 @@ on:
     branches: [master]
   pull_request:
 
+# master 上每次推送都跑完（小步快跑时连着推送，取消上一次就永远等不到完整的结果）；PR 上新的提交取消旧的
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.ref }}-${{ github.event_name == 'push' && github.sha || 'pr' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
