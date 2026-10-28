@@ -18,3 +18,4 @@ export * from './diff.ts';
 export * from './errors.ts';
 export * from './define.ts';
 export * from './layout.ts';
+export * from './edit.ts';
