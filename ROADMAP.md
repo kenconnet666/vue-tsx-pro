@@ -298,6 +298,10 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 把 `easy-query` 仓库的 `ts/`（8 个包、418 个用例）搬进 `packages/easy-query/`，工具链向本仓库看齐。完成标准：用例在本仓库全过，CI 跑实库，`easy-query` 仓库不再有 `ts/`。
 
+- [ ] 11.0 本仓库自己的测试库（用户 2026-10-28：ORM 用 WSL 里的容器真实使用与测试，已有的容器不方便用，停掉、改成自己的）：
+      `infra/dev/compose.yml`（compose 项目名 `vue-tsx-pro-dev`）起 MySQL 8.0.18（PolarDB 基线）、MySQL 8.4、PG 17，HANA 放在 `hana` profile 里按需起；
+      端口与 `easy-query-dev` 错开；`infra/dev/db.sh` 一条命令起停；连接与密码写进不提交的 `.local/`，实库测试按环境变量读。
+      起来后停掉 WSL 里的 `easy-query-dev-*` 五个容器（`docker compose stop`，不删数据卷）
 - [ ] 11.1 带历史搬家：`easy-query` 里 `git subtree split --prefix=ts`，本仓库 `git subtree add` 到 `packages/easy-query/`，再 `git mv` 成 `core/ sqlite/ mysql/ pg/ hana/ decimal/ date/ test/`。
       只搬不改；验收：`git log --follow` 看得到原来的提交
 - [ ] 11.2 接进工作区：`pnpm-workspace.yaml` 逐个写包族；驱动版本进 catalog；TS 7.0.2 → catalog 的 7.1 beta；`exports` 改用 `@vue-tsx-pro/source` 条件；
