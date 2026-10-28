@@ -21,7 +21,7 @@ export {
   type RecipeExtension,
   type VariantSelection,
 } from './recipe';
-export { CONDITIONS as conditions, hotStyles, styleText } from './runtime';
+export { CONDITIONS as conditions, hotStyles, renderStyleTag, styleText } from './runtime';
 
 /*
  * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@zerodep-dev/vue-tsx-pro-ui 的 token-names.ts）用

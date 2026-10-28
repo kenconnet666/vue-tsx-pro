@@ -11,10 +11,20 @@
 const inserted = new Map<string, { texts: readonly string[]; rules: CSSRule[] }>();
 let sheet: CSSStyleSheet | null | undefined;
 
-/** 引擎自己的样式表：放在 head 最前面，宿主页面后加载的同等特异性的 CSS 能盖过组件库 */
+/**
+ * 引擎自己的样式表：放在 head 最前面，宿主页面后加载的同等特异性的 CSS 能盖过组件库。
+ * 服务端渲染输出过这张表（renderStyleTag）时直接接管它：表里已有的规则按 data-names 登记，不再重复插入
+ */
 function styleSheet(): CSSStyleSheet | null {
   if (sheet !== undefined) return sheet;
   if (typeof document === 'undefined') return (sheet = null);
+  const rendered = document.querySelector<HTMLStyleElement>('style[data-vue-tsx-pro]');
+  if (rendered?.sheet) {
+    for (const name of rendered.dataset.names?.split(' ') ?? []) {
+      if (name && !inserted.has(name)) inserted.set(name, { texts: [], rules: [] });
+    }
+    return (sheet = rendered.sheet);
+  }
   const element = document.createElement('style');
   element.dataset.vueTsxPro = '';
   document.head.prepend(element);
@@ -43,8 +53,36 @@ export function insert(name: string, texts: readonly string[]) {
   inserted.set(name, { texts, rules });
 }
 
-/** 这个名字的规则插过没有 */
-export const isInserted = (name: string) => inserted.has(name);
+/** 这个名字的规则插过没有；浏览器里第一次问时先接管服务端输出的样式表（见 styleSheet） */
+export function isInserted(name: string): boolean {
+  if (sheet === undefined) styleSheet();
+  return inserted.has(name);
+}
+
+/**
+ * 服务端渲染：一段 HTML 用到的规则写成一个 `<style data-vue-tsx-pro data-names="…">`，放进 head 的最前面。
+ * 包括 class 里出现的引擎类名（组合类、主题类、标记）、这些规则引用的关键帧，以及全部变量组（:root 上的默认值）。
+ * 类名按内容哈希，同样的样式在所有请求里同名，所以不必按请求隔离：渲染完按 HTML 取用到的就行。
+ * 客户端接管这张表，data-names 里的规则不再重复插入
+ */
+export function renderStyleTag(html: string): string {
+  const used = new Set<string>();
+  for (const match of html.matchAll(/\bclass="([^"]*)"/g)) {
+    for (const name of match[1]!.split(/\s+/)) if (inserted.has(name)) used.add(name);
+  }
+  for (const name of inserted.keys()) if (name.startsWith('--')) used.add(name);
+  // 规则里引用的关键帧（animation 的名字也是引擎生成的 x…-B）
+  for (const name of [...used]) {
+    for (const text of inserted.get(name)!.texts) {
+      for (const frame of text.match(/\bx[0-9a-z]+-B\b/g) ?? [])
+        if (inserted.has(frame)) used.add(frame);
+    }
+  }
+  const names = [...inserted.keys()].filter((name) => used.has(name));
+  const css = names.flatMap((name) => inserted.get(name)!.texts).join('\n');
+  // 规则原文里不会有 </style>；防御性地转义，免得用户的样式值截断标签
+  return `<style data-vue-tsx-pro data-names="${names.join(' ')}">${css.replaceAll('</', '<\\/')}</style>`;
+}
 
 /** 已插入的全部规则原文，一条一行（SSR 输出 <style> 用） */
 export function styleText(): string {
