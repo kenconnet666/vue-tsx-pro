@@ -17,5 +17,5 @@
     // 仓库内按源码解析各包（exports 里的 @vue-tsx-pro/source 条件）
     "customConditions": ["@vue-tsx-pro/source"]
   },
-  "include": ["model/src/**/*.ts", "model/test/**/*.ts", "vitest.config.ts"]
+  "include": ["*/src/**/*.ts", "*/test/**/*.ts", "vitest.config.ts"]
 }

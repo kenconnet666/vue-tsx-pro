@@ -1,0 +1,52 @@
+{
+  "name": "@zerodep-dev/flow-ts-engine",
+  "version": "0.1.0",
+  "description": "Approval workflow engine in TypeScript: graph definitions, one command entry point, easy-query persistence, jobs for timers and async actions",
+  "license": "Apache-2.0",
+  "author": "lionheart (https://github.com/kenconnet666)",
+  "homepage": "https://github.com/kenconnet666/vue-tsx-pro/tree/master/packages/flow#readme",
+  "bugs": {
+    "url": "https://github.com/kenconnet666/vue-tsx-pro/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenconnet666/vue-tsx-pro.git",
+    "directory": "packages/flow/engine"
+  },
+  "keywords": [
+    "workflow",
+    "bpm",
+    "approval",
+    "typescript"
+  ],
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./testing": {
+      "@vue-tsx-pro/source": "./src/testing.ts",
+      "types": "./dist/testing.d.ts",
+      "default": "./dist/testing.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "prepack": "tsc -b tsconfig.build.json"
+  },
+  "dependencies": {
+    "@zerodep-dev/easy-query-ts": "workspace:^",
+    "@zerodep-dev/flow-ts-model": "workspace:^",
+    "@zerodep-dev/easy-query-ts-sqlite": "workspace:^"
+  }
+}
