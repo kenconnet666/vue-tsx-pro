@@ -252,9 +252,11 @@ export const ConditionBuilder = _component(
   }: ConditionBuilderProps) => {
     const lang = useLang();
     let element: HTMLElement | null = null;
+    // 初始值只取一次，之后由下面的 watch 跟随父级
+    const initial = _untrack(value);
     // 上次写回的值：父级改成别的才整棵重读，自己写回的不重读（没填完的那几条还要留在界面上）
-    let emitted = JSON.stringify(value ?? null);
-    let tree = _state<GroupNode>(value ? toGroup(value) : group('all'));
+    let emitted = JSON.stringify(initial ?? null);
+    let tree = _state<GroupNode>(initial ? toGroup(initial) : group('all'));
 
     watch(
       () => value,

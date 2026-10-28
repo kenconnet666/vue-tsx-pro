@@ -190,6 +190,8 @@ export const ThemeCustomizer = _component(
     watch(
       () => [settings, base],
       async () => {
+        // 服务端渲染时 immediate 的侦听也会执行，页面上没有主题可读
+        if (typeof document === 'undefined') return;
         await nextTick();
         const target = contrastTarget ?? document.documentElement;
         try {

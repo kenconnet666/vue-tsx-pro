@@ -287,11 +287,11 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] **P1 样式绑定换类晚于 Vue 的 post 回调**：`_effect`、`watch(…, { flush: 'post' })` 四种情形里三种读到旧类（实测）。改走 Vue 的调度（pre 任务），
       已改为排进 Vue 的 post 队列最前面（id 取最小整数排在组件的 post 回调前；不用 Vue 给 ref 赋值的 -1，它在 post 队列执行中会插到组件更新之前），同一批里一个出错不再丢掉其余的；`/bench/style-updates` 的基准还没复测（下次开文档站时补）
 - [x] **P1 命令式对话框不随调用它的组件卸载**：`useConfirm` 打开后调用的组件卸载，对话框仍开着（实测，`overlay/detached.tsx`）；图表提示框的 `render()` 同类，抽成同一个工具
-- [ ] **P2 服务端渲染的组件问题**（阶段 B3 的输入）：11 个示例在服务端抛 `HTMLElement is not defined`——`utils/dom/overflow.ts` 等处的 `value instanceof HTMLElement`
+- [x] **P2 服务端渲染的组件问题**（阶段 B3 的输入）：11 个示例在服务端抛 `HTMLElement is not defined`——`utils/dom/overflow.ts` 等处的 `value instanceof HTMLElement`
       在渲染时执行（Select 的标签、TreeSelect、NavBar、PeoplePicker、ConditionBuilder、AppShell）；收成一个 `isHTMLElement` 工具。ThemeCustomizer 的 immediate + post 侦听在服务端读 `document`
-- [ ] **P2 样式登记表是进程级的**：同一进程渲染完 449 个示例，`styleText()` 累积到 817 KB；SSR 必须按请求收集（阶段 B1）
-- [ ] **P3 有意读初始值没写 `_untrack`**：ConditionBuilder 每次构建、测试都打印 5 条"组件函数体里直接读取"的警告，会淹没真正的警告
-- [ ] **P3 预设跟进 Vite 8 与多环境**：`transform` 的 `ssr` 参数是旧接口（改读 `this.environment`）；多环境构建时一个环境的 `closeBundle` 会关掉共用的编译线程池，
+- [x] **P2 样式登记表是进程级的**（移到 12.2 做，本阶段不动）：同一进程渲染完 449 个示例，`styleText()` 累积到 817 KB；SSR 必须按请求收集（阶段 B1）
+- [x] **P3 有意读初始值没写 `_untrack`**：ConditionBuilder 每次构建、测试都打印 5 条"组件函数体里直接读取"的警告，会淹没真正的警告
+- [x] **P3 预设跟进 Vite 8 与多环境**：`transform` 的 `ssr` 参数是旧接口（改读 `this.environment`）；多环境构建时一个环境的 `closeBundle` 会关掉共用的编译线程池，
       正在跑的编译会悬住（推断，阶段 13 实测）；跳过 `?assets` 这类查询参数的模块（12.5）
 
 ## 阶段 11：迁入 easy-query TS

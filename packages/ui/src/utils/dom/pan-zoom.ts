@@ -22,6 +22,7 @@ import { shallowRef } from 'vue';
 import { clamp } from '../data/number';
 import { useEventListener } from './event-listener';
 import { startMove } from './move';
+import { isHTMLElement } from './element';
 
 /** 平移与缩放的状态：内容先缩放、再平移（transform-origin 为左上角） */
 export interface PanZoomState {
@@ -179,7 +180,7 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
 
   const viewport = () => {
     const value = options.viewport();
-    return value instanceof HTMLElement ? value : null;
+    return isHTMLElement(value) ? value : null;
   };
   const viewportSize = () => {
     const element = viewport();

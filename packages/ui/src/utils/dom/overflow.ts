@@ -18,6 +18,7 @@
 import { shallowRef, watch } from 'vue';
 import { batchLayout } from './layout-batch';
 import { useResizeObserver } from './resize';
+import { isHTMLElement } from './element';
 
 /** useOverflowItems 的选项 */
 export interface OverflowItemsOptions {
@@ -57,7 +58,7 @@ export function useOverflowItems(options: OverflowItemsOptions): OverflowItems {
   const visible = shallowRef(Number.POSITIVE_INFINITY);
   const container = () => {
     const value = options.container();
-    return value instanceof HTMLElement ? value : null;
+    return isHTMLElement(value) ? value : null;
   };
 
   function measure() {
