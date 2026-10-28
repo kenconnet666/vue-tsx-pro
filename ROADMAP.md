@@ -345,8 +345,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 | 文档站预渲染                                                              | `apps/docs` 的构建，直接用组件库这一层的接口                                                | 12.6       |
 
 - [ ] 12.1 SSR 体检进 CI：文档站的示例逐个在 node 环境 `renderToString`，再在浏览器里水合，统计报错与不一致；输出清单（12.4 按它修）
-- [ ] 12.2 样式按请求收集：请求级的登记表，输出 `<style data-vue-tsx-pro>`，客户端接管这张表、不重复插入（STYLE-ENGINE.md 第 7 条的设计）
-- [ ] 12.3 首屏主题与语言：`createUi` 在服务端把主题 class、变量、`lang` / `dir` 写进 HTML 属性；明暗偏好服务端读 cookie；`themeBootScript` 继续挡闪烁
+- [x] 12.2 样式按请求收集：请求级的登记表，输出 `<style data-vue-tsx-pro>`，客户端接管这张表、不重复插入（STYLE-ENGINE.md 第 7 条的设计）（实现：`renderStyleTag(整页 HTML)` 按用到的类名输出；类名按内容哈希，不必按请求隔离）
+- [x] 12.3 首屏主题与语言：`createUi` 在服务端把主题 class、变量、`lang` / `dir` 写进 HTML 属性；明暗偏好服务端读 cookie；`themeBootScript` 继续挡闪烁（实现：`createUi(...).documentAttrs()`；明暗偏好服务端按亮色给，`themeBootScript` 加载前改成用户的选择，读 cookie 留给 kit）
 - [ ] 12.4 按 12.1 的清单修水合不一致：Teleport 的内容一起输出；与"现在"有关的输出从配置取同一个时刻；只能在浏览器里画的（图表、3D、测量布局）给 `ClientOnly` 一类的包装
 - [ ] 12.5 Vite 预设：服务端环境的编译与热更新、改读 `this.environment`、跳过 `?assets`
 - [ ] 12.6 文档站预渲染（SSG）：构建时生成每页的 HTML

@@ -8,7 +8,7 @@ import {
   toValue,
   watchEffect,
   type MaybeRefOrGetter,
-  type Plugin,
+  type ObjectPlugin,
 } from 'vue';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
@@ -72,12 +72,50 @@ export const documentStyles = css.create({
   body: { margin: 0 },
 });
 
+/** 服务端渲染时 `<html>` 与 `<body>` 要带的属性（createUi 在浏览器里写到页面根元素上的那些） */
+export interface DocumentAttrs {
+  /** `<html>` 的属性：主题的类、变量（style）、data-theme，传了 lang 时还有 lang、dir */
+  html: Record<string, string>;
+  /** `<body>` 的属性：paintDocument 时去掉外边距的类 */
+  body: Record<string, string>;
+}
+
+/** createUi 的结果：Vue 插件，另外能给出服务端渲染时页面根元素的属性 */
+export interface UiPlugin extends ObjectPlugin {
+  /**
+   * 服务端渲染：`<html>`、`<body>` 要带的属性，首屏就是这套主题与语言，不等客户端接管后再变。
+   * 服务端不知道系统的明暗，跟随系统的主题按亮色给；`themeBootScript` 在页面加载前按用户的选择改过来
+   */
+  documentAttrs(): DocumentAttrs;
+}
+
 /**
  * 应用级配置的 Vue 插件：`app.use(createUi({ theme: { light: lightTheme, dark: darkTheme } }))`。
  * 主题的 CSS 变量写在页面根元素上，所有 TSX 页面共享；应用卸载时撤销。
  */
-export function createUi(options: UiOptions = {}): Plugin {
+export function createUi(options: UiOptions = {}): UiPlugin {
   return {
+    documentAttrs() {
+      const html: Record<string, string> = {};
+      const body: Record<string, string> = {};
+      if (options.lang) {
+        const lang = defineLang(defaultConfig.lang, toValue(options.lang));
+        html.lang = lang.code;
+        html.dir = lang.direction;
+      }
+      if (options.theme || options.paintDocument) {
+        const theme = resolveTheme(toValue(options.theme) ?? defaultConfig.theme, false);
+        const { classes, variables } = themeAttrs(theme, options.paintDocument ?? false);
+        if (classes.length) html.class = classes.join(' ');
+        const style = Object.entries(variables)
+          .map(([name, value]) => `${name}:${value}`)
+          .join(';');
+        if (style) html.style = style;
+        html['data-theme'] = theme.name;
+        if (options.paintDocument) body.class = css.attrs(documentStyles.body).class ?? '';
+      }
+      return { html, body };
+    },
     install(app) {
       const scope = effectScope();
       app.onUnmount(() => scope.stop());
@@ -136,14 +174,19 @@ export function createUi(options: UiOptions = {}): Plugin {
   };
 }
 
-/** 把主题的 class、CSS 变量与 data-theme 写到元素上，返回撤销函数 */
-function applyTheme(element: HTMLElement, theme: Theme, paint: boolean) {
+/** 主题挂到页面根元素上的类与 CSS 变量；paint 时加上整页的底色与字体（浏览器里写到元素上，服务端写进 HTML） */
+function themeAttrs(theme: Theme, paint: boolean) {
   const classes =
     css
       .attrs(...theme.styles, paint && documentStyles.page)
       .class?.split(' ')
       .filter(Boolean) ?? [];
-  const variables = themeVariables(theme);
+  return { classes, variables: themeVariables(theme) };
+}
+
+/** 把主题的 class、CSS 变量与 data-theme 写到元素上，返回撤销函数 */
+function applyTheme(element: HTMLElement, theme: Theme, paint: boolean) {
+  const { classes, variables } = themeAttrs(theme, paint);
   element.classList.add(...classes);
   for (const [name, value] of Object.entries(variables)) element.style.setProperty(name, value);
   element.dataset.theme = theme.name;

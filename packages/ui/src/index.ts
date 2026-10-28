@@ -1346,7 +1346,13 @@ export {
   type UiConfig,
   type UiRouter,
 } from './config/context';
-export { createUi, documentStyles, type UiOptions } from './config/createUi';
+export {
+  createUi,
+  documentStyles,
+  type DocumentAttrs,
+  type UiOptions,
+  type UiPlugin,
+} from './config/createUi';
 export {
   mergeDefaults,
   useDefaults,
