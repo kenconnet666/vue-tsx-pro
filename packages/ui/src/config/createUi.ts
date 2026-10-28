@@ -105,7 +105,7 @@ export function createUi(options: UiOptions = {}): UiPlugin {
       }
       if (options.theme || options.paintDocument) {
         const theme = resolveTheme(toValue(options.theme) ?? defaultConfig.theme, false);
-        const { classes, variables } = themeAttrs(theme, options.paintDocument ?? false);
+        const { classes, variables } = rootThemeAttrs(theme, options.paintDocument ?? false);
         if (classes.length) html.class = classes.join(' ');
         const style = Object.entries(variables)
           .map(([name, value]) => `${name}:${value}`)
@@ -175,7 +175,7 @@ export function createUi(options: UiOptions = {}): UiPlugin {
 }
 
 /** 主题挂到页面根元素上的类与 CSS 变量；paint 时加上整页的底色与字体（浏览器里写到元素上，服务端写进 HTML） */
-function themeAttrs(theme: Theme, paint: boolean) {
+function rootThemeAttrs(theme: Theme, paint: boolean) {
   const classes =
     css
       .attrs(...theme.styles, paint && documentStyles.page)
@@ -186,7 +186,7 @@ function themeAttrs(theme: Theme, paint: boolean) {
 
 /** 把主题的 class、CSS 变量与 data-theme 写到元素上，返回撤销函数 */
 function applyTheme(element: HTMLElement, theme: Theme, paint: boolean) {
-  const { classes, variables } = themeAttrs(theme, paint);
+  const { classes, variables } = rootThemeAttrs(theme, paint);
   element.classList.add(...classes);
   for (const [name, value] of Object.entries(variables)) element.style.setProperty(name, value);
   element.dataset.theme = theme.name;

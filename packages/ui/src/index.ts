@@ -11,6 +11,7 @@ export {
   type ButtonGroupManaged,
   type ButtonGroupProps,
 } from './base/ButtonGroup';
+export { ClientOnly, type ClientOnlyProps } from './base/ClientOnly';
 export {
   ClearButton,
   CloseButton,
@@ -1594,6 +1595,7 @@ export {
   type RouterLink,
 } from './utils/dom/link';
 export { useMediaQuery, usePrefersDark, useReducedMotion } from './utils/dom/media-query';
+export { useMounted } from './utils/dom/mounted';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
   openSetter,

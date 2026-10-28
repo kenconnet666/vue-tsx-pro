@@ -12,6 +12,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLazyContent } from '../utils/motion/presence';
+import { useMounted } from '../utils/dom/mounted';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { afterTransitions } from '../utils/style/transitions';
 import { t } from '../config/theme/tokens';
@@ -62,6 +63,10 @@ export const Collapse = _component(
       () => lazy,
     );
 
+    // 服务端不知道浏览器支不支持 until-found：挂载前按不支持渲染（与服务端的 HTML 一致），挂载后再换
+    const mounted = useMounted();
+    const untilFound = () => supportsUntilFound && mounted.value;
+
     _effect(() => {
       if (open) {
         collapsed = false;
@@ -82,8 +87,8 @@ export const Collapse = _component(
         {...mergeAttrs<'div'>({ sx: collapseStyles.root }, rest, {
           sx: open && collapseStyles.open,
           ref: _toRef(root),
-          hidden: collapsed && supportsUntilFound ? 'until-found' : undefined,
-          inert: collapsed && !supportsUntilFound ? true : undefined,
+          hidden: collapsed && untilFound() ? 'until-found' : undefined,
+          inert: collapsed && !untilFound() ? true : undefined,
           onBeforematch: () => (open = true),
         })}
         data-state={open ? 'open' : 'closed'}
