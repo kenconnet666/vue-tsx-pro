@@ -14,7 +14,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 ## 总览：TS 全栈（阶段 10–15）
 
 ```
-10 基础设施修复 ──> 11 迁入 easy-query TS ──┬─> 12 组件库 SSR ──> 13 Nitro 底座与 fullstack-demo ──┐
+10 基础设施修复 ──> 11 迁入 easy-query TS（11b 对照 Java 版完善，穿插进行）──┬─> 12 组件库 SSR ──> 13 Nitro 底座与 fullstack-demo ──┐
                                             └─> 14.1–14.6 流程引擎核心（不依赖 12、13）            ├─> 14.7–14.10 引擎接 Nitro、界面、flow-demo ──> 15 收敛成框架
                                                                                                    ┘
 ```
@@ -302,17 +302,32 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
       `infra/dev/compose.yml`（compose 项目名 `vue-tsx-pro-dev`）起 MySQL 8.0.18（PolarDB 基线）、MySQL 8.4、PG 17，HANA 放在 `hana` profile 里按需起；
       端口与 `easy-query-dev` 错开；`infra/dev/db.sh` 一条命令起停；连接与密码写进不提交的 `.local/`，实库测试按环境变量读。
       起来后停掉 WSL 里的 `easy-query-dev-*` 五个容器（`docker compose stop`，不删数据卷）
-- [ ] 11.1 带历史搬家：`easy-query` 里 `git subtree split --prefix=ts`，本仓库 `git subtree add` 到 `packages/easy-query/`，再 `git mv` 成 `core/ sqlite/ mysql/ pg/ hana/ decimal/ date/ test/`。
+- [x] 11.1 带历史搬家：`easy-query` 里 `git subtree split --prefix=ts`，本仓库 `git subtree add` 到 `packages/easy-query/`，再 `git mv` 成 `core/ sqlite/ mysql/ pg/ hana/ decimal/ date/ test/`。
       只搬不改；验收：`git log --follow` 看得到原来的提交
-- [ ] 11.2 接进工作区：`pnpm-workspace.yaml` 逐个写包族；驱动版本进 catalog；TS 7.0.2 → catalog 的 7.1 beta；`exports` 改用 `@vue-tsx-pro/source` 条件；
+- [x] 11.2 接进工作区：`pnpm-workspace.yaml` 逐个写包族；驱动版本进 catalog；TS 7.0.2 → catalog 的 7.1 beta；`exports` 改用 `@vue-tsx-pro/source` 条件；
       保留它更严的编译选项（`exactOptionalPropertyTypes`、`noUncheckedIndexedAccess`）。验收：`pnpm typecheck` 过
-- [ ] 11.3 测试换成 Vitest（`node:test` 的导入换掉，`node:assert` 照用）；SQLite 用例本地全过
+- [x] 11.3 测试换成 Vitest（`node:test` 的导入换掉，`node:assert` 照用）；SQLite 用例本地全过
 - [ ] 11.4 风格对齐：prettier 整体格式化单独一个提交；oxlint、`docs:check`、`text:check` 打开并修完
-- [ ] 11.5 CI 加 db 任务：MySQL 8.0.18、PG 17 的服务容器跑实库套件（照搬 `easy-query` 的 ts 任务）；HANA 仍在本机
-- [ ] 11.6 分层检查扩到包这一级：easy-query 不导入 vue 与组件库，组件库不导入 easy-query；规则写进 `layers:check`
+- [x] 11.5 CI 加 db 任务：MySQL 8.0.18、PG 17 的服务容器跑实库套件（照搬 `easy-query` 的 ts 任务）；HANA 仍在本机
+- [x] 11.6 分层检查扩到包这一级：easy-query 不导入 vue 与组件库，组件库不导入 easy-query；规则写进 `layers:check`
 - [ ] 11.7 发布产物核对：各包 `pnpm pack` 的文件清单与已发布的 0.1.0 一致（元数据除外）；`repository`、`homepage` 改指本仓库
 - [ ] 11.8 文档：`docs/fork/decisions/0002-ts-design.md` 搬到 `packages/easy-query/docs/decisions/`；文档站加 ORM 分区，27 页特性文档改写进去
 - [ ] 11.9 `easy-query` 仓库收尾（开分支、PR、CI 绿后合并）：删掉 `ts/` 与 CI 的 ts 任务；CLAUDE.md、STATUS、ROADMAP 写明 TS 版已迁到本仓库
+
+## 阶段 11b：easy-query TS 对照 Java 版完善
+
+用户 2026-10-28：对照 Java 版 easy-query 的功能、各种便捷操作，以及 DTO 导航、VO 映射、对象树、对象树的 VO，把 TS 版补完整。
+做法同"ORM 在真实项目里长"：先出对照表，再按流程引擎、示例应用用得到的先做；和阶段 12、13、14 交替推进，不必一口气做完。
+完成标准：对照表里标"要做"的都打钩，每项带 SQLite 用例与 MySQL 8.0.18 / PG 实库用例，文档站 ORM 分区有对应的页。
+
+- [ ] 11b.1 对照表 `packages/easy-query/docs/parity.md`：逐项列 Java 版的能力（查询、条件、排序与分页、聚合与分组、子查询、导航与 include、
+      DTO / VO 映射、对象树、写入与级联、拦截与逻辑删除、方言函数……），每项标 TS 版"已有 / 写法不同 / 缺 / 不做（为什么）"；
+      依据是 Java 版源码与 `sql-test` 用例，以及 `flow`（Java）里真实用到的写法（`selectAutoInclude` 映射待办与抄送的对象树、VO 读取）
+- [ ] 11b.2 DTO 导航：按结果类型的结构自动带出导航（对应 `selectAutoInclude`），类型由 TS 推出，不写额外的映射代码
+- [ ] 11b.3 VO 映射：可复用、可嵌套的投影（在已有的 `defineView` 上补齐与 Java 版对应的写法：重命名、计算列、忽略、嵌套导航）
+- [ ] 11b.4 对象树：多层一对多 / 多对一的 include 拼成对象树，自关联的树（部门、分类）按层级取出；对象树的 VO（树上每一层都是投影）
+- [ ] 11b.5 便捷操作：对照表里标"缺"的常用操作（例如分页结果、按对象条件过滤、动态排序、存在判断、批量的便捷写法），按使用频率排序补
+- [ ] 11b.6 文档站 ORM 分区按对照表补页：每个能力一页，写清与 Java 版的对应关系
 
 ## 阶段 12：组件库支持服务端渲染
 

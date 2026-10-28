@@ -67,6 +67,33 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  # easy-query 的实库套件：MySQL 8.0.18（PolarDB 基线）与 PG 17 的服务容器；HANA 不在 CI，本机跑
+  db:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.18
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -uroot -proot" --health-interval=5s --health-timeout=5s --health-retries=30
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: eqts
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=5s --health-timeout=5s --health-retries=30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm exec vitest run --configLoader native --project easy-query
+        env:
+          EQTS_MYSQL_URLS: mysql://root:root@127.0.0.1:3306
+          EQTS_PG_URLS: postgres://postgres:postgres@127.0.0.1:5432/eqts
+
   build:
     strategy:
       fail-fast: false
