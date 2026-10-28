@@ -9,6 +9,45 @@ COMPONENTS.md §8 的完成标准，可以发布。主会话在 master 上单线
 2026-10-25 起为流程引擎（`flow` 仓库）做前端的底座，即下面的阶段 9；流程组件的方案在 `flow` 的 `docs/frontend.md`。阶段 8 的缺口在动到的组件上随做随补，
 API 审计按“流程界面用到的先审”拆进阶段 9。
 
+2026-10-28 起本仓库成为 TS 全栈的家，按下面的“总览”执行阶段 10–15；为什么这样做、各项取舍见 [FULLSTACK.md](FULLSTACK.md)。
+
+## 总览：TS 全栈（阶段 10–15）
+
+```
+10 基础设施修复 ──> 11 迁入 easy-query TS ──┬─> 12 组件库 SSR ──> 13 Nitro 底座与 fullstack-demo ──┐
+                                            └─> 14.1–14.6 流程引擎核心（不依赖 12、13）            ├─> 14.7–14.10 引擎接 Nitro、界面、flow-demo ──> 15 收敛成框架
+                                                                                                   ┘
+```
+
+每一阶段做完都能停：交付可用、CI 绿、HANDOFF 的现状与本文的勾选已更新。完成一项就在这里打钩。
+
+### 自主执行的规矩（用户不在时照此推进）
+
+- **小步快跑**：本地只跑与改动相关的检查，长命令放后台，等待时准备下一项；全量测试交给 CI 与打包产物；每次推送前看上一次 CI，红了先修。
+- **提交**：本仓库在 master 上单线程推进，每完成一项提交并推送；整理与功能分开提交。`easy-query` 仓库按它自己的 CLAUDE.md（开分支、PR、CI 绿后合并，不推 tag）。
+  `flow` 仓库只读，不改。不发布 npm、不推 tag（发布由用户按 RELEASE.md 手动做）。
+- **遇到下面的情况，这一项停下，写进本节末尾的“待决”，转去做下一个不依赖它的项**：
+  要加默认清单（下表第 4 条）以外的第三方依赖；要破坏已发布包（`@zerodep-dev/*`）的公共 API；要凭据、账号、发布；同一个 CI 失败修了两次仍不明原因；实库环境起不来；
+  设计上出现下表没覆盖、又有多种合理方向的分歧。
+- **不写过程流水账**：结论进对应的文档（决定、特性页、HANDOFF 的坑），过程留在提交说明里。
+
+### 默认决定（用户审阅；没改动就按这里执行）
+
+| #   | 事项                       | 默认                                                                                                                  |
+| --- | -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1   | 仓库的名字与定位           | 名字不改，README 写清"TS 全栈"的定位；源码条件 `@vue-tsx-pro/source` 不改名；已发布的包名不改                         |
+| 2   | `flow`（Java）的去留       | 继续维护、本计划不碰它；新引擎的界面在本仓库按新引擎重做，不搬旧的 flow-ui；`spec/` 的用例复制进来，来源写在 README   |
+| 3   | Nitro 版本                 | Nitro 3 beta，固定精确版本，只有服务端相关的包依赖它                                                                  |
+| 4   | 允许新增的依赖             | `nitro`（含 h3）；easy-query 原有的 `mysql2`、`pg`、`hdb`；head 管理自己写最小实现，不引入 unhead；其余新依赖进“待决” |
+| 5   | json-wire                  | 保持独立仓库，按发布的包依赖                                                                                          |
+| 6   | 设计器里写的服务端 TS 代码 | 默认关闭；开启时只有管理员能写，`node:vm` 只做隔离，文档写明它不是安全边界                                            |
+| 7   | 迁移                       | 引擎自带建表（代码优先的 DDL + 一张版本表），ORM 先不加迁移这个公共概念，等第二个使用方                               |
+| 8   | 全栈框架                   | 自己的薄层（Nitro + Vite + vue-router），先写在两个应用里，第三次重复才抽成 `packages/app`（用户 2026-10-28 已定）    |
+
+### 待决
+
+（执行中遇到的停顿点记在这里：日期、项号、卡在哪、需要用户决定什么。）
+
 ## 工作方式
 
 - **审核与整理随做随改**：碰到的代码先看它在整体里的位置。上层组件要用好基础设施与基础组件（ButtonBase、ListPopover、
@@ -231,9 +270,10 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 9.9 人员选择器的标准类型改成用户、部门、角色（用户 2026-10-26：标准组织模型是用户、部门、角色加权限、菜单、按钮控制，"岗位"不是标准名词）：
       `PeopleTypes` 的 `position` 换成 `role`（`PeopleSource.positions` 跟着改名），岗位这类由使用方经接口合并（declaration merging）自己加类型；文档页与示例同步
 
-## 阶段 10 之前：基础设施审查（2026-10-28）
+## 阶段 10：基础设施修复（2026-10-28 审查的结果）
 
-为 TS 全栈（FULLSTACK.md）做准备时的审查与探测。基线：类型检查通过，单测 240 个文件、2230 个用例通过。下面每条都写了怎么验证的；按优先级做，每条带回归测试。
+为 TS 全栈做准备时的审查与探测。基线：类型检查通过，单测 240 个文件、2230 个用例通过。下面每条都写了怎么验证的；按优先级做，每条带回归测试。
+完成标准：八条都打钩，CI 绿。
 
 - [ ] **P0 SSR 登记的虚拟模块在 Windows 上加载失败**：预设的 `/__vue-jsx-ssr-register-helper` 在 Vite 的模块运行器（Vitest 的 node 环境、Vite 的服务端开发）里变成
       `file:///__vue-jsx-ssr-register-helper`，Windows 上不是合法的绝对路径，`createRequire` 抛错，服务端加载任何 TSX 组件都失败（文档站 449 个示例全挂）。
@@ -249,7 +289,72 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [ ] **P2 样式登记表是进程级的**：同一进程渲染完 449 个示例，`styleText()` 累积到 817 KB；SSR 必须按请求收集（阶段 B1）
 - [ ] **P3 有意读初始值没写 `_untrack`**：ConditionBuilder 每次构建、测试都打印 5 条"组件函数体里直接读取"的警告，会淹没真正的警告
 - [ ] **P3 预设跟进 Vite 8 与多环境**：`transform` 的 `ssr` 参数是旧接口（改读 `this.environment`）；多环境构建时一个环境的 `closeBundle` 会关掉共用的编译线程池，
-      正在跑的编译会悬住（推断，阶段 C 实测）；跳过 `?assets` 这类查询参数的模块（阶段 B4）
+      正在跑的编译会悬住（推断，阶段 13 实测）；跳过 `?assets` 这类查询参数的模块（12.5）
+
+## 阶段 11：迁入 easy-query TS
+
+把 `easy-query` 仓库的 `ts/`（8 个包、418 个用例）搬进 `packages/easy-query/`，工具链向本仓库看齐。完成标准：用例在本仓库全过，CI 跑实库，`easy-query` 仓库不再有 `ts/`。
+
+- [ ] 11.1 带历史搬家：`easy-query` 里 `git subtree split --prefix=ts`，本仓库 `git subtree add` 到 `packages/easy-query/`，再 `git mv` 成 `core/ sqlite/ mysql/ pg/ hana/ decimal/ date/ test/`。
+      只搬不改；验收：`git log --follow` 看得到原来的提交
+- [ ] 11.2 接进工作区：`pnpm-workspace.yaml` 逐个写包族；驱动版本进 catalog；TS 7.0.2 → catalog 的 7.1 beta；`exports` 改用 `@vue-tsx-pro/source` 条件；
+      保留它更严的编译选项（`exactOptionalPropertyTypes`、`noUncheckedIndexedAccess`）。验收：`pnpm typecheck` 过
+- [ ] 11.3 测试换成 Vitest（`node:test` 的导入换掉，`node:assert` 照用）；SQLite 用例本地全过
+- [ ] 11.4 风格对齐：prettier 整体格式化单独一个提交；oxlint、`docs:check`、`text:check` 打开并修完
+- [ ] 11.5 CI 加 db 任务：MySQL 8.0.18、PG 17 的服务容器跑实库套件（照搬 `easy-query` 的 ts 任务）；HANA 仍在本机
+- [ ] 11.6 分层检查扩到包这一级：easy-query 不导入 vue 与组件库，组件库不导入 easy-query；规则写进 `layers:check`
+- [ ] 11.7 发布产物核对：各包 `pnpm pack` 的文件清单与已发布的 0.1.0 一致（元数据除外）；`repository`、`homepage` 改指本仓库
+- [ ] 11.8 文档：`docs/fork/decisions/0002-ts-design.md` 搬到 `packages/easy-query/docs/decisions/`；文档站加 ORM 分区，27 页特性文档改写进去
+- [ ] 11.9 `easy-query` 仓库收尾（开分支、PR、CI 绿后合并）：删掉 `ts/` 与 CI 的 ts 任务；CLAUDE.md、STATUS、ROADMAP 写明 TS 版已迁到本仓库
+
+## 阶段 12：组件库支持服务端渲染
+
+完成标准：文档站构建时预渲染每一页，禁用 JS 也能看到带样式的内容，水合时没有不一致的警告，浏览器测试全绿。
+
+- [ ] 12.1 SSR 体检进 CI：文档站的示例逐个在 node 环境 `renderToString`，再在浏览器里水合，统计报错与不一致；输出清单（12.4 按它修）
+- [ ] 12.2 样式按请求收集：请求级的登记表，输出 `<style data-vue-tsx-pro>`，客户端接管这张表、不重复插入（STYLE-ENGINE.md 第 7 条的设计）
+- [ ] 12.3 首屏主题与语言：`createUi` 在服务端把主题 class、变量、`lang` / `dir` 写进 HTML 属性；明暗偏好服务端读 cookie；`themeBootScript` 继续挡闪烁
+- [ ] 12.4 按 12.1 的清单修水合不一致：Teleport 的内容一起输出；与"现在"有关的输出从配置取同一个时刻；只能在浏览器里画的（图表、3D、测量布局）给 `ClientOnly` 一类的包装
+- [ ] 12.5 Vite 预设：服务端环境的编译与热更新、改读 `this.environment`、跳过 `?assets`
+- [ ] 12.6 文档站预渲染（SSG）：构建时生成每页的 HTML
+- [ ] 12.7 文档：README 的“明确不做”、STYLE-ENGINE.md 与 RUNES.md 补 SSR 一节
+
+## 阶段 13：Nitro 底座与 fullstack-demo
+
+框架先长在应用里（默认决定第 8 条）。完成标准：`apps/fullstack-demo` 在开发服务器与 `node .output/server/index.mjs` 下都能跑，端到端测试在 SSR、CSR 两种模式下都绿。
+
+- [ ] 13.1 接上 Nitro 3（固定精确版本）与 `nitro/vite`；依赖进 catalog
+- [ ] 13.2 `apps/fullstack-demo` 骨架：一个 SSR 页、一个 CSR 页、一个预渲染页，站内跳转不整页刷新
+- [ ] 13.3 路由级渲染模式 `mode: 'ssr' | 'csr' | 'static'`；SSR 出错时退回 CSR 发空壳
+- [ ] 13.4 路由级 `load`：SSR 时在服务端直接调用、CSR 时经接口调用，页面不知道自己是哪种模式；数据经 json-wire 进页面，水合时不重复请求
+- [ ] 13.5 `defineAction(schema, handler)`：zod 校验入参，客户端拿到带类型的调用函数
+- [ ] 13.6 请求上下文：当前用户、租户、按租户过滤的 easy-query `db`，`load` 与 action 共用
+- [ ] 13.7 权限：路由与 action 声明 `permission`，服务端拦、客户端藏按钮；菜单从路由生成
+- [ ] 13.8 端到端测试（Playwright）在 SSR、CSR 两种模式各跑一遍，进 CI；顺带实测阶段 10 P3 的线程池问题
+
+## 阶段 14：纯 TS 流程引擎
+
+比 `flow` 的 Java 版更简洁、易用、灵活（FULLSTACK.md §7）。14.1–14.6 只依赖阶段 11，可以和阶段 12、13 交替推进。
+完成标准：`apps/flow-demo` 走完发起、会签、退回、超时、子流程，在 SQLite 与 MySQL 上都绿。
+
+- [ ] 14.1 设计（`packages/flow/docs/decisions/`）：能力分级（第一版只做核心与常用）、定义格式（`defineProcess` 与类型推导）、表、六类扩展点、表单、命令与接口。
+      写完就按它做，不等审阅；有分歧的点记进“待决”
+- [ ] 14.2 模型包 `packages/flow/model`（两端通用）：以 `flow` 的 TS 模型包为起点，去掉为对齐 Java 才有的部分；`spec/` 里的纯函数用例（条件、选边、值、权限、差异、清单、定义）全过
+- [ ] 14.3 easy-query 补引擎要用的能力，各带文档与测试：`tx.afterCommit` / `afterRollback`、锁住聚合根（按方言选写法）、受影响行数断言
+- [ ] 14.4 引擎核心 `packages/flow/engine`：命令联合加一个 `run`、推进、各种节点、作业（抢占与重试）；SQLite 内存库的测试
+- [ ] 14.5 场景：`spec/scenarios` 的 37 个场景写适配器按新接口跑，删减的写明原因
+- [ ] 14.6 模拟器 `simulate(process, steps)` 与 `createTestEngine()`（内存库、假时钟），设计器的试运行与单测共用
+- [ ] 14.7 接 Nitro：命令作为 action、作业用 Nitro 的定时任务、当前用户与权限
+- [ ] 14.8 界面 `packages/flow/ui`：流程图、设计器（定义 ↔ 代码来回编辑、节点逻辑写 TS、试运行）、审批面板、表单（先做 flow-demo 用到的）
+- [ ] 14.9 `apps/flow-demo`：真实的审批应用；端到端测试进 CI，MySQL 实库
+- [ ] 14.10 文档站加流程引擎分区
+
+## 阶段 15：收敛成框架
+
+- [ ] 15.1 列出 `fullstack-demo` 与 `flow-demo` 里重复的接线
+- [ ] 15.2 抽成 `packages/app`（主入口两端通用，子路径 `./vite`、`./server`），两个应用改用它，行为不变（两种模式的端到端测试照样绿）
+- [ ] 15.3 组件库、ORM、流程引擎各做成框架的模块，模块接口在三个都写完后再定
+- [ ] 15.4 `fullstack-demo` 整理成新项目模板；文档站加框架分区
 
 ## 已知局限（有意的取舍，写在文档里）
 
