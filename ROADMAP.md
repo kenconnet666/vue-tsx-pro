@@ -388,7 +388,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 14.1 设计（`packages/flow/docs/decisions/`）：能力分级（第一版只做核心与常用）、定义格式（`defineProcess` 与类型推导）、表、六类扩展点、表单、命令与接口。
       写完就按它做，不等审阅；有分歧的点记进“待决”
 - [x] 14.2 模型包 `packages/flow/model`（两端通用）：以 `flow` 的 TS 模型包为起点，去掉为对齐 Java 才有的部分；`spec/` 里的纯函数用例（条件、选边、值、权限、差异、清单、定义）全过
-- [ ] 14.3 easy-query 补引擎要用的能力，各带文档与测试：`tx.afterCommit` / `afterRollback`、锁住聚合根（按方言选写法）、受影响行数断言
+- [x] 14.3 easy-query 补引擎要用的能力，各带文档与测试：`tx.afterCommit` / `afterRollback`、锁住聚合根（按方言选写法）、受影响行数断言
+      （`tx.lock(实体, 主键)`：FOR UPDATE，SQLite 用写回主键的 UPDATE；`expectRows`；文档在 easy-query 的 docs/features/ts-runtime.md）
 - [ ] 14.4 引擎核心 `packages/flow/engine`：命令联合加一个 `run`、推进、各种节点、作业（抢占与重试）；SQLite 内存库的测试
 - [ ] 14.5 场景：`spec/scenarios` 的 37 个场景写适配器按新接口跑，删减的写明原因
 - [ ] 14.6 模拟器 `simulate(process, steps)` 与 `createTestEngine()`（内存库、假时钟），设计器的试运行与单测共用
