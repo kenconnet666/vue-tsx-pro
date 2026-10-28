@@ -231,6 +231,26 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 9.9 人员选择器的标准类型改成用户、部门、角色（用户 2026-10-26：标准组织模型是用户、部门、角色加权限、菜单、按钮控制，"岗位"不是标准名词）：
       `PeopleTypes` 的 `position` 换成 `role`（`PeopleSource.positions` 跟着改名），岗位这类由使用方经接口合并（declaration merging）自己加类型；文档页与示例同步
 
+## 阶段 10 之前：基础设施审查（2026-10-28）
+
+为 TS 全栈（FULLSTACK.md）做准备时的审查与探测。基线：类型检查通过，单测 240 个文件、2230 个用例通过。下面每条都写了怎么验证的；按优先级做，每条带回归测试。
+
+- [ ] **P0 SSR 登记的虚拟模块在 Windows 上加载失败**：预设的 `/__vue-jsx-ssr-register-helper` 在 Vite 的模块运行器（Vitest 的 node 环境、Vite 的服务端开发）里变成
+      `file:///__vue-jsx-ssr-register-helper`，Windows 上不是合法的绝对路径，`createRequire` 抛错，服务端加载任何 TSX 组件都失败（文档站 449 个示例全挂）。
+      改成 `\0` 开头的虚拟 id 后实测 437 个示例服务端渲染无警告（其余见 P2）
+- [ ] **P1 展开 attrs 与手写 ref 互相覆盖**：JSX 编译成 Vue 的 `mergeProps`，`ref` 后者盖前者——ref 写在后面，样式绑定失效（状态变了类不变，组件也不重渲染）；
+      写在前面，使用方的 ref 拿不到元素。扫描全部 TSX 的编译产物，实际命中两处：Tree 的 `sizer`（一直是 null，虚拟滚动的 scrollMargin 恒为 0）、
+      文档站 PropsPlayground 的 `stage`（居中判断失效）。修根因：编译器把 JSX 的 `mergeProps` 换成会合并 ref 的版本（组件库的 `mergeAttrs` 已经这样做）
+- [ ] **P1 样式绑定换类晚于 Vue 的 post 回调**：`_effect`、`watch(…, { flush: 'post' })` 四种情形里三种读到旧类（实测）。改走 Vue 的调度（pre 任务），
+      用 `/bench/style-updates` 复测；顺带：现在同一批更新里一个出错，同批其余的就丢了
+- [ ] **P1 命令式对话框不随调用它的组件卸载**：`useConfirm` 打开后调用的组件卸载，对话框仍开着（实测，`overlay/detached.tsx`）；图表提示框的 `render()` 同类，抽成同一个工具
+- [ ] **P2 服务端渲染的组件问题**（阶段 B3 的输入）：11 个示例在服务端抛 `HTMLElement is not defined`——`utils/dom/overflow.ts` 等处的 `value instanceof HTMLElement`
+      在渲染时执行（Select 的标签、TreeSelect、NavBar、PeoplePicker、ConditionBuilder、AppShell）；收成一个 `isHTMLElement` 工具。ThemeCustomizer 的 immediate + post 侦听在服务端读 `document`
+- [ ] **P2 样式登记表是进程级的**：同一进程渲染完 449 个示例，`styleText()` 累积到 817 KB；SSR 必须按请求收集（阶段 B1）
+- [ ] **P3 有意读初始值没写 `_untrack`**：ConditionBuilder 每次构建、测试都打印 5 条"组件函数体里直接读取"的警告，会淹没真正的警告
+- [ ] **P3 预设跟进 Vite 8 与多环境**：`transform` 的 `ssr` 参数是旧接口（改读 `this.environment`）；多环境构建时一个环境的 `closeBundle` 会关掉共用的编译线程池，
+      正在跑的编译会悬住（推断，阶段 C 实测）；跳过 `?assets` 这类查询参数的模块（阶段 B4）
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
