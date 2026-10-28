@@ -61,8 +61,8 @@ export default _component(() => () => (
       自动换成紧凑样式，分组悬停弹出子项），品牌格只剩标志；<Code>sidebarCollapsed</Code>{' '}
       可以双向绑定，存起来记住各人的设置。页签可以关闭（关闭按钮、Delete、中键）、拖动排序，右键有“关闭其他”“关闭右侧”；接路由时用{' '}
       <Code>useRouteTabs(router, &#123; home: '/' &#125;)</Code>（
-      <Code>@zerodep-dev/vue-tsx-pro-ui/vue-router</Code>）维护打开的页面，整个展开给{' '}
-      <Code>&lt;PageTabs &#123;...tabs&#125; /&gt;</Code>
+      <Code>@zerodep-dev/vue-tsx-pro-ui/vue-router</Code>）维护打开的页面，整个交给{' '}
+      <Code>&lt;PageTabs tabs=&#123;tabs&#125; /&gt;</Code>
       ：换页自动加页签，切回来回到上次的完整地址，关掉当前页时跳到相邻的页。
     </Example>
     <ApiReference api={[api, brandApi]} />

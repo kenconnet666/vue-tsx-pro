@@ -72,7 +72,14 @@ export const navListStyles = css.create({
   chevronOpen: { transform: 'rotate(90deg)' },
   // 小节之间留出间隔，第一节贴着顶部
   // 多栏排版（AppShell 的上下抽屉）时一个小节不被拆到两栏
-  section: { marginBlockStart: { default: '_lg', ':first-child': 0 }, breakInside: 'avoid' },
+  section: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '_xs',
+    marginBlockStart: { default: '_lg', ':first-child': 0 },
+    breakInside: 'avoid',
+  },
+  // 标题行的内边距、图标与间距和链接行同一套（随所在字号），图标与文字才和下面的项上下对齐；只有文字小一档、加粗
   sectionLabel: {
     display: 'flex',
     alignItems: 'center',
@@ -80,10 +87,8 @@ export const navListStyles = css.create({
     paddingBlock: '_xs',
     paddingInline: '_md',
     color: '_text',
-    fontSize: '_sm',
-    fontWeight: '_semibold',
-    letterSpacing: '_wide',
   },
+  sectionText: { fontSize: '_sm', fontWeight: '_semibold', letterSpacing: '_wide' },
   // 小节标题的图标只是标记，比链接的图标淡
   sectionIcon: { color: '_textMuted', flexShrink: 0 },
   // 紧凑：图标居中；小节标题只剩图标，上面一条细线与上一节隔开
@@ -484,7 +489,10 @@ export const NavSection = _component(
               {...mergePartProps<IconProps>({ icon, sx: navListStyles.sectionIcon }, propsIcon)}
             />
           )}
-          <span id={labelId} {...css.attrs(iconOnly() && visuallyHiddenStyles.hidden)}>
+          <span
+            id={labelId}
+            {...css.attrs(navListStyles.sectionText, iconOnly() && visuallyHiddenStyles.hidden)}
+          >
             {label}
           </span>
         </span>

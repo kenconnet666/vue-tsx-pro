@@ -638,6 +638,12 @@ export {
   type NavListProps,
   type NavSectionProps,
 } from './navigation/NavList';
+export {
+  NavMenu,
+  type NavMenuItem,
+  type NavMenuProps,
+  type NavMenuTopLevels,
+} from './navigation/NavMenu';
 export { PageJump, pageJumpStyles, type PageJumpProps } from './navigation/PageJump';
 export {
   PageSizeSelect,

@@ -1,5 +1,5 @@
 /**
- * 页面组合（AppShell、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher）自带的文案：
+ * 页面组合（AppShell、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher、SlideCaptcha）自带的文案：
  * 中文与英文各一份，可以在 createUi 的 lang.messages.patterns 里按字段改写（见 config/lang/messages.ts）
  */
 import type { MessageTable } from '../config/lang/messages';
@@ -190,6 +190,22 @@ export interface PatternsMessages {
   readonly commentReplies: (count: number) => string;
   /** 留言：附件列表的名称，默认“附件” */
   readonly commentAttachments: string;
+  /** 滑块验证码：滑块条上的提示，默认“向右拖动滑块，让拼图对准缺口” */
+  readonly slideHint: string;
+  /** 滑块验证码：服务端判定中，默认“验证中…” */
+  readonly slideVerifying: string;
+  /** 滑块验证码：通过，默认“验证通过” */
+  readonly slideSuccess: string;
+  /** 滑块验证码：没对准，默认“没对准，请再试一次” */
+  readonly slideError: string;
+  /** 滑块验证码：换一张的按钮，默认“换一张” */
+  readonly slideRefresh: string;
+  /** 滑块验证码：图片还没拿到，默认“加载中…” */
+  readonly slideLoading: string;
+  /** 滑块验证码：滑块的名称，默认“滑动验证” */
+  readonly slideLabel: string;
+  /** 滑块验证码：滑块当前位置的读法：`(120)` → “120 像素” */
+  readonly slidePosition: (pixels: number) => string;
 }
 
 /** 页面组合的文案表：中文与英文，别的语言先找同语种、再用英文 */
@@ -288,6 +304,14 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     commentEdited: '已编辑',
     commentReplies: (count) => `${count} 条回复`,
     commentAttachments: '附件',
+    slideHint: '向右拖动滑块，让拼图对准缺口',
+    slideVerifying: '验证中…',
+    slideSuccess: '验证通过',
+    slideError: '没对准，请再试一次',
+    slideRefresh: '换一张',
+    slideLoading: '加载中…',
+    slideLabel: '滑动验证',
+    slidePosition: (pixels) => `${pixels} 像素`,
   },
   'en-US': {
     filterSearch: 'Search',
@@ -387,5 +411,13 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     commentEdited: 'Edited',
     commentReplies: (count) => (count === 1 ? '1 reply' : `${count} replies`),
     commentAttachments: 'Attachments',
+    slideHint: 'Drag the slider to fit the puzzle piece into the gap',
+    slideVerifying: 'Verifying…',
+    slideSuccess: 'Verified',
+    slideError: 'Not aligned, please try again',
+    slideRefresh: 'Try another',
+    slideLoading: 'Loading…',
+    slideLabel: 'Slide to verify',
+    slidePosition: (pixels) => `${pixels} pixels`,
   },
 };

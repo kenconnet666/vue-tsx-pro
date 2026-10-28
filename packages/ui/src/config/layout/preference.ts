@@ -17,12 +17,14 @@ export type LayoutMode = 'docked' | 'overlay';
 /** 抽屉式侧栏从哪一边滑出：start / end 随排版方向（从右到左时互换），top / bottom 是上下 */
 export type LayoutSide = 'start' | 'end' | 'top' | 'bottom';
 
-/** 可选的值，LayoutSwitcher 据此列出选项 */
+/** 可选的侧栏形式，LayoutSwitcher 据此列出选项 */
 export const LAYOUT_MODES: readonly LayoutMode[] = ['docked', 'overlay'];
+/** 可选的抽屉方向，LayoutSwitcher 据此列出选项 */
 export const LAYOUT_SIDES: readonly LayoutSide[] = ['start', 'end', 'top', 'bottom'];
 
-/** 默认的抽屉尺寸（px）：左右两侧的宽度、上下两侧的高度 */
+/** 默认的抽屉宽度（px）：左右两侧 */
 export const DEFAULT_LAYOUT_WIDTH = 256;
+/** 默认的抽屉高度（px）：上下两侧 */
 export const DEFAULT_LAYOUT_HEIGHT = 320;
 
 /** createLayoutPreference 记住的内容 */
