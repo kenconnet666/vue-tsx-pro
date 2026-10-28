@@ -44,6 +44,7 @@ export {
   type FilterBarManaged,
   type FilterBarProps,
 } from './FilterBar';
+export { FormDialog, type FormDialogProps } from './FormDialog';
 export {
   KanbanBoard,
   kanbanBoardDynamicStyles,

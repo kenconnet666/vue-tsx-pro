@@ -1,16 +1,18 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import fieldApi from 'virtual:api/FormDialogField';
+import componentApi from 'virtual:api/FormDialogProps';
 import api from 'virtual:api/FormDialogOptions';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Component from './demo/Component.tsx?demo';
 import Prompt from './demo/Prompt.tsx?demo';
 import Reschedule from './demo/Reschedule.tsx?demo';
 
 export const meta = {
-  title: 'useFormDialog 表单对话框',
+  title: 'FormDialog 表单对话框',
   description:
     '命令式的小表单对话框：退回要写原因、改派要选人、调整日期要说明理由，一行 await 拿到填好的值，不用为每个操作单独写一个对话框。',
   order: 5,
@@ -20,7 +22,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
+    imports={"import { FormDialog, useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"}
   >
     <Examples>
       <ExampleColumn>
@@ -42,7 +44,16 @@ export default _component(() => () => (
           时确认按钮显示加载中，失败（reject）时对话框留着，由调用方提示原因，改完再提交。
         </Example>
       </ExampleColumn>
+      <ExampleColumn>
+        <Example id="component" title="FormDialog 组件：自己排版的表单" demo={Component}>
+          字段多、有联动、要自己排版时用组件 <Code>FormDialog</Code>：<Code>useForm</Code>{' '}
+          管值和校验，确认按钮就是提交。
+          {
+            '没通过校验时对话框留着，错误汇总出现；提交进行时按钮显示加载中；成功后关闭；后端拒绝（带业务错误码的错误，如“名称已存在”）时说明显示在表单顶上，改完再提交。打开前调用 form.reset(初始值)：新建是空白，修改是当前记录。在字段里按 Enter 也是提交，所以 onSubmit 成功后要自己关。'
+          }
+        </Example>
+      </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, fieldApi]} />
+    <ApiReference api={[api, fieldApi, componentApi]} />
   </DocPage>
 ));

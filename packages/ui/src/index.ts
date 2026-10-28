@@ -11,6 +11,7 @@ export {
   type ButtonGroupManaged,
   type ButtonGroupProps,
 } from './base/ButtonGroup';
+export { Can, type CanProps } from './base/Can';
 export {
   ClearButton,
   CloseButton,
@@ -1341,6 +1342,7 @@ export {
 export {
   ConfigContext,
   defaultConfig,
+  useCan,
   useConfig,
   useLang,
   useTextMatcher,
@@ -1349,6 +1351,7 @@ export {
   type QueryValues,
   type TextMatcher,
   type UiConfig,
+  type UiPermissions,
   type UiRouter,
 } from './config/context';
 export { createUi, documentStyles, type UiOptions } from './config/createUi';

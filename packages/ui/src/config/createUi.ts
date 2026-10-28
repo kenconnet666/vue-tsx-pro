@@ -16,6 +16,7 @@ import {
   defaultConfig,
   type Highlighter,
   type TextMatcher,
+  type UiPermissions,
   type UiRouter,
 } from './context';
 import type { ComponentDefaults } from './defaults';
@@ -42,6 +43,8 @@ export interface UiOptions {
   styles?: ComponentStyles;
   /** 路由适配：站内链接不刷新页面地跳转、导航组件判断当前页（见 UiRouter） */
   router?: UiRouter;
+  /** 权限判断：`(权限点) => 用户有没有`，Can、useCan 据此控制按钮等界面；不写时一律放行（见 UiPermissions） */
+  permissions?: UiPermissions;
   /** 请求客户端：createHttpClient({ baseURL, onRequest, onResponse })，或包一层 axios、ky（见 HttpClient） */
   http?: HttpClient;
   /** 工作日历：createWorkCalendar({ holidays, workdays }) 带上法定节假日与调休；不写时只按周末算 */
@@ -99,6 +102,7 @@ export function createUi(options: UiOptions = {}): Plugin {
           defaults: options.defaults ?? {},
           styles: mergeStyles({}, options.styles),
           router: options.router,
+          permissions: options.permissions,
           http: options.http,
           workCalendar: options.workCalendar,
           ripple: options.ripple ?? true,
