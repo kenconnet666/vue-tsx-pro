@@ -3,7 +3,12 @@
  * CSS 变量；选中的样式或动态样式的形状变了时就地换组合类。组件不重新渲染；组件因别的原因重新渲染时复用元素上的
  * effect，卸载时停掉。开发模式下每次更新记到 Vue devtools 的时间线（devtools.ts）。
  */
-import { getCurrentInstance, ReactiveEffect, type ComponentInternalInstance } from 'vue';
+import {
+  getCurrentInstance,
+  queuePostFlushCb,
+  ReactiveEffect,
+  type ComponentInternalInstance,
+} from 'vue';
 import { compose } from './compose';
 import { DEV, recordBindingUpdate, type BindingChange } from './devtools';
 import { CLASS, EVALUATE, FRAGMENT, type Binding, type StylePart } from './fragment';
@@ -36,17 +41,32 @@ interface BoundElement {
 }
 const boundElements = new WeakMap<Element, BoundElement>();
 
-/** 变了的绑定攒到同一个微任务里批量更新（同一轮里改几次参数只改一次 DOM） */
+/**
+ * 变了的绑定攒到一起批量更新（同一轮里改几次参数只改一次 DOM），排进 Vue 的 post 队列的最前面：
+ * 组件更新完之后、post 回调（`_effect`、`watch(…, { flush: 'post' })`）之前，副作用里读到的总是换好的类与变量。
+ * id 为 -1 是 Vue 给元素 ref 赋值的任务用的同一个约定（排序时最先，post 队列执行中排进来时紧跟当前任务）。
+ * 原先排在自己的微任务里，与 Vue 的队列谁先谁后看触发顺序，post 回调常读到旧类
+ */
 const dirty = new Set<BoundElement>();
+const flushJob = Object.assign(flush, { id: -1 });
 function schedule(bound: BoundElement) {
-  if (!dirty.size) queueMicrotask(flush);
   dirty.add(bound);
+  queuePostFlushCb(flushJob);
 }
 function flush() {
-  // 先取出再清空：某个绑定出错时，之后的更新照样能排进新的微任务
+  // 先取出再清空：更新时又变了的绑定排进下一次。某个绑定出错不耽误同一批的其他绑定，都做完再把第一个错误抛给 Vue
   const batch = [...dirty];
   dirty.clear();
-  for (const bound of batch) if (!bound.stopped) bound.effect.run();
+  let failure: { error: unknown } | undefined;
+  for (const bound of batch) {
+    if (bound.stopped) continue;
+    try {
+      bound.effect.run();
+    } catch (error) {
+      failure ??= { error };
+    }
+  }
+  if (failure) throw failure.error;
 }
 
 /**
@@ -126,7 +146,7 @@ function sameArgs(next: readonly unknown[], previous: readonly unknown[]) {
 }
 
 /**
- * 元素的 ref：挂上时起一个 effect（Vue 公开的 ReactiveEffect，依赖变化时排进微任务）。第一次运行只为收集依赖：
+ * 元素的 ref：挂上时起一个 effect（Vue 公开的 ReactiveEffect，依赖变化时排进 Vue 的 post 队列，见 schedule）。第一次运行只为收集依赖：
  * 读到的参数与渲染时相同，就不再求值、不碰 DOM（挂载时参数只算一次）。
  * 组件重新渲染会给一个新的 ref 函数，同一个元素就复用原来的 effect，换上这次的样式与读取函数；读取函数读的来源
  * 可能变了（不稳定的绑定）时重跑一次重新收集依赖。卸载时 Vue 用 null 调用 ref，停掉 effect。

@@ -284,8 +284,8 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] **P1 展开 attrs 与手写 ref 互相覆盖**：JSX 编译成 Vue 的 `mergeProps`，`ref` 后者盖前者——ref 写在后面，样式绑定失效（状态变了类不变，组件也不重渲染）；
       写在前面，使用方的 ref 拿不到元素。扫描全部 TSX 的编译产物，实际命中两处：Tree 的 `sizer`（一直是 null，虚拟滚动的 scrollMargin 恒为 0）、
       文档站 PropsPlayground 的 `stage`（居中判断失效）。修根因：编译器把 JSX 的 `mergeProps` 换成会合并 ref 的版本（组件库的 `mergeAttrs` 已经这样做）
-- [ ] **P1 样式绑定换类晚于 Vue 的 post 回调**：`_effect`、`watch(…, { flush: 'post' })` 四种情形里三种读到旧类（实测）。改走 Vue 的调度（pre 任务），
-      用 `/bench/style-updates` 复测；顺带：现在同一批更新里一个出错，同批其余的就丢了
+- [x] **P1 样式绑定换类晚于 Vue 的 post 回调**：`_effect`、`watch(…, { flush: 'post' })` 四种情形里三种读到旧类（实测）。改走 Vue 的调度（pre 任务），
+      已改为排进 Vue 的 post 队列最前面（id -1，同 Vue 给 ref 赋值的任务），同一批里一个出错不再丢掉其余的；`/bench/style-updates` 的基准还没复测（下次开文档站时补）
 - [ ] **P1 命令式对话框不随调用它的组件卸载**：`useConfirm` 打开后调用的组件卸载，对话框仍开着（实测，`overlay/detached.tsx`）；图表提示框的 `render()` 同类，抽成同一个工具
 - [ ] **P2 服务端渲染的组件问题**（阶段 B3 的输入）：11 个示例在服务端抛 `HTMLElement is not defined`——`utils/dom/overflow.ts` 等处的 `value instanceof HTMLElement`
       在渲染时执行（Select 的标签、TreeSelect、NavBar、PeoplePicker、ConditionBuilder、AppShell）；收成一个 `isHTMLElement` 工具。ThemeCustomizer 的 immediate + post 侦听在服务端读 `document`

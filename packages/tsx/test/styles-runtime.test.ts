@@ -491,3 +491,65 @@ describe('直接写的样式对象', () => {
     expect(attrs({ color: { default: 'black', ':hover': 'green' } }).class).toBeTruthy();
   });
 });
+
+describe('绑定与 Vue 的刷新顺序', () => {
+  // 样式绑定换类在 post 回调之前：_effect、watch(…, { flush: 'post' }) 里读到的总是新类
+  const styles = create({ row: { display: 'flex' }, hot: { color: 'red' } });
+
+  it.each([
+    ['watchEffect', false],
+    ['watchEffect', true],
+    ['watch', false],
+    ['watch', true],
+  ] as const)('%s（同一轮里别的组件也要更新：%s）', async (kind, queued) => {
+    const { createApp, h, nextTick, ref, watch, watchEffect } = await import('vue');
+    const { select } = await import('../src/styles/runtime');
+    const hot = ref(false);
+    const other = ref(0);
+    const seen: string[] = [];
+    let element: HTMLElement | undefined;
+    const host = document.createElement('div');
+    document.body.append(host);
+    createApp({
+      setup() {
+        if (kind === 'watchEffect')
+          watchEffect(
+            () => {
+              void hot.value;
+              if (element) seen.push(element.className);
+            },
+            { flush: 'post' },
+          );
+        else
+          watch(
+            () => hot.value,
+            () => seen.push(element!.className),
+            { flush: 'post' },
+          );
+        return () => {
+          const { ref: bound, ...rest } = attrs(
+            styles.row,
+            select(() => hot.value && styles.hot),
+          );
+          return h('div', {
+            ...rest,
+            ref: (el: unknown) => {
+              bound?.(el);
+              element = (el as HTMLElement) ?? undefined;
+            },
+          });
+        };
+      },
+    }).mount(host);
+    // 别的组件读 other：改它让 Vue 的队列先排上，这个组件不重新渲染
+    const elsewhere = document.createElement('div');
+    document.body.append(elsewhere);
+    createApp({ render: () => h('span', String(other.value)) }).mount(elsewhere);
+    await nextTick();
+    seen.length = 0;
+    if (queued) other.value++;
+    hot.value = true;
+    await nextTick();
+    expect(seen.at(-1)).toBe(attrs(styles.row, styles.hot).class);
+  });
+});
