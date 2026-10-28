@@ -20,6 +20,7 @@ function styleSheet(): CSSStyleSheet | null {
   if (typeof document === 'undefined') return (sheet = null);
   const rendered = document.querySelector<HTMLStyleElement>('style[data-vue-tsx-pro]');
   if (rendered?.sheet) {
+    fromServer = true;
     for (const name of rendered.dataset.names?.split(' ') ?? []) {
       if (name && !inserted.has(name)) inserted.set(name, { texts: [], rules: [] });
     }
@@ -51,6 +52,19 @@ export function insert(name: string, texts: readonly string[]) {
     }
   }
   inserted.set(name, { texts, rules });
+}
+
+/** 页面是服务端渲染出来的（接管了服务端输出的样式表） */
+let fromServer = false;
+
+/**
+ * 动态样式是否一律写成变量（dynamic.ts）：在服务端渲染、或接管了服务端渲染的页面里是。
+ * 动态样式平时把"一直没变过的值"直接写进类里，是否变过记在整个进程里：服务端渲染过许多页面后早已转成变量，
+ * 刚打开的浏览器却还没有，同一个元素两边的类就对不上（水合不一致）。一律写成变量，两边按同样的规则出类
+ */
+export function variablesOnly(): boolean {
+  if (sheet === undefined) styleSheet();
+  return sheet === null || fromServer;
 }
 
 /** 这个名字的规则插过没有；浏览器里第一次问时先接管服务端输出的样式表（见 styleSheet） */

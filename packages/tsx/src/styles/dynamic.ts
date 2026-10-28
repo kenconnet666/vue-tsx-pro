@@ -16,7 +16,7 @@ import {
   type Fragment,
   type StylePart,
 } from './fragment';
-import { hash } from './sheet';
+import { hash, variablesOnly } from './sheet';
 
 /**
  * 动态样式的变量名：按属性与条件（同 StyleX 的 --x-属性）。不注册 @property：类里引用变量的元素，
@@ -53,13 +53,15 @@ export function dynamic(factory: (...args: never[]) => StyleObject): DynamicStyl
     const inline: Record<string, string> = {};
     const leaves: LeafEntry[] = [];
     let shape = '';
+    // 服务端渲染与它的水合一律写成变量（见 variablesOnly），两边出同样的类
+    const always = variablesOnly();
     eachLeaf(factory(...(args as never[])), (leaf) => {
       const key = leaf.chain.length ? `${leaf.property}\0${leaf.chain.join('\0')}` : leaf.property;
       const text = leaf.texts?.join(', ') ?? '';
       const seen = first.get(key);
       if (seen === undefined) first.set(key, text);
       else if (seen !== text) varying.add(key);
-      if (!leaf.texts || !varying.has(key)) {
+      if (!leaf.texts || (!always && !varying.has(key))) {
         shape += `${key}=${text};`;
         leaves.push(leaf);
         return;
