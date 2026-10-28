@@ -40,6 +40,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        # 最慢的任务（Windows 上近 10 分钟）分三片并行，每片跑三分之一的测试文件
+        shard: [1, 2, 3]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -54,12 +56,12 @@ jobs:
             sleep 15
           done
           exit 1
-      - run: pnpm test:browser
+      - run: pnpm test:browser --shard=${{ matrix.shard }}/3
       # 偶发失败只在 CI 上出现时，靠失败截图判断是谁挡住了点击、停在了哪一步
       - if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: failure-screenshots-${{ matrix.os }}
+          name: failure-screenshots-${{ matrix.os }}-${{ matrix.shard }}
           path: '**/.vitest/attachments/failure-screenshots/'
           include-hidden-files: true
           if-no-files-found: ignore
