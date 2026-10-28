@@ -40,6 +40,6 @@ export const Counter = _component(({ step = 1 }: { step?: number }) => {
 | `@zerodep-dev/vue-tsx-pro-tsx/vite`     | Vite 预设：符文、样式绑定与 JSX 一次编译，组件热更新、编译缓存            |
 | `@zerodep-dev/vue-tsx-pro-tsx/compiler` | 编译函数（预设与代码演练场共用）                                          |
 
-要求 Vue 3.5+、Vite 8。文档、符文与样式的完整说明见仓库：<https://github.com/kenconnet666/vue-tsx-pro>（RUNES.md、STYLE-ENGINE.md）。
+要求 Vue 3.5+、Vite 8。符文与样式的完整说明见仓库里的 [packages/tsx/RUNES.md](https://github.com/kenconnet666/vue-tsx-pro/blob/master/packages/tsx/RUNES.md)、[packages/tsx/STYLE-ENGINE.md](https://github.com/kenconnet666/vue-tsx-pro/blob/master/packages/tsx/STYLE-ENGINE.md)。
 
 MIT License

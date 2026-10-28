@@ -1,8 +1,8 @@
 # 组件库规范
 
-适用于 `@zerodep-dev/vue-tsx-pro-ui`。写法基础见 [RUNES.md](RUNES.md)，工程规划见 [PLAN.md](PLAN.md)。
+适用于 `@zerodep-dev/vue-tsx-pro-ui`。写法基础见 [RUNES.md](../tsx/RUNES.md)，仓库结构、约定与测试分层见 [HANDOFF.md](../../HANDOFF.md)。
 
-> 状态：基础设施与 §10 各批组件已完成；之后的目标、执行顺序与待办都在 [ROADMAP.md](ROADMAP.md)。
+> 状态：基础设施与 §10 各批组件已完成；之后的目标、执行顺序与待办都在 [ROADMAP.md](../../ROADMAP.md)。
 
 ---
 
@@ -13,7 +13,7 @@
 | 可绑定的状态 | 统一用 `_value`（输入类）、`_checked`（开关类）、`_open`（弹层类）；可双向绑定的 prop 一律以下划线开头（RUNES.md §6），子组件用 `({ _value: value = _bindable(…) })` 声明，父组件写 `_value={x}`                                                                                                                                                                                                                                                                                                                                                                                               |
 | 变化回调     | 需要附带原因或细节时才提供，形如 `onOpenChange(open, { reason: 'escape' \| 'outside' \| 'trigger' })`；只是值变化时不额外提供                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | 内容         | 默认内容用 `children`；具名内容是 JSX prop（`header`、`footer`）；需要参数的内容是渲染函数（`<List>{(item) => …}</List>`）                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](RUNES.md) §7）                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 命令式能力   | 不用 expose：父级用组合式函数创建控制器对象（状态 + 方法）传入，如 `const form = useForm()` → `<Form controller={form}>`，两边用同一份数据（[RUNES.md](../tsx/RUNES.md) §7）                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | 状态标记     | 各部件带 `data-state="open \| closed \| checked \| …"`、`data-disabled` 等，供宿主 CSS 与测试定位，组件内部样式不依赖它们                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | 多态         | 不做 `as`：一个元素一个组件，不靠 prop 切换标签。Button（`<button>`）与 LinkButton（`<a>`）、H1–H6、Text / Paragraph / Strong / Em / Small 各是一个组件，用同一个工厂或共用样式表复用（默认值可以各不相同），每个组件只接受自己元素的属性。布局容器内置 div 与 ul 两种（Flex / FlexList、Grid / GridList、Container），其他语义标签用导出的工厂生成：`const Toolbar = createFlex('nav', 'Toolbar')`                                                                                                                                                                                            |
 | 选择         | 单选、多选用 `selectionMode: 'single' \| 'multiple'`（Listbox、Select、ToggleGroup、DataTable 同名），props 用 `SelectionProps` 按它区分 `value` 是一个值还是数组；选项的值是 string（与原生表单、URL 参数一致）。选项列表的 `items` 可以是任意数据加 `toOption`（转成 `{ value, label, … }`），渲染函数拿到的仍是原始数据                                                                                                                                                                                                                                                                     |
@@ -335,7 +335,7 @@ interface Lang {
 | 拖拽排序 | 自己实现                            | `utils/dom/sortable`（Sortable、DataTable 的行拖动）；键盘拿起放下与读屏播报参考 dnd-kit                                                                       |
 | 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                                                      |
 
-**待办**都在 [ROADMAP.md](ROADMAP.md)。双指缩放、旋转等手势等图片预览组件出现时在 `utils/dom/move.ts` 旁边加。
+**待办**都在 [ROADMAP.md](../../ROADMAP.md)。双指缩放、旋转等手势等图片预览组件出现时在 `utils/dom/move.ts` 旁边加。
 
 **验证覆盖**：演示页的 axe 检查跑亮、暗两套主题与三种浏览器；从右到左排版有单独的浏览器测试（`apps/host-demo/test/rtl.browser.test.tsx`）；窄屏横向溢出有回归测试。
 

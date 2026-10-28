@@ -407,7 +407,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ### C. 样式引擎换成运行时（2026-10-24）
 
-设计、调研与实测见 [STYLE-ENGINE.md](STYLE-ENGINE.md)。写法同 StyleX（`create`、`attrs`、`sx`），底层换成运行时引擎，
+设计、调研与实测见 [STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md)。写法同 StyleX（`create`、`attrs`、`sx`），底层换成运行时引擎，
 不再依赖 StyleX：
 
 - [x] 一个元素一个组合类；合并语义修正 StyleX 条件里 `null` 清掉默认值的坑（Tabs 未选中文字恢复成弱化色）

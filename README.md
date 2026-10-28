@@ -4,6 +4,22 @@
 
 定位：在**已有的 Vue 3.5 项目**里用这套写法构建独立页面，配合本仓库的组件库。与宿主共享同一份 Vue、响应式状态（pinia、组合式函数）与 `provide` / `inject`；只写 TSX，不兼容 SFC 模板。
 
+接下来本仓库会成为 TS 全栈的家：迁入 easy-query 的 TS 版、组件库支持服务端渲染、在 Nitro 上做一层薄的全栈框架与纯 TS 的流程引擎，规划草案见 [FULLSTACK.md](FULLSTACK.md)。
+
+## 定位与决定
+
+| 项         | 决定                                                                                                                                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 渲染       | Vue 3.5 虚拟 DOM；只写 TSX                                                                                                                                                                        |
+| 编译       | 一个 Vite 插件、每个文件解析一次：符文编译器、样式绑定与官方的 Vue JSX Babel 插件组合（Babel 8）                                                                                                  |
+| 文件范围   | 不按目录隔离：只有用到符文或 `_component` 的文件被改写，宿主其他代码原样交给后续插件                                                                                                              |
+| 响应式写法 | 下划线符文，语义对标 Svelte 5，编译为 Vue 原生 API（[RUNES.md](packages/tsx/RUNES.md)）                                                                                                           |
+| 组件       | 只有 props：参数解构即 props；内容用 `children`；通知用 `onXxx`；不用 slot / emit / expose                                                                                                        |
+| 样式       | 写法同 StyleX（类型安全、`sx` 覆盖），底层是运行时引擎：一个元素一个组合类、动态值直接改元素上的变量，组件库发布编译好的 JS（[STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md)）；外部覆盖只走 `sx` |
+| 包         | pnpm workspace；`@zerodep-dev/vue-tsx-pro-tsx`（编译器、运行时、Vite 预设、类型）与 `@zerodep-dev/vue-tsx-pro-ui`（组件库）                                                                       |
+
+**明确不做**：具名插槽映射、SFC 里写符文、不解构的整体 props。服务端渲染原先不做，2026-10-28 起排进 FULLSTACK.md 的阶段 B。
+
 ## 在已有 Vue 项目中使用
 
 要求 Vue 3.5+、Vite 8。组件库的 peer 依赖由宿主安装：
@@ -61,9 +77,9 @@ const styles = css.create({
 });
 ```
 
-短写按属性找 token 组（`padding` → space，`color` → colors），跨组写 `'_space.md'`；规则见 COMPONENTS.md §4。动态样式的参数等运行时才知道的值也可以从 `t` 取。
+短写按属性找 token 组（`padding` → space，`color` → colors），跨组写 `'_space.md'`；规则见 [COMPONENTS.md](packages/ui/COMPONENTS.md) §4。动态样式的参数等运行时才知道的值也可以从 `t` 取。
 
-样式由运行时引擎在页面上生成（第一次用到时插入一张 `<style>`），宿主不需要引入任何 CSS 文件；组件库发布的是编译好的 JS，开发服务器整个预构建它，不再逐个编译。设计与实测见 STYLE-ENGINE.md。
+样式由运行时引擎在页面上生成（第一次用到时插入一张 `<style>`），宿主不需要引入任何 CSS 文件；组件库发布的是编译好的 JS，开发服务器整个预构建它，不再逐个编译。设计与实测见 [STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md)。
 
 完整示例见 `apps/host-demo`：SFC 首页 + vue-router + pinia，加一个 TSX 页面读取路由参数、写入 store、inject 宿主提供的值。
 
@@ -78,11 +94,11 @@ const styles = css.create({
 
 依赖方向只有一条：`ui → tsx`，`docs → ui + tsx`，`host-demo → ui + tsx`。
 
-组件库现有的组件（基础、布局、展示、反馈、导航、输入）与基础设施见 COMPONENTS.md §10，交接说明见 [HANDOFF.md](HANDOFF.md)。
+组件库现有的组件（基础、布局、展示、反馈、导航、输入）与基础设施见 [COMPONENTS.md](packages/ui/COMPONENTS.md) §10，交接说明见 [HANDOFF.md](HANDOFF.md)。
 
 ## 命令
 
-需要 Node 24（见 `.node-version`）与 pnpm 12。日常开发只跑和改动相关的检查，全量检查由 CI 并行完成（见 PLAN.md §4）。
+需要 Node 24（见 `.node-version`）与 pnpm 12。日常开发只跑和改动相关的检查，全量检查由 CI 并行完成（见 [HANDOFF.md](HANDOFF.md) §4 的测试分层）。
 
 ```bash
 pnpm install
@@ -138,7 +154,8 @@ pnpm lsp:verify --codex    # 改用生成的 Codex 配置检查
 
 ## 文档
 
-- [RUNES.md](RUNES.md)：符文规范（状态、派生、副作用、props、双向绑定、共享状态，与 Svelte 5 对照）
-- [COMPONENTS.md](COMPONENTS.md)：组件库规范（API 约定、部件透传、尺寸、主题与语言、现状与待办）
-- [PLAN.md](PLAN.md)：定位、结构、测试分层、里程碑与技术约束
-- [HANDOFF.md](HANDOFF.md)：交接文档（现状、怎么接着做、坑与约定）
+- [RUNES.md](packages/tsx/RUNES.md)：符文规范（状态、派生、副作用、props、双向绑定、共享状态，与 Svelte 5 对照）
+- [STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md)：运行时样式引擎的设计、实测与取舍
+- [COMPONENTS.md](packages/ui/COMPONENTS.md)：组件库规范（API 约定、部件透传、尺寸、主题与语言、现状与待办）
+- [ROADMAP.md](ROADMAP.md)：路线图与勾选状态；[FULLSTACK.md](FULLSTACK.md)：TS 全栈的规划草案
+- [HANDOFF.md](HANDOFF.md)：交接文档（现状、仓库结构、约定、测试分层、技术约束、坑）

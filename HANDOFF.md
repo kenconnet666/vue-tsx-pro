@@ -16,9 +16,9 @@
   发布前做过一轮文档站巡检（`pnpm docs:review`、`pnpm docs:sheets` 逐页看截图，修外观、示例用词与几处组件的布局）。
 - **与 query 的配合**：表格请求（`useTableQuery` 的 `-amount,name` 排序、表头筛选、已知总数、`tableParams`）、线上的 typed JSON
   （`utils/request/wire.ts`、`http` 的 `wire` 选项）、`buildTree` 对应 query 的 0015、0016，2026-10-25 合进 master。
-- **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的组件库（运行时样式，写法像 StyleX）。见 [PLAN.md](PLAN.md) §1。
+- **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的组件库（运行时样式，写法像 StyleX）。见 [README.md](README.md) 的“定位与决定”。
 - **tsx 包**（编译器、运行时、Vite 预设、类型）：功能完整，日常只做修补。编译是一次解析、两遍遍历、一次生成（`compiler/compile.ts`）。
-- **ui 包**：分基础设施、核心（主入口）、扩展（子路径）三层，见 [COMPONENTS.md](COMPONENTS.md) §7；各批的设计与取舍见 §10：
+- **ui 包**：分基础设施、核心（主入口）、扩展（子路径）三层，见 [COMPONENTS.md](packages/ui/COMPONENTS.md) §7；各批的设计与取舍见 §10：
   - 基础：文字（Text / Paragraph / Strong / Em / Small、H1–H6）、List / OrderedList、Blockquote、Mark、Icon、Link、Code、Kbd、CodeBlock（可选 Shiki 高亮）、Spinner、按钮家族（ButtonBase / Button / LinkButton / IconButton / IconLinkButton / CloseButton / ClearButton / CopyButton、ButtonGroup）、Badge / StatusBadge、Indicator、Tag、StatusDot
   - 布局：Affix、BackTop、Flex / Grid / Container（含 create* 工厂）、Separator、ScrollArea 与 PageScrollbar、Prose、Splitter、ResizeHandle、AsideLayout、ViewportFill
   - 展示：Image / ImageGroup（懒加载、失败占位、点开看大图）、Collapse、Collapsible、Accordion、VirtualList、Card、Avatar / AvatarGroup、AnimatedNumber、Stat / StatGroup、Sparkline（迷你图）、Gauge（仪表盘）、Descriptions（columns="auto"、复制）、Checklist（状态、负责人、日期、证据、可勾选）、FieldCompare（表格、列表，变化量按好坏着色）、Timeline（reverse、操作人、详情、maxVisible 收起）、Tree（搜索过滤、拖动移动）、Sortable、ItemList、ProportionBar、Ellipsis、Watermark
@@ -43,15 +43,19 @@
 
 ## 2. 文档地图
 
-| 文件                                      | 讲什么                                                                                          |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [README.md](README.md)                    | 怎么在宿主项目里用、命令、语言服务（MCP）、配置要点                                             |
-| [PLAN.md](PLAN.md)                        | 定位与决定、仓库结构、测试分层、里程碑、技术约束与退路                                          |
-| [ROADMAP.md](ROADMAP.md)                  | 当前的全部目标与执行顺序，做完一块勾一块                                                        |
-| [RUNES.md](RUNES.md)                      | 符文规范：`_state`、`_derived`、`_effect`、props、`_bindable` / `_bind`、`_untrack` 等          |
-| [COMPONENTS.md](COMPONENTS.md)            | 组件库规范：API 约定、部件与透传、样式与 token、依赖与待办、每批组件的设计与取舍（§10）         |
-| `.claude/reports/`                        | 调研报告：全站审查（2026-10-22，标出已修与待办）、构建与加载性能、Unovis 的 API 清单            |
-| `packages/ui/src/index.ts`                | 组件库的全部导出，按目录分组；由 `pnpm exports` 生成，不要手改                                  |
+| 文件                                            | 讲什么                                                                                                                       |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [README.md](README.md)                          | 定位与决定、怎么在宿主项目里用、命令、语言服务（MCP）、配置要点                                                              |
+| [ROADMAP.md](ROADMAP.md)                        | 当前的全部目标与执行顺序，做完一块勾一块                                                                                     |
+| [FULLSTACK.md](FULLSTACK.md)                    | TS 全栈的规划草案（迁入 easy-query、SSR、Nitro 薄框架、纯 TS 流程引擎）与待拍板的事；定稿后拆进 ROADMAP 与 `docs/decisions/` |
+| [RUNES.md](packages/tsx/RUNES.md)               | 符文规范：`_state`、`_derived`、`_effect`、props、`_bindable` / `_bind`、`_untrack` 等                                       |
+| [STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md) | 运行时样式引擎：设计、调研、实测与取舍                                                                                       |
+| [COMPONENTS.md](packages/ui/COMPONENTS.md)      | 组件库规范：API 约定、部件与透传、样式与 token、依赖与待办、每批组件的设计与取舍（§10）                                      |
+
+文档的放法：给使用者的只在文档站（`apps/docs`）；仓库里的 Markdown 是给维护者的，全局的放根目录，模块的跟着包走（`packages/<包>/`）。
+代码注释里写文件名（`COMPONENTS.md §4`）即可，`pnpm refs:check` 检查文档与注释里提到的 `.md` 都找得到。
+| `.claude/reports/` | 调研报告：全站审查（2026-10-22，标出已修与待办）、构建与加载性能、Unovis 的 API 清单 |
+| `packages/ui/src/index.ts` | 组件库的全部导出，按目录分组；由 `pnpm exports` 生成，不要手改 |
 | `apps/docs/src/components/<分类>/<Name>/` | 文档页 `docs.tsx`、示例 `demo/`（整页示例在 `frames/`）；站点自己的组件在 `apps/docs/src/site/` |
 
 ## 3. 上手
@@ -100,11 +104,53 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 
 ## 4. 架构速览
 
+```
+packages/
+  tsx/   @zerodep-dev/vue-tsx-pro-tsx
+    src/compiler/   编译器（纯函数，不依赖 Vite）：符文、样式绑定，compile 组合全部步骤
+    src/runtime/    _component、prop 访问器、overridable / snapshot / effect
+    src/vite/       Vite 预设：调用 compile、组件热更新、编译缓存、工作线程
+    src/styles/     运行时样式引擎与类型（属性中文注释由 scripts/css-docs 生成）
+    types/          符文全局类型、jsx-runtime 类型
+    RUNES.md  STYLE-ENGINE.md
+  ui/    @zerodep-dev/vue-tsx-pro-ui（基础设施 utils/ config/、核心（主入口的分类目录）、扩展（子路径），见 COMPONENTS.md §7；pnpm layers:check 检查）
+    COMPONENTS.md
+apps/
+  docs/        文档站：TSX 与本组件库写的网站（Vite + vue-router）；组件页、示例与示例测试在 src/components/<分类>/<Name>/
+  host-demo/   宿主示例：普通 Vue 3.5 项目 + TSX 页面
+scripts/       css-docs（CSS 属性注释数据）、language-services（TSX 语言服务 MCP）、exports、structure、docs 等
+tests/consumer 发布产物验证
+```
+
+依赖方向：`ui → tsx`，`docs → ui + tsx`，`host-demo → ui + tsx`。共享依赖的精确版本集中在 `pnpm-workspace.yaml` 的 catalog。
+
+**测试分层**（本地只跑和改动相关的，全量交给 CI 的五个并行任务）：
+
+| 层       | 测什么                                                                       | 工具                                                        | 位置                |
+| -------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------- |
+| 编译     | 符文输入 → 输出；误用写法给出带位置的中文报错                                | Vitest                                                      | `packages/tsx/test` |
+| 运行时   | 符文、props、`_bindable`、`_effect`、children、与 Vue 互通                   | Vitest + happy-dom                                          | `packages/*/test`   |
+| 类型     | 正确写法通过；错误写法用 `@ts-expect-error` 标注                             | `tsc`                                                       | `*.test-d.ts(x)`    |
+| 宿主集成 | 普通 Vue 3.5 项目里挂载 TSX 页面：路由、store、inject                        | Vitest + happy-dom                                          | `apps/host-demo`    |
+| 组件交互 | 焦点、键盘、输入法、真实布局、原生弹层行为、axe 无障碍检查                   | Vitest 浏览器模式 + Playwright（Chromium、Firefox、WebKit） | `apps/host-demo`    |
+| 发布产物 | `pnpm pack` 的包在仓库之外的独立应用里安装、类型检查、构建，并在浏览器里运行 | `pnpm test:consumer`                                        | `tests/consumer`    |
+
+**技术约束与退路**：
+
+- **Babel 8**：符文编译器、样式绑定与 Vue JSX 插件（3.0）一起用 Babel 8，一个文件解析一次（`compiler/compile.ts`）。
+- **不依赖 StyleX**：写法像 StyleX，运行时引擎与类型都是自己的（`@zerodep-dev/vue-tsx-pro-tsx/styles`，STYLE-ENGINE.md）。
+- **文档站不用 Markdown**：用 TSX 与本组件库写普通网站（Vite + vue-router 自建）。
+- **只用 TypeScript 7**（Go 重写，跟 7.1 的 beta）：类型检查、CI、两个包的声明生成用 `tsc`；脚本与文档站的 API 表用 7.1 的程序化 API
+  （`typescript/sync` 的程序与检查器、`typescript/ast` 的语法树）。检查器在 tsc 子进程里，每次调用都是一次跨进程往返，成批的查询用 `api.batch` 一次取回。
+  语言服务是 `tsc --lsp`。tsdown 的声明插件只自动识别 7.0，tsx 包的 tsdown.config.ts 显式指定 7.1 的 tsc。
+- **pnpm 12** 不再读 `package.json` 的 `pnpm` 字段，工作区设置写在 `pnpm-workspace.yaml`。
+- 组件库依赖（定位、图标、日期、精确数字、焦点、校验接口）用成熟库，组件自己写，见 COMPONENTS.md §7。
+
 **tsx 包**（`packages/tsx/src`）：
 
 - `compiler/`：Babel 8。`compile.ts` 是一个文件的完整编译（解析一次、两遍遍历、生成一次：样式绑定与热更新、符文 → Vue JSX、去类型），Vite 预设与演练场共用；符文转换五步，见 `compiler/index.ts` 开头。token 短写 `'_xs'` 在运行时由样式引擎换成变量（`styles/tokens.ts`）。
 - `runtime/`：`_component`、prop 访问器（没写过的 prop 用只读的 `readonlyProp`，`children` 用不缓存的 `childrenProp`）、`overridable`、`snapshot`、`untrack`、`effect`、`createContext`。
-- `vite/`：预设是一个编译插件（`module.ts` 调用 `compile`，`hmr.ts` 登记组件热更新，`pool.ts` 把编译分到工作线程，`cache.ts` 是开发服务器的磁盘编译缓存）加 `css.ts`（收集规则合成 CSS）。仓库内专用的 `workspace.ts`（`workspaceSource()`）按源码解析各包，开发与测试时把桶文件的具名导入改成直接导入所在模块，热更新不经过桶文件。
+- `vite/`：预设是一个编译插件（`module.ts` 调用 `compile`，`hmr.ts` 登记组件热更新，`pool.ts` 把编译分到工作线程，`cache.ts` 是开发服务器的磁盘编译缓存，`ssr-register.ts` 是 SSR 时登记组件模块的虚拟模块）。仓库内专用的 `workspace.ts`（`workspaceSource()`）按源码解析各包，开发与测试时把桶文件的具名导入改成直接导入所在模块，热更新不经过桶文件。
 - `styles/`：运行时样式引擎与带中文注释的类型（`documented.ts` 由 `scripts/css-docs` 生成，不要手改），设计见 STYLE-ENGINE.md。
 
 **ui 包**（`packages/ui/src`）的基础设施都在 `utils/` 与 `config/`。写新组件前先看有没有现成的：
@@ -191,6 +237,9 @@ node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视�
 10. **工具全部导出**：名字全局唯一（`<组件>Styles`、`<组件>Managed`）；入口由 `pnpm exports` 生成。
 11. **依赖用起来**：表单校验用 zod，JS 动画用 Anime.js（`useAnimate`），日期用 `@internationalized/date`，图表用 Unovis；先看已有依赖能不能做，再自己写。
 12. **上层组件用好基础组件与工具**：ButtonBase、ListPopover、ChartFrame、controlIcon、Field……重复的逻辑出现第三次就抽出来。
+13. **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。
+14. **只有 Node 直接加载的** `packages/tsx/src/compiler` 与 `src/vite` 在相对导入里写 `.ts` 扩展名。
+15. **依赖升级单独提交**，提交说明写清验证结果。
 
 ## 6. 做事方式
 
