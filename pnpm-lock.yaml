@@ -248,6 +248,9 @@ catalogs:
     '@vue/devtools-api':
       specifier: 8.2.1
       version: 8.2.1
+    '@zerodep-dev/json-wire':
+      specifier: 0.1.0
+      version: 0.1.0
     animejs:
       specifier: 4.5.0
       version: 4.5.0
@@ -712,6 +715,19 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.6.7
+
+  packages/flow/model:
+    dependencies:
+      '@zerodep-dev/json-wire':
+        specifier: 'catalog:'
+        version: 0.1.0(@internationalized/date@3.12.4)(decimal.js@10.6.0)
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      typescript:
+        specifier: 'catalog:'
+        version: 7.1.0-beta
 
   packages/tsx:
     dependencies:
@@ -2197,6 +2213,12 @@ packages:
 
   '@yuku-toolchain/types@0.19.0':
     resolution: {integrity: sha512-tFkNbsP4WXX9UMUC5syJGdK9dPMLK0PPaIuXCcCYH75sZ8MrebfBZ2XvCILRTw8AgLivSSCfDa4R67iYBDa4Kg==}
+
+  '@zerodep-dev/json-wire@0.1.0':
+    resolution: {integrity: sha512-T3wTZeaUOc4Z9eC+jYT9vJMf1n608hbDZrj0rWhH89g7UPHuN4FDZqGT47BfDX3p9DiDPFYZQ43DWSgG8vSWeA==}
+    peerDependencies:
+      '@internationalized/date': ^3.12.4
+      decimal.js: ^10.6.0
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -6012,6 +6034,11 @@ snapshots:
     optional: true
 
   '@yuku-toolchain/types@0.19.0': {}
+
+  '@zerodep-dev/json-wire@0.1.0(@internationalized/date@3.12.4)(decimal.js@10.6.0)':
+    dependencies:
+      '@internationalized/date': 3.12.4
+      decimal.js: 10.6.0
 
   accepts@2.0.0:
     dependencies:

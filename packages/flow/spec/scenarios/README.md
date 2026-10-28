@@ -1,0 +1,104 @@
+# 场景用例
+
+两个后端（Java 的 `java/flow-it`、TS 的实库测试）都逐个文件跑这里的场景，跑出来的结果按同一份 JSON 比较，
+所以它们就是两个后端共同的验收标准（docs/decisions/0001 的"场景用例的格式"）。新加一个场景只加一个 JSON 文件。
+
+## 文件的样子
+
+```jsonc
+{
+  "name": "一句话说明这个场景验证什么",
+  "forms": ["forms/purchase-form.json"],      // 先发布的表单：{ key, name, manifest }
+  "processes": ["processes/purchase.json"],   // 再发布的流程定义（0005 的 JSON）
+  "clock": "2026-10-26T08:00:00Z",            // 固定时钟
+  "actors": { "bob": { "id": 1002, "name": "周启航", "roles": [1], "departments": [] } },   // 键是步骤里 as 用的代号
+  "steps": [
+    { "id": "start", "as": "alice", "command": "start", "args": { … }, "expect": { … } }
+  ]
+}
+```
+
+- 编号是数据库自增的（每个场景前重建表，从 1 开始），时钟固定：两个后端跑出来的结果逐字段可比。
+- 每个场景开始前清空库、按建表脚本重建。
+- 操作人：键是代号（步骤里的 `as`），`id`、`roles`、`departments` 是接入方组织表里的编号（整数）。各场景用同一套：
+  1000 管理员、1001 林小满、1002 周启航（财务）、1003 沈若水、1004 总经理、1005 韩笑（法务）；角色 1 财务、2 总经理、3 法务、9 收件箱负责人（有它的人管所有收件箱的指定）；部门 10 门店、20 财务部、30 总经办。1000 是流程管理员（处理人为空、写了 emptyAssignee: admin 时转给他）。
+
+## 命令与参数
+
+| command                            | args                                                                                                                                     | 结果里能比的                                                                                                                   |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `start`                            | `draft`（从草稿发起时，可以不写 key）、`key`、`form`、`variables`、`businessKey`、`title`、`priority`、`picks`（`{ 节点: [用户编号] }`） | `instance`、`workItems`（新生成的待办）、`closed`（结束的待办）、`events`（这一步的流转记录）                                  |
+| `saveStartDraft`                   | `draft`（改已有的草稿时）、`key`、`form`、`businessKey`                                                                                  | 草稿（实例的样子，`status: draft`）                                                                                            |
+| `discardStartDraft`                | `draft`                                                                                                                                  | `discarded`                                                                                                                    |
+| `startDrafts`                      | —                                                                                                                                        | `drafts`（我发起前存的草稿）                                                                                                   |
+| `claim`                            | `workItem`                                                                                                                               | 同上                                                                                                                           |
+| `complete`                         | `workItem`、`outcome`、`comment`、`form`、`picks`、`returnTarget`（退回时选的节点）                                                      | 同上                                                                                                                           |
+| `withdraw`                         | `instance`、`reason`                                                                                                                     | 同上                                                                                                                           |
+| `withdrawStep`                     | `workItem`、`reason`                                                                                                                     | 同上（处理人撤回刚处理的一步）                                                                                                 |
+| `startable`                        | —                                                                                                                                        | `processes`（每项 `{ key, name, category, version }`）                                                                         |
+| `startView`                        | `key`，或 `draft`（接着草稿填）                                                                                                          | `process`、`form`（`{ key, version, manifest, access, start, values, … }`，没有表单时为 null）、`picks`                        |
+| `todo`、`done`                     | `page`（默认 1）、`pageSize`（默认 20）；`done` 还有 `processKey`、`from`、`to`、`sort`（`-completedAt` 这样，见组件库的 formatSorts）   | `total`、`rows`（每行是待办本身，加上经导航读出的 `instance: { id, definitionId, title, summary, status }` 与 `outcomeLabel`） |
+| `started`                          | 同上                                                                                                                                     | `total`、`rows`（每行是实例）                                                                                                  |
+| `instances`                        | `status`、`processKey`、`keyword`、`startedBy`、`sort`、`page`、`pageSize`                                                               | 同上（管理端搜实例）                                                                                                           |
+| `processes`                        | —                                                                                                                                        | `processes`（每项 `{ key, name, category, status, latestVersion }`）                                                           |
+| `incidents`                        | `instance`（不写时看全部）、`page`、`pageSize`                                                                                           | `total`、`rows`（异常：重试用完的作业，带节点、能不能跳过、能选的结果）                                                        |
+| `workItem`                         | `workItem`                                                                                                                               | `workItem`、`instance`、`form`、`outcomes`、`claimable`、`completable`、`actions`                                              |
+| `instance`                         | `instance`                                                                                                                               | `instance`、`form`（同发起页的 form，按流程级 formView 只读）、`workItems`（全部待办）、`timeline`、`actions`                  |
+| `transfer`、`delegate`、`reassign` | `workItem`、`user`、`reason`                                                                                                             | 同 `start`                                                                                                                     |
+| `addSigners`                       | `workItem`、`users`、`mode`（before / after / parallel）、`reason`                                                                       | 同 `start`                                                                                                                     |
+| `removeSigners`                    | `workItem`、`users`                                                                                                                      | 同 `start`                                                                                                                     |
+| `release`                          | `workItem`、`reason`                                                                                                                     | 同 `start`                                                                                                                     |
+| `remind`                           | `instance`、`workItem`（不写时催实例上全部打开着的）、`message`                                                                          | 同 `start`                                                                                                                     |
+| `comment`                          | `instance`、`text`                                                                                                                       | 同 `start`                                                                                                                     |
+| `cc`                               | `instance`、`users`、`message`                                                                                                           | 同 `start`                                                                                                                     |
+| `readCc`                           | `instance`                                                                                                                               | `read`（标了几条）                                                                                                             |
+| `readWorkItem`                     | `workItem`                                                                                                                               | `read`（是否标了：只有处理人第一次打开时为 true）                                                                              |
+| `ccList`                           | `page`、`pageSize`、`sort`                                                                                                               | `total`、`rows`（每行是抄送本身，加上经导航读出的 `instance`）                                                                 |
+| `terminate`、`suspend`             | `instance`、`reason`                                                                                                                     | 同 `start`                                                                                                                     |
+| `resume`                           | `instance`                                                                                                                               | 同 `start`                                                                                                                     |
+| `jump`                             | `instance`、`node`、`reason`                                                                                                             | 同 `start`                                                                                                                     |
+| `signal`                           | `instance` 或 `businessKey`、`event`、`outcome`、`data`                                                                                  | `results`（每个往下走或记了一笔的实例这一步的结果，同 `start`）                                                                |
+| `assign`                           | `workItem`、`user`                                                                                                                       | 同 `start`（收件箱负责人指定承办人）                                                                                           |
+| `designations`                     | `page`、`pageSize`                                                                                                                       | 同 `todo`（等我指定承办人的）                                                                                                  |
+| `retryJob`                         | `job`（作业编号，`job.failed` 的 data 里有）                                                                                             | `revived`                                                                                                                      |
+| `skipJob`                          | `job`、`outcome`、`reason`                                                                                                               | 同 `complete`（跳过失败的作业，按结果往下走）                                                                                  |
+| `runJobs`                          | `at`：把时钟拨到这一刻（不能往回拨），做到期的作业；这一步不写 `as`                                                                      | `ran`（做了几个作业）                                                                                                          |
+| `publishDefinition`                | `definition`（内联的定义）                                                                                                               | —                                                                                                                              |
+| `publishForm`                      | `key`、`name`、`category`、`manifest`（内联的清单）、`clientSource`、`note`                                                              | `id`、`key`、`version`                                                                                                         |
+| `forms`                            | —                                                                                                                                        | `forms`（每项 `{ key, name, category, status, latestVersion }`）                                                               |
+| `formVersions`                     | `key`                                                                                                                                    | `versions`                                                                                                                     |
+| `formDocument`                     | `key`、`version`（不写时最新）                                                                                                           | `key`、`name`、`category`、`version`、`manifest`、`clientSource`、`serverLanguage`、`serverSource`                             |
+| `disableForm` / `enableForm`       | `key`                                                                                                                                    | 同 `forms` 的一项                                                                                                              |
+| `validateDefinition`               | `definition`                                                                                                                             | `problems`（每项 `{ code, severity, node, edge, lane, field, params }`）                                                       |
+| `disableProcess`、`enableProcess`  | `key`                                                                                                                                    | 流程（`{ key, name, category, status, latestVersion }`）                                                                       |
+| `versions`                         | `key`                                                                                                                                    | `versions`（新的在前，每项 `{ version, note, publishedByName, publishedAt, formKey, formVersion }`）                           |
+
+## 场景里注册的扩展
+
+两个后端跑场景时都注册这一套（Java 在 `flow-it` 的 `TestExtensions`），定义里可以直接用：
+
+| 种类       | 名字        | 做什么                                                                                                                                                    |
+| ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 解析器     | `manager`   | 谁发起都由 1004（总经理）处理                                                                                                                             |
+| 守卫       | `budget`    | 表单的 `amount` 超过 100000 时不通过，原因"超出预算"                                                                                                      |
+| 动作       | `classify`  | 参数 `amount` ≥ 10000 走结果 `big`，否则 `small`；记流程变量 `level`                                                                                      |
+| 动作       | `archive`   | 同一个去重键的前 `failures`（参数）次失败，之后成功                                                                                                       |
+| 动作       | `explode`   | 总是失败                                                                                                                                                  |
+| 自定义节点 | `x-stamp`   | 节点写了 `wait`（事件名）时停下来等这个事件，事件到了往下走；没写时当场做完，记流程变量 `stampedBy`（节点的 `by`）                                        |
+| 会签规则   | `first-two` | 两个人同意（`ok`）就按 `ok` 结束；有人不同意（`no`）就按 `no` 结束                                                                                        |
+| 字段类型   | `money`     | 值是 `{ amount, currency }`；不是对象报 `type`，币种不在字段的 `currencies` 里报 `currency`                                                               |
+| 命令拦截器 | —           | 意见是"拦下"的处理拦下（`comment: blocked`）；留言里的"敏感词"换成"***"；业务编号 `rollback-after` 的发起做完再拦（`businessKey: rolled-back`），整个回滚 |
+
+## 引用前面的结果
+
+参数里以 `$` 开头的文字是引用：`$start.workItems[0]` 是 `id` 为 `start` 的那一步新生成的第一个待办的编号，
+`$start.instance` 是那一步的实例编号；`$.` 指上一步。
+
+## 期望（expect）
+
+- **只比写出来的字段**：对象里没写的键不比；列表要一样长，逐项按同样的规则比；`null` 表示这个字段为空或没有。
+- `events`、`timeline` 写成事件种类的列表，按先后逐个比。
+- 期望出错时写 `"error": { "code": "flow.…", "errors": [ … ] }`；没写 `error` 的步骤出错就算失败。
+- 值按线上的 JSON 比：编号、小数、时间都是文字（`"12000.00"`）。
+- 场景文件本身是 typed JSON（json-wire 的格式）：根上的 `$types` 标出参数里的小数、日期（如 `"steps.args.form.amount": "decimal"`），
+  执行器先按它还原再交给引擎，同线上的请求；表单的值要是强类型（decimal 是 BigDecimal、date 是 LocalDate、datetime 是 Instant）。

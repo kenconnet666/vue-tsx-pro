@@ -3,6 +3,7 @@ packages:
   - packages/tsx
   - packages/ui
   - packages/easy-query/*
+  - packages/flow/*
   - apps/*
 
 # 共享依赖的精确版本；各包用 "catalog:" 引用，升级只改这里
@@ -67,6 +68,8 @@ catalog:
   pg: 8.13.1
   '@types/pg': 8.11.10
   hdb: 2.30.1
+  # typed JSON 的线上格式（独立仓库 json-wire）：流程引擎的模型包按它比较与还原值
+  '@zerodep-dev/json-wire': 0.1.0
   # 全栈的服务端底座（apps/fullstack-demo，之后的框架 kit）：Nitro 3 还在 beta，固定精确版本，升级时一起跑两种模式的端到端测试
   nitro: 3.0.260903-beta
   # 构建与测试
@@ -98,6 +101,8 @@ catalog:
 
 minimumReleaseAgeExclude:
   - '@lucide/icons@1.59.0'
+  # 自己的包（json-wire 仓库），发布即用
+  - '@zerodep-dev/json-wire@0.1.0'
 
 # 仓库内的 Node 进程（Vite / Vitest 配置、脚本）直接解析各包源码，不用先构建：
 # 改了 tsx 的编译器或 ui 的组件立刻生效。配置文件要用 --configLoader native 加载（Node 自己去掉类型），

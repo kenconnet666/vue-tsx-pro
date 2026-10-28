@@ -1,0 +1,50 @@
+{
+  "name": "@zerodep-dev/flow-ts-model",
+  "version": "0.1.0",
+  "description": "Process definitions, validation, condition evaluation, routing and form access rules shared by the TypeScript workflow engine and its UI",
+  "license": "Apache-2.0",
+  "author": "lionheart (https://github.com/kenconnet666)",
+  "homepage": "https://github.com/kenconnet666/vue-tsx-pro/tree/master/packages/flow#readme",
+  "bugs": {
+    "url": "https://github.com/kenconnet666/vue-tsx-pro/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenconnet666/vue-tsx-pro.git",
+    "directory": "packages/flow/model"
+  },
+  "keywords": [
+    "workflow",
+    "bpm",
+    "approval",
+    "typescript"
+  ],
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "prepack": "tsc -b tsconfig.build.json",
+    "typecheck": "tsc -p ../tsconfig.json"
+  },
+  "dependencies": {
+    "@zerodep-dev/json-wire": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}
