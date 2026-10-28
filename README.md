@@ -18,7 +18,7 @@
 | 样式       | 写法同 StyleX（类型安全、`sx` 覆盖），底层是运行时引擎：一个元素一个组合类、动态值直接改元素上的变量，组件库发布编译好的 JS（[STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md)）；外部覆盖只走 `sx` |
 | 包         | pnpm workspace；`@zerodep-dev/vue-tsx-pro-tsx`（编译器、运行时、Vite 预设、类型）与 `@zerodep-dev/vue-tsx-pro-ui`（组件库）                                                                       |
 
-**明确不做**：具名插槽映射、SFC 里写符文、不解构的整体 props。服务端渲染原先不做，2026-10-28 起排进 FULLSTACK.md 的阶段 B。
+**明确不做**：具名插槽映射、SFC 里写符文、不解构的整体 props。服务端渲染：2026-10-29 起组件库支持（样式见 [STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md) §10，首屏主题 `createUi(...).documentAttrs()`，只能在浏览器里画的内容包 `ClientOnly`）。
 
 ## 在已有 Vue 项目中使用
 

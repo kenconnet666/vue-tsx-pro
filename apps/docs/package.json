@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader native",
-    "build": "vite build --configLoader native",
+    "build": "vite build --configLoader native && vite build --configLoader native --ssr src/entry-server.ts --outDir dist-ssr && node build/prerender.ts",
     "preview": "vite preview --configLoader native",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
     "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"

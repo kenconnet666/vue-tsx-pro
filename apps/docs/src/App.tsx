@@ -20,7 +20,6 @@ import {
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { watch } from 'vue';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { loadingBar } from './site/loading-bar';
@@ -110,12 +109,11 @@ export const App = _component(() => {
       cancelAnimationFrame(frame);
     };
   });
-  // 浏览器标签上的标题
-  watch(
-    () => route.meta.title as string | undefined,
-    (title) => (document.title = title ? `${title} · vue-tsx-pro` : 'vue-tsx-pro'),
-    { immediate: true },
-  );
+  // 浏览器标签上的标题（_effect 不在服务端执行：预渲染时 build/prerender.ts 直接写进 <title>）
+  _effect(() => {
+    const title = route.meta.title as string | undefined;
+    document.title = title ? `${title} · vue-tsx-pro` : 'vue-tsx-pro';
+  });
 
   const neighbors = () => {
     const index = allPages.findIndex((page) => page.path === route.path);

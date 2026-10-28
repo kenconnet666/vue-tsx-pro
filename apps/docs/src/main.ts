@@ -1,12 +1,10 @@
-import { createUi } from '@zerodep-dev/vue-tsx-pro-ui';
-import { createPinyinMatcher } from '@zerodep-dev/vue-tsx-pro-ui/pinyin';
-import { createShikiHighlighter } from '@zerodep-dev/vue-tsx-pro-ui/shiki';
-import { useRouteLoadingBar, vueRouterAdapter } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';
-import { createApp } from 'vue';
+import { useRouteLoadingBar } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';
+import { createApp, createSSRApp } from 'vue';
 import { App } from './App';
 import { createDocsRouter, prefetchOnIntent } from './router';
 import { loadingBar } from './site/loading-bar';
-import { siteTheme, siteThemeReady } from './site/theme';
+import { siteThemeReady } from './site/theme';
+import { createDocsUi } from './site/ui';
 
 const router = createDocsRouter();
 // 只在生产环境预取：开发时取一页要现编译、现提取 API（没缓存时 Worker 要建十几秒的程序），
@@ -15,33 +13,11 @@ if (import.meta.env.PROD) prefetchOnIntent(router);
 // 换页要加载页面的代码块：慢的时候顶部有加载条
 useRouteLoadingBar(router, loadingBar);
 
-const app = createApp(App)
+// 构建时预渲染过的页面（build/prerender.ts）接管已有的 HTML；开发服务器与没预渲染的地址照常挂载
+const root = document.getElementById('app')!;
+const app = (root.hasChildNodes() ? createSSRApp : createApp)(App)
   .use(router)
-  .use(
-    createUi({
-      theme: siteTheme,
-      // 整页由主题管理：页面边缘、回弹滚动露出的地方也是主题的底色与字体
-      paintDocument: true,
-      // 只加载文档里用到的语言（Shiki 的细粒度写法）：默认的全量语言表有两百多种，开发服务器第一次处理要几十秒
-      highlighter: createShikiHighlighter({
-        languages: {
-          tsx: () => import('@shikijs/langs/tsx'),
-          ts: () => import('@shikijs/langs/typescript'),
-          typescript: () => import('@shikijs/langs/typescript'),
-          js: () => import('@shikijs/langs/javascript'),
-          javascript: () => import('@shikijs/langs/javascript'),
-          json: () => import('@shikijs/langs/json'),
-          bash: () => import('@shikijs/langs/shellscript'),
-          sh: () => import('@shikijs/langs/shellscript'),
-          css: () => import('@shikijs/langs/css'),
-          html: () => import('@shikijs/langs/html'),
-        },
-      }),
-      // 选项过滤、站内搜索认拼音（“xlk”搜到“下拉框”）
-      textMatcher: createPinyinMatcher(),
-      router: vueRouterAdapter(router),
-    }),
-  );
+  .use(createDocsUi(router));
 
-// 加载失败也照常挂载（用没定制的主题），错误照样报出来
-void siteThemeReady().finally(() => app.mount('#app'));
+// 加载失败也照常挂载（用没定制的主题），错误照样报出来；水合要等路由解析完，页面的组件到位
+void Promise.all([siteThemeReady(), router.isReady()]).finally(() => app.mount(root));

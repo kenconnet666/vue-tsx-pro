@@ -351,6 +351,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [ ] 12.5 Vite 预设：服务端环境的编译与热更新、改读 `this.environment`、跳过 `?assets`
 - [ ] 12.6 文档站预渲染（SSG）：构建时生成每页的 HTML
 - [ ] 12.7 文档：README 的“明确不做”、STYLE-ENGINE.md 与 RUNES.md 补 SSR 一节
+- [ ] 12.8 WebKit / Windows 上的浏览器测试偶发超时：MapChart（滚轮缩放、换投影后占满绘图区）、Tree（拖动放进一项）在 2026-10-28 出现三次，
+      同一提交重跑能过。查清是负载下的时序问题还是样式绑定改走 Vue 调度（阶段 10）后的回归，修根因而不是加重试
 
 ## 阶段 13：Nitro 底座与 fullstack-demo
 

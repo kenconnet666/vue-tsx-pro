@@ -60,6 +60,9 @@ export const optimizeDeps = {
 };
 
 export default defineConfig({
+  define: process.env.VTP_HYDRATION_DETAILS
+    ? { __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true' }
+    : {},
   plugins,
   // 固定端口：IDE 里启动、浏览器里打开的总是同一个地址；被占用时报错而不是换端口
   server: {
