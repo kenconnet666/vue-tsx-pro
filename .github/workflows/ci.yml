@@ -107,6 +107,26 @@ jobs:
       - run: pnpm build:docs
       - run: pnpm build:host
 
+  # 文档站的预渲染页逐页在浏览器里水合，有不一致就失败（构建时打开不一致的细节，日志里能看到是哪个节点）
+  hydration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - name: Install browsers
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            echo "playwright install failed (attempt $attempt), retrying"
+            sleep 15
+          done
+          exit 1
+      - run: pnpm build:docs
+        env:
+          VTP_HYDRATION_DETAILS: '1'
+      - run: node scripts/docs/hydration.mjs
+
   # 发布产物：pnpm pack 的包在仓库之外的独立应用里安装、类型检查、构建并在浏览器里运行
   consumer:
     strategy:

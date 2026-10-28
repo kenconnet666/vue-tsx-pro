@@ -2,9 +2,19 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code, Field, Flex, Grid, NumberField, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
 
-/** 值的类型与内容：Decimal(0.3)、BigInt(9007199254740993)、Number(0.1) */
-const describe = (value: Decimal | bigint | number | null) =>
-  value == null ? 'null' : `${value.constructor.name}(${value.toString()})`;
+/**
+ * 值的类型与内容：Decimal(0.3)、BigInt(9007199254740993)、Number(0.1)。
+ * 类型名按值判断，不读 constructor.name：构建压缩后类名会变短，服务端与浏览器写出的也不一样
+ */
+const describe = (value: Decimal | bigint | number | null) => {
+  if (value == null) return 'null';
+  const type = Decimal.isDecimal(value)
+    ? 'Decimal'
+    : typeof value === 'bigint'
+      ? 'BigInt'
+      : 'Number';
+  return `${type}(${value.toString()})`;
+};
 
 export default _component(() => {
   // Decimal、bigint 放 _state.raw：不进深层响应式，写回的仍是原来的类型

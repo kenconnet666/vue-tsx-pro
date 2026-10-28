@@ -16,6 +16,8 @@ const serverBuild = join(here, '../dist-ssr');
 
 interface Rendered {
   body: string;
+  /** Teleport 到 body 的内容，放在 body 的末尾 */
+  teleports: string;
   title: string | undefined;
   attrs: { html: Record<string, string>; body: Record<string, string> };
   styles: string;
@@ -39,17 +41,22 @@ const attributes = (record: Record<string, string>) =>
     .join('');
 
 /** 把一页的渲染结果填进入口页的模板 */
-function page({ body, title, attrs, styles }: Rendered): string {
+function page({ body, teleports, title, attrs, styles }: Rendered): string {
   const html = { lang: 'zh-CN', ...attrs.html };
-  return template
-    .replace(/<html[^>]*>/, `<html${attributes(html)}>`)
-    .replace('<head>', `<head>\n    ${styles}`)
-    .replace(
-      /<title>[^<]*<\/title>/,
-      `<title>${escape(title ? `${title} · vue-tsx-pro` : 'vue-tsx-pro')}</title>`,
-    )
-    .replace('<body>', `<body${attributes(attrs.body)}>`)
-    .replace('<div id="app"></div>', `<div id="app">${body}</div>`);
+  return (
+    template
+      .replace(/<html[^>]*>/, `<html${attributes(html)}>`)
+      .replace('<head>', `<head>\n    ${styles}`)
+      .replace(
+        /<title>[^<]*<\/title>/,
+        `<title>${escape(title ? `${title} · vue-tsx-pro` : 'vue-tsx-pro')}</title>`,
+      )
+      // Teleport 到 body 的内容紧挨着 <body> 放在最前：Vue 水合时从 body 的第一个子节点开始找它（中间不能有空白文字）
+      .replace(
+        /<body>\s*<div id="app"><\/div>/,
+        `<body${attributes(attrs.body)}>${teleports}<div id="app">${body}</div>`,
+      )
+  );
 }
 
 let count = 0;

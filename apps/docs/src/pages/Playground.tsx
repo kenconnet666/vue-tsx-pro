@@ -151,7 +151,6 @@ export default _component(() => {
     ready = true;
     void run(code);
   }
-  void load();
 
   watch(
     () => code,
@@ -165,9 +164,10 @@ export default _component(() => {
   );
 
   const onPopstate = () => void load();
+  // 地址栏只在浏览器里有：挂载后再读（服务端渲染与水合时编辑器先是占位）
   onMounted(() => {
     window.addEventListener('popstate', onPopstate);
-    showPreview();
+    void load();
   });
   onBeforeUnmount(() => {
     window.removeEventListener('popstate', onPopstate);

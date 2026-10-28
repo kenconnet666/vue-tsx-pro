@@ -1,10 +1,12 @@
 // 动态列表：发生时间写相对时间，随时间自动更新，悬停看完整的日期；一周以前的直接写日期。
-// format 是详略：long “3 分钟前”、short、narrow（窄栏、移动端）
+// format 是详略：long “3 分钟前”、short、narrow（窄栏、移动端）。
+// 演示数据相对页面打开的时刻，服务端渲染与浏览器的“现在”不同：列表包在 ClientOnly 里，只在浏览器里画
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   Card,
+  ClientOnly,
   Flex,
   RelativeTime,
   Small,
@@ -38,23 +40,25 @@ export default _component(() => {
         <ToggleItem value="short">short</ToggleItem>
         <ToggleItem value="narrow">narrow</ToggleItem>
       </ToggleGroup>
-      <Card padding="md">
-        <ul {...css.attrs(styles.list)}>
-          {events.map((event) => (
-            <li key={event.who} {...css.attrs(styles.item)}>
-              <Avatar size="sm" name={event.who} />
-              <Flex direction="column">
-                <Text>
-                  <Text weight="medium">{event.who}</Text> {event.what}
-                </Text>
-                <Small tone="muted">
-                  <RelativeTime value={event.at} format={format} threshold={{ days: 7 }} />
-                </Small>
-              </Flex>
-            </li>
-          ))}
-        </ul>
-      </Card>
+      <ClientOnly>
+        <Card padding="md">
+          <ul {...css.attrs(styles.list)}>
+            {events.map((event) => (
+              <li key={event.who} {...css.attrs(styles.item)}>
+                <Avatar size="sm" name={event.who} />
+                <Flex direction="column">
+                  <Text>
+                    <Text weight="medium">{event.who}</Text> {event.what}
+                  </Text>
+                  <Small tone="muted">
+                    <RelativeTime value={event.at} format={format} threshold={{ days: 7 }} />
+                  </Small>
+                </Flex>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </ClientOnly>
     </Flex>
   );
 });

@@ -73,6 +73,8 @@ _effect(() => {
 - **位置**：写在组件函数体、组件里调用的组合式函数、或另一个 `_effect` 里；不在任何作用域里调用会报错，这时用 `_effect.root` 手动管理。写在渲染函数里编译报错。
 - **只监听指定的值**用 Vue 的 `watch`，监听源写成 getter：`watch(() => count, cb)`。直接写 `watch(count, cb)` 传进去的是当前值，编译报错。副作用里读某个值又不想让它成为依赖时写 `_untrack(x)`（同 Svelte 的 `untrack`）。
 - 派生值用 `_derived`，不要用副作用去同步状态。
+- **服务端渲染**：`_effect` 在服务端不执行（没有挂载），碰 `document`、`window`、计时器的代码放这里就安全；`_effect.pre` 在服务端会先执行一次（Vue `watchEffect` 的规则），里面不能碰浏览器对象。
+  `_state`、`_derived` 两端一样；渲染函数里别读"现在"、随机数、本机设置，服务端与浏览器算出的不一样会让水合对不上（组件库的 `ClientOnly`、`useMounted` 就是为此）。
 
 ## 5. 组件 props
 

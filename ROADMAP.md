@@ -344,13 +344,15 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 | 渲染管线：按路由选模式、`load` 的数据进页面、head、资源清单、出错退回 CSR | 框架 `@zerodep-dev/vue-tsx-pro-kit` 的 `./server` 与 `./vite`；先写在 `apps/fullstack-demo` | 13、15     |
 | 文档站预渲染                                                              | `apps/docs` 的构建，直接用组件库这一层的接口                                                | 12.6       |
 
-- [ ] 12.1 SSR 体检进 CI：文档站的示例逐个在 node 环境 `renderToString`，再在浏览器里水合，统计报错与不一致；输出清单（12.4 按它修）
+- [x] 12.1 SSR 体检进 CI：文档站的示例逐个在 node 环境 `renderToString`，再在浏览器里水合，统计报错与不一致；输出清单（12.4 按它修）
+      （实现：`apps/docs/src/test/ssr.test.ts` 逐个示例 `renderToString`；`scripts/docs/hydration.mjs` 逐页水合，CI 的 hydration 任务）
 - [x] 12.2 样式按请求收集：请求级的登记表，输出 `<style data-vue-tsx-pro>`，客户端接管这张表、不重复插入（STYLE-ENGINE.md 第 7 条的设计）（实现：`renderStyleTag(整页 HTML)` 按用到的类名输出；类名按内容哈希，不必按请求隔离）
 - [x] 12.3 首屏主题与语言：`createUi` 在服务端把主题 class、变量、`lang` / `dir` 写进 HTML 属性；明暗偏好服务端读 cookie；`themeBootScript` 继续挡闪烁（实现：`createUi(...).documentAttrs()`；明暗偏好服务端按亮色给，`themeBootScript` 加载前改成用户的选择，读 cookie 留给 kit）
-- [ ] 12.4 按 12.1 的清单修水合不一致：Teleport 的内容一起输出；与"现在"有关的输出从配置取同一个时刻；只能在浏览器里画的（图表、3D、测量布局）给 `ClientOnly` 一类的包装
+- [x] 12.4 按 12.1 的清单修水合不一致：Teleport 的内容一起输出；与"现在"有关的输出从配置取同一个时刻；只能在浏览器里画的（图表、3D、测量布局）给 `ClientOnly` 一类的包装
+      （137 页全部无不一致。Teleport 内容放在 `<body>` 最前；弹层面板、全屏按钮挂载后才渲染；`useRequest` 从加载中开始；剩下的取舍见“已知局限”）
 - [ ] 12.5 Vite 预设：服务端环境的编译与热更新、改读 `this.environment`、跳过 `?assets`
-- [ ] 12.6 文档站预渲染（SSG）：构建时生成每页的 HTML
-- [ ] 12.7 文档：README 的“明确不做”、STYLE-ENGINE.md 与 RUNES.md 补 SSR 一节
+- [x] 12.6 文档站预渲染（SSG）：构建时生成每页的 HTML
+- [x] 12.7 文档：README 的“明确不做”、STYLE-ENGINE.md 与 RUNES.md 补 SSR 一节
 - [ ] 12.8 WebKit / Windows 上的浏览器测试偶发超时：MapChart（滚轮缩放、换投影后占满绘图区）、Tree（拖动放进一项）在 2026-10-28 出现三次，
       同一提交重跑能过。查清是负载下的时序问题还是样式绑定改走 Vue 调度（阶段 10）后的回归，修根因而不是加重试
 
@@ -401,6 +403,9 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色）
 - 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出
 - 表格是 table 语义，不是 grid：没有单元格之间的方向键导航（阶段 5 排了）
+- 记在浏览器里的界面设置（`usePersistentState`：QueryTable 的列设置、主题偏好等）在 setup 里就读出来：服务端渲染的页面上，
+  存过与默认不同的值时水合会对不上一处（Vue 照样接管，生产环境不修正那一处的 class）。换成挂载后再读会让不用服务端渲染的应用每次先闪一下默认值，没换
+- `useMediaQuery` 在 setup 里就按当前窗口取值：服务端没有窗口，按不匹配渲染；窄屏、暗色偏好这类结果不同时水合对不上一处。版式尽量交给 CSS 媒体查询
 
 ## 附：已完成
 

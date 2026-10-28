@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { extname, join, resolve } from 'node:path';
 import { configDefaults, defineConfig, type Plugin } from 'vitest/config';
 import { browserCompile, vueTsxPro, workspaceSource } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 import { builtinThemeBootColors, themeBootScript } from '@zerodep-dev/vue-tsx-pro-ui/theme-boot';
@@ -20,6 +22,26 @@ function themeBoot(): Plugin {
   };
 }
 
+/**
+ * 预览（vite preview）与线上的 nginx 一致（deploy/site.conf 的 try_files）：没有预渲染的地址（整页示例 /frame/...、找不到的页面）
+ * 回到 spa.html 由浏览器渲染。vite preview 默认回到 index.html，那是预渲染的首页，拿它去水合别的页面处处对不上
+ */
+function spaFallback(): Plugin {
+  return {
+    name: 'docs:spa-fallback',
+    configurePreviewServer(server) {
+      const dist = resolve(server.config.root, server.config.build.outDir);
+      server.middlewares.use((request, _response, next) => {
+        const path = decodeURIComponent((request.url ?? '/').split('?')[0]!);
+        if (path !== '/' && !extname(path) && !existsSync(join(dist, `${path}.html`))) {
+          request.url = '/spa.html';
+        }
+        next();
+      });
+    },
+  };
+}
+
 // 组件库与 tsx 包都按 @vue-tsx-pro/source 条件解析源码：改了组件立刻热更新，不用先构建
 export const plugins = [
   workspaceSource(),
@@ -31,6 +53,7 @@ export const plugins = [
   docPages(),
   componentApi(),
   themeBoot(),
+  spaFallback(),
 ];
 
 /** 预构建的依赖：开发服务器与浏览器测试共用（测试另加测试专用的几个） */

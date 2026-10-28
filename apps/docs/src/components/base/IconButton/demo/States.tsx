@@ -16,7 +16,7 @@ const createInvite = () =>
 export default _component(() => {
   let refreshing = _state(false);
   let copies = _state(0);
-  let updated = _state(new Date());
+  let updated = _state<Date | null>(null);
 
   function refresh() {
     refreshing = true;
@@ -36,7 +36,9 @@ export default _component(() => {
           aria-label="刷新"
           onClick={refresh}
         />
-        <Small tone="muted">更新于 {updated.toLocaleTimeString()}</Small>
+        <Small tone="muted">
+          {updated ? `更新于 ${updated.toLocaleTimeString()}` : '还没刷新过'}
+        </Small>
       </Flex>
       <Flex align="center" gap="sm">
         <Tooltip
