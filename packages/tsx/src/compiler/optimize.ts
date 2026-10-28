@@ -251,36 +251,52 @@ function stabilizeChildren(
       t.objectProperty(t.identifier('default'), content),
       t.objectProperty(t.identifier('$stable'), stable),
     ]);
-    if (setup) keyBySite(element, setup, siteKey);
+    keyBySite(element, setup, siteKey);
   }
   element.node.children = [t.jsxExpressionContainer(slots)];
 }
 
 /**
  * 标了 $stable 的组件按 JSX 的位置给一个 key：两处同类型的组件出现在同一位置时（`cond ? <Grid>A</Grid> : <Grid>B</Grid>`、
- * 分支里的第 n 个子元素），没有 key 会被当成同一个节点更新，稳定插槽又让子组件跳过重渲染，显示的还是另一处的内容。
- * 模板编译器给 v-if 的各个分支加 key 是同样的道理。只给渲染函数里直接写的元素加：回调（map）、循环里的元素会重复出现，
- * 同一位置的 key 相同会冲突；已经写了 key 的不动
+ * 分支里的第 n 个子元素、`wide ? sidebarA() : sidebarB()` 两个渲染片段），没有 key 会被当成同一个节点更新，
+ * 稳定插槽又让子组件（以及它转交 children 的下一层）跳过重渲染，显示的还是另一处的内容。
+ * 模板编译器给 v-if 的各个分支加 key 是同样的道理。只给每次渲染最多出现一次的元素加：渲染函数里直接写的、
+ * 无参的渲染片段里直接写的；回调（map）、循环里的元素与带参数的函数会重复出现，同一位置的 key 相同会冲突；已经写了 key 的不动
  */
 function keyBySite(
   element: NodePath<t.JSXElement>,
-  setup: NodePath<t.Function>,
+  setup: NodePath<t.Function> | null,
   siteKey: () => string,
 ) {
   const attributes = element.node.openingElement.attributes;
   if (attributes.some((attribute) => t.isJSXAttribute(attribute) && attribute.name.name === 'key'))
     return;
   const render = element.getFunctionParent();
-  if (!render || !isRenderFunction(render, setup)) return;
+  if (!render || !(isRenderFunction(render, setup) || isRenderFragment(render, setup))) return;
   const stop = element.findParent((parent) => parent.node === render.node || parent.isLoop());
   if (stop?.node !== render.node) return;
   attributes.push(t.jsxAttribute(t.jsxIdentifier('key'), t.stringLiteral(siteKey())));
 }
 
 /** setup 返回的渲染函数：`return () => …`，或 setup 直接写成 `() => () => …` */
-function isRenderFunction(fn: NodePath<t.Function>, setup: NodePath<t.Function>) {
+function isRenderFunction(fn: NodePath<t.Function>, setup: NodePath<t.Function> | null) {
+  if (!setup) return false;
   if (fn.parentPath?.node === setup.node) return true;
   return fn.parentPath?.isReturnStatement() === true && fn.getFunctionParent()?.node === setup.node;
+}
+
+/**
+ * 无参的渲染片段：setup 里或模块顶层用 const 声明的无参函数（`const header = () => <Bar>…</Bar>`），
+ * 渲染时调用、拼进渲染函数的结果，每次渲染最多出现一次（带参数的可能对几项各调一次，不算）
+ */
+function isRenderFragment(fn: NodePath<t.Function>, setup: NodePath<t.Function> | null) {
+  if (fn.node.params.length > 0) return false;
+  const declarator = fn.parentPath;
+  if (!declarator?.isVariableDeclarator() || declarator.node.init !== fn.node) return false;
+  const declaration = declarator.parentPath;
+  if (!declaration?.isVariableDeclaration() || declaration.node.kind !== 'const') return false;
+  const owner = declaration.getFunctionParent();
+  return owner === null ? setup === null : owner.node === setup?.node;
 }
 
 const isFunctionNode = (node: t.Node) =>

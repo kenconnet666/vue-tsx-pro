@@ -81,6 +81,20 @@ describe('哪些子节点标 $stable', () => {
     expect(out).toContain('key="mine"');
   });
 
+  it('无参的渲染片段里直接写的也按位置加 key；带参数的函数里的不加', async () => {
+    const out = await compile(
+      component(
+        'const sideA = () => <Box>a</Box>; const sideB = () => <Box>b</Box>; const row = (n: number) => <Box>c</Box>',
+        '<div>{title ? sideA() : sideB()}{row(1)}</div>',
+      ),
+    );
+    expect(out.match(/key="__site\d+"/g)).toHaveLength(2);
+    const top = await compile(
+      `const side = () => <Box>a</Box>; ${component('', '<div>{side()}</div>')}`,
+    );
+    expect(top).toMatch(/key="__site\d+"/);
+  });
+
   it('Teleport、KeepAlive 与原生元素的子节点不动；关掉优化时都不动', async () => {
     const code = `import { Teleport } from 'vue'; ${component('', '<div><Teleport to="body"><b>x</b></Teleport><p>y</p></div>')}`;
     expect(await compile(code)).not.toContain('$stable');
@@ -224,6 +238,43 @@ describe('运行时', () => {
     toggle();
     await nextTick();
     expect(el.textContent).toBe('一甲');
+  });
+
+  it('两个渲染片段轮流放在同一位置、组件把 children 转交给下一层：换片段时内容跟着换', async () => {
+    // 同 AppShell 的侧栏按页面换成另一套 NavList：NavList 因为属性变了重新渲染，转交给列表的稳定插槽不能让列表跳过
+    const Nav = _component(
+      ({ label, children }: { label: string; children?: VNodeChild }) =>
+        () => (
+          <nav aria-label={label}>
+            <Box>{children}</Box>
+          </nav>
+        ),
+    );
+    let toggle = () => {};
+    const Page = _component(() => {
+      let docs = _state(true);
+      toggle = () => (docs = !docs);
+      const docsNav = () => (
+        <Nav label="文档">
+          <Btn label="介绍" />
+        </Nav>
+      );
+      const demoNav = () => (
+        <Nav label="演示">
+          <Btn label="发起" />
+        </Nav>
+      );
+      return () => <div>{docs ? docsNav() : demoNav()}</div>;
+    });
+    const el = mount(Page);
+    expect(el.textContent).toBe('介绍');
+    toggle();
+    await nextTick();
+    expect(el.querySelector('nav')!.getAttribute('aria-label')).toBe('演示');
+    expect(el.textContent).toBe('发起');
+    toggle();
+    await nextTick();
+    expect(el.textContent).toBe('介绍');
   });
 
   it('内容里读的响应式数据变了，显示它的组件照常更新；用到渲染里变量的内容也照常更新', async () => {
