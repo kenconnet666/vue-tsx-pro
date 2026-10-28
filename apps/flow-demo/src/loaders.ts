@@ -70,6 +70,16 @@ export const loaders = defineLoaders({
         variables: detail.instance.variables,
       },
       current: detail.current,
+      definition: detail.definition,
+      // 走过的节点与连线：流转记录里离开过的
+      done: [
+        ...new Set(
+          detail.events
+            .filter((e) => e.type === 'node.left')
+            .flatMap((e) => [e.node, e.edge])
+            .filter((id): id is string => id !== null),
+        ),
+      ],
       timeline: detail.events
         .filter((e) =>
           [

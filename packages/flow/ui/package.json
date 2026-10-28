@@ -1,0 +1,35 @@
+{
+  "name": "@zerodep-dev/flow-ts-ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Process diagram, designer and approval panel for the TypeScript workflow engine, built on the vue-tsx-pro component library",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
+  },
+  "dependencies": {
+    "@zerodep-dev/flow-ts-model": "workspace:^"
+  },
+  "peerDependencies": {
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
+  }
+}

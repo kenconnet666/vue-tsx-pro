@@ -515,6 +515,9 @@ importers:
       '@zerodep-dev/flow-ts-model':
         specifier: workspace:^
         version: link:../../packages/flow/model
+      '@zerodep-dev/flow-ts-ui':
+        specifier: workspace:^
+        version: link:../../packages/flow/ui
       '@zerodep-dev/vue-tsx-pro-kit':
         specifier: workspace:^
         version: link:../../packages/kit
@@ -807,6 +810,34 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 7.1.0-beta
+
+  packages/flow/ui:
+    dependencies:
+      '@zerodep-dev/flow-ts-model':
+        specifier: workspace:^
+        version: link:../model
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      '@zerodep-dev/vue-tsx-pro-tsx':
+        specifier: workspace:^
+        version: link:../../tsx
+      '@zerodep-dev/vue-tsx-pro-ui':
+        specifier: workspace:^
+        version: link:../../ui
+      happy-dom:
+        specifier: 'catalog:'
+        version: 21.0.3
+      typescript:
+        specifier: 'catalog:'
+        version: 7.1.0-beta
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.44(typescript@7.1.0-beta)
 
   packages/kit:
     devDependencies:

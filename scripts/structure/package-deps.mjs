@@ -26,6 +26,11 @@ const RULES = [
     forbidden: ['vue', '@zerodep-dev/vue-tsx-pro-', '@zerodep-dev/easy-query-ts'],
   },
   { dirs: ['packages/flow/engine'], forbidden: ['vue', '@zerodep-dev/vue-tsx-pro-'] },
+  // 流程引擎的界面在浏览器里：不导入引擎与 easy-query（数据经接口来）
+  {
+    dirs: ['packages/flow/ui'],
+    forbidden: ['@zerodep-dev/easy-query-ts', '@zerodep-dev/flow-ts-engine'],
+  },
 ];
 
 function familyDirs(dir) {

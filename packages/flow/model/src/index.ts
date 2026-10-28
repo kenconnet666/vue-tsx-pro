@@ -17,3 +17,4 @@ export * from './validate-manifest.ts';
 export * from './diff.ts';
 export * from './errors.ts';
 export * from './define.ts';
+export * from './layout.ts';

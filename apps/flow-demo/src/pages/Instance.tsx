@@ -10,6 +10,7 @@ import {
   Textarea,
   Timeline,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { ProcessDiagram } from '@zerodep-dev/flow-ts-ui';
 import { useRoute } from 'vue-router';
 import { actions, usePageData } from '../client.ts';
 import { ActionError } from '@zerodep-dev/vue-tsx-pro-kit';
@@ -56,6 +57,11 @@ export default _component(() => {
             ? `进行中：${detail.current.map((c) => c.name).join('、')}`
             : `已结束：${detail.instance.result ?? detail.instance.status}`}
         </Paragraph>
+        <ProcessDiagram
+          definition={detail.definition}
+          current={detail.current.map((c) => c.node)}
+          done={detail.done}
+        />
         {problem && <Alert tone="danger">{problem}</Alert>}
         {detail.actions.map((item) => (
           <Flex

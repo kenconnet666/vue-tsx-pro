@@ -108,6 +108,8 @@ export interface Incident {
 /** 实例详情 */
 export interface InstanceDetail {
   readonly instance: InstanceRow;
+  /** 实例按的那个版本的定义（画流程图） */
+  readonly definition: ProcessDefinition;
   /** 正在处理的节点与名称 */
   readonly current: readonly { readonly node: string; readonly name: string }[];
   readonly workItems: readonly WorkItemSummary[];
@@ -985,12 +987,13 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         .where((e) => e.instanceId.eq(id))
         .orderBy((e) => e.id)
         .toList();
-      const nodes = (await definitionOf(db, instance.definitionId)).nodes;
+      const definition = await definitionOf(db, instance.definitionId);
+      const nodes = definition.nodes;
       const current = instance.current.map((node) => ({
         node,
         name: nodes.find((n) => n.id === node)?.name ?? node,
       }));
-      return { instance, current, workItems: items.map(workItemSummary), events };
+      return { instance, definition, current, workItems: items.map(workItemSummary), events };
     },
   };
 
