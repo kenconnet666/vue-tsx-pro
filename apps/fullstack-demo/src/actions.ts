@@ -3,7 +3,7 @@
  * 插入时 tenant 拦截器补上当前租户，改的时候也只改得到当前租户的
  */
 import { z } from 'zod';
-import { defineAction, defineActions } from './framework/action.ts';
+import { defineAction, defineActions } from '@zerodep-dev/vue-tsx-pro-kit';
 import { db, Todo } from './server/db.ts';
 
 export const actions = defineActions({

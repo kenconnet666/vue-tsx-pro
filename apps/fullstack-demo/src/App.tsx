@@ -3,9 +3,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Alert, Container, createFlex, Link, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useRoute } from 'vue-router';
-import type { PageDef } from './framework/page.ts';
-import { PageView } from './framework/PageView.tsx';
-import { useSession } from './framework/session.ts';
+import { type PageDef, PageView, useSession } from '@zerodep-dev/vue-tsx-pro-kit';
 import { pages } from './pages.ts';
 
 const Nav = createFlex('nav', 'Nav');

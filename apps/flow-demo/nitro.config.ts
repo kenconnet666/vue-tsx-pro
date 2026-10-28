@@ -1,5 +1,5 @@
 import { defineConfig } from 'nitro';
-import { prerenderRules } from './src/framework/page.ts';
+import { prerenderRules } from '@zerodep-dev/vue-tsx-pro-kit/page';
 import { pages } from './src/pages.ts';
 
 export default defineConfig({

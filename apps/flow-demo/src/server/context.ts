@@ -3,8 +3,9 @@
  * 换成引擎要的 Actor（编号、角色）。真实应用在这里校验会话令牌、从组织表查角色与部门
  */
 import type { Actor } from '@zerodep-dev/flow-ts-engine';
-import { currentContext } from '../framework/context.ts';
-import type { SessionData } from '../framework/session.ts';
+// 只从 kit/context 导入：server/api 下的接口也用这个文件，不该带上整个渲染器
+import { currentContext } from '@zerodep-dev/vue-tsx-pro-kit/context';
+import type { SessionData } from '@zerodep-dev/vue-tsx-pro-kit';
 
 /** 示例的用户：申请人、经理（角色 1）、人事（角色 2）、管理员 */
 export const USERS: Record<string, Actor & { name: string }> = {

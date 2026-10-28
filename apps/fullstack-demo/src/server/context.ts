@@ -2,8 +2,9 @@
  * 示例的请求上下文（只在服务端）：当前用户从 cookie 读（示例的“登录”就是选一个用户，见 server/api/sign-in.ts），
  * 租户与权限跟着用户走。真实应用在这里校验会话令牌、查用户与角色
  */
-import { currentContext } from '../framework/context.ts';
-import type { SessionData } from '../framework/session.ts';
+// 只从 kit/context 导入：server/api 下的接口也用这个文件，不该带上整个渲染器
+import { currentContext } from '@zerodep-dev/vue-tsx-pro-kit/context';
+import type { SessionData } from '@zerodep-dev/vue-tsx-pro-kit';
 
 interface DemoUser {
   name: string;

@@ -2,7 +2,7 @@
  * 页面的 loader（只在服务端导入）：待办、我发起的、能发起的流程、实例详情。页面里用 src/client.ts 的 usePageData 取
  */
 import type { VariableDeclaration } from '@zerodep-dev/flow-ts-model';
-import { defineLoaders } from './framework/data.ts';
+import { defineLoaders } from '@zerodep-dev/vue-tsx-pro-kit';
 import { processes } from './processes.ts';
 import { currentActor } from './server/context.ts';
 import { engine } from './server/flow.ts';

@@ -2,7 +2,7 @@
 import { actions } from './actions.ts';
 import { app } from './app.ts';
 import assets from './entry-client.ts?assets=client';
-import { createRenderer } from './framework/server.ts';
+import { createRenderer } from '@zerodep-dev/vue-tsx-pro-kit/server';
 import { loaders } from './loaders.ts';
 import { createContext, sessionOf } from './server/context.ts';
 

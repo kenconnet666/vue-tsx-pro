@@ -11,7 +11,7 @@ import {
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useRouter } from 'vue-router';
 import { actions, usePageData } from '../client.ts';
-import { ActionError } from '../framework/action.ts';
+import { ActionError } from '@zerodep-dev/vue-tsx-pro-kit';
 
 export default _component(() => {
   const data = usePageData('/start');

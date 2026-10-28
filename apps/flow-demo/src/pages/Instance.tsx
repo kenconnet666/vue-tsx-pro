@@ -12,7 +12,7 @@ import {
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useRoute } from 'vue-router';
 import { actions, usePageData } from '../client.ts';
-import { ActionError } from '../framework/action.ts';
+import { ActionError } from '@zerodep-dev/vue-tsx-pro-kit';
 
 /** 流转记录的文字 */
 const EVENTS: Record<string, string> = {

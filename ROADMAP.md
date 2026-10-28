@@ -411,8 +411,10 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 
 ## 阶段 15：收敛成框架
 
-- [ ] 15.1 列出 `fullstack-demo` 与 `flow-demo` 里重复的接线
-- [ ] 15.2 抽成 `packages/kit`（`@zerodep-dev/vue-tsx-pro-kit`）（主入口两端通用，子路径 `./vite`、`./server`），两个应用改用它，行为不变（两种模式的端到端测试照样绿）
+- [x] 15.1 列出 `fullstack-demo` 与 `flow-demo` 里重复的接线
+      （两个应用的 src/framework 一字不差，八个文件）
+- [x] 15.2 抽成 `packages/kit`（`@zerodep-dev/vue-tsx-pro-kit`）（主入口两端通用，子路径 `./vite`、`./server`），两个应用改用它，行为不变（两种模式的端到端测试照样绿）
+      （`packages/kit`：主入口两端通用，`./server`、`./vite`，另有 `./page`（nitro.config 在 Node 里加载）、`./context`（server/api 也能用）；两个应用的端到端测试照样绿。还没发布：要先定构建方式）
 - [ ] 15.3 组件库、ORM、流程引擎各做成框架的模块，模块接口在三个都写完后再定
 - [ ] 15.4 `fullstack-demo` 整理成新项目模板；文档站加框架分区
 

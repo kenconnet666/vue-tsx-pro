@@ -18,6 +18,7 @@
     "@zerodep-dev/easy-query-ts-sqlite": "workspace:^",
     "@zerodep-dev/flow-ts-engine": "workspace:^",
     "@zerodep-dev/flow-ts-model": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-kit": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
     "animejs": "catalog:",

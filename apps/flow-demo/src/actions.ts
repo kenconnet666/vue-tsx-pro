@@ -3,7 +3,7 @@
  */
 import { FlowError } from '@zerodep-dev/flow-ts-engine';
 import { z } from 'zod';
-import { ActionError, defineAction, defineActions } from './framework/action.ts';
+import { ActionError, defineAction, defineActions } from '@zerodep-dev/vue-tsx-pro-kit';
 import { currentActor } from './server/context.ts';
 import { engine } from './server/flow.ts';
 

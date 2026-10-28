@@ -1,5 +1,5 @@
-/** 应用的页面：待办（首页）、发起、实例详情，都要求登录（flow.use）；三个页面都在服务端渲染 */
-import { definePages } from './framework/page.ts';
+/** 应用的页面（nitro.config.ts 在 Node 里也加载它，只从 kit/page 导入）：待办（首页）、发起、实例详情，都要求登录（flow.use）；三个页面都在服务端渲染 */
+import { definePages } from '@zerodep-dev/vue-tsx-pro-kit/page';
 
 export const pages = definePages([
   {

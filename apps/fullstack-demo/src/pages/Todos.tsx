@@ -13,8 +13,7 @@ import {
   TextField,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { actions, usePageData } from '../client.ts';
-import { ActionError } from '../framework/action.ts';
-import { useSession } from '../framework/session.ts';
+import { ActionError, useSession } from '@zerodep-dev/vue-tsx-pro-kit';
 
 export default _component(() => {
   const data = usePageData('/todos');

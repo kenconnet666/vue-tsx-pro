@@ -16,6 +16,7 @@
     "@lucide/icons": "catalog:",
     "@zerodep-dev/easy-query-ts": "workspace:^",
     "@zerodep-dev/easy-query-ts-sqlite": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-kit": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
     "animejs": "catalog:",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "jiti": "^2.7.0",
     "playwright": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"

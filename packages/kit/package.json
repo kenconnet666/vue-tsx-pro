@@ -1,0 +1,50 @@
+{
+  "name": "@zerodep-dev/vue-tsx-pro-kit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Full-stack framework on Nitro: per-page SSR, CSR or prerender, loaders and typed actions, request context, sessions and permissions, built on the vue-tsx-pro component library",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./server": {
+      "@vue-tsx-pro/source": "./src/server-entry.ts",
+      "default": "./src/server-entry.ts"
+    },
+    "./vite": {
+      "@vue-tsx-pro/source": "./src/vite.ts",
+      "default": "./src/vite.ts"
+    },
+    "./page": {
+      "@vue-tsx-pro/source": "./src/page.ts",
+      "default": "./src/page.ts"
+    },
+    "./context": {
+      "@vue-tsx-pro/source": "./src/context.ts",
+      "default": "./src/context.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
+  },
+  "peerDependencies": {
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
+    "vite": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  }
+}

@@ -2,6 +2,7 @@
 packages:
   - packages/tsx
   - packages/ui
+  - packages/kit
   - packages/easy-query/*
   - packages/flow/*
   - apps/*

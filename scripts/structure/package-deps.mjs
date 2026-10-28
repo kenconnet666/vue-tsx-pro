@@ -4,8 +4,8 @@
  *   - 组件库（tsx、ui）不导入 easy-query：组件库要能装进普通的 Vue 项目，不带服务端的依赖
  *   - easy-query 不导入 vue 与组件库：ORM 在服务端用，不依赖界面
  *   - 流程引擎的模型包两端通用，不导入 vue、组件库与 easy-query；引擎在服务端，不导入 vue 与组件库
+ *   - 组件库不导入框架（kit），框架不导入 easy-query 与流程引擎
  *
- * 以后加进来的包族（kit）在 RULES 里登记各自不能导入的包。
  * 用法：node scripts/structure/package-deps.mjs（pnpm layers:check 里一起跑）
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -14,7 +14,12 @@ import { root } from '../lib/repo.mjs';
 
 /** 包所在的目录 → 不能在运行时导入的包（前缀匹配） */
 const RULES = [
-  { dirs: ['packages/tsx', 'packages/ui'], forbidden: ['@zerodep-dev/easy-query-ts'] },
+  {
+    dirs: ['packages/tsx', 'packages/ui'],
+    forbidden: ['@zerodep-dev/easy-query-ts', '@zerodep-dev/vue-tsx-pro-kit'],
+  },
+  // 框架只管渲染、数据、action 与会话；ORM、流程引擎由应用接进来
+  { dirs: ['packages/kit'], forbidden: ['@zerodep-dev/easy-query-ts', '@zerodep-dev/flow-ts-'] },
   { dirs: familyDirs('packages/easy-query'), forbidden: ['vue', '@zerodep-dev/vue-tsx-pro-'] },
   {
     dirs: ['packages/flow/model'],
