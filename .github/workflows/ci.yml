@@ -127,6 +127,24 @@ jobs:
           VTP_HYDRATION_DETAILS: '1'
       - run: node scripts/docs/hydration.mjs
 
+  # 全栈示例（Nitro）：构建产物上的端到端测试，按页面的模式跑一遍、整站浏览器渲染（RENDER_MODE=csr）再跑一遍
+  fullstack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - name: Install browsers
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            pnpm --filter @vue-tsx-pro/fullstack-demo exec playwright install --with-deps chromium && exit 0
+            echo "playwright install failed (attempt $attempt), retrying"
+            sleep 15
+          done
+          exit 1
+      - run: pnpm --filter @vue-tsx-pro/fullstack-demo build
+      - run: pnpm --filter @vue-tsx-pro/fullstack-demo test:e2e
+
   # 发布产物：pnpm pack 的包在仓库之外的独立应用里安装、类型检查、构建并在浏览器里运行
   consumer:
     strategy:

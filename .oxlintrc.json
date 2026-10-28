@@ -10,5 +10,5 @@
       { "considerDefaultExhaustiveForUnions": true }
     ]
   },
-  "ignorePatterns": ["**/dist/**", "coverage/**", "tests/consumer/app/**"]
+  "ignorePatterns": ["**/dist/**", "**/.output/**", "coverage/**", "tests/consumer/app/**"]
 }

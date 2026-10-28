@@ -1,0 +1,32 @@
+{
+  "name": "@vue-tsx-pro/fullstack-demo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "全栈示例：Nitro 3 上按页面选服务端渲染、浏览器渲染或预渲染；框架先长在这里（src/framework），第三次重复时抽成 kit（ROADMAP 13、15）",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader native",
+    "build": "vite build --configLoader native",
+    "start": "node .output/server/index.mjs",
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "test:e2e": "node test/e2e.mjs"
+  },
+  "dependencies": {
+    "@floating-ui/dom": "catalog:",
+    "@lucide/icons": "catalog:",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
+    "animejs": "catalog:",
+    "nitro": "catalog:",
+    "tabbable": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "playwright": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

@@ -350,7 +350,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 12.3 首屏主题与语言：`createUi` 在服务端把主题 class、变量、`lang` / `dir` 写进 HTML 属性；明暗偏好服务端读 cookie；`themeBootScript` 继续挡闪烁（实现：`createUi(...).documentAttrs()`；明暗偏好服务端按亮色给，`themeBootScript` 加载前改成用户的选择，读 cookie 留给 kit）
 - [x] 12.4 按 12.1 的清单修水合不一致：Teleport 的内容一起输出；与"现在"有关的输出从配置取同一个时刻；只能在浏览器里画的（图表、3D、测量布局）给 `ClientOnly` 一类的包装
       （137 页全部无不一致。Teleport 内容放在 `<body>` 最前；弹层面板、全屏按钮挂载后才渲染；`useRequest` 从加载中开始；剩下的取舍见“已知局限”）
-- [ ] 12.5 Vite 预设：服务端环境的编译与热更新、改读 `this.environment`、跳过 `?assets`
+- [x] 12.5 Vite 预设：服务端环境的编译与热更新、改读 `this.environment`、跳过 `?assets`（fullstack-demo 的开发服务器上实测：服务端渲染、改页面后服务端跟着更新）
 - [x] 12.6 文档站预渲染（SSG）：构建时生成每页的 HTML
 - [x] 12.7 文档：README 的“明确不做”、STYLE-ENGINE.md 与 RUNES.md 补 SSR 一节
 - [ ] 12.8 WebKit / Windows 上的浏览器测试偶发超时：MapChart（滚轮缩放、换投影后占满绘图区）、Tree（拖动放进一项）在 2026-10-28 出现三次，
@@ -360,14 +360,17 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 
 框架先长在应用里（已定的决定第 8 条）。完成标准：`apps/fullstack-demo` 在开发服务器与 `node .output/server/index.mjs` 下都能跑，端到端测试在 SSR、CSR 两种模式下都绿。
 
-- [ ] 13.1 接上 Nitro 3（固定精确版本）与 `nitro/vite`；依赖进 catalog
-- [ ] 13.2 `apps/fullstack-demo` 骨架：一个 SSR 页、一个 CSR 页、一个预渲染页，站内跳转不整页刷新
-- [ ] 13.3 路由级渲染模式 `mode: 'ssr' | 'csr' | 'static'`；SSR 出错时退回 CSR 发空壳
-- [ ] 13.4 路由级 `load`：SSR 时在服务端直接调用、CSR 时经接口调用，页面不知道自己是哪种模式；数据经 json-wire 进页面，水合时不重复请求
+- [x] 13.1 接上 Nitro 3（固定精确版本）与 `nitro/vite`；依赖进 catalog（`nitro@3.0.260903-beta`）
+- [x] 13.2 `apps/fullstack-demo` 骨架：一个 SSR 页、一个 CSR 页、一个预渲染页，站内跳转不整页刷新
+- [x] 13.3 路由级渲染模式 `mode: 'ssr' | 'csr' | 'static'`；SSR 出错时退回 CSR 发空壳（另有总开关 `RENDER_MODE=csr` 整站改成浏览器渲染）
+- [x] 13.4 路由级 `load`：SSR 时在服务端直接调用、CSR 时经接口调用，页面不知道自己是哪种模式；数据经 json-wire 进页面，水合时不重复请求
+      （loader 写在只在服务端的 `src/loaders.ts`，按地址模式登记；页面 `usePageData('/orders/:id')`，类型从 loader 推导；浏览器经 `GET /_data?path=`）
 - [ ] 13.5 `defineAction(schema, handler)`：zod 校验入参，客户端拿到带类型的调用函数
 - [ ] 13.6 请求上下文：当前用户、租户、按租户过滤的 easy-query `db`，`load` 与 action 共用
 - [ ] 13.7 权限：路由与 action 声明 `permission`，服务端拦、客户端藏按钮；菜单从路由生成
 - [ ] 13.8 端到端测试（Playwright）在 SSR、CSR 两种模式各跑一遍，进 CI；顺带实测阶段 10 P3 的线程池问题
+      （已有：`apps/fullstack-demo/test/e2e.mjs`，CI 的 fullstack 任务；action、权限做完后补上它们的用例）
+- [ ] 13.9 服务端包里带着 Vue 的模板编译器与 @babel/parser（约 0.8 MB）：服务端解析成运行时版本的 Vue，只留渲染需要的
 
 ## 阶段 14：纯 TS 流程引擎
 
