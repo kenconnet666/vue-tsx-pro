@@ -2,12 +2,16 @@
 
 给接手这个仓库的人（或下一个会话、换了电脑的自己）：读完这一页就能接着做。细节以各自的规范文档为准，这里只讲现状、地图、做事方式和踩过的坑。路线图与勾选状态在 [ROADMAP.md](ROADMAP.md)。
 
-## 1. 现状（2026-10-28）
+## 1. 现状（2026-10-29）
 
-- **TS 全栈**（2026-10-28 起，执行清单是 ROADMAP 的"总览"与阶段 10–15，取舍在 FULLSTACK.md）：
-  阶段 10（基础设施修复：SSR 登记模块在 Windows 上加载失败、attrs 与 ref 互相覆盖、样式绑定的刷新顺序、命令式对话框的卸载等 8 条）已完成；
-  阶段 11（easy-query TS 带历史迁入 `packages/easy-query/`，工具链对齐，CI 跑 MySQL 8.0.18 与 PG 17 的实库套件，easy-query 仓库删掉 `ts/`）已完成；
-  阶段 11b（对照 Java 版完善，对照表在 `packages/easy-query/docs/parity.md`）进行中。文档站的 449 个示例已能在服务端渲染（阶段 12 的起点）。
+- **TS 全栈**（执行清单是 ROADMAP 的"总览"与阶段 10–15，取舍在 FULLSTACK.md）：阶段 10–15 的条目除下面几项都已勾掉。
+  - 阶段 12：组件库支持服务端渲染，文档站 137 页预渲染、水合无不一致（CI 的 hydration 任务逐页查）。
+  - 阶段 13：`apps/fullstack-demo`（Nitro 3）按页面选 ssr / csr / static，loader、action、请求上下文、会话与权限，端到端测试两种渲染模式。
+  - 阶段 14：纯 TS 流程引擎 `packages/flow`（model、engine、ui）：Java 版 37 个场景里 20 个跑通（SQLite、MySQL 8.0.18、8.4、PG 17），
+    试运行、流程图、低代码设计器、流程自带的 TS；`apps/flow-demo` 是审批应用（端到端测试进 CI）。
+  - 阶段 15：两个应用一样的接线抽成 `packages/kit`（`@zerodep-dev/vue-tsx-pro-kit`，还没发布），带模块（`KitModule`）。
+  - 文档站加了"全栈"分区（ORM、框架、流程引擎）。
+  - 没做的：11b.7（按需）、14.9 里会签、超时、子流程的页面；"待决"里一条（打成包的流程模块）。
 
 - **分支**：`master` 已推送到 origin；阶段 9 的画布底座与通用输入已合进 master。进行中的功能在各自的 `feat/*` 分支上，合并后才进 master。
   `proto/runtime-styles` 是样式引擎换成运行时之前的原型，已并入。开工前先 `gh run list --branch master --limit 3` 看最近一次 CI。

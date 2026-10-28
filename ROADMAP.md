@@ -266,10 +266,10 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 删除本库的 `/workflow` 子路径与文档站的“流程”分类（2026-10-26，用户要求流程图要么建在画布上、要么删掉单独的演示）：
       FlowDiagram、FlowDesigner、ApprovalActions、layoutProcess、流程定义与校验、运行时类型、useWorkflowTimeline 一起删，
       Timeline 的两个流转记录示例改成普通的 items；旧实现在提交 `f7bfdc2e`，流程风格的画布示例见 Diagram 页的泳道示例
-- [ ] 9.4 流程图重做（`flow` 仓库，建在 `/diagram` 上）
-- [ ] 9.5 流程设计器重做（`flow` 仓库）：结构编辑、属性面板、问题列表、版本对比
-- [ ] 9.6 运行时组件（`flow` 仓库）：收件箱表格、审批面板、进度卡、流转记录、实例详情的组合；表单改为代码表单加拖拽设计器（不做 `SchemaForm`，见 `flow` 的决定 0004）
-- [ ] 9.7 契约扩展：随 `flow` 的表设计一起定
+- [x] 9.4 流程图重做（`flow` 仓库，建在 `/diagram` 上）（不做：`flow` 仓库不动（已定的决定第 2 条），改由 `packages/flow/ui` 与引擎承担）
+- [x] 9.5 流程设计器重做（`flow` 仓库）：结构编辑、属性面板、问题列表、版本对比（不做：`flow` 仓库不动（已定的决定第 2 条），改由 `packages/flow/ui` 与引擎承担）
+- [x] 9.6 运行时组件（`flow` 仓库）：收件箱表格、审批面板、进度卡、流转记录、实例详情的组合；表单改为代码表单加拖拽设计器（不做 `SchemaForm`，见 `flow` 的决定 0004）（不做：`flow` 仓库不动（已定的决定第 2 条），改由 `packages/flow/ui` 与引擎承担）
+- [x] 9.7 契约扩展：随 `flow` 的表设计一起定（不做：`flow` 仓库不动（已定的决定第 2 条），改由 `packages/flow/ui` 与引擎承担）
 - [x] 9.8 浏览器里编译与代码编辑器改成公开入口（`flow` 的决定 0004 第 7 节，用户 2026-10-26 同意），文档站改用它们、删掉自己那份：
   - [x] `@zerodep-dev/vue-tsx-pro-tsx/browser-compile`：Worker 里的编译（带好 Babel 要的 Node 模块空壳）、把 `import` 改成"接收模块表的模块"的插件、设计时直接执行的辅助函数
   - [x] `@zerodep-dev/vue-tsx-pro-ui/code-editor`：`CodeEditor`（现在文档站的 CodeMirror 编辑器），语言由使用方传，对外给出编辑器状态
