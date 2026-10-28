@@ -803,6 +803,22 @@ importers:
       '@zerodep-dev/flow-ts-model':
         specifier: workspace:^
         version: link:../model
+    devDependencies:
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.11.10
+      '@zerodep-dev/easy-query-ts-mysql':
+        specifier: workspace:^
+        version: link:../../easy-query/mysql
+      '@zerodep-dev/easy-query-ts-pg':
+        specifier: workspace:^
+        version: link:../../easy-query/pg
+      mysql2:
+        specifier: 'catalog:'
+        version: 3.11.5
+      pg:
+        specifier: 'catalog:'
+        version: 8.13.1
 
   packages/flow/model:
     dependencies:

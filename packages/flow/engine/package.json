@@ -48,5 +48,12 @@
     "@zerodep-dev/easy-query-ts": "workspace:^",
     "@zerodep-dev/flow-ts-model": "workspace:^",
     "@zerodep-dev/easy-query-ts-sqlite": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/pg": "catalog:",
+    "@zerodep-dev/easy-query-ts-mysql": "workspace:^",
+    "@zerodep-dev/easy-query-ts-pg": "workspace:^",
+    "mysql2": "catalog:",
+    "pg": "catalog:"
   }
 }

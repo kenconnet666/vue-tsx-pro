@@ -68,7 +68,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  # easy-query 的实库套件：MySQL 8.0.18（PolarDB 基线）与 PG 17 的服务容器；HANA 不在 CI，本机跑
+  # easy-query 与流程引擎的实库套件：MySQL 8.0.18（PolarDB 基线）与 PG 17 的服务容器；HANA 不在 CI，本机跑
   db:
     runs-on: ubuntu-latest
     services:
@@ -90,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm exec vitest run --configLoader native --project easy-query
+      - run: pnpm exec vitest run --configLoader native --project easy-query --project flow
         env:
           EQTS_MYSQL_URLS: mysql://root:root@127.0.0.1:3306
           EQTS_PG_URLS: postgres://postgres:postgres@127.0.0.1:5432/eqts

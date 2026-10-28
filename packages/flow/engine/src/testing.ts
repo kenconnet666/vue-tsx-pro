@@ -7,7 +7,9 @@
  *   await engine.jobs.runDue();
  */
 import { DatabaseSync } from 'node:sqlite';
+import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import { sqlite } from '@zerodep-dev/easy-query-ts-sqlite';
+import { flowSchema } from './entities.ts';
 import { createFlowEngine, type FlowEngine } from './engine.ts';
 import type { FlowEngineOptions } from './types.ts';
 
@@ -34,16 +36,26 @@ export function createTestClock(start: Date | string = '2026-01-05T09:00:00Z'): 
   };
 }
 
-/** 测试用的引擎：内存库、建好表、假时钟 */
+/**
+ * 测试用的引擎：假时钟，默认是建好表的 SQLite 内存库。给了 adapter（实库）时先删掉引擎的表再建，每次都是空的
+ */
 export async function createTestEngine(
-  options: Omit<FlowEngineOptions, 'adapter' | 'clock'> & { start?: Date | string } = {},
+  options: Omit<FlowEngineOptions, 'adapter' | 'clock'> & {
+    start?: Date | string;
+    adapter?: Adapter;
+  } = {},
 ): Promise<{ engine: FlowEngine; clock: TestClock }> {
   const clock = createTestClock(options.start);
   const engine = createFlowEngine({
     ...options,
-    adapter: sqlite(new DatabaseSync(':memory:')),
+    adapter: options.adapter ?? sqlite(new DatabaseSync(':memory:')),
     clock: clock.now,
   });
+  if (options.adapter) {
+    for (const entity of Object.values(flowSchema.entities)) {
+      await engine.db.sql.execute`DROP TABLE IF EXISTS ${engine.db.sql.ident(entity.table)}`;
+    }
+  }
   await engine.createTables();
   return { engine, clock };
 }

@@ -2,7 +2,12 @@
 // 否则列出缺的命令（第一版不做的能力，见 docs/decisions/0001 第 2 节）；期望只比写出来、这一版产出的字段
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { describe, it } from 'vitest';
+import { createPool, type Pool } from 'mysql2/promise';
+import pg from 'pg';
+import { afterAll, describe, it } from 'vitest';
+import type { Adapter } from '@zerodep-dev/easy-query-ts';
+import { mysql } from '@zerodep-dev/easy-query-ts-mysql';
+import { postgres } from '@zerodep-dev/easy-query-ts-pg';
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import {
   FlowCandidate,
@@ -109,30 +114,81 @@ const files = readdirSync(DIR)
   .filter((name) => name.endsWith('.json'))
   .sort();
 
-describe('spec/scenarios', () => {
-  for (const file of files) {
-    const scenario = JSON.parse(readFileSync(new URL(file, DIR), 'utf8')) as Scenario;
-    const missing = [
-      ...new Set(scenario.steps.map((s) => s.command).filter((c) => !SUPPORTED.has(c))),
-    ];
-    const skipped = SKIPPED[file];
-    if (skipped) {
-      it.skip(`${file}：${skipped}`, () => {});
-      continue;
-    }
-    if (missing.length > 0) {
-      it.skip(`${file}：缺 ${missing.join('、')}`, () => {});
-      continue;
-    }
-    const partial = PARTIAL[file];
-    if (partial) {
-      const cut = scenario.steps.findIndex((step) => step.id === partial.before);
-      scenario.steps = scenario.steps.slice(0, cut);
-    }
-    const note = partial ? `（只跑到 #${partial.before} 之前：${partial.reason}）` : '';
-    it(`${file}：${scenario.name}${note}`, () => runScenario(scenario));
-  }
+/** 实库：EQTS_MYSQL_URLS、EQTS_PG_URLS（逗号分隔，同 easy-query 的实库套件）；MySQL 用单独的 flow_test 库 */
+const urlsOf = (name: string) =>
+  (process.env[name] ?? '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
+const pools: { end(): Promise<void> }[] = [];
+afterAll(async () => {
+  for (const pool of pools) await pool.end();
 });
+
+/** 跑场景的库：SQLite 内存库，加上设了环境变量的实库 */
+const targets: { name: string; adapter: () => Promise<Adapter | undefined> }[] = [
+  { name: 'sqlite', adapter: async () => undefined },
+  ...urlsOf('EQTS_MYSQL_URLS').map((url) => {
+    let pool: Pool | undefined;
+    return {
+      name: `mysql ${new URL(url).port}`,
+      adapter: async () => {
+        if (!pool) {
+          const bootstrap = createPool({ uri: url, connectionLimit: 1 });
+          await bootstrap.query('CREATE DATABASE IF NOT EXISTS flow_test');
+          await bootstrap.end();
+          pool = createPool({ uri: url, database: 'flow_test', connectionLimit: 5, timezone: 'Z' });
+          pools.push(pool);
+        }
+        return mysql(pool);
+      },
+    };
+  }),
+  ...urlsOf('EQTS_PG_URLS').map((url) => {
+    let pool: pg.Pool | undefined;
+    return {
+      name: `pg ${new URL(url).port}`,
+      adapter: async () => {
+        if (!pool) {
+          pool = new pg.Pool({ connectionString: url, max: 5 });
+          pools.push(pool);
+        }
+        return postgres(pool);
+      },
+    };
+  }),
+];
+
+for (const target of targets)
+  describe(`spec/scenarios（${target.name}）`, () => {
+    for (const file of files) {
+      const scenario = JSON.parse(readFileSync(new URL(file, DIR), 'utf8')) as Scenario;
+      const missing = [
+        ...new Set(scenario.steps.map((s) => s.command).filter((c) => !SUPPORTED.has(c))),
+      ];
+      const skipped = SKIPPED[file];
+      if (skipped) {
+        it.skip(`${file}：${skipped}`, () => {});
+        continue;
+      }
+      if (missing.length > 0) {
+        it.skip(`${file}：缺 ${missing.join('、')}`, () => {});
+        continue;
+      }
+      const partial = PARTIAL[file];
+      if (partial) {
+        const cut = scenario.steps.findIndex((step) => step.id === partial.before);
+        scenario.steps = scenario.steps.slice(0, cut);
+      }
+      const note = partial ? `（只跑到 #${partial.before} 之前：${partial.reason}）` : '';
+      // 实库每个场景要删表、建表，比内存库慢得多
+      it(
+        `${file}：${scenario.name}${note}`,
+        async () => runScenario(scenario, await target.adapter()),
+        target.name === 'sqlite' ? 5_000 : 60_000,
+      );
+    }
+  });
 
 /** 场景里注册的命令拦截器：意见是“拦下”的处理拦下；留言里的“敏感词”换掉；业务编号 rollback-after 的发起做完再拦 */
 function scenarioInterceptor() {
@@ -192,7 +248,7 @@ const isRefArg = (value: unknown): value is { ref: string } =>
   value !== null &&
   typeof (value as { ref?: unknown }).ref === 'string';
 
-async function runScenario(scenario: Scenario): Promise<void> {
+async function runScenario(scenario: Scenario, adapter?: Adapter): Promise<void> {
   const actors = new Map<string, Actor>();
   const people = new Map<string, string[]>();
   for (const [name, a] of Object.entries(scenario.actors ?? {})) {
@@ -210,6 +266,7 @@ async function runScenario(scenario: Scenario): Promise<void> {
       people.set(`department:${dept}`, [...(people.get(`department:${dept}`) ?? []), actor.id]);
   }
   const { engine, clock } = await createTestEngine({
+    ...(adapter ? { adapter } : {}),
     ...(scenario.clock ? { start: scenario.clock } : {}),
     admins: ['1000'],
     intercept: scenarioInterceptor(),
