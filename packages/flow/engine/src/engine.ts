@@ -8,17 +8,22 @@
  *   const { workItems } = await engine.run({ type: 'start', process: 'purchase', variables: { amount: 120 } }, alice);
  *   await engine.run({ type: 'complete', workItem: workItems[0].id, outcome: 'approve' }, bob);
  */
-import { and, createDb, or, type Cond } from '@zerodep-dev/easy-query-ts';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { and, createDb, or, type Cond, type Row } from '@zerodep-dev/easy-query-ts';
 import {
+  gatewayPairs,
   isRef,
   validateProcess,
   type AssigneeSource,
+  type CallNode,
+  type Outcome,
   type ProcessDefinition,
   type TaskNode,
 } from '@zerodep-dev/flow-ts-model';
 import { decideCountersign } from './countersign.ts';
 import {
   FlowCandidate,
+  FlowCc,
   FlowDefinition,
   FlowEvent,
   FlowInstance,
@@ -36,6 +41,7 @@ import type {
   FlowEngineOptions,
   FlowEventView,
   RunResult,
+  SignalInput,
   WorkItemSummary,
 } from './types.ts';
 
@@ -44,15 +50,44 @@ const MAX_ATTEMPTS = 3;
 /** 领到的作业锁多久：进程死掉后别的进程过了这段时间能接手 */
 const LEASE_MS = 5 * 60_000;
 
-/** 待办列表里的一行：待办加所属实例的标题与流程 */
+/** 待办列表里的一行：待办加所属实例的标题、流程与摘要列（定义里 summary 列出的字段） */
 export interface TodoItem extends WorkItemSummary {
   readonly processKey: string;
   readonly title: string | null;
+  readonly summary: Readonly<Record<string, unknown>>;
+}
+
+/** 待办详情：待办、实例、能选的结果，这个人能不能认领、能不能处理 */
+export interface WorkItemDetail {
+  readonly workItem: WorkItemRow;
+  readonly instance: InstanceRow;
+  readonly outcomes: readonly Outcome[];
+  readonly claimable: boolean;
+  readonly completable: boolean;
+}
+
+/** 抄送列表里的一行 */
+export interface CcItem {
+  readonly id: number;
+  readonly instanceId: number;
+  /** 抄送节点；手动抄送时为空 */
+  readonly node: string | null;
+  readonly recipient: string;
+  /** 谁抄送的；抄送节点时为空 */
+  readonly sender: string | null;
+  readonly message: string | null;
+  readonly at: Date;
+  readonly readAt: Date | null;
+  readonly processKey: string;
+  readonly title: string | null;
+  readonly status: InstanceRow['status'];
 }
 
 /** 实例详情 */
 export interface InstanceDetail {
   readonly instance: InstanceRow;
+  /** 正在处理的节点与名称 */
+  readonly current: readonly { readonly node: string; readonly name: string }[];
   readonly workItems: readonly WorkItemSummary[];
   readonly events: readonly FlowEventView[];
 }
@@ -65,6 +100,8 @@ export interface FlowEngine {
   publish(definition: ProcessDefinition, actor?: Actor): Promise<{ key: string; version: number }>;
   /** 执行一个命令 */
   run(command: FlowCommand, actor: Actor): Promise<RunResult>;
+  /** 外部事件（对方盖章、付款到账）：在等它的实例往下走，返回这些实例的结果 */
+  signal(input: SignalInput, actor: Actor): Promise<RunResult[]>;
   readonly query: {
     /** 我的待办：落到我的、我能认领的 */
     todo(actor: Actor): Promise<TodoItem[]>;
@@ -72,7 +109,15 @@ export interface FlowEngine {
     done(actor: Actor): Promise<TodoItem[]>;
     /** 实例详情：实例、全部待办、流转记录 */
     instance(id: number): Promise<InstanceDetail>;
+    /** 待办详情 */
+    workItem(id: number, actor: Actor): Promise<WorkItemDetail>;
+    /** 我发起的实例，新的在前 */
+    started(actor: Actor): Promise<InstanceRow[]>;
+    /** 抄送给我的，没读的在前 */
+    cc(actor: Actor): Promise<CcItem[]>;
   };
+  /** 把抄送给我的这个实例标成已读，返回标了几条 */
+  readCc(instance: number, actor: Actor): Promise<number>;
   readonly jobs: {
     /** 执行到点的作业，返回执行了几个；Nitro 的定时任务或接入方自己定时调用 */
     runDue(options?: { limit?: number; worker?: string }): Promise<number>;
@@ -86,6 +131,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   const db = createDb({ schema: flowSchema, adapter: options.adapter });
   const now = () => options.clock?.() ?? new Date();
   const definitions = new Map<number, ProcessDefinition>();
+  const running = new AsyncLocalStorage<FlowCommand>();
 
   async function definitionOf(tx: FlowDb, id: number): Promise<ProcessDefinition> {
     const cached = definitions.get(id);
@@ -104,17 +150,14 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     return db.transaction(async (tx) => {
       if (!(await tx.lock(FlowInstance, id))) throw new FlowError('not-found', `没有实例 ${id}`);
       const instance = await tx.queryable(FlowInstance).findOrThrow(id);
-      const exec = new Execution(
-        tx,
-        options,
-        await definitionOf(tx, instance.definitionId),
-        instance,
-        actor,
-        now(),
-      );
+      const exec = execution(tx, await definitionOf(tx, instance.definitionId), instance, actor);
       await work(exec, tx);
       const { instance: summary, events } = await exec.flush();
-      return { instance: summary, workItems: exec.created.map(workItemSummary), events };
+      await afterFlush(tx, exec);
+      const result = { instance: summary, workItems: exec.created.map(workItemSummary), events };
+      const command = running.getStore();
+      if (command && actor) await options.intercept?.after?.(command, result, actor);
+      return result;
     });
   }
 
@@ -145,51 +188,173 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     return candidates.some((c) => matches(c, actor));
   }
 
+  /** 建推进现场：调用流程时由引擎发起子实例 */
+  function execution(
+    tx: FlowDb,
+    definition: ProcessDefinition,
+    instance: InstanceRow,
+    actor: Actor | null,
+  ) {
+    const exec = new Execution(tx, options, definition, instance, actor, now());
+    exec.startChild = startChild;
+    return exec;
+  }
+
+  /** 流程的最新启用版本 */
+  async function latestDefinition(tx: FlowDb, key: string) {
+    const definition = await tx
+      .queryable(FlowDefinition)
+      .where((d) => [d.processKey.eq(key), d.enabled.eq(true)])
+      .orderBy((d) => d.version.desc())
+      .first();
+    if (!definition) throw new FlowError('not-found', `没有可发起的流程 ${key}`);
+    definitions.set(definition.id, definition.model);
+    return definition;
+  }
+
+  /** 建一个实例并从开始节点走起（发起与调用流程共用），返回推进现场（还没写回） */
+  async function launch(
+    tx: FlowDb,
+    definition: Row<typeof FlowDefinition>,
+    variables: Readonly<Record<string, unknown>>,
+    actor: Actor,
+    extra: Pick<InstanceRow, 'businessKey' | 'title' | 'parentId' | 'parentNode'>,
+  ): Promise<Execution> {
+    const model = definition.model;
+    const values = {
+      definitionId: definition.id,
+      processKey: model.key,
+      version: definition.version,
+      status: 'active' as const,
+      result: null,
+      current: [],
+      variables: { ...defaultsOf(model), ...variables },
+      state: emptyRunState(),
+      startedBy: actor.id,
+      startedAt: now(),
+      endedAt: null,
+      rev: 0,
+      ...extra,
+    };
+    const id = Number(await tx.insert(FlowInstance).values(values).returnId());
+    const exec = execution(tx, model, { id, ...values }, actor);
+    exec.addEvent(
+      'instance.started',
+      extra.parentId === null ? {} : { data: { parentId: extra.parentId } },
+    );
+    const startNode = model.nodes.find((node) => node.type === 'start');
+    if (!startNode) throw new FlowError('invalid-definition', `流程 ${model.key} 没有开始节点`);
+    exec.lastHandler = actor.id;
+    await exec.enter(startNode.id, 'start');
+    return exec;
+  }
+
   async function start(
     command: Extract<FlowCommand, { type: 'start' }>,
     actor: Actor,
   ): Promise<RunResult> {
     return db.transaction(async (tx) => {
-      const definition = await tx
-        .queryable(FlowDefinition)
-        .where((d) => [d.processKey.eq(command.process), d.enabled.eq(true)])
-        .orderBy((d) => d.version.desc())
-        .first();
-      if (!definition) throw new FlowError('not-found', `没有可发起的流程 ${command.process}`);
-      const model = definition.model;
-      if (model.starters && !canStart(model.starters, actor)) {
+      const definition = await latestDefinition(tx, command.process);
+      if (definition.model.starters && !canStart(definition.model.starters, actor)) {
         throw new FlowError('forbidden', `${actor.id} 不能发起 ${command.process}`);
       }
-      const variables = { ...defaultsOf(model), ...command.variables };
-      const values = {
-        definitionId: definition.id,
-        processKey: model.key,
-        version: definition.version,
+      const exec = await launch(tx, definition, command.variables ?? {}, actor, {
         businessKey: command.businessKey ?? null,
         title: command.title ?? null,
-        status: 'active' as const,
-        result: null,
-        current: [],
-        variables,
-        state: emptyRunState(),
-        startedBy: actor.id,
-        startedAt: now(),
-        endedAt: null,
         parentId: null,
         parentNode: null,
-        rev: 0,
-      };
-      const id = Number(await tx.insert(FlowInstance).values(values).returnId());
-      definitions.set(definition.id, model);
-      const exec = new Execution(tx, options, model, { id, ...values }, actor, now());
-      exec.addEvent('instance.started');
-      const startNode = model.nodes.find((node) => node.type === 'start');
-      if (!startNode) throw new FlowError('invalid-definition', `流程 ${model.key} 没有开始节点`);
-      exec.lastHandler = actor.id;
-      await exec.enter(startNode.id, 'start');
+      });
       const { instance, events } = await exec.flush();
-      return { instance, workItems: exec.created.map(workItemSummary), events };
+      const result = { instance, workItems: exec.created.map(workItemSummary), events };
+      await options.intercept?.after?.(command, result, actor);
+      return result;
     });
+  }
+
+  /**
+   * 调用流程（同步、单个）：在同一个事务里发起子实例；子实例当场就结束时直接按它的结果往下走，否则父实例在这个节点等，
+   * 子实例结束时 afterFlush 回到父实例。input 的键是子流程的变量，值是父流程这边的值（引用或直接写）
+   */
+  async function startChild(parent: Execution, node: CallNode): Promise<void> {
+    if (node.forEach || node.mode === 'async') {
+      throw new FlowError(
+        'invalid-definition',
+        '这一版只支持单个同步的调用流程（forEach、异步不支持）',
+        { node: node.id },
+      );
+    }
+    const definition = await latestDefinition(parent.tx, node.process);
+    const input = Object.fromEntries(
+      Object.entries(node.input ?? {}).map(([name, value]) => [
+        variableName(name),
+        isRef(value) ? parent.read(value.ref) : value,
+      ]),
+    );
+    const actor: Actor = { id: parent.instance.startedBy };
+    const child = await launch(parent.tx, definition, input, actor, {
+      businessKey: parent.instance.businessKey,
+      title: null,
+      parentId: parent.instance.id,
+      parentNode: node.id,
+    });
+    const { instance } = await child.flush();
+    parent.addEvent('call.started', {
+      node: node.id,
+      data: { child: instance.id, process: node.process },
+    });
+    parent.current.add(node.id);
+    if (child.finished) await returnToParent(parent, node, child);
+  }
+
+  /** 子实例结束了：父实例收 output、按子实例的结果往下走 */
+  async function returnToParent(
+    parent: Execution,
+    node: CallNode,
+    child: Execution,
+  ): Promise<void> {
+    for (const [variable, name] of Object.entries(node.output ?? {})) {
+      parent.setVariables({ [variableName(variable)]: child.read(name) });
+    }
+    parent.current.delete(node.id);
+    parent.addEvent('call.finished', {
+      node: node.id,
+      outcome: child.result,
+      data: { child: child.instance.id, status: child.status },
+    });
+    await parent.leave(node.id, child.status === 'completed' ? child.result : null);
+  }
+
+  /**
+   * 命令写回之后：子实例结束了就锁住父实例、回到它（父实例在等这个调用节点时）；
+   * 实例被终止、撤回时，还在进行的子实例一起终止
+   */
+  async function afterFlush(tx: FlowDb, exec: Execution): Promise<void> {
+    if (exec.finished && exec.instance.parentId !== null && exec.instance.parentNode !== null) {
+      const parentId = exec.instance.parentId;
+      if (await tx.lock(FlowInstance, parentId)) {
+        const row = await tx.queryable(FlowInstance).findOrThrow(parentId);
+        const parent = execution(tx, await definitionOf(tx, row.definitionId), row, null);
+        const node = parent.graph.node(exec.instance.parentNode);
+        if (parent.status === 'active' && node?.type === 'call' && parent.current.has(node.id)) {
+          await returnToParent(parent, node, exec);
+          await parent.flush();
+          await afterFlush(tx, parent);
+        }
+      }
+    }
+    if (exec.status === 'terminated' || exec.status === 'withdrawn') {
+      const children = await tx
+        .queryable(FlowInstance)
+        .where((i) => [i.parentId.eq(exec.instance.id), i.status.in(['active', 'suspended'])])
+        .toList();
+      for (const row of children) {
+        await tx.lock(FlowInstance, row.id);
+        const child = execution(tx, await definitionOf(tx, row.definitionId), row, null);
+        await child.finish('terminated', 'parent-terminated');
+        await child.flush();
+        await afterFlush(tx, child);
+      }
+    }
   }
 
   async function claim(id: number, actor: Actor): Promise<RunResult> {
@@ -239,61 +404,84 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         });
         if (verdict !== true) throw new FlowError('guard-rejected', verdict, { guard: name });
       }
-      await tx
-        .update(FlowWorkItem)
-        .set({
-          state: 'done',
-          outcome: outcome.key,
-          comment: command.comment ?? null,
-          completedAt: exec.now,
-          completedBy: actor.id,
-          assignee: actor.id,
-        })
-        .where((w) => [w.id.eq(item.id), w.state.eq('open')])
-        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
-        .execute();
-      exec.addEvent('workItem.completed', {
-        workItemId: item.id,
-        node: node.id,
-        outcome: outcome.key,
+      await finishItem(exec, tx, item, node, outcome.key, {
+        actor: actor.id,
         comment: command.comment ?? null,
+        returnTo: command.returnTo,
       });
-      exec.state.handledBy[node.id] = actor.id;
-      exec.lastHandler = actor.id;
-
-      let decided = outcome.key;
-      if (node.multi && item.signGroup) {
-        const group = item.signGroup;
-        // 会签组的键只在实例里唯一
-        const votes = await tx
-          .queryable(FlowWorkItem)
-          .where((w) => [w.instanceId.eq(item.instanceId), w.signGroup.eq(group)])
-          .toList();
-        const queue = exec.state.queues[group] ?? [];
-        const result = decideCountersign(node.multi, node.outcomes, votes, queue.length);
-        if (result === undefined) {
-          const [next, ...rest] = queue;
-          if (node.multi.complete === 'sequential' && next !== undefined) {
-            exec.state.queues[group] = rest;
-            if (rest.length === 0) delete exec.state.queues[group];
-            await exec.insertItem(node, item.round, 'forward', {
-              assignee: next,
-              assignment: 'direct',
-              state: 'open',
-              signGroup: group,
-              signSeq: (item.signSeq ?? 0) + 1,
-            });
-          }
-          return;
-        }
-        delete exec.state.queues[group];
-        await exec.cancelWhere((w) => [w.signGroup.eq(group)]);
-        exec.addEvent('countersign.decided', { node: node.id, outcome: result });
-        decided = result;
-      }
-      exec.current.delete(node.id);
-      await advanceFromTask(exec, node, decided, command.returnTo);
     });
+  }
+
+  /**
+   * 一份待办处理完：带状态条件写成 done、记事件，会签判断这一组结束了没有，结束了按结果往下走。
+   * 人处理（complete）与超时自动处理（overdue 作业，actor 为 null）共用
+   */
+  async function finishItem(
+    exec: Execution,
+    tx: FlowDb,
+    item: WorkItemRow,
+    node: TaskNode,
+    outcomeKey: string,
+    by: { actor: string | null; comment: string | null; returnTo?: string | undefined },
+  ): Promise<void> {
+    await tx
+      .update(FlowWorkItem)
+      .set({
+        state: 'done',
+        outcome: outcomeKey,
+        comment: by.comment,
+        completedAt: exec.now,
+        completedBy: by.actor,
+        assignee: by.actor ?? item.assignee,
+      })
+      .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+      .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+      .execute();
+    exec.addEvent('workItem.completed', {
+      workItemId: item.id,
+      node: node.id,
+      outcome: outcomeKey,
+      comment: by.comment,
+      actor: by.actor,
+      data: { outcomeLabel: node.outcomes.find((o) => o.key === outcomeKey)?.label ?? outcomeKey },
+    });
+    if (by.actor) {
+      exec.state.handledBy[node.id] = by.actor;
+      exec.lastHandler = by.actor;
+    }
+
+    let decided = outcomeKey;
+    if (node.multi && item.signGroup) {
+      const group = item.signGroup;
+      // 会签组的键只在实例里唯一
+      const votes = await tx
+        .queryable(FlowWorkItem)
+        .where((w) => [w.instanceId.eq(item.instanceId), w.signGroup.eq(group)])
+        .toList();
+      const queue = exec.state.queues[group] ?? [];
+      const result = decideCountersign(node.multi, node.outcomes, votes, queue.length);
+      if (result === undefined) {
+        const [next, ...rest] = queue;
+        if (node.multi.complete === 'sequential' && next !== undefined) {
+          exec.state.queues[group] = rest;
+          if (rest.length === 0) delete exec.state.queues[group];
+          await exec.insertItem(node, item.round, 'forward', {
+            assignee: next,
+            assignment: 'direct',
+            state: 'open',
+            signGroup: group,
+            signSeq: (item.signSeq ?? 0) + 1,
+          });
+        }
+        return;
+      }
+      delete exec.state.queues[group];
+      await exec.cancelWhere((w) => [w.signGroup.eq(group)]);
+      exec.addEvent('countersign.decided', { node: node.id, outcome: result });
+      decided = result;
+    }
+    exec.current.delete(node.id);
+    await advanceFromTask(exec, node, decided, by.returnTo);
   }
 
   /** 人工节点有了结果：按结果的种类往下走 */
@@ -307,7 +495,19 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     const kind = outcome.kind ?? 'approve';
     if (kind === 'terminate') return exec.finish('terminated', outcome.result ?? key);
     if (kind === 'return' && outcome.target === 'choose') {
-      const target = returnTo ? exec.graph.node(returnTo) : undefined;
+      if (!returnTo) {
+        throw new FlowError('invalid-input', '退回要选退回到哪个节点', {
+          field: 'returnTo',
+          code: 'required',
+        });
+      }
+      if (!returnTargets(exec, node.id).includes(returnTo)) {
+        throw new FlowError('invalid-input', `${returnTo} 不是上游走到过的人工节点`, {
+          field: 'returnTo',
+          code: 'not-upstream',
+        });
+      }
+      const target = exec.graph.node(returnTo);
       if (
         !target ||
         target.type !== 'task' ||
@@ -324,6 +524,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       }
       exec.state.returnedFrom[target.id] = node.id;
       exec.addEvent('node.left', { node: node.id, outcome: key, data: { returnTo: target.id } });
+      await exec.leaveRegions(node.id, target.id);
       return exec.enter(target.id, 'return');
     }
     // 被退回后重新提交：退回它的节点写了 returnTo: 'resubmit' 时直接回到那里，不再从头走
@@ -415,10 +616,57 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     });
   }
 
-  async function signal(
-    command: Extract<FlowCommand, { type: 'signal' }>,
+  async function suspendOrResume(
+    command: Extract<FlowCommand, { type: 'suspend' | 'resume' }>,
     actor: Actor,
-  ): Promise<RunResult[]> {
+  ): Promise<RunResult> {
+    if (!actor.admin) throw new FlowError('forbidden', '只有管理员能暂停、恢复');
+    return withInstance(command.instance, actor, async (exec) => {
+      const from = command.type === 'suspend' ? 'active' : 'suspended';
+      if (exec.status !== from) {
+        throw new FlowError(
+          'instance-not-active',
+          `实例 ${command.instance} 不是${from === 'active' ? '进行中' : '暂停'}的`,
+        );
+      }
+      exec.status = command.type === 'suspend' ? 'suspended' : 'active';
+      exec.addEvent(command.type === 'suspend' ? 'instance.suspended' : 'instance.resumed', {
+        comment: command.type === 'suspend' ? (command.comment ?? null) : null,
+      });
+    });
+  }
+
+  async function remind(
+    command: Extract<FlowCommand, { type: 'remind' }>,
+    actor: Actor,
+  ): Promise<RunResult> {
+    return withInstance(command.instance, actor, async (exec, tx) => {
+      if (exec.status !== 'active')
+        throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
+      if (exec.instance.startedBy !== actor.id && !actor.admin) {
+        throw new FlowError('forbidden', '只有发起人或管理员能催办');
+      }
+      const items = await tx
+        .queryable(FlowWorkItem)
+        .where((w) => [
+          w.instanceId.eq(command.instance),
+          w.state.eq('open'),
+          ...(command.workItem !== undefined ? [w.id.eq(command.workItem)] : []),
+        ])
+        .toList();
+      for (const item of items) {
+        exec.addEvent('workItem.reminded', {
+          workItemId: item.id,
+          node: item.node,
+          comment: command.message ?? null,
+          data: { reason: 'manual' },
+        });
+      }
+    });
+  }
+
+  /** 外部事件：在等它的实例往下走，返回这些实例的结果；不在等的只记一条 signal.ignored */
+  async function signal(command: SignalInput, actor: Actor): Promise<RunResult[]> {
     const ids =
       command.instance !== undefined
         ? [command.instance]
@@ -431,42 +679,53 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           ).map((row) => row.id);
     const results: RunResult[] = [];
     for (const id of ids) {
-      results.push(
-        await withInstance(id, actor, async (exec) => {
-          const waiting = [...exec.current].find((nodeId) => {
-            const node = exec.graph.node(nodeId);
-            return node?.type === 'receive' && node.event === command.event;
-          });
-          const node = waiting ? exec.node(waiting) : undefined;
-          if (!node || node.type !== 'receive' || exec.status !== 'active') {
-            exec.addEvent('signal.ignored', { data: { event: command.event } });
-            return;
-          }
-          if (command.outcome !== undefined && !(node.outcomes ?? []).includes(command.outcome)) {
-            throw new FlowError(
-              'invalid-input',
-              `事件 ${command.event} 没有结果 ${command.outcome}`,
-              { field: 'outcome' },
-            );
-          }
-          for (const [variable, name] of Object.entries(node.output ?? {})) {
-            const target = variable.startsWith('form.') ? variable.slice(5) : variable;
-            exec.setVariables({ [target]: command.data?.[name] });
-          }
-          exec.current.delete(node.id);
-          exec.addEvent('signal.received', {
-            node: node.id,
+      let received = false;
+      const result = await withInstance(id, actor, async (exec) => {
+        const waiting = [...exec.current].find((nodeId) => {
+          const node = exec.graph.node(nodeId);
+          return node?.type === 'receive' && node.event === command.event;
+        });
+        const node = waiting ? exec.node(waiting) : undefined;
+        if (!node || node.type !== 'receive' || exec.status !== 'active') {
+          exec.addEvent('signal.ignored', {
             outcome: command.outcome ?? null,
             data: { event: command.event },
           });
-          await exec.leave(node.id, command.outcome ?? null);
-        }),
-      );
+          return;
+        }
+        if (command.outcome !== undefined && !(node.outcomes ?? []).includes(command.outcome)) {
+          throw new FlowError(
+            'invalid-input',
+            `事件 ${command.event} 没有结果 ${command.outcome}`,
+            { field: 'outcome' },
+          );
+        }
+        for (const [variable, name] of Object.entries(node.output ?? {})) {
+          const target = variable.startsWith('form.') ? variable.slice(5) : variable;
+          exec.setVariables({ [target]: command.data?.[name] });
+        }
+        exec.current.delete(node.id);
+        exec.addEvent('signal.received', {
+          node: node.id,
+          outcome: command.outcome ?? null,
+          data: { event: command.event, data: command.data ?? null },
+        });
+        received = true;
+        await exec.leave(node.id, command.outcome ?? null);
+      });
+      // 按实例送的事件：没在等也给出这个实例的结果（只记了一笔）；按业务编号送的只给往下走了的
+      if (received || command.instance !== undefined) results.push(result);
     }
     return results;
   }
 
-  async function run(command: FlowCommand, actor: Actor): Promise<RunResult> {
+  /** 拦截之后执行命令；正在执行的命令记在 running 里，提交前的 after 钩子从这里取 */
+  async function run(input: FlowCommand, actor: Actor): Promise<RunResult> {
+    const command = (await options.intercept?.before?.(input, actor)) ?? input;
+    return running.run(command, () => dispatch(command, actor));
+  }
+
+  async function dispatch(command: FlowCommand, actor: Actor): Promise<RunResult> {
     switch (command.type) {
       case 'start':
         return start(command, actor);
@@ -480,12 +739,26 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         return withdraw(command, actor);
       case 'terminate':
         return terminate(command, actor);
-      case 'signal': {
-        const results = await signal(command, actor);
-        const first = results[0];
-        if (!first) throw new FlowError('not-found', `没有实例在等事件 ${command.event}`);
-        return first;
-      }
+      case 'suspend':
+      case 'resume':
+        return suspendOrResume(command, actor);
+      case 'remind':
+        return remind(command, actor);
+      case 'comment':
+        return withInstance(command.instance, actor, async (exec) => {
+          exec.addEvent('instance.commented', { comment: command.text });
+        });
+      case 'cc':
+        if (command.users.length === 0) {
+          throw new FlowError('invalid-input', '抄送要选人', { field: 'users', code: 'required' });
+        }
+        return withInstance(command.instance, actor, async (exec) => {
+          await exec.sendCc(
+            null,
+            command.users.map((user) => ({ user: user as `${bigint}` })),
+            command.message,
+          );
+        });
     }
   }
 
@@ -522,7 +795,63 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     });
   }
 
+  /** 列表行补上摘要列：按实例的定义里 summary 列出的字段取流程变量 */
+  async function withSummary(rows: Record<string, any>[]): Promise<TodoItem[]> {
+    const result: TodoItem[] = [];
+    for (const { definitionId, variables, ...row } of rows) {
+      const fields = (await definitionOf(db, definitionId as number)).summary ?? [];
+      const values = variables as Record<string, unknown>;
+      const summary = Object.fromEntries(
+        fields.map((field) => [field, values[field.startsWith('form.') ? field.slice(5) : field]]),
+      );
+      result.push({ ...(row as Omit<TodoItem, 'summary'>), summary });
+    }
+    return result;
+  }
+
   const query: FlowEngine['query'] = {
+    workItem: async (id, actor) => {
+      const workItem = await db.queryable(FlowWorkItem).find(id);
+      if (!workItem) throw new FlowError('not-found', `没有待办 ${id}`);
+      const instance = await db.queryable(FlowInstance).findOrThrow(workItem.instanceId);
+      const node = (await definitionOf(db, instance.definitionId)).nodes.find(
+        (n) => n.id === workItem.node,
+      );
+      const open = workItem.state === 'open' && instance.status === 'active';
+      const candidate = open && (await isCandidate(db, workItem, actor));
+      return {
+        workItem,
+        instance,
+        outcomes: node?.type === 'task' ? node.outcomes : [],
+        claimable: candidate && workItem.assignee === null,
+        completable: candidate,
+      };
+    },
+    started: (actor) =>
+      db
+        .queryable(FlowInstance)
+        .where((i) => i.startedBy.eq(actor.id))
+        .orderBy((i) => i.id.desc())
+        .toList(),
+    cc: (actor) =>
+      db
+        .queryable(FlowCc)
+        .where((c) => c.recipient.eq(actor.id))
+        .orderBy((c) => [c.readAt.isNull().desc(), c.id.desc()])
+        .select((c) => ({
+          id: c.id,
+          instanceId: c.instanceId,
+          node: c.node,
+          recipient: c.recipient,
+          sender: c.sender,
+          message: c.message,
+          at: c.at,
+          readAt: c.readAt,
+          processKey: c.instance.processKey,
+          title: c.instance.title,
+          status: c.instance.status,
+        }))
+        .toList(),
     todo: (actor) =>
       db
         .queryable(FlowWorkItem)
@@ -538,14 +867,16 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         ])
         .orderBy((w) => w.id)
         .select(todoColumns)
-        .toList() as Promise<TodoItem[]>,
+        .toList()
+        .then(withSummary),
     done: (actor) =>
       db
         .queryable(FlowWorkItem)
         .where((w) => [w.state.eq('done'), w.completedBy.eq(actor.id)])
         .orderBy((w) => w.id.desc())
         .select(todoColumns)
-        .toList() as Promise<TodoItem[]>,
+        .toList()
+        .then(withSummary),
     instance: async (id) => {
       const instance = await db.queryable(FlowInstance).find(id);
       if (!instance) throw new FlowError('not-found', `没有实例 ${id}`);
@@ -559,7 +890,12 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         .where((e) => e.instanceId.eq(id))
         .orderBy((e) => e.id)
         .toList();
-      return { instance, workItems: items.map(workItemSummary), events };
+      const nodes = (await definitionOf(db, instance.definitionId)).nodes;
+      const current = instance.current.map((node) => ({
+        node,
+        name: nodes.find((n) => n.id === node)?.name ?? node,
+      }));
+      return { instance, current, workItems: items.map(workItemSummary), events };
     },
   };
 
@@ -589,6 +925,15 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       if (claimed === 0) continue;
       try {
         await withInstance(job.instanceId, null, async (exec, tx) => {
+          // 暂停的实例：作业往后推一小时，恢复后再做
+          if (exec.status === 'suspended') {
+            await tx
+              .update(FlowJob)
+              .set({ dueAt: new Date(at.getTime() + 3_600_000), lockedBy: null, lockedUntil: null })
+              .where((j) => j.id.eq(job.id))
+              .execute();
+            return;
+          }
           await tx
             .delete(FlowJob)
             .where((j) => j.id.eq(job.id))
@@ -604,16 +949,12 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   }
 
   /** 一个作业：节点还在等、轮次没变才做 */
-  async function runJob(
-    exec: Execution,
-    job: { kind: string; node: string | null; round: number | null },
-  ) {
+  async function runJob(exec: Execution, job: Row<typeof FlowJob>) {
     const node = job.node;
     if (exec.status !== 'active' || !node || !exec.current.has(node)) return;
     if (job.round !== null && exec.state.rounds[node] !== job.round) return;
     if (job.kind === 'timer') {
       exec.current.delete(node);
-      exec.addEvent('timer.fired', { node });
       return exec.leave(node);
     }
     if (job.kind === 'action') {
@@ -621,7 +962,53 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       exec.current.delete(node);
       return exec.leave(node, result?.outcome ?? null);
     }
+    if (job.kind === 'receiveTimeout') {
+      const waiting = exec.node(node);
+      if (waiting.type !== 'receive') return;
+      exec.addEvent('node.overdue', { node, actor: null, data: { dueAt: isoSeconds(job.dueAt) } });
+      if (waiting.overdue?.action === 'complete') {
+        exec.current.delete(node);
+        return exec.leave(node, waiting.overdue.outcome);
+      }
+      return;
+    }
+    if (job.kind === 'overdue' || job.kind === 'remind' || job.kind === 'unclaimed') {
+      return runDeadline(exec, job);
+    }
     throw new FlowError('invalid-definition', `不认识的作业 ${job.kind}`);
+  }
+
+  /** 时限与提醒：待办还开着才做；超时按节点的 overdue 记一笔或自动处理 */
+  async function runDeadline(exec: Execution, job: Row<typeof FlowJob>) {
+    const item =
+      job.workItemId === null
+        ? undefined
+        : await exec.tx.queryable(FlowWorkItem).find(job.workItemId);
+    if (!item || item.state !== 'open') return;
+    const node = exec.node(item.node) as TaskNode;
+    const fields = { workItemId: item.id, node: node.id, actor: null };
+    if (job.kind === 'remind') {
+      exec.addEvent('workItem.reminded', {
+        ...fields,
+        data: { auto: true, reason: job.payload['reason'] },
+      });
+      return;
+    }
+    if (job.kind === 'unclaimed') {
+      if (item.assignee) return;
+      exec.addEvent('workItem.reminded', { ...fields, data: { auto: true, reason: 'unclaimed' } });
+      return;
+    }
+    exec.addEvent('workItem.overdue', {
+      ...fields,
+      data: { dueAt: item.dueAt ? isoSeconds(item.dueAt) : null },
+    });
+    if (node.overdue?.action === 'complete') {
+      await finishItem(exec, exec.tx, item, node, node.overdue.outcome, {
+        actor: null,
+        comment: null,
+      });
+    }
   }
 
   /** 作业失败：回滚了它的事务，这里记次数与错误，按 n² 分钟重试，用完标失败 */
@@ -666,8 +1053,17 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     });
   }
 
+  const readCc = (instance: number, actor: Actor) =>
+    db
+      .update(FlowCc)
+      .set({ readAt: now() })
+      .where((c) => [c.instanceId.eq(instance), c.recipient.eq(actor.id), c.readAt.isNull()])
+      .execute();
+
   return {
     db,
+    signal,
+    readCc,
     createTables: () => db.createTables(),
     publish,
     run,
@@ -677,7 +1073,9 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
 }
 
 /** 待办列表的列：待办加所属实例的流程与标题 */
-const todoColumns = (w: any): Record<keyof TodoItem, any> => ({
+const todoColumns = (
+  w: any,
+): Record<Exclude<keyof TodoItem, 'summary'> | 'definitionId' | 'variables', any> => ({
   id: w.id,
   instanceId: w.instanceId,
   node: w.node,
@@ -691,6 +1089,8 @@ const todoColumns = (w: any): Record<keyof TodoItem, any> => ({
   dueAt: w.dueAt,
   processKey: w.instance.processKey,
   title: w.instance.title,
+  definitionId: w.instance.definitionId,
+  variables: w.instance.variables,
 });
 
 /** 候选匹配这个人 */
@@ -718,6 +1118,38 @@ function candidateConditions(c: any, actor: Actor): Cond[] {
   add('group', actor.groups);
   return conditions;
 }
+
+/**
+ * 退回时能选的节点：沿前进的连线往上游找、走到过的人工节点；已经汇合了的并行区域里的节点不算（那些分支已经结束）
+ */
+export function returnTargets(exec: Execution, from: string): string[] {
+  const definition = exec.definition;
+  const pairs = gatewayPairs(definition);
+  const ancestors = new Set<string>();
+  const queue = [from];
+  while (queue.length > 0) {
+    const id = queue.shift()!;
+    for (const edge of exec.graph.incoming(id)) {
+      if (edge.kind === 'return' || edge.kind === 'escalate' || ancestors.has(edge.from)) continue;
+      ancestors.add(edge.from);
+      queue.push(edge.from);
+    }
+  }
+  const closed = (id: string) =>
+    definition.nodes.some((n) => {
+      const join = pairs.joinOf(n.id);
+      return join !== undefined && ancestors.has(join) && pairs.region(n.id).has(id);
+    });
+  return [...ancestors].filter(
+    (id) => exec.graph.node(id)?.type === 'task' && exec.state.rounds[id] && !closed(id),
+  );
+}
+
+/** 定义里写的变量名：`form.字段` 就是流程变量里的“字段” */
+const variableName = (name: string): string => (name.startsWith('form.') ? name.slice(5) : name);
+
+/** 时刻写成 ISO 文字，整秒时不带毫秒（同线上的写法） */
+const isoSeconds = (at: Date): string => at.toISOString().replace('.000Z', 'Z');
 
 /** 定义里直接写的编号（引用在发起前取不到值） */
 const literal = (value: unknown): string | undefined =>

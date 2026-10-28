@@ -44,6 +44,16 @@ const SUPPORTED = new Set([
   'runJobs',
   'todo',
   'done',
+  'started',
+  'instance',
+  'workItem',
+  'suspend',
+  'resume',
+  'remind',
+  'comment',
+  'cc',
+  'ccList',
+  'readCc',
 ]);
 
 /** Java 版的错误代号 → 这里的 */
@@ -58,6 +68,13 @@ const ERROR_CODES: Record<string, string> = {
   'flow.definition-invalid': 'invalid-definition',
   'flow.validation-failed': 'invalid-input',
   'flow.extension-failed': 'invalid-definition',
+};
+
+/** 整个不跑的场景：用到第一版不做的能力（docs/decisions/0001 第 2 节） */
+const SKIPPED: Record<string, string> = {
+  'custom-node.json': '自定义节点类型与自定义会签规则第一版不做',
+  'purchase-form-rules.json': '按字段清单校验表单在表单模块里做（ROADMAP 14.8）',
+  'call-process.json': '调用流程的 forEach 与异步第一版不做（单个同步调用见 engine.test.ts）',
 };
 
 /** 只跑到某一步的场景：后面的步骤用到第一版不做的能力 */
@@ -75,6 +92,11 @@ const COMPARED = new Set([
   'rows',
   'total',
   'results',
+  'timeline',
+  'workItem',
+  'claimable',
+  'completable',
+  'read',
 ]);
 
 const files = readdirSync(DIR)
@@ -87,6 +109,11 @@ describe('spec/scenarios', () => {
     const missing = [
       ...new Set(scenario.steps.map((s) => s.command).filter((c) => !SUPPORTED.has(c))),
     ];
+    const skipped = SKIPPED[file];
+    if (skipped) {
+      it.skip(`${file}：${skipped}`, () => {});
+      continue;
+    }
     if (missing.length > 0) {
       it.skip(`${file}：缺 ${missing.join('、')}`, () => {});
       continue;
@@ -100,6 +127,26 @@ describe('spec/scenarios', () => {
     it(`${file}：${scenario.name}${note}`, () => runScenario(scenario));
   }
 });
+
+/** 场景里注册的命令拦截器：意见是“拦下”的处理拦下；留言里的“敏感词”换掉；业务编号 rollback-after 的发起做完再拦 */
+function scenarioInterceptor() {
+  const blocked = (field: string, code: string) =>
+    new FlowError('invalid-input', `${field} ${code}`, { field, code });
+  return {
+    before: (command: FlowCommand) => {
+      if (command.type === 'complete' && command.comment === '拦下')
+        throw blocked('comment', 'blocked');
+      if (command.type === 'comment')
+        return { ...command, text: command.text.replaceAll('敏感词', '***') };
+      return undefined;
+    },
+    after: (command: FlowCommand) => {
+      if (command.type === 'start' && command.businessKey === 'rollback-after') {
+        throw blocked('businessKey', 'rolled-back');
+      }
+    },
+  };
+}
 
 /** 场景里注册的扩展（packages/flow/spec/scenarios/README.md 末尾） */
 function testExtensions() {
@@ -159,6 +206,7 @@ async function runScenario(scenario: Scenario): Promise<void> {
   const { engine, clock } = await createTestEngine({
     ...(scenario.clock ? { start: scenario.clock } : {}),
     admins: ['1000'],
+    intercept: scenarioInterceptor(),
     extensions: testExtensions() as never,
     org: {
       members: (source) =>
@@ -246,9 +294,8 @@ async function runStep(
         to: String(args['user']),
       });
     case 'signal': {
-      const result = await engine.run(
+      const results = await engine.signal(
         {
-          type: 'signal',
           event: args['event'],
           ...(args['instance'] !== undefined ? { instance: Number(args['instance']) } : {}),
           ...(args['businessKey'] !== undefined ? { businessKey: args['businessKey'] } : {}),
@@ -257,18 +304,82 @@ async function runStep(
         },
         actor,
       );
-      return { results: [await shape(engine, result)] };
+      return { results: await Promise.all(results.map((result) => shape(engine, result))) };
     }
     case 'runJobs': {
       clock.set(args['at']);
       return { ran: await engine.jobs.runDue() };
+    }
+    case 'suspend':
+    case 'resume':
+      return run({ type: command, instance: Number(args['instance']), comment: args['reason'] });
+    case 'remind':
+      return run({
+        type: 'remind',
+        instance: Number(args['instance']),
+        ...(args['workItem'] !== undefined ? { workItem: Number(args['workItem']) } : {}),
+        message: args['message'],
+      });
+    case 'comment':
+      return run({ type: 'comment', instance: Number(args['instance']), text: args['text'] });
+    case 'cc':
+      return run({
+        type: 'cc',
+        instance: Number(args['instance']),
+        users: (args['users'] as unknown[]).map((user) => String(user as number)),
+        message: args['message'],
+      });
+    case 'readCc':
+      return { read: await engine.readCc(Number(args['instance']), actor) };
+    case 'ccList': {
+      const rows = await engine.query.cc(actor);
+      return {
+        total: rows.length,
+        rows: rows.map((row) => ({
+          ...row,
+          recipientId: row.recipient,
+          fromUserId: row.sender,
+          instance: { id: row.instanceId, title: row.title, status: row.status },
+        })),
+      };
+    }
+    case 'started': {
+      const rows = await engine.query.started(actor);
+      return { total: rows.length, rows };
+    }
+    case 'instance': {
+      const detail = await engine.query.instance(Number(args['instance']));
+      const current = detail.current;
+      const items = await engine.db
+        .queryable(FlowWorkItem)
+        .where((w) => w.instanceId.eq(detail.instance.id))
+        .orderBy((w) => w.id)
+        .toList();
+      return {
+        instance: { ...detail.instance, current },
+        workItems: items.map(javaItem),
+        timeline: detail.events.map((event) => ({ ...event, actorId: event.actor })),
+      };
+    }
+    case 'workItem': {
+      const detail = await engine.query.workItem(Number(args['workItem']), actor);
+      return {
+        workItem: javaItem(detail.workItem),
+        instance: detail.instance,
+        claimable: detail.claimable,
+        completable: detail.completable,
+      };
     }
     case 'todo':
     case 'done': {
       const rows = await engine.query[command](actor);
       return {
         total: rows.length,
-        rows: rows.map((row) => ({ ...row, assigneeId: row.assignee })),
+        rows: rows.map((row) => ({
+          ...row,
+          assigneeId: row.assignee,
+          instance: { id: row.instanceId, title: row.title, summary: row.summary },
+        })),
       };
     }
     default:
@@ -286,14 +397,9 @@ async function shape(engine: FlowEngine, result: RunResult): Promise<Record<stri
         .where((c) => c.workItemId.in(ids))
         .toList()
     : [];
-  const definitionNodes = new Map<string, string>();
   return {
     instance: {
       ...result.instance,
-      current: result.instance.current.map((node) => ({
-        node,
-        name: definitionNodes.get(node) ?? null,
-      })),
       parentInstanceId: null,
     },
     workItems: rows.map((row) => {
@@ -308,6 +414,11 @@ async function shape(engine: FlowEngine, result: RunResult): Promise<Record<stri
     events: result.events.map((event) => ({ ...event, actorId: event.actor })),
     instanceId: result.instance.id,
   };
+}
+
+/** 待办行 → 场景里的字段名 */
+function javaItem(row: Record<string, any>) {
+  return { ...row, assigneeId: row['assignee'] };
 }
 
 /** 参数里的引用：`$start.workItems[0]`、`$start.instance`、`$.`（上一步） */
@@ -341,6 +452,7 @@ function readPath(base: unknown, path: string): unknown {
  * 期望是文字、实际是事件时比事件的种类；显示用的名字（userName、…Name）这一版的引擎不存，不比
  */
 function compare(expected: unknown, actual: unknown, where: string): void {
+  if (actual instanceof Date) actual = actual.toISOString().replace('.000Z', 'Z');
   if (typeof expected === 'string' && actual && typeof actual === 'object' && 'type' in actual) {
     assert.equal((actual as { type: string }).type, expected, where);
     return;
@@ -367,7 +479,7 @@ function compare(expected: unknown, actual: unknown, where: string): void {
       `${where}：期望对象，实际 ${JSON.stringify(actual)}`,
     );
     for (const [key, value] of Object.entries(expected as Record<string, unknown>)) {
-      if (key.endsWith('Name')) continue;
+      if (/Names?$/.test(key)) continue;
       compare(value, (actual as Record<string, unknown>)[key], `${where}.${key}`);
     }
     return;

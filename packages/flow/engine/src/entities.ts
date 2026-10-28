@@ -129,8 +129,12 @@ export const FlowJob = entity('flow_job', {
 export const FlowCc = entity('flow_cc', {
   id: col.bigint().primaryKey().generated(),
   instanceId: col.bigint(),
-  node: col.string(100),
+  /** 抄送节点；手动抄送时为空 */
+  node: col.string(100).nullable(),
   recipient: col.string(64),
+  /** 谁抄送的；抄送节点时为空 */
+  sender: col.string(64).nullable(),
+  message: col.string(500).nullable(),
   at: col.datetime(),
   readAt: col.datetime().nullable(),
 });
@@ -143,6 +147,7 @@ export const flowSchema = defineSchema(
       candidates: r.many('FlowCandidate', { from: 'id', to: 'workItemId' }),
       instance: r.one('FlowInstance', { from: 'instanceId', to: 'id' }),
     }),
+    FlowCc: (r) => ({ instance: r.one('FlowInstance', { from: 'instanceId', to: 'id' }) }),
   },
 );
 

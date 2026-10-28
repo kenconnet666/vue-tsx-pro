@@ -12,6 +12,7 @@ import {
   type ProcessEdge,
   type ProcessGraph,
   type ProcessNode,
+  type CallNode,
   type TaskNode,
 } from '@zerodep-dev/flow-ts-model';
 import type { Row } from '@zerodep-dev/easy-query-ts';
@@ -77,6 +78,8 @@ export class Execution {
   private steps = 0;
   /** 刚处理完上一步的人（自动跳过的“与上一步相同”） */
   lastHandler: string | null = null;
+  /** 调用流程：引擎在同一个事务里发起子实例（engine.ts 设置） */
+  startChild: ((exec: Execution, node: CallNode) => Promise<void>) | undefined;
 
   readonly tx: FlowDb;
   readonly options: FlowEngineOptions;
@@ -254,13 +257,29 @@ export class Execution {
       case 'service':
         return this.runService(nodeId);
       case 'cc':
-        await this.sendCc(nodeId, node.to);
+        await this.sendCc(nodeId, node.to, node.message);
         return this.leave(nodeId);
       case 'timer':
         return this.waitTimer(nodeId);
-      case 'receive':
+      case 'call':
+        if (!this.startChild) throw new FlowError('invalid-definition', '没有发起子流程的引擎');
+        return this.startChild(this, node);
+      case 'receive': {
+        // 等外部事件；写了时限时排一个等超时的作业
         this.current.add(nodeId);
+        const round = this.bumpRound(nodeId);
+        if (node.due) {
+          await this.schedule(
+            'receiveTimeout',
+            dueAt(node.due, this.now, this.read, this.options),
+            {
+              node: nodeId,
+              round,
+            },
+          );
+        }
         return;
+      }
       default:
         throw new FlowError('invalid-definition', `这一版不支持 ${node.type} 节点`, {
           node: nodeId,
@@ -413,7 +432,7 @@ export class Execution {
       signGroup: fields.signGroup ?? null,
       signSeq: fields.signSeq ?? null,
       createdAt: this.now,
-      dueAt: null,
+      dueAt: node.due ? dueAt(node.due, this.now, this.read, this.options) : null,
       completedAt: null,
       completedBy: null,
       outcome: null,
@@ -428,11 +447,40 @@ export class Execution {
       node: node.id,
       data: { assignee: row.assignee },
     });
+    await this.scheduleDeadlines(node, row);
     return row;
   }
 
+  /**
+   * 待办的时限与提醒：到期时记超时并按 overdue 处理；before 的提醒在到期前，every 的在到期后每隔一段、最多 times 次；
+   * 进收件箱后 unclaimed.after 还没人认领时提醒。作业执行时待办已不开着（或已认领）就什么也不做
+   */
+  private async scheduleDeadlines(node: TaskNode, item: WorkItemRow): Promise<void> {
+    const at = { node: node.id, round: item.round, workItemId: item.id };
+    if (item.dueAt) {
+      const due = item.dueAt.getTime();
+      await this.schedule('overdue', item.dueAt, at);
+      for (const reminder of node.reminders ?? []) {
+        if ('before' in reminder) {
+          const when = due - durationMs(reminder.before);
+          if (when > this.now.getTime())
+            await this.schedule('remind', new Date(when), { ...at, reason: 'dueSoon' });
+        } else {
+          const step = durationMs(reminder.every);
+          for (let n = 1; n <= (reminder.times ?? 1); n++) {
+            await this.schedule('remind', new Date(due + n * step), { ...at, reason: 'overdue' });
+          }
+        }
+      }
+    }
+    if (node.unclaimed && item.assignment === 'pool') {
+      const when = new Date(this.now.getTime() + durationMs(node.unclaimed.after));
+      await this.schedule('unclaimed', when, { ...at, action: node.unclaimed.action });
+    }
+  }
+
   /** 退回跳出并行区域：取消区域里还开着的待办，清掉汇合计数 */
-  private async leaveRegions(from: string, to: string): Promise<void> {
+  async leaveRegions(from: string, to: string): Promise<void> {
     const pairs = gatewayPairs(this.definition);
     for (const fork of pairs.forksAround(from)) {
       const region = pairs.region(fork);
@@ -497,8 +545,12 @@ export class Execution {
     return round;
   }
 
-  /** 抄送：展开成人，每人一条 */
-  async sendCc(nodeId: string, sources: Parameters<typeof resolveCandidates>[0]): Promise<void> {
+  /** 抄送：展开成人，每人一条；手动抄送时节点为空 */
+  async sendCc(
+    nodeId: string | null,
+    sources: Parameters<typeof resolveCandidates>[0],
+    message?: string,
+  ): Promise<void> {
     const scope = {
       context: this.context(),
       handledBy: this.state.handledBy,
@@ -513,12 +565,18 @@ export class Execution {
           instanceId: this.instance.id,
           node: nodeId,
           recipient,
+          sender: nodeId === null ? (this.actor?.id ?? null) : null,
+          message: message ?? null,
           at: this.now,
           readAt: null,
         })),
       )
       .execute();
-    this.addEvent('cc.sent', { node: nodeId, data: { to: users } });
+    this.addEvent('instance.cc', {
+      node: nodeId,
+      comment: message ?? null,
+      data: { to: users },
+    });
   }
 
   /** 排一个作业（和命令同一事务） */
@@ -633,7 +691,10 @@ export class Execution {
         status: this.status,
         result: this.result,
         title,
-        current: [...this.current],
+        current: [...this.current].map((node) => ({
+          node,
+          name: this.graph.node(node)?.name ?? node,
+        })),
         variables: { ...this.variables },
       },
       events: [...this.events],
@@ -660,6 +721,14 @@ function renderTitle(
     const value = read(field.trim());
     return value === undefined || value === null ? '' : String(value as string | number);
   });
+}
+
+/** 一段时长的毫秒数（工作日按自然日算，只用于提醒的间隔） */
+function durationMs(duration: import('@zerodep-dev/flow-ts-model').Duration): number {
+  if ('minutes' in duration) return duration.minutes * 60_000;
+  if ('hours' in duration) return duration.hours * 3_600_000;
+  if ('days' in duration) return duration.days * 86_400_000;
+  return duration.workdays * 86_400_000;
 }
 
 /** 时长或时刻 → 到点的时刻（工作日跳过非工作日） */

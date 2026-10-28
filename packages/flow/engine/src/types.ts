@@ -105,6 +105,21 @@ export interface FlowEngineOptions {
   readonly clock?: () => Date;
   /** 工作日：默认周一到周五 */
   readonly isWorkday?: (day: Date) => boolean;
+  /**
+   * 命令拦截：before 在执行前，可以返回改过的命令，抛错就不执行（权限、审计、改参数）；
+   * after 在命令做完、提交之前，抛错时整个命令回滚
+   */
+  readonly intercept?: {
+    readonly before?: (
+      command: FlowCommand,
+      actor: Actor,
+    ) => FlowCommand | void | Promise<FlowCommand | void>;
+    readonly after?: (
+      command: FlowCommand,
+      result: RunResult,
+      actor: Actor,
+    ) => void | Promise<void>;
+  };
 }
 
 /** 命令：一个入口 engine.run(command, actor) */
@@ -144,15 +159,34 @@ export type FlowCommand =
       readonly comment?: string;
       readonly result?: string;
     }
-  /** 外部事件：送到等这个事件的实例（按实例或业务编号找） */
+  /** 管理员暂停、恢复：暂停期间不能认领、处理，作业往后推 */
+  | { readonly type: 'suspend'; readonly instance: number; readonly comment?: string }
+  | { readonly type: 'resume'; readonly instance: number }
+  /** 催办：发起人或管理员催还开着的待办（不写 workItem 时催实例上全部） */
   | {
-      readonly type: 'signal';
-      readonly event: string;
-      readonly instance?: number;
-      readonly businessKey?: string;
-      readonly outcome?: string;
-      readonly data?: Readonly<Record<string, unknown>>;
+      readonly type: 'remind';
+      readonly instance: number;
+      readonly workItem?: number;
+      readonly message?: string;
+    }
+  /** 留言：记进流转记录 */
+  | { readonly type: 'comment'; readonly instance: number; readonly text: string }
+  /** 手动抄送 */
+  | {
+      readonly type: 'cc';
+      readonly instance: number;
+      readonly users: readonly string[];
+      readonly message?: string;
     };
+
+/** 外部事件（engine.signal）：送到等这个事件的实例，按实例或业务编号找 */
+export interface SignalInput {
+  readonly event: string;
+  readonly instance?: number;
+  readonly businessKey?: string;
+  readonly outcome?: string;
+  readonly data?: Readonly<Record<string, unknown>>;
+}
 
 /** 实例的概要 */
 export interface InstanceSummary {
@@ -162,7 +196,8 @@ export interface InstanceSummary {
   readonly status: 'active' | 'suspended' | 'completed' | 'terminated' | 'withdrawn';
   readonly result: string | null;
   readonly title: string | null;
-  readonly current: readonly string[];
+  /** 正在处理的节点与名称 */
+  readonly current: readonly { readonly node: string; readonly name: string }[];
   readonly variables: Readonly<Record<string, unknown>>;
 }
 

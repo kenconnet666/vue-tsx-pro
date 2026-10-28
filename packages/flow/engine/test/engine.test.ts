@@ -43,7 +43,10 @@ describe('engine: purchase', () => {
       alice,
     );
     assert.equal(started.instance.title, '采购申请：办公椅');
-    assert.deepEqual(started.instance.current, ['review']);
+    assert.deepEqual(
+      started.instance.current.map((c) => c.node),
+      ['review'],
+    );
     const [review] = started.workItems;
     assert.equal(review?.assignment, 'pool');
     assert.deepEqual(
@@ -207,6 +210,46 @@ describe('engine: gateways and countersign', () => {
       );
       assert.ok(started.workItems.length > 0, `${key} 建了会签待办`);
     }
+  });
+});
+
+describe('engine: call', () => {
+  it('同步调用流程：父实例等子实例结束，收 output，按子实例的结果往下走；父实例终止时子实例一起终止', async () => {
+    const { engine } = await engineWith(['quote', 'sourcing-check']);
+    const quoter: Actor = { id: '1003' };
+    const parent = await engine.run(
+      { type: 'start', process: 'sourcing-check', variables: { title: '钢材' } },
+      alice,
+    );
+    assert.deepEqual(
+      parent.instance.current.map((c) => c.node),
+      ['quote'],
+    );
+    const [fill] = await engine.query.todo(quoter);
+    assert.equal(fill?.processKey, 'quote');
+    const childDetail = await engine.query.instance(fill!.instanceId);
+    assert.equal(childDetail.instance.parentId, parent.instance.id);
+    assert.equal(childDetail.instance.variables['title'], '钢材');
+
+    await engine.run(
+      { type: 'complete', workItem: fill!.id, outcome: 'done', variables: { amount: '120.00' } },
+      quoter,
+    );
+    const after = await engine.query.instance(parent.instance.id);
+    assert.equal(after.instance.status, 'completed');
+    assert.equal(after.instance.variables['childAmount'], '120.00');
+    assert.ok(after.events.some((e) => e.type === 'call.finished'));
+
+    const second = await engine.run(
+      { type: 'start', process: 'sourcing-check', variables: { title: '木材' } },
+      alice,
+    );
+    await engine.run({ type: 'terminate', instance: second.instance.id }, admin);
+    const [child] = (await engine.query.started(alice)).filter(
+      (i) => i.parentId === second.instance.id,
+    );
+    assert.equal(child?.status, 'terminated');
+    assert.deepEqual(await engine.query.todo(quoter), []);
   });
 });
 

@@ -390,8 +390,13 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 14.2 模型包 `packages/flow/model`（两端通用）：以 `flow` 的 TS 模型包为起点，去掉为对齐 Java 才有的部分；`spec/` 里的纯函数用例（条件、选边、值、权限、差异、清单、定义）全过
 - [x] 14.3 easy-query 补引擎要用的能力，各带文档与测试：`tx.afterCommit` / `afterRollback`、锁住聚合根（按方言选写法）、受影响行数断言
       （`tx.lock(实体, 主键)`：FOR UPDATE，SQLite 用写回主键的 UPDATE；`expectRows`；文档在 easy-query 的 docs/features/ts-runtime.md）
-- [ ] 14.4 引擎核心 `packages/flow/engine`：命令联合加一个 `run`、推进、各种节点、作业（抢占与重试）；SQLite 内存库的测试
-- [ ] 14.5 场景：`spec/scenarios` 的 37 个场景写适配器按新接口跑，删减的写明原因
+- [x] 14.4 引擎核心 `packages/flow/engine`：命令联合加一个 `run`、推进、各种节点、作业（抢占与重试）；SQLite 内存库的测试
+      （`createFlowEngine`：发布、发起、认领、处理、转办、撤回、终止、暂停恢复、催办、留言、抄送、外部事件（`engine.signal`）、命令拦截；
+      网关、会签（全部、任一、比例、依次）、退回与重新提交、时限与提醒、定时、同步与异步的自动节点、同步调用流程；查询待办、已办、我发起的、抄送、实例与待办详情）
+- [ ] 14.4a 第一版还差的常用命令：加签、管理员改派与跳转、失败作业的列表、重试与跳过（场景 incidents、purchase-collaboration、batch-reassign-change）
+- [x] 14.5 场景：`spec/scenarios` 的 37 个场景写适配器按新接口跑，删减的写明原因
+      （`packages/flow/engine/test/scenarios.test.ts`：37 个场景里 18 个整个跑通、会签跑到票签之前；其余列出缺的命令或不做的原因：
+      表单（清单校验、草稿、发起页）在 14.8，自定义节点、票签、调用流程的 forEach 与异步、撤回这一步、指定承办人是边角）
 - [ ] 14.6 模拟器 `simulate(process, steps)` 与 `createTestEngine()`（内存库、假时钟），设计器的试运行与单测共用
 - [ ] 14.7 接 Nitro：命令作为 action、作业用 Nitro 的定时任务、当前用户与权限
 - [ ] 14.8 界面 `packages/flow/ui`：流程图、设计器（定义 ↔ 代码来回编辑、节点逻辑写 TS、试运行）、审批面板、表单（先做 flow-demo 用到的）
