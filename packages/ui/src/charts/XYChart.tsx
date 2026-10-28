@@ -29,7 +29,8 @@ import {
 } from '@unovis/ts';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { render, useId, type VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
+import { useDetachedRender } from '../overlay/detached';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { colors } from '../config/theme/tokens';
@@ -380,6 +381,8 @@ export const XYChart = _component(
 
     const instances = createChartInstances();
     let tooltipElement: HTMLElement | undefined;
+    // 提示框的内容渲染进 Unovis 管的元素：带上调用处的主题与语言，组件卸载时一起卸载
+    const renderDetached = useDetachedRender();
 
     // 指针所在的那一行：十字线移动时记下，点绘图区时下钻到它；离开绘图区时清掉
     let hovered: { row: T; index: number } | null = null;
@@ -392,7 +395,7 @@ export const XYChart = _component(
       tooltipElement ??= document.createElement('div');
       // 跟着数据点的提示框（散点图）没有十字线：悬停哪个点就是哪一行
       if (kind.pointTooltip) hover(row);
-      render(
+      renderDetached(
         chartTooltip(
           categoryText(row),
           kind.tooltipItems?.(row) ?? [
@@ -427,7 +430,6 @@ export const XYChart = _component(
     let containerElement: HTMLElement | undefined;
     _effect(() => () => {
       container?.destroy();
-      if (tooltipElement) render(null, tooltipElement);
     });
     _effect(() => {
       // 缩放：只画选中的一段（散点图的横轴是连续的数值，不按类目缩放）

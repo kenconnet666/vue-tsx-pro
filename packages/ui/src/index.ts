@@ -610,6 +610,7 @@ export { Tour, tourDynamicStyles, tourStyles, type TourProps, type TourStep } fr
 export {
   useDetachedDialog,
   useDetachedOverlay,
+  useDetachedRender,
   type DetachedDialogHost,
   type DetachedOverlayHandle,
   type DetachedOverlayOptions,

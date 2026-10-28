@@ -9,6 +9,7 @@ import { types as t, type PluginObject } from '@babel/core';
 
 const RUNTIME_MODULE = '@zerodep-dev/vue-tsx-pro-tsx';
 
+/** Babel 插件：把 Vue JSX 生成的 mergeProps 导入换成本包的 mergeJsxProps（放在 Vue JSX 插件之后） */
 export function mergePropsPlugin(): PluginObject {
   return {
     name: 'vue-tsx-pro-merge-props',

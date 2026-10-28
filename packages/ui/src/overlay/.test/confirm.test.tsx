@@ -1,6 +1,6 @@
 // useConfirm 的理由：对话框里多一个输入框，必填没填时提示、不关闭；确认得到理由，取消得到 null
 import { describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick } from 'vue';
+import { defineComponent, h, nextTick, ref } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { useConfirm, type Confirm } from '../AlertDialog';
 
@@ -67,5 +67,27 @@ describe('useConfirm 的理由', () => {
     button('取消').click();
     await flush();
     expect(await plain).toBe(false);
+  });
+});
+
+describe('调用的组件卸载', () => {
+  it('开着的确认框跟着关上，等着结果的 confirm() 也拿到结果', async () => {
+    let confirm!: Confirm;
+    const shown = ref(true);
+    const Caller = defineComponent({
+      setup() {
+        confirm = useConfirm();
+        return () => null;
+      },
+    });
+    mount(() => (shown.value ? h(Caller) : null));
+    const result = confirm({ title: '删除这条记录？' });
+    await flush();
+    expect(document.querySelector('dialog[role="alertdialog"]')).not.toBeNull();
+    shown.value = false;
+    await flush();
+    await expect(result).resolves.toBe(false);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(document.querySelector('dialog[role="alertdialog"]')).toBeNull();
   });
 });

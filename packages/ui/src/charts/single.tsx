@@ -9,7 +9,8 @@
  *   }));
  */
 import { SingleContainer, Tooltip, type ComponentCore } from '@unovis/ts';
-import { render, useId, type VNode } from 'vue';
+import { useId, type VNode } from 'vue';
+import { useDetachedRender } from '../overlay/detached';
 import { chartDuration, createChartInstances, uniqueHighlightFilter, usePlotSeen } from './frame';
 
 /** 一次绘制要的东西 */
@@ -47,13 +48,14 @@ export function useSingleChart<D>(read: () => SingleChartState<D>): SingleChart 
   const id = useId();
   const instances = createChartInstances();
   let tooltipElement: HTMLElement | undefined;
+  // 提示框的内容渲染进 Unovis 管的元素：带上调用处的主题与语言，组件卸载时一起卸载
+  const renderDetached = useDetachedRender();
   let container: SingleContainer<D> | undefined;
   let containerElement: HTMLElement | undefined;
   const seen = usePlotSeen(() => read().element);
 
   _effect(() => () => {
     container?.destroy();
-    if (tooltipElement) render(null, tooltipElement);
   });
   _effect(() => {
     const { element, ready, tooltip, build } = read();
@@ -85,7 +87,7 @@ export function useSingleChart<D>(read: () => SingleChartState<D>): SingleChart 
   return {
     tooltip(content) {
       tooltipElement ??= document.createElement('div');
-      render(content, tooltipElement);
+      renderDetached(content, tooltipElement);
       return tooltipElement;
     },
   };

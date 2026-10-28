@@ -27,7 +27,8 @@ import {
 } from '@unovis/ts';
 import { getLocalTimeZone } from '@internationalized/date';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { render, useId, type VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
+import { useDetachedRender } from '../overlay/detached';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
@@ -221,13 +222,14 @@ export const TimelineChart = _component(
 
     const instances = createChartInstances();
     let tooltipElement: HTMLElement | undefined;
+    // 提示框的内容渲染进 Unovis 管的元素：带上调用处的主题与语言，组件卸载时一起卸载
+    const renderDetached = useDetachedRender();
     let plot = _state.raw<HTMLElement | null>(null);
     const seen = usePlotSeen(() => plot);
     let container: XYContainer<Segment> | undefined;
     let containerElement: HTMLElement | undefined;
     _effect(() => () => {
       container?.destroy();
-      if (tooltipElement) render(null, tooltipElement);
     });
     _effect(() => {
       const data = segments();
@@ -290,7 +292,7 @@ export const TimelineChart = _component(
           [Timeline.selectors.line]: (segment: Segment) => {
             tooltipElement ??= document.createElement('div');
             const name = series.find((entry) => entry.key === segment.item.series)?.label;
-            render(
+            renderDetached(
               chartTooltip(segment.item.label ?? segment.item.row, [
                 ...(name ? [{ label: name, color: segment.color, value: daysText(segment) }] : []),
                 { label: lang.chartStart, color: 'transparent', value: dateText(segment.start) },

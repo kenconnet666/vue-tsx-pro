@@ -1,15 +1,29 @@
 /**
- * 命令式的对话框（useConfirm、useFormDialog、useDialog、useDrawer）共用的挂载：对话框渲染到 body 末尾、组件树之外，
- * 沿用调用处的配置（主题、语言、默认值，经 ConfigScope）与应用上下文（全局组件）；关上后等离场过渡播完再卸载。
+ * 渲染到组件树之外：沿用调用处的配置（主题、语言、默认值，经 ConfigScope）与应用上下文（全局组件），
+ * 生命周期跟着调用的组件——它卸载时一起收掉，不留孤儿。
  *
- *   const mount = useDetachedDialog();          // setup 里
+ *   const renderDetached = useDetachedRender();   // setup 里；第三方库管的元素（图表的提示框）
+ *   renderDetached(<Tip />, element);             // 再调一次换内容，传 null 卸载；组件卸载时自动卸载
+ *
+ *   const mount = useDetachedDialog();            // setup 里；命令式的对话框（useConfirm、useFormDialog）
  *   mount((host) => <Dialog _open={host.open} onClose={host.closed}>…</Dialog>);
  *
- * useDetachedOverlay 在它上面加一层句柄（close、update、closed），useDialog、useDrawer 用它。
+ * 对话框渲染到 body 末尾，关上后等离场过渡播完再卸载；调用的组件卸载时（例如切换了路由）把开着的对话框关上，
+ * 照常走关闭的流程，等着结果的 `await confirm()` 也拿到结果。
+ * useDetachedOverlay 在 useDetachedDialog 上面加一层句柄（close、update、closed），useDialog、useDrawer 用它。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { getCurrentInstance, h, render, shallowRef, type VNodeChild } from 'vue';
-import { ConfigContext, useConfig } from '../config/context';
+import {
+  getCurrentInstance,
+  getCurrentScope,
+  h,
+  onScopeDispose,
+  render,
+  shallowRef,
+  type AppContext,
+  type VNodeChild,
+} from 'vue';
+import { ConfigContext, useConfig, type UiConfig } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import type { OpenChangeProps, OpenChangeReasons } from '../utils/dom/open-change';
 import { afterTransitions } from '../utils/style/transitions';
@@ -22,45 +36,83 @@ export interface DetachedDialogHost {
   closed: () => void;
 }
 
+/** 组件树之外的根：提供调用处的配置，内容包在 ConfigScope 里（主题变量、语言） */
+const DetachedRoot = _component(
+  ({ config, content }: { config: UiConfig; content: () => VNodeChild }) => {
+    ConfigContext.provide(config);
+    return () => <ConfigScope>{content()}</ConfigScope>;
+  },
+);
+
+/** 调用处的配置与应用上下文（在 setup 里取），交给组件树之外的根 */
+function captureContext() {
+  return { config: useConfig(), appContext: getCurrentInstance()?.appContext ?? null };
+}
+
+function renderInto(
+  container: Element,
+  { config, appContext }: { config: UiConfig; appContext: AppContext | null },
+  content: () => VNodeChild,
+) {
+  const vnode = h(DetachedRoot, { config, content });
+  vnode.appContext = appContext;
+  render(vnode, container);
+}
+
+/** 在 setup 里调用，返回 renderDetached(content, container)：渲染到组件树之外的元素里，调用的组件卸载时一起卸载 */
+export function useDetachedRender(): (content: VNodeChild | null, container: Element) => void {
+  const context = captureContext();
+  const containers = new Set<Element>();
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      for (const container of containers) render(null, container);
+      containers.clear();
+    });
+  }
+  return (content, container) => {
+    if (content == null) {
+      containers.delete(container);
+      render(null, container);
+      return;
+    }
+    containers.add(container);
+    renderInto(container, context, () => content);
+  };
+}
+
 /** 在 setup 里调用，返回 mount(content)：把对话框渲染到组件树之外 */
 export function useDetachedDialog(): (content: (host: DetachedDialogHost) => VNodeChild) => void {
-  // 在 setup 里记下配置与应用上下文：对话框挂在组件树之外，要靠它们拿到主题、语言、全局组件
-  const config = useConfig();
-  const appContext = getCurrentInstance()?.appContext ?? null;
+  const context = captureContext();
+  /** 开着的对话框：调用的组件卸载时关上 */
+  const live = new Set<DetachedDialogHost>();
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      for (const host of live) host.open = false;
+    });
+  }
 
   return (content) => {
     const container = document.createElement('div');
     document.body.append(container);
-
-    function unmount() {
-      const dialog = container.querySelector('dialog');
-      void (dialog ? afterTransitions(dialog) : Promise.resolve()).then(() => {
-        render(null, container);
-        container.remove();
-      });
-    }
-
-    const Host = _component(
-      () => {
-        ConfigContext.provide(config);
-        let open = _state(true);
-        const host: DetachedDialogHost = {
-          get open() {
-            return open;
-          },
-          set open(value) {
-            open = value;
-          },
-          closed: unmount,
-        };
-        return () => <ConfigScope>{content(host)}</ConfigScope>;
+    const open = shallowRef(true);
+    const host: DetachedDialogHost = {
+      get open() {
+        return open.value;
       },
-      { name: 'DetachedDialog' },
-    );
-
-    const vnode = h(Host);
-    vnode.appContext = appContext;
-    render(vnode, container);
+      set open(value) {
+        open.value = value;
+      },
+      closed() {
+        live.delete(host);
+        const dialog = container.querySelector('dialog');
+        void (dialog ? afterTransitions(dialog) : Promise.resolve()).then(() => {
+          render(null, container);
+          container.remove();
+        });
+      },
+    };
+    live.add(host);
+    renderInto(container, context, () => content(host));
   };
 }
 
