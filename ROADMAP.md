@@ -320,14 +320,14 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 做法同"ORM 在真实项目里长"：先出对照表，再按流程引擎、示例应用用得到的先做；和阶段 12、13、14 交替推进，不必一口气做完。
 完成标准：对照表里标"要做"的都打钩，每项带 SQLite 用例与 MySQL 8.0.18 / PG 实库用例，文档站 ORM 分区有对应的页。
 
-- [ ] 11b.1 对照表 `packages/easy-query/docs/parity.md`：逐项列 Java 版的能力（查询、条件、排序与分页、聚合与分组、子查询、导航与 include、
-      DTO / VO 映射、对象树、写入与级联、拦截与逻辑删除、方言函数……），每项标 TS 版"已有 / 写法不同 / 缺 / 不做（为什么）"；
-      依据是 Java 版源码与 `sql-test` 用例，以及 `flow`（Java）里真实用到的写法（`selectAutoInclude` 映射待办与抄送的对象树、VO 读取）
-- [ ] 11b.2 DTO 导航：按结果类型的结构自动带出导航（对应 `selectAutoInclude`），类型由 TS 推出，不写额外的映射代码
-- [ ] 11b.3 VO 映射：可复用、可嵌套的投影（在已有的 `defineView` 上补齐与 Java 版对应的写法：重命名、计算列、忽略、嵌套导航）
-- [ ] 11b.4 对象树：多层一对多 / 多对一的 include 拼成对象树，自关联的树（部门、分类）按层级取出；对象树的 VO（树上每一层都是投影）
-- [ ] 11b.5 便捷操作：对照表里标"缺"的常用操作（例如分页结果、按对象条件过滤、动态排序、存在判断、批量的便捷写法），按使用频率排序补
-- [ ] 11b.6 文档站 ORM 分区按对照表补页：每个能力一页，写清与 Java 版的对应关系
+- [x] 11b.1 对照表 [packages/easy-query/docs/parity.md](packages/easy-query/docs/parity.md)：Java 版的方法清单（EntityQueryable、ClientQueryable）逐项对 TS 版。
+      结论：DTO 导航（selectAutoInclude）、VO 映射、对象树、对象树的 VO 在 TS 里都已有，写法是 `defineView` 与嵌套的 `toList`（不用 DTO 类与注解）；缺的是下面几项
+- [ ] 11b.2 按主键查与查不到就抛错：`find(id)`（含复合主键）、`firstOrThrow(message)` / `singleOrThrow`
+- [ ] 11b.3 列表页的动态筛选与排序（对应 `whereObject` / `orderByObject`）：对接组件库 `useTableQuery` 的筛选与 `-amount,name` 排序参数，只放行声明过的列
+- [ ] 11b.4 自关联的树：`toTreeList`（按父子列把行拼成树，节点是视图的形状）、从某个节点取全部下级 / 全部上级（递归 CTE 的便捷写法）
+- [ ] 11b.5 导航上的固定条件（对应 `extraFilter`）：定义关系时声明，查询处不用再写
+- [ ] 11b.6 文档站 ORM 分区：每个能力一页，写清与 Java 版的对应（DTO 导航、VO、对象树、对象树的 VO 各有一页示例）；`packages/easy-query/docs/features/` 的暂存页改写进来后删掉
+- [ ] 11b.7 按需再补（真实页面用到时）：`subQueryToGroupJoin`、`fillOne` / `fillMany`、`rightJoin` / `crossJoin`、`asSchema`；事务提交后的回调与 14.3 合并做
 
 ## 阶段 12：组件库支持服务端渲染
 
