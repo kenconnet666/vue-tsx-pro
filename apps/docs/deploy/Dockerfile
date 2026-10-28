@@ -22,7 +22,10 @@ RUN pnpm --filter @vue-tsx-pro/docs build
 
 FROM ${IMAGE_REGISTRY}/nginx:1.27-alpine
 COPY apps/docs/deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY apps/docs/deploy/site.conf /etc/nginx/docs-site.conf
+# 挂进了证书时再开 443（见 tls.sh）
+COPY --chmod=755 apps/docs/deploy/tls.sh /docker-entrypoint.d/40-docs-tls.sh
 COPY --from=build /repo/apps/docs/dist /usr/share/nginx/html
-EXPOSE 80
+EXPOSE 80 443
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
   CMD wget -q -O /dev/null http://127.0.0.1/healthz || exit 1

@@ -2,13 +2,15 @@
 
 文档站是纯静态页面（路由用 history 模式），镜像里由 nginx 提供，没有后端。
 
-| 文件                      | 作用                                                                                                                   |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `Dockerfile`              | 两阶段构建：node 里构建静态页面，nginx 提供。构建上下文是仓库根目录                                                    |
-| `Dockerfile.dockerignore` | 构建上下文里排除 `node_modules`、`dist` 等                                                                             |
-| `nginx.conf`              | `/assets/` 长期缓存；入口页不缓存；没有对应文件的地址回到 `index.html`（`/frame/...` 等路由靠它）；`/healthz` 健康检查 |
-| `deploy.sh`               | `build` 构建、`pack` 打包成可上传的文件夹、`run` 本机试跑                                                              |
-| `compose.yaml`            | 服务器上运行用（`pack` 会固定镜像标签后放进上传文件夹）                                                                |
+| 文件                      | 作用                                                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Dockerfile`              | 两阶段构建：node 里构建静态页面，nginx 提供。构建上下文是仓库根目录                                                                              |
+| `Dockerfile.dockerignore` | 构建上下文里排除 `node_modules`、`dist` 等                                                                                                       |
+| `nginx.conf`              | 80 端口的 server：容器里的健康检查、本机试跑、前面有反向代理时用                                                                                 |
+| `site.conf`               | 站点本身（80、443 共用）：`/assets/` 长期缓存；入口页不缓存；没有对应文件的地址回到 `index.html`（`/frame/...` 等路由靠它）；`/healthz` 健康检查 |
+| `tls.sh`                  | 容器启动时执行：挂进了证书就生成 443 的 server（用 http 访问这个端口时转到 https），没挂就只开 80                                                |
+| `deploy.sh`               | `build` 构建、`pack` 打包成可上传的文件夹、`run` 本机试跑                                                                                        |
+| `compose.yaml`            | 服务器上运行用（`pack` 会固定镜像标签后放进上传文件夹）                                                                                          |
 
 ## 在本机（WSL）构建并打包
 
@@ -52,14 +54,8 @@ wsl -d Debian --exec bash -c "cd /mnt/c/Users/Administrator/IdeaProjects/vue-tsx
    docker load -i image.tar.gz && docker compose up -d
    ```
 
-3. 验证：`curl -i http://localhost:8080/healthz` 返回 200 `ok`；`docker compose ps` 显示 healthy。
+3. 验证：`docker compose ps` 显示 healthy；`docker compose logs docs | grep docs-tls` 是"有证书，开 443"；浏览器打开 `https://<域名>:8443`。
 
-端口发布在 `0.0.0.0:8080`，容器内存限制 64MB，要改就改 `compose.yaml`。前面有域名或 HTTPS 的话，由前面的网关或反向代理转到 8080。
+对外只开 HTTPS：端口 `8443`，证书从 `/root/cert/america.zerodep.dpdns.org/` 读 `fullchain.pem`、`privkey.pem`（与流程引擎的示例站点共用同一张证书，示例站点占着 443）。要改的话在上传的目录里建 `.env`：`DOCS_HTTPS_PORT=8443`、`DOCS_CERT_DIR=/root/cert/<域名>`。容器内存限制 64MB。换了证书后 `docker compose restart`。
 
 更新：重新 `build`、`pack`，上传覆盖，再执行同样的命令（`docker compose up -d` 会用新镜像重建容器）。
-
-回滚：把 `compose.yaml` 里的 `image` 改成旧标签（服务器上 `docker images` 可看到之前加载过的标签），再 `docker compose up -d`。
-
-## 站点放在子路径下
-
-默认站点在根路径 `/`。放在 `https://域名/docs/` 这类子路径时，构建要带 Vite 的 `base`（`vite build --base /docs/`），`nginx.conf` 里的路径也要对应调整，现在没有这个需求，所以没做。

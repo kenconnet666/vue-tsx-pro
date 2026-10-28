@@ -1,10 +1,14 @@
 # 文档站；部署步骤见同目录的 README.txt
+# 对外只开 HTTPS：证书目录（fullchain.pem、privkey.pem）挂进来，容器里的 nginx 就开 443（见 tls.sh）。
+# 端口与证书目录可在同目录的 .env 里改：DOCS_HTTPS_PORT、DOCS_CERT_DIR。
 services:
   docs:
     image: vue-tsx-pro-docs:latest
     container_name: vue-tsx-pro-docs
     restart: unless-stopped
     ports:
-      - '19080:80'
+      - '${DOCS_HTTPS_PORT:-8443}:443'
+    volumes:
+      - ${DOCS_CERT_DIR:-/root/cert/america.zerodep.dpdns.org}:/etc/nginx/certs:ro
     mem_limit: 64m
     memswap_limit: 64m

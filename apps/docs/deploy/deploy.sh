@@ -46,13 +46,17 @@ case "${1:-}" in
 部署（在这个目录里执行）：
   docker load -i image.tar.gz && docker compose up -d
 
+对外是 HTTPS 的 8443 端口，证书从 /root/cert/america.zerodep.dpdns.org/ 读 fullchain.pem、privkey.pem。
+端口、证书目录可在这个目录的 .env 里改：DOCS_HTTPS_PORT=8443、DOCS_CERT_DIR=/root/cert/<域名>
+
 验证：
-  curl -i http://localhost:8080/healthz      返回 200 ok
   docker compose ps                          状态是 healthy
+  docker compose logs docs | grep docs-tls   应当是"有证书，开 443"
+  浏览器打开 https://<域名>:8443
 
 停止：docker compose down
 回滚：把 compose.yaml 里的 image 改成旧标签（docker images 能看到加载过的标签），再 docker compose up -d
-端口：compose.yaml 里的 8080:80，改左边的数字
+换了证书：docker compose restart
 TXT
     ls -lh "${PACK}"
     ;;
